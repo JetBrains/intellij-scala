@@ -5,7 +5,7 @@ import java.util
 import java.util.UUID
 
 import ch.epfl.scala.bsp.endpoints
-import ch.epfl.scala.bsp.schema.{BuildTargetIdentifier, CompileParams, CompileReport}
+import ch.epfl.scala.bsp.schema.{BuildTargetIdentifier, CompileParams, CompileReport, WorkspaceBuildTargetsRequest}
 import com.intellij.openapi.externalSystem.util.{ExternalSystemApiUtil => ES}
 import com.intellij.openapi.module.ModuleType
 import com.intellij.openapi.progress.{PerformInBackgroundOption, ProgressIndicator, ProgressManager, Task}
@@ -61,7 +61,7 @@ class BspProjectTaskRunner extends ProjectTaskRunner {
 object BspProjectTaskRunner {
 
   class BspTask[T](project: Project, targets: Seq[BuildTargetIdentifier])(implicit scheduler: Scheduler)
-    extends Task.Backgroundable(project, "bsp build", false, PerformInBackgroundOption.ALWAYS_BACKGROUND) {
+    extends Task.Backgroundable(project, "bsp build", true, PerformInBackgroundOption.ALWAYS_BACKGROUND) {
 
     private val taskId: UUID = UUID.randomUUID()
     private val report = new BuildToolWindowReporter(project, taskId, "bsp build")
@@ -71,7 +71,7 @@ object BspProjectTaskRunner {
       report.output(text)
     }
 
-    private def compile(implicit client: LanguageClient): eval.Task[Either[Response.Error, CompileReport]] =
+    private def compileRequest(implicit client: LanguageClient): eval.Task[Either[Response.Error, CompileReport]] =
       endpoints.BuildTarget.compile.request(CompileParams(targets))
 
     override def run(indicator: ProgressIndicator): Unit = {
@@ -82,20 +82,23 @@ object BspProjectTaskRunner {
 
       val buildTask = for {
         session <- BspCommunication.prepareSession(projectRoot)
+        _ = report.output("session prepared")
         msgs = session.messages.consumeWith(msgConsumer) // TODO cancel this on finish?
-        compiled <- session.run(compile(session.client))
+        compiled <- session.run(compileRequest(_))
       } yield {
+        report.output("data received")
         compiled
       }
 
       reportIndicator.start()
       report.start()
+      report.output("what's up?")
 
       val result = Await.result(buildTask.runAsync, Duration.Inf)
 
       result match {
-        case Left(error) =>
-          val message = error.error.message
+        case Left(errorResponse) =>
+          val message = errorResponse.error.message
           report.error(message)
           report.finishWithFailure(BuildFailureException(message))
         case Right(compileReport) =>

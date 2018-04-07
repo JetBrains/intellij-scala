@@ -25,7 +25,7 @@ class BspCommunication(project: Project) extends AbstractProjectComponent(projec
 }
 
 class BspSession(val messages: ConnectableObservable[BaseProtocolMessage],
-                 implicit val client: LanguageClient,
+                 private implicit val client: LanguageClient,
                  server: LanguageServer,
                  initializedBuildParams: InitializeBuildParams,
                  cleanup: Task[Unit]
@@ -35,7 +35,7 @@ class BspSession(val messages: ConnectableObservable[BaseProtocolMessage],
   private val logger = Logger(LoggerFactory.getLogger(classOf[BspCommunication]))
 
   /** Task starts client-server connection and connects message stream. Attach consumers to messages before running this. */
-  def run[T](task: Task[T])(implicit scheduler: Scheduler): Task[T] = {
+  def run[T](task: LanguageClient => Task[T])(implicit scheduler: Scheduler): Task[T] = {
     val connection = messages.connect()
     val runningClientServer = startClientServer
 
@@ -48,7 +48,7 @@ class BspSession(val messages: ConnectableObservable[BaseProtocolMessage],
     val resultTask = for {
       initResult <- initRequest
       _ = endpoints.Build.initialized.notify(InitializedBuildParams())
-      result <- task
+      result <- task(client)
     } yield {
       result
     }

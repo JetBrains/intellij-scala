@@ -51,14 +51,14 @@ class BspProjectResolver extends ExternalSystemProjectResolver[BspExecutionSetti
       session <- BspCommunication.prepareSession(projectRoot)
       _ = statusUpdate("session prepared")
       msgs = session.messages.consumeWith(msgConsumer) // TODO cancel this on finish?
-      targets <- session.run(targetsReq(session.client))
+      targetsResponse <- session.run(targetsReq(_))
     } yield {
 
       statusUpdate("targets fetched")
 
       // TODO handle error response
       val modules = for {
-        target <- targets.right.get.targets
+        target <- targetsResponse.right.get.targets
       } yield {
         val uri = target.id.get.uri
         val name = target.displayName
@@ -79,7 +79,6 @@ class BspProjectResolver extends ExternalSystemProjectResolver[BspExecutionSetti
       projectNode
     }
 
-    listener.onTaskOutput(id, "(starting task)", true)
     statusUpdate("starting task")
 
     val running = projectTask.runAsync
