@@ -22,13 +22,14 @@ public class ScalaCodeInsightSettings implements PersistentStateComponent<ScalaC
         return ServiceManager.getService(ScalaCodeInsightSettings.class);
     }
 
-    private boolean showFunctionReturnType = true;
-    private boolean showPropertyType = false;
-    private boolean showLocalVariableType = false;
+    //private fields are not serialized
+    public boolean showFunctionReturnType = true;
+    public boolean showPropertyType = false;
+    public boolean showLocalVariableType = false;
 
-    private int presentationLength = 50;
+    public int presentationLength = 50;
 
-    private boolean showForObviousTypes = false;
+    public boolean showForObviousTypes = false;
 
     public boolean isShowTypeHints() {
         return showFunctionReturnType ||
