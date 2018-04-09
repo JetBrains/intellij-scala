@@ -123,14 +123,14 @@ class LibraryExtensionsManager(project: Project) extends AbstractProjectComponen
     myAvailableLibraries += descriptor
     descriptor.getCurrentPluginDescriptor.foreach { currentVersion =>
       val d@IdeaVersionDescriptor(_, _, pluginId, defaultPackage, extensions) = currentVersion
+      val classLoader = UrlClassLoader.build()
+        .urls(jarFile.toURI.toURL)
+        .parent(getClass.getClassLoader)
+        .useCache()
+        .get()
+      myClassLoaders += d -> classLoader
       extensions.foreach { e =>
         val ExtensionDescriptor(interface, impl, _, _, pluginId) = e
-        val classLoader = UrlClassLoader.build()
-          .urls(jarFile.toURI.toURL)
-          .parent(getClass.getClassLoader)
-          .useCache()
-          .get()
-        myClassLoaders += d -> classLoader
         try {
           val myInterface = classLoader.loadClass(interface)
           val myImpl = classLoader.loadClass(defaultPackage + impl)
