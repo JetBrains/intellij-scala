@@ -128,7 +128,20 @@ public class ScalaLibraryPropertiesState {
             ScalaLanguageLevel getLanguageLevel() {
                 return Scala_2_12$.MODULE$;
             }
+        },
+        Scala_2_13 {
+            @Override
+            ScalaLanguageLevel getLanguageLevel() {
+                return Scala_2_13$.MODULE$;
+            }
+        },
+        Scala_2_14 {
+            @Override
+            ScalaLanguageLevel getLanguageLevel() {
+                return Scala_2_14$.MODULE$;
+            }
         };
+
 
         abstract ScalaLanguageLevel getLanguageLevel();
 
@@ -145,6 +158,10 @@ public class ScalaLibraryPropertiesState {
                 return Scala_2_11;
             } else if (languageLevel instanceof Scala_2_12$) {
                 return Scala_2_12;
+            } else if (languageLevel instanceof Scala_2_13$) {
+                return Scala_2_13;
+            } else if (languageLevel instanceof Scala_2_14$) {
+                return Scala_2_14;
             } else {
                 return null;
             }
