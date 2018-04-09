@@ -19,13 +19,15 @@ import scala.reflect.internal.pickling.PickleFormat._
 //Some parts of scala.reflect.internal.pickling.UnPickler used
 object Parser {
 
-  def parseScalaSig(bytes: Array[Byte]): ScalaSig = {
+  def parseScalaSig(bytes: Array[Byte], fileName: String): ScalaSig = {
     try {
       new Builder(bytes).readAll()
     } catch {
       case ex: IOException =>
         throw ex
       case ex: Throwable =>
+        val message = s"Error parsing scala signature of $fileName"
+        System.err.println(message)
         ex.printStackTrace()
         throw ex
     }

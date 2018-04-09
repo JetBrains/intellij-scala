@@ -37,14 +37,14 @@ object Decompiler {
     }
   }
 
-  private def parseScalaSig(entry: AnnotationEntry) = {
+  private def parseScalaSig(entry: AnnotationEntry, fileName: String) = {
     val bytesValue = entry.getElementValuePairs.find(_.getNameString == BYTES_VALUE)
     bytesValue match {
       case Some(v) =>
         val bytes = toBytes(v.getValue)
         ByteCodecs.decode(bytes)
 
-        val scalaSig = Parser.parseScalaSig(bytes)
+        val scalaSig = Parser.parseScalaSig(bytes, fileName)
         Some(scalaSig)
       case _ => None
     }
@@ -58,7 +58,7 @@ object Decompiler {
     val scalaSig =
       parsed.getAnnotationEntries
         .find(isScalaSignatureAnnotation)
-        .flatMap(parseScalaSig)
+        .flatMap(parseScalaSig(_, fileName))
 
     try {
       scalaSig.map { sig =>
