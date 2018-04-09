@@ -2,6 +2,7 @@ package org.jetbrains.bsp
 
 import java.io.File
 import java.nio.file.Files
+import java.util.concurrent.TimeUnit
 
 import ch.epfl.scala.bsp.endpoints
 import ch.epfl.scala.bsp.schema.{BuildClientCapabilities, InitializeBuildParams, InitializedBuildParams}
@@ -16,9 +17,9 @@ import org.langmeta.lsp.{LanguageClient, LanguageServer}
 import org.scalasbt.ipcsocket.UnixDomainSocket
 import org.slf4j.LoggerFactory
 
-import scala.concurrent.Promise
-import scala.sys.process.{Process, ProcessLogger}
-import scala.util.{Random, Success}
+import scala.concurrent.duration.FiniteDuration
+import scala.sys.process.Process
+import scala.util.Random
 
 class BspCommunication(project: Project) extends AbstractProjectComponent(project) {
 
@@ -96,20 +97,15 @@ object BspCommunication {
     val sockdir = Files.createTempDirectory("bsp-")
     val sockfile = sockdir.resolve(s"$id.socket")
     sockfile.toFile.deleteOnExit()
+    logger.info(s"The socket file is ${sockfile.toAbsolutePath}")
 
     // TODO abstract build tool specific logic
-    val bloopConfigDir = new File(base, ".bloop-config").getCanonicalFile
+    val bloopConfigDir = new File(base, ".bloop").getCanonicalFile
     assert(bloopConfigDir.exists())
     val bspCommand = s"bloop bsp --protocol local --socket $sockfile --verbose"
 
-    val bspReady = Promise[Unit]()
-    val proclog = ProcessLogger.apply { msg =>
-      logger.info(s"§ bloop: $msg")
-      if (!bspReady.isCompleted && msg.contains(id)) bspReady.complete(Success(()))
-    }
     // TODO kill bloop process on cancel / error?
-    def runBloop = Process(bspCommand, base).run(proclog)
-    val bspReadyTask = Task.fromFuture(bspReady.future)
+    def runBloop = Process(bspCommand, base).run()
 
     val initParams = InitializeBuildParams(
       rootUri = bloopConfigDir.toString,
@@ -123,19 +119,16 @@ object BspCommunication {
       new BspSession(messages, client, initParams, cleanup(socket, sockfile.toFile))
     }
 
-    def cleanup(socket: UnixDomainSocket, socketFile: File): Task[Unit] = Task.eval {
-      socket.close()
-      socket.shutdownInput()
-      socket.shutdownOutput()
-      if (socketFile.isFile) socketFile.delete()
-    }
+    def cleanup(socket: UnixDomainSocket, socketFile: File): Task[Unit] =
+      Task.eval {
+        socket.close()
+        socket.shutdownInput()
+        socket.shutdownOutput()
+        if (socketFile.isFile) socketFile.delete()
+      }
 
-    for {
-      bloopProcess <- Task(runBloop)
-      _ <- bspReadyTask
-    } yield {
-      initSession
-    }
+    Task(runBloop).flatMap(_ =>
+      Task(initSession).delayExecution(FiniteDuration(250, TimeUnit.MILLISECONDS)))
   }
 
 }
