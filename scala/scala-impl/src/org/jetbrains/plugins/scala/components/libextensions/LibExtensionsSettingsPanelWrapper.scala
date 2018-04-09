@@ -13,9 +13,13 @@ import com.intellij.util.ui.{JBUI, UIUtil}
 import javax.swing._
 import org.jetbrains.plugins.scala.settings.ScalaProjectSettings
 
-class LibExtensionsSettingsPanelWrapper(private val rootPanel: JPanel, private val project: Project) {
+class LibExtensionsSettingsPanelWrapper(private val rootPanel: JPanel,
+                                        private val project: Project) {
 
   private val libraryExtensionsManager = LibraryExtensionsManager.getInstance(project)
+
+  // Exported components
+  val enabledCB: JCheckBox = new JCheckBox("Enable loading external extensions", true)
 
   class LibraryListModel(val extensionsModel: LibraryDetailsModel) extends AbstractListModel[LibraryDescriptor] {
     private val extensionsManager: LibraryExtensionsManager = libraryExtensionsManager
@@ -60,7 +64,6 @@ class LibExtensionsSettingsPanelWrapper(private val rootPanel: JPanel, private v
     UIUtil.addBorder(rootPanel, JBUI.Borders.empty(10))
 
     val checkBoxes  = new JPanel()
-    val enabledCB   = new JCheckBox("Enable loading external extensions", true)
     checkBoxes.setLayout(new BoxLayout(checkBoxes, BoxLayout.Y_AXIS))
     checkBoxes.add(UI.PanelFactory.panel(enabledCB)
       .withTooltip("IDEA will try to search for extra support for particular libraries in your project")

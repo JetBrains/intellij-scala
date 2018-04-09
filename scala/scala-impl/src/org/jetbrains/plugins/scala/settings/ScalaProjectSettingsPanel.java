@@ -37,6 +37,7 @@ import java.util.ResourceBundle;
  */
 public class ScalaProjectSettingsPanel {
     public final static String INJECTION_SETTINGS_NAME = "DependencyAwareInjectionSettings";
+    private final LibExtensionsSettingsPanelWrapper extensionsPanel;
 
     private JPanel myPanel;
     private JCheckBox searchAllSymbolsIncludeCheckBox;
@@ -95,7 +96,8 @@ public class ScalaProjectSettingsPanel {
         });
 
 
-        new LibExtensionsSettingsPanelWrapper((JPanel)librariesPanel.getParent(), project).build();
+        extensionsPanel = new LibExtensionsSettingsPanelWrapper((JPanel) librariesPanel.getParent(), project);
+        extensionsPanel.build();
 
         ScalaUiWithDependency[] deps = ScalaUiWithDependency.EP_NAME.getExtensions();
         for (ScalaUiWithDependency uiWithDependency : deps) {
@@ -201,6 +203,8 @@ public class ScalaProjectSettingsPanel {
 
         scalaProjectSettings.setScFileMode(ScalaProjectSettings.ScFileMode.valueOf(scTypeSelectionCombobox.getSelectedItem().toString()));
         scalaProjectSettings.setTrailingCommasMode(ScalaProjectSettings.TrailingCommasMode.valueOf(trailingCommasComboBox.getSelectedItem().toString()));
+
+        scalaProjectSettings.setEnableLibraryExtensions(extensionsPanel.enabledCB().isSelected());
 
         injectionPrefixTable.saveSettings(scalaProjectSettings);
     }
@@ -310,6 +314,8 @@ public class ScalaProjectSettingsPanel {
         if (scalaProjectSettings.getScFileMode() != scTypeSelectionCombobox.getSelectedItem()) return true;
         if (scalaProjectSettings.getTrailingCommasMode() != trailingCommasComboBox.getSelectedItem()) return true;
 
+        if (scalaProjectSettings.isEnableLibraryExtensions() != extensionsPanel.enabledCB().isSelected()) return true;
+
         return false;
     }
 
@@ -375,6 +381,8 @@ public class ScalaProjectSettingsPanel {
 
         scalaMetaMode.getModel().setSelectedItem(scalaProjectSettings.getScalaMetaMode());
         setValue(metaTrimBodies, scalaProjectSettings.isMetaTrimMethodBodies());
+
+        setValue(extensionsPanel.enabledCB(), scalaProjectSettings.isEnableLibraryExtensions());
     }
 
     private int getWorksheetDelay() {

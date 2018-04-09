@@ -117,7 +117,8 @@ class LibraryExtensionsManager(project: Project) extends AbstractProjectComponen
   }
 
   private def loadCachedExtensions(): Unit = {
-    val jarPaths = PropertiesComponent.getInstance(project).getValues("extensionJars")
+    if (!ScalaProjectSettings.getInstance(project).isEnableLibraryExtensions) return
+    val jarPaths = properties.getValues("extensionJars")
     if (jarPaths != null) {
       val fakeDependencies = jarPaths.map(path => ResolvedDependency(null, new File(path)))
       fakeDependencies.foreach(processResolvedExtension)
