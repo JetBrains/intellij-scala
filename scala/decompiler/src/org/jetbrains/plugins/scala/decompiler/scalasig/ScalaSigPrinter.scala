@@ -510,22 +510,26 @@ class ScalaSigPrinter(builder: StringBuilder, verbosity: Verbosity) {
         if (typeRefString.endsWith(".type")) typeRefString = typeRefString.dropRight(5)
         typeRefString = StringUtil.cutSubstring(typeRefString)(".`package`")
         sep + typeRefString + "." + processName(symbol.name) + ".type"
-      case ConstantType(Ref(Constant(constant))) => sep + (constant match {
-        case null => "scala.Null"
-        case _: Unit => "scala.Unit"
-        case _: Boolean => "scala.Boolean"
-        case _: Byte => "scala.Byte"
-        case _: Char => "scala.Char"
-        case _: Short => "scala.Short"
-        case _: Int => "scala.Int"
-        case _: Long => "scala.Long"
-        case _: Float => "scala.Float"
-        case _: Double => "scala.Double"
-        case _: String => "java.lang.String"
-        case Ref(Name(_)) => "java.lang.String"
-        case c: Class[_] => "java.lang.Class[" + c.getComponentType.getCanonicalName.replace("$", ".") + "]"
-        case Ref(ExternalSymbol(_, Some(Ref(parent)), _)) => parent.path //enum value
-      })
+      case ConstantType(Ref(Constant(constant))) =>
+        def className(c: Class[_]) = c.getComponentType.getCanonicalName.replace("$", ".")
+        val typeText = constant match {
+          case null                                         => "scala.Null"
+          case _: Unit                                      => "scala.Unit"
+          case _: Boolean                                   => "scala.Boolean"
+          case _: Byte                                      => "scala.Byte"
+          case _: Char                                      => "scala.Char"
+          case _: Short                                     => "scala.Short"
+          case _: Int                                       => "scala.Int"
+          case _: Long                                      => "scala.Long"
+          case _: Float                                     => "scala.Float"
+          case _: Double                                    => "scala.Double"
+          case _: String                                    => "java.lang.String"
+          case Ref(Name(_))                                 => "java.lang.String"
+          case Ref(ScalaSymbol(_))                          => "scala.Symbol"
+          case c: Class[_]                                  => s"java.lang.Class[${className(c)}]"
+          case Ref(ExternalSymbol(_, Some(Ref(parent)), _)) => parent.path //enum value
+        }
+        sep + typeText
       case TypeRefType(Ref(NoPrefixType), Ref(symbol: TypeSymbol), typeArgs) if currentTypeParameters.isDefinedAt(symbol) =>
         sep + processName(currentTypeParameters.getOrElse(symbol, symbol.name)) + typeArgString(typeArgs, level)
       case TypeRefType(prefix, symbol, typeArgs) => sep + (symbol.path match {

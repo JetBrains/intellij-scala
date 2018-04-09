@@ -4,6 +4,7 @@ import java.io.IOException
 import java.lang.Double.longBitsToDouble
 import java.lang.Float.intBitsToFloat
 
+import org.jetbrains.plugins.scala.decompiler.scalasig.PickleFormat._
 import org.jetbrains.plugins.scala.decompiler.scalasig.TagGroups._
 
 import scala.annotation.switch
@@ -90,6 +91,7 @@ object Parser {
         case LITERALnull       => readLiteral(tag)
         case LITERALclass      => readLiteral(tag)
         case LITERALenum       => readLiteral(tag)
+        case LITERALsymbol     => readLiteral(tag)
         case SYMANNOT          => readSymbolAnnotation()
         case CHILDREN          => Children
         case ANNOTATEDtpe      => readType(tag)
@@ -124,6 +126,8 @@ object Parser {
     def readTypeRef(): Ref[Type]                      = Ref.to[Type](readNat())
     def readConstantRef(): Ref[Constant]              = Ref.to[Constant](readNat())
     def readConstantAnnotArgRef(): Ref[ConstAnnotArg] = Ref.to[ConstAnnotArg](readNat())
+
+    def readScalaSymbol(): Ref[ScalaSymbol] = readNameRef().map(n => ScalaSymbol(n.value))
 
     def tryReadTypeRef(end: Int): Option[Ref[Type]]     = tryReadRef(isTypeTag, Ref.to[Type], end)
     def tryReadSymbolRef(end: Int): Option[Ref[Symbol]] = tryReadRef(isSymbolTag, Ref.to[Symbol], end)
@@ -216,6 +220,7 @@ object Parser {
         case LITERALnull       => Constant(null)
         case LITERALclass      => Constant(readTypeRef())
         case LITERALenum       => Constant(readSymbolRef())
+        case LITERALsymbol     => Constant(readScalaSymbol())
         case _                 => errorBadSignature("bad constant tag: " + tag)
       }
     }

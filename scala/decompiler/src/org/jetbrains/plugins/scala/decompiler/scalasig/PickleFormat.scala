@@ -5,6 +5,11 @@ package org.jetbrains.plugins.scala.decompiler.scalasig
   * 19-Jul-17
   */
 
+object PickleFormat {
+  //37 LITERALsymbol len_Nat name_Ref
+  final val LITERALsymbol = 37 //is added to PickleFormat in scala 2.13
+}
+
 //Literal implementation of scala.reflect.internal.pickling.PickleFormat
 sealed trait Entry
 
@@ -40,6 +45,9 @@ abstract class SymbolInfoSymbol(val symbolInfo: SymbolInfo) extends ScalaSigSymb
 }
 
 case class Name(value: String) extends Entry
+
+//represents scala.Symbol
+case class ScalaSymbol(value: String) extends Entry
 
 case object NoSymbol extends Symbol {
   def name = "<no symbol>"
