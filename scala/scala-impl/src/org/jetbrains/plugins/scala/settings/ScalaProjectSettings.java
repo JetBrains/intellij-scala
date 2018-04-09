@@ -92,7 +92,7 @@ public class ScalaProjectSettings  implements PersistentStateComponent<ScalaProj
   private List<String> LEXT_SEARCH_PATTERNS = new ArrayList<>();
 
   {
-    LEXT_SEARCH_PATTERNS.add(LibraryExtensionsManager$.MODULE$.DEFAULT_PATTERN());
+    Collections.addAll(LEXT_SEARCH_PATTERNS, LibraryExtensionsManager$.MODULE$.DEFAULT_PATTERNS());
   }
 
 

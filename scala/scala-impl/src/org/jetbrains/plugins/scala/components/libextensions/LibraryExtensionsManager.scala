@@ -166,7 +166,11 @@ object LibraryExtensionsManager {
   val PAT_MOD = "$MOD"
   val PAT_VER = "$VER"
   val PAT_SEP = "%"
-  val DEFAULT_PATTERN = s"$PAT_ORG $PAT_SEP $PAT_MOD-ijext $PAT_SEP $PAT_VER-+"
+
+  val DEFAULT_PATTERNS = Array(
+    s"$PAT_ORG $PAT_SEP $PAT_MOD-ijext $PAT_SEP $PAT_VER+",
+    s"org.jetbrains $PAT_SEP $PAT_MOD-ijext $PAT_SEP $PAT_VER+"
+  )
 
   val manifestPath  = "META-INF/intellij-compat.xml"
   val GROUP_ID      = "Scala Library Extension"
