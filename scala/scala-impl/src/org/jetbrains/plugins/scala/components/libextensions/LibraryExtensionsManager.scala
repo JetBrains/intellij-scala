@@ -131,10 +131,14 @@ class LibraryExtensionsManager(project: Project) extends AbstractProjectComponen
           .useCache()
           .get()
         myClassLoaders += d -> classLoader
-        val myInterface = classLoader.loadClass(interface)
-        val myImpl = classLoader.loadClass(defaultPackage+impl)
-        val myInstance = myImpl.newInstance()
-        myExtensionInstances.getOrElseUpdate(myInterface, ArrayBuffer.empty) += myInstance
+        try {
+          val myInterface = classLoader.loadClass(interface)
+          val myImpl = classLoader.loadClass(defaultPackage + impl)
+          val myInstance = myImpl.newInstance()
+          myExtensionInstances.getOrElseUpdate(myInterface, ArrayBuffer.empty) += myInstance
+        } catch {
+          case e: Exception => LOG.error(s"Failed to load injector '$impl'", e)
+        }
       }
     }
   }
