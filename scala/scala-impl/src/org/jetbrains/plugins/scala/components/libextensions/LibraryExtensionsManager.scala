@@ -3,6 +3,8 @@ package org.jetbrains.plugins.scala.components.libextensions
 import java.io.File
 
 import com.intellij.ide.util.PropertiesComponent
+import com.intellij.notification._
+import com.intellij.openapi.application.ApplicationManager
 import com.intellij.openapi.components.AbstractProjectComponent
 import com.intellij.openapi.diagnostic.Logger
 import com.intellij.openapi.progress.{ProgressIndicator, ProgressManager, Task}
@@ -10,8 +12,8 @@ import com.intellij.openapi.project.Project
 import com.intellij.openapi.roots.impl.libraries.ProjectLibraryTable
 import com.intellij.openapi.roots.libraries.Library
 import com.intellij.util.lang.UrlClassLoader
-import org.jetbrains.plugins.scala.DependencyManagerBase
-import org.jetbrains.plugins.scala.DependencyManagerBase.{DependencyDescription, IvyResolver, MavenResolver, ResolvedDependency, stripScalaVersion}
+import javax.swing.event.HyperlinkEvent
+import org.jetbrains.plugins.scala.DependencyManagerBase._
 import org.jetbrains.plugins.scala.extensions.using
 import org.jetbrains.plugins.scala.settings.ScalaProjectSettings
 import org.jetbrains.sbt.resolvers.{SbtIvyResolver, SbtMavenResolver, SbtResolver}
@@ -34,15 +36,35 @@ class LibraryExtensionsManager(project: Project) extends AbstractProjectComponen
   private val myClassLoaders = mutable.HashMap[IdeaVersionDescriptor, UrlClassLoader]()
   private val myListeners = mutable.ArrayBuffer[Runnable]()
 
-  override def projectOpened(): Unit = loadCachedExtensions()
+  private val properties: PropertiesComponent = PropertiesComponent.getInstance(project)
+
+  override def projectOpened(): Unit = {
+    ApplicationManager.getApplication.getMessageBus
+      .syncPublisher(Notifications.TOPIC)
+      .register(GROUP_ID, NotificationDisplayType.STICKY_BALLOON)
+    loadCachedExtensions()
+  }
 
   def searchExtensions(sbtResolvers: Set[SbtResolver]): Unit = {
     myAvailableLibraries.clear()
     myExtensionInstances.clear()
     myClassLoaders.clear()
-    ProgressManager.getInstance().run(new Task.Backgroundable(project, "Searching for library extensions", false) {
-      override def run(indicator: ProgressIndicator): Unit = doSearchExtensions(sbtResolvers)
+    ProgressManager.getInstance().run(
+      new Task.Backgroundable(project, "Searching for library extensions", false) {
+        override def run(indicator: ProgressIndicator): Unit = doSearchExtensions(sbtResolvers)
     })
+  }
+
+  private def enabledAcceptCb(resolved: Seq[ResolvedDependency]): Unit = {
+    resolved.foreach(processResolvedExtension)
+    val jarPaths = resolved.map(_.file.getAbsolutePath).toArray
+    properties.setValues("extensionJars", jarPaths)
+    if (resolved.nonEmpty)
+      myListeners.foreach(_.run())
+  }
+
+  private def enabledCancelledCb(): Unit = {
+    ScalaProjectSettings.getInstance(project).setEnableLibraryExtensions(false)
   }
 
   private def doSearchExtensions(sbtResolvers: Set[SbtResolver]): Unit = {
@@ -51,13 +73,14 @@ class LibraryExtensionsManager(project: Project) extends AbstractProjectComponen
       case r: SbtMavenResolver => MavenResolver(r.name, r.root)
       case r: SbtIvyResolver if r.name != "Local cache" => IvyResolver(r.name, r.root)
     }
+
     val candidates = getExtensionLibCandidates(allLibraries)
-    val resolved = new IvyExtensionsResolver(ivyResolvers.reverse).resolve(candidates.toSeq:_*)
-    resolved.foreach(processResolvedExtension)
-    val jarPaths = resolved.map(_.file.getAbsolutePath).toArray
-    PropertiesComponent.getInstance(project).setValues("extensionJars", jarPaths)
-    if (resolved.nonEmpty)
-      myListeners.foreach(_.run())
+    val resolved   = new IvyExtensionsResolver(ivyResolvers.reverse).resolve(candidates.toSeq:_*)
+    val alreadyLoaded     = Option(properties.getValues("extensionJars")).map(_.toSet).getOrElse(Set.empty)
+    val extensionsChanged = alreadyLoaded != resolved.map(_.file.getAbsolutePath).toSet
+
+    if (resolved.nonEmpty && extensionsChanged)
+      showEnablePopup({ () => enabledAcceptCb(resolved) }, enabledCancelledCb)
   }
 
   private def getExtensionLibCandidates(libs: Seq[Library]): Set[DependencyDescription] = {
@@ -145,8 +168,25 @@ object LibraryExtensionsManager {
   val PAT_SEP = "%"
   val DEFAULT_PATTERN = s"$PAT_ORG $PAT_SEP $PAT_MOD-ijext $PAT_SEP $PAT_VER-+"
 
-  val manifestPath = "META-INF/intellij-compat.xml"
+  val manifestPath  = "META-INF/intellij-compat.xml"
+  val GROUP_ID      = "Scala Library Extension"
 
   def getInstance(project: Project): LibraryExtensionsManager = project.getComponent(classOf[LibraryExtensionsManager])
+
+  def showEnablePopup(yesCallback: () => Unit, noCallback: () => Unit): Unit = {
+    val notification = new Notification(GROUP_ID, "Extensions available",
+      s"""<p>Additional support has been found for some of your libraries.</p>
+         |<p>Do you want to enable it? <a href="Yes">Yes</a> / <a href="No">No</a></p>
+       """.stripMargin,
+      NotificationType.INFORMATION, (notification: Notification, event: HyperlinkEvent) => {
+        notification.expire()
+        event.getDescription match {
+          case "Yes" => yesCallback()
+          case "No"  => noCallback()
+        }
+      }
+    )
+    Notifications.Bus.notify(notification)
+  }
 
 }
