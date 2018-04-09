@@ -5,7 +5,7 @@ import java.util
 import java.util.UUID
 
 import ch.epfl.scala.bsp.endpoints
-import ch.epfl.scala.bsp.schema.{BuildTargetIdentifier, CompileParams, CompileReport, WorkspaceBuildTargetsRequest}
+import ch.epfl.scala.bsp.schema.{BuildTargetIdentifier, CompileParams, CompileReport}
 import com.intellij.openapi.externalSystem.util.{ExternalSystemApiUtil => ES}
 import com.intellij.openapi.module.ModuleType
 import com.intellij.openapi.progress.{PerformInBackgroundOption, ProgressIndicator, ProgressManager, Task}
@@ -47,8 +47,8 @@ class BspProjectTaskRunner extends ProjectTaskRunner {
     }
 
     val targets = validTasks.map { task =>
-      val id = task.getModule.getName
-      BuildTargetIdentifier(id)
+      val moduleId = ES.getExternalProjectId(task.getModule)
+      BuildTargetIdentifier(moduleId)
     }.toSeq
 
     implicit val scheduler: Scheduler = Scheduler(PooledThreadExecutor.INSTANCE, ExecutionModel.AlwaysAsyncExecution)
