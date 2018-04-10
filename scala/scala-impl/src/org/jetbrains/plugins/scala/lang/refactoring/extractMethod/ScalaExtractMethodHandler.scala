@@ -9,11 +9,13 @@ import com.intellij.openapi.actionSystem.DataContext
 import com.intellij.openapi.application.ApplicationManager
 import com.intellij.openapi.editor.{Editor, ScrollType}
 import com.intellij.openapi.project.Project
+import com.intellij.openapi.util.TextRange
 import com.intellij.psi._
 import com.intellij.psi.codeStyle.CodeStyleManager
 import com.intellij.psi.util.PsiTreeUtil
 import org.jetbrains.annotations.Nullable
 import org.jetbrains.plugins.scala.extensions._
+import org.jetbrains.plugins.scala.lang.psi
 import org.jetbrains.plugins.scala.lang.psi.api.base.patterns.ScCaseClause
 import org.jetbrains.plugins.scala.lang.psi.api.base.{ScPrimaryConstructor, ScReferenceElement}
 import org.jetbrains.plugins.scala.lang.psi.api.expr._
@@ -24,6 +26,7 @@ import org.jetbrains.plugins.scala.lang.psi.api.toplevel.typedef._
 import org.jetbrains.plugins.scala.lang.psi.api.{ScalaFile, ScalaRecursiveElementVisitor}
 import org.jetbrains.plugins.scala.lang.psi.dataFlow.impl.reachingDefs.ReachingDefintionsCollector
 import org.jetbrains.plugins.scala.lang.psi.impl.ScalaPsiElementFactory.{createNewLine, createTemplateDefinitionFromText}
+import org.jetbrains.plugins.scala.lang.psi.stubs.elements
 import org.jetbrains.plugins.scala.lang.psi.types.ScType
 import org.jetbrains.plugins.scala.lang.psi.types.api.Unit
 import org.jetbrains.plugins.scala.lang.psi.types.result._
@@ -108,7 +111,9 @@ class ScalaExtractMethodHandler extends ScalaRefactoringActionHandler {
     }
     val array = elements.toArray
     if (ApplicationManager.getApplication.isUnitTestMode && siblings.length > 0) {
-      invokeDialog(array, hasReturn, lastReturn, siblings(0), siblings.length == 1, lastExprType)
+      val targetOffset = Option(dataContext).map(_.getData("chosenTargetScope").asInstanceOf[Int])
+      val targetScope = targetOffset flatMap smallestScopeEnclosingTarget(siblings) getOrElse siblings(0)
+      invokeDialog(array, hasReturn, lastReturn, targetScope, siblings.length == 1, lastExprType)
     } else if (siblings.length > 1) {
       showChooser(editor, siblings, { (selectedValue: PsiElement) =>
         invokeDialog(array, hasReturn, lastReturn, selectedValue,
@@ -120,6 +125,22 @@ class ScalaExtractMethodHandler extends ScalaRefactoringActionHandler {
     }
   }
 
+  def smallestScopeEnclosingTarget(scopeElements: Array[PsiElement])(targetOffset: Int): Option[PsiElement] = {
+    val byScopeLength = Ordering.by[PsiElement, Int] { _.getContext.getTextLength }
+
+    def applicableScopes(inputScopes: Array[PsiElement]) =
+      inputScopes.filter {
+        _.getContext.getTextRange.containsOffset(targetOffset)
+      }
+
+    applicableScopes(scopeElements) match {
+      case Array() => None
+      case applicable => Some {
+            applicable
+            .min(byScopeLength)
+      }
+    }
+  }
   private def getSiblings(element: PsiElement, @Nullable stopAtScope: PsiElement): Array[PsiElement] = {
     def isParentOk(parent: PsiElement): Boolean = {
       if (parent == null) return false
