@@ -38,23 +38,19 @@ class BspProjectResolver extends ExternalSystemProjectResolver[BspExecutionSetti
       listener.onStatusChange(ev)
     }
 
-
     def targetsReq(implicit client: LanguageClient) =
       endpoints.Workspace.buildTargets.request(WorkspaceBuildTargetsRequest())
-
-    def notificationLogMessage(params: LogMessageParams): Unit =
-      statusUpdate(params.message)
 
     val services = Services.empty
       .notification(Window.logMessage) { params => statusUpdate(params.message) }
 
     val projectTask = for {
       session <- BspCommunication.prepareSession(projectRoot)
-      _ = statusUpdate("session prepared")
+      _ = statusUpdate("session prepared") // TODO remove in favor of build toolwindow nodes
       targetsResponse <- session.run(services, targetsReq(_))
     } yield {
 
-      statusUpdate("targets fetched")
+      statusUpdate("targets fetched") // TODO remove in favor of build toolwindow nodes
 
       // TODO handle error response
       val modules = for {
@@ -79,14 +75,14 @@ class BspProjectResolver extends ExternalSystemProjectResolver[BspExecutionSetti
       projectNode
     }
 
-    statusUpdate("starting task")
+    statusUpdate("starting task") // TODO remove in favor of build toolwindow nodes
 
     val running = projectTask.runAsync
     activeImport = Some(ActiveImport(running))
     val result = Await.result(running, Duration.Inf)
     activeImport = None
 
-    statusUpdate("finished task")
+    statusUpdate("finished task") // TODO remove in favor of build toolwindow nodes
 
     result
   }

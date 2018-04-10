@@ -98,7 +98,7 @@ object BspProjectTaskRunner {
           report.finishWithFailure(BuildFailureException(message))
         case Right(compileReport) =>
           compileReport.items.foreach { item =>
-            report.output(s"completed build with ${item.warnings} warnings and ${item.errors} errors in ${item.time}ms")
+            report.output(s"${item.target}: completed compile with ${item.warnings} warnings and ${item.errors} errors in ${item.time}ms")
           }
           report.finish(messages)
       }
