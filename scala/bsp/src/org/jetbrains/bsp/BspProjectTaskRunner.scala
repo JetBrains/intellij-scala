@@ -6,10 +6,13 @@ import java.util.UUID
 
 import ch.epfl.scala.bsp.endpoints
 import ch.epfl.scala.bsp.schema.{BuildTargetIdentifier, CompileParams, CompileReport}
+import com.intellij.execution.process.AnsiEscapeDecoder.ColoredTextAcceptor
+import com.intellij.execution.process.{AnsiEscapeDecoder, ProcessOutputType, ProcessOutputTypes}
 import com.intellij.openapi.externalSystem.util.{ExternalSystemApiUtil => ES}
 import com.intellij.openapi.module.ModuleType
 import com.intellij.openapi.progress.{PerformInBackgroundOption, ProgressIndicator, ProgressManager, Task}
 import com.intellij.openapi.project.Project
+import com.intellij.openapi.util.Key
 import com.intellij.task._
 import monix.eval
 import monix.execution.{ExecutionModel, Scheduler}
@@ -62,38 +65,85 @@ object BspProjectTaskRunner {
   class BspTask[T](project: Project, targets: Seq[BuildTargetIdentifier])(implicit scheduler: Scheduler)
     extends Task.Backgroundable(project, "bsp build", true, PerformInBackgroundOption.ALWAYS_BACKGROUND) {
 
+    private var buildMessages: BuildMessages = BuildMessages.empty
+
     private val taskId: UUID = UUID.randomUUID()
     private val report = new BuildToolWindowReporter(project, taskId, "bsp build")
 
     private def compileRequest(implicit client: LanguageClient): eval.Task[Either[Response.Error, CompileReport]] =
       endpoints.BuildTarget.compile.request(CompileParams(targets))
 
+    class TextCollector extends ColoredTextAcceptor {
+      private val builder = StringBuilder.newBuilder
+      override def coloredTextAvailable(text: String, attributes: Key[_]): Unit =
+        builder.append(text)
+
+      def result: String = builder.result()
+    }
+
     private val services = Services.empty
       .notification(Window.logMessage) { params => report.output(params.message) }
       .notification(Window.showMessage) { params =>
         // TODO handle message type (warning, error etc) in output
-        report.output(params.message)
+        val text = params.message
+        report.output(text)
+
+        // TODO build toolwindow log supports ansi colors, but not some other stuff
+        val textNoAnsiAcceptor = new TextCollector
+        new AnsiEscapeDecoder().escapeText(text, ProcessOutputTypes.STDOUT, textNoAnsiAcceptor)
+        val textNoAnsi = textNoAnsiAcceptor.result
+
+          buildMessages = buildMessages.appendMessage(textNoAnsi)
+        import org.langmeta.lsp.MessageType._
+        buildMessages =
+          params.`type` match {
+            case Error =>
+              report.error(textNoAnsi)
+              buildMessages.addError(text)
+            case Warning =>
+              report.warning(textNoAnsi)
+              buildMessages.addWarning(text)
+            case Info =>
+              buildMessages
+            case Log =>
+              buildMessages
+          }
       }
       .notification(TextDocument.publishDiagnostics) { params =>
         params.diagnostics.foreach { diagnostic =>
           val severity = diagnostic.severity.map(s => s"${s.toString}: ").getOrElse("")
-          val range = s"${diagnostic.range.start.line}" // TODO full position output
+          val range = diagnostic.range.start.line.toString // TODO full position output
           val text = s"$severity($range)${diagnostic.message}"
+
+          report.output(text)
+          buildMessages = buildMessages.appendMessage(text)
+
+          import org.langmeta.lsp.DiagnosticSeverity._
+          buildMessages =
+            diagnostic.severity.map {
+              case Hint =>
+                buildMessages
+              case Information =>
+                buildMessages
+              case Warning =>
+                buildMessages.addWarning(text)
+              case Error =>
+                report.error(text)
+                buildMessages.addError(text)
+            }
+              .getOrElse(buildMessages)
         }
       }
 
     override def run(indicator: ProgressIndicator): Unit = {
       val reportIndicator = new IndicatorReporter(indicator)
-      val messages = BuildMessages.empty
 
       val projectRoot = new File(project.getBasePath)
 
       val buildTask = for {
         session <- BspCommunication.prepareSession(projectRoot)
-        _ = report.output("session prepared")
         compiled <- session.run(services, compileRequest(_))
       } yield {
-        report.output("data received")
         compiled
       }
 
@@ -105,17 +155,21 @@ object BspProjectTaskRunner {
       result match {
         case Left(errorResponse) =>
           val message = errorResponse.error.message
+          val failure = BuildFailureException(message)
           report.error(message)
-          report.finishWithFailure(BuildFailureException(message))
+          report.finishWithFailure(failure)
+          reportIndicator.finishWithFailure(failure)
         case Right(compileReport) =>
           compileReport.items.foreach { item =>
-            report.output(s"${item.target}: completed compile with ${item.warnings} warnings and ${item.errors} errors in ${item.time}ms")
+            val targetStr = item.target.map(t => s"$t : ").getOrElse("")
+            report.output(s"${targetStr}completed compile with ${item.warnings} warnings and ${item.errors} errors in ${item.time}ms")
           }
-          report.finish(messages)
+          report.finish(buildMessages)
+          reportIndicator.finish(buildMessages)
       }
-      reportIndicator.finish(messages)
     }
 
 
   }
+
 }
