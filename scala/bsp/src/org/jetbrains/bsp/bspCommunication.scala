@@ -34,7 +34,9 @@ class BspSession(messages: Observable[BaseProtocolMessage],
   // TODO should use IDEA logging
   private val logger = Logger(LoggerFactory.getLogger(classOf[BspCommunication]))
 
-  /** Task starts client-server connection and connects message stream. Attach consumers to messages before running this. */
+  /** Task starts client-server connection and connects message stream.
+    * @param services services that are used to listen to build notifications.
+    */
   def run[T](services: Services, task: LanguageClient => Task[T])(implicit scheduler: Scheduler): Task[T] = {
     val runningClientServer = startClientServer(services)
 

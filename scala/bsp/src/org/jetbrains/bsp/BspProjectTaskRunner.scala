@@ -17,7 +17,7 @@ import org.jetbrains.bsp.BspProjectTaskRunner.BspTask
 import org.jetbrains.ide.PooledThreadExecutor
 import org.jetbrains.plugins.scala.build.{BuildFailureException, BuildMessages, BuildToolWindowReporter, IndicatorReporter}
 import org.langmeta.jsonrpc._
-import org.langmeta.lsp.{LanguageClient, Window}
+import org.langmeta.lsp._
 
 import scala.collection.JavaConverters._
 import scala.concurrent.Await
@@ -70,6 +70,17 @@ object BspProjectTaskRunner {
 
     private val services = Services.empty
       .notification(Window.logMessage) { params => report.output(params.message) }
+      .notification(Window.showMessage) { params =>
+        // TODO handle message type (warning, error etc) in output
+        report.output(params.message)
+      }
+      .notification(TextDocument.publishDiagnostics) { params =>
+        params.diagnostics.foreach { diagnostic =>
+          val severity = diagnostic.severity.map(s => s"${s.toString}: ").getOrElse("")
+          val range = s"${diagnostic.range.start.line}" // TODO full position output
+          val text = s"$severity($range)${diagnostic.message}"
+        }
+      }
 
     override def run(indicator: ProgressIndicator): Unit = {
       val reportIndicator = new IndicatorReporter(indicator)
