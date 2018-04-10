@@ -13,12 +13,11 @@ import com.intellij.openapi.project.Project
 import com.intellij.task._
 import monix.eval
 import monix.execution.{ExecutionModel, Scheduler}
-import monix.reactive.Consumer
 import org.jetbrains.bsp.BspProjectTaskRunner.BspTask
 import org.jetbrains.ide.PooledThreadExecutor
 import org.jetbrains.plugins.scala.build.{BuildFailureException, BuildMessages, BuildToolWindowReporter, IndicatorReporter}
 import org.langmeta.jsonrpc._
-import org.langmeta.lsp.LanguageClient
+import org.langmeta.lsp.{LanguageClient, Window}
 
 import scala.collection.JavaConverters._
 import scala.concurrent.Await
@@ -66,13 +65,11 @@ object BspProjectTaskRunner {
     private val taskId: UUID = UUID.randomUUID()
     private val report = new BuildToolWindowReporter(project, taskId, "bsp build")
 
-    private val msgConsumer = Consumer.foreach[BaseProtocolMessage] { msg =>
-      val text = new String(msg.content)
-      report.output(text)
-    }
-
     private def compileRequest(implicit client: LanguageClient): eval.Task[Either[Response.Error, CompileReport]] =
       endpoints.BuildTarget.compile.request(CompileParams(targets))
+
+    private val services = Services.empty
+      .notification(Window.logMessage) { params => report.output(params.message) }
 
     override def run(indicator: ProgressIndicator): Unit = {
       val reportIndicator = new IndicatorReporter(indicator)
@@ -83,8 +80,7 @@ object BspProjectTaskRunner {
       val buildTask = for {
         session <- BspCommunication.prepareSession(projectRoot)
         _ = report.output("session prepared")
-        msgs = session.messages.consumeWith(msgConsumer) // TODO cancel this on finish?
-        compiled <- session.run(compileRequest(_))
+        compiled <- session.run(services, compileRequest(_))
       } yield {
         report.output("data received")
         compiled
@@ -92,7 +88,6 @@ object BspProjectTaskRunner {
 
       reportIndicator.start()
       report.start()
-      report.output("what's up?")
 
       val result = Await.result(buildTask.runAsync, Duration.Inf)
 

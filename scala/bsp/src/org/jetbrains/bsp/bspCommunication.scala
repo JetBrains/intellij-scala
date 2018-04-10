@@ -4,14 +4,14 @@ import java.io.File
 import java.nio.file.Files
 
 import ch.epfl.scala.bsp.endpoints
-import ch.epfl.scala.bsp.schema.{BuildClientCapabilities, InitializeBuildParams, InitializeBuildResult, InitializedBuildParams}
+import ch.epfl.scala.bsp.schema.{BuildClientCapabilities, InitializeBuildParams, InitializedBuildParams}
 import com.intellij.openapi.components.AbstractProjectComponent
 import com.intellij.openapi.project.Project
 import com.typesafe.scalalogging.Logger
 import monix.eval.Task
 import monix.execution.Scheduler
-import monix.reactive.observables.ConnectableObservable
-import org.langmeta.jsonrpc.{BaseProtocolMessage, Response, Services}
+import monix.reactive.Observable
+import org.langmeta.jsonrpc.{BaseProtocolMessage, Services}
 import org.langmeta.lsp.{LanguageClient, LanguageServer}
 import org.scalasbt.ipcsocket.UnixDomainSocket
 import org.slf4j.LoggerFactory
@@ -24,9 +24,8 @@ class BspCommunication(project: Project) extends AbstractProjectComponent(projec
 
 }
 
-class BspSession(val messages: ConnectableObservable[BaseProtocolMessage],
+class BspSession(messages: Observable[BaseProtocolMessage],
                  private implicit val client: LanguageClient,
-                 server: LanguageServer,
                  initializedBuildParams: InitializeBuildParams,
                  cleanup: Task[Unit]
                 ) {
@@ -35,13 +34,11 @@ class BspSession(val messages: ConnectableObservable[BaseProtocolMessage],
   private val logger = Logger(LoggerFactory.getLogger(classOf[BspCommunication]))
 
   /** Task starts client-server connection and connects message stream. Attach consumers to messages before running this. */
-  def run[T](task: LanguageClient => Task[T])(implicit scheduler: Scheduler): Task[T] = {
-    val connection = messages.connect()
-    val runningClientServer = startClientServer
+  def run[T](services: Services, task: LanguageClient => Task[T])(implicit scheduler: Scheduler): Task[T] = {
+    val runningClientServer = startClientServer(services)
 
     val whenDone = Task {
       logger.info("closing bsp connection")
-      connection.cancel()
       runningClientServer.cancel()
     }
 
@@ -66,11 +63,13 @@ class BspSession(val messages: ConnectableObservable[BaseProtocolMessage],
   private val initRequest =
     endpoints.Build.initialize.request(initializedBuildParams)
 
-  private def startClientServer(implicit scheduler: Scheduler) =
+  private def startClientServer(services: Services)(implicit scheduler: Scheduler) = {
+    val server = new LanguageServer(messages, client, services, scheduler, logger)
     server.startTask
-      .doOnFinish { errOpt => for {
-        cleaned <- cleanup
-      } yield {
+      .doOnFinish { errOpt =>
+        for {
+          cleaned <- cleanup
+        } yield {
           logger.info("client/server closed")
           errOpt.foreach { err =>
             logger.info(s"client/server closed with error: $err")
@@ -79,6 +78,7 @@ class BspSession(val messages: ConnectableObservable[BaseProtocolMessage],
       }
       .doOnCancel(cleanup)
       .runAsync
+  }
 
 }
 
@@ -118,11 +118,9 @@ object BspCommunication {
 
     def initSession = {
       val socket = new UnixDomainSocket(sockfile.toString)
-      val messages = BaseProtocolMessage.fromInputStream(socket.getInputStream).replay
-      val services = Services.empty
       val client: LanguageClient = new LanguageClient(socket.getOutputStream, logger)
-      val server = new LanguageServer(messages, client, services, scheduler, logger)
-      new BspSession(messages, client, server, initParams, cleanup(socket, sockfile.toFile))
+      val messages = BaseProtocolMessage.fromInputStream(socket.getInputStream)
+      new BspSession(messages, client, initParams, cleanup(socket, sockfile.toFile))
     }
 
     def cleanup(socket: UnixDomainSocket, socketFile: File): Task[Unit] = Task.eval {

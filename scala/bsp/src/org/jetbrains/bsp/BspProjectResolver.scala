@@ -10,11 +10,10 @@ import com.intellij.openapi.externalSystem.model.{DataNode, ProjectKeys}
 import com.intellij.openapi.externalSystem.service.project.ExternalSystemProjectResolver
 import com.intellij.openapi.module.StdModuleTypes
 import monix.execution.{Cancelable, ExecutionModel, Scheduler}
-import monix.reactive.Consumer
 import org.jetbrains.bsp.BspProjectResolver.ActiveImport
 import org.jetbrains.ide.PooledThreadExecutor
-import org.langmeta.jsonrpc.BaseProtocolMessage
-import org.langmeta.lsp.LanguageClient
+import org.langmeta.jsonrpc.Services
+import org.langmeta.lsp.{LanguageClient, LogMessageParams, Window}
 
 import scala.concurrent.Await
 import scala.concurrent.duration.Duration
@@ -39,19 +38,20 @@ class BspProjectResolver extends ExternalSystemProjectResolver[BspExecutionSetti
       listener.onStatusChange(ev)
     }
 
-    val msgConsumer = Consumer.foreach[BaseProtocolMessage] { msg =>
-      val text = new String(msg.content)
-      listener.onTaskOutput(id, text, true)
-    }
 
     def targetsReq(implicit client: LanguageClient) =
       endpoints.Workspace.buildTargets.request(WorkspaceBuildTargetsRequest())
 
+    def notificationLogMessage(params: LogMessageParams): Unit =
+      statusUpdate(params.message)
+
+    val services = Services.empty
+      .notification(Window.logMessage) { params => statusUpdate(params.message) }
+
     val projectTask = for {
       session <- BspCommunication.prepareSession(projectRoot)
       _ = statusUpdate("session prepared")
-      msgs = session.messages.consumeWith(msgConsumer) // TODO cancel this on finish?
-      targetsResponse <- session.run(targetsReq(_))
+      targetsResponse <- session.run(services, targetsReq(_))
     } yield {
 
       statusUpdate("targets fetched")
