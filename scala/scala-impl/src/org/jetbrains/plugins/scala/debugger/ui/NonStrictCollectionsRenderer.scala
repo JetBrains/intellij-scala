@@ -3,7 +3,6 @@ package org.jetbrains.plugins.scala.debugger.ui
 import java.util
 
 import com.intellij.debugger.DebuggerContext
-import com.intellij.debugger.engine.DebuggerUtils
 import com.intellij.debugger.engine.evaluation.{EvaluateException, EvaluationContext, EvaluationContextImpl}
 import com.intellij.debugger.impl.PositionUtil
 import com.intellij.debugger.ui.impl.watch.{ValueDescriptorImpl, WatchItemDescriptor}
@@ -16,6 +15,7 @@ import com.sun.jdi._
 import com.sun.tools.jdi.ObjectReferenceImpl
 import org.jetbrains.plugins.scala.debugger.filters.ScalaDebuggerSettings
 import org.jetbrains.plugins.scala.debugger.ui.NonStrictCollectionsRenderer.{CollectionElementNodeDescriptor, Fail, SimpleMethodInvocationResult}
+import org.jetbrains.plugins.scala.debugger.ui.ScalaCollectionRenderer.{hasDefiniteSize, instanceOf, lazyList_2_13, nonEmpty, streamClassName, streamViewClassName, transformName, viewClassName, viewClassName_2_13}
 
 /**
  * User: Dmitry Naydanov
@@ -54,7 +54,7 @@ class NonStrictCollectionsRenderer extends NodeRendererImpl {
     @inline def invoke(name: String) = invokeLengthMethodByName(objectRef, name, 'I', context)
 
     try {
-      if (!ScalaCollectionRenderer.hasDefiniteSize(objectRef, context) || isStreamView(objectRef.referenceType())) return Success[String]("?")
+      if (!hasDefiniteSize(objectRef, context) || isStreamView(objectRef.referenceType())) return Success[String]("?")
     } catch {
       case e: EvaluateException => return Fail(e)
     }
@@ -92,7 +92,7 @@ class NonStrictCollectionsRenderer extends NodeRendererImpl {
       builder.setChildren(myChildren)
     }
     value match {
-      case objectRef: ObjectReference if ScalaCollectionRenderer.nonEmpty(objectRef, evaluationContext) =>
+      case objectRef: ObjectReference if nonEmpty(objectRef, evaluationContext) =>
         var currentTail = objectRef
 
         for (i <- 0 until getStartIndex) {
@@ -132,21 +132,21 @@ class NonStrictCollectionsRenderer extends NodeRendererImpl {
   }
 
   override def isExpandable(value: Value, evaluationContext: EvaluationContext, parentDescriptor: NodeDescriptor): Boolean = value match {
-    case objectRef: ObjectReferenceImpl => ScalaCollectionRenderer.nonEmpty(objectRef, evaluationContext)
+    case objectRef: ObjectReferenceImpl => nonEmpty(objectRef, evaluationContext)
     case _ => false
   }
 
   def isApplicable(tpe: Type): Boolean = tpe match {
     case _: ReferenceType if !mustNotExpandStreams =>
-      isStream(tpe) || isView(tpe)
+      isLazy(tpe) || isView(tpe)
     case _ => false
   }
 
-  private def isView(tpe: Type): Boolean = DebuggerUtils.instanceOf(tpe, ScalaCollectionRenderer.viewClassName)
+  private def isView(tpe: Type): Boolean = instanceOf(tpe, viewClassName, viewClassName_2_13)
 
-  private def isStream(tpe: Type): Boolean = DebuggerUtils.instanceOf(tpe, ScalaCollectionRenderer.streamClassName)
+  private def isLazy(tpe: Type): Boolean = instanceOf(tpe, streamClassName, lazyList_2_13)
 
-  private def isStreamView(tpe: Type): Boolean = DebuggerUtils.instanceOf(tpe, ScalaCollectionRenderer.streamViewClassName)
+  private def isStreamView(tpe: Type): Boolean = instanceOf(tpe, streamViewClassName)
 
   def calcLabel(descriptor: ValueDescriptor, context: EvaluationContext, listener: DescriptorLabelListener): String = {
     val stringBuilder = StringBuilderSpinAllocator.alloc()
@@ -159,7 +159,7 @@ class NonStrictCollectionsRenderer extends NodeRendererImpl {
           case _ => "?"
         })
 
-        stringBuilder append (if (tpe != null) ScalaCollectionRenderer.transformName(tpe.name) + sizeString else "{...}")
+        stringBuilder append (if (tpe != null) transformName(tpe.name) + sizeString else "{...}")
       case _ => stringBuilder append "{...}"
     }
 

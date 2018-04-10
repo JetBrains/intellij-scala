@@ -2,9 +2,9 @@ package org.jetbrains.plugins.scala.debugger.renderers
 
 import com.intellij.debugger.settings.NodeRendererSettings
 import com.intellij.debugger.ui.tree.render._
+import org.jetbrains.plugins.scala.DebuggerTests
 import org.jetbrains.plugins.scala.debugger._
 import org.jetbrains.plugins.scala.debugger.ui.ScalaCollectionRenderer
-import org.jetbrains.plugins.scala.{DebuggerTests, SlowTests}
 import org.junit.experimental.categories.Category
 
 /**
@@ -18,34 +18,82 @@ class ScalaCollectionRendererTest_211 extends ScalaCollectionRendererTestBase {
 @Category(Array(classOf[DebuggerTests]))
 class ScalaCollectionRendererTest_212 extends ScalaCollectionRendererTestBase {
   override implicit val version: ScalaVersion = Scala_2_12
+
+  addFileWithBreakpoints("Lazy.scala",
+    s"""
+       |object Lazy {
+       |  def main(args: Array[String]) {
+       |    val lst = Stream.from(42)
+       |    val a = 1$bp
+       |  }
+       |}
+      """.replace("\r", "").stripMargin.trim
+  )
+
+  def testLazy() {
+    testLazyCollectionRendering("lst", "scala.collection.immutable.Stream$Cons", "Stream(42, ?)")
+  }
 }
+@Category(Array(classOf[DebuggerTests]))
+class ScalaCollectionRendererTest_213 extends ScalaCollectionRendererTestBase {
+  override implicit val version: ScalaVersion = Scala_2_13
+
+  addFileWithBreakpoints("Lazy.scala",
+    s"""
+       |object Lazy {
+       |  def main(args: Array[String]) {
+       |    val lst = LazyList.from(1)
+       |    val a = 1$bp
+       |  }
+       |}
+      """.replace("\r", "").stripMargin.trim
+  )
+  def testLazy() {
+    testLazyCollectionRendering("lst", "scala.collection.immutable.LazyList$Cons", "LazyList(_, ?)")
+  }
+}
+
 
 abstract class ScalaCollectionRendererTestBase extends RendererTestBase {
   private val UNIQUE_ID = "uniqueID"
 
-  protected def testScalaCollectionRenderer(collectionName: String, collectionLength: Int, collectionClass: String): Unit = {
+  protected def testCollectionRenderer(collectionName: String,
+                                       collectionClass: String,
+                                       afterTypeLabel: String,
+                                       checkChildren: Boolean): Unit = {
     import org.junit.Assert._
     runDebugger() {
       waitForBreakpoint()
       val (label, children) = renderLabelAndChildren(collectionName)
       val classRenderer: ClassRenderer = NodeRendererSettings.getInstance().getClassRenderer
       val typeName = classRenderer.renderTypeName(collectionClass)
-      val expectedLabel = s"$collectionName = {$typeName@$UNIQUE_ID}${
-        ScalaCollectionRenderer.transformName(collectionClass)} size = $collectionLength"
+      val expectedLabel = s"$collectionName = {$typeName@$UNIQUE_ID}$afterTypeLabel"
 
       assertEquals(expectedLabel, label)
-      val intType = classRenderer.renderTypeName("java.lang.Integer")
-      val intLabel = s"{$intType@$UNIQUE_ID}"
 
-      var testIndex = 0
-      children foreach { childLabel =>
-        val expectedChildLabel = s"$testIndex = $intLabel${testIndex + 1}"
+      if (checkChildren) {
+        val intType = classRenderer.renderTypeName("java.lang.Integer")
+        val intLabel = s"{$intType@$UNIQUE_ID}"
+        var testIndex = 0
+        children foreach { childLabel =>
+          val expectedChildLabel = s"$testIndex = $intLabel${testIndex + 1}"
 
-        assertEquals(childLabel, expectedChildLabel)
-        testIndex += 1
+          assertEquals(childLabel, expectedChildLabel)
+          testIndex += 1
+        }
       }
     }
   }
+
+  protected def testScalaCollectionRenderer(collectionName: String, collectionLength: Int, collectionClass: String): Unit = {
+    val shortClassName = ScalaCollectionRenderer.transformName(collectionClass)
+    val afterTypeLabel = s"$shortClassName size = $collectionLength"
+    testCollectionRenderer(collectionName, collectionClass, afterTypeLabel, checkChildren = true)
+  }
+
+
+  protected def testLazyCollectionRendering(collectionName: String, collectionClass: String, afterTypeLabel: String): Unit =
+    testCollectionRenderer(collectionName, collectionClass, afterTypeLabel, checkChildren = false)
 
   addFileWithBreakpoints("ShortList.scala",
     s"""
@@ -77,18 +125,18 @@ abstract class ScalaCollectionRendererTestBase extends RendererTestBase {
     testScalaCollectionRenderer("stack", 8, "scala.collection.mutable.Stack")
   }
 
-  addFileWithBreakpoints("MutableList.scala",
+  addFileWithBreakpoints("ListBuffer.scala",
     s"""
        |object MutableList {
        |  def main(args: Array[String]) {
-       |    val mutableList = scala.collection.mutable.MutableList(1,2,3,4,5)
+       |    val mutableList = scala.collection.mutable.ListBuffer(1,2,3,4,5)
        |    val a = 1$bp
        |  }
        |}
     """.stripMargin.replace("\r", "").trim
   )
   def testMutableList() {
-    testScalaCollectionRenderer("mutableList", 5, "scala.collection.mutable.MutableList")
+    testScalaCollectionRenderer("mutableList", 5, "scala.collection.mutable.ListBuffer")
   }
 
   addFileWithBreakpoints("Queue.scala",

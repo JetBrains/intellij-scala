@@ -43,6 +43,9 @@ object ScalaCollectionRenderer {
     def exprEval = new ExpressionEvaluatorImpl(e)
   }
 
+  def instanceOf(tp: Type, baseClassNames: String*): Boolean =
+    baseClassNames.exists(DebuggerUtils.instanceOf(tp, _))
+
   private val evaluators: mutable.HashMap[DebugProcess, CachedEvaluators] = new mutable.HashMap()
 
   private def cachedEvaluators(context: EvaluationContext): CachedEvaluators = {
@@ -64,37 +67,44 @@ object ScalaCollectionRenderer {
   private def nonEmptyEval(context: EvaluationContext) = cachedEvaluators(context).nonEmptyEval
   private def sizeEval(context: EvaluationContext) = cachedEvaluators(context).sizeEval
 
-  val collectionClassName = "scala.collection.GenIterable"
-  val streamClassName = "scala.collection.immutable.Stream"
-  val streamViewClassName = "scala.collection.immutable.StreamView"
-  val viewClassName = "scala.collection.IterableView"
-  val iteratorClassName = "scala.collection.Iterator"
+  private[debugger] val collectionClassName = "scala.collection.Iterable"
+  private[debugger] val streamClassName = "scala.collection.immutable.Stream"
+  private[debugger] val streamViewClassName = "scala.collection.immutable.StreamView"
+  private[debugger] val viewClassName = "scala.collection.IterableView"
+  private[debugger] val iteratorClassName = "scala.collection.Iterator"
 
-  val sizeLabelRenderer = createSizeLabelRenderer()
+  private[debugger] val viewClassName_2_13 = "scala.collection.View"
+  private[debugger] val lazyList_2_13 = "scala.collection.immutable.LazyListOps"
 
-  def hasDefiniteSize(value: Value, evaluationContext: EvaluationContext): Boolean = {
+  private[debugger] val sizeLabelRenderer = createSizeLabelRenderer()
+
+  private[debugger] def hasDefiniteSize(value: Value, evaluationContext: EvaluationContext): Boolean = {
     value.`type`() match {
       case ct: ClassType if ct.name.startsWith("scala.collection") && notStream(ct) && notIterator(ct) => true
       case _ => evaluateBoolean(value, evaluationContext, hasDefiniteSizeEval(evaluationContext))
     }
   }
 
-  def nonEmpty(value: Value, evaluationContext: EvaluationContext): Boolean = {
+  private[debugger] def nonEmpty(value: Value, evaluationContext: EvaluationContext): Boolean = {
     value.`type`() match {
       case ct: ClassType if ct.name.toLowerCase.contains("empty") || ct.name.contains("Nil") => false
       case _ => evaluateBoolean(value, evaluationContext, nonEmptyEval(evaluationContext))
     }
   }
 
-  def size(value: Value, evaluationContext: EvaluationContext): Int = evaluateInt(value, evaluationContext, sizeEval(evaluationContext))
+  private[debugger] def size(value: Value, evaluationContext: EvaluationContext): Int =
+    evaluateInt(value, evaluationContext, sizeEval(evaluationContext))
 
-  private def checkNotCollectionOfKind(tp: Type, shortName: String, baseClassName: String) = !tp.name.contains(shortName) && !DebuggerUtils.instanceOf(tp, baseClassName)
+  private def checkNotCollectionOfKind(tp: Type, shortNames: String*)(baseClassNames: String*) =
+    !shortNames.exists(tp.name().contains(_)) && !instanceOf(tp, baseClassNames: _*)
 
-  private def notView(tp: Type): Boolean = checkNotCollectionOfKind(tp, "View", viewClassName)
+  private def notView(tp: Type): Boolean =
+    checkNotCollectionOfKind(tp, "View")(viewClassName, viewClassName_2_13)
 
-  private def notStream(tp: Type): Boolean = checkNotCollectionOfKind(tp, "Stream", streamClassName)
+  private def notStream(tp: Type): Boolean =
+    checkNotCollectionOfKind(tp, "Stream", "LazyList")(streamClassName, lazyList_2_13)
 
-  private def notIterator(tp: Type): Boolean = checkNotCollectionOfKind(tp, "Iterator", iteratorClassName)
+  private def notIterator(tp: Type): Boolean = checkNotCollectionOfKind(tp, "Iterator")(iteratorClassName)
   /**
    * util method for collection displaying in debugger
     *
