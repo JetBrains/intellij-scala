@@ -20,13 +20,14 @@ import com.intellij.openapi.project.Project
 import com.intellij.openapi.util.Key
 import com.intellij.psi.PsiNamedElement
 import org.jetbrains.plugins.scala.components.libextensions.LibraryExtensionsManager
-import org.jetbrains.plugins.scala.components.libextensions.api.psi.MacroTypeContributor
 import org.jetbrains.plugins.scala.lang.macros.MacroDef
-import org.jetbrains.plugins.scala.lang.macros.evaluator.ScalaMacroEvaluator._
 import org.jetbrains.plugins.scala.lang.macros.evaluator.impl._
 import org.jetbrains.plugins.scala.lang.psi.api.expr.ScExpression
 import org.jetbrains.plugins.scala.lang.psi.api.statements.ScFunction
 import org.jetbrains.plugins.scala.lang.psi.types.ScType
+import org.jetbrains.plugins.scala.macroAnnotations.Cached
+
+import scala.reflect.ClassTag
 
 /**
  * @author Mikhail.Mutcianko
@@ -34,15 +35,21 @@ import org.jetbrains.plugins.scala.lang.psi.types.ScType
  */
 
 class ScalaMacroEvaluator(project: Project) extends AbstractProjectComponent(project) {
+  import ScalaMacroEvaluator._
 
   override def getComponentName = "ScalaMacroEvaluator"
 
-  override def projectOpened(): Unit = {
-    val extensionsManager = LibraryExtensionsManager.getInstance(project)
-    extensionsManager.addNewExtensionsListener { () =>
-      val newContributors = extensionsManager.getExtensions(classOf[MacroTypeContributor])
-      newContributors.foreach { typingRules ++= _.getTypingRules }
-    }
+  @Cached(LibraryExtensionsManager.MOD_TRACKER, null)
+  private def typingRules:    Map[MacroImpl, ScalaMacroTypeable]    = loadRules(defaultTypeProviders)
+
+  @Cached(LibraryExtensionsManager.MOD_TRACKER, null)
+  private def expansionRules: Map[MacroImpl, ScalaMacroExpandable]  = loadRules(defaultExprProviders)
+
+  private def loadRules[T <: ScalaMacroBound](defaults: Seq[T])(implicit tag: ClassTag[T]) : Map[MacroImpl, T] = {
+    val external = LibraryExtensionsManager.getInstance(project)
+      .getExtensions(tag.runtimeClass).asInstanceOf[Seq[T]]
+    defaults.flatMap(p => p.boundMacro.map(_ -> p)).toMap ++
+      external.flatMap(p => p.boundMacro.map(_ -> p)).toMap
   }
 
   def checkMacro(named: PsiNamedElement, context: MacroContext): Option[ScType] = {
@@ -71,29 +78,26 @@ class ScalaMacroEvaluator(project: Project) extends AbstractProjectComponent(pro
     }
   }
 
-  private var typingRules: Map[MacroImpl, ScalaMacroTypeable] = Map(
-    MacroImpl("product", "shapeless.Generic")                                     -> ShapelessForProduct,
-    MacroImpl("apply", "shapeless.LowPriorityGeneric")                            -> ShapelessForProduct,
-    MacroImpl("materialize", "shapeless.Generic")                                 -> ShapelessMaterializeGeneric,
-    MacroImpl("mkDefaultSymbolicLabelling", "shapeless.DefaultSymbolicLabelling") -> ShapelessDefaultSymbolicLabelling,
-    MacroImpl("mkSelector", "shapeless.ops.record.Selector")                      -> ShapelessMkSelector,
-    MacroImpl("selectDynamic", "shapeless.Witness")                               -> ShapelessWitnessSelectDynamic
-  )
-
-  private var expansionRules: Map[MacroImpl, ScalaMacroExpandable] = Map(
-    MacroImpl("applyDynamic", "shapeless.ProductArgs") -> ShapelessProductArgs
-  )
-
 }
 
 object ScalaMacroEvaluator {
   def getInstance(project: Project): ScalaMacroEvaluator = ServiceManager.getService(project, classOf[ScalaMacroEvaluator])
 
-  case class MacroImpl(name: String, clazz: String)
-
   private val isMacroExpansionKey: Key[AnyRef] = Key.create("macro.original.expression")
 
   private def isMacroExpansion(expr: ScExpression): Boolean = expr.getUserData(isMacroExpansionKey) != null
-  private def markMacroExpansion(expr: ScExpression): Unit = expr.putUserData(isMacroExpansionKey, this)
+  private def markMacroExpansion(expr: ScExpression): Unit  = expr.putUserData(isMacroExpansionKey, this)
+
+  val defaultTypeProviders = Seq(
+    ShapelessForProduct,
+    ShapelessMaterializeGeneric,
+    ShapelessDefaultSymbolicLabelling,
+    ShapelessMkSelector,
+    ShapelessWitnessSelectDynamic
+  )
+
+  val defaultExprProviders = Seq(
+    ShapelessProductArgs
+  )
 }
 

@@ -1,7 +1,7 @@
 package org.jetbrains.plugins.scala.lang.macros.evaluator.impl
 
 import com.intellij.psi.PsiElement
-import org.jetbrains.plugins.scala.lang.macros.evaluator.{MacroContext, ScalaMacroTypeable}
+import org.jetbrains.plugins.scala.lang.macros.evaluator.{MacroContext, MacroImpl, ScalaMacroTypeable}
 import org.jetbrains.plugins.scala.lang.psi.api.base.{ScInterpolatedStringLiteral, ScLiteral, ScStableCodeReferenceElement}
 import org.jetbrains.plugins.scala.lang.psi.api.statements.ScFunction
 import org.jetbrains.plugins.scala.lang.psi.impl.ScalaPsiElementFactory._
@@ -13,6 +13,8 @@ import org.jetbrains.plugins.scala.lang.refactoring.util.ScalaNamesUtil
   * 15-Jan-18
   */
 object ShapelessWitnessSelectDynamic extends ScalaMacroTypeable with ShapelessUtils {
+
+  override val boundMacro: Seq[MacroImpl] = MacroImpl("selectDynamic", "shapeless.Witness") :: Nil
 
   override def checkMacro(macros: ScFunction, context: MacroContext): Option[ScType] =
     backtickedLiteralIn(context.place)

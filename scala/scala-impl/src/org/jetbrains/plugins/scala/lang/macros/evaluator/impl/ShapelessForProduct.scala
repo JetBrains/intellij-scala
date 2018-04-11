@@ -17,8 +17,8 @@ package org.jetbrains.plugins.scala.lang.macros.evaluator.impl
 
 import com.intellij.psi.PsiNamedElement
 import org.jetbrains.plugins.scala.extensions.PsiElementExt
-import org.jetbrains.plugins.scala.lang.macros.evaluator.{MacroContext, ScalaMacroTypeable}
-import org.jetbrains.plugins.scala.lang.psi.ScalaPsiUtil
+import org.jetbrains.plugins.scala.lang.macros.evaluator.{MacroContext, MacroImpl, ScalaMacroTypeable}
+import org.jetbrains.plugins.scala.lang.psi.{ElementScope, ScalaPsiUtil}
 import org.jetbrains.plugins.scala.lang.psi.api.base.patterns.ScPattern
 import org.jetbrains.plugins.scala.lang.psi.api.statements.{ScFunction, ScTypeAlias}
 import org.jetbrains.plugins.scala.lang.psi.api.toplevel.typedef.{ScObject, ScTypeDefinition}
@@ -33,10 +33,14 @@ import org.jetbrains.plugins.scala.lang.psi.types.api.designator.{ScDesignatorTy
 
 object ShapelessForProduct extends ScalaMacroTypeable {
 
+  override val boundMacro: Seq[MacroImpl] =
+      MacroImpl("product", "shapeless.Generic") ::
+      MacroImpl("apply", "shapeless.LowPriorityGeneric") :: Nil
+
   override def checkMacro(macros: ScFunction, context: MacroContext): Option[ScType] = {
     if (context.expectedType.isEmpty) return None
 
-    implicit val elementScope = context.place.elementScope
+    implicit val elementScope: ElementScope = context.place.elementScope
 
     val clazz = elementScope.getCachedClass("shapeless.Generic")
     clazz match {
@@ -77,4 +81,5 @@ object ShapelessForProduct extends ScalaMacroTypeable {
       case _ => None
     }
   }
+
 }

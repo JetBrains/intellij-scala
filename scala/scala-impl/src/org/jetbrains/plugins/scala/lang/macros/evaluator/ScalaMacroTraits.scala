@@ -26,14 +26,20 @@ import org.jetbrains.plugins.scala.lang.resolve.ScalaResolveResult
  *         date 22.12.14
  */
 
+case class MacroInvocationContext(call: MethodInvocation, resolveResult: ScalaResolveResult)
+
 case class MacroContext(place: PsiElement, expectedType: Option[ScType])
 
-trait ScalaMacroTypeable {
+case class MacroImpl(name: String, clazz: String)
+
+trait ScalaMacroBound {
+  val boundMacro: Seq[MacroImpl]
+}
+
+trait ScalaMacroTypeable extends ScalaMacroBound {
   def checkMacro(macros: ScFunction, context: MacroContext): Option[ScType]
 }
 
-case class MacroInvocationContext(call: MethodInvocation, resolveResult: ScalaResolveResult)
-
-trait ScalaMacroExpandable {
+trait ScalaMacroExpandable extends ScalaMacroBound {
   def expandMacro(macros: ScFunction, context: MacroInvocationContext): Option[ScExpression]
 }

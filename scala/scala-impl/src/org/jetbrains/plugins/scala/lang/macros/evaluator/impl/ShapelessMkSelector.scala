@@ -1,6 +1,6 @@
 package org.jetbrains.plugins.scala.lang.macros.evaluator.impl
 
-import org.jetbrains.plugins.scala.lang.macros.evaluator.{MacroContext, ScalaMacroTypeable}
+import org.jetbrains.plugins.scala.lang.macros.evaluator.{MacroContext, MacroImpl, ScalaMacroTypeable}
 import org.jetbrains.plugins.scala.lang.psi.api.base.ScLiteral
 import org.jetbrains.plugins.scala.lang.psi.api.expr.ScMethodCall
 import org.jetbrains.plugins.scala.lang.psi.api.statements.ScFunction
@@ -14,6 +14,8 @@ import org.jetbrains.plugins.scala.lang.psi.types.{ScCompoundType, ScParameteriz
   * [[ShapelessDefaultSymbolicLabelling]]
   */
 object ShapelessMkSelector extends ScalaMacroTypeable with ShapelessUtils {
+
+  override val boundMacro: Seq[MacroImpl] = MacroImpl("mkSelector", "shapeless.ops.record.Selector") :: Nil
 
   private def findValType(name: String)(labelled: ScType): Option[ScType] = {
     def extractKey(tp: ScCompoundType): Option[String] = tp.components.last match {

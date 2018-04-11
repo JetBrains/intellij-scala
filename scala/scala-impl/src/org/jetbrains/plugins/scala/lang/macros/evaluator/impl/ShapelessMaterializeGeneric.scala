@@ -1,6 +1,6 @@
 package org.jetbrains.plugins.scala.lang.macros.evaluator.impl
 
-import org.jetbrains.plugins.scala.lang.macros.evaluator.{MacroContext, ScalaMacroTypeable}
+import org.jetbrains.plugins.scala.lang.macros.evaluator.{MacroContext, MacroImpl, ScalaMacroTypeable}
 import org.jetbrains.plugins.scala.lang.psi.api.statements.ScFunction
 import org.jetbrains.plugins.scala.lang.psi.impl.ScalaPsiElementFactory
 import org.jetbrains.plugins.scala.lang.psi.types.ScType
@@ -13,6 +13,8 @@ import org.jetbrains.plugins.scala.lang.psi.types.ScType
   * -> Generic.Aux[Main.this.Foo, shapeless.this.::[Int, shapeless.this.::[String, shapeless.this.HNil]]]
   */
 object ShapelessMaterializeGeneric extends ScalaMacroTypeable with ShapelessUtils {
+
+  override val boundMacro: Seq[MacroImpl] = MacroImpl("materialize", "shapeless.Generic") :: Nil
 
   override def checkMacro(macros: ScFunction, context: MacroContext): Option[ScType] = {
     if (context.expectedType.isEmpty) return None

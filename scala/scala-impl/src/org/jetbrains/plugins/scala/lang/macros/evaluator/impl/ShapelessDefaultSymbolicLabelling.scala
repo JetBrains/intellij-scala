@@ -1,5 +1,5 @@
 package org.jetbrains.plugins.scala.lang.macros.evaluator.impl
-import org.jetbrains.plugins.scala.lang.macros.evaluator.{MacroContext, ScalaMacroTypeable}
+import org.jetbrains.plugins.scala.lang.macros.evaluator.{MacroContext, MacroImpl, ScalaMacroTypeable}
 import org.jetbrains.plugins.scala.lang.psi.api.statements.ScFunction
 import org.jetbrains.plugins.scala.lang.psi.impl.ScalaPsiElementFactory
 import org.jetbrains.plugins.scala.lang.psi.types.ScType
@@ -14,6 +14,8 @@ import org.jetbrains.plugins.scala.lang.psi.types.ScType
   * note: since we don't support literal types yet, field names are encoded as compound types with a type alias
   */
 object ShapelessDefaultSymbolicLabelling extends ScalaMacroTypeable with ShapelessUtils {
+
+  override val boundMacro: Seq[MacroImpl] = MacroImpl("mkDefaultSymbolicLabelling", "shapeless.DefaultSymbolicLabelling") :: Nil
 
   private def mkParamTp(paramName: String, tp: String): String = {
     s"$tp with $fqKeyTag[Symbol with $fqTagged[{type $paramName}], $tp]"
