@@ -42,7 +42,17 @@ class LibraryExtensionsManager(project: Project) extends AbstractProjectComponen
     ApplicationManager.getApplication.getMessageBus
       .syncPublisher(Notifications.TOPIC)
       .register(GROUP_ID, NotificationDisplayType.STICKY_BALLOON)
-    loadCachedExtensions()
+    if (ScalaProjectSettings.getInstance(project).isEnableLibraryExtensions)
+      loadCachedExtensions()
+  }
+
+  def setEnabled(value: Boolean): Unit = {
+    myAvailableLibraries.clear()
+    myExtensionInstances.clear()
+    myClassLoaders.clear()
+    MOD_TRACKER.incModCount()
+    try   { if (value) loadCachedExtensions() }
+    catch { case e: Exception => LOG.error(s"Failed to load cached extensions", e) }
   }
 
   def searchExtensions(sbtResolvers: Set[SbtResolver]): Unit = {
@@ -142,7 +152,6 @@ class LibraryExtensionsManager(project: Project) extends AbstractProjectComponen
   }
 
   private def loadCachedExtensions(): Unit = {
-    if (!ScalaProjectSettings.getInstance(project).isEnableLibraryExtensions) return
     val jarPaths = properties.getValues("extensionJars")
     if (jarPaths != null) {
       val fakeDependencies = jarPaths.map(path => ResolvedDependency(null, new File(path)))

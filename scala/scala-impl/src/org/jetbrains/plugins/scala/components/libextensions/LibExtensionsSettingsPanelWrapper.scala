@@ -94,8 +94,11 @@ class LibExtensionsSettingsPanelWrapper(private val rootPanel: JPanel,
     val librariesList = new JBList[LibraryDescriptor](libraryListModel)
     librariesList.setEmptyText("No known extension libraries")
     librariesList.addListSelectionListener { event =>
-      val newData = if (event.getFirstIndex != -1)
-        Option(libraryExtensionsManager.getAvailableLibraries(event.getFirstIndex)) else None
+      val libraries = libraryExtensionsManager.getAvailableLibraries
+      val index = event.getFirstIndex
+      val newData = if (index != -1 && index < libraries.size) {
+        Some(libraries(index))
+      } else None
       extensionsList.setModel(new LibraryDetailsModel(newData))
     }
     librariesList.installCellRenderer{ ld: LibraryDescriptor =>
@@ -116,7 +119,12 @@ class LibExtensionsSettingsPanelWrapper(private val rootPanel: JPanel,
     UIUtil.addBorder(librariesPane,IdeBorderFactory.createTitledBorder("Known extension libraries", false))
     UIUtil.addBorder(extensionsPane, IdeBorderFactory.createTitledBorder("Extensions in selected library", false))
 
-    enabledCB.addActionListener {_ =>
+    enabledCB.addActionListener { _ =>
+      libraryExtensionsManager.setEnabled(enabledCB.isSelected)
+      val detailsModel = new LibraryDetailsModel(None)
+      val libraryListModel = new LibraryListModel(detailsModel)
+      extensionsList.setModel(detailsModel)
+      librariesList.setModel(libraryListModel)
       UIUtil.setEnabled(listsPane, enabledCB.isSelected, true)
     }
 
