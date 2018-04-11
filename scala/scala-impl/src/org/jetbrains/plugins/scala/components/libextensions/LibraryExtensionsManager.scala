@@ -11,6 +11,7 @@ import com.intellij.openapi.progress.{ProgressIndicator, ProgressManager, Task}
 import com.intellij.openapi.project.Project
 import com.intellij.openapi.roots.impl.libraries.ProjectLibraryTable
 import com.intellij.openapi.roots.libraries.Library
+import com.intellij.openapi.util.ModificationTracker
 import com.intellij.util.lang.UrlClassLoader
 import javax.swing.event.HyperlinkEvent
 import org.jetbrains.plugins.scala.DependencyManagerBase._
@@ -30,13 +31,12 @@ class LibraryExtensionsManager(project: Project) extends AbstractProjectComponen
   class ExtensionNotRegisteredException(iface: Class[_]) extends Exception(s"No extensions registered for class $iface")
   class InvalidExtensionException(iface: Class[_], impl: Class[_]) extends Exception(s"Extension $impl doesn't inherit $iface")
 
-  private val LOG = Logger.getInstance(classOf[LibraryExtensionsManager])
-  private val myAvailableLibraries = ArrayBuffer[LibraryDescriptor]()
-  private val myExtensionInstances = mutable.HashMap[Class[_], ArrayBuffer[Any]]()
-  private val myClassLoaders = mutable.HashMap[IdeaVersionDescriptor, UrlClassLoader]()
-  private val myListeners = mutable.ArrayBuffer[Runnable]()
+  private val LOG         = Logger.getInstance(classOf[LibraryExtensionsManager])
+  private val properties  = PropertiesComponent.getInstance(project)
 
-  private val properties: PropertiesComponent = PropertiesComponent.getInstance(project)
+  private val myAvailableLibraries  = ArrayBuffer[LibraryDescriptor]()
+  private val myExtensionInstances  = mutable.HashMap[Class[_], ArrayBuffer[Any]]()
+  private val myClassLoaders        = mutable.HashMap[IdeaVersionDescriptor, UrlClassLoader]()
 
   override def projectOpened(): Unit = {
     ApplicationManager.getApplication.getMessageBus
@@ -57,10 +57,7 @@ class LibraryExtensionsManager(project: Project) extends AbstractProjectComponen
 
   private def enabledAcceptCb(resolved: Seq[ResolvedDependency]): Unit = {
     resolved.foreach(processResolvedExtension)
-    val jarPaths = resolved.map(_.file.getAbsolutePath).toArray
-    properties.setValues("extensionJars", jarPaths)
-    if (resolved.nonEmpty)
-      myListeners.foreach(_.run())
+    properties.setValues("extensionJars", resolved.map(_.file.getAbsolutePath).toArray)
   }
 
   private def enabledCancelledCb(): Unit = {
@@ -110,6 +107,7 @@ class LibraryExtensionsManager(project: Project) extends AbstractProjectComponen
       case Some(Failure(exception)) => LOG.error("Error parsing extensions manifest", exception)
       case None                     => LOG.error(s"No manifest in extensions jar ${resolved.file}")
     }
+    MOD_TRACKER.incModCount()
   }
 
   private def loadJarWithManifest(manifest: Elem, jarFile: File): Unit = {
@@ -158,10 +156,6 @@ class LibraryExtensionsManager(project: Project) extends AbstractProjectComponen
 
   def getAvailableLibraries: Seq[LibraryDescriptor] = myAvailableLibraries
 
-  def addNewExtensionsListener(runnable: Runnable): Unit = myListeners += runnable
-
-  def removeNewExtensionsListener(runnable: Runnable): Unit = myListeners -= runnable
-
 }
 
 object LibraryExtensionsManager {
@@ -195,6 +189,12 @@ object LibraryExtensionsManager {
       }
     )
     Notifications.Bus.notify(notification)
+  }
+
+  val MOD_TRACKER = new ModificationTracker {
+    private var modcount = 0l
+    def incModCount(): Unit = modcount += 1
+    override def getModificationCount: Long = modcount
   }
 
 }
