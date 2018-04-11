@@ -14,10 +14,6 @@ public class NailgunRunner {
   private static final String SERVER_DESCRIPTION = "Scala compile server";
   private static final String SERVER_CLASS_NAME = "org.jetbrains.jps.incremental.scala.remote.Main";
 
-  private static final String SBT_WATCHER_ALIAS = "play-sbt-watcher";
-  private static final String SBT_WATCHER_DESCRIPTION = "Play framework sbt watcher";
-  private static final String SBT_WATCHER_CLASS_NAME = "org.jetbrains.jps.incremental.scala.remote.play.SbtWatcherMain";
-
   private static final String STOP_ALIAS_START = "stop_";
   private static final String STOP_CLASS_NAME = "com.martiansoftware.nailgun.builtins.NGStop";
 
@@ -45,9 +41,6 @@ public class NailgunRunner {
 
     Class serverClass = Class.forName(SERVER_CLASS_NAME);
     server.getAliasManager().addAlias(new Alias(SERVER_ALIAS, SERVER_DESCRIPTION, serverClass));
-
-    Class watcherServerClass = Class.forName(SBT_WATCHER_CLASS_NAME);
-    server.getAliasManager().addAlias(new Alias(SBT_WATCHER_ALIAS, SBT_WATCHER_DESCRIPTION, watcherServerClass));
 
     Class stopClass = Class.forName(STOP_CLASS_NAME);
     String stopAlias = STOP_ALIAS_START + id;
