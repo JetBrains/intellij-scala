@@ -161,7 +161,7 @@ private class CommandTask(project: Project, modules: Array[Module], command: Str
         case ErrorWaitForInput =>
           // can only actually happen during reload, but handle it here to be sure
           showShell()
-          report.error("build interrupted")
+          report.error("build interrupted", None)
           messages.addError("ERROR: build interrupted")
           messages
         case Output(raw) =>
@@ -172,21 +172,21 @@ private class CommandTask(project: Project, modules: Array[Module], command: Str
             // only report first error until we can get a good mapping message -> error
             if (messages.errors.isEmpty) {
               showShell()
-              report.error("errors in build")
+              report.error("errors in build", None)
             }
             messages.addError(msg)
           } else if (text startsWith WARN_PREFIX) {
             val msg = text.stripPrefix(WARN_PREFIX)
             // only report first warning
             if (messages.warnings.isEmpty) {
-              report.warning("warnings in build")
+              report.warning("warnings in build", None)
             }
             messages.addWarning(msg)
           } else messages
 
           collector.processCompilerMessage(text)
 
-          report.output(text)
+          report.log(text)
 
           messagesWithErrors.appendMessage(text)
       }

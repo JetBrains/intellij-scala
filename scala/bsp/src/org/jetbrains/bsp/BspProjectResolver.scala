@@ -20,6 +20,7 @@ import org.langmeta.lsp.{LanguageClient, Window}
 import scala.collection.JavaConverters._
 import scala.concurrent.Await
 import scala.concurrent.duration.Duration
+import BspUtil._
 
 class BspProjectResolver extends ExternalSystemProjectResolver[BspExecutionSettings] {
 
@@ -180,11 +181,6 @@ class BspProjectResolver extends ExternalSystemProjectResolver[BspExecutionSetti
 }
 
 object BspProjectResolver {
-
-  implicit class BspStringOps(str: String) {
-    def toURI: URI = new URI(str) // TODO handle error
-    def toFileAsURI: File = Paths.get(str.toURI).toFile // TODO handle error
-  }
 
   private case class ModuleDescription(target: BuildTarget,
                                        basePath: File,

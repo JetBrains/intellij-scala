@@ -6,6 +6,7 @@ import java.util.UUID
 
 import ch.epfl.scala.bsp.endpoints
 import ch.epfl.scala.bsp.schema.{BuildTargetIdentifier, CompileParams, CompileReport}
+import com.intellij.build.FilePosition
 import com.intellij.execution.process.AnsiEscapeDecoder.ColoredTextAcceptor
 import com.intellij.execution.process.{AnsiEscapeDecoder, ProcessOutputTypes}
 import com.intellij.openapi.externalSystem.util.{ExternalSystemApiUtil => ES}
@@ -25,6 +26,9 @@ import org.langmeta.lsp._
 import scala.collection.JavaConverters._
 import scala.concurrent.Await
 import scala.concurrent.duration.Duration
+import BspUtil._
+
+import scala.util.control.NonFatal
 
 class BspProjectTaskRunner extends ProjectTaskRunner {
 
@@ -76,58 +80,9 @@ object BspProjectTaskRunner {
       endpoints.BuildTarget.compile.request(CompileParams(targets))
 
     private val services = Services.empty
-      .notification(Window.logMessage) { params => report.output(params.message) }
-      .notification(Window.showMessage) { params =>
-        // TODO handle message type (warning, error etc) in output
-        val text = params.message
-        report.output(text)
-
-        // TODO build toolwindow log supports ansi colors, but not some other stuff
-        val textNoAnsiAcceptor = new TextCollector
-        new AnsiEscapeDecoder().escapeText(text, ProcessOutputTypes.STDOUT, textNoAnsiAcceptor)
-        val textNoAnsi = textNoAnsiAcceptor.result
-
-        buildMessages = buildMessages.appendMessage(textNoAnsi)
-        import org.langmeta.lsp.MessageType._
-        buildMessages =
-          params.`type` match {
-            case Error =>
-              report.error(textNoAnsi)
-              buildMessages.addError(text)
-            case Warning =>
-              report.warning(textNoAnsi)
-              buildMessages.addWarning(text)
-            case Info =>
-              buildMessages
-            case Log =>
-              buildMessages
-          }
-      }
-      .notification(TextDocument.publishDiagnostics) { params =>
-        params.diagnostics.foreach { diagnostic =>
-          val severity = diagnostic.severity.map(s => s"${s.toString}: ").getOrElse("")
-          val range = diagnostic.range.start.line.toString // TODO full position output
-        val text = s"$severity($range)${diagnostic.message}"
-
-          report.output(text)
-          buildMessages = buildMessages.appendMessage(text)
-
-          import org.langmeta.lsp.DiagnosticSeverity._
-          buildMessages =
-            diagnostic.severity.map {
-              case Error =>
-                report.error(text)
-                buildMessages.addError(text)
-              case Warning =>
-                buildMessages.addWarning(text)
-              case Information =>
-                buildMessages
-              case Hint =>
-                buildMessages
-            }
-              .getOrElse(buildMessages)
-        }
-      }
+      .notification(Window.logMessage) { params => report.log(params.message) }
+      .notification(Window.showMessage)(reportShowMessage)
+      .notification(TextDocument.publishDiagnostics)(reportDiagnostics)
 
     override def run(indicator: ProgressIndicator): Unit = {
       val reportIndicator = new IndicatorReporter(indicator)
@@ -144,25 +99,93 @@ object BspProjectTaskRunner {
       reportIndicator.start()
       report.start()
 
-      val result = Await.result(buildTask.runAsync, Duration.Inf)
+      try {
+        val result = Await.result(buildTask.runAsync, Duration.Inf)
 
-      result match {
-        case Left(errorResponse) =>
-          val message = errorResponse.error.message
-          val failure = BuildFailureException(message)
-          report.error(message)
-          report.finishWithFailure(failure)
-          reportIndicator.finishWithFailure(failure)
-        case Right(compileReport) =>
-          compileReport.items.foreach { item =>
-            val targetStr = item.target.map(t => s"$t : ").getOrElse("")
-            report.output(s"${targetStr}completed compile with ${item.warnings} warnings and ${item.errors} errors in ${item.time}ms")
-          }
-          report.finish(buildMessages)
-          reportIndicator.finish(buildMessages)
+        result match {
+          case Left(errorResponse) =>
+            val message = errorResponse.error.message
+            val failure = BuildFailureException(message)
+            report.error(message, None)
+            report.finishWithFailure(failure)
+            reportIndicator.finishWithFailure(failure)
+          case Right(compileReport) =>
+            compileReport.items.foreach { item =>
+              val targetStr = item.target.map(t => s"$t : ").getOrElse("")
+              report.log(s"${targetStr}completed compile with ${item.warnings} warnings and ${item.errors} errors in ${item.time}ms")
+            }
+            report.finish(buildMessages)
+            reportIndicator.finish(buildMessages)
+        }
+      } catch {
+        case NonFatal(err) =>
+          report.error(err.getMessage, None)
+          report.finishWithFailure(err)
+          reportIndicator.finishWithFailure(err)
       }
     }
 
+    private def reportShowMessage(params: ShowMessageParams): Unit = {
+      // TODO handle message type (warning, error etc) in output
+      val text = params.message
+      report.log(text)
+
+      // TODO build toolwindow log supports ansi colors, but not some other stuff
+      val textNoAnsiAcceptor = new TextCollector
+      new AnsiEscapeDecoder().escapeText(text, ProcessOutputTypes.STDOUT, textNoAnsiAcceptor)
+      val textNoAnsi = textNoAnsiAcceptor.result
+
+      buildMessages = buildMessages.appendMessage(textNoAnsi)
+
+      import org.langmeta.lsp.MessageType._
+      buildMessages =
+        params.`type` match {
+          case Error =>
+            report.error(textNoAnsi, None)
+            buildMessages.addError(textNoAnsi)
+          case Warning =>
+            report.warning(textNoAnsi, None)
+            buildMessages.addWarning(textNoAnsi)
+          case Info =>
+            buildMessages
+          case Log =>
+            buildMessages
+        }
+    }
+
+    private def reportDiagnostics(diagnostics: PublishDiagnostics): Unit = {
+      val file = diagnostics.uri.toFileAsURI
+      diagnostics.diagnostics.foreach { diagnostic =>
+        val start = diagnostic.range.start
+        val end = diagnostic.range.end
+        val position = Some(new FilePosition(file, start.line, start.character, end.line, end.character))
+        val text = diagnostic.message
+
+        report.log(text)
+        buildMessages = buildMessages.appendMessage(text)
+
+        import org.langmeta.lsp.DiagnosticSeverity._
+        buildMessages =
+          diagnostic.severity.map {
+            case Error =>
+              report.error(text, position)
+              buildMessages.addError(text)
+            case Warning =>
+              report.warning(text, position)
+              buildMessages.addWarning(text)
+            case Information =>
+              report.info(text, position)
+              buildMessages
+            case Hint =>
+              report.info(text, position)
+              buildMessages
+          }
+            .getOrElse {
+              report.info(text, position)
+              buildMessages
+            }
+      }
+    }
 
   }
 
@@ -174,6 +197,5 @@ object BspProjectTaskRunner {
 
     def result: String = builder.result()
   }
-
 
 }
