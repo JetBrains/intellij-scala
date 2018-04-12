@@ -6,7 +6,7 @@ package expr
 
 import com.intellij.psi.util.PsiTreeUtil
 import org.jetbrains.plugins.scala.lang.psi.api.base.patterns.ScCaseClauses
-import org.jetbrains.plugins.scala.lang.psi.controlFlow.{Instruction, ScControlFlowPolicy}
+import org.jetbrains.plugins.scala.lang.psi.controlFlow.Instruction
 
 /**
 * @author Alexander Podkhalyuzin
@@ -20,11 +20,11 @@ trait ScBlockExpr extends ScExpression with ScBlock with ScControlFlowOwner {
 
   def caseClauses: Option[ScCaseClauses] = findChild(classOf[ScCaseClauses])
 
-  override def getControlFlow(policy: ScControlFlowPolicy): Seq[Instruction] = {
-    if (isAnonymousFunction) super.getControlFlow(policy)
+  override def getControlFlow: Seq[Instruction] = {
+    if (isAnonymousFunction) super.getControlFlow
     else {
       val parent = PsiTreeUtil.getParentOfType(this, classOf[ScControlFlowOwner])
-      parent.getControlFlow(policy)
+      parent.getControlFlow
     }
   }
 

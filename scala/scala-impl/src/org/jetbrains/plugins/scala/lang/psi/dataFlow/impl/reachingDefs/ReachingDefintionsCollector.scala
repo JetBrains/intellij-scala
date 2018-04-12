@@ -34,7 +34,7 @@ object ReachingDefintionsCollector {
               fragment.map(_.getContainingFile.getName).mkString("(", ", ", ")")
       throw new RuntimeException(message)
     }
-    val cfg = cfowner.getControlFlow() //todo: make cache more right to not get PsiInvalidAccess
+    val cfg = cfowner.getControlFlow //todo: make cache more right to not get PsiInvalidAccess
     val engine = new DfaEngine(cfg, ReachingDefinitionsInstance, ReachingDefinitionsLattice)
     val dfaResult = engine.performDFA
 

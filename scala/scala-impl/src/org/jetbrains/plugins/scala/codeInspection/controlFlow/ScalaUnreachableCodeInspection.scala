@@ -24,7 +24,7 @@ class ScalaUnreachableCodeInspection extends AbstractInspection("ScalaUnreachabl
   import ScalaUnreachableCodeInspection._
 
   override def actionFor(implicit holder: ProblemsHolder): PartialFunction[PsiElement, Any] = {
-    case funDef: ScFunctionDefinition => ControlFlowUtil.detectConnectedComponents(funDef.getControlFlow()) match {
+    case funDef: ScFunctionDefinition => ControlFlowUtil.detectConnectedComponents(funDef.getControlFlow) match {
       case Seq(head, tail@_*) =>
         for {
           component <- tail
