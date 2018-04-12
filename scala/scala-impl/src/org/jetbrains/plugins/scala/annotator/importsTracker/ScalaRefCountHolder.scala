@@ -2,17 +2,18 @@ package org.jetbrains.plugins.scala.annotator.importsTracker
 
 import java.util.concurrent.atomic.AtomicReference
 
-import com.intellij.openapi.util.{Key, TextRange}
+import com.intellij.codeHighlighting.Pass
+import com.intellij.codeInsight.daemon.DaemonCodeAnalyzer
+import com.intellij.codeInsight.daemon.impl.DaemonCodeAnalyzerImpl
+import com.intellij.openapi.components.AbstractProjectComponent
+import com.intellij.openapi.editor.event.{EditorFactoryEvent, EditorFactoryListener}
+import com.intellij.openapi.editor.{Document, Editor, EditorFactory}
+import com.intellij.openapi.project.Project
+import com.intellij.openapi.util.{LowMemoryWatcher, TextRange}
 import com.intellij.psi._
 import com.intellij.util.containers.ContainerUtil
-import org.jetbrains.plugins.scala.lang.psi.api.ScalaFile
-import org.jetbrains.plugins.scala.lang.psi.api.toplevel.imports.ScImportExpr
 import org.jetbrains.plugins.scala.lang.psi.api.toplevel.imports.usages._
-import org.jetbrains.plugins.scala.project.UserDataHolderExt
 import org.jetbrains.plugins.scala.util.ScalaLanguageDerivative
-import org.jetbrains.plugins.scala.extensions.PsiElementExt
-
-import scala.collection.mutable
 
 /**
  * User: Alexander Podkhalyuzin
@@ -130,10 +131,67 @@ class ScalaRefCountHolder private () {
 }
 
 object ScalaRefCountHolder {
-  private val SCALA_REF_COUNT_HOLDER_IN_FILE_KEY: Key[ScalaRefCountHolder] = Key.create("scala.ref.count.holder.in.file.key")
+
+  def getDirtyScope(file: PsiFile): Option[TextRange] = {
+    val project = file.getProject
+    val document: Document = PsiDocumentManager.getInstance(project).getDocument(file)
+
+    if (document == null) Some(file.getTextRange)
+    else DaemonCodeAnalyzer.getInstance(project) match {
+      case analyzerImpl: DaemonCodeAnalyzerImpl =>
+        val fileStatusMap = analyzerImpl.getFileStatusMap
+        Option(fileStatusMap.getFileDirtyScope(document, Pass.UPDATE_ALL))
+      case _ => Some(file.getTextRange)
+    }
+  }
 
   def getInstance(file: PsiFile): ScalaRefCountHolder = {
     val myFile = Option(ScalaLanguageDerivative.getScalaFileOnDerivative(file)).getOrElse(file)
-    myFile.getOrUpdateUserData(SCALA_REF_COUNT_HOLDER_IN_FILE_KEY, new ScalaRefCountHolder)
+    val component = myFile.getProject.getComponent(classOf[ScalaRefCountHolderComponent])
+    component.getOrCreate(myFile, new ScalaRefCountHolder)
+  }
+}
+
+class ScalaRefCountHolderComponent(project: Project) extends AbstractProjectComponent(project) {
+
+  override def projectOpened(): Unit = {
+
+    LowMemoryWatcher.register(() => refCountHolders.clear(), project)
+
+    EditorFactory.getInstance().addEditorFactoryListener(new EditorFactoryListener {
+      override def editorCreated(event: EditorFactoryEvent): Unit = {}
+      override def editorReleased(event: EditorFactoryEvent): Unit = removeHoldersWithNoEditor(event.getEditor)
+    }, project)
+  }
+
+  override def projectClosed(): Unit = {
+    refCountHolders.clear()
+  }
+
+  def getOrCreate(file: PsiFile, holder: => ScalaRefCountHolder): ScalaRefCountHolder = refCountHolders.synchronized {
+    refCountHolders.computeIfAbsent(file, _ => holder)
+  }
+
+  private[this] val refCountHolders = ContainerUtil.createWeakMap[PsiFile, ScalaRefCountHolder]()
+
+  private[this] def hasNoDocumentOrEditor(file: PsiFile, releasedEditor: Editor): Boolean = {
+    val project = file.getProject
+    val document = PsiDocumentManager.getInstance(project).getCachedDocument(file)
+
+    document == null || !hasOtherEditors(document, releasedEditor)
+  }
+
+  private[this] def hasOtherEditors(document: Document, releasedEditor: Editor): Boolean = {
+    EditorFactory.getInstance().getEditors(document, project) match {
+      case Array() | Array(`releasedEditor`) => false
+      case _ => true
+    }
+  }
+
+  private[this] def removeHoldersWithNoEditor(releasedEditor: Editor): Unit = {
+    refCountHolders.synchronized {
+      val files = refCountHolders.keySet()
+      files.removeIf(f => hasNoDocumentOrEditor(f, releasedEditor))
+    }
   }
 }
