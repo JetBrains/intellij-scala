@@ -701,6 +701,12 @@ trait ScalaConformance extends api.Conformance {
     }
 
     override def visitLiteralType(l: ScLiteralType): Unit = {
+      val rightVisitor: ScalaTypeVisitor = new UndefinedSubstVisitor(){}
+
+      r.visitType(rightVisitor)
+
+      if (result != null) return
+
       checkEquiv()
     }
 
