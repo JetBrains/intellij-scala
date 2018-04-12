@@ -61,14 +61,15 @@ class BspProjectTaskRunner extends ProjectTaskRunner {
 
     implicit val scheduler: Scheduler = Scheduler(PooledThreadExecutor.INSTANCE, ExecutionModel.AlwaysAsyncExecution)
 
-    val bspTask = new BspTask(project, targets)
+    val bspTask = new BspTask(project, targets, Option(projectTaskNotification))
     ProgressManager.getInstance().run(bspTask)
   }
 }
 
 object BspProjectTaskRunner {
 
-  class BspTask[T](project: Project, targets: Seq[BuildTargetIdentifier])(implicit scheduler: Scheduler)
+  class BspTask[T](project: Project, targets: Seq[BuildTargetIdentifier], callbackOpt: Option[ProjectTaskNotification])
+                  (implicit scheduler: Scheduler)
     extends Task.Backgroundable(project, "bsp build", true, PerformInBackgroundOption.ALWAYS_BACKGROUND) {
 
     private var buildMessages: BuildMessages = BuildMessages.empty
@@ -99,9 +100,8 @@ object BspProjectTaskRunner {
       reportIndicator.start()
       report.start()
 
-      try {
+      val projectTaskResult = try {
         val result = Await.result(buildTask.runAsync, Duration.Inf)
-
         result match {
           case Left(errorResponse) =>
             val message = errorResponse.error.message
@@ -109,6 +109,7 @@ object BspProjectTaskRunner {
             report.error(message, None)
             report.finishWithFailure(failure)
             reportIndicator.finishWithFailure(failure)
+            new ProjectTaskResult(true, buildMessages.errors.size, buildMessages.warnings.size)
           case Right(compileReport) =>
             compileReport.items.foreach { item =>
               val targetStr = item.target.map(t => s"$t : ").getOrElse("")
@@ -116,13 +117,18 @@ object BspProjectTaskRunner {
             }
             report.finish(buildMessages)
             reportIndicator.finish(buildMessages)
+            new ProjectTaskResult(buildMessages.aborted, buildMessages.errors.size, buildMessages.warnings.size)
         }
+
       } catch {
         case NonFatal(err) =>
           report.error(err.getMessage, None)
           report.finishWithFailure(err)
           reportIndicator.finishWithFailure(err)
+          new ProjectTaskResult(true, 1, 0)
       }
+
+      callbackOpt.foreach(_.finished(projectTaskResult))
     }
 
     private def reportShowMessage(params: ShowMessageParams): Unit = {

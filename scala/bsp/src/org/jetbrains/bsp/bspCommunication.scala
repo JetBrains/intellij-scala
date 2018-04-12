@@ -2,7 +2,6 @@ package org.jetbrains.bsp
 
 import java.io.File
 import java.nio.file.Files
-import java.util.concurrent.TimeUnit
 
 import ch.epfl.scala.bsp.endpoints
 import ch.epfl.scala.bsp.schema.{BuildClientCapabilities, InitializeBuildParams, InitializedBuildParams}
@@ -17,12 +16,14 @@ import org.langmeta.lsp.{LanguageClient, LanguageServer}
 import org.scalasbt.ipcsocket.UnixDomainSocket
 import org.slf4j.LoggerFactory
 
-import scala.concurrent.duration.FiniteDuration
 import scala.sys.process.Process
 import scala.util.Random
+import scala.concurrent.duration._
 
 class BspCommunication(project: Project) extends AbstractProjectComponent(project) {
-
+  // TODO support persistent sessions for more features
+  // * background compilation and error reporting/highlighting
+  //
 }
 
 class BspSession(messages: Observable[BaseProtocolMessage],
@@ -48,7 +49,7 @@ class BspSession(messages: Observable[BaseProtocolMessage],
     val resultTask = for {
       initResult <- initRequest
       _ = endpoints.Build.initialized.notify(InitializedBuildParams())
-      result <- task(client)
+      result <- task(client).delayExecution(100.millis) // FIXME hackaround to "ensure" bsp server is ready to answer requests after initialized notification
     } yield {
       result
     }
@@ -129,8 +130,9 @@ object BspCommunication {
         if (socketFile.isFile) socketFile.delete()
       }
 
-    Task(runBloop).flatMap(_ =>
-      Task(initSession).delayExecution(FiniteDuration(250, TimeUnit.MILLISECONDS)))
+    Task(runBloop)
+      .delayResult(300.millis) // FIXME hackaround for not getting a "ready" flag from bloop process
+      .map(_ => initSession)
   }
 
 }
