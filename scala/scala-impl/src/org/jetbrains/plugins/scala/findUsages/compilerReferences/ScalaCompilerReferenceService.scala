@@ -7,11 +7,13 @@ import com.intellij.compiler.CompilerReferenceService
 import com.intellij.compiler.backwardRefs.CompilerReferenceServiceBase
 import com.intellij.compiler.backwardRefs.CompilerReferenceServiceBase.{IndexCloseReason, IndexOpenReason}
 import com.intellij.compiler.server.CustomBuilderMessageHandler
-import com.intellij.openapi.compiler.{CompilationStatusListener, CompileContext, CompilerTopics}
+import com.intellij.openapi.compiler.CompilerManager
 import com.intellij.openapi.diagnostic.Logger
 import com.intellij.openapi.fileEditor.FileDocumentManager
+import com.intellij.openapi.module.ModuleUtilCore
 import com.intellij.openapi.project.Project
 import com.intellij.openapi.util.Disposer
+import com.intellij.psi.search.GlobalSearchScope
 import com.intellij.psi.{PsiClass, PsiDocumentManager, PsiElement}
 import com.intellij.util.messages.MessageBusConnection
 import org.jetbrains.plugin.scala.compilerReferences.{BuildData, CompilerReferenceIndexBuilder}
@@ -23,17 +25,19 @@ import org.jetbrains.plugins.scala.lang.psi.api.statements.{ScFunction, ScValueO
 import org.jetbrains.plugins.scala.lang.psi.api.toplevel.ScTypedDefinition
 import org.jetbrains.plugins.scala.lang.psi.fake.FakePsiMethod
 import org.jetbrains.plugins.scala.lang.psi.types.ValueClassType
+import org.jetbrains.plugins.scala.project._
+import org.jetbrains.sbt.project.module.SbtModuleType
 
 import scala.collection.JavaConverters._
 
 private[findUsages] class ScalaCompilerReferenceService(
-  project: Project,
+  project:             Project,
   fileDocumentManager: FileDocumentManager,
-  psiDocumentManager: PsiDocumentManager
+  psiDocumentManager:  PsiDocumentManager
 ) extends {
   private[this] val callback: BiConsumer[MessageBusConnection, util.Set[String]] = (connection, affectedModules) =>
     connection.subscribe(CompilerReferenceIndexingTopics.indexingStatus, new CompilerReferenceIndexingStatusListener {
-      override def onIndexingFinished(affectedModuleNames: Iterable[String]): Unit =
+      override def modulesUpToDate(affectedModuleNames: Iterable[String]): Unit =
         affectedModules.addAll(affectedModuleNames.toSet.asJava)
     })
 } with CompilerReferenceServiceBase[ScalaCompilerReferenceReader](
@@ -56,18 +60,7 @@ private[findUsages] class ScalaCompilerReferenceService(
       override def beforeIndexingStarted(): Unit =
         closeReaderIfNeed(IndexCloseReason.COMPILATION_STARTED)
 
-      override def onIndexingFinished(affectedModuleNames: Iterable[String]): Unit =
-        openReaderIfNeed(IndexOpenReason.COMPILATION_FINISHED)
-    })
-
-    connection.subscribe(CompilerTopics.COMPILATION_STATUS, new CompilationStatusListener {
-      override def compilationFinished(
-        aborted: Boolean,
-        errors: Int,
-        warnings: Int,
-        compileContext: CompileContext
-      ): Unit =
-        if (aborted) openReaderIfNeed(IndexOpenReason.COMPILATION_FINISHED)
+      override def onIndexingFinished(): Unit = openReaderIfNeed(IndexOpenReason.COMPILATION_FINISHED)
     })
 
     connection.subscribe(CustomBuilderMessageHandler.TOPIC, new CustomBuilderMessageHandler {
@@ -82,27 +75,46 @@ private[findUsages] class ScalaCompilerReferenceService(
             logger.debug(s"Building index for modules ${modules.mkString("[", ", ", "]")}")
 
             indexer.writeBuildData(data, onSuccess = {
-              publisher.onIndexingFinished(modules)
+              publisher.modulesUpToDate(modules)
               logger.debug(s"Finished building indices for modules ${modules.mkString("[", ", ", "]")}")
+              publisher.onIndexingFinished()
             })
           }
         }
     })
 
     myDirtyScopeHolder.installVFSListener()
-    CompilerReferenceServiceBase.executeOnBuildThread(() => markAsOutdated(false))
+    CompilerReferenceServiceBase.executeOnBuildThread(markAsOutdated(false))
+
+    executeOnPooledThread {
+      val validIndexExists = upToDateCompilerIndexExists(project)
+      val compilerManager  = CompilerManager.getInstance(project)
+
+      if (validIndexExists) {
+        project.modules.filter(SbtModuleType.unapply(_).isEmpty).foreach { m =>
+          val scope = compilerManager.createModuleCompileScope(m, false)
+          if (compilerManager.isUpToDate(scope)) publisher.modulesUpToDate(Set(m.getName))
+        }
+        myActiveBuilds += 1 // workaround for indexing not being a part of compilation for Scala
+        publisher.onIndexingFinished()
+      }
+    }
+
     Disposer.register(project, () => closeReaderIfNeed(IndexCloseReason.PROJECT_CLOSED))
   }
 
   override def asCompilerElements(
-    psiElement: PsiElement,
+    psiElement:                       PsiElement,
     buildHierarchyForLibraryElements: Boolean,
-    checkNotDirty: Boolean
+    checkNotDirty:                    Boolean
   ): CompilerReferenceServiceBase.CompilerElementInfo = {
     val referencingElement = referencingBytecodeElement(psiElement)
     super.asCompilerElements(referencingElement, buildHierarchyForLibraryElements, checkNotDirty)
   }
 
+  /**
+   * Returns usages only from up-to-date compiled scope.
+   */
   def implicitUsages(target: PsiElement): Set[LinesWithUsagesInFile] = withLock(myReadDataLock) {
     val usages = Set.newBuilder[LinesWithUsagesInFile]
 
@@ -111,8 +123,23 @@ private[findUsages] class ScalaCompilerReferenceService(
       reader      <- myReader.toOption
       targets     = elementInfo.searchElements
     } yield targets.foreach(target => usages ++= reader.findImplicitReferences(target))
-    
-    usages.result()
+
+    val dirtyScope = dirtyScopeForDefinition(target)
+    usages.result().filterNot(usage => dirtyScope.contains(usage.file))
+  }
+
+  private def dirtyScopeForDefinition(e: PsiElement): GlobalSearchScope = {
+    import com.intellij.psi.search.GlobalSearchScope._
+
+    val dirtyModules      = myDirtyScopeHolder.getAllDirtyModules
+    val dirtyModulesScope = union(dirtyModules.asScala.map(_.getModuleScope)(collection.breakOut))
+    val elemModule        = inReadAction(ModuleUtilCore.findModuleForPsiElement(e).toOption)
+
+    val dependentsScope =
+      elemModule.collect { case m if dirtyModules.contains(m) => m.getModuleTestsWithDependentsScope }
+        .getOrElse(EMPTY_SCOPE)
+
+    union(Array(dependentsScope, dirtyModulesScope))
   }
 }
 
@@ -122,12 +149,13 @@ private[findUsages] object ScalaCompilerReferenceService {
   def getInstance(project: Project): ScalaCompilerReferenceService =
     project.getComponent(classOf[ScalaCompilerReferenceService])
 
-  private def referencingBytecodeElement(element: PsiElement): PsiElement = element match {
-    case hasSyntheticGetter(getter)      => getter
-    case isAnyValExtensionMethod(method) => method
-    // @TODO: desugar generator arrows to map/flatMap/withFilter
-    case _ => element
-  }
+  private def referencingBytecodeElement(element: PsiElement): PsiElement =
+    inReadAction(element match {
+      case hasSyntheticGetter(getter)      => getter
+      case isAnyValExtensionMethod(method) => method
+      // @TODO: desugar generator arrows to map/flatMap/withFilter
+      case _ => element
+    })
 
   object hasSyntheticGetter {
     private[this] def syntheticGetterMethod(e: ScTypedDefinition): FakePsiMethod =

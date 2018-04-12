@@ -6,7 +6,7 @@ import com.intellij.codeInsight.highlighting.{HighlightUsagesHandler, HighlightU
 import com.intellij.openapi.editor.Editor
 import com.intellij.openapi.util.TextRange
 import com.intellij.psi.search.LocalSearchScope
-import com.intellij.psi.{PsiElement, PsiFile, PsiNamedElement, PsiReference}
+import com.intellij.psi.{PsiElement, PsiFile, PsiNamedElement, PsiReference, ReferenceRange}
 import com.intellij.util.Consumer
 import org.jetbrains.plugins.scala.extensions._
 import org.jetbrains.plugins.scala.highlighter.usages.ScalaHighlightImplicitUsagesHandler.TargetKind
@@ -34,7 +34,7 @@ class ScalaHighlightImplicitUsagesHandler[T](editor: Editor, file: PsiFile, data
     import ScalaHighlightImplicitUsagesHandler._
     val usages = targets.asScala
       .flatMap(findUsages(file, _))
-      .map(_.getRangeInElement)
+      .flatMap(ReferenceRange.getAbsoluteRanges(_).asScala)
     val targetIds = targets.asScala.flatMap(nameId)
     myReadUsages.addAll((targetIds ++ usages).asJava)
   }
@@ -125,7 +125,8 @@ object ScalaHighlightImplicitUsagesHandler {
     }
 
     file
-      .depthFirst(e => inUseScope(e))
+      .depthFirst()
+      .filter(inUseScope)
       .flatMap(target.refOrImplicitRefIn)
       .toSeq
   }

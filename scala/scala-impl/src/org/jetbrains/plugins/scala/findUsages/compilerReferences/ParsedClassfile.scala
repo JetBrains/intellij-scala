@@ -28,7 +28,7 @@ private sealed trait MemberReference {
    */
   def line: Int
   
-  def fullName: String = s"$owner.$name"
+  def fqn: String = s"$owner.$name"
 }
 
 private final case class FieldReference(

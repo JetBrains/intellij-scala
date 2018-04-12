@@ -1,8 +1,10 @@
 package org.jetbrains.plugins.scala.findUsages.compilerReferences
 
-import java.awt._
+import java.awt.{List => _, _}
 import java.text.MessageFormat
 
+import com.intellij.icons.AllIcons
+import com.intellij.openapi.actionSystem.{ActionToolbarPosition, AnActionEvent}
 import com.intellij.openapi.application.QueryExecutorBase
 import com.intellij.openapi.fileEditor.FileDocumentManager
 import com.intellij.openapi.module.Module
@@ -11,7 +13,7 @@ import com.intellij.openapi.ui.DialogWrapper
 import com.intellij.psi._
 import com.intellij.psi.search.searches.ReferencesSearch
 import com.intellij.psi.util.PsiUtilCore
-import com.intellij.ui.{CheckBoxList, JBColor, ScrollPaneFactory}
+import com.intellij.ui._
 import com.intellij.util.Processor
 import com.intellij.util.ui.JBUI
 import javax.swing._
@@ -25,31 +27,29 @@ import scala.collection.JavaConverters._
 class ImplicitUsageSearcher extends QueryExecutorBase[PsiReference, ReferencesSearch.SearchParameters](true) {
   override def processQuery(
     parameters: ReferencesSearch.SearchParameters,
-    consumer: Processor[PsiReference]
+    consumer:   Processor[PsiReference]
   ): Unit =
     parameters.getElementToSearch match {
       case implicitSearchTarget(target) =>
         val project = target.getProject
         val service = ScalaCompilerReferenceService.getInstance(project)
         val usages  = service.implicitUsages(target)
-        processUsages(target, usages, consumer)
+        val refs    = extractUsages(target, usages)
+        refs.foreach(consumer.process)
       case _ =>
     }
 
-  private def processUsages(
-    target: PsiElement,
-    usages: Set[LinesWithUsagesInFile],
-    consumer: Processor[PsiReference]
-  ): Unit = {
+  private def extractUsages(target: PsiElement, usages: Set[LinesWithUsagesInFile]): Set[PsiReference] = {
     val project = target.getProject
-    usages.foreach {
-      case LinesWithUsagesInFile(file, lines) =>
-        for {
-          psiFile   <- PsiManager.getInstance(project).findFile(file).toOption
-          document  <- PsiDocumentManager.getInstance(project).getDocument(psiFile).toOption
-          predicate = (e: PsiElement) => lines.contains(document.getLineNumber(e.getTextOffset))
-        } yield psiFile.depthFirst(predicate).flatMap(target.refOrImplicitRefIn).foreach(consumer.process)
-    }
+
+    def extractElements(usage: LinesWithUsagesInFile): Seq[PsiElement] =
+      (for {
+        psiFile   <- PsiManager.getInstance(project).findFile(usage.file).toOption
+        document  <- PsiDocumentManager.getInstance(project).getDocument(psiFile).toOption
+        predicate = (e: PsiElement) => usage.lines.contains(document.getLineNumber(e.getTextOffset) + 1)
+      } yield psiFile.depthFirst().filter(predicate).toList).getOrElse(List.empty)
+
+    usages.flatMap(extractElements).flatMap(target.refOrImplicitRefIn)
   }
 }
 
@@ -78,7 +78,7 @@ object ImplicitUsageSearcher {
       action
     } else None
   }
-  
+
   private def inEventDispatchThread[T](body: => T): Unit =
     if (SwingUtilities.isEventDispatchThread) body
     else invokeAndWait(body)
@@ -95,31 +95,37 @@ object ImplicitUsageSearcher {
   }
 
   private def showRebuildSuggestionDialog[T](
-    dirtyModules: Seq[Module],
-    upToDateModules: Seq[Module],
+    dirtyModules:     Seq[Module],
+    upToDateModules:  Seq[Module],
     validIndexExists: Boolean,
-    element: PsiNamedElement
+    element:          PsiNamedElement
   ): BeforeImplicitSearchAction = {
     import DialogWrapper.{CANCEL_EXIT_CODE, OK_EXIT_CODE}
 
-    val dialog = new ImplicitFindUsagesDialog(false, dirtyModules, upToDateModules, validIndexExists, element)
+    val dialog = new ImplicitFindUsagesDialog(
+      false,
+      dirtyModules,
+      upToDateModules,
+      validIndexExists,
+      element
+    )
     dialog.show()
 
     dialog.getExitCode match {
-      case OK_EXIT_CODE     => BuildModules(dirtyModules)
+      case OK_EXIT_CODE     => BuildModules(dirtyModules, !validIndexExists)
       case CANCEL_EXIT_CODE => CancelSearch
     }
   }
 
   private class ImplicitFindUsagesDialog(
-    canBeParent: Boolean,
-    dirtyModules: Seq[Module],
-    upToDateModules: Seq[Module],
+    canBeParent:      Boolean,
+    dirtyModules:     Seq[Module],
+    upToDateModules:  Seq[Module],
     validIndexExists: Boolean,
-    element: PsiNamedElement
+    element:          PsiNamedElement
   ) extends DialogWrapper(element.getProject, canBeParent) {
     private[this] val moduleAction: String = if (validIndexExists) "build" else "rebuild"
-    
+
     private[this] val description: String =
       s"""|<html>
           |<body>
@@ -138,6 +144,7 @@ object ImplicitUsageSearcher {
           |""".stripMargin
 
     setTitle(ScalaBundle.message("find.usages.implicit.dialog.title"))
+    setResizable(false)
     init()
 
     override def createActions(): Array[Action] = super.createActions()
@@ -149,24 +156,44 @@ object ImplicitUsageSearcher {
       new JLabel(message)
     }
 
+    private class DirtyModulesList() extends CheckBoxList[Module] {
+      setSelectionMode(ListSelectionModel.MULTIPLE_INTERVAL_SELECTION)
+      setItems(dirtyModules.asJava, _.getName)
+      setBorder(JBUI.Borders.empty(3))
+
+      def selectAllButton: AnActionButton = new AnActionButton("Select All", "", AllIcons.Actions.Selectall) {
+        override def actionPerformed(e: AnActionEvent): Unit =
+          setItemsSelected(true)
+      }
+
+      def unselectAllButton: AnActionButton =
+        new AnActionButton("Unselect All", "", AllIcons.Actions.Unselectall) {
+          override def actionPerformed(e: AnActionEvent): Unit =
+            setItemsSelected(false)
+        }
+
+      def setItemsSelected(selected: Boolean): Unit = {
+        (0 until getItemsCount).foreach(idx => setItemSelected(getItemAt(idx), selected))
+        repaint()
+      }
+    }
+
     private def createModulesList: JComponent = {
-      val dirtyModulesList = new CheckBoxList[Module]()
+      val dirtyModulesList = new DirtyModulesList()
 
-      applyTo(dirtyModulesList)(
-        _.setSelectionMode(ListSelectionModel.MULTIPLE_INTERVAL_SELECTION),
-        _.setItems(dirtyModules.asJava, _.getName),
-        _.setBorder(JBUI.Borders.empty(3))
-      )
+      val panel = ToolbarDecorator
+        .createDecorator(dirtyModulesList)
+        .disableRemoveAction()
+        .disableAddAction()
+        .addExtraAction(dirtyModulesList.selectAllButton)
+        .addExtraAction(dirtyModulesList.unselectAllButton)
+        .setToolbarPosition(ActionToolbarPosition.BOTTOM)
+        .setToolbarBorder(JBUI.Borders.empty())
+        .createPanel()
 
-      val modulesScrollPane = ScrollPaneFactory.createScrollPane(
-        dirtyModulesList,
-        ScrollPaneConstants.VERTICAL_SCROLLBAR_AS_NEEDED,
-        ScrollPaneConstants.HORIZONTAL_SCROLLBAR_AS_NEEDED
-      )
-
-      modulesScrollPane.setBorder(new MatteBorder(0, 0, 1, 0, JBColor.border()))
-      modulesScrollPane.setMaximumSize(new Dimension(-1, 300))
-      modulesScrollPane
+      panel.setBorder(new MatteBorder(0, 0, 1, 0, JBColor.border()))
+      panel.setMaximumSize(JBUI.size(-1, 300))
+      panel
     }
 
     override def createCenterPanel(): JComponent =
