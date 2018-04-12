@@ -2,7 +2,7 @@ package org.jetbrains.plugins.scala
 package lang.psi.controlFlow.impl
 
 import _root_.org.jetbrains.plugins.scala.lang.psi.api.ScalaRecursiveElementVisitor
-import com.intellij.psi.{PsiElement, PsiNamedElement}
+import com.intellij.psi.PsiNamedElement
 import com.intellij.psi.util.PsiTreeUtil
 import org.jetbrains.plugins.scala.lang.psi.api.base.ScReferenceElement
 import org.jetbrains.plugins.scala.lang.psi.api.base.patterns.{ScBindingPattern, ScCaseClause, ScPattern}
@@ -29,7 +29,7 @@ class ScalaControlFlowBuilder(startInScope: ScalaPsiElement,
   private val myTransitionInstructions = new ArrayBuffer[(InstructionImpl, HandleInfo)]
   private val myCatchedExnStack = new mutable.Stack[HandleInfo]
   private var myInstructionNum = 0
-  private var myHead: InstructionImpl = null
+  private var myHead: InstructionImpl = _
 
 
   def buildControlflow(scope: ScalaPsiElement): Seq[Instruction] = {
@@ -48,17 +48,17 @@ class ScalaControlFlowBuilder(startInScope: ScalaPsiElement,
     num
   }
 
-  override def visitElement(element: ScalaPsiElement) {
+  override def visitElement(element: ScalaPsiElement): Unit = {
     if ((element eq startInScope) || !(element eq endInsScope)) super.visitElement(element)
   }
 
-  def emptyNode() {
+  def emptyNode(): Unit = {
     startNode(None) {
       _ =>
     }
   }
 
-  def startNode(element: Option[ScalaPsiElement])(body: InstructionImpl => Unit) {
+  def startNode(element: Option[ScalaPsiElement])(body: InstructionImpl => Unit): Unit = {
     startNode(element, checkPending = true)(body)
   }
 
@@ -143,7 +143,7 @@ class ScalaControlFlowBuilder(startInScope: ScalaPsiElement,
   override def visitPatternDefinition(pattern: ScPatternDefinition) {
     pattern.expr.foreach(_.accept(this))
     for (b <- pattern.bindings) {
-      val instr = new DefinitionInstruction(inc, b, DefinitionType.VAL)
+      val instr = DefinitionInstruction(inc, b, DefinitionType.VAL)
       checkPendingEdges(instr)
       addNode(instr)
     }
@@ -152,7 +152,7 @@ class ScalaControlFlowBuilder(startInScope: ScalaPsiElement,
   override def visitVariableDefinition(variable: ScVariableDefinition) {
     variable.expr.foreach(_.accept(this))
     for (b <- variable.bindings) {
-      val instr = new DefinitionInstruction(inc, b, DefinitionType.VAR)
+      val instr = DefinitionInstruction(inc, b, DefinitionType.VAR)
       checkPendingEdges(instr)
       addNode(instr)
     }
@@ -161,7 +161,7 @@ class ScalaControlFlowBuilder(startInScope: ScalaPsiElement,
   override def visitReferenceExpression(ref: ScReferenceExpression) {
     ref.qualifier match {
       case None =>
-        val instr = new ReadWriteVariableInstruction(inc, ref, usedVariable(ref), ScalaPsiUtil.isLValue(ref))
+        val instr = ReadWriteVariableInstruction(inc, ref, usedVariable(ref), ScalaPsiUtil.isLValue(ref))
         addNode(instr)
         checkPendingEdges(instr)
       case Some(qual) => qual.accept(this)
@@ -185,10 +185,10 @@ class ScalaControlFlowBuilder(startInScope: ScalaPsiElement,
   override def visitDoStatement(stmt: ScDoStmt) {
     startNode(Some(stmt)) {doStmtInstr =>
       checkPendingEdges(doStmtInstr)
-      stmt.getExprBody map {e =>
+      stmt.getExprBody foreach { e =>
         e.accept(this)
       }
-      stmt.condition map {c =>
+      stmt.condition foreach { c =>
         c.accept(this)
         if (myHead != null) {
           checkPendingEdges(myHead)
@@ -202,7 +202,7 @@ class ScalaControlFlowBuilder(startInScope: ScalaPsiElement,
   override def visitCaseClause(cc: ScCaseClause) {
     cc.pattern match {
       case Some(p) => for (b <- p.bindings) {
-        val instr = new DefinitionInstruction(inc, b, DefinitionType.VAL)
+        val instr = DefinitionInstruction(inc, b, DefinitionType.VAL)
         checkPendingEdges(instr)
         addNode(instr)
       }
@@ -292,7 +292,7 @@ class ScalaControlFlowBuilder(startInScope: ScalaPsiElement,
   override def visitPattern(pat: ScPattern) {
     pat match {
       case b: ScBindingPattern =>
-        val instr = new DefinitionInstruction(inc, b, DefinitionType.VAL)
+        val instr = DefinitionInstruction(inc, b, DefinitionType.VAL)
         checkPendingEdges(instr)
         addNode(instr)
       case _ => super.visitPattern(pat)
@@ -376,7 +376,7 @@ class ScalaControlFlowBuilder(startInScope: ScalaPsiElement,
     interruptFlow()
   }
 
-  override def visitFunctionExpression(stmt: ScFunctionExpr) = addFreeVariables(stmt)
+  override def visitFunctionExpression(stmt: ScFunctionExpr): Unit = addFreeVariables(stmt)
 
 
   override def visitTypeDefinition(typedef: ScTypeDefinition) { /* Do not visit inner classes either */ }
@@ -436,7 +436,7 @@ class ScalaControlFlowBuilder(startInScope: ScalaPsiElement,
     paramOwner.accept(visitor)
 
     for (ref <- collectedRefs) {
-      val instr = new ReadWriteVariableInstruction(inc, ref, usedVariable(ref), ScalaPsiUtil.isLValue(ref))
+      val instr = ReadWriteVariableInstruction(inc, ref, usedVariable(ref), ScalaPsiUtil.isLValue(ref))
       addNode(instr)
       checkPendingEdges(instr)
     }
@@ -447,7 +447,7 @@ class ScalaControlFlowBuilder(startInScope: ScalaPsiElement,
       case Some(e) => e != throwStmt
       case None => false
     })
-    throwStmt.body.map(_.accept(this))
+    throwStmt.body.foreach(_.accept(this))
     if (isNodeNeeded) startNode(Some(throwStmt)) { _ =>
       addPendingEdge(null, myHead)
     }
@@ -500,7 +500,7 @@ class ScalaControlFlowBuilder(startInScope: ScalaPsiElement,
       // remove exceptions
       for (_ <- 1 to catchedExnCount) {myCatchedExnStack.pop()}
 
-      def processCatch(fin: InstructionImpl) = tryStmt.catchBlock.map {cb =>
+      def processCatch(fin: InstructionImpl): Unit = tryStmt.catchBlock.foreach { cb =>
         cb.expression match {
           case Some(b: ScBlockExpr) if b.hasCaseClauses =>
             for (cc <- b.caseClauses.toSeq.flatMap(_.caseClauses)) {
@@ -530,7 +530,7 @@ class ScalaControlFlowBuilder(startInScope: ScalaPsiElement,
       }
 
       if (fBlock == null) {
-        processCatch((null))
+        processCatch(null)
       } else {
         startNode(Some(fBlock)) {finInstr =>
           for (p@(instr, info) <- myTransitionInstructions; if info.elem eq fBlock) {
