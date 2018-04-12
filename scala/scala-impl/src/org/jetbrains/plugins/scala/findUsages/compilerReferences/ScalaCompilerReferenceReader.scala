@@ -15,7 +15,6 @@ import gnu.trove.{THashSet, TIntHashSet}
 import org.jetbrains.jps.backwardRefs.CompilerRef
 
 import scala.annotation.tailrec
-import scala.collection.JavaConverters._
 
 private[findUsages] class ScalaCompilerReferenceReader private[compilerReferences] (
   buildDir: File
@@ -101,7 +100,7 @@ private[findUsages] class ScalaCompilerReferenceReader private[compilerReference
 
           myIndex.get(ScalaCompilerIndices.backwardHierarchy).getData(currentClass).forEach {
             case (_, children) =>
-              children.asScala.collect {
+              children.collect {
                 case anon: CompilerRef.CompilerAnonymousClassDef if includeAnonymous => queue.addLast(anon)
                 case aClass: CompilerRef.CompilerClassHierarchyElementDef            => queue.addLast(aClass)
               }

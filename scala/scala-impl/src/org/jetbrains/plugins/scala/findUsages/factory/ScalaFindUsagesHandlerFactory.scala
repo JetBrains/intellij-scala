@@ -59,11 +59,9 @@ class ScalaFindUsagesHandlerFactory(project: Project) extends FindUsagesHandlerF
       } else Option(unwrapped)
 
     replaced match {
-      case Some(implicitSearchTarget(_)) if forHighlightUsages => FindUsagesHandler.NULL_HANDLER
-      case Some(e)                                             => new ScalaFindUsagesHandler(e, this)
-      case None                                                => FindUsagesHandler.NULL_HANDLER
+      case Some(e) => new ScalaFindUsagesHandler(e, this)
+      case None    => FindUsagesHandler.NULL_HANDLER
     }
-
   }
 
   private def doBeforeImplicitSearchAction(target: PsiNamedElement): Boolean =
