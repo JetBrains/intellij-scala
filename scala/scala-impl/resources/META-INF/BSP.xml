@@ -19,6 +19,9 @@
     </extensionPoints>
 
     <extensions defaultExtensionNs="com.intellij">
+        <moduleType id="BSP_SYNTHETIC_MODULE" implementationClass="org.jetbrains.bsp.BspSyntheticModuleType"/>
+        <moduleConfigurationEditorProvider implementation="org.jetbrains.bsp.BspSyntheticModuleEditorProvider"/>
+
         <externalSystemManager implementation="org.jetbrains.bsp.BspExternalSystemManager"/>
 
         <!--<externalSystemConfigLocator implementation="org.jetbrains.bsp.BspConfigLocator"/>-->

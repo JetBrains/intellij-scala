@@ -110,7 +110,7 @@ object BspCommunication {
     def runBloop = Process(bspCommand, base).run()
 
     val initParams = InitializeBuildParams(
-      rootUri = bloopConfigDir.toString,
+      rootUri = base.toString,
       Some(BuildClientCapabilities(List("scala")))
     )
 

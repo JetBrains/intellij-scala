@@ -7,7 +7,7 @@ import java.util.UUID
 import ch.epfl.scala.bsp.endpoints
 import ch.epfl.scala.bsp.schema.{BuildTargetIdentifier, CompileParams, CompileReport}
 import com.intellij.execution.process.AnsiEscapeDecoder.ColoredTextAcceptor
-import com.intellij.execution.process.{AnsiEscapeDecoder, ProcessOutputType, ProcessOutputTypes}
+import com.intellij.execution.process.{AnsiEscapeDecoder, ProcessOutputTypes}
 import com.intellij.openapi.externalSystem.util.{ExternalSystemApiUtil => ES}
 import com.intellij.openapi.module.ModuleType
 import com.intellij.openapi.progress.{PerformInBackgroundOption, ProgressIndicator, ProgressManager, Task}
@@ -31,7 +31,9 @@ class BspProjectTaskRunner extends ProjectTaskRunner {
   override def canRun(projectTask: ProjectTask): Boolean = projectTask match {
     case task: ModuleBuildTask =>
       val module = task.getModule
-      ModuleType.get(module) match {
+      val moduleType = ModuleType.get(module)
+      moduleType match {
+        case _ : BspSyntheticModuleType => false
         case _ => ES.isExternalSystemAwareModule(bsp.ProjectSystemId, module)
       }
     case _: ArtifactBuildTask => false
@@ -73,14 +75,6 @@ object BspProjectTaskRunner {
     private def compileRequest(implicit client: LanguageClient): eval.Task[Either[Response.Error, CompileReport]] =
       endpoints.BuildTarget.compile.request(CompileParams(targets))
 
-    class TextCollector extends ColoredTextAcceptor {
-      private val builder = StringBuilder.newBuilder
-      override def coloredTextAvailable(text: String, attributes: Key[_]): Unit =
-        builder.append(text)
-
-      def result: String = builder.result()
-    }
-
     private val services = Services.empty
       .notification(Window.logMessage) { params => report.output(params.message) }
       .notification(Window.showMessage) { params =>
@@ -93,7 +87,7 @@ object BspProjectTaskRunner {
         new AnsiEscapeDecoder().escapeText(text, ProcessOutputTypes.STDOUT, textNoAnsiAcceptor)
         val textNoAnsi = textNoAnsiAcceptor.result
 
-          buildMessages = buildMessages.appendMessage(textNoAnsi)
+        buildMessages = buildMessages.appendMessage(textNoAnsi)
         import org.langmeta.lsp.MessageType._
         buildMessages =
           params.`type` match {
@@ -113,7 +107,7 @@ object BspProjectTaskRunner {
         params.diagnostics.foreach { diagnostic =>
           val severity = diagnostic.severity.map(s => s"${s.toString}: ").getOrElse("")
           val range = diagnostic.range.start.line.toString // TODO full position output
-          val text = s"$severity($range)${diagnostic.message}"
+        val text = s"$severity($range)${diagnostic.message}"
 
           report.output(text)
           buildMessages = buildMessages.appendMessage(text)
@@ -121,15 +115,15 @@ object BspProjectTaskRunner {
           import org.langmeta.lsp.DiagnosticSeverity._
           buildMessages =
             diagnostic.severity.map {
-              case Hint =>
-                buildMessages
-              case Information =>
-                buildMessages
-              case Warning =>
-                buildMessages.addWarning(text)
               case Error =>
                 report.error(text)
                 buildMessages.addError(text)
+              case Warning =>
+                buildMessages.addWarning(text)
+              case Information =>
+                buildMessages
+              case Hint =>
+                buildMessages
             }
               .getOrElse(buildMessages)
         }
@@ -171,5 +165,15 @@ object BspProjectTaskRunner {
 
 
   }
+
+  private class TextCollector extends ColoredTextAcceptor {
+    private val builder = StringBuilder.newBuilder
+
+    override def coloredTextAvailable(text: String, attributes: Key[_]): Unit =
+      builder.append(text)
+
+    def result: String = builder.result()
+  }
+
 
 }
