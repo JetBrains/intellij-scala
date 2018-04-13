@@ -1,6 +1,7 @@
 package org.jetbrains.bsp
 
 import java.io.File
+import java.net.URI
 
 import ch.epfl.scala.bsp.endpoints
 import ch.epfl.scala.bsp.schema._
@@ -50,7 +51,7 @@ class BspProjectResolver extends ExternalSystemProjectResolver[BspExecutionSetti
         sources <- BuildTarget.dependencySources.request(DependencySourcesParams(targetIds))
         scalacOptions <- BuildTarget.scalacOptions.request(ScalacOptionsParams(targetIds))
       } yield {
-        calculateModuleData(targets, scalacOptions.right.get.items, sources.right.get.items)
+        calculateModuleDescription(targets, scalacOptions.right.get.items, sources.right.get.items)
       }
     }
 
@@ -64,8 +65,9 @@ class BspProjectResolver extends ExternalSystemProjectResolver[BspExecutionSetti
         contentRootData.storePath(ExternalSystemSourceType.TEST, dir.getCanonicalPath)
       }
 
-      val moduleId = moduleDescription.target.id.get.uri
-      val moduleName = moduleDescription.target.displayName
+      val primaryTarget = moduleDescription.targets.head
+      val moduleId = primaryTarget.id.get.uri
+      val moduleName = primaryTarget.displayName
       val moduleData = new ModuleData(moduleId, bsp.ProjectSystemId, StdModuleTypes.JAVA.getId, moduleName, moduleFilesDirectoryPath, projectRootPath)
 
       moduleDescription.output.foreach { outputPath =>
@@ -77,14 +79,14 @@ class BspProjectResolver extends ExternalSystemProjectResolver[BspExecutionSetti
 
       moduleData.setInheritProjectCompileOutputPath(false)
 
-      val libraryData = new LibraryData(bsp.ProjectSystemId, s"$moduleId dependencies")
+      val libraryData = new LibraryData(bsp.ProjectSystemId, s"$moduleName dependencies")
       moduleDescription.classPath.foreach { path =>
         libraryData.addPath(LibraryPathType.BINARY, path.getCanonicalPath)
       }
       val libraryDependencyData = new LibraryDependencyData(moduleData, libraryData, LibraryLevel.MODULE)
       libraryDependencyData.setScope(DependencyScope.COMPILE)
 
-      val libraryTestData = new LibraryData(bsp.ProjectSystemId, s"$moduleId test dependencies")
+      val libraryTestData = new LibraryData(bsp.ProjectSystemId, s"$moduleName test dependencies")
       moduleDescription.testClassPath.foreach { path =>
         libraryTestData.addPath(LibraryPathType.BINARY, path.getCanonicalPath)
       }
@@ -134,10 +136,19 @@ class BspProjectResolver extends ExternalSystemProjectResolver[BspExecutionSetti
         }
 
       val modules = moduleDescriptions.map { moduleDescription =>
-        createModuleNode(moduleDescription, projectNode)
-      } ++ rootModule
+        (moduleDescription.targets, createModuleNode(moduleDescription, projectNode))
+      } ++ rootModule.toSeq.map((Seq.empty, _))
 
-      modules.foreach(m => projectNode.addChild(m))
+      val idToModule = (for {
+        (targets,module) <- modules
+        target <- targets
+      } yield {
+        (target.id.get.uri.toURI, module)
+      }).toMap
+
+      createModuleDependencies(moduleDescriptions, idToModule)
+
+      modules.foreach(m => projectNode.addChild(m._2))
 
       projectNode
     }
@@ -170,15 +181,16 @@ class BspProjectResolver extends ExternalSystemProjectResolver[BspExecutionSetti
 
 object BspProjectResolver {
 
-  private case class ModuleDescription(target: BuildTarget,
+  private case class ModuleDescription(targets: Seq[BuildTarget],
+                                       targetDependencies: Seq[BuildTargetIdentifier],
+                                       targetTestDependencies: Seq[BuildTargetIdentifier],
                                        basePath: File,
                                        output: Option[File],
                                        testOutput: Option[File],
                                        sourceDirs: Seq[File],
                                        testSourceDirs: Seq[File],
                                        classPath: Seq[File],
-                                       testClassPath: Seq[File]
-                                      )
+                                       testClassPath: Seq[File])
 
   private case class ActiveImport(importCancelable: Cancelable)
 
@@ -199,7 +211,7 @@ object BspProjectResolver {
     }
   }
 
-  private def calculateModuleData(targets: Seq[BuildTarget], optionsItems: Seq[ScalacOptionsItem], sourcesItems: Seq[DependencySourcesItem])
+  private def calculateModuleDescription(targets: Seq[BuildTarget], optionsItems: Seq[ScalacOptionsItem], sourcesItems: Seq[DependencySourcesItem])
   : Iterable[ModuleDescription] = {
     val optionsMap = optionsItems.map(item => (item.target.get, item)).toMap
     val sourcesMap = sourcesItems.map(item => (item.target.get, item)).toMap
@@ -208,6 +220,9 @@ object BspProjectResolver {
       val id = target.id.get
       val scalacOptions = optionsMap(id)
       val sources = sourcesMap(id)
+
+      // TODO use this to set scala sdk
+      //  val scalaBuildTarget = JsonFormat.fromJsonString[ScalaBuildTarget](target.data.toStringUtf8)
 
       val sourceDirs = (for {
         src <- sources.uri
@@ -221,27 +236,56 @@ object BspProjectResolver {
 
       // TODO this is bloop-specific test scope detection. need something more general.
       if (id.uri.endsWith("-test"))
-        ModuleDescription(target, moduleBase, None, Some(outputPath), Seq.empty, sourceDirs, Seq.empty, classPath)
+        ModuleDescription(Seq(target), Seq.empty, target.dependencies, moduleBase, None, Some(outputPath), Seq.empty, sourceDirs, Seq.empty, classPath)
       else
-        ModuleDescription(target, moduleBase, Some(outputPath), None, sourceDirs, Seq.empty, classPath, Seq.empty)
+        ModuleDescription(Seq(target), target.dependencies, Seq.empty, moduleBase, Some(outputPath), None, sourceDirs, Seq.empty, classPath, Seq.empty)
     }
 
     // merge modules with the same calculated module base
     moduleDescriptions.groupBy(_.basePath).values.map(mergeModules)
   }
 
+  private def createModuleDependencies(moduleDescriptions: Iterable[ModuleDescription], idToModule: Map[URI, DataNode[ModuleData]]) = {
+    for {
+      moduleDescription <- moduleDescriptions
+      id <- moduleDescription.targets.head.id // any id will resolve the module in idToModule
+      module <- idToModule.get(id.uri.toURI)
+    } yield {
+      val compileDeps = moduleDescription.targetDependencies.map((_, DependencyScope.COMPILE))
+      val testDeps = moduleDescription.targetTestDependencies.map((_, DependencyScope.TEST))
+
+      for {
+        (moduleDepId, scope) <- compileDeps ++ testDeps
+        moduleDep <- idToModule.get(moduleDepId.uri.toURI)
+      } yield {
+        val data = new ModuleDependencyData(module.getData, moduleDep.getData)
+        data.setScope(scope)
+        data.setExported(true)
+
+        val node = new DataNode[ModuleDependencyData](ProjectKeys.MODULE_DEPENDENCY, data, module)
+        module.addChild(node)
+      }
+    }
+  }
+
 
   /** Merge modules assuming they have the same base path. */
   private def mergeModules(descriptions: Seq[ModuleDescription]): ModuleDescription = {
     descriptions.reduce { (combined, next) =>
-      val target = if (combined.target.getId.uri.endsWith("-test")) next.target else combined.target
+      // TODO ok it's time for monoids
+      val targets = (combined.targets ++ next.targets).sortBy(_.id.get.uri)
+      val targetDependencies = combined.targetDependencies ++ next.targetDependencies
+      val targetTestDependencies = combined.targetTestDependencies ++ next.targetTestDependencies
       val output = combined.output.orElse(next.output)
       val testOutput = combined.testOutput.orElse(next.testOutput)
       val sourceDirs = combined.sourceDirs ++ next.sourceDirs
       val testSourceDirs  = combined.testSourceDirs ++ next.testSourceDirs
       val classPath = combined.classPath ++ next.classPath
       val testClassPath = combined.testClassPath ++ next.testClassPath
-      ModuleDescription(target, combined.basePath, output, testOutput, sourceDirs, testSourceDirs, classPath, testClassPath)
+
+      ModuleDescription(targets, targetDependencies, targetTestDependencies, combined.basePath,
+        output, testOutput, sourceDirs, testSourceDirs, classPath, testClassPath)
     }
   }
+
 }
