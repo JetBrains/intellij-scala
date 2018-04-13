@@ -415,8 +415,8 @@ class SbtProjectResolver extends ExternalSystemProjectResolver[SbtExecutionSetti
   private def createLibrary(module: sbtStructure.ModuleData, resolved: Boolean): LibraryNode = {
     val result = new LibraryNode(nameFor(module.id), resolved)
     result.addPaths(LibraryPathType.BINARY, module.binaries.map(_.path).toSeq)
-    result.addPaths(LibraryPathType.DOC, module.docs.map(_.path).toSeq)
     result.addPaths(LibraryPathType.SOURCE, module.sources.map(_.path).toSeq)
+    result.addPaths(LibraryPathType.DOC, module.docs.map(_.path).toSeq)
     result
   }
 
