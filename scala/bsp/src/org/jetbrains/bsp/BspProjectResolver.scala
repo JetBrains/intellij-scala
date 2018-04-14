@@ -2,6 +2,7 @@ package org.jetbrains.bsp
 
 import java.io.File
 import java.net.URI
+import java.nio.charset.StandardCharsets
 
 import ch.epfl.scala.bsp.endpoints
 import ch.epfl.scala.bsp.schema._
@@ -21,6 +22,8 @@ import org.langmeta.lsp.{LanguageClient, Window}
 import scala.collection.JavaConverters._
 import scala.concurrent.Await
 import scala.concurrent.duration.Duration
+import org.jetbrains.plugins.scala.project.Version
+import scalapb_circe.JsonFormat
 
 class BspProjectResolver extends ExternalSystemProjectResolver[BspExecutionSettings] {
 
@@ -55,7 +58,8 @@ class BspProjectResolver extends ExternalSystemProjectResolver[BspExecutionSetti
       }
     }
 
-    def createModuleNode(moduleDescription: ModuleDescription, projectNode: DataNode[ProjectData]) = {
+    def createModuleNode(moduleDescription: ModuleDescription,
+                         projectNode: DataNode[ProjectData]) = {
 
       val contentRootData = new ContentRootData(bsp.ProjectSystemId, moduleDescription.basePath.getCanonicalPath)
       moduleDescription.sourceDirs.foreach { dir =>
@@ -93,6 +97,12 @@ class BspProjectResolver extends ExternalSystemProjectResolver[BspExecutionSetti
       val libraryTestDependencyData = new LibraryDependencyData(moduleData, libraryTestData, LibraryLevel.MODULE)
       libraryTestDependencyData.setScope(DependencyScope.TEST)
 
+      import org.jetbrains.plugins.scala.project.ScalaLibraryName
+      val scalaSdkData = moduleDescription.scalaSdkData
+      val scalaLibraryData = new LibraryData(bsp.ProjectSystemId, s"$moduleId ${scalaSdkData.scalaOrganization}:scala-library:${scalaSdkData.scalaVersion.get}")
+      val scalaLibraryJar = scalaSdkData.scalacClasspath.filter(_.getName().contains(ScalaLibraryName)).head
+      scalaLibraryData.addPath(LibraryPathType.BINARY, scalaLibraryJar.getCanonicalPath)
+      val scalaLibraryDependencyData = new LibraryDependencyData(moduleData, scalaLibraryData, LibraryLevel.MODULE)
 
       val moduleNode = new DataNode[ModuleData](ProjectKeys.MODULE, moduleData, projectNode)
 
@@ -101,8 +111,14 @@ class BspProjectResolver extends ExternalSystemProjectResolver[BspExecutionSetti
       val libraryTestDependencyNode = new DataNode[LibraryDependencyData](ProjectKeys.LIBRARY_DEPENDENCY, libraryTestDependencyData, moduleNode)
       moduleNode.addChild(libraryTestDependencyNode)
 
+      val scalaLibraryDependencyNode = new DataNode[LibraryDependencyData](ProjectKeys.LIBRARY_DEPENDENCY, scalaLibraryDependencyData, moduleNode)
+      moduleNode.addChild(scalaLibraryDependencyNode)
+
       val contentRootDataNode = new DataNode[ContentRootData](ProjectKeys.CONTENT_ROOT, contentRootData, moduleNode)
       moduleNode.addChild(contentRootDataNode)
+
+      val scalaSdkNode = new DataNode[ScalaSdkData](ScalaSdkData.Key, scalaSdkData, projectNode)
+      moduleNode.addChild(scalaSdkNode)
 
       moduleNode
     }
@@ -165,7 +181,8 @@ class BspProjectResolver extends ExternalSystemProjectResolver[BspExecutionSetti
     result
   }
 
-  override def cancelTask(taskId: ExternalSystemTaskId, listener: ExternalSystemTaskNotificationListener): Boolean =
+  override def cancelTask(taskId: ExternalSystemTaskId,
+                          listener: ExternalSystemTaskNotificationListener): Boolean =
     activeImport match {
       case Some(ActiveImport(running)) =>
         listener.beforeCancel(taskId)
@@ -190,7 +207,8 @@ object BspProjectResolver {
                                        sourceDirs: Seq[File],
                                        testSourceDirs: Seq[File],
                                        classPath: Seq[File],
-                                       testClassPath: Seq[File])
+                                       testClassPath: Seq[File],
+                                       scalaSdkData: ScalaSdkData)
 
   private case class ActiveImport(importCancelable: Cancelable)
 
@@ -209,6 +227,19 @@ object BspProjectResolver {
 
       Some(basePath.toFile)
     }
+  }
+
+  def extractScalaSdkData(target: BuildTarget): ScalaSdkData = {
+    val scalaTarget =
+      JsonFormat.fromJsonString[ScalaBuildTarget](target.data.toString(StandardCharsets.UTF_8))
+    ScalaSdkData(
+      scalaTarget.scalaOrganization,
+      Some(Version(scalaTarget.scalaVersion)),
+      scalacClasspath = scalaTarget.jars.map(_.toFileAsURI),
+      Nil,
+      None,
+      Nil
+    )
   }
 
   private def calculateModuleDescription(targets: Seq[BuildTarget], optionsItems: Seq[ScalacOptionsItem], sourcesItems: Seq[DependencySourcesItem])
@@ -249,12 +280,13 @@ object BspProjectResolver {
       val classPath = scalacOptions.classpath.map(_.toFileAsURI)
       val dependencyOutputs = transitiveDependencyOutputs(target)
       val classPathWithoutDependencyOutputs = classPath.filterNot(dependencyOutputs.contains)
+      val scalaSdkData = extractScalaSdkData(target)
 
       // TODO this is bloop-specific test scope detection. need something more general.
       if (id.uri.endsWith("-test"))
-        ModuleDescription(Seq(target), Seq.empty, target.dependencies, moduleBase, None, Some(outputPath), Seq.empty, sourceDirs, Seq.empty, classPathWithoutDependencyOutputs)
+        ModuleDescription(Seq(target), Seq.empty, target.dependencies, moduleBase, None, Some(outputPath), Seq.empty, sourceDirs, Seq.empty, classPathWithoutDependencyOutputs, scalaSdkData)
       else
-        ModuleDescription(Seq(target), target.dependencies, Seq.empty, moduleBase, Some(outputPath), None, sourceDirs, Seq.empty, classPathWithoutDependencyOutputs, Seq.empty)
+        ModuleDescription(Seq(target), target.dependencies, Seq.empty, moduleBase, Some(outputPath), None, sourceDirs, Seq.empty, classPathWithoutDependencyOutputs, Seq.empty, scalaSdkData)
     }
 
     // merge modules with the same calculated module base
@@ -300,9 +332,11 @@ object BspProjectResolver {
       val testSourceDirs  = combined.testSourceDirs ++ next.testSourceDirs
       val classPath = combined.classPath ++ next.classPath
       val testClassPath = combined.testClassPath ++ next.testClassPath
+      // Get the scalasdk data from the first combined module
+      val scalaSdkData = combined.scalaSdkData
 
       ModuleDescription(targets, targetDependencies, targetTestDependencies, combined.basePath,
-        output, testOutput, sourceDirs, testSourceDirs, classPath, testClassPath)
+        output, testOutput, sourceDirs, testSourceDirs, classPath, testClassPath, scalaSdkData)
     }
   }
 
