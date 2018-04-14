@@ -213,13 +213,25 @@ object BspProjectResolver {
 
   private def calculateModuleDescription(targets: Seq[BuildTarget], optionsItems: Seq[ScalacOptionsItem], sourcesItems: Seq[DependencySourcesItem])
   : Iterable[ModuleDescription] = {
-    val optionsMap = optionsItems.map(item => (item.target.get, item)).toMap
-    val sourcesMap = sourcesItems.map(item => (item.target.get, item)).toMap
+    val idToTarget = targets.map(t => (t.id.get, t)).toMap
+    val idToScalaOptions = optionsItems.map(item => (item.target.get, item)).toMap
+    val idToDepSources = sourcesItems.map(item => (item.target.get, item)).toMap
+
+    def transitiveDependencyOutputs(start: BuildTarget) = {
+      val transitiveDeps = (start +: transitiveDependencies(start)).map(_.id.get)
+      transitiveDeps.map(idToScalaOptions).map(_.classDirectory.toFileAsURI)
+    }
+
+    def transitiveDependencies(start: BuildTarget): Seq[BuildTarget] = {
+      val direct = start.dependencies.map(idToTarget)
+      val transitive = direct.flatMap(transitiveDependencies)
+      (start +: (direct ++ transitive)).distinct
+    }
 
     val moduleDescriptions = targets.map { target =>
       val id = target.id.get
-      val scalacOptions = optionsMap(id)
-      val sources = sourcesMap(id)
+      val scalacOptions = idToScalaOptions(id)
+      val sources = idToDepSources(id)
 
       // TODO use this to set scala sdk
       //  val scalaBuildTarget = JsonFormat.fromJsonString[ScalaBuildTarget](target.data.toStringUtf8)
@@ -231,19 +243,24 @@ object BspProjectResolver {
       } yield file).distinct
 
       val moduleBase = commonBase(sourceDirs).get.getCanonicalFile
-      val classPath = scalacOptions.classpath.map(_.toFileAsURI)
       val outputPath = scalacOptions.classDirectory.toFileAsURI
+
+      // classpath needs to be filtered for module dependency putput paths since they are handled by IDEA module dep mechanism
+      val classPath = scalacOptions.classpath.map(_.toFileAsURI)
+      val dependencyOutputs = transitiveDependencyOutputs(target)
+      val classPathWithoutDependencyOutputs = classPath.filterNot(dependencyOutputs.contains)
 
       // TODO this is bloop-specific test scope detection. need something more general.
       if (id.uri.endsWith("-test"))
-        ModuleDescription(Seq(target), Seq.empty, target.dependencies, moduleBase, None, Some(outputPath), Seq.empty, sourceDirs, Seq.empty, classPath)
+        ModuleDescription(Seq(target), Seq.empty, target.dependencies, moduleBase, None, Some(outputPath), Seq.empty, sourceDirs, Seq.empty, classPathWithoutDependencyOutputs)
       else
-        ModuleDescription(Seq(target), target.dependencies, Seq.empty, moduleBase, Some(outputPath), None, sourceDirs, Seq.empty, classPath, Seq.empty)
+        ModuleDescription(Seq(target), target.dependencies, Seq.empty, moduleBase, Some(outputPath), None, sourceDirs, Seq.empty, classPathWithoutDependencyOutputs, Seq.empty)
     }
 
     // merge modules with the same calculated module base
     moduleDescriptions.groupBy(_.basePath).values.map(mergeModules)
   }
+
 
   private def createModuleDependencies(moduleDescriptions: Iterable[ModuleDescription], idToModule: Map[URI, DataNode[ModuleData]]) = {
     for {
@@ -264,6 +281,7 @@ object BspProjectResolver {
 
         val node = new DataNode[ModuleDependencyData](ProjectKeys.MODULE_DEPENDENCY, data, module)
         module.addChild(node)
+        (module)
       }
     }
   }

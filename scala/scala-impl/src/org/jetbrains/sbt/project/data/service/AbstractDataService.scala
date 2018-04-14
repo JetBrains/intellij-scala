@@ -120,6 +120,7 @@ trait Importer[E] {
     val model = getModifiableLibraryModelEx(library)
     model.setKind(ScalaLibraryType.instance.getKind)
     model.setProperties(properties)
+
   }
 }
 
