@@ -84,6 +84,7 @@ class SbtProjectTaskRunner extends ProjectTaskRunner {
 
     // don't run anything if there's no module to run a build for
     // TODO user feedback
+    // TODO need to call completion callback also if empty
     if (moduleCommands.nonEmpty) {
 
       val command =

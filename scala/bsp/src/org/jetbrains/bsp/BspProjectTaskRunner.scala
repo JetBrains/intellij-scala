@@ -27,6 +27,7 @@ import scala.collection.JavaConverters._
 import scala.concurrent.Await
 import scala.concurrent.duration.Duration
 import BspUtil._
+import com.intellij.openapi.fileEditor.FileDocumentManager
 
 import scala.util.control.NonFatal
 
@@ -61,6 +62,8 @@ class BspProjectTaskRunner extends ProjectTaskRunner {
 
     implicit val scheduler: Scheduler = Scheduler(PooledThreadExecutor.INSTANCE, ExecutionModel.AlwaysAsyncExecution)
 
+    // TODO save only documents in affected targets?
+    FileDocumentManager.getInstance().saveAllDocuments()
     val bspTask = new BspTask(project, targets, Option(projectTaskNotification))
     ProgressManager.getInstance().run(bspTask)
   }

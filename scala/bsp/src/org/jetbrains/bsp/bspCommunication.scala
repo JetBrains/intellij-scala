@@ -16,8 +16,9 @@ import org.langmeta.lsp.{LanguageClient, LanguageServer}
 import org.scalasbt.ipcsocket.UnixDomainSocket
 import org.slf4j.LoggerFactory
 
-import scala.sys.process.Process
-import scala.util.Random
+import scala.concurrent.Promise
+import scala.sys.process.{Process, ProcessLogger}
+import scala.util.{Random, Success}
 import scala.concurrent.duration._
 
 class BspCommunication(project: Project) extends AbstractProjectComponent(project) {
@@ -108,7 +109,15 @@ object BspCommunication {
     val bspCommand = s"bloop bsp --protocol local --socket $sockfile --verbose"
 
     // TODO kill bloop process on cancel / error?
-    def runBloop = Process(bspCommand, base).run()
+
+    val bspReady = Promise[Unit]()
+    // TODO this will change to "The server started to listen" and be logged on INFO (verbose not required)
+    val readyMessage = "The server is starting to listen"
+    val proclog = ProcessLogger.apply { msg =>
+      if (!bspReady.isCompleted && msg.contains(readyMessage)) bspReady.complete(Success(()))
+    }
+
+    def runBloop = Process(bspCommand, base).run(proclog)
 
     val initParams = InitializeBuildParams(
       rootUri = base.toString,
@@ -130,9 +139,9 @@ object BspCommunication {
         if (socketFile.isFile) socketFile.delete()
       }
 
-    Task(runBloop)
-      .delayResult(300.millis) // FIXME hackaround for not getting a "ready" flag from bloop process
-      .map(_ => initSession)
+    for {
+      _ <- Task(runBloop)
+      _ <- Task.fromFuture(bspReady.future).timeout(5.seconds) // TODO error result
+    } yield initSession
   }
-
 }
