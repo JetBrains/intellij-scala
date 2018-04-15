@@ -53,6 +53,13 @@ go to the Scala plugin repo directory and run
 6. Select the IDEA run configuration and select the `Run` or `Debug` button to build and start a development version
 of IDEA with the Scala plugin.
 
+## Browsing IntelliJ platform sources
+
+When loading the plugin in sbt, the IntelliJ platform is downloaded to 
+`<home>/.ScalaPluginIC/sdk/<sdk version>/`. 
+When opening a platform API class you will see the option to "attach sources". 
+Click it, navigate to the sdk directory and select `sources.zip`, then choose "All".
+
 ## Tests
 
 To run tests properly, the plugin needs to be packaged.
