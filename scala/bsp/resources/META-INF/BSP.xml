@@ -6,6 +6,9 @@
         <component>
             <implementation-class>org.jetbrains.bsp.BspCommunication</implementation-class>
         </component>
+        <component>
+            <implementation-class>org.jetbrains.bsp.BspBuildLoop</implementation-class>
+        </component>
     </project-components>
 
     <application-components>
