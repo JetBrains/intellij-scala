@@ -16,14 +16,14 @@ import monix.execution.{Cancelable, ExecutionModel, Scheduler}
 import org.jetbrains.bsp.BspProjectResolver._
 import org.jetbrains.bsp.BspUtil._
 import org.jetbrains.ide.PooledThreadExecutor
+import org.jetbrains.plugins.scala.project.Version
 import org.langmeta.jsonrpc.Services
 import org.langmeta.lsp.{LanguageClient, Window}
+import scalapb_circe.JsonFormat
 
 import scala.collection.JavaConverters._
 import scala.concurrent.Await
 import scala.concurrent.duration.Duration
-import org.jetbrains.plugins.scala.project.Version
-import scalapb_circe.JsonFormat
 
 class BspProjectResolver extends ExternalSystemProjectResolver[BspExecutionSettings] {
 
@@ -57,7 +57,7 @@ class BspProjectResolver extends ExternalSystemProjectResolver[BspExecutionSetti
         calculateModuleDescription(targets, scalacOptions.right.get.items, sources.right.get.items)
       }
     }
-
+    
     def createModuleNode(moduleDescription: ModuleDescription,
                          projectNode: DataNode[ProjectData]) = {
 
@@ -97,10 +97,11 @@ class BspProjectResolver extends ExternalSystemProjectResolver[BspExecutionSetti
       val libraryTestDependencyData = new LibraryDependencyData(moduleData, libraryTestData, LibraryLevel.MODULE)
       libraryTestDependencyData.setScope(DependencyScope.TEST)
 
+      // TODO wow such hack. be less hacky about adding scala sdk to module
       import org.jetbrains.plugins.scala.project.ScalaLibraryName
       val scalaSdkData = moduleDescription.scalaSdkData
       val scalaLibraryData = new LibraryData(bsp.ProjectSystemId, s"$moduleId ${scalaSdkData.scalaOrganization}:scala-library:${scalaSdkData.scalaVersion.get}")
-      val scalaLibraryJar = scalaSdkData.scalacClasspath.filter(_.getName().contains(ScalaLibraryName)).head
+      val scalaLibraryJar = scalaSdkData.scalacClasspath.filter(_.getName.contains(ScalaLibraryName)).head
       scalaLibraryData.addPath(LibraryPathType.BINARY, scalaLibraryJar.getCanonicalPath)
       val scalaLibraryDependencyData = new LibraryDependencyData(moduleData, scalaLibraryData, LibraryLevel.MODULE)
 
@@ -303,7 +304,7 @@ object BspProjectResolver {
       val compileDeps = moduleDescription.targetDependencies.map((_, DependencyScope.COMPILE))
       val testDeps = moduleDescription.targetTestDependencies.map((_, DependencyScope.TEST))
 
-      for {
+      val moduleDeps = for {
         (moduleDepId, scope) <- compileDeps ++ testDeps
         moduleDep <- idToModule.get(moduleDepId.uri.toURI)
       } yield {
@@ -313,8 +314,9 @@ object BspProjectResolver {
 
         val node = new DataNode[ModuleDependencyData](ProjectKeys.MODULE_DEPENDENCY, data, module)
         module.addChild(node)
-        (module)
+        moduleDep
       }
+      (module, moduleDeps)
     }
   }
 

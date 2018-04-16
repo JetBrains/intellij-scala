@@ -1,7 +1,7 @@
 package org.jetbrains.bsp
 
 import java.io.File
-import java.nio.file.Files
+import java.nio.file._
 
 import ch.epfl.scala.bsp.endpoints
 import ch.epfl.scala.bsp.schema.{BuildClientCapabilities, InitializeBuildParams, InitializedBuildParams}
@@ -16,10 +16,9 @@ import org.langmeta.lsp.{LanguageClient, LanguageServer}
 import org.scalasbt.ipcsocket.UnixDomainSocket
 import org.slf4j.LoggerFactory
 
-import scala.concurrent.Promise
-import scala.sys.process.{Process, ProcessLogger}
-import scala.util.{Random, Success}
 import scala.concurrent.duration._
+import scala.sys.process.Process
+import scala.util.Random
 
 class BspCommunication(project: Project) extends AbstractProjectComponent(project) {
   // TODO support persistent sessions for more features
@@ -51,6 +50,7 @@ class BspSession(messages: Observable[BaseProtocolMessage],
       initResult <- initRequest
       _ = endpoints.Build.initialized.notify(InitializedBuildParams())
       result <- task(client).delayExecution(100.millis) // FIXME hackaround to "ensure" bsp server is ready to answer requests after initialized notification
+      // FIXME the bsp process will just stay around zombily for, like, ever. shut it down!!!
     } yield {
       result
     }
@@ -98,8 +98,8 @@ object BspCommunication {
     val id = java.lang.Long.toString(Random.nextLong(), Character.MAX_RADIX)
 
     // TODO support windows pipes and tcp as well as sockets
-    val sockdir = Files.createTempDirectory("bsp-")
-    val sockfile = sockdir.resolve(s"$id.socket")
+    val tempDir = Files.createTempDirectory("bsp-")
+    val sockfile = tempDir.resolve(s"$id.socket")
     sockfile.toFile.deleteOnExit()
     logger.info(s"The socket file is ${sockfile.toAbsolutePath}")
 
@@ -108,16 +108,21 @@ object BspCommunication {
     assert(bloopConfigDir.exists())
     val bspCommand = s"bloop bsp --protocol local --socket $sockfile --verbose"
 
-    // TODO kill bloop process on cancel / error?
 
-    val bspReady = Promise[Unit]()
-    // TODO this will change to "The server started to listen" and be logged on INFO (verbose not required)
-    val readyMessage = "The server is starting to listen"
-    val proclog = ProcessLogger.apply { msg =>
-      if (!bspReady.isCompleted && msg.contains(readyMessage)) bspReady.complete(Success(()))
+    // TODO this only works for unix sockets.
+    // should have a special file parameter to bloop for this when using other protocols
+    val bspReady = Task {
+      var sockfileCreated = false
+      while (!sockfileCreated) {
+        Thread.sleep(10)
+        sockfileCreated = sockfile.toFile.exists()
+      }
+      sockfileCreated
     }
 
-    def runBloop = Process(bspCommand, base).run(proclog)
+    // TODO kill bloop process on cancel / error
+
+    def runBloop = Process(bspCommand, base).run() //.run(proclog)
 
     val initParams = InitializeBuildParams(
       rootUri = base.toString,
@@ -140,8 +145,8 @@ object BspCommunication {
       }
 
     for {
-      _ <- Task(runBloop)
-      _ <- Task.fromFuture(bspReady.future).timeout(5.seconds) // TODO error result
+      p <- Task(runBloop)
+      _ <- bspReady
     } yield initSession
   }
 }
