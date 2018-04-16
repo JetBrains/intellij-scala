@@ -137,6 +137,7 @@
         <lang.inspectionSuppressor language="Scala" implementationClass="org.jetbrains.plugins.scala.codeInspection.suppression.ScalaInspectionSuppressor"/>
         <problemHighlightFilter implementation="org.jetbrains.plugins.scala.annotator.ScalaProblemHighlightFilter"/>
         <problemFileHighlightFilter implementation="org.jetbrains.plugins.scala.annotator.ScalaProblemFileHighlightFilter"/>
+        <highlightVisitor implementation="org.jetbrains.plugins.scala.codeInsight.daemon.ScalaRainbowVisitor"/>
       <externalSystemTaskNotificationListener
               implementation="org.jetbrains.plugins.scaladev.IdeaSourcesAttachListener"/>
 
