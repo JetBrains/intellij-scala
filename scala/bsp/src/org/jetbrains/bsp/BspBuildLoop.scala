@@ -13,8 +13,10 @@ import org.jetbrains.plugins.scala.ScalaFileType
 
 class BspBuildLoop(project: Project) extends AbstractProjectComponent(project) {
 
-  private val busConnection: MessageBusConnection =
-    myProject.getMessageBus.connect(project)
+  private val bspSettings: BspProjectSettings =
+    BspSystemSettings.getInstance(project).getLinkedProjectSettings(project.getBasePath)
+
+  private val busConnection: MessageBusConnection = myProject.getMessageBus.connect(project)
   busConnection.subscribe(VirtualFileManager.VFS_CHANGES, FileChangeListener)
 
   private object FileChangeListener extends FileChangeListenerBase {
@@ -28,11 +30,13 @@ class BspBuildLoop(project: Project) extends AbstractProjectComponent(project) {
       buildModule(file)
 
     private val fileIndex = ProjectRootManager.getInstance(project).getFileIndex
-    val psiManager: PsiManager = PsiManager.getInstance(project)
+    private val psiManager: PsiManager = PsiManager.getInstance(project)
     private val taskManager = ProjectTaskManager.getInstance(project)
 
     // TODO can maybe collect changes in some cases
     private def buildModule(file: VirtualFile): Unit = {
+      if (!bspSettings.buildOnSave) return
+
       val module = fileIndex.getModuleForFile(file)
       // TODO should allow all bsp-compiled types
       val isSupportedFileType =

@@ -27,7 +27,7 @@ class BspProjectImportBuilder(projectDataManager: ProjectDataManager)
 
 
 class BspImportControl extends AbstractImportFromExternalSystemControl[BspProjectSettings, BspProjectSettingsListener, BspSystemSettings](
-  bsp.ProjectSystemId, BspSystemSettings.getInstance(ProjectManager.getInstance.getDefaultProject), BspProjectSettings.default) {
+  bsp.ProjectSystemId, BspSystemSettings.getInstance(ProjectManager.getInstance.getDefaultProject), new BspProjectSettings) {
 
   override def onLinkedProjectPathChange(path: String): Unit = {}
 

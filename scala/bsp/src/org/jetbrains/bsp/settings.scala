@@ -6,26 +6,72 @@ import com.intellij.openapi.components._
 import com.intellij.openapi.externalSystem.model.settings.ExternalSystemExecutionSettings
 import com.intellij.openapi.externalSystem.service.settings.AbstractExternalProjectSettingsControl
 import com.intellij.openapi.externalSystem.settings._
+import com.intellij.openapi.externalSystem.util.ExternalSystemUiUtil._
 import com.intellij.openapi.externalSystem.util.{ExternalSystemSettingsControl, PaintAwarePanel}
 import com.intellij.openapi.project.Project
+import com.intellij.uiDesigner.core.{GridConstraints, GridLayoutManager, Spacer}
 import com.intellij.util.containers.ContainerUtilRt
 import com.intellij.util.messages.Topic
+import javax.swing.{JCheckBox, JPanel}
+
+import scala.beans.BeanProperty
 
 class BspProjectSettings extends ExternalProjectSettings {
 
+  @BeanProperty
+  var buildOnSave = false
+
   override def clone(): BspProjectSettings = {
-    val result = BspProjectSettings.default
+    val result = new BspProjectSettings
     copyTo(result)
+    result.buildOnSave = buildOnSave
     result
   }
 }
 
-object BspProjectSettings {
-  def default = new BspProjectSettings
+// TODO the hell is up with this duplication
+class BspProjectSettingsControl(settings: BspProjectSettings)
+  extends AbstractExternalProjectSettingsControl[BspProjectSettings](null, settings, null) {
+
+  @BeanProperty
+  var buildOnSave = false
+
+  private val buildOnSaveCheckBox = new JCheckBox("build modules on file save")
+
+  override def fillExtraControls(content: PaintAwarePanel, indentLevel: Int): Unit = {
+    val fillLineConstraints = getFillLineConstraints(1)
+    content.add(buildOnSaveCheckBox, fillLineConstraints)
+  }
+
+  override def isExtraSettingModified: Boolean = {
+    val initial = getInitialSettings
+    buildOnSaveCheckBox.isSelected != initial.buildOnSave
+  }
+
+  override def resetExtraSettings(isDefaultModuleCreation: Boolean): Unit = {
+    val initial = getInitialSettings
+    buildOnSaveCheckBox.setSelected(initial.buildOnSave)
+  }
+
+  override def applyExtraSettings(settings: BspProjectSettings): Unit = {
+    settings.buildOnSave = buildOnSaveCheckBox.isSelected
+  }
+
+  override def validate(settings: BspProjectSettings): Boolean = true
+
+  override def updateInitialExtraSettings(): Unit = {
+    applyExtraSettings(getInitialSettings)
+  }
+
 }
+
 
 /** A dummy to satisfy interface constraints of ExternalSystem */
 trait BspProjectSettingsListener extends ExternalSystemSettingsListener[BspProjectSettings]
+
+class BspProjectSettingsListenerAdapter(listener: ExternalSystemSettingsListener[BspProjectSettings])
+  extends DelegatingExternalSystemSettingsListener[BspProjectSettings](listener) with BspProjectSettingsListener
+
 
 object BspTopic extends Topic[BspProjectSettingsListener]("bsp-specific settings", classOf[BspProjectSettingsListener])
 
@@ -94,24 +140,26 @@ object BspExecutionSettings {
     new BspExecutionSettings
 }
 
-class BspProjectSettingsControl(settings: BspProjectSettings)
-  extends AbstractExternalProjectSettingsControl[BspProjectSettings](null, settings, null) {
-  override def fillExtraControls(content: PaintAwarePanel, indentLevel: Int): Unit = {}
-  override def isExtraSettingModified: Boolean = false
-  override def resetExtraSettings(isDefaultModuleCreation: Boolean): Unit = {}
-  override def applyExtraSettings(settings: BspProjectSettings): Unit = {}
-  override def validate(settings: BspProjectSettings): Boolean = true
-}
-
 class BspSystemSettingsControl(settings: BspSystemSettings) extends ExternalSystemSettingsControl[BspSystemSettings] {
-  override def fillUi(canvas: PaintAwarePanel, indentLevel: Int): Unit = {}
+
+  private val panel = new JPanel()
+
+  override def fillUi(canvas: PaintAwarePanel, indentLevel: Int): Unit = {
+
+
+    panel.setLayout(new GridLayoutManager(2, 1))
+    val spacer = new Spacer
+    panel.add(spacer, new GridConstraints())
+
+    canvas.add(panel)
+  }
+
+  override def showUi(show: Boolean): Unit =
+    panel.setVisible(show)
+
   override def reset(): Unit = {}
   override def isModified: Boolean = false
   override def apply(settings: BspSystemSettings): Unit = {}
   override def validate(settings: BspSystemSettings): Boolean = true
   override def disposeUIResources(): Unit = {}
-  override def showUi(show: Boolean): Unit = {}
 }
-
-class BspProjectSettingsListenerAdapter(listener: ExternalSystemSettingsListener[BspProjectSettings])
-  extends DelegatingExternalSystemSettingsListener[BspProjectSettings](listener) with BspProjectSettingsListener

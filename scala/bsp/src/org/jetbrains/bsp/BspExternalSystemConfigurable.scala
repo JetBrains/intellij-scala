@@ -15,5 +15,5 @@ class BspExternalSystemConfigurable(project: Project)
 
   override def newProjectSettings(): BspProjectSettings = new BspProjectSettings
 
-  override def getId: String = "sbt.project.settings.configurable"
+  override def getId: String = "bsp.project.settings.configurable"
 }
