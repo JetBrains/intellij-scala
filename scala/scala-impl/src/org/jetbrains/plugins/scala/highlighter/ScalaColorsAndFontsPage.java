@@ -1,11 +1,13 @@
 package org.jetbrains.plugins.scala.highlighter;
 
+import com.intellij.codeHighlighting.RainbowHighlighter;
+import com.intellij.lang.Language;
 import com.intellij.openapi.editor.colors.TextAttributesKey;
 import com.intellij.openapi.fileTypes.SyntaxHighlighter;
 import com.intellij.openapi.fileTypes.SyntaxHighlighterFactory;
 import com.intellij.openapi.options.colors.AttributesDescriptor;
 import com.intellij.openapi.options.colors.ColorDescriptor;
-import com.intellij.openapi.options.colors.ColorSettingsPage;
+import com.intellij.openapi.options.colors.RainbowColorSettingsPage;
 import org.jetbrains.annotations.NonNls;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
@@ -13,14 +15,13 @@ import org.jetbrains.plugins.scala.ScalaLanguage;
 import org.jetbrains.plugins.scala.icons.Icons;
 
 import javax.swing.*;
-import java.util.HashMap;
 import java.util.Map;
 
 /**
  * User: Alexander Podkhalyuzin
  * Date: 15.07.2008
  */
-public class ScalaColorsAndFontsPage implements ColorSettingsPage {
+public class ScalaColorsAndFontsPage implements RainbowColorSettingsPage {
   @NotNull
   public String getDisplayName() {
     return "Scala";
@@ -166,9 +167,20 @@ public class ScalaColorsAndFontsPage implements ColorSettingsPage {
         "<brace>}</brace>\n\n";
   }
 
+  @Override
+  public boolean isRainbowType(TextAttributesKey key) {
+    return DefaultHighlighter.LOCAL_VARIABLES.equals(key);
+  }
+
+  @NotNull
+  @Override
+  public Language getLanguage() {
+    return ScalaLanguage.INSTANCE;
+  }
+
   @Nullable
   public Map<String, TextAttributesKey> getAdditionalHighlightingTagToDescriptorMap() {
-    Map<String, TextAttributesKey> map = new HashMap<String, TextAttributesKey>();
+    Map<String, TextAttributesKey> map = RainbowHighlighter.createRainbowHLM();
     map.put("keyword", DefaultHighlighter.KEYWORD);
     map.put("par", DefaultHighlighter.PARENTHESES);
     map.put("brace", DefaultHighlighter.BRACES);
