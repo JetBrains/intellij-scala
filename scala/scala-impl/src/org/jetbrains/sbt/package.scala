@@ -19,8 +19,8 @@ import scala.language.implicitConversions
 import scala.reflect.ClassTag
 
 /**
- * @author Pavel Fatin
- */
+  * @author Pavel Fatin
+  */
 package object sbt {
   implicit def toIdeaFunction1[A, B](f: A => B): IdeaFunction[A, B] = new IdeaFunction[A, B] {
     def fun(a: A): B = f(a)
@@ -60,7 +60,7 @@ package object sbt {
       parts.head == file.getName && Option(file.getParentFile).exists(endsWith0(_, parts.tail))
 
     def url: String = VfsUtil.getUrlForLibraryRoot(file)
-    
+
     def isAncestorOf(aFile: File): Boolean = FileUtil.isAncestor(file, aFile, true)
 
     def isUnder(root: File): Boolean = FileUtil.isAncestor(root, file, true)
@@ -94,7 +94,7 @@ package object sbt {
     def containsFile(name: String): Boolean = find(name).exists(_.isFile)
 
     def find(name: String): Option[VirtualFile] = Option(entry.findChild(name))
-    
+
     def isFile: Boolean = !entry.isDirectory
   }
 
