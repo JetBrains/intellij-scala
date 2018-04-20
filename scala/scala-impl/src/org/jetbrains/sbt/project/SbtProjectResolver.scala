@@ -310,7 +310,7 @@ class SbtProjectResolver extends ExternalSystemProjectResolver[SbtExecutionSetti
       moduleProject.dependencies.projects.foreach { dependencyId =>
         val dependency =
           projectToModule.values
-            .find(_.getId == dependencyId.project)
+            .find(_.getId == ModuleNode.combinedId(dependencyId.project, dependencyId.buildURI))
             .getOrElse(throw new ExternalSystemException("Cannot find project dependency: " + dependencyId.project))
         val data = new ModuleDependencyNode(moduleNode, dependency)
         data.setScope(scopeFor(dependencyId.configuration))
@@ -428,7 +428,7 @@ class SbtProjectResolver extends ExternalSystemProjectResolver[SbtExecutionSetti
   private def createModule(project: sbtStructure.ProjectData, moduleFilesDirectory: File): ModuleNode = {
     // TODO use both ID and Name when related flaws in the External System will be fixed
     // TODO explicit canonical path is needed until IDEA-126011 is fixed
-    val result = new ModuleNode(StdModuleTypes.JAVA.getId, project.id, project.id,
+    val result = new ModuleNode(StdModuleTypes.JAVA.getId, project.id, project.buildURI, project.name,
       moduleFilesDirectory.path, project.base.canonicalPath)
 
     result.setInheritProjectCompileOutputPath(false)
@@ -508,7 +508,7 @@ class SbtProjectResolver extends ExternalSystemProjectResolver[SbtExecutionSetti
 
     // TODO use both ID and Name when related flaws in the External System will be fixed
     // TODO explicit canonical path is needed until IDEA-126011 is fixed
-    val result = new ModuleNode(SbtModuleType.instance.getId, id, id, moduleFilesDirectory.path, buildRoot.canonicalPath)
+    val result = new ModuleNode(SbtModuleType.instance.getId, id, project.buildURI, project.name+Sbt.BuildModuleSuffix, moduleFilesDirectory.path, buildRoot.canonicalPath)
 
     result.setInheritProjectCompileOutputPath(false)
     result.setCompileOutputPath(ExternalSystemSourceType.SOURCE, (buildRoot / Sbt.TargetDirectory / "idea-classes").path)
