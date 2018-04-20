@@ -2,6 +2,7 @@ package org.jetbrains.bsp
 
 import com.intellij.openapi.components.AbstractProjectComponent
 import com.intellij.openapi.externalSystem.service.project.autoimport.FileChangeListenerBase
+import com.intellij.openapi.fileTypes.FileType
 import com.intellij.openapi.project.Project
 import com.intellij.openapi.roots.ProjectRootManager
 import com.intellij.openapi.vfs.newvfs.events.VFileEvent
@@ -39,16 +40,21 @@ class BspBuildLoop(project: Project) extends AbstractProjectComponent(project) {
 
     // TODO can maybe collect changes in some cases
     private def buildModule(file: VirtualFile): Unit = {
-      if (bspSettings.exists(_.buildOnSave)) {
-        val module = fileIndex.getModuleForFile(file)
-        // TODO should allow all bsp-compiled types
-        val isSupportedFileType =
-          Option(psiManager.findFile(file))
-            .exists(_.getFileType.isInstanceOf[ScalaFileType])
-
-        if (isSupportedFileType)
-          taskManager.build(module)
+      for {
+        settings <- bspSettings
+        if settings.buildOnSave
+        module <- Option(fileIndex.getModuleForFile(file))
+        psiFile <- Option(psiManager.findFile(file))
+        if isSupported(psiFile.getFileType)
+      } {
+        taskManager.build(module)
       }
+    }
+
+    // TODO should allow all bsp-compiled types
+    private def isSupported(fileType: FileType) = fileType match {
+      case ScalaFileType => true
+      case _ => false
     }
   }
 

@@ -168,7 +168,7 @@ object BspProjectTaskRunner {
         val start = diagnostic.range.start
         val end = diagnostic.range.end
         val position = Some(new FilePosition(file, start.line, start.character, end.line, end.character))
-        val text = diagnostic.message
+        val text = s"${diagnostic.message} [${start.line}:${start.character}]"
 
         report.log(text)
         buildMessages = buildMessages.appendMessage(text)
