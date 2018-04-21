@@ -15,6 +15,8 @@ import com.intellij.psi.PsiManager
 import com.intellij.task.{ProjectTaskManager, ProjectTaskNotification, ProjectTaskResult}
 import com.intellij.util.messages.MessageBusConnection
 import org.jetbrains.plugins.scala.ScalaFileType
+import scala.collection.JavaConverters._
+
 
 final class BspBuildLoop(project: Project) extends AbstractProjectComponent(project) {
 
@@ -29,6 +31,7 @@ final class BspBuildLoop(project: Project) extends AbstractProjectComponent(proj
   private val fileIndex = ProjectRootManager.getInstance(project).getFileIndex
   private val psiManager: PsiManager = PsiManager.getInstance(project)
   private val taskManager = ProjectTaskManager.getInstance(project)
+
   private val failedModules = scala.collection.mutable.HashSet[Module]()
 
   busConnection.subscribe(VirtualFileManager.VFS_CHANGES, FileChangeListener)
@@ -40,23 +43,24 @@ final class BspBuildLoop(project: Project) extends AbstractProjectComponent(proj
     override def updateFile(file: VirtualFile, event: VFileEvent): Unit = ()
     override def deleteFile(file: VirtualFile, event: VFileEvent): Unit = ()
 
-    override def after(events0: util.List[_ <: VFileEvent]): Unit = {
-      if (events0 != null && !bspSettings.exists(_.buildOnSave)) ()
-      else {
-        import scala.collection.JavaConverters._
-        val modules = events0.asScala.toList.flatMap { event =>
-          val file = event.getFile
-          // TODO should allow all bsp-compiled types
-          val isSupportedFileType = Option(psiManager.findFile(file).getFileType).exists(
-            t => t.isInstanceOf[ScalaFileType] || t.isInstanceOf[JavaFileType])
-          if (!isSupportedFileType) Nil
-          else List(fileIndex.getModuleForFile(file))
-        }
+    override def after(fileEvents: util.List[_ <: VFileEvent]): Unit = {
 
-        val changedModules = modules.distinct
-        val modulesToCompile = (changedModules ++ failedModules).toArray
-        if (changedModules.nonEmpty) {
-          taskManager.build(modulesToCompile, new ProjectTaskNotification {
+      val eventModules = for {
+        event <- Option(fileEvents).map(_.asScala).getOrElse(Seq.empty)
+        file = event.getFile
+        if isSupported(file.getFileType)
+        module <- Option(fileIndex.getModuleForFile(file))
+      } yield module
+
+      val changedModules = eventModules.distinct
+      val modulesToCompile = (changedModules ++ failedModules).toArray
+
+      for {
+        settings <- bspSettings
+        if settings.buildOnSave
+      } yield {
+        taskManager.build(modulesToCompile,
+          new ProjectTaskNotification {
             override def finished(projectTaskResult: ProjectTaskResult): Unit = {
               if (projectTaskResult.isAborted || projectTaskResult.getErrors > 0) {
                 failedModules.++=(modulesToCompile)
@@ -65,26 +69,14 @@ final class BspBuildLoop(project: Project) extends AbstractProjectComponent(proj
               }
             }
           })
-        }
-      }
-    }
-
-    private def buildModule(file: VirtualFile): Unit = {
-      for {
-        settings <- bspSettings
-        if settings.buildOnSave
-        module <- Option(fileIndex.getModuleForFile(file))
-        psiFile <- Option(psiManager.findFile(file))
-        if isSupported(psiFile.getFileType)
-      } {
-        taskManager.build(module)
       }
     }
 
 
     // TODO should allow all bsp-compiled types
     private def isSupported(fileType: FileType) = fileType match {
-      case ScalaFileType => true
+      case _ : ScalaFileType => true
+      case _ : JavaFileType => true
       case _ => false
     }
   }
