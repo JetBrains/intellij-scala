@@ -57,8 +57,9 @@ class BspProjectTaskRunner extends ProjectTaskRunner {
 
     val targets = validTasks.map { task =>
       val moduleId = ES.getExternalProjectId(task.getModule)
-      // Works because the URI ends with '?id=module-name'
-      BuildTargetIdentifier(s"${moduleId}-test")
+      // Works for bloop because the URI ends with '?id=module-name'
+      // FIXME need to handle more general case of multiple targets being mapped to the same module
+      BuildTargetIdentifier(s"$moduleId-test")
     }.toSeq
 
     implicit val scheduler: Scheduler = Scheduler(PooledThreadExecutor.INSTANCE, ExecutionModel.AlwaysAsyncExecution)
