@@ -5,7 +5,7 @@ import com.intellij.openapi.extensions.ExtensionPointName
 import com.intellij.openapi.progress.ProcessCanceledException
 import com.intellij.openapi.project.{DumbService, Project}
 import com.intellij.psi.PsiElement
-import org.jetbrains.plugins.scala.components.libinjection.LibraryInjectorLoader
+import org.jetbrains.plugins.scala.components.libextensions.DynamicExtensionPoint
 import org.jetbrains.plugins.scala.lang.psi.ScalaPsiUtil
 import org.jetbrains.plugins.scala.lang.psi.api.base.types.ScTypeElement
 import org.jetbrains.plugins.scala.lang.psi.api.statements.ScFunction
@@ -77,26 +77,16 @@ object SyntheticMembersInjector {
   private val CLASS_NAME = "org.intellij.scala.syntheticMemberInjector"
 
   val EP_NAME: ExtensionPointName[SyntheticMembersInjector] = ExtensionPointName.create(CLASS_NAME)
+  val DYN_EP: DynamicExtensionPoint[SyntheticMembersInjector] = new DynamicExtensionPoint[SyntheticMembersInjector]
 
   private val LOG: Logger = Logger.getInstance(getClass)
 
-  private val injectedExtensions = { proj: Project =>
-    try {
-      val injectorLoader = LibraryInjectorLoader.getInstance(proj)
-      if (injectorLoader != null)
-        injectorLoader.getInjectorInstances(classOf[SyntheticMembersInjector])
-      else Seq.empty
-    } catch {
-      case e: Throwable =>
-        logError("Failed to get dynamic injector", e)
-        Seq.empty
-    }
-  }
 
   def inject(source: ScTypeDefinition, withOverride: Boolean): Seq[ScFunction] = {
+    implicit val ctx: Project = source.getProject
     val buffer = new ArrayBuffer[ScFunction]()
     for {
-      injector <- EP_NAME.getExtensions.toSet ++ injectedExtensions(source.getProject).toSet
+      injector <- EP_NAME.getExtensions.toSet ++ DYN_EP.getExtensions
       template <- injector.injectFunctions(source)
     } try {
       val context = source match {
@@ -129,8 +119,9 @@ object SyntheticMembersInjector {
 
   def injectInners(source: ScTypeDefinition): Seq[ScTypeDefinition] = {
     val buffer = new ArrayBuffer[ScTypeDefinition]()
+    implicit val ctx: Project = source.getProject
     for {
-      injector <- EP_NAME.getExtensions.toSet ++ injectedExtensions(source.getProject).toSet
+      injector <- EP_NAME.getExtensions.toSet ++ DYN_EP.getExtensions
       template <- injector.injectInners(source)
     } try {
       val context = (source match {
@@ -151,13 +142,15 @@ object SyntheticMembersInjector {
 
   def needsCompanion(source: ScTypeDefinition): Boolean = {
     if (DumbService.getInstance(source.getProject).isDumb) return false
-    EP_NAME.getExtensions.exists(_.needsCompanionObject(source))
+    implicit val ctx: Project = source.getProject
+    (EP_NAME.getExtensions ++ DYN_EP.getExtensions).exists(_.needsCompanionObject(source))
   }
 
   def injectSupers(source: ScTypeDefinition): Seq[ScTypeElement] = {
     val buffer = new ArrayBuffer[ScTypeElement]()
+    implicit val ctx: Project = source.getProject
     for {
-      injector <- EP_NAME.getExtensions
+      injector <- EP_NAME.getExtensions.toSet ++ DYN_EP.getExtensions
       supers <- injector.injectSupers(source)
     } try {
       val context = source match {
@@ -182,8 +175,9 @@ object SyntheticMembersInjector {
 
   def injectMembers(source: ScTypeDefinition): Seq[ScMember] = {
     val buffer = new ArrayBuffer[ScMember]()
+    implicit val ctx: Project = source.getProject
     for {
-      injector <- EP_NAME.getExtensions.toSet ++ injectedExtensions(source.getProject).toSet
+      injector <- EP_NAME.getExtensions.toSet ++ DYN_EP.getExtensions
       template <- injector.injectMembers(source)
     } try {
       val context = source match {
