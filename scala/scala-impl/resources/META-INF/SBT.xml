@@ -92,8 +92,8 @@
         <psi.referenceContributor implementation="org.jetbrains.sbt.language.references.SbtReferenceContributor" order="first"/>
 
         <externalSystemTaskNotificationListener implementation="org.jetbrains.sbt.project.SbtNotificationListener"/>
-        <externalSystemTaskNotificationListener
-                implementation="org.jetbrains.plugins.scala.project.migration.MigratorsSbtImportListener"/>
+        <!--<externalSystemTaskNotificationListener-->
+                <!--implementation="org.jetbrains.plugins.scala.project.migration.MigratorsSbtImportListener"/>-->
         <completion.contributor language="Scala" implementationClass="org.jetbrains.sbt.language.completion.SbtCompletionContributor"
             order="first, before liveTemplates" id="sbtCompletionContributor"/>
         <completion.contributor language="Scala" implementationClass="org.jetbrains.sbt.language.completion.SbtMavenDependencyCompletionContributor"
