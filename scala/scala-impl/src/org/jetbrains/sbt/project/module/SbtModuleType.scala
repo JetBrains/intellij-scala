@@ -5,11 +5,12 @@ import javax.swing.Icon
 
 import com.intellij.ide.util.projectWizard.EmptyModuleBuilder
 import com.intellij.openapi.module.{Module, ModuleType}
+import SbtModuleType.Id
 
 /**
  * @author Pavel Fatin
  */
-class SbtModuleType extends ModuleType[EmptyModuleBuilder]("SBT_MODULE") {
+class SbtModuleType extends ModuleType[EmptyModuleBuilder](Id) {
   def createModuleBuilder() = new EmptyModuleBuilder()
 
   override def getName: String = Sbt.BuildModuleName
@@ -20,6 +21,9 @@ class SbtModuleType extends ModuleType[EmptyModuleBuilder]("SBT_MODULE") {
 }
 
 object SbtModuleType {
+
+  val Id = "SBT_MODULE"
+
   val instance: SbtModuleType =
     Class.forName("org.jetbrains.sbt.project.module.SbtModuleType").newInstance.asInstanceOf[SbtModuleType]
 
