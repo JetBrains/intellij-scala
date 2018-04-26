@@ -21,6 +21,7 @@ import org.jetbrains.plugins.scala.lang.psi.api.toplevel.typedef.ScTemplateDefin
 import org.jetbrains.plugins.scala.lang.psi.api.toplevel.{ScEarlyDefinitions, ScPackaging}
 import org.jetbrains.plugins.scala.lang.psi.impl.expr.ScInterpolatedStringPartReference
 import org.jetbrains.plugins.scala.lang.resolve.ScalaResolveResult
+import org.jetbrains.plugins.scala.util.ImplicitUtil._
 
 import scala.language.implicitConversions
 
@@ -38,6 +39,9 @@ final class ScalaUsageTypeProvider extends UsageTypeProviderEx {
         case (referenceElement: ScReference, Array(only: PsiElementUsageTarget))
           if isConstructorPatternReference(referenceElement) && !referenceElement.isReferenceTo(only.getElement) =>
           Some(ParameterInPattern)
+        case (e, Array(target: PsiElementUsageTarget)) 
+          if isImplicitUsageTarget(target) && isReferencedImplicitlyIn(target.getElement, e) =>
+          Some(ImplicitConversionOrParam)
         case _ =>
           element.withParentsInFile
             .flatMap(usageType)
@@ -47,6 +51,16 @@ final class ScalaUsageTypeProvider extends UsageTypeProviderEx {
 }
 
 object ScalaUsageTypeProvider {
+  private def isImplicitUsageTarget(target: PsiElementUsageTarget): Boolean = target.getElement match {
+    case implicitSearchTarget(_) => true
+    case _                       => false
+  }
+  
+  private def isReferencedImplicitlyIn(target: PsiElement, e: PsiElement): Boolean =
+    target.refOrImplicitRefIn(e) match {
+      case Some(_: ImplicitReference) => true
+      case _                          => false
+    }
 
   def referenceExpressionUsageType(expression: ScReferenceExpression): UsageType = {
     def resolvedElement(result: ScalaResolveResult) =
@@ -94,6 +108,7 @@ object ScalaUsageTypeProvider {
   val TypeBound: UsageType = "Type bound"
   val TypeAlias: UsageType = "Type alias"
   val SecondaryConstructor: UsageType = "Secondary constructor"
+  val ImplicitConversionOrParam: UsageType = "Implicit conversion/parameter"
 
   private def usageType(element: PsiElement): Option[UsageType] =
     Option(nullableUsageType(element))

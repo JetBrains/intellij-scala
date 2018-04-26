@@ -153,8 +153,8 @@ private[findUsages] object ScalaCompilerReferenceService {
     inReadAction(element match {
       case hasSyntheticGetter(getter)      => getter
       case isAnyValExtensionMethod(method) => method
+      case _                               => element
       // @TODO: desugar generator arrows to map/flatMap/withFilter
-      case _ => element
     })
 
   object hasSyntheticGetter {
