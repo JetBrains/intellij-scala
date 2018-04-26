@@ -2,10 +2,12 @@ package org.jetbrains.plugins.scala
 package compiler
 
 import java.net.{ConnectException, InetAddress, UnknownHostException}
+import java.nio.file.{Files, Path, Paths}
 
 import com.intellij.openapi.project.Project
 import org.jetbrains.jps.incremental.scala.Client
 import org.jetbrains.jps.incremental.scala.remote.RemoteResourceOwner
+import org.jetbrains.plugins.scala.compiler.RemoteServerRunner._
 
 /**
  * User: Dmitry Naydanov
@@ -30,14 +32,16 @@ class RemoteServerRunner(project: Project) extends RemoteResourceOwner {
         for (i <- 0 until (COUNT - 1)) {
           try {
             Thread.sleep(i*20)
-            send(serverAlias, arguments, client)
+            val token = readStringFrom(tokenPathFor(port))
+            send(serverAlias, token +: arguments, client)
             return
           } catch {
             case _: ConnectException => Thread.sleep(100)
           }
         }
 
-        send(serverAlias, arguments, client)
+        val token = readStringFrom(tokenPathFor(port))
+        send(serverAlias, token +: arguments, client)
       } catch {
         case e: ConnectException =>
           val message = "Cannot connect to compile server at %s:%s".format(address.toString, port)
@@ -58,14 +62,9 @@ class RemoteServerRunner(project: Project) extends RemoteResourceOwner {
   }
 }
 
-class RemoteServerStopper(val port: Int) extends RemoteResourceOwner {
-  override protected val address: InetAddress = InetAddress.getByName(null)
+private object RemoteServerRunner {
+  private def readStringFrom(path: Path) = new String(Files.readAllBytes(path))
 
-  def sendStop(): Unit =
-    try {
-      val stopCommand = "stop_" + ScalaCompileServerSettings.getInstance().COMPILE_SERVER_ID
-      send(stopCommand, Seq(s"--nailgun-port $port"), null)
-    } catch {
-      case _: Exception =>
-    }
+  private def tokenPathFor(port: Int) =
+    Paths.get(System.getProperty("user.home"), ".idea-build", "tokens", port.toString)
 }

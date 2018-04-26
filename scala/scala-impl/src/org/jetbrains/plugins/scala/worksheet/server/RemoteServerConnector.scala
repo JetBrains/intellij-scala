@@ -75,7 +75,7 @@ class RemoteServerConnector(psiFile: PsiFile, worksheet: File, output: File, wor
         case NonServer =>
           val eventClient = new ClientEventProcessor(client)
           
-          val encodedArgs = arguments map {
+          val encodedArgs = ("NO_TOKEN" +: arguments) map {
             case "" => Base64Converter.encode("#STUB#" getBytes "UTF-8")
             case s => Base64Converter.encode(s getBytes "UTF-8")
           }
