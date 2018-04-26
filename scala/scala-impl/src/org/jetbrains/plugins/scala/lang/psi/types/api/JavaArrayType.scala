@@ -25,13 +25,13 @@ case class JavaArrayType(argument: ScType) extends ValueType {
     JavaArrayType(argument.recursiveUpdateImpl(updates, visited))
   }
 
-  override def recursiveVarianceUpdateModifiable[T](data: T,
-                                                    update: (ScType, Variance, T) => (Boolean, ScType, T),
-                                                    v: Variance = Covariant, revertVariances: Boolean = false): ScType =
-    update(this, v, data) match {
-      case (true, res, _) => res
-      case (_, _, newData) =>
-        JavaArrayType(argument.recursiveVarianceUpdateModifiable(newData, update, Invariant))
+  override def recursiveVarianceUpdate(update: (ScType, Variance) => (Boolean, ScType),
+                                       variance: Variance = Covariant,
+                                       revertVariances: Boolean = false): ScType =
+    update(this, variance) match {
+      case (true, res) => res
+      case (_, _) =>
+        JavaArrayType(argument.recursiveVarianceUpdate(update, Invariant))
     }
 
   override def equivInner(`type`: ScType, substitutor: ScUndefinedSubstitutor, falseUndef: Boolean): (Boolean, ScUndefinedSubstitutor) =

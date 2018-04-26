@@ -29,11 +29,11 @@ trait ScalaBounds extends api.Bounds {
     else {
       (t1, t2) match {
         case (arg @ ScExistentialArgument(name, args, lower, upper), ScExistentialArgument(_, _, lower2, upper2)) =>
-          arg.withBounds(lub(lower, lower2, checkWeak), glb(upper, upper2, checkWeak))
+          arg.copyWithBounds(lub(lower, lower2, checkWeak), glb(upper, upper2, checkWeak))
         case (arg @ ScExistentialArgument(name, args, lower, upper), _) =>
-          arg.withBounds(lub(lower, t2, checkWeak), glb(upper, t2))
+          arg.copyWithBounds(lub(lower, t2, checkWeak), glb(upper, t2))
         case (_, arg @ ScExistentialArgument(name, args, lower, upper)) =>
-          arg.withBounds(lub(lower, t1, checkWeak), glb(upper, t1))
+          arg.copyWithBounds(lub(lower, t1, checkWeak), glb(upper, t1))
         case (ex: ScExistentialType, _) => glb(ex.quantified, t2, checkWeak).unpackedType
         case (_, ex: ScExistentialType) => glb(t1, ex.quantified, checkWeak).unpackedType
         case _ => ScCompoundType(Seq(t1, t2), Map.empty, Map.empty)
@@ -259,11 +259,11 @@ trait ScalaBounds extends api.Bounds {
           case (_, tpt: TypeParameterType) if !stopAddingUpperBound => lub(t1, tpt.upperType, checkWeak)
           case (arg @ ScExistentialArgument(name, args, lower, upper), ScExistentialArgument(_, _, lower2, upper2))
             if !stopAddingUpperBound =>
-            arg.withBounds(glb(lower, lower2, checkWeak), lub(upper, upper2, checkWeak))
+            arg.copyWithBounds(glb(lower, lower2, checkWeak), lub(upper, upper2, checkWeak))
           case (arg @ ScExistentialArgument(name, args, lower, upper), r) if !stopAddingUpperBound =>
-            arg.withBounds(glb(lower, r, checkWeak), lub(upper, t2, checkWeak))
+            arg.copyWithBounds(glb(lower, r, checkWeak), lub(upper, t2, checkWeak))
           case (r, arg @ ScExistentialArgument(name, args, lower, upper)) if !stopAddingUpperBound =>
-            arg.withBounds(glb(lower, r, checkWeak), lub(upper, t2, checkWeak))
+            arg.copyWithBounds(glb(lower, r, checkWeak), lub(upper, t2, checkWeak))
           case (_: ValType, _: ValType) => AnyVal
           case (JavaArrayType(arg1), JavaArrayType(arg2)) =>
             val (v, ex) = calcForTypeParamWithoutVariance(arg1, arg2, depth, checkWeak)
@@ -335,31 +335,31 @@ trait ScalaBounds extends api.Bounds {
                                              (implicit stopAddingUpperBound: Boolean): (ScType, Option[ScExistentialArgument]) = {
     if (substed1 equiv substed2) (substed1, None) else {
       if (substed1 conforms substed2) {
-        val ex = ScExistentialArgument("_$" + count, List.empty, substed1, substed2, count)
+        val ex = ScExistentialArgument("_$" + count, List.empty, substed1, substed2)
         (ex, Some(ex))
       } else if (substed2 conforms substed1) {
-        val ex = ScExistentialArgument("_$" + count, List.empty, substed2, substed1, count)
+        val ex = ScExistentialArgument("_$" + count, List.empty, substed2, substed1)
         (ex, Some(ex))
       } else {
         (substed1, substed2) match {
           case (arg @ ScExistentialArgument(_, _, lower, upper), ScExistentialArgument(_, _, lower2, upper2)) =>
             val newLub = if (stopAddingUpperBound) Any else lubInner(upper, upper2, checkWeak, stopAddingUpperBound = true)
-            (arg.withBounds(glb(lower, lower2, checkWeak), newLub), None)
+            (arg.copyWithBounds(glb(lower, lower2, checkWeak), newLub), None)
           case (arg @ ScExistentialArgument(_, _, lower, upper), _) =>
             val newLub = if (stopAddingUpperBound) Any else lubInner(upper, substed2, checkWeak, stopAddingUpperBound = true)
-            (arg.withBounds(glb(lower, substed2), newLub), None)
+            (arg.copyWithBounds(glb(lower, substed2), newLub), None)
           case (_, arg @ ScExistentialArgument(_, _, lower, upper)) =>
             val newLub = if (stopAddingUpperBound) Any else lubInner(upper, substed1, checkWeak, stopAddingUpperBound = true)
-            (arg.withBounds(glb(lower, substed1), newLub), None)
+            (arg.copyWithBounds(glb(lower, substed1), newLub), None)
           case _ =>
             val newGlb = glb(substed1, substed2)
             if (!stopAddingUpperBound) {
               val newLub = lubInner(substed1, substed2, checkWeak = false, stopAddingUpperBound = true)
-              val ex = ScExistentialArgument("_$" + count, List.empty, newGlb, newLub, count)
+              val ex = ScExistentialArgument("_$" + count, List.empty, newGlb, newLub)
               (ex, Some(ex))
             } else {
               //todo: this is wrong, actually we should pick lub, just without merging parameters in this method
-              val ex = ScExistentialArgument("_$" + count, List.empty, newGlb, Any, count)
+              val ex = ScExistentialArgument("_$" + count, List.empty, newGlb, Any)
               (ex, Some(ex))
             }
         }

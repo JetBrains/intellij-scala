@@ -20,7 +20,6 @@ import org.jetbrains.plugins.scala.lang.psi.types.recursiveUpdate.ScSubstitutor
 import org.jetbrains.plugins.scala.lang.refactoring.util.{ScTypeUtil, ScalaNamesUtil}
 
 import scala.annotation.tailrec
-import scala.collection.mutable
 
 trait ScalaTypePresentation extends api.TypePresentation {
   typeSystem: api.TypeSystem =>
@@ -170,8 +169,8 @@ trait ScalaTypePresentation extends api.TypePresentation {
     def existentialTypeText(existentialType: ScExistentialType, checkWildcard: Boolean, stable: Boolean): String = {
       def existentialArgWithBounds(wildcard: ScExistentialArgument, name: String): String = {
         val argsText =
-          if (wildcard.args.isEmpty) ""
-          else wildcard.args.map(_.name).mkString("[", ", ", "]")
+          if (wildcard.typeParameters.isEmpty) ""
+          else wildcard.typeParameters.map(_.name).mkString("[", ", ", "]")
 
         val lowerBound = lowerBoundText(wildcard.lower)(innerTypeText(_))
         val upperBound = upperBoundText(wildcard.upper)(innerTypeText(_))
@@ -190,17 +189,20 @@ trait ScalaTypePresentation extends api.TypePresentation {
         case ScExistentialType(q, Seq(w)) if checkWildcard =>
           if (q == w) placeholder(w)
           else existentialTypeText(existentialType, checkWildcard = false, stable)
-        case ex @ ScExistentialType(ParameterizedType(des, typeArgs), _) =>
-          def isNamed(arg: ScExistentialArgument): Boolean = !arg.name.startsWith("_")
+        case ScExistentialType(quant @ ParameterizedType(des, typeArgs), wildcards) =>
+          val usedMoreThanOnce = ScExistentialArgument.usedMoreThanOnce(quant)
+
+          def mayBePlaceholder(arg: ScExistentialArgument): Boolean =
+            !usedMoreThanOnce(arg) && typeArgs.contains(arg) && arg.typeParameters.isEmpty
+
+          val (placeholders, namedWildcards) = wildcards.partition(mayBePlaceholder)
 
           val typeArgsText = typeArgs.map {
-            case arg: ScExistentialArgument  => if (!isNamed(arg)) placeholder(arg) else arg.name
+            case arg: ScExistentialArgument  => if (placeholders.contains(arg)) placeholder(arg) else arg.name
             case t                           => innerTypeText(t, needDotType = true, checkWildcard)
           }.mkString("[", ", ", "]")
 
           val prefix = s"${innerTypeText(des)}$typeArgsText"
-
-          val namedWildcards = ex.wildcards.filter(isNamed)
 
           if (namedWildcards.isEmpty) prefix
           else s"($prefix)${namedExistentials(namedWildcards)}"

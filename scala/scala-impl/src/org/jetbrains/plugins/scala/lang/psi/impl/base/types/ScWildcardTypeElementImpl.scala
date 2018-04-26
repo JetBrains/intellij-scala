@@ -23,7 +23,7 @@ class ScWildcardTypeElementImpl(node: ASTNode) extends ScalaPsiElementImpl(node)
       lb <- lowerBound
       ub <- upperBound
     } yield {
-      ScExistentialType(ScExistentialArgument("_$1", Nil, lb, ub, this))
+      ScExistentialType(ScExistentialArgument("_$1", Nil, lb, ub))
     }
   }
 

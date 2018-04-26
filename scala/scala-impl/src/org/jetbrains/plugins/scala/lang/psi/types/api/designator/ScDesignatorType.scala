@@ -41,7 +41,7 @@ case class ScDesignatorType(element: PsiNamedElement, isStatic: Boolean = false)
           case _ =>
         }
         val existentialArgs = ta.typeParameters
-          .map(tp => ScExistentialArgument(tp.name + "$$", Nil, Nothing, Any, tp))
+          .map(tp => ScExistentialArgument(tp.name + "$$", Nil, Nothing, Any))
           .toList
 
         val genericSubst = ScSubstitutor.bind(ta.typeParameters, existentialArgs)

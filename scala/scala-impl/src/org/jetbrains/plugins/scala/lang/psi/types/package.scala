@@ -91,7 +91,7 @@ package object types {
               case Covariant     => (true, upper)
               case Invariant     =>
                 index += 1
-                (true, ScExistentialArgument(s"_$$$index", Nil, lower, upper, index))
+                (true, ScExistentialArgument(s"_$$$index", Nil, lower, upper))
             }
           case _ => (false, tp)
         }

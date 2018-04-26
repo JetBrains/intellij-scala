@@ -100,20 +100,21 @@ case class ScCompoundType(components: Seq[ScType],
     })
   }
 
-  override def recursiveVarianceUpdateModifiable[T](data: T, update: (ScType, Variance, T) => (Boolean, ScType, T),
-                                                    v: Variance = Covariant, revertVariances: Boolean = false): ScType = {
-    update(this, v, data) match {
-      case (true, res, _) => res
-      case (_, _, newData) =>
+  override def recursiveVarianceUpdate(update: (ScType, Variance) => (Boolean, ScType),
+                                       variance: Variance = Covariant,
+                                       revertVariances: Boolean = false): ScType = {
+    update(this, variance) match {
+      case (true, res) => res
+      case (_, _) =>
         val updSignatureMap = signatureMap.map {
           case (s: Signature, tp) =>
-            val tParams = s.typeParams.updateWithVariance(_.recursiveVarianceUpdateModifiable(newData, update, _), Covariant)
-            val paramTypes = s.substitutedTypes.map(_.map(f => () => f().recursiveVarianceUpdateModifiable(newData, update, Covariant)))
+            val tParams = s.typeParams.updateWithVariance(_.recursiveVarianceUpdate(update, _), Covariant)
+            val paramTypes = s.substitutedTypes.map(_.map(f => () => f().recursiveVarianceUpdate(update, Covariant)))
             val updSignature = new Signature(s.name, paramTypes, tParams, ScSubstitutor.empty, s.namedElement, s.hasRepeatedParam)
-            (updSignature, tp.recursiveVarianceUpdateModifiable(newData, update, Covariant))
+            (updSignature, tp.recursiveVarianceUpdate(update, Covariant))
         }
-        new ScCompoundType(components.map(_.recursiveVarianceUpdateModifiable(newData, update, v)), updSignatureMap, typesMap.map {
-          case (s, sign) => (s, sign.updateTypes(_.recursiveVarianceUpdateModifiable(newData, update, Covariant)))
+        new ScCompoundType(components.map(_.recursiveVarianceUpdate(update, variance)), updSignatureMap, typesMap.map {
+          case (s, sign) => (s, sign.updateTypes(_.recursiveVarianceUpdate(update, Covariant)))
         })
     }
   }

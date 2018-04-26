@@ -47,7 +47,7 @@ class ScExistentialTypeElementImpl(node: ASTNode) extends ScalaPsiElementImpl(no
             case Some(tp) =>
               val compound = ScCompoundType(Seq(tp, Singleton))
               val name = s"${named.name}$$type"
-              ScExistentialArgument(name, Nil, Nothing, compound, named)
+              ScExistentialArgument(name, Nil, Nothing, compound)
             case None => des
           }
       }

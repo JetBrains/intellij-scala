@@ -3,14 +3,11 @@ package lang
 package psi
 package types
 
-import java.util.Objects
-
-import com.intellij.psi.PsiElement
 import org.jetbrains.plugins.scala.lang.psi.api.statements.params.{ScTypeParam, TypeParamId}
 import org.jetbrains.plugins.scala.lang.psi.types.api._
 import org.jetbrains.plugins.scala.lang.psi.types.nonvalue._
 import org.jetbrains.plugins.scala.lang.psi.types.recursiveUpdate.AfterUpdate.{ProcessSubtypes, Stop}
-import org.jetbrains.plugins.scala.lang.psi.types.recursiveUpdate.{RecursiveUpdateException, ScSubstitutor, Update}
+import org.jetbrains.plugins.scala.lang.psi.types.recursiveUpdate.{ScSubstitutor, Update}
 import org.jetbrains.plugins.scala.lang.refactoring.util.ScTypeUtil.AliasType
 import org.jetbrains.plugins.scala.project.ProjectContext
 
@@ -27,29 +24,18 @@ class ScExistentialType private (val quantified: ScType,
     quantified.isAliasType.map(a => a.copy(lower = a.lower.map(_.unpackedType), upper = a.upper.map(_.unpackedType)))
   }
 
-  def boundNames: List[String] = wildcards.map(_.name)
-
   override def removeAbstracts = ScExistentialType(quantified.removeAbstracts)
 
-  override def updateSubtypes(updates: Seq[Update], visited: Set[ScType]): ScExistentialType = {
-    try {
-      ScExistentialType(quantified.recursiveUpdateImpl(updates, visited))
-    } catch {
-      case _: ClassCastException => throw new RecursiveUpdateException
-    }
-  }
+  override def updateSubtypes(updates: Seq[Update], visited: Set[ScType]): ScExistentialType =
+    ScExistentialType(quantified.recursiveUpdateImpl(updates, visited))
 
-  override def recursiveVarianceUpdateModifiable[T](data: T, update: (ScType, Variance, T) => (Boolean, ScType, T),
-                                                    variance: Variance = Covariant, revertVariances: Boolean = false): ScType = {
-    update(this, variance, data) match {
-      case (true, res, _) => res
-      case (_, _, newData) =>
-        try {
-          ScExistentialType(quantified.recursiveVarianceUpdateModifiable(newData, update, variance))
-        }
-        catch {
-          case _: ClassCastException => throw new RecursiveUpdateException
-        }
+  override def recursiveVarianceUpdate(update: (ScType, Variance) => (Boolean, ScType),
+                                       variance: Variance = Covariant,
+                                       revertVariances: Boolean = false): ScType = {
+    update(this, variance) match {
+      case (true, res) => res
+      case (_, _) =>
+        ScExistentialType(quantified.recursiveVarianceUpdate(update, variance))
     }
   }
 
@@ -145,28 +131,7 @@ class ScExistentialType private (val quantified: ScType,
     case _ =>
   }
 
-  override def typeDepth: Int = {
-    def typeParamsDepth(typeParams: Seq[TypeParameterType]): Int = {
-      typeParams.map {
-        case typeParam =>
-          val boundsDepth = typeParam.lowerType.typeDepth.max(typeParam.upperType.typeDepth)
-          if (typeParam.arguments.nonEmpty) {
-            (typeParamsDepth(typeParam.arguments) + 1).max(boundsDepth)
-          } else boundsDepth
-      }.max
-    }
-
-    val quantDepth = quantified.typeDepth
-    if (wildcards.nonEmpty) {
-      (wildcards.map {
-        wildcard =>
-          val boundsDepth = wildcard.lower.typeDepth.max(wildcard.upper.typeDepth)
-          if (wildcard.args.nonEmpty) {
-            (typeParamsDepth(wildcard.args) + 1).max(boundsDepth)
-          } else boundsDepth
-      }.max + 1).max(quantDepth)
-    } else quantDepth
-  }
+  override def typeDepth: Int = quantified.typeDepth + 1
 }
 
 object ScExistentialType {
@@ -197,16 +162,19 @@ object ScExistentialType {
         ScExistentialType(e.quantified)
       case _ =>
         //second rule
-        val args = ScExistentialArgument.notBound(quantified).toList
+        val args = notBoundArgs(quantified).toList
         new ScExistentialType(quantified, args, simplify(quantified, args))
     }
   }
 
-  private def simplify(quantified: ScType, wildcards: List[ScExistentialArgument]): Option[ScType] = {
+  private def simplify(quantified: ScType, wildcards: List[ScExistentialArgument], visitedQ: Set[ScType] = Set.empty): Option[ScType] = {
     quantified match {
       case arg: ScExistentialArgument =>
-        //shortcut for fourth rule, toplevel position is covariant
-        return Some(ScExistentialType(arg.upper).simplify())
+        //shortcut for the fourth rule, toplevel position is covariant
+        val upper = arg.upper
+        val simplified =
+          if (notBoundArgs(upper).isEmpty) Some(upper) else None
+        return simplified
       case _ =>
     }
 
@@ -239,103 +207,35 @@ object ScExistentialType {
 
     val simplifiedQ = quantified.recursiveVarianceUpdate(argsToBounds, Invariant)
 
-    if (updated)
-      Some(ScExistentialType(simplifiedQ).simplify())
-    else None
-  }
-}
+    if (!updated) None
+    else {
 
-class ScExistentialArgument private (val name: String,
-                                     val args: List[TypeParameterType],
-                                     val lower: ScType,
-                                     val upper: ScType,
-                                     private val id: Int)
-  extends NamedType with ValueType {
-
-  override implicit def projectContext: ProjectContext = lower.projectContext
-
-  override def hashCode(): Int =
-    Objects.hash(name, args, lower, upper, id: Integer)
-
-  override def equals(other: Any): Boolean = other match {
-    case ex: ScExistentialArgument =>
-      id == ex.id &&
-        name == ex.name &&
-        args == ex.args &&
-        lower == ex.lower &&
-        upper == ex.upper
-    case _ => false
-  }
-
-  override def removeAbstracts: ScExistentialArgument = ScExistentialArgument(name, args, lower.removeAbstracts, upper.removeAbstracts, id)
-
-  override def updateSubtypes(updates: Seq[Update], visited: Set[ScType]): ScExistentialArgument =
-    ScExistentialArgument(name, args,
-      lower.recursiveUpdateImpl(updates, visited),
-      upper.recursiveUpdateImpl(updates, visited),
-      id
-    )
-
-  def recursiveVarianceUpdateModifiableNoUpdate[T](data: T, update: (ScType, Variance, T) => (Boolean, ScType, T),
-                                                            variance: Variance = Covariant): ScExistentialArgument =
-    ScExistentialArgument(name, args,
-      lower.recursiveVarianceUpdateModifiable(data, update, Contravariant),
-      upper.recursiveVarianceUpdateModifiable(data, update, Covariant),
-      id
-    )
-
-  def withBounds(newLower: ScType, newUpper: ScType): ScExistentialArgument =
-    new ScExistentialArgument(name, args, newLower, newUpper, id)
-
-  override def recursiveVarianceUpdateModifiable[T](data: T, update: (ScType, Variance, T) => (Boolean, ScType, T),
-                                                    v: Variance = Covariant, revertVariances: Boolean = false): ScType = {
-    update(this, v, data) match {
-      case (true, res, _) => res
-      case (_, _, newData) =>
-        recursiveVarianceUpdateModifiableNoUpdate(newData, update, v)
+      val newWildcards = notBoundArgs(simplifiedQ).toList
+      if (newWildcards.isEmpty)
+        Some(simplifiedQ)
+      else if (visitedQ.contains(simplifiedQ))
+        None
+      //semi-invariant to avoid infinite recursive building of "simplified" types, like in example (T forSome {type T <: C[T]})
+      else if (newWildcards.size < wildcards.size || simplifiedQ.typeDepth <= quantified.typeDepth)
+        Some(new ScExistentialType(simplifiedQ, newWildcards, simplify(simplifiedQ, newWildcards, visitedQ + quantified)))
+      else
+        None
     }
   }
 
-  override def equivInner(r: ScType, uSubst: ScUndefinedSubstitutor, falseUndef: Boolean): (Boolean, ScUndefinedSubstitutor) = {
-    r match {
-      case exist: ScExistentialArgument =>
-        var undefinedSubst = uSubst
-        val s = ScSubstitutor.bind(exist.args.map(_.name), args)(TypeParamId.nameBased)
-        val t = lower.equiv(s.subst(exist.lower), undefinedSubst, falseUndef)
-        if (!t._1) return (false, undefinedSubst)
-        undefinedSubst = t._2
-        upper.equiv(s.subst(exist.upper), undefinedSubst, falseUndef)
-      case _ => (false, uSubst)
-    }
-  }
-
-  override def visitType(visitor: TypeVisitor): Unit = visitor match {
-    case scalaVisitor: ScalaTypeVisitor => scalaVisitor.visitExistentialArgument(this)
-    case _ =>
-  }
-}
-
-object ScExistentialArgument {
-  def apply(name: String, args: List[TypeParameterType], lower: ScType, upper: ScType, id: Int) =
-    new ScExistentialArgument(name, args, lower, upper, id)
-
-  def apply(name: String, args: List[TypeParameterType], lower: ScType, upper: ScType, psi: PsiElement) =
-    new ScExistentialArgument(name, args, lower, upper, id = psi.hashCode())
-
-  def unapply(arg: ScExistentialArgument): Option[(String, List[TypeParameterType], ScType, ScType)] =
-    Some((arg.name, arg.args, arg.lower, arg.upper))
-
-  def notBound(tp: ScType): Set[ScExistentialArgument] = {
+  private def notBoundArgs(tp: ScType): Set[ScExistentialArgument] = {
     var result: Set[ScExistentialArgument] = Set.empty
     tp.recursiveUpdate {
       case _: ScExistentialType => Stop //arguments inside are considered bound
       case arg: ScExistentialArgument =>
-        result += arg
-        ProcessSubtypes
+        if (result.contains(arg)) Stop
+        else {
+          result += arg
+          ProcessSubtypes
+        }
       case _ =>
         ProcessSubtypes
     }
     result
   }
-
 }

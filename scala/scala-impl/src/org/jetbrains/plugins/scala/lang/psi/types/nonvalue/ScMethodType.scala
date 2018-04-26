@@ -122,13 +122,14 @@ case class ScMethodType(returnType: ScType, params: Seq[Parameter], isImplicit: 
       )), isImplicit)
   }
 
-  override def recursiveVarianceUpdateModifiable[T](data: T, update: (ScType, Variance, T) => (Boolean, ScType, T),
-                                                    variance: Variance = Covariant, revertVariances: Boolean = false): ScType = {
-    update(this, variance, data) match {
-      case (true, res, _) => res
-      case (_, _, newData) =>
-        ScMethodType(returnType.recursiveVarianceUpdateModifiable(newData, update, variance),
-          params.map(p => p.copy(paramType = p.paramType.recursiveVarianceUpdateModifiable(newData, update, -variance))),
+  override def recursiveVarianceUpdate(update: (ScType, Variance) => (Boolean, ScType),
+                                       variance: Variance = Covariant,
+                                       revertVariances: Boolean = false): ScType = {
+    update(this, variance) match {
+      case (true, res) => res
+      case (_, _) =>
+        ScMethodType(returnType.recursiveVarianceUpdate(update, variance),
+          params.map(p => p.copy(paramType = p.paramType.recursiveVarianceUpdate(update, -variance))),
           isImplicit)
     }
   }
@@ -232,14 +233,15 @@ case class ScTypePolymorphicType(internalType: ScType, typeParameters: Seq[TypeP
     )
   }
 
-  override def recursiveVarianceUpdateModifiable[T](data: T, update: (ScType, Variance, T) => (Boolean, ScType, T),
-                                                    v: Variance = Covariant, revertVariances: Boolean = false): ScType = {
-    update(this, v, data) match {
-      case (true, res, _) => res
-      case (_, _, newData) =>
+  override def recursiveVarianceUpdate(update: (ScType, Variance) => (Boolean, ScType),
+                                       variance: Variance = Covariant,
+                                       revertVariances: Boolean = false): ScType = {
+    update(this, variance) match {
+      case (true, res) => res
+      case (_, _) =>
         ScTypePolymorphicType(
-          internalType.recursiveVarianceUpdateModifiable(newData, update, v),
-          typeParameters.updateWithVariance(_.recursiveVarianceUpdateModifiable(newData, update, _), -v)
+          internalType.recursiveVarianceUpdate(update, variance),
+          typeParameters.updateWithVariance(_.recursiveVarianceUpdate(update, _), -variance)
         )
     }
   }

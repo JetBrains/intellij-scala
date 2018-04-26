@@ -25,10 +25,10 @@ import org.jetbrains.plugins.scala.lang.refactoring.util.ScTypeUtil.AliasType
 import org.jetbrains.plugins.scala.lang.resolve.processor.{CompoundTypeCheckSignatureProcessor, CompoundTypeCheckTypeAliasProcessor}
 import org.jetbrains.plugins.scala.util.ScEquivalenceUtil._
 
-import _root_.scala.collection.immutable.HashSet
 import scala.annotation.tailrec
+import scala.collection.immutable.HashSet
+import scala.collection.Seq
 import scala.collection.mutable.ArrayBuffer
-import scala.collection.{Seq, immutable}
 
 trait ScalaConformance extends api.Conformance {
   typeSystem: api.TypeSystem =>
@@ -1169,7 +1169,7 @@ trait ScalaConformance extends api.Conformance {
       if (result != null) return
 
       def lightTypeParam(arg: ScExistentialArgument): TypeParameter =
-        TypeParameter.light(arg.name, arg.args.map(_.typeParameter), arg.lower, arg.upper)
+        TypeParameter.light(arg.name, arg.typeParameters, arg.lower, arg.upper)
 
       val undefines = e.wildcards.map(w => UndefinedType(lightTypeParam(w)))
       val wildcardsToUndefined = e.wildcards.zip(undefines).toMap
@@ -1190,13 +1190,13 @@ trait ScalaConformance extends api.Conformance {
             for (un <- undefines if result == null) {
               val solvedType = solvingSubstitutor.subst(un)
 
-              var t = conformsInner(solvedType, un.typeParameter.lowerType, substitutor = undefinedSubst)
+              var t = conformsInner(solvedType, un.typeParameter.lowerType.unpackedType, substitutor = undefinedSubst)
               if (solvedType != un && !t._1) {
                 result = (false, undefinedSubst)
                 return
               }
               undefinedSubst = t._2
-              t = conformsInner(un.typeParameter.upperType, solvedType, substitutor = undefinedSubst)
+              t = conformsInner(un.typeParameter.upperType.unpackedType, solvedType, substitutor = undefinedSubst)
               if (solvedType != un && !t._1) {
                 result = (false, undefinedSubst)
                 return

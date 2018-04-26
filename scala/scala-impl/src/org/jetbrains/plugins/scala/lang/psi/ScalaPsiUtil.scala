@@ -1827,7 +1827,7 @@ object ScalaPsiUtil {
                     case _ => tpArg
                   }
                 case arg: ScExistentialArgument =>
-                  arg.withBounds(convertParameter(arg.lower, variance), convertParameter(arg.upper, variance))
+                  arg.copyWithBounds(convertParameter(arg.lower, variance), convertParameter(arg.upper, variance))
                 case _ => tpArg
               }
             }

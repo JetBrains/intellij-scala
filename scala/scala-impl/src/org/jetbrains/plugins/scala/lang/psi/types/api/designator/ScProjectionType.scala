@@ -59,7 +59,7 @@ class ScProjectionType private(val projected: ScType,
           case _ =>
         }
         val existentialArgs = ta.typeParameters
-          .map(tp => ScExistentialArgument(tp.name + "$$", Nil, Nothing, Any, tp))
+          .map(tp => ScExistentialArgument(tp.name + "$$", Nil, Nothing, Any))
           .toList
 
         val genericSubst = ScSubstitutor.bind(ta.typeParameters, existentialArgs)
@@ -85,12 +85,13 @@ class ScProjectionType private(val projected: ScType,
     ScProjectionType(projected.recursiveUpdateImpl(updates, visited), element)
   }
 
-  override def recursiveVarianceUpdateModifiable[T](data: T, update: (ScType, Variance, T) => (Boolean, ScType, T),
-                                                    v: Variance = Covariant, revertVariances: Boolean = false): ScType = {
-    update(this, v, data) match {
-      case (true, res, _) => res
-      case (_, _, newData) =>
-        ScProjectionType(projected.recursiveVarianceUpdateModifiable(newData, update, Invariant), element)
+  override def recursiveVarianceUpdate(update: (ScType, Variance) => (Boolean, ScType),
+                                       variance: Variance = Covariant,
+                                       revertVariances: Boolean = false): ScType = {
+    update(this, variance) match {
+      case (true, res) => res
+      case (_, _) =>
+        ScProjectionType(projected.recursiveVarianceUpdate(update, Invariant), element)
     }
   }
 

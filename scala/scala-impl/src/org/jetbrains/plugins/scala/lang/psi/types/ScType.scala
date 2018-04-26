@@ -64,17 +64,11 @@ trait ScType extends ProjectContextOwner {
 
   def updateSubtypes(updates: Seq[Update], visited: Set[ScType]): ScType = this
 
-  def recursiveVarianceUpdate(update: (ScType, Variance) => (Boolean, ScType), variance: Variance = Covariant): ScType = {
-    recursiveVarianceUpdateModifiable[Unit]((), (tp, v, _) => {
-      val (newTp, newV) = update(tp, v)
-      (newTp, newV, ())
-    }, variance)
-  }
-
-  def recursiveVarianceUpdateModifiable[T](data: T, update: (ScType, Variance, T) => (Boolean, ScType, T),
-                                           variance: Variance = Covariant, revertVariances: Boolean = false): ScType = {
-    update(this, variance, data) match {
-      case (true, res, _) => res
+  def recursiveVarianceUpdate(update: (ScType, Variance) => (Boolean, ScType),
+                              variance: Variance = Covariant,
+                              revertVariances: Boolean = false): ScType = {
+    update(this, variance) match {
+      case (true, res) => res
       case _ => this
     }
   }

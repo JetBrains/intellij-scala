@@ -60,32 +60,23 @@ case class ScAbstractType(typeParameter: TypeParameter, lower: ScType, upper: Sc
   override def removeAbstracts: ScType = simplifyType
 
   override def updateSubtypes(updates: Seq[Update], visited: Set[ScType]): ScAbstractType = {
-    try {
-      ScAbstractType(
-        typeParameter,
-        lower.recursiveUpdateImpl(updates, visited),
-        upper.recursiveUpdateImpl(updates, visited)
-      )
-    }
-    catch {
-      case _: ClassCastException => throw new RecursiveUpdateException
-    }
+    ScAbstractType(
+      typeParameter,
+      lower.recursiveUpdateImpl(updates, visited),
+      upper.recursiveUpdateImpl(updates, visited)
+    )
   }
 
-  override def recursiveVarianceUpdateModifiable[T](data: T, update: (ScType, Variance, T) => (Boolean, ScType, T),
-                                                    v: Variance = Covariant, revertVariances: Boolean = false): ScType = {
-    update(this, v, data) match {
-      case (true, res, _) => res
-      case (_, _, newData) =>
-        try {
-          ScAbstractType(
-            typeParameter,
-            lower.recursiveVarianceUpdateModifiable(newData, update, -v),
-            upper.recursiveVarianceUpdateModifiable(newData, update, v))
-        }
-        catch {
-          case _: ClassCastException => throw new RecursiveUpdateException
-        }
+  override def recursiveVarianceUpdate(update: (ScType, Variance) => (Boolean, ScType),
+                                       variance: Variance = Covariant,
+                                       revertVariances: Boolean = false): ScType = {
+    update(this, variance) match {
+      case (true, res) => res
+      case (_, _) =>
+        ScAbstractType(
+          typeParameter,
+          lower.recursiveVarianceUpdate(update, -variance),
+          upper.recursiveVarianceUpdate(update, variance))
     }
   }
 

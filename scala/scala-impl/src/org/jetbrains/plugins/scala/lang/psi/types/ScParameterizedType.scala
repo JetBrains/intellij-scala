@@ -68,27 +68,27 @@ class ScParameterizedType private(val designator: ScType, val typeArguments: Seq
     }
   }
 
-  override def recursiveVarianceUpdateModifiable[T](data: T, update: (ScType, Variance, T) => (Boolean, ScType, T),
-                                           variance: Variance = Covariant, revertVariances: Boolean = false): ScType = {
+  override def recursiveVarianceUpdate(update: (ScType, Variance) => (Boolean, ScType),
+                                       variance: Variance = Covariant,
+                                       revertVariances: Boolean = false): ScType = {
 
     val argUpdateSign: Variance = variance match {
       case Invariant | Covariant => Covariant.inverse(revertVariances)
-      case Contravariant => Contravariant.inverse(revertVariances)
+      case Contravariant         => Contravariant.inverse(revertVariances)
     }
 
-    update(this, variance, data) match {
-      case (true, res, _) => res
-      case (_, _, newData) =>
+    update(this, variance) match {
+      case (true, res) => res
+      case (_, _)      =>
         val des = designator.extractDesignated(expandAliases = false) match {
-          case Some(n: ScTypeParametersOwner) =>
-            n.typeParameters.map(_.variance)
-          case _ => Seq.empty
+          case Some(n: ScTypeParametersOwner) => n.typeParameters.map(_.variance)
+          case _                              => Seq.empty
         }
-        ParameterizedType(designator.recursiveVarianceUpdateModifiable(newData, update, variance),
+        ParameterizedType(designator.recursiveVarianceUpdate(update, variance),
           typeArguments.zipWithIndex.map {
             case (ta, i) =>
               val v = if (i < des.length) des(i) else Invariant
-              ta.recursiveVarianceUpdateModifiable(newData, update, v * argUpdateSign)
+              ta.recursiveVarianceUpdate(update, v * argUpdateSign)
           })
     }
   }
