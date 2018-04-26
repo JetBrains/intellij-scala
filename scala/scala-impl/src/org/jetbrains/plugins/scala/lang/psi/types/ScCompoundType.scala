@@ -107,7 +107,7 @@ case class ScCompoundType(components: Seq[ScType],
       case (_, _, newData) =>
         val updSignatureMap = signatureMap.map {
           case (s: Signature, tp) =>
-            val tParams = s.typeParams.update(_.recursiveVarianceUpdateModifiable(newData, update, Covariant))
+            val tParams = s.typeParams.updateWithVariance(_.recursiveVarianceUpdateModifiable(newData, update, _), Covariant)
             val paramTypes = s.substitutedTypes.map(_.map(f => () => f().recursiveVarianceUpdateModifiable(newData, update, Covariant)))
             val updSignature = new Signature(s.name, paramTypes, tParams, ScSubstitutor.empty, s.namedElement, s.hasRepeatedParam)
             (updSignature, tp.recursiveVarianceUpdateModifiable(newData, update, Covariant))

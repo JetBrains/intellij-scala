@@ -327,7 +327,7 @@ class ScSimpleTypeElementImpl(node: ASTNode) extends ScalaPsiElementImpl(node) w
                 Right(typeForConstructor(ref, method, subst, r.getActualElement))
               case Some(ScalaResolveResult(ta: ScTypeAlias, _: ScSubstitutor)) if ta.isExistentialTypeAlias =>
                 Right(ScExistentialArgument(ta.name, ta.typeParameters.map(TypeParameterType(_)).toList,
-                  ta.lowerBound.getOrNothing, ta.upperBound.getOrAny))
+                  ta.lowerBound.getOrNothing, ta.upperBound.getOrAny, ta))
               case _ => calculateReferenceType(ref, shapesOnly = false)
             }
         }

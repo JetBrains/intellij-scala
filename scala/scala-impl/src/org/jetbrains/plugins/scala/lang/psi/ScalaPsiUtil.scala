@@ -1813,23 +1813,22 @@ object ScalaPsiUtil {
             def convertParameter(tpArg: ScType, variance: Variance): ScType = {
               tpArg match {
                 case ParameterizedType(des, tpArgs) => ScParameterizedType(des, tpArgs.map(convertParameter(_, variance)))
-                case ScExistentialType(param: ScParameterizedType, _) if scalaVersion == ScalaLanguageLevel.Scala_2_11 =>
-                  convertParameter(param, variance)
-                case _ =>
-                  wildcards.find(_.name == tpArg.canonicalText) match {
-                    case Some(wildcard) =>
-                      (wildcard.lower, wildcard.upper) match {
-                        // todo: Produces Bad code is green
-                        // Problem is in Java wildcards. How to convert them if it's _ >: Lower, when generic has Upper.
-                        // Earlier we converted with Any upper type, but then it was changed because of type incompatibility.
-                        // Right now the simplest way is Bad Code is Green as otherwise we need to fix this inconsistency somehow.
-                        // I has no idea how yet...
-                        case (lo, _) if variance == Contravariant => lo
-                        case (lo, hi) if lo.isNothing && variance == Covariant => hi
-                        case _ => tpArg
-                      }
+                case ScExistentialType(parameterized: ScParameterizedType, _) if scalaVersion == ScalaLanguageLevel.Scala_2_11 =>
+                  ScExistentialType(convertParameter(parameterized, variance)).simplify()
+                case arg: ScExistentialArgument if wildcards.contains(arg) =>
+                  (arg.lower, arg.upper) match {
+                    // todo: Produces Bad code is green
+                    // Problem is in Java wildcards. How to convert them if it's _ >: Lower, when generic has Upper.
+                    // Earlier we converted with Any upper type, but then it was changed because of type incompatibility.
+                    // Right now the simplest way is Bad Code is Green as otherwise we need to fix this inconsistency somehow.
+                    // I has no idea how yet...
+                    case (lo, _) if variance == Contravariant => lo
+                    case (lo, hi) if lo.isNothing && variance == Covariant => hi
                     case _ => tpArg
                   }
+                case arg: ScExistentialArgument =>
+                  arg.withBounds(convertParameter(arg.lower, variance), convertParameter(arg.upper, variance))
+                case _ => tpArg
               }
             }
 

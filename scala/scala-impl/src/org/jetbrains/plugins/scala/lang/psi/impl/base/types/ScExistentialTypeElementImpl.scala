@@ -7,14 +7,15 @@ package types
 
 import com.intellij.lang.ASTNode
 import com.intellij.psi.{PsiElement, PsiElementVisitor, ResolveState}
+import org.jetbrains.plugins.scala.extensions.TraversableExt
 import org.jetbrains.plugins.scala.lang.psi.api.ScalaElementVisitor
 import org.jetbrains.plugins.scala.lang.psi.api.base.types._
 import org.jetbrains.plugins.scala.lang.psi.api.statements.{ScTypeAliasDeclaration, ScValueDeclaration}
+import org.jetbrains.plugins.scala.lang.psi.api.toplevel.ScTypedDefinition
 import org.jetbrains.plugins.scala.lang.psi.types._
-import org.jetbrains.plugins.scala.lang.psi.types.api.{Nothing, Singleton, TypeParameterType}
+import org.jetbrains.plugins.scala.lang.psi.types.api.designator.ScDesignatorType
+import org.jetbrains.plugins.scala.lang.psi.types.api.{Nothing, Singleton}
 import org.jetbrains.plugins.scala.lang.psi.types.result._
-
-import _root_.scala.collection.mutable.ListBuffer
 
 /**
 * @author Alexander Podkhalyuzin
@@ -23,39 +24,38 @@ import _root_.scala.collection.mutable.ListBuffer
 
 class ScExistentialTypeElementImpl(node: ASTNode) extends ScalaPsiElementImpl(node) with ScExistentialTypeElement {
   protected def innerType: TypeResult = {
-    val q = quantified.`type`()
-    val problems: ListBuffer[TypeResult] = new ListBuffer
-    problems += q
-    val wildcards: List[ScExistentialArgument] = {
-      var buff: ListBuffer[ScExistentialArgument] = new ListBuffer
-      for (decl <- clause.declarations) {
-        decl match {
-          case alias: ScTypeAliasDeclaration =>
-            val lb = alias.lowerBound
-            val ub = alias.upperBound
-            problems += lb; problems += ub
-            buff +=  new ScExistentialArgument(alias.name,
-              alias.typeParameters.map(TypeParameterType(_)).toList,
-                                               lb.getOrNothing, ub.getOrAny)
-          case value: ScValueDeclaration =>
-            value.typeElement match {
-              case Some(te) =>
-                val ttype = te.`type`()
-                problems += ttype
-                val t = ScCompoundType(Seq(ttype.getOrAny, Singleton), Map.empty, Map.empty)
-                for (declared <- value.declaredElements) {
-                  buff += ScExistentialArgument(declared.name, Nil, Nothing, t)
-                }
-              case None =>
-            }
-          case _ =>
-        }
+    /** From SLS 3.2.10
+      *
+      * Existential Quantification over Values
+      *
+      * As a syntactic convenience, the bindings clause in an existential type may also contain
+      * value declarations val xx: TT.
+      * An existential type TT forSome { QQ; val xx: SS;Q′Q′ } is treated as a shorthand
+      * for the type T′T′ forSome { QQ; type tt <: SS with Singleton; Q′Q′ },
+      * where tt is a fresh type name and T′T′ results from TT by replacing every occurrence of
+      * xx.type with tt.
+      */
+    def withDesugaredValTypes(quantified: ScType): ScType = {
+      val valDeclarations = clause.declarations.filterBy[ScValueDeclaration]
+
+      if (valDeclarations.isEmpty) quantified
+      else quantified.updateRecursively {
+        case des @ ScDesignatorType(named: ScTypedDefinition) =>
+          val valueDeclaration = valDeclarations.find(_.declaredElements.contains(named))
+          val valType = valueDeclaration.flatMap(_.typeElement).map(_.`type`().getOrAny)
+          valType match {
+            case Some(tp) =>
+              val compound = ScCompoundType(Seq(tp, Singleton))
+              val name = s"${named.name}$$type"
+              ScExistentialArgument(name, Nil, Nothing, compound, named)
+            case None => des
+          }
       }
-      buff.toList
     }
 
-    q.map(ScExistentialType(_, wildcards))
-      .flatMap((result: ScExistentialType) => Right(result))
+    quantified.`type`().map { qt =>
+      ScExistentialType(withDesugaredValTypes(qt))
+    }
   }
 
   import com.intellij.psi.scope.PsiScopeProcessor

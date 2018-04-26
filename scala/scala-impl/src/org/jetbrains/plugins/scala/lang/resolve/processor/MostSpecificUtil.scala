@@ -118,7 +118,7 @@ case class MostSpecificUtil(elem: PsiElement, length: Int) {
         def calcParams(tp: ScType, existential: Boolean): Either[Seq[Parameter], ScType] = {
 
           def toExistentialArg(tp: TypeParameter) =
-            ScExistentialArgument(tp.name, List.empty /* todo? */ , tp.lowerType, tp.upperType)
+            ScExistentialArgument(tp.name, List.empty /* todo? */ , tp.lowerType, tp.upperType, tp.psiTypeParameter)
 
           tp match {
             case ScMethodType(_, params, _) => Left(params)
@@ -129,8 +129,8 @@ case class MostSpecificUtil(elem: PsiElement, length: Int) {
               } else {
                 val s = ScSubstitutor.bind(typeParams)(toExistentialArg)
                 val arguments = typeParams.toList.map(tp =>
-                  ScExistentialArgument(tp.name, List.empty /* todo? */ , s.subst(tp.lowerType), s.subst(tp.upperType)))
-                Left(params.map(p => p.copy(paramType = ScExistentialType(s.subst(p.paramType), arguments))))
+                  ScExistentialArgument(tp.name, List.empty /* todo? */ , s.subst(tp.lowerType), s.subst(tp.upperType), tp.psiTypeParameter))
+                Left(params.map(p => p.copy(paramType = ScExistentialType(s.subst(p.paramType)))))
               }
             case ScTypePolymorphicType(internal, typeParams) =>
               if (!existential) {
@@ -138,9 +138,7 @@ case class MostSpecificUtil(elem: PsiElement, length: Int) {
                 Right(s.subst(internal))
               } else {
                 val s = ScSubstitutor.bind(typeParams)(toExistentialArg)
-                val arguments = typeParams.toList.map(tp =>
-                  ScExistentialArgument(tp.name, List.empty /* todo? */ , s.subst(tp.lowerType), s.subst(tp.upperType)))
-                Right(ScExistentialType(s.subst(internal), arguments))
+                Right(ScExistentialType(s.subst(internal)))
               }
             case _ => Right(tp)
           }
@@ -159,8 +157,8 @@ case class MostSpecificUtil(elem: PsiElement, length: Int) {
                     "scala.collection.Seq").orNull
                   if (seq != null) {
                     val newParamType = p.paramType match {
-                      case ScExistentialType(q, wilds) =>
-                        ScExistentialType(ScParameterizedType(ScDesignatorType(seq), Seq(q)), wilds)
+                      case ScExistentialType(q, _) =>
+                        ScExistentialType(ScParameterizedType(ScDesignatorType(seq), Seq(q)))
                       case paramType => ScParameterizedType(ScDesignatorType(seq), Seq(paramType))
                     }
                     Parameter(p.name, p.deprecatedName, newParamType, p.expectedType,

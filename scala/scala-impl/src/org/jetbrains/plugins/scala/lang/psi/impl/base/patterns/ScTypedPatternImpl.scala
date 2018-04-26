@@ -68,7 +68,7 @@ class ScTypedPatternImpl(node: ASTNode) extends ScalaPsiElementImpl(node) with S
                           val upperBound =
                           if (arg.upper.equiv(Any)) subst subst param.upperBound.getOrAny
                             else arg.upper //todo: glb?
-                          ScExistentialArgument(arg.name, arg.args, lowerBound, upperBound)
+                          ScExistentialArgument(arg.name, arg.args, lowerBound, upperBound, param)
                         case (tp: ScType, _: ScTypeParam) => tp
                       }).unpackedType
                     case _ => tp
@@ -86,7 +86,7 @@ class ScTypedPatternImpl(node: ASTNode) extends ScalaPsiElementImpl(node) with S
                               if (listTypes.isEmpty) api.Any
                               else subst.subst(listTypes.toSeq.map(_.toScType()).glb(checkWeak = true))
                             } else arg.upper //todo: glb?
-                          ScExistentialArgument(arg.name, arg.args, lowerBound, upperBound)
+                          ScExistentialArgument(arg.name, arg.args, lowerBound, upperBound, param)
                         case (tp: ScType, _) => tp
                       }).unpackedType
                     case _ => tp

@@ -5,7 +5,6 @@ package types
 
 import com.intellij.psi._
 import org.jetbrains.plugins.scala.extensions._
-import org.jetbrains.plugins.scala.lang.psi.ScalaPsiUtil.isInheritorDeep
 import org.jetbrains.plugins.scala.lang.psi.api.statements.params.{ScParameter, ScTypeParam}
 import org.jetbrains.plugins.scala.lang.psi.api.statements.{ScTypeAlias, ScTypeAliasDeclaration, ScTypeAliasDefinition}
 import org.jetbrains.plugins.scala.lang.psi.api.toplevel.ScTypedDefinition
@@ -29,10 +28,12 @@ trait ScalaBounds extends api.Bounds {
     else if (conforms(t2, t1, checkWeak)) t2
     else {
       (t1, t2) match {
-        case (ScExistentialArgument(name, args, lower, upper), ScExistentialArgument(_, _, lower2, upper2)) =>
-          ScExistentialArgument(name, args, lub(lower, lower2, checkWeak), glb(upper, upper2, checkWeak))
-        case (ScExistentialArgument(name, args, lower, upper), _) => ScExistentialArgument(name, args, lub(lower, t2, checkWeak), glb(upper, t2))
-        case (_, ScExistentialArgument(name, args, lower, upper)) => ScExistentialArgument(name, args, lub(lower, t1, checkWeak), glb(upper, t1))
+        case (arg @ ScExistentialArgument(name, args, lower, upper), ScExistentialArgument(_, _, lower2, upper2)) =>
+          arg.withBounds(lub(lower, lower2, checkWeak), glb(upper, upper2, checkWeak))
+        case (arg @ ScExistentialArgument(name, args, lower, upper), _) =>
+          arg.withBounds(lub(lower, t2, checkWeak), glb(upper, t2))
+        case (_, arg @ ScExistentialArgument(name, args, lower, upper)) =>
+          arg.withBounds(lub(lower, t1, checkWeak), glb(upper, t1))
         case (ex: ScExistentialType, _) => glb(ex.quantified, t2, checkWeak).unpackedType
         case (_, ex: ScExistentialType) => glb(t1, ex.quantified, checkWeak).unpackedType
         case _ => ScCompoundType(Seq(t1, t2), Map.empty, Map.empty)
@@ -256,18 +257,18 @@ trait ScalaBounds extends api.Bounds {
           case (_, ex: ScExistentialType) => lubInner(t1, ex.quantified, checkWeak, stopAddingUpperBound).unpackedType
           case (tpt: TypeParameterType, _) if !stopAddingUpperBound => lub(tpt.upperType, t2, checkWeak)
           case (_, tpt: TypeParameterType) if !stopAddingUpperBound => lub(t1, tpt.upperType, checkWeak)
-          case (ScExistentialArgument(name, args, lower, upper), ScExistentialArgument(_, _, lower2, upper2))
+          case (arg @ ScExistentialArgument(name, args, lower, upper), ScExistentialArgument(_, _, lower2, upper2))
             if !stopAddingUpperBound =>
-            ScExistentialArgument(name, args, glb(lower, lower2, checkWeak), lub(upper, upper2, checkWeak))
-          case (ScExistentialArgument(name, args, lower, upper), r) if !stopAddingUpperBound =>
-            ScExistentialArgument(name, args, glb(lower, r, checkWeak), lub(upper, t2, checkWeak))
-          case (r, ScExistentialArgument(name, args, lower, upper)) if !stopAddingUpperBound =>
-            ScExistentialArgument(name, args, glb(lower, r, checkWeak), lub(upper, t2, checkWeak))
+            arg.withBounds(glb(lower, lower2, checkWeak), lub(upper, upper2, checkWeak))
+          case (arg @ ScExistentialArgument(name, args, lower, upper), r) if !stopAddingUpperBound =>
+            arg.withBounds(glb(lower, r, checkWeak), lub(upper, t2, checkWeak))
+          case (r, arg @ ScExistentialArgument(name, args, lower, upper)) if !stopAddingUpperBound =>
+            arg.withBounds(glb(lower, r, checkWeak), lub(upper, t2, checkWeak))
           case (_: ValType, _: ValType) => AnyVal
           case (JavaArrayType(arg1), JavaArrayType(arg2)) =>
             val (v, ex) = calcForTypeParamWithoutVariance(arg1, arg2, depth, checkWeak)
             ex match {
-              case Some(w) => ScExistentialType(JavaArrayType(v), List(w))
+              case Some(w) => ScExistentialType(JavaArrayType(v))
               case None => JavaArrayType(v)
             }
           case (JavaArrayType(arg), ParameterizedType(des, args)) if args.length == 1 && (des.extractClass match {
@@ -276,7 +277,7 @@ trait ScalaBounds extends api.Bounds {
           }) =>
             val (v, ex) = calcForTypeParamWithoutVariance(arg, args.head, depth, checkWeak)
             ex match {
-              case Some(w) => ScExistentialType(ScParameterizedType(des, Seq(v)), List(w))
+              case Some(w) => ScExistentialType(ScParameterizedType(des, Seq(v)))
               case None => ScParameterizedType(des, Seq(v))
             }
           case (ParameterizedType(des, args), JavaArrayType(arg)) if args.length == 1 && (des.extractClass match {
@@ -285,7 +286,7 @@ trait ScalaBounds extends api.Bounds {
           }) =>
             val (v, ex) = calcForTypeParamWithoutVariance(arg, args.head, depth, checkWeak)
             ex match {
-              case Some(w) => ScExistentialType(ScParameterizedType(des, Seq(v)), List(w))
+              case Some(w) => ScExistentialType(ScParameterizedType(des, Seq(v)))
               case None => ScParameterizedType(des, Seq(v))
             }
           case (JavaArrayType(_), tp) =>
@@ -334,31 +335,31 @@ trait ScalaBounds extends api.Bounds {
                                              (implicit stopAddingUpperBound: Boolean): (ScType, Option[ScExistentialArgument]) = {
     if (substed1 equiv substed2) (substed1, None) else {
       if (substed1 conforms substed2) {
-        val ex = ScExistentialArgument("_$" + count, List.empty, substed1, substed2)
+        val ex = ScExistentialArgument("_$" + count, List.empty, substed1, substed2, count)
         (ex, Some(ex))
       } else if (substed2 conforms substed1) {
-        val ex = ScExistentialArgument("_$" + count, List.empty, substed2, substed1)
+        val ex = ScExistentialArgument("_$" + count, List.empty, substed2, substed1, count)
         (ex, Some(ex))
       } else {
         (substed1, substed2) match {
-          case (ScExistentialArgument(name, args, lower, upper), ScExistentialArgument(_, _, lower2, upper2)) =>
+          case (arg @ ScExistentialArgument(_, _, lower, upper), ScExistentialArgument(_, _, lower2, upper2)) =>
             val newLub = if (stopAddingUpperBound) Any else lubInner(upper, upper2, checkWeak, stopAddingUpperBound = true)
-            (ScExistentialArgument(name, args, glb(lower, lower2, checkWeak), newLub), None)
-          case (ScExistentialArgument(name, args, lower, upper), _) =>
+            (arg.withBounds(glb(lower, lower2, checkWeak), newLub), None)
+          case (arg @ ScExistentialArgument(_, _, lower, upper), _) =>
             val newLub = if (stopAddingUpperBound) Any else lubInner(upper, substed2, checkWeak, stopAddingUpperBound = true)
-            (ScExistentialArgument(name, args, glb(lower, substed2), newLub), None)
-          case (_, ScExistentialArgument(name, args, lower, upper)) =>
+            (arg.withBounds(glb(lower, substed2), newLub), None)
+          case (_, arg @ ScExistentialArgument(_, _, lower, upper)) =>
             val newLub = if (stopAddingUpperBound) Any else lubInner(upper, substed1, checkWeak, stopAddingUpperBound = true)
-            (ScExistentialArgument(name, args, glb(lower, substed1), newLub), None)
+            (arg.withBounds(glb(lower, substed1), newLub), None)
           case _ =>
             val newGlb = glb(substed1, substed2)
             if (!stopAddingUpperBound) {
               val newLub = lubInner(substed1, substed2, checkWeak = false, stopAddingUpperBound = true)
-              val ex = ScExistentialArgument("_$" + count, List.empty, newGlb, newLub)
+              val ex = ScExistentialArgument("_$" + count, List.empty, newGlb, newLub, count)
               (ex, Some(ex))
             } else {
               //todo: this is wrong, actually we should pick lub, just without merging parameters in this method
-              val ex = ScExistentialArgument("_$" + count, List.empty, newGlb, Any)
+              val ex = ScExistentialArgument("_$" + count, List.empty, newGlb, Any, count)
               (ex, Some(ex))
             }
         }
@@ -391,7 +392,7 @@ trait ScalaBounds extends api.Bounds {
           })
         }
         if (wildcards.isEmpty) ScParameterizedType(baseClassDesignator, resTypeArgs)
-        else ScExistentialType(ScParameterizedType(baseClassDesignator, resTypeArgs), wildcards.toList)
+        else ScExistentialType(ScParameterizedType(baseClassDesignator, resTypeArgs))
       case _ => Any
     }
   }

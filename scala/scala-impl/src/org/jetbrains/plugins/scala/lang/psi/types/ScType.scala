@@ -10,8 +10,6 @@ import org.jetbrains.plugins.scala.lang.psi.types.recursiveUpdate.Update
 import org.jetbrains.plugins.scala.lang.refactoring.util.ScTypeUtil.AliasType
 import org.jetbrains.plugins.scala.project.ProjectContextOwner
 
-import scala.collection.mutable.ArrayBuffer
-
 trait ScType extends ProjectContextOwner {
 
   def typeSystem: TypeSystem = projectContext.typeSystem
@@ -46,22 +44,12 @@ trait ScType extends ProjectContextOwner {
 
   def inferValueType: ValueType
 
-  protected def unpackedTypeInner: ScType = {
-    val existingWildcards = ScExistentialType.existingWildcards(this)
-    val wildcards = new ArrayBuffer[ScExistentialArgument]
-    val quantified = recursiveVarianceUpdateModifiable[Set[String]](Set.empty, {
-      case (s: ScExistentialArgument, _, data) if !data.contains(s.name) =>
-        val name = ScExistentialType.fixExistentialArgumentName(s.name, existingWildcards)
-        if (!wildcards.exists(_.name == name)) wildcards += ScExistentialArgument(name, s.args, s.lower, s.upper)
-        (true, ScExistentialArgument(name, s.args, s.lower, s.upper), data)
-      case (ex: ScExistentialType, _, data) =>
-        (false, ex, data ++ ex.boundNames)
-      case (t, _, data) => (false, t, data)
-    })
-    if (wildcards.nonEmpty) {
-      ScExistentialType(quantified, wildcards.toList).simplify()
-    } else quantified
+  protected def unpackedTypeInner: ScType = ScExistentialType(this) match {
+    case ScExistentialType(q, Seq())                                       => q
+    case ScExistentialType(arg: ScExistentialArgument, Seq(w)) if w == arg => arg.upper
+    case ex                                                                => ex
   }
+
 
   /**
    * This method is important for parameters expected type.

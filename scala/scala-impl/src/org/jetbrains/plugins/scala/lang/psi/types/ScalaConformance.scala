@@ -15,11 +15,10 @@ import org.jetbrains.plugins.scala.lang.psi.api.statements.params._
 import org.jetbrains.plugins.scala.lang.psi.api.toplevel.ScTypeParametersOwner
 import org.jetbrains.plugins.scala.lang.psi.api.toplevel.typedef.ScTypeDefinition
 import org.jetbrains.plugins.scala.lang.psi.impl.toplevel.synthetic.ScSyntheticClass
-import org.jetbrains.plugins.scala.lang.psi.light.scala.DummyLightTypeParam
 import org.jetbrains.plugins.scala.lang.psi.types.api._
 import org.jetbrains.plugins.scala.lang.psi.types.api.designator.{ScDesignatorType, ScProjectionType, ScThisType}
 import org.jetbrains.plugins.scala.lang.psi.types.nonvalue.{ScMethodType, ScTypePolymorphicType}
-import org.jetbrains.plugins.scala.lang.psi.types.recursiveUpdate.AfterUpdate.{ProcessSubtypes, ReplaceWith}
+import org.jetbrains.plugins.scala.lang.psi.types.recursiveUpdate.AfterUpdate.{ProcessSubtypes, ReplaceWith, Stop}
 import org.jetbrains.plugins.scala.lang.psi.types.recursiveUpdate.ScSubstitutor
 import org.jetbrains.plugins.scala.lang.psi.types.result._
 import org.jetbrains.plugins.scala.lang.refactoring.util.ScTypeUtil.AliasType
@@ -29,7 +28,7 @@ import org.jetbrains.plugins.scala.util.ScEquivalenceUtil._
 import _root_.scala.collection.immutable.HashSet
 import scala.annotation.tailrec
 import scala.collection.mutable.ArrayBuffer
-import scala.collection.{Seq, immutable, mutable}
+import scala.collection.{Seq, immutable}
 
 trait ScalaConformance extends api.Conformance {
   typeSystem: api.TypeSystem =>
@@ -1169,55 +1168,46 @@ trait ScalaConformance extends api.Conformance {
       r.visitType(rightVisitor)
       if (result != null) return
 
-      val tptsMap = new mutable.HashMap[String, TypeParameterType]()
-      def updateType(t: ScType, rejected: HashSet[String] = HashSet.empty): ScType = {
-        t.recursiveUpdate {
-          case ScExistentialArgument(name, _, _, _) =>
-            e.wildcards.find(_.name == name) match {
-              case Some(ScExistentialArgument(thatName, args, lower, upper)) if !rejected.contains(thatName) =>
-                val lightTypeParam = TypeParameter.light(name, args.map(_.typeParameter), lower, upper)
-                val tpt = tptsMap.getOrElseUpdate(thatName, TypeParameterType(lightTypeParam))
-                ReplaceWith(tpt)
-              case _ => ProcessSubtypes
-            }
-          case ScExistentialType(innerQ, wilds) =>
-            ReplaceWith(ScExistentialType(updateType(innerQ, rejected ++ wilds.map(_.name)), wilds))
-          case ScDesignatorType(des) if !rejected.contains(des.name) =>
-            e.wildcards.find(_.name == des.name).map(p => ReplaceWith(p.upper)).getOrElse(ProcessSubtypes)
-          case _ => ProcessSubtypes
-        }
-      }
-      val q = updateType(e.quantified)
-      val tpts = tptsMap.values.toSeq
-      val undefinedTpts = tpts.map(UndefinedType(_))
-      val subst = ScSubstitutor.bind(tpts, undefinedTpts)
+      def lightTypeParam(arg: ScExistentialArgument): TypeParameter =
+        TypeParameter.light(arg.name, arg.args.map(_.typeParameter), arg.lower, arg.upper)
 
-      val res = conformsInner(subst.subst(q), r, HashSet.empty, undefinedSubst)
+      val undefines = e.wildcards.map(w => UndefinedType(lightTypeParam(w)))
+      val wildcardsToUndefined = e.wildcards.zip(undefines).toMap
+
+      val updatedWithUndefinedTypes = e.quantified.recursiveUpdate {
+        case arg: ScExistentialArgument => ReplaceWith(wildcardsToUndefined.getOrElse(arg, arg))
+        case _: ScExistentialType       => Stop
+        case _                          => ProcessSubtypes
+      }
+
+      val res = conformsInner(updatedWithUndefinedTypes, r, HashSet.empty, undefinedSubst)
       if (!res._1) {
         result = (false, undefinedSubst)
       } else {
         val unSubst: ScUndefinedSubstitutor = res._2
         unSubst.getSubstitutor match {
-          case Some(uSubst) =>
-            for (tpt <- tptsMap.values if result == null) {
-              val substedTpt = uSubst.subst(tpt)
-              var t = conformsInner(substedTpt, uSubst.subst(updateType(tpt.lowerType)), immutable.Set.empty, undefinedSubst)
-              if (substedTpt != tpt && !t._1) {
+          case Some(solvingSubstitutor) =>
+            for (un <- undefines if result == null) {
+              val solvedType = solvingSubstitutor.subst(un)
+
+              var t = conformsInner(solvedType, un.typeParameter.lowerType, substitutor = undefinedSubst)
+              if (solvedType != un && !t._1) {
                 result = (false, undefinedSubst)
                 return
               }
               undefinedSubst = t._2
-              t = conformsInner(uSubst.subst(updateType(tpt.upperType)), substedTpt, immutable.Set.empty, undefinedSubst)
-              if (substedTpt != tpt && !t._1) {
+              t = conformsInner(un.typeParameter.upperType, solvedType, substitutor = undefinedSubst)
+              if (solvedType != un && !t._1) {
                 result = (false, undefinedSubst)
                 return
               }
               undefinedSubst = t._2
             }
             if (result == null) {
-              val notInTptsMap = (id: Long) => !tptsMap.values.exists(_.typeParamId == id)
+              //ignore undefined types from existential arguments
+              val typeParamIds = undefines.map(_.typeParameter.typeParamId)
+              val newUndefSubst = unSubst.filterTypeParamIds(!typeParamIds.contains(_))
 
-              val newUndefSubst = unSubst.filterTypeParamIds(notInTptsMap)
               undefinedSubst += newUndefSubst
               result = (true, undefinedSubst)
             }

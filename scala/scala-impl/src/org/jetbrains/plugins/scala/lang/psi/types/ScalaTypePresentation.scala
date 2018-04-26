@@ -169,9 +169,13 @@ trait ScalaTypePresentation extends api.TypePresentation {
     @tailrec
     def existentialTypeText(existentialType: ScExistentialType, checkWildcard: Boolean, stable: Boolean): String = {
       def existentialArgWithBounds(wildcard: ScExistentialArgument, name: String): String = {
+        val argsText =
+          if (wildcard.args.isEmpty) ""
+          else wildcard.args.map(_.name).mkString("[", ", ", "]")
+
         val lowerBound = lowerBoundText(wildcard.lower)(innerTypeText(_))
         val upperBound = upperBoundText(wildcard.upper)(innerTypeText(_))
-        s"$name$lowerBound$upperBound"
+        s"$name$argsText$lowerBound$upperBound"
       }
 
       def placeholder(wildcard: ScExistentialArgument) =
@@ -183,36 +187,25 @@ trait ScalaTypePresentation extends api.TypePresentation {
         }.mkString(" forSome {", "; ", "}")
 
       existentialType match {
-        case ScExistentialType(q, Seq(head)) if checkWildcard =>
-          q match {
-            case ScExistentialArgument(name, _, _, _) if name == head.name => placeholder(head)
-            case _ => existentialTypeText(existentialType, checkWildcard = false, stable)
-          }
-        case ScExistentialType(ParameterizedType(des, typeArgs), wilds) =>
-          val wildcardsMap = existentialType.wildcardsMap()
-          val replacingArgs = mutable.ArrayBuffer.empty[(ScType, ScExistentialArgument)]
+        case ScExistentialType(q, Seq(w)) if checkWildcard =>
+          if (q == w) placeholder(w)
+          else existentialTypeText(existentialType, checkWildcard = false, stable)
+        case ex @ ScExistentialType(ParameterizedType(des, typeArgs), _) =>
+          def isNamed(arg: ScExistentialArgument): Boolean = !arg.name.startsWith("_")
 
-          val wildcards = wilds.filter { arg =>
-            wildcardsMap.getOrElse(arg, Seq.empty) match {
-              case Seq(head) if typeArgs.contains(head) =>
-                replacingArgs += ((head, arg))
-                false
-              case _ => true
-            }
-          }
-
-          val typeArgsText = typeArgs.map { t =>
-            replacingArgs.collectFirst {
-              case (`t`, wildcard) => placeholder(wildcard)
-            }.getOrElse(innerTypeText(t, needDotType = true, checkWildcard))
+          val typeArgsText = typeArgs.map {
+            case arg: ScExistentialArgument  => if (!isNamed(arg)) placeholder(arg) else arg.name
+            case t                           => innerTypeText(t, needDotType = true, checkWildcard)
           }.mkString("[", ", ", "]")
 
           val prefix = s"${innerTypeText(des)}$typeArgsText"
 
-          if (wildcards.isEmpty) prefix
-          else s"($prefix)${namedExistentials(wildcards)}"
-        case ScExistentialType(q, wildcards) =>
-          s"(${innerTypeText(q)})${namedExistentials(wildcards)}"
+          val namedWildcards = ex.wildcards.filter(isNamed)
+
+          if (namedWildcards.isEmpty) prefix
+          else s"($prefix)${namedExistentials(namedWildcards)}"
+        case ex: ScExistentialType =>
+          s"(${innerTypeText(ex.quantified)})${namedExistentials(ex.wildcards)}"
       }
     }
 

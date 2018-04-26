@@ -34,16 +34,7 @@ class ScParameterizedType private(val designator: ScType, val typeArguments: Seq
   }
 
   private def computeAliasType(ta: ScTypeAlias, subst: ScSubstitutor): Some[AliasType] = {
-    def wildcards(tp: Option[ScType]): Set[String] =
-      tp.map(ScExistentialType.existingWildcards).getOrElse(Set.empty)
-
-    val substedLower = ta.lowerBound.toOption.map(subst.subst)
-    val substedUpper = ta.upperBound.toOption.map(subst.subst)
-
-    val existingWildcards = wildcards(substedLower) ++ wildcards(substedUpper)
-    val fixedArgs = typeArguments.map(ScExistentialType.fixExistentialArgumentNames(_, existingWildcards))
-
-    val genericSubst = ScSubstitutor.bind(ta.typeParameters, fixedArgs)
+    val genericSubst = ScSubstitutor.bind(ta.typeParameters, typeArguments)
 
     val s = subst.followed(genericSubst)
     val lowerBound = ta.lowerBound.map(s.subst)

@@ -60,7 +60,9 @@ object ScUndefinedSubstitutor {
             variance match {
               case Contravariant => (true, skoLower, data)
               case Covariant     => (true, upper, data)
-              case Invariant     => (true, ScExistentialArgument(s"_$$${index += 1; index}", Nil, skoLower, upper), data)
+              case Invariant     =>
+                index += 1
+                (true, ScExistentialArgument(s"_$$$index", Nil, skoLower, upper, index), data)
             }
           case (ex: ScExistentialType, _, data) => (false, ex, data ++ ex.boundNames)
           case (tp, _, data) => (false, tp, data)
@@ -83,13 +85,17 @@ object ScUndefinedSubstitutor {
             variance match {
               case Contravariant => (true, lower, data)
               case Covariant     => (true, absUpper, data)
-              case Invariant     => (true, ScExistentialArgument(s"_$$${index += 1; index}", Nil, lower, absUpper), data) //todo: why this is right?
+              case Invariant     =>
+                index += 1
+                (true, ScExistentialArgument(s"_$$$index", Nil, lower, absUpper, index), data) //todo: why this is right?
             }
           case (ScExistentialArgument(nm, _, lower, skoUpper), variance, data) if !data.contains(nm) =>
             variance match {
               case Contravariant => (true, lower, data)
               case Covariant     => (true, skoUpper, data)
-              case Invariant     => (true, ScExistentialArgument(s"_$$${index += 1; index}", Nil, lower, skoUpper), data)
+              case Invariant     =>
+                index += 1
+                (true, ScExistentialArgument(s"_$$$index", Nil, lower, skoUpper, index), data)
             }
           case (ex: ScExistentialType, _, data) => (false, ex, data ++ ex.boundNames)
           case (tp, _, data) => (false, tp, data)

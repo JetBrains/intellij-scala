@@ -59,14 +59,15 @@ class ScProjectionType private(val projected: ScType,
           case _ =>
         }
         val existentialArgs = ta.typeParameters
-          .map(tp => ScExistentialArgument(tp.name + "$$", Nil, Nothing, Any))
+          .map(tp => ScExistentialArgument(tp.name + "$$", Nil, Nothing, Any, tp))
           .toList
 
         val genericSubst = ScSubstitutor.bind(ta.typeParameters, existentialArgs)
 
         val s = actualSubst.followed(genericSubst)
-        Some(AliasType(ta, ta.lowerBound.map(scType => ScExistentialType(s.subst(scType), existentialArgs)),
-          ta.upperBound.map(scType => ScExistentialType(s.subst(scType), existentialArgs))))
+        Some(AliasType(ta,
+          ta.lowerBound.map(scType => ScExistentialType(s.subst(scType))),
+          ta.upperBound.map(scType => ScExistentialType(s.subst(scType)))))
       case _ => None
     }
   }
