@@ -2,16 +2,20 @@ package org.jetbrains.jps.incremental.scala
 package remote
 
 import java.net.{ConnectException, InetAddress, UnknownHostException}
+import java.nio.file.{Files, Path, Paths}
 
 import org.jetbrains.jps.incremental.ModuleLevelBuilder.ExitCode
 import org.jetbrains.jps.incremental.scala.data.{CompilationData, CompilerData, SbtData}
+import org.jetbrains.jps.incremental.scala.remote.RemoteServer._
 
 /**
  * @author Pavel Fatin
  */
 class RemoteServer(val address: InetAddress, val port: Int) extends Server with RemoteResourceOwner {
   def compile(sbtData: SbtData, compilerData: CompilerData, compilationData: CompilationData, client: Client): ExitCode = {
-    val arguments = Arguments(sbtData, compilerData, compilationData, Seq.empty).asStrings
+    val token = readStringFrom(tokenPathFor(port))
+
+    val arguments = Arguments(token, sbtData, compilerData, compilationData, Seq.empty).asStrings
 
     try {
       send(serverAlias, arguments, client)
@@ -31,4 +35,11 @@ class RemoteServer(val address: InetAddress, val port: Int) extends Server with 
         ExitCode.ABORT
     }
   }
+}
+
+private object RemoteServer {
+  private def readStringFrom(path: Path) = new String(Files.readAllBytes(path))
+
+  private def tokenPathFor(port: Int) =
+    Paths.get(System.getProperty("user.home"), ".idea-build", "tokens", port.toString)
 }
