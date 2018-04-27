@@ -8,8 +8,9 @@ import com.intellij.openapi.actionSystem.{ActionToolbarPosition, AnActionEvent}
 import com.intellij.openapi.application.QueryExecutorBase
 import com.intellij.openapi.fileEditor.FileDocumentManager
 import com.intellij.openapi.module.Module
+import com.intellij.openapi.project.Project
 import com.intellij.openapi.roots.ProjectFileIndex
-import com.intellij.openapi.ui.DialogWrapper
+import com.intellij.openapi.ui.{DialogWrapper, Messages}
 import com.intellij.psi._
 import com.intellij.psi.search.searches.ReferencesSearch
 import com.intellij.psi.util.PsiUtilCore
@@ -62,21 +63,28 @@ object ImplicitUsageSearcher {
       extends BeforeImplicitSearchAction
 
   private[findUsages] def assertSearchScopeIsSufficient(target: PsiNamedElement): Option[BeforeImplicitSearchAction] = {
-    val (dirtyModules, upToDateModules) = dirtyModulesInDependencyChain(target)
+    val project = target.getProject
+    val service = ScalaCompilerReferenceService.getInstance(project)
 
-    if (dirtyModules.nonEmpty) {
-      val project                                    = target.getProject
-      var action: Option[BeforeImplicitSearchAction] = None
+    if (!service.isCompilerIndexReady) {
+      inEventDispatchThread(showIndicesNotReadyDialog(project))
+      Option(CancelSearch)
+    } else {
+      val (dirtyModules, upToDateModules) = dirtyModulesInDependencyChain(target)
 
-      val dialogAction =
-        () => {
-          val validIndexExists = upToDateCompilerIndexExists(project)
-          action = Option(showRebuildSuggestionDialog(dirtyModules, upToDateModules, validIndexExists, target))
-        }
+      if (dirtyModules.nonEmpty) {
+        var action: Option[BeforeImplicitSearchAction] = None
 
-      inEventDispatchThread(dialogAction())
-      action
-    } else None
+        val dialogAction =
+          () => {
+            val validIndexExists = upToDateCompilerIndexExists(project)
+            action = Option(showRebuildSuggestionDialog(dirtyModules, upToDateModules, validIndexExists, target))
+          }
+
+        inEventDispatchThread(dialogAction())
+        action
+      } else None
+    }
   }
 
   private def inEventDispatchThread[T](body: => T): Unit =
@@ -92,6 +100,16 @@ object ImplicitUsageSearcher {
     val service      = ScalaCompilerReferenceService.getInstance(project)
     val dirtyModules = service.getDirtyScopeHolder.getAllDirtyModules
     modules.span(dirtyModules.contains)
+  }
+  
+  private def showIndicesNotReadyDialog(project: Project): Unit = {
+    val message =
+      """
+        |Compiler indices are currently undergoing an up-to-date check, 
+        |please wait until it's completed to search for implicit usages.
+      """.stripMargin
+    
+    Messages.showInfoMessage(project, message, "Compiler Indices Status")
   }
 
   private def showRebuildSuggestionDialog[T](
