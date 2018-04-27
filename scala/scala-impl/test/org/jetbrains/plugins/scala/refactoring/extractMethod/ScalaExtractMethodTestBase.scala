@@ -7,10 +7,11 @@ import _root_.com.intellij.openapi.fileEditor.{FileEditorManager, OpenFileDescri
 import _root_.org.jetbrains.plugins.scala.lang.lexer.ScalaTokenTypes
 import _root_.org.jetbrains.plugins.scala.lang.psi.api.ScalaFile
 import _root_.org.jetbrains.plugins.scala.lang.refactoring.extractMethod.ScalaExtractMethodHandler
+import com.intellij.openapi.actionSystem.impl.SimpleDataContext
 import com.intellij.openapi.util.io.FileUtil
 import com.intellij.openapi.util.text.StringUtil
 import com.intellij.openapi.vfs.{CharsetToolkit, LocalFileSystem}
-import com.intellij.testFramework.UsefulTestCase
+import com.intellij.testFramework.{MapDataContext, UsefulTestCase}
 import org.jetbrains.plugins.scala.base.ScalaLightPlatformCodeInsightTestCaseAdapter
 import org.jetbrains.plugins.scala.lang.formatting.settings.ScalaCodeStyleSettings
 import org.jetbrains.plugins.scala.util.TypeAnnotationSettings
@@ -24,6 +25,7 @@ import org.junit.Assert._
 abstract class ScalaExtractMethodTestBase extends ScalaLightPlatformCodeInsightTestCaseAdapter {
   private val startMarker = "/*start*/"
   private val endMarker = "/*end*/"
+  private val scopeMarker = "/*inThisScope*/"
 
   def folderPath: String = baseRootPath() + "extractMethod/"
 
@@ -33,6 +35,15 @@ abstract class ScalaExtractMethodTestBase extends ScalaLightPlatformCodeInsightT
     val file = LocalFileSystem.getInstance.findFileByPath(filePath.replace(File.separatorChar, '/'))
     assert(file != null, "file " + filePath + " not found")
     var fileText = StringUtil.convertLineSeparators(FileUtil.loadFile(new File(file.getCanonicalPath), CharsetToolkit.UTF8))
+
+    val scopeOffset = fileText.indexOf(scopeMarker) match {
+      case -1 => null
+      case other => other
+    }
+
+    if (scopeOffset != null)
+      fileText = fileText.replace(scopeMarker, "")
+
     val startOffset = fileText.indexOf(startMarker)
     assert(startOffset != -1, "Not specified start marker in test case. Use /*start*/ in scala file for this.")
     fileText = fileText.replace(startMarker, "")
@@ -40,6 +51,7 @@ abstract class ScalaExtractMethodTestBase extends ScalaLightPlatformCodeInsightT
     val endOffset = fileText.indexOf(endMarker)
     assert(endOffset != -1, "Not specified end marker in test case. Use /*end*/ in scala file for this.")
     fileText = fileText.replace(endMarker, "")
+
 
     configureFromFileTextAdapter(getTestName(false) + ".scala", fileText)
     val scalaFile = getFileAdapter.asInstanceOf[ScalaFile]
@@ -58,7 +70,8 @@ abstract class ScalaExtractMethodTestBase extends ScalaLightPlatformCodeInsightT
     //start to inline
     try {
       val handler = new ScalaExtractMethodHandler
-      handler.invoke(getProjectAdapter, editor, scalaFile, null)
+      val context = SimpleDataContext.getSimpleContext("chosenTargetScope", scopeOffset)
+      handler.invoke(getProjectAdapter, editor, scalaFile, context)
       UsefulTestCase.doPostponedFormatting(getProjectAdapter)
       res = scalaFile.getText.substring(0, lastPsi.getTextOffset).trim
     }

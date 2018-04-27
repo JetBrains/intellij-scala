@@ -4,12 +4,12 @@ package unusedInspections
 
 
 import com.intellij.codeHighlighting._
-import com.intellij.codeInsight.daemon.impl.{DefaultHighlightInfoProcessor, FileStatusMap, HighlightInfoProcessor}
+import com.intellij.codeInsight.daemon.impl.{DefaultHighlightInfoProcessor, HighlightInfoProcessor}
 import com.intellij.openapi.components.AbstractProjectComponent
 import com.intellij.openapi.editor.{Document, Editor}
 import com.intellij.openapi.project.Project
-import com.intellij.openapi.util.TextRange
 import com.intellij.psi.PsiFile
+import org.jetbrains.plugins.scala.annotator.importsTracker.ScalaRefCountHolder
 
 /**
  * User: Alexander Podkhalyuzin
@@ -21,8 +21,8 @@ class ScalaUnusedImportsPassFactory(project: Project, highlightingPassRegistrar:
     null, false, -1)
 
   def createHighlightingPass(file: PsiFile, editor: Editor): TextEditorHighlightingPass = {
-    val textRange: TextRange = FileStatusMap.getDirtyTextRange(editor, Pass.UPDATE_ALL)
-    if (textRange == null && ScalaUnusedImportPass.isUpToDate(file)) return null
+    val dirtyScope = ScalaRefCountHolder.getDirtyScope(file)
+    if (dirtyScope.isEmpty && ScalaUnusedImportPass.isUpToDate(file)) return null
     create(file, editor.getDocument, editor, new DefaultHighlightInfoProcessor)
   }
 

@@ -1479,6 +1479,9 @@
             <implementation-class>org.jetbrains.plugins.scala.codeInsight.hints.ScalaTypeHintsPassFactory
             </implementation-class>
         </component>
+      <component>
+        <implementation-class>org.jetbrains.plugins.scala.annotator.importsTracker.ScalaRefCountHolderComponent</implementation-class>
+      </component>
     </project-components>
 
     <actions>

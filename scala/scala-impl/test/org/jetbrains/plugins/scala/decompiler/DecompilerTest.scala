@@ -138,4 +138,8 @@ class DecompilerTest extends DecompilerTestBase {
   def testConsumerActorRouteBuilder(): Unit = {
     doTest("ConsumerActorRouteBuilder.class")
   }
+
+  def testFuture_2_13(): Unit = {
+    doTest("Future.class")
+  }
 }
