@@ -1,4 +1,4 @@
-package org.jetbrains.bsp
+package org.jetbrains.bsp.data
 
 import java.io.File
 
@@ -11,9 +11,9 @@ import com.intellij.openapi.externalSystem.service.project.IdeModifiableModelsPr
 import com.intellij.openapi.externalSystem.service.project.manage.AbstractProjectDataService
 import com.intellij.openapi.module.Module
 import com.intellij.openapi.project.Project
+import com.intellij.openapi.roots.LanguageLevelModuleExtensionImpl
 import com.intellij.openapi.roots.libraries.Library
-import com.intellij.openapi.roots.{LanguageLevelModuleExtensionImpl, OrderRootType}
-import com.intellij.openapi.vfs.VfsUtil
+import org.jetbrains.bsp.bsp
 import org.jetbrains.plugins.scala.project._
 import org.jetbrains.plugins.scala.project.external.{AbstractImporter, SdkReference, SdkUtils}
 
@@ -68,23 +68,18 @@ object ScalaSdkService {
         case _ => Platform.Scala
       }
       val languageLevel = compilerVersion.toLanguageLevel.get
-      val scalaLibrary: Library = createScalaLibrary(module, compilerClasspath)
 
-      setScalaSdk(scalaLibrary, platform, languageLevel, compilerClasspath)
+      findScalaLibrary(module, compilerClasspath).foreach { lib =>
+        if (!lib.isScalaSdk)
+          setScalaSdk(lib, platform, languageLevel, compilerClasspath)
+      }
     }
 
-    private def createScalaLibrary(module: Module, compilerClasspath: Seq[File]): Library = {
+    private def findScalaLibrary(module: Module, files: Seq[File]) = {
+      val libraryName = "scala-sdk"
       val rootModel = getModifiableRootModel(module)
-      val scalaLib = rootModel.getModuleLibraryTable.createLibrary("scala-library")
-      val libraryModel = scalaLib.getModifiableModel
-      compilerClasspath
-        .filter(_.getName.contains("scala-library"))
-        .foreach { file =>
-          val vfile = VfsUtil.findFileByIoFile(file, true)
-          libraryModel.addRoot(vfile, OrderRootType.CLASSES)
-        }
-      libraryModel.commit()
-      scalaLib
+      val libraryTable = rootModel.getModuleLibraryTable
+      Option(libraryTable.getLibraryByName("scala-sdk"))
     }
 
     private def configureOrInheritSdk(module: Module, sdk: Option[SdkReference]): Unit = {

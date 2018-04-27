@@ -16,6 +16,7 @@ import monix.eval.Task
 import monix.execution.{Cancelable, ExecutionModel, Scheduler}
 import org.jetbrains.bsp.BspProjectResolver._
 import org.jetbrains.bsp.BspUtil._
+import org.jetbrains.bsp.data.{BspMetadata, ScalaSdkData}
 import org.jetbrains.ide.PooledThreadExecutor
 import org.jetbrains.plugins.scala.project.Version
 import org.langmeta.jsonrpc.{Response, Services}
@@ -93,6 +94,13 @@ class BspProjectResolver extends ExternalSystemProjectResolver[BspExecutionSetti
 
       moduleData.setInheritProjectCompileOutputPath(false)
 
+      val scalaSdkLibrary = new LibraryData(bsp.ProjectSystemId, s"scala-sdk")
+      moduleDescription.scalaSdkData.scalacClasspath.foreach { path =>
+        scalaSdkLibrary.addPath(LibraryPathType.BINARY, path.getCanonicalPath)
+      }
+      val scalaSdkLibraryDependencyData = new LibraryDependencyData(moduleData, scalaSdkLibrary, LibraryLevel.MODULE)
+      scalaSdkLibraryDependencyData.setScope(DependencyScope.COMPILE)
+
       val libraryData = new LibraryData(bsp.ProjectSystemId, s"$moduleName dependencies")
       moduleDescription.classPath.foreach { path =>
         libraryData.addPath(LibraryPathType.BINARY, path.getCanonicalPath)
@@ -108,9 +116,12 @@ class BspProjectResolver extends ExternalSystemProjectResolver[BspExecutionSetti
       libraryTestDependencyData.setScope(DependencyScope.TEST)
 
       // data node wiring
+      // TODO refactor and reuse sbt module wiring api
 
       val moduleNode = new DataNode[ModuleData](ProjectKeys.MODULE, moduleData, projectNode)
 
+      val scalaSdkLibraryNode = new DataNode[LibraryDependencyData](ProjectKeys.LIBRARY_DEPENDENCY, scalaSdkLibraryDependencyData, moduleNode)
+      moduleNode.addChild(scalaSdkLibraryNode)
       val libraryDependencyNode = new DataNode[LibraryDependencyData](ProjectKeys.LIBRARY_DEPENDENCY, libraryDependencyData, moduleNode)
       moduleNode.addChild(libraryDependencyNode)
       val libraryTestDependencyNode = new DataNode[LibraryDependencyData](ProjectKeys.LIBRARY_DEPENDENCY, libraryTestDependencyData, moduleNode)

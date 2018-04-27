@@ -14,9 +14,7 @@ import com.intellij.openapi.project.Project
 import com.intellij.openapi.roots.ModifiableRootModel
 import com.intellij.openapi.roots.impl.libraries.LibraryEx
 import com.intellij.openapi.roots.libraries.Library
-import com.intellij.util.CommonProcessors.CollectProcessor
-import org.jetbrains.plugins.scala.project.Platform.{Dotty, Scala}
-import org.jetbrains.plugins.scala.project.{DottyLibraryName, Platform, ScalaLanguageLevel, ScalaLibraryName, ScalaLibraryProperties, ScalaLibraryType}
+import org.jetbrains.plugins.scala.project.{Platform, ScalaLanguageLevel, ScalaLibraryProperties, ScalaLibraryType}
 
 import scala.collection.JavaConverters._
 
