@@ -50,6 +50,9 @@ private[findUsages] class ScalaCompilerReferenceService(
   import ScalaCompilerReferenceService._
 
   private[this] val indexer = new CompilerReferenceIndexer(project)
+  
+  @volatile
+  private[this] var isUpToDateChecked = false
 
   override def projectOpened(): Unit = if (CompilerReferenceService.isEnabled) {
     val messageBus = project.getMessageBus
@@ -84,7 +87,7 @@ private[findUsages] class ScalaCompilerReferenceService(
     })
 
     myDirtyScopeHolder.installVFSListener()
-    CompilerReferenceServiceBase.executeOnBuildThread(markAsOutdated(false))
+    markAsOutdated(false)
 
     executeOnPooledThread {
       val validIndexExists = upToDateCompilerIndexExists(project)
@@ -95,8 +98,10 @@ private[findUsages] class ScalaCompilerReferenceService(
           val scope = compilerManager.createModuleCompileScope(m, false)
           if (compilerManager.isUpToDate(scope)) publisher.modulesUpToDate(Set(m.getName))
         }
-        myActiveBuilds += 1 // workaround for indexing not being a part of compilation for Scala
+        
+        myActiveBuilds += 1
         publisher.onIndexingFinished()
+        isUpToDateChecked = true
       }
     }
 
@@ -127,6 +132,8 @@ private[findUsages] class ScalaCompilerReferenceService(
     val dirtyScope = dirtyScopeForDefinition(target)
     usages.result().filterNot(usage => dirtyScope.contains(usage.file))
   }
+
+  def isCompilerIndexReady: Boolean = isUpToDateChecked
 
   private def dirtyScopeForDefinition(e: PsiElement): GlobalSearchScope = {
     import com.intellij.psi.search.GlobalSearchScope._

@@ -65,8 +65,8 @@ private class CompilerReferenceIndexer(project: Project) {
     }
 
   private def writeParsedClassfile(
-    writer: ScalaCompilerReferenceWriter,
-    indicator: ProgressIndicator,
+    writer:          ScalaCompilerReferenceWriter,
+    indicator:       ProgressIndicator,
     totalClassfiles: Int
   ): Unit =
     withLock(indexWriteLock) {
@@ -96,7 +96,7 @@ private class CompilerReferenceIndexer(project: Project) {
     }
 
   def writeBuildData(buildData: BuildData, onSuccess: => Any): Unit =
-    runWithProgressAsync(s"Building compiler indices...") { progressIndicator =>
+    runWithProgressAsync("Building compiler indices...") { progressIndicator =>
       withLock(executionLock) {
 
         buildData.removedSources.iterator.map(ProcessDeletedFile).foreach(writerJobQueue.add)
@@ -158,6 +158,6 @@ private object CompilerReferenceIndexer {
   private val logger = Logger.getInstance(classOf[CompilerReferenceIndexer])
 
   private sealed trait WriterJob
-  private final case class ProcessDeletedFile(file: String)             extends WriterJob
+  private final case class ProcessDeletedFile(file:  String)            extends WriterJob
   private final case class ProcessCompiledFile(data: CompiledScalaFile) extends WriterJob
 }
