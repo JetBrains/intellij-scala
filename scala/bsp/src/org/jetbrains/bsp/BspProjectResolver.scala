@@ -107,9 +107,6 @@ class BspProjectResolver extends ExternalSystemProjectResolver[BspExecutionSetti
       val libraryTestDependencyData = new LibraryDependencyData(moduleData, libraryTestData, LibraryLevel.MODULE)
       libraryTestDependencyData.setScope(DependencyScope.TEST)
 
-      val scalaSdkData = moduleDescription.scalaSdkData
-
-
       // data node wiring
 
       val moduleNode = new DataNode[ModuleData](ProjectKeys.MODULE, moduleData, projectNode)
@@ -122,7 +119,7 @@ class BspProjectResolver extends ExternalSystemProjectResolver[BspExecutionSetti
       val contentRootDataNode = new DataNode[ContentRootData](ProjectKeys.CONTENT_ROOT, contentRootData, moduleNode)
       moduleNode.addChild(contentRootDataNode)
 
-      val scalaSdkNode = new DataNode[ScalaSdkData](ScalaSdkData.Key, scalaSdkData, projectNode)
+      val scalaSdkNode = new DataNode[ScalaSdkData](ScalaSdkData.Key, moduleDescription.scalaSdkData, projectNode)
       moduleNode.addChild(scalaSdkNode)
 
       moduleNode

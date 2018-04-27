@@ -28,7 +28,7 @@ class ScalaSdkService extends AbstractProjectDataService[ScalaSdkData, Library] 
                                 project: Project,
                                 modelsProvider: IdeModifiableModelsProvider): Unit = {
 
-    new ScalaSdkService.Importer(toImport.asScala.toSeq, projectData, project, modelsProvider)
+    new ScalaSdkService.Importer(toImport.asScala.toSeq, projectData, project, modelsProvider).importData()
   }
 
 }
