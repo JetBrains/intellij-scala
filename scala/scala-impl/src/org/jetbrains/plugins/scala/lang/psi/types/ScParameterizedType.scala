@@ -18,7 +18,7 @@ import org.jetbrains.plugins.scala.lang.psi.api.toplevel.ScTypeParametersOwner
 import org.jetbrains.plugins.scala.lang.psi.types.api.designator.{ScDesignatorType, ScProjectionType}
 import org.jetbrains.plugins.scala.lang.psi.types.api.{Contravariant, Covariant, Invariant, ParameterizedType, TypeParameterType, TypeVisitor, UndefinedType, ValueType, Variance}
 import org.jetbrains.plugins.scala.lang.psi.types.nonvalue.ScTypePolymorphicType
-import org.jetbrains.plugins.scala.lang.psi.types.recursiveUpdate.ScSubstitutor
+import org.jetbrains.plugins.scala.lang.psi.types.recursiveUpdate.{AfterUpdate, ScSubstitutor}
 import org.jetbrains.plugins.scala.lang.refactoring.util.ScTypeUtil.AliasType
 
 class ScParameterizedType private(val designator: ScType, val typeArguments: Seq[ScType]) extends ParameterizedType with ScalaType {
@@ -65,31 +65,6 @@ class ScParameterizedType private(val designator: ScType, val typeArguments: Seq
           s.followed(ScSubstitutor.bind(owner.getTypeParameters, typeArguments))
         case _ => ScSubstitutor.empty
       }
-    }
-  }
-
-  override def recursiveVarianceUpdate(update: (ScType, Variance) => (Boolean, ScType),
-                                       variance: Variance = Covariant,
-                                       revertVariances: Boolean = false): ScType = {
-
-    val argUpdateSign: Variance = variance match {
-      case Invariant | Covariant => Covariant.inverse(revertVariances)
-      case Contravariant         => Contravariant.inverse(revertVariances)
-    }
-
-    update(this, variance) match {
-      case (true, res) => res
-      case (_, _)      =>
-        val des = designator.extractDesignated(expandAliases = false) match {
-          case Some(n: ScTypeParametersOwner) => n.typeParameters.map(_.variance)
-          case _                              => Seq.empty
-        }
-        ParameterizedType(designator.recursiveVarianceUpdate(update, variance),
-          typeArguments.zipWithIndex.map {
-            case (ta, i) =>
-              val v = if (i < des.length) des(i) else Invariant
-              ta.recursiveVarianceUpdate(update, v * argUpdateSign)
-          })
     }
   }
 

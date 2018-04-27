@@ -20,6 +20,7 @@ import org.jetbrains.plugins.scala.lang.psi.impl.base.patterns.ScInterpolationPa
 import org.jetbrains.plugins.scala.lang.psi.impl.{ScalaPsiElementFactory, ScalaPsiManager}
 import org.jetbrains.plugins.scala.lang.psi.types.api._
 import org.jetbrains.plugins.scala.lang.psi.types.api.designator.{ScDesignatorType, ScThisType}
+import org.jetbrains.plugins.scala.lang.psi.types.recursiveUpdate.AfterUpdate.{ProcessSubtypes, ReplaceWith}
 import org.jetbrains.plugins.scala.lang.psi.types.recursiveUpdate.ScSubstitutor
 import org.jetbrains.plugins.scala.lang.psi.types.result._
 import org.jetbrains.plugins.scala.lang.psi.types.{api, _}
@@ -325,9 +326,12 @@ object ScPattern {
               def updateRes(tp: ScType): ScType = {
                 tp.recursiveVarianceUpdate {
                   case (tp: TypeParameterType, variance) if funTypeParams.contains(tp.psiTypeParameter) =>
-                    (true, if (variance == Contravariant) substitutor.subst(tp.lowerType)
-                    else substitutor.subst(tp.upperType))
-                  case (typez, _) => (false, typez)
+                    val result =
+                      if (variance == Contravariant) substitutor.subst(tp.lowerType)
+                      else substitutor.subst(tp.upperType)
+                    ReplaceWith(result)
+                  case (typez, _) =>
+                    ProcessSubtypes
                 }
               }
               val subbedRetTp: ScType = subst.subst(rt)

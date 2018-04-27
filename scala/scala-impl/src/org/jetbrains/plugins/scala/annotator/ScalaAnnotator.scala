@@ -43,6 +43,7 @@ import org.jetbrains.plugins.scala.lang.psi.impl.{ScalaPsiElementFactory, ScalaP
 import org.jetbrains.plugins.scala.lang.psi.light.scala.isLightScNamedElement
 import org.jetbrains.plugins.scala.lang.psi.types.api._
 import org.jetbrains.plugins.scala.lang.psi.types.api.designator.ScDesignatorType
+import org.jetbrains.plugins.scala.lang.psi.types.recursiveUpdate.AfterUpdate.ProcessSubtypes
 import org.jetbrains.plugins.scala.lang.psi.types.result._
 import org.jetbrains.plugins.scala.lang.psi.types.{Compatibility, ScType, ScalaType, ValueClassType}
 import org.jetbrains.plugins.scala.lang.psi.{ScalaPsiElement, ScalaPsiUtil}
@@ -1335,7 +1336,7 @@ abstract class ScalaAnnotator extends Annotator
           }
         case _ =>
       }
-      (false, tp)
+      ProcessSubtypes
     }
     typeParam.recursiveVarianceUpdate(functionToSendIn, variance)
   }

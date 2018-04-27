@@ -15,7 +15,7 @@ import org.jetbrains.plugins.scala.lang.psi.impl.ScalaPsiManager
 import org.jetbrains.plugins.scala.lang.psi.impl.toplevel.synthetic.ScSyntheticClass
 import org.jetbrains.plugins.scala.lang.psi.types._
 import org.jetbrains.plugins.scala.lang.psi.types.api._
-import org.jetbrains.plugins.scala.lang.psi.types.recursiveUpdate.{ScSubstitutor, Update}
+import org.jetbrains.plugins.scala.lang.psi.types.recursiveUpdate.{AfterUpdate, ScSubstitutor, Update}
 import org.jetbrains.plugins.scala.lang.psi.types.result._
 import org.jetbrains.plugins.scala.lang.refactoring.util.ScTypeUtil.AliasType
 import org.jetbrains.plugins.scala.lang.resolve.processor.ResolveProcessor
@@ -81,19 +81,14 @@ class ScProjectionType private(val projected: ScType,
 
   override def removeAbstracts = ScProjectionType(projected.removeAbstracts, element)
 
-  override def updateSubtypes(updates: Seq[Update], visited: Set[ScType]): ScType = {
+  override def updateSubtypes(updates: Seq[Update], visited: Set[ScType]): ScType =
     ScProjectionType(projected.recursiveUpdateImpl(updates, visited), element)
-  }
 
-  override def recursiveVarianceUpdate(update: (ScType, Variance) => (Boolean, ScType),
-                                       variance: Variance = Covariant,
-                                       revertVariances: Boolean = false): ScType = {
-    update(this, variance) match {
-      case (true, res) => res
-      case (_, _) =>
-        ScProjectionType(projected.recursiveVarianceUpdate(update, Invariant), element)
-    }
-  }
+  override def updateSubtypesVariance(update: (ScType, Variance) => AfterUpdate,
+                                      variance: Variance = Covariant,
+                                      revertVariances: Boolean = false)
+                                     (implicit visited: Set[ScType]): ScType =
+    ScProjectionType(projected.recursiveVarianceUpdate(update, Invariant), element)
 
   @CachedWithRecursionGuard(element, None, ModCount.getBlockModificationCount)
   private def actualImpl(projected: ScType): Option[(PsiNamedElement, ScSubstitutor)] = {

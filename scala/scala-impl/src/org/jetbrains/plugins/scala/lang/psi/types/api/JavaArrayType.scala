@@ -3,7 +3,7 @@ package org.jetbrains.plugins.scala.lang.psi.types.api
 import org.jetbrains.plugins.scala.extensions.PsiClassExt
 import org.jetbrains.plugins.scala.lang.psi.ElementScope
 import org.jetbrains.plugins.scala.lang.psi.api.toplevel.typedef.ScClass
-import org.jetbrains.plugins.scala.lang.psi.types.recursiveUpdate.Update
+import org.jetbrains.plugins.scala.lang.psi.types.recursiveUpdate.{AfterUpdate, Update}
 import org.jetbrains.plugins.scala.lang.psi.types.{ScParameterizedType, ScType, ScTypeExt, ScUndefinedSubstitutor, ScalaType}
 import org.jetbrains.plugins.scala.project.ProjectContext
 
@@ -25,14 +25,11 @@ case class JavaArrayType(argument: ScType) extends ValueType {
     JavaArrayType(argument.recursiveUpdateImpl(updates, visited))
   }
 
-  override def recursiveVarianceUpdate(update: (ScType, Variance) => (Boolean, ScType),
-                                       variance: Variance = Covariant,
-                                       revertVariances: Boolean = false): ScType =
-    update(this, variance) match {
-      case (true, res) => res
-      case (_, _) =>
-        JavaArrayType(argument.recursiveVarianceUpdate(update, Invariant))
-    }
+  override def updateSubtypesVariance(update: (ScType, Variance) => AfterUpdate,
+                                      variance: Variance = Covariant,
+                                      revertVariances: Boolean = false)
+                                     (implicit visited: Set[ScType]): ScType =
+    JavaArrayType(argument.recursiveVarianceUpdate(update, Invariant))
 
   override def equivInner(`type`: ScType, substitutor: ScUndefinedSubstitutor, falseUndef: Boolean): (Boolean, ScUndefinedSubstitutor) =
     `type` match {

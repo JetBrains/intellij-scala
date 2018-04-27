@@ -7,7 +7,7 @@ import java.util.Objects
 
 import org.jetbrains.plugins.scala.lang.psi.types.api._
 import org.jetbrains.plugins.scala.lang.psi.types.nonvalue.NonValueType
-import org.jetbrains.plugins.scala.lang.psi.types.recursiveUpdate.{RecursiveUpdateException, Update}
+import org.jetbrains.plugins.scala.lang.psi.types.recursiveUpdate.{AfterUpdate, RecursiveUpdateException, Update}
 import org.jetbrains.plugins.scala.project.ProjectContext
 
 
@@ -67,17 +67,15 @@ case class ScAbstractType(typeParameter: TypeParameter, lower: ScType, upper: Sc
     )
   }
 
-  override def recursiveVarianceUpdate(update: (ScType, Variance) => (Boolean, ScType),
-                                       variance: Variance = Covariant,
-                                       revertVariances: Boolean = false): ScType = {
-    update(this, variance) match {
-      case (true, res) => res
-      case (_, _) =>
-        ScAbstractType(
-          typeParameter,
-          lower.recursiveVarianceUpdate(update, -variance),
-          upper.recursiveVarianceUpdate(update, variance))
-    }
+  override def updateSubtypesVariance(update: (ScType, Variance) => AfterUpdate,
+                                      variance: Variance = Covariant,
+                                      revertVariances: Boolean = false)
+                                     (implicit visited: Set[ScType]): ScType = {
+    ScAbstractType(
+      typeParameter,
+      lower.recursiveVarianceUpdate(update, -variance),
+      upper.recursiveVarianceUpdate(update, variance)
+    )
   }
 
   override def visitType(visitor: TypeVisitor): Unit = visitor match {

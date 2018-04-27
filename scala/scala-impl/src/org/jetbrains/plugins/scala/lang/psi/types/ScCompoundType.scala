@@ -12,7 +12,7 @@ import org.jetbrains.plugins.scala.lang.psi.api.base.patterns.ScBindingPattern
 import org.jetbrains.plugins.scala.lang.psi.api.statements._
 import org.jetbrains.plugins.scala.lang.psi.types.api.designator.ScDesignatorType
 import org.jetbrains.plugins.scala.lang.psi.types.api.{AnyRef, TypeParametersArrayExt, TypeVisitor, ValueType, _}
-import org.jetbrains.plugins.scala.lang.psi.types.recursiveUpdate.{ScSubstitutor, Update}
+import org.jetbrains.plugins.scala.lang.psi.types.recursiveUpdate.{AfterUpdate, ScSubstitutor, Update}
 import org.jetbrains.plugins.scala.lang.psi.types.result._
 import org.jetbrains.plugins.scala.project.ProjectContext
 
@@ -100,23 +100,20 @@ case class ScCompoundType(components: Seq[ScType],
     })
   }
 
-  override def recursiveVarianceUpdate(update: (ScType, Variance) => (Boolean, ScType),
-                                       variance: Variance = Covariant,
-                                       revertVariances: Boolean = false): ScType = {
-    update(this, variance) match {
-      case (true, res) => res
-      case (_, _) =>
-        val updSignatureMap = signatureMap.map {
-          case (s: Signature, tp) =>
-            val tParams = s.typeParams.updateWithVariance(_.recursiveVarianceUpdate(update, _), Covariant)
-            val paramTypes = s.substitutedTypes.map(_.map(f => () => f().recursiveVarianceUpdate(update, Covariant)))
-            val updSignature = new Signature(s.name, paramTypes, tParams, ScSubstitutor.empty, s.namedElement, s.hasRepeatedParam)
-            (updSignature, tp.recursiveVarianceUpdate(update, Covariant))
-        }
-        new ScCompoundType(components.map(_.recursiveVarianceUpdate(update, variance)), updSignatureMap, typesMap.map {
-          case (s, sign) => (s, sign.updateTypes(_.recursiveVarianceUpdate(update, Covariant)))
-        })
+  override def updateSubtypesVariance(update: (ScType, Variance) => AfterUpdate,
+                                      variance: Variance = Covariant,
+                                      revertVariances: Boolean = false)
+                                     (implicit visited: Set[ScType]): ScType = {
+    val updSignatureMap = signatureMap.map {
+      case (s: Signature, tp) =>
+        val tParams = s.typeParams.updateWithVariance(_.recursiveVarianceUpdate(update, _, isLazySubtype = true), Covariant)
+        val paramTypes = s.substitutedTypes.map(_.map(f => () => f().recursiveVarianceUpdate(update, Covariant, isLazySubtype = true)))
+        val updSignature = new Signature(s.name, paramTypes, tParams, ScSubstitutor.empty, s.namedElement, s.hasRepeatedParam)
+        (updSignature, tp.recursiveVarianceUpdate(update, Covariant))
     }
+    new ScCompoundType(components.map(_.recursiveVarianceUpdate(update, variance)), updSignatureMap, typesMap.map {
+      case (s, sign) => (s, sign.updateTypes(_.recursiveVarianceUpdate(update, Covariant, isLazySubtype = true)))
+    })
   }
 
   override def equivInner(r: ScType, uSubst: ScUndefinedSubstitutor, falseUndef: Boolean): (Boolean, ScUndefinedSubstitutor) = {

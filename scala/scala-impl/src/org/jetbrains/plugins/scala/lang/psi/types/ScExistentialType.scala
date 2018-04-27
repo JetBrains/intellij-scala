@@ -6,8 +6,8 @@ package types
 import org.jetbrains.plugins.scala.lang.psi.api.statements.params.{ScTypeParam, TypeParamId}
 import org.jetbrains.plugins.scala.lang.psi.types.api._
 import org.jetbrains.plugins.scala.lang.psi.types.nonvalue._
-import org.jetbrains.plugins.scala.lang.psi.types.recursiveUpdate.AfterUpdate.{ProcessSubtypes, Stop}
-import org.jetbrains.plugins.scala.lang.psi.types.recursiveUpdate.{ScSubstitutor, Update}
+import org.jetbrains.plugins.scala.lang.psi.types.recursiveUpdate.AfterUpdate.{ProcessSubtypes, ReplaceWith, Stop}
+import org.jetbrains.plugins.scala.lang.psi.types.recursiveUpdate.{AfterUpdate, ScSubstitutor, Update}
 import org.jetbrains.plugins.scala.lang.refactoring.util.ScTypeUtil.AliasType
 import org.jetbrains.plugins.scala.project.ProjectContext
 
@@ -29,14 +29,11 @@ class ScExistentialType private (val quantified: ScType,
   override def updateSubtypes(updates: Seq[Update], visited: Set[ScType]): ScExistentialType =
     ScExistentialType(quantified.recursiveUpdateImpl(updates, visited))
 
-  override def recursiveVarianceUpdate(update: (ScType, Variance) => (Boolean, ScType),
+  override def updateSubtypesVariance(update: (ScType, Variance) => AfterUpdate,
                                        variance: Variance = Covariant,
-                                       revertVariances: Boolean = false): ScType = {
-    update(this, variance) match {
-      case (true, res) => res
-      case (_, _) =>
-        ScExistentialType(quantified.recursiveVarianceUpdate(update, variance))
-    }
+                                       revertVariances: Boolean = false)
+                                     (implicit visited: Set[ScType]): ScType = {
+    ScExistentialType(quantified.recursiveVarianceUpdate(update, variance))
   }
 
   override def equivInner(r: ScType, uSubst: ScUndefinedSubstitutor, falseUndef: Boolean): (Boolean, ScUndefinedSubstitutor) = {
@@ -183,12 +180,12 @@ object ScExistentialType {
 
     var updated = false
     //fourth rule
-    val argsToBounds: (ScType, Variance) => (Boolean, ScType) = {
+    val argsToBounds: (ScType, Variance) => AfterUpdate = {
       case (ex: ScExistentialType, _) =>
         if (ex.simplified.nonEmpty) {
           updated = true
         }
-        (true, ex.simplify())
+        ReplaceWith(ex.simplify())
       case (arg: ScExistentialArgument, variance) =>
         //fourth rule
         val argOrBound = variance match {
@@ -201,8 +198,8 @@ object ScExistentialType {
           case _ =>
             arg
         }
-        (true, argOrBound)
-      case (tp, _) => (false, tp)
+        ReplaceWith(argOrBound)
+      case _ => ProcessSubtypes
     }
 
     val simplifiedQ = quantified.recursiveVarianceUpdate(argsToBounds, Invariant)

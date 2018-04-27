@@ -3,7 +3,7 @@ package org.jetbrains.plugins.scala.lang.psi.types
 import org.jetbrains.plugins.scala.lang.psi.api.statements.ScTypeAlias
 import org.jetbrains.plugins.scala.lang.psi.types.api.{Contravariant, Covariant, TypeParameter, TypeParameterType, TypeVisitor, ValueType, Variance}
 import org.jetbrains.plugins.scala.lang.psi.types.recursiveUpdate.AfterUpdate.{ProcessSubtypes, Stop}
-import org.jetbrains.plugins.scala.lang.psi.types.recursiveUpdate.{ScSubstitutor, Update}
+import org.jetbrains.plugins.scala.lang.psi.types.recursiveUpdate.{AfterUpdate, ScSubstitutor, Update}
 import org.jetbrains.plugins.scala.project.ProjectContext
 
 /**
@@ -22,18 +22,6 @@ trait ScExistentialArgument extends NamedType with ValueType {
 
   override def removeAbstracts: ScExistentialArgument =
     copyWithBounds(lower.removeAbstracts, upper.removeAbstracts)
-
-  override def recursiveVarianceUpdate(update: (ScType, Variance) => (Boolean, ScType),
-                                       variance: Variance = Covariant,
-                                       revertVariances: Boolean = false): ScType = {
-    update(this, variance) match {
-      case (true, res) => res
-      case (_, _) =>
-        copyWithBounds(
-          lower.recursiveVarianceUpdate(update, Contravariant),
-          upper.recursiveVarianceUpdate(update, Covariant))
-    }
-  }
 
   override def equivInner(r: ScType, uSubst: ScUndefinedSubstitutor, falseUndef: Boolean): (Boolean, ScUndefinedSubstitutor) = {
     r match {
@@ -75,6 +63,15 @@ object ScExistentialArgument {
         lower.recursiveUpdateImpl(updates, visited, isLazySubtype = true),
         upper.recursiveUpdateImpl(updates, visited, isLazySubtype = true),
       )
+
+    override def updateSubtypesVariance(update: (ScType, Variance) => AfterUpdate,
+                                        variance: Variance = Covariant,
+                                        revertVariances: Boolean = false)
+                                       (implicit visited: Set[ScType]): ScType = {
+      copyWithBounds(
+        lower.recursiveVarianceUpdate(update, Contravariant, isLazySubtype = true),
+        upper.recursiveVarianceUpdate(update, Covariant    , isLazySubtype = true))
+    }
   }
 
   private case class Complete(name: String,
@@ -89,6 +86,15 @@ object ScExistentialArgument {
         lower.recursiveUpdateImpl(updates, visited),
         upper.recursiveUpdateImpl(updates, visited)
       )
+
+    override def updateSubtypesVariance(update: (ScType, Variance) => AfterUpdate,
+                                        variance: Variance = Covariant,
+                                        revertVariances: Boolean = false)
+                                       (implicit visited: Set[ScType]): ScType = {
+      copyWithBounds(
+        lower.recursiveVarianceUpdate(update, Contravariant),
+        upper.recursiveVarianceUpdate(update, Covariant))
+    }
 
     def copyWithBounds(newLower: ScType, newUpper: ScType): ScExistentialArgument =
       Complete(name, typeParameters, newLower, newUpper)
