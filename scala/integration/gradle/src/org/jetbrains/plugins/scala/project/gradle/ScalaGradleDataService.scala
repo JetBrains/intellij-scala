@@ -96,6 +96,9 @@ private object ScalaGradleDataService {
       }
     }
 
+    private def getScalaLibraries: Set[Library] =
+      modelsProvider.getAllLibraries.filter(l => Option(l.getName).exists(_.contains(ScalaLibraryName))).toSet
+
     private def findScalaLibraryIn(classpath: Seq[File]): Option[File] =
       classpath.find(_.getName.startsWith(ScalaLibraryName))
 

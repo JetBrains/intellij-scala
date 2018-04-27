@@ -41,7 +41,7 @@ abstract class AbstractDataService[E, I](key: Key[E]) extends AbstractProjectDat
 
 /**
  * The purposes of this trait are the following:
- *    - Incapsulate logic necessary for importing specified data
+ *    - Encapsulate logic necessary for importing specified data
  *    - Wrap "unsafe" methods from IdeModifiableModelsProvider
  *    - Collect import parameters as class fields to eliminate necessity of
  *      dragging them into each and every method of ProjectDataService
@@ -86,21 +86,6 @@ trait Importer[E] {
       moduleData <- Option(node.getData(ProjectKeys.MODULE))
       module <- findIdeModule(moduleData)
     } yield module
-
-  def getScalaLibraries: Set[Library] =
-    modelsProvider.getAllLibraries.filter(l => Option(l.getName).exists(_.contains(ScalaLibraryName))).toSet
-
-  def getScalaLibraries(module: Module, platform: Platform): Set[Library] = {
-    val libraryName = platform match {
-      case Scala => ScalaLibraryName
-      case Dotty => DottyLibraryName
-    }
-    val collector = new CollectProcessor[Library]()
-    getModifiableRootModel(module).orderEntries().librariesOnly().forEachLibrary(collector)
-    collector.getResults.asScala
-      .toSet
-      .filter(l => Option(l.getName).exists(_.contains(libraryName)))
-  }
 
   def executeProjectChangeAction(action: => Unit): Unit =
     ExternalSystemApiUtil.executeProjectChangeAction(new DisposeAwareProjectChange(project) {
