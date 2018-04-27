@@ -9,7 +9,11 @@ import ch.epfl.scala.bsp.schema.{BuildTargetIdentifier, CompileParams, CompileRe
 import com.intellij.build.FilePosition
 import com.intellij.execution.process.AnsiEscapeDecoder.ColoredTextAcceptor
 import com.intellij.execution.process.{AnsiEscapeDecoder, ProcessOutputTypes}
+import com.intellij.openapi.externalSystem.model.project.ModuleData
+import com.intellij.openapi.externalSystem.model.{DataNode, ProjectKeys}
+import com.intellij.openapi.externalSystem.service.project.ProjectDataManager
 import com.intellij.openapi.externalSystem.util.{ExternalSystemApiUtil => ES}
+import com.intellij.openapi.fileEditor.FileDocumentManager
 import com.intellij.openapi.module.ModuleType
 import com.intellij.openapi.progress.{PerformInBackgroundOption, ProgressIndicator, ProgressManager, Task}
 import com.intellij.openapi.project.Project
@@ -18,6 +22,8 @@ import com.intellij.task._
 import monix.eval
 import monix.execution.{ExecutionModel, Scheduler}
 import org.jetbrains.bsp.BspProjectTaskRunner.BspTask
+import org.jetbrains.bsp.BspUtil._
+import org.jetbrains.bsp.data.BspMetadata
 import org.jetbrains.ide.PooledThreadExecutor
 import org.jetbrains.plugins.scala.build.{BuildFailureException, BuildMessages, BuildToolWindowReporter, IndicatorReporter}
 import org.langmeta.jsonrpc._
@@ -26,9 +32,6 @@ import org.langmeta.lsp._
 import scala.collection.JavaConverters._
 import scala.concurrent.Await
 import scala.concurrent.duration.Duration
-import BspUtil._
-import com.intellij.openapi.fileEditor.FileDocumentManager
-
 import scala.util.control.NonFatal
 
 class BspProjectTaskRunner extends ProjectTaskRunner {
@@ -55,11 +58,23 @@ class BspProjectTaskRunner extends ProjectTaskRunner {
       case task: ModuleBuildTask => task
     }
 
-    val targets = validTasks.map { task =>
+    val dataManager = ProjectDataManager.getInstance()
+
+    val targets = validTasks.flatMap { task =>
       val moduleId = ES.getExternalProjectId(task.getModule)
-      // Works for bloop because the URI ends with '?id=module-name'
-      // FIXME need to handle more general case of multiple targets being mapped to the same module
-      BuildTargetIdentifier(s"$moduleId-test")
+
+      def predicate(node: DataNode[ModuleData]) = node.getData.getId == moduleId
+      // TODO all these options fail silently. collect errors and report something
+      val targetIds = for {
+        projectInfo <- Option(dataManager.getExternalProjectData(project, bsp.ProjectSystemId, project.getBasePath))
+        projectStructure <- Option(projectInfo.getExternalProjectStructure)
+        moduleDataNode <- Option(ES.find(projectStructure, ProjectKeys.MODULE, predicate))
+        metadata <- Option(ES.find(moduleDataNode, BspMetadata.Key))
+      } yield {
+        metadata.getData.targetIds
+      }
+
+      targetIds.getOrElse(Seq.empty)
     }.toSeq
 
     implicit val scheduler: Scheduler = Scheduler(PooledThreadExecutor.INSTANCE, ExecutionModel.AlwaysAsyncExecution)

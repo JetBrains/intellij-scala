@@ -115,6 +115,9 @@ class BspProjectResolver extends ExternalSystemProjectResolver[BspExecutionSetti
       val libraryTestDependencyData = new LibraryDependencyData(moduleData, libraryTestData, LibraryLevel.MODULE)
       libraryTestDependencyData.setScope(DependencyScope.TEST)
 
+      val targetIds = moduleDescription.targets.flatMap(_.id)
+      val metadata = BspMetadata(targetIds)
+
       // data node wiring
       // TODO refactor and reuse sbt module wiring api
 
@@ -132,6 +135,9 @@ class BspProjectResolver extends ExternalSystemProjectResolver[BspExecutionSetti
 
       val scalaSdkNode = new DataNode[ScalaSdkData](ScalaSdkData.Key, moduleDescription.scalaSdkData, projectNode)
       moduleNode.addChild(scalaSdkNode)
+
+      val metadataNode = new DataNode[BspMetadata](BspMetadata.Key, metadata, moduleNode)
+      moduleNode.addChild(metadataNode)
 
       moduleNode
     }

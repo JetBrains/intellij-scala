@@ -26,7 +26,8 @@
         <moduleConfigurationEditorProvider implementation="org.jetbrains.bsp.BspSyntheticModuleEditorProvider"/>
 
         <externalSystemManager implementation="org.jetbrains.bsp.BspExternalSystemManager"/>
-        <externalProjectDataService implementation="org.jetbrains.bsp.ScalaSdkService"/>
+        <externalProjectDataService implementation="org.jetbrains.bsp.data.ScalaSdkService"/>
+        <externalProjectDataService implementation="org.jetbrains.bsp.data.BspMetadataService"/>
 
         <!--<externalSystemConfigLocator implementation="org.jetbrains.bsp.BspConfigLocator"/>-->
 
