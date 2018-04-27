@@ -5,21 +5,19 @@ import java.io.File
 import com.intellij.compiler.CompilerConfiguration
 import com.intellij.openapi.application.ApplicationManager
 import com.intellij.openapi.externalSystem.model.project.ProjectData
-import com.intellij.openapi.externalSystem.model.{DataNode, ProjectSystemId}
+import com.intellij.openapi.externalSystem.model.{DataNode, Key, ProjectSystemId}
 import com.intellij.openapi.externalSystem.service.notification.{ExternalSystemNotificationManager, NotificationCategory, NotificationData, NotificationSource}
 import com.intellij.openapi.externalSystem.service.project.IdeModifiableModelsProvider
 import com.intellij.openapi.externalSystem.service.project.manage.AbstractProjectDataService
-import com.intellij.openapi.externalSystem.model.Key
 import com.intellij.openapi.module.Module
 import com.intellij.openapi.project.Project
-import com.intellij.openapi.roots.LanguageLevelModuleExtensionImpl
 import com.intellij.openapi.roots.libraries.Library
-import org.jetbrains.plugins.scala.project.Platform.{Dotty, Scala}
+import com.intellij.openapi.roots.{LanguageLevelModuleExtensionImpl, OrderRootType}
+import com.intellij.openapi.vfs.VfsUtil
 import org.jetbrains.plugins.scala.project._
+import org.jetbrains.plugins.scala.project.external.{AbstractImporter, SdkReference, SdkUtils}
 
-/**
-  * @author Pavel Fatin
-  */
+
 class ScalaSdkService extends AbstractProjectDataService[ScalaSdkData, Library] {
   def getTargetDataKey: Key[ScalaSdkData] = ScalaSdkData.Key
 
@@ -28,14 +26,11 @@ class ScalaSdkService extends AbstractProjectDataService[ScalaSdkData, Library] 
   override final def importData(toImport: java.util.Collection[DataNode[ScalaSdkData]],
                                 projectData: ProjectData,
                                 project: Project,
-                                modelsProvider: IdeModifiableModelsProvider): Unit =
-    createImporter(toImport.asScala.toSeq, projectData, project, modelsProvider).importData()
+                                modelsProvider: IdeModifiableModelsProvider): Unit = {
 
-  def createImporter(toImport: Seq[DataNode[ScalaSdkData]],
-                     projectData: ProjectData,
-                     project: Project,
-                     modelsProvider: IdeModifiableModelsProvider): Importer[ScalaSdkData] =
-    new ScalaSdkService.Importer(toImport, projectData, project, modelsProvider)
+    new ScalaSdkService.Importer(toImport.asScala.toSeq, projectData, project, modelsProvider)
+  }
+
 }
 
 object ScalaSdkService {
@@ -54,7 +49,7 @@ object ScalaSdkService {
         module <- getIdeModuleByNode(dataNode)
         data = dataNode.getData
       } {
-        module.configureScalaCompilerSettingsFrom("sbt", data.scalacOptions)
+        module.configureScalaCompilerSettingsFrom("bsp", data.scalacOptions)
         data.scalaVersion.foreach(
           version => configureScalaSdk(module, data.scalaOrganization, version, data.scalacClasspath))
         configureOrInheritSdk(module, data.jdk)
@@ -72,28 +67,24 @@ object ScalaSdkService {
         case "ch.epfl.lamp" => Platform.Dotty
         case _ => Platform.Scala
       }
-      val scalaLibraries = getScalaLibraries(module, platform)
-      if (scalaLibraries.nonEmpty) {
-        val scalaLibrary = scalaLibraries
-          .find(_.scalaVersion.contains(compilerVersion))
-          .orElse(scalaLibraries.find(_.scalaVersion.exists(_.toLanguageLevel == compilerVersion.toLanguageLevel)))
+      val languageLevel = compilerVersion.toLanguageLevel.get
+      val scalaLibrary: Library = createScalaLibrary(module, compilerClasspath)
 
-        scalaLibrary match {
-          case Some(library) if !library.isScalaSdk =>
-            val languageLevel = platform match {
-              case Scala => library.scalaLanguageLevel.getOrElse(ScalaLanguageLevel.Default)
-              case Dotty => ScalaLanguageLevel.Snapshot
-            }
-            val classpath = platform match {
-              case Scala => compilerClasspath
-              case Dotty => compilerClasspath.filterNot(_.getName.startsWith("sbt-interface-"))
-            }
-            setScalaSdk(library, platform, languageLevel, classpath)
-          case None =>
-            showWarning(s"Cannot find project Scala library ${compilerVersion.presentation} for module ${module.getName}")
-          case _ => // do nothing
+      setScalaSdk(scalaLibrary, platform, languageLevel, compilerClasspath)
+    }
+
+    private def createScalaLibrary(module: Module, compilerClasspath: Seq[File]): Library = {
+      val rootModel = getModifiableRootModel(module)
+      val scalaLib = rootModel.getModuleLibraryTable.createLibrary("scala-library")
+      val libraryModel = scalaLib.getModifiableModel
+      compilerClasspath
+        .filter(_.getName.contains("scala-library"))
+        .foreach { file =>
+          val vfile = VfsUtil.findFileByIoFile(file, true)
+          libraryModel.addRoot(vfile, OrderRootType.CLASSES)
         }
-      }
+      libraryModel.commit()
+      scalaLib
     }
 
     private def configureOrInheritSdk(module: Module, sdk: Option[SdkReference]): Unit = {

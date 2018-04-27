@@ -5,6 +5,7 @@ import java.io.File
 import com.intellij.openapi.externalSystem.model.{Key, ProjectKeys}
 import com.intellij.openapi.externalSystem.model.project.AbstractExternalEntityData
 import org.jetbrains.plugins.scala.project.Version
+import org.jetbrains.plugins.scala.project.external.SdkReference
 import org.jetbrains.sbt.project.data.SbtEntityData
 
 @SerialVersionUID(1)
@@ -28,13 +29,6 @@ case class ScalaSdkData(
 }
 
 object ScalaSdkData {
-  def datakey[T](
-      clazz: Class[T],
-      weight: Int = ProjectKeys.MODULE.getProcessingWeight + 1
-  ): Key[T] = new Key(clazz.getName, weight)
-
-  val Key: Key[ScalaSdkData] = {
-    datakey(classOf[ScalaSdkData],
-            ProjectKeys.LIBRARY_DEPENDENCY.getProcessingWeight + 1)
-  }
+  val Key: Key[ScalaSdkData] =
+    new Key(classOf[ScalaSdkData].getName, ProjectKeys.LIBRARY_DEPENDENCY.getProcessingWeight + 1)
 }

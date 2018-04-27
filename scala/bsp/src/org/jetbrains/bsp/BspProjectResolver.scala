@@ -107,13 +107,10 @@ class BspProjectResolver extends ExternalSystemProjectResolver[BspExecutionSetti
       val libraryTestDependencyData = new LibraryDependencyData(moduleData, libraryTestData, LibraryLevel.MODULE)
       libraryTestDependencyData.setScope(DependencyScope.TEST)
 
-      // TODO wow such hack. be less hacky about adding scala sdk to module
-      import org.jetbrains.plugins.scala.project.ScalaLibraryName
       val scalaSdkData = moduleDescription.scalaSdkData
-      val scalaLibraryData = new LibraryData(bsp.ProjectSystemId, s"$moduleId ${scalaSdkData.scalaOrganization}:scala-library:${scalaSdkData.scalaVersion.get}")
-      val scalaLibraryJar = scalaSdkData.scalacClasspath.filter(_.getName.contains(ScalaLibraryName)).head
-      scalaLibraryData.addPath(LibraryPathType.BINARY, scalaLibraryJar.getCanonicalPath)
-      val scalaLibraryDependencyData = new LibraryDependencyData(moduleData, scalaLibraryData, LibraryLevel.MODULE)
+
+
+      // data node wiring
 
       val moduleNode = new DataNode[ModuleData](ProjectKeys.MODULE, moduleData, projectNode)
 
@@ -121,9 +118,6 @@ class BspProjectResolver extends ExternalSystemProjectResolver[BspExecutionSetti
       moduleNode.addChild(libraryDependencyNode)
       val libraryTestDependencyNode = new DataNode[LibraryDependencyData](ProjectKeys.LIBRARY_DEPENDENCY, libraryTestDependencyData, moduleNode)
       moduleNode.addChild(libraryTestDependencyNode)
-
-      val scalaLibraryDependencyNode = new DataNode[LibraryDependencyData](ProjectKeys.LIBRARY_DEPENDENCY, scalaLibraryDependencyData, moduleNode)
-      moduleNode.addChild(scalaLibraryDependencyNode)
 
       val contentRootDataNode = new DataNode[ContentRootData](ProjectKeys.CONTENT_ROOT, contentRootData, moduleNode)
       moduleNode.addChild(contentRootDataNode)
