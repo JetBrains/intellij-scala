@@ -1,4 +1,4 @@
-package org.jetbrains.sbt.project.data.service
+package org.jetbrains.plugins.scala.project.external
 
 import java.io.File
 import java.util

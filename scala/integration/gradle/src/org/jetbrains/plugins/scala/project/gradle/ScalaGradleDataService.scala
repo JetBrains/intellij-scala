@@ -13,7 +13,7 @@ import com.intellij.openapi.roots.libraries.Library
 import org.jetbrains.plugins.gradle.model.data.ScalaModelData
 import org.jetbrains.plugins.gradle.util.GradleConstants
 import org.jetbrains.plugins.scala.project._
-import org.jetbrains.sbt.project.data.service.{AbstractDataService, AbstractImporter, Importer}
+import org.jetbrains.plugins.scala.project.external.{AbstractDataService, AbstractImporter, Importer}
 
 import scala.collection.JavaConverters._
 
@@ -126,8 +126,8 @@ private object ScalaGradleDataService {
     private def include(b: Boolean, s: String): Seq[String] = if (b) Seq(s) else Seq.empty
 
     private def showWarning(message: String): Unit = {
-      val notification = new NotificationData("Gradle Sync", message, NotificationCategory.WARNING, NotificationSource.PROJECT_SYNC);
-      ExternalSystemNotificationManager.getInstance(project).showNotification(GradleConstants.SYSTEM_ID, notification);
+      val notification = new NotificationData("Gradle Sync", message, NotificationCategory.WARNING, NotificationSource.PROJECT_SYNC)
+      ExternalSystemNotificationManager.getInstance(project).showNotification(GradleConstants.SYSTEM_ID, notification)
     }
   }
 }

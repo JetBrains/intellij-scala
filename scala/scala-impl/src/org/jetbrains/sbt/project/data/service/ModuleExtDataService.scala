@@ -15,6 +15,7 @@ import com.intellij.openapi.roots.LanguageLevelModuleExtensionImpl
 import com.intellij.openapi.roots.libraries.Library
 import org.jetbrains.plugins.scala.project.Platform.{Dotty, Scala}
 import org.jetbrains.plugins.scala.project._
+import org.jetbrains.plugins.scala.project.external._
 import org.jetbrains.sbt.SbtBundle
 import org.jetbrains.sbt.project.SbtProjectSystem
 
