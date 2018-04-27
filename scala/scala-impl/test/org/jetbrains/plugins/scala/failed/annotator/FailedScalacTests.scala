@@ -61,10 +61,6 @@ class FailedScalacTests extends FailedScalacTestsBase {
 
   def testDirName = "failed"
 
-  //todo: these tests freeze IDEA
-//  def `test_existential-slow-compile1`: Unit = doTest()
-//  def `test_existential-slow-compile2`: Unit = doTest()
-
   //Delete test method and move corresponding .scala file or directory to testdata/scalacTests/pos/ after test passes
 
   def test_t4365(): Unit = doTest()
