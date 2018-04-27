@@ -13,23 +13,15 @@ import org.jetbrains.plugins.scala.lang.psi.impl.ScalaPsiElementFactory.createEx
 trait ScMatchStmt extends ScExpression {
   def expr: Option[ScExpression] = findChild(classOf[ScExpression])
 
-  def getBranches: Seq[ScExpression] = getCaseClauses match {
-    case null => Seq.empty
-    case c => c.caseClauses.map {
-      (clause: ScCaseClause) =>
-        clause.expr match {
-          case Some(expr) => expr
-          case None => createExpressionFromText("{}")
-        }
-    }
+  def getBranches: Seq[ScExpression] = caseClauses.map { clause =>
+    clause.expr.getOrElse(createExpressionFromText("{}"))
   }
 
   def getCaseClauses: ScCaseClauses = findChildByClassScala(classOf[ScCaseClauses])
 
-  def caseClauses: Seq[ScCaseClause] = {
-    val cc = getCaseClauses
-    if (cc == null) Nil
-    else cc.caseClauses
+  def caseClauses: Seq[ScCaseClause] = getCaseClauses match {
+    case null => Nil
+    case clauses => clauses.caseClauses
   }
 
   override def accept(visitor: ScalaElementVisitor): Unit = {
@@ -38,7 +30,8 @@ trait ScMatchStmt extends ScExpression {
 }
 
 object ScMatchStmt {
-  def unapply(ms: ScMatchStmt): Option[(ScExpression, ScCaseClauses)] = {
-    ms.expr.flatMap(Some(_, ms.getCaseClauses))
+
+  def unapply(ms: ScMatchStmt): Option[(ScExpression, Seq[ScCaseClause])] = ms.expr.map { expression =>
+    (expression, ms.caseClauses)
   }
 }
