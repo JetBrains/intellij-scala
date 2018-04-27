@@ -3,15 +3,13 @@ package annotator
 
 import com.intellij.codeInspection.ProblemHighlightType
 import com.intellij.lang.annotation.AnnotationHolder
-import org.jetbrains.plugins.scala.annotator.quickfix.ReportHighlightingErrorQuickFix
+import org.jetbrains.plugins.scala.annotator.AnnotatorUtils.registerTypeMismatchError
 import org.jetbrains.plugins.scala.lang.psi.api.ScalaFile
 import org.jetbrains.plugins.scala.lang.psi.api.base.types.ScLiteralTypeElement
 import org.jetbrains.plugins.scala.lang.psi.api.base.{ScConstructor, ScPrimaryConstructor}
 import org.jetbrains.plugins.scala.lang.psi.api.expr.ScConstrBlock
 import org.jetbrains.plugins.scala.lang.psi.api.statements.ScFunction
 import org.jetbrains.plugins.scala.lang.psi.types._
-import org.jetbrains.plugins.scala.lang.psi.types.api.ScTypePresentation
-import org.jetbrains.plugins.scala.lang.resolve.ScalaResolveResult
 
 trait ConstructorAnnotator {
   // TODO duplication with application annotator.
@@ -43,16 +41,8 @@ trait ConstructorAnnotator {
           case ExcessArgument(argument) =>
             holder.createErrorAnnotation(argument, "Too many arguments for constructor")
           case TypeMismatch(expression, expectedType) =>
-            if (expression != null)
-              for (t <- expression.`type`()) {
-                //TODO show parameter name
-                val (expectedText, actualText) = ScTypePresentation.different(expectedType, t)
-                val message = ScalaBundle.message("type.mismatch.expected.actual", expectedText, actualText)
-                val annotation = holder.createErrorAnnotation(expression, message)
-                annotation.registerFix(ReportHighlightingErrorQuickFix)
-              }
-            else {
-              //TODO investigate case when expression is null. It's possible when new Expression(ScType)
+            expression.`type`().foreach {
+              registerTypeMismatchError(_, expectedType, holder, expression)
             }
           case MissedValueParameter(_) => // simultaneously handled above
           case UnresolvedParameter(_) => // don't show function inapplicability, unresolved
