@@ -39,7 +39,7 @@ object ScalaPostfixTemplatePsiInfo extends PostfixTemplatePsiInfo {
 
     override def surroundPsi(elements: Array[PsiElement]): ScExpression = {
       SimplifyBooleanUtil.simplify(super.surroundPsi(elements), isTopLevel = false) match {
-        case parenthesized: ScParenthesisedExpr if parenthesized.isParenthesisRedundant() =>
+        case parenthesized: ScParenthesisedExpr if parenthesized.isParenthesisRedundant =>
           createExpressionFromText(parenthesized.getTextOfStripped())(parenthesized)
         case other => other
       }

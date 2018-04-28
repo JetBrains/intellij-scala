@@ -62,44 +62,45 @@ object ParenthesizedElement {
       }
     }
 
+    /** Returns true if the parentheses represented by this node cannot be stripped
+      * without changing the semantics of the AST.
+      */
     def isParenthesisNeeded: Boolean = {
       parenthesized match {
-        case expr@ScParenthesisedExpr(inner) => ScalaPsiUtil.needParentheses(expr, inner)
-
-        case ParentAndInner(p, i) if isIndivisible(i) => false
-
-        case ParentAndInner(p, i) if getPrecedence(i) < getPrecedence(p) => false
-        case ParentAndInner(p, i) if getPrecedence(i) > getPrecedence(p) => false
-
-        // Infix chain with same precedence:
-        // - If the two operators have different associativities, then the parentheses are required
-        // - If they have the same associativity, then right- or left- associativity applies depending on the operator
-        case ParentAndInner(p: ScInfixElement, c: ScInfixElement) if p.isLeftAssoc != c.isLeftAssoc => true
-
-        case ParentAndInner(ifx@ScInfixElement(_, _, Some(`parenthesized`)), _: ScInfixElement) => ifx.isLeftAssoc
-        case ParentAndInner(ifx@ScInfixElement(`parenthesized`, _, _), _: ScInfixElement)       => ifx.isRightAssoc
-
-        case ParentAndInner(ScFunctionalTypeElement(`parenthesized`, _), _: ScFunctionalTypeElement) => true
-
-        case _ => false
+        case expr@ScParenthesisedExpr(inner)                                                  => ScalaPsiUtil.needParentheses(expr, inner)
+        case _ if hasHigherPrecedence                                                         => false
+        case ParentAndInner(_: ScInfixElement, _: ScInfixElement) if haveCorrectAssociativity => false
+        case _ if isFunctionTypeSingleParam                                                   => true
+        case _                                                                                => false
       }
     }
 
-    /** Returns true if the parenthesised can be stripped safely.
-      *
-      * @param ignoreClarifying Ignore clarifying parentheses ([[isParenthesisClarifying]])
-      */
-    def isParenthesisRedundant(ignoreClarifying: Boolean = false): Boolean =
-      !isParenthesisNeeded(ignoreClarifying)
+    //shouldn't be called on expression
+    def hasHigherPrecedence: Boolean = parenthesized match {
+      case ParentAndInner(p, i) if isIndivisible(i)                    => true
+      case ParentAndInner(p, i) if getPrecedence(i) < getPrecedence(p) => true
+      case ParentAndInner(p, i) if getPrecedence(i) > getPrecedence(p) => true
+      case _ => false
+    }
 
-    /** Returns true if the parentheses represented by this node cannot be stripped
-      * without changing the semantics of the AST.
-      *
-      * @param ignoreClarifying Whether to consider clarifying parentheses as required
-      * @return True if this node
-      */
-    def isParenthesisNeeded(ignoreClarifying: Boolean): Boolean =
-      (ignoreClarifying && isParenthesisClarifying) || isParenthesisNeeded
+    /**Infix chain with same precedence:
+      * - If the two operators have different associativities, then the parentheses are required
+      * - If they have the same associativity, then right- or left- associativity applies depending on the operator
+      * */
+    private def haveCorrectAssociativity: Boolean = parenthesized match {
+      case ParentAndInner(p: ScInfixElement, c: ScInfixElement) if p.isLeftAssoc != c.isLeftAssoc => false
+
+      case ParentAndInner(ifx @ ScInfixElement(_, _, Some(`parenthesized`)), _: ScInfixElement) => ifx.isRightAssoc
+      case ParentAndInner(ifx @ ScInfixElement(`parenthesized`, _, _), _: ScInfixElement)       => ifx.isLeftAssoc
+      case _ => false
+    }
+
+    def isFunctionTypeSingleParam: Boolean = parenthesized.sameTreeParent match {
+      case Some(ScFunctionalTypeElement(`parenthesized`, _)) => true
+      case _ => false
+    }
+
+    def isParenthesisRedundant: Boolean = !isParenthesisNeeded
 
     /** Gets the precedence of the tree member. Lower int value is applied first (higher precedence).
       * The highest precedence is 0. Nodes with precedence 0 are indivisible.
@@ -107,6 +108,8 @@ object ParenthesizedElement {
     private def getPrecedence(element: ScParenthesizedElement#Kind): Int = element match {
       case tp: ScTypeElement => typeElementPrecedence(tp)
       case pt: ScPattern     => patternPrecedence(pt)
+
+      //todo: refactor ScalaPsiUtil.needParentheses to also use precedence
     }
 
     private def isIndivisible(element: ScParenthesizedElement#Kind): Boolean = getPrecedence(element) == 0
