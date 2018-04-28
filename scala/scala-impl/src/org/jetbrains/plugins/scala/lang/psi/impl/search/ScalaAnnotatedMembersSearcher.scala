@@ -21,7 +21,7 @@ import org.jetbrains.plugins.scala.lang.psi.stubs.index.ScalaIndexKeys
 
 class ScalaAnnotatedMembersSearcher extends QueryExecutor[PsiMember, AnnotatedElementsSearch.Parameters] {
 
-  def execute(p: AnnotatedElementsSearch.Parameters, consumer: Processor[PsiMember]): Boolean = {
+  def execute(p: AnnotatedElementsSearch.Parameters, consumer: Processor[_ >: PsiMember]): Boolean = {
     val annClass = p.getAnnotationClass
     assert(annClass.isAnnotationType, "Annotation type should be passed to annotated members search")
     val annotationFQN = annClass.qualifiedName

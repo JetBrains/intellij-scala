@@ -15,7 +15,7 @@ import org.jetbrains.plugins.scala.lang.psi.api.statements.ScFunctionDefinition
   * 21-Feb-17
   */
 class SelfInvocationSearcher extends QueryExecutor[PsiReference, ReferencesSearch.SearchParameters] {
-  override def execute(queryParameters: ReferencesSearch.SearchParameters, consumer: Processor[PsiReference]): Boolean = {
+  override def execute(queryParameters: ReferencesSearch.SearchParameters, consumer: Processor[_ >: PsiReference]): Boolean = {
     queryParameters.getElementToSearch match {
       case ml: ScMethodLike if inReadAction(ml.isConstructor) =>
         val localScope = inReadAction {

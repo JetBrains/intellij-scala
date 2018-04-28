@@ -39,7 +39,7 @@ class ScTypeParamImpl private (stub: ScTypeParamStub, node: ASTNode)
   extends ScalaStubBasedElementImpl(stub, ScalaElementTypes.TYPE_PARAM, node)
     with ScTypeBoundsOwnerImpl with ScTypeParam with PsiClassFake {
 
-  def this(node: ASTNode) = this(null, node)
+  def this(node: ASTNode) =  this(null, node)
 
   def this(stub: ScTypeParamStub) = this(stub, null)
 

@@ -20,7 +20,7 @@ import scala.collection.mutable
  * Date: 17.08.2009
  */
 class NamingParamsSearcher extends QueryExecutor[PsiReference, ReferencesSearch.SearchParameters] {
-  def execute(queryParameters: ReferencesSearch.SearchParameters, consumer: Processor[PsiReference]): Boolean = {
+  def execute(queryParameters: ReferencesSearch.SearchParameters, consumer: Processor[_ >: PsiReference]): Boolean = {
     val project = queryParameters.getProject
     val scope = inReadAction(ScalaFilterScope(queryParameters))
 

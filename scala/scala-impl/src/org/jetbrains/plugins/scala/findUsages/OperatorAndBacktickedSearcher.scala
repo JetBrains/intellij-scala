@@ -27,7 +27,7 @@ import scala.collection.JavaConverters._
   * 9/10/13
   */
 class OperatorAndBacktickedSearcher extends QueryExecutor[PsiReference, ReferencesSearch.SearchParameters] {
-  def execute(queryParameters: ReferencesSearch.SearchParameters, consumer: Processor[PsiReference]): Boolean = {
+  def execute(queryParameters: ReferencesSearch.SearchParameters, consumer: Processor[_ >: PsiReference]): Boolean = {
     val project = queryParameters.getProject
     val scope = inReadAction(ScalaFilterScope(queryParameters))
     val element = queryParameters.getElementToSearch

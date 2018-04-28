@@ -31,7 +31,7 @@ import scala.collection.mutable.ArrayBuffer
  * This class is required for Ctrl+Alt+B action for cases when not PsiMethod overrides not PsiMethod (one of two cases)
  */
 class MethodImplementationsSearch extends QueryExecutor[PsiElement, PsiElement] {
-  override def execute(sourceElement: PsiElement, consumer: Processor[PsiElement]): Boolean = {
+  override def execute(sourceElement: PsiElement, consumer: Processor[_ >: PsiElement]): Boolean = {
     sourceElement match {
       case namedElement: ScNamedElement =>
         for (implementation <- ScalaOverridingMemberSearcher.getOverridingMethods(namedElement)
@@ -52,7 +52,7 @@ class MethodImplementationsSearch extends QueryExecutor[PsiElement, PsiElement] 
  *  That's why we need to stop processing, to avoid showing wrappers in Scala.
  */
 class ScalaOverridingMemberSearcher extends QueryExecutor[PsiMethod, OverridingMethodsSearch.SearchParameters] {
-  def execute(queryParameters: SearchParameters, consumer: Processor[PsiMethod]): Boolean = {
+  def execute(queryParameters: SearchParameters, consumer: Processor[_ >: PsiMethod]): Boolean = {
     val method = queryParameters.getMethod
     method match {
       case namedElement: ScNamedElement =>

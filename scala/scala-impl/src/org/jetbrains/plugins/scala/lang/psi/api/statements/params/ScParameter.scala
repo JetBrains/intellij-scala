@@ -30,8 +30,8 @@ import scala.annotation.tailrec
  * Date: 22.02.2008
  */
 
-trait ScParameter extends ScTypedDefinition with ScModifierListOwner with
-        PsiParameterAdapter with ScAnnotationsHolder with ScImportableDeclarationsOwner {
+trait ScParameter extends ScTypedDefinition with ScModifierListOwner
+                  with PsiParameterAdapter with ScImportableDeclarationsOwner {
   override def getTypeElement: PsiTypeElement
 
   def isWildcard: Boolean = "_" == name

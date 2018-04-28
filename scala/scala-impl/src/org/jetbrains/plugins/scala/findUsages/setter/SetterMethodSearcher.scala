@@ -22,7 +22,7 @@ class SetterMethodSearcher extends QueryExecutor[PsiReference, ReferencesSearch.
   private val suffixScala = "_="
   private val suffixJava = "_$eq"
 
-  def execute(queryParameters: ReferencesSearch.SearchParameters, cons: Processor[PsiReference]): Boolean = {
+  def execute(queryParameters: ReferencesSearch.SearchParameters, cons: Processor[_ >: PsiReference]): Boolean = {
     implicit val scope = inReadAction(queryParameters.getEffectiveSearchScope)
     implicit val consumer = cons
     val element = queryParameters.getElementToSearch
@@ -47,7 +47,8 @@ class SetterMethodSearcher extends QueryExecutor[PsiReference, ReferencesSearch.
     }
   }
 
-  private def processAssignments(element: PsiElement, name: String, project: Project)(implicit consumer: Processor[PsiReference], scope: SearchScope) = {
+  private def processAssignments(element: PsiElement, name: String, project: Project)
+                                (implicit consumer: Processor[_ >: PsiReference], scope: SearchScope) = {
     val processor = new TextOccurenceProcessor {
       def execute(elem: PsiElement, offsetInElement: Int): Boolean = {
         inReadAction {
@@ -69,7 +70,8 @@ class SetterMethodSearcher extends QueryExecutor[PsiReference, ReferencesSearch.
     helper.processElementsWithWord(processor, scope, name.stripSuffix(suffixScala), UsageSearchContext.IN_CODE, true)
   }
 
-  private def processSimpleUsages(element: PsiElement, name: String, project: Project)(implicit consumer: Processor[PsiReference], scope: SearchScope) = {
+  private def processSimpleUsages(element: PsiElement, name: String, project: Project)
+                                 (implicit consumer: Processor[_ >: PsiReference], scope: SearchScope) = {
     val processor = new TextOccurenceProcessor {
       def execute(elem: PsiElement, offsetInElement: Int): Boolean = {
         inReadAction {

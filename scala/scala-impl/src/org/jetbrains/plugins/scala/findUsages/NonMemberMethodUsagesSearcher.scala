@@ -14,7 +14,7 @@ import org.jetbrains.plugins.scala.finder.ScalaFilterScope
  * These are not considered by [[com.intellij.psi.impl.search.MethodUsagesSearcher]]
  */
 class NonMemberMethodUsagesSearcher extends QueryExecutorBase[PsiReference, MethodReferencesSearch.SearchParameters] {
-  def processQuery(@NotNull p: MethodReferencesSearch.SearchParameters, @NotNull consumer: Processor[PsiReference]) {
+  def processQuery(@NotNull p: MethodReferencesSearch.SearchParameters, @NotNull consumer: Processor[_ >: PsiReference]) {
     extensions.inReadAction {
       val method: PsiMethod = p.getMethod
       val collector: SearchRequestCollector = p.getOptimizer

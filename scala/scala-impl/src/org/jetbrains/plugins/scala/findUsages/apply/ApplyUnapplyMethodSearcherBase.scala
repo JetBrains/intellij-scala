@@ -22,7 +22,7 @@ abstract class ApplyUnapplyMethodSearcherBase extends QueryExecutor[PsiReference
 
   protected def checkAndTransform(ref: PsiReference): Option[ScReferenceElement]
 
-  def execute(queryParameters: SearchParameters, consumer: Processor[PsiReference]): Boolean = {
+  def execute(queryParameters: SearchParameters, consumer: Processor[_ >: PsiReference]): Boolean = {
     val element = queryParameters.getElementToSearch
     val ignoreAccess = queryParameters.isIgnoreAccessScope
 

@@ -25,7 +25,7 @@ import org.jetbrains.plugins.scala.util.ScEquivalenceUtil
 * Raw types from java are viewed as existential types by scalac, but java overrider search doesn't know about that.
 * */
 class JavaRawOverridingSearcher extends QueryExecutor[PsiMethod, OverridingMethodsSearch.SearchParameters] {
-  override def execute(qParams: OverridingMethodsSearch.SearchParameters, consumer: Processor[PsiMethod]): Boolean = {
+  override def execute(qParams: OverridingMethodsSearch.SearchParameters, consumer: Processor[_ >: PsiMethod]): Boolean = {
     val method = qParams.getMethod
     method match {
       case m: PsiMethodImpl if hasRawTypeParam(m) =>
@@ -51,7 +51,7 @@ class JavaRawOverridingSearcher extends QueryExecutor[PsiMethod, OverridingMetho
 
 class JavaRawAllOverridingSearcher extends QueryExecutor[Pair[PsiMethod, PsiMethod], AllOverridingMethodsSearch.SearchParameters] {
   override def execute(qParams: AllOverridingMethodsSearch.SearchParameters,
-                       consumer: Processor[Pair[PsiMethod, PsiMethod]]): Boolean = {
+                       consumer: Processor[_ >: Pair[PsiMethod, PsiMethod]]): Boolean = {
 
     val clazz = qParams.getPsiClass
     val potentials = inReadAction {

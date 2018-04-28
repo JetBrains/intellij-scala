@@ -29,7 +29,7 @@ import scala.collection.Seq
 
 trait ScTypeDefinition extends ScTemplateDefinition with ScMember
     with NavigationItem with PsiClassAdapter with ScTypeParametersOwner with Iconable with ScDocCommentOwner
-    with ScAnnotationsHolder with ScCommentOwner {
+    with ScCommentOwner {
 
   override def extendsBlock = super.extendsBlock
 

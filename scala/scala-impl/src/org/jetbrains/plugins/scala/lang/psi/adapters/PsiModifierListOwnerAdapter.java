@@ -17,4 +17,9 @@ public interface PsiModifierListOwnerAdapter extends PsiModifierListOwner, PsiAn
     default PsiAnnotation[] getAnnotations() {
         return psiAnnotations();
     }
+
+    @Override
+    default boolean hasAnnotation(@NotNull String fqn) {
+        return PsiModifierListOwner.super.hasAnnotation(fqn);
+    }
 }
