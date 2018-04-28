@@ -19,6 +19,7 @@ import org.jetbrains.plugins.scala.caches.CachesUtil
 import org.jetbrains.plugins.scala.extensions._
 import org.jetbrains.plugins.scala.lang.psi.types.ScalaTypeSystem
 import org.jetbrains.plugins.scala.lang.psi.types.api.TypeSystem
+import org.jetbrains.plugins.scala.project.ScalaLanguageLevel.Scala_2_11
 import org.jetbrains.plugins.scala.project.settings.{ScalaCompilerConfiguration, ScalaCompilerSettings}
 
 import scala.annotation.tailrec
@@ -100,8 +101,32 @@ package object project {
     def configureScalaCompilerSettingsFrom(source: String, options: Seq[String]): Unit =
       compilerConfiguration.configureSettingsForModule(module, source, options)
 
-    def literalTypesAllowed: Boolean = scalaSdk.map(_.languageLevel).exists(_ >= ScalaLanguageLevel.Scala_2_13) ||
-      module.scalaCompilerSettings.literalTypes
+    def scalaLanguageLevel: Option[ScalaLanguageLevel] = scalaSdk.map(_.languageLevel)
+
+    def literalTypesEnabled: Boolean = scalaSdk.map(_.languageLevel).exists(_ >= ScalaLanguageLevel.Scala_2_13) ||
+      compilerConfiguration.hasSettingForHighlighting(module, _.literalTypes)
+
+    /**
+      * @see https://github.com/non/kind-projector
+      */
+    def kindProjectorPluginEnabled: Boolean =
+      compilerConfiguration.hasSettingForHighlighting(module, _.plugins.exists(_.contains("kindProjector")))
+
+    /**
+      * Should we check if it's a Single Abstract Method?
+      * In 2.11 works with -Xexperimental
+      * In 2.12 works by default
+      *
+      * @return true if language level and flags are correct
+      */
+    def isSAMEnabled: Boolean = scalaLanguageLevel.exists {
+      case lang if lang > Scala_2_11 => true // if scalaLanguageLevel is None, we treat it as Scala 2.12
+      case lang if lang == Scala_2_11 =>
+        compilerConfiguration.hasSettingForHighlighting(module,
+          c => c.experimental || c.additionalCompilerOptions.contains("-Xexperimental")
+        )
+      case _ => false
+    }
 
     private def compilerConfiguration =
       ScalaCompilerConfiguration.instanceIn(module.getProject)
@@ -232,6 +257,13 @@ package object project {
     def scalaLanguageLevel: Option[ScalaLanguageLevel] = module.flatMap(_.scalaSdk.map(_.languageLevel))
 
     def scalaLanguageLevelOrDefault: ScalaLanguageLevel = scalaLanguageLevel.getOrElse(ScalaLanguageLevel.Default)
+
+    //let's be permissive for sources outside project
+    def kindProjectorPluginEnabled: Boolean = module.forall(_.kindProjectorPluginEnabled)
+
+    def isSAMEnabled: Boolean = module.forall(_.isSAMEnabled)
+
+    def literalTypesEnabled: Boolean = module.forall(_.literalTypesEnabled)
   }
 
   val LibraryVersion: Regex = """(?<=:|-)\d+\.\d+\.\d+[^:\s]*""".r

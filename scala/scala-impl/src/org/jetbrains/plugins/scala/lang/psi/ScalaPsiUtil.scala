@@ -1375,7 +1375,7 @@ object ScalaPsiUtil {
     def unapply(expr: ScExpression): Option[PsiMethod] = {
       if (!expr.expectedType(fromUnderscore = false).exists {
         case FunctionType(_, _) => true
-        case expected if isSAMEnabled(expr) =>
+        case expected if expr.isSAMEnabled =>
           toSAMType(expected, expr).isDefined
         case _ => false
       }) {
@@ -1655,25 +1655,6 @@ object ScalaPsiUtil {
       case _ => ScalaCompilerConfiguration.instanceIn(e.getProject).defaultProfile.getSettings.plugins
     }
     plugins.exists(_.contains("kind-projector"))
-  }
-
-  /**
-    * Should we check if it's a Single Abstract Method?
-    * In 2.11 works with -Xexperimental
-    * In 2.12 works by default
-    *
-    * @return true if language level and flags are correct
-    */
-  def isSAMEnabled(element: PsiElement): Boolean = element.scalaLanguageLevel.exists {
-    case lang if lang > Scala_2_11 => true // if there's no module e.scalaLanguageLevel is None, we treat it as Scala 2.12
-    case lang if lang == Scala_2_11 =>
-      val settings = element.module.map {
-        _.scalaCompilerSettings
-      }.getOrElse {
-        ScalaCompilerConfiguration.instanceIn(element.getProject).defaultProfile.getSettings
-      }
-      settings.experimental || settings.additionalCompilerOptions.contains("-Xexperimental")
-    case _ => false
   }
 
   /**

@@ -1,7 +1,7 @@
 package org.jetbrains.plugins.scala.project.settings
 
 import com.intellij.openapi.components._
-import com.intellij.openapi.module.Module
+import com.intellij.openapi.module.{Module, ModuleManager}
 import com.intellij.openapi.project.Project
 import com.intellij.util.xmlb.{SkipDefaultValuesSerializationFilters, XmlSerializer}
 import org.jdom.Element
@@ -27,6 +27,21 @@ class ScalaCompilerConfiguration(project: Project) extends PersistentStateCompon
   def getSettingsForModule(module: Module): ScalaCompilerSettings = {
     val profile = customProfiles.find(_.getModuleNames.contains(module.getName)).getOrElse(defaultProfile)
     profile.getSettings
+  }
+
+  //currently we cannot rely on compiler options for shared source modules
+  def hasSettingForHighlighting(module: Module, hasSetting: ScalaCompilerSettings => Boolean): Boolean = {
+    def isSharedSources(module: Module) = module.getModuleTypeName == "SHARED_SOURCES_MODULE"
+
+    val modules =
+      if (isSharedSources(module))
+        ModuleManager.getInstance(module.getProject)
+          .getModuleDependentModules(module)
+          .asScala
+      else Seq(module)
+
+    modules.map(getSettingsForModule)
+      .exists(hasSetting)
   }
 
   def configureSettingsForModule(module: Module, source: String, options: Seq[String]) {

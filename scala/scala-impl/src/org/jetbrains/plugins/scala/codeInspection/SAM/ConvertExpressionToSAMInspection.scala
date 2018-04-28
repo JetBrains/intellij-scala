@@ -25,7 +25,7 @@ class ConvertExpressionToSAMInspection extends AbstractInspection(inspectionId, 
 
   override def actionFor(implicit holder: ProblemsHolder): PartialFunction[PsiElement, Any] = {
     case definition: ScNewTemplateDefinition
-      if ScalaPsiUtil.isSAMEnabled(definition) && containsSingleFunction(definition) =>
+      if definition.isSAMEnabled && containsSingleFunction(definition) =>
       definition.expectedTypes().toSeq.flatMap {
         ScalaPsiUtil.toSAMType(_, definition)
       } match {

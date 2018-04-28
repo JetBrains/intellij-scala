@@ -310,7 +310,7 @@ object InferUtil {
 
                 ScMethodType(updatedResultType.tr.getOrElse(mt.returnType), mt.params, mt.isImplicit)
               }
-            case Some(tp) if !fromSAM && ScalaPsiUtil.isSAMEnabled(expr) &&
+            case Some(tp) if !fromSAM && expr.isSAMEnabled &&
               (mt.params.nonEmpty || expr.scalaLanguageLevelOrDefault == ScalaLanguageLevel.Scala_2_11) =>
               //we do this to update additional expression, so that implicits work correctly
               //@see SingleAbstractMethodTest.testEtaExpansionImplicit

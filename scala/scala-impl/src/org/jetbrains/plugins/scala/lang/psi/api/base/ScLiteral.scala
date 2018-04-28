@@ -38,7 +38,7 @@ trait ScLiteral extends ScExpression with PsiLiteral with PsiLanguageInjectionHo
 
   def contentRange: TextRange
 
-  def allowLiteralTypes: Boolean
+  def allowLiteralTypes: Boolean = false
 }
 
 object ScLiteral {
