@@ -108,15 +108,13 @@ object CreateCaseClausesIntention {
   private def patternName(definition: ScTypeDefinition): String = definition match {
     case scObject: ScObject => scObject.name
     case clazz: ScClass if clazz.isCase =>
-      val text = clazz.constructor match {
-        case Some(primaryConstructor) =>
-          primaryConstructor.effectiveFirstParameterSection
-            .map(_.name)
-            .mkString("( ", ", ", ")")
-        case None => "()"
-      }
-      clazz.name + text
-    case _ => "_ : " + definition.name
+      val parameters = clazz.constructor.toSeq
+        .flatMap(_.effectiveFirstParameterSection)
+        .map { parameter =>
+          parameter.name + (if (parameter.isVarArgs) "@_*" else "")
+        }.commaSeparated()
+      s"${clazz.name}($parameters)"
+    case _ => "_: " + definition.name
   }
 
   private def target(definition: ScTypeDefinition) = definition match {

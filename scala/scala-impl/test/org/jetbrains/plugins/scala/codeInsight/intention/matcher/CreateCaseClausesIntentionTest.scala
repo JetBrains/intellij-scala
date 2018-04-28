@@ -76,4 +76,21 @@ class CreateCaseClausesIntentionTest extends ScalaIntentionTestBase {
     }
   }
 
+  def testVarargs(): Unit = doTest(
+    s"""sealed trait Foo
+       |
+       |case class Bar(foos: Foo*) extends Foo
+       |
+       |(_: Foo) match {$C}
+       """.stripMargin,
+    s"""sealed trait Foo
+       |
+       |case class Bar(foos: Foo*) extends Foo
+       |
+       |(_: Foo) match {$C
+       |  case Bar(foos@_*) =>
+       |}
+       """.stripMargin
+  )
+
 }
