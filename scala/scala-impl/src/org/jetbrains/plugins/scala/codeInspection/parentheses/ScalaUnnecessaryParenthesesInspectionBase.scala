@@ -8,6 +8,7 @@ import com.intellij.psi.PsiElement
 import javax.swing.JComponent
 import org.jetbrains.plugins.scala.codeInsight.intention.IntentionUtil
 import org.jetbrains.plugins.scala.codeInspection.{AbstractFixOnPsiElement, AbstractInspection, InspectionBundle}
+import org.jetbrains.plugins.scala.extensions.ParenthesizedElement.Ops
 import org.jetbrains.plugins.scala.lang.psi.api.base.ScParenthesizedElement
 import org.jetbrains.plugins.scala.lang.psi.api.expr.{ScBlockExpr, _}
 import org.jetbrains.plugins.scala.lang.psi.api.statements.params.ScParameterClause

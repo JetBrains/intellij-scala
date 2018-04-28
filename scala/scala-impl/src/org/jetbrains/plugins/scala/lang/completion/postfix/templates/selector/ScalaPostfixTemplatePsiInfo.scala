@@ -8,6 +8,7 @@ import org.jetbrains.plugins.scala.lang.psi.api.expr.{ScExpression, ScParenthesi
 import org.jetbrains.plugins.scala.lang.psi.impl.ScalaPsiElementFactory.createExpressionFromText
 import org.jetbrains.plugins.scala.lang.psi.types.api.Boolean
 import org.jetbrains.plugins.scala.lang.surroundWith.surrounders.expression.ScalaWithUnaryNotSurrounder
+import org.jetbrains.plugins.scala.extensions.ParenthesizedElement.Ops
 
 /**
  * @author Roman.Shein
