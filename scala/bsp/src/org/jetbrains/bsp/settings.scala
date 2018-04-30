@@ -29,14 +29,14 @@ class BspProjectSettings extends ExternalProjectSettings {
   }
 }
 
-// TODO the hell is up with this duplication
+// TODO the hell is up with this setting duplication
 class BspProjectSettingsControl(settings: BspProjectSettings)
   extends AbstractExternalProjectSettingsControl[BspProjectSettings](null, settings, null) {
 
   @BeanProperty
   var buildOnSave = false
 
-  private val buildOnSaveCheckBox = new JCheckBox("build modules on file save")
+  private val buildOnSaveCheckBox = new JCheckBox("build automatically on file save")
 
   override def fillExtraControls(content: PaintAwarePanel, indentLevel: Int): Unit = {
     val fillLineConstraints = getFillLineConstraints(1)
