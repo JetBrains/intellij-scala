@@ -1,16 +1,20 @@
 package org.jetbrains.bsp
 
 import java.io.File
+import java.net.URI
 import java.nio.file._
 
 import ch.epfl.scala.bsp.endpoints
 import ch.epfl.scala.bsp.schema.{BuildClientCapabilities, InitializeBuildParams, InitializedBuildParams}
 import com.intellij.openapi.components.AbstractProjectComponent
 import com.intellij.openapi.project.Project
+import com.intellij.openapi.util.SystemInfo
+import com.intellij.util.net.NetUtils
 import com.typesafe.scalalogging.Logger
 import monix.eval.Task
 import monix.execution.Scheduler
 import monix.reactive.Observable
+import org.jetbrains.bsp.BspServerConnector._
 import org.langmeta.jsonrpc.{BaseProtocolMessage, Services}
 import org.langmeta.lsp.{LanguageClient, LanguageServer}
 import org.scalasbt.ipcsocket.UnixDomainSocket
@@ -21,9 +25,9 @@ import scala.sys.process.Process
 import scala.util.Random
 
 class BspCommunication(project: Project) extends AbstractProjectComponent(project) {
-  // TODO support persistent sessions for more features
+  // TODO support persistent sessions for more features!
+  // * quicker response times
   // * background compilation and error reporting/highlighting
-  //
 }
 
 class BspSession(messages: Observable[BaseProtocolMessage],
@@ -92,61 +96,152 @@ object BspCommunication {
 
   def prepareSession(base: File)(implicit scheduler: Scheduler): Task[BspSession] = {
 
-    // TODO should use IDEA logging
-    val logger = Logger(LoggerFactory.getLogger(classOf[BspCommunication]))
+    // .bsp directory -> use GenericConnector
+
+
+    val initParams = InitializeBuildParams(
+      rootUri = base.toString,
+      Some(BuildClientCapabilities(List("scala","java")))
+    )
 
     val id = java.lang.Long.toString(Random.nextLong(), Character.MAX_RADIX)
 
-    // TODO support windows pipes and tcp as well as sockets
-    val tempDir = Files.createTempDirectory("bsp-")
-    val sockfile = tempDir.resolve(s"$id.socket")
-    sockfile.toFile.deleteOnExit()
-    logger.info(s"The socket file is ${sockfile.toAbsolutePath}")
+    val tcpMethod = TcpBsp(new URI("localhost"), findFreePort(5001))
 
-    // TODO abstract build tool specific logic
+    val preferredMethod =
+      if (SystemInfo.isWindows) WindowsLocalBsp(id)
+      else if (SystemInfo.isUnix) {
+        val tempDir = Files.createTempDirectory("bsp-")
+        val socketFilePath = tempDir.resolve(s"$id.socket")
+        val socketFile = socketFilePath.toFile
+        socketFile.deleteOnExit()
+        UnixLocalBsp(socketFile)
+      }
+      else tcpMethod
+
+
     val bloopConfigDir = new File(base, ".bloop").getCanonicalFile
-    assert(bloopConfigDir.exists())
-    val bspCommand = s"bloop bsp --protocol local --socket $sockfile --verbose"
+
+    val connector =
+      if (bloopConfigDir.exists()) new BloopConnector(base, initParams)
+      else {
+        // TODO need a protocol to detect generic bsp server
+        new GenericConnector(base, initParams)
+      }
+
+    connector.connect(preferredMethod, tcpMethod)
+  }
 
 
-    // TODO this only works for unix sockets.
-    // should have a special file parameter to bloop for this when using other protocols
+  private def findFreePort(port: Int): Int = {
+    val port = 5001
+    if (NetUtils.canConnectToSocket("localhost", port)) port
+    else NetUtils.findAvailableSocketPort()
+  }
+
+}
+
+abstract class BspServerConnector(initParams: InitializeBuildParams) {
+  /**
+    * Connect to a bsp server with one of the given methods.
+    * @param methods methods supported by the bsp server, in order of preference
+    * @return None if no compatible method is found. TODO should be an error response
+    */
+  def connect(methods: BspConnectionMethod*): Task[BspSession]
+}
+
+object BspServerConnector {
+  sealed abstract class BspConnectionMethod
+  final case class UnixLocalBsp(socketFile: File) extends BspConnectionMethod
+  final case class WindowsLocalBsp(pipName: String) extends BspConnectionMethod
+  final case class TcpBsp(host: URI, port: Int) extends BspConnectionMethod
+}
+
+/** TODO Connects to a bsp server based on information in .bsp directory */
+class GenericConnector(base: File, initParams: InitializeBuildParams) extends BspServerConnector(initParams) {
+
+  override def connect(methods: BspConnectionMethod*): Task[BspSession] = Task.raiseError(new Exception("unknown bsp servers not supported yet"))
+}
+
+class BloopConnector(base: File, initParams: InitializeBuildParams)(implicit scheduler: Scheduler) extends BspServerConnector(initParams) {
+
+  // TODO should use IDEA logging
+  val logger = Logger(LoggerFactory.getLogger(classOf[BloopConnector]))
+
+  override def connect(methods: BspConnectionMethod*): Task[BspSession] = {
+    val socketAndCleanup = methods.collectFirst {
+      case UnixLocalBsp(socketFile) =>
+        for {
+          socket <- connectUnixSocket(socketFile)
+        } yield {
+
+          def cleanup: Task[Unit] =
+            Task.eval {
+              socket.close()
+              socket.shutdownInput()
+              socket.shutdownOutput()
+              if (socketFile.isFile) socketFile.delete()
+            }
+
+          (socket, cleanup)
+        }
+
+
+      case TcpBsp(host, uri) =>
+        for {
+          socket <- connectTcp(host, uri)
+        } yield (socket, Task.now(()))
+
+      // case WindowsLocalBsp() => TODO support windows pipes connection
+    }
+
+    // TODO cleaner error reporting
+    val socketOrError = socketAndCleanup.getOrElse(Task.raiseError(new Exception("no supported connection method available")))
+
+    for {
+      socketAndCleanup <- socketOrError
+    } yield {
+      val socket = socketAndCleanup._1
+      val cleanup = socketAndCleanup._2
+
+      val client: LanguageClient = new LanguageClient(socket.getOutputStream, logger)
+      val messages = BaseProtocolMessage.fromInputStream(socket.getInputStream)
+      new BspSession(messages, client, initParams, cleanup)
+    }
+  }
+
+  private def connectUnixSocket(socketFile: File) = {
+
+    val bloopCommand = s"bloop bsp --protocol local --socket $socketFile --verbose"
+
     val bspReady = Task {
       var sockfileCreated = false
       while (!sockfileCreated) {
+        // TODO bail out after some time
         Thread.sleep(10)
-        sockfileCreated = sockfile.toFile.exists()
+        sockfileCreated = socketFile.exists()
       }
       sockfileCreated
     }
 
     // TODO kill bloop process on cancel / error
 
-    def runBloop = Process(bspCommand, base).run() //.run(proclog)
-
-    val initParams = InitializeBuildParams(
-      rootUri = base.toString,
-      Some(BuildClientCapabilities(List("scala")))
-    )
-
-    def initSession = {
-      val socket = new UnixDomainSocket(sockfile.toString)
-      val client: LanguageClient = new LanguageClient(socket.getOutputStream, logger)
-      val messages = BaseProtocolMessage.fromInputStream(socket.getInputStream)
-      new BspSession(messages, client, initParams, cleanup(socket, sockfile.toFile))
-    }
-
-    def cleanup(socket: UnixDomainSocket, socketFile: File): Task[Unit] =
-      Task.eval {
-        socket.close()
-        socket.shutdownInput()
-        socket.shutdownOutput()
-        if (socketFile.isFile) socketFile.delete()
-      }
-
     for {
-      p <- Task(runBloop)
+      p <- Task(runBloop(bloopCommand))
       _ <- bspReady
-    } yield initSession
+    } yield new UnixDomainSocket(socketFile.getCanonicalPath)
   }
+
+  private def connectTcp(host: URI, port: Int): Task[java.net.Socket] = {
+    val bloopCommand = s"bloop bsp --protocol tcp --host ${host.toString} --port $port --verbose"
+
+    Task {
+      runBloop(bloopCommand)
+      new java.net.Socket(host.toString, port)
+    }
+  }
+
+  private def runBloop(command: String) =
+    Process(command, base).run
+
 }

@@ -283,9 +283,6 @@ object BspProjectResolver {
       val scalacOptions = idToScalaOptions.get(id)
       val sourcesOpt = idToDepSources.get(id)
 
-      // TODO use this to set scala sdk
-      //  val scalaBuildTarget = JsonFormat.fromJsonString[ScalaBuildTarget](target.data.toStringUtf8)
-
       val sourceDirs = (for {
         sources <- sourcesOpt.toSeq
         src <- sources.uri
