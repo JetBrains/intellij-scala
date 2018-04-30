@@ -60,8 +60,8 @@ class SelectionDialog {
       Entry("Inscribe implicit parameters", new InscribeImplicitParameters())
     ),
     Group("Conversion",
-      Entry("Make boxing explicit", new MakeBoxingExplicit()),
-      Entry("Make unboxing explicit"),
+      Entry("Make boxing explicit", new MakeBoxingExplicit(), enabled = false),
+      Entry("Make unboxing explicit", enabled = false),
       Entry("Make conversion to String explicit")
     ),
     Group("Functions",
