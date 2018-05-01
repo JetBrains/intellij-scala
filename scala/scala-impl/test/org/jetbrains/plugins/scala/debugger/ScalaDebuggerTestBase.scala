@@ -52,7 +52,7 @@ abstract class ScalaDebuggerTestBase extends ScalaCompilerTestBase {
     if (needMake) super.setUpModule()
     else myModule = loadModule(getImlFile.getAbsolutePath)
 
-    PlatformTestCase.myFilesToDelete.remove(getImlFile)
+    myFilesToDelete.remove(getImlFile)
   }
 
   override def getProjectDirOrFile: Path = {

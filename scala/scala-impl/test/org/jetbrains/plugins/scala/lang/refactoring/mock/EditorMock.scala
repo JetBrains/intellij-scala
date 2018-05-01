@@ -30,6 +30,8 @@ class EditorMock(text: String, offset: Int) extends EditorStub {
     override def getInlineElementsInRange(i: Int, i1: Int): util.List[Inlay] = util.Arrays.asList()
 
     override def getElementAt(point: Point): Inlay = null
+
+    override def getInlineElementAt(visualPosition: VisualPosition): Inlay = null
   }
 
   override def offsetToLogicalPosition(offset: Int) = {
