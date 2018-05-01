@@ -94,19 +94,6 @@ trait ScParameter extends ScTypedDefinition with ScModifierListOwner
     case _ => getParent.asInstanceOf[ScParameterClause].parameters.indexOf(this)
   }
 
-  abstract override def getUseScope: SearchScope = {
-    val specificScope = getDeclarationScope match {
-      case null => GlobalSearchScope.EMPTY_SCOPE
-      case expr: ScFunctionExpr =>
-        if (expr.isValid && expr.getContainingFile != null) new LocalSearchScope(expr)
-        else LocalSearchScope.EMPTY
-      case clazz: ScClass if clazz.isCase => clazz.getUseScope
-      case clazz: ScClass if this.isInstanceOf[ScClassParameter] => clazz.getUseScope //for named parameters
-      case d => d.getUseScope
-    }
-    specificScope.intersectWith(super.getUseScope)
-  }
-
   def getType: PsiType = getRealParameterType.getOrNothing.toPsiType
 
   def isAnonymousParameter: Boolean = getContext match {

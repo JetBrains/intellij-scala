@@ -114,14 +114,4 @@ trait ScalaPsiElement extends PsiElement with ProjectContextOwner {
     }.foreach {
       _.accept(visitor)
     }
-
-
-  abstract override def getUseScope: SearchScope = {
-    val maybeFileScope = this.containingScalaFile.filter { file =>
-      file.isWorksheetFile || file.isScriptFile
-    }.map {
-      new LocalSearchScope(_)
-    }
-    intersectScopes(super.getUseScope, maybeFileScope)
-  }
 }

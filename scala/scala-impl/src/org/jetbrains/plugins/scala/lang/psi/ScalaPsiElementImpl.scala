@@ -6,6 +6,7 @@ import com.intellij.extapi.psi.{ASTWrapperPsiElement, StubBasedPsiElementBase}
 import com.intellij.lang.ASTNode
 import com.intellij.psi.impl.CheckUtil
 import com.intellij.psi.impl.source.tree.LazyParseablePsiElement
+import com.intellij.psi.search.SearchScope
 import com.intellij.psi.stubs.{IStubElementType, StubElement}
 import com.intellij.psi.tree.{IElementType, TokenSet}
 import com.intellij.psi.{PsiElement, PsiElementVisitor, StubBasedPsiElement}
@@ -86,6 +87,9 @@ abstract class ScalaPsiElementImpl(node: ASTNode) extends ASTWrapperPsiElement(n
     AnyScalaPsiModificationTracker.incModificationCount()
     super.subtreeChanged()
   }
+
+  override def getUseScope: SearchScope =
+    ScalaPsiUtil.intersectScopes(super.getUseScope, ScalaUseScope.mostNarrow(this))
 }
 
 abstract class ScalaStubBasedElementImpl[T <: PsiElement, S <: StubElement[T]](stub: S,
@@ -174,6 +178,9 @@ abstract class ScalaStubBasedElementImpl[T <: PsiElement, S <: StubElement[T]](s
     AnyScalaPsiModificationTracker.incModificationCount()
     super.subtreeChanged()
   }
+
+  override def getUseScope: SearchScope =
+    ScalaPsiUtil.intersectScopes(super.getUseScope, ScalaUseScope.mostNarrow(this))
 }
 
 object ScalaStubBasedElementImpl {
