@@ -10,9 +10,9 @@ import com.intellij.openapi.externalSystem.service.project.wizard.{AbstractExter
 import com.intellij.openapi.externalSystem.service.settings.AbstractImportFromExternalSystemControl
 import com.intellij.openapi.externalSystem.util.ExternalSystemSettingsControl
 import com.intellij.openapi.project.{Project, ProjectManager}
+import com.intellij.openapi.vfs.VirtualFile
 import com.intellij.projectImport.ProjectOpenProcessorBase
 import javax.swing.Icon
-import org.jetbrains.sbt.project.SbtProjectImportBuilder
 
 class BspProjectImportBuilder(projectDataManager: ProjectDataManager)
   extends AbstractExternalProjectImportBuilder[BspImportControl](projectDataManager, new BspImportControl(), bsp.ProjectSystemId) {
@@ -39,7 +39,12 @@ class BspImportControl extends AbstractImportFromExternalSystemControl[BspProjec
 }
 
 class BspProjectImportProvider(builder: BspProjectImportBuilder)
-  extends AbstractExternalProjectImportProvider(builder, bsp.ProjectSystemId)
+  extends AbstractExternalProjectImportProvider(builder, bsp.ProjectSystemId) {
+
+  override def canImport(fileOrDirectory: VirtualFile, project: Project): Boolean =
+    bsp.enabled &&
+    super.canImport(fileOrDirectory, project)
+}
 
 class BspProjectOpenProcessor(builder: BspProjectImportBuilder) extends ProjectOpenProcessorBase[BspProjectImportBuilder](builder) {
   override def getSupportedExtensions: Array[String] = Array()

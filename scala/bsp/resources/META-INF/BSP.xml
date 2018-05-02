@@ -26,6 +26,7 @@
         <moduleConfigurationEditorProvider implementation="org.jetbrains.bsp.BspSyntheticModuleEditorProvider"/>
 
         <externalSystemManager implementation="org.jetbrains.bsp.BspExternalSystemManager"/>
+
         <externalProjectDataService implementation="org.jetbrains.bsp.data.ScalaSdkService"/>
         <externalProjectDataService implementation="org.jetbrains.bsp.data.BspMetadataService"/>
 
@@ -52,6 +53,12 @@
         <!--<postStartupActivity implementation="org.jetbrains.bsp.BspStartupActivity"/>-->
 
     </extensions>
+
+    <actions>
+        <action id="bsp.enable" class="org.jetbrains.bsp.EnableBspAction"
+                text="Enable experimental bsp support" description="Enable experimental bsp support">
+        </action>
+    </actions>
 
 
 </idea-plugin>
