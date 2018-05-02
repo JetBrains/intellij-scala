@@ -221,7 +221,7 @@ class SbtProjectResolver extends ExternalSystemProjectResolver[SbtExecutionSetti
     projectNode.add(new SbtProjectNode(SbtProjectData(Seq.empty, settings.jdk.map(JdkByName), Seq.empty, sbtVersion.presentation, projectPath)))
     projectNode.addAll(projectToModule.values)
 
-    val buildModuleForProject: (ProjectData) => ModuleNode = createBuildModule(_, moduleFilesDirectory, None)
+    val buildModuleForProject: ProjectData => ModuleNode = createBuildModule(_, moduleFilesDirectory, None)
     projectNode.addAll(allBuildModules(dummyRootProject, projects, buildModuleForProject))
 
     projectNode
@@ -266,7 +266,7 @@ class SbtProjectResolver extends ExternalSystemProjectResolver[SbtExecutionSetti
     val sharedSourceModules = createSharedSourceModules(projectToModule, libraryNodes, moduleFilesDirectory)
     projectNode.addAll(sharedSourceModules)
 
-    val buildModuleForProject: (ProjectData) => ModuleNode = createBuildModule(_, moduleFilesDirectory, data.localCachePath.map(_.getCanonicalPath))
+    val buildModuleForProject: ProjectData => ModuleNode = createBuildModule(_, moduleFilesDirectory, data.localCachePath.map(_.getCanonicalPath))
     val buildModules = allBuildModules(rootProject, projects, buildModuleForProject)
 
     projectNode.addAll(buildModules)
@@ -290,7 +290,7 @@ class SbtProjectResolver extends ExternalSystemProjectResolver[SbtExecutionSetti
       .orElse(default)
   }
 
-  private def allBuildModules(rootProject: sbtStructure.ProjectData, projects: Seq[ProjectData], buildModule: (ProjectData) => ModuleNode) = {
+  private def allBuildModules(rootProject: sbtStructure.ProjectData, projects: Seq[ProjectData], buildModule: ProjectData => ModuleNode) = {
 
     val rootBuildModule = buildModule(rootProject)
     projects.map { p =>

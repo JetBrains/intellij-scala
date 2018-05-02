@@ -170,7 +170,6 @@ object ScalaAfterNewCompletionUtil {
     val isInterface = clazz match {
       case _: ScTrait => true
       case _ => clazz.isInterface || clazz.hasModifierPropertyScala("abstract")
-      case _ => false
     }
 
     val typeParameters = `type` match {
