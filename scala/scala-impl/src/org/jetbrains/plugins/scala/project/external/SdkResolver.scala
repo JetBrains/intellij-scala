@@ -1,4 +1,4 @@
-package org.jetbrains.sbt.project.data
+package org.jetbrains.plugins.scala.project.external
 
 import com.intellij.openapi.extensions.ExtensionPointName
 import com.intellij.openapi.projectRoots.Sdk

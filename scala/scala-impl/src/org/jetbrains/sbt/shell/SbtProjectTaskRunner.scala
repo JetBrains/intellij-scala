@@ -4,28 +4,15 @@ import java.io.File
 import java.util
 import java.util.UUID
 
-import javax.swing.JComponent
-
-import scala.collection.JavaConverters._
-import scala.concurrent.Await
-import scala.concurrent.duration.Duration
-import scala.util.{Failure, Success}
-import com.intellij.build.events.impl._
-import com.intellij.build.events.{BuildEvent, MessageEvent, SuccessResult, Warning}
-import com.intellij.build.{BuildViewManager, DefaultBuildDescriptor, events}
+import com.intellij.build.events.{SuccessResult, Warning}
 import com.intellij.compiler.impl.CompilerUtil
 import com.intellij.debugger.DebuggerManagerEx
-import com.intellij.debugger.actions.HotSwapAction
-import com.intellij.debugger.impl.HotSwapManager
 import com.intellij.debugger.settings.DebuggerSettings
 import com.intellij.debugger.ui.HotSwapUI
 import com.intellij.execution.Executor
 import com.intellij.execution.executors.DefaultRunExecutor
 import com.intellij.execution.runners.ExecutionEnvironment
-import com.intellij.execution.ui.RunContentDescriptor
-import com.intellij.openapi.actionSystem.AnActionEvent
 import com.intellij.openapi.compiler.ex.CompilerPathsEx
-import com.intellij.openapi.components.ServiceManager
 import com.intellij.openapi.externalSystem.model.ProjectKeys
 import com.intellij.openapi.externalSystem.model.execution.ExternalSystemTaskExecutionSettings
 import com.intellij.openapi.externalSystem.model.project.ExternalSystemSourceType
@@ -38,13 +25,18 @@ import com.intellij.openapi.project.Project
 import com.intellij.openapi.vfs.LocalFileSystem
 import com.intellij.task._
 import org.jetbrains.annotations.Nullable
+import org.jetbrains.plugins.scala.build.{BuildMessages, BuildWarning, IndicatorReporter}
 import org.jetbrains.plugins.scala.extensions
 import org.jetbrains.sbt.SbtUtil
 import org.jetbrains.sbt.project.SbtProjectSystem
 import org.jetbrains.sbt.project.module.SbtModuleType
 import org.jetbrains.sbt.settings.SbtSystemSettings
 import org.jetbrains.sbt.shell.SbtShellCommunication._
-import org.jetbrains.sbt.shell.event._
+
+import scala.collection.JavaConverters._
+import scala.concurrent.Await
+import scala.concurrent.duration.Duration
+import scala.util.{Failure, Success}
 
 /**
   * Created by jast on 2016-11-25.
@@ -92,6 +84,7 @@ class SbtProjectTaskRunner extends ProjectTaskRunner {
 
     // don't run anything if there's no module to run a build for
     // TODO user feedback
+    // TODO need to call completion callback also if empty
     if (moduleCommands.nonEmpty) {
 
       val command =
@@ -157,7 +150,7 @@ private class CommandTask(project: Project, modules: Array[Module], command: Str
     collector.compilationStarted()
 
     // TODO build events instead of indicator
-    val resultAggregator: (BuildMessages,ShellEvent) => BuildMessages = { (messages,event) =>
+    val resultAggregator: (BuildMessages, ShellEvent) => BuildMessages = { (messages,event) =>
 
       event match {
         case TaskStart =>
@@ -169,7 +162,7 @@ private class CommandTask(project: Project, modules: Array[Module], command: Str
         case ErrorWaitForInput =>
           // can only actually happen during reload, but handle it here to be sure
           showShell()
-          report.error("build interrupted")
+          report.error("build interrupted", None)
           messages.addError("ERROR: build interrupted")
           messages
         case Output(raw) =>
@@ -180,21 +173,21 @@ private class CommandTask(project: Project, modules: Array[Module], command: Str
             // only report first error until we can get a good mapping message -> error
             if (messages.errors.isEmpty) {
               showShell()
-              report.error("errors in build")
+              report.error("errors in build", None)
             }
             messages.addError(msg)
           } else if (text startsWith WARN_PREFIX) {
             val msg = text.stripPrefix(WARN_PREFIX)
             // only report first warning
             if (messages.warnings.isEmpty) {
-              report.warning("warnings in build")
+              report.warning("warnings in build", None)
             }
             messages.addWarning(msg)
           } else messages
 
           collector.processCompilerMessage(text)
 
-          report.output(text)
+          report.log(text)
 
           messagesWithErrors.appendMessage(text)
       }
@@ -276,112 +269,7 @@ object CommandTask {
 
 }
 
-/**
-  * Reporter inteded only for needs of SbtProjectTaskRunner
-  */
-trait BuildReporter {
-  def start()
-  def finish(messages: BuildMessages): Unit
-  def finishWithFailure(err: Throwable)
-  def warning(message: String): Unit
-  def error(message: String): Unit
-  def output(message: String): Unit
-}
-
-private class IndicatorReporter(indicator: ProgressIndicator) extends BuildReporter {
-  override def start(): Unit = {
-    indicator.setText("sbt build queued ...")
-  }
-
-  override def finish(messages: BuildMessages): Unit = {
-    indicator.setText2("")
-
-    if (messages.errors.isEmpty)
-      indicator.setText("sbt build completed")
-    else
-      indicator.setText("sbt build failed")
-  }
-
-  override def finishWithFailure(err: Throwable): Unit = {
-    indicator.setText(s"sbt errored: ${err.getMessage}")
-  }
-
-  override def warning(message: String): Unit = {}
-
-  override def error(message: String): Unit = {}
-
-  override def output(message: String): Unit = {
-    indicator.setText("sbt building ...")
-    indicator.setText2(message)
-  }
-}
-
-private class BuildToolWindowReporter(project: Project, taskId: UUID) extends BuildReporter {
-
-  def start(): Unit = {
-    val buildDescriptor = new DefaultBuildDescriptor(taskId, "sbt build", project.getBasePath, System.currentTimeMillis())
-    val startEvent = new StartBuildEventImpl(buildDescriptor, "queued ...")
-      .withContentDescriptorSupplier { () => // dummy runContentDescriptor to set autofocus of build toolwindow off
-        val descriptor = new RunContentDescriptor(null, null, new JComponent {}, "sbt build")
-        descriptor.setActivateToolWindowWhenAdded(false)
-        descriptor.setAutoFocusContent(false)
-        descriptor
-      }
-
-    viewManager.onEvent(startEvent)
-  }
-
-  def finish(messages: BuildMessages): Unit = {
-    val (result, resultMessage) =
-      if (messages.errors.isEmpty)
-        (new SuccessResultImpl, "success")
-      else {
-        val fails: util.List[events.Failure] = messages.errors.asJava
-        (new FailureResultImpl(fails), "failed")
-      }
-
-    val finishEvent =
-      new FinishBuildEventImpl(taskId, null, System.currentTimeMillis(), resultMessage, result)
-    viewManager.onEvent(finishEvent)
-  }
-
-  def finishWithFailure(err: Throwable): Unit = {
-    val failureResult = new FailureResultImpl(err)
-    val finishEvent =
-      new FinishBuildEventImpl(taskId, null, System.currentTimeMillis(), "failed", failureResult)
-    viewManager.onEvent(finishEvent)
-  }
-
-  def warning(message: String): Unit =
-    viewManager.onEvent(warnEvent(message))
-
-  def error(message: String): Unit =
-    viewManager.onEvent(errorEvent(message))
-
-  def output(message: String): Unit = {
-    viewManager.onEvent(outputEvent(message))
-  }
-
-  private lazy val viewManager: BuildViewManager = ServiceManager.getService(project, classOf[BuildViewManager])
-
-  private val outputEvent: String => BuildEvent = msg => new OutputBuildEventImpl(taskId, msg.trim + System.lineSeparator(), true)
-  private val warnEvent: String => MessageEvent = SbtShellBuildWarning(taskId, _)
-  private val errorEvent: String => MessageEvent = SbtShellBuildError(taskId, _)
-}
-
-private case class BuildMessages(warnings: Seq[events.Warning], errors: Seq[events.Failure], log: Seq[String], aborted: Boolean) {
-  def appendMessage(text: String): BuildMessages = copy(log = log :+ text.trim)
-  def addError(msg: String): BuildMessages = copy(errors = errors :+ SbtBuildFailure(msg.trim))
-  def addWarning(msg: String): BuildMessages = copy(warnings = warnings :+ SbtBuildWarning(msg.trim))
-  def abort: BuildMessages = copy(aborted = true)
-  def toTaskResult: ProjectTaskResult = new ProjectTaskResult(aborted, errors.size, warnings.size)
-}
-
-private case object BuildMessages {
-  def empty = BuildMessages(Vector.empty, Vector.empty, Vector.empty, aborted = false)
-}
-
 private case class SbtBuildResult(warnings: Seq[String] = Seq.empty) extends SuccessResult {
   override def isUpToDate = false
-  override def getWarnings: util.List[Warning] = warnings.map(SbtBuildWarning.apply(_) : Warning).asJava
+  override def getWarnings: util.List[Warning] = warnings.map(BuildWarning.apply(_) : Warning).asJava
 }

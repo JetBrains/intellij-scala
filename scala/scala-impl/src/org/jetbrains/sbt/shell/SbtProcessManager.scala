@@ -21,8 +21,8 @@ import com.intellij.openapi.util.Disposer
 import com.intellij.openapi.util.io.FileUtil
 import org.jetbrains.plugins.scala.buildinfo.BuildInfo
 import org.jetbrains.plugins.scala.project.Version
+import org.jetbrains.plugins.scala.project.external.{JdkByName, SdkUtils}
 import org.jetbrains.sbt.SbtUtil._
-import org.jetbrains.sbt.project.data.{JdkByName, SdkUtils}
 import org.jetbrains.sbt.project.settings.SbtExecutionSettings
 import org.jetbrains.sbt.project.structure.SbtOpts
 import org.jetbrains.sbt.project.{SbtExternalSystemManager, SbtProjectResolver, SbtProjectSystem}

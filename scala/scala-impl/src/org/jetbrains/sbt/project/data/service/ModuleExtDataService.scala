@@ -13,10 +13,13 @@ import com.intellij.openapi.module.Module
 import com.intellij.openapi.project.Project
 import com.intellij.openapi.roots.LanguageLevelModuleExtensionImpl
 import com.intellij.openapi.roots.libraries.Library
+import com.intellij.util.CommonProcessors.CollectProcessor
 import org.jetbrains.plugins.scala.project.Platform.{Dotty, Scala}
 import org.jetbrains.plugins.scala.project._
+import org.jetbrains.plugins.scala.project.external._
 import org.jetbrains.sbt.SbtBundle
 import org.jetbrains.sbt.project.SbtProjectSystem
+import scala.collection.JavaConverters._
 
 /**
  * @author Pavel Fatin
@@ -83,6 +86,18 @@ object ModuleExtDataService {
           case _ => // do nothing
         }
       }
+    }
+
+    private def getScalaLibraries(module: Module, platform: Platform): Set[Library] = {
+      val libraryName = platform match {
+        case Scala => ScalaLibraryName
+        case Dotty => DottyLibraryName
+      }
+      val collector = new CollectProcessor[Library]()
+      getModifiableRootModel(module).orderEntries().librariesOnly().forEachLibrary(collector)
+      collector.getResults.asScala
+        .toSet
+        .filter(l => Option(l.getName).exists(_.contains(libraryName)))
     }
 
     private def configureOrInheritSdk(module: Module, sdk: Option[SdkReference]): Unit = {

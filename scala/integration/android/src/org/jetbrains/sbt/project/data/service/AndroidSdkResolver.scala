@@ -4,7 +4,7 @@ package org.jetbrains.sbt.project.data.service
 import com.intellij.openapi.projectRoots.{ProjectJdkTable, Sdk}
 import org.jetbrains.android.sdk.{AndroidPlatform, AndroidSdkType}
 import org.jetbrains.plugins.scala.extensions._
-import org.jetbrains.sbt.project.data.{AndroidJdk, SdkReference, SdkResolver}
+import org.jetbrains.plugins.scala.project.external.{AndroidJdk, SdkReference, SdkResolver}
 
 import scala.collection.JavaConverters._
 

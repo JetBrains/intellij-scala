@@ -5,10 +5,10 @@ import java.net.URI
 import java.util.Properties
 import java.util.jar.JarFile
 
-import com.intellij.execution.configurations.{GeneralCommandLine, ParametersList}
+import com.intellij.execution.configurations.ParametersList
 import com.intellij.openapi.application.ApplicationManager
-import com.intellij.openapi.externalSystem.model.{DataNode, ProjectKeys}
 import com.intellij.openapi.externalSystem.model.project.ModuleData
+import com.intellij.openapi.externalSystem.model.{DataNode, ProjectKeys}
 import com.intellij.openapi.externalSystem.service.project.ProjectDataManager
 import com.intellij.openapi.externalSystem.util.ExternalSystemApiUtil
 import com.intellij.openapi.module.Module
