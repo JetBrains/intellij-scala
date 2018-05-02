@@ -92,26 +92,28 @@ object ScalaBuilder {
       }
     }
 
-    val settings = projectSettings(context)
-    val previousIncrementalType = getPreviousIncrementalType
-    val incrType = settings.getIncrementalityType
-    previousIncrementalType match {
-      case _ if JavaBuilderUtil.isForcedRecompilationAllJavaModules(context) => //isRebiuld
-        setPreviousIncrementalType(incrType)
-      case None =>
-      //        ScalaBuilderDelegate.Log.info("scala: cannot find type of the previous incremental compiler, full rebuild may be required")
-      case Some(`incrType`) => //same incremental type, nothing to be done
-      case Some(_) if isMakeProject(context) =>
-        if (ScalaBuilder.isScalaProject(context.getProjectDescriptor.getProject)) {
-          cleanCaches()
+    this.synchronized {
+      val settings = projectSettings(context)
+      val previousIncrementalType = getPreviousIncrementalType
+      val incrType = settings.getIncrementalityType
+      previousIncrementalType match {
+        case _ if JavaBuilderUtil.isForcedRecompilationAllJavaModules(context) => //isRebiuld
           setPreviousIncrementalType(incrType)
-          context.processMessage(new CompilerMessage("scala", BuildMessage.Kind.WARNING,
-            "type of incremental compiler has been changed, full rebuild..."))
-        }
-      case Some(_) =>
-        if (ScalaBuilder.isScalaProject(context.getProjectDescriptor.getProject)) {
-          throw new ProjectBuildException("scala: type of incremental compiler has been changed, full rebuild is required")
-        }
+        case None =>
+        //        ScalaBuilderDelegate.Log.info("scala: cannot find type of the previous incremental compiler, full rebuild may be required")
+        case Some(`incrType`) => //same incremental type, nothing to be done
+        case Some(_) if isMakeProject(context) =>
+          if (ScalaBuilder.isScalaProject(context.getProjectDescriptor.getProject)) {
+            cleanCaches()
+            setPreviousIncrementalType(incrType)
+            context.processMessage(new CompilerMessage("scala", BuildMessage.Kind.WARNING,
+              "type of incremental compiler has been changed, full rebuild..."))
+          }
+        case Some(_) =>
+          if (ScalaBuilder.isScalaProject(context.getProjectDescriptor.getProject)) {
+            throw new ProjectBuildException("scala: type of incremental compiler has been changed, full rebuild is required")
+          }
+      }
     }
   }
 
