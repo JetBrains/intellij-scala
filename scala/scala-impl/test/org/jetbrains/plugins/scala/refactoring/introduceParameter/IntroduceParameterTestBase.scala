@@ -54,7 +54,7 @@ abstract class IntroduceParameterTestBase extends ScalaLightPlatformCodeInsightT
 
     val fileEditorManager = FileEditorManager.getInstance(project)
     implicit val editor: Editor = fileEditorManager
-      .openTextEditor(new OpenFileDescriptor(project, file, startOffset), false)
+      .openTextEditor(new OpenFileDescriptor(project, getVFileAdapter, startOffset), false)
 
     var res: String = null
 

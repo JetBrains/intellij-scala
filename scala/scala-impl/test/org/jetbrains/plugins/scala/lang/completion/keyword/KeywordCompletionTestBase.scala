@@ -35,7 +35,7 @@ abstract class KeywordCompletionTestBase extends ScalaLightPlatformCodeInsightTe
     val offset = fileText.indexOf(caretMarker)
     assert(offset != -1, "Not specified end marker in test case. Use /*caret*/ in scala file for this.")
     val fileEditorManager = FileEditorManager.getInstance(getProjectAdapter)
-    val editor = fileEditorManager.openTextEditor(new OpenFileDescriptor(getProjectAdapter, file, offset), false)
+    val editor = fileEditorManager.openTextEditor(new OpenFileDescriptor(getProjectAdapter, getVFileAdapter, offset), false)
     val myType = CompletionType.BASIC
     new CodeCompletionHandlerBase(myType, false, false, true).invokeCompletion(getProjectAdapter, editor)
     val lookup: LookupImpl = LookupManager.getActiveLookup(editor).asInstanceOf[LookupImpl]
