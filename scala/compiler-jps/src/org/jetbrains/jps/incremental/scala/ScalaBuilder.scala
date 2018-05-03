@@ -11,7 +11,7 @@ import org.jetbrains.jps.incremental._
 import org.jetbrains.jps.incremental.messages.ProgressMessage
 import org.jetbrains.jps.incremental.scala.data.{CompilationData, CompilerData, SbtData}
 import org.jetbrains.jps.incremental.scala.local.LocalServer
-import org.jetbrains.jps.incremental.scala.model.ProjectSettings
+import org.jetbrains.jps.incremental.scala.model.{GlobalSettings, ProjectSettings}
 import org.jetbrains.jps.incremental.scala.remote.RemoteServer
 import org.jetbrains.jps.model.module.JpsModule
 
@@ -94,13 +94,21 @@ object ScalaBuilder {
   }
 
   private def getServer(context: CompileContext): Server = {
-    val settings = SettingsManager.getGlobalSettings(context.getProjectDescriptor.getModel.getGlobal)
-
-    if (settings.isCompileServerEnabled && JavaBuilderUtil.CONSTANT_SEARCH_SERVICE.get(context) != null) {
+    if (isCompileServerEnabled(context)) {
       cleanLocalServerCache()
-      new RemoteServer(InetAddress.getByName(null), settings.getCompileServerPort)
+      new RemoteServer(InetAddress.getByName(null), globalSettings(context).getCompileServerPort)
     } else {
       localServer
     }
   }
+
+  def isCompileServerEnabled(context: CompileContext): Boolean =
+    globalSettings(context).isCompileServerEnabled && isCompilationFromIDEA(context)
+
+  //hack to not run compile server on teamcity; is there a better way?
+  private def isCompilationFromIDEA(context: CompileContext): Boolean =
+    JavaBuilderUtil.CONSTANT_SEARCH_SERVICE.get(context) != null
+
+  private def globalSettings(context: CompileContext): GlobalSettings =
+    SettingsManager.getGlobalSettings(context.getProjectDescriptor.getModel.getGlobal)
 }
