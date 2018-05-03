@@ -260,8 +260,8 @@ object ScalaPsiElementFactory {
     case _ => context.getLastChild
   }
 
-  def createCaseClauseFromTextWithContext(clauseText: String, context: PsiElement, child: PsiElement): ScCaseClause =
-    createElementWithContext[ScCaseClause]("case " + clauseText, context, child, CaseClause.parse).orNull
+  def createCaseClauseFromTextWithContext(clauseText: String, context: PsiElement, child: PsiElement): Option[ScCaseClause] =
+    createElementWithContext[ScCaseClause]("case " + clauseText, context, child, CaseClause.parse)
 
   def createAnAnnotation(name: String)
                         (implicit ctx: ProjectContext): ScAnnotation = {
