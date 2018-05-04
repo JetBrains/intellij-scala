@@ -33,12 +33,10 @@ class ScalaCompilerConfiguration(project: Project) extends PersistentStateCompon
   def hasSettingForHighlighting(module: Module, hasSetting: ScalaCompilerSettings => Boolean): Boolean = {
     def isSharedSources(module: Module) = module.getModuleTypeName == "SHARED_SOURCES_MODULE"
 
-    val modules =
-      if (isSharedSources(module))
-        ModuleManager.getInstance(module.getProject)
-          .getModuleDependentModules(module)
-          .asScala
-      else Seq(module)
+    def dependentModules =
+      ModuleManager.getInstance(module.getProject).getModuleDependentModules(module).asScala
+
+    val modules = if (isSharedSources(module)) dependentModules else Seq(module)
 
     modules.map(getSettingsForModule)
       .exists(hasSetting)

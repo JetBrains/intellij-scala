@@ -110,7 +110,7 @@ package object project {
       * @see https://github.com/non/kind-projector
       */
     def kindProjectorPluginEnabled: Boolean =
-      compilerConfiguration.hasSettingForHighlighting(module, _.plugins.exists(_.contains("kindProjector")))
+      compilerConfiguration.hasSettingForHighlighting(module, _.plugins.exists(_.contains("kind-projector")))
 
     /**
       * Should we check if it's a Single Abstract Method?
@@ -258,12 +258,14 @@ package object project {
 
     def scalaLanguageLevelOrDefault: ScalaLanguageLevel = scalaLanguageLevel.getOrElse(ScalaLanguageLevel.Default)
 
-    //let's be permissive for sources outside project
-    def kindProjectorPluginEnabled: Boolean = module.forall(_.kindProjectorPluginEnabled)
+    def kindProjectorPluginEnabled: Boolean = inThisModuleOrProject(_.kindProjectorPluginEnabled)
+    def isSAMEnabled              : Boolean = inThisModuleOrProject(_.isSAMEnabled)
+    def literalTypesEnabled       : Boolean = inThisModuleOrProject(_.literalTypesEnabled)
 
-    def isSAMEnabled: Boolean = module.forall(_.isSAMEnabled)
-
-    def literalTypesEnabled: Boolean = module.forall(_.literalTypesEnabled)
+    private def inThisModuleOrProject(predicate: Module => Boolean): Boolean = module match {
+      case Some(m) => predicate(m)
+      case None    => element.getProject.modulesWithScala.exists(predicate)
+    }
   }
 
   val LibraryVersion: Regex = """(?<=:|-)\d+\.\d+\.\d+[^:\s]*""".r
