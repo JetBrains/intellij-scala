@@ -13,7 +13,7 @@ import org.jetbrains.jps.incremental.scala.remote.Arguments._
   *         
   * @param worksheetFiles see org.jetbrains.plugins.scala.worksheet.server.RemoteServerConnector.worksheetArgs         
  */
-case class Arguments(token: String, sbtData: SbtData, compilerData: CompilerData, compilationData: CompilationData, worksheetFiles: Seq[String]) {
+case class Arguments(sbtData: SbtData, compilerData: CompilerData, compilationData: CompilationData, worksheetFiles: Seq[String]) {
   def asStrings: Seq[String] = {
     val (outputs, caches) = compilationData.outputToCacheMap.toSeq.unzip
 
@@ -26,7 +26,6 @@ case class Arguments(token: String, sbtData: SbtData, compilerData: CompilerData
     val incrementalType = compilerData.incrementalType
 
     Seq(
-      token,
       fileToPath(sbtData.sbtInterfaceJar),
       fileToPath(sbtData.compilerInterfaceJar),
       fileToPath(sbtData.sourceJars._2_10),
@@ -61,7 +60,7 @@ object Arguments {
   private val Delimiter = "\n"
 
   def from(strings: Seq[String]): Arguments = strings match {
-    case token +: Seq(
+    case Seq(
       PathToFile(sbtInterfaceJar),
       PathToFile(compilerInterfaceJar),
       PathToFile(sourceJar_2_10),
@@ -113,7 +112,7 @@ object Arguments {
 
       val compilationData = CompilationData(sources, classpath, output, scalaOptions, javaOptions, CompileOrder.valueOf(order), cacheFile, outputToCacheMap, outputGroups, zincData)
 
-      Arguments(token, sbtData, compilerData, compilationData, worksheetClass)
+      Arguments(sbtData, compilerData, compilationData, worksheetClass)
   }
 
   private def fileToPath(file: File): String = FileUtil.toCanonicalPath(file.getPath)

@@ -3,18 +3,8 @@ package org.jetbrains.plugins.scala.nailgun;
 import com.martiansoftware.nailgun.Alias;
 import com.martiansoftware.nailgun.NGServer;
 
-import java.io.File;
-import java.io.IOException;
 import java.net.InetAddress;
-import java.nio.file.Files;
-import java.nio.file.Path;
-import java.nio.file.Paths;
-import java.nio.file.attribute.PosixFileAttributeView;
-import java.nio.file.attribute.PosixFilePermission;
-import java.util.HashSet;
-import java.util.UUID;
-
-import static java.util.Arrays.asList;
+import java.net.UnknownHostException;
 
 /**
  * @author Pavel Fatin
@@ -31,14 +21,12 @@ public class NailgunRunner {
   private static final String STOP_ALIAS_START = "stop_";
   private static final String STOP_CLASS_NAME = "com.martiansoftware.nailgun.builtins.NGStop";
 
-  public static void main(String[] args) throws IOException, ClassNotFoundException {
+  public static void main(String[] args) throws UnknownHostException, ClassNotFoundException {
     if (args.length != 2) throw new IllegalArgumentException("Usage: NailgunRunner [port] [id]");
 
     InetAddress address = InetAddress.getByName(null);
     int port = Integer.parseInt(args[0]);
     String id = args[1];
-
-    writeTokenTo(tokenPathFor(port), UUID.randomUUID());
 
     NGServer server = createServer(address, port, id);
 
@@ -47,31 +35,6 @@ public class NailgunRunner {
     thread.start();
 
     Runtime.getRuntime().addShutdownHook(new ShutdownHook(server));
-  }
-
-  private static Path tokenPathFor(int port) {
-    return Paths.get(System.getProperty("user.home"), ".idea-build", "tokens", Integer.toString(port));
-  }
-
-  private static void writeTokenTo(Path path, UUID uuid) throws IOException {
-    File directory = path.getParent().toFile();
-
-    if (!directory.exists()) {
-      if (!directory.mkdirs()) {
-        throw new IOException("Cannot create directory: " + directory);
-      }
-    }
-
-    Files.write(path, uuid.toString().getBytes());
-
-    PosixFileAttributeView view = Files.getFileAttributeView(path, PosixFileAttributeView.class);
-    if (view != null) {
-      try {
-        view.setPermissions(new HashSet<>(asList(PosixFilePermission.OWNER_READ, PosixFilePermission.OWNER_WRITE)));
-      } catch (IOException e) {
-        System.err.println("Cannot set permissions: " + path);
-      }
-    }
   }
 
   private static NGServer createServer(InetAddress address, int port, String id)
@@ -94,20 +57,15 @@ public class NailgunRunner {
   }
 
   private static class ShutdownHook extends Thread {
-    static final int TIMEOUT = 30;
+    public static final int TIMEOUT = 30;
 
-    private final NGServer myServer;
+    private NGServer myServer = null;
 
     ShutdownHook(NGServer server) {
       myServer = server;
     }
 
     public void run() {
-      File tokenFile = tokenPathFor(myServer.getPort()).toFile();
-      if (!tokenFile.delete()) {
-        tokenFile.deleteOnExit();
-      }
-
       myServer.shutdown(false);
 
       for (int i = 0; i < TIMEOUT; i++) {

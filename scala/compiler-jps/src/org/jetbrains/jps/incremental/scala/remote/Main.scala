@@ -2,7 +2,6 @@ package org.jetbrains.jps.incremental.scala
 package remote
 
 import java.io._
-import java.nio.file.{Files, Path, Paths}
 import java.util.{Timer, TimerTask}
 
 import com.intellij.util.Base64Converter
@@ -19,20 +18,19 @@ object Main {
   private val Server = new LocalServer()
   private val worksheetServer = new WorksheetServer
 
-  private var shutdownTimer: Timer = _
+  private var shutdownTimer: Timer = null
 
-  def nailMain(context: NGContext): Unit = {
+  def nailMain(context: NGContext) {
     cancelShutdown()
-    make(context.getArgs.toSeq, context.out, context.getNGServer.getPort, standalone = false)
+    make(context.getArgs.toSeq, context.out, standalone = false)
     resetShutdownTimer(context)
   }
 
-  // Started by NonServerRunner
   def main(args: Array[String]) {
-    make(args, System.out, -1, standalone = true)
+    make(args, System.out, standalone = true)
   }
 
-  private def make(arguments: Seq[String], out: PrintStream, port: Int, standalone: Boolean): Unit = {
+  private def make(arguments: Seq[String], out: PrintStream, standalone: Boolean) {
     var hasErrors = false
 
     val client = {
@@ -41,12 +39,12 @@ object Main {
         out.write((if (standalone && !encode.endsWith("=")) encode + "=" else encode).getBytes)
       }
       new EventGeneratingClient(eventHandler, out.checkError) {
-        override def error(text: String, source: Option[File], line: Option[Long], column: Option[Long]): Unit = {
+        override def error(text: String, source: Option[File], line: Option[Long], column: Option[Long]) {
           hasErrors = true
           super.error(text, source, line, column)
         }
 
-        override def message(kind: Kind, text: String, source: Option[File], line: Option[Long], column: Option[Long]): Unit = {
+        override def message(kind: Kind, text: String, source: Option[File], line: Option[Long], column: Option[Long]) {
           if (kind == Kind.ERROR) hasErrors = true
           super.message(kind, text, source, line, column)
         }
@@ -67,19 +65,6 @@ object Main {
         Arguments.from(strings)
       }
 
-      // Don't check token in non-server mode
-      if (port != -1) {
-        try {
-          compareTokenWith(tokenPathFor(port), args.token)
-        } catch {
-          // We must abort the process on _any_ error
-          case e: Throwable =>
-            client.error(e.getMessage)
-            client.compilationEnd()
-            return
-        }
-      }
-
       if (!worksheetServer.isRepl(args)) Server.compile(args.sbtData, args.compilerData, args.compilationData, client)
 
       if (!hasErrors) worksheetServer.loadAndRun(args, out, client, standalone)
@@ -91,37 +76,14 @@ object Main {
     }
   }
 
-  private def tokenPathFor(port: Int) =
-    Paths.get(System.getProperty("user.home"), ".idea-build", "tokens", port.toString)
-
-  @throws(classOf[TokenVerificationException])
-  private def compareTokenWith(path: Path, actualToken: String): Unit = {
-    if (!path.toFile.exists) {
-      throw new TokenVerificationException("Token not found: " + path)
-    }
-
-    val expectedToken = try {
-      new String(Files.readAllBytes(path))
-    } catch {
-      case _: IOException =>
-        throw new TokenVerificationException("Cannot read token: " + path)
-    }
-
-    if (!expectedToken.equals(actualToken)) {
-      throw new TokenVerificationException("Token is incorrect:  " + actualToken)
-    }
-  }
-
-  private class TokenVerificationException(message: String) extends Exception(message)
-
-  private def cancelShutdown(): Unit = synchronized {
+  private def cancelShutdown() = synchronized {
     if (shutdownTimer != null) {
       shutdownTimer.cancel()
       shutdownTimer = null
     }
   }
 
-  private def resetShutdownTimer(context: NGContext): Unit = {
+  private def resetShutdownTimer(context: NGContext) {
     val delay = Option(System.getProperty("shutdown.delay")).map(_.toInt)
     delay.foreach { t =>
       val delayMs = t * 60 * 1000
