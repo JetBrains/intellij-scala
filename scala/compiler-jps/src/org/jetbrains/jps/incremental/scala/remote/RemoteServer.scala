@@ -13,7 +13,9 @@ import org.jetbrains.jps.incremental.scala.remote.RemoteServer._
  */
 class RemoteServer(val address: InetAddress, val port: Int) extends Server with RemoteResourceOwner {
   def compile(sbtData: SbtData, compilerData: CompilerData, compilationData: CompilationData, client: Client): ExitCode = {
-    val arguments = Arguments(sbtData, compilerData, compilationData, Seq.empty).asStrings
+    val token = readStringFrom(tokenPathFor(port)).getOrElse("NO_TOKEN")
+
+    val arguments = Arguments(token, sbtData, compilerData, compilationData, Seq.empty).asStrings
 
     try {
       send(serverAlias, arguments, client)
@@ -33,4 +35,12 @@ class RemoteServer(val address: InetAddress, val port: Int) extends Server with 
         ExitCode.ABORT
     }
   }
+}
+
+private object RemoteServer {
+  private def readStringFrom(path: Path): Option[String] =
+    if (path.toFile.exists) Some(new String(Files.readAllBytes(path))) else None
+
+  private def tokenPathFor(port: Int) =
+    Paths.get(System.getProperty("user.home"), ".idea-build", "tokens", port.toString)
 }
