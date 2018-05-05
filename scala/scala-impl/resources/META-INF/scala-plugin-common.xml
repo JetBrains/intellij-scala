@@ -154,6 +154,9 @@
         <completion.contributor language="Scala" id="scalaClassParamContributor"
                                 implementationClass="org.jetbrains.plugins.scala.lang.completion.clauses.CaseClassParametersCompletionContributor"
                                 order="before keywordCompletionContributor, before memberNameCompletionContributor"/>
+        <completion.contributor language="Scala" id="caseClauseCompletionContributor"
+                                implementationClass="org.jetbrains.plugins.scala.lang.completion.clauses.CaseClauseCompletionContributor"
+                                order="before scalaIdentifierCompletionContributor"/>
         <completion.contributor language="Scala" id="scalaOverrideDefContributer"
                                 implementationClass="org.jetbrains.plugins.scala.lang.completion.ScalaOverrideContributor"
                                 order="before scalaIdentifierCompletionContributor, after keywordCompletionContributor"/>
