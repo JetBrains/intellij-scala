@@ -176,9 +176,7 @@ case class ScTypePolymorphicType(internalType: ScType, typeParameters: Seq[TypeP
 
   override implicit def projectContext: ProjectContext = internalType.projectContext
 
-  def polymorphicTypeSubstitutor: ScSubstitutor = polymorphicTypeSubstitutor(inferValueType = false)
-
-  def polymorphicTypeSubstitutor(inferValueType: Boolean): ScSubstitutor =
+  def polymorphicTypeSubstitutor: ScSubstitutor =
     ScSubstitutor.bind(typeParameters) { tp =>
       var contraVariant = 0
       var coOrInVariant = 0
@@ -225,11 +223,8 @@ case class ScTypePolymorphicType(internalType: ScType, typeParameters: Seq[TypeP
 
   private def hasRecursiveTypeParameters(typez: ScType): Boolean = typez.hasRecursiveTypeParameters(typeParamIds)
 
-  def typeParameterTypeSubstitutor: ScSubstitutor =
-    ScSubstitutor.bind(typeParameters)(TypeParameterType(_))
-
   def inferValueType: ValueType = {
-    polymorphicTypeSubstitutor(inferValueType = true).subst(internalType.inferValueType).asInstanceOf[ValueType]
+    polymorphicTypeSubstitutor.subst(internalType.inferValueType).asInstanceOf[ValueType]
   }
 
   override def removeAbstracts = ScTypePolymorphicType(
