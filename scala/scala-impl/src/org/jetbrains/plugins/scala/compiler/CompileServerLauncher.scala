@@ -82,7 +82,8 @@ class CompileServerLauncher extends ApplicationComponent {
 
     val settings = ScalaCompileServerSettings.getInstance
 
-    settings.updateSdk(jdk.name)
+    settings.COMPILE_SERVER_SDK = jdk.name
+    saveSettings()
 
     compilerJars.partition(_.exists) match {
       case (presentFiles, Seq()) =>
@@ -98,7 +99,8 @@ class CompileServerLauncher extends ApplicationComponent {
         val freePort = CompileServerLauncher.findFreePort
         if (settings.COMPILE_SERVER_PORT != freePort) {
           new RemoteServerStopper(settings.COMPILE_SERVER_PORT).sendStop()
-          settings.updatePort(freePort)
+          settings.COMPILE_SERVER_PORT = freePort
+          saveSettings()
         }
 
         val ngRunnerFqn = "org.jetbrains.plugins.scala.nailgun.NailgunRunner"
@@ -264,6 +266,10 @@ object CompileServerLauncher {
     if (NetUtils.canConnectToSocket("localhost", port))
       NetUtils.findAvailableSocketPort()
     else port
+  }
+
+  def saveSettings(): Unit = invokeAndWait {
+    ApplicationManager.getApplication.saveSettings()
   }
 
   private def projectHome(project: Project): Option[File] = {
