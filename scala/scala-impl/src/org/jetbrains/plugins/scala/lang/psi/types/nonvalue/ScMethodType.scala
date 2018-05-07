@@ -219,6 +219,14 @@ case class ScTypePolymorphicType(internalType: ScType, typeParameters: Seq[TypeP
       else lowerType
     }
 
+  def typeParameterOrLowerSubstitutor: ScSubstitutor =
+    ScSubstitutor.bind(typeParameters) { tp =>
+      val lowerType: ScType = if (hasRecursiveTypeParameters(tp.lowerType)) Nothing else tp.lowerType
+
+      if (lowerType.equiv(Nothing)) TypeParameterType(tp)
+      else lowerType
+    }
+
   private lazy val typeParamIds = typeParameters.map(_.typeParamId).toSet
 
   private def hasRecursiveTypeParameters(typez: ScType): Boolean = typez.hasRecursiveTypeParameters(typeParamIds)
