@@ -1,7 +1,6 @@
 package org.jetbrains.sbt.project
 
 import javax.swing.event.HyperlinkEvent
-
 import com.intellij.ide.actions.ImportModuleAction
 import com.intellij.ide.util.newProjectWizard.AddModuleWizard
 import com.intellij.notification.{Notification, NotificationGroup, NotificationListener, NotificationType}
@@ -11,6 +10,7 @@ import com.intellij.openapi.externalSystem.service.project.ProjectDataManager
 import com.intellij.openapi.project.Project
 import com.intellij.openapi.startup.StartupActivity
 import org.jetbrains.sbt.Sbt
+import org.jetbrains.sbt.project.SbtStartupActivity.sbtNotificationGroup
 import org.jetbrains.sbt.settings.SbtSystemSettings
 
 class SbtStartupActivity extends StartupActivity {
@@ -27,7 +27,7 @@ class SbtStartupActivity extends StartupActivity {
     ) {
       val message = s"""<a href="$ImportDescription">Import sbt project</a>"""
 
-      NotificationGroup.balloonGroup(Sbt.Name)
+      sbtNotificationGroup
         .createNotification("sbt project detected", message, NotificationType.INFORMATION, notificationListener(project))
         .notify(project)
     }
@@ -47,4 +47,8 @@ class SbtStartupActivity extends StartupActivity {
       }
     }
   }
+}
+
+object SbtStartupActivity {
+  private lazy val sbtNotificationGroup = NotificationGroup.balloonGroup(Sbt.Name)
 }
