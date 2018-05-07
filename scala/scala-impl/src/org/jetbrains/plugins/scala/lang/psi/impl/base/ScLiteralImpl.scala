@@ -39,7 +39,7 @@ class ScLiteralImpl(node: ASTNode) extends ScalaPsiElementImpl(node) with ScLite
 
   override def toString: String = "Literal"
 
-  override def allowLiteralTypes: Boolean = getContainingFile.module.exists(_.literalTypesAllowed)
+  override def allowLiteralTypes: Boolean = this.literalTypesEnabled
 
   protected override def innerType: TypeResult = {
     val wide = ScLiteralImpl.wideType(getFirstChild.getNode, this)

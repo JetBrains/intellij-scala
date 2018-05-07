@@ -23,6 +23,33 @@ class UnnecessaryParenthesesInspectionTest extends ScalaQuickFixTestBase {
 
   private val hintBeginning = "Remove unnecessary parentheses"
 
+  private def defaultSettings = UnnecessaryParenthesesSettings.default
+  private def considerClarifying = defaultSettings.copy(ignoreClarifying = false)
+  private def ignoreAroundFunctionType = defaultSettings.copy(ignoreAroundFunctionType = true)
+  private def ignoreAroundFunctionTypeParam = defaultSettings.copy(ignoreAroundFunctionTypeParam = true)
+  private def ignoreAroundFunctionExprParam = defaultSettings.copy(ignoreAroundFunctionExprParam = true)
+
+  private def withSettings(settings: UnnecessaryParenthesesSettings)(body: => Unit): Unit = {
+
+    val tool = InspectionProfileManager.getInstance(project)
+      .getCurrentProfile
+      .getInspectionTool("ScalaUnnecessaryParentheses", project)
+      .getTool
+
+    tool match {
+      case check: ScalaUnnecessaryParenthesesInspection =>
+        val oldSettings = check.currentSettings()
+        try {
+          check.setSettings(settings)
+          body
+        } finally {
+          check.setSettings(oldSettings)
+        }
+      case _ =>
+    }
+  }
+
+
   // see https://github.com/JetBrains/intellij-scala/pull/434 for more test case
 
   def test_1(): Unit = {
@@ -179,18 +206,55 @@ class UnnecessaryParenthesesInspectionTest extends ScalaQuickFixTestBase {
     testQuickFix(text, result, hint)
   }
 
-  def test_functionType():Unit={
+  def test_nestedFunctionType():Unit={
     val selected = s"val i: Int => $START(Int => String)$END = _"
     checkTextHasError(selected)
 
     val text = "val i: Int => (Int => String) = _"
+
+    withSettings(ignoreAroundFunctionType) {
+      checkTextHasNoErrors(text)
+    }
+
     val result = "val i: Int => Int => String = _"
     val hint = hintBeginning + " (Int => String)"
     testQuickFix(text, result, hint)
   }
 
+  def test_functionType():Unit={
+    val selected = s"val i: $START(Int => String)$END = _"
+    checkTextHasError(selected)
+
+    val text = "val i: (Int => String) = _"
+
+    withSettings(ignoreAroundFunctionType) {
+      checkTextHasNoErrors(text)
+    }
+
+    val result = "val i: Int => String = _"
+    val hint = hintBeginning + " (Int => String)"
+    testQuickFix(text, result, hint)
+  }
+
+  def test_functionTypeSingleParam(): Unit = {
+    val selected = s"val i: $START(Int)$END => String = _"
+    checkTextHasError(selected)
+
+    val text = "val i: (Int) => String = _"
+    withSettings(ignoreAroundFunctionTypeParam) {
+      checkTextHasNoErrors(text)
+    }
+
+    val result = "val i: Int => String = _"
+    val hint = hintBeginning + " (Int)"
+    testQuickFix(text, result, hint)
+  }
+
+  def test_functionSeveralParams(): Unit = {
+    checkTextHasNoErrors("val i: (Int, Int) => String = _)")
+  }
+
   def test_functionPlusInfix(): Unit = {
-    // these are clarifying
     val selected = s"val i: Int => $START(A op B)$END = _"
     checkTextHasNoErrors(selected)
   }
@@ -250,29 +314,20 @@ class UnnecessaryParenthesesInspectionTest extends ScalaQuickFixTestBase {
     checkTextHasError(r2)
     checkTextHasError(r3)
 
+    withSettings(ignoreAroundFunctionExprParam) {
+      checkTextHasNoErrors(r1)
+      checkTextHasNoErrors(r2)
+      checkTextHasNoErrors(r3)
+    }
+
     val text = s"Seq(1) map { (${CARET_MARKER}i: Int) => i + 1 }"
     val result = s"Seq(1) map { i: Int => i + 1 }"
     val hint = hintBeginning + " (i: Int)"
     testQuickFix(text, result, hint)
   }
 
-
-  private def considerClarifying(body: => Unit): Unit = {
-    val tool = InspectionProfileManager.getInstance(project)
-               .getCurrentProfile
-               .getInspectionTool("ScalaUnnecessaryParentheses", project)
-               .getTool
-
-    tool match {
-      case check: ScalaUnnecessaryParenthesesInspection => check setIgnoreClarifying false
-      case _ =>
-    }
-
-    body
-  }
-
   def test_infxPatternClarifying(): Unit = {
-    considerClarifying {
+    withSettings(considerClarifying) {
       val selected = s"val a +: $START(b *: c)$END = _ "
       checkTextHasError(selected)
 

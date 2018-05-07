@@ -478,7 +478,7 @@ class ScReferenceExpressionImpl(node: ASTNode) extends ScReferenceElementImpl(no
             }.getOrElse(Any)
 
             val argument = ScExistentialArgument("_$1", Nil, Nothing, upperBound)
-            ScExistentialType(ScParameterizedType(ScDesignatorType(jlClass), Seq(argument)), List(argument))
+            ScExistentialType(ScParameterizedType(ScDesignatorType(jlClass), Seq(argument)))
           }
 
           elementScope.getCachedClass("java.lang.Class")

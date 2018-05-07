@@ -15,7 +15,7 @@ import org.jetbrains.plugins.scala.lang.psi.impl.ScalaPsiManager
 import org.jetbrains.plugins.scala.lang.psi.impl.toplevel.synthetic.ScSyntheticClass
 import org.jetbrains.plugins.scala.lang.psi.types._
 import org.jetbrains.plugins.scala.lang.psi.types.api._
-import org.jetbrains.plugins.scala.lang.psi.types.recursiveUpdate.{ScSubstitutor, Update}
+import org.jetbrains.plugins.scala.lang.psi.types.recursiveUpdate.{AfterUpdate, ScSubstitutor, Update}
 import org.jetbrains.plugins.scala.lang.psi.types.result._
 import org.jetbrains.plugins.scala.lang.refactoring.util.ScTypeUtil.AliasType
 import org.jetbrains.plugins.scala.lang.resolve.processor.ResolveProcessor
@@ -65,8 +65,9 @@ class ScProjectionType private(val projected: ScType,
         val genericSubst = ScSubstitutor.bind(ta.typeParameters, existentialArgs)
 
         val s = actualSubst.followed(genericSubst)
-        Some(AliasType(ta, ta.lowerBound.map(scType => ScExistentialType(s.subst(scType), existentialArgs)),
-          ta.upperBound.map(scType => ScExistentialType(s.subst(scType), existentialArgs))))
+        Some(AliasType(ta,
+          ta.lowerBound.map(scType => ScExistentialType(s.subst(scType))),
+          ta.upperBound.map(scType => ScExistentialType(s.subst(scType)))))
       case _ => None
     }
   }
@@ -80,18 +81,14 @@ class ScProjectionType private(val projected: ScType,
 
   override def removeAbstracts = ScProjectionType(projected.removeAbstracts, element)
 
-  override def updateSubtypes(updates: Seq[Update], visited: Set[ScType]): ScType = {
+  override def updateSubtypes(updates: Seq[Update], visited: Set[ScType]): ScType =
     ScProjectionType(projected.recursiveUpdateImpl(updates, visited), element)
-  }
 
-  override def recursiveVarianceUpdateModifiable[T](data: T, update: (ScType, Variance, T) => (Boolean, ScType, T),
-                                                    v: Variance = Covariant, revertVariances: Boolean = false): ScType = {
-    update(this, v, data) match {
-      case (true, res, _) => res
-      case (_, _, newData) =>
-        ScProjectionType(projected.recursiveVarianceUpdateModifiable(newData, update, Invariant), element)
-    }
-  }
+  override def updateSubtypesVariance(update: (ScType, Variance) => AfterUpdate,
+                                      variance: Variance = Covariant,
+                                      revertVariances: Boolean = false)
+                                     (implicit visited: Set[ScType]): ScType =
+    ScProjectionType(projected.recursiveVarianceUpdate(update, Invariant), element)
 
   @CachedWithRecursionGuard(element, None, ModCount.getBlockModificationCount)
   private def actualImpl(projected: ScType): Option[(PsiNamedElement, ScSubstitutor)] = {

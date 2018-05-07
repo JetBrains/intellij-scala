@@ -1375,7 +1375,7 @@ object ScalaPsiUtil {
     def unapply(expr: ScExpression): Option[PsiMethod] = {
       if (!expr.expectedType(fromUnderscore = false).exists {
         case FunctionType(_, _) => true
-        case expected if isSAMEnabled(expr) =>
+        case expected if expr.isSAMEnabled =>
           toSAMType(expected, expr).isDefined
         case _ => false
       }) {
@@ -1658,25 +1658,6 @@ object ScalaPsiUtil {
   }
 
   /**
-    * Should we check if it's a Single Abstract Method?
-    * In 2.11 works with -Xexperimental
-    * In 2.12 works by default
-    *
-    * @return true if language level and flags are correct
-    */
-  def isSAMEnabled(element: PsiElement): Boolean = element.scalaLanguageLevel.exists {
-    case lang if lang > Scala_2_11 => true // if there's no module e.scalaLanguageLevel is None, we treat it as Scala 2.12
-    case lang if lang == Scala_2_11 =>
-      val settings = element.module.map {
-        _.scalaCompilerSettings
-      }.getOrElse {
-        ScalaCompilerConfiguration.instanceIn(element.getProject).defaultProfile.getSettings
-      }
-      settings.experimental || settings.additionalCompilerOptions.contains("-Xexperimental")
-    case _ => false
-  }
-
-  /**
     * Determines if expected can be created with a Single Abstract Method and if so return the required ScType for it
     *
     * @see SCL-6140
@@ -1813,23 +1794,22 @@ object ScalaPsiUtil {
             def convertParameter(tpArg: ScType, variance: Variance): ScType = {
               tpArg match {
                 case ParameterizedType(des, tpArgs) => ScParameterizedType(des, tpArgs.map(convertParameter(_, variance)))
-                case ScExistentialType(param: ScParameterizedType, _) if scalaVersion == ScalaLanguageLevel.Scala_2_11 =>
-                  convertParameter(param, variance)
-                case _ =>
-                  wildcards.find(_.name == tpArg.canonicalText) match {
-                    case Some(wildcard) =>
-                      (wildcard.lower, wildcard.upper) match {
-                        // todo: Produces Bad code is green
-                        // Problem is in Java wildcards. How to convert them if it's _ >: Lower, when generic has Upper.
-                        // Earlier we converted with Any upper type, but then it was changed because of type incompatibility.
-                        // Right now the simplest way is Bad Code is Green as otherwise we need to fix this inconsistency somehow.
-                        // I has no idea how yet...
-                        case (lo, _) if variance == Contravariant => lo
-                        case (lo, hi) if lo.isNothing && variance == Covariant => hi
-                        case _ => tpArg
-                      }
+                case ScExistentialType(parameterized: ScParameterizedType, _) if scalaVersion == ScalaLanguageLevel.Scala_2_11 =>
+                  ScExistentialType(convertParameter(parameterized, variance)).simplify()
+                case arg: ScExistentialArgument if wildcards.contains(arg) =>
+                  (arg.lower, arg.upper) match {
+                    // todo: Produces Bad code is green
+                    // Problem is in Java wildcards. How to convert them if it's _ >: Lower, when generic has Upper.
+                    // Earlier we converted with Any upper type, but then it was changed because of type incompatibility.
+                    // Right now the simplest way is Bad Code is Green as otherwise we need to fix this inconsistency somehow.
+                    // I has no idea how yet...
+                    case (lo, _) if variance == Contravariant => lo
+                    case (lo, hi) if lo.isNothing && variance == Covariant => hi
                     case _ => tpArg
                   }
+                case arg: ScExistentialArgument =>
+                  arg.copyWithBounds(convertParameter(arg.lower, variance), convertParameter(arg.upper, variance))
+                case _ => tpArg
               }
             }
 

@@ -15,6 +15,9 @@ import org.jetbrains.plugins.scala.project.ProjectContext
 /**
   * @author Pavel Fatin
   */
+// Boxing/unboxing is not a syntactic sugar but rather a JVM-specific implementation detail.
+// We should not show this conversion in the Desugar Scala code dialog,
+// but we may reuse this code for an inspection or an editor mode that reveals boxing/unboxing.
 class MakeBoxingExplicit extends AbstractTransformer {
   private val Class = "scala.runtime.BoxesRunTime"
 

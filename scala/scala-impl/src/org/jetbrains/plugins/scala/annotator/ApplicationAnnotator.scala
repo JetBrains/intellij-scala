@@ -3,9 +3,9 @@ package annotator
 
 import com.intellij.lang.annotation.{Annotation, AnnotationHolder}
 import com.intellij.psi.{PsiElement, PsiMethod, PsiNamedElement, PsiParameter}
+import org.jetbrains.plugins.scala.annotator.AnnotatorUtils.registerTypeMismatchError
 import org.jetbrains.plugins.scala.annotator.createFromUsage._
 import org.jetbrains.plugins.scala.annotator.importsTracker.ImportTracker
-import org.jetbrains.plugins.scala.annotator.quickfix.ReportHighlightingErrorQuickFix
 import org.jetbrains.plugins.scala.codeInspection.varCouldBeValInspection.ValToVarQuickFix
 import org.jetbrains.plugins.scala.extensions._
 import org.jetbrains.plugins.scala.lang.psi.ScalaPsiUtil
@@ -86,15 +86,9 @@ trait ApplicationAnnotator {
                     registerCreateFromUsageFixesFor(reference,
                       holder.createErrorAnnotation(argument, "Too many arguments for method " + nameOf(fun)))
                   case TypeMismatch(expression, expectedType) if inSameFile(expression, holder) =>
-                    for (t <- expression.`type`()) {
-                      //TODO show parameter name
-                      val (expectedText, actualText) = ScTypePresentation.different(expectedType, t)
-                      val message = ScalaBundle.message("type.mismatch.expected.actual", expectedText, actualText)
-                      val annotation = holder.createErrorAnnotation(expression, message)
-                      registerCreateFromUsageFixesFor(reference, annotation)
-                      annotation.registerFix(ReportHighlightingErrorQuickFix)
+                    expression.`type`().foreach {
+                      registerTypeMismatchError(_, expectedType, holder, expression)
                     }
-
                   case MissedValueParameter(_) => // simultaneously handled above
                   case UnresolvedParameter(_) => // don't show function inapplicability, unresolved
                   case MalformedDefinition() =>
@@ -189,12 +183,8 @@ trait ApplicationAnnotator {
       case ExcessArgument(argument) =>
         holder.createErrorAnnotation(argument, "Too many arguments")
       case TypeMismatch(expression, expectedType) =>
-        for (t <- expression.`type`()) {
-          //TODO show parameter name
-          val (expectedText, actualText) = ScTypePresentation.different(expectedType, t)
-          val message = ScalaBundle.message("type.mismatch.expected.actual", expectedText, actualText)
-          val annotation = holder.createErrorAnnotation(expression, message)
-          annotation.registerFix(ReportHighlightingErrorQuickFix)
+        expression.`type`().foreach {
+          registerTypeMismatchError(_, expectedType, holder, expression)
         }
       case MissedValueParameter(_) => // simultaneously handled above
       case UnresolvedParameter(_) => // don't show function inapplicability, unresolved

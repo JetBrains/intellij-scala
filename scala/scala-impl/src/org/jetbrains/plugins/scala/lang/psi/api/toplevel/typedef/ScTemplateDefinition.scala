@@ -5,6 +5,8 @@ package api
 package toplevel
 package typedef
 
+import java.util.Objects
+
 import com.intellij.execution.junit.JUnitUtil
 import com.intellij.openapi.progress.ProgressManager
 import com.intellij.openapi.project.DumbService
@@ -520,17 +522,20 @@ object ScTemplateDefinition {
     def unapply(definition: ScTemplateDefinition): Some[ScExtendsBlock] = Some(definition.extendsBlock)
   }
 
-  sealed abstract class Kind(val isFinal: Boolean)
+  //there is a performance problem reported if native hashcode is used, see SCL-13692
+  sealed abstract class Kind(val isFinal: Boolean, override val hashCode: Int)
   object Kind {
-    object ScClass extends Kind(false)
-    object ScTrait extends Kind(false)
-    object ScObject extends Kind(true)
-    object ScNewTd extends Kind(true)
-    object SyntheticFinal extends Kind(true)
-    object NonScala extends Kind(false)
+    object ScClass extends Kind(false, 11)
+    object ScTrait extends Kind(false, 13)
+    object ScObject extends Kind(true, 17)
+    object ScNewTd extends Kind(true, 19)
+    object SyntheticFinal extends Kind(true, 23)
+    object NonScala extends Kind(false, 29)
   }
 
-  case class Path(name: String, qName: Option[String], kind: Kind)
+  case class Path(name: String, qName: Option[String], kind: Kind) {
+    override def hashCode(): Int = Objects.hash(name, qName.orNull, kind)
+  }
 
   object Path {
     def of(c: PsiClass): Path = {

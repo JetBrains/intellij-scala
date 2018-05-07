@@ -5,8 +5,7 @@ package api
 package base
 package types
 
-import com.intellij.psi.PsiElement
-import org.jetbrains.plugins.scala.lang.psi.api.expr.ScExpression
+import org.jetbrains.plugins.scala.extensions.ObjectExt
 
 /** 
 * @author Alexander Podkhalyuzin
@@ -18,27 +17,9 @@ trait ScParenthesisedTypeElement extends ScTypeElement with ScParenthesizedEleme
 
   type Kind = ScTypeElement
 
-  protected def isSameTree(p: PsiElement): Boolean = p.isInstanceOf[ScTypeElement]
-
   override def innerElement: Option[ScTypeElement] = findChild(classOf[ScTypeElement])
 
-  override def isParenthesisClarifying: Boolean = {
-    (getParent, innerElement) match {
-      case (p: ScTypeElement, Some(c)) if !isIndivisible(c) && getPrecedence(p) != getPrecedence(c) => true
-      case _ => false
-    }
-  }
-
-  override protected def getPrecedence(typeElem: ScTypeElement): Int = typeElem match {
-    case _: ScParameterizedTypeElement | _: ScTypeProjection | _: ScSimpleTypeElement | _: ScTupleTypeElement | _: ScParenthesisedTypeElement => 0
-    case _: ScAnnotTypeElement => 1
-    case _: ScCompoundTypeElement => 2
-    case _: ScInfixTypeElement => 3
-    case _: ScExistentialTypeElement => 4
-    case _: ScWildcardTypeElement => 5
-    case _: ScFunctionalTypeElement => 6
-    case _ => throw new IllegalArgumentException(s"Unknown type element $typeElem")
-  }
+  override def sameTreeParent: Option[ScTypeElement] = getParent.asOptionOf[ScTypeElement]
 }
 
 

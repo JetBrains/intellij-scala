@@ -11,23 +11,18 @@ import com.intellij.openapi.application.ApplicationManager
 import com.intellij.openapi.compiler.CompilerMessageCategory
 import com.intellij.openapi.editor.Editor
 import com.intellij.openapi.project.Project
-import com.intellij.openapi.util.Key
 import com.intellij.openapi.util.io.FileUtil
 import com.intellij.openapi.vfs.VirtualFile
-import com.intellij.openapi.vfs.newvfs.FileAttribute
-import com.intellij.psi.{PsiErrorElement, PsiFile}
+import com.intellij.psi.PsiErrorElement
 import com.intellij.ui.content.{ContentFactory, MessageView}
 import com.intellij.util.ui.MessageCategory
-import org.jetbrains.plugins.scala.compiler.{CompileServerLauncher, ScalaCompileServerSettings}
-import org.jetbrains.plugins.scala.lang.psi.api.{FileDeclarationsHolder, ScalaFile}
+import org.jetbrains.plugins.scala.compiler.CompileServerLauncher
+import org.jetbrains.plugins.scala.lang.psi.api.ScalaFile
 import org.jetbrains.plugins.scala.project.migration.apiimpl.MigrationApiImpl
-import org.jetbrains.plugins.scala.project.settings.{ScalaCompilerConfiguration, ScalaCompilerSettingsProfile}
-import org.jetbrains.plugins.scala.settings.ScalaProjectSettings
-import org.jetbrains.plugins.scala.statistics.{FeatureKey, Stats}
-import org.jetbrains.plugins.scala.util.{NotificationUtil, ScalaUtil}
-import org.jetbrains.plugins.scala.worksheet.actions.RunWorksheetAction
+import org.jetbrains.plugins.scala.util.NotificationUtil
 import org.jetbrains.plugins.scala.worksheet.runconfiguration.{ReplModeArgs, WorksheetCache}
 import org.jetbrains.plugins.scala.worksheet.server._
+import org.jetbrains.plugins.scala.worksheet.settings.{WorksheetCommonSettings, WorksheetFileSettings, WorksheetProjectSettings}
 import org.jetbrains.plugins.scala.worksheet.ui.{WorksheetEditorPrinterBase, WorksheetEditorPrinterFactory}
 
 /**
@@ -40,10 +35,10 @@ class WorksheetCompiler(editor: Editor, worksheetFile: ScalaFile, callback: (Str
   import worksheet.processor.WorksheetCompiler._
   
   private val project = worksheetFile.getProject
-  private val runType = getRunType(project)
-  private val isRepl = WorksheetCompiler isWorksheetReplMode worksheetFile
+  private val runType = WorksheetProjectSettings getRunType project
+  private val isRepl = WorksheetFileSettings isRepl worksheetFile
   private val worksheetVirtual = worksheetFile.getVirtualFile
-  private val module = RunWorksheetAction getModuleFor worksheetFile
+  private val module = WorksheetCommonSettings.getInstance(worksheetFile).getModuleFor
 
   private def onError(msg: String) {
     NotificationUtil.builder(project, msg).setGroup(
@@ -76,7 +71,7 @@ class WorksheetCompiler(editor: Editor, worksheetFile: ScalaFile, callback: (Str
       }
     }, EMPTY_RUNNABLE)
     
-    if (shouldShowReplWarning(worksheetFile)) task.addMessage(
+    if (WorksheetFileSettings shouldShowReplWarning worksheetFile) task.addMessage(
       new CompilerMessageImpl(project, CompilerMessageCategory.WARNING, "Worksheet can be executed in REPL mode only in compile server process.")
     ) 
   }
@@ -136,76 +131,9 @@ object WorksheetCompiler extends WorksheetPerFileConfig {
     override def run(): Unit = {}
   }
 
-  private val MAKE_BEFORE_RUN = new FileAttribute("ScalaWorksheetMakeBeforeRun", 1, true)
-  private val CP_MODULE_NAME = new FileAttribute("ScalaWorksheetModuleForCp", 1, false)
-  private val IS_WORKSHEET_REPL_MODE = new FileAttribute("IsWorksheetReplMode", 1, true)
-  private val COMPILER_PROFILE = new FileAttribute("ScalaWorksheetCompilerProfile", 1, false)
   private val ERROR_CONTENT_NAME = "Worksheet errors"
+  private val CONFIG_ERROR_HEADER = "Worksheet configuration error:"
 
-  val CONFIG_ERROR_HEADER = "Worksheet configuration error:"
-
-  def getCompileKey: Key[String] = Key.create[String]("scala.worksheet.compilation")
-
-  def getOriginalFileKey: Key[String] = Key.create[String]("scala.worksheet.original.file")
-
-  def isMakeBeforeRun(file: PsiFile): Boolean = isEnabled(file, MAKE_BEFORE_RUN)
-
-  def setMakeBeforeRun(file: PsiFile, isMake: Boolean): Unit = {
-    setEnabled(file, MAKE_BEFORE_RUN, isMake)
-  }
-
-  def isWorksheetReplMode(file: PsiFile): Boolean = isEnabled(file, IS_WORKSHEET_REPL_MODE) && getRunType(file.getProject) == InProcessServer
-  
-  def isWorksheetReplModeLight(file: FileDeclarationsHolder): Boolean = {
-    file match {
-      case scalaFile: ScalaFile =>
-        FileAttributeUtilCache.readAttributeLight(IS_WORKSHEET_REPL_MODE, scalaFile).contains("enabled")
-      case _ => false
-    }
-  }
-  
-  def shouldShowReplWarning(file: PsiFile): Boolean = isEnabled(file, IS_WORKSHEET_REPL_MODE) && getRunType(file.getProject) != InProcessServer
-
-  def setWorksheetReplMode(file: PsiFile, isRepl: Boolean): Unit = {
-    Stats.trigger(FeatureKey.worksheetReplMode(getStringRepresent(isRepl)))
-    setEnabled(file, IS_WORKSHEET_REPL_MODE, isRepl)
-  }
-
-  def getModuleForCpName(file: PsiFile): Option[String] = FileAttributeUtilCache.readAttribute(CP_MODULE_NAME, file)
-
-  def setModuleForCpName(file: PsiFile, moduleName: String): Unit = FileAttributeUtilCache.writeAttribute(CP_MODULE_NAME, file, moduleName)
-  
-  def getCustomCompilerProfileName(file: PsiFile): Option[String] = FileAttributeUtilCache.readAttribute(COMPILER_PROFILE, file)
-  
-  def setCustomCompilerProfileName(file: PsiFile, name: String): Unit = FileAttributeUtilCache.writeAttribute(COMPILER_PROFILE, file, name)
-  
-  def getCompilerProfile(file: PsiFile): ScalaCompilerSettingsProfile = {
-    val compilerConfiguration = ScalaCompilerConfiguration.instanceIn(file.getProject)
-    
-    if (!RunWorksheetAction.isScratchWorksheet(file)) {
-      for {
-        vFile <- ScalaUtil.findVirtualFile(file)
-        module <- ScalaUtil.getModuleForFile(vFile, file.getProject)
-        profile <- compilerConfiguration.customProfiles.find(_.getModuleNames.contains(module.getName))
-      } return profile
-      
-      return compilerConfiguration.defaultProfile
-    } 
-    
-    getCustomCompilerProfileName(file).flatMap {
-      name => compilerConfiguration.customProfiles.find(_.getName == name)
-    }.getOrElse(compilerConfiguration.defaultProfile)
-  }
-
-  def getRunType(project: Project): WorksheetMakeType = {
-    if (ScalaCompileServerSettings.getInstance().COMPILE_SERVER_ENABLED) {
-      if (ScalaProjectSettings.getInstance(project).isInProcessMode)
-        InProcessServer
-      else OutOfProcessServer
-    }
-    else NonServer
-  }
-  
   sealed trait CompilationMessageSeverity {
     def toType: Int
     def isFatal: Boolean = false

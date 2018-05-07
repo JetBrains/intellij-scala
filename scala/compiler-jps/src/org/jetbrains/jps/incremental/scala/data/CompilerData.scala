@@ -62,7 +62,7 @@ object CompilerData {
 
       val globalSettings = SettingsManager.getGlobalSettings(model.getGlobal)
 
-      val jvmSdk = if (globalSettings.isCompileServerEnabled && JavaBuilderUtil.CONSTANT_SEARCH_SERVICE.get(context) != null) {
+      val jvmSdk = if (ScalaBuilder.isCompileServerEnabled(context)) {
         Option(globalSettings.getCompileServerSdk).flatMap { sdkName =>
           val libraries = model.getGlobal.getLibraryCollection.getLibraries(JpsJavaSdkType.INSTANCE).asScala
           libraries.find(_.getName == sdkName).map(_.getProperties)

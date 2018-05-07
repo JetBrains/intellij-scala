@@ -23,7 +23,7 @@ import org.jetbrains.plugins.scala.lang.psi.types.api.designator.ScProjectionTyp
 import org.jetbrains.plugins.scala.lang.psi.types.recursiveUpdate.ScSubstitutor
 import org.jetbrains.plugins.scala.lang.psi.types.result._
 import org.jetbrains.plugins.scala.lang.psi.{ScalaPsiElement, ScalaPsiUtil}
-import org.jetbrains.plugins.scala.project.ProjectContext
+import org.jetbrains.plugins.scala.project.{ProjectContext, ProjectPsiElementExt}
 
 import scala.collection.Set
 import scala.collection.mutable.ArrayBuffer
@@ -285,7 +285,7 @@ object MethodResolveProcessor {
         case f => f
       } match {
         case Some(FunctionType(retType, params)) => processFunctionType(retType, params)
-        case Some(tp: ScType) if ScalaPsiUtil.isSAMEnabled(fun) =>
+        case Some(tp: ScType) if fun.isSAMEnabled =>
           ScalaPsiUtil.toSAMType(tp, fun) match {
             case Some(FunctionType(retType, params)) => processFunctionType(retType, params)
             case _ => default()
@@ -329,7 +329,7 @@ object MethodResolveProcessor {
           expectedOption().map(_.removeAbstracts) match {
             case Some(FunctionType(_, params)) =>
               problems += ExpectedTypeMismatch
-            case Some(tp: ScType) if ScalaPsiUtil.isSAMEnabled(obj) =>
+            case Some(tp: ScType) if obj.isSAMEnabled =>
               ScalaPsiUtil.toSAMType(tp, obj) match {
                 case Some(FunctionType(_, params)) =>
                   problems += ExpectedTypeMismatch

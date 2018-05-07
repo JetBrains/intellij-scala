@@ -12,18 +12,18 @@ class WorksheetSettingsData {
   final boolean isInteractive;
   final boolean isMakeBeforeRun;
   
-  final Module moduleName;
-  final ScalaCompilerSettingsProfile compilerProfileName;
+  final Module cpModule;
+  final ScalaCompilerSettingsProfile compilerProfile;
   
   final ScalaCompilerSettingsProfile[] profiles;
 
-  WorksheetSettingsData(boolean isRepl, boolean isInteractive, boolean isMakeBeforeRun, Module selectedModuleName,
-                        ScalaCompilerSettingsProfile selectedCompilerProfileName, ScalaCompilerSettingsProfile[] profiles) {
+  WorksheetSettingsData(boolean isRepl, boolean isInteractive, boolean isMakeBeforeRun, Module selectedCpModule,
+                        ScalaCompilerSettingsProfile selectedCompilerProfile, ScalaCompilerSettingsProfile[] profiles) {
     this.isRepl = isRepl;
     this.isInteractive = isInteractive;
     this.isMakeBeforeRun = isMakeBeforeRun;
-    this.moduleName = selectedModuleName;
-    this.compilerProfileName = selectedCompilerProfileName;
+    this.cpModule = selectedCpModule;
+    this.compilerProfile = selectedCompilerProfile;
     this.profiles = profiles;
   }
 }

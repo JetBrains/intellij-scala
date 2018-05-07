@@ -4,6 +4,7 @@ import com.intellij.openapi.util.Ref
 import org.jetbrains.plugins.scala.lang.psi.api.statements.params.TypeParamIdOwner
 import org.jetbrains.plugins.scala.lang.psi.types.ScUndefinedSubstitutor._
 import org.jetbrains.plugins.scala.lang.psi.types.api._
+import org.jetbrains.plugins.scala.lang.psi.types.recursiveUpdate.AfterUpdate.{ProcessSubtypes, ReplaceWith, Stop}
 import org.jetbrains.plugins.scala.lang.psi.types.recursiveUpdate.ScSubstitutor
 import org.jetbrains.plugins.scala.project.ProjectContext
 
@@ -49,21 +50,23 @@ object ScUndefinedSubstitutor {
       case ScAbstractType(_, absLower, _) =>
         absLower //upper will be added separately
       case _ =>
-        rawLower.recursiveVarianceUpdateModifiable[Set[String]](Set.empty, {
-          case (ScAbstractType(_, absLower, upper), variance, data) =>
+        rawLower.recursiveVarianceUpdate({
+          case (ScAbstractType(_, absLower, upper), variance) =>
             variance match {
-              case Contravariant => (true, absLower, data)
-              case Covariant     => (true, upper, data)
-              case Invariant     => (true, absLower /*ScExistentialArgument(s"_$$${index += 1; index}", Nil, absLower, upper)*/ , data) //todo: why this is right?
+              case Contravariant => ReplaceWith(absLower)
+              case Covariant     => ReplaceWith(upper)
+              case Invariant     => ReplaceWith(absLower /*ScExistentialArgument(s"_$$${index += 1; index}", Nil, absLower, upper)*/ ) //todo: why this is right?
             }
-          case (ScExistentialArgument(nm, _, skoLower, upper), variance, data) if !data.contains(nm) =>
+          case (ScExistentialArgument(_, _, skoLower, upper), variance) =>
             variance match {
-              case Contravariant => (true, skoLower, data)
-              case Covariant     => (true, upper, data)
-              case Invariant     => (true, ScExistentialArgument(s"_$$${index += 1; index}", Nil, skoLower, upper), data)
+              case Contravariant => ReplaceWith(skoLower)
+              case Covariant     => ReplaceWith(upper)
+              case Invariant     =>
+                index += 1
+                ReplaceWith(ScExistentialArgument(s"_$$$index", Nil, skoLower, upper))
             }
-          case (ex: ScExistentialType, _, data) => (false, ex, data ++ ex.boundNames)
-          case (tp, _, data) => (false, tp, data)
+          case (_: ScExistentialType, _) => Stop
+          case _ => ProcessSubtypes
         }, v, revertVariances = true)
     }
     updated.unpackedType
@@ -78,21 +81,25 @@ object ScUndefinedSubstitutor {
         absUpper // lower will be added separately
       case ScAbstractType(_, _, absUpper) if v == Covariant && absUpper.equiv(Any) => Any
       case _ =>
-        rawUpper.recursiveVarianceUpdateModifiable[Set[String]](Set.empty, {
-          case (ScAbstractType(_, lower, absUpper), variance, data) =>
+        rawUpper.recursiveVarianceUpdate({
+          case (ScAbstractType(_, lower, absUpper), variance) =>
             variance match {
-              case Contravariant => (true, lower, data)
-              case Covariant     => (true, absUpper, data)
-              case Invariant     => (true, ScExistentialArgument(s"_$$${index += 1; index}", Nil, lower, absUpper), data) //todo: why this is right?
+              case Contravariant => ReplaceWith(lower)
+              case Covariant     => ReplaceWith(absUpper)
+              case Invariant     =>
+                index += 1
+                ReplaceWith(ScExistentialArgument(s"_$$$index", Nil, lower, absUpper)) //todo: why this is right?
             }
-          case (ScExistentialArgument(nm, _, lower, skoUpper), variance, data) if !data.contains(nm) =>
+          case (ScExistentialArgument(nm, _, lower, skoUpper), variance) =>
             variance match {
-              case Contravariant => (true, lower, data)
-              case Covariant     => (true, skoUpper, data)
-              case Invariant     => (true, ScExistentialArgument(s"_$$${index += 1; index}", Nil, lower, skoUpper), data)
+              case Contravariant => ReplaceWith(lower)
+              case Covariant     => ReplaceWith(skoUpper)
+              case Invariant     =>
+                index += 1
+                ReplaceWith(ScExistentialArgument(s"_$$$index", Nil, lower, skoUpper))
             }
-          case (ex: ScExistentialType, _, data) => (false, ex, data ++ ex.boundNames)
-          case (tp, _, data) => (false, tp, data)
+          case (ex: ScExistentialType, _) => Stop
+          case _ => ProcessSubtypes
         }, v)
     }
     updated.unpackedType

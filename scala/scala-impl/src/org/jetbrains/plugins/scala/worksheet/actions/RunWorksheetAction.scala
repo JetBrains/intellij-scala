@@ -6,29 +6,28 @@ import com.intellij.execution.configurations.JavaParameters
 import com.intellij.execution.process.{OSProcessHandler, ProcessAdapter, ProcessEvent}
 import com.intellij.execution.ui.ConsoleViewContentType
 import com.intellij.icons.AllIcons
-import com.intellij.ide.scratch.{ScratchFileService, ScratchRootType}
 import com.intellij.ide.util.EditorHelper
 import com.intellij.openapi.actionSystem.{AnAction, AnActionEvent}
 import com.intellij.openapi.application.{ApplicationManager, ModalityState}
 import com.intellij.openapi.compiler.{CompileContext, CompileStatusNotification, CompilerManager}
 import com.intellij.openapi.fileEditor.FileEditorManager
 import com.intellij.openapi.keymap.{KeymapManager, KeymapUtil}
-import com.intellij.openapi.module.{Module, ModuleManager}
+import com.intellij.openapi.module.Module
 import com.intellij.openapi.project.Project
 import com.intellij.openapi.projectRoots.{JavaSdkType, JdkUtil}
-import com.intellij.openapi.roots.{ModuleRootManager, ProjectFileIndex}
+import com.intellij.openapi.roots.ModuleRootManager
 import com.intellij.openapi.util.Key
-import com.intellij.openapi.vfs.{VirtualFile, VirtualFileWithId}
 import com.intellij.psi.{PsiDocumentManager, PsiFile}
+import javax.swing.Icon
 import org.jetbrains.plugins.scala
 import org.jetbrains.plugins.scala.lang.psi.api.ScalaFile
 import org.jetbrains.plugins.scala.project._
-import org.jetbrains.plugins.scala.settings.ScalaProjectSettings
 import org.jetbrains.plugins.scala.statistics.{FeatureKey, Stats}
 import org.jetbrains.plugins.scala.util.ScalaUtil
 import org.jetbrains.plugins.scala.worksheet.processor.WorksheetCompiler
 import org.jetbrains.plugins.scala.worksheet.runconfiguration.WorksheetCache
 import org.jetbrains.plugins.scala.worksheet.server.WorksheetProcessManager
+import org.jetbrains.plugins.scala.worksheet.settings.{WorksheetCommonSettings, WorksheetFileSettings}
 import org.jetbrains.plugins.scala.worksheet.ui.WorksheetEditorPrinterFactory
 
 /**
@@ -53,9 +52,9 @@ class RunWorksheetAction extends AnAction with TopComponentAction {
     }
   }
 
-  override def actionIcon = AllIcons.Actions.Execute
+  override def actionIcon: Icon = AllIcons.Actions.Execute
 
-  override def bundleKey = "worksheet.execute.button"
+  override def bundleKey: String = "worksheet.execute.button"
 
   override def shortcutId: Option[String] = Some("Scala.RunWorksheet")
 }
@@ -79,7 +78,7 @@ object RunWorksheetAction {
       case file: ScalaFile if file.isWorksheetFile =>
         val viewer = WorksheetCache.getInstance(project) getViewer editor
 
-        if (viewer != null && !WorksheetCompiler.isWorksheetReplMode(file)) { 
+        if (viewer != null && !WorksheetFileSettings.isRepl(file)) { 
           ApplicationManager.getApplication.invokeAndWait(new Runnable {
             override def run() {
               scala.extensions.inWriteAction {
@@ -90,7 +89,7 @@ object RunWorksheetAction {
           }, ModalityState.any())
         }
 
-        def runnable() = {
+        def runnable(): Unit = {
           new WorksheetCompiler(editor, file, (className: String, addToCp: String) => {
             ApplicationManager.getApplication invokeLater new Runnable {
               override def run() {
@@ -100,9 +99,10 @@ object RunWorksheetAction {
           }, auto).compileAndRun()
         }
 
-        if (WorksheetCompiler isMakeBeforeRun psiFile) {
-          CompilerManager.getInstance(project).make(
-            getModuleFor(file),
+        val fileSettings = WorksheetCommonSettings.getInstance(file)
+        
+        if (fileSettings.isMakeBeforeRun) {
+          CompilerManager.getInstance(project).make(fileSettings.getModuleFor,
             new CompileStatusNotification {
               override def finished(aborted: Boolean, errors: Int, warnings: Int, compileContext: CompileContext) {
                 if (!aborted && errors == 0) runnable()
@@ -116,7 +116,8 @@ object RunWorksheetAction {
   //FYI: repl mode works only if we use compiler server and run worksheet with "InProcess" setting
   def executeWorksheet(name: String, project: Project, file: PsiFile, mainClassName: String, addToCp: String) {
     val virtualFile = file.getVirtualFile
-    val params = createParameters(getModuleFor(file), mainClassName, Option(project.getBaseDir) map (_.getPath) getOrElse "", addToCp, "",
+    val params = createParameters(WorksheetCommonSettings.getInstance(file).getModuleFor, mainClassName, 
+      Option(project.getBaseDir) map (_.getPath) getOrElse "", addToCp, "",
       virtualFile.getCanonicalPath) //todo extract default java options??
 
     setUpUiAndRun(params.createOSProcessHandler(), file)
@@ -184,27 +185,4 @@ object RunWorksheetAction {
     handler.addProcessListener(myProcessListener)
     handler.startNotify()
   }
-  
-  def isScratchWorksheet(vFileOpt: Option[VirtualFile], project: Project): Boolean = vFileOpt.exists {
-    vFile => ScratchFileService.getInstance().getRootType(vFile).isInstanceOf[ScratchRootType] &&
-      ScalaProjectSettings.getInstance(project).isTreatScratchFilesAsWorksheet
-  }  
-  
-  def isScratchWorksheet(file: PsiFile): Boolean = isScratchWorksheet(Option(file.getVirtualFile), file.getProject)
-
-  def getModuleFor(vFile: VirtualFile, project: Project): Module = {
-    vFile match {
-      case _: VirtualFileWithId =>
-        Option(ProjectFileIndex.SERVICE getInstance project getModuleForFile
-          vFile) getOrElse project.anyScalaModule.map(_.module).orNull
-      case _ => project.anyScalaModule.map(_.module).orNull
-    }
-  }
-  
-  def getModuleFor(file: PsiFile): Module = WorksheetCompiler.getModuleForCpName(file) flatMap {
-    name =>
-      scala.extensions.inReadAction {
-        Option(ModuleManager getInstance file.getProject findModuleByName name)
-      }
-  } getOrElse getModuleFor(file.getVirtualFile, file.getProject)
 }
