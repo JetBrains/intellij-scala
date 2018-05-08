@@ -3,6 +3,7 @@ package lang
 package psi
 package types
 
+import com.intellij.openapi.progress.ProgressManager
 import com.intellij.psi._
 import org.jetbrains.plugins.scala.extensions._
 import org.jetbrains.plugins.scala.lang.psi.api.statements.params.{ScParameter, ScTypeParam}
@@ -417,6 +418,8 @@ trait ScalaBounds extends api.Bounds {
       }
     }
     def checkClasses(leftClasses: Seq[ClassLike], baseIndex: Int = -1, visited: mutable.HashSet[PsiElement] = mutable.HashSet.empty) {
+      ProgressManager.checkCanceled()
+
       if (leftClasses.isEmpty) return
       val leftIterator = leftClasses.iterator
       var i = 0
