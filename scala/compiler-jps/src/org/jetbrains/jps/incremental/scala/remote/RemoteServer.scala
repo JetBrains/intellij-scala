@@ -2,9 +2,11 @@ package org.jetbrains.jps.incremental.scala
 package remote
 
 import java.net.{ConnectException, InetAddress, UnknownHostException}
+import java.nio.file.{Files, Path, Paths}
 
 import org.jetbrains.jps.incremental.ModuleLevelBuilder.ExitCode
 import org.jetbrains.jps.incremental.scala.data.{CompilationData, CompilerData, SbtData}
+import org.jetbrains.jps.incremental.scala.remote.RemoteServer._
 
 /**
  * @author Pavel Fatin
