@@ -45,4 +45,17 @@ class HigherKindedFunctionsVarargsTest extends TypeInferenceTestBase {
          |//AAA
       """.stripMargin)
   }
+
+  def testSCL13634(): Unit = {
+    doTest(
+      s"""
+         |trait C[+A, B]
+         |  type F[T] = C[Int, T]
+         |  def foo(f: F[_]): Unit = ???
+         |
+         |  val st: C[Int, String] = ???
+         |  foo(${START}st$END)
+         |//Foo.F[_]
+      """.stripMargin)
+  }
 }
