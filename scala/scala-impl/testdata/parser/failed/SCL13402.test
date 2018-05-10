@@ -1,0 +1,17 @@
+for {
+  x <- Seq(1 to 10)
+}
+
+println(x)
+-----
+ScalaFile:Dummy.scala
+ForStatement
+PsiElement(for)
+PsiWhiteSpace
+PsiElement({)
+PsiWhiteSpace
+Enumerators
+PsiWhiteSpace
+PsiElement(})
+PsiWhiteSpace
+MethodCall
