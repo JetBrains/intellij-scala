@@ -137,7 +137,7 @@ object Packaging {
         }
         entry = inStream.getNextEntry
       }
-    } finally { if (inStream != null) inStream.close() }
+    } finally { inStream.close() }
   }
 
   def fastMerge(input: Seq[File], output: File): Unit = {
@@ -146,7 +146,7 @@ object Packaging {
       for (file <- input) {
         copyZipContent(file, outStream)
       }
-    } finally { if (outStream != null) outStream.close() }
+    } finally { outStream.close() }
   }
 
 }

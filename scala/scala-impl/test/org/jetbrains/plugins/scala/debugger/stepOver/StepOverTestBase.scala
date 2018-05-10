@@ -1,6 +1,6 @@
 package org.jetbrains.plugins.scala.debugger.stepOver
 
-import org.jetbrains.plugins.scala.debugger.{ScalaDebuggerTestCase, ScalaPositionManager}
+import org.jetbrains.plugins.scala.debugger.ScalaDebuggerTestCase
 import org.jetbrains.plugins.scala.extensions._
 import org.junit.Assert
 
@@ -17,7 +17,7 @@ abstract class StepOverTestBase extends ScalaDebuggerTestCase {
 
   def testStepThrough(expectedLineNumbers: Seq[Int]): Unit = {
     val file = getFileInSrc(mainFileName)
-    val lines = Source.fromFile(file).getLines().toSeq
+    val lines = using(Source.fromFile(file))(_.getLines().toSeq)
     Assert.assertTrue(s"File should start with definition of object $mainClassName" , lines.head.startsWith(s"object $mainClassName"))
 
     def checkLine(expectedLineNumber: Int): Unit = {

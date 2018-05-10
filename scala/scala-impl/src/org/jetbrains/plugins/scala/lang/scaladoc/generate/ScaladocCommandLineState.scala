@@ -274,18 +274,18 @@ class ScaladocCommandLineState(env: ExecutionEnvironment, project: Project)
     if (JdkUtil.useDynamicClasspath(project)) {
       try {
         val tempParamsFile: File = File.createTempFile("scaladocfileargs", ".tmp")
-        val pw: PrintStream = new PrintStream(new FileOutputStream(tempParamsFile))
 
-        for (param <- paramListSimple) {
-          var paramEsc = param
-          if (param.contains(" ") && !(param.startsWith("\"") && param.endsWith("\""))) {
-            paramEsc = "\"" + param + "\""
+        extensions.using(new PrintStream(new FileOutputStream(tempParamsFile))) { pw =>
+          for (param <- paramListSimple) {
+            var paramEsc = param
+            if (param.contains(" ") && !(param.startsWith("\"") && param.endsWith("\""))) {
+              paramEsc = "\"" + param + "\""
+            }
+
+            pw.println(paramEsc)
           }
-
-          pw.println(paramEsc)
         }
 
-        pw.close()
         paramList.add("@" + tempParamsFile.getAbsolutePath)
       }
       catch {
