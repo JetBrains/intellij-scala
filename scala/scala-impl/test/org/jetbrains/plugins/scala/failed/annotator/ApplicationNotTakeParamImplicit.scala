@@ -84,4 +84,21 @@ class ApplicationNotTakeParamImplicit extends ScalaLightCodeInsightFixtureTestAd
         |}
       """.stripMargin)
   }
+
+  def testSCL13689(): Unit = {
+    checkTextHasNoErrors(
+      """
+        |class parent {
+        |  def abc[T]: T = ???
+        |}
+        |
+        |object foo extends parent {
+        |  def abc: Nothing = ???
+        |}
+        |
+        |object bar {
+        |  foo.abc[Int]
+        |}
+      """.stripMargin)
+  }
 }
