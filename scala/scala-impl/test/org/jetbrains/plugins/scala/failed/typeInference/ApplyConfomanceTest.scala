@@ -55,4 +55,21 @@ class ApplyConfomanceTest extends ScalaLightCodeInsightFixtureTestAdapter {
          |}
       """.stripMargin)
   }
+
+  def testSCL13654(): Unit = {
+    checkTextHasNoErrors(
+      s"""
+         |class Id {
+         |    def apply(param: Int): Int =
+         |      param
+         |  }
+         |
+         |  implicit def id2function(clz: Id): String => String =
+         |    str => clz(str.toInt).toString
+         |
+         |  val id = new Id
+         |
+         |  id { "1" }
+      """.stripMargin)
+  }
 }
