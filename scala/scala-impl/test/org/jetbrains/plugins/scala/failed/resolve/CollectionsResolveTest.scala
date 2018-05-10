@@ -51,4 +51,9 @@ class CollectionsResolveTest extends FailedResolveCaretTestBase {
        |    ids.<caret>flatMap(get)
        |  }
     """.stripMargin)
+
+  def testSCL13665(): Unit = doResolveCaretTest(
+    s"""
+       |val foo = <caret>Array[Byte](1, 2, 3)
+    """.stripMargin)
 }
