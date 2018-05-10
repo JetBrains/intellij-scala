@@ -9,7 +9,7 @@ import org.junit.experimental.categories.Category
   */
 
 @Category(Array(classOf[PerfCycleTests]))
-class ApplicationNotTakeParamImplicit extends ScalaLightCodeInsightFixtureTestAdapter {
+class ApplicationNotTakeParam extends ScalaLightCodeInsightFixtureTestAdapter {
 
   override protected def shouldPass: Boolean = false
 
