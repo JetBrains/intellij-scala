@@ -48,4 +48,15 @@ class SetConformanceTest extends ScalaLightCodeInsightFixtureTestAdapter {
        |}
        |//true
     """.stripMargin)
+
+  def testSCL13432(): Unit = checkTextHasNoErrors(
+    s"""
+       |import scala.reflect.ClassTag
+       |import scala.collection.mutable
+       |
+       |def component[T: ClassTag]: mutable.HashMap[Int, T] = ???
+       |
+       |component(3) = "thing"
+       |//true
+    """.stripMargin)
 }
