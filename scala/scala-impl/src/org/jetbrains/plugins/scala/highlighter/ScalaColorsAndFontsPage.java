@@ -17,6 +17,8 @@ import org.jetbrains.plugins.scala.icons.Icons;
 import javax.swing.*;
 import java.util.Map;
 
+import static org.jetbrains.plugins.scala.highlighter.DefaultHighlighter.*;
+
 /**
  * User: Alexander Podkhalyuzin
  * Date: 15.07.2008
@@ -41,63 +43,63 @@ public class ScalaColorsAndFontsPage implements RainbowColorSettingsPage {
 
   static {
     ATTRS = new AttributesDescriptor[]{
-        new AttributesDescriptor(DefaultHighlighter.KEYWORD_NAME, DefaultHighlighter.KEYWORD),
-        new AttributesDescriptor(DefaultHighlighter.NUMBER_NAME, DefaultHighlighter.NUMBER),
-        new AttributesDescriptor(DefaultHighlighter.STRING_NAME, DefaultHighlighter.STRING),
-        new AttributesDescriptor(DefaultHighlighter.VALID_STRING_ESCAPE_NAME, DefaultHighlighter.VALID_STRING_ESCAPE),
-        new AttributesDescriptor(DefaultHighlighter.INVALID_STRING_ESCAPE_NAME, DefaultHighlighter.INVALID_STRING_ESCAPE),
-        new AttributesDescriptor(DefaultHighlighter.ASSIGN_NAME, DefaultHighlighter.ASSIGN),
-        new AttributesDescriptor(DefaultHighlighter.PARENTHESES_NAME, DefaultHighlighter.PARENTHESES),
-        new AttributesDescriptor(DefaultHighlighter.BRACES_NAME, DefaultHighlighter.BRACES),
-        new AttributesDescriptor(DefaultHighlighter.BRACKETS_NAME, DefaultHighlighter.BRACKETS),
-        new AttributesDescriptor(DefaultHighlighter.COLON_NAME, DefaultHighlighter.COLON),
-        new AttributesDescriptor(DefaultHighlighter.SEMICOLON_NAME, DefaultHighlighter.SEMICOLON),
-        new AttributesDescriptor(DefaultHighlighter.DOT_NAME, DefaultHighlighter.DOT),
-        new AttributesDescriptor(DefaultHighlighter.COMMA_NAME, DefaultHighlighter.COMMA),
-        new AttributesDescriptor(DefaultHighlighter.MUTABLE_COLLECTION_NAME, DefaultHighlighter.MUTABLE_COLLECTION),
-        new AttributesDescriptor(DefaultHighlighter.IMMUTABLE_COLLECTION_NAME, DefaultHighlighter.IMMUTABLE_COLLECTION),
-        new AttributesDescriptor(DefaultHighlighter.JAVA_COLLECTION_NAME, DefaultHighlighter.JAVA_COLLECTION),
-        new AttributesDescriptor(DefaultHighlighter.INTERPOLATED_STRING_INJECTION_NAME, DefaultHighlighter.INTERPOLATED_STRING_INJECTION),
-        new AttributesDescriptor(DefaultHighlighter.LINE_COMMENT_NAME, DefaultHighlighter.LINE_COMMENT),
-        new AttributesDescriptor(DefaultHighlighter.BLOCK_COMMENT_NAME, DefaultHighlighter.BLOCK_COMMENT),
-        new AttributesDescriptor(DefaultHighlighter.DOC_COMMENT_NAME, DefaultHighlighter.DOC_COMMENT),
-        new AttributesDescriptor(DefaultHighlighter.SCALA_DOC_TAG_NAME, DefaultHighlighter.SCALA_DOC_TAG),
-        new AttributesDescriptor(DefaultHighlighter.SCALA_DOC_HTML_TAG_NAME, DefaultHighlighter.SCALA_DOC_HTML_TAG),
-        new AttributesDescriptor(DefaultHighlighter.SCALA_DOC_WIKI_SYNTAX_NAME, DefaultHighlighter.SCALA_DOC_WIKI_SYNTAX),
-        new AttributesDescriptor(DefaultHighlighter.SCALA_DOC_HTML_ESCAPE_NAME, DefaultHighlighter.SCALA_DOC_HTML_ESCAPE),
-        new AttributesDescriptor(DefaultHighlighter.SCALA_DOC_TAG_PARAM_VALUE_NAME, DefaultHighlighter.SCALA_DOC_TAG_PARAM_VALUE),
-        new AttributesDescriptor(DefaultHighlighter.IMPLICIT_CONVERSIONS_NAME, DefaultHighlighter.IMPLICIT_CONVERSIONS),
-        new AttributesDescriptor(DefaultHighlighter.CLASS_NAME, DefaultHighlighter.CLASS),
-        new AttributesDescriptor(DefaultHighlighter.ABSTRACT_CLASS_NAME, DefaultHighlighter.ABSTRACT_CLASS),
-        new AttributesDescriptor(DefaultHighlighter.OBJECT_NAME, DefaultHighlighter.OBJECT),
-        new AttributesDescriptor(DefaultHighlighter.TYPEPARAM_NAME, DefaultHighlighter.TYPEPARAM),
-        new AttributesDescriptor(DefaultHighlighter.TYPE_ALIAS_NAME, DefaultHighlighter.TYPE_ALIAS),
-        new AttributesDescriptor(DefaultHighlighter.PREDEF_NAME, DefaultHighlighter.PREDEF),
-        new AttributesDescriptor(DefaultHighlighter.TRAIT_NAME, DefaultHighlighter.TRAIT),
-        new AttributesDescriptor(DefaultHighlighter.LOCAL_VALUES_NAME, DefaultHighlighter.LOCAL_VALUES),
-        new AttributesDescriptor(DefaultHighlighter.LOCAL_VARIABLES_NAME, DefaultHighlighter.LOCAL_VARIABLES),
-        new AttributesDescriptor(DefaultHighlighter.LOCAL_LAZY_NAME, DefaultHighlighter.LOCAL_LAZY),
-        new AttributesDescriptor(DefaultHighlighter.VALUES_NAME, DefaultHighlighter.VALUES),
-        new AttributesDescriptor(DefaultHighlighter.VARIABLES_NAME, DefaultHighlighter.VARIABLES),
-        new AttributesDescriptor(DefaultHighlighter.LAZY_NAME, DefaultHighlighter.LAZY),
-        new AttributesDescriptor(DefaultHighlighter.PARAMETER_NAME, DefaultHighlighter.PARAMETER),
-        new AttributesDescriptor(DefaultHighlighter.ANONYMOUS_PARAMETER_NAME, DefaultHighlighter.ANONYMOUS_PARAMETER),
-        new AttributesDescriptor(DefaultHighlighter.PATTERN_NAME, DefaultHighlighter.PATTERN),
-        new AttributesDescriptor(DefaultHighlighter.GENERATOR_NAME, DefaultHighlighter.GENERATOR),
-        new AttributesDescriptor(DefaultHighlighter.METHOD_CALL_NAME, DefaultHighlighter.METHOD_CALL),
-        new AttributesDescriptor(DefaultHighlighter.OBJECT_METHOD_CALL_NAME, DefaultHighlighter.OBJECT_METHOD_CALL),
-        new AttributesDescriptor(DefaultHighlighter.LOCAL_METHOD_CALL_NAME, DefaultHighlighter.LOCAL_METHOD_CALL),
-        new AttributesDescriptor(DefaultHighlighter.METHOD_DECLARATION_NAME, DefaultHighlighter.METHOD_DECLARATION),
-        new AttributesDescriptor(DefaultHighlighter.BAD_CHARACTER_NAME, DefaultHighlighter.BAD_CHARACTER),
-        new AttributesDescriptor(DefaultHighlighter.ANNOTATION_NAME, DefaultHighlighter.ANNOTATION),
-        new AttributesDescriptor(DefaultHighlighter.ANNOTATION_ATTRIBUTE_NAME, DefaultHighlighter.ANNOTATION_ATTRIBUTE),
-        new AttributesDescriptor(DefaultHighlighter.XML_TAG_ID, DefaultHighlighter.XML_TAG),
-        new AttributesDescriptor(DefaultHighlighter.XML_TAG_NAME_ID, DefaultHighlighter.XML_TAG_NAME),
-        new AttributesDescriptor(DefaultHighlighter.XML_TAG_DATA_ID, DefaultHighlighter.XML_TAG_DATA),
-        new AttributesDescriptor(DefaultHighlighter.XML_ATTRIBUTE_NAME_ID, DefaultHighlighter.XML_ATTRIBUTE_NAME),
-        new AttributesDescriptor(DefaultHighlighter.XML_ATTRIBUTE_VALUE_ID, DefaultHighlighter.XML_ATTRIBUTE_VALUE),
-        new AttributesDescriptor(DefaultHighlighter.XML_COMMENT_ID, DefaultHighlighter.XML_COMMENT),
-        new AttributesDescriptor(DefaultHighlighter.SCALATEST_KEYWORD_ID, DefaultHighlighter.SCALATEST_KEYWORD)
+            new AttributesDescriptor(KEYWORD_NAME, KEYWORD),
+            new AttributesDescriptor(NUMBER_NAME, NUMBER),
+            new AttributesDescriptor(STRING_NAME, STRING),
+            new AttributesDescriptor(VALID_STRING_ESCAPE_NAME, VALID_STRING_ESCAPE),
+            new AttributesDescriptor(INVALID_STRING_ESCAPE_NAME, INVALID_STRING_ESCAPE),
+            new AttributesDescriptor(ASSIGN_NAME, ASSIGN),
+            new AttributesDescriptor(PARENTHESES_NAME, PARENTHESES),
+            new AttributesDescriptor(BRACES_NAME, BRACES),
+            new AttributesDescriptor(BRACKETS_NAME, BRACKETS),
+            new AttributesDescriptor(COLON_NAME, COLON),
+            new AttributesDescriptor(SEMICOLON_NAME, SEMICOLON),
+            new AttributesDescriptor(DOT_NAME, DOT),
+            new AttributesDescriptor(COMMA_NAME, COMMA),
+            new AttributesDescriptor(MUTABLE_COLLECTION_NAME, MUTABLE_COLLECTION),
+            new AttributesDescriptor(IMMUTABLE_COLLECTION_NAME, IMMUTABLE_COLLECTION),
+            new AttributesDescriptor(JAVA_COLLECTION_NAME, JAVA_COLLECTION),
+            new AttributesDescriptor(INTERPOLATED_STRING_INJECTION_NAME, INTERPOLATED_STRING_INJECTION),
+            new AttributesDescriptor(LINE_COMMENT_NAME, LINE_COMMENT),
+            new AttributesDescriptor(BLOCK_COMMENT_NAME, BLOCK_COMMENT),
+            new AttributesDescriptor(DOC_COMMENT_NAME, DOC_COMMENT),
+            new AttributesDescriptor(SCALA_DOC_TAG_NAME, SCALA_DOC_TAG),
+            new AttributesDescriptor(SCALA_DOC_HTML_TAG_NAME, SCALA_DOC_HTML_TAG),
+            new AttributesDescriptor(SCALA_DOC_WIKI_SYNTAX_NAME, SCALA_DOC_WIKI_SYNTAX),
+            new AttributesDescriptor(SCALA_DOC_HTML_ESCAPE_NAME, SCALA_DOC_HTML_ESCAPE),
+            new AttributesDescriptor(SCALA_DOC_TAG_PARAM_VALUE_NAME, SCALA_DOC_TAG_PARAM_VALUE),
+            new AttributesDescriptor(IMPLICIT_CONVERSIONS_NAME, IMPLICIT_CONVERSIONS),
+            new AttributesDescriptor(CLASS_NAME, CLASS),
+            new AttributesDescriptor(ABSTRACT_CLASS_NAME, ABSTRACT_CLASS),
+            new AttributesDescriptor(OBJECT_NAME, OBJECT),
+            new AttributesDescriptor(TYPEPARAM_NAME, TYPEPARAM),
+            new AttributesDescriptor(TYPE_ALIAS_NAME, TYPE_ALIAS),
+            new AttributesDescriptor(PREDEF_NAME, PREDEF),
+            new AttributesDescriptor(TRAIT_NAME, TRAIT),
+            new AttributesDescriptor(LOCAL_VALUES_NAME, LOCAL_VALUES),
+            new AttributesDescriptor(LOCAL_VARIABLES_NAME, LOCAL_VARIABLES),
+            new AttributesDescriptor(LOCAL_LAZY_NAME, LOCAL_LAZY),
+            new AttributesDescriptor(VALUES_NAME, VALUES),
+            new AttributesDescriptor(VARIABLES_NAME, VARIABLES),
+            new AttributesDescriptor(LAZY_NAME, LAZY),
+            new AttributesDescriptor(PARAMETER_NAME, PARAMETER),
+            new AttributesDescriptor(ANONYMOUS_PARAMETER_NAME, ANONYMOUS_PARAMETER),
+            new AttributesDescriptor(PATTERN_NAME, PATTERN),
+            new AttributesDescriptor(GENERATOR_NAME, GENERATOR),
+            new AttributesDescriptor(METHOD_CALL_NAME, METHOD_CALL),
+            new AttributesDescriptor(OBJECT_METHOD_CALL_NAME, OBJECT_METHOD_CALL),
+            new AttributesDescriptor(LOCAL_METHOD_CALL_NAME, LOCAL_METHOD_CALL),
+            new AttributesDescriptor(METHOD_DECLARATION_NAME, METHOD_DECLARATION),
+            new AttributesDescriptor(BAD_CHARACTER_NAME, BAD_CHARACTER),
+            new AttributesDescriptor(ANNOTATION_NAME, ANNOTATION),
+            new AttributesDescriptor(ANNOTATION_ATTRIBUTE_NAME, ANNOTATION_ATTRIBUTE),
+            new AttributesDescriptor(XML_TAG_ID, XML_TAG),
+            new AttributesDescriptor(XML_TAG_NAME_ID, XML_TAG_NAME),
+            new AttributesDescriptor(XML_TAG_DATA_ID, XML_TAG_DATA),
+            new AttributesDescriptor(XML_ATTRIBUTE_NAME_ID, XML_ATTRIBUTE_NAME),
+            new AttributesDescriptor(XML_ATTRIBUTE_VALUE_ID, XML_ATTRIBUTE_VALUE),
+            new AttributesDescriptor(XML_COMMENT_ID, XML_COMMENT),
+            new AttributesDescriptor(SCALATEST_KEYWORD_ID, SCALATEST_KEYWORD)
     };
   }
 
@@ -169,7 +171,11 @@ public class ScalaColorsAndFontsPage implements RainbowColorSettingsPage {
 
   @Override
   public boolean isRainbowType(TextAttributesKey key) {
-    return DefaultHighlighter.LOCAL_VARIABLES.equals(key);
+    return LOCAL_VALUES.equals(key)
+            || LOCAL_VARIABLES.equals(key)
+            || PARAMETER.equals(key)
+            || ANONYMOUS_PARAMETER.equals(key)
+            || SCALA_DOC_TAG_PARAM_VALUE.equals(key);
   }
 
   @NotNull
@@ -181,57 +187,57 @@ public class ScalaColorsAndFontsPage implements RainbowColorSettingsPage {
   @Nullable
   public Map<String, TextAttributesKey> getAdditionalHighlightingTagToDescriptorMap() {
     Map<String, TextAttributesKey> map = RainbowHighlighter.createRainbowHLM();
-    map.put("keyword", DefaultHighlighter.KEYWORD);
-    map.put("par", DefaultHighlighter.PARENTHESES);
-    map.put("brace", DefaultHighlighter.BRACES);
-    map.put("colon", DefaultHighlighter.COLON);
-    map.put("scaladoc", DefaultHighlighter.DOC_COMMENT);
-    map.put("string", DefaultHighlighter.STRING);
-    map.put("validescape", DefaultHighlighter.VALID_STRING_ESCAPE);
-    map.put("invalidescape", DefaultHighlighter.INVALID_STRING_ESCAPE);
-    map.put("typeparam", DefaultHighlighter.TYPEPARAM);
-    map.put("assign", DefaultHighlighter.ASSIGN);
-    map.put("bracket", DefaultHighlighter.BRACKETS);
-    map.put("dot", DefaultHighlighter.DOT);
-    map.put("semicolon", DefaultHighlighter.SEMICOLON);
-    map.put("comma", DefaultHighlighter.COMMA);
-    map.put("mutablec", DefaultHighlighter.MUTABLE_COLLECTION);
-    map.put("immutablec", DefaultHighlighter.IMMUTABLE_COLLECTION);
-    map.put("javac", DefaultHighlighter.JAVA_COLLECTION);
-    map.put("number", DefaultHighlighter.NUMBER);
-    map.put("linecomment", DefaultHighlighter.LINE_COMMENT);
-    map.put("blockcomment", DefaultHighlighter.BLOCK_COMMENT);
-    map.put("class", DefaultHighlighter.CLASS);
-    map.put("predef", DefaultHighlighter.PREDEF);
-    map.put("object", DefaultHighlighter.OBJECT);
-    map.put("trait", DefaultHighlighter.TRAIT);
-    map.put("annotation", DefaultHighlighter.ANNOTATION);
-    map.put("attribute", DefaultHighlighter.ANNOTATION_ATTRIBUTE);
-    map.put("markup", DefaultHighlighter.SCALA_DOC_MARKUP);
-    map.put("tag", DefaultHighlighter.SCALA_DOC_TAG);
-    map.put("abstract", DefaultHighlighter.ABSTRACT_CLASS);
-    map.put("local", DefaultHighlighter.LOCAL_VALUES);
-    map.put("val", DefaultHighlighter.VALUES);
-    map.put("param", DefaultHighlighter.PARAMETER);
-    map.put("anon_param", DefaultHighlighter.ANONYMOUS_PARAMETER);
-    map.put("method", DefaultHighlighter.METHOD_CALL);
-    map.put("objectmethod", DefaultHighlighter.OBJECT_METHOD_CALL);
-    map.put("localmethod", DefaultHighlighter.LOCAL_METHOD_CALL);
-    map.put("methoddecl", DefaultHighlighter.METHOD_DECLARATION);
-    map.put("pattern", DefaultHighlighter.PATTERN);
-    map.put("generator", DefaultHighlighter.GENERATOR);
-    map.put("typeAlias", DefaultHighlighter.TYPE_ALIAS);
-    map.put("wikiElement", DefaultHighlighter.SCALA_DOC_WIKI_SYNTAX);
-    map.put("scaladocHtml", DefaultHighlighter.SCALA_DOC_HTML_TAG);
-    map.put("htmlDocEscape", DefaultHighlighter.SCALA_DOC_HTML_ESCAPE);
-    map.put("paramtagval", DefaultHighlighter.SCALA_DOC_TAG_PARAM_VALUE);
-    map.put("xmltag", DefaultHighlighter.XML_TAG);
-    map.put("xmltagname", DefaultHighlighter.XML_TAG_NAME);
-    map.put("xmltagdata", DefaultHighlighter.XML_TAG_DATA);
-    map.put("xmlattributename", DefaultHighlighter.XML_ATTRIBUTE_NAME);
-    map.put("xmlattributevalue", DefaultHighlighter.XML_ATTRIBUTE_VALUE);
-    map.put("xmlcomment", DefaultHighlighter.XML_COMMENT);
-    map.put("implicit", DefaultHighlighter.IMPLICIT_CONVERSIONS);
+    map.put("keyword", KEYWORD);
+    map.put("par", PARENTHESES);
+    map.put("brace", BRACES);
+    map.put("colon", COLON);
+    map.put("scaladoc", DOC_COMMENT);
+    map.put("string", STRING);
+    map.put("validescape", VALID_STRING_ESCAPE);
+    map.put("invalidescape", INVALID_STRING_ESCAPE);
+    map.put("typeparam", TYPEPARAM);
+    map.put("assign", ASSIGN);
+    map.put("bracket", BRACKETS);
+    map.put("dot", DOT);
+    map.put("semicolon", SEMICOLON);
+    map.put("comma", COMMA);
+    map.put("mutablec", MUTABLE_COLLECTION);
+    map.put("immutablec", IMMUTABLE_COLLECTION);
+    map.put("javac", JAVA_COLLECTION);
+    map.put("number", NUMBER);
+    map.put("linecomment", LINE_COMMENT);
+    map.put("blockcomment", BLOCK_COMMENT);
+    map.put("class", CLASS);
+    map.put("predef", PREDEF);
+    map.put("object", OBJECT);
+    map.put("trait", TRAIT);
+    map.put("annotation", ANNOTATION);
+    map.put("attribute", ANNOTATION_ATTRIBUTE);
+    map.put("markup", SCALA_DOC_MARKUP);
+    map.put("tag", SCALA_DOC_TAG);
+    map.put("abstract", ABSTRACT_CLASS);
+    map.put("local", LOCAL_VALUES);
+    map.put("val", VALUES);
+    map.put("param", PARAMETER);
+    map.put("anon_param", ANONYMOUS_PARAMETER);
+    map.put("method", METHOD_CALL);
+    map.put("objectmethod", OBJECT_METHOD_CALL);
+    map.put("localmethod", LOCAL_METHOD_CALL);
+    map.put("methoddecl", METHOD_DECLARATION);
+    map.put("pattern", PATTERN);
+    map.put("generator", GENERATOR);
+    map.put("typeAlias", TYPE_ALIAS);
+    map.put("wikiElement", SCALA_DOC_WIKI_SYNTAX);
+    map.put("scaladocHtml", SCALA_DOC_HTML_TAG);
+    map.put("htmlDocEscape", SCALA_DOC_HTML_ESCAPE);
+    map.put("paramtagval", SCALA_DOC_TAG_PARAM_VALUE);
+    map.put("xmltag", XML_TAG);
+    map.put("xmltagname", XML_TAG_NAME);
+    map.put("xmltagdata", XML_TAG_DATA);
+    map.put("xmlattributename", XML_ATTRIBUTE_NAME);
+    map.put("xmlattributevalue", XML_ATTRIBUTE_VALUE);
+    map.put("xmlcomment", XML_COMMENT);
+    map.put("implicit", IMPLICIT_CONVERSIONS);
     return map;
   }
 }
