@@ -70,6 +70,15 @@ class ScalaRainbowVisitorTest extends ScalaLightCodeInsightFixtureTestAdapter {
        """.stripMargin
   )
 
+  def testScalaDoc(): Unit = doTest(
+    s"""/**
+       |    * @param ${S_1}p1$E first parameter
+       |    * @param ${S_2}p2$E second parameter
+       |    */
+       |  def foo(${S_1}p1$E: Int, ${S_2}p2$E: Int): Unit = {}
+     """.stripMargin
+  )
+
   private def doTest(text: String,
                      isRainbowOn: Boolean = true,
                      withColor: Boolean = true): Unit =

@@ -14,6 +14,7 @@ import org.jetbrains.plugins.scala.lang.psi.api.base.patterns.ScReferencePattern
 import org.jetbrains.plugins.scala.lang.psi.api.expr.{ScFunctionExpr, ScReferenceExpression}
 import org.jetbrains.plugins.scala.lang.psi.api.statements.params.{ScClassParameter, ScParameter}
 import org.jetbrains.plugins.scala.lang.psi.api.statements.{ScFunction, ScValue, ScValueOrVariable, ScVariable}
+import org.jetbrains.plugins.scala.lang.scaladoc.psi.api.ScDocTagValue
 
 class ScalaRainbowVisitor extends RainbowVisitor {
 
@@ -31,6 +32,8 @@ class ScalaRainbowVisitor extends RainbowVisitor {
       addReferenceInfo(parameter, reference)
     case reference@ScReferenceExpression((_: ScReferencePattern) childOf ((_: ScPatternList) childOf (element: ScValueOrVariable))) =>
       addReferenceInfo(element, reference)
+    case docTag: ScDocTagValue =>
+      addInfo(docTag, docTag)
     case _ =>
   }
 
@@ -67,6 +70,7 @@ private object ScalaRainbowVisitor {
         }
       case value: ScValue if value.isLocal => Some(LOCAL_VALUES)
       case variable: ScVariable if variable.isLocal => Some(LOCAL_VARIABLES)
+      case _: ScDocTagValue => Some(SCALA_DOC_TAG_PARAM_VALUE)
       case _ => None
     }
   }
