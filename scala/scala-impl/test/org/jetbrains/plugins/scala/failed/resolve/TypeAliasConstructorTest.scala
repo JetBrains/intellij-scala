@@ -12,4 +12,5 @@ import org.junit.experimental.categories.Category
 class TypeAliasConstructorTest extends FailedResolveTest("typeAlias") {
   def testSCL6041() = doTest()
   def testSCL13431() = doTest()
+  def testSCL13742() = doTest()
 }
