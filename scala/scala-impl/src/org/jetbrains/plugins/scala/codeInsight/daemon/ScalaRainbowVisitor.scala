@@ -11,7 +11,7 @@ import org.jetbrains.plugins.scala.highlighter.DefaultHighlighter
 import org.jetbrains.plugins.scala.lang.psi.api.ScalaFile
 import org.jetbrains.plugins.scala.lang.psi.api.base.ScPatternList
 import org.jetbrains.plugins.scala.lang.psi.api.base.patterns.ScReferencePattern
-import org.jetbrains.plugins.scala.lang.psi.api.expr.ScReferenceExpression
+import org.jetbrains.plugins.scala.lang.psi.api.expr.{ScFunctionExpr, ScReferenceExpression}
 import org.jetbrains.plugins.scala.lang.psi.api.statements.params.{ScClassParameter, ScParameter}
 import org.jetbrains.plugins.scala.lang.psi.api.statements.{ScFunction, ScValue, ScValueOrVariable, ScVariable}
 
@@ -45,22 +45,26 @@ class ScalaRainbowVisitor extends RainbowVisitor {
 
     for {
       ColorKey(colorKey) <- Some(element)
-      context <- Option(getContextOfType(element, true, classOf[ScFunction]))
+      context <- Option(getContextOfType(element, true, classOf[ScFunction], classOf[ScFunctionExpr]))
       rainbowElement <- rainbowElements
       info = getInfo(context, rainbowElement, rainbowElement.getText, colorKey)
     } addInfo(info)
   }
 }
 
-object ScalaRainbowVisitor {
+private object ScalaRainbowVisitor {
 
-  private object ColorKey {
+  object ColorKey {
 
     import DefaultHighlighter._
 
     def unapply(element: PsiElement): Option[TextAttributesKey] = element match {
-      case _: ScClassParameter => None
-      case _: ScParameter => Some(PARAMETER)
+      case parameter: ScParameter =>
+        parameter match {
+          case _: ScClassParameter => None
+          case _ if parameter.isAnonymousParameter => Some(ANONYMOUS_PARAMETER)
+          case _ => Some(PARAMETER)
+        }
       case value: ScValue if value.isLocal => Some(LOCAL_VALUES)
       case variable: ScVariable if variable.isLocal => Some(LOCAL_VARIABLES)
       case _ => None

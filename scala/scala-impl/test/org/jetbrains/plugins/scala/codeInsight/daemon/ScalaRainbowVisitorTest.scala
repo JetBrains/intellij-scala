@@ -6,7 +6,7 @@ import org.jetbrains.plugins.scala.base.ScalaLightCodeInsightFixtureTestAdapter
 
 class ScalaRainbowVisitorTest extends ScalaLightCodeInsightFixtureTestAdapter {
 
-  import ScalaRainbowVisitorTest.{END_TAG => E, START_TAG => S, START_TAG_1 => S_1, START_TAG_2 => S_2, START_TAG_3 => S_3}
+  import ScalaRainbowVisitorTest.{END_TAG => E, START_TAG => S, START_TAG_1 => S_1, START_TAG_2 => S_2, START_TAG_3 => S_3, START_TAG_4 => S_4}
 
   def testRainbowOff(): Unit = doTest(
     s"def foo(p1: Int): Unit = {}",
@@ -55,8 +55,10 @@ class ScalaRainbowVisitorTest extends ScalaLightCodeInsightFixtureTestAdapter {
   )
 
   def testLambdaParameters(): Unit = doTest(
-    s"def foo(${S}p1$E: Any => String = ${S}p2$E => ${S}p2$E.toString): Unit",
-    withColor = false
+    s"""def foo(${S_1}p1$E: Any => String = ${S_1}p2$E => ${S_1}p2$E.toString): Unit = {
+       |  (${S_4}p3$E: String) => ${S_4}p3$E
+       |}
+       """.stripMargin
   )
 
   def testNestedMethods(): Unit = doTest(
@@ -80,6 +82,7 @@ object ScalaRainbowVisitorTest {
   private val START_TAG_1 = "<rainbow color='ff000001'>"
   private val START_TAG_2 = "<rainbow color='ff000002'>"
   private val START_TAG_3 = "<rainbow color='ff000003'>"
+  private val START_TAG_4 = "<rainbow color='ff000004'>"
 
   private val END_TAG = "</rainbow>"
 }
