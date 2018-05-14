@@ -3,6 +3,7 @@ package lang.resolve
 
 import com.intellij.lang.properties.IProperty
 import com.intellij.psi.{PsiElement, PsiReference}
+import org.jetbrains.plugins.scala.util.TestUtils
 import org.junit.Assert
 
 /**
@@ -11,11 +12,11 @@ import org.junit.Assert
  */
 class ResolvePropertyKeyTest extends ScalaResolveTestCase {
   override def folderPath: String = {
-    moduleSpecific(super.folderPath) + "resolve/propertyKey/"
+    testdataDir + "/resolve/propertyKey/"
   }
 
   protected override def rootPath: String = {
-    moduleSpecific(super.folderPath) + "resolve/propertyKey/"
+    testdataDir + "/resolve/propertyKey/"
   }
 
   def testMain() {
@@ -24,9 +25,5 @@ class ResolvePropertyKeyTest extends ScalaResolveTestCase {
     Assert.assertTrue(psiElement.isInstanceOf[IProperty])
   }
 
-  // TODO Use a more reliable way to locate module test data.
-  private def moduleSpecific(path: String) = {
-    path.replace("scala-impl", "integration/properties")
-      .replace("testdata", "testResources")
-  }
+  private def testdataDir = TestUtils.findTestdataDirForClass(this)
 }
