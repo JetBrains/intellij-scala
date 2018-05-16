@@ -232,7 +232,7 @@ class IvyIndex(val root: String, val name: String, implicit val project: Project
 
     def artifacts: Stream[ArtifactInfo] = listArtifacts(cacheDir)
 
-    private def fqNamesFromJarFile(file: File): Stream[String] = {
+    private def fqNamesFromJarFile(file: File): Set[String] = {
       progressIndicator.foreach(_.setText2(file.getAbsolutePath))
 
       using(new JarFile(file)) { jarFile =>
@@ -247,7 +247,7 @@ class IvyIndex(val root: String, val name: String, implicit val project: Project
           .map(e => e.getName)
           .map(name => name.replaceAll("/", "."))
           .map(name => if (name.endsWith(classExt)) name.substring(0, name.length - classExt.length) else name)
-          .toStream
+          .toSet
       }
     }
 
@@ -265,7 +265,7 @@ class IvyIndex(val root: String, val name: String, implicit val project: Project
         val fname = t.artifactId + "-" + t.version + ".jar"
         val jarFile = new File(jarsDir, fname)
         if (jarFile.exists) {
-          artifactToFqNames.put(t, fqNamesFromJarFile(jarFile).toSet)
+          artifactToFqNames.put(t, fqNamesFromJarFile(jarFile))
         }
       })
 
