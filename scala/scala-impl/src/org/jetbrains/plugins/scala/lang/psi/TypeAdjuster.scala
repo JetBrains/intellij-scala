@@ -247,11 +247,17 @@ object TypeAdjuster extends ApplicationAdapter {
       case _                  => Seq.empty
     }
 
-    def markToRewrite(e: PsiElement): Unit = e.putUserData(infixRewriteKey, 1)
-
+    def markToRewrite(e: PsiElement): Unit     = e.putUserData(infixRewriteKey, 1)
+    def annotatedAsInfix(e: PsiClass): Boolean = e.getAnnotations.exists(_.getQualifiedName == "scala.annotation.showAsInfix")
+    
     def canBeInfix(te: ScTypeElement): Boolean = te match {
-      case ScSimpleTypeElement(Some(ref)) => ScalaNamesUtil.isOperatorName(ref.refName)
-      case _                              => false
+      case ScSimpleTypeElement(Some(ref)) => 
+        ScalaNamesUtil.isOperatorName(ref.refName) || 
+          ref.bind().map(_.element).exists {
+            case aClass: PsiClass => annotatedAsInfix(aClass)
+            case _                => false
+          }
+      case _ => false
     }
 
     def isChildOfInfixType(e: PsiElement): Boolean =
