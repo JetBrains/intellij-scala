@@ -234,11 +234,13 @@ object ScalaPsiElementFactory {
                                        (implicit ctx: ProjectContext): ScReferenceExpression =
     createElementFromText(text, classOf[ScReferenceExpression])
 
-  def createImplicitClauseFromTextWithContext(clauseText: String, context: PsiElement): ScParameterClause =
-    createElementWithContext[ScParameterClause](clauseText, context, contextLastChild(context), ImplicitParamClause.parse).orNull
-
-  def createImplicitClassParamClauseFromTextWithContext(clauseText: String, context: PsiElement): ScParameterClause =
-    createElementWithContext[ScParameterClause](clauseText, context, contextLastChild(context), ImplicitClassParamClause.parse).orNull
+  def createImplicitClauseFromTextWithContext(clauses: Seq[String],
+                                              context: PsiElement,
+                                              isClassParameter: Boolean): Option[ScParameterClause] =
+    if (clauses.nonEmpty) {
+      val parse: ScalaPsiBuilder => Boolean = if (isClassParameter) ImplicitClassParamClause.parse else ImplicitParamClause.parse
+      createElementWithContext[ScParameterClause](s"(implicit ${clauses.commaSeparated()})", context, contextLastChild(context), parse)
+    } else None
 
   def createEmptyClassParamClauseWithContext(context: PsiElement): ScParameterClause =
     createElementWithContext[ScParameterClause]("()", context, contextLastChild(context), ClassParamClause.parse).orNull

@@ -184,11 +184,17 @@ trait ScFunction extends ScalaPsiElement with ScMember with ScTypeParametersOwne
   def clauses: Option[ScParameters] = Some(paramClauses)
 
   @CachedInsidePsiElement(this, ModCount.getBlockModificationCount)
-  def effectiveParameterClauses: Seq[ScParameterClause] = paramClauses.clauses ++ syntheticParamClause
+  def effectiveParameterClauses: Seq[ScParameterClause] = {
+    val maybeOwner = if (isConstructor) {
+      containingClass match {
+        case owner: ScTypeParametersOwner => Some(owner)
+        case _ => None
+      }
+    } else Some(this)
 
-  private def syntheticParamClause: Option[ScParameterClause] = {
-    val hasImplicit = clauses.exists(_.clauses.exists(_.isImplicit))
-    ScalaPsiUtil.syntheticParamClause(if (isConstructor) containingClass else this, paramClauses, classParam = false, hasImplicit)
+    paramClauses.clauses ++ maybeOwner.flatMap {
+      ScalaPsiUtil.syntheticParamClause(_, paramClauses, isClassParameter = false)()
+    }
   }
 
   def declaredElements = Seq(this)

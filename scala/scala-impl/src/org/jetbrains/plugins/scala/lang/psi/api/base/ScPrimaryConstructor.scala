@@ -4,9 +4,6 @@ package psi
 package api
 package base
 
-import scala.collection.mutable.ArrayBuffer
-
-import org.jetbrains.plugins.scala.lang.psi.api.statements.ScAnnotationsHolder
 import org.jetbrains.plugins.scala.lang.psi.api.statements.params._
 import org.jetbrains.plugins.scala.lang.psi.api.toplevel.typedef._
 import org.jetbrains.plugins.scala.lang.psi.impl.ScalaPsiElementFactory
@@ -17,6 +14,8 @@ import org.jetbrains.plugins.scala.lang.psi.types.api.designator._
 import org.jetbrains.plugins.scala.lang.psi.types.nonvalue.ScMethodType
 import org.jetbrains.plugins.scala.lang.refactoring.util.ScalaNamesUtil
 import org.jetbrains.plugins.scala.macroAnnotations.{Cached, CachedInsidePsiElement, ModCount}
+
+import scala.collection.mutable
 
 /**
 * @author Alexander Podkhalyuzin
@@ -56,20 +55,18 @@ trait ScPrimaryConstructor extends ScMember with ScMethodLike {
   def effectiveParameterClauses: Seq[ScParameterClause] = {
     def emptyParameterList: ScParameterClause =
       ScalaPsiElementFactory.createEmptyClassParamClauseWithContext(parameterList)
+
     val clausesWithInitialEmpty = parameterList.clauses match {
       case Seq() => Seq(emptyParameterList)
       case Seq(clause) if clause.isImplicit => Seq(emptyParameterList, clause)
       case clauses => clauses
     }
-    clausesWithInitialEmpty ++ syntheticParamClause
+
+    clausesWithInitialEmpty ++
+      ScalaPsiUtil.syntheticParamClause(containingClass, parameterList, isClassParameter = true)()
   }
 
   def effectiveFirstParameterSection: Seq[ScClassParameter] = effectiveParameterClauses.head.unsafeClassParameters
-
-  private def syntheticParamClause: Option[ScParameterClause] = {
-    val hasImplicit = parameterList.clauses.exists(_.isImplicit)
-    ScalaPsiUtil.syntheticParamClause(containingClass, parameterList, classParam = true, hasImplicit)
-  }
 
   def methodType(result: Option[ScType]): ScType = {
     val parameters: ScParameters = parameterList
@@ -110,7 +107,7 @@ trait ScPrimaryConstructor extends ScMember with ScMethodLike {
 
   @Cached(ModCount.getBlockModificationCount, this)
   def getFunctionWrappers: Seq[ScPrimaryConstructorWrapper] = {
-    val buffer = new ArrayBuffer[ScPrimaryConstructorWrapper]()
+    val buffer = mutable.ArrayBuffer.empty[ScPrimaryConstructorWrapper]
     buffer += new ScPrimaryConstructorWrapper(this)
     for {
       first <- parameterList.clauses.headOption
