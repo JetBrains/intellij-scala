@@ -182,11 +182,11 @@ abstract class TypeAnnotationsPanelBase extends CodeStyleAbstractPanel {
     panel6.add(myImplicitModifier, new GridConstraints(1, 0, 1, 1, GridConstraints.ANCHOR_WEST, GridConstraints.FILL_NONE, GridConstraints.SIZEPOLICY_CAN_SHRINK | GridConstraints.SIZEPOLICY_CAN_GROW, GridConstraints.SIZEPOLICY_FIXED, null, null, null, 0, false));
     myUnitType = new JCheckBox();
     myUnitType.setSelected(true);
-    myUnitType.setText("Unit definition");
+    myUnitType.setText("Unit type");
     panel6.add(myUnitType, new GridConstraints(2, 0, 1, 1, GridConstraints.ANCHOR_WEST, GridConstraints.FILL_NONE, GridConstraints.SIZEPOLICY_CAN_SHRINK | GridConstraints.SIZEPOLICY_CAN_GROW, GridConstraints.SIZEPOLICY_FIXED, null, null, null, 0, false));
     myStructuralType = new JCheckBox();
     myStructuralType.setSelected(true);
-    myStructuralType.setText("Accidental structural type definition");
+    myStructuralType.setText("Accidental structural type*");
     myStructuralType.setToolTipText("<html>Enforces type annotations for values, which have structural type inferred, e.g.<br>\n<pre><code>\nval foo = Runnable {\n  override def run(): Unit = ()\n  def helper(): Unit = ()\n} // foo has inferred type Runnable { def helper(): Unit } \n</code></pre></html>");
     panel6.add(myStructuralType, new GridConstraints(3, 0, 1, 1, GridConstraints.ANCHOR_WEST, GridConstraints.FILL_NONE, GridConstraints.SIZEPOLICY_CAN_SHRINK | GridConstraints.SIZEPOLICY_CAN_GROW, GridConstraints.SIZEPOLICY_FIXED, null, null, null, 0, false));
     final Spacer spacer3 = new Spacer();
