@@ -7,6 +7,7 @@ import org.jetbrains.plugins.scala.lang.psi.api.statements._
 import org.jetbrains.plugins.scala.lang.psi.api.toplevel.ScModifierListOwner
 import org.jetbrains.plugins.scala.lang.psi.types.{ScCompoundType, ScType}
 import org.jetbrains.plugins.scala.lang.psi.types.result.Typeable
+import org.jetbrains.plugins.scala.project.ProjectContext
 
 import scala.util.matching.Regex
 
@@ -94,10 +95,17 @@ object Declaration {
       case _ => false
     }
 
-    override def hasAccidentalStructuralType: Boolean = element match {
-      case Typeable(tpe @ ScCompoundType(comps, _, _)) if comps.nonEmpty =>
-        !ScCompoundType(comps)(tpe.projectContext).conforms(tpe)
-      case _ => false
+    override def hasAccidentalStructuralType: Boolean = {
+      def effectivelyEmpty(comps: Seq[ScType]): Boolean =
+        comps.isEmpty || (comps.size == 1 && comps.head.canonicalText == "_root_.java.lang.Object")
+      
+      element match {
+        case Typeable(tpe @ ScCompoundType(comps, defs, _)) if !effectivelyEmpty(comps) =>
+          implicit val ctx: ProjectContext = tpe.projectContext
+          val noAliases = ScCompoundType(comps, defs, Map.empty)
+          !ScCompoundType(comps).conforms(noAliases)
+        case _ => false
+      }
     }
   }
 
