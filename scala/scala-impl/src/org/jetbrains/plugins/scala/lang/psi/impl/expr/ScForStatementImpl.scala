@@ -14,7 +14,7 @@ import org.jetbrains.plugins.scala.lang.psi.api.base.patterns._
 import org.jetbrains.plugins.scala.lang.psi.api.expr._
 import org.jetbrains.plugins.scala.lang.psi.types.result._
 import org.jetbrains.plugins.scala.lang.resolve.StdKinds
-import org.jetbrains.plugins.scala.lang.resolve.processor.ImplicitCompletionProcessor
+import org.jetbrains.plugins.scala.lang.resolve.processor.CompletionProcessor
 import org.jetbrains.plugins.scala.macroAnnotations.{Cached, ModCount}
 
 import scala.annotation.tailrec
@@ -113,7 +113,7 @@ class ScForStatementImpl(node: ASTNode) extends ScExpressionImplBase(node) with 
           var filterText = "withFilter"
           var filterFound = false
           val tp = gen.rvalue.`type`().getOrAny
-          val processor = new ImplicitCompletionProcessor(StdKinds.methodRef, this) {
+          val processor = new CompletionProcessor(StdKinds.methodRef, this, isImplicit = true) {
 
             override def execute(element: PsiElement, state: ResolveState): Boolean = {
               super.execute(element, state)

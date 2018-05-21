@@ -30,7 +30,7 @@ import org.jetbrains.plugins.scala.lang.psi.impl.base.ScStableCodeReferenceEleme
 import org.jetbrains.plugins.scala.lang.psi.impl.base.types.ScTypeProjectionImpl
 import org.jetbrains.plugins.scala.lang.psi.impl.expr.ScReferenceExpressionImpl
 import org.jetbrains.plugins.scala.lang.psi.types.ScType
-import org.jetbrains.plugins.scala.lang.resolve.processor.{CompletionProcessor, ImplicitCompletionProcessor}
+import org.jetbrains.plugins.scala.lang.resolve.processor.CompletionProcessor
 import org.jetbrains.plugins.scala.lang.resolve.{ResolveUtils, ScalaResolveResult}
 import org.jetbrains.plugins.scala.lang.scaladoc.lexer.ScalaDocTokenType
 
@@ -193,7 +193,7 @@ class ScalaBasicCompletionContributor extends ScalaCompletionContributor {
               val processor = new CompletionProcessor(kinds(refImpl), refImpl) with PostProcessor
               refImpl.doResolve(processor)
             case refImpl: ScReferenceExpressionImpl =>
-              val processor = new ImplicitCompletionProcessor(kinds(refImpl), refImpl) with PostProcessor
+              val processor = new CompletionProcessor(kinds(refImpl), refImpl, isImplicit = true) with PostProcessor
               refImpl.doResolve(processor)
               prefixedThisAndSupers(refImpl).foreach(addElement)
             case refImpl: ScTypeProjectionImpl =>
@@ -219,7 +219,7 @@ class ScalaBasicCompletionContributor extends ScalaCompletionContributor {
             canonicalText = qualifierType.canonicalText
             reference <- createReferenceWithQualifierType(canonicalText)(ref.getContext, ref)
 
-            processor = new ImplicitCompletionProcessor(kinds(reference), reference) with PostProcessor {
+            processor = new CompletionProcessor(kinds(reference), reference, isImplicit = true) with PostProcessor {
 
               private val lookupStrings = mutable.Set[String]()
               private val decorator = castDecorator(canonicalText)

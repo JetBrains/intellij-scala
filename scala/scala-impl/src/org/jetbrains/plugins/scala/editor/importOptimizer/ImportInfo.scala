@@ -15,7 +15,7 @@ import org.jetbrains.plugins.scala.lang.psi.api.toplevel.{ScPackaging, ScTypedDe
 import org.jetbrains.plugins.scala.lang.psi.impl.ScalaPsiElementFactory
 import org.jetbrains.plugins.scala.lang.psi.impl.base.ScStableCodeReferenceElementImpl
 import org.jetbrains.plugins.scala.lang.refactoring.util.ScalaNamesUtil
-import org.jetbrains.plugins.scala.lang.resolve.processor.ImplicitCompletionProcessor
+import org.jetbrains.plugins.scala.lang.resolve.processor.CompletionProcessor
 import org.jetbrains.plugins.scala.lang.resolve.{ScalaResolveResult, StdKinds}
 import org.jetbrains.plugins.scala.worksheet.ScalaScriptImportsUtil
 import org.jetbrains.plugins.scala.worksheet.ammonite.AmmoniteUtil
@@ -314,7 +314,7 @@ object ImportInfo {
     val refText = qualifier + ".someIdentifier"
     val reference = ScalaPsiElementFactory.createReferenceFromText(refText, place.getContext, place)
       .asInstanceOf[ScStableCodeReferenceElementImpl]
-    val processor = new ImplicitCompletionProcessor(StdKinds.stableImportSelector, reference) {
+    val processor = new CompletionProcessor(StdKinds.stableImportSelector, reference, isImplicit = true) {
       override val includePrefixImports = false
     }
 
