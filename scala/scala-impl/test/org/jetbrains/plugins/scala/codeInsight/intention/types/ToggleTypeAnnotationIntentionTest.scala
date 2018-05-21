@@ -112,4 +112,23 @@ class ToggleTypeAnnotationIntentionTest extends ScalaIntentionTestBase {
        |val ba${caretTag}r: (A + ((A :: A) + A)) :: (A + (A :: A)) = foo()
      """.stripMargin
   )
+  
+  def testShowAsInfixAnnotation(): Unit = doTest(
+    s"""
+       |import scala.annotation.showAsInfix
+       |
+       |@showAsInfix class Map[A, B]
+       |
+       |def foo(): Map[Int, Map[Int, String]] = ???
+       |val b${caretTag}ar = foo()
+     """.stripMargin,
+     s"""
+       |import scala.annotation.showAsInfix
+       |
+       |@showAsInfix class Map[A, B]
+       |
+       |def foo(): Map[Int, Map[Int, String]] = ???
+       |val b${caretTag}ar: Int Map (Int Map String) = foo()
+     """.stripMargin
+  )
 }

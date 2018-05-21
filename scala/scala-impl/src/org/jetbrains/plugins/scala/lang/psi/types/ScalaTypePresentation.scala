@@ -210,16 +210,29 @@ trait ScalaTypePresentation extends api.TypePresentation {
           s"(${innerTypeText(ex.quantified)})${namedExistentials(ex.wildcards)}"
       }
     }
+    
+    object InfixDesignator {
+      private[this] val showAsInfixAnnotation: String = "scala.annotation.showAsInfix"
+      
+      def unapply(des: ScType): Option[String] = {
+        val aClass      = des.extractClass
+        val annotations = aClass.toSeq.flatMap(_.getAnnotations)
+        val text        = innerTypeText(des)
+        val isQualified = text.contains(".")
+        
+        val isInfix = !isQualified &&
+          (annotations.exists(_.getQualifiedName == showAsInfixAnnotation) ||
+            ScalaNamesUtil.isOperatorName(text))
+        
+        if (isInfix) Some(text) else None
+      }
+    }
 
     object CanBeInfixType {
       def unapply(tpe: ScType): Option[(String, ScType, ScType, Int)] = tpe match {
-        case ParameterizedType(des, Seq(lhs, rhs)) =>
-          val opText = innerTypeText(des)
-
-          if (ScalaNamesUtil.isOperatorName(opText)) {
-            val assoc = InfixExpr.associate(opText)
-            Option((opText, lhs, rhs, assoc))
-          } else None
+        case ParameterizedType(InfixDesignator(text), Seq(lhs, rhs)) =>
+          val assoc = InfixExpr.associate(text)
+          Option((text, lhs, rhs, assoc))
         case _ => None
       }
     }
