@@ -169,3 +169,6 @@ case class AnnotatedWithSelfType(typeRef: Ref[Type], symbol: Ref[Symbol], attrib
 case class DeBruijnIndexType(typeLevel: Int, typeIndex: Int) extends Type
 
 case class ExistentialType(typeRef: Ref[Type], paramRefs: Seq[Ref[Symbol]]) extends TypeWithParams
+
+//todo: should we use it somehow?
+case class Modifiers(flags: Long, privateWithin: Ref[Name]) extends Entry
