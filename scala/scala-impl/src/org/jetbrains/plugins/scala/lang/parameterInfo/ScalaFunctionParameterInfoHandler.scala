@@ -134,122 +134,8 @@ class ScalaFunctionParameterInfoHandler extends ParameterInfoHandlerWithTabActio
         val index = context.getCurrentParameterIndex
         val buffer: StringBuilder = new StringBuilder("")
         var isGrey = false
-        //todo: var isGreen = true
-        var namedMode = false
         def paramText(param: ScParameter, subst: ScSubstitutor) = {
           ScalaDocumentationProvider.parseParameter(param, escape = false)(subst.subst(_).presentableText)
-        }
-        def applyToParameters(parameters: Seq[(Parameter, String)], subst: ScSubstitutor, canBeNaming: Boolean,
-                              isImplicit: Boolean = false) {
-          if (parameters.nonEmpty) {
-            var k = 0
-            val exprs: Seq[ScExpression] = getActualParameters(args)
-            if (isImplicit) buffer.append("implicit ")
-            val used = new Array[Boolean](parameters.length)
-            while (k < parameters.length) {
-              val namedPrefix = "["
-              val namedPostfix = "]"
-
-              def appendFirst(useGrey: Boolean = false) {
-                val getIt = used.indexOf(false)
-                used(getIt) = true
-                if (namedMode) buffer.append(namedPrefix)
-                val param: (Parameter, String) = parameters(getIt)
-
-                buffer.append(param._2)
-                if (namedMode) buffer.append(namedPostfix)
-              }
-              def doNoNamed(expr: ScExpression) {
-                if (namedMode) {
-                  isGrey = true
-                  appendFirst()
-                } else {
-                  val exprType = expr.`type`().getOrNothing
-                  val getIt = used.indexOf(false)
-                  used(getIt) = true
-                  val param: (Parameter, String) = parameters(getIt)
-                  val paramType = param._1.paramType
-                  if (!exprType.conforms(paramType)) isGrey = true
-                  buffer.append(param._2)
-                }
-              }
-              if (k == index || (k == parameters.length - 1 && index >= parameters.length &&
-                      parameters.last._1.isRepeated)) {
-                buffer.append("<b>")
-              }
-              if (k < index && !isGrey) {
-                //slow checking
-                if (k >= exprs.length) { //shouldn't be
-                  appendFirst(useGrey = true)
-                  isGrey = true
-                } else {
-                  exprs(k) match {
-                    case assign@NamedAssignStmt(name) =>
-                      val ind = parameters.indexWhere(param => ScalaNamesUtil.equivalent(param._1.name, name))
-                      if (ind == -1 || used(ind)) {
-                        doNoNamed(assign)
-                      } else {
-                        if (k != ind) namedMode = true
-                        used(ind) = true
-                        val param: (Parameter, String) = parameters(ind)
-                        if (namedMode) buffer.append(namedPrefix)
-                        buffer.append(param._2)
-                        if (namedMode) buffer.append(namedPostfix)
-                        assign.getRExpression match {
-                          case Some(expr: ScExpression) =>
-                            for (exprType <- expr.`type`()) {
-                              val paramType = param._1.paramType
-                              if (!exprType.conforms(paramType)) isGrey = true
-                            }
-                          case _ => isGrey = true
-                        }
-                      }
-                    case expr: ScExpression =>
-                      doNoNamed(expr)
-                  }
-                }
-              } else {
-                //fast checking
-                if (k >= exprs.length) {
-                  appendFirst()
-                } else {
-                  exprs(k) match {
-                    case NamedAssignStmt(name) =>
-                      val ind = parameters.indexWhere(param => ScalaNamesUtil.equivalent(param._1.name, name))
-                      if (ind == -1 || used(ind)) {
-                        appendFirst()
-                      } else {
-                        if (k != ind) namedMode = true
-                        used(ind) = true
-                        if (namedMode) buffer.append(namedPrefix)
-                        buffer.append(parameters(ind)._2)
-                        if (namedMode) buffer.append(namedPostfix)
-                      }
-                    case _ => appendFirst()
-                  }
-                }
-              }
-              if (k == index || (k == parameters.length - 1 && index >= parameters.length &&
-                      parameters.last._1.isRepeated)) {
-                buffer.append("</b>")
-              }
-              k = k + 1
-              if (k != parameters.length) buffer.append(", ")
-            }
-            if (!isGrey && exprs.length > parameters.length && index >= parameters.length) {
-              if (!namedMode && parameters.last._1.isRepeated) {
-                val paramType = parameters.last._1.paramType
-                while (!isGrey && k < exprs.length.min(index)) {
-                  if (k < index) {
-                    for (exprType <- exprs(k).`type`()) {
-                    if (!exprType.conforms(paramType)) isGrey = true
-                    }
-                  }
-                  k = k + 1
-                }
-              } else isGrey = true
-            }
-          } else buffer.append(CodeInsightBundle.message("parameter.info.no.parameters"))
         }
         p match {
           case x: String if x == "" =>
@@ -267,7 +153,7 @@ class ScalaFunctionParameterInfoHandler extends ParameterInfoHandlerWithTabActio
                   (new Parameter(name, None, tp, tp, value != null, false, false, paramIndex),
                     s"$name: ${tp.presentableText}$valueText")
               }
-              applyToParameters(paramsSeq, ScSubstitutor.empty, canBeNaming = true, isImplicit = false)
+              isGrey = applyToParameters(paramsSeq, ScSubstitutor.empty, canBeNaming = true, isImplicit = false)(args, buffer, index)
             }
           case (sign: PhysicalSignature, i: Int) => //i  can be -1 (it's update method)
             val subst = sign.substitutor
@@ -279,8 +165,8 @@ class ScalaFunctionParameterInfoHandler extends ParameterInfoHandlerWithTabActio
                   val clause: ScParameterClause = if (i >= 0) clauses(i) else clauses.head
                   val length = clause.effectiveParameters.length
                   val parameters: Seq[ScParameter] = if (i != -1) clause.effectiveParameters else clause.effectiveParameters.take(length - 1)
-                  applyToParameters(parameters.map(param =>
-                    (Parameter(param), paramText(param, subst))), subst, canBeNaming = true, isImplicit = clause.isImplicit)
+                  isGrey = applyToParameters(parameters.map(param =>
+                    (Parameter(param), paramText(param, subst))), subst, canBeNaming = true, isImplicit = clause.isImplicit)(args, buffer, index)
                 }
               case method: FakePsiMethod =>
                 if (method.params.length == 0) buffer.append(CodeInsightBundle.message("parameter.info.no.parameters"))
@@ -348,8 +234,8 @@ class ScalaFunctionParameterInfoHandler extends ParameterInfoHandlerWithTabActio
             if (clauses.length <= i) buffer.append(CodeInsightBundle.message("parameter.info.no.parameters"))
             else {
               val clause: ScParameterClause = clauses(i)
-              applyToParameters(clause.effectiveParameters.map(param =>
-                (Parameter(param), paramText(param, subst))), subst, canBeNaming = true, isImplicit = clause.isImplicit)
+              isGrey = applyToParameters(clause.effectiveParameters.map(param =>
+                (Parameter(param), paramText(param, subst))), subst, canBeNaming = true, isImplicit = clause.isImplicit)(args, buffer, index)
             }
           case _ =>
         }
@@ -365,6 +251,127 @@ class ScalaFunctionParameterInfoHandler extends ParameterInfoHandlerWithTabActio
           context.setUIComponentEnabled(false)
       case _ =>
     }
+  }
+
+  private def applyToParameters(parameters: Seq[(Parameter, String)],
+                                subst: ScSubstitutor,
+                                canBeNaming: Boolean,
+                                isImplicit: Boolean = false)(args: PsiElement, buffer: StringBuilder, index: Int): Boolean = {
+    var isGrey = false
+    //todo: var isGreen = true
+    var namedMode = false
+
+    if (parameters.nonEmpty) {
+      var k = 0
+      val exprs: Seq[ScExpression] = getActualParameters(args)
+      if (isImplicit) buffer.append("implicit ")
+      val used = new Array[Boolean](parameters.length)
+      while (k < parameters.length) {
+        val namedPrefix = "["
+        val namedPostfix = "]"
+
+        def appendFirst(useGrey: Boolean = false) {
+          val getIt = used.indexOf(false)
+          used(getIt) = true
+          if (namedMode) buffer.append(namedPrefix)
+          val param: (Parameter, String) = parameters(getIt)
+
+          buffer.append(param._2)
+          if (namedMode) buffer.append(namedPostfix)
+        }
+        def doNoNamed(expr: ScExpression) {
+          if (namedMode) {
+            isGrey = true
+            appendFirst()
+          } else {
+            val exprType = expr.`type`().getOrNothing
+            val getIt = used.indexOf(false)
+            used(getIt) = true
+            val param: (Parameter, String) = parameters(getIt)
+            val paramType = param._1.paramType
+            if (!exprType.conforms(paramType)) isGrey = true
+            buffer.append(param._2)
+          }
+        }
+        if (k == index || (k == parameters.length - 1 && index >= parameters.length &&
+          parameters.last._1.isRepeated)) {
+          buffer.append("<b>")
+        }
+        if (k < index && !isGrey) {
+          //slow checking
+          if (k >= exprs.length) { //shouldn't be
+            appendFirst(useGrey = true)
+            isGrey = true
+          } else {
+            exprs(k) match {
+              case assign@NamedAssignStmt(name) =>
+                val ind = parameters.indexWhere(param => ScalaNamesUtil.equivalent(param._1.name, name))
+                if (ind == -1 || used(ind)) {
+                  doNoNamed(assign)
+                } else {
+                  if (k != ind) namedMode = true
+                  used(ind) = true
+                  val param: (Parameter, String) = parameters(ind)
+                  if (namedMode) buffer.append(namedPrefix)
+                  buffer.append(param._2)
+                  if (namedMode) buffer.append(namedPostfix)
+                  assign.getRExpression match {
+                    case Some(expr: ScExpression) =>
+                      for (exprType <- expr.`type`()) {
+                        val paramType = param._1.paramType
+                        if (!exprType.conforms(paramType)) isGrey = true
+                      }
+                    case _ => isGrey = true
+                  }
+                }
+              case expr: ScExpression =>
+                doNoNamed(expr)
+            }
+          }
+        } else {
+          //fast checking
+          if (k >= exprs.length) {
+            appendFirst()
+          } else {
+            exprs(k) match {
+              case NamedAssignStmt(name) =>
+                val ind = parameters.indexWhere(param => ScalaNamesUtil.equivalent(param._1.name, name))
+                if (ind == -1 || used(ind)) {
+                  appendFirst()
+                } else {
+                  if (k != ind) namedMode = true
+                  used(ind) = true
+                  if (namedMode) buffer.append(namedPrefix)
+                  buffer.append(parameters(ind)._2)
+                  if (namedMode) buffer.append(namedPostfix)
+                }
+              case _ => appendFirst()
+            }
+          }
+        }
+        if (k == index || (k == parameters.length - 1 && index >= parameters.length &&
+          parameters.last._1.isRepeated)) {
+          buffer.append("</b>")
+        }
+        k = k + 1
+        if (k != parameters.length) buffer.append(", ")
+      }
+      if (!isGrey && exprs.length > parameters.length && index >= parameters.length) {
+        if (!namedMode && parameters.last._1.isRepeated) {
+          val paramType = parameters.last._1.paramType
+          while (!isGrey && k < exprs.length.min(index)) {
+            if (k < index) {
+              for (exprType <- exprs(k).`type`()) {
+                if (!exprType.conforms(paramType)) isGrey = true
+              }
+            }
+            k = k + 1
+          }
+        } else isGrey = true
+      }
+    } else buffer.append(CodeInsightBundle.message("parameter.info.no.parameters"))
+
+    isGrey
   }
 
   override def tracksParameterIndex: Boolean = true
