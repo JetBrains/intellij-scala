@@ -267,6 +267,9 @@ class UnnecessaryParenthesesInspectionTest extends ScalaQuickFixTestBase {
     val result = "val f: Int <<: Unit <<: Unit = _"
     val hint = hintBeginning + " (Unit <<: Unit)"
     testQuickFix(text, result, hint)
+    
+    val correct = s"val f: (Int <<: Unit) <<: Void"
+    checkTextHasNoErrors(correct)
   }
 
  
@@ -278,6 +281,19 @@ class UnnecessaryParenthesesInspectionTest extends ScalaQuickFixTestBase {
     val result = "val f: Int op Unit op Unit = _"
     val hint = hintBeginning + " (Int op Unit)"
     testQuickFix(text, result, hint)
+    
+    val correct =
+      """
+        |class Foo[A, B]
+        |val a: Int Foo (Int Foo String)= ???
+      """.stripMargin
+    checkTextHasNoErrors(correct)
+  }
+
+  
+  def test_InfixType_MixedAssoc(): Unit = {
+    val correct = "val f: Double <<: (Int Map String)"
+    checkTextHasNoErrors(correct)
   }
 
 

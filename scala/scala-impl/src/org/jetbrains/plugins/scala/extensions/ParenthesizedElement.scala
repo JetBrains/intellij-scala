@@ -67,11 +67,11 @@ object ParenthesizedElement {
       */
     def isParenthesisNeeded: Boolean = {
       parenthesized match {
-        case expr@ScParenthesisedExpr(inner)                                                  => ScalaPsiUtil.needParentheses(expr, inner)
-        case _ if hasHigherPrecedence                                                         => false
-        case ParentAndInner(_: ScInfixElement, _: ScInfixElement) if haveCorrectAssociativity => false
-        case _ if isFunctionTypeSingleParam                                                   => true
-        case _                                                                                => false
+        case expr@ScParenthesisedExpr(inner)                                                   => ScalaPsiUtil.needParentheses(expr, inner)
+        case _ if hasHigherPrecedence                                                          => false
+        case ParentAndInner(_: ScInfixElement, _: ScInfixElement) if !haveCorrectAssociativity => true
+        case _ if isFunctionTypeSingleParam                                                    => true
+        case _                                                                                 => false
       }
     }
 
