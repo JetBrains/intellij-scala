@@ -43,17 +43,16 @@ trait ScInterpolated extends ScalaPsiElement {
       s"_root_.scala.StringContext($parts).${getFirstChild.getText}$params", getContext, ScInterpolated.this))
   }
 
-  def getInjections: Array[ScExpression] = {
+  def getInjections: Seq[ScExpression] =
     getNode.getChildren(null).flatMap {
       _.getPsi match {
-        case a: ScBlockExpr => Array[ScExpression](a)
-        case _: ScInterpolatedStringPartReference => Array[ScExpression]()
-        case _: ScInterpolatedPrefixReference => Array[ScExpression]()
-        case b: ScReferenceExpression => Array[ScExpression](b)
-        case _ => Array[ScExpression]()
+        case expression: ScBlockExpr => Some(expression)
+        case _: ScInterpolatedStringPartReference |
+             _: ScInterpolatedPrefixReference => None
+        case expression: ScReferenceExpression => Some(expression)
+        case _ => None
       }
     }
-  }
 
   def getStringParts: Seq[String] = {
     val childNodes = this.children.map(_.getNode)
