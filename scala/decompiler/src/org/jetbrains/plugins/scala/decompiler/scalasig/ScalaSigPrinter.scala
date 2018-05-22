@@ -384,6 +384,7 @@ class ScalaSigPrinter(builder: StringBuilder, verbosity: Verbosity) {
     if (n.startsWith("super$")) return // do not print auxiliary qualified super accessors
     if (m.isAccessor && n.endsWith("_$eq")) return
     if (m.isParamAccessor) return //do not print class parameters
+    if (n.startsWith("<local ")) return //isLocalDummy whatever, see scala.reflect.internal.StdNames.TermNames.LOCALDUMMY_PREFIX
     indent()
     printModifiers(m)
     if (m.isAccessor) {

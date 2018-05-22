@@ -101,6 +101,7 @@ object Parser {
         case DEBRUIJNINDEXtpe  => readType(tag)
         case EXISTENTIALtpe    => readType(tag)
         case TREE              => Tree
+        case MODIFIERS         => readModifiers()
         case SUPERtpe2         => readType(tag)
       }
     }
@@ -240,6 +241,18 @@ object Parser {
       val end = readEnd()
       val args = until(end, readConstantAnnotArgRef _)
       AnnotArgArray(args)
+    }
+
+
+    //implementation from scala.reflect.internal.pickling.UnPickler.Scan.readModifiers
+    def readModifiers(): Modifiers = {
+      readEnd()
+      val pflagsHi = readNat()
+      val pflagsLo = readNat()
+      val pflags = (pflagsHi.toLong << 32) + pflagsLo
+      val flags = scala.reflect.internal.Flags.pickledToRawFlags(pflags)
+      val privateWithin = readNameRef()
+      Modifiers(flags, privateWithin)
     }
 
     private def readEnd() = readNat() + readIndex

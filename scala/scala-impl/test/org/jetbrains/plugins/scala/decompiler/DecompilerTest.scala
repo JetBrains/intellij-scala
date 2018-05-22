@@ -142,4 +142,8 @@ class DecompilerTest extends DecompilerTestBase {
   def testFuture_2_13(): Unit = {
     doTest("Future.class")
   }
+
+  def testScl13744(): Unit = {
+    doTest("BrokenUsage.class")
+  }
 }
