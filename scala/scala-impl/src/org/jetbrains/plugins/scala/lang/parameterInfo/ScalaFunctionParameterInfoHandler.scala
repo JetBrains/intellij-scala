@@ -288,7 +288,7 @@ class ScalaFunctionParameterInfoHandler extends ParameterInfoHandlerWithTabActio
             val getIt = used.indexOf(false)
             used(getIt) = true
             val param: (Parameter, String) = parameters(getIt)
-            val paramType = param._1.paramType
+            val paramType = subst.subst(param._1.paramType)
             if (!exprType.conforms(paramType)) isGrey = true
             buffer.append(param._2)
           }
@@ -318,7 +318,7 @@ class ScalaFunctionParameterInfoHandler extends ParameterInfoHandlerWithTabActio
                   assign.getRExpression match {
                     case Some(expr: ScExpression) =>
                       for (exprType <- expr.`type`()) {
-                        val paramType = param._1.paramType
+                        val paramType = subst.subst(param._1.paramType)
                         if (!exprType.conforms(paramType)) isGrey = true
                       }
                     case _ => isGrey = true
@@ -358,7 +358,7 @@ class ScalaFunctionParameterInfoHandler extends ParameterInfoHandlerWithTabActio
       }
       if (!isGrey && exprs.length > parameters.length && index >= parameters.length) {
         if (!namedMode && parameters.last._1.isRepeated) {
-          val paramType = parameters.last._1.paramType
+          val paramType = subst.subst(parameters.last._1.paramType)
           while (!isGrey && k < exprs.length.min(index)) {
             if (k < index) {
               for (exprType <- exprs(k).`type`()) {
