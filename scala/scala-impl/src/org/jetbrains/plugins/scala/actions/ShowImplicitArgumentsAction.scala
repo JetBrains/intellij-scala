@@ -43,7 +43,7 @@ import org.jetbrains.plugins.scala.statistics.{FeatureKey, Stats}
  * Date: 25.10.11
  */
 
-class ShowImplicitParametersAction extends AnAction("Show implicit parameters action") {
+class ShowImplicitArgumentsAction extends AnAction("Show implicit arguments action") {
   override def update(e: AnActionEvent) {
     ScalaActionUtil.enableAndShowIfInScalaFile(e)
   }
@@ -104,7 +104,7 @@ class ShowImplicitParametersAction extends AnAction("Show implicit parameters ac
       val implicitParameters = implicitParams(expr)
       implicitParameters match {
         case None | Some(Seq()) =>
-          ScalaActionUtil.showHint(editor, "No implicit parameters")
+          ScalaActionUtil.showHint(editor, "No implicit arguments")
         case Some(seq) => showPopup(editor, seq)
       }
     }
@@ -148,7 +148,7 @@ class ShowImplicitParametersAction extends AnAction("Show implicit parameters ac
         forExpr(expr)
       }
       if (expressions.length == 0) {
-        ScalaActionUtil.showHint(editor, "No implicit parameters")
+        ScalaActionUtil.showHint(editor, "No implicit arguments")
       } else if (expressions.length == 1) {
         chooseExpression(expressions(0))
       } else {
@@ -236,7 +236,7 @@ class ShowImplicitParametersAction extends AnAction("Show implicit parameters ac
     val popup: JBPopup = JBPopupFactory.getInstance().createComponentPopupBuilder(panel, jTree).
       setRequestFocus(true).
       setResizable(true).
-      setTitle("Implicit parameters:").
+      setTitle("Implicit arguments:").
       setMinSize(new Dimension(minSize.width + 500, minSize.height)).
       createPopup
 
@@ -319,9 +319,9 @@ class ImplicitParametersTreeStructure(project: Project,
         if (text == InferUtil.notFoundParameterName) {
           value.implicitSearchState match {
             case Some(state) =>
-              data.setPresentableText(s"Parameter not found for type: ${state.tp}")
+              data.setPresentableText(s"Argument not found for type: ${state.tp}")
             case _ =>
-              data.setPresentableText("Parameter not found")
+              data.setPresentableText("Argument not found")
           }
           data.setAttributesKey(CodeInsightColors.WRONG_REFERENCES_ATTRIBUTES)
         } else {
@@ -331,7 +331,7 @@ class ImplicitParametersTreeStructure(project: Project,
 
               val presentationTextSuffix = implicitResult match {
                 case Some(OkResult) =>
-                  data.setTooltip("Implicit parameter is applicable")
+                  data.setTooltip("Implicit argument is applicable")
                   ": Applicable"
                 case Some(DivergedImplicitResult) =>
                   data.setTooltip("Implicit is diverged")
@@ -342,9 +342,9 @@ class ImplicitParametersTreeStructure(project: Project,
                   data.setAttributesKey(CodeInsightColors.ERRORS_ATTRIBUTES)
                   ": Type Parameter"
                 case Some(ImplicitParameterNotFoundResult) =>
-                  data.setTooltip("Can't find implicit parameter for this definition")
+                  data.setTooltip("Can't find implicit argument for this definition")
                   data.setAttributesKey(CodeInsightColors.ERRORS_ATTRIBUTES)
-                  ": Implicit Parameter"
+                  ": Implicit Argument"
                 case _ =>
               }
               data.setPresentableText(presentation.getPresentableText + presentationTextSuffix)
