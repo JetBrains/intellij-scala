@@ -149,7 +149,7 @@ class ScalaDocumentationProvider extends CodeDocumentationProvider {
         }
 
         element match {
-          case par: ScParameterOwner => append(parseParameters(par, length - start - 7))
+          case par: ScParameterOwner => append(parseParameters(par, length - start - 7).replaceAll("\n\\s*", ""))
           case _ =>
         }
 
@@ -476,6 +476,9 @@ object ScalaDocumentationProvider {
       escapeHtml(clazz.qualifiedName) + "</code></a>"
   }
 
+  // TODO Either use this method only in the DocumentationProvider, or place it somewhere else
+  // It supposed to be implementation details of the provider, but it's not (yet it does some strange things, adds \n).
+  // When one needs to update the provider, it's hard to predict what any change might affect outside, and how.
   def parseParameters(elem: ScParameterOwner, spaces: Int)
                      (implicit typeToString: ScType => String): String = {
     elem.allClauses.map(parseParameterClause(_, spaces)).mkString("\n")
