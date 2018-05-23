@@ -164,9 +164,36 @@ class ScalaFunctionParameterInfoHandler extends ParameterInfoHandlerWithTabActio
                 else {
                   val clause: ScParameterClause = if (i >= 0) clauses(i) else clauses.head
                   val length = clause.effectiveParameters.length
-                  val parameters: Seq[ScParameter] = if (i != -1) clause.effectiveParameters else clause.effectiveParameters.take(length - 1)
-                  isGrey = applyToParameters(parameters.map(param =>
-                    (Parameter(param), paramText(param, subst))), subst, canBeNaming = true, isImplicit = clause.isImplicit)(args, buffer, index)
+
+                  val preceedingClauses = if (i == -1) Seq.empty else clauses.take(i)
+                  val remainingClauses = if (i == -1) Seq.empty else clauses.drop(i + 1)
+
+                  val multipleLists = remainingClauses.nonEmpty || remainingClauses.nonEmpty
+
+                  def parametersOf(clause: ScParameterClause): Seq[(Parameter, String)] = {
+                    val parameters: Seq[ScParameter] = if (i != -1) clause.effectiveParameters else clause.effectiveParameters.take(length - 1)
+                    parameters.map(param => (Parameter(param), paramText(param, subst)))
+                  }
+
+                  preceedingClauses.foreach { clause =>
+                    buffer.append("(")
+                    applyToParameters(parametersOf(clause), subst, canBeNaming = true, isImplicit = clause.isImplicit)(args, buffer, -1)
+                    buffer.append(")")
+                  }
+
+                  if (multipleLists) {
+                    buffer.append("(")
+                  }
+                  isGrey = applyToParameters(parametersOf(clause), subst, canBeNaming = true, isImplicit = clause.isImplicit)(args, buffer, index)
+                  if (multipleLists) {
+                    buffer.append(")")
+                  }
+
+                  remainingClauses.foreach { clause =>
+                    buffer.append("(")
+                    applyToParameters(parametersOf(clause), subst, canBeNaming = true, isImplicit = clause.isImplicit)(args, buffer, -1)
+                    buffer.append(")")
+                  }
                 }
               case method: FakePsiMethod =>
                 if (method.params.length == 0) buffer.append(CodeInsightBundle.message("parameter.info.no.parameters"))
@@ -467,6 +494,7 @@ class ScalaFunctionParameterInfoHandler extends ParameterInfoHandlerWithTabActio
             def process(functionName: String): Unit = {
               val i = if (functionName == "update") -1 else 0
               val processor = new CompletionProcessor(StdKinds.refExprQualRef, call, isImplicit = true) {
+
 
                 override protected val forName = Some(functionName)
               }
