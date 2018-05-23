@@ -117,10 +117,9 @@ class ScalaBasicCompletionContributor extends ScalaCompletionContributor {
                 case clazz: PsiClass =>
                   if (!isExcluded(clazz) && !classNameCompletion && (!lookingForAnnotations || clazz.isAnnotationType)) {
 
-                    val lookupElement = expectedTypesAfterNew(position)(context).map { expectedTypes =>
-                      val renamedMap = createRenamePair(item).toMap
-                      getLookupElementFromClass(expectedTypes, clazz, renamedMap)
-                    }.getOrElse(item)
+                    val lookupElement = expectedTypeAfterNew(position)(context)
+                      .map(_.apply(clazz, createRenamePair(item).toMap))
+                      .getOrElse(item)
 
                     Some(lookupElement)
                   } else None

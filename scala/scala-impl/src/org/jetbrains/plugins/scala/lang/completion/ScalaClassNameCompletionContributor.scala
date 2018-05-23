@@ -100,7 +100,7 @@ object ScalaClassNameCompletionContributor {
     val onlyClasses = stableRefElement != null && !stableRefElement.getContext.isInstanceOf[ScConstructorPattern]
 
     val renamesMap = createRenamesMap(position)
-    val maybeExpectedTypes = expectedTypesAfterNew(dummyPosition)
+    val maybeExpectedTypes = expectedTypeAfterNew(dummyPosition)
 
     implicit val project: Project = position.getProject
 
@@ -123,8 +123,8 @@ object ScalaClassNameCompletionContributor {
       }
 
       val lookups = (typeToImport, maybeExpectedTypes) match {
-        case (ClassTypeToImport(clazz), Some(expectedTypes)) =>
-          Seq(getLookupElementFromClass(expectedTypes, clazz, renamesMap))
+        case (ClassTypeToImport(clazz), Some(createLookups)) =>
+          Seq(createLookups(clazz, renamesMap))
         case _ =>
           val nameShadow = renamesMap.get(name).collect {
             case (`element`, s) => s
