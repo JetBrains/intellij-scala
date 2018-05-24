@@ -8,6 +8,6 @@ import com.intellij.psi.PsiDocCommentOwner
  * 2014-03-25
  */
 package object overrideImplement {
-  type ClassMember = PsiElementClassMember[_ <: PsiDocCommentOwner]
+  type ClassMember = PsiElementClassMember[_ <: PsiDocCommentOwner] with ScalaNamedMember
 
 }

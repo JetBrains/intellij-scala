@@ -152,7 +152,7 @@
                                 implementationClass="org.jetbrains.plugins.scala.lang.completion.ScalaAotCompletionContributor"
                                 order="before scalaCompletionContrubutor"/>
         <completion.contributor language="Scala" id="scalaClassParamContributor"
-                                implementationClass="org.jetbrains.plugins.scala.lang.completion.ScalaCaseClassParametersNameContributer"
+                                implementationClass="org.jetbrains.plugins.scala.lang.completion.ScalaCaseClassParametersNameContributor"
                                 order="before keywordCompletionContributor, before memberNameCompletionContributor"/>
         <completion.contributor language="Scala" id="scalaOverrideDefContributer"
                                 implementationClass="org.jetbrains.plugins.scala.lang.completion.ScalaOverrideContributor"

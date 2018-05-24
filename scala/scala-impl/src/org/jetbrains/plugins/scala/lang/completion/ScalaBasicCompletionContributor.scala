@@ -30,7 +30,7 @@ import org.jetbrains.plugins.scala.lang.psi.impl.base.ScStableCodeReferenceEleme
 import org.jetbrains.plugins.scala.lang.psi.impl.base.types.ScTypeProjectionImpl
 import org.jetbrains.plugins.scala.lang.psi.impl.expr.ScReferenceExpressionImpl
 import org.jetbrains.plugins.scala.lang.psi.types.ScType
-import org.jetbrains.plugins.scala.lang.resolve.processor.{CompletionProcessor, ImplicitCompletionProcessor}
+import org.jetbrains.plugins.scala.lang.resolve.processor.CompletionProcessor
 import org.jetbrains.plugins.scala.lang.resolve.{ResolveUtils, ScalaResolveResult}
 import org.jetbrains.plugins.scala.lang.scaladoc.lexer.ScalaDocTokenType
 
@@ -38,9 +38,9 @@ import scala.annotation.tailrec
 import scala.collection.mutable
 
 /**
- * @author Alexander Podkhalyuzin
- * Date: 16.05.2008
- */
+  * @author Alexander Podkhalyuzin
+  *         Date: 16.05.2008
+  */
 abstract class ScalaCompletionContributor extends CompletionContributor {
 
   override def fillCompletionVariants(parameters: CompletionParameters, result: CompletionResultSet): Unit = {
@@ -63,181 +63,166 @@ class ScalaBasicCompletionContributor extends ScalaCompletionContributor {
       override def addCompletions(parameters: CompletionParameters,
                                   context: ProcessingContext,
                                   result: CompletionResultSet): Unit = {
-      val dummyPosition = positionFromParameters(parameters)
+        val dummyPosition = positionFromParameters(parameters)
 
-      val node = Option(dummyPosition.getNode).getOrElse(return)
-
-      val (position, inString, inInterpolatedString) = node.getElementType match {
-        case ScalaTokenTypes.tIDENTIFIER | ScalaDocTokenType.DOC_TAG_VALUE_TOKEN => (dummyPosition, false, false)
-        case ScalaTokenTypes.tSTRING | ScalaTokenTypes.tMULTILINE_STRING =>
-          //it's ok to use parameters here as we want just to calculate offset
-          val offsetInString = parameters.getOffset - parameters.getPosition.getTextRange.getStartOffset + 1
-          val interpolated =
-            ScalaPsiElementFactory.createExpressionFromText("s" + dummyPosition.getText, dummyPosition.getContext)
-          (interpolated.findElementAt(offsetInString), true, false)
-        case ScalaTokenTypes.tINTERPOLATED_STRING | ScalaTokenTypes.tINTERPOLATED_MULTILINE_STRING =>
-          val position = dummyPosition.getContext
-          if (!position.isInstanceOf[ScInterpolated]) return
-          if (!parameters.getPosition.getParent.isInstanceOf[ScInterpolated]) return
-
-          val interpolated = position.asInstanceOf[ScInterpolated]
-          val dummyInterpolated = parameters.getPosition.getParent.asInstanceOf[ScInterpolated]
-
-          //we use here file copy as we want to work with offsets.
-          val offset = parameters.getOffset
-          val dummyInjections = dummyInterpolated.getInjections
-          val index = dummyInjections.lastIndexWhere { expr =>
-            expr.getTextRange.getEndOffset <= offset
-          }
-
-          //it's ok to use parameters here as we want just to calculate offset
-          val offsetInString = offset - dummyInterpolated.getTextRange.getStartOffset
-          val res = ScalaBasicCompletionContributor.getStartEndPointForInterpolatedString(interpolated, index, offsetInString)
-          if (res.isEmpty) return
-          val (exprStartInString, endPoint) = res.get
-          val stringText = interpolated.getText
-          val newInterpolated =
-            ScalaPsiElementFactory.createExpressionFromText(stringText.substring(0, exprStartInString) + "{" +
-              stringText.substring(exprStartInString, endPoint) + "}" +
-              stringText.substring(endPoint), position.getContext)
-          (newInterpolated.findElementAt(offsetInString + 1), false, true)
-        case _ => return
-      }
-      result.restartCompletionWhenNothingMatches()
-
-      //if prefix is capitalized, class name completion is enabled
-      val classNameCompletion = shouldRunClassNameCompletion(dummyPosition, result.getPrefixMatcher)(parameters)
-      val insertedElement: PsiElement = position
-      if (!inString && !inInterpolatedString && !ScalaPsiUtil.fileContext(insertedElement).isInstanceOf[ScalaFile]) return
-      val lookingForAnnotations: Boolean =
-        Option(insertedElement.getContainingFile findElementAt (insertedElement.getTextOffset - 1)) exists {
-          _.getNode.getElementType == ScalaTokenTypes.tAT
+        val (inString, inInterpolatedString) = isInString(dummyPosition)
+        val maybePosition = (inString, inInterpolatedString) match {
+          case (true, true) => return
+          case (true, _) =>
+            Some(("s" + dummyPosition.getText, dummyPosition, parameters.getPosition))
+          case (_, true) =>
+            (dummyPosition.getContext, parameters.getPosition.getParent) match {
+              case (interpolated: ScInterpolated, dummyInterpolated: ScInterpolated) =>
+                splitInterpolatedString(interpolated, parameters.getOffset, dummyInterpolated) match {
+                  case Some((first, second, third)) =>
+                    Some((s"$first{$second}$third", interpolated, dummyInterpolated))
+                  case _ => return
+                }
+              case _ => return
+            }
+          case _ => None
         }
 
-      var elementAdded = false
+        val position = maybePosition match {
+          case Some((text, projectContext, offsetContext)) =>
+            ScalaPsiElementFactory.createExpressionFromText(text, projectContext.getContext)
+              .findElementAt(parameters.getOffset - offsetContext.getTextRange.getStartOffset + 1)
+          case _ => dummyPosition
+        }
+
+        result.restartCompletionWhenNothingMatches()
+        if (!inString && !inInterpolatedString && !ScalaPsiUtil.fileContext(position).isInstanceOf[ScalaFile]) return
+
+        //if prefix is capitalized, class name completion is enabled
+        val classNameCompletion = shouldRunClassNameCompletion(dummyPosition, result.getPrefixMatcher)(parameters)
+        val lookingForAnnotations: Boolean =
+          Option(position.getContainingFile.findElementAt(position.getTextOffset - 1)).exists {
+            _.getNode.getElementType == ScalaTokenTypes.tAT
+          }
+
+        var elementAdded = false
 
         def addElement(item: ScalaLookupItem): Unit = {
           elementAdded |= result.getPrefixMatcher.prefixMatches(item)
           result.addElement(item)
         }
 
-      position.getContext match {
-        case ref: ScReferenceElement =>
-          def validItem(item: ScalaLookupItem): Option[ScalaLookupItem] = if (item.isValid) {
-            if (inString) item.isInSimpleString = true
-            if (inInterpolatedString) item.isInInterpolatedString = true
+        position.getContext match {
+          case ref: ScReferenceElement =>
+            def validItem(item: ScalaLookupItem): Option[ScalaLookupItem] = if (item.isValid) {
+              if (inString) item.isInSimpleString = true
+              if (inInterpolatedString) item.isInInterpolatedString = true
 
-            item.element match {
-              case clazz: PsiClass =>
-                if (!isExcluded(clazz) && !classNameCompletion && (!lookingForAnnotations || clazz.isAnnotationType)) {
+              item.element match {
+                case clazz: PsiClass =>
+                  if (!isExcluded(clazz) && !classNameCompletion && (!lookingForAnnotations || clazz.isAnnotationType)) {
 
-                  val lookupElement = expectedTypesAfterNew(position)(context).map { expectedTypes =>
-                    val renamedMap = createRenamePair(item).toMap
-                    getLookupElementFromClass(expectedTypes, clazz, renamedMap)
-                  }.getOrElse(item)
+                    val lookupElement = expectedTypeAfterNew(position)(context)
+                      .map(_.apply(clazz, createRenamePair(item).toMap))
+                      .getOrElse(item)
 
-                  Some(lookupElement)
-                } else None
-              case _ if lookingForAnnotations => None
-              case f: FakePsiMethod if f.name.endsWith("_=") && parameters.getInvocationCount < 2 => None //don't show _= methods for vars in basic completion
-              case _: ScFun | _: ScClassParameter => Some(item)
-              case _: ScParameter if !item.isNamedParameter =>
-                item.isLocalVariable = true
-                Some(item)
-              case pattern: ScBindingPattern =>
-                ScalaPsiUtil.nameContext(pattern) match {
-                  case valueOrVariable: ScValueOrVariable if valueOrVariable.isLocal =>
-                    item.isLocalVariable = true
-                    Some(item)
-                  case _: ScCaseClause | _: ScEnumerator | _: ScGenerator =>
-                    item.isLocalVariable = true
-                    Some(item)
-                  case member: PsiMember =>
-                    if (parameters.getInvocationCount > 1 || ResolveUtils.isAccessible(member, position, forCompletion = true)) Some(item)
-                    else None
-                  case _ => Some(item)
-                }
-              case member: PsiMember =>
-                if (parameters.getInvocationCount > 1 || ResolveUtils.isAccessible(member, position, forCompletion = true)) Some(item)
-                else None
-              case _ => Some(item)
-            }
-          } else None
-
-          trait PostProcessor {
-
-            this: CompletionProcessor =>
-
-            private val containingClass = Option(PsiTreeUtil.getContextOfType(position, classOf[PsiClass]))
-            private val isInImport = PsiTreeUtil.getContextOfType(ref, classOf[ScImportStmt]) != null
-            private val isInStableCodeReference = ref.isInstanceOf[ScStableCodeReferenceElement]
-
-            override protected def postProcess(resolveResult: ScalaResolveResult): Unit = {
-              lookupItems(resolveResult).foreach(addElement)
-            }
-
-            protected def lookupItems(result: ScalaResolveResult,
-                                      qualifierType: Option[ScType] = None): Seq[ScalaLookupItem] =
-              result.getLookupElement(
-                qualifierType = qualifierType,
-                isInImport = isInImport,
-                containingClass = containingClass,
-                isInStableCodeReference = isInStableCodeReference,
-                isInSimpleString = inString,
-                isInInterpolatedString = inInterpolatedString
-              ).flatMap(validItem)
-          }
-
-          ref match {
-            case refImpl: ScStableCodeReferenceElementImpl =>
-              val processor = new CompletionProcessor(kinds(refImpl), refImpl) with PostProcessor
-              refImpl.doResolve(processor)
-            case refImpl: ScReferenceExpressionImpl =>
-              val processor = new ImplicitCompletionProcessor(kinds(refImpl), refImpl) with PostProcessor
-              refImpl.doResolve(processor)
-              prefixedThisAndSupers(refImpl).foreach(addElement)
-            case refImpl: ScTypeProjectionImpl =>
-              val processor = new CompletionProcessor(kinds(refImpl), refImpl) with PostProcessor
-              refImpl.doResolve(processor)
-            case _ =>
-              (ref: PsiReference).getVariants.collect {
-                case item: ScalaLookupItem => item
-              }.flatMap(validItem).foreach(addElement)
-          }
-
-          if (!elementAdded && !classNameCompletion) {
-            ScalaClassNameCompletionContributor.completeClassName(
-              result,
-              checkInvocationCount = false,
-              lookingForAnnotations = lookingForAnnotations
-            )(parameters, context)
-          }
-
-          //adds runtime completions for evaluate expression in debugger
-          for {
-            qualifierType <- qualifierCastType(ref)
-            canonicalText = qualifierType.canonicalText
-            reference <- createReferenceWithQualifierType(canonicalText)(ref.getContext, ref)
-
-            processor = new ImplicitCompletionProcessor(kinds(reference), reference) with PostProcessor {
-
-              private val lookupStrings = mutable.Set[String]()
-              private val decorator = castDecorator(canonicalText)
-
-              override protected def postProcess(resolveResult: ScalaResolveResult): Unit =
-                lookupItems(resolveResult, Some(qualifierType)).foreach { item =>
-                  if (lookupStrings.add(item.getLookupString)) {
-                    result.addElement(LookupElementDecorator.withInsertHandler(item, decorator))
+                    Some(lookupElement)
+                  } else None
+                case _ if lookingForAnnotations => None
+                case f: FakePsiMethod if f.name.endsWith("_=") && parameters.getInvocationCount < 2 => None //don't show _= methods for vars in basic completion
+                case _: ScFun | _: ScClassParameter => Some(item)
+                case _: ScParameter if !item.isNamedParameter =>
+                  item.isLocalVariable = true
+                  Some(item)
+                case pattern: ScBindingPattern =>
+                  ScalaPsiUtil.nameContext(pattern) match {
+                    case valueOrVariable: ScValueOrVariable if valueOrVariable.isLocal =>
+                      item.isLocalVariable = true
+                      Some(item)
+                    case _: ScCaseClause | _: ScEnumerator | _: ScGenerator =>
+                      item.isLocalVariable = true
+                      Some(item)
+                    case member: PsiMember =>
+                      if (parameters.getInvocationCount > 1 || ResolveUtils.isAccessible(member, position, forCompletion = true)) Some(item)
+                      else None
+                    case _ => Some(item)
                   }
-                }
+                case member: PsiMember =>
+                  if (parameters.getInvocationCount > 1 || ResolveUtils.isAccessible(member, position, forCompletion = true)) Some(item)
+                  else None
+                case _ => Some(item)
+              }
+            } else None
 
+            trait PostProcessor {
+
+              this: CompletionProcessor =>
+
+              private val containingClass = Option(PsiTreeUtil.getContextOfType(position, classOf[PsiClass]))
+              private val isInImport = PsiTreeUtil.getContextOfType(ref, classOf[ScImportStmt]) != null
+              private val isInStableCodeReference = ref.isInstanceOf[ScStableCodeReferenceElement]
+
+              override protected def postProcess(resolveResult: ScalaResolveResult): Unit = {
+                lookupItems(resolveResult).foreach(addElement)
+              }
+
+              protected def lookupItems(result: ScalaResolveResult,
+                                        qualifierType: Option[ScType] = None): Seq[ScalaLookupItem] =
+                result.getLookupElement(
+                  qualifierType = qualifierType,
+                  isInImport = isInImport,
+                  containingClass = containingClass,
+                  isInStableCodeReference = isInStableCodeReference,
+                  isInSimpleString = inString,
+                  isInInterpolatedString = inInterpolatedString
+                ).flatMap(validItem)
             }
-          } reference.doResolve(processor)
-        case _ =>
+
+            ref match {
+              case refImpl: ScStableCodeReferenceElementImpl =>
+                val processor = new CompletionProcessor(kinds(refImpl), refImpl) with PostProcessor
+                refImpl.doResolve(processor)
+              case refImpl: ScReferenceExpressionImpl =>
+                val processor = new CompletionProcessor(kinds(refImpl), refImpl, isImplicit = true) with PostProcessor
+                refImpl.doResolve(processor)
+                prefixedThisAndSupers(refImpl).foreach(addElement)
+              case refImpl: ScTypeProjectionImpl =>
+                val processor = new CompletionProcessor(kinds(refImpl), refImpl) with PostProcessor
+                refImpl.doResolve(processor)
+              case _ =>
+                (ref: PsiReference).getVariants.collect {
+                  case item: ScalaLookupItem => item
+                }.flatMap(validItem).foreach(addElement)
+            }
+
+            if (!elementAdded && !classNameCompletion) {
+              ScalaClassNameCompletionContributor.completeClassName(
+                result,
+                checkInvocationCount = false,
+                lookingForAnnotations = lookingForAnnotations
+              )(parameters, context)
+            }
+
+            //adds runtime completions for evaluate expression in debugger
+            for {
+              qualifierType <- qualifierCastType(ref)
+              canonicalText = qualifierType.canonicalText
+              reference <- createReferenceWithQualifierType(canonicalText)(ref.getContext, ref)
+
+              processor = new CompletionProcessor(kinds(reference), reference, isImplicit = true) with PostProcessor {
+
+                private val lookupStrings = mutable.Set[String]()
+                private val decorator = castDecorator(canonicalText)
+
+                override protected def postProcess(resolveResult: ScalaResolveResult): Unit =
+                  lookupItems(resolveResult, Some(qualifierType)).foreach { item =>
+                    if (lookupStrings.add(item.getLookupString)) {
+                      result.addElement(LookupElementDecorator.withInsertHandler(item, decorator))
+                    }
+                  }
+
+              }
+            } reference.doResolve(processor)
+          case _ =>
+        }
+        if (position.getNode.getElementType == ScalaDocTokenType.DOC_TAG_VALUE_TOKEN) result.stopHere()
       }
-      if (position.getNode.getElementType == ScalaDocTokenType.DOC_TAG_VALUE_TOKEN) result.stopHere()
-    }
-  })
+    })
 
   override def beforeCompletion(context: CompletionInitializationContext): Unit = {
     context.setDummyIdentifier(getDummyIdentifier(context.getStartOffset - 1, context.getFile))
@@ -247,27 +232,65 @@ class ScalaBasicCompletionContributor extends ScalaCompletionContributor {
 
 object ScalaBasicCompletionContributor {
 
-  def getStartEndPointForInterpolatedString(interpolated: ScInterpolated, index: Int, offsetInString: Int): Option[(Int, Int)] = {
-    val injections = interpolated.getInjections
-    if (index != -1) {
-      val expr = injections(index)
-      if (expr.isInstanceOf[ScBlock]) return None
-      val stringText = interpolated.getText
-      val pointPosition = expr.getTextRange.getEndOffset - interpolated.getTextRange.getStartOffset
-      if (stringText.charAt(pointPosition) == '.') {
-        val restString = stringText.substring(pointPosition + 1)
-        val lexer = new ScalaLexer()
-        val noQuotes = if (interpolated.isMultiLineString) 3 else 1
-        lexer.start(restString, 0, restString.length - noQuotes)
-        if (lexer.getTokenType == ScalaTokenTypes.tIDENTIFIER) {
-          val endPoint = lexer.getTokenEnd + pointPosition + 1
-          if (endPoint >= offsetInString) {
-            val exprStartInString = expr.getTextRange.getStartOffset - interpolated.getTextRange.getStartOffset
-            Some(exprStartInString, endPoint)
-          } else None
-        } else None
-      } else None
-    } else None
+  private def splitInterpolatedString(interpolated: ScInterpolated,
+                                      offset: Int,
+                                      context: ScInterpolated): Option[(String, String, String)] =
+    interpolatedStringBounds(interpolated, offset, context) match {
+      case Some((origin, bound)) =>
+        val text = interpolated.getText
+        Some((
+          text.substring(0, origin),
+          text.substring(origin, bound),
+          text.substring(bound)
+        ))
+      case _ => None
+    }
+
+  private def isInString(position: PsiElement) = position.getNode match {
+    case null => (true, true)
+    case node =>
+      node.getElementType match {
+        case ScalaTokenTypes.tIDENTIFIER | ScalaDocTokenType.DOC_TAG_VALUE_TOKEN => (false, false)
+        case ScalaTokenTypes.tSTRING | ScalaTokenTypes.tMULTILINE_STRING => (true, false)
+        case ScalaTokenTypes.tINTERPOLATED_STRING | ScalaTokenTypes.tINTERPOLATED_MULTILINE_STRING => (false, true)
+        case _ => (true, true)
+      }
+  }
+
+  def interpolatedStringBounds(interpolated: ScInterpolated,
+                               offset: Int,
+                               context: ScInterpolated): Option[(Int, Int)] =
+    interpolated.getInjections.reverseIterator
+      .find(_.getTextRange.getEndOffset <= offset)
+      .collect {
+        case expression if !expression.isInstanceOf[ScBlock] =>
+          val range = expression.getTextRange
+          (range.getStartOffset, range.getEndOffset)
+      }.flatMap {
+      case (rangeStartOffset, rangeEndOffset) =>
+        val stringText = interpolated.getText
+
+        val startOffset = interpolated.getTextRange.getStartOffset
+        val pointPosition = rangeEndOffset - startOffset
+
+        tokenizeLiteral(stringText.substring(pointPosition), interpolated.isMultiLineString).flatMap { tokenEnd =>
+          tokenEnd + pointPosition + 1 match {
+            case endPoint if endPoint >= startOffset - context.getTextRange.getStartOffset =>
+              Some(rangeStartOffset - startOffset, endPoint)
+            case _ => None
+          }
+        }
+    }
+
+  private def tokenizeLiteral(text: String, isMultiLineString: Boolean) = text.charAt(0) match {
+    case '.' =>
+      val lexer = new ScalaLexer()
+      lexer.start(text, 1, text.length - 1 - (if (isMultiLineString) 3 else 1))
+      lexer.getTokenType match {
+        case ScalaTokenTypes.tIDENTIFIER => Some(lexer.getTokenEnd)
+        case _ => None
+      }
+    case _ => None
   }
 
   private def qualifierCastType(reference: ScReferenceElement): Option[ScType] = reference match {

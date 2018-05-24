@@ -52,7 +52,6 @@ import org.jetbrains.plugins.scala.lang.refactoring.util.ScTypeUtil.AliasType
 import org.jetbrains.plugins.scala.lang.resolve.ScalaResolveResult
 import org.jetbrains.plugins.scala.lang.resolve.processor._
 import org.jetbrains.plugins.scala.lang.structureView.ScalaElementPresentation
-import org.jetbrains.plugins.scala.project.ScalaLanguageLevel.Scala_2_11
 import org.jetbrains.plugins.scala.project.settings.ScalaCompilerConfiguration
 import org.jetbrains.plugins.scala.project.{ModuleExt, ProjectContext, ProjectPsiElementExt, ScalaLanguageLevel}
 import org.jetbrains.plugins.scala.util.ScEquivalenceUtil
@@ -1423,60 +1422,53 @@ object ScalaPsiUtil {
   }
 
   /** Creates a synthetic parameter clause based on view and context bounds */
-  def syntheticParamClause(element: PsiNamedElement, paramClauses: ScParameters, classParam: Boolean, hasImplicit: Boolean): Option[ScParameterClause] =
-    Option(element).collect {
-      case parameterOwner: ScTypeParametersOwner if !hasImplicit => parameterOwner
-    }.flatMap {
-      parameterOwner =>
-        def views(typeParameter: ScTypeParam) = typeParameter.viewTypeElement.map {
-          typeElement =>
-            val needParenthesis = typeElement match {
-              case _: ScCompoundTypeElement |
-                   _: ScInfixTypeElement |
-                   _: ScFunctionalTypeElement |
-                   _: ScExistentialTypeElement => true
-              case _ => false
-            }
-            val elementText = typeElement.getText.parenthesize(needParenthesis)
-            val arrow = functionArrow(typeElement.getProject)
-            s"${typeParameter.name} $arrow $elementText"
+  def syntheticParamClause(parameterOwner: ScTypeParametersOwner,
+                           paramClauses: ScParameters,
+                           isClassParameter: Boolean)
+                          (hasImplicit: Boolean = paramClauses.clauses.exists(_.isImplicit)): Option[ScParameterClause] = {
+    if (hasImplicit) return None
+
+    val typeParameters = parameterOwner.typeParameters
+
+    val views = typeParameters.flatMap { typeParameter =>
+      val parameterName = typeParameter.name
+      typeParameter.viewTypeElement.map { typeElement =>
+        val needParenthesis = typeElement match {
+          case _: ScCompoundTypeElement |
+               _: ScInfixTypeElement |
+               _: ScFunctionalTypeElement |
+               _: ScExistentialTypeElement => true
+          case _ => false
         }
 
-        def bounds(typeParameter: ScTypeParam) = typeParameter.contextBoundTypeElement.map {
-          typeElement =>
-            s"${typeElement.getText}[${typeParameter.name}]"
-        }
-
-        val typeParameters = parameterOwner.typeParameters
-        val maybeText = (typeParameters.flatMap(views) ++ typeParameters.flatMap(bounds)).zipWithIndex.map {
-          case (text, index) => s"ev$$${index + 1}: $text"
-        } match {
-          case Seq() => None
-          case seq => Some(seq.mkString("(implicit ", ", ", ")"))
-        }
-
-        def createClause =
-          if (classParam) createImplicitClassParamClauseFromTextWithContext _
-          else createImplicitClauseFromTextWithContext _
-
-        val result = maybeText.map {
-          createClause(_, paramClauses)
-        }
-
-        result.foreach {
-          clause =>
-            val typeElements = typeParameters.flatMap(_.viewTypeElement) ++
-              typeParameters.flatMap(_.contextBoundTypeElement)
-
-            clause.parameters.flatMap {
-              _.typeElement.toSeq
-            }.foreachWithIndex {
-              case (typeElement, index) => typeElements(index).analog = typeElement
-            }
-        }
-
-        result
+        val elementText = typeElement.getText.parenthesize(needParenthesis)
+        import typeElement.projectContext
+        s"$parameterName $functionArrow $elementText"
+      }
     }
+
+    val bounds = typeParameters.flatMap { typeParameter =>
+      val parameterName = typeParameter.name
+      typeParameter.contextBoundTypeElement.map { typeElement =>
+        s"${typeElement.getText}[$parameterName]"
+      }
+    }
+
+    val clauses = (views ++ bounds).zipWithIndex.map {
+      case (text, index) => s"ev$$${index + 1}: $text"
+    }
+
+    val result = createImplicitClauseFromTextWithContext(clauses, paramClauses, isClassParameter)
+    result.toSeq
+      .flatMap(_.parameters)
+      .flatMap(_.typeElement)
+      .zip(typeParameters.flatMap(_.viewTypeElement) ++ typeParameters.flatMap(_.contextBoundTypeElement))
+      .foreach {
+        case (typeElement, context) => context.analog = typeElement
+      }
+
+    result
+  }
 
   //todo: fix it
   // This is a conservative approximation, we should really resolve the operation
