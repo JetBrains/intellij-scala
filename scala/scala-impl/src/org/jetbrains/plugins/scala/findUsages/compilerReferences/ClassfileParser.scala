@@ -6,12 +6,13 @@ import java.{util => ju}
 import scala.collection.JavaConverters._
 import com.intellij.openapi.vfs.VirtualFile
 import org.jetbrains.org.objectweb.asm._
+import org.jetbrains.plugins.scala.extensions._
 
 import scala.collection.mutable
 
 private object ClassfileParser {
-  def parse(is: InputStream): ParsedClassfile = {
-    val reader  = new ClassReader(is)
+  def parse(is: InputStream): ParsedClassfile = using(is) { in =>
+    val reader  = new ClassReader(in)
     val visitor = new ParsingVisitor
     reader.accept(visitor, ClassReader.SKIP_FRAMES)
     visitor.result
@@ -47,6 +48,11 @@ private object ClassfileParser {
         interfaces.map(fqnFromInternalName).foreach(superNames += _)
       }
     }
+
+//    override def visitAttribute(attr: Attribute): Unit = attr.`type` match {
+//      case 
+//      case _ => ()
+//    }
 
     override def visitMethod(
       access: Int,

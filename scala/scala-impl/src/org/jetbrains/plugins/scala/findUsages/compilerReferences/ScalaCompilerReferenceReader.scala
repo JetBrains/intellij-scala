@@ -29,13 +29,12 @@ private[findUsages] class ScalaCompilerReferenceReader private[compilerReference
 
   private def findFileByEnumeratorId(id: Int): Option[VirtualFile] = {
     val path = myIndex.getFilePathEnumerator.valueOf(id)
-    val file = new File(path)
 
-    try Option(VfsUtil.findFileByIoFile(file, false))
+    try Option(VfsUtil.findFileByIoFile(new File(path), false))
     catch { case e: IOException => throw new RuntimeException(e) }
   }
 
-  def findImplicitReferences(ref: CompilerRef): Set[LinesWithUsagesInFile] =
+  def usagesOf(ref: CompilerRef): Set[LinesWithUsagesInFile] =
     rethrowStorageExceptionIn {
       val usages = Set.newBuilder[LinesWithUsagesInFile]
       
@@ -99,10 +98,10 @@ private[findUsages] class ScalaCompilerReferenceReader private[compilerReference
           }
 
           myIndex.get(ScalaCompilerIndices.backwardHierarchy).getData(currentClass).forEach {
-            case (_, children) =>
-              children.collect {
+            case (_, child) => child match {
                 case anon: CompilerRef.CompilerAnonymousClassDef if includeAnonymous => queue.addLast(anon)
                 case aClass: CompilerRef.CompilerClassHierarchyElementDef            => queue.addLast(aClass)
+                case _                                                               => ()
               }
               true
           }
