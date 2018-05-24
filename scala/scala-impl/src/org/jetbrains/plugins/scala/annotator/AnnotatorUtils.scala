@@ -9,7 +9,7 @@ import com.intellij.psi.PsiElement
 import org.jetbrains.plugins.scala.annotator.quickfix.ReportHighlightingErrorQuickFix
 import org.jetbrains.plugins.scala.lang.psi.api.base.types.ScTypeElement
 import org.jetbrains.plugins.scala.lang.psi.api.expr.{ScBlockExpr, ScExpression}
-import org.jetbrains.plugins.scala.lang.psi.types.ScTypeExt
+import org.jetbrains.plugins.scala.lang.psi.types.{ScType, ScTypeExt}
 import org.jetbrains.plugins.scala.lang.psi.types.api.ScTypePresentation
 import org.jetbrains.plugins.scala.project.ProjectContext
 
@@ -54,6 +54,16 @@ private[annotator] object AnnotatorUtils {
           ScalaBundle.message("type.mismatch.found.required", actualText, expText))
         annotation.registerFix(ReportHighlightingErrorQuickFix)
       }
+    }
+  }
+
+  def registerTypeMismatchError(actualType: ScType, expectedType: ScType, holder: AnnotationHolder, expression: ScExpression): Unit = {
+    //TODO show parameter name
+    if (!actualType.conforms(expectedType)) {
+      val (expectedText, actualText) = ScTypePresentation.different(expectedType, actualType)
+      val message = ScalaBundle.message("type.mismatch.expected.actual", expectedText, actualText)
+      val annotation = holder.createErrorAnnotation(expression, message)
+      annotation.registerFix(ReportHighlightingErrorQuickFix)
     }
   }
 }

@@ -26,7 +26,6 @@ class ReturnSeveralOutput2 {
     var z: Int = testMethodNameResult._3
     val zz: String = testMethodNameResult._4
 
-
     println(x + y + z + zz)
     i
   }

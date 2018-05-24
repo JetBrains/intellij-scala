@@ -22,7 +22,6 @@ class UnitReturnSeveralOutput2 {
     }
     val TestMethodNameResult(x: Int, y: String, z: Int, zz: String) = testMethodNameResult
 
-
     println(x + y + z + zz)
   }
 

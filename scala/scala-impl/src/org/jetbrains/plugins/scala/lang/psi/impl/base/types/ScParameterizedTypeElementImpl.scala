@@ -112,7 +112,7 @@ class ScParameterizedTypeElementImpl(node: ASTNode) extends ScalaPsiElementImpl(
       s"(${typeElement.getText}${typeElements.mkString("[", ", ", "]")} ${forSomeBuilder.toString()})"
     }
 
-    val kindProjectorEnabled = ScalaPsiUtil.kindProjectorPluginEnabled(this)
+    val kindProjectorEnabled = this.kindProjectorPluginEnabled
     def isKindProjectorFunctionSyntax(element: PsiElement): Boolean = {
       typeElement.getText match {
         case "Lambda" | "λ" if kindProjectorEnabled => true
@@ -208,7 +208,7 @@ class ScParameterizedTypeElementImpl(node: ASTNode) extends ScalaPsiElementImpl(
                                    state: ResolveState,
                                    lastParent: PsiElement,
                                    place: PsiElement): Boolean = {
-    if (ScalaPsiUtil.kindProjectorPluginEnabled(this)) {
+    if (this.kindProjectorPluginEnabled) {
       computeDesugarizedType match {
         case Some(projection: ScTypeProjection) =>
           projection.typeElement match {

@@ -11,6 +11,7 @@ import org.jetbrains.plugins.scala.project.ProjectContext
 /**
   * @author Pavel Fatin
   */
+// TODO Is this the level of "syntactic sugar"?
 class ExpandVarargArgument extends AbstractTransformer {
   // TODO improve array detection
   def transformation(implicit project: ProjectContext): PartialFunction[PsiElement, Unit] = {

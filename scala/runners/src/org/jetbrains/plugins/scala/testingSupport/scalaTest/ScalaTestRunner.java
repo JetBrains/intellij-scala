@@ -250,6 +250,7 @@ public class ScalaTestRunner {
       String jarPath = path.substring(5, path.indexOf("!"));
       JarFile jar = new JarFile(URLDecoder.decode(jarPath, "UTF-8"));
       String version = jar.getManifest().getMainAttributes().getValue("Bundle-Version");
+      jar.close();
       return parseVersion(version);
     } catch (IOException e) {
       return true;

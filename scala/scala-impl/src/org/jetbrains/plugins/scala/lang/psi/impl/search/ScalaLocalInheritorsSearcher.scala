@@ -16,7 +16,7 @@ import org.jetbrains.plugins.scala.lang.psi.api.toplevel.typedef.{ScTemplateDefi
   * @author Nikolay.Tropin
   */
 class ScalaLocalInheritorsSearcher extends QueryExecutorBase[PsiClass, ClassInheritorsSearch.SearchParameters] {
-  override def processQuery(params: SearchParameters, consumer: Processor[PsiClass]): Unit = {
+  override def processQuery(params: SearchParameters, consumer: Processor[_ >: PsiClass]): Unit = {
     val clazz = params.getClassToProcess
 
     val (_, virtualFiles) = params.getScope match {

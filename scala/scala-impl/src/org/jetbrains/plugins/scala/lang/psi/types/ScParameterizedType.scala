@@ -18,7 +18,7 @@ import org.jetbrains.plugins.scala.lang.psi.api.toplevel.ScTypeParametersOwner
 import org.jetbrains.plugins.scala.lang.psi.types.api.designator.{ScDesignatorType, ScProjectionType}
 import org.jetbrains.plugins.scala.lang.psi.types.api.{Contravariant, Covariant, Invariant, ParameterizedType, TypeParameterType, TypeVisitor, UndefinedType, ValueType, Variance}
 import org.jetbrains.plugins.scala.lang.psi.types.nonvalue.ScTypePolymorphicType
-import org.jetbrains.plugins.scala.lang.psi.types.recursiveUpdate.ScSubstitutor
+import org.jetbrains.plugins.scala.lang.psi.types.recursiveUpdate.{AfterUpdate, ScSubstitutor}
 import org.jetbrains.plugins.scala.lang.refactoring.util.ScTypeUtil.AliasType
 
 class ScParameterizedType private(val designator: ScType, val typeArguments: Seq[ScType]) extends ParameterizedType with ScalaType {
@@ -34,16 +34,7 @@ class ScParameterizedType private(val designator: ScType, val typeArguments: Seq
   }
 
   private def computeAliasType(ta: ScTypeAlias, subst: ScSubstitutor): Some[AliasType] = {
-    def wildcards(tp: Option[ScType]): Set[String] =
-      tp.map(ScExistentialType.existingWildcards).getOrElse(Set.empty)
-
-    val substedLower = ta.lowerBound.toOption.map(subst.subst)
-    val substedUpper = ta.upperBound.toOption.map(subst.subst)
-
-    val existingWildcards = wildcards(substedLower) ++ wildcards(substedUpper)
-    val fixedArgs = typeArguments.map(ScExistentialType.fixExistentialArgumentNames(_, existingWildcards))
-
-    val genericSubst = ScSubstitutor.bind(ta.typeParameters, fixedArgs)
+    val genericSubst = ScSubstitutor.bind(ta.typeParameters, typeArguments)
 
     val s = subst.followed(genericSubst)
     val lowerBound = ta.lowerBound.map(s.subst)
@@ -74,31 +65,6 @@ class ScParameterizedType private(val designator: ScType, val typeArguments: Seq
           s.followed(ScSubstitutor.bind(owner.getTypeParameters, typeArguments))
         case _ => ScSubstitutor.empty
       }
-    }
-  }
-
-  override def recursiveVarianceUpdateModifiable[T](data: T, update: (ScType, Variance, T) => (Boolean, ScType, T),
-                                           variance: Variance = Covariant, revertVariances: Boolean = false): ScType = {
-
-    val argUpdateSign: Variance = variance match {
-      case Invariant | Covariant => Covariant.inverse(revertVariances)
-      case Contravariant => Contravariant.inverse(revertVariances)
-    }
-
-    update(this, variance, data) match {
-      case (true, res, _) => res
-      case (_, _, newData) =>
-        val des = designator.extractDesignated(expandAliases = false) match {
-          case Some(n: ScTypeParametersOwner) =>
-            n.typeParameters.map(_.variance)
-          case _ => Seq.empty
-        }
-        ParameterizedType(designator.recursiveVarianceUpdateModifiable(newData, update, variance),
-          typeArguments.zipWithIndex.map {
-            case (ta, i) =>
-              val v = if (i < des.length) des(i) else Invariant
-              ta.recursiveVarianceUpdateModifiable(newData, update, v * argUpdateSign)
-          })
     }
   }
 

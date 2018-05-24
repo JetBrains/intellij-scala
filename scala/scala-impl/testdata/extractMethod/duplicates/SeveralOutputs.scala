@@ -45,7 +45,6 @@ object SeveralOutputs {
     val z: Int = testMethodNameResult._1
     val zz: Int = testMethodNameResult._2
     var zzz: Int = testMethodNameResult._3
-
   }
 }
 */

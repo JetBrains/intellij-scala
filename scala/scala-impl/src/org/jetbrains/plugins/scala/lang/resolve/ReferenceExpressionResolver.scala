@@ -469,7 +469,7 @@ class ReferenceExpressionResolver(implicit projectContext: ProjectContext) {
       qualifier.getNonValueType() match {
         case Right(tpt@ScTypePolymorphicType(internal, tp)) if tp.nonEmpty &&
           !internal.isInstanceOf[ScMethodType] && !internal.isInstanceOf[UndefinedType] /* optimization */ =>
-          val substed = tpt.abstractTypeSubstitutor.subst(internal)
+          val substed = tpt.typeParameterOrLowerSubstitutor.subst(internal)
           processType(substed, qualifier, processor)
           if (processor.candidates.nonEmpty) return processor
         case _ =>

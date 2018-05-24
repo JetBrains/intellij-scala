@@ -20,9 +20,9 @@ import org.jetbrains.plugins.scala.lang.psi.api.toplevel.imports.ScImportStmt
 import org.jetbrains.plugins.scala.lang.psi.api.toplevel.typedef._
 import org.jetbrains.plugins.scala.project._
 import org.jetbrains.plugins.scala.settings.ScalaProjectSettings
-import worksheet.actions.RunWorksheetAction
-import worksheet.runconfiguration.WorksheetCache
-import worksheet.ui.WorksheetIncrementalEditorPrinter.QueuedPsi
+import org.jetbrains.plugins.scala.worksheet.runconfiguration.WorksheetCache
+import org.jetbrains.plugins.scala.worksheet.settings.WorksheetCommonSettings
+import org.jetbrains.plugins.scala.worksheet.ui.WorksheetIncrementalEditorPrinter.QueuedPsi
 
 import scala.annotation.tailrec
 import scala.collection.mutable
@@ -103,7 +103,7 @@ object WorksheetSourceProcessor {
     val name = s"A$$A$iterNumber"
     val instanceName = s"inst$$A$$A"
     val project = srcFile.getProject
-    val moduleOpt = Option(RunWorksheetAction getModuleFor srcFile)
+    val moduleOpt = Option(WorksheetCommonSettings.getInstance(srcFile).getModuleFor)
     
     val packOpt: Option[String] = Option(srcFile.getContainingDirectory) flatMap (
       dir => Option(JavaDirectoryService.getInstance().getPackage(dir))
@@ -328,7 +328,7 @@ object WorksheetSourceProcessor {
     }
 
     protected def processLocalImport(imp: ScImportStmt): Boolean = {
-      if (imp.importExprs.size < 1) return false
+      if (imp.importExprs.lengthCompare(1) < 0) return false
 
       var currentQual = imp.importExprs.head.qualifier
       var lastFound: Option[(ScStableCodeReferenceElement, PsiElement)] = None

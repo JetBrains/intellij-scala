@@ -16,7 +16,7 @@ import org.jetbrains.plugins.scala.lang.psi.api.toplevel.imports.ScImportSelecto
 
 class ScalaAliasedImportedElementSearcher extends QueryExecutorBase[PsiReference, ReferencesSearch.SearchParameters](true) {
 
-  def processQuery(parameters: ReferencesSearch.SearchParameters, consumer: Processor[PsiReference]) {
+  def processQuery(parameters: ReferencesSearch.SearchParameters, consumer: Processor[_ >: PsiReference]) {
     val data: Option[(PsiNamedElement, String, SearchScope)] = inReadAction {
       parameters.getElementToSearch match {
         case named: PsiNamedElement =>
@@ -47,7 +47,7 @@ class ScalaAliasedImportedElementSearcher extends QueryExecutorBase[PsiReference
       _.importedName
     }
 
-    def processTextOccurrence(element: PsiElement, offsetInElement: Int, consumer: Processor[PsiReference]): Boolean = inReadAction {
+    def processTextOccurrence(element: PsiElement, offsetInElement: Int, consumer: Processor[_ >: PsiReference]): Boolean = inReadAction {
       getAlias(element) match {
         case Some(alias) =>
           val reference: PsiReference = element.getReference

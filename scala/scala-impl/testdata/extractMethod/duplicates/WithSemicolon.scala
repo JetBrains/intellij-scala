@@ -31,7 +31,6 @@ object WithSemicolon {
 
   def foofoo() {
     testMethodName(1)
-
   }
 }
 */

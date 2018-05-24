@@ -7,6 +7,7 @@ package expr
 import com.intellij.lang.ASTNode
 import com.intellij.openapi.util.Comparing
 import com.intellij.psi._
+import com.intellij.psi.impl.light.LightElement
 import com.intellij.psi.meta.PsiMetaData
 import org.jetbrains.plugins.scala.extensions._
 import org.jetbrains.plugins.scala.lang.lexer.ScalaTokenTypes
@@ -15,6 +16,7 @@ import org.jetbrains.plugins.scala.lang.psi.api.ScalaElementVisitor
 import org.jetbrains.plugins.scala.lang.psi.api.base.types.ScTypeElement
 import org.jetbrains.plugins.scala.lang.psi.api.expr._
 import org.jetbrains.plugins.scala.lang.psi.impl.ScalaPsiElementFactory.createExpressionFromText
+import org.jetbrains.plugins.scala.lang.psi.impl.expr.ScAnnotationImpl.ScAnnotationParameterList
 import org.jetbrains.plugins.scala.lang.psi.stubs.ScAnnotationStub
 import org.jetbrains.plugins.scala.lang.psi.types.ScTypeExt
 import org.jetbrains.plugins.scala.lang.psi.types.result._
@@ -24,7 +26,7 @@ import org.jetbrains.plugins.scala.lang.psi.types.result._
   *         Date: 07.03.2008
   */
 class ScAnnotationImpl private(stub: ScAnnotationStub, node: ASTNode)
-  extends ScalaStubBasedElementImpl(stub, ANNOTATION, node) with ScAnnotation with PsiAnnotationParameterList {
+  extends ScalaStubBasedElementImpl(stub, ANNOTATION, node) with ScAnnotation {
 
   def this(node: ASTNode) = this(null, node)
 
@@ -34,12 +36,7 @@ class ScAnnotationImpl private(stub: ScAnnotationStub, node: ASTNode)
 
   def getMetaData: PsiMetaData = null
 
-  def getAttributes: Array[PsiNameValuePair] =
-    annotationExpr.getAttributes.map {
-      _.asInstanceOf[PsiNameValuePair]
-    }.toArray
-
-  def getParameterList: PsiAnnotationParameterList = this
+  def getParameterList: PsiAnnotationParameterList = new ScAnnotationParameterList(annotationExpr)
 
   private def getClazz: Option[PsiClass] =
     typeElement.`type`().getOrAny.extractClass
@@ -181,4 +178,14 @@ class ScAnnotationImpl private(stub: ScAnnotationStub, node: ASTNode)
   override def navigate(requestFocus: Boolean): Unit =
     super[ScalaStubBasedElementImpl].navigate(requestFocus)
 
+}
+
+object ScAnnotationImpl {
+  private class ScAnnotationParameterList(expr: ScAnnotationExpr)
+    extends LightElement(expr.getManager, expr.getLanguage) with PsiAnnotationParameterList {
+
+    override def getAttributes: Array[PsiNameValuePair] = expr.getAttributes.toArray
+
+    override def toString: String = "ScAnnotationParameterList"
+  }
 }

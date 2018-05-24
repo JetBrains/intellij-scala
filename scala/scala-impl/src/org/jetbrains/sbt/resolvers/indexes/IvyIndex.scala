@@ -13,7 +13,6 @@ import org.jetbrains.sbt.resolvers._
 
 import scala.collection.JavaConverters._
 import scala.collection.mutable
-import scala.collection.parallel.immutable
 import scala.xml.XML
 
 /**
@@ -233,22 +232,23 @@ class IvyIndex(val root: String, val name: String, implicit val project: Project
 
     def artifacts: Stream[ArtifactInfo] = listArtifacts(cacheDir)
 
-    private def fqNamesFromJarFile(file: File): Stream[String] = {
+    private def fqNamesFromJarFile(file: File): Set[String] = {
       progressIndicator.foreach(_.setText2(file.getAbsolutePath))
 
-      val jarFile = new JarFile(file)
+      using(new JarFile(file)) { jarFile =>
 
-      val classExt = ".class"
+        val classExt = ".class"
 
-      val entries = jarFile.entries().asScala
-        .filter(e => (e.getName.endsWith(classExt) && !e.getName.contains("$")) ||
-          e.getName.endsWith("/") || e.getName.endsWith("\\"))
+        val entries = jarFile.entries().asScala
+          .filter(e => (e.getName.endsWith(classExt) && !e.getName.contains("$")) ||
+            e.getName.endsWith("/") || e.getName.endsWith("\\"))
 
-      entries
-        .map(e => e.getName)
-        .map(name => name.replaceAll("/", "."))
-        .map(name => if (name.endsWith(classExt)) name.substring(0, name.length - classExt.length) else name)
-        .toStream
+        entries
+          .map(e => e.getName)
+          .map(name => name.replaceAll("/", "."))
+          .map(name => if (name.endsWith(classExt)) name.substring(0, name.length - classExt.length) else name)
+          .toSet
+      }
     }
 
     private def listFqNames(dir: File, artifacts: Stream[ArtifactInfo]): mutable.Map[ArtifactInfo, Set[String]] = {
@@ -265,7 +265,7 @@ class IvyIndex(val root: String, val name: String, implicit val project: Project
         val fname = t.artifactId + "-" + t.version + ".jar"
         val jarFile = new File(jarsDir, fname)
         if (jarFile.exists) {
-          artifactToFqNames.put(t, fqNamesFromJarFile(jarFile).toSet)
+          artifactToFqNames.put(t, fqNamesFromJarFile(jarFile))
         }
       })
 

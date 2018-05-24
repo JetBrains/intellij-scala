@@ -9,6 +9,7 @@ import org.jetbrains.plugins.scala.extensions.StubBasedExt
 import org.jetbrains.plugins.scala.lang.parser.ScalaElementTypes
 import org.jetbrains.plugins.scala.lang.psi.adapters.PsiModifierListOwnerAdapter
 import org.jetbrains.plugins.scala.lang.psi.api.base._
+import org.jetbrains.plugins.scala.lang.psi.api.statements.ScAnnotationsHolder
 import org.jetbrains.plugins.scala.lang.psi.impl.ScalaPsiElementFactory
 import org.jetbrains.plugins.scala.macroAnnotations.{Cached, ModCount}
 
@@ -16,13 +17,15 @@ import org.jetbrains.plugins.scala.macroAnnotations.{Cached, ModCount}
 * @author ilyas
 */
 
-trait ScModifierListOwner extends ScalaPsiElement with PsiModifierListOwnerAdapter {
+trait ScModifierListOwner extends ScalaPsiElement with ScAnnotationsHolder with PsiModifierListOwnerAdapter {
 
   @Cached(ModCount.anyScalaPsiModificationCount, this)
   override def getModifierList: ScModifierList = {
     val child = this.stubOrPsiChild(ScalaElementTypes.MODIFIERS)
     child.getOrElse(ScalaPsiElementFactory.createEmptyModifierList(this))
   }
+
+  override def hasAnnotation(fqn: String): Boolean = super[ScAnnotationsHolder].hasAnnotation(fqn)
 
   def hasModifierProperty(name: String): Boolean = hasModifierPropertyInner(name)
 

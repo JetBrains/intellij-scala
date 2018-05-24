@@ -12,8 +12,9 @@ import org.jetbrains.plugins.scala.lang.psi.types.result.Typeable
 /**
   * @author adkozlov
   */
-trait ScValueOrVariable extends ScBlockStatement with ScMember with ScDocCommentOwner with ScDeclaredElementsHolder
-  with ScAnnotationsHolder with ScCommentOwner with Typeable {
+trait ScValueOrVariable extends ScBlockStatement with ScMember with ScDocCommentOwner
+  with ScDeclaredElementsHolder with ScCommentOwner with Typeable {
+
   def keywordToken: PsiElement = findFirstChildByType(keywordElementType)
 
   protected def keywordElementType: IElementType

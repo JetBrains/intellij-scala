@@ -25,7 +25,6 @@ class ReturnSeveralOutput1 {
     }
     val TestMethodNameResult(x: Int, y: String, z: Int, zz: String) = testMethodNameResult
 
-
     println(x + y + z + zz)
     i
   }

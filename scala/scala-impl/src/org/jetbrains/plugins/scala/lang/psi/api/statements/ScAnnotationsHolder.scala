@@ -7,6 +7,7 @@ package statements
 import com.intellij.psi._
 import org.jetbrains.plugins.scala.extensions._
 import org.jetbrains.plugins.scala.lang.parser.ScalaElementTypes
+import org.jetbrains.plugins.scala.lang.psi.adapters.PsiAnnotatedAdapter
 import org.jetbrains.plugins.scala.lang.psi.api.base.types.{ScParameterizedTypeElement, ScSimpleTypeElement, ScTypeElement}
 import org.jetbrains.plugins.scala.lang.psi.api.expr.{ScAnnotation, ScAnnotations}
 import org.jetbrains.plugins.scala.lang.psi.impl.ScalaPsiElementFactory.{createAnAnnotation, createNewLine}
@@ -22,7 +23,7 @@ import org.jetbrains.plugins.scala.macroAnnotations._
  * Date: 10.01.2009
  */
 
-trait ScAnnotationsHolder extends ScalaPsiElement with PsiAnnotationOwner {
+trait ScAnnotationsHolder extends ScalaPsiElement with PsiAnnotatedAdapter {
 
   @Cached(ModCount.anyScalaPsiModificationCount, this)
   def annotations: Seq[ScAnnotation] = this.stubOrPsiChild(ScalaElementTypes.ANNOTATIONS) match {
@@ -30,7 +31,7 @@ trait ScAnnotationsHolder extends ScalaPsiElement with PsiAnnotationOwner {
     case _ => Seq.empty
   }
 
-  def hasAnnotation(qualifiedName: String): Boolean = annotations(qualifiedName).nonEmpty
+  override def hasAnnotation(qualifiedName: String): Boolean = annotations(qualifiedName).nonEmpty
 
   def annotations(qualifiedName: String): Seq[ScAnnotation] = {
     def acceptType: ScType => Boolean = {

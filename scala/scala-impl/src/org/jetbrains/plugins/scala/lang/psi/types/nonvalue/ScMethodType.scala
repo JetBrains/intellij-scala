@@ -8,7 +8,8 @@ import org.jetbrains.plugins.scala.lang.psi.api.statements.params.{ScParameter, 
 import org.jetbrains.plugins.scala.lang.psi.types._
 import org.jetbrains.plugins.scala.lang.psi.types.api._
 import org.jetbrains.plugins.scala.lang.psi.types.api.designator.ScDesignatorType
-import org.jetbrains.plugins.scala.lang.psi.types.recursiveUpdate.{ScSubstitutor, Update}
+import org.jetbrains.plugins.scala.lang.psi.types.recursiveUpdate.AfterUpdate.ProcessSubtypes
+import org.jetbrains.plugins.scala.lang.psi.types.recursiveUpdate.{AfterUpdate, ScSubstitutor, Update}
 import org.jetbrains.plugins.scala.lang.psi.types.result._
 import org.jetbrains.plugins.scala.project.ProjectContext
 
@@ -113,24 +114,35 @@ case class ScMethodType(returnType: ScType, params: Seq[Parameter], isImplicit: 
     isImplicit)
 
   override def updateSubtypes(updates: Seq[Update], visited: Set[ScType]): ScMethodType = {
-    def updated(t: ScType) = t.recursiveUpdateImpl(updates, visited)
+    def update(tp: ScType) = tp.recursiveUpdateImpl(updates, visited, isLazySubtype = true)
+    def updateParameter(p: Parameter): Parameter = p.copy(
+      paramType = update(p.paramType),
+      expectedType = update(p.expectedType),
+      defaultType = p.defaultType.map(update)
+    )
 
-    ScMethodType(updated(returnType), params.map(p => p.copy(
-        paramType = updated(p.paramType),
-        expectedType = updated(p.expectedType),
-        defaultType = p.defaultType.map(updated)
-      )), isImplicit)
+    ScMethodType(
+      returnType.recursiveUpdateImpl(updates, visited),
+      params.map(updateParameter),
+      isImplicit
+    )
   }
 
-  override def recursiveVarianceUpdateModifiable[T](data: T, update: (ScType, Variance, T) => (Boolean, ScType, T),
-                                                    variance: Variance = Covariant, revertVariances: Boolean = false): ScType = {
-    update(this, variance, data) match {
-      case (true, res, _) => res
-      case (_, _, newData) =>
-        ScMethodType(returnType.recursiveVarianceUpdateModifiable(newData, update, variance),
-          params.map(p => p.copy(paramType = p.paramType.recursiveVarianceUpdateModifiable(newData, update, -variance))),
-          isImplicit)
-    }
+  override def updateSubtypesVariance(update: (ScType, Variance) => AfterUpdate,
+                                      variance: Variance = Covariant,
+                                      revertVariances: Boolean = false)
+                                     (implicit visited: Set[ScType]): ScType = {
+
+    def updateParameterType(tp: ScType) = tp.recursiveVarianceUpdate(update, -variance, isLazySubtype = true)
+    def updateParameter(p: Parameter): Parameter = p.copy(
+      paramType = updateParameterType(p.paramType),
+      expectedType = updateParameterType(p.expectedType),
+      defaultType = p.defaultType.map(updateParameterType)
+    )
+    ScMethodType(
+      returnType.recursiveVarianceUpdate(update, variance),
+      params.map(updateParameter),
+      isImplicit)
   }
 
   override def equivInner(r: ScType, uSubst: ScUndefinedSubstitutor, falseUndef: Boolean): (Boolean, ScUndefinedSubstitutor) = {
@@ -164,9 +176,7 @@ case class ScTypePolymorphicType(internalType: ScType, typeParameters: Seq[TypeP
 
   override implicit def projectContext: ProjectContext = internalType.projectContext
 
-  def polymorphicTypeSubstitutor: ScSubstitutor = polymorphicTypeSubstitutor(inferValueType = false)
-
-  def polymorphicTypeSubstitutor(inferValueType: Boolean): ScSubstitutor =
+  def polymorphicTypeSubstitutor: ScSubstitutor =
     ScSubstitutor.bind(typeParameters) { tp =>
       var contraVariant = 0
       var coOrInVariant = 0
@@ -184,7 +194,7 @@ case class ScTypePolymorphicType(internalType: ScType, typeParameters: Seq[TypeP
               else coOrInVariant += 1
             }
           }
-          (false, typez)
+          ProcessSubtypes
       }
       if (coOrInVariant == 0 && contraVariant != 0)
         tp.upperType.inferValueType
@@ -209,15 +219,20 @@ case class ScTypePolymorphicType(internalType: ScType, typeParameters: Seq[TypeP
       else lowerType
     }
 
+  def typeParameterOrLowerSubstitutor: ScSubstitutor =
+    ScSubstitutor.bind(typeParameters) { tp =>
+      val lowerType: ScType = if (hasRecursiveTypeParameters(tp.lowerType)) Nothing else tp.lowerType
+
+      if (lowerType.equiv(Nothing)) TypeParameterType(tp)
+      else lowerType
+    }
+
   private lazy val typeParamIds = typeParameters.map(_.typeParamId).toSet
 
   private def hasRecursiveTypeParameters(typez: ScType): Boolean = typez.hasRecursiveTypeParameters(typeParamIds)
 
-  def typeParameterTypeSubstitutor: ScSubstitutor =
-    ScSubstitutor.bind(typeParameters)(TypeParameterType(_))
-
   def inferValueType: ValueType = {
-    polymorphicTypeSubstitutor(inferValueType = true).subst(internalType.inferValueType).asInstanceOf[ValueType]
+    polymorphicTypeSubstitutor.subst(internalType.inferValueType).asInstanceOf[ValueType]
   }
 
   override def removeAbstracts = ScTypePolymorphicType(
@@ -232,16 +247,14 @@ case class ScTypePolymorphicType(internalType: ScType, typeParameters: Seq[TypeP
     )
   }
 
-  override def recursiveVarianceUpdateModifiable[T](data: T, update: (ScType, Variance, T) => (Boolean, ScType, T),
-                                                    v: Variance = Covariant, revertVariances: Boolean = false): ScType = {
-    update(this, v, data) match {
-      case (true, res, _) => res
-      case (_, _, newData) =>
-        ScTypePolymorphicType(
-          internalType.recursiveVarianceUpdateModifiable(newData, update, v),
-          typeParameters.updateWithVariance(_.recursiveVarianceUpdateModifiable(newData, update, _), -v)
-        )
-    }
+  override def updateSubtypesVariance(update: (ScType, Variance) => AfterUpdate,
+                                      variance: Variance = Covariant,
+                                      revertVariances: Boolean = false)
+                                     (implicit visited: Set[ScType]): ScType = {
+    ScTypePolymorphicType(
+      internalType.recursiveVarianceUpdate(update, variance),
+      typeParameters.updateWithVariance(_.recursiveVarianceUpdate(update, _, isLazySubtype = true), -variance)
+    )
   }
 
   override def equivInner(r: ScType, uSubst: ScUndefinedSubstitutor, falseUndef: Boolean): (Boolean, ScUndefinedSubstitutor) = {

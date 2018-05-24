@@ -19,19 +19,16 @@ import com.intellij.openapi.application.ApplicationManager;
 import com.intellij.openapi.diagnostic.Logger;
 import com.intellij.openapi.fileTypes.FileTypeManager;
 import com.intellij.openapi.project.Project;
-import com.intellij.openapi.projectRoots.JavaSdk;
-import com.intellij.openapi.projectRoots.Sdk;
 import com.intellij.openapi.util.io.FileUtil;
 import com.intellij.openapi.util.text.StringUtil;
-import com.intellij.openapi.vfs.newvfs.impl.VfsRootAccess;
 import com.intellij.psi.PsiFile;
 import com.intellij.psi.PsiFileFactory;
 import com.intellij.testFramework.ThreadTracker;
 import com.intellij.util.IncorrectOperationException;
 import com.intellij.util.LocalTimeCounter;
+import com.intellij.util.PathUtil;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.plugins.scala.Console;
-import org.jetbrains.plugins.scala.debugger.DebuggerTestUtil$;
 import org.junit.Assert;
 
 import java.io.File;
@@ -82,14 +79,13 @@ public class TestUtils {
       URL resource = loader.getResource("testdata");
       try {
         File f1 = new File("community/scala/scala-impl", "testdata");
-        if (f1.exists()) {
+        if (resource != null) {
+          TEST_DATA_PATH = new File(resource.toURI()).getPath().replace(File.separatorChar, '/');
+        } else if (f1.exists()) {
           TEST_DATA_PATH = f1.getAbsolutePath();
         } else {
           File f2 = findTestDataDir(new File("scala/scala-impl").getCanonicalFile());
           TEST_DATA_PATH = f2.getAbsolutePath();
-        }
-        if (resource != null) {
-          TEST_DATA_PATH = new File(resource.toURI()).getPath().replace(File.separatorChar, '/');
         }
       } catch (URISyntaxException e) {
         LOG.error(e);
@@ -114,6 +110,11 @@ public class TestUtils {
       if (parent == null) throw new RuntimeException("no testdata directory found");
       else return findTestDataDir(parent);
     }
+  }
+
+  public static String findTestdataDirForClass(Object instance) throws IOException {
+    String path = PathUtil.getJarPathForClass(instance.getClass());
+    return findTestDataDir(new File(path)).getCanonicalPath();
   }
 
   public static String getScalaLibrarySrc() {

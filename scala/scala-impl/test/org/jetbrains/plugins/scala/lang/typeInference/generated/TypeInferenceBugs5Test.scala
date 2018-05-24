@@ -1075,4 +1075,23 @@ class TypeInferenceBugs5Test extends TypeInferenceTestBase {
       |//a.T
     """.stripMargin.trim
   }
+
+  def testSCL13718(): Unit = doTest {
+    """
+      |object SCL13718 {
+      |  trait Foo[F <: Foo[F]]
+      |
+      |  trait View[F <: Foo[F]]
+      |
+      |  def test[F <: Foo[F]](view: View[F]): Bar[F] = {
+      |    /*start*/new Bar(view).init()/*end*/
+      |  }
+      |
+      |  class Bar[F <: Foo[F]](view: View[F]) {
+      |    def init(): this.type = this
+      |  }
+      |}
+      |//SCL13718.Bar[F]
+    """.stripMargin.trim
+  }
 }

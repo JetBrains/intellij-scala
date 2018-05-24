@@ -43,6 +43,7 @@ import org.jetbrains.plugins.scala.lang.psi.impl.{ScalaPsiElementFactory, ScalaP
 import org.jetbrains.plugins.scala.lang.psi.light.scala.isLightScNamedElement
 import org.jetbrains.plugins.scala.lang.psi.types.api._
 import org.jetbrains.plugins.scala.lang.psi.types.api.designator.ScDesignatorType
+import org.jetbrains.plugins.scala.lang.psi.types.recursiveUpdate.AfterUpdate.ProcessSubtypes
 import org.jetbrains.plugins.scala.lang.psi.types.result._
 import org.jetbrains.plugins.scala.lang.psi.types.{Compatibility, ScType, ScalaType, ValueClassType}
 import org.jetbrains.plugins.scala.lang.psi.{ScalaPsiElement, ScalaPsiUtil}
@@ -1133,7 +1134,7 @@ abstract class ScalaAnnotator extends Annotator
   private def checkLiteralTypesAllowed(typeElement: ScTypeElement, holder: AnnotationHolder): Unit = {
     if (typeElement.isInstanceOf[ScLiteralTypeElement]) {
       import org.jetbrains.plugins.scala.project._
-      if (!holder.getCurrentAnnotationSession.getFile.module.exists(_.literalTypesAllowed))
+      if (!holder.getCurrentAnnotationSession.getFile.literalTypesEnabled)
         holder.createErrorAnnotation(typeElement, ScalaBundle.message("wrong.type.no.literal.types", typeElement.getText))
     }
   }
@@ -1335,7 +1336,7 @@ abstract class ScalaAnnotator extends Annotator
           }
         case _ =>
       }
-      (false, tp)
+      ProcessSubtypes
     }
     typeParam.recursiveVarianceUpdate(functionToSendIn, variance)
   }

@@ -8,7 +8,6 @@ import com.intellij.codeInsight.TargetElementUtil
 import com.intellij.openapi.editor.Editor
 import com.intellij.openapi.fileEditor.FileDocumentManager
 import com.intellij.openapi.util.text.StringUtil
-import com.intellij.openapi.vfs.impl.VirtualFilePointerManagerImpl
 import com.intellij.openapi.vfs.pointers.VirtualFilePointerManager
 import com.intellij.openapi.vfs.{LocalFileSystem, VfsUtil, VirtualFile}
 import com.intellij.psi.impl.source.tree.injected.InjectedLanguageUtil
@@ -29,8 +28,9 @@ import scala.collection.mutable.ListBuffer
  */
 abstract class ScalaRenameTestBase extends ScalaLightPlatformCodeInsightTestCaseAdapter {
   val caretMarker = "/*caret*/"
-  private var myEditors: Map[VirtualFile, Editor] = null
-  private var myDirectory: VirtualFile = null
+  private var myEditors: Map[VirtualFile, Editor] = _
+  private var myDirectory: VirtualFile = _
+  private var filesBefore: Array[VirtualFile] = _
 
   protected val folderPath: String = TestUtils.getTestDataPath + "/rename3/"
 
@@ -39,16 +39,17 @@ abstract class ScalaRenameTestBase extends ScalaLightPlatformCodeInsightTestCase
 
   override protected def afterSetUpProject() = {
     super.afterSetUpProject()
-    myDirectory = PsiTestUtil.createTestProjectStructure(projectAdapter, moduleAdapter, rootBefore, new util.HashSet[File]())
-  }
-
-  protected def doTest(newName: String = "NameAfterRename") {
     LocalFileSystem.getInstance().refresh(false)
-    val filesBefore =
+    myDirectory = PsiTestUtil.createTestProjectStructure(projectAdapter, moduleAdapter, rootBefore, new util.HashSet[File]())
+    filesBefore =
       VfsUtil.collectChildrenRecursively(myDirectory.findChild("tests")).asScala
         .filter(!_.isDirectory)
         .toArray
+    //hack to avoid pointer leak: if pointer is created early enough it is not considered leak
+    filesBefore.foreach(VirtualFilePointerManager.getInstance().create(_, projectAdapter, null))
+  }
 
+  protected def doTest(newName: String = "NameAfterRename") {
     val caretPositions = findCaretsAndRemoveMarkers(filesBefore)
     PsiDocumentManager.getInstance(projectAdapter).commitAllDocuments()
     myEditors = createEditors(filesBefore)
@@ -113,6 +114,9 @@ abstract class ScalaRenameTestBase extends ScalaLightPlatformCodeInsightTestCase
 
   protected override def tearDown() {
     super.tearDown()
+    myEditors = null
+    myDirectory = null
+    filesBefore = null
     LightPlatformTestCase.closeAndDeleteProject()
   }
 

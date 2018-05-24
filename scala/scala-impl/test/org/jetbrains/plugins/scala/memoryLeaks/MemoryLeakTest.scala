@@ -122,7 +122,7 @@ class MemoryLeakTest extends PlatformTestCase {
   }
 
   private def allRootsForProject(implicit project: ProjectContext): java.util.Map[AnyRef, String] = {
-    val allRoots = LeakHunter.allRoots()
+    val allRoots = LeakHunter.allRoots().get()
     allRoots.put(project.getPicoContainer, "project.getPicoContainer")
     allRoots
   }

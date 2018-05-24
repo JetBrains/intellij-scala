@@ -4,26 +4,17 @@ import java.io.File
 import java.util
 import java.util.UUID
 
-import javax.swing.JComponent
-
-import scala.collection.JavaConverters._
-import scala.concurrent.Await
-import scala.concurrent.duration.Duration
-import scala.util.{Failure, Success}
 import com.intellij.build.events.impl._
 import com.intellij.build.events.{BuildEvent, MessageEvent, SuccessResult, Warning}
 import com.intellij.build.{BuildViewManager, DefaultBuildDescriptor, events}
 import com.intellij.compiler.impl.CompilerUtil
 import com.intellij.debugger.DebuggerManagerEx
-import com.intellij.debugger.actions.HotSwapAction
-import com.intellij.debugger.impl.HotSwapManager
 import com.intellij.debugger.settings.DebuggerSettings
 import com.intellij.debugger.ui.HotSwapUI
 import com.intellij.execution.Executor
 import com.intellij.execution.executors.DefaultRunExecutor
 import com.intellij.execution.runners.ExecutionEnvironment
 import com.intellij.execution.ui.RunContentDescriptor
-import com.intellij.openapi.actionSystem.AnActionEvent
 import com.intellij.openapi.compiler.ex.CompilerPathsEx
 import com.intellij.openapi.components.ServiceManager
 import com.intellij.openapi.externalSystem.model.ProjectKeys
@@ -37,6 +28,7 @@ import com.intellij.openapi.progress.{PerformInBackgroundOption, ProgressIndicat
 import com.intellij.openapi.project.Project
 import com.intellij.openapi.vfs.LocalFileSystem
 import com.intellij.task._
+import javax.swing.JComponent
 import org.jetbrains.annotations.Nullable
 import org.jetbrains.plugins.scala.extensions
 import org.jetbrains.sbt.SbtUtil
@@ -45,6 +37,11 @@ import org.jetbrains.sbt.project.module.SbtModuleType
 import org.jetbrains.sbt.settings.SbtSystemSettings
 import org.jetbrains.sbt.shell.SbtShellCommunication._
 import org.jetbrains.sbt.shell.event._
+
+import scala.collection.JavaConverters._
+import scala.concurrent.Await
+import scala.concurrent.duration.Duration
+import scala.util.{Failure, Success}
 
 /**
   * Created by jast on 2016-11-25.
@@ -55,21 +52,16 @@ class SbtProjectTaskRunner extends ProjectTaskRunner {
   override def canRun(projectTask: ProjectTask): Boolean = projectTask match {
     case task: ModuleBuildTask =>
       val module = task.getModule
-      ModuleType.get(module) match {
-          // TODO Android AARs are currently imported as modules. need a way to filter them away before building
-        case _: SbtModuleType =>
-          // SbtModuleType actually denotes `-build` modules, which are not part of the regular build
-          false
-        case _ =>
-          val project = task.getModule.getProject
-          val projectSettings = SbtSystemSettings.getInstance(project).getLinkedProjectSettings(module)
+      val project = task.getModule.getProject
+      val projectSettings = SbtSystemSettings.getInstance(project).getLinkedProjectSettings(module)
 
-          projectSettings.exists(_.useSbtShell) &&
-          ES.isExternalSystemAwareModule(SbtProjectSystem.Id, module)
-      }
+      projectSettings.exists(_.useSbtShell) &&
+      ES.isExternalSystemAwareModule(SbtProjectSystem.Id, module)
+
     case _: ArtifactBuildTask =>
       // TODO should sbt handle this?
       false
+
     case _: ExecuteRunConfigurationTask =>
       // TODO this includes tests (and what else?). sbt should handle it and test output should be parsed
       false
@@ -82,7 +74,11 @@ class SbtProjectTaskRunner extends ProjectTaskRunner {
                    tasks: util.Collection[_ <: ProjectTask]): Unit = {
 
     val validTasks = tasks.asScala.collect {
-      case task: ModuleBuildTask => task
+      // TODO Android AARs are currently imported as modules. need a way to filter them away before building
+      case task: ModuleBuildTask
+        // SbtModuleType actually denotes `-build` modules, which are not part of the regular build
+        if ModuleType.get(task.getModule).getId != SbtModuleType.Id =>
+          task
     }
 
     // the "build" button in IDEA always runs the build for all individual modules,
@@ -92,7 +88,11 @@ class SbtProjectTaskRunner extends ProjectTaskRunner {
 
     // don't run anything if there's no module to run a build for
     // TODO user feedback
-    if (moduleCommands.nonEmpty) {
+    val callbackOpt = Option(callback)
+    if (moduleCommands.isEmpty){
+      val taskResult = new ProjectTaskResult(false, 0, 0)
+      callbackOpt.foreach(_.finished(taskResult))
+    } else {
 
       val command =
         if (moduleCommands.size == 1) moduleCommands.head
@@ -101,7 +101,7 @@ class SbtProjectTaskRunner extends ProjectTaskRunner {
       FileDocumentManager.getInstance().saveAllDocuments()
 
       // run this as a task (which blocks a thread) because it seems non-trivial to just update indicators asynchronously?
-      val task = new CommandTask(project, modules.toArray, command, Option(callback))
+      val task = new CommandTask(project, modules.toArray, command, callbackOpt)
       ProgressManager.getInstance().run(task)
     }
   }
@@ -150,7 +150,6 @@ private class CommandTask(project: Project, modules: Array[Module], command: Str
 
     val report = new IndicatorReporter(indicator)
     val shell = SbtShellCommunication.forProject(project)
-//    val macroParser = new ScalaReflectMacroExpansionParser(project.getName)
     val collector = ReflectExpansionsCollector.getInstance(project)
 
     report.start()

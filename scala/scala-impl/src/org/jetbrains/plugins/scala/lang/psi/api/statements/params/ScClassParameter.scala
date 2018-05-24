@@ -1,10 +1,9 @@
 package org.jetbrains.plugins.scala.lang.psi.api.statements.params
 
+import com.intellij.lang.jvm.JvmElementVisitor
 import javax.swing.Icon
-
 import org.jetbrains.plugins.scala.icons.Icons
 import org.jetbrains.plugins.scala.lang.psi.api.statements.ScDecoratedIconOwner
-import org.jetbrains.plugins.scala.lang.psi.api.toplevel.ScModifierListOwner
 import org.jetbrains.plugins.scala.lang.psi.api.toplevel.typedef.{ScClass, ScMember}
 
 /**
@@ -12,7 +11,7 @@ import org.jetbrains.plugins.scala.lang.psi.api.toplevel.typedef.{ScClass, ScMem
 * Date: 22.02.2008
 */
 
-trait ScClassParameter extends ScParameter with ScModifierListOwner with ScMember with ScDecoratedIconOwner {
+trait ScClassParameter extends ScParameter with ScMember with ScDecoratedIconOwner {
   def isVal: Boolean
 
   def isVar: Boolean
@@ -40,4 +39,6 @@ trait ScClassParameter extends ScParameter with ScModifierListOwner with ScMembe
     if (isVar) Icons.FIELD_VAR
     else if (isVal || isCaseClassVal) Icons.FIELD_VAL
     else Icons.PARAMETER
+
+  override def accept[T](visitor: JvmElementVisitor[T]): T = super[ScMember].accept(visitor)
 }

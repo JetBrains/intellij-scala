@@ -4,9 +4,6 @@ import _root_.java.util
 import java.io.File
 import java.util.concurrent.ConcurrentHashMap
 
-import _root_.scala.collection.JavaConverters._
-import _root_.scala.collection.mutable
-
 import com.intellij.openapi.util.Key
 import com.intellij.openapi.util.io.FileUtil
 import org.jetbrains.jps.ModuleChunk
@@ -16,14 +13,17 @@ import org.jetbrains.jps.incremental.ModuleLevelBuilder.ExitCode
 import org.jetbrains.jps.incremental._
 import org.jetbrains.jps.incremental.java.JavaBuilder
 import org.jetbrains.jps.incremental.messages.ProgressMessage
+import org.jetbrains.jps.incremental.scala.InitialScalaBuilder.isScalaProject
 import org.jetbrains.jps.incremental.scala.SbtBuilder._
 import org.jetbrains.jps.incremental.scala.ScalaBuilder._
 import org.jetbrains.jps.incremental.scala.local.IdeClientSbt
 import org.jetbrains.jps.incremental.scala.model.IncrementalityType
 import org.jetbrains.jps.incremental.scala.sbtzinc.{CompilerOptionsStore, ModulesFedToZincStore}
 import org.jetbrains.jps.incremental.scala.sources.SharedSourcesModuleType
-import org.jetbrains.jps.model.JpsProject
 import org.jetbrains.jps.model.module.JpsModule
+
+import _root_.scala.collection.JavaConverters._
+import _root_.scala.collection.mutable
 
 /**
  * @author Pavel Fatin
@@ -32,9 +32,9 @@ class SbtBuilder extends ModuleLevelBuilder(BuilderCategory.TRANSLATOR) {
   override def getPresentableName = "Scala sbt builder"
 
   override def buildStarted(context: CompileContext): Unit = {
-    val project: JpsProject = context.getProjectDescriptor.getProject
-    if (isScalaProject(project) && !isDisabled(context))
+    if (isScalaProject(context) && !isDisabled(context)) {
       JavaBuilder.IS_ENABLED.set(context, false)
+    }
   }
 
   override def build(context: CompileContext,
@@ -55,8 +55,6 @@ class SbtBuilder extends ModuleLevelBuilder(BuilderCategory.TRANSLATOR) {
 
     if (isDisabled(context) || ChunkExclusionService.isExcluded(chunk))
       return ExitCode.NOTHING_DONE
-
-    checkIncrementalTypeChange(context)
 
     updateSharedResources(context, chunk)
 
@@ -107,7 +105,7 @@ class SbtBuilder extends ModuleLevelBuilder(BuilderCategory.TRANSLATOR) {
   override def getCompilableFileExtensions: util.List[String] = util.Arrays.asList("scala", "java")
 
   private def isDisabled(context: CompileContext): Boolean = {
-    projectSettings(context).getIncrementalityType != IncrementalityType.SBT || !isScalaProject(context.getProjectDescriptor.getProject)
+    projectSettings(context).getIncrementalityType != IncrementalityType.SBT || !isScalaProject(context)
   }
 }
 

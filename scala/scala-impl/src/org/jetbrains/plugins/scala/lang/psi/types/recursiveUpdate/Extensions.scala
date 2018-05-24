@@ -1,6 +1,7 @@
 package org.jetbrains.plugins.scala.lang.psi.types.recursiveUpdate
 
 import org.jetbrains.plugins.scala.lang.psi.types.ScType
+import org.jetbrains.plugins.scala.lang.psi.types.api.{Covariant, Variance}
 import org.jetbrains.plugins.scala.lang.psi.types.recursiveUpdate.AfterUpdate.{ProcessSubtypes, ReplaceWith, Stop}
 
 import scala.annotation.tailrec
@@ -24,6 +25,23 @@ trait Extensions {
         case ProcessSubtypes =>
           val newVisited = if (isLazySubtype) visited + tp else visited
           tp.updateSubtypes(updates, newVisited)
+      }
+    }
+
+    //todo: revertVariances parameter looks really strange and used only in one place, can we get rid of it?
+    //todo: should we unify recursiveUpdateImpl and recursiveVarianceUpdate together?
+    final def recursiveVarianceUpdate(update: (ScType, Variance) => AfterUpdate,
+                                      variance: Variance = Covariant,
+                                      isLazySubtype: Boolean = false,
+                                      revertVariances: Boolean = false)
+                                     (implicit visited: Set[ScType] = Set.empty): ScType = {
+      if (visited(tp)) tp
+      else update(tp, variance) match {
+        case ReplaceWith(res) => res
+        case Stop => tp
+        case ProcessSubtypes =>
+          val newVisited = if (isLazySubtype) visited + tp else visited
+          tp.updateSubtypesVariance(update, variance, revertVariances)(newVisited)
       }
     }
 

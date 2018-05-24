@@ -45,7 +45,7 @@ trait ScReferenceElement extends ScalaPsiElement with PsiPolyVariantReference {
 
   def multiResolveScala(incomplete: Boolean): Array[ScalaResolveResult]
 
-  @deprecated("Is required for compatibility. Prefer `multiResolveScala` for better type inference.")
+  @deprecated("Is required for compatibility. Prefer `multiResolveScala` for better type inference.", "2018.1")
   override final def multiResolve(incomplete: Boolean): Array[ResolveResult] = multiResolveScala(incomplete).toArray
 
   def bind(): Option[ScalaResolveResult]

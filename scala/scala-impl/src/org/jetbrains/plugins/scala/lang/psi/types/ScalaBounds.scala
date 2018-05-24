@@ -3,9 +3,9 @@ package lang
 package psi
 package types
 
+import com.intellij.openapi.progress.ProgressManager
 import com.intellij.psi._
 import org.jetbrains.plugins.scala.extensions._
-import org.jetbrains.plugins.scala.lang.psi.ScalaPsiUtil.isInheritorDeep
 import org.jetbrains.plugins.scala.lang.psi.api.statements.params.{ScParameter, ScTypeParam}
 import org.jetbrains.plugins.scala.lang.psi.api.statements.{ScTypeAlias, ScTypeAliasDeclaration, ScTypeAliasDefinition}
 import org.jetbrains.plugins.scala.lang.psi.api.toplevel.ScTypedDefinition
@@ -29,10 +29,12 @@ trait ScalaBounds extends api.Bounds {
     else if (conforms(t2, t1, checkWeak)) t2
     else {
       (t1, t2) match {
-        case (ScExistentialArgument(name, args, lower, upper), ScExistentialArgument(_, _, lower2, upper2)) =>
-          ScExistentialArgument(name, args, lub(lower, lower2, checkWeak), glb(upper, upper2, checkWeak))
-        case (ScExistentialArgument(name, args, lower, upper), _) => ScExistentialArgument(name, args, lub(lower, t2, checkWeak), glb(upper, t2))
-        case (_, ScExistentialArgument(name, args, lower, upper)) => ScExistentialArgument(name, args, lub(lower, t1, checkWeak), glb(upper, t1))
+        case (arg @ ScExistentialArgument(name, args, lower, upper), ScExistentialArgument(_, _, lower2, upper2)) =>
+          arg.copyWithBounds(lub(lower, lower2, checkWeak), glb(upper, upper2, checkWeak))
+        case (arg @ ScExistentialArgument(name, args, lower, upper), _) =>
+          arg.copyWithBounds(lub(lower, t2, checkWeak), glb(upper, t2))
+        case (_, arg @ ScExistentialArgument(name, args, lower, upper)) =>
+          arg.copyWithBounds(lub(lower, t1, checkWeak), glb(upper, t1))
         case (ex: ScExistentialType, _) => glb(ex.quantified, t2, checkWeak).unpackedType
         case (_, ex: ScExistentialType) => glb(t1, ex.quantified, checkWeak).unpackedType
         case _ => ScCompoundType(Seq(t1, t2), Map.empty, Map.empty)
@@ -91,7 +93,7 @@ trait ScalaBounds extends api.Bounds {
     else (td - 1) max (bd - 3)
   }
 
-  private class Options(_tp: ScType) {
+  private class ClassLike(_tp: ScType) {
     val tp: ScType = _tp match {
       case ex: ScExistentialType => ex.quantified
       case other => other
@@ -135,34 +137,34 @@ trait ScalaBounds extends api.Bounds {
 
     def getSubst: ScSubstitutor = typeNamedElement.get._2
 
-    def getSuperOptions: Seq[Options] = {
+    def getSuperClasses: Seq[ClassLike] = {
       val subst = this.projectionOption match {
         case Some(proj) => ScSubstitutor(proj)
         case None => ScSubstitutor.empty
       }
       getNamedElement match {
-        case t: ScTemplateDefinition => t.superTypes.map(tp => new Options(subst.subst(tp))).filter(!_.isEmpty)
-        case p: PsiClass => p.getSupers.toSeq.map(cl => new Options(ScalaType.designator(cl))).filter(!_.isEmpty)
+        case t: ScTemplateDefinition => t.superTypes.map(tp => new ClassLike(subst.subst(tp))).filter(!_.isEmpty)
+        case p: PsiClass => p.getSupers.toSeq.map(cl => new ClassLike(ScalaType.designator(cl))).filter(!_.isEmpty)
         case _: ScTypeAlias =>
           val upperType: ScType = tp.isAliasType.get.upper.getOrAny
-          val options: Seq[Options] = {
+          val classes: Seq[ClassLike] = {
             upperType match {
-              case ScCompoundType(comps1, _, _) => comps1.map(new Options(_))
-              case _ => Seq(new Options(upperType))
+              case ScCompoundType(comps1, _, _) => comps1.map(new ClassLike(_))
+              case _ => Seq(new ClassLike(upperType))
             }
           }
-          options.filter(!_.isEmpty)
+          classes.filter(!_.isEmpty)
       }
     }
 
-    def isInheritorOrSelf(bClass: Options): Boolean = {
-      (getNamedElement, bClass.getNamedElement) match {
+    def isSameOrBaseClass(other: ClassLike): Boolean = {
+      (getNamedElement, other.getNamedElement) match {
         case (base: PsiClass, inheritor: PsiClass) =>
           inheritor.sameOrInheritor(base)
         case (base, inheritor: ScTypeAlias) =>
           if (smartEquivalence(base, inheritor)) return true
-          for (opt <- bClass.getSuperOptions) {
-            if (isInheritorOrSelf(opt)) return true
+          for (opt <- other.getSuperClasses) {
+            if (isSameOrBaseClass(opt)) return true
           }
           false
         case _ => false //class can't be inheritor of type alias
@@ -183,7 +185,7 @@ trait ScalaBounds extends api.Bounds {
       }
     }
 
-    def superSubstitutor(bClass: Options): Option[ScSubstitutor] = {
+    def superSubstitutor(other: ClassLike): Option[ScSubstitutor] = {
       def superSubstitutor(base: PsiClass, drv: PsiClass, drvSubst: ScSubstitutor,
                            visited: mutable.Set[PsiClass]): Option[ScSubstitutor] = {
         if (base.getManager.areElementsEquivalent(base, drv)) Some(drvSubst) else {
@@ -210,19 +212,19 @@ trait ScalaBounds extends api.Bounds {
           }
         }
       }
-      (getNamedElement, bClass.getNamedElement) match {
+      (getNamedElement, other.getNamedElement) match {
         case (base: PsiClass, drv: PsiClass) =>
-          superSubstitutor(base, drv, bClass.typeNamedElement.get._2, mutable.Set.empty)
+          superSubstitutor(base, drv, other.typeNamedElement.get._2, mutable.Set.empty)
         case (base, inheritor: ScTypeAlias) =>
           if (smartEquivalence(base, inheritor)) {
-            bClass.tp match {
+            other.tp match {
               case ParameterizedType(_, typeArgs) =>
-                val substitutor = ScSubstitutor.bind(bClass.getTypeParameters, typeArgs)
+                val substitutor = ScSubstitutor.bind(other.getTypeParameters, typeArgs)
                 return Some(substitutor)
               case _ => return None
             }
           }
-          for (opt <- bClass.getSuperOptions) {
+          for (opt <- other.getSuperClasses) {
             this.superSubstitutor(opt) match {
               case Some(res) => return Some(res)
               case _ =>
@@ -256,18 +258,18 @@ trait ScalaBounds extends api.Bounds {
           case (_, ex: ScExistentialType) => lubInner(t1, ex.quantified, checkWeak, stopAddingUpperBound).unpackedType
           case (tpt: TypeParameterType, _) if !stopAddingUpperBound => lub(tpt.upperType, t2, checkWeak)
           case (_, tpt: TypeParameterType) if !stopAddingUpperBound => lub(t1, tpt.upperType, checkWeak)
-          case (ScExistentialArgument(name, args, lower, upper), ScExistentialArgument(_, _, lower2, upper2))
+          case (arg @ ScExistentialArgument(name, args, lower, upper), ScExistentialArgument(_, _, lower2, upper2))
             if !stopAddingUpperBound =>
-            ScExistentialArgument(name, args, glb(lower, lower2, checkWeak), lub(upper, upper2, checkWeak))
-          case (ScExistentialArgument(name, args, lower, upper), r) if !stopAddingUpperBound =>
-            ScExistentialArgument(name, args, glb(lower, r, checkWeak), lub(upper, t2, checkWeak))
-          case (r, ScExistentialArgument(name, args, lower, upper)) if !stopAddingUpperBound =>
-            ScExistentialArgument(name, args, glb(lower, r, checkWeak), lub(upper, t2, checkWeak))
+            arg.copyWithBounds(glb(lower, lower2, checkWeak), lub(upper, upper2, checkWeak))
+          case (arg @ ScExistentialArgument(name, args, lower, upper), r) if !stopAddingUpperBound =>
+            arg.copyWithBounds(glb(lower, r, checkWeak), lub(upper, t2, checkWeak))
+          case (r, arg @ ScExistentialArgument(name, args, lower, upper)) if !stopAddingUpperBound =>
+            arg.copyWithBounds(glb(lower, r, checkWeak), lub(upper, t2, checkWeak))
           case (_: ValType, _: ValType) => AnyVal
           case (JavaArrayType(arg1), JavaArrayType(arg2)) =>
             val (v, ex) = calcForTypeParamWithoutVariance(arg1, arg2, depth, checkWeak)
             ex match {
-              case Some(w) => ScExistentialType(JavaArrayType(v), List(w))
+              case Some(w) => ScExistentialType(JavaArrayType(v))
               case None => JavaArrayType(v)
             }
           case (JavaArrayType(arg), ParameterizedType(des, args)) if args.length == 1 && (des.extractClass match {
@@ -276,7 +278,7 @@ trait ScalaBounds extends api.Bounds {
           }) =>
             val (v, ex) = calcForTypeParamWithoutVariance(arg, args.head, depth, checkWeak)
             ex match {
-              case Some(w) => ScExistentialType(ScParameterizedType(des, Seq(v)), List(w))
+              case Some(w) => ScExistentialType(ScParameterizedType(des, Seq(v)))
               case None => ScParameterizedType(des, Seq(v))
             }
           case (ParameterizedType(des, args), JavaArrayType(arg)) if args.length == 1 && (des.extractClass match {
@@ -285,7 +287,7 @@ trait ScalaBounds extends api.Bounds {
           }) =>
             val (v, ex) = calcForTypeParamWithoutVariance(arg, args.head, depth, checkWeak)
             ex match {
-              case Some(w) => ScExistentialType(ScParameterizedType(des, Seq(v)), List(w))
+              case Some(w) => ScExistentialType(ScParameterizedType(des, Seq(v)))
               case None => ScParameterizedType(des, Seq(v))
             }
           case (JavaArrayType(_), tp) =>
@@ -295,25 +297,25 @@ trait ScalaBounds extends api.Bounds {
             if (tp.conforms(AnyRef)) AnyRef
             else Any
           case _ =>
-            val aOptions: Seq[Options] = {
+            val leftClasses: Seq[ClassLike] = {
               t1 match {
-                case ScCompoundType(comps1, _, _) => comps1.map(new Options(_))
-                case _ => Seq(new Options(t1))
+                case ScCompoundType(comps1, _, _) => comps1.map(new ClassLike(_))
+                case _ => Seq(new ClassLike(t1))
               }
             }
-            val bOptions: Seq[Options] = {
+            val rightClasses: Seq[ClassLike] = {
               t2 match {
-                case ScCompoundType(comps1, _, _) => comps1.map(new Options(_))
-                case _ => Seq(new Options(t2))
+                case ScCompoundType(comps1, _, _) => comps1.map(new ClassLike(_))
+                case _ => Seq(new ClassLike(t2))
               }
             }
-            if (aOptions.exists(_.isEmpty) || bOptions.exists(_.isEmpty)) Any
+            if (leftClasses.exists(_.isEmpty) || rightClasses.exists(_.isEmpty)) Any
             else {
               val buf = new ArrayBuffer[ScType]
-              val supers: Array[(Options, Int, Int)] =
-                getLeastUpperClasses(aOptions, bOptions)
+              val supers: Array[(ClassLike, Int, Int)] =
+                getLeastUpperClasses(leftClasses, rightClasses)
               for (sup <- supers) {
-                val tp = getTypeForAppending(aOptions(sup._2), bOptions(sup._3), sup._1, depth, checkWeak)
+                val tp = getTypeForAppending(leftClasses(sup._2), rightClasses(sup._3), sup._1, depth, checkWeak)
                 if (tp != Any) buf += tp
               }
               buf.toArray match {
@@ -341,15 +343,15 @@ trait ScalaBounds extends api.Bounds {
         (ex, Some(ex))
       } else {
         (substed1, substed2) match {
-          case (ScExistentialArgument(name, args, lower, upper), ScExistentialArgument(_, _, lower2, upper2)) =>
+          case (arg @ ScExistentialArgument(_, _, lower, upper), ScExistentialArgument(_, _, lower2, upper2)) =>
             val newLub = if (stopAddingUpperBound) Any else lubInner(upper, upper2, checkWeak, stopAddingUpperBound = true)
-            (ScExistentialArgument(name, args, glb(lower, lower2, checkWeak), newLub), None)
-          case (ScExistentialArgument(name, args, lower, upper), _) =>
+            (arg.copyWithBounds(glb(lower, lower2, checkWeak), newLub), None)
+          case (arg @ ScExistentialArgument(_, _, lower, upper), _) =>
             val newLub = if (stopAddingUpperBound) Any else lubInner(upper, substed2, checkWeak, stopAddingUpperBound = true)
-            (ScExistentialArgument(name, args, glb(lower, substed2), newLub), None)
-          case (_, ScExistentialArgument(name, args, lower, upper)) =>
+            (arg.copyWithBounds(glb(lower, substed2), newLub), None)
+          case (_, arg @ ScExistentialArgument(_, _, lower, upper)) =>
             val newLub = if (stopAddingUpperBound) Any else lubInner(upper, substed1, checkWeak, stopAddingUpperBound = true)
-            (ScExistentialArgument(name, args, glb(lower, substed1), newLub), None)
+            (arg.copyWithBounds(glb(lower, substed1), newLub), None)
           case _ =>
             val newGlb = glb(substed1, substed2)
             if (!stopAddingUpperBound) {
@@ -366,7 +368,7 @@ trait ScalaBounds extends api.Bounds {
     }
   }
 
-  private def getTypeForAppending(clazz1: Options, clazz2: Options, baseClass: Options, depth: Int, checkWeak: Boolean)
+  private def getTypeForAppending(clazz1: ClassLike, clazz2: ClassLike, baseClass: ClassLike, depth: Int, checkWeak: Boolean)
                                  (implicit stopAddingUpperBound: Boolean): ScType = {
     val baseClassDesignator = baseClass.baseDesignator
     if (baseClass.getTypeParameters.length == 0) return baseClassDesignator
@@ -391,48 +393,50 @@ trait ScalaBounds extends api.Bounds {
           })
         }
         if (wildcards.isEmpty) ScParameterizedType(baseClassDesignator, resTypeArgs)
-        else ScExistentialType(ScParameterizedType(baseClassDesignator, resTypeArgs), wildcards.toList)
+        else ScExistentialType(ScParameterizedType(baseClassDesignator, resTypeArgs))
       case _ => Any
     }
   }
 
-  private def getLeastUpperClasses(aClasses: Seq[Options], bClasses: Seq[Options]): Array[(Options, Int, Int)] = {
-    val res = new ArrayBuffer[(Options, Int, Int)]
-    def addClass(aClass: Options, x: Int, y: Int) {
+  private def getLeastUpperClasses(leftClasses: Seq[ClassLike], rightClasses: Seq[ClassLike]): Array[(ClassLike, Int, Int)] = {
+    val res = new ArrayBuffer[(ClassLike, Int, Int)]
+    def addClass(baseClassToAdd: ClassLike, x: Int, y: Int) {
       var i = 0
       var break = false
       while (!break && i < res.length) {
-        val clazz = res(i)._1
-        if (aClass.isInheritorOrSelf(clazz)) {
+        val alreadyFound = res(i)._1
+        if (baseClassToAdd.isSameOrBaseClass(alreadyFound)) {
           break = true //todo: join them somehow?
-        } else if (clazz.isInheritorOrSelf(aClass)) {
-          res(i) = (aClass, x, y)
+        } else if (alreadyFound.isSameOrBaseClass(baseClassToAdd)) {
+          res(i) = (baseClassToAdd, x, y)
           break = true
         }
         i = i + 1
       }
       if (!break) {
-        res += ((aClass, x, y))
+        res += ((baseClassToAdd, x, y))
       }
     }
-    def checkClasses(aClasses: Seq[Options], baseIndex: Int = -1, visited: mutable.HashSet[PsiElement] = mutable.HashSet.empty) {
-      if (aClasses.isEmpty) return
-      val aIter = aClasses.iterator
+    def checkClasses(leftClasses: Seq[ClassLike], baseIndex: Int = -1, visited: mutable.HashSet[PsiElement] = mutable.HashSet.empty) {
+      ProgressManager.checkCanceled()
+
+      if (leftClasses.isEmpty) return
+      val leftIterator = leftClasses.iterator
       var i = 0
-      while (aIter.hasNext) {
-        val aClass = aIter.next()
-        val bIter = bClasses.iterator
+      while (leftIterator.hasNext) {
+        val leftClass = leftIterator.next()
+        val rightIterator = rightClasses.iterator
         var break = false
         var j = 0
-        while (!break && bIter.hasNext) {
-          val bClass = bIter.next()
-          if (aClass.isInheritorOrSelf(bClass)) {
-            addClass(aClass, if (baseIndex == -1) i else baseIndex, j)
+        while (!break && rightIterator.hasNext) {
+          val rightClass = rightIterator.next()
+          if (leftClass.isSameOrBaseClass(rightClass)) {
+            addClass(leftClass, if (baseIndex == -1) i else baseIndex, j)
             break = true
           } else {
-            val element = aClass.getNamedElement
+            val element = leftClass.getNamedElement
             if (!visited.contains(element)) {
-              checkClasses(aClass.getSuperOptions, if (baseIndex == -1) i else baseIndex, visited + element)
+              checkClasses(leftClass.getSuperClasses, if (baseIndex == -1) i else baseIndex, visited + element)
             }
           }
           j += 1
@@ -440,7 +444,7 @@ trait ScalaBounds extends api.Bounds {
         i += 1
       }
     }
-    checkClasses(aClasses)
+    checkClasses(leftClasses)
     res.toArray
   }
 }

@@ -23,7 +23,7 @@ import org.jetbrains.plugins.scala.macroAnnotations.{Cached, CachedInsidePsiElem
 * Date: 07.03.2008
 */
 
-trait ScPrimaryConstructor extends ScMember with ScMethodLike with ScAnnotationsHolder {
+trait ScPrimaryConstructor extends ScMember with ScMethodLike {
   def hasMalformedSignature: Boolean = parameterList.clauses.exists {
     _.parameters.dropRight(1).exists(_.isRepeatedParameter)
   }

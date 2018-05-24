@@ -630,13 +630,10 @@ class ImplicitCollector(place: PsiElement,
   private def coreType(tp: ScType): ScType = {
     tp match {
       case ScCompoundType(comps, _, _) => abstractsToUpper(ScCompoundType(comps, Map.empty, Map.empty)).removeUndefines()
-      case ScExistentialType(quant, wilds) => abstractsToUpper(ScExistentialType(quant.recursiveUpdate {
-        case ScExistentialArgument(name, _, _, _) =>
-          wilds.find(_.name == name)
-            .map(w => ReplaceWith(w.upper))
-            .getOrElse(ProcessSubtypes)
+      case ScExistentialType(quant, _) => abstractsToUpper(ScExistentialType(quant.recursiveUpdate {
+        case arg: ScExistentialArgument => ReplaceWith(arg.upper)
         case _ => ProcessSubtypes
-      }, wilds)).removeUndefines()
+      })).removeUndefines()
       case _ => abstractsToUpper(tp).removeUndefines()
     }
   }

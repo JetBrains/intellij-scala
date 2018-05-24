@@ -87,7 +87,7 @@ class ExpectedTypesImpl extends ExpectedTypes {
         case FunctionType(retType, _) => Array((retType, None))
         case PartialFunctionType(retType, _) => Array((retType, None))
         case ScAbstractType(_, _, upper) => fromFunction(upper, tp._2)
-        case samType if ScalaPsiUtil.isSAMEnabled(expr) =>
+        case samType if expr.isSAMEnabled =>
           ScalaPsiUtil.toSAMType(samType, expr) match {
             case Some(methodType) => fromFunction(methodType, tp._2)
             case _ => Array.empty

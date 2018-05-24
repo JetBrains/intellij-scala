@@ -10,10 +10,10 @@ import com.intellij.psi.PsiElement
 import com.intellij.psi.util.PsiTreeUtil
 import com.intellij.testFramework.UsefulTestCase
 import org.jetbrains.plugins.scala.base.ScalaLightPlatformCodeInsightTestCaseAdapter
+import org.jetbrains.plugins.scala.extensions._
 import org.jetbrains.plugins.scala.lang.lexer.ScalaTokenTypes
 import org.jetbrains.plugins.scala.lang.psi.ScalaPsiUtil
 import org.jetbrains.plugins.scala.lang.psi.api.ScalaFile
-import org.jetbrains.plugins.scala.util.ScalaUtils
 
 /**
  * Nikolay.Tropin
@@ -47,23 +47,13 @@ abstract class AdjustTypesTestBase extends ScalaLightPlatformCodeInsightTestCase
     val scalaFile = getFileAdapter.asInstanceOf[ScalaFile]
     val element = PsiTreeUtil.findElementOfClassAtRange(scalaFile, startOffset, endOffset, classOf[PsiElement])
 
-    var res: String = null
-    val lastPsi = scalaFile.findElementAt(scalaFile.getText.length - 1)
+    inWriteAction {
+      ScalaPsiUtil.adjustTypes(element)
+      UsefulTestCase.doPostponedFormatting(getProjectAdapter)
+    }
 
-    try {
-      ScalaUtils.runWriteAction(new Runnable {
-        def run() {
-          ScalaPsiUtil.adjustTypes(element)
-          UsefulTestCase.doPostponedFormatting(getProjectAdapter)
-        }
-      }, getProjectAdapter, "Test")
-      res = scalaFile.getText.substring(0, lastPsi.getTextOffset).trim
-    }
-    catch {
-      case e: Exception =>
-        println(e)
-        assert(assertion = false, message = e.getMessage + "\n" + e.getStackTrace)
-    }
+    val lastPsi = scalaFile.findElementAt(scalaFile.getText.length - 1)
+    val res = scalaFile.getText.substring(0, lastPsi.getTextOffset).trim
 
     val text = lastPsi.getText
     val output = lastPsi.getNode.getElementType match {
@@ -76,11 +66,4 @@ abstract class AdjustTypesTestBase extends ScalaLightPlatformCodeInsightTestCase
     }
     assertEquals(output, res)
   }
-}
-object ClassTag {
-
-}
-
-class Test {
-  def foo[T]: scala.reflect.ClassTag[T] = ???
 }

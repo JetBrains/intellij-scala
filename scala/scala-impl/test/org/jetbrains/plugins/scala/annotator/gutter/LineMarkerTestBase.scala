@@ -10,6 +10,7 @@ import com.intellij.openapi.project.Project
 import com.intellij.testFramework.fixtures.LightCodeInsightFixtureTestCase
 import com.intellij.testFramework.fixtures.impl.JavaCodeInsightTestFixtureImpl
 import org.jetbrains.plugins.scala.ScalaFileType
+import org.jetbrains.plugins.scala.extensions.using
 import org.jetbrains.plugins.scala.util.TestUtils
 import org.junit.Assert._
 
@@ -33,7 +34,7 @@ abstract class LineMarkerTestBase extends LightCodeInsightFixtureTestCase {
 
   def doTest(): Unit = {
     val path = getBasePath + getTestName(false) + ".test"
-    val input = Source.fromFile(new File(path)).getLines().mkString("\n")
+    val input = using(Source.fromFile(new File(path)))(_.getLines().mkString("\n"))
     myFixture.configureByText(ScalaFileType.INSTANCE, input.replaceAll(marker, ""))
 
     DaemonCodeAnalyzerSettings.getInstance.SHOW_METHOD_SEPARATORS = true

@@ -23,7 +23,7 @@ import scala.annotation.tailrec
  * Time: 9:46:00
  */
 
-trait ScTypeAlias extends ScPolymorphicElement with ScMember with ScAnnotationsHolder
+trait ScTypeAlias extends ScPolymorphicElement with ScMember
   with ScDocCommentOwner with ScCommentOwner with ScDecoratedIconOwner {
 
   override protected def getBaseIcon(flags: Int): Icon =

@@ -59,11 +59,6 @@ class SelectionDialog {
       Entry("Expand implicit conversion", new ExpandImplicitConversion()),
       Entry("Inscribe implicit parameters", new InscribeImplicitParameters())
     ),
-    Group("Conversion",
-      Entry("Make boxing explicit", new MakeBoxingExplicit()),
-      Entry("Make unboxing explicit"),
-      Entry("Make conversion to String explicit")
-    ),
     Group("Functions",
       Entry("Expand placeholder syntax", new ExpandPlaceholderSyntax()),
       Entry("Expand eta expansion", new ExpandEtaExpansion()),

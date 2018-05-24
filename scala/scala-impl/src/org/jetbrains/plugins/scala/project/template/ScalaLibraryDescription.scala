@@ -25,10 +25,11 @@ object ScalaLibraryDescription extends CustomLibraryDescription {
   def createNewLibrary(parentComponent: JComponent, contextDirectory: VirtualFile): NewLibraryConfiguration = {
     val lt = (a: ScalaSdkDescriptor, b: ScalaSdkDescriptor) => a.version > b.version
 
-    def sdks = localSkdsIn(virtualToIoFile(contextDirectory)).map(SdkChoice(_, "Project")) ++
-      systemSdks.sortWith(lt).map(SdkChoice(_, "System")) ++
-      ivySdks.sortWith(lt).map(SdkChoice(_, "Ivy")) ++
-      mavenSdks.sortWith(lt).map(SdkChoice(_, "Maven"))
+    def sdks =
+      Option(contextDirectory).map(it => localSkdsIn(virtualToIoFile(it)).map(SdkChoice(_, "Project"))).getOrElse(Seq.empty) ++
+        systemSdks.sortWith(lt).map(SdkChoice(_, "System")) ++
+        ivySdks.sortWith(lt).map(SdkChoice(_, "Ivy")) ++
+        mavenSdks.sortWith(lt).map(SdkChoice(_, "Maven"))
 
     import JavaConverters._
     val dialog = new SdkSelectionDialog(parentComponent, () => sdks.asJava)
