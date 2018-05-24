@@ -159,7 +159,6 @@ object UIFreezingGuard {
     def isRunning: Boolean = delegate.isRunning
     def pushState(): Unit = delegate.pushState()
     def setIndeterminate(indeterminate: Boolean): Unit = delegate.setIndeterminate(indeterminate)
-    def finishNonCancelableSection(): Unit = delegate.finishNonCancelableSection()
     def setModalityProgress(modalityProgress: ProgressIndicator): Unit = delegate.setModalityProgress(modalityProgress)
     def isCanceled: Boolean = delegate.isCanceled
     def isIndeterminate: Boolean = delegate.isIndeterminate
@@ -170,12 +169,14 @@ object UIFreezingGuard {
     def setText(text: String): Unit = delegate.setText(text)
     def isPopupWasShown: Boolean = delegate.isPopupWasShown
     def setText2(text: String): Unit = delegate.setText2(text)
-    def startNonCancelableSection(): Unit = delegate.startNonCancelableSection()
     def getModalityState: ModalityState = delegate.getModalityState
     def getFraction: Double = delegate.getFraction
     def popState(): Unit = delegate.popState()
     def getText2: String = delegate.getText2
     def isShowing: Boolean = delegate.isShowing
+
+    override def startNonCancelableSection(): Unit = delegate.startNonCancelableSection()
+    override def finishNonCancelableSection(): Unit = delegate.finishNonCancelableSection()
   }
 
   private object UnfreezeException extends ProcessCanceledException with NoStackTrace {
