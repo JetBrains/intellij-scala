@@ -11,7 +11,7 @@ import com.intellij.util.io.{DataExternalizer, KeyDescriptor}
 import org.jetbrains.jps.backwardRefs.{CompilerRef, CompilerRefDescriptor}
 
 private object ScalaCompilerIndices {
-  val backwardUsages: IndexId[CompilerRef, Set[Int]]       = IndexId.create("sc.back.refs")
+  val backwardUsages: IndexId[CompilerRef, Seq[Int]]       = IndexId.create("sc.back.refs")
   val backwardHierarchy: IndexId[CompilerRef, CompilerRef] = IndexId.create("sc.back.hierarchy")
 
   val getIndices: util.Collection[_ <: IndexExtension[_, _, _ >: CompiledScalaFile]] = util.Arrays.asList(
@@ -21,13 +21,13 @@ private object ScalaCompilerIndices {
 
   private[this] val refDescriptor = CompilerRefDescriptor.INSTANCE
   
-  private[this] def backUsagesExtension: IndexExtension[CompilerRef, Set[Int], CompiledScalaFile] =
-    new IndexExtension[CompilerRef, Set[Int], CompiledScalaFile] {
+  private[this] def backUsagesExtension: IndexExtension[CompilerRef, Seq[Int], CompiledScalaFile] =
+    new IndexExtension[CompilerRef, Seq[Int], CompiledScalaFile] {
       override def getVersion: Int                                                   = 0
-      override def getName: IndexId[CompilerRef, Set[Int]]                           = backwardUsages
-      override def getIndexer: DataIndexer[CompilerRef, Set[Int], CompiledScalaFile] = _.refs
+      override def getName: IndexId[CompilerRef, Seq[Int]]                           = backwardUsages
+      override def getIndexer: DataIndexer[CompilerRef, Seq[Int], CompiledScalaFile] = _.refs
       override def getKeyDescriptor: KeyDescriptor[CompilerRef]                      = refDescriptor
-      override def getValueExternalizer: DataExternalizer[Set[Int]]                  = setExternalizer(ioutil.readINT, ioutil.writeINT)
+      override def getValueExternalizer: DataExternalizer[Seq[Int]]                  = seqExternalizer(ioutil.readINT, ioutil.writeINT)
     }
 
   private[this] def backHierarchyExtension: IndexExtension[CompilerRef, CompilerRef, CompiledScalaFile] =
@@ -39,11 +39,11 @@ private object ScalaCompilerIndices {
       override def getValueExternalizer: DataExternalizer[CompilerRef]                  = refDescriptor
     }
 
-  private[this] def setExternalizer[T](reader: DataInput => T, writer: (DataOutput, T) => Unit): DataExternalizer[Set[T]] =
-    new DataExternalizer[Set[T]] {
-      override def read(in: DataInput): Set[T] = ioutil.readSeq[T](in, () => reader(in)).asScala.toSet
+  private[this] def seqExternalizer[T](reader: DataInput => T, writer: (DataOutput, T) => Unit): DataExternalizer[Seq[T]] =
+    new DataExternalizer[Seq[T]] {
+      override def read(in: DataInput): Seq[T] = ioutil.readSeq[T](in, () => reader(in)).asScala
 
-      override def save(out: DataOutput, xs: Set[T]): Unit =
+      override def save(out: DataOutput, xs: Seq[T]): Unit =
         ioutil.writeSeq(out, xs.asJava, writer(out, _: T))
     }
 }

@@ -2,7 +2,7 @@ package org.jetbrains.plugins.scala.findUsages.compilerReferences
 
 import com.intellij.psi.PsiElement
 import junit.framework.TestCase.fail
-import org.jetbrains.plugins.scala.util.ImplicitUtil.implicitSearchTarget
+import org.jetbrains.plugins.scala.util.ImplicitUtil.ImplicitSearchTarget
 import org.junit.Assert._
 
 class CompilerServiceUsagesTest extends ScalaCompilerReferenceServiceFixture {
@@ -10,7 +10,7 @@ class CompilerServiceUsagesTest extends ScalaCompilerReferenceServiceFixture {
 
   private def implicitSearchTargetAtCaret: PsiElement =
     myFixture.getElementAtCaret match {
-      case implicitSearchTarget(t) => t
+      case ImplicitSearchTarget(t) => t
       case e                       => fail(s"Search target must be an implicit definition, but was $e"); ???
     }
 

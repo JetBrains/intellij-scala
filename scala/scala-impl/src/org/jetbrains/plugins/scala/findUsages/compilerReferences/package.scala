@@ -14,7 +14,7 @@ package object compilerReferences {
   
   def indexDir(project: Project): Option[File] = buildDir(project).map(new File(_, "scala-compiler-references"))
 
-  final case class LinesWithUsagesInFile(file: VirtualFile, lines: Set[Int])
+  final case class LinesWithUsagesInFile(file: VirtualFile, lines: Seq[Int])
 
   def withLock[T](lock: Lock)(body: => T): T = {
     lock.lock()
