@@ -1,4 +1,5 @@
 [![official JetBrains project](http://jb.gg/badges/official.svg)](https://confluence.jetbrains.com/display/ALL/JetBrains+on+GitHub)
+[![Intellij IDEA](https://img.shields.io/badge/Intellij%20IDEA-2018.1-blue.svg)](https://www.jetbrains.com/idea/)
 [![TC Build Status](https://teamcity.jetbrains.com/app/rest/builds/buildType:(id:Scala_Tests)/statusIcon.svg)](https://teamcity.jetbrains.com/viewType.html?buildTypeId=Scala_Tests&guest=1)
 [![Travis Build Status](https://travis-ci.org/JetBrains/intellij-scala.svg)](https://travis-ci.org/JetBrains/intellij-scala) 
 [![Gitter](https://badges.gitter.im/Join%20Chat.svg)](https://gitter.im/JetBrains/intellij-scala)
