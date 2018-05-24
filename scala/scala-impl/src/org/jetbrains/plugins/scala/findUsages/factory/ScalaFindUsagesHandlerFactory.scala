@@ -53,7 +53,7 @@ class ScalaFindUsagesHandlerFactory(project: Project) extends FindUsagesHandlerF
       if (!forHighlightUsages) {
         val maybeSuper = suggestChooseSuper(unwrapped)
         maybeSuper.filter {
-          case implicitSearchTarget(target) => doBeforeImplicitSearchAction(target)
+          case ImplicitSearchTarget(target) => doBeforeImplicitSearchAction(target)
           case _                            => true
         }
       } else Option(unwrapped)
@@ -104,8 +104,8 @@ class ScalaFindUsagesHandlerFactory(project: Project) extends FindUsagesHandlerF
     }
 
     e match {
-      case (member: ScMember) && (named: ScNamedElement) if !member.isLocal => showDialog(named)
-      case _                                                                => None
+      case named: ScNamedElement => showDialog(named)
+      case _                     => None
     }
   }
 }

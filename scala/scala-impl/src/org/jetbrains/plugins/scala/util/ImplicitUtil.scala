@@ -1,8 +1,12 @@
 package org.jetbrains.plugins.scala.util
 
+import com.intellij.lang.{ASTNode, Language}
+import com.intellij.openapi.project.Project
 import com.intellij.openapi.util.TextRange
+import com.intellij.psi.impl.PsiElementBase
 import com.intellij.psi.util.PsiTreeUtil
-import com.intellij.psi.{PsiElement, PsiNamedElement, PsiReference, PsiReferenceBase}
+import com.intellij.psi._
+import org.jetbrains.plugins.scala.ScalaLanguage
 import org.jetbrains.plugins.scala.codeInspection.collections.MethodRepr
 import org.jetbrains.plugins.scala.lang.psi.api.ImplicitParametersOwner
 import org.jetbrains.plugins.scala.lang.psi.api.base.{ScConstructor, ScReferenceElement}
@@ -47,7 +51,7 @@ object ImplicitUtil {
     }
   }
 
-  object implicitSearchTarget {
+  object ImplicitSearchTarget {
     def unapply(e: PsiElement): Option[PsiNamedElement] = e match {
       case named: ScNamedElement       => namedKind.target(named)
       case ref: ScReferenceElement     => refKind.target(ref)
@@ -91,11 +95,46 @@ object ImplicitUtil {
     }
   }
 
-  private def relativeRangeInElement(usage: PsiElement): TextRange =
+  private[this] def relativeRangeInElement(usage: PsiElement): TextRange =
     range(usage).shiftLeft(usage.getTextRange.getStartOffset)
 
   final case class ImplicitReference(e: PsiElement, targetImplicit: PsiElement)
       extends PsiReferenceBase[PsiElement](e, relativeRangeInElement(e), false) {
+    override def resolve(): PsiElement      = targetImplicit
+    override def getVariants: Array[AnyRef] = Array.empty
+  }
+
+  final case class UnresolvedImplicitFakePsiElement(project: Project, file: PsiFile, lineOffset: Int)
+      extends PsiElementBase {
+    override def getContainingFile: PsiFile        = file
+    override def isValid: Boolean                  = true
+    override def getProject: Project               = project
+    override def getTextRange: TextRange           = TextRange.EMPTY_RANGE.shiftRight(lineOffset)
+    override def getTextOffset: Int                = lineOffset
+    override def getText: String                   = ""
+    override def getChildren: Array[PsiElement]    = PsiElement.EMPTY_ARRAY
+    override def getTextLength: Int                = 0
+    override def getStartOffsetInParent: Int       = 0
+    override def textToCharArray(): Array[Char]    = Array.emptyCharArray
+    override def getParent: PsiElement             = null
+    override def getLanguage: Language             = ScalaLanguage.INSTANCE
+    override def getNode: ASTNode                  = null
+    override def findElementAt(i: Int): PsiElement = null
+  }
+
+  private[this] object UnresolvedImplicitFakePsiElement {
+    def apply(targetImplicit: PsiElement, file: PsiFile, lineOffset: Int): UnresolvedImplicitFakePsiElement = {
+      val project = inReadAction(targetImplicit.getProject)
+      new UnresolvedImplicitFakePsiElement(project, file, lineOffset)
+    }
+  }
+
+  final case class UnresolvedImplicitReference(targetImplicit: PsiElement, file: PsiFile, lineOffset: Int)
+      extends PsiReferenceBase[PsiElement](
+        UnresolvedImplicitFakePsiElement(targetImplicit, file, lineOffset),
+        TextRange.EMPTY_RANGE,
+        false
+      ) {
     override def resolve(): PsiElement      = targetImplicit
     override def getVariants: Array[AnyRef] = Array.empty
   }

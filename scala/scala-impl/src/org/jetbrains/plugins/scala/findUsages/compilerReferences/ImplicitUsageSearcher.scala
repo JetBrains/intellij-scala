@@ -28,10 +28,10 @@ import scala.collection.JavaConverters._
 class ImplicitUsageSearcher extends QueryExecutorBase[PsiReference, ReferencesSearch.SearchParameters](true) {
   override def processQuery(
     parameters: ReferencesSearch.SearchParameters,
-    consumer:   Processor[PsiReference]
+    consumer:   Processor[_ >: PsiReference]
   ): Unit =
     parameters.getElementToSearch match {
-      case implicitSearchTarget(target) =>
+      case ImplicitSearchTarget(target) =>
         val project = target.getProject
         val service = ScalaCompilerReferenceService.getInstance(project)
         val usages  = service.usagesOf(target)
@@ -40,17 +40,29 @@ class ImplicitUsageSearcher extends QueryExecutorBase[PsiReference, ReferencesSe
       case _ =>
     }
 
-  private def extractUsages(target: PsiElement, usages: Set[LinesWithUsagesInFile]): Set[PsiReference] = {
+  private def extractUsages(target: PsiElement, usages: Set[LinesWithUsagesInFile]): Seq[PsiReference] = {
     val project = target.getProject
 
-    def extractElements(usage: LinesWithUsagesInFile): Seq[PsiElement] =
+    def extractReferences(usage: LinesWithUsagesInFile): Seq[PsiReference] =
       (for {
-        psiFile   <- PsiManager.getInstance(project).findFile(usage.file).toOption
-        document  <- PsiDocumentManager.getInstance(project).getDocument(psiFile).toOption
-        predicate = (e: PsiElement) => usage.lines.contains(document.getLineNumber(e.getTextOffset) + 1)
-      } yield psiFile.depthFirst().filter(predicate).toList).getOrElse(List.empty)
+        psiFile    <- PsiManager.getInstance(project).findFile(usage.file).toOption
+        document   <- PsiDocumentManager.getInstance(project).getDocument(psiFile).toOption
+        lineNumber = (e: PsiElement) => document.getLineNumber(e.getTextOffset) + 1
+        canBeUsage = usage.lines.contains _
+      } yield {
+        val elements   = psiFile.depthFirst().filter(lineNumber andThen canBeUsage)
+        val refs       = elements.flatMap(target.refOrImplicitRefIn).toList
+        val extraLines = usage.lines.diff(refs.map(r => lineNumber(r.getElement)))
+        
+        val unresolvedRefs = extraLines.map { line =>
+          val offset = document.getLineStartOffset(line)
+          UnresolvedImplicitReference(target, psiFile, offset)
+        }
+        
+        refs ++ unresolvedRefs
+      }).getOrElse(Seq.empty)
 
-    usages.flatMap(extractElements).flatMap(target.refOrImplicitRefIn)
+    usages.flatMap(extractReferences)(collection.breakOut)
   }
 }
 
@@ -101,14 +113,14 @@ object ImplicitUsageSearcher {
     val dirtyModules = service.getDirtyScopeHolder.getAllDirtyModules
     modules.span(dirtyModules.contains)
   }
-  
+
   private def showIndicesNotReadyDialog(project: Project): Unit = {
     val message =
       """
         |Compiler indices are currently undergoing an up-to-date check, 
         |please wait until it's completed to search for implicit usages.
       """.stripMargin
-    
+
     Messages.showInfoMessage(project, message, "Compiler Indices Status")
   }
 

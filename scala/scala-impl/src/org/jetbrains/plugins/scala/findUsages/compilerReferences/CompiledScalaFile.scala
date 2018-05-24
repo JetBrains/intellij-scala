@@ -8,7 +8,7 @@ import org.jetbrains.jps.backwardRefs.CompilerRef
 private[findUsages] final case class CompiledScalaFile private (
   file:              File,
   backwardHierarchy: ju.Map[CompilerRef, CompilerRef],
-  refs:              ju.Map[CompilerRef, Set[Int]]
+  refs:              ju.Map[CompilerRef, Seq[Int]]
 )
 
 private object CompiledScalaFile {
@@ -18,12 +18,12 @@ private object CompiledScalaFile {
     writer:  ScalaCompilerReferenceWriter
   ): CompiledScalaFile = {
     val backwardHierarchy = new ju.HashMap[CompilerRef, CompilerRef]()
-    val refs = new ju.HashMap[CompilerRef, Set[Int]]()
-    val refProvider = new BytecodeReferenceCompilerRefProvider(writer)
+    val refs              = new ju.HashMap[CompilerRef, Seq[Int]]()
+    val refProvider       = new BytecodeReferenceCompilerRefProvider(writer)
 
     classes.foreach { parsed =>
       val className = writer.enumerateName(parsed.classInfo.fqn)
-      val classRef = new CompilerRef.JavaCompilerClassRef(className)
+      val classRef  = new CompilerRef.JavaCompilerClassRef(className)
 
       val superClasses: Set[CompilerRef] = parsed.classInfo.superClasses
         .map(className => new CompilerRef.JavaCompilerClassRef(writer.enumerateName(className)))
@@ -40,7 +40,7 @@ private object CompiledScalaFile {
       .foreach {
         case (_, rs) =>
           val compilerRef     = refProvider.toCompilerRef(rs.head)
-          val lines: Set[Int] = rs.map(_.line)(collection.breakOut)
+          val lines: Seq[Int] = rs.map(_.line)(collection.breakOut)
           refs.put(compilerRef, lines)
       }
 

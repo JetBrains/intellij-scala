@@ -92,6 +92,7 @@ private object ClassfileParser {
     }
 
     override def visitFieldInsn(opcode: Int, owner: String, name: String, desc: String): Unit =
-      handleRef(owner, name)(FieldReference)
+      if (opcode == Opcodes.GETFIELD || opcode == Opcodes.GETSTATIC)
+        handleRef(owner, name)(FieldReference)
   }
 }
