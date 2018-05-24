@@ -6,7 +6,7 @@ import org.jetbrains.annotations.NotNull
 import org.jetbrains.jps.incremental._
 import org.jetbrains.jps.incremental.resources.ResourcesBuilder
 import org.jetbrains.jps.incremental.scala.sources.{SbtModuleType, SharedSourcesModuleType}
-import org.jetbrains.plugin.scala.compilerReferences.CompilerReferenceIndexBuilder
+import org.jetbrains.plugin.scala.compilerReferences.ScalaCompilerReferenceIndexBuilder
 
 /**
  * Nikolay.Tropin
@@ -25,7 +25,7 @@ class ScalaBuilderService extends BuilderService {
       new IdeaIncrementalBuilder(BuilderCategory.SOURCE_PROCESSOR),
       new IdeaIncrementalBuilder(BuilderCategory.OVERWRITING_TRANSLATOR),
       new SbtBuilder,
-      new CompilerReferenceIndexBuilder
+      new ScalaCompilerReferenceIndexBuilder
     )
   }
 }

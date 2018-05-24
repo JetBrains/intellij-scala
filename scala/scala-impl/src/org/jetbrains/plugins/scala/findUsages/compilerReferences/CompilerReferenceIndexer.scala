@@ -14,6 +14,7 @@ import org.jetbrains.plugin.scala.compilerReferences.BuildData
 import org.jetbrains.plugins.scala.extensions._
 
 import scala.collection.mutable
+import scala.util.control.NonFatal
 
 private class CompilerReferenceIndexer(project: Project) {
   import CompilerReferenceIndexer._
@@ -83,11 +84,10 @@ private class CompilerReferenceIndexer(project: Project) {
           writer.getRebuildRequestCause.nullSafe.foreach(onException(writer, _))
           val job = writerJobQueue.poll(1, TimeUnit.SECONDS)
           job match {
-            case ProcessCompiledFile(data) => writer.registerClassfileData(data)
-            case ProcessDeletedFile(file)  => writer.processDeletedFile(file)
-            case null                      =>
+            case ProcessCompiledFile(data) => processed += 1; writer.registerClassfileData(data)
+            case ProcessDeletedFile(file)  => processed += 1; writer.processDeletedFile(file)
+            case null                      => ()
           }
-          processed += 1
         } catch {
           case _: InterruptedException => Thread.currentThread().interrupt()
           case e: Throwable            => onException(writer, e)
@@ -111,13 +111,20 @@ private class CompilerReferenceIndexer(project: Project) {
           val tasks = (1 to nThreads).map(
             _ =>
               toCallable {
-                parsingJobs.incrementAndGet()
                 parseClassfiles(writer)
                 parsingJobs.decrementAndGet()
             }
           )
 
-          val parsingTasks = tasks.map(parsingExecutor.submit(_))
+          val parsingTasks = tasks.flatMap { task =>
+            parsingJobs.incrementAndGet()
+            try Option(parsingExecutor.submit(task))
+            catch {
+              case NonFatal(_) => 
+                parsingJobs.decrementAndGet()
+                None
+            }
+          }
 
           val indexingTask = indexWritingExecutor.submit(
             toCallable(

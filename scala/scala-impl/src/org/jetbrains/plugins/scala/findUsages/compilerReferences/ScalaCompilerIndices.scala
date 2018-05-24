@@ -11,8 +11,8 @@ import com.intellij.util.io.{DataExternalizer, KeyDescriptor}
 import org.jetbrains.jps.backwardRefs.{CompilerRef, CompilerRefDescriptor}
 
 private object ScalaCompilerIndices {
-  val backwardUsages: IndexId[CompilerRef, Set[Int]]            = IndexId.create("sc.back.refs")
-  val backwardHierarchy: IndexId[CompilerRef, Set[CompilerRef]] = IndexId.create("sc.back.hierarchy")
+  val backwardUsages: IndexId[CompilerRef, Set[Int]]       = IndexId.create("sc.back.refs")
+  val backwardHierarchy: IndexId[CompilerRef, CompilerRef] = IndexId.create("sc.back.hierarchy")
 
   val getIndices: util.Collection[_ <: IndexExtension[_, _, _ >: CompiledScalaFile]] = util.Arrays.asList(
     backUsagesExtension,
@@ -30,13 +30,13 @@ private object ScalaCompilerIndices {
       override def getValueExternalizer: DataExternalizer[Set[Int]]                  = setExternalizer(ioutil.readINT, ioutil.writeINT)
     }
 
-  private[this] def backHierarchyExtension: IndexExtension[CompilerRef, Set[CompilerRef], CompiledScalaFile] =
-    new IndexExtension[CompilerRef, Set[CompilerRef], CompiledScalaFile] {
-      override def getVersion: Int                                                           = 0
-      override def getName: IndexId[CompilerRef, Set[CompilerRef]]                           = backwardHierarchy
-      override def getIndexer: DataIndexer[CompilerRef, Set[CompilerRef], CompiledScalaFile] = _.backwardHierarchy
-      override def getKeyDescriptor: KeyDescriptor[CompilerRef]                              = refDescriptor
-      override def getValueExternalizer: DataExternalizer[Set[CompilerRef]]                  = setExternalizer(refDescriptor.read, refDescriptor.save)
+  private[this] def backHierarchyExtension: IndexExtension[CompilerRef, CompilerRef, CompiledScalaFile] =
+    new IndexExtension[CompilerRef, CompilerRef, CompiledScalaFile] {
+      override def getVersion: Int                                                      = 0
+      override def getName: IndexId[CompilerRef, CompilerRef]                           = backwardHierarchy
+      override def getIndexer: DataIndexer[CompilerRef, CompilerRef, CompiledScalaFile] = _.backwardHierarchy
+      override def getKeyDescriptor: KeyDescriptor[CompilerRef]                         = refDescriptor
+      override def getValueExternalizer: DataExternalizer[CompilerRef]                  = refDescriptor
     }
 
   private[this] def setExternalizer[T](reader: DataInput => T, writer: (DataOutput, T) => Unit): DataExternalizer[Set[T]] =

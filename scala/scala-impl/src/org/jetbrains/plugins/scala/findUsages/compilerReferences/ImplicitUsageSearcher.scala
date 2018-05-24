@@ -34,7 +34,7 @@ class ImplicitUsageSearcher extends QueryExecutorBase[PsiReference, ReferencesSe
       case implicitSearchTarget(target) =>
         val project = target.getProject
         val service = ScalaCompilerReferenceService.getInstance(project)
-        val usages  = service.implicitUsages(target)
+        val usages  = service.usagesOf(target)
         val refs    = extractUsages(target, usages)
         refs.foreach(consumer.process)
       case _ =>

@@ -3,6 +3,7 @@ package org.jetbrains.plugin.scala.compilerReferences
 import java.time.Instant
 import java.util
 
+import com.intellij.openapi.diagnostic.Logger
 import org.jetbrains.jps.ModuleChunk
 import org.jetbrains.jps.builders.java.JavaSourceRootDescriptor
 import org.jetbrains.jps.builders.{BuildTargetRegistry, DirtyFilesHolder}
@@ -12,17 +13,17 @@ import org.jetbrains.jps.incremental.{BuilderCategory, CompileContext, ModuleBui
 
 import scala.collection.JavaConverters._
 
-class CompilerReferenceIndexBuilder extends ModuleLevelBuilder(BuilderCategory.CLASS_POST_PROCESSOR) {
-  import CompilerReferenceIndexBuilder._
+class ScalaCompilerReferenceIndexBuilder extends ModuleLevelBuilder(BuilderCategory.CLASS_POST_PROCESSOR) {
+  import ScalaCompilerReferenceIndexBuilder._
 
   override def getPresentableName: String                     = "scala compiler-reference indexer"
   override def getCompilableFileExtensions: util.List[String] = List("scala", "java").asJava
 
   override def build(
-    context: CompileContext,
-    chunk: ModuleChunk,
+    context:          CompileContext,
+    chunk:            ModuleChunk,
     dirtyFilesHolder: DirtyFilesHolder[JavaSourceRootDescriptor, ModuleBuildTarget],
-    outputConsumer: ModuleLevelBuilder.OutputConsumer
+    outputConsumer:   ModuleLevelBuilder.OutputConsumer
   ): ExitCode = {
     val timeStamp                    = Instant.now().getEpochSecond
     val affectedModules: Set[String] = chunk.getModules.asScala.map(_.getName)(collection.breakOut)
@@ -36,7 +37,7 @@ class CompilerReferenceIndexBuilder extends ModuleLevelBuilder(BuilderCategory.C
     } yield removedFile
 
     val isCleanBuild = isCleanBuildInAllAffectedModules(context, chunk)
-
+    
     val data = BuildData(
       timeStamp,
       compiledClasses,
@@ -69,9 +70,10 @@ class CompilerReferenceIndexBuilder extends ModuleLevelBuilder(BuilderCategory.C
   }
 }
 
-object CompilerReferenceIndexBuilder {
+object ScalaCompilerReferenceIndexBuilder {
   val id            = "sc.compiler.ref.index"
   val buildDataType = "build-data-info"
+  private val log   = Logger.getInstance(classOf[ScalaCompilerReferenceIndexBuilder])
 
   import org.jetbrains.plugin.scala.compilerReferences.Codec._
 

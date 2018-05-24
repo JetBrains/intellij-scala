@@ -22,6 +22,7 @@ import org.jetbrains.plugins.scala.lang.psi.types.api.TypeSystem
 import org.jetbrains.plugins.scala.macroAnnotations.CachedInUserData
 import org.jetbrains.plugins.scala.project.ScalaLanguageLevel.{Scala_2_11, Scala_2_13}
 import org.jetbrains.plugins.scala.project.settings.{ScalaCompilerConfiguration, ScalaCompilerSettings}
+import org.jetbrains.sbt.project.module.SbtModuleType
 
 import scala.annotation.tailrec
 import scala.collection.JavaConverters._
@@ -152,6 +153,8 @@ package object project {
 
     def modules: Seq[Module] =
       manager.getModules.toSeq
+
+    def sourceModules: Seq[Module] = manager.getModules.filter(SbtModuleType.unapply(_).isEmpty)
 
     def modifiableModel: ModifiableModuleModel =
       manager.getModifiableModel

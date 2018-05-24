@@ -18,8 +18,8 @@ class ClassfileParserTest {
 
   private def fqn[A](implicit tag: ClassTag[A]): String = tag.runtimeClass.getName
 
-  private def methodRefOf[A: ClassTag](name: String, line: Int): MethodReference =
-    MethodReference(fqn[A], name, line)
+  private def methodRefOf[A: ClassTag](name: String, line: Int, args: Int): MethodReference =
+    MethodReference(fqn[A], name, line, args)
 
   private def fieldRefOf[A: ClassTag](name: String, line: Int): FieldReference =
     FieldReference(fqn[A], name, line)
@@ -56,14 +56,14 @@ class ClassfileParserTest {
     )
 
     val expectedRefs: Seq[MemberReference] = Seq(
-      methodRefOf[Predef.type]("Map", 83),
+      methodRefOf[Predef.type]("Map", 83, 0),
       fieldRefOf[WithRefs]("noGetter", 91),
-      methodRefOf[MapLike[_, _, _]]("contains", 83),
-      methodRefOf[WithRefs]("s", 87),
-      methodRefOf[Predef.type]("augmentString", 93),
-      methodRefOf[Map.type]("apply", 83),
-      methodRefOf[Predef.type]("println", 85),
-      methodRefOf[StringOps]("toInt", 93)
+      methodRefOf[MapLike[_, _, _]]("contains", 83, 1),
+      methodRefOf[WithRefs]("s", 87, 0),
+      methodRefOf[Predef.type]("augmentString", 93, 1),
+      methodRefOf[Map.type]("apply", 83, 1),
+      methodRefOf[Predef.type]("println", 85, 1),
+      methodRefOf[StringOps]("toInt", 93, 0)
     )
 
     assertThat(
