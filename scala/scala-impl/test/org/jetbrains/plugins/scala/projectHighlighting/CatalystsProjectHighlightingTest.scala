@@ -18,9 +18,7 @@ class CatalystsProjectHighlightingTest extends GithubSbtAllProjectHighlightingTe
   override def revision: String = "04aa6c7ac6ceb57cfbf7e698e8b683c11b50c842"
 
   override def filesWithProblems: Map[String, Set[TextRange]] = Map(
-    "MacroTests.scala" -> Set((132, 142)),
     "Prop.scala" -> Set(),
-    "Laws.scala" -> Set((1269, 1274)),
-    "AllTests.scala" -> Set((275, 292), (442, 458), (166, 183), (330, 346), (222, 238), (117, 131), (383, 402))
+    "Laws.scala" -> Set((1269, 1274))
   )
 }
