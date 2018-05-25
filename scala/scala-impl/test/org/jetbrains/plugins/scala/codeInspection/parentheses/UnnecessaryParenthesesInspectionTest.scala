@@ -354,4 +354,44 @@ class UnnecessaryParenthesesInspectionTest extends ScalaQuickFixTestBase {
     }
   }
 
+  def testFunctionInClassParents(): Unit = {
+    val text = "class MyFun extends (String => Int)"
+    val text2 = "class MyFun2 extends A with (String => Int)"
+    checkTextHasNoErrors(text)
+    checkTextHasNoErrors(text2)
+  }
+
+  def testPrecedenceNoErrors(): Unit = {
+    checkTextHasNoErrors(
+      """
+        |class B {
+        |  null match {
+        |    case b @ (_: String | _: B) =>
+        |  }
+        |}
+      """.stripMargin)
+  }
+
+  def testTypeProjection(): Unit = {
+    checkTextHasNoErrors(
+      """
+        |class A {
+        |  def traverse[F[_]] = 0
+        |}
+        |
+        |val value = new A()
+        |val result = value.traverse[({ type L[x] = Int })#L]
+      """.stripMargin
+    )
+  }
+
+  def testListPattern(): Unit = {
+    checkTextHasNoErrors(
+      """
+        |val b = null match {
+        |  case (param: Int) :: (rest @ _ :: _) =>
+        |  case _ =>
+        |}
+      """.stripMargin)
+  }
 }
