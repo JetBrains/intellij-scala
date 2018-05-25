@@ -23,7 +23,7 @@ import org.jetbrains.plugins.scala.util.NotificationUtil
 import org.jetbrains.plugins.scala.worksheet.runconfiguration.{ReplModeArgs, WorksheetCache}
 import org.jetbrains.plugins.scala.worksheet.server._
 import org.jetbrains.plugins.scala.worksheet.settings.{WorksheetCommonSettings, WorksheetFileSettings, WorksheetProjectSettings}
-import org.jetbrains.plugins.scala.worksheet.ui.{WorksheetEditorPrinterBase, WorksheetEditorPrinterFactory}
+import org.jetbrains.plugins.scala.worksheet.ui.{WorksheetEditorPrinter, WorksheetEditorPrinterFactory}
 
 /**
   * User: Dmitry Naydanov
@@ -48,7 +48,7 @@ class WorksheetCompiler(editor: Editor, worksheetFile: ScalaFile, callback: (Str
   private def createCompilerTask =
     new CompilerTask(project, s"Worksheet ${worksheetFile.getName} compilation", false, false, false, false)
 
-  private def runCompilerTask(task: CompilerTask, className: String, code: String, printer: WorksheetEditorPrinterBase, 
+  private def runCompilerTask(task: CompilerTask, className: String, code: String, printer: WorksheetEditorPrinter, 
                               tempFile: File, outputDir: File) {
     val afterCompileRunnable = if (runType == OutOfProcessServer) new Runnable {
       override def run(): Unit = callback(className, outputDir.getAbsolutePath)
@@ -76,7 +76,7 @@ class WorksheetCompiler(editor: Editor, worksheetFile: ScalaFile, callback: (Str
     ) 
   }
   
-  private def runDumbTask(task: CompilerTask, printer: WorksheetEditorPrinterBase, 
+  private def runDumbTask(task: CompilerTask, printer: WorksheetEditorPrinter, 
                           replModeArgs: Option[ReplModeArgs]) {
     val consumer = new RemoteServerConnector.CompilerInterfaceImpl(task, printer, None)
     task.start(new Runnable {

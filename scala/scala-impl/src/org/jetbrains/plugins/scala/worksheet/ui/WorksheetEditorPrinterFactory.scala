@@ -104,7 +104,7 @@ object WorksheetEditorPrinterFactory {
 
           diffSplitter foreach {
             splitter =>
-              viewerImpl.getScrollPane.getVerticalScrollBar.addAdjustmentListener((e: AdjustmentEvent) => splitter.redrawDiffs())
+              viewerImpl.getScrollPane.getVerticalScrollBar.addAdjustmentListener((_: AdjustmentEvent) => splitter.redrawDiffs())
           }
         })
       case _ =>
@@ -138,7 +138,7 @@ object WorksheetEditorPrinterFactory {
     FileAttributeUtilCache.writeAttribute(LAST_WORKSHEET_RUN_RATIO, file, DEFAULT_WORKSHEET_VIEWERS_RATIO.toString)
   }
 
-  def newWorksheetUiFor(editor: Editor, scalaFile: ScalaFile, isRepl: Boolean): WorksheetEditorPrinterBase = {
+  def newWorksheetUiFor(editor: Editor, scalaFile: ScalaFile, isRepl: Boolean): WorksheetEditorPrinter = {
     if (isRepl) {
       val cache = WorksheetCache.getInstance(editor.getProject)
 

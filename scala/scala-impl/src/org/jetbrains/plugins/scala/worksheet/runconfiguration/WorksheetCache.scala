@@ -4,21 +4,21 @@ import com.intellij.openapi.components.AbstractProjectComponent
 import com.intellij.openapi.editor.impl.EditorImpl
 import com.intellij.openapi.editor.{Editor, EditorFactory}
 import com.intellij.openapi.project.Project
-import com.intellij.util.containers.WeakHashMap
-import org.jetbrains.plugins.scala.worksheet.ui.{WorksheetEditorPrinterBase, WorksheetIncrementalEditorPrinter}
+import com.intellij.util.containers.ContainerUtil
+import org.jetbrains.plugins.scala.worksheet.ui.{WorksheetEditorPrinter, WorksheetIncrementalEditorPrinter}
 
 /**
   * User: Dmitry.Naydanov
   * Date: 03.02.17.
   */
 class WorksheetCache(project: Project) extends AbstractProjectComponent(project)  {
-  private val allViewers = new WeakHashMap[Editor, List[(Editor)]]()
-  private val allReplPrinters = new WeakHashMap[Editor, WorksheetEditorPrinterBase]()
-  private val patchedEditors = new WeakHashMap[Editor, String]()
+  private val allViewers = ContainerUtil.createWeakMap[Editor, List[Editor]]()
+  private val allReplPrinters = ContainerUtil.createWeakMap[Editor, WorksheetEditorPrinter]()
+  private val patchedEditors = ContainerUtil.createWeakMap[Editor, String]()
   
-  def getPrinter(inputEditor: Editor): Option[WorksheetEditorPrinterBase] = Option(allReplPrinters get inputEditor)
+  def getPrinter(inputEditor: Editor): Option[WorksheetEditorPrinter] = Option(allReplPrinters get inputEditor)
   
-  def addPrinter(inputEditor: Editor, printer: WorksheetEditorPrinterBase) {
+  def addPrinter(inputEditor: Editor, printer: WorksheetEditorPrinter) {
     allReplPrinters.put(inputEditor, printer)
   }
   

@@ -21,13 +21,13 @@ import org.jetbrains.jps.incremental.scala.DummyClient
 import org.jetbrains.jps.incremental.scala.remote._
 import org.jetbrains.plugins.scala.compiler.{ErrorHandler, NonServerRunner, RemoteServerConnectorBase, RemoteServerRunner}
 import org.jetbrains.plugins.scala.lang.psi.api.ScalaFile
-import org.jetbrains.plugins.scala.project.settings.{ScalaCompilerConfiguration, ScalaCompilerSettings}
+import org.jetbrains.plugins.scala.project.settings.ScalaCompilerSettings
 import org.jetbrains.plugins.scala.worksheet.actions.WorksheetFileHook
-import org.jetbrains.plugins.scala.worksheet.processor.{WorksheetCompiler, WorksheetSourceProcessor}
+import org.jetbrains.plugins.scala.worksheet.processor.WorksheetSourceProcessor
 import org.jetbrains.plugins.scala.worksheet.runconfiguration.ReplModeArgs
 import org.jetbrains.plugins.scala.worksheet.server.RemoteServerConnector.{MyTranslatingClient, OuterCompilerInterface}
 import org.jetbrains.plugins.scala.worksheet.settings.{WorksheetCommonSettings, WorksheetFileSettings, WorksheetProjectSettings}
-import org.jetbrains.plugins.scala.worksheet.ui.{WorksheetEditorPrinterBase, WorksheetIncrementalEditorPrinter}
+import org.jetbrains.plugins.scala.worksheet.ui.{WorksheetEditorPrinter, WorksheetIncrementalEditorPrinter}
 
 /**
   * User: Dmitry Naydanov
@@ -197,7 +197,7 @@ object RemoteServerConnector {
     def trace(thr: Throwable)
   }
   
-  class CompilerInterfaceImpl(task: CompilerTask, worksheetPrinter: WorksheetEditorPrinterBase,
+  class CompilerInterfaceImpl(task: CompilerTask, worksheetPrinter: WorksheetEditorPrinter,
                               indicator: Option[ProgressIndicator], auto: Boolean = false) extends OuterCompilerInterface {
     override def progress(text: String, done: Option[Float]) {
       if (auto) return

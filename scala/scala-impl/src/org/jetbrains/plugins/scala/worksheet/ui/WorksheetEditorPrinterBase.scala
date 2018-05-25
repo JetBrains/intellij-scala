@@ -16,7 +16,7 @@ import org.jetbrains.plugins.scala.worksheet.ui.WorksheetDiffSplitters.SimpleWor
   * Date: 03.02.17.
   */
 abstract class WorksheetEditorPrinterBase(protected val originalEditor: Editor, 
-                                          protected val worksheetViewer: Editor) {
+                                          protected val worksheetViewer: Editor) extends WorksheetEditorPrinter {
   protected val viewerFolding: FoldingModelImpl = worksheetViewer.getFoldingModel.asInstanceOf[FoldingModelImpl]
   protected val project: Project = originalEditor.getProject
   protected val originalDocument: Document = originalEditor.getDocument
@@ -28,15 +28,7 @@ abstract class WorksheetEditorPrinterBase(protected val originalEditor: Editor,
   
   def getViewerEditor: Editor = worksheetViewer
 
-  def getScalaFile: ScalaFile
-  
-  def processLine(line: String): Boolean
-  
-  def flushBuffer(): Unit
-
-  def scheduleWorksheetUpdate(): Unit
-
-  def internalError(errorMessage: String) {
+  override def internalError(errorMessage: String) {
     extensions.invokeLater {
       extensions.inWriteAction {
         simpleUpdate("Internal error: " + errorMessage, viewerDocument)
