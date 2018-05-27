@@ -140,7 +140,7 @@ class ScalaOverrideContributor extends ScalaCompletionContributor {
         val mBody = if (isOverride) ScalaGenerationInfo.getMethodBody(member, clazz, isImplement = false) else "???"
         val fun =
           if (full) createOverrideImplementMethod(signature, needsOverrideModifier = true, mBody, withComment = false, withAnnotation = false)
-          else createMethodFromSignature(signature, needsInferType = true, mBody, withComment = false, withAnnotation = false)
+          else createMethodFromSignature(signature, mBody, withComment = false, withAnnotation = false)
 
         removeTypeAnnotationIfNeeded(fun)
         fun.getText

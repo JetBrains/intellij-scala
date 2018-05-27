@@ -56,7 +56,6 @@ import org.jetbrains.plugins.scala.lang.refactoring.util.{ScTypeUtil, ScalaNames
 import org.jetbrains.plugins.scala.lang.scaladoc.psi.api.{ScDocComment, ScDocResolvableCodeReference, ScDocSyntaxElement}
 import org.jetbrains.plugins.scala.project.ProjectContext
 
-import scala.collection.mutable
 import scala.reflect.ClassTag
 
 class ScalaPsiElementFactoryImpl(implicit val ctx: ProjectContext) extends JVMElementFactory {
@@ -486,18 +485,46 @@ object ScalaPsiElementFactory {
     (extendsBlock.findFirstChildByType(kEXTENDS), extendsBlock.templateParents.get)
   }
 
-  def createMethodFromSignature(signature: PhysicalSignature, needsInferType: Boolean, body: String,
+  def createMethodFromSignature(signature: PhysicalSignature, body: String,
                                 withComment: Boolean = true, withAnnotation: Boolean = true)
-                               (implicit ctx: ProjectContext): ScFunction = {
-    val signatureText = methodFromSignatureText(signature, needsInferType, body, withComment, withAnnotation)
-    createClassWithBody(signatureText).functions.head
+                               (implicit projectContext: ProjectContext): ScFunction = {
+    val builder = StringBuilder.newBuilder
+
+    val PhysicalSignature(method, substitutor) = signature
+
+    if (withComment) {
+      val maybeCommentText = method.firstChild.collect {
+        case comment: PsiDocComment => comment.getText
+      }
+
+      maybeCommentText.foreach(builder.append)
+      if (maybeCommentText.isDefined) builder.append("\n")
+    }
+
+    if (withAnnotation) {
+      val annotations = method match {
+        case function: ScFunction => function.annotations.map(_.getText)
+        case _ => Seq.empty
+      }
+
+      annotations.foreach(builder.append)
+      if (annotations.nonEmpty) builder.append("\n")
+    }
+
+    signatureText(method, substitutor)(builder)
+
+    builder.append(" ")
+      .append(ScalaTokenTypes.tASSIGN)
+      .append(" ")
+      .append(body)
+
+    createClassWithBody(builder.toString()).functions.head
   }
 
-  def createOverrideImplementMethod(signature: PhysicalSignature,
-                                    needsOverrideModifier: Boolean, body: String,
+  def createOverrideImplementMethod(signature: PhysicalSignature, needsOverrideModifier: Boolean, body: String,
                                     withComment: Boolean = true, withAnnotation: Boolean = true)
                                    (implicit ctx: ProjectContext): ScFunction = {
-    val function = createMethodFromSignature(signature, needsInferType = true, body, withComment, withAnnotation)
+    val function = createMethodFromSignature(signature, body, withComment, withAnnotation)
     addModifiersFromSignature(function, signature, needsOverrideModifier)
   }
 
@@ -558,156 +585,131 @@ object ScalaPsiElementFactory {
     function
   }
 
-  private def methodFromSignatureText(sign: PhysicalSignature, needsInferType: Boolean, inBody: String,
-                                      withComment: Boolean = true, withAnnotation: Boolean = true): String = {
+  private def signatureText(method: PsiMethod, substitutor: ScSubstitutor)
+                           (myBuilder: StringBuilder)
+                           (implicit projectContext: ProjectContext): Unit = {
+    import ScalaTokenTypes._
+    myBuilder.append(kDEF)
+      .append(" ")
+      .append(escapeKeyword(method.name))
 
-    def methodName(method: PsiMethod): String = "def " + escapeKeyword(method.name)
-
-    def docComment(method: PsiMethod): String =
-      method.firstChild.collect{case dc: PsiDocComment if withComment => dc}.map(_.getText + "\n").getOrElse("")
-
-    val builder = mutable.StringBuilder.newBuilder
-    val method = sign.method
-    // do not substitute aliases
-    val substitutor = sign.substitutor
-
-    implicit val project = sign.projectContext
-
-    method match {
-      case method: ScFunction =>
-        def annotations: String =
-          if (withAnnotation && method.annotations.nonEmpty) method.annotations.map(_.getText).mkString("\n") + "\n" else ""
-
-        def typeParams: String = {
-          if (method.typeParameters.nonEmpty) {
-            def buildText(typeParam: ScTypeParam): String = {
-              val variance = if (typeParam.isContravariant) "-" else if (typeParam.isCovariant) "+" else ""
-              val clauseText = typeParam.typeParametersClause match {
-                case None => ""
-                case Some(x) => x.typeParameters.map(buildText).mkString("[", ",", "]")
-              }
-              val lowerBoundText = typeParam.lowerBound.toOption collect {
-                case t if t.isNothing => ""
-                case x => " >: " + substitutor.subst(x).canonicalText
-              }
-              val upperBoundText = typeParam.upperBound.toOption collect {
-                case t if t.isAny => ""
-                case x => " <: " + substitutor.subst(x).canonicalText
-              }
-              val viewBoundText = typeParam.viewBound map {
-                x => " <% " + substitutor.subst(x).canonicalText
-              }
-              val contextBoundText = typeParam.contextBound collect {
-                case tp: ScType => " : " + ScTypeUtil.stripTypeArgs(substitutor.subst(tp)).canonicalText
-              }
-              val boundsText = (lowerBoundText.toSeq ++ upperBoundText.toSeq ++ viewBoundText ++ contextBoundText).mkString
-              s"$variance${typeParam.name}$clauseText$boundsText"
-            }
-
-            val typeParamTexts = for (t <- method.typeParameters) yield buildText(t)
-            typeParamTexts.mkString("[", ", ", "]")
-          } else ""
-        }
-
-        def paramClauses: String = {
-          if (method.paramClauses != null) {
-            val localBuilder = mutable.StringBuilder.newBuilder
-            for (paramClause <- method.paramClauses.clauses) {
-              def buildText(param: ScParameter): String = {
-                val name = param.name
-                param.typeElement match {
-                  case Some(x) =>
-                    val colon = this.colon(name)
-                    val typeText = substitutor.subst(x.`type`().getOrAny).canonicalText
-                    val arrow = functionArrow(param.getProject)
-                    name + colon + (if (param.isCallByNameParameter) arrow else "") + typeText + (if (param.isRepeatedParameter) "*" else "")
-                  case _ => name
-                }
-              }
-
-              val params = for (t <- paramClause.parameters) yield buildText(t)
-              localBuilder ++= params.mkString(if (paramClause.isImplicit) "(implicit " else "(", ", ", ")")
-            }
-
-            localBuilder.toString()
-          } else ""
-        }
-
-        def body: String = {
-          val retType = method.returnType.toOption.map(t => substitutor.subst(t))
-          val retAndBody = (needsInferType, retType) match {
-            case (true, Some(scType)) =>
-              var text = scType.canonicalText
-              if (text == "_root_.java.lang.Object") text = "AnyRef"
-              val colon = this.colon(method.name, flag = method.paramClauses.clauses.isEmpty && method.typeParameters.isEmpty)
-              s"$colon$text = $inBody"
-            case _ =>
-              " = " + inBody
+    val typeParameters = method match {
+      case function: ScFunction if function.typeParameters.nonEmpty =>
+        def buildText(typeParam: ScTypeParam): String = {
+          val variance = if (typeParam.isContravariant) "-" else if (typeParam.isCovariant) "+" else ""
+          val clauseText = typeParam.typeParametersClause match {
+            case None => ""
+            case Some(x) => x.typeParameters.map(buildText).mkString("[", ",", "]")
           }
-          retAndBody
+
+          val lowerBoundText = typeParam.lowerBound.toOption.collect {
+            case x if !x.isNothing => " >: " + substitutor.subst(x).canonicalText
+          }
+
+          val upperBoundText = typeParam.upperBound.toOption.collect {
+            case x if !x.isAny => " <: " + substitutor.subst(x).canonicalText
+          }
+
+          val viewBoundText = typeParam.viewBound.map { x =>
+            " <% " + substitutor.subst(x).canonicalText
+          }
+
+          val contextBoundText = typeParam.contextBound.map { tp =>
+            " : " + ScTypeUtil.stripTypeArgs(substitutor.subst(tp)).canonicalText
+          }
+
+          val boundsText = (lowerBoundText.toSeq ++ upperBoundText.toSeq ++ viewBoundText ++ contextBoundText).mkString
+          s"$variance${typeParam.name}$clauseText$boundsText"
         }
 
-        builder ++= s"${docComment(method)}$annotations${methodName(method)}$typeParams$paramClauses$body"
-      case _ =>
-        def typeParams: String = {
-          if (method.hasTypeParameters) {
-            val params = method.getTypeParameters
-            val strings = for (param <- params) yield {
-              val extendsTypes = param.getExtendsListTypes
-              val extendsTypesText = if (extendsTypes.nonEmpty) {
-                val typeTexts = extendsTypes.map((t: PsiClassType) =>
-                  substitutor.subst(t.toScType()).canonicalText)
-                typeTexts.mkString(" <: ", " with ", "")
-              } else ""
-              param.name + extendsTypesText
-            }
-            strings.mkString("[", ", ", "]")
+        function.typeParameters.map(buildText)
+      case _ if method.hasTypeParameters =>
+        for {
+          param <- method.getTypeParameters.toSeq
+          extendsTypes = param.getExtendsListTypes
+          extendsTypesText = if (extendsTypes.nonEmpty) {
+            extendsTypes.map { classType =>
+              substitutor.subst(classType.toScType()).canonicalText
+            }.mkString(" <: ", " with ", "")
           } else ""
-        }
-
-        def paramsList = {
-          import org.jetbrains.plugins.scala.extensions._
-
-          val paramCount = method.getParameterList.getParametersCount
-          val omitParamList = paramCount == 0 && method.hasQueryLikeName
-
-          if (!omitParamList) {
-            val params = for (param <- method.parameters) yield {
-              val paramName = param.name match {
-                case null => param match {
-                  case param: ClsParameterImpl => param.getStub.getName
-                  case _ => null
-                }
-                case x => x
-              }
-              val pName: String = escapeKeyword(paramName)
-              val colon = if (pName.endsWith("_")) " : " else ": "
-              val scType: ScType = substitutor.subst(param.getTypeElement.getType.toScType())
-              val typeText = scType match {
-                case t if t.isAnyRef => "scala.Any"
-                case JavaArrayType(argument) if param.isVarArgs => argument.canonicalText + "*"
-                case _ => scType.canonicalText
-              }
-              s"$pName$colon$typeText"
-            }
-
-            params.mkString("(", ", ", ")")
-          } else ""
-        }
-
-        def body: String = {
-          val retType = substitutor.subst(method.getReturnType.toScType())
-          val retAndBody =
-            if (needsInferType) {
-              val typeText = if (retType.isAny) "AnyRef" else retType.canonicalText
-              s": $typeText = $inBody"
-            } else " = " + inBody
-          retAndBody
-        }
-
-        builder ++= s"${docComment(method)}${methodName(method)}$typeParams$paramsList$body"
+        } yield param.name + extendsTypesText
+      case _ => Seq.empty
     }
-    builder.toString()
+
+    if (typeParameters.nonEmpty) {
+      val typeParametersText = typeParameters.mkString(tLSQBRACKET.toString, ", ", tRSQBRACKET.toString)
+      myBuilder.append(typeParametersText)
+    }
+
+    // do not substitute aliases
+    method match {
+      case method: ScFunction if method.paramClauses != null =>
+        for (paramClause <- method.paramClauses.clauses) {
+          val parameters = paramClause.parameters.map { param =>
+            val arrow = if (param.isCallByNameParameter) functionArrow else ""
+            val asterisk = if (param.isRepeatedParameter) tSTAR.toString else ""
+
+            val name = param.name
+            name + param.typeElement.map(_.`type`().getOrAny)
+              .map(substitutor.subst).map { scType =>
+              colon(name) + arrow + scType.canonicalText + asterisk
+            }.getOrElse("")
+          }
+
+          myBuilder.append(parameters.mkString(if (paramClause.isImplicit) "(implicit " else "(", ", ", ")"))
+        }
+      case _ if !method.isParameterless || !method.hasQueryLikeName =>
+        val params = for (param <- method.parameters) yield {
+          val paramName = param.name match {
+            case null => param match {
+              case param: ClsParameterImpl => param.getStub.getName
+              case _ => null
+            }
+            case x => x
+          }
+
+          val pName: String = escapeKeyword(paramName)
+          val colon = if (pName.endsWith("_")) " " else ""
+          val maybeTypeElement = Option(param.getTypeElement)
+            .map(_.getType.toScType())
+            .map(substitutor.subst)
+
+          val typeText = maybeTypeElement.map {
+            case t if t.isAnyRef => "scala.Any"
+            case JavaArrayType(argument) if param.isVarArgs => argument.canonicalText + "*"
+            case t => t.canonicalText
+          }.orNull
+          s"$pName$colon: $typeText"
+        }
+
+        myBuilder.append(params.mkString("(", ", ", ")"))
+      case _ =>
+    }
+
+    val maybeReturnType = method match {
+      case function: ScFunction =>
+        function.returnType.toOption.map {
+          (_, function.isProcedure && function.typeParameters.isEmpty && isIdentifier(method.name + tCOLON))
+        }
+      case _ =>
+        Option(method.getReturnType).map { returnType =>
+          (returnType.toScType(), false)
+        }
+    }
+
+    maybeReturnType match {
+      case Some((returnType, flag)) =>
+        val typeText = substitutor.subst(returnType).canonicalText match {
+          case "_root_.java.lang.Object" => "AnyRef"
+          case text => text
+        }
+
+        myBuilder.append(if (flag) " " else "")
+          .append(tCOLON)
+          .append(" ")
+          .append(typeText)
+      case _ =>
+    }
   }
 
   def getOverrideImplementTypeSign(alias: ScTypeAlias, substitutor: ScSubstitutor, needsOverride: Boolean): String = {
@@ -730,8 +732,10 @@ object ScalaPsiElementFactory {
     }
   }
 
-  private def colon(name: String, flag: Boolean = true) =
-    (if (flag && isIdentifier(s"$name:")) " " else "") + ": "
+  private def colon(name: String) = {
+    import ScalaTokenTypes.tCOLON
+    (if (isIdentifier(name + tCOLON)) " " else "") + tCOLON + " "
+  }
 
   private def getOverrideImplementVariableSign(variable: ScTypedDefinition, substitutor: ScSubstitutor,
                                                body: Option[String], needsOverride: Boolean,
