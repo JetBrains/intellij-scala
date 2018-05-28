@@ -39,7 +39,7 @@ import org.jetbrains.plugins.scala.lang.psi.api.{FileDeclarationsHolder, ScContr
 import org.jetbrains.plugins.scala.lang.psi.impl.ScalaPsiManager.AnyScalaPsiModificationTracker
 import org.jetbrains.plugins.scala.lang.psi.stubs.ScFileStub
 import org.jetbrains.plugins.scala.lang.refactoring.util.ScalaNamesUtil
-import org.jetbrains.plugins.scala.macroAnnotations.{CachedInsidePsiElement, ModCount}
+import org.jetbrains.plugins.scala.macroAnnotations.{CachedInUserData, ModCount}
 import org.jetbrains.plugins.scala.settings.ScalaProjectSettings
 import org.jetbrains.plugins.scala.util.ScalaUtil
 import worksheet.ammonite.AmmoniteUtil
@@ -176,7 +176,7 @@ class ScalaFileImpl(viewProvider: FileViewProvider, fileType: LanguageFileType =
     false
   }
 
-  @CachedInsidePsiElement(this, ModCount.anyScalaPsiModificationCount)
+  @CachedInUserData(this, ModCount.anyScalaPsiModificationCount)
   override def isScriptFile: Boolean = byStubOrPsi(_.isScript)(isScriptFileImpl)
 
   override def isWorksheetFile: Boolean = {
@@ -359,7 +359,7 @@ class ScalaFileImpl(viewProvider: FileViewProvider, fileType: LanguageFileType =
     } else PsiClass.EMPTY_ARRAY
   }
 
-  @CachedInsidePsiElement(this, ScalaPsiManager.instance(getProject).modificationTracker)
+  @CachedInUserData(this, ScalaPsiManager.instance(getProject).modificationTracker)
   protected def isScalaPredefinedClass: Boolean = {
     typeDefinitions.length == 1 && Set("scala", "scala.Predef").contains(typeDefinitions.head.qualifiedName)
   }
@@ -401,7 +401,7 @@ class ScalaFileImpl(viewProvider: FileViewProvider, fileType: LanguageFileType =
     else ResolveScopeManager.getInstance(getProject).getDefaultResolveScope(vFile)
   }
 
-  @CachedInsidePsiElement(this, ProjectRootManager.getInstance(getProject))
+  @CachedInUserData(this, ProjectRootManager.getInstance(getProject))
   private def compiledFileResolveScope: GlobalSearchScope = {
     val vFile = getOriginalFile.getVirtualFile
     val orderEntries = ProjectRootManager.getInstance(getProject).getFileIndex.getOrderEntriesForFile(vFile)

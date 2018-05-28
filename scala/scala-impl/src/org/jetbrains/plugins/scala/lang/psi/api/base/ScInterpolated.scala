@@ -9,7 +9,7 @@ import org.jetbrains.plugins.scala.lang.psi.api.base.patterns.ScInterpolationPat
 import org.jetbrains.plugins.scala.lang.psi.api.expr.{ScBlockExpr, ScExpression, ScReferenceExpression}
 import org.jetbrains.plugins.scala.lang.psi.impl.ScalaPsiElementFactory
 import org.jetbrains.plugins.scala.lang.psi.impl.expr.{ScInterpolatedPrefixReference, ScInterpolatedStringPartReference}
-import org.jetbrains.plugins.scala.macroAnnotations.{CachedInsidePsiElement, ModCount}
+import org.jetbrains.plugins.scala.macroAnnotations.{CachedInUserData, ModCount}
 
 import scala.collection.mutable.ListBuffer
 
@@ -34,7 +34,7 @@ trait ScInterpolated extends ScalaPsiElement {
     res.toArray
   }
 
-  @CachedInsidePsiElement(this, ModCount.getBlockModificationCount)
+  @CachedInUserData(this, ModCount.getBlockModificationCount)
   def getStringContextExpression: Option[ScExpression] = {
     val quote = if (isMultiLineString) "\"\"\"" else "\""
     val parts = getStringParts.mkString(quote, s"$quote, $quote", quote) //making list of string literals

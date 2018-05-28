@@ -11,6 +11,7 @@ import com.intellij.psi._
 import com.intellij.psi.impl.compiled.ClsFileImpl
 import com.intellij.psi.util._
 import com.intellij.util.containers.{ContainerUtil, Stack}
+import org.jetbrains.plugins.scala.caches.ProjectUserDataHolder._
 import org.jetbrains.plugins.scala.debugger.evaluation.ScalaCodeFragment
 import org.jetbrains.plugins.scala.lang.psi.api.ScalaFile
 import org.jetbrains.plugins.scala.lang.psi.api.expr.ScModificationTrackerOwner
@@ -49,7 +50,7 @@ object CachesUtil {
 
   /**
    * IMPORTANT:
-   * Cached annotations (CachedWithRecursionGuard, CachedMappedWithRecursionGuard, and CachedInsidePsiElement)
+   * Cached annotations (CachedWithRecursionGuard, CachedMappedWithRecursionGuard, and CachedInUserData)
    * rely on this method, even though it shows that it is unused
    *
    * If you change this method in any way, please make sure it's consistent with the annotations
@@ -120,9 +121,9 @@ object CachesUtil {
                                               key: Key[_],
                                               set: Set[ScFunction]) extends ControlThrowable
 
-  def getOrCreateCachedMap[Dom <: PsiElement, Data, Result](elem: Dom,
-                                                            key: Key[CachedMap[Data, Result]],
-                                                            dependencyItem: () => Object): ConcurrentMap[Data, Result] = {
+  def getOrCreateCachedMap[Dom: ProjectUserDataHolder, Data, Result](elem: Dom,
+                                                                     key: Key[CachedMap[Data, Result]],
+                                                                     dependencyItem: () => Object): ConcurrentMap[Data, Result] = {
 
     val cachedValue = elem.getUserData(key) match {
       case null =>
@@ -132,21 +133,15 @@ object CachesUtil {
             new CachedValueProvider.Result(ContainerUtil.newConcurrentMap(), dependencyItem())
         }
         val newValue = manager.createCachedValue(provider, false)
-        elem match {
-          case ex: UserDataHolderEx =>
-            ex.putUserDataIfAbsent(key, newValue)
-          case _ =>
-            elem.putUserData(key, newValue)
-            newValue
-        }
+        elem.putUserDataIfAbsent(key, newValue)
       case d => d
     }
     cachedValue.getValue
   }
 
-  def getOrCreateCachedRef[Dom <: PsiElement, Result](elem: Dom,
-                                                      key: Key[CachedRef[Result]],
-                                                      dependencyItem: () => Object): AtomicReference[Result] = {
+  def getOrCreateCachedRef[Dom: ProjectUserDataHolder, Result](elem: Dom,
+                                                               key: Key[CachedRef[Result]],
+                                                               dependencyItem: () => Object): AtomicReference[Result] = {
     val cachedValue = elem.getUserData(key) match {
       case null =>
         val manager = CachedValuesManager.getManager(elem.getProject)
@@ -155,13 +150,7 @@ object CachesUtil {
             new CachedValueProvider.Result(new AtomicReference[Result](), dependencyItem())
         }
         val newValue = manager.createCachedValue(provider, false)
-        elem match {
-          case ex: UserDataHolderEx =>
-            ex.putUserDataIfAbsent(key, newValue)
-          case _ =>
-            elem.putUserData(key, newValue)
-            newValue
-        }
+        elem.putUserDataIfAbsent(key, newValue)
       case d => d
     }
     cachedValue.getValue

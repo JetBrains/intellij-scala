@@ -24,7 +24,7 @@ import org.jetbrains.plugins.scala.lang.psi.stubs.ScExtendsBlockStub
 import org.jetbrains.plugins.scala.lang.psi.types._
 import org.jetbrains.plugins.scala.lang.psi.types.api.designator.ScDesignatorType
 import org.jetbrains.plugins.scala.lang.psi.types.result._
-import org.jetbrains.plugins.scala.macroAnnotations.{Cached, CachedInsidePsiElement, ModCount}
+import org.jetbrains.plugins.scala.macroAnnotations.{Cached, CachedInUserData, ModCount}
 
 import scala.collection.Seq
 import scala.collection.mutable.ListBuffer
@@ -65,7 +65,7 @@ class ScExtendsBlockImpl private(stub: ScExtendsBlockStub, node: ASTNode)
       _.`type`().toOption
     }
 
-  @CachedInsidePsiElement(this, ModCount.getBlockModificationCount)
+  @CachedInUserData(this, ModCount.getBlockModificationCount)
   def superTypes: List[ScType] = {
     val buffer = new ListBuffer[ScType]
 
@@ -179,7 +179,7 @@ class ScExtendsBlockImpl private(stub: ScExtendsBlockStub, node: ASTNode)
     }
   }
 
-  @CachedInsidePsiElement(this, ModCount.getBlockModificationCount)
+  @CachedInUserData(this, ModCount.getBlockModificationCount)
   def supers: Seq[PsiClass] = {
     val buffer = new ListBuffer[PsiClass]
 

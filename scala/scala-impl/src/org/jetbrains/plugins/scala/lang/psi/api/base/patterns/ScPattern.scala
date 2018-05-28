@@ -26,7 +26,7 @@ import org.jetbrains.plugins.scala.lang.psi.types.result._
 import org.jetbrains.plugins.scala.lang.psi.types.{api, _}
 import org.jetbrains.plugins.scala.lang.resolve._
 import org.jetbrains.plugins.scala.lang.resolve.processor.{CompletionProcessor, ExpandedExtractorResolveProcessor}
-import org.jetbrains.plugins.scala.macroAnnotations.{CachedInsidePsiElement, ModCount}
+import org.jetbrains.plugins.scala.macroAnnotations.{CachedInUserData, ModCount}
 import org.jetbrains.plugins.scala.project.ScalaLanguageLevel.Scala_2_11
 import org.jetbrains.plugins.scala.project._
 
@@ -119,7 +119,7 @@ object ScPattern {
 
     import pattern.{elementScope, projectContext}
 
-    @CachedInsidePsiElement(pattern, ModCount.getBlockModificationCount)
+    @CachedInUserData(pattern, ModCount.getBlockModificationCount)
     def expectedType: Option[ScType] = {
       val psiManager = ScalaPsiManager.instance
 

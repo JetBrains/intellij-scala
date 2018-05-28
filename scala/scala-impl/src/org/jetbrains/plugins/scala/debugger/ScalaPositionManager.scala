@@ -41,7 +41,7 @@ import org.jetbrains.plugins.scala.lang.psi.api.toplevel.typedef._
 import org.jetbrains.plugins.scala.lang.psi.impl.ScalaPsiManager
 import org.jetbrains.plugins.scala.lang.psi.types.ValueClassType
 import org.jetbrains.plugins.scala.lang.refactoring.util.ScalaNamesUtil
-import org.jetbrains.plugins.scala.macroAnnotations.{CachedInsidePsiElement, ModCount}
+import org.jetbrains.plugins.scala.macroAnnotations.{CachedInUserData, ModCount}
 import org.jetbrains.plugins.scala.util.macroDebug.ScalaMacroDebuggingUtil
 
 import scala.annotation.tailrec
@@ -715,7 +715,7 @@ object ScalaPositionManager {
 
   def positionsOnLine(file: PsiFile, lineNumber: Int): Seq[PsiElement] = {
     //stored in `file`, invalidated on `file` change
-    @CachedInsidePsiElement(file, file)
+    @CachedInUserData(file, file)
     def cachedMap: ConcurrentIntObjectMap[Seq[PsiElement]] = ContainerUtil.createConcurrentIntObjectMap()
 
     if (lineNumber < 0) return Seq.empty

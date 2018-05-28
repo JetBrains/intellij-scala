@@ -41,7 +41,7 @@ import org.jetbrains.plugins.scala.lang.psi.types.nonvalue._
 import org.jetbrains.plugins.scala.lang.psi.types.recursiveUpdate.ScSubstitutor
 import org.jetbrains.plugins.scala.lang.psi.types.result._
 import org.jetbrains.plugins.scala.lang.refactoring.util.ScalaNamesUtil
-import org.jetbrains.plugins.scala.macroAnnotations.{Cached, CachedInsidePsiElement, ModCount}
+import org.jetbrains.plugins.scala.macroAnnotations.{Cached, CachedInUserData, ModCount}
 import org.jetbrains.plugins.scala.project.UserDataHolderExt
 
 import scala.annotation.tailrec
@@ -183,7 +183,7 @@ trait ScFunction extends ScalaPsiElement with ScMember with ScTypeParametersOwne
 
   def clauses: Option[ScParameters] = Some(paramClauses)
 
-  @CachedInsidePsiElement(this, ModCount.getBlockModificationCount)
+  @CachedInUserData(this, ModCount.getBlockModificationCount)
   def effectiveParameterClauses: Seq[ScParameterClause] = {
     val maybeOwner = if (isConstructor) {
       containingClass match {
@@ -319,7 +319,7 @@ trait ScFunction extends ScalaPsiElement with ScMember with ScTypeParametersOwne
     getReturnTypeImpl
   }
 
-  @CachedInsidePsiElement(this, ModCount.getBlockModificationCount)
+  @CachedInUserData(this, ModCount.getBlockModificationCount)
   private def getReturnTypeImpl: PsiType = {
     val resultType = `type`().getOrAny match {
       case FunctionType(rt, _) => rt

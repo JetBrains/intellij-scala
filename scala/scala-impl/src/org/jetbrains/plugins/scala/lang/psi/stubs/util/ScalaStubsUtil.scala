@@ -20,7 +20,7 @@ import org.jetbrains.plugins.scala.lang.psi.api.toplevel.templates.ScExtendsBloc
 import org.jetbrains.plugins.scala.lang.psi.api.toplevel.typedef.ScTemplateDefinition
 import org.jetbrains.plugins.scala.lang.psi.stubs.index.ScalaIndexKeys
 import org.jetbrains.plugins.scala.lang.psi.types.{ScCompoundType, ScType, ScTypeExt}
-import org.jetbrains.plugins.scala.macroAnnotations.CachedInsidePsiElement
+import org.jetbrains.plugins.scala.macroAnnotations.CachedInUserData
 import org.jetbrains.plugins.scala.util.ScEquivalenceUtil
 
 import scala.collection.mutable.ArrayBuffer
@@ -56,7 +56,7 @@ object ScalaStubsUtil {
   }
 
   def getSelfTypeInheritors(clazz: PsiClass): Seq[ScTemplateDefinition] = {
-    @CachedInsidePsiElement(clazz, CachesUtil.enclosingModificationOwner(clazz))
+    @CachedInUserData(clazz, CachesUtil.enclosingModificationOwner(clazz))
     def selfTypeInheritorsInner(): Seq[ScTemplateDefinition] = {
       val inheritors = new ArrayBuffer[ScTemplateDefinition]
       val name = clazz.name

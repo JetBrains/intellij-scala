@@ -5,24 +5,27 @@ import scala.language.experimental.macros
 import scala.reflect.macros.whitebox
 
 /**
-  * This annotation makes the compiler generate code that caches values in the user data of the psiElement.
+  * This annotation makes the compiler generate code that caches values in the user data.
+  *
+  * UserDataHolder type should have instance of a `org.jetbrains.plugins.scala.caches.ProjectUserDataHolder` type class
+  *
   * Caches are invalidated on change of `dependencyItem`.
   *
   * Author: Svyatoslav Ilinskiy, Nikolay.Tropin
   * Date: 9/25/15.
   */
-class CachedInsidePsiElement(psiElement: Any, dependencyItem: Object) extends StaticAnnotation {
-  def macroTransform(annottees: Any*) = macro CachedInsidePsiElement.cachedInsidePsiElementImpl
+class CachedInUserData(userDataHolder: Any, dependencyItem: Object) extends StaticAnnotation {
+  def macroTransform(annottees: Any*) = macro CachedInUserData.cachedInsideUserDataImpl
 }
 
-object CachedInsidePsiElement {
-  def cachedInsidePsiElementImpl(c: whitebox.Context)(annottees: c.Tree*): c.Expr[Any] = {
+object CachedInUserData {
+  def cachedInsideUserDataImpl(c: whitebox.Context)(annottees: c.Tree*): c.Expr[Any] = {
     import CachedMacroUtil._
     import c.universe._
     implicit val x: c.type = c
     def parameters: (Tree, Tree) = {
       c.prefix.tree match {
-        case q"new CachedInsidePsiElement(..$params)" if params.length == 2 =>
+        case q"new CachedInUserData(..$params)" if params.length == 2 =>
           (params.head, modCountParamToModTracker(c)(params(1), params.head))
         case _ => abort("Wrong annotation parameters!")
       }
@@ -61,9 +64,9 @@ object CachedInsidePsiElement {
         val dataValue = if (hasParams) q"(..$parameterNames)" else q"()"
         val getOrCreateCachedHolder =
           if (hasParams)
-            q"$cachesUtilFQN.getOrCreateCachedMap[$psiElementType, $dataType, $resultType]($elemName, $keyVarName, () => $modTracker)"
+            q"$cachesUtilFQN.getOrCreateCachedMap[$elemName.type, $dataType, $resultType]($elemName, $keyVarName, () => $modTracker)"
           else
-            q"$cachesUtilFQN.getOrCreateCachedRef[$psiElementType, $resultType]($elemName, $keyVarName, () => $modTracker)"
+            q"$cachesUtilFQN.getOrCreateCachedRef[$elemName.type, $resultType]($elemName, $keyVarName, () => $modTracker)"
 
         val getFromHolder =
           if (hasParams) q"$holderName.get($dataName)"

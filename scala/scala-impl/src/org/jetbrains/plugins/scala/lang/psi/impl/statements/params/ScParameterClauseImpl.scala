@@ -16,7 +16,7 @@ import org.jetbrains.plugins.scala.lang.psi.api.statements.params._
 import org.jetbrains.plugins.scala.lang.psi.api.toplevel.typedef.ScClass
 import org.jetbrains.plugins.scala.lang.psi.impl.ScalaPsiElementFactory._
 import org.jetbrains.plugins.scala.lang.psi.stubs.ScParamClauseStub
-import org.jetbrains.plugins.scala.macroAnnotations.{Cached, CachedInsidePsiElement, ModCount}
+import org.jetbrains.plugins.scala.macroAnnotations.{Cached, CachedInUserData, ModCount}
 
 /**
   * @author Alexander Podkhalyuzin
@@ -36,7 +36,7 @@ class ScParameterClauseImpl private(stub: ScParamClauseStub, node: ASTNode)
     getStubOrPsiChildren[ScParameter](TokenSets.PARAMETERS, JavaArrayFactoryUtil.ScParameterFactory).toSeq
   }
 
-  @CachedInsidePsiElement(this, ModCount.getBlockModificationCount)
+  @CachedInUserData(this, ModCount.getBlockModificationCount)
   override def effectiveParameters: Seq[ScParameter] = {
     if (!isImplicit) return parameters
 

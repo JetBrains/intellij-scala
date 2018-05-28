@@ -13,7 +13,7 @@ import org.jetbrains.plugins.scala.lang.psi.types.api.TypeParameterType
 import org.jetbrains.plugins.scala.lang.psi.types.api.designator._
 import org.jetbrains.plugins.scala.lang.psi.types.nonvalue.ScMethodType
 import org.jetbrains.plugins.scala.lang.refactoring.util.ScalaNamesUtil
-import org.jetbrains.plugins.scala.macroAnnotations.{Cached, CachedInsidePsiElement, ModCount}
+import org.jetbrains.plugins.scala.macroAnnotations.{Cached, CachedInUserData, ModCount}
 
 import scala.collection.mutable
 
@@ -51,7 +51,7 @@ trait ScPrimaryConstructor extends ScMember with ScMethodLike {
    *
    * In addition, view and context bounds generate an additional implicit parameter section.
    */
-  @CachedInsidePsiElement(this, ModCount.getBlockModificationCount)
+  @CachedInUserData(this, ModCount.getBlockModificationCount)
   def effectiveParameterClauses: Seq[ScParameterClause] = {
     def emptyParameterList: ScParameterClause =
       ScalaPsiElementFactory.createEmptyClassParamClauseWithContext(parameterList)

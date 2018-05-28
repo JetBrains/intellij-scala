@@ -23,7 +23,7 @@ import org.jetbrains.plugins.scala.lang.psi.api.base.{ScInterpolatedStringLitera
 import org.jetbrains.plugins.scala.lang.psi.types.api.{Char, Int, Nothing, Null}
 import org.jetbrains.plugins.scala.lang.psi.types.result._
 import org.jetbrains.plugins.scala.lang.psi.types.{api, _}
-import org.jetbrains.plugins.scala.macroAnnotations.CachedInsidePsiElement
+import org.jetbrains.plugins.scala.macroAnnotations.CachedInUserData
 import org.jetbrains.plugins.scala.project.ProjectContext
 import org.jetbrains.plugins.scala.project._
 
@@ -46,7 +46,7 @@ class ScLiteralImpl(node: ASTNode) extends ScalaPsiElementImpl(node) with ScLite
     if (allowLiteralTypes) wide.map(ScLiteralType(getValue, _)) else wide
   }
 
-  @CachedInsidePsiElement(this, PsiModificationTracker.MODIFICATION_COUNT)
+  @CachedInUserData(this, PsiModificationTracker.MODIFICATION_COUNT)
   def getValue: AnyRef = {
     val child = getFirstChild.getNode
     var text = getText
