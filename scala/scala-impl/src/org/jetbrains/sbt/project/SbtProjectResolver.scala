@@ -198,7 +198,8 @@ class SbtProjectResolver extends ExternalSystemProjectResolver[SbtExecutionSetti
     // TODO add default scala sdk and sbt libs (newest versions or so)
 
     val projectPath = projectRoot.getAbsolutePath
-    val projectName = normalizeModuleId(projectRoot.getName) + "_" + Random.nextInt(10000)
+    val projectName = normalizeModuleId(projectRoot.getName)
+    val projectTmpName = projectName + "_" + Random.nextInt(10000)
     val sourceDir = new File(projectRoot, "src/main/scala")
     val classDir = new File(projectRoot, "target/dummy")
     val dummyBuildData = BuildData(Seq.empty, Seq.empty, Seq.empty, Seq.empty)
@@ -206,7 +207,7 @@ class SbtProjectResolver extends ExternalSystemProjectResolver[SbtExecutionSetti
     val dummyJavaData = JavaData(None, Seq.empty)
     val dummyDependencyData = DependencyData(Seq.empty, Seq.empty, Seq.empty)
     val dummyRootProject = ProjectData(
-      projectName, projectRoot.toURI, projectName, s"org.$projectName", "0.0", projectRoot, Seq.empty,
+      projectTmpName, projectRoot.toURI, projectTmpName, s"org.$projectName", "0.0", projectRoot, Seq.empty,
       new File(projectRoot, "target"), dummyBuildData, Seq(dummyConfigurationData), Option(dummyJavaData), None, None,
       dummyDependencyData, Set.empty, None, Seq.empty, Seq.empty, Seq.empty
     )
