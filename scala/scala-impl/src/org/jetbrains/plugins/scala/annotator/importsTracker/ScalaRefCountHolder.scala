@@ -1,19 +1,24 @@
 package org.jetbrains.plugins.scala.annotator.importsTracker
 
-import java.util.concurrent.atomic.AtomicReference
+import java.util.concurrent.TimeUnit
+import java.util.concurrent.atomic.{AtomicLong, AtomicReference}
 
 import com.intellij.codeHighlighting.Pass
 import com.intellij.codeInsight.daemon.DaemonCodeAnalyzer
 import com.intellij.codeInsight.daemon.impl.DaemonCodeAnalyzerImpl
+import com.intellij.concurrency.JobScheduler
 import com.intellij.openapi.components.AbstractProjectComponent
-import com.intellij.openapi.editor.event.{EditorFactoryEvent, EditorFactoryListener}
-import com.intellij.openapi.editor.{Document, Editor, EditorFactory}
+import com.intellij.openapi.editor.Document
 import com.intellij.openapi.project.Project
-import com.intellij.openapi.util.{LowMemoryWatcher, TextRange}
+import com.intellij.openapi.util.TextRange
 import com.intellij.psi._
 import com.intellij.util.containers.ContainerUtil
+import org.jetbrains.plugins.scala.annotator.importsTracker.ScalaRefCountHolder.WeakKeyTimestampedValueMap
 import org.jetbrains.plugins.scala.lang.psi.api.toplevel.imports.usages._
 import org.jetbrains.plugins.scala.util.ScalaLanguageDerivative
+
+import scala.collection.mutable
+import scala.concurrent.duration.{Duration, DurationLong}
 
 /**
  * User: Alexander Podkhalyuzin
@@ -148,50 +153,60 @@ object ScalaRefCountHolder {
   def getInstance(file: PsiFile): ScalaRefCountHolder = {
     val myFile = Option(ScalaLanguageDerivative.getScalaFileOnDerivative(file)).getOrElse(file)
     val component = myFile.getProject.getComponent(classOf[ScalaRefCountHolderComponent])
-    component.getOrCreate(myFile, new ScalaRefCountHolder)
+    component.getOrCreate(file, new ScalaRefCountHolder)
+  }
+
+  class WeakKeyTimestampedValueMap[K, V](minimumSize: Int, storageTime: Duration) {
+    private case class Timestamped(value: V, var timestamp: Long = -1, var accessId: Long = -1)
+
+    private[this] val accessId = new AtomicLong(0)
+    private[this] val innerMap: mutable.WeakHashMap[K, Timestamped] = mutable.WeakHashMap()
+
+    def getOrCreate(k: K, v: => V): V = innerMap.synchronized {
+      val value = innerMap.getOrElseUpdate(k, Timestamped(v))
+      value.timestamp = System.currentTimeMillis()
+      value.accessId = accessId.incrementAndGet()
+      value.value
+    }
+
+    def removeStaleEntries(): Unit = innerMap.synchronized {
+      val currentSize = innerMap.size
+      if (currentSize <= minimumSize) return
+
+      val currentTime = System.currentTimeMillis()
+      val sorted = innerMap.toArray.sortBy(_._2.accessId)
+
+      val possiblyStale = sorted.take(currentSize - minimumSize)
+      possiblyStale.foreach {
+        case (k, v) if currentTime - v.timestamp > storageTime.toMillis =>
+          innerMap.remove(k)
+        case _ =>
+      }
+    }
   }
 }
 
 class ScalaRefCountHolderComponent(project: Project) extends AbstractProjectComponent(project) {
+  private var autoCleaningMap: WeakKeyTimestampedValueMap[PsiFile, ScalaRefCountHolder] = _
+
+  private val numberOfFilesToKeep = 3
+  private val otherFilesStorageTime = 5.minutes
+  private val cleanupInterval = 1.minute
 
   override def projectOpened(): Unit = {
+    autoCleaningMap =
+      new WeakKeyTimestampedValueMap(numberOfFilesToKeep, otherFilesStorageTime)
 
-    LowMemoryWatcher.register(() => refCountHolders.clear(), project)
-
-    EditorFactory.getInstance().addEditorFactoryListener(new EditorFactoryListener {
-      override def editorCreated(event: EditorFactoryEvent): Unit = {}
-      override def editorReleased(event: EditorFactoryEvent): Unit = removeHoldersWithNoEditor(event.getEditor)
-    }, project)
+    JobScheduler.getScheduler.scheduleWithFixedDelay (
+      () => autoCleaningMap.removeStaleEntries(), cleanupInterval.toMillis, cleanupInterval.toMillis, TimeUnit.MILLISECONDS
+    )
   }
 
   override def projectClosed(): Unit = {
-    refCountHolders.clear()
+    autoCleaningMap = null
   }
 
-  def getOrCreate(file: PsiFile, holder: => ScalaRefCountHolder): ScalaRefCountHolder = refCountHolders.synchronized {
-    refCountHolders.computeIfAbsent(file, _ => holder)
-  }
-
-  private[this] val refCountHolders = ContainerUtil.createWeakMap[PsiFile, ScalaRefCountHolder]()
-
-  private[this] def hasNoDocumentOrEditor(file: PsiFile, releasedEditor: Editor): Boolean = {
-    val project = file.getProject
-    val document = PsiDocumentManager.getInstance(project).getCachedDocument(file)
-
-    document == null || !hasOtherEditors(document, releasedEditor)
-  }
-
-  private[this] def hasOtherEditors(document: Document, releasedEditor: Editor): Boolean = {
-    EditorFactory.getInstance().getEditors(document, project) match {
-      case Array() | Array(`releasedEditor`) => false
-      case _ => true
-    }
-  }
-
-  private[this] def removeHoldersWithNoEditor(releasedEditor: Editor): Unit = {
-    refCountHolders.synchronized {
-      val files = refCountHolders.keySet()
-      files.removeIf(f => hasNoDocumentOrEditor(f, releasedEditor))
-    }
+  def getOrCreate(file: PsiFile, holder: => ScalaRefCountHolder): ScalaRefCountHolder = {
+    Option(autoCleaningMap).map(_.getOrCreate(file, holder)).getOrElse(holder)
   }
 }
