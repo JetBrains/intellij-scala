@@ -168,7 +168,7 @@ class ScalaFunctionParameterInfoHandler extends ParameterInfoHandlerWithTabActio
                   val preceedingClauses = if (i == -1) Seq.empty else clauses.take(i)
                   val remainingClauses = if (i == -1) Seq.empty else clauses.drop(i + 1)
 
-                  val multipleLists = remainingClauses.nonEmpty || remainingClauses.nonEmpty
+                  val multipleLists = preceedingClauses.nonEmpty || remainingClauses.nonEmpty
 
                   def parametersOf(clause: ScParameterClause): Seq[(Parameter, String)] = {
                     val parameters: Seq[ScParameter] = if (i != -1) clause.effectiveParameters else clause.effectiveParameters.take(length - 1)
@@ -261,8 +261,31 @@ class ScalaFunctionParameterInfoHandler extends ParameterInfoHandlerWithTabActio
             if (clauses.length <= i) buffer.append(CodeInsightBundle.message("parameter.info.no.parameters"))
             else {
               val clause: ScParameterClause = clauses(i)
-              isGrey = applyToParameters(clause.effectiveParameters.map(param =>
-                (Parameter(param), paramText(param, subst))), subst, canBeNaming = true, isImplicit = clause.isImplicit)(args, buffer, index)
+              val preceedingClauses = clauses.take(i)
+              val remainingClauses = clauses.drop(i + 1)
+              val multipleLists = preceedingClauses.nonEmpty || remainingClauses.nonEmpty
+
+              def parametersOf(clause: ScParameterClause) = clause.effectiveParameters.map(param => (Parameter(param), paramText(param, subst)))
+
+              preceedingClauses.foreach { clause =>
+                buffer.append("(")
+                applyToParameters(parametersOf(clause), subst, canBeNaming = true, isImplicit = clause.isImplicit)(args, buffer, -1)
+                buffer.append(")")
+              }
+
+              if (multipleLists) {
+                buffer.append("(")
+              }
+              isGrey = applyToParameters(parametersOf(clause), subst, canBeNaming = true, isImplicit = clause.isImplicit)(args, buffer, index)
+              if (multipleLists) {
+                buffer.append(")")
+              }
+
+              remainingClauses.foreach { clause =>
+                buffer.append("(")
+                applyToParameters(parametersOf(clause), subst, canBeNaming = true, isImplicit = clause.isImplicit)(args, buffer, -1)
+                buffer.append(")")
+              }
             }
           case _ =>
         }
