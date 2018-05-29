@@ -31,11 +31,11 @@ object SbtBuildModuleDataService {
       dataToImport.foreach { moduleNode =>
         for {
           module <- getIdeModuleByNode(moduleNode)
-          imports = moduleNode.getData.imports
-          resolvers = moduleNode.getData.resolvers
         } {
-          SbtModule.setImportsTo(module, imports)
-          setResolvers(module, resolvers)
+          val data = moduleNode.getData
+          SbtModule.setImportsTo(module, data.imports)
+          setResolvers(module, data.resolvers)
+          SbtModule.setBuildForModule(module, data.buildFor.id, data.buildFor.buildURI)
         }
       }
 

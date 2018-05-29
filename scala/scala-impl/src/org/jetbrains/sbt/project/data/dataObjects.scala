@@ -34,10 +34,14 @@ object SbtEntityData {
 
 /**
   * Data describing a "build" module: The IDEA-side representation of the sbt meta-project
-  * @author Pavel Fatin
+  * @param imports implicit sbt file imports.
+  * @param resolvers resolvers for this build project
+  * @param buildFor id of the project that this module describes the build for
   */
-@SerialVersionUID(1)
-case class SbtBuildModuleData(imports: Seq[String], resolvers: Set[SbtResolver]) extends SbtEntityData
+@SerialVersionUID(2)
+case class SbtBuildModuleData(imports: Seq[String],
+                              resolvers: Set[SbtResolver],
+                              buildFor: SbtModuleData) extends SbtEntityData
 
 object SbtBuildModuleData {
   val Key: Key[SbtBuildModuleData] = datakey(classOf[SbtBuildModuleData])

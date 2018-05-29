@@ -3,6 +3,12 @@
 <idea-plugin>
     <depends optional="true" config-file="android-support.xml">org.jetbrains.android</depends>
 
+    <module-components>
+        <component>
+            <implementation-class>org.jetbrains.sbt.project.module.SbtModule$ModuleState</implementation-class>
+        </component>
+    </module-components>
+
     <project-components>
         <component>
             <implementation-class>org.jetbrains.sbt.language.SbtProjectComponent</implementation-class>

@@ -22,7 +22,7 @@ class ProjectNode(val data: ProjectData)
 class ModuleNode(val data: ModuleData)
   extends Node[ModuleData] {
   def this(typeId: String, projectId: String, projectURI: URI, name: String, moduleFileDirectoryPath: String, externalConfigPath: String) {
-    this(new ModuleData(ModuleNode.combinedId(projectId, projectURI), SbtProjectSystem.Id, typeId, name, moduleFileDirectoryPath, externalConfigPath))
+    this(new ModuleData(projectId, SbtProjectSystem.Id, typeId, name, moduleFileDirectoryPath, externalConfigPath))
   }
 
   protected def key: Key[ModuleData] = ProjectKeys.MODULE
@@ -36,7 +36,8 @@ object ModuleNode {
     * @param projectURI project root path or repository url
     * @return
     */
-  def combinedId(projectId: String, projectURI: URI) = if (projectURI != null) f"$projectId [$projectURI]" else projectId
+  def combinedId(projectId: String, projectURI: URI): String =
+    if (projectURI != null) f"$projectId [$projectURI]" else projectId
 }
 
 class LibraryNode(val data: LibraryData)
