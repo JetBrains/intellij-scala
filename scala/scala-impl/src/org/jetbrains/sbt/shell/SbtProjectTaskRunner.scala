@@ -58,10 +58,6 @@ class SbtProjectTaskRunner extends ProjectTaskRunner {
       projectSettings.exists(_.useSbtShell) &&
       ES.isExternalSystemAwareModule(SbtProjectSystem.Id, module)
 
-    case _: ArtifactBuildTask =>
-      // TODO should sbt handle this?
-      false
-
     case _: ExecuteRunConfigurationTask =>
       // TODO this includes tests (and what else?). sbt should handle it and test output should be parsed
       false
