@@ -1,18 +1,21 @@
-package org.jetbrains.plugins.scala.lang.completion
+package org.jetbrains.plugins.scala
+package lang
+package completion
+package clauses
 
 import com.intellij.codeInsight.completion._
 import com.intellij.codeInsight.lookup.{LookupElement, LookupElementWeigher}
 import com.intellij.patterns.PlatformPatterns
 import com.intellij.psi.PsiElement
-import com.intellij.psi.util.PsiTreeUtil
 import com.intellij.util.{Consumer, ProcessingContext}
 import org.jetbrains.plugins.scala.extensions.PsiElementExt
 import org.jetbrains.plugins.scala.lang.completion.lookups.ScalaLookupItem
 import org.jetbrains.plugins.scala.lang.lexer.ScalaTokenTypes
+import org.jetbrains.plugins.scala.lang.psi.api.base.ScReferenceElement
 import org.jetbrains.plugins.scala.lang.psi.api.base.patterns._
 import org.jetbrains.plugins.scala.lang.psi.api.statements.ScFunctionDefinition
 import org.jetbrains.plugins.scala.lang.psi.api.statements.params.ScParameter
-import org.jetbrains.plugins.scala.lang.psi.api.toplevel.typedef.ScObject
+import org.jetbrains.plugins.scala.lang.psi.api.toplevel.typedef.{ScMember, ScObject}
 import org.jetbrains.plugins.scala.lang.psi.impl.ScalaPsiElementFactory
 import org.jetbrains.plugins.scala.lang.refactoring.namesSuggester.NameSuggester
 
@@ -22,33 +25,30 @@ import scala.collection.JavaConverters
   * Created by kate
   * on 1/29/16
   */
-class ScalaCaseClassParametersNameContributor extends ScalaCompletionContributor {
+class CaseClassParametersCompletionContributor extends ScalaCompletionContributor {
+
+  import CaseClassParametersCompletionContributor._
 
   extend(CompletionType.BASIC,
     PlatformPatterns.psiElement,
     new CompletionProvider[CompletionParameters] {
 
-      import PsiTreeUtil.getContextOfType
-
       def addCompletions(parameters: CompletionParameters, context: ProcessingContext, result: CompletionResultSet): Unit = {
         val position = positionFromParameters(parameters)
 
-        val caseClassParameters: Seq[ScParameter] = getContextOfType(position, classOf[ScConstructorPattern]) match {
-          case null => Seq.empty
-          case pattern => pattern.ref.resolve() match {
-            case function: ScFunctionDefinition =>
-              function.syntheticCaseClass match {
-                case Some(caseClass) => caseClass.parameters
-                case _ if function.isUnapplyMethod => function.getParameterList.params
-                case _ => Seq.empty
-              }
-            case _ => Seq.empty
+        val maybeParametersOwner = position.findContextOfType(classOf[ScConstructorPattern]).collect {
+          case ScConstructorPattern(ScReferenceElement(function: ScFunctionDefinition), _) => function
+        }.flatMap { function =>
+          function.syntheticCaseClass.orElse {
+            isUnapplyMethod.unapply(function)
           }
         }
 
+        val caseClassParameters = maybeParametersOwner.toSeq
+          .flatMap(_.parameters)
         if (caseClassParameters.isEmpty) return
 
-        val myPosition = findPosition(position, caseClassParameters.length).getOrElse(-1)
+        val myPosition = findPosition(position, caseClassParameters.length)
 
         val byName = caseClassParameters.map { parameter =>
           (parameter, parameter.name)
@@ -93,13 +93,15 @@ class ScalaCaseClassParametersNameContributor extends ScalaCompletionContributor
         }
       }
 
-      private def findPosition(position: PsiElement, length: Int): Option[Int] =
-        for {
-          pattern <- Option(getContextOfType(position, classOf[ScPattern]))
-          list <- Option(getContextOfType(position, classOf[ScPatternArgumentList]))
+      private def findPosition(position: PsiElement, length: Int): Int = {
+        val maybeIndex = for {
+          pattern <- position.findContextOfType(classOf[ScPattern])
+          list <- position.findContextOfType(classOf[ScPatternArgumentList])
           patterns = list.patterns
           if patterns.length <= length
         } yield patterns.indexOf(pattern)
+        maybeIndex.getOrElse(-1)
+      }
     })
 
   /**
@@ -134,12 +136,23 @@ class ScalaCaseClassParametersNameContributor extends ScalaCompletionContributor
             case _ => Seq.empty
           }
 
-          members.collect {
-            case function: ScFunctionDefinition if function.isUnapplyMethod => function
-          }.foreach { _ =>
-            resultSet.consume(lookupElement)
+          members.foreach {
+            case isUnapplyMethod(_) => resultSet.consume(lookupElement)
+            case _ =>
           }
         }
       }
     })
+}
+
+private object CaseClassParametersCompletionContributor {
+
+  object isUnapplyMethod {
+
+    def unapply(member: ScMember): Option[ScFunctionDefinition] = member match {
+      case function: ScFunctionDefinition if function.isUnapplyMethod => Some(function)
+      case _ => None
+    }
+  }
+
 }
