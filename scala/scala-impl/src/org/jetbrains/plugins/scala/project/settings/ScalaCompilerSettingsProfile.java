@@ -23,6 +23,7 @@ public class ScalaCompilerSettingsProfile {
   }
 
   public void initFrom(ScalaCompilerSettingsProfile profile) {
+    ScalaCompilerConfiguration.incModificationCount();
     myName = profile.getName();
     mySettings = profile.getSettings();
     myModuleNames = new ArrayList<String>(profile.getModuleNames());
@@ -33,10 +34,12 @@ public class ScalaCompilerSettingsProfile {
   }
 
   public void addModuleName(String name) {
+    ScalaCompilerConfiguration.incModificationCount();
     myModuleNames.add(name);
   }
 
   public void removeModuleName(String name) {
+    ScalaCompilerConfiguration.incModificationCount();
     myModuleNames.remove(name);
   }
 
@@ -45,6 +48,7 @@ public class ScalaCompilerSettingsProfile {
   }
 
   public void setSettings(ScalaCompilerSettings settigns) {
+    ScalaCompilerConfiguration.incModificationCount();
     mySettings = settigns;
   }
 

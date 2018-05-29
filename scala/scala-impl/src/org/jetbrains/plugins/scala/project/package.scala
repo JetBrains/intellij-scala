@@ -19,6 +19,7 @@ import org.jetbrains.plugins.scala.caches.CachesUtil
 import org.jetbrains.plugins.scala.extensions._
 import org.jetbrains.plugins.scala.lang.psi.types.ScalaTypeSystem
 import org.jetbrains.plugins.scala.lang.psi.types.api.TypeSystem
+import org.jetbrains.plugins.scala.macroAnnotations.CachedInUserData
 import org.jetbrains.plugins.scala.project.ScalaLanguageLevel.Scala_2_11
 import org.jetbrains.plugins.scala.project.settings.{ScalaCompilerConfiguration, ScalaCompilerSettings}
 
@@ -103,12 +104,14 @@ package object project {
 
     def scalaLanguageLevel: Option[ScalaLanguageLevel] = scalaSdk.map(_.languageLevel)
 
+    @CachedInUserData(module, ScalaCompilerConfiguration.modTracker(module.getProject))
     def literalTypesEnabled: Boolean = scalaSdk.map(_.languageLevel).exists(_ >= ScalaLanguageLevel.Scala_2_13) ||
       compilerConfiguration.hasSettingForHighlighting(module, _.literalTypes)
 
     /**
       * @see https://github.com/non/kind-projector
       */
+    @CachedInUserData(module, ScalaCompilerConfiguration.modTracker(module.getProject))
     def kindProjectorPluginEnabled: Boolean =
       compilerConfiguration.hasSettingForHighlighting(module, _.plugins.exists(_.contains("kind-projector")))
 
@@ -119,6 +122,7 @@ package object project {
       *
       * @return true if language level and flags are correct
       */
+    @CachedInUserData(module, ScalaCompilerConfiguration.modTracker(module.getProject))
     def isSAMEnabled: Boolean = scalaLanguageLevel.exists {
       case lang if lang > Scala_2_11 => true // if scalaLanguageLevel is None, we treat it as Scala 2.12
       case lang if lang == Scala_2_11 =>
@@ -143,8 +147,7 @@ package object project {
     def modifiableModel: ModifiableModuleModel =
       manager.getModifiableModel
 
-    def hasScala: Boolean =
-      modules.exists(_.hasScala)
+    def hasScala: Boolean = modulesWithScala.nonEmpty
 
     def hasDotty: Boolean = {
       val cached = project.getUserData(CachesUtil.PROJECT_HAS_DOTTY_KEY)
@@ -158,6 +161,7 @@ package object project {
       }
     }
 
+    @CachedInUserData(project, ProjectRootManager.getInstance(project))
     def modulesWithScala: Seq[Module] =
       modules.filter(_.hasScala)
 
@@ -165,7 +169,7 @@ package object project {
       modulesWithScala.map(new ScalaModule(_))
 
     def anyScalaModule: Option[ScalaModule] =
-      scalaModules.headOption
+      modulesWithScala.headOption.map(new ScalaModule(_))
 
     def scalaEvents: ScalaProjectEvents =
       project.getComponent(classOf[ScalaProjectEvents])
