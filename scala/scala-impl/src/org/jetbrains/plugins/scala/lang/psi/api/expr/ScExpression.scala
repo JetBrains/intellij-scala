@@ -248,7 +248,7 @@ object ScExpression {
     def expectedTypeEx(fromUnderscore: Boolean = true): Option[ParameterType] =
       ExpectedTypes.instance().expectedExprType(expr, fromUnderscore)
 
-    def expectedTypes(fromUnderscore: Boolean = true): Array[ScType] = expectedTypesEx(fromUnderscore).map(_._1)
+    def expectedTypes(fromUnderscore: Boolean = true): Seq[ScType] = expectedTypesEx(fromUnderscore).map(_._1)
 
     @CachedWithRecursionGuard(expr, Array.empty[ParameterType], ModCount.getBlockModificationCount)
     def expectedTypesEx(fromUnderscore: Boolean = true): Array[ParameterType] = {

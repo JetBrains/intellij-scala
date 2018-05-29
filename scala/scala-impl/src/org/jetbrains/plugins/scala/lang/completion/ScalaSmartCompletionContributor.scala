@@ -606,13 +606,6 @@ class ScalaSmartCompletionContributor extends ScalaCompletionContributor {
 object ScalaSmartCompletionContributor {
   case class ReferenceWithElement[T <: PsiElement](reference: ScReferenceExpression, element: T)
 
-  def isAccessible(el: ScalaLookupItem, place: PsiElement): Boolean = {
-    ScalaPsiUtil.nameContext(el.element) match {
-      case memb: ScMember => ResolveUtils.isAccessible(memb, place, forCompletion = true)
-      case _ => true
-    }
-  }
-
   def extractReference[T <: PsiElement](element: PsiElement): Option[ReferenceWithElement[T]] = {
     element.getContext.asOptionOf[ScReferenceExpression].flatMap { reference =>
       reference.getContext match {

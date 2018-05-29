@@ -55,7 +55,7 @@ object ScalaAfterNewCompletionUtil {
   def isAfterNew(position: PsiElement, location: CompletionLocation): Boolean =
     afterNewPattern.accepts(position, location.getProcessingContext)
 
-  private[this] def expectedTypes(position: PsiElement): Option[(ScNewTemplateDefinition, Array[ScType])] =
+  private[this] def expectedTypes(position: PsiElement): Option[(ScNewTemplateDefinition, Seq[ScType])] =
     PsiTreeUtil.getContextOfType(position, classOf[ScNewTemplateDefinition]) match {
       case null => None
       case context =>
@@ -84,12 +84,12 @@ object ScalaAfterNewCompletionUtil {
       element.name -> (element, name)
     }
 
-  private[this] def appropriateType(expectedTypes: Array[ScType],
-                                    components: (ScDesignatorType, Array[PsiTypeParameter]))
+  private[this] def appropriateType(expectedTypes: Seq[ScType],
+                                    components: (ScDesignatorType, Seq[PsiTypeParameter]))
                                    (implicit context: ProjectContext): (ScType, Boolean) = {
     val (designatorType, parameters) = components
     val maybeParameter = parameters match {
-      case Array(head) => Some(head)
+      case Seq(head) => Some(head)
       case _ => None
     }
 
@@ -243,7 +243,7 @@ object ScalaAfterNewCompletionUtil {
     }
   }
 
-  private[this] def classComponents(clazz: PsiClass): (ScDesignatorType, Array[PsiTypeParameter]) =
+  private[this] def classComponents(clazz: PsiClass): (ScDesignatorType, Seq[PsiTypeParameter]) =
     (ScDesignatorType(clazz), clazz.getTypeParameters)
 
   private[this] def findAppropriateType(types: ScType*)
