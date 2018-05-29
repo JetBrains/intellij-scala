@@ -1639,17 +1639,6 @@ object ScalaPsiUtil {
   }
 
   /**
-    * @see https://github.com/non/kind-projector
-    */
-  def kindProjectorPluginEnabled(e: PsiElement): Boolean = {
-    val plugins = e.module match {
-      case Some(mod) => mod.scalaCompilerSettings.plugins
-      case _ => ScalaCompilerConfiguration.instanceIn(e.getProject).defaultProfile.getSettings.plugins
-    }
-    plugins.exists(_.contains("kind-projector"))
-  }
-
-  /**
     * Determines if expected can be created with a Single Abstract Method and if so return the required ScType for it
     *
     * @see SCL-6140
