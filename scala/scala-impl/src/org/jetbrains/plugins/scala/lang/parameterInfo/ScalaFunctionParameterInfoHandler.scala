@@ -135,7 +135,7 @@ class ScalaFunctionParameterInfoHandler extends ParameterInfoHandlerWithTabActio
         val buffer: StringBuilder = new StringBuilder("")
         var isGrey = false
         def paramText(param: ScParameter, subst: ScSubstitutor) = {
-          ScalaDocumentationProvider.parseParameter(param, escape = false)(subst.subst(_).presentableText)
+          ScalaDocumentationProvider.parseParameter(param, escape = false, memberModifiers = false)(subst.subst(_).presentableText)
         }
         p match {
           case x: String if x == "" =>

@@ -489,7 +489,7 @@ object ScalaDocumentationProvider {
     val buffer: StringBuilder = new StringBuilder(" ")
     for (_ <- 1 to spaces) buffer.append(" ")
     val separator = if (spaces < 0) ", " else ",\n" + buffer
-    elem.parameters.map(parseParameter(_)).
+    elem.parameters.map(parseParameter(_, memberModifiers = false)).
       mkString(if (elem.isImplicit) "(implicit " else "(", separator, ")")
   }
 
@@ -644,19 +644,30 @@ object ScalaDocumentationProvider {
     buffer.toString()
   }
 
-  def parseParameter(param: ScParameter, escape: Boolean = true)
+  // TODO "format", not "parse"?
+  // TODO The method in DocumentationProvider should not be used from... everywhere.
+  def parseParameter(param: ScParameter, escape: Boolean = true, memberModifiers: Boolean = true)
                     (implicit typeToString: ScType => String): String = {
-    val buffer: StringBuilder = new StringBuilder("")
-    buffer.append(parseAnnotations(param, ' ', escape))
-    param match {
-      case cl: ScClassParameter => buffer.append(parseModifiers(cl))
-      case _ =>
+    val member = param match {
+      case c: ScClassParameter => c.isEffectiveVal
+      case _ => false
     }
-    buffer.append(param match {
-      case c: ScClassParameter if c.isVal => "val "
-      case c: ScClassParameter if c.isVar => "var "
-      case _ => ""
-    })
+    val buffer: StringBuilder = new StringBuilder("")
+    // When parameter is val, var, or case class val, annotations are related to member, not to parameter
+    if (!member || memberModifiers) {
+      buffer.append(parseAnnotations(param, ' ', escape))
+    }
+    if (memberModifiers) {
+      param match {
+        case cl: ScClassParameter => buffer.append(parseModifiers(cl))
+        case _ =>
+      }
+      buffer.append(param match {
+        case c: ScClassParameter if c.isVal => "val "
+        case c: ScClassParameter if c.isVar => "var "
+        case _ => ""
+      })
+    }
     buffer.append(if (escape) escapeHtml(param.name) else param.name)
 
     val arrow = ScalaPsiUtil.functionArrow(param.getProject)
