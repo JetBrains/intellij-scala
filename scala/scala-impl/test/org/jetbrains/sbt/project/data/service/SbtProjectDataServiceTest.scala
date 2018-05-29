@@ -1,5 +1,7 @@
 package org.jetbrains.sbt.project.data.service
 
+import java.io.File
+
 import com.intellij.compiler.CompilerConfiguration
 import com.intellij.compiler.impl.javaCompiler.javac.JavacConfiguration
 import com.intellij.openapi.application.ex.ApplicationManagerEx
@@ -14,7 +16,7 @@ import org.jetbrains.plugins.scala.project.IncrementalityType
 import org.jetbrains.plugins.scala.project.settings.ScalaCompilerConfiguration
 import org.jetbrains.plugins.scala.settings.ScalaProjectSettings
 import org.jetbrains.sbt.project.data
-import org.jetbrains.sbt.project.data.{SbtProjectData, SbtProjectNode}
+import org.jetbrains.sbt.project.data.{ModuleNode, SbtProjectData, SbtProjectNode}
 import org.jetbrains.sbt.project.settings.SbtProjectSettings
 import org.jetbrains.sbt.project.sources.SharedSourcesModuleType
 import org.jetbrains.sbt.settings.SbtSystemSettings
@@ -100,8 +102,12 @@ class SbtProjectDataServiceTest extends ProjectDataServiceTestCase {
       linkedProjectPath := getProject.getBasePath
 
       modules += new module {
+        val uri = new File(getProject.getBasePath).toURI
+        val moduleName = "Module 1"
         val typeId: String = SharedSourcesModuleType.instance.getId
-        name := "Module 1"
+        projectId := ModuleNode.combinedId(moduleName, uri)
+        projectURI := uri
+        name := moduleName
         moduleFileDirectoryPath := getProject.getBasePath + "/module1"
         externalConfigPath := getProject.getBasePath + "/module1"
       }

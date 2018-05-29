@@ -1,6 +1,8 @@
 package org.jetbrains.sbt
 package project.data.service
 
+import java.net.URI
+
 import com.intellij.openapi.externalSystem.model.project.LibraryLevel
 import com.intellij.openapi.module.StdModuleTypes
 import org.jetbrains.sbt.project.data._
@@ -48,6 +50,10 @@ object ExternalSystemDataDsl {
 
   val name =
     new Attribute[String]("name") with ProjectAttribute with ModuleAttribute with LibraryAttribute
+  val projectId =
+    new Attribute[String]("projectId") with ProjectAttribute with ModuleAttribute
+  val projectURI =
+    new Attribute[URI]("projectUri") with ProjectAttribute with ModuleAttribute
   val ideDirectoryPath =
     new Attribute[String]("ideDirectoryPath") with ProjectAttribute
   val linkedProjectPath =
@@ -124,8 +130,10 @@ object ExternalSystemDataDsl {
     val typeId: String
 
     def build: ModuleNode = {
-      val node = new ModuleNode(typeId,
-        attributes.getOrFail(name),
+      val node = new ModuleNode(
+        typeId,
+        attributes.getOrFail(projectId),
+        attributes.getOrFail(projectURI),
         attributes.getOrFail(name),
         attributes.getOrFail(moduleFileDirectoryPath),
         attributes.getOrFail(externalConfigPath)
@@ -155,7 +163,7 @@ object ExternalSystemDataDsl {
   }
 
   class javaModule extends module {
-    val typeId = StdModuleTypes.JAVA.getId
+    val typeId: String = StdModuleTypes.JAVA.getId
   }
 
   class library {

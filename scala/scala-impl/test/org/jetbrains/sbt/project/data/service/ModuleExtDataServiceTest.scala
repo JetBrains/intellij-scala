@@ -187,7 +187,11 @@ class ModuleExtDataServiceTest extends ProjectDataServiceTestCase with UsefulTes
       libraries ++= Seq(evictedScalaLibrary, newScalaLibrary)
 
       modules += new javaModule {
-        name := "Module 1"
+        val uri = new File(getProject.getBasePath).toURI
+        val moduleName = "Module 1"
+        projectId := ModuleNode.combinedId(moduleName, uri)
+        projectURI := uri
+        name := moduleName
         moduleFileDirectoryPath := getProject.getBasePath + "/module1"
         externalConfigPath := getProject.getBasePath + "/module1"
         libraryDependencies += newScalaLibrary
@@ -222,7 +226,11 @@ class ModuleExtDataServiceTest extends ProjectDataServiceTestCase with UsefulTes
       scalaLibrary.foreach(libraries += _)
 
       modules += new javaModule {
-        name := "Module 1"
+        val uri = new File(getProject.getBasePath).toURI
+        val moduleName = "Module 1"
+        projectId := ModuleNode.combinedId(moduleName, uri)
+        projectURI := uri
+        name := moduleName
         moduleFileDirectoryPath := getProject.getBasePath + "/module1"
         externalConfigPath := getProject.getBasePath + "/module1"
         scalaLibrary.foreach(libraryDependencies += _)

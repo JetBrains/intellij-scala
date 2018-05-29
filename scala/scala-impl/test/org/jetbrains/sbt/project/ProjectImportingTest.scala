@@ -1,10 +1,17 @@
 package org.jetbrains.sbt
 package project
 
+import java.io.File
+import java.net.URI
+
 import org.jetbrains.plugins.scala.{DependencyManager, SlowTests}
 import org.jetbrains.sbt.project.ProjectStructureDsl._
 import org.junit.experimental.categories.Category
 import org.jetbrains.plugins.scala.DependencyManagerBase._
+import org.jetbrains.sbt.project.data.ModuleNode
+import ModuleNode._
+import ProjectImportingTest._
+import org.junit.Ignore
 
 @Category(Array(classOf[SlowTests]))
 class ProjectImportingTest extends ImportingTestCase with InexactMatch {
@@ -91,21 +98,62 @@ class ProjectImportingTest extends ImportingTestCase with InexactMatch {
     }
   )
 
+  /**
+    * SCL-12520: Generate shared sources module when it is only used form a single other module
+    */
   def testSCL12520(): Unit = runTest(
     new project("scl12520") {
+
+      val projectURI: URI = getProjectPath.toURI
 
       val sharedModule: module = new module("p1-sources") {
         contentRoots += getProjectPath + "/p1/shared"
       }
-      val jvmModule: module = new module("p1JVM") {
+
+      val jvmModule: module = new module("p1") {
         moduleDependencies += sharedModule
         contentRoots += getProjectPath + "/p1/jvm"
       }
+      val jvmBuildModule: module = new module("p1JVM-build") {}
 
       val rootModule: module = new module("scl12520") {}
+      val rootBuildModule: module = new module("scl12520-build") {}
 
-
-      modules := Seq(sharedModule, rootModule, jvmModule)
+      modules := Seq(sharedModule, rootModule, rootBuildModule, jvmModule, jvmBuildModule)
     }
   )
+
+  /**
+    * SCL-13600: generate all modules when there is a duplicate project id in the sbt build
+    * due to references to different builds, or multiple sbt projects being imported independently from IDEA
+    */
+  @Ignore("probably failing due to external system bug")
+  def testSCL13600(): Unit = runTest(
+
+    new project("scl13600") {
+      lazy val base: module = new module("root") {
+        moduleDependencies += new dependency(c1) {
+          isExported := true
+        }
+        moduleDependencies += new dependency(c2) {
+          isExported := true
+        }
+      }
+
+      lazy val c1  = new module("root")
+      lazy val c2 = new module("root")
+
+      modules := Seq(base,c1,c2)
+    }
+  )
+}
+
+object ProjectImportingTest {
+  implicit class StringOps(str: String) {
+    def toURI: URI = new File(str).getCanonicalFile.toURI
+    def internalName: String = str.replaceAll("(/|\\\\)", "_")
+    def projectId(uri: URI): String = combinedId(str, uri)
+    def projectName(uri: URI): String = str.projectId(uri).internalName
+  }
+
 }
