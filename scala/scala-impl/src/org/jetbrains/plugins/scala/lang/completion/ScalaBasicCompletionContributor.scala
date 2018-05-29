@@ -13,7 +13,6 @@ import org.jetbrains.plugins.scala.extensions._
 import org.jetbrains.plugins.scala.lang.completion.ScalaAfterNewCompletionUtil._
 import org.jetbrains.plugins.scala.lang.completion.ScalaCompletionUtil._
 import org.jetbrains.plugins.scala.lang.completion.lookups.ScalaLookupItem
-import org.jetbrains.plugins.scala.lang.completion.weighter.ScalaCompletionSorting._
 import org.jetbrains.plugins.scala.lang.lexer.{ScalaLexer, ScalaTokenTypes}
 import org.jetbrains.plugins.scala.lang.psi.ScalaPsiUtil
 import org.jetbrains.plugins.scala.lang.psi.api.ScalaFile
@@ -41,16 +40,6 @@ import scala.collection.{JavaConverters, mutable}
   * @author Alexander Podkhalyuzin
   *         Date: 16.05.2008
   */
-abstract class ScalaCompletionContributor extends CompletionContributor {
-
-  override def fillCompletionVariants(parameters: CompletionParameters, result: CompletionResultSet): Unit = {
-    val updatedSet = result
-      .withBacktickMatcher()
-      .withScalaSorting(parameters)
-    super.fillCompletionVariants(parameters, updatedSet)
-  }
-}
-
 class ScalaBasicCompletionContributor extends ScalaCompletionContributor {
 
   import ScalaBasicCompletionContributor._
