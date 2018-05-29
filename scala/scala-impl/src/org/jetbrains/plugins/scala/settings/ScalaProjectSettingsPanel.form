@@ -36,7 +36,7 @@
                 </constraints>
                 <properties>
                   <selected value="true"/>
-                  <text value="Highlight methods added via implicit conversion in code completion dialog"/>
+                  <text value="Highlight implicit conversions"/>
                 </properties>
               </component>
               <component id="baabc" class="javax.swing.JCheckBox" binding="showArgumentsToByNameParametersCheckBox">

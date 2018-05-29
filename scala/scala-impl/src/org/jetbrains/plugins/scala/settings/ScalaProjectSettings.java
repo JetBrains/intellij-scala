@@ -35,7 +35,7 @@ public class ScalaProjectSettings  implements PersistentStateComponent<ScalaProj
   private boolean ENABLE_JAVA_TO_SCALA_CONVERSION = true;
   private boolean ADD_OVERRIDE_TO_IMPLEMENT_IN_CONVERTER = true;
   private boolean DONT_SHOW_CONVERSION_DIALOG = false;
-  private boolean SHOW_IMPLICIT_CONVERSIONS = true;
+  private boolean SHOW_IMPLICIT_CONVERSIONS = false;
 
   private boolean SHOW_ARGUMENTS_TO_BY_NAME_PARAMETERS = false;
   private boolean INCLUDE_BLOCK_EXPRESSIONS = false;

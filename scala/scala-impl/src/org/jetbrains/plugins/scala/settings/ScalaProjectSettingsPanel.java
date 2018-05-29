@@ -435,7 +435,7 @@ public class ScalaProjectSettingsPanel {
         panel1.add(spacer1, new GridConstraints(15, 0, 1, 1, GridConstraints.ANCHOR_CENTER, GridConstraints.FILL_VERTICAL, 1, GridConstraints.SIZEPOLICY_WANT_GROW, null, null, null, 0, false));
         showImplicitConversionsInCheckBox = new JCheckBox();
         showImplicitConversionsInCheckBox.setSelected(true);
-        showImplicitConversionsInCheckBox.setText("Highlight methods added via implicit conversion in code completion dialog");
+        showImplicitConversionsInCheckBox.setText("Highlight implicit conversions");
         panel1.add(showImplicitConversionsInCheckBox, new GridConstraints(2, 0, 1, 2, GridConstraints.ANCHOR_WEST, GridConstraints.FILL_NONE, GridConstraints.SIZEPOLICY_CAN_SHRINK | GridConstraints.SIZEPOLICY_CAN_GROW, GridConstraints.SIZEPOLICY_FIXED, null, null, null, 0, false));
         showArgumentsToByNameParametersCheckBox = new JCheckBox();
         showArgumentsToByNameParametersCheckBox.setSelected(true);

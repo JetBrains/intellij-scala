@@ -837,10 +837,12 @@ abstract class ScalaAnnotator extends Annotator
 
   private def highlightImplicitView(expr: ScExpression, fun: PsiNamedElement, typeTo: ScType,
                                     elementToHighlight: PsiElement, holder: AnnotationHolder) {
-    val range = elementToHighlight.getTextRange
-    val annotation: Annotation = holder.createInfoAnnotation(range, null)
-    annotation.setTextAttributes(DefaultHighlighter.IMPLICIT_CONVERSIONS)
-    annotation.setAfterEndOfLine(false)
+    if (ScalaProjectSettings.getInstance(elementToHighlight.getProject).isShowImplisitConversions) {
+      val range = elementToHighlight.getTextRange
+      val annotation: Annotation = holder.createInfoAnnotation(range, null)
+      annotation.setTextAttributes(DefaultHighlighter.IMPLICIT_CONVERSIONS)
+      annotation.setAfterEndOfLine(false)
+    }
   }
 
   private def checkSelfInvocation(self: ScSelfInvocation, holder: AnnotationHolder) {
