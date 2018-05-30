@@ -29,7 +29,10 @@ trait Symbol extends Flags with Entry {
     case _ => false
   }
 
-  def path: String = parent.filterNot(_ == NoSymbol).map(_.path + ".").getOrElse("") + name
+  lazy val path: String = parent match {
+    case Some(NoSymbol) | None => name
+    case Some(sym) => s"${sym.path}.$name"
+  }
 }
 
 abstract class ScalaSigSymbol(scalaSig: ScalaSig) extends Symbol {
@@ -38,7 +41,7 @@ abstract class ScalaSigSymbol(scalaSig: ScalaSig) extends Symbol {
 }
 
 abstract class SymbolInfoSymbol(val symbolInfo: SymbolInfo) extends ScalaSigSymbol(symbolInfo.name.scalaSig) {
-  def name: String = symbolInfo.name.get.value.trim
+  lazy val name: String = symbolInfo.name.get.value.trim
   def parentRef: Option[Ref[Symbol]] = Some(symbolInfo.owner)
   def hasFlag(flag: Long): Boolean = (symbolInfo.flags & flag) != 0L
   def infoType: Type = symbolInfo.info.get
@@ -74,7 +77,7 @@ case class ExternalSymbol(nameRef: Ref[Name], ownerRef: Option[Ref[Symbol]], isO
 
   def hasFlag(flag: Long) = false
 
-  override def name: String = nameRef.value
+  override lazy val name: String = nameRef.value
 
   override def parentRef: Option[Ref[Symbol]] = ownerRef
 }

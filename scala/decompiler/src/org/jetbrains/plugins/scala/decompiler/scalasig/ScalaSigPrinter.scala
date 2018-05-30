@@ -11,12 +11,11 @@ package org.jetbrains.plugins.scala.decompiler.scalasig
 import java.lang.StringBuilder
 import java.util.regex.Pattern
 
-import org.apache.commons.lang.StringEscapeUtils
+import org.apache.commons.lang.{StringEscapeUtils, StringUtils}
 
 import scala.annotation.{switch, tailrec}
 import scala.collection.mutable
 import scala.reflect.NameTransformer
-import scala.tools.scalap.scalax.util.StringUtil
 
 sealed abstract class Verbosity
 case object ShowAll extends Verbosity
@@ -304,11 +303,12 @@ class ScalaSigPrinter(builder: StringBuilder, verbosity: Verbosity) {
 
   private def methodSymbolAsClassParam(msymb: MethodSymbol, c: ClassSymbol): String = {
     val printer = new ScalaSigPrinter(new StringBuilder(), verbosity)
+    val methodName = msymb.name
     val paramAccessors = c.children.filter {
-      case ms: MethodSymbol if ms.isParamAccessor && ms.name.startsWith(msymb.name) => true
+      case ms: MethodSymbol if ms.isParamAccessor && ms.name.startsWith(methodName) => true
       case _ => false
     }
-    val isMutable = paramAccessors.exists(_.name == setterName(msymb))
+    val isMutable = paramAccessors.exists(acc => isSetterFor(acc.name, methodName))
     val toPrint = paramAccessors.find(m => !m.isPrivate || !m.isLocal)
     toPrint match {
       case Some(ms) =>
@@ -319,7 +319,7 @@ class ScalaSigPrinter(builder: StringBuilder, verbosity: Verbosity) {
       case _ =>
     }
 
-    val nameAndType = processName(msymb.name) + " : " + toString(msymb.infoType)(TypeFlags(true))
+    val nameAndType = processName(methodName) + " : " + toString(msymb.infoType)(TypeFlags(true))
     val default = if (msymb.hasDefault) " = { /* compiled code */ }" else ""
     printer.print(nameAndType + default)
     printer.result
@@ -380,16 +380,16 @@ class ScalaSigPrinter(builder: StringBuilder, verbosity: Verbosity) {
     val n = m.name
     if (underObject(m) && n == CONSTRUCTOR_NAME) return
     if (underTrait(m) && n == INIT_NAME) return
-    if (n.matches(".+\\$default\\$\\d+")) return // skip default function parameters
+    if (n.isDefaultParameterMethodName) return // skip default function parameters
     if (n.startsWith("super$")) return // do not print auxiliary qualified super accessors
-    if (m.isAccessor && n.endsWith("_$eq")) return
+    if (m.isAccessor && n.endsWith(setterSuffix)) return
     if (m.isParamAccessor) return //do not print class parameters
     if (n.startsWith("<local ")) return //isLocalDummy whatever, see scala.reflect.internal.StdNames.TermNames.LOCALDUMMY_PREFIX
     indent()
     printModifiers(m)
     if (m.isAccessor) {
       val indexOfSetter = m.parent.get.children.indexWhere {
-        case ms: MethodSymbol => ms.name == setterName(m)
+        case ms: MethodSymbol => isSetterFor(ms.name, m.name)
         case _ => false
       }
       val keywords = if (indexOfSetter > 0) "var " else if (m.isLazy) "lazy val " else "val "
@@ -502,17 +502,17 @@ class ScalaSigPrinter(builder: StringBuilder, verbosity: Verbosity) {
       case SingleType(Ref(ThisType(Ref(exSymbol: ExternalSymbol))), symbol) if exSymbol.name == "<root>" =>
         sep + processName(symbol.name) + ".type"
       case SingleType(Ref(ThisType(Ref(exSymbol: ExternalSymbol))), Ref(symbol)) =>
-        sep + StringUtil.cutSubstring(StringUtil.trimStart(processName(exSymbol.path), "<empty>."))(".`package`") + "." +
+        sep + processName(exSymbol.path).stripPrefix("<empty>.").removeDotPackage + "." +
           processName(symbol.name) + ".type"
       case SingleType(Ref(NoPrefixType), Ref(symbol)) =>
         sep + processName(symbol.name) + ".type"
       case SingleType(typeRef, symbol) =>
         var typeRefString = toString(typeRef, level)
         if (typeRefString.endsWith(".type")) typeRefString = typeRefString.dropRight(5)
-        typeRefString = StringUtil.cutSubstring(typeRefString)(".`package`")
+        typeRefString = typeRefString.removeDotPackage
         sep + typeRefString + "." + processName(symbol.name) + ".type"
       case ConstantType(Ref(Constant(constant))) =>
-        def className(c: Class[_]) = c.getComponentType.getCanonicalName.replace("$", ".")
+        def className(c: Class[_]) = c.getComponentType.getCanonicalName.replace('$', '.')
         val typeText = constant match {
           case null                                         => "scala.Null"
           case _: Unit                                      => "scala.Unit"
@@ -579,7 +579,7 @@ class ScalaSigPrinter(builder: StringBuilder, verbosity: Verbosity) {
                 case _ => processName(name) + "."
               }
             case (ThisType(packSymbol), _, _) if !packSymbol.isType =>
-              processName(packSymbol.path.replace("<root>", "_root_")) + "."
+              processName(packSymbol.path.fixRoot) + "."
             case (ThisType(Ref(classSymbol: ClassSymbol)), _, _) if refinementClass(classSymbol) => ""
             case (ThisType(Ref(typeSymbol: ClassSymbol)), ExternalSymbol(_, Some(parent), _), _)
               if typeSymbol.path != parent.path && checkContainsSelf(typeSymbol.thisTypeRef, parent) =>
@@ -590,7 +590,7 @@ class ScalaSigPrinter(builder: StringBuilder, verbosity: Verbosity) {
             case (_, _, a) => a + "#"
           }
           //remove package object reference
-          val path = StringUtil.cutSubstring(prefixStr)(".`package`")
+          val path = prefixStr.removeDotPackage
           val name = processName(symbol.name)
           val res = path + name
           val typeBounds = if (name == "_") {
@@ -612,7 +612,7 @@ class ScalaSigPrinter(builder: StringBuilder, verbosity: Verbosity) {
               case _ => ""
             }
           } else ""
-          val ress = StringUtil.trimStart(res, "<empty>.") + typeArgString(typeArgs, level) + typeBounds
+          val ress = res.stripPrefix("<empty>.") + typeArgString(typeArgs, level) + typeBounds
           ress
       })
       case TypeBoundsType(lower, upper) =>
@@ -669,7 +669,7 @@ class ScalaSigPrinter(builder: StringBuilder, verbosity: Verbosity) {
 
   def typeArgString(typeArgs: Seq[Type], level: Int): String =
     if (typeArgs.isEmpty) ""
-    else typeArgs.map(toString(_, level)).map(StringUtil.trimStart(_, "=> ")).mkString("[", ", ", "]")
+    else typeArgs.map(toString(_, level)).map(_.stripPrefix("=> ")).mkString("[", ", ", "]")
 
   def typeParamString(params: Seq[Symbol]): String =
     if (params.isEmpty) ""
@@ -686,81 +686,104 @@ object ScalaSigPrinter {
       "yield")
 
   def processName(name: String): String = {
-    def processNameWithoutDot(name: String): String = {
-      def isIdentifier(id: String): Boolean = {
-        //following four methods is the same like in scala.tools.nsc.util.Chars class
-        /** Can character start an alphanumeric Scala identifier? */
-        def isIdentifierStart(c: Char): Boolean =
-          (c == '_') || (c == '$') || Character.isUnicodeIdentifierStart(c)
+    name
+      .stripPrivatePrefix
+      .decode
+      .fixPlaceholderNames
+      .fixExistentialTypeParamName
+      .escapeNonIdentifiersInPath
+  }
 
-        /** Can character form part of an alphanumeric Scala identifier? */
-        def isIdentifierPart(c: Char) =
-          (c == '$') || Character.isUnicodeIdentifierPart(c)
+  private def isSetterFor(setterName: String, methodName: String) = {
+    val correctLength = setterName.length == methodName.length + setterSuffix.length
+    correctLength && setterName.startsWith(methodName) && setterName.endsWith(setterSuffix)
+  }
 
-        /** Is character a math or other symbol in Unicode?  */
-        def isSpecial(c: Char) = {
-          val chtp = Character.getType(c)
-          chtp == Character.MATH_SYMBOL.toInt || chtp == Character.OTHER_SYMBOL.toInt
-        }
+  private val setterSuffix = "_$eq"
 
-        /** Can character form part of a Scala operator name? */
-        def isOperatorPart(c : Char) : Boolean = (c: @switch) match {
-          case '~' | '!' | '@' | '#' | '%' |
-               '^' | '*' | '+' | '-' | '<' |
-               '>' | '?' | ':' | '=' | '&' |
-               '|' | '/' | '\\' => true
-          case _ => isSpecial(c)
-        }
+  private val placeholderPattern = Pattern.compile("_\\$(\\d)+")
 
-        def hasCommentStart(s: String) = s.contains("//") || s.contains("/*")
+  private val defaultParamMarker = "$default$"
 
-        if (id.isEmpty || hasCommentStart(id)) return false
+  implicit class StringFixes(val str: String) extends AnyVal {
+    def decode: String = NameTransformer.decode(str)
 
-        if (isIdentifierStart(id(0))) {
-          if (id.indexWhere(c => !isIdentifierPart(c) && !isOperatorPart(c) && c != '_') >= 0) return false
-          val index = id.indexWhere(isOperatorPart)
-          if (index < 0) return true
-          if (id(index - 1) != '_') return false
-          id.drop(index).forall(isOperatorPart)
-        } else if (isOperatorPart(id(0))) {
-          id.forall(isOperatorPart)
-        } else false
-      }
-      val result = NameTransformer.decode(name)
-      if (!isIdentifier(result) || keywordList.contains(result) || result == "=") "`" + result + "`" else result
+    //noinspection MutatorLikeMethodIsParameterless
+    def removeDotPackage: String = StringUtils.replace(str, ".`package`", "")
+
+    def fixRoot: String = StringUtils.replace(str, "<root>", "_root_")
+
+    def stripPrivatePrefix: String = {
+      val i = str.lastIndexOf("$$")
+      if (i > 0) str.substring(i + 2) else str
     }
-
-    val stripped = stripPrivatePrefix(name)
-    val m = pattern.matcher(stripped)
-    var temp = stripped
-    while (m.find) {
-      val key = m.group
-      val re = "\\" + key
-      temp = temp.replaceAll(re, _syms(re))
-    }
-
-    val placeholderPattern = "_\\$(\\d)+"
-    var result = temp.replaceAll(placeholderPattern, "_")
 
     //to avoid names like this one: ?0 (from existential type parameters)
-    if (result.length() > 1 && result(0) == '?' && result(1).isDigit) result = "x" + result.substring(1)
-    result.split('.').map(s => processNameWithoutDot(s)).mkString(".")
+    def fixExistentialTypeParamName: String = {
+      if (str.length() > 1 && str(0) == '?' && str(1).isDigit) "x" + str.substring(1)
+      else str
+    }
+
+    def fixPlaceholderNames: String = {
+      if (str.indexOf('_') < 0) str //optimization
+      else placeholderPattern.matcher(str).replaceAll("_")
+    }
+
+    def escapeNonIdentifiersInPath: String = {
+      if (str.indexOf('.') < 0) escapeNonIdentifiers
+      else str.split('.').map(_.escapeNonIdentifiers).mkString(".")
+    }
+
+    def escapeNonIdentifiers: String = {
+      if (!isIdentifier(str) || keywordList.contains(str) || str == "=") "`" + str + "`"
+      else str
+    }
+
+    def isDefaultParameterMethodName: Boolean = {
+      val idx = str.indexOf(defaultParamMarker)
+      val afterMarker = idx + defaultParamMarker.length
+
+      idx > 0 && str.length > afterMarker && str.charAt(afterMarker).isDigit
+    }
   }
 
-  private def stripPrivatePrefix(name: String): String = {
-    val i = name.lastIndexOf("$$")
-    if (i > 0) name.substring(i + 2) else name
+  private def isIdentifier(id: String): Boolean = {
+    //following four methods is the same like in scala.tools.nsc.util.Chars class
+    /** Can character start an alphanumeric Scala identifier? */
+    def isIdentifierStart(c: Char): Boolean =
+      (c == '_') || (c == '$') || Character.isUnicodeIdentifierStart(c)
+
+    /** Can character form part of an alphanumeric Scala identifier? */
+    def isIdentifierPart(c: Char) =
+      (c == '$') || Character.isUnicodeIdentifierPart(c)
+
+    /** Is character a math or other symbol in Unicode?  */
+    def isSpecial(c: Char) = {
+      val chtp = Character.getType(c)
+      chtp == Character.MATH_SYMBOL.toInt || chtp == Character.OTHER_SYMBOL.toInt
+    }
+
+    /** Can character form part of a Scala operator name? */
+    def isOperatorPart(c : Char) : Boolean = (c: @switch) match {
+      case '~' | '!' | '@' | '#' | '%' |
+           '^' | '*' | '+' | '-' | '<' |
+           '>' | '?' | ':' | '=' | '&' |
+           '|' | '/' | '\\' => true
+      case _ => isSpecial(c)
+    }
+
+    def hasCommentStart(s: String) = s.contains("//") || s.contains("/*")
+
+    if (id.isEmpty || hasCommentStart(id)) return false
+
+    if (isIdentifierStart(id(0))) {
+      if (id.indexWhere(c => !isIdentifierPart(c) && !isOperatorPart(c) && c != '_') >= 0) return false
+      val index = id.indexWhere(isOperatorPart)
+      if (index < 0) return true
+      if (id(index - 1) != '_') return false
+      id.drop(index).forall(isOperatorPart)
+    } else if (isOperatorPart(id(0))) {
+      id.forall(isOperatorPart)
+    } else false
   }
-
-  private def setterName(m: MethodSymbol) = m.name + "_$eq"
-
-  val _syms = Map("\\$bar" -> "|", "\\$tilde" -> "~",
-    "\\$bang" -> "!", "\\$up" -> "^", "\\$plus" -> "+",
-    "\\$minus" -> "-", "\\$eq" -> "=", "\\$less" -> "<",
-    "\\$times" -> "*", "\\$div" -> "/", "\\$bslash" -> "\\\\",
-    "\\$greater" -> ">", "\\$qmark" -> "?", "\\$percent" -> "%",
-    "\\$amp" -> "&", "\\$colon" -> ":", "\\$u2192" -> "→",
-    "\\$hash" -> "#")
-
-  val pattern: Pattern = Pattern.compile(_syms.keys.foldLeft("")((x, y) => if (x == "") y else x + "|" + y))
 }
