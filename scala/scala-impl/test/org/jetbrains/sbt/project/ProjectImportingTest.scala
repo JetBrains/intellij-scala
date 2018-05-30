@@ -127,9 +127,7 @@ class ProjectImportingTest extends ImportingTestCase with InexactMatch {
     * SCL-13600: generate all modules when there is a duplicate project id in the sbt build
     * due to references to different builds, or multiple sbt projects being imported independently from IDEA
     */
-  @Ignore("probably failing due to external system bug")
   def testSCL13600(): Unit = runTest(
-
     new project("scl13600") {
       lazy val base: module = new module("root") {
         moduleDependencies += new dependency(c1) {
@@ -151,9 +149,6 @@ class ProjectImportingTest extends ImportingTestCase with InexactMatch {
 object ProjectImportingTest {
   implicit class StringOps(str: String) {
     def toURI: URI = new File(str).getCanonicalFile.toURI
-    def internalName: String = str.replaceAll("(/|\\\\)", "_")
-    def projectId(uri: URI): String = combinedId(str, uri)
-    def projectName(uri: URI): String = str.projectId(uri).internalName
   }
 
 }

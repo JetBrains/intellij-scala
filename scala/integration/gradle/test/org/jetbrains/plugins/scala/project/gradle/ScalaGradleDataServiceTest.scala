@@ -1,6 +1,7 @@
 package org.jetbrains.plugins.scala.project.gradle
 
 import java.io.File
+import java.net.URI
 import java.util
 
 import com.intellij.openapi.externalSystem.model.project.ProjectData
@@ -40,8 +41,13 @@ class ScalaGradleDataServiceTest extends ProjectDataServiceTestCase with UsefulT
 
       scalaLibrary.foreach(libraries += _)
 
+      val myProjectURI: URI = new File(getProject.getBasePath).getCanonicalFile.toURI
+
       modules += new javaModule {
-        name := "module"
+        val moduleName = "module"
+        name := moduleName
+        projectId := moduleName
+        projectURI := myProjectURI
         moduleFileDirectoryPath := getProject.getBasePath + "/module"
         externalConfigPath := getProject.getBasePath + "/module"
 
@@ -66,8 +72,11 @@ class ScalaGradleDataServiceTest extends ProjectDataServiceTestCase with UsefulT
       }
 
       if (separateModules) {
-        val productionModule = new javaModule {
-          name := "module_main"
+        val productionModule: javaModule = new javaModule {
+          val moduleName = "module_main"
+          name := moduleName
+          projectId := moduleName
+          projectURI := myProjectURI
           moduleFileDirectoryPath := getProject.getBasePath + "/module"
           externalConfigPath := getProject.getBasePath + "/module"
 
@@ -77,7 +86,10 @@ class ScalaGradleDataServiceTest extends ProjectDataServiceTestCase with UsefulT
         modules += productionModule
 
         modules += new javaModule {
-          name := "module_test"
+          val moduleName = "module_test"
+          name := moduleName
+          projectId := moduleName
+          projectURI := myProjectURI
           moduleFileDirectoryPath := getProject.getBasePath + "/module"
           externalConfigPath := getProject.getBasePath + "/module"
 
