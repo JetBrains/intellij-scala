@@ -64,7 +64,7 @@ class ResolveProcessor(override val kinds: Set[ResolveTargets.Value],
       precedence = i
     }
 
-    override implicit def toRepresentation(result: ScalaResolveResult): String =
+    override def toRepresentation(result: ScalaResolveResult): String =
       ResolveProcessor.toStringRepresentation(result)
   }
 

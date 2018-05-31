@@ -23,7 +23,7 @@ abstract class ImplicitProcessor(kinds: Set[Value], withoutPrecedence: Boolean)
 
   override protected val holder: TopPrecedenceHolder[String] = new TopPrecedenceHolderImpl[String] {
 
-    override def toRepresentation(result: ScalaResolveResult): String = result
+    override def toRepresentation(result: ScalaResolveResult): String = result.nameInScope
   }
 
   protected val levelMap: util.HashMap[String, util.HashSet[ScalaResolveResult]] = new util.HashMap[String, util.HashSet[ScalaResolveResult]]()
@@ -33,8 +33,7 @@ abstract class ImplicitProcessor(kinds: Set[Value], withoutPrecedence: Boolean)
   }
 
   override protected def getLevelSet(result: ScalaResolveResult): util.HashSet[ScalaResolveResult] = {
-    import holder.toRepresentation
-    val qualifiedName: String = result
+    val qualifiedName: String = holder.toRepresentation(result)
     var levelSet = levelMap.get(qualifiedName)
     if (levelSet == null) {
       levelSet = new util.HashSet[ScalaResolveResult]

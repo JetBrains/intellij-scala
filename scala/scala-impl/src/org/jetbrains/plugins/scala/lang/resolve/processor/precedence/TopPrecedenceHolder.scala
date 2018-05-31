@@ -22,11 +22,7 @@ trait TopPrecedenceHolder[Repr] {
                (precedence: ScalaResolveResult => Int): Boolean =
     precedence(left) < apply(right)
 
-  implicit def toRepresentation(result: ScalaResolveResult): Repr
-
-  protected implicit def toStringRepresentation(result: ScalaResolveResult): String =
-    result.isRenamed
-      .getOrElse(result.name)
+  def toRepresentation(result: ScalaResolveResult): Repr
 }
 
 abstract class TopPrecedenceHolderImpl[Repr] extends TopPrecedenceHolder[Repr] {
@@ -35,15 +31,15 @@ abstract class TopPrecedenceHolderImpl[Repr] extends TopPrecedenceHolder[Repr] {
     .withDefaultValue(0)
 
   override def apply(result: ScalaResolveResult): Int =
-    precedences(result)
+    precedences(toRepresentation(result))
 
   override def update(result: ScalaResolveResult, i: Int): Unit = {
-    precedences(result) = i
+    precedences(toRepresentation(result)) = i
   }
 
   override def filterNot(left: ScalaResolveResult,
                          right: ScalaResolveResult)
                         (precedence: ScalaResolveResult => Int): Boolean =
-    (left: Repr) == (right: Repr) &&
+    toRepresentation(left) == toRepresentation(right) &&
       super.filterNot(left, right)(precedence)
 }

@@ -56,8 +56,8 @@ class CompletionProcessor(override val kinds: Set[ResolveTargets.Value],
 
   override protected val holder: TopPrecedenceHolder[(String, Boolean)] = new TopPrecedenceHolderImpl[(String, Boolean)] {
 
-    override implicit def toRepresentation(result: ScalaResolveResult): (String, Boolean) =
-      (result, result.isNamedParameter)
+    override def toRepresentation(result: ScalaResolveResult): (String, Boolean) =
+      (result.nameInScope, result.isNamedParameter)
   }
 
   private val signatures = mutable.HashSet[Signature]()

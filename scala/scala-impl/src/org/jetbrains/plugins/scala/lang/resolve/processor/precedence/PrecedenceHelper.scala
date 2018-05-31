@@ -62,8 +62,7 @@ trait PrecedenceHelper[Repr] {
     if (results.isEmpty) return true
     val result: ScalaResolveResult = results.head
 
-    import holder.toRepresentation
-    lazy val qualifiedName: Repr = result
+    lazy val qualifiedName: Repr = holder.toRepresentation(result)
     lazy val levelSet = getLevelSet(result)
 
     def addResults() {

@@ -134,6 +134,8 @@ class ScalaResolveResult(val element: PsiNamedElement,
     s"""$name [${problems.mkString(", ")}]"""
   }
 
+  def nameInScope: String = isRenamed.getOrElse(name)
+
   private var precedence = -1
 
   /**
