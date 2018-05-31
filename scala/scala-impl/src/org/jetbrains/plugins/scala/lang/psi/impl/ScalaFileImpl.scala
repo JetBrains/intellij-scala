@@ -88,73 +88,77 @@ class ScalaFileImpl(viewProvider: FileViewProvider, fileType: LanguageFileType =
   override def getNavigationElement: PsiElement = {
     if (!isCompiled) this
     else {
-      val inner: String = getPackageNameInner
-      val pName = inner + typeDefinitions.find(_.isPackageObject).map((if (inner.length > 0) "." else "") + _.name).getOrElse("")
-      val sourceFile = sourceName
-      val relPath = if (pName.length == 0) sourceFile else pName.replace(".", "/") + "/" + sourceFile
+      findSourceForCompiledFile
+        .flatMap(vf => getManager.findFile(vf).toOption)
+        .getOrElse(this)
+    }
+  }
 
-      // Look in libraries' sources
-      val vFile = getContainingFile.getVirtualFile
-      val index = ProjectRootManager.getInstance(getProject).getFileIndex
-      val entries = index.getOrderEntriesForFile(vFile).toArray(OrderEntry.EMPTY_ARRAY)
-      var entryIterator = entries.iterator
-      while (entryIterator.hasNext) {
-        val entry = entryIterator.next()
-        // Look in sources of an appropriate entry
-        val files = entry.getFiles(OrderRootType.SOURCES)
-        val filesIterator = files.iterator
-        while (filesIterator.nonEmpty) {
-          val file = filesIterator.next()
-          val source = file.findFileByRelativePath(relPath)
-          if (source != null) {
-            val psiSource = getManager.findFile(source)
-            psiSource match {
-              case o: PsiClassOwner => return o
-              case _ =>
-            }
-          }
-        }
-      }
-      entryIterator = entries.iterator
+  @CachedInsidePsiElement(this, ProjectRootManager.getInstance(getProject))
+  private def findSourceForCompiledFile: Option[VirtualFile] = {
+    val inner: String = getPackageNameInner
+    val pName = inner + typeDefinitions.find(_.isPackageObject).map((if (inner.length > 0) "." else "") + _.name).getOrElse("")
+    val sourceFile = sourceName
+    val relPath = if (pName.length == 0) sourceFile else pName.replace(".", "/") + "/" + sourceFile
 
-      //Look in libraries sources if file not relative to path
-      if (typeDefinitions.isEmpty) return this
-      val qual = typeDefinitions.head.qualifiedName
-      var result: Option[PsiFile] = None
-
-      FilenameIndex.processFilesByName(sourceFile, false, new Processor[PsiFileSystemItem] {
-        override def process(t: PsiFileSystemItem): Boolean = {
-          val source = t.getVirtualFile
-          getManager.findFile(source) match {
-            case o: ScalaFile =>
-              val clazzIterator = o.typeDefinitions.iterator
-              while (clazzIterator.hasNext) {
-                val clazz = clazzIterator.next()
-                if (qual == clazz.qualifiedName) {
-                  result = Some(o)
-                  return false
-                }
-              }
-            case o: PsiClassOwner =>
-              val clazzIterator = o.getClasses.iterator
-              while (clazzIterator.hasNext) {
-                val clazz = clazzIterator.next()
-                if (qual == clazz.qualifiedName) {
-                  result = Some(o)
-                  return false
-                }
-              }
+    // Look in libraries' sources
+    val vFile = getContainingFile.getVirtualFile
+    val index = ProjectRootManager.getInstance(getProject).getFileIndex
+    val entries = index.getOrderEntriesForFile(vFile).toArray(OrderEntry.EMPTY_ARRAY)
+    var entryIterator = entries.iterator
+    while (entryIterator.hasNext) {
+      val entry = entryIterator.next()
+      // Look in sources of an appropriate entry
+      val files = entry.getFiles(OrderRootType.SOURCES)
+      val filesIterator = files.iterator
+      while (filesIterator.nonEmpty) {
+        val file = filesIterator.next()
+        val source = file.findFileByRelativePath(relPath)
+        if (source != null) {
+          val psiSource = getManager.findFile(source)
+          psiSource match {
+            case _: PsiClassOwner => return Some(source)
             case _ =>
           }
-          true
         }
-      }, GlobalSearchScope.allScope(getProject), getProject, null)
-
-      result match {
-        case Some(o) => o
-        case _ => this
       }
     }
+    entryIterator = entries.iterator
+
+    //Look in libraries sources if file not relative to path
+    if (typeDefinitions.isEmpty) return None
+    val qual = typeDefinitions.head.qualifiedName
+    var result: Option[VirtualFile] = None
+
+    FilenameIndex.processFilesByName(sourceFile, false, new Processor[PsiFileSystemItem] {
+      override def process(t: PsiFileSystemItem): Boolean = {
+        val source = t.getVirtualFile
+        getManager.findFile(source) match {
+          case o: ScalaFile =>
+            val clazzIterator = o.typeDefinitions.iterator
+            while (clazzIterator.hasNext) {
+              val clazz = clazzIterator.next()
+              if (qual == clazz.qualifiedName) {
+                result = Some(source)
+                return false
+              }
+            }
+          case o: PsiClassOwner =>
+            val clazzIterator = o.getClasses.iterator
+            while (clazzIterator.hasNext) {
+              val clazz = clazzIterator.next()
+              if (qual == clazz.qualifiedName) {
+                result = Some(source)
+                return false
+              }
+            }
+          case _ =>
+        }
+        true
+      }
+    }, GlobalSearchScope.allScope(getProject), getProject, null)
+
+    result
   }
 
   def isScriptFileImpl: Boolean = {
