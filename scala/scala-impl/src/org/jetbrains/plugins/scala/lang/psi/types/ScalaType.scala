@@ -17,7 +17,7 @@ import org.jetbrains.plugins.scala.lang.refactoring.util.ScTypeUtil.AliasType
   * @author adkozlov
   */
 trait ScalaType extends ScType {
-  override def typeSystem: ScalaTypeSystem = ScalaTypeSystem
+  override def typeSystem: ScalaTypeSystem = ScalaTypeSystem.instance
 }
 
 object ScalaType {

@@ -21,8 +21,6 @@ import scala.util.control.NoStackTrace
   */
 package object types {
 
-  def ScalaTypeSystem(implicit project: ProjectContext) = new ScalaTypeSystem
-
   implicit class ScTypeExt(val scType: ScType) extends AnyVal {
     private def typeSystem = scType.typeSystem
     private def projectContext = scType.projectContext

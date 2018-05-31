@@ -8,7 +8,7 @@ import org.jetbrains.plugins.scala.project.ProjectContext
   * @author adkozlov
   */
 trait DottyType extends ScType {
-  override def typeSystem: DottyTypeSystem = DottyTypeSystem
+  override def typeSystem: DottyTypeSystem = DottyTypeSystem.instance
 }
 
 // is value type?

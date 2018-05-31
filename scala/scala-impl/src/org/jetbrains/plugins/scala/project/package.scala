@@ -178,8 +178,8 @@ package object project {
       ProjectLibraryTable.getInstance(project).getLibraries.toSeq
 
     def typeSystem: TypeSystem = {
-      if (project.hasDotty) DottyTypeSystem(project)
-      else ScalaTypeSystem(project)
+      if (project.hasDotty) DottyTypeSystem.instance(project)
+      else ScalaTypeSystem.instance(project)
     }
 
     def language: Language =
