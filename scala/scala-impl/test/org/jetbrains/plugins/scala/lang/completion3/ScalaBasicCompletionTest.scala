@@ -1124,4 +1124,53 @@ class ScalaBasicCompletionTest extends ScalaCodeInsightTestBase {
       """.stripMargin,
     item = "Foo()"
   )
+
+  def testDefaultPatternCompletion(): Unit = doCompletionTest(
+    fileText =
+      s"""class Foo
+         |
+         |(_: Foo) match {
+         |  case $CARET
+         |}
+       """.stripMargin,
+    resultText =
+      s"""class Foo
+         |
+         |(_: Foo) match {
+         |  case foo: Foo$CARET
+         |}
+       """.stripMargin,
+    item = "foo: Foo"
+  )
+
+  def testSealedTraitInheritors(): Unit = doMultipleCompletionTest(
+    fileText =
+      s"""sealed trait Foo {
+         |  def foo: Int = 42
+         |}
+         |
+         |class FooImpl() extends Foo
+         |
+         |object FooImpl {
+         |  def unapply(foo: FooImpl): Option[Int] = Some(foo.foo)
+         |}
+         |
+         |case class Bar(override val foo: Int) extends Foo
+         |
+         |trait Baz extends Foo
+         |
+         |(_: Foo) match {
+         |  case $CARET
+         |}
+       """.stripMargin,
+    count = 3,
+    char = DEFAULT_CHAR,
+    time = DEFAULT_TIME,
+    completionType = DEFAULT_COMPLETION_TYPE
+  ) {
+    _.getLookupString match {
+      case "FooImpl(i)" | "Bar(foo)" | "baz: Baz" => true
+      case _ => false
+    }
+  }
 }

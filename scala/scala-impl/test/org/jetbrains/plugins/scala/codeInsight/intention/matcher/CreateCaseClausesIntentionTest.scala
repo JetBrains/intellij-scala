@@ -34,7 +34,7 @@ class CreateCaseClausesIntentionTest extends ScalaIntentionTestBase {
        |case class B(s: String) extends X
        |
        |(_: X) match {$C
-       |  case _: A =>
+       |  case a: A =>
        |  case B(s) =>
        |}
        """.stripMargin

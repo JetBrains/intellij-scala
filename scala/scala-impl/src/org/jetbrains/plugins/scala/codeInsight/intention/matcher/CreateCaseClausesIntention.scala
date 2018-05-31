@@ -9,7 +9,6 @@ import com.intellij.openapi.editor.Editor
 import com.intellij.openapi.fileEditor.ex.IdeDocumentHistory
 import com.intellij.openapi.project.Project
 import com.intellij.psi._
-import com.intellij.psi.search.searches.ClassInheritorsSearch
 import org.jetbrains.plugins.scala.extensions._
 import org.jetbrains.plugins.scala.lang.completion.clauses.CaseClauseCompletionContributor
 import org.jetbrains.plugins.scala.lang.psi.ScalaPsiUtil
@@ -18,8 +17,6 @@ import org.jetbrains.plugins.scala.lang.psi.api.base.patterns.{ScCaseClause, ScP
 import org.jetbrains.plugins.scala.lang.psi.api.expr.ScMatchStmt
 import org.jetbrains.plugins.scala.lang.psi.api.toplevel.typedef.{ScClass, ScTypeDefinition}
 import org.jetbrains.plugins.scala.lang.psi.impl.ScalaPsiElementFactory.createMatch
-
-import scala.collection.JavaConverters
 
 final class CreateCaseClausesIntention extends PsiElementBaseIntentionAction {
 
@@ -103,9 +100,7 @@ object CreateCaseClausesIntention {
   private[this] def patternsAndTargets(clazz: PsiClass)
                                       (statement: ScMatchStmt)
                                       (predicate: ScTypeDefinition => Boolean = _ => true) = {
-    val inheritors = findInheritors(clazz).collect {
-      case definition: ScTypeDefinition if predicate(definition) => definition
-    }.sortBy(_.getNavigationElement.getTextRange.getStartOffset)
+    val inheritors = findInheritors(clazz).filter(predicate)
 
     (
       inheritors.map(patternText(_, statement)),
@@ -114,10 +109,5 @@ object CreateCaseClausesIntention {
         case definition => definition
       }
     )
-  }
-
-  private[this] def findInheritors(clazz: PsiClass) = {
-    import JavaConverters._
-    ClassInheritorsSearch.search(clazz, clazz.resolveScope, false).asScala.toSeq
   }
 }
