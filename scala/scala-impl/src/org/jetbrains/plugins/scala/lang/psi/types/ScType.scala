@@ -5,11 +5,12 @@ package types
 
 import com.intellij.openapi.progress.ProgressManager
 import org.jetbrains.plugins.scala.extensions.ifReadAllowed
-import org.jetbrains.plugins.scala.lang.psi.types.api.{Covariant, TypeSystem, TypeVisitor, ValueType, Variance}
-import org.jetbrains.plugins.scala.lang.psi.types.recursiveUpdate.AfterUpdate.{ProcessSubtypes, ReplaceWith, Stop}
+import org.jetbrains.plugins.scala.lang.psi.types.api.{TypeSystem, TypeVisitor, ValueType, Variance}
 import org.jetbrains.plugins.scala.lang.psi.types.recursiveUpdate.{AfterUpdate, Update}
 import org.jetbrains.plugins.scala.lang.refactoring.util.ScTypeUtil.AliasType
 import org.jetbrains.plugins.scala.project.ProjectContextOwner
+
+import scala.language.implicitConversions
 
 trait ScType extends ProjectContextOwner {
 
@@ -80,7 +81,9 @@ trait ScType extends ProjectContextOwner {
   def canonicalText: String = typeSystem.canonicalText(this)
 }
 
-object ScType extends recursiveUpdate.Extensions
+object ScType {
+  implicit def recursiveExtensions(tp: ScType): recursiveUpdate.Extensions = new recursiveUpdate.Extensions(tp)
+}
 
 trait NamedType extends ScType {
   val name: String

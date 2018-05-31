@@ -17,14 +17,13 @@ trait ProjectUserDataHolder[-E] {
 
 object ProjectUserDataHolder {
 
-  def apply[E: ProjectUserDataHolder]: ProjectUserDataHolder[E] = implicitly
+  implicit class Syntax[E](val e: E) extends AnyVal {
 
-  implicit class Syntax[E: ProjectUserDataHolder](val e: E) {
+    def getProject(implicit ev: ProjectUserDataHolder[E]): Project = ev.project(e)
 
-    def getProject: Project = ProjectUserDataHolder[E].project(e)
-
-    def putUserDataIfAbsent[T](key: Key[T], newValue: T): T = {
-      ProjectUserDataHolder[E].dataHolder(e) match {
+    def putUserDataIfAbsent[T](key: Key[T], newValue: T)
+                              (implicit ev: ProjectUserDataHolder[E]): T = {
+      ev.dataHolder(e) match {
         case ex: UserDataHolderEx =>
           ex.putUserDataIfAbsent(key, newValue)
         case holder =>
@@ -33,8 +32,9 @@ object ProjectUserDataHolder {
       }
     }
 
-    def getUserData[T](key: Key[T]): T =
-      ProjectUserDataHolder[E].dataHolder(e).getUserData(key)
+    def getUserData[T](key: Key[T])
+                      (implicit ev: ProjectUserDataHolder[E]): T =
+      ev.dataHolder(e).getUserData(key)
   }
 
   implicit val psiElement: ProjectUserDataHolder[PsiElement] =
