@@ -11,11 +11,12 @@ import com.intellij.openapi.project.Project
 import com.intellij.psi._
 import com.intellij.psi.search.searches.ClassInheritorsSearch
 import org.jetbrains.plugins.scala.extensions._
+import org.jetbrains.plugins.scala.lang.completion.clauses.CaseClauseCompletionContributor
 import org.jetbrains.plugins.scala.lang.psi.ScalaPsiUtil
 import org.jetbrains.plugins.scala.lang.psi.api.base.ScReferenceElement
 import org.jetbrains.plugins.scala.lang.psi.api.base.patterns.{ScCaseClause, ScPattern, ScWildcardPattern}
 import org.jetbrains.plugins.scala.lang.psi.api.expr.ScMatchStmt
-import org.jetbrains.plugins.scala.lang.psi.api.toplevel.typedef.{ScClass, ScObject, ScTypeDefinition}
+import org.jetbrains.plugins.scala.lang.psi.api.toplevel.typedef.{ScClass, ScTypeDefinition}
 import org.jetbrains.plugins.scala.lang.psi.impl.ScalaPsiElementFactory.createMatch
 import org.jetbrains.plugins.scala.lang.psi.types.ScTypeExt
 import org.jetbrains.plugins.scala.project.ProjectContext
@@ -24,6 +25,7 @@ import scala.collection.JavaConverters
 
 final class CreateCaseClausesIntention extends PsiElementBaseIntentionAction {
 
+  import CaseClauseCompletionContributor.patternText
   import CreateCaseClausesIntention._
 
   def getFamilyName: String = FamilyName
@@ -51,7 +53,7 @@ final class CreateCaseClausesIntention extends PsiElementBaseIntentionAction {
                                            (implicit context: ProjectContext): Unit = {
     val inheritors = findInheritors(clazz)
 
-    replaceStatement(statement, inheritors.map(patternName), inheritors.map(target))
+    replaceStatement(statement, inheritors.map(patternText(_, statement)), inheritors.map(target))
   }
 
   private def addMatchClausesForEnum(statement: ScMatchStmt, clazz: PsiClass)
@@ -70,7 +72,7 @@ final class CreateCaseClausesIntention extends PsiElementBaseIntentionAction {
       definition.isCase || definition.isObject
     }
 
-    replaceStatement(statement, inheritors.map(patternName) :+ "_", inheritors.map(target))
+    replaceStatement(statement, inheritors.map(patternText(_, statement)) :+ "_", inheritors.map(target))
   }
 
   private def findSurroundingMatch(element: PsiElement): Option[(ProjectContext => Unit, String)] =
@@ -103,18 +105,6 @@ object CreateCaseClausesIntention {
     result.toSeq.sortBy {
       _.getNavigationElement.getTextRange.getStartOffset
     }
-  }
-
-  private def patternName(definition: ScTypeDefinition): String = definition match {
-    case scObject: ScObject => scObject.name
-    case clazz: ScClass if clazz.isCase =>
-      val parameters = clazz.constructor.toSeq
-        .flatMap(_.effectiveFirstParameterSection)
-        .map { parameter =>
-          parameter.name + (if (parameter.isVarArgs) "@_*" else "")
-        }.commaSeparated()
-      s"${clazz.name}($parameters)"
-    case _ => "_: " + definition.name
   }
 
   private def target(definition: ScTypeDefinition) = definition match {

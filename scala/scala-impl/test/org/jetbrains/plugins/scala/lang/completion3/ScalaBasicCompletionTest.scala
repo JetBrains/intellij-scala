@@ -1048,6 +1048,24 @@ class ScalaBasicCompletionTest extends ScalaCodeInsightTestBase {
     item = "Foo(foo)"
   )
 
+  def testSyntheticUnapplyVararg(): Unit = doCompletionTest(
+    fileText =
+      s"""case class Foo(foos: Int*)
+         |
+         |Foo() match {
+         |  case $CARET
+         |}
+       """.stripMargin,
+    resultText =
+      s"""case class Foo(foos: Int*)
+         |
+         |Foo() match {
+         |  case Foo(foos@_*)$CARET
+         |}
+       """.stripMargin,
+    item = "Foo(foos@_*)"
+  )
+
   def testUnapply(): Unit = doCompletionTest(
     fileText =
       s"""class Foo(val foo: Int = 42, val bar: Int = 42)
