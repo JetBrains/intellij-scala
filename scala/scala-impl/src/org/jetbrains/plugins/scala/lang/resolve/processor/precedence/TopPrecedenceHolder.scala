@@ -3,9 +3,9 @@ package resolve
 package processor
 package precedence
 
-import scala.collection.mutable
+import gnu.trove.{TObjectHashingStrategy, TObjectIntHashMap}
 
-trait TopPrecedenceHolder[Repr] {
+trait TopPrecedenceHolder {
 
   /**
     * Returns highest precedence of all resolve results.
@@ -21,25 +21,39 @@ trait TopPrecedenceHolder[Repr] {
                 right: ScalaResolveResult)
                (precedence: ScalaResolveResult => Int): Boolean =
     precedence(left) < apply(right)
-
-  def toRepresentation(result: ScalaResolveResult): Repr
 }
 
-abstract class TopPrecedenceHolderImpl[Repr] extends TopPrecedenceHolder[Repr] {
+class MappedTopPrecedenceHolder(strategy: TObjectHashingStrategy[ScalaResolveResult]) extends TopPrecedenceHolder {
 
-  private val precedences = new mutable.HashMap[Repr, Int]()
-    .withDefaultValue(0)
+  private[this] val precedences = new TObjectIntHashMap[ScalaResolveResult](strategy)
 
   override def apply(result: ScalaResolveResult): Int =
-    precedences(toRepresentation(result))
+    precedences.get(result)
 
   override def update(result: ScalaResolveResult, i: Int): Unit = {
-    precedences(toRepresentation(result)) = i
+    precedences.put(result, i)
   }
 
   override def filterNot(left: ScalaResolveResult,
                          right: ScalaResolveResult)
                         (precedence: ScalaResolveResult => Int): Boolean =
-    toRepresentation(left) == toRepresentation(right) &&
+    strategy.equals(left, right) &&
       super.filterNot(left, right)(precedence)
+}
+
+class SimpleTopPrecedenceHolder extends TopPrecedenceHolder {
+
+  private[this] var precedence: Int = 0
+
+  override def apply(result: ScalaResolveResult): Int = precedence
+
+  override def update(result: ScalaResolveResult, i: Int): Unit = {
+    precedence = i
+  }
+
+  def reset(): Unit = {
+    precedence = 0
+  }
+
+  def currentPrecedence: Int = precedence
 }

@@ -3,8 +3,9 @@ package lang
 package resolve
 package processor
 
-import java.util
+import java.util.{Map => JMap, Set => JSet}
 
+import gnu.trove.{THashMap, THashSet}
 import org.jetbrains.plugins.scala.lang.resolve.ResolveTargets._
 import org.jetbrains.plugins.scala.lang.resolve.processor.precedence._
 import org.jetbrains.plugins.scala.project.ProjectContext
@@ -12,32 +13,31 @@ import org.jetbrains.plugins.scala.project.ProjectContext
 import scala.collection.Set
 
 /**
- * @author Alexander Podkhalyuzin
- */
+  * @author Alexander Podkhalyuzin
+  */
 
 /**
- * This class mark processor that only implicit object important among all PsiClasses
- */
+  * This class mark processor that only implicit object important among all PsiClasses
+  */
 abstract class ImplicitProcessor(kinds: Set[Value], withoutPrecedence: Boolean)
-                                (implicit projectContext: ProjectContext) extends BaseProcessor(kinds) with SubstitutablePrecedenceHelper[String] {
+                                (implicit projectContext: ProjectContext) extends BaseProcessor(kinds) with SubstitutablePrecedenceHelper {
 
-  override protected val holder: TopPrecedenceHolder[String] = new TopPrecedenceHolderImpl[String] {
+  override protected def nameUniquenessStrategy: NameUniquenessStrategy = NameUniquenessStrategy.Implicits
 
-    override def toRepresentation(result: ScalaResolveResult): String = result.nameInScope
-  }
+  override protected val holder: TopPrecedenceHolder = new MappedTopPrecedenceHolder(nameUniquenessStrategy)
 
-  protected val levelMap: util.HashMap[String, util.HashSet[ScalaResolveResult]] = new util.HashMap[String, util.HashSet[ScalaResolveResult]]()
+  private[this] val levelMap: JMap[ScalaResolveResult, JSet[ScalaResolveResult]] =
+    new THashMap[ScalaResolveResult, JSet[ScalaResolveResult]](nameUniquenessStrategy)
 
   override protected def clearLevelQualifiedSet(result: ScalaResolveResult) {
     //optimisation, do nothing
   }
 
-  override protected def getLevelSet(result: ScalaResolveResult): util.HashSet[ScalaResolveResult] = {
-    val qualifiedName: String = holder.toRepresentation(result)
-    var levelSet = levelMap.get(qualifiedName)
+  override protected def getLevelSet(result: ScalaResolveResult): JSet[ScalaResolveResult] = {
+    var levelSet = levelMap.get(result)
     if (levelSet == null) {
-      levelSet = new util.HashSet[ScalaResolveResult]
-      levelMap.put(qualifiedName, levelSet)
+      levelSet = new THashSet[ScalaResolveResult]()
+      levelMap.put(result, levelSet)
     }
     levelSet
   }
@@ -58,9 +58,9 @@ abstract class ImplicitProcessor(kinds: Set[Value], withoutPrecedence: Boolean)
         candidatesSet += setIterator.next
       }
     }
-    qualifiedNamesSet.addAll(levelQualifiedNamesSet)
+    uniqueNamesSet.addAll(levelUniqueNamesSet)
     levelMap.clear()
-    levelQualifiedNamesSet.clear()
+    levelUniqueNamesSet.clear()
     true
   }
 

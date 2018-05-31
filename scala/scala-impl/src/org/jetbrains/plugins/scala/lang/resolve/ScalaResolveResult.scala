@@ -10,7 +10,10 @@ import org.jetbrains.plugins.scala.extensions._
 import org.jetbrains.plugins.scala.lang.completion.lookups.ScalaLookupItem
 import org.jetbrains.plugins.scala.lang.psi.ScalaPsiUtil
 import org.jetbrains.plugins.scala.lang.psi.api.base.patterns.ScBindingPattern
+import org.jetbrains.plugins.scala.lang.psi.api.statements.params.ScTypeParam
+import org.jetbrains.plugins.scala.lang.psi.api.statements.{ScTypeAlias, ScTypeAliasDefinition}
 import org.jetbrains.plugins.scala.lang.psi.api.toplevel.imports.usages.{ImportExprUsed, ImportSelectorUsed, ImportUsed, ImportWildcardSelectorUsed}
+import org.jetbrains.plugins.scala.lang.psi.api.toplevel.templates.ScTemplateBody
 import org.jetbrains.plugins.scala.lang.psi.api.toplevel.typedef.{ScObject, ScTypeDefinition}
 import org.jetbrains.plugins.scala.lang.psi.api.toplevel.{ScNamedElement, ScPackaging}
 import org.jetbrains.plugins.scala.lang.psi.fake.FakePsiMethod
@@ -135,6 +138,8 @@ class ScalaResolveResult(val element: PsiNamedElement,
   }
 
   def nameInScope: String = isRenamed.getOrElse(name)
+
+  lazy val qualifiedNameId: String = ScalaResolveResult.toStringRepresentation(this)
 
   private var precedence = -1
 
@@ -357,6 +362,35 @@ object ScalaResolveResult {
           Seq(lookupElement(prefix, isAssignment = true), defaultItem)
         case _ => Seq(defaultItem)
       }
+    }
+  }
+
+  private def toStringRepresentation(result: ScalaResolveResult): String = {
+    def defaultForTypeAlias(t: ScTypeAlias): String = {
+      if (t.getParent.isInstanceOf[ScTemplateBody] && t.containingClass != null) {
+        "TypeAlias:" + t.containingClass.qualifiedName + "#" + t.name
+      } else null
+    }
+
+    result.getActualElement match {
+      case _: ScTypeParam => null
+      case c: ScObject => "Object:" + c.qualifiedName
+      case c: PsiClass => "Class:" + c.qualifiedName
+      case t: ScTypeAliasDefinition if t.typeParameters.isEmpty =>
+        t.aliasedType match {
+          case Right(tp) =>
+            tp.extractClass match {
+              case Some(_: ScObject) => defaultForTypeAlias(t)
+              case Some(td: ScTypeDefinition) if td.typeParameters.isEmpty && ScalaPsiUtil.hasStablePath(td) =>
+                "Class:" + td.qualifiedName
+              case Some(c: PsiClass) if c.getTypeParameters.isEmpty => "Class:" + c.qualifiedName
+              case _ => defaultForTypeAlias(t)
+            }
+          case _ => defaultForTypeAlias(t)
+        }
+      case t: ScTypeAlias => defaultForTypeAlias(t)
+      case p: PsiPackage => "Package:" + p.getQualifiedName
+      case _ => null
     }
   }
 

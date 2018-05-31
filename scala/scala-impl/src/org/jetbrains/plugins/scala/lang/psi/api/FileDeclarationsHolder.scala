@@ -17,7 +17,7 @@ import org.jetbrains.plugins.scala.lang.psi.impl.expr.ScReferenceExpressionImpl
 import org.jetbrains.plugins.scala.lang.psi.impl.toplevel.synthetic.{ScSyntheticClass, SyntheticClasses}
 import org.jetbrains.plugins.scala.lang.psi.types.ScType
 import org.jetbrains.plugins.scala.lang.psi.types.api.Any
-import org.jetbrains.plugins.scala.lang.psi.{ScDeclarationSequenceHolder, ScImportsHolder, ScalaPsiUtil}
+import org.jetbrains.plugins.scala.lang.psi.{ScDeclarationSequenceHolder, ScImportsHolder}
 import org.jetbrains.plugins.scala.lang.resolve.ResolveUtils
 import org.jetbrains.plugins.scala.lang.resolve.processor.precedence.{PrecedenceTypes, SubstitutablePrecedenceHelper}
 import org.jetbrains.plugins.scala.lang.resolve.processor.{BaseProcessor, ResolveProcessor, ResolverEnv}
@@ -210,7 +210,7 @@ trait FileDeclarationsHolder extends PsiElement with ScDeclarationSequenceHolder
   //method extracted due to VerifyError in Scala compiler
   private def updateProcessor(processor: PsiScopeProcessor, priority: Int)(body: => Unit): Unit =
     processor match {
-      case b: BaseProcessor with SubstitutablePrecedenceHelper[_] => b.runWithPriority(priority)(body)
+      case b: BaseProcessor with SubstitutablePrecedenceHelper => b.runWithPriority(priority)(body)
       case _ => body
     }
 

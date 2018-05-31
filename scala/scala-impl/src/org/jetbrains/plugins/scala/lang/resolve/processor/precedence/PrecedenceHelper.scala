@@ -7,6 +7,7 @@ import java.util
 
 import com.intellij.psi.util.PsiTreeUtil.getContextOfType
 import com.intellij.psi.{PsiElement, PsiPackage}
+import com.intellij.util.containers.SmartHashSet
 import org.jetbrains.plugins.scala.lang.psi.api.base.ScStableCodeReferenceElement
 import org.jetbrains.plugins.scala.lang.psi.api.toplevel.ScPackaging
 import org.jetbrains.plugins.scala.lang.psi.api.toplevel.imports.ScImportExpr
@@ -20,22 +21,25 @@ import scala.annotation.tailrec
   * Date: 01.12.11
   */
 //todo: logic is too complicated, too many connections between classes. Rewrite?
-trait PrecedenceHelper[Repr] {
+trait PrecedenceHelper {
 
   import PrecedenceHelper._
 
   def getPlace: PsiElement
 
   protected lazy val placePackageName: String = ResolveUtils.getPlacePackage(getPlace)
-  protected val levelSet: util.HashSet[ScalaResolveResult] = new util.HashSet
-  protected val qualifiedNamesSet: util.HashSet[Repr] = new util.HashSet[Repr]
-  protected val levelQualifiedNamesSet: util.HashSet[Repr] = new util.HashSet[Repr]
 
-  protected val holder: TopPrecedenceHolder[Repr]
+  protected val holder: TopPrecedenceHolder
+
+  protected def nameUniquenessStrategy: NameUniquenessStrategy
+
+  protected val levelSet           : util.Set[ScalaResolveResult] = new SmartHashSet()
+  protected val uniqueNamesSet     : util.Set[ScalaResolveResult] = new UniqueNamesSet(nameUniquenessStrategy)
+  protected val levelUniqueNamesSet: util.Set[ScalaResolveResult] = new UniqueNamesSet(nameUniquenessStrategy)
 
   protected def clear(): Unit = {
-    levelQualifiedNamesSet.clear()
-    qualifiedNamesSet.clear()
+    levelUniqueNamesSet.clear()
+    uniqueNamesSet.clear()
     levelSet.clear()
   }
 
@@ -48,10 +52,10 @@ trait PrecedenceHelper[Repr] {
   protected def isCheckForEqualPrecedence = true
 
   protected def clearLevelQualifiedSet(result: ScalaResolveResult) {
-    levelQualifiedNamesSet.clear()
+    levelUniqueNamesSet.clear()
   }
 
-  protected def getLevelSet(result: ScalaResolveResult): util.HashSet[ScalaResolveResult] = levelSet
+  protected def getLevelSet(result: ScalaResolveResult): util.Set[ScalaResolveResult] = levelSet
 
   /**
     * Do not add ResolveResults through candidatesSet. It may break precedence. Use this method instead.
@@ -62,11 +66,10 @@ trait PrecedenceHelper[Repr] {
     if (results.isEmpty) return true
     val result: ScalaResolveResult = results.head
 
-    lazy val qualifiedName: Repr = holder.toRepresentation(result)
     lazy val levelSet = getLevelSet(result)
 
     def addResults() {
-      if (qualifiedName != null) levelQualifiedNamesSet.add(qualifiedName)
+      levelUniqueNamesSet.add(result)
       val iterator = results.iterator
       while (iterator.hasNext) {
         levelSet.add(iterator.next())
@@ -78,14 +81,13 @@ trait PrecedenceHelper[Repr] {
     if (currentPrecedence < topPrecedence) return false
     else if (currentPrecedence == topPrecedence && levelSet.isEmpty) return false
     else if (currentPrecedence == topPrecedence) {
-      if (isCheckForEqualPrecedence && qualifiedName != null &&
-        (levelQualifiedNamesSet.contains(qualifiedName) ||
-          qualifiedNamesSet.contains(qualifiedName))) {
+      if (isCheckForEqualPrecedence &&
+        (levelUniqueNamesSet.contains(result) || uniqueNamesSet.contains(result))) {
         return false
-      } else if (qualifiedName != null && qualifiedNamesSet.contains(qualifiedName)) return false
+      } else if (uniqueNamesSet.contains(result)) return false
       if (!ignored(results)) addResults()
     } else {
-      if (qualifiedName != null && qualifiedNamesSet.contains(qualifiedName)) {
+      if (uniqueNamesSet.contains(result)) {
         return false
       } else {
         if (!ignored(results)) {

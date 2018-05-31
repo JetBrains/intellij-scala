@@ -14,7 +14,7 @@ import org.jetbrains.plugins.scala.lang.psi.api.toplevel.imports.usages.ImportUs
 import org.jetbrains.plugins.scala.lang.psi.api.toplevel.typedef.ScTypeDefinition
 import org.jetbrains.plugins.scala.lang.psi.types.recursiveUpdate.ScSubstitutor
 import org.jetbrains.plugins.scala.lang.psi.types.{PhysicalSignature, Signature}
-import org.jetbrains.plugins.scala.lang.resolve.processor.precedence.{PrecedenceHelper, TopPrecedenceHolder, TopPrecedenceHolderImpl}
+import org.jetbrains.plugins.scala.lang.resolve.processor.precedence.{MappedTopPrecedenceHolder, NameUniquenessStrategy, PrecedenceHelper, TopPrecedenceHolder}
 
 import scala.collection.{Set, mutable}
 
@@ -52,13 +52,11 @@ object CompletionProcessor {
 class CompletionProcessor(override val kinds: Set[ResolveTargets.Value],
                           override val getPlace: PsiElement,
                           val isImplicit: Boolean = false)
-  extends BaseProcessor(kinds)(getPlace) with PrecedenceHelper[(String, Boolean)] {
+  extends BaseProcessor(kinds)(getPlace) with PrecedenceHelper {
 
-  override protected val holder: TopPrecedenceHolder[(String, Boolean)] = new TopPrecedenceHolderImpl[(String, Boolean)] {
+  override def nameUniquenessStrategy: NameUniquenessStrategy = NameUniquenessStrategy.Completion
 
-    override def toRepresentation(result: ScalaResolveResult): (String, Boolean) =
-      (result.nameInScope, result.isNamedParameter)
-  }
+  override protected val holder: TopPrecedenceHolder = new MappedTopPrecedenceHolder(nameUniquenessStrategy)
 
   private val signatures = mutable.HashSet[Signature]()
 
@@ -123,9 +121,9 @@ class CompletionProcessor(override val kinds: Set[ResolveTargets.Value],
     collectResults(candidatesSet)
 
     if (!levelSet.isEmpty) {
-      qualifiedNamesSet.addAll(levelQualifiedNamesSet)
+      uniqueNamesSet.addAll(levelUniqueNamesSet)
       levelSet.clear()
-      levelQualifiedNamesSet.clear()
+      levelUniqueNamesSet.clear()
     }
 
     super.changedLevel

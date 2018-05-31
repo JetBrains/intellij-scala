@@ -3,7 +3,7 @@ package resolve
 package processor
 package precedence
 
-trait SubstitutablePrecedenceHelper[Repr] extends PrecedenceHelper[Repr] {
+trait SubstitutablePrecedenceHelper extends PrecedenceHelper {
 
   private var knownPriority: Option[Int] = None
 
