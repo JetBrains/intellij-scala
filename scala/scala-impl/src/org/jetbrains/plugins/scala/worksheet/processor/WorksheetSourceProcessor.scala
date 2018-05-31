@@ -75,8 +75,12 @@ object WorksheetSourceProcessor {
   /**
     * @return (Code, Main class name)
     */
-  def process(srcFile: ScalaFile, ifEditor: Option[Editor], iNum: Int, isRepl: Boolean = false): Either[(String, String), PsiErrorElement] = 
-    if (!isRepl) processDefaultInner(srcFile, ifEditor.map(_.getDocument), iNum) else processIncrementalInner(srcFile, ifEditor)
+  def process(srcFile: ScalaFile, ifEditor: Option[Editor], isRepl: Boolean = false): Either[(String, String), PsiErrorElement] = {
+    if (isRepl) processIncrementalInner(srcFile, ifEditor) else {
+      val cache = WorksheetCache.getInstance(srcFile.getProject)
+      processDefaultInner(srcFile, ifEditor.map(_.getDocument), cache.peakCompilationIteration(srcFile.getVirtualFile.getCanonicalPath) + 1)
+    }
+  }
   
   
   def processIncrementalInner(srcFile: ScalaFile, ifEditor: Option[Editor]): Either[(String, String), PsiErrorElement] = {

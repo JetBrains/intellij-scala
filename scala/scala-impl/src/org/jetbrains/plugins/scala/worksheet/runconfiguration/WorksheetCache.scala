@@ -1,11 +1,16 @@
 package org.jetbrains.plugins.scala.worksheet.runconfiguration
 
+import java.io.File
+
 import com.intellij.openapi.components.AbstractProjectComponent
 import com.intellij.openapi.editor.impl.EditorImpl
 import com.intellij.openapi.editor.{Editor, EditorFactory}
 import com.intellij.openapi.project.Project
+import com.intellij.openapi.util.io.FileUtil
 import com.intellij.util.containers.ContainerUtil
 import org.jetbrains.plugins.scala.worksheet.ui.{WorksheetEditorPrinter, WorksheetIncrementalEditorPrinter}
+
+import scala.collection.mutable
 
 /**
   * User: Dmitry.Naydanov
@@ -15,6 +20,26 @@ class WorksheetCache(project: Project) extends AbstractProjectComponent(project)
   private val allViewers = ContainerUtil.createWeakMap[Editor, List[Editor]]()
   private val allReplPrinters = ContainerUtil.createWeakMap[Editor, WorksheetEditorPrinter]()
   private val patchedEditors = ContainerUtil.createWeakMap[Editor, String]()
+  
+  private val compilationInfo = mutable.HashMap.empty[String, (Int, File, File)]
+
+  def updateOrCreateCompilationInfo(filePath: String, fileName: String): (Int, File, File) = {
+    compilationInfo.get(filePath) match {
+      case Some(result@(it, src, out)) =>
+        compilationInfo.put(filePath, (it + 1, src, out))
+        result
+      case _ =>
+        val src = FileUtil.createTempFile(fileName, null, true)
+        val out = FileUtil.createTempDirectory(fileName, null, true)
+
+        compilationInfo.put(filePath, (1, src, out))
+        (0, src, out)
+    }
+  }
+  
+  def peakCompilationIteration(filePath: String): Int = {
+    compilationInfo.get(filePath).map(_._1).getOrElse(-1)
+  }
   
   def getPrinter(inputEditor: Editor): Option[WorksheetEditorPrinter] = Option(allReplPrinters get inputEditor)
   

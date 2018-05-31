@@ -96,7 +96,7 @@ object RunWorksheetAction {
                 executeWorksheet(file.getName, project, file.getContainingFile, className, addToCp)
               }
             }
-          }, auto).compileAndRun()
+          }, auto).compileAndRunFile()
         }
 
         val fileSettings = WorksheetCommonSettings.getInstance(file)

@@ -21,7 +21,7 @@ import org.jetbrains.plugins.scala.lang.psi.api.{FileDeclarationsHolder, ScalaFi
 import org.jetbrains.plugins.scala.lang.psi.impl.ScalaPsiElementFactory
 import org.jetbrains.plugins.scala.worksheet.GotoOriginalHandlerUtil
 import org.jetbrains.plugins.scala.worksheet.interactive.WorksheetAutoRunner
-import org.jetbrains.plugins.scala.worksheet.processor.{WorksheetCompiler, WorksheetInterpretExprsIterator, WorksheetPsiGlue}
+import org.jetbrains.plugins.scala.worksheet.processor.{WorksheetCompilerUtil, WorksheetInterpretExprsIterator, WorksheetPsiGlue}
 import org.jetbrains.plugins.scala.worksheet.settings.WorksheetCommonSettings
 
 import scala.collection.mutable
@@ -236,7 +236,7 @@ class WorksheetIncrementalEditorPrinter(editor: Editor, viewer: Editor, file: Sc
 
     messagesBuffer.clear()
 
-    val MessageInfo(msg, vertOffset, horizontalOffset, severity) = extractInfoFromAllText(str).getOrElse((str, 0, 0, WorksheetCompiler.InfoSeverity))
+    val MessageInfo(msg, vertOffset, horizontalOffset, severity) = extractInfoFromAllText(str).getOrElse((str, 0, 0, WorksheetCompilerUtil.InfoSeverity))
     
     val position = {
       val p = extensions.inReadAction { originalEditor.offsetToLogicalPosition(offset) }
@@ -246,8 +246,8 @@ class WorksheetIncrementalEditorPrinter(editor: Editor, viewer: Editor, file: Sc
     
     val isFatal = severity.isFatal
     val onError = if (isFatal) () => {originalEditor.getCaretModel moveToLogicalPosition position} else () => {}
-    
-    WorksheetCompiler.showCompilationMessage(
+
+    WorksheetCompilerUtil.showCompilationMessage(
       getScalaFile.getVirtualFile, severity, position.line, position.column, project, onError, msg.split('\n').map(_.trim).filter(_.length > 0))
     
     if (isFatal) {
@@ -271,9 +271,9 @@ class WorksheetIncrementalEditorPrinter(editor: Editor, viewer: Editor, file: Sc
     
     val (textWoSeverity, severity) = textWoConsoleLine match {
       case error if error.startsWith("error: ") =>
-        (error.substring("error: ".length), WorksheetCompiler.ErrorSeverity)
+        (error.substring("error: ".length), WorksheetCompilerUtil.ErrorSeverity)
       case warning if warning.startsWith("warning: ") =>
-        (warning.substring("warning: ".length), WorksheetCompiler.WarningSeverity)
+        (warning.substring("warning: ".length), WorksheetCompilerUtil.WarningSeverity)
       case _ => return None
     }
 
@@ -371,7 +371,7 @@ object WorksheetIncrementalEditorPrinter {
   }
   
   case class MessageStart(msg: String)
-  case class MessageInfo(text: String, verOffset: Int, horOffset: Int, severity: WorksheetCompiler.CompilationMessageSeverity)
+  case class MessageInfo(text: String, verOffset: Int, horOffset: Int, severity: WorksheetCompilerUtil.CompilationMessageSeverity)
   
   object ReplMessage {
     def unapply(arg: String): Option[MessageStart] = 
