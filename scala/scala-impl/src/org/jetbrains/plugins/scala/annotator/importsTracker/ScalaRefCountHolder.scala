@@ -10,7 +10,7 @@ import com.intellij.concurrency.JobScheduler
 import com.intellij.openapi.components.AbstractProjectComponent
 import com.intellij.openapi.editor.Document
 import com.intellij.openapi.project.Project
-import com.intellij.openapi.util.TextRange
+import com.intellij.openapi.util.{Ref, TextRange}
 import com.intellij.psi._
 import com.intellij.util.containers.ContainerUtil
 import org.jetbrains.plugins.scala.annotator.importsTracker.ScalaRefCountHolder.WeakKeyTimestampedValueMap
@@ -187,26 +187,30 @@ object ScalaRefCountHolder {
 }
 
 class ScalaRefCountHolderComponent(project: Project) extends AbstractProjectComponent(project) {
-  private var autoCleaningMap: WeakKeyTimestampedValueMap[PsiFile, ScalaRefCountHolder] = _
+  private val autoCleaningMap: Ref[WeakKeyTimestampedValueMap[PsiFile, ScalaRefCountHolder]] = Ref.create()
 
   private val numberOfFilesToKeep = 3
   private val otherFilesStorageTime = 5.minutes
   private val cleanupInterval = 1.minute
 
   override def projectOpened(): Unit = {
-    autoCleaningMap =
-      new WeakKeyTimestampedValueMap(numberOfFilesToKeep, otherFilesStorageTime)
+    autoCleaningMap.set(new WeakKeyTimestampedValueMap(numberOfFilesToKeep, otherFilesStorageTime))
 
     JobScheduler.getScheduler.scheduleWithFixedDelay (
-      () => autoCleaningMap.removeStaleEntries(), cleanupInterval.toMillis, cleanupInterval.toMillis, TimeUnit.MILLISECONDS
+      cleanupTask(autoCleaningMap), cleanupInterval.toMillis, cleanupInterval.toMillis, TimeUnit.MILLISECONDS
     )
   }
 
   override def projectClosed(): Unit = {
-    autoCleaningMap = null
+    autoCleaningMap.set(null)
   }
 
-  def getOrCreate(file: PsiFile, holder: => ScalaRefCountHolder): ScalaRefCountHolder = {
-    Option(autoCleaningMap).map(_.getOrCreate(file, holder)).getOrElse(holder)
+  private def cleanupTask(map: Ref[WeakKeyTimestampedValueMap[PsiFile, ScalaRefCountHolder]]): Runnable = () => {
+    map.get().removeStaleEntries()
   }
+
+  def getOrCreate(file: PsiFile, holder: => ScalaRefCountHolder): ScalaRefCountHolder =
+    Option(autoCleaningMap.get())
+      .map(_.getOrCreate(file, holder))
+      .getOrElse(holder)
 }
