@@ -20,11 +20,9 @@ import com.intellij.psi.util.PsiModificationTracker
 import org.jetbrains.plugins.scala.lang.lexer.ScalaTokenTypes
 import org.jetbrains.plugins.scala.lang.psi.api.ScalaElementVisitor
 import org.jetbrains.plugins.scala.lang.psi.api.base.{ScInterpolatedStringLiteral, ScLiteral}
-import org.jetbrains.plugins.scala.lang.psi.types.api.{Char, Int, Nothing, Null}
+import org.jetbrains.plugins.scala.lang.psi.types._
 import org.jetbrains.plugins.scala.lang.psi.types.result._
-import org.jetbrains.plugins.scala.lang.psi.types.{api, _}
 import org.jetbrains.plugins.scala.macroAnnotations.CachedInUserData
-import org.jetbrains.plugins.scala.project.ProjectContext
 import org.jetbrains.plugins.scala.project._
 
 import scala.StringContext.InvalidEscapeException
@@ -42,8 +40,13 @@ class ScLiteralImpl(node: ASTNode) extends ScalaPsiElementImpl(node) with ScLite
   override def allowLiteralTypes: Boolean = this.literalTypesEnabled
 
   protected override def innerType: TypeResult = {
-    val wide = ScLiteralImpl.wideType(getFirstChild.getNode, this)
-    if (allowLiteralTypes) wide.map(ScLiteralType(getValue, _)) else wide
+    ScLiteralType.kind(getFirstChild.getNode, this) match {
+      case None => Failure("Wrong Psi to get Literal type")
+      case Some(kind) => Right {
+        if (allowLiteralTypes) ScLiteralType(getValue, kind)
+        else ScLiteralType.wideType(kind)
+      }
+    }
   }
 
   @CachedInUserData(this, PsiModificationTracker.MODIFICATION_COUNT)
@@ -249,33 +252,5 @@ object ScLiteralImpl {
   object string {
     def unapply(lit: ScLiteralImpl): Option[String] =
       if (lit.isString) Some(lit.getValue.asInstanceOf[String]) else None
-  }
-
-  def wideType(node: ASTNode, element: ScalaPsiElement): TypeResult = {
-    implicit val projectCtx: ProjectContext = element
-    val inner = node.getElementType match {
-          case ScalaTokenTypes.kNULL => Null
-          case ScalaTokenTypes.tINTEGER =>
-            if (node.getText.endsWith("l") || node.getText.endsWith("L")) api.Long
-            else Int //but a conversion exists to narrower types in case range fits
-          case ScalaTokenTypes.tFLOAT =>
-            if (node.getText.endsWith("f") || node.getText.endsWith("F")) api.Float
-            else api.Double
-          case ScalaTokenTypes.tCHAR => Char
-          case ScalaTokenTypes.tSYMBOL =>
-            element.elementScope.getCachedClass("scala.Symbol")
-              .map {
-                ScalaType.designator
-              }.getOrElse(Nothing)
-          case ScalaTokenTypes.tSTRING | ScalaTokenTypes.tWRONG_STRING | ScalaTokenTypes.tMULTILINE_STRING =>
-            ScalaPsiManager.instance(element.getProject)
-              .getCachedClass(element.getResolveScope, "java.lang.String").map {
-              ScalaType.designator
-            }.getOrElse(Nothing)
-          case ScalaTokenTypes.kTRUE | ScalaTokenTypes.kFALSE => api.Boolean
-          case ScalaTokenTypes.tIDENTIFIER if node.getText == "-" => return wideType(node.getTreeNext, element)
-          case _ => return Failure("Wrong Psi to get Literal type")
-        }
-    Right(inner)
   }
 }
