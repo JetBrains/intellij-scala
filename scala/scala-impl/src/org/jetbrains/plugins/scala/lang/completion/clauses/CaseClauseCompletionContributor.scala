@@ -5,7 +5,7 @@ package clauses
 
 import com.intellij.codeInsight.completion.{CompletionParameters, CompletionType}
 import com.intellij.patterns.PlatformPatterns
-import com.intellij.psi.PsiElement
+import com.intellij.psi.{PsiClass, PsiElement}
 import com.intellij.util.ProcessingContext
 import org.jetbrains.plugins.scala.extensions._
 import org.jetbrains.plugins.scala.lang.completion.lookups.ScalaLookupItem
@@ -30,15 +30,14 @@ class CaseClauseCompletionContributor extends ScalaCompletionContributor {
 
       override protected def completionsFor(position: PsiElement)
                                            (implicit parameters: CompletionParameters, context: ProcessingContext): Iterable[ScalaLookupItem] =
-        for {
-          caseClause <- position.findContextOfType(classOf[ScCaseClause])
-          if caseClause.pattern.exists(isValidPattern(_, position))
-          (scalaClass, statement) <- targetExpressionClass(caseClause)
-        } yield {
-          val result = new ScalaLookupItem(scalaClass, patternText(scalaClass, statement))
-          result.isLocalVariable = true
-          result
-        }
+        findValidCaseClause(position)
+          .flatMap(targetExpressionClass)
+          .map {
+            case (scalaClass, statement) =>
+              val result = new ScalaLookupItem(scalaClass, patternText(scalaClass, statement))
+              result.isLocalVariable = true
+              result
+          }
     }
   )
 }
@@ -63,17 +62,24 @@ object CaseClauseCompletionContributor {
     maybeText.getOrElse("_: " + className)
   }
 
-
-  private def isValidPattern(pattern: ScPattern, position: PsiElement) = pattern match {
-    case _: ScStableReferenceElementPattern => pattern.isAncestorOf(position)
-    case _ => false
-  }
-
-  private def targetExpressionClass(caseClause: ScCaseClause) = caseClause.getContext match {
-    case caseClauses: ScCaseClauses => caseClauses.getContext match {
-      case statement@ScMatchStmt(Typeable(ExtractClass(scalaClass: ScClass)), _) => Some(scalaClass, statement)
+  def extractClass[C <: PsiClass](element: PsiElement, classTag: Class[C],
+                                  regardlessClauses: Boolean = true): Option[(C, ScMatchStmt)] =
+    element.getParent match {
+      case statement: ScMatchStmt if regardlessClauses || statement.caseClauses.isEmpty =>
+        statement.expr.collect {
+          case Typeable(ExtractClass(clazz)) if classTag.isInstance(clazz) => (clazz.asInstanceOf[C], statement)
+        }
       case _ => None
     }
+
+  private def findValidCaseClause(position: PsiElement) = for {
+    caseClause <- position.findContextOfType(classOf[ScCaseClause])
+    pattern <- caseClause.pattern
+    if pattern.isInstanceOf[ScStableReferenceElementPattern] && pattern.isAncestorOf(position)
+  } yield caseClause
+
+  private def targetExpressionClass(caseClause: ScCaseClause) = caseClause.getContext match {
+    case caseClauses: ScCaseClauses => extractClass(caseClauses, classOf[ScClass])
     case _ => None
   }
 
