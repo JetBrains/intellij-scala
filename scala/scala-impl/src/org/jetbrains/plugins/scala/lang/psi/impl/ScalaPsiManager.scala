@@ -248,6 +248,8 @@ class ScalaPsiManager(val project: Project) {
     collectImplicitObjectsCache.clear()
     implicitCollectorCache.clear()
     idToName.clear()
+    wideableLiteralTypes.clear()
+    nonWideableLiteralTypes.clear()
   }
 
   private def clearOnChange(): Unit = {
