@@ -45,13 +45,19 @@ trait Conformance {
       if (substitutor.isEmpty) return tuple
       return tuple.copy(_2 = substitutor + tuple._2)
     }
-    if (guard.currentStackContains(key)) {
+    if (guard.checkReentrancy(key)) {
       return (false, ScUndefinedSubstitutor())
     }
 
+    val stackStamp = RecursionManager.markStack()
+
     val res = guard.doPreventingRecursion(key, conformsComputable(left, right, visited, checkWeak))
     if (res == null) return (false, ScUndefinedSubstitutor())
-    cache.put(key, res)
+
+    if (stackStamp.mayCacheNow()) {
+      cache.put(key, res)
+    }
+
     if (substitutor.isEmpty) return res
     res.copy(_2 = substitutor + res._2)
   }

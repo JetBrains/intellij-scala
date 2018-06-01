@@ -107,10 +107,12 @@ object CachedWithRecursionGuard {
           if (fromCachedHolder != null) return fromCachedHolder
 
           val $guard = $recursionGuardFQN[$dataForGuardType, $cachedValueProviderResultTypeFQN[$resultType]]($keyVarName.toString)
-          if ($guard.currentStackContains($dataForGuardName))
+          if ($guard.checkReentrancy($dataForGuardName))
             return $cachesUtilFQN.handleRecursiveCall($elemName, $dataName, $keyVarName, $defValueName)
 
           var $computedValue: $resultType = null
+
+          val stackStamp = $recursionManagerFQN.markStack()
 
           ${doPreventingRecursion(c)(withProbablyRecursiveException, guard, dataForGuardName, retTp)}
 
@@ -119,8 +121,11 @@ object CachedWithRecursionGuard {
             case notNull => notNull
           }
 
-          $updateHolder
-          $getFromHolder
+          if (stackStamp.mayCacheNow()) {
+            $updateHolder
+            $getFromHolder
+          }
+          else $resultName
           """
         val updatedDef = DefDef(mods, name, tpParams, paramss, retTp, updatedRhs)
         val res = q"""

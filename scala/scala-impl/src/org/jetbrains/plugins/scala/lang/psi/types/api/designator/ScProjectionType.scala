@@ -336,7 +336,7 @@ object ScProjectionType {
   private val guard = RecursionManager.RecursionGuard[ScType, Option[ScType]]("aliasProjectionGuard")
 
   def simpleAliasProjection(p: ScProjectionType): ScType = {
-    if (guard.currentStackContains(p)) return p
+    if (guard.checkReentrancy(p)) return p
 
     p.actual match {
       case (td: ScTypeAliasDefinition, subst) if td.typeParameters.isEmpty =>

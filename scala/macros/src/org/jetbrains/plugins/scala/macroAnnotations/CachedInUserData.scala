@@ -99,8 +99,14 @@ object CachedInUserData {
           val fromCachedHolder = $getFromHolder
           if (fromCachedHolder != null) return fromCachedHolder
 
+          val stackStamp = $recursionManagerFQN.markStack()
+
           val $resultName = $computation
-          $updateHolder
+
+          if (stackStamp.mayCacheNow()) {
+            $updateHolder
+          }
+
           $resultName
           """
         val updatedDef = DefDef(mods, name, tpParams, paramss, retTp, updatedRhs)

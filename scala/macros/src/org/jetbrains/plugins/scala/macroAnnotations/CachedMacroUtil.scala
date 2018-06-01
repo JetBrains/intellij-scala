@@ -75,6 +75,12 @@ object CachedMacroUtil {
     q"org.jetbrains.plugins.scala.caches.RecursionManager.RecursionGuard"
   }
 
+  def recursionManagerFQN(implicit c: whitebox.Context): c.universe.Tree = {
+    import c.universe.Quasiquote
+    q"org.jetbrains.plugins.scala.caches.RecursionManager"
+  }
+
+
   def psiModificationTrackerFQN(implicit c: whitebox.Context): c.universe.Tree = {
     import c.universe.Quasiquote
     q"_root_.com.intellij.psi.util.PsiModificationTracker"
@@ -194,7 +200,7 @@ object CachedMacroUtil {
       abort("Annotated function has explicit return statements, function body can't be inlined")(c)
     }
 
-    q"""if ($guard.isReentrant($data)) {}
+    q"""if ($guard.checkReentrancy($data)) {}
         else {
           val realKey = $guard.createKey($data)
 

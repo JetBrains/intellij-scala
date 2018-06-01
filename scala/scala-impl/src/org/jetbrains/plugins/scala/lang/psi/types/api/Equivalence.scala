@@ -59,13 +59,16 @@ trait Equivalence {
       return tuple.copy(_2 = substitutor + tuple._2)
     }
 
-    if (guard.currentStackContains(key)) {
+    if (guard.checkReentrancy(key)) {
       return (false, ScUndefinedSubstitutor())
     }
 
+    val stackStamp = RecursionManager.markStack()
+
     val result = guard.doPreventingRecursion(key, equivComputable(left, right, ScUndefinedSubstitutor(), falseUndef))
+
     if (result == null) return (false, ScUndefinedSubstitutor())
-    if (!nowEval) {
+    if (!nowEval && stackStamp.mayCacheNow()) {
       try {
         eval.set(true)
         cache.put(key, result)

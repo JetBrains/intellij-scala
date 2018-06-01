@@ -5,6 +5,7 @@ import com.intellij.openapi.progress.ProgressManager
 import com.intellij.openapi.project.Project
 import com.intellij.psi._
 import com.intellij.psi.util.PsiTreeUtil
+import org.jetbrains.plugins.scala.caches.RecursionManager
 import org.jetbrains.plugins.scala.extensions._
 import org.jetbrains.plugins.scala.lang.macros.evaluator.{MacroContext, ScalaMacroEvaluator}
 import org.jetbrains.plugins.scala.lang.psi.ScalaPsiUtil
@@ -118,6 +119,7 @@ class ImplicitCollector(place: PsiElement,
           case Some(cached) if !fullInfo => return cached
           case _ =>
         }
+        val stackStamp = RecursionManager.markStack()
 
         val firstCandidates = compatible(visibleNamesCandidates())
         val result =
@@ -127,7 +129,8 @@ class ImplicitCollector(place: PsiElement,
             if (secondCandidates.nonEmpty) secondCandidates else firstCandidates
           }
 
-        if (!isExtensionConversion) implicitCollectorCache.put(place, tp, result)
+        if (!isExtensionConversion && stackStamp.mayCacheNow())
+          implicitCollectorCache.put(place, tp, result)
 
         result
       }
