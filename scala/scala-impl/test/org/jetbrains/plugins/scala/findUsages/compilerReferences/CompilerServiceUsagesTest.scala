@@ -16,7 +16,7 @@ class CompilerServiceUsagesTest extends ScalaCompilerReferenceServiceFixture {
 
   private def runSearchTest(
     files:    (String, String)*
-  )(expected: (String, Set[Int])*)(target: => PsiElement = implicitSearchTargetAtCaret): Unit = {
+  )(expected: (String, Seq[Int])*)(target: => PsiElement = implicitSearchTargetAtCaret): Unit = {
     val (targetFile, rest) = (files.head, files.tail)
 
     val filesMap = rest.map {
@@ -59,7 +59,7 @@ class CompilerServiceUsagesTest extends ScalaCompilerReferenceServiceFixture {
     assertTrue("Should not find any usages if index does not exist", dirtyUsages.isEmpty)
     buildProject()
     val usages   = service.usagesOf(implicitSearchTargetAtCaret)
-    val expected = Set(LinesWithUsagesInFile(file.getVirtualFile, Set(5)))
+    val expected = Set(LinesWithUsagesInFile(file.getVirtualFile, Seq(5)))
     assertEquals(expected, usages)
   }
 
@@ -113,7 +113,7 @@ class CompilerServiceUsagesTest extends ScalaCompilerReferenceServiceFixture {
           |import SimpleA.x
           |class SimpleC { println(implicitly[Int]) }
     """.stripMargin,
-    )("SimpleB.scala" -> Set(5), "SimpleC.scala" -> Set(3))()
+    )("SimpleB.scala" -> Seq(5), "SimpleC.scala" -> Seq(3))()
 
   def testImplicitParam(): Unit =
     runSearchTest(
@@ -131,7 +131,7 @@ class CompilerServiceUsagesTest extends ScalaCompilerReferenceServiceFixture {
            |  foo(42)
            |}
        """.stripMargin
-    )("ImplicitParam.scala" -> Set(8, 11))()
+    )("ImplicitParam.scala" -> Seq(8, 11))()
 
   def testImplicitConversion(): Unit =
     runSearchTest(
@@ -145,7 +145,7 @@ class CompilerServiceUsagesTest extends ScalaCompilerReferenceServiceFixture {
            |
            |object Imports { import ImplicitConv.string2Foo; "foobar".foo() }
        """.stripMargin
-    )("ImplicitConv.scala" -> Set(-1, 5, 8))()
+    )("ImplicitConv.scala" -> Seq(5, 8))()
 
   def testRecursiveImplicits(): Unit =
     runSearchTest(
@@ -174,7 +174,7 @@ class CompilerServiceUsagesTest extends ScalaCompilerReferenceServiceFixture {
           |  val a = implicitly[ToString[List[(F, F)]]].toS(List.empty[(F, F)])
           |}
       """.stripMargin
-    )("RecursiveImplicitsB.scala" -> Set(5))()
+    )("RecursiveImplicitsB.scala" -> Seq(5))()
 
   def testInheritedImplicit(): Unit =
     runSearchTest(
@@ -186,7 +186,7 @@ class CompilerServiceUsagesTest extends ScalaCompilerReferenceServiceFixture {
           |  foo
           |}
       """.stripMargin
-    )("InheritedB.scala" -> Set(4))()
+    )("InheritedB.scala" -> Seq(4))()
 
   def testImplicitClass(): Unit = 
     runSearchTest(
@@ -209,7 +209,7 @@ class CompilerServiceUsagesTest extends ScalaCompilerReferenceServiceFixture {
          |  3.thrice
          |}
        """.stripMargin
-    )("ImplicitClassB.scala" -> Set(4, 5, 6))()
+    )("ImplicitClassB.scala" -> Seq(4, 5, 6))()
 
   def testUsageFromLibrary(): Unit = 
     runSearchTest(
@@ -220,7 +220,7 @@ class CompilerServiceUsagesTest extends ScalaCompilerReferenceServiceFixture {
          |  Set(1, 2, 3).asJava
          |} 
        """.stripMargin
-    )("UsageFromLibrary.scala" -> Set(4)) {
+    )("UsageFromLibrary.scala" -> Seq(4)) {
       val aClass = myFixture.findClass("scala.collection.convert.Decorators.AsJava")
       aClass.getMethods.find(_.getName == "asJava").get
     }
@@ -236,7 +236,7 @@ class CompilerServiceUsagesTest extends ScalaCompilerReferenceServiceFixture {
          |  implicitly[Foo[Int]]
          |}
        """.stripMargin
-    )("PrivateThis.scala" -> Set(4, 6))()
+    )("PrivateThis.scala" -> Seq(4, 6))()
 
   def testApplyMethod(): Unit = 
     runSearchTest(
@@ -255,5 +255,18 @@ class CompilerServiceUsagesTest extends ScalaCompilerReferenceServiceFixture {
         |  val fooModule = Foo
         |}
       """.stripMargin
-    )("ApplyMethodA.scala" -> Set(-1, 5), "ApplyMethodB.scala" -> Set(3))(myFixture.getElementAtCaret)
+    )("ApplyMethodA.scala" -> Seq(5), "ApplyMethodB.scala" -> Seq(3))(myFixture.getElementAtCaret)
+  
+  def testSynthetic(): Unit = {
+    myFixture.configureByText(
+      "Synthetic.scala",
+      s"""
+         |trait Foo[T]
+         |case class Bar[T](i: Int)(implicit val e${CARET}v: Foo[T])
+       """.stripMargin
+    )
+    buildProject()
+    val usages   = service.usagesOf(implicitSearchTargetAtCaret)
+    assertTrue(s"Should not find any usages in synthetic methods: $usages.", usages.isEmpty)
+  }
 }
