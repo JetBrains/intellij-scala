@@ -10,12 +10,13 @@ import org.jetbrains.plugins.scala.lang.psi.api.base.types.{ScSequenceArg, ScTup
 import org.jetbrains.plugins.scala.lang.psi.api.expr.ExpectedTypes._
 import org.jetbrains.plugins.scala.lang.psi.api.expr._
 import org.jetbrains.plugins.scala.lang.psi.api.statements._
-import org.jetbrains.plugins.scala.lang.psi.api.statements.params.ScParameter
+import org.jetbrains.plugins.scala.lang.psi.api.statements.params.{ScClassParameter, ScParameter}
 import org.jetbrains.plugins.scala.lang.psi.api.toplevel.typedef.ScMember
 import org.jetbrains.plugins.scala.lang.psi.api.toplevel.{ScEarlyDefinitions, ScTypedDefinition}
 import org.jetbrains.plugins.scala.lang.psi.impl.ScalaPsiManager
 import org.jetbrains.plugins.scala.lang.psi.impl.expr.ExpectedTypesImpl._
 import org.jetbrains.plugins.scala.lang.psi.impl.toplevel.synthetic.ScSyntheticFunction
+import org.jetbrains.plugins.scala.lang.psi.impl.toplevel.typedef.TypeDefinitionMembers
 import org.jetbrains.plugins.scala.lang.psi.implicits.ImplicitResolveResult
 import org.jetbrains.plugins.scala.lang.psi.types.api._
 import org.jetbrains.plugins.scala.lang.psi.types.api.designator.ScDesignatorType
@@ -517,11 +518,11 @@ class ExpectedTypesImpl extends ExpectedTypes {
     val typeParameters =
       member.asOptionOf[ScFunction].map(_.typeParameters).getOrElse(Seq.empty)
 
-    val superMethodAndSubstitutor = member match {
+    val superMemberAndSubstitutor = member match {
       case fun: ScFunction => fun.superMethodAndSubstitutor
-      case other: ScMember => ScalaPsiUtil.valSuperMethodAndSubstitutor(other)
+      case other: ScMember => valSuperSignature(other).map(s => (s.namedElement, s.substitutor))
     }
-    superMethodAndSubstitutor match {
+    superMemberAndSubstitutor match {
       case Some((fun: ScFunction, subst)) =>
         val typeParamSubst =
           ScSubstitutor.bind(fun.typeParameters, typeParameters)(TypeParameterType(_))
@@ -537,9 +538,36 @@ class ExpectedTypesImpl extends ExpectedTypes {
           ScSubstitutor.bind(fun.getTypeParameters, typeParameters)(TypeParameterType(_))
 
         Some(typeParamSubst.followed(subst).subst(fun.getReturnType.toScType()))
+      case Some((t: Typeable, s: ScSubstitutor)) =>
+        t.`type`().map(s.subst).toOption
       case _ => None
     }
   }
+
+  private def valSuperSignature(m: ScMember): Option[Signature] = {
+    def superSignature(name: String, containingClass: PsiClass) = {
+      val sigs = TypeDefinitionMembers.getSignatures(containingClass).forName(name)._1
+      sigs.iterator.collectFirst {
+        case (sig, node) if sig.paramLength.sum == 0 =>
+          node.primarySuper.map(_.info)
+      }.flatten
+    }
+
+    val maybeName = m match {
+      case v: ScValueOrVariable => v.declaredNames.headOption
+      case cp: ScClassParameter if cp.isEffectiveVal => Some(cp.name)
+      case _ => None
+    }
+
+    for {
+      name <- maybeName
+      containingClass <- m.containingClass.toOption
+      signature <- superSignature(name, containingClass)
+    } yield {
+      signature
+    }
+  }
+
 }
 
 private object ExpectedTypesImpl {

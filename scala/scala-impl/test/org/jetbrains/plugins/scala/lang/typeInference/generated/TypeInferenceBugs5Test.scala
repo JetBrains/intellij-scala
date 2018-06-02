@@ -1094,4 +1094,17 @@ class TypeInferenceBugs5Test extends TypeInferenceTestBase {
       |//SCL13718.Bar[F]
     """.stripMargin.trim
   }
+
+  def testSCL13790(): Unit = doTest {
+    s"""trait A {
+      |  val x: Int
+      |}
+      |
+      |class B extends A {
+      |  implicit def booleanToInt(b: Boolean): Int = b.compareTo(false)
+      |
+      |  override val x = ${START}false$END
+      |}
+      |//Int""".stripMargin
+  }
 }
