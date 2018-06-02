@@ -5,6 +5,7 @@ import com.intellij.psi.PsiElement
 import com.intellij.psi.impl.light.LightElement
 import org.jetbrains.plugins.scala.lang.psi.ScalaPsiElement
 import org.jetbrains.plugins.scala.lang.psi.api.base.ScFieldId
+import org.jetbrains.plugins.scala.lang.psi.light.LightUtil
 import org.jetbrains.plugins.scala.lang.psi.types.ScType
 import org.jetbrains.plugins.scala.lang.psi.types.result._
 
@@ -14,11 +15,12 @@ import org.jetbrains.plugins.scala.lang.psi.types.result._
  */
 class ScLightFieldId(rt: ScType, val f: ScFieldId)
   extends LightElement(f.getManager, f.getLanguage) with ScFieldId {
-  setNavigationElement(f)
 
   override def nameId: PsiElement = f.nameId
 
   override def toString: String = f.toString
+
+  override def getNavigationElement: PsiElement = LightUtil.originalNavigationElement(f)
 
   override def navigate(requestFocus: Boolean): Unit = f.navigate(requestFocus)
 

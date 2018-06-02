@@ -9,6 +9,7 @@ import org.jetbrains.plugins.scala.lang.psi.api.base.types.ScTypeElement
 import org.jetbrains.plugins.scala.lang.psi.api.expr.ScAnnotation
 import org.jetbrains.plugins.scala.lang.psi.api.statements.ScTypeAliasDefinition
 import org.jetbrains.plugins.scala.lang.psi.api.statements.params.ScTypeParamClause
+import org.jetbrains.plugins.scala.lang.psi.light.LightUtil
 import org.jetbrains.plugins.scala.lang.psi.types.TypeAliasSignature
 import org.jetbrains.plugins.scala.lang.psi.types.result._
 
@@ -18,7 +19,6 @@ import org.jetbrains.plugins.scala.lang.psi.types.result._
  */
 class ScLightTypeAliasDefinition(s: TypeAliasSignature, val ta: ScTypeAliasDefinition)
   extends LightElement(ta.getManager, ta.getLanguage) with ScTypeAliasDefinition {
-  setNavigationElement(ta)
 
   override def nameId: PsiElement = ta.nameId
 
@@ -55,6 +55,8 @@ class ScLightTypeAliasDefinition(s: TypeAliasSignature, val ta: ScTypeAliasDefin
   override def hasAnnotation(qualifiedName: String): Boolean = ta.hasAnnotation(qualifiedName)
 
   override def annotations: Seq[ScAnnotation] = ta.annotations
+
+  override def getNavigationElement: PsiElement = LightUtil.originalNavigationElement(ta)
 
   override def navigate(requestFocus: Boolean): Unit = ta.navigate(requestFocus)
 

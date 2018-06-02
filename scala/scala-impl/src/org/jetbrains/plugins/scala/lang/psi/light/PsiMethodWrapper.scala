@@ -89,12 +89,6 @@ abstract class PsiMethodWrapper(manager: PsiManager, method: PsiMethod, containi
     method.getSignature(substitutor)
   }
 
-  override final def getNavigationElement: PsiElement =
-    super.getNavigationElement
-
-  override final def setNavigationElement(navigationElement: PsiElement): Unit =
-    super.setNavigationElement(navigationElement)
-
   override final def getParent: PsiElement =
     containingClass
 

@@ -9,7 +9,6 @@ import com.intellij.lang.ASTNode
 import com.intellij.openapi.progress.{ProcessCanceledException, ProgressManager}
 import com.intellij.openapi.project.DumbService
 import com.intellij.psi._
-import com.intellij.psi.impl.light.LightField
 import com.intellij.psi.util.PsiTreeUtil
 import org.jetbrains.plugins.scala.extensions._
 import org.jetbrains.plugins.scala.lang.parser.ScalaElementTypes.{CLASS_DEFINITION, PRIMARY_CONSTRUCTOR}
@@ -20,6 +19,7 @@ import org.jetbrains.plugins.scala.lang.psi.api.statements.params.{ScParameter, 
 import org.jetbrains.plugins.scala.lang.psi.api.toplevel.typedef._
 import org.jetbrains.plugins.scala.lang.psi.api.toplevel.{ScTypeParametersOwner, ScTypedDefinition}
 import org.jetbrains.plugins.scala.lang.psi.impl.toplevel.typedef.TypeDefinitionMembers.SignatureNodes
+import org.jetbrains.plugins.scala.lang.psi.light.LightUtil
 import org.jetbrains.plugins.scala.lang.psi.stubs.ScTemplateDefinitionStub
 import org.jetbrains.plugins.scala.lang.psi.types.api.TypeParameterType
 import org.jetbrains.plugins.scala.lang.psi.types.recursiveUpdate.ScSubstitutor
@@ -252,12 +252,9 @@ class ScClassImpl protected (stub: ScTemplateDefinitionStub, node: ASTNode)
       case Some(constr) => constr.parameters.map { param =>
         param.`type`() match {
           case Right(tp: TypeParameterType) if tp.psiTypeParameter.findAnnotation("scala.specialized") != null =>
-            val factory: PsiElementFactory = PsiElementFactory.SERVICE.getInstance(getProject)
             val psiTypeText: String = tp.toPsiType.getCanonicalText
-            val text = s"public final $psiTypeText ${param.name};"
-            val elem = new LightField(getManager, factory.createFieldFromText(text, this), this)
-            elem.setNavigationElement(param)
-            Option(elem)
+            val lightField = LightUtil.createLightField(s"public final $psiTypeText ${param.name};", this)
+            Option(lightField)
           case _ => None
         }
       }
