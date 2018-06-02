@@ -11,18 +11,25 @@ import org.jetbrains.jps.backwardRefs.index.CompilerReferenceIndex
 package object compilerReferences {
   private def buildDir(project: Project): Option[File] =
     Option(BuildManager.getInstance().getProjectSystemDirectory(project))
-  
+
   def indexDir(project: Project): Option[File] = buildDir(project).map(new File(_, "scala-compiler-references"))
 
-  final case class LinesWithUsagesInFile(file: VirtualFile, lines: Seq[Int])
+  final case class LinesWithUsagesInFile(file: VirtualFile, lines: Seq[Int]) {
+    override def equals(that: scala.Any): Boolean = that match {
+      case other: LinesWithUsagesInFile =>
+        file.getPath == other.file.getPath &&
+          lines.sorted == other.lines.sorted
+      case _ => false
+    }
+  }
 
   def withLock[T](lock: Lock)(body: => T): T = {
     lock.lock()
-    
-    val result = 
+
+    val result =
       try body
       finally lock.unlock()
-    
+
     result
   }
 

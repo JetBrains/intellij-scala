@@ -56,7 +56,7 @@ private class CompilerReferenceIndexer(project: Project) {
       try {
         val classFiles = parserJobQueue.poll()
         val sourceFile = classFiles.headOption.map(_.getSourceFile)
-        val parsed     = classFiles.map(cf => ClassfileParser.parse(cf.getOutputFile))
+        val parsed     = ClassfileParser.parse(classFiles.map(_.getOutputFile))
         val data       = sourceFile.map(CompiledScalaFile(_, parsed, writer))
         data.foreach(ProcessCompiledFile andThen writerJobQueue.put)
       } catch {

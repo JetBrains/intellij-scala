@@ -73,4 +73,7 @@ class ScalaSig(val entries: Array[Entry]) {
     m1.name == m2.name && m1.parent == m2.parent &&
       unwrapType(m1.infoType) == unwrapType(m2.infoType)
   }
+  
+  def syntheticSymbols(): Seq[Symbol] = 
+    parentToChildren.valuesIterator.flatten.filter(_.isSynthetic).toList
 }

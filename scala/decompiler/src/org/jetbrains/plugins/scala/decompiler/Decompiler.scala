@@ -11,6 +11,10 @@ import org.apache.bcel.classfile._
 import scala.reflect.internal.pickling.ByteCodecs
 
 object Decompiler {
+  private val SCALA_SIG                 = "ScalaSig"
+  val BYTES_VALUE                       = "bytes"
+  val SCALA_SIG_ANNOTATION: String      = "Lscala/reflect/ScalaSignature;"
+  val SCALA_LONG_SIG_ANNOTATION: String = "Lscala/reflect/ScalaLongSignature;"
 
   import scalasig._
 

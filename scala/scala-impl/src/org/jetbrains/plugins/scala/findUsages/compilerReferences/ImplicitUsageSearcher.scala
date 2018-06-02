@@ -56,7 +56,8 @@ class ImplicitUsageSearcher extends QueryExecutorBase[PsiReference, ReferencesSe
         
         val unresolvedRefs = extraLines.map { line =>
           val offset = document.getLineStartOffset(line)
-          UnresolvedImplicitReference(target, psiFile, offset)
+          //@TODO: perhaps it makes sense to somehow show the number of unresolved implicits in this line
+          UnresolvedImplicitReference(target, psiFile, offset) 
         }
         
         refs ++ unresolvedRefs
