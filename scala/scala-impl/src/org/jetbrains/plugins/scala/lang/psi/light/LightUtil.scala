@@ -3,8 +3,10 @@ package lang.psi.light
 
 import com.intellij.openapi.project.Project
 import com.intellij.psi._
+import com.intellij.psi.impl.light.LightField
 import org.jetbrains.plugins.scala.extensions._
 import org.jetbrains.plugins.scala.lang.psi.api.statements.ScAnnotationsHolder
+import org.jetbrains.plugins.scala.lang.psi.api.toplevel.typedef.ScTypeDefinition
 import org.jetbrains.plugins.scala.lang.psi.types.ScTypeExt
 import org.jetbrains.plugins.scala.lang.psi.types.api.ParameterizedType
 
@@ -81,4 +83,21 @@ object LightUtil {
     val elementFactory = JavaPsiFacade.getInstance(project).getElementFactory
     elementFactory.createTypeElementFromText(tp.getCanonicalText, context)
   }
+
+  //see LightElement.setNavigationElement
+  def originalNavigationElement(elem: PsiElement): PsiElement = {
+    elem.toOption
+      .map(_.getNavigationElement)
+      .getOrElse(elem)
+  }
+
+  def createLightField(fieldText: String, containingClass: ScTypeDefinition): PsiField = {
+    val factory = JavaPsiFacade.getInstance(containingClass.getProject).getElementFactory
+    val dummyField = factory.createFieldFromText(fieldText, containingClass)
+
+    new LightField(containingClass.getManager, dummyField, containingClass) {
+      override def getNavigationElement: PsiElement = originalNavigationElement(containingClass)
+    }
+  }
+
 }

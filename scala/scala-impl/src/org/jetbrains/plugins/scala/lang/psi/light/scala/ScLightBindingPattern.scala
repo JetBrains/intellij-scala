@@ -5,6 +5,7 @@ import com.intellij.psi.PsiElement
 import com.intellij.psi.impl.light.LightElement
 import org.jetbrains.plugins.scala.lang.psi.ScalaPsiElement
 import org.jetbrains.plugins.scala.lang.psi.api.base.patterns.ScBindingPattern
+import org.jetbrains.plugins.scala.lang.psi.light.LightUtil
 import org.jetbrains.plugins.scala.lang.psi.types.ScType
 import org.jetbrains.plugins.scala.lang.psi.types.result._
 
@@ -14,7 +15,6 @@ import org.jetbrains.plugins.scala.lang.psi.types.result._
  */
 class ScLightBindingPattern(rt: ScType, val b: ScBindingPattern)
   extends LightElement(b.getManager, b.getLanguage) with ScBindingPattern {
-  setNavigationElement(b)
 
   override def nameId: PsiElement = b.nameId
 
@@ -27,6 +27,8 @@ class ScLightBindingPattern(rt: ScType, val b: ScBindingPattern)
   override def getOriginalElement: PsiElement = super[ScBindingPattern].getOriginalElement
 
   override def toString: String = b.toString
+
+  override def getNavigationElement: PsiElement = LightUtil.originalNavigationElement(b)
 
   override def navigate(requestFocus: Boolean): Unit = b.navigate(requestFocus)
 
