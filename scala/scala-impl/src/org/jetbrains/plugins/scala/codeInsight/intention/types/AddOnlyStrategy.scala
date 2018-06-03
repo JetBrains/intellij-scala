@@ -5,7 +5,7 @@ package types
 
 import com.intellij.openapi.editor.Editor
 import com.intellij.openapi.project.Project
-import com.intellij.psi.{PsiClass, PsiElement, PsiMethod}
+import com.intellij.psi.{PsiElement, PsiMethod}
 import org.jetbrains.plugins.scala.extensions._
 import org.jetbrains.plugins.scala.lang.psi.ScalaPsiUtil
 import org.jetbrains.plugins.scala.lang.psi.api.base.patterns.{ScBindingPattern, ScTypedPattern, ScWildcardPattern}
@@ -13,7 +13,7 @@ import org.jetbrains.plugins.scala.lang.psi.api.base.types.ScTypeElement
 import org.jetbrains.plugins.scala.lang.psi.api.expr._
 import org.jetbrains.plugins.scala.lang.psi.api.statements._
 import org.jetbrains.plugins.scala.lang.psi.api.statements.params.{ScParameter, ScParameterClause}
-import org.jetbrains.plugins.scala.lang.psi.api.toplevel.typedef.{ScClass, ScMember, ScTrait, ScTypeDefinition}
+import org.jetbrains.plugins.scala.lang.psi.api.toplevel.typedef.{ScMember, ScTypeDefinition}
 import org.jetbrains.plugins.scala.lang.psi.api.toplevel.{ScNamedElement, ScTypedDefinition}
 import org.jetbrains.plugins.scala.lang.psi.impl.ScalaPsiElementFactory._
 import org.jetbrains.plugins.scala.lang.psi.impl.toplevel.typedef.TypeDefinitionMembers
@@ -255,15 +255,10 @@ object AddOnlyStrategy {
 
         get(tpe).map(_.canonicalCodeText)
           .filter(t => goodTypes.exists(t.startsWith))
-      case Some(sc: ScTypeDefinition) if (sc +: sc.supers).exists(isSealed) =>
-        get(tpe).find(_.extractClass.exists(isSealed)).toSeq
+      case Some(sc: ScTypeDefinition) if (sc +: sc.supers).exists(_.isSealed) =>
+        get(tpe).find(_.extractClass.exists(_.isSealed)).toSeq
           .map(_.canonicalCodeText)
       case _ => Seq.empty
     })
-  }
-
-  private[this] def isSealed(clazz: PsiClass) = clazz match {
-    case _: ScClass | _: ScTrait => clazz.hasModifierPropertyScala("sealed")
-    case _ => false
   }
 }

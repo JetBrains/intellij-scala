@@ -62,7 +62,7 @@ object CreateCaseClausesIntention {
 
   private def findSurroundingMatch(element: PsiElement): Option[((PsiClass, ScMatchStmt), (PsiClass, ScMatchStmt) => (Seq[String], Seq[PsiClass]), String)] =
     extractClass(element, classOf[PsiClass], regardlessClauses = false).collect {
-      case pair@(clazz: ScTypeDefinition, _) if clazz.hasModifierProperty("sealed") =>
+      case pair@(clazz: ScTypeDefinition, _) if clazz.isSealed =>
         (pair, patternsAndTargets(_)(_)(), "variants of sealed type")
       case pair if pair._1.isEnum =>
         (pair, enumClauses, "variants of java enum")
