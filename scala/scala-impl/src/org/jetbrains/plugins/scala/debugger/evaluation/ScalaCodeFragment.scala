@@ -6,7 +6,7 @@ import com.intellij.openapi.project.Project
 import com.intellij.psi.IntentionFilterOwner.IntentionActionsFilter
 import com.intellij.psi.JavaCodeFragment.{ExceptionHandler, VisibilityChecker}
 import com.intellij.psi._
-import com.intellij.psi.impl.ResolveScopeManager
+import com.intellij.psi.impl.PsiManagerEx
 import com.intellij.psi.impl.source.PsiFileImpl
 import com.intellij.psi.impl.source.tree.FileElement
 import com.intellij.psi.scope.PsiScopeProcessor
@@ -123,12 +123,17 @@ class ScalaCodeFragment(project: Project, text: String) extends {
 
   override def clone(): PsiFileImpl = {
     val clone = cloneImpl(calcTreeElement.clone.asInstanceOf[FileElement]).asInstanceOf[ScalaCodeFragment]
-    clone.imports = this.imports
-    clone.vFile = new LightVirtualFile("Dummy.scala",
-      ScalaFileType.INSTANCE, getText)
-    clone.provider = provider.clone().asInstanceOf[SingleRootFileViewProvider]
-    clone.provider.forceCachedPsi(clone)
-    clone.setOriginalFile(this)
+    clone.myOriginalFile = this
+    clone.imports = imports
+
+    val virtualFile = new LightVirtualFile(getName, getLanguage, getText)
+    clone.vFile = virtualFile
+
+    val fileManager = getManager.asInstanceOf[PsiManagerEx].getFileManager
+    val cloneViewProvider = fileManager.createFileViewProvider(virtualFile, false).asInstanceOf[SingleRootFileViewProvider]
+    cloneViewProvider.forceCachedPsi(clone)
+    clone.provider = cloneViewProvider
+
     clone
   }
 }
