@@ -15,7 +15,7 @@ import org.jetbrains.plugins.scala.lang.lexer.ScalaTokenTypes
 
 sealed class ScalaFormattingModelBuilder extends FormattingModelBuilder {
 
-  def createModel(element: PsiElement, settings: CodeStyleSettings): FormattingModel = {
+  override def createModel(element: PsiElement, settings: CodeStyleSettings): FormattingModel = {
     val node: ASTNode = element.getNode
     assert(node != null)
     val containingFile: PsiFile = element.getContainingFile.getViewProvider.getPsi(ScalaLanguage.INSTANCE)
@@ -26,7 +26,7 @@ sealed class ScalaFormattingModelBuilder extends FormattingModelBuilder {
     new ScalaFormattingModel(containingFile, block, FormattingDocumentModelImpl.createOn(containingFile))
   }
 
-  def getRangeAffectingIndent(file: PsiFile, offset: Int, elementAtOffset: ASTNode): TextRange = {
+  override def getRangeAffectingIndent(file: PsiFile, offset: Int, elementAtOffset: ASTNode): TextRange = {
     elementAtOffset.getTextRange
   }
 }
