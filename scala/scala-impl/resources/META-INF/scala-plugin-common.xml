@@ -655,12 +655,12 @@
 
         <intentionAction>
             <category>Scala/Expressions</category>
-            <className>org.jetbrains.plugins.scala.codeInsight.intention.expression.IntroduceExplicitParameterIntention</className>
+            <className>org.jetbrains.plugins.scala.codeInsight.intention.expression.ConvertUnderscoreToParameterIntention</className>
         </intentionAction>
 
         <intentionAction>
             <category>Scala/Expressions</category>
-            <className>org.jetbrains.plugins.scala.codeInsight.intention.expression.IntroduceImplicitParameterIntention</className>
+            <className>org.jetbrains.plugins.scala.codeInsight.intention.expression.ConvertParameterToUnderscoreIntention</className>
         </intentionAction>
 
         <intentionAction>

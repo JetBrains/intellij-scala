@@ -9,7 +9,7 @@ import com.intellij.openapi.project.Project
 import com.intellij.openapi.util.TextRange
 import com.intellij.psi.util.PsiTreeUtil
 import com.intellij.psi.{PsiDocumentManager, PsiElement}
-import org.jetbrains.plugins.scala.codeInsight.intention.expression.IntroduceImplicitParameterIntention._
+import org.jetbrains.plugins.scala.codeInsight.intention.expression.ConvertParameterToUnderscoreIntention._
 import org.jetbrains.plugins.scala.codeInspection.InspectionBundle
 import org.jetbrains.plugins.scala.extensions._
 import org.jetbrains.plugins.scala.lang.psi.api.ScalaRecursiveElementVisitor
@@ -28,8 +28,8 @@ import scala.collection.mutable
  * @since 4/18/12
  */
 
-object IntroduceImplicitParameterIntention {
-  def familyName = "Introduce implicit parameter"
+object ConvertParameterToUnderscoreIntention {
+  def familyName = "Convert parameter to underscore"
 
   def createExpressionToIntroduce(expr: ScFunctionExpr, withoutParameterTypes: Boolean): Either[ScExpression, String] = {
     implicit val ctx: ProjectContext = expr
@@ -109,7 +109,7 @@ object IntroduceImplicitParameterIntention {
 
 }
 
-class IntroduceImplicitParameterIntention extends PsiElementBaseIntentionAction {
+class ConvertParameterToUnderscoreIntention extends PsiElementBaseIntentionAction {
   def getFamilyName: String = familyName
 
   override def getText: String = getFamilyName

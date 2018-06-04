@@ -1,7 +1,7 @@
 package org.jetbrains.plugins.scala
 package codeInsight.intentions.expression
 
-import org.jetbrains.plugins.scala.codeInsight.intention.expression.IntroduceExplicitParameterIntention
+import org.jetbrains.plugins.scala.codeInsight.intention.expression.ConvertUnderscoreToParameterIntention
 import org.jetbrains.plugins.scala.codeInsight.intentions.ScalaIntentionTestBase
 
 /**
@@ -9,8 +9,8 @@ import org.jetbrains.plugins.scala.codeInsight.intentions.ScalaIntentionTestBase
  * @since 4/13/12
  */
 
-class IntroduceExplicitParameterIntentionTest extends ScalaIntentionTestBase{
-  def familyName = IntroduceExplicitParameterIntention.familyName
+class ConvertUnderscoreToParameterIntentionTest extends ScalaIntentionTestBase{
+  def familyName = ConvertUnderscoreToParameterIntention.familyName
 
   def testIntroduceExplicitParameter() {
     val text = "some.map(_<caret> > 5)"

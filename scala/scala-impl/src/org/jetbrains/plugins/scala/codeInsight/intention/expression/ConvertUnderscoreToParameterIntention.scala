@@ -35,12 +35,12 @@ import scala.collection.mutable.ArrayBuffer
  * @since 4/13/12
  */
 
-object IntroduceExplicitParameterIntention {
-  def familyName = "Introduce explicit parameter"
+object ConvertUnderscoreToParameterIntention {
+  def familyName = "Convert underscore to parameter"
 }
 
-class IntroduceExplicitParameterIntention extends PsiElementBaseIntentionAction {
-  def getFamilyName: String = IntroduceExplicitParameterIntention.familyName
+class ConvertUnderscoreToParameterIntention extends PsiElementBaseIntentionAction {
+  def getFamilyName: String = ConvertUnderscoreToParameterIntention.familyName
 
   override def getText: String = getFamilyName
 

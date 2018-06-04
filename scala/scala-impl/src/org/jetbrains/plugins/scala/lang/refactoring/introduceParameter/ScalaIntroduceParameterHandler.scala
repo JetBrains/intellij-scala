@@ -16,7 +16,7 @@ import com.intellij.psi.codeStyle.CodeStyleManager
 import com.intellij.psi.util.PsiTreeUtil
 import com.intellij.refactoring.RefactoringBundle
 import com.intellij.refactoring.util.CommonRefactoringUtil
-import org.jetbrains.plugins.scala.codeInsight.intention.expression.IntroduceImplicitParameterIntention
+`import org.jetbrains.plugins.scala.codeInsight.intention.expression.ConvertParameterToUnderscoreIntention
 import org.jetbrains.plugins.scala.extensions._
 import org.jetbrains.plugins.scala.lang.psi.ScalaPsiUtil
 import org.jetbrains.plugins.scala.lang.psi.api.ScalaFile
@@ -78,7 +78,7 @@ class ScalaIntroduceParameterHandler extends ScalaRefactoringActionHandler with 
         s"$paramsText $arrow {\n$bodyText\n}"
     }
     val expr = ScalaPsiElementFactory.createExpressionWithContextFromText(funText, elems.head.getContext, elems.head).asInstanceOf[ScFunctionExpr]
-    val toReturn = IntroduceImplicitParameterIntention.createExpressionToIntroduce(expr, withoutParameterTypes = true) match {
+    val toReturn = ConvertParameterToUnderscoreIntention.createExpressionToIntroduce(expr, withoutParameterTypes = true) match {
       case Left(e) => e
       case _ => expr
     }
