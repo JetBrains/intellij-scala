@@ -4,9 +4,7 @@ import java.io.File
 import java.util
 import java.util.UUID
 
-import com.intellij.build.events.impl._
-import com.intellij.build.events.{BuildEvent, MessageEvent, SuccessResult, Warning}
-import com.intellij.build.{BuildViewManager, DefaultBuildDescriptor, events}
+import com.intellij.build.events.{SuccessResult, Warning}
 import com.intellij.compiler.impl.CompilerUtil
 import com.intellij.debugger.DebuggerManagerEx
 import com.intellij.debugger.settings.DebuggerSettings
@@ -14,9 +12,7 @@ import com.intellij.debugger.ui.HotSwapUI
 import com.intellij.execution.Executor
 import com.intellij.execution.executors.DefaultRunExecutor
 import com.intellij.execution.runners.ExecutionEnvironment
-import com.intellij.execution.ui.RunContentDescriptor
 import com.intellij.openapi.compiler.ex.CompilerPathsEx
-import com.intellij.openapi.components.ServiceManager
 import com.intellij.openapi.externalSystem.model.ProjectKeys
 import com.intellij.openapi.externalSystem.model.execution.ExternalSystemTaskExecutionSettings
 import com.intellij.openapi.externalSystem.model.project.ExternalSystemSourceType
@@ -28,7 +24,6 @@ import com.intellij.openapi.progress.{PerformInBackgroundOption, ProgressIndicat
 import com.intellij.openapi.project.Project
 import com.intellij.openapi.vfs.LocalFileSystem
 import com.intellij.task._
-import javax.swing.JComponent
 import org.jetbrains.annotations.Nullable
 import org.jetbrains.plugins.scala.build.{BuildMessages, BuildWarning, IndicatorReporter}
 import org.jetbrains.plugins.scala.extensions
@@ -37,7 +32,6 @@ import org.jetbrains.sbt.project.SbtProjectSystem
 import org.jetbrains.sbt.project.module.SbtModuleType
 import org.jetbrains.sbt.settings.SbtSystemSettings
 import org.jetbrains.sbt.shell.SbtShellCommunication._
-import org.jetbrains.sbt.shell.event._
 
 import scala.collection.JavaConverters._
 import scala.concurrent.Await
@@ -58,10 +52,6 @@ class SbtProjectTaskRunner extends ProjectTaskRunner {
 
       projectSettings.exists(_.useSbtShell) &&
       ES.isExternalSystemAwareModule(SbtProjectSystem.Id, module)
-
-    case _: ArtifactBuildTask =>
-      // TODO should sbt handle this?
-      false
 
     case _: ExecuteRunConfigurationTask =>
       // TODO this includes tests (and what else?). sbt should handle it and test output should be parsed
