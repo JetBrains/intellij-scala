@@ -12,7 +12,7 @@ import com.intellij.openapi.util.text.StringUtil
 import com.intellij.psi._
 import com.intellij.psi.util.PsiTreeUtil
 import com.intellij.ui.awt.RelativePoint
-import org.jetbrains.plugins.scala.actions.{GoToImplicitConversionAction, MakeExplicitAction}
+import org.jetbrains.plugins.scala.actions.{ShowImplicitConversionsAction, MakeExplicitAction}
 import org.jetbrains.plugins.scala.extensions._
 import org.jetbrains.plugins.scala.lang.lexer.ScalaTokenTypes
 import org.jetbrains.plugins.scala.lang.psi.api.base.ScLiteral
@@ -244,7 +244,7 @@ object IntentionUtils {
         if (selectedValue == null) return PopupStep.FINAL_CHOICE
         if (finalChoice) {
           PsiDocumentManager.getInstance(project).commitAllDocuments()
-          GoToImplicitConversionAction.getPopup.dispose()
+          ShowImplicitConversionsAction.getPopup.dispose()
           if (selectedValue == MakeExplicitAction.MAKE_EXPLICIT)
             IntentionUtils.replaceWithExplicit(expr, function, project, editor, elements)
           if (selectedValue == MakeExplicitAction.MAKE_EXPLICIT_STATICALLY)

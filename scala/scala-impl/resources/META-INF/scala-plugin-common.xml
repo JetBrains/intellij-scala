@@ -1542,14 +1542,14 @@
             <keyboard-shortcut first-keystroke="control ENTER" keymap="$default"/>
             <keyboard-shortcut keymap="Mac OS X" first-keystroke="meta shift ENTER"/>
         </action>
-        <action id="Scala.GoToImplicit" class="org.jetbrains.plugins.scala.actions.GoToImplicitConversionAction"
-                text="&amp;Implicit Conversion" description="Go To Implicit Conversion">
+        <action id="Scala.ShowImplicitConversions" class="org.jetbrains.plugins.scala.actions.ShowImplicitConversionsAction"
+                text="&amp;Implicit Conversions" description="Show Implicit Conversions">
             <keyboard-shortcut keymap="$default" first-keystroke="control shift Q"/>
             <keyboard-shortcut keymap="Mac OS X" first-keystroke="ctrl Q"/>
             <keyboard-shortcut keymap="Mac OS X" first-keystroke="meta shift Q" remove="true"/>
             <keyboard-shortcut keymap="Mac OS X 10.5+" first-keystroke="ctrl Q"/>
             <keyboard-shortcut keymap="Mac OS X 10.5+" first-keystroke="meta shift Q" remove="true"/>
-            <add-to-group group-id="GoToCodeGroup" anchor="last"/>
+            <add-to-group group-id="CodeEditorViewGroup" anchor="last"/>
         </action>
         <action id="Scala.MakeExplicit" class="org.jetbrains.plugins.scala.actions.MakeExplicitAction"
                 text="&amp;Make Explicit" description="Make Explicit">
@@ -1586,7 +1586,7 @@
         <action id="Scala.ShowImplicitArguments" class="org.jetbrains.plugins.scala.actions.ShowImplicitArgumentsAction"
                 text="Implicit &amp;Arguments" description="Show Implicit Arguments">
             <keyboard-shortcut first-keystroke="control shift P" keymap="$default"/>
-            <add-to-group group-id="CodeEditorViewGroup" anchor="last"/>
+            <add-to-group group-id="CodeEditorViewGroup" anchor="after" relative-to-action="Scala.ShowImplicitConversions"/>
         </action>
         <action id="Scala.RunWorksheet" class="org.jetbrains.plugins.scala.worksheet.actions.RunWorksheetAction"
                 text="Run Scala Worksheet" description="Run Scala Worksheet">

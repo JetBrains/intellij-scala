@@ -34,7 +34,7 @@ import org.jetbrains.plugins.scala.util.{IntentionUtils, JListCompatibility}
  * Date: 02.06.2010
  */
 
-object GoToImplicitConversionAction {
+object ShowImplicitConversionsAction {
   var popup: JBPopup = null
 
   def getPopup: JBPopup = popup
@@ -44,7 +44,7 @@ object GoToImplicitConversionAction {
   }
 }
 
-class GoToImplicitConversionAction extends AnAction("Go to implicit conversion action") {
+class ShowImplicitConversionsAction extends AnAction("Show implicit conversions") {
   private var hint: LightBulbHint = null
   private val hintAlarm: Alarm = new Alarm
 
@@ -129,7 +129,7 @@ class GoToImplicitConversionAction extends AnAction("Go to implicit conversion a
         list.ensureIndexIsVisible(actualIndex)
       }
 
-      GoToImplicitConversionAction.setPopup(popup)
+      ShowImplicitConversionsAction.setPopup(popup)
 
       hint = new LightBulbHint(editor, project, expr, conversions)
 
