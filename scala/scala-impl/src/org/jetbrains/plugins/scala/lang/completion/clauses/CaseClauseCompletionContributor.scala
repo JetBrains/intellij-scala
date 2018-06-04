@@ -21,6 +21,7 @@ import org.jetbrains.plugins.scala.lang.psi.types.{ScType, ScalaType}
 import org.jetbrains.plugins.scala.lang.refactoring.namesSuggester.NameSuggester
 
 import scala.collection.{JavaConverters, mutable}
+import scala.reflect.ClassTag
 
 class CaseClauseCompletionContributor extends ScalaCompletionContributor {
 
@@ -81,12 +82,12 @@ object CaseClauseCompletionContributor {
     }
   }
 
-  def extractClass[C <: PsiClass](element: PsiElement, classTag: Class[C],
-                                  regardlessClauses: Boolean = true): Option[(C, ScMatchStmt)] =
+  def extractClass[C <: PsiClass](element: PsiElement, regardlessClauses: Boolean = true)
+                                 (implicit classTag: ClassTag[C]): Option[(C, ScMatchStmt)] =
     element.getParent match {
       case statement: ScMatchStmt if regardlessClauses || statement.caseClauses.isEmpty =>
         statement.expr.collect {
-          case Typeable(ExtractClass(clazz)) if classTag.isInstance(clazz) => (clazz.asInstanceOf[C], statement)
+          case Typeable(ExtractClass(clazz)) if classTag.runtimeClass.isInstance(clazz) => (clazz.asInstanceOf[C], statement)
         }
       case _ => None
     }
@@ -98,7 +99,7 @@ object CaseClauseCompletionContributor {
   } yield caseClause
 
   private def targetExpressionClass(caseClause: ScCaseClause) = caseClause.getContext match {
-    case caseClauses: ScCaseClauses => extractClass(caseClauses, classOf[ScTypeDefinition])
+    case caseClauses: ScCaseClauses => extractClass[ScTypeDefinition](caseClauses)
     case _ => None
   }
 

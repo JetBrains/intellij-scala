@@ -57,10 +57,12 @@ object CreateCaseClausesIntention {
 
   private[matcher] val FamilyName = "Generate case clauses"
 
-  private def findSurroundingMatch(element: PsiElement): Option[((PsiClass, ScMatchStmt), (PsiClass, ScMatchStmt) => (Seq[String], Seq[PsiClass]), String)] =
-    extractClass(element, classOf[PsiClass], regardlessClauses = false).collect {
+  private type ClassAndPlace = (PsiClass, ScMatchStmt)
+
+  private def findSurroundingMatch(element: PsiElement): Option[(ClassAndPlace, ClassAndPlace => (Seq[String], Seq[PsiClass]), String)] =
+    extractClass[PsiClass](element, regardlessClauses = false).collect {
       case pair@(clazz: ScTypeDefinition, _) if clazz.isSealed =>
-        (pair, patternsAndTargets(_)(_)(), "variants of sealed type")
+        (pair, patternsAndTargets(_)(), "variants of sealed type")
       case pair if pair._1.isEnum =>
         (pair, enumClauses, "variants of java enum")
       case pair if !pair._1.hasFinalModifier =>
@@ -80,7 +82,9 @@ object CreateCaseClausesIntention {
     } reference.bindToElement(target)
   }
 
-  private[this] def enumClauses(clazz: PsiClass, statement: ScMatchStmt) = {
+  private[this] def enumClauses(pair: ClassAndPlace) = {
+    val (clazz, _) = pair
+
     val className = clazz.name
     val patternNames = clazz.getFields.collect {
       case constant: PsiEnumConstant => s"$className.${constant.name}"
@@ -89,25 +93,25 @@ object CreateCaseClausesIntention {
     (patternNames.toSeq, Seq.fill(patternNames.length)(clazz))
   }
 
-  private[this] def classesAndObjectsClauses(clazz: PsiClass, statement: ScMatchStmt) = {
-    val (patternNames, targets) = patternsAndTargets(clazz)(statement) { definition =>
+  private[this] def classesAndObjectsClauses(pair: ClassAndPlace) = {
+    val (patternNames, targets) = patternsAndTargets(pair) { definition =>
       definition.isCase || definition.isObject
     }
 
     (patternNames :+ "_", targets)
   }
 
-  private[this] def patternsAndTargets(clazz: PsiClass)
-                                      (statement: ScMatchStmt)
+  private[this] def patternsAndTargets(pair: ClassAndPlace)
                                       (predicate: ScTypeDefinition => Boolean = _ => true) = {
+    val (clazz, statement) = pair
     val inheritors = findInheritors(clazz).filter(predicate)
 
-    (
-      inheritors.map(patternText(_, statement)),
-      inheritors.map {
-        case clazz: ScClass if clazz.isCase => ScalaPsiUtil.getCompanionModule(clazz).get
-        case definition => definition
-      }
-    )
+    val patternTexts = inheritors.map(patternText(_, statement))
+    val targets = inheritors.map {
+      case clazz: ScClass if clazz.isCase => ScalaPsiUtil.getCompanionModule(clazz).get
+      case definition => definition
+    }
+
+    (patternTexts, targets)
   }
 }
