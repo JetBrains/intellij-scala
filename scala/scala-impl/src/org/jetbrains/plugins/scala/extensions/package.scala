@@ -20,7 +20,7 @@ import com.intellij.psi.impl.source.{PostprocessReformattingAspect, PsiFileImpl}
 import com.intellij.psi.search.GlobalSearchScope
 import com.intellij.psi.stubs.{IStubElementType, StubElement}
 import com.intellij.psi.tree.{IElementType, TokenSet}
-import com.intellij.psi.util.PsiTreeUtil.{getNonStrictParentOfType, getParentOfType, isAncestor}
+import com.intellij.psi.util.PsiTreeUtil
 import com.intellij.util.text.CharArrayUtil
 import com.intellij.util.{ArrayFactory, Processor}
 import org.jetbrains.annotations.NotNull
@@ -324,14 +324,20 @@ package object extensions {
 
     def parent: Option[PsiElement] = Option(element.getParent)
 
-    def parentOfType[E <: PsiElement](clazz: Class[E], strict: Boolean = true): Option[E] =
+    import PsiTreeUtil._
+
+    def parentOfType[Psi <: PsiElement](clazz: Class[Psi], strict: Boolean = true): Option[Psi] =
       Option(getParentOfType(element, clazz, strict))
 
     def parentOfType(classes: Seq[Class[_ <: PsiElement]]): Option[PsiElement] =
       Option(getParentOfType(element, classes: _*))
 
+
     def nonStrictParentOfType(classes: Seq[Class[_ <: PsiElement]]): Option[PsiElement] =
       Option(getNonStrictParentOfType(element, classes: _*))
+
+    def findContextOfType[Psi <: PsiElement](clazz: Class[Psi]): Option[Psi] =
+      Option(getContextOfType(element, clazz))
 
     def isAncestorOf(otherElement: PsiElement): Boolean = isAncestor(element, otherElement, true)
 

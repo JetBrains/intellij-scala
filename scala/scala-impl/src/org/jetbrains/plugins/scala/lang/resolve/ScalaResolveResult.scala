@@ -10,7 +10,10 @@ import org.jetbrains.plugins.scala.extensions._
 import org.jetbrains.plugins.scala.lang.completion.lookups.ScalaLookupItem
 import org.jetbrains.plugins.scala.lang.psi.ScalaPsiUtil
 import org.jetbrains.plugins.scala.lang.psi.api.base.patterns.ScBindingPattern
+import org.jetbrains.plugins.scala.lang.psi.api.statements.params.ScTypeParam
+import org.jetbrains.plugins.scala.lang.psi.api.statements.{ScTypeAlias, ScTypeAliasDefinition}
 import org.jetbrains.plugins.scala.lang.psi.api.toplevel.imports.usages.{ImportExprUsed, ImportSelectorUsed, ImportUsed, ImportWildcardSelectorUsed}
+import org.jetbrains.plugins.scala.lang.psi.api.toplevel.templates.ScTemplateBody
 import org.jetbrains.plugins.scala.lang.psi.api.toplevel.typedef.{ScObject, ScTypeDefinition}
 import org.jetbrains.plugins.scala.lang.psi.api.toplevel.{ScNamedElement, ScPackaging}
 import org.jetbrains.plugins.scala.lang.psi.fake.FakePsiMethod
@@ -133,6 +136,10 @@ class ScalaResolveResult(val element: PsiNamedElement,
     }
     s"""$name [${problems.mkString(", ")}]"""
   }
+
+  def nameInScope: String = isRenamed.getOrElse(name)
+
+  lazy val qualifiedNameId: String = ScalaResolveResult.toStringRepresentation(this)
 
   private var precedence = -1
 
@@ -290,83 +297,100 @@ object ScalaResolveResult {
 
       val isRenamed = resolveResult.isRenamed.filter(element.name != _)
 
-      def isCurrentClassMember: Boolean = {
-        def checkIsExpectedClassMember(expectedClassOption: Option[PsiClass]): Boolean = {
-          expectedClassOption.exists { expectedClass =>
-            ScalaPsiUtil.nameContext(element) match {
-              case m: PsiMember =>
-                m.containingClass match {
-                  //allow boldness only if current class is package object, not element availiable from package object
-                  case packageObject: ScObject if packageObject.isPackageObject && packageObject == expectedClass =>
-                    containingClass.contains(packageObject)
-                  case clazz =>
-                    clazz == expectedClass
-                }
-              case _ => false
-            }
-          }
-        }
+      val isCurrentClassMember: Boolean = {
+        val extractedType: Option[PsiClass] = {
+          val fromType = resolveResult.fromType
 
-        def extractedType: Option[PsiClass] = {
-          def usedImportForElement = resolveResult.importsUsed.nonEmpty
-
-          def isPredef = resolveResult.fromType.exists(_.presentableText == "Predef.type")
+          def isPredef = fromType.exists(_.presentableText == "Predef.type")
 
           import resolveResult.projectContext
-          qualifierType
-            .orElse(resolveResult.fromType)
-            .getOrElse(api.Nothing) match {
-            case qualType if !isPredef && !usedImportForElement =>
-              qualType.extractDesignated(expandAliases = false) match {
-                case Some(named) =>
-                  named match {
-                    case cl: PsiClass => Some(cl)
-                    case Typeable(tp) => tp.extractClass
-                    case _ => None
-                  }
+          qualifierType.orElse(fromType).getOrElse(api.Nothing) match {
+            case qualType if !isPredef && resolveResult.importsUsed.isEmpty =>
+              qualType.extractDesignated(expandAliases = false).flatMap {
+                case clazz: PsiClass => Some(clazz)
+                case Typeable(tp) => tp.extractClass
                 case _ => None
               }
             case _ => None
           }
         }
 
-        extractedType match {
-          case Some(_) => checkIsExpectedClassMember(extractedType)
-          case _ => checkIsExpectedClassMember(containingClass)
+        extractedType.orElse(containingClass).exists { expectedClass =>
+          ScalaPsiUtil.nameContext(element) match {
+            case m: PsiMember =>
+              m.containingClass match {
+                //allow boldness only if current class is package object, not element availiable from package object
+                case packageObject: ScObject if packageObject.isPackageObject && packageObject == expectedClass =>
+                  containingClass.contains(packageObject)
+                case clazz => clazz == expectedClass
+              }
+            case _ => false
+          }
         }
       }
 
-      def isDeprecated: Boolean = element match {
+      val isDeprecated: Boolean = element match {
         case doc: PsiDocCommentOwner if doc.isDeprecated => true
         case _ => false
       }
 
-      def getLookupElementInternal(isAssignment: Boolean, name: String): ScalaLookupItem = {
-        val lookupItem: ScalaLookupItem = new ScalaLookupItem(element, name, containingClass)
-        lookupItem.isClassName = isClassName
-        lookupItem.isNamedParameter = resolveResult.isNamedParameter
-        lookupItem.isDeprecated = isDeprecated
-        lookupItem.isOverloadedForClassName = isOverloadedForClassName
-        lookupItem.isRenamed = isRenamed
-        lookupItem.isUnderlined = resolveResult.implicitFunction.isDefined
-        lookupItem.isAssignment = isAssignment
-        lookupItem.isInImport = isInImport
-        lookupItem.bold = isCurrentClassMember
-        lookupItem.shouldImport = shouldImport
-        lookupItem.isInStableCodeReference = isInStableCodeReference
-        lookupItem.substitutor = substitutor
-        lookupItem.prefixCompletion = resolveResult.prefixCompletion
-        lookupItem.isInSimpleString = isInSimpleString
-        lookupItem
+      def lookupElement(name: String, isAssignment: Boolean = false): ScalaLookupItem = {
+        val result = new ScalaLookupItem(element, name, containingClass)
+        result.isClassName = isClassName
+        result.isNamedParameter = resolveResult.isNamedParameter
+        result.isDeprecated = isDeprecated
+        result.isOverloadedForClassName = isOverloadedForClassName
+        result.isRenamed = isRenamed
+        result.isUnderlined = resolveResult.implicitFunction.isDefined
+        result.isAssignment = isAssignment
+        result.isInImport = isInImport
+        result.bold = isCurrentClassMember
+        result.shouldImport = shouldImport
+        result.isInStableCodeReference = isInStableCodeReference
+        result.substitutor = substitutor
+        result.prefixCompletion = resolveResult.prefixCompletion
+        result.isInSimpleString = isInSimpleString
+        result
       }
 
       val name: String = isRenamed.getOrElse(element.name)
       val Setter = """(.*)_=""".r
+      val defaultItem = lookupElement(name)
+
       name match {
         case Setter(prefix) if !element.isInstanceOf[FakePsiMethod] => //if element is fake psi method, then this setter is already generated from var
-          Seq(getLookupElementInternal(isAssignment = true, prefix), getLookupElementInternal(isAssignment = false, name))
-        case _ => Seq(getLookupElementInternal(isAssignment = false, name))
+          Seq(lookupElement(prefix, isAssignment = true), defaultItem)
+        case _ => Seq(defaultItem)
       }
+    }
+  }
+
+  private def toStringRepresentation(result: ScalaResolveResult): String = {
+    def defaultForTypeAlias(t: ScTypeAlias): String = {
+      if (t.getParent.isInstanceOf[ScTemplateBody] && t.containingClass != null) {
+        "TypeAlias:" + t.containingClass.qualifiedName + "#" + t.name
+      } else null
+    }
+
+    result.getActualElement match {
+      case _: ScTypeParam => null
+      case c: ScObject => "Object:" + c.qualifiedName
+      case c: PsiClass => "Class:" + c.qualifiedName
+      case t: ScTypeAliasDefinition if t.typeParameters.isEmpty =>
+        t.aliasedType match {
+          case Right(tp) =>
+            tp.extractClass match {
+              case Some(_: ScObject) => defaultForTypeAlias(t)
+              case Some(td: ScTypeDefinition) if td.typeParameters.isEmpty && ScalaPsiUtil.hasStablePath(td) =>
+                "Class:" + td.qualifiedName
+              case Some(c: PsiClass) if c.getTypeParameters.isEmpty => "Class:" + c.qualifiedName
+              case _ => defaultForTypeAlias(t)
+            }
+          case _ => defaultForTypeAlias(t)
+        }
+      case t: ScTypeAlias => defaultForTypeAlias(t)
+      case p: PsiPackage => "Package:" + p.getQualifiedName
+      case _ => null
     }
   }
 

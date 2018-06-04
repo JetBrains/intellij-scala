@@ -147,7 +147,7 @@ class ScReferenceExpressionImpl(node: ASTNode) extends ScReferenceElementImpl(no
     getSimpleVariants(incomplete, completion, implicits).flatMap(function)
 
   def getSameNameVariants: Array[ScalaResolveResult] = this.doResolve(
-    new ImplicitCompletionProcessor(getKinds(incomplete = true), this) {
+    new CompletionProcessor(getKinds(incomplete = true), this, isImplicit = true) {
 
       override protected val forName = Some(refName)
     })
@@ -478,7 +478,7 @@ class ScReferenceExpressionImpl(node: ASTNode) extends ScReferenceElementImpl(no
             }.getOrElse(Any)
 
             val argument = ScExistentialArgument("_$1", Nil, Nothing, upperBound)
-            ScExistentialType(ScParameterizedType(ScDesignatorType(jlClass), Seq(argument)), List(argument))
+            ScExistentialType(ScParameterizedType(ScDesignatorType(jlClass), Seq(argument)))
           }
 
           elementScope.getCachedClass("java.lang.Class")

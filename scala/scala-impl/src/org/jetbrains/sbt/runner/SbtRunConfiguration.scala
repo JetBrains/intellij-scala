@@ -18,6 +18,7 @@ import com.intellij.openapi.util.JDOMExternalizer
 import com.intellij.openapi.util.text.StringUtil
 import org.jdom.Element
 import org.jetbrains.android.sdk.AndroidSdkType
+import org.jetbrains.plugins.scala.extensions.using
 import org.jetbrains.sbt.SbtUtil
 import org.jetbrains.sbt.settings.SbtSystemSettings
 
@@ -83,9 +84,10 @@ class SbtRunConfiguration(val project: Project, val configurationFactory: Config
   }
 
   def determineMainClass(launcherPath: String): String = {
-    val jf = new JarFile(new File(launcherPath))
-    val attributes = jf.getManifest.getMainAttributes
-    Option(attributes.getValue("Main-Class")).getOrElse("xsbt.boot.Boot")
+    using(new JarFile(new File(launcherPath))) { jf =>
+      val attributes = jf.getManifest.getMainAttributes
+      Option(attributes.getValue("Main-Class")).getOrElse("xsbt.boot.Boot")
+    }
   }
 
   def getTasks: String = tasks

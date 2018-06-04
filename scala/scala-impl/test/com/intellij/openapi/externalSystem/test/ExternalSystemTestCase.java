@@ -379,11 +379,13 @@ public abstract class ExternalSystemTestCase extends UsefulTestCase {
 
         Manifest manifest = new Manifest();
         manifest.getMainAttributes().put(Attributes.Name.MANIFEST_VERSION, "1.0");
-        JarOutputStream target = new JarOutputStream(new FileOutputStream(f), manifest);
-        for (Pair<ByteSequence, String> contentEntry : contentEntries) {
-            addJarEntry(contentEntry.first.toBytes(), contentEntry.second, target);
+
+        try (JarOutputStream target = new JarOutputStream(new FileOutputStream(f), manifest);) {
+            for (Pair<ByteSequence, String> contentEntry : contentEntries) {
+                addJarEntry(contentEntry.first.toBytes(), contentEntry.second, target);
+            }
         }
-        target.close();
+
 
         final VirtualFile virtualFile = LocalFileSystem.getInstance().refreshAndFindFileByIoFile(f);
         assertNotNull(virtualFile);

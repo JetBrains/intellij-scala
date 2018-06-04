@@ -37,7 +37,7 @@ import org.jetbrains.plugins.scala.lang.psi.types.api.TypeParameterType
 import org.jetbrains.plugins.scala.lang.psi.types.api.designator.{ScProjectionType, ScThisType}
 import org.jetbrains.plugins.scala.lang.psi.types.recursiveUpdate.ScSubstitutor
 import org.jetbrains.plugins.scala.lang.psi.types.result._
-import org.jetbrains.plugins.scala.macroAnnotations.{Cached, ModCount}
+import org.jetbrains.plugins.scala.macroAnnotations.{Cached, CachedInUserData, ModCount}
 import org.jetbrains.plugins.scala.projectView.{ClassAndCompanionObject, SingularDefinition, TraitAndCompanionObject}
 
 import scala.annotation.tailrec
@@ -130,7 +130,7 @@ abstract class ScTypeDefinitionImpl protected (stub: ScTemplateDefinitionStub,
   // TODO Should be unified, see ScModifierListOwner
   override def hasModifierProperty(name: String): Boolean = super[ScTypeDefinition].hasModifierProperty(name)
 
-  override def getNavigationElement = getContainingFile match {
+  override def getNavigationElement: PsiElement = getContainingFile match {
     case s: ScalaFileImpl if s.isCompiled => getSourceMirrorClass
     case _ => this
   }

@@ -20,9 +20,9 @@ import org.jetbrains.plugins.scala.lang.psi.api.toplevel.typedef.{ScClass, ScObj
 import org.jetbrains.plugins.scala.lang.psi.api.{FileDeclarationsHolder, ScalaFile}
 import org.jetbrains.plugins.scala.lang.psi.impl.ScalaPsiElementFactory
 import org.jetbrains.plugins.scala.worksheet.GotoOriginalHandlerUtil
-import org.jetbrains.plugins.scala.worksheet.actions.RunWorksheetAction
 import org.jetbrains.plugins.scala.worksheet.interactive.WorksheetAutoRunner
 import org.jetbrains.plugins.scala.worksheet.processor.{WorksheetCompiler, WorksheetInterpretExprsIterator, WorksheetPsiGlue}
+import org.jetbrains.plugins.scala.worksheet.settings.WorksheetCommonSettings
 
 import scala.collection.mutable
 import scala.collection.mutable.ArrayBuffer
@@ -280,8 +280,8 @@ class WorksheetIncrementalEditorPrinter(editor: Editor, viewer: Editor, file: Sc
     val (finalText, vertOffset) = {
       splitLineNumberFromRepl(textWoSeverity) match {
         case Some(a) => a
-        case _ => // we still have a fall back variant here as some erros aren't raised from the text of our input
-          (textWoSeverity, Integer.parseInt(lineNumStr) - getConsoleHeaderLines(RunWorksheetAction getModuleFor getScalaFile))
+        case _ => // we still have a fall back variant here as some errors aren't raised from the text of our input
+          (textWoSeverity, Integer.parseInt(lineNumStr) - getConsoleHeaderLines(WorksheetCommonSettings.getInstance(getScalaFile).getModuleFor))
       }
     }
 

@@ -2,6 +2,7 @@ package org.jetbrains.plugins.scala
 package worksheet.actions
 
 import java.awt.datatransfer.StringSelection
+import javax.swing.Icon
 
 import com.intellij.icons.AllIcons
 import com.intellij.openapi.actionSystem.{AnAction, AnActionEvent}
@@ -52,9 +53,9 @@ class CopyWorksheetAction extends AnAction with TopComponentAction {
       result append lineSeparator
     }
 
-    def getFromDoc(lineNumber: Int, document: Document) = document getText {
+    def getFromDoc(lineNumber: Int, document: Document) = if (document.getLineCount > lineNumber) document getText {
       new TextRange(document getLineStartOffset lineNumber, document getLineEndOffset lineNumber)
-    }
+    } else ""
 
     def getFromLeft(lineNumber: Int) = getFromDoc(lineNumber, leftDocument)
 
@@ -83,7 +84,7 @@ class CopyWorksheetAction extends AnAction with TopComponentAction {
           val rightStart = rightDocument getLineNumber rightStartOffset
           val rightEnd = rightDocument getLineNumber rightEndOffset
 
-          for (k <- lastEnd until leftStart) {
+          for (_ <- lastEnd until leftStart) {
             append2Result(" ", " ", " ")
           }
 
@@ -117,7 +118,7 @@ class CopyWorksheetAction extends AnAction with TopComponentAction {
     result.toString()
   }
 
-  override def actionIcon = AllIcons.Actions.Copy
+  override def actionIcon: Icon = AllIcons.Actions.Copy
 
   override def bundleKey = "worksheet.copy.button"
 }

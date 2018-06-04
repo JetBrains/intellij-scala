@@ -41,7 +41,7 @@ import org.jetbrains.plugins.scala.lang.psi.types.nonvalue._
 import org.jetbrains.plugins.scala.lang.psi.types.recursiveUpdate.ScSubstitutor
 import org.jetbrains.plugins.scala.lang.psi.types.result._
 import org.jetbrains.plugins.scala.lang.refactoring.util.ScalaNamesUtil
-import org.jetbrains.plugins.scala.macroAnnotations.{Cached, CachedInsidePsiElement, ModCount}
+import org.jetbrains.plugins.scala.macroAnnotations.{Cached, CachedInUserData, ModCount}
 import org.jetbrains.plugins.scala.project.UserDataHolderExt
 
 import scala.annotation.tailrec
@@ -183,12 +183,18 @@ trait ScFunction extends ScalaPsiElement with ScMember with ScTypeParametersOwne
 
   def clauses: Option[ScParameters] = Some(paramClauses)
 
-  @CachedInsidePsiElement(this, ModCount.getBlockModificationCount)
-  def effectiveParameterClauses: Seq[ScParameterClause] = paramClauses.clauses ++ syntheticParamClause
+  @CachedInUserData(this, ModCount.getBlockModificationCount)
+  def effectiveParameterClauses: Seq[ScParameterClause] = {
+    val maybeOwner = if (isConstructor) {
+      containingClass match {
+        case owner: ScTypeParametersOwner => Some(owner)
+        case _ => None
+      }
+    } else Some(this)
 
-  private def syntheticParamClause: Option[ScParameterClause] = {
-    val hasImplicit = clauses.exists(_.clauses.exists(_.isImplicit))
-    ScalaPsiUtil.syntheticParamClause(if (isConstructor) containingClass else this, paramClauses, classParam = false, hasImplicit)
+    paramClauses.clauses ++ maybeOwner.flatMap {
+      ScalaPsiUtil.syntheticParamClause(_, paramClauses, isClassParameter = false)()
+    }
   }
 
   def declaredElements = Seq(this)
@@ -313,7 +319,7 @@ trait ScFunction extends ScalaPsiElement with ScMember with ScTypeParametersOwne
     getReturnTypeImpl
   }
 
-  @CachedInsidePsiElement(this, ModCount.getBlockModificationCount)
+  @CachedInUserData(this, ModCount.getBlockModificationCount)
   private def getReturnTypeImpl: PsiType = {
     val resultType = `type`().getOrAny match {
       case FunctionType(rt, _) => rt
@@ -538,6 +544,8 @@ object ScFunction {
     private implicit def elementScope = function.elementScope
 
     def isApplyMethod: Boolean = function.name == Apply
+
+    def isUnapplyMethod: Boolean = Unapplies(function.name)
 
     /** Is this function sometimes invoked without it's name appearing at the call site? */
     def isSpecial: Boolean = Special(function.name)

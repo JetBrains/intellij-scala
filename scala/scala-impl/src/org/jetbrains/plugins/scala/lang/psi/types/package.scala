@@ -21,8 +21,6 @@ import scala.util.control.NoStackTrace
   */
 package object types {
 
-  def ScalaTypeSystem(implicit project: ProjectContext) = new ScalaTypeSystem
-
   implicit class ScTypeExt(val scType: ScType) extends AnyVal {
     private def typeSystem = scType.typeSystem
     private def projectContext = scType.projectContext
@@ -83,16 +81,16 @@ package object types {
 
     def removeVarianceAbstracts(): ScType = {
       var index = 0
-      scType.recursiveVarianceUpdate((tp: ScType, v: Variance) => {
-        tp match {
-          case ScAbstractType(_, lower, upper) =>
-            v match {
-              case Contravariant => (true, lower)
-              case Covariant     => (true, upper)
-              case Invariant     => (true, ScExistentialArgument(s"_$$${index += 1; index}", Nil, lower, upper))
-            }
-          case _ => (false, tp)
-        }
+      scType.recursiveVarianceUpdate({
+        case (ScAbstractType(_, lower, upper), v) =>
+          v match {
+            case Contravariant => ReplaceWith(lower)
+            case Covariant     => ReplaceWith(upper)
+            case Invariant     =>
+              index += 1
+              ReplaceWith(ScExistentialArgument(s"_$$$index", Nil, lower, upper))
+          }
+        case _ => ProcessSubtypes
       }, Covariant).unpackedType
     }
 

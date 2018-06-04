@@ -11,7 +11,7 @@ import org.jetbrains.plugins.scala.lang.psi.api.toplevel.typedef.{ScClass, ScObj
 import org.jetbrains.plugins.scala.lang.psi.types._
 import org.jetbrains.plugins.scala.lang.psi.types.api.{Invariant, TypeParameterType}
 import org.jetbrains.plugins.scala.lang.psi.types.result._
-import org.jetbrains.plugins.scala.macroAnnotations.{CachedInsidePsiElement, ModCount}
+import org.jetbrains.plugins.scala.macroAnnotations.{CachedInUserData, ModCount}
 
 /**
 * @author Alexander Podkhalyuzin
@@ -23,7 +23,7 @@ trait ScTypeAliasDefinition extends ScTypeAlias {
 
   def aliasedTypeElement: Option[ScTypeElement]
 
-  @CachedInsidePsiElement(this, ModCount.getBlockModificationCount)
+  @CachedInUserData(this, ModCount.getBlockModificationCount)
   def aliasedType: TypeResult =
     aliasedTypeElement.map {
       _.`type`()

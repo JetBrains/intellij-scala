@@ -57,7 +57,7 @@ abstract class ScalaExtractMethodTestBase extends ScalaLightPlatformCodeInsightT
     val scalaFile = getFileAdapter.asInstanceOf[ScalaFile]
 
     val fileEditorManager = FileEditorManager.getInstance(getProjectAdapter)
-    val editor = fileEditorManager.openTextEditor(new OpenFileDescriptor(getProjectAdapter, file, startOffset), false)
+    val editor = fileEditorManager.openTextEditor(new OpenFileDescriptor(getProjectAdapter, getVFileAdapter, startOffset), false)
     editor.getSelectionModel.setSelection(startOffset, endOffset)
 
     var res: String = null
@@ -71,7 +71,7 @@ abstract class ScalaExtractMethodTestBase extends ScalaLightPlatformCodeInsightT
     try {
       val handler = new ScalaExtractMethodHandler
       val context = SimpleDataContext.getSimpleContext("chosenTargetScope", scopeOffset)
-      handler.invoke(getProjectAdapter, editor, scalaFile, context)
+      handler.invoke(getProjectAdapter, getEditorAdapter, scalaFile, context)
       UsefulTestCase.doPostponedFormatting(getProjectAdapter)
       res = scalaFile.getText.substring(0, lastPsi.getTextOffset).trim
     }

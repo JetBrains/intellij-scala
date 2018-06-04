@@ -13,3 +13,9 @@ trait ScConstructorPattern extends ScPattern {
   def args: ScPatternArgumentList = findChildByClassScala(classOf[ScPatternArgumentList])
   def ref: ScStableCodeReferenceElement = findChildByClassScala(classOf[ScStableCodeReferenceElement])
 }
+
+object ScConstructorPattern {
+
+  def unapply(pattern: ScConstructorPattern): Option[(ScStableCodeReferenceElement, ScPatternArgumentList)] =
+    Some((pattern.ref, pattern.args))
+}

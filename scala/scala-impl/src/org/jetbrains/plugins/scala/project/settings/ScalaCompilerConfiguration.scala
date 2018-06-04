@@ -1,8 +1,10 @@
 package org.jetbrains.plugins.scala.project.settings
 
 import com.intellij.openapi.components._
-import com.intellij.openapi.module.Module
+import com.intellij.openapi.module.{Module, ModuleManager}
 import com.intellij.openapi.project.Project
+import com.intellij.openapi.roots.ProjectRootManager
+import com.intellij.openapi.util.{ModificationTracker, SimpleModificationTracker}
 import com.intellij.util.xmlb.{SkipDefaultValuesSerializationFilters, XmlSerializer}
 import org.jdom.Element
 import org.jetbrains.plugins.scala.project.IncrementalityType
@@ -17,7 +19,7 @@ import scala.collection.JavaConverters._
   name = "ScalaCompilerConfiguration",
   storages = Array(new Storage("scala_compiler.xml"))
 )
-class ScalaCompilerConfiguration(project: Project) extends PersistentStateComponent[Element] {
+class ScalaCompilerConfiguration(project: Project) extends PersistentStateComponent[Element] with ModificationTracker {
   var incrementalityType: IncrementalityType = IncrementalityType.IDEA
 
   var defaultProfile: ScalaCompilerSettingsProfile = new ScalaCompilerSettingsProfile("Default")
@@ -27,6 +29,19 @@ class ScalaCompilerConfiguration(project: Project) extends PersistentStateCompon
   def getSettingsForModule(module: Module): ScalaCompilerSettings = {
     val profile = customProfiles.find(_.getModuleNames.contains(module.getName)).getOrElse(defaultProfile)
     profile.getSettings
+  }
+
+  //currently we cannot rely on compiler options for shared source modules
+  def hasSettingForHighlighting(module: Module, hasSetting: ScalaCompilerSettings => Boolean): Boolean = {
+    def isSharedSources(module: Module) = module.getModuleTypeName == "SHARED_SOURCES_MODULE"
+
+    def dependentModules =
+      ModuleManager.getInstance(module.getProject).getModuleDependentModules(module).asScala
+
+    val modules = if (isSharedSources(module)) dependentModules else Seq(module)
+
+    modules.map(getSettingsForModule)
+      .exists(hasSetting)
   }
 
   def configureSettingsForModule(module: Module, source: String, options: Seq[String]) {
@@ -97,9 +112,17 @@ class ScalaCompilerConfiguration(project: Project) extends PersistentStateCompon
       profile
     }
   }
+
+  override def getModificationCount: Long =
+    ScalaCompilerConfiguration.getModificationCount + ProjectRootManager.getInstance(project).getModificationCount
 }
 
-object ScalaCompilerConfiguration {
+object ScalaCompilerConfiguration extends SimpleModificationTracker {
   def instanceIn(project: Project): ScalaCompilerConfiguration =
     ServiceManager.getService(project, classOf[ScalaCompilerConfiguration])
+
+  def modTracker(project: Project): ModificationTracker = instanceIn(project)
+
+  //to call as static method from java
+  override def incModificationCount(): Unit = super.incModificationCount()
 }

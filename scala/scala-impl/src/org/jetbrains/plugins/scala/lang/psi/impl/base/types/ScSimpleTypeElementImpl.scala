@@ -326,8 +326,7 @@ class ScSimpleTypeElementImpl(node: ASTNode) extends ScalaPsiElementImpl(node) w
               case Some(r@ScalaResolveResult(method: PsiMethod, subst: ScSubstitutor)) if !noConstructor =>
                 Right(typeForConstructor(ref, method, subst, r.getActualElement))
               case Some(ScalaResolveResult(ta: ScTypeAlias, _: ScSubstitutor)) if ta.isExistentialTypeAlias =>
-                Right(ScExistentialArgument(ta.name, ta.typeParameters.map(TypeParameterType(_)).toList,
-                  ta.lowerBound.getOrNothing, ta.upperBound.getOrAny))
+                Right(ScExistentialArgument(ta))
               case _ => calculateReferenceType(ref, shapesOnly = false)
             }
         }
@@ -361,10 +360,10 @@ object ScSimpleTypeElementImpl {
         ref.resolveNoConstructor match {
           case Array(r@ScalaResolveResult(to: ScTypeParametersOwner, _: ScSubstitutor))
             if to.isInstanceOf[PsiNamedElement] &&
-              (to.typeParameters.isEmpty || ref.getContext.isInstanceOf[ScParameterizedTypeElement]) => Some(r)
+              (to.typeParameters.isEmpty || isParameterizedTypeRef(ref)) => Some(r)
           case Array(r@ScalaResolveResult(to: PsiTypeParameterListOwner, _: ScSubstitutor))
             if to.isInstanceOf[PsiNamedElement] &&
-              (to.getTypeParameters.isEmpty || ref.getContext.isInstanceOf[ScParameterizedTypeElement]) => Some(r)
+              (to.getTypeParameters.isEmpty || isParameterizedTypeRef(ref)) => Some(r)
           case _ => ref.bind()
         }
       } else ref.bind()
@@ -450,4 +449,10 @@ object ScSimpleTypeElementImpl {
       "Cannot find enclosing container",
       path,
       function)
+
+  private def isParameterizedTypeRef(ref: ScStableCodeReferenceElement): Boolean = ref.getContext match {
+    case _: ScParameterizedTypeElement => true
+    case s: ScSimpleTypeElement => s.getContext.isInstanceOf[ScParameterizedTypeElement]
+    case _ => false
+  }
 }

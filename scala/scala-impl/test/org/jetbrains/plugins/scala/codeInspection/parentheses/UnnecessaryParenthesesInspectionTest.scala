@@ -23,6 +23,33 @@ class UnnecessaryParenthesesInspectionTest extends ScalaQuickFixTestBase {
 
   private val hintBeginning = "Remove unnecessary parentheses"
 
+  private def defaultSettings = UnnecessaryParenthesesSettings.default
+  private def considerClarifying = defaultSettings.copy(ignoreClarifying = false)
+  private def ignoreAroundFunctionType = defaultSettings.copy(ignoreAroundFunctionType = true)
+  private def ignoreAroundFunctionTypeParam = defaultSettings.copy(ignoreAroundFunctionTypeParam = true)
+  private def ignoreAroundFunctionExprParam = defaultSettings.copy(ignoreAroundFunctionExprParam = true)
+
+  private def withSettings(settings: UnnecessaryParenthesesSettings)(body: => Unit): Unit = {
+
+    val tool = InspectionProfileManager.getInstance(project)
+      .getCurrentProfile
+      .getInspectionTool("ScalaUnnecessaryParentheses", project)
+      .getTool
+
+    tool match {
+      case check: ScalaUnnecessaryParenthesesInspection =>
+        val oldSettings = check.currentSettings()
+        try {
+          check.setSettings(settings)
+          body
+        } finally {
+          check.setSettings(oldSettings)
+        }
+      case _ =>
+    }
+  }
+
+
   // see https://github.com/JetBrains/intellij-scala/pull/434 for more test case
 
   def test_1(): Unit = {
@@ -179,18 +206,55 @@ class UnnecessaryParenthesesInspectionTest extends ScalaQuickFixTestBase {
     testQuickFix(text, result, hint)
   }
 
-  def test_functionType():Unit={
+  def test_nestedFunctionType():Unit={
     val selected = s"val i: Int => $START(Int => String)$END = _"
     checkTextHasError(selected)
 
     val text = "val i: Int => (Int => String) = _"
+
+    withSettings(ignoreAroundFunctionType) {
+      checkTextHasNoErrors(text)
+    }
+
     val result = "val i: Int => Int => String = _"
     val hint = hintBeginning + " (Int => String)"
     testQuickFix(text, result, hint)
   }
 
+  def test_functionType():Unit={
+    val selected = s"val i: $START(Int => String)$END = _"
+    checkTextHasError(selected)
+
+    val text = "val i: (Int => String) = _"
+
+    withSettings(ignoreAroundFunctionType) {
+      checkTextHasNoErrors(text)
+    }
+
+    val result = "val i: Int => String = _"
+    val hint = hintBeginning + " (Int => String)"
+    testQuickFix(text, result, hint)
+  }
+
+  def test_functionTypeSingleParam(): Unit = {
+    val selected = s"val i: $START(Int)$END => String = _"
+    checkTextHasError(selected)
+
+    val text = "val i: (Int) => String = _"
+    withSettings(ignoreAroundFunctionTypeParam) {
+      checkTextHasNoErrors(text)
+    }
+
+    val result = "val i: Int => String = _"
+    val hint = hintBeginning + " (Int)"
+    testQuickFix(text, result, hint)
+  }
+
+  def test_functionSeveralParams(): Unit = {
+    checkTextHasNoErrors("val i: (Int, Int) => String = _)")
+  }
+
   def test_functionPlusInfix(): Unit = {
-    // these are clarifying
     val selected = s"val i: Int => $START(A op B)$END = _"
     checkTextHasNoErrors(selected)
   }
@@ -203,6 +267,9 @@ class UnnecessaryParenthesesInspectionTest extends ScalaQuickFixTestBase {
     val result = "val f: Int <<: Unit <<: Unit = _"
     val hint = hintBeginning + " (Unit <<: Unit)"
     testQuickFix(text, result, hint)
+    
+    val correct = s"val f: (Int <<: Unit) <<: Void"
+    checkTextHasNoErrors(correct)
   }
 
  
@@ -214,6 +281,19 @@ class UnnecessaryParenthesesInspectionTest extends ScalaQuickFixTestBase {
     val result = "val f: Int op Unit op Unit = _"
     val hint = hintBeginning + " (Int op Unit)"
     testQuickFix(text, result, hint)
+    
+    val correct =
+      """
+        |class Foo[A, B]
+        |val a: Int Foo (Int Foo String)= ???
+      """.stripMargin
+    checkTextHasNoErrors(correct)
+  }
+
+  
+  def test_InfixType_MixedAssoc(): Unit = {
+    val correct = "val f: Double <<: (Int Map String)"
+    checkTextHasNoErrors(correct)
   }
 
 
@@ -250,29 +330,20 @@ class UnnecessaryParenthesesInspectionTest extends ScalaQuickFixTestBase {
     checkTextHasError(r2)
     checkTextHasError(r3)
 
+    withSettings(ignoreAroundFunctionExprParam) {
+      checkTextHasNoErrors(r1)
+      checkTextHasNoErrors(r2)
+      checkTextHasNoErrors(r3)
+    }
+
     val text = s"Seq(1) map { (${CARET_MARKER}i: Int) => i + 1 }"
     val result = s"Seq(1) map { i: Int => i + 1 }"
     val hint = hintBeginning + " (i: Int)"
     testQuickFix(text, result, hint)
   }
 
-
-  private def considerClarifying(body: => Unit): Unit = {
-    val tool = InspectionProfileManager.getInstance(project)
-               .getCurrentProfile
-               .getInspectionTool("ScalaUnnecessaryParentheses", project)
-               .getTool
-
-    tool match {
-      case check: ScalaUnnecessaryParenthesesInspection => check setIgnoreClarifying false
-      case _ =>
-    }
-
-    body
-  }
-
   def test_infxPatternClarifying(): Unit = {
-    considerClarifying {
+    withSettings(considerClarifying) {
       val selected = s"val a +: $START(b *: c)$END = _ "
       checkTextHasError(selected)
 
@@ -283,4 +354,44 @@ class UnnecessaryParenthesesInspectionTest extends ScalaQuickFixTestBase {
     }
   }
 
+  def testFunctionInClassParents(): Unit = {
+    val text = "class MyFun extends (String => Int)"
+    val text2 = "class MyFun2 extends A with (String => Int)"
+    checkTextHasNoErrors(text)
+    checkTextHasNoErrors(text2)
+  }
+
+  def testPrecedenceNoErrors(): Unit = {
+    checkTextHasNoErrors(
+      """
+        |class B {
+        |  null match {
+        |    case b @ (_: String | _: B) =>
+        |  }
+        |}
+      """.stripMargin)
+  }
+
+  def testTypeProjection(): Unit = {
+    checkTextHasNoErrors(
+      """
+        |class A {
+        |  def traverse[F[_]] = 0
+        |}
+        |
+        |val value = new A()
+        |val result = value.traverse[({ type L[x] = Int })#L]
+      """.stripMargin
+    )
+  }
+
+  def testListPattern(): Unit = {
+    checkTextHasNoErrors(
+      """
+        |val b = null match {
+        |  case (param: Int) :: (rest @ _ :: _) =>
+        |  case _ =>
+        |}
+      """.stripMargin)
+  }
 }

@@ -31,7 +31,7 @@ import org.jetbrains.plugins.scala.lang.psi.types.nonvalue.Parameter
 import org.jetbrains.plugins.scala.lang.psi.types.recursiveUpdate.ScSubstitutor
 import org.jetbrains.plugins.scala.lang.psi.types.result._
 import org.jetbrains.plugins.scala.lang.refactoring.util.ScalaNamesUtil
-import org.jetbrains.plugins.scala.lang.resolve.processor.ImplicitCompletionProcessor
+import org.jetbrains.plugins.scala.lang.resolve.processor.CompletionProcessor
 import org.jetbrains.plugins.scala.lang.resolve.{ResolveUtils, ScalaResolveResult, StdKinds}
 import org.jetbrains.plugins.scala.project.ProjectContext
 
@@ -459,7 +459,7 @@ class ScalaFunctionParameterInfoHandler extends ParameterInfoHandlerWithTabActio
           def collectForType(typez: ScType): Unit = {
             def process(functionName: String): Unit = {
               val i = if (functionName == "update") -1 else 0
-              val processor = new ImplicitCompletionProcessor(StdKinds.refExprQualRef, call) {
+              val processor = new CompletionProcessor(StdKinds.refExprQualRef, call, isImplicit = true) {
 
                 override protected val forName = Some(functionName)
               }

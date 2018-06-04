@@ -3,8 +3,6 @@ package lang
 package completion
 package handlers
 
-import scala.annotation.tailrec
-
 import com.intellij.codeInsight.completion._
 import com.intellij.codeInsight.lookup.LookupElement
 import com.intellij.codeInsight.{AutoPopupController, CodeInsightSettings}
@@ -22,6 +20,8 @@ import org.jetbrains.plugins.scala.lang.psi.api.toplevel.templates.{ScClassParen
 import org.jetbrains.plugins.scala.lang.psi.api.toplevel.typedef.ScTypeDefinition
 import org.jetbrains.plugins.scala.lang.psi.impl.ScalaPsiElementFactory.createExpressionFromText
 import org.jetbrains.plugins.scala.lang.psi.impl.toplevel.synthetic.ScSyntheticFunction
+
+import scala.annotation.tailrec
 
 /**
  * User: Alexander Podkhalyuzin
@@ -75,20 +75,19 @@ class ScalaInsertHandler extends InsertHandler[LookupElement] {
         context.commitDocument()
         (startOffset + 2, tailOffset - startOffset)
       } else if (item.isInInterpolatedString) {
-        val literal = context.getFile.findElementAt(contextStartOffset).getParent
-        if (!literal.isInstanceOf[ScInterpolated]) return
-        val index = literal.asInstanceOf[ScInterpolated].getInjections.lastIndexWhere { expr =>
-          expr.getTextRange.getEndOffset <= contextStartOffset
+        context.getFile.findElementAt(contextStartOffset).getParent match {
+          case literal: ScInterpolated =>
+            ScalaBasicCompletionContributor.interpolatedStringBounds(literal, contextStartOffset, literal) match {
+              case Some((offset, _)) =>
+                val tailOffset = context.getTailOffset
+                document.insertString(tailOffset, "}")
+                document.insertString(offset + literal.getTextRange.getStartOffset, "{")
+                context.commitDocument()
+                (offset + 1, tailOffset - offset)
+              case _ => return
+            }
+          case _ => return
         }
-        val res = ScalaBasicCompletionContributor.getStartEndPointForInterpolatedString(literal.asInstanceOf[ScInterpolated],
-          index, contextStartOffset - literal.getTextRange.getStartOffset)
-        if (res.isEmpty) return
-        val (startOffset, _) = res.get
-        val tailOffset = context.getTailOffset
-        document.insertString(tailOffset, "}")
-        document.insertString(startOffset + literal.getTextRange.getStartOffset, "{")
-        context.commitDocument()
-        (startOffset + 1, tailOffset - startOffset)
       } else (contextStartOffset, context.getTailOffset - contextStartOffset)
     var endOffset = startOffset + lookupStringLength
     

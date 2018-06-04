@@ -52,7 +52,6 @@ import org.jetbrains.plugins.scala.lang.refactoring.util.ScTypeUtil.AliasType
 import org.jetbrains.plugins.scala.lang.resolve.ScalaResolveResult
 import org.jetbrains.plugins.scala.lang.resolve.processor._
 import org.jetbrains.plugins.scala.lang.structureView.ScalaElementPresentation
-import org.jetbrains.plugins.scala.project.ScalaLanguageLevel.Scala_2_11
 import org.jetbrains.plugins.scala.project.settings.ScalaCompilerConfiguration
 import org.jetbrains.plugins.scala.project.{ModuleExt, ProjectContext, ProjectPsiElementExt, ScalaLanguageLevel}
 import org.jetbrains.plugins.scala.util.ScEquivalenceUtil
@@ -1375,7 +1374,7 @@ object ScalaPsiUtil {
     def unapply(expr: ScExpression): Option[PsiMethod] = {
       if (!expr.expectedType(fromUnderscore = false).exists {
         case FunctionType(_, _) => true
-        case expected if isSAMEnabled(expr) =>
+        case expected if expr.isSAMEnabled =>
           toSAMType(expected, expr).isDefined
         case _ => false
       }) {
@@ -1423,60 +1422,53 @@ object ScalaPsiUtil {
   }
 
   /** Creates a synthetic parameter clause based on view and context bounds */
-  def syntheticParamClause(element: PsiNamedElement, paramClauses: ScParameters, classParam: Boolean, hasImplicit: Boolean): Option[ScParameterClause] =
-    Option(element).collect {
-      case parameterOwner: ScTypeParametersOwner if !hasImplicit => parameterOwner
-    }.flatMap {
-      parameterOwner =>
-        def views(typeParameter: ScTypeParam) = typeParameter.viewTypeElement.map {
-          typeElement =>
-            val needParenthesis = typeElement match {
-              case _: ScCompoundTypeElement |
-                   _: ScInfixTypeElement |
-                   _: ScFunctionalTypeElement |
-                   _: ScExistentialTypeElement => true
-              case _ => false
-            }
-            val elementText = typeElement.getText.parenthesize(needParenthesis)
-            val arrow = functionArrow(typeElement.getProject)
-            s"${typeParameter.name} $arrow $elementText"
+  def syntheticParamClause(parameterOwner: ScTypeParametersOwner,
+                           paramClauses: ScParameters,
+                           isClassParameter: Boolean)
+                          (hasImplicit: Boolean = paramClauses.clauses.exists(_.isImplicit)): Option[ScParameterClause] = {
+    if (hasImplicit) return None
+
+    val typeParameters = parameterOwner.typeParameters
+
+    val views = typeParameters.flatMap { typeParameter =>
+      val parameterName = typeParameter.name
+      typeParameter.viewTypeElement.map { typeElement =>
+        val needParenthesis = typeElement match {
+          case _: ScCompoundTypeElement |
+               _: ScInfixTypeElement |
+               _: ScFunctionalTypeElement |
+               _: ScExistentialTypeElement => true
+          case _ => false
         }
 
-        def bounds(typeParameter: ScTypeParam) = typeParameter.contextBoundTypeElement.map {
-          typeElement =>
-            s"${typeElement.getText}[${typeParameter.name}]"
-        }
-
-        val typeParameters = parameterOwner.typeParameters
-        val maybeText = (typeParameters.flatMap(views) ++ typeParameters.flatMap(bounds)).zipWithIndex.map {
-          case (text, index) => s"ev$$${index + 1}: $text"
-        } match {
-          case Seq() => None
-          case seq => Some(seq.mkString("(implicit ", ", ", ")"))
-        }
-
-        def createClause =
-          if (classParam) createImplicitClassParamClauseFromTextWithContext _
-          else createImplicitClauseFromTextWithContext _
-
-        val result = maybeText.map {
-          createClause(_, paramClauses)
-        }
-
-        result.foreach {
-          clause =>
-            val typeElements = typeParameters.flatMap(_.viewTypeElement) ++
-              typeParameters.flatMap(_.contextBoundTypeElement)
-
-            clause.parameters.flatMap {
-              _.typeElement.toSeq
-            }.foreachWithIndex {
-              case (typeElement, index) => typeElements(index).analog = typeElement
-            }
-        }
-
-        result
+        val elementText = typeElement.getText.parenthesize(needParenthesis)
+        import typeElement.projectContext
+        s"$parameterName $functionArrow $elementText"
+      }
     }
+
+    val bounds = typeParameters.flatMap { typeParameter =>
+      val parameterName = typeParameter.name
+      typeParameter.contextBoundTypeElement.map { typeElement =>
+        s"${typeElement.getText}[$parameterName]"
+      }
+    }
+
+    val clauses = (views ++ bounds).zipWithIndex.map {
+      case (text, index) => s"ev$$${index + 1}: $text"
+    }
+
+    val result = createImplicitClauseFromTextWithContext(clauses, paramClauses, isClassParameter)
+    result.toSeq
+      .flatMap(_.parameters)
+      .flatMap(_.typeElement)
+      .zip(typeParameters.flatMap(_.viewTypeElement) ++ typeParameters.flatMap(_.contextBoundTypeElement))
+      .foreach {
+        case (typeElement, context) => context.analog = typeElement
+      }
+
+    result
+  }
 
   //todo: fix it
   // This is a conservative approximation, we should really resolve the operation
@@ -1647,36 +1639,6 @@ object ScalaPsiUtil {
   }
 
   /**
-    * @see https://github.com/non/kind-projector
-    */
-  def kindProjectorPluginEnabled(e: PsiElement): Boolean = {
-    val plugins = e.module match {
-      case Some(mod) => mod.scalaCompilerSettings.plugins
-      case _ => ScalaCompilerConfiguration.instanceIn(e.getProject).defaultProfile.getSettings.plugins
-    }
-    plugins.exists(_.contains("kind-projector"))
-  }
-
-  /**
-    * Should we check if it's a Single Abstract Method?
-    * In 2.11 works with -Xexperimental
-    * In 2.12 works by default
-    *
-    * @return true if language level and flags are correct
-    */
-  def isSAMEnabled(element: PsiElement): Boolean = element.scalaLanguageLevel.exists {
-    case lang if lang > Scala_2_11 => true // if there's no module e.scalaLanguageLevel is None, we treat it as Scala 2.12
-    case lang if lang == Scala_2_11 =>
-      val settings = element.module.map {
-        _.scalaCompilerSettings
-      }.getOrElse {
-        ScalaCompilerConfiguration.instanceIn(element.getProject).defaultProfile.getSettings
-      }
-      settings.experimental || settings.additionalCompilerOptions.contains("-Xexperimental")
-    case _ => false
-  }
-
-  /**
     * Determines if expected can be created with a Single Abstract Method and if so return the required ScType for it
     *
     * @see SCL-6140
@@ -1813,23 +1775,22 @@ object ScalaPsiUtil {
             def convertParameter(tpArg: ScType, variance: Variance): ScType = {
               tpArg match {
                 case ParameterizedType(des, tpArgs) => ScParameterizedType(des, tpArgs.map(convertParameter(_, variance)))
-                case ScExistentialType(param: ScParameterizedType, _) if scalaVersion == ScalaLanguageLevel.Scala_2_11 =>
-                  convertParameter(param, variance)
-                case _ =>
-                  wildcards.find(_.name == tpArg.canonicalText) match {
-                    case Some(wildcard) =>
-                      (wildcard.lower, wildcard.upper) match {
-                        // todo: Produces Bad code is green
-                        // Problem is in Java wildcards. How to convert them if it's _ >: Lower, when generic has Upper.
-                        // Earlier we converted with Any upper type, but then it was changed because of type incompatibility.
-                        // Right now the simplest way is Bad Code is Green as otherwise we need to fix this inconsistency somehow.
-                        // I has no idea how yet...
-                        case (lo, _) if variance == Contravariant => lo
-                        case (lo, hi) if lo.isNothing && variance == Covariant => hi
-                        case _ => tpArg
-                      }
+                case ScExistentialType(parameterized: ScParameterizedType, _) if scalaVersion == ScalaLanguageLevel.Scala_2_11 =>
+                  ScExistentialType(convertParameter(parameterized, variance)).simplify()
+                case arg: ScExistentialArgument if wildcards.contains(arg) =>
+                  (arg.lower, arg.upper) match {
+                    // todo: Produces Bad code is green
+                    // Problem is in Java wildcards. How to convert them if it's _ >: Lower, when generic has Upper.
+                    // Earlier we converted with Any upper type, but then it was changed because of type incompatibility.
+                    // Right now the simplest way is Bad Code is Green as otherwise we need to fix this inconsistency somehow.
+                    // I has no idea how yet...
+                    case (lo, _) if variance == Contravariant => lo
+                    case (lo, hi) if lo.isNothing && variance == Covariant => hi
                     case _ => tpArg
                   }
+                case arg: ScExistentialArgument =>
+                  arg.copyWithBounds(convertParameter(arg.lower, variance), convertParameter(arg.upper, variance))
+                case _ => tpArg
               }
             }
 

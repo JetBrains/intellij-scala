@@ -248,7 +248,7 @@ object ScExpression {
     def expectedTypeEx(fromUnderscore: Boolean = true): Option[ParameterType] =
       ExpectedTypes.instance().expectedExprType(expr, fromUnderscore)
 
-    def expectedTypes(fromUnderscore: Boolean = true): Array[ScType] = expectedTypesEx(fromUnderscore).map(_._1)
+    def expectedTypes(fromUnderscore: Boolean = true): Seq[ScType] = expectedTypesEx(fromUnderscore).map(_._1)
 
     @CachedWithRecursionGuard(expr, Array.empty[ParameterType], ModCount.getBlockModificationCount)
     def expectedTypesEx(fromUnderscore: Boolean = true): Array[ParameterType] = {
@@ -396,12 +396,12 @@ object ScExpression {
                 case Some(expected) =>
                   expected.removeAbstracts match {
                     case FunctionType(_, _) =>
-                    case expect if ScalaPsiUtil.isSAMEnabled(expr) =>
+                    case expect if expr.isSAMEnabled =>
                       val languageLevel = expr.scalaLanguageLevelOrDefault
                       if (languageLevel != Scala_2_11 || ScalaPsiUtil.toSAMType(expect, expr).isEmpty) {
                         res = updateType(retType)
                       }
-                    case _ => res = updateType(retType)
+                    case _                  => res = updateType(retType)
                   }
                 case _ => res = updateType(retType)
               }
@@ -541,7 +541,7 @@ object ScExpression {
         def expectedResult = Some(ExpressionTypeResult(Right(expected)))
 
         tp match {
-          case FunctionType(_, params) if ScalaPsiUtil.isSAMEnabled(expr) =>
+          case FunctionType(_, params) if expr.isSAMEnabled =>
             ScalaPsiUtil.toSAMType(expected, expr) match {
               case Some(methodType) if tp.conforms(methodType) => expectedResult
               case Some(methodType@FunctionType(retTp, _)) if etaExpansionHappened && retTp.equiv(Unit) =>
@@ -550,7 +550,7 @@ object ScExpression {
                 else None
               case _ => None
             }
-          case _ => None
+          case _                               => None
         }
       }
 
@@ -567,13 +567,13 @@ object ScExpression {
       def inner(retType: ScType, updateType: ScType => ScType): ScType = {
         expected.removeAbstracts match {
           case FunctionType(_, _) => tp
-          case expect if ScalaPsiUtil.isSAMEnabled(expr) =>
+          case expect if expr.isSAMEnabled =>
             val languageLevel = expr.scalaLanguageLevelOrDefault
             if (languageLevel != Scala_2_11 || ScalaPsiUtil.toSAMType(expect, expr).isEmpty) {
               updateType(retType)
             }
             else tp
-          case _ => updateType(retType)
+          case _                  => updateType(retType)
         }
       }
 

@@ -13,7 +13,7 @@ import com.intellij.util.NullableFunction
 import org.jetbrains.plugins.scala.extensions.implementation.iterator.PrevSiblignsIterator
 import org.jetbrains.plugins.scala.lang.psi.api.ScalaFile
 import org.jetbrains.plugins.scala.worksheet.actions.WorksheetFileHook
-import org.jetbrains.plugins.scala.worksheet.processor.WorksheetCompiler
+import org.jetbrains.plugins.scala.worksheet.settings.WorksheetFileSettings
 
 /**
   * User: Dmitry.Naydanov
@@ -50,7 +50,7 @@ class WorksheetLineMarkerProvider extends LineMarkerProvider {
         }
         
         psiElement.getContainingFile match {
-          case scalaFile: ScalaFile if scalaFile.isWorksheetFile && WorksheetCompiler.isWorksheetReplMode(scalaFile) =>
+          case scalaFile: ScalaFile if scalaFile.isWorksheetFile && WorksheetFileSettings.isRepl(scalaFile) =>
             if (testElement(psiElement)) marker(scalaFile) else 
               if (testElement(psiElement.getParent) && checkIfNotTop()) marker(scalaFile, checkParent = true) else null
           case _ => null

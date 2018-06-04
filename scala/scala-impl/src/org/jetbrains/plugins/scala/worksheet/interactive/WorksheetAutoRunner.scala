@@ -3,19 +3,19 @@ package worksheet.interactive
 
 import com.intellij.openapi.components.AbstractProjectComponent
 import com.intellij.openapi.editor.Document
-import com.intellij.openapi.editor.event.{DocumentAdapter, DocumentEvent, DocumentListener}
+import com.intellij.openapi.editor.event.{DocumentEvent, DocumentListener}
 import com.intellij.openapi.fileEditor.FileEditorManager
 import com.intellij.openapi.project.Project
-import com.intellij.openapi.vfs.newvfs.FileAttribute
 import com.intellij.problems.WolfTheProblemSolver
-import com.intellij.psi.{PsiDocumentManager, PsiFile, PsiWhiteSpace}
+import com.intellij.psi.{PsiDocumentManager, PsiWhiteSpace}
 import com.intellij.util.Alarm
 import com.intellij.util.containers.ContainerUtil
 import org.jetbrains.plugins.scala.settings.ScalaProjectSettings
-import worksheet.actions.{RunWorksheetAction, WorksheetFileHook}
-import worksheet.processor.{FileAttributeUtilCache, WorksheetCompiler, WorksheetPerFileConfig}
-import worksheet.runconfiguration.WorksheetCache
-import worksheet.server.WorksheetProcessManager
+import org.jetbrains.plugins.scala.worksheet.actions.{RunWorksheetAction, WorksheetFileHook}
+import org.jetbrains.plugins.scala.worksheet.processor.WorksheetPerFileConfig
+import org.jetbrains.plugins.scala.worksheet.runconfiguration.WorksheetCache
+import org.jetbrains.plugins.scala.worksheet.server.WorksheetProcessManager
+import org.jetbrains.plugins.scala.worksheet.settings.{WorksheetCommonSettings, WorksheetFileSettings}
 
 /**
  * User: Dmitry.Naydanov
@@ -25,23 +25,12 @@ object WorksheetAutoRunner extends WorksheetPerFileConfig {
   val RUN_DELAY_MS_MAXIMUM = 3000
   val RUN_DELAY_MS_MINIMUM = 700
   
-  private val AUTORUN = new FileAttribute("ScalaWorksheetAutoRun", 1, true)
-
-  def isSetEnabled(file: PsiFile): Boolean = isEnabled(file, AUTORUN)
-
-  def isSetDisabled(file: PsiFile): Boolean = isDisabled(file, AUTORUN)
-
-  def setAutorun(file: PsiFile, autorun: Boolean) {
-    setEnabled(file, AUTORUN, autorun)
-  }
-
   def getInstance(project: Project): WorksheetAutoRunner = project.getComponent(classOf[WorksheetAutoRunner])
 }
 
 class WorksheetAutoRunner(project: Project, woof: WolfTheProblemSolver) extends AbstractProjectComponent(project) {
   private val listeners = ContainerUtil.createConcurrentWeakMap[Document, DocumentListener]()
   private val myAlarm = new Alarm(Alarm.ThreadToUse.SWING_THREAD, project)
-  private lazy val settings = ScalaProjectSettings.getInstance(project)
 
   override def getComponentName: String = "WorksheetAutoRunner"
 
@@ -73,10 +62,6 @@ class WorksheetAutoRunner(project: Project, woof: WolfTheProblemSolver) extends 
     private val documentManager: PsiDocumentManager = PsiDocumentManager getInstance project
     private var lastProcessedOffset = 0
 
-    @inline private def isDisabledOn(file: PsiFile) = {
-      WorksheetAutoRunner.isSetDisabled(file) || !settings.isInteractiveMode && !WorksheetAutoRunner.isSetEnabled(file)
-    }
-
     def updateOffset(offset: Int) {
       lastProcessedOffset = offset
     }
@@ -86,14 +71,14 @@ class WorksheetAutoRunner(project: Project, woof: WolfTheProblemSolver) extends 
       
       val psiFile = documentManager getPsiFile document
       val offset = e.getOffset
-      val isRepl = WorksheetCompiler isWorksheetReplMode psiFile 
+      val isRepl = WorksheetFileSettings isRepl psiFile 
 
       if (isRepl) {
         if (offset < lastProcessedOffset) WorksheetFileHook.getEditorFrom(FileEditorManager getInstance project, psiFile.getVirtualFile) foreach (
           ed => WorksheetCache.getInstance(project).setLastProcessedIncremental(ed, None) )
       }
 
-      if (isDisabledOn(psiFile)) return
+      if (!WorksheetCommonSettings.getInstance(psiFile).isInteractive) return
 
       val virtualFile = psiFile.getVirtualFile
 

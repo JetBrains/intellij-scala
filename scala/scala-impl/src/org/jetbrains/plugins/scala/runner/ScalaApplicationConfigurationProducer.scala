@@ -17,7 +17,7 @@ import org.jetbrains.plugins.scala.lang.psi.api.statements.ScFunctionDefinition
 import org.jetbrains.plugins.scala.lang.psi.api.toplevel.typedef.{ScObject, ScTypeDefinition}
 import org.jetbrains.plugins.scala.lang.psi.light.PsiClassWrapper
 import org.jetbrains.plugins.scala.lang.refactoring.util.ScalaNamesUtil
-import org.jetbrains.plugins.scala.macroAnnotations.CachedInsidePsiElement
+import org.jetbrains.plugins.scala.macroAnnotations.CachedInUserData
 
 /**
  * @author Alefas
@@ -149,7 +149,7 @@ object ScalaMainMethodUtil {
       }
     }
 
-    @CachedInsidePsiElement(obj, CachesUtil.enclosingModificationOwner(obj))
+    @CachedInUserData(obj, CachesUtil.enclosingModificationOwner(obj))
     def findMainMethodInner(): Option[PsiMethod] = {
       declaredMain(obj) orElse Option(PsiMethodUtil.findMainMethod(new PsiClassWrapper(obj, obj.qualifiedName, obj.name)))
     }

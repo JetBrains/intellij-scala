@@ -4,10 +4,12 @@ package intention
 package types
 
 import org.jetbrains.plugins.scala.codeInsight.intentions.ScalaIntentionTestBase
+import org.jetbrains.plugins.scala.debugger.{ScalaVersion, Scala_2_12}
 
 class ToggleTypeAnnotationIntentionTest extends ScalaIntentionTestBase {
 
-  override def familyName: String = ToggleTypeAnnotation.FamilyName
+  override def familyName: String             = ToggleTypeAnnotation.FamilyName
+  override implicit val version: ScalaVersion = Scala_2_12
 
   def testCollectionFactorySimplification(): Unit = doTest(
     "val v = Seq.empty[String]",
@@ -110,6 +112,25 @@ class ToggleTypeAnnotationIntentionTest extends ScalaIntentionTestBase {
        |
        |def foo(): ::[+[A, +[::[A, A], A]], +[A, ::[A, A]]] = ???
        |val ba${caretTag}r: (A + ((A :: A) + A)) :: (A + (A :: A)) = foo()
+     """.stripMargin
+  )
+
+  def testShowAsInfixAnnotation(): Unit = doTest(
+    s"""
+       |import scala.annotation.showAsInfix
+       |
+       |@showAsInfix class Map[A, B]
+       |
+       |def foo(): Map[Int, Map[Int, String]] = ???
+       |val b${caretTag}ar = foo()
+     """.stripMargin,
+     s"""
+       |import scala.annotation.showAsInfix
+       |
+       |@showAsInfix class Map[A, B]
+       |
+       |def foo(): Map[Int, Map[Int, String]] = ???
+       |val b${caretTag}ar: Int Map (Int Map String) = foo()
      """.stripMargin
   )
 }

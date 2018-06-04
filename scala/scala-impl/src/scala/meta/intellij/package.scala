@@ -15,7 +15,7 @@ import org.jetbrains.plugins.scala.lang.psi.impl.base.ScStableCodeReferenceEleme
 import org.jetbrains.plugins.scala.lang.psi.stubs.elements.ScStubElementType
 import org.jetbrains.plugins.scala.lang.resolve.ScalaResolveResult
 import org.jetbrains.plugins.scala.lang.resolve.processor.ResolveProcessor
-import org.jetbrains.plugins.scala.macroAnnotations.{CachedInsidePsiElement, CachedWithRecursionGuard, ModCount}
+import org.jetbrains.plugins.scala.macroAnnotations.{CachedInUserData, CachedWithRecursionGuard, ModCount}
 import org.jetbrains.plugins.scala.settings.ScalaProjectSettings
 
 package object intellij {
@@ -40,7 +40,7 @@ package object intellij {
         if (!metaEnabled(annotation))
           return false
 
-        @CachedInsidePsiElement(annotation, ModCount.getBlockModificationCount)
+        @CachedInUserData(annotation, ModCount.getBlockModificationCount)
         def cached: Boolean = {
           annotation.constructor.reference.exists {
             case stRef: ScStableCodeReferenceElementImpl =>

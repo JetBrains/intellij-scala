@@ -616,7 +616,7 @@ class ScalaBasicCompletionTest extends ScalaCodeInsightTestBase {
          |  val bar: Int$CARET
          |}
       """.stripMargin,
-    count = 2,
+    count = 1,
     item = "Int"
   )
 
@@ -1028,5 +1028,100 @@ class ScalaBasicCompletionTest extends ScalaCodeInsightTestBase {
     fileText = s"1.toBin$CARET",
     resultText = s"1.toBinaryString$CARET",
     item = "toBinaryString"
+  )
+
+  def testSyntheticUnapply(): Unit = doCompletionTest(
+    fileText =
+      s"""case class Foo(foo: Int = 42)(bar: Int = 42)
+         |
+         |Foo()() match {
+         |  case $CARET
+         |}
+       """.stripMargin,
+    resultText =
+      s"""case class Foo(foo: Int = 42)(bar: Int = 42)
+         |
+         |Foo()() match {
+         |  case Foo(foo)$CARET
+         |}
+       """.stripMargin,
+    item = "Foo(foo)"
+  )
+
+  def testSyntheticUnapplyVararg(): Unit = doCompletionTest(
+    fileText =
+      s"""case class Foo(foos: Int*)
+         |
+         |Foo() match {
+         |  case $CARET
+         |}
+       """.stripMargin,
+    resultText =
+      s"""case class Foo(foos: Int*)
+         |
+         |Foo() match {
+         |  case Foo(foos@_*)$CARET
+         |}
+       """.stripMargin,
+    item = "Foo(foos@_*)"
+  )
+
+  def testUnapply(): Unit = doCompletionTest(
+    fileText =
+      s"""class Foo(val foo: Int = 42, val bar: Int = 42)
+         |
+         |object Foo {
+         |  def unapply(foo: Foo): Option[(Int, Int)] = Some(foo.foo, foo.bar)
+         |}
+         |
+         |new Foo() match {
+         |  case $CARET
+         |}
+       """.stripMargin,
+    resultText =
+      s"""class Foo(val foo: Int = 42, val bar: Int = 42)
+         |
+         |object Foo {
+         |  def unapply(foo: Foo): Option[(Int, Int)] = Some(foo.foo, foo.bar)
+         |}
+         |
+         |new Foo() match {
+         |  case Foo(i, i1)$CARET
+         |}
+       """.stripMargin,
+    item = "Foo(i, i1)"
+  )
+
+  def testNoBeforeCaseCompletion(): Unit = checkNoCompletion(
+    fileText =
+      s"""case class Foo()
+         |
+         |Foo() match {
+         |  $CARET
+         |}
+      """.stripMargin,
+    item = "Foo()"
+  )
+
+  def testNoAfterArrowCompletion(): Unit = checkNoCompletion(
+    fileText =
+      s"""case class Foo()
+         |
+         |Foo() match {
+         |  case _ => $CARET
+         |}
+      """.stripMargin,
+    item = "Foo()"
+  )
+
+  def testNoCompositePatternCompletion(): Unit = checkNoCompletion(
+    fileText =
+      s"""case class Foo()
+         |
+         |Foo() match {
+         |  case _ | $CARET
+         |}
+      """.stripMargin,
+    item = "Foo()"
   )
 }

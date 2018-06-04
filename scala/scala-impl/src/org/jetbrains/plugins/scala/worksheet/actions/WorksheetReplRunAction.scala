@@ -2,7 +2,7 @@ package org.jetbrains.plugins.scala.worksheet.actions
 
 import com.intellij.openapi.actionSystem.{AnAction, AnActionEvent, CustomShortcutSet}
 import org.jetbrains.plugins.scala.lang.psi.api.ScalaFile
-import org.jetbrains.plugins.scala.worksheet.processor.WorksheetCompiler
+import org.jetbrains.plugins.scala.worksheet.settings.WorksheetFileSettings
 
 /**
   * User: Dmitry.Naydanov
@@ -20,7 +20,7 @@ class WorksheetReplRunAction extends AnAction with WorksheetAction {
     RunWorksheetAction.runCompiler(e.getProject, auto = false)
   }
 
-  override def acceptFile(file: ScalaFile): Boolean = WorksheetCompiler.isWorksheetReplMode(file)
+  override def acceptFile(file: ScalaFile): Boolean = WorksheetFileSettings.isRepl(file)
 }
 
 object WorksheetReplRunAction {

@@ -16,7 +16,7 @@ import org.jetbrains.plugins.scala.lang.psi.api.statements.params._
 import org.jetbrains.plugins.scala.lang.psi.api.toplevel.typedef.ScClass
 import org.jetbrains.plugins.scala.lang.psi.impl.ScalaPsiElementFactory._
 import org.jetbrains.plugins.scala.lang.psi.stubs.ScParamClauseStub
-import org.jetbrains.plugins.scala.macroAnnotations.{Cached, CachedInsidePsiElement, ModCount}
+import org.jetbrains.plugins.scala.macroAnnotations.{Cached, CachedInUserData, ModCount}
 
 /**
   * @author Alexander Podkhalyuzin
@@ -36,35 +36,36 @@ class ScParameterClauseImpl private(stub: ScParamClauseStub, node: ASTNode)
     getStubOrPsiChildren[ScParameter](TokenSets.PARAMETERS, JavaArrayFactoryUtil.ScParameterFactory).toSeq
   }
 
-  @CachedInsidePsiElement(this, ModCount.getBlockModificationCount)
+  @CachedInUserData(this, ModCount.getBlockModificationCount)
   override def effectiveParameters: Seq[ScParameter] = {
     if (!isImplicit) return parameters
+
     //getParent is sufficient (not getContext), for synthetic clause, getParent will return other PSI,
     //which is ok, it will not add anything more
-    getParent match {
+    val maybeSyntheticClause = getParent match {
       case clauses: ScParameters =>
-        val element =
-          clauses.getParent match {
-            case f: ScFunction => f
-            case p: ScPrimaryConstructor =>
-              p.containingClass match {
-                case c: ScClass => c
-                case _ => return parameters
-              }
-            case _ => return parameters
-          }
-
-        val syntheticClause = ScalaPsiUtil.syntheticParamClause(element, clauses, element.isInstanceOf[ScClass], hasImplicit = false)
-        syntheticClause match {
-          case Some(sClause) =>
-            val synthParameters = sClause.parameters
-            synthParameters.foreach(_.setContext(this, null))
-            synthParameters ++ parameters
-          case _ => parameters
+        val maybeOwner = clauses.getParent match {
+          case f: ScFunction => Some((f, false))
+          case p: ScPrimaryConstructor =>
+            p.containingClass match {
+              case c: ScClass => Some((c, true))
+              case _ => None
+            }
+          case _ => None
         }
-
-      case _ => parameters
+        maybeOwner.flatMap {
+          case (owner, isClassParameter) =>
+            ScalaPsiUtil.syntheticParamClause(owner, clauses, isClassParameter)(hasImplicit = false)
+        }
+      case _ => None
     }
+
+    val syntheticParameters = maybeSyntheticClause.toSeq.flatMap(_.parameters)
+    syntheticParameters.foreach {
+      _.setContext(this, null)
+    }
+
+    syntheticParameters ++ parameters
   }
 
   @Cached(ModCount.anyScalaPsiModificationCount, this)

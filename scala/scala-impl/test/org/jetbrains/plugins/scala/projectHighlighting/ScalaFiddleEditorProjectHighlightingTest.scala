@@ -14,7 +14,6 @@ class ScalaFiddleEditorProjectHighlightingTest extends GithubSbtAllProjectHighli
 
   override def filesWithProblems: Map[String, Set[TextRange]] = Map(
   "AppRouter.scala" -> Set(),
-  "FiddleEditor.scala" -> Set(),
   "SocialAuthController.scala" -> Set(),
   "Application.scala" -> Set(),
   "Dropdown.scala" -> Set((161, 163),(801, 810),(798, 800))

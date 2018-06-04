@@ -368,6 +368,8 @@ class ScalaPsiManager(val project: Project) {
   def clearAllCaches(): Unit = {
     clearOnChange()
     clearOnJavaStructureChange()
+    wideableLiteralTypes.clear()
+    nonWideableLiteralTypes.clear()
   }
 
   @TestOnly

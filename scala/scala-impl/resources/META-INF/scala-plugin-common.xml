@@ -12,7 +12,6 @@
         <extensionPoint name="scalaElementToRenameContributor" interface="org.jetbrains.plugins.scala.lang.refactoring.rename.ScalaElementToRenameContributor"/>
         <extensionPoint name="scalaSyntheticClassProducer" interface="org.jetbrains.plugins.scala.lang.resolve.SyntheticClassProducer"/>
         <extensionPoint name="evaluatorCompileHelper" interface="org.jetbrains.plugins.scala.debugger.evaluation.EvaluatorCompileHelper"/>
-        <extensionPoint name="serverWidgetEP" interface="org.jetbrains.plugins.scala.compiler.ServerWidgetEP"/>
         <extensionPoint name="syntheticMemberInjector" interface="org.jetbrains.plugins.scala.lang.psi.impl.toplevel.typedef.SyntheticMembersInjector"/>
         <extensionPoint name="testWorkingDirectoryProvider" interface="org.jetbrains.plugins.scala.testingSupport.TestWorkingDirectoryProvider"/>
         <extensionPoint name="parameterInfoEnhancer" interface="org.jetbrains.plugins.scala.lang.parameterInfo.ScalaParameterInfoEnhancer"/>
@@ -137,6 +136,7 @@
         <lang.inspectionSuppressor language="Scala" implementationClass="org.jetbrains.plugins.scala.codeInspection.suppression.ScalaInspectionSuppressor"/>
         <problemHighlightFilter implementation="org.jetbrains.plugins.scala.annotator.ScalaProblemHighlightFilter"/>
         <problemFileHighlightFilter implementation="org.jetbrains.plugins.scala.annotator.ScalaProblemFileHighlightFilter"/>
+        <highlightVisitor implementation="org.jetbrains.plugins.scala.codeInsight.daemon.ScalaRainbowVisitor"/>
       <externalSystemTaskNotificationListener
               implementation="org.jetbrains.plugins.scaladev.IdeaSourcesAttachListener"/>
 
@@ -152,8 +152,11 @@
                                 implementationClass="org.jetbrains.plugins.scala.lang.completion.ScalaAotCompletionContributor"
                                 order="before scalaCompletionContrubutor"/>
         <completion.contributor language="Scala" id="scalaClassParamContributor"
-                                implementationClass="org.jetbrains.plugins.scala.lang.completion.ScalaCaseClassParametersNameContributer"
+                                implementationClass="org.jetbrains.plugins.scala.lang.completion.clauses.CaseClassParametersCompletionContributor"
                                 order="before keywordCompletionContributor, before memberNameCompletionContributor"/>
+        <completion.contributor language="Scala" id="caseClauseCompletionContributor"
+                                implementationClass="org.jetbrains.plugins.scala.lang.completion.clauses.CaseClauseCompletionContributor"
+                                order="before scalaIdentifierCompletionContributor"/>
         <completion.contributor language="Scala" id="scalaOverrideDefContributer"
                                 implementationClass="org.jetbrains.plugins.scala.lang.completion.ScalaOverrideContributor"
                                 order="before scalaIdentifierCompletionContributor, after keywordCompletionContributor"/>
@@ -449,6 +452,8 @@
 
         <projectService serviceImplementation="org.jetbrains.plugins.scala.project.settings.ScalaCompilerConfiguration"/>
         <projectService serviceImplementation="org.jetbrains.plugins.scala.lang.macros.evaluator.ScalaMacroEvaluator"/>
+      
+        <projectService serviceImplementation="org.jetbrains.plugins.scala.worksheet.settings.WorksheetDefaultSettings"/>
 
         <applicationService serviceImplementation="org.jetbrains.plugins.scala.lang.psi.impl.expr.ExpectedTypesImpl"
                             serviceInterface="org.jetbrains.plugins.scala.lang.psi.api.expr.ExpectedTypes"/>

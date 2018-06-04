@@ -68,20 +68,18 @@ class ScalaClassNameCompletionContributor extends ScalaCompletionContributor {
 
 object ScalaClassNameCompletionContributor {
 
-  def completeClassName(result: CompletionResultSet,
-                        checkInvocationCount: Boolean = true,
-                        lookingForAnnotations: Boolean = false)
-                       (implicit parameters: CompletionParameters,
-                        context: ProcessingContext): Unit =
+  private def completeClassName(result: CompletionResultSet)
+                               (implicit parameters: CompletionParameters,
+                                context: ProcessingContext): Unit =
     positionFromParameters(parameters) match {
-      case element if lookingForAnnotations || shouldRunClassNameCompletion(element, result.getPrefixMatcher, checkInvocationCount) =>
-        completeClassName(element, result)
+      case dummyPosition if shouldRunClassNameCompletion(dummyPosition, result.getPrefixMatcher) =>
+        completeClassName(dummyPosition, result)
       case _ =>
     }
 
-  private[this] def completeClassName(dummyPosition: PsiElement, result: CompletionResultSet)
-                                     (implicit parameters: CompletionParameters,
-                                      context: ProcessingContext): Boolean = {
+  private[completion] def completeClassName(dummyPosition: PsiElement, result: CompletionResultSet)
+                                           (implicit parameters: CompletionParameters,
+                                            context: ProcessingContext): Boolean = {
     val (position, inString) = dummyPosition.getNode.getElementType match {
       case ScalaTokenTypes.tSTRING | ScalaTokenTypes.tMULTILINE_STRING =>
         val position = dummyPosition
@@ -100,7 +98,7 @@ object ScalaClassNameCompletionContributor {
     val onlyClasses = stableRefElement != null && !stableRefElement.getContext.isInstanceOf[ScConstructorPattern]
 
     val renamesMap = createRenamesMap(position)
-    val maybeExpectedTypes = expectedTypesAfterNew(dummyPosition)
+    val maybeExpectedTypes = expectedTypeAfterNew(dummyPosition)
 
     implicit val project: Project = position.getProject
 
@@ -123,8 +121,8 @@ object ScalaClassNameCompletionContributor {
       }
 
       val lookups = (typeToImport, maybeExpectedTypes) match {
-        case (ClassTypeToImport(clazz), Some(expectedTypes)) =>
-          Seq(getLookupElementFromClass(expectedTypes, clazz, renamesMap))
+        case (ClassTypeToImport(clazz), Some(createLookups)) =>
+          Seq(createLookups(clazz, renamesMap))
         case _ =>
           val nameShadow = renamesMap.get(name).collect {
             case (`element`, s) => s

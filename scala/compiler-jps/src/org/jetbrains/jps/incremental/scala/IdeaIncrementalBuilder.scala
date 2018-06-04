@@ -11,15 +11,16 @@ import org.jetbrains.jps.builders.{DirtyFilesHolder, FileProcessor}
 import org.jetbrains.jps.incremental.ModuleLevelBuilder.ExitCode
 import org.jetbrains.jps.incremental.fs.CompilationRound
 import org.jetbrains.jps.incremental.messages.{BuildMessage, CompilerMessage, ProgressMessage}
+import org.jetbrains.jps.incremental.scala.InitialScalaBuilder.hasScalaModules
 import org.jetbrains.jps.incremental.scala.ScalaBuilder._
 import org.jetbrains.jps.incremental.scala.data.CompilerData
 import org.jetbrains.jps.incremental.scala.local.{IdeClientIdea, PackageObjectsData}
 import org.jetbrains.jps.incremental.scala.model.{CompileOrder, IncrementalityType}
+import org.jetbrains.jps.incremental.{BuilderCategory, _}
 
 import _root_.scala.collection.JavaConverters._
-import scala.collection.mutable
-import scala.collection.mutable.ListBuffer
-import org.jetbrains.jps.incremental._
+import _root_.scala.collection.mutable
+import _root_.scala.collection.mutable.ListBuffer
 
 /**
   * Nikolay.Tropin
@@ -37,8 +38,6 @@ class IdeaIncrementalBuilder(category: BuilderCategory) extends ModuleLevelBuild
     if (isDisabled(context, chunk) || ChunkExclusionService.isExcluded(chunk))
       return ExitCode.NOTHING_DONE
 
-    checkIncrementalTypeChange(context)
-
     context.processMessage(new ProgressMessage("Searching for compilable files..."))
 
     val sourceDependencies = SourceDependenciesProviderService.getSourceDependenciesFor(chunk)
@@ -55,7 +54,7 @@ class IdeaIncrementalBuilder(category: BuilderCategory) extends ModuleLevelBuild
 
     if (hasBuildModules(chunk)) return ExitCode.NOTHING_DONE // *.scala files in sbt "build" modules are rightly excluded from compilation
 
-    if (!hasScalaModules(chunk)) {
+    if (!hasScalaModules(context, chunk)) {
       val message = "skipping Scala files without a Scala SDK in module(s) " + chunk.getPresentableShortName
       context.processMessage(new CompilerMessage("scala", BuildMessage.Kind.WARNING, message))
       return ExitCode.NOTHING_DONE
@@ -109,7 +108,7 @@ class IdeaIncrementalBuilder(category: BuilderCategory) extends ModuleLevelBuild
     def wrongIncrType = settings.getIncrementalityType != IncrementalityType.IDEA
     def wrongCompileOrder = settings.getCompilerSettings(chunk).getCompileOrder match {
       case CompileOrder.JavaThenScala => getCategory == BuilderCategory.SOURCE_PROCESSOR
-      case (CompileOrder.ScalaThenJava | CompileOrder.Mixed) => getCategory == BuilderCategory.OVERWRITING_TRANSLATOR
+      case CompileOrder.ScalaThenJava | CompileOrder.Mixed => getCategory == BuilderCategory.OVERWRITING_TRANSLATOR
       case _ => false
     }
     wrongIncrType || wrongCompileOrder
@@ -153,7 +152,7 @@ class IdeaIncrementalBuilder(category: BuilderCategory) extends ModuleLevelBuild
 
     //if no scala files to compile, return empty seq
     if (!result.exists(_.getName.endsWith(".scala"))) Seq.empty
-    else result.toSeq
+    else result
   }
 
 

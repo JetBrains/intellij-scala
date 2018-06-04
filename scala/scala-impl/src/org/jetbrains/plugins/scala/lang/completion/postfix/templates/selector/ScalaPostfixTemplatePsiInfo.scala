@@ -8,6 +8,7 @@ import org.jetbrains.plugins.scala.lang.psi.api.expr.{ScExpression, ScParenthesi
 import org.jetbrains.plugins.scala.lang.psi.impl.ScalaPsiElementFactory.createExpressionFromText
 import org.jetbrains.plugins.scala.lang.psi.types.api.Boolean
 import org.jetbrains.plugins.scala.lang.surroundWith.surrounders.expression.ScalaWithUnaryNotSurrounder
+import org.jetbrains.plugins.scala.extensions.ParenthesizedElement.Ops
 
 /**
  * @author Roman.Shein
@@ -38,7 +39,7 @@ object ScalaPostfixTemplatePsiInfo extends PostfixTemplatePsiInfo {
 
     override def surroundPsi(elements: Array[PsiElement]): ScExpression = {
       SimplifyBooleanUtil.simplify(super.surroundPsi(elements), isTopLevel = false) match {
-        case parenthesized: ScParenthesisedExpr if parenthesized.isParenthesisRedundant() =>
+        case parenthesized: ScParenthesisedExpr if parenthesized.isParenthesisRedundant =>
           createExpressionFromText(parenthesized.getTextOfStripped())(parenthesized)
         case other => other
       }

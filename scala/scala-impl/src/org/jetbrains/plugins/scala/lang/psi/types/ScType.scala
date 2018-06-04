@@ -5,12 +5,12 @@ package types
 
 import com.intellij.openapi.progress.ProgressManager
 import org.jetbrains.plugins.scala.extensions.ifReadAllowed
-import org.jetbrains.plugins.scala.lang.psi.types.api.{Covariant, TypeSystem, TypeVisitor, ValueType, Variance}
-import org.jetbrains.plugins.scala.lang.psi.types.recursiveUpdate.Update
+import org.jetbrains.plugins.scala.lang.psi.types.api.{TypeSystem, TypeVisitor, ValueType, Variance}
+import org.jetbrains.plugins.scala.lang.psi.types.recursiveUpdate.{AfterUpdate, Update}
 import org.jetbrains.plugins.scala.lang.refactoring.util.ScTypeUtil.AliasType
 import org.jetbrains.plugins.scala.project.ProjectContextOwner
 
-import scala.collection.mutable.ArrayBuffer
+import scala.language.implicitConversions
 
 trait ScType extends ProjectContextOwner {
 
@@ -46,22 +46,12 @@ trait ScType extends ProjectContextOwner {
 
   def inferValueType: ValueType
 
-  protected def unpackedTypeInner: ScType = {
-    val existingWildcards = ScExistentialType.existingWildcards(this)
-    val wildcards = new ArrayBuffer[ScExistentialArgument]
-    val quantified = recursiveVarianceUpdateModifiable[Set[String]](Set.empty, {
-      case (s: ScExistentialArgument, _, data) if !data.contains(s.name) =>
-        val name = ScExistentialType.fixExistentialArgumentName(s.name, existingWildcards)
-        if (!wildcards.exists(_.name == name)) wildcards += ScExistentialArgument(name, s.args, s.lower, s.upper)
-        (true, ScExistentialArgument(name, s.args, s.lower, s.upper), data)
-      case (ex: ScExistentialType, _, data) =>
-        (false, ex, data ++ ex.boundNames)
-      case (t, _, data) => (false, t, data)
-    })
-    if (wildcards.nonEmpty) {
-      ScExistentialType(quantified, wildcards.toList).simplify()
-    } else quantified
+  protected def unpackedTypeInner: ScType = ScExistentialType(this) match {
+    case ScExistentialType(q, Seq())                                       => q
+    case ScExistentialType(arg: ScExistentialArgument, Seq(w)) if w == arg => arg.upper
+    case ex                                                                => ex
   }
+
 
   /**
    * This method is important for parameters expected type.
@@ -76,20 +66,10 @@ trait ScType extends ProjectContextOwner {
 
   def updateSubtypes(updates: Seq[Update], visited: Set[ScType]): ScType = this
 
-  def recursiveVarianceUpdate(update: (ScType, Variance) => (Boolean, ScType), variance: Variance = Covariant): ScType = {
-    recursiveVarianceUpdateModifiable[Unit]((), (tp, v, _) => {
-      val (newTp, newV) = update(tp, v)
-      (newTp, newV, ())
-    }, variance)
-  }
-
-  def recursiveVarianceUpdateModifiable[T](data: T, update: (ScType, Variance, T) => (Boolean, ScType, T),
-                                           variance: Variance = Covariant, revertVariances: Boolean = false): ScType = {
-    update(this, variance, data) match {
-      case (true, res, _) => res
-      case _ => this
-    }
-  }
+  def updateSubtypesVariance(update: (ScType, Variance) => AfterUpdate,
+                             variance: Variance,
+                             revertVariances: Boolean)
+                            (implicit visited: Set[ScType]): ScType = this
 
   def visitType(visitor: TypeVisitor)
 
@@ -101,7 +81,9 @@ trait ScType extends ProjectContextOwner {
   def canonicalText: String = typeSystem.canonicalText(this)
 }
 
-object ScType extends recursiveUpdate.Extensions
+object ScType {
+  implicit def recursiveExtensions(tp: ScType): recursiveUpdate.Extensions = new recursiveUpdate.Extensions(tp)
+}
 
 trait NamedType extends ScType {
   val name: String

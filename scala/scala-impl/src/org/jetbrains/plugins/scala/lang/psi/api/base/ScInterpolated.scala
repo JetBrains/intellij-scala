@@ -9,7 +9,7 @@ import org.jetbrains.plugins.scala.lang.psi.api.base.patterns.ScInterpolationPat
 import org.jetbrains.plugins.scala.lang.psi.api.expr.{ScBlockExpr, ScExpression, ScReferenceExpression}
 import org.jetbrains.plugins.scala.lang.psi.impl.ScalaPsiElementFactory
 import org.jetbrains.plugins.scala.lang.psi.impl.expr.{ScInterpolatedPrefixReference, ScInterpolatedStringPartReference}
-import org.jetbrains.plugins.scala.macroAnnotations.{CachedInsidePsiElement, ModCount}
+import org.jetbrains.plugins.scala.macroAnnotations.{CachedInUserData, ModCount}
 
 import scala.collection.mutable.ListBuffer
 
@@ -34,7 +34,7 @@ trait ScInterpolated extends ScalaPsiElement {
     res.toArray
   }
 
-  @CachedInsidePsiElement(this, ModCount.getBlockModificationCount)
+  @CachedInUserData(this, ModCount.getBlockModificationCount)
   def getStringContextExpression: Option[ScExpression] = {
     val quote = if (isMultiLineString) "\"\"\"" else "\""
     val parts = getStringParts.mkString(quote, s"$quote, $quote", quote) //making list of string literals
@@ -43,17 +43,16 @@ trait ScInterpolated extends ScalaPsiElement {
       s"_root_.scala.StringContext($parts).${getFirstChild.getText}$params", getContext, ScInterpolated.this))
   }
 
-  def getInjections: Array[ScExpression] = {
+  def getInjections: Seq[ScExpression] =
     getNode.getChildren(null).flatMap {
       _.getPsi match {
-        case a: ScBlockExpr => Array[ScExpression](a)
-        case _: ScInterpolatedStringPartReference => Array[ScExpression]()
-        case _: ScInterpolatedPrefixReference => Array[ScExpression]()
-        case b: ScReferenceExpression => Array[ScExpression](b)
-        case _ => Array[ScExpression]()
+        case expression: ScBlockExpr => Some(expression)
+        case _: ScInterpolatedStringPartReference |
+             _: ScInterpolatedPrefixReference => None
+        case expression: ScReferenceExpression => Some(expression)
+        case _ => None
       }
     }
-  }
 
   def getStringParts: Seq[String] = {
     val childNodes = this.children.map(_.getNode)

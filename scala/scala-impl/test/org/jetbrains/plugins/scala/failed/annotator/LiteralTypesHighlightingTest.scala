@@ -10,9 +10,6 @@ class LiteralTypesHighlightingTest extends LiteralTypesHighlightingTestBase {
   //TODO doesn't work without literal types either
   def testSip23Bounds(): Unit = doTest()
 
-  //TODO doesn't work because of expected type being lost when checking conformance
-  def testSip23NamedDefault(): Unit = doTest()
-
   //TODO highlights properly, but lacks dependencies, add later
   def testSip23Macros1(): Unit = doTest()
 

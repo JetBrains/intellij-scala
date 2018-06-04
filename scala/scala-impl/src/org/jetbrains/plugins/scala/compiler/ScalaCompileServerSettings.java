@@ -39,16 +39,6 @@ public class ScalaCompileServerSettings implements PersistentStateComponent<Scal
     return this;
   }
 
-  public void updatePort(int port) {
-    COMPILE_SERVER_PORT = port;
-    ApplicationManager.getApplication().saveSettings();
-  }
-
-  public void updateSdk(String sdk) {
-    COMPILE_SERVER_SDK = sdk;
-    ApplicationManager.getApplication().saveSettings();
-  }
-
   public void loadState(ScalaCompileServerSettings state) {
     XmlSerializerUtil.copyBean(state, this);
   }

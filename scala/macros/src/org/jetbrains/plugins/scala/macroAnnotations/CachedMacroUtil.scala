@@ -272,7 +272,10 @@ object CachedMacroUtil {
 
 object ModCount extends Enumeration {
   type ModCount = Value
+  //any physical psi change
   val getModificationCount = Value("getModificationCount")
+
+  //only changes that may affect return type of a current block
   val getBlockModificationCount = Value("getBlockModificationCount")
 
   //Use for hot methods: it has minimal overhead, but updates on each change

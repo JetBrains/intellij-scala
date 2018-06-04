@@ -1,15 +1,12 @@
 package org.jetbrains.plugins.scala.caches
 
 import java.util
+import java.util.Objects
 import java.util.concurrent.ConcurrentMap
-import java.util.{Objects, Map => JMap}
-
-import scala.collection.JavaConverters._
 
 import com.intellij.openapi.diagnostic.Logger
 import com.intellij.openapi.util.Computable
 import com.intellij.util.containers.ContainerUtil
-import gnu.trove.{THashMap, THashSet}
 
 /**
   * Nikolay.Tropin
@@ -54,7 +51,9 @@ object RecursionManager {
       val stack = ourStack.get()
       val realKey = createKey(data, myCallEquals = true)
       if (stack.checkReentrancy(realKey)) {
-        if (ourAssertOnPrevention) throw new AssertionError("Endless recursion prevention occurred")
+        if (ourAssertOnPrevention) {
+          throw new AssertionError("Endless recursion prevention occurred")
+        }
         true
       }
       else false
@@ -86,7 +85,8 @@ object RecursionManager {
       val keys = map.keySet().iterator()
       while (keys.hasNext) {
         val next = keys.next()
-        if (next.guardId == id && data == next.userObject) return true
+        if (next.guardId == id && data == next.userObject)
+          return true
       }
       false
     }
@@ -96,17 +96,9 @@ object RecursionManager {
     private val guards: ConcurrentMap[String, RecursionGuard[_, _]] =
       ContainerUtil.newConcurrentMap[String, RecursionGuard[_, _]]()
 
-    def apply[Data >: Null <: AnyRef, Result >: Null <: AnyRef](id: String): RecursionGuard[Data, Result] = {
-      guards.get(id) match {
-        case null =>
-          val newGuard = new RecursionGuard[Data, Result](id)
-          val race = guards.putIfAbsent(id, newGuard)
-
-          if (race != null) race.asInstanceOf[RecursionGuard[Data, Result]]
-          else newGuard
-        case v => v.asInstanceOf[RecursionGuard[Data, Result]]
-      }
-    }
+    def apply[Data >: Null <: AnyRef, Result >: Null <: AnyRef](id: String): RecursionGuard[Data, Result] =
+      guards.computeIfAbsent(id, new RecursionGuard[Data, Result](_))
+        .asInstanceOf[RecursionGuard[Data, Result]]
   }
 
   class MyKey[Data >: Null <: AnyRef](val guardId: String, val userObject: Data, val myCallEquals: Boolean) {
@@ -124,64 +116,47 @@ object RecursionManager {
   }
 
   private class CalculationStack {
-    var reentrancyCount: Int = 0
-    var depth: Int = 0
+    private[this] var reentrancyCount: Int = 0
+    private[this] var depth: Int = 0
+    private[this] var enters: Int = 0
+    private[this] var exits: Int = 0
+
     val progressMap: util.LinkedHashMap[MyKey[_], Integer] = new util.LinkedHashMap[MyKey[_], Integer]
-    val key2ReentrancyDuringItsCalculation: THashMap[MyKey[_], MyKey[_]] = new THashMap[MyKey[_], MyKey[_]]
-    val intermediateCache: JMap[MyKey[_], JMap[MyKey[_], AnyRef]] = ContainerUtil.createSoftMap()
-    var enters: Int = 0
-    var exits: Int = 0
-    
-    def checkReentrancy(realKey: MyKey[_]): Boolean = {
-      if (progressMap.containsKey(realKey)) {
-        return true
-      }
-      false
-    }
+
+    def checkReentrancy(realKey: MyKey[_]): Boolean =
+      progressMap.containsKey(realKey)
 
     def beforeComputation(realKey: MyKey[_]) {
       enters += 1
-      if (progressMap.isEmpty) assert(reentrancyCount == 0, "Non-zero stamp with empty stack: " + reentrancyCount)
+      if (progressMap.isEmpty) {
+        assert(reentrancyCount == 0, "Non-zero stamp with empty stack: " + reentrancyCount)
+      }
       checkDepth("1")
       val sizeBefore: Int = progressMap.size
       progressMap.put(realKey, reentrancyCount)
       depth += 1
       checkDepth("2")
       val sizeAfter: Int = progressMap.size
-      if (sizeAfter != sizeBefore + 1) LOG.error("Key doesn't lead to the map size increase: " + sizeBefore + " " + sizeAfter + " " + realKey.userObject)
+      if (sizeAfter != sizeBefore + 1) {
+        LOG.error("Key doesn't lead to the map size increase: " + sizeBefore + " " + sizeAfter + " " + realKey.userObject)
+      }
     }
 
     def afterComputation(realKey: MyKey[_], sizeBefore: Int, sizeAfter: Int) {
       exits += 1
-      if (sizeAfter != progressMap.size) LOG.error("Map size changed: " + progressMap.size + " " + sizeAfter + " " + realKey.userObject)
-      if (depth != progressMap.size) LOG.error("Inconsistent depth after computation; depth=" + depth + "; map=" + progressMap)
+      if (sizeAfter != progressMap.size) {
+        LOG.error("Map size changed: " + progressMap.size + " " + sizeAfter + " " + realKey.userObject)
+      }
+      if (depth != progressMap.size) {
+        LOG.error("Inconsistent depth after computation; depth=" + depth + "; map=" + progressMap)
+      }
       val value: Integer = progressMap.remove(realKey)
       depth -= 1
-      key2ReentrancyDuringItsCalculation.remove(realKey)
-      if (depth == 0) {
-        intermediateCache.clear()
-        if (!key2ReentrancyDuringItsCalculation.isEmpty)
-          LOG.error("non-empty key2ReentrancyDuringItsCalculation: " + new util.HashMap[MyKey[_], MyKey[_]](key2ReentrancyDuringItsCalculation))
+      if (sizeBefore != progressMap.size) {
+        LOG.error("Map size doesn't decrease: " + progressMap.size + " " + sizeBefore + " " + realKey.userObject)
       }
-      if (sizeBefore != progressMap.size) LOG.error("Map size doesn't decrease: " + progressMap.size + " " + sizeBefore + " " + realKey.userObject)
       reentrancyCount = value
       checkZero
-    }
-
-    def prohibitResultCaching(realKey: MyKey[_]): util.Set[MyKey[_]] = {
-      reentrancyCount += 1
-      if (!checkZero) throw new AssertionError("zero1")
-      val loop: util.Set[MyKey[_]] = new THashSet[MyKey[_]]
-      var inLoop: Boolean = false
-      for (entry <- progressMap.entrySet.asScala) {
-        if (inLoop) {
-          entry.setValue(reentrancyCount)
-          loop.add(entry.getKey)
-        }
-        else if (entry.getKey == realKey) inLoop = true
-      }
-      if (!checkZero) throw new AssertionError("zero2")
-      loop
     }
 
     def checkDepth(s: String) {

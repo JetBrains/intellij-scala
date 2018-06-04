@@ -5,9 +5,11 @@ import java.io.File
 import com.intellij.openapi.project.Project
 import com.intellij.psi.PsiFile
 import org.jetbrains.plugins.scala.ScalaFileType
-import org.jetbrains.plugins.scala.extensions.inWriteAction
+import org.jetbrains.plugins.scala.extensions.{inWriteAction, using}
 import org.jetbrains.plugins.scala.util.PsiFileTestUtil
-import org.jetbrains.plugins.scala.util.reporter.{ConsoleReporter, ProgressReporter}
+import org.jetbrains.plugins.scala.util.reporter.ProgressReporter
+
+import scala.io.Source
 
 /**
   * Nikolay.Tropin
@@ -39,11 +41,7 @@ trait SeveralFilesHighlightingTest {
     PsiFileTestUtil.addFileToProject(path, text, getProject)
   }
 
-  private def content(file: File) = {
-    val source = scala.io.Source.fromFile(file)
-    try source.getLines().mkString("\n")
-    finally source.close()
-  }
+  private def content(file: File) = using(Source.fromFile(file))(_.getLines.mkString("\n"))
 
   private def removeFile(psiFile: PsiFile): Unit = {
     inWriteAction(psiFile.delete())

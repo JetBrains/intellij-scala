@@ -12,7 +12,6 @@ import com.intellij.psi.PsiFile
 import com.intellij.testFramework.LightVirtualFile
 import com.intellij.util.PathUtil
 import org.jetbrains.jps.incremental.scala.Client
-import org.jetbrains.plugins.scala.lang.psi.ScalaPsiElement
 import org.jetbrains.plugins.scala.project.ModuleExt
 
 /**
@@ -69,4 +68,12 @@ object ScalaUtil {
 
   def getModuleForFile(virtualFile: VirtualFile, project: Project): Option[Module] =
     Option(ProjectRootManager.getInstance(project).getFileIndex.getModuleForFile(virtualFile))
+  
+  def getModuleForFile(file: PsiFile): Option[Module] = {
+    import org.jetbrains.plugins.scala.project._
+    
+    Option(file.getVirtualFile).flatMap {
+      vFile => getModuleForFile(vFile, file.getProject)
+    }.orElse(file.getProject.anyScalaModule.map(_.module))
+  }
 }

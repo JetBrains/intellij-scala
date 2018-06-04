@@ -3,12 +3,16 @@ package org.jetbrains.plugins.scala.codeInspection.scalastyle
 import java.text.MessageFormat
 import java.util.Properties
 
+import org.jetbrains.plugins.scala.extensions.using
+
 object Messages {
 
   private lazy val messages = {
     try {
       val props = new Properties()
-      props.load(getClass.getResourceAsStream("/reference.conf"))
+      using(getClass.getResourceAsStream("/reference.conf")) {
+        props.load
+      }
       props
     } catch {
       case _: Throwable => new Properties()

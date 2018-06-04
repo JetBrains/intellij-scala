@@ -19,6 +19,8 @@ import org.jetbrains.plugins.scala.caches.CachesUtil
 import org.jetbrains.plugins.scala.extensions._
 import org.jetbrains.plugins.scala.lang.psi.types.ScalaTypeSystem
 import org.jetbrains.plugins.scala.lang.psi.types.api.TypeSystem
+import org.jetbrains.plugins.scala.macroAnnotations.CachedInUserData
+import org.jetbrains.plugins.scala.project.ScalaLanguageLevel.Scala_2_11
 import org.jetbrains.plugins.scala.project.settings.{ScalaCompilerConfiguration, ScalaCompilerSettings}
 
 import scala.annotation.tailrec
@@ -100,8 +102,35 @@ package object project {
     def configureScalaCompilerSettingsFrom(source: String, options: Seq[String]): Unit =
       compilerConfiguration.configureSettingsForModule(module, source, options)
 
-    def literalTypesAllowed: Boolean = scalaSdk.map(_.languageLevel).exists(_ >= ScalaLanguageLevel.Scala_2_13) ||
-      module.scalaCompilerSettings.literalTypes
+    def scalaLanguageLevel: Option[ScalaLanguageLevel] = scalaSdk.map(_.languageLevel)
+
+    @CachedInUserData(module, ScalaCompilerConfiguration.modTracker(module.getProject))
+    def literalTypesEnabled: Boolean = scalaSdk.map(_.languageLevel).exists(_ >= ScalaLanguageLevel.Scala_2_13) ||
+      compilerConfiguration.hasSettingForHighlighting(module, _.literalTypes)
+
+    /**
+      * @see https://github.com/non/kind-projector
+      */
+    @CachedInUserData(module, ScalaCompilerConfiguration.modTracker(module.getProject))
+    def kindProjectorPluginEnabled: Boolean =
+      compilerConfiguration.hasSettingForHighlighting(module, _.plugins.exists(_.contains("kind-projector")))
+
+    /**
+      * Should we check if it's a Single Abstract Method?
+      * In 2.11 works with -Xexperimental
+      * In 2.12 works by default
+      *
+      * @return true if language level and flags are correct
+      */
+    @CachedInUserData(module, ScalaCompilerConfiguration.modTracker(module.getProject))
+    def isSAMEnabled: Boolean = scalaLanguageLevel.exists {
+      case lang if lang > Scala_2_11 => true // if scalaLanguageLevel is None, we treat it as Scala 2.12
+      case lang if lang == Scala_2_11 =>
+        compilerConfiguration.hasSettingForHighlighting(module,
+          c => c.experimental || c.additionalCompilerOptions.contains("-Xexperimental")
+        )
+      case _ => false
+    }
 
     private def compilerConfiguration =
       ScalaCompilerConfiguration.instanceIn(module.getProject)
@@ -118,8 +147,7 @@ package object project {
     def modifiableModel: ModifiableModuleModel =
       manager.getModifiableModel
 
-    def hasScala: Boolean =
-      modules.exists(_.hasScala)
+    def hasScala: Boolean = modulesWithScala.nonEmpty
 
     def hasDotty: Boolean = {
       val cached = project.getUserData(CachesUtil.PROJECT_HAS_DOTTY_KEY)
@@ -133,6 +161,7 @@ package object project {
       }
     }
 
+    @CachedInUserData(project, ProjectRootManager.getInstance(project))
     def modulesWithScala: Seq[Module] =
       modules.filter(_.hasScala)
 
@@ -140,7 +169,7 @@ package object project {
       modulesWithScala.map(new ScalaModule(_))
 
     def anyScalaModule: Option[ScalaModule] =
-      scalaModules.headOption
+      modulesWithScala.headOption.map(new ScalaModule(_))
 
     def scalaEvents: ScalaProjectEvents =
       project.getComponent(classOf[ScalaProjectEvents])
@@ -149,8 +178,8 @@ package object project {
       ProjectLibraryTable.getInstance(project).getLibraries.toSeq
 
     def typeSystem: TypeSystem = {
-      if (project.hasDotty) DottyTypeSystem(project)
-      else ScalaTypeSystem(project)
+      if (project.hasDotty) DottyTypeSystem.instance(project)
+      else ScalaTypeSystem.instance(project)
     }
 
     def language: Language =
@@ -232,6 +261,15 @@ package object project {
     def scalaLanguageLevel: Option[ScalaLanguageLevel] = module.flatMap(_.scalaSdk.map(_.languageLevel))
 
     def scalaLanguageLevelOrDefault: ScalaLanguageLevel = scalaLanguageLevel.getOrElse(ScalaLanguageLevel.Default)
+
+    def kindProjectorPluginEnabled: Boolean = inThisModuleOrProject(_.kindProjectorPluginEnabled)
+    def isSAMEnabled              : Boolean = inThisModuleOrProject(_.isSAMEnabled)
+    def literalTypesEnabled       : Boolean = inThisModuleOrProject(_.literalTypesEnabled)
+
+    private def inThisModuleOrProject(predicate: Module => Boolean): Boolean = module match {
+      case Some(m) => predicate(m)
+      case None    => element.getProject.modulesWithScala.exists(predicate)
+    }
   }
 
   val LibraryVersion: Regex = """(?<=:|-)\d+\.\d+\.\d+[^:\s]*""".r

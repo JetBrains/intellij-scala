@@ -237,7 +237,9 @@ class ScalaImportOptimizer extends ImportOptimizer {
 
     withDisabledPostprocessFormatting(file.getProject) {
       parentNode.removeRange(firstNodeToRemove, anchor)
-      parentNode.addChildren(dummyFile.getNode.getFirstChildNode, null, anchor)
+      //dummy file may be empty if there are no importInfos
+      val firstChild = dummyFile.getNode.getFirstChildNode.toOption
+      firstChild.foreach(parentNode.addChildren(_, null, anchor))
     }
   }
 

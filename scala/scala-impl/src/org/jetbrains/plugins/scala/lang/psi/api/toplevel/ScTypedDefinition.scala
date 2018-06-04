@@ -15,7 +15,7 @@ import org.jetbrains.plugins.scala.lang.psi.types.api.Unit
 import org.jetbrains.plugins.scala.lang.psi.types.nonvalue.Parameter
 import org.jetbrains.plugins.scala.lang.psi.types.result.{Typeable, _}
 import org.jetbrains.plugins.scala.lang.psi.types.{ScType, api}
-import org.jetbrains.plugins.scala.macroAnnotations.{Cached, CachedInsidePsiElement, ModCount}
+import org.jetbrains.plugins.scala.macroAnnotations.{Cached, CachedInUserData, ModCount}
 
 /**
  * Member definitions, classes, named patterns which have types
@@ -31,7 +31,7 @@ trait ScTypedDefinition extends ScNamedElement with Typeable {
     case (tpe, index) => Parameter(tpe, isRepeated = false, index = index)
   }.toArray
 
-  @CachedInsidePsiElement(this, ModCount.getBlockModificationCount)
+  @CachedInUserData(this, ModCount.getBlockModificationCount)
   def getUnderEqualsMethod: PsiMethod = {
     val hasModifierProperty: String => Boolean = nameContext match {
       case v: ScModifierListOwner => v.hasModifierProperty
@@ -41,7 +41,7 @@ trait ScTypedDefinition extends ScNamedElement with Typeable {
     new FakePsiMethod(this, name + "_=", typeArr2paramArr(Array[ScType](tType)), Unit, hasModifierProperty)
   }
 
-  @CachedInsidePsiElement(this, ModCount.getBlockModificationCount)
+  @CachedInUserData(this, ModCount.getBlockModificationCount)
   def getGetBeanMethod: PsiMethod = {
     val hasModifierProperty: String => Boolean = nameContext match {
       case v: ScModifierListOwner => v.hasModifierProperty
@@ -51,7 +51,7 @@ trait ScTypedDefinition extends ScNamedElement with Typeable {
       this.`type`().getOrAny, hasModifierProperty)
   }
 
-  @CachedInsidePsiElement(this, ModCount.getBlockModificationCount)
+  @CachedInUserData(this, ModCount.getBlockModificationCount)
   def getSetBeanMethod: PsiMethod = {
     val hasModifierProperty: String => Boolean = nameContext match {
       case v: ScModifierListOwner => v.hasModifierProperty
@@ -61,7 +61,7 @@ trait ScTypedDefinition extends ScNamedElement with Typeable {
     new FakePsiMethod(this, "set" + name.capitalize, typeArr2paramArr(Array[ScType](tType)), api.Unit, hasModifierProperty)
   }
 
-  @CachedInsidePsiElement(this, ModCount.getBlockModificationCount)
+  @CachedInUserData(this, ModCount.getBlockModificationCount)
   def getIsBeanMethod: PsiMethod = {
     val hasModifierProperty: String => Boolean = nameContext match {
       case v: ScModifierListOwner => v.hasModifierProperty
@@ -71,7 +71,7 @@ trait ScTypedDefinition extends ScNamedElement with Typeable {
       this.`type`().getOrAny, hasModifierProperty)
   }
 
-  @CachedInsidePsiElement(this, ModCount.getBlockModificationCount)
+  @CachedInUserData(this, ModCount.getBlockModificationCount)
   def getBeanMethods: Seq[PsiMethod] = {
     val (member, needSetter) = nameContext match {
       case v: ScValue => (v, false)

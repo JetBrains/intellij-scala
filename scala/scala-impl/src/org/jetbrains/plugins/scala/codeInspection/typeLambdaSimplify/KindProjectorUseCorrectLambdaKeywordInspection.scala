@@ -18,7 +18,7 @@ import org.jetbrains.plugins.scala.lang.psi.impl.ScalaPsiElementFactory.createTy
 class KindProjectorUseCorrectLambdaKeywordInspection extends AbstractInspection(inspectionId, inspectionName) {
 
   override def actionFor(implicit holder: ProblemsHolder): PartialFunction[PsiElement, Any] = {
-    case param: ScParameterizedTypeElement if ScalaPsiUtil.kindProjectorPluginEnabled(param) =>
+    case param: ScParameterizedTypeElement if param.kindProjectorPluginEnabled =>
       val useGreekLambda = ScalaCodeStyleSettings.getInstance(param.getProject).REPLACE_LAMBDA_WITH_GREEK_LETTER
       param.children.foreach {
         case simple: ScSimpleTypeElement =>

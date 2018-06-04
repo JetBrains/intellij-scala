@@ -8,8 +8,10 @@ import com.intellij.psi.search.searches.ClassInheritorsSearch
 import com.intellij.psi.{FileViewProvider, PsiClass, PsiElement, ResolveState}
 import org.jetbrains.plugins.scala.extensions._
 import org.jetbrains.plugins.scala.lang.psi.ScDeclarationSequenceHolder
+import org.jetbrains.plugins.scala.lang.psi.api.ScalaFile
 import org.jetbrains.plugins.scala.lang.psi.impl.ScalaPsiElementFactory.createScalaFileFromText
 import org.jetbrains.plugins.scala.lang.psi.impl.{ScalaFileImpl, ScalaPsiManager}
+import org.jetbrains.plugins.scala.macroAnnotations.{Cached, ModCount}
 import org.jetbrains.sbt.project.module.SbtModule
 
 import scala.collection.JavaConverters._
@@ -32,6 +34,13 @@ class SbtFileImpl(provider: FileViewProvider) extends ScalaFileImpl(provider, Sb
   override val allowsForwardReferences: Boolean = true
 
   private def processImplicitImports(processor: PsiScopeProcessor, state: ResolveState, lastParent: PsiElement, place: PsiElement): Boolean = {
+    fileWithImplicitImports.forall { file =>
+      file.processDeclarations(processor, state, file.getLastChild, place)
+    }
+  }
+
+  @Cached(ModCount.getModificationCount, this)
+  private def fileWithImplicitImports: Option[ScalaFile] = {
     val expressions = implicitImportExpressions ++ localObjectsWithDefinitions.map(_.qualifiedName + "._")
 
     // TODO this is a workaround, we need to find out why references stopped resolving via the chained imports
@@ -45,10 +54,10 @@ class SbtFileImpl(provider: FileViewProvider) extends ScalaFileImpl(provider, Sb
       case it => it
     }
 
-    expressions0.isEmpty || {
+    if (expressions0.isEmpty) None
+    else {
       val code = s"import ${expressions0.mkString(", ")};"
-      val file = createScalaFileFromText(code)(getManager)
-      file.processDeclarations(processor, state, file.getLastChild, place)
+      createScalaFileFromText(code)(getManager).toOption
     }
   }
 

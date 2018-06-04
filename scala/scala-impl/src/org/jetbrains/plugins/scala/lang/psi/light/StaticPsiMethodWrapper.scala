@@ -3,6 +3,7 @@ package org.jetbrains.plugins.scala.lang.psi.light
 import com.intellij.openapi.util.Key
 import com.intellij.psi._
 import com.intellij.psi.impl.light.LightModifierList
+import com.intellij.psi.util.MethodSignature
 import org.jetbrains.plugins.scala.ScalaLanguage
 import org.jetbrains.plugins.scala.lang.psi.impl.ScalaPsiManager
 import org.jetbrains.plugins.scala.lang.psi.types.ScType
@@ -51,6 +52,8 @@ class StaticPsiMethodWrapper private(val method: PsiMethod, containingClass: Psi
   override def getReturnTypeElement: PsiTypeElement = method.getReturnTypeElement
 
   override def getParameterList: PsiParameterList = method.getParameterList
+
+  override def getSignature(substitutor: PsiSubstitutor): MethodSignature = method.getSignature(substitutor)
 }
 
 object StaticPsiMethodWrapper {

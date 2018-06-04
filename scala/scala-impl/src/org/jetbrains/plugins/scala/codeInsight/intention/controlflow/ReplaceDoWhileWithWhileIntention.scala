@@ -15,7 +15,7 @@ import org.jetbrains.plugins.scala.lang.psi.api.ScalaFile
 import org.jetbrains.plugins.scala.lang.psi.api.base.patterns.ScCaseClause
 import org.jetbrains.plugins.scala.lang.psi.api.expr._
 import org.jetbrains.plugins.scala.lang.psi.impl.ScalaPsiElementFactory._
-import org.jetbrains.plugins.scala.lang.resolve.processor.ImplicitCompletionProcessor
+import org.jetbrains.plugins.scala.lang.resolve.processor.CompletionProcessor
 import org.jetbrains.plugins.scala.lang.resolve.{ScalaResolveResult, StdKinds}
 import org.jetbrains.plugins.scala.project.ProjectContext
 
@@ -138,7 +138,7 @@ class ReplaceDoWhileWithWhileIntention extends PsiElementBaseIntentionAction {
     implicit val ctx: ProjectContext = element
 
     val firstChild: PsiElement = element.getFirstChild
-    val processor = new ImplicitCompletionProcessor(StdKinds.refExprLastRef, firstChild)
+    val processor = new CompletionProcessor(StdKinds.refExprLastRef, firstChild, isImplicit = true)
     element.processDeclarations(processor, ResolveState.initial(), firstChild, firstChild)
     val candidates: Set[ScalaResolveResult] = processor.candidatesS
 

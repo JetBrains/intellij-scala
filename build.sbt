@@ -158,6 +158,8 @@ lazy val androidIntegration =
   newProject("android", file("scala/integration/android"))
     .dependsOn(scalaImpl % "test->test;compile->compile")
     .enablePlugins(SbtIdeaPlugin)
+    .settings(fullClasspath in Test := deduplicatedClasspath((fullClasspath in Test).value, communityFullClasspath.value))
+    .settings(commonTestSettings(packagedPluginDir): _*)
     .settings(
       ideaInternalPlugins := Seq(
         "android",
@@ -171,6 +173,8 @@ lazy val copyrightIntegration =
   newProject("copyright", file("scala/integration/copyright"))
     .dependsOn(scalaImpl % "test->test;compile->compile")
     .enablePlugins(SbtIdeaPlugin)
+    .settings(fullClasspath in Test := deduplicatedClasspath((fullClasspath in Test).value, communityFullClasspath.value))
+    .settings(commonTestSettings(packagedPluginDir): _*)
     .settings(
       ideaInternalPlugins := Seq(
         "copyright"
@@ -181,6 +185,8 @@ lazy val gradleIntegration =
   newProject("gradle", file("scala/integration/gradle"))
     .dependsOn(scalaImpl % "test->test;compile->compile")
     .enablePlugins(SbtIdeaPlugin)
+    .settings(fullClasspath in Test := deduplicatedClasspath((fullClasspath in Test).value, communityFullClasspath.value))
+    .settings(commonTestSettings(packagedPluginDir): _*)
     .settings(
       ideaInternalPlugins := Seq(
         "gradle",
@@ -192,6 +198,8 @@ lazy val intellilangIntegration =
   newProject("intellilang", file("scala/integration/intellilang"))
     .dependsOn(scalaImpl % "test->test;compile->compile")
     .enablePlugins(SbtIdeaPlugin)
+    .settings(fullClasspath in Test := deduplicatedClasspath((fullClasspath in Test).value, communityFullClasspath.value))
+    .settings(commonTestSettings(packagedPluginDir): _*)
     .settings(
       ideaInternalPlugins := Seq(
         "IntelliLang"
@@ -202,6 +210,8 @@ lazy val mavenIntegration =
   newProject("maven", file("scala/integration/maven"))
     .dependsOn(scalaImpl % "test->test;compile->compile")
     .enablePlugins(SbtIdeaPlugin)
+    .settings(fullClasspath in Test := deduplicatedClasspath((fullClasspath in Test).value, communityFullClasspath.value))
+    .settings(commonTestSettings(packagedPluginDir): _*)
     .settings(
       ideaInternalPlugins := Seq("maven")
     )
@@ -210,6 +220,8 @@ lazy val propertiesIntegration =
   newProject("properties", file("scala/integration/properties"))
     .dependsOn(scalaImpl % "test->test;compile->compile")
     .enablePlugins(SbtIdeaPlugin)
+    .settings(fullClasspath in Test := deduplicatedClasspath((fullClasspath in Test).value, communityFullClasspath.value))
+    .settings(commonTestSettings(packagedPluginDir): _*)
     .settings(
       ideaInternalPlugins := Seq(
         "properties"

@@ -17,13 +17,14 @@ import org.jetbrains.plugins.scala.lang.psi.impl.expr.ScReferenceExpressionImpl
 import org.jetbrains.plugins.scala.lang.psi.impl.toplevel.synthetic.{ScSyntheticClass, SyntheticClasses}
 import org.jetbrains.plugins.scala.lang.psi.types.ScType
 import org.jetbrains.plugins.scala.lang.psi.types.api.Any
-import org.jetbrains.plugins.scala.lang.psi.{ScDeclarationSequenceHolder, ScImportsHolder, ScalaPsiUtil}
+import org.jetbrains.plugins.scala.lang.psi.{ScDeclarationSequenceHolder, ScImportsHolder}
 import org.jetbrains.plugins.scala.lang.resolve.ResolveUtils
 import org.jetbrains.plugins.scala.lang.resolve.processor.precedence.{PrecedenceTypes, SubstitutablePrecedenceHelper}
 import org.jetbrains.plugins.scala.lang.resolve.processor.{BaseProcessor, ResolveProcessor, ResolverEnv}
+import org.jetbrains.plugins.scala.project.ProjectPsiElementExt
 import org.jetbrains.plugins.scala.worksheet.ammonite.AmmoniteUtil
-import worksheet.processor.WorksheetCompiler
-import worksheet.ui.WorksheetIncrementalEditorPrinter
+import org.jetbrains.plugins.scala.worksheet.settings.WorksheetFileSettings
+import org.jetbrains.plugins.scala.worksheet.ui.WorksheetIncrementalEditorPrinter
 
 import scala.collection.mutable
 import scala.collection.mutable.ArrayBuffer
@@ -49,7 +50,7 @@ trait FileDeclarationsHolder extends PsiElement with ScDeclarationSequenceHolder
       return true
     }
 
-    if (ScalaPsiUtil.kindProjectorPluginEnabled(place)) {
+    if (place.kindProjectorPluginEnabled) {
       processor.execute(new ScSyntheticClass("Lambda", Any), state)
       processor.execute(new ScSyntheticClass("λ", Any), state)
       processor.execute(new ScSyntheticClass("?", Any), state)
@@ -114,7 +115,7 @@ trait FileDeclarationsHolder extends PsiElement with ScDeclarationSequenceHolder
       }
     }
 
-    if (isWorksheetFile && WorksheetCompiler.isWorksheetReplModeLight(this)) {
+    if (isWorksheetFile && WorksheetFileSettings.isReplLight(this)) {
       val re = WorksheetIncrementalEditorPrinter.executeResNDeclarations(processor, this, state)
       if (!re) return false
     }
@@ -209,7 +210,7 @@ trait FileDeclarationsHolder extends PsiElement with ScDeclarationSequenceHolder
   //method extracted due to VerifyError in Scala compiler
   private def updateProcessor(processor: PsiScopeProcessor, priority: Int)(body: => Unit): Unit =
     processor match {
-      case b: BaseProcessor with SubstitutablePrecedenceHelper[_] => b.runWithPriority(priority)(body)
+      case b: BaseProcessor with SubstitutablePrecedenceHelper => b.runWithPriority(priority)(body)
       case _ => body
     }
 

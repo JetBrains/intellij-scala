@@ -122,7 +122,7 @@ trait ScParameter extends ScTypedDefinition with ScModifierListOwner
                   result = None
                   flag = true
                 } else result = Some(params(i))
-              case any if ScalaPsiUtil.isSAMEnabled(f)=>
+              case any if f.isSAMEnabled =>
                 //infer type if it's a Single Abstract Method
                 ScalaPsiUtil.toSAMType(any, f) match {
                   case Some(FunctionType(_, params)) =>

@@ -65,7 +65,6 @@ public class ScalaProjectSettingsPanel {
     private JCheckBox myDontCacheCompound;
     private JCheckBox runWorksheetInTheCheckBox;
     private JTextArea myBasePackages;
-    private JCheckBox worksheetInteractiveModeCheckBox;
     private JCheckBox showTypeInfoOnCheckBox;
     private JSpinner delaySpinner;
     private JComboBox updateChannel;
@@ -209,7 +208,6 @@ public class ScalaProjectSettingsPanel {
         scalaProjectSettings.setOutputLimit((Integer) outputSpinner.getValue());
         scalaProjectSettings.setInProcessMode(runWorksheetInTheCheckBox.isSelected());
         scalaProjectSettings.setWorksheetFoldCollapsedByDefault(collapseWorksheetFoldByCheckBox.isSelected());
-        scalaProjectSettings.setInteractiveMode(worksheetInteractiveModeCheckBox.isSelected());
         scalaProjectSettings.setUseEclipseCompatibility(useEclipseCompatibilityModeCheckBox.isSelected());
         scalaProjectSettings.setTreatScratchFilesAsWorksheet(treatScalaScratchFilesCheckBox.isSelected());
 
@@ -309,7 +307,6 @@ public class ScalaProjectSettingsPanel {
             runWorksheetInTheCheckBox.isSelected()) return true;
         if (scalaProjectSettings.isWorksheetFoldCollapsedByDefault() !=
             collapseWorksheetFoldByCheckBox.isSelected()) return true;
-        if (scalaProjectSettings.isInteractiveMode() != worksheetInteractiveModeCheckBox.isSelected()) return true;
         if (scalaProjectSettings.isUseEclipseCompatibility() != useEclipseCompatibilityModeCheckBox.isSelected())
             return true;
         if (scalaProjectSettings.isTreatScratchFilesAsWorksheet() != treatScalaScratchFilesCheckBox.isSelected())
@@ -398,7 +395,6 @@ public class ScalaProjectSettingsPanel {
         setValue(outputSpinner, scalaProjectSettings.getOutputLimit());
         setValue(runWorksheetInTheCheckBox, scalaProjectSettings.isInProcessMode());
         setValue(collapseWorksheetFoldByCheckBox, scalaProjectSettings.isWorksheetFoldCollapsedByDefault());
-        setValue(worksheetInteractiveModeCheckBox, scalaProjectSettings.isInteractiveMode());
         setValue(useEclipseCompatibilityModeCheckBox, scalaProjectSettings.isUseEclipseCompatibility());
         setValue(treatScalaScratchFilesCheckBox, scalaProjectSettings.isTreatScratchFilesAsWorksheet());
 
@@ -608,47 +604,44 @@ public class ScalaProjectSettingsPanel {
         metaTrimBodies.setToolTipText(ResourceBundle.getBundle("org/jetbrains/plugins/scala/ScalaBundle").getString("scala.meta.settings.trimBodiesTooltip"));
         panel4.add(metaTrimBodies, new GridConstraints(2, 0, 1, 1, GridConstraints.ANCHOR_WEST, GridConstraints.FILL_NONE, GridConstraints.SIZEPOLICY_CAN_SHRINK | GridConstraints.SIZEPOLICY_CAN_GROW, GridConstraints.SIZEPOLICY_FIXED, null, null, null, 0, false));
         final JPanel panel5 = new JPanel();
-        panel5.setLayout(new GridLayoutManager(10, 3, new Insets(9, 9, 0, 0), -1, -1));
+        panel5.setLayout(new GridLayoutManager(8, 6, new Insets(9, 9, 0, 0), -1, -1));
         tabbedPane1.addTab("Worksheet", panel5);
         final Spacer spacer4 = new Spacer();
-        panel5.add(spacer4, new GridConstraints(9, 0, 1, 3, GridConstraints.ANCHOR_CENTER, GridConstraints.FILL_VERTICAL, 1, GridConstraints.SIZEPOLICY_WANT_GROW, null, null, null, 0, false));
+        panel5.add(spacer4, new GridConstraints(7, 0, 1, 6, GridConstraints.ANCHOR_CENTER, GridConstraints.FILL_VERTICAL, 1, GridConstraints.SIZEPOLICY_WANT_GROW, null, null, null, 0, false));
         runWorksheetInTheCheckBox = new JCheckBox();
         runWorksheetInTheCheckBox.setSelected(true);
         runWorksheetInTheCheckBox.setText("Run worksheet in the compiler process");
-        panel5.add(runWorksheetInTheCheckBox, new GridConstraints(3, 0, 1, 3, GridConstraints.ANCHOR_WEST, GridConstraints.FILL_NONE, GridConstraints.SIZEPOLICY_CAN_SHRINK | GridConstraints.SIZEPOLICY_CAN_GROW, GridConstraints.SIZEPOLICY_FIXED, null, null, null, 0, false));
-        worksheetInteractiveModeCheckBox = new JCheckBox();
-        worksheetInteractiveModeCheckBox.setText("Run worksheet in the interactive mode");
-        panel5.add(worksheetInteractiveModeCheckBox, new GridConstraints(4, 0, 1, 3, GridConstraints.ANCHOR_WEST, GridConstraints.FILL_NONE, GridConstraints.SIZEPOLICY_CAN_SHRINK | GridConstraints.SIZEPOLICY_CAN_GROW, GridConstraints.SIZEPOLICY_FIXED, null, null, null, 0, false));
+        panel5.add(runWorksheetInTheCheckBox, new GridConstraints(2, 0, 1, 6, GridConstraints.ANCHOR_WEST, GridConstraints.FILL_NONE, GridConstraints.SIZEPOLICY_CAN_SHRINK | GridConstraints.SIZEPOLICY_CAN_GROW, GridConstraints.SIZEPOLICY_FIXED, null, null, null, 0, false));
         final JLabel label4 = new JLabel();
         label4.setText("Output cutoff limit, lines: ");
-        panel5.add(label4, new GridConstraints(2, 0, 1, 2, GridConstraints.ANCHOR_WEST, GridConstraints.FILL_NONE, GridConstraints.SIZEPOLICY_FIXED, GridConstraints.SIZEPOLICY_FIXED, null, null, null, 0, false));
-        outputSpinner = new JSpinner();
-        panel5.add(outputSpinner, new GridConstraints(2, 2, 1, 1, GridConstraints.ANCHOR_WEST, GridConstraints.FILL_NONE, GridConstraints.SIZEPOLICY_WANT_GROW, GridConstraints.SIZEPOLICY_FIXED, new Dimension(50, -1), null, null, 0, false));
+        panel5.add(label4, new GridConstraints(1, 0, 1, 2, GridConstraints.ANCHOR_WEST, GridConstraints.FILL_NONE, GridConstraints.SIZEPOLICY_FIXED, GridConstraints.SIZEPOLICY_FIXED, null, null, null, 0, false));
         useEclipseCompatibilityModeCheckBox = new JCheckBox();
         useEclipseCompatibilityModeCheckBox.setText("Use \"eclipse compatibility\" mode");
-        panel5.add(useEclipseCompatibilityModeCheckBox, new GridConstraints(5, 0, 1, 3, GridConstraints.ANCHOR_WEST, GridConstraints.FILL_NONE, GridConstraints.SIZEPOLICY_CAN_SHRINK | GridConstraints.SIZEPOLICY_CAN_GROW, GridConstraints.SIZEPOLICY_FIXED, null, null, null, 0, false));
+        panel5.add(useEclipseCompatibilityModeCheckBox, new GridConstraints(3, 0, 1, 6, GridConstraints.ANCHOR_WEST, GridConstraints.FILL_NONE, GridConstraints.SIZEPOLICY_CAN_SHRINK | GridConstraints.SIZEPOLICY_CAN_GROW, GridConstraints.SIZEPOLICY_FIXED, null, null, null, 0, false));
         treatScalaScratchFilesCheckBox = new JCheckBox();
         treatScalaScratchFilesCheckBox.setText("Treat Scala scratch files as worksheet files");
-        panel5.add(treatScalaScratchFilesCheckBox, new GridConstraints(6, 0, 1, 2, GridConstraints.ANCHOR_WEST, GridConstraints.FILL_NONE, GridConstraints.SIZEPOLICY_CAN_SHRINK | GridConstraints.SIZEPOLICY_CAN_GROW, GridConstraints.SIZEPOLICY_FIXED, null, null, null, 0, false));
+        panel5.add(treatScalaScratchFilesCheckBox, new GridConstraints(4, 0, 1, 5, GridConstraints.ANCHOR_WEST, GridConstraints.FILL_NONE, GridConstraints.SIZEPOLICY_CAN_SHRINK | GridConstraints.SIZEPOLICY_CAN_GROW, GridConstraints.SIZEPOLICY_FIXED, null, null, null, 0, false));
         final JLabel label5 = new JLabel();
         label5.setText("Delay before auto-run");
-        panel5.add(label5, new GridConstraints(8, 0, 1, 1, GridConstraints.ANCHOR_WEST, GridConstraints.FILL_NONE, GridConstraints.SIZEPOLICY_FIXED, GridConstraints.SIZEPOLICY_FIXED, null, null, null, 0, false));
+        panel5.add(label5, new GridConstraints(6, 0, 1, 1, GridConstraints.ANCHOR_WEST, GridConstraints.FILL_NONE, GridConstraints.SIZEPOLICY_FIXED, GridConstraints.SIZEPOLICY_FIXED, null, null, null, 0, false));
         autoRunDelaySlider = new JSlider();
         autoRunDelaySlider.setExtent(0);
         autoRunDelaySlider.setMaximum(3000);
         autoRunDelaySlider.setMinimum(700);
         autoRunDelaySlider.setValue(700);
-        panel5.add(autoRunDelaySlider, new GridConstraints(8, 1, 1, 1, GridConstraints.ANCHOR_WEST, GridConstraints.FILL_HORIZONTAL, GridConstraints.SIZEPOLICY_WANT_GROW, GridConstraints.SIZEPOLICY_FIXED, null, null, null, 0, false));
-        final Spacer spacer5 = new Spacer();
-        panel5.add(spacer5, new GridConstraints(1, 1, 1, 1, GridConstraints.ANCHOR_CENTER, GridConstraints.FILL_HORIZONTAL, GridConstraints.SIZEPOLICY_WANT_GROW, 1, null, null, null, 0, false));
+        panel5.add(autoRunDelaySlider, new GridConstraints(6, 1, 1, 4, GridConstraints.ANCHOR_WEST, GridConstraints.FILL_HORIZONTAL, GridConstraints.SIZEPOLICY_CAN_GROW, GridConstraints.SIZEPOLICY_FIXED, null, null, null, 0, false));
         scTypeSelectionCombobox = new JComboBox();
-        panel5.add(scTypeSelectionCombobox, new GridConstraints(0, 1, 1, 1, GridConstraints.ANCHOR_WEST, GridConstraints.FILL_HORIZONTAL, GridConstraints.SIZEPOLICY_CAN_GROW, GridConstraints.SIZEPOLICY_FIXED, null, null, null, 0, false));
+        panel5.add(scTypeSelectionCombobox, new GridConstraints(0, 1, 1, 4, GridConstraints.ANCHOR_WEST, GridConstraints.FILL_HORIZONTAL, GridConstraints.SIZEPOLICY_CAN_GROW, GridConstraints.SIZEPOLICY_FIXED, null, null, null, 0, false));
         final JLabel label6 = new JLabel();
         label6.setText("Treat .sc files as:");
         panel5.add(label6, new GridConstraints(0, 0, 1, 1, GridConstraints.ANCHOR_WEST, GridConstraints.FILL_NONE, GridConstraints.SIZEPOLICY_FIXED, GridConstraints.SIZEPOLICY_FIXED, null, null, null, 0, false));
         collapseWorksheetFoldByCheckBox = new JCheckBox();
         collapseWorksheetFoldByCheckBox.setText("Collapse long output by default");
-        panel5.add(collapseWorksheetFoldByCheckBox, new GridConstraints(7, 0, 1, 2, GridConstraints.ANCHOR_WEST, GridConstraints.FILL_NONE, GridConstraints.SIZEPOLICY_CAN_SHRINK | GridConstraints.SIZEPOLICY_CAN_GROW, GridConstraints.SIZEPOLICY_FIXED, null, null, null, 0, false));
+        panel5.add(collapseWorksheetFoldByCheckBox, new GridConstraints(5, 0, 1, 5, GridConstraints.ANCHOR_WEST, GridConstraints.FILL_NONE, GridConstraints.SIZEPOLICY_CAN_SHRINK | GridConstraints.SIZEPOLICY_CAN_GROW, GridConstraints.SIZEPOLICY_FIXED, null, null, null, 0, false));
+        final Spacer spacer5 = new Spacer();
+        panel5.add(spacer5, new GridConstraints(0, 5, 1, 1, GridConstraints.ANCHOR_CENTER, GridConstraints.FILL_HORIZONTAL, GridConstraints.SIZEPOLICY_WANT_GROW, 1, null, null, null, 0, false));
+        outputSpinner = new JSpinner();
+        panel5.add(outputSpinner, new GridConstraints(1, 4, 1, 1, GridConstraints.ANCHOR_EAST, GridConstraints.FILL_NONE, GridConstraints.SIZEPOLICY_WANT_GROW, GridConstraints.SIZEPOLICY_FIXED, new Dimension(50, -1), null, null, 0, false));
         final JPanel panel6 = new JPanel();
         panel6.setLayout(new GridLayoutManager(2, 2, new Insets(9, 9, 0, 0), -1, -1));
         tabbedPane1.addTab("Base packages", panel6);

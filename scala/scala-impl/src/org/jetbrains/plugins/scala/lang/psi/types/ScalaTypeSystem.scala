@@ -1,11 +1,13 @@
 package org.jetbrains.plugins.scala.lang.psi.types
 
+import com.intellij.openapi.roots.ProjectRootManager
+import org.jetbrains.plugins.scala.macroAnnotations.CachedInUserData
 import org.jetbrains.plugins.scala.project.ProjectContext
 
 /**
   * @author adkozlov
   */
-final class ScalaTypeSystem(implicit val projectContext: ProjectContext) extends api.TypeSystem
+final class ScalaTypeSystem private (implicit val projectContext: ProjectContext) extends api.TypeSystem
   with ScalaEquivalence
   with ScalaConformance
   with ScalaBounds
@@ -18,4 +20,14 @@ final class ScalaTypeSystem(implicit val projectContext: ProjectContext) extends
 
   override def parameterizedType(designator: ScType, typeArguments: Seq[ScType]) =
     ScParameterizedType(designator, typeArguments)
+}
+
+object ScalaTypeSystem {
+  def instance(implicit projectContext: ProjectContext): ScalaTypeSystem = {
+
+    @CachedInUserData(projectContext.project, ProjectRootManager.getInstance(projectContext))
+    def cached: ScalaTypeSystem = new ScalaTypeSystem
+
+    cached
+  }
 }

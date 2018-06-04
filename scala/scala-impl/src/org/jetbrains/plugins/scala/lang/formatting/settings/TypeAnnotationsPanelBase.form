@@ -275,7 +275,7 @@
             </constraints>
             <properties>
               <selected value="true"/>
-              <text value="Unit definition"/>
+              <text value="Unit type"/>
             </properties>
           </component>
           <component id="d134d" class="javax.swing.JCheckBox" binding="myStructuralType">
@@ -284,7 +284,7 @@
             </constraints>
             <properties>
               <selected value="true"/>
-              <text value="Accidental structural type definition"/>
+              <text value="Accidental structural type*"/>
               <toolTipText value="&lt;html&gt;Enforces type annotations for values, which have structural type inferred, e.g.&lt;br&gt;&#10;&lt;pre&gt;&lt;code&gt;&#10;val foo = Runnable {&#10;  override def run(): Unit = ()&#10;  def helper(): Unit = ()&#10;} // foo has inferred type Runnable { def helper(): Unit } &#10;&lt;/code&gt;&lt;/pre&gt;&lt;/html&gt;"/>
             </properties>
           </component>

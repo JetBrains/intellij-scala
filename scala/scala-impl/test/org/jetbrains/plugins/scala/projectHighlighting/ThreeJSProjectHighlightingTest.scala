@@ -13,7 +13,6 @@ class ThreeJSProjectHighlightingTest extends GithubSbtAllProjectHighlightingTest
   override def revision = "d8417746908daaaac14436b486123ec284d67cdd"
 
   override def filesWithProblems: Map[String, Set[TextRange]] = Map(
-    "Routes.scala" -> Set(),
-    "ThreeJSExample.scala" -> Set((1242, 1295),(1220, 1239))
+    "Routes.scala" -> Set()
   )
 }

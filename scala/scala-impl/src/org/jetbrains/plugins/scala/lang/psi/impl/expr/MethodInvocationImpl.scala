@@ -144,10 +144,6 @@ abstract class MethodInvocationImpl(node: ASTNode) extends ScExpressionImplBase(
         Some((returnType, parameters, Some(polymorphicType)))
       case ScMethodType(returnType, parameters, _) =>
         Some((returnType, parameters, None))
-      case any if isSAMEnabled(this) =>
-        toSAMType(any, this).collect {
-          case FunctionTypeParameters(returnType, parameters) => (returnType, parameters, None)
-        }
       case _ => None
     }
 

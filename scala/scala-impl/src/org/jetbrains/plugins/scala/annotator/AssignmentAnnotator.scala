@@ -3,7 +3,7 @@ package annotator
 
 import com.intellij.lang.annotation.AnnotationHolder
 import com.intellij.psi.{PsiClass, PsiField, PsiMethod}
-import org.jetbrains.plugins.scala.annotator.quickfix.ReportHighlightingErrorQuickFix
+import org.jetbrains.plugins.scala.annotator.AnnotatorUtils.registerTypeMismatchError
 import org.jetbrains.plugins.scala.codeInspection.varCouldBeValInspection.ValToVarQuickFix
 import org.jetbrains.plugins.scala.extensions._
 import org.jetbrains.plugins.scala.lang.psi.ScalaPsiUtil
@@ -11,7 +11,6 @@ import org.jetbrains.plugins.scala.lang.psi.api.expr._
 import org.jetbrains.plugins.scala.lang.psi.api.statements.params.ScClassParameter
 import org.jetbrains.plugins.scala.lang.psi.api.statements.{ScFunction, ScValue, ScVariable}
 import org.jetbrains.plugins.scala.lang.psi.types._
-import org.jetbrains.plugins.scala.lang.psi.types.api.ScTypePresentation
 import org.jetbrains.plugins.scala.lang.resolve.processor.DynamicResolveProcessor
 import org.jetbrains.plugins.scala.project.ProjectContext
 
@@ -36,11 +35,8 @@ trait AssignmentAnnotator {
               left.`type`().foreach { lType =>
                 right.foreach { expression =>
                   expression.getTypeAfterImplicitConversion().tr.foreach { rType =>
-                    if(!rType.conforms(lType) && !ScalaPsiUtil.isUnderscoreEq(assignment, rType)) {
-                      val (expectedText, actualText) = ScTypePresentation.different(lType, rType)
-                      val message = ScalaBundle.message("type.mismatch.expected.actual", expectedText, actualText)
-                      val annotation = holder.createErrorAnnotation(expression, message)
-                      annotation.registerFix(ReportHighlightingErrorQuickFix)
+                    if(!ScalaPsiUtil.isUnderscoreEq(assignment, rType)) {
+                      registerTypeMismatchError(rType, lType, holder, expression)
                     }
                   }
                 }
@@ -62,16 +58,8 @@ trait AssignmentAnnotator {
                   case Some(ra) =>
                     ra.problems.foreach {
                       case TypeMismatch(expression, expectedType) =>
-                        if (expression != null)
-                          for (t <- expression.`type`()) {
-                            //TODO show parameter name
-                            val (expectedText, actualText) = ScTypePresentation.different(expectedType, t)
-                            val message = ScalaBundle.message("type.mismatch.expected.actual", expectedText, actualText)
-                            val annotation = holder.createErrorAnnotation(expression, message)
-                            annotation.registerFix(ReportHighlightingErrorQuickFix)
-                          }
-                        else {
-                          //TODO investigate case when expression is null. It's possible when new Expression(ScType)
+                        expression.`type`().foreach {
+                          registerTypeMismatchError(_, expectedType, holder, expression)
                         }
                       case MissedValueParameter(_) => // simultaneously handled above
                       case UnresolvedParameter(_) => // don't show function inapplicability, unresolved

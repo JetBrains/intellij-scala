@@ -2,6 +2,8 @@ package org.jetbrains.plugin.scala.util
 
 import java.util.jar.{JarFile, Manifest}
 
+import org.jetbrains.jps.incremental.scala.using
+
 /**
   * User: Dmitry.Naydanov
   * Date: 29.09.16.
@@ -15,8 +17,9 @@ case class ManifestHandler(jarFile: java.io.File) {
   private val CLASS_PATH_ENTRY_NAME = "Class-Path"
 
   private[this] val manifest = {
-    val handler = new JarFile(jarFile)
-    Option(handler.getEntry(MANIFEST_ENTRY_NAME)) map (e => new Manifest(handler getInputStream e))
+    using(new JarFile(jarFile)) { handler =>
+      Option(handler.getEntry(MANIFEST_ENTRY_NAME)) map (e => new Manifest(handler.getInputStream(e)))
+    }
   }
 
   def getMainClass: Option[String] = manifest flatMap (m => Option(m.getMainAttributes getValue MAIN_CLASS_ENTRY_NAME))
