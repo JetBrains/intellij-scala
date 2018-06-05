@@ -1,6 +1,8 @@
 package org.jetbrains.sbt
 package project.data
 
+import java.net.URI
+
 import com.intellij.openapi.externalSystem.model.project._
 import com.intellij.openapi.externalSystem.model.{DataNode, Key, ProjectKeys}
 import org.jetbrains.sbt.project.SbtProjectSystem
@@ -19,11 +21,22 @@ class ProjectNode(val data: ProjectData)
 
 class ModuleNode(val data: ModuleData)
   extends Node[ModuleData] {
-  def this(typeId: String, id: String, name: String, moduleFileDirectoryPath: String, externalConfigPath: String) {
-    this(new ModuleData(id, SbtProjectSystem.Id, typeId, name, moduleFileDirectoryPath, externalConfigPath))
+  def this(typeId: String, projectId: String, projectURI: URI, name: String, moduleFileDirectoryPath: String, externalConfigPath: String) {
+    this(new ModuleData(ModuleNode.combinedId(projectId, projectURI), SbtProjectSystem.Id, typeId, name, moduleFileDirectoryPath, externalConfigPath))
   }
 
   protected def key: Key[ModuleData] = ProjectKeys.MODULE
+}
+
+object ModuleNode {
+  /**
+    * Generate a formatted ID with project id and URI.
+    * This prevent ID conflicts on multi module projects where different modules have same value as ID
+    * @param projectId project ID
+    * @param projectURI project root path or repository url
+    * @return
+    */
+  def combinedId(projectId: String, projectURI: URI) = if (projectURI != null) f"$projectId [$projectURI]" else projectId
 }
 
 class LibraryNode(val data: LibraryData)
