@@ -71,6 +71,7 @@ object ParenthesizedElement {
     def isParenthesisNeeded: Boolean = {
       parenthesized match {
         case expr@ScParenthesisedExpr(inner)               => ScalaPsiUtil.needParentheses(expr, inner)
+        case _ if parenthesized.innerElement.isEmpty       => true
         case SameKindParentAndInner(parent, inner)         => !parenthesesRedundant(parent, inner)
         case ChildOf(_: ScConstructor | _: ScClassParents) => true
         case _                                             => false
