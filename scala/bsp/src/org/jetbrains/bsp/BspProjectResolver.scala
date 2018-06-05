@@ -19,13 +19,13 @@ import org.jetbrains.bsp.BspUtil._
 import org.jetbrains.bsp.data.{BspMetadata, ScalaSdkData}
 import org.jetbrains.ide.PooledThreadExecutor
 import org.jetbrains.plugins.scala.project.Version
-import org.langmeta.jsonrpc.{Response, Services}
-import org.langmeta.lsp.{LanguageClient, Window}
 import scalapb_circe.JsonFormat
 
 import scala.collection.JavaConverters._
 import scala.concurrent.Await
 import scala.concurrent.duration.Duration
+import scala.meta.jsonrpc.{Response, Services}
+import scala.meta.lsp.{LanguageClient, Window}
 
 class BspProjectResolver extends ExternalSystemProjectResolver[BspExecutionSettings] {
 

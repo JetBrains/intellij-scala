@@ -90,7 +90,7 @@ object Dependencies {
   val scalariform: ModuleID = "org.scalariform" %% "scalariform" % "0.2.2"
   val macroParadise: ModuleID = "org.scalameta" % "paradise" % paradiseVersion cross CrossVersion.full
   val scalaMetaCore: ModuleID = "org.scalameta" %% "scalameta" % scalaMetaVersion withSources() exclude("com.google.protobuf", "protobuf-java")
-  val fastparse: ModuleID = "com.lihaoyi" % s"fastparse_$scalaBinaryVersion" % "1.0.0" // transitive dependency of scalaMeta, needs explicit versioning
+  val fastparse: ModuleID = "com.lihaoyi" % s"fastparse_$scalaBinaryVersion" % "0.4.4" // transitive dependency of scalaMeta, needs explicit versioning
   val scalaMacros2: ModuleID = "org.scalamacros" %% "scalamacros" % ScalamacrosVersion
 
   val bcel: ModuleID = "org.apache.bcel" % "bcel" % "6.0"

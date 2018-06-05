@@ -15,12 +15,12 @@ import monix.eval.Task
 import monix.execution.Scheduler
 import monix.reactive.Observable
 import org.jetbrains.bsp.BspServerConnector._
-import org.langmeta.jsonrpc.{BaseProtocolMessage, Services}
-import org.langmeta.lsp.{LanguageClient, LanguageServer}
 import org.scalasbt.ipcsocket.UnixDomainSocket
 import org.slf4j.LoggerFactory
 
 import scala.concurrent.duration._
+import scala.meta.jsonrpc.{BaseProtocolMessage, Services}
+import scala.meta.lsp.{LanguageClient, LanguageServer}
 import scala.sys.process.Process
 import scala.util.Random
 

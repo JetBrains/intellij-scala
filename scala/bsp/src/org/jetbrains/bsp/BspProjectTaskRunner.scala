@@ -26,12 +26,12 @@ import org.jetbrains.bsp.BspUtil._
 import org.jetbrains.bsp.data.BspMetadata
 import org.jetbrains.ide.PooledThreadExecutor
 import org.jetbrains.plugins.scala.build.{BuildFailureException, BuildMessages, BuildToolWindowReporter, IndicatorReporter}
-import org.langmeta.jsonrpc._
-import org.langmeta.lsp._
 
 import scala.collection.JavaConverters._
 import scala.concurrent.Await
 import scala.concurrent.duration.Duration
+import scala.meta.jsonrpc.{Response, Services}
+import scala.meta.lsp._
 import scala.util.control.NonFatal
 
 class BspProjectTaskRunner extends ProjectTaskRunner {
@@ -44,7 +44,6 @@ class BspProjectTaskRunner extends ProjectTaskRunner {
         case _ : BspSyntheticModuleType => false
         case _ => ES.isExternalSystemAwareModule(bsp.ProjectSystemId, module)
       }
-    case _: ArtifactBuildTask => false
     case _: ExecuteRunConfigurationTask => false
     case _ => false
   }
@@ -163,7 +162,7 @@ object BspProjectTaskRunner {
 
       buildMessages = buildMessages.appendMessage(textNoAnsi)
 
-      import org.langmeta.lsp.MessageType._
+      import scala.meta.lsp.MessageType._
       buildMessages =
         params.`type` match {
           case Error =>
@@ -190,7 +189,7 @@ object BspProjectTaskRunner {
         report.log(text)
         buildMessages = buildMessages.appendMessage(text)
 
-        import org.langmeta.lsp.DiagnosticSeverity._
+        import scala.meta.lsp.DiagnosticSeverity._
         buildMessages =
           diagnostic.severity.map {
             case Error =>
