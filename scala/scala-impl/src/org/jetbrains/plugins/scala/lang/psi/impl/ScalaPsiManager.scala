@@ -61,12 +61,9 @@ class ScalaPsiManager(val project: Project) {
   private val clearCacheOnOutOfBlockChange = new mutable.ArrayBuffer[util.Map[_ <: Any, _ <: Any]]()
 
   val collectImplicitObjectsCache: ConcurrentMap[(ScType, GlobalSearchScope), Seq[ScType]] =
-    ContainerUtil.createConcurrentWeakMap[(ScType, GlobalSearchScope), Seq[ScType]]()
+    ContainerUtil.newConcurrentMap[(ScType, GlobalSearchScope), Seq[ScType]]()
 
   val implicitCollectorCache: ImplicitCollectorCache = new ImplicitCollectorCache(project)
-
-  val wideableLiteralTypes: ConcurrentMap[Any, ScLiteralType] = ContainerUtil.createConcurrentWeakMap[Any, ScLiteralType]()
-  val nonWideableLiteralTypes: ConcurrentMap[Any, ScLiteralType] = ContainerUtil.createConcurrentWeakMap[Any, ScLiteralType]()
 
   private def dontCacheCompound = ScalaProjectSettings.getInstance(project).isDontCacheCompoundTypes
 
@@ -368,8 +365,6 @@ class ScalaPsiManager(val project: Project) {
   def clearAllCaches(): Unit = {
     clearOnChange()
     clearOnJavaStructureChange()
-    wideableLiteralTypes.clear()
-    nonWideableLiteralTypes.clear()
   }
 
   @TestOnly

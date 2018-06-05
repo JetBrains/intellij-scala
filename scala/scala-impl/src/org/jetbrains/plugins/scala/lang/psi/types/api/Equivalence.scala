@@ -20,7 +20,7 @@ trait Equivalence {
   private val guard = RecursionManager.RecursionGuard[Data, Result](s"${typeSystem.name}.equivalence.guard")
 
   private val cache: ConcurrentMap[(ScType, ScType, Boolean), (Boolean, ScUndefinedSubstitutor)] =
-    ContainerUtil.createConcurrentWeakMap[(ScType, ScType, Boolean), (Boolean, ScUndefinedSubstitutor)]()
+    ContainerUtil.newConcurrentMap[(ScType, ScType, Boolean), (Boolean, ScUndefinedSubstitutor)]()
 
   private val eval = new ThreadLocal[Boolean] {
     override def initialValue(): Boolean = false

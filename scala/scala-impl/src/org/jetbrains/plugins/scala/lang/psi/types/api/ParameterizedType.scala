@@ -74,7 +74,7 @@ trait ParameterizedType extends ValueType {
 
 object ParameterizedType {
   val substitutorCache: ConcurrentMap[ParameterizedType, ScSubstitutor] =
-    ContainerUtil.createConcurrentWeakMap[ParameterizedType, ScSubstitutor]()
+    ContainerUtil.newConcurrentMap[ParameterizedType, ScSubstitutor]()
 
   def apply(designator: ScType, typeArguments: Seq[ScType]): ValueType =
     designator.typeSystem.parameterizedType(designator, typeArguments)
