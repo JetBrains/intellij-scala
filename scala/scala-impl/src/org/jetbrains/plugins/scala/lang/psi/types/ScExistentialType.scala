@@ -129,6 +129,16 @@ class ScExistentialType private (val quantified: ScType,
   }
 
   override def typeDepth: Int = quantified.typeDepth + 1
+
+  //existential type is fully defined by `quantified`, other fields are computed from it
+  override def equals(other: Any): Boolean = other match {
+    case that: ScExistentialType =>
+      quantified == that.quantified
+    case _ => false
+  }
+
+  //to make it different from `quantified.hashCode`
+  override def hashCode(): Int = quantified.hashCode() + ScExistentialType.hashCode()
 }
 
 object ScExistentialType {
