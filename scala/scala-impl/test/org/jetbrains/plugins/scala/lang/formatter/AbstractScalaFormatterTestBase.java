@@ -87,6 +87,10 @@ public abstract class AbstractScalaFormatterTestBase extends LightIdeaTestCase {
     doTextTest(Action.REFORMAT, StringUtil.convertLineSeparators(text), StringUtil.convertLineSeparators(textAfter));
   }
 
+  public void doTextTest(String value) {
+    doTextTest(value, value);
+  }
+
   public void doTextTest(final Action action, final String text, String textAfter) throws IncorrectOperationException {
     final PsiFile file = createFile("A.scala", text);
 

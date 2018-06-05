@@ -23,6 +23,7 @@ import org.jetbrains.plugins.scala.lang.psi.api.statements.{ScFunction, ScValue}
 import org.jetbrains.plugins.scala.lang.psi.api.toplevel.templates._
 import org.jetbrains.plugins.scala.lang.psi.api.toplevel.{ScEarlyDefinitions, ScPackaging}
 import org.jetbrains.plugins.scala.lang.scaladoc.psi.api.ScDocComment
+
 import scala.collection.JavaConverters._
 
 class ScalaBlock(val myParentBlock: ScalaBlock,
@@ -68,7 +69,19 @@ class ScalaBlock(val myParentBlock: ScalaBlock,
         case _: ScTryBlock | _: ScForStatement | _: ScPackaging => true
         case _ => false
       })
-    parent match {
+    if (scalaSettings.USE_SCALAFMT_FORMATTER) {
+      val scalafmtConfig = ScalaFmtPreFormatProcessor.configFor(parent.getContainingFile)
+      parent match {
+        case _: ScParameterClause if newChildIndex != 0 =>
+          new ChildAttributes(Indent.getSpaceIndent(scalafmtConfig.continuationIndent.defnSite), null)
+        case _: ScArguments if newChildIndex != 0 =>
+          new ChildAttributes(Indent.getSpaceIndent(scalafmtConfig.continuationIndent.callSite), null)
+        case _: ScBlock | _: ScTemplateBody =>
+          new ChildAttributes(Indent.getSpaceIndent(2), null)
+        case _ =>
+          new ChildAttributes(Indent.getNoneIndent, null)
+      }
+    } else parent match {
       case m: ScMatchStmt =>
         if (m.caseClauses.isEmpty) {
           new ChildAttributes(if (braceShifted) Indent.getNoneIndent else Indent.getNormalIndent, null)

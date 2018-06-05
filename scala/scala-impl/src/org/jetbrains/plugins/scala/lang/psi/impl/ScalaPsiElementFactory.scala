@@ -885,6 +885,9 @@ object ScalaPsiElementFactory {
   def createWhitespace(implicit ctx: ProjectContext): PsiElement =
     createExpressionFromText("1 + 1").findElementAt(1)
 
+  def createWhitespace(whitespace: String)(implicit ctx: ProjectContext): PsiElement =
+    createExpressionFromText(s"1$whitespace+ 1").findElementAt(1)
+
   def createTypeElementFromText(text: String, context: PsiElement, child: PsiElement): ScTypeElement =
     createElementWithContext[ScTypeElement](text, context, child, Type.parse(_)).orNull
 

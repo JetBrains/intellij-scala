@@ -56,6 +56,9 @@ public class ScalaCodeStyleSettings extends CustomCodeStyleSettings {
   public boolean DO_NOT_INDENT_TUPLES_CLOSE_BRACE = true;
   public boolean ALIGN_TUPLE_ELEMENTS = false;
   public boolean INDENT_FIRST_PARAMETER_CLAUSE = false;
+  public boolean USE_SCALAFMT_FORMATTER = false;
+  public boolean USE_CUSTOM_SCALAFMT_CONFIG_PATH = false;
+  public String SCALAFMT_CONFIG_PATH = "";
 
   public boolean USE_ALTERNATE_CONTINUATION_INDENT_FOR_PARAMS = false;
   public int ALTERNATE_CONTINUATION_INDENT_FOR_PARAMS = 4;

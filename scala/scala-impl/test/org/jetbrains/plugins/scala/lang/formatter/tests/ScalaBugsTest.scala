@@ -3006,7 +3006,4 @@ bars foreach {case (x, y) => list.add(x + y)}
 //      """.stripMargin
 //    doTextTest(before)
 //  }
-
-
-  def doTextTest(value: String): Unit = doTextTest(value, value)
 }
