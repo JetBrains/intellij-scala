@@ -521,14 +521,20 @@ trait ScFunction extends ScalaPsiElement with ScMember with ScTypeParametersOwne
 
   private def collectReverseParamTypesNoImplicits: Option[Seq[Seq[ScType]]] = {
     val buffer = ArrayBuffer.empty[Seq[ScType]]
-    for (cl <- paramClauses.clauses.reverse
-         if !cl.isImplicit) {
-      val paramTypes: Seq[TypeResult] = cl.parameters.map(_.`type`())
-      if (paramTypes.exists(_.isLeft)) return None
+    val clauses = paramClauses.clauses
 
-      buffer += paramTypes.collect {
-        case Right(value) => value
+    //for performance
+    var idx = clauses.length - 1
+    while (idx >= 0) {
+      val cl = clauses(idx)
+      if (!cl.isImplicit) {
+        val parameters = cl.parameters
+        val paramTypes = parameters.flatMap(_.`type`().toOption)
+
+        if (paramTypes.size != parameters.size) return None
+        else buffer += paramTypes
       }
+      idx -= 1
     }
     Some(buffer)
   }
