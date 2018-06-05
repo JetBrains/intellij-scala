@@ -137,7 +137,7 @@ class ScalaBasicCompletionContributor extends ScalaCompletionContributor {
                 })
             }
 
-            val lookupElements = (ref match {
+            val defaultLookupElements = (ref match {
               case refImpl: ScStableCodeReferenceElementImpl =>
                 val processor = new PostProcessor(position)
                 refImpl.doResolve(processor)
@@ -156,9 +156,9 @@ class ScalaBasicCompletionContributor extends ScalaCompletionContributor {
             } ++ prefixedThisAndSupers(ref)
 
             import JavaConverters._
-            result.addAllElements(lookupElements.asJava)
+            result.addAllElements(defaultLookupElements.asJava)
 
-            if (!lookupElements.exists(result.getPrefixMatcher.prefixMatches)
+            if (!defaultLookupElements.exists(result.getPrefixMatcher.prefixMatches)
               && !classNameCompletion
               && (lookingForAnnotations || shouldRunClassNameCompletion(dummyPosition, result.getPrefixMatcher, checkInvocationCount = false)(parameters))) {
               ScalaClassNameCompletionContributor.completeClassName(dummyPosition, result)(parameters, context)
@@ -172,8 +172,8 @@ class ScalaBasicCompletionContributor extends ScalaCompletionContributor {
 
               processor = new PostProcessor(reference, isImplicit = true, position) {
 
-                private val lookupStrings = mutable.Set.empty[String]
-                private val decorator = castDecorator(canonicalText)
+                private val lookupStrings = mutable.Set(defaultLookupElements.map(_.getLookupString): _*)
+                private val decorator = insertHandlerDecorator(s".asInstanceOf[$canonicalText]")
 
                 override protected val qualifierType = Some(qualifierCastType)
 
@@ -185,7 +185,8 @@ class ScalaBasicCompletionContributor extends ScalaCompletionContributor {
               }
             } {
               reference.doResolve(processor)
-              result.addAllElements(processor.lookupElements.asJava)
+              val runtimeLookupElements = processor.lookupElements
+              result.addAllElements(runtimeLookupElements.asJava)
             }
           case _ =>
         }
@@ -317,7 +318,7 @@ object ScalaBasicCompletionContributor {
     }
   }
 
-  private def castDecorator(canonicalText: String): InsertHandlerDecorator[ScalaLookupItem] =
+  private def insertHandlerDecorator(text: String): InsertHandlerDecorator[ScalaLookupItem] =
     (context: InsertionContext, decorator: LookupElementDecorator[ScalaLookupItem]) => {
       val document = context.getEditor.getDocument
       context.commitDocument()
@@ -326,7 +327,7 @@ object ScalaBasicCompletionContributor {
       PsiTreeUtil.findElementOfClassAtOffset(file, context.getStartOffset, classOf[ScReferenceElement], false) match {
         case null =>
         case ScReferenceElement.withQualifier(qualifier) =>
-          document.insertString(qualifier.getTextRange.getEndOffset, s".asInstanceOf[$canonicalText]")
+          document.insertString(qualifier.getTextRange.getEndOffset, text)
           context.commitDocument()
 
           ScalaPsiUtil.adjustTypes(file)
