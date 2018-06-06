@@ -47,8 +47,8 @@ object ScalaSdkService {
     private def doImport(dataNode: DataNode[ScalaSdkData]): Unit = {
       for {
         module <- getIdeModuleByNode(dataNode)
-        data = dataNode.getData
       } {
+        val data = dataNode.getData
         module.configureScalaCompilerSettingsFrom("bsp", data.scalacOptions)
         data.scalaVersion.foreach(
           version => configureScalaSdk(module, data.scalaOrganization, version, data.scalacClasspath))
@@ -79,7 +79,7 @@ object ScalaSdkService {
       val libraryName = "scala-sdk"
       val rootModel = getModifiableRootModel(module)
       val libraryTable = rootModel.getModuleLibraryTable
-      Option(libraryTable.getLibraryByName("scala-sdk"))
+      libraryTable.getLibraries.find(_.getName.contains(ScalaSdkData.LibraryName))
     }
 
     private def configureOrInheritSdk(module: Module, sdk: Option[SdkReference]): Unit = {

@@ -45,6 +45,7 @@ case class ScalaSdkData(
 
 object ScalaSdkData {
   val Key: Key[ScalaSdkData] = datakey(classOf[ScalaSdkData])
+  val LibraryName: String = "scala-sdk"
 }
 
 

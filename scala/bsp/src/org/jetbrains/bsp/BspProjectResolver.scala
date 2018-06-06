@@ -94,7 +94,7 @@ class BspProjectResolver extends ExternalSystemProjectResolver[BspExecutionSetti
 
       moduleData.setInheritProjectCompileOutputPath(false)
 
-      val scalaSdkLibrary = new LibraryData(bsp.ProjectSystemId, s"scala-sdk")
+      val scalaSdkLibrary = new LibraryData(bsp.ProjectSystemId, ScalaSdkData.LibraryName)
       moduleDescription.scalaSdkData.scalacClasspath.foreach { path =>
         scalaSdkLibrary.addPath(LibraryPathType.BINARY, path.getCanonicalPath)
       }
@@ -133,7 +133,7 @@ class BspProjectResolver extends ExternalSystemProjectResolver[BspExecutionSetti
       val contentRootDataNode = new DataNode[ContentRootData](ProjectKeys.CONTENT_ROOT, contentRootData, moduleNode)
       moduleNode.addChild(contentRootDataNode)
 
-      val scalaSdkNode = new DataNode[ScalaSdkData](ScalaSdkData.Key, moduleDescription.scalaSdkData, projectNode)
+      val scalaSdkNode = new DataNode[ScalaSdkData](ScalaSdkData.Key, moduleDescription.scalaSdkData, moduleNode)
       moduleNode.addChild(scalaSdkNode)
 
       val metadataNode = new DataNode[BspMetadata](BspMetadata.Key, metadata, moduleNode)
