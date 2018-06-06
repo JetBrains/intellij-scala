@@ -567,7 +567,7 @@ class SbtProjectResolver extends ExternalSystemProjectResolver[SbtExecutionSetti
 
   protected def createLibraryDependencies(dependencies: Seq[sbtStructure.ModuleDependencyData])
       (moduleData: ModuleData, libraries: Seq[LibraryData]): Seq[LibraryDependencyNode] = {
-    dependencies.map { dependency =>
+    deduplicate(dependencies).map { dependency =>
       val name = nameFor(dependency.id)
       val library = libraries.find(_.getExternalName == name).getOrElse(
         throw new ExternalSystemException("Library not found: " + name))
@@ -650,4 +650,24 @@ object SbtProjectResolver {
   // TODO shared code, move to a more suitable object
   val sinceSbtVersionShell = Version("0.13.5")
 
+  //removes dependencies on scala-js and scala-native artifacts to avoid ambiguous classfiles
+  private def deduplicate(dependencies: Seq[sbtStructure.ModuleDependencyData]): Seq[sbtStructure.ModuleDependencyData] = {
+    val groupedByJvmName = dependencies.groupBy(dep => dep.id.name.stripSjs.stripNative).toSeq
+    groupedByJvmName.flatMap {
+      case (_, seq) if seq.size <= 1 => seq
+      case (name, seq) =>
+        seq.find(_.id.name == name)                     //jvm dependencies are the best
+          .orElse(seq.find(_.id.name.stripSjs == name)) //prefer sjs dependency over native one
+          .orElse(seq.headOption).toSeq
+    }
+  }
+
+  private implicit class StripVersions(val str: String) extends AnyVal {
+    def stripSjs: String = sjsPattern.replaceAllIn(str, "")
+
+    def stripNative: String = nativePattern.replaceAllIn(str, "")
+  }
+
+  private val sjsPattern    = """_sjs[\d\.]+""".r
+  private val nativePattern = """_native[\d\.]+""".r
 }
