@@ -51,11 +51,14 @@ class ScalaTypeHintsConfigurable
 
   override def apply(): Unit = {
     super.apply()
-    ScalaTypeHintsPassFactory.forceHintsUpdateOnNextPass()
+    ScalaTypeHintsConfigurable.forceHintsUpdateOnNextPass()
   }
 }
 
 object ScalaTypeHintsConfigurable {
+
+  private def forceHintsUpdateOnNextPass(): Unit =
+    ScalaTypeHintsPassFactory.StampHolder.forceHintsUpdateOnNextPass()
 
   sealed abstract class ToogleTypeAction(getter: Getter[JBoolean],
                                          setter: Setter[JBoolean]) extends ToggleAction {
@@ -64,7 +67,7 @@ object ScalaTypeHintsConfigurable {
 
     override def setSelected(event: AnActionEvent, value: Boolean): Unit = {
       setter.set(value)
-      ScalaTypeHintsPassFactory.forceHintsUpdateOnNextPass()
+      forceHintsUpdateOnNextPass()
     }
   }
 
