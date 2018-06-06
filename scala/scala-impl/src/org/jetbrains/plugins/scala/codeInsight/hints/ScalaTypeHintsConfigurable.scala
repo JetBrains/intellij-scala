@@ -5,7 +5,9 @@ package hints
 import java.lang.{Boolean => JBoolean}
 
 import com.intellij.application.options.editor.CodeFoldingOptionsProvider
+import com.intellij.codeInsight.daemon.DaemonCodeAnalyzer
 import com.intellij.openapi.actionSystem.{AnActionEvent, ToggleAction}
+import com.intellij.openapi.editor.EditorFactory
 import com.intellij.openapi.options.BeanConfigurable
 import com.intellij.openapi.util.{Getter, Setter}
 import org.jetbrains.plugins.scala.codeInsight.ScalaCodeInsightSettings.{getInstance => settings}
@@ -57,8 +59,15 @@ class ScalaTypeHintsConfigurable
 
 object ScalaTypeHintsConfigurable {
 
-  private def forceHintsUpdateOnNextPass(): Unit =
+  private def forceHintsUpdateOnNextPass(): Unit = {
     ScalaTypeHintsPassFactory.StampHolder.forceHintsUpdateOnNextPass()
+
+    EditorFactory.getInstance().getAllEditors
+      .map(_.getProject)
+      .distinct
+      .map(DaemonCodeAnalyzer.getInstance)
+      .foreach(_.restart())
+  }
 
   sealed abstract class ToogleTypeAction(getter: Getter[JBoolean],
                                          setter: Setter[JBoolean]) extends ToggleAction {
@@ -90,4 +99,5 @@ object ScalaTypeHintsConfigurable {
     settings.showForObviousTypesGetter,
     settings.showForObviousTypesSetter
   )
+
 }
