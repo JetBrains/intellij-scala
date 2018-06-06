@@ -465,6 +465,13 @@ package object extensions {
   }
 
   implicit class PsiClassExt(val clazz: PsiClass) extends AnyVal {
+
+    def isSealed: Boolean = clazz match {
+      case _: ScClass | _: ScTrait =>
+        clazz.asInstanceOf[ScModifierListOwner].hasModifierPropertyScala("sealed")
+      case _ => false
+    }
+
     /**
       * Second match branch is for Java only.
       */

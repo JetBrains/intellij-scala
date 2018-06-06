@@ -9,7 +9,6 @@ import com.intellij.openapi.editor.Editor
 import com.intellij.openapi.fileEditor.ex.IdeDocumentHistory
 import com.intellij.openapi.project.Project
 import com.intellij.psi._
-import com.intellij.psi.search.searches.ClassInheritorsSearch
 import org.jetbrains.plugins.scala.extensions._
 import org.jetbrains.plugins.scala.lang.completion.clauses.CaseClauseCompletionContributor
 import org.jetbrains.plugins.scala.lang.psi.ScalaPsiUtil
@@ -18,110 +17,64 @@ import org.jetbrains.plugins.scala.lang.psi.api.base.patterns.{ScCaseClause, ScP
 import org.jetbrains.plugins.scala.lang.psi.api.expr.ScMatchStmt
 import org.jetbrains.plugins.scala.lang.psi.api.toplevel.typedef.{ScClass, ScTypeDefinition}
 import org.jetbrains.plugins.scala.lang.psi.impl.ScalaPsiElementFactory.createMatch
-import org.jetbrains.plugins.scala.lang.psi.types.ScTypeExt
-import org.jetbrains.plugins.scala.project.ProjectContext
-
-import scala.collection.JavaConverters
 
 final class CreateCaseClausesIntention extends PsiElementBaseIntentionAction {
 
-  import CaseClauseCompletionContributor.patternText
   import CreateCaseClausesIntention._
 
   def getFamilyName: String = FamilyName
 
-  def isAvailable(project: Project, editor: Editor, element: PsiElement): Boolean =
-    findSurroundingMatch(element) match {
-      case Some((_, scrutineeType)) =>
-        setText(getFamilyName + scrutineeType)
-        true
-      case _ => false
-    }
+  def isAvailable(project: Project, editor: Editor, element: PsiElement): Boolean = {
+    val maybeMatch = findSurroundingMatch(element)
+    maybeMatch.map {
+      case (_, _, scrutineeType) => s"$getFamilyName for $scrutineeType"
+    }.foreach(setText)
+
+    maybeMatch.isDefined
+  }
 
   override def invoke(project: Project, editor: Editor, element: PsiElement): Unit = {
     findSurroundingMatch(element) match {
-      case Some((action, _)) =>
+      case Some(((clazz, statement), action, _)) =>
         PsiDocumentManager.getInstance(project).commitAllDocuments()
         if (!FileModificationService.getInstance.prepareFileForWrite(element.getContainingFile)) return
         IdeDocumentHistory.getInstance(project).includeCurrentPlaceAsChangePlace()
-        action(element)
+
+        val (patternNames, targets) = action(clazz, statement)
+
+        val newStatement = createMatch(statement.expr.get.getText, patternNames.map(name => s"case $name =>"))(statement)
+        val replaced = statement.replace(newStatement).asInstanceOf[ScMatchStmt]
+
+        bindReferences(replaced.caseClauses, targets)
       case None =>
     }
   }
-
-  private def addMatchClausesForSealedClass(statement: ScMatchStmt, clazz: ScTypeDefinition)
-                                           (implicit context: ProjectContext): Unit = {
-    val inheritors = findInheritors(clazz)
-
-    replaceStatement(statement, inheritors.map(patternText(_, statement)), inheritors.map(target))
-  }
-
-  private def addMatchClausesForEnum(statement: ScMatchStmt, clazz: PsiClass)
-                                    (implicit context: ProjectContext): Unit = {
-    val className = clazz.name
-    val patternNames = clazz.getFields.collect {
-      case constant: PsiEnumConstant => s"$className.${constant.name}"
-    }
-
-    replaceStatement(statement, patternNames, Seq.fill(patternNames.length)(clazz))
-  }
-
-  private def addMatchClausesForCaseClassesAndObjects(statement: ScMatchStmt, clazz: PsiClass)
-                                                     (implicit context: ProjectContext): Unit = {
-    val inheritors = findInheritors(clazz).filter { definition =>
-      definition.isCase || definition.isObject
-    }
-
-    replaceStatement(statement, inheritors.map(patternText(_, statement)) :+ "_", inheritors.map(target))
-  }
-
-  private def findSurroundingMatch(element: PsiElement): Option[(ProjectContext => Unit, String)] =
-    element.getParent match {
-      case statement@ScMatchStmt(expression, Seq()) =>
-        expression.`type`().toOption
-          .flatMap(_.extractClass)
-          .collect {
-            case clazz: ScTypeDefinition if clazz.hasModifierProperty("sealed") =>
-              (addMatchClausesForSealedClass(statement, clazz)(_), " for variants of sealed type")
-            case clazz if clazz.isEnum =>
-              (addMatchClausesForEnum(statement, clazz)(_), " for variants of java enum")
-            case clazz if !clazz.hasFinalModifier =>
-              (addMatchClausesForCaseClassesAndObjects(statement, clazz)(_), " for inherited objects and case classes")
-          }
-      case _ => None
-    }
 }
 
 object CreateCaseClausesIntention {
 
+  import CaseClauseCompletionContributor._
+
   private[matcher] val FamilyName = "Generate case clauses"
 
-  private def findInheritors(clazz: PsiClass): Seq[ScTypeDefinition] = {
-    import JavaConverters._
-    val result = ClassInheritorsSearch.search(clazz, clazz.resolveScope, false).asScala.collect {
-      case definition: ScTypeDefinition => definition
+  private type ClassAndPlace = (PsiClass, ScMatchStmt)
+
+  private def findSurroundingMatch(element: PsiElement): Option[(ClassAndPlace, ClassAndPlace => (Seq[String], Seq[PsiClass]), String)] =
+    extractClass[PsiClass](element, regardlessClauses = false).collect {
+      case pair@(clazz: ScTypeDefinition, _) if clazz.isSealed =>
+        (pair, patternsAndTargets(_)(), "variants of sealed type")
+      case pair if pair._1.isEnum =>
+        (pair, enumClauses, "variants of java enum")
+      case pair if !pair._1.hasFinalModifier =>
+        (pair, classesAndObjectsClauses, "inherited objects and case classes")
     }
 
-    result.toSeq.sortBy {
-      _.getNavigationElement.getTextRange.getStartOffset
-    }
-  }
+  private def bindReferences(caseClauses: Seq[ScCaseClause], targets: Seq[PsiNamedElement]): Unit = {
+    def findReference(pattern: ScPattern, name: String) =
+      pattern.depthFirst().collectFirst {
+        case reference: ScReferenceElement if reference.refName == name => reference
+      }
 
-  private def target(definition: ScTypeDefinition) = definition match {
-    case clazz: ScClass if clazz.isCase => ScalaPsiUtil.getCompanionModule(clazz).get
-    case _ => definition
-  }
-
-  private def replaceStatement(statement: ScMatchStmt, patterns: Seq[String], targets: Seq[PsiNamedElement])
-                              (implicit context: ProjectContext): Unit = {
-    val expressionText = statement.expr.get.getText
-
-    val newStatement = createMatch(expressionText, patterns.map(name => s"case $name =>"))
-    val replaced = statement.replace(newStatement).asInstanceOf[ScMatchStmt]
-    bindReferences(replaced.caseClauses, targets)
-  }
-
-  private[this] def bindReferences(caseClauses: Seq[ScCaseClause], targets: Seq[PsiNamedElement]): Unit = {
     for {
       (ScCaseClause(Some(pattern), _, _), target) <- caseClauses.zip(targets)
       if !pattern.isInstanceOf[ScWildcardPattern]
@@ -129,8 +82,36 @@ object CreateCaseClausesIntention {
     } reference.bindToElement(target)
   }
 
-  private[this] def findReference(pattern: ScPattern, name: String) =
-    pattern.depthFirst().collectFirst {
-      case reference: ScReferenceElement if reference.refName == name => reference
+  private[this] def enumClauses(pair: ClassAndPlace) = {
+    val (clazz, _) = pair
+
+    val className = clazz.name
+    val patternNames = clazz.getFields.collect {
+      case constant: PsiEnumConstant => s"$className.${constant.name}"
     }
+
+    (patternNames.toSeq, Seq.fill(patternNames.length)(clazz))
+  }
+
+  private[this] def classesAndObjectsClauses(pair: ClassAndPlace) = {
+    val (patternNames, targets) = patternsAndTargets(pair) { definition =>
+      definition.isCase || definition.isObject
+    }
+
+    (patternNames :+ "_", targets)
+  }
+
+  private[this] def patternsAndTargets(pair: ClassAndPlace)
+                                      (predicate: ScTypeDefinition => Boolean = _ => true) = {
+    val (clazz, statement) = pair
+    val inheritors = findInheritors(clazz).filter(predicate)
+
+    val patternTexts = inheritors.map(patternText(_, statement))
+    val targets = inheritors.map {
+      case clazz: ScClass if clazz.isCase => ScalaPsiUtil.getCompanionModule(clazz).get
+      case definition => definition
+    }
+
+    (patternTexts, targets)
+  }
 }
