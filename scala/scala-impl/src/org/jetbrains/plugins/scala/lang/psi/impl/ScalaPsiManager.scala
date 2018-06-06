@@ -21,7 +21,6 @@ import com.intellij.psi.search.{DelegatingGlobalSearchScope, GlobalSearchScope, 
 import com.intellij.psi.util.PsiModificationTracker
 import com.intellij.util.ArrayUtil
 import com.intellij.util.containers.ContainerUtil
-import com.intellij.util.text.TextRanges
 import org.jetbrains.annotations.TestOnly
 import org.jetbrains.plugins.scala.caches.{CachesUtil, ScalaShortNamesCacheManager}
 import org.jetbrains.plugins.scala.extensions._
@@ -46,6 +45,7 @@ import org.jetbrains.plugins.scala.project.{ProjectContext, ProjectExt}
 import org.jetbrains.plugins.scala.settings.ScalaProjectSettings
 import org.scalafmt.config.ScalafmtConfig
 import org.jetbrains.plugins.scala.lang.formatting.processors.ScalaFmtPreFormatProcessor
+import org.jetbrains.plugins.scala.lang.formatting.processors.ScalaFmtPreFormatProcessor.TextRanges
 
 import scala.collection.{Seq, mutable}
 

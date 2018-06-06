@@ -15,7 +15,6 @@ import com.intellij.psi.impl.source.codeStyle.PreFormatProcessor
 import com.intellij.psi.util.PsiTreeUtil
 import com.intellij.ui.awt.RelativePoint
 import com.intellij.util.containers.ContainerUtil
-import com.intellij.util.text.TextRanges
 import org.jetbrains.plugins.hocon.psi.HoconPsiFile
 import org.jetbrains.plugins.scala.ScalaFileType
 import org.jetbrains.plugins.scala.lang.formatting.settings.ScalaCodeStyleSettings
@@ -73,17 +72,14 @@ object ScalaFmtPreFormatProcessor {
   private def formatIfRequired(file: PsiFile, range: TextRange): TextRange = {
     val cache = ScalaPsiManager.instance(file.getProject).scalafmtFormattedFiles
     val cached = cache.getOrDefault(file, (new TextRanges, file.getModificationStamp))
-    import collection.JavaConverters._
-    if (cached._2 == file.getModificationStamp && cached._1.iterator().asScala.exists(_.contains(range))) return TextRange.EMPTY_RANGE
+    if (cached._2 == file.getModificationStamp && cached._1.contains(range)) return TextRange.EMPTY_RANGE
     val delta = formatRange(file, range)
-    def moveRanges(ranges: TextRanges): TextRanges = {
-      val res = new TextRanges
-      ranges.asScala.map{ otherRange =>
+    def moveRanges(textRanges: TextRanges): TextRanges = {
+      textRanges.ranges.map{ otherRange =>
         if (otherRange.getEndOffset <= range.getStartOffset) otherRange
         else if (otherRange.getStartOffset >= range.getEndOffset) otherRange.shiftRight(delta)
         else TextRange.EMPTY_RANGE
-      }.foreach(res.union)
-      res
+      }.foldLeft(new TextRanges())((acc, aRange) => acc.union(aRange))
     }
     val ranges = if (cached._2 == file.getModificationStamp) moveRanges(cached._1) else new TextRanges
     cache.put(file, (ranges.union(range.grown(delta)), file.getModificationStamp))
@@ -97,7 +93,8 @@ object ScalaFmtPreFormatProcessor {
     val document = manager.getDocument(file)
     if (document == null) return 0
     //TODO for some reason, scalaFmt does not properly change whitespaces with custom parsers
-    val (config, element) = (configFor(file), file) //actualConfigAndElement(file, range, loadConfig(file))
+    val (config, element) = (configFor(file), file)
+//    val (config, element) = actualConfigAndElement(file, range, configFor(file))
     val formatted = Scalafmt.format(element.getText, config,
       Set(Range(document.getLineNumber(range.getStartOffset), document.getLineNumber(range.getEndOffset) + 1)))
     val formattedTime = System.currentTimeMillis()
@@ -147,40 +144,40 @@ object ScalaFmtPreFormatProcessor {
       val formattedChildren = PsiTreeUtil.getChildrenOfType(formatted, classOf[PsiElement])
       val originalChildren = PsiTreeUtil.getChildrenOfType(original, classOf[PsiElement])
       if (formattedChildren == null || originalChildren == null) return
-      def replace(originalElement: PsiElement, formattedElement: PsiElement): Unit = {
-        if (originalElement.getText != formattedElement.getText) {
-          originalElement.replace(formattedElement)
-          delta += formattedElement.getTextLength - originalElement.getTextLength
-        }
-        formattedIndex += 1
-        originalIndex += 1
-
-      }
       while (formattedIndex < formattedChildren.size && originalIndex < originalChildren.size) {
         val originalElement = originalChildren(originalIndex)
         val formattedElement = formattedChildren(formattedIndex)
+        val isInRange = originalElement.getTextRange.intersection(range.grown(delta)) != null
+        def replace(originalElement: PsiElement, formattedElement: PsiElement): Unit = {
+          if (originalElement.getText != formattedElement.getText && isInRange) {
+            originalElement.replace(formattedElement)
+            delta += formattedElement.getTextLength - originalElement.getTextLength
+          }
+          formattedIndex += 1
+          originalIndex += 1
+        }
         (originalElement, formattedElement) match {
-          case _ if originalElement.getTextRange.intersection(range.grown(delta)) == null =>
-            elementsToTraverse += ((formattedElement, originalElement))
-            formattedIndex += 1
-            originalIndex += 1
           case (originalWs: PsiWhiteSpace, formattedWs: PsiWhiteSpace) => //replace whitespace
             replace(originalWs, formattedWs)
           case (_, formattedWs: PsiWhiteSpace) => //a whitespace has been added
             val parent = originalElement.getParent
-            if (parent != null) {
+            if (parent != null && isInRange) {
               parent.addBefore(formattedWs, originalElement)
               delta += formattedWs.getTextLength
             }
             formattedIndex += 1
           case (originalWs: PsiWhiteSpace, _) => //a whitespace has been removed
-            originalWs.delete()
-            delta -= originalWs.getTextLength
+            if (isInRange) {
+              originalWs.delete()
+              delta -= originalWs.getTextLength
+            }
             originalIndex += 1
           case (originalComment: PsiComment, formattedComment: PsiComment) => //replace comments
             replace(originalComment, formattedComment)
           case _ =>
-            elementsToTraverse += ((formattedElement, originalElement))
+            if (isInRange) {
+              elementsToTraverse += ((formattedElement, originalElement))
+            }
             originalIndex += 1
             formattedIndex += 1
         }
@@ -203,5 +200,22 @@ object ScalaFmtPreFormatProcessor {
       "Failed to load scalafmt config " + path + ", using default configuration instead",
       MessageType.WARNING,
       null).createBalloon.show(new RelativePoint(bestLocation.getPoint()), Balloon.Position.above)
+  }
+
+  //TODO get rid of this once com.intellij.util.text.TextRanges does not have an error on unifying (x, x+1) V (x+1, y)
+  class TextRanges(val ranges: Seq[TextRange]) {
+    def this() = this(Seq.empty)
+
+    def contains(range: TextRange): Boolean = ranges.exists(_.contains(range))
+
+    def union(range: TextRange): TextRanges = if (contains(range)) this else {
+      val intersections = ranges.filter(_.intersects(range))
+      val newRanges = if (intersections.isEmpty) {
+        ranges :+ range
+      } else {
+        ranges.filter(!_.intersects(range)) :+ intersections.foldLeft(range)((acc, nextRange) => acc.union(nextRange))
+      }
+      new TextRanges(newRanges)
+    }
   }
 }
