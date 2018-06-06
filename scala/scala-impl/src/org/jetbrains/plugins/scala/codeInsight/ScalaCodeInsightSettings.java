@@ -31,91 +31,44 @@ public class ScalaCodeInsightSettings implements PersistentStateComponent<ScalaC
 
     public boolean showForObviousTypes = false;
 
-    public boolean isShowTypeHints() {
-        return showFunctionReturnType ||
-                showPropertyType ||
-                showLocalVariableType;
-    }
-
-    public boolean isShowFunctionReturnType() {
-        return showFunctionReturnType;
-    }
-
     public Getter<Boolean> showFunctionReturnTypeGetter() {
-        return this::isShowFunctionReturnType;
-    }
-
-    private void setShowFunctionReturnType(boolean showFunctionReturnType) {
-        this.showFunctionReturnType = showFunctionReturnType;
+        return () -> showFunctionReturnType;
     }
 
     public Setter<Boolean> showFunctionReturnTypeSetter() {
-        return this::setShowFunctionReturnType;
-    }
-
-    public boolean isShowPropertyType() {
-        return showPropertyType;
+        return value -> showFunctionReturnType = value;
     }
 
     public Getter<Boolean> showPropertyTypeGetter() {
-        return this::isShowPropertyType;
-    }
-
-    private void setShowPropertyType(boolean showPropertyType) {
-        this.showPropertyType = showPropertyType;
+        return () -> showPropertyType;
     }
 
     public Setter<Boolean> showPropertyTypeSetter() {
-        return this::setShowPropertyType;
-    }
-
-    public boolean isShowLocalVariableType() {
-        return showLocalVariableType;
+        return value -> showPropertyType = value;
     }
 
     public Getter<Boolean> showLocalVariableTypeGetter() {
-        return this::isShowLocalVariableType;
-    }
-
-    private void setShowLocalVariableType(boolean showLocalVariableType) {
-        this.showLocalVariableType = showLocalVariableType;
+        return () -> showLocalVariableType;
     }
 
     public Setter<Boolean> showLocalVariableTypeSetter() {
-        return this::setShowLocalVariableType;
-    }
-
-    public int getPresentationLength() {
-        return presentationLength;
+        return value -> showLocalVariableType = value;
     }
 
     public Getter<Integer> presentationLengthGetter() {
-        return this::getPresentationLength;
-    }
-
-    private void setPresentationLength(int presentationLength) {
-        this.presentationLength = presentationLength;
+        return () -> presentationLength;
     }
 
     public Setter<Integer> presentationLengthSetter() {
-        return this::setPresentationLength;
-    }
-
-
-    public boolean isShowForObviousTypes() {
-        return showForObviousTypes;
+        return value -> presentationLength = value;
     }
 
     public Getter<Boolean> showForObviousTypesGetter() {
-        return this::isShowForObviousTypes;
-    }
-
-    public void setShowForObviousTypes(boolean showForObviousTypes) {
-        this.showForObviousTypes = showForObviousTypes;
+        return () -> showForObviousTypes;
     }
 
     public Setter<Boolean> showForObviousTypesSetter() {
-        return this::setShowForObviousTypes;
+        return value -> showForObviousTypes = value;
     }
 
     @NotNull

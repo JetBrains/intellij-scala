@@ -44,8 +44,8 @@ class ScalaTypeHintsConfigurable
 
     checkBox(
       "Do not show when type is obvious",
-      () => (!settings.isShowForObviousTypes).asInstanceOf[JBoolean],
-      (value: JBoolean) => settings.setShowForObviousTypes(!value)
+      () => (!settings.showForObviousTypes).asInstanceOf[JBoolean],
+      (value: JBoolean) => settings.showForObviousTypes = !value
     )
   }
 

@@ -35,17 +35,18 @@ class ScalaTypeHintsPass(editor: Editor, rootElement: ScalaPsiElement)
   override def doCollectInformation(progressIndicator: ProgressIndicator): Unit = {
     hintsByOffset.clear()
     implicit val settings: ScalaCodeInsightSettings = ScalaCodeInsightSettings.getInstance()
-    if (myDocument == null || rootElement.containingVirtualFile.isEmpty || !settings.isShowTypeHints) return
+    if (myDocument == null || rootElement.containingVirtualFile.isEmpty ||
+      !(settings.showFunctionReturnType || settings.showPropertyType || settings.showLocalVariableType)) return
 
     hintsByOffset ++= elements.filterNot {
-      case _ if settings.isShowForObviousTypes => false
+      case _ if settings.showForObviousTypes => false
       case element => Definition(element).isTypeObvious
     }.flatMap {
-      case f@TypelessFunction(anchor) if settings.isShowFunctionReturnType =>
+      case f@TypelessFunction(anchor) if settings.showFunctionReturnType =>
         f.returnType.toInlayInfo(anchor)
       case v@TypelessValueOrVariable(anchor)
         //noinspection ScalaUnnecessaryParentheses
-        if (if (v.isLocal) settings.isShowLocalVariableType else settings.isShowPropertyType) =>
+        if (if (v.isLocal) settings.showLocalVariableType else settings.showPropertyType) =>
         v.`type`().toInlayInfo(anchor)
       case _ => None
     }.groupBy(_.getOffset)
@@ -136,7 +137,7 @@ object ScalaTypeHintsPass {
 
     def unapply(text: String)
                (implicit settings: ScalaCodeInsightSettings): Option[String] =
-      if (text.length <= settings.getPresentationLength) Some(text) else None
+      if (text.length <= settings.presentationLength) Some(text) else None
   }
 
   private[this] object PresentableText {
