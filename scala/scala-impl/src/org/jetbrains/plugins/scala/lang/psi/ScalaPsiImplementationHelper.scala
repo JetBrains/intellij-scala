@@ -22,8 +22,8 @@ object ScalaPsiImplementationHelper {
     val orderEntries: List[OrderEntry] = idx.getOrderEntriesForFile(vFile)
     val fqn: String = psiClass.qualifiedName
     if (fqn == null) return psiClass
-    val classes: Array[PsiClass] = ScalaPsiManager.instance(project).getCachedClasses(new GlobalSearchScope((project)) {
-      def compare(file1: VirtualFile, file2: VirtualFile): Int = 0
+    val classes: Array[PsiClass] = ScalaPsiManager.instance(project).getCachedClasses(new GlobalSearchScope(project) {
+      override def compare(file1: VirtualFile, file2: VirtualFile): Int = 0
       def contains(file: VirtualFile): Boolean = {
         val entries: List[OrderEntry] = idx.getOrderEntriesForFile(file)
         var i: Int = 0
