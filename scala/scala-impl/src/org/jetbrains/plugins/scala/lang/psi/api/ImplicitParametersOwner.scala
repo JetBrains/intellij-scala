@@ -8,6 +8,8 @@ import org.jetbrains.plugins.scala.lang.resolve.ScalaResolveResult
  * Nikolay.Tropin
  * 2014-10-17
  */
+// TODO ImplicitArgumentsOwner
+// TODO Implement selectiverly, not by ScExpression
 trait ImplicitParametersOwner extends ScalaPsiElement {
 
   /**

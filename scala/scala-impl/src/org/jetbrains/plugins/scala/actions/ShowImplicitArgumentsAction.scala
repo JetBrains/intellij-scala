@@ -37,6 +37,7 @@ import org.jetbrains.plugins.scala.lang.refactoring.util.ScalaRefactoringUtil.ge
 import org.jetbrains.plugins.scala.lang.resolve.ScalaResolveResult
 import org.jetbrains.plugins.scala.project.ProjectContext
 import org.jetbrains.plugins.scala.statistics.{FeatureKey, Stats}
+import ShowImplicitArgumentsAction._
 
 /**
  * User: Alefas
@@ -46,49 +47,6 @@ import org.jetbrains.plugins.scala.statistics.{FeatureKey, Stats}
 class ShowImplicitArgumentsAction extends AnAction("Show implicit arguments action") {
   override def update(e: AnActionEvent) {
     ScalaActionUtil.enableAndShowIfInScalaFile(e)
-  }
-
-  private def implicitParams(expr: PsiElement): Option[Seq[ScalaResolveResult]] = {
-    def checkTypeElement(element: ScTypeElement): Option[Option[scala.Seq[ScalaResolveResult]]] = {
-      def checkSimpleType(s: ScSimpleTypeElement) = {
-        s.findImplicitParameters
-      }
-      element match {
-        case s: ScSimpleTypeElement =>
-          return Some(checkSimpleType(s))
-        case p: ScParameterizedTypeElement =>
-          p.typeElement match {
-            case s: ScSimpleTypeElement =>
-              return Some(checkSimpleType(s))
-            case _ =>
-          }
-        case _ =>
-      }
-      None
-    }
-    expr match {
-      case expr: ScNewTemplateDefinition =>
-        expr.extendsBlock.templateParents match {
-          case Some(tp) =>
-            val elements = tp.typeElements
-            if (elements.nonEmpty) {
-              checkTypeElement(elements.head) match {
-                case Some(x) => return x
-                case None =>
-              }
-            }
-          case _ =>
-        }
-      case expr: ScExpression =>
-        return expr.findImplicitParameters
-      case constr: ScConstructor =>
-        checkTypeElement(constr.typeElement) match {
-          case Some(x) => return x
-          case _ =>
-        }
-      case _ =>
-    }
-    None
   }
 
   def actionPerformed(e: AnActionEvent) {
@@ -262,6 +220,54 @@ class ShowImplicitArgumentsAction extends AnAction("Show implicit arguments acti
     Disposer.register(popup, builder)
 
     popup.showInBestPositionFor(editor)
+  }
+}
+
+// TODO Should probably be handled by the ImplicitParametersOwner, or at least extracted into an utility method
+object ShowImplicitArgumentsAction {
+  def implicitParams(expr: PsiElement): Option[Seq[ScalaResolveResult]] = {
+    def checkTypeElement(element: ScTypeElement): Option[Option[scala.Seq[ScalaResolveResult]]] = {
+      def checkSimpleType(s: ScSimpleTypeElement) = {
+        s.findImplicitParameters
+      }
+
+      element match {
+        case s: ScSimpleTypeElement =>
+          return Some(checkSimpleType(s))
+        case p: ScParameterizedTypeElement =>
+          p.typeElement match {
+            case s: ScSimpleTypeElement =>
+              return Some(checkSimpleType(s))
+            case _ =>
+          }
+        case _ =>
+      }
+      None
+    }
+
+    expr match {
+      case expr: ScNewTemplateDefinition =>
+        expr.extendsBlock.templateParents match {
+          case Some(tp) =>
+            val elements = tp.typeElements
+            if (elements.nonEmpty) {
+              checkTypeElement(elements.head) match {
+                case Some(x) => return x
+                case None =>
+              }
+            }
+          case _ =>
+        }
+      case expr: ScExpression =>
+        return expr.findImplicitParameters
+      case constr: ScConstructor =>
+        checkTypeElement(constr.typeElement) match {
+          case Some(x) => return x
+          case _ =>
+        }
+      case _ =>
+    }
+    None
   }
 }
 
