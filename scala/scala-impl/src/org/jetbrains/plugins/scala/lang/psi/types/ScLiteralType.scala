@@ -29,7 +29,10 @@ class ScLiteralType private (val literalValue: Any, val kind: ScLiteralType.Kind
     }
   }
 
-  override def hashCode(): Int = Option(literalValue).map(_.hashCode).getOrElse(0)
+  override def hashCode(): Int = literalValue match {
+    case null => ScLiteralType.Kind.Null.hashCode()
+    case v    => v.hashCode()
+  }
 
   private def valueAs[T: ClassTag]: T = literalValue.asInstanceOf[T]
 }
