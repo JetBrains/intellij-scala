@@ -1646,7 +1646,8 @@
       <action id="Scala.ShowImplicits"
               class="org.jetbrains.plugins.scala.codeInsight.implicits.ToggleImplicitHintsAction"
               text="Implicits">
-        <keyboard-shortcut first-keystroke="control shift P" keymap="$default"/>
+        <keyboard-shortcut first-keystroke="control alt shift ADD" keymap="$default"/>
+        <keyboard-shortcut first-keystroke="control alt shift EQUALS" keymap="$default"/>
         <add-to-group group-id="CodeEditorViewGroup" anchor="before" relative-to-action="Scala.ShowImplicitConversions"/>
       </action>
 
