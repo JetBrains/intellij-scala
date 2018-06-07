@@ -4,6 +4,7 @@ package project
 import com.intellij.openapi.module.{Module, ModuleManager}
 import com.intellij.openapi.project.Project
 import com.intellij.openapi.roots
+import com.intellij.openapi.roots.ModuleOrderEntry
 import com.intellij.openapi.roots.libraries.Library
 import com.intellij.openapi.vfs.VfsUtilCore
 import com.intellij.util.{CommonProcessors, PathUtil}
@@ -11,6 +12,7 @@ import org.jetbrains.jps.model.java.{JavaResourceRootType, JavaSourceRootType}
 import org.jetbrains.jps.model.module.JpsModuleSourceRootType
 import org.jetbrains.plugins.scala.project.ProjectExt
 import org.jetbrains.sbt.project.ProjectStructureDsl._
+import org.jetbrains.sbt.project.data.SbtModuleData
 import org.junit.Assert.{assertTrue, fail}
 
 import scala.collection.JavaConverters._
@@ -29,6 +31,9 @@ trait ProjectStructureMatcher {
     expected.foreach(libraries)(assertProjectLibrariesEqual(actual))
   }
 
+  private implicit def namedImplicit[T <: Named]: HasName[T] =
+    (named: Named) => named.name
+
   private implicit val ideaModuleNameImplicit: HasName[Module] =
     (module: Module) => module.getName
 
@@ -41,10 +46,16 @@ trait ProjectStructureMatcher {
   private implicit val ideaLibraryEntryNameImplicit: HasName[roots.LibraryOrderEntry] =
     (entry: roots.LibraryOrderEntry) => entry.getLibraryName
 
+  private implicit val ideaModuleImplicit: HasModule[Module] =
+    (module: Module) => module
+
+  private implicit val ideaModuleEntryModuleImplicit: HasModule[ModuleOrderEntry] =
+    (entry: roots.ModuleOrderEntry) => entry.getModule
+
   private def assertProjectModulesEqual(project: Project)(expectedModules: Seq[module]): Unit = {
     val actualModules = ModuleManager.getInstance(project).getModules.toSeq
     assertNamesEqual("Project module", expectedModules, actualModules)
-    pairByName(expectedModules, actualModules).foreach((assertModulesEqual _).tupled)
+    pairModules(expectedModules, actualModules).foreach((assertModulesEqual _).tupled)
   }
 
   private def assertModulesEqual(expected: module, actual: Module): Unit = {
@@ -95,7 +106,8 @@ trait ProjectStructureMatcher {
   private def assertModuleDependenciesEqual(module: Module)(expected: Seq[dependency[module]]): Unit = {
     val actualModuleEntries = roots.OrderEnumerator.orderEntries(module).moduleEntries
     assertNamesEqual("Module dependency", expected.map(_.reference), actualModuleEntries.map(_.getModule))
-    pairByName(expected, actualModuleEntries).foreach((assertDependencyScopeAndExportedFlagEqual _).tupled)
+    val paired = pairModules(expected, actualModuleEntries)
+    paired.foreach((assertDependencyScopeAndExportedFlagEqual _).tupled)
   }
 
   private def assertLibraryDependenciesEqual(module: Module)(expected: Seq[dependency[library]]): Unit = {
@@ -123,7 +135,7 @@ trait ProjectStructureMatcher {
 
   private def assertLibraryFilesEqual(lib: Library, fileType: roots.OrderRootType)(expectedFiles: Seq[String]): Unit =
   // TODO: support non-local library contents (if necessary)
-  // This implemetation works well only for local files; *.zip and other archives are not supported
+  // This implementation works well only for local files; *.zip and other archives are not supported
   // @dancingrobot84
     assertMatch("Library file", expectedFiles, lib.getFiles(fileType).flatMap(f => Option(PathUtil.getLocalPath(f))))
 
@@ -138,11 +150,38 @@ trait ProjectStructureMatcher {
 
   private def assertEquals[T](what: String, expected: T, actual: T): Unit = {
     if (expected != null && !expected.equals(actual))
-      fail(s"$what mismatch\nExpected [ $expected ]\nActual   [ $actual ]")
+      fail(s"$what mismatch\nExpected [ $expected ]\nActual [ $actual ]")
   }
 
-  private def pairByName[T <: Named, U](expected: Seq[T], actual: Seq[U])(implicit nameOf: HasName[U]): Seq[(T, U)] =
-    expected.flatMap(e => actual.find(a => nameOf(a) == e.name).map((e, _)))
+  /**
+    * this hack should make old tests work unchanged and as expected.
+    * when module names can be duplicate, need to use more specialized code that will only work for sbt
+    * (the test dsl is also used for gradle importing tests)
+    */
+  private def pairModules[T <: Attributed, U](expected: Seq[T], actual: Seq[U])(implicit nameOfT: HasName[T], nameOfU: HasName[U], moduleOf: HasModule[U]) =
+    if (expected.map(nameOfT.apply).distinct.length == expected.length)
+      pairByName(expected, actual)
+    else
+      pairBySbtId(expected, actual)
+
+  private def pairByName[T, U](expected: Seq[T], actual: Seq[U])(implicit nameOfT: HasName[T], nameOfU: HasName[U]): Seq[(T, U)] =
+    expected.flatMap(e => actual.find(a => nameOfU(a) == nameOfT(e)).map((e, _)))
+
+  private def pairBySbtId[T <: Attributed, U](expected: Seq[T], actual: Seq[U])(implicit moduleOf: HasModule[U]): Seq[(T, U)] = {
+    expected.flatMap { e =>
+      val uri = e.get(sbtBuildURI).get
+      val id = e.get(sbtProjectId).get
+      actual.find { m =>
+        SbtUtil.getSbtModuleData(moduleOf(m)) match {
+          case Some(SbtModuleData(projectId, buildURI)) =>
+            projectId == id && buildURI == uri
+          case _ => false
+        }
+      }
+        .map((e,_))
+        .toIterable
+    }
+  }
 }
 
 object ProjectStructureMatcher {
@@ -162,6 +201,10 @@ object ProjectStructureMatcher {
 
   trait HasName[T] {
     def apply(obj: T): String
+  }
+
+  trait HasModule[T] {
+    def apply(t: T): Module
   }
 }
 

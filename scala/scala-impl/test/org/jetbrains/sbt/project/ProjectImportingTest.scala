@@ -129,7 +129,11 @@ class ProjectImportingTest extends ImportingTestCase with InexactMatch {
     */
   def testSCL13600(): Unit = runTest(
     new project("scl13600") {
+      val buildURI: URI = new File(getHomePath).getCanonicalFile.toURI
       lazy val base: module = new module("root") {
+        sbtBuildURI := buildURI
+        sbtProjectId := "root"
+
         moduleDependencies += new dependency(c1) {
           isExported := true
         }
@@ -138,8 +142,14 @@ class ProjectImportingTest extends ImportingTestCase with InexactMatch {
         }
       }
 
-      lazy val c1  = new module("root")
-      lazy val c2 = new module("root")
+      lazy val c1: module = new module("root") {
+        sbtBuildURI := buildURI.resolve("c1")
+        sbtProjectId := "root"
+      }
+      lazy val c2: module = new module("root") {
+        sbtBuildURI := buildURI.resolve("c2")
+        sbtProjectId := "root"
+      }
 
       modules := Seq(base,c1,c2)
     }

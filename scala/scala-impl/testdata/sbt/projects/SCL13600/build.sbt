@@ -1,3 +1,4 @@
+name := "scl13600"
 
 lazy val root = (project in file("."))
   .dependsOn(commons, another_commons)
