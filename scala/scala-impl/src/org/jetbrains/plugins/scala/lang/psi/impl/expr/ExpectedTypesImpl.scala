@@ -245,8 +245,8 @@ class ExpectedTypesImpl extends ExpectedTypes {
         }
         res.toArray
       //SLS[4.1]
-      case v @ ScPatternDefinition.expr(`sameInContext`)  => declaredOrInheritedType(v)
-      case v @ ScVariableDefinition.expr(`sameInContext`) => declaredOrInheritedType(v)
+      case v @ ScPatternDefinition.expr(`sameInContext`)  if v.isSimple => declaredOrInheritedType(v)
+      case v @ ScVariableDefinition.expr(`sameInContext`) if v.isSimple => declaredOrInheritedType(v)
       //SLS[4.6]
       case v: ScFunctionDefinition if v.body.contains(sameInContext) => declaredOrInheritedType(v)
       //default parameters
