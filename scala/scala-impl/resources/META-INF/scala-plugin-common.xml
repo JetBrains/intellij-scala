@@ -1585,7 +1585,7 @@
         </action>
         <action id="Scala.ShowImplicitArguments" class="org.jetbrains.plugins.scala.actions.ShowImplicitArgumentsAction"
                 text="Implicit &amp;Arguments" description="Show Implicit Arguments">
-            <keyboard-shortcut first-keystroke="control shift P" keymap="$default"/>
+            <keyboard-shortcut first-keystroke="control alt shift A" keymap="$default"/>
             <add-to-group group-id="CodeEditorViewGroup" anchor="after" relative-to-action="Scala.ShowImplicitConversions"/>
         </action>
         <action id="Scala.RunWorksheet" class="org.jetbrains.plugins.scala.worksheet.actions.RunWorksheetAction"
