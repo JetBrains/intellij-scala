@@ -14,7 +14,7 @@ object Versions {
   val wagonVersion = "2.6"
   val httpComponentsVersion = "4.3.1"
   val scalaMetaVersion = "1.8.0"
-  val paradiseVersion = "3.0.0-M10"
+  val paradiseVersion = "3.0.0-M11"
   val monocleVersion = "1.4.0"
   val scalazVersion = "7.1.0"
   val ScalamacrosVersion = "2.0.0-94-f03bbf3a"
@@ -30,7 +30,7 @@ object Versions {
     val latest_2_9 = "2.9.3"
     val latest_2_10 = "2.10.7"
     val latest_2_11 = "2.11.12"
-    val latest_2_12 = "2.12.3" // don't upgrade to 2.12.4 because it breaks compilation. https://github.com/scala/bug/issues/10568
+    val latest_2_12 = "2.12.6"
     val latest: String = latest_2_12
 
     def binaryVersion(v: String): String =
