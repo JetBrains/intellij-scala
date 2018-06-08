@@ -11,17 +11,14 @@ import com.intellij.util.ProcessingContext
 import org.jetbrains.plugins.scala.extensions._
 import org.jetbrains.plugins.scala.lang.completion.lookups.ScalaLookupItem
 import org.jetbrains.plugins.scala.lang.lexer.ScalaTokenTypes
-import org.jetbrains.plugins.scala.lang.psi.api.base.patterns.{ScCaseClause, ScCaseClauses, ScPattern, ScStableReferenceElementPattern}
-import org.jetbrains.plugins.scala.lang.psi.api.expr.ScMatchStmt
+import org.jetbrains.plugins.scala.lang.psi.api.base.patterns.{ScCaseClause, ScPattern, ScStableReferenceElementPattern}
 import org.jetbrains.plugins.scala.lang.psi.api.statements.ScFunction
 import org.jetbrains.plugins.scala.lang.psi.api.toplevel.typedef.{ScClass, ScObject, ScTypeDefinition}
 import org.jetbrains.plugins.scala.lang.psi.types.api.ExtractClass
-import org.jetbrains.plugins.scala.lang.psi.types.result.Typeable
 import org.jetbrains.plugins.scala.lang.psi.types.{ScType, ScalaType}
 import org.jetbrains.plugins.scala.lang.refactoring.namesSuggester.NameSuggester
 
 import scala.collection.{JavaConverters, mutable}
-import scala.reflect.ClassTag
 
 class CaseClauseCompletionContributor extends ScalaCompletionContributor {
 
@@ -33,13 +30,13 @@ class CaseClauseCompletionContributor extends ScalaCompletionContributor {
 
       override protected def completionsFor(position: PsiElement)
                                            (implicit parameters: CompletionParameters, context: ProcessingContext): Iterable[ScalaLookupItem] =
-        findValidCaseClause(position).flatMap(targetExpressionClass) match {
-          case Some((scalaClass, statement)) =>
+        patternExpectedType(position) match {
+          case Some(ExtractClass(scalaClass: ScTypeDefinition)) =>
             val classes = if (scalaClass.isSealed) findInheritors(scalaClass)
             else Seq(scalaClass)
 
             classes.map { clazz =>
-              val result = new ScalaLookupItem(clazz, patternText(clazz, statement))
+              val result = new ScalaLookupItem(clazz, patternText(clazz, position))
               result.isLocalVariable = true
               result
             }
@@ -60,14 +57,14 @@ object CaseClauseCompletionContributor {
     }.toSeq.sortBy(_.getNavigationElement.getTextRange.getStartOffset)
   }
 
-  def patternText(definition: ScTypeDefinition, statement: ScMatchStmt): String = {
+  def patternText(definition: ScTypeDefinition, place: PsiElement): String = {
     val className = definition.name
 
     val maybeText = definition match {
       case _: ScObject => Some(className)
       case scalaClass: ScClass =>
         val maybeNames = if (scalaClass.isCase) constructorParameters(scalaClass)
-        else extractorComponents(scalaClass, statement)
+        else extractorComponents(scalaClass, place)
 
         maybeNames.map { names =>
           className + names.commaSeparated(parenthesize = true)
@@ -82,26 +79,12 @@ object CaseClauseCompletionContributor {
     }
   }
 
-  def extractClass[C <: PsiClass](element: PsiElement, regardlessClauses: Boolean = true)
-                                 (implicit classTag: ClassTag[C]): Option[(C, ScMatchStmt)] =
-    element.getParent match {
-      case statement: ScMatchStmt if regardlessClauses || statement.caseClauses.isEmpty =>
-        statement.expr.collect {
-          case Typeable(ExtractClass(clazz)) if classTag.runtimeClass.isInstance(clazz) => (clazz.asInstanceOf[C], statement)
-        }
-      case _ => None
-    }
-
-  private def findValidCaseClause(position: PsiElement) = for {
+  private def patternExpectedType(position: PsiElement) = for {
     caseClause <- position.findContextOfType(classOf[ScCaseClause])
     pattern <- caseClause.pattern
     if pattern.isInstanceOf[ScStableReferenceElementPattern] && pattern.isAncestorOf(position)
-  } yield caseClause
-
-  private def targetExpressionClass(caseClause: ScCaseClause) = caseClause.getContext match {
-    case caseClauses: ScCaseClauses => extractClass[ScTypeDefinition](caseClauses)
-    case _ => None
-  }
+    scType <- pattern.expectedType
+  } yield scType
 
   private[this] def constructorParameters(caseClass: ScClass): Option[Seq[String]] = for {
     constructor <- caseClass.constructor
@@ -110,7 +93,7 @@ object CaseClauseCompletionContributor {
     parameter.name + (if (parameter.isVarArgs) "@_*" else "")
   }
 
-  private[this] def extractorComponents(scalaClass: ScClass, statement: ScMatchStmt) = {
+  private[this] def extractorComponents(scalaClass: ScClass, place: PsiElement) = {
     def findExtractor: ScTypeDefinition => Option[ScFunction] = {
       case scalaObject: ScObject => scalaObject.functions.find(_.isUnapplyMethod)
       case typeDefinition => typeDefinition.baseCompanionModule.flatMap(findExtractor)
@@ -128,7 +111,7 @@ object CaseClauseCompletionContributor {
     for {
       extractor <- findExtractor(scalaClass)
       returnType <- extractor.returnType.toOption
-      types = ScPattern.extractorParameters(returnType, statement, isOneArgCaseClass = false)
+      types = ScPattern.extractorParameters(returnType, place, isOneArgCaseClass = false)
     } yield {
       implicit val nameValidator: mutable.Map[String, Int] = mutable.Map.empty[String, Int].withDefaultValue(-1)
       types.map(suggestName(_)(validator))

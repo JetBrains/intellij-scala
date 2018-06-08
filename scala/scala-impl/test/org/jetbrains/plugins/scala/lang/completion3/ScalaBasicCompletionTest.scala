@@ -1173,4 +1173,23 @@ class ScalaBasicCompletionTest extends ScalaCodeInsightTestBase {
       case _ => false
     }
   }
+
+  def testCollectPatternCompletion(): Unit = doCompletionTest(
+    fileText =
+      s"""case class Foo(foo: Int = 42)(bar: Int = 42)
+         |
+         |Some(Foo()()).collect {
+         |  case $CARET
+         |}
+       """.stripMargin,
+    resultText =
+      s"""case class Foo(foo: Int = 42)(bar: Int = 42)
+         |
+         |Some(Foo()()).collect {
+         |  case Foo(foo)$CARET
+         |}
+       """.stripMargin,
+    item = "Foo(foo)"
+  )
+
 }
