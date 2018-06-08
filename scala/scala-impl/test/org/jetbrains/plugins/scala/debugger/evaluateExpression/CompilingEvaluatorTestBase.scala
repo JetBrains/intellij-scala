@@ -138,4 +138,27 @@ abstract class CompilingEvaluatorTestBase extends ScalaDebuggerTestCase {
       """ -> "foobar"
     )
   }
+
+
+  addFileWithBreakpoints("FromPattern.scala",
+    s"""
+       |object FromPattern {
+       |  def main(args: Array[String]) {
+       |    Some("ab").map(x => (x, x + x)) match {
+       |      case Some((a, b)) =>
+       |        println(a)
+       |        ""$bp
+       |      case _ =>
+       |    }
+       |  }
+       |}
+      """.stripMargin.trim()
+  )
+  def testFromPattern(): Unit = {
+    runDebugger() {
+      waitForBreakpoint()
+      evalEquals("a", "ab")
+      evalEquals("b", "abab")
+    }
+  }
 }
