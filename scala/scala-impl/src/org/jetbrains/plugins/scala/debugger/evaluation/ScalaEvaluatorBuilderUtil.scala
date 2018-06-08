@@ -832,9 +832,19 @@ private[evaluation] trait ScalaEvaluatorBuilderUtil {
       if (pattern.isEmpty) throw EvaluationException(ScalaBundle.message("cannot.find.pattern"))
       caseCl.getParent.getParent match {
         case matchStmt: ScMatchStmt if namedElement.isInstanceOf[ScPattern] =>
-          val expr = matchStmt.expr
-          if (expr.isEmpty) throw EvaluationException(ScalaBundle.message("cannot.find.expression.of.match"))
-          val exprEval = evaluatorFor(expr.get)
+          val expr = matchStmt.expr match {
+            case None => throw EvaluationException(ScalaBundle.message("cannot.find.expression.of.match"))
+            case Some(e) => e
+          }
+
+          val exprEval =
+            try evaluatorFor(expr)
+            catch {
+              case _: NeedCompilationException =>
+                val fragment = new ScalaCodeFragment(caseCl.getProject, expr.getText)
+                new ScalaCompilingEvaluator(expr, fragment)
+            }
+
           val fromPatternEvaluator = evaluateSubpatternFromPattern(exprEval, pattern.get, namedElement.asInstanceOf[ScPattern])
           ScalaDuplexEvaluator(new ScalaLocalVariableEvaluator(name, fileName), fromPatternEvaluator)
         case _: ScBlockExpr => //it is anonymous function
