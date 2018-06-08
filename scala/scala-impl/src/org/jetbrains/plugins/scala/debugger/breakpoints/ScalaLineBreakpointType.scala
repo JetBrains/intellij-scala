@@ -112,19 +112,13 @@ class ScalaLineBreakpointType extends JavaLineBreakpointType("scala-line", Scala
     val method = getContainingMethod(breakpoint)
     if (method == null) return false
 
-    val lambdaOrd = lambdaOrdinal(breakpoint)
+    if (!breakpoint.isInstanceOf[RunToCursorBreakpoint] && isMatchAll(breakpoint)) return true
 
-    if (!breakpoint.isInstanceOf[RunToCursorBreakpoint] && lambdaOrd == null) return true
-
-    if (isScalaLambda(lambdaOrd, method)) {
+    if (isLambda(breakpoint)) {
       Stats.trigger(FeatureKey.debuggerLambdaBreakpoint)
     }
 
     DebuggerUtil.inTheMethod(position, method)
-  }
-
-  private def isScalaLambda(lambdaOrdinal: Integer, elem: PsiElement) = {
-    lambdaOrdinal != null && lambdaOrdinal >= 0 && elem.getLanguage.isKindOf(ScalaLanguage.INSTANCE)
   }
 
   @Nullable
@@ -134,14 +128,14 @@ class ScalaLineBreakpointType extends JavaLineBreakpointType("scala-line", Scala
 
     val ordinal = lambdaOrdinal(breakpoint)
     val lambdas = ScalaPositionManager.lambdasOnLine(position.getFile, position.getLine)
-    if (ordinal == null || ordinal == -1 || ordinal > lambdas.size - 1)
+    if (!isLambda(breakpoint) || ordinal > lambdas.size - 1)
       DebuggerUtil.getContainingMethod(position.getElementAt).orNull
     else lambdas(ordinal)
   }
 
   override def getHighlightRange(breakpoint: XLineBreakpoint[JavaLineBreakpointProperties]): TextRange = {
     BreakpointManager.getJavaBreakpoint(breakpoint) match {
-      case lineBp: LineBreakpoint[_] if lambdaOrdinal(lineBp) != null =>
+      case lineBp: LineBreakpoint[_] if isLambda(lineBp) =>
         val dumbService = DumbService.getInstance(lineBp.getProject)
         if (dumbService.isDumb) {
           breakpoint match {
@@ -179,6 +173,13 @@ class ScalaLineBreakpointType extends JavaLineBreakpointType("scala-line", Scala
     }
     else null
   }
+
+  private def isLambda(breakpoint: LineBreakpoint[_]): Boolean = {
+    val ordinal = lambdaOrdinal(breakpoint)
+    ordinal != null && ordinal >= 0
+  }
+
+  private def isMatchAll(breakpoint: LineBreakpoint[_]): Boolean = lambdaOrdinal(breakpoint) == null
 
   override def getPriority: Int = super.getPriority + 1
 
