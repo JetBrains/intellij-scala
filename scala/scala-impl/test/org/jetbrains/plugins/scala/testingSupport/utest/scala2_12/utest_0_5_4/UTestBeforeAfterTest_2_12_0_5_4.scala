@@ -1,5 +1,9 @@
 package org.jetbrains.plugins.scala.testingSupport.utest.scala2_12.utest_0_5_4
 
+import org.jetbrains.plugins.scala.SlowTests
+import org.junit.experimental.categories.Category
+
+@Category(Array(classOf[SlowTests]))
 class UTestBeforeAfterTest_2_12_0_5_4 extends UTestTestBase_2_12_0_5_4 {
 
   val beforeAfterTestName = "BeforeAfterTest"
