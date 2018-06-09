@@ -98,16 +98,4 @@ class ScalaFmtTest extends AbstractScalaFormatterTestBase {
       """.stripMargin
     doTextTest(before, after)
   }
-
-  def testWidenSpace3(): Unit = {
-    val before =
-      """
-        | def foo: Int = 42
-      """.stripMargin
-    val after =
-      """
-        |  def foo: Int = 42
-      """.stripMargin
-    doTextTest(before, after)
-  }
 }
