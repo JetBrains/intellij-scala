@@ -29,7 +29,7 @@ import scala.collection.mutable
  */
 
 object ConvertParameterToUnderscoreIntention {
-  def familyName = "Convert parameter to underscore"
+  def familyName = "Convert parameter to underscore section"
 
   def createExpressionToIntroduce(expr: ScFunctionExpr, withoutParameterTypes: Boolean): Either[ScExpression, String] = {
     implicit val ctx: ProjectContext = expr

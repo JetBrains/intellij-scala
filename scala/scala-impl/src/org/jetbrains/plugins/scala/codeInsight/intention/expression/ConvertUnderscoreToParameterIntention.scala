@@ -36,7 +36,7 @@ import scala.collection.mutable.ArrayBuffer
  */
 
 object ConvertUnderscoreToParameterIntention {
-  def familyName = "Convert underscore to parameter"
+  def familyName = "Convert underscore section to parameter"
 }
 
 class ConvertUnderscoreToParameterIntention extends PsiElementBaseIntentionAction {
