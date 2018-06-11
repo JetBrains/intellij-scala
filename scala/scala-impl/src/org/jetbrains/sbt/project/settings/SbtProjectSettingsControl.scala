@@ -126,7 +126,7 @@ class SbtProjectSettingsControl(context: Context, initialSettings: SbtProjectSet
 
 object SbtProjectSettingsControl {
 
-  def customizer = new ExternalSystemSettingsControlCustomizer(false, true)
-  def customizerInWizard = new ExternalSystemSettingsControlCustomizer(true, true)
+  def customizer = new ExternalSystemSettingsControlCustomizer(false, true, true)
+  def customizerInWizard = new ExternalSystemSettingsControlCustomizer(true, true, true)
 
 }
