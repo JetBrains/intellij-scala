@@ -25,12 +25,10 @@ import scala.collection.JavaConverters._
 private class ImplicitHintsPass(editor: Editor, rootElement: ScalaPsiElement)
   extends EditorBoundHighlightingPass(editor, rootElement.getContainingFile, true) {
 
-  private var conversions: Seq[(ScExpression, String, Option[String])] = Seq.empty
-  private var parameters: Seq[(ScExpression, String)] = Seq.empty
+  private var hints: Seq[(String, ScExpression, String)] = Seq.empty
 
   override def doCollectInformation(indicator: ProgressIndicator): Unit = {
-    conversions = Seq.empty
-    parameters = Seq.empty
+    hints = Seq.empty
 
     if (ImplicitHints.enabled && myDocument != null && rootElement.containingVirtualFile.isDefined) {
       collectConversionsAndParameters()
@@ -42,14 +40,13 @@ private class ImplicitHintsPass(editor: Editor, rootElement: ScalaPsiElement)
       case e: ScExpression =>
         e.implicitConversion().foreach { conversion =>
           val name = nameOf(conversion.element)
-          conversions +:= (e, name, if (conversion.implicitParameters.nonEmpty) Some("(...)") else None)
+          hints +:= (name + "(", e, if (conversion.implicitParameters.nonEmpty) ")(...)" else ")")
         }
 
         e match {
           case owner@(_: ImplicitParametersOwner | _: ScNewTemplateDefinition) =>
             ShowImplicitArgumentsAction.implicitParams(owner).foreach { arguments =>
-              val presentation = arguments.map(presentationOf).mkString("(", ", ", ")")
-              parameters +:= (owner, presentation)
+              hints +:= ("", owner, arguments.map(presentationOf).mkString("(", ", ", ")"))
             }
           case _ =>
         }
@@ -81,18 +78,18 @@ private class ImplicitHintsPass(editor: Editor, rootElement: ScalaPsiElement)
     val inlayModel = myEditor.getInlayModel
     val existingInlays = inlayModel.inlaysIn(rootElement.getTextRange)
 
-    val bulkChange = existingInlays.length + conversions.length + parameters.length > BulkChangeThreshold
+    val bulkChange = existingInlays.length + hints.length  > BulkChangeThreshold
 
     DocumentUtil.executeInBulk(myEditor.getDocument, bulkChange, () => {
       existingInlays.foreach(Disposer.dispose)
 
-      conversions.foreach { case (e, s1, s2) =>
-        inlayModel.addInlay(new InlayInfo(s1 + "(", e.getTextRange.getStartOffset, false, true, false))
-        inlayModel.addInlay(new InlayInfo(")" + s2.getOrElse(""), e.getTextRange.getEndOffset, false, true, true))
-      }
-
-      parameters.foreach { case (e, s) =>
-        inlayModel.addInlay(new InlayInfo(s, e.getTextRange.getEndOffset, false, true, true))
+      hints.foreach { case (prefix, e, suffix) =>
+        if (prefix.nonEmpty) {
+          inlayModel.addInlay(new InlayInfo(prefix, e.getTextRange.getStartOffset, false, true, false))
+        }
+        if (suffix.nonEmpty) {
+          inlayModel.addInlay(new InlayInfo(suffix, e.getTextRange.getEndOffset, false, true, true))
+        }
       }
     })
   }
