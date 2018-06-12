@@ -1644,11 +1644,23 @@
         </group>
 
       <action id="Scala.ShowImplicits"
-              class="org.jetbrains.plugins.scala.codeInsight.implicits.ToggleImplicitHintsAction"
+              class="org.jetbrains.plugins.scala.codeInsight.implicits.ShowImplicitHintsAction"
               text="Implicits">
-        <keyboard-shortcut first-keystroke="control alt shift ADD" keymap="$default"/>
-        <keyboard-shortcut first-keystroke="control alt shift EQUALS" keymap="$default"/>
         <add-to-group group-id="CodeEditorViewGroup" anchor="before" relative-to-action="Scala.ShowImplicitConversions"/>
+      </action>
+
+      <action id="Scala.EnableImplicits"
+              class="org.jetbrains.plugins.scala.codeInsight.implicits.ShowImplicitHintsAction$Enable"
+              text="Show implicits">
+        <keyboard-shortcut first-keystroke="control alt shift EQUALS" keymap="$default"/>
+        <keyboard-shortcut first-keystroke="control alt shift ADD" keymap="$default"/>
+      </action>
+
+      <action id="Scala.DisableImplicits"
+              class="org.jetbrains.plugins.scala.codeInsight.implicits.ShowImplicitHintsAction$Disable"
+              text="Hide implicits">
+        <keyboard-shortcut first-keystroke="control alt shift MINUS" keymap="$default"/>
+        <keyboard-shortcut first-keystroke="control alt shift SUBTRACT" keymap="$default"/>
       </action>
 
     </actions>
