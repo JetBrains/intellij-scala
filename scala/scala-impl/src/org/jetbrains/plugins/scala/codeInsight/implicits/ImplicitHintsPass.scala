@@ -1,6 +1,6 @@
 package org.jetbrains.plugins.scala.codeInsight.implicits
 
-import java.awt.{Graphics, Rectangle}
+import java.awt.{Graphics, Insets, Rectangle}
 
 import com.intellij.codeHighlighting.EditorBoundHighlightingPass
 import com.intellij.codeInsight.daemon.impl.HintRenderer
@@ -114,7 +114,7 @@ private object ImplicitHintsPass {
     }
   }
 
-  private class TextRenderer(text: String, error: Boolean) extends HintRenderer(text) {
+  private class TextRenderer(text: String, error: Boolean) extends HintRendererExt(text) {
     override def getContextMenuGroupId: String = "ToggleImplicits"
 
     // TODO Fine-grained coloring
