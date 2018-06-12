@@ -147,7 +147,7 @@ class ScParameterizedType private(val designator: ScType, val typeArguments: Seq
 object ScParameterizedType {
 
   val cache: ConcurrentMap[(ScType, Seq[ScType]), ValueType] =
-    ContainerUtil.createConcurrentWeakMap[(ScType, Seq[ScType]), ValueType]()
+    ContainerUtil.newConcurrentMap[(ScType, Seq[ScType]), ValueType]()
 
   def apply(designator: ScType, typeArgs: Seq[ScType]): ValueType = {
     def createCompoundProjectionParameterized(pt: ScParameterizedType): ValueType = {

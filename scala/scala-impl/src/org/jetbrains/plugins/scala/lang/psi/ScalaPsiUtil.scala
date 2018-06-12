@@ -841,30 +841,6 @@ object ScalaPsiUtil {
 
   }
 
-  def valSuperMethodAndSubstitutor(m: ScMember): Option[(PsiMethod, ScSubstitutor)] = {
-    def superSignature(name: String, containingClass: PsiClass) = {
-      val sigs = TypeDefinitionMembers.getSignatures(containingClass).forName(name)._1
-      sigs.iterator.collectFirst {
-        case (sig, node) if sig.paramLength.sum == 0 =>
-          node.primarySuper.map(_.info).collect { case p: PhysicalSignature => p }
-      }.flatten
-    }
-
-    val maybeName = m match {
-      case v: ScValueOrVariable => v.declaredNames.headOption
-      case cp: ScClassParameter if cp.isEffectiveVal => Some(cp.name)
-      case _ => None
-    }
-
-    for {
-      name <- maybeName
-      containingClass <- m.containingClass.toOption
-      signature <- superSignature(name, containingClass)
-    } yield {
-      (signature.method, signature.substitutor)
-    }
-  }
-
   def superTypeMembers(element: PsiNamedElement,
                        withSelfType: Boolean = false): Seq[PsiNamedElement] = {
 

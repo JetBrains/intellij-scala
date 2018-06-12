@@ -1,6 +1,7 @@
 package org.jetbrains.sbt.project.data.service
 
 import java.io.File
+import java.net.URI
 
 import com.intellij.facet.FacetManager
 import com.intellij.openapi.externalSystem.model.DataNode
@@ -9,7 +10,7 @@ import com.intellij.openapi.module.ModuleManager
 import com.intellij.openapi.util.io.FileUtil
 import org.jetbrains.android.facet.AndroidFacet
 import org.jetbrains.plugins.scala.extensions._
-import org.jetbrains.sbt.project.data.{AndroidFacetData, AndroidFacetNode}
+import org.jetbrains.sbt.project.data.{AndroidFacetData, AndroidFacetNode, ModuleNode}
 import org.junit.Assert._
 
 import scala.io.Source
@@ -29,7 +30,11 @@ class AndroidFacetDataServiceTest extends ProjectDataServiceTestCase {
       linkedProjectPath := getProject.getBasePath
 
       modules += new javaModule {
-        name := "Module 1"
+        val uri: URI = new File(getProject.getBasePath).toURI
+        val moduleName = "Module 1"
+        projectId := ModuleNode.combinedId(moduleName, uri)
+        projectURI := uri
+        name := moduleName
         moduleFileDirectoryPath := getProject.getBasePath + "/module1"
         externalConfigPath := getProject.getBasePath + "/module1"
         arbitraryNodes += new AndroidFacetNode(AndroidFacetData(

@@ -6,6 +6,7 @@ import java.util.concurrent.ConcurrentMap
 
 import com.intellij.openapi.diagnostic.Logger
 import com.intellij.openapi.util.Computable
+import com.intellij.openapi.util.RecursionGuard.StackStamp
 import com.intellij.util.containers.ContainerUtil
 
 /**
@@ -15,25 +16,35 @@ import com.intellij.util.containers.ContainerUtil
 
 /**
   * This class mimics [[com.intellij.openapi.util.RecursionManager]]
-  * Memoization and some, so it is removed.
   *
-  * It going to be used in macros to avoid unnecessary Computable.compute method call and thus reduce stack size.
+  * It is used in macros to avoid unnecessary Computable.compute method call and thus reduce stack size.
   *
   * (it can easily be 300 calls in the stack, so gain is significant).
   * */
 object RecursionManager {
   private val LOG: Logger = Logger.getInstance("#org.jetbrains.plugins.scala.caches.RecursionManager")
 
+  private val platformGuard = com.intellij.openapi.util.RecursionManager.createGuard("scala.recursion.manager")
+
   private val ourStack: ThreadLocal[CalculationStack] = new ThreadLocal[CalculationStack]() {
     override protected def initialValue: CalculationStack = new CalculationStack
   }
-  private var ourAssertOnPrevention: Boolean = false
+
+  /** see [[com.intellij.openapi.util.RecursionGuard#markStack]]*/
+  def markStack(): StackStamp = new StackStamp {
+    private val stamp = ourStack.get.getReentrancyCount
+    private val platformStamp = platformGuard.markStack()
+
+    override def mayCacheNow: Boolean = {
+      stamp == ourStack.get.getReentrancyCount && platformStamp.mayCacheNow()
+    }
+  }
 
   class RecursionGuard[Data >: Null <: AnyRef, Result >: Null <: AnyRef] private (id: String) {
 
     //see also org.jetbrains.plugins.scala.macroAnnotations.CachedMacroUtil.doPreventingRecursion
     def doPreventingRecursion(data: Data, computable: Computable[Result]): Result = {
-      if (isReentrant(data)) return null
+      if (checkReentrancy(data)) return null
 
       val realKey = createKey(data)
 
@@ -47,16 +58,10 @@ object RecursionManager {
       }
     }
 
-    def isReentrant(data: Data): Boolean = {
+    def checkReentrancy(data: Data): Boolean = {
       val stack = ourStack.get()
       val realKey = createKey(data, myCallEquals = true)
-      if (stack.checkReentrancy(realKey)) {
-        if (ourAssertOnPrevention) {
-          throw new AssertionError("Endless recursion prevention occurred")
-        }
-        true
-      }
-      else false
+      stack.checkReentrancy(realKey)
     }
 
     def createKey(data: Data, myCallEquals: Boolean = false) = new MyKey[Data](id, data, myCallEquals)
@@ -77,18 +82,7 @@ object RecursionManager {
           //noinspection ThrowFromFinallyBlock
           throw new RuntimeException("Throwable in afterComputation", e)
       }
-      stack.checkDepth("4")
-    }
-
-    def currentStackContains(data: Data): Boolean = {
-      val map = ourStack.get.progressMap
-      val keys = map.keySet().iterator()
-      while (keys.hasNext) {
-        val next = keys.next()
-        if (next.guardId == id && data == next.userObject)
-          return true
-      }
-      false
+      stack.checkDepth("after computation")
     }
   }
 
@@ -121,28 +115,36 @@ object RecursionManager {
     private[this] var enters: Int = 0
     private[this] var exits: Int = 0
 
-    val progressMap: util.LinkedHashMap[MyKey[_], Integer] = new util.LinkedHashMap[MyKey[_], Integer]
+    private[RecursionManager] val progressMap = new util.LinkedHashMap[MyKey[_], Integer]
 
-    def checkReentrancy(realKey: MyKey[_]): Boolean =
-      progressMap.containsKey(realKey)
+    private[RecursionManager] def checkReentrancy(realKey: MyKey[_]): Boolean = {
+      val isReentrant = progressMap.containsKey(realKey)
 
-    def beforeComputation(realKey: MyKey[_]) {
+      if (isReentrant)
+        reentrancyCount += 1
+
+      isReentrant
+    }
+
+    private[RecursionManager] def getReentrancyCount: Int = reentrancyCount
+
+    private[RecursionManager] def beforeComputation(realKey: MyKey[_]) {
       enters += 1
       if (progressMap.isEmpty) {
         assert(reentrancyCount == 0, "Non-zero stamp with empty stack: " + reentrancyCount)
       }
-      checkDepth("1")
+      checkDepth("before computation 1")
       val sizeBefore: Int = progressMap.size
       progressMap.put(realKey, reentrancyCount)
       depth += 1
-      checkDepth("2")
+      checkDepth("before computation 2")
       val sizeAfter: Int = progressMap.size
       if (sizeAfter != sizeBefore + 1) {
         LOG.error("Key doesn't lead to the map size increase: " + sizeBefore + " " + sizeAfter + " " + realKey.userObject)
       }
     }
 
-    def afterComputation(realKey: MyKey[_], sizeBefore: Int, sizeAfter: Int) {
+    private[RecursionManager] def afterComputation(realKey: MyKey[_], sizeBefore: Int, sizeAfter: Int) {
       exits += 1
       if (sizeAfter != progressMap.size) {
         LOG.error("Map size changed: " + progressMap.size + " " + sizeAfter + " " + realKey.userObject)
@@ -150,16 +152,16 @@ object RecursionManager {
       if (depth != progressMap.size) {
         LOG.error("Inconsistent depth after computation; depth=" + depth + "; map=" + progressMap)
       }
-      val value: Integer = progressMap.remove(realKey)
+      val reentrancyCountBefore: Integer = progressMap.remove(realKey)
       depth -= 1
       if (sizeBefore != progressMap.size) {
         LOG.error("Map size doesn't decrease: " + progressMap.size + " " + sizeBefore + " " + realKey.userObject)
       }
-      reentrancyCount = value
+      reentrancyCount = reentrancyCountBefore
       checkZero
     }
 
-    def checkDepth(s: String) {
+    private[RecursionManager] def checkDepth(s: String) {
       val oldDepth: Int = depth
       if (oldDepth != progressMap.size) {
         depth = progressMap.size
@@ -167,9 +169,10 @@ object RecursionManager {
       }
     }
 
-    def checkZero: Boolean = {
+    private[RecursionManager] def checkZero: Boolean = {
       if (!progressMap.isEmpty && new Integer(0) != progressMap.get(progressMap.keySet.iterator.next)) {
-        LOG.error("Prisoner Zero has escaped: " + progressMap + "; value=" + progressMap.get(progressMap.keySet.iterator.next))
+        val message = "Recursion stack: first inserted key should have zero reentrancyCount "
+        LOG.error(message + progressMap + "; value=" + progressMap.get(progressMap.keySet.iterator.next))
         return false
       }
       true

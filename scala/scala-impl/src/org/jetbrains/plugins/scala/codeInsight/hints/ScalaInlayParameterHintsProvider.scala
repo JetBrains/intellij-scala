@@ -37,7 +37,9 @@ class ScalaInlayParameterHintsProvider extends hints.InlayParameterHintsProvider
 
     matchedParameters match {
       case Seq() => ju.Collections.emptyList()
-      case _ => parameterHints(matchedParameters)
+      case _ =>
+        import JavaConverters._
+        parameterHints(matchedParameters).asJava
     }
   }
 
@@ -79,7 +81,7 @@ object ScalaInlayParameterHintsProvider {
       case (_, parameter) => parameter.isRepeated
     }
 
-    val result = (regular ++ varargs.headOption).filter {
+    (regular ++ varargs.headOption).filter {
       case (argument, parameter) => isNameable(argument) && isNameable(parameter)
     }.filter {
       case (_: ScUnderscoreSection, _) => false
@@ -89,9 +91,6 @@ object ScalaInlayParameterHintsProvider {
     }.map {
       case (argument, parameter) => InlayInfo(parameter.name, ScalaTokenTypes.tASSIGN, argument)
     }
-
-    import JavaConverters._
-    result.asJava
   }
 
   private object methodInfo {

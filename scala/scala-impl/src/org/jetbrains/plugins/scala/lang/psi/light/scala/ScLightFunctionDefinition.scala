@@ -9,6 +9,7 @@ import org.jetbrains.plugins.scala.lang.psi.api.base.types.ScTypeElement
 import org.jetbrains.plugins.scala.lang.psi.api.expr.{ScAnnotation, ScExpression}
 import org.jetbrains.plugins.scala.lang.psi.api.statements.ScFunctionDefinition
 import org.jetbrains.plugins.scala.lang.psi.api.statements.params._
+import org.jetbrains.plugins.scala.lang.psi.light.LightUtil
 import org.jetbrains.plugins.scala.lang.psi.types.ScType
 import org.jetbrains.plugins.scala.lang.psi.types.api.TypeParameter
 import org.jetbrains.plugins.scala.lang.psi.types.result._
@@ -20,7 +21,6 @@ import org.jetbrains.plugins.scala.lang.psi.types.result._
 class ScLightFunctionDefinition(pTypes: Seq[Seq[ScType]], tParams: Seq[TypeParameter], rt: ScType,
                                 val fun: ScFunctionDefinition)
   extends LightElement(fun.getManager, fun.getLanguage) with ScFunctionDefinition {
-  setNavigationElement(fun)
 
   override def typeParametersClause: Option[ScTypeParamClause] = fun.typeParametersClause.map(new ScLightTypeParamClause(tParams, _))
 
@@ -71,6 +71,8 @@ class ScLightFunctionDefinition(pTypes: Seq[Seq[ScType]], tParams: Seq[TypeParam
   override def hasParameterClause: Boolean = fun.hasParameterClause
 
   override def annotations: Seq[ScAnnotation] = fun.annotations
+
+  override def getNavigationElement: PsiElement = LightUtil.originalNavigationElement(fun)
 
   override def navigate(requestFocus: Boolean): Unit = fun.navigate(requestFocus)
 

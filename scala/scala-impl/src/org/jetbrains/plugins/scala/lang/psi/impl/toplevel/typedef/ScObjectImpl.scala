@@ -11,7 +11,6 @@ import com.intellij.openapi.progress.ProcessCanceledException
 import com.intellij.openapi.project.DumbService
 import com.intellij.openapi.util.TextRange
 import com.intellij.psi._
-import com.intellij.psi.impl.light.LightField
 import com.intellij.psi.scope.PsiScopeProcessor
 import com.intellij.psi.util.PsiUtil
 import org.jetbrains.plugins.scala.extensions._
@@ -23,7 +22,7 @@ import org.jetbrains.plugins.scala.lang.psi.api.statements.ScAnnotationsHolder
 import org.jetbrains.plugins.scala.lang.psi.api.toplevel.ScTypedDefinition
 import org.jetbrains.plugins.scala.lang.psi.api.toplevel.typedef._
 import org.jetbrains.plugins.scala.lang.psi.impl.toplevel.typedef.TypeDefinitionMembers.SignatureNodes
-import org.jetbrains.plugins.scala.lang.psi.light.{EmptyPrivateConstructor, PsiClassWrapper}
+import org.jetbrains.plugins.scala.lang.psi.light.{EmptyPrivateConstructor, LightUtil, PsiClassWrapper}
 import org.jetbrains.plugins.scala.lang.psi.stubs.ScTemplateDefinitionStub
 import org.jetbrains.plugins.scala.lang.psi.types.PhysicalSignature
 import org.jetbrains.plugins.scala.lang.psi.types.recursiveUpdate.ScSubstitutor
@@ -174,11 +173,7 @@ class ScObjectImpl protected (stub: ScTemplateDefinitionStub, node: ASTNode)
   private def getModuleField: Option[PsiField] = {
     if (getQualifiedName.split('.').exists(JavaLexer.isKeyword(_, PsiUtil.getLanguageLevel(this.getProject)))) None
     else {
-      val field: LightField = new LightField(getManager, JavaPsiFacade.getInstance(getProject).getElementFactory.createFieldFromText(
-        "public final static " + getQualifiedName + " MODULE$", this
-      ), this)
-      field.setNavigationElement(this)
-      Some(field)
+      Some(LightUtil.createLightField("public final static " + getQualifiedName + " MODULE$", this))
     }
   }
 
@@ -255,7 +250,7 @@ class ScObjectImpl protected (stub: ScTemplateDefinitionStub, node: ASTNode)
 
   override def desugaredElement: Option[ScTemplateDefinition] = {
     import scala.meta.intellij.psiExt._
-    import scala.meta.{Defn, Term, Tree}
+    import scala.meta.{Defn, Term}
 
     if (isDesugared) return None
     val (expansion, isSynthetic) = this.getMetaExpansion match {

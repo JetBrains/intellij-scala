@@ -1,6 +1,8 @@
 package org.jetbrains.sbt
 package project
 
+import java.net.URI
+
 import com.intellij.openapi.roots.DependencyScope
 import com.intellij.pom.java.LanguageLevel
 import org.jetbrains.plugins.scala.project.external.SdkReference
@@ -29,6 +31,10 @@ object ProjectStructureDsl {
   val languageLevel =
     new Attribute[LanguageLevel]("languageLevel") with ProjectAttribute with ModuleAttribute
 
+  val sbtBuildURI =
+    new Attribute[URI]("sbtBuildURI") with ModuleAttribute
+  val sbtProjectId =
+    new Attribute[String]("sbtProjectId") with ModuleAttribute
   val contentRoots =
     new Attribute[Seq[String]]("contentRoots") with ModuleAttribute
   val sources =
@@ -61,6 +67,9 @@ object ProjectStructureDsl {
 
     def foreach[T : Manifest](attribute: Attribute[T])(body: T => Unit): Unit =
       attributes.get(attribute).foreach(body)
+
+    def get[T: Manifest](attribute: Attribute[T]): Option[T] =
+      attributes.get(attribute)
   }
 
   trait Named {

@@ -109,11 +109,18 @@ object Cached {
              map.get(key) match {
                case Some(v) => v
                case null =>
-                 //wrap type of value in Some to avoid unboxing in putIfAbsent for primitive types
+                 val stackStamp = $recursionManagerFQN.markStack()
+
+                 //null values are not allowed in ConcurrentHashMap, but we want to cache nullable functions
                  val computed = _root_.scala.Some($cachedFunName())
-                 val race = map.putIfAbsent(key, computed)
-                 if (race != null) race.get
+
+                 if (stackStamp.mayCacheNow()) {
+                   val race = map.putIfAbsent(key, computed)
+                   if (race != null) race.get
+                   else computed.get
+                 }
                  else computed.get
+
              }
           """
           (fields, updatedRhs)
@@ -131,9 +138,15 @@ object Cached {
                val timestamped = $timestampedDataRef.get
                if (timestamped.modCount == currModCount) timestamped.data
                else {
+                 val stackStamp = $recursionManagerFQN.markStack()
+
                  val computed = $cachedFunName()
-                 $timestampedDataRef.compareAndSet(timestamped, $timestampedFQN(computed, currModCount))
-                 $timestampedDataRef.get.data
+
+                 if (stackStamp.mayCacheNow()) {
+                   $timestampedDataRef.compareAndSet(timestamped, $timestampedFQN(computed, currModCount))
+                   $timestampedDataRef.get.data
+                 }
+                 else computed
                }
              """
 

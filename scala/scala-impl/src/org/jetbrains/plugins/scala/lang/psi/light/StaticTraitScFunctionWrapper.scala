@@ -1,6 +1,6 @@
 package org.jetbrains.plugins.scala.lang.psi.light
 
-import com.intellij.psi.PsiMethod
+import com.intellij.psi.{PsiElement, PsiMethod}
 import org.jetbrains.plugins.scala.lang.psi.api.statements.ScFunction
 import org.jetbrains.plugins.scala.lang.psi.api.statements.params.ScParameter
 import org.jetbrains.plugins.scala.lang.psi.types.ScType
@@ -17,7 +17,7 @@ class StaticTraitScFunctionWrapper(val function: ScFunction, containingClass: Ps
   }
 } with PsiMethodWrapper(function.getManager, method, containingClass) {
 
-  setNavigationElement(function)
+  override def getNavigationElement: PsiElement = LightUtil.originalNavigationElement(function)
 
   override def canNavigate: Boolean = function.canNavigate
 

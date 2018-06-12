@@ -5,7 +5,9 @@ package hints
 import java.lang.{Boolean => JBoolean}
 
 import com.intellij.application.options.editor.CodeFoldingOptionsProvider
+import com.intellij.codeInsight.daemon.DaemonCodeAnalyzer
 import com.intellij.openapi.actionSystem.{AnActionEvent, ToggleAction}
+import com.intellij.openapi.editor.EditorFactory
 import com.intellij.openapi.options.BeanConfigurable
 import com.intellij.openapi.util.{Getter, Setter}
 import org.jetbrains.plugins.scala.codeInsight.ScalaCodeInsightSettings.{getInstance => settings}
@@ -44,18 +46,28 @@ class ScalaTypeHintsConfigurable
 
     checkBox(
       "Do not show when type is obvious",
-      () => (!settings.isShowForObviousTypes).asInstanceOf[JBoolean],
-      (value: JBoolean) => settings.setShowForObviousTypes(!value)
+      () => (!settings.showForObviousTypes).asInstanceOf[JBoolean],
+      (value: JBoolean) => settings.showForObviousTypes = !value
     )
   }
 
   override def apply(): Unit = {
     super.apply()
-    ScalaTypeHintsPassFactory.forceHintsUpdateOnNextPass()
+    ScalaTypeHintsConfigurable.forceHintsUpdateOnNextPass()
   }
 }
 
 object ScalaTypeHintsConfigurable {
+
+  private def forceHintsUpdateOnNextPass(): Unit = {
+    ScalaTypeHintsPassFactory.StampHolder.forceHintsUpdateOnNextPass()
+
+    EditorFactory.getInstance().getAllEditors
+      .map(_.getProject)
+      .distinct
+      .map(DaemonCodeAnalyzer.getInstance)
+      .foreach(_.restart())
+  }
 
   sealed abstract class ToogleTypeAction(getter: Getter[JBoolean],
                                          setter: Setter[JBoolean]) extends ToggleAction {
@@ -64,7 +76,7 @@ object ScalaTypeHintsConfigurable {
 
     override def setSelected(event: AnActionEvent, value: Boolean): Unit = {
       setter.set(value)
-      ScalaTypeHintsPassFactory.forceHintsUpdateOnNextPass()
+      forceHintsUpdateOnNextPass()
     }
   }
 
@@ -87,4 +99,5 @@ object ScalaTypeHintsConfigurable {
     settings.showForObviousTypesGetter,
     settings.showForObviousTypesSetter
   )
+
 }

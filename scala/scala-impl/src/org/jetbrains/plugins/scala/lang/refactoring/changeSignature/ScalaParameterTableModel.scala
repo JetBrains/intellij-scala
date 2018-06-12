@@ -1,14 +1,12 @@
 package org.jetbrains.plugins.scala
 package lang.refactoring.changeSignature
 
-import javax.swing.table.TableCellEditor
-
 import com.intellij.codeInsight.daemon.impl.analysis.{FileHighlightingSetting, HighlightLevelUtil}
 import com.intellij.openapi.project.Project
 import com.intellij.psi._
-import com.intellij.refactoring.changeSignature.ParameterTableModelBase.{NameColumn, TypeColumn}
 import com.intellij.refactoring.changeSignature._
 import com.intellij.util.ui.ColumnInfo
+import javax.swing.table.TableCellEditor
 import org.jetbrains.plugins.scala.debugger.evaluation.ScalaCodeFragment
 import org.jetbrains.plugins.scala.lang.refactoring.changeSignature.ScalaParameterTableModel._
 import org.jetbrains.plugins.scala.lang.refactoring.ui.ScalaCodeFragmentTableCellEditor
@@ -65,14 +63,14 @@ class ScalaParameterTableModel(typeContext: PsiElement,
 
 object ScalaParameterTableModel {
 
-  class ScalaTypeColumn(project: Project) extends TypeColumn[ScalaParameterInfo, ScalaParameterTableModelItem](project, ScalaFileType.INSTANCE) {
+  class ScalaTypeColumn(project: Project) extends Columns.TypeColumn[ScalaParameterInfo, ScalaParameterTableModelItem](project, ScalaFileType.INSTANCE) {
     override def doCreateEditor(o: ScalaParameterTableModelItem): TableCellEditor = new ScalaCodeFragmentTableCellEditor(project)
   }
 
-  class ScalaNameColumn(project: Project) extends NameColumn[ScalaParameterInfo, ScalaParameterTableModelItem](project)
+  class ScalaNameColumn(project: Project) extends Columns.NameColumn[ScalaParameterInfo, ScalaParameterTableModelItem](project)
 
   class ScalaDefaultValueColumn(project: Project)
-    extends ParameterTableModelBase.DefaultValueColumn[ScalaParameterInfo, ScalaParameterTableModelItem](project, ScalaFileType.INSTANCE) {
+    extends Columns.DefaultValueColumn[ScalaParameterInfo, ScalaParameterTableModelItem](project, ScalaFileType.INSTANCE) {
 
     override def doCreateEditor(item: ScalaParameterTableModelItem): TableCellEditor = new ScalaCodeFragmentTableCellEditor(project)
   }

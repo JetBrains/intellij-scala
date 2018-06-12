@@ -394,4 +394,8 @@ class UnnecessaryParenthesesInspectionTest extends ScalaQuickFixTestBase {
         |}
       """.stripMargin)
   }
+
+  def testEmptyParentheses(): Unit = {
+    checkTextHasNoErrors("type Null_Unit = () => Unit")
+  }
 }

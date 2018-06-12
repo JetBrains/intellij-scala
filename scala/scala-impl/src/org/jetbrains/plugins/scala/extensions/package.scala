@@ -8,7 +8,7 @@ import com.intellij.extapi.psi.StubBasedPsiElementBase
 import com.intellij.lang.ASTNode
 import com.intellij.openapi.Disposable
 import com.intellij.openapi.application.ex.ApplicationUtil
-import com.intellij.openapi.application.{ApplicationManager, Result, TransactionGuard}
+import com.intellij.openapi.application.{Application, ApplicationManager, Result, TransactionGuard}
 import com.intellij.openapi.command.{CommandProcessor, WriteCommandAction}
 import com.intellij.openapi.progress.{ProcessCanceledException, ProgressManager}
 import com.intellij.openapi.project.Project
@@ -230,7 +230,7 @@ package object extensions {
   }
 
   implicit class CharSeqExt(val cs: CharSequence) extends AnyVal {
-    private def iterator = new Iterator[Char] {
+    private def iterator: Iterator[Char] = new Iterator[Char] {
       var idx = 0
 
       override def hasNext: Boolean = idx < cs.length()
@@ -706,7 +706,7 @@ package object extensions {
   }
 
   def inWriteAction[T](body: => T): T = {
-    val application = ApplicationManager.getApplication
+    val application: Application = ApplicationManager.getApplication
 
     if (application.isWriteAccessAllowed) body
     else {

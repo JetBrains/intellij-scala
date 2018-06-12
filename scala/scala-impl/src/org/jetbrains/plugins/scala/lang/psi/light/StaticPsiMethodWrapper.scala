@@ -16,7 +16,8 @@ import _root_.scala.collection.immutable.HashMap
   */
 class StaticPsiMethodWrapper private(val method: PsiMethod, containingClass: PsiClass)
   extends PsiMethodWrapper(method.getManager, method, containingClass) {
-  setNavigationElement(method)
+
+  override def getNavigationElement: PsiElement = LightUtil.originalNavigationElement(method)
 
   override def hasModifierProperty(name: String): Boolean = {
     name match {

@@ -1,9 +1,6 @@
 package org.jetbrains.plugins.scala.debugger.breakpoints
 
 import java.util.{Collections, List => JList}
-import javax.swing.Icon
-
-import scala.collection.JavaConverters._
 
 import com.intellij.debugger.SourcePosition
 import com.intellij.debugger.ui.breakpoints._
@@ -16,11 +13,13 @@ import com.intellij.openapi.vfs.VirtualFile
 import com.intellij.psi._
 import com.intellij.psi.util.PsiTreeUtil
 import com.intellij.util.Processor
-import com.intellij.xdebugger.breakpoints.XLineBreakpoint
+import com.intellij.xdebugger.breakpoints.{XLineBreakpoint, XLineBreakpointType}
 import com.intellij.xdebugger.impl.XSourcePositionImpl
 import com.intellij.xdebugger.impl.breakpoints.XLineBreakpointImpl
 import com.intellij.xdebugger.{XDebuggerUtil, XSourcePosition}
+import javax.swing.Icon
 import org.jetbrains.annotations.{NotNull, Nullable}
+import org.jetbrains.concurrency.{AsyncPromise, Promise}
 import org.jetbrains.java.debugger.breakpoints.properties.JavaLineBreakpointProperties
 import org.jetbrains.plugins.scala.debugger.ScalaPositionManager
 import org.jetbrains.plugins.scala.debugger.evaluation.util.DebuggerUtil
@@ -33,8 +32,9 @@ import org.jetbrains.plugins.scala.lang.psi.api.statements.ScFunction
 import org.jetbrains.plugins.scala.lang.psi.api.toplevel.typedef.{ScClass, ScTypeDefinition}
 import org.jetbrains.plugins.scala.lang.psi.api.toplevel.{ScEarlyDefinitions, ScNamedElement}
 import org.jetbrains.plugins.scala.statistics.{FeatureKey, Stats}
-import org.jetbrains.plugins.scala.util.UIFreezingGuard
 import org.jetbrains.plugins.scala.{ScalaBundle, ScalaLanguage}
+
+import scala.collection.JavaConverters._
 
 /**
  * @author Nikolay.Tropin
@@ -67,9 +67,22 @@ class ScalaLineBreakpointType extends JavaLineBreakpointType("scala-line", Scala
     result
   }
 
+  private type BreakpointVariant = XLineBreakpointType[JavaLineBreakpointProperties]#XLineBreakpointVariant
+
+  private type JavaBPVariant = JavaLineBreakpointType#JavaBreakpointVariant
+
+  override def computeVariantsAsync(project: Project, position: XSourcePosition): Promise[JList[_ <: BreakpointVariant]] = {
+    val promise = new AsyncPromise[JList[_ <: BreakpointVariant]]()
+    executeOnPooledThread { inReadAction {
+      val variants = computeVariants(project, position)
+      promise.setResult(variants)
+    }}
+    promise
+  }
+
   @NotNull
-  override def computeVariants(@NotNull project: Project, @NotNull position: XSourcePosition): JList[JavaLineBreakpointType#JavaBreakpointVariant] = {
-    val emptyList = Collections.emptyList[JavaLineBreakpointType#JavaBreakpointVariant]
+  override def computeVariants(@NotNull project: Project, @NotNull position: XSourcePosition): JList[JavaBPVariant] = {
+    val emptyList = Collections.emptyList[JavaBPVariant]
 
     val dumbService = DumbService.getInstance(project)
     if (dumbService.isDumb) return emptyList
@@ -81,20 +94,14 @@ class ScalaLineBreakpointType extends JavaLineBreakpointType("scala-line", Scala
     }
     val line = position.getLine
 
-    val timeoutMs = 100
-
-    val lambdas: Seq[PsiElement] = UIFreezingGuard.withTimeout[Seq[PsiElement]](timeoutMs, Nil) {
-      ScalaPositionManager.lambdasOnLine(file, line)
-    }
+    val lambdas = ScalaPositionManager.lambdasOnLine(file, line)
     if (lambdas.isEmpty) return emptyList
 
     val elementAtLine = SourcePosition.createFromLine(file, line).getElementAt
 
-    var res: List[JavaLineBreakpointType#JavaBreakpointVariant] = List()
+    var res: List[JavaBPVariant] = Nil
 
-    val method = UIFreezingGuard.withTimeout[Option[PsiElement]](timeoutMs, None) {
-      DebuggerUtil.getContainingMethod(elementAtLine)
-    }
+    val method = DebuggerUtil.getContainingMethod(elementAtLine)
 
     for (startMethod <- method; if !lambdas.contains(startMethod)) {
       res = res :+ new ExactScalaBreakpointVariant(position, startMethod, -1)
@@ -112,19 +119,13 @@ class ScalaLineBreakpointType extends JavaLineBreakpointType("scala-line", Scala
     val method = getContainingMethod(breakpoint)
     if (method == null) return false
 
-    val lambdaOrd = lambdaOrdinal(breakpoint)
+    if (!breakpoint.isInstanceOf[RunToCursorBreakpoint] && isMatchAll(breakpoint)) return true
 
-    if (!breakpoint.isInstanceOf[RunToCursorBreakpoint] && lambdaOrd == null) return true
-
-    if (isScalaLambda(lambdaOrd, method)) {
+    if (isLambda(breakpoint)) {
       Stats.trigger(FeatureKey.debuggerLambdaBreakpoint)
     }
 
     DebuggerUtil.inTheMethod(position, method)
-  }
-
-  private def isScalaLambda(lambdaOrdinal: Integer, elem: PsiElement) = {
-    lambdaOrdinal != null && lambdaOrdinal >= 0 && elem.getLanguage.isKindOf(ScalaLanguage.INSTANCE)
   }
 
   @Nullable
@@ -134,14 +135,14 @@ class ScalaLineBreakpointType extends JavaLineBreakpointType("scala-line", Scala
 
     val ordinal = lambdaOrdinal(breakpoint)
     val lambdas = ScalaPositionManager.lambdasOnLine(position.getFile, position.getLine)
-    if (ordinal == null || ordinal == -1 || ordinal > lambdas.size - 1)
+    if (!isLambda(breakpoint) || ordinal > lambdas.size - 1)
       DebuggerUtil.getContainingMethod(position.getElementAt).orNull
     else lambdas(ordinal)
   }
 
   override def getHighlightRange(breakpoint: XLineBreakpoint[JavaLineBreakpointProperties]): TextRange = {
     BreakpointManager.getJavaBreakpoint(breakpoint) match {
-      case lineBp: LineBreakpoint[_] if lambdaOrdinal(lineBp) != null =>
+      case lineBp: LineBreakpoint[_] if isLambda(lineBp) =>
         val dumbService = DumbService.getInstance(lineBp.getProject)
         if (dumbService.isDumb) {
           breakpoint match {
@@ -179,6 +180,13 @@ class ScalaLineBreakpointType extends JavaLineBreakpointType("scala-line", Scala
     }
     else null
   }
+
+  private def isLambda(breakpoint: LineBreakpoint[_]): Boolean = {
+    val ordinal = lambdaOrdinal(breakpoint)
+    ordinal != null && ordinal >= 0
+  }
+
+  private def isMatchAll(breakpoint: LineBreakpoint[_]): Boolean = lambdaOrdinal(breakpoint) == null
 
   override def getPriority: Int = super.getPriority + 1
 

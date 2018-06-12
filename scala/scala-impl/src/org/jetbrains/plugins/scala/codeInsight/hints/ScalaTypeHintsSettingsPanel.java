@@ -37,7 +37,7 @@ public class ScalaTypeHintsSettingsPanel {
 
     private void createUIComponents() {
         presentationLengthModel = new SpinnerNumberModel(
-                getInstance().getPresentationLength(),
+                getInstance().presentationLength,
                 MIN_PRESENTATION_LENGTH,
                 MAX_PRESENTATION_LENGTH,
                 1

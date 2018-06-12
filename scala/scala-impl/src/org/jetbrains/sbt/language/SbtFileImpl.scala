@@ -79,8 +79,23 @@ class SbtFileImpl(provider: FileViewProvider) extends ScalaFileImpl(provider, Sb
   override def getFileResolveScope: GlobalSearchScope =
     projectDefinitionModule.fold(super.getFileResolveScope)(_.getModuleWithDependenciesAndLibrariesScope(false))
 
-  private def projectDefinitionModule: Option[Module] = fileModule.flatMap { module =>
-    Option(ModuleManager.getInstance(getProject).findModuleByName(module.getName + Sbt.BuildModuleSuffix))
+  private def projectDefinitionModule: Option[Module] = {
+    val result = for {
+      module <- fileModule
+      data <- SbtUtil.getSbtModuleData(module)
+      buildModule <- SbtModule.findBuildModule(getProject, data.id, data.buildURI)
+    } yield {
+      buildModule
+    }
+
+    // TODO remove in 2018.3+
+    // this is the old way of finding a build module which breaks if the way the module name is assigned changes
+    lazy val moduleManager = ModuleManager.getInstance(getProject)
+    lazy val legacy = fileModule.flatMap { module =>
+      Option(moduleManager.findModuleByName(module.getName + Sbt.BuildModuleSuffix))
+    }
+
+    result.orElse(legacy)
   }
 
   private def fileModule: Option[Module] = Option(ModuleUtilCore.findModuleForPsiElement(this))

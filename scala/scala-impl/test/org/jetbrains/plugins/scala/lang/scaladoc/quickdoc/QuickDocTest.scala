@@ -26,7 +26,7 @@ class QuickDocTest extends ScalaLightPlatformCodeInsightTestCaseAdapter {
     configureFromFileTextAdapter("dummy.scala", initialText.stripMargin('|').replaceAll("\r", "").trim())
     val element = getFileAdapter.getLastChild
 
-    generateByElement(element, assumedText)
+    generateByElement(element, assumedText.replaceAll("\r", ""))
   }
 
   private def generateNested(fileText: String, className: String, elementName: String, assumedTest: String) {
@@ -93,7 +93,7 @@ class QuickDocTest extends ScalaLightPlatformCodeInsightTestCaseAdapter {
     val testText = 
       """aa
         |     <br/>
-        |<p></div><table class='sections'><p><tr><td valign='top' class='section'><p>Params:</td><td>i &ndash; aaa  <p>j &ndash; bbb  <p>k &ndash; ccc  </td><tr><td valign='top' class='section'><p>Type parameters:</td><td>&lt;T&gt; &ndash;  qqq  <p>&lt;E&gt; &ndash;  aaa  bbb""".stripMargin
+        |<p></div><table class='sections'><p><tr><td valign='top' class='section'><p>Params:</td><td valign='top'>i &ndash; aaa  <p>j &ndash; bbb  <p>k &ndash; ccc  </td><tr><td valign='top' class='section'><p>Type parameters:</td><td valign='top'>&lt;T&gt; &ndash;  qqq  <p>&lt;E&gt; &ndash;  aaa  bbb""".stripMargin
 
     generateSimpleByText(fileText, testText)
   }
@@ -110,7 +110,7 @@ class QuickDocTest extends ScalaLightPlatformCodeInsightTestCaseAdapter {
     val testText = 
       """
         |     <br/>
-        |<p></div><table class='sections'><p><tr><td valign='top' class='section'><p>Throws:</td><td><p><a href="psi_element://java.lang.Exception"><code>Exception</code></a> &ndash; aaaaaaaaaaaaaaa""".stripMargin
+        |<p></div><table class='sections'><p><tr><td valign='top' class='section'><p>Throws:</td><td valign='top'><p><a href="psi_element://java.lang.Exception"><code>Exception</code></a> &ndash; aaaaaaaaaaaaaaa""".stripMargin
 
     generateSimpleByText(fileText, testText)
   }
@@ -130,7 +130,7 @@ class QuickDocTest extends ScalaLightPlatformCodeInsightTestCaseAdapter {
     val testText = 
       """
         |     <br/>
-        |<p></div><table class='sections'><p><tr><td valign='top' class='section'><p>Params:</td><td>o &ndash;  <p>f &ndash; jhdkfhkl  </td><tr><td valign='top' class='section'><p>Type parameters:</td><td>&lt;E&gt; &ndash;  <p>&lt;K&gt; &ndash;  dsuhf""".stripMargin
+        |<p></div><table class='sections'><p><tr><td valign='top' class='section'><p>Params:</td><td valign='top'>o &ndash;  <p>f &ndash; jhdkfhkl  </td><tr><td valign='top' class='section'><p>Type parameters:</td><td valign='top'>&lt;E&gt; &ndash;  <p>&lt;K&gt; &ndash;  dsuhf""".stripMargin
 
     generateSimpleByText(fileText, testText)
   }
@@ -148,7 +148,7 @@ class QuickDocTest extends ScalaLightPlatformCodeInsightTestCaseAdapter {
     val testText = 
       """
         |     <br/>
-        |</div><table class='sections'><p><tr><td valign='top' class='section'><p>Type parameters:</td><td>&lt;A&gt; &ndash;  <p>&lt;B&gt; &ndash;  dgjsdaf  <p>&lt;C&gt; &ndash;  """.stripMargin
+        |</div><table class='sections'><p><tr><td valign='top' class='section'><p>Type parameters:</td><td valign='top'>&lt;A&gt; &ndash;  <p>&lt;B&gt; &ndash;  dgjsdaf  <p>&lt;C&gt; &ndash;  """.stripMargin
 
     generateSimpleByText(fileText, testText)
   }
@@ -276,7 +276,7 @@ class QuickDocTest extends ScalaLightPlatformCodeInsightTestCaseAdapter {
         |    
         |    Some notes on implementation performance, the function runs in O(1).
         |    <br/>
-        |<p></div><table class='sections'><p><tr><td valign='top' class='section'><p>Params:</td><td>i &ndash; An important parameter""".stripMargin.replaceAll("\r", "")
+        |<p></div><table class='sections'><p><tr><td valign='top' class='section'><p>Params:</td><td valign='top'>i &ndash; An important parameter""".stripMargin.replaceAll("\r", "")
 
 
     generateNested(fileText, "B", "f", test)

@@ -4,7 +4,6 @@ import com.intellij.lang.ASTNode
 import com.intellij.openapi.project.Project
 import org.jetbrains.plugins.scala.lang.lexer.ScalaTokenTypes
 import org.jetbrains.plugins.scala.lang.psi.api.toplevel.typedef.ScTypeDefinition
-import org.jetbrains.plugins.scala.lang.psi.impl.ScalaPsiManager
 import org.jetbrains.plugins.scala.lang.psi.impl.toplevel.synthetic.{ScSyntheticFunction, SyntheticClasses}
 import org.jetbrains.plugins.scala.lang.psi.types.api.designator.ScDesignatorType
 import org.jetbrains.plugins.scala.lang.psi.types.api.{TypeVisitor, ValueType}
@@ -29,8 +28,11 @@ class ScLiteralType private (val literalValue: Any, val kind: ScLiteralType.Kind
       case _ => false
     }
   }
-  
-  override def hashCode(): Int = Option(literalValue).map(_.hashCode).getOrElse(0)
+
+  override def hashCode(): Int = literalValue match {
+    case null => ScLiteralType.Kind.Null.hashCode()
+    case v    => v.hashCode()
+  }
 
   private def valueAs[T: ClassTag]: T = literalValue.asInstanceOf[T]
 }
@@ -52,11 +54,11 @@ object ScLiteralType {
     case object Byte    extends Kind
   }
 
-  def apply(literalValue: Any, kind: Kind)(implicit projectContext: ProjectContext): ScLiteralType = {
-    val cache = ScalaPsiManager.instance.wideableLiteralTypes
-    cache.putIfAbsent(literalValue, new ScLiteralType(literalValue, kind))
-    cache.get(literalValue)
-  }
+  def apply(literalValue: Any, kind: Kind)(implicit projectContext: ProjectContext): ScLiteralType =
+    new ScLiteralType(literalValue, kind)
+
+  private def blockWiden(lit: ScLiteralType): ScLiteralType =
+    new ScLiteralType(lit.literalValue, lit.kind, false)(lit.projectContext)
 
   def kind(node: ASTNode, element: ScalaPsiElement): Option[Kind] = {
     import Kind._
@@ -114,14 +116,6 @@ object ScLiteralType {
   private def isNumeric(kind: Kind) =
     isInteger(kind) || kind == Kind.Float || kind == Kind.Double
 
-  private def blockWiden(lit: ScLiteralType): ScLiteralType = {
-    import lit.projectContext
-
-    val cache = ScalaPsiManager.instance.nonWideableLiteralTypes
-    cache.putIfAbsent(lit.literalValue, new ScLiteralType(lit.literalValue, lit.kind, false))
-    cache.get(lit.literalValue)
-  }
-
   def widenRecursive(aType: ScType): ScType = aType.recursiveUpdate{
     case lit: ScLiteralType => ReplaceWith(lit.widen)
     case p: ScParameterizedType =>
@@ -163,7 +157,7 @@ object ScLiteralType {
   //TODO we have also support for Byte and Short, but that's not a big deal since literal types for them currently can't be parsed
   def foldUnOpTypes(arg: ScLiteralType, fun: ScSyntheticFunction): Option[ScLiteralType] = {
     implicit val projectContext: ProjectContext = arg.projectContext
-    
+
     val kind = arg.kind
     val name = fun.name
     if (isNumeric(kind)) {
