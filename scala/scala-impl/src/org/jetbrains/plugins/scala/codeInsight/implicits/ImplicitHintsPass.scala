@@ -25,7 +25,7 @@ import scala.collection.JavaConverters._
 private class ImplicitHintsPass(editor: Editor, rootElement: ScalaPsiElement)
   extends EditorBoundHighlightingPass(editor, rootElement.getContainingFile, true) {
 
-  private var conversions: Seq[(ScExpression, String)] = Seq.empty
+  private var conversions: Seq[(ScExpression, String, Option[String])] = Seq.empty
   private var parameters: Seq[(ScExpression, String)] = Seq.empty
 
   override def doCollectInformation(indicator: ProgressIndicator): Unit = {
@@ -40,12 +40,17 @@ private class ImplicitHintsPass(editor: Editor, rootElement: ScalaPsiElement)
   private def collectConversionsAndParameters(): Unit = {
     rootElement.depthFirst().foreach {
       case e: ScExpression =>
-        e.implicitConversion().foreach(it => conversions +:= (e, nameOf(it.element)))
+        e.implicitConversion().foreach { conversion =>
+          val name = nameOf(conversion.element)
+          conversions +:= (e, name, if (conversion.implicitParameters.nonEmpty) Some("(...)") else None)
+        }
 
         e match {
           case owner@(_: ImplicitParametersOwner | _: ScNewTemplateDefinition) =>
-            ShowImplicitArgumentsAction.implicitParams(owner).foreach(results =>
-              parameters +:= (owner, results.map(presentationOf).mkString("(", ", ", ")")))
+            ShowImplicitArgumentsAction.implicitParams(owner).foreach { arguments =>
+              val presentation = arguments.map(presentationOf).mkString("(", ", ", ")")
+              parameters +:= (owner, presentation)
+            }
           case _ =>
         }
       case _ =>
@@ -53,10 +58,14 @@ private class ImplicitHintsPass(editor: Editor, rootElement: ScalaPsiElement)
   }
 
   // TODO Show missing implicit parameter name?
-  private def presentationOf(result: ScalaResolveResult): String =
-    ShowImplicitArgumentsAction.missingImplicitArgumentIn(result)
+  private def presentationOf(argument: ScalaResolveResult): String = {
+    ShowImplicitArgumentsAction.missingImplicitArgumentIn(argument)
       .map(MissingImplicitArgument + _.map(_.presentableText).getOrElse("NotInferred"))
-      .getOrElse(nameOf(result.element))
+      .getOrElse {
+        val name = nameOf(argument.element)
+        if (argument.implicitParameters.nonEmpty) name + "(...)" else name
+      }
+  }
 
   override def doApplyInformationToEditor(): Unit = {
     val caretKeeper = new CaretVisualPositionKeeper(myEditor)
@@ -77,9 +86,9 @@ private class ImplicitHintsPass(editor: Editor, rootElement: ScalaPsiElement)
     DocumentUtil.executeInBulk(myEditor.getDocument, bulkChange, () => {
       existingInlays.foreach(Disposer.dispose)
 
-      conversions.foreach { case (e, s) =>
-        inlayModel.addInlay(new InlayInfo(s + "(", e.getTextRange.getStartOffset, false, true, false))
-        inlayModel.addInlay(new InlayInfo(")", e.getTextRange.getEndOffset, false, true, true))
+      conversions.foreach { case (e, s1, s2) =>
+        inlayModel.addInlay(new InlayInfo(s1 + "(", e.getTextRange.getStartOffset, false, true, false))
+        inlayModel.addInlay(new InlayInfo(")" + s2.getOrElse(""), e.getTextRange.getEndOffset, false, true, true))
       }
 
       parameters.foreach { case (e, s) =>
