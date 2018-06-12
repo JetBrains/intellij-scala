@@ -3,11 +3,11 @@ package org.jetbrains.plugins.scala.actions
 import java.awt.event.MouseEvent
 import java.awt.{BorderLayout, Dimension}
 import java.util
+
 import javax.swing.tree.{DefaultMutableTreeNode, DefaultTreeModel, TreePath}
 import javax.swing.{JPanel, JTree}
 
 import scala.collection.mutable.ArrayBuffer
-
 import com.intellij.ide.projectView.impl.nodes.AbstractPsiBasedNode
 import com.intellij.ide.projectView.{PresentationData, ViewSettings}
 import com.intellij.ide.util.treeView.{AbstractTreeBuilder, AbstractTreeNode, AbstractTreeStructure, NodeDescriptor}
@@ -38,6 +38,8 @@ import org.jetbrains.plugins.scala.lang.resolve.ScalaResolveResult
 import org.jetbrains.plugins.scala.project.ProjectContext
 import org.jetbrains.plugins.scala.statistics.{FeatureKey, Stats}
 import ShowImplicitArgumentsAction._
+import org.jetbrains.plugins.scala.lang.psi.types.ScType
+import org.jetbrains.plugins.scala.extensions._
 
 /**
  * User: Alefas
@@ -269,6 +271,12 @@ object ShowImplicitArgumentsAction {
     }
     None
   }
+
+  // TODO Don't depend on "magic constants"
+  def missingImplicitArgumentIn(result: ScalaResolveResult): Option[Option[ScType]] =
+    Option(result.getElement)
+      .exists(_.name == InferUtil.notFoundParameterName)
+      .option(result.implicitSearchState.map(_.tp))
 }
 
 class ImplicitParametersTreeStructure(project: Project,

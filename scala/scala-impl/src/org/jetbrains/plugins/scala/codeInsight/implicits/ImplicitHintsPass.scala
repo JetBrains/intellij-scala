@@ -1,9 +1,13 @@
 package org.jetbrains.plugins.scala.codeInsight.implicits
 
+import java.awt.{Graphics, Rectangle}
+
 import com.intellij.codeHighlighting.EditorBoundHighlightingPass
 import com.intellij.codeInsight.daemon.impl.HintRenderer
 import com.intellij.codeInsight.hints.InlayInfo
+import com.intellij.openapi.editor.colors.{CodeInsightColors, TextAttributesKey}
 import com.intellij.openapi.editor.ex.util.CaretVisualPositionKeeper
+import com.intellij.openapi.editor.markup.TextAttributes
 import com.intellij.openapi.editor.{Editor, Inlay, InlayModel}
 import com.intellij.openapi.progress.ProgressIndicator
 import com.intellij.openapi.util.{Disposer, Key, TextRange}
@@ -14,6 +18,7 @@ import org.jetbrains.plugins.scala.extensions._
 import org.jetbrains.plugins.scala.lang.psi.ScalaPsiElement
 import org.jetbrains.plugins.scala.lang.psi.api.ImplicitParametersOwner
 import org.jetbrains.plugins.scala.lang.psi.api.expr.{ScExpression, ScNewTemplateDefinition}
+import org.jetbrains.plugins.scala.lang.resolve.ScalaResolveResult
 
 import scala.collection.JavaConverters._
 
@@ -40,12 +45,18 @@ private class ImplicitHintsPass(editor: Editor, rootElement: ScalaPsiElement)
         e match {
           case owner@(_: ImplicitParametersOwner | _: ScNewTemplateDefinition) =>
             ShowImplicitArgumentsAction.implicitParams(owner).foreach(results =>
-              parameters +:= (owner, results.map(it => nameOf(it.element)).mkString("(", ", ", ")")))
+              parameters +:= (owner, results.map(presentationOf).mkString("(", ", ", ")")))
           case _ =>
         }
       case _ =>
     }
   }
+
+  // TODO Show missing implicit parameter name?
+  private def presentationOf(result: ScalaResolveResult): String =
+    ShowImplicitArgumentsAction.missingImplicitArgumentIn(result)
+      .map(MissingImplicitArgument + _.map(_.presentableText).getOrElse("NotInferred"))
+      .getOrElse(nameOf(result.element))
 
   override def doApplyInformationToEditor(): Unit = {
     val caretKeeper = new CaretVisualPositionKeeper(myEditor)
@@ -80,6 +91,7 @@ private class ImplicitHintsPass(editor: Editor, rootElement: ScalaPsiElement)
 
 private object ImplicitHintsPass {
   private final val BulkChangeThreshold = 1000
+  private final val MissingImplicitArgument = "?: "
 
   private val ScalaImplicitHintKey = Key.create[Boolean]("SCALA_IMPLICIT_HINT")
 
@@ -90,13 +102,26 @@ private object ImplicitHintsPass {
         .filter(ScalaImplicitHintKey.isIn)
 
     def addInlay(info: InlayInfo): Unit = {
-      val inlay = model.addInlineElement(info.getOffset, info.getRelatesToPrecedingText, new Renderer(info.getText))
+      val renderer = new TextRenderer(info.getText, error = info.getText.contains(MissingImplicitArgument))
+      val inlay = model.addInlineElement(info.getOffset, info.getRelatesToPrecedingText, renderer)
       Option(inlay).foreach(_.putUserData(ScalaImplicitHintKey, true))
     }
   }
 
-  private class Renderer(text: String) extends HintRenderer(text) {
-    override def getContextMenuGroupId: String = "ToogleImplicits"
+  private class TextRenderer(text: String, error: Boolean) extends HintRenderer(text) {
+    override def getContextMenuGroupId: String = "ToggleImplicits"
+
+    // TODO Fine-grained coloring
+    // TODO Why the effect type / color cannot be specified via super.getTextAttributes?
+    override def paint(editor: Editor, g: Graphics, r: Rectangle, textAttributes: TextAttributes): Unit = {
+      if (error) {
+        val errorAttributes = editor.getColorsScheme.getAttributes(CodeInsightColors.ERRORS_ATTRIBUTES)
+        textAttributes.setEffectType(errorAttributes.getEffectType)
+        textAttributes.setEffectColor(errorAttributes.getEffectColor)
+      }
+
+      super.paint(editor, g, r, textAttributes)
+    }
   }
 }
 
