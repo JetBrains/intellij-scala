@@ -2,7 +2,7 @@ package org.jetbrains.bsp.data
 
 import java.io.File
 
-import ch.epfl.scala.bsp.schema.BuildTargetIdentifier
+import ch.epfl.scala.bsp.BuildTargetIdentifier
 import com.intellij.openapi.externalSystem.model.project.AbstractExternalEntityData
 import com.intellij.openapi.externalSystem.model.{Key, ProjectKeys}
 import org.jetbrains.bsp.bsp
@@ -53,7 +53,7 @@ object ScalaSdkData {
   * Metadata to about bsp targets that have been mapped to IntelliJ modules.
   * @param targetIds target ids mapped to module
   */
-@SerialVersionUID(1)
+@SerialVersionUID(2)
 case class BspMetadata(targetIds: Seq[BuildTargetIdentifier])
 object BspMetadata {
   val Key: Key[BspMetadata] = datakey(classOf[BspMetadata])

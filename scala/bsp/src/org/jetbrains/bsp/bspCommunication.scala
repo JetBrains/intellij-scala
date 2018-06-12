@@ -4,8 +4,8 @@ import java.io.File
 import java.net.URI
 import java.nio.file._
 
-import ch.epfl.scala.bsp.endpoints
-import ch.epfl.scala.bsp.schema.{BuildClientCapabilities, InitializeBuildParams, InitializedBuildParams}
+import ch.epfl.scala.bsp._
+import com.intellij.notification.NotificationType
 import com.intellij.openapi.components.AbstractProjectComponent
 import com.intellij.openapi.project.Project
 import com.intellij.openapi.util.SystemInfo
@@ -19,7 +19,7 @@ import org.scalasbt.ipcsocket.UnixDomainSocket
 import org.slf4j.LoggerFactory
 
 import scala.concurrent.duration._
-import scala.meta.jsonrpc.{BaseProtocolMessage, Services}
+import scala.meta.jsonrpc.{BaseProtocolMessage, Response, Services}
 import scala.meta.lsp.{LanguageClient, LanguageServer}
 import scala.sys.process.Process
 import scala.util.Random
@@ -45,9 +45,30 @@ class BspSession(messages: Observable[BaseProtocolMessage],
   def run[T](services: Services, task: LanguageClient => Task[T])(implicit scheduler: Scheduler): Task[T] = {
     val runningClientServer = startClientServer(services)
 
-    val whenDone = Task {
-      logger.info("closing bsp connection")
-      runningClientServer.cancel()
+    val whenDone = {
+      val shutdownRequest = for {
+        shutdown <- endpoints.Build.shutdown.request(Shutdown())
+      } yield {
+        shutdown match {
+          case Left(Response.Error(err, id)) =>
+            bsp.balloonNotification.createNotification(err.message, NotificationType.ERROR)
+            val fullMessage = s"${err.message} (code ${err.code}). Data: ${err.data.getOrElse("{}")}"
+            logger.error(fullMessage)
+          case _ =>
+        }
+        endpoints.Build.exit.notify(Exit())
+      }
+
+      val cleaning = Task {
+        logger.info("closing bsp connection")
+        runningClientServer.cancel()
+      }
+
+      for {
+        _ <- shutdownRequest
+        _ <- cleaning.delayExecution(5.seconds)
+        // TODO check process state, hard-kill bsp process if shutdown was not orderly
+      } yield ()
     }
 
     val resultTask = for {
@@ -100,8 +121,8 @@ object BspCommunication {
 
 
     val initParams = InitializeBuildParams(
-      rootUri = base.toString,
-      Some(BuildClientCapabilities(List("scala","java")))
+      rootUri = Uri(base.getCanonicalFile.toURI.toString),
+      BuildClientCapabilities(List("scala","java"), providesFileWatching = false) // TODO we can provide file watching
     )
 
     val id = java.lang.Long.toString(Random.nextLong(), Character.MAX_RADIX)

@@ -17,7 +17,6 @@ import com.intellij.util.messages.MessageBusConnection
 import org.jetbrains.plugins.scala.ScalaFileType
 import scala.collection.JavaConverters._
 
-
 final class BspBuildLoop(project: Project) extends AbstractProjectComponent(project) {
 
   private def bspSettings: Option[BspProjectSettings] =
@@ -59,6 +58,8 @@ final class BspBuildLoop(project: Project) extends AbstractProjectComponent(proj
         settings <- bspSettings
         if settings.buildOnSave
       } yield {
+        // TODO probably can replace by https://github.com/scalacenter/bsp/blob/master/docs/bsp.md#build-target-changed-notification
+        // and let compile server handle rebuilding or not
         taskManager.build(modulesToCompile,
           new ProjectTaskNotification {
             override def finished(projectTaskResult: ProjectTaskResult): Unit = {

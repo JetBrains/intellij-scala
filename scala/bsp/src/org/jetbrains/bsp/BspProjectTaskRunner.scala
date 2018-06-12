@@ -4,8 +4,7 @@ import java.io.File
 import java.util
 import java.util.UUID
 
-import ch.epfl.scala.bsp.endpoints
-import ch.epfl.scala.bsp.schema.{BuildTargetIdentifier, CompileParams, CompileReport}
+import ch.epfl.scala.bsp._
 import com.intellij.build.FilePosition
 import com.intellij.execution.process.AnsiEscapeDecoder.ColoredTextAcceptor
 import com.intellij.execution.process.{AnsiEscapeDecoder, ProcessOutputTypes}
@@ -31,7 +30,7 @@ import scala.collection.JavaConverters._
 import scala.concurrent.Await
 import scala.concurrent.duration.Duration
 import scala.meta.jsonrpc.{Response, Services}
-import scala.meta.lsp._
+import scala.meta.lsp.LanguageClient
 import scala.util.control.NonFatal
 
 class BspProjectTaskRunner extends ProjectTaskRunner {
@@ -44,7 +43,7 @@ class BspProjectTaskRunner extends ProjectTaskRunner {
         case _ : BspSyntheticModuleType => false
         case _ => ES.isExternalSystemAwareModule(bsp.ProjectSystemId, module)
       }
-    case _: ExecuteRunConfigurationTask => false
+    case _: ExecuteRunConfigurationTask => false // TODO support bsp run configs
     case _ => false
   }
 
@@ -74,7 +73,7 @@ class BspProjectTaskRunner extends ProjectTaskRunner {
       }
 
       targetIds.getOrElse(Seq.empty)
-    }.toSeq
+    }.toList
 
     implicit val scheduler: Scheduler = Scheduler(PooledThreadExecutor.INSTANCE, ExecutionModel.AlwaysAsyncExecution)
 
@@ -87,7 +86,7 @@ class BspProjectTaskRunner extends ProjectTaskRunner {
 
 object BspProjectTaskRunner {
 
-  class BspTask[T](project: Project, targets: Seq[BuildTargetIdentifier], callbackOpt: Option[ProjectTaskNotification])
+  class BspTask[T](project: Project, targets: List[BuildTargetIdentifier], callbackOpt: Option[ProjectTaskNotification])
                   (implicit scheduler: Scheduler)
     extends Task.Backgroundable(project, "bsp build", true, PerformInBackgroundOption.ALWAYS_BACKGROUND) {
 
@@ -96,13 +95,14 @@ object BspProjectTaskRunner {
     private val taskId: UUID = UUID.randomUUID()
     private val report = new BuildToolWindowReporter(project, taskId, "bsp build")
 
-    private def compileRequest(implicit client: LanguageClient): eval.Task[Either[Response.Error, CompileReport]] =
-      endpoints.BuildTarget.compile.request(CompileParams(targets))
+    private def compileRequest(implicit client: LanguageClient): eval.Task[Either[Response.Error, CompileResult]] =
+      endpoints.BuildTarget.compile.request(CompileParams(targets, None, List.empty)) // TODO correct compile params
 
     private val services = Services.empty
-      .notification(Window.logMessage) { params => report.log(params.message) }
-      .notification(Window.showMessage)(reportShowMessage)
-      .notification(TextDocument.publishDiagnostics)(reportDiagnostics)
+      .notification(endpoints.Build.logMessage) { params => report.log(params.message) }
+      .notification(endpoints.Build.showMessage)(reportShowMessage)
+      .notification(endpoints.Build.publishDiagnostics)(reportDiagnostics)
+      .notification(endpoints.BuildTarget.compileReport)(reportCompile)
 
     override def run(indicator: ProgressIndicator): Unit = {
       val reportIndicator = new IndicatorReporter(indicator)
@@ -129,11 +129,8 @@ object BspProjectTaskRunner {
             report.finishWithFailure(failure)
             reportIndicator.finishWithFailure(failure)
             new ProjectTaskResult(true, buildMessages.errors.size, buildMessages.warnings.size)
-          case Right(compileReport) =>
-            compileReport.items.foreach { item =>
-              val targetStr = item.target.map(t => s"$t : ").getOrElse("")
-              report.log(s"${targetStr}completed compile with ${item.warnings} warnings and ${item.errors} errors in ${item.time}ms")
-            }
+          case Right(compileResult) =>
+            // TODO report language specific compile result if available
             report.finish(buildMessages)
             reportIndicator.finish(buildMessages)
             new ProjectTaskResult(buildMessages.aborted, buildMessages.errors.size, buildMessages.warnings.size)
@@ -152,6 +149,7 @@ object BspProjectTaskRunner {
 
     private def reportShowMessage(params: ShowMessageParams): Unit = {
       // TODO handle message type (warning, error etc) in output
+      // TODO use params.requestId to show tree structure
       val text = params.message
       report.log(text)
 
@@ -162,7 +160,7 @@ object BspProjectTaskRunner {
 
       buildMessages = buildMessages.appendMessage(textNoAnsi)
 
-      import scala.meta.lsp.MessageType._
+      import ch.epfl.scala.bsp.MessageType._
       buildMessages =
         params.`type` match {
           case Error =>
@@ -178,9 +176,11 @@ object BspProjectTaskRunner {
         }
     }
 
-    private def reportDiagnostics(diagnostics: PublishDiagnostics): Unit = {
-      val file = diagnostics.uri.toFileAsURI
-      diagnostics.diagnostics.foreach { diagnostic =>
+    private def reportDiagnostics(params: PublishDiagnosticsParams): Unit = {
+      // TODO use params.requestId to show tree structure
+
+      val file = params.uri.toFile
+      params.diagnostics.foreach { diagnostic: Diagnostic =>
         val start = diagnostic.range.start
         val end = diagnostic.range.end
         val position = Some(new FilePosition(file, start.line, start.character, end.line, end.character))
@@ -189,7 +189,7 @@ object BspProjectTaskRunner {
         report.log(text)
         buildMessages = buildMessages.appendMessage(text)
 
-        import scala.meta.lsp.DiagnosticSeverity._
+        import ch.epfl.scala.bsp.DiagnosticSeverity._
         buildMessages =
           diagnostic.severity.map {
             case Error =>
@@ -210,6 +210,10 @@ object BspProjectTaskRunner {
               buildMessages
             }
       }
+    }
+
+    private def reportCompile(compileReport: CompileReport): Unit = {
+      // TODO report CompileReport (but might not be really necessary for us)
     }
 
   }

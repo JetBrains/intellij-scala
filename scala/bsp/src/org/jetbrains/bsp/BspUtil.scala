@@ -4,15 +4,13 @@ import java.io.File
 import java.net.URI
 import java.nio.file.Paths
 
+import ch.epfl.scala.bsp.Uri
+
 object BspUtil {
 
-  implicit class BspStringOps(str: String) {
-
-    /** interpret string as URI. */
-    def toURI: URI = new URI(str) // TODO handle error
-
-    /** Interpret string as file URI. */
-    def toFileAsURI: File = Paths.get(str.toURI).toFile // TODO handle error
+  implicit class BspUriOps(bspUri: Uri) {
+    def toURI: URI = new URI(bspUri.value)
+    def toFile: File = Paths.get(bspUri.toURI).toFile
   }
 
 }
