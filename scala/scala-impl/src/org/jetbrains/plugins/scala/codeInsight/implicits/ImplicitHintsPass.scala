@@ -108,14 +108,23 @@ private object ImplicitHintsPass {
         .filter(ScalaImplicitHintKey.isIn)
 
     def addInlay(info: InlayInfo): Unit = {
-      val renderer = new TextRenderer(info.getText, error = info.getText.contains(MissingImplicitArgument))
+      val renderer = new TextRenderer(info.getText,
+        error = info.getText.contains(MissingImplicitArgument),
+        suffix = info.getRelatesToPrecedingText)
+
       val inlay = model.addInlineElement(info.getOffset, info.getRelatesToPrecedingText, renderer)
       Option(inlay).foreach(_.putUserData(ScalaImplicitHintKey, true))
     }
   }
 
-  private class TextRenderer(text: String, error: Boolean) extends HintRendererExt(text) {
+  private class TextRenderer(text: String, error: Boolean, suffix: Boolean) extends HintRendererExt(text) {
     override def getContextMenuGroupId: String = "ToggleImplicits"
+
+    override protected def getMargin(editor: Editor): Insets =
+      new Insets(0, if (suffix) 1 else 2, 0, if (suffix) 2 else 1)
+
+    override protected def getPadding(editor: Editor): Insets =
+      new Insets(0, if (suffix) 2 else 5, 0, if (suffix) 5 else 2)
 
     // TODO Fine-grained coloring
     // TODO Why the effect type / color cannot be specified via super.getTextAttributes?
