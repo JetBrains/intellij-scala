@@ -69,7 +69,7 @@ class BspProjectResolver extends ExternalSystemProjectResolver[BspExecutionSetti
     def createModuleNode(moduleDescription: ScalaModuleDescription,
                          projectNode: DataNode[ProjectData]) = {
 
-      val basePath = moduleDescription.basePath.getOrElse(projectRoot).getCanonicalPath
+      val basePath = moduleDescription.basePath.getCanonicalPath
       val contentRootData = new ContentRootData(bsp.ProjectSystemId, basePath)
       moduleDescription.sourceDirs.foreach { dir =>
         contentRootData.storePath(ExternalSystemSourceType.SOURCE, dir.getCanonicalPath)
@@ -159,7 +159,7 @@ class BspProjectResolver extends ExternalSystemProjectResolver[BspExecutionSetti
 
       // synthetic root module when no natural module is at root
       val rootModule =
-        if (moduleDescriptions.exists(_.basePath.getOrElse(projectRoot) == projectRoot)) None
+        if (moduleDescriptions.exists(_.basePath == projectRoot)) None
         else {
           val name = projectRoot.getName + "-root"
           val moduleData = new ModuleData(name, bsp.ProjectSystemId, BspSyntheticModuleType.Id, name, moduleFilesDirectoryPath, projectRootPath)
@@ -223,7 +223,7 @@ object BspProjectResolver {
   private case class ScalaModuleDescription(targets: Seq[BuildTarget],
                                             targetDependencies: Seq[BuildTargetIdentifier],
                                             targetTestDependencies: Seq[BuildTargetIdentifier],
-                                            basePath: Option[File],
+                                            basePath: File,
                                             output: Option[File],
                                             testOutput: Option[File],
                                             sourceDirs: Seq[File],
@@ -278,11 +278,6 @@ object BspProjectResolver {
     None
   }
 
-  private def targetsBaseDir(targets: Seq[BuildTarget]): Option[File] = {
-    val paths = targets.map(_.id.uri.toFile)
-    commonBase(paths)
-  }
-
   private def calculateModuleDescription(targets: Seq[BuildTarget], optionsItems: Seq[ScalacOptionsItem], sourcesItems: Seq[DependencySourcesItem])
   : Iterable[ScalaModuleDescription] = {
     val idToTarget = targets.map(t => (t.id, t)).toMap
@@ -312,7 +307,8 @@ object BspProjectResolver {
         if !file.isFile // TODO ignores individual source files, will not work for every build tool
       } yield file).distinct
 
-      val moduleBase = targetsBaseDir(targets)
+      val targetUri = target.id.uri
+      val moduleBase = targetUri.toFile
       val outputPath = scalacOptions.map(_.classDirectory.toFile)
 
       // classpath needs to be filtered for module dependency putput paths since they are handled by IDEA module dep mechanism
@@ -337,8 +333,9 @@ object BspProjectResolver {
           )
         else if(target.kind == BuildTargetKind.Test)
           ScalaModuleDescription(
-            Seq(target), Seq.empty,
-            target.dependencies, moduleBase,
+            Seq(target),
+            Seq.empty, target.dependencies,
+            moduleBase,
             None, outputPath,
             Seq.empty, sourceDirs,
             Seq.empty, classPathWithoutDependencyOutputs,
@@ -407,7 +404,8 @@ object BspProjectResolver {
       // Get the ScalaSdkData from the first combined module
       val scalaSdkData = combined.scalaSdkData
 
-      ScalaModuleDescription(targets, targetDependencies, targetTestDependencies, combined.basePath,
+      ScalaModuleDescription(
+        targets, targetDependencies, targetTestDependencies, combined.basePath,
         output, testOutput, sourceDirs, testSourceDirs, classPath, testClassPath, scalaSdkData)
     }
   }
