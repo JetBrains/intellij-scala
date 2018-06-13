@@ -10,7 +10,7 @@ object BspUtil {
 
   implicit class BspUriOps(bspUri: Uri) {
     def toURI: URI = new URI(bspUri.value)
-    def toFile: File = Paths.get(bspUri.toURI).toFile
+    def toFile: File = Paths.get(bspUri.toURI.getPath).toFile
   }
 
 }
