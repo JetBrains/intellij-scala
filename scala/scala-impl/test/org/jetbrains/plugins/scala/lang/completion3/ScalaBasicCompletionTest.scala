@@ -1114,16 +1114,30 @@ class ScalaBasicCompletionTest extends ScalaCodeInsightTestBase {
     item = "Foo()"
   )
 
-  def testNoCompositePatternCompletion(): Unit = checkNoCompletion(
+  def testNestedPatternCompletion(): Unit = doMultipleCompletionTest(
     fileText =
-      s"""case class Foo()
+      s"""sealed trait Foo
          |
-         |Foo() match {
-         |  case _ | $CARET
+         |case class FooImpl(foo: Int = 42) extends Foo
+         |
+         |case object Bar extends Foo
+         |
+         |case class Baz(foo: Foo = FooImpl())
+         |
+         |Baz() match {
+         |  case Baz(null | $CARET)
          |}
-      """.stripMargin,
-    item = "Foo()"
-  )
+       """.stripMargin,
+    count = 2,
+    char = DEFAULT_CHAR,
+    time = DEFAULT_TIME,
+    completionType = DEFAULT_COMPLETION_TYPE
+  ) {
+    _.getLookupString match {
+      case "FooImpl(foo)" | "Bar" => true
+      case _ => false
+    }
+  }
 
   def testDefaultPatternCompletion(): Unit = doCompletionTest(
     fileText =
