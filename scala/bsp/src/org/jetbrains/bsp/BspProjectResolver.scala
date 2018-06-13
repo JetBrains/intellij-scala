@@ -103,12 +103,18 @@ class BspProjectResolver extends ExternalSystemProjectResolver[BspExecutionSetti
       moduleDescription.classPath.foreach { path =>
         libraryData.addPath(LibraryPathType.BINARY, path.getCanonicalPath)
       }
+      moduleDescription.classPathSources.foreach { path =>
+        libraryData.addPath(LibraryPathType.SOURCE, path.getCanonicalPath)
+      }
       val libraryDependencyData = new LibraryDependencyData(moduleData, libraryData, LibraryLevel.MODULE)
       libraryDependencyData.setScope(DependencyScope.COMPILE)
 
       val libraryTestData = new LibraryData(bsp.ProjectSystemId, s"$moduleName test dependencies")
       moduleDescription.testClassPath.foreach { path =>
         libraryTestData.addPath(LibraryPathType.BINARY, path.getCanonicalPath)
+      }
+      moduleDescription.testClassPathSources.foreach { path =>
+        libraryTestData.addPath(LibraryPathType.SOURCE, path.getCanonicalPath)
       }
       val libraryTestDependencyData = new LibraryDependencyData(moduleData, libraryTestData, LibraryLevel.MODULE)
       libraryTestDependencyData.setScope(DependencyScope.TEST)
@@ -229,7 +235,9 @@ object BspProjectResolver {
                                             sourceDirs: Seq[File],
                                             testSourceDirs: Seq[File],
                                             classPath: Seq[File],
+                                            classPathSources: Seq[File],
                                             testClassPath: Seq[File],
+                                            testClassPathSources: Seq[File],
                                             scalaSdkData: ScalaSdkData
                                            ) extends ModuleDescription
 
@@ -300,12 +308,16 @@ object BspProjectResolver {
       val scalacOptions = idToScalaOptions.get(id)
       val sourcesOpt = idToDepSources.get(id)
 
-      val sourceDirs = (for {
+      val sourcePaths = (for {
         sources <- sourcesOpt.toSeq
         src <- sources.uris
-        file = src.toFile
-        if !file.isFile // TODO ignores individual source files, will not work for every build tool
-      } yield file).distinct
+      } yield src.toFile).distinct
+
+      // TODO dependencySources gives us both project source dirs as well as actual dependency sources currently.
+      // needs to be changed in bsp to allow determining which path is which robustly
+      val sourceDirs = sourcePaths.filter(_.isDirectory)
+      // hacky, but works for now
+      val dependencySources = sourcePaths.filter(_.getName.endsWith("jar"))
 
       val targetUri = target.id.uri
       val moduleBase = targetUri.toFile
@@ -323,29 +335,43 @@ object BspProjectResolver {
 
         if(target.kind == BuildTargetKind.Library || target.kind == BuildTargetKind.App)
           ScalaModuleDescription(
-            Seq(target),
-            target.dependencies, Seq.empty,
-            moduleBase,
-            outputPath, None,
-            sourceDirs, Seq.empty,
-            classPathWithoutDependencyOutputs, Seq.empty,
-            scalaSdkData
+            targets = Seq(target),
+            targetDependencies = target.dependencies,
+            targetTestDependencies = Seq.empty,
+            basePath = moduleBase,
+            output = outputPath,
+            testOutput = None,
+            sourceDirs = sourceDirs,
+            testSourceDirs = Seq.empty,
+            classPath = classPathWithoutDependencyOutputs,
+            classPathSources = dependencySources,
+            testClassPath = Seq.empty,
+            testClassPathSources = Seq.empty,
+            scalaSdkData = scalaSdkData
           )
         else if(target.kind == BuildTargetKind.Test)
           ScalaModuleDescription(
-            Seq(target),
-            Seq.empty, target.dependencies,
-            moduleBase,
-            None, outputPath,
-            Seq.empty, sourceDirs,
-            Seq.empty, classPathWithoutDependencyOutputs,
-            scalaSdkData)
+            targets = Seq(target),
+            targetDependencies = Seq.empty,
+            targetTestDependencies = target.dependencies,
+            basePath = moduleBase,
+            output = None,
+            testOutput = outputPath,
+            sourceDirs = Seq.empty,
+            testSourceDirs = sourceDirs,
+            classPath = Seq.empty,
+            classPathSources = Seq.empty,
+            testClassPath = classPathWithoutDependencyOutputs,
+            testClassPathSources = dependencySources,
+            scalaSdkData = scalaSdkData
+          )
         else
           ScalaModuleDescription(
             Seq(target),
             Seq.empty, Seq.empty,
             moduleBase,
             None, None,
+            Seq.empty, Seq.empty,
             Seq.empty, Seq.empty,
             Seq.empty, Seq.empty,
             scalaSdkData
@@ -400,13 +426,18 @@ object BspProjectResolver {
       val sourceDirs = combined.sourceDirs ++ next.sourceDirs
       val testSourceDirs  = combined.testSourceDirs ++ next.testSourceDirs
       val classPath = combined.classPath ++ next.classPath
+      val classPathSources = combined.classPathSources ++ next.classPathSources
       val testClassPath = combined.testClassPath ++ next.testClassPath
+      val testClassPathSources = combined.testClassPathSources ++ next.testClassPathSources
       // Get the ScalaSdkData from the first combined module
       val scalaSdkData = combined.scalaSdkData
 
       ScalaModuleDescription(
         targets, targetDependencies, targetTestDependencies, combined.basePath,
-        output, testOutput, sourceDirs, testSourceDirs, classPath, testClassPath, scalaSdkData)
+        output, testOutput, sourceDirs, testSourceDirs,
+        classPath, classPathSources, testClassPath, testClassPathSources,
+        scalaSdkData
+      )
     }
   }
 
