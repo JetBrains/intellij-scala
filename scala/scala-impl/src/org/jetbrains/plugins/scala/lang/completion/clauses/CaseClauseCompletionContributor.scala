@@ -14,7 +14,6 @@ import org.jetbrains.plugins.scala.lang.lexer.ScalaTokenTypes
 import org.jetbrains.plugins.scala.lang.psi.api.base.patterns.{ScCaseClause, ScPattern, ScStableReferenceElementPattern}
 import org.jetbrains.plugins.scala.lang.psi.api.statements.ScFunction
 import org.jetbrains.plugins.scala.lang.psi.api.toplevel.typedef.{ScClass, ScObject, ScTypeDefinition}
-import org.jetbrains.plugins.scala.lang.psi.types.api.ExtractClass
 import org.jetbrains.plugins.scala.lang.psi.types.{ScType, ScalaType}
 import org.jetbrains.plugins.scala.lang.refactoring.namesSuggester.NameSuggester
 
@@ -29,19 +28,24 @@ class CaseClauseCompletionContributor extends ScalaCompletionContributor {
     new ScalaCompletionProvider {
 
       override protected def completionsFor(position: PsiElement)
-                                           (implicit parameters: CompletionParameters, context: ProcessingContext): Iterable[ScalaLookupItem] =
-        patternExpectedType(position) match {
-          case Some(ExtractClass(scalaClass: ScTypeDefinition)) =>
-            val classes = if (scalaClass.isSealed) findInheritors(scalaClass)
-            else Seq(scalaClass)
+                                           (implicit parameters: CompletionParameters, context: ProcessingContext): Iterable[ScalaLookupItem] = {
+        val maybeClass = position.findContextOfType(classOf[ScStableReferenceElementPattern])
+          .flatMap(_.expectedType)
+          .flatMap(_.extractClass)
 
-            classes.map { clazz =>
-              val result = new ScalaLookupItem(clazz, patternText(clazz, position))
-              result.isLocalVariable = true
-              result
-            }
+        val targetClasses = maybeClass match {
+          case Some(scalaClass: ScTypeDefinition) if scalaClass.isSealed => findInheritors(scalaClass)
+          case Some(scalaClass: ScTypeDefinition) => Seq(scalaClass)
           case _ => Iterable.empty
         }
+
+        // TODO find conflicting CompletionContributor
+        targetClasses.filterNot(_.isInstanceOf[ScObject]).map { clazz =>
+          val result = new ScalaLookupItem(clazz, patternText(clazz, position))
+          result.isLocalVariable = true
+          result
+        }
+      }
     }
   )
 }
@@ -78,13 +82,6 @@ object CaseClauseCompletionContributor {
       s"$name$tCOLON $className"
     }
   }
-
-  private def patternExpectedType(position: PsiElement) = for {
-    caseClause <- position.findContextOfType(classOf[ScCaseClause])
-    pattern <- caseClause.pattern
-    if pattern.isInstanceOf[ScStableReferenceElementPattern] && pattern.isAncestorOf(position)
-    scType <- pattern.expectedType
-  } yield scType
 
   private[this] def constructorParameters(caseClass: ScClass): Option[Seq[String]] = for {
     constructor <- caseClass.constructor
