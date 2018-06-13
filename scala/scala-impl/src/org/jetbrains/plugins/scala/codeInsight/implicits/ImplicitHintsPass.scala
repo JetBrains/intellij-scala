@@ -3,9 +3,8 @@ package org.jetbrains.plugins.scala.codeInsight.implicits
 import java.awt.{Graphics, Insets, Rectangle}
 
 import com.intellij.codeHighlighting.EditorBoundHighlightingPass
-import com.intellij.codeInsight.daemon.impl.HintRenderer
 import com.intellij.codeInsight.hints.InlayInfo
-import com.intellij.openapi.editor.colors.{CodeInsightColors, TextAttributesKey}
+import com.intellij.openapi.editor.colors.CodeInsightColors
 import com.intellij.openapi.editor.ex.util.CaretVisualPositionKeeper
 import com.intellij.openapi.editor.markup.TextAttributes
 import com.intellij.openapi.editor.{Editor, Inlay, InlayModel}
@@ -30,7 +29,7 @@ private class ImplicitHintsPass(editor: Editor, rootElement: ScalaPsiElement)
   override def doCollectInformation(indicator: ProgressIndicator): Unit = {
     hints = Seq.empty
 
-    if (ImplicitHints.enabled && myDocument != null && rootElement.containingVirtualFile.isDefined) {
+    if (myDocument != null && rootElement.containingVirtualFile.isDefined) {
       collectConversionsAndParameters()
     }
   }
@@ -38,15 +37,20 @@ private class ImplicitHintsPass(editor: Editor, rootElement: ScalaPsiElement)
   private def collectConversionsAndParameters(): Unit = {
     rootElement.depthFirst().foreach {
       case e: ScExpression =>
-        e.implicitConversion().foreach { conversion =>
-          val name = nameOf(conversion.element)
-          hints +:= (name + "(", e, if (conversion.implicitParameters.nonEmpty) ")(...)" else ")")
+        if (ImplicitHints.enabled) {
+          e.implicitConversion().foreach { conversion =>
+            val name = nameOf(conversion.element)
+            hints +:= (name + "(", e, if (conversion.implicitParameters.nonEmpty) ")(...)" else ")")
+          }
         }
 
         e match {
           case owner@(_: ImplicitParametersOwner | _: ScNewTemplateDefinition) =>
             ShowImplicitArgumentsAction.implicitParams(owner).foreach { arguments =>
-              hints +:= ("", owner, arguments.map(presentationOf).mkString("(", ", ", ")"))
+              val argumentsMissing = arguments.exists(ShowImplicitArgumentsAction.missingImplicitArgumentIn(_).isDefined)
+              if (ImplicitHints.enabled || argumentsMissing) {
+                hints +:= ("", owner, arguments.map(presentationOf).mkString("(", ", ", ")"))
+              }
             }
           case _ =>
         }

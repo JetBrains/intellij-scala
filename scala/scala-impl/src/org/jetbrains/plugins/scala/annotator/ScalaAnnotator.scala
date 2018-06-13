@@ -93,7 +93,7 @@ abstract class ScalaAnnotator extends Annotator
       private def expressionPart(expr: ScExpression) {
         if (!compiled) {
           checkExpressionType(expr, holder, typeAware)
-          checkExpressionImplicitParameters(expr, holder)
+          ImplicitParametersAnnotator.annotate(expr, holder, typeAware)
           ByNameParameter.annotate(expr, holder, typeAware)
         }
 
@@ -1146,6 +1146,9 @@ abstract class ScalaAnnotator extends Annotator
     typeElement match {
       case simpleTypeElement: ScSimpleTypeElement =>
         checkAbsentTypeArgs(simpleTypeElement, holder)
+
+        val typeAware = isAdvancedHighlightingEnabled(typeElement) && !typeElement.isInDottyModule
+        ImplicitParametersAnnotator.annotate(simpleTypeElement, holder, typeAware)
 
         simpleTypeElement.findImplicitParameters match {
           case Some(parameters) =>
