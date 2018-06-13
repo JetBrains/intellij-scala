@@ -13,7 +13,7 @@ import com.intellij.util.ui.GraphicsUtil
 import org.jetbrains.plugins.scala.codeInsight.implicits.HintRendererExt._
 
 // TODO Support custom margin & pading in the IDEA's HintRenderer
-class HintRendererExt(text: String) extends HintRenderer(text) {
+private class HintRendererExt(text: String) extends HintRenderer(text) {
   protected def getMargin(editor: Editor): Insets = DefaultMargin
 
   protected def getPadding(editor: Editor): Insets = DefaultPadding
