@@ -10,8 +10,7 @@ import org.jetbrains.plugins.scala.lang.psi.api.ScalaFile
 import org.jetbrains.plugins.scala.lang.psi.api.base.ScReferenceElement
 import org.jetbrains.plugins.scala.lang.psi.api.expr.ScReferenceExpression
 import org.jetbrains.plugins.scala.lang.psi.api.statements.ScDeclaredElementsHolder
-import org.jetbrains.plugins.scala.lang.psi.api.toplevel.typedef.{ScObject, ScTemplateDefinition}
-import org.jetbrains.plugins.scala.lang.psi.light.PsiClassWrapper
+import org.jetbrains.plugins.scala.lang.psi.api.toplevel.typedef.ScTemplateDefinition
 import org.jetbrains.plugins.scala.lang.refactoring.util.ScalaChangeContextUtil
 
 class ScalaMoveMemberHandler extends MoveJavaMemberHandler {
@@ -79,11 +78,11 @@ class ScalaMoveMemberHandler extends MoveJavaMemberHandler {
   override def doMove(moveMembersOptions: MoveMembersOptions, scMember: PsiMember, anchor: PsiElement, targetClass: PsiClass): PsiMember = {
     ScalaChangeContextUtil.encodeContextInfo(Seq(scMember))
     val memberCopy = scMember.copy()
-    val newMemberInTarget = targetClass.add(memberCopy)
+    val movedMember = targetClass.add(memberCopy)
+    ScalaChangeContextUtil.storeMovedMember(movedMember, targetClass)
     scMember.delete()
-    newMemberInTarget.asInstanceOf[PsiMember]
+    movedMember.asInstanceOf[PsiMember]
   }
-
 
   override def decodeContextInfo(scope: PsiElement): Unit = ScalaChangeContextUtil.decodeContextInfo(Seq(scope))
 
