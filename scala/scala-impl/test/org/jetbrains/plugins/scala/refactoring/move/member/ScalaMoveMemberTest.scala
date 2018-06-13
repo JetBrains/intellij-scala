@@ -5,21 +5,82 @@ import org.junit.Assert.fail
 
 class ScalaMoveMemberTest extends BaseScalaMoveMemberTest {
 
-  def testVal() = {
-    doTest("A$", "B$", "x")
+  def testVal(): Unit = {
+    doTest("A", "B", "x",
+      """
+        |object A {
+        |  val x = 1
+        |}
+        |
+        |object B
+      """.stripMargin,
+      """
+        |object A {
+        |}
+        |
+        |object B {
+        |  val x = 1
+        |}
+      """.stripMargin
+    )
   }
 
-  def testVar() = {
-    doTest("A$", "B$", "x")
+  def testVar(): Unit = {
+    doTest("A", "B", "x",
+      """
+        |object A {
+        |  var x = 1
+        |}
+        |
+        |object B
+      """.stripMargin,
+      """
+        |object A {
+        |}
+        |
+        |object B {
+        |  var x = 1
+        |}
+      """.stripMargin
+    )
+
   }
 
-  def testDef() = {
-    doTest("A$", "B$", "x")
+  def testDef(): Unit = {
+    doTest("A", "B", "x",
+      """
+        |object A {
+        |  def x = 1
+        |}
+        |
+        |object B
+      """.stripMargin,
+      """
+        |object A {
+        |}
+        |
+        |object B {
+        |  def x = 1
+        |}
+      """.stripMargin
+    )
+
   }
 
-  def testConflict() = {
+  def testConflict(): Unit = {
     try {
-      doTest("A$", "B$", "x")
+      doTest("A", "B", "x",
+        """
+          |object A {
+          |  def x = 1
+          |}
+          |
+          |object B {
+          |  def x = 1
+          |}
+        """.stripMargin,
+        null
+      )
       fail("expected 'ConflictsInTestsException'")
     } catch {
       case _:ConflictsInTestsException =>
