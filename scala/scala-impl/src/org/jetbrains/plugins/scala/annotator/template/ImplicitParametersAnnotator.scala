@@ -45,5 +45,5 @@ object ImplicitParametersAnnotator extends AnnotatorPart[ImplicitParametersOwner
   }
 
   def message(types: Seq[String]): String =
-    types.mkString("No implicit arguments for: ", ", ", "")
+    types.mkString("No implicit arguments of type: ", ", ", "")
 }
