@@ -12,10 +12,25 @@ import com.intellij.ui.paint.EffectPainter
 import com.intellij.util.ui.GraphicsUtil
 import org.jetbrains.plugins.scala.codeInsight.implicits.HintRendererExt._
 
+// TODO Support custom margin & pading in the IDEA's HintRenderer
 class HintRendererExt(text: String) extends HintRenderer(text) {
+  protected def getMargin(editor: Editor): Insets = DefaultMargin
+
+  protected def getPadding(editor: Editor): Insets = DefaultPadding
+
+  override protected def calcWidthInPixels(editor: Editor): Int = {
+    val m = getMargin(editor)
+    val p = getPadding(editor)
+    val fontMetrics = getFontMetrics(editor).getMetrics
+    if (text == null) 0 else fontMetrics.stringWidth(text) + m.left + p.left + p.right + m.right
+  }
+
   override def paint(editor: Editor, g: Graphics, r: Rectangle, textAttributes: TextAttributes) {
     if (!editor.isInstanceOf[EditorImpl]) return
     val editorImpl = editor.asInstanceOf[EditorImpl]
+
+    val m = getMargin(editor)
+    val p = getPadding(editor)
 
     val ascent = editorImpl.getAscent
     val descent = editorImpl.getDescent
@@ -29,7 +44,7 @@ class HintRendererExt(text: String) extends HintRenderer(text) {
         val config = GraphicsUtil.setupAAPainting(g)
         GraphicsUtil.paintWithAlpha(g, BACKGROUND_ALPHA)
         g.setColor(backgroundColor)
-        g.fillRoundRect(r.x + 2, r.y + gap, r.width - 4, r.height - gap * 2, 8, 8)
+        g.fillRoundRect(r.x + m.left, r.y + gap, r.width - m.left - m.right, r.height - gap * 2, 8, 8)
         config.restore()
       }
       val foregroundColor = attributes.getForegroundColor
@@ -40,9 +55,9 @@ class HintRendererExt(text: String) extends HintRenderer(text) {
         g.setColor(foregroundColor)
         g.setFont(getFont(editor))
         g2d.setRenderingHint(RenderingHints.KEY_TEXT_ANTIALIASING, AntialiasingType.getKeyForCurrentScope(false))
-        g.clipRect(r.x + 3, r.y + 2, r.width - 6, r.height - 4)
+        g.clipRect(r.x + m.left + 1, r.y + 2, r.width - m.left - m.right - 2, r.height - 4)
         val metrics = fontMetrics.getMetrics
-        g.drawString(text, r.x + 7, r.y + Math.max(ascent, (r.height + metrics.getAscent - metrics.getDescent) / 2) - 1)
+        g.drawString(text, r.x + m.left + p.left, r.y + Math.max(ascent, (r.height + metrics.getAscent - metrics.getDescent) / 2) - 1)
 
         g.setClip(savedClip)
         g2d.setRenderingHint(RenderingHints.KEY_TEXT_ANTIALIASING, savedHint)
@@ -74,5 +89,9 @@ class HintRendererExt(text: String) extends HintRenderer(text) {
 
 private object HintRendererExt {
   final val BACKGROUND_ALPHA = 0.55f
+
+  final val DefaultMargin = new Insets(0, 2, 0, 2)
+
+  final val DefaultPadding = new Insets(0, 5, 0, 5)
 }
 
