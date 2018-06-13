@@ -2,61 +2,62 @@ package org.jetbrains.plugins.scala.lang.refactoring.move.members
 
 import java.awt.BorderLayout
 
-import com.intellij.openapi.fileTypes.StdFileTypes
 import com.intellij.openapi.project.Project
 import com.intellij.openapi.ui.Messages
-import com.intellij.psi.{JavaCodeFragment, PsiMember}
+import com.intellij.psi.util.PsiTreeUtil
+import com.intellij.psi.{PsiDocumentManager, PsiMember}
 import com.intellij.refactoring.RefactoringBundle
 import com.intellij.refactoring.move.moveMembers.{MoveMembersOptions, MoveMembersProcessor}
 import com.intellij.refactoring.ui.RefactoringDialog
-import com.intellij.ui.{EditorComboBox, JavaReferenceEditorUtil}
+import com.intellij.ui.EditorComboBox
 import javax.swing._
-import org.jetbrains.plugins.scala.ScalaBundle
-import org.jetbrains.plugins.scala.lang.psi.ElementScope
+import org.jetbrains.plugins.scala.debugger.evaluation.ScalaCodeFragment
+import org.jetbrains.plugins.scala.extensions.ObjectExt
+import org.jetbrains.plugins.scala.lang.psi.api.base.ScReferenceElement
 import org.jetbrains.plugins.scala.lang.psi.api.toplevel.typedef.ScObject
+import org.jetbrains.plugins.scala.{ScalaBundle, ScalaFileType}
 
-class ScalaMoveMembersDialog(project: Project, canBeParent: Boolean, sourceObject: ScObject, initialTargetMember: PsiMember) extends RefactoringDialog(project, canBeParent) {
+class ScalaMoveMembersDialog(project: Project, canBeParent: Boolean, sourceObject: ScObject, memberToMove: PsiMember) extends RefactoringDialog(project, canBeParent) {
 
+  private val targetObjectFragment: ScalaCodeFragment = {
+    val fragment = new ScalaCodeFragment(project, "")
+    fragment.setContext(memberToMove.getContext, memberToMove)
+    fragment
+  }
 
-
-  val myTfTargetClassName = new EditorComboBox(
-    JavaReferenceEditorUtil.createDocument(
-      "",
-      myProject,
-      true,
-      JavaCodeFragment.VisibilityChecker.PROJECT_SCOPE_VISIBLE),
-    myProject,
-    StdFileTypes.HTML)
+  private val myTfTargetClassName: EditorComboBox = {
+    val document = PsiDocumentManager.getInstance(project).getDocument(targetObjectFragment)
+    new EditorComboBox(document, project, ScalaFileType.INSTANCE)
+  }
 
   init()
 
-
   override def doAction(): Unit = {
-    val myMoveCallback = null
+    val reference =
+      PsiTreeUtil.getChildOfType(targetObjectFragment, classOf[ScReferenceElement])
+        .toOption.toRight(ScalaBundle.message("move.members.object.name.or.qualified.name.expected"))
 
-    val className = myTfTargetClassName.getText
+    val maybeObj = reference.flatMap(_.resolve()
+      .asOptionOf[ScObject].toRight(ScalaBundle.message("move.members.cannot.find.object")))
 
-    findClass(className) match {
-      case Some(_) =>
-        val mm = new MoveMembersProcessor(getProject, myMoveCallback, new MoveMembersOptions() {
+    maybeObj match {
+      case Right(obj) =>
+        val qualName = obj.getQualifiedName
+
+        val mm = new MoveMembersProcessor(getProject, null, new MoveMembersOptions() {
           override def getMemberVisibility: String = "public"
 
           override def makeEnumConstant: Boolean = false
 
-          override def getSelectedMembers: Array[PsiMember] = List(initialTargetMember).toArray
+          override def getSelectedMembers: Array[PsiMember] = List(memberToMove).toArray
 
-          override def getTargetClassName: String = className
+          override def getTargetClassName: String = qualName
         })
         invokeRefactoring(mm)
-      case _ => Messages.showErrorDialog(ScalaBundle.message("move.members.target.must.be.object"), RefactoringBundle.message("error.title"))
+
+      case Left(message) =>
+        Messages.showErrorDialog(message, RefactoringBundle.message("error.title"))
     }
-  }
-
-  private def findClass(className: String): Option[ScObject] = {
-    val indexOfDollar = className.indexOf("$")
-    val classNameTocSearch = if(indexOfDollar < 0) className else className.substring(0, indexOfDollar)
-    ElementScope(myProject).getCachedObject(classNameTocSearch)
-
   }
 
   override def createCenterPanel(): JComponent = {
@@ -68,14 +69,14 @@ class ScalaMoveMembersDialog(project: Project, canBeParent: Boolean, sourceObjec
     val sourceClassField = new JTextField
     sourceClassField.setText(sourceObject.name)
     sourceClassField.setEditable(false)
-    _panel1.add(new JLabel(RefactoringBundle.message("move.members.move.members.from.label")), BorderLayout.NORTH)
+    _panel1.add(new JLabel(ScalaBundle.message("move.members.source.title")), BorderLayout.NORTH)
     _panel1.add(sourceClassField, BorderLayout.CENTER)
     box.add(_panel1)
 
     box.add(Box.createVerticalStrut(10))
 
     val _panel2 = new JPanel(new BorderLayout)
-    val label = new JLabel(RefactoringBundle.message("move.members.to.fully.qualified.name.label"))
+    val label = new JLabel(ScalaBundle.message("move.members.target.title"))
 
     label.setLabelFor(myTfTargetClassName)
     _panel2.add(label, BorderLayout.NORTH)
