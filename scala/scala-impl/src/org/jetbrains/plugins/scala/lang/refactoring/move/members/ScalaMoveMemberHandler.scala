@@ -76,14 +76,24 @@ class ScalaMoveMemberHandler extends MoveJavaMemberHandler {
 
 
   override def doMove(moveMembersOptions: MoveMembersOptions, scMember: PsiMember, anchor: PsiElement, targetClass: PsiClass): PsiMember = {
-    ScalaChangeContextUtil.encodeContextInfo(Seq(scMember))
+    val associations = ScalaChangeContextUtil.collectDataForElement(scMember)
     val memberCopy = scMember.copy()
+
     val movedMember = targetClass.add(memberCopy)
+
+    ScalaChangeContextUtil.storeContextInfo(associations, movedMember)
     ScalaChangeContextUtil.storeMovedMember(movedMember, targetClass)
+
     scMember.delete()
+
     movedMember.asInstanceOf[PsiMember]
   }
 
-  override def decodeContextInfo(scope: PsiElement): Unit = ScalaChangeContextUtil.decodeContextInfo(Seq(scope))
+  override def decodeContextInfo(targetClass: PsiElement): Unit = {
+    val movedMember =
+      ScalaChangeContextUtil.getMovedMember(targetClass)
+
+    ScalaChangeContextUtil.restoreForElement(movedMember)
+  }
 
 }

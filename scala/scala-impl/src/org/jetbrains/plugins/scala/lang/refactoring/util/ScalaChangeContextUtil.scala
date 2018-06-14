@@ -23,6 +23,10 @@ object ScalaChangeContextUtil {
     }
   }
 
+  def storeContextInfo(associations: Associations, element: PsiElement): Unit = {
+    element.putCopyableUserData(ASSOCIATIONS_KEY, associations)
+  }
+
   def storeMovedMember(moved: PsiElement, target: PsiElement): Unit = {
     target.putUserData(MOVED_ELEMENT_KEY, moved)
   }
@@ -44,7 +48,7 @@ object ScalaChangeContextUtil {
     }
   }
 
-  private def collectDataForElement(elem: PsiElement) = {
+  def collectDataForElement(elem: PsiElement): Associations = {
     val range: TextRange = elem.getTextRange
     val associations = processor.collectTransferableData(elem.getContainingFile, null,
       Array[Int](range.getStartOffset), Array[Int](range.getEndOffset))
@@ -52,7 +56,7 @@ object ScalaChangeContextUtil {
     if (associations.isEmpty) null else associations.get(0)
   }
 
-  private def restoreForElement(elem: PsiElement) {
+  def restoreForElement(elem: PsiElement) {
     val movedElement = Option(getMovedMember(elem)).getOrElse(elem)
     val associations: Associations = movedElement.getCopyableUserData(ASSOCIATIONS_KEY)
 
