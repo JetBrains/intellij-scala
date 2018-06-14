@@ -19,7 +19,7 @@ import org.jetbrains.plugins.scala.codeInspection.bundled.BundledInspectionsUiTa
 import org.jetbrains.plugins.scala.compiler.ScalaCompileServerSettings;
 import org.jetbrains.plugins.scala.components.InvalidRepoException;
 import org.jetbrains.plugins.scala.components.ScalaPluginUpdater;
-import org.jetbrains.plugins.scala.components.libextensions.LibExtensionsSettingsPanelWrapper;
+import org.jetbrains.plugins.scala.components.libextensions.ui.LibExtensionsSettingsPanelWrapper;
 import org.jetbrains.plugins.scala.settings.uiControls.ScalaUiWithDependency;
 import org.jetbrains.plugins.scala.worksheet.interactive.WorksheetAutoRunner$;
 

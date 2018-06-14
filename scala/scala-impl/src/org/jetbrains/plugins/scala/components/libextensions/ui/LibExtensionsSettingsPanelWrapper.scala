@@ -1,4 +1,4 @@
-package org.jetbrains.plugins.scala.components.libextensions
+package org.jetbrains.plugins.scala.components.libextensions.ui
 
 import java.awt.BorderLayout
 import java.awt.event.ActionEvent
