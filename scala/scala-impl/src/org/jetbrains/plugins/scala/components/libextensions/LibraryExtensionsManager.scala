@@ -113,7 +113,7 @@ class LibraryExtensionsManager(project: Project) extends AbstractProjectComponen
     resultSet
   }
 
-  private def processResolvedExtension(resolved: ResolvedDependency): Unit = {
+  private[libextensions] def processResolvedExtension(resolved: ResolvedDependency): Unit = {
     val file = resolved.toJarVFile
     val manifest = Option(file.findFileByRelativePath(manifestPath))
       .map(vFile => Try(using(vFile.getInputStream)(XML.load)))
