@@ -8,11 +8,19 @@ import ch.epfl.scala.bsp.Uri
 import com.intellij.openapi.diagnostic.Logger
 import scribe.{LogRecord, LoggerSupport}
 
+import scala.meta.jsonrpc.Response
+
 object BspUtil {
 
   implicit class BspUriOps(bspUri: Uri) {
     def toURI: URI = new URI(bspUri.value)
     def toFile: File = Paths.get(bspUri.toURI.getPath).toFile
+  }
+
+  implicit class JsonRpcResponseErrorOps(err: Response.Error) {
+    def toBspError: BspError = {
+      BspErrorMessage(s"bsp protocol error (${err.error.code}): ${err.error.message}")
+    }
   }
 
   implicit class IdeaLoggerOps(ideaLogger: Logger) {

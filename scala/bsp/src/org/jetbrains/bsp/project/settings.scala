@@ -1,4 +1,4 @@
-package org.jetbrains.bsp
+package org.jetbrains.bsp.project
 
 import java.util
 
@@ -13,6 +13,7 @@ import com.intellij.uiDesigner.core.{GridConstraints, GridLayoutManager, Spacer}
 import com.intellij.util.containers.ContainerUtilRt
 import com.intellij.util.messages.Topic
 import javax.swing.{JCheckBox, JPanel}
+import org.jetbrains.bsp._
 
 import scala.beans.BeanProperty
 

@@ -1,4 +1,4 @@
-package org.jetbrains.bsp
+package org.jetbrains.bsp.project
 
 import com.intellij.ide.actions.OpenProjectFileChooserDescriptor
 

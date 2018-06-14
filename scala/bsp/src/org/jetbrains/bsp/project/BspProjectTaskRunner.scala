@@ -1,9 +1,10 @@
-package org.jetbrains.bsp
+package org.jetbrains.bsp.project
 
 import java.io.File
 import java.util
 import java.util.UUID
 
+import cats.data.EitherT
 import ch.epfl.scala.bsp._
 import com.intellij.build.FilePosition
 import com.intellij.execution.process.AnsiEscapeDecoder.ColoredTextAcceptor
@@ -19,11 +20,14 @@ import com.intellij.openapi.progress.{PerformInBackgroundOption, ProgressIndicat
 import com.intellij.openapi.project.Project
 import com.intellij.openapi.util.Key
 import com.intellij.task._
+import org.jetbrains.bsp.magic.monixToCats.monixToCatsMonad
 import monix.eval
 import monix.execution.{ExecutionModel, Scheduler}
-import org.jetbrains.bsp.BspProjectTaskRunner.BspTask
 import org.jetbrains.bsp.BspUtil._
+import org.jetbrains.bsp.bsp
 import org.jetbrains.bsp.data.BspMetadata
+import org.jetbrains.bsp.project.BspProjectTaskRunner.BspTask
+import org.jetbrains.bsp.protocol.BspCommunication
 import org.jetbrains.ide.PooledThreadExecutor
 import org.jetbrains.plugins.scala.build.{BuildFailureException, BuildMessages, BuildToolWindowReporter, IndicatorReporter}
 
@@ -32,6 +36,7 @@ import scala.concurrent.Await
 import scala.concurrent.duration.Duration
 import scala.meta.jsonrpc.{LanguageClient, Response, Services}
 import scala.util.control.NonFatal
+
 
 class BspProjectTaskRunner extends ProjectTaskRunner {
 
@@ -96,7 +101,8 @@ object BspProjectTaskRunner {
     private val report = new BuildToolWindowReporter(project, taskId, "bsp build")
 
     private def compileRequest(implicit client: LanguageClient): eval.Task[Either[Response.Error, CompileResult]] =
-      endpoints.BuildTarget.compile.request(CompileParams(targets, None, List.empty)) // TODO correct compile params
+      endpoints.BuildTarget.compile.request(CompileParams(targets, None, List.empty)) // TODO support requestId
+
 
     private val logger = Logger.getInstance(classOf[BspTask[_]])
 
@@ -112,8 +118,8 @@ object BspProjectTaskRunner {
       val projectRoot = new File(project.getBasePath)
 
       val buildTask = for {
-        session <- BspCommunication.prepareSession(projectRoot)
-        compiled <- session.run(services, compileRequest(_))
+        session <- EitherT(BspCommunication.prepareSession(projectRoot))
+        compiled <- EitherT(session.run(services, compileRequest(_))).leftMap(_.toBspError)
       } yield {
         compiled
       }
@@ -122,10 +128,10 @@ object BspProjectTaskRunner {
       report.start()
 
       val projectTaskResult = try {
-        val result = Await.result(buildTask.runAsync, Duration.Inf)
+        val result = Await.result(buildTask.value.runAsync, Duration.Inf)
         result match {
-          case Left(errorResponse) =>
-            val message = errorResponse.error.message
+          case Left(error) =>
+            val message = error.getMessage
             val failure = BuildFailureException(message)
             report.error(message, None)
             report.finishWithFailure(failure)

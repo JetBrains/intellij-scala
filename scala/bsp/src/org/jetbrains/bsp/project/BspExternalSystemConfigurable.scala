@@ -1,8 +1,9 @@
-package org.jetbrains.bsp
+package org.jetbrains.bsp.project
 
 import com.intellij.openapi.externalSystem.service.settings.AbstractExternalSystemConfigurable
 import com.intellij.openapi.externalSystem.util.ExternalSystemSettingsControl
 import com.intellij.openapi.project.Project
+import org.jetbrains.bsp._
 
 class BspExternalSystemConfigurable(project: Project)
   extends AbstractExternalSystemConfigurable[BspProjectSettings, BspProjectSettingsListener, BspSystemSettings](project, bsp.ProjectSystemId) {

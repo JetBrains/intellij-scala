@@ -1,4 +1,4 @@
-package org.jetbrains.bsp
+package org.jetbrains.bsp.project
 
 import java.io.File
 
@@ -13,6 +13,7 @@ import com.intellij.openapi.project.{Project, ProjectManager}
 import com.intellij.openapi.vfs.VirtualFile
 import com.intellij.projectImport.ProjectOpenProcessorBase
 import javax.swing.Icon
+import org.jetbrains.bsp._
 
 class BspProjectImportBuilder(projectDataManager: ProjectDataManager)
   extends AbstractExternalProjectImportBuilder[BspImportControl](projectDataManager, new BspImportControl(), bsp.ProjectSystemId) {

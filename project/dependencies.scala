@@ -137,7 +137,7 @@ object DependencyGroups {
   val bsp = Seq(
     "org.scala-sbt.ipcsocket" % "ipcsocket" % "1.0.0",
     "ch.epfl.scala" %% "bsp" % "1.0.0-M4",
-    "org.scalameta" %% "lsp4s" % "0.1.0+9-98b49257-SNAPSHOT"
+    "org.scalameta" %% "lsp4s" % "1.0.0-RC1"
   )
 
   val decompiler = Seq(

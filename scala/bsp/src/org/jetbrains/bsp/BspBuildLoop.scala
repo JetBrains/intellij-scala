@@ -14,9 +14,14 @@ import com.intellij.openapi.vfs.{VirtualFile, VirtualFileManager}
 import com.intellij.psi.PsiManager
 import com.intellij.task.{ProjectTaskManager, ProjectTaskNotification, ProjectTaskResult}
 import com.intellij.util.messages.MessageBusConnection
+import org.jetbrains.bsp.project.{BspProjectSettings, BspSystemSettings}
 import org.jetbrains.plugins.scala.ScalaFileType
+
 import scala.collection.JavaConverters._
 
+/**
+  * Builds bsp modules on file save. We should change this to support the bsp file change notifications
+  */
 final class BspBuildLoop(project: Project) extends AbstractProjectComponent(project) {
 
   private def bspSettings: Option[BspProjectSettings] =

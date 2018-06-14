@@ -1,7 +1,8 @@
-package org.jetbrains.bsp
+package org.jetbrains.bsp.project
 
 import java.io.File
 
+import cats.data.EitherT
 import ch.epfl.scala.bsp._
 import com.intellij.openapi.diagnostic.Logger
 import com.intellij.openapi.externalSystem.model.project._
@@ -11,11 +12,14 @@ import com.intellij.openapi.externalSystem.service.project.ExternalSystemProject
 import com.intellij.openapi.module.StdModuleTypes
 import com.intellij.openapi.roots.DependencyScope
 import io.circe.Json
+import org.jetbrains.bsp.magic.monixToCats.monixToCatsMonad
 import monix.eval.Task
 import monix.execution.{Cancelable, ExecutionModel, Scheduler}
-import org.jetbrains.bsp.BspProjectResolver._
 import org.jetbrains.bsp.BspUtil._
 import org.jetbrains.bsp.data.{BspMetadata, ScalaSdkData}
+import org.jetbrains.bsp.project.BspProjectResolver._
+import org.jetbrains.bsp.protocol.BspCommunication
+import org.jetbrains.bsp.{BspError, bsp}
 import org.jetbrains.ide.PooledThreadExecutor
 import org.jetbrains.plugins.scala.project.Version
 import org.jetbrains.sbt.project.data.SbtBuildModuleData
@@ -46,24 +50,31 @@ class BspProjectResolver extends ExternalSystemProjectResolver[BspExecutionSetti
     }
 
     def targetData(targetIds: List[BuildTargetIdentifier])(implicit client: LanguageClient):
-    Task[(Either[Response.Error, DependencySourcesResult], Either[Response.Error, ScalacOptionsResult])] =
+    Task[(Either[Response.Error, DependencySourcesResult],
+          Either[Response.Error, ScalacOptionsResult])] =
       if (isPreviewMode)
         Task.now(Right(DependencySourcesResult(List.empty)), Right(ScalacOptionsResult(List.empty)))
-      else Task.zip2(
-        endpoints.BuildTarget.dependencySources.request(DependencySourcesParams(targetIds)),
-        endpoints.BuildTarget.scalacOptions.request(ScalacOptionsParams(targetIds))
-      )
-
-    def requests(implicit client: LanguageClient) = {
-      import endpoints._
-      for {
-        targetsResponse <- Workspace.buildTargets.request(WorkspaceBuildTargetsRequest())
-        targets = targetsResponse.right.get.targets // YOLO
-        targetIds = targets.map(_.id)
-        data <- targetData(targetIds)
-      } yield {
-        calculateModuleDescription(targets, data._2.right.get.items, data._1.right.get.items) // YOLO
+      else {
+        import endpoints.BuildTarget._
+        val depSources = dependencySources.request(DependencySourcesParams(targetIds))
+        val scalacOptions = endpoints.BuildTarget.scalacOptions.request(ScalacOptionsParams(targetIds))
+        Task.zip2(depSources, scalacOptions)
       }
+
+    def requests(implicit client: LanguageClient): Task[Either[BspError, Iterable[ScalaModuleDescription]]] = {
+      import endpoints._
+      val targetsRequest = Workspace.buildTargets.request(WorkspaceBuildTargetsRequest())
+      val transformer = for {
+        targetsResponse <- EitherT(targetsRequest).leftMap(_.toBspError)
+        targets = targetsResponse.targets
+        targetIds = targets.map(_.id)
+        data <- EitherT.right(targetData(targetIds))
+        dependencySources <- EitherT.fromEither[Task](data._1.left.map(_.toBspError)) // TODO not required for project, should be warning
+        scalacOptions <- EitherT.fromEither[Task](data._2.left.map(_.toBspError)) // TODO not required for non-scala modules
+      } yield {
+        calculateModuleDescription(targets, scalacOptions.items, dependencySources.items)
+      }
+      transformer.value
     }
     
     def createModuleNode(moduleDescription: ScalaModuleDescription,
@@ -153,10 +164,10 @@ class BspProjectResolver extends ExternalSystemProjectResolver[BspExecutionSetti
         statusUpdate(params.message)
       }
 
-    val projectTask = for {
-      session <- BspCommunication.prepareSession(projectRoot)
+    val projectTask: EitherT[Task, BspError, DataNode[ProjectData]] = for {
+      session <- EitherT(BspCommunication.prepareSession(projectRoot))
       _ = statusUpdate("session prepared") // TODO remove in favor of build toolwindow nodes
-      moduleDescriptions <- session.run(services, requests(_))
+      moduleDescriptions <- EitherT(session.run(services, requests(_)))
     } yield {
 
       statusUpdate("targets fetched") // TODO remove in favor of build toolwindow nodes
@@ -198,14 +209,17 @@ class BspProjectResolver extends ExternalSystemProjectResolver[BspExecutionSetti
 
     statusUpdate("starting task") // TODO remove in favor of build toolwindow nodes
 
-    val running = projectTask.runAsync
+    val running = projectTask.value.runAsync
     activeImport = Some(ActiveImport(running))
     val result = Await.result(running, Duration.Inf)
     activeImport = None
 
     statusUpdate("finished task") // TODO remove in favor of build toolwindow nodes
 
-    result
+    result match {
+      case Left(err) => throw err
+      case Right(data) => data
+    }
   }
 
   override def cancelTask(taskId: ExternalSystemTaskId,

@@ -1,4 +1,4 @@
-package org.jetbrains.bsp
+package org.jetbrains.bsp.project
 
 import java.net.URL
 
@@ -10,6 +10,7 @@ import com.intellij.openapi.fileChooser.FileChooserDescriptor
 import com.intellij.openapi.options.Configurable
 import com.intellij.openapi.project.Project
 import com.intellij.util.Function
+import org.jetbrains.bsp._
 
 class BspExternalSystemManager extends ExternalSystemManager[BspProjectSettings, BspProjectSettingsListener, BspSystemSettings, BspLocalSettings, BspExecutionSettings]
   with ExternalSystemConfigurableAware {

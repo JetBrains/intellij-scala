@@ -4,7 +4,7 @@
 
     <project-components>
         <component>
-            <implementation-class>org.jetbrains.bsp.BspCommunication</implementation-class>
+            <implementation-class>org.jetbrains.bsp.protocol.BspCommunication</implementation-class>
         </component>
         <component>
             <implementation-class>org.jetbrains.bsp.BspBuildLoop</implementation-class>
@@ -22,25 +22,25 @@
     </extensionPoints>
 
     <extensions defaultExtensionNs="com.intellij">
-        <moduleType id="BSP_SYNTHETIC_MODULE" implementationClass="org.jetbrains.bsp.BspSyntheticModuleType"/>
-        <moduleConfigurationEditorProvider implementation="org.jetbrains.bsp.BspSyntheticModuleEditorProvider"/>
+        <moduleType id="BSP_SYNTHETIC_MODULE" implementationClass="org.jetbrains.bsp.project.BspSyntheticModuleType"/>
+        <moduleConfigurationEditorProvider implementation="org.jetbrains.bsp.project.BspSyntheticModuleEditorProvider"/>
 
-        <externalSystemManager implementation="org.jetbrains.bsp.BspExternalSystemManager"/>
+        <externalSystemManager implementation="org.jetbrains.bsp.project.BspExternalSystemManager"/>
 
         <externalProjectDataService implementation="org.jetbrains.bsp.data.ScalaSdkService"/>
         <externalProjectDataService implementation="org.jetbrains.bsp.data.BspMetadataService"/>
 
         <!--<externalSystemConfigLocator implementation="org.jetbrains.bsp.BspConfigLocator"/>-->
 
-        <projectService serviceImplementation="org.jetbrains.bsp.BspSystemSettings"/>
-        <projectService serviceImplementation="org.jetbrains.bsp.BspLocalSettings"/>
+        <projectService serviceImplementation="org.jetbrains.bsp.project.BspSystemSettings"/>
+        <projectService serviceImplementation="org.jetbrains.bsp.project.BspLocalSettings"/>
 
-        <projectImportProvider implementation="org.jetbrains.bsp.BspProjectImportProvider"/>
-        <projectImportBuilder implementation="org.jetbrains.bsp.BspProjectImportBuilder"/>
+        <projectImportProvider implementation="org.jetbrains.bsp.project.BspProjectImportProvider"/>
+        <projectImportBuilder implementation="org.jetbrains.bsp.project.BspProjectImportBuilder"/>
 
-        <projectOpenProcessor implementation="org.jetbrains.bsp.BspProjectOpenProcessor"/>
+        <projectOpenProcessor implementation="org.jetbrains.bsp.project.BspProjectOpenProcessor"/>
 
-        <projectConfigurable groupId="build.tools" displayName="bsp" instance="org.jetbrains.bsp.BspExternalSystemConfigurable" />
+        <projectConfigurable groupId="build.tools" displayName="bsp" instance="org.jetbrains.bsp.project.BspExternalSystemConfigurable" />
 
         <toolWindow id="bsp" anchor="right"
                     icon="/org/jetbrains/plugins/scala/images/sbt_toolwin.png"
@@ -49,7 +49,7 @@
 
         <!--<configurationType implementation="org.jetbrains.sbt.runner.SbtConfigurationType"/>-->
 
-        <projectTaskRunner implementation="org.jetbrains.bsp.BspProjectTaskRunner"/>
+        <projectTaskRunner implementation="org.jetbrains.bsp.project.BspProjectTaskRunner"/>
         <!--<postStartupActivity implementation="org.jetbrains.bsp.BspStartupActivity"/>-->
 
     </extensions>

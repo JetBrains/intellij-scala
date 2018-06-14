@@ -1,10 +1,10 @@
-package org.jetbrains.bsp
+package org.jetbrains.bsp.project
 
 import com.intellij.ide.util.projectWizard.EmptyModuleBuilder
 import com.intellij.openapi.module.{Module, ModuleConfigurationEditor, ModuleType}
 import com.intellij.openapi.roots.ui.configuration._
 import javax.swing.Icon
-import org.jetbrains.bsp.BspSyntheticModuleType._
+import org.jetbrains.bsp.project.BspSyntheticModuleType._
 import org.jetbrains.sbt.Sbt
 
 class BspSyntheticModuleType extends ModuleType[EmptyModuleBuilder](Id) {
