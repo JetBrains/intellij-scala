@@ -43,7 +43,9 @@ private class ImplicitHintsPass(editor: Editor, rootElement: ScalaPsiElement)
 
         e match {
           case call: ScMethodCall if isExplicitImplicit(call) =>
-            hints ++:= explicitImplicitArgumentsHint(call.args)
+            if (ImplicitHints.enabled) {
+              hints ++:= explicitImplicitArgumentsHint(call.args)
+            }
 
           case owner@(_: ImplicitParametersOwner | _: ScNewTemplateDefinition) if e.implicitConversion().isEmpty =>
             ShowImplicitArgumentsAction.implicitParams(owner).foreach { arguments =>
