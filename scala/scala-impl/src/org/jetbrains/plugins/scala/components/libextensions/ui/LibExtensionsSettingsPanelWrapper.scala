@@ -11,6 +11,8 @@ import com.intellij.ui._
 import com.intellij.ui.components.{JBLabel, JBList}
 import com.intellij.util.ui.{JBUI, UIUtil}
 import javax.swing._
+import org.jetbrains.plugins.scala.components.libextensions.LibraryExtensionsManager._
+import org.jetbrains.plugins.scala.components.libextensions.{ExtensionDescriptor, LibraryDescriptor, LibraryExtensionsManager}
 import org.jetbrains.plugins.scala.settings.ScalaProjectSettings
 
 class LibExtensionsSettingsPanelWrapper(private val rootPanel: JPanel,
@@ -28,7 +30,7 @@ class LibExtensionsSettingsPanelWrapper(private val rootPanel: JPanel,
   }
 
   class LibraryDetailsModel(selectedDescriptor: Option[LibraryDescriptor]) extends AbstractListModel[ExtensionDescriptor] {
-    private val myExtensions = selectedDescriptor.flatMap(_.getCurrentPluginDescriptor.map(_.extensions)).getOrElse(Nil)
+    private val myExtensions = selectedDescriptor.flatMap(_.getCurrentPluginDescriptor.map(_.extensions)).getOrElse(Nil).filter(_.isAvailable)
     override def getSize: Int = myExtensions.length
     override def getElementAt(i: Int): ExtensionDescriptor = myExtensions(i)
   }
@@ -86,7 +88,7 @@ class LibExtensionsSettingsPanelWrapper(private val rootPanel: JPanel,
       val ExtensionDescriptor(_, impl, name, description, _) = ext
       val builder = new StringBuilder
       if (name.nonEmpty) builder.append(name) else builder.append(impl)
-      if (description.nonEmpty) builder.append(s" - description")
+      if (description.nonEmpty) builder.append(s" - $description")
       new JBLabel(builder.mkString)
     }
 
