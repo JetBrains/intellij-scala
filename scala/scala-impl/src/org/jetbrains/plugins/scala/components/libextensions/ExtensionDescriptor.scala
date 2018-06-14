@@ -21,12 +21,7 @@ case class LibraryDescriptor(name: String,
                              description: String,
                              vendor: String,
                              version: String,
-                             pluginVersions: Seq[IdeaVersionDescriptor]) {
-
-  def getCurrentPluginDescriptor: Option[IdeaVersionDescriptor] = pluginVersions.headOption // TODO
-
-}
-
+                             pluginVersions: Seq[IdeaVersionDescriptor])
 
 
 object LibraryDescriptor {

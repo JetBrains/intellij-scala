@@ -2,19 +2,22 @@ package org.jetbrains.plugins.scala.components.libextensions
 
 import java.io.File
 
+import com.intellij.ide.plugins.PluginManager
 import com.intellij.ide.util.PropertiesComponent
 import com.intellij.notification._
 import com.intellij.openapi.application.ApplicationManager
 import com.intellij.openapi.components.AbstractProjectComponent
 import com.intellij.openapi.diagnostic.Logger
+import com.intellij.openapi.extensions.PluginId
 import com.intellij.openapi.progress.{ProgressIndicator, ProgressManager, Task}
 import com.intellij.openapi.project.Project
 import com.intellij.openapi.roots.impl.libraries.ProjectLibraryTable
 import com.intellij.openapi.roots.libraries.Library
 import com.intellij.openapi.util.ModificationTracker
 import com.intellij.util.lang.UrlClassLoader
-import javax.swing.event.HyperlinkEvent
 import org.jetbrains.plugins.scala.DependencyManagerBase._
+import org.jetbrains.plugins.scala.components.ScalaPluginVersionVerifier
+import org.jetbrains.plugins.scala.components.libextensions.ui._
 import org.jetbrains.plugins.scala.extensions.using
 import org.jetbrains.plugins.scala.settings.ScalaProjectSettings
 import org.jetbrains.sbt.resolvers.{SbtIvyResolver, SbtMavenResolver, SbtResolver}
@@ -137,8 +140,8 @@ class LibraryExtensionsManager(project: Project) extends AbstractProjectComponen
         .useCache()
         .get()
       myClassLoaders += d -> classLoader
-      extensions.foreach { e =>
-        val ExtensionDescriptor(interface, impl, _, _, pluginId) = e
+      extensions.filter(_.isAvailable).foreach { e =>
+        val ExtensionDescriptor(interface, impl, _, _, _) = e
         try {
           val myInterface = classLoader.loadClass(interface)
           val myImpl = classLoader.loadClass(defaultPackage + impl)
@@ -180,30 +183,28 @@ object LibraryExtensionsManager {
   )
 
   val manifestPath  = "META-INF/intellij-compat.xml"
-  val GROUP_ID      = "Scala Library Extension"
 
   def getInstance(project: Project): LibraryExtensionsManager = project.getComponent(classOf[LibraryExtensionsManager])
-
-  def showEnablePopup(yesCallback: () => Unit, noCallback: () => Unit): Unit = {
-    val notification = new Notification(GROUP_ID, "Extensions available",
-      s"""<p>Additional support has been found for some of your libraries.</p>
-         |<p>Do you want to enable it? <a href="Yes">Yes</a> / <a href="No">No</a></p>
-       """.stripMargin,
-      NotificationType.INFORMATION, (notification: Notification, event: HyperlinkEvent) => {
-        notification.expire()
-        event.getDescription match {
-          case "Yes" => yesCallback()
-          case "No"  => noCallback()
-        }
-      }
-    )
-    Notifications.Bus.notify(notification)
-  }
 
   val MOD_TRACKER = new ModificationTracker {
     private var modcount = 0l
     def incModCount(): Unit = modcount += 1
     override def getModificationCount: Long = modcount
+  }
+
+  implicit class LibraryDescriptorExt(val ld: LibraryDescriptor) extends AnyVal {
+    import org.jetbrains.plugins.scala.components.ScalaPluginVersionVerifier.Version
+    def getCurrentPluginDescriptor: Option[IdeaVersionDescriptor] = ld.pluginVersions.find { descr =>
+      ScalaPluginVersionVerifier.getPluginVersion match {
+        case Some(Version.Snapshot) => true
+        case Some(ver)              => ver.compare(descr.sinceBuild) >= 0 && ver.compare(descr.untilBuild) <= 0
+        case _                      => false
+      }
+    }
+  }
+
+  implicit class ExtensionDescriptorEx(val ed: ExtensionDescriptor) extends AnyVal {
+    def isAvailable: Boolean = ed.pluginId.isEmpty || PluginManager.isPluginInstalled(PluginId.getId(ed.pluginId))
   }
 
 }
