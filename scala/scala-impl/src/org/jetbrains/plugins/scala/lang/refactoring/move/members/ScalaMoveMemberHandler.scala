@@ -3,14 +3,16 @@ package org.jetbrains.plugins.scala.lang.refactoring.move.members
 import java.util
 
 import com.intellij.psi._
-import com.intellij.refactoring.move.moveMembers.{MoveJavaMemberHandler, MoveMembersOptions, MoveMembersProcessor}
+import com.intellij.refactoring.move.moveMembers.MoveMembersProcessor.MoveMembersUsageInfo
+import com.intellij.refactoring.move.moveMembers.{MoveJavaMemberHandler, MoveMembersOptions}
 import com.intellij.util.containers.MultiMap
 import org.jetbrains.plugins.scala.ScalaBundle
-import org.jetbrains.plugins.scala.lang.psi.api.ScalaFile
-import org.jetbrains.plugins.scala.lang.psi.api.base.ScReferenceElement
+import org.jetbrains.plugins.scala.extensions.{PsiElementExt, PsiMemberExt, PsiNamedElementExt}
+import org.jetbrains.plugins.scala.lang.psi.api.base.{ScReferenceElement, ScStableCodeReferenceElement}
 import org.jetbrains.plugins.scala.lang.psi.api.expr.ScReferenceExpression
 import org.jetbrains.plugins.scala.lang.psi.api.statements.ScDeclaredElementsHolder
-import org.jetbrains.plugins.scala.lang.psi.api.toplevel.typedef.ScTemplateDefinition
+import org.jetbrains.plugins.scala.lang.psi.api.toplevel.imports.{ScImportExpr, ScImportSelector}
+import org.jetbrains.plugins.scala.lang.psi.impl.ScalaPsiElementFactory.{createExpressionFromText, createReferenceFromText}
 import org.jetbrains.plugins.scala.lang.refactoring.util.ScalaChangeContextUtil
 
 class ScalaMoveMemberHandler extends MoveJavaMemberHandler {
@@ -24,56 +26,81 @@ class ScalaMoveMemberHandler extends MoveJavaMemberHandler {
     }
   }
 
-  override def getUsage(member: PsiMember, psiReference: PsiReference, membersToMove: util.Set[PsiMember], targetClass: PsiClass): MoveMembersProcessor.MoveMembersUsageInfo = {
+  override def getUsage(member: PsiMember, psiReference: PsiReference, membersToMove: util.Set[PsiMember], targetClass: PsiClass): MoveMembersUsageInfo = {
     psiReference.getElement match {
       case ref: ScReferenceElement =>
         ref.qualifier match {
-          case Some(qualifier) => new MoveMembersProcessor.MoveMembersUsageInfo(member, ref, targetClass, qualifier, psiReference)
-          case None => new MoveMembersProcessor.MoveMembersUsageInfo(member, ref, targetClass, ref, psiReference) // add qualifier
+          case Some(qualifier) if targetClass.isAncestorOf(ref) =>
+            new MoveMembersUsageInfo(member, ref, null, qualifier, psiReference) //remove qualifier for refs in target class
+          case None if member.containingClass.isAncestorOf(ref) =>
+            new MoveMembersUsageInfo(member, ref, targetClass, ref, psiReference) //add qualifier, if in source class
+          case Some(qualifier) =>
+            new MoveMembersUsageInfo(member, ref, targetClass, qualifier, psiReference) //change qualifier
+          case None =>
+            new MoveMembersUsageInfo(member, ref, null, ref, psiReference)
         }
 
       case _ => null
     }
   }
 
-  override def changeExternalUsage(options: MoveMembersOptions, usage: MoveMembersProcessor.MoveMembersUsageInfo): Boolean = {
+  override def changeExternalUsage(options: MoveMembersOptions, usage: MoveMembersUsageInfo): Boolean = {
     val element = usage.getElement
     if (element == null || !element.isValid) return true
 
     usage.reference match {
-      case refExpr: ScReferenceExpression =>
-        refExpr.qualifier match {
-          case Some(qualifier: ScReferenceExpression) =>
-            changeQualifier(qualifier, usage.qualifierClass)
-            addImport(qualifier, usage.qualifierClass)
-            true
-
-          case _ => false
-        }
-
+      case ref @ ScReferenceElement.withQualifier(qualifier: ScReferenceElement) =>
+        if (usage.qualifierClass != null)
+          changeQualifier(qualifier, usage.qualifierClass)
+        else
+          removeQualifier(ref, qualifier)
+      case ref: ScReferenceElement if usage.qualifierClass != null =>
+        addQualifier(ref, usage.qualifierClass)
       case _ => false
     }
   }
 
-  protected def changeQualifier(qualifier: ScReferenceExpression, targetClass: PsiClass): Unit = {
-    targetClass match {
-      case obj: ScTemplateDefinition =>
-        qualifier.handleElementRename(obj.name)
+  private def removeQualifier(ref: ScReferenceElement, qualifier: ScReferenceElement): Boolean = {
+    ref.getParent match {
+      case importExpr: ScImportExpr => importExpr.deleteExpr()
+      case importSelector: ScImportSelector => importSelector.deleteSelector()
+      case _ =>
+        val identifier = ref.nameId
+        val beforeId = identifier.getPrevSibling
+        ref.deleteChildRange(qualifier, beforeId)
     }
-
+    true
   }
 
-  private def addImport(qualifier: ScReferenceExpression, targetClass: PsiClass): Unit = {
-    qualifier.getContainingFile match {
-      case file: ScalaFile =>
-        file.addImportForClass(targetClass)
+  private def changeQualifier(qualifier: ScReferenceElement, targetClass: PsiClass): Boolean = {
+    qualifier.handleElementRename(targetClass.name)
+    qualifier.bindToElement(targetClass)
+    true
+  }
+
+  private def addQualifier(reference: ScReferenceElement, targetClass: PsiClass): Boolean = {
+    import reference.projectContext
+
+    val textWithQualifier = s"${targetClass.name}.${reference.refName}"
+    val qualified = reference match {
+      case _: ScReferenceExpression =>
+        createExpressionFromText(textWithQualifier)
+      case _: ScStableCodeReferenceElement =>
+        createReferenceFromText(textWithQualifier)
+      case _ => return false
     }
+
+    reference.replace(qualified) match {
+      case ScReferenceElement.withQualifier(q: ScReferenceElement) =>
+        q.bindToElement(targetClass)
+      case _ =>
+    }
+    true
   }
 
   override def getAnchor(psiMember: PsiMember, targetClass: PsiClass, set: util.Set[PsiMember]): PsiElement = {
     null
   }
-
 
   override def doMove(moveMembersOptions: MoveMembersOptions, scMember: PsiMember, anchor: PsiElement, targetClass: PsiClass): PsiMember = {
     val associations = ScalaChangeContextUtil.collectDataForElement(scMember)
