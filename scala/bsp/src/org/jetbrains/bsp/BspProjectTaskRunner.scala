@@ -183,7 +183,7 @@ object BspProjectTaskRunner {
       params.diagnostics.foreach { diagnostic: Diagnostic =>
         val start = diagnostic.range.start
         val end = diagnostic.range.end
-        val position = Some(new FilePosition(file, start.line, start.character, end.line, end.character))
+        val position = Some(new FilePosition(file, start.line - 1, start.character, end.line - 1, end.character))
         val text = s"${diagnostic.message} [${start.line}:${start.character}]"
 
         report.log(text)
