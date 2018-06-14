@@ -127,10 +127,11 @@ trait ExternalSourceRootResolution { self: SbtProjectResolver =>
     val nameProvider = new SharedSourceRootNameProvider()
 
     // TODO consider base/projects correspondence
-    roots.groupBy(_.root.base).values.toList.map { roots =>
-      val sharedRoot = roots.head
-      val name = nameProvider.nameFor(sharedRoot.root.base)
-      RootGroup(name, roots.map(_.root), sharedRoot.projects)
+    roots.groupBy(_.root.base).toList.map {
+      case (base, sharedRoots) =>
+        val name = nameProvider.nameFor(base)
+        val projects = sharedRoots.flatMap(_.projects).distinct
+        RootGroup(name, roots.map(_.root), projects)
     }
   }
 
