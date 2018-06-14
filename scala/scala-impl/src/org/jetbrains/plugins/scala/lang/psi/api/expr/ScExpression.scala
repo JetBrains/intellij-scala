@@ -6,11 +6,11 @@ package expr
 
 import com.intellij.openapi.progress.ProgressManager
 import com.intellij.psi._
-import org.jetbrains.plugins.scala.extensions.{ChildOf, childOf, PsiNamedElementExt, StringExt}
+import org.jetbrains.plugins.scala.extensions.{ChildOf, PsiNamedElementExt, StringExt, childOf}
 import org.jetbrains.plugins.scala.extensions.{PsiNamedElementExt, StringExt}
 import org.jetbrains.plugins.scala.lang.psi.ScalaPsiUtil.{MethodValue, isAnonymousExpression}
 import org.jetbrains.plugins.scala.lang.psi.api.InferUtil.{SafeCheckException, extractImplicitParameterType}
-import org.jetbrains.plugins.scala.lang.psi.api.base.{ScIntLiteral, ScLiteral}
+import org.jetbrains.plugins.scala.lang.psi.api.base.{ScIntLiteral, ScLiteral, ScParenthesizedElement}
 import org.jetbrains.plugins.scala.lang.psi.api.expr.ExpectedTypes.ParameterType
 import org.jetbrains.plugins.scala.lang.psi.api.toplevel.imports.usages.ImportUsed
 import org.jetbrains.plugins.scala.lang.psi.impl.ScalaPsiElementFactory.createExpressionFromText
@@ -525,12 +525,9 @@ object ScExpression {
         case _: ScPostfixExpr                   => true
         case ChildOf(ScInfixExpr(_, `expr`, _)) => false //implicit parameters are in infix expression
         case ChildOf(_: ScGenericCall)          => false //implicit parameters are in generic call
+        case ChildOf(_: ScAssignStmt)           => false //simple var cannot have implicit parameters, otherwise it's for assignment
         case _: MethodInvocation                => false
-        case p: ScParenthesisedExpr =>
-          p.innerElement match {
-            case Some(exp)                      => shouldUpdateImplicitParams(exp)
-            case _                              => false
-          }
+        case ScParenthesisedExpr(inner)         => shouldUpdateImplicitParams(inner)
         case _                                  => true
       }
     }
