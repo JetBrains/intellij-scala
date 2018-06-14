@@ -49,6 +49,7 @@ class ScalaTabbedCodeStylePanel(currentSettings: CodeStyleSettings, settings: Co
     val scalaCodeStyleSettings = settings.getCustomSettings(classOf[ScalaCodeStyleSettings])
     useExternalFormatterCheckbox.setSelected(scalaCodeStyleSettings.USE_SCALAFMT_FORMATTER)
     overrideExternalFormatterSettings.setSelected(scalaCodeStyleSettings.USE_CUSTOM_SCALAFMT_CONFIG_PATH)
+    externalFormatterSettingsPath.setEnabled(scalaCodeStyleSettings.USE_CUSTOM_SCALAFMT_CONFIG_PATH)
     externalFormatterSettingsPath.setText(scalaCodeStyleSettings.SCALAFMT_CONFIG_PATH)
     super.resetImpl(settings)
   }
@@ -94,7 +95,7 @@ class ScalaTabbedCodeStylePanel(currentSettings: CodeStyleSettings, settings: Co
       overrideExternalFormatterSettings.setEnabled(useExternalFormatterCheckbox.isSelected)
     })
     overrideExternalFormatterSettings.addChangeListener((e: ChangeEvent) => {
-      externalFormatterSettingsPath.setEnabled(overrideExternalFormatterSettings.isSelected)
+      externalFormatterSettingsPath.setEnabled(overrideExternalFormatterSettings.isSelected && useExternalFormatterCheckbox.isSelected)
     })
   }
 
