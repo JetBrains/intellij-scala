@@ -193,6 +193,82 @@ class ScalaMoveMemberTest extends BaseScalaMoveMemberTest {
     )
   }
 
+  def testTypeAlias(): Unit = {
+    doTest("a.A", "b.B", "F",
+      """
+        |package a {
+        |
+        |  class Foo
+        |
+        |  object A {
+        |    type F = Foo
+        |    val f: F = ???
+        |  }
+        |}
+        |
+        |package b {
+        |
+        |  object B {
+        |    val f: a.A.F = ???
+        |  }
+        |}
+      """.stripMargin,
+      """
+        |package a {
+        |
+        |  import b.B
+        |
+        |  class Foo
+        |
+        |  object A {
+        |    val f: B.F = ???
+        |  }
+        |}
+        |
+        |package b {
+        |
+        |  import a.Foo
+        |
+        |  object B {
+        |    val f: F = ???
+        |    type F = Foo
+        |  }
+        |}
+      """.stripMargin
+    )
+  }
+
+  def testMoveNonSimpleVal(): Unit = {
+    doTest("a.A", "b.B", "x",
+      """
+        |package a {
+        |  object A {
+        |    val x, y = 1
+        |  }
+        |}
+        |
+        |package b {
+        |  object B {
+        |    def z = 2
+        |  }
+        |}
+      """.stripMargin,
+      """
+        |package a {
+        |  object A {
+        |  }
+        |}
+        |
+        |package b {
+        |  object B {
+        |    def z = 2
+        |
+        |    val x, y = 1
+        |  }
+        |}
+      """.stripMargin)
+  }
+
   def testConflict(): Unit = {
     try {
       doTest("A", "B", "x",
@@ -213,4 +289,26 @@ class ScalaMoveMemberTest extends BaseScalaMoveMemberTest {
       case _ => fail("expected 'ConflictsInTestsException'")
     }
   }
+
+  def testConflict2(): Unit = {
+    try {
+      doTest("A", "B", "x",
+        """
+          |object A {
+          |  val x, y = 1
+          |}
+          |
+          |object B {
+          |  def x = 1
+          |}
+        """.stripMargin,
+        null
+      )
+      fail("expected 'ConflictsInTestsException'")
+    } catch {
+      case _:ConflictsInTestsException =>
+      case _ => fail("expected 'ConflictsInTestsException'")
+    }
+  }
+
 }

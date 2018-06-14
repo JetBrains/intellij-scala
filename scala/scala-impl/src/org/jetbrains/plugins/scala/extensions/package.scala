@@ -462,6 +462,14 @@ package object extensions {
         case _ => member.getContainingClass
       }
     }
+
+    def names: Seq[String] = {
+      member match {
+        case decls: ScDeclaredElementsHolder => decls.declaredNames
+        case named: PsiNamedElement          => Seq(named.name)
+        case _                               => Seq.empty
+      }
+    }
   }
 
   implicit class PsiClassExt(val clazz: PsiClass) extends AnyVal {

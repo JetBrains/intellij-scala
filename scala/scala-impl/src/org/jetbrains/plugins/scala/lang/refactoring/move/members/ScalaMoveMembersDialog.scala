@@ -14,10 +14,10 @@ import javax.swing._
 import org.jetbrains.plugins.scala.debugger.evaluation.ScalaCodeFragment
 import org.jetbrains.plugins.scala.extensions.ObjectExt
 import org.jetbrains.plugins.scala.lang.psi.api.base.ScReferenceElement
-import org.jetbrains.plugins.scala.lang.psi.api.toplevel.typedef.ScObject
+import org.jetbrains.plugins.scala.lang.psi.api.toplevel.typedef.{ScMember, ScObject}
 import org.jetbrains.plugins.scala.{ScalaBundle, ScalaFileType}
 
-class ScalaMoveMembersDialog(project: Project, canBeParent: Boolean, sourceObject: ScObject, memberToMove: PsiMember) extends RefactoringDialog(project, canBeParent) {
+class ScalaMoveMembersDialog(project: Project, canBeParent: Boolean, sourceObject: ScObject, memberToMove: ScMember) extends RefactoringDialog(project, canBeParent) {
 
   private val targetObjectFragment: ScalaCodeFragment = {
     val fragment = new ScalaCodeFragment(project, "")
@@ -42,19 +42,8 @@ class ScalaMoveMembersDialog(project: Project, canBeParent: Boolean, sourceObjec
 
     maybeObj match {
       case Right(obj) =>
-        val qualName = obj.getQualifiedName
-
-        val mm = new MoveMembersProcessor(getProject, null, new MoveMembersOptions() {
-          override def getMemberVisibility: String = "public"
-
-          override def makeEnumConstant: Boolean = false
-
-          override def getSelectedMembers: Array[PsiMember] = List(memberToMove).toArray
-
-          override def getTargetClassName: String = qualName
-        })
-        invokeRefactoring(mm)
-
+        val processor = ScalaMoveMembersDialog.createProcessor(obj, memberToMove)
+        invokeRefactoring(processor)
       case Left(message) =>
         Messages.showErrorDialog(message, RefactoringBundle.message("error.title"))
     }
@@ -92,4 +81,20 @@ class ScalaMoveMembersDialog(project: Project, canBeParent: Boolean, sourceObjec
 
   override def getPreferredFocusedComponent: JComponent = myTfTargetClassName
 
+}
+
+object ScalaMoveMembersDialog {
+  def createProcessor(obj: ScObject, member: ScMember): MoveMembersProcessor = {
+    //noinspection ScalaWrongMethodsUsage
+    val qualName = obj.getQualifiedName
+    new MoveMembersProcessor(obj.getProject, null, new MoveMembersOptions() {
+      override def getMemberVisibility: String = "public"
+
+      override def makeEnumConstant: Boolean = false
+
+      override def getSelectedMembers: Array[PsiMember] = Array(member)
+
+      override def getTargetClassName: String = qualName
+    })
+  }
 }

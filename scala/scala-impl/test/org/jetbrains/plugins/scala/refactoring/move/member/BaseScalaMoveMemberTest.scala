@@ -1,14 +1,13 @@
 package org.jetbrains.plugins.scala.refactoring.move.member
 
 import com.intellij.openapi.fileEditor.FileDocumentManager
-import com.intellij.psi.{PsiDocumentManager, PsiMember}
-import com.intellij.refactoring.move.moveMembers.{MoveMembersOptions, MoveMembersProcessor}
+import com.intellij.psi.PsiDocumentManager
 import org.jetbrains.plugins.scala.base.ScalaLightCodeInsightFixtureTestAdapter.normalize
 import org.jetbrains.plugins.scala.base.ScalaLightPlatformCodeInsightTestCaseAdapter
-import org.jetbrains.plugins.scala.extensions.TraversableExt
+import org.jetbrains.plugins.scala.extensions.PsiMemberExt
 import org.jetbrains.plugins.scala.lang.psi.ElementScope
-import org.jetbrains.plugins.scala.lang.psi.api.statements.ScDeclaredElementsHolder
 import org.jetbrains.plugins.scala.lang.psi.impl.ScalaFileImpl
+import org.jetbrains.plugins.scala.lang.refactoring.move.members.ScalaMoveMembersDialog
 import org.junit.Assert
 
 
@@ -28,20 +27,11 @@ abstract class BaseScalaMoveMemberTest extends ScalaLightPlatformCodeInsightTest
     Assert.assertTrue(s"file $fromObject not found", source != null)
     Assert.assertTrue(s"file $target not found", target != null)
 
-    val members = source.members.filterBy[ScDeclaredElementsHolder]
-    val aMember = members.find(m => m.declaredNames.contains(memberName)).get
+    val member = source.members.find(_.names.contains(memberName)).get
 
-    ScalaFileImpl.performMoveRefactoring {
-      new MoveMembersProcessor(getProjectAdapter, new MoveMembersOptions() {
-        override def getSelectedMembers: Array[PsiMember] = Seq(aMember.asInstanceOf[PsiMember]).toArray
+    val processor = ScalaMoveMembersDialog.createProcessor(target, member)
+    ScalaFileImpl.performMoveRefactoring(processor.run())
 
-        override def getMemberVisibility: String = "public"
-
-        override def makeEnumConstant(): Boolean = false
-
-        override def getTargetClassName: String = target.getQualifiedName
-      }).run()
-    }
     FileDocumentManager.getInstance.saveAllDocuments()
     PsiDocumentManager.getInstance(getProjectAdapter).commitAllDocuments()
   }

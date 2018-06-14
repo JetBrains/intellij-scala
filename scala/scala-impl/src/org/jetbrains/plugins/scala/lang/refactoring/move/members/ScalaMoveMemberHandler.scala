@@ -10,19 +10,21 @@ import org.jetbrains.plugins.scala.ScalaBundle
 import org.jetbrains.plugins.scala.extensions.{PsiElementExt, PsiMemberExt, PsiNamedElementExt}
 import org.jetbrains.plugins.scala.lang.psi.api.base.{ScReferenceElement, ScStableCodeReferenceElement}
 import org.jetbrains.plugins.scala.lang.psi.api.expr.ScReferenceExpression
-import org.jetbrains.plugins.scala.lang.psi.api.statements.ScDeclaredElementsHolder
 import org.jetbrains.plugins.scala.lang.psi.api.toplevel.imports.{ScImportExpr, ScImportSelector}
 import org.jetbrains.plugins.scala.lang.psi.impl.ScalaPsiElementFactory.{createExpressionFromText, createReferenceFromText}
 import org.jetbrains.plugins.scala.lang.refactoring.util.ScalaChangeContextUtil
 
 class ScalaMoveMemberHandler extends MoveJavaMemberHandler {
 
-  override def checkConflictsOnMember(scRefPattern: PsiMember, newVisibility: String, modifiedListCopy: PsiModifierList, targetClass: PsiClass, membersToMove: util.Set[PsiMember], conflicts: MultiMap[PsiElement, String]): Unit = {
-    val targetName = targetClass.getName
-    val memberName = scRefPattern.asInstanceOf[ScDeclaredElementsHolder].declaredNames.head
-    if (targetClass.getAllMethods.map(_.getName).contains(memberName)) {
-      val message = ScalaBundle.message("target.0.already.contains.definition.of.1", targetName, memberName)
-      conflicts.putValue(scRefPattern, message)
+  override def checkConflictsOnMember(member: PsiMember, newVisibility: String, modifiedListCopy: PsiModifierList, targetClass: PsiClass, membersToMove: util.Set[PsiMember], conflicts: MultiMap[PsiElement, String]): Unit = {
+    val targetName = targetClass.name
+    for {
+      nameInTarget <- targetClass.getAllMethods.map(_.name)
+      movedName    <- member.names
+      if nameInTarget == movedName
+    } {
+      val message = ScalaBundle.message("target.0.already.contains.definition.of.1", targetName, movedName)
+      conflicts.putValue(member, message)
     }
   }
 
