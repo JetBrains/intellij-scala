@@ -1,7 +1,6 @@
 package org.jetbrains.plugins.scala.codeInsight.implicits
 
 import com.intellij.codeHighlighting.EditorBoundHighlightingPass
-import com.intellij.codeInsight.hints.InlayInfo
 import com.intellij.openapi.editor.Editor
 import com.intellij.openapi.editor.ex.util.CaretVisualPositionKeeper
 import com.intellij.openapi.progress.ProgressIndicator
@@ -15,7 +14,7 @@ import org.jetbrains.plugins.scala.extensions._
 import org.jetbrains.plugins.scala.lang.psi.ScalaPsiElement
 import org.jetbrains.plugins.scala.lang.psi.api.ImplicitParametersOwner
 import org.jetbrains.plugins.scala.lang.psi.api.base.patterns.ScReferencePattern
-import org.jetbrains.plugins.scala.lang.psi.api.expr.{ScExpression, ScMethodCall, ScNewTemplateDefinition}
+import org.jetbrains.plugins.scala.lang.psi.api.expr.{ScArgumentExprList, ScExpression, ScMethodCall, ScNewTemplateDefinition}
 import org.jetbrains.plugins.scala.lang.psi.api.statements.params.ScParameterClause
 import org.jetbrains.plugins.scala.lang.psi.api.toplevel.typedef.ScMember
 import org.jetbrains.plugins.scala.lang.resolve.ScalaResolveResult
@@ -38,20 +37,20 @@ private class ImplicitHintsPass(editor: Editor, rootElement: ScalaPsiElement)
       case e: ScExpression =>
         if (ImplicitHints.enabled) {
           e.implicitConversion().foreach { conversion =>
-            hints +:= implicitConversionHint(e, conversion)
+            hints ++:= implicitConversionHint(e, conversion)
           }
         }
 
         e match {
           case call: ScMethodCall if isExplicitImplicit(call) =>
-            hints +:= (".explicitly", call.args, "")
+            hints ++:= explicitImplicitArgumentsHint(call.args)
 
           case owner@(_: ImplicitParametersOwner | _: ScNewTemplateDefinition) if e.implicitConversion().isEmpty =>
             ShowImplicitArgumentsAction.implicitParams(owner).foreach { arguments =>
               val typeAware = ScalaAnnotator.isAdvancedHighlightingEnabled(e) && !e.isInDottyModule
               def argumentsMissing = arguments.exists(ShowImplicitArgumentsAction.missingImplicitArgumentIn(_).isDefined)
               if (ImplicitHints.enabled || (typeAware && argumentsMissing)) {
-                hints +:= implicitArgumentsHint(owner, arguments)
+                hints ++:= implicitArgumentsHint(owner, arguments)
               }
             }
 
@@ -91,17 +90,7 @@ private class ImplicitHintsPass(editor: Editor, rootElement: ScalaPsiElement)
 
     DocumentUtil.executeInBulk(myEditor.getDocument, bulkChange, () => {
       existingInlays.foreach(Disposer.dispose)
-
-      hints.foreach { case (prefix, e, suffix) =>
-        if (prefix.nonEmpty) {
-          val info = new InlayInfo(prefix, e.getTextRange.getStartOffset, false, true, false)
-          inlayModel.addInlay(info, error = prefix.contains(MissingImplicitArgument))
-        }
-        if (suffix.nonEmpty) {
-          val info = new InlayInfo(suffix, e.getTextRange.getEndOffset, false, true, true)
-          inlayModel.addInlay(info, error = suffix.contains(MissingImplicitArgument))
-        }
-      }
+      hints.foreach(inlayModel.add(_))
     })
   }
 }
@@ -110,10 +99,9 @@ private object ImplicitHintsPass {
   private final val BulkChangeThreshold = 1000
   private final val MissingImplicitArgument = "?: "
 
-  def implicitConversionHint(e: ScExpression, conversion: ScalaResolveResult): Hint = {
-    val name = nameOf(conversion.element)
-    (name + "(", e, if (conversion.implicitParameters.nonEmpty) ")(...)" else ")")
-  }
+  def implicitConversionHint(e: ScExpression, conversion: ScalaResolveResult): Seq[Hint] =
+    Seq(Hint(nameOf(conversion.element) + "(", e, suffix = false, rightGap = false),
+      Hint(if (conversion.implicitParameters.nonEmpty) ")(...)" else ")", e, suffix = true, leftGap = false))
 
   private def nameOf(e: PsiNamedElement): String = e match {
     case member: ScMember => nameOf(member)
@@ -124,8 +112,10 @@ private object ImplicitHintsPass {
   private def nameOf(member: ScMember with PsiNamedElement) =
     Option(member.containingClass).map(_.name + ".").mkString + member.name
 
-  def implicitArgumentsHint(e: ScExpression, arguments: Seq[ScalaResolveResult]): Hint =
-    ("", e, arguments.map(presentationOf).mkString("(", ", ", ")"))
+  def implicitArgumentsHint(e: ScExpression, arguments: Seq[ScalaResolveResult]): Seq[Hint] = {
+    val text = arguments.map(presentationOf).mkString("(", ", ", ")")
+    Seq(Hint(text, e, suffix = true, leftGap = false, underlined = text.contains(MissingImplicitArgument)))
+  }
 
   // TODO Show missing implicit parameter name?
   private def presentationOf(argument: ScalaResolveResult): String = {
@@ -136,5 +126,8 @@ private object ImplicitHintsPass {
         if (argument.implicitParameters.nonEmpty) name + "(...)" else name
       }
   }
+
+  def explicitImplicitArgumentsHint(args: ScArgumentExprList): Seq[Hint] =
+    Seq(Hint(".explicitly", args, suffix = false, leftGap = false, rightGap = false))
 }
 
