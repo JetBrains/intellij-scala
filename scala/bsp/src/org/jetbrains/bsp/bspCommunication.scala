@@ -7,26 +7,26 @@ import java.nio.file._
 import ch.epfl.scala.bsp._
 import com.intellij.notification.NotificationType
 import com.intellij.openapi.components.AbstractProjectComponent
+import com.intellij.openapi.diagnostic.Logger
 import com.intellij.openapi.project.Project
 import com.intellij.openapi.util.SystemInfo
 import com.intellij.util.net.NetUtils
-import com.typesafe.scalalogging.Logger
 import monix.eval.Task
 import monix.execution.Scheduler
 import monix.reactive.Observable
 import org.jetbrains.bsp.BspServerConnector._
+import org.jetbrains.bsp.BspUtil.IdeaLoggerOps
 import org.scalasbt.ipcsocket.UnixDomainSocket
-import org.slf4j.LoggerFactory
 
 import scala.concurrent.duration._
-import scala.meta.jsonrpc.{BaseProtocolMessage, Response, Services}
-import scala.meta.lsp.{LanguageClient, LanguageServer}
+import scala.meta.jsonrpc._
 import scala.sys.process.Process
 import scala.util.Random
 
 class BspCommunication(project: Project) extends AbstractProjectComponent(project) {
   // TODO support persistent sessions for more features!
   // * quicker response times
+  // * background project update notifications
   // * background compilation and error reporting/highlighting
 }
 
@@ -36,8 +36,7 @@ class BspSession(messages: Observable[BaseProtocolMessage],
                  cleanup: Task[Unit]
                 ) {
 
-  // TODO should use IDEA logging
-  private val logger = Logger(LoggerFactory.getLogger(classOf[BspCommunication]))
+  private val logger = Logger.getInstance(classOf[BspCommunication])
 
   /** Task starts client-server connection and connects message stream.
     * @param services services that are used to listen to build notifications.
@@ -60,7 +59,7 @@ class BspSession(messages: Observable[BaseProtocolMessage],
       }
 
       val cleaning = Task {
-        logger.info("closing bsp connection")
+        logger.debug("closing bsp connection")
         runningClientServer.cancel()
       }
 
@@ -94,15 +93,15 @@ class BspSession(messages: Observable[BaseProtocolMessage],
     endpoints.Build.initialize.request(initializedBuildParams)
 
   private def startClientServer(services: Services)(implicit scheduler: Scheduler) = {
-    val server = new LanguageServer(messages, client, services, scheduler, logger)
+    val server = new LanguageServer(messages, client, services, scheduler, logger.toScribeLogger)
     server.startTask
       .doOnFinish { errOpt =>
         for {
           cleaned <- cleanup
         } yield {
-          logger.info("client/server closed")
+          logger.debug("client/server closed")
           errOpt.foreach { err =>
-            logger.info(s"client/server closed with error: $err")
+            logger.warn(s"client/server closed with error: $err")
           }
         }
       }
@@ -186,8 +185,7 @@ class GenericConnector(base: File, initParams: InitializeBuildParams) extends Bs
 
 class BloopConnector(base: File, initParams: InitializeBuildParams)(implicit scheduler: Scheduler) extends BspServerConnector(initParams) {
 
-  // TODO should use IDEA logging
-  val logger = Logger(LoggerFactory.getLogger(classOf[BloopConnector]))
+  private val logger: Logger = Logger.getInstance(classOf[BloopConnector])
 
   override def connect(methods: BspConnectionMethod*): Task[BspSession] = {
     val socketAndCleanup = methods.collectFirst {
@@ -225,8 +223,9 @@ class BloopConnector(base: File, initParams: InitializeBuildParams)(implicit sch
       val socket = socketAndCleanup._1
       val cleanup = socketAndCleanup._2
 
-      val client: LanguageClient = new LanguageClient(socket.getOutputStream, logger)
-      val messages = BaseProtocolMessage.fromInputStream(socket.getInputStream)
+      val sLogger = logger.toScribeLogger
+      val client: LanguageClient = new LanguageClient(socket.getOutputStream, sLogger)
+      val messages = BaseProtocolMessage.fromInputStream(socket.getInputStream, sLogger)
       new BspSession(messages, client, initParams, cleanup)
     }
   }
