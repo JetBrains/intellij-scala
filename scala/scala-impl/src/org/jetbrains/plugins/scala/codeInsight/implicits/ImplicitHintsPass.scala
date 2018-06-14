@@ -15,7 +15,8 @@ import org.jetbrains.plugins.scala.extensions._
 import org.jetbrains.plugins.scala.lang.psi.ScalaPsiElement
 import org.jetbrains.plugins.scala.lang.psi.api.ImplicitParametersOwner
 import org.jetbrains.plugins.scala.lang.psi.api.base.patterns.ScReferencePattern
-import org.jetbrains.plugins.scala.lang.psi.api.expr.{ScExpression, ScNewTemplateDefinition}
+import org.jetbrains.plugins.scala.lang.psi.api.expr.{ScExpression, ScMethodCall, ScNewTemplateDefinition}
+import org.jetbrains.plugins.scala.lang.psi.api.statements.params.ScParameterClause
 import org.jetbrains.plugins.scala.lang.psi.api.toplevel.typedef.ScMember
 import org.jetbrains.plugins.scala.lang.resolve.ScalaResolveResult
 
@@ -42,7 +43,10 @@ private class ImplicitHintsPass(editor: Editor, rootElement: ScalaPsiElement)
         }
 
         e match {
-          case owner@(_: ImplicitParametersOwner | _: ScNewTemplateDefinition) =>
+          case call: ScMethodCall if isExplicitImplicit(call) =>
+            hints +:= (".explicitly", call.args, "")
+
+          case owner@(_: ImplicitParametersOwner | _: ScNewTemplateDefinition) if e.implicitConversion().isEmpty =>
             ShowImplicitArgumentsAction.implicitParams(owner).foreach { arguments =>
               val typeAware = ScalaAnnotator.isAdvancedHighlightingEnabled(e) && !e.isInDottyModule
               def argumentsMissing = arguments.exists(ShowImplicitArgumentsAction.missingImplicitArgumentIn(_).isDefined)
@@ -50,9 +54,22 @@ private class ImplicitHintsPass(editor: Editor, rootElement: ScalaPsiElement)
                 hints +:= implicitArgumentsHint(owner, arguments)
               }
             }
+
           case _ =>
         }
       case _ =>
+    }
+  }
+
+  private def isExplicitImplicit(call: ScMethodCall): Boolean = {
+    val matchedParameters = call.matchedParameters
+
+    matchedParameters.nonEmpty && matchedParameters.forall {
+      case (_, parameter) => parameter.psiParam match {
+        case Some(Parent(clause: ScParameterClause)) => clause.isImplicit
+        case _ => false
+      }
+      case _ => false
     }
   }
 
