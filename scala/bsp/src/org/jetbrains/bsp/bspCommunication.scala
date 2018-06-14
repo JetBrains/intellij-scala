@@ -233,7 +233,7 @@ class BloopConnector(base: File, initParams: InitializeBuildParams)(implicit sch
 
   private def connectUnixSocket(socketFile: File) = {
 
-    val bloopCommand = s"bloop bsp --protocol local --socket $socketFile --verbose"
+    val bloopCommand = s"bloop bsp --protocol local --socket $socketFile"
 
     val bspReady = Task {
       var sockfileCreated = false
