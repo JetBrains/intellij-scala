@@ -36,6 +36,7 @@ class LibraryExtensionsManager(project: Project) extends AbstractProjectComponen
 
   private val LOG         = Logger.getInstance(classOf[LibraryExtensionsManager])
   private val properties  = PropertiesComponent.getInstance(project)
+  private val popup       = new PopupHelper
 
   private val myAvailableLibraries  = ArrayBuffer[LibraryDescriptor]()
   private val myExtensionInstances  = mutable.HashMap[Class[_], ArrayBuffer[Any]]()
@@ -44,7 +45,7 @@ class LibraryExtensionsManager(project: Project) extends AbstractProjectComponen
   override def projectOpened(): Unit = {
     ApplicationManager.getApplication.getMessageBus
       .syncPublisher(Notifications.TOPIC)
-      .register(GROUP_ID, NotificationDisplayType.STICKY_BALLOON)
+      .register(PopupHelper.GROUP_ID, NotificationDisplayType.STICKY_BALLOON)
     if (ScalaProjectSettings.getInstance(project).isEnableLibraryExtensions)
       loadCachedExtensions()
   }
@@ -90,7 +91,7 @@ class LibraryExtensionsManager(project: Project) extends AbstractProjectComponen
     val extensionsChanged = alreadyLoaded != resolved.map(_.file.getAbsolutePath).toSet
 
     if (resolved.nonEmpty && extensionsChanged)
-      showEnablePopup({ () => enabledAcceptCb(resolved) }, enabledCancelledCb)
+      popup.showEnablePopup({ () => enabledAcceptCb(resolved) }, enabledCancelledCb)
   }
 
   private def getExtensionLibCandidates(libs: Seq[Library]): Set[DependencyDescription] = {
