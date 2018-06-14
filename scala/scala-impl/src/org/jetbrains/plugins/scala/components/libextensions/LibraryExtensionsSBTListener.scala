@@ -1,5 +1,6 @@
 package org.jetbrains.plugins.scala.components.libextensions
 
+import com.intellij.openapi.application.ApplicationManager
 import com.intellij.openapi.externalSystem.model.task.{ExternalSystemTaskId, ExternalSystemTaskNotificationListenerAdapter}
 import com.intellij.openapi.module.ModuleManager
 import org.jetbrains.plugins.scala.settings.ScalaProjectSettings
@@ -12,6 +13,7 @@ class LibraryExtensionsSBTListener extends ExternalSystemTaskNotificationListene
 
   override def onSuccess(id: ExternalSystemTaskId): Unit = {
     val project = id.findProject()
+    if (ApplicationManager.getApplication.isUnitTestMode) return
     if (project == null || project.isDisposed) return
     if (!ScalaProjectSettings.getInstance(project).isEnableLibraryExtensions) return
     ModuleManager.getInstance(project).getModules.foreach {
