@@ -1,15 +1,12 @@
 package org.jetbrains.plugins.scala.codeInsight.implicits
 
-import java.awt.{Graphics, Insets, Rectangle}
-
 import com.intellij.codeHighlighting.EditorBoundHighlightingPass
 import com.intellij.codeInsight.hints.InlayInfo
-import com.intellij.openapi.editor.colors.CodeInsightColors
+import com.intellij.openapi.editor.Editor
 import com.intellij.openapi.editor.ex.util.CaretVisualPositionKeeper
-import com.intellij.openapi.editor.markup.TextAttributes
-import com.intellij.openapi.editor.{Editor, Inlay, InlayModel}
 import com.intellij.openapi.progress.ProgressIndicator
-import com.intellij.openapi.util.{Disposer, Key, TextRange}
+import com.intellij.openapi.util.Disposer
+import com.intellij.psi.PsiNamedElement
 import com.intellij.util.DocumentUtil
 import org.jetbrains.plugins.scala.actions.ShowImplicitArgumentsAction
 import org.jetbrains.plugins.scala.annotator.ScalaAnnotator
@@ -17,31 +14,30 @@ import org.jetbrains.plugins.scala.codeInsight.implicits.ImplicitHintsPass._
 import org.jetbrains.plugins.scala.extensions._
 import org.jetbrains.plugins.scala.lang.psi.ScalaPsiElement
 import org.jetbrains.plugins.scala.lang.psi.api.ImplicitParametersOwner
+import org.jetbrains.plugins.scala.lang.psi.api.base.patterns.ScReferencePattern
 import org.jetbrains.plugins.scala.lang.psi.api.expr.{ScExpression, ScNewTemplateDefinition}
+import org.jetbrains.plugins.scala.lang.psi.api.toplevel.typedef.ScMember
 import org.jetbrains.plugins.scala.lang.resolve.ScalaResolveResult
-
-import scala.collection.JavaConverters._
 
 private class ImplicitHintsPass(editor: Editor, rootElement: ScalaPsiElement)
   extends EditorBoundHighlightingPass(editor, rootElement.getContainingFile, true) {
 
-  private var hints: Seq[(String, ScExpression, String)] = Seq.empty
+  private var hints: Seq[Hint] = Seq.empty
 
   override def doCollectInformation(indicator: ProgressIndicator): Unit = {
     hints = Seq.empty
 
     if (myDocument != null && rootElement.containingVirtualFile.isDefined) {
-      collectConversionsAndParameters()
+      collectConversionsAndArguments()
     }
   }
 
-  private def collectConversionsAndParameters(): Unit = {
+  private def collectConversionsAndArguments(): Unit = {
     rootElement.depthFirst().foreach {
       case e: ScExpression =>
         if (ImplicitHints.enabled) {
           e.implicitConversion().foreach { conversion =>
-            val name = nameOf(conversion.element)
-            hints +:= (name + "(", e, if (conversion.implicitParameters.nonEmpty) ")(...)" else ")")
+            hints +:= implicitConversionHint(e, conversion)
           }
         }
 
@@ -51,23 +47,13 @@ private class ImplicitHintsPass(editor: Editor, rootElement: ScalaPsiElement)
               val typeAware = ScalaAnnotator.isAdvancedHighlightingEnabled(e) && !e.isInDottyModule
               def argumentsMissing = arguments.exists(ShowImplicitArgumentsAction.missingImplicitArgumentIn(_).isDefined)
               if (ImplicitHints.enabled || (typeAware && argumentsMissing)) {
-                hints +:= ("", owner, arguments.map(presentationOf).mkString("(", ", ", ")"))
+                hints +:= implicitArgumentsHint(owner, arguments)
               }
             }
           case _ =>
         }
       case _ =>
     }
-  }
-
-  // TODO Show missing implicit parameter name?
-  private def presentationOf(argument: ScalaResolveResult): String = {
-    ShowImplicitArgumentsAction.missingImplicitArgumentIn(argument)
-      .map(MissingImplicitArgument + _.map(_.presentableText).getOrElse("NotInferred"))
-      .getOrElse {
-        val name = nameOf(argument.element)
-        if (argument.implicitParameters.nonEmpty) name + "(...)" else name
-      }
   }
 
   override def doApplyInformationToEditor(): Unit = {
@@ -91,10 +77,12 @@ private class ImplicitHintsPass(editor: Editor, rootElement: ScalaPsiElement)
 
       hints.foreach { case (prefix, e, suffix) =>
         if (prefix.nonEmpty) {
-          inlayModel.addInlay(new InlayInfo(prefix, e.getTextRange.getStartOffset, false, true, false))
+          val info = new InlayInfo(prefix, e.getTextRange.getStartOffset, false, true, false)
+          inlayModel.addInlay(info, error = prefix.contains(MissingImplicitArgument))
         }
         if (suffix.nonEmpty) {
-          inlayModel.addInlay(new InlayInfo(suffix, e.getTextRange.getEndOffset, false, true, true))
+          val info = new InlayInfo(suffix, e.getTextRange.getEndOffset, false, true, true)
+          inlayModel.addInlay(info, error = suffix.contains(MissingImplicitArgument))
         }
       }
     })
@@ -105,44 +93,31 @@ private object ImplicitHintsPass {
   private final val BulkChangeThreshold = 1000
   private final val MissingImplicitArgument = "?: "
 
-  private val ScalaImplicitHintKey = Key.create[Boolean]("SCALA_IMPLICIT_HINT")
-
-  implicit class Model(val model: InlayModel) extends AnyVal {
-    def inlaysIn(range: TextRange): Seq[Inlay] =
-      model.getInlineElementsInRange(range.getStartOffset + 1, range.getEndOffset - 1)
-        .asScala
-        .filter(ScalaImplicitHintKey.isIn)
-
-    def addInlay(info: InlayInfo): Unit = {
-      val renderer = new TextRenderer(info.getText,
-        error = info.getText.contains(MissingImplicitArgument),
-        suffix = info.getRelatesToPrecedingText)
-
-      val inlay = model.addInlineElement(info.getOffset, info.getRelatesToPrecedingText, renderer)
-      Option(inlay).foreach(_.putUserData(ScalaImplicitHintKey, true))
-    }
+  def implicitConversionHint(e: ScExpression, conversion: ScalaResolveResult): Hint = {
+    val name = nameOf(conversion.element)
+    (name + "(", e, if (conversion.implicitParameters.nonEmpty) ")(...)" else ")")
   }
 
-  private class TextRenderer(text: String, error: Boolean, suffix: Boolean) extends HintRendererExt(text) {
-    override def getContextMenuGroupId: String = "ToggleImplicits"
+  private def nameOf(e: PsiNamedElement): String = e match {
+    case member: ScMember => nameOf(member)
+    case (_: ScReferencePattern) && Parent(Parent(member: ScMember with PsiNamedElement)) => nameOf(member)
+    case it => it.name
+  }
 
-    override protected def getMargin(editor: Editor): Insets =
-      new Insets(0, if (suffix) 1 else 2, 0, if (suffix) 2 else 1)
+  private def nameOf(member: ScMember with PsiNamedElement) =
+    Option(member.containingClass).map(_.name + ".").mkString + member.name
 
-    override protected def getPadding(editor: Editor): Insets =
-      new Insets(0, if (suffix) 2 else 5, 0, if (suffix) 5 else 2)
+  def implicitArgumentsHint(e: ScExpression, arguments: Seq[ScalaResolveResult]): Hint =
+    ("", e, arguments.map(presentationOf).mkString("(", ", ", ")"))
 
-    // TODO Fine-grained coloring
-    // TODO Why the effect type / color cannot be specified via super.getTextAttributes?
-    override def paint(editor: Editor, g: Graphics, r: Rectangle, textAttributes: TextAttributes): Unit = {
-      if (error) {
-        val errorAttributes = editor.getColorsScheme.getAttributes(CodeInsightColors.ERRORS_ATTRIBUTES)
-        textAttributes.setEffectType(errorAttributes.getEffectType)
-        textAttributes.setEffectColor(errorAttributes.getEffectColor)
+  // TODO Show missing implicit parameter name?
+  private def presentationOf(argument: ScalaResolveResult): String = {
+    ShowImplicitArgumentsAction.missingImplicitArgumentIn(argument)
+      .map(MissingImplicitArgument + _.map(_.presentableText).getOrElse("NotInferred"))
+      .getOrElse {
+        val name = nameOf(argument.element)
+        if (argument.implicitParameters.nonEmpty) name + "(...)" else name
       }
-
-      super.paint(editor, g, r, textAttributes)
-    }
   }
 }
 
