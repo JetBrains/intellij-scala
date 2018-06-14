@@ -14,6 +14,7 @@
 .DS_Store
 *~
 target/
+.bloop/
 
 scala/scala-impl/testdata/debugger
 scala/scala-impl/testdata/projects
