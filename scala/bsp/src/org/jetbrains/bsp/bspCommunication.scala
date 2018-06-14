@@ -65,7 +65,7 @@ class BspSession(messages: Observable[BaseProtocolMessage],
 
       for {
         _ <- shutdownRequest
-        _ <- cleaning.delayExecution(5.seconds)
+        _ <- cleaning
         // TODO check process state, hard-kill bsp process if shutdown was not orderly
       } yield ()
     }
@@ -74,7 +74,6 @@ class BspSession(messages: Observable[BaseProtocolMessage],
       initResult <- initRequest
       _ = endpoints.Build.initialized.notify(InitializedBuildParams())
       result <- task(client).delayExecution(100.millis) // FIXME hackaround to "ensure" bsp server is ready to answer requests after initialized notification
-      // FIXME the bsp process will just stay around zombily for, like, ever. shut it down!!!
     } yield {
       result
     }

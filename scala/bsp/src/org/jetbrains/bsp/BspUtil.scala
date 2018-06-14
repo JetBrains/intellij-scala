@@ -34,6 +34,7 @@ object BspUtil {
           ideaLogger.warn(record.message, record.throwable.orNull)
         case Error =>
           ideaLogger.error(record.message, record.throwable.orNull)
+        case _ => // ignore
       }
     }
   }
