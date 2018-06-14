@@ -34,6 +34,8 @@ class LibraryExtensionsManager(project: Project) extends AbstractProjectComponen
   class ExtensionNotRegisteredException(iface: Class[_]) extends Exception(s"No extensions registered for class $iface")
   class InvalidExtensionException(iface: Class[_], impl: Class[_]) extends Exception(s"Extension $impl doesn't inherit $iface")
 
+  private val EXT_JARS_KEY = "extensionJars"
+
   private val LOG         = Logger.getInstance(classOf[LibraryExtensionsManager])
   private val properties  = PropertiesComponent.getInstance(project)
   private val popup       = new PopupHelper
@@ -71,7 +73,7 @@ class LibraryExtensionsManager(project: Project) extends AbstractProjectComponen
 
   private def enabledAcceptCb(resolved: Seq[ResolvedDependency]): Unit = {
     resolved.foreach(processResolvedExtension)
-    properties.setValues("extensionJars", resolved.map(_.file.getAbsolutePath).toArray)
+    properties.setValues(EXT_JARS_KEY, resolved.map(_.file.getAbsolutePath).toArray)
   }
 
   private def enabledCancelledCb(): Unit = {
@@ -87,7 +89,7 @@ class LibraryExtensionsManager(project: Project) extends AbstractProjectComponen
 
     val candidates = getExtensionLibCandidates(allLibraries)
     val resolved   = new IvyExtensionsResolver(ivyResolvers.reverse).resolve(candidates.toSeq:_*)
-    val alreadyLoaded     = Option(properties.getValues("extensionJars")).map(_.toSet).getOrElse(Set.empty)
+    val alreadyLoaded     = Option(properties.getValues(EXT_JARS_KEY)).map(_.toSet).getOrElse(Set.empty)
     val extensionsChanged = alreadyLoaded != resolved.map(_.file.getAbsolutePath).toSet
 
     if (resolved.nonEmpty && extensionsChanged)
@@ -156,9 +158,11 @@ class LibraryExtensionsManager(project: Project) extends AbstractProjectComponen
   }
 
   private def loadCachedExtensions(): Unit = {
-    val jarPaths = properties.getValues("extensionJars")
+    val jarPaths = properties.getValues(EXT_JARS_KEY)
     if (jarPaths != null) {
-      val fakeDependencies = jarPaths.map(path => ResolvedDependency(null, new File(path)))
+      val existingFiles = jarPaths.map(new File(_)).filter(_.exists())
+      properties.setValues(EXT_JARS_KEY, existingFiles.map(_.getAbsolutePath))
+      val fakeDependencies = existingFiles.map(file => ResolvedDependency(null, file))
       fakeDependencies.foreach(processResolvedExtension)
     }
   }
