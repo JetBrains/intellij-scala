@@ -8,6 +8,7 @@ import ch.epfl.scala.bsp._
 import com.intellij.build.FilePosition
 import com.intellij.execution.process.AnsiEscapeDecoder.ColoredTextAcceptor
 import com.intellij.execution.process.{AnsiEscapeDecoder, ProcessOutputTypes}
+import com.intellij.openapi.diagnostic.Logger
 import com.intellij.openapi.externalSystem.model.project.ModuleData
 import com.intellij.openapi.externalSystem.model.{DataNode, ProjectKeys}
 import com.intellij.openapi.externalSystem.service.project.ProjectDataManager
@@ -29,8 +30,7 @@ import org.jetbrains.plugins.scala.build.{BuildFailureException, BuildMessages, 
 import scala.collection.JavaConverters._
 import scala.concurrent.Await
 import scala.concurrent.duration.Duration
-import scala.meta.jsonrpc.{Response, Services}
-import scala.meta.lsp.LanguageClient
+import scala.meta.jsonrpc.{LanguageClient, Response, Services}
 import scala.util.control.NonFatal
 
 class BspProjectTaskRunner extends ProjectTaskRunner {
@@ -98,7 +98,9 @@ object BspProjectTaskRunner {
     private def compileRequest(implicit client: LanguageClient): eval.Task[Either[Response.Error, CompileResult]] =
       endpoints.BuildTarget.compile.request(CompileParams(targets, None, List.empty)) // TODO correct compile params
 
-    private val services = Services.empty
+    private val logger = Logger.getInstance(classOf[BspTask[_]])
+
+    private val services = Services.empty(logger.toScribeLogger)
       .notification(endpoints.Build.logMessage) { params => report.log(params.message) }
       .notification(endpoints.Build.showMessage)(reportShowMessage)
       .notification(endpoints.Build.publishDiagnostics)(reportDiagnostics)

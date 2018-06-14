@@ -3,6 +3,7 @@ package org.jetbrains.bsp
 import java.io.File
 
 import ch.epfl.scala.bsp._
+import com.intellij.openapi.diagnostic.Logger
 import com.intellij.openapi.externalSystem.model.project._
 import com.intellij.openapi.externalSystem.model.task.{ExternalSystemTaskId, ExternalSystemTaskNotificationEvent, ExternalSystemTaskNotificationListener}
 import com.intellij.openapi.externalSystem.model.{DataNode, ProjectKeys}
@@ -22,8 +23,7 @@ import org.jetbrains.sbt.project.data.SbtBuildModuleData
 import scala.collection.JavaConverters._
 import scala.concurrent.Await
 import scala.concurrent.duration.Duration
-import scala.meta.jsonrpc.{Response, Services}
-import scala.meta.lsp.LanguageClient
+import scala.meta.jsonrpc.{LanguageClient, Response, Services}
 
 class BspProjectResolver extends ExternalSystemProjectResolver[BspExecutionSettings] {
 
@@ -146,7 +146,8 @@ class BspProjectResolver extends ExternalSystemProjectResolver[BspExecutionSetti
       moduleNode
     }
 
-    val services = Services.empty
+    val logger = Logger.getInstance(classOf[BspProjectResolver])
+    val services = Services.empty(logger.toScribeLogger)
       .notification(endpoints.Build.logMessage) { params =>
         // TODO use params.id for tree structure
         statusUpdate(params.message)
