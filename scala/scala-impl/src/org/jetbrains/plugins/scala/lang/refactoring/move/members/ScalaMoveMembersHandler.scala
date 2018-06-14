@@ -6,6 +6,8 @@ import com.intellij.openapi.project.Project
 import com.intellij.psi.{PsiElement, PsiReference}
 import com.intellij.refactoring.move.MoveHandlerDelegate
 import org.jetbrains.plugins.scala.ScalaBundle
+import org.jetbrains.plugins.scala.extensions.ObjectExt
+import org.jetbrains.plugins.scala.lang.psi.ScalaPsiUtil
 import org.jetbrains.plugins.scala.lang.psi.api.statements.params.ScClassParameter
 import org.jetbrains.plugins.scala.lang.psi.api.toplevel.typedef.{ScMember, ScObject, ScTypeDefinition}
 import org.jetbrains.plugins.scala.lang.refactoring.util.ScalaRefactoringUtil
@@ -14,22 +16,42 @@ class ScalaMoveMembersHandler extends MoveHandlerDelegate {
 
   override def tryToMove(element: PsiElement, project: Project, dataContext: DataContext, reference: PsiReference, editor: Editor): Boolean = {
     element match {
-      case _: ScTypeDefinition |
-           _: ScClassParameter => false
-      case el: ScMember =>
-        el.containingClass match {
-          case scObj: ScObject =>
-            val dialog = new ScalaMoveMembersDialog(project, true, scObj, el)
-            dialog.show()
-          case _ =>
-            val message = ScalaBundle.message("move.members.supported.only.objects")
-            val refactoringName = "Move members"
-            ScalaRefactoringUtil.showErrorHint(message, refactoringName, null)(project, editor)
-        }
+      case _: ScTypeDefinition | _: ScClassParameter => false
+      case NotSupportedMember(message) =>
+        val refactoringName = "Move members"
+        ScalaRefactoringUtil.showErrorHint(message, refactoringName, null)(project, editor)
+        true
+      case objectMember(obj, member) =>
+        val dialog = new ScalaMoveMembersDialog(project, true, obj, member)
+        dialog.show()
         true
       case _ => false
     }
-
   }
 
+  private object objectMember {
+    def unapply(member: ScMember): Option[(ScObject, ScMember)] =
+      member.containingClass.asOptionOf[ScObject].map((_, member))
+  }
+
+  private object NotSupportedMember {
+    def unapply(member: ScMember): Option[String] = {
+      if (ScalaPsiUtil.isImplicit(member))
+        Some(ScalaBundle.message("move.members.not.supported.implicits"))
+
+      else if (!hasStablePath(member))
+        Some(ScalaBundle.message("move.members.supported.only.stable.objects"))
+
+      else if (member.hasModifierProperty("override"))
+        Some(ScalaBundle.message("move.members.not.supported.overridden"))
+
+      else None
+    }
+
+
+    private def hasStablePath(member: ScMember): Boolean = member.containingClass match {
+      case obj: ScObject => ScalaPsiUtil.hasStablePath(obj)
+      case _             => false
+    }
+  }
 }
