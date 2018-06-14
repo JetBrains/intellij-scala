@@ -75,6 +75,7 @@ abstract class ScalaAnnotator extends Annotator
   with ProjectContextOwner with DumbAware {
 
   override def annotate(element: PsiElement, holder: AnnotationHolder) {
+    // TODO Should we take the Dotty thing into account universally, in the isAdvancedHighlightingEnabled?
     val typeAware = isAdvancedHighlightingEnabled(element) && !element.isInDottyModule
 
     val (compiled, isInSources) = element.getContainingFile match {
@@ -465,50 +466,8 @@ abstract class ScalaAnnotator extends Annotator
     }
   }
 
-  def isAdvancedHighlightingEnabled(element: PsiElement): Boolean = {
-    if (!HighlightingAdvisor.getInstance(element.getProject).enabled) return false
-    element.getContainingFile match {
-      case file: ScalaFile =>
-        if (file.isCompiled) return false
-        val vFile = file.getVirtualFile
-        if (vFile != null && ProjectFileIndex.SERVICE.getInstance(element.getProject).isInLibrarySource(vFile)) return false
-      case _ =>
-    }
-    val containingFile = element.getContainingFile
-    def calculate(): mutable.HashSet[TextRange] = {
-      val chars = containingFile.charSequence
-      val indexes = new ArrayBuffer[Int]
-      var lastIndex = 0
-      while (chars.indexOf("/*_*/", lastIndex) >= 0) {
-        lastIndex = chars.indexOf("/*_*/", lastIndex) + 5
-        indexes += lastIndex
-      }
-      if (indexes.isEmpty) return mutable.HashSet.empty
-      if (indexes.length % 2 != 0) indexes += chars.length
-
-      val res = new mutable.HashSet[TextRange]
-      for (i <- indexes.indices by 2) {
-        res += new TextRange(indexes(i), indexes(i + 1))
-      }
-      res
-    }
-    var data = containingFile.getUserData(ScalaAnnotator.ignoreHighlightingKey)
-    val count = containingFile.getManager.getModificationTracker.getModificationCount
-    if (data == null || data._1 != count) {
-      data = (count, calculate())
-      containingFile.putUserData(ScalaAnnotator.ignoreHighlightingKey, data)
-    }
-    val noCommentWhitespace = element.children.filter {
-      case _: PsiComment | _: PsiWhiteSpace => false
-      case _ => true
-    }
-    val offset =
-      noCommentWhitespace.headOption
-        .map(_.getTextOffset)
-        .getOrElse(element.getTextOffset)
-
-    data._2.forall(!_.contains(offset))
-  }
+  def isAdvancedHighlightingEnabled(element: PsiElement): Boolean =
+    ScalaAnnotator.isAdvancedHighlightingEnabled(element)
 
   def checkCatchBlockGeneralizedRule(block: ScCatchBlock, holder: AnnotationHolder, typeAware: Boolean) {
     block.expression match {
@@ -1487,5 +1446,49 @@ object ScalaAnnotator {
     override implicit def projectContext: ProjectContext = ctx
   }
 
+  // TODO De-compose the code (what exactly it does?), place the method in HighlightingAdvisor
+  def isAdvancedHighlightingEnabled(element: PsiElement): Boolean = {
+    if (!HighlightingAdvisor.getInstance(element.getProject).enabled) return false
+    element.getContainingFile match {
+      case file: ScalaFile =>
+        if (file.isCompiled) return false
+        val vFile = file.getVirtualFile
+        if (vFile != null && ProjectFileIndex.SERVICE.getInstance(element.getProject).isInLibrarySource(vFile)) return false
+      case _ =>
+    }
+    val containingFile = element.getContainingFile
+    def calculate(): mutable.HashSet[TextRange] = {
+      val chars = containingFile.charSequence
+      val indexes = new ArrayBuffer[Int]
+      var lastIndex = 0
+      while (chars.indexOf("/*_*/", lastIndex) >= 0) {
+        lastIndex = chars.indexOf("/*_*/", lastIndex) + 5
+        indexes += lastIndex
+      }
+      if (indexes.isEmpty) return mutable.HashSet.empty
+      if (indexes.length % 2 != 0) indexes += chars.length
 
+      val res = new mutable.HashSet[TextRange]
+      for (i <- indexes.indices by 2) {
+        res += new TextRange(indexes(i), indexes(i + 1))
+      }
+      res
+    }
+    var data = containingFile.getUserData(ScalaAnnotator.ignoreHighlightingKey)
+    val count = containingFile.getManager.getModificationTracker.getModificationCount
+    if (data == null || data._1 != count) {
+      data = (count, calculate())
+      containingFile.putUserData(ScalaAnnotator.ignoreHighlightingKey, data)
+    }
+    val noCommentWhitespace = element.children.filter {
+      case _: PsiComment | _: PsiWhiteSpace => false
+      case _ => true
+    }
+    val offset =
+      noCommentWhitespace.headOption
+        .map(_.getTextOffset)
+        .getOrElse(element.getTextOffset)
+
+    data._2.forall(!_.contains(offset))
+  }
 }

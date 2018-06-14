@@ -12,6 +12,7 @@ import com.intellij.openapi.progress.ProgressIndicator
 import com.intellij.openapi.util.{Disposer, Key, TextRange}
 import com.intellij.util.DocumentUtil
 import org.jetbrains.plugins.scala.actions.ShowImplicitArgumentsAction
+import org.jetbrains.plugins.scala.annotator.ScalaAnnotator
 import org.jetbrains.plugins.scala.codeInsight.implicits.ImplicitHintsPass._
 import org.jetbrains.plugins.scala.extensions._
 import org.jetbrains.plugins.scala.lang.psi.ScalaPsiElement
@@ -47,8 +48,9 @@ private class ImplicitHintsPass(editor: Editor, rootElement: ScalaPsiElement)
         e match {
           case owner@(_: ImplicitParametersOwner | _: ScNewTemplateDefinition) =>
             ShowImplicitArgumentsAction.implicitParams(owner).foreach { arguments =>
-              val argumentsMissing = arguments.exists(ShowImplicitArgumentsAction.missingImplicitArgumentIn(_).isDefined)
-              if (ImplicitHints.enabled || argumentsMissing) {
+              val typeAware = ScalaAnnotator.isAdvancedHighlightingEnabled(e) && !e.isInDottyModule
+              def argumentsMissing = arguments.exists(ShowImplicitArgumentsAction.missingImplicitArgumentIn(_).isDefined)
+              if (ImplicitHints.enabled || (typeAware && argumentsMissing)) {
                 hints +:= ("", owner, arguments.map(presentationOf).mkString("(", ", ", ")"))
               }
             }
