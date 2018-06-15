@@ -1,177 +1,234 @@
-package org.jetbrains.plugins.scala.lang.completion
+package org.jetbrains.plugins.scala
+package lang
+package completion
 
 import com.intellij.codeInsight.completion._
-import com.intellij.codeInsight.lookup.{LookupElement, LookupElementDecorator, LookupElementPresentation, LookupElementRenderer}
+import com.intellij.codeInsight.lookup._
+import com.intellij.openapi.editor.Document
 import com.intellij.openapi.util.TextRange
+import com.intellij.openapi.util.text.StringUtil
 import com.intellij.patterns.PlatformPatterns
 import com.intellij.psi.PsiElement
 import com.intellij.util.{Consumer, ProcessingContext}
 import org.jetbrains.plugins.scala.extensions.PsiElementExt
-import org.jetbrains.plugins.scala.lang.completion.MyConsumer._
-import org.jetbrains.plugins.scala.lang.completion.MyInsertHandler._
-import org.jetbrains.plugins.scala.lang.completion.ScalaAotCompletionContributor._
-import org.jetbrains.plugins.scala.lang.completion.lookups.ScalaLookupItem
 import org.jetbrains.plugins.scala.lang.lexer.ScalaTokenTypes
+import org.jetbrains.plugins.scala.lang.psi.ScalaPsiElement
 import org.jetbrains.plugins.scala.lang.psi.api.base.ScFieldId
 import org.jetbrains.plugins.scala.lang.psi.api.statements.params.ScParameter
 import org.jetbrains.plugins.scala.lang.psi.api.statements.{ScValueDeclaration, ScVariableDeclaration}
 import org.jetbrains.plugins.scala.lang.psi.impl.ScalaPsiElementFactory
-import org.jetbrains.plugins.scala.lang.refactoring.ScalaNamesValidator.isIdentifier
+import org.jetbrains.plugins.scala.lang.refactoring.ScalaNamesValidator
 import org.jetbrains.plugins.scala.settings.ScalaProjectSettings
 
+import scala.collection.mutable
+
 /**
- * @author Pavel Fatin
- */
+  * @author Pavel Fatin
+  */
 class ScalaAotCompletionContributor extends ScalaCompletionContributor {
-  extend(CompletionType.BASIC, PlatformPatterns.psiElement(ScalaTokenTypes.tIDENTIFIER).
-          withParent(classOf[ScParameter]), new CompletionProvider[CompletionParameters] {
 
-    def addCompletions(parameters: CompletionParameters, context: ProcessingContext, result: CompletionResultSet) {
-      addCompletions0(parameters, result, typed = true) { (text, element) =>
-        val parameter = createParameterFrom(text, element)
-        val context = element.getContext.getContext
-        parameter.setContext(context, context.getLastChild)
-        typeIdentifierIn(parameter)
+  extend(
+    CompletionType.BASIC,
+    PlatformPatterns.psiElement(ScalaTokenTypes.tIDENTIFIER).withParent(classOf[ScParameter]),
+    new AotCompletionProvider[ScParameter] {
+
+      override protected def createElement(text: String, child: PsiElement): ScParameter =
+        ScalaPsiElementFactory.createParamClausesWithContext(s"($text)", child.getContext, child).params.head
+
+      override protected def typeElement(parameter: ScParameter): Option[ScalaPsiElement] = parameter.paramType
+
+      override protected def createConsumer(prefixMatcher: PrefixMatcher, resultSet: CompletionResultSet): MyConsumer = new MyConsumer(prefixMatcher, resultSet) {
+
+        override protected def createRenderer(name: String): MyElementRenderer =
+          (presentation: LookupElementPresentation) => s"$name: ${presentation.getItemText}"
+
+        override protected def createInsertHandler(name: String): MyInsertHandler = new MyInsertHandler {
+
+          override protected def handleInsert(item: LookupElement, range: TextRange)
+                                             (implicit context: InsertionContext): Unit = {
+            super.handleInsert(item, range)
+
+            val newContext = contextWith(range.shiftRight(name.length + 2))
+            lookups.ScalaLookupItem.original(item).handleInsert(newContext)
+          }
+
+          override protected def replacement(document: Document, range: TextRange): String =
+            s"$name: ${document.getText(range)}"
+
+          private def offsetMap(document: Document, range: TextRange) = {
+            val map = new OffsetMap(document)
+            map.addOffset(CompletionInitializationContext.START_OFFSET, range.getStartOffset)
+            map.addOffset(InsertionContext.TAIL_OFFSET, range.getEndOffset)
+            map
+          }
+
+          private def contextWith(range: TextRange)
+                                 (implicit context: InsertionContext) = new InsertionContext(
+            offsetMap(context.getDocument, range),
+            context.getCompletionChar,
+            context.getElements,
+            context.getFile,
+            context.getEditor,
+            context.shouldAddCompletionChar
+          )
+        }
       }
     }
-  })
+  )
 
-  extend(CompletionType.BASIC, PlatformPatterns.psiElement(ScalaTokenTypes.tIDENTIFIER).
-          withParent(classOf[ScFieldId]), new CompletionProvider[CompletionParameters] {
+  extend(
+    CompletionType.BASIC,
+    PlatformPatterns.psiElement(ScalaTokenTypes.tIDENTIFIER).withParent(classOf[ScFieldId]),
+    new AotCompletionProvider[ScValueDeclaration] {
 
-    def addCompletions(parameters: CompletionParameters, context: ProcessingContext, result: CompletionResultSet) {
-      val scope = positionFromParameters(parameters).getContext.getContext.getContext
+      override def addCompletions(parameters: CompletionParameters, context: ProcessingContext, resultSet: CompletionResultSet): Unit =
+        positionFromParameters(parameters).getContext.getContext.getContext match {
+          case _: ScVariableDeclaration | _: ScValueDeclaration => super.addCompletions(parameters, context, resultSet)
+          case _ =>
+        }
 
-      if (!scope.isInstanceOf[ScVariableDeclaration] && !scope.isInstanceOf[ScValueDeclaration]) return
+      override protected def createElement(text: String, child: PsiElement): ScValueDeclaration =
+        ScalaPsiElementFactory.createDeclarationFromText(s"val $text", child.getContext, child)
+          .asInstanceOf[ScValueDeclaration]
 
-      addCompletions0(parameters, result, typed = false) { (text, element) =>
-        val declaration = createValueDeclarationFrom(text, element)
-        val context = element.getContext.getContext.getContext.getContext
-        declaration.setContext(context, context.getLastChild)
-        typeIdentifierIn(declaration)
+      override protected def context(element: ScValueDeclaration): PsiElement =
+        super.context(element).getContext.getContext
+
+      override protected def typeElement(declaration: ScValueDeclaration): Option[ScalaPsiElement] = declaration.typeElement
+
+      override protected def createConsumer(prefixMatcher: PrefixMatcher, resultSet: CompletionResultSet): MyConsumer = new MyConsumer(prefixMatcher, resultSet) {
+
+        private val consumed = mutable.Set.empty[String]
+
+        override protected def consume(element: LookupElement, name: String): Unit = {
+          if (consumed.add(name)) super.consume(element, name)
+        }
+
+        override protected def createRenderer(name: String): MyElementRenderer = new MyElementRenderer {
+
+          override def renderElement(element: LookupElementDecorator[LookupElement], presentation: LookupElementPresentation): Unit = {
+            super.renderElement(element, presentation)
+
+            presentation.setIcon(null)
+            presentation.setTailText(null)
+          }
+
+          override protected def itemText(presentation: LookupElementPresentation): String = name
+        }
+
+        override protected def createInsertHandler(name: String): MyInsertHandler =
+          (_: Document, _: TextRange) => name
       }
     }
-  })
+  )
 
-  private def addCompletions0(parameters: CompletionParameters, result: CompletionResultSet, typed: Boolean)
-                             (factory: (String, PsiElement) => PsiElement) {
+  private trait AotCompletionProvider[E <: ScalaPsiElement] extends CompletionProvider[CompletionParameters] {
 
-    val element = positionFromParameters(parameters)
-    val settings = ScalaProjectSettings.getInstance(element.getProject)
+    override def addCompletions(parameters: CompletionParameters,
+                                context: ProcessingContext,
+                                resultSet: CompletionResultSet): Unit = {
+      import StringUtil.capitalize
+      val element = positionFromParameters(parameters)
+      if (!ScalaProjectSettings.getInstance(element.getProject).isAotCompletion) return
 
-    if (!settings.isAotCompletion) return
+      val prefixMatcher = resultSet.getPrefixMatcher
+      val prefix = prefixMatcher.getPrefix
 
-    val text = element.getText
-    val prefix = result.getPrefixMatcher.getPrefix
+      if (!ScalaNamesValidator.isIdentifier(prefix) || prefix.exists(!_.isLetterOrDigit)) return
 
-    if (!isSuitableIdentifier(prefix)) return
+      val replacement = createElement(prefix + ": " + capitalize(element.getText), element)
 
-    val identifier = factory(prefix + ": " + capitalize(text), element)
+      val context = this.context(replacement)
+      replacement.setContext(context, context.getLastChild)
 
-    val parameters0 = parameters.withPosition(identifier, identifier.getTextRange.getStartOffset + prefix.length)
-    val result0 = result.withPrefixMatcher(result.getPrefixMatcher.cloneWithPrefix(capitalize(prefix)))
-    result0.runRemainingContributors(parameters0, new MyConsumer(prefix, typed, result0), true)
-  }
+      val identifier = typeElement(replacement)
+        .flatMap(findIdentifier)
+        .get
 
-  private def isSuitableIdentifier(s: String) = isIdentifier(s) && s.forall(_.isLetterOrDigit)
-}
+      val newParameters = parameters.withPosition(identifier, identifier.getTextRange.getStartOffset + prefix.length)
 
-private object ScalaAotCompletionContributor {
-  def typeIdentifierIn(parameter: ScParameter): PsiElement =
-    parameter.paramType.get.depthFirst().find(_.getNode.getElementType == ScalaTokenTypes.tIDENTIFIER).get
-
-  def typeIdentifierIn(declaration: ScValueDeclaration): PsiElement =
-    declaration.typeElement.get.depthFirst().find(_.getNode.getElementType == ScalaTokenTypes.tIDENTIFIER).get
-
-  def capitalize(s: String): String =
-    if (s.length == 0) s else s.substring(0, 1).toUpperCase + s.substring(1)
-
-  def createParameterFrom(text: String, original: PsiElement): ScParameter = {
-    val clauses = ScalaPsiElementFactory.createParamClausesWithContext(s"($text)", original.getContext, original)
-    clauses.params.head
-  }
-
-  def createValueDeclarationFrom(text: String, original: PsiElement): ScValueDeclaration = {
-    ScalaPsiElementFactory.createDeclarationFromText(s"val $text", original.getContext, original).asInstanceOf[ScValueDeclaration]
-  }
-}
-
-private class MyConsumer(prefix: String, typed: Boolean, resultSet: CompletionResultSet) extends Consumer[CompletionResult] {
-  private var consumed = Set[String]()
-
-  def consume(result: CompletionResult) {
-    val element = result.getLookupElement
-
-    val name = suggestNameFor(prefix, element.getLookupString)
-
-    val renderingDecorator = LookupElementDecorator.withRenderer(element,
-      new MyElementRenderer(name, typed))
-
-    val insertionDecorator = LookupElementDecorator.withInsertHandler(renderingDecorator,
-      new MyInsertHandler(name, typed))
-
-    if (typed) {
-      resultSet.consume(insertionDecorator)
-    } else if (!consumed.contains(name)) {
-      resultSet.consume(insertionDecorator)
-      consumed += name
+      val newResultSet = resultSet.withPrefixMatcher(prefixMatcher.cloneWithPrefix(capitalize(prefix)))
+      newResultSet.runRemainingContributors(newParameters, createConsumer(prefixMatcher, newResultSet), true)
     }
-  }
-}
 
-private object MyConsumer {
-  def suggestNameFor(prefix: String, entity: String): String = {
-    val i = entity.indexOf(capitalize(prefix.takeWhile(_.isLower)))
-    val name = if (i >= 0) entity.substring(i) else entity
-    decapitalize(name)
-  }
+    protected def createElement(text: String, child: PsiElement): E
 
-  def decapitalize(s: String): String =
-    if (s.length == 0) s else s.substring(0, 1).toLowerCase + s.substring(1)
-}
+    protected def context(element: E): PsiElement = element.getContext.getContext
 
-private class MyElementRenderer(name: String, typed: Boolean) extends LookupElementRenderer[LookupElementDecorator[LookupElement]] {
-  def renderElement(element: LookupElementDecorator[LookupElement], presentation: LookupElementPresentation): Unit = {
-    element.getDelegate.renderElement(presentation)
+    protected def typeElement(element: E): Option[ScalaPsiElement]
 
-    val text = if (typed) name + ": " + presentation.getItemText else name
-    presentation.setItemText(text)
+    protected def createConsumer(prefixMatcher: PrefixMatcher, resultSet: CompletionResultSet): MyConsumer
 
-    if (!typed) {
-      presentation.setIcon(null)
-      presentation.setTailText(null)
+    private def findIdentifier(element: ScalaPsiElement): Option[PsiElement] =
+      element.depthFirst()
+        .find(_.getNode.getElementType == ScalaTokenTypes.tIDENTIFIER)
+
+    protected abstract class MyConsumer(prefixMatcher: PrefixMatcher, resultSet: CompletionResultSet) extends Consumer[CompletionResult] {
+
+      private val lowerCasePrefix = prefixMatcher.getPrefix.takeWhile(_.isLower)
+
+      def consume(result: CompletionResult) {
+        val element = result.getLookupElement
+        consume(element, suggestName(element.getLookupString))
+      }
+
+      protected def consume(element: LookupElement, name: String): Unit = {
+        import LookupElementDecorator._
+
+        resultSet.consume(withInsertHandler(
+          withRenderer(element, createRenderer(name)),
+          createInsertHandler(name)
+        ))
+      }
+
+      protected def createRenderer(name: String): MyElementRenderer
+
+      protected def createInsertHandler(name: String): MyInsertHandler
+
+      private def suggestName(entity: String): String = {
+        import StringUtil.{capitalize, decapitalize}
+
+        val name = entity.indexOf(capitalize(lowerCasePrefix)) match {
+          case -1 => entity
+          case index => entity.substring(index)
+        }
+
+        decapitalize(name)
+      }
+
+      protected trait MyElementRenderer extends LookupElementRenderer[LookupElementDecorator[LookupElement]] {
+
+        def renderElement(element: LookupElementDecorator[LookupElement], presentation: LookupElementPresentation): Unit = {
+          element.getDelegate.renderElement(presentation)
+          presentation.setItemText(itemText(presentation))
+        }
+
+        protected def itemText(presentation: LookupElementPresentation): String
+      }
+
+      protected trait MyInsertHandler extends InsertHandler[LookupElement] {
+
+        def handleInsert(context: InsertionContext, item: LookupElement): Unit = {
+          val range = TextRange.create(context.getStartOffset, context.getTailOffset)
+          handleInsert(item, range)(context)
+        }
+
+        protected def handleInsert(item: LookupElement, range: TextRange)
+                                  (implicit context: InsertionContext): Unit = {
+          val document = context.getDocument
+          document.replaceString(
+            range.getStartOffset,
+            range.getEndOffset,
+            replacement(document, range)
+          )
+          context.commitDocument()
+        }
+
+        protected def replacement(document: Document, range: TextRange): String
+      }
+
     }
+
   }
+
 }
-
-private class MyInsertHandler(name: String, typed: Boolean) extends InsertHandler[LookupElement] {
-  def handleInsert(context: InsertionContext, item: LookupElement): Unit = {
-    val begin = context.getStartOffset
-    val end = context.getTailOffset
-
-    val document = context.getDocument
-    val text = document.getText(TextRange.create(begin, end))
-
-    val replacement = if (typed) name + ": " + text else name
-    document.replaceString(begin, end, replacement)
-    context.commitDocument()
-
-    if (typed) {
-      val element = ScalaLookupItem.original(item)
-      val range = TextRange.from(begin, text.length).shiftRight(name.length + 2)
-      element.handleInsert(contextWith(context, range))
-    }
-  }
-}
-
-private object MyInsertHandler {
-  private def contextWith(context: InsertionContext, range: TextRange): InsertionContext = {
-    val map = new OffsetMap(context.getDocument)
-    map.addOffset(CompletionInitializationContext.START_OFFSET, range.getStartOffset)
-    map.addOffset(InsertionContext.TAIL_OFFSET, range.getEndOffset)
-
-    new InsertionContext(map, context.getCompletionChar, context.getElements, context.getFile,
-      context.getEditor, context.shouldAddCompletionChar)
-  }
-}
-
