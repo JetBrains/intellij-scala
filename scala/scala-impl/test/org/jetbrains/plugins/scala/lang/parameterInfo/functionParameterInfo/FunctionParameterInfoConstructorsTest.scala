@@ -7,6 +7,10 @@ class FunctionParameterInfoConstructorsTest extends FunctionParameterInfoTestBas
 
   def testAnnotations(): Unit = doTest()
 
+  def testMemberModifiers(): Unit = doTest()
+
+  def testCaseClass(): Unit = doTest()
+
   def testGenericScalaConstructor(): Unit = doTest()
 
   def testJavaConstructor(): Unit = doTest()
