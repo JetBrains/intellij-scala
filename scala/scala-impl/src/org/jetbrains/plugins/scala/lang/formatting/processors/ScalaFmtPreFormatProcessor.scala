@@ -23,6 +23,7 @@ import org.jetbrains.plugins.scala.ScalaFileType
 import org.jetbrains.plugins.scala.lang.formatting.settings.ScalaCodeStyleSettings
 import org.jetbrains.plugins.scala.lang.lexer.ScalaTokenTypes
 import org.jetbrains.plugins.scala.lang.psi.ScalaPsiUtil
+import org.jetbrains.plugins.scala.lang.psi.api.ScalaFile
 import org.jetbrains.plugins.scala.lang.psi.api.expr.ScBlockStatement
 import org.jetbrains.plugins.scala.lang.psi.api.toplevel.templates.ScTemplateBody
 import org.jetbrains.plugins.scala.lang.psi.api.toplevel.typedef.ScMember
@@ -40,7 +41,8 @@ class ScalaFmtPreFormatProcessor extends PreFormatProcessor {
     psiFile match {
       case Some(null) | None => TextRange.EMPTY_RANGE
       case _ if range.isEmpty => TextRange.EMPTY_RANGE
-      case Some(file) => ScalaFmtPreFormatProcessor.formatIfRequired(file, range)
+      case Some(file: ScalaFile) => ScalaFmtPreFormatProcessor.formatIfRequired(file, range)
+      case _ => range
     }
   }
 }
