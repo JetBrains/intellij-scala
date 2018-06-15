@@ -177,7 +177,10 @@ class ScalaFunctionParameterInfoHandler extends ParameterInfoHandlerWithTabActio
 
                   preceedingClauses.foreach { clause =>
                     buffer.append("(")
-                    applyToParameters(parametersOf(clause), subst, canBeNaming = true, isImplicit = clause.isImplicit)(args, buffer, -1)
+                    val parameters = parametersOf(clause)
+                    if (parameters.nonEmpty) {
+                      applyToParameters(parameters, subst, canBeNaming = true, isImplicit = clause.isImplicit)(args, buffer, -1)
+                    }
                     buffer.append(")")
                   }
 
@@ -191,7 +194,10 @@ class ScalaFunctionParameterInfoHandler extends ParameterInfoHandlerWithTabActio
 
                   remainingClauses.foreach { clause =>
                     buffer.append("(")
-                    applyToParameters(parametersOf(clause), subst, canBeNaming = true, isImplicit = clause.isImplicit)(args, buffer, -1)
+                    val parameters = parametersOf(clause)
+                    if (parameters.nonEmpty) {
+                      applyToParameters(parameters, subst, canBeNaming = true, isImplicit = clause.isImplicit)(args, buffer, -1)
+                    }
                     buffer.append(")")
                   }
                 }
@@ -269,7 +275,10 @@ class ScalaFunctionParameterInfoHandler extends ParameterInfoHandlerWithTabActio
 
               preceedingClauses.foreach { clause =>
                 buffer.append("(")
-                applyToParameters(parametersOf(clause), subst, canBeNaming = true, isImplicit = clause.isImplicit)(args, buffer, -1)
+                val parameters = parametersOf(clause)
+                if (parameters.nonEmpty) {
+                  applyToParameters(parameters, subst, canBeNaming = true, isImplicit = clause.isImplicit)(args, buffer, -1)
+                }
                 buffer.append(")")
               }
 
@@ -283,7 +292,10 @@ class ScalaFunctionParameterInfoHandler extends ParameterInfoHandlerWithTabActio
 
               remainingClauses.foreach { clause =>
                 buffer.append("(")
-                applyToParameters(parametersOf(clause), subst, canBeNaming = true, isImplicit = clause.isImplicit)(args, buffer, -1)
+                val parameters = parametersOf(clause)
+                if (parameters.nonEmpty) {
+                  applyToParameters(parameters, subst, canBeNaming = true, isImplicit = clause.isImplicit)(args, buffer, -1)
+                }
                 buffer.append(")")
               }
             }
