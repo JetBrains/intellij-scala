@@ -16,9 +16,11 @@ import static com.intellij.util.ArrayUtil.EMPTY_STRING_ARRAY;
  */
 public class ScalaLibraryPropertiesState {
     // We have to rely on the Java's enumeration for serialization
+    @Tag("platform")
     private final PlatformProxy platformProxy;
 
     // We have to rely on the Java's enumeration for serialization
+    @Tag("language-level")
     private final ScalaLanguageLevelProxy languageLevelProxy;
 
     public ScalaLibraryPropertiesState() {
