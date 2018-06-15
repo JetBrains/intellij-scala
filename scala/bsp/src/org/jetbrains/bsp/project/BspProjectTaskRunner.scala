@@ -221,7 +221,7 @@ object BspProjectTaskRunner {
     }
 
     private def reportCompile(compileReport: CompileReport): Unit = {
-      // TODO report CompileReport (but might not be really necessary for us)
+      // TODO use CompileReport to signal individual target is completed
     }
 
   }
