@@ -3,7 +3,7 @@ package org.jetbrains.plugins.scala.lang.formatting.settings
 import java.awt._
 
 import com.intellij.application.options._
-import com.intellij.openapi.fileChooser.FileChooserDescriptor
+import com.intellij.openapi.fileChooser.FileChooserDescriptorFactory
 import com.intellij.openapi.ui.TextFieldWithBrowseButton
 import com.intellij.psi.codeStyle.CodeStyleSettings
 import com.intellij.uiDesigner.core.{GridConstraints, GridLayoutManager}
@@ -63,18 +63,18 @@ class ScalaTabbedCodeStylePanel(currentSettings: CodeStyleSettings, settings: Co
         GridConstraints.SIZEPOLICY_CAN_SHRINK | GridConstraints.SIZEPOLICY_CAN_GROW,
         GridConstraints.SIZEPOLICY_CAN_SHRINK | GridConstraints.SIZEPOLICY_CAN_GROW, null, null,
         null, 0, false))
-    overrideExternalFormatterSettings = new JCheckBox("Override settings")
+    overrideExternalFormatterSettings = new JCheckBox("Override settings:")
     externalFormatterPanel.add(overrideExternalFormatterSettings,
       new GridConstraints(1, 0, 1, 1, GridConstraints.ANCHOR_CENTER, GridConstraints.FILL_BOTH,
       GridConstraints.SIZEPOLICY_CAN_SHRINK | GridConstraints.SIZEPOLICY_CAN_GROW,
       GridConstraints.SIZEPOLICY_CAN_SHRINK | GridConstraints.SIZEPOLICY_CAN_GROW, null, null,
       null, 0, false))
     externalFormatterSettingsPath = new TextFieldWithBrowseButton()
-    externalFormatterSettingsPath.addBrowseFolderListener(customSettingsTitile, null, null,
-      new FileChooserDescriptor(true, false, false, false, false, false))
+    externalFormatterSettingsPath.addBrowseFolderListener(customSettingsTitle, customSettingsTitle, null,
+      FileChooserDescriptorFactory.createSingleFileDescriptor("conf"))
     externalFormatterPanel.add(externalFormatterSettingsPath,
-      new GridConstraints(1, 1, 1, 1, GridConstraints.ANCHOR_CENTER, GridConstraints.FILL_BOTH,
-        GridConstraints.SIZEPOLICY_CAN_SHRINK | GridConstraints.SIZEPOLICY_CAN_GROW,
+      new GridConstraints(1, 1, 1, 1, GridConstraints.ANCHOR_WEST, GridConstraints.FILL_BOTH,
+        GridConstraints.SIZEPOLICY_CAN_SHRINK | GridConstraints.SIZEPOLICY_CAN_GROW | GridConstraints.SIZEPOLICY_WANT_GROW,
         GridConstraints.SIZEPOLICY_CAN_SHRINK | GridConstraints.SIZEPOLICY_CAN_GROW, null, null,
         null, 0, false))
     outerPanel.add(externalFormatterPanel,
@@ -90,6 +90,7 @@ class ScalaTabbedCodeStylePanel(currentSettings: CodeStyleSettings, settings: Co
         GridConstraints.SIZEPOLICY_CAN_SHRINK | GridConstraints.SIZEPOLICY_CAN_GROW, null, null,
         null, 0, false))
     useExternalFormatterCheckbox.addChangeListener((e: ChangeEvent) => {
+      //USE_SCALAFMT_FORMATTER setting is immediately set to allow proper formatting for core formatter examples
       settings.getCustomSettings(classOf[ScalaCodeStyleSettings]).USE_SCALAFMT_FORMATTER = useExternalFormatterCheckbox.isSelected
       innerPanel.setVisible(!useExternalFormatterCheckbox.isSelected)
       overrideExternalFormatterSettings.setEnabled(useExternalFormatterCheckbox.isSelected)
@@ -105,7 +106,7 @@ class ScalaTabbedCodeStylePanel(currentSettings: CodeStyleSettings, settings: Co
   private var externalFormatterPanel: JPanel = _
   private var outerPanel: JPanel = _
   private def innerPanel = super.getPanel
-  private val customSettingsTitile = "Select custom scalafmt configuration file"
+  private val customSettingsTitle = "Select custom scalafmt configuration file"
 
   override def getPanel: JComponent = outerPanel
 }
