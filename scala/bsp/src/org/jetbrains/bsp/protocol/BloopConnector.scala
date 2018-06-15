@@ -70,7 +70,7 @@ class BloopConnector(base: File, initParams: InitializeBuildParams)(implicit sch
 
   private def connectUnixSocket(socketFile: File) = {
 
-    val bloopCommand = s"bloop bsp --protocol local --socket $socketFile --verbose"
+    val bloopCommand = s"bloop bsp --protocol local --socket $socketFile"
 
     val bspReady = Task {
       var sockfileCreated = false
@@ -96,7 +96,7 @@ class BloopConnector(base: File, initParams: InitializeBuildParams)(implicit sch
   }
 
   private def connectTcp(host: URI, port: Int): Task[Either[BspError, java.net.Socket]] = {
-    val bloopCommand = s"bloop bsp --protocol tcp --host ${host.toString} --port $port --verbose"
+    val bloopCommand = s"bloop bsp --protocol tcp --host ${host.toString} --port $port"
 
     Task {
       runBloop(bloopCommand)
