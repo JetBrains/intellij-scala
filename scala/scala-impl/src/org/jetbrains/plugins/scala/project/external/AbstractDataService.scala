@@ -1,4 +1,4 @@
-package org.jetbrains.sbt.project.data.service
+package org.jetbrains.plugins.scala.project.external
 
 import java.io.File
 import java.util
@@ -14,9 +14,7 @@ import com.intellij.openapi.project.Project
 import com.intellij.openapi.roots.ModifiableRootModel
 import com.intellij.openapi.roots.impl.libraries.LibraryEx
 import com.intellij.openapi.roots.libraries.Library
-import com.intellij.util.CommonProcessors.CollectProcessor
-import org.jetbrains.plugins.scala.project.Platform.{Dotty, Scala}
-import org.jetbrains.plugins.scala.project.{DottyLibraryName, Platform, ScalaLanguageLevel, ScalaLibraryName, ScalaLibraryProperties, ScalaLibraryType}
+import org.jetbrains.plugins.scala.project.{Platform, ScalaLanguageLevel, ScalaLibraryProperties, ScalaLibraryType}
 
 import scala.collection.JavaConverters._
 
@@ -41,7 +39,7 @@ abstract class AbstractDataService[E, I](key: Key[E]) extends AbstractProjectDat
 
 /**
  * The purposes of this trait are the following:
- *    - Incapsulate logic necessary for importing specified data
+ *    - Encapsulate logic necessary for importing specified data
  *    - Wrap "unsafe" methods from IdeModifiableModelsProvider
  *    - Collect import parameters as class fields to eliminate necessity of
  *      dragging them into each and every method of ProjectDataService
@@ -87,21 +85,6 @@ trait Importer[E] {
       module <- findIdeModule(moduleData)
     } yield module
 
-  def getScalaLibraries: Set[Library] =
-    modelsProvider.getAllLibraries.filter(l => Option(l.getName).exists(_.contains(ScalaLibraryName))).toSet
-
-  def getScalaLibraries(module: Module, platform: Platform): Set[Library] = {
-    val libraryName = platform match {
-      case Scala => ScalaLibraryName
-      case Dotty => DottyLibraryName
-    }
-    val collector = new CollectProcessor[Library]()
-    getModifiableRootModel(module).orderEntries().librariesOnly().forEachLibrary(collector)
-    collector.getResults.asScala
-      .toSet
-      .filter(l => Option(l.getName).exists(_.contains(libraryName)))
-  }
-
   def executeProjectChangeAction(action: => Unit): Unit =
     ExternalSystemApiUtil.executeProjectChangeAction(new DisposeAwareProjectChange(project) {
       override def execute(): Unit = action
@@ -120,6 +103,7 @@ trait Importer[E] {
     val model = getModifiableLibraryModelEx(library)
     model.setKind(ScalaLibraryType.instance.getKind)
     model.setProperties(properties)
+
   }
 }
 

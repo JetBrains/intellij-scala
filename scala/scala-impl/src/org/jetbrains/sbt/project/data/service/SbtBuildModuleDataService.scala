@@ -5,6 +5,7 @@ import com.intellij.openapi.externalSystem.model.project.ProjectData
 import com.intellij.openapi.externalSystem.service.project.IdeModifiableModelsProvider
 import com.intellij.openapi.module.Module
 import com.intellij.openapi.project.Project
+import org.jetbrains.plugins.scala.project.external.{AbstractDataService, AbstractImporter, Importer}
 import org.jetbrains.sbt.project.data.SbtBuildModuleData
 import org.jetbrains.sbt.project.module.SbtModule
 import org.jetbrains.sbt.resolvers.{SbtIndexesManager, SbtResolver}

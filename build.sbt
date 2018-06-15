@@ -36,6 +36,7 @@ lazy val scalaCommunity: sbt.Project =
   newProject("scalaCommunity", file("."))
     .dependsOn(
       scalaImpl % "test->test;compile->compile",
+      bsp % "test->test;compile->compile",
       androidIntegration % "test->test;compile->compile",
       copyrightIntegration % "test->test;compile->compile",
       gradleIntegration % "test->test;compile->compile",
@@ -44,6 +45,7 @@ lazy val scalaCommunity: sbt.Project =
       propertiesIntegration % "test->test;compile->compile")
     .aggregate(
       scalaImpl,
+      bsp,
       androidIntegration,
       copyrightIntegration,
       gradleIntegration,
@@ -133,6 +135,23 @@ lazy val macroAnnotations =
       libraryDependencies ++= Seq(Dependencies.scalaReflect, Dependencies.scalaCompiler)
     ): _*)
 
+lazy val bsp =
+  newProject("bsp", file("scala/bsp"))
+    .dependsOn(
+      scalaImpl % "test->test;compile->compile",
+      bspDependencies
+    )
+    .enablePlugins(SbtIdeaPlugin)
+
+// project to package bsp project libraries via assembly
+lazy val bspDependencies =
+  newProject("bsp-dependencies", file("target/tools/bsp-dependencies"))
+    .settings(
+      libraryDependencies := DependencyGroups.bsp,
+      assemblyOption in assembly := (assemblyOption in assembly).value
+        .copy(includeScala = false, includeBin = false)
+    )
+
 // Integration with other IDEA plugins
 
 lazy val androidIntegration =
@@ -208,6 +227,7 @@ lazy val propertiesIntegration =
         "properties"
       )
     )
+
 
 // Utility projects
 
@@ -310,6 +330,7 @@ lazy val scalaPluginJarPackager =
     .settings(
       products in Compile :=
         products.in(scalaImpl, Compile).value ++
+          products.in(bsp, Compile).value ++
           products.in(androidIntegration, Compile).value ++
           products.in(copyrightIntegration, Compile).value ++
           products.in(gradleIntegration, Compile).value ++
@@ -378,6 +399,8 @@ lazy val pluginPackagerCommunity =
             "lib/scala-nailgun-runner.jar"),
           Artifact(pack.in(runners, Compile).value,
             "lib/runners.jar"),
+          Artifact((assembly in bspDependencies).value,
+            "lib/bsp-dependencies.jar"),
           AllOrganisation("org.scalameta", "lib/scalameta120.jar"),
           Library(fastparse,
             "lib/fastparse.jar"),

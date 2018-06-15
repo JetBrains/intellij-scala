@@ -134,6 +134,11 @@ object DependencyGroups {
     scalariform
   )
 
+  val bsp = Seq(
+    "org.scala-sbt.ipcsocket" % "ipcsocket" % "1.0.0",
+    "ch.epfl.scala" %% "bsp" % "1.0.0"
+  )
+
   val decompiler = Seq(
     scalaLibrary,
     scalaReflect,

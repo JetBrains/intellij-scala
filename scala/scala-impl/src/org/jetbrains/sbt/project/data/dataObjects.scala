@@ -6,6 +6,7 @@ import java.net.URI
 import com.intellij.openapi.externalSystem.model.project.AbstractExternalEntityData
 import com.intellij.openapi.externalSystem.model.{Key, ProjectKeys}
 import org.jetbrains.plugins.scala.project.Version
+import org.jetbrains.plugins.scala.project.external.SdkReference
 import org.jetbrains.sbt.project.SbtProjectSystem
 import org.jetbrains.sbt.project.data.SbtEntityData._
 import org.jetbrains.sbt.project.structure.Play2Keys.AllKeys.ParsedValue

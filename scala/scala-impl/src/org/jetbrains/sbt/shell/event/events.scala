@@ -1,10 +1,8 @@
 package org.jetbrains.sbt.shell.event
 
-import java.util.Collections
-
 import com.intellij.build.events._
 import com.intellij.build.events.impl.AbstractBuildEvent
-import com.intellij.build.{FileNavigatable, FilePosition, events}
+import com.intellij.build.{FileNavigatable, FilePosition}
 import com.intellij.openapi.project.Project
 import com.intellij.pom.Navigatable
 import org.jetbrains.sbt.shell.{SbtProcessManager, SbtShellRunner}
@@ -65,9 +63,3 @@ case class SbtShellNavigatable(shell: SbtShellRunner) extends Navigatable {
   override def canNavigateToSource: Boolean = true
 }
 
-case class SbtBuildFailure(message: String) extends events.impl.FailureImpl(message, /*description*/ null: String)
-
-case class SbtBuildWarning(message: String) extends Warning {
-  override def getMessage: String = message
-  override def getDescription: String = null
-}

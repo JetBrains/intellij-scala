@@ -13,6 +13,7 @@ import com.intellij.openapi.module.ModuleUtil
 import com.intellij.openapi.project.Project
 import com.intellij.openapi.roots.{LanguageLevelProjectExtension, ProjectRootManager}
 import org.jetbrains.plugins.scala.project.IncrementalityType
+import org.jetbrains.plugins.scala.project.external.{AbstractDataService, AbstractImporter, Importer, SdkUtils}
 import org.jetbrains.plugins.scala.project.settings.ScalaCompilerConfiguration
 import org.jetbrains.plugins.scala.settings.ScalaProjectSettings
 import org.jetbrains.sbt.project.sources.SharedSourcesModuleType

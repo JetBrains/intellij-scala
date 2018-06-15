@@ -1,0 +1,64 @@
+<?xml version="1.0" encoding="iso-8859-1"?>
+
+<idea-plugin>
+
+    <project-components>
+        <component>
+            <implementation-class>org.jetbrains.bsp.protocol.BspCommunication</implementation-class>
+        </component>
+        <component>
+            <implementation-class>org.jetbrains.bsp.BspBuildLoop</implementation-class>
+        </component>
+    </project-components>
+
+    <application-components>
+        <component>
+            <implementation-class>org.jetbrains.bsp.StartupRoutine</implementation-class>
+        </component>
+    </application-components>
+
+    <extensionPoints>
+        <!--<extensionPoint name="sbtOptionsProvider" interface="org.jetbrains.sbt.project.SbtOptionsProvider"/>-->
+    </extensionPoints>
+
+    <extensions defaultExtensionNs="com.intellij">
+        <moduleType id="BSP_SYNTHETIC_MODULE" implementationClass="org.jetbrains.bsp.project.BspSyntheticModuleType"/>
+        <moduleConfigurationEditorProvider implementation="org.jetbrains.bsp.project.BspSyntheticModuleEditorProvider"/>
+
+        <externalSystemManager implementation="org.jetbrains.bsp.project.BspExternalSystemManager"/>
+
+        <externalProjectDataService implementation="org.jetbrains.bsp.data.ScalaSdkService"/>
+        <externalProjectDataService implementation="org.jetbrains.bsp.data.BspMetadataService"/>
+
+        <!--<externalSystemConfigLocator implementation="org.jetbrains.bsp.BspConfigLocator"/>-->
+
+        <projectService serviceImplementation="org.jetbrains.bsp.project.BspSystemSettings"/>
+        <projectService serviceImplementation="org.jetbrains.bsp.project.BspLocalSettings"/>
+
+        <projectImportProvider implementation="org.jetbrains.bsp.project.BspProjectImportProvider"/>
+        <projectImportBuilder implementation="org.jetbrains.bsp.project.BspProjectImportBuilder"/>
+
+        <projectOpenProcessor implementation="org.jetbrains.bsp.project.BspProjectOpenProcessor"/>
+
+        <projectConfigurable groupId="build.tools" displayName="bsp" instance="org.jetbrains.bsp.project.BspExternalSystemConfigurable" />
+
+        <toolWindow id="bsp" anchor="right"
+                    icon="/org/jetbrains/plugins/scala/images/sbt_toolwin.png"
+                    factoryClass="org.jetbrains.bsp.BspToolWindowFactory"
+                    conditionClass="org.jetbrains.bsp.BspToolWindowFactoryCondition"/>
+
+        <!--<configurationType implementation="org.jetbrains.sbt.runner.SbtConfigurationType"/>-->
+
+        <projectTaskRunner implementation="org.jetbrains.bsp.project.BspProjectTaskRunner"/>
+        <!--<postStartupActivity implementation="org.jetbrains.bsp.BspStartupActivity"/>-->
+
+    </extensions>
+
+    <actions>
+        <action id="bsp.enable" class="org.jetbrains.bsp.EnableBspAction"
+                text="Enable experimental bsp support" description="Enable experimental bsp support">
+        </action>
+    </actions>
+
+
+</idea-plugin>

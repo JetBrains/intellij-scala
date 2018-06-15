@@ -13,6 +13,7 @@ import com.intellij.openapi.roots.{LanguageLevelModuleExtensionImpl, ModuleRootM
 import com.intellij.pom.java.LanguageLevel
 import com.intellij.testFramework.{IdeaTestUtil, UsefulTestCase}
 import org.jetbrains.plugins.scala.extensions._
+import org.jetbrains.plugins.scala.project.external.{JdkByHome, JdkByName, SdkReference, SdkUtils}
 import org.jetbrains.plugins.scala.project.settings.ScalaCompilerConfiguration
 import org.jetbrains.plugins.scala.project.{DebuggingInfoLevel, Version}
 import org.jetbrains.sbt.UsefulTestCaseHelper

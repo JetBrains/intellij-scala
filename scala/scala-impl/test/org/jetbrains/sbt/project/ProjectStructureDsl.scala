@@ -5,7 +5,7 @@ import java.net.URI
 
 import com.intellij.openapi.roots.DependencyScope
 import com.intellij.pom.java.LanguageLevel
-import org.jetbrains.sbt.project.data.SdkReference
+import org.jetbrains.plugins.scala.project.external.SdkReference
 
 import scala.language.implicitConversions
 
