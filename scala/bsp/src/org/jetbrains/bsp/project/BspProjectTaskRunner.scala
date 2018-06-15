@@ -28,6 +28,7 @@ import org.jetbrains.bsp.bsp
 import org.jetbrains.bsp.data.BspMetadata
 import org.jetbrains.bsp.project.BspProjectTaskRunner.BspTask
 import org.jetbrains.bsp.protocol.BspCommunication
+import org.jetbrains.bsp.settings.BspExecutionSettings
 import org.jetbrains.ide.PooledThreadExecutor
 import org.jetbrains.plugins.scala.build.{BuildFailureException, BuildMessages, BuildToolWindowReporter, IndicatorReporter}
 
@@ -84,14 +85,16 @@ class BspProjectTaskRunner extends ProjectTaskRunner {
 
     // TODO save only documents in affected targets?
     FileDocumentManager.getInstance().saveAllDocuments()
-    val bspTask = new BspTask(project, targets, Option(projectTaskNotification))
+    val executionSettings = BspExecutionSettings.executionSettingsFor(project, project.getBasePath)
+    val bspTask = new BspTask(project, executionSettings, targets, Option(projectTaskNotification))
     ProgressManager.getInstance().run(bspTask)
   }
 }
 
 object BspProjectTaskRunner {
 
-  class BspTask[T](project: Project, targets: List[BuildTargetIdentifier], callbackOpt: Option[ProjectTaskNotification])
+  class BspTask[T](project: Project, executionSettings: BspExecutionSettings,
+                   targets: List[BuildTargetIdentifier], callbackOpt: Option[ProjectTaskNotification])
                   (implicit scheduler: Scheduler)
     extends Task.Backgroundable(project, "bsp build", true, PerformInBackgroundOption.ALWAYS_BACKGROUND) {
 
@@ -118,7 +121,7 @@ object BspProjectTaskRunner {
       val projectRoot = new File(project.getBasePath)
 
       val buildTask = for {
-        session <- EitherT(BspCommunication.prepareSession(projectRoot))
+        session <- EitherT(BspCommunication.prepareSession(projectRoot, executionSettings))
         compiled <- EitherT(session.run(services, compileRequest(_))).leftMap(_.toBspError)
       } yield {
         compiled

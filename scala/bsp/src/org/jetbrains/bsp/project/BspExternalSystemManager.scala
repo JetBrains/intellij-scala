@@ -11,6 +11,7 @@ import com.intellij.openapi.options.Configurable
 import com.intellij.openapi.project.Project
 import com.intellij.util.Function
 import org.jetbrains.bsp._
+import org.jetbrains.bsp.settings._
 
 class BspExternalSystemManager extends ExternalSystemManager[BspProjectSettings, BspProjectSettingsListener, BspSystemSettings, BspLocalSettings, BspExecutionSettings]
   with ExternalSystemConfigurableAware {

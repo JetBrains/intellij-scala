@@ -19,6 +19,7 @@ import org.jetbrains.bsp.BspUtil._
 import org.jetbrains.bsp.data.{BspMetadata, ScalaSdkData}
 import org.jetbrains.bsp.project.BspProjectResolver._
 import org.jetbrains.bsp.protocol.BspCommunication
+import org.jetbrains.bsp.settings.BspExecutionSettings
 import org.jetbrains.bsp.{BspError, bsp}
 import org.jetbrains.ide.PooledThreadExecutor
 import org.jetbrains.plugins.scala.project.Version
@@ -36,7 +37,7 @@ class BspProjectResolver extends ExternalSystemProjectResolver[BspExecutionSetti
   override def resolveProjectInfo(id: ExternalSystemTaskId,
                                   projectRootPath: String,
                                   isPreviewMode: Boolean,
-                                  settings: BspExecutionSettings,
+                                  executionSettings: BspExecutionSettings,
                                   listener: ExternalSystemTaskNotificationListener): DataNode[ProjectData] = {
 
     val projectRoot = new File(projectRootPath)
@@ -165,7 +166,7 @@ class BspProjectResolver extends ExternalSystemProjectResolver[BspExecutionSetti
       }
 
     val projectTask: EitherT[Task, BspError, DataNode[ProjectData]] = for {
-      session <- EitherT(BspCommunication.prepareSession(projectRoot))
+      session <- EitherT(BspCommunication.prepareSession(projectRoot, executionSettings))
       _ = statusUpdate("session prepared") // TODO remove in favor of build toolwindow nodes
       moduleDescriptions <- EitherT(session.run(services, requests(_)))
     } yield {

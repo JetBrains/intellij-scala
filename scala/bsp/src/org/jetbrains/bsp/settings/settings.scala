@@ -1,5 +1,6 @@
-package org.jetbrains.bsp.project
+package org.jetbrains.bsp.settings
 
+import java.io.File
 import java.util
 
 import com.intellij.openapi.components._
@@ -7,12 +8,12 @@ import com.intellij.openapi.externalSystem.model.settings.ExternalSystemExecutio
 import com.intellij.openapi.externalSystem.service.settings.AbstractExternalProjectSettingsControl
 import com.intellij.openapi.externalSystem.settings._
 import com.intellij.openapi.externalSystem.util.ExternalSystemUiUtil._
-import com.intellij.openapi.externalSystem.util.{ExternalSystemSettingsControl, PaintAwarePanel}
+import com.intellij.openapi.externalSystem.util.{ExternalSystemSettingsControl, ExternalSystemUiUtil, PaintAwarePanel}
+import com.intellij.openapi.fileChooser.FileChooserDescriptorFactory
 import com.intellij.openapi.project.Project
-import com.intellij.uiDesigner.core.{GridConstraints, GridLayoutManager, Spacer}
 import com.intellij.util.containers.ContainerUtilRt
 import com.intellij.util.messages.Topic
-import javax.swing.{JCheckBox, JPanel}
+import javax.swing.JCheckBox
 import org.jetbrains.bsp._
 
 import scala.beans.BeanProperty
@@ -84,6 +85,10 @@ class BspSystemSettings(project: Project)
   extends AbstractExternalSystemSettings[BspSystemSettings, BspProjectSettings, BspProjectSettingsListener](BspTopic, project)
     with PersistentStateComponent[BspSystemSettingsState]
 {
+
+  @BeanProperty
+  var bloopPath: String = "bloop"
+
   override def subscribe(listener: ExternalSystemSettingsListener[BspProjectSettings]): Unit = {
     val adapter = new BspProjectSettingsListenerAdapter(listener)
     getProject.getMessageBus.connect(getProject).subscribe(BspTopic, adapter)
@@ -96,11 +101,16 @@ class BspSystemSettings(project: Project)
   override def getState: BspSystemSettingsState = {
     val state = new BspSystemSettingsState
     fillState(state)
+
+    state.bloopPath = bloopPath
+
     state
   }
 
-  override def loadState(state: BspSystemSettingsState): Unit =
+  override def loadState(state: BspSystemSettingsState): Unit = {
     super[AbstractExternalSystemSettings].loadState(state)
+    bloopPath = state.bloopPath
+  }
 }
 
 object BspSystemSettings {
@@ -108,6 +118,10 @@ object BspSystemSettings {
 }
 
 class BspSystemSettingsState extends AbstractExternalSystemSettings.State[BspProjectSettings] {
+
+  @BeanProperty
+  var bloopPath: String = "bloop"
+
   private val projectSettings = ContainerUtilRt.newTreeSet[BspProjectSettings]()
 
   override def getLinkedExternalProjectsSettings: util.Set[BspProjectSettings] = projectSettings
@@ -133,34 +147,44 @@ object BspLocalSettings {
 
 class BspLocalSettingsState extends AbstractExternalSystemLocalSettings.State
 
-class BspExecutionSettings extends ExternalSystemExecutionSettings
+class BspExecutionSettings(val basePath: File, val bloopExecutable: File) extends ExternalSystemExecutionSettings
 
 object BspExecutionSettings {
 
-  def executionSettingsFor(project: Project, path: String): BspExecutionSettings =
-    new BspExecutionSettings
+  def executionSettingsFor(project: Project, path: String): BspExecutionSettings = {
+    val systemSettings = BspSystemSettings.getInstance(project)
+
+    val basePath = new File(path)
+    val bloopExecutable = new File(systemSettings.bloopPath)
+    new BspExecutionSettings(basePath, bloopExecutable)
+  }
 }
 
 class BspSystemSettingsControl(settings: BspSystemSettings) extends ExternalSystemSettingsControl[BspSystemSettings] {
 
-  private val panel = new JPanel()
+  private val pane = new BspSystemSettingsPane
 
   override def fillUi(canvas: PaintAwarePanel, indentLevel: Int): Unit = {
-
-
-    panel.setLayout(new GridLayoutManager(2, 1))
-    val spacer = new Spacer
-    panel.add(spacer, new GridConstraints())
-
-    canvas.add(panel)
+    canvas.add(pane.content, ExternalSystemUiUtil.getFillLineConstraints(indentLevel))
   }
 
-  override def showUi(show: Boolean): Unit =
-    panel.setVisible(show)
+  override def showUi(show: Boolean): Unit ={
+    pane.content.setVisible(show)
+  }
 
-  override def reset(): Unit = {}
-  override def isModified: Boolean = false
-  override def apply(settings: BspSystemSettings): Unit = {}
-  override def validate(settings: BspSystemSettings): Boolean = true
+  override def reset(): Unit = {
+    pane.bloopExecutablePath.setText(settings.bloopPath)
+    pane.setPathListeners()
+  }
+
+  override def isModified: Boolean =
+    pane.bloopExecutablePath.getText != settings.bloopPath
+
+  override def apply(settings: BspSystemSettings): Unit = {
+    settings.bloopPath = pane.bloopExecutablePath.getText
+  }
+  override def validate(settings: BspSystemSettings): Boolean =
+    true // TODO validate bloop path or something?
+
   override def disposeUIResources(): Unit = {}
 }

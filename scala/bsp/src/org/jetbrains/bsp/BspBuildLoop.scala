@@ -14,7 +14,7 @@ import com.intellij.openapi.vfs.{VirtualFile, VirtualFileManager}
 import com.intellij.psi.PsiManager
 import com.intellij.task.{ProjectTaskManager, ProjectTaskNotification, ProjectTaskResult}
 import com.intellij.util.messages.MessageBusConnection
-import org.jetbrains.bsp.project.{BspProjectSettings, BspSystemSettings}
+import org.jetbrains.bsp.settings.{BspProjectSettings, BspSystemSettings}
 import org.jetbrains.plugins.scala.ScalaFileType
 
 import scala.collection.JavaConverters._

@@ -13,6 +13,7 @@ import monix.eval.Task
 import monix.execution.Scheduler
 import org.jetbrains.bsp.BspError
 import org.jetbrains.bsp.protocol.BspServerConnector._
+import org.jetbrains.bsp.settings.BspExecutionSettings
 
 import scala.util.Random
 
@@ -24,11 +25,10 @@ class BspCommunication(project: Project) extends AbstractProjectComponent(projec
 }
 
 
-
 object BspCommunication {
 
 
-  def prepareSession(base: File)(implicit scheduler: Scheduler): Task[Either[BspError, BspSession]] = {
+  def prepareSession(base: File, bspExecutionSettings: BspExecutionSettings)(implicit scheduler: Scheduler): Task[Either[BspError, BspSession]] = {
 
     // .bsp directory -> use GenericConnector (once we have an agreement how that works)
 
@@ -56,7 +56,7 @@ object BspCommunication {
     val bloopConfigDir = new File(base, ".bloop").getCanonicalFile
 
     val connector =
-      if (bloopConfigDir.exists()) new BloopConnector(base, initParams)
+      if (bloopConfigDir.exists()) new BloopConnector(bspExecutionSettings.bloopExecutable, base, initParams)
       else {
         // TODO need a protocol to detect generic bsp server
         new GenericConnector(base, initParams)

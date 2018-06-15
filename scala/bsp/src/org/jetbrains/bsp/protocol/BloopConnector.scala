@@ -13,10 +13,10 @@ import org.jetbrains.bsp.protocol.BspServerConnector._
 import org.scalasbt.ipcsocket.UnixDomainSocket
 
 import scala.meta.jsonrpc._
-import scala.sys.process.Process
+import scala.sys.process.{Process, ProcessLogger}
 import scala.util.Try
 
-class BloopConnector(base: File, initParams: InitializeBuildParams)(implicit scheduler: Scheduler) extends BspServerConnector(initParams) {
+class BloopConnector(bloopExecutable: File, base: File, initParams: InitializeBuildParams)(implicit scheduler: Scheduler) extends BspServerConnector(initParams) {
 
   private val logger: Logger = Logger.getInstance(classOf[BloopConnector])
 
@@ -70,11 +70,11 @@ class BloopConnector(base: File, initParams: InitializeBuildParams)(implicit sch
 
   private def connectUnixSocket(socketFile: File) = {
 
-    val bloopCommand = s"bloop bsp --protocol local --socket $socketFile"
+    val bloopParams = s"bsp --protocol local --socket $socketFile"
 
     val bspReady = Task {
       var sockfileCreated = false
-      var timeout = 5000
+      var timeout = 12000
       val wait = 10
       while (!sockfileCreated && timeout > 0) {
         // we expect this wait to be short in most cases, so it's ok to block thread
@@ -88,7 +88,7 @@ class BloopConnector(base: File, initParams: InitializeBuildParams)(implicit sch
     // TODO kill bloop process on cancel / error
 
     for {
-      p <- Task(runBloop(bloopCommand))
+      p <- Task(runBloop(bloopParams))
       isReady <- bspReady
     } yield
       if (isReady) Right(new UnixDomainSocket(socketFile.getCanonicalPath))
@@ -96,16 +96,23 @@ class BloopConnector(base: File, initParams: InitializeBuildParams)(implicit sch
   }
 
   private def connectTcp(host: URI, port: Int): Task[Either[BspError, java.net.Socket]] = {
-    val bloopCommand = s"bloop bsp --protocol tcp --host ${host.toString} --port $port"
+    val bloopParams = s"bsp --protocol tcp --host ${host.toString} --port $port"
 
     Task {
-      runBloop(bloopCommand)
+      runBloop(bloopParams)
       Try(new java.net.Socket(host.toString, port))
         .toEither.left.map(err => BspException("bloop tcp connection failed", err))
     }
   }
 
-  private def runBloop(command: String) =
-    Process(command, base).run // TODO reroute process output to idea log?
+  private val proclog = ProcessLogger(
+    out => logger.debug(s"bloop: $out"),
+    err => logger.error(s"bloop: $err")
+  )
+
+  private def runBloop(params: String) = {
+    val command = s"${bloopExecutable.getCanonicalPath} $params"
+    Process(command, base).run(proclog)
+  }
 
 }

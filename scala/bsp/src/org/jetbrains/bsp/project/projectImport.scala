@@ -14,6 +14,7 @@ import com.intellij.openapi.vfs.VirtualFile
 import com.intellij.projectImport.ProjectOpenProcessorBase
 import javax.swing.Icon
 import org.jetbrains.bsp._
+import org.jetbrains.bsp.settings._
 
 class BspProjectImportBuilder(projectDataManager: ProjectDataManager)
   extends AbstractExternalProjectImportBuilder[BspImportControl](projectDataManager, new BspImportControl(), bsp.ProjectSystemId) {
