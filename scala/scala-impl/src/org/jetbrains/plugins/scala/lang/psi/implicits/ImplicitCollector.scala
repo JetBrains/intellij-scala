@@ -106,8 +106,8 @@ class ImplicitCollector(place: PsiElement,
   def collect(): Seq[ScalaResolveResult] = {
     def calc(): Seq[ScalaResolveResult] = {
       clazz match {
-        case Some(c) if InferUtil.skipQualSet.contains(c.qualifiedName) => return Seq.empty
-        case _ =>
+        case Some(c) if InferUtil.tagsAndManifists.contains(c.qualifiedName) => return Seq.empty
+        case _                                                               =>
       }
 
       ProgressManager.checkCanceled()

@@ -12,13 +12,14 @@ import org.jetbrains.plugins.scala.lang.psi.api.expr.{MethodInvocation, ScExpres
 import org.jetbrains.plugins.scala.lang.psi.api.statements.ScFunction
 import org.jetbrains.plugins.scala.lang.psi.api.statements.params.{ScParameter, ScTypeParam, TypeParamIdOwner}
 import org.jetbrains.plugins.scala.lang.psi.api.toplevel.typedef.ScObject
-import org.jetbrains.plugins.scala.lang.psi.api.toplevel.{ScNamedElement, ScTypeParametersOwner}
+import org.jetbrains.plugins.scala.lang.psi.api.toplevel.{ScNamedElement, ScTypeParametersOwner, ScTypedDefinition}
 import org.jetbrains.plugins.scala.lang.psi.impl.ScalaPsiElementFactory.{createExpressionWithContextFromText, createParameterFromText}
 import org.jetbrains.plugins.scala.lang.psi.implicits.ImplicitCollector.ImplicitState
 import org.jetbrains.plugins.scala.lang.psi.implicits.{ImplicitCollector, ImplicitsRecursionGuard}
 import org.jetbrains.plugins.scala.lang.psi.types.Compatibility.{ConformanceExtResult, Expression}
 import org.jetbrains.plugins.scala.lang.psi.types._
 import org.jetbrains.plugins.scala.lang.psi.types.api._
+import org.jetbrains.plugins.scala.lang.psi.types.api.designator.{ScDesignatorType, ScProjectionType, ScThisType}
 import org.jetbrains.plugins.scala.lang.psi.types.nonvalue.{Parameter, ScMethodType, ScTypePolymorphicType}
 import org.jetbrains.plugins.scala.lang.psi.types.recursiveUpdate.ScSubstitutor
 import org.jetbrains.plugins.scala.lang.psi.types.result.Typeable
@@ -36,9 +37,19 @@ import scala.util.control.ControlThrowable
 
 object InferUtil {
   val notFoundParameterName = "NotFoundParameter239239239"
-  val skipQualSet = Set("scala.reflect.ClassManifest", "scala.reflect.Manifest",
-    "scala.reflect.ClassTag", "scala.reflect.api.TypeTags.TypeTag",
-    "scala.reflect.api.TypeTags.WeakTypeTag")
+
+  val tagsAndManifists = Set(
+    "scala.reflect.ClassManifest",
+    "scala.reflect.Manifest",
+    "scala.reflect.ClassTag",
+    "scala.reflect.api.TypeTags.TypeTag",
+    "scala.reflect.api.TypeTags.WeakTypeTag"
+  )
+
+  val ValueOf         = "scala.ValueOf"
+  val ConformsWitness = "scala.Predef.<:<"
+  val EquivWitness    = "scala.Predef.=:="
+
   private val LOG = Logger.getInstance("#org.jetbrains.plugins.scala.lang.psi.api.InferUtil$")
 
   private def isDebugImplicitParameters = LOG.isDebugEnabled
@@ -189,17 +200,8 @@ object InferUtil {
         }
         paramsForInfer += param
       } else {
-        val tagOrManifest = paramType match {
-          case p@ParameterizedType(des, Seq(_)) =>
-            des.extractClass match {
-              case Some(clazz) if skipQualSet.contains(clazz.qualifiedName) =>
-                //do not throw, it's safe
-                Some(new ScalaResolveResult(clazz, p.substitutor))
-              case _ => None
-            }
-          case _ => None
-        }
-        val result = tagOrManifest.getOrElse {
+        val compilerGenerated = compilerGeneratedInstance(paramType)
+        val result = compilerGenerated.getOrElse {
           if (param.isDefault && param.paramInCode.nonEmpty) {
             //todo: should be added for infer to
             //todo: what if paramInCode is null?
@@ -215,6 +217,44 @@ object InferUtil {
       }
     }
     (paramsForInfer, exprs, resolveResults)
+  }
+
+  private def compilerGeneratedInstance(tp: ScType): Option[ScalaResolveResult] = tp match {
+    case p@ParameterizedType(des, params) =>
+      des.extractClass.collect {
+        case clazz if areEligible(params, clazz.qualifiedName) => new ScalaResolveResult(clazz, p.substitutor)
+      }
+    case _ => None
+  }
+
+
+  private def areEligible(params: Seq[ScType], typeFqn: String): Boolean =
+    (typeFqn, params) match {
+      case (ValueOf, Seq(t))              => eligibleForValueOf(t)
+      case (ConformsWitness, Seq(t1, t2)) => t1.conforms(t2)
+      case (EquivWitness, Seq(t1, t2))    => t1.equiv(t2)
+      case _ if params.size == 1          => tagsAndManifists.contains(typeFqn)
+      case _                              => false
+    }
+
+  private def eligibleForValueOf(t: ScType): Boolean = {
+    t.inferValueType match {
+      case _: ScLiteralType         => true
+      case _ if t.isUnit            => true
+      case _: ScThisType            => true
+      case tpt: TypeParameterType   => eligibleForValueOf(tpt.upperType)
+      case ScCompoundType(cs, _, _) => cs.exists(eligibleForValueOf)
+      case _                        => isStable(t)
+    }
+  }
+
+  private def isStable(t: ScType): Boolean = {
+    val designator = t match {
+      case ScProjectionType(_, td: ScTypedDefinition) => Some(td)
+      case ScDesignatorType(td: ScTypedDefinition)    => Some(td)
+      case _ => None
+    }
+    designator.exists(d => d.isStable && ScalaPsiUtil.hasStablePath(d))
   }
 
   /**
