@@ -3,7 +3,7 @@ class Test {
 }
 -----
 class Test {
-  "testString" + Set(1, 2, 3).filter(_ == 2).isEmpty match {
+  "testString" + (Set(1, 2, 3).filter(_ == 2).isEmpty match {
     case  =>
-  }
+  })
 }

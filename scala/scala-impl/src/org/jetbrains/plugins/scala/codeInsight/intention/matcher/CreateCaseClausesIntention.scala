@@ -11,12 +11,15 @@ import com.intellij.openapi.project.Project
 import com.intellij.psi._
 import org.jetbrains.plugins.scala.extensions._
 import org.jetbrains.plugins.scala.lang.completion.clauses.CaseClauseCompletionContributor
+import org.jetbrains.plugins.scala.lang.lexer.ScalaTokenTypes
 import org.jetbrains.plugins.scala.lang.psi.ScalaPsiUtil
 import org.jetbrains.plugins.scala.lang.psi.api.base.ScReferenceElement
 import org.jetbrains.plugins.scala.lang.psi.api.base.patterns.{ScCaseClause, ScPattern, ScWildcardPattern}
 import org.jetbrains.plugins.scala.lang.psi.api.expr.ScMatchStmt
 import org.jetbrains.plugins.scala.lang.psi.api.toplevel.typedef.{ScClass, ScTypeDefinition}
-import org.jetbrains.plugins.scala.lang.psi.impl.ScalaPsiElementFactory.createMatch
+import org.jetbrains.plugins.scala.lang.psi.impl.ScalaPsiElementFactory
+import org.jetbrains.plugins.scala.lang.psi.types.api.ExtractClass
+import org.jetbrains.plugins.scala.lang.psi.types.result.Typeable
 
 final class CreateCaseClausesIntention extends PsiElementBaseIntentionAction {
 
@@ -25,93 +28,127 @@ final class CreateCaseClausesIntention extends PsiElementBaseIntentionAction {
   def getFamilyName: String = FamilyName
 
   def isAvailable(project: Project, editor: Editor, element: PsiElement): Boolean = {
-    val maybeMatch = findSurroundingMatch(element)
-    maybeMatch.map {
-      case (_, _, scrutineeType) => s"$getFamilyName for $scrutineeType"
-    }.foreach(setText)
+    val maybeMatch = createStrategyForMatch(element)
+    maybeMatch.map(_.familyName).foreach(setText)
 
     maybeMatch.isDefined
   }
 
   override def invoke(project: Project, editor: Editor, element: PsiElement): Unit = {
-    findSurroundingMatch(element) match {
-      case Some(((clazz, statement), action, _)) =>
-        PsiDocumentManager.getInstance(project).commitAllDocuments()
-        if (!FileModificationService.getInstance.prepareFileForWrite(element.getContainingFile)) return
-        IdeDocumentHistory.getInstance(project).includeCurrentPlaceAsChangePlace()
+    createStrategyForMatch(element).foreach { strategy =>
+      PsiDocumentManager.getInstance(project).commitAllDocuments()
+      if (!FileModificationService.getInstance.prepareFileForWrite(element.getContainingFile)) return
+      IdeDocumentHistory.getInstance(project).includeCurrentPlaceAsChangePlace()
 
-        val (patternNames, targets) = action(clazz, statement)
-
-        val newStatement = createMatch(statement.expr.get.getText, patternNames.map(name => s"case $name =>"))(statement)
-        val replaced = statement.replace(newStatement).asInstanceOf[ScMatchStmt]
-
-        bindReferences(replaced.caseClauses, targets)
-      case None =>
+      bindReferences(strategy.replacedClauses)
     }
   }
 }
 
 object CreateCaseClausesIntention {
 
-  import CaseClauseCompletionContributor._
-
   private[matcher] val FamilyName = "Generate case clauses"
 
-  private type ClassAndPlace = (PsiClass, ScMatchStmt)
-
-  private def findSurroundingMatch(element: PsiElement): Option[(ClassAndPlace, ClassAndPlace => (Seq[String], Seq[PsiClass]), String)] =
-    extractClass[PsiClass](element, regardlessClauses = false).collect {
-      case pair@(clazz: ScTypeDefinition, _) if clazz.isSealed =>
-        (pair, patternsAndTargets(_)(), "variants of sealed type")
-      case pair if pair._1.isEnum =>
-        (pair, enumClauses, "variants of java enum")
-      case pair if !pair._1.hasFinalModifier =>
-        (pair, classesAndObjectsClauses, "inherited objects and case classes")
+  private def createStrategyForMatch(element: PsiElement): Option[PatternGenerationStrategy] =
+    element.getParent match {
+      case statement: ScMatchStmt if statement.caseClauses.isEmpty =>
+        statement.expr.collect {
+          case Typeable(ExtractClass(clazz)) => clazz
+        }.collect {
+          case clazz: ScTypeDefinition if clazz.isSealed => new SealedClassGenerationStrategy(clazz, statement)
+          case clazz if clazz.isEnum => new EnumGenerationStrategy(clazz, statement)
+          case clazz if !clazz.hasFinalModifier => new NonFinalClassGenerationStrategy(clazz, statement)
+        }
+      case _ => None
     }
 
-  private def bindReferences(caseClauses: Seq[ScCaseClause], targets: Seq[PsiNamedElement]): Unit = {
+  private def bindReferences(caseClauses: Seq[(ScCaseClause, PsiClass)]): Unit = {
     def findReference(pattern: ScPattern, name: String) =
       pattern.depthFirst().collectFirst {
         case reference: ScReferenceElement if reference.refName == name => reference
       }
 
     for {
-      (ScCaseClause(Some(pattern), _, _), target) <- caseClauses.zip(targets)
+      (ScCaseClause(Some(pattern), _, _), targetClass) <- caseClauses
       if !pattern.isInstanceOf[ScWildcardPattern]
-      reference <- findReference(pattern, target.name)
-    } reference.bindToElement(target)
+      reference <- findReference(pattern, targetClass.name)
+    } reference.bindToElement(targetClass)
   }
 
-  private[this] def enumClauses(pair: ClassAndPlace) = {
-    val (clazz, _) = pair
+  private sealed abstract class PatternGenerationStrategy protected(protected val clazz: PsiClass,
+                                                                    protected val statement: ScMatchStmt,
+                                                                    protected val familyNameSuffix: String) {
 
-    val className = clazz.name
-    val patternNames = clazz.getFields.collect {
-      case constant: PsiEnumConstant => s"$className.${constant.name}"
+    final def familyName = s"$FamilyName for $familyNameSuffix"
+
+    final def replacedClauses: Seq[(ScCaseClause, PsiClass)] = {
+      val (patterns, targets) = targetPatterns
+      replacedClauses(patterns).zip(targets)
     }
 
-    (patternNames.toSeq, Seq.fill(patternNames.length)(clazz))
-  }
+    protected def targetPatterns: (Seq[String], Seq[PsiClass]) = {
+      val inheritors = findInheritors
 
-  private[this] def classesAndObjectsClauses(pair: ClassAndPlace) = {
-    val (patternNames, targets) = patternsAndTargets(pair) { definition =>
-      definition.isCase || definition.isObject
+      val patterns = inheritors.map {
+        import CaseClauseCompletionContributor.patternText
+        patternText(_, statement)
+      }
+
+      val targets = inheritors.map {
+        case clazz: ScClass if clazz.isCase => ScalaPsiUtil.getCompanionModule(clazz).get
+        case definition => definition
+      }
+
+      (patterns, targets)
     }
 
-    (patternNames :+ "_", targets)
+    protected def findInheritors: Seq[ScTypeDefinition] =
+      CaseClauseCompletionContributor.findInheritors(clazz)
+
+    private def replacedClauses(patterns: Seq[String]): Seq[ScCaseClause] = {
+      val caseClauses = patterns.map { pattern =>
+        import ScalaTokenTypes.{kCASE, tFUNTYPE}
+        s"$kCASE $pattern $tFUNTYPE"
+      }
+
+      val ScMatchStmt(ElementText(expressionText), _) = statement
+
+      import statement.projectContext
+      val newStatement = ScalaPsiElementFactory.createMatch(expressionText, caseClauses)
+
+      val ScMatchStmt(_, result) = statement.replace(newStatement)
+      result
+    }
   }
 
-  private[this] def patternsAndTargets(pair: ClassAndPlace)
-                                      (predicate: ScTypeDefinition => Boolean = _ => true) = {
-    val (clazz, statement) = pair
-    val inheritors = findInheritors(clazz).filter(predicate)
+  private class SealedClassGenerationStrategy(clazz: ScTypeDefinition, statement: ScMatchStmt)
+    extends PatternGenerationStrategy(clazz, statement, familyNameSuffix = "variants of sealed type")
 
-    val patternTexts = inheritors.map(patternText(_, statement))
-    val targets = inheritors.map {
-      case clazz: ScClass if clazz.isCase => ScalaPsiUtil.getCompanionModule(clazz).get
-      case definition => definition
+  private class EnumGenerationStrategy(clazz: PsiClass, statement: ScMatchStmt)
+    extends PatternGenerationStrategy(clazz, statement, familyNameSuffix = "variants of java enum") {
+
+    override def targetPatterns: (Seq[String], Seq[PsiClass]) = {
+      val className = clazz.name
+      val patternNames = clazz.getFields.collect {
+        case constant: PsiEnumConstant => s"$className.${constant.name}"
+      }
+
+      (patternNames.toSeq, Seq.fill(patternNames.length)(clazz))
+    }
+  }
+
+  private class NonFinalClassGenerationStrategy(clazz: PsiClass, statement: ScMatchStmt)
+    extends PatternGenerationStrategy(clazz, statement, familyNameSuffix = "inherited objects and case classes") {
+
+    override def targetPatterns: (Seq[String], Seq[PsiClass]) = {
+      val (patternNames, targets) = super.targetPatterns
+      (patternNames :+ ScalaTokenTypes.tUNDER.toString, targets)
     }
 
-    (patternTexts, targets)
+    override protected def findInheritors: Seq[ScTypeDefinition] =
+      super.findInheritors.filter { definition =>
+        definition.isCase || definition.isObject
+      }
   }
+
 }

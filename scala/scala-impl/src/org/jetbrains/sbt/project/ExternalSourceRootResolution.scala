@@ -7,6 +7,7 @@ import com.intellij.openapi.externalSystem.model.ExternalSystemException
 import com.intellij.openapi.externalSystem.model.project.ExternalSystemSourceType
 import org.jetbrains.sbt.project.data.{ContentRootNode, LibraryNode, ModuleDependencyNode, ModuleNode}
 import org.jetbrains.sbt.project.sources.SharedSourcesModuleType
+import org.jetbrains.sbt.structure.ProjectData
 import org.jetbrains.sbt.{structure => sbtStructure}
 
 /**
@@ -36,11 +37,17 @@ trait ExternalSourceRootResolution { self: SbtProjectResolver =>
     val sourceModuleNode = {
       val moduleNode = createSourceModule(rootGroup, moduleFilesDirectory)
 
-      val uniqueModuleDependencies = projects.flatMap(_.dependencies.modules).distinct
-      moduleNode.addAll(createLibraryDependencies(uniqueModuleDependencies)(moduleNode, libraryNodes.map(_.data)))
+      // Select a single project and clone its module / project dependencies.
+      // It seems that dependencies of any single project should be enough to highlight files in the shared source module.
+      // Please note that we mix source modules into other modules on compilation,
+      // so source module dependencies are not relevant for compilation, only for highlighting.
+      val representativeProject = representativeProjectIn(rootGroup.projects)
 
-      val uniqueProjectDependencies = projects.flatMap(_.dependencies.projects).distinct
-      uniqueProjectDependencies.foreach { dependencyId =>
+      val moduleDependencies = representativeProject.dependencies.modules
+      moduleNode.addAll(createLibraryDependencies(moduleDependencies)(moduleNode, libraryNodes.map(_.data)))
+
+      val projectDependencies = representativeProject.dependencies.projects
+      projectDependencies.foreach { dependencyId =>
         val dependency = projectToModuleNode.values.find(_.getId == ModuleNode.combinedId(dependencyId.project, dependencyId.buildURI)).getOrElse(
           throw new ExternalSystemException("Cannot find project dependency: " + dependencyId.project))
 
@@ -59,6 +66,20 @@ trait ExternalSourceRootResolution { self: SbtProjectResolver =>
     }
 
     sourceModuleNode
+  }
+
+  // Selects an arbitrary project, preferable a JVM one.
+  private def representativeProjectIn(projects: Seq[ProjectData]) = {
+    val isNonJvmTitle = (title: String) =>
+      title.endsWith("js") || title.endsWith("native")
+
+    val isNonJvmProject = (project: ProjectData) =>
+      isNonJvmTitle(project.id.toLowerCase) || isNonJvmTitle(project.name.toLowerCase)
+
+    projects.partition(isNonJvmProject) match {
+      case (nonJvmProjects, Seq()) => nonJvmProjects.head
+      case (_, jvmProjects) => jvmProjects.head
+    }
   }
 
   private def createSourceModule(group: RootGroup, moduleFilesDirectory: File): ModuleNode = {
@@ -106,10 +127,11 @@ trait ExternalSourceRootResolution { self: SbtProjectResolver =>
     val nameProvider = new SharedSourceRootNameProvider()
 
     // TODO consider base/projects correspondence
-    roots.groupBy(_.root.base).values.toList.map { roots =>
-      val sharedRoot = roots.head
-      val name = nameProvider.nameFor(sharedRoot.root.base)
-      RootGroup(name, roots.map(_.root), sharedRoot.projects)
+    roots.groupBy(_.root.base).toList.map {
+      case (base, sharedRoots) =>
+        val name = nameProvider.nameFor(base)
+        val projects = sharedRoots.flatMap(_.projects).distinct
+        RootGroup(name, roots.map(_.root), projects)
     }
   }
 
