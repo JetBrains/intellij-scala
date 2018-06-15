@@ -1,3 +1,3 @@
 List(1).foldLeft("") {
   <caret>}
-//f: (B, Int) => B
+//(z: B)(f: (B, Int) => B)
