@@ -1458,6 +1458,7 @@
         <!--</component>-->
         <component>
             <implementation-class>org.jetbrains.plugins.scala.components.libextensions.LibraryExtensionsManager</implementation-class>
+            <loadForDefaultProject/>
         </component>
         <component>
           <implementation-class>org.jetbrains.plugins.scala.project.migration.handlers.ArtifactHandlerComponent</implementation-class>
