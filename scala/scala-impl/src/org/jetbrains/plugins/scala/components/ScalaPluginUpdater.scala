@@ -4,8 +4,8 @@ import java.io.{File, IOException}
 import java.lang.reflect.Field
 import java.net.URLEncoder
 import java.util.concurrent.{Future, TimeUnit}
-import javax.swing.event.HyperlinkEvent
 
+import javax.swing.event.HyperlinkEvent
 import com.intellij.ide.plugins._
 import com.intellij.ide.util.PropertiesComponent
 import com.intellij.notification._
@@ -17,6 +17,7 @@ import com.intellij.openapi.editor.EditorFactory
 import com.intellij.openapi.editor.event.{DocumentAdapter, DocumentEvent, DocumentListener}
 import com.intellij.openapi.extensions.PluginId
 import com.intellij.openapi.fileEditor.FileDocumentManager
+import com.intellij.openapi.project.ProjectManager
 import com.intellij.openapi.updateSettings.UpdateStrategyCustomization
 import com.intellij.openapi.updateSettings.impl._
 import com.intellij.openapi.util.{BuildNumber, JDOMUtil, SystemInfo}
@@ -346,9 +347,10 @@ object ScalaPluginUpdater {
     if ((infoImpl.isEAP || infoImpl.isBetaOrRC)
       && applicationSettings.ASK_USE_LATEST_PLUGIN_BUILDS
       && ScalaPluginUpdater.pluginIsRelease) {
-      val message = "Please select Scala plugin update channel:" +
-        s"""<p/><a href="EAP">EAP</a>\n""" +
-        s"""<p/><a href="Release">Release</a>"""
+      val message =
+        """Please select Scala plugin update channel:<p/>
+          |<a href="Nightly">Nightly</a>, <a href="EAP">EAP</a>, <a href="Release">Release</a>""".stripMargin
+
       val notification = new Notification(updGroupId, title, message, NotificationType.INFORMATION, new NotificationListener {
         def hyperlinkUpdate(notification: Notification, event: HyperlinkEvent) {
           notification.expire()
@@ -361,7 +363,8 @@ object ScalaPluginUpdater {
           }
         }
       })
-      Notifications.Bus.notify(notification)
+      val project = ProjectManager.getInstance().getOpenProjects.headOption.orNull
+      Notifications.Bus.notify(notification, project)
     }
   }
 
