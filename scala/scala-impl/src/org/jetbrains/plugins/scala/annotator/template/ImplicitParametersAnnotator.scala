@@ -1,6 +1,7 @@
 package org.jetbrains.plugins.scala.annotator.template
 
-import com.intellij.lang.annotation.AnnotationHolder
+import com.intellij.lang.annotation.{Annotation, AnnotationHolder}
+import com.intellij.openapi.editor.markup.TextAttributes
 import org.jetbrains.plugins.scala.annotator.AnnotatorPart
 import org.jetbrains.plugins.scala.annotator.usageTracker.UsageTracker
 import org.jetbrains.plugins.scala.lang.psi.api.{ImplicitParametersOwner, InferUtil}
@@ -28,10 +29,19 @@ object ImplicitParametersAnnotator extends AnnotatorPart[ImplicitParametersOwner
         val types = params
           .map(_.implicitSearchState.map(_.tp.presentableText).getOrElse("unknown type"))
 
-        holder.createErrorAnnotation(element, message(types))
+        val annotation = holder.createErrorAnnotation(element, message(types))
+        adjustTextAttirbutesOf(annotation)
     }
   }
 
+  private def adjustTextAttirbutesOf(annotation: Annotation) = {
+    val errorStripeColor = annotation.getTextAttributes.getDefaultAttributes.getErrorStripeColor
+    val attributes = new TextAttributes()
+    attributes.setEffectType(null)
+    attributes.setErrorStripeColor(errorStripeColor)
+    annotation.setEnforcedTextAttributes(attributes)
+  }
+
   def message(types: Seq[String]): String =
-    types.mkString("Implicit parameters not found for the following types: ", ", ", "")
+    types.mkString("No implicit arguments of type: ", ", ", "")
 }
