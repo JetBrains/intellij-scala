@@ -50,8 +50,8 @@ final class BspBuildLoop(project: Project) extends AbstractProjectComponent(proj
     override def after(fileEvents: util.List[_ <: VFileEvent]): Unit = {
 
       val eventModules = for {
-        event <- Option(fileEvents).map(_.asScala).getOrElse(Seq.empty)
-        file = event.getFile
+        event <- fileEvents.asScala
+        file  <- Option(event.getFile)
         if isSupported(file.getFileType)
         module <- Option(fileIndex.getModuleForFile(file))
       } yield module
