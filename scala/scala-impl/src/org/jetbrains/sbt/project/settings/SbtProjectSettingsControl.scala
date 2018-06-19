@@ -48,7 +48,8 @@ class SbtProjectSettingsControl(context: Context, initialSettings: SbtProjectSet
 
   private val resolveClassifiersCheckBox = new JCheckBox(SbtBundle("sbt.settings.resolveClassifiers"))
   private val resolveSbtClassifiersCheckBox = new JCheckBox(SbtBundle("sbt.settings.resolveSbtClassifiers"))
-  private val useSbtShellCheckBox = new JCheckBox(SbtBundle("sbt.settings.useShell"))
+  private val useSbtShellForImportCheckBox = new JCheckBox(SbtBundle("sbt.settings.useShellForImport"))
+  private val useSbtShellForBuildCheckBox = new JCheckBox(SbtBundle("sbt.settings.useShellForBuild"))
   private val remoteDebugSbtShell = new JCheckBox(SbtBundle("sbt.settings.remoteDebug"))
 
   override def fillExtraControls(@NotNull content: PaintAwarePanel, indentLevel: Int) {
@@ -61,9 +62,15 @@ class SbtProjectSettingsControl(context: Context, initialSettings: SbtProjectSet
     content.add(new JLabel("Download:"), labelConstraints)
     content.add(downloadPanel, fillLineConstraints)
 
+    val sbtShellPanel = new JPanel(new FlowLayout(FlowLayout.LEFT, 0, 0))
+    val useSbtShellLabel = new JLabel(SbtBundle("sbt.settings.useShell"))
+    sbtShellPanel.add(useSbtShellLabel)
+    sbtShellPanel.add(useSbtShellForImportCheckBox)
+    sbtShellPanel.add(useSbtShellForBuildCheckBox)
+    content.add(sbtShellPanel, fillLineConstraints)
+
     val optionPanel = new JPanel()
     optionPanel.setLayout(new BoxLayout(optionPanel, BoxLayout.Y_AXIS))
-    optionPanel.add(useSbtShellCheckBox)
     optionPanel.add(remoteDebugSbtShell)
     remoteDebugSbtShell.setAlignmentX(Component.LEFT_ALIGNMENT)
     content.add(optionPanel, fillLineConstraints)
@@ -91,7 +98,8 @@ class SbtProjectSettingsControl(context: Context, initialSettings: SbtProjectSet
     selectedJdkName != settings.jdkName ||
       resolveClassifiersCheckBox.isSelected != settings.resolveClassifiers ||
       resolveSbtClassifiersCheckBox.isSelected != settings.resolveSbtClassifiers ||
-      useSbtShellCheckBox.isSelected != settings.useSbtShell ||
+      useSbtShellForImportCheckBox.isSelected != settings.useSbtShellForImport ||
+      useSbtShellForBuildCheckBox.isSelected != settings.useSbtShellForBuild ||
       remoteDebugSbtShell.isSelected != settings.enableDebugSbtShell
   }
 
@@ -103,7 +111,12 @@ class SbtProjectSettingsControl(context: Context, initialSettings: SbtProjectSet
 
     resolveClassifiersCheckBox.setSelected(settings.resolveClassifiers)
     resolveSbtClassifiersCheckBox.setSelected(settings.resolveSbtClassifiers)
-    useSbtShellCheckBox.setSelected(settings.useSbtShell)
+
+    // option migration
+    val useShellForImport = settings.useSbtShellForImport || settings.useSbtShell
+    val useShellForBuild = settings.useSbtShellForBuild || settings.useSbtShell
+    useSbtShellForImportCheckBox.setSelected(useShellForImport)
+    useSbtShellForBuildCheckBox.setSelected(useShellForBuild)
     remoteDebugSbtShell.setSelected(settings.enableDebugSbtShell)
   }
 
@@ -115,8 +128,10 @@ class SbtProjectSettingsControl(context: Context, initialSettings: SbtProjectSet
     settings.jdk = selectedJdkName.orNull
     settings.resolveClassifiers = resolveClassifiersCheckBox.isSelected
     settings.resolveSbtClassifiers = resolveSbtClassifiersCheckBox.isSelected
-    settings.useSbtShell = useSbtShellCheckBox.isSelected
+    settings.useSbtShellForBuild = useSbtShellForBuildCheckBox.isSelected
+    settings.useSbtShellForImport = useSbtShellForImportCheckBox.isSelected
     settings.enableDebugSbtShell = remoteDebugSbtShell.isSelected
+    settings.useSbtShell = false
   }
 
   private def selectedJdkName = Option(jdkComboBox.getSelectedJdk).map(_.getName)

@@ -35,7 +35,7 @@ class ScalaProjectSettingsCollector extends AbstractProjectsUsagesCollector {
     val projectSettings = ScalaProjectSettings.getInstance(project)
 
     val isSbtProject = sbtProjectSettings.nonEmpty
-    val isSbtShellBuild = sbtProjectSettings.exists(_.useSbtShell)
+    val isSbtShellBuild = sbtProjectSettings.exists(_.useSbtShellForBuild)
 
     addUsageIf(isSbtProject && isSbtShellBuild, "scala.sbt.shell.build")
     addUsageIf(isSbtProject && !isSbtShellBuild, "scala.sbt.idea.build")

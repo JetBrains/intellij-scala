@@ -50,7 +50,7 @@ class SbtProjectTaskRunner extends ProjectTaskRunner {
       val project = task.getModule.getProject
       val projectSettings = SbtSystemSettings.getInstance(project).getLinkedProjectSettings(module)
 
-      projectSettings.exists(_.useSbtShell) &&
+      projectSettings.exists(_.useSbtShellForBuild) &&
       ES.isExternalSystemAwareModule(SbtProjectSystem.Id, module)
 
     case _: ExecuteRunConfigurationTask =>

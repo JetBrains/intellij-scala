@@ -91,7 +91,7 @@ object SbtExternalSystemManager {
     new SbtExecutionSettings(realProjectPath,
       vmExecutable, vmOptions, environment, customLauncher, customSbtStructureFile, projectJdkName,
       projectSettings.resolveClassifiers, projectSettings.resolveJavadocs, projectSettings.resolveSbtClassifiers,
-      projectSettings.useSbtShell, projectSettings.enableDebugSbtShell)
+      projectSettings.useSbtShellForImport, projectSettings.enableDebugSbtShell)
   }
 
   /** Choose a jdk for imports. This is then only used when no overriding information is available from sbt definition.
