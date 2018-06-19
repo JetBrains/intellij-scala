@@ -41,6 +41,7 @@ object InferUtil {
   val tagsAndManifists = Set(
     "scala.reflect.ClassManifest",
     "scala.reflect.Manifest",
+    "scala.reflect.OptManifest",
     "scala.reflect.ClassTag",
     "scala.reflect.api.TypeTags.TypeTag",
     "scala.reflect.api.TypeTags.WeakTypeTag"
