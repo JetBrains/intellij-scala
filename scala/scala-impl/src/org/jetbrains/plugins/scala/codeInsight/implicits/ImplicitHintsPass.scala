@@ -57,7 +57,7 @@ private class ImplicitHintsPass(editor: Editor, rootElement: ScalaPsiElement)
               hints ++:= explicitImplicitArgumentsHint(call.args)
             }
 
-          case owner: ImplicitParametersOwner if e.implicitConversion().isEmpty =>
+          case owner: ImplicitParametersOwner =>
             val showNotFoundArgs = showNotFoundImplicits(e)
             val shouldSearch = ImplicitHints.enabled || showNotFoundArgs
 
