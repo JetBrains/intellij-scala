@@ -2,6 +2,7 @@ package org.jetbrains.plugins.scala.codeInsight.implicits
 
 import com.intellij.codeInsight.daemon.DaemonCodeAnalyzer
 import com.intellij.openapi.editor.{Editor, EditorFactory}
+import com.intellij.openapi.project.ProjectManager
 import com.intellij.psi.PsiFile
 
 private object ImplicitHints {
@@ -26,7 +27,7 @@ private object ImplicitHints {
   private def updateInAllEditors(): Unit = {
     EditorFactory.getInstance().getAllEditors.foreach(ModificationCount(_) = 0L)
 
-    EditorFactory.getInstance().getAllEditors.map(_.getProject).distinct
+    ProjectManager.getInstance().getOpenProjects
       .foreach(project => DaemonCodeAnalyzer.getInstance(project).restart())
   }
 }
