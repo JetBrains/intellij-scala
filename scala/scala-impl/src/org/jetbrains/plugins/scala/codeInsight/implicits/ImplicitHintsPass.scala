@@ -5,7 +5,7 @@ import com.intellij.openapi.editor.Editor
 import com.intellij.openapi.editor.ex.util.CaretVisualPositionKeeper
 import com.intellij.openapi.progress.ProgressIndicator
 import com.intellij.openapi.util.Disposer
-import com.intellij.psi.PsiNamedElement
+import com.intellij.psi.{PsiElement, PsiNamedElement}
 import com.intellij.util.DocumentUtil
 import org.jetbrains.plugins.scala.actions.ShowImplicitArgumentsAction
 import org.jetbrains.plugins.scala.annotator.ScalaAnnotator
@@ -18,6 +18,7 @@ import org.jetbrains.plugins.scala.lang.psi.api.expr.{ScArgumentExprList, ScExpr
 import org.jetbrains.plugins.scala.lang.psi.api.statements.params.ScParameterClause
 import org.jetbrains.plugins.scala.lang.psi.api.toplevel.typedef.ScMember
 import org.jetbrains.plugins.scala.lang.resolve.ScalaResolveResult
+import org.jetbrains.plugins.scala.settings.ScalaProjectSettings
 
 private class ImplicitHintsPass(editor: Editor, rootElement: ScalaPsiElement)
   extends EditorBoundHighlightingPass(editor, rootElement.getContainingFile, true) {
@@ -33,7 +34,13 @@ private class ImplicitHintsPass(editor: Editor, rootElement: ScalaPsiElement)
   }
 
   private def collectConversionsAndArguments(): Unit = {
-    if (!ImplicitHints.enabled && !ScalaAnnotator.isAdvancedHighlightingEnabled(rootElement))
+    val settings = ScalaProjectSettings.getInstance(rootElement.getProject)
+    val showNotFoundImplicitForFile = ScalaAnnotator.isAdvancedHighlightingEnabled(rootElement) && settings.isShowNotFoundImplicitArguments
+
+    def showNotFoundImplicits(element: PsiElement) =
+      settings.isShowNotFoundImplicitArguments && ScalaAnnotator.isAdvancedHighlightingEnabled(element)
+
+    if (!ImplicitHints.enabled && !showNotFoundImplicitForFile)
       return
 
     rootElement.depthFirst().foreach {
@@ -51,11 +58,16 @@ private class ImplicitHintsPass(editor: Editor, rootElement: ScalaPsiElement)
             }
 
           case owner@(_: ImplicitParametersOwner | _: ScNewTemplateDefinition) if e.implicitConversion().isEmpty =>
-            ShowImplicitArgumentsAction.implicitParams(owner).foreach { arguments =>
-              val typeAware = ScalaAnnotator.isAdvancedHighlightingEnabled(e)
-              def argumentsMissing = arguments.exists(ShowImplicitArgumentsAction.missingImplicitArgumentIn(_).isDefined)
-              if (ImplicitHints.enabled || (typeAware && argumentsMissing)) {
-                hints ++:= implicitArgumentsHint(owner, arguments)
+            val showNotFoundArgs = showNotFoundImplicits(e)
+            val shouldSearch = ImplicitHints.enabled || showNotFoundArgs
+
+            def shouldShow(arguments: Seq[ScalaResolveResult]) =
+              ImplicitHints.enabled || (showNotFoundArgs && arguments.exists(ShowImplicitArgumentsAction.isMissingImplicitArgument))
+
+            if (shouldSearch) {
+              ShowImplicitArgumentsAction.implicitParams(owner) match {
+                case Some(args) if shouldShow(args) => hints ++:= implicitArgumentsHint(owner, args)
+                case _                              =>
               }
             }
 

@@ -272,11 +272,14 @@ object ShowImplicitArgumentsAction {
     None
   }
 
-  // TODO Don't depend on "magic constants"
-  def missingImplicitArgumentIn(result: ScalaResolveResult): Option[Option[ScType]] =
-    Option(result.getElement)
-      .exists(_.name == InferUtil.notFoundParameterName)
+  def missingImplicitArgumentIn(result: ScalaResolveResult): Option[Option[ScType]] = {
+    isMissingImplicitArgument(result)
       .option(result.implicitSearchState.map(_.tp))
+  }
+
+  // TODO Don't depend on "magic constants"
+  def isMissingImplicitArgument(result: ScalaResolveResult): Boolean =
+    result.getElement.name == InferUtil.notFoundParameterName
 }
 
 class ImplicitParametersTreeStructure(project: Project,

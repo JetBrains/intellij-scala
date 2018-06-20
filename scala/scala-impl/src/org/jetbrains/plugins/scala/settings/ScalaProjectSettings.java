@@ -36,6 +36,7 @@ public class ScalaProjectSettings  implements PersistentStateComponent<ScalaProj
   private boolean ADD_OVERRIDE_TO_IMPLEMENT_IN_CONVERTER = true;
   private boolean DONT_SHOW_CONVERSION_DIALOG = false;
   private boolean SHOW_IMPLICIT_CONVERSIONS = false;
+  private boolean SHOW_NOT_FOUND_IMPLICIT_ARGUMENTS = false;
 
   private boolean SHOW_ARGUMENTS_TO_BY_NAME_PARAMETERS = false;
   private boolean INCLUDE_BLOCK_EXPRESSIONS = false;
@@ -183,6 +184,14 @@ public class ScalaProjectSettings  implements PersistentStateComponent<ScalaProj
 
   public boolean isShowImplisitConversions() {
     return SHOW_IMPLICIT_CONVERSIONS;
+  }
+
+  public void setShowNotFoundImplicitArguments(boolean value) {
+    SHOW_NOT_FOUND_IMPLICIT_ARGUMENTS = value;
+  }
+
+  public boolean isShowNotFoundImplicitArguments() {
+    return SHOW_NOT_FOUND_IMPLICIT_ARGUMENTS;
   }
 
   public void setShowImplisitConversions(boolean value) {

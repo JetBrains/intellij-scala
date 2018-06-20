@@ -2,10 +2,12 @@ package org.jetbrains.plugins.scala.annotator.template
 
 import com.intellij.lang.annotation.{Annotation, AnnotationHolder}
 import com.intellij.openapi.editor.markup.TextAttributes
+import com.intellij.psi.util.PsiTreeUtil
 import org.jetbrains.plugins.scala.annotator.AnnotatorPart
 import org.jetbrains.plugins.scala.annotator.usageTracker.UsageTracker
 import org.jetbrains.plugins.scala.lang.psi.api.{ImplicitParametersOwner, InferUtil}
 import org.jetbrains.plugins.scala.lang.resolve.ScalaResolveResult
+import org.jetbrains.plugins.scala.settings.ScalaProjectSettings
 
 import scala.collection.Seq
 
@@ -18,7 +20,12 @@ object ImplicitParametersAnnotator extends AnnotatorPart[ImplicitParametersOwner
   override def annotate(element: ImplicitParametersOwner, holder: AnnotationHolder, typeAware: Boolean): Unit = {
     element.findImplicitParameters.foreach { params =>
       UsageTracker.registerUsedElementsAndImports(element, params, checkWrite = false)
-      if (typeAware) highlightNotFound(element, params, holder)
+
+      val notFoundArgHighlightingEnabled =
+        ScalaProjectSettings.getInstance(element.getProject).isShowNotFoundImplicitArguments
+
+      if (typeAware && notFoundArgHighlightingEnabled)
+        highlightNotFound(element, params, holder)
     }
   }
 
@@ -29,12 +36,16 @@ object ImplicitParametersAnnotator extends AnnotatorPart[ImplicitParametersOwner
         val types = params
           .map(_.implicitSearchState.map(_.tp.presentableText).getOrElse("unknown type"))
 
-        val annotation = holder.createErrorAnnotation(element, message(types))
-        adjustTextAttirbutesOf(annotation)
+        val lastLeaf = PsiTreeUtil.getDeepestLast(element) //to avoid error stripes for several lines
+
+        val annotation = holder.createErrorAnnotation(lastLeaf, message(types))
+
+        //make annotation invisible in editor in favor of inlay hint
+        adjustTextAttributesOf(annotation)
     }
   }
 
-  private def adjustTextAttirbutesOf(annotation: Annotation) = {
+  private def adjustTextAttributesOf(annotation: Annotation): Unit = {
     val errorStripeColor = annotation.getTextAttributes.getDefaultAttributes.getErrorStripeColor
     val attributes = new TextAttributes()
     attributes.setEffectType(null)

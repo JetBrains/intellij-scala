@@ -79,6 +79,7 @@ public class ScalaProjectSettingsPanel {
     private JComboBox scTypeSelectionCombobox;
     private JComboBox trailingCommasComboBox;
     private JCheckBox collapseWorksheetFoldByCheckBox;
+    private JCheckBox showNotFoundImplicitArgumentsCheckBox;
     private ScalaUiWithDependency.ComponentWithSettings injectionPrefixTable;
     private Project myProject;
 
@@ -100,7 +101,7 @@ public class ScalaProjectSettingsPanel {
         extensionsPanel.build();
 
         ScalaUiWithDependency[] deps = ScalaUiWithDependency.EP_NAME.getExtensions();
-        for (ScalaUiWithDependency uiWithDependency : deps) {
+        for (ScalaUiWithDependency uiWithDependency: deps) {
             if (INJECTION_SETTINGS_NAME.equals(uiWithDependency.getName())) {
                 injectionPrefixTable = uiWithDependency.createComponent(injectionJPanel);
                 break;
@@ -171,6 +172,7 @@ public class ScalaProjectSettingsPanel {
         scalaProjectSettings.setTreatDocCommentAsBlockComment(treatDocCommentAsBlockComment.isSelected());
 
         scalaProjectSettings.setShowImplisitConversions(showImplicitConversionsInCheckBox.isSelected());
+        scalaProjectSettings.setShowNotFoundImplicitArguments(showNotFoundImplicitArgumentsCheckBox.isSelected());
         scalaProjectSettings.setShowArgumentsToByNameParams(showArgumentsToByNameParametersCheckBox.isSelected());
         if (scalaProjectSettings.isCustomScalatestSyntaxHighlighting() != customScalatestSyntaxHighlightingCheckbox.isSelected()) {
             //settings have changed. but actual highlighting will only change on next pass of highlighting visitors
@@ -212,7 +214,7 @@ public class ScalaProjectSettingsPanel {
     private List<String> getBasePackages() {
         String[] parts = myBasePackages.getText().split("\\n|,|;");
         List<String> result = new ArrayList<String>();
-        for (String part : parts) {
+        for (String part: parts) {
             String name = part.trim();
             if (!name.isEmpty()) result.add(name);
         }
@@ -241,6 +243,8 @@ public class ScalaProjectSettingsPanel {
                 scalaTestDefaultSuperClass.getText())) return true;
         if (scalaProjectSettings.isShowImplisitConversions() !=
                 showImplicitConversionsInCheckBox.isSelected()) return true;
+        if (scalaProjectSettings.isShowNotFoundImplicitArguments() !=
+                showNotFoundImplicitArgumentsCheckBox.isSelected()) return true;
         if (scalaProjectSettings.isShowArgumentsToByNameParams() !=
                 showArgumentsToByNameParametersCheckBox.isSelected()) return true;
         if (scalaProjectSettings.isCustomScalatestSyntaxHighlighting() !=
@@ -352,6 +356,7 @@ public class ScalaProjectSettingsPanel {
         setValue(treatDocCommentAsBlockComment, scalaProjectSettings.isTreatDocCommentAsBlockComment());
 
         setValue(showImplicitConversionsInCheckBox, scalaProjectSettings.isShowImplisitConversions());
+        setValue(showNotFoundImplicitArgumentsCheckBox, scalaProjectSettings.isShowNotFoundImplicitArguments());
         setValue(showArgumentsToByNameParametersCheckBox, scalaProjectSettings.isShowArgumentsToByNameParams());
         setValue(customScalatestSyntaxHighlightingCheckbox, scalaProjectSettings.isCustomScalatestSyntaxHighlighting());
         setValue(includeBlockExpressionsExpressionsCheckBox, scalaProjectSettings.isIncludeBlockExpressions());
@@ -429,10 +434,10 @@ public class ScalaProjectSettingsPanel {
         final JTabbedPane tabbedPane1 = new JTabbedPane();
         myPanel.add(tabbedPane1, new GridConstraints(0, 0, 1, 1, GridConstraints.ANCHOR_CENTER, GridConstraints.FILL_BOTH, GridConstraints.SIZEPOLICY_CAN_SHRINK | GridConstraints.SIZEPOLICY_CAN_GROW, GridConstraints.SIZEPOLICY_CAN_SHRINK | GridConstraints.SIZEPOLICY_CAN_GROW, null, new Dimension(200, 200), null, 0, false));
         final JPanel panel1 = new JPanel();
-        panel1.setLayout(new GridLayoutManager(16, 2, new Insets(9, 9, 0, 0), -1, -1));
+        panel1.setLayout(new GridLayoutManager(17, 2, new Insets(9, 9, 0, 0), -1, -1));
         tabbedPane1.addTab("Editor", panel1);
         final Spacer spacer1 = new Spacer();
-        panel1.add(spacer1, new GridConstraints(15, 0, 1, 1, GridConstraints.ANCHOR_CENTER, GridConstraints.FILL_VERTICAL, 1, GridConstraints.SIZEPOLICY_WANT_GROW, null, null, null, 0, false));
+        panel1.add(spacer1, new GridConstraints(16, 0, 1, 1, GridConstraints.ANCHOR_CENTER, GridConstraints.FILL_VERTICAL, 1, GridConstraints.SIZEPOLICY_WANT_GROW, null, null, null, 0, false));
         showImplicitConversionsInCheckBox = new JCheckBox();
         showImplicitConversionsInCheckBox.setSelected(true);
         showImplicitConversionsInCheckBox.setText("Highlight implicit conversions");
@@ -440,50 +445,50 @@ public class ScalaProjectSettingsPanel {
         showArgumentsToByNameParametersCheckBox = new JCheckBox();
         showArgumentsToByNameParametersCheckBox.setSelected(true);
         showArgumentsToByNameParametersCheckBox.setText("Highlight arguments to by-name parameters");
-        panel1.add(showArgumentsToByNameParametersCheckBox, new GridConstraints(3, 0, 1, 2, GridConstraints.ANCHOR_WEST, GridConstraints.FILL_NONE, GridConstraints.SIZEPOLICY_CAN_SHRINK | GridConstraints.SIZEPOLICY_CAN_GROW, GridConstraints.SIZEPOLICY_FIXED, null, null, null, 0, false));
+        panel1.add(showArgumentsToByNameParametersCheckBox, new GridConstraints(4, 0, 1, 2, GridConstraints.ANCHOR_WEST, GridConstraints.FILL_NONE, GridConstraints.SIZEPOLICY_CAN_SHRINK | GridConstraints.SIZEPOLICY_CAN_GROW, GridConstraints.SIZEPOLICY_FIXED, null, null, null, 0, false));
         includeBlockExpressionsExpressionsCheckBox = new JCheckBox();
         includeBlockExpressionsExpressionsCheckBox.setSelected(true);
         includeBlockExpressionsExpressionsCheckBox.setText("Include block expressions");
         includeBlockExpressionsExpressionsCheckBox.setToolTipText("Include expressions enclosed in in curly braces");
-        panel1.add(includeBlockExpressionsExpressionsCheckBox, new GridConstraints(4, 0, 1, 2, GridConstraints.ANCHOR_WEST, GridConstraints.FILL_NONE, GridConstraints.SIZEPOLICY_CAN_SHRINK | GridConstraints.SIZEPOLICY_CAN_GROW, GridConstraints.SIZEPOLICY_FIXED, null, null, null, 1, false));
+        panel1.add(includeBlockExpressionsExpressionsCheckBox, new GridConstraints(5, 0, 1, 2, GridConstraints.ANCHOR_WEST, GridConstraints.FILL_NONE, GridConstraints.SIZEPOLICY_CAN_SHRINK | GridConstraints.SIZEPOLICY_CAN_GROW, GridConstraints.SIZEPOLICY_FIXED, null, null, null, 1, false));
         includeLiteralsCheckBox = new JCheckBox();
         includeLiteralsCheckBox.setSelected(true);
         includeLiteralsCheckBox.setText("Include literals ");
         includeLiteralsCheckBox.setToolTipText("Include string, number, etc");
-        panel1.add(includeLiteralsCheckBox, new GridConstraints(5, 0, 1, 2, GridConstraints.ANCHOR_WEST, GridConstraints.FILL_NONE, GridConstraints.SIZEPOLICY_CAN_SHRINK | GridConstraints.SIZEPOLICY_CAN_GROW, GridConstraints.SIZEPOLICY_FIXED, null, null, null, 1, false));
+        panel1.add(includeLiteralsCheckBox, new GridConstraints(6, 0, 1, 2, GridConstraints.ANCHOR_WEST, GridConstraints.FILL_NONE, GridConstraints.SIZEPOLICY_CAN_SHRINK | GridConstraints.SIZEPOLICY_CAN_GROW, GridConstraints.SIZEPOLICY_FIXED, null, null, null, 1, false));
         final JLabel label1 = new JLabel();
         this.$$$loadLabelText$$$(label1, ResourceBundle.getBundle("org/jetbrains/plugins/scala/ScalaBundle").getString("collection.type.highlighting.option"));
-        panel1.add(label1, new GridConstraints(7, 0, 1, 1, GridConstraints.ANCHOR_WEST, GridConstraints.FILL_NONE, GridConstraints.SIZEPOLICY_FIXED, GridConstraints.SIZEPOLICY_FIXED, null, null, null, 0, false));
+        panel1.add(label1, new GridConstraints(8, 0, 1, 1, GridConstraints.ANCHOR_WEST, GridConstraints.FILL_NONE, GridConstraints.SIZEPOLICY_FIXED, GridConstraints.SIZEPOLICY_FIXED, null, null, null, 0, false));
         collectionHighlightingChooser = new JComboBox();
         final DefaultComboBoxModel defaultComboBoxModel1 = new DefaultComboBoxModel();
         defaultComboBoxModel1.addElement("None");
         defaultComboBoxModel1.addElement("Only non-qualified");
         defaultComboBoxModel1.addElement("All");
         collectionHighlightingChooser.setModel(defaultComboBoxModel1);
-        panel1.add(collectionHighlightingChooser, new GridConstraints(7, 1, 1, 1, GridConstraints.ANCHOR_WEST, GridConstraints.FILL_NONE, GridConstraints.SIZEPOLICY_CAN_GROW, GridConstraints.SIZEPOLICY_FIXED, null, null, null, 0, false));
+        panel1.add(collectionHighlightingChooser, new GridConstraints(8, 1, 1, 1, GridConstraints.ANCHOR_WEST, GridConstraints.FILL_NONE, GridConstraints.SIZEPOLICY_CAN_GROW, GridConstraints.SIZEPOLICY_FIXED, null, null, null, 0, false));
         final TitledSeparator titledSeparator1 = new TitledSeparator();
         titledSeparator1.setText("Highlighting");
         panel1.add(titledSeparator1, new GridConstraints(1, 0, 1, 2, GridConstraints.ANCHOR_CENTER, GridConstraints.FILL_HORIZONTAL, GridConstraints.SIZEPOLICY_CAN_SHRINK | GridConstraints.SIZEPOLICY_CAN_GROW, GridConstraints.SIZEPOLICY_CAN_SHRINK | GridConstraints.SIZEPOLICY_CAN_GROW, null, null, null, 0, false));
         final TitledSeparator titledSeparator2 = new TitledSeparator();
         titledSeparator2.setText("Autocomplete");
-        panel1.add(titledSeparator2, new GridConstraints(8, 0, 1, 2, GridConstraints.ANCHOR_CENTER, GridConstraints.FILL_HORIZONTAL, GridConstraints.SIZEPOLICY_CAN_SHRINK | GridConstraints.SIZEPOLICY_CAN_GROW, GridConstraints.SIZEPOLICY_CAN_SHRINK | GridConstraints.SIZEPOLICY_CAN_GROW, null, null, null, 0, false));
+        panel1.add(titledSeparator2, new GridConstraints(9, 0, 1, 2, GridConstraints.ANCHOR_CENTER, GridConstraints.FILL_HORIZONTAL, GridConstraints.SIZEPOLICY_CAN_SHRINK | GridConstraints.SIZEPOLICY_CAN_GROW, GridConstraints.SIZEPOLICY_CAN_SHRINK | GridConstraints.SIZEPOLICY_CAN_GROW, null, null, null, 0, false));
         myAotCompletion = new JCheckBox();
         myAotCompletion.setText("Ahead-of-time completion (parameter and variable names)");
-        panel1.add(myAotCompletion, new GridConstraints(9, 0, 1, 2, GridConstraints.ANCHOR_WEST, GridConstraints.FILL_NONE, GridConstraints.SIZEPOLICY_CAN_SHRINK | GridConstraints.SIZEPOLICY_CAN_GROW, GridConstraints.SIZEPOLICY_FIXED, null, null, null, 0, false));
+        panel1.add(myAotCompletion, new GridConstraints(10, 0, 1, 2, GridConstraints.ANCHOR_WEST, GridConstraints.FILL_NONE, GridConstraints.SIZEPOLICY_CAN_SHRINK | GridConstraints.SIZEPOLICY_CAN_GROW, GridConstraints.SIZEPOLICY_FIXED, null, null, null, 0, false));
         useScalaClassesPriorityCheckBox = new JCheckBox();
         useScalaClassesPriorityCheckBox.setSelected(true);
         useScalaClassesPriorityCheckBox.setText("Use Scala classes priority over Java classes");
-        panel1.add(useScalaClassesPriorityCheckBox, new GridConstraints(10, 0, 1, 2, GridConstraints.ANCHOR_WEST, GridConstraints.FILL_NONE, GridConstraints.SIZEPOLICY_CAN_SHRINK | GridConstraints.SIZEPOLICY_CAN_GROW, GridConstraints.SIZEPOLICY_FIXED, null, null, null, 0, false));
+        panel1.add(useScalaClassesPriorityCheckBox, new GridConstraints(11, 0, 1, 2, GridConstraints.ANCHOR_WEST, GridConstraints.FILL_NONE, GridConstraints.SIZEPOLICY_CAN_SHRINK | GridConstraints.SIZEPOLICY_CAN_GROW, GridConstraints.SIZEPOLICY_FIXED, null, null, null, 0, false));
         enableConversionOnCopyCheckBox = new JCheckBox();
         enableConversionOnCopyCheckBox.setSelected(true);
         enableConversionOnCopyCheckBox.setText("Convert Java code to Scala on copy-paste");
-        panel1.add(enableConversionOnCopyCheckBox, new GridConstraints(12, 0, 1, 2, GridConstraints.ANCHOR_WEST, GridConstraints.FILL_NONE, GridConstraints.SIZEPOLICY_CAN_SHRINK | GridConstraints.SIZEPOLICY_CAN_GROW, GridConstraints.SIZEPOLICY_FIXED, null, null, null, 0, false));
+        panel1.add(enableConversionOnCopyCheckBox, new GridConstraints(13, 0, 1, 2, GridConstraints.ANCHOR_WEST, GridConstraints.FILL_NONE, GridConstraints.SIZEPOLICY_CAN_SHRINK | GridConstraints.SIZEPOLICY_CAN_GROW, GridConstraints.SIZEPOLICY_FIXED, null, null, null, 0, false));
         donTShowDialogCheckBox = new JCheckBox();
         donTShowDialogCheckBox.setText("Don't show dialog on paste and automatically convert to Scala code");
-        panel1.add(donTShowDialogCheckBox, new GridConstraints(13, 0, 1, 2, GridConstraints.ANCHOR_WEST, GridConstraints.FILL_NONE, GridConstraints.SIZEPOLICY_CAN_SHRINK | GridConstraints.SIZEPOLICY_CAN_GROW, GridConstraints.SIZEPOLICY_FIXED, null, null, null, 1, false));
+        panel1.add(donTShowDialogCheckBox, new GridConstraints(14, 0, 1, 2, GridConstraints.ANCHOR_WEST, GridConstraints.FILL_NONE, GridConstraints.SIZEPOLICY_CAN_SHRINK | GridConstraints.SIZEPOLICY_CAN_GROW, GridConstraints.SIZEPOLICY_FIXED, null, null, null, 1, false));
         final TitledSeparator titledSeparator3 = new TitledSeparator();
         titledSeparator3.setText("Code Conversion");
-        panel1.add(titledSeparator3, new GridConstraints(11, 0, 1, 2, GridConstraints.ANCHOR_CENTER, GridConstraints.FILL_HORIZONTAL, GridConstraints.SIZEPOLICY_CAN_SHRINK | GridConstraints.SIZEPOLICY_CAN_GROW, GridConstraints.SIZEPOLICY_CAN_SHRINK | GridConstraints.SIZEPOLICY_CAN_GROW, null, null, null, 0, false));
+        panel1.add(titledSeparator3, new GridConstraints(12, 0, 1, 2, GridConstraints.ANCHOR_CENTER, GridConstraints.FILL_HORIZONTAL, GridConstraints.SIZEPOLICY_CAN_SHRINK | GridConstraints.SIZEPOLICY_CAN_GROW, GridConstraints.SIZEPOLICY_CAN_SHRINK | GridConstraints.SIZEPOLICY_CAN_GROW, null, null, null, 0, false));
         final JPanel panel2 = new JPanel();
         panel2.setLayout(new GridLayoutManager(1, 2, new Insets(0, 0, 0, 0), -1, -1));
         panel1.add(panel2, new GridConstraints(0, 0, 1, 2, GridConstraints.ANCHOR_CENTER, GridConstraints.FILL_BOTH, GridConstraints.SIZEPOLICY_CAN_SHRINK | GridConstraints.SIZEPOLICY_CAN_GROW, GridConstraints.SIZEPOLICY_CAN_SHRINK | GridConstraints.SIZEPOLICY_CAN_GROW, null, null, null, 0, false));
@@ -494,11 +499,15 @@ public class ScalaProjectSettingsPanel {
         panel2.add(delaySpinner, new GridConstraints(0, 1, 1, 1, GridConstraints.ANCHOR_WEST, GridConstraints.FILL_NONE, GridConstraints.SIZEPOLICY_WANT_GROW, GridConstraints.SIZEPOLICY_FIXED, null, null, null, 0, false));
         customScalatestSyntaxHighlightingCheckbox = new JCheckBox();
         customScalatestSyntaxHighlightingCheckbox.setText("Custom scalaTest keywords highlighting");
-        panel1.add(customScalatestSyntaxHighlightingCheckbox, new GridConstraints(6, 0, 1, 1, GridConstraints.ANCHOR_WEST, GridConstraints.FILL_NONE, GridConstraints.SIZEPOLICY_CAN_SHRINK | GridConstraints.SIZEPOLICY_CAN_GROW, GridConstraints.SIZEPOLICY_FIXED, null, null, null, 0, false));
+        panel1.add(customScalatestSyntaxHighlightingCheckbox, new GridConstraints(7, 0, 1, 1, GridConstraints.ANCHOR_WEST, GridConstraints.FILL_NONE, GridConstraints.SIZEPOLICY_CAN_SHRINK | GridConstraints.SIZEPOLICY_CAN_GROW, GridConstraints.SIZEPOLICY_FIXED, null, null, null, 0, false));
         addOverrideToImplementCheckBox = new JCheckBox();
         addOverrideToImplementCheckBox.setSelected(true);
         addOverrideToImplementCheckBox.setText("Add override keyword to method implementation");
-        panel1.add(addOverrideToImplementCheckBox, new GridConstraints(14, 0, 1, 2, GridConstraints.ANCHOR_WEST, GridConstraints.FILL_NONE, GridConstraints.SIZEPOLICY_CAN_SHRINK | GridConstraints.SIZEPOLICY_CAN_GROW, GridConstraints.SIZEPOLICY_FIXED, null, null, null, 0, false));
+        panel1.add(addOverrideToImplementCheckBox, new GridConstraints(15, 0, 1, 2, GridConstraints.ANCHOR_WEST, GridConstraints.FILL_NONE, GridConstraints.SIZEPOLICY_CAN_SHRINK | GridConstraints.SIZEPOLICY_CAN_GROW, GridConstraints.SIZEPOLICY_FIXED, null, null, null, 0, false));
+        showNotFoundImplicitArgumentsCheckBox = new JCheckBox();
+        showNotFoundImplicitArgumentsCheckBox.setSelected(true);
+        showNotFoundImplicitArgumentsCheckBox.setText("Show hints if no implicit arguments found");
+        panel1.add(showNotFoundImplicitArgumentsCheckBox, new GridConstraints(3, 0, 1, 2, GridConstraints.ANCHOR_WEST, GridConstraints.FILL_NONE, GridConstraints.SIZEPOLICY_CAN_SHRINK | GridConstraints.SIZEPOLICY_CAN_GROW, GridConstraints.SIZEPOLICY_FIXED, null, null, null, 0, false));
         final JPanel panel3 = new JPanel();
         panel3.setLayout(new GridLayoutManager(2, 1, new Insets(9, 9, 0, 0), -1, -1));
         tabbedPane1.addTab("Project View", panel3);
