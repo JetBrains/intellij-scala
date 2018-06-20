@@ -5,7 +5,6 @@ import java.util.concurrent.ConcurrentMap
 
 import com.intellij.application.options.CodeStyle
 import com.intellij.lang.ASTNode
-import com.intellij.openapi.editor.{Editor, EditorFactory}
 import com.intellij.openapi.project.Project
 import com.intellij.openapi.ui.MessageType
 import com.intellij.openapi.ui.popup.{Balloon, JBPopupFactory}
@@ -101,32 +100,36 @@ object ScalaFmtPreFormatProcessor {
     val document = manager.getDocument(file)
     if (document == null) return 0
     implicit val fileText: String = file.getText
-    val (elements, wrapped) = elementsInRangeMaybeWrapped(file, range)
-    if (elements.isEmpty) return 0
-    val elementsText = elements.map(getText).mkString("")
-    val formatted = Scalafmt.format(if (wrapped) wrap(elementsText) else elementsText, configFor(file))
-    val formattedTime = System.currentTimeMillis()
-    formatted match {
-      case Success(formattedText) =>
-        val wrapFile = PsiFileFactory.getInstance(project).createFileFromText("ScalaFmtFormatWrapper", ScalaFileType.INSTANCE, formattedText)
-        val textRangeDelta = replaceWithFormatted(wrapFile, elements, range, wrapped)
-        val replacedTime = System.currentTimeMillis()
-        if (document != null) manager.commitDocument(document)
-        val doneTime = System.currentTimeMillis()
-        println("formatting range " + range +  "took " + (formattedTime - start) + "ms, replacing took " + (replacedTime - formattedTime) + "ms, committing took " + (doneTime - replacedTime) + "ms")
-        textRangeDelta
+    val config = configFor(file)
+    val wholeFileFormatResult = if (range == file.getTextRange) Scalafmt.format(fileText, config).toEither.toOption else None
+    val (elements, formatted, wrapped) = wholeFileFormatResult match {
+      case Some(formattedCode) =>
+        (Seq(file), formattedCode, false)
       case _ =>
-        reportInvalidCodeFailure(file)
-        println("Error on scalaFMT processing")
-        0
+        val elements = elementsInRangeWrapped(file, range)
+        if (elements.isEmpty) return 0
+        val elementsText = elements.map(getText).mkString("")
+        Scalafmt.format(wrap(elementsText), config) match {
+          case Success(formattedCode) => (elements, formattedCode, true)
+          case _ => return 0
+        }
     }
+    val formattedTime = System.currentTimeMillis()
+    val wrapFile = PsiFileFactory.getInstance(project).createFileFromText("ScalaFmtFormatWrapper", ScalaFileType.INSTANCE, formatted)
+    val textRangeDelta = replaceWithFormatted(wrapFile, elements, range, wrapped)
+    val replacedTime = System.currentTimeMillis()
+    manager.commitDocument(document)
+    val doneTime = System.currentTimeMillis()
+    println("formatting range " + range +  "took " + (formattedTime - start) + "ms, replacing took " + (replacedTime - formattedTime) + "ms, committing took " + (doneTime - replacedTime) + "ms")
+    textRangeDelta
   }
 
   private val wrapPrefix = "class ScalaFmtFormatWrapper {\n"
   private val wrapSuffix = "\n}"
 
   //Use this since calls to 'getText' for inner elements of big files are somewhat expensive
-  private def getText(element: PsiElement)(implicit fileText: String) = fileText.substring(element.getTextRange.getStartOffset, element.getTextRange.getEndOffset)
+  private def getText(element: PsiElement)(implicit fileText: String) =
+    fileText.substring(element.getTextRange.getStartOffset, element.getTextRange.getEndOffset)
 
   private def wrap(elementText: String): String =
     wrapPrefix + elementText + wrapSuffix
@@ -143,14 +146,13 @@ object ScalaFmtPreFormatProcessor {
     case _ => false
   }
 
-  private def elementsInRangeMaybeWrapped(file: PsiFile, range: TextRange)(implicit fileText: String): (Seq[PsiElement], Boolean) = {
-    if (range == file.getTextRange) return (Seq(file), false)
+  private def elementsInRangeWrapped(file: PsiFile, range: TextRange)(implicit fileText: String): Seq[PsiElement] = {
     val startElement = file.findElementAt(range.getStartOffset)
     val endElement = file.findElementAt(range.getEndOffset - 1)
-    if (startElement == null || endElement == null) return (Seq(file), false)
+    if (startElement == null || endElement == null) return Seq.empty
     Option(PsiTreeUtil.findCommonParent(startElement, endElement)) match {
-      case Some(_: PsiWhiteSpace) => (Seq.empty, false)
-      case Some(parent: LeafPsiElement) if isProperUpperLevelPsi(parent) => (Seq(parent), true)
+      case Some(_: PsiWhiteSpace) => Seq.empty
+      case Some(parent: LeafPsiElement) if isProperUpperLevelPsi(parent) => Seq(parent)
       case Some(parent) =>
         val rawChildren = PsiTreeUtil.getChildrenOfType(parent, classOf[PsiElement])
         var children = rawChildren.filter(_.getTextRange.intersects(range))
@@ -159,27 +161,32 @@ object ScalaFmtPreFormatProcessor {
         while (children.last.isInstanceOf[PsiWhiteSpace]) children = children.dropRight(1)
         if (children.forall(isProperUpperLevelPsi)) {
           //for uniformity use the upper-most of embedded elements with same contents
-          if (children.head == rawChildren.head && children.last == rawChildren.last) (Seq(parent), true)
-          else (children, true)
-        }
-        else if (isProperUpperLevelPsi(parent)) (Seq(parent), true)
+          if (children.head == rawChildren.head && children.last == rawChildren.last && isProperUpperLevelPsi(parent)) Seq(parent)
+          else children
+        } else if (isProperUpperLevelPsi(parent)) Seq(parent)
         else ScalaPsiUtil.getParentWithProperty(parent, strict = false, isProperUpperLevelPsi) match {
-          case Some(properParent) if properParent != file => (Seq(properParent), true)
-          case _ => (Seq(file), false)
+          case Some(properParent) if properParent != file => Seq(properParent)
+          case _ => Seq.empty
         }
-      case Some(parent) if isProperUpperLevelPsi(parent) => (Seq(parent), true)
-      case _ => (Seq(file), false)
+      case Some(parent) if isProperUpperLevelPsi(parent) => Seq(parent)
+      case _ => Seq.empty
     }
   }
 
   private def getElementIndent(element: PsiElement)(implicit fileText: String): Int = {
-    var leafElement = PsiTreeUtil.prevLeaf(element, true)
-    while (leafElement != null && !(leafElement.isInstanceOf[PsiWhiteSpace] && getText(leafElement).contains("\n"))) {
-      leafElement = PsiTreeUtil.prevLeaf(leafElement, true)
+    var leafElement = element
+    var prevLeaf = PsiTreeUtil.prevLeaf(leafElement, true)
+    while (leafElement != null && !(leafElement.isInstanceOf[PsiWhiteSpace] && getText(leafElement).contains("\n")) && prevLeaf != null) {
+      leafElement = prevLeaf
+      prevLeaf = PsiTreeUtil.prevLeaf(leafElement, true)
     }
     if (leafElement == null) return 0
-    val wsText = getText(leafElement)
-    wsText.substring(wsText.lastIndexOf("\n") + 1).length
+    leafElement match {
+      case ws: PsiWhiteSpace =>
+        val wsText = getText(ws)
+        wsText.substring(wsText.lastIndexOf("\n") + 1).length
+      case _ => 0
+    }
   }
 
   private def loadConfig(configFile: VirtualFile, project: Project): ScalafmtConfig = {
