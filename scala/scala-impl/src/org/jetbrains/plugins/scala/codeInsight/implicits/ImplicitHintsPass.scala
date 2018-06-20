@@ -14,7 +14,7 @@ import org.jetbrains.plugins.scala.extensions._
 import org.jetbrains.plugins.scala.lang.psi.ScalaPsiElement
 import org.jetbrains.plugins.scala.lang.psi.api.ImplicitParametersOwner
 import org.jetbrains.plugins.scala.lang.psi.api.base.patterns.ScReferencePattern
-import org.jetbrains.plugins.scala.lang.psi.api.expr.{ScArgumentExprList, ScExpression, ScMethodCall, ScNewTemplateDefinition}
+import org.jetbrains.plugins.scala.lang.psi.api.expr.{ScArgumentExprList, ScExpression, ScMethodCall}
 import org.jetbrains.plugins.scala.lang.psi.api.statements.params.ScParameterClause
 import org.jetbrains.plugins.scala.lang.psi.api.toplevel.typedef.ScMember
 import org.jetbrains.plugins.scala.lang.resolve.ScalaResolveResult
@@ -57,7 +57,7 @@ private class ImplicitHintsPass(editor: Editor, rootElement: ScalaPsiElement)
               hints ++:= explicitImplicitArgumentsHint(call.args)
             }
 
-          case owner@(_: ImplicitParametersOwner | _: ScNewTemplateDefinition) if e.implicitConversion().isEmpty =>
+          case owner: ImplicitParametersOwner if e.implicitConversion().isEmpty =>
             val showNotFoundArgs = showNotFoundImplicits(e)
             val shouldSearch = ImplicitHints.enabled || showNotFoundArgs
 
