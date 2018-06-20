@@ -12,12 +12,12 @@ import com.intellij.openapi.util.{Condition, Key, TextRange}
 import com.intellij.psi._
 import com.intellij.psi.util.PsiTreeUtil
 import org.jetbrains.plugins.scala.annotator.createFromUsage._
-import org.jetbrains.plugins.scala.annotator.usageTracker.UsageTracker._
 import org.jetbrains.plugins.scala.annotator.intention._
 import org.jetbrains.plugins.scala.annotator.modifiers.ModifierChecker
 import org.jetbrains.plugins.scala.annotator.quickfix._
 import org.jetbrains.plugins.scala.annotator.template._
 import org.jetbrains.plugins.scala.annotator.usageTracker.UsageTracker
+import org.jetbrains.plugins.scala.annotator.usageTracker.UsageTracker._
 import org.jetbrains.plugins.scala.codeInspection.caseClassParamInspection.{RemoveValFromEnumeratorIntentionAction, RemoveValFromGeneratorIntentionAction}
 import org.jetbrains.plugins.scala.components.HighlightingAdvisor
 import org.jetbrains.plugins.scala.extensions._
@@ -32,7 +32,7 @@ import org.jetbrains.plugins.scala.lang.psi.api.expr._
 import org.jetbrains.plugins.scala.lang.psi.api.statements._
 import org.jetbrains.plugins.scala.lang.psi.api.statements.params.{ScClassParameter, ScParameter, ScParameters, ScTypeParam, ScTypeParamClause}
 import org.jetbrains.plugins.scala.lang.psi.api.toplevel._
-import org.jetbrains.plugins.scala.lang.psi.api.toplevel.imports.usages.{ImportUsed, ReadValueUsed, ValueUsed, WriteValueUsed}
+import org.jetbrains.plugins.scala.lang.psi.api.toplevel.imports.usages.ImportUsed
 import org.jetbrains.plugins.scala.lang.psi.api.toplevel.imports.{ScImportExpr, ScImportSelector}
 import org.jetbrains.plugins.scala.lang.psi.api.toplevel.templates.{ScTemplateBody, ScTemplateParents}
 import org.jetbrains.plugins.scala.lang.psi.api.toplevel.typedef._
@@ -40,7 +40,6 @@ import org.jetbrains.plugins.scala.lang.psi.api.{ScalaElementVisitor, ScalaFile}
 import org.jetbrains.plugins.scala.lang.psi.impl.ScalaPsiElementFactory.createTypeFromText
 import org.jetbrains.plugins.scala.lang.psi.impl.expr.ScInterpolatedStringPartReference
 import org.jetbrains.plugins.scala.lang.psi.impl.{ScalaPsiElementFactory, ScalaPsiManager}
-import org.jetbrains.plugins.scala.lang.psi.light.scala.isLightScNamedElement
 import org.jetbrains.plugins.scala.lang.psi.types.api._
 import org.jetbrains.plugins.scala.lang.psi.types.api.designator.ScDesignatorType
 import org.jetbrains.plugins.scala.lang.psi.types.recursiveUpdate.AfterUpdate.ProcessSubtypes
@@ -52,6 +51,7 @@ import org.jetbrains.plugins.scala.lang.resolve.processor.MethodResolveProcessor
 import org.jetbrains.plugins.scala.lang.scaladoc.parser.parsing.MyScaladocParsing
 import org.jetbrains.plugins.scala.lang.scaladoc.psi.api.{ScDocResolvableCodeReference, ScDocTag}
 import org.jetbrains.plugins.scala.lang.scaladoc.psi.impl.ScDocResolvableCodeReferenceImpl
+import org.jetbrains.plugins.scala.macroAnnotations.CachedInUserData
 import org.jetbrains.plugins.scala.project.{ProjectContext, ProjectContextOwner, ProjectPsiElementExt, ScalaLanguageLevel}
 import org.jetbrains.plugins.scala.settings.ScalaProjectSettings
 import org.jetbrains.plugins.scala.statistics.{FeatureKey, Stats}
@@ -75,8 +75,8 @@ abstract class ScalaAnnotator extends Annotator
   with ProjectContextOwner with DumbAware {
 
   override def annotate(element: PsiElement, holder: AnnotationHolder) {
-    // TODO Should we take the Dotty thing into account universally, in the isAdvancedHighlightingEnabled?
-    val typeAware = isAdvancedHighlightingEnabled(element) && !element.isInDottyModule
+
+    val typeAware = isAdvancedHighlightingEnabled(element)
 
     val (compiled, isInSources) = element.getContainingFile match {
       case file: ScalaFile =>
@@ -1386,49 +1386,61 @@ object ScalaAnnotator {
     override implicit def projectContext: ProjectContext = ctx
   }
 
-  // TODO De-compose the code (what exactly it does?), place the method in HighlightingAdvisor
+  // TODO place the method in HighlightingAdvisor
   def isAdvancedHighlightingEnabled(element: PsiElement): Boolean = {
-    if (!HighlightingAdvisor.getInstance(element.getProject).enabled) return false
-    element.getContainingFile match {
-      case file: ScalaFile =>
-        if (file.isCompiled) return false
-        val vFile = file.getVirtualFile
-        if (vFile != null && ProjectFileIndex.SERVICE.getInstance(element.getProject).isInLibrarySource(vFile)) return false
-      case _ =>
-    }
-    val containingFile = element.getContainingFile
-    def calculate(): mutable.HashSet[TextRange] = {
-      val chars = containingFile.charSequence
+    element.getContainingFile.toOption
+      .exists { f =>
+        isAdvancedHighlightingEnabled(f) && !isInIgnoredRange(element, f)
+      }
+  }
+
+  def isAdvancedHighlightingEnabled(file: PsiFile): Boolean = file match {
+    case scalaFile: ScalaFile =>
+      HighlightingAdvisor.getInstance(file.getProject).enabled && !isLibrarySource(scalaFile) && !scalaFile.isInDottyModule
+    case _ => false
+  }
+
+  private def isInIgnoredRange(element: PsiElement, file: PsiFile): Boolean = {
+    @CachedInUserData(file, file.getManager.getModificationTracker)
+    def ignoredRanges(): Set[TextRange] = {
+      val chars = file.charSequence
       val indexes = new ArrayBuffer[Int]
       var lastIndex = 0
       while (chars.indexOf("/*_*/", lastIndex) >= 0) {
         lastIndex = chars.indexOf("/*_*/", lastIndex) + 5
         indexes += lastIndex
       }
-      if (indexes.isEmpty) return mutable.HashSet.empty
+      if (indexes.isEmpty) return Set.empty
+
       if (indexes.length % 2 != 0) indexes += chars.length
 
-      val res = new mutable.HashSet[TextRange]
+      var res = Set.empty[TextRange]
       for (i <- indexes.indices by 2) {
         res += new TextRange(indexes(i), indexes(i + 1))
       }
       res
     }
-    var data = containingFile.getUserData(ScalaAnnotator.ignoreHighlightingKey)
-    val count = containingFile.getManager.getModificationTracker.getModificationCount
-    if (data == null || data._1 != count) {
-      data = (count, calculate())
-      containingFile.putUserData(ScalaAnnotator.ignoreHighlightingKey, data)
-    }
-    val noCommentWhitespace = element.children.filter {
-      case _: PsiComment | _: PsiWhiteSpace => false
-      case _ => true
-    }
-    val offset =
-      noCommentWhitespace.headOption
-        .map(_.getTextOffset)
-        .getOrElse(element.getTextOffset)
 
-    data._2.forall(!_.contains(offset))
+    val ignored = ignoredRanges()
+    if (ignored.isEmpty || element.isInstanceOf[PsiFile]) false
+    else {
+      val noCommentWhitespace = element.children.find {
+        case _: PsiComment | _: PsiWhiteSpace => false
+        case _ => true
+      }
+      val offset =
+        noCommentWhitespace
+          .map(_.getTextOffset)
+          .getOrElse(element.getTextOffset)
+      ignored.exists(_.contains(offset))
+    }
   }
+
+  private def isLibrarySource(file: ScalaFile): Boolean = {
+    val vFile = file.getVirtualFile
+    val index = ProjectFileIndex.SERVICE.getInstance(file.getProject)
+
+    !file.isCompiled && vFile != null && index.isInLibrarySource(vFile)
+  }
+
 }

@@ -33,6 +33,9 @@ private class ImplicitHintsPass(editor: Editor, rootElement: ScalaPsiElement)
   }
 
   private def collectConversionsAndArguments(): Unit = {
+    if (!ImplicitHints.enabled && !ScalaAnnotator.isAdvancedHighlightingEnabled(rootElement))
+      return
+
     rootElement.depthFirst().foreach {
       case e: ScExpression =>
         if (ImplicitHints.enabled) {
@@ -49,7 +52,7 @@ private class ImplicitHintsPass(editor: Editor, rootElement: ScalaPsiElement)
 
           case owner@(_: ImplicitParametersOwner | _: ScNewTemplateDefinition) if e.implicitConversion().isEmpty =>
             ShowImplicitArgumentsAction.implicitParams(owner).foreach { arguments =>
-              val typeAware = ScalaAnnotator.isAdvancedHighlightingEnabled(e) && !e.isInDottyModule
+              val typeAware = ScalaAnnotator.isAdvancedHighlightingEnabled(e)
               def argumentsMissing = arguments.exists(ShowImplicitArgumentsAction.missingImplicitArgumentIn(_).isDefined)
               if (ImplicitHints.enabled || (typeAware && argumentsMissing)) {
                 hints ++:= implicitArgumentsHint(owner, arguments)
