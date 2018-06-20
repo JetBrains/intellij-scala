@@ -27,9 +27,10 @@ import org.jetbrains.plugins.scala.lang.psi.api.expr.ScBlockStatement
 import org.jetbrains.plugins.scala.lang.psi.api.toplevel.templates.ScTemplateBody
 import org.jetbrains.plugins.scala.lang.psi.api.toplevel.typedef.ScMember
 import org.jetbrains.plugins.scala.lang.psi.impl.{ScalaPsiElementFactory, ScalaPsiManager}
+import org.jetbrains.sbt.language.SbtFileImpl
 import org.scalafmt.Formatted.Success
 import org.scalafmt.Scalafmt
-import org.scalafmt.config.{Config, ScalafmtConfig}
+import org.scalafmt.config.{Config, ScalafmtConfig, ScalafmtRunner}
 
 import scala.collection.mutable.ListBuffer
 
@@ -51,7 +52,7 @@ object ScalaFmtPreFormatProcessor {
   def configFor(psi: PsiFile): ScalafmtConfig = {
     val settings = CodeStyle.getCustomSettings(psi, classOf[ScalaCodeStyleSettings])
     val project = psi.getProject
-    if (settings.USE_CUSTOM_SCALAFMT_CONFIG_PATH) {
+    val config = if (settings.USE_CUSTOM_SCALAFMT_CONFIG_PATH) {
       Option(StandardFileSystems.local.findFileByPath(settings.SCALAFMT_CONFIG_PATH)) match {
         case Some(custom) => storeOrUpdate(externalScalafmtConfigs, custom, project)
         case _ =>
@@ -63,6 +64,10 @@ object ScalaFmtPreFormatProcessor {
       val configFileName = ".scalafmt.conf"
       Option(project.getBaseDir.findChild(configFileName)).
         map(ScalaPsiManager.instance(project).getScalafmtProjectConfig).getOrElse(ScalafmtConfig.intellij)
+    }
+    psi match {
+      case _: SbtFileImpl => config.copy(runner = ScalafmtRunner.sbt)
+      case _ => config
     }
   }
 
