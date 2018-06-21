@@ -35,7 +35,7 @@ trait Symbol extends Flags with Entry {
   }
 }
 
-abstract class ScalaSigSymbol(scalaSig: ScalaSig) extends Symbol {
+abstract class ScalaSigSymbol(protected val scalaSig: ScalaSig) extends Symbol {
   def children: Seq[Symbol] = scalaSig.children(this)
   def attributes: Seq[SymAnnot] = scalaSig.attributes(this)
 }
@@ -66,7 +66,9 @@ case class AliasSymbol(info: SymbolInfo) extends SymbolInfoSymbol(info)
 
 case class ClassSymbol(info: SymbolInfo, thisTypeRef: Option[Ref[Type]]) extends SymbolInfoSymbol(info)
 
-case class ObjectSymbol(info: SymbolInfo) extends SymbolInfoSymbol(info)
+case class ObjectSymbol(info: SymbolInfo) extends SymbolInfoSymbol(info) {
+  def companionClass: Option[ClassSymbol] = scalaSig.findCompanionClass(this)
+}
 
 case class MethodSymbol(info: SymbolInfo, aliasRef: Option[Ref[Symbol]]) extends SymbolInfoSymbol(info)
 

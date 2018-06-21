@@ -79,23 +79,28 @@ class ScalaSigPrinter(builder: StringBuilder, verbosity: Verbosity) {
   }
 
   def printSymbol(level: Int, symbol: Symbol) {
-    if (symbol.isSynthetic) return
-    val shouldPrint = {
-      val accessibilityOk = verbosity match {
-        case ShowAll => true
-        case HideClassPrivate => !symbol.isPrivate || symbol.isInstanceOf[AliasSymbol] || level == 0
-        case HideInstancePrivate => !symbol.isLocal || symbol.isInstanceOf[AliasSymbol]
-      }
-      val paramAccessor = symbol match {
-        case m: MethodSymbol if m.isParamAccessor => true
-        case _ => false
-      }
-      accessibilityOk && !symbol.isCaseAccessor && !paramAccessor
-    }
-    if (shouldPrint) {
-      def indent() {for (_ <- 1 to level) print("  ")}
+    def isSynthetic: Boolean = symbol.isSynthetic || symbol.isCaseAccessor || symbol.isParamAccessor
 
+    def isClassPrivate: Boolean = symbol match {
+      case _ if level == 0 => false
+      case _: AliasSymbol  => false
+      case o: ObjectSymbol => o.isPrivate && o.companionClass.forall(_.isPrivate)
+      case _               => symbol.isPrivate
+    }
+
+    def isInstancePrivate = symbol.isLocal && !symbol.isInstanceOf[AliasSymbol]
+
+    val accessibilityOk = verbosity match {
+      case ShowAll             => true
+      case HideClassPrivate    => !isClassPrivate
+      case HideInstancePrivate => !isInstancePrivate
+    }
+
+    def indent() {for (_ <- 1 to level) print("  ")}
+
+    if (accessibilityOk && !isSynthetic) {
       printSymbolAttributes(symbol, onNewLine = true, indent())
+
       symbol match {
         case o: ObjectSymbol =>
           indent()

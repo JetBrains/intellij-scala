@@ -146,4 +146,8 @@ class DecompilerTest extends DecompilerTestBase {
   def testScl13744(): Unit = {
     doTest("BrokenUsage.class")
   }
+
+  def testPrivateCompanion(): Unit = {
+    doTest("RequestBuilder.class")
+  }
 }

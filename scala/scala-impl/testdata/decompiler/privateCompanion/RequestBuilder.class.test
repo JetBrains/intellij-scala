@@ -1,0 +1,57 @@
+package com.twitter.finagle.http
+class RequestBuilder[HasUrl, HasForm] private[http] (config : com.twitter.finagle.http.RequestConfig) extends scala.AnyRef {
+  type This = com.twitter.finagle.http.RequestBuilder[HasUrl, HasForm]
+  private[http] def this() = { /* compiled code */ }
+  def url(u : _root_.scala.Predef.String) : com.twitter.finagle.http.RequestBuilder[com.twitter.finagle.http.RequestBuilder.Valid, HasForm] = { /* compiled code */ }
+  def url(u : java.net.URL) : com.twitter.finagle.http.RequestBuilder[com.twitter.finagle.http.RequestBuilder.Valid, HasForm] = { /* compiled code */ }
+  def addFormElement(kv : scala.Tuple2[_root_.scala.Predef.String, _root_.scala.Predef.String]*) : com.twitter.finagle.http.RequestBuilder[HasUrl, com.twitter.finagle.http.RequestBuilder.Valid] = { /* compiled code */ }
+  def add(elem : com.twitter.finagle.http.FormElement) : com.twitter.finagle.http.RequestBuilder[HasUrl, com.twitter.finagle.http.RequestBuilder.Valid] = { /* compiled code */ }
+  def add(elems : scala.Seq[com.twitter.finagle.http.FormElement]) : com.twitter.finagle.http.RequestBuilder[HasUrl, com.twitter.finagle.http.RequestBuilder.Valid] = { /* compiled code */ }
+  def http10() : RequestBuilder.this.This = { /* compiled code */ }
+  def setHeader(name : _root_.scala.Predef.String, value : _root_.scala.Predef.String) : RequestBuilder.this.This = { /* compiled code */ }
+  def setHeader(name : _root_.scala.Predef.String, values : scala.Seq[_root_.scala.Predef.String]) : RequestBuilder.this.This = { /* compiled code */ }
+  def setHeader(name : _root_.scala.Predef.String, values : java.lang.Iterable[_root_.scala.Predef.String]) : RequestBuilder.this.This = { /* compiled code */ }
+  def addHeader(name : _root_.scala.Predef.String, value : _root_.scala.Predef.String) : RequestBuilder.this.This = { /* compiled code */ }
+  def addHeaders(headers : _root_.scala.Predef.Map[_root_.scala.Predef.String, _root_.scala.Predef.String]) : RequestBuilder.this.This = { /* compiled code */ }
+  def proxied() : RequestBuilder.this.This = { /* compiled code */ }
+  def proxied(credentials : com.twitter.finagle.http.ProxyCredentials) : RequestBuilder.this.This = { /* compiled code */ }
+  def proxied(credentials : scala.Option[com.twitter.finagle.http.ProxyCredentials]) : RequestBuilder.this.This = { /* compiled code */ }
+  def build(method : com.twitter.finagle.http.Method, content : scala.Option[com.twitter.io.Buf])(implicit HTTP_REQUEST_BUILDER_IS_NOT_FULLY_SPECIFIED : com.twitter.finagle.http.RequestBuilder.RequestEvidence[HasUrl, HasForm]) : com.twitter.finagle.http.Request = { /* compiled code */ }
+  def buildGet()(implicit HTTP_REQUEST_BUILDER_IS_NOT_FULLY_SPECIFIED : com.twitter.finagle.http.RequestBuilder.RequestEvidence[HasUrl, HasForm]) : com.twitter.finagle.http.Request = { /* compiled code */ }
+  def buildHead()(implicit HTTP_REQUEST_BUILDER_IS_NOT_FULLY_SPECIFIED : com.twitter.finagle.http.RequestBuilder.RequestEvidence[HasUrl, HasForm]) : com.twitter.finagle.http.Request = { /* compiled code */ }
+  def buildDelete()(implicit HTTP_REQUEST_BUILDER_IS_NOT_FULLY_SPECIFIED : com.twitter.finagle.http.RequestBuilder.RequestEvidence[HasUrl, HasForm]) : com.twitter.finagle.http.Request = { /* compiled code */ }
+  def buildPost(content : com.twitter.io.Buf)(implicit HTTP_REQUEST_BUILDER_IS_NOT_FULLY_SPECIFIED : com.twitter.finagle.http.RequestBuilder.RequestEvidence[HasUrl, HasForm]) : com.twitter.finagle.http.Request = { /* compiled code */ }
+  def buildPut(content : com.twitter.io.Buf)(implicit HTTP_REQUEST_BUILDER_IS_NOT_FULLY_SPECIFIED : com.twitter.finagle.http.RequestBuilder.RequestEvidence[HasUrl, HasForm]) : com.twitter.finagle.http.Request = { /* compiled code */ }
+  def buildFormPost(multipart : scala.Boolean = { /* compiled code */ })(implicit HTTP_REQUEST_BUILDER_IS_NOT_FULLY_SPECIFIED : com.twitter.finagle.http.RequestBuilder.PostRequestEvidence[HasUrl, HasForm]) : com.twitter.finagle.http.Request = { /* compiled code */ }
+  private[http] def withoutContent(method : com.twitter.finagle.http.Method) : com.twitter.finagle.http.Request = { /* compiled code */ }
+  private[http] def withContent(method : com.twitter.finagle.http.Method, content : com.twitter.io.Buf) : com.twitter.finagle.http.Request = { /* compiled code */ }
+}
+object RequestBuilder extends scala.AnyRef {
+  sealed trait Valid extends scala.AnyRef {
+  }
+  @scala.annotation.implicitNotFound("Http RequestBuilder is not correctly configured: HasUrl (exp: Yes): ${HasUrl}, HasForm (exp: Nothing) ${HasForm}.")
+  trait RequestEvidence[HasUrl, HasForm] extends scala.AnyRef {
+  }
+  private object RequestEvidence extends scala.AnyRef {
+    implicit object FullyConfigured extends scala.AnyRef with RequestBuilder.RequestEvidence[RequestBuilder.Valid, scala.Nothing] {
+    }
+  }
+  @scala.annotation.implicitNotFound("Http RequestBuilder is not correctly configured for form post: HasUrl (exp: Yes): ${HasUrl}, HasForm (exp: Yes): ${HasForm}.")
+  trait PostRequestEvidence[HasUrl, HasForm] extends scala.AnyRef {
+  }
+  private object PostRequestEvidence extends scala.AnyRef {
+    implicit object FullyConfigured extends scala.AnyRef with RequestBuilder.PostRequestEvidence[RequestBuilder.Valid, RequestBuilder.Valid] {
+    }
+  }
+  type Complete = com.twitter.finagle.http.RequestBuilder[RequestBuilder.Valid, scala.Nothing]
+  type CompleteForm = com.twitter.finagle.http.RequestBuilder[RequestBuilder.Valid, RequestBuilder.Valid]
+  def apply() : com.twitter.finagle.http.RequestBuilder[scala.Nothing, scala.Nothing] = { /* compiled code */ }
+  def create() : com.twitter.finagle.http.RequestBuilder[scala.Nothing, scala.Nothing] = { /* compiled code */ }
+  def safeBuild(builder : RequestBuilder.Complete, method : com.twitter.finagle.http.Method, content : scala.Option[com.twitter.io.Buf]) : com.twitter.finagle.http.Request = { /* compiled code */ }
+  def safeBuildGet(builder : RequestBuilder.Complete) : com.twitter.finagle.http.Request = { /* compiled code */ }
+  def safeBuildHead(builder : RequestBuilder.Complete) : com.twitter.finagle.http.Request = { /* compiled code */ }
+  def safeBuildDelete(builder : RequestBuilder.Complete) : com.twitter.finagle.http.Request = { /* compiled code */ }
+  def safeBuildPut(builder : RequestBuilder.Complete, content : com.twitter.io.Buf) : com.twitter.finagle.http.Request = { /* compiled code */ }
+  def safeBuildPost(builder : RequestBuilder.Complete, content : com.twitter.io.Buf) : com.twitter.finagle.http.Request = { /* compiled code */ }
+  def safeBuildFormPost(builder : RequestBuilder.CompleteForm, multipart : scala.Boolean) : com.twitter.finagle.http.Request = { /* compiled code */ }
+}

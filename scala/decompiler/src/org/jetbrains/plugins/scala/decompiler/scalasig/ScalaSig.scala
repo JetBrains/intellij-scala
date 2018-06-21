@@ -23,6 +23,12 @@ class ScalaSig(val entries: Array[Entry]) {
   def topLevelClasses: Seq[ClassSymbol] = classes.filter(isTopLevelClass)
   def topLevelObjects: Seq[ObjectSymbol] = objects.filter(isTopLevel)
 
+  def findCompanionClass(objectSymbol: ObjectSymbol): Option[ClassSymbol] = {
+    val owner: Symbol = objectSymbol.symbolInfo.owner.get
+    val name = objectSymbol.name
+    classes.find(c => c.info.owner.get.eq(owner) && c.name == objectSymbol.name)
+  }
+
   def children(symbol: ScalaSigSymbol): Seq[Symbol] = {
     parentToChildren.keysIterator.find(get(_) eq symbol) match {
       case None => Seq.empty
