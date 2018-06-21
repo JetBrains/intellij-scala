@@ -32,6 +32,7 @@ import org.scalafmt.Formatted.Success
 import org.scalafmt.Scalafmt
 import org.scalafmt.config.{Config, ScalafmtConfig, ScalafmtRunner}
 
+import scala.annotation.tailrec
 import scala.collection.mutable.ListBuffer
 
 class ScalaFmtPreFormatProcessor extends PreFormatProcessor {
@@ -52,8 +53,8 @@ object ScalaFmtPreFormatProcessor {
   def configFor(psi: PsiFile): ScalafmtConfig = {
     val settings = CodeStyle.getCustomSettings(psi, classOf[ScalaCodeStyleSettings])
     val project = psi.getProject
-    val config = if (settings.USE_CUSTOM_SCALAFMT_CONFIG_PATH) {
-      Option(StandardFileSystems.local.findFileByPath(settings.SCALAFMT_CONFIG_PATH)) match {
+    val config = if (settings.SCALAFMT_CONFIG_PATH.nonEmpty) {
+      scalaFmtConfigFile(settings, project) match {
         case Some(custom) => storeOrUpdate(externalScalafmtConfigs, custom, project)
         case _ =>
           reportBadConfig(settings.SCALAFMT_CONFIG_PATH, psi)
@@ -71,6 +72,9 @@ object ScalaFmtPreFormatProcessor {
     }
   }
 
+  def scalaFmtConfigFile(settings: ScalaCodeStyleSettings, project: Project): Option[VirtualFile] =
+    Option(StandardFileSystems.local.findFileByPath(absolutePathFromConfigPath(settings.SCALAFMT_CONFIG_PATH, project)))
+
   def storeOrUpdate(map: ConcurrentMap[VirtualFile, (ScalafmtConfig, Long)], vFile: VirtualFile, project: Project): ScalafmtConfig = {
     Option(map.get(vFile)) match {
       case Some((config, stamp)) if stamp == vFile.getModificationStamp => config
@@ -79,6 +83,12 @@ object ScalaFmtPreFormatProcessor {
         map.put(vFile, newVal)
         newVal._1
     }
+  }
+
+  private def absolutePathFromConfigPath(path: String, project: Project): String = {
+    if (path.startsWith(".")) {
+      project.getBaseDir.getCanonicalPath + "/" + path
+    } else path
   }
 
   private def formatIfRequired(file: PsiFile, range: TextRange): TextRange = {
@@ -111,11 +121,11 @@ object ScalaFmtPreFormatProcessor {
       case Some(formattedCode) =>
         (Seq(file), formattedCode, false)
       case _ =>
-        val elements = elementsInRangeWrapped(file, range)
-        if (elements.isEmpty) return 0
-        val elementsText = elements.map(getText).mkString("")
+        val wrapElements = elementsInRangeWrapped(file, range)
+        if (wrapElements.isEmpty) return 0
+        val elementsText = wrapElements.map(getText).mkString("")
         Scalafmt.format(wrap(elementsText), config) match {
-          case Success(formattedCode) => (elements, formattedCode, true)
+          case Success(formattedCode) => (wrapElements, formattedCode, true)
           case _ => return 0
         }
     }
@@ -178,19 +188,17 @@ object ScalaFmtPreFormatProcessor {
     }
   }
 
+  @tailrec
   private def getElementIndent(element: PsiElement)(implicit fileText: String): Int = {
-    var leafElement = element
-    var prevLeaf = PsiTreeUtil.prevLeaf(leafElement, true)
-    while (leafElement != null && !(leafElement.isInstanceOf[PsiWhiteSpace] && getText(leafElement).contains("\n")) && prevLeaf != null) {
-      leafElement = prevLeaf
-      prevLeaf = PsiTreeUtil.prevLeaf(leafElement, true)
-    }
-    if (leafElement == null) return 0
-    leafElement match {
+    val prevLeaf = PsiTreeUtil.prevLeaf(element, true)
+    if (prevLeaf == null) return 0
+    element match {
       case ws: PsiWhiteSpace =>
-        val wsText = getText(ws)
-        wsText.substring(wsText.lastIndexOf("\n") + 1).length
-      case _ => 0
+        val wsText = ws.getText
+        if (wsText.contains("\n"))
+          wsText.substring(wsText.lastIndexOf("\n") + 1).length
+        else getElementIndent(prevLeaf)
+      case _ => getElementIndent(prevLeaf)
     }
   }
 
