@@ -525,7 +525,7 @@ object ScExpression {
         case _: ScPostfixExpr                   => true
         case ChildOf(ScInfixExpr(_, `expr`, _)) => false //implicit parameters are in infix expression
         case ChildOf(_: ScGenericCall)          => false //implicit parameters are in generic call
-        case ChildOf(_: ScAssignStmt)           => false //simple var cannot have implicit parameters, otherwise it's for assignment
+        case ChildOf(ScAssignStmt(`expr`, _))   => false //simple var cannot have implicit parameters, otherwise it's for assignment
         case _: MethodInvocation                => false
         case ScParenthesisedExpr(inner)         => shouldUpdateImplicitParams(inner)
         case _                                  => true
