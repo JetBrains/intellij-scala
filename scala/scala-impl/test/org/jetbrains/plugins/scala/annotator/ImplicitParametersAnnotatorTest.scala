@@ -120,4 +120,32 @@ class ImplicitParametersAnnotatorHeavyTest extends ScalaLightCodeInsightFixtureT
     """.stripMargin
   )
 
+  def testSpecificityFromSbtDsl(): Unit = checkTextHasNoErrors(
+    """object Test {
+      |  object Append extends scala.AnyRef {
+      |
+      |    sealed trait Value[A, B] extends scala.AnyRef {
+      |      def appendValue(a : A, b : B) : A
+      |    }
+      |    sealed trait Sequence[A, -B, T] extends scala.AnyRef with Append.Value[A, T] with Append.Values[A, B]
+      |
+      |    sealed trait Values[A, -B] extends scala.AnyRef {
+      |      def appendValues(a : A, b : B) : A
+      |    }
+      |
+      |    implicit def appendSeq[T, V <: T] : Append.Sequence[scala.Seq[T], scala.Seq[V], V] = ???
+      |    implicit def appendSeqImplicit[T, V](implicit evidence$1 : scala.Function1[V, T]) : Append.Sequence[scala.Seq[T], scala.Seq[V], V] = ???
+      |  }
+      |
+      |  class SettingKey[T] {
+      |    def +=[U](v : U)(implicit a : Append.Value[T, U]) : SettingKey[T] = ???
+      |  }
+      |
+      |  val key = new SettingKey[Seq[String]]
+      |
+      |  key += "someString"
+      |}
+    """.stripMargin
+  )
+
 }

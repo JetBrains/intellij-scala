@@ -105,6 +105,7 @@ case class MostSpecificUtil(elem: PsiElement, length: Int) {
                                            val callByNameImplicit: Boolean = false,
                                            val implicitCase: Boolean = false)
 
+  //todo: make implementation closer to scala.tools.nsc.typechecker.Infer.Inferencer.isAsSpecific
   private def isAsSpecificAs[T](r1: InnerScalaResolveResult[T], r2: InnerScalaResolveResult[T],
                                 checkImplicits: Boolean): Boolean = {
     def lastRepeated(params: Seq[Parameter]): Boolean = {
@@ -128,18 +129,11 @@ case class MostSpecificUtil(elem: PsiElement, length: Int) {
                 Left(params.map(p => p.copy(paramType = s.subst(p.paramType))))
               } else {
                 val s = ScSubstitutor.bind(typeParams)(toExistentialArg)
-                val arguments = typeParams.toList.map(tp =>
-                  ScExistentialArgument(tp.name, List.empty /* todo? */ , s.subst(tp.lowerType), s.subst(tp.upperType)))
                 Left(params.map(p => p.copy(paramType = ScExistentialType(s.subst(p.paramType)))))
               }
             case ScTypePolymorphicType(internal, typeParams) =>
-              if (!existential) {
-                val s: ScSubstitutor = ScSubstitutor.bind(typeParams)(UndefinedType(_))
-                Right(s.subst(internal))
-              } else {
-                val s = ScSubstitutor.bind(typeParams)(toExistentialArg)
-                Right(ScExistentialType(s.subst(internal)))
-              }
+              val s = ScSubstitutor.bind(typeParams)(toExistentialArg)
+              Right(ScExistentialType(s.subst(internal)))
             case _ => Right(tp)
           }
         }
