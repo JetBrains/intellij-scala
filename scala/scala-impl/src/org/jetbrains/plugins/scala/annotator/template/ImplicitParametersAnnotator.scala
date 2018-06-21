@@ -2,7 +2,8 @@ package org.jetbrains.plugins.scala.annotator.template
 
 import com.intellij.lang.annotation.{Annotation, AnnotationHolder}
 import com.intellij.openapi.editor.markup.TextAttributes
-import com.intellij.psi.util.PsiTreeUtil
+import com.intellij.openapi.util.TextRange
+import com.intellij.psi.PsiElement
 import org.jetbrains.plugins.scala.annotator.AnnotatorPart
 import org.jetbrains.plugins.scala.annotator.usageTracker.UsageTracker
 import org.jetbrains.plugins.scala.lang.psi.api.{ImplicitParametersOwner, InferUtil}
@@ -36,13 +37,21 @@ object ImplicitParametersAnnotator extends AnnotatorPart[ImplicitParametersOwner
         val types = params
           .map(_.implicitSearchState.map(_.tp.presentableText).getOrElse("unknown type"))
 
-        val lastLeaf = PsiTreeUtil.getDeepestLast(element) //to avoid error stripes for several lines
-
-        val annotation = holder.createErrorAnnotation(lastLeaf, message(types))
+        val annotation = holder.createErrorAnnotation(lastLineRange(element), message(types))
 
         //make annotation invisible in editor in favor of inlay hint
         adjustTextAttributesOf(annotation)
     }
+  }
+
+  //to avoid error stripes for several lines
+  private def lastLineRange(element: PsiElement): TextRange = {
+    val range = element.getTextRange
+    val text = element.getText
+    val lastLineBreak = text.lastIndexOf('\n')
+
+    if (lastLineBreak >= 0) range.intersection(range.shiftRight(lastLineBreak + 1))
+    else range
   }
 
   private def adjustTextAttributesOf(annotation: Annotation): Unit = {
