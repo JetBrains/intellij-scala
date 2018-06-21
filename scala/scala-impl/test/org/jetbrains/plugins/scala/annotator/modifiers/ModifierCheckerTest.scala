@@ -10,7 +10,7 @@ import org.jetbrains.plugins.scala.lang.psi.api.base.ScModifierList
 class ModifierCheckerTest extends SimpleTestCase {
   def testToplevelObject(): Unit = {
     assertMatches(messages("final object A")) {
-      case List(WarningWithRange(_,RedundantFinal())) =>
+      case List(Warning(_,RedundantFinal())) =>
     }
   }
 
@@ -38,7 +38,7 @@ class ModifierCheckerTest extends SimpleTestCase {
         |  final val constant: String = "With annotation there is no inlining"
         |}
       """.stripMargin)) {
-      case List(WarningWithRange(_,RedundantFinal())) => // SCL-11500
+      case List(Warning(_,RedundantFinal())) => // SCL-11500
     }
   }
 

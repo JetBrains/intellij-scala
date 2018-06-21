@@ -25,16 +25,17 @@ class AbsentTypeArgumentAnnotatorTest extends SimpleTestCase {
     val mock = new AnnotatorHolderMock(file)
 
     file.depthFirst().foreach(annotator.annotate(_, mock))
-    mock.annotations.filter(_.isInstanceOf[ErrorWithRange])
+    mock.annotations.filter(_.isInstanceOf[Error])
   }
+
 
   def testSimple(): Unit = {
     assertMatches(messages("val x: A1 = null")){
-      case List(ErrorWithRange(_, "Type A1 takes type parameters")) =>
+      case List(Error(_, "Type A1 takes type parameters")) =>
     }
 
     assertMatches(messages("val x: A2 = null")){
-      case List(ErrorWithRange(_, "Type A2 takes type parameters")) =>
+      case List(Error(_, "Type A2 takes type parameters")) =>
     }
 
     assertMatches(messages("val x: A1[A0] = null")){
@@ -53,7 +54,7 @@ class AbsentTypeArgumentAnnotatorTest extends SimpleTestCase {
 
     //trait
     assertMatches(messages("val x = new A2() {}")){
-      case List(ErrorWithRange(_, "Type A2 takes type parameters")) =>
+      case List(Error(_, "Type A2 takes type parameters")) =>
     }
 
     assertMatches(messages("val x = new A1[A0]()")){
@@ -61,29 +62,33 @@ class AbsentTypeArgumentAnnotatorTest extends SimpleTestCase {
     }
 
     assertMatches(messages("val x = new A2[A0, A0]()")){
+      case List(Error("A2[A0, A0]", "Trait A2 is abstract; cannot be instantiated")) =>
+    }
+
+    assertMatches(messages("val x = new A2[A0, A0]() {}")){
       case Nil =>
     }
 
     assertMatches(messages("val x = new A1[A1]()")){
-      case List(ErrorWithRange(_, "Type A1 takes type parameters")) =>
+      case List(Error(_, "Type A1 takes type parameters")) =>
     }
   }
 
   def testInTypeArg(): Unit = {
     assertMatches(messages("val x: A1[A1] = null")){
-      case List(ErrorWithRange(_, "Type A1 takes type parameters")) =>
+      case List(Error(_, "Type A1 takes type parameters")) =>
     }
 
     assertMatches(messages("val x: A1[A1] = null")){
-      case List(ErrorWithRange(_, "Type A1 takes type parameters")) =>
+      case List(Error(_, "Type A1 takes type parameters")) =>
     }
 
     assertMatches(messages("val x: A1[A2] = null")){
-      case List(ErrorWithRange(_, "Type A2 takes type parameters")) =>
+      case List(Error(_, "Type A2 takes type parameters")) =>
     }
 
     assertMatches(messages("val x: A2[A1, A0] = null")){
-      case List(ErrorWithRange(_, "Type A1 takes type parameters")) =>
+      case List(Error(_, "Type A1 takes type parameters")) =>
     }
 
     assertMatches(messages("val x: A2[A0, A1[_]] = null")){
@@ -93,15 +98,15 @@ class AbsentTypeArgumentAnnotatorTest extends SimpleTestCase {
 
   def testPattern(): Unit = {
     assertMatches(messages("val x: Any = null; x match { case _: A1 => }")) {
-      case List(ErrorWithRange(_, "Type A1 takes type parameters")) =>
+      case List(Error(_, "Type A1 takes type parameters")) =>
     }
 
     assertMatches(messages("val x: Any = null; x match { case _: A2 => }")) {
-      case List(ErrorWithRange(_, "Type A2 takes type parameters")) =>
+      case List(Error(_, "Type A2 takes type parameters")) =>
     }
 
     assertMatches(messages("val x: Any = null; x match { case _: A1[A1] => }")) {
-      case List(ErrorWithRange(_, "Type A1 takes type parameters")) =>
+      case List(Error(_, "Type A1 takes type parameters")) =>
     }
 
     assertMatches(messages("val x: Any = null; x match { case _: A1[_] => }")) {
@@ -115,11 +120,11 @@ class AbsentTypeArgumentAnnotatorTest extends SimpleTestCase {
 
   def testInfixType(): Unit = {
     assertMatches(messages("type T = A1 A2 A0")) {
-      case List(ErrorWithRange(_, "Type A1 takes type parameters")) =>
+      case List(Error(_, "Type A1 takes type parameters")) =>
     }
 
     assertMatches(messages("type T = A0 A2 A1")) {
-      case List(ErrorWithRange(_, "Type A1 takes type parameters")) =>
+      case List(Error(_, "Type A1 takes type parameters")) =>
     }
 
     assertMatches(messages("class C[H[_], Z]; type T = A1 C A0")) {

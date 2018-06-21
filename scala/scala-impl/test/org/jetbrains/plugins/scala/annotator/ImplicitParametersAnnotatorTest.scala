@@ -18,7 +18,9 @@ class ImplicitParametersAnnotatorTest extends AnnotatorTestBase(ImplicitParamete
       |val v2 = implicitly[Int]""".stripMargin
   ))
 
-  def testUnresolvedImplicits(): Unit = assertMatches(messages("def implicitly[T](implicit e: T) = e; implicit val implicitInt = implicitly[Int]")) {
+  def testUnresolvedImplicits(): Unit = assertMatches(messages(
+    """def implicitly[T](implicit e: T) = e
+      |implicit val implicitInt = implicitly[Int]""".stripMargin)) {
     case Error("implicitly[Int]", m) :: Nil if m == notFound("Int") =>
   }
 

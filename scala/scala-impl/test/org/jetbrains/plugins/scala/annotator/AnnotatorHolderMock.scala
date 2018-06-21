@@ -43,7 +43,7 @@ class AnnotatorHolderMock(file: PsiFile) extends AnnotationHolder {
   def createInformationAnnotation(elt: PsiElement, message: String) = FakeAnnotation
 
   def createWarningAnnotation(range: TextRange, message: String) = {
-    myAnnotations ::= WarningWithRange(range, message)
+    myAnnotations ::= Warning(textOf(range), message)
     FakeAnnotation
   }
 
@@ -55,7 +55,7 @@ class AnnotatorHolderMock(file: PsiFile) extends AnnotationHolder {
   }
 
   def createErrorAnnotation(range: TextRange, message: String) = {
-    myAnnotations ::= ErrorWithRange(range, message)
+    myAnnotations ::= Error(textOf(range), message)
     FakeAnnotation
   }
 
@@ -78,6 +78,10 @@ class AnnotatorHolderMock(file: PsiFile) extends AnnotationHolder {
   }
 
   def isBatchMode: Boolean = false
+
+  private def textOf(range: TextRange): String =
+    getCurrentAnnotationSession.getFile.getText
+      .substring(range.getStartOffset, range.getEndOffset)
 
   override def createAnnotation(severity: HighlightSeverity, range: TextRange, message: String): Annotation = FakeAnnotation
 }
