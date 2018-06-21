@@ -5,6 +5,7 @@ import org.jetbrains.plugins.scala.lang.macros.evaluator.{MacroContext, MacroImp
 import org.jetbrains.plugins.scala.lang.psi.api.base.{ScInterpolatedStringLiteral, ScLiteral, ScStableCodeReferenceElement}
 import org.jetbrains.plugins.scala.lang.psi.api.statements.ScFunction
 import org.jetbrains.plugins.scala.lang.psi.impl.ScalaPsiElementFactory._
+import org.jetbrains.plugins.scala.lang.psi.impl.base.ScLiteralImpl
 import org.jetbrains.plugins.scala.lang.psi.types.ScType
 import org.jetbrains.plugins.scala.lang.refactoring.util.ScalaNamesUtil
 
@@ -37,15 +38,18 @@ object ShapelessWitnessSelectDynamic extends ScalaMacroTypeable with ShapelessUt
   }
 
   private def typeCarrierType(literal: ScLiteral, insertionPlace: PsiElement): Option[ScType] ={
-    //todo: replace with singleton literal type when supported
-    val literalType = literal.`type`().getOrAny.canonicalText
+    val literalText = literal.getText
+
     val text = s"""
-                  |object `${literal.getText}` {
-                  |  type T = $literalType
-                  |  type Field[V] = $fqFieldType[$literalType, V]
+                  |object `$literalText` {
+                  |  type T = $literalText
+                  |  type Field[V] = $fqFieldType[$literalText, V]
                   |  type ->>[V] = Field[V]
                   |}""".stripMargin
     val typeCarrier = createObjectWithContext(text, insertionPlace.getContext, insertionPlace)
+
+    ScLiteralImpl.markMacroGenerated(typeCarrier)
+
     typeCarrier.`type`().toOption
   }
 }
