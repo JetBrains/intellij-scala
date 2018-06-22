@@ -1,0 +1,118 @@
+/**
+ * @see
+ * @author
+ * @note
+ * @return
+ * @since
+ * @define
+ * @version
+ * @todo
+ * @usecase
+ * @example
+ * @deprecated
+ * @migration
+ * @inheritdoc
+ * @group
+ * @groupname
+ * @groupdesc
+ * @groupprio
+ * @constructor
+ */
+-----
+ScalaFile
+  DocComment
+    PsiElement(DOC_COMMENT_START)('/**')
+    PsiElement(DOC_WHITESPACE)('\n ')
+    PsiElement(DOC_COMMENT_LEADING_ASTERISKS)('*')
+    PsiElement(DOC_WHITESPACE)(' ')
+    DocTag
+      PsiElement(DOC_TAG_NAME)('@see')
+      PsiElement(DOC_WHITESPACE)('\n ')
+      PsiElement(DOC_COMMENT_LEADING_ASTERISKS)('*')
+      PsiElement(DOC_WHITESPACE)(' ')
+    DocTag
+      PsiElement(DOC_TAG_NAME)('@author')
+      PsiElement(DOC_WHITESPACE)('\n ')
+      PsiElement(DOC_COMMENT_LEADING_ASTERISKS)('*')
+      PsiElement(DOC_WHITESPACE)(' ')
+    DocTag
+      PsiElement(DOC_TAG_NAME)('@note')
+      PsiElement(DOC_WHITESPACE)('\n ')
+      PsiElement(DOC_COMMENT_LEADING_ASTERISKS)('*')
+      PsiElement(DOC_WHITESPACE)(' ')
+    DocTag
+      PsiElement(DOC_TAG_NAME)('@return')
+      PsiElement(DOC_WHITESPACE)('\n ')
+      PsiElement(DOC_COMMENT_LEADING_ASTERISKS)('*')
+      PsiElement(DOC_WHITESPACE)(' ')
+    DocTag
+      PsiElement(DOC_TAG_NAME)('@since')
+      PsiElement(DOC_WHITESPACE)('\n ')
+      PsiElement(DOC_COMMENT_LEADING_ASTERISKS)('*')
+      PsiElement(DOC_WHITESPACE)(' ')
+    DocTag
+      PsiElement(DOC_TAG_NAME)('@define')
+      PsiErrorElement:Missing tag param
+        <empty list>
+      PsiElement(DOC_WHITESPACE)('\n ')
+      PsiElement(DOC_COMMENT_LEADING_ASTERISKS)('*')
+      PsiElement(DOC_WHITESPACE)(' ')
+    DocTag
+      PsiElement(DOC_TAG_NAME)('@version')
+      PsiElement(DOC_WHITESPACE)('\n ')
+      PsiElement(DOC_COMMENT_LEADING_ASTERISKS)('*')
+      PsiElement(DOC_WHITESPACE)(' ')
+    DocTag
+      PsiElement(DOC_TAG_NAME)('@todo')
+      PsiElement(DOC_WHITESPACE)('\n ')
+      PsiElement(DOC_COMMENT_LEADING_ASTERISKS)('*')
+      PsiElement(DOC_WHITESPACE)(' ')
+    DocTag
+      PsiElement(DOC_TAG_NAME)('@usecase')
+      PsiElement(DOC_WHITESPACE)('\n ')
+      PsiElement(DOC_COMMENT_LEADING_ASTERISKS)('*')
+      PsiElement(DOC_WHITESPACE)(' ')
+    DocTag
+      PsiElement(DOC_TAG_NAME)('@example')
+      PsiElement(DOC_WHITESPACE)('\n ')
+      PsiElement(DOC_COMMENT_LEADING_ASTERISKS)('*')
+      PsiElement(DOC_WHITESPACE)(' ')
+    DocTag
+      PsiElement(DOC_TAG_NAME)('@deprecated')
+      PsiElement(DOC_WHITESPACE)('\n ')
+      PsiElement(DOC_COMMENT_LEADING_ASTERISKS)('*')
+      PsiElement(DOC_WHITESPACE)(' ')
+    DocTag
+      PsiElement(DOC_TAG_NAME)('@migration')
+      PsiElement(DOC_WHITESPACE)('\n ')
+      PsiElement(DOC_COMMENT_LEADING_ASTERISKS)('*')
+      PsiElement(DOC_WHITESPACE)(' ')
+    DocTag
+      PsiElement(DOC_TAG_NAME)('@inheritdoc')
+      PsiElement(DOC_WHITESPACE)('\n ')
+      PsiElement(DOC_COMMENT_LEADING_ASTERISKS)('*')
+      PsiElement(DOC_WHITESPACE)(' ')
+    DocTag
+      PsiElement(DOC_TAG_NAME)('@group')
+      PsiElement(DOC_WHITESPACE)('\n ')
+      PsiElement(DOC_COMMENT_LEADING_ASTERISKS)('*')
+      PsiElement(DOC_WHITESPACE)(' ')
+    DocTag
+      PsiElement(DOC_TAG_NAME)('@groupname')
+      PsiElement(DOC_WHITESPACE)('\n ')
+      PsiElement(DOC_COMMENT_LEADING_ASTERISKS)('*')
+      PsiElement(DOC_WHITESPACE)(' ')
+    DocTag
+      PsiElement(DOC_TAG_NAME)('@groupdesc')
+      PsiElement(DOC_WHITESPACE)('\n ')
+      PsiElement(DOC_COMMENT_LEADING_ASTERISKS)('*')
+      PsiElement(DOC_WHITESPACE)(' ')
+    DocTag
+      PsiElement(DOC_TAG_NAME)('@groupprio')
+      PsiElement(DOC_WHITESPACE)('\n ')
+      PsiElement(DOC_COMMENT_LEADING_ASTERISKS)('*')
+      PsiElement(DOC_WHITESPACE)(' ')
+    DocTag
+      PsiElement(DOC_TAG_NAME)('@constructor')
+      PsiElement(DOC_WHITESPACE)('\n ')
+    PsiElement(DOC_COMMENT_END)('*/')

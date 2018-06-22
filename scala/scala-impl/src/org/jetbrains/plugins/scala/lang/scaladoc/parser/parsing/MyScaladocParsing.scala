@@ -242,8 +242,7 @@ class MyScaladocParsing(private val psiBuilder: PsiBuilder) extends ScalaDocElem
           StableId.parse(new ScalaPsiBuilderImpl(builder), true, DOC_TAG_VALUE_TOKEN)
         case PARAM_TAG | TYPE_PARAM_TAG | DEFINE_TAG =>
           if (!ParserUtils.lookAhead(builder, builder.getTokenType, DOC_TAG_VALUE_TOKEN)) builder.error("Missing tag param")
-        case SEE_TAG | AUTHOR_TAG | NOTE_TAG | RETURN_TAG | SINCE_TAG | VERSION_TAG |
-             USECASE_TAG | EXAMPLE_TAG | TODO_TAG | INHERITDOC_TAG | CONSTRUCTOR_TAG =>
+        case tag if allTags.contains(tag) =>
           //do nothing
         case _ =>
           builder.error("unknown tag")
