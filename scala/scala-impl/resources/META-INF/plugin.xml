@@ -18,7 +18,21 @@
     xmlns:xi="http://www.w3.org/2001/XInclude">
     <id>org.intellij.scala</id>
     <name>Scala</name>
-    <description>The Scala plugin extends IntelliJ IDEA’s toolset with support for Scala, sbt, and Hocon.</description>
+    <description>
+        <![CDATA[
+        Adds support for the Scala language. The following features are available for free with IntelliJ IDEA Community Edition:
+        <br>
+        <ul>
+          <li>Coding assistance (highlighting, completion, formatting, refactorings etc).</li>
+          <li>Navigation, search, information about types and implicits.</li>
+          <li>Integration with sbt and other build tools.</li>
+          <li>Testing frameworks support (ScalaTest, Specs2, uTest).</li>
+          <li>Scala debugger, worksheets and Ammonite scripts.</li>
+        </ul>
+        <br>
+        Support for Play Framework, Akka and Scala.js is enabled only with IntelliJ IDEA Ultimate.
+      ]]>
+    </description>
     <version>VERSION</version>
     <vendor url="http://www.jetbrains.com" logo="/org/jetbrains/plugins/scala/images/scala-small-logo.png">JetBrains</vendor>
     <idea-version since-build="182.0" until-build="183.0"/>
