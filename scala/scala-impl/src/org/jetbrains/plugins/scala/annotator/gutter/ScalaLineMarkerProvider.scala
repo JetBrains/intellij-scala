@@ -103,7 +103,7 @@ class ScalaLineMarkerProvider(daemonSettings: DaemonCodeAnalyzerSettings, colors
       case e @ SAMTypeParent(sam) => Option(e -> sam)
     }.flatten
 
-  private[this] val trivialSAMs: Set[String] = Set("scala.Function", "scala.PartialFunction")
+  private[this] val trivialSAMs: Set[String] = Set("scala.Function", "scala.PartialFunction", "java.util.function")
   private[this] def isInterestingSAM(sam: PsiClass): Boolean = !trivialSAMs.exists(sam.qualifiedName.startsWith)
 
   private[this] def getImplementsSAMTypeMarker(element: PsiElement): Option[LineMarkerInfo[_ <: PsiElement]] =
