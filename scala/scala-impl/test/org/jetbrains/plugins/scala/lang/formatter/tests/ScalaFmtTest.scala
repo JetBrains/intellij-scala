@@ -151,7 +151,7 @@ class ScalaFmtTest extends AbstractScalaFormatterTestBase {
     val after =
       """
         |def foo(a: Int, b: Int): Int = 42
-        |  foo(42, 43)
+        |foo(42, 43)
       """.stripMargin
     doTextTest(before, after)
   }
