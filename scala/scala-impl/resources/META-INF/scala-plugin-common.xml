@@ -226,6 +226,7 @@
         <codeInsight.lineMarkerProvider language="Scala" implementationClass="scala.meta.intellij.editor.MetaExpansionLineMarkerProvider"/>
         <codeInsight.lineMarkerProvider language="Scala" implementationClass="org.jetbrains.plugins.scala.lang.macros.expansion.ReflectExpansionLineMarkerProvider"/>
         <codeInsight.lineMarkerProvider language="Scala" implementationClass="scala.macros.intellij.editor.Macros2ExpansionLineMarkerProvider"/>
+        <codeInsight.lineMarkerProvider language="Scala" implementationClass="org.jetbrains.plugins.scala.annotator.gutter.RecursiveCallLineMarkerProvider"/>
         <codeInsight.gotoSuper language="Scala" implementationClass="org.jetbrains.plugins.scala.annotator.gutter.ScalaGoToSuperActionHandler"/>
         <declarationRangeHandler order="first" key="org.jetbrains.plugins.scala.lang.psi.api.statements.ScFunction"
                                  implementationClass="org.jetbrains.plugins.scala.codeInsight.hint.ScFunctionDeclarationRangeHandler"/>
@@ -456,7 +457,7 @@
 
         <projectService serviceImplementation="org.jetbrains.plugins.scala.project.settings.ScalaCompilerConfiguration"/>
         <projectService serviceImplementation="org.jetbrains.plugins.scala.lang.macros.evaluator.ScalaMacroEvaluator"/>
-      
+
         <projectService serviceImplementation="org.jetbrains.plugins.scala.worksheet.settings.WorksheetDefaultSettings"/>
 
         <applicationService serviceImplementation="org.jetbrains.plugins.scala.lang.psi.impl.expr.ExpectedTypesImpl"
@@ -1365,11 +1366,11 @@
       <!-- end of scaladoc inspections -->
 
       <!-- Util ammonite inspection -->
-      <localInspection implementationClass="org.jetbrains.plugins.scala.worksheet.ammonite.AmmoniteUnresolvedLibraryInspection" 
-                       displayName="Ammonite unresolved import" groupPath="Scala" shortName="AmmoniteUnresolvedLibraryInspection" 
+      <localInspection implementationClass="org.jetbrains.plugins.scala.worksheet.ammonite.AmmoniteUnresolvedLibraryInspection"
+                       displayName="Ammonite unresolved import" groupPath="Scala" shortName="AmmoniteUnresolvedLibraryInspection"
                        level="WARNING" enabledByDefault="true" language="Scala" groupName="Other"/>
       <!---->
-      
+
         <localInspection implementationClass="org.jetbrains.plugins.scala.codeInspection.specs2.BuiltinMatcherExistsInspection"
                          displayName="Specs2 Matchers" shortName="Specs2Matchers" groupName="Specs2" groupPath="Scala,Specs2"
                          level="WARNING" enabledByDefault="true" language="Scala" />
