@@ -17,9 +17,10 @@ import org.jetbrains.plugins.scala.lang.psi.ScalaPsiUtil
 import org.jetbrains.plugins.scala.lang.psi.api.statements._
 import org.jetbrains.plugins.scala.lang.psi.api.statements.params.ScClassParameter
 import org.jetbrains.plugins.scala.lang.psi.api.toplevel.ScNamedElement
-import org.jetbrains.plugins.scala.lang.psi.api.toplevel.typedef.{ScMember, ScObject, ScTrait}
+import org.jetbrains.plugins.scala.lang.psi.api.toplevel.typedef.{ScMember, ScTrait}
 import org.jetbrains.plugins.scala.lang.psi.impl.search.ScalaOverridingMemberSearcher
 import org.jetbrains.plugins.scala.lang.psi.types.Signature
+import org.jetbrains.plugins.scala.util.SAMUtil
 
 /**
  * User: Alexander Podkhalyuzin
@@ -42,6 +43,23 @@ object ScalaMarkerType {
     renderer:        ListCellRenderer[_] = new ScCellRenderer
   ): Unit = PsiElementListNavigator.openTargets(event, members, title, findUsagesTitle, renderer)
 
+  private[this] def navigateToSuperMethod(
+    event:       MouseEvent,
+    method:      PsiMethod,
+    includeSelf: Boolean
+  ): Unit = {
+    val superMethods = (method match {
+      case fn: ScFunction =>
+        val sigs = fn.superSignaturesIncludingSelfType
+        sigs.flatMap(sigToNavigatableElement).toArray
+      case _ => method.findSuperMethods(false).map(e => e: NavigatablePsiElement)
+    }) ++ (if (includeSelf) Array(method) else NavigatablePsiElement.EMPTY_NAVIGATABLE_ELEMENT_ARRAY)
+
+    val title           = ScalaBundle.message("navigation.title.super.methods", method.getName)
+    val findUsagesTitle = ScalaBundle.message("navigation.findUsages.title.super.methods", method.getName)
+    navigateToSuperMember(event, superMethods, title, findUsagesTitle)
+  }
+
   val overridingMember: ScalaMarkerType = ScalaMarkerType(
     element =>
       GutterUtil
@@ -54,6 +72,14 @@ object ScalaMarkerType {
             val key =
               if (GutterUtil.isOverrides(element, signatures)) "overrides.method.from.super"
               else "implements.method.from.super"
+
+            maybeClass.map(ScalaBundle.message(key, _))
+          case param: ScClassParameter =>
+            val signatures = ScalaPsiUtil.superValsSignatures(param, withSelfType = true)
+            val maybeClass = extractClassName(signatures)
+            val key =
+              if (GutterUtil.isOverrides(element, signatures)) "overrides.val.from.super"
+              else "implements.val.from.super"
 
             maybeClass.map(ScalaBundle.message(key, _))
           case v: ScValueOrVariable =>
@@ -75,12 +101,13 @@ object ScalaMarkerType {
         .orNull,
     (event, element) =>
       GutterUtil.namedParent(element).collect {
-        case method: ScFunction =>
-          val signatures      = method.superSignaturesIncludingSelfType
-          val superMethods    = signatures.flatMap(sigToNavigatableElement).toArray
-          val title           = ScalaBundle.message("navigation.title.super.methods", method.getName)
-          val findUsagesTitle = ScalaBundle.message("navigation.findUsages.title.super.methods", method.getName)
-          navigateToSuperMember(event, superMethods, title, findUsagesTitle)
+        case method: ScFunction => navigateToSuperMethod(event, method, includeSelf = false)
+        case param: ScClassParameter =>
+          val signatures      = ScalaPsiUtil.superValsSignatures(param, withSelfType = true)
+          val superMembers    = signatures.flatMap(sigToNavigatableElement).toArray
+          val title           = ScalaBundle.message("navigation.title.super.vals", element.getText)
+          val findUsagesTitle = ScalaBundle.message("navigation.findUsages.title.super.vals", element.getText)
+          navigateToSuperMember(event, superMembers, title, findUsagesTitle)
         case v: ScValueOrVariable =>
           val bindings        = v.declaredElements.filter(_.name == element.getText)
           val signatures      = bindings.flatMap(ScalaPsiUtil.superValsSignatures(_, withSelfType = true))
@@ -173,6 +200,11 @@ object ScalaMarkerType {
             )
           }
     }
+  )
+
+  def samTypeImplementation(aClass: PsiClass): ScalaMarkerType = ScalaMarkerType(
+    _ => ScalaBundle.message("implements.method.from.super", aClass.name),
+    (event, _) => SAMUtil.singleAbstractMethodOf(aClass).foreach(navigateToSuperMethod(event, _, includeSelf = true))
   )
 
   class ScCellRenderer extends PsiElementListCellRenderer[PsiElement] {

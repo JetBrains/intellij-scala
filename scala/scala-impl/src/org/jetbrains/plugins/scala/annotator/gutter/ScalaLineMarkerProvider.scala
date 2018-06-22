@@ -6,6 +6,7 @@ import java.util
 
 import com.intellij.codeHighlighting.Pass
 import com.intellij.codeInsight.daemon.{DaemonCodeAnalyzerSettings, LineMarkerInfo, LineMarkerProvider}
+import com.intellij.icons.AllIcons
 import com.intellij.openapi.application.ApplicationManager
 import com.intellij.openapi.editor.colors.{CodeInsightColors, EditorColorsManager}
 import com.intellij.openapi.editor.markup.{GutterIconRenderer, SeparatorPlacement}
@@ -21,14 +22,15 @@ import org.jetbrains.plugins.scala.extensions._
 import org.jetbrains.plugins.scala.lang.lexer.ScalaTokenTypes
 import org.jetbrains.plugins.scala.lang.psi.ScalaPsiUtil
 import org.jetbrains.plugins.scala.lang.psi.api.base.ScReferenceElement
-import org.jetbrains.plugins.scala.lang.psi.api.expr.ScReferenceExpression
+import org.jetbrains.plugins.scala.lang.psi.api.base.patterns.ScCaseClauses
+import org.jetbrains.plugins.scala.lang.psi.api.expr.ScExpression
 import org.jetbrains.plugins.scala.lang.psi.api.statements._
 import org.jetbrains.plugins.scala.lang.psi.api.statements.params.{ScClassParameter, ScParameter}
 import org.jetbrains.plugins.scala.lang.psi.api.toplevel.ScNamedElement
 import org.jetbrains.plugins.scala.lang.psi.api.toplevel.typedef.{ScMember, ScTrait, ScTypeDefinition}
-import org.jetbrains.plugins.scala.lang.psi.impl.expr.ScReferenceExpressionImpl
 import org.jetbrains.plugins.scala.lang.psi.impl.search.ScalaOverridingMemberSearcher
 import org.jetbrains.plugins.scala.lang.psi.types.Signature
+import org.jetbrains.plugins.scala.util.SAMUtil._
 
 import scala.collection.Seq
 
@@ -40,16 +42,21 @@ class ScalaLineMarkerProvider(daemonSettings: DaemonCodeAnalyzerSettings, colors
     extends LineMarkerProvider
     with ScalaSeparatorProvider {
 
-  override def getLineMarkerInfo(element: PsiElement): LineMarkerInfo[_ <: PsiElement] = if (element.isValid) {
-    val lineMarkerInfo = getOverridesImplementsMarkers(element).orNull
-    if (daemonSettings.SHOW_METHOD_SEPARATORS && isSeparatorNeeded(element)) {
-      if (lineMarkerInfo == null) {
-        addSeparatorInfo(createMarkerInfo(element))
-      } else {
-        addSeparatorInfo(lineMarkerInfo)
-      }
-    } else lineMarkerInfo
-  } else null
+  override def getLineMarkerInfo(element: PsiElement): LineMarkerInfo[_ <: PsiElement] =
+    if (element.isValid) {
+      val lineMarkerInfo =
+        getOverridesImplementsMarkers(element)
+          .orElse(getImplementsSAMTypeMarker(element))
+          .orNull
+
+      if (daemonSettings.SHOW_METHOD_SEPARATORS && isSeparatorNeeded(element)) {
+        if (lineMarkerInfo == null) {
+          addSeparatorInfo(createMarkerInfo(element))
+        } else {
+          addSeparatorInfo(lineMarkerInfo)
+        }
+      } else lineMarkerInfo
+    } else null
 
   private[this] def createMarkerInfo(element: PsiElement): LineMarkerInfo[PsiElement] = {
     val leaf = PsiTreeUtil.firstChild(element).toOption.getOrElse(element)
@@ -81,19 +88,46 @@ class ScalaLineMarkerProvider(daemonSettings: DaemonCodeAnalyzerSettings, colors
       GutterIconRenderer.Alignment.LEFT
     )
 
+  /* Validates that this psi element can be the first one in a lambda */
+  private[this] def canBeFunctionalExpressionAnchor(e: PsiElement): Boolean =
+    e.getNode.getElementType match {
+      case ScalaTokenTypes.tLBRACE => e.getNextSiblingNotWhitespace.isInstanceOf[ScCaseClauses]
+      case ScalaTokenTypes.tIDENTIFIER | ScalaTokenTypes.tUNDER | ScalaTokenTypes.tLPARENTHESIS =>
+        true
+      case _ => false
+    }
+
+  private[this] def funExprParent(element: PsiElement): Option[(ScExpression, PsiClass)] =
+    element.parentsInFile.collectFirst {
+      case _: ScMember            => None
+      case e @ SAMTypeParent(sam) => Option(e -> sam)
+    }.flatten
+
+  private[this] val trivialSAMs: Set[String] = Set("scala.Function", "scala.PartialFunction")
+  private[this] def isInterestingSAM(sam: PsiClass): Boolean = !trivialSAMs.exists(sam.qualifiedName.startsWith)
+
+  private[this] def getImplementsSAMTypeMarker(element: PsiElement): Option[LineMarkerInfo[_ <: PsiElement]] =
+    if (canBeFunctionalExpressionAnchor(element)) for {
+      (expr, sam) <- funExprParent(element)
+      if isInterestingSAM(sam) &&
+        PsiTreeUtil.getDeepestFirst(expr) == element
+      icon       = AllIcons.Gutter.ImplementingFunctionalInterface
+      markerType = ScalaMarkerType.samTypeImplementation(sam)
+    } yield marker(element, icon, markerType)
+    else None
 
   private[this] def getOverridesImplementsMarkers(element: PsiElement): Option[LineMarkerInfo[_ <: PsiElement]] =
     if (element.getNode.getElementType == ScalaTokenTypes.tIDENTIFIER && element.parent.forall {
-      case _: ScReferenceElement => false
-      case _                     => true
-    }) {
+          case _: ScReferenceElement => false
+          case _                     => true
+        }) {
       def containsNamedElement(holder: ScDeclaredElementsHolder) =
         holder.declaredElements.exists(_.asInstanceOf[ScNamedElement].nameId == element)
 
       val text = element.getText
 
       namedParent(element).flatMap {
-        case method: ScFunction if method.isInstance && method.name == text=>
+        case method: ScFunction if method.isInstance && method.name == text =>
           val signatures = method.superSignaturesIncludingSelfType
           val icon       = getOverridesOrImplementsIcon(method, signatures)
           val markerType = ScalaMarkerType.overridingMember
@@ -135,7 +169,7 @@ class ScalaLineMarkerProvider(daemonSettings: DaemonCodeAnalyzerSettings, colors
       ProgressManager.checkCanceled()
       identifier.parent match {
         case Some(tDef: ScTypeDefinition)                => collectInheritingClassesMarker(tDef)
-        case Some(member: ScMember) if member.isInstance => collectOverridingMemberMarker(member, identifier)
+        case Some(member: ScMember) if member.isInstance => collectOverriddenMemberMarker(member, identifier)
         case _                                           => Seq.empty
       }
     }.foreach(result.add)
@@ -148,8 +182,7 @@ private object GutterUtil {
     else IMPLEMENTING_METHOD_ICON
 
   def namedParent(e: PsiElement): Option[PsiElement] =
-     e.withParentsInFile.find(ScalaPsiUtil.isNameContext)
-
+    e.withParentsInFile.find(ScalaPsiUtil.isNameContext)
 
   def collectInheritingClassesMarker(aClass: ScTypeDefinition): Option[LineMarkerInfo[_ <: PsiElement]] = {
     val inheritor = ClassInheritorsSearch.search(aClass, false).findFirst.toOption
@@ -174,12 +207,13 @@ private object GutterUtil {
     }
   }
 
-  def collectOverridingMemberMarker(member: ScMember, anchor: PsiElement): Option[LineMarkerInfo[_ <: PsiElement]] =
+  def collectOverriddenMemberMarker(member: ScMember, anchor: PsiElement): Option[LineMarkerInfo[_ <: PsiElement]] =
     member match {
       case method: PsiMethod if method.isConstructor => None
       case _ =>
         val namedElems: Seq[ScNamedElement] = member match {
           case d: ScDeclaredElementsHolder => d.declaredElements.filterBy[ScNamedElement]
+          case param: ScClassParameter     => Seq(param)
           case ta: ScTypeAlias             => Seq(ta)
           case _                           => Seq.empty
         }
