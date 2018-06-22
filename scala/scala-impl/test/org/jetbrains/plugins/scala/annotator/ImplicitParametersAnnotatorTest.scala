@@ -149,3 +149,77 @@ class ImplicitParametersAnnotatorHeavyTest extends ScalaLightCodeInsightFixtureT
   )
 
 }
+
+class ImplicitParameterFailingTest extends ScalaLightCodeInsightFixtureTestAdapter {
+
+  override protected def shouldPass = false
+
+  def test_t6948(): Unit = checkTextHasNoErrors(
+    """
+      |import scala.collection.generic.CanBuildFrom
+      |
+      |object Test {
+      |
+      |  def shuffle[T, CC[X] <: TraversableOnce[X]](xs: CC[T])(implicit bf: CanBuildFrom[CC[T], T, CC[T]]): CC[T] = ???
+      |  val range: Range.Inclusive = ???
+      |
+      |  def a1 = shuffle(range)
+      |}
+    """.stripMargin)
+
+  def testScalaTestEmptiness(): Unit = checkTextHasNoErrors (
+    """
+      |trait Emptiness[-T] {
+      |  def isEmpty(thing: T): Boolean
+      |}
+      |
+      |object Emptiness {
+      |
+      |  implicitly[Emptiness[Seq[String]]]
+      |
+      |  import scala.language.higherKinds
+      |
+      |  implicit def emptinessOfGenTraversable[E, TRAV[e] <: scala.collection.GenTraversable[e]]: Emptiness[TRAV[E]] =
+      |    new Emptiness[TRAV[E]] {
+      |      def isEmpty(trav: TRAV[E]): Boolean = trav.isEmpty
+      |    }
+      |
+      |  import scala.language.reflectiveCalls
+      |
+      |  implicit def emptinessOfAnyRefWithIsEmptyMethod[T <: AnyRef { def isEmpty(): Boolean}]: Emptiness[T] =
+      |    new Emptiness[T] {
+      |      def isEmpty(obj: T): Boolean = obj.isEmpty
+      |    }
+      |
+      |  implicit def emptinessOfAnyRefWithParameterlessIsEmptyMethod[T <: AnyRef { def isEmpty: Boolean}]: Emptiness[T] =
+      |    new Emptiness[T] {
+      |      def isEmpty(obj: T): Boolean = obj.isEmpty
+      |    }
+      |}
+    """.stripMargin)
+
+  def testScalaJsUnionEvidence(): Unit = checkTextHasNoErrors(
+    """
+      |sealed trait Evidence[-A, +B]
+      |
+      |private object ReusableEvidence extends Evidence[scala.Any, scala.Any]
+      |
+      |abstract sealed class EvidenceLowestPrioImplicits {
+      |
+      |  implicit def covariant[F[+ _], A, B](implicit ev: Evidence[A, B]): Evidence[F[A], F[B]] =
+      |    ReusableEvidence.asInstanceOf[Evidence[F[A], F[B]]]
+      |
+      |  implicit def contravariant[F[- _], A, B](implicit ev: Evidence[B, A]): Evidence[F[A], F[B]] =
+      |    ReusableEvidence.asInstanceOf[Evidence[F[A], F[B]]]
+      |}
+      |
+      |object Evidence extends EvidenceLowestPrioImplicits {
+      |
+      |  implicitly[Evidence[Seq[String], Seq[String]]]
+      |
+      |  implicit def base[A]: Evidence[A, A] =
+      |    ReusableEvidence.asInstanceOf[Evidence[A, A]]
+      |}
+    """.stripMargin
+  )
+}
