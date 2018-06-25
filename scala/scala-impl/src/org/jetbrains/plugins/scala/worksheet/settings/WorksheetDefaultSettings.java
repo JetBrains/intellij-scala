@@ -23,6 +23,7 @@ public class WorksheetDefaultSettings implements PersistentStateComponent<Worksh
 
   private String moduleName;
   private String compilerProfileName;
+  private WorksheetRunType runType = WorksheetRunType.REPL_CELL;
 
   public boolean getIsRepl() {
     return isRepl;
@@ -82,5 +83,13 @@ public class WorksheetDefaultSettings implements PersistentStateComponent<Worksh
   
   public static WorksheetDefaultSettings getInstance(Project project) {
     return ServiceManager.getService(project, WorksheetDefaultSettings.class);
+  }
+
+  public WorksheetRunType getRunType() {
+    return runType;
+  }
+
+  public void setRunType(WorksheetRunType runType) {
+    this.runType = runType;
   }
 }

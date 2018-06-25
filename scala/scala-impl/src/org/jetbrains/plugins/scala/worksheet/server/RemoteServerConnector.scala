@@ -37,7 +37,7 @@ class RemoteServerConnector(psiFile: PsiFile, worksheet: File, output: File, wor
                             replArgs: Option[ReplModeArgs], needsCheck: Boolean) extends RemoteServerConnectorBase(
   WorksheetCommonSettings.getInstance(psiFile).getModuleFor, Seq(worksheet), output, needsCheck) {
   
-  val runType: WorksheetMakeType = WorksheetProjectSettings.getRunType(module.getProject)
+  val runType: WorksheetMakeType = WorksheetProjectSettings.getMakeType(module.getProject)
 
   override protected def compilerSettings: ScalaCompilerSettings = WorksheetCommonSettings.getInstance(psiFile).getCompilerProfile.getSettings
 

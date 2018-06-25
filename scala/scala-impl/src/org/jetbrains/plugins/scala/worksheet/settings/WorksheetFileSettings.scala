@@ -4,15 +4,14 @@ import com.intellij.ide.scratch.{ScratchFileService, ScratchRootType}
 import com.intellij.openapi.module.Module
 import com.intellij.openapi.project.Project
 import com.intellij.openapi.roots.ProjectFileIndex
-import com.intellij.openapi.vfs.{VirtualFile, VirtualFileWithId}
 import com.intellij.openapi.vfs.newvfs.FileAttribute
+import com.intellij.openapi.vfs.{VirtualFile, VirtualFileWithId}
 import com.intellij.psi.PsiFile
-import org.jetbrains.plugins.scala.project._
 import org.jetbrains.plugins.scala.lang.psi.api.{FileDeclarationsHolder, ScalaFile}
+import org.jetbrains.plugins.scala.project._
 import org.jetbrains.plugins.scala.project.settings.{ScalaCompilerConfiguration, ScalaCompilerSettingsProfile}
 import org.jetbrains.plugins.scala.settings.ScalaProjectSettings
 import org.jetbrains.plugins.scala.util.ScalaUtil
-import org.jetbrains.plugins.scala.worksheet.actions.RunWorksheetAction
 import org.jetbrains.plugins.scala.worksheet.processor.{FileAttributeUtilCache, WorksheetPerFileConfig}
 import org.jetbrains.plugins.scala.worksheet.server.InProcessServer
 
@@ -22,47 +21,37 @@ import org.jetbrains.plugins.scala.worksheet.server.InProcessServer
   */
 class WorksheetFileSettings(file: PsiFile) extends WorksheetCommonSettings {
   import WorksheetFileSettings._
+  import WorksheetFileSettings.SerializableWorksheetAttributes._
   
   override def project: Project = file.getProject
 
   private def getDefaultSettings: WorksheetCommonSettings = WorksheetCommonSettings.getInstance(project)
 
-  private def getStringSetting(attr: FileAttribute, orDefault: => String): String =
-    FileAttributeUtilCache.readAttribute(attr, file).getOrElse(orDefault)
+  private def getSetting[T](attr: FileAttribute, orDefault: => T)(implicit ev: SerializableInFileAttribute[T]): T = 
+    ev.readAttribute(attr, file).getOrElse(orDefault)
+  
+  private def setSetting[T](attr: FileAttribute, value: T)(implicit ev: SerializableInFileAttribute[T]): Unit =
+    ev.writeAttribute(attr, file, value)
 
-  private def setStringSetting(attr: FileAttribute, value: String) {
-    FileAttributeUtilCache.writeAttribute(attr, file, value)
-  }
+  override def getRunType: WorksheetRunType = getSetting(WORKSHEET_RUN_TYPE, getDefaultSettings.getRunType)
 
-  private def getBooleanSetting(attribute: FileAttribute, orDefault: => Boolean): Boolean =
-    FileAttributeUtilCache.readAttribute(attribute, file).map {
-      case `enabled` => true
-      case _ => false
-    }.getOrElse(orDefault)
+  override def setRunType(runType: WorksheetRunType): Unit = setSetting(WORKSHEET_RUN_TYPE, runType)
 
-  private def setBooleanSetting(attribute: FileAttribute, value: Boolean) {
-    setEnabled(file, attribute, value)
-  }
+  override def isInteractive: Boolean = getSetting(IS_AUTORUN, getDefaultSettings.isInteractive)
 
-  override def isRepl: Boolean = getBooleanSetting(IS_WORKSHEET_REPL_MODE, getDefaultSettings.isRepl)
+  override def isMakeBeforeRun: Boolean = getSetting(IS_MAKE_BEFORE_RUN, getDefaultSettings.isMakeBeforeRun)
 
-  override def isInteractive: Boolean = getBooleanSetting(IS_AUTORUN, getDefaultSettings.isInteractive)
+  override def getModuleName: String = getSetting(CP_MODULE_NAME, getDefaultSettings.getModuleName)
 
-  override def isMakeBeforeRun: Boolean = getBooleanSetting(IS_MAKE_BEFORE_RUN, getDefaultSettings.isMakeBeforeRun)
+  override def getCompilerProfileName: String = getSetting(COMPILER_PROFILE, getDefaultSettings.getCompilerProfileName)
 
-  override def getModuleName: String = getStringSetting(CP_MODULE_NAME, getDefaultSettings.getModuleName)
+  override def setInteractive(value: Boolean): Unit = setSetting(IS_AUTORUN, value)
 
-  override def getCompilerProfileName: String = getStringSetting(COMPILER_PROFILE, getDefaultSettings.getCompilerProfileName)
+  override def setMakeBeforeRun(value: Boolean): Unit = setSetting(IS_MAKE_BEFORE_RUN, value)
 
-  override def setRepl(value: Boolean): Unit = setBooleanSetting(IS_WORKSHEET_REPL_MODE, value)
+  override def setModuleName(value: String): Unit = setSetting(CP_MODULE_NAME, value)
 
-  override def setInteractive(value: Boolean): Unit = setBooleanSetting(IS_AUTORUN, value)
-
-  override def setMakeBeforeRun(value: Boolean): Unit = setBooleanSetting(IS_MAKE_BEFORE_RUN, value)
-
-  override def setModuleName(value: String): Unit = setStringSetting(CP_MODULE_NAME, value)
-
-  override def setCompilerProfileName(value: String): Unit = setStringSetting(COMPILER_PROFILE, value)
+  override def setCompilerProfileName(value: String): Unit = setSetting(COMPILER_PROFILE, value)
 
   override def getCompilerProfile: ScalaCompilerSettingsProfile = {
     val compilerConfiguration = ScalaCompilerConfiguration.instanceIn(project)
@@ -97,22 +86,24 @@ class WorksheetFileSettings(file: PsiFile) extends WorksheetCommonSettings {
 object WorksheetFileSettings extends WorksheetPerFileConfig {
   private val IS_MAKE_BEFORE_RUN = new FileAttribute("ScalaWorksheetMakeBeforeRun", 1, true)
   private val CP_MODULE_NAME = new FileAttribute("ScalaWorksheetModuleForCp", 1, false)
-  private val IS_WORKSHEET_REPL_MODE = new FileAttribute("IsWorksheetReplMode", 1, true)
   private val COMPILER_PROFILE = new FileAttribute("ScalaWorksheetCompilerProfile", 1, false)
   private val IS_AUTORUN = new FileAttribute("ScalaWorksheetAutoRun", 1, true)
-
+  private val WORKSHEET_RUN_TYPE = new FileAttribute("ScalaWorksheetRunType", 1, false)
 
   def isReplLight(file: FileDeclarationsHolder): Boolean = {
     file match {
       case scalaFile: ScalaFile =>
-        FileAttributeUtilCache.readAttributeLight(IS_WORKSHEET_REPL_MODE, scalaFile).contains("enabled")
+        val attrValue = FileAttributeUtilCache.readAttributeLight(WORKSHEET_RUN_TYPE, scalaFile)
+        attrValue.exists(v => v == WorksheetRunType.REPL.name() || v == WorksheetRunType.REPL_CELL.name())
       case _ => false
     }
   }
 
-  def isRepl(file: PsiFile): Boolean = isEnabled(file, IS_WORKSHEET_REPL_MODE) && WorksheetProjectSettings.getRunType(file.getProject) == InProcessServer
+  def isRepl(file: PsiFile): Boolean = WorksheetRunType.isReplRunType(new WorksheetFileSettings(file).getRunType)
 
-  def shouldShowReplWarning(file: PsiFile): Boolean = isEnabled(file, IS_WORKSHEET_REPL_MODE) && WorksheetProjectSettings.getRunType(file.getProject) != InProcessServer
+  def getRunType(file: PsiFile): WorksheetRunType = new WorksheetFileSettings(file).getRunType
+  
+  def shouldShowReplWarning(file: PsiFile): Boolean = isRepl(file) && WorksheetProjectSettings.getMakeType(file.getProject) != InProcessServer
 
   def isScratchWorksheet(vFileOpt: Option[VirtualFile], project: Project): Boolean = vFileOpt.exists {
     vFile => ScratchFileService.getInstance().getRootType(vFile).isInstanceOf[ScratchRootType] &&
@@ -120,4 +111,37 @@ object WorksheetFileSettings extends WorksheetPerFileConfig {
   }
 
   def isScratchWorksheet(file: PsiFile): Boolean = isScratchWorksheet(Option(file.getVirtualFile), file.getProject)
+  
+  object SerializableWorksheetAttributes {
+    trait SerializableInFileAttribute[T] {
+      def readAttribute(attr: FileAttribute, file: PsiFile): Option[T] = {
+        FileAttributeUtilCache.readAttribute(attr, file).map(convertTo)
+      }
+
+      def writeAttribute(attr: FileAttribute, file: PsiFile, t: T): Unit = {
+        FileAttributeUtilCache.writeAttribute(attr, file, convertFrom(t))
+      }
+
+      def convertFrom(t: T): String
+      def convertTo(s: String): T
+    }
+
+    implicit val StringFileAttribute: SerializableInFileAttribute[String] = new SerializableInFileAttribute[String] {
+      override def convertFrom(t: String): String = t
+      override def convertTo(s: String): String = s
+    }
+
+    implicit val BooleanFileAttribute: SerializableInFileAttribute[Boolean] with WorksheetPerFileConfig = new SerializableInFileAttribute[Boolean] with WorksheetPerFileConfig {
+      override def convertFrom(t: Boolean): String = getStringRepresent(t)
+      override def convertTo(s: String): Boolean = s match {
+        case `enabled` => true
+        case _ => false
+      }
+    }
+
+    implicit val RunTypeFileAttribute: SerializableInFileAttribute[WorksheetRunType] = new SerializableInFileAttribute[WorksheetRunType] {
+      override def convertFrom(t: WorksheetRunType): String = t.name()
+      override def convertTo(s: String): WorksheetRunType = WorksheetRunType.valueOf(s)
+    }
+  }
 }

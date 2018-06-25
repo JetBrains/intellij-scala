@@ -16,7 +16,7 @@ class WorksheetReplRunAction extends AnAction with WorksheetAction {
     updateInner(e)
   }
 
-  override def actionPerformed(e: AnActionEvent): Unit = {
+  override def actionPerformed(e: AnActionEvent): Unit = { //TODO
     RunWorksheetAction.runCompiler(e.getProject, auto = false)
   }
 

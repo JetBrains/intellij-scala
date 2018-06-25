@@ -1,7 +1,7 @@
 package org.jetbrains.plugins.scala
 package worksheet.processor
 
-import com.intellij.openapi.editor.{Document, Editor}
+import com.intellij.openapi.editor.{Document, Editor, LogicalPosition}
 import com.intellij.openapi.module.Module
 import com.intellij.openapi.util.Key
 import com.intellij.openapi.util.text.StringUtil
@@ -20,8 +20,9 @@ import org.jetbrains.plugins.scala.lang.psi.api.toplevel.imports.ScImportStmt
 import org.jetbrains.plugins.scala.lang.psi.api.toplevel.typedef._
 import org.jetbrains.plugins.scala.project._
 import org.jetbrains.plugins.scala.settings.ScalaProjectSettings
+import org.jetbrains.plugins.scala.worksheet.processor.WorksheetCompilerUtil._
 import org.jetbrains.plugins.scala.worksheet.runconfiguration.WorksheetCache
-import org.jetbrains.plugins.scala.worksheet.settings.WorksheetCommonSettings
+import org.jetbrains.plugins.scala.worksheet.settings.{WorksheetCommonSettings, WorksheetRunType}
 import org.jetbrains.plugins.scala.worksheet.ui.WorksheetIncrementalEditorPrinter.QueuedPsi
 
 import scala.annotation.tailrec
@@ -72,6 +73,27 @@ object WorksheetSourceProcessor {
     } else None
   }
 
+  def process(srcFile: ScalaFile, ifEditor: Option[Editor], runType: WorksheetRunType): WorksheetCompileRunRequest = {
+    val result = runType match {
+      case WorksheetRunType.REPL_CELL => processSimpleInner(srcFile, ifEditor)
+      case WorksheetRunType.REPL => processIncrementalInner(srcFile, ifEditor)
+      case WorksheetRunType.PLAIN =>
+        val cache = WorksheetCache.getInstance(srcFile.getProject)
+        processDefaultInner(srcFile, ifEditor.map(_.getDocument), cache.peakCompilationIteration(srcFile.getVirtualFile.getCanonicalPath) + 1)
+    } 
+    
+    result match {
+      case Right(error: PsiErrorElement) => 
+        ErrorWhileCompile(
+          error.getErrorDescription, 
+          ifEditor.map(_.offsetToLogicalPosition(error.getTextOffset)).getOrElse(new LogicalPosition(0,0))
+        )
+      case Left((code: String, "")) => RunRepl(code)
+      case Left((code: String, name: String)) => RunCompile(code, name)
+      case code: String => RunSimple(code)
+    }
+  }
+  
   /**
     * @return (Code, Main class name)
     */
@@ -82,6 +104,7 @@ object WorksheetSourceProcessor {
     }
   }
   
+  def processSimpleInner(srcFile: ScalaFile, ifEditor: Option[Editor]): String = Base64.encode(srcFile.getText.getBytes)
   
   def processIncrementalInner(srcFile: ScalaFile, ifEditor: Option[Editor]): Either[(String, String), PsiErrorElement] = {
     val exprsPsi = mutable.ListBuffer[QueuedPsi]()

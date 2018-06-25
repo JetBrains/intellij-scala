@@ -14,7 +14,7 @@ import org.jetbrains.plugins.scala.worksheet.processor.WorksheetPerFileConfig
 abstract class WorksheetCommonSettings extends WorksheetPerFileConfig {
   def project: Project
   
-  def isRepl: Boolean
+  def getRunType: WorksheetRunType
 
   def isInteractive: Boolean
 
@@ -24,7 +24,7 @@ abstract class WorksheetCommonSettings extends WorksheetPerFileConfig {
 
   def getCompilerProfileName: String
 
-  def setRepl(value: Boolean): Unit
+  def setRunType(runType: WorksheetRunType): Unit
 
   def setInteractive(value: Boolean): Unit
 

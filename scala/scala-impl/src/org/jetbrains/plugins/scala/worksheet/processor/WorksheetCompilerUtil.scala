@@ -18,6 +18,7 @@ object WorksheetCompilerUtil {
 
   sealed trait WorksheetCompileRunRequest
 
+  case class RunOuter(code: String) extends WorksheetCompileRunRequest
   case class RunSimple(code: String) extends WorksheetCompileRunRequest
   case class RunRepl(code: String) extends WorksheetCompileRunRequest
   case class RunCompile(code: String, className: String) extends WorksheetCompileRunRequest

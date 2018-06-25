@@ -15,7 +15,7 @@ import org.jetbrains.plugins.scala.worksheet.actions.{RunWorksheetAction, Worksh
 import org.jetbrains.plugins.scala.worksheet.processor.WorksheetPerFileConfig
 import org.jetbrains.plugins.scala.worksheet.runconfiguration.WorksheetCache
 import org.jetbrains.plugins.scala.worksheet.server.WorksheetProcessManager
-import org.jetbrains.plugins.scala.worksheet.settings.{WorksheetCommonSettings, WorksheetFileSettings}
+import org.jetbrains.plugins.scala.worksheet.settings.{WorksheetCommonSettings, WorksheetFileSettings, WorksheetRunType}
 
 /**
  * User: Dmitry.Naydanov
@@ -71,7 +71,11 @@ class WorksheetAutoRunner(project: Project, woof: WolfTheProblemSolver) extends 
       
       val psiFile = documentManager getPsiFile document
       val offset = e.getOffset
-      val isRepl = WorksheetFileSettings isRepl psiFile 
+      val isRepl = WorksheetFileSettings.getRunType(psiFile) match {
+        case WorksheetRunType.PLAIN => false
+        case WorksheetRunType.REPL => true
+        case WorksheetRunType.REPL_CELL => return 
+      }
 
       if (isRepl) {
         if (offset < lastProcessedOffset) WorksheetFileHook.getEditorFrom(FileEditorManager getInstance project, psiFile.getVirtualFile) foreach (

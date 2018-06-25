@@ -1,10 +1,13 @@
 package org.jetbrains.plugins.scala.worksheet.ui.dialog
 
+import com.intellij.openapi.fileEditor.FileEditorManager
 import com.intellij.openapi.ui.DialogWrapper
 import com.intellij.psi.PsiFile
 import javax.swing.{JComponent, SwingConstants}
 import org.jetbrains.plugins.scala.project.settings.{ScalaCompilerConfiguration, ScalaCompilerSettingsProfile}
-import org.jetbrains.plugins.scala.worksheet.settings.WorksheetCommonSettings
+import org.jetbrains.plugins.scala.worksheet.cell.CellManager
+import org.jetbrains.plugins.scala.worksheet.runconfiguration.WorksheetCache
+import org.jetbrains.plugins.scala.worksheet.settings.{WorksheetCommonSettings, WorksheetRunType}
 
 /**
   * User: Dmitry.Naydanov
@@ -30,7 +33,7 @@ class WorksheetFileSettingsDialog(worksheetFile: PsiFile) extends DialogWrapper(
     val (selectedProfile, profiles) = WorksheetFileSettingsDialog.createCompilerProfileOptions(settings)
 
     new WorksheetSettingsData(
-      settings.isRepl,
+      settings.getRunType,
       settings.isInteractive,
       settings.isMakeBeforeRun,
       null,
@@ -41,7 +44,7 @@ class WorksheetFileSettingsDialog(worksheetFile: PsiFile) extends DialogWrapper(
   
   private def applySettingsData(settingsData: WorksheetSettingsData, settings: WorksheetCommonSettings): Unit = {
     if (settings.isMakeBeforeRun != settingsData.isMakeBeforeRun) settings.setMakeBeforeRun(settingsData.isMakeBeforeRun)
-    if (settings.isRepl != settingsData.isRepl) settings.setRepl(settingsData.isRepl)
+    if (settings.getRunType != settingsData.runType) settings.setRunType(settingsData.runType)
     if (settings.isInteractive != settingsData.isInteractive) settings.setInteractive(settingsData.isInteractive)
     
     if (settingsData.cpModule != null && settingsData.cpModule.getName != settings.getModuleName) 
@@ -55,6 +58,12 @@ class WorksheetFileSettingsDialog(worksheetFile: PsiFile) extends DialogWrapper(
   private def getDefaultSettingsData: WorksheetSettingsData = getSettingsData(projectSettings)
   
   private def applyFileSettings(settingsData: WorksheetSettingsData): Unit = {
+    if (settingsData.runType == WorksheetRunType.REPL_CELL && fileSettings.getRunType != WorksheetRunType.REPL_CELL) {
+      CellManager.installCells(worksheetFile)
+    } else if (settingsData.runType != WorksheetRunType.REPL_CELL && fileSettings.getRunType == WorksheetRunType.REPL_CELL) {
+      CellManager.deleteCells(worksheetFile)
+    }
+    
     applySettingsData(settingsData, fileSettings)
   }
   

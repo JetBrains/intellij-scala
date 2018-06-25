@@ -14,8 +14,10 @@ import org.jetbrains.plugins.scala.worksheet.server.{InProcessServer, NonServer,
   */
 class WorksheetProjectSettings(val project: Project) extends WorksheetCommonSettings {
   private val storeComponent = WorksheetDefaultSettings.getInstance(project)
-  
-  override def isRepl: Boolean = storeComponent.getIsRepl
+
+  override def getRunType: WorksheetRunType = storeComponent.getRunType
+
+  override def setRunType(runType: WorksheetRunType): Unit = storeComponent.setRunType(runType)
 
   override def isInteractive: Boolean = storeComponent.isInteractive
 
@@ -24,8 +26,6 @@ class WorksheetProjectSettings(val project: Project) extends WorksheetCommonSett
   override def getModuleName: String = storeComponent.getModuleName
 
   override def getCompilerProfileName: String = storeComponent.getCompilerProfileName
-
-  override def setRepl(value: Boolean): Unit = storeComponent.setRepl(value)
 
   override def setInteractive(value: Boolean): Unit = storeComponent.setInteractive(value)
 
@@ -46,7 +46,7 @@ class WorksheetProjectSettings(val project: Project) extends WorksheetCommonSett
 }
 
 object WorksheetProjectSettings {
-  def getRunType(project: Project): WorksheetMakeType = {
+  def getMakeType(project: Project): WorksheetMakeType = {
     if (ScalaCompileServerSettings.getInstance().COMPILE_SERVER_ENABLED) {
       if (ScalaProjectSettings.getInstance(project).isInProcessMode)
         InProcessServer

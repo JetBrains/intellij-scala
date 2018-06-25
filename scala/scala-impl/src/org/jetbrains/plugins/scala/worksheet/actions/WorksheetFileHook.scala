@@ -3,7 +3,6 @@ package worksheet.actions
 
 import java.lang.ref.WeakReference
 import java.util
-import javax.swing._
 
 import com.intellij.ide.scratch.{ScratchFileService, ScratchRootType}
 import com.intellij.openapi.actionSystem.AnAction
@@ -18,12 +17,13 @@ import com.intellij.openapi.project.{DumbService, Project}
 import com.intellij.openapi.vfs.VirtualFile
 import com.intellij.psi.{PsiDocumentManager, PsiManager}
 import com.intellij.util.ui.UIUtil
+import javax.swing._
 import org.jetbrains.plugins.scala.compiler.CompilationProcess
 import org.jetbrains.plugins.scala.components.StopWorksheetAction
 import org.jetbrains.plugins.scala.lang.psi.api.ScalaFile
-import worksheet.ammonite.AmmoniteUtil
-import worksheet.interactive.WorksheetAutoRunner
-import worksheet.ui.{WorksheetEditorPrinterFactory, WorksheetFoldGroup, WorksheetUiConstructor}
+import org.jetbrains.plugins.scala.worksheet.ammonite.AmmoniteUtil
+import org.jetbrains.plugins.scala.worksheet.interactive.WorksheetAutoRunner
+import org.jetbrains.plugins.scala.worksheet.ui.{WorksheetEditorPrinterFactory, WorksheetFoldGroup, WorksheetUiConstructor}
 
 /**
  * User: Dmitry Naydanov

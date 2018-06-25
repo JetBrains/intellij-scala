@@ -46,7 +46,7 @@
     </extensions>
 
     <extensions defaultExtensionNs="com.intellij">
-      <breadcrumbsInfoProviderh
+      <breadcrumbsInfoProvider
               implementation="org.jetbrains.plugins.scala.lang.breadcrumbs.ScalaBreadcrumbsInfoProvider" />
       <breadcrumbsPresentationProvider
               implementation="org.jetbrains.plugins.scala.lang.breadcrumbs.ScalaBreadcrumbsPresentationProvider" />
@@ -144,6 +144,10 @@
       <externalSystemTaskNotificationListener
               implementation="org.jetbrains.plugins.scaladev.IdeaSourcesAttachListener"/>
         <externalSystemTaskNotificationListener implementation="org.jetbrains.plugins.scala.components.libextensions.LibraryExtensionsSBTListener"/>
+      
+      <toolWindow id="WorksheetResultsToolWindow" anchor="bottom" canCloseContents="false" 
+                  factoryClass="org.jetbrains.plugins.scala.worksheet.ui.WorksheetToolWindowFactory"
+                  conditionClass="org.jetbrains.plugins.scala.worksheet.ui.WorksheetToolWindowCondition"/>
 
         <framework.type implementation="org.jetbrains.plugins.scala.project.template.ScalaFrameworkType"/>
         <completion.contributor language="Scala" id="keywordCompletionContributor"
@@ -230,6 +234,7 @@
         <codeInsight.lineMarkerProvider language="Scala" implementationClass="scala.meta.intellij.editor.MetaExpansionLineMarkerProvider"/>
         <codeInsight.lineMarkerProvider language="Scala" implementationClass="org.jetbrains.plugins.scala.lang.macros.expansion.ReflectExpansionLineMarkerProvider"/>
         <codeInsight.lineMarkerProvider language="Scala" implementationClass="scala.macros.intellij.editor.Macros2ExpansionLineMarkerProvider"/>
+        <codeInsight.lineMarkerProvider language="Scala" implementationClass="org.jetbrains.plugins.scala.worksheet.cell.CellMarkupProvider"/>
         <codeInsight.lineMarkerProvider language="Scala" implementationClass="org.jetbrains.plugins.scala.annotator.gutter.RecursiveCallLineMarkerProvider"/>
         <codeInsight.gotoSuper language="Scala" implementationClass="org.jetbrains.plugins.scala.annotator.gutter.ScalaGoToSuperActionHandler"/>
         <declarationRangeHandler order="first" key="org.jetbrains.plugins.scala.lang.psi.api.statements.ScFunction"
@@ -288,6 +293,7 @@
         <runLineMarkerContributor implementationClass="org.jetbrains.plugins.scala.runner.ScalaRunLineMarkerContributor" language="Scala" />
         <runLineMarkerContributor implementationClass="org.jetbrains.plugins.scala.testingSupport.test.ScalaTestRunLineMarkerProvider" language="Scala"/>
         <runLineMarkerContributor implementationClass="org.jetbrains.plugins.scala.worksheet.ammonite.runconfiguration.AmmoniteRunMarkerContributor" language="Scala"/>
+        <runLineMarkerContributor implementationClass="org.jetbrains.plugins.scala.worksheet.cell.RunCellMarkerContributor" language="Scala"/>
 
 
         <filePasteProvider implementation="org.jetbrains.plugins.scala.conversion.copy.plainText.ScalaFilePasteProvider" order="first"/>

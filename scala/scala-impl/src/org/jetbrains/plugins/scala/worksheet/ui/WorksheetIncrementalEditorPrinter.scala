@@ -294,9 +294,11 @@ class WorksheetIncrementalEditorPrinter(editor: Editor, viewer: Editor, file: Sc
 }
 
 object WorksheetIncrementalEditorPrinter {
-  private val REPL_START = "$$worksheet$$repl$$start$$"
-  private val REPL_CHUNK_END = "$$worksheet$$repl$$chunk$$end$$"
-  private val REPL_LAST_CHUNK_PROCESSED = "$$worksheet$$repl$$last$$chunk$$processed$$"
+  val TECHNICAL_MESSAGE_START = "$$worksheet$$"
+  
+  private val REPL_START = s"${TECHNICAL_MESSAGE_START}repl$$$$start$$$$"
+  private val REPL_CHUNK_END = s"${TECHNICAL_MESSAGE_START}repl$$$$chunk$$$$end$$$$"
+  private val REPL_LAST_CHUNK_PROCESSED = s"${TECHNICAL_MESSAGE_START}repl$$$$last$$$$chunk$$$$processed$$$$"
   
   private val CONSOLE_ERROR_START = "<console>:"
   private val CONSOLE_MESSAGE_PATTERN = {
