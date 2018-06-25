@@ -472,7 +472,7 @@ class ImplicitCollector(place: PsiElement,
           canThrowSCE = !fullInfo, searchImplicitsRecursively + 1, fullInfo)
         val implicitParams = implicitParams0.getOrElse(Seq.empty)
 
-        if (implicitParams.exists(_.name == InferUtil.notFoundParameterName))
+        if (implicitParams.exists(_.isImplicitParameterProblem))
           reportParamNotFoundResult(implicitParams)
         else
           fullResult(resType, implicitParams)

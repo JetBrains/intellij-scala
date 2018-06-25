@@ -61,8 +61,9 @@ private class ImplicitHintsPass(editor: Editor, rootElement: ScalaPsiElement)
             val showNotFoundArgs = showNotFoundImplicits(e)
             val shouldSearch = ImplicitHints.enabled || showNotFoundArgs
 
+            //todo: cover ambiguous implicit case (right now it is not always correct)
             def shouldShow(arguments: Seq[ScalaResolveResult]) =
-              ImplicitHints.enabled || (showNotFoundArgs && arguments.exists(ShowImplicitArgumentsAction.isMissingImplicitArgument))
+              ImplicitHints.enabled || (showNotFoundArgs && arguments.exists(_.isNotFoundImplicitParameter))
 
             if (shouldSearch) {
               ShowImplicitArgumentsAction.implicitParams(owner) match {

@@ -4,10 +4,6 @@ import java.awt.event.MouseEvent
 import java.awt.{BorderLayout, Dimension}
 import java.util
 
-import javax.swing.tree.{DefaultMutableTreeNode, DefaultTreeModel, TreePath}
-import javax.swing.{JPanel, JTree}
-
-import scala.collection.mutable.ArrayBuffer
 import com.intellij.ide.projectView.impl.nodes.AbstractPsiBasedNode
 import com.intellij.ide.projectView.{PresentationData, ViewSettings}
 import com.intellij.ide.util.treeView.{AbstractTreeBuilder, AbstractTreeNode, AbstractTreeStructure, NodeDescriptor}
@@ -24,22 +20,25 @@ import com.intellij.psi.{PsiElement, PsiNamedElement, PsiWhiteSpace}
 import com.intellij.ui.treeStructure.Tree
 import com.intellij.ui.{ClickListener, ScrollPaneFactory}
 import com.intellij.util.ArrayUtil
+import javax.swing.tree.{DefaultMutableTreeNode, DefaultTreeModel, TreePath}
+import javax.swing.{JPanel, JTree}
+import org.jetbrains.plugins.scala.actions.ShowImplicitArgumentsAction._
 import org.jetbrains.plugins.scala.extensions._
+import org.jetbrains.plugins.scala.lang.psi.api.ScalaFile
 import org.jetbrains.plugins.scala.lang.psi.api.base.ScConstructor
 import org.jetbrains.plugins.scala.lang.psi.api.base.types.{ScParameterizedTypeElement, ScSimpleTypeElement, ScTypeElement}
 import org.jetbrains.plugins.scala.lang.psi.api.expr.{ScExpression, ScNewTemplateDefinition}
 import org.jetbrains.plugins.scala.lang.psi.api.toplevel.ScNamedElement
-import org.jetbrains.plugins.scala.lang.psi.api.{InferUtil, ScalaFile}
 import org.jetbrains.plugins.scala.lang.psi.implicits.ImplicitCollector
 import org.jetbrains.plugins.scala.lang.psi.implicits.ImplicitCollector._
+import org.jetbrains.plugins.scala.lang.psi.types.ScType
 import org.jetbrains.plugins.scala.lang.refactoring.util.ScalaRefactoringUtil
 import org.jetbrains.plugins.scala.lang.refactoring.util.ScalaRefactoringUtil.getExpression
 import org.jetbrains.plugins.scala.lang.resolve.ScalaResolveResult
 import org.jetbrains.plugins.scala.project.ProjectContext
 import org.jetbrains.plugins.scala.statistics.{FeatureKey, Stats}
-import ShowImplicitArgumentsAction._
-import org.jetbrains.plugins.scala.lang.psi.types.ScType
-import org.jetbrains.plugins.scala.extensions._
+
+import scala.collection.mutable.ArrayBuffer
 
 /**
  * User: Alefas
@@ -273,13 +272,9 @@ object ShowImplicitArgumentsAction {
   }
 
   def missingImplicitArgumentIn(result: ScalaResolveResult): Option[Option[ScType]] = {
-    isMissingImplicitArgument(result)
+    result.isImplicitParameterProblem
       .option(result.implicitSearchState.map(_.tp))
   }
-
-  // TODO Don't depend on "magic constants"
-  def isMissingImplicitArgument(result: ScalaResolveResult): Boolean =
-    result.getElement.name == InferUtil.notFoundParameterName
 }
 
 class ImplicitParametersTreeStructure(project: Project,
@@ -294,7 +289,7 @@ class ImplicitParametersTreeStructure(project: Project,
 
     override def getChildrenImpl: util.Collection[AbstractTreeNode[_]] = {
       val list = new util.ArrayList[AbstractTreeNode[_]]()
-      if (value.name == InferUtil.notFoundParameterName) {
+      if (value.isImplicitParameterProblem) {
         def addErrorLeaf(errorText: String): Boolean = {
           list.add(new AbstractTreeNode[String](project, errorText) {
             override def getChildren: util.Collection[AbstractTreeNode[_]] = new util.ArrayList[AbstractTreeNode[_]]()
@@ -332,8 +327,7 @@ class ImplicitParametersTreeStructure(project: Project,
     override def updateImpl(data: PresentationData): Unit = {
       val namedElement = extractPsiFromValue()
       if (namedElement != null) {
-        val text: String = namedElement.name
-        if (text == InferUtil.notFoundParameterName) {
+        if (value.isImplicitParameterProblem) {
           value.implicitSearchState match {
             case Some(state) =>
               data.setPresentableText(s"Argument not found for type: ${state.tp}")
@@ -365,7 +359,7 @@ class ImplicitParametersTreeStructure(project: Project,
                 case _ =>
               }
               data.setPresentableText(presentation.getPresentableText + presentationTextSuffix)
-            case _ => data.setPresentableText(text)
+            case _ => data.setPresentableText("Not found implicit parameter")
           }
         }
       }

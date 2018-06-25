@@ -6,7 +6,7 @@ import com.intellij.openapi.util.TextRange
 import com.intellij.psi.PsiElement
 import org.jetbrains.plugins.scala.annotator.AnnotatorPart
 import org.jetbrains.plugins.scala.annotator.usageTracker.UsageTracker
-import org.jetbrains.plugins.scala.lang.psi.api.{ImplicitParametersOwner, InferUtil}
+import org.jetbrains.plugins.scala.lang.psi.api.ImplicitParametersOwner
 import org.jetbrains.plugins.scala.lang.resolve.ScalaResolveResult
 import org.jetbrains.plugins.scala.settings.ScalaProjectSettings
 
@@ -31,7 +31,8 @@ object ImplicitParametersAnnotator extends AnnotatorPart[ImplicitParametersOwner
   }
 
   private def highlightNotFound(element: ImplicitParametersOwner, parameters: Seq[ScalaResolveResult], holder: AnnotationHolder): Unit = {
-    parameters.filter(_.name == InferUtil.notFoundParameterName) match {
+    //todo: cover ambiguous implicit case (right now it is not always correct)
+    parameters.filter(_.isNotFoundImplicitParameter) match {
       case Seq() =>
       case params =>
         val types = params

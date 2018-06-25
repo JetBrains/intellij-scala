@@ -93,6 +93,11 @@ class ScalaResolveResult(val element: PsiNamedElement,
 
   def isDynamic: Boolean = nameArgForDynamic.nonEmpty
 
+  def isNotFoundImplicitParameter : Boolean = problems.size == 1 && problems.head.isInstanceOf[NotFoundImplicitParameter]
+  def isAmbiguousImplicitParameter: Boolean = problems.size == 1 && problems.head.isInstanceOf[AmbiguousImplicitParameters]
+
+  def isImplicitParameterProblem: Boolean = isNotFoundImplicitParameter || isAmbiguousImplicitParameter
+
   def copy(subst: ScSubstitutor = substitutor, problems: Seq[ApplicabilityProblem] = problems,
            defaultParameterUsed: Boolean = defaultParameterUsed,
            innerResolveResult: Option[ScalaResolveResult] = innerResolveResult,

@@ -6,6 +6,7 @@ import org.jetbrains.plugins.scala.lang.psi.api.expr.{ScAssignStmt, ScExpression
 import org.jetbrains.plugins.scala.lang.psi.api.statements.params.ScParameterClause
 import org.jetbrains.plugins.scala.lang.psi.types.api.TypeParameter
 import org.jetbrains.plugins.scala.lang.psi.types.nonvalue.Parameter
+import org.jetbrains.plugins.scala.lang.resolve.ScalaResolveResult
 
 /**
  * Pavel.Fatin, 02.06.2010
@@ -44,3 +45,5 @@ case object DoesNotTakeTypeParameters extends ApplicabilityProblem
 case class ExcessTypeArgument(argument: ScTypeElement) extends ApplicabilityProblem
 case class MissedTypeParameter(param: TypeParameter) extends ApplicabilityProblem
 case object ExpectedTypeMismatch extends ApplicabilityProblem
+case class NotFoundImplicitParameter(tpe: ScType) extends ApplicabilityProblem
+case class AmbiguousImplicitParameters(resuts: Seq[ScalaResolveResult]) extends ApplicabilityProblem

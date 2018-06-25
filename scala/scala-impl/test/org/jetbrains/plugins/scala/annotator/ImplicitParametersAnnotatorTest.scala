@@ -148,25 +148,6 @@ class ImplicitParametersAnnotatorHeavyTest extends ScalaLightCodeInsightFixtureT
     """.stripMargin
   )
 
-}
-
-class ImplicitParameterFailingTest extends ScalaLightCodeInsightFixtureTestAdapter {
-
-  override protected def shouldPass = false
-
-  def test_t6948(): Unit = checkTextHasNoErrors(
-    """
-      |import scala.collection.generic.CanBuildFrom
-      |
-      |object Test {
-      |
-      |  def shuffle[T, CC[X] <: TraversableOnce[X]](xs: CC[T])(implicit bf: CanBuildFrom[CC[T], T, CC[T]]): CC[T] = ???
-      |  val range: Range.Inclusive = ???
-      |
-      |  def a1 = shuffle(range)
-      |}
-    """.stripMargin)
-
   def testScalaTestEmptiness(): Unit = checkTextHasNoErrors (
     """
       |trait Emptiness[-T] {
@@ -222,4 +203,22 @@ class ImplicitParameterFailingTest extends ScalaLightCodeInsightFixtureTestAdapt
       |}
     """.stripMargin
   )
+}
+
+class ImplicitParameterFailingTest extends ScalaLightCodeInsightFixtureTestAdapter {
+
+  override protected def shouldPass = false
+
+  def test_t6948(): Unit = checkTextHasNoErrors(
+    """
+      |import scala.collection.generic.CanBuildFrom
+      |
+      |object Test {
+      |
+      |  def shuffle[T, CC[X] <: TraversableOnce[X]](xs: CC[T])(implicit bf: CanBuildFrom[CC[T], T, CC[T]]): CC[T] = ???
+      |  val range: Range.Inclusive = ???
+      |
+      |  def a1 = shuffle(range)
+      |}
+    """.stripMargin)
 }
