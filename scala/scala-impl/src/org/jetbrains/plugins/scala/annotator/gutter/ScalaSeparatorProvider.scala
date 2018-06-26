@@ -2,6 +2,7 @@ package org.jetbrains.plugins.scala
 package annotator.gutter
 
 import com.intellij.psi.PsiElement
+import org.jetbrains.plugins.scala.lang.psi.api.ScalaFile
 import org.jetbrains.plugins.scala.lang.psi.api.expr.{ScBlock, ScIfStmt, ScNewTemplateDefinition}
 import org.jetbrains.plugins.scala.lang.psi.api.statements._
 import org.jetbrains.plugins.scala.lang.psi.api.toplevel.ScPackaging
@@ -64,6 +65,11 @@ trait ScalaSeparatorProvider {
   }
 
   def isSeparationContainer(element: PsiElement): Boolean = {
+    element.getContainingFile match {
+      case scalaFile: ScalaFile if scalaFile.isWorksheetFile || scalaFile.isScriptFile => return false
+      case _ => 
+    }
+    
     var e = element
     while (e != null) {
       if (isSeparationBlocker(e)) {
