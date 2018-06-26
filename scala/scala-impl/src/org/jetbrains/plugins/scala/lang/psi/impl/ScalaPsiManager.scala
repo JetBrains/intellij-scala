@@ -71,8 +71,6 @@ class ScalaPsiManager(val project: Project) {
   def getScalafmtProjectConfig(vFile: VirtualFile): ScalafmtConfig = ScalaFmtPreFormatProcessor.storeOrUpdate(scalafmtConfig, vFile, project)
   private val scalafmtConfig: ConcurrentMap[VirtualFile, (ScalafmtConfig, Long)] = ContainerUtil.createConcurrentWeakMap[VirtualFile, (ScalafmtConfig, Long)]()
 
-  val scalafmtFormattedFiles: ConcurrentMap[PsiFile, (TextRanges, Long)] = ContainerUtil.createConcurrentWeakMap[PsiFile, (TextRanges, Long)]()
-
   private def dontCacheCompound = ScalaProjectSettings.getInstance(project).isDontCacheCompoundTypes
 
   def getParameterlessSignatures(tp: ScCompoundType, compoundTypeThisType: Option[ScType]): PMap = {

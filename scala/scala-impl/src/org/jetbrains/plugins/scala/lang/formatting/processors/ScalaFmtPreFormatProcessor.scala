@@ -8,7 +8,7 @@ import com.intellij.lang.ASTNode
 import com.intellij.openapi.project.Project
 import com.intellij.openapi.ui.MessageType
 import com.intellij.openapi.ui.popup.{Balloon, JBPopupFactory}
-import com.intellij.openapi.util.TextRange
+import com.intellij.openapi.util.{Key, TextRange}
 import com.intellij.openapi.vfs.{StandardFileSystems, VirtualFile}
 import com.intellij.openapi.wm.ex.WindowManagerEx
 import com.intellij.psi._
@@ -27,6 +27,7 @@ import org.jetbrains.plugins.scala.lang.psi.api.expr.ScBlockStatement
 import org.jetbrains.plugins.scala.lang.psi.api.toplevel.templates.ScTemplateBody
 import org.jetbrains.plugins.scala.lang.psi.api.toplevel.typedef.ScMember
 import org.jetbrains.plugins.scala.lang.psi.impl.{ScalaPsiElementFactory, ScalaPsiManager}
+import org.jetbrains.plugins.scala.project.UserDataHolderExt
 import org.jetbrains.sbt.language.SbtFileImpl
 import org.scalafmt.Formatted.Success
 import org.scalafmt.Scalafmt
@@ -42,7 +43,9 @@ class ScalaFmtPreFormatProcessor extends PreFormatProcessor {
     psiFile match {
       case Some(null) | None => TextRange.EMPTY_RANGE
       case _ if range.isEmpty => TextRange.EMPTY_RANGE
-      case Some(file: ScalaFile) => ScalaFmtPreFormatProcessor.formatIfRequired(file, range)
+      case Some(file: ScalaFile) =>
+        ScalaFmtPreFormatProcessor.formatIfRequired(file, range)
+        TextRange.EMPTY_RANGE
       case _ => range
     }
   }
@@ -91,10 +94,11 @@ object ScalaFmtPreFormatProcessor {
     } else path
   }
 
-  private def formatIfRequired(file: PsiFile, range: TextRange): TextRange = {
-    val cache = ScalaPsiManager.instance(file.getProject).scalafmtFormattedFiles
-    val cached = cache.getOrDefault(file, (new TextRanges, file.getModificationStamp))
-    if (cached._2 == file.getModificationStamp && cached._1.contains(range)) return TextRange.EMPTY_RANGE
+  private def formatIfRequired(file: PsiFile, range: TextRange): Unit = {
+    val cached = file.getOrUpdateUserData(FORMATTED_RANGES_KEY, (new TextRanges, file.getModificationStamp))
+
+    if (cached._2 == file.getModificationStamp && cached._1.contains(range)) return
+
     val delta = formatRange(file, range)
     def moveRanges(textRanges: TextRanges): TextRanges = {
       textRanges.ranges.map{ otherRange =>
@@ -103,9 +107,10 @@ object ScalaFmtPreFormatProcessor {
         else TextRange.EMPTY_RANGE
       }.foldLeft(new TextRanges())((acc, aRange) => acc.union(aRange))
     }
+
     val ranges = if (cached._2 == file.getModificationStamp) moveRanges(cached._1) else new TextRanges
-    cache.put(file, (ranges.union(range.grown(delta)), file.getModificationStamp))
-    TextRange.EMPTY_RANGE
+
+    file.putUserData(FORMATTED_RANGES_KEY, (ranges.union(range.grown(delta)), file.getModificationStamp))
   }
 
   private def formatRange(file: PsiFile, range: TextRange): Int = {
@@ -321,4 +326,6 @@ object ScalaFmtPreFormatProcessor {
       new TextRanges(newRanges)
     }
   }
+
+  private val FORMATTED_RANGES_KEY: Key[(TextRanges, Long)] = Key.create("scala.fmt.formatted.ranges")
 }
