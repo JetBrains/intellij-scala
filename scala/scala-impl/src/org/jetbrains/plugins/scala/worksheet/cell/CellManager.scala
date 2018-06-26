@@ -5,7 +5,7 @@ import com.intellij.codeInsight.daemon.impl.{DaemonCodeAnalyzerEx, TextEditorHig
 import com.intellij.openapi.fileEditor.FileEditorManager
 import com.intellij.openapi.project.Project
 import com.intellij.psi.{PsiElement, PsiFile}
-import org.jetbrains.plugins.scala.worksheet.actions.WorksheetFileHook
+import org.jetbrains.plugins.scala.worksheet.actions.{CleanWorksheetAction, WorksheetFileHook}
 import org.jetbrains.plugins.scala.worksheet.runconfiguration.WorksheetCache
 
 import scala.collection.JavaConverters._
@@ -44,9 +44,12 @@ object CellManager {
   
   def installCells(file: PsiFile): Unit = {
     val project = file.getProject
+    val vFile = file.getVirtualFile
     
-    WorksheetFileHook.getEditorFrom(FileEditorManager.getInstance(project), file.getVirtualFile).foreach {
-      editor => WorksheetCache.getInstance(project).setLastProcessedIncremental(editor, None)
+    WorksheetFileHook.getEditorFrom(FileEditorManager.getInstance(project), vFile).foreach {
+      editor => 
+        WorksheetCache.getInstance(project).setLastProcessedIncremental(editor, None)
+        CleanWorksheetAction.cleanAll(editor, vFile, project)
     }
     
     rerunMarkerPass(file)

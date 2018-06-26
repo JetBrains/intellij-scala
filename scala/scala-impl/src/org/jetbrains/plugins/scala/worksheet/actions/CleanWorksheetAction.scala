@@ -2,8 +2,8 @@ package org.jetbrains.plugins.scala
 package worksheet.actions
 
 import java.awt.BorderLayout
-import javax.swing.DefaultBoundedRangeModel
 
+import javax.swing.{DefaultBoundedRangeModel, Icon}
 import com.intellij.icons.AllIcons
 import com.intellij.lang.ASTNode
 import com.intellij.openapi.actionSystem._
@@ -35,15 +35,25 @@ class CleanWorksheetAction() extends AnAction with TopComponentAction {
     
     if (editor == null || file == null) return
 
+    CleanWorksheetAction.cleanAll(editor, file, project)
+  }
+
+  override def actionIcon: Icon = AllIcons.Actions.GC
+
+  override def bundleKey = "worksheet.clear.button"
+}
+
+object CleanWorksheetAction {
+  def cleanAll(editor: Editor, file: VirtualFile, project: Project): Unit = {
     val psiFile: PsiFile = PsiDocumentManager.getInstance(project).getPsiFile(editor.getDocument)
     val viewer =  WorksheetCache.getInstance(project).getViewer(editor)
-    
+
     if (psiFile == null || viewer == null) return
 
     val splitPane = viewer.getComponent.getParent
     val parent = splitPane.getParent
     if (parent == null) return
-    
+
     invokeLater {
       inWriteAction {
         CleanWorksheetAction.resetScrollModel(viewer)
@@ -56,13 +66,7 @@ class CleanWorksheetAction() extends AnAction with TopComponentAction {
       }
     }
   }
-
-  override def actionIcon = AllIcons.Actions.GC
-
-  override def bundleKey = "worksheet.clear.button"
-}
-
-object CleanWorksheetAction {
+  
   def resetScrollModel(viewer: Editor) {
     viewer match {
       case viewerEx: EditorImpl =>
