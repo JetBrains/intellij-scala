@@ -27,6 +27,7 @@ import org.jetbrains.plugins.scala.lang.psi.api.ScalaFile
 import org.jetbrains.plugins.scala.lang.psi.api.expr.ScBlockStatement
 import org.jetbrains.plugins.scala.lang.psi.api.toplevel.templates.ScTemplateBody
 import org.jetbrains.plugins.scala.lang.psi.api.toplevel.typedef.ScMember
+import org.jetbrains.plugins.scala.lang.psi.impl.expr.ScBlockImpl
 import org.jetbrains.plugins.scala.lang.psi.impl.{ScalaPsiElementFactory, ScalaPsiManager}
 import org.jetbrains.plugins.scala.project.UserDataHolderExt
 import org.jetbrains.sbt.language.SbtFileImpl
@@ -168,6 +169,8 @@ object ScalaFmtPreFormatProcessor {
   private def isWhitespace(element: PsiElement) = element.isInstanceOf[PsiWhiteSpace]
 
   private def isProperUpperLevelPsi(element: PsiElement): Boolean = element match {
+    case block: ScBlockImpl => block.getFirstChild.getNode.getElementType == ScalaTokenTypes.tLBRACE &&
+      block.getLastChild.getNode.getElementType == ScalaTokenTypes.tRBRACE
     case _: ScBlockStatement | _: ScMember | _: PsiWhiteSpace => true
     case l: LeafPsiElement => l.getElementType == ScalaTokenTypes.tIDENTIFIER
     case _ => false
