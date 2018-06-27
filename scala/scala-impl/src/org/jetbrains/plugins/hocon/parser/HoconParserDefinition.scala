@@ -15,7 +15,7 @@ class HoconParserDefinition extends ParserDefinition {
   import HoconTokenSets._
   import HoconTokenType._
 
-  def spaceExistanceTypeBetweenTokens(left: ASTNode, right: ASTNode): SpaceRequirements =
+  override def spaceExistanceTypeBetweenTokens(left: ASTNode, right: ASTNode): SpaceRequirements =
     (left.getElementType, right.getElementType) match {
       case (Dollar, SubLBrace) | (SubLBrace, QMark) => SpaceRequirements.MUST_NOT
       case _ => SpaceRequirements.MAY

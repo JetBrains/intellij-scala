@@ -6,7 +6,7 @@ object Versions {
   // ATTENTION: when updating sbtVersion also update versions in MockSbt_1_0
   val sbtVersion: String = Sbt.latest
   val zincVersion = "1.1.1"
-  val ideaVersion = "182.3208.16"
+  val ideaVersion = "182.3458.5"
   val sbtStructureVersion: String = "2018.2"
   val sbtIdeaShellVersion: String = "2017.2"
   val aetherVersion = "1.0.0.v20140518"
