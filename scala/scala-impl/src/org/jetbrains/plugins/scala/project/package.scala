@@ -20,7 +20,7 @@ import org.jetbrains.plugins.scala.extensions._
 import org.jetbrains.plugins.scala.lang.psi.types.ScalaTypeSystem
 import org.jetbrains.plugins.scala.lang.psi.types.api.TypeSystem
 import org.jetbrains.plugins.scala.macroAnnotations.CachedInUserData
-import org.jetbrains.plugins.scala.project.ScalaLanguageLevel.Scala_2_11
+import org.jetbrains.plugins.scala.project.ScalaLanguageLevel.{Scala_2_11, Scala_2_13}
 import org.jetbrains.plugins.scala.project.settings.{ScalaCompilerConfiguration, ScalaCompilerSettings}
 
 import scala.annotation.tailrec
@@ -132,6 +132,11 @@ package object project {
       case _ => false
     }
 
+    @CachedInUserData(module, ScalaCompilerConfiguration.modTracker(module.getProject))
+    def isPartialUnificationEnabled: Boolean =
+      scalaLanguageLevel.exists(_ >= Scala_2_13) ||
+        compilerConfiguration.hasSettingForHighlighting(module, _.partialUnification)
+
     private def compilerConfiguration =
       ScalaCompilerConfiguration.instanceIn(module.getProject)
   }
@@ -184,6 +189,8 @@ package object project {
 
     def language: Language =
       if (project.hasDotty) DottyLanguage.INSTANCE else ScalaLanguage.INSTANCE
+
+    def isPartialUnificationEnabled: Boolean = modulesWithScala.exists(_.isPartialUnificationEnabled)
   }
 
   implicit class UserDataHolderExt(val holder: UserDataHolder) extends AnyVal {
@@ -265,6 +272,7 @@ package object project {
     def kindProjectorPluginEnabled: Boolean = inThisModuleOrProject(_.kindProjectorPluginEnabled)
     def isSAMEnabled              : Boolean = inThisModuleOrProject(_.isSAMEnabled)
     def literalTypesEnabled       : Boolean = inThisModuleOrProject(_.literalTypesEnabled)
+    def partialUnificationEnabled : Boolean = inThisModuleOrProject(_.isPartialUnificationEnabled)
 
     private def inThisModuleOrProject(predicate: Module => Boolean): Boolean = module match {
       case Some(m) => predicate(m)
