@@ -7,14 +7,25 @@ import java.util.Objects
 import com.intellij.openapi.roots.libraries.LibraryProperties
 import com.intellij.openapi.util.io.FileUtil._
 import com.intellij.openapi.vfs.VfsUtilCore._
+import org.jetbrains.plugins.scala.project.settings.ScalaCompilerConfiguration
 
 /**
  * @author Pavel Fatin
  */
 class ScalaLibraryProperties extends LibraryProperties[ScalaLibraryPropertiesState] {
   var platform: Platform = _
-  var languageLevel: ScalaLanguageLevel = _
   var compilerClasspath: Seq[File] = _
+
+  private var _languageLevel: ScalaLanguageLevel = _
+
+  def languageLevel: ScalaLanguageLevel = _languageLevel
+
+  def languageLevel_=(newLanguageLevel: ScalaLanguageLevel): Unit = {
+    if (_languageLevel != newLanguageLevel) {
+      ScalaCompilerConfiguration.incModificationCount()
+    }
+    _languageLevel = newLanguageLevel
+  }
 
   loadState(new ScalaLibraryPropertiesState())
 
