@@ -1,16 +1,15 @@
 package org.jetbrains.plugins.scala.lang.completion
 
 import com.intellij.codeInsight.completion._
-import com.intellij.codeInsight.daemon.impl.DaemonCodeAnalyzerEx.processHighlights
-import com.intellij.codeInsight.daemon.impl.HighlightInfo
+import com.intellij.codeInsight.daemon.impl.{DaemonCodeAnalyzerEx, HighlightInfo}
 import com.intellij.codeInsight.lookup.{LookupElement, LookupElementWeigher}
-import com.intellij.lang.annotation.HighlightSeverity.ERROR
+import com.intellij.lang.annotation.HighlightSeverity
 import com.intellij.patterns.PlatformPatterns
 import com.intellij.psi.codeStyle.CodeStyleManager
-import com.intellij.psi.util.PsiTreeUtil.getNextSiblingOfType
+import com.intellij.psi.util.PsiTreeUtil
 import com.intellij.psi.{PsiElement, PsiFile, PsiReference}
-import com.intellij.util.{ProcessingContext, Processor}
-import org.jetbrains.plugins.scala.extensions.{ObjectExt, PsiElementExt, childOf}
+import com.intellij.util.ProcessingContext
+import org.jetbrains.plugins.scala.extensions.{PsiElementExt, StringsExt, childOf}
 import org.jetbrains.plugins.scala.lang.psi.ScalaPsiElement
 import org.jetbrains.plugins.scala.lang.psi.api.base.{ScFieldId, ScReferenceElement}
 import org.jetbrains.plugins.scala.lang.psi.api.expr._
@@ -24,7 +23,7 @@ import org.jetbrains.plugins.scala.lang.resolve.ResolveTargets._
 
 import scala.collection.mutable
 
-/** Contributer adds unresolved names in current scope to completion list.
+/** Contributor adds unresolved names in current scope to completion list.
   * Unresolved reference name adds to completion list, according to [[ScReferenceElement.getKinds()]]
   *
   * Usages:
@@ -39,23 +38,45 @@ import scala.collection.mutable
   * Created by  Kate Ustyuzhanina on 17/03/2017.
   */
 class ScalaUnresolvedNameContributor extends ScalaCompletionContributor {
-  extend(CompletionType.BASIC, PlatformPatterns.psiElement(), new CompletionProvider[CompletionParameters] {
-    override def addCompletions(completionParameters: CompletionParameters, processingContext: ProcessingContext, completionResultSet: CompletionResultSet): Unit = {
-      val position = positionFromParameters(completionParameters)
 
-      position.getContext match {
-        case modOwner: ScModifierListOwner if modOwner.hasModifierPropertyScala("override") =>
-        case (_: ScFieldId) childOf (_ childOf (modOwner: ScModifierListOwner)) if modOwner.hasModifierPropertyScala("override") =>
-        case declaration@(_: ScTypeDefinition | _: ScTypeAliasDeclaration | _: ScFunctionDeclaration | _: ScFieldId) =>
-          val result = addElementsOrderSorter(completionParameters, completionResultSet)
-          handleReferencesInScope(declaration, result, completionParameters.getOriginalFile)
-        case _ =>
+  import ScalaUnresolvedNameContributor._
+
+  extend(
+    CompletionType.BASIC,
+    PlatformPatterns.psiElement,
+    new CompletionProvider[CompletionParameters] {
+
+      override def addCompletions(parameters: CompletionParameters,
+                                  processingContext: ProcessingContext,
+                                  resultSet: CompletionResultSet): Unit = {
+        positionFromParameters(parameters).getContext match {
+          case owner: ScModifierListOwner if owner.hasModifierPropertyScala("override") =>
+          case (_: ScFieldId) childOf (_ childOf (owner: ScModifierListOwner)) if owner.hasModifierPropertyScala("override") =>
+          case declaration@(_: ScTypeDefinition | _: ScTypeAliasDeclaration | _: ScFunctionDeclaration | _: ScFieldId) =>
+            val sorter = CompletionSorter.defaultSorter(parameters, resultSet.getPrefixMatcher)
+              .weighAfter("prefix", ScalaTextLookupItem.Weigher)
+            val newResultSet = resultSet.withRelevanceSorter(sorter)
+
+            processHighlights(declaration, parameters.getOriginalFile) {
+              handleReferencesInScope(_, declaration, newResultSet)
+            }
+          case _ =>
+        }
       }
-    }
-  })
+    })
 
-  def handleReferencesInScope(position: PsiElement, completionResultSet: CompletionResultSet, originalFile: PsiFile): Unit = {
-    def isKindAcceptible(ref: ScReferenceElement) = {
+}
+
+object ScalaUnresolvedNameContributor {
+
+  private val ReservedNames = Set(
+    "+", "-", "*", "/", "%", ">", "<", "&&", "||", "&", "|", "==", "!=", "^", "<<", ">>", ">>>"
+  )
+
+  private def handleReferencesInScope(ref: ScReferenceElement,
+                                      position: PsiElement,
+                                      resultSet: CompletionResultSet): Unit = {
+    def isKindAcceptable = {
       def refWithMethodCallParent = ref.parent.exists(_.isInstanceOf[ScMethodCall])
 
       def refKinds = ref.getKinds(incomplete = false)
@@ -70,50 +91,64 @@ class ScalaUnresolvedNameContributor extends ScalaCompletionContributor {
       }
     }
 
-    def argList(implicit ref: ScReferenceElement): Option[Seq[ScExpression]] =
-      ref.parent.flatMap {
-        case me: MethodInvocation if me.getInvokedExpr == ref => Option(me.argumentExpressions) // TODO: List(1, 2) map myFunc -> to support
-        case psiElement => Option(getNextSiblingOfType(psiElement, classOf[ScArgumentExprList])).map(_.exprs)
+
+    if (!ref.parent.exists(_.isInstanceOf[PsiReference]) &&
+      !ReservedNames(ref.refName) &&
+      isKindAcceptable) {
+
+      val maybeArgumentList: Option[Seq[ScExpression]] = ref.getParent match {
+        case MethodInvocation(`ref`, expressions) => Some(expressions) // TODO: List(1, 2) map myFunc -> to support
+        case parent =>
+          PsiTreeUtil.getNextSiblingOfType(parent, classOf[ScArgumentExprList]) match {
+            case null => None
+            case list => Some(list.exprs)
+          }
       }
 
-    def handleRef(ref: ScReferenceElement): Unit = {
-
-      def parentIsRef = ref.parent.exists(_.isInstanceOf[PsiReference])
-
-      if (!parentIsRef && !reservedNames.contains(ref.refName) && isKindAcceptible(ref)) {
-        completionResultSet
-          .addElement(createLookup(ref.refName, argList(ref), position))
-      }
+      val lookupElement = ScalaTextLookupItem(
+        ref.refName,
+        maybeArgumentList.map(createArguments).getOrElse(""),
+        position
+      )
+      resultSet.addElement(lookupElement)
     }
-
-    val document = originalFile.getViewProvider.getDocument
-    val range = computeScope(position).map(_.getSameElementInContext).getOrElse(originalFile).getTextRange
-
-    processHighlights(document, position.getProject, ERROR, range.getStartOffset, range.getEndOffset, new Processor[HighlightInfo] {
-      override def process(highlightInfo: HighlightInfo): Boolean = {
-
-        def isNamedArg(ref: ScReferenceElement): Boolean =
-          ref.parent.exists(p =>
-            p.isInstanceOf[ScAssignStmt] && p.parent.exists(_.isInstanceOf[ScArgumentExprList])
-          )
-
-        def maybeReferenceFromHighlight(info: HighlightInfo): Option[ScReferenceElement] =
-          originalFile.findReferenceAt(info.getStartOffset)
-            .asOptionOf[ScReferenceElement]
-            .filter(_.getTextRange.containsRange(info.getStartOffset, info.getEndOffset))
-            .filterNot(isNamedArg)
-
-        maybeReferenceFromHighlight(highlightInfo).foreach(handleRef)
-
-        true
-      }
-    })
   }
 
-  protected def createLookup(name: String, args: Option[Seq[ScExpression]], position: PsiElement): ScalaTextLookupItem = {
+  private def processHighlights(position: PsiElement, originalFile: PsiFile)
+                               (onReference: ScReferenceElement => Unit) = {
+    val scope = position.scopes.toSeq.headOption.collect {
+      case element: ScalaPsiElement => element.getSameElementInContext
+    }.getOrElse(originalFile)
 
+    val scopeRange = scope.getTextRange
+
+    DaemonCodeAnalyzerEx.processHighlights(
+      originalFile.getViewProvider.getDocument,
+      position.getProject,
+      HighlightSeverity.ERROR,
+      scopeRange.getStartOffset,
+      scopeRange.getEndOffset,
+      (highlightInfo: HighlightInfo) => {
+        val startOffset = highlightInfo.getStartOffset
+        val maybeReference = originalFile.findReferenceAt(startOffset) match {
+          case (_: ScReferenceElement) childOf ((_: ScAssignStmt) childOf (_: ScArgumentExprList)) => None
+          case reference: ScReferenceElement if reference.getTextRange.containsRange(startOffset, highlightInfo.getEndOffset) => Some(reference)
+          case _ => None
+        }
+
+        maybeReference.foreach(onReference)
+
+        true
+      })
+  }
+
+
+  private[this] def createArguments(argList: Seq[ScExpression]) = {
     case class Parameter(name: Option[String], `type`: Option[ScType]) {
-      override def toString: String = name.zip(`type`).map { case (n, t) => s"$n: $t" }.headOption.getOrElse("")
+
+      override def toString: String = name.zip(`type`).map {
+        case (n, t) => s"$n: $t"
+      }.headOption.getOrElse("")
     }
 
     def computeType(exprs: ScExpression): Option[ScType] = Option(exprs.`type`().getOrAny)
@@ -136,52 +171,22 @@ class ScalaUnresolvedNameContributor extends ScalaCompletionContributor {
         Parameter(`type`.map(suggestUniqueName), `type`)
     }
 
-    val arguments = args.map(_.map(handleOneExpression).map(_.toString).mkString(", ")).map("(" + _ + ")").getOrElse("")
-
-    position match {
-      case _: ScObject => ScalaTextLookupItem(name, arguments, position)
-      case _ => ScalaTextLookupItem(name, arguments, position)
-    }
+    argList.map(handleOneExpression)
+      .map(_.toString)
+      .commaSeparated(parenthesize = true)
   }
-
-  private def computeScope(position: PsiElement): Option[ScalaPsiElement] =
-    position.scopes.toSeq.headOption.flatMap(_.asOptionOf[ScalaPsiElement])
-
-  private def addElementsOrderSorter(parameters: CompletionParameters, result: CompletionResultSet): CompletionResultSet = {
-
-    case class NameComparable(name: String) extends Comparable[NameComparable] {
-      def compareTo(o: NameComparable): Int = {
-        name.compareTo(o.name)
-      }
-    }
-
-    class PreferByParamsOrder extends LookupElementWeigher("unresolvedOnTop") {
-      override def weigh(item: LookupElement): Comparable[_] = {
-        item match {
-          case ScalaTextLookupItem(name, _, _) => NameComparable(name)
-          case _ => null
-        }
-      }
-    }
-
-    var sorter = CompletionSorter.defaultSorter(parameters, result.getPrefixMatcher)
-    sorter = sorter.weighAfter("prefix", new PreferByParamsOrder())
-    result.withRelevanceSorter(sorter)
-  }
-
-  private val reservedNames =
-    Seq(
-      "+", "-", "*", "/", "%", ">", "<",
-      "&&", "||", "&", "|", "==", "!=", "^",
-      "<<", ">>", ">>>")
 }
 
-case class ScalaTextLookupItem(name: String, args: String, declarationType: PsiElement) extends LookupElement {
-  override def getLookupString: String = {
-    declarationType match {
-      case _: ScObject => name
-      case _ => name + args
-    }
+case class ScalaTextLookupItem(private val name: String,
+                               private val args: String,
+                               private val declarationType: PsiElement)
+  extends LookupElement with Comparable[ScalaTextLookupItem] {
+
+  override def compareTo(item: ScalaTextLookupItem): Int = name.compareTo(item.name)
+
+  override def getLookupString: String = declarationType match {
+    case _: ScObject => name
+    case _ => name + args
   }
 
   override def handleInsert(context: InsertionContext): Unit = {
@@ -204,4 +209,14 @@ case class ScalaTextLookupItem(name: String, args: String, declarationType: PsiE
   }
 }
 
+object ScalaTextLookupItem {
 
+  object Weigher extends LookupElementWeigher("unresolvedOnTop") {
+
+    override def weigh(item: LookupElement): Comparable[_] = item match {
+      case lookupItem: ScalaTextLookupItem => lookupItem
+      case _ => null
+    }
+  }
+
+}
