@@ -1,6 +1,5 @@
 package org.jetbrains.plugins.scala.settings;
 
-import com.intellij.openapi.application.ApplicationManager;
 import com.intellij.openapi.application.PathManager;
 import com.intellij.openapi.components.*;
 import com.intellij.openapi.project.Project;
@@ -37,7 +36,7 @@ public class ScalaProjectSettings  implements PersistentStateComponent<ScalaProj
   private boolean ADD_OVERRIDE_TO_IMPLEMENT_IN_CONVERTER = true;
   private boolean DONT_SHOW_CONVERSION_DIALOG = false;
   private boolean SHOW_IMPLICIT_CONVERSIONS = false;
-  private boolean SHOW_NOT_FOUND_IMPLICIT_ARGUMENTS = false;
+  private boolean SHOW_NOT_FOUND_IMPLICIT_ARGUMENTS = true;
 
   private boolean SHOW_ARGUMENTS_TO_BY_NAME_PARAMETERS = false;
   private boolean INCLUDE_BLOCK_EXPRESSIONS = false;
@@ -192,8 +191,7 @@ public class ScalaProjectSettings  implements PersistentStateComponent<ScalaProj
   }
 
   public boolean isShowNotFoundImplicitArguments() {
-    boolean unitTestMode = ApplicationManager.getApplication().isUnitTestMode();
-    return unitTestMode || SHOW_NOT_FOUND_IMPLICIT_ARGUMENTS;
+    return SHOW_NOT_FOUND_IMPLICIT_ARGUMENTS;
   }
 
   public void setShowImplisitConversions(boolean value) {
