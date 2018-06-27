@@ -1,4 +1,6 @@
-package org.jetbrains.plugins.scala.lang.completion
+package org.jetbrains.plugins.scala
+package lang
+package completion
 
 import com.intellij.codeInsight.completion._
 import com.intellij.codeInsight.daemon.impl.{DaemonCodeAnalyzerEx, HighlightInfo}
@@ -10,6 +12,7 @@ import com.intellij.psi.util.PsiTreeUtil
 import com.intellij.psi.{PsiElement, PsiFile, PsiReference}
 import com.intellij.util.ProcessingContext
 import org.jetbrains.plugins.scala.extensions.{PsiElementExt, StringsExt, childOf}
+import org.jetbrains.plugins.scala.lang.lexer.ScalaTokenTypes
 import org.jetbrains.plugins.scala.lang.psi.ScalaPsiElement
 import org.jetbrains.plugins.scala.lang.psi.api.base.{ScFieldId, ScReferenceElement}
 import org.jetbrains.plugins.scala.lang.psi.api.expr._
@@ -50,9 +53,12 @@ class ScalaUnresolvedNameContributor extends ScalaCompletionContributor {
                                   processingContext: ProcessingContext,
                                   resultSet: CompletionResultSet): Unit = {
         positionFromParameters(parameters).getContext match {
-          case owner: ScModifierListOwner if owner.hasModifierPropertyScala("override") =>
-          case (_: ScFieldId) childOf (_ childOf (owner: ScModifierListOwner)) if owner.hasModifierPropertyScala("override") =>
-          case declaration@(_: ScTypeDefinition | _: ScTypeAliasDeclaration | _: ScFunctionDeclaration | _: ScFieldId) =>
+          case OverrideAnnotationOwner() |
+               (_: ScFieldId) childOf (_ childOf OverrideAnnotationOwner()) =>
+          case declaration@(_: ScTypeDefinition
+                            | _: ScTypeAliasDeclaration
+                            | _: ScFunctionDeclaration
+                            | _: ScFieldId) =>
             val sorter = CompletionSorter.defaultSorter(parameters, resultSet.getPrefixMatcher)
               .weighAfter("prefix", ScalaTextLookupItem.Weigher)
             val newResultSet = resultSet.withRelevanceSorter(sorter)
@@ -73,13 +79,19 @@ object ScalaUnresolvedNameContributor {
     "+", "-", "*", "/", "%", ">", "<", "&&", "||", "&", "|", "==", "!=", "^", "<<", ">>", ">>>"
   )
 
-  private def handleReferencesInScope(ref: ScReferenceElement,
+  private object OverrideAnnotationOwner {
+
+    def unapply(owner: ScModifierListOwner): Boolean =
+      owner.hasModifierPropertyScala("override")
+  }
+
+  private def handleReferencesInScope(reference: ScReferenceElement,
                                       position: PsiElement,
                                       resultSet: CompletionResultSet): Unit = {
     def isKindAcceptable = {
-      def refWithMethodCallParent = ref.parent.exists(_.isInstanceOf[ScMethodCall])
+      def refWithMethodCallParent = reference.parent.exists(_.isInstanceOf[ScMethodCall])
 
-      def refKinds = ref.getKinds(incomplete = false)
+      def refKinds = reference.getKinds(incomplete = false)
 
       position match {
         case _: ScFieldId if !refWithMethodCallParent => refKinds.contains(VAL) || refKinds.contains(VAR)
@@ -92,24 +104,15 @@ object ScalaUnresolvedNameContributor {
     }
 
 
-    if (!ref.parent.exists(_.isInstanceOf[PsiReference]) &&
-      !ReservedNames(ref.refName) &&
+    if (!reference.parent.exists(_.isInstanceOf[PsiReference]) &&
+      !ReservedNames(reference.refName) &&
       isKindAcceptable) {
 
-      val maybeArgumentList: Option[Seq[ScExpression]] = ref.getParent match {
-        case MethodInvocation(`ref`, expressions) => Some(expressions) // TODO: List(1, 2) map myFunc -> to support
-        case parent =>
-          PsiTreeUtil.getNextSiblingOfType(parent, classOf[ScArgumentExprList]) match {
-            case null => None
-            case list => Some(list.exprs)
-          }
+      val lookupElement = position match {
+        case _: ScObject => new ScalaTextLookupItem.Object(reference)
+        case _ => new ScalaTextLookupItem.Regular(reference)
       }
 
-      val lookupElement = ScalaTextLookupItem(
-        ref.refName,
-        maybeArgumentList.map(createArguments).getOrElse(""),
-        position
-      )
       resultSet.addElement(lookupElement)
     }
   }
@@ -141,75 +144,105 @@ object ScalaUnresolvedNameContributor {
         true
       })
   }
-
-
-  private[this] def createArguments(argList: Seq[ScExpression]) = {
-    case class Parameter(name: Option[String], `type`: Option[ScType]) {
-
-      override def toString: String = name.zip(`type`).map {
-        case (n, t) => s"$n: $t"
-      }.headOption.getOrElse("")
-    }
-
-    def computeType(exprs: ScExpression): Option[ScType] = Option(exprs.`type`().getOrAny)
-
-    val names: mutable.Map[String, Int] = mutable.HashMap.empty[String, Int]
-
-    def suggestUniqueName(tp: ScType): String = {
-      val name = NameSuggester.suggestNamesByType(tp).headOption.getOrElse("value")
-
-      val result = if (names.contains(name)) name + names(name) else name
-      names.put(name, names.getOrElse(name, 0) + 1)
-      result
-    }
-
-    def handleOneExpression: ScExpression => Parameter = {
-      case assign: ScAssignStmt =>
-        Parameter(assign.assignName, assign.getRExpression.flatMap(computeType))
-      case e =>
-        val `type` = computeType(e)
-        Parameter(`type`.map(suggestUniqueName), `type`)
-    }
-
-    argList.map(handleOneExpression)
-      .map(_.toString)
-      .commaSeparated(parenthesize = true)
-  }
 }
 
-case class ScalaTextLookupItem(private val name: String,
-                               private val args: String,
-                               private val declarationType: PsiElement)
+sealed abstract class ScalaTextLookupItem(protected val reference: ScReferenceElement)
   extends LookupElement with Comparable[ScalaTextLookupItem] {
+
+  private val name: String = reference.refName
+
+  private val maybeArguments = reference.getParent match {
+    case MethodInvocation(`reference`, expressions) => Some(expressions) // TODO: List(1, 2) map myFunc -> to support
+    case parent =>
+      PsiTreeUtil.getNextSiblingOfType(parent, classOf[ScArgumentExprList]) match {
+        case null => None
+        case list => Some(list.exprs)
+      }
+  }
+
+  override def equals(other: Any): Boolean = other match {
+    case that: ScalaTextLookupItem => name == that.name && arguments == that.arguments
+    case _ => false
+  }
+
+  override def hashCode(): Int = 31 * name.hashCode + arguments.hashCode
 
   override def compareTo(item: ScalaTextLookupItem): Int = name.compareTo(item.name)
 
-  override def getLookupString: String = declarationType match {
-    case _: ScObject => name
-    case _ => name + args
-  }
+  override def getLookupString: String = name
 
-  override def handleInsert(context: InsertionContext): Unit = {
-    declarationType match {
-      case _: ScObject =>
-        val text = s" {\n def apply$args: Any = ???\n}"
+  protected val arguments: String = maybeArguments.fold("")(createParameters)
 
-        Option(context.getFile.findElementAt(context.getStartOffset)).foreach { element =>
-          context
-            .getDocument
-            .insertString(element.getTextRange.getEndOffset, text)
+  private[this] def createParameters(arguments: Seq[ScExpression]) = {
+    implicit val nameValidator: mutable.Map[String, Int] = mutable.Map.empty[String, Int].withDefaultValue(-1)
 
-          CodeStyleManager.getInstance(context.getProject)
-            .reformatText(context.getFile, context.getStartOffset, context.getSelectionEndOffset)
-
-          context.commitDocument()
-        }
-      case _ => super.handleInsert(context)
+    def createParameter(expression: ScExpression): Option[(String, ScType)] = expression match {
+      case assign@ScAssignStmt(_, Some(assignment)) =>
+        assign.assignName.map(_ -> assignment.`type`().getOrAny)
+      case _ =>
+        val `type` = expression.`type`().getOrAny
+        Some(suggestName(`type`), `type`)
     }
+
+    arguments.flatMap(createParameter).map {
+      case (parameterName, scType) => s"$parameterName${ScalaTokenTypes.tCOLON} ${scType.presentableText}"
+    }.commaSeparated(parenthesize = true)
   }
+
+  private[this] def suggestName(`type`: ScType)
+                               (implicit counter: mutable.Map[String, Int]) =
+    NameSuggester.suggestNamesByType(`type`)
+      .headOption
+      .fold("value") { name: String =>
+        counter(name) += 1
+
+        name + (counter(name) match {
+          case 0 => ""
+          case i => i
+        })
+      }
 }
 
 object ScalaTextLookupItem {
+
+  class Regular(override protected val reference: ScReferenceElement) extends ScalaTextLookupItem(reference) {
+
+    override def getLookupString: String = super.getLookupString + arguments
+
+    override def equals(other: Any): Boolean = other match {
+      case regular: Regular => super.equals(regular)
+      case _ => false
+    }
+  }
+
+  class Object(override protected val reference: ScReferenceElement) extends ScalaTextLookupItem(reference) {
+
+    override def equals(other: Any): Boolean = other match {
+      case obj: Object => super.equals(obj)
+      case _ => false
+    }
+
+
+    override def handleInsert(context: InsertionContext): Unit = {
+      val startOffset = context.getStartOffset
+      context.getFile.findElementAt(startOffset) match {
+        case null =>
+        case element =>
+          context.getDocument.insertString(
+            element.getTextRange.getEndOffset,
+            s" {\n def apply$arguments: Any = ???\n}"
+          )
+
+          CodeStyleManager.getInstance(context.getProject).reformatText(
+            context.getFile,
+            startOffset,
+            context.getSelectionEndOffset
+          )
+
+          context.commitDocument()
+      }
+    }
+  }
 
   object Weigher extends LookupElementWeigher("unresolvedOnTop") {
 
