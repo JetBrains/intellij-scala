@@ -456,12 +456,12 @@ class ScalaSigPrinter(builder: StringBuilder, verbosity: Verbosity) {
     else prefix
   }
 
+  def quote(s: String, canUseMultiline: Boolean = true): String =
+    if (canUseMultiline && (s.contains("\n") || s.contains("\r"))) "\"\"\"" + s + "\"\"\""
+    else "\"" +  StringEscapeUtils.escapeJava(s) + "\""
+
   // TODO char, float, etc.
   def annotArgText(arg: Any): String = {
-    def quote(s: String) = if (s.contains("\n") || s.contains("\r")) {
-      "\"\"\"" + s + "\"\"\""
-    } else "\"" +  StringEscapeUtils.escapeJava(s) + "\""
-
     arg match {
       case s: String => quote(s)
       case Name(s: String) => quote(s)
@@ -519,19 +519,17 @@ class ScalaSigPrinter(builder: StringBuilder, verbosity: Verbosity) {
       case ConstantType(Ref(Constant(constant))) =>
         def className(c: Class[_]) = c.getComponentType.getCanonicalName.replace('$', '.')
         val typeText = constant match {
-          case null                                         => "scala.Null"
+          case null                                         => "null"
+          case value: String                                => quote(value, canUseMultiline = false)
+          case Ref(Name(value))                             => quote(value, canUseMultiline = false)
+          case Ref(ScalaSymbol(value))                      => "\'" + value
+          case value: Char                                  => "\'" + value + "\'"
+          case value: Long                                  => value + "L"
+          case value: Float                                 => value + "f"
+          case value @(_: Boolean | _: Int | _: Double)     => value.toString
           case _: Unit                                      => "scala.Unit"
-          case _: Boolean                                   => "scala.Boolean"
+          case _: Short                                     => "scala.Short" //there is no literals for shorts and bytes
           case _: Byte                                      => "scala.Byte"
-          case _: Char                                      => "scala.Char"
-          case _: Short                                     => "scala.Short"
-          case _: Int                                       => "scala.Int"
-          case _: Long                                      => "scala.Long"
-          case _: Float                                     => "scala.Float"
-          case _: Double                                    => "scala.Double"
-          case _: String                                    => "java.lang.String"
-          case Ref(Name(_))                                 => "java.lang.String"
-          case Ref(ScalaSymbol(_))                          => "scala.Symbol"
           case c: Class[_]                                  => s"java.lang.Class[${className(c)}]"
           case Ref(ExternalSymbol(_, Some(Ref(parent)), _)) => parent.path //enum value
         }
