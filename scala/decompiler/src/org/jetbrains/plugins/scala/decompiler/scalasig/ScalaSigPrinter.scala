@@ -302,7 +302,7 @@ class ScalaSigPrinter(builder: StringBuilder, verbosity: Verbosity) {
 
   private def methodSymbolAsMethodParam(ms: MethodSymbol): String = {
     val nameAndType = processName(ms.name) + " : " + toString(ms.infoType)(TypeFlags(true))
-    val default = if (ms.hasDefault) " = { /* compiled code */ }" else ""
+    val default = if (ms.hasDefault) compiledCodeBody else ""
     nameAndType + default
   }
 
@@ -325,7 +325,7 @@ class ScalaSigPrinter(builder: StringBuilder, verbosity: Verbosity) {
     }
 
     val nameAndType = processName(methodName) + " : " + toString(msymb.infoType)(TypeFlags(true))
-    val default = if (msymb.hasDefault) " = { /* compiled code */ }" else ""
+    val default = if (msymb.hasDefault) compiledCodeBody else ""
     printer.print(nameAndType + default)
     printer.result
   }
@@ -392,32 +392,47 @@ class ScalaSigPrinter(builder: StringBuilder, verbosity: Verbosity) {
     if (n.startsWith("<local ")) return //isLocalDummy whatever, see scala.reflect.internal.StdNames.TermNames.LOCALDUMMY_PREFIX
     indent()
     printModifiers(m)
-    if (m.isAccessor) {
-      val indexOfSetter = m.parent.get.children.indexWhere {
-        case ms: MethodSymbol => isSetterFor(ms.name, m.name)
-        case _ => false
-      }
-      val keywords = if (indexOfSetter > 0) "var " else if (m.isLazy) "lazy val " else "val "
-      print(keywords)
-    } else {
-      print("def ")
+
+    def hasSetter: Boolean = m.parent.get.children.exists {
+      case ms: MethodSymbol => isSetterFor(ms.name, m.name)
+      case _ => false
     }
+
+    val keywords =
+      if (!m.isAccessor) "def "
+      else if (m.isLazy) "lazy val "
+      else if (hasSetter) "var "
+      else "val "
+
+    print(keywords)
+
     n match {
       case CONSTRUCTOR_NAME =>
         print("this")
         printMethodType(m.infoType, printResult = false) {
-          print(" = { /* compiled code */ }")
+          print(compiledCodeBody)
         }
       case name =>
         val nn = processName(name)
         print(nn)
-        val printBody = !m.isDeferred && (m.parent match {
-          case Some(c: ClassSymbol) if refinementClass(c) => false
-          case _ => true
-        })
-        printMethodType(m.infoType, printResult = true)(
-          {if (printBody) print(" = { /* compiled code */ }" /* Print body only for non-abstract methods */ )}
-          )
+
+        val isConstantValueDefinition = m.isFinal && keywords.startsWith("val")
+
+        m.infoType match {
+          case isConstantType(ct) if isConstantValueDefinition =>
+            Constants.constantExpression(ct) match {
+              case Some(expr) => print(s" = $expr")
+              case None => print(s" : ${Constants.typeText(ct)} $compiledCodeBody")
+            }
+          case _                                               =>
+            val printBody = !m.isDeferred && (m.parent match {
+              case Some(c: ClassSymbol) if refinementClass(c) => false
+              case _ => true
+            })
+            printMethodType(m.infoType, printResult = true)(
+              {if (printBody) print(compiledCodeBody /* Print body only for non-abstract methods */ )}
+            )
+        }
     }
     print("\n")
   }
@@ -455,10 +470,6 @@ class ScalaSigPrinter(builder: StringBuilder, verbosity: Verbosity) {
     }
     else prefix
   }
-
-  def quote(s: String, canUseMultiline: Boolean = true): String =
-    if (canUseMultiline && (s.contains("\n") || s.contains("\r"))) "\"\"\"" + s + "\"\"\""
-    else "\"" +  StringEscapeUtils.escapeJava(s) + "\""
 
   // TODO char, float, etc.
   def annotArgText(arg: Any): String = {
@@ -516,24 +527,8 @@ class ScalaSigPrinter(builder: StringBuilder, verbosity: Verbosity) {
         if (typeRefString.endsWith(".type")) typeRefString = typeRefString.dropRight(5)
         typeRefString = typeRefString.removeDotPackage
         sep + typeRefString + "." + processName(symbol.name) + ".type"
-      case ConstantType(Ref(Constant(constant))) =>
-        def className(c: Class[_]) = c.getComponentType.getCanonicalName.replace('$', '.')
-        val typeText = constant match {
-          case null                                         => "scala.Null"
-          case value: String                                => quote(value, canUseMultiline = false)
-          case Ref(Name(value))                             => quote(value, canUseMultiline = false)
-          case Ref(ScalaSymbol(value))                      => "\'" + value
-          case value: Char                                  => "\'" + value + "\'"
-          case value: Long                                  => value + "L"
-          case value: Float                                 => value + "f"
-          case value @(_: Boolean | _: Int | _: Double)     => value.toString
-          case _: Unit                                      => "scala.Unit"
-          case _: Short                                     => "scala.Short" //there is no literals for shorts and bytes
-          case _: Byte                                      => "scala.Byte"
-          case c: Class[_]                                  => s"java.lang.Class[${className(c)}]"
-          case Ref(ExternalSymbol(_, Some(Ref(parent)), _)) => parent.path //enum value
-        }
-        sep + typeText
+      case ConstantType(Ref(c)) =>
+        sep + Constants.typeText(c)
       case TypeRefType(Ref(NoPrefixType), Ref(symbol: TypeSymbol), typeArgs) if currentTypeParameters.isDefinedAt(symbol) =>
         sep + processName(currentTypeParameters.getOrElse(symbol, symbol.name)) + typeArgString(typeArgs, level)
       case TypeRefType(prefix, symbol, typeArgs) => sep + (symbol.path match {
@@ -677,6 +672,61 @@ class ScalaSigPrinter(builder: StringBuilder, verbosity: Verbosity) {
   def typeParamString(params: Seq[Symbol]): String =
     if (params.isEmpty) ""
     else params.map(toString).mkString("[", ", ", "]")
+
+  private object isConstantType {
+    @tailrec
+    def unapply(arg: Type): Option[Constant] = arg match {
+      case ConstantType(Ref(c)) => Some(c)
+      case NullaryMethodType(Ref(tpe)) => unapply(tpe)
+      case _ => None
+    }
+  }
+
+  private object Constants {
+    private def classTypeText(typeRef: TypeRefType): String = {
+      val ref = typeRef.symbol.get.path
+      val args = typeRef.typeArgs
+
+      ref + typeArgString(args, 0)
+    }
+
+    def typeText(ct: Constant): String =
+      (nonLiteralTypeText orElse
+        literalText orElse
+        symbolLiteralText).apply(ct.value)
+
+    def constantExpression(ct: Constant): Option[String] =
+      (constantDefinitionExpr orElse literalText).lift(ct.value)
+
+    private val nonLiteralTypeText: PartialFunction[Any, String] = {
+      case null                                         => "scala.Null"
+      case _: Unit                                      => "scala.Unit"
+      case _: Short                                     => "scala.Short" //there are no literals for shorts and bytes
+      case _: Byte                                      => "scala.Byte"
+      case Ref(typeRef: TypeRefType)                    => s"java.lang.Class[${classTypeText(typeRef)}]"
+      case Ref(ExternalSymbol(_, Some(Ref(parent)), _)) => parent.path  //enum type
+    }
+
+    //symbol literals are not valid constant expression
+    private val symbolLiteralText: PartialFunction[Any, String] = {
+      case Ref(ScalaSymbol(value)) => "\'" + value
+    }
+
+    private val constantDefinitionExpr: PartialFunction[Any, String] = {
+      case Ref(sym: ExternalSymbol)  => sym.path //enum value
+      case Ref(typeRef: TypeRefType) => s"scala.Predef.classOf[${classTypeText(typeRef)}]" //class literal
+    }
+
+    private val literalText: PartialFunction[Any, String] = {
+      case null                                    => "null"
+      case value: String                           => quote(value, canUseMultiline = false)
+      case Ref(Name(value))                        => quote(value, canUseMultiline = false)
+      case value: Char                             => "\'" + value + "\'"
+      case value: Long                             => value + "L"
+      case value: Float                            => value + "f"
+      case value@(_: Boolean | _: Int | _: Double) => value.toString
+    }
+  }
 }
 
 object ScalaSigPrinter {
@@ -687,6 +737,8 @@ object ScalaSigPrinter {
       "package", "private", "protected", "return", "sealed", "super",
       "this", "throw", "trait", "try", "type", "val", "var", "while", "with",
       "yield")
+
+  val compiledCodeBody = " = { /* compiled code */ }"
 
   def processName(name: String): String = {
     name
@@ -789,4 +841,9 @@ object ScalaSigPrinter {
       id.forall(isOperatorPart)
     } else false
   }
+
+  def quote(s: String, canUseMultiline: Boolean = true): String =
+    if (canUseMultiline && (s.contains("\n") || s.contains("\r"))) "\"\"\"" + s + "\"\"\""
+    else "\"" +  StringEscapeUtils.escapeJava(s) + "\""
+
 }

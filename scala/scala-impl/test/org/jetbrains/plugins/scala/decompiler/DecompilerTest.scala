@@ -154,4 +154,9 @@ class DecompilerTest extends DecompilerTestBase {
   def testLiteralTypes(): Unit = {
     doTest("LiteralTypes.class")
   }
+
+  def testConstants(): Unit = {
+    doTest("Constants210.class")
+    doTest("Constants213.class")
+  }
 }

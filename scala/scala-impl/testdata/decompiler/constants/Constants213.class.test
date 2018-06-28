@@ -1,0 +1,18 @@
+class Constants() extends scala.AnyRef {
+  final val a = 1
+  final val b = 1L
+  final val c = 1.0
+  final val d = 1.0f
+  final val e = true
+  final val f = 'c'
+  final val g = "foo"
+  final val multiline = "\r\n      aaa\r\n    "
+  final val aNeg = -1
+  final val bNeg = -1L
+  final val cNeg = -1.0
+  final val dNeg = -1.0f
+  final val clz = scala.Predef.classOf[scala.Option[scala.Int]]
+  final val nl = null
+  final val enum = java.time.Month.JANUARY
+  final val symbol : 'foo  = { /* compiled code */ }
+}
