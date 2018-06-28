@@ -37,7 +37,7 @@ class ScalaTypeHintsPass(rootElement: ScalaFile,
   override def collectElementHints(element: PsiElement, collector: kotlin.jvm.functions.Function2[_ >: Integer, _ >: String, kotlin.Unit]): Unit = {
     implicit val settings: ScalaCodeInsightSettings = ScalaCodeInsightSettings.getInstance
 
-    if (settings.showForObviousTypes || Definition(element).isTypeObvious) return
+    if (settings.showForObviousTypes || Definition(element).isTypeStable) return
 
     val maybeInfo = element match {
       case f@TypelessFunction(anchor) if settings.showFunctionReturnType =>

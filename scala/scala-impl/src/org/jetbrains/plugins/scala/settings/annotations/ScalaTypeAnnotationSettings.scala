@@ -51,7 +51,7 @@ object ScalaTypeAnnotationSettings {
         TYPE_ANNOTATION_EXCLUDE_IN_TEST_SOURCES && location.isInTestSources ||
         TYPE_ANNOTATION_EXCLUDE_MEMBER_OF_PRIVATE_CLASS && !isLocal && location.isInsidePrivateClass ||
         TYPE_ANNOTATION_EXCLUDE_MEMBER_OF_ANONYMOUS_CLASS && !isLocal && location.isInsideAnonymousClass ||
-        TYPE_ANNOTATION_EXCLUDE_WHEN_TYPE_IS_OBVIOUS && implementation.exists(_.isTypeObvious) ||
+        TYPE_ANNOTATION_EXCLUDE_WHEN_TYPE_IS_STABLE && implementation.exists(_.isTypeStable) ||
         !isLocal && location.isInsideOf(TYPE_ANNOTATION_EXCLUDE_MEMBER_OF.asScala.toSet) ||
         declaration.isAnnotatedWith(TYPE_ANNOTATION_EXCLUDE_ANNOTATED_WITH.asScala.toSet) ||
         declaration.typeMatches(TYPE_ANNOTATION_EXCLUDE_WHEN_TYPE_MATCHES.asScala.toSet)
