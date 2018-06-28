@@ -4,88 +4,84 @@ package surroundWith
 package surrounders
 package expression
 
-/**
-  * User: Dmitry.Krasilschikov
-  * Date: 09.01.2007
-  *
-  */
-
 import com.intellij.lang.ASTNode
 import com.intellij.lang.surroundWith.Surrounder
 import com.intellij.openapi.editor.Editor
 import com.intellij.openapi.project.Project
 import com.intellij.openapi.util.TextRange
-import com.intellij.psi.codeStyle.CodeStyleManager
 import com.intellij.psi.{PsiElement, PsiWhiteSpace}
 import org.jetbrains.plugins.scala.extensions.{PsiElementExt, StringExt}
 import org.jetbrains.plugins.scala.lang.lexer.ScalaTokenTypes
 import org.jetbrains.plugins.scala.lang.psi.ScalaPsiUtil
 import org.jetbrains.plugins.scala.lang.psi.api.expr._
 import org.jetbrains.plugins.scala.lang.psi.api.statements._
-import org.jetbrains.plugins.scala.lang.psi.impl.ScalaPsiElementFactory.createExpressionFromText
+import org.jetbrains.plugins.scala.lang.psi.impl.ScalaPsiElementFactory
 import org.jetbrains.plugins.scala.project.ProjectContext
 
-/*
- * Surrounds an expression and return an expression
- */
+/**
+  * Surrounds an expression and return an expression
+  *
+  * User: Dmitry.Krasilschikov
+  * Date: 09.01.2007
+  */
 abstract class ScalaExpressionSurrounder extends Surrounder {
-  def isApplicable(element: PsiElement): Boolean = {
-    element match {
-      case _: ScExpression | _: PsiWhiteSpace | _: ScValue | _: ScVariable | _: ScFunction | _: ScTypeAlias => true
-      case e =>
-        if (ScalaPsiUtil.isLineTerminator(e)) true
-        else if (e.getNode.getElementType == ScalaTokenTypes.tSEMICOLON) true
-        else if (ScalaTokenTypes.COMMENTS_TOKEN_SET contains e.getNode.getElementType) true
-        else false
-    }
+
+  import ScalaTokenTypes.{COMMENTS_TOKEN_SET, tSEMICOLON => Semicolon}
+
+  def isApplicable(element: PsiElement): Boolean = element match {
+    case _: ScExpression |
+         _: PsiWhiteSpace |
+         _: ScValue |
+         _: ScVariable |
+         _: ScFunction |
+         _: ScTypeAlias => true
+    case _ if ScalaPsiUtil.isLineTerminator(element) => true
+    case _ =>
+      element.getNode.getElementType match {
+        case Semicolon => true
+        case elementType => COMMENTS_TOKEN_SET.contains(elementType)
+      }
   }
 
-  def needParenthesis(parent: PsiElement): Boolean = parent match {
-    case _: ScSugarCallExpr => true
-    case _: ScReferenceExpression => true
+  override def isApplicable(elements: Array[PsiElement]): Boolean =
+    elements.forall(isApplicable)
+
+  override def surroundElements(project: Project, editor: Editor, elements: Array[PsiElement]): TextRange =
+    getSurroundSelectionRange(surroundedNode(elements))
+
+  def surroundedNode(elements: Array[PsiElement]): ASTNode = {
+    val result = surroundPsi(elements).getNode
+    var childNode: ASTNode = null
+
+    for {
+      child <- elements
+      nextNode = child.getNode
+      parentNode = nextNode.getTreeParent
+    } {
+      val flag = childNode == null
+      childNode = nextNode
+
+      if (flag) parentNode.replaceChild(childNode, result)
+      else parentNode.removeChild(childNode)
+    }
+
+    result
+  }
+
+  protected def needParenthesis(element: PsiElement): Boolean = element.getParent match {
+    case _: ScSugarCallExpr |
+         _: ScReferenceExpression => true
     case _ => false
   }
 
-  override def isApplicable(elements: Array[PsiElement]): Boolean = {
-    for (element <- elements)
-      if (!isApplicable(element)) return false
-    true
-  }
-
-  override def surroundElements(project: Project, editor: Editor, elements: Array[PsiElement]): TextRange = {
-    surroundWithReformat(project, editor, elements, doReformat = false)
-  }
-
-  def surroundWithReformat(project: Project, editor: Editor, elements: Array[PsiElement], doReformat: Boolean): TextRange = {
-    val newNode = surroundPsi(elements).getNode
-    var childNode: ASTNode = null
-
-    for (child <- elements) {
-      if (childNode == null) {
-        childNode = child.getNode
-        childNode.getTreeParent.replaceChild(childNode, newNode)
-      }
-      else {
-        childNode = child.getNode
-        childNode.getTreeParent.removeChild(childNode)
-      }
-    }
-    if (doReformat) {
-      CodeStyleManager.getInstance(project).reformat(newNode.getPsi)
-    }
-    getSurroundSelectionRange(newNode)
-  }
-
-  def surroundPsi(elements: Array[PsiElement]): ScExpression = {
+  protected final def surroundPsi(elements: Array[PsiElement]): ScExpression = {
     val element = elements.head
+
+    val text = getTemplateAsString(elements)
+      .parenthesize(needParenthesis = elements.length == 1 && this.needParenthesis(element))
+
     implicit val context: ProjectContext = element.projectContext
-
-    val needed = elements match {
-      case Array(head) => needParenthesis(head.getParent)
-      case _ => false
-    }
-
-    createExpressionFromText(getTemplateAsString(elements).parenthesize(needed))
+    ScalaPsiElementFactory.createExpressionFromText(text)
   }
 
   def getTemplateAsString(elements: Array[PsiElement]): String =

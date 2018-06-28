@@ -23,13 +23,18 @@ class ScalaMatchPostfixTemplate extends PostfixTemplateWithExpressionSelector(
 
   override def expandForChooseExpression(expression: PsiElement, editor: Editor): Unit = {
     val file = expression.getContainingFile // not to be inlined!
-    val project = expression.getProject
 
-    ScalaMatchPostfixTemplate.Surrounder.surroundWithReformat(project, editor, Array(expression), doReformat = true) match {
+    import ScalaMatchPostfixTemplate.Surrounder
+    val matchNode = Surrounder.surroundedNode(Array(expression))
+
+    val styleManager = CodeStyleManager.getInstance(expression.getProject)
+    styleManager.reformat(matchNode.getPsi)
+
+    Surrounder.getSurroundSelectionRange(matchNode) match {
       case null =>
       case range =>
         editor.getCaretModel.moveToOffset(range.getStartOffset)
-        CodeStyleManager.getInstance(project).adjustLineIndent(file, range)
+        styleManager.adjustLineIndent(file, range)
     }
   }
 }
