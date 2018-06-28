@@ -14,10 +14,10 @@ import org.jetbrains.plugins.scala.lang.lexer.ScalaTokenTypes
 import org.jetbrains.plugins.scala.lang.psi.api.base.patterns.{ScCaseClause, ScPattern, ScStableReferenceElementPattern}
 import org.jetbrains.plugins.scala.lang.psi.api.statements.ScFunction
 import org.jetbrains.plugins.scala.lang.psi.api.toplevel.typedef.{ScClass, ScObject, ScTypeDefinition}
-import org.jetbrains.plugins.scala.lang.psi.types.{ScType, ScalaType}
+import org.jetbrains.plugins.scala.lang.psi.types.ScalaType
 import org.jetbrains.plugins.scala.lang.refactoring.namesSuggester.NameSuggester
 
-import scala.collection.{JavaConverters, mutable}
+import scala.collection.JavaConverters
 
 class CaseClauseCompletionContributor extends ScalaCompletionContributor {
 
@@ -62,13 +62,19 @@ object CaseClauseCompletionContributor {
   }
 
   def patternText(definition: ScTypeDefinition, place: PsiElement): String = {
+    import NameSuggester._
+
     val className = definition.name
+    val defaultName = tUNDER.toString
 
     val maybeText = definition match {
       case _: ScObject => Some(className)
       case scalaClass: ScClass =>
         val maybeNames = if (scalaClass.isCase) constructorParameters(scalaClass)
-        else extractorComponents(scalaClass, place)
+        else {
+          val suggester = new UniqueNameSuggester(defaultName)
+          extractorComponents(scalaClass, place).map(_.map(suggester))
+        }
 
         maybeNames.map { names =>
           className + names.commaSeparated(parenthesize = true)
@@ -77,8 +83,9 @@ object CaseClauseCompletionContributor {
     }
 
     maybeText.getOrElse {
-      import ScalaType.designator
-      val name = suggestName(designator(definition))()
+      val name = suggestNamesByType(ScalaType.designator(definition))
+        .headOption
+        .getOrElse(defaultName)
       s"$name$tCOLON $className"
     }
   }
@@ -96,27 +103,9 @@ object CaseClauseCompletionContributor {
       case typeDefinition => typeDefinition.baseCompanionModule.flatMap(findExtractor)
     }
 
-    def validator(implicit counter: mutable.Map[String, Int]) = { name: String =>
-      counter(name) += 1
-
-      name + (counter(name) match {
-        case 0 => ""
-        case i => i
-      })
-    }
-
     for {
       extractor <- findExtractor(scalaClass)
       returnType <- extractor.returnType.toOption
-      types = ScPattern.extractorParameters(returnType, place, isOneArgCaseClass = false)
-    } yield {
-      implicit val nameValidator: mutable.Map[String, Int] = mutable.Map.empty[String, Int].withDefaultValue(-1)
-      types.map(suggestName(_)(validator))
-    }
+    } yield ScPattern.extractorParameters(returnType, place, isOneArgCaseClass = false)
   }
-
-  private[this] def suggestName(`type`: ScType)
-                               (validator: String => String = identity) =
-    NameSuggester.suggestNamesByType(`type`)
-      .headOption.fold(tUNDER.toString)(validator)
 }

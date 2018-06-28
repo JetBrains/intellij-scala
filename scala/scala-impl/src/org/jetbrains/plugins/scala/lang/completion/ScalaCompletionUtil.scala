@@ -24,14 +24,15 @@ import org.jetbrains.plugins.scala.lang.psi.types.ScType
 import org.jetbrains.plugins.scala.lang.refactoring.ScalaNamesValidator.{isIdentifier, isKeyword}
 import org.jetbrains.plugins.scala.lang.refactoring.namesSuggester.NameSuggester
 
-import scala.collection.mutable
-
 /**
 * User: Alexander Podkhalyuzin
 * Date: 21.05.2008.
 */
 
 object ScalaCompletionUtil {
+
+  import ScalaTokenTypes._
+
   val PREFIX_COMPLETION_KEY: Key[Boolean] = Key.create("prefix.completion.key")
 
   def completeThis(ref: ScReferenceExpression): Boolean =
@@ -46,7 +47,7 @@ object ScalaCompletionUtil {
                                   (implicit parameters: CompletionParameters): Boolean = {
     if (checkInvocationCount && parameters.getInvocationCount < 2) return false
 
-    if (dummyPosition.getNode.getElementType == ScalaTokenTypes.tIDENTIFIER) {
+    if (dummyPosition.getNode.getElementType == tIDENTIFIER) {
       dummyPosition.getParent match {
         case ref: ScReferenceElement if ref.qualifier.isDefined => return false
         case _ =>
@@ -64,32 +65,14 @@ object ScalaCompletionUtil {
                            (implicit project: Project): String = {
     val buffer = StringBuilder.newBuilder
 
-    if (braceArgs) buffer.append(ScalaTokenTypes.kCASE).append(" ")
+    if (braceArgs) buffer.append(kCASE).append(" ")
 
-    val parameters = mutable.ArrayBuffer.empty[(String, ScType)]
+    val suggester = new NameSuggester.UniqueNameSuggester("x")
+    val names = types.map(suggester)
 
-    def contains(name: String): Boolean = parameters.exists {
-      case (`name`, _) => true
-      case _ => false
-    }
-
-    for (param <- types) {
-      var name = NameSuggester.suggestNamesByType(param).headOption.getOrElse("x")
-      if (contains(name)) {
-        var count = 0
-        var newName = name + count
-        while (contains(newName)) {
-          count += 1
-          newName = name + count
-        }
-        name = newName
-      }
-      parameters += (name -> param)
-    }
-
-    val parametersText = parameters.map {
-      case (name, scType) => name + ScalaTokenTypes.tCOLON + " " + typeText(scType)
-    }.commaSeparated(parenthesize = parameters.size != 1 || !braceArgs)
+    val parametersText = names.zip(types).map {
+      case (name, scType) => name + tCOLON + " " + typeText(scType)
+    }.commaSeparated(parenthesize = names.size != 1 || !braceArgs)
 
     buffer.append(parametersText)
 
@@ -154,7 +137,7 @@ object ScalaCompletionUtil {
 
   def awful(parent: PsiElement, leaf: PsiElement): Boolean = {
     (leaf.getPrevSibling == null || leaf.getPrevSibling.getPrevSibling == null ||
-      leaf.getPrevSibling.getPrevSibling.getNode.getElementType != ScalaTokenTypes.kDEF) &&
+      leaf.getPrevSibling.getPrevSibling.getNode.getElementType != kDEF) &&
       (parent.getPrevSibling == null || parent.getPrevSibling.getPrevSibling == null ||
         (parent.getPrevSibling.getPrevSibling.getNode.getElementType != ScalaElementTypes.MATCH_STMT ||
           !parent.getPrevSibling.getPrevSibling.getLastChild.isInstanceOf[PsiErrorElement]))
@@ -302,9 +285,9 @@ object ScalaCompletionUtil {
 
       if (ref.getElement != null &&
         ref.getElement.getPrevSibling != null &&
-        ref.getElement.getPrevSibling.getNode.getElementType == ScalaTokenTypes.tSTUB) id + "`" else id
+        ref.getElement.getPrevSibling.getNode.getElementType == tSTUB) id + "`" else id
     } else {
-      if (element != null && element.getNode.getElementType == ScalaTokenTypes.tSTUB) {
+      if (element != null && element.getNode.getElementType == tSTUB) {
         CompletionUtil.DUMMY_IDENTIFIER_TRIMMED + "`"
       } else {
         Option(file.findElementAt(offset + 1))
