@@ -19,6 +19,7 @@ import com.intellij.ui.awt.RelativePoint
 import com.intellij.util.containers.ContainerUtil
 import org.jetbrains.plugins.hocon.psi.HoconPsiFile
 import org.jetbrains.plugins.scala.ScalaFileType
+import org.jetbrains.plugins.scala.extensions.PsiElementExt
 import org.jetbrains.plugins.scala.lang.formatting.settings.ScalaCodeStyleSettings
 import org.jetbrains.plugins.scala.lang.lexer.ScalaTokenTypes
 import org.jetbrains.plugins.scala.lang.psi.ScalaPsiUtil
@@ -155,10 +156,16 @@ object ScalaFmtPreFormatProcessor {
     wrapPrefix + elementText + wrapSuffix
 
   private def unwrap(wrapFile: PsiFile): Seq[PsiElement] = {
-    //get rid of braces and whitespaces near them
-    val res = PsiTreeUtil.getChildrenOfType(PsiTreeUtil.findChildOfType(wrapFile, classOf[ScTemplateBody]), classOf[PsiElement])
-    res.drop(2).dropRight(2)
+    val templateBody = PsiTreeUtil.findChildOfType(wrapFile, classOf[ScTemplateBody])
+    if (templateBody == null) Seq.empty
+    else {
+      //get rid of braces and whitespaces near them
+      templateBody.children.toList
+        .drop(2).dropRight(2)
+    }
   }
+
+  private def isWhitespace(element: PsiElement) = element.isInstanceOf[PsiWhiteSpace]
 
   private def isProperUpperLevelPsi(element: PsiElement): Boolean = element match {
     case _: ScBlockStatement | _: ScMember | _: PsiWhiteSpace => true
@@ -174,16 +181,20 @@ object ScalaFmtPreFormatProcessor {
       case Some(_: PsiWhiteSpace) => Seq.empty
       case Some(parent: LeafPsiElement) if isProperUpperLevelPsi(parent) => Seq(parent)
       case Some(parent) =>
-        val rawChildren = PsiTreeUtil.getChildrenOfType(parent, classOf[PsiElement])
+        val rawChildren = parent.children.toArray
         var children = rawChildren.filter(_.getTextRange.intersects(range))
+
         //drop unnecessary whitespaces
-        while (children.head.isInstanceOf[PsiWhiteSpace]) children = children.tail
-        while (children.last.isInstanceOf[PsiWhiteSpace]) children = children.dropRight(1)
-        if (children.forall(isProperUpperLevelPsi)) {
+        while (children.headOption.exists(isWhitespace)) children = children.tail
+        while (children.lastOption.exists(isWhitespace)) children = children.dropRight(1)
+
+        if (children.isEmpty) Seq.empty
+        else if (children.forall(isProperUpperLevelPsi)) {
           //for uniformity use the upper-most of embedded elements with same contents
-          if (children.head == rawChildren.head && children.last == rawChildren.last && isProperUpperLevelPsi(parent)) Seq(parent)
+          if (children.length == rawChildren.length && isProperUpperLevelPsi(parent)) Seq(parent)
           else children
-        } else if (isProperUpperLevelPsi(parent)) Seq(parent)
+        }
+        else if (isProperUpperLevelPsi(parent)) Seq(parent)
         else ScalaPsiUtil.getParentWithProperty(parent, strict = false, isProperUpperLevelPsi) match {
           case Some(properParent) if properParent != file => Seq(properParent)
           case _ => Seq.empty
@@ -238,11 +249,12 @@ object ScalaFmtPreFormatProcessor {
     def traverseSettingWs(formatted: PsiElement, original: PsiElement): Unit = {
       var formattedIndex = 0
       var originalIndex = 0
-      if (formatted.isInstanceOf[PsiWhiteSpace] && original.isInstanceOf[PsiWhiteSpace]) original.replace(widenWs(formatted))
-      val formattedChildren = PsiTreeUtil.getChildrenOfType(formatted, classOf[PsiElement])
-      val originalChildren = PsiTreeUtil.getChildrenOfType(original, classOf[PsiElement])
-      if (formattedChildren == null || originalChildren == null) return
-      while (formattedIndex < formattedChildren.size && originalIndex < originalChildren.size) {
+      if (isWhitespace(formatted) && isWhitespace(original)) original.replace(widenWs(formatted))
+
+      val formattedChildren = formatted.children.toArray
+      val originalChildren = original.children.toArray
+
+      while (formattedIndex < formattedChildren.length && originalIndex < originalChildren.length) {
         val originalElement = originalChildren(originalIndex)
         val formattedElement = formattedChildren(formattedIndex)
         val isInRange = originalElement.getTextRange.intersects(range.grown(delta))

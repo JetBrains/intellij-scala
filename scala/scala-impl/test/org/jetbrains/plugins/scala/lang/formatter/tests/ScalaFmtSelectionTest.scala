@@ -247,4 +247,25 @@ class ScalaFmtSelectionTest extends SelectionTest {
        """.stripMargin
     doTextTest(before, after)
   }
+
+  def testNPEStringContent(): Unit = {
+    val tripleQuote = "\"\"\""
+    val before =
+      s"""
+         |class Foo {
+         |  $tripleQuote $startMarker aaa
+         |aaa$endMarker
+         |  $tripleQuote
+         |}
+       """.stripMargin
+    val after =
+      s"""
+         |class Foo {
+         |  $tripleQuote  aaa
+         |aaa
+         |  $tripleQuote
+         |}
+       """.stripMargin
+    doTextTest(before, after)
+  }
 }
