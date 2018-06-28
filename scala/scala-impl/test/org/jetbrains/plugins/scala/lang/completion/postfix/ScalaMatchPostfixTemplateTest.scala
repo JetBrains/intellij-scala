@@ -6,13 +6,13 @@ package org.jetbrains.plugins.scala.lang.completion.postfix
 class ScalaMatchPostfixTemplateTest extends PostfixTemplateTest {
   override def testPath(): String = super.testPath() + "match/"
 
-  def testSimple() = doTest()
+  def testSimple(): Unit = doTest()
 
-  def testInnerMatch() = doTest()
+  def testInnerMatch(): Unit = doTest()
 
-  def testInfixExpr() = doTest()
+  def testInfixExpr(): Unit = doTest()
 
-  def testInInfixExpr() = doTest()
+  def testInInfixExpr(): Unit = doTest()
 
-  def testInnerMatchInfixExpr() = doTest()
+  def testInnerMatchInfixExpr(): Unit = doTest()
 }
