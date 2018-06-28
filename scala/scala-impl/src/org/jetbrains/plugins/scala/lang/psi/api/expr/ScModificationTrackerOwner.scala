@@ -3,9 +3,11 @@ package org.jetbrains.plugins.scala.lang.psi.api.expr
 import java.util.concurrent.atomic.AtomicLong
 
 import com.intellij.psi.{PsiElement, PsiModifiableCodeBlock}
+import org.jetbrains.plugins.scala.extensions.PsiElementExt
 import org.jetbrains.plugins.scala.lang.psi.ScalaPsiElement
 import org.jetbrains.plugins.scala.lang.psi.api.ScalaFile
 import org.jetbrains.plugins.scala.lang.psi.api.statements.{ScFunction, ScValueOrVariable}
+import org.jetbrains.plugins.scala.lang.psi.api.toplevel.templates.ScTemplateBody
 import org.jetbrains.plugins.scala.lang.psi.impl.{ScalaPsiElementFactory, ScalaPsiManager}
 import org.jetbrains.plugins.scala.macroAnnotations.{Cached, ModCount}
 import org.jetbrains.plugins.scala.project.ProjectContext
@@ -17,6 +19,7 @@ import scala.annotation.tailrec
   * Date: 11/09/2015
   */
 trait ScModificationTrackerOwner extends ScalaPsiElement with PsiModifiableCodeBlock {
+  self => ScExpression
 
   private val blockModificationCount = new AtomicLong()
 
@@ -44,12 +47,16 @@ trait ScModificationTrackerOwner extends ScalaPsiElement with PsiModifiableCodeB
     ScalaPsiElementFactory.createOptionExpressionWithContextFromText
 
   private def isValidModificationTrackerOwner: Boolean = getContext match {
-    case f: ScFunction => f.returnTypeElement.isDefined || !f.hasAssign
+    case f: ScFunction        => f.returnTypeElement.isDefined || !f.hasAssign
     case v: ScValueOrVariable => v.typeElement.isDefined
     case _: ScWhileStmt |
          _: ScFinallyBlock |
-         _: ScDoStmt => true
-    case _ => false
+         _: ScTemplateBody |
+         _: ScDoStmt          => true
+
+    //expression is not last in a block and not assigned to anything, cannot affect type inference outside
+    case _: ScBlock           => this.nextSiblings.exists(_.isInstanceOf[ScExpression])
+    case _                    => false
   }
 }
 
