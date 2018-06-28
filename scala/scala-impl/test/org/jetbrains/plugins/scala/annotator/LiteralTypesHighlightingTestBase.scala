@@ -17,13 +17,14 @@ abstract class LiteralTypesHighlightingTestBase extends ScalaHighlightingTestBas
     super.errorsFromScalaCode(scalaFileText)
   }
 
-  def doTest(errorsFun: PartialFunction[List[Message], Unit] = PartialFunction.empty, fileText: Option[String] = None, settingOn: Boolean = false) {
+
+  def doTest(expectedErrors: List[Message] = Nil, fileText: Option[String] = None, settingOn: Boolean = false) {
     val text = fileText.getOrElse {
       val filePath = folderPath + getTestName(true) + ".scala"
       val ioFile: File = new File(filePath)
       FileUtil.loadFile(ioFile, CharsetToolkit.UTF8)
     }
     val errors = if (settingOn) errorsFromScalaCode(text) else super.errorsFromScalaCode(text)
-    if (errorsFun == PartialFunction.empty) assertNothing(errors) else assertMatches(errors)(errorsFun)
+    assertMessages(expectedErrors)(errors)
   }
 }

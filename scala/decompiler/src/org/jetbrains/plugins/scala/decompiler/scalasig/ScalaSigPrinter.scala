@@ -519,7 +519,7 @@ class ScalaSigPrinter(builder: StringBuilder, verbosity: Verbosity) {
       case ConstantType(Ref(Constant(constant))) =>
         def className(c: Class[_]) = c.getComponentType.getCanonicalName.replace('$', '.')
         val typeText = constant match {
-          case null                                         => "null"
+          case null                                         => "scala.Null"
           case value: String                                => quote(value, canUseMultiline = false)
           case Ref(Name(value))                             => quote(value, canUseMultiline = false)
           case Ref(ScalaSymbol(value))                      => "\'" + value
