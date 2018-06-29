@@ -10,7 +10,7 @@ import com.intellij.openapi.fileEditor.ex.IdeDocumentHistory
 import com.intellij.openapi.project.Project
 import com.intellij.psi._
 import org.jetbrains.plugins.scala.extensions._
-import org.jetbrains.plugins.scala.lang.completion.clauses.CaseClauseCompletionContributor
+import org.jetbrains.plugins.scala.lang.completion.clauses
 import org.jetbrains.plugins.scala.lang.lexer.ScalaTokenTypes
 import org.jetbrains.plugins.scala.lang.psi.ScalaPsiUtil
 import org.jetbrains.plugins.scala.lang.psi.api.base.ScReferenceElement
@@ -90,8 +90,7 @@ object CreateCaseClausesIntention {
       val inheritors = findInheritors
 
       val patterns = inheritors.map {
-        import CaseClauseCompletionContributor.patternText
-        patternText(_, statement)
+        clauses.patternText(_)(statement)
       }
 
       val targets = inheritors.map {
@@ -103,7 +102,7 @@ object CreateCaseClausesIntention {
     }
 
     protected def findInheritors: Seq[ScTypeDefinition] =
-      CaseClauseCompletionContributor.findInheritors(clazz)
+      clauses.findInheritors(clazz)
 
     private def replacedClauses(patterns: Seq[String]): Seq[ScCaseClause] = {
       val caseClauses = patterns.map { pattern =>
