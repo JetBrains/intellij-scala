@@ -7,6 +7,10 @@ class FunctionParameterInfoSimpleTest extends FunctionParameterInfoTestBase {
   
   def testAnnotation() = doTest()
 
+  def testProperty() = doTest()
+
+  def testPropertyGeneric() = doTest()
+
   def testDefaultParameter() = doTest()
 
   def testDefaultParameterFromSources() = doTest()
