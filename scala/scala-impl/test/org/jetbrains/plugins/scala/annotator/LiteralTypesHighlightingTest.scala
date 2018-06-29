@@ -1,10 +1,6 @@
 package org.jetbrains.plugins.scala.annotator
 
-import org.jetbrains.plugins.scala.util.TestUtils
-
 class LiteralTypesHighlightingTest extends LiteralTypesHighlightingTestBase {
-
-  def folderPath = TestUtils.getTestDataPath + "/annotator/literalTypes/"
 
   def testSip23Null(): Unit = doTest (
     Error("null", "Type mismatch, found: Null, required: x.type") ::
@@ -12,8 +8,6 @@ class LiteralTypesHighlightingTest extends LiteralTypesHighlightingTestBase {
       Error("null", "Type mismatch, found: Null, required: y.type") ::
       Error("null", "Expression of type Null doesn't conform to expected type y.type") :: Nil
   )
-
-  def testSimple(): Unit = doTest()
 
   def testSimple_1(): Unit = doTest()
 
