@@ -2,9 +2,11 @@ package org.jetbrains.plugins.scala
 package lang
 
 import com.intellij.codeInsight.completion._
-import com.intellij.codeInsight.lookup.{LookupElement, LookupElementWeigher, WeighingContext}
+import com.intellij.codeInsight.lookup._
+import com.intellij.openapi.editor.{Document, Editor}
+import com.intellij.openapi.project.Project
 import com.intellij.psi.util.PsiTreeUtil
-import com.intellij.psi.{PsiClass, PsiElement}
+import com.intellij.psi.{PsiClass, PsiElement, PsiFile}
 import com.intellij.util.ProcessingContext
 import org.jetbrains.plugins.scala.extensions.PsiElementExt
 import org.jetbrains.plugins.scala.lang.completion.ScalaCompletionUtil.getDummyIdentifier
@@ -19,6 +21,12 @@ import scala.annotation.tailrec
 import scala.collection.JavaConverters
 
 package object completion {
+
+  private[completion] object InsertionContextExt {
+
+    def unapply(context: InsertionContext): Some[(Editor, Document, PsiFile, Project)] =
+      Some(context.getEditor, context.getDocument, context.getFile, context.getProject)
+  }
 
   def positionFromParameters(parameters: CompletionParameters): PsiElement = {
     @tailrec
@@ -66,13 +74,13 @@ package object completion {
   abstract class ScalaCompletionProvider extends CompletionProvider[CompletionParameters] {
 
     protected def completionsFor(position: PsiElement)
-                                (implicit parameters: CompletionParameters, context: ProcessingContext): Iterable[ScalaLookupItem]
+                                (implicit parameters: CompletionParameters, context: ProcessingContext): Iterable[LookupElement]
 
     override def addCompletions(parameters: CompletionParameters, context: ProcessingContext, result: CompletionResultSet): Unit = {
-      val items = completionsFor(positionFromParameters(parameters))(parameters, context)
+      val elements = completionsFor(positionFromParameters(parameters))(parameters, context)
 
       import JavaConverters._
-      result.addAllElements(items.asJava)
+      result.addAllElements(elements.asJava)
     }
   }
 
