@@ -33,7 +33,7 @@ class ScalaDocUnclosedTagWithoutParserInspection extends LocalInspectionTool {
           firstElementType != ScalaDocTokenType.DOC_HEADER && firstElementType != ScalaDocTokenType.VALID_DOC_HEADER) {
 
           holder.registerProblem(holder.getManager.createProblemDescriptor(s.getFirstChild, getDisplayName, true,
-            ProblemHighlightType.GENERIC_ERROR, isOnTheFly, new ScalaDocEscapeTagQuickFix(s)))
+            ProblemHighlightType.GENERIC_ERROR_OR_WARNING, isOnTheFly, new ScalaDocEscapeTagQuickFix(s)))
         }
       }
     }

@@ -285,8 +285,8 @@ class MyScaladocParsing(private val psiBuilder: PsiBuilder) extends ScalaDocElem
     true
   }
 
-  //todo: show scaladoc errors in a less distracting way
   private def scaladocError(builder: PsiBuilder, message: String): Unit = {
+    builder.error(message)
   }
 }
 

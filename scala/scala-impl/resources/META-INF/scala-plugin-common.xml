@@ -46,7 +46,7 @@
     </extensions>
 
     <extensions defaultExtensionNs="com.intellij">
-      <breadcrumbsInfoProvider
+      <breadcrumbsInfoProviderh
               implementation="org.jetbrains.plugins.scala.lang.breadcrumbs.ScalaBreadcrumbsInfoProvider" />
       <breadcrumbsPresentationProvider
               implementation="org.jetbrains.plugins.scala.lang.breadcrumbs.ScalaBreadcrumbsPresentationProvider" />
@@ -110,6 +110,7 @@
         <autoImportOptionsProvider instance="org.jetbrains.plugins.scala.editor.autoimport.ScalaAutoImportOptionsProvider"/>
         <fileTypeFactory implementation="org.jetbrains.plugins.scala.ScalaFileTypeFactory"/>
         <syntaxHighlighter key="Scala" implementationClass="org.jetbrains.plugins.scala.highlighter.ScalaSyntaxHighlighter"/>
+        <highlightErrorFilter implementation="org.jetbrains.plugins.scala.annotator.ScaladocHighlightErrorFilter"/>
         <lang.syntaxHighlighterFactory key="Scala" implementationClass="org.jetbrains.plugins.scala.highlighter.ScalaSyntaxHighlighterFactory"/>
         <additionalTextAttributes scheme="Default" file="colorSchemes/ScalaDefault.xml"/>
         <additionalTextAttributes scheme="Darcula" file="colorSchemes/ScalaDarcula.xml"/>
@@ -1363,6 +1364,10 @@
         <localInspection implementationClass="org.jetbrains.plugins.scala.codeInspection.scaladoc.ScalaDocMissingParameterDescriptionInspection"
                          displayName="Missing tag parameter description" groupPath="Scala" groupName="Scaladoc" shortName="ScalaDocMissingParameterDescription"
                          level="WARNING" enabledByDefault="true" language="Scala" />
+        <localInspection implementationClass="org.jetbrains.plugins.scala.codeInspection.scaladoc.ScalaDocParserErrorInspection"
+                         displayName="Wrong scaladoc element" groupPath="Scala" groupName="Scaladoc" shortName="ScalaDocParserErrorInspection"
+                         level="WARNING" enabledByDefault="true" language="Scala" />
+
       <!-- end of scaladoc inspections -->
 
       <!-- Util ammonite inspection -->

@@ -68,17 +68,17 @@ class ScalaDocUnknownParameterInspection extends LocalInspectionTool {
           for ((_, badParameter) <- tagParams) {
             holder.registerProblem(holder.getManager.createProblemDescriptor(
               badParameter.getValueElement, "Unknown Tag Parameter", true,
-              ProblemHighlightType.ERROR, isOnTheFly))
+              ProblemHighlightType.GENERIC_ERROR_OR_WARNING, isOnTheFly))
           }
           for ((_, badTypeParameter) <- tagTypeParams) {
             holder.registerProblem(holder.getManager.createProblemDescriptor(
               badTypeParameter.getValueElement, "Unknown Tag Type Parameter", true,
-              ProblemHighlightType.ERROR, isOnTheFly))
+              ProblemHighlightType.GENERIC_ERROR_OR_WARNING, isOnTheFly))
           }
           for (duplicatingParam <- duplicatingParams) {
             holder.registerProblem(holder.getManager.createProblemDescriptor(
               duplicatingParam.getValueElement, "One param/tparam Tag for one param/type param allowed",
-              true, ProblemHighlightType.GENERIC_ERROR, isOnTheFly,
+              true, ProblemHighlightType.GENERIC_ERROR_OR_WARNING, isOnTheFly,
               new ScalaDocDeleteDuplicatingParamQuickFix(duplicatingParam, true)))
           }
         }
@@ -117,7 +117,7 @@ class ScalaDocUnknownParameterInspection extends LocalInspectionTool {
                  if tag.isInstanceOf[ScDocTag]) {
               holder.registerProblem(holder.getManager.createProblemDescriptor(
                 tag.getFirstChild, "@param and @tparams tags arn't allowed there",
-                true, ProblemHighlightType.GENERIC_ERROR, isOnTheFly,
+                true, ProblemHighlightType.GENERIC_ERROR_OR_WARNING, isOnTheFly,
                 new ScalaDocDeleteDuplicatingParamQuickFix(tag.asInstanceOf[ScDocTag], false)))
             }
         }
