@@ -36,7 +36,8 @@ lazy val scalaCommunity: sbt.Project =
   newProject("scalaCommunity", file("."))
     .dependsOn(
       scalaImpl % "test->test;compile->compile",
-      bsp % "test->test;compile->compile",
+      // disabled for EAP/release during 2018.2 cycle
+      // bsp % "test->test;compile->compile",
       androidIntegration % "test->test;compile->compile",
       copyrightIntegration % "test->test;compile->compile",
       gradleIntegration % "test->test;compile->compile",
@@ -45,7 +46,8 @@ lazy val scalaCommunity: sbt.Project =
       propertiesIntegration % "test->test;compile->compile")
     .aggregate(
       scalaImpl,
-      bsp,
+      // disabled for EAP/release during 2018.2 cycle
+      // bsp,
       androidIntegration,
       copyrightIntegration,
       gradleIntegration,
@@ -330,7 +332,8 @@ lazy val scalaPluginJarPackager =
     .settings(
       products in Compile :=
         products.in(scalaImpl, Compile).value ++
-          products.in(bsp, Compile).value ++
+          // disabled for EAP/release during 2018.2 cycle
+          // products.in(bsp, Compile).value ++
           products.in(androidIntegration, Compile).value ++
           products.in(copyrightIntegration, Compile).value ++
           products.in(gradleIntegration, Compile).value ++
@@ -399,8 +402,9 @@ lazy val pluginPackagerCommunity =
             "lib/scala-nailgun-runner.jar"),
           Artifact(pack.in(runners, Compile).value,
             "lib/runners.jar"),
-          Artifact((assembly in bspDependencies).value,
-            "lib/bsp-dependencies.jar"),
+          // disabled for EAP/release during 2018.2 cycle
+          // Artifact((assembly in bspDependencies).value,
+          //  "lib/bsp-dependencies.jar"),
           AllOrganisation("org.scalameta", "lib/scalameta120.jar"),
           Library(fastparse,
             "lib/fastparse.jar"),
