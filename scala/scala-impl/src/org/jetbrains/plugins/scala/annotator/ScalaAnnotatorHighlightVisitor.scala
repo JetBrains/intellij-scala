@@ -1,13 +1,10 @@
 package org.jetbrains.plugins.scala
 package annotator
 
-import com.intellij.codeHighlighting.Pass
-import com.intellij.codeInsight.daemon.DaemonCodeAnalyzer
 import com.intellij.codeInsight.daemon.impl._
 import com.intellij.codeInsight.daemon.impl.analysis.HighlightInfoHolder
-import com.intellij.openapi.editor.Document
+import com.intellij.openapi.application.ApplicationManager
 import com.intellij.openapi.project.{DumbService, Project}
-import com.intellij.openapi.util.TextRange
 import com.intellij.psi._
 import org.jetbrains.plugins.scala.annotator.usageTracker.ScalaRefCountHolder
 import org.jetbrains.plugins.scala.lang.psi.api.ScalaFile
@@ -74,11 +71,14 @@ class ScalaAnnotatorHighlightVisitor(project: Project) extends HighlightVisitor 
       return
     }
     ScalaAnnotator.forProject.annotate(element, myAnnotationHolder)
-    if (myAnnotationHolder.hasAnnotations) {
+    if (myAnnotationHolder.hasAnnotations && shouldHighlight(element.getContainingFile)) {
       myAnnotationHolder.forEach { annotation =>
         myHolder.add(HighlightInfo.fromAnnotation(annotation))
       }
       myAnnotationHolder.clear()
     }
   }
+
+  private def shouldHighlight(file: PsiFile) =
+    file != null && file.isWritable || ApplicationManager.getApplication.isUnitTestMode
 }
