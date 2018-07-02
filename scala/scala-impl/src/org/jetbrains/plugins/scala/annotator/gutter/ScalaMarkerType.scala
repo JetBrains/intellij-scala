@@ -28,7 +28,7 @@ import org.jetbrains.plugins.scala.util.SAMUtil
  */
 object ScalaMarkerType {
   private[this] def extractClassName(sigs: Seq[Signature]): Option[String] =
-    sigs.headOption.map(_.namedElement).collect { case ContainingClass(aClass) => aClass.name }
+    sigs.headOption.map(_.namedElement).collect { case ContainingClass(aClass) => aClass.qualifiedName }
 
   private[this] def sigToNavigatableElement(s: Signature): Option[NavigatablePsiElement] = s.namedElement match {
     case ne: NavigatablePsiElement => Option(ne)
@@ -203,7 +203,7 @@ object ScalaMarkerType {
   )
 
   def samTypeImplementation(aClass: PsiClass): ScalaMarkerType = ScalaMarkerType(
-    _ => ScalaBundle.message("implements.method.from.super", aClass.name),
+    _ => ScalaBundle.message("implements.method.from.super", aClass.qualifiedName),
     (event, _) => SAMUtil.singleAbstractMethodOf(aClass).foreach(navigateToSuperMethod(event, _, includeSelf = true))
   )
 
