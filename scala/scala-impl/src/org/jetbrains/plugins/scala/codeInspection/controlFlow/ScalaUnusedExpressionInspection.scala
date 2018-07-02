@@ -5,33 +5,44 @@ import com.intellij.codeInspection.ProblemsHolder
 import com.intellij.openapi.project.Project
 import com.intellij.psi.PsiElement
 import com.intellij.psi.util.PsiTreeUtil
-import org.jetbrains.plugins.scala.codeInspection.{AbstractFixOnPsiElement, AbstractInspection, RemoveElementQuickFix}
+import org.jetbrains.plugins.scala.codeInspection.{AbstractFixOnPsiElement, AbstractInspection, InspectionBundle, RemoveElementQuickFix}
 import org.jetbrains.plugins.scala.extensions._
 import org.jetbrains.plugins.scala.lang.psi.api.base.patterns.{ScCaseClause, ScCaseClauses}
 import org.jetbrains.plugins.scala.lang.psi.api.expr._
 import org.jetbrains.plugins.scala.lang.psi.api.statements.{ScFunctionDefinition, ScPatternDefinition, ScVariableDefinition}
 import org.jetbrains.plugins.scala.lang.psi.impl.ScalaPsiElementFactory
 import org.jetbrains.plugins.scala.lang.psi.types.result._
-import org.jetbrains.plugins.scala.util.{IntentionAvailabilityChecker, SideEffectsUtil}
+import org.jetbrains.plugins.scala.util.IntentionAvailabilityChecker
+import org.jetbrains.plugins.scala.util.SideEffectsUtil._
 
 /**
- * Nikolay.Tropin
- * 2014-09-22
- */
-class ScalaUselessExpressionInspection extends AbstractInspection("ScalaUselessExpression", "Useless expression") {
+  * Nikolay.Tropin
+  * 2014-09-22
+  */
+class ScalaUnusedExpressionInspection extends AbstractInspection("ScalaUnusedExpression", "Unused expression") {
 
   override protected def actionFor(implicit holder: ProblemsHolder): PartialFunction[PsiElement, Any] = {
     case expr: ScExpression if IntentionAvailabilityChecker.checkInspection(this, expr.getParent) =>
-      if (canResultInSideEffectsOnly(expr) && SideEffectsUtil.hasNoSideEffects(expr)) {
-        val message = "Useless expression"
-        val removeElemFix = new RemoveElementQuickFix("Remove expression", expr)
-        val addReturnKeywordFix = PsiTreeUtil.getParentOfType(expr, classOf[ScFunctionDefinition]) match {
-          case null => Seq.empty
-          case fun if !fun.returnType.getOrAny.isUnit => Seq(new AddReturnQuickFix(expr))
-          case _ => Seq.empty
-        }
 
-        holder.registerProblem(expr, message, removeElemFix +: addReturnKeywordFix: _*)
+      val valueIsNotUsed   = canResultInSideEffectsOnly(expr)
+
+      if (valueIsNotUsed) {
+
+        val message =
+          if (hasNoSideEffects(expr)) Some(InspectionBundle.message("unused.expression.no.side.effects"))
+          else if (mayOnlyThrow(expr)) Some(InspectionBundle.message("unused.expression.throws"))
+          else None
+
+        message.foreach { m =>
+          val removeElemFix = new RemoveElementQuickFix("Remove expression", expr)
+          val addReturnKeywordFix = PsiTreeUtil.getParentOfType(expr, classOf[ScFunctionDefinition]) match {
+            case null                                   => Seq.empty
+            case fun if !fun.returnType.getOrAny.isUnit => Seq(new AddReturnQuickFix(expr))
+            case _                                      => Seq.empty
+          }
+
+          holder.registerProblem(expr, m, removeElemFix +: addReturnKeywordFix: _*)
+        }
       }
   }
 

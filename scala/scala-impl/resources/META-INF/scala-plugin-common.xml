@@ -968,9 +968,9 @@
                          displayName="Unreachable code" groupPath="Scala" groupName="General"
                          shortName="ScalaUnreachableCode" level="WARNING"
                          enabledByDefault="true" language="Scala"/>
-        <localInspection implementationClass="org.jetbrains.plugins.scala.codeInspection.controlFlow.ScalaUselessExpressionInspection"
-                         displayName="Useless expression" groupPath="Scala" groupName="General"
-                         shortName="ScalaUselessExpression" level="WEAK WARNING"
+        <localInspection implementationClass="org.jetbrains.plugins.scala.codeInspection.controlFlow.ScalaUnusedExpressionInspection"
+                         displayName="Unused expression" groupPath="Scala" groupName="General"
+                         shortName="ScalaUnusedExpression" level="WEAK WARNING"
                          enabledByDefault="true" language="Scala"/>
         <localInspection implementationClass="org.jetbrains.plugins.scala.codeInspection.implicits.DeprecatedViewBoundInspection"
                          displayName="View bounds are deprecated" groupPath="Scala" groupName="General"
