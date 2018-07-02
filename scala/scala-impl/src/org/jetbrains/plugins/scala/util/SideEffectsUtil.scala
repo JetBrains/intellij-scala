@@ -119,7 +119,7 @@ object SideEffectsUtil {
 
     val otherJavaClasses = Seq("java.lang.String._", "java.lang.Math._", "java.math.BigInteger._", "java.math.BigDecimal._")
 
-    val scalaValueClasses = Seq("Boolean", "Byte", "Char", "Double", "Float", "Int", "Lont", "Unit")
+    val scalaValueClasses = Seq("Boolean", "Byte", "Char", "Double", "Float", "Int", "Long", "Unit")
       .map(name => s"scala.$name._")
 
     val otherFromScalaPackage = Seq("Option._", "Some._", "Tuple._", "Symbol._").map("scala." + _)
