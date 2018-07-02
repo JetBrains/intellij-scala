@@ -1,17 +1,18 @@
 package org.jetbrains.plugins.scala.annotator.gutter
 
-import com.intellij.codeInsight.daemon.LightDaemonAnalyzerTestCase
 import com.intellij.openapi.util.text.StringUtil
 import com.intellij.testFramework.EditorTestUtil.{CARET_TAG => caret}
-import com.intellij.testFramework.LightPlatformCodeInsightTestCase._
-import com.intellij.testFramework.LightPlatformTestCase._
 import com.intellij.testFramework.fixtures.impl.CodeInsightTestFixtureImpl
 import junit.framework.TestCase._
+import org.jetbrains.plugins.scala.base.ScalaFixtureTestCase
+import org.jetbrains.plugins.scala.debugger.{ScalaVersion, Scala_2_12}
 import org.junit.Test
 
-class GutterMarkersTest extends LightDaemonAnalyzerTestCase {
+class GutterMarkersTest extends ScalaFixtureTestCase {
+  override implicit val version: ScalaVersion = Scala_2_12
+
   protected def testLineMarker(expectedTooltip: String): Unit = {
-    doHighlighting()
+    myFixture.doHighlighting()
     if (CodeInsightTestFixtureImpl.processGuttersAtCaret(getEditor, getProject, mark => {
       assertEquals(expectedTooltip, mark.getTooltipText)
       false
@@ -41,7 +42,7 @@ class GutterMarkersTest extends LightDaemonAnalyzerTestCase {
 
   protected def doTest(fileText: String)(testFn: => Any): Unit = {
     val name = getTestName(false)
-    configureFromFileText(s"$name.scala", StringUtil.convertLineSeparators(fileText, "\n"))
+    myFixture.configureByText(s"$name.scala", StringUtil.convertLineSeparators(fileText, "\n"))
     testFn
   }
 
@@ -138,8 +139,16 @@ class GutterMarkersTest extends LightDaemonAnalyzerTestCase {
        |}
      """.stripMargin
   ) {
-    doHighlighting()
+    myFixture.doHighlighting()
     if (!CodeInsightTestFixtureImpl.processGuttersAtCaret(getEditor, getProject, Function.const(false)))
       fail("Gutter mark expected.")
   }
+
+  @Test
+  def testMergedOverridingMarks(): Unit = doTest(
+    s"""
+       |trait Foo { def foo: Int; def bar: Int }
+       |case class Bar(foo: Int, bar: Int) extends Foo$caret
+     """.stripMargin
+  )(testLineMarker("Multiple overriding members"))
 }
