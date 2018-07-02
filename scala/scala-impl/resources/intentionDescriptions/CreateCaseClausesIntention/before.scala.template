@@ -1,5 +1,0 @@
-val x: Option[Int] = Some(0)
-
-x match {
-  <spot> </spot>
-}

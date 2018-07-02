@@ -550,11 +550,6 @@
 
         <intentionAction>
             <category>Scala/Pattern Matching</category>
-            <className>org.jetbrains.plugins.scala.codeInsight.intention.matcher.CreateCaseClausesIntention</className>
-        </intentionAction>
-
-        <intentionAction>
-            <category>Scala/Pattern Matching</category>
             <className>org.jetbrains.plugins.scala.codeInsight.intention.matcher.ConvertToTypedPatternIntention</className>
         </intentionAction>
 

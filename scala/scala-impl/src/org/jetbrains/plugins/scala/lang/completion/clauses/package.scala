@@ -20,15 +20,15 @@ package object clauses {
   private[clauses] implicit def tokenTypeString(tokenType: IElementType): String =
     tokenType.toString
 
-  def findInheritors(clazz: PsiClass): Seq[ScTypeDefinition] = {
+  private[clauses] def findInheritors(clazz: PsiClass): Seq[ScTypeDefinition] = {
     import JavaConverters._
     ClassInheritorsSearch.search(clazz, clazz.resolveScope, false).asScala.collect {
       case definition: ScTypeDefinition => definition
     }.toSeq.sortBy(_.getNavigationElement.getTextRange.getStartOffset)
   }
 
-  def patternText(definition: ScTypeDefinition)
-                 (implicit place: PsiElement): String = {
+  private[clauses] def patternText(definition: ScTypeDefinition)
+                                  (implicit place: PsiElement): String = {
     import NameSuggester._
     import ScalaTokenTypes.{tCOLON, tUNDER}
 
