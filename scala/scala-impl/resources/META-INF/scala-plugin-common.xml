@@ -1656,22 +1656,6 @@
         <add-to-group group-id="CodeEditorViewGroup" anchor="before" relative-to-action="Scala.ShowImplicitConversions"/>
       </action>
 
-      <action id="Scala.EnableImplicits"
-              class="org.jetbrains.plugins.scala.codeInsight.implicits.ShowImplicitHintsAction$Enable"
-              text="Show implicits"
-              description="Enable implicit conversion / argument inlay hints">
-        <keyboard-shortcut first-keystroke="control alt shift EQUALS" keymap="$default"/>
-        <keyboard-shortcut first-keystroke="control alt shift ADD" keymap="$default"/>
-      </action>
-
-      <action id="Scala.DisableImplicits"
-              class="org.jetbrains.plugins.scala.codeInsight.implicits.ShowImplicitHintsAction$Disable"
-              text="Hide implicits"
-              description="Disable implicit conversion / argument inlay hints">
-        <keyboard-shortcut first-keystroke="control alt shift MINUS" keymap="$default"/>
-        <keyboard-shortcut first-keystroke="control alt shift SUBTRACT" keymap="$default"/>
-      </action>
-
     </actions>
 
 </idea-plugin>
