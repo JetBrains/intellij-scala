@@ -3,6 +3,7 @@ package lang
 package completion3
 
 import com.intellij.testFramework.EditorTestUtil
+import org.jetbrains.plugins.scala.lang.psi.impl.toplevel.typedef.ScTypeDefinitionImpl
 
 /**
   * @author Pavel Fatin
@@ -10,104 +11,85 @@ import com.intellij.testFramework.EditorTestUtil
 class ScalaAotCompletionTest extends ScalaCodeInsightTestBase {
 
   import EditorTestUtil.{CARET_TAG => CARET}
+  import ScalaCodeInsightTestBase._
 
-  def testParameterName(): Unit = doCompletionTest(
+  def testParameterName(): Unit = doAotCompletionTest(
     fileText =
-      s"""
-         |object Dummy {
-         |  class Foo
-         |  def f(f$CARET)
-         |}
+      s"""class Foo
+         |def foo(f$CARET)
       """.stripMargin,
     resultText =
-      s"""
-         |object Dummy {
-         |  class Foo
-         |  def f(foo: Foo$CARET)
-         |}
+      s"""class Foo
+         |def foo(foo: Foo$CARET)
       """.stripMargin,
-    item = "Foo",
-    presentationText = "foo: Foo"
+    lookupString = "Foo",
+    itemText = "foo: Foo"
   )
 
-  def testValueName(): Unit = doCompletionTest(
+  def testValueName(): Unit = doAotCompletionTest(
     fileText =
-      s"""
-         |object Dummy {
-         |  class Foo
-         |  val f$CARET
-         |}
+      s"""class Foo
+         |val f$CARET
       """.stripMargin,
     resultText =
-      s"""
-         |object Dummy {
-         |  class Foo
-         |  val foo$CARET
-         |}
+      s"""class Foo
+         |val foo$CARET
       """.stripMargin,
-    item = "Foo",
-    presentationText = "foo"
+    lookupString = "Foo",
+    itemText = "foo",
+    tailTextSuffix = null
   )
 
-  def testVariableName(): Unit = doCompletionTest(
+  def testVariableName(): Unit = doAotCompletionTest(
     fileText =
-      s"""
-         |class Foo
+      s"""class Foo
          |var f$CARET
       """.stripMargin,
     resultText =
-      s"""
-         |class Foo
+      s"""class Foo
          |var foo$CARET
       """.stripMargin,
-    item = "Foo",
-    presentationText = "foo"
+    lookupString = "Foo",
+    itemText = "foo",
+    tailTextSuffix = null
   )
 
-  def testPartialName(): Unit = doCompletionTest(
+  def testPartialName(): Unit = doAotCompletionTest(
     fileText =
-      s"""
-         |class FooBarMoo
-         |def f(ba$CARET)
+      s"""class FooBarBaz
+         |def foo(ba$CARET)
       """.stripMargin,
     resultText =
-      s"""
-         |class FooBarMoo
-         |def f(barMoo: FooBarMoo$CARET)
+      s"""class FooBarBaz
+         |def foo(barBaz: FooBarBaz$CARET)
       """.stripMargin,
-    item = "FooBarMoo",
-    presentationText = "barMoo: FooBarMoo"
+    lookupString = "FooBarBaz",
+    itemText = "barBaz: FooBarBaz"
   )
 
-  def testImport(): Unit = doCompletionTest(
+  def testImport(): Unit = doAotCompletionTest(
     fileText =
-      s"""
-         |def f(rectangle$CARET)
-      """.stripMargin,
+      s"""def foo(rectangle$CARET)
+       """.stripMargin,
     resultText =
-      s"""
-         |import java.awt.Rectangle
+      s"""import java.awt.Rectangle
          |
-         |def f(rectangle: Rectangle$CARET)
+         |def foo(rectangle: Rectangle$CARET)
       """.stripMargin,
-    item = "Rectangle",
-    presentationText = "rectangle: Rectangle"
+    lookupString = "Rectangle",
+    itemText = "rectangle: Rectangle",
+    tailTextSuffix = "(java.awt)"
   )
 
-  import ScalaCodeInsightTestBase._
+  private def doAotCompletionTest(fileText: String,
+                                  resultText: String,
+                                  lookupString: String,
+                                  itemText: String,
+                                  tailTextSuffix: String = ScTypeDefinitionImpl.DefaultLocationString): Unit = {
+    val tailText = if (tailTextSuffix != null) " " + tailTextSuffix else null
 
-  private def doCompletionTest(fileText: String,
-                               resultText: String,
-                               item: String,
-                               presentationText: String): Unit =
-    doCompletionTest(
-      fileText = fileText,
-      resultText = resultText,
-      char = DEFAULT_CHAR,
-      time = DEFAULT_TIME,
-      completionType = DEFAULT_COMPLETION_TYPE
-    ) { lookup =>
-      hasLookupString(lookup, item) &&
-        renderLookupElement(lookup).getItemText == presentationText
+    doCompletionTest(fileText, resultText, DEFAULT_CHAR, DEFAULT_TIME, DEFAULT_COMPLETION_TYPE) {
+      hasItemText(_, lookupString, itemText, tailText)
     }
+  }
 }

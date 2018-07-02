@@ -120,12 +120,17 @@ object ScalaCodeInsightTestBase {
   val DEFAULT_TIME: Int = 1
   val DEFAULT_COMPLETION_TYPE: CompletionType = CompletionType.BASIC
 
-  def hasLookupString(lookup: LookupElement, item: String): Boolean =
-    lookup.getLookupString == item
+  def hasLookupString(lookup: LookupElement, lookupString: String): Boolean =
+    lookup.getLookupString == lookupString
 
-  def renderLookupElement(lookup: LookupElement): LookupElementPresentation = {
-    val presentation = new LookupElementPresentation
-    lookup.renderElement(presentation)
-    presentation
-  }
+  def hasItemText(lookup: LookupElement,
+                  lookupString: String,
+                  itemText: String,
+                  tailText: String = null): Boolean =
+    hasLookupString(lookup, lookupString) && {
+      val presentation = new LookupElementPresentation
+      lookup.renderElement(presentation)
+      presentation.getItemText == itemText &&
+        presentation.getTailText == tailText
+    }
 }
