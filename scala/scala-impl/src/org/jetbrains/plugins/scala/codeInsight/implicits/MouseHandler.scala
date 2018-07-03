@@ -18,6 +18,8 @@ class MouseHandler(project: Project,
 
   private var activeHyperlink = Option.empty[(Inlay, Text)]
 
+  private var expandableActivated = false
+
   private val mousePressListener = new EditorMouseAdapter {
     override def mousePressed(e: EditorMouseEvent): Unit = {
       MouseHandler.mousePressLocation = e.getMouseEvent.getPoint
@@ -26,11 +28,20 @@ class MouseHandler(project: Project,
     override def mouseClicked(e: EditorMouseEvent): Unit = {
       if (!e.isConsumed && project.isInitialized && !project.isDisposed) {
         if (e.getMouseEvent.getButton == MouseEvent.BUTTON1) {
-          activeHyperlink.foreach { case (_, text) =>
-            e.consume()
-            deactivateActiveHypelink(e.getEditor)
-            CommandProcessor.getInstance.executeCommand(project,
-              () => text.navigatable.filter(_.canNavigate).foreach(_.navigate(true)), null, null)
+          if (e.getMouseEvent.isControlDown) {
+            activeHyperlink.foreach { case (_, text) =>
+              e.consume()
+              deactivateActiveHypelink(e.getEditor)
+              CommandProcessor.getInstance.executeCommand(project,
+                () => text.navigatable.filter(_.canNavigate).foreach(_.navigate(true)), null, null)
+            }
+          } else {
+            expandableAt(e.getEditor, e.getMouseEvent.getPoint).foreach { case (inlay, text) =>
+              inlay.getRenderer.asOptionOf[TextRenderer].foreach { renderer =>
+                text.expansion.foreach(it => renderer.replace(text, it()))
+                inlay.updateSize()
+              }
+            }
           }
         }
       }
@@ -52,6 +63,15 @@ class MouseHandler(project: Project,
           }
         } else {
           deactivateActiveHypelink(e.getEditor)
+          if (expandableAt(e.getEditor, e.getMouseEvent.getPoint).isDefined) {
+            UIUtil.setCursor(e.getEditor.getContentComponent, Cursor.getPredefinedCursor(Cursor.HAND_CURSOR))
+            expandableActivated = true
+          } else {
+            if (expandableActivated) {
+              UIUtil.setCursor(e.getEditor.getContentComponent, Cursor.getPredefinedCursor(Cursor.DEFAULT_CURSOR))
+              expandableActivated = false
+            }
+          }
         }
       }
     }
@@ -90,16 +110,22 @@ class MouseHandler(project: Project,
     activeHyperlink = None
   }
 
-  private def hyperlinkAt(editor: Editor, point: Point): Option[(Inlay, Text)] =
+  private def expandableAt(editor: Editor, point: Point): Option[(Inlay, Text)] = textAt(editor, point).filter {
+    case (_, text) => text.expansion.isDefined
+  }
+
+  private def hyperlinkAt(editor: Editor, point: Point): Option[(Inlay, Text)] = textAt(editor, point).filter {
+    case (_, text) => text.navigatable.isDefined
+  }
+
+  private def textAt(editor: Editor, point: Point): Option[(Inlay, Text)] =
     Option(editor.getInlayModel.getElementAt(point)).flatMap { inlay =>
       inlay.getRenderer.asOptionOf[TextRenderer].flatMap { renderer =>
         val inlayPoint = {
           val offset = editor.logicalPositionToOffset(editor.xyToLogicalPosition(point))
           editor.visualPositionToXY(editor.offsetToVisualPosition(offset))
         }
-        renderer.textAt(editor, point.x - inlayPoint.x)
-          .filter(_.navigatable.isDefined)
-          .map((inlay, _))
+        renderer.textAt(editor, point.x - inlayPoint.x).map((inlay, _))
       }
     }
 }

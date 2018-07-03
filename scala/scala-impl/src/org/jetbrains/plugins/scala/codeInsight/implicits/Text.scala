@@ -6,8 +6,9 @@ import com.intellij.openapi.editor.markup.{EffectType, TextAttributes}
 import com.intellij.pom.Navigatable
 
 private case class Text(string: String,
-                attributes: Option[TextAttributes] = None,
-                navigatable: Option[Navigatable] = None) {
+                        attributes: Option[TextAttributes] = None,
+                        navigatable: Option[Navigatable] = None,
+                        expansion: Option[() => Seq[Text]] = None) {
 
   var hyperlink: Boolean = false
 

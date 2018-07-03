@@ -49,8 +49,9 @@ private class ImplicitHintsPass(editor: Editor, rootElement: ScalaPsiElement)
     rootElement.depthFirst().foreach {
       case e: ScExpression =>
         if (ImplicitHints.enabled) {
+          val errorAttributes = editor.getColorsScheme.getAttributes(CodeInsightColors.ERRORS_ATTRIBUTES)
           e.implicitConversion().foreach { conversion =>
-            hints ++:= implicitConversionHint(e, conversion)
+            hints ++:= implicitConversionHint(e, conversion, errorAttributes)
           }
         }
 
@@ -121,36 +122,35 @@ private class ImplicitHintsPass(editor: Editor, rootElement: ScalaPsiElement)
 private object ImplicitHintsPass {
   private final val BulkChangeThreshold = 1000
 
-  def implicitConversionHint(e: ScExpression, conversion: ScalaResolveResult): Seq[Hint] =
+  def implicitConversionHint(e: ScExpression, conversion: ScalaResolveResult, errorAttributes: TextAttributes): Seq[Hint] =
     Seq(Hint(presentationOf(conversion.element) :+ Text("("), e, suffix = false, rightGap = false, menu = Some(menu.ImplicitConversion)),
-      Hint(if (conversion.implicitParameters.nonEmpty) Seq(Text(")"), Text("(...)")) else Seq(Text(")")), e, suffix = true, leftGap = false))
+      Hint(Text(")") +: collapsedPresentationOf(conversion.implicitParameters, errorAttributes), e, suffix = true, leftGap = false))
+
+  def implicitArgumentsHint(e: ScExpression, arguments: Seq[ScalaResolveResult], errorAttributes: TextAttributes): Seq[Hint] =
+    Seq(Hint(expandedPresentationOf(arguments, errorAttributes), e, suffix = true, leftGap = false, menu = Some(menu.ImplicitArguments)))
+
+  def explicitImplicitArgumentsHint(args: ScArgumentExprList): Seq[Hint] =
+    Seq(Hint(Seq(Text(".explicitly")), args, suffix = false, leftGap = false, rightGap = false, menu = Some(menu.ExplicitArguments)))
+
+  def collapsedPresentationOf(arguments: Seq[ScalaResolveResult], errorAttributes: TextAttributes): Seq[Text] =
+    if (arguments.nonEmpty) Seq(Text("(...)", expansion = Some(() => expandedPresentationOf(arguments, errorAttributes)))) else Seq.empty
+
+  def expandedPresentationOf(arguments: Seq[ScalaResolveResult], errorAttributes: TextAttributes): Seq[Text] =
+    Text("(") +: arguments.map(it => presentationOf(it, errorAttributes)).intersperse(Seq(Text(", "))).flatten :+ Text(")")
+
+  private def presentationOf(argument: ScalaResolveResult, errorAttributes: TextAttributes): Seq[Text] =
+    ShowImplicitArgumentsAction.missingImplicitArgumentIn(argument)
+      .map(it => Seq(Text("?: " + it.map(_.presentableText).getOrElse("NotInferred"), Some(errorAttributes))))
+      .getOrElse(presentationOf(argument.element) ++ collapsedPresentationOf(argument.implicitParameters, errorAttributes))
+
+  private def presentationOf(member: ScMember with PsiNamedElement): Seq[Text] =
+    Option(member.containingClass).map(it => Seq(Text(it.name, navigatable = Some(it)), Text("."))).getOrElse(Seq.empty) :+
+      Text(member.name, navigatable = Some(member))
 
   private def presentationOf(e: PsiNamedElement): Seq[Text] = e match {
     case member: ScMember => presentationOf(member)
     case (_: ScReferencePattern) && Parent(Parent(member: ScMember with PsiNamedElement)) => presentationOf(member)
     case it => Seq(Text(it.name, navigatable = it.asOptionOf[Navigatable]))
   }
-
-  private def presentationOf(member: ScMember with PsiNamedElement): Seq[Text] =
-    Option(member.containingClass).map(it => Seq(Text(it.name, navigatable = Some(it)), Text("."))).getOrElse(Seq.empty) :+
-      Text(member.name, navigatable = Some(member))
-
-  def implicitArgumentsHint(e: ScExpression, arguments: Seq[ScalaResolveResult], errorAttributes: TextAttributes): Seq[Hint] = {
-    val text = Text("(") +: arguments.map(it => presentationOf(it, errorAttributes)).intersperse(Seq(Text(", "))).flatten :+ Text(")")
-    Seq(Hint(text, e, suffix = true, leftGap = false, menu = Some(menu.ImplicitArguments)))
-  }
-
-  // TODO Show missing implicit parameter name?
-  private def presentationOf(argument: ScalaResolveResult, errorAttributes: TextAttributes): Seq[Text] = {
-    ShowImplicitArgumentsAction.missingImplicitArgumentIn(argument)
-      .map(it => Seq(Text("?: " + it.map(_.presentableText).getOrElse("NotInferred"), Some(errorAttributes))))
-      .getOrElse {
-        val name = presentationOf(argument.element)
-        if (argument.implicitParameters.nonEmpty) name :+ Text("(...)") else name
-      }
-  }
-
-  def explicitImplicitArgumentsHint(args: ScArgumentExprList): Seq[Hint] =
-    Seq(Hint(Seq(Text(".explicitly")), args, suffix = false, leftGap = false, rightGap = false, menu = Some(menu.ExplicitArguments)))
 }
 

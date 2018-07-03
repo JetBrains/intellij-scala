@@ -12,8 +12,14 @@ import com.intellij.ui.paint.EffectPainter
 import com.intellij.util.ui.GraphicsUtil
 import org.jetbrains.plugins.scala.codeInsight.implicits.HintRendererExt._
 
-private class HintRendererExt(parts: Seq[Text]) extends HintRenderer(parts.map(_.string).mkString) {
-  private val text = parts.map(_.string).mkString
+private class HintRendererExt(private var parts: Seq[Text]) extends HintRenderer(parts.map(_.string).mkString) {
+  def replace(text: Text, replacement: Seq[Text]): Unit = {
+    val i = parts.indexOf(text)
+    assert(i >= 0, i)
+    parts = parts.take(i) ++ replacement ++ parts.drop(i + 1)
+
+    setText(parts.map(_.string).mkString)
+  }
 
   protected def getMargin(editor: Editor): Insets = DefaultMargin
 
@@ -23,7 +29,7 @@ private class HintRendererExt(parts: Seq[Text]) extends HintRenderer(parts.map(_
     val m = getMargin(editor)
     val p = getPadding(editor)
     val fontMetrics = getFontMetrics(editor).getMetrics
-    if (text == null) 0 else fontMetrics.stringWidth(text) + m.left + p.left + p.right + m.right
+    fontMetrics.stringWidth(getText) + m.left + p.left + p.right + m.right
   }
 
   override def paint(editor: Editor, g: Graphics, r: Rectangle, textAttributes: TextAttributes) {
@@ -37,7 +43,7 @@ private class HintRendererExt(parts: Seq[Text]) extends HintRenderer(parts.map(_
     val descent = editorImpl.getDescent
     val g2d = g.asInstanceOf[Graphics2D]
     val attributes = getTextAttributes(editor)
-    if (text != null && attributes != null) {
+    if (attributes != null) {
       val fontMetrics = getFontMetrics(editor)
       val gap = if (r.height < fontMetrics.getLineHeight + 2) 1 else 2
       val backgroundColor = attributes.getBackgroundColor
