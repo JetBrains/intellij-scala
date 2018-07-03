@@ -25,6 +25,8 @@ trait WorksheetAction {
   }
   
   def updateInner(e: AnActionEvent) {
+    if (e == null) return
+    
     val presentation = e.getPresentation
     val project = e.getProject
     
