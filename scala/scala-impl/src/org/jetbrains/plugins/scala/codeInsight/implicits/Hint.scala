@@ -1,20 +1,19 @@
 package org.jetbrains.plugins.scala.codeInsight.implicits
 
-import com.intellij.codeInsight.hints.InlayInfo
 import com.intellij.openapi.editor.{Inlay, InlayModel}
 import com.intellij.openapi.util.Key
 import com.intellij.psi.PsiElement
 
-case class Hint(text: String, element: PsiElement,
-                suffix: Boolean, underlined: Boolean = false,
+case class Hint(parts: Seq[Text], element: PsiElement, suffix: Boolean,
                 leftGap: Boolean = true, rightGap: Boolean = true,
                 menu: Option[String] = None) {
 
   def addTo(model: InlayModel): Inlay = {
-    val offset = if (suffix) element.getTextRange.getEndOffset else element.getTextRange.getStartOffset
-    val info = new InlayInfo(text, offset, false, true, suffix)
-    val renderer = new TextRenderer(info.getText, underlined, leftGap, rightGap, menu)
-    val inlay = model.addInlineElement(info.getOffset, info.getRelatesToPrecedingText, renderer)
+    val inlay = {
+      val offset = if (suffix) element.getTextRange.getEndOffset else element.getTextRange.getStartOffset
+      val renderer = new TextRenderer(parts, leftGap, rightGap, menu)
+      model.addInlineElement(offset, suffix, renderer)
+    }
     inlay.putUserData(Hint.ElementKey, element)
     inlay
   }
