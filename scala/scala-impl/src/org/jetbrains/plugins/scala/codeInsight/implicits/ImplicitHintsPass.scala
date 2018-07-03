@@ -7,6 +7,7 @@ import com.intellij.openapi.editor.ex.util.CaretVisualPositionKeeper
 import com.intellij.openapi.editor.markup.TextAttributes
 import com.intellij.openapi.progress.ProgressIndicator
 import com.intellij.openapi.util.Disposer
+import com.intellij.pom.Navigatable
 import com.intellij.psi.{PsiElement, PsiNamedElement}
 import com.intellij.util.DocumentUtil
 import org.jetbrains.plugins.scala.actions.ShowImplicitArgumentsAction
@@ -127,11 +128,12 @@ private object ImplicitHintsPass {
   private def presentationOf(e: PsiNamedElement): Seq[Text] = e match {
     case member: ScMember => presentationOf(member)
     case (_: ScReferencePattern) && Parent(Parent(member: ScMember with PsiNamedElement)) => presentationOf(member)
-    case it => Seq(Text(it.name))
+    case it => Seq(Text(it.name, navigatable = it.asOptionOf[Navigatable]))
   }
 
   private def presentationOf(member: ScMember with PsiNamedElement): Seq[Text] =
-    Option(member.containingClass).map(it => Seq(Text(it.name), Text("."))).getOrElse(Seq.empty) :+ Text(member.name)
+    Option(member.containingClass).map(it => Seq(Text(it.name, navigatable = Some(it)), Text("."))).getOrElse(Seq.empty) :+
+      Text(member.name, navigatable = Some(member))
 
   def implicitArgumentsHint(e: ScExpression, arguments: Seq[ScalaResolveResult], errorAttributes: TextAttributes): Seq[Hint] = {
     val text = Text("(") +: arguments.map(it => presentationOf(it, errorAttributes)).intersperse(Seq(Text(", "))).flatten :+ Text(")")
