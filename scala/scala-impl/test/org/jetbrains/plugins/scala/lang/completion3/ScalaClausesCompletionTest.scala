@@ -173,6 +173,24 @@ class ScalaClausesCompletionTest extends ScalaCodeInsightTestBase {
     item = "Foo(foo)"
   )
 
+  def testNamedPatternCompletion(): Unit = doCompletionTest(
+    fileText =
+      s"""case class Foo()
+         |
+         |Foo() match {
+         |  case foo@$CARET
+         |}
+       """.stripMargin,
+    resultText =
+      s"""case class Foo()
+         |
+         |Foo() match {
+         |  case foo@Foo()$CARET
+         |}
+       """.stripMargin,
+    item = "Foo()"
+  )
+
   def testSealedTrait(): Unit = doMatchCompletionTest(
     fileText =
       s"""sealed trait X
