@@ -766,7 +766,7 @@
 
         <intentionAction>
             <category>Scala/Expressions</category>
-            <className>org.jetbrains.plugins.scala.codeInsight.intention.expression.InlineImplicitConversionIntention</className>
+            <className>org.jetbrains.plugins.scala.codeInsight.intention.expression.MakeImplicitConversionExplicit</className>
         </intentionAction>
 
         <intentionAction>

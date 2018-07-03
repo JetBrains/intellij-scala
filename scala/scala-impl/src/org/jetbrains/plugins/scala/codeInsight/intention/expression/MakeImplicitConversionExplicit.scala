@@ -15,12 +15,12 @@ import org.jetbrains.plugins.scala.util.IntentionUtils.replaceWithExplicit
   * @since 5/4/12
   */
 
-object InlineImplicitConversionIntention {
-  def familyName = "Provide implicit conversion"
+object MakeImplicitConversionExplicit {
+  def familyName = "Make implicit conversion explicit"
 }
 
-class InlineImplicitConversionIntention extends PsiElementBaseIntentionAction {
-  def getFamilyName: String = InlineImplicitConversionIntention.familyName
+class MakeImplicitConversionExplicit extends PsiElementBaseIntentionAction {
+  def getFamilyName: String = MakeImplicitConversionExplicit.familyName
 
   override def getText: String = getFamilyName
 
