@@ -13,7 +13,6 @@ import org.jetbrains.plugins.scala.codeInsight.implicits.ImplicitHintsPass._
 import org.jetbrains.plugins.scala.extensions._
 import org.jetbrains.plugins.scala.lang.psi.ScalaPsiElement
 import org.jetbrains.plugins.scala.lang.psi.api.ImplicitParametersOwner
-import org.jetbrains.plugins.scala.lang.psi.api.base.patterns.ScReferencePattern
 import org.jetbrains.plugins.scala.lang.psi.api.expr.{ScArgumentExprList, ScExpression, ScMethodCall}
 import org.jetbrains.plugins.scala.lang.psi.api.statements.params.ScParameterClause
 import org.jetbrains.plugins.scala.lang.psi.api.toplevel.typedef.ScMember
@@ -121,14 +120,13 @@ private object ImplicitHintsPass {
     Seq(Hint(nameOf(conversion.element) + "(", e, suffix = false, rightGap = false),
       Hint(if (conversion.implicitParameters.nonEmpty) ")(...)" else ")", e, suffix = true, leftGap = false))
 
-  private def nameOf(e: PsiNamedElement): String = e match {
-    case member: ScMember => nameOf(member)
-    case (_: ScReferencePattern) && Parent(Parent(member: ScMember with PsiNamedElement)) => nameOf(member)
-    case it => it.name
-  }
+  private def nameOf(e: PsiNamedElement): String =
+    qualifierName(e).getOrElse("") + e.name
 
-  private def nameOf(member: ScMember with PsiNamedElement) =
-    Option(member.containingClass).map(_.name + ".").mkString + member.name
+  private def qualifierName(e: PsiNamedElement): Option[String] = e.nameContext match {
+    case m: ScMember => Option(m.containingClass).map(_.name + ".")
+    case _ => None
+  }
 
   def implicitArgumentsHint(e: ScExpression, arguments: Seq[ScalaResolveResult]): Seq[Hint] = {
     val text = arguments.map(presentationOf).mkString("(", ", ", ")")
