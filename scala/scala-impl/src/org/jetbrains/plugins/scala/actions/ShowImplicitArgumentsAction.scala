@@ -13,7 +13,7 @@ import com.intellij.openapi.editor.Editor
 import com.intellij.openapi.editor.colors.{CodeInsightColors, TextAttributesKey}
 import com.intellij.openapi.fileEditor.ex.IdeDocumentHistory
 import com.intellij.openapi.project.Project
-import com.intellij.openapi.ui.popup.{JBPopup, JBPopupFactory}
+import com.intellij.openapi.ui.popup.{JBPopup, JBPopupFactory, JBPopupListener, LightweightWindowEvent}
 import com.intellij.openapi.util.{Disposer, Ref}
 import com.intellij.psi.util.PsiUtilBase
 import com.intellij.psi.{PsiElement, PsiFile, PsiNamedElement, PsiWhiteSpace}
@@ -77,12 +77,23 @@ class ShowImplicitArgumentsAction extends AnAction("Show implicit arguments acti
   private def onChosen(target: ImplicitArgumentsTarget)(implicit editor: Editor): Unit = {
     val range = target.expression.getTextRange
 
+    val hadSelection = editor.getSelectionModel.hasSelection
+
     editor.getSelectionModel.setSelection(
       range.getStartOffset,
       range.getEndOffset
     )
 
-    showPopup(editor, target.arguments, target.implicitConversion.nonEmpty)
+    val popup = showPopup(editor, target.arguments, target.implicitConversion.nonEmpty)
+
+    if (!hadSelection) {
+      popup.addListener(new JBPopupListener {
+        override def onClosed(event: LightweightWindowEvent): Unit = {
+          editor.getSelectionModel.removeSelection()
+        }
+      })
+    }
+
   }
 
   private def findAllTargets(file: PsiFile)(implicit editor: Editor, project: Project) = {
@@ -173,7 +184,7 @@ class ShowImplicitArgumentsAction extends AnAction("Show implicit arguments acti
     succeeded.get
   }
 
-  private def showPopup(editor: Editor, results: Seq[ScalaResolveResult], isConversion: Boolean): Unit = {
+  private def showPopup(editor: Editor, results: Seq[ScalaResolveResult], isConversion: Boolean): JBPopup = {
     implicit val project = editor.getProject
 
     val tree = new Tree()
@@ -228,6 +239,7 @@ class ShowImplicitArgumentsAction extends AnAction("Show implicit arguments acti
     Disposer.register(popup, builder)
 
     popup.showInBestPositionFor(editor)
+    popup
   }
 
   private case class ImplicitArgumentsTarget(expression: PsiElement,
