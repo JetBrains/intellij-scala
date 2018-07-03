@@ -81,6 +81,7 @@ object ScalaFmtPreFormatProcessor {
     Option(StandardFileSystems.local.findFileByPath(absolutePathFromConfigPath(settings.SCALAFMT_CONFIG_PATH, project)))
 
   def storeOrUpdate(map: ConcurrentMap[VirtualFile, (ScalafmtConfig, Long)], vFile: VirtualFile, project: Project): ScalafmtConfig = {
+    vFile.refresh(false, false) //TODO use of asynchronous updates is a trade-off performance vs accuracy, can this be performance-heavy?
     Option(map.get(vFile)) match {
       case Some((config, stamp)) if stamp == vFile.getModificationStamp => config
       case _ =>
