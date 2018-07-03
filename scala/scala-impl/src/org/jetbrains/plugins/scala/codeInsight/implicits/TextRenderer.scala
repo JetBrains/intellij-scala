@@ -6,8 +6,11 @@ import com.intellij.openapi.editor.Editor
 import com.intellij.openapi.editor.colors.CodeInsightColors
 import com.intellij.openapi.editor.markup.TextAttributes
 
-private class TextRenderer(text: String, underlined: Boolean, leftGap: Boolean, rightGap: Boolean) extends HintRendererExt(text) {
-  override def getContextMenuGroupId: String = "ToggleImplicits"
+private class TextRenderer(text: String, underlined: Boolean,
+                           leftGap: Boolean, rightGap: Boolean,
+                           menu: Option[String]) extends HintRendererExt(text) {
+
+  override def getContextMenuGroupId: String = menu.orNull
 
   override protected def getMargin(editor: Editor): Insets =
     new Insets(0, if (leftGap) 2 else 1, 0, if (rightGap) 2 else 1)

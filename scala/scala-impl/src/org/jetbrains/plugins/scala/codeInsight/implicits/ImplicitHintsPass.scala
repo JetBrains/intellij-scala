@@ -118,7 +118,7 @@ private object ImplicitHintsPass {
   private final val MissingImplicitArgument = "?: "
 
   def implicitConversionHint(e: ScExpression, conversion: ScalaResolveResult): Seq[Hint] =
-    Seq(Hint(nameOf(conversion.element) + "(", e, suffix = false, rightGap = false),
+    Seq(Hint(nameOf(conversion.element) + "(", e, suffix = false, rightGap = false, menu = Some(menu.ImplicitConversion)),
       Hint(if (conversion.implicitParameters.nonEmpty) ")(...)" else ")", e, suffix = true, leftGap = false))
 
   private def nameOf(e: PsiNamedElement): String = e match {
@@ -132,7 +132,7 @@ private object ImplicitHintsPass {
 
   def implicitArgumentsHint(e: ScExpression, arguments: Seq[ScalaResolveResult]): Seq[Hint] = {
     val text = arguments.map(presentationOf).mkString("(", ", ", ")")
-    Seq(Hint(text, e, suffix = true, leftGap = false, underlined = text.contains(MissingImplicitArgument)))
+    Seq(Hint(text, e, suffix = true, leftGap = false, underlined = text.contains(MissingImplicitArgument), menu = Some(menu.ImplicitArguments)))
   }
 
   // TODO Show missing implicit parameter name?
@@ -146,6 +146,6 @@ private object ImplicitHintsPass {
   }
 
   def explicitImplicitArgumentsHint(args: ScArgumentExprList): Seq[Hint] =
-    Seq(Hint(".explicitly", args, suffix = false, leftGap = false, rightGap = false))
+    Seq(Hint(".explicitly", args, suffix = false, leftGap = false, rightGap = false, menu = Some(menu.ExplicitArguments)))
 }
 

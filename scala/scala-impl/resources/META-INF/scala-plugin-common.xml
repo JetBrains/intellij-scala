@@ -1410,6 +1410,9 @@
             <implementation-class>org.jetbrains.plugins.scala.editor.mouseHandler.MouseHoverHandler</implementation-class>
         </component>
         <component>
+            <implementation-class>org.jetbrains.plugins.scala.codeInsight.implicits.MouseHandler</implementation-class>
+        </component>
+        <component>
             <implementation-class>org.jetbrains.plugins.scala.lang.psi.impl.toplevel.synthetic.SyntheticClasses</implementation-class>
         </component>
         <component>
@@ -1648,6 +1651,24 @@
                     class="org.jetbrains.plugins.scala.codeInsight.hints.ScalaTypeHintsConfigurable$ToogleForObviousTypeAction"
                     text="Hints for obvious types"/>
         </group>
+
+      <group id="ImplicitConversionMenu">
+        <action id="MakeExplicit"
+                class="org.jetbrains.plugins.scala.codeInsight.implicits.menu.MakeConversionExplicit"
+                text="Make conversion explicit"/>
+      </group>
+
+      <group id="ImplicitArgumentsMenu">
+        <action id="MakeArgumentsExplicit"
+                class="org.jetbrains.plugins.scala.codeInsight.implicits.menu.MakeArgumentsExplicit"
+                text="Make arguments explicit"/>
+      </group>
+
+      <group id="ExplicitArgumentsMenu">
+        <action id="RemoveExplicitArguments"
+                class="org.jetbrains.plugins.scala.codeInsight.implicits.menu.RemoveExplicitArguments"
+                text="Remove explicit arguments"/>
+      </group>
 
       <action id="Scala.ShowImplicits"
               class="org.jetbrains.plugins.scala.codeInsight.implicits.ShowImplicitHintsAction"
