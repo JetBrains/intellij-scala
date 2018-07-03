@@ -41,10 +41,10 @@ class WorksheetFoldGroup(private val viewerEditor: Editor, private val originalE
       new TextRange(start, start + Math.min(end - start, WorksheetFoldGroup.PLACEHOLDER_LIMIT)))
     
     val region = foldingModel.createFoldRegion(start.toInt, end.toInt, placeholder, null, false)
+    
+    if (region == null) return //something went wrong
     region.setExpanded(isExpanded)
     addRegion(region, leftStart.toInt, spaces.toInt, leftSideLength.toInt)
-
-    foldingModel.addFoldRegion(region)
   }
 
   def addRegion(region: FoldRegion, start: Int, spaces: Int, leftSideLength: Int) {
