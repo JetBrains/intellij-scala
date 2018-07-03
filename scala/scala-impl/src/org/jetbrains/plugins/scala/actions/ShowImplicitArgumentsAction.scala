@@ -16,7 +16,7 @@ import com.intellij.openapi.project.Project
 import com.intellij.openapi.ui.popup.{JBPopup, JBPopupFactory}
 import com.intellij.openapi.util.{Disposer, Ref}
 import com.intellij.psi.util.PsiUtilBase
-import com.intellij.psi.{PsiElement, PsiNamedElement, PsiWhiteSpace}
+import com.intellij.psi.{PsiElement, PsiFile, PsiNamedElement, PsiWhiteSpace}
 import com.intellij.ui.treeStructure.Tree
 import com.intellij.ui.{ClickListener, ScrollPaneFactory}
 import com.intellij.util.ArrayUtil
@@ -25,8 +25,8 @@ import javax.swing.{Icon, JPanel, JTree}
 import org.jetbrains.plugins.scala.actions.ShowImplicitArgumentsAction._
 import org.jetbrains.plugins.scala.extensions._
 import org.jetbrains.plugins.scala.lang.psi.api.ScalaFile
-import org.jetbrains.plugins.scala.lang.psi.api.base.{ScConstructor, ScMethodLike, ScPrimaryConstructor}
 import org.jetbrains.plugins.scala.lang.psi.api.base.types.{ScParameterizedTypeElement, ScSimpleTypeElement, ScTypeElement}
+import org.jetbrains.plugins.scala.lang.psi.api.base.{ScConstructor, ScPrimaryConstructor}
 import org.jetbrains.plugins.scala.lang.psi.api.expr.{ScExpression, ScNewTemplateDefinition}
 import org.jetbrains.plugins.scala.lang.psi.api.statements.params.ScParameter
 import org.jetbrains.plugins.scala.lang.psi.api.statements.{ScDeclaredElementsHolder, ScFunctionDefinition}
@@ -34,14 +34,12 @@ import org.jetbrains.plugins.scala.lang.psi.api.toplevel.ScNamedElement
 import org.jetbrains.plugins.scala.lang.psi.api.toplevel.typedef.{ScClass, ScMember, ScObject, ScTrait}
 import org.jetbrains.plugins.scala.lang.psi.implicits.ImplicitCollector
 import org.jetbrains.plugins.scala.lang.psi.implicits.ImplicitCollector._
-import org.jetbrains.plugins.scala.lang.psi.types.{ScType, TypePresentationContext}
+import org.jetbrains.plugins.scala.lang.psi.types.ScType
+import org.jetbrains.plugins.scala.lang.refactoring.util.ScalaRefactoringUtil
 import org.jetbrains.plugins.scala.lang.refactoring.util.ScalaRefactoringUtil.getExpression
-import org.jetbrains.plugins.scala.lang.refactoring.util.{ScalaNamesUtil, ScalaRefactoringUtil}
 import org.jetbrains.plugins.scala.lang.resolve.ScalaResolveResult
 import org.jetbrains.plugins.scala.project.ProjectContext
 import org.jetbrains.plugins.scala.statistics.{FeatureKey, Stats}
-
-import scala.collection.mutable.ArrayBuffer
 
 /**
  * User: Alefas
@@ -62,69 +60,75 @@ class ShowImplicitArgumentsAction extends AnAction("Show implicit arguments acti
     val file = PsiUtilBase.getPsiFileInEditor(editor, project)
     if (!file.isInstanceOf[ScalaFile]) return
 
-    def forExpr(expr: PsiElement) {
-      val implicitParameters = implicitParams(expr)
-      implicitParameters match {
-        case None | Some(Seq()) =>
-          ScalaActionUtil.showHint(editor, "No implicit arguments")
-        case Some(seq) => showPopup(editor, seq)
-      }
-    }
-
     Stats.trigger(FeatureKey.showImplicitParameters)
 
-    if (editor.getSelectionModel.hasSelection) {
-      getExpression(file).foreach(forExpr)
-    } else {
+    val targets = findAllTargets(file)
+
+    if (targets.length == 0)
+      ScalaActionUtil.showHint(editor, "No implicit arguments")
+    else if (targets.length == 1)
+      onChosen(targets(0))
+    else
+      ScalaRefactoringUtil.showChooserGeneric[ImplicitArgumentsTarget](
+        editor, targets, onChosen, "Expressions", _.presentation, _.expression
+      )
+  }
+
+  private def onChosen(target: ImplicitArgumentsTarget)(implicit editor: Editor): Unit = {
+    val range = target.expression.getTextRange
+
+    editor.getSelectionModel.setSelection(
+      range.getStartOffset,
+      range.getEndOffset
+    )
+
+    showPopup(editor, target.arguments, target.implicitConversion.nonEmpty)
+  }
+
+  private def findAllTargets(file: PsiFile)(implicit editor: Editor, project: Project) = {
+    if (editor.getSelectionModel.hasSelection)
+      getExpression(file).toSeq.flatMap(allTargets).toArray
+    else {
       val offset = editor.getCaretModel.getOffset
       val element: PsiElement = file.findElementAt(offset) match {
         case w: PsiWhiteSpace if w.getTextRange.getStartOffset == offset &&
           w.getText.contains("\n") => file.findElementAt(offset - 1)
         case p => p
       }
-      def getExpressions: Array[PsiElement] = {
-        val res = new ArrayBuffer[PsiElement]
-        var parent = element
-        while (parent != null) {
-          implicitParams(parent) match {
-            case Some(seq) if seq.nonEmpty =>
-              parent match {
-                case constr: ScConstructor =>
-                  var p = constr.getParent
-                  if (p != null) p = p.getParent
-                  if (p != null) p = p.getParent
-                  if (!p.isInstanceOf[ScNewTemplateDefinition]) res += parent
-                case _ =>
-                  res += parent
-              }
-            case _ =>
-          }
-          parent = parent.getParent
-        }
-        res.toArray
-      }
-      val expressions = getExpressions
-      def chooseExpression(expr: PsiElement) {
-        editor.getSelectionModel.setSelection(expr.getTextRange.getStartOffset,
-          expr.getTextRange.getEndOffset)
-        forExpr(expr)
-      }
-      if (expressions.length == 0) {
-        ScalaActionUtil.showHint(editor, "No implicit arguments")
-      } else if (expressions.length == 1) {
-        chooseExpression(expressions(0))
-      } else {
-        ScalaRefactoringUtil.showChooser(editor, expressions, (elem: PsiElement) =>
-          chooseExpression(elem), "Expressions", (expr: PsiElement) => {
-          expr match {
-            case expr: ScExpression =>
-              ScalaRefactoringUtil.getShortText(expr)
-            case _ => expr.getText.slice(0, 20)
-          }
-        })
-      }
+      element.withParentsInFile.toBuffer.flatMap(allTargets).toArray
     }
   }
+
+  private def allTargets(element: PsiElement): Iterable[ImplicitArgumentsTarget] =
+    implicitArgsNoConversion(element) ++ implicitArgsConversion(element)
+
+  private def implicitArgsNoConversion(element: PsiElement): Option[ImplicitArgumentsTarget] = {
+    implicitParams(element) match {
+      case Some(seq) if seq.nonEmpty =>
+        element match {
+          case constr: ScConstructor =>
+            var p = constr.getParent
+            if (p != null) p = p.getParent
+            if (p != null) p = p.getParent
+            if (!p.isInstanceOf[ScNewTemplateDefinition])
+              Some(ImplicitArgumentsTarget(element, seq))
+            else None
+          case _ =>
+            Some(ImplicitArgumentsTarget(element, seq))
+        }
+      case _ => None
+    }
+  }
+
+  private def implicitArgsConversion(element: PsiElement): Option[ImplicitArgumentsTarget] =
+    element.asOptionOf[ScExpression]
+      .flatMap(_.implicitConversion())
+      .flatMap { srr =>
+        if (srr.implicitParameters.isEmpty) None
+        else Some {
+          ImplicitArgumentsTarget(element, srr.implicitParameters, Some(srr))
+        }
+      }
 
   private def getSelectedNode(jTree: JTree): AbstractTreeNode[_] = {
     val path: TreePath = jTree.getSelectionPath
@@ -169,7 +173,7 @@ class ShowImplicitArgumentsAction extends AnAction("Show implicit arguments acti
     succeeded.get
   }
 
-  private def showPopup(editor: Editor, results: Seq[ScalaResolveResult]) {
+  private def showPopup(editor: Editor, results: Seq[ScalaResolveResult], isConversion: Boolean): Unit = {
     implicit val project = editor.getProject
 
     val tree = new Tree()
@@ -194,14 +198,14 @@ class ShowImplicitArgumentsAction extends AnAction("Show implicit arguments acti
     val ENTER: Array[Shortcut] = CustomShortcutSet.fromString("ENTER").getShortcuts
     val shortcutSet: CustomShortcutSet = new CustomShortcutSet(ArrayUtil.mergeArrays(F4, ENTER): _*)
 
+    val title = if (isConversion) "Implicit arguments for implicit conversion:" else "Implicit arguments:"
 
     val popup: JBPopup = JBPopupFactory.getInstance().createComponentPopupBuilder(panel, jTree).
       setRequestFocus(true).
       setResizable(true).
-      setTitle("Implicit arguments:").
+      setTitle(title).
       setMinSize(new Dimension(minSize.width + 700, minSize.height)).
       createPopup
-
 
     new AnAction {
       def actionPerformed(e: AnActionEvent) {
@@ -224,6 +228,21 @@ class ShowImplicitArgumentsAction extends AnAction("Show implicit arguments acti
     Disposer.register(popup, builder)
 
     popup.showInBestPositionFor(editor)
+  }
+
+  private case class ImplicitArgumentsTarget(expression: PsiElement,
+                                             arguments: Seq[ScalaResolveResult],
+                                             implicitConversion: Option[ScalaResolveResult] = None) {
+    def presentation: String = {
+      val shortenedText = expression match {
+        case e: ScExpression => ScalaRefactoringUtil.getShortText(e)
+        case _ => expression.getText.take(20)
+      }
+      implicitConversion match {
+        case None => shortenedText
+        case Some(c) => c.element.name + s"($shortenedText) //implicit conversion"
+      }
+    }
   }
 }
 
