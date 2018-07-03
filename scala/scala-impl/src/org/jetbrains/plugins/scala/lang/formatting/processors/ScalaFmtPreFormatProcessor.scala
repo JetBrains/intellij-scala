@@ -62,7 +62,7 @@ object ScalaFmtPreFormatProcessor {
       scalaFmtConfigFile(settings, project) match {
         case Some(custom) => storeOrUpdate(externalScalafmtConfigs, custom, project)
         case _ =>
-          reportBadConfig(settings.SCALAFMT_CONFIG_PATH, psi)
+          reportBadConfig(settings.SCALAFMT_CONFIG_PATH, project)
           ScalafmtConfig.intellij
       }
     } else {
@@ -84,9 +84,13 @@ object ScalaFmtPreFormatProcessor {
     Option(map.get(vFile)) match {
       case Some((config, stamp)) if stamp == vFile.getModificationStamp => config
       case _ =>
-        val newVal = (loadConfig(vFile, project), vFile.getModificationStamp)
-        map.put(vFile, newVal)
-        newVal._1
+        loadConfig(vFile,project).map{ config =>
+          map.put(vFile, (config, vFile.getModificationStamp))
+          config
+        }.getOrElse {
+          reportBadConfig(vFile.getCanonicalPath, project)
+          ScalafmtConfig.intellij
+        }
     }
   }
 
@@ -221,12 +225,11 @@ object ScalaFmtPreFormatProcessor {
     }
   }
 
-  private def loadConfig(configFile: VirtualFile, project: Project): ScalafmtConfig = {
+  private def loadConfig(configFile: VirtualFile, project: Project): Option[ScalafmtConfig] = {
     PsiManager.getInstance(project).findFile(configFile) match {
       case hoconFile: HoconPsiFile =>
-        val res = Config.fromHoconString(hoconFile.getText)
-        res.getOrElse(ScalafmtConfig.intellij)
-      case _ => ScalafmtConfig.intellij
+        Config.fromHoconString(hoconFile.getText).toEither.toOption
+      case _ => None
     }
   }
 
@@ -308,8 +311,7 @@ object ScalaFmtPreFormatProcessor {
 
   private val externalScalafmtConfigs: ConcurrentMap[VirtualFile, (ScalafmtConfig, Long)] = ContainerUtil.createConcurrentWeakMap()
 
-  private def reportError(errorText: String, psiFile: PsiFile): Unit = {
-    val project = psiFile.getProject
+  private def reportError(errorText: String, project: Project): Unit = {
     val popupFactory = JBPopupFactory.getInstance
     val frame = WindowManagerEx.getInstanceEx.getFrame(project)
     val balloon = popupFactory.createHtmlTextBalloonBuilder(
@@ -319,11 +321,11 @@ object ScalaFmtPreFormatProcessor {
     balloon.show(new RelativePoint(frame, new Point(frame.getWidth - 20, 20)), Balloon.Position.above)
   }
 
-  private def reportInvalidCodeFailure(psiFile: PsiFile): Unit =
-    reportError("Failed to find correct surrounding code to pass for scalafmt, no formatting will be performed", psiFile)
+  private def reportInvalidCodeFailure(project: Project): Unit =
+    reportError("Failed to find correct surrounding code to pass for scalafmt, no formatting will be performed", project)
 
-  private def reportBadConfig(path: String, psiFile: PsiFile): Unit =
-    reportError("Failed to load scalafmt config " + path + ", using default configuration instead", psiFile)
+  private def reportBadConfig(path: String, project: Project): Unit =
+    reportError("Failed to load scalafmt config " + path + ", using default configuration instead", project)
 
   //TODO get rid of this once com.intellij.util.text.TextRanges does not have an error on unifying (x, x+1) V (x+1, y)
   class TextRanges(val ranges: Seq[TextRange]) {
