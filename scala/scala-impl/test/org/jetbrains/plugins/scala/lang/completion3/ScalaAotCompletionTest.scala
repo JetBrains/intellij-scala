@@ -81,6 +81,21 @@ class ScalaAotCompletionTest extends ScalaCodeInsightTestBase {
     tailTextSuffix = "(java.awt)"
   )
 
+  def testErasure(): Unit = doAotCompletionTest(
+    fileText =
+      s"""class Foo
+         |class Bar
+         |def foo(ba${CARET}foo:  Foo): Unit = {}
+       """.stripMargin,
+    resultText =
+      s"""class Foo
+         |class Bar
+         |def foo(bar: Bar$CARET): Unit = {}
+       """.stripMargin,
+    lookupString = "Bar",
+    itemText = "bar: Bar"
+  )
+
   private def doAotCompletionTest(fileText: String,
                                   resultText: String,
                                   lookupString: String,
