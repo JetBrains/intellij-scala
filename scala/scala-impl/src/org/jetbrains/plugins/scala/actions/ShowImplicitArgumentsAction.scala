@@ -339,7 +339,7 @@ class ImplicitParametersTreeStructure(project: Project,
         }
         value.implicitSearchState match {
           case Some(state) =>
-            val collector = new ImplicitCollector(state)
+            val collector = new ImplicitCollector(state.copy(fullInfo = true))
             collector.collect().foreach { r =>
               r.implicitReason match {
                 case TypeDoesntConformResult =>
