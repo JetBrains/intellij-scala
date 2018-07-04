@@ -41,7 +41,7 @@ class ScalaAotCompletionContributor extends ScalaCompletionContributor {
         (parameter, parameter.paramType)
       }
 
-      override protected def createConsumer(prefix: String, resultSet: CompletionResultSet): AotConsumer = new AotConsumer(prefix, resultSet) {
+      override protected def createConsumer(resultSet: CompletionResultSet): AotConsumer = new AotConsumer(resultSet) {
 
         override protected def createInsertHandler(itemText: String): AotInsertHandler = new AotInsertHandler(itemText) {
 
@@ -99,7 +99,7 @@ class ScalaAotCompletionContributor extends ScalaCompletionContributor {
       override protected def findContext(element: ScValueDeclaration): PsiElement =
         super.findContext(element).getContext.getContext
 
-      override protected def createConsumer(prefix: String, resultSet: CompletionResultSet): AotConsumer = new AotConsumer(prefix, resultSet) {
+      override protected def createConsumer(resultSet: CompletionResultSet): AotConsumer = new AotConsumer(resultSet) {
 
         private val consumed = mutable.Set.empty[String]
 
@@ -143,9 +143,7 @@ object ScalaAotCompletionContributor {
       val element = positionFromParameters(parameters)
       if (!ScalaProjectSettings.getInstance(element.getProject).isAotCompletion) return
 
-      val prefixMatcher = resultSet.getPrefixMatcher
-      val prefix = prefixMatcher.getPrefix
-
+      val prefix = resultSet.getPrefixMatcher.getPrefix
       if (!ScalaNamesValidator.isIdentifier(prefix) || prefix.exists(!_.isLetterOrDigit)) return
 
       val (replacement, Some(typeElement)) = createElement(
@@ -157,11 +155,9 @@ object ScalaAotCompletionContributor {
       val context = findContext(replacement)
       replacement.setContext(context, context.getLastChild)
 
-      val identifier = findIdentifier(typeElement)
-      val newParameters = parameters.withPosition(identifier, identifier.getTextRange.getStartOffset + prefix.length)
-
-      val newResultSet = resultSet.withPrefixMatcher(prefixMatcher.cloneWithPrefix(capitalize(prefix)))
-      newResultSet.runRemainingContributors(newParameters, createConsumer(prefix, newResultSet), true)
+      val newParameters = createParameters(typeElement, prefix, parameters)
+      val consumer = createConsumer(resultSet)
+      consumer.resultSet.runRemainingContributors(newParameters, consumer, true)
     }
 
     protected def createElement(text: String,
@@ -170,17 +166,25 @@ object ScalaAotCompletionContributor {
 
     protected def findContext(element: E): PsiElement = element.getContext.getContext
 
-    protected def createConsumer(prefix: String, resultSet: CompletionResultSet): AotConsumer
+    protected def createConsumer(resultSet: CompletionResultSet): AotConsumer
 
-    private def findIdentifier(element: ScalaPsiElement): PsiElement =
-      element.depthFirst()
+    private def createParameters(typeElement: ScalaPsiElement,
+                                 prefix: String,
+                                 parameters: CompletionParameters) = {
+      val Some(identifier) = typeElement.depthFirst()
         .find(_.getNode.getElementType == tIDENTIFIER)
-        .get
+
+      parameters.withPosition(identifier, prefix.length + identifier.getTextRange.getStartOffset)
+    }
   }
 
-  private abstract class AotConsumer(prefix: String, resultSet: CompletionResultSet) extends Consumer[CompletionResult] {
+  private abstract class AotConsumer(originalResultSet: CompletionResultSet) extends Consumer[CompletionResult] {
 
+    private val prefixMatcher = originalResultSet.getPrefixMatcher
+    private val prefix = prefixMatcher.getPrefix
     private val targetPrefix = capitalize(prefix.takeWhile(_.isLower))
+
+    val resultSet: CompletionResultSet = originalResultSet.withPrefixMatcher(prefixMatcher.cloneWithPrefix(capitalize(prefix)))
 
     def consume(result: CompletionResult) {
       val lookupElement = result.getLookupElement
