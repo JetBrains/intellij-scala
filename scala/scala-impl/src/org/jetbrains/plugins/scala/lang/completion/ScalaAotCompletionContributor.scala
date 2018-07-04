@@ -4,7 +4,6 @@ package completion
 
 import com.intellij.codeInsight.completion._
 import com.intellij.codeInsight.lookup._
-import com.intellij.openapi.util.TextRange
 import com.intellij.openapi.util.text.StringUtil
 import com.intellij.patterns.PlatformPatterns
 import com.intellij.psi.PsiElement
@@ -45,31 +44,19 @@ class ScalaAotCompletionContributor extends ScalaCompletionContributor {
 
         override protected def createInsertHandler(itemText: String): AotInsertHandler = new AotInsertHandler(itemText) {
 
-          override def handleInsert(context: InsertionContext, lookupElement: LookupElement): Unit = {
-            val range = TextRange.create(context.getStartOffset, context.getTailOffset)
-              .shiftRight(itemText.indexOf(Delimiter) + Delimiter.length)
+          private val delta = itemText.indexOf(Delimiter) + Delimiter.length
 
-            super.handleInsert(context, lookupElement)
+          override def handleInsert(context: InsertionContext, decorator: Decorator): Unit = {
+            super.handleInsert(context, decorator)
 
-            lookups.ScalaLookupItem.original(lookupElement)
-              .handleInsert(createContext(range, context))
+            updateStartOffset(context.getOffsetMap)
+            decorator.getDelegate.handleInsert(context)
           }
 
-          private def createContext(range: TextRange, context: InsertionContext) = {
-            val InsertionContextExt(editor, document, file, _) = context
-
-            val offsetMap = new OffsetMap(document)
-            offsetMap.addOffset(CompletionInitializationContext.START_OFFSET, range.getStartOffset)
-            offsetMap.addOffset(InsertionContext.TAIL_OFFSET, range.getEndOffset)
-
-            new InsertionContext(
-              offsetMap,
-              context.getCompletionChar,
-              context.getElements,
-              file,
-              editor,
-              context.shouldAddCompletionChar
-            )
+          private def updateStartOffset(offsetMap: OffsetMap): Unit = {
+            import CompletionInitializationContext.START_OFFSET
+            val startOffset = offsetMap.getOffset(START_OFFSET) + delta
+            offsetMap.addOffset(START_OFFSET, startOffset)
           }
         }
 
@@ -109,8 +96,7 @@ class ScalaAotCompletionContributor extends ScalaCompletionContributor {
 
         override protected def createRenderer(itemText: String): AotLookupElementRenderer = new AotLookupElementRenderer(itemText) {
 
-          override def renderElement(decorator: LookupElementDecorator[LookupElement],
-                                     presentation: LookupElementPresentation): Unit = {
+          override def renderElement(decorator: Decorator, presentation: LookupElementPresentation): Unit = {
             super.renderElement(decorator, presentation)
 
             presentation.setIcon(null)
@@ -134,6 +120,8 @@ object ScalaAotCompletionContributor {
   import StringUtil.{capitalize, decapitalize}
 
   private val Delimiter = tCOLON + " "
+
+  private type Decorator = LookupElementDecorator[LookupElement]
 
   private trait AotCompletionProvider[E <: ScalaPsiElement] extends CompletionProvider[CompletionParameters] {
 
@@ -194,10 +182,11 @@ object ScalaAotCompletionContributor {
     protected def consume(lookupElement: LookupElement, itemText: String): Unit = {
       import LookupElementDecorator._
 
-      resultSet.consume(withInsertHandler(
+      val decoratedLookupElement = withInsertHandler(
         withRenderer(lookupElement, createRenderer(itemText)),
         createInsertHandler(itemText)
-      ))
+      )
+      resultSet.consume(decoratedLookupElement)
     }
 
     protected def createRenderer(itemText: String) = new AotLookupElementRenderer(itemText)
@@ -212,18 +201,17 @@ object ScalaAotCompletionContributor {
     )
   }
 
-  private class AotLookupElementRenderer(itemText: String) extends LookupElementRenderer[LookupElementDecorator[LookupElement]] {
+  private class AotLookupElementRenderer(itemText: String) extends LookupElementRenderer[Decorator] {
 
-    def renderElement(decorator: LookupElementDecorator[LookupElement],
-                      presentation: LookupElementPresentation): Unit = {
+    def renderElement(decorator: Decorator, presentation: LookupElementPresentation): Unit = {
       decorator.getDelegate.renderElement(presentation)
       presentation.setItemText(itemText)
     }
   }
 
-  protected class AotInsertHandler(itemText: String) extends InsertHandler[LookupElement] {
+  protected class AotInsertHandler(itemText: String) extends InsertHandler[Decorator] {
 
-    def handleInsert(context: InsertionContext, lookupElement: LookupElement): Unit = {
+    def handleInsert(context: InsertionContext, decorator: Decorator): Unit = {
       context.getDocument.replaceString(
         context.getStartOffset,
         context.getTailOffset,
