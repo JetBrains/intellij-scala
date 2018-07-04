@@ -10,7 +10,7 @@ import com.intellij.openapi.util.text.StringUtil
 import com.intellij.patterns.PlatformPatterns
 import com.intellij.psi.PsiElement
 import com.intellij.util.{Consumer, ProcessingContext}
-import org.jetbrains.plugins.scala.extensions.PsiElementExt
+import org.jetbrains.plugins.scala.extensions._
 import org.jetbrains.plugins.scala.lang.lexer.ScalaTokenTypes
 import org.jetbrains.plugins.scala.lang.psi.ScalaPsiElement
 import org.jetbrains.plugins.scala.lang.psi.api.base.ScFieldId
@@ -27,33 +27,34 @@ import scala.collection.mutable
   */
 class ScalaAotCompletionContributor extends ScalaCompletionContributor {
 
+  import ScalaAotCompletionContributor._
+  import ScalaPsiElementFactory.{createDeclarationFromText, createParamClausesWithContext}
+  import ScalaTokenTypes._
+
   extend(
     CompletionType.BASIC,
-    PlatformPatterns.psiElement(ScalaTokenTypes.tIDENTIFIER).withParent(classOf[ScParameter]),
+    PlatformPatterns.psiElement(tIDENTIFIER).withParent(classOf[ScParameter]),
     new AotCompletionProvider[ScParameter] {
 
-      override protected def createElement(text: String, child: PsiElement): ScParameter =
-        ScalaPsiElementFactory.createParamClausesWithContext(s"($text)", child.getContext, child).params.head
+      override protected def createElement(text: String,
+                                           context: PsiElement,
+                                           child: PsiElement): ScParameter =
+        createParamClausesWithContext(text.parenthesize(), context, child).params.head
 
       override protected def typeElement(parameter: ScParameter): Option[ScalaPsiElement] = parameter.paramType
 
       override protected def createConsumer(prefixMatcher: PrefixMatcher, resultSet: CompletionResultSet): MyConsumer = new MyConsumer(prefixMatcher, resultSet) {
 
-        override protected def createRenderer(name: String): MyElementRenderer =
-          (presentation: LookupElementPresentation) => s"$name: ${presentation.getItemText}"
-
-        override protected def createInsertHandler(name: String): MyInsertHandler = new MyInsertHandler {
+        override protected def createInsertHandler(itemText: String): AotInsertHandler = new AotInsertHandler(itemText) {
 
           override protected def handleInsert(item: LookupElement, range: TextRange)
                                              (implicit context: InsertionContext): Unit = {
             super.handleInsert(item, range)
 
-            val newContext = contextWith(range.shiftRight(name.length + 2))
+            val nameLength = itemText.indexOf(Delimiter)
+            val newContext = contextWith(range.shiftRight(nameLength + Delimiter.length))
             lookups.ScalaLookupItem.original(item).handleInsert(newContext)
           }
-
-          override protected def replacement(document: Document, range: TextRange): String =
-            s"$name: ${document.getText(range)}"
 
           private def offsetMap(document: Document, range: TextRange) = {
             val map = new OffsetMap(document)
@@ -72,13 +73,16 @@ class ScalaAotCompletionContributor extends ScalaCompletionContributor {
             context.shouldAddCompletionChar
           )
         }
+
+        override protected def suggestItemText(lookupString: String): String =
+          super.suggestItemText(lookupString) + Delimiter + lookupString
       }
     }
   )
 
   extend(
     CompletionType.BASIC,
-    PlatformPatterns.psiElement(ScalaTokenTypes.tIDENTIFIER).withParent(classOf[ScFieldId]),
+    PlatformPatterns.psiElement(tIDENTIFIER).withParent(classOf[ScFieldId]),
     new AotCompletionProvider[ScValueDeclaration] {
 
       override def addCompletions(parameters: CompletionParameters, context: ProcessingContext, resultSet: CompletionResultSet): Unit =
@@ -87,9 +91,10 @@ class ScalaAotCompletionContributor extends ScalaCompletionContributor {
           case _ =>
         }
 
-      override protected def createElement(text: String, child: PsiElement): ScValueDeclaration =
-        ScalaPsiElementFactory.createDeclarationFromText(s"val $text", child.getContext, child)
-          .asInstanceOf[ScValueDeclaration]
+      override protected def createElement(text: String,
+                                           context: PsiElement,
+                                           child: PsiElement): ScValueDeclaration =
+        createDeclarationFromText(kVAL + " " + text, context, child).asInstanceOf[ScValueDeclaration]
 
       override protected def context(element: ScValueDeclaration): PsiElement =
         super.context(element).getContext.getContext
@@ -104,20 +109,16 @@ class ScalaAotCompletionContributor extends ScalaCompletionContributor {
           if (consumed.add(name)) super.consume(element, name)
         }
 
-        override protected def createRenderer(name: String): MyElementRenderer = new MyElementRenderer {
+        override protected def createRenderer(itemText: String): AotLookupElementRenderer = new AotLookupElementRenderer(itemText) {
 
-          override def renderElement(element: LookupElementDecorator[LookupElement], presentation: LookupElementPresentation): Unit = {
-            super.renderElement(element, presentation)
+          override def renderElement(decorator: LookupElementDecorator[LookupElement],
+                                     presentation: LookupElementPresentation): Unit = {
+            super.renderElement(decorator, presentation)
 
             presentation.setIcon(null)
             presentation.setTailText(null)
           }
-
-          override protected def itemText(presentation: LookupElementPresentation): String = name
         }
-
-        override protected def createInsertHandler(name: String): MyInsertHandler =
-          (_: Document, _: TextRange) => name
       }
     }
   )
@@ -136,7 +137,11 @@ class ScalaAotCompletionContributor extends ScalaCompletionContributor {
 
       if (!ScalaNamesValidator.isIdentifier(prefix) || prefix.exists(!_.isLetterOrDigit)) return
 
-      val replacement = createElement(prefix + ": " + capitalize(element.getText), element)
+      val replacement = createElement(
+        prefix + Delimiter + capitalize(element.getText),
+        element.getContext,
+        element
+      )
 
       val context = this.context(replacement)
       replacement.setContext(context, context.getLastChild)
@@ -151,7 +156,9 @@ class ScalaAotCompletionContributor extends ScalaCompletionContributor {
       newResultSet.runRemainingContributors(newParameters, createConsumer(prefixMatcher, newResultSet), true)
     }
 
-    protected def createElement(text: String, child: PsiElement): E
+    protected def createElement(text: String,
+                                context: PsiElement,
+                                child: PsiElement): E
 
     protected def context(element: E): PsiElement = element.getContext.getContext
 
@@ -161,7 +168,7 @@ class ScalaAotCompletionContributor extends ScalaCompletionContributor {
 
     private def findIdentifier(element: ScalaPsiElement): Option[PsiElement] =
       element.depthFirst()
-        .find(_.getNode.getElementType == ScalaTokenTypes.tIDENTIFIER)
+        .find(_.getNode.getElementType == tIDENTIFIER)
 
     protected abstract class MyConsumer(prefixMatcher: PrefixMatcher, resultSet: CompletionResultSet) extends Consumer[CompletionResult] {
 
@@ -169,66 +176,68 @@ class ScalaAotCompletionContributor extends ScalaCompletionContributor {
 
       def consume(result: CompletionResult) {
         val element = result.getLookupElement
-        consume(element, suggestName(element.getLookupString))
+        consume(element, suggestItemText(element.getLookupString))
       }
 
-      protected def consume(element: LookupElement, name: String): Unit = {
+      protected def consume(element: LookupElement, itemText: String): Unit = {
         import LookupElementDecorator._
 
         resultSet.consume(withInsertHandler(
-          withRenderer(element, createRenderer(name)),
-          createInsertHandler(name)
+          withRenderer(element, createRenderer(itemText)),
+          createInsertHandler(itemText)
         ))
       }
 
-      protected def createRenderer(name: String): MyElementRenderer
+      protected def createRenderer(itemText: String) = new AotLookupElementRenderer(itemText)
 
-      protected def createInsertHandler(name: String): MyInsertHandler
+      protected def createInsertHandler(itemText: String) = new AotInsertHandler(itemText)
 
-      private def suggestName(entity: String): String = {
+      protected def suggestItemText(lookupString: String): String = {
         import StringUtil.{capitalize, decapitalize}
 
-        val name = entity.indexOf(capitalize(lowerCasePrefix)) match {
-          case -1 => entity
-          case index => entity.substring(index)
+        val name = lookupString.indexOf(capitalize(lowerCasePrefix)) match {
+          case -1 => lookupString
+          case index => lookupString.substring(index)
         }
 
         decapitalize(name)
       }
-
-      protected trait MyElementRenderer extends LookupElementRenderer[LookupElementDecorator[LookupElement]] {
-
-        def renderElement(element: LookupElementDecorator[LookupElement], presentation: LookupElementPresentation): Unit = {
-          element.getDelegate.renderElement(presentation)
-          presentation.setItemText(itemText(presentation))
-        }
-
-        protected def itemText(presentation: LookupElementPresentation): String
-      }
-
-      protected trait MyInsertHandler extends InsertHandler[LookupElement] {
-
-        def handleInsert(context: InsertionContext, item: LookupElement): Unit = {
-          val range = TextRange.create(context.getStartOffset, context.getTailOffset)
-          handleInsert(item, range)(context)
-        }
-
-        protected def handleInsert(item: LookupElement, range: TextRange)
-                                  (implicit context: InsertionContext): Unit = {
-          val document = context.getDocument
-          document.replaceString(
-            range.getStartOffset,
-            range.getEndOffset,
-            replacement(document, range)
-          )
-          context.commitDocument()
-        }
-
-        protected def replacement(document: Document, range: TextRange): String
-      }
-
     }
 
+  }
+
+}
+
+object ScalaAotCompletionContributor {
+
+  private val Delimiter = ScalaTokenTypes.tCOLON + " "
+
+  private class AotLookupElementRenderer(itemText: String) extends LookupElementRenderer[LookupElementDecorator[LookupElement]] {
+
+    def renderElement(decorator: LookupElementDecorator[LookupElement],
+                      presentation: LookupElementPresentation): Unit = {
+      decorator.getDelegate.renderElement(presentation)
+      presentation.setItemText(itemText)
+    }
+  }
+
+  protected class AotInsertHandler(itemText: String) extends InsertHandler[LookupElement] {
+
+    def handleInsert(context: InsertionContext, item: LookupElement): Unit = {
+      val range = TextRange.create(context.getStartOffset, context.getTailOffset)
+      handleInsert(item, range)(context)
+    }
+
+    protected def handleInsert(item: LookupElement, range: TextRange)
+                              (implicit context: InsertionContext): Unit = {
+      val document = context.getDocument
+      document.replaceString(
+        range.getStartOffset,
+        range.getEndOffset,
+        itemText
+      )
+      context.commitDocument()
+    }
   }
 
 }
