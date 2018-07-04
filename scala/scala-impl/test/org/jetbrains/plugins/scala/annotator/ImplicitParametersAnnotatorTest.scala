@@ -79,6 +79,28 @@ class ImplicitParametersAnnotatorTest extends AnnotatorTestBase(ImplicitParamete
       |}
     """.stripMargin
   ))
+
+  def testImplicitCollectorCacheBug(): Unit = {
+    val actualMessages = messages(
+      """
+        |implicit def int: Int = 1
+        |implicit def bool(implicit int: Int): Boolean = true
+        |
+        |def foo(j: Int)(implicit b: Boolean) = j
+        |
+        |def test(): Unit = {
+        |  foo(1)
+        |
+        |  {
+        |    implicit val secondInt: Int = 2
+        |    foo(2)
+        |  }
+        |
+        |  foo(3)
+        |}
+      """.stripMargin).get
+    assertMessages(Error("foo(2)", notFound("Boolean")) :: Nil)(actualMessages)
+  }
 }
 
 //annotator tests doesn't have scala library, so it's not possible to use FunctionType, for example

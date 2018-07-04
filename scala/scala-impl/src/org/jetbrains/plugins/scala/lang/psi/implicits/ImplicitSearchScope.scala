@@ -29,7 +29,7 @@ object ImplicitSearchScope {
   }
 
   private def findBorderUp(e: PsiElement): Option[PsiElement] = {
-    e.contexts
+    e.withContexts
       .takeWhile(e => e != null && !e.isInstanceOf[PsiFile])
       .flatMap(_.prevSiblings)
       .find(isImplicitSearchBorder)
