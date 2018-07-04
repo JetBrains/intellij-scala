@@ -4,7 +4,6 @@ package completion
 
 import com.intellij.codeInsight.completion._
 import com.intellij.codeInsight.lookup._
-import com.intellij.openapi.editor.Document
 import com.intellij.openapi.util.TextRange
 import com.intellij.openapi.util.text.StringUtil
 import com.intellij.patterns.PlatformPatterns
@@ -47,31 +46,32 @@ class ScalaAotCompletionContributor extends ScalaCompletionContributor {
 
         override protected def createInsertHandler(itemText: String): AotInsertHandler = new AotInsertHandler(itemText) {
 
-          override protected def handleInsert(item: LookupElement, range: TextRange)
-                                             (implicit context: InsertionContext): Unit = {
-            super.handleInsert(item, range)
+          override def handleInsert(context: InsertionContext, lookupElement: LookupElement): Unit = {
+            val range = TextRange.create(context.getStartOffset, context.getTailOffset)
+              .shiftRight(itemText.indexOf(Delimiter) + Delimiter.length)
 
-            val nameLength = itemText.indexOf(Delimiter)
-            val newContext = contextWith(range.shiftRight(nameLength + Delimiter.length))
-            lookups.ScalaLookupItem.original(item).handleInsert(newContext)
+            super.handleInsert(context, lookupElement)
+
+            lookups.ScalaLookupItem.original(lookupElement)
+              .handleInsert(createContext(range, context))
           }
 
-          private def offsetMap(document: Document, range: TextRange) = {
-            val map = new OffsetMap(document)
-            map.addOffset(CompletionInitializationContext.START_OFFSET, range.getStartOffset)
-            map.addOffset(InsertionContext.TAIL_OFFSET, range.getEndOffset)
-            map
-          }
+          private def createContext(range: TextRange, context: InsertionContext) = {
+            val InsertionContextExt(editor, document, file, _) = context
 
-          private def contextWith(range: TextRange)
-                                 (implicit context: InsertionContext) = new InsertionContext(
-            offsetMap(context.getDocument, range),
-            context.getCompletionChar,
-            context.getElements,
-            context.getFile,
-            context.getEditor,
-            context.shouldAddCompletionChar
-          )
+            val offsetMap = new OffsetMap(document)
+            offsetMap.addOffset(CompletionInitializationContext.START_OFFSET, range.getStartOffset)
+            offsetMap.addOffset(InsertionContext.TAIL_OFFSET, range.getEndOffset)
+
+            new InsertionContext(
+              offsetMap,
+              context.getCompletionChar,
+              context.getElements,
+              file,
+              editor,
+              context.shouldAddCompletionChar
+            )
+          }
         }
 
         override protected def suggestItemText(lookupString: String): String =
@@ -223,17 +223,10 @@ object ScalaAotCompletionContributor {
 
   protected class AotInsertHandler(itemText: String) extends InsertHandler[LookupElement] {
 
-    def handleInsert(context: InsertionContext, item: LookupElement): Unit = {
-      val range = TextRange.create(context.getStartOffset, context.getTailOffset)
-      handleInsert(item, range)(context)
-    }
-
-    protected def handleInsert(item: LookupElement, range: TextRange)
-                              (implicit context: InsertionContext): Unit = {
-      val document = context.getDocument
-      document.replaceString(
-        range.getStartOffset,
-        range.getEndOffset,
+    def handleInsert(context: InsertionContext, lookupElement: LookupElement): Unit = {
+      context.getDocument.replaceString(
+        context.getStartOffset,
+        context.getTailOffset,
         itemText
       )
       context.commitDocument()
