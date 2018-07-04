@@ -1506,6 +1506,9 @@
       <component>
         <implementation-class>org.jetbrains.plugins.scala.annotator.usageTracker.ScalaRefCountHolderComponent</implementation-class>
       </component>
+      <component>
+        <implementation-class>org.jetbrains.plugins.scala.lang.formatting.ReformatOnCompileTask</implementation-class>
+      </component>
     </project-components>
 
     <actions>

@@ -12,6 +12,7 @@ import com.intellij.psi.impl.source.tree.TreeUtil
 import com.intellij.psi.tree.IElementType
 import org.jetbrains.plugins.scala.lang.formatting.ScalaFormattingModelBuilder._
 import org.jetbrains.plugins.scala.lang.lexer.ScalaTokenTypes
+import org.jetbrains.plugins.scala.extensions.inWriteAction
 
 sealed class ScalaFormattingModelBuilder extends FormattingModelBuilder {
 
@@ -43,7 +44,7 @@ object ScalaFormattingModelBuilder {
       if (prevNode != null && ScalaTokenTypes.WHITES_SPACES_FOR_FORMATTER_TOKEN_SET.contains(prevNode.getElementType)) {
         elementTypeToUse = prevNode.getElementType
       }
-      com.intellij.psi.formatter.FormatterUtil.replaceWhiteSpace(whiteSpace, leafElement, elementTypeToUse, textRange)
+      inWriteAction(com.intellij.psi.formatter.FormatterUtil.replaceWhiteSpace(whiteSpace, leafElement, elementTypeToUse, textRange))
       whiteSpace
     }
   }
