@@ -2,7 +2,7 @@ package org.jetbrains.plugins.scala.codeInsight.implicits
 
 import com.intellij.codeHighlighting.EditorBoundHighlightingPass
 import com.intellij.openapi.editor.Editor
-import com.intellij.openapi.editor.colors.CodeInsightColors
+import com.intellij.openapi.editor.colors.{CodeInsightColors, EditorColors, EditorColorsScheme}
 import com.intellij.openapi.editor.ex.util.CaretVisualPositionKeeper
 import com.intellij.openapi.editor.markup.TextAttributes
 import com.intellij.openapi.progress.ProgressIndicator
@@ -10,6 +10,7 @@ import com.intellij.openapi.util.Disposer
 import com.intellij.pom.Navigatable
 import com.intellij.psi.{PsiElement, PsiNamedElement}
 import com.intellij.util.DocumentUtil
+import com.intellij.util.ui.UIUtil
 import org.jetbrains.plugins.scala.actions.ShowImplicitArgumentsAction
 import org.jetbrains.plugins.scala.annotator.ScalaAnnotator
 import org.jetbrains.plugins.scala.codeInsight.implicits.ImplicitHintsPass._
@@ -49,9 +50,8 @@ private class ImplicitHintsPass(editor: Editor, rootElement: ScalaPsiElement)
     rootElement.depthFirst().foreach {
       case e: ScExpression =>
         if (ImplicitHints.enabled) {
-          val errorAttributes = editor.getColorsScheme.getAttributes(CodeInsightColors.ERRORS_ATTRIBUTES)
           e.implicitConversion().foreach { conversion =>
-            hints ++:= implicitConversionHint(e, conversion, errorAttributes)
+            hints ++:= implicitConversionHint(e, conversion)(editor.getColorsScheme)
           }
         }
 
@@ -72,8 +72,7 @@ private class ImplicitHintsPass(editor: Editor, rootElement: ScalaPsiElement)
             if (shouldSearch) {
               ShowImplicitArgumentsAction.implicitParams(owner) match {
                 case Some(args) if shouldShow(args) =>
-                  val errorAttributes = editor.getColorsScheme.getAttributes(CodeInsightColors.ERRORS_ATTRIBUTES)
-                  hints ++:= implicitArgumentsHint(owner, args, errorAttributes)
+                  hints ++:= implicitArgumentsHint(owner, args)(editor.getColorsScheme)
                 case _                              =>
               }
             }
@@ -122,26 +121,40 @@ private class ImplicitHintsPass(editor: Editor, rootElement: ScalaPsiElement)
 private object ImplicitHintsPass {
   private final val BulkChangeThreshold = 1000
 
-  def implicitConversionHint(e: ScExpression, conversion: ScalaResolveResult, errorAttributes: TextAttributes): Seq[Hint] =
+  private def implicitConversionHint(e: ScExpression, conversion: ScalaResolveResult)(implicit scheme: EditorColorsScheme): Seq[Hint] =
     Seq(Hint(presentationOf(conversion.element) :+ Text("("), e, suffix = false, rightGap = false, menu = Some(menu.ImplicitConversion)),
-      Hint(Text(")") +: collapsedPresentationOf(conversion.implicitParameters, errorAttributes), e, suffix = true, leftGap = false))
+      Hint(Text(")") +: collapsedPresentationOf(conversion.implicitParameters), e, suffix = true, leftGap = false))
 
-  def implicitArgumentsHint(e: ScExpression, arguments: Seq[ScalaResolveResult], errorAttributes: TextAttributes): Seq[Hint] =
-    Seq(Hint(expandedPresentationOf(arguments, errorAttributes), e, suffix = true, leftGap = false, menu = Some(menu.ImplicitArguments)))
+  private def implicitArgumentsHint(e: ScExpression, arguments: Seq[ScalaResolveResult])(implicit scheme: EditorColorsScheme): Seq[Hint] =
+    Seq(Hint(expandedPresentationOf(arguments), e, suffix = true, leftGap = false, menu = Some(menu.ImplicitArguments)))
 
-  def explicitImplicitArgumentsHint(args: ScArgumentExprList): Seq[Hint] =
+  private def explicitImplicitArgumentsHint(args: ScArgumentExprList): Seq[Hint] =
     Seq(Hint(Seq(Text(".explicitly")), args, suffix = false, leftGap = false, rightGap = false, menu = Some(menu.ExplicitArguments)))
 
-  def collapsedPresentationOf(arguments: Seq[ScalaResolveResult], errorAttributes: TextAttributes): Seq[Text] =
-    if (arguments.nonEmpty) Seq(Text("(...)", expansion = Some(() => expandedPresentationOf(arguments, errorAttributes)))) else Seq.empty
+  private def collapsedPresentationOf(arguments: Seq[ScalaResolveResult])(implicit scheme: EditorColorsScheme): Seq[Text] =
+    if (arguments.nonEmpty) {
+      Seq(Text("(...)", attributes = Some(adjusted(scheme.getAttributes(EditorColors.FOLDED_TEXT_ATTRIBUTES))),
+        expansion = Some(() => expandedPresentationOf(arguments))))
+    } else {
+      Seq.empty
+    }
 
-  def expandedPresentationOf(arguments: Seq[ScalaResolveResult], errorAttributes: TextAttributes): Seq[Text] =
-    Text("(") +: arguments.map(it => presentationOf(it, errorAttributes)).intersperse(Seq(Text(", "))).flatten :+ Text(")")
+  // Add custom colors for folding inside inlay hints?
+  private def adjusted(attributes: TextAttributes): TextAttributes = {
+    val result = attributes.clone()
+    if (UIUtil.isUnderDarcula) {
+      result.setBackgroundColor(result.getBackgroundColor.brighter())
+    }
+    result
+  }
 
-  private def presentationOf(argument: ScalaResolveResult, errorAttributes: TextAttributes): Seq[Text] =
+  private def expandedPresentationOf(arguments: Seq[ScalaResolveResult])(implicit scheme: EditorColorsScheme): Seq[Text] =
+    Text("(") +: arguments.map(it => presentationOf(it)).intersperse(Seq(Text(", "))).flatten :+ Text(")")
+
+  private def presentationOf(argument: ScalaResolveResult)(implicit scheme: EditorColorsScheme): Seq[Text] =
     ShowImplicitArgumentsAction.missingImplicitArgumentIn(argument)
-      .map(it => Seq(Text("?: " + it.map(_.presentableText).getOrElse("NotInferred"), Some(errorAttributes))))
-      .getOrElse(presentationOf(argument.element) ++ collapsedPresentationOf(argument.implicitParameters, errorAttributes))
+      .map(it => Seq(Text("?: " + it.map(_.presentableText).getOrElse("NotInferred"), Some(scheme.getAttributes(CodeInsightColors.ERRORS_ATTRIBUTES)))))
+      .getOrElse(presentationOf(argument.element) ++ collapsedPresentationOf(argument.implicitParameters))
 
   private def presentationOf(member: ScMember with PsiNamedElement): Seq[Text] =
     Option(member.containingClass).map(it => Seq(Text(it.name, navigatable = Some(it)), Text("."))).getOrElse(Seq.empty) :+

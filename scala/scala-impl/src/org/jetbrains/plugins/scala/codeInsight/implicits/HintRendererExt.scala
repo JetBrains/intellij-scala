@@ -68,13 +68,22 @@ private class HintRendererExt(private var parts: Seq[Text]) extends HintRenderer
         val yStart = r.y + Math.max(ascent, (r.height + metrics.getAscent - metrics.getDescent) / 2) - 1
 
         parts.foreach { text =>
+          val width = g2d.getFontMetrics.stringWidth(text.string)
+
           val effectiveTextAttributes = text.effective(editor, attributes)
+
+          val backgroundColor = effectiveTextAttributes.getBackgroundColor
+          if (backgroundColor != null) {
+            val config = GraphicsUtil.setupAAPainting(g)
+            GraphicsUtil.paintWithAlpha(g, BACKGROUND_ALPHA)
+            g.setColor(backgroundColor)
+            g.fillRect(xStart, r.y + gap, width, r.height - gap * 2)
+            config.restore()
+          }
 
           val foregroundColor = effectiveTextAttributes.getForegroundColor
           g.setColor(foregroundColor)
           g.drawString(text.string, xStart, yStart)
-
-          val width = g2d.getFontMetrics.stringWidth(text.string)
 
           val effectColor = effectiveTextAttributes.getEffectColor
           val effectType = effectiveTextAttributes.getEffectType

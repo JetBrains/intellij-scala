@@ -18,8 +18,6 @@ class MouseHandler(project: Project,
 
   private var activeHyperlink = Option.empty[(Inlay, Text)]
 
-  private var expandableActivated = false
-
   private val mousePressListener = new EditorMouseAdapter {
     override def mousePressed(e: EditorMouseEvent): Unit = {
       MouseHandler.mousePressLocation = e.getMouseEvent.getPoint
@@ -63,15 +61,6 @@ class MouseHandler(project: Project,
           }
         } else {
           deactivateActiveHypelink(e.getEditor)
-          if (expandableAt(e.getEditor, e.getMouseEvent.getPoint).isDefined) {
-            UIUtil.setCursor(e.getEditor.getContentComponent, Cursor.getPredefinedCursor(Cursor.HAND_CURSOR))
-            expandableActivated = true
-          } else {
-            if (expandableActivated) {
-              UIUtil.setCursor(e.getEditor.getContentComponent, Cursor.getPredefinedCursor(Cursor.DEFAULT_CURSOR))
-              expandableActivated = false
-            }
-          }
         }
       }
     }
