@@ -156,14 +156,15 @@ private object ImplicitHintsPass {
       .map(it => Seq(Text("?: " + it.map(_.presentableText).getOrElse("NotInferred"), Some(scheme.getAttributes(CodeInsightColors.ERRORS_ATTRIBUTES)))))
       .getOrElse(presentationOf(argument.element) ++ collapsedPresentationOf(argument.implicitParameters))
 
-  private def presentationOf(member: ScMember with PsiNamedElement): Seq[Text] =
-    Option(member.containingClass).map(it => Seq(Text(it.name, navigatable = Some(it)), Text("."))).getOrElse(Seq.empty) :+
-      Text(member.name, navigatable = Some(member))
-
   private def presentationOf(e: PsiNamedElement): Seq[Text] = e match {
     case member: ScMember => presentationOf(member)
     case (_: ScReferencePattern) && Parent(Parent(member: ScMember with PsiNamedElement)) => presentationOf(member)
-    case it => Seq(Text(it.name, navigatable = it.asOptionOf[Navigatable]))
+    case it => Seq(Text(it.name, navigatable = it.asOptionOf[Navigatable], tooltip = Some(it.name)))
+  }
+
+  private def presentationOf(member: ScMember with PsiNamedElement): Seq[Text] = {
+    val hint = Option(member.containingClass).map(it => it.name + ".").mkString + member.name
+    Seq(Text(member.name, navigatable = Some(member), tooltip = Some(hint)))
   }
 }
 

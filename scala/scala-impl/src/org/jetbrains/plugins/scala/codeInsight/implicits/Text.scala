@@ -7,6 +7,7 @@ import com.intellij.pom.Navigatable
 
 private case class Text(string: String,
                         attributes: Option[TextAttributes] = None,
+                        tooltip: Option[String] = None,
                         navigatable: Option[Navigatable] = None,
                         expansion: Option[() => Seq[Text]] = None) {
 

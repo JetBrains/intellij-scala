@@ -3,13 +3,15 @@ package org.jetbrains.plugins.scala.codeInsight.implicits
 import java.awt.event.{KeyAdapter, KeyEvent, MouseEvent}
 import java.awt.{Cursor, Point}
 
+import com.intellij.codeInsight.hint.{HintManager, HintManagerImpl, HintUtil}
 import com.intellij.openapi.command.CommandProcessor
 import com.intellij.openapi.components.AbstractProjectComponent
 import com.intellij.openapi.editor.event._
 import com.intellij.openapi.editor.{Editor, EditorFactory, Inlay}
 import com.intellij.openapi.project.Project
 import com.intellij.openapi.startup.StartupManager
-import com.intellij.util.ui.UIUtil
+import com.intellij.ui.LightweightHint
+import com.intellij.util.ui.{JBUI, UIUtil}
 import org.jetbrains.plugins.scala.extensions.ObjectExt
 
 class MouseHandler(project: Project,
@@ -56,6 +58,7 @@ class MouseHandler(project: Project,
             case Some((inlay, text)) =>
               deactivateActiveHypelink(e.getEditor)
               activateHyperlink(e.getEditor, inlay, text)
+              text.tooltip.foreach(showTooltip(e.getEditor, e.getMouseEvent, _))
             case None =>
               deactivateActiveHypelink(e.getEditor)
           }
@@ -117,6 +120,29 @@ class MouseHandler(project: Project,
         renderer.textAt(editor, point.x - inlayPoint.x).map((inlay, _))
       }
     }
+
+  private def showTooltip(editor: Editor, e: MouseEvent, text: String): Unit = {
+    val hint = {
+      val label = HintUtil.createInformationLabel(text)
+      label.setBorder(JBUI.Borders.empty(6, 6, 5, 6))
+      new LightweightHint(label)
+    }
+
+    val constraint = HintManager.ABOVE
+
+    val point = {
+      val p = HintManagerImpl.getHintPosition(hint, editor,
+        editor.xyToVisualPosition(e.getPoint), constraint)
+      p.x = e.getXOnScreen - editor.getContentComponent.getTopLevelAncestor.getLocationOnScreen.x
+      p
+    }
+
+    val manager = HintManagerImpl.getInstanceImpl
+
+    manager.showEditorHint(hint, editor, point,
+      HintManager.HIDE_BY_ANY_KEY | HintManager.HIDE_BY_TEXT_CHANGE | HintManager.HIDE_BY_SCROLLING, 0, false,
+      HintManagerImpl.createHintHint(editor, point, hint, constraint).setContentActive(false))
+  }
 }
 
 object MouseHandler {
