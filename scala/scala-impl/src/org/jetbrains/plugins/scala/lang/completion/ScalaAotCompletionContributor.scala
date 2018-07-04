@@ -31,14 +31,15 @@ class ScalaAotCompletionContributor extends ScalaCompletionContributor {
 
   extend(
     classOf[ScParameter],
-    new AotCompletionProvider[ScParameter] {
+    new AotCompletionProvider(classOf[ScParameter]) {
 
       override protected def createElement(text: String,
                                            context: PsiElement,
-                                           child: PsiElement): (ScParameter, Option[ScParameterType]) = {
-        val parameter = createParamClausesWithContext(text.parenthesize(), context, child).params.head
-        (parameter, parameter.paramType)
-      }
+                                           child: PsiElement): ScParameter =
+        createParamClausesWithContext(text.parenthesize(), context, child).params.head
+
+      override protected def findTypeElement(parameter: ScParameter): Option[ScParameterType] =
+        parameter.paramType
 
       override protected def createConsumer(resultSet: CompletionResultSet): AotConsumer = new AotConsumer(resultSet) {
 
@@ -68,9 +69,11 @@ class ScalaAotCompletionContributor extends ScalaCompletionContributor {
 
   extend(
     classOf[ScFieldId],
-    new AotCompletionProvider[ScValueDeclaration] {
+    new AotCompletionProvider(classOf[ScValueDeclaration]) {
 
-      override def addCompletions(parameters: CompletionParameters, context: ProcessingContext, resultSet: CompletionResultSet): Unit =
+      override def addCompletions(parameters: CompletionParameters,
+                                  context: ProcessingContext,
+                                  resultSet: CompletionResultSet): Unit =
         positionFromParameters(parameters).getContext.getContext.getContext match {
           case _: ScVariableDeclaration | _: ScValueDeclaration => super.addCompletions(parameters, context, resultSet)
           case _ =>
@@ -78,10 +81,11 @@ class ScalaAotCompletionContributor extends ScalaCompletionContributor {
 
       override protected def createElement(text: String,
                                            context: PsiElement,
-                                           child: PsiElement): (ScValueDeclaration, Option[ScTypeElement]) = {
-        val declaration = createDeclarationFromText(kVAL + " " + text, context, child).asInstanceOf[ScValueDeclaration]
-        (declaration, declaration.typeElement)
-      }
+                                           child: PsiElement): ScValueDeclaration =
+        createDeclarationFromText(kVAL + " " + text, context, child).asInstanceOf[ScValueDeclaration]
+
+      override protected def findTypeElement(declaration: ScValueDeclaration): Option[ScTypeElement] =
+        declaration.typeElement
 
       override protected def findContext(element: ScValueDeclaration): PsiElement =
         super.findContext(element).getContext.getContext
@@ -123,7 +127,8 @@ object ScalaAotCompletionContributor {
 
   private type Decorator = LookupElementDecorator[LookupElement]
 
-  private trait AotCompletionProvider[E <: ScalaPsiElement] extends CompletionProvider[CompletionParameters] {
+  private abstract class AotCompletionProvider[E <: ScalaPsiElement](clazz: Class[E])
+    extends CompletionProvider[CompletionParameters] {
 
     override def addCompletions(parameters: CompletionParameters,
                                 context: ProcessingContext,
@@ -134,7 +139,7 @@ object ScalaAotCompletionContributor {
       val prefix = resultSet.getPrefixMatcher.getPrefix
       if (!ScalaNamesValidator.isIdentifier(prefix) || prefix.exists(!_.isLetterOrDigit)) return
 
-      val (replacement, Some(typeElement)) = createElement(
+      val replacement = createElement(
         prefix + Delimiter + capitalize(element.getText),
         element.getContext,
         element
@@ -143,14 +148,18 @@ object ScalaAotCompletionContributor {
       val context = findContext(replacement)
       replacement.setContext(context, context.getLastChild)
 
+      val Some(typeElement) = findTypeElement(replacement)
       val newParameters = createParameters(typeElement, prefix, parameters)
+
       val consumer = createConsumer(resultSet)
       consumer.resultSet.runRemainingContributors(newParameters, consumer, true)
     }
 
     protected def createElement(text: String,
                                 context: PsiElement,
-                                child: PsiElement): (E, Option[ScalaPsiElement])
+                                child: PsiElement): E
+
+    protected def findTypeElement(element: E): Option[ScalaPsiElement]
 
     protected def findContext(element: E): PsiElement = element.getContext.getContext
 
@@ -159,11 +168,13 @@ object ScalaAotCompletionContributor {
     private def createParameters(typeElement: ScalaPsiElement,
                                  prefix: String,
                                  parameters: CompletionParameters) = {
-      val Some(identifier) = typeElement.depthFirst()
-        .find(_.getNode.getElementType == tIDENTIFIER)
-
+      val Some(identifier) = findIdentifier(typeElement)
       parameters.withPosition(identifier, prefix.length + identifier.getTextRange.getStartOffset)
     }
+
+    private def findIdentifier(element: ScalaPsiElement) =
+      element.depthFirst()
+        .find(_.getNode.getElementType == tIDENTIFIER)
   }
 
   private abstract class AotConsumer(originalResultSet: CompletionResultSet) extends Consumer[CompletionResult] {
