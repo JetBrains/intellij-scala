@@ -34,6 +34,7 @@ import org.jetbrains.sbt.language.SbtFileImpl
 import org.scalafmt.Formatted.Success
 import org.scalafmt.Scalafmt
 import org.scalafmt.config.{Config, ScalafmtConfig, ScalafmtRunner}
+import org.jetbrains.plugins.scala.extensions._
 
 import scala.annotation.tailrec
 import scala.collection.mutable.ListBuffer
@@ -256,7 +257,7 @@ object ScalaFmtPreFormatProcessor {
     def traverseSettingWs(formatted: PsiElement, original: PsiElement): Unit = {
       var formattedIndex = 0
       var originalIndex = 0
-      if (isWhitespace(formatted) && isWhitespace(original)) original.replace(widenWs(formatted))
+      if (isWhitespace(formatted) && isWhitespace(original)) inWriteAction(original.replace(widenWs(formatted)))
 
       val formattedChildren = formatted.children.toArray
       val originalChildren = original.children.toArray
@@ -268,7 +269,7 @@ object ScalaFmtPreFormatProcessor {
         def replace(originalElement: PsiElement, formattedElement: PsiElement): Unit = {
           //here getText/getTextLength is fine since we only replace leaf elements and they actually store the text
           if (originalElement.getText != formattedElement.getText && isInRange) {
-            originalElement.replace(formattedElement)
+            inWriteAction(originalElement.replace(formattedElement))
             delta += formattedElement.getTextLength - originalElement.getTextLength
           }
           formattedIndex += 1
@@ -276,7 +277,7 @@ object ScalaFmtPreFormatProcessor {
         }
         (originalElement, formattedElement) match {
           case (originalWs: PsiWhiteSpace, formattedWs: PsiWhiteSpace) => //replace whitespace
-            replace(originalWs, widenWs(formattedWs))
+            inWriteAction(replace(originalWs, widenWs(formattedWs)))
           case (_, formattedWs: PsiWhiteSpace) => //a whitespace has been added
             val parent = originalElement.getParent
             if (parent != null && isInRange) {
@@ -292,7 +293,7 @@ object ScalaFmtPreFormatProcessor {
             }
             originalIndex += 1
           case (originalComment: PsiComment, formattedComment: PsiComment) => //replace comments
-            replace(originalComment, formattedComment)
+            inWriteAction(replace(originalComment, formattedComment))
           case _ =>
             if (isInRange) {
               elementsToTraverse += ((formattedElement, originalElement))

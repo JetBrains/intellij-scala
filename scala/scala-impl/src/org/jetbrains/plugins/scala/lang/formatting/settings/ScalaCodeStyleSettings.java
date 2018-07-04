@@ -1,10 +1,10 @@
 package org.jetbrains.plugins.scala.lang.formatting.settings;
 
+import com.intellij.application.options.CodeStyle;
 import com.intellij.openapi.project.Project;
 import com.intellij.openapi.util.InvalidDataException;
 import com.intellij.openapi.util.WriteExternalException;
 import com.intellij.psi.codeStyle.CodeStyleSettings;
-import com.intellij.psi.codeStyle.CodeStyleSettingsManager;
 import com.intellij.psi.codeStyle.CustomCodeStyleSettings;
 import com.intellij.util.xmlb.SkipDefaultValuesSerializationFilters;
 import com.intellij.util.xmlb.XmlSerializer;
@@ -161,6 +161,8 @@ public class ScalaCodeStyleSettings extends CustomCodeStyleSettings {
   public boolean REPLACE_FOR_GENERATOR_ARROW_WITH_UNICODE_CHAR = false;
   public boolean REPLACE_LAMBDA_WITH_GREEK_LETTER = false;
 
+  //global
+  public boolean REFORMAT_ON_COMPILE = false;
 
   @Override
   public void readExternal(Element parentElement) throws InvalidDataException {
@@ -357,7 +359,7 @@ public class ScalaCodeStyleSettings extends CustomCodeStyleSettings {
   public static String ALL_OTHER_IMPORTS = "all other imports";
 
   public static ScalaCodeStyleSettings getInstance(Project project) {
-    return CodeStyleSettingsManager.getSettings(project).getCustomSettings(ScalaCodeStyleSettings.class);
+    return CodeStyle.getSettings(project).getCustomSettings(ScalaCodeStyleSettings.class);
   }
 
   /**
