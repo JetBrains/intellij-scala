@@ -4,6 +4,7 @@ package completion
 
 import com.intellij.codeInsight.completion._
 import com.intellij.codeInsight.lookup._
+import com.intellij.openapi.util.TextRange
 import com.intellij.openapi.util.text.StringUtil
 import com.intellij.patterns.PlatformPatterns
 import com.intellij.psi.PsiElement
@@ -41,17 +42,31 @@ class ScalaAotCompletionContributor extends ScalaCompletionContributor {
       override protected def findTypeElement(parameter: ScParameter): Option[ScParameterType] =
         parameter.paramType
 
-      override protected def createConsumer(resultSet: CompletionResultSet): AotConsumer = new AotConsumer(resultSet) {
+      override protected def createConsumer(resultSet: CompletionResultSet,
+                                            maybeRange: Option[TextRange]): AotConsumer = new AotConsumer(resultSet) {
 
         override protected def createInsertHandler(itemText: String): AotInsertHandler = new AotInsertHandler(itemText) {
 
           private val delta = itemText.indexOf(Delimiter) + Delimiter.length
 
           override def handleInsert(context: InsertionContext, decorator: Decorator): Unit = {
+            def withRange(function: (Int, Int) => Unit): Unit =
+              maybeRange.foreach { range =>
+                function(context.getTailOffset, range.getLength)
+              }
+
+            withRange {
+              case (tailOffset, length) => context.setTailOffset(tailOffset + length)
+            }
+
             super.handleInsert(context, decorator)
 
             updateStartOffset(context.getOffsetMap)
             decorator.getDelegate.handleInsert(context)
+
+            withRange {
+              case (tailOffset, _) => context.getEditor.getCaretModel.moveToOffset(tailOffset)
+            }
           }
 
           private def updateStartOffset(offsetMap: OffsetMap): Unit = {
@@ -90,7 +105,8 @@ class ScalaAotCompletionContributor extends ScalaCompletionContributor {
       override protected def findContext(element: ScValueDeclaration): PsiElement =
         super.findContext(element).getContext.getContext
 
-      override protected def createConsumer(resultSet: CompletionResultSet): AotConsumer = new AotConsumer(resultSet) {
+      override protected def createConsumer(resultSet: CompletionResultSet,
+                                            maybeRange: Option[TextRange]): AotConsumer = new AotConsumer(resultSet) {
 
         private val consumed = mutable.Set.empty[String]
 
@@ -151,7 +167,17 @@ object ScalaAotCompletionContributor {
       val Some(typeElement) = findTypeElement(replacement)
       val newParameters = createParameters(typeElement, prefix, parameters)
 
-      val consumer = createConsumer(resultSet)
+      val maybeRange = for {
+        parent <- element.parentOfType(clazz)
+
+        typeElement <- findTypeElement(parent)
+        bound = typeElement.getTextRange.getEndOffset
+
+        identifier <- findIdentifier(parent)
+        origin = identifier.getTextRange.getEndOffset
+      } yield new TextRange(origin, bound)
+
+      val consumer = createConsumer(resultSet, maybeRange)
       consumer.resultSet.runRemainingContributors(newParameters, consumer, true)
     }
 
@@ -163,7 +189,7 @@ object ScalaAotCompletionContributor {
 
     protected def findContext(element: E): PsiElement = element.getContext.getContext
 
-    protected def createConsumer(resultSet: CompletionResultSet): AotConsumer
+    protected def createConsumer(resultSet: CompletionResultSet, maybeRange: Option[TextRange]): AotConsumer
 
     private def createParameters(typeElement: ScalaPsiElement,
                                  prefix: String,
