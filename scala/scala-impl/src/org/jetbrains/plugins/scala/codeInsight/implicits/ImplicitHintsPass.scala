@@ -139,11 +139,12 @@ private object ImplicitHintsPass {
       Seq.empty
     }
 
-  // Add custom colors for folding inside inlay hints?
+  // Add custom colors for folding inside inlay hints (SCL-13996)?
   private def adjusted(attributes: TextAttributes): TextAttributes = {
     val result = attributes.clone()
     if (UIUtil.isUnderDarcula) {
-      result.setBackgroundColor(result.getBackgroundColor.brighter())
+      result.setBackgroundColor(result.getBackgroundColor.brighter.brighter)
+      result.setForegroundColor(result.getForegroundColor.brighter)
     }
     result
   }
