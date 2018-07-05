@@ -56,16 +56,11 @@ private class HintRendererExt(private var parts: Seq[Text]) extends HintRenderer
       }
       val foregroundColor = attributes.getForegroundColor
       if (foregroundColor != null) {
-        val savedHint = g2d.getRenderingHint(RenderingHints.KEY_TEXT_ANTIALIASING)
-        val savedClip = g.getClip
-
-        g.setFont(getFont(editor))
-        g2d.setRenderingHint(RenderingHints.KEY_TEXT_ANTIALIASING, AntialiasingType.getKeyForCurrentScope(false))
-        g.clipRect(r.x + m.left + 1, r.y + 2, r.width - m.left - m.right - 2, r.height - 4)
-
         val metrics = fontMetrics.getMetrics
         var xStart = r.x + m.left + p.left
         val yStart = r.y + Math.max(ascent, (r.height + metrics.getAscent - metrics.getDescent) / 2) - 1
+
+        g.setFont(getFont(editor))
 
         parts.foreach { text =>
           val width = g2d.getFontMetrics.stringWidth(text.string)
@@ -83,7 +78,14 @@ private class HintRendererExt(private var parts: Seq[Text]) extends HintRenderer
 
           val foregroundColor = effectiveTextAttributes.getForegroundColor
           g.setColor(foregroundColor)
+
+          val savedHint = g2d.getRenderingHint(RenderingHints.KEY_TEXT_ANTIALIASING)
+          val savedClip = g.getClip
+          g2d.setRenderingHint(RenderingHints.KEY_TEXT_ANTIALIASING, AntialiasingType.getKeyForCurrentScope(false))
+          g.clipRect(r.x + m.left + 1, r.y + 2, r.width - m.left - m.right - 2, r.height - 4)
           g.drawString(text.string, xStart, yStart)
+          g.setClip(savedClip)
+          g2d.setRenderingHint(RenderingHints.KEY_TEXT_ANTIALIASING, savedHint)
 
           val effectColor = effectiveTextAttributes.getEffectColor
           val effectType = effectiveTextAttributes.getEffectType
@@ -104,9 +106,6 @@ private class HintRendererExt(private var parts: Seq[Text]) extends HintRenderer
 
           xStart += width
         }
-
-        g.setClip(savedClip)
-        g2d.setRenderingHint(RenderingHints.KEY_TEXT_ANTIALIASING, savedHint)
       }
     }
   }
