@@ -116,8 +116,9 @@ object UIFreezingGuard {
   private def isWriteAction: Boolean = ApplicationManager.getApplication.isWriteAccessAllowed
   private def isTransaction: Boolean = TransactionGuard.getInstance().getContextTransaction != null
   private def isUnderProgress: Boolean = ProgressManager.getInstance().hasProgressIndicator
+  private def hasModalityState: Boolean = ModalityState.current() != ModalityState.NON_MODAL
 
-  private def canInterrupt: Boolean = !isWriteAction && !isTransaction && !isUnderProgress
+  private def canInterrupt: Boolean = !isWriteAction && !isTransaction && !isUnderProgress && !hasModalityState
 
   private def dumpThreads(ms: Long): Unit = {
     val threshold = 1000
