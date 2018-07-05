@@ -17,7 +17,7 @@ private case class ImplicitArgumentsTarget(expression: PsiElement,
     }
     implicitConversion match {
       case None    => shortenedText
-      case Some(c) => c.element.name + s"($shortenedText) //implicit conversion"
+      case Some(c) => c.element.name + s"($shortenedText) // implicit conversion"
     }
   }
 }
