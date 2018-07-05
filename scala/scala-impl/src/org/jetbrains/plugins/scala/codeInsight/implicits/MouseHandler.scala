@@ -82,7 +82,12 @@ class MouseHandler(project: Project,
     UIUtil.setCursor(editor.getContentComponent, Cursor.getPredefinedCursor(Cursor.HAND_CURSOR))
 
     editor.getContentComponent.addKeyListener(new KeyAdapter {
-      override def keyPressed(keyEvent: KeyEvent): Unit = handle()
+      override def keyPressed(keyEvent: KeyEvent): Unit = {
+        // Why, in Windows, Control key press events are generated on mouse movement?
+        if (keyEvent.getKeyCode != KeyEvent.VK_CONTROL) {
+          handle()
+        }
+      }
 
       override def keyReleased(keyEvent: KeyEvent): Unit = handle()
 
