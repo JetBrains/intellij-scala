@@ -1659,9 +1659,6 @@
       </group>
 
       <group id="ImplicitArgumentsMenu">
-        <action id="MakeArgumentsExplicit"
-                class="org.jetbrains.plugins.scala.codeInsight.implicits.menu.MakeArgumentsExplicit"
-                text="Make arguments explicit"/>
       </group>
 
       <group id="ExplicitArgumentsMenu">
