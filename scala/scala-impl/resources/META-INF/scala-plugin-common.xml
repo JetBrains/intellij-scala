@@ -1592,7 +1592,7 @@
             <keyboard-shortcut first-keystroke="ctrl alt Q" keymap="$default"/>
             <keyboard-shortcut first-keystroke="ctrl alt L" keymap="Mac OS X"/>
         </action>
-        <action id="Scala.ShowImplicitArguments" class="org.jetbrains.plugins.scala.actions.ShowImplicitArgumentsAction"
+        <action id="Scala.ShowImplicitArguments" class="org.jetbrains.plugins.scala.actions.implicitArguments.ShowImplicitArgumentsAction"
                 text="Implicit &amp;Arguments" description="Show Implicit Arguments">
             <keyboard-shortcut first-keystroke="control shift P" keymap="$default"/>
             <add-to-group group-id="CodeEditorViewGroup" anchor="after" relative-to-action="Scala.ShowImplicitConversions"/>
