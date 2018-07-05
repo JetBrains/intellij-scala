@@ -2,17 +2,22 @@ package org.jetbrains.plugins.scala.codeInsight.implicits
 
 import com.intellij.codeHighlighting.EditorBoundHighlightingPass
 import com.intellij.openapi.editor.Editor
+import com.intellij.openapi.editor.colors.{CodeInsightColors, EditorColors, EditorColorsScheme}
 import com.intellij.openapi.editor.ex.util.CaretVisualPositionKeeper
+import com.intellij.openapi.editor.markup.TextAttributes
 import com.intellij.openapi.progress.ProgressIndicator
 import com.intellij.openapi.util.Disposer
+import com.intellij.pom.Navigatable
 import com.intellij.psi.{PsiElement, PsiNamedElement}
 import com.intellij.util.DocumentUtil
-import org.jetbrains.plugins.scala.actions.implicitArguments.ShowImplicitArgumentsAction
+import com.intellij.util.ui.UIUtil
+import org.jetbrains.plugins.scala.actions.ShowImplicitArgumentsAction
 import org.jetbrains.plugins.scala.annotator.ScalaAnnotator
 import org.jetbrains.plugins.scala.codeInsight.implicits.ImplicitHintsPass._
 import org.jetbrains.plugins.scala.extensions._
 import org.jetbrains.plugins.scala.lang.psi.ScalaPsiElement
 import org.jetbrains.plugins.scala.lang.psi.api.ImplicitParametersOwner
+import org.jetbrains.plugins.scala.lang.psi.api.base.patterns.ScReferencePattern
 import org.jetbrains.plugins.scala.lang.psi.api.expr.{ScArgumentExprList, ScExpression, ScMethodCall}
 import org.jetbrains.plugins.scala.lang.psi.api.statements.params.ScParameterClause
 import org.jetbrains.plugins.scala.lang.psi.api.toplevel.typedef.ScMember
@@ -46,7 +51,7 @@ private class ImplicitHintsPass(editor: Editor, rootElement: ScalaPsiElement)
       case e: ScExpression =>
         if (ImplicitHints.enabled) {
           e.implicitConversion().foreach { conversion =>
-            hints ++:= implicitConversionHint(e, conversion)
+            hints ++:= implicitConversionHint(e, conversion)(editor.getColorsScheme)
           }
         }
 
@@ -66,7 +71,8 @@ private class ImplicitHintsPass(editor: Editor, rootElement: ScalaPsiElement)
 
             if (shouldSearch) {
               ShowImplicitArgumentsAction.implicitParams(owner) match {
-                case Some(args) if shouldShow(args) => hints ++:= implicitArgumentsHint(owner, args)
+                case Some(args) if shouldShow(args) =>
+                  hints ++:= implicitArgumentsHint(owner, args)(editor.getColorsScheme)
                 case _                              =>
               }
             }
@@ -114,36 +120,54 @@ private class ImplicitHintsPass(editor: Editor, rootElement: ScalaPsiElement)
 
 private object ImplicitHintsPass {
   private final val BulkChangeThreshold = 1000
-  private final val MissingImplicitArgument = "?: "
 
-  def implicitConversionHint(e: ScExpression, conversion: ScalaResolveResult): Seq[Hint] =
-    Seq(Hint(nameOf(conversion.element) + "(", e, suffix = false, rightGap = false),
-      Hint(if (conversion.implicitParameters.nonEmpty) ")(...)" else ")", e, suffix = true, leftGap = false))
+  private def implicitConversionHint(e: ScExpression, conversion: ScalaResolveResult)(implicit scheme: EditorColorsScheme): Seq[Hint] =
+    Seq(Hint(presentationOf(conversion.element) :+ Text("("), e, suffix = false, rightGap = false, menu = Some(menu.ImplicitConversion)),
+      Hint(Text(")") +: collapsedPresentationOf(conversion.implicitParameters), e, suffix = true, leftGap = false))
 
-  private def nameOf(e: PsiNamedElement): String =
-    qualifierName(e).getOrElse("") + e.name
+  private def implicitArgumentsHint(e: ScExpression, arguments: Seq[ScalaResolveResult])(implicit scheme: EditorColorsScheme): Seq[Hint] =
+    Seq(Hint(expandedPresentationOf(arguments), e, suffix = true, leftGap = false, menu = Some(menu.ImplicitArguments)))
 
-  private def qualifierName(e: PsiNamedElement): Option[String] = e.nameContext match {
-    case m: ScMember => Option(m.containingClass).map(_.name + ".")
-    case _ => None
+  private def explicitImplicitArgumentsHint(args: ScArgumentExprList): Seq[Hint] =
+    Seq(Hint(Seq(Text(".explicitly")), args, suffix = false, leftGap = false, rightGap = false, menu = Some(menu.ExplicitArguments)))
+
+  private def collapsedPresentationOf(arguments: Seq[ScalaResolveResult])(implicit scheme: EditorColorsScheme): Seq[Text] =
+    if (arguments.nonEmpty) {
+      Seq(Text("("),
+        Text(" ... ", attributes = Some(adjusted(scheme.getAttributes(EditorColors.FOLDED_TEXT_ATTRIBUTES))),
+          expansion = Some(() => expandedPresentationOf(arguments).drop(1).dropRight(1))),
+        Text(")"))
+    } else {
+      Seq.empty
+    }
+
+  // Add custom colors for folding inside inlay hints (SCL-13996)?
+  private def adjusted(attributes: TextAttributes): TextAttributes = {
+    val result = attributes.clone()
+    if (UIUtil.isUnderDarcula) {
+      result.setBackgroundColor(result.getBackgroundColor.brighter.brighter)
+      result.setForegroundColor(result.getForegroundColor.brighter)
+    }
+    result
   }
 
-  def implicitArgumentsHint(e: ScExpression, arguments: Seq[ScalaResolveResult]): Seq[Hint] = {
-    val text = arguments.map(presentationOf).mkString("(", ", ", ")")
-    Seq(Hint(text, e, suffix = true, leftGap = false, underlined = text.contains(MissingImplicitArgument)))
-  }
+  private def expandedPresentationOf(arguments: Seq[ScalaResolveResult])(implicit scheme: EditorColorsScheme): Seq[Text] =
+    Text("(") +: arguments.map(it => presentationOf(it)).intersperse(Seq(Text(", "))).flatten :+ Text(")")
 
-  // TODO Show missing implicit parameter name?
-  private def presentationOf(argument: ScalaResolveResult): String = {
+  private def presentationOf(argument: ScalaResolveResult)(implicit scheme: EditorColorsScheme): Seq[Text] =
     ShowImplicitArgumentsAction.missingImplicitArgumentIn(argument)
-      .map(MissingImplicitArgument + _.map(_.presentableText).getOrElse("NotInferred"))
-      .getOrElse {
-        val name = nameOf(argument.element)
-        if (argument.implicitParameters.nonEmpty) name + "(...)" else name
-      }
+      .map(it => Seq(Text("?: " + it.map(_.presentableText).getOrElse("NotInferred"), Some(scheme.getAttributes(CodeInsightColors.ERRORS_ATTRIBUTES)))))
+      .getOrElse(presentationOf(argument.element) ++ collapsedPresentationOf(argument.implicitParameters))
+
+  private def presentationOf(e: PsiNamedElement): Seq[Text] = e match {
+    case member: ScMember => presentationOf(member)
+    case (_: ScReferencePattern) && Parent(Parent(member: ScMember with PsiNamedElement)) => presentationOf(member)
+    case it => Seq(Text(it.name, navigatable = it.asOptionOf[Navigatable], tooltip = Some(it.name)))
   }
 
-  def explicitImplicitArgumentsHint(args: ScArgumentExprList): Seq[Hint] =
-    Seq(Hint(".explicitly", args, suffix = false, leftGap = false, rightGap = false))
+  private def presentationOf(member: ScMember with PsiNamedElement): Seq[Text] = {
+    val hint = Option(member.containingClass).map(it => it.name + ".").mkString + member.name
+    Seq(Text(member.name, navigatable = Some(member), tooltip = Some(hint)))
+  }
 }
 

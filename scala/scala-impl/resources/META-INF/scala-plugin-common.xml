@@ -766,7 +766,7 @@
 
         <intentionAction>
             <category>Scala/Expressions</category>
-            <className>org.jetbrains.plugins.scala.codeInsight.intention.expression.InlineImplicitConversionIntention</className>
+            <className>org.jetbrains.plugins.scala.codeInsight.intention.expression.MakeImplicitConversionExplicit</className>
         </intentionAction>
 
         <intentionAction>
@@ -1410,6 +1410,9 @@
             <implementation-class>org.jetbrains.plugins.scala.editor.mouseHandler.MouseHoverHandler</implementation-class>
         </component>
         <component>
+            <implementation-class>org.jetbrains.plugins.scala.codeInsight.implicits.MouseHandler</implementation-class>
+        </component>
+        <component>
             <implementation-class>org.jetbrains.plugins.scala.lang.psi.impl.toplevel.synthetic.SyntheticClasses</implementation-class>
         </component>
         <component>
@@ -1649,24 +1652,26 @@
                     text="Hints for obvious types"/>
         </group>
 
+      <group id="ImplicitConversionMenu">
+        <action id="MakeExplicit"
+                class="org.jetbrains.plugins.scala.codeInsight.implicits.menu.MakeConversionExplicit"
+                text="Make conversion explicit"/>
+      </group>
+
+      <group id="ImplicitArgumentsMenu">
+      </group>
+
+      <group id="ExplicitArgumentsMenu">
+        <action id="RemoveExplicitArguments"
+                class="org.jetbrains.plugins.scala.codeInsight.implicits.menu.RemoveExplicitArguments"
+                text="Remove explicit arguments"/>
+      </group>
+
       <action id="Scala.ShowImplicits"
               class="org.jetbrains.plugins.scala.codeInsight.implicits.ShowImplicitHintsAction"
-              text="Implicits">
+              text="Implicits"
+              description="Show implicit conversions / arguments as inlay hints">
         <add-to-group group-id="CodeEditorViewGroup" anchor="before" relative-to-action="Scala.ShowImplicitConversions"/>
-      </action>
-
-      <action id="Scala.EnableImplicits"
-              class="org.jetbrains.plugins.scala.codeInsight.implicits.ShowImplicitHintsAction$Enable"
-              text="Show implicits">
-        <keyboard-shortcut first-keystroke="control alt shift EQUALS" keymap="$default"/>
-        <keyboard-shortcut first-keystroke="control alt shift ADD" keymap="$default"/>
-      </action>
-
-      <action id="Scala.DisableImplicits"
-              class="org.jetbrains.plugins.scala.codeInsight.implicits.ShowImplicitHintsAction$Disable"
-              text="Hide implicits">
-        <keyboard-shortcut first-keystroke="control alt shift MINUS" keymap="$default"/>
-        <keyboard-shortcut first-keystroke="control alt shift SUBTRACT" keymap="$default"/>
       </action>
 
     </actions>

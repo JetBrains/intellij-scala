@@ -37,7 +37,7 @@ abstract class TypeAnnotationsPanelBase extends CodeStyleAbstractPanel {
   protected TextFieldWithBrowseButton myAnnotations;
   protected TextFieldWithBrowseButton myTypes;
   protected JPanel myContent;
-  protected JCheckBox myObviousType;
+  protected JCheckBox myStableType;
   protected JCheckBox myStructuralType;
 
   protected TypeAnnotationsPanelBase(@NotNull CodeStyleSettings settings) {
@@ -129,11 +129,11 @@ abstract class TypeAnnotationsPanelBase extends CodeStyleAbstractPanel {
     myMemberOfPrivateClass = new JCheckBox();
     myMemberOfPrivateClass.setText("Member of private class");
     panel2.add(myMemberOfPrivateClass, new GridConstraints(2, 1, 1, 1, GridConstraints.ANCHOR_WEST, GridConstraints.FILL_NONE, GridConstraints.SIZEPOLICY_CAN_SHRINK | GridConstraints.SIZEPOLICY_CAN_GROW, GridConstraints.SIZEPOLICY_FIXED, null, null, null, 0, false));
-    myObviousType = new JCheckBox();
-    myObviousType.setSelected(true);
-    myObviousType.setText("Type is obvious*");
-    myObviousType.setToolTipText("<html><body>When right-hand side is:<br> Literal: <code>123</code>, <code>\"string\"</code>, etc. (excluding <code>null</code>)<br> Unit expression: <code>()</code><br> Object creation: <code>new Foo(...)</code> (excluding one with refinement: <code>new Foo() {}</code>)<br> Factory method call: <code>Foo(...)</code> (calling <code>apply(...)</code> on companion object)<br> Empty collection: <code>Seq.empty[Int]</code>, <code>Map.empty[Int, String]</code>, etc.<br> Java enum constant: <code>Enum.VALUE</code><br> An exception: <code>throw Exception()</code> </body></html>");
-    panel2.add(myObviousType, new GridConstraints(6, 1, 1, 1, GridConstraints.ANCHOR_WEST, GridConstraints.FILL_NONE, GridConstraints.SIZEPOLICY_CAN_SHRINK | GridConstraints.SIZEPOLICY_CAN_GROW, GridConstraints.SIZEPOLICY_FIXED, null, null, null, 0, false));
+    myStableType = new JCheckBox();
+    myStableType.setSelected(true);
+    myStableType.setText("Type is stable*");
+    myStableType.setToolTipText("<html><body>When right-hand side is:<br> Literal: <code>123</code>, <code>\"string\"</code>, etc. (excluding <code>null</code>)<br> Unit expression: <code>()</code><br> Object creation: <code>new Foo(...)</code> (excluding one with refinement: <code>new Foo() {}</code>)<br> Factory method call: <code>Foo(...)</code> (calling <code>apply(...)</code> on companion object)<br> Empty collection: <code>Seq.empty[Int]</code>, <code>Map.empty[Int, String]</code>, etc.<br> Java enum constant: <code>Enum.VALUE</code><br> An exception: <code>throw Exception()</code> </body></html>");
+    panel2.add(myStableType, new GridConstraints(6, 1, 1, 1, GridConstraints.ANCHOR_WEST, GridConstraints.FILL_NONE, GridConstraints.SIZEPOLICY_CAN_SHRINK | GridConstraints.SIZEPOLICY_CAN_GROW, GridConstraints.SIZEPOLICY_FIXED, null, null, null, 0, false));
     final Spacer spacer1 = new Spacer();
     panel2.add(spacer1, new GridConstraints(0, 0, 10, 1, GridConstraints.ANCHOR_CENTER, GridConstraints.FILL_NONE, GridConstraints.SIZEPOLICY_FIXED, 1, new Dimension(30, -1), null, null, 0, false));
     myTestSources = new JCheckBox();

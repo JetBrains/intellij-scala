@@ -3,7 +3,7 @@
   <grid id="27dc6" binding="myContent" layout-manager="GridLayoutManager" row-count="3" column-count="3" same-size-horizontally="false" same-size-vertically="false" hgap="0" vgap="-1">
     <margin top="0" left="0" bottom="0" right="0"/>
     <constraints>
-      <xy x="20" y="20" width="553" height="595"/>
+      <xy x="20" y="20" width="872" height="827"/>
     </constraints>
     <properties/>
     <border type="none">
@@ -115,13 +115,13 @@
               <text value="Member of private class"/>
             </properties>
           </component>
-          <component id="37134" class="javax.swing.JCheckBox" binding="myObviousType">
+          <component id="37134" class="javax.swing.JCheckBox" binding="myStableType">
             <constraints>
               <grid row="6" column="1" row-span="1" col-span="1" vsize-policy="0" hsize-policy="3" anchor="8" fill="0" indent="0" use-parent-layout="false"/>
             </constraints>
             <properties>
               <selected value="true"/>
-              <text value="Type is obvious*"/>
+              <text value="Type is stable*"/>
               <toolTipText value="&lt;html&gt;&lt;body&gt;When right-hand side is:&lt;br&gt; Literal: &lt;code&gt;123&lt;/code&gt;, &lt;code&gt;&quot;string&quot;&lt;/code&gt;, etc. (excluding &lt;code&gt;null&lt;/code&gt;)&lt;br&gt; Unit expression: &lt;code&gt;()&lt;/code&gt;&lt;br&gt; Object creation: &lt;code&gt;new Foo(...)&lt;/code&gt; (excluding one with refinement: &lt;code&gt;new Foo() {}&lt;/code&gt;)&lt;br&gt; Factory method call: &lt;code&gt;Foo(...)&lt;/code&gt; (calling &lt;code&gt;apply(...)&lt;/code&gt; on companion object)&lt;br&gt; Empty collection: &lt;code&gt;Seq.empty[Int]&lt;/code&gt;, &lt;code&gt;Map.empty[Int, String]&lt;/code&gt;, etc.&lt;br&gt; Java enum constant: &lt;code&gt;Enum.VALUE&lt;/code&gt;&lt;br&gt; An exception: &lt;code&gt;throw Exception()&lt;/code&gt; &lt;/body&gt;&lt;/html&gt;"/>
             </properties>
           </component>
