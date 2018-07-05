@@ -628,12 +628,12 @@ object ScalaRefactoringUtil {
       case i: ScIfStmt =>
         builder.append("if (...) {...}")
         if (i.elseBranch.isDefined) builder.append(" else {...}")
-      case ScInfixElement(left, op, right) =>
+      case ScInfixElement(left, op, Some(right)) =>
         builder.append(getShortText(left))
         builder.append(" ")
         builder.append(getShortText(op))
         builder.append(" ")
-        builder.append(getShortText(right.get))
+        builder.append(getShortText(right))
       case i: ScInterpolationPattern =>
         builder.append(getShortText(i.ref))
         builder.append("\"...\"")
@@ -647,7 +647,7 @@ object ScalaRefactoringUtil {
       case f: ScFunctionalTypeElement =>
         builder.append(getShortText(f.paramTypeElement))
         builder.append(" => ")
-        builder.append(getShortText(f.returnTypeElement.get))
+        builder.append(f.returnTypeElement.map(getShortText(_)).getOrElse("..."))
       case l: ScLiteral => builder.append(l.getText)
       case m: ScMatchStmt =>
         m.expr match {
