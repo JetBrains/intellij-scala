@@ -620,6 +620,28 @@ class ScalaBasicCompletionTest extends ScalaCodeInsightTestBase {
     item = "Int"
   )
 
+  def testCompanionObjectWithPackage(): Unit = doCompletionTest(
+    fileText =
+      s"""package foo
+         |
+         |class Foo {
+         |  import F$CARET
+         |}
+         |
+         |object Foo
+       """.stripMargin,
+    resultText =
+      s"""package foo
+         |
+         |class Foo {
+         |  import Foo$CARET
+         |}
+         |
+         |object Foo
+       """.stripMargin,
+    item = "Foo"
+  )
+
   def testBasicTypeCompletionNoMethods(): Unit = checkNoCompletion(
     fileText =
       s"""
