@@ -3,6 +3,7 @@ package org.jetbrains.plugins.scala.actions
 import java.awt.event.MouseEvent
 import java.awt.{BorderLayout, Dimension}
 import java.util
+import java.util.Collections.singletonList
 
 import com.intellij.ide.projectView.impl.nodes.AbstractPsiBasedNode
 import com.intellij.ide.projectView.{PresentationData, ViewSettings}
@@ -41,6 +42,8 @@ import org.jetbrains.plugins.scala.lang.refactoring.util.ScalaRefactoringUtil.ge
 import org.jetbrains.plugins.scala.lang.resolve.ScalaResolveResult
 import org.jetbrains.plugins.scala.project.ProjectContext
 import org.jetbrains.plugins.scala.statistics.{FeatureKey, Stats}
+
+import scala.collection.JavaConverters.asJavaCollectionConverter
 
 /**
  * User: Alefas
@@ -318,91 +321,121 @@ class ImplicitParametersTreeStructure(project: Project,
 
   implicit def ctx: ProjectContext = project
 
-  class ImplicitParametersNode(value: ScalaResolveResult, implicitResult: Option[ImplicitResult] = None)
+  private class ImplicitArgumentRegularNode(value: ScalaResolveResult) extends ImplicitParametersNodeBase(value)
 
-    extends AbstractPsiBasedNode[ScalaResolveResult](project, value, ViewSettings.DEFAULT) {
-
-    override def extractPsiFromValue(): PsiNamedElement = value.getElement
-
-    override def getChildrenImpl: util.Collection[AbstractTreeNode[_]] = {
-      val list = new util.ArrayList[AbstractTreeNode[_]]()
-
-      if (value.isImplicitParameterProblem) {
-        def addErrorLeaf(errorText: String): Boolean = {
-          list.add(new AbstractTreeNode[String](project, errorText) {
-            override def getChildren: util.Collection[AbstractTreeNode[_]] = new util.ArrayList[AbstractTreeNode[_]]()
-
-            override def update(data: PresentationData): Unit = {
-              data.setPresentableText(errorText)
-              data.setAttributesKey(CodeInsightColors.WRONG_REFERENCES_ATTRIBUTES)
-            }
-          })
-        }
-        value.implicitSearchState match {
-          case Some(state) =>
-            val collector = new ImplicitCollector(state.copy(fullInfo = true))
-            collector.collect().foreach { r =>
-              r.implicitReason match {
-                case TypeDoesntConformResult =>
-                case BadTypeResult =>
-                case CantFindExtensionMethodResult =>
-                case FunctionForParameterResult =>
-                case implicitRes => list.add(new ImplicitParametersNode(r, Some(implicitRes)))
-              }
-            }
-            if (list.isEmpty) addErrorLeaf("No implicits applicable by type")
-          case _ =>
-            addErrorLeaf("No information for no reason")
-        }
-      } else {
-        value.implicitParameters.foreach(result => list.add(new ImplicitParametersNode(result)))
-      }
-
-      list
-    }
-
-    //don't mess with my presentation!
-    override def shouldPostprocess(): Boolean = false
+  private class ImplicitArgumentWithReason(value: ScalaResolveResult, reason: ImplicitResult)
+    extends ImplicitParameterErrorNodeBase(value) {
 
     override def updateImpl(data: PresentationData): Unit = {
-      data.setTooltip(presentationTooltip.orNull)
-      data.setIcon(presentationIcon)
+      data.setTooltip(presentationTooltip)
 
-      if (value.isImplicitParameterProblem) {
-        data.addText(elementName, errorAttributes)
-        typeSuffix.foreach(data.addText(_, typeAttributes(isError = true)))
-        data.addText(problemSuffix, GRAYED_ATTRIBUTES)
-      }
-      else {
-        reasonPrefix.foreach(data.addText(_, GRAYED_ATTRIBUTES))
-        val isError = reasonPrefix.nonEmpty
-
-        data.addText(elementName, nameAttributes(isError))
-
-        typeSuffix.foreach(data.addText(_, typeAttributes(isError)))
-        locationString.foreach(data.addText(_, GRAYED_ATTRIBUTES))
-      }
+      super.updateImpl(data)
     }
 
-    private def errorAttributes = {
-      val stripeColor = CodeInsightColors.ERRORS_ATTRIBUTES.getDefaultAttributes.getErrorStripeColor
-      new SimpleTextAttributes(STYLE_PLAIN | STYLE_WAVED, null, stripeColor)
-    }
-
-    private def nameAttributes(isError: Boolean): SimpleTextAttributes =
-      if (isError) errorAttributes else REGULAR_ATTRIBUTES
-
-    private def typeAttributes(isError: Boolean): SimpleTextAttributes =
-      if (isError) SimpleTextAttributes.merge(errorAttributes, GRAYED_ATTRIBUTES) else GRAYED_ATTRIBUTES
-
-    private def presentationIcon: Icon = value.element.getIcon(0)
-
-    private def presentationTooltip: Option[String] = implicitResult.collect {
+    private def presentationTooltip: String = reason match {
       case OkResult                        => "Implicit argument is applicable"
       case DivergedImplicitResult          => "Implicit is diverged"
       case CantInferTypeParameterResult    => "Can't infer proper types for type parameters"
       case ImplicitParameterNotFoundResult => "Can't find implicit argument for this definition"
     }
+
+    override protected def infoPrefix: Option[String] = Some(reasonPrefix)
+
+    private def reasonPrefix: String = reason match {
+      case OkResult                        => "Applicable: "
+      case DivergedImplicitResult          => "Diverged: "
+      case CantInferTypeParameterResult    => "Can't infer type: "
+      case ImplicitParameterNotFoundResult => "Candidate: "
+    }
+
+  }
+
+  private class ImplicitParameterProblemNode(value: ScalaResolveResult)
+    extends ImplicitParameterErrorNodeBase(value) {
+
+    assert(value.isImplicitParameterProblem)
+
+    override def getChildrenImpl: util.Collection[AbstractTreeNode[_]] = {
+      value.implicitSearchState match {
+        case Some(state) =>
+          val collector = new ImplicitCollector(state.copy(fullInfo = true))
+          val nodes: Seq[AbstractTreeNode[_]] = collector.collect().flatMap { r =>
+            r.implicitReason match {
+              case reason @
+                (OkResult | DivergedImplicitResult | CantInferTypeParameterResult | ImplicitParameterNotFoundResult) =>
+
+                Some(new ImplicitArgumentWithReason(r, reason))
+              case _ => None
+            }
+          }
+          if (nodes.nonEmpty) nodes.asJavaCollection
+          else errorLeafNode("No implicits applicable by type")
+        case _ =>
+          errorLeafNode("No information for no reason")
+      }
+    }
+
+    private def errorLeafNode(errorText: String): util.Collection[AbstractTreeNode[_]] = {
+      singletonList(new AbstractTreeNode[String](project, errorText) {
+        override def getChildren = new util.ArrayList[AbstractTreeNode[_]]()
+
+        override def update(data: PresentationData): Unit = {
+          data.setPresentableText(errorText)
+          data.setAttributesKey(CodeInsightColors.WRONG_REFERENCES_ATTRIBUTES)
+        }
+      })
+    }
+
+    override protected def infoPrefix: Option[String] = Some(problemPrefix)
+
+    override protected def infoSuffix: Option[String] = None
+
+    private def problemPrefix: String = {
+      if (value.isAmbiguousImplicitParameter)
+        s"(Ambiguous) "
+      else
+        s"(Not found) "
+    }
+  }
+
+  private abstract class ImplicitParametersNodeBase(value: ScalaResolveResult)
+
+    extends AbstractPsiBasedNode[ScalaResolveResult](project, value, ViewSettings.DEFAULT) {
+
+    override def extractPsiFromValue(): PsiNamedElement = value.getElement
+
+    override def getChildrenImpl: util.Collection[AbstractTreeNode[_]] =
+      value.implicitParameters
+        .map(resolveResultNode)
+        .asJavaCollection
+
+    //don't mess with my presentation!
+    override def shouldPostprocess(): Boolean = false
+
+    override def updateImpl(data: PresentationData): Unit = {
+      data.setIcon(presentationIcon)
+
+      infoPrefix.foreach(data.addText(_, weakTextAttributes))
+
+      data.addText(elementName, nameAttributes)
+
+      typeSuffix.foreach(data.addText(_, typeAttributes))
+      infoSuffix.foreach(data.addText(_, weakTextAttributes))
+    }
+
+    protected def weakTextAttributes: SimpleTextAttributes = GRAYED_ATTRIBUTES
+
+    protected def strongTextAttributes: SimpleTextAttributes = REGULAR_ATTRIBUTES
+
+    protected def nameAttributes: SimpleTextAttributes = strongTextAttributes
+
+    protected def typeAttributes: SimpleTextAttributes = weakTextAttributes
+
+    protected def infoPrefix: Option[String] = None
+
+    protected def infoSuffix: Option[String] = locationString
+
+    private def presentationIcon: Icon = value.element.getIcon(0)
 
     private def locationString: Option[String] = {
       if (value.isImplicitParameterProblem) return None
@@ -434,27 +467,13 @@ class ImplicitParametersTreeStructure(project: Project,
       else None
     }
 
-    private def reasonPrefix: Option[String] = implicitResult.collect {
-      case OkResult                        => "Applicable: "
-      case DivergedImplicitResult          => "Diverged: "
-      case CantInferTypeParameterResult    => "Can't infer type: "
-      case ImplicitParameterNotFoundResult => "Candidate: "
-    }
-
     private def typeText(state: ImplicitState): String =
       state.tp.presentableText(state.place)
 
-    private def elementName: String = value.element.name
+    protected def elementName: String = value.element.name
 
-    private def typeSuffix: Option[String] = {
+    protected def typeSuffix: Option[String] = {
       value.implicitSearchState.map(state => ": " + typeText(state))
-    }
-
-    private def problemSuffix: String = {
-     if (value.isAmbiguousImplicitParameter)
-        s"  //ambiguous"
-      else
-        s"  //argument not found"
     }
 
     override def equals(obj: Any): Boolean = {
@@ -465,12 +484,27 @@ class ImplicitParametersTreeStructure(project: Project,
     }
   }
 
-  private class RootNode extends AbstractTreeNode[Any](project, ()) {
-    override def getChildren: util.Collection[_ <: AbstractTreeNode[_]] = {
-      val list = new util.ArrayList[AbstractTreeNode[_]]()
-      results.foreach { result => list.add(new ImplicitParametersNode(result)) }
-      list
+  private abstract class ImplicitParameterErrorNodeBase(value: ScalaResolveResult) extends ImplicitParametersNodeBase(value) {
+    private def errorWave: SimpleTextAttributes = {
+      val stripeColor = CodeInsightColors.ERRORS_ATTRIBUTES.getDefaultAttributes.getErrorStripeColor
+      new SimpleTextAttributes(STYLE_WAVED, null, stripeColor)
     }
+
+    override protected def nameAttributes: SimpleTextAttributes =
+      SimpleTextAttributes.merge(errorWave, super.nameAttributes)
+
+    override protected def typeAttributes: SimpleTextAttributes =
+      SimpleTextAttributes.merge(errorWave, super.typeAttributes)
+  }
+
+  private def resolveResultNode(srr: ScalaResolveResult): AbstractTreeNode[_] = {
+    if (srr.isImplicitParameterProblem) new ImplicitParameterProblemNode(srr)
+    else new ImplicitArgumentRegularNode(srr)
+  }
+
+  private class RootNode extends AbstractTreeNode[Any](project, ()) {
+    override def getChildren: util.Collection[_ <: AbstractTreeNode[_]] =
+      results.map(resolveResultNode).asJavaCollection
 
     override def update(presentation: PresentationData): Unit = {}
   }
@@ -481,7 +515,7 @@ class ImplicitParametersTreeStructure(project: Project,
 
   override def getChildElements(p1: Any): Array[AnyRef] = {
     p1 match {
-      case n: ImplicitParametersNode =>
+      case n: ImplicitParametersNodeBase =>
         val childrenImpl = n.getChildren
         childrenImpl.toArray(new Array[AnyRef](childrenImpl.size))
       case rn: RootNode => rn.getChildren.toArray
