@@ -11,7 +11,7 @@ import com.intellij.pom.Navigatable
 import com.intellij.psi.{PsiElement, PsiNamedElement}
 import com.intellij.util.DocumentUtil
 import com.intellij.util.ui.UIUtil
-import org.jetbrains.plugins.scala.actions.ShowImplicitArgumentsAction
+import org.jetbrains.plugins.scala.actions.implicitArguments.ShowImplicitArgumentsAction
 import org.jetbrains.plugins.scala.annotator.ScalaAnnotator
 import org.jetbrains.plugins.scala.codeInsight.implicits.ImplicitHintsPass._
 import org.jetbrains.plugins.scala.extensions._
