@@ -30,6 +30,8 @@ class ScTraitParentsImpl private(stub: ScTemplateParentsStub[ScTraitParents], no
   override def toString: String = "TraitParents"
 
   def superTypes: Seq[ScType] = {
+    if (!isValid) return Seq.empty
+
     val elements = byStubOrPsi(_.parentTypeElements ++ syntheticTypeElements)(allTypeElements)
 
     val buffer = ArrayBuffer[ScType]()

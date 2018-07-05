@@ -28,6 +28,8 @@ class ScClassParentsImpl private(stub: ScTemplateParentsStub[ScClassParents], no
   override def toString: String = "ClassParents"
 
   def superTypes: Seq[ScType] = {
+    if (!isValid) return Seq.empty
+
     val elements = byStubOrPsi(_.parentTypeElements ++ syntheticTypeElements)(allTypeElements)
 
     //for reduced stacksize
