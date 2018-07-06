@@ -68,15 +68,16 @@ object ScalaFmtPreFormatProcessor {
       }
     } else {
       //auto-detect settings
-      val configFileName = ".scalafmt.conf"
-      Option(project.getBaseDir.findChild(configFileName)).
-        map(ScalaPsiManager.instance(project).getScalafmtProjectConfig).getOrElse(ScalafmtConfig.intellij)
+      projectDefaultConfig(project).getOrElse(ScalafmtConfig.intellij)
     }
     psi match {
       case _: SbtFileImpl => config.copy(runner = ScalafmtRunner.sbt)
       case _ => config
     }
   }
+
+  def projectDefaultConfig(project: Project): Option[ScalafmtConfig] = Option(project.getBaseDir.findChild(".scalafmt.conf")).
+    map(ScalaPsiManager.instance(project).getScalafmtProjectConfig)
 
   def scalaFmtConfigFile(settings: ScalaCodeStyleSettings, project: Project): Option[VirtualFile] =
     Option(StandardFileSystems.local.findFileByPath(absolutePathFromConfigPath(settings.SCALAFMT_CONFIG_PATH, project)))

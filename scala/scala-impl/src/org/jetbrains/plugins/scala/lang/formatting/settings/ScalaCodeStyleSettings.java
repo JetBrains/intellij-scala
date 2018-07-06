@@ -11,6 +11,7 @@ import com.intellij.util.xmlb.XmlSerializer;
 import org.jdom.Element;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
+import org.jetbrains.plugins.scala.lang.formatting.processors.ScalaFmtPreFormatProcessor$;
 import org.jetbrains.plugins.scala.lang.refactoring.util.ScalaNamesUtil;
 
 import java.util.Arrays;
@@ -163,6 +164,8 @@ public class ScalaCodeStyleSettings extends CustomCodeStyleSettings {
 
   //global
   public boolean REFORMAT_ON_COMPILE = false;
+  public boolean AUTO_DETECT_SCALAFMT = false;
+  public boolean SUGGEST_AUTO_DETECT_SCALAFMT = true;
 
   @Override
   public void readExternal(Element parentElement) throws InvalidDataException {
