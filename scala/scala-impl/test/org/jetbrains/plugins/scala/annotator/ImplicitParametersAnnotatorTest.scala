@@ -243,4 +243,21 @@ class ImplicitParameterFailingTest extends ScalaLightCodeInsightFixtureTestAdapt
       |  def a1 = shuffle(range)
       |}
     """.stripMargin)
+
+  def testConstructorTypeInference(): Unit = checkTextHasNoErrors {
+    """
+      |class Printer {
+      |
+      |  implicit val intPrinter = new Printable[Int] { def print(i: Int): String = null }
+      |
+      |  val lspb = new GetLoggerSpecParamBounded(3)
+      |}
+      |
+      |trait Printable[A] { def print(a: A): String }
+      |class GetLoggerSpecParamBounded[A, B <: Printable[A]](default: A)(implicit  printer: B) {
+      |  def print = printer.print(default)
+      |}
+      |class String
+    """.stripMargin
+  }
 }
