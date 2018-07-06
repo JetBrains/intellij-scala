@@ -10,6 +10,7 @@ import com.intellij.openapi.editor.event._
 import com.intellij.openapi.editor.{Editor, EditorFactory, Inlay}
 import com.intellij.openapi.project.Project
 import com.intellij.openapi.startup.StartupManager
+import com.intellij.openapi.util.SystemInfo
 import com.intellij.ui.LightweightHint
 import com.intellij.util.ui.{JBUI, UIUtil}
 import org.jetbrains.plugins.scala.extensions.ObjectExt
@@ -28,7 +29,7 @@ class MouseHandler(project: Project,
     override def mouseClicked(e: EditorMouseEvent): Unit = {
       if (!e.isConsumed && project.isInitialized && !project.isDisposed) {
         if (e.getMouseEvent.getButton == MouseEvent.BUTTON1) {
-          if (e.getMouseEvent.isControlDown) {
+          if (SystemInfo.isMac && e.getMouseEvent.isMetaDown || e.getMouseEvent.isControlDown) {
             activeHyperlink.foreach { case (_, text) =>
               e.consume()
               deactivateActiveHypelink(e.getEditor)
@@ -51,7 +52,7 @@ class MouseHandler(project: Project,
   private val mouseMovedListener = new EditorMouseMotionAdapter {
     override def mouseMoved(e: EditorMouseEvent): Unit = {
       if (!e.isConsumed && project.isInitialized && !project.isDisposed) {
-        if (e.getMouseEvent.isControlDown) {
+        if (SystemInfo.isMac && e.getMouseEvent.isMetaDown || e.getMouseEvent.isControlDown) {
           hyperlinkAt(e.getEditor, e.getMouseEvent.getPoint) match {
             case Some((inlay, text)) if activeHyperlink.contains((inlay, text)) =>
             // the hyperlink is already activated
