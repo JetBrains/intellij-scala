@@ -1,7 +1,10 @@
 package org.jetbrains.plugins.scala.codeInsight
 
+import com.intellij.openapi.actionSystem.{KeyboardShortcut, Shortcut}
 import com.intellij.openapi.editor.{Inlay, InlayModel}
+import com.intellij.openapi.keymap.KeymapManager
 import com.intellij.openapi.util.{Key, TextRange}
+import javax.swing.KeyStroke
 
 import scala.collection.JavaConverters._
 
@@ -17,5 +20,24 @@ package object implicits {
     def add(hint: Hint): Unit = {
       Option(hint.addTo(model)).foreach(_.putUserData(ScalaImplicitHintKey, true))
     }
+  }
+
+  val EnableShortcuts = Seq(
+    new KeyboardShortcut(KeyStroke.getKeyStroke("control alt shift EQUALS"), null),
+    new KeyboardShortcut(KeyStroke.getKeyStroke("control alt shift ADD"), null))
+
+  val DisableShortcuts = Seq(
+    new KeyboardShortcut(KeyStroke.getKeyStroke("control alt shift MINUS"), null),
+    new KeyboardShortcut(KeyStroke.getKeyStroke("control alt shift SUBTRACT"), null))
+
+  def setShortcuts(id: String, shortcuts: Seq[Shortcut]): Unit = {
+    val keymap = KeymapManager.getInstance().getActiveKeymap
+    keymap.removeAllActionShortcuts(id)
+    shortcuts.foreach(keymap.addShortcut(id, _))
+  }
+
+  def removeAllShortcuts(id: String): Unit = {
+    val keymap = KeymapManager.getInstance().getActiveKeymap
+    keymap.removeAllActionShortcuts(id)
   }
 }

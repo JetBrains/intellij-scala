@@ -16,6 +16,12 @@ import org.jetbrains.plugins.scala.codeInsight.implicits.TextRenderer._
 private class TextRenderer(private var parts: Seq[Text], menu: Option[String])
   extends HintRenderer(parts.map(_.string).mkString) {
 
+  private val originalParts = parts
+
+  if (ImplicitHints.expanded) {
+    expand()
+  }
+
   override def getContextMenuGroupId: String = menu.orNull
 
   protected def getMargin(editor: Editor): Insets = DefaultMargin
@@ -42,16 +48,15 @@ private class TextRenderer(private var parts: Seq[Text], menu: Option[String])
     val attributes = getTextAttributes(editor)
     if (attributes != null) {
       val fontMetrics = getFontMetrics0(editor)
-      val gap = if (r.height < fontMetrics.getLineHeight + 2) 1 else 2
       val backgroundColor = attributes.getBackgroundColor
       if (backgroundColor != null) {
         val config = GraphicsUtil.setupAAPainting(g)
         GraphicsUtil.paintWithAlpha(g, BackgroundAlpha)
         g.setColor(backgroundColor)
         if (p.left == 0 && p.right == 0) {
-          g.fillRect(r.x + m.left, r.y + gap, r.width - m.left - m.right, r.height - gap * 2)
+          g.fillRect(r.x + m.left, r.y, r.width - m.left - m.right, r.height)
         } else {
-          g.fillRoundRect(r.x + m.left, r.y + gap, r.width - m.left - m.right, r.height - gap * 2, 8, 8)
+          g.fillRoundRect(r.x + m.left, r.y, r.width - m.left - m.right, r.height, 8, 8)
         }
         config.restore()
       }
@@ -73,7 +78,7 @@ private class TextRenderer(private var parts: Seq[Text], menu: Option[String])
             val config = GraphicsUtil.setupAAPainting(g)
             GraphicsUtil.paintWithAlpha(g, BackgroundAlpha)
             g.setColor(backgroundColor)
-            g.fillRect(xStart, r.y + gap, width, r.height - gap * 2)
+            g.fillRect(xStart, r.y, width, r.height)
             config.restore()
           }
 
@@ -83,7 +88,7 @@ private class TextRenderer(private var parts: Seq[Text], menu: Option[String])
           val savedHint = g2d.getRenderingHint(RenderingHints.KEY_TEXT_ANTIALIASING)
           val savedClip = g.getClip
           g2d.setRenderingHint(RenderingHints.KEY_TEXT_ANTIALIASING, AntialiasingType.getKeyForCurrentScope(false))
-          g.clipRect(r.x + m.left + 1, r.y + 2, r.width - m.left - m.right - 2, r.height - 4)
+          g.clipRect(r.x + m.left, r.y, r.width - m.left - m.right, r.height)
           g.drawString(text.string, xStart, yStart)
           g.setClip(savedClip)
           g2d.setRenderingHint(RenderingHints.KEY_TEXT_ANTIALIASING, savedHint)
@@ -137,11 +142,37 @@ private class TextRenderer(private var parts: Seq[Text], menu: Option[String])
     }
   }
 
-  def replace(text: Text, replacement: Seq[Text]): Unit = {
+  def expand(text: Text): Unit = {
+    text.expansion.foreach(it => replace(text, it()))
+  }
+
+  private def replace(text: Text, replacement: Seq[Text]): Unit = {
     val i = parts.indexOf(text)
     assert(i >= 0, i)
     parts = parts.take(i) ++ replacement ++ parts.drop(i + 1)
 
+    setText(parts.map(_.string).mkString)
+  }
+
+  def expand(level: Int = ExpansionLevel): Unit = if (level >= 1) {
+    var expanded = false
+
+    parts.foreach { text =>
+      text.expansion.foreach { expansion =>
+        replace(text, expansion())
+        expanded = true
+      }
+    }
+
+    if (expanded) {
+      expand(level - 1)
+    }
+  }
+
+  def expanded: Boolean = originalParts != parts
+
+  def collapse(): Unit = {
+    parts = originalParts
     setText(parts.map(_.string).mkString)
   }
 }
@@ -154,5 +185,7 @@ private object TextRenderer {
   private final val DefaultMargin = new Insets(0, 0, 0, 0)
 
   private final val DefaultPadding = new Insets(0, 0, 0, 0)
+
+  private final val ExpansionLevel = 5
 }
 
