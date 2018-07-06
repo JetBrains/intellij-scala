@@ -279,9 +279,4 @@ object ShowImplicitArgumentsAction {
     }
     None
   }
-
-  def missingImplicitArgumentIn(result: ScalaResolveResult): Option[Option[ScType]] = {
-    result.isImplicitParameterProblem
-      .option(result.implicitSearchState.map(_.tp))
-  }
 }

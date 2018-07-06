@@ -155,8 +155,7 @@ private object ImplicitHintsPass {
     Text("(") +: arguments.map(it => presentationOf(it)).intersperse(Seq(Text(", "))).flatten :+ Text(")")
 
   private def presentationOf(argument: ScalaResolveResult)(implicit scheme: EditorColorsScheme): Seq[Text] =
-    ShowImplicitArgumentsAction.missingImplicitArgumentIn(argument)
-      .map(it => Seq(Text("?: " + it.map(_.presentableText).getOrElse("NotInferred"), Some(scheme.getAttributes(CodeInsightColors.ERRORS_ATTRIBUTES)))))
+    missingImplicitArgument(argument)
       .getOrElse(presentationOf(argument.element) ++ collapsedPresentationOf(argument.implicitParameters))
 
   private def presentationOf(e: PsiNamedElement): Seq[Text] = e match {
@@ -169,5 +168,18 @@ private object ImplicitHintsPass {
     val hint = Option(member.containingClass).map(it => it.name + ".").mkString + member.name
     Seq(Text(member.name, navigatable = Some(member), tooltip = Some(hint)))
   }
+
+  private def missingImplicitArgument(result: ScalaResolveResult)
+                                     (implicit scheme: EditorColorsScheme): Option[Seq[Text]] = {
+
+    result.isImplicitParameterProblem.option {
+      val asError = Some(scheme.getAttributes(CodeInsightColors.ERRORS_ATTRIBUTES))
+      val typeText = result.implicitSearchState.map(_.tp).getOrElse("NotInferred")
+
+      //todo: separate navigation for type?
+      Seq(Text(s"${result.name}: $typeText", asError, tooltip = None, result.element.asOptionOf[Navigatable]))
+    }
+  }
+
 }
 
