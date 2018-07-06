@@ -63,7 +63,7 @@ private class HintRendererExt(private var parts: Seq[Text]) extends HintRenderer
         g.setFont(getFont(editor))
 
         parts.foreach { text =>
-          val width = g2d.getFontMetrics.stringWidth(text.string)
+          val width = metrics.stringWidth(text.string)
 
           val effectiveTextAttributes = text.effective(editor, attributes)
 
