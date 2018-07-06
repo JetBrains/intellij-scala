@@ -6,14 +6,13 @@ import com.intellij.codeInsight.daemon.RainbowVisitor
 import com.intellij.openapi.editor.colors.TextAttributesKey
 import com.intellij.psi.util.PsiTreeUtil
 import com.intellij.psi.{PsiElement, PsiFile}
-import org.jetbrains.plugins.scala.extensions._
 import org.jetbrains.plugins.scala.highlighter.DefaultHighlighter
 import org.jetbrains.plugins.scala.lang.psi.api.ScalaFile
-import org.jetbrains.plugins.scala.lang.psi.api.base.ScPatternList
 import org.jetbrains.plugins.scala.lang.psi.api.base.patterns._
 import org.jetbrains.plugins.scala.lang.psi.api.expr.{ScFunctionExpr, ScReferenceExpression}
 import org.jetbrains.plugins.scala.lang.psi.api.statements._
 import org.jetbrains.plugins.scala.lang.psi.api.statements.params.{ScClassParameter, ScParameter}
+import org.jetbrains.plugins.scala.lang.psi.api.toplevel.ScNamedElement
 import org.jetbrains.plugins.scala.lang.scaladoc.psi.api.ScDocTagValue
 
 final class ScalaRainbowVisitor extends RainbowVisitor {
@@ -26,66 +25,54 @@ final class ScalaRainbowVisitor extends RainbowVisitor {
   }
 
   override def visit(element: PsiElement): Unit = element match {
-    case parameter: ScParameter =>
-      addInfo(parameter, parameter.nameId)()
-    case valueOrVariable: ScValueOrVariable =>
-      addInfo(valueOrVariable, valueOrVariable.declaredElements.map(_.nameId): _*)()
-    case pattern@BindingPattern(caseClause) =>
-      addInfo(pattern, pattern.nameId)(Some(caseClause))
-    case reference@ScReferenceExpression(parameter: ScParameter) =>
-      addReferenceInfo(parameter, reference)()
-    case reference@ScReferenceExpression((_: ScBindingPattern) childOf ((_: ScPatternList) childOf (valueOrVariable: ScValueOrVariable))) =>
-      addReferenceInfo(valueOrVariable, reference)()
-    case reference@ScReferenceExpression(pattern@BindingPattern(caseClause)) =>
-      addReferenceInfo(pattern, reference)(Some(caseClause))
+    case named@ColoredNameContext(context, colorKey) =>
+      addInfo(context, colorKey, named.nameId)
+    case reference@ScReferenceExpression(ColoredNameContext(context, colorKey)) =>
+      addInfo(context, colorKey, reference.nameId)
     case docTag: ScDocTagValue =>
-      addInfo(docTag, docTag)()
+      addInfo(docTag, DefaultHighlighter.SCALA_DOC_TAG_PARAM_VALUE, docTag)
     case _ =>
   }
 
   override def clone(): ScalaRainbowVisitor = new ScalaRainbowVisitor
 
-  private def addReferenceInfo(element: PsiElement, expression: ScReferenceExpression)
-                              (maybeContext: => Option[PsiElement] = functionContext(element)): Unit =
-    addInfo(element, expression.nameId)(maybeContext)
+  private def addInfo(element: PsiElement,
+                      colorKey: TextAttributesKey,
+                      rainbowElement: PsiElement): Unit = {
+    val context = element match {
+      case clause: ScCaseClause => clause
+      case _ => PsiTreeUtil.getContextOfType(element, false, classOf[ScFunction], classOf[ScFunctionExpr])
+    }
 
-  private def addInfo(element: PsiElement, rainbowElements: PsiElement*)
-                     (maybeContext: => Option[PsiElement] = functionContext(element)): Unit = for {
-    ColorKey(colorKey) <- Some(element)
-    context <- maybeContext
-    rainbowElement <- rainbowElements
-    info = getInfo(context, rainbowElement, rainbowElement.getText, colorKey)
-  } addInfo(info)
+    if (context != null) {
+      val info = getInfo(context, rainbowElement, rainbowElement.getText, colorKey)
+      addInfo(info)
+    }
+  }
 }
 
 private object ScalaRainbowVisitor {
 
-  def functionContext(element: PsiElement) =
-    Option(PsiTreeUtil.getContextOfType(element, classOf[ScFunction], classOf[ScFunctionExpr]))
+  object ColoredNameContext {
 
-  object ColorKey {
+    def unapply(element: ScNamedElement): Option[(PsiElement, TextAttributesKey)] = {
+      val nameContext = element match {
+        case parameter: ScParameter => parameter
+        case pattern: ScBindingPattern => pattern.nameContext
+        case _ => null
+      }
 
-    import DefaultHighlighter._
-
-    def unapply(element: PsiElement): Option[TextAttributesKey] = element match {
-      case parameter: ScParameter =>
-        parameter match {
-          case _: ScClassParameter => None
-          case _ if parameter.isAnonymousParameter => Some(ANONYMOUS_PARAMETER)
-          case _ => Some(PARAMETER)
-        }
-      case value: ScValue if value.isLocal => Some(LOCAL_VALUES)
-      case variable: ScVariable if variable.isLocal => Some(LOCAL_VARIABLES)
-      case _: ScBindingPattern => Some(PATTERN)
-      case _: ScDocTagValue => Some(SCALA_DOC_TAG_PARAM_VALUE)
-      case _ => None
+      import DefaultHighlighter._
+      nameContext match {
+        case _: ScClassParameter => None
+        case parameter: ScParameter if parameter.isAnonymousParameter => Some(parameter, ANONYMOUS_PARAMETER)
+        case parameter: ScParameter => Some(parameter, PARAMETER)
+        case value: ScValue if value.isLocal => Some(value, LOCAL_VALUES)
+        case variable: ScVariable if variable.isLocal => Some(variable, LOCAL_VARIABLES)
+        case clause: ScCaseClause => Some(clause, PATTERN)
+        case _ => None
+      }
     }
-  }
-
-  object BindingPattern {
-
-    def unapply(pattern: ScBindingPattern): Option[ScCaseClause] =
-      pattern.findContextOfType(classOf[ScCaseClause])
   }
 
 }
