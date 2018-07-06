@@ -8,8 +8,10 @@ import com.intellij.openapi.editor.Editor
 import com.intellij.openapi.editor.colors.EditorFontType
 import com.intellij.openapi.editor.impl.EditorImpl
 import com.intellij.openapi.editor.markup.{EffectType, TextAttributes}
+import com.intellij.openapi.util.Key
 import com.intellij.ui.paint.EffectPainter
 import com.intellij.util.ui.GraphicsUtil
+import javax.swing.UIManager
 import org.jetbrains.plugins.scala.codeInsight.implicits.HintRendererExt._
 
 private class HintRendererExt(private var parts: Seq[Text]) extends HintRenderer(parts.map(_.string).mkString) {
@@ -28,8 +30,8 @@ private class HintRendererExt(private var parts: Seq[Text]) extends HintRenderer
   override protected def calcWidthInPixels(editor: Editor): Int = {
     val m = getMargin(editor)
     val p = getPadding(editor)
-    val fontMetrics = getFontMetrics(editor).getMetrics
-    fontMetrics.stringWidth(getText) + m.left + p.left + p.right + m.right
+    val metrics = getFontMetrics0(editor).getMetrics
+    metrics.stringWidth(getText) + m.left + p.left + p.right + m.right
   }
 
   override def paint(editor: Editor, g: Graphics, r: Rectangle, textAttributes: TextAttributes) {
@@ -44,7 +46,7 @@ private class HintRendererExt(private var parts: Seq[Text]) extends HintRenderer
     val g2d = g.asInstanceOf[Graphics2D]
     val attributes = getTextAttributes(editor)
     if (attributes != null) {
-      val fontMetrics = getFontMetrics(editor)
+      val fontMetrics = getFontMetrics0(editor)
       val gap = if (r.height < fontMetrics.getLineHeight + 2) 1 else 2
       val backgroundColor = attributes.getBackgroundColor
       if (backgroundColor != null) {
@@ -110,9 +112,22 @@ private class HintRendererExt(private var parts: Seq[Text]) extends HintRenderer
     }
   }
 
-  private def getFont(editor: Editor): Font = {
-    getFontMetrics(editor).getFont
+  private def getFontMetrics0(editor: Editor): MyFontMetrics = {
+    val familyName = UIManager.getFont("Label.font").getFamily
+    val size = Math.max(1, editor.getColorsScheme.getEditorFontSize - 1)
+    var metrics = editor.getUserData(HintFontMetrics)
+    if (metrics != null && !metrics.isActual(editor, familyName, size)) {
+      metrics = null
+    }
+    if (metrics == null) {
+      metrics = new MyFontMetrics(editor, familyName, size)
+      editor.putUserData(HintFontMetrics, metrics)
+    }
+    metrics
   }
+
+  private def getFont(editor: Editor): Font =
+    getFontMetrics0(editor).getFont
 
   def textAt(editor: Editor, x: Int): Option[Text] = {
     val m = getMargin(editor)
@@ -124,6 +139,8 @@ private class HintRendererExt(private var parts: Seq[Text]) extends HintRenderer
 }
 
 private object HintRendererExt {
+  final val HintFontMetrics = Key.create[MyFontMetrics]("ParameterHintFontMetrics")
+
   final val BACKGROUND_ALPHA = 0.55f
 
   final val DefaultMargin = new Insets(0, 2, 0, 2)
