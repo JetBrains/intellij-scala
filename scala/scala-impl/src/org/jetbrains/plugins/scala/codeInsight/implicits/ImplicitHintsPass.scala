@@ -134,7 +134,7 @@ private object ImplicitHintsPass {
   private def collapsedPresentationOf(arguments: Seq[ScalaResolveResult])(implicit scheme: EditorColorsScheme): Seq[Text] =
     if (arguments.nonEmpty) {
       Seq(Text("("),
-        Text(" ... ", attributes = Some(adjusted(scheme.getAttributes(EditorColors.FOLDED_TEXT_ATTRIBUTES))),
+        Text("...", attributes = Some(adjusted(scheme.getAttributes(EditorColors.FOLDED_TEXT_ATTRIBUTES))),
           expansion = Some(() => expandedPresentationOf(arguments).drop(1).dropRight(1))),
         Text(")"))
     } else {
