@@ -15,14 +15,6 @@ import javax.swing.UIManager
 import org.jetbrains.plugins.scala.codeInsight.implicits.HintRendererExt._
 
 private class HintRendererExt(private var parts: Seq[Text]) extends HintRenderer(parts.map(_.string).mkString) {
-  def replace(text: Text, replacement: Seq[Text]): Unit = {
-    val i = parts.indexOf(text)
-    assert(i >= 0, i)
-    parts = parts.take(i) ++ replacement ++ parts.drop(i + 1)
-
-    setText(parts.map(_.string).mkString)
-  }
-
   protected def getMargin(editor: Editor): Insets = DefaultMargin
 
   protected def getPadding(editor: Editor): Insets = DefaultPadding
@@ -51,7 +43,7 @@ private class HintRendererExt(private var parts: Seq[Text]) extends HintRenderer
       val backgroundColor = attributes.getBackgroundColor
       if (backgroundColor != null) {
         val config = GraphicsUtil.setupAAPainting(g)
-        GraphicsUtil.paintWithAlpha(g, BACKGROUND_ALPHA)
+        GraphicsUtil.paintWithAlpha(g, BackgroundAlpha)
         g.setColor(backgroundColor)
         g.fillRoundRect(r.x + m.left, r.y + gap, r.width - m.left - m.right, r.height - gap * 2, 8, 8)
         config.restore()
@@ -72,7 +64,7 @@ private class HintRendererExt(private var parts: Seq[Text]) extends HintRenderer
           val backgroundColor = effectiveTextAttributes.getBackgroundColor
           if (backgroundColor != null) {
             val config = GraphicsUtil.setupAAPainting(g)
-            GraphicsUtil.paintWithAlpha(g, BACKGROUND_ALPHA)
+            GraphicsUtil.paintWithAlpha(g, BackgroundAlpha)
             g.setColor(backgroundColor)
             g.fillRect(xStart, r.y + gap, width, r.height - gap * 2)
             config.restore()
@@ -136,15 +128,23 @@ private class HintRendererExt(private var parts: Seq[Text]) extends HintRenderer
     val widths = parts.map(it => fontMetrics.stringWidth(it.string)).scanLeft(m.left + p.left)(_ + _)
     widths.find(_ >= x).map(widths.indexOf).flatMap(i => parts.lift(i - 1)).orElse(parts.headOption)
   }
+
+  def replace(text: Text, replacement: Seq[Text]): Unit = {
+    val i = parts.indexOf(text)
+    assert(i >= 0, i)
+    parts = parts.take(i) ++ replacement ++ parts.drop(i + 1)
+
+    setText(parts.map(_.string).mkString)
+  }
 }
 
 private object HintRendererExt {
-  final val HintFontMetrics = Key.create[MyFontMetrics]("ParameterHintFontMetrics")
+  private final val HintFontMetrics = Key.create[MyFontMetrics]("ParameterHintFontMetrics")
 
-  final val BACKGROUND_ALPHA = 0.55f
+  private final val BackgroundAlpha = 0.55f
 
-  final val DefaultMargin = new Insets(0, 2, 0, 2)
+  private final val DefaultMargin = new Insets(0, 2, 0, 2)
 
-  final val DefaultPadding = new Insets(0, 5, 0, 5)
+  private final val DefaultPadding = new Insets(0, 5, 0, 5)
 }
 
