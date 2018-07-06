@@ -25,6 +25,7 @@ private class CompilerReferenceIndexer(project: Project, expectedIndexVersion: I
 
   private[this] val parsingJobs    = new AtomicInteger(0)
   private[this] val indexWriteLock = new ReentrantLock()
+  private[this] val executionLock  = new ReentrantLock()
 
   private[this] val parserJobQueue = new ConcurrentLinkedQueue[Set[CompiledClass]]()
   private[this] val writerJobQueue = new LinkedBlockingDeque[WriterJob](1000)
@@ -42,8 +43,10 @@ private class CompilerReferenceIndexer(project: Project, expectedIndexVersion: I
   Disposer.register(project, () => {
     shutdownIfNeeded(parsingExecutor)
     shutdownIfNeeded(indexWritingExecutor)
-    withLock(indexWriteLock) {
-      indexDir(project).foreach(CompilerReferenceIndex.removeIndexFiles)
+    if (executionLock.isLocked) {
+      withLock(indexWriteLock) {
+        indexDir(project).foreach(CompilerReferenceIndex.removeIndexFiles)
+      }
     }
   })
 
@@ -114,21 +117,23 @@ private class CompilerReferenceIndexer(project: Project, expectedIndexVersion: I
       indexWritingExecutor = Executors.newSingleThreadExecutor()
   }
 
-  def process(job: IndexerJob): Unit = job match {
-    case OpenWriter(isCleanBuild, onFinish) =>
-      initialiseExecutorsIfNeeded()
-      writer = indexDir(project).flatMap(ScalaCompilerReferenceWriter(_, expectedIndexVersion, isCleanBuild))
-      onFinish()
-    case CloseWriter(onFinish) =>
-      val maybeFailure =
-        if (!failedToParse.isEmpty) IndexerParsingFailure(failedToParse.asScala).toOption
-        else None
+  def process(job: IndexerJob): Unit = withLock(executionLock) {
+    job match {
+      case OpenWriter(isCleanBuild, onFinish) =>
+        initialiseExecutorsIfNeeded()
+        writer = indexDir(project).flatMap(ScalaCompilerReferenceWriter(_, expectedIndexVersion, isCleanBuild))
+        onFinish()
+      case CloseWriter(onFinish) =>
+        val maybeFailure =
+          if (!failedToParse.isEmpty) IndexerParsingFailure(failedToParse.asScala).toOption
+          else None
 
-      writer.foreach(_.close(false))
-      writer = None
-      onFinish(maybeFailure)
-    case ProcessChunkData(data, onFinish) =>
-      indexBuildData(data, onFinish)
+        writer.foreach(_.close(false))
+        writer = None
+        onFinish(maybeFailure)
+      case ProcessChunkData(data, onFinish) =>
+        indexBuildData(data, onFinish)
+    }
   }
 
   def indexBuildData(buildData: ChunkBuildData, onSuccess: () => Unit): Unit =

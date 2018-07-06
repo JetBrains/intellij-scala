@@ -12,7 +12,6 @@ import com.intellij.openapi.project.Project
 import com.intellij.openapi.roots.ProjectFileIndex
 import com.intellij.openapi.ui.{DialogWrapper, Messages}
 import com.intellij.psi._
-import com.intellij.psi.search.searches.ReferencesSearch
 import com.intellij.psi.util.PsiTreeUtil
 import com.intellij.ui._
 import com.intellij.util.Processor
@@ -25,25 +24,23 @@ import org.jetbrains.plugins.scala.util.ImplicitUtil._
 
 import scala.collection.JavaConverters._
 
-class ScalaImplicitMemberUsageSearcher
-    extends QueryExecutorBase[PsiReference, ReferencesSearch.SearchParameters](true)
+private class ScalaImplicitMemberUsageSearcher
+    extends QueryExecutorBase[PsiReference, ImplicitReferencesSearch.SearchParameters](true)
     with UsageToPsiElements {
 
   override def processQuery(
-    parameters: ReferencesSearch.SearchParameters,
+    parameters: ImplicitReferencesSearch.SearchParameters,
     consumer:   Processor[_ >: PsiReference]
-  ): Unit =
-    parameters.getElementToSearch match {
-      case ImplicitSearchTarget(target) =>
-        val project = target.getProject
-        val service = ScalaCompilerReferenceService.getInstance(project)
-        val usages  = service.usagesOf(target)
-        val refs    = extractUsages(target, usages)
-        refs.foreach(consumer.process)
-      case _ =>
-    }
+  ): Unit = {
+    val target  = parameters.element
+    val project = target.getProject
+    val service = ScalaCompilerReferenceService.getInstance(project)
+    val usages  = service.usagesOf(target)
+    val refs    = extractUsages(target, usages)
+    refs.foreach(consumer.process)
+  }
 
-  private def extractUsages(target: PsiElement, usages: Set[UsagesInFile]): Seq[PsiReference] = {
+  private[this] def extractUsages(target: PsiElement, usages: Set[UsagesInFile]): Seq[PsiReference] = {
     val project = target.getProject
 
     def extractReferences(usage: UsagesInFile): Seq[PsiReference] =
@@ -55,8 +52,9 @@ class ScalaImplicitMemberUsageSearcher
         val extraLines = usage.lines.diff(refs.map(r => lineNumber(r.getElement)))
 
         val unresolvedRefs = extraLines.map { line =>
-          val offset = doc.getLineStartOffset(line)
+          val offset = doc.getLineStartOffset(line - 1)
           //@TODO: perhaps it makes sense to somehow show the number of unresolved implicits in this line
+          //@TODO: distinguish between unresolved and outdated usages
           UnresolvedImplicitReference(target, file, offset)
         }
 
@@ -81,6 +79,9 @@ object ScalaImplicitMemberUsageSearcher {
     if (!service.isCompilerIndexReady) {
       inEventDispatchThread(showIndicesNotReadyDialog(project))
       Option(CancelSearch)
+    } else if (service.isInProgress) {
+      inEventDispatchThread(showCompilationIsActiveDialog(project))
+      Option(CancelSearch)
     } else {
       val (dirtyModules, upToDateModules) = dirtyModulesInDependencyChain(target)
       val validIndexExists                = upToDateCompilerIndexExists(project, ScalaCompilerIndices.version)
@@ -101,7 +102,7 @@ object ScalaImplicitMemberUsageSearcher {
     if (SwingUtilities.isEventDispatchThread) body
     else invokeAndWait(body)
 
-  private def dirtyModulesInDependencyChain(element: PsiElement): (Seq[Module], Seq[Module]) = {
+  private[this] def dirtyModulesInDependencyChain(element: PsiElement): (Seq[Module], Seq[Module]) = {
     val project      = element.getProject
     val file         = PsiTreeUtil.getContextOfType(element, classOf[PsiFile]).getVirtualFile
     val index        = ProjectFileIndex.getInstance(project)
@@ -111,7 +112,12 @@ object ScalaImplicitMemberUsageSearcher {
     modules.span(dirtyModules.contains)
   }
 
-  private def showIndicesNotReadyDialog(project: Project): Unit = {
+  private[this] def showCompilationIsActiveDialog(project: Project): Unit = {
+     val message = "Implicit usages search is unavailable during compilation."
+    Messages.showInfoMessage(project, message, "Compilation In Process")
+  }
+
+  private[this] def showIndicesNotReadyDialog(project: Project): Unit = {
     val message =
       """
         |Bytecode indices are currently undergoing an up-to-date check,

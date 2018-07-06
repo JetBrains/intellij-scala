@@ -161,7 +161,8 @@ private[findUsages] class ScalaCompilerReferenceService(
 
   /** Should only be called under [[myReadDataLock]] */
   private[this] def withReader(
-    target: PsiElement
+    target: PsiElement,
+    filterScope: Boolean = false
   )(
     builder: ScalaCompilerReferenceReader => CompilerRef => Set[UsagesInFile]
   ): Set[UsagesInFile] = {
@@ -173,8 +174,10 @@ private[findUsages] class ScalaCompilerReferenceService(
       targets = info.searchElements
     } yield targets.foreach(usages ++= builder(reader)(_))
 
-    val dirtyScope = dirtyScopeForDefinition(target)
-    usages.result().filterNot(usage => dirtyScope.contains(usage.file))
+    if (filterScope) {
+      val dirtyScope = dirtyScopeForDefinition(target)
+      usages.result().filterNot(usage => dirtyScope.contains(usage.file))
+    } else usages.result()
   }
 
   def SAMInheritorsOf(aClass: PsiClass): Set[UsagesInFile] = withLock(myReadDataLock)(
@@ -190,6 +193,9 @@ private[findUsages] class ScalaCompilerReferenceService(
   }
 
   def isCompilerIndexReady: Boolean = isUpToDateChecked
+
+  def isInProgress: Boolean = myActiveBuilds != 0 ||
+    CompilerManager.getInstance(project).isCompilationActive
 
   def dirtyScopeForDefinition(e: PsiElement): GlobalSearchScope = {
     import com.intellij.psi.search.GlobalSearchScope._

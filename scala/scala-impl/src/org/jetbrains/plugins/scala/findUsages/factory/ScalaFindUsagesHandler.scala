@@ -12,9 +12,9 @@ import com.intellij.psi.search.searches.ClassInheritorsSearch
 import com.intellij.usageView.UsageInfo
 import com.intellij.util.Processor
 import org.jetbrains.plugins.scala.extensions._
+import org.jetbrains.plugins.scala.findUsages.compilerReferences.ImplicitReferencesSearch
 import org.jetbrains.plugins.scala.lang.psi.ScalaPsiUtil._
 import org.jetbrains.plugins.scala.lang.psi.api.PropertyMethods._
-import org.jetbrains.plugins.scala.lang.psi.api.base.ScPrimaryConstructor
 import org.jetbrains.plugins.scala.lang.psi.api.base.patterns.ScCaseClause
 import org.jetbrains.plugins.scala.lang.psi.api.expr.{ScForBinding, ScGenerator}
 import org.jetbrains.plugins.scala.lang.psi.api.statements._
@@ -24,8 +24,7 @@ import org.jetbrains.plugins.scala.lang.psi.api.toplevel.{ScNamedElement, ScType
 import org.jetbrains.plugins.scala.lang.psi.impl.search.ScalaOverridingMemberSearcher
 import org.jetbrains.plugins.scala.lang.psi.light._
 import org.jetbrains.plugins.scala.lang.psi.types.api.designator.ScDesignatorType
-
-import _root_.scala.collection.mutable
+import org.jetbrains.plugins.scala.util.ImplicitUtil.ImplicitSearchTarget
 
 /**
  * User: Alexander Podkhalyuzin
@@ -135,7 +134,6 @@ class ScalaFindUsagesHandler(element: PsiElement, factory: ScalaFindUsagesHandle
     }
   }
 
-
   override def getFindUsagesDialog(isSingleFile: Boolean, toShowInNewTab: Boolean, mustOpenInNewTab: Boolean): AbstractFindUsagesDialog = {
     element match {
       case t: ScTypeDefinition => new ScalaTypeDefinitionUsagesDialog(t, getProject, getFindUsagesOptions,
@@ -154,75 +152,62 @@ class ScalaFindUsagesHandler(element: PsiElement, factory: ScalaFindUsagesHandle
     super.processUsagesInText(element, nonScalaTextProcessor, searchScope)
   }
 
-  override def processElementUsages(element: PsiElement, processor: Processor[UsageInfo], options: FindUsagesOptions): Boolean = {
-    if (!super.processElementUsages(element, processor, options)) return false
+  override def processElementUsages(
+    element:   PsiElement,
+    processor: Processor[UsageInfo],
+    options:   FindUsagesOptions
+  ): Boolean = {
+    def addElementUsages(e: PsiElement): Boolean =
+      super.processElementUsages(e, processor, options)
+
+    if (!addElementUsages(element)) return false
     inReadAction {
       options match {
-        case s: ScalaTypeDefinitionFindUsagesOptions if element.isInstanceOf[ScTypeDefinition] =>
+        case s: ScalaTypeDefinitionFindUsagesOptions =>
           val definition = element.asInstanceOf[ScTypeDefinition]
+
           if (s.isMembersUsages) {
             definition.members.foreach {
-              case fun: ScFunction =>
-                if (!super.processElementUsages(fun, processor, options)) return false
-              case v: ScValue =>
-                v.declaredElements.foreach { d =>
-                  if (!super.processElementUsages(d, processor, options)) return false
-                }
-              case v: ScVariable =>
-                v.declaredElements.foreach { d =>
-                  if (!super.processElementUsages(d, processor, options)) return false
-                }
-              case ta: ScTypeAlias =>
-                if (!super.processElementUsages(ta, processor, options)) return false
-              case c: ScTypeDefinition =>
-                if (!super.processElementUsages(c, processor, options)) return false
-              case c: ScPrimaryConstructor =>
-                if (!super.processElementUsages(c, processor, options)) return false
+              case v: ScValueOrVariable => v.declaredElements.foreach(d => if (!addElementUsages(d)) return false)
+              case member: ScMember     => if (!addElementUsages(member)) return false
             }
+
             definition match {
               case c: ScClass =>
-                c.constructor match {
-                  case Some(constr) => constr.effectiveParameterClauses.foreach { clause =>
-                    clause.effectiveParameters.foreach { _ =>
-                      if (!super.processElementUsages(c, processor, options)) return false
-                    }
-                  }
-                  case _ =>
-                }
-              case _ =>
+                for {
+                  constructor <- c.constructor.toSeq
+                  clause      <- constructor.effectiveParameterClauses if !clause.isImplicit
+                  param       <- clause.effectiveParameters
+                } if (!addElementUsages(param)) return false
             }
           }
-          if (s.isSearchCompanionModule) {
-            definition.baseCompanionModule.foreach { companion =>
-              if (!super.processElementUsages(companion, processor, options)) return false
-            }
-          }
+
+          if (s.isSearchCompanionModule)
+            definition.baseCompanionModule.foreach(companion => if (!addElementUsages(companion)) return false)
+
           if (s.isImplementingTypeDefinitions) {
-            val res = new mutable.HashSet[PsiClass]()
-            ClassInheritorsSearch.search(definition, true).forEach(new Processor[PsiClass] {
-              def process(t: PsiClass): Boolean = {
-                t match {
-                  case _: PsiClassWrapper =>
-                  case _ => res += t
-                }
-                true
-              }
+            val success = ClassInheritorsSearch.search(definition, true).forEach((cls: PsiClass) => cls match {
+              case _: PsiClassWrapper => true
+              case aClass: PsiClass   => processor.process(new UsageInfo(aClass))
+              case _                  => true
             })
-            res.foreach { c =>
-              val processed = processor.process(new UsageInfo(c))
-              if (!processed) return false
-            }
+            if (!success) return false
           }
         case _ =>
       }
 
       element match {
         case (named: ScNamedElement) && inNameContext(member: ScMember) if !member.isLocal =>
-          for (elem <- ScalaOverridingMemberSearcher.search(named, deep = true)) {
-            val processed = super.processElementUsages(elem, processor, options)
-            if (!processed) return false
-          }
+          ScalaOverridingMemberSearcher.search(named).foreach(e => if (!addElementUsages(e)) return false)
         case _ =>
+      }
+
+      element match {
+        case ImplicitSearchTarget(target) =>
+          val success =
+            ImplicitReferencesSearch.search(target).forEach((e: PsiReference) => processor.process(new UsageInfo(e)))
+          if (!success) return false
+        case _ => ()
       }
     }
     true

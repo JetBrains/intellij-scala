@@ -1,13 +1,18 @@
 package org.jetbrains.plugins.scala.findUsages.factory
 
+import com.intellij.find.FindManager
 import com.intellij.find.findUsages.{FindUsagesHandler, FindUsagesHandlerFactory}
-import com.intellij.openapi.compiler.CompilerManager
+import com.intellij.find.impl.FindManagerImpl
+import com.intellij.openapi.application.TransactionGuard
+import com.intellij.openapi.compiler.{CompileStatusNotification, CompilerManager}
+import com.intellij.openapi.module.Module
 import com.intellij.openapi.project.Project
 import com.intellij.openapi.ui.Messages
 import com.intellij.psi.{PsiElement, PsiNamedElement}
 import com.intellij.util.containers.ContainerUtil
 import org.jetbrains.plugins.scala.ScalaBundle
 import org.jetbrains.plugins.scala.findUsages.compilerReferences.ScalaImplicitMemberUsageSearcher._
+import org.jetbrains.plugins.scala.findUsages.compilerReferences.{CompilerReferenceIndexingStatusListener, CompilerReferenceIndexingTopics, IndexerParsingFailure}
 import org.jetbrains.plugins.scala.lang.psi.api.base.ScPrimaryConstructor
 import org.jetbrains.plugins.scala.lang.psi.api.statements.ScFunction
 import org.jetbrains.plugins.scala.lang.psi.api.statements.params.ScTypeParam
@@ -23,7 +28,7 @@ import org.jetbrains.plugins.scala.util.ImplicitUtil._
  * User: Alexander Podkhalyuzin
  * Date: 17.08.2009
  */
-class ScalaFindUsagesHandlerFactory(project: Project) extends FindUsagesHandlerFactory {
+class ScalaFindUsagesHandlerFactory(project: Project) extends FindUsagesHandlerFactory { self =>
   private[factory] val typeDefinitionOptions = new ScalaTypeDefinitionFindUsagesOptions(project)
   private[factory] val memberOptions         = new ScalaMemberFindUsagesOptions(project)
   private[factory] val localOptions          = new ScalaLocalFindUsagesOptions(project)
@@ -63,22 +68,54 @@ class ScalaFindUsagesHandlerFactory(project: Project) extends FindUsagesHandlerF
     }
   }
 
-  private def doBeforeImplicitSearchAction(target: PsiNamedElement): Boolean =
+  private[this] def buildScopeBeforeImplicitSearch(
+    target:  PsiElement,
+    modules: Seq[Module]
+  ): Unit = {
+    val manager    = CompilerManager.getInstance(project)
+    val connection = project.getMessageBus.connect(project)
+
+    connection.subscribe(CompilerReferenceIndexingTopics.indexingStatus, new CompilerReferenceIndexingStatusListener {
+      override def onIndexingFinished(failure: Option[IndexerParsingFailure]): Unit = {
+        if (failure.isEmpty) {
+          val findManager = FindManager.getInstance(project).asInstanceOf[FindManagerImpl]
+          val handler = new ScalaFindUsagesHandler(target, self)
+
+          val runnable: Runnable = () =>
+            findManager.getFindUsagesManager.findUsages(
+              handler.getPrimaryElements,
+              handler.getSecondaryElements,
+              handler,
+              handler.getFindUsagesOptions(),
+              false
+            )
+
+          TransactionGuard.getInstance().submitTransactionAndWait(runnable)
+        }
+        connection.disconnect()
+      }
+    })
+
+    val scope = manager.createModulesCompileScope(modules.toArray, true)
+    val notification: CompileStatusNotification =
+      (aborted, errors, _, _)  => if (aborted || errors != 0) connection.disconnect()
+    manager.make(scope, notification)
+  }
+
+  private[this] def doBeforeImplicitSearchAction(target: PsiNamedElement): Boolean =
     assertSearchScopeIsSufficient(target) match {
       case Some(BuildModules(modules)) =>
-        val manager = CompilerManager.getInstance(target.getProject)
-        val scope   = manager.createModulesCompileScope(modules.toArray, true)
-        manager.make(scope, null)
+        buildScopeBeforeImplicitSearch(target, modules)
         false
       case Some(RebuildProject) =>
-        val manager = CompilerManager.getInstance(target.getProject)
+        val manager = CompilerManager.getInstance(project)
         manager.rebuild(null)
         false
       case Some(CancelSearch) => false
       case None               => true
     }
 
-  private def suggestChooseSuper(e: PsiElement): Option[PsiNamedElement] = {
+  private[this] def suggestChooseSuper(e: PsiElement): Option[PsiNamedElement] = {
     def needToAsk(named: PsiNamedElement): Boolean = named match {
       case fun: ScFunction
           if fun.containingClass.qualifiedName.startsWith(FunctionType.TypeName) && fun.isApplyMethod =>
