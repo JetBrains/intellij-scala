@@ -118,10 +118,7 @@ class MouseHandler(project: Project,
   private def textAt(editor: Editor, point: Point): Option[(Inlay, Text)] =
     Option(editor.getInlayModel.getElementAt(point)).flatMap { inlay =>
       inlay.getRenderer.asOptionOf[TextRenderer].flatMap { renderer =>
-        val inlayPoint = {
-          val offset = editor.logicalPositionToOffset(editor.xyToLogicalPosition(point))
-          editor.visualPositionToXY(editor.offsetToVisualPosition(offset))
-        }
+        val inlayPoint = editor.visualPositionToXY(inlay.getVisualPosition)
         renderer.textAt(editor, point.x - inlayPoint.x).map((inlay, _))
       }
     }
