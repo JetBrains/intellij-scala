@@ -8,7 +8,7 @@ import com.intellij.application.options.codeStyle.CodeStyleSchemesModel
 import com.intellij.openapi.fileChooser.FileChooserDescriptorFactory
 import com.intellij.openapi.ui.TextFieldWithBrowseButton
 import com.intellij.psi.codeStyle.CodeStyleSettings
-import com.intellij.ui.components.JBTextField
+import com.intellij.ui.components.{JBCheckBox, JBTextField}
 import com.intellij.uiDesigner.core.{GridConstraints, GridLayoutManager}
 import javax.swing._
 import javax.swing.event.ChangeEvent
@@ -37,7 +37,10 @@ class ScalaTabbedCodeStylePanel(currentSettings: CodeStyleSettings, settings: Co
     val scalaCodeStyleSettings = settings.getCustomSettings(classOf[ScalaCodeStyleSettings])
     scalaCodeStyleSettings.USE_SCALAFMT_FORMATTER != useExternalFormatterCheckbox.isSelected ||
       scalaCodeStyleSettings.SCALAFMT_CONFIG_PATH != externalFormatterSettingsPath.getText ||
-      scalaCodeStyleSettings.REFORMAT_ON_COMPILE != reformatOnCompile.isSelected || super.isModified(settings)
+      scalaCodeStyleSettings.REFORMAT_ON_COMPILE != reformatOnCompile.isSelected ||
+      scalaCodeStyleSettings.AUTO_DETECT_SCALAFMT != autoDetectScalaFmt.isSelected ||
+      scalaCodeStyleSettings.SUGGEST_AUTO_DETECT_SCALAFMT != suggestScalaFmtAutoDetection.isSelected ||
+    super.isModified(settings)
   }
 
   override def apply(settings: CodeStyleSettings): Unit = {
@@ -45,6 +48,8 @@ class ScalaTabbedCodeStylePanel(currentSettings: CodeStyleSettings, settings: Co
     scalaCodeStyleSettings.USE_SCALAFMT_FORMATTER = useExternalFormatterCheckbox.isSelected
     scalaCodeStyleSettings.SCALAFMT_CONFIG_PATH = externalFormatterSettingsPath.getText
     scalaCodeStyleSettings.REFORMAT_ON_COMPILE = reformatOnCompile.isSelected
+    scalaCodeStyleSettings.AUTO_DETECT_SCALAFMT = autoDetectScalaFmt.isSelected
+    scalaCodeStyleSettings.SUGGEST_AUTO_DETECT_SCALAFMT != suggestScalaFmtAutoDetection.isSelected
     super.apply(settings)
   }
 
@@ -54,26 +59,32 @@ class ScalaTabbedCodeStylePanel(currentSettings: CodeStyleSettings, settings: Co
     externalFormatterSettingsPath.setEnabled(scalaCodeStyleSettings.USE_SCALAFMT_FORMATTER)
     externalFormatterSettingsPath.setText(scalaCodeStyleSettings.SCALAFMT_CONFIG_PATH)
     reformatOnCompile.setSelected(scalaCodeStyleSettings.REFORMAT_ON_COMPILE)
+    autoDetectScalaFmt.setSelected(scalaCodeStyleSettings.AUTO_DETECT_SCALAFMT)
+    suggestScalaFmtAutoDetection.setSelected(scalaCodeStyleSettings.SUGGEST_AUTO_DETECT_SCALAFMT)
     super.resetImpl(settings)
   }
 
   private def initOuterFormatterPanel(): Unit = {
-    outerPanel = new JPanel(new GridLayoutManager(2, 1, new Insets(0, 0, 0, 0), -1, -1))
-    externalFormatterPanel = new JPanel(new GridLayoutManager(3, 2, new Insets(0, 0, 0, 0), -1, -1))
+    outerPanel = new JPanel(new GridLayoutManager(6, 1, new Insets(0, 0, 0, 0), -1, -1))
     reformatOnCompile = new JCheckBox("Reformat on compile")
-    externalFormatterPanel.add(reformatOnCompile,
-      new GridConstraints(0, 0, 1, 2, GridConstraints.ANCHOR_CENTER, GridConstraints.FILL_BOTH,
-        GridConstraints.SIZEPOLICY_CAN_SHRINK | GridConstraints.SIZEPOLICY_CAN_GROW,
-        GridConstraints.SIZEPOLICY_CAN_SHRINK | GridConstraints.SIZEPOLICY_CAN_GROW, null, null,
-        null, 0, false))
+    outerPanel.add(reformatOnCompile, new GridConstraints(0, 0, 1, 1, GridConstraints.ANCHOR_CENTER, GridConstraints.FILL_BOTH,
+      GridConstraints.SIZEPOLICY_FIXED, GridConstraints.SIZEPOLICY_FIXED, null, null,
+      null, 0, false))
+    autoDetectScalaFmt = new JCheckBox("Automatically enable scalafmt for projects with configuration")
+    outerPanel.add(autoDetectScalaFmt, new GridConstraints(1, 0, 1, 1, GridConstraints.ANCHOR_CENTER, GridConstraints.FILL_BOTH,
+      GridConstraints.SIZEPOLICY_FIXED, GridConstraints.SIZEPOLICY_FIXED, null, null,
+      null, 0, false))
+    suggestScalaFmtAutoDetection = new JBCheckBox("Suggest automatic scalafmt detection when a project is opened")
+    outerPanel.add(suggestScalaFmtAutoDetection, new GridConstraints(2, 0, 1, 1, GridConstraints.ANCHOR_CENTER, GridConstraints.FILL_BOTH,
+      GridConstraints.SIZEPOLICY_FIXED, GridConstraints.SIZEPOLICY_FIXED, null, null,
+      null, 0, false))
     useExternalFormatterCheckbox = new JCheckBox("Use scalafmt")
-    externalFormatterPanel.add(useExternalFormatterCheckbox,
-      new GridConstraints(1, 0, 1, 2, GridConstraints.ANCHOR_CENTER, GridConstraints.FILL_BOTH,
-        GridConstraints.SIZEPOLICY_CAN_SHRINK | GridConstraints.SIZEPOLICY_CAN_GROW,
-        GridConstraints.SIZEPOLICY_CAN_SHRINK | GridConstraints.SIZEPOLICY_CAN_GROW, null, null,
-        null, 0, false))
+    outerPanel.add(useExternalFormatterCheckbox, new GridConstraints(3, 0, 1, 1, GridConstraints.ANCHOR_CENTER, GridConstraints.FILL_BOTH,
+      GridConstraints.SIZEPOLICY_FIXED, GridConstraints.SIZEPOLICY_FIXED, null, null,
+      null, 0, false))
+    externalFormatterPanel = new JPanel(new GridLayoutManager(3, 2, new Insets(0, 0, 0, 0), -1, -1))
     externalFormatterPanel.add(new JLabel("Scalafmt config file path:"),
-      new GridConstraints(2, 0, 1, 1, GridConstraints.ANCHOR_CENTER, GridConstraints.FILL_BOTH,
+      new GridConstraints(0, 0, 1, 1, GridConstraints.ANCHOR_CENTER, GridConstraints.FILL_BOTH,
       GridConstraints.SIZEPOLICY_CAN_SHRINK | GridConstraints.SIZEPOLICY_CAN_GROW,
       GridConstraints.SIZEPOLICY_CAN_SHRINK | GridConstraints.SIZEPOLICY_CAN_GROW, null, null,
       null, 0, false))
@@ -83,19 +94,19 @@ class ScalaTabbedCodeStylePanel(currentSettings: CodeStyleSettings, settings: Co
     externalFormatterSettingsPath.addBrowseFolderListener(customSettingsTitle, customSettingsTitle, null,
       FileChooserDescriptorFactory.createSingleFileDescriptor("conf"))
     externalFormatterPanel.add(externalFormatterSettingsPath,
-      new GridConstraints(2, 1, 1, 1, GridConstraints.ANCHOR_WEST, GridConstraints.FILL_BOTH,
+      new GridConstraints(0, 1, 1, 1, GridConstraints.ANCHOR_WEST, GridConstraints.FILL_BOTH,
         GridConstraints.SIZEPOLICY_CAN_SHRINK | GridConstraints.SIZEPOLICY_CAN_GROW | GridConstraints.SIZEPOLICY_WANT_GROW,
         GridConstraints.SIZEPOLICY_CAN_SHRINK | GridConstraints.SIZEPOLICY_CAN_GROW, null, null,
         null, 0, false))
     outerPanel.add(externalFormatterPanel,
-      new GridConstraints(0, 0, 1, 1, GridConstraints.ANCHOR_CENTER, GridConstraints.FILL_BOTH,
+      new GridConstraints(4, 0, 1, 1, GridConstraints.ANCHOR_CENTER, GridConstraints.FILL_BOTH,
         GridConstraints.SIZEPOLICY_FIXED,
         GridConstraints.SIZEPOLICY_FIXED, null, null,
         null, 0, false))
     val dummyPanel = new JPanel(new BorderLayout)
     dummyPanel.add(innerPanel)
     outerPanel.add(dummyPanel,
-      new GridConstraints(1, 0, 1, 1, GridConstraints.ANCHOR_CENTER, GridConstraints.FILL_BOTH,
+      new GridConstraints(5, 0, 1, 1, GridConstraints.ANCHOR_CENTER, GridConstraints.FILL_BOTH,
         GridConstraints.SIZEPOLICY_CAN_SHRINK | GridConstraints.SIZEPOLICY_CAN_GROW,
         GridConstraints.SIZEPOLICY_CAN_SHRINK | GridConstraints.SIZEPOLICY_CAN_GROW, null, null,
         null, 0, false))
@@ -103,10 +114,13 @@ class ScalaTabbedCodeStylePanel(currentSettings: CodeStyleSettings, settings: Co
       //USE_SCALAFMT_FORMATTER setting is immediately set to allow proper formatting for core formatter examples
       settings.getCustomSettings(classOf[ScalaCodeStyleSettings]).USE_SCALAFMT_FORMATTER = useExternalFormatterCheckbox.isSelected
       innerPanel.setVisible(!useExternalFormatterCheckbox.isSelected)
+      externalFormatterPanel.setVisible(useExternalFormatterCheckbox.isSelected)
       externalFormatterSettingsPath.setEnabled(useExternalFormatterCheckbox.isSelected)
     })
   }
 
+  private var autoDetectScalaFmt: JCheckBox = _
+  private var suggestScalaFmtAutoDetection: JCheckBox = _
   private var reformatOnCompile: JCheckBox = _
   private var useExternalFormatterCheckbox: JCheckBox = _
   private var externalFormatterSettingsPath: TextFieldWithBrowseButton = _
