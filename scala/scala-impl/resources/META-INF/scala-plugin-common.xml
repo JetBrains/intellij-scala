@@ -1674,6 +1674,13 @@
         <add-to-group group-id="CodeEditorViewGroup" anchor="before" relative-to-action="Scala.ShowImplicitConversions"/>
       </action>
 
+      <action id="Scala.ExpandImplicits"
+              class="org.jetbrains.plugins.scala.codeInsight.implicits.ExpandImplicitHintsAction"
+              text="Expand Implicits"
+              description="Expand implicit conversions / arguments inlay hints">
+        <add-to-group group-id="CodeEditorViewGroup" anchor="after" relative-to-action="Scala.ShowImplicits"/>
+      </action>
+
     </actions>
 
 </idea-plugin>

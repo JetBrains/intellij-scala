@@ -38,7 +38,7 @@ class MouseHandler(project: Project,
           } else {
             expandableAt(e.getEditor, e.getMouseEvent.getPoint).foreach { case (inlay, text) =>
               inlay.getRenderer.asOptionOf[TextRenderer].foreach { renderer =>
-                text.expansion.foreach(it => renderer.replace(text, it()))
+                renderer.expand(text)
                 inlay.updateSize()
               }
             }

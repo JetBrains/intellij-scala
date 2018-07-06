@@ -16,6 +16,12 @@ import org.jetbrains.plugins.scala.codeInsight.implicits.TextRenderer._
 private class TextRenderer(private var parts: Seq[Text], menu: Option[String])
   extends HintRenderer(parts.map(_.string).mkString) {
 
+  private val originalParts = parts
+
+  if (ImplicitHints.expanded) {
+    expand()
+  }
+
   override def getContextMenuGroupId: String = menu.orNull
 
   protected def getMargin(editor: Editor): Insets = DefaultMargin
@@ -137,11 +143,37 @@ private class TextRenderer(private var parts: Seq[Text], menu: Option[String])
     }
   }
 
-  def replace(text: Text, replacement: Seq[Text]): Unit = {
+  def expand(text: Text): Unit = {
+    text.expansion.foreach(it => replace(text, it()))
+  }
+
+  private def replace(text: Text, replacement: Seq[Text]): Unit = {
     val i = parts.indexOf(text)
     assert(i >= 0, i)
     parts = parts.take(i) ++ replacement ++ parts.drop(i + 1)
 
+    setText(parts.map(_.string).mkString)
+  }
+
+  def expand(level: Int = ExpansionLevel): Unit = if (level >= 1) {
+    var expanded = false
+
+    parts.foreach { text =>
+      text.expansion.foreach { expansion =>
+        replace(text, expansion())
+        expanded = true
+      }
+    }
+
+    if (expanded) {
+      expand(level - 1)
+    }
+  }
+
+  def expanded: Boolean = originalParts != parts
+
+  def collapse(): Unit = {
+    parts = originalParts
     setText(parts.map(_.string).mkString)
   }
 }
@@ -154,5 +186,7 @@ private object TextRenderer {
   private final val DefaultMargin = new Insets(0, 0, 0, 0)
 
   private final val DefaultPadding = new Insets(0, 0, 0, 0)
+
+  private final val ExpansionLevel = 5
 }
 
