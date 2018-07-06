@@ -2,7 +2,7 @@ package org.jetbrains.plugins.scala
 package compiler
 
 import java.net.{ConnectException, InetAddress, UnknownHostException}
-import java.nio.file.{Files, Path, Paths}
+import java.nio.file.{Files, Paths}
 
 import com.intellij.openapi.project.Project
 import org.jetbrains.jps.incremental.scala.Client
@@ -32,15 +32,15 @@ class RemoteServerRunner(project: Project) extends RemoteResourceOwner {
         for (i <- 0 until (COUNT - 1)) {
           try {
             Thread.sleep(i*20)
-            val token = readStringFrom(tokenPathFor(port))
+            val token = readToken(port)
             send(serverAlias, token +: arguments, client)
             return
           } catch {
-            case _: ConnectException => Thread.sleep(100)
+            case _: ConnectException | _: CantFindSecureTokenException => Thread.sleep(100)
           }
         }
 
-        val token = readStringFrom(tokenPathFor(port))
+        val token = readToken(port)
         send(serverAlias, token +: arguments, client)
       } catch {
         case e: ConnectException =>
@@ -63,7 +63,14 @@ class RemoteServerRunner(project: Project) extends RemoteResourceOwner {
 }
 
 private object RemoteServerRunner {
-  private def readStringFrom(path: Path) = new String(Files.readAllBytes(path))
+  private class CantFindSecureTokenException extends Exception 
+  
+  private def readToken(port: Int): String = {
+    val path = tokenPathFor(port)
+    if (!path.toFile.exists()) throw new CantFindSecureTokenException
+
+    new String(Files.readAllBytes(path))
+  }
 
   private def tokenPathFor(port: Int) =
     Paths.get(System.getProperty("user.home"), ".idea-build", "tokens", port.toString)
