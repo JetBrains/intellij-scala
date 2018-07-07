@@ -14,10 +14,12 @@ class ExpandImplicitHintsAction extends ToggleAction {
 
     val editor = e.getData(CommonDataKeys.EDITOR)
 
-    if (state) {
-      ImplicitHints.expandIn(editor)
-    } else {
-      ImplicitHints.collapseIn(editor)
+    if (editor != null) {
+      if (state) {
+        ImplicitHints.expandIn(editor)
+      } else {
+        ImplicitHints.collapseIn(editor)
+      }
     }
   }
 }

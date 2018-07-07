@@ -18,10 +18,6 @@ private class TextRenderer(private var parts: Seq[Text], menu: Option[String])
 
   private val originalParts = parts
 
-  if (ImplicitHints.expanded) {
-    expand()
-  }
-
   override def getContextMenuGroupId: String = menu.orNull
 
   protected def getMargin(editor: Editor): Insets = DefaultMargin

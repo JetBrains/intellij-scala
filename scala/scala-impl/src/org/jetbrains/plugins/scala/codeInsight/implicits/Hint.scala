@@ -9,6 +9,9 @@ private case class Hint(parts: Seq[Text], element: PsiElement, suffix: Boolean, 
     val inlay = {
       val offset = if (suffix) element.getTextRange.getEndOffset else element.getTextRange.getStartOffset
       val renderer = new TextRenderer(parts, menu)
+      if (ImplicitHints.expanded) {
+        renderer.expand()
+      }
       model.addInlineElement(offset, suffix, renderer)
     }
     inlay.putUserData(Hint.ElementKey, element)
