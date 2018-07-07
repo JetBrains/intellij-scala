@@ -16,21 +16,21 @@ private case class Text(string: String,
   def effective(editor: Editor, attributes: TextAttributes): TextAttributes = {
     val result = attributes.clone()
 
-    this.attributes.foreach { it =>
-      result.setForegroundColor(it.getForegroundColor)
-      result.setBackgroundColor(it.getBackgroundColor)
-      result.setEffectType(it.getEffectType)
-      result.setEffectColor(it.getEffectColor)
-    }
+    this.attributes.foreach(copyAttributes(_, result))
 
     if (hyperlink) {
       val linkAttributes = editor.getColorsScheme.getAttributes(EditorColors.REFERENCE_HYPERLINK_COLOR)
-      result.setForegroundColor(linkAttributes.getForegroundColor)
-      result.setBackgroundColor(linkAttributes.getBackgroundColor)
+      copyAttributes(linkAttributes, result)
       result.setEffectType(EffectType.LINE_UNDERSCORE)
-      result.setEffectColor(linkAttributes.getForegroundColor)
     }
 
     result
+  }
+
+  private def copyAttributes(source: TextAttributes, destination: TextAttributes): Unit = {
+    Option(source.getForegroundColor).foreach(destination.setForegroundColor)
+    Option(source.getBackgroundColor).foreach(destination.setBackgroundColor)
+    Option(source.getEffectType).foreach(destination.setEffectType)
+    Option(source.getEffectColor).foreach(destination.setEffectColor)
   }
 }
