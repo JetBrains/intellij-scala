@@ -21,6 +21,10 @@ class ExpandImplicitHintsAction extends ToggleAction {
         ImplicitHints.collapseIn(editor)
       }
     }
+
+    if (state) {
+      MouseHandler.removeEscKeyListeners()
+    }
   }
 }
 

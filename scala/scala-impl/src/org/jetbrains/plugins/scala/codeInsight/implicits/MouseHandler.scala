@@ -10,9 +10,11 @@ import com.intellij.openapi.editor.event._
 import com.intellij.openapi.editor.{Editor, EditorFactory, Inlay}
 import com.intellij.openapi.project.Project
 import com.intellij.openapi.startup.StartupManager
-import com.intellij.openapi.util.SystemInfo
-import com.intellij.ui.LightweightHint
+import com.intellij.openapi.util.{Key, SystemInfo}
+import com.intellij.ui.{AncestorListenerAdapter, LightweightHint}
 import com.intellij.util.ui.{JBUI, UIUtil}
+import javax.swing.event.AncestorEvent
+import org.jetbrains.plugins.scala.codeInsight.implicits.MouseHandler.EscKeyListenerKey
 import org.jetbrains.plugins.scala.extensions.ObjectExt
 
 class MouseHandler(project: Project,
@@ -40,6 +42,9 @@ class MouseHandler(project: Project,
               inlay.getRenderer.asOptionOf[TextRenderer].foreach { renderer =>
                 renderer.expand(text)
                 inlay.updateSize()
+                if (!ImplicitHints.expanded) {
+                  addEscKeyListenerTo(e.getEditor)
+                }
               }
             }
           }
@@ -133,6 +138,32 @@ class MouseHandler(project: Project,
       }
     }
 
+  private def addEscKeyListenerTo(editor: Editor): Unit = {
+    if (editor.getUserData(EscKeyListenerKey) == null) {
+      val keyListener = new KeyAdapter {
+        override def keyTyped(keyEvent: KeyEvent): Unit = {
+          if (keyEvent.getKeyChar == KeyEvent.VK_ESCAPE) {
+            ImplicitHints.collapseIn(editor)
+          }
+        }
+      }
+
+      val component = editor.getContentComponent
+
+      component.addKeyListener(keyListener)
+      editor.putUserData(EscKeyListenerKey, keyListener)
+
+      component.addAncestorListener(new AncestorListenerAdapter {
+        override def ancestorRemoved(event: AncestorEvent): Unit = {
+          component.removeKeyListener(keyListener)
+          editor.putUserData(EscKeyListenerKey, null)
+
+          component.removeAncestorListener(this)
+        }
+      })
+    }
+  }
+
   private def showTooltip(editor: Editor, e: MouseEvent, text: String): Unit = {
     val hint = {
       val label = HintUtil.createInformationLabel(text)
@@ -157,6 +188,19 @@ class MouseHandler(project: Project,
   }
 }
 
-object MouseHandler {
+private object MouseHandler {
+  private val EscKeyListenerKey: Key[KeyListener] = Key.create[KeyListener]("SCALA_IMPLICIT_HINTS_KEY_LISTENER")
+
   var mousePressLocation: Point = new Point(0, 0)
+
+  def removeEscKeyListeners(): Unit = {
+    EditorFactory.getInstance.getAllEditors.foreach(removeEscKeyListenerFrom)
+  }
+
+  private def removeEscKeyListenerFrom(editor: Editor): Unit = {
+    Option(editor.getUserData(MouseHandler.EscKeyListenerKey)).foreach { listener =>
+      editor.getContentComponent.removeKeyListener(listener)
+      editor.putUserData(MouseHandler.EscKeyListenerKey, null)
+    }
+  }
 }
