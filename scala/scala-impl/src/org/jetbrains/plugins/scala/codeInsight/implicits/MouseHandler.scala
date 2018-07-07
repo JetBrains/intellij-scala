@@ -1,6 +1,6 @@
 package org.jetbrains.plugins.scala.codeInsight.implicits
 
-import java.awt.event.{KeyAdapter, KeyEvent, MouseEvent}
+import java.awt.event._
 import java.awt.{Cursor, Point}
 
 import com.intellij.codeInsight.hint.{HintManager, HintManagerImpl, HintUtil}
@@ -33,8 +33,7 @@ class MouseHandler(project: Project,
             activeHyperlink.foreach { case (_, text) =>
               e.consume()
               deactivateActiveHypelink(e.getEditor)
-              CommandProcessor.getInstance.executeCommand(project,
-                () => text.navigatable.filter(_.canNavigate).foreach(_.navigate(true)), null, null)
+              navigateTo(text)
             }
           } else {
             expandableAt(e.getEditor, e.getMouseEvent.getPoint).foreach { case (inlay, text) =>
@@ -43,6 +42,11 @@ class MouseHandler(project: Project,
                 inlay.updateSize()
               }
             }
+          }
+        } else if (e.getMouseEvent.getButton == MouseEvent.BUTTON3) {
+          hyperlinkAt(e.getEditor, e.getMouseEvent.getPoint).foreach { case (_, text) =>
+            e.consume()
+            navigateTo(text)
           }
         }
       }
@@ -106,6 +110,11 @@ class MouseHandler(project: Project,
       editor.getContentComponent.setCursor(Cursor.getPredefinedCursor(Cursor.TEXT_CURSOR))
     }
     activeHyperlink = None
+  }
+
+  private def navigateTo(text: Text): Unit = {
+    CommandProcessor.getInstance.executeCommand(project,
+      () => text.navigatable.filter(_.canNavigate).foreach(_.navigate(true)), null, null)
   }
 
   private def expandableAt(editor: Editor, point: Point): Option[(Inlay, Text)] = textAt(editor, point).filter {
