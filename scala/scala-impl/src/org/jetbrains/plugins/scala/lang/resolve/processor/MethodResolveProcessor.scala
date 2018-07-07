@@ -571,6 +571,22 @@ object MethodResolveProcessor {
 
     var mapped = mapper(applicationImplicits = false)
     var filtered = mapped.filter(_.isApplicableInternal(withExpectedType = true))
+
+    // filter to check for wrong parameter names
+    if (argumentClauses.nonEmpty && filtered.nonEmpty) {
+      argumentClauses.head.map(assignmemt => assignmemt.expr).
+        collect { case assignment: ScAssignStmt => assignment.assignName }.foreach { listOfNames =>
+        filtered = filtered.filter { r =>
+          r.element match {
+            case func: ScFunction if func.hasParameterClause =>
+              val paramsNames = func.parameterList.params.map(_.name)
+              listOfNames.find(str => !paramsNames.contains(str)).forall(_.isEmpty)
+            case _ => false
+          }
+        }
+      }
+    }
+
     if (filtered.isEmpty) filtered = mapped.filter(_.isApplicableInternal(withExpectedType = false))
 
     if (filtered.isEmpty && !noImplicitsForArgs) {
@@ -602,22 +618,6 @@ object MethodResolveProcessor {
         }
         else r
       })
-    }
-
-    //choose alternative with by name params
-    if (argumentClauses.nonEmpty && filtered.size > 1 && !isShapeResolve) {
-      argumentClauses.head.map(assignmemt => assignmemt.expr).
-        collect { case assignment: ScAssignStmt => assignment.assignName }.foreach { listOfNames =>
-
-        filtered = filtered.filter(r =>
-          r.element match {
-            case func: ScFunction if func.hasParameterClause =>
-              val paramsNames = func.parameterList.params.map(_.name)
-              listOfNames.find(str => !paramsNames.contains(str)).forall(_.isEmpty)
-            case _ => false
-          }
-        )
-      }
     }
 
     //remove default parameters alternatives
