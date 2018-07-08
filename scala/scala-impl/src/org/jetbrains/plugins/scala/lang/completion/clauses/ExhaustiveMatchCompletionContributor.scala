@@ -63,7 +63,7 @@ object ExhaustiveMatchCompletionContributor {
     }
 
     protected def patterns(implicit place: PsiElement): Seq[String] =
-      inheritors.map(patternText)
+      inheritors.flatMap(patternTexts)
 
     protected def inheritors: Seq[ScTypeDefinition] = findInheritors(clazz)
   }
@@ -88,10 +88,19 @@ object ExhaustiveMatchCompletionContributor {
     override def patterns(implicit place: PsiElement): Seq[String] =
       super.patterns :+ (tUNDER: String)
 
-    override protected def inheritors: Seq[ScTypeDefinition] =
-      super.inheritors.filter { definition =>
-        definition.isCase || definition.isObject
+    override protected def inheritors: Seq[ScTypeDefinition] = {
+      val inheritors = super.inheritors
+      val classes = clazz match {
+        case scalaClass: ScTypeDefinition => scalaClass +: inheritors
+        case _ => inheritors
       }
+
+      classes.filter { definition =>
+        definition.isCase ||
+          definition.isObject ||
+          findExtractor(definition).isDefined
+      }
+    }
   }
 
   private def createInsertHandler(strategy: PatternGenerationStrategy)

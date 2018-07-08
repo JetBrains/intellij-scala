@@ -31,10 +31,14 @@ class CaseClauseCompletionContributor extends ScalaCompletionContributor {
         }
 
         // TODO find conflicting CompletionContributor
-        targetClasses.filterNot(_.isInstanceOf[ScObject]).map { clazz =>
-          val result = new ScalaLookupItem(clazz, patternText(clazz)(position))
-          result.isLocalVariable = true
-          result
+        for {
+          clazz <- targetClasses
+          if !clazz.isInstanceOf[ScObject]
+          name <- patternTexts(clazz)(position)
+          item = new ScalaLookupItem(clazz, name)
+        } yield {
+          item.isLocalVariable = true
+          item
         }
       }
     }

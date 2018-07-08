@@ -27,8 +27,8 @@ package object clauses {
     }.toSeq.sortBy(_.getNavigationElement.getTextRange.getStartOffset)
   }
 
-  private[clauses] def patternText(definition: ScTypeDefinition)
-                                  (implicit place: PsiElement): String = {
+  private[clauses] def patternTexts(definition: ScTypeDefinition)
+                                   (implicit place: PsiElement): Seq[String] = {
     import NameSuggester._
     import ScalaTokenTypes.{tCOLON, tUNDER}
 
@@ -50,12 +50,23 @@ package object clauses {
       case _ => None
     }
 
-    maybeText.getOrElse {
+    def defaultText = {
       val name = suggestNamesByType(ScalaType.designator(definition))
         .headOption
         .getOrElse(defaultName)
       s"$name$tCOLON $className"
     }
+
+    (definition, maybeText) match {
+      case (scalaClass: ScClass, Some(text)) if !scalaClass.isCase => Seq(text, defaultText)
+      case (_, Some(text)) => Seq(text)
+      case _ => Seq(defaultText)
+    }
+  }
+
+  private[clauses] def findExtractor: ScTypeDefinition => Option[ScFunction] = {
+    case scalaObject: ScObject => scalaObject.functions.find(_.isUnapplyMethod)
+    case typeDefinition => typeDefinition.baseCompanionModule.flatMap(findExtractor)
   }
 
   private[this] def constructorParameters(caseClass: ScClass): Option[Seq[String]] = for {
@@ -66,15 +77,8 @@ package object clauses {
   }
 
   private[this] def extractorComponents(scalaClass: ScClass)
-                                       (implicit place: PsiElement) = {
-    def findExtractor: ScTypeDefinition => Option[ScFunction] = {
-      case scalaObject: ScObject => scalaObject.functions.find(_.isUnapplyMethod)
-      case typeDefinition => typeDefinition.baseCompanionModule.flatMap(findExtractor)
-    }
-
-    for {
-      extractor <- findExtractor(scalaClass)
-      returnType <- extractor.returnType.toOption
-    } yield ScPattern.extractorParameters(returnType, place, isOneArgCaseClass = false)
-  }
+                                       (implicit place: PsiElement) = for {
+    extractor <- findExtractor(scalaClass)
+    returnType <- extractor.returnType.toOption
+  } yield ScPattern.extractorParameters(returnType, place, isOneArgCaseClass = false)
 }

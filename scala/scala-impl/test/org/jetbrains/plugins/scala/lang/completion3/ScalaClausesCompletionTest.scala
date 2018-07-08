@@ -49,7 +49,7 @@ class ScalaClausesCompletionTest extends ScalaCodeInsightTestBase {
     item = "Foo(foos@_*)"
   )
 
-  def testUnapply(): Unit = doCompletionTest(
+  def testUnapply(): Unit = doMultipleCompletionTest(
     fileText =
       s"""class Foo(val foo: Int = 42, val bar: Int = 42)
          |
@@ -61,18 +61,7 @@ class ScalaClausesCompletionTest extends ScalaCodeInsightTestBase {
          |  case $CARET
          |}
        """.stripMargin,
-    resultText =
-      s"""class Foo(val foo: Int = 42, val bar: Int = 42)
-         |
-         |object Foo {
-         |  def unapply(foo: Foo): Option[(Int, Int)] = Some(foo.foo, foo.bar)
-         |}
-         |
-         |new Foo() match {
-         |  case Foo(i, i1)$CARET
-         |}
-       """.stripMargin,
-    item = "Foo(i, i1)"
+    items = "Foo(i, i1)", "foo: Foo"
   )
 
   def testNoBeforeCaseCompletion(): Unit = checkNoCompletion(
@@ -152,7 +141,7 @@ class ScalaClausesCompletionTest extends ScalaCodeInsightTestBase {
          |  case $CARET
          |}
        """.stripMargin,
-    items = "FooImpl(i)", "Bar(foo)", "baz: Baz"
+    items = "FooImpl(i)", "impl: FooImpl", "Bar(foo)", "baz: Baz"
   )
 
   def testCollectPatternCompletion(): Unit = doCompletionTest(
@@ -193,24 +182,38 @@ class ScalaClausesCompletionTest extends ScalaCodeInsightTestBase {
 
   def testSealedTrait(): Unit = doMatchCompletionTest(
     fileText =
-      s"""sealed trait X
+      s"""sealed trait Foo
          |
-         |class A(s: String) extends X
+         |object FooImpl extends Foo
          |
-         |case class B(s: String) extends X
+         |case class Bar() extends Foo
          |
-         |(_: X) $CARET
+         |class Baz extends Foo
+         |
+         |object Baz {
+         |  def unapply(baz: Baz) = Option(baz)
+         |}
+         |
+         |(_: Foo) $CARET
          """.stripMargin,
     resultText =
-      s"""sealed trait X
+      s"""sealed trait Foo
          |
-         |class A(s: String) extends X
+         |object FooImpl extends Foo
          |
-         |case class B(s: String) extends X
+         |case class Bar() extends Foo
          |
-         |(_: X) match {
-         |  case a: A => $CARET
-         |  case B(s) =>
+         |class Baz extends Foo
+         |
+         |object Baz {
+         |  def unapply(baz: Baz) = Option(baz)
+         |}
+         |
+         |(_: Foo) match {
+         |  case FooImpl => $CARET
+         |  case Bar() =>
+         |  case Baz(baz) =>
+         |  case baz: Baz =>
          |}
          """.stripMargin
   )
@@ -262,6 +265,35 @@ class ScalaClausesCompletionTest extends ScalaCodeInsightTestBase {
          |  case Bar(foos@_*) => $CARET
          |}
          """.stripMargin
+  )
+
+  def testNonFinalClass(): Unit = doMatchCompletionTest(
+    fileText =
+      s"""trait Foo
+         |
+         |class FooImpl extends Foo
+         |
+         |object FooImpl {
+         |  def unapply(impl: FooImpl) = Some(impl)
+         |}
+         |
+         |(_: Foo) m$CARET
+       """.stripMargin,
+    resultText =
+      s"""trait Foo
+         |
+         |class FooImpl extends Foo
+         |
+         |object FooImpl {
+         |  def unapply(impl: FooImpl) = Some(impl)
+         |}
+         |
+         |(_: Foo) match {
+         |  case FooImpl(impl) => $CARET
+         |  case impl: FooImpl =>
+         |  case _ =>
+         |}
+       """.stripMargin
   )
 
   private def doMultipleCompletionTest(fileText: String,
