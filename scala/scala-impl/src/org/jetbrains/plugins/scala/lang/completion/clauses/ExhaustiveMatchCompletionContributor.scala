@@ -13,8 +13,11 @@ import com.intellij.util.ProcessingContext
 import org.jetbrains.plugins.scala.extensions._
 import org.jetbrains.plugins.scala.lang.lexer.ScalaTokenTypes
 import org.jetbrains.plugins.scala.lang.psi.api.expr.{ScMatchStmt, ScPostfixExpr}
-import org.jetbrains.plugins.scala.lang.psi.api.toplevel.typedef.ScTypeDefinition
+import org.jetbrains.plugins.scala.lang.psi.api.statements.ScValue
+import org.jetbrains.plugins.scala.lang.psi.api.toplevel.typedef.{ScObject, ScTypeDefinition}
+import org.jetbrains.plugins.scala.lang.psi.types.ScType
 import org.jetbrains.plugins.scala.lang.psi.types.api.ExtractClass
+import org.jetbrains.plugins.scala.lang.psi.types.api.designator.{ScDesignatorType, ScProjectionType}
 import org.jetbrains.plugins.scala.lang.psi.types.result.Typeable
 
 class ExhaustiveMatchCompletionContributor extends ScalaCompletionContributor {
@@ -27,8 +30,8 @@ class ExhaustiveMatchCompletionContributor extends ScalaCompletionContributor {
       override protected def completionsFor(position: PsiElement)
                                            (implicit parameters: CompletionParameters, context: ProcessingContext): Iterable[LookupElement] =
         for {
-          place@ScPostfixExpr(Typeable(ExtractClass(clazz)), _) <- position.findContextOfType(classOf[ScPostfixExpr])
-          strategy <- createStrategy(clazz)
+          place@ScPostfixExpr(Typeable(scType), _) <- position.findContextOfType(classOf[ScPostfixExpr])
+          strategy <- createStrategy(scType)
         } yield LookupElementBuilder.create(ItemText)
           .withInsertHandler(createInsertHandler(strategy)(place))
           .withRenderer(createRenderer)
@@ -43,10 +46,16 @@ object ExhaustiveMatchCompletionContributor {
   private[lang] val ItemText: String = kMATCH
   private[lang] val RendererTailText = " (exhaustive)"
 
-  private def createStrategy(clazz: PsiClass): Option[PatternGenerationStrategy] = clazz match {
-    case definition: ScTypeDefinition if definition.isSealed => Some(new SealedClassGenerationStrategy(definition))
-    case _ if clazz.isEnum => Some(new EnumGenerationStrategy(clazz))
-    case _ if !clazz.hasFinalModifier => Some(new NonFinalClassGenerationStrategy(clazz))
+  private def createStrategy(`type`: ScType): Option[PatternGenerationStrategy] = `type` match {
+    case ScalaEnumGenerationStrategy.IsEnumerationValueType(enum, valueType) =>
+      Some(new ScalaEnumGenerationStrategy(enum, valueType))
+    case ExtractClass(clazz) =>
+      clazz match {
+        case definition: ScTypeDefinition if definition.isSealed => Some(new SealedClassGenerationStrategy(definition))
+        case enum if enum.isEnum => Some(new JavaEnumGenerationStrategy(enum))
+        case _ if !clazz.hasFinalModifier => Some(new NonFinalClassGenerationStrategy(clazz))
+        case _ => None
+      }
     case _ => None
   }
 
@@ -71,15 +80,58 @@ object ExhaustiveMatchCompletionContributor {
   private class SealedClassGenerationStrategy(definition: ScTypeDefinition)
     extends PatternGenerationStrategy(definition)
 
-  private class EnumGenerationStrategy(clazz: PsiClass)
-    extends PatternGenerationStrategy(clazz) {
+  private abstract class EnumGenerationStrategy(enum: PsiClass)
+    extends PatternGenerationStrategy(enum) {
 
     override def patterns(implicit place: PsiElement): Seq[String] = {
-      val className = clazz.name
-      clazz.getFields.collect {
-        case constant: PsiEnumConstant => s"$className.${constant.name}"
-      }.toSeq
+      val className = enum.name
+      definedNames.map(name => s"$className.$name")
     }
+
+    protected def definedNames: Seq[String]
+  }
+
+  private class JavaEnumGenerationStrategy(enum: PsiClass)
+    extends EnumGenerationStrategy(enum) {
+
+    override protected def definedNames: Seq[String] =
+      enum.getFields.collect {
+        case constant: PsiEnumConstant => constant.name
+      }
+  }
+
+  private class ScalaEnumGenerationStrategy(enum: ScObject,
+                                            valueType: ScType)
+    extends EnumGenerationStrategy(enum) {
+
+    override protected def definedNames: Seq[String] =
+      enum.members.collect {
+        case value: ScValue if isEnumerationValue(value) => value
+      }.flatMap(_.declaredNames)
+
+    private def isEnumerationValue(value: ScValue) =
+      value.isPublic && value.`type`().exists(_.equiv(valueType))
+  }
+
+  private object ScalaEnumGenerationStrategy {
+
+    object IsEnumerationValueType {
+
+      def unapply(`type`: ScType): Option[(ScObject, ScType)] = `type` match {
+        case ScProjectionType(ScDesignatorType(enum@IsEnumeration()), _) => Some(enum, `type`)
+        case _ => None
+      }
+
+      private object IsEnumeration {
+
+        private val EnumerationFQN = "scala.Enumeration"
+
+        def unapply(scalaObject: ScObject): Boolean =
+          scalaObject.supers.map(_.qualifiedName).contains(EnumerationFQN)
+      }
+
+    }
+
   }
 
   private class NonFinalClassGenerationStrategy(clazz: PsiClass)
