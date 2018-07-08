@@ -95,6 +95,15 @@ class ScalaRainbowVisitorTest extends ScalaLightCodeInsightFixtureTestAdapter {
      """.stripMargin
   )
 
+  def testForComprehensions(): Unit = doTest(
+    s"""
+       |for {
+       |  ${S_1}p1$E <- Some(42)
+       |  ${S_2}p2$E = 42
+       |} yield (${S_1}p1$E, ${S_2}p2$E)
+     """.stripMargin
+  )
+
   private def doTest(text: String,
                      isRainbowOn: Boolean = true,
                      withColor: Boolean = true): Unit =

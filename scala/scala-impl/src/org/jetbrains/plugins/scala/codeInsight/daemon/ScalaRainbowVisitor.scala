@@ -7,9 +7,10 @@ import com.intellij.openapi.editor.colors.TextAttributesKey
 import com.intellij.psi.util.PsiTreeUtil
 import com.intellij.psi.{PsiElement, PsiFile}
 import org.jetbrains.plugins.scala.highlighter.DefaultHighlighter
+import org.jetbrains.plugins.scala.lang.psi.ScalaPsiElement
 import org.jetbrains.plugins.scala.lang.psi.api.ScalaFile
 import org.jetbrains.plugins.scala.lang.psi.api.base.patterns._
-import org.jetbrains.plugins.scala.lang.psi.api.expr.{ScFunctionExpr, ScReferenceExpression}
+import org.jetbrains.plugins.scala.lang.psi.api.expr._
 import org.jetbrains.plugins.scala.lang.psi.api.statements._
 import org.jetbrains.plugins.scala.lang.psi.api.statements.params.{ScClassParameter, ScParameter}
 import org.jetbrains.plugins.scala.lang.psi.api.toplevel.ScNamedElement
@@ -39,9 +40,11 @@ final class ScalaRainbowVisitor extends RainbowVisitor {
   private def addInfo(element: PsiElement,
                       colorKey: TextAttributesKey,
                       rainbowElement: PsiElement): Unit = {
+    import PsiTreeUtil.getContextOfType
     val context = element match {
       case clause: ScCaseClause => clause
-      case _ => PsiTreeUtil.getContextOfType(element, false, classOf[ScFunction], classOf[ScFunctionExpr])
+      case patterned: ScPatterned => getContextOfType(patterned, classOf[ScForStatement])
+      case _ => getContextOfType(element, false, classOf[ScFunction], classOf[ScFunctionExpr])
     }
 
     if (context != null) {
@@ -55,7 +58,7 @@ private object ScalaRainbowVisitor {
 
   object ColoredNameContext {
 
-    def unapply(element: ScNamedElement): Option[(PsiElement, TextAttributesKey)] = {
+    def unapply(element: ScNamedElement): Option[(ScalaPsiElement, TextAttributesKey)] = {
       val nameContext = element match {
         case parameter: ScParameter => parameter
         case pattern: ScBindingPattern => pattern.nameContext
@@ -70,6 +73,7 @@ private object ScalaRainbowVisitor {
         case value: ScValue if value.isLocal => Some(value, LOCAL_VALUES)
         case variable: ScVariable if variable.isLocal => Some(variable, LOCAL_VARIABLES)
         case clause: ScCaseClause => Some(clause, PATTERN)
+        case patterned: ScPatterned => Some(patterned, GENERATOR)
         case _ => None
       }
     }
