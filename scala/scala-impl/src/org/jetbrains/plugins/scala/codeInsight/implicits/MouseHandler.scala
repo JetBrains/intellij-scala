@@ -22,12 +22,10 @@ class MouseHandler(project: Project,
                    editorFactory: EditorFactory) extends AbstractProjectComponent(project) {
 
   private var activeHyperlink = Option.empty[(Inlay, Text)]
+  private var highlightedMatches = Set.empty[(Inlay, Text)]
+
   private var hyperlinkTooltip = Option.empty[LightweightHint]
-
   private var errorTooltip = Option.empty[LightweightHint]
-
-  private var highlightedText = Set.empty[Text]
-  private var highlightedInlay = Option.empty[Inlay]
 
   private val mousePressListener = new EditorMouseAdapter {
     override def mousePressed(e: EditorMouseEvent): Unit = {
@@ -83,9 +81,9 @@ class MouseHandler(project: Project,
           }
           textAtPoint match {
             case Some((inlay, text)) =>
-              highlightMatchedPairs(e.getEditor, inlay, text)
+              highlightMatches(e.getEditor, inlay, text)
             case None =>
-              clearExistingHighlighting()
+              clearHighlightedMatches()
           }
         } else {
           textAtPoint.foreach { case (_, text) =>
@@ -218,19 +216,20 @@ class MouseHandler(project: Project,
     hint
   }
 
-  private def highlightMatchedPairs(editor: Editor, inlay: Inlay, text: Text): Unit = {
+  private def highlightMatches(editor: Editor, inlay: Inlay, text: Text): Unit = {
     inlay.getRenderer.asOptionOf[TextRenderer].flatMap(_.pairFor(text)) match {
       case Some(pair) =>
-        if (highlightedText != Set(text, pair)) {
-          clearExistingHighlighting()
+        val matches = Set((inlay, text), (inlay, pair))
+
+        if (highlightedMatches != matches) {
+          clearHighlightedMatches()
 
           text.highlighted = true
           pair.highlighted = true
 
           inlay.repaint()
 
-          highlightedText = Set(text, pair)
-          highlightedInlay = Some(inlay)
+          highlightedMatches = matches
 
           editor.getContentComponent.addKeyListener(new KeyAdapter {
             override def keyPressed(keyEvent: KeyEvent): Unit = handle()
@@ -239,21 +238,22 @@ class MouseHandler(project: Project,
 
             private def handle() = {
               editor.getContentComponent.removeKeyListener(this)
-              clearExistingHighlighting()
+              clearHighlightedMatches()
             }
           })
         }
       case _ =>
-        clearExistingHighlighting()
+        clearHighlightedMatches()
     }
   }
 
-  private def clearExistingHighlighting(): Unit = {
-    highlightedText.foreach(_.highlighted = false)
-    highlightedInlay.foreach(_.repaint())
+  private def clearHighlightedMatches(): Unit = {
+    highlightedMatches.foreach { case (inlay, text) =>
+      text.highlighted = false
+      inlay.repaint()
+    }
 
-    highlightedText = Set.empty
-    highlightedInlay = None
+    highlightedMatches = Set.empty
   }
 }
 
