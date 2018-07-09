@@ -25,6 +25,8 @@ class MouseHandler(project: Project,
 
   private var hyperlinkTooltip = Option.empty[LightweightHint]
 
+  private var errorTooltip = Option.empty[LightweightHint]
+
   private val mousePressListener = new EditorMouseAdapter {
     override def mousePressed(e: EditorMouseEvent): Unit = {
       MouseHandler.mousePressLocation = e.getMouseEvent.getPoint
@@ -72,6 +74,12 @@ class MouseHandler(project: Project,
               activateHyperlink(e.getEditor, inlay, text, e.getMouseEvent)
             case None =>
               deactivateActiveHypelink(e.getEditor)
+          }
+          textAt(e.getEditor, e.getMouseEvent.getPoint).foreach { case (_, text) =>
+            if (text.error && !errorTooltip.exists(_.isVisible)) {
+              errorTooltip = text.tooltip.map(showTooltip(e.getEditor, e.getMouseEvent, _))
+              errorTooltip.foreach(_.addHintListener(_ => errorTooltip = None))
+            }
           }
         } else {
           deactivateActiveHypelink(e.getEditor)

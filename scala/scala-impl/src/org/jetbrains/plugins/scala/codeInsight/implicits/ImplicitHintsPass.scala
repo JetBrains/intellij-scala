@@ -181,8 +181,10 @@ private object ImplicitHintsPass {
 
   private def presentationOfProbableArgumentsFor(parameter: ScalaResolveResult)(implicit scheme: EditorColorsScheme): Seq[Text] = {
     probableArgumentsFor(parameter) match {
-      case Seq() => Seq(Text("???", Some(scheme.getAttributes(CodeInsightColors.WRONG_REFERENCES_ATTRIBUTES)),
-        tooltip = Some("Implicit argument not found")))
+      case Seq() => Seq(Text("???",
+        Some(scheme.getAttributes(CodeInsightColors.WRONG_REFERENCES_ATTRIBUTES)),
+        tooltip = Some("Implicit argument not found"),
+        error = true))
       case arguments => collapsedPresentationOfProbable(arguments, parameter.isImplicitParameterProblem)
     }
   }
@@ -200,7 +202,9 @@ private object ImplicitHintsPass {
       .map { case (argument, result) => presentationOfProbable(argument, result) }
       .intersperse(Seq(Text(" | ",
         attributes = Some(scheme.getAttributes(CodeInsightColors.WRONG_REFERENCES_ATTRIBUTES)),
-        tooltip = Some("Ambiguous implicit arguments")))).flatten
+        tooltip = Some("Ambiguous implicit arguments"),
+        error = true)))
+      .flatten
 
   private def presentationOfProbable(argument: ScalaResolveResult, result: ImplicitResult)(implicit scheme: EditorColorsScheme): Seq[Text] = {
     result match {

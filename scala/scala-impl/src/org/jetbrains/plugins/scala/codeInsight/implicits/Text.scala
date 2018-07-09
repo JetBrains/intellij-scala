@@ -9,6 +9,7 @@ private case class Text(string: String,
                         attributes: Option[TextAttributes] = None,
                         tooltip: Option[String] = None,
                         navigatable: Option[Navigatable] = None,
+                        error: Boolean = false,
                         expansion: Option[() => Seq[Text]] = None) {
 
   var hyperlink: Boolean = false
