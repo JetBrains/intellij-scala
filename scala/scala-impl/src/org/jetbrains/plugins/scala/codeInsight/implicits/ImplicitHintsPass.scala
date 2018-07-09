@@ -8,19 +8,18 @@ import com.intellij.openapi.editor.markup.TextAttributes
 import com.intellij.openapi.progress.ProgressIndicator
 import com.intellij.openapi.util.Disposer
 import com.intellij.pom.Navigatable
-import com.intellij.psi.{PsiElement, PsiNamedElement}
+import com.intellij.psi.PsiElement
 import com.intellij.util.DocumentUtil
 import com.intellij.util.ui.UIUtil
 import org.jetbrains.plugins.scala.actions.implicitArguments.ShowImplicitArgumentsAction
 import org.jetbrains.plugins.scala.annotator.ScalaAnnotator
 import org.jetbrains.plugins.scala.codeInsight.implicits.ImplicitHintsPass._
+import org.jetbrains.plugins.scala.editor.documentationProvider.ScalaDocumentationProvider
 import org.jetbrains.plugins.scala.extensions._
 import org.jetbrains.plugins.scala.lang.psi.ScalaPsiElement
 import org.jetbrains.plugins.scala.lang.psi.api.ImplicitParametersOwner
-import org.jetbrains.plugins.scala.lang.psi.api.base.patterns.ScReferencePattern
 import org.jetbrains.plugins.scala.lang.psi.api.expr.{ScArgumentExprList, ScExpression, ScMethodCall}
 import org.jetbrains.plugins.scala.lang.psi.api.statements.params.ScParameterClause
-import org.jetbrains.plugins.scala.lang.psi.api.toplevel.typedef.ScMember
 import org.jetbrains.plugins.scala.lang.psi.implicits.ImplicitCollector
 import org.jetbrains.plugins.scala.lang.psi.implicits.ImplicitCollector._
 import org.jetbrains.plugins.scala.lang.resolve.ScalaResolveResult
@@ -124,7 +123,7 @@ private object ImplicitHintsPass {
   private final val BulkChangeThreshold = 1000
 
   private def implicitConversionHint(e: ScExpression, conversion: ScalaResolveResult)(implicit scheme: EditorColorsScheme): Seq[Hint] =
-    Seq(Hint(presentationOf(conversion.element) :+ Text("("), e, suffix = false, menu = Some(menu.ImplicitConversion)),
+    Seq(Hint(basicPresentation(conversion) :+ Text("("), e, suffix = false, menu = Some(menu.ImplicitConversion)),
       Hint(Text(")") +: collapsedPresentationOf(conversion.implicitParameters), e, suffix = true))
 
   private def implicitArgumentsHint(e: ScExpression, arguments: Seq[ScalaResolveResult])(implicit scheme: EditorColorsScheme): Seq[Hint] =
@@ -159,17 +158,11 @@ private object ImplicitHintsPass {
   private def presentationOf(argument: ScalaResolveResult)(implicit scheme: EditorColorsScheme): Seq[Text] =
     argument.isImplicitParameterProblem
       .option(detailedPresentationOfProbableArgumentsFor(parameter = argument))
-      .getOrElse(presentationOf(argument.element) ++ collapsedPresentationOf(argument.implicitParameters))
+      .getOrElse(basicPresentation(argument) ++ collapsedPresentationOf(argument.implicitParameters))
 
-  private def presentationOf(e: PsiNamedElement): Seq[Text] = e match {
-    case member: ScMember => presentationOf(member)
-    case (_: ScReferencePattern) && Parent(Parent(member: ScMember with PsiNamedElement)) => presentationOf(member)
-    case it => Seq(Text(it.name, navigatable = it.asOptionOf[Navigatable], tooltip = Some(it.name)))
-  }
-
-  private def presentationOf(member: ScMember with PsiNamedElement): Seq[Text] = {
-    val hint = Option(member.containingClass).map(it => it.name + ".").mkString + member.name
-    Seq(Text(member.name, navigatable = Some(member), tooltip = Some(hint)))
+  private def basicPresentation(result: ScalaResolveResult): Seq[Text] = {
+    val tooltip = ScalaDocumentationProvider.getQuickNavigateInfo(result)
+    Seq(Text(result.name, navigatable = result.element.asOptionOf[Navigatable], tooltip = Some(tooltip)))
   }
 
   private def detailedPresentationOfProbableArgumentsFor(parameter: ScalaResolveResult)(implicit scheme: EditorColorsScheme): Seq[Text] = {
@@ -209,14 +202,14 @@ private object ImplicitHintsPass {
   private def presentationOfProbable(argument: ScalaResolveResult, result: ImplicitResult)(implicit scheme: EditorColorsScheme): Seq[Text] = {
     result match {
       case OkResult =>
-        presentationOf(argument.element)
+        basicPresentation(argument)
       case ImplicitParameterNotFoundResult =>
         val presentationOfParameters = argument.implicitParameters
           .map(parameter => presentationOfProbableArgumentsFor(parameter))
           .intersperse(Seq(Text(", "))).flatten
-        presentationOf(argument.element) ++ (Text("(") +: presentationOfParameters :+ Text(")"))
+        basicPresentation(argument) ++ (Text("(") +: presentationOfParameters :+ Text(")"))
       case _ =>
-        withAttributes(scheme.getAttributes(CodeInsightColors.ERRORS_ATTRIBUTES), presentationOf(argument.element))
+        withAttributes(scheme.getAttributes(CodeInsightColors.ERRORS_ATTRIBUTES), basicPresentation(argument))
     }
   }
 
