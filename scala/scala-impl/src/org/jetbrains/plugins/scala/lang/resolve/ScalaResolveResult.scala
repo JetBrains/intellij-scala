@@ -52,7 +52,7 @@ class ScalaResolveResult(val element: PsiNamedElement,
                          val nameArgForDynamic: Option[String] = None, //argument to a dynamic call
                          val isForwardReference: Boolean = false,
                          val implicitParameterType: Option[ScType] = None,
-                         val implicitParameters: Seq[ScalaResolveResult] = Seq.empty,
+                         val implicitParameters: Seq[ScalaResolveResult] = Seq.empty, // TODO Arguments and parameters should not be used inerchangeably
                          val implicitReason: ImplicitResult = NoResult,
                          val implicitSearchState: Option[ImplicitState] = None,
                          val unresolvedTypeParameters: Option[Seq[TypeParameter]] = None) extends ResolveResult with ProjectContextOwner {
