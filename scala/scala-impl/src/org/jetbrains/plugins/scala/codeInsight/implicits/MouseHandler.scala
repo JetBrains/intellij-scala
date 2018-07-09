@@ -31,11 +31,13 @@ class MouseHandler(project: Project,
 
   private val mousePressListener = new EditorMouseAdapter {
     override def mousePressed(e: EditorMouseEvent): Unit = {
-      MouseHandler.mousePressLocation = e.getMouseEvent.getPoint
+      if (ImplicitHints.enabled) {
+        MouseHandler.mousePressLocation = e.getMouseEvent.getPoint
+      }
     }
 
     override def mouseClicked(e: EditorMouseEvent): Unit = {
-      if (!e.isConsumed && project.isInitialized && !project.isDisposed) {
+      if (ImplicitHints.enabled && !e.isConsumed && project.isInitialized && !project.isDisposed) {
         if (e.getMouseEvent.getButton == MouseEvent.BUTTON1) {
           if (SystemInfo.isMac && e.getMouseEvent.isMetaDown || e.getMouseEvent.isControlDown) {
             activeHyperlink.foreach { case (_, text) =>
@@ -66,27 +68,29 @@ class MouseHandler(project: Project,
 
   private val mouseMovedListener = new EditorMouseMotionAdapter {
     override def mouseMoved(e: EditorMouseEvent): Unit = {
-      if (!e.isConsumed && project.isInitialized && !project.isDisposed) {
+      if (ImplicitHints.enabled && !e.isConsumed && project.isInitialized && !project.isDisposed) {
         if (SystemInfo.isMac && e.getMouseEvent.isMetaDown || e.getMouseEvent.isControlDown) {
           hyperlinkAt(e.getEditor, e.getMouseEvent.getPoint) match {
-            case Some((inlay, text)) if activeHyperlink.contains((inlay, text)) =>
-            // the hyperlink is already activated
             case Some((inlay, text)) =>
-              deactivateActiveHypelink(e.getEditor)
-              activateHyperlink(e.getEditor, inlay, text, e.getMouseEvent)
+              if (!activeHyperlink.contains((inlay, text))) {
+                deactivateActiveHypelink (e.getEditor)
+                activateHyperlink (e.getEditor, inlay, text, e.getMouseEvent)
+              }
             case None =>
               deactivateActiveHypelink(e.getEditor)
           }
-          textAt(e.getEditor, e.getMouseEvent.getPoint).foreach { case (inlay, text) =>
-            if (text.error && !errorTooltip.exists(_.isVisible)) {
-              errorTooltip = text.tooltip.map(showTooltip(e.getEditor, e.getMouseEvent, _))
-              errorTooltip.foreach(_.addHintListener(_ => errorTooltip = None))
-            }
-            highlightMatchedPairs(e.getEditor, inlay, text)
-          }
         } else {
+          textAt(e.getEditor, e.getMouseEvent.getPoint) match {
+            case Some((inlay, text)) =>
+              if (text.error && !errorTooltip.exists(_.isVisible)) {
+                errorTooltip = text.tooltip.map(showTooltip(e.getEditor, e.getMouseEvent, _))
+                errorTooltip.foreach(_.addHintListener(_ => errorTooltip = None))
+              }
+              highlightMatchedPairs(e.getEditor, inlay, text)
+            case None =>
+              clearExistingHighlighting()
+          }
           deactivateActiveHypelink(e.getEditor)
-          clearExistingHighlighting()
         }
       }
     }
