@@ -2,6 +2,7 @@ package org.jetbrains.plugins.scala
 package lang
 package completion3
 
+import com.intellij.codeInsight.lookup.LookupElement
 import com.intellij.testFramework.EditorTestUtil
 import org.jetbrains.plugins.scala.debugger.{ScalaVersion, Scala_2_12}
 import org.jetbrains.plugins.scala.lang.completion.clauses.ExhaustiveMatchCompletionContributor
@@ -299,7 +300,7 @@ class ScalaClausesCompletionTest extends ScalaCodeInsightTestBase {
          """.stripMargin
   )
 
-  def testNonFinalClass(): Unit = doMatchCompletionTest(
+  def testNonSealedClass(): Unit = checkNoCompletion(
     fileText =
       s"""trait Foo
          |
@@ -311,22 +312,9 @@ class ScalaClausesCompletionTest extends ScalaCodeInsightTestBase {
          |
          |(_: Foo) m$CARET
        """.stripMargin,
-    resultText =
-      s"""trait Foo
-         |
-         |class FooImpl extends Foo
-         |
-         |object FooImpl {
-         |  def unapply(impl: FooImpl) = Some(impl)
-         |}
-         |
-         |(_: Foo) match {
-         |  case FooImpl(impl) => $CARET
-         |  case impl: FooImpl =>
-         |  case _ =>
-         |}
-       """.stripMargin
-  )
+    time = DEFAULT_TIME,
+    completionType = DEFAULT_COMPLETION_TYPE
+  )(isExhaustiveMatch)
 
   private def doMultipleCompletionTest(fileText: String,
                                        items: String*): Unit =
@@ -334,10 +322,11 @@ class ScalaClausesCompletionTest extends ScalaCodeInsightTestBase {
       items.contains(lookup.getLookupString)
     }
 
-  private def doMatchCompletionTest(fileText: String, resultText: String): Unit = {
+  private def doMatchCompletionTest(fileText: String, resultText: String): Unit =
+    super.doCompletionTest(fileText, resultText, DEFAULT_CHAR, DEFAULT_TIME, DEFAULT_COMPLETION_TYPE)(isExhaustiveMatch)
+
+  private def isExhaustiveMatch(lookup: LookupElement) = {
     import ExhaustiveMatchCompletionContributor.{ItemText, RendererTailText}
-    super.doCompletionTest(fileText, resultText, DEFAULT_CHAR, DEFAULT_TIME, DEFAULT_COMPLETION_TYPE) {
-      hasItemText(_, ItemText, ItemText, RendererTailText)
-    }
+    hasItemText(lookup, ItemText, ItemText, RendererTailText)
   }
 }

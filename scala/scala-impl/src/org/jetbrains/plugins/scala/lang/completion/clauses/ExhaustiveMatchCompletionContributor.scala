@@ -30,8 +30,7 @@ class ExhaustiveMatchCompletionContributor extends ScalaCompletionContributor {
       override protected def completionsFor(position: PsiElement)
                                            (implicit parameters: CompletionParameters, context: ProcessingContext): Iterable[LookupElement] =
         for {
-          place@ScPostfixExpr(Typeable(scType), _) <- position.findContextOfType(classOf[ScPostfixExpr])
-          strategy <- createStrategy(scType)
+          place@ScPostfixExpr(Typeable(PatternGenerationStrategy(strategy)), _) <- position.findContextOfType(classOf[ScPostfixExpr])
         } yield LookupElementBuilder.create(ItemText)
           .withInsertHandler(createInsertHandler(strategy)(place))
           .withRenderer(createRenderer)
@@ -46,39 +45,42 @@ object ExhaustiveMatchCompletionContributor {
   private[lang] val ItemText: String = MATCH
   private[lang] val RendererTailText = " (exhaustive)"
 
-  private def createStrategy(`type`: ScType): Option[PatternGenerationStrategy] = `type` match {
-    case ScalaEnumGenerationStrategy.IsEnumerationValueType(enum, valueType) =>
-      Some(new ScalaEnumGenerationStrategy(enum, valueType))
-    case ExtractClass(clazz) =>
-      clazz match {
-        case definition: ScTypeDefinition if definition.isSealed => Some(new SealedClassGenerationStrategy(definition))
-        case enum if enum.isEnum => Some(new JavaEnumGenerationStrategy(enum))
-        case _ if !clazz.hasFinalModifier => Some(new NonFinalClassGenerationStrategy(clazz))
-        case _ => None
-      }
-    case _ => None
+  private object PatternGenerationStrategy {
+
+    def unapply(`type`: ScType): Option[PatternGenerationStrategy] = `type` match {
+      case ScalaEnumGenerationStrategy.IsEnumerationValueType(enum, valueType) =>
+        Some(new ScalaEnumGenerationStrategy(enum, valueType))
+      case ExtractClass(clazz) =>
+        clazz match {
+          case definition: ScTypeDefinition if definition.isSealed => Some(new SealedClassGenerationStrategy(definition))
+          case enum if enum.isEnum => Some(new JavaEnumGenerationStrategy(enum))
+          case _ => None
+        }
+      case _ => None
+    }
   }
 
-  private sealed abstract class PatternGenerationStrategy protected(protected val clazz: PsiClass) {
+  private sealed trait PatternGenerationStrategy {
 
     final def replacement(implicit place: PsiElement): String =
       patterns.map { pattern =>
         s"$CASE $pattern ${ScalaPsiUtil.functionArrow}"
       }.mkString(MATCH + "{", " ", "}")
 
-    protected def patterns(implicit place: PsiElement): Seq[String] =
-      inheritors.flatMap(patternTexts)
-
-    protected def inheritors: Seq[ScTypeDefinition] = findInheritors(clazz)
+    protected def patterns(implicit place: PsiElement): Seq[String]
   }
 
-  private class SealedClassGenerationStrategy(definition: ScTypeDefinition)
-    extends PatternGenerationStrategy(definition)
+  private class SealedClassGenerationStrategy(sealedDefinition: ScTypeDefinition)
+    extends PatternGenerationStrategy {
 
-  private abstract class EnumGenerationStrategy(enum: PsiClass)
-    extends PatternGenerationStrategy(enum) {
+    override protected def patterns(implicit place: PsiElement): Seq[String] =
+      findInheritors(sealedDefinition).flatMap(patternTexts)
+  }
 
-    override def patterns(implicit place: PsiElement): Seq[String] = {
+  private abstract class EnumGenerationStrategy protected(enum: PsiClass)
+    extends PatternGenerationStrategy {
+
+    override protected def patterns(implicit place: PsiElement): Seq[String] = {
       val className = enum.name
       definedNames.map(name => s"$className.$name")
     }
@@ -127,27 +129,6 @@ object ExhaustiveMatchCompletionContributor {
 
     }
 
-  }
-
-  private class NonFinalClassGenerationStrategy(clazz: PsiClass)
-    extends PatternGenerationStrategy(clazz) {
-
-    override def patterns(implicit place: PsiElement): Seq[String] =
-      super.patterns :+ (DefaultName: String)
-
-    override protected def inheritors: Seq[ScTypeDefinition] = {
-      val inheritors = super.inheritors
-      val classes = clazz match {
-        case scalaClass: ScTypeDefinition => scalaClass +: inheritors
-        case _ => inheritors
-      }
-
-      classes.filter { definition =>
-        definition.isCase ||
-          definition.isObject ||
-          findExtractor(definition).isDefined
-      }
-    }
   }
 
   private def createInsertHandler(strategy: PatternGenerationStrategy)
