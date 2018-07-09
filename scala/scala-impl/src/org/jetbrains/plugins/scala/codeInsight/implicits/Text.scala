@@ -1,7 +1,7 @@
 package org.jetbrains.plugins.scala.codeInsight.implicits
 
 import com.intellij.openapi.editor.Editor
-import com.intellij.openapi.editor.colors.EditorColors
+import com.intellij.openapi.editor.colors.{CodeInsightColors, EditorColors}
 import com.intellij.openapi.editor.markup.{EffectType, TextAttributes}
 import com.intellij.pom.Navigatable
 
@@ -22,7 +22,7 @@ private case class Text(string: String,
     this.attributes.foreach(result += _)
 
     if (highlighted) {
-      result.setForegroundColor(result.getForegroundColor.brighter)
+      result += editor.getColorsScheme.getAttributes(CodeInsightColors.MATCHED_BRACE_ATTRIBUTES)
     }
 
     if (hyperlink) {
