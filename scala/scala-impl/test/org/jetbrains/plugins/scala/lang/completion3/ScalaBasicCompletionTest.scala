@@ -907,62 +907,6 @@ class ScalaBasicCompletionTest extends ScalaCodeInsightTestBase {
     item = "substring"
   )
 
-  def testObjectWithUnapplyStartWithLowCaseLetterAfterCaseLabel(): Unit = doCompletionTest(
-    fileText =
-      s"""
-         |trait A {
-         |  object extractor {
-         |    def unapply(x: Int) = Some(x)
-         |  }
-         |}
-         |
-         |class B extends A {
-         |  1 match {
-         |    case extr$CARET =>
-         |  }
-         |}
-      """.stripMargin,
-    resultText =
-      """
-        |trait A {
-        |  object extractor {
-        |    def unapply(x: Int) = Some(x)
-        |  }
-        |}
-        |
-        |class B extends A {
-        |  1 match {
-        |    case extractor =>
-        |  }
-        |}
-      """.stripMargin,
-    item = "extractor"
-  )
-
-  def testCaseClassAfterCaseLabel(): Unit = doCompletionTest(
-    fileText =
-      s"""
-         |case class Extractor()
-         |
-         |class B extends A {
-         |  1 match {
-         |    case Extr$CARET =>
-         |  }
-         |}
-      """.stripMargin,
-    resultText =
-      """
-        |case class Extractor()
-        |
-        |class B extends A {
-        |  1 match {
-        |    case Extractor =>
-        |  }
-        |}
-      """.stripMargin,
-    item = "Extractor"
-  )
-
   def testCaseClassParamInValuePattern(): Unit = doCompletionTest(
     fileText =
       s"""

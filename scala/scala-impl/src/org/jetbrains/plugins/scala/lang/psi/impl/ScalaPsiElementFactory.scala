@@ -21,6 +21,7 @@ import com.intellij.psi.util.PsiTreeUtil
 import com.intellij.util.IncorrectOperationException
 import org.apache.commons.lang.StringUtils
 import org.jetbrains.plugins.scala.extensions._
+import org.jetbrains.plugins.scala.lang.completion.ScalaKeyword
 import org.jetbrains.plugins.scala.lang.lexer.{ScalaLexer, ScalaTokenTypes}
 import org.jetbrains.plugins.scala.lang.parser.ScalaElementTypes
 import org.jetbrains.plugins.scala.lang.parser.parsing.base.{Constructor, Import}
@@ -261,8 +262,8 @@ object ScalaPsiElementFactory {
     case _ => context.getLastChild
   }
 
-  def createCaseClauseFromTextWithContext(clauseText: String, context: PsiElement, child: PsiElement): Option[ScCaseClause] =
-    createElementWithContext[ScCaseClause]("case " + clauseText, context, child, CaseClause.parse)
+  def createCaseClauseFromTextWithContext(patternText: String, context: PsiElement, child: PsiElement): Option[ScCaseClause] =
+    createElementWithContext[ScCaseClause](s"${ScalaKeyword.CASE} $patternText", context, child, CaseClause.parse)
 
   def createAnAnnotation(name: String)
                         (implicit ctx: ProjectContext): ScAnnotation = {

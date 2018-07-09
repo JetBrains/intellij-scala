@@ -414,6 +414,40 @@ class ScalaClausesCompletionTest extends ScalaCodeInsightTestBase {
        """.stripMargin
   )
 
+  def testLowerCaseExtractor(): Unit = doCompletionTest(
+    fileText =
+      s"""trait Foo {
+         |
+         |  object foo {
+         |    def unapply(i: Int) = Some(i)
+         |  }
+         |}
+         |
+         |object Bar extends Foo {
+         |
+         |  (_: Int) match {
+         |    case f$CARET
+         |  }
+         |}
+      """.stripMargin,
+    resultText =
+      s"""trait Foo {
+         |
+         |  object foo {
+         |    def unapply(i: Int) = Some(i)
+         |  }
+         |}
+         |
+         |object Bar extends Foo {
+         |
+         |  (_: Int) match {
+         |    case foo$CARET
+         |  }
+         |}
+      """.stripMargin,
+    item = "foo"
+  )
+
   private def doMultipleCompletionTest(fileText: String,
                                        items: String*): Unit =
     super.doMultipleCompletionTest(fileText, items.size, DEFAULT_CHAR, DEFAULT_TIME, DEFAULT_COMPLETION_TYPE) { lookup =>
