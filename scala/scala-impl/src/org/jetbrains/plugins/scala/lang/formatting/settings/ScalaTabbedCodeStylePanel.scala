@@ -35,25 +35,27 @@ class ScalaTabbedCodeStylePanel(currentSettings: CodeStyleSettings, settings: Co
 
   override def isModified(settings: CodeStyleSettings): Boolean = {
     val scalaCodeStyleSettings = settings.getCustomSettings(classOf[ScalaCodeStyleSettings])
-    scalaCodeStyleSettings.USE_SCALAFMT_FORMATTER != useExternalFormatterCheckbox.isSelected ||
+    super.isModified(settings) || scalaCodeStyleSettings.USE_SCALAFMT_FORMATTER != useExternalFormatterCheckbox.isSelected ||
       scalaCodeStyleSettings.SCALAFMT_CONFIG_PATH != externalFormatterSettingsPath.getText ||
       scalaCodeStyleSettings.REFORMAT_ON_COMPILE != reformatOnCompile.isSelected ||
       scalaCodeStyleSettings.AUTO_DETECT_SCALAFMT != autoDetectScalaFmt.isSelected ||
       scalaCodeStyleSettings.SUGGEST_AUTO_DETECT_SCALAFMT != suggestScalaFmtAutoDetection.isSelected ||
-    super.isModified(settings)
+      shortenedPanel.exposeIsModified(settings)
   }
 
   override def apply(settings: CodeStyleSettings): Unit = {
+    super.apply(settings)
     val scalaCodeStyleSettings = settings.getCustomSettings(classOf[ScalaCodeStyleSettings])
     scalaCodeStyleSettings.USE_SCALAFMT_FORMATTER = useExternalFormatterCheckbox.isSelected
     scalaCodeStyleSettings.SCALAFMT_CONFIG_PATH = externalFormatterSettingsPath.getText
     scalaCodeStyleSettings.REFORMAT_ON_COMPILE = reformatOnCompile.isSelected
     scalaCodeStyleSettings.AUTO_DETECT_SCALAFMT = autoDetectScalaFmt.isSelected
     scalaCodeStyleSettings.SUGGEST_AUTO_DETECT_SCALAFMT != suggestScalaFmtAutoDetection.isSelected
-    super.apply(settings)
+    if (scalaCodeStyleSettings.USE_SCALAFMT_FORMATTER) shortenedPanel.exposeApply(settings)
   }
 
   override def resetImpl(settings: CodeStyleSettings): Unit = {
+    super.resetImpl(settings)
     val scalaCodeStyleSettings = settings.getCustomSettings(classOf[ScalaCodeStyleSettings])
     useExternalFormatterCheckbox.setSelected(scalaCodeStyleSettings.USE_SCALAFMT_FORMATTER)
     externalFormatterSettingsPath.setEnabled(scalaCodeStyleSettings.USE_SCALAFMT_FORMATTER)
@@ -61,11 +63,11 @@ class ScalaTabbedCodeStylePanel(currentSettings: CodeStyleSettings, settings: Co
     reformatOnCompile.setSelected(scalaCodeStyleSettings.REFORMAT_ON_COMPILE)
     autoDetectScalaFmt.setSelected(scalaCodeStyleSettings.AUTO_DETECT_SCALAFMT)
     suggestScalaFmtAutoDetection.setSelected(scalaCodeStyleSettings.SUGGEST_AUTO_DETECT_SCALAFMT)
-    super.resetImpl(settings)
+    shortenedPanel.exposeResetImpl(settings)
   }
 
   private def initOuterFormatterPanel(): Unit = {
-    outerPanel = new JPanel(new GridLayoutManager(6, 1, new Insets(0, 0, 0, 0), -1, -1))
+    outerPanel = new JPanel(new GridLayoutManager(7, 1, new Insets(0, 0, 0, 0), -1, -1))
     reformatOnCompile = new JCheckBox("Reformat on compile")
     outerPanel.add(reformatOnCompile, new GridConstraints(0, 0, 1, 1, GridConstraints.ANCHOR_CENTER, GridConstraints.FILL_BOTH,
       GridConstraints.SIZEPOLICY_FIXED, GridConstraints.SIZEPOLICY_FIXED, null, null,
@@ -103,20 +105,36 @@ class ScalaTabbedCodeStylePanel(currentSettings: CodeStyleSettings, settings: Co
         GridConstraints.SIZEPOLICY_FIXED,
         GridConstraints.SIZEPOLICY_FIXED, null, null,
         null, 0, false))
-    val dummyPanel = new JPanel(new BorderLayout)
-    dummyPanel.add(innerPanel)
-    outerPanel.add(dummyPanel,
+    outerPanel.add(innerPanel,
       new GridConstraints(5, 0, 1, 1, GridConstraints.ANCHOR_CENTER, GridConstraints.FILL_BOTH,
+        GridConstraints.SIZEPOLICY_CAN_SHRINK | GridConstraints.SIZEPOLICY_CAN_GROW,
+        GridConstraints.SIZEPOLICY_CAN_SHRINK | GridConstraints.SIZEPOLICY_CAN_GROW, null, null,
+        null, 0, false))
+    outerPanel.add(shortenedPanel.getPanel,
+      new GridConstraints(6, 0, 1, 1, GridConstraints.ANCHOR_CENTER, GridConstraints.FILL_BOTH,
         GridConstraints.SIZEPOLICY_CAN_SHRINK | GridConstraints.SIZEPOLICY_CAN_GROW,
         GridConstraints.SIZEPOLICY_CAN_SHRINK | GridConstraints.SIZEPOLICY_CAN_GROW, null, null,
         null, 0, false))
     useExternalFormatterCheckbox.addChangeListener((_: ChangeEvent) => {
       //USE_SCALAFMT_FORMATTER setting is immediately set to allow proper formatting for core formatter examples
       settings.getCustomSettings(classOf[ScalaCodeStyleSettings]).USE_SCALAFMT_FORMATTER = useExternalFormatterCheckbox.isSelected
-      innerPanel.setVisible(!useExternalFormatterCheckbox.isSelected)
-      externalFormatterPanel.setVisible(useExternalFormatterCheckbox.isSelected)
+      toggleSettingsVisibility(useExternalFormatterCheckbox.isSelected)
       externalFormatterSettingsPath.setEnabled(useExternalFormatterCheckbox.isSelected)
     })
+  }
+
+  private def toggleSettingsVisibility(useExternalFormatter: Boolean): Unit = {
+    innerPanel.setVisible(!useExternalFormatter)
+    shortenedPanel.getPanel.setVisible(useExternalFormatter)
+    externalFormatterPanel.setVisible(useExternalFormatter)
+    val tempSettings = settings.clone()
+    if (useExternalFormatter) {
+      apply(tempSettings)
+      shortenedPanel.exposeResetImpl(tempSettings)
+    } else {
+      shortenedPanel.exposeApply(tempSettings)
+      resetImpl(tempSettings)
+    }
   }
 
   private var autoDetectScalaFmt: JCheckBox = _
@@ -131,4 +149,32 @@ class ScalaTabbedCodeStylePanel(currentSettings: CodeStyleSettings, settings: Co
   private var myModel: CodeStyleSchemesModel = _
 
   override def getPanel: JComponent = outerPanel
+
+  private lazy val shortenedPanel = new TabbedLanguageCodeStylePanel(ScalaLanguage.INSTANCE, currentSettings, settings) {
+    protected override def initTabs(settings: CodeStyleSettings): Unit = {
+      addTab(new ImportsPanel(settings))
+      addTab(new MultiLineStringCodeStylePanel(settings))
+      addTab(new TypeAnnotationsPanel(settings))
+      addTab(new ScalaArrangementPanel(settings))
+      val otherCodeStylePanel: OtherCodeStylePanel = new OtherCodeStylePanel(settings)
+      addTab(otherCodeStylePanel)
+      otherCodeStylePanel.toggleExternalFormatter(true)
+    }
+
+    override def isModified(settings: CodeStyleSettings): Boolean = {
+      super.isModified(settings)
+    }
+
+    override def apply(settings: CodeStyleSettings): Unit = {
+      super.apply(settings)
+    }
+
+    override def resetImpl(settings: CodeStyleSettings): Unit = {
+      super.resetImpl(settings)
+    }
+
+    def exposeIsModified(settings: CodeStyleSettings) = super.isModified(settings)
+    def exposeApply(settings: CodeStyleSettings) = super.apply(settings)
+    def exposeResetImpl(settings: CodeStyleSettings) = super.resetImpl(settings)
+  }
 }
