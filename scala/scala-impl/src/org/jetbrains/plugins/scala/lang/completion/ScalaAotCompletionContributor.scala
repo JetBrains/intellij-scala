@@ -10,7 +10,7 @@ import com.intellij.patterns.PlatformPatterns
 import com.intellij.psi.PsiElement
 import com.intellij.util.{Consumer, ProcessingContext}
 import org.jetbrains.plugins.scala.extensions._
-import org.jetbrains.plugins.scala.lang.lexer.ScalaTokenTypes._
+import org.jetbrains.plugins.scala.lang.lexer.ScalaTokenTypes.tIDENTIFIER
 import org.jetbrains.plugins.scala.lang.psi.ScalaPsiElement
 import org.jetbrains.plugins.scala.lang.psi.api.base.ScFieldId
 import org.jetbrains.plugins.scala.lang.psi.api.base.types.ScTypeElement
@@ -97,7 +97,7 @@ class ScalaAotCompletionContributor extends ScalaCompletionContributor {
       override protected def createElement(text: String,
                                            context: PsiElement,
                                            child: PsiElement): ScValueDeclaration =
-        createDeclarationFromText(kVAL + " " + text, context, child).asInstanceOf[ScValueDeclaration]
+        createDeclarationFromText(ScalaKeyword.VAL + " " + text, context, child).asInstanceOf[ScValueDeclaration]
 
       override protected def findTypeElement(declaration: ScValueDeclaration): Option[ScTypeElement] =
         declaration.typeElement
@@ -139,7 +139,7 @@ object ScalaAotCompletionContributor {
 
   import StringUtil.{capitalize, decapitalize}
 
-  private val Delimiter = tCOLON + " "
+  private val Delimiter = ": "
 
   private type Decorator = LookupElementDecorator[LookupElement]
 
