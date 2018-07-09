@@ -29,13 +29,11 @@ class MouseHandler(project: Project,
 
   private val mousePressListener = new EditorMouseAdapter {
     override def mousePressed(e: EditorMouseEvent): Unit = {
-      if (ImplicitHints.enabled) {
-        MouseHandler.mousePressLocation = e.getMouseEvent.getPoint
-      }
+      MouseHandler.mousePressLocation = e.getMouseEvent.getPoint
     }
 
     override def mouseClicked(e: EditorMouseEvent): Unit = {
-      if (ImplicitHints.enabled && !e.isConsumed && project.isInitialized && !project.isDisposed) {
+      if (!e.isConsumed && project.isInitialized && !project.isDisposed) {
         if (e.getMouseEvent.getButton == MouseEvent.BUTTON1) {
           if (SystemInfo.isMac && e.getMouseEvent.isMetaDown || e.getMouseEvent.isControlDown) {
             activeHyperlink.foreach { case (_, text) =>
@@ -66,7 +64,7 @@ class MouseHandler(project: Project,
 
   private val mouseMovedListener = new EditorMouseMotionAdapter {
     override def mouseMoved(e: EditorMouseEvent): Unit = {
-      if (ImplicitHints.enabled && !e.isConsumed && project.isInitialized && !project.isDisposed) {
+      if (!e.isConsumed && project.isInitialized && !project.isDisposed) {
         val textAtPoint = textAt(e.getEditor, e.getMouseEvent.getPoint)
 
         if (SystemInfo.isMac && e.getMouseEvent.isMetaDown || e.getMouseEvent.isControlDown) {
