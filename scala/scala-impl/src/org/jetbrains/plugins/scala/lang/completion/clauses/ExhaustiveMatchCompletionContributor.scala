@@ -11,7 +11,7 @@ import com.intellij.psi.codeStyle.CodeStyleManager
 import com.intellij.psi.impl.source.tree.PsiWhiteSpaceImpl
 import com.intellij.util.ProcessingContext
 import org.jetbrains.plugins.scala.extensions._
-import org.jetbrains.plugins.scala.lang.lexer.ScalaTokenTypes
+import org.jetbrains.plugins.scala.lang.psi.ScalaPsiUtil
 import org.jetbrains.plugins.scala.lang.psi.api.expr.{ScMatchStmt, ScPostfixExpr}
 import org.jetbrains.plugins.scala.lang.psi.api.statements.ScValue
 import org.jetbrains.plugins.scala.lang.psi.api.toplevel.typedef.{ScObject, ScTypeDefinition}
@@ -41,9 +41,9 @@ class ExhaustiveMatchCompletionContributor extends ScalaCompletionContributor {
 
 object ExhaustiveMatchCompletionContributor {
 
-  import ScalaTokenTypes._
+  import ScalaKeyword._
 
-  private[lang] val ItemText: String = kMATCH
+  private[lang] val ItemText: String = MATCH
   private[lang] val RendererTailText = " (exhaustive)"
 
   private def createStrategy(`type`: ScType): Option[PatternGenerationStrategy] = `type` match {
@@ -61,13 +61,10 @@ object ExhaustiveMatchCompletionContributor {
 
   private sealed abstract class PatternGenerationStrategy protected(protected val clazz: PsiClass) {
 
-    final def replacement(implicit place: PsiElement): String = {
-      val clauses = patterns.map { pattern =>
-        s"$kCASE $pattern $tFUNTYPE"
-      }.mkString(" ")
-
-      s"$kMATCH $tLBRACE $clauses $tRBRACE"
-    }
+    final def replacement(implicit place: PsiElement): String =
+      patterns.map { pattern =>
+        s"$CASE $pattern ${ScalaPsiUtil.functionArrow}"
+      }.mkString(MATCH + "{", " ", "}")
 
     protected def patterns(implicit place: PsiElement): Seq[String] =
       inheritors.flatMap(patternTexts)
@@ -136,7 +133,7 @@ object ExhaustiveMatchCompletionContributor {
     extends PatternGenerationStrategy(clazz) {
 
     override def patterns(implicit place: PsiElement): Seq[String] =
-      super.patterns :+ (tUNDER: String)
+      super.patterns :+ (DefaultName: String)
 
     override protected def inheritors: Seq[ScTypeDefinition] = {
       val inheritors = super.inheritors

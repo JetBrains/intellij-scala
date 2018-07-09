@@ -3,10 +3,8 @@ package lang
 package completion
 
 import com.intellij.psi.search.searches.ClassInheritorsSearch
-import com.intellij.psi.tree.IElementType
 import com.intellij.psi.{PsiClass, PsiElement}
 import org.jetbrains.plugins.scala.extensions._
-import org.jetbrains.plugins.scala.lang.lexer.ScalaTokenTypes
 import org.jetbrains.plugins.scala.lang.psi.api.base.patterns.ScPattern
 import org.jetbrains.plugins.scala.lang.psi.api.statements.ScFunction
 import org.jetbrains.plugins.scala.lang.psi.api.toplevel.typedef.{ScClass, ScObject, ScTypeDefinition}
@@ -17,8 +15,7 @@ import scala.collection.JavaConverters
 
 package object clauses {
 
-  private[clauses] implicit def tokenTypeString(tokenType: IElementType): String =
-    tokenType.toString
+  private[clauses] val DefaultName = "_"
 
   private[clauses] def findInheritors(clazz: PsiClass): Seq[ScTypeDefinition] = {
     import JavaConverters._
@@ -30,17 +27,14 @@ package object clauses {
   private[clauses] def patternTexts(definition: ScTypeDefinition)
                                    (implicit place: PsiElement): Seq[String] = {
     import NameSuggester._
-    import ScalaTokenTypes.{tCOLON, tUNDER}
-
     val className = definition.name
-    val defaultName: String = tUNDER
 
     val maybeText = definition match {
       case _: ScObject => Some(className)
       case scalaClass: ScClass =>
         val maybeNames = if (scalaClass.isCase) constructorParameters(scalaClass)
         else {
-          val suggester = new UniqueNameSuggester(defaultName)
+          val suggester = new UniqueNameSuggester(DefaultName)
           extractorComponents(scalaClass).map(_.map(suggester))
         }
 
@@ -53,8 +47,8 @@ package object clauses {
     def defaultText = {
       val name = suggestNamesByType(ScalaType.designator(definition))
         .headOption
-        .getOrElse(defaultName)
-      s"$name$tCOLON $className"
+        .getOrElse(DefaultName)
+      s"$name: $className"
     }
 
     (definition, maybeText) match {
