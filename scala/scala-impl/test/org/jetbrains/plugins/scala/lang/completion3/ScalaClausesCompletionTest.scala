@@ -316,6 +316,22 @@ class ScalaClausesCompletionTest extends ScalaCodeInsightTestBase {
     completionType = DEFAULT_COMPLETION_TYPE
   )(isExhaustiveMatch)
 
+  def testMaybe(): Unit = doMatchCompletionTest(
+    fileText =
+      s"""val maybeFoo = Option("foo")
+         |
+         |maybeFoo m$CARET
+       """.stripMargin,
+    resultText =
+      s"""val maybeFoo = Option("foo")
+         |
+         |maybeFoo match {
+         |  case Some(value) => $CARET
+         |  case None =>
+         |}
+       """.stripMargin
+  )
+
   private def doMultipleCompletionTest(fileText: String,
                                        items: String*): Unit =
     super.doMultipleCompletionTest(fileText, items.size, DEFAULT_CHAR, DEFAULT_TIME, DEFAULT_COMPLETION_TYPE) { lookup =>

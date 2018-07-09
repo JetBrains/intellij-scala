@@ -16,7 +16,6 @@ import org.jetbrains.plugins.scala.lang.psi.api.expr.{ScMatchStmt, ScPostfixExpr
 import org.jetbrains.plugins.scala.lang.psi.api.statements.ScValue
 import org.jetbrains.plugins.scala.lang.psi.api.toplevel.typedef.{ScObject, ScTypeDefinition}
 import org.jetbrains.plugins.scala.lang.psi.types.ScType
-import org.jetbrains.plugins.scala.lang.psi.types.api.ExtractClass
 import org.jetbrains.plugins.scala.lang.psi.types.api.designator.{ScDesignatorType, ScProjectionType}
 import org.jetbrains.plugins.scala.lang.psi.types.result.Typeable
 
@@ -48,15 +47,15 @@ object ExhaustiveMatchCompletionContributor {
   private object PatternGenerationStrategy {
 
     def unapply(`type`: ScType): Option[PatternGenerationStrategy] = `type` match {
-      case ScalaEnumGenerationStrategy.IsEnumerationValueType(enum, valueType) =>
-        Some(new ScalaEnumGenerationStrategy(enum, valueType))
-      case ExtractClass(clazz) =>
-        clazz match {
-          case definition: ScTypeDefinition if definition.isSealed => Some(new SealedClassGenerationStrategy(definition))
-          case enum if enum.isEnum => Some(new JavaEnumGenerationStrategy(enum))
-          case _ => None
-        }
-      case _ => None
+      case ScalaEnumGenerationStrategy(strategy) => Some(strategy)
+      case _ =>
+        `type`.extractDesignatorSingleton
+          .getOrElse(`type`)
+          .extractClass
+          .collect {
+            case definition: ScTypeDefinition if definition.isSealed => new SealedClassGenerationStrategy(definition)
+            case enum if enum.isEnum => new JavaEnumGenerationStrategy(enum)
+          }
     }
   }
 
@@ -112,21 +111,13 @@ object ExhaustiveMatchCompletionContributor {
 
   private object ScalaEnumGenerationStrategy {
 
-    object IsEnumerationValueType {
+    private val EnumerationFQN = "scala.Enumeration"
 
-      def unapply(`type`: ScType): Option[(ScObject, ScType)] = `type` match {
-        case ScProjectionType(ScDesignatorType(enum@IsEnumeration()), _) => Some(enum, `type`)
-        case _ => None
-      }
-
-      private object IsEnumeration {
-
-        private val EnumerationFQN = "scala.Enumeration"
-
-        def unapply(scalaObject: ScObject): Boolean =
-          scalaObject.supers.map(_.qualifiedName).contains(EnumerationFQN)
-      }
-
+    def unapply(`type`: ScType): Option[ScalaEnumGenerationStrategy] = `type` match {
+      case ScProjectionType(ScDesignatorType(enum: ScObject), _)
+        if enum.supers.map(_.qualifiedName).contains(EnumerationFQN) =>
+        Some(new ScalaEnumGenerationStrategy(enum, `type`))
+      case _ => None
     }
 
   }
