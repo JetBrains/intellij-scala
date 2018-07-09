@@ -9,26 +9,25 @@ private case class Text(string: String,
                         attributes: Option[TextAttributes] = None,
                         tooltip: Option[String] = None,
                         navigatable: Option[Navigatable] = None,
+                        error: Boolean = false,
                         expansion: Option[() => Seq[Text]] = None) {
 
   var hyperlink: Boolean = false
 
-  def effective(editor: Editor, attributes: TextAttributes): TextAttributes = {
-    val result = attributes.clone()
+  var highlighted: Boolean = false
 
-    this.attributes.foreach { it =>
-      result.setForegroundColor(it.getForegroundColor)
-      result.setBackgroundColor(it.getBackgroundColor)
-      result.setEffectType(it.getEffectType)
-      result.setEffectColor(it.getEffectColor)
+  def effective(editor: Editor, attributes: TextAttributes): TextAttributes = {
+    var result = attributes.clone()
+
+    this.attributes.foreach(result += _)
+
+    if (highlighted) {
+      result.setForegroundColor(result.getForegroundColor.brighter)
     }
 
     if (hyperlink) {
-      val linkAttributes = editor.getColorsScheme.getAttributes(EditorColors.REFERENCE_HYPERLINK_COLOR)
-      result.setForegroundColor(linkAttributes.getForegroundColor)
-      result.setBackgroundColor(linkAttributes.getBackgroundColor)
+      result += editor.getColorsScheme.getAttributes(EditorColors.REFERENCE_HYPERLINK_COLOR)
       result.setEffectType(EffectType.LINE_UNDERSCORE)
-      result.setEffectColor(linkAttributes.getForegroundColor)
     }
 
     result

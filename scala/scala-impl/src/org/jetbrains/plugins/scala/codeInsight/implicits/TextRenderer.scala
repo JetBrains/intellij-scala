@@ -18,10 +18,6 @@ private class TextRenderer(private var parts: Seq[Text], menu: Option[String])
 
   private val originalParts = parts
 
-  if (ImplicitHints.expanded) {
-    expand()
-  }
-
   override def getContextMenuGroupId: String = menu.orNull
 
   protected def getMargin(editor: Editor): Insets = DefaultMargin
@@ -139,6 +135,24 @@ private class TextRenderer(private var parts: Seq[Text], menu: Option[String])
     val xs = parts.map(it => fontMetrics.stringWidth(it.string)).scanLeft(m.left + p.left)(_ + _)
     parts.zip(xs.zip(xs.tail)).collectFirst {
       case (text, (start, end)) if start <= x && x <= end => text
+    }
+  }
+
+  def pairFor(text: Text): Option[Text] = {
+    def pairIn(parts: Seq[Text]) = {
+      var balance = 0
+      val remainder = parts.dropWhile(!_.eq(text)).dropWhile { text =>
+        if (text.string == "(") balance += 1
+        if (text.string == ")") balance -= 1
+        balance != 0
+      }
+      remainder.headOption
+    }
+
+    text.string match {
+      case "(" => pairIn(parts)
+      case ")" => pairIn(parts.reverse)
+      case _ => None
     }
   }
 

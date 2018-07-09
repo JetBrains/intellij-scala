@@ -1,6 +1,7 @@
 package org.jetbrains.plugins.scala.codeInsight
 
 import com.intellij.openapi.actionSystem.{KeyboardShortcut, Shortcut}
+import com.intellij.openapi.editor.markup.TextAttributes
 import com.intellij.openapi.editor.{Inlay, InlayModel}
 import com.intellij.openapi.keymap.KeymapManager
 import com.intellij.openapi.util.{Key, TextRange}
@@ -39,5 +40,16 @@ package object implicits {
   def removeAllShortcuts(id: String): Unit = {
     val keymap = KeymapManager.getInstance().getActiveKeymap
     keymap.removeAllActionShortcuts(id)
+  }
+
+  implicit class TextAttributesExt(val v: TextAttributes) extends AnyVal {
+    def + (attributes: TextAttributes): TextAttributes = {
+      val result = v.clone()
+      Option(attributes.getForegroundColor).foreach(result.setForegroundColor)
+      Option(attributes.getBackgroundColor).foreach(result.setBackgroundColor)
+      Option(attributes.getEffectType).foreach(result.setEffectType)
+      Option(attributes.getEffectColor).foreach(result.setEffectColor)
+      result
+    }
   }
 }

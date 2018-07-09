@@ -10,6 +10,9 @@ class ShowImplicitHintsAction extends ToggleAction {
   override def setSelected(e: AnActionEvent, state: Boolean): Unit = {
     ImplicitHints.enabled = state
     ImplicitHints.updateInAllEditors()
+    if (!state) {
+      MouseHandler.removeEscKeyListeners()
+    }
   }
 }
 
