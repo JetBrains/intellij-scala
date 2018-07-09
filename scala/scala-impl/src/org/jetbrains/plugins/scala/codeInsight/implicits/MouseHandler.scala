@@ -22,10 +22,12 @@ class MouseHandler(project: Project,
                    editorFactory: EditorFactory) extends AbstractProjectComponent(project) {
 
   private var activeHyperlink = Option.empty[(Inlay, Text)]
-
   private var hyperlinkTooltip = Option.empty[LightweightHint]
 
   private var errorTooltip = Option.empty[LightweightHint]
+
+  private var highlightedText = Set.empty[Text]
+  private var highlightedInlay = Option.empty[Inlay]
 
   private val mousePressListener = new EditorMouseAdapter {
     override def mousePressed(e: EditorMouseEvent): Unit = {
@@ -75,14 +77,16 @@ class MouseHandler(project: Project,
             case None =>
               deactivateActiveHypelink(e.getEditor)
           }
-          textAt(e.getEditor, e.getMouseEvent.getPoint).foreach { case (_, text) =>
+          textAt(e.getEditor, e.getMouseEvent.getPoint).foreach { case (inlay, text) =>
             if (text.error && !errorTooltip.exists(_.isVisible)) {
               errorTooltip = text.tooltip.map(showTooltip(e.getEditor, e.getMouseEvent, _))
               errorTooltip.foreach(_.addHintListener(_ => errorTooltip = None))
             }
+            highlightMatchedPairs(e.getEditor, inlay, text)
           }
         } else {
           deactivateActiveHypelink(e.getEditor)
+          clearExistingHighlighting()
         }
       }
     }
@@ -203,6 +207,40 @@ class MouseHandler(project: Project,
       HintManagerImpl.createHintHint(editor, point, hint, constraint).setContentActive(false))
 
     hint
+  }
+
+  private def highlightMatchedPairs(editor: Editor, inlay: Inlay, text: Text): Unit = {
+    inlay.getRenderer.asOptionOf[TextRenderer].flatMap(_.pairFor(text)) match {
+      case Some(pair) =>
+        if (highlightedText != Set(text, pair)) {
+          clearExistingHighlighting()
+
+          text.highlighted = true
+          pair.highlighted = true
+
+          inlay.repaint()
+
+          highlightedText = Set(text, pair)
+          highlightedInlay = Some(inlay)
+
+          editor.getContentComponent.addKeyListener(new KeyAdapter {
+            override def keyReleased(keyEvent: KeyEvent): Unit = {
+              editor.getContentComponent.removeKeyListener(this)
+              clearExistingHighlighting()
+            }
+          })
+        }
+      case _ =>
+        clearExistingHighlighting()
+    }
+  }
+
+  private def clearExistingHighlighting(): Unit = {
+    highlightedText.foreach(_.highlighted = false)
+    highlightedInlay.foreach(_.repaint())
+
+    highlightedText = Set.empty
+    highlightedInlay = None
   }
 }
 

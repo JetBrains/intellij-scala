@@ -14,15 +14,22 @@ private case class Text(string: String,
 
   var hyperlink: Boolean = false
 
+  var highlighted: Boolean = false
+
   def effective(editor: Editor, attributes: TextAttributes): TextAttributes = {
-    val result1 = this.attributes.map(attributes + _).getOrElse(attributes)
+    var result = attributes.clone()
+
+    this.attributes.foreach(result += _)
+
+    if (highlighted) {
+      result.setForegroundColor(result.getForegroundColor.brighter)
+    }
 
     if (hyperlink) {
-      val result2 = result1 + editor.getColorsScheme.getAttributes(EditorColors.REFERENCE_HYPERLINK_COLOR)
-      result2.setEffectType(EffectType.LINE_UNDERSCORE)
-      result2
-    } else  {
-      result1
+      result += editor.getColorsScheme.getAttributes(EditorColors.REFERENCE_HYPERLINK_COLOR)
+      result.setEffectType(EffectType.LINE_UNDERSCORE)
     }
+
+    result
   }
 }

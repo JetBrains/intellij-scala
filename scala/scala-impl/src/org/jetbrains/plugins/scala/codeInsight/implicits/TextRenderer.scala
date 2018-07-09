@@ -138,6 +138,24 @@ private class TextRenderer(private var parts: Seq[Text], menu: Option[String])
     }
   }
 
+  def pairFor(text: Text): Option[Text] = {
+    def pairIn(parts: Seq[Text]) = {
+      var balance = 0
+      val remainder = parts.dropWhile(!_.eq(text)).dropWhile { text =>
+        if (text.string == "(") balance += 1
+        if (text.string == ")") balance -= 1
+        balance != 0
+      }
+      remainder.headOption
+    }
+
+    text.string match {
+      case "(" => pairIn(parts)
+      case ")" => pairIn(parts.reverse)
+      case _ => None
+    }
+  }
+
   def expand(text: Text): Unit = {
     text.expansion.foreach(it => replace(text, it()))
   }
