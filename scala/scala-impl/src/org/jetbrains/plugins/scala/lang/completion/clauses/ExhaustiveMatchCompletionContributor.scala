@@ -64,11 +64,9 @@ object ExhaustiveMatchCompletionContributor {
     final def replacement(implicit place: PsiElement): String = {
       val clauses = patterns.map { pattern =>
         s"$kCASE $pattern $tFUNTYPE"
-      }.mkString("\n")
+      }.mkString(" ")
 
-      s"""$kMATCH $tLBRACE
-         |$clauses
-         |$tRBRACE""".stripMargin
+      s"$kMATCH $tLBRACE $clauses $tRBRACE"
     }
 
     protected def patterns(implicit place: PsiElement): Seq[String] =
