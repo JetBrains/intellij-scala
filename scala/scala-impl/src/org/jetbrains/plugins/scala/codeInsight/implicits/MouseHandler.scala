@@ -69,29 +69,34 @@ class MouseHandler(project: Project,
   private val mouseMovedListener = new EditorMouseMotionAdapter {
     override def mouseMoved(e: EditorMouseEvent): Unit = {
       if (ImplicitHints.enabled && !e.isConsumed && project.isInitialized && !project.isDisposed) {
+        val textAtPoint = textAt(e.getEditor, e.getMouseEvent.getPoint)
+
         if (SystemInfo.isMac && e.getMouseEvent.isMetaDown || e.getMouseEvent.isControlDown) {
-          hyperlinkAt(e.getEditor, e.getMouseEvent.getPoint) match {
-            case Some((inlay, text)) =>
+          textAtPoint match {
+            case Some((inlay, text)) if text.navigatable.isDefined =>
               if (!activeHyperlink.contains((inlay, text))) {
                 deactivateActiveHyperlink (e.getEditor)
-                activateHyperlink (e.getEditor, inlay, text, e.getMouseEvent)
+                activateHyperlink(e.getEditor, inlay, text, e.getMouseEvent)
               }
-            case None =>
+            case _ =>
               deactivateActiveHyperlink(e.getEditor)
           }
-        } else {
-          textAt(e.getEditor, e.getMouseEvent.getPoint) match {
+          textAtPoint match {
             case Some((inlay, text)) =>
-              if (text.error && !errorTooltip.exists(_.isVisible)) {
-                errorTooltip = text.tooltip.map(showTooltip(e.getEditor, e.getMouseEvent, _))
-                errorTooltip.foreach(_.addHintListener(_ => errorTooltip = None))
-              }
               highlightMatchedPairs(e.getEditor, inlay, text)
             case None =>
               clearExistingHighlighting()
           }
+        } else {
+          textAtPoint.foreach { case (_, text) =>
+            if (text.error && !errorTooltip.exists(_.isVisible)) {
+              errorTooltip = text.tooltip.map(showTooltip(e.getEditor, e.getMouseEvent, _))
+              errorTooltip.foreach(_.addHintListener(_ => errorTooltip = None))
+            }
+          }
           deactivateActiveHyperlink(e.getEditor)
         }
+
       }
     }
   }
