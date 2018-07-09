@@ -181,26 +181,26 @@ private object ImplicitHintsPass {
 
   private def presentationOfProbableArgumentsFor(parameter: ScalaResolveResult)(implicit scheme: EditorColorsScheme): Seq[Text] = {
     probableArgumentsFor(parameter) match {
-      case Seq() => Seq(Text("???", Some(scheme.getAttributes(CodeInsightColors.WRONG_REFERENCES_ATTRIBUTES))))
+      case Seq() => Seq(Text("???", Some(scheme.getAttributes(CodeInsightColors.WRONG_REFERENCES_ATTRIBUTES)),
+        tooltip = Some("Implicit argument not found")))
       case arguments => collapsedPresentationOfProbable(arguments, parameter.isImplicitParameterProblem)
     }
   }
 
   private def collapsedPresentationOfProbable(arguments: Seq[(ScalaResolveResult, ImplicitResult)], problem: Boolean)(implicit scheme: EditorColorsScheme): Seq[Text] = {
-    val presentation = Seq(Text("...",
-      attributes = Some(adjusted(scheme.getAttributes(EditorColors.FOLDED_TEXT_ATTRIBUTES))),
+    val attributes = adjusted(scheme.getAttributes(EditorColors.FOLDED_TEXT_ATTRIBUTES))
+
+    Seq(Text("...",
+      attributes = Some(if (problem) attributes + scheme.getAttributes(CodeInsightColors.ERRORS_ATTRIBUTES) else attributes),
       expansion = Some(() => expandedPresentationOfProbable(arguments))))
-
-    if (problem) withAttributes(scheme.getAttributes(CodeInsightColors.ERRORS_ATTRIBUTES), presentation)
-    else presentation
   }
 
-  private def expandedPresentationOfProbable(arguments: Seq[(ScalaResolveResult, ImplicitResult)])(implicit scheme: EditorColorsScheme): Seq[Text] = {
-    val presentation = arguments.reverse.map { case (argument, result) => presentationOfProbable(argument, result) }.intersperse(Seq(Text(" | "))).flatten
-
-    if (arguments.length > 1) withAttributes(scheme.getAttributes(CodeInsightColors.ERRORS_ATTRIBUTES), presentation)
-    else presentation
-  }
+  private def expandedPresentationOfProbable(arguments: Seq[(ScalaResolveResult, ImplicitResult)])(implicit scheme: EditorColorsScheme): Seq[Text] =
+    arguments.reverse
+      .map { case (argument, result) => presentationOfProbable(argument, result) }
+      .intersperse(Seq(Text(" | ",
+        attributes = Some(scheme.getAttributes(CodeInsightColors.WRONG_REFERENCES_ATTRIBUTES)),
+        tooltip = Some("Ambiguous implicit arguments")))).flatten
 
   private def presentationOfProbable(argument: ScalaResolveResult, result: ImplicitResult)(implicit scheme: EditorColorsScheme): Seq[Text] = {
     result match {
