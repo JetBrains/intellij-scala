@@ -7,16 +7,13 @@ import com.intellij.codeInsight.completion._
 import com.intellij.codeInsight.lookup.{LookupElement, LookupElementWeigher}
 import com.intellij.patterns.PlatformPatterns
 import com.intellij.psi.PsiElement
-import com.intellij.util.{Consumer, ProcessingContext}
+import com.intellij.util.ProcessingContext
 import org.jetbrains.plugins.scala.extensions.PsiElementExt
 import org.jetbrains.plugins.scala.lang.completion.lookups.ScalaLookupItem
-import org.jetbrains.plugins.scala.lang.lexer.ScalaTokenTypes
 import org.jetbrains.plugins.scala.lang.psi.api.base.ScReferenceElement
 import org.jetbrains.plugins.scala.lang.psi.api.base.patterns._
 import org.jetbrains.plugins.scala.lang.psi.api.statements.ScFunctionDefinition
 import org.jetbrains.plugins.scala.lang.psi.api.statements.params.ScParameter
-import org.jetbrains.plugins.scala.lang.psi.api.toplevel.typedef.{ScMember, ScObject}
-import org.jetbrains.plugins.scala.lang.psi.impl.ScalaPsiElementFactory
 import org.jetbrains.plugins.scala.lang.refactoring.namesSuggester.NameSuggester
 
 import scala.collection.JavaConverters
@@ -26,8 +23,6 @@ import scala.collection.JavaConverters
   * on 1/29/16
   */
 class CaseClassParametersCompletionContributor extends ScalaCompletionContributor {
-
-  import CaseClassParametersCompletionContributor._
 
   extend(CompletionType.BASIC,
     PlatformPatterns.psiElement,
@@ -40,7 +35,7 @@ class CaseClassParametersCompletionContributor extends ScalaCompletionContributo
           case ScConstructorPattern(ScReferenceElement(function: ScFunctionDefinition), _) => function
         }.flatMap { function =>
           function.syntheticCaseClass.orElse {
-            isUnapplyMethod.unapply(function)
+            if (function.isUnapplyMethod) Some(function) else None
           }
         }
 
@@ -102,57 +97,6 @@ class CaseClassParametersCompletionContributor extends ScalaCompletionContributo
         } yield patterns.indexOf(pattern)
         maybeIndex.getOrElse(-1)
       }
-    })
-
-  /**
-    * Enable completion for object with unapply/unapplySeq methods on case label position.
-    * Case label with low letter treat as ScReferencePattern and don't handle with ScalaBasicCompletionContributor,
-    * this handler add open and closed brackets to treat element as ScCodeReferenceElement
-    * and run ScalaBasicCompletionContributor.
-    */
-  extend(CompletionType.BASIC,
-    PlatformPatterns.psiElement
-      .withParent(classOf[ScReferencePattern])
-      .withSuperParent(2, classOf[ScCaseClause]),
-    new CompletionProvider[CompletionParameters] {
-
-      override def addCompletions(parameters: CompletionParameters, context: ProcessingContext, result: CompletionResultSet): Unit = {
-        val context = positionFromParameters(parameters).getContext
-
-        for {
-          caseClause <- ScalaPsiElementFactory.createCaseClauseFromTextWithContext(result.getPrefixMatcher.getPrefix + "()", context.getContext, context)
-          pattern <- caseClause.pattern
-          element <- pattern.depthFirst().find(_.getNode.getElementType == ScalaTokenTypes.tIDENTIFIER)
-          identifier = parameters.withPosition(element, element.getTextRange.getEndOffset)
-        } result.runRemainingContributors(identifier, createConsumer(result))
-      }
-
-      private def createConsumer(resultSet: CompletionResultSet) = new Consumer[CompletionResult] {
-
-        override def consume(result: CompletionResult): Unit = {
-          val lookupElement = result.getLookupElement
-          val members = lookupElement.getPsiElement match {
-            case obj: ScObject => obj.members
-            case _ => Seq.empty
-          }
-
-          members.foreach {
-            case isUnapplyMethod(_) => resultSet.consume(lookupElement)
-            case _ =>
-          }
-        }
-      }
-    })
-}
-
-private object CaseClassParametersCompletionContributor {
-
-  object isUnapplyMethod {
-
-    def unapply(member: ScMember): Option[ScFunctionDefinition] = member match {
-      case function: ScFunctionDefinition if function.isUnapplyMethod => Some(function)
-      case _ => None
     }
-  }
-
+  )
 }
