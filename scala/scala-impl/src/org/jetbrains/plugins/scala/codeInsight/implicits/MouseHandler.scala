@@ -42,7 +42,7 @@ class MouseHandler(project: Project,
           if (SystemInfo.isMac && e.getMouseEvent.isMetaDown || e.getMouseEvent.isControlDown) {
             activeHyperlink.foreach { case (_, text) =>
               e.consume()
-              deactivateActiveHypelink(e.getEditor)
+              deactivateActiveHyperlink(e.getEditor)
               navigateTo(text)
             }
           } else {
@@ -73,11 +73,11 @@ class MouseHandler(project: Project,
           hyperlinkAt(e.getEditor, e.getMouseEvent.getPoint) match {
             case Some((inlay, text)) =>
               if (!activeHyperlink.contains((inlay, text))) {
-                deactivateActiveHypelink (e.getEditor)
+                deactivateActiveHyperlink (e.getEditor)
                 activateHyperlink (e.getEditor, inlay, text, e.getMouseEvent)
               }
             case None =>
-              deactivateActiveHypelink(e.getEditor)
+              deactivateActiveHyperlink(e.getEditor)
           }
         } else {
           textAt(e.getEditor, e.getMouseEvent.getPoint) match {
@@ -90,7 +90,7 @@ class MouseHandler(project: Project,
             case None =>
               clearExistingHighlighting()
           }
-          deactivateActiveHypelink(e.getEditor)
+          deactivateActiveHyperlink(e.getEditor)
         }
       }
     }
@@ -124,12 +124,12 @@ class MouseHandler(project: Project,
 
       private def handle(): Unit = {
         editor.getContentComponent.removeKeyListener(this)
-        deactivateActiveHypelink(editor)
+        deactivateActiveHyperlink(editor)
       }
     })
   }
 
-  private def deactivateActiveHypelink(editor: Editor): Unit = {
+  private def deactivateActiveHyperlink(editor: Editor): Unit = {
     activeHyperlink.foreach { case (inlay, text) =>
       text.hyperlink = false
       inlay.repaint()
