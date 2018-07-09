@@ -10,7 +10,7 @@ import com.intellij.patterns.PlatformPatterns
 import com.intellij.psi.PsiElement
 import com.intellij.util.{Consumer, ProcessingContext}
 import org.jetbrains.plugins.scala.extensions._
-import org.jetbrains.plugins.scala.lang.lexer.ScalaTokenTypes.tIDENTIFIER
+import org.jetbrains.plugins.scala.lang.lexer.ScalaTokenTypes
 import org.jetbrains.plugins.scala.lang.psi.ScalaPsiElement
 import org.jetbrains.plugins.scala.lang.psi.api.base.ScFieldId
 import org.jetbrains.plugins.scala.lang.psi.api.base.types.ScTypeElement
@@ -77,7 +77,7 @@ class ScalaAotCompletionContributor extends ScalaCompletionContributor {
         }
 
         override protected def suggestItemText(lookupString: String): String =
-          super.suggestItemText(lookupString) + Delimiter + lookupString
+          typedItemText(lookupString)
       }
     }
   )
@@ -114,6 +114,8 @@ class ScalaAotCompletionContributor extends ScalaCompletionContributor {
           if (consumed.add(itemText)) super.consume(lookupElement, itemText)
         }
 
+        override protected def suggestItemText(lookupString: String): String = itemText(lookupString)
+
         override protected def createRenderer(itemText: String): AotLookupElementRenderer = new AotLookupElementRenderer(itemText) {
 
           override def renderElement(decorator: Decorator, presentation: LookupElementPresentation): Unit = {
@@ -130,7 +132,7 @@ class ScalaAotCompletionContributor extends ScalaCompletionContributor {
   private def extend(parentType: Class[_ <: ScalaPsiElement],
                      provider: AotCompletionProvider[_ <: ScalaPsiElement]): Unit = extend(
     CompletionType.BASIC,
-    PlatformPatterns.psiElement(tIDENTIFIER).withParent(parentType),
+    PlatformPatterns.psiElement(ScalaTokenTypes.tIDENTIFIER).withParent(parentType),
     provider
   )
 }
@@ -143,7 +145,7 @@ object ScalaAotCompletionContributor {
 
   private type Decorator = LookupElementDecorator[LookupElement]
 
-  private abstract class AotCompletionProvider[E <: ScalaPsiElement](clazz: Class[E])
+  private[completion] abstract class AotCompletionProvider[E <: ScalaPsiElement](clazz: Class[E])
     extends CompletionProvider[CompletionParameters] {
 
     override def addCompletions(parameters: CompletionParameters,
@@ -200,10 +202,10 @@ object ScalaAotCompletionContributor {
 
     private def findIdentifier(element: ScalaPsiElement) =
       element.depthFirst()
-        .find(_.getNode.getElementType == tIDENTIFIER)
+        .find(_.getNode.getElementType == ScalaTokenTypes.tIDENTIFIER)
   }
 
-  private abstract class AotConsumer(originalResultSet: CompletionResultSet) extends Consumer[CompletionResult] {
+  private[completion] abstract class AotConsumer(originalResultSet: CompletionResultSet) extends Consumer[CompletionResult] {
 
     private val prefixMatcher = originalResultSet.getPrefixMatcher
     private val prefix = prefixMatcher.getPrefix
@@ -230,15 +232,20 @@ object ScalaAotCompletionContributor {
 
     protected def createInsertHandler(itemText: String) = new AotInsertHandler(itemText)
 
-    protected def suggestItemText(lookupString: String): String = decapitalize(
+    protected def suggestItemText(lookupString: String): String
+
+    protected final def itemText(lookupString: String): String = decapitalize(
       lookupString.indexOf(targetPrefix) match {
         case -1 => lookupString
         case index => lookupString.substring(index)
       }
     )
+
+    protected final def typedItemText(lookupString: String): String =
+      itemText(lookupString) + Delimiter + lookupString
   }
 
-  private class AotLookupElementRenderer(itemText: String) extends LookupElementRenderer[Decorator] {
+  private[completion] class AotLookupElementRenderer(itemText: String) extends LookupElementRenderer[Decorator] {
 
     def renderElement(decorator: Decorator, presentation: LookupElementPresentation): Unit = {
       decorator.getDelegate.renderElement(presentation)
@@ -246,7 +253,7 @@ object ScalaAotCompletionContributor {
     }
   }
 
-  protected class AotInsertHandler(itemText: String) extends InsertHandler[Decorator] {
+  private[completion] class AotInsertHandler(itemText: String) extends InsertHandler[Decorator] {
 
     def handleInsert(context: InsertionContext, decorator: Decorator): Unit = {
       context.getDocument.replaceString(
