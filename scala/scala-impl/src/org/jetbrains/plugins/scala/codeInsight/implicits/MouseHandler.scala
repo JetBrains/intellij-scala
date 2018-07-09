@@ -23,6 +23,8 @@ class MouseHandler(project: Project,
 
   private var activeHyperlink = Option.empty[(Inlay, Text)]
 
+  private var hyperlinkTooltip = Option.empty[LightweightHint]
+
   private val mousePressListener = new EditorMouseAdapter {
     override def mousePressed(e: EditorMouseEvent): Unit = {
       MouseHandler.mousePressLocation = e.getMouseEvent.getPoint
@@ -67,8 +69,7 @@ class MouseHandler(project: Project,
             // the hyperlink is already activated
             case Some((inlay, text)) =>
               deactivateActiveHypelink(e.getEditor)
-              activateHyperlink(e.getEditor, inlay, text)
-              text.tooltip.foreach(showTooltip(e.getEditor, e.getMouseEvent, _))
+              activateHyperlink(e.getEditor, inlay, text, e.getMouseEvent)
             case None =>
               deactivateActiveHypelink(e.getEditor)
           }
@@ -85,11 +86,15 @@ class MouseHandler(project: Project,
     multicaster.addEditorMouseMotionListener(mouseMovedListener, project)
   })
 
-  private def activateHyperlink(editor: Editor, inlay: Inlay, text: Text): Unit = {
+  private def activateHyperlink(editor: Editor, inlay: Inlay, text: Text, event: MouseEvent): Unit = {
     text.hyperlink = true
     activeHyperlink = Some(inlay, text)
     inlay.repaint()
     UIUtil.setCursor(editor.getContentComponent, Cursor.getPredefinedCursor(Cursor.HAND_CURSOR))
+
+    if (!hyperlinkTooltip.exists(_.isVisible)) {
+      hyperlinkTooltip = text.tooltip.map(showTooltip(editor, event, _))
+    }
 
     editor.getContentComponent.addKeyListener(new KeyAdapter {
       override def keyPressed(keyEvent: KeyEvent): Unit = {
@@ -115,6 +120,9 @@ class MouseHandler(project: Project,
       editor.getContentComponent.setCursor(Cursor.getPredefinedCursor(Cursor.TEXT_CURSOR))
     }
     activeHyperlink = None
+
+    hyperlinkTooltip.foreach(_.hide())
+    hyperlinkTooltip = None
   }
 
   private def navigateTo(text: Text): Unit = {
@@ -164,7 +172,7 @@ class MouseHandler(project: Project,
     }
   }
 
-  private def showTooltip(editor: Editor, e: MouseEvent, text: String): Unit = {
+  private def showTooltip(editor: Editor, e: MouseEvent, text: String): LightweightHint = {
     val hint = {
       val label = HintUtil.createInformationLabel(text)
       label.setBorder(JBUI.Borders.empty(6, 6, 5, 6))
@@ -185,6 +193,8 @@ class MouseHandler(project: Project,
     manager.showEditorHint(hint, editor, point,
       HintManager.HIDE_BY_ANY_KEY | HintManager.HIDE_BY_TEXT_CHANGE | HintManager.HIDE_BY_SCROLLING, 0, false,
       HintManagerImpl.createHintHint(editor, point, hint, constraint).setContentActive(false))
+
+    hint
   }
 }
 
