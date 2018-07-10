@@ -5,8 +5,10 @@ import java.awt.{List => _, _}
 import java.text.MessageFormat
 
 import com.intellij.icons.AllIcons
+import com.intellij.notification.{Notification, NotificationType, Notifications}
 import com.intellij.openapi.actionSystem.{ActionToolbarPosition, AnActionEvent}
 import com.intellij.openapi.application.QueryExecutorBase
+import com.intellij.openapi.fileEditor.FileDocumentManager
 import com.intellij.openapi.module.Module
 import com.intellij.openapi.project.Project
 import com.intellij.openapi.roots.ProjectFileIndex
@@ -40,28 +42,52 @@ private class ScalaImplicitMemberUsageSearcher
     refs.foreach(consumer.process)
   }
 
-  private[this] def extractUsages(target: PsiElement, usages: Set[UsagesInFile]): Seq[PsiReference] = {
-    val project = target.getProject
+  private[this] def extractUsages(target: PsiElement, usages: Timestamped[Set[UsagesInFile]]): Seq[PsiReference] = {
+    val project        = target.getProject
+    val fileDocManager = FileDocumentManager.getInstance()
+    val outdated       = Set.newBuilder[String]
 
     def extractReferences(usage: UsagesInFile): Seq[PsiReference] =
       (for {
         ElementsInContext(elements, file, doc) <- extractCandidatesFromUsage(project, usage)
       } yield {
+        val isOutdated = fileDocManager.isDocumentUnsaved(doc) ||
+          file.getVirtualFile.getTimeStamp > usages.timestamp
+
         val lineNumber = (e: PsiElement) => doc.getLineNumber(e.getTextOffset) + 1
-        val refs       = elements.flatMap(target.refOrImplicitRefIn).toList
-        val extraLines = usage.lines.diff(refs.map(r => lineNumber(r.getElement)))
 
-        val unresolvedRefs = extraLines.map { line =>
-          val offset = doc.getLineStartOffset(line - 1)
-          //@TODO: perhaps it makes sense to somehow show the number of unresolved implicits in this line
-          //@TODO: distinguish between unresolved and outdated usages
-          UnresolvedImplicitReference(target, file, offset)
+        if (!isOutdated) {
+          val refs       = elements.flatMap(target.refOrImplicitRefIn).toList
+          val extraLines = usage.lines.diff(refs.map(r => lineNumber(r.getElement)))
+
+          val unresolvedRefs = extraLines.map { line =>
+            val offset = doc.getLineStartOffset(line - 1)
+            //@TODO: perhaps it makes sense to somehow show the number of unresolved implicits in this line
+            UnresolvedImplicitReference(target, file, offset)
+          }
+
+          refs ++ unresolvedRefs
+        } else {
+          outdated += file.getVirtualFile.getPresentableName
+          Seq.empty
         }
-
-        refs ++ unresolvedRefs
+        //@TODO: invoked slow search for outdated files scope
       }).getOrElse(Seq.empty)
 
-    usages.flatMap(extractReferences)(collection.breakOut)
+    val result        = usages.unwrap.flatMap(extractReferences)(collection.breakOut)
+    val filesToNotify = outdated.result()
+
+    if (filesToNotify.nonEmpty) {
+      Notifications.Bus.notify(
+        new Notification(
+          ScalaBundle.message("find.usages.implicit.dialog.title"),
+          "Implicit Usages Invalidated",
+          s"Some usages in the following files were invalidated, due to external changes: ${filesToNotify.mkString(",")}.",
+          NotificationType.WARNING
+        )
+      )
+    }
+    result
   }
 }
 

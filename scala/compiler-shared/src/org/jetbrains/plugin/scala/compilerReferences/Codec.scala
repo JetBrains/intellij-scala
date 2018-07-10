@@ -1,7 +1,7 @@
 package org.jetbrains.plugin.scala.compilerReferences
 
 import java.io._
-import java.util.{Scanner, UUID}
+import java.util.StringTokenizer
 
 import org.jetbrains.jps.incremental.CompiledClass
 import org.jetbrains.jps.incremental.scala.local.LazyCompiledClass
@@ -9,8 +9,8 @@ import org.jetbrains.jps.incremental.scala.local.LazyCompiledClass
 import scala.util.Try
 
 trait Codec[T] {
-  def encode(t:  T)(implicit ctx: StringBuilder): Unit
-  def decode(in: Scanner): Option[T]
+  def encode(t: T)(implicit ctx: StringBuilder): Unit
+  def decode(in: StringTokenizer): Option[T]
 }
 
 object Codec {
@@ -28,12 +28,12 @@ object Codec {
 
   implicit class StringCodecOps(val s: String) extends AnyVal {
     def decode[T: Codec]: Option[T] = {
-      val scanner = new Scanner(s).useDelimiter(delimiter)
-      scanner.decode[T]
+      val tokenizer = new StringTokenizer(s, delimiter)
+      tokenizer.decode[T]
     }
   }
 
-  private[this] implicit class ScannerOps(val in: Scanner) extends AnyVal {
+  private[this] implicit class TokenizerOps(val in: StringTokenizer) extends AnyVal {
     def decode[T](implicit ev: Codec[T]): Option[T] = ev.decode(in)
   }
 
@@ -43,12 +43,13 @@ object Codec {
       ctx ++= delimiter
     }
 
-    override def decode(in: Scanner): Option[T] = Try(decoder(in.next)).toOption
+    override def decode(in: StringTokenizer): Option[T] = Try(decoder(in.nextToken())).toOption
   }
 
   implicit val stringCodec: Codec[String]   = simpleCodec(identity)
   implicit val booleanCodec: Codec[Boolean] = simpleCodec(_.toBoolean)
   implicit val intCodec: Codec[Int]         = simpleCodec(_.toInt)
+  implicit val longCodec: Codec[Long]       = simpleCodec(_.toLong)
 
   def iterableCodec[T: Codec, R <: Iterable[T]](reify: Iterable[T] => R): Codec[R] = new Codec[R] {
     override def encode(t: R)(implicit ctx: StringBuilder): Unit = {
@@ -56,7 +57,7 @@ object Codec {
       t.foreach(Codec[T].encode)
     }
 
-    override def decode(in: Scanner): Option[R] =
+    override def decode(in: StringTokenizer): Option[R] =
       for {
         length <- in.decode[Int]
       } yield reify((0 until length).flatMap(_ => in.decode[T]))
@@ -69,7 +70,7 @@ object Codec {
     override def encode(t: CompiledClass)(implicit ctx: StringBuilder): Unit =
       Seq(t.getOutputFile.getPath, t.getSourceFile.getPath, t.getClassName).foreach(Codec[String].encode)
 
-    override def decode(in: Scanner): Option[CompiledClass] =
+    override def decode(in: StringTokenizer): Option[CompiledClass] =
       for {
         output     <- in.decode[String]
         sourceFile <- in.decode[String]
@@ -84,7 +85,7 @@ object Codec {
       Codec[Set[String]].encode(t.affectedModules)
     }
 
-    override def decode(in: Scanner): Option[ChunkBuildData] =
+    override def decode(in: StringTokenizer): Option[ChunkBuildData] =
       for {
         compiledClasses <- in.decode[Set[CompiledClass]]
         removedSources  <- in.decode[Set[String]]
