@@ -47,10 +47,15 @@ private class ScalaCompilerRefAdapter extends JavaCompilerRefAdapterCompat {
       case (pat: ScBindingPattern) && inNameContext(v: ScValueOrVariable) if !v.isLocal => fieldLikeRef(pat)
       case field: PsiField                                                              => fieldLikeRef(field)
       case method: PsiMethod =>
+        def parametersCount(m: PsiMethod): Int = m match {
+          case fn: ScFunction => fn.typeParameters.flatMap(_.contextBound).length + fn.parameters.length
+          case _              => m.getParameterList.getParametersCount
+        }
+
         for {
           owner <- ownerId(method)
           name  <- tryEnumerate(enumerator, method.name)
-        } yield new CompilerRef.JavaCompilerMethodRef(owner, name, method.getParameterList.getParametersCount)
+        } yield new CompilerRef.JavaCompilerMethodRef(owner, name, parametersCount(method))
       case aClass: PsiClass =>
         for {
           name <- ClassUtil.getJVMClassName(aClass).toOption

@@ -24,7 +24,7 @@ class ClassfileParserTest {
   private def fieldRefOf[A: ClassTag](name: String, line: Int): FieldReference =
     FieldReference(fqn[A], name, line)
 
-  private def doTest[A](body: ParsedClassfile => Unit)(implicit tag: ClassTag[A]): Unit = {
+  private def doTest[A](body: ParsedClass => Unit)(implicit tag: ClassTag[A]): Unit = {
     val parsed = ClassfileParser.parse(loadClass[A])
     assertEquals(fqn[A], parsed.classInfo.fqn)
     body(parsed)
@@ -56,20 +56,25 @@ class ClassfileParserTest {
     )
 
     val expectedRefs: Seq[MemberReference] = Seq(
-      methodRefOf[Predef.type]("Map", 83, 0),
-      fieldRefOf[WithRefs]("noGetter", 91),
-      methodRefOf[MapLike[_, _, _]]("contains", 83, 1),
-      methodRefOf[WithRefs]("s", 87, 0),
-      methodRefOf[Predef.type]("augmentString", 93, 1),
-      methodRefOf[Map.type]("apply", 83, 1),
-      methodRefOf[Predef.type]("println", 85, 1),
-      methodRefOf[StringOps]("toInt", 93, 0)
+      methodRefOf[Predef.type]("Map", 88, 0),
+      fieldRefOf[WithRefs]("noGetter", 96),
+      methodRefOf[MapLike[_, _, _]]("contains", 88, 1),
+      methodRefOf[WithRefs]("s", 92, 0),
+      methodRefOf[Predef.type]("augmentString", 98, 1),
+      methodRefOf[Map.type]("apply", 88, 1),
+      methodRefOf[Predef.type]("println", 90, 1),
+      methodRefOf[StringOps]("toInt", 98, 0)
     )
 
     assertThat(
       java.util.Arrays.asList(parsed.refs: _*),
       hasItems(expectedRefs: _*)
     )
+  }
+
+  @Test
+  def testSAMInheritor(): Unit = doTest[SAM] { parsed =>
+    assertEquals(parsed.funExprs, Seq(FunExprInheritor("org.jetbrains.plugins.scala.findUsages.compilerReferences.Foo", 108)))
   }
 }
 
@@ -89,6 +94,17 @@ private class WithRefs extends HasImplicitVal {
   private[this] implicit val noGetter: Int = 42
   def baz(implicit i: Int): Int = i * 2
   baz
-  
+
   def qux(s: String): Int = s.toInt
+}
+
+private trait Foo { def foo(s: String): Int }
+private class SAM {
+  private[this] val x = 123
+
+  def takesFoo(f: Foo): Int = f.foo("123")
+
+  def f(i: Int) {
+    takesFoo(_.length + i + x)
+  }
 }

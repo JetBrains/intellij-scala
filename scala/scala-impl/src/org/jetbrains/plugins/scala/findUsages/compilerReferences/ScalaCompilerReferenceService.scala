@@ -14,13 +14,16 @@ import com.intellij.openapi.module.ModuleUtilCore
 import com.intellij.openapi.project.Project
 import com.intellij.openapi.util.Disposer
 import com.intellij.psi.search.GlobalSearchScope
-import com.intellij.psi.{PsiDocumentManager, PsiElement}
-import com.intellij.util.messages.MessageBusConnection
-import org.jetbrains.plugin.scala.compilerReferences.{BuildData, ScalaCompilerReferenceIndexBuilder}
+import com.intellij.psi.{PsiClass, PsiDocumentManager, PsiElement}
+import com.intellij.util.messages.{MessageBus, MessageBusConnection}
+import org.jetbrains.jps.backwardRefs.CompilerRef
+import org.jetbrains.plugin.scala.compilerReferences.{ChunkBuildData, ScalaCompilerReferenceIndexBuilder => Builder}
 import org.jetbrains.plugins.scala.extensions._
+import org.jetbrains.plugins.scala.findUsages.compilerReferences.IndexerJob.{CloseWriter, OpenWriter, ProcessChunkData}
 import org.jetbrains.plugins.scala.project._
 
 import scala.collection.JavaConverters._
+import scala.collection.mutable
 
 private[findUsages] class ScalaCompilerReferenceService(
   project:             Project,
@@ -28,10 +31,13 @@ private[findUsages] class ScalaCompilerReferenceService(
   psiDocumentManager:  PsiDocumentManager
 ) extends {
   private[this] val callback: BiConsumer[MessageBusConnection, util.Set[String]] = (connection, affectedModules) =>
-    connection.subscribe(CompilerReferenceIndexingTopics.indexingStatus, new CompilerReferenceIndexingStatusListener {
-      override def modulesUpToDate(affectedModuleNames: Iterable[String]): Unit =
-        affectedModules.addAll(affectedModuleNames.toSet.asJava)
-    })
+    connection.subscribe(
+      CompilerReferenceIndexingTopics.indexingStatus,
+      new CompilerReferenceIndexingStatusListener {
+        override def modulesUpToDate(affectedModuleNames: Iterable[String]): Unit =
+          affectedModules.addAll(affectedModuleNames.toSet.asJava)
+      }
+  )
 } with CompilerReferenceServiceBase[ScalaCompilerReferenceReader](
   project,
   fileDocumentManager,
@@ -41,49 +47,99 @@ private[findUsages] class ScalaCompilerReferenceService(
 ) { self =>
   import ScalaCompilerReferenceService._
 
-  private[this] val indexer = new CompilerReferenceIndexer(project)
+  private[this] val indexerScheduler =
+    new CompilerReferenceIndexerScheduler(project, myReaderFactory.expectedIndexVersion())
 
-  @volatile
-  private[this] var isUpToDateChecked = false
+  // guarded by myOpenCloseLock
+  private[this] val failedToParse = mutable.HashSet.empty[String]
+
+  @volatile private[this] var isUpToDateChecked = false
+
+  private[this] def handleBuilderMessage(messageType: String, messageText: String, bus: MessageBus): Unit = {
+    import org.jetbrains.plugin.scala.compilerReferences.Codec._
+
+    val publisher = bus.syncPublisher(CompilerReferenceIndexingTopics.indexingStatus)
+    logger.debug(s"Received compiler index builder message: $messageType: $messageText.")
+
+    messageType match {
+      case Builder.chunkBuildDataType =>
+        val buildData = messageText.decode[ChunkBuildData]
+
+        // @TODO: what if we actually get malformed data
+        buildData.foreach { data =>
+          val modules = data.affectedModules
+          logger.debug(s"Scheduled building index for modules ${modules.mkString("[", ", ", "]")}")
+
+          indexerScheduler.schedule(ProcessChunkData(data, () => {
+            publisher.modulesUpToDate(modules)
+
+            if (failedToParse.nonEmpty) {
+              // if we failed to parse some classes during previous indexing
+              // phase running concurrently with this one, check if current phase handled
+              // these files and therefore restored index consitency
+              failedToParse --= data.removedSources
+              failedToParse --= data.compiledClasses.map(_.getOutputFile.getPath)
+            }
+          }))
+        }
+      case Builder.compilationStartedType =>
+        publisher.beforeIndexingStarted()
+        val isCleanBuild = messageText.decode[Boolean]
+        isCleanBuild.foreach(isClean => indexerScheduler.schedule(OpenWriter(isClean, () => ())))
+      case Builder.compilationFinishedType =>
+        indexerScheduler.schedule(CloseWriter(publisher.onIndexingFinished))
+    }
+  }
+
+  private[this] def onIndexCorruption(): Unit = {
+    logger.error(
+      s"Fatal indexing failure, failed to parse following " +
+        s"class files ${failedToParse.mkString("[\n", "  \n", "]")}. " +
+        s"Compiler index will be invalidated."
+    )
+    failedToParse.clear()
+    removeIndexFiles(project)
+  }
+
+  private[this] def openReaderOrInvalidateIndex(
+    failure: Option[IndexerParsingFailure]
+  ): Unit = withLock(myOpenCloseLock) {
+    failure.foreach { case IndexerParsingFailure(classes) => failedToParse ++= classes.map(_.getPath) }
+
+    if (myActiveBuilds == 1 && failedToParse.nonEmpty) onIndexCorruption()
+    openReaderIfNeed(IndexOpenReason.COMPILATION_FINISHED)
+  }
 
   override def projectOpened(): Unit = if (CompilerReferenceService.isEnabled) {
     val messageBus = project.getMessageBus
     val connection = messageBus.connect(project)
 
-    connection.subscribe(CompilerReferenceIndexingTopics.indexingStatus, new CompilerReferenceIndexingStatusListener {
-      override def beforeIndexingStarted(): Unit =
-        closeReaderIfNeed(IndexCloseReason.COMPILATION_STARTED)
+    connection.subscribe(
+      CompilerReferenceIndexingTopics.indexingStatus,
+      new CompilerReferenceIndexingStatusListener {
+        override def beforeIndexingStarted(): Unit =
+          closeReaderIfNeed(IndexCloseReason.COMPILATION_STARTED)
+        override def onIndexingFinished(failure: Option[IndexerParsingFailure]): Unit =
+          openReaderOrInvalidateIndex(failure)
+      }
+    )
 
-      override def onIndexingFinished(): Unit = openReaderIfNeed(IndexOpenReason.COMPILATION_FINISHED)
-    })
-
-    connection.subscribe(CustomBuilderMessageHandler.TOPIC, new CustomBuilderMessageHandler {
-      import org.jetbrains.plugin.scala.compilerReferences.Codec._
-      override def messageReceived(builderId: String, messageType: String, messageText: String): Unit =
-        if (builderId == ScalaCompilerReferenceIndexBuilder.id) {
-          val buildData = messageText.decode[BuildData]
-
-          buildData.foreach {
-            data =>
-              val publisher = messageBus.syncPublisher(CompilerReferenceIndexingTopics.indexingStatus)
-              publisher.beforeIndexingStarted()
-              val modules = data.affectedModules
-              logger.debug(s"Building index for modules ${modules.mkString("[", ", ", "]")}")
-
-              indexer.writeBuildData(data, onSuccess = {
-                publisher.modulesUpToDate(modules)
-                logger.debug(s"Finished building indices for modules ${modules.mkString("[", ", ", "]")}")
-                publisher.onIndexingFinished()
-              })
-          }
-        }
-    })
+    connection.subscribe(
+      CustomBuilderMessageHandler.TOPIC,
+      new CustomBuilderMessageHandler {
+        override def messageReceived(
+          builderId:   String,
+          messageType: String,
+          messageText: String
+        ): Unit = if (builderId == Builder.id) handleBuilderMessage(messageType, messageText, messageBus)
+      }
+    )
 
     myDirtyScopeHolder.installVFSListener()
     markAsOutdated(false)
 
     executeOnPooledThread {
-      val validIndexExists = upToDateCompilerIndexExists(project)
+      val validIndexExists = upToDateCompilerIndexExists(project, myReaderFactory.expectedIndexVersion())
       val compilerManager  = CompilerManager.getInstance(project)
 
       if (validIndexExists) {
@@ -95,7 +151,7 @@ private[findUsages] class ScalaCompilerReferenceService(
         }
 
         myActiveBuilds += 1
-        publisher.onIndexingFinished()
+        publisher.onIndexingFinished(None)
       }
       isUpToDateChecked = true
     }
@@ -103,21 +159,34 @@ private[findUsages] class ScalaCompilerReferenceService(
     Disposer.register(project, () => closeReaderIfNeed(IndexCloseReason.PROJECT_CLOSED))
   }
 
-  /**
-   * Returns usages only from up-to-date compiled scope.
-   */
-  def usagesOf(target: PsiElement): Set[LinesWithUsagesInFile] = withLock(myReadDataLock) {
-    val usages       = Set.newBuilder[LinesWithUsagesInFile]
-    val actualTarget = ScalaCompilerRefAdapter.bytecodeElement(target)
+  /** Should only be called under [[myReadDataLock]] */
+  private[this] def withReader(
+    target: PsiElement
+  )(
+    builder: ScalaCompilerReferenceReader => CompilerRef => Set[UsagesInFile]
+  ): Set[UsagesInFile] = {
+    val usages = Set.newBuilder[UsagesInFile]
 
     for {
-      elementInfo <- asCompilerElements(actualTarget, false, false).toOption
-      reader      <- myReader.toOption
-      targets     = elementInfo.searchElements
-    } yield targets.foreach(target => usages ++= reader.usagesOf(target))
+      info   <- asCompilerElements(target, false, false).toOption
+      reader <- myReader.toOption
+      targets = info.searchElements
+    } yield targets.foreach(usages ++= builder(reader)(_))
 
     val dirtyScope = dirtyScopeForDefinition(target)
     usages.result().filterNot(usage => dirtyScope.contains(usage.file))
+  }
+
+  def SAMInheritorsOf(aClass: PsiClass): Set[UsagesInFile] = withLock(myReadDataLock)(
+    withReader(aClass)(_.SAMInheritorsOf)
+  )
+
+  /**
+   * Returns usages only from up-to-date compiled scope.
+   */
+  def usagesOf(target: PsiElement): Set[UsagesInFile] = withLock(myReadDataLock) {
+    val actualTarget = ScalaCompilerRefAdapter.bytecodeElement(target)
+    withReader(actualTarget)(_.usagesOf)
   }
 
   def isCompilerIndexReady: Boolean = isUpToDateChecked

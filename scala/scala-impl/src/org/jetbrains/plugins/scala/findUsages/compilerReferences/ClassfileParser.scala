@@ -68,7 +68,7 @@ private object ClassfileParser {
     }
   }
 
-  def parse(classFiles: Set[File]): Set[ParsedClassfile] = {
+  def parse(classFiles: Set[File]): Set[ParsedClass] = {
     val outer = classFiles.minBy(_.getPath.length)
 
     val scalaSig = using(new FileInputStream(outer)) { in =>
@@ -78,13 +78,15 @@ private object ClassfileParser {
       visitor.scalaSig
     }
 
-    val synthetics: Set[String] = scalaSig.syntheticSymbols().map(_.qualifiedName)(collection.breakOut)
+    val synthetics: Set[String] = scalaSig.fold(Set.empty[String])(
+      _.syntheticSymbols().map(_.qualifiedName)(collection.breakOut)
+    )
 
     classFiles.map(parse(_, synthetics))
   }
 
   private[this] class ScalaSigVisitor(file: String) extends ClassVisitor(API_VERSION) {
-    var scalaSig: ScalaSig = _
+    var scalaSig: Option[ScalaSig] = None
 
     override def visitAnnotation(desc: String, visible: Boolean): AnnotationVisitor = desc match {
       case SCALA_SIG_ANNOTATION | SCALA_LONG_SIG_ANNOTATION =>
@@ -93,39 +95,46 @@ private object ClassfileParser {
             if (name == BYTES_VALUE) {
               val bytes = value.asInstanceOf[String].getBytes(StandardCharsets.UTF_8)
               ByteCodecs.decode(bytes)
-              scalaSig = Parser.parseScalaSig(bytes, file)
+              scalaSig = Option(Parser.parseScalaSig(bytes, file))
             }
         }
       case _ => null
     }
   }
 
-  def parse(is: InputStream, synthetics: Set[String] = Set.empty): ParsedClassfile = using(is) { in =>
+  def parse(is: InputStream, synthetics: Set[String] = Set.empty): ParsedClass = using(is) { in =>
     val reader  = new ClassReader(in)
     val visitor = new ParsingVisitor(synthetics)
     reader.accept(visitor, ClassReader.SKIP_FRAMES)
     visitor.result
   }
 
-  def parse(bytes: Array[Byte], synthetics: Set[String]): ParsedClassfile =
+  def parse(bytes: Array[Byte], synthetics: Set[String]): ParsedClass =
     parse(new ByteArrayInputStream(bytes), synthetics)
 
-  def parse(file: File, synthetics: Set[String]): ParsedClassfile =
+  def parse(file: File, synthetics: Set[String]): ParsedClass =
     parse(new FileInputStream(file), synthetics)
 
-  def parse(vfile: VirtualFile, synthetics: Set[String]): ParsedClassfile =
+  def parse(vfile: VirtualFile, synthetics: Set[String]): ParsedClass =
     parse(vfile.getInputStream, synthetics)
 
-  def fqnFromInternalName(internal: String): String = internal.replaceAll("/", ".")
+  private[this] def fqnFromInternalName(internal: String): String  = internal.replaceAll("/", ".")
+  private[this] def isFunExprClassname(name:      String): Boolean = name.contains("$anonfun$")
 
   private[this] trait ReferenceCollector {
-    def addRef(ref: MemberReference): Unit
+    def handleMemberRef(ref:   MemberReference): Unit
+    def handleSAMRef(ref:      FunExprInheritor): Unit
+    def handleLineNumber(line: Int): Unit
   }
 
   private[this] class ParsingVisitor(synthetics: Set[String]) extends ClassVisitor(API_VERSION) {
+    private[this] var internalName: String                             = _
     private[this] var className: String                                = _
+    private[this] var isAnon: Boolean                                  = false
     private[this] val superNames: mutable.Builder[String, Set[String]] = Set.newBuilder[String]
     private[this] val innerRefs: ju.List[MemberReference]              = new ju.ArrayList[MemberReference]()
+    private[this] val funExprs: ju.List[FunExprInheritor]              = new ju.ArrayList[FunExprInheritor]()
+    private[this] var earliestSeen: Option[Int]                        = None
 
     override def visit(
       version:    Int,
@@ -135,7 +144,8 @@ private object ClassfileParser {
       superName:  String,
       interfaces: Array[String]
     ): Unit = {
-      className = fqnFromInternalName(name)
+      internalName = name
+      className    = fqnFromInternalName(internalName)
       superNames += fqnFromInternalName(superName)
 
       if (interfaces != null) {
@@ -143,14 +153,17 @@ private object ClassfileParser {
       }
     }
 
+    override def visitInnerClass(name: String, outerName: String, innerName: String, access: Int): Unit =
+      if (name == internalName) isAnon = innerName == null
+
     private[this] def isStaticForwarder(access: Int, name: String): Boolean =
-      isSet(access, ACC_STATIC) && isSet(access, ACC_PUBLIC) &&
+      isSet(access, ACC_STATIC) && isSet(access, ACC_PUBLIC) && !isSet(access, ACC_SYNTHETIC) &&
         name != "<clinit>" &&
         name != "$init$"
 
     private[this] def isSynthetic(access: Int, name: String): Boolean = {
       val simpleClassName = className.split("\\.").last
-      isSet(access, ACC_SYNTHETIC) || synthetics.contains(s"$simpleClassName.$name")
+      synthetics.contains(s"$simpleClassName.$name")
     }
 
     override def visitMethod(
@@ -163,12 +176,20 @@ private object ClassfileParser {
       if (isStaticForwarder(access, name) || isSynthetic(access, name)) null
       else
         new MethodVisitor(API_VERSION) with ReferenceInMethodCollector {
-          override def addRef(ref: MemberReference): Unit = innerRefs.add(ref)
+          override def handleMemberRef(ref: MemberReference): Unit  = innerRefs.add(ref)
+          override def handleSAMRef(ref:    FunExprInheritor): Unit = funExprs.add(ref)
+
+          override def handleLineNumber(line: Int): Unit =
+            if (isFunExprClassname(className) && earliestSeen.forall(_ > line))
+              earliestSeen = Option(line)
         }
 
-    def result: ParsedClassfile = {
-      val classInfo = ClassInfo(className, superNames.result())
-      ParsedClassfile(classInfo, innerRefs.asScala)
+    def result: ParsedClass = {
+      val classInfo = ClassInfo(isAnon, className, superNames.result())
+      val refs      = innerRefs.asScala
+
+      if (isFunExprClassname(className)) FunExprClass(classInfo, refs, earliestSeen.getOrElse(-1))
+      else                               RegularClass(classInfo, refs, funExprs.asScala)
     }
   }
 
@@ -177,24 +198,34 @@ private object ClassfileParser {
 
     private[this] var currentLineNumber = -1
 
-    private[this] def handleRef(
+    private[this] def handleMemberRef(
       owner:   String,
       name:    String
-    )(builder: (String, String, Int) => MemberReference): Unit =
-      if (currentLineNumber != -1) {
-        val ownerFqn = fqnFromInternalName(owner)
-        val ref      = builder(ownerFqn, name, currentLineNumber)
-        addRef(ref)
-      }
-
-    override def visitLineNumber(line: Int, start: Label): Unit = currentLineNumber = line
-
-    override def visitMethodInsn(opcode: Int, owner: String, name: String, desc: String, itf: Boolean): Unit = {
-      val argsCount = Type.getArgumentTypes(desc).length
-      handleRef(owner, name)(MethodReference(_, _, _, argsCount))
+    )(builder: (String, String, Int) => MemberReference): Unit = {
+      val ownerFqn = fqnFromInternalName(owner)
+      val ref      = builder(ownerFqn, name, currentLineNumber)
+      handleMemberRef(ref)
     }
 
+    override def visitLineNumber(line: Int, start: Label): Unit = {
+      currentLineNumber = line
+      handleLineNumber(line)
+    }
+
+    override def visitMethodInsn(opcode: Int, owner: String, name: String, desc: String, itf: Boolean): Unit =
+      if (currentLineNumber != -1) {
+        val argsCount = Type.getArgumentTypes(desc).length
+        handleMemberRef(owner, name)(MethodReference(_, _, _, argsCount))
+      }
+
+    override def visitInvokeDynamicInsn(name: String, desc: String, bsm: Handle, bsmArgs: AnyRef*): Unit =
+      if (currentLineNumber != -1 && bsm.getOwner == "java/lang/invoke/LambdaMetafactory") {
+        val samType = Type.getReturnType(desc)
+        val ref     = FunExprInheritor(samType.getClassName, currentLineNumber)
+        handleSAMRef(ref)
+      }
+
     override def visitFieldInsn(opcode: Int, owner: String, name: String, desc: String): Unit =
-      handleRef(owner, name)(FieldReference)
+      if (currentLineNumber != -1) handleMemberRef(owner, name)(FieldReference)
   }
 }

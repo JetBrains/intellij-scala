@@ -7,18 +7,17 @@ import com.intellij.openapi.ui.Messages
 import com.intellij.psi.{PsiElement, PsiNamedElement}
 import com.intellij.util.containers.ContainerUtil
 import org.jetbrains.plugins.scala.ScalaBundle
+import org.jetbrains.plugins.scala.findUsages.compilerReferences.ScalaImplicitMemberUsageSearcher._
 import org.jetbrains.plugins.scala.lang.psi.api.base.ScPrimaryConstructor
 import org.jetbrains.plugins.scala.lang.psi.api.statements.ScFunction
 import org.jetbrains.plugins.scala.lang.psi.api.statements.params.ScTypeParam
-import org.jetbrains.plugins.scala.lang.psi.api.toplevel.typedef.{ScMember, ScTypeDefinition}
+import org.jetbrains.plugins.scala.lang.psi.api.toplevel.typedef.ScTypeDefinition
 import org.jetbrains.plugins.scala.lang.psi.api.toplevel.{ScNamedElement, ScTypedDefinition}
 import org.jetbrains.plugins.scala.lang.psi.fake.FakePsiMethod
 import org.jetbrains.plugins.scala.lang.psi.light._
 import org.jetbrains.plugins.scala.lang.psi.types.api.FunctionType
 import org.jetbrains.plugins.scala.lang.refactoring.rename.RenameSuperMembersUtil
 import org.jetbrains.plugins.scala.util.ImplicitUtil._
-import org.jetbrains.plugins.scala.findUsages.compilerReferences.ImplicitUsageSearcher._
-import org.jetbrains.plugins.scala.extensions._
 
 /**
  * User: Alexander Podkhalyuzin
@@ -66,13 +65,14 @@ class ScalaFindUsagesHandlerFactory(project: Project) extends FindUsagesHandlerF
 
   private def doBeforeImplicitSearchAction(target: PsiNamedElement): Boolean =
     assertSearchScopeIsSufficient(target) match {
-      case Some(BuildModules(modules, rebuild)) =>
+      case Some(BuildModules(modules)) =>
         val manager = CompilerManager.getInstance(target.getProject)
-        val scope   = manager.createModulesCompileScope(modules.toArray, true, true)
-
-        if (rebuild) manager.compile(scope, null)
-        else         manager.make(scope, null)
-
+        val scope   = manager.createModulesCompileScope(modules.toArray, true)
+        manager.make(scope, null)
+        false
+      case Some(RebuildProject) =>
+        val manager = CompilerManager.getInstance(target.getProject)
+        manager.rebuild(null)
         false
       case Some(CancelSearch) => false
       case None               => true

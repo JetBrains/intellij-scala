@@ -34,35 +34,50 @@ private[findUsages] class ScalaCompilerReferenceReader private[compilerReference
     catch { case e: IOException => throw new RuntimeException(e) }
   }
 
-  def usagesOf(ref: CompilerRef): Set[LinesWithUsagesInFile] =
+  def usagesOf(ref: CompilerRef): Set[UsagesInFile] =
     rethrowStorageExceptionIn {
-      val usages = Set.newBuilder[LinesWithUsagesInFile]
-      
+      val usages = Set.newBuilder[UsagesInFile]
+
       searchInBackwardUsagesIndex(ref) {
         case (fileId, lines) =>
           val file = findFileByEnumeratorId(fileId)
-          file.foreach(usages += LinesWithUsagesInFile(_, lines))
+          file.foreach(usages += UsagesInFile(_, lines))
           true
       }
-      
+
+      usages.result()
+    }
+
+  def SAMInheritorsOf(classRef: CompilerRef): Set[UsagesInFile] =
+    rethrowStorageExceptionIn {
+      val usages = Set.newBuilder[UsagesInFile]
+
+      myIndex.get(ScalaCompilerIndices.backwardHierarchy).getData(classRef).forEach {
+        case (fileId, inheritors) =>
+          val lines = inheritors.collect { case funExpr: ScFunExprCompilerRef => funExpr.line }
+          val file  = findFileByEnumeratorId(fileId)
+          file.foreach(usages += UsagesInFile(_, lines))
+          true
+      }
+
       usages.result()
     }
 
   override def findReferentFileIds(ref: CompilerRef, checkBaseClassAmbiguity: Boolean): TIntHashSet =
-    rethrowStorageExceptionIn { 
+    rethrowStorageExceptionIn {
       val referentFiles = new TIntHashSet()
-      
+
       searchInBackwardUsagesIndex(ref) {
         case (fileId, _) =>
           findFileByEnumeratorId(fileId).foreach(f => referentFiles.add(f.asInstanceOf[VirtualFileWithId].getId))
           true
       }
-      
+
       referentFiles
     }
 
   private[this] def searchInBackwardUsagesIndex(
-    ref: CompilerRef
+    ref:    CompilerRef
   )(action: ContainerAction[Seq[Int]]): Unit = {
     val hierarchy = ref match {
       case classRef: CompilerRef.CompilerClassHierarchyElementDef => Array(classRef)
@@ -79,12 +94,12 @@ private[findUsages] class ScalaCompilerReferenceReader private[compilerReference
   }
 
   override def getHierarchy(
-    hierarchyElement: CompilerRef.CompilerClassHierarchyElementDef,
+    hierarchyElement:        CompilerRef.CompilerClassHierarchyElementDef,
     checkBaseClassAmbiguity: Boolean,
-    includeAnonymous: Boolean,
-    interruptNumber: Int
+    includeAnonymous:        Boolean,
+    interruptNumber:         Int
   ): Array[CompilerRef.CompilerClassHierarchyElementDef] = rethrowStorageExceptionIn {
-    val res = new THashSet[CompilerRef.CompilerClassHierarchyElementDef]()
+    val res   = new THashSet[CompilerRef.CompilerClassHierarchyElementDef]()
     val queue = new Queue[CompilerRef.CompilerClassHierarchyElementDef](10)
 
     @tailrec
@@ -98,10 +113,13 @@ private[findUsages] class ScalaCompilerReferenceReader private[compilerReference
           }
 
           myIndex.get(ScalaCompilerIndices.backwardHierarchy).getData(currentClass).forEach {
-            case (_, child) => child match {
-                case anon: CompilerRef.CompilerAnonymousClassDef if includeAnonymous => queue.addLast(anon)
+            case (_, children) =>
+              children.foreach {
+                case anon: CompilerRef.CompilerAnonymousClassDef if includeAnonymous => res.add(anon)
+                case _: ScFunExprCompilerRef                                         => ()
                 case aClass: CompilerRef.CompilerClassHierarchyElementDef            => queue.addLast(aClass)
-                case _                                                               => ()
+                case other =>
+                  throw new AssertionError(s"Expected class ref in hierarchy index, but got $other.")
               }
               true
           }
@@ -117,16 +135,16 @@ private[findUsages] class ScalaCompilerReferenceReader private[compilerReference
 
   override def getAnonymousCount(
     compilerClassHierarchyElementDef: CompilerRef.CompilerClassHierarchyElementDef,
-    b: Boolean
+    b:                                Boolean
   ): Integer = 0
 
   override def getOccurrenceCount(lightRef: CompilerRef): Int = 0
 
   override def getDirectInheritors(
-    lightRef: CompilerRef,
-    globalSearchScope: GlobalSearchScope,
-    globalSearchScope1: GlobalSearchScope,
-    fileType: FileType,
+    lightRef:                    CompilerRef,
+    globalSearchScope:           GlobalSearchScope,
+    globalSearchScope1:          GlobalSearchScope,
+    fileType:                    FileType,
     compilerHierarchySearchType: CompilerHierarchySearchType
   ): util.Map[VirtualFile, Array[SearchId]] = null
 

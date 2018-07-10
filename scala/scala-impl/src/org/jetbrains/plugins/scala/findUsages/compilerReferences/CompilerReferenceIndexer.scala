@@ -1,69 +1,79 @@
 package org.jetbrains.plugins.scala.findUsages.compilerReferences
 
+import java.io.File
 import java.util.concurrent._
 import java.util.concurrent.atomic.AtomicInteger
 import java.util.concurrent.locks.ReentrantLock
 
 import com.intellij.openapi.diagnostic.Logger
-import com.intellij.openapi.progress.{ProgressIndicator, ProgressManager, Task}
+import com.intellij.openapi.progress.util.ProgressIndicatorBase
+import com.intellij.openapi.progress.{ProgressIndicator, ProgressManager}
 import com.intellij.openapi.project.Project
 import com.intellij.openapi.util.Disposer
+import com.intellij.util.containers.ContainerUtil
 import org.jetbrains.jps.backwardRefs.index.CompilerReferenceIndex
 import org.jetbrains.jps.incremental.CompiledClass
-import org.jetbrains.plugin.scala.compilerReferences.BuildData
+import org.jetbrains.plugin.scala.compilerReferences.ChunkBuildData
 import org.jetbrains.plugins.scala.extensions._
+import org.jetbrains.plugins.scala.findUsages.compilerReferences.IndexerJob.{CloseWriter, OpenWriter, ProcessChunkData}
 
-import scala.collection.mutable
+import scala.collection.JavaConverters._
 import scala.util.control.NonFatal
 
-private class CompilerReferenceIndexer(project: Project) {
+private class CompilerReferenceIndexer(project: Project, expectedIndexVersion: Int) {
   import CompilerReferenceIndexer._
 
   private[this] val parsingJobs    = new AtomicInteger(0)
-  private[this] val executionLock  = new ReentrantLock()
   private[this] val indexWriteLock = new ReentrantLock()
-  private[this] val runningTasks   = mutable.ArrayBuffer.empty[Future[_]]
 
   private[this] val parserJobQueue = new ConcurrentLinkedQueue[Set[CompiledClass]]()
   private[this] val writerJobQueue = new LinkedBlockingDeque[WriterJob](1000)
   private[this] val nThreads       = Runtime.getRuntime.availableProcessors()
 
-  private[this] val parsingExecutor      = Executors.newSingleThreadExecutor
-  private[this] val indexWritingExecutor = Executors.newFixedThreadPool(nThreads)
+  private[this] var parsingExecutor: ExecutorService             = _
+  private[this] var indexWritingExecutor: ExecutorService        = _
+  private[this] var writer: Option[ScalaCompilerReferenceWriter] = None
+
+  private[this] val failedToParse = ContainerUtil.newConcurrentSet[File]()
+
+  private[this] def shutdownIfNeeded(executor: ExecutorService): Unit =
+    if (!executor.isShutdown) executor.shutdownNow()
 
   Disposer.register(project, () => {
-    parsingExecutor.shutdownNow()
-    indexWritingExecutor.shutdownNow()
-    if (executionLock.isLocked) {
-      withLock(indexWriteLock) {
-        indexDir(project).foreach(CompilerReferenceIndex.removeIndexFiles)
-      }
+    shutdownIfNeeded(parsingExecutor)
+    shutdownIfNeeded(indexWritingExecutor)
+    withLock(indexWriteLock) {
+      indexDir(project).foreach(CompilerReferenceIndex.removeIndexFiles)
     }
   })
 
   private def onException(writer: ScalaCompilerReferenceWriter, e: Throwable): Unit = {
-    runningTasks.foreach(_.cancel(true))
-    parsingJobs.set(0)
-    logger.error("An exception occured while trying to build compiler reference index.", e)
-    parserJobQueue.clear()
-    writerJobQueue.clear()
-    runningTasks.clear()
+    shutdownIfNeeded(parsingExecutor)
+    shutdownIfNeeded(indexWritingExecutor)
+    logger.error("An exception occured while trying to build compiler reference index", e)
     writer.close(true)
   }
 
-  private def parseClassfiles(writer: ScalaCompilerReferenceWriter): Unit =
-    while (!parserJobQueue.isEmpty && !Thread.currentThread().isInterrupted) {
+  private def parseClassfiles(writer: ScalaCompilerReferenceWriter): Unit = {
+    while (!parserJobQueue.isEmpty && !Thread.interrupted()) {
       try {
-        val classFiles = parserJobQueue.poll()
-        val sourceFile = classFiles.headOption.map(_.getSourceFile)
-        val parsed     = ClassfileParser.parse(classFiles.map(_.getOutputFile))
-        val data       = sourceFile.map(CompiledScalaFile(_, parsed, writer))
-        data.foreach(ProcessCompiledFile andThen writerJobQueue.put)
+        val compiledClasses = parserJobQueue.poll()
+        val sourceFile      = compiledClasses.headOption.map(_.getSourceFile)
+        val classfiles      = compiledClasses.map(_.getOutputFile)
+
+        try {
+          val parsed = ClassfileParser.parse(classfiles)
+          val data   = sourceFile.map(CompiledScalaFile(_, parsed, writer))
+          data.foreach(ProcessCompiledFile andThen writerJobQueue.put)
+        } catch { case NonFatal(_) => failedToParse.addAll(classfiles.asJava) }
       } catch {
         case _: InterruptedException => Thread.currentThread().interrupt()
         case e: Throwable            => onException(writer, e)
       }
     }
+
+    if (Thread.interrupted()) onException(writer, new InterruptedException)
+  }
 
   private def writeParsedClassfile(
     writer:          ScalaCompilerReferenceWriter,
@@ -74,7 +84,7 @@ private class CompilerReferenceIndexer(project: Project) {
       var processed = 0
       indicator.setFraction(0d)
 
-      while ((parsingJobs.get() != 0 || !writerJobQueue.isEmpty) && !Thread.currentThread().isInterrupted) {
+      while ((parsingJobs.get() != 0 || !writerJobQueue.isEmpty) && !Thread.interrupted()) {
         try {
           if (processed % 10 == 0) {
             ProgressManager.checkCanceled()
@@ -93,22 +103,45 @@ private class CompilerReferenceIndexer(project: Project) {
           case e: Throwable            => onException(writer, e)
         }
       }
+      if (Thread.interrupted()) onException(writer, new InterruptedException)
     }
 
-  def writeBuildData(buildData: BuildData, onSuccess: => Any): Unit =
-    runWithProgressAsync("Building compiler indices...") { progressIndicator =>
-      withLock(executionLock) {
+  private[this] def initialiseExecutorsIfNeeded(): Unit = {
+    if (parsingExecutor == null || parsingExecutor.isShutdown)
+      parsingExecutor = Executors.newFixedThreadPool(nThreads)
 
-        buildData.removedSources.iterator.map(ProcessDeletedFile).foreach(writerJobQueue.add)
-        buildData.compiledClasses.groupBy(_.getSourceFile).foreach {
-          case (_, classes) => parserJobQueue.add(classes)
-        }
+    if (indexWritingExecutor == null || indexWritingExecutor.isShutdown)
+      indexWritingExecutor = Executors.newSingleThreadExecutor()
+  }
 
-        val writer =
-          indexDir(project).flatMap(ScalaCompilerReferenceWriter(_, buildData.isCleanBuild))
+  def process(job: IndexerJob): Unit = job match {
+    case OpenWriter(isCleanBuild, onFinish) =>
+      initialiseExecutorsIfNeeded()
+      writer = indexDir(project).flatMap(ScalaCompilerReferenceWriter(_, expectedIndexVersion, isCleanBuild))
+      onFinish()
+    case CloseWriter(onFinish) =>
+      val maybeFailure =
+        if (!failedToParse.isEmpty) IndexerParsingFailure(failedToParse.asScala).toOption
+        else None
 
+      writer.foreach(_.close(false))
+      writer = None
+      onFinish(maybeFailure)
+    case ProcessChunkData(data, onFinish) =>
+      indexBuildData(data, onFinish)
+  }
+
+  def indexBuildData(buildData: ChunkBuildData, onSuccess: () => Unit): Unit =
+    runWithProgress("Building compiler indices...") { () =>
+      if (!parsingExecutor.isShutdown && !indexWritingExecutor.isShutdown) {
         writer.foreach { writer =>
-          val tasks = (1 to nThreads).map(
+
+          buildData.removedSources.iterator.map(ProcessDeletedFile).foreach(writerJobQueue.add)
+          buildData.compiledClasses.groupBy(_.getSourceFile).foreach {
+            case (_, classes) => parserJobQueue.add(classes)
+          }
+
+          val parsingTasks = (1 to nThreads).map(
             _ =>
               toCallable {
                 parseClassfiles(writer)
@@ -116,15 +149,17 @@ private class CompilerReferenceIndexer(project: Project) {
             }
           )
 
-          val parsingTasks = tasks.flatMap { task =>
+          parsingTasks.flatMap { task =>
             parsingJobs.incrementAndGet()
             try Option(parsingExecutor.submit(task))
             catch {
-              case NonFatal(_) => 
+              case NonFatal(_) =>
                 parsingJobs.decrementAndGet()
                 None
             }
           }
+
+          val progressIndicator = ProgressManager.getInstance().getProgressIndicator
 
           val indexingTask = indexWritingExecutor.submit(
             toCallable(
@@ -136,28 +171,25 @@ private class CompilerReferenceIndexer(project: Project) {
             )
           )
 
-          runningTasks ++= parsingTasks
-          runningTasks += indexingTask
-
           try {
             indexingTask.get()
-            writer.close(false)
-            onSuccess
+            if (failedToParse.isEmpty) onSuccess()
           } catch {
-            case e: InterruptedException  => onException(writer, e)
-            case _: CancellationException =>
+            case e: Throwable => onException(writer, e)
           }
         }
 
-        runningTasks.clear()
+        parsingJobs.set(0)
+        parserJobQueue.clear()
+        writerJobQueue.clear()
       }
     }
 
-  private def runWithProgressAsync[T](title: String)(body: ProgressIndicator => T): Unit =
+  private def runWithProgress[T](title: String)(body: Runnable): Unit =
     ProgressManager
       .getInstance()
-      .run(new Task.Backgroundable(project, title) {
-        override def run(indicator: ProgressIndicator): Unit = body(indicator)
+      .runProcess(body, new ProgressIndicatorBase() {
+        setText(title)
       })
 }
 

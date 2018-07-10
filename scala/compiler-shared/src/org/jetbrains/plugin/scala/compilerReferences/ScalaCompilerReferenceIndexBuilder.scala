@@ -1,12 +1,10 @@
 package org.jetbrains.plugin.scala.compilerReferences
 
-import java.time.Instant
 import java.util
 
-import com.intellij.openapi.diagnostic.Logger
 import org.jetbrains.jps.ModuleChunk
-import org.jetbrains.jps.builders.java.JavaSourceRootDescriptor
-import org.jetbrains.jps.builders.{BuildTargetRegistry, DirtyFilesHolder}
+import org.jetbrains.jps.builders.DirtyFilesHolder
+import org.jetbrains.jps.builders.java.{JavaModuleBuildTargetType, JavaSourceRootDescriptor}
 import org.jetbrains.jps.incremental.ModuleLevelBuilder.ExitCode
 import org.jetbrains.jps.incremental.messages.CustomBuilderMessage
 import org.jetbrains.jps.incremental.{BuilderCategory, CompileContext, ModuleBuildTarget, ModuleLevelBuilder}
@@ -18,6 +16,10 @@ class ScalaCompilerReferenceIndexBuilder extends ModuleLevelBuilder(BuilderCateg
 
   override def getPresentableName: String                     = "scala compiler-reference indexer"
   override def getCompilableFileExtensions: util.List[String] = List("scala", "java").asJava
+  override def buildFinished(context: CompileContext): Unit   = context.processMessage(CompilationFinished)
+
+  override def buildStarted(context: CompileContext): Unit    =
+    context.processMessage(CompilationStarted(isRebuildInAllModules(context)))
 
   override def build(
     context:          CompileContext,
@@ -25,7 +27,6 @@ class ScalaCompilerReferenceIndexBuilder extends ModuleLevelBuilder(BuilderCateg
     dirtyFilesHolder: DirtyFilesHolder[JavaSourceRootDescriptor, ModuleBuildTarget],
     outputConsumer:   ModuleLevelBuilder.OutputConsumer
   ): ExitCode = {
-    val timeStamp                    = Instant.now().getEpochSecond
     val affectedModules: Set[String] = chunk.getModules.asScala.map(_.getName)(collection.breakOut)
 
     val compiledClasses =
@@ -36,46 +37,41 @@ class ScalaCompilerReferenceIndexBuilder extends ModuleLevelBuilder(BuilderCateg
       removedFile <- dirtyFilesHolder.getRemovedFiles(target).asScala
     } yield removedFile
 
-    val isCleanBuild = isCleanBuildInAllAffectedModules(context, chunk)
-    
-    val data = BuildData(
-      timeStamp,
+
+    val data = ChunkBuildData(
       compiledClasses,
       removedSources,
-      affectedModules,
-      isCleanBuild
+      affectedModules
     )
 
-    if (removedSources.nonEmpty || compiledClasses.nonEmpty) context.processMessage(BuildDataInfo(data))
+    if (removedSources.nonEmpty || compiledClasses.nonEmpty) context.processMessage(ChunkBuildInfo(data))
 
     ExitCode.OK
   }
 
-  private def isCleanBuildInAllAffectedModules(context: CompileContext, chunk: ModuleChunk): Boolean = {
-    val descriptor  = context.getProjectDescriptor
-    val scope       = context.getScope
-    val targetIndex = descriptor.getBuildTargetIndex
-    val modules     = chunk.getModules.asScala
-
-    modules.forall(
-      module =>
-        targetIndex
-          .getModuleBasedTargets(module, BuildTargetRegistry.ModuleTargetSelector.ALL)
-          .asScala
-          .collect { case mbt: ModuleBuildTarget => mbt }
-          .forall(
-            target => scope.isWholeTargetAffected(target) || targetIndex.isDummy(target)
-        )
-    )
+  private def isRebuildInAllModules(context: CompileContext): Boolean = {
+    val targetTypes = JavaModuleBuildTargetType.ALL_TYPES.asScala
+    targetTypes.forall { ttype =>
+      val targets = context.getProjectDescriptor.getBuildTargetIndex.getAllTargets(ttype).asScala
+      targets.forall(context.getScope.isBuildForced)
+    }
   }
 }
 
 object ScalaCompilerReferenceIndexBuilder {
-  val id            = "sc.compiler.ref.index"
-  val buildDataType = "build-data-info"
-  private val log   = Logger.getInstance(classOf[ScalaCompilerReferenceIndexBuilder])
+  val id                      = "sc.compiler.ref.index"
+  val chunkBuildDataType      = "chunk-build-data-info"
+  val compilationFinishedType = "compilation-finished"
+  val compilationStartedType  = "compilation-started"
 
   import org.jetbrains.plugin.scala.compilerReferences.Codec._
 
-  final case class BuildDataInfo(data: BuildData) extends CustomBuilderMessage(id, buildDataType, data.encode)
+  final case class ChunkBuildInfo(data: ChunkBuildData)
+      extends CustomBuilderMessage(id, chunkBuildDataType, data.encode)
+
+  final case object CompilationFinished
+      extends CustomBuilderMessage(id, compilationFinishedType, "")
+
+  final case class CompilationStarted(isCleanBuild: Boolean)
+    extends CustomBuilderMessage(id, compilationStartedType, isCleanBuild.encode)
 }

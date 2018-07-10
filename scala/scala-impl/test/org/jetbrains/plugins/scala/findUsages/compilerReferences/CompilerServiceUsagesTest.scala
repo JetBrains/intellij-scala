@@ -35,7 +35,7 @@ class CompilerServiceUsagesTest extends ScalaCompilerReferenceServiceFixture {
 
     expected.foreach {
       case (filename, lines) =>
-        val usage = LinesWithUsagesInFile(filesMap(filename), lines)
+        val usage = UsagesInFile(filesMap(filename), lines)
         assertTrue(
           s"Usage $usage expected, but not found in ${usages.mkString("[\n", "\t\n", "]")}",
           usages.contains(usage)
@@ -59,7 +59,7 @@ class CompilerServiceUsagesTest extends ScalaCompilerReferenceServiceFixture {
     assertTrue("Should not find any usages if index does not exist", dirtyUsages.isEmpty)
     buildProject()
     val usages   = service.usagesOf(implicitSearchTargetAtCaret)
-    val expected = Set(LinesWithUsagesInFile(file.getVirtualFile, Seq(5)))
+    val expected = Set(UsagesInFile(file.getVirtualFile, Seq(5)))
     assertEquals(expected, usages)
   }
 
@@ -188,7 +188,7 @@ class CompilerServiceUsagesTest extends ScalaCompilerReferenceServiceFixture {
       """.stripMargin
     )("InheritedB.scala" -> Seq(4))()
 
-  def testImplicitClass(): Unit = 
+  def testImplicitClass(): Unit =
     runSearchTest(
       "ImplicitClassA.scala" ->
       s"""
@@ -211,40 +211,40 @@ class CompilerServiceUsagesTest extends ScalaCompilerReferenceServiceFixture {
        """.stripMargin
     )("ImplicitClassB.scala" -> Seq(4, 5, 6))()
 
-  def testUsageFromLibrary(): Unit = 
+  def testUsageFromLibrary(): Unit =
     runSearchTest(
       "UsageFromLibrary.scala" ->
       s"""
          |import scala.collection.JavaConverters._
          |object UsageFromLibrary {
          |  Set(1, 2, 3).asJava
-         |} 
+         |}
        """.stripMargin
     )("UsageFromLibrary.scala" -> Seq(4)) {
       val aClass = myFixture.findClass("scala.collection.convert.Decorators.AsJava")
       aClass.getMethods.find(_.getName == "asJava").get
     }
 
-  def testPrivateThis(): Unit = 
+  def testPrivateThis(): Unit =
     runSearchTest(
       "PrivateThis.scala" ->
       s"""
          |object PrivateThis {
          |  trait Foo[T]
          |  private[this] implicit val ${CARET}x: Foo[Int] = null
-         |  
+         |
          |  implicitly[Foo[Int]]
          |}
        """.stripMargin
     )("PrivateThis.scala" -> Seq(4, 6))()
 
-  def testApplyMethod(): Unit = 
+  def testApplyMethod(): Unit =
     runSearchTest(
       "ApplyMethodA.scala" ->
       s"""
          |class Foo(val x: Int, val y: Double, z: String)
-         |object Foo { 
-         |  def ${CARET}apply(x: Int, y: Double, z: String): Option[Foo] = ??? 
+         |object Foo {
+         |  def ${CARET}apply(x: Int, y: Double, z: String): Option[Foo] = ???
          |  Foo(1, 2d, "42")
          |}
        """.stripMargin,
@@ -256,7 +256,7 @@ class CompilerServiceUsagesTest extends ScalaCompilerReferenceServiceFixture {
         |}
       """.stripMargin
     )("ApplyMethodA.scala" -> Seq(5), "ApplyMethodB.scala" -> Seq(3))(myFixture.getElementAtCaret)
-  
+
   def testSynthetic(): Unit = {
     myFixture.configureByText(
       "Synthetic.scala",
