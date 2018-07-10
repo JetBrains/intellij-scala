@@ -2,11 +2,12 @@ package org.jetbrains.plugins.scala
 package lang
 package completion
 
+import com.intellij.psi.PsiElement
 import com.intellij.psi.search.searches.ClassInheritorsSearch
-import com.intellij.psi.{PsiClass, PsiElement}
 import org.jetbrains.plugins.scala.extensions._
 import org.jetbrains.plugins.scala.lang.psi.api.base.patterns.ScPattern
-import org.jetbrains.plugins.scala.lang.psi.api.statements.ScFunction
+import org.jetbrains.plugins.scala.lang.psi.api.expr.ScNewTemplateDefinition
+import org.jetbrains.plugins.scala.lang.psi.api.statements.{ScFunction, ScPatternDefinition}
 import org.jetbrains.plugins.scala.lang.psi.api.toplevel.typedef.{ScClass, ScObject, ScTypeDefinition}
 import org.jetbrains.plugins.scala.lang.psi.types.ScalaType
 import org.jetbrains.plugins.scala.lang.refactoring.namesSuggester.NameSuggester
@@ -17,11 +18,35 @@ package object clauses {
 
   private[clauses] val DefaultName = "_"
 
-  private[clauses] def findInheritors(clazz: PsiClass): Seq[ScTypeDefinition] = {
-    import JavaConverters._
-    ClassInheritorsSearch.search(clazz, clazz.resolveScope, false).asScala.collect {
-      case definition: ScTypeDefinition => definition
-    }.toSeq.sortBy(_.getNavigationElement.getTextRange.getStartOffset)
+  private[clauses] case class Inheritors(namedInheritors: Seq[ScTypeDefinition],
+                                         anonymousInheritors: Seq[ScNewTemplateDefinition])
+
+  private[clauses] object SealedDefinition {
+
+    def unapply(sealedDefinition: ScTypeDefinition): Option[Inheritors] = if (sealedDefinition.isSealed) {
+      import JavaConverters._
+      val inheritors = ClassInheritorsSearch.search(sealedDefinition, sealedDefinition.resolveScope, false).asScala.toSeq
+        .sortBy(_.getNavigationElement.getTextRange.getStartOffset)
+
+      val (namedInheritors, anonymousInheritors) = inheritors.partition(_.isInstanceOf[ScTypeDefinition])
+      val namedDefinitions = namedInheritors.map(_.asInstanceOf[ScTypeDefinition])
+      val anonymousDefinitions = anonymousInheritors.map(_.asInstanceOf[ScNewTemplateDefinition])
+
+      Some(Inheritors(namedDefinitions, anonymousDefinitions))
+    } else None
+  }
+
+  private[clauses] def patternTexts(definition: ScNewTemplateDefinition): Seq[String] = {
+    def stableNames(value: ScPatternDefinition) = value.containingClass match {
+      case scalaObject: ScObject if scalaObject.isStatic =>
+        val objectName = scalaObject.name
+        value.declaredNames.map(name => s"$objectName.$name")
+      case _ => Seq.empty
+    }
+
+    definition.findContextOfType(classOf[ScPatternDefinition]).collect {
+      case value@ScPatternDefinition.expr(`definition`) => value
+    }.toSeq.flatMap(stableNames)
   }
 
   private[clauses] def patternTexts(definition: ScTypeDefinition)

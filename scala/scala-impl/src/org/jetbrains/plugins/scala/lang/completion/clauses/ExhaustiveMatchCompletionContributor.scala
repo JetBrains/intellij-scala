@@ -68,20 +68,29 @@ object ExhaustiveMatchCompletionContributor {
   }
 
   private class SealedClassGenerationStrategy(sealedDefinition: ScTypeDefinition,
-                                              inheritors: Seq[ScTypeDefinition])
+                                              inheritors: Inheritors)
     extends PatternGenerationStrategy {
 
-    override protected def patterns(implicit place: PsiElement): Seq[String] =
-      inheritors.flatMap(patternTexts)
+    override protected def patterns(implicit place: PsiElement): Seq[String] = {
+      val Inheritors(namedInheritors, anonymousInheritors) = inheritors
+
+      val anonymousInheritorsPatterns = anonymousInheritors.map(patternTexts)
+      val maybeWildcard = if (anonymousInheritorsPatterns.exists(_.isEmpty)) Some("_")
+      else None
+
+      anonymousInheritorsPatterns.flatten ++
+        namedInheritors.flatMap(patternTexts) ++
+        maybeWildcard
+    }
   }
 
   private object SealedClassGenerationStrategy {
 
-    def unapply(clazz: PsiClass): Option[SealedClassGenerationStrategy] = clazz match {
-      case definition: ScTypeDefinition if definition.isSealed =>
-        findInheritors(definition) match {
-          case Seq() => None
-          case inheritors => Some(new SealedClassGenerationStrategy(definition, inheritors))
+    def unapply(definition: ScTypeDefinition): Option[SealedClassGenerationStrategy] = definition match {
+      case SealedDefinition(inheritors) =>
+        inheritors match {
+          case Inheritors(Seq(), Seq()) => None
+          case _ => Some(new SealedClassGenerationStrategy(definition, inheritors))
         }
       case _ => None
     }
