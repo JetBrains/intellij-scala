@@ -190,7 +190,7 @@ private object ImplicitHintsPass {
       ).seq
   }
 
-  private def collapsedProblemPresentation(parameter: ScalaResolveResult, probableArgs: Seq[(ScalaResolveResult, ImplicitResult)])
+  private def collapsedProblemPresentation(parameter: ScalaResolveResult, probableArgs: Seq[(ScalaResolveResult, FullInfoResult)])
                                           (implicit scheme: EditorColorsScheme): Seq[Text] = {
     val tooltip =
       if (probableArgs.size > 1) ambiguousTooltip(parameter)
@@ -208,7 +208,7 @@ private object ImplicitHintsPass {
     ).seq
   }
 
-  private def expandedProblemPresentation(parameter: ScalaResolveResult, arguments: Seq[(ScalaResolveResult, ImplicitResult)])
+  private def expandedProblemPresentation(parameter: ScalaResolveResult, arguments: Seq[(ScalaResolveResult, FullInfoResult)])
                                          (implicit scheme: EditorColorsScheme): Seq[Text] = {
 
     arguments match {
@@ -217,7 +217,7 @@ private object ImplicitHintsPass {
     }
   }
 
-  private def expandedAmbiguousPresentation(parameter: ScalaResolveResult, arguments: Seq[(ScalaResolveResult, ImplicitResult)])
+  private def expandedAmbiguousPresentation(parameter: ScalaResolveResult, arguments: Seq[(ScalaResolveResult, FullInfoResult)])
                                            (implicit scheme: EditorColorsScheme) = {
 
     val likeWrongReference = Some(scheme.getAttributes(CodeInsightColors.WRONG_REFERENCES_ATTRIBUTES))
@@ -229,40 +229,39 @@ private object ImplicitHintsPass {
       .flatten
   }
 
-  private def presentationOfProbable(argument: ScalaResolveResult, result: ImplicitResult)
+  private def presentationOfProbable(argument: ScalaResolveResult, result: FullInfoResult)
                                     (implicit scheme: EditorColorsScheme): Seq[Text] = {
     result match {
       case OkResult =>
         namedBasicPresentation(argument)
+
       case ImplicitParameterNotFoundResult =>
         val presentationOfParameters = argument.implicitParameters
           .map(parameter => presentationOf(parameter))
           .intersperse(Text(", ").seq).flatten
         namedBasicPresentation(argument) ++ (Text("(") +: presentationOfParameters :+ Text(")"))
-      case DivergedImplicitResult          =>
+
+      case DivergedImplicitResult =>
         namedBasicPresentation(argument)
           .withErrorTooltip("Implicit is diverged")
           .withAttributes(errorAttributes)
-      case CantInferTypeParameterResult    =>
+
+      case CantInferTypeParameterResult =>
         namedBasicPresentation(argument)
           .withErrorTooltip("Can't infer proper types for type parameters")
           .withAttributes(errorAttributes)
-      case _ =>
-        namedBasicPresentation(argument)
-          .withAttributes(errorAttributes)
-
     }
   }
 
   private def isAmbiguous(parameter: ScalaResolveResult): Boolean =
     parameter.isImplicitParameterProblem && probableArgumentsFor(parameter).size > 1
 
-  private def probableArgumentsFor(parameter: ScalaResolveResult): Seq[(ScalaResolveResult, ImplicitResult)] = {
+  private def probableArgumentsFor(parameter: ScalaResolveResult): Seq[(ScalaResolveResult, FullInfoResult)] = {
     parameter.implicitSearchState.map { state =>
       val collector = new ImplicitCollector(state.copy(fullInfo = true))
       collector.collect().flatMap { r =>
         r.implicitReason match {
-          case reason @ (OkResult | DivergedImplicitResult | CantInferTypeParameterResult | ImplicitParameterNotFoundResult) => Seq((r, reason))
+          case reason: FullInfoResult => Seq((r, reason))
           case _ => Seq.empty
         }
       }

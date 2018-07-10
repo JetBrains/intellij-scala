@@ -46,15 +46,19 @@ object ImplicitCollector {
 
   sealed trait ImplicitResult
 
+  sealed trait FullInfoResult extends ImplicitResult
+
   case object NoResult extends ImplicitResult
-  case object OkResult extends ImplicitResult
+
+  case object OkResult extends FullInfoResult
+  case object ImplicitParameterNotFoundResult extends FullInfoResult
+  case object DivergedImplicitResult extends FullInfoResult
+  case object CantInferTypeParameterResult extends FullInfoResult
+
   case object TypeDoesntConformResult extends ImplicitResult
   case object BadTypeResult extends ImplicitResult
   case object CantFindExtensionMethodResult extends ImplicitResult
-  case object DivergedImplicitResult extends ImplicitResult
   case object UnhandledResult extends ImplicitResult
-  case object CantInferTypeParameterResult extends ImplicitResult
-  case object ImplicitParameterNotFoundResult extends ImplicitResult
   case object FunctionForParameterResult extends ImplicitResult
 
   case class ImplicitState(place: PsiElement,
@@ -206,7 +210,10 @@ class ImplicitCollector(place: PsiElement,
       candidates.flatMap(c => checkCompatible(c, withLocalTypeInference = false)) ++
         candidates.flatMap(c => checkCompatible(c, withLocalTypeInference = true))
     val afterExtensionPredicate = allCandidates.flatMap(applyExtensionPredicate)
-    afterExtensionPredicate.map(_._1).toSeq
+
+    afterExtensionPredicate
+      .withFilter(_._1.implicitReason.isInstanceOf[FullInfoResult])
+      .map(_._1).toSeq
   }
 
   private class ImplicitParametersProcessor(withoutPrecedence: Boolean)

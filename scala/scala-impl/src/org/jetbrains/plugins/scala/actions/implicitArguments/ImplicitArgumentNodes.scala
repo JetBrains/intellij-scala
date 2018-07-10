@@ -40,7 +40,7 @@ private abstract class ImplicitParameterErrorNodeBase(value: ScalaResolveResult)
 
 private class ImplicitArgumentRegularNode(value: ScalaResolveResult) extends ImplicitParametersNodeBase(value)
 
-private class ImplicitArgumentWithReason(value: ScalaResolveResult, reason: ImplicitResult)
+private class ImplicitArgumentWithReason(value: ScalaResolveResult, reason: FullInfoResult)
   extends ImplicitParameterErrorNodeBase(value) {
 
   override def updateImpl(data: PresentationData): Unit = {
@@ -77,9 +77,7 @@ private class ImplicitParameterProblemNode(value: ScalaResolveResult)
         val collector = new ImplicitCollector(state.copy(fullInfo = true))
         val nodes: Seq[AbstractTreeNode[_]] = collector.collect().flatMap { r =>
           r.implicitReason match {
-            case reason @
-              (OkResult | DivergedImplicitResult | CantInferTypeParameterResult | ImplicitParameterNotFoundResult) =>
-
+            case reason: FullInfoResult =>
               Some(new ImplicitArgumentWithReason(r, reason))
             case _ => None
           }
