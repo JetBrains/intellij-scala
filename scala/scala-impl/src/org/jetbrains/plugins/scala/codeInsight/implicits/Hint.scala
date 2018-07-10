@@ -16,7 +16,9 @@ private class Hint(val parts: Seq[Text],
       if (ImplicitHints.expanded) {
         renderer.expand()
       }
-      model.addInlineElement(offset, suffix, renderer)
+      //gives more natural behaviour
+      val relatesToPrecedingText = false
+      model.addInlineElement(offset, relatesToPrecedingText, renderer)
     }
     inlay.putUserData(Hint.ElementKey, element)
     inlay
