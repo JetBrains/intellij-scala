@@ -4,10 +4,12 @@ import com.intellij.openapi.actionSystem.{AnActionEvent, CommonDataKeys, ToggleA
 
 class ExpandImplicitHintsAction extends ToggleAction {
   override def update(e: AnActionEvent): Unit = {
+    super.update(e)
     e.getPresentation.setEnabled(ImplicitHints.enabled)
   }
 
-  override def isSelected(e: AnActionEvent): Boolean = ImplicitHints.expanded
+  override def isSelected(e: AnActionEvent): Boolean =
+    ImplicitHints.expanded
 
   override def setSelected(e: AnActionEvent, state: Boolean): Unit = {
     ImplicitHints.expanded = state
