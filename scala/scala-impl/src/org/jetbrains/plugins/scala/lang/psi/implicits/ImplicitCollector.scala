@@ -112,7 +112,12 @@ class ImplicitCollector(place: PsiElement,
 
       ProgressManager.checkCanceled()
 
-      if (fullInfo) collectFullInfo(visibleNamesCandidates() ++ fromTypeCandidates())
+      if (fullInfo) {
+        val fromNameCandidates = collectFullInfo(visibleNamesCandidates())
+
+        if (fromNameCandidates.exists(_.implicitReason == OkResult)) fromNameCandidates
+        else fromNameCandidates ++ collectFullInfo(fromTypeCandidates())
+      }
       else {
         val implicitCollectorCache = ImplicitCollector.cache(project)
         implicitCollectorCache.get(place, tp) match {
