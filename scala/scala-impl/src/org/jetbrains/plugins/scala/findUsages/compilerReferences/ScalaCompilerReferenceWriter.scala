@@ -29,10 +29,10 @@ private class ScalaCompilerReferenceWriter protected (
 }
 
 private object ScalaCompilerReferenceWriter {
-  def apply(indexDir: File, isRebuild: Boolean): Option[ScalaCompilerReferenceWriter] = {
-    if (CompilerReferenceIndex.versionDiffers(indexDir, ScalaCompilerIndices.getIndices)) {
+  def apply(indexDir: File, expectedVersion: Int, isRebuild: Boolean): Option[ScalaCompilerReferenceWriter] = {
+    if (CompilerReferenceIndex.versionDiffers(indexDir, expectedVersion)) {
       CompilerReferenceIndex.removeIndexFiles(indexDir)
-      
+
       if (isRebuild) Some(new ScalaCompilerReferenceWriter(new ScalaCompilerReferenceIndex(indexDir, readOnly = false)))
       else           None
     } else {

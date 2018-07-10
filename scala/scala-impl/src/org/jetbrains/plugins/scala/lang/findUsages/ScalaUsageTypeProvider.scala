@@ -40,9 +40,12 @@ final class ScalaUsageTypeProvider extends UsageTypeProviderEx {
           if isConstructorPatternReference(referenceElement) && !referenceElement.isReferenceTo(only.getElement) =>
           Some(ParameterInPattern)
         case (_: UnresolvedImplicitFakePsiElement, _) => Some(UnresolvedImplicit)
-        case (e, Array(target: PsiElementUsageTarget)) 
+        case (e, Array(target: PsiElementUsageTarget))
           if isImplicitUsageTarget(target) && isReferencedImplicitlyIn(target.getElement, e) =>
           Some(ImplicitConversionOrParam)
+        case (referenceElement: ScReference, Array(only: PsiElementUsageTarget))
+          if isConstructorPatternReference(referenceElement) && !referenceElement.isReferenceTo(only.getElement) =>
+          Some(ParameterInPattern)
         case _ =>
           element.withParentsInFile
             .flatMap(usageType)
@@ -56,7 +59,7 @@ object ScalaUsageTypeProvider {
     case ImplicitSearchTarget(_) => true
     case _                       => false
   }
-  
+
   private def isReferencedImplicitlyIn(target: PsiElement, e: PsiElement): Boolean =
     target.refOrImplicitRefIn(e) match {
       case Some(_: ImplicitReference) => true
@@ -111,6 +114,7 @@ object ScalaUsageTypeProvider {
   val SecondaryConstructor: UsageType = "Secondary constructor"
   val ImplicitConversionOrParam: UsageType = "Implicit Conversion/Parameter"
   val UnresolvedImplicit: UsageType = "Unresolved Implicit Conversion/Parameter"
+  val SAMInheritor: UsageType = "Anonymous Inheritor"
 
   private def usageType(element: PsiElement): Option[UsageType] =
     Option(nullableUsageType(element))

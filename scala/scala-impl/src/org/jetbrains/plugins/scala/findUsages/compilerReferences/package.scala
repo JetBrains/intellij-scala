@@ -13,10 +13,11 @@ package object compilerReferences {
     Option(BuildManager.getInstance().getProjectSystemDirectory(project))
 
   def indexDir(project: Project): Option[File] = buildDir(project).map(new File(_, "scala-compiler-references"))
+  def removeIndexFiles(project: Project): Unit = indexDir(project).foreach(CompilerReferenceIndex.removeIndexFiles)
 
-  final case class LinesWithUsagesInFile(file: VirtualFile, lines: Seq[Int]) {
+  final case class UsagesInFile(file: VirtualFile, lines: Seq[Int]) {
     override def equals(that: scala.Any): Boolean = that match {
-      case other: LinesWithUsagesInFile =>
+      case other: UsagesInFile =>
         file.getPath == other.file.getPath &&
           lines.sorted == other.lines.sorted
       case _ => false
@@ -33,6 +34,10 @@ package object compilerReferences {
     result
   }
 
-  def upToDateCompilerIndexExists(project: Project): Boolean =
-    indexDir(project).exists(dir => !CompilerReferenceIndex.versionDiffers(dir, ScalaCompilerIndices.getIndices))
+  def upToDateCompilerIndexExists(project: Project, expectedVersion: Int): Boolean =
+    indexDir(project).exists(
+      dir =>
+        CompilerReferenceIndex.exists(dir) &&
+          !CompilerReferenceIndex.versionDiffers(dir, expectedVersion)
+    )
 }
