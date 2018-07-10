@@ -1666,6 +1666,10 @@
       </group>
 
       <group id="ImplicitArgumentsMenu">
+        <action id="ExplicitArgumentMenu.ShowImplicitArgumentsPopup"
+                class="org.jetbrains.plugins.scala.codeInsight.implicits.menu.ImplicitArgumentsPopup"
+                text="Implicit Arguments Popup"/>
+        <separator/>
         <action id="ImplicitArgumentsMenu.ShowImplicits"
                 class="org.jetbrains.plugins.scala.codeInsight.implicits.ShowImplicitHintsAction"
                 text="Show Implicit Hints"/>
