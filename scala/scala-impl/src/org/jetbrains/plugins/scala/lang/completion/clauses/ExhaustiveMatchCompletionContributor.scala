@@ -16,7 +16,7 @@ import org.jetbrains.plugins.scala.lang.psi.api.expr.{ScMatchStmt, ScPostfixExpr
 import org.jetbrains.plugins.scala.lang.psi.api.statements.ScValue
 import org.jetbrains.plugins.scala.lang.psi.api.toplevel.typedef.{ScObject, ScTypeDefinition}
 import org.jetbrains.plugins.scala.lang.psi.types.ScType
-import org.jetbrains.plugins.scala.lang.psi.types.api.designator.{ScDesignatorType, ScProjectionType}
+import org.jetbrains.plugins.scala.lang.psi.types.api.designator.{DesignatorOwner, ScProjectionType}
 import org.jetbrains.plugins.scala.lang.psi.types.result.Typeable
 
 class ExhaustiveMatchCompletionContributor extends ScalaCompletionContributor {
@@ -46,17 +46,15 @@ object ExhaustiveMatchCompletionContributor {
 
   private object PatternGenerationStrategy {
 
-    def unapply(`type`: ScType): Option[PatternGenerationStrategy] = `type` match {
-      case ScalaEnumGenerationStrategy(strategy) => Some(strategy)
-      case _ =>
-        `type`.extractDesignatorSingleton
-          .getOrElse(`type`)
-          .extractClass
-          .collect {
-            case definition: ScTypeDefinition if definition.isSealed => new SealedClassGenerationStrategy(definition)
+    def unapply(`type`: ScType): Option[PatternGenerationStrategy] =
+      `type`.extractDesignatorSingleton.getOrElse(`type`) match {
+        case ScalaEnumGenerationStrategy(strategy) => Some(strategy)
+        case extracted =>
+          extracted.extractClass.collect {
+            case SealedClassGenerationStrategy(strategy) => strategy
             case enum if enum.isEnum => new JavaEnumGenerationStrategy(enum)
           }
-    }
+      }
   }
 
   private sealed trait PatternGenerationStrategy {
@@ -69,11 +67,24 @@ object ExhaustiveMatchCompletionContributor {
     protected def patterns(implicit place: PsiElement): Seq[String]
   }
 
-  private class SealedClassGenerationStrategy(sealedDefinition: ScTypeDefinition)
+  private class SealedClassGenerationStrategy(sealedDefinition: ScTypeDefinition,
+                                              inheritors: Seq[ScTypeDefinition])
     extends PatternGenerationStrategy {
 
     override protected def patterns(implicit place: PsiElement): Seq[String] =
-      findInheritors(sealedDefinition).flatMap(patternTexts)
+      inheritors.flatMap(patternTexts)
+  }
+
+  private object SealedClassGenerationStrategy {
+
+    def unapply(clazz: PsiClass): Option[SealedClassGenerationStrategy] = clazz match {
+      case definition: ScTypeDefinition if definition.isSealed =>
+        findInheritors(definition) match {
+          case Seq() => None
+          case inheritors => Some(new SealedClassGenerationStrategy(definition, inheritors))
+        }
+      case _ => None
+    }
   }
 
   private abstract class EnumGenerationStrategy protected(enum: PsiClass)
@@ -102,11 +113,11 @@ object ExhaustiveMatchCompletionContributor {
 
     override protected def definedNames: Seq[String] =
       enum.members.collect {
-        case value: ScValue if isEnumerationValue(value) => value
+        case value: ScValue if value.isPublic && isEnumerationValue(value) => value
       }.flatMap(_.declaredNames)
 
     private def isEnumerationValue(value: ScValue) =
-      value.isPublic && value.`type`().exists(_.equiv(valueType))
+      value.`type`().exists(_.conforms(valueType))
   }
 
   private object ScalaEnumGenerationStrategy {
@@ -114,7 +125,7 @@ object ExhaustiveMatchCompletionContributor {
     private val EnumerationFQN = "scala.Enumeration"
 
     def unapply(`type`: ScType): Option[ScalaEnumGenerationStrategy] = `type` match {
-      case ScProjectionType(ScDesignatorType(enum: ScObject), _)
+      case ScProjectionType(DesignatorOwner(enum: ScObject), _)
         if enum.supers.map(_.qualifiedName).contains(EnumerationFQN) =>
         Some(new ScalaEnumGenerationStrategy(enum, `type`))
       case _ => None

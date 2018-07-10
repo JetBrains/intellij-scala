@@ -269,6 +269,36 @@ class ScalaClausesCompletionTest extends ScalaCodeInsightTestBase {
        """.stripMargin
   )
 
+  def testScalaEnum2(): Unit = doMatchCompletionTest(
+    fileText =
+      s"""object Margin extends Enumeration {
+         |
+         |  protected case class Val() extends super.Val
+         |
+         |  val Top, Bottom = Val()
+         |  val Left, Right = Val()
+         |}
+         |
+         |(_: Margin.Value) m$CARET
+       """.stripMargin,
+    resultText =
+      s"""object Margin extends Enumeration {
+         |
+         |  protected case class Val() extends super.Val
+         |
+         |  val Top, Bottom = Val()
+         |  val Left, Right = Val()
+         |}
+         |
+         |(_: Margin.Value) match {
+         |  case Margin.Top => $CARET
+         |  case Margin.Bottom =>
+         |  case Margin.Left =>
+         |  case Margin.Right =>
+         |}
+       """.stripMargin
+  )
+
   def testFromScalaPackage(): Unit = doMatchCompletionTest(
     fileText =
       s"""(_: List[String]) m$CARET
