@@ -308,7 +308,7 @@ class ScalaClausesCompletionTest extends ScalaCodeInsightTestBase {
          |  case Nil => $CARET
          |  case ::(head, tl) =>
          |}
-           """.stripMargin
+        """.stripMargin
   )
 
   def testVarargs(): Unit = doMatchCompletionTest(
@@ -358,6 +358,58 @@ class ScalaClausesCompletionTest extends ScalaCodeInsightTestBase {
          |maybeFoo match {
          |  case Some(value) => $CARET
          |  case None =>
+         |}
+       """.stripMargin
+  )
+
+  def testAnonymousInheritor(): Unit = doMatchCompletionTest(
+    fileText =
+      s"""sealed trait Foo
+         |
+         |case class Bar() extends Foo
+         |
+         |val impl = new Foo() {}
+         |
+         |(_: Foo) m$CARET
+       """.stripMargin,
+    resultText =
+      s"""sealed trait Foo
+         |
+         |case class Bar() extends Foo
+         |
+         |val impl = new Foo() {}
+         |
+         |(_: Foo) match {
+         |  case Bar() => $CARET
+         |  case _ =>
+         |}
+       """.stripMargin
+  )
+
+  def testStableAnonymousInheritor(): Unit = doMatchCompletionTest(
+    fileText =
+      s"""sealed trait Foo
+         |
+         |object Foo {
+         |  val Impl = new Foo() {}
+         |}
+         |
+         |case class Bar() extends Foo
+         |
+         |(_: Foo) m$CARET
+       """.stripMargin,
+    resultText =
+      s"""sealed trait Foo
+         |
+         |object Foo {
+         |  val Impl = new Foo() {}
+         |}
+         |
+         |case class Bar() extends Foo
+         |
+         |(_: Foo) match {
+         |  case Foo.Impl => $CARET
+         |  case Bar() =>
          |}
        """.stripMargin
   )
