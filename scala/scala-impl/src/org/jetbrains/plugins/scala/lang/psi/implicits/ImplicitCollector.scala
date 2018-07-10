@@ -120,10 +120,14 @@ class ImplicitCollector(place: PsiElement,
         val visible = visibleNamesCandidates()
         val fromNameCandidates = collectFullInfo(visible)
 
-        if (fromNameCandidates.exists(_.implicitReason == OkResult)) fromNameCandidates
-        else {
-          fromNameCandidates ++ collectFullInfo(fromTypeCandidates().diff(visible))
-        }
+        val allCandidates =
+          if (fromNameCandidates.exists(_.implicitReason == OkResult)) fromNameCandidates
+          else {
+            fromNameCandidates ++ collectFullInfo(fromTypeCandidates().diff(visible))
+          }
+
+        //todo: should we also compare types like in MostSpecificUtil.isAsSpecificAs ?
+        allCandidates.sortWith(mostSpecificUtil.isInMoreSpecificClass)
       }
       else {
         val implicitCollectorCache = ImplicitCollector.cache(project)
