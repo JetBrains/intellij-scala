@@ -1656,15 +1656,35 @@
         <action id="MakeExplicit"
                 class="org.jetbrains.plugins.scala.codeInsight.implicits.menu.MakeConversionExplicit"
                 text="Make conversion explicit"/>
+        <separator/>
+        <action id="ImplicitConversionMenu.ShowImplicits"
+                class="org.jetbrains.plugins.scala.codeInsight.implicits.ShowImplicitHintsAction"
+                text="Show Implicit Hints"/>
+        <action id="ImplicitConversionMenu.ExpandImplicits"
+                class="org.jetbrains.plugins.scala.codeInsight.implicits.ExpandImplicitHintsAction"
+                text="Expand Implicit Hints"/>
       </group>
 
       <group id="ImplicitArgumentsMenu">
+        <action id="ImplicitArgumentsMenu.ShowImplicits"
+                class="org.jetbrains.plugins.scala.codeInsight.implicits.ShowImplicitHintsAction"
+                text="Show Implicit Hints"/>
+        <action id="ImplicitArgumentsMenu.ExpandImplicits"
+                class="org.jetbrains.plugins.scala.codeInsight.implicits.ExpandImplicitHintsAction"
+                text="Expand Implicit Hints"/>
       </group>
 
       <group id="ExplicitArgumentsMenu">
         <action id="RemoveExplicitArguments"
                 class="org.jetbrains.plugins.scala.codeInsight.implicits.menu.RemoveExplicitArguments"
                 text="Remove explicit arguments"/>
+        <separator/>
+        <action id="ExplicitArgumentsMenu.ShowImplicits"
+                class="org.jetbrains.plugins.scala.codeInsight.implicits.ShowImplicitHintsAction"
+                text="Show Implicit Hints"/>
+        <action id="ExplicitArgumentsMenu.ExpandImplicits"
+                class="org.jetbrains.plugins.scala.codeInsight.implicits.ExpandImplicitHintsAction"
+                text="Expand Implicit Hints"/>
       </group>
 
       <action id="Scala.ShowImplicits"
