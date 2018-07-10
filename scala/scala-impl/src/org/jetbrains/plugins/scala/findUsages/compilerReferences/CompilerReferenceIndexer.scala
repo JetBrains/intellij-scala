@@ -5,7 +5,6 @@ import java.util.concurrent._
 import java.util.concurrent.atomic.AtomicInteger
 import java.util.concurrent.locks.ReentrantLock
 
-import com.intellij.openapi.diagnostic.Logger
 import com.intellij.openapi.progress.util.ProgressIndicatorBase
 import com.intellij.openapi.progress.{ProgressIndicator, ProgressManager}
 import com.intellij.openapi.project.Project
@@ -16,6 +15,7 @@ import org.jetbrains.jps.incremental.CompiledClass
 import org.jetbrains.plugin.scala.compilerReferences.ChunkBuildData
 import org.jetbrains.plugins.scala.extensions._
 import org.jetbrains.plugins.scala.findUsages.compilerReferences.IndexerJob.{CloseWriter, OpenWriter, ProcessChunkData}
+import org.jetbrains.plugins.scala.findUsages.compilerReferences.IndexerFailure._
 
 import scala.collection.JavaConverters._
 import scala.util.control.NonFatal
@@ -36,6 +36,7 @@ private class CompilerReferenceIndexer(project: Project, expectedIndexVersion: I
   private[this] var writer: Option[ScalaCompilerReferenceWriter] = None
 
   private[this] val failedToParse = ContainerUtil.newConcurrentSet[File]()
+  private[this] val fatalFailures = ContainerUtil.newConcurrentSet[Throwable]()
 
   private[this] def shutdownIfNeeded(executor: ExecutorService): Unit =
     if (!executor.isShutdown) executor.shutdownNow()
@@ -50,11 +51,10 @@ private class CompilerReferenceIndexer(project: Project, expectedIndexVersion: I
     }
   })
 
-  private def onException(writer: ScalaCompilerReferenceWriter, e: Throwable): Unit = {
+  private def onException(e: Throwable): Unit = {
     shutdownIfNeeded(parsingExecutor)
     shutdownIfNeeded(indexWritingExecutor)
-    logger.error("An exception occured while trying to build compiler reference index", e)
-    writer.close(true)
+    fatalFailures.add(e)
   }
 
   private def parseClassfiles(writer: ScalaCompilerReferenceWriter): Unit = {
@@ -71,11 +71,11 @@ private class CompilerReferenceIndexer(project: Project, expectedIndexVersion: I
         } catch { case NonFatal(_) => failedToParse.addAll(classfiles.asJava) }
       } catch {
         case _: InterruptedException => Thread.currentThread().interrupt()
-        case e: Throwable            => onException(writer, e)
+        case e: Throwable            => onException(e)
       }
     }
 
-    if (Thread.interrupted()) onException(writer, new InterruptedException)
+    if (Thread.interrupted()) onException(new InterruptedException)
   }
 
   private def writeParsedClassfile(
@@ -94,7 +94,7 @@ private class CompilerReferenceIndexer(project: Project, expectedIndexVersion: I
             indicator.setFraction(processed * 1d / totalClassfiles)
           }
 
-          writer.getRebuildRequestCause.nullSafe.foreach(onException(writer, _))
+          writer.getRebuildRequestCause.nullSafe.foreach(onException)
           val job = writerJobQueue.poll(1, TimeUnit.SECONDS)
           job match {
             case ProcessCompiledFile(data) => processed += 1; writer.registerClassfileData(data)
@@ -103,10 +103,10 @@ private class CompilerReferenceIndexer(project: Project, expectedIndexVersion: I
           }
         } catch {
           case _: InterruptedException => Thread.currentThread().interrupt()
-          case e: Throwable            => onException(writer, e)
+          case e: Throwable            => onException(e)
         }
       }
-      if (Thread.interrupted()) onException(writer, new InterruptedException)
+      if (Thread.interrupted()) onException(new InterruptedException)
     }
 
   private[this] def initialiseExecutorsIfNeeded(): Unit = {
@@ -125,11 +125,15 @@ private class CompilerReferenceIndexer(project: Project, expectedIndexVersion: I
         onFinish()
       case CloseWriter(onFinish) =>
         val maybeFailure =
-          if (!failedToParse.isEmpty) IndexerParsingFailure(failedToParse.asScala).toOption
+          if (!fatalFailures.isEmpty) FatalFailure(fatalFailures.asScala).toOption
+          else if (!failedToParse.isEmpty) FailedToParse(failedToParse.asScala).toOption
           else None
 
-        writer.foreach(_.close(false))
+//        Thread.sleep(5 * 1000)
+        writer.foreach(_.close(!fatalFailures.isEmpty))
         writer = None
+        fatalFailures.clear()
+        failedToParse.clear()
         onFinish(maybeFailure)
       case ProcessChunkData(data, onFinish) =>
         indexBuildData(data, onFinish)
@@ -180,7 +184,7 @@ private class CompilerReferenceIndexer(project: Project, expectedIndexVersion: I
             indexingTask.get()
             if (failedToParse.isEmpty) onSuccess()
           } catch {
-            case e: Throwable => onException(writer, e)
+            case e: Throwable => onException(e)
           }
         }
 
@@ -199,8 +203,6 @@ private class CompilerReferenceIndexer(project: Project, expectedIndexVersion: I
 }
 
 private object CompilerReferenceIndexer {
-  private val logger = Logger.getInstance(classOf[CompilerReferenceIndexer])
-
   private sealed trait WriterJob
   private final case class ProcessDeletedFile(file:  String)            extends WriterJob
   private final case class ProcessCompiledFile(data: CompiledScalaFile) extends WriterJob

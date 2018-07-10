@@ -19,6 +19,7 @@ import com.intellij.util.messages.{MessageBus, MessageBusConnection}
 import org.jetbrains.jps.backwardRefs.CompilerRef
 import org.jetbrains.plugin.scala.compilerReferences.{ChunkBuildData, ScalaCompilerReferenceIndexBuilder => Builder}
 import org.jetbrains.plugins.scala.extensions._
+import org.jetbrains.plugins.scala.findUsages.compilerReferences.IndexerFailure.{FailedToParse, FatalFailure}
 import org.jetbrains.plugins.scala.findUsages.compilerReferences.IndexerJob.{CloseWriter, OpenWriter, ProcessChunkData}
 import org.jetbrains.plugins.scala.project._
 
@@ -53,7 +54,8 @@ private[findUsages] class ScalaCompilerReferenceService(
   // guarded by myOpenCloseLock
   private[this] val failedToParse = mutable.HashSet.empty[String]
 
-  @volatile private[this] var isUpToDateChecked = false
+  @volatile private[this] var isUpToDateChecked              = false
+  @volatile private[this] var lastCompilationTimestamp: Long = -1
 
   private[this] def handleBuilderMessage(messageType: String, messageText: String, bus: MessageBus): Unit = {
     import org.jetbrains.plugin.scala.compilerReferences.Codec._
@@ -87,26 +89,36 @@ private[findUsages] class ScalaCompilerReferenceService(
         val isCleanBuild = messageText.decode[Boolean]
         isCleanBuild.foreach(isClean => indexerScheduler.schedule(OpenWriter(isClean, () => ())))
       case Builder.compilationFinishedType =>
+        val timestamp = messageText.decode[Long]
+        timestamp.foreach(lastCompilationTimestamp = _)
         indexerScheduler.schedule(CloseWriter(publisher.onIndexingFinished))
     }
   }
 
   private[this] def onIndexCorruption(): Unit = {
-    logger.error(
-      s"Fatal indexing failure, failed to parse following " +
-        s"class files ${failedToParse.mkString("[\n", "  \n", "]")}. " +
-        s"Compiler index will be invalidated."
-    )
     failedToParse.clear()
     removeIndexFiles(project)
   }
 
   private[this] def openReaderOrInvalidateIndex(
-    failure: Option[IndexerParsingFailure]
+    failure: Option[IndexerFailure]
   ): Unit = withLock(myOpenCloseLock) {
-    failure.foreach { case IndexerParsingFailure(classes) => failedToParse ++= classes.map(_.getPath) }
+    failure.foreach {
+      case FailedToParse(classes) => failedToParse ++= classes.map(_.getPath)
+      case FatalFailure(causes) =>
+        logger.error("Fatal failure occured while trying to build compiler indices.")
+        causes.foreach(logger.error)
+        onIndexCorruption()
+    }
 
-    if (myActiveBuilds == 1 && failedToParse.nonEmpty) onIndexCorruption()
+    if (myActiveBuilds == 1 && failedToParse.nonEmpty) {
+      logger.error(
+        s"Fatal indexing failure, failed to parse the following " +
+          s"class files ${failedToParse.mkString("[\n", "  \n", "]")}. " +
+          s"Compiler index will be invalidated."
+      )
+      onIndexCorruption()
+    }
     openReaderIfNeed(IndexOpenReason.COMPILATION_FINISHED)
   }
 
@@ -119,7 +131,7 @@ private[findUsages] class ScalaCompilerReferenceService(
       new CompilerReferenceIndexingStatusListener {
         override def beforeIndexingStarted(): Unit =
           closeReaderIfNeed(IndexCloseReason.COMPILATION_STARTED)
-        override def onIndexingFinished(failure: Option[IndexerParsingFailure]): Unit =
+        override def onIndexingFinished(failure: Option[IndexerFailure]): Unit =
           openReaderOrInvalidateIndex(failure)
       }
     )
@@ -140,7 +152,7 @@ private[findUsages] class ScalaCompilerReferenceService(
 
     executeOnPooledThread {
       val validIndexExists = upToDateCompilerIndexExists(project, myReaderFactory.expectedIndexVersion())
-      val compilerManager  = CompilerManager.getInstance(project)
+      val compilerManager = CompilerManager.getInstance(project)
 
       if (validIndexExists) {
         val publisher = messageBus.syncPublisher(CompilerReferenceIndexingTopics.indexingStatus)
@@ -161,11 +173,11 @@ private[findUsages] class ScalaCompilerReferenceService(
 
   /** Should only be called under [[myReadDataLock]] */
   private[this] def withReader(
-    target: PsiElement,
+    target:      PsiElement,
     filterScope: Boolean = false
   )(
     builder: ScalaCompilerReferenceReader => CompilerRef => Set[UsagesInFile]
-  ): Set[UsagesInFile] = {
+  ): Timestamped[Set[UsagesInFile]] = {
     val usages = Set.newBuilder[UsagesInFile]
 
     for {
@@ -174,28 +186,30 @@ private[findUsages] class ScalaCompilerReferenceService(
       targets = info.searchElements
     } yield targets.foreach(usages ++= builder(reader)(_))
 
-    if (filterScope) {
+    val result = if (filterScope) {
       val dirtyScope = dirtyScopeForDefinition(target)
       usages.result().filterNot(usage => dirtyScope.contains(usage.file))
     } else usages.result()
+
+    Timestamped(lastCompilationTimestamp, result)
   }
 
-  def SAMInheritorsOf(aClass: PsiClass): Set[UsagesInFile] = withLock(myReadDataLock)(
-    withReader(aClass)(_.SAMInheritorsOf)
-  )
+  def SAMInheritorsOf(aClass: PsiClass): Timestamped[Set[UsagesInFile]] =
+    withLock(myReadDataLock)(withReader(aClass)(_.SAMInheritorsOf))
 
   /**
    * Returns usages only from up-to-date compiled scope.
    */
-  def usagesOf(target: PsiElement): Set[UsagesInFile] = withLock(myReadDataLock) {
+  def usagesOf(target: PsiElement): Timestamped[Set[UsagesInFile]] = withLock(myReadDataLock) {
     val actualTarget = ScalaCompilerRefAdapter.bytecodeElement(target)
     withReader(actualTarget)(_.usagesOf)
   }
 
   def isCompilerIndexReady: Boolean = isUpToDateChecked
 
-  def isInProgress: Boolean = myActiveBuilds != 0 ||
-    CompilerManager.getInstance(project).isCompilationActive
+  def isInProgress: Boolean =
+    myActiveBuilds != 0 ||
+      CompilerManager.getInstance(project).isCompilationActive
 
   def dirtyScopeForDefinition(e: PsiElement): GlobalSearchScope = {
     import com.intellij.psi.search.GlobalSearchScope._

@@ -16,10 +16,24 @@ class ScalaCompilerReferenceIndexBuilder extends ModuleLevelBuilder(BuilderCateg
 
   override def getPresentableName: String                     = "scala compiler-reference indexer"
   override def getCompilableFileExtensions: util.List[String] = List("scala", "java").asJava
-  override def buildFinished(context: CompileContext): Unit   = context.processMessage(CompilationFinished)
 
-  override def buildStarted(context: CompileContext): Unit    =
+  override def buildStarted(context: CompileContext): Unit =
     context.processMessage(CompilationStarted(isRebuildInAllModules(context)))
+
+  override def buildFinished(context: CompileContext): Unit = {
+    val pd = context.getProjectDescriptor
+
+    val timestamp = allJavaTargetTypes
+      .flatMap(pd.getBuildTargetIndex.getAllTargets(_).asScala)
+      .map { target =>
+        val stamp = context.getCompilationStartStamp(target)
+        if (stamp == 0) Long.MaxValue
+        else stamp
+      }
+      .min
+
+    context.processMessage(CompilationFinished(timestamp))
+  }
 
   override def build(
     context:          CompileContext,
@@ -37,7 +51,6 @@ class ScalaCompilerReferenceIndexBuilder extends ModuleLevelBuilder(BuilderCateg
       removedFile <- dirtyFilesHolder.getRemovedFiles(target).asScala
     } yield removedFile
 
-
     val data = ChunkBuildData(
       compiledClasses,
       removedSources,
@@ -49,29 +62,29 @@ class ScalaCompilerReferenceIndexBuilder extends ModuleLevelBuilder(BuilderCateg
     ExitCode.OK
   }
 
-  private def isRebuildInAllModules(context: CompileContext): Boolean = {
-    val targetTypes = JavaModuleBuildTargetType.ALL_TYPES.asScala
-    targetTypes.forall { ttype =>
+  private def isRebuildInAllModules(context: CompileContext): Boolean =
+    allJavaTargetTypes.forall { ttype =>
       val targets = context.getProjectDescriptor.getBuildTargetIndex.getAllTargets(ttype).asScala
       targets.forall(context.getScope.isBuildForced)
     }
-  }
 }
 
 object ScalaCompilerReferenceIndexBuilder {
-  val id                      = "sc.compiler.ref.index"
-  val chunkBuildDataType      = "chunk-build-data-info"
+  val id = "sc.compiler.ref.index"
+  val chunkBuildDataType = "chunk-build-data-info"
   val compilationFinishedType = "compilation-finished"
-  val compilationStartedType  = "compilation-started"
+  val compilationStartedType = "compilation-started"
+
+  private val allJavaTargetTypes = JavaModuleBuildTargetType.ALL_TYPES.asScala
 
   import org.jetbrains.plugin.scala.compilerReferences.Codec._
 
   final case class ChunkBuildInfo(data: ChunkBuildData)
       extends CustomBuilderMessage(id, chunkBuildDataType, data.encode)
 
-  final case object CompilationFinished
-      extends CustomBuilderMessage(id, compilationFinishedType, "")
+  final case class CompilationFinished(timestamp: Long)
+      extends CustomBuilderMessage(id, compilationFinishedType, timestamp.encode)
 
   final case class CompilationStarted(isCleanBuild: Boolean)
-    extends CustomBuilderMessage(id, compilationStartedType, isCleanBuild.encode)
+      extends CustomBuilderMessage(id, compilationStartedType, isCleanBuild.encode)
 }

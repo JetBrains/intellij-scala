@@ -5,7 +5,7 @@ import org.jetbrains.plugin.scala.compilerReferences.ChunkBuildData
 sealed trait IndexerJob
 
 object IndexerJob {
-  type IndexingHandler = Option[IndexerParsingFailure] => Unit
+  type IndexingHandler = Option[IndexerFailure] => Unit
   type Callback        = () => Unit
 
   final case class OpenWriter(isCleanBuild: Boolean, onFinish: Callback)      extends IndexerJob
