@@ -272,8 +272,11 @@ private object ImplicitHintsPass {
 
   private def errorAttributes(implicit scheme: EditorColorsScheme) = scheme.getAttributes(CodeInsightColors.ERRORS_ATTRIBUTES)
 
+  private def typeText(state: ImplicitState): String =
+    state.tp.presentableText(state.place)
+
   private def typeSuffix(parameter: ScalaResolveResult): String = {
-    val paramType = parameter.implicitSearchState.map(_.tp.presentableText).getOrElse("NotInferred")
+    val paramType = parameter.implicitSearchState.map(typeText).getOrElse("NotInferred")
     s": $paramType"
   }
 
