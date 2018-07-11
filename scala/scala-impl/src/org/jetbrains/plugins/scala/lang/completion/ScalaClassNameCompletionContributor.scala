@@ -26,8 +26,6 @@ import org.jetbrains.plugins.scala.lang.psi.impl.{ScalaPsiElementFactory, ScalaP
 import org.jetbrains.plugins.scala.lang.psi.light.PsiClassWrapper
 import org.jetbrains.plugins.scala.lang.psi.types.api.StdTypes
 import org.jetbrains.plugins.scala.lang.resolve.{ResolveUtils, ScalaResolveResult}
-import org.jetbrains.plugins.scala.project.ScalaLanguageLevel.Scala_2_9
-import org.jetbrains.plugins.scala.project._
 
 import scala.collection.JavaConverters
 
@@ -71,7 +69,7 @@ object ScalaClassNameCompletionContributor {
   private def completeClassName(result: CompletionResultSet)
                                (implicit parameters: CompletionParameters,
                                 context: ProcessingContext): Unit =
-    positionFromParameters(parameters) match {
+    positionFromParameters match {
       case dummyPosition if shouldRunClassNameCompletion(dummyPosition, result.getPrefixMatcher) =>
         completeClassName(dummyPosition, result)
       case _ =>

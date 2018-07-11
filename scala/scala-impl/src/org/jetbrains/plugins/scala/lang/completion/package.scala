@@ -28,7 +28,7 @@ package object completion {
       Some(context.getEditor, context.getDocument, context.getFile, context.getProject)
   }
 
-  def positionFromParameters(parameters: CompletionParameters): PsiElement = {
+  def positionFromParameters(implicit parameters: CompletionParameters): PsiElement = {
     @tailrec
     def position(element: PsiElement): PsiElement = element match {
       case null => parameters.getPosition // we got to the top of the tree and didn't find a modificationTrackerOwner
@@ -77,10 +77,12 @@ package object completion {
                                 (implicit parameters: CompletionParameters, context: ProcessingContext): Iterable[LookupElement]
 
     override def addCompletions(parameters: CompletionParameters, context: ProcessingContext, result: CompletionResultSet): Unit = {
-      val elements = completionsFor(positionFromParameters(parameters))(parameters, context)
+      implicit val p: CompletionParameters = parameters
+      implicit val c: ProcessingContext = context
+      val lookupElements = completionsFor(positionFromParameters)
 
       import JavaConverters._
-      result.addAllElements(elements.asJava)
+      result.addAllElements(lookupElements.asJava)
     }
   }
 
