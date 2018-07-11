@@ -128,34 +128,40 @@ private object ImplicitHintsPass {
       Hint(Text(")") +: collapsedPresentationOf(conversion.implicitParameters), e, suffix = true))
 
   private def implicitArgumentsHint(e: ScExpression, arguments: Seq[ScalaResolveResult])(implicit scheme: EditorColorsScheme): Seq[Hint] =
-    Seq(Hint(expandedPresentationOf(arguments), e, suffix = true, menu = Some(menu.ImplicitArguments)))
+    Seq(Hint(presentationOf(arguments), e, suffix = true, menu = Some(menu.ImplicitArguments)))
 
   private def explicitImplicitArgumentsHint(args: ScArgumentExprList): Seq[Hint] =
     Seq(Hint(Seq(Text(".explicitly")), args, suffix = false, menu = Some(menu.ExplicitArguments)))
 
-  private def collapsedPresentationOf(arguments: Seq[ScalaResolveResult])(implicit scheme: EditorColorsScheme): Seq[Text] =
-    if (arguments.nonEmpty) {
-      Seq(
-        Text("("),
-        Text(foldedString, attributes = Some(foldedAttributes(error = false)),
-          expansion = Some(() => expandedPresentationOf(arguments).drop(1).dropRight(1))),
-        Text(")"))
-    } else {
-      Seq.empty
-    }
+  private def presentationOf(arguments: Seq[ScalaResolveResult])
+                            (implicit scheme: EditorColorsScheme): Seq[Text] = {
 
-  // Add custom colors for folding inside inlay hints (SCL-13996)?
-  private def adjusted(attributes: TextAttributes): TextAttributes = {
-    val result = attributes.clone()
-    if (UIUtil.isUnderDarcula) {
-      result.setBackgroundColor(result.getBackgroundColor.brighter.brighter)
-      result.setForegroundColor(result.getForegroundColor.brighter)
-    }
-    result
+    if (arguments.size > 1 && !ImplicitHints.enabled)
+      collapsedPresentationOf(arguments)
+    else
+      expandedPresentationOf(arguments)
   }
 
-  private def expandedPresentationOf(arguments: Seq[ScalaResolveResult])(implicit scheme: EditorColorsScheme): Seq[Text] =
-    Text("(") +: arguments.map(it => presentationOf(it)).intersperse(Seq(Text(", "))).flatten :+ Text(")")
+  private def collapsedPresentationOf(arguments: Seq[ScalaResolveResult])(implicit scheme: EditorColorsScheme): Seq[Text] =
+    if (arguments.isEmpty) Seq.empty
+    else {
+      val problems = arguments.filter(_.isImplicitParameterProblem)
+      val folding = Text(foldedString,
+        attributes = Some(foldedAttributes(error = problems.nonEmpty)),
+        expansion = Some(() => expandedPresentationOf(arguments).drop(1).dropRight(1))
+      ).seq
+
+      folding.parenthesized
+        .withErrorTooltip(notFoundTooltip(problems))
+    }
+
+  private def expandedPresentationOf(arguments: Seq[ScalaResolveResult])
+                                    (implicit scheme: EditorColorsScheme): Seq[Text] =
+    if (arguments.isEmpty) Seq.empty
+    else {
+      arguments.map(it => presentationOf(it)).intersperse(Seq(Text(", "))).flatten
+        .parenthesized
+    }
 
   private def presentationOf(argument: ScalaResolveResult)(implicit scheme: EditorColorsScheme): Seq[Text] =
     argument.isImplicitParameterProblem
@@ -294,10 +300,29 @@ private object ImplicitHintsPass {
   private def notFoundTooltip(parameter: ScalaResolveResult): String =
     "No implicits found for parameter " + paramWithType(parameter)
 
+  private def notFoundTooltip(parameters: Seq[ScalaResolveResult]): Option[String] = {
+    parameters match {
+      case Seq()  => None
+      case Seq(p) => Some(notFoundTooltip(p))
+      case ps     => Some("No implicits found for parameters " + ps.map(paramWithType).mkString(", "))
+    }
+  }
+
+
   private def ambiguousTooltip(parameter: ScalaResolveResult): String =
     "Ambiguous implicits for parameter " + paramWithType(parameter)
 
   private val foldedString: String = "..."
+
+  // Add custom colors for folding inside inlay hints (SCL-13996)?
+  private def adjusted(attributes: TextAttributes): TextAttributes = {
+    val result = attributes.clone()
+    if (UIUtil.isUnderDarcula) {
+      result.setBackgroundColor(result.getBackgroundColor.brighter.brighter)
+      result.setForegroundColor(result.getForegroundColor.brighter)
+    }
+    result
+  }
 
   private def foldedAttributes(error: Boolean)
                               (implicit scheme: EditorColorsScheme): TextAttributes = {
@@ -308,8 +333,11 @@ private object ImplicitHintsPass {
   }
 
   private implicit class SeqTextExt(val parts: Seq[Text]) extends AnyVal {
-    def withErrorTooltip(tooltip: String)   : Seq[Text] = parts.map(_.copy(tooltip = Some(tooltip), error = true))
-    def withAttributes(attr: TextAttributes): Seq[Text] = parts.map(_.copy(attributes = Some(attr)))
+    def withAttributes(attr: TextAttributes)     : Seq[Text] = parts.map(_.copy(attributes = Some(attr)))
+    def withErrorTooltip(tooltip: String)        : Seq[Text] = parts.map(_.copy(tooltip = Some(tooltip), error = true))
+    def withErrorTooltip(tooltip: Option[String]): Seq[Text] = tooltip.map(parts.withErrorTooltip).getOrElse(parts)
+
+    def parenthesized: Seq[Text] = Text("(") +: parts :+ Text(")")
   }
 
   private implicit class TextExt(val text: Text) extends AnyVal {
