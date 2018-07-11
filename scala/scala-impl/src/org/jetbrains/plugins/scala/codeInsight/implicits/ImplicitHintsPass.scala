@@ -179,15 +179,12 @@ private object ImplicitHintsPass {
   private def noApplicableExpandedPresentation(parameter: ScalaResolveResult)
                                               (implicit scheme: EditorColorsScheme) = {
 
-    val presentationString = if (!ImplicitHints.enabled) "?" else "?" + typeSuffix(parameter)
+    val qMarkText = Text("?", likeWrongReference, navigatable = parameter.element.asOptionOf[Navigatable])
+    val maybeTypeSuffix =
+      if (ImplicitHints.enabled) typeSuffixText(parameter, isFolding = false) :: Nil else Nil
 
-      Text(
-        presentationString,
-        Some(errorAttributes),
-        Some(notFoundTooltip(parameter)),
-        parameter.element.asOptionOf[Navigatable],
-        error = true
-      ).seq
+    (qMarkText :: maybeTypeSuffix)
+      .withErrorTooltip(notFoundTooltip(parameter))
   }
 
   private def collapsedProblemPresentation(parameter: ScalaResolveResult, probableArgs: Seq[(ScalaResolveResult, FullInfoResult)])
@@ -196,7 +193,8 @@ private object ImplicitHintsPass {
       if (probableArgs.size > 1) ambiguousTooltip(parameter)
       else notFoundTooltip(parameter)
 
-    val presentationString = if (!ImplicitHints.enabled) "..." else "..." + typeSuffix(parameter)
+    val presentationString =
+      if (!ImplicitHints.enabled) foldedString else foldedString + typeSuffix(parameter)
 
     Text(
       presentationString,
@@ -220,7 +218,6 @@ private object ImplicitHintsPass {
   private def expandedAmbiguousPresentation(parameter: ScalaResolveResult, arguments: Seq[(ScalaResolveResult, FullInfoResult)])
                                            (implicit scheme: EditorColorsScheme) = {
 
-    val likeWrongReference = Some(scheme.getAttributes(CodeInsightColors.WRONG_REFERENCES_ATTRIBUTES))
     val separator = Seq(Text(" | ", likeWrongReference)).withErrorTooltip(ambiguousTooltip(parameter))
 
     arguments
@@ -272,12 +269,24 @@ private object ImplicitHintsPass {
 
   private def errorAttributes(implicit scheme: EditorColorsScheme) = scheme.getAttributes(CodeInsightColors.ERRORS_ATTRIBUTES)
 
+  private def likeWrongReference(implicit scheme: EditorColorsScheme) =
+    Option(scheme.getAttributes(CodeInsightColors.WRONG_REFERENCES_ATTRIBUTES))
+
   private def typeText(state: ImplicitState): String =
     state.tp.presentableText(state.place)
 
   private def typeSuffix(parameter: ScalaResolveResult): String = {
     val paramType = parameter.implicitSearchState.map(typeText).getOrElse("NotInferred")
     s": $paramType"
+  }
+
+  private def typeSuffixText(parameter: ScalaResolveResult, isFolding: Boolean)
+                            (implicit scheme: EditorColorsScheme): Text = {
+    val string = typeSuffix(parameter)
+
+    if (!isFolding) Text(string)
+    else Text(string, Some(foldedAttributes(error = false)),
+      expansion = Option(() => Nil)) //prefix is expanded, suffix should disappear
   }
 
   private def paramWithType(parameter: ScalaResolveResult): String = parameter.name + typeSuffix(parameter)
