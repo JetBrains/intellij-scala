@@ -7,11 +7,13 @@ import com.intellij.openapi.editor.{Document, Editor}
 import com.intellij.openapi.project.Project
 import com.intellij.psi.util.PsiTreeUtil
 import com.intellij.psi.{PsiClass, PsiElement, PsiFile}
-import com.intellij.util.ProcessingContext
+import com.intellij.util.{Consumer, ProcessingContext}
 import org.jetbrains.plugins.scala.extensions.PsiElementExt
 import org.jetbrains.plugins.scala.lang.completion.ScalaCompletionUtil.getDummyIdentifier
 import org.jetbrains.plugins.scala.lang.completion.lookups.ScalaLookupItem
 import org.jetbrains.plugins.scala.lang.completion.weighter.ScalaByExpectedTypeWeigher
+import org.jetbrains.plugins.scala.lang.lexer.ScalaTokenTypes
+import org.jetbrains.plugins.scala.lang.psi.ScalaPsiElement
 import org.jetbrains.plugins.scala.lang.psi.api.expr.{ScBlockExpr, ScModificationTrackerOwner}
 import org.jetbrains.plugins.scala.lang.psi.api.statements.ScTypeAlias
 import org.jetbrains.plugins.scala.lang.psi.api.toplevel.typedef.ScTypeDefinition
@@ -84,6 +86,42 @@ package object completion {
       import JavaConverters._
       result.addAllElements(lookupElements.asJava)
     }
+  }
+
+  private[completion] trait DelegatingCompletionProvider[E <: ScalaPsiElement] extends CompletionProvider[CompletionParameters] {
+
+    override final def addCompletions(parameters: CompletionParameters,
+                                      context: ProcessingContext,
+                                      resultSet: CompletionResultSet): Unit =
+      addCompletions(resultSet)(parameters, context)
+
+    protected def addCompletions(resultSet: CompletionResultSet)
+                                (implicit parameters: CompletionParameters, context: ProcessingContext): Unit
+
+    protected final def createElement(text: String, resultSet: CompletionResultSet)
+                                     (implicit position: PsiElement): E =
+      createElement(resultSet.getPrefixMatcher.getPrefix + text, position.getContext, position)
+
+    protected def createElement(text: String,
+                                context: PsiElement,
+                                child: PsiElement): E
+
+    protected def createConsumer(resultSet: CompletionResultSet)
+                                (implicit position: PsiElement): Consumer[CompletionResult]
+
+    protected final def createParameters(typeElement: ScalaPsiElement,
+                                         maybeLength: Option[Int] = None)
+                                        (implicit parameters: CompletionParameters): CompletionParameters = {
+      val Some(identifier) = findIdentifier(typeElement)
+      val range = identifier.getTextRange
+
+      val length = maybeLength.getOrElse(range.getLength)
+      parameters.withPosition(identifier, range.getStartOffset + length)
+    }
+
+    protected final def findIdentifier(element: ScalaPsiElement): Option[PsiElement] =
+      element.depthFirst()
+        .find(_.getNode.getElementType == ScalaTokenTypes.tIDENTIFIER)
   }
 
   private class BacktickPrefixMatcher(other: PrefixMatcher) extends PrefixMatcher(other.getPrefix) {
