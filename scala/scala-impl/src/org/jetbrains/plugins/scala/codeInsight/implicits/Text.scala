@@ -7,6 +7,7 @@ import com.intellij.pom.Navigatable
 
 private class Text(val string: String,
                    val attributes: Option[TextAttributes],
+                   val effectRange: Option[(Int, Int)],
                    val tooltip: Option[String],
                    val navigatable: Option[Navigatable],
                    val error: Boolean,
@@ -34,15 +35,17 @@ private class Text(val string: String,
   }
 
   def withAttributes(attributes: TextAttributes): Text =
-    new Text(string, Some(this.attributes.map(_ + attributes).getOrElse(attributes)), tooltip, navigatable, error, expansion)
+    new Text(string, Some(this.attributes.map(_ + attributes).getOrElse(attributes)),
+      effectRange, tooltip, navigatable, error, expansion)
 }
 
 private object Text {
   def apply(string: String,
             attributes: Option[TextAttributes] = None,
+            effectRange: Option[(Int, Int)] = None,
             tooltip: Option[String] = None,
             navigatable: Option[Navigatable] = None,
             error: Boolean = false,
             expansion: Option[() => Seq[Text]] = None): Text =
-    new Text(string, attributes, tooltip, navigatable, error, expansion)
+    new Text(string, attributes, effectRange, tooltip, navigatable, error, expansion)
 }
