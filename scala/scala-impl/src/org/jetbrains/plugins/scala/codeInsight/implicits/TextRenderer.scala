@@ -62,8 +62,6 @@ private class TextRenderer(private var parts: Seq[Text], menu: Option[String])
         var xStart = r.x + m.left + p.left
         val yStart = r.y + Math.max(ascent, (r.height + metrics.getAscent - metrics.getDescent) / 2)
 
-        g.setFont(getFont(editor))
-
         parts.foreach { text =>
           val width = metrics.stringWidth(text.string)
 
@@ -80,6 +78,8 @@ private class TextRenderer(private var parts: Seq[Text], menu: Option[String])
 
           val foregroundColor = effectiveTextAttributes.getForegroundColor
           g.setColor(foregroundColor)
+
+          g.setFont(editor.getColorsScheme.getFont(editorFontTypeOf(effectiveTextAttributes.getFontType)))
 
           val savedHint = g2d.getRenderingHint(RenderingHints.KEY_TEXT_ANTIALIASING)
           val savedClip = g.getClip
@@ -118,6 +118,12 @@ private class TextRenderer(private var parts: Seq[Text], menu: Option[String])
     }
   }
 
+  private def editorFontTypeOf(fontType: Int) = fontType match {
+    case Font.BOLD => EditorFontType.BOLD
+    case Font.ITALIC => EditorFontType.ITALIC
+    case _ => EditorFontType.PLAIN
+  }
+
   private def getFontMetrics0(editor: Editor): MyFontMetrics = {
     val font = editor.getColorsScheme.getFont(EditorFontType.PLAIN)
     var metrics = editor.getUserData(HintFontMetrics)
@@ -130,9 +136,6 @@ private class TextRenderer(private var parts: Seq[Text], menu: Option[String])
     }
     metrics
   }
-
-  private def getFont(editor: Editor): Font =
-    getFontMetrics0(editor).getFont
 
   def textAt(editor: Editor, x: Int): Option[Text] = {
     val m = getMargin(editor)

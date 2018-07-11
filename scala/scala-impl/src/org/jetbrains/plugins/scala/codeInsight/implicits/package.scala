@@ -47,6 +47,7 @@ package object implicits {
       val result = v.clone()
       Option(attributes.getForegroundColor).foreach(result.setForegroundColor)
       Option(attributes.getBackgroundColor).foreach(result.setBackgroundColor)
+      Option(attributes.getFontType).foreach(result.setFontType)
       Option(attributes.getEffectType).foreach(result.setEffectType)
       Option(attributes.getEffectColor).foreach(result.setEffectColor)
       result
