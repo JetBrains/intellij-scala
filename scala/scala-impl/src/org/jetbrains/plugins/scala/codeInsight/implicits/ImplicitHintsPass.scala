@@ -125,7 +125,7 @@ private object ImplicitHintsPass {
 
   private def implicitConversionHint(e: ScExpression, conversion: ScalaResolveResult)(implicit scheme: EditorColorsScheme): Seq[Hint] =
     Seq(Hint(presentationOf(conversion.element) :+ Text("("), e, suffix = false, menu = Some(menu.ImplicitConversion)),
-      Hint(Text(")") +: collapsedPresentationOf(conversion.implicitParameters), e, suffix = true))
+      Hint(Text(")") +: collapsedPresentationOf(conversion.implicitParameters), e, suffix = true, menu = Some(menu.ImplicitArguments)))
 
   private def implicitArgumentsHint(e: ScExpression, arguments: Seq[ScalaResolveResult])(implicit scheme: EditorColorsScheme): Seq[Hint] =
     Seq(Hint(expandedPresentationOf(arguments), e, suffix = true, menu = Some(menu.ImplicitArguments)))
