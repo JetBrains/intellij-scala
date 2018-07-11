@@ -96,6 +96,25 @@ class ScalaAotCompletionTest extends ScalaCodeInsightTestBase {
     itemText = "bar: Bar"
   )
 
+  def testDefaultPattern(): Unit = doAotCompletionTest(
+    fileText =
+      s"""class Foo
+         |
+         |(_: Foo) match {
+         |  case fo$CARET
+         |}
+       """.stripMargin,
+    resultText =
+      s"""class Foo
+         |
+         |(_: Foo) match {
+         |  case foo: Foo$CARET
+         |}
+       """.stripMargin,
+    lookupString = "Foo",
+    itemText = "foo: Foo"
+  )
+
   private def doAotCompletionTest(fileText: String,
                                   resultText: String,
                                   lookupString: String,
