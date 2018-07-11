@@ -15,7 +15,9 @@ import com.intellij.ui.{AncestorListenerAdapter, LightweightHint}
 import com.intellij.util.ui.{JBUI, UIUtil}
 import javax.swing.event.AncestorEvent
 import org.jetbrains.plugins.scala.codeInsight.implicits.MouseHandler.EscKeyListenerKey
+import org.jetbrains.plugins.scala.components.HighlightingAdvisor
 import org.jetbrains.plugins.scala.extensions.ObjectExt
+import org.jetbrains.plugins.scala.settings.ScalaProjectSettings
 
 class MouseHandler(project: Project,
                    startupManager: StartupManager,
@@ -29,11 +31,13 @@ class MouseHandler(project: Project,
 
   private val mousePressListener = new EditorMouseAdapter {
     override def mousePressed(e: EditorMouseEvent): Unit = {
-      MouseHandler.mousePressLocation = e.getMouseEvent.getPoint
+      if (handlingRequired) {
+        MouseHandler.mousePressLocation = e.getMouseEvent.getPoint
+      }
     }
 
     override def mouseClicked(e: EditorMouseEvent): Unit = {
-      if (!e.isConsumed && project.isInitialized && !project.isDisposed) {
+      if (handlingRequired && !e.isConsumed && project.isInitialized && !project.isDisposed) {
         if (e.getMouseEvent.getButton == MouseEvent.BUTTON1) {
           if (SystemInfo.isMac && e.getMouseEvent.isMetaDown || e.getMouseEvent.isControlDown) {
             activeHyperlink.foreach { case (_, text) =>
@@ -64,7 +68,7 @@ class MouseHandler(project: Project,
 
   private val mouseMovedListener = new EditorMouseMotionAdapter {
     override def mouseMoved(e: EditorMouseEvent): Unit = {
-      if (!e.isConsumed && project.isInitialized && !project.isDisposed) {
+      if (handlingRequired && !e.isConsumed && project.isInitialized && !project.isDisposed) {
         val textAtPoint = textAt(e.getEditor, e.getMouseEvent.getPoint)
 
         if (SystemInfo.isMac && e.getMouseEvent.isMetaDown || e.getMouseEvent.isControlDown) {
@@ -102,6 +106,10 @@ class MouseHandler(project: Project,
     multicaster.addEditorMouseListener(mousePressListener, project)
     multicaster.addEditorMouseMotionListener(mouseMovedListener, project)
   })
+
+  private def handlingRequired = ImplicitHints.enabled ||
+    (HighlightingAdvisor.getInstance(project).enabled &&
+      ScalaProjectSettings.getInstance(project).isShowNotFoundImplicitArguments)
 
   private def activateHyperlink(editor: Editor, inlay: Inlay, text: Text, event: MouseEvent): Unit = {
     text.hyperlink = true
