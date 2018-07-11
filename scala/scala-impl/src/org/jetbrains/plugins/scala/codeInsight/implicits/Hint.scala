@@ -4,7 +4,11 @@ import com.intellij.openapi.editor.{Inlay, InlayModel}
 import com.intellij.openapi.util.Key
 import com.intellij.psi.PsiElement
 
-private case class Hint(parts: Seq[Text], element: PsiElement, suffix: Boolean, menu: Option[String] = None) {
+private class Hint(val parts: Seq[Text],
+                   val element: PsiElement,
+                   val suffix: Boolean,
+                   val menu: Option[String]) {
+
   def addTo(model: InlayModel): Inlay = {
     val inlay = {
       val offset = if (suffix) element.getTextRange.getEndOffset else element.getTextRange.getStartOffset
@@ -21,6 +25,11 @@ private case class Hint(parts: Seq[Text], element: PsiElement, suffix: Boolean, 
 
 private object Hint {
   private val ElementKey: Key[PsiElement] = Key.create("SCALA_IMPLICIT_HINT_ELEMENT")
+
+  def apply(parts: Seq[Text],
+            element: PsiElement,
+            suffix: Boolean,
+            menu: Option[String] = None): Hint = new Hint(parts, element, suffix, menu)
 
   def elementOf(inlay: Inlay): PsiElement = ElementKey.get(inlay)
 }

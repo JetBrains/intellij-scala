@@ -141,7 +141,7 @@ private class TextRenderer(private var parts: Seq[Text], menu: Option[String])
   def pairFor(text: Text): Option[Text] = {
     def pairIn(parts: Seq[Text]) = {
       var balance = 0
-      val remainder = parts.dropWhile(!_.eq(text)).dropWhile { text =>
+      val remainder = parts.dropWhile(_ != text).dropWhile { text =>
         if (text.string == "(") balance += 1
         if (text.string == ")") balance -= 1
         balance != 0

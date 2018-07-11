@@ -5,12 +5,12 @@ import com.intellij.openapi.editor.colors.{CodeInsightColors, EditorColors}
 import com.intellij.openapi.editor.markup.{EffectType, TextAttributes}
 import com.intellij.pom.Navigatable
 
-private case class Text(string: String,
-                        attributes: Option[TextAttributes] = None,
-                        tooltip: Option[String] = None,
-                        navigatable: Option[Navigatable] = None,
-                        error: Boolean = false,
-                        expansion: Option[() => Seq[Text]] = None) {
+private class Text(val string: String,
+                   val attributes: Option[TextAttributes],
+                   val tooltip: Option[String],
+                   val navigatable: Option[Navigatable],
+                   val error: Boolean,
+                   val expansion: Option[() => Seq[Text]]) {
 
   var hyperlink: Boolean = false
 
@@ -32,4 +32,14 @@ private case class Text(string: String,
 
     result
   }
+}
+
+private object Text {
+  def apply(string: String,
+            attributes: Option[TextAttributes] = None,
+            tooltip: Option[String] = None,
+            navigatable: Option[Navigatable] = None,
+            error: Boolean = false,
+            expansion: Option[() => Seq[Text]] = None): Text =
+    new Text(string, attributes, tooltip, navigatable, error, expansion)
 }
