@@ -333,8 +333,8 @@ private object ImplicitHintsPass {
   }
 
   private implicit class SeqTextExt(val parts: Seq[Text]) extends AnyVal {
-    def withAttributes(attr: TextAttributes)     : Seq[Text] = parts.map(_.copy(attributes = Some(attr)))
-    def withErrorTooltip(tooltip: String)        : Seq[Text] = parts.map(_.copy(tooltip = Some(tooltip), error = true))
+    def withAttributes(attr: TextAttributes)     : Seq[Text] = parts.map(_.withAttributes(attr))
+    def withErrorTooltip(tooltip: String)        : Seq[Text] = parts.map(_.withErrorTooltip(tooltip))
     def withErrorTooltip(tooltip: Option[String]): Seq[Text] = tooltip.map(parts.withErrorTooltip).getOrElse(parts)
 
     def parenthesized: Seq[Text] = Text("(") +: parts :+ Text(")")

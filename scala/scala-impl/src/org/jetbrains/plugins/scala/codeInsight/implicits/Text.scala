@@ -37,6 +37,9 @@ private class Text(val string: String,
   def withAttributes(attributes: TextAttributes): Text =
     new Text(string, Some(this.attributes.map(_ + attributes).getOrElse(attributes)),
       effectRange, tooltip, navigatable, error, expansion)
+
+  def withErrorTooltip(tooltip: String): Text =
+    new Text(string, attributes, effectRange, Some(tooltip), navigatable, error = true, expansion)
 }
 
 private object Text {
