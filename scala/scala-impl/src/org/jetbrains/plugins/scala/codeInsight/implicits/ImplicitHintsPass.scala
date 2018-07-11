@@ -152,7 +152,7 @@ private object ImplicitHintsPass {
       ).seq
 
       folding.parenthesized
-        .withErrorTooltip(notFoundTooltip(problems))
+        .withErrorTooltipIfEmpty(notFoundTooltip(problems))
     }
 
   private def expandedPresentationOf(arguments: Seq[ScalaResolveResult])
@@ -190,12 +190,12 @@ private object ImplicitHintsPass {
       if (ImplicitHints.enabled) typeSuffixText(parameter, isFolding = false) :: Nil else Nil
 
     (qMarkText :: maybeTypeSuffix)
-      .withErrorTooltip(notFoundTooltip(parameter))
+      .withErrorTooltipIfEmpty(notFoundTooltip(parameter))
   }
 
   private def collapsedProblemPresentation(parameter: ScalaResolveResult, probableArgs: Seq[(ScalaResolveResult, FullInfoResult)])
                                           (implicit scheme: EditorColorsScheme): Seq[Text] = {
-    val tooltip =
+    val errorTooltip =
       if (probableArgs.size > 1) ambiguousTooltip(parameter)
       else notFoundTooltip(parameter)
 
@@ -207,8 +207,9 @@ private object ImplicitHintsPass {
       foldedAttributes(error = parameter.isImplicitParameterProblem),
       effectRange = Some((0, foldedString.length)),
       navigatable = parameter.element.asOptionOf[Navigatable],
+      errorTooltip = Some(errorTooltip),
       expansion = Some(() => expandedProblemPresentation(parameter, probableArgs))
-    ).withErrorTooltip(tooltip).seq
+    ).seq
   }
 
   private def expandedProblemPresentation(parameter: ScalaResolveResult, arguments: Seq[(ScalaResolveResult, FullInfoResult)])
@@ -223,12 +224,13 @@ private object ImplicitHintsPass {
   private def expandedAmbiguousPresentation(parameter: ScalaResolveResult, arguments: Seq[(ScalaResolveResult, FullInfoResult)])
                                            (implicit scheme: EditorColorsScheme) = {
 
-    val separator = Seq(Text(" | ", likeWrongReference)).withErrorTooltip(ambiguousTooltip(parameter))
+    val separator = Seq(Text(" | ", likeWrongReference))
 
     arguments
       .map { case (argument, result) => presentationOfProbable(argument, result) }
       .intersperse(separator)
       .flatten
+      .withErrorTooltipIfEmpty(ambiguousTooltip(parameter))
   }
 
   private def presentationOfProbable(argument: ScalaResolveResult, result: FullInfoResult)
@@ -245,12 +247,12 @@ private object ImplicitHintsPass {
 
       case DivergedImplicitResult =>
         namedBasicPresentation(argument)
-          .withErrorTooltip("Implicit is diverged")
+          .withErrorTooltipIfEmpty("Implicit is diverged")
           .withAttributes(errorAttributes)
 
       case CantInferTypeParameterResult =>
         namedBasicPresentation(argument)
-          .withErrorTooltip("Can't infer proper types for type parameters")
+          .withErrorTooltipIfEmpty("Can't infer proper types for type parameters")
           .withAttributes(errorAttributes)
     }
   }
@@ -332,9 +334,15 @@ private object ImplicitHintsPass {
   }
 
   private implicit class SeqTextExt(val parts: Seq[Text]) extends AnyVal {
-    def withAttributes(attr: TextAttributes)     : Seq[Text] = parts.map(_.withAttributes(attr))
-    def withErrorTooltip(tooltip: String)        : Seq[Text] = parts.map(_.withErrorTooltip(tooltip))
-    def withErrorTooltip(tooltip: Option[String]): Seq[Text] = tooltip.map(parts.withErrorTooltip).getOrElse(parts)
+
+    def withAttributes(attr: TextAttributes): Seq[Text] = parts.map(_.withAttributes(attr))
+
+    //nested text may have more specific tooltip
+    def withErrorTooltipIfEmpty(tooltip: String): Seq[Text] = parts.map { p =>
+      if (p.errorTooltip.isEmpty) p.withErrorTooltip(tooltip) else p
+    }
+
+    def withErrorTooltipIfEmpty(tooltip: Option[String]): Seq[Text] = tooltip.map(parts.withErrorTooltipIfEmpty).getOrElse(parts)
 
     def parenthesized: Seq[Text] = Text("(") +: parts :+ Text(")")
   }
