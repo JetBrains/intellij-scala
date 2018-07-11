@@ -205,11 +205,10 @@ private object ImplicitHintsPass {
     Text(
       presentationString,
       foldedAttributes(error = parameter.isImplicitParameterProblem),
-      Some(tooltip),
-      parameter.element.asOptionOf[Navigatable],
-      error = true,
+      effectRange = Some((0, foldedString.length)),
+      navigatable = parameter.element.asOptionOf[Navigatable],
       expansion = Some(() => expandedProblemPresentation(parameter, probableArgs))
-    ).seq
+    ).withErrorTooltip(tooltip).seq
   }
 
   private def expandedProblemPresentation(parameter: ScalaResolveResult, arguments: Seq[(ScalaResolveResult, FullInfoResult)])
