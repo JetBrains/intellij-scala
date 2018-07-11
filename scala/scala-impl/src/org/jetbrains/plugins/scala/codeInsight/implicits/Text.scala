@@ -8,10 +8,10 @@ import org.jetbrains.plugins.scala.extensions.ObjectExt
 
 private case class Text(string: String,
                         attributes: Option[TextAttributes] = None,
-                        effectRange: Option[(Int, Int)] = None,
-                        tooltip: Option[String] = None,
-                        navigatable: Option[Navigatable] = None,
-                        error: Boolean = false,
+                        effectRange: Option[(Int, Int)]    = None,
+                        tooltip: Option[String]            = None,
+                        navigatable: Option[Navigatable]   = None,
+                        errorTooltip: Option[String]       = None,
                         expansion: Option[() => Seq[Text]] = None) {
 
   var hyperlink: Boolean = false
@@ -39,7 +39,7 @@ private case class Text(string: String,
     copy(attributes = Some(this.attributes.map(_ + attributes).getOrElse(attributes)))
 
   def withErrorTooltip(tooltip: String): Text =
-    copy(tooltip = Some(tooltip), error = true)
+    copy(errorTooltip = Some(tooltip))
 
   // We want auto-generate apply() and copy() methods, but reference-based equality
   override def equals(obj: scala.Any): Boolean = obj.asOptionOf[AnyRef].exists(eq)

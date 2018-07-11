@@ -89,8 +89,8 @@ class MouseHandler(project: Project,
           }
         } else {
           textAtPoint.foreach { case (_, text) =>
-            if (text.error && !errorTooltip.exists(_.isVisible)) {
-              errorTooltip = text.tooltip.map(showTooltip(e.getEditor, e.getMouseEvent, _))
+            if (text.errorTooltip.nonEmpty && !errorTooltip.exists(_.isVisible)) {
+              errorTooltip = text.errorTooltip.map(showTooltip(e.getEditor, e.getMouseEvent, _))
               errorTooltip.foreach(_.addHintListener(_ => errorTooltip = None))
             }
           }
