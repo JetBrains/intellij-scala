@@ -188,7 +188,7 @@ class QuickDocTest extends ScalaLightPlatformCodeInsightTestCaseAdapter {
             "<a href=\"http://jetbrains.com/idea/scala\">  Scala Plugin</a>\n     " +
             "<a href=\"http://google.com\">This is google</a>" +
             "\n     <a href=\"http://scala-lang.org\">http://scala-lang.org</a>\n     " +
-            "<sub><u><a href=\"http://jetbrains.com}</u></sub>\n     " +
+            "<sub><u><a href=\"http://jetbrains.com\">http://jetbrains.com</a></u></sub>\n     " +
             "<a href=\"psi_element://java.lang.String\"><code>String</code></a> " +
             "<sup><a href=\"psi_element://java.lang.Integer\"><code>Integer</code></a></sup> "
 
