@@ -235,6 +235,6 @@ private object ImplicitHintsPass {
   }
 
   private def withAttributes(attributes: TextAttributes, parts: Seq[Text]): Seq[Text] =
-    parts.map(text => text.copy(attributes = Some(text.attributes.map(_ + attributes).getOrElse(attributes))))
+    parts.map(_.withAttributes(attributes))
 }
 

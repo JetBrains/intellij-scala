@@ -51,5 +51,8 @@ package object implicits {
       Option(attributes.getEffectColor).foreach(result.setEffectColor)
       result
     }
+
+    def ++ (attributes: Iterable[TextAttributes]): TextAttributes =
+      attributes.foldLeft(v)(_ + _)
   }
 }

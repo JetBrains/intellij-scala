@@ -19,7 +19,7 @@ private class Text(val string: String,
   def effective(editor: Editor, attributes: TextAttributes): TextAttributes = {
     var result = attributes.clone()
 
-    this.attributes.foreach(result += _)
+    result ++= this.attributes
 
     if (highlighted) {
       result += editor.getColorsScheme.getAttributes(CodeInsightColors.MATCHED_BRACE_ATTRIBUTES)
@@ -32,6 +32,9 @@ private class Text(val string: String,
 
     result
   }
+
+  def withAttributes(attributes: TextAttributes): Text =
+    new Text(string, Some(this.attributes.map(_ + attributes).getOrElse(attributes)), tooltip, navigatable, error, expansion)
 }
 
 private object Text {
