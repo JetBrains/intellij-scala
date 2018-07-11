@@ -147,7 +147,7 @@ private object ImplicitHintsPass {
     else {
       val problems = arguments.filter(_.isImplicitParameterProblem)
       val folding = Text(foldedString,
-        attributes = Some(foldedAttributes(error = problems.nonEmpty)),
+        attributes = foldedAttributes(error = problems.nonEmpty),
         expansion = Some(() => expandedPresentationOf(arguments).drop(1).dropRight(1))
       ).seq
 
@@ -204,7 +204,7 @@ private object ImplicitHintsPass {
 
     Text(
       presentationString,
-      Some(foldedAttributes(error = parameter.isImplicitParameterProblem)),
+      foldedAttributes(error = parameter.isImplicitParameterProblem),
       Some(tooltip),
       parameter.element.asOptionOf[Navigatable],
       error = true,
@@ -288,7 +288,7 @@ private object ImplicitHintsPass {
     val string = typeSuffix(parameter)
 
     if (!isFolding) Text(string)
-    else Text(string, Some(foldedAttributes(error = false)),
+    else Text(string, foldedAttributes(error = false),
       expansion = Option(() => Nil)) //prefix is expanded, suffix should disappear
   }
 
@@ -322,10 +322,13 @@ private object ImplicitHintsPass {
   }
 
   private def foldedAttributes(error: Boolean)
-                              (implicit scheme: EditorColorsScheme): TextAttributes = {
-    val plainFolded = adjusted(scheme.getAttributes(EditorColors.FOLDED_TEXT_ATTRIBUTES))
+                              (implicit scheme: EditorColorsScheme): Option[TextAttributes] = {
+    val plainFolded =
+      scheme.getAttributes(EditorColors.FOLDED_TEXT_ATTRIBUTES)
+        .toOption
+        .map(adjusted)
 
-    if (error) plainFolded + errorAttributes
+    if (error) plainFolded.map(_ + errorAttributes)
     else plainFolded
   }
 
