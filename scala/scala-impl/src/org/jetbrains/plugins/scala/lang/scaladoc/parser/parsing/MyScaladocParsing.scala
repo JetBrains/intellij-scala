@@ -5,7 +5,7 @@ package parser
 package parsing
 
 import com.intellij.lang.PsiBuilder
-import com.intellij.psi.tree.IElementType
+import com.intellij.psi.tree.{IElementType, TokenSet}
 import org.jetbrains.plugins.scala.lang.lexer.ScalaTokenTypes
 import org.jetbrains.plugins.scala.lang.parser.parsing.builder.ScalaPsiBuilderImpl
 import org.jetbrains.plugins.scala.lang.parser.parsing.types.StableId
@@ -30,7 +30,7 @@ class MyScaladocParsing(private val psiBuilder: PsiBuilder) extends ScalaDocElem
     flags |= flag
   }
 
-  private def isSetFlag(flag: Int): Boolean = (flags & flag) != 0
+  private def isSetFlag(flag: Int): Boolean = flag != 0 && (flags & flag) != 0
 
   private def clearFlag(flag: Int) {
     flags &= ~flag
@@ -78,16 +78,14 @@ class MyScaladocParsing(private val psiBuilder: PsiBuilder) extends ScalaDocElem
   }
 
   private def parseWikiSyntax(implicit builder: PsiBuilder): Boolean = {
-    if (!builder.getTokenType.isInstanceOf[ScaladocSyntaxElementType]) {
-      return false
-    }
+    if (!builder.getTokenType.isInstanceOf[ScaladocSyntaxElementType]) return false
+    
     val tokenType = builder.getTokenType.asInstanceOf[ScaladocSyntaxElementType]
     val tokenText = builder.getTokenText
     val marker = builder.mark()
+    
     setFlag(tokenType.getFlagConst)
-    if (!isEndOfComment) {
-      builder.advanceLexer()
-    }
+    if (!isEndOfComment) builder.advanceLexer()
 
     def closedBy(message: String = "new paragraph") {
       marker.done(tokenType)
@@ -101,13 +99,30 @@ class MyScaladocParsing(private val psiBuilder: PsiBuilder) extends ScalaDocElem
               ((tokenType == DOC_LINK_TAG) || (tokenType == DOC_HTTP_LINK_TAG)) && element == DOC_LINK_CLOSE_TAG)
     }
     
-    if (tokenType == DOC_HEADER) {
-      marker.drop()
-      return false
+    def parseUntilAndConvertToData(set: TokenSet) {
+      val uset = TokenSet.orSet(set, MyScaladocParsing.nonDataTokens)
+      
+      while (!isEndOfComment && !set.contains(builder.getTokenType)) {
+        val tt = builder.getTokenType
+        
+        if (!uset.contains(tt)) builder.remapCurrentToken(DOC_COMMENT_DATA)
+        if (!set.contains(tt)) builder.advanceLexer()
+      }
+      
+      if (isEndOfComment) builder.error("Open syntax element") else builder.advanceLexer()
     }
     
-    if (tokenType == DOC_LINK_TAG && builder.getTokenType == ScalaTokenTypes.tIDENTIFIER && !isEndOfComment) {
-      StableId.parse(new ScalaPsiBuilderImpl(builder), true, DOC_CODE_LINK_VALUE)
+    tokenType match {
+      case DOC_HEADER =>
+        marker.drop()
+        return false
+      case DOC_LINK_TAG if builder.getTokenType == ScalaTokenTypes.tIDENTIFIER && !isEndOfComment =>
+        StableId.parse(new ScalaPsiBuilderImpl(builder), forImport = true, DOC_CODE_LINK_VALUE)
+      case DOC_MONOSPACE_TAG => 
+        parseUntilAndConvertToData(TokenSet.create(DOC_MONOSPACE_TAG))
+        marker.done(tokenType)
+        return true
+      case _ => 
     }
 
     while (!isEndOfComment) {
@@ -142,6 +157,7 @@ class MyScaladocParsing(private val psiBuilder: PsiBuilder) extends ScalaDocElem
         case DOC_LINK_CLOSE_TAG =>
           builder.advanceLexer()
           if (tokenType == DOC_LINK_TAG || tokenType == DOC_HTTP_LINK_TAG) {
+            clearFlag(tokenType.getFlagConst)
             marker.done(tokenType)
             return true
           } else {
@@ -239,7 +255,7 @@ class MyScaladocParsing(private val psiBuilder: PsiBuilder) extends ScalaDocElem
           if (!isEndOfComment) {
             builder.advanceLexer()
           }
-          StableId.parse(new ScalaPsiBuilderImpl(builder), true, DOC_TAG_VALUE_TOKEN)
+          StableId.parse(new ScalaPsiBuilderImpl(builder), forImport = true, DOC_TAG_VALUE_TOKEN)
         case PARAM_TAG | TYPE_PARAM_TAG | DEFINE_TAG =>
           if (!ParserUtils.lookAhead(builder, builder.getTokenType, DOC_TAG_VALUE_TOKEN)) scaladocError(builder, "Missing tag param")
         case tag if allTags.contains(tag) =>
@@ -316,11 +332,13 @@ object MyScaladocParsing {
   val CONSTRUCTOR_TAG ="@constructor"
   
 
-  val escapeSequencesForWiki = HashMap[String, String]("`" -> "&#96;", "^" -> "&#94;", "__" -> "&#95;&#95;",
+  val escapeSequencesForWiki: Map[String, String] = HashMap[String, String]("`" -> "&#96;", "^" -> "&#94;", "__" -> "&#95;&#95;",
     "'''" -> "&#39;&#39;&#39;", "''" -> "&#39;&#39;", ",," -> "&#44;&#44;", "[[" -> "&#91;&#91;", "=" -> "&#61;")
 
   val allTags = Set(PARAM_TAG, TYPE_PARAM_TAG, THROWS_TAG, SEE_TAG, AUTHOR_TAG, NOTE_TAG, RETURN_TAG, SINCE_TAG,
     DEFINE_TAG, VERSION_TAG, TODO_TAG, USECASE_TAG, EXAMPLE_TAG, DEPRECATED_TAG, MIGRATION_TAG, GROUP_TAG, 
     GROUP_NAME_TAG, GROUP_DESC_TAG, GROUP_PRIO_TAG, CONSTRUCTOR_TAG, INHERITDOC_TAG)
   val tagsWithParameters = Set(PARAM_TAG, TYPE_PARAM_TAG, THROWS_TAG)
+  
+  private val nonDataTokens = TokenSet.create(DOC_COMMENT_END, DOC_WHITESPACE, DOC_COMMENT_LEADING_ASTERISKS)
 }
