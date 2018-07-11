@@ -4,14 +4,15 @@ import com.intellij.openapi.editor.Editor
 import com.intellij.openapi.editor.colors.{CodeInsightColors, EditorColors}
 import com.intellij.openapi.editor.markup.{EffectType, TextAttributes}
 import com.intellij.pom.Navigatable
+import org.jetbrains.plugins.scala.extensions.ObjectExt
 
-private class Text(val string: String,
-                   val attributes: Option[TextAttributes],
-                   val effectRange: Option[(Int, Int)],
-                   val tooltip: Option[String],
-                   val navigatable: Option[Navigatable],
-                   val error: Boolean,
-                   val expansion: Option[() => Seq[Text]]) {
+private case class Text(string: String,
+                        attributes: Option[TextAttributes] = None,
+                        effectRange: Option[(Int, Int)] = None,
+                        tooltip: Option[String] = None,
+                        navigatable: Option[Navigatable] = None,
+                        error: Boolean = false,
+                        expansion: Option[() => Seq[Text]] = None) {
 
   var hyperlink: Boolean = false
 
@@ -34,18 +35,6 @@ private class Text(val string: String,
     result
   }
 
-  def withAttributes(attributes: TextAttributes): Text =
-    new Text(string, Some(this.attributes.map(_ + attributes).getOrElse(attributes)),
-      effectRange, tooltip, navigatable, error, expansion)
-}
-
-private object Text {
-  def apply(string: String,
-            attributes: Option[TextAttributes] = None,
-            effectRange: Option[(Int, Int)] = None,
-            tooltip: Option[String] = None,
-            navigatable: Option[Navigatable] = None,
-            error: Boolean = false,
-            expansion: Option[() => Seq[Text]] = None): Text =
-    new Text(string, attributes, effectRange, tooltip, navigatable, error, expansion)
+  // We want auto-generate apply() and copy() methods, but reference-based equality
+  override def equals(obj: scala.Any): Boolean = obj.asOptionOf[AnyRef].exists(eq)
 }
