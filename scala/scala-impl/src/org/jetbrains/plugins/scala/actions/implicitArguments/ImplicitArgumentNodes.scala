@@ -152,13 +152,10 @@ private abstract class ImplicitParametersNodeBase(value: ScalaResolveResult)
 
   private def presentationIcon: Icon = value.element.getIcon(0)
 
-  private def typeText(state: ImplicitState): String =
-    state.tp.presentableText(state.place)
-
   protected def elementName: String = value.element.name
 
   protected def typeSuffix: Option[String] = {
-    value.implicitSearchState.map(state => ": " + typeText(state))
+    value.implicitSearchState.map(": " + _.presentableTypeText)
   }
 
   override def equals(obj: Any): Boolean = {

@@ -69,7 +69,10 @@ object ImplicitCollector {
                            searchImplicitsRecursively: Int,
                            extensionData: Option[ExtensionConversionData],
                            fullInfo: Boolean,
-                           previousRecursionState: Option[ImplicitsRecursionGuard.RecursionMap])
+                           previousRecursionState: Option[ImplicitsRecursionGuard.RecursionMap]) {
+
+    def presentableTypeText: String = tp.presentableText(place)
+  }
 
 }
 

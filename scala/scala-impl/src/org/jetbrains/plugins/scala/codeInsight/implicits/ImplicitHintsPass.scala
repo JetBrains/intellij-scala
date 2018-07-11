@@ -278,11 +278,8 @@ private object ImplicitHintsPass {
   private def likeWrongReference(implicit scheme: EditorColorsScheme) =
     Option(scheme.getAttributes(CodeInsightColors.WRONG_REFERENCES_ATTRIBUTES))
 
-  private def typeText(state: ImplicitState): String =
-    state.tp.presentableText(state.place)
-
   private def typeSuffix(parameter: ScalaResolveResult): String = {
-    val paramType = parameter.implicitSearchState.map(typeText).getOrElse("NotInferred")
+    val paramType = parameter.implicitSearchState.map(_.presentableTypeText).getOrElse("NotInferred")
     s": $paramType"
   }
 
