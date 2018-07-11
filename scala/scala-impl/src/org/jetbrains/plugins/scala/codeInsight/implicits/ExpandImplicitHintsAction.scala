@@ -22,6 +22,8 @@ class ExpandImplicitHintsAction extends ToggleAction {
       } else {
         ImplicitHints.collapseIn(editor)
       }
+    } else {
+      ImplicitHints.updateInAllEditors()
     }
 
     if (state) {
