@@ -137,7 +137,7 @@ private object ImplicitHintsPass {
   private def presentationOf(arguments: Seq[ScalaResolveResult])
                             (implicit scheme: EditorColorsScheme): Seq[Text] = {
 
-    if (arguments.size > 1 && !ImplicitHints.enabled)
+    if (!ImplicitHints.enabled)
       collapsedPresentationOf(arguments)
     else
       expandedPresentationOf(arguments)
@@ -188,10 +188,9 @@ private object ImplicitHintsPass {
                                               (implicit scheme: EditorColorsScheme) = {
 
     val qMarkText = Text("?", likeWrongReference, navigatable = parameter.element.asOptionOf[Navigatable])
-    val maybeTypeSuffix =
-      if (ImplicitHints.enabled) typeSuffixText(parameter, isFolding = false) :: Nil else Nil
+    val paramTypeSuffix = Text(typeSuffix(parameter))
 
-    (qMarkText :: maybeTypeSuffix)
+    (qMarkText :: paramTypeSuffix :: Nil)
       .withErrorTooltipIfEmpty(notFoundTooltip(parameter))
   }
 
@@ -284,15 +283,6 @@ private object ImplicitHintsPass {
   private def typeSuffix(parameter: ScalaResolveResult): String = {
     val paramType = parameter.implicitSearchState.map(_.presentableTypeText).getOrElse("NotInferred")
     s": $paramType"
-  }
-
-  private def typeSuffixText(parameter: ScalaResolveResult, isFolding: Boolean)
-                            (implicit scheme: EditorColorsScheme): Text = {
-    val string = typeSuffix(parameter)
-
-    if (!isFolding) Text(string)
-    else Text(string, foldedAttributes(error = false),
-      expansion = Option(() => Nil)) //prefix is expanded, suffix should disappear
   }
 
   private def paramWithType(parameter: ScalaResolveResult): String = parameter.name + typeSuffix(parameter)
