@@ -54,7 +54,7 @@ class ScalaDocUnbalancedHeaderInspection extends LocalInspectionTool {
 class ScalaDocHeaderBalanceQuickFix(opening: PsiElement, closing: PsiElement)
         extends AbstractFixOnTwoPsiElements(ScalaBundle.message("balance.header"), opening, closing) {
 
-  override def getFamilyName: String = InspectionsUtil.SCALADOC
+  override def getFamilyName: String = FamilyName
 
   override protected def doApplyFix(op: PsiElement, cl: PsiElement)
                                    (implicit project: Project): Unit = {
@@ -70,7 +70,8 @@ class ScalaDocHeaderBalanceQuickFix(opening: PsiElement, closing: PsiElement)
 
 class ScalaDocMoveTextToNewLineQuickFix(textData: PsiElement)
         extends AbstractFixOnPsiElement(ScalaBundle.message("move.text.after.header.to.new.line"), textData) {
-  override def getFamilyName: String = InspectionsUtil.SCALADOC
+
+  override def getFamilyName: String = FamilyName
 
   override protected def doApplyFix(data: PsiElement)
                                    (implicit project: Project): Unit = {

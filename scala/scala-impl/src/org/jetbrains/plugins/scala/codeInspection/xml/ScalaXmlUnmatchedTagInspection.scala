@@ -4,7 +4,7 @@ package codeInspection.xml
 import com.intellij.codeInspection.{LocalInspectionTool, LocalQuickFix, ProblemsHolder}
 import com.intellij.openapi.project.Project
 import com.intellij.psi.PsiElementVisitor
-import org.jetbrains.plugins.scala.codeInspection.{AbstractFixOnPsiElement, InspectionsUtil}
+import org.jetbrains.plugins.scala.codeInspection.AbstractFixOnPsiElement
 import org.jetbrains.plugins.scala.lang.parser.ScalaElementTypes
 import org.jetbrains.plugins.scala.lang.psi.ScalaPsiElement
 import org.jetbrains.plugins.scala.lang.psi.api.ScalaElementVisitor
@@ -55,7 +55,8 @@ class ScalaXmlUnmatchedTagInspection extends LocalInspectionTool{
 
 class DeleteUnmatchedTagQuickFix(s: ScalaPsiElement)
         extends AbstractFixOnPsiElement(ScalaBundle.message("xml.delete.unmatched.tag"), s) {
-  override def getFamilyName: String = InspectionsUtil.SCALA
+
+  override def getFamilyName: String = FamilyName
 
   override protected def doApplyFix(elem: ScalaPsiElement)
                                    (implicit project: Project): Unit = {
@@ -65,7 +66,8 @@ class DeleteUnmatchedTagQuickFix(s: ScalaPsiElement)
 
 class RenameClosingTagQuickFix(s: ScXmlStartTag)
         extends AbstractFixOnPsiElement(ScalaBundle.message("xml.rename.closing.tag"), s) {
-  override def getFamilyName: String = InspectionsUtil.SCALA
+
+  override def getFamilyName: String = FamilyName
 
   override protected def doApplyFix(elem: ScXmlStartTag)
                                    (implicit project: Project): Unit = {
@@ -75,7 +77,8 @@ class RenameClosingTagQuickFix(s: ScXmlStartTag)
 
 class RenameOpeningTagQuickFix(s: ScXmlEndTag)
         extends AbstractFixOnPsiElement(ScalaBundle.message("xml.rename.opening.tag"), s) {
-  override def getFamilyName: String = InspectionsUtil.SCALA
+
+  override def getFamilyName: String = FamilyName
 
 
   override protected def doApplyFix(elem: ScXmlEndTag)

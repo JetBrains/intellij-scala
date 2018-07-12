@@ -45,7 +45,7 @@ class ScalaDocUnknownTagInspection extends LocalInspectionTool {
 class ScalaDocDeleteUnknownTagInspection(unknownTag: ScDocTag)
         extends AbstractFixOnPsiElement(ScalaBundle.message("delete.unknown.tag"), unknownTag) {
 
-  override def getFamilyName: String = InspectionsUtil.SCALADOC
+  override def getFamilyName: String = FamilyName
 
   override protected def doApplyFix(tag: ScDocTag)
                                    (implicit project: Project): Unit = {

@@ -17,13 +17,6 @@ import org.jetbrains.plugins.scala.project.ProjectContext
  */
 
 object InspectionsUtil {
-  val ERROR_HANDLING = "(Scala) Error Handling"
-
-  val SCALA = "Scala: General"
-
-  val SCALADOC = "Scala: Scaladoc"
-
-  val MethodSignature = "Scala: Method signature"
 
   def isExpressionOfType(className: String, expr: ScExpression): Boolean = Option(expr).map { expression =>
     (expression.`type`().getOrAny, expression.getProject)

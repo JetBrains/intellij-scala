@@ -43,8 +43,8 @@ class ScalaDocUnclosedTagWithoutParserInspection extends LocalInspectionTool {
 
 class ScalaDocEscapeTagQuickFix(s: ScDocSyntaxElement)
         extends AbstractFixOnPsiElement(ScalaBundle.message("replace.tag.with.esc.seq"), s) {
-  override def getFamilyName: String = InspectionsUtil.SCALADOC
 
+  override def getFamilyName: String = FamilyName
 
   override protected def doApplyFix(syntElem: ScDocSyntaxElement)
                                    (implicit project: Project): Unit = {

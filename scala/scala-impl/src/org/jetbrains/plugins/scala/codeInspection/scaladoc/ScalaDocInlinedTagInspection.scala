@@ -34,7 +34,8 @@ class ScalaDocInlinedTagInspection extends LocalInspectionTool {
 
 class ScalaDocInlinedTagDeleteQuickFix(inlinedTag: ScDocInlinedTag)
         extends AbstractFixOnPsiElement(ScalaBundle.message("delete.inlined.tag"), inlinedTag) {
-  override def getFamilyName: String = InspectionsUtil.SCALADOC
+
+  override def getFamilyName: String = FamilyName
 
   override protected def doApplyFix(tag: ScDocInlinedTag)
                                    (implicit project: Project): Unit = {
@@ -44,7 +45,8 @@ class ScalaDocInlinedTagDeleteQuickFix(inlinedTag: ScDocInlinedTag)
 
 class ScalaDocInlinedTagReplaceQuickFix(inlinedTag: ScDocInlinedTag)
         extends AbstractFixOnPsiElement(ScalaBundle.message("replace.with.wiki.syntax"), inlinedTag) {
-  override def getFamilyName: String = InspectionsUtil.SCALADOC
+
+  override def getFamilyName: String = FamilyName
 
   override protected def doApplyFix(tag: ScDocInlinedTag)
                                    (implicit project: Project): Unit = {
