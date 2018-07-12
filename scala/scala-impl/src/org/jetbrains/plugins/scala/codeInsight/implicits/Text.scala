@@ -1,9 +1,12 @@
 package org.jetbrains.plugins.scala.codeInsight.implicits
 
+import java.util.Objects
+
 import com.intellij.openapi.editor.Editor
 import com.intellij.openapi.editor.colors.{CodeInsightColors, EditorColors}
 import com.intellij.openapi.editor.markup.{EffectType, TextAttributes}
 import com.intellij.pom.Navigatable
+import com.intellij.vcs.log.Hash
 import org.jetbrains.plugins.scala.extensions.ObjectExt
 
 private case class Text(string: String,
@@ -43,4 +46,6 @@ private case class Text(string: String,
 
   // We want auto-generate apply() and copy() methods, but reference-based equality
   override def equals(obj: scala.Any): Boolean = obj.asOptionOf[AnyRef].exists(eq)
+
+  override def hashCode(): Int = System.identityHashCode(this)
 }
