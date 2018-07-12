@@ -37,6 +37,7 @@ import org.scalafmt.config.{Config, ScalafmtConfig, ScalafmtRunner}
 import org.jetbrains.plugins.scala.extensions._
 
 import scala.annotation.tailrec
+import scala.collection.mutable
 import scala.collection.mutable.ListBuffer
 
 class ScalaFmtPreFormatProcessor extends PreFormatProcessor {
@@ -47,11 +48,13 @@ class ScalaFmtPreFormatProcessor extends PreFormatProcessor {
       case Some(null) | None => TextRange.EMPTY_RANGE
       case _ if range.isEmpty => TextRange.EMPTY_RANGE
       case Some(file: ScalaFile) =>
-        ScalaFmtPreFormatProcessor.formatIfRequired(file, range)
+        ScalaFmtPreFormatProcessor.formatIfRequired(file, ScalaFmtPreFormatProcessor.shiftRange(file, range))
         TextRange.EMPTY_RANGE
       case _ => range
     }
   }
+
+  override def changesWhitespacesOnly(): Boolean = true
 }
 
 object ScalaFmtPreFormatProcessor {
@@ -103,23 +106,44 @@ object ScalaFmtPreFormatProcessor {
     } else path
   }
 
+  private def shiftRange(file: PsiFile, range: TextRange): TextRange = {
+    rangesDeltaCache.get(file).map{ deltas =>
+      var startOffset = range.getStartOffset
+      val iterator = deltas.iterator
+      if (deltas.isEmpty) return range
+      var currentDelta = (0, 0)
+      while (iterator.hasNext && currentDelta._1 < startOffset) {
+        currentDelta = iterator.next()
+        if (currentDelta._1 < startOffset) startOffset += currentDelta._2
+      }
+      new TextRange(startOffset, startOffset + range.getLength)
+    }.getOrElse(range)
+  }
+
   private def formatIfRequired(file: PsiFile, range: TextRange): Unit = {
     val cached = file.getOrUpdateUserData(FORMATTED_RANGES_KEY, (new TextRanges, file.getModificationStamp))
 
     if (cached._2 == file.getModificationStamp && cached._1.contains(range)) return
 
-    val delta = formatRange(file, range)
+    //formatter implicitly supposes that ranges starting on psi element start also reformat ws before the element
+    val startElement = file.findElementAt(range.getStartOffset)
+    val rangeUpdated = if (startElement != null && startElement.getTextRange.getStartOffset == range.getStartOffset) {
+      val prev = PsiTreeUtil.prevLeaf(startElement, true)
+      if (prev != null && !prev.isInstanceOf[PsiWhiteSpace]) new TextRange(prev.getTextRange.getEndOffset - 1, range.getEndOffset) else range
+    } else range
+
+    val delta = formatRange(file, rangeUpdated)
     def moveRanges(textRanges: TextRanges): TextRanges = {
       textRanges.ranges.map{ otherRange =>
-        if (otherRange.getEndOffset <= range.getStartOffset) otherRange
-        else if (otherRange.getStartOffset >= range.getEndOffset) otherRange.shiftRight(delta)
+        if (otherRange.getEndOffset <= rangeUpdated.getStartOffset) otherRange
+        else if (otherRange.getStartOffset >= rangeUpdated.getEndOffset) otherRange.shiftRight(delta)
         else TextRange.EMPTY_RANGE
       }.foldLeft(new TextRanges())((acc, aRange) => acc.union(aRange))
     }
 
     val ranges = if (cached._2 == file.getModificationStamp) moveRanges(cached._1) else new TextRanges
 
-    file.putUserData(FORMATTED_RANGES_KEY, (ranges.union(range.grown(delta)), file.getModificationStamp))
+    file.putUserData(FORMATTED_RANGES_KEY, (ranges.union(rangeUpdated.grown(delta)), file.getModificationStamp))
   }
 
   private def formatRange(file: PsiFile, range: TextRange): Int = {
@@ -239,9 +263,58 @@ object ScalaFmtPreFormatProcessor {
   private def replaceWithFormatted(wrapFile: PsiFile, elements: Seq[PsiElement], range: TextRange, isWrapped: Boolean)(implicit fileText: String): Int = {
     val replaceElements: Seq[PsiElement] = if (isWrapped) unwrap(wrapFile) else Seq(wrapFile)
     val project = elements.head.getProject
-    val elementsToTraverse: ListBuffer[(PsiElement, PsiElement)] = ListBuffer(replaceElements zip elements:_*)
-    var delta = 0
+    val elementsToTraverse: ListBuffer[(PsiElement, PsiElement)] = ListBuffer(replaceElements zip elements:_*).sortBy(_._2.getTextRange.getStartOffset)
     val additionalIndent = if (isWrapped) getElementIndent(elements.head) - 2 else 0
+    val changes = buildChangesList(elementsToTraverse, range, additionalIndent, project)
+    applyChanges(changes, range)
+  }
+
+  private sealed trait PsiChange {
+    private var myIsValid = true
+    def isValid: Boolean = myIsValid
+    final def applyAndGetDelta(): Int = {
+      myIsValid = false
+      doApply()
+    }
+    def doApply(): Int
+    def isInRange(range: TextRange): Boolean
+    def getStartOffset: Int
+  }
+
+  private case class Replace(original: PsiElement, formatted: PsiElement) extends PsiChange {
+    def doApply(): Int = {
+      val delta = addDelta(original, formatted.getTextLength - original.getTextLength)
+      inWriteAction(original.replace(formatted))
+      delta
+    }
+    override def isInRange(range: TextRange): Boolean = original.getTextRange.intersectsStrict(range)
+    override def getStartOffset: Int = original.getTextRange.getStartOffset
+  }
+
+  private case class Insert(before: PsiElement, formatted: PsiElement) extends PsiChange {
+    override def doApply(): Int = {
+      val parent = before.getParent
+      if (parent != null) {
+        inWriteAction(parent.addBefore(formatted, before))
+      }
+      addDelta(formatted, formatted.getTextLength)
+    }
+    override def isInRange(range: TextRange): Boolean = range.contains(before.getTextRange.getStartOffset)
+    override def getStartOffset: Int = before.getTextRange.getStartOffset
+  }
+
+  private case class Remove(remove: PsiElement) extends PsiChange {
+    override def doApply(): Int = {
+      val res = addDelta(remove, -remove.getTextLength)
+      inWriteAction(remove.delete())
+      res
+    }
+    override def isInRange(range: TextRange): Boolean = remove.getTextRange.intersectsStrict(range)
+    override def getStartOffset: Int = remove.getTextRange.getStartOffset
+  }
+
+  private def buildChangesList(elementsToTraverse: ListBuffer[(PsiElement, PsiElement)], range: TextRange, additionalIndent: Int, project: Project): ListBuffer[PsiChange] = {
+    val res = ListBuffer[PsiChange]()
     def widenWs(ws: PsiElement): PsiElement = {
       if (additionalIndent == 0) ws
       else {
@@ -258,7 +331,9 @@ object ScalaFmtPreFormatProcessor {
     def traverseSettingWs(formatted: PsiElement, original: PsiElement): Unit = {
       var formattedIndex = 0
       var originalIndex = 0
-      if (isWhitespace(formatted) && isWhitespace(original)) inWriteAction(original.replace(widenWs(formatted)))
+      if (isWhitespace(formatted) && isWhitespace(original)) {
+        res += Replace(original, widenWs(formatted))
+      }
 
       val formattedChildren = formatted.children.toArray
       val originalChildren = original.children.toArray
@@ -266,35 +341,18 @@ object ScalaFmtPreFormatProcessor {
       while (formattedIndex < formattedChildren.length && originalIndex < originalChildren.length) {
         val originalElement = originalChildren(originalIndex)
         val formattedElement = formattedChildren(formattedIndex)
-        val isInRange = originalElement.getTextRange.intersects(range.grown(delta))
-        def replace(originalElement: PsiElement, formattedElement: PsiElement): Unit = {
-          //here getText/getTextLength is fine since we only replace leaf elements and they actually store the text
-          if (originalElement.getText != formattedElement.getText && isInRange) {
-            inWriteAction(originalElement.replace(formattedElement))
-            delta += formattedElement.getTextLength - originalElement.getTextLength
-          }
-          formattedIndex += 1
-          originalIndex += 1
-        }
+        val isInRange = originalElement.getTextRange.intersectsStrict(range)
         (originalElement, formattedElement) match {
           case (originalWs: PsiWhiteSpace, formattedWs: PsiWhiteSpace) => //replace whitespace
-            inWriteAction(replace(originalWs, widenWs(formattedWs)))
+            res += Replace(originalWs, widenWs(formattedWs))
+            originalIndex += 1
+            formattedIndex += 1
           case (_, formattedWs: PsiWhiteSpace) => //a whitespace has been added
-            val parent = originalElement.getParent
-            if (parent != null && isInRange) {
-              val widenedWs = widenWs(formattedWs)
-              parent.addBefore(widenedWs, originalElement)
-              delta += widenedWs.getTextLength
-            }
+            res += Insert(originalElement, formattedWs)
             formattedIndex += 1
           case (originalWs: PsiWhiteSpace, _) => //a whitespace has been removed
-            if (isInRange) {
-              originalWs.delete()
-              delta -= originalWs.getTextLength
-            }
+            res += Remove(originalWs)
             originalIndex += 1
-          case (originalComment: PsiComment, formattedComment: PsiComment) => //replace comments
-            inWriteAction(replace(originalComment, formattedComment))
           case _ =>
             if (isInRange) {
               elementsToTraverse += ((formattedElement, originalElement))
@@ -309,7 +367,13 @@ object ScalaFmtPreFormatProcessor {
       elementsToTraverse.remove(0)
       traverseSettingWs(head._1, head._2)
     }
-    delta
+    res
+  }
+
+  private def applyChanges(changes: ListBuffer[PsiChange], range: TextRange): Int = {
+    changes.filter(_.isInRange(range)).filter(_.isValid).sortBy(_.getStartOffset).foldLeft(0){
+      case (delta, change) => delta + change.applyAndGetDelta()
+    }
   }
 
   private val externalScalafmtConfigs: ConcurrentMap[VirtualFile, (ScalafmtConfig, Long)] = ContainerUtil.createConcurrentWeakMap()
@@ -348,4 +412,14 @@ object ScalaFmtPreFormatProcessor {
   }
 
   private val FORMATTED_RANGES_KEY: Key[(TextRanges, Long)] = Key.create("scala.fmt.formatted.ranges")
+
+  private val rangesDeltaCache: mutable.Map[PsiFile, mutable.TreeSet[(Int, Int)]] = mutable.Map[PsiFile, mutable.TreeSet[(Int, Int)]]()
+
+  private def addDelta(element: PsiElement, delta: Int): Int = {
+    val cache = rangesDeltaCache.getOrElseUpdate(element.getContainingFile, mutable.TreeSet[(Int, Int)]())
+    cache.add(element.getTextRange.getStartOffset, delta)
+    delta
+  }
+
+  def clearRangesCache(): Unit = rangesDeltaCache.clear()
 }
