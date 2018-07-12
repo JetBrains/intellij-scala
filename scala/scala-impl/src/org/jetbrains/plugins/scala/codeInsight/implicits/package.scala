@@ -42,6 +42,22 @@ package object implicits {
     keymap.removeAllActionShortcuts(id)
   }
 
+  def pairFor[T](element: T, elements: Seq[T], isOpening: T => Boolean, isClosing: T => Boolean): Option[T] = {
+    def pairIn(elements: Seq[T]) = {
+      var balance = 0
+      val remainder = elements.dropWhile(_ != element).dropWhile { it =>
+        if (isOpening(it)) balance += 1
+        if (isClosing(it)) balance -= 1
+        balance != 0
+      }
+      remainder.headOption
+    }
+
+    if (isOpening(element)) pairIn(elements)
+    else if (isClosing(element)) pairIn(elements.reverse)
+    else None
+  }
+
   implicit class TextAttributesExt(val v: TextAttributes) extends AnyVal {
     def + (attributes: TextAttributes): TextAttributes = {
       val result = v.clone()

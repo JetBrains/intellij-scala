@@ -20,6 +20,8 @@ import org.jetbrains.plugins.scala.components.HighlightingAdvisor
 import org.jetbrains.plugins.scala.extensions.ObjectExt
 import org.jetbrains.plugins.scala.settings.ScalaProjectSettings
 
+import scala.collection.JavaConverters._
+
 class MouseHandler(project: Project,
                    startupManager: StartupManager,
                    editorFactory: EditorFactory) extends AbstractProjectComponent(project) {
@@ -241,17 +243,18 @@ class MouseHandler(project: Project,
   }
 
   private def highlightMatches(editor: Editor, inlay: Inlay, text: Text): Unit = {
-    inlay.getRenderer.asOptionOf[TextRenderer].flatMap(_.pairFor(text)) match {
-      case Some(pair) =>
-        val matches = Set((inlay, text), (inlay, pair))
+    findPairFor(editor, (inlay, text)) match {
+      case Some((pairInlay, pairText)) =>
+        val matches = Set((inlay, text), (pairInlay, pairText))
 
         if (highlightedMatches != matches) {
           clearHighlightedMatches()
 
           text.highlighted = true
-          pair.highlighted = true
+          pairText.highlighted = true
 
           inlay.repaint()
+          pairInlay.repaint()
 
           highlightedMatches = matches
 
@@ -265,6 +268,19 @@ class MouseHandler(project: Project,
       case _ =>
         clearHighlightedMatches()
     }
+  }
+
+  private def findPairFor(editor: Editor, element: (Inlay, Text)): Option[(Inlay, Text)] = {
+    val (lineStart, lineEnd) = {
+      val line = editor.getDocument.getLineNumber(element._1.getOffset)
+      (editor.getDocument.getLineStartOffset(line), editor.getDocument.getLineEndOffset(line))
+    }
+
+    val elements = editor.getInlayModel.getInlineElementsInRange(lineStart, lineEnd).asScala.toSeq.flatMap { inlay =>
+      inlay.getRenderer.asOptionOf[TextRenderer].toSeq.flatMap(_.parts.map((inlay, _)))
+    }
+
+    pairFor[(Inlay, Text)](element, elements, _._2.string == "(", _._2.string == ")")
   }
 
   private def clearHighlightedMatches(): Unit = {
