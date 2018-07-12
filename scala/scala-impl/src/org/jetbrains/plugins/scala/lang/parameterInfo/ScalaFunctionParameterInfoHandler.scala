@@ -77,7 +77,6 @@ class ScalaFunctionParameterInfoHandler extends ParameterInfoHandlerWithTabActio
     set.add(classOf[ScConstructor])
     set.add(classOf[ScSelfInvocation])
     set.add(classOf[ScInfixExpr])
-    set.add(classOf[ScReferenceExpression])
     set
   }
 
@@ -474,17 +473,6 @@ class ScalaFunctionParameterInfoHandler extends ParameterInfoHandlerWithTabActio
 
       override def arguments: Seq[ScExpression] = Seq(expr)
     }
-    private class ReferenceExpressionInvocation(expr: ScReferenceExpression) extends Invocation {
-      override def element: PsiElement = expr
-
-      override def parent: PsiElement = element
-
-      override def invocationCount: Int = 0
-
-      override def callReference: Option[ScReferenceExpression] = Some(expr)
-
-      override def arguments: Seq[ScExpression] = Seq.empty
-    }
     private class InfixTupleInvocation(tuple: ScTuple) extends InfixInvocation {
       override def element: PsiElement = tuple
 
@@ -508,10 +496,6 @@ class ScalaFunctionParameterInfoHandler extends ParameterInfoHandlerWithTabActio
         case args: ScArgumentExprList => Some(new CallInvocation(args))
         case t: ScTuple => create(t)(new InfixTupleInvocation(_))
         case u: ScUnitExpr => create(u)(new InfixUnitInvocation(_))
-        case e: ScReferenceExpression
-          if !e.getParent.isInstanceOf[ScArgumentExprList] &&
-            !(e.getParent.isInstanceOf[ScAssignStmt] && e.getParent.getParent.isInstanceOf[ScArgumentExprList]) =>
-          Some(new ReferenceExpressionInvocation(e))
         case e: ScExpression => create(e)(new InfixExpressionInvocation(_))
         case _ => None
       }
@@ -522,7 +506,7 @@ class ScalaFunctionParameterInfoHandler extends ParameterInfoHandlerWithTabActio
   def elementsForParameterInfo(args: Invocation): Seq[Object] = {
     implicit val project: ProjectContext = args.element.projectContext
     args.parent match {
-      case call @ (_: MethodInvocation | _: ScReferenceExpression) =>
+      case call: MethodInvocation =>
         val res: ArrayBuffer[Object] = new ArrayBuffer[Object]
         def collectResult() {
           val canBeUpdate = call.getParent match {
@@ -578,12 +562,8 @@ class ScalaFunctionParameterInfoHandler extends ParameterInfoHandlerWithTabActio
                     effectiveParameterClauses.length >= count =>
                     res += ((new PhysicalSignature(function, subst.followed(collectSubstitutor(function))), count - 1))
                   case _ =>
-                    call match {
-                      case invocation: MethodInvocation =>
-                        for (typez <- invocation.getEffectiveInvokedExpr.`type`()) //todo: implicit conversions
-                        {collectForType(typez)}
-                      case _ =>
-                    }
+                    for (typez <- call.getEffectiveInvokedExpr.`type`()) //todo: implicit conversions
+                    {collectForType(typez)}
                 }
               } else {
                 val variants = {
