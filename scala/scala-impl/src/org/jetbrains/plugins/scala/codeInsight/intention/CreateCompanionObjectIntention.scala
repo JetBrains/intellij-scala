@@ -6,6 +6,7 @@ import com.intellij.openapi.project.Project
 import com.intellij.psi.codeStyle.CodeStyleManager
 import com.intellij.psi.{PsiDocumentManager, PsiElement}
 import org.jetbrains.plugins.scala.extensions.Parent
+import org.jetbrains.plugins.scala.lang.formatting.settings.ScalaCodeStyleSettings
 import org.jetbrains.plugins.scala.lang.psi.api.toplevel.typedef.ScTypeDefinition
 import org.jetbrains.plugins.scala.lang.psi.impl.ScalaPsiElementFactory
 
@@ -23,7 +24,10 @@ class CreateCompanionObjectIntention extends PsiElementBaseIntentionAction {
         s"""|object ${clazz.name} {
             |
             |}""".stripMargin, psiElement.getContext, psiElement)
-      val obj = clazz.getParent.addAfter(companion, psiElement.getParent)
+      val parent = clazz.getParent
+      val obj = parent.addAfter(companion, psiElement.getParent)
+      if (ScalaCodeStyleSettings.getInstance(project).USE_SCALAFMT_FORMATTER)
+        parent.addAfter(ScalaPsiElementFactory.createWhitespace("\n")(project), psiElement.getParent)
       moveCaret(project, editor, obj)
     }
   }
