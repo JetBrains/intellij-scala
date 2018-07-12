@@ -59,11 +59,13 @@ class MouseHandler(project: Project,
               }
             }
           }
-        } else if (event.getButton == MouseEvent.BUTTON3) {
+        } else if (event.getButton == MouseEvent.BUTTON3 && activeHyperlink.isEmpty) {
           hyperlinkAt(editor, event.getPoint).foreach { case (_, text) =>
             e.consume()
             navigateTo(text)
           }
+        } else {
+          deactivateActiveHyperlink(editor)
         }
 
       }
