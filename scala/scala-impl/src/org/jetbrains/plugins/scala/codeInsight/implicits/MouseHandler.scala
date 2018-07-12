@@ -13,6 +13,7 @@ import com.intellij.openapi.startup.StartupManager
 import com.intellij.openapi.util.{Key, SystemInfo}
 import com.intellij.ui.{AncestorListenerAdapter, LightweightHint}
 import com.intellij.util.ui.{JBUI, UIUtil}
+import javax.swing.SwingUtilities
 import javax.swing.event.AncestorEvent
 import org.jetbrains.plugins.scala.codeInsight.implicits.MouseHandler.EscKeyListenerKey
 import org.jetbrains.plugins.scala.components.HighlightingAdvisor
@@ -41,7 +42,7 @@ class MouseHandler(project: Project,
         val editor = e.getEditor
         val event = e.getMouseEvent
 
-        if (event.getButton == MouseEvent.BUTTON1) {
+        if (SwingUtilities.isLeftMouseButton(event)) {
           if (SystemInfo.isMac && event.isMetaDown || event.isControlDown) {
             hyperlinkAt(editor, event.getPoint).foreach { case (_, text) =>
               e.consume()
@@ -59,7 +60,7 @@ class MouseHandler(project: Project,
               }
             }
           }
-        } else if (event.getButton == MouseEvent.BUTTON3 && activeHyperlink.isEmpty) {
+        } else if (SwingUtilities.isMiddleMouseButton(event) && activeHyperlink.isEmpty) {
           hyperlinkAt(editor, event.getPoint).foreach { case (_, text) =>
             e.consume()
             navigateTo(text)
