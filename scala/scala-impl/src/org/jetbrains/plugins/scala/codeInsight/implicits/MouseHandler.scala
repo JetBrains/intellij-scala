@@ -38,30 +38,34 @@ class MouseHandler(project: Project,
 
     override def mouseClicked(e: EditorMouseEvent): Unit = {
       if (handlingRequired && !e.isConsumed && project.isInitialized && !project.isDisposed) {
-        if (e.getMouseEvent.getButton == MouseEvent.BUTTON1) {
-          if (SystemInfo.isMac && e.getMouseEvent.isMetaDown || e.getMouseEvent.isControlDown) {
-            hyperlinkAt(e.getEditor, e.getMouseEvent.getPoint).foreach { case (_, text) =>
+        val editor = e.getEditor
+        val event = e.getMouseEvent
+
+        if (event.getButton == MouseEvent.BUTTON1) {
+          if (SystemInfo.isMac && event.isMetaDown || event.isControlDown) {
+            hyperlinkAt(editor, event.getPoint).foreach { case (_, text) =>
               e.consume()
-              deactivateActiveHyperlink(e.getEditor)
+              deactivateActiveHyperlink(editor)
               navigateTo(text)
             }
           } else {
-            expandableAt(e.getEditor, e.getMouseEvent.getPoint).foreach { case (inlay, text) =>
+            expandableAt(editor, event.getPoint).foreach { case (inlay, text) =>
               inlay.getRenderer.asOptionOf[TextRenderer].foreach { renderer =>
                 renderer.expand(text)
                 inlay.updateSize()
                 if (!ImplicitHints.expanded) {
-                  addEscKeyListenerTo(e.getEditor)
+                  addEscKeyListenerTo(editor)
                 }
               }
             }
           }
-        } else if (e.getMouseEvent.getButton == MouseEvent.BUTTON3) {
-          hyperlinkAt(e.getEditor, e.getMouseEvent.getPoint).foreach { case (_, text) =>
+        } else if (event.getButton == MouseEvent.BUTTON3) {
+          hyperlinkAt(editor, event.getPoint).foreach { case (_, text) =>
             e.consume()
             navigateTo(text)
           }
         }
+
       }
     }
   }
