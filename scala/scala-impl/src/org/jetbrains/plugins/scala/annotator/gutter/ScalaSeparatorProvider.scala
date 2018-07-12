@@ -66,7 +66,7 @@ trait ScalaSeparatorProvider {
 
   def isSeparationContainer(element: PsiElement): Boolean = {
     element.getContainingFile match {
-      case scalaFile: ScalaFile if scalaFile.isWorksheetFile || scalaFile.isScriptFile => return false
+      case scalaFile: ScalaFile if scalaFile.isWorksheetFile => return false
       case _ => 
     }
     
