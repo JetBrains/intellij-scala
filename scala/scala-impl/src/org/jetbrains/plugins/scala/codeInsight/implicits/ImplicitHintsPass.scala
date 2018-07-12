@@ -1,5 +1,7 @@
 package org.jetbrains.plugins.scala.codeInsight.implicits
 
+import java.awt.Color
+
 import com.intellij.codeHighlighting.EditorBoundHighlightingPass
 import com.intellij.openapi.editor.Editor
 import com.intellij.openapi.editor.colors.{CodeInsightColors, EditorColors, EditorColorsScheme}
@@ -306,10 +308,19 @@ private object ImplicitHintsPass {
 
   // Add custom colors for folding inside inlay hints (SCL-13996)?
   private def adjusted(attributes: TextAttributes): TextAttributes = {
+    def average(c1: Color, c2: Color) = {
+      val r = (c1.getRed + c2.getRed) / 2
+      val g = (c1.getGreen + c2.getGreen) / 2
+      val b = (c1.getBlue + c2.getBlue) / 2
+      val alpha = c1.getAlpha
+      new Color(r, g, b, alpha)
+    }
+
     val result = attributes.clone()
     if (UIUtil.isUnderDarcula) {
-      result.setBackgroundColor(result.getBackgroundColor.brighter.brighter)
-      result.setForegroundColor(result.getForegroundColor.brighter)
+      val notSoBright = result.getBackgroundColor.brighter
+      val tooBright = notSoBright.brighter
+      result.setBackgroundColor(average(notSoBright, tooBright))
     }
     result
   }
