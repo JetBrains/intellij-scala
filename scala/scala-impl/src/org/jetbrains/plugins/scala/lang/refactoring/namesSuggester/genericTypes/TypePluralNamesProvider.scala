@@ -32,18 +32,26 @@ object TypePluralNamesProvider {
 
   private[namesSuggester] def pluralizeNames(`type`: ScType): Seq[String] =
     namesByType(`type`, withPlurals = false, shortVersion = false).map {
-      case "x" => "xs"
-      case "index" => "indices"
+      case letter@IsLetter() => letter + "s"
       case string => English.plural(string)
     }
+
+  private object IsLetter {
+
+    def unapply(string: String): Boolean = string.length == 1 && {
+      val character = string(0)
+      character.isLetter && character.isLower
+    }
+  }
 
   private object IsTraversable {
 
     import GenericTypeNamesProvider.isInheritor
 
-    def unapply(arg: ScType): Option[(ScType, ScType)] = arg match {
-      case genericType@ScParameterizedType(designator, Seq(argument))
-        if designator.canonicalText == "_root_.scala.Array" || isInheritor(genericType, "scala.collection.GenTraversableOnce", "java.lang.Iterable") =>
+    def unapply(`type`: ScParameterizedType): Option[(ScType, ScType)] = `type` match {
+      case ScParameterizedType(designator, Seq(argument))
+        if designator.canonicalText == "_root_.scala.Array" ||
+          isInheritor(`type`, "scala.collection.GenTraversableOnce", "java.lang.Iterable") =>
         Some(designator, argument)
       case _ => None
     }
