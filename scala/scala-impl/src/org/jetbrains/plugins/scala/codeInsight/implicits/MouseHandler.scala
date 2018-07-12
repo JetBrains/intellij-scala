@@ -101,11 +101,22 @@ class MouseHandler(project: Project,
     }
   }
 
-  startupManager.registerPostStartupActivity(() => {
+  override def projectOpened(): Unit = {
     val multicaster = editorFactory.getEventMulticaster
     multicaster.addEditorMouseListener(mousePressListener, project)
     multicaster.addEditorMouseMotionListener(mouseMovedListener, project)
-  })
+  }
+
+  override def projectClosed(): Unit = {
+    val multicaster = editorFactory.getEventMulticaster
+    multicaster.removeEditorMouseListener(mousePressListener)
+    multicaster.removeEditorMouseMotionListener(mouseMovedListener)
+
+    activeHyperlink = None
+    highlightedMatches = Set.empty
+    hyperlinkTooltip = None
+    errorTooltip = None
+  }
 
   private def handlingRequired = ImplicitHints.enabled ||
     (HighlightingAdvisor.getInstance(project).enabled &&
