@@ -3,40 +3,51 @@ package codeInspection
 package delayedInit
 
 import com.intellij.codeInspection.ProblemsHolder
-import com.intellij.psi.{PsiClass, PsiElement}
-import org.jetbrains.plugins.scala.extensions.{&&, ContainingClass, LazyVal, PsiClassExt, PsiElementExt}
+import com.intellij.psi.PsiElement
+import org.jetbrains.plugins.scala.extensions._
 import org.jetbrains.plugins.scala.lang.psi.ScalaPsiUtil
 import org.jetbrains.plugins.scala.lang.psi.api.expr.ScReferenceExpression
-import org.jetbrains.plugins.scala.lang.psi.api.statements.{ScPatternDefinition, ScVariableDefinition}
+import org.jetbrains.plugins.scala.lang.psi.api.statements.{ScPatternDefinition, ScValueOrVariable, ScVariableDefinition}
 import org.jetbrains.plugins.scala.lang.psi.api.toplevel.typedef.{ScClass, ScObject, ScTemplateDefinition}
 import org.jetbrains.plugins.scala.lang.resolve.ScalaResolveResult
 
 /**
- * @author Nikolay.Tropin
- */
-class FieldFromDelayedInitInspection extends AbstractInspection("FieldFromDelayedInit", "Field from DelayedInit") {
+  * @author Nikolay.Tropin
+  */
+final class FieldFromDelayedInitInspection extends AbstractInspection("FieldFromDelayedInit", "Field from DelayedInit") {
+
+  import FieldFromDelayedInitInspection._
 
   override protected def actionFor(implicit holder: ProblemsHolder): PartialFunction[PsiElement, Any] = {
     case ref: ScReferenceExpression =>
-      ref.bind() match {
-        case Some(FieldInDelayedInit(delayedInitClass)) =>
-          val classContainers = ref.parentsInFile.collect {
-            case td: ScTemplateDefinition => td
-          }
-          if (!classContainers.exists(c => c.sameOrInheritor(delayedInitClass)))
-            holder.registerProblem(ref.nameId, "Field defined in DelayedInit is likely to be null")
-        case _ =>
+      for {
+        FieldInDelayedInit(delayedInitClass) <- ref.bind()
+        parents = parentDefinitions(ref)
+        if !parents.exists(_.sameOrInheritor(delayedInitClass))
+      } holder.registerProblem(ref.nameId, "Field defined in DelayedInit is likely to be null")
+  }
+}
+
+object FieldFromDelayedInitInspection {
+
+  private object FieldInDelayedInit {
+
+    def unapply(result: ScalaResolveResult): Option[ScTemplateDefinition] =
+      result.fromType.flatMap { scType =>
+        ScalaPsiUtil.nameContext(result.getElement) match {
+          case LazyVal(_) => None
+          case definition@(_: ScPatternDefinition | _: ScVariableDefinition) =>
+            Option(definition.asInstanceOf[ScValueOrVariable].containingClass).collect {
+              case scalaClass: ScClass => scalaClass
+              case scalaObject: ScObject => scalaObject
+            }.filter(conformsToTypeFromClass(scType, "scala.DelayedInit")(_))
+          case _ => None
+        }
       }
   }
 
-  object FieldInDelayedInit {
-    def unapply(srr: ScalaResolveResult): Option[PsiClass] = {
-      ScalaPsiUtil.nameContext(srr.getElement) match {
-        case LazyVal(_) => None
-        case (_: ScPatternDefinition | _: ScVariableDefinition) && ContainingClass(clazz@(_: ScClass | _: ScObject))
-          if srr.fromType.exists(conformsToTypeFromClass(_, "scala.DelayedInit")(clazz)) => Some(clazz)
-        case _ => None
-      }
+  private def parentDefinitions(reference: ScReferenceExpression) =
+    reference.parentsInFile.collect {
+      case definition: ScTemplateDefinition => definition
     }
-  }
 }
