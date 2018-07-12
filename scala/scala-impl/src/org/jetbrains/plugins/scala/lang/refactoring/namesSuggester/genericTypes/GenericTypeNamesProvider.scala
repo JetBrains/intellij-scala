@@ -5,12 +5,9 @@ package namesSuggester
 package genericTypes
 
 import com.intellij.openapi.extensions.ExtensionPointName
-import com.intellij.openapi.project.Project
-import com.intellij.psi.search.GlobalSearchScope
-import com.intellij.psi.{JavaPsiFacade, PsiClass}
 import org.jetbrains.plugins.scala.extensions.PsiClassExt
+import org.jetbrains.plugins.scala.lang.psi.ElementScope
 import org.jetbrains.plugins.scala.lang.psi.types.ScParameterizedType
-import org.jetbrains.plugins.scala.util.ScEquivalenceUtil.areClassesEquivalent
 
 /**
   * @author adkozlov
@@ -27,16 +24,12 @@ object GenericTypeNamesProvider {
 
   def providers: Seq[GenericTypeNamesProvider] = EP_NAME.getExtensions
 
-  def isInheritor(`type`: ScParameterizedType, baseFqns: String*): Boolean = {
-    def isInheritor(clazz: PsiClass) = {
-      implicit val project: Project = clazz.getProject
-      val psiFacade = JavaPsiFacade.getInstance(project)
-      val scope = GlobalSearchScope.allScope(project)
+  def isInheritor(`type`: ScParameterizedType, baseFqns: String*): Boolean =
+    `type`.extractClass.exists { clazz =>
+      val scope = ElementScope(clazz.getProject)
 
-      baseFqns.flatMap(fqn => Option(psiFacade.findClass(fqn, scope)))
+      baseFqns
+        .flatMap(scope.getCachedClass)
         .exists(clazz.sameOrInheritor)
     }
-
-    `type`.extractClass.exists(isInheritor)
-  }
 }
