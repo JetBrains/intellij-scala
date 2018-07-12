@@ -13,7 +13,7 @@ import com.intellij.ui.paint.EffectPainter
 import com.intellij.util.ui.GraphicsUtil
 import org.jetbrains.plugins.scala.codeInsight.implicits.TextRenderer._
 
-private class TextRenderer(private var parts: Seq[Text], menu: Option[String])
+private class TextRenderer(var parts: Seq[Text], menu: Option[String])
   extends HintRenderer(parts.map(_.string).mkString) {
 
   private val originalParts = parts
@@ -144,24 +144,6 @@ private class TextRenderer(private var parts: Seq[Text], menu: Option[String])
     val xs = parts.map(it => fontMetrics.stringWidth(it.string)).scanLeft(m.left + p.left)(_ + _)
     parts.zip(xs.zip(xs.tail)).collectFirst {
       case (text, (start, end)) if start <= x && x <= end => text
-    }
-  }
-
-  def pairFor(text: Text): Option[Text] = {
-    def pairIn(parts: Seq[Text]) = {
-      var balance = 0
-      val remainder = parts.dropWhile(_ != text).dropWhile { text =>
-        if (text.string == "(") balance += 1
-        if (text.string == ")") balance -= 1
-        balance != 0
-      }
-      remainder.headOption
-    }
-
-    text.string match {
-      case "(" => pairIn(parts)
-      case ")" => pairIn(parts.reverse)
-      case _ => None
     }
   }
 
