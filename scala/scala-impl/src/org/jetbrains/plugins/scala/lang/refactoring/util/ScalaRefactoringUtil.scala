@@ -512,8 +512,12 @@ object ScalaRefactoringUtil {
                           (implicit project: Project, editor: Editor): Seq[RangeHighlighter] =
     highlightOccurrences(project, occurrences.map(_.getTextRange), editor)
 
-  def showChooser[T <: PsiElement](editor: Editor, elements: Array[T], pass: T => Unit, title: String,
-                                   elementName: T => String, toHighlight: T => PsiElement = (t: T) => t.asInstanceOf[PsiElement]) {
+  def showChooserGeneric[T](editor: Editor,
+                            elements: Array[T],
+                            onChosen: T => Unit,
+                            title: String,
+                            presentation: T => String,
+                            toHighlight: T => PsiElement) {
     class Selection {
       val selectionModel = editor.getSelectionModel
       val (start, end) = (selectionModel.getSelectionStart, selectionModel.getSelectionEnd)
@@ -544,8 +548,9 @@ object ScalaRefactoringUtil {
                                               value: Object, index: Int, isSelected: Boolean, cellHasFocus: Boolean): Component = {
         val rendererComponent: Component = getSuperListCellRendererComponent(container.getList, value, index, isSelected, cellHasFocus)
         val element: T = value.asInstanceOf[T]
-        if (element.isValid) {
-          setText(elementName(element))
+        val psi = toHighlight(element)
+        if (psi.isValid) {
+          setText(presentation(element))
         }
         rendererComponent
       }
@@ -563,7 +568,7 @@ object ScalaRefactoringUtil {
     })
 
     val callback: Runnable = callbackInTransaction(editor.getProject) {
-      pass(list.getSelectedValue.asInstanceOf[T])
+      onChosen(list.getSelectedValue.asInstanceOf[T])
     }
 
     val highlighterAdapter = new JBPopupAdapter {
@@ -586,6 +591,15 @@ object ScalaRefactoringUtil {
       .createPopup
       .showInBestPositionFor(editor)
   }
+
+
+  def showChooser[T <: PsiElement](editor: Editor,
+                                   elements: Array[T],
+                                   onChosen: T => Unit,
+                                   title: String,
+                                   presentation: T => String,
+                                   toHighlight: T => PsiElement = (t: T) => t.asInstanceOf[PsiElement]): Unit =
+    showChooserGeneric(editor, elements, onChosen, title, presentation, toHighlight)
 
   def getShortText(expr: ScalaPsiElement): String = {
     val builder = new StringBuilder
@@ -614,12 +628,12 @@ object ScalaRefactoringUtil {
       case i: ScIfStmt =>
         builder.append("if (...) {...}")
         if (i.elseBranch.isDefined) builder.append(" else {...}")
-      case ScInfixElement(left, op, right) =>
+      case ScInfixElement(left, op, Some(right)) =>
         builder.append(getShortText(left))
         builder.append(" ")
         builder.append(getShortText(op))
         builder.append(" ")
-        builder.append(getShortText(right.get))
+        builder.append(getShortText(right))
       case i: ScInterpolationPattern =>
         builder.append(getShortText(i.ref))
         builder.append("\"...\"")
@@ -633,7 +647,7 @@ object ScalaRefactoringUtil {
       case f: ScFunctionalTypeElement =>
         builder.append(getShortText(f.paramTypeElement))
         builder.append(" => ")
-        builder.append(getShortText(f.returnTypeElement.get))
+        builder.append(f.returnTypeElement.map(getShortText(_)).getOrElse("..."))
       case l: ScLiteral => builder.append(l.getText)
       case m: ScMatchStmt =>
         m.expr match {

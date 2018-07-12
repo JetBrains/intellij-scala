@@ -13,16 +13,21 @@ trait TypePresentationContext {
 object TypePresentationContext {
   import scala.language.implicitConversions
 
-  implicit def psiElementPresentationContext(e: PsiElement): TypePresentationContext = (text, target) => {
-    val typeElem = ScalaPsiElementFactory.createTypeElementFromText(text, e.getContext, e)
+  implicit def psiElementPresentationContext(place: PsiElement): TypePresentationContext = (text, target) => {
 
-    val reference = (typeElem match {
-      case null                         => None
-      case ScSimpleTypeElement(Some(r)) => Some(r)
-      case _                            => None
-    }).flatMap(_.resolve.toOption)
+    if (place.isValid) {
 
-    reference.exists(ScEquivalenceUtil.smartEquivalence(_, target))
+      val typeElem = ScalaPsiElementFactory.createTypeElementFromText(text, place.getContext, place)
+
+      val reference = (typeElem match {
+        case null                         => None
+        case ScSimpleTypeElement(Some(r)) => Some(r)
+        case _                            => None
+      }).flatMap(_.resolve.toOption)
+
+      reference.exists(ScEquivalenceUtil.smartEquivalence(_, target))
+    }
+    else true //let's just show short version for invalid elements
   }
 
   implicit val emptyContext: TypePresentationContext = (_, _) => false

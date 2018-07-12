@@ -171,6 +171,8 @@ package object extensions {
         i += 1
       }
     }
+
+    def intersperse[B >: A](sep: B): Seq[B] = value.iterator.intersperse(sep).toSeq
   }
 
   implicit class IterableExt[CC[X] <: Iterable[X], A](val value: CC[A]) extends AnyVal {
@@ -671,6 +673,18 @@ package object extensions {
     def headOption: Option[A] = {
       if (delegate.hasNext) Some(delegate.next())
       else None
+    }
+
+    def intersperse[B >: A](sep: B): Iterator[B] = new Iterator[B] {
+      private var intersperseNext = false
+
+      override def hasNext: Boolean = intersperseNext || delegate.hasNext
+
+      override def next(): B = {
+        val element = if (intersperseNext) sep else delegate.next()
+        intersperseNext = !intersperseNext && delegate.hasNext
+        element
+      }
     }
   }
 

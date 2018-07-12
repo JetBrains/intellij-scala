@@ -213,13 +213,12 @@ case class MostSpecificUtil(elem: PsiElement, length: Int) {
     }
   }
 
-  private def getClazz[T](r: InnerScalaResolveResult[T]): Option[PsiClass] = {
-    val element = ScalaPsiUtil.nameContext(r.element)
-    element match {
-      case memb: PsiMember => Option(memb.containingClass)
-      case _ => None
-    }
-  }
+  private def getClazz(element: PsiNamedElement): Option[PsiClass] =
+    element.nameContext
+      .asOptionOf[PsiMember]
+      .flatMap(_.containingClass.toOption)
+
+  private def getClazz(res: InnerScalaResolveResult[_]): Option[PsiClass] = getClazz(res.element)
 
   /**
    * c1 is a subclass of c2, or
@@ -240,6 +239,12 @@ case class MostSpecificUtil(elem: PsiElement, length: Int) {
         }
       case _ => false
     }
+  }
+
+  def isInMoreSpecificClass(r1: ScalaResolveResult, r2: ScalaResolveResult): Boolean = {
+    val clazz1 = getClazz(r1.element)
+    val clazz2 = getClazz(r2.element)
+    isDerived(clazz1, clazz2) && !isDerived(clazz2, clazz1)
   }
 
   private def relativeWeight[T](r1: InnerScalaResolveResult[T], r2: InnerScalaResolveResult[T],

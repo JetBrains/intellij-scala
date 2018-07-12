@@ -15,6 +15,7 @@ class FinchProjectHighlightingTest extends GithubSbtAllProjectHighlightingTest {
   override def filesWithProblems: Map[String, Set[TextRange]] = Map(
     "EndpointSpec.scala" -> Set((2346, 2354), (2337, 2345)),
     "EndpointMapper.scala" -> Set((311, 314), (304, 310)),
-    "Endpoint.scala" -> Set((7183,7185), (7186,7189)) //fails on teamcity, but not locally
+    "Endpoint.scala" -> Set((7183,7185), (7186,7189)),
+    "GenericSpec.scala" -> Set((225, 255))
   )
 }

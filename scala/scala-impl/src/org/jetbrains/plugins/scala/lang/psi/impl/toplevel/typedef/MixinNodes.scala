@@ -305,7 +305,14 @@ abstract class MixinNodes {
     }
   }
 
-  def build(clazz: PsiClass): Map = build(ScalaType.designator(clazz))(clazz)
+  def emptyMap: Map = new Map()
+
+  def build(clazz: PsiClass): Map = {
+    if (!clazz.isValid) emptyMap
+    else {
+      build(ScalaType.designator(clazz))(clazz)
+    }
+  }
 
   def build(tp: ScType, compoundThisType: Option[ScType] = None)
            (implicit ctx: ProjectContext): Map = {

@@ -15,11 +15,15 @@ import org.jetbrains.plugins.scala.lang.refactoring.ScalaNamesValidator.isIdenti
 import org.jetbrains.plugins.scala.lang.refactoring.namesSuggester.genericTypes.{GenericTypeNamesProvider, TypePluralNamesProvider}
 import org.jetbrains.plugins.scala.lang.refactoring.util.{ScalaTypeValidator, ScalaValidator, ScalaVariableValidator}
 
+import scala.collection.mutable
+
 /**
   * @author Alexander Podkhalyuzin
   * @since 26.06.2008
   */
 object NameSuggester {
+
+  private val DefaultName = "value"
 
   def suggestNames(expression: ScExpression)
                   (implicit validator: ScalaVariableValidator = ScalaVariableValidator.empty): Seq[String] =
@@ -50,7 +54,7 @@ object NameSuggester {
     }.filter(isIdentifier)
 
     val collected = filteredNames.toSeq match {
-      case Seq() => Seq("value")
+      case Seq() => Seq(DefaultName)
       case seq => seq.reverse
     }
 
@@ -62,6 +66,24 @@ object NameSuggester {
   def suggestNamesByType(`type`: ScType)
                         (implicit validator: ScalaTypeValidator = ScalaTypeValidator.empty): Seq[String] =
     collectNames(namesByType(`type`))
+
+  class UniqueNameSuggester(defaultName: String = DefaultName) extends (ScType => String) {
+
+    private val counter = mutable.Map.empty[String, Int].withDefaultValue(-1)
+
+    override def apply(`type`: ScType): String =
+      this (suggestNamesByType(`type`))
+
+    def apply(names: Traversable[String]): String = {
+      val name = names.headOption.getOrElse(defaultName)
+      counter(name) += 1
+
+      name + (counter(name) match {
+        case 0 => ""
+        case i => i
+      })
+    }
+  }
 
   private[namesSuggester] def namesByType(`type`: ScType, withPlurals: Boolean = true, shortVersion: Boolean = true): Seq[String] = {
     def toLowerCase(name: String, length: Int): String = {

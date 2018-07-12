@@ -175,6 +175,7 @@ public class ScalaColorsAndFontsPage implements RainbowColorSettingsPage {
             || LOCAL_VARIABLES.equals(key)
             || PARAMETER.equals(key)
             || ANONYMOUS_PARAMETER.equals(key)
+            || PATTERN.equals(key)
             || SCALA_DOC_TAG_PARAM_VALUE.equals(key);
   }
 

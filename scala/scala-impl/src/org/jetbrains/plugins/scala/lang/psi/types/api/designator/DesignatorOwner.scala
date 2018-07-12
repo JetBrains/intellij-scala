@@ -5,6 +5,7 @@ import org.jetbrains.plugins.scala.extensions.PsiClassExt
 import org.jetbrains.plugins.scala.lang.psi.api.statements.params.ScParameter
 import org.jetbrains.plugins.scala.lang.psi.api.toplevel.ScTypedDefinition
 import org.jetbrains.plugins.scala.lang.psi.api.toplevel.typedef.ScObject
+import org.jetbrains.plugins.scala.lang.psi.types.ScType
 import org.jetbrains.plugins.scala.lang.psi.types.api.ValueType
 import org.jetbrains.plugins.scala.project.ProjectContext
 
@@ -32,6 +33,14 @@ trait DesignatorOwner extends ValueType {
     case _: ScObject => None
     case parameter: ScParameter if parameter.isStable => parameter.getRealParameterType.toOption
     case definition: ScTypedDefinition if definition.isStable => definition.`type`().toOption
+    case _ => None
+  }
+}
+
+object DesignatorOwner {
+
+  def unapply(`type`: ScType): Option[PsiNamedElement] = `type` match {
+    case owner: DesignatorOwner => Some(owner.element)
     case _ => None
   }
 }

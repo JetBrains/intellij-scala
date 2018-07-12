@@ -26,13 +26,13 @@ class ScalaDocUnknownTagInspection extends LocalInspectionTool {
         
         if (!MyScaladocParsing.allTags.contains(tagNameElement.getText)) {
           holder.registerProblem(holder.getManager.createProblemDescriptor(tagNameElement, getDisplayName, true,
-            ProblemHighlightType.GENERIC_ERROR, isOnTheFly, new ScalaDocDeleteUnknownTagInspection(s)))
+            ProblemHighlightType.GENERIC_ERROR_OR_WARNING, isOnTheFly, new ScalaDocDeleteUnknownTagInspection(s)))
         } else if (MyScaladocParsing.tagsWithParameters.contains(tagNameElement.getText) &&
           (tagNameElement.getNextSibling.getNextSibling == null ||
              tagNameElement.getNextSibling.getNextSibling.getNode.getElementType != ScalaDocTokenType.DOC_TAG_VALUE_TOKEN))
         {
           holder.registerProblem(holder.getManager.createProblemDescriptor(tagNameElement,
-            "Missing Tag Parameter", true, ProblemHighlightType.GENERIC_ERROR, isOnTheFly))
+            "Missing Tag Parameter", true, ProblemHighlightType.GENERIC_ERROR_OR_WARNING, isOnTheFly))
         }
       }
     }

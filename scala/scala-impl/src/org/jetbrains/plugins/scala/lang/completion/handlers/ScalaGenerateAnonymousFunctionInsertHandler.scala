@@ -5,6 +5,7 @@ import com.intellij.codeInsight.completion.{InsertHandler, InsertionContext}
 import com.intellij.codeInsight.lookup.LookupElement
 import com.intellij.codeInsight.template._
 import com.intellij.codeInsight.template.impl.ConstantNode
+import com.intellij.openapi.project.Project
 import com.intellij.psi.PsiDocumentManager
 import com.intellij.psi.util.PsiTreeUtil
 import org.jetbrains.plugins.scala.extensions.inWriteAction
@@ -42,8 +43,10 @@ class ScalaGenerateAnonymousFunctionInsertHandler(params: Seq[ScType], braceArgs
     val editor = context.getEditor
     val document = editor.getDocument
     context.setAddCompletionChar(false)
-    val text = ScalaCompletionUtil.generateAnonymousFunctionText(braceArgs, params, canonical = true,
-      arrowText = ScalaPsiUtil.functionArrow(editor.getProject))
+
+    implicit val project: Project = editor.getProject
+    val text = ScalaCompletionUtil.anonymousFunctionText(params, braceArgs)(_.canonicalText)
+
     document.insertString(editor.getCaretModel.getOffset, text)
     val documentManager = PsiDocumentManager.getInstance(context.getProject)
     documentManager.commitDocument(document)

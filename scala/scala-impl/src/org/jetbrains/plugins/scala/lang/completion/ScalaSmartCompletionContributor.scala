@@ -3,6 +3,7 @@ package org.jetbrains.plugins.scala.lang.completion
 import com.intellij.codeInsight.completion._
 import com.intellij.codeInsight.lookup._
 import com.intellij.openapi.application.ApplicationManager
+import com.intellij.openapi.project.Project
 import com.intellij.patterns.PsiElementPattern.Capture
 import com.intellij.patterns.{ElementPattern, PlatformPatterns, StandardPatterns}
 import com.intellij.psi._
@@ -317,7 +318,8 @@ class ScalaSmartCompletionContributor extends ScalaCompletionContributor {
     }
   })
 
-  private def argumentsForFunction(args: ScArgumentExprList, referenceExpression: ScReferenceExpression,
+  private def argumentsForFunction(args: ScArgumentExprList,
+                                   referenceExpression: ScReferenceExpression,
                                    result: CompletionResultSet) {
     val braceArgs = args.isBraceArgs
     val expects = referenceExpression.expectedTypes()
@@ -335,26 +337,27 @@ class ScalaSmartCompletionContributor extends ScalaCompletionContributor {
         val presentableParams = params.map(_.removeAbstracts)
         val anonFunRenderer = new LookupElementRenderer[LookupElement] {
           def renderElement(element: LookupElement, presentation: LookupElementPresentation) {
-            val arrowText = ScalaPsiUtil.functionArrow(referenceExpression.getProject)
-            val text = ScalaCompletionUtil.generateAnonymousFunctionText(braceArgs, presentableParams, canonical = false,
-              arrowText = arrowText)
+            import ScalaCompletionUtil.anonymousFunctionText
+            import ScalaPsiUtil.functionArrow
+
+            implicit val project: Project = referenceExpression.getProject
+
+            val text = anonymousFunctionText(presentableParams, braceArgs)()(project)
             presentation match {
               case realPresentation: RealLookupElementPresentation =>
                 if (!realPresentation.hasEnoughSpaceFor(text, false)) {
                   var prefixIndex = presentableParams.length - 1
-                  val suffix = s", ... $arrowText"
+                  val suffix = s", ... $functionArrow"
                   var end = false
                   while (prefixIndex > 0 && !end) {
-                    val prefix = ScalaCompletionUtil.generateAnonymousFunctionText(braceArgs,
-                      presentableParams.slice(0, prefixIndex), canonical = false, withoutEnd = true,
-                      arrowText = arrowText)
+                    val prefix = anonymousFunctionText(presentableParams.slice(0, prefixIndex), braceArgs)()(project = null)
                     if (realPresentation.hasEnoughSpaceFor(prefix + suffix, false)) {
                       presentation.setItemText(prefix + suffix)
                       end = true
                     } else prefixIndex -= 1
                   }
                   if (!end) {
-                    presentation.setItemText(s"... $arrowText ")
+                    presentation.setItemText(s"... $functionArrow ")
                   }
                 } else presentation.setItemText(text)
                 presentation.setIcon(Icons.LAMBDA)

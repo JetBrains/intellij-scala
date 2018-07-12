@@ -73,7 +73,7 @@ class ScalaSmartAnonymousFunctionCompletionTest extends ScalaCodeInsightTestBase
     resultText =
       s"""
          |def foo(x: Tuple2[Int, Int] => Int) = 1
-         |foo{case (i: Int, i0: Int) => $CARET}
+         |foo{case (i: Int, i1: Int) => $CARET}
        """.stripMargin
   )
 
@@ -127,7 +127,7 @@ class ScalaSmartAnonymousFunctionCompletionTest extends ScalaCodeInsightTestBase
     resultText =
       s"""
          |def foo(c: (Int, Int, Int, Int) => Int) = 1
-         |foo((i: Int, i0: Int, i1: Int, i2: Int) => $CARET)
+         |foo((i: Int, i1: Int, i2: Int, i3: Int) => $CARET)
        """.stripMargin
   )
 
@@ -140,7 +140,7 @@ class ScalaSmartAnonymousFunctionCompletionTest extends ScalaCodeInsightTestBase
     resultText =
       s"""
          |def foo(x: (Int, String, Int, String) => Int) = 1
-         |foo((i: Int, str: String, i0: Int, str0: String) => $CARET)
+         |foo((i: Int, str: String, i1: Int, str1: String) => $CARET)
        """.stripMargin
   )
 

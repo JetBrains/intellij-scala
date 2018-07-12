@@ -1,6 +1,0 @@
-val x: Option[Int] = Some(0)
-
-x match {
-  case Some(x) =>
-  case None =>
-}

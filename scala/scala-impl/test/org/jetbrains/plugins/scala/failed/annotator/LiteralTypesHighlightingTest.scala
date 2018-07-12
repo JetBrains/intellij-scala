@@ -5,7 +5,7 @@ import org.jetbrains.plugins.scala.util.TestUtils
 
 class LiteralTypesHighlightingTest extends LiteralTypesHighlightingTestBase {
   override protected def shouldPass = false
-  def folderPath = TestUtils.getTestDataPath + "/annotator/literalTypes/failed/"
+  override def folderPath = TestUtils.getTestDataPath + "/annotator/literalTypes/failed/"
 
   //TODO doesn't work without literal types either
   def testSip23Bounds(): Unit = doTest()

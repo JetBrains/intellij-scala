@@ -2,6 +2,7 @@ package org.jetbrains.plugins.scala.lang.psi.types
 
 import com.intellij.lang.ASTNode
 import com.intellij.openapi.project.Project
+import org.apache.commons.lang.StringEscapeUtils
 import org.jetbrains.plugins.scala.lang.lexer.ScalaTokenTypes
 import org.jetbrains.plugins.scala.lang.psi.api.toplevel.typedef.ScTypeDefinition
 import org.jetbrains.plugins.scala.lang.psi.impl.toplevel.synthetic.{ScSyntheticFunction, SyntheticClasses}
@@ -24,15 +25,12 @@ class ScLiteralType private (val literalValue: Any, val kind: ScLiteralType.Kind
 
   override def equals(obj: Any): Boolean = {
     obj match {
-      case other: ScLiteralType => other.literalValue == literalValue
+      case other: ScLiteralType => kind == other.kind && literalValue == other.literalValue
       case _ => false
     }
   }
 
-  override def hashCode(): Int = literalValue match {
-    case null => ScLiteralType.Kind.Null.hashCode()
-    case v    => v.hashCode()
-  }
+  override def hashCode(): Int = 31 * kind.hashCode() + literalValue.hashCode()
 
   private def valueAs[T: ClassTag]: T = literalValue.asInstanceOf[T]
 }
@@ -50,8 +48,6 @@ object ScLiteralType {
     case object Float   extends Kind
     case object Double  extends Kind
     case object Char    extends Kind
-    case object Short   extends Kind
-    case object Byte    extends Kind
   }
 
   def apply(literalValue: Any, kind: Kind)(implicit projectContext: ProjectContext): ScLiteralType =
@@ -89,7 +85,6 @@ object ScLiteralType {
         .map(ScalaType.designator).getOrElse(api.Nothing)
 
     kind match {
-      case Kind.Null    => api.Null
       case Kind.Boolean => api.Boolean
       case Kind.String  => getCachedClass("java.lang.String")
       case Kind.Symbol  => getCachedClass("scala.Symbol")
@@ -98,19 +93,25 @@ object ScLiteralType {
       case Kind.Float   => api.Float
       case Kind.Double  => api.Double
       case Kind.Char    => api.Char
-      case Kind.Short   => api.Short
-      case Kind.Byte    => api.Byte
     }
   }
 
+  def printValue(lt: ScLiteralType): String = lt.kind match {
+    case Kind.String => quoted(lt.valueAs[String])
+    case Kind.Char   => s"\'${lt.literalValue}\'"
+    case Kind.Long   => lt.literalValue.toString + "L"
+    case Kind.Float  => lt.literalValue.toString + "f"
+    case Kind.Boolean |
+         Kind.Int     |
+         Kind.Symbol  |
+         Kind.Double => lt.literalValue.toString
+  }
+
+  private def quoted(s: String): String = "\"" + StringEscapeUtils.escapeJava(s) + "\""
 
   private def isInteger(kind: Kind) = kind match {
-    case Kind.Int    |
-         Kind.Long   |
-         Kind.Char   |
-         Kind.Short  |
-         Kind.Byte   => true
-    case _           => false
+    case Kind.Int | Kind.Long | Kind.Char => true
+    case _                                => false
   }
 
   private def isNumeric(kind: Kind) =
@@ -169,8 +170,6 @@ object ScLiteralType {
           case Kind.Float  => Some(ScLiteralType(-arg.valueAs[Float],  kind))
           case Kind.Double => Some(ScLiteralType(-arg.valueAs[Double], kind))
           case Kind.Char   => Some(ScLiteralType(-arg.valueAs[Char],   kind))
-          case Kind.Short  => Some(ScLiteralType(-arg.valueAs[Short],  kind))
-          case Kind.Byte   => Some(ScLiteralType(-arg.valueAs[Byte],   kind))
           case _           => None
         }
       } else None

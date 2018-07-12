@@ -34,7 +34,7 @@ class RemoveUnnecessaryParenthesesIntention extends PsiElementBaseIntentionActio
       case expr if expr.isNestedParenthesis => invoke(project, editor, expr)
       case expr if expr.isParenthesisRedundant =>
         inWriteAction {
-          expr.stripParentheses()
+          expr.doStripParentheses()
         }
       case _ =>
     }

@@ -16,7 +16,7 @@ sealed trait Implementation {
 
   final def containsReturn: Boolean = returnCandidates.exists(_.isInstanceOf[ScReturnStmt])
 
-  final def isTypeObvious: Boolean = bodyCandidate.exists {
+  final def isTypeStable: Boolean = bodyCandidate.exists {
     case literal: ScLiteral => literal.getFirstChild.getNode.getElementType != ScalaTokenTypes.kNULL
     case _: ScUnitExpr => true
     case _: ScThrowStmt => true

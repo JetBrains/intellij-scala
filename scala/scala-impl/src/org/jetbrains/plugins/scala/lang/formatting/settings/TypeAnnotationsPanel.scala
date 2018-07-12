@@ -64,8 +64,8 @@ class TypeAnnotationsPanel(settings: CodeStyleSettings) extends TypeAnnotationsP
         TYPE_ANNOTATION_EXCLUDE_CONSTANT, myConstant.isSelected)
       (TYPE_ANNOTATION_EXCLUDE_CONSTANT = _, myConstant.setSelected),
       new Binding(
-        TYPE_ANNOTATION_EXCLUDE_WHEN_TYPE_IS_OBVIOUS, myObviousType.isSelected)
-      (TYPE_ANNOTATION_EXCLUDE_WHEN_TYPE_IS_OBVIOUS = _, myObviousType.setSelected),
+        TYPE_ANNOTATION_EXCLUDE_WHEN_TYPE_IS_STABLE, myStableType.isSelected)
+      (TYPE_ANNOTATION_EXCLUDE_WHEN_TYPE_IS_STABLE = _, myStableType.setSelected),
       new Binding(
         TYPE_ANNOTATION_EXCLUDE_IN_TEST_SOURCES, myTestSources.isSelected)
       (TYPE_ANNOTATION_EXCLUDE_IN_TEST_SOURCES = _, myTestSources.setSelected),

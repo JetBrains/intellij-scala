@@ -31,7 +31,7 @@ class ScalaDocUnbalancedHeaderInspection extends LocalInspectionTool {
                 lastChildElementType == DOC_HEADER)) {
           if (s.getFirstChild.getTextLength != s.getLastChild.getTextLength) {
             holder.registerProblem(holder.getManager.createProblemDescriptor(s.getLastChild, getDisplayName, true,
-              ProblemHighlightType.GENERIC_ERROR, isOnTheFly, new ScalaDocHeaderBalanceQuickFix(s.getFirstChild, s.getLastChild)))
+              ProblemHighlightType.GENERIC_ERROR_OR_WARNING, isOnTheFly, new ScalaDocHeaderBalanceQuickFix(s.getFirstChild, s.getLastChild)))
           }
           
           var sibl = s.getNextSibling

@@ -3,21 +3,18 @@ package codeInspection
 package controlFlow
 
 import com.intellij.codeInspection.LocalInspectionTool
-import com.intellij.testFramework.EditorTestUtil
+import com.intellij.testFramework.EditorTestUtil.{SELECTION_END_TAG => END, SELECTION_START_TAG => START}
 
 /**
  * Nikolay.Tropin
  * 2014-09-23
  */
-class UselessExpressionInspectionTest extends ScalaInspectionTestBase {
-
-  import EditorTestUtil.{SELECTION_END_TAG => END, SELECTION_START_TAG => START}
-
+class UnusedExpressionInspectionTest extends ScalaInspectionTestBase {
   override protected val classOfInspection: Class[_ <: LocalInspectionTool] =
-    classOf[ScalaUselessExpressionInspection]
+    classOf[ScalaUnusedExpressionInspection]
 
   override protected val description: String =
-    "Useless expression"
+    InspectionBundle.message("unused.expression.no.side.effects")
 
   def testLiteral(): Unit = {
     val text = s"""def foo(): Int = {
@@ -284,5 +281,44 @@ class UselessExpressionInspectionTest extends ScalaInspectionTestBase {
         |}
       """
     checkTextHasNoErrors(text)
+  }
+}
+
+class UnusedExpressionThrowsInspectionTest extends ScalaInspectionTestBase {
+  override protected val description = InspectionBundle.message("unused.expression.throws")
+
+  override protected val classOfInspection = classOf[ScalaUnusedExpressionInspection]
+
+  def testUnsafeGet(): Unit = {
+    checkTextHasError(
+      s"""
+        |def foo: Unit = {
+        |  import scala.util.Try
+        |  val tr = Try {
+        |    throw new IllegalStateException()
+        |  }
+        |  ${START}tr.get$END
+        |}
+      """.stripMargin)
+  }
+
+  def testUnsafeHead(): Unit = {
+    checkTextHasError(
+      s"""
+        |def foo: Unit = {
+        |  val list: List[String] = Nil
+        |  ${START}list.head$END
+        |}
+      """.stripMargin)
+  }
+
+  def testUnsafeGetProjection(): Unit = {
+    checkTextHasError(
+      s"""
+        |def foo: Unit = {
+        |  val left = Left("a")
+        |  ${START}Left("a").right.get$END
+        |}
+      """.stripMargin)
   }
 }

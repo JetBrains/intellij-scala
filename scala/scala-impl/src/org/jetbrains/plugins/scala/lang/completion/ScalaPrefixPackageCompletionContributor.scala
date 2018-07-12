@@ -36,7 +36,7 @@ class ScalaPrefixPackageCompletionContributor extends ScalaCompletionContributor
         implicit val p: CompletionParameters = parameters
         implicit val c: ProcessingContext = context
 
-        val element = positionFromParameters(parameters)
+        val element = positionFromParameters
         if (!shouldRunClassNameCompletion(element, result.getPrefixMatcher)) {
           ScalaPrefixPackageCompletionContributor.completePrefixPackageNames(element, result)
         }

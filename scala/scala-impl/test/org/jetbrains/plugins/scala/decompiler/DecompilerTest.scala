@@ -150,4 +150,13 @@ class DecompilerTest extends DecompilerTestBase {
   def testPrivateCompanion(): Unit = {
     doTest("RequestBuilder.class")
   }
+
+  def testLiteralTypes(): Unit = {
+    doTest("LiteralTypes.class")
+  }
+
+  def testConstants(): Unit = {
+    doTest("Constants210.class")
+    doTest("Constants213.class")
+  }
 }

@@ -21,6 +21,7 @@ import org.jetbrains.plugins.scala.extensions.PsiElementExt
 import org.jetbrains.plugins.scala.lang.lexer.ScalaTokenTypes
 import org.jetbrains.plugins.scala.lang.psi.api.ScalaElementVisitor
 import org.jetbrains.plugins.scala.lang.psi.api.base.{ScInterpolatedStringLiteral, ScLiteral}
+import org.jetbrains.plugins.scala.lang.psi.types.ScLiteralType.Kind
 import org.jetbrains.plugins.scala.lang.psi.types._
 import org.jetbrains.plugins.scala.lang.psi.types.result._
 import org.jetbrains.plugins.scala.macroAnnotations.CachedInUserData
@@ -45,6 +46,7 @@ class ScLiteralImpl(node: ASTNode) extends ScalaPsiElementImpl(node) with ScLite
   protected override def innerType: TypeResult = {
     ScLiteralType.kind(getFirstChild.getNode, this) match {
       case None => Failure("Wrong Psi to get Literal type")
+      case Some(Kind.Null) => Right(api.Null(projectContext))
       case Some(kind) => Right {
         if (allowLiteralTypes) ScLiteralType(getValue, kind)
         else ScLiteralType.wideType(kind)

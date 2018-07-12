@@ -14,6 +14,7 @@ import com.intellij.psi.util.PsiTreeUtil
 import org.apache.commons.lang.StringEscapeUtils.escapeHtml
 import org.jetbrains.plugins.scala.extensions._
 import org.jetbrains.plugins.scala.lang.completion.lookups.ScalaLookupItem
+import org.jetbrains.plugins.scala.lang.psi.ScalaPsiUtil.inNameContext
 import org.jetbrains.plugins.scala.lang.psi.api.ScalaFile
 import org.jetbrains.plugins.scala.lang.psi.api.base._
 import org.jetbrains.plugins.scala.lang.psi.api.base.patterns.ScBindingPattern
@@ -72,19 +73,9 @@ class ScalaDocumentationProvider extends CodeDocumentationProvider {
       case _ => ScSubstitutor.empty
     }
 
-    val text = element match {
-      case clazz: ScTypeDefinition => generateClassInfo(clazz, substitutor)
-      case function: ScFunction => generateFunctionInfo(function, substitutor)
-      case value: ScNamedElement if ScalaPsiUtil.nameContext(value).isInstanceOf[ScValue]
-        || ScalaPsiUtil.nameContext(value).isInstanceOf[ScVariable] => generateValueInfo(value, substitutor)
-      case alias: ScTypeAlias => generateTypeAliasInfo(alias, substitutor)
-      case parameter: ScParameter => generateParameterInfo(parameter, substitutor)
-      case b: ScBindingPattern => generateBindingPatternInfo(b, substitutor)
-      case _ => null
-    }
-
-    if (text != null) text.replace("<", "&lt;") else null
+    ScalaDocumentationProvider.getQuickNavigateInfo(element, substitutor)
   }
+
 
   def getDocumentationElementForLink(psiManager: PsiManager, link: String, context: PsiElement): PsiElement = 
     JavaDocUtil.findReferenceTarget(psiManager, link, context)
@@ -277,6 +268,23 @@ class ScalaDocumentationProvider extends CodeDocumentationProvider {
 }
 
 object ScalaDocumentationProvider {
+
+  def getQuickNavigateInfo(element: PsiElement, substitutor: ScSubstitutor): String = {
+    val text = element match {
+      case clazz: ScTypeDefinition                         => generateClassInfo(clazz, substitutor)
+      case function: ScFunction                            => generateFunctionInfo(function, substitutor)
+      case value@inNameContext(_: ScValue | _: ScVariable) => generateValueInfo(value, substitutor)
+      case alias: ScTypeAlias                              => generateTypeAliasInfo(alias, substitutor)
+      case parameter: ScParameter                          => generateParameterInfo(parameter, substitutor)
+      case b: ScBindingPattern                             => generateBindingPatternInfo(b, substitutor)
+      case _                                               => null
+    }
+
+    if (text != null) text.replace("<", "&lt;") else null
+  }
+
+  def getQuickNavigateInfo(resolveResult: ScalaResolveResult): String =
+    getQuickNavigateInfo(resolveResult.element, resolveResult.substitutor)
 
   private class HtmlBuilderWrapper(delegate: StringBuilder) {
     def this() {
@@ -1044,7 +1052,7 @@ object ScalaDocumentationProvider {
     buffer.toString()
   }
 
-  def generateValueInfo(field: ScNamedElement, subst: ScSubstitutor): String = {
+  def generateValueInfo(field: PsiNamedElement, subst: ScSubstitutor): String = {
     val member = ScalaPsiUtil.nameContext(field) match {
       case x: ScMember => x
       case _ => return null

@@ -94,20 +94,21 @@ class ScalaBasicCompletionContributor extends ScalaCompletionContributor {
           case ref: ScReferenceElement =>
             object ValidItem {
 
+              private val maybeExpectedTypes = expectedTypeAfterNew(position)(context)
+
               def unapply(item: ScalaLookupItem): Option[ScalaLookupItem] = if (item.isValid) {
                 if (inString) item.isInSimpleString = true
                 if (inInterpolatedString) item.isInInterpolatedString = true
 
                 item.element match {
-                  case obj: ScObject if obj.baseCompanionModule.isDefined => None
+                  case clazz: PsiClass if isExcluded(clazz) ||
+                    importCheck(clazz, item.isInImport) ||
+                    classNameCompletion ||
+                    (lookingForAnnotations && !clazz.isAnnotationType) => None
                   case clazz: PsiClass =>
-                    if (!isExcluded(clazz) && !classNameCompletion && (!lookingForAnnotations || clazz.isAnnotationType)) {
-                      val lookupElement = expectedTypeAfterNew(position)(context)
-                        .map(_.apply(clazz, createRenamePair(item).toMap))
-                        .getOrElse(item)
-
-                      Some(lookupElement)
-                    } else None
+                    maybeExpectedTypes.map {
+                      _.apply(clazz, createRenamePair(item).toMap)
+                    }.orElse(Some(item))
                   case _ if lookingForAnnotations => None
                   case f: FakePsiMethod if isInaccessible(f) => None //don't show _= methods for vars in basic completion
                   case _: ScFun | _: ScClassParameter => Some(item)
@@ -129,6 +130,13 @@ class ScalaBasicCompletionContributor extends ScalaCompletionContributor {
                   case _ => Some(item)
                 }
               } else None
+
+              private def importCheck(clazz: PsiClass, isInImport: Boolean) = clazz match {
+                case _: ScObject if isInImport => false
+                case obj: ScObject => obj.baseCompanionModule.isDefined
+                case _ if isInImport => !clazz.hasModifierPropertyScala(PsiModifier.STATIC)
+                case _ => false
+              }
 
               private def isInaccessible(member: PsiMember) = parameters.getInvocationCount < 2 &&
                 (member match {

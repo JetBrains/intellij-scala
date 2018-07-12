@@ -4,11 +4,14 @@ package completion
 
 import com.intellij.codeInsight.completion.{CompletionParameters, CompletionUtil, JavaCompletionUtil, PrefixMatcher}
 import com.intellij.openapi.application.ApplicationManager
+import com.intellij.openapi.project.Project
 import com.intellij.openapi.util.{Computable, Key}
 import com.intellij.psi._
 import com.intellij.psi.util.PsiTreeUtil
+import org.jetbrains.plugins.scala.extensions.StringsExt
 import org.jetbrains.plugins.scala.lang.lexer._
 import org.jetbrains.plugins.scala.lang.parser._
+import org.jetbrains.plugins.scala.lang.psi.ScalaPsiUtil
 import org.jetbrains.plugins.scala.lang.psi.api.ScalaFile
 import org.jetbrains.plugins.scala.lang.psi.api.base.ScReferenceElement
 import org.jetbrains.plugins.scala.lang.psi.api.base.patterns.ScCaseClause
@@ -21,14 +24,15 @@ import org.jetbrains.plugins.scala.lang.psi.types.ScType
 import org.jetbrains.plugins.scala.lang.refactoring.ScalaNamesValidator.{isIdentifier, isKeyword}
 import org.jetbrains.plugins.scala.lang.refactoring.namesSuggester.NameSuggester
 
-import scala.collection.mutable.ArrayBuffer
-
 /**
 * User: Alexander Podkhalyuzin
 * Date: 21.05.2008.
 */
 
 object ScalaCompletionUtil {
+
+  import ScalaTokenTypes._
+
   val PREFIX_COMPLETION_KEY: Key[Boolean] = Key.create("prefix.completion.key")
 
   def completeThis(ref: ScReferenceExpression): Boolean =
@@ -43,7 +47,7 @@ object ScalaCompletionUtil {
                                   (implicit parameters: CompletionParameters): Boolean = {
     if (checkInvocationCount && parameters.getInvocationCount < 2) return false
 
-    if (dummyPosition.getNode.getElementType == ScalaTokenTypes.tIDENTIFIER) {
+    if (dummyPosition.getNode.getElementType == tIDENTIFIER) {
       dummyPosition.getParent match {
         case ref: ScReferenceElement if ref.qualifier.isDefined => return false
         case _ =>
@@ -56,38 +60,28 @@ object ScalaCompletionUtil {
     prefix.nonEmpty && prefix.charAt(0).isUpper
   }
 
-  def generateAnonymousFunctionText(braceArgs: Boolean, params: scala.Seq[ScType], canonical: Boolean,
-                                    withoutEnd: Boolean = false, arrowText: String = "=>"): String = {
-    val text = new StringBuilder()
-    if (braceArgs) text.append("case ")
-    val paramNamesWithTypes = new ArrayBuffer[(String, ScType)]
-    def contains(name: String): Boolean = {
-      paramNamesWithTypes.exists{
-        case (s, _) => s == name
-      }
+  def anonymousFunctionText(types: Seq[ScType], braceArgs: Boolean)
+                           (typeText: ScType => String = _.presentableText)
+                           (implicit project: Project): String = {
+    val buffer = StringBuilder.newBuilder
+
+    if (braceArgs) buffer.append(kCASE).append(" ")
+
+    val suggester = new NameSuggester.UniqueNameSuggester("x")
+    val names = types.map(suggester)
+
+    val parametersText = names.zip(types).map {
+      case (name, scType) => name + tCOLON + " " + typeText(scType)
+    }.commaSeparated(parenthesize = names.size != 1 || !braceArgs)
+
+    buffer.append(parametersText)
+
+    if (project != null) {
+      buffer.append(" ")
+        .append(ScalaPsiUtil.functionArrow)
     }
-    for (param <- params) {
-      var name = NameSuggester.suggestNamesByType(param).headOption.getOrElse("x")
-      if (contains(name)) {
-        var count = 0
-        var newName = name + count
-        while (contains(newName)) {
-          count += 1
-          newName = name + count
-        }
-        name = newName
-      }
-      paramNamesWithTypes.+=(name -> param)
-    }
-    val iter = paramNamesWithTypes.map {
-      case (s, tp) => s + ": " + (if (canonical) tp.canonicalText else tp.presentableText)
-    }
-    val paramsString =
-      if (paramNamesWithTypes.size != 1 || !braceArgs) iter.mkString("(", ", ", ")")
-      else iter.head
-    text.append(paramsString)
-    if (!withoutEnd) text.append(" ").append(arrowText)
-    text.toString()
+
+    buffer.toString()
   }
 
   def getLeafByOffset(offset: Int, element: PsiElement): PsiElement = {
@@ -143,7 +137,7 @@ object ScalaCompletionUtil {
 
   def awful(parent: PsiElement, leaf: PsiElement): Boolean = {
     (leaf.getPrevSibling == null || leaf.getPrevSibling.getPrevSibling == null ||
-      leaf.getPrevSibling.getPrevSibling.getNode.getElementType != ScalaTokenTypes.kDEF) &&
+      leaf.getPrevSibling.getPrevSibling.getNode.getElementType != kDEF) &&
       (parent.getPrevSibling == null || parent.getPrevSibling.getPrevSibling == null ||
         (parent.getPrevSibling.getPrevSibling.getNode.getElementType != ScalaElementTypes.MATCH_STMT ||
           !parent.getPrevSibling.getPrevSibling.getLastChild.isInstanceOf[PsiErrorElement]))
@@ -291,9 +285,9 @@ object ScalaCompletionUtil {
 
       if (ref.getElement != null &&
         ref.getElement.getPrevSibling != null &&
-        ref.getElement.getPrevSibling.getNode.getElementType == ScalaTokenTypes.tSTUB) id + "`" else id
+        ref.getElement.getPrevSibling.getNode.getElementType == tSTUB) id + "`" else id
     } else {
-      if (element != null && element.getNode.getElementType == ScalaTokenTypes.tSTUB) {
+      if (element != null && element.getNode.getElementType == tSTUB) {
         CompletionUtil.DUMMY_IDENTIFIER_TRIMMED + "`"
       } else {
         Option(file.findElementAt(offset + 1))

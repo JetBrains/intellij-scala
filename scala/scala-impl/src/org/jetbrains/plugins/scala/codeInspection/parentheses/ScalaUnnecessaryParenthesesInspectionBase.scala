@@ -74,9 +74,9 @@ abstract class ScalaUnnecessaryParenthesesInspectionBase
       override protected def doApplyFix(element: ScParenthesizedElement)(implicit project: Project): Unit = {
         val keepParentheses = element.isNestingParenthesis
         // remove first the duplicate parentheses
-        val replaced = element.stripParentheses(keepParentheses) match {
+        val replaced = element.doStripParentheses(keepParentheses) match {
           // Remove the last level of parentheses if allowed
-          case paren: ScParenthesizedElement if element.isParenthesisRedundant => paren.stripParentheses()
+          case paren: ScParenthesizedElement if element.isParenthesisRedundant => paren.doStripParentheses()
           case other => other
         }
 

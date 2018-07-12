@@ -6,72 +6,77 @@ import com.intellij.codeInsight.daemon.RainbowVisitor
 import com.intellij.openapi.editor.colors.TextAttributesKey
 import com.intellij.psi.util.PsiTreeUtil
 import com.intellij.psi.{PsiElement, PsiFile}
-import org.jetbrains.plugins.scala.extensions.childOf
 import org.jetbrains.plugins.scala.highlighter.DefaultHighlighter
+import org.jetbrains.plugins.scala.lang.psi.ScalaPsiElement
 import org.jetbrains.plugins.scala.lang.psi.api.ScalaFile
-import org.jetbrains.plugins.scala.lang.psi.api.base.ScPatternList
-import org.jetbrains.plugins.scala.lang.psi.api.base.patterns.ScReferencePattern
-import org.jetbrains.plugins.scala.lang.psi.api.expr.{ScFunctionExpr, ScReferenceExpression}
+import org.jetbrains.plugins.scala.lang.psi.api.base.patterns._
+import org.jetbrains.plugins.scala.lang.psi.api.expr._
+import org.jetbrains.plugins.scala.lang.psi.api.statements._
 import org.jetbrains.plugins.scala.lang.psi.api.statements.params.{ScClassParameter, ScParameter}
-import org.jetbrains.plugins.scala.lang.psi.api.statements.{ScFunction, ScValue, ScValueOrVariable, ScVariable}
+import org.jetbrains.plugins.scala.lang.psi.api.toplevel.ScNamedElement
 import org.jetbrains.plugins.scala.lang.scaladoc.psi.api.ScDocTagValue
 
-class ScalaRainbowVisitor extends RainbowVisitor {
+final class ScalaRainbowVisitor extends RainbowVisitor {
 
-  override final def suitableForFile(file: PsiFile): Boolean = file match {
+  import ScalaRainbowVisitor._
+
+  override def suitableForFile(file: PsiFile): Boolean = file match {
     case _: ScalaFile => true
     case _ => false
   }
 
-  override final def visit(element: PsiElement): Unit = element match {
-    case parameter: ScParameter =>
-      addInfo(parameter, parameter.nameId)
-    case element: ScValueOrVariable =>
-      addInfo(element, element.declaredElements.map(_.nameId): _*)
-    case reference@ScReferenceExpression(parameter: ScParameter) =>
-      addReferenceInfo(parameter, reference)
-    case reference@ScReferenceExpression((_: ScReferencePattern) childOf ((_: ScPatternList) childOf (element: ScValueOrVariable))) =>
-      addReferenceInfo(element, reference)
+  override def visit(element: PsiElement): Unit = element match {
+    case named@ColoredNameContext(context, colorKey) =>
+      addInfo(context, colorKey, named.nameId)
+    case reference@ScReferenceExpression(ColoredNameContext(context, colorKey)) =>
+      addInfo(context, colorKey, reference.nameId)
     case docTag: ScDocTagValue =>
-      addInfo(docTag, docTag)
+      addInfo(docTag, DefaultHighlighter.SCALA_DOC_TAG_PARAM_VALUE, docTag)
     case _ =>
   }
 
-  override final def clone(): ScalaRainbowVisitor = new ScalaRainbowVisitor
+  override def clone(): ScalaRainbowVisitor = new ScalaRainbowVisitor
 
-  private def addReferenceInfo(element: PsiElement, expression: ScReferenceExpression): Unit =
-    addInfo(element, expression.nameId)
-
-  private def addInfo(element: PsiElement, rainbowElements: PsiElement*): Unit = {
+  private def addInfo(element: PsiElement,
+                      colorKey: TextAttributesKey,
+                      rainbowElement: PsiElement): Unit = {
     import PsiTreeUtil.getContextOfType
-    import ScalaRainbowVisitor.ColorKey
+    val context = element match {
+      case clause: ScCaseClause => clause
+      case patterned: ScPatterned => getContextOfType(patterned, classOf[ScForStatement])
+      case _ => getContextOfType(element, false, classOf[ScFunction], classOf[ScFunctionExpr])
+    }
 
-    for {
-      ColorKey(colorKey) <- Some(element)
-      context <- Option(getContextOfType(element, true, classOf[ScFunction], classOf[ScFunctionExpr]))
-      rainbowElement <- rainbowElements
-      info = getInfo(context, rainbowElement, rainbowElement.getText, colorKey)
-    } addInfo(info)
+    if (context != null) {
+      val info = getInfo(context, rainbowElement, rainbowElement.getText, colorKey)
+      addInfo(info)
+    }
   }
 }
 
 private object ScalaRainbowVisitor {
 
-  object ColorKey {
+  object ColoredNameContext {
 
-    import DefaultHighlighter._
+    def unapply(element: ScNamedElement): Option[(ScalaPsiElement, TextAttributesKey)] = {
+      val nameContext = element match {
+        case parameter: ScParameter => parameter
+        case pattern: ScBindingPattern => pattern.nameContext
+        case _ => null
+      }
 
-    def unapply(element: PsiElement): Option[TextAttributesKey] = element match {
-      case parameter: ScParameter =>
-        parameter match {
-          case _: ScClassParameter => None
-          case _ if parameter.isAnonymousParameter => Some(ANONYMOUS_PARAMETER)
-          case _ => Some(PARAMETER)
-        }
-      case value: ScValue if value.isLocal => Some(LOCAL_VALUES)
-      case variable: ScVariable if variable.isLocal => Some(LOCAL_VARIABLES)
-      case _: ScDocTagValue => Some(SCALA_DOC_TAG_PARAM_VALUE)
-      case _ => None
+      import DefaultHighlighter._
+      nameContext match {
+        case _: ScClassParameter => None
+        case parameter: ScParameter if parameter.isAnonymousParameter => Some(parameter, ANONYMOUS_PARAMETER)
+        case parameter: ScParameter => Some(parameter, PARAMETER)
+        case value: ScValue if value.isLocal => Some(value, LOCAL_VALUES)
+        case variable: ScVariable if variable.isLocal => Some(variable, LOCAL_VARIABLES)
+        case clause: ScCaseClause => Some(clause, PATTERN)
+        case patterned: ScPatterned => Some(patterned, GENERATOR)
+        case _ => None
+      }
     }
   }
+
 }

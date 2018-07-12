@@ -61,6 +61,13 @@ class ScalaRainbowVisitorTest extends ScalaLightCodeInsightFixtureTestAdapter {
        """.stripMargin
   )
 
+  def testLambdaCaseParameters(): Unit = doTest(
+    s"""def foo: String => String = {
+       |  case ${S_1}p1$E: String if ${S_1}p1$E.isEmpty => ${S_1}p1$E
+       |}
+       """.stripMargin
+  )
+
   def testNestedMethods(): Unit = doTest(
     s"""def foo(${S_1}p1$E: Int, ${S_2}p2$E: Int): Unit = {
        |  def bar(${S_1}p1$E: Int): Unit = {
@@ -76,6 +83,24 @@ class ScalaRainbowVisitorTest extends ScalaLightCodeInsightFixtureTestAdapter {
        |    * @param ${S_2}p2$E second parameter
        |    */
        |  def foo(${S_1}p1$E: Int, ${S_2}p2$E: Int): Unit = {}
+     """.stripMargin
+  )
+
+  def testPatterns(): Unit = doTest(
+    s"""case class Pair(p1: String = "", p2: String = "")
+       |
+       |Pair() match {
+       |  case Pair(${S_1}p1$E, ${S_2}p2$E) => ${S_1}p1$E + ${S_2}p2$E
+       |}
+     """.stripMargin
+  )
+
+  def testForComprehensions(): Unit = doTest(
+    s"""
+       |for {
+       |  ${S_1}p1$E <- Some(42)
+       |  ${S_2}p2$E = 42
+       |} yield (${S_1}p1$E, ${S_2}p2$E)
      """.stripMargin
   )
 

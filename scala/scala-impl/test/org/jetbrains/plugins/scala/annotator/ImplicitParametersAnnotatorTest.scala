@@ -79,6 +79,28 @@ class ImplicitParametersAnnotatorTest extends AnnotatorTestBase(ImplicitParamete
       |}
     """.stripMargin
   ))
+
+  def testImplicitCollectorCacheBug(): Unit = {
+    val actualMessages = messages(
+      """
+        |implicit def int: Int = 1
+        |implicit def bool(implicit int: Int): Boolean = true
+        |
+        |def foo(j: Int)(implicit b: Boolean) = j
+        |
+        |def test(): Unit = {
+        |  foo(1)
+        |
+        |  {
+        |    implicit val secondInt: Int = 2
+        |    foo(2)
+        |  }
+        |
+        |  foo(3)
+        |}
+      """.stripMargin).get
+    assertMessages(Error("foo(2)", notFound("Boolean")) :: Nil)(actualMessages)
+  }
 }
 
 //annotator tests doesn't have scala library, so it's not possible to use FunctionType, for example
@@ -221,4 +243,21 @@ class ImplicitParameterFailingTest extends ScalaLightCodeInsightFixtureTestAdapt
       |  def a1 = shuffle(range)
       |}
     """.stripMargin)
+
+  def testConstructorTypeInference(): Unit = checkTextHasNoErrors {
+    """
+      |class Printer {
+      |
+      |  implicit val intPrinter = new Printable[Int] { def print(i: Int): String = null }
+      |
+      |  val lspb = new GetLoggerSpecParamBounded(3)
+      |}
+      |
+      |trait Printable[A] { def print(a: A): String }
+      |class GetLoggerSpecParamBounded[A, B <: Printable[A]](default: A)(implicit  printer: B) {
+      |  def print = printer.print(default)
+      |}
+      |class String
+    """.stripMargin
+  }
 }

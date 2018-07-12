@@ -1,6 +1,7 @@
 package org.jetbrains.plugins.scala.extensions
 
-import com.intellij.psi.PsiElement
+import com.intellij.psi.{PsiComment, PsiElement, PsiWhiteSpace}
+import org.jetbrains.plugins.scala.lang.lexer.ScalaTokenTypes
 import org.jetbrains.plugins.scala.lang.parser.util.ParserUtils
 import org.jetbrains.plugins.scala.lang.psi.api.base.patterns._
 import org.jetbrains.plugins.scala.lang.psi.api.base.types._
@@ -52,14 +53,14 @@ object ParenthesizedElement {
       * This method may change the semantics of the AST if the pattern
       * needed the parentheses. Use [[isParenthesisNeeded]] to ensure the parentheses aren't needed.
       *
-      * @param keepParentheses Whether to keep one level of parentheses or not
+      * @param keepOnePair Whether to keep one level of parentheses or not
       * @return The node which replaces this node. If no parentheses were
       *         found to remove, returns `this`, unmodified
       */
-    def stripParentheses(keepParentheses: Boolean = false): PsiElement = {
+    def doStripParentheses(keepOnePair: Boolean = false): PsiElement = {
       getInnermostNonParen(parenthesized) match {
-        case elt if keepParentheses => parenthesized.replace(elt.getParent)
-        case elt                    => parenthesized.replace(elt)
+        case elt if keepOnePair => parenthesized.replace(elt.getParent)
+        case elt                => parenthesized.replace(elt)
       }
     }
 
@@ -72,6 +73,8 @@ object ParenthesizedElement {
       parenthesized match {
         case expr@ScParenthesisedExpr(inner)               => ScalaPsiUtil.needParentheses(expr, inner)
         case _ if parenthesized.innerElement.isEmpty       => true
+        case ScParenthesizedElement(inner)
+          if containsSomethingElse(inner)                  => true
         case SameKindParentAndInner(parent, inner)         => !parenthesesRedundant(parent, inner)
         case ChildOf(_: ScConstructor | _: ScClassParents) => true
         case _                                             => false
@@ -81,6 +84,14 @@ object ParenthesizedElement {
     def isFunctionTypeSingleParam: Boolean = parenthesized match {
       case SameKindParentAndInner(ScFunctionalTypeElement(`parenthesized`, _), _) => true
       case _ => false
+    }
+
+    private def containsSomethingElse(inner: PsiElement): Boolean = parenthesized.children.exists {
+      case `inner`                                    => false
+      case ElementType(ScalaTokenTypes.tLPARENTHESIS) => false
+      case ElementType(ScalaTokenTypes.tRPARENTHESIS) => false
+      case _: PsiWhiteSpace | _: PsiComment           => false
+      case _                                          => true
     }
 
     //shouldn't be called on expression

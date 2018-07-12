@@ -1,11 +1,10 @@
 package org.jetbrains.plugins.scala.lang.completion3
 
 import com.intellij.codeInsight.lookup.LookupElement
-import com.intellij.lang.annotation.HighlightSeverity.ERROR
+import com.intellij.lang.annotation.HighlightSeverity
 import com.intellij.testFramework.EditorTestUtil
 import org.jetbrains.plugins.scala.lang.completion.ScalaTextLookupItem
-import org.jetbrains.plugins.scala.lang.completion3.ScalaCodeInsightTestBase.DEFAULT_CHAR
-import org.junit.Assert.assertArrayEquals
+import org.junit.Assert
 
 /**
   * Created by Kate Ustiuzhanin on 24/03/2017.
@@ -157,7 +156,7 @@ class ScalaUnresolvedCompletionTest extends ScalaCodeInsightTestBase {
       """
     complete(fileText)
 
-    getFixture.finishLookup(DEFAULT_CHAR)
+    getFixture.finishLookup(ScalaCodeInsightTestBase.DEFAULT_CHAR)
 
     val expectedFileText =
       """
@@ -279,9 +278,9 @@ class ScalaUnresolvedCompletionTest extends ScalaCodeInsightTestBase {
     noCompletion(s"override type $CARET")
 
   def testNoCompletionAfterOverrideMethod(): Unit =
-    noCompletion(s"override def $DEFAULT_CHAR }")
+    noCompletion(s"override def $CARET }")
 
-  private def noCompletion(text: String) = doTest(
+  private def noCompletion(text: String): Unit = doTest(
     fileText =
       s"""
          |class Test {
@@ -299,18 +298,17 @@ class ScalaUnresolvedCompletionTest extends ScalaCodeInsightTestBase {
 
     val fixture = getFixture
     fixture.openFileInEditor(file)
-    fixture.doHighlighting(ERROR)
+    fixture.doHighlighting(HighlightSeverity.ERROR)
 
     fixture.completeBasic()
   }
 
   private def doTest(fileText: String, expected: String*): Unit = {
-    val actual = complete(fileText).collect {
-      case item: ScalaTextLookupItem => item
-    }.map(_.getLookupString)
+    val actualSet = complete(fileText).collect {
+      case item: ScalaTextLookupItem => item.getLookupString
+    }.sorted
 
-    val actualSet = actual.sorted
     val expectedSet = expected.sorted
-    assertArrayEquals(expectedSet.toArray[AnyRef], actualSet.toArray[AnyRef])
+    Assert.assertArrayEquals(expectedSet.toArray[AnyRef], actualSet.toArray[AnyRef])
   }
 }

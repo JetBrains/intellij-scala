@@ -36,7 +36,7 @@ object ImplicitParametersAnnotator extends AnnotatorPart[ImplicitParametersOwner
       case Seq() =>
       case params =>
         val types = params
-          .map(_.implicitSearchState.map(_.tp.presentableText).getOrElse("unknown type"))
+          .map(_.implicitSearchState.map(_.presentableTypeText).getOrElse("unknown type"))
 
         val annotation = holder.createErrorAnnotation(lastLineRange(element), message(types))
 

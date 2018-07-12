@@ -46,15 +46,19 @@ object ImplicitCollector {
 
   sealed trait ImplicitResult
 
+  sealed trait FullInfoResult extends ImplicitResult
+
   case object NoResult extends ImplicitResult
-  case object OkResult extends ImplicitResult
+
+  case object OkResult extends FullInfoResult
+  case object ImplicitParameterNotFoundResult extends FullInfoResult
+  case object DivergedImplicitResult extends FullInfoResult
+  case object CantInferTypeParameterResult extends FullInfoResult
+
   case object TypeDoesntConformResult extends ImplicitResult
   case object BadTypeResult extends ImplicitResult
   case object CantFindExtensionMethodResult extends ImplicitResult
-  case object DivergedImplicitResult extends ImplicitResult
   case object UnhandledResult extends ImplicitResult
-  case object CantInferTypeParameterResult extends ImplicitResult
-  case object ImplicitParameterNotFoundResult extends ImplicitResult
   case object FunctionForParameterResult extends ImplicitResult
 
   case class ImplicitState(place: PsiElement,
@@ -65,7 +69,10 @@ object ImplicitCollector {
                            searchImplicitsRecursively: Int,
                            extensionData: Option[ExtensionConversionData],
                            fullInfo: Boolean,
-                           previousRecursionState: Option[ImplicitsRecursionGuard.RecursionMap])
+                           previousRecursionState: Option[ImplicitsRecursionGuard.RecursionMap]) {
+
+    def presentableTypeText: String = tp.presentableText(place)
+  }
 
 }
 
@@ -112,7 +119,19 @@ class ImplicitCollector(place: PsiElement,
 
       ProgressManager.checkCanceled()
 
-      if (fullInfo) collectFullInfo(visibleNamesCandidates() ++ fromTypeCandidates())
+      if (fullInfo) {
+        val visible = visibleNamesCandidates()
+        val fromNameCandidates = collectFullInfo(visible)
+
+        val allCandidates =
+          if (fromNameCandidates.exists(_.implicitReason == OkResult)) fromNameCandidates
+          else {
+            fromNameCandidates ++ collectFullInfo(fromTypeCandidates().diff(visible))
+          }
+
+        //todo: should we also compare types like in MostSpecificUtil.isAsSpecificAs ?
+        allCandidates.sortWith(mostSpecificUtil.isInMoreSpecificClass)
+      }
       else {
         val implicitCollectorCache = ImplicitCollector.cache(project)
         implicitCollectorCache.get(place, tp) match {
@@ -198,7 +217,10 @@ class ImplicitCollector(place: PsiElement,
       candidates.flatMap(c => checkCompatible(c, withLocalTypeInference = false)) ++
         candidates.flatMap(c => checkCompatible(c, withLocalTypeInference = true))
     val afterExtensionPredicate = allCandidates.flatMap(applyExtensionPredicate)
-    afterExtensionPredicate.map(_._1).toSeq
+
+    afterExtensionPredicate
+      .withFilter(_._1.implicitReason.isInstanceOf[FullInfoResult])
+      .map(_._1).toSeq
   }
 
   private class ImplicitParametersProcessor(withoutPrecedence: Boolean)

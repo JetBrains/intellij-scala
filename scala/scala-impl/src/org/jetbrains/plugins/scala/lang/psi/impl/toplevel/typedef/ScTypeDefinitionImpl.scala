@@ -12,7 +12,6 @@ package typedef
 import com.intellij.lang.ASTNode
 import com.intellij.lang.java.JavaLanguage
 import com.intellij.navigation._
-import com.intellij.openapi.editor.colors._
 import com.intellij.psi._
 import com.intellij.psi.impl._
 import com.intellij.psi.javadoc.PsiDocComment
@@ -37,7 +36,7 @@ import org.jetbrains.plugins.scala.lang.psi.types.api.TypeParameterType
 import org.jetbrains.plugins.scala.lang.psi.types.api.designator.{ScProjectionType, ScThisType}
 import org.jetbrains.plugins.scala.lang.psi.types.recursiveUpdate.ScSubstitutor
 import org.jetbrains.plugins.scala.lang.psi.types.result._
-import org.jetbrains.plugins.scala.macroAnnotations.{Cached, CachedInUserData, ModCount}
+import org.jetbrains.plugins.scala.macroAnnotations.{Cached, ModCount}
 import org.jetbrains.plugins.scala.projectView.{ClassAndCompanionObject, SingularDefinition, TraitAndCompanionObject}
 
 import scala.annotation.tailrec
@@ -265,11 +264,9 @@ abstract class ScTypeDefinitionImpl protected (stub: ScTemplateDefinitionStub,
     new ItemPresentation() {
       def getPresentableText: String = presentableName
 
-      def getTextAttributesKey: TextAttributesKey = null
-
       def getLocationString: String = getPath match {
-        case "" => "<default>"
-        case p => '(' + p + ')'
+        case "" => ScTypeDefinitionImpl.DefaultLocationString
+        case path => path.parenthesize()
       }
 
       override def getIcon(open: Boolean): Icon = ScTypeDefinitionImpl.this.getIcon(0)
@@ -398,4 +395,9 @@ abstract class ScTypeDefinitionImpl protected (stub: ScTemplateDefinitionStub,
 
     defn.map(cachedDesugared)
   }
+}
+
+object ScTypeDefinitionImpl {
+
+  val DefaultLocationString = "<default>"
 }

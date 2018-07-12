@@ -11,7 +11,7 @@ import org.jetbrains.plugins.scala.extensions.{ObjectExt, ifReadAllowed}
 import org.jetbrains.plugins.scala.lang.lexer.ScalaTokenTypes
 import org.jetbrains.plugins.scala.lang.parser.ScalaElementTypes
 import org.jetbrains.plugins.scala.lang.psi.api.ScalaElementVisitor
-import org.jetbrains.plugins.scala.lang.psi.api.base.ScLiteral
+import org.jetbrains.plugins.scala.lang.psi.api.base.{ScLiteral, ScMethodLike}
 import org.jetbrains.plugins.scala.lang.psi.api.base.types.ScTypeElement
 import org.jetbrains.plugins.scala.lang.psi.api.expr._
 import org.jetbrains.plugins.scala.lang.psi.api.statements.params._
@@ -108,6 +108,20 @@ class ScParameterImpl protected (stub: ScParameterStub, nodeType: ScParamElement
   def isRepeatedParameter: Boolean = byStubOrPsi(_.isRepeated)(paramType.exists(_.isRepeatedParameter))
 
   def getActualDefaultExpression: Option[ScExpression] = byPsiOrStub(findChild(classOf[ScExpression]))(_.bodyExpression)
+
+  override def getNavigationElement: PsiElement = owner match {
+    case m: ScMethodLike =>
+      m.getNavigationElement match {
+        case `m` => this
+        case other: ScMethodLike =>
+          other.effectiveParameterClauses
+            .flatMap(_.effectiveParameters)
+            .find(_.name == name)
+            .getOrElse(this)
+        case _ => this
+      }
+    case _ => this
+  }
 
   override def accept(visitor: ScalaElementVisitor) {
     visitor.visitParameter(this)

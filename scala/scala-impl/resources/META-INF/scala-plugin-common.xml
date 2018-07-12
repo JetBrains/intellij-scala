@@ -46,7 +46,7 @@
     </extensions>
 
     <extensions defaultExtensionNs="com.intellij">
-      <breadcrumbsInfoProvider
+      <breadcrumbsInfoProviderh
               implementation="org.jetbrains.plugins.scala.lang.breadcrumbs.ScalaBreadcrumbsInfoProvider" />
       <breadcrumbsPresentationProvider
               implementation="org.jetbrains.plugins.scala.lang.breadcrumbs.ScalaBreadcrumbsPresentationProvider" />
@@ -110,6 +110,7 @@
         <autoImportOptionsProvider instance="org.jetbrains.plugins.scala.editor.autoimport.ScalaAutoImportOptionsProvider"/>
         <fileTypeFactory implementation="org.jetbrains.plugins.scala.ScalaFileTypeFactory"/>
         <syntaxHighlighter key="Scala" implementationClass="org.jetbrains.plugins.scala.highlighter.ScalaSyntaxHighlighter"/>
+        <highlightErrorFilter implementation="org.jetbrains.plugins.scala.annotator.ScaladocHighlightErrorFilter"/>
         <lang.syntaxHighlighterFactory key="Scala" implementationClass="org.jetbrains.plugins.scala.highlighter.ScalaSyntaxHighlighterFactory"/>
         <additionalTextAttributes scheme="Default" file="colorSchemes/ScalaDefault.xml"/>
         <additionalTextAttributes scheme="Darcula" file="colorSchemes/ScalaDarcula.xml"/>
@@ -160,6 +161,9 @@
                                 order="before keywordCompletionContributor, before memberNameCompletionContributor"/>
         <completion.contributor language="Scala" id="caseClauseCompletionContributor"
                                 implementationClass="org.jetbrains.plugins.scala.lang.completion.clauses.CaseClauseCompletionContributor"
+                                order="before scalaIdentifierCompletionContributor"/>
+        <completion.contributor language="Scala" id="exhaustiveMatchCompletionContributor"
+                                implementationClass="org.jetbrains.plugins.scala.lang.completion.clauses.ExhaustiveMatchCompletionContributor"
                                 order="before scalaIdentifierCompletionContributor"/>
         <completion.contributor language="Scala" id="scalaOverrideDefContributer"
                                 implementationClass="org.jetbrains.plugins.scala.lang.completion.ScalaOverrideContributor"
@@ -226,6 +230,7 @@
         <codeInsight.lineMarkerProvider language="Scala" implementationClass="scala.meta.intellij.editor.MetaExpansionLineMarkerProvider"/>
         <codeInsight.lineMarkerProvider language="Scala" implementationClass="org.jetbrains.plugins.scala.lang.macros.expansion.ReflectExpansionLineMarkerProvider"/>
         <codeInsight.lineMarkerProvider language="Scala" implementationClass="scala.macros.intellij.editor.Macros2ExpansionLineMarkerProvider"/>
+        <codeInsight.lineMarkerProvider language="Scala" implementationClass="org.jetbrains.plugins.scala.annotator.gutter.RecursiveCallLineMarkerProvider"/>
         <codeInsight.gotoSuper language="Scala" implementationClass="org.jetbrains.plugins.scala.annotator.gutter.ScalaGoToSuperActionHandler"/>
         <declarationRangeHandler order="first" key="org.jetbrains.plugins.scala.lang.psi.api.statements.ScFunction"
                                  implementationClass="org.jetbrains.plugins.scala.codeInsight.hint.ScFunctionDeclarationRangeHandler"/>
@@ -456,7 +461,7 @@
 
         <projectService serviceImplementation="org.jetbrains.plugins.scala.project.settings.ScalaCompilerConfiguration"/>
         <projectService serviceImplementation="org.jetbrains.plugins.scala.lang.macros.evaluator.ScalaMacroEvaluator"/>
-      
+
         <projectService serviceImplementation="org.jetbrains.plugins.scala.worksheet.settings.WorksheetDefaultSettings"/>
 
         <applicationService serviceImplementation="org.jetbrains.plugins.scala.lang.psi.impl.expr.ExpectedTypesImpl"
@@ -541,11 +546,6 @@
         <intentionAction>
             <category>Scala/Recursion</category>
             <className>org.jetbrains.plugins.scala.codeInsight.intention.recursion.AddTailRecursionAnnotationIntention</className>
-        </intentionAction>
-
-        <intentionAction>
-            <category>Scala/Pattern Matching</category>
-            <className>org.jetbrains.plugins.scala.codeInsight.intention.matcher.CreateCaseClausesIntention</className>
         </intentionAction>
 
         <intentionAction>
@@ -766,7 +766,7 @@
 
         <intentionAction>
             <category>Scala/Expressions</category>
-            <className>org.jetbrains.plugins.scala.codeInsight.intention.expression.InlineImplicitConversionIntention</className>
+            <className>org.jetbrains.plugins.scala.codeInsight.intention.expression.MakeImplicitConversionExplicit</className>
         </intentionAction>
 
         <intentionAction>
@@ -968,9 +968,9 @@
                          displayName="Unreachable code" groupPath="Scala" groupName="General"
                          shortName="ScalaUnreachableCode" level="WARNING"
                          enabledByDefault="true" language="Scala"/>
-        <localInspection implementationClass="org.jetbrains.plugins.scala.codeInspection.controlFlow.ScalaUselessExpressionInspection"
-                         displayName="Useless expression" groupPath="Scala" groupName="General"
-                         shortName="ScalaUselessExpression" level="WEAK WARNING"
+        <localInspection implementationClass="org.jetbrains.plugins.scala.codeInspection.controlFlow.ScalaUnusedExpressionInspection"
+                         displayName="Unused expression" groupPath="Scala" groupName="General"
+                         shortName="ScalaUnusedExpression" level="WEAK WARNING"
                          enabledByDefault="true" language="Scala"/>
         <localInspection implementationClass="org.jetbrains.plugins.scala.codeInspection.implicits.DeprecatedViewBoundInspection"
                          displayName="View bounds are deprecated" groupPath="Scala" groupName="General"
@@ -1362,14 +1362,18 @@
         <localInspection implementationClass="org.jetbrains.plugins.scala.codeInspection.scaladoc.ScalaDocMissingParameterDescriptionInspection"
                          displayName="Missing tag parameter description" groupPath="Scala" groupName="Scaladoc" shortName="ScalaDocMissingParameterDescription"
                          level="WARNING" enabledByDefault="true" language="Scala" />
+        <localInspection implementationClass="org.jetbrains.plugins.scala.codeInspection.scaladoc.ScalaDocParserErrorInspection"
+                         displayName="Wrong scaladoc element" groupPath="Scala" groupName="Scaladoc" shortName="ScalaDocParserErrorInspection"
+                         level="WARNING" enabledByDefault="true" language="Scala" />
+
       <!-- end of scaladoc inspections -->
 
       <!-- Util ammonite inspection -->
-      <localInspection implementationClass="org.jetbrains.plugins.scala.worksheet.ammonite.AmmoniteUnresolvedLibraryInspection" 
-                       displayName="Ammonite unresolved import" groupPath="Scala" shortName="AmmoniteUnresolvedLibraryInspection" 
+      <localInspection implementationClass="org.jetbrains.plugins.scala.worksheet.ammonite.AmmoniteUnresolvedLibraryInspection"
+                       displayName="Ammonite unresolved import" groupPath="Scala" shortName="AmmoniteUnresolvedLibraryInspection"
                        level="WARNING" enabledByDefault="true" language="Scala" groupName="Other"/>
       <!---->
-      
+
         <localInspection implementationClass="org.jetbrains.plugins.scala.codeInspection.specs2.BuiltinMatcherExistsInspection"
                          displayName="Specs2 Matchers" shortName="Specs2Matchers" groupName="Specs2" groupPath="Scala,Specs2"
                          level="WARNING" enabledByDefault="true" language="Scala" />
@@ -1404,6 +1408,9 @@
     <project-components>
         <component>
             <implementation-class>org.jetbrains.plugins.scala.editor.mouseHandler.MouseHoverHandler</implementation-class>
+        </component>
+        <component>
+            <implementation-class>org.jetbrains.plugins.scala.codeInsight.implicits.MouseHandler</implementation-class>
         </component>
         <component>
             <implementation-class>org.jetbrains.plugins.scala.lang.psi.impl.toplevel.synthetic.SyntheticClasses</implementation-class>
@@ -1554,7 +1561,6 @@
             <keyboard-shortcut keymap="Mac OS X" first-keystroke="meta shift Q" remove="true"/>
             <keyboard-shortcut keymap="Mac OS X 10.5+" first-keystroke="ctrl Q"/>
             <keyboard-shortcut keymap="Mac OS X 10.5+" first-keystroke="meta shift Q" remove="true"/>
-            <add-to-group group-id="CodeEditorViewGroup" anchor="last"/>
         </action>
         <action id="Scala.MakeExplicit" class="org.jetbrains.plugins.scala.actions.MakeExplicitAction"
                 text="&amp;Make Explicit" description="Make Explicit">
@@ -1588,10 +1594,9 @@
             <keyboard-shortcut first-keystroke="ctrl alt Q" keymap="$default"/>
             <keyboard-shortcut first-keystroke="ctrl alt L" keymap="Mac OS X"/>
         </action>
-        <action id="Scala.ShowImplicitArguments" class="org.jetbrains.plugins.scala.actions.ShowImplicitArgumentsAction"
+        <action id="Scala.ShowImplicitArguments" class="org.jetbrains.plugins.scala.actions.implicitArguments.ShowImplicitArgumentsAction"
                 text="Implicit &amp;Arguments" description="Show Implicit Arguments">
             <keyboard-shortcut first-keystroke="control shift P" keymap="$default"/>
-            <add-to-group group-id="CodeEditorViewGroup" anchor="after" relative-to-action="Scala.ShowImplicitConversions"/>
         </action>
         <action id="Scala.RunWorksheet" class="org.jetbrains.plugins.scala.worksheet.actions.RunWorksheetAction"
                 text="Run Scala Worksheet" description="Run Scala Worksheet">
@@ -1645,24 +1650,57 @@
                     text="Hints for obvious types"/>
         </group>
 
+      <group id="ImplicitConversionMenu">
+        <action id="MakeExplicit"
+                class="org.jetbrains.plugins.scala.codeInsight.implicits.menu.MakeConversionExplicit"
+                text="Make conversion explicit"/>
+        <separator/>
+        <action id="ImplicitConversionMenu.ShowImplicits"
+                class="org.jetbrains.plugins.scala.codeInsight.implicits.ShowImplicitHintsAction"
+                text="Show Implicit Hints"/>
+        <action id="ImplicitConversionMenu.ExpandImplicits"
+                class="org.jetbrains.plugins.scala.codeInsight.implicits.ExpandImplicitHintsAction"
+                text="Expand Implicit Hints"/>
+      </group>
+
+      <group id="ImplicitArgumentsMenu">
+        <action id="ExplicitArgumentMenu.ShowImplicitArgumentsPopup"
+                class="org.jetbrains.plugins.scala.codeInsight.implicits.menu.ImplicitArgumentsPopup"
+                text="Implicit Arguments Popup"/>
+        <separator/>
+        <action id="ImplicitArgumentsMenu.ShowImplicits"
+                class="org.jetbrains.plugins.scala.codeInsight.implicits.ShowImplicitHintsAction"
+                text="Show Implicit Hints"/>
+        <action id="ImplicitArgumentsMenu.ExpandImplicits"
+                class="org.jetbrains.plugins.scala.codeInsight.implicits.ExpandImplicitHintsAction"
+                text="Expand Implicit Hints"/>
+      </group>
+
+      <group id="ExplicitArgumentsMenu">
+        <action id="RemoveExplicitArguments"
+                class="org.jetbrains.plugins.scala.codeInsight.implicits.menu.RemoveExplicitArguments"
+                text="Remove explicit arguments"/>
+        <separator/>
+        <action id="ExplicitArgumentsMenu.ShowImplicits"
+                class="org.jetbrains.plugins.scala.codeInsight.implicits.ShowImplicitHintsAction"
+                text="Show Implicit Hints"/>
+        <action id="ExplicitArgumentsMenu.ExpandImplicits"
+                class="org.jetbrains.plugins.scala.codeInsight.implicits.ExpandImplicitHintsAction"
+                text="Expand Implicit Hints"/>
+      </group>
+
       <action id="Scala.ShowImplicits"
               class="org.jetbrains.plugins.scala.codeInsight.implicits.ShowImplicitHintsAction"
-              text="Implicits">
-        <add-to-group group-id="CodeEditorViewGroup" anchor="before" relative-to-action="Scala.ShowImplicitConversions"/>
+              text="Show Implicit Hints"
+              description="Show implicit conversions / arguments as inlay hints in editor">
+        <add-to-group group-id="CodeEditorViewGroup" anchor="last"/>
       </action>
 
-      <action id="Scala.EnableImplicits"
-              class="org.jetbrains.plugins.scala.codeInsight.implicits.ShowImplicitHintsAction$Enable"
-              text="Show implicits">
-        <keyboard-shortcut first-keystroke="control alt shift EQUALS" keymap="$default"/>
-        <keyboard-shortcut first-keystroke="control alt shift ADD" keymap="$default"/>
-      </action>
-
-      <action id="Scala.DisableImplicits"
-              class="org.jetbrains.plugins.scala.codeInsight.implicits.ShowImplicitHintsAction$Disable"
-              text="Hide implicits">
-        <keyboard-shortcut first-keystroke="control alt shift MINUS" keymap="$default"/>
-        <keyboard-shortcut first-keystroke="control alt shift SUBTRACT" keymap="$default"/>
+      <action id="Scala.ExpandImplicits"
+              class="org.jetbrains.plugins.scala.codeInsight.implicits.ExpandImplicitHintsAction"
+              text="Expand Implicit Hints"
+              description="Expand implicit conversions / arguments inlay hints in editor">
+        <add-to-group group-id="CodeEditorViewGroup" anchor="after" relative-to-action="Scala.ShowImplicits"/>
       </action>
 
     </actions>

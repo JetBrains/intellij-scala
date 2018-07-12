@@ -15,7 +15,7 @@ import org.jetbrains.plugins.scala.lang.psi.impl.toplevel.synthetic.ScSyntheticF
 import org.jetbrains.plugins.scala.lang.psi.types.api.FunctionType
 import org.jetbrains.plugins.scala.lang.psi.types.result._
 import org.jetbrains.plugins.scala.lang.psi.types.{ScType, ScTypeExt}
-import org.jetbrains.plugins.scala.lang.refactoring.util.ScalaNamesUtil
+import org.jetbrains.plugins.scala.lang.refactoring.util.ScalaNamesUtil.nameFitToPatterns
 
 /**
   * @author Nikolay.Tropin
@@ -24,13 +24,28 @@ object SideEffectsUtil {
 
   private val immutableClasses = listImmutableClasses
 
-  private val knownMethodsWithSideEffects = {
+  private val knownUnsafeGetters: Array[String] = Array(
+    "scala.Option",
+    "scala.None",
+    "scala.util.Try",
+    "scala.util.Either.RightProjection",
+    "scala.util.Either.LeftProjection"
+  ).map(_ + ".get")
+
+  private val knownUnsafeMethodNames: Array[String] =
+    Array("head", "tail", "last", "reduce", "reduceLeft", "reduceRight")
+
+  private val knownMethodsWithSideEffects: Array[String] = {
     val objectMethods = Array("wait", "finalize", "notifyAll", "notify").map("java.lang.Object." + _)
     val stringMethods = "java.lang.String.getChars" //copies to destination array
     objectMethods :+ stringMethods
   }
 
-  def hasNoSideEffects(expr: ScExpression): Boolean = {
+  def hasNoSideEffects(expr: ScExpression): Boolean = hasNoSideEffectsInner(expr)(allowThrows = false)
+
+  def mayOnlyThrow(expr: ScExpression): Boolean = hasNoSideEffectsInner(expr)(allowThrows = true)
+
+  private def hasNoSideEffectsInner(expr: ScExpression)(implicit allowThrows: Boolean): Boolean = {
 
     expr match {
       case lit: ScInterpolatedStringLiteral =>
@@ -39,12 +54,12 @@ object SideEffectsUtil {
       case _: ScLiteral => true
       case _: ScThisReference => true
       case und: ScUnderscoreSection if und.bindingExpr.isEmpty => true
-      case ScParenthesisedExpr(inner) => hasNoSideEffects(inner)
-      case typed: ScTypedStmt => hasNoSideEffects(typed.expr)
+      case ScParenthesisedExpr(inner) => hasNoSideEffectsInner(inner)
+      case typed: ScTypedStmt => hasNoSideEffectsInner(typed.expr)
       case ref: ScReferenceExpression =>
         if (hasImplicitConversion(ref)) false
         else {
-          ref.qualifier.forall(hasNoSideEffects) && (ref.resolve() match {
+          ref.qualifier.forall(hasNoSideEffectsInner) && (ref.resolve() match {
             case (_: ScBindingPattern) && ScalaPsiUtil.inNameContext(pd: ScPatternDefinition)
               if pd.hasModifierProperty("lazy") => false
             case bp: ScBindingPattern =>
@@ -59,7 +74,7 @@ object SideEffectsUtil {
             case _ => false
           })
         }
-      case t: ScTuple => t.exprs.forall(hasNoSideEffects)
+      case t: ScTuple => t.exprs.forall(hasNoSideEffectsInner)
       case inf: ScInfixExpr if inf.isAssignmentOperator => false
       case ScSugarCallExpr(baseExpr, operation, args) =>
         val checkOperation = operation match {
@@ -69,10 +84,10 @@ object SideEffectsUtil {
           case ResolvesTo(m: PsiMethod) => methodHasNoSideEffects(m, baseExpr.`type`().toOption)
           case _ => false
         }
-        checkOperation && hasNoSideEffects(baseExpr) && args.forall(hasNoSideEffects)
+        checkOperation && hasNoSideEffectsInner(baseExpr) && args.forall(hasNoSideEffectsInner)
       case ScMethodCall(baseExpr, args) =>
         val (checkQual, typeOfQual) = baseExpr match {
-          case ScReferenceExpression.withQualifier(qual) => (hasNoSideEffects(qual), qual.`type`().toOption)
+          case ScReferenceExpression.withQualifier(qual) => (hasNoSideEffectsInner(qual), qual.`type`().toOption)
           case _ => (true, None)
         }
         val checkBaseExpr = baseExpr match {
@@ -88,9 +103,9 @@ object SideEffectsUtil {
                 methodHasNoSideEffects(m, typeOfQual)
               case _ => false
             }
-          case _ => hasNoSideEffects(baseExpr)
+          case _ => hasNoSideEffectsInner(baseExpr)
         }
-        checkQual && checkBaseExpr && args.forall(hasNoSideEffects)
+        checkQual && checkBaseExpr && args.forall(hasNoSideEffectsInner)
       case _: ScNewTemplateDefinition => false
       case _ => false
     }
@@ -104,7 +119,7 @@ object SideEffectsUtil {
 
     val otherJavaClasses = Seq("java.lang.String._", "java.lang.Math._", "java.math.BigInteger._", "java.math.BigDecimal._")
 
-    val scalaValueClasses = Seq("Boolean", "Byte", "Char", "Double", "Float", "Int", "Lont", "Unit")
+    val scalaValueClasses = Seq("Boolean", "Byte", "Char", "Double", "Float", "Int", "Long", "Unit")
       .map(name => s"scala.$name._")
 
     val otherFromScalaPackage = Seq("Option._", "Some._", "Tuple._", "Symbol._").map("scala." + _)
@@ -128,15 +143,22 @@ object SideEffectsUtil {
     }
   }
 
-  private def methodHasNoSideEffects(m: PsiMethod, typeOfQual: Option[ScType] = None): Boolean = {
-    implicit val project = m.getProject
+  private def methodHasNoSideEffects(m: PsiMethod, typeOfQual: Option[ScType] = None)
+                                    (implicit allowThrows: Boolean): Boolean = {
+    val methodName = m.name
+
+    if (knownUnsafeMethodNames.contains(methodName) && !allowThrows)
+      return false
 
     val methodClazzName = Option(m.containingClass).map(_.qualifiedName)
 
     methodClazzName match {
       case Some(fqn) =>
-        val name = fqn + "." + m.name
-        if (ScalaNamesUtil.nameFitToPatterns(name, knownMethodsWithSideEffects, strict = false))
+        val methodQName = fqn + "." + methodName
+        if (nameFitToPatterns(methodQName, knownMethodsWithSideEffects, strict = false))
+          return false
+
+        if (nameFitToPatterns(methodQName, knownUnsafeGetters, strict = false) && !allowThrows)
           return false
       case _ =>
     }
@@ -146,8 +168,8 @@ object SideEffectsUtil {
       case None => methodClazzName
     }
 
-    clazzName.map(_ + "." + m.name) match {
-      case Some(name) => ScalaNamesUtil.nameFitToPatterns(name, immutableClasses, strict = false)
+    clazzName.map(_ + "." + methodName) match {
+      case Some(methodQName) => nameFitToPatterns(methodQName, immutableClasses, strict = false)
       case None => false
     }
   }
