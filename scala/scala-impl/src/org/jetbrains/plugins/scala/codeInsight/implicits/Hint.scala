@@ -35,7 +35,7 @@ private case class Hint(parts: Seq[Text],
       // TODO Support user-defined order of inlays with the same offset in IDEA API
       Hint.myOriginalOffsetField.foreach { field =>
         val offsets = existingInlays.map(field.getInt)
-        field.setInt(inlay, if (suffix) offsets.min + 1 else offsets.max - 1)
+        field.setInt(inlay, if (suffix) offsets.max + 1 else offsets.min - 1)
       }
     }
 
