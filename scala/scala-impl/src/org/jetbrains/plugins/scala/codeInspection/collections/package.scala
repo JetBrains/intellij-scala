@@ -4,7 +4,6 @@ import com.intellij.openapi.util.TextRange
 import com.intellij.psi.util.CachedValueProvider.Result
 import com.intellij.psi.util.{CachedValueProvider, CachedValuesManager, PsiTreeUtil}
 import com.intellij.psi.{PsiClass, PsiElement, PsiMethod, PsiType}
-import org.jetbrains.plugins.scala.codeInspection.InspectionsUtil.isExpressionOfType
 import org.jetbrains.plugins.scala.debugger.evaluation.ScalaEvaluatorBuilderUtil
 import org.jetbrains.plugins.scala.extensions._
 import org.jetbrains.plugins.scala.lang.psi.ScalaPsiUtil
@@ -381,21 +380,26 @@ package object collections {
     case _ => isOfClassFrom(expr, Array("scala.Array"))
   }
 
-  def isSet(expr: ScExpression): Boolean = isExpressionOfType("scala.collection.GenSetLike", expr)
+  def isSet: ScExpression => Boolean = isExpressionOfType("scala.collection.GenSetLike")
 
-  def isSeq(expr: ScExpression): Boolean = isExpressionOfType("scala.collection.GenSeqLike", expr)
+  def isSeq: ScExpression => Boolean = isExpressionOfType("scala.collection.GenSeqLike")
 
-  def isIndexedSeq(expr: ScExpression): Boolean = isExpressionOfType("scala.collection.IndexedSeqLike", expr)
+  def isIndexedSeq: ScExpression => Boolean = isExpressionOfType("scala.collection.IndexedSeqLike")
 
-  def isNonIndexedSeq(expr: ScExpression): Boolean = isSeq(expr) && !isIndexedSeq(expr)
+  def isNonIndexedSeq: ScExpression => Boolean = expr => isSeq(expr) && !isIndexedSeq(expr)
 
-  def isMap(expr: ScExpression): Boolean = isExpressionOfType("scala.collection.GenMapLike", expr)
+  def isMap: ScExpression => Boolean = isExpressionOfType("scala.collection.GenMapLike")
 
-  def isSortedSet(expr: ScExpression): Boolean = isExpressionOfType("scala.collection.SortedSetLike", expr)
+  def isSortedSet: ScExpression => Boolean = isExpressionOfType("scala.collection.SortedSetLike")
 
-  def isSortedMap(expr: ScExpression): Boolean = isExpressionOfType("scala.collection.SortedMapLike", expr)
+  def isSortedMap: ScExpression => Boolean = isExpressionOfType("scala.collection.SortedMapLike")
 
-  def isIterator(expr: ScExpression): Boolean = isExpressionOfType("scala.collection.Iterator", expr)
+  def isIterator: ScExpression => Boolean = isExpressionOfType("scala.collection.Iterator")
+
+  private def isExpressionOfType(fqn: String): ScExpression => Boolean = {
+    case expression@Typeable(scType) => conformsToTypeFromClass(scType, fqn)(expression)
+    case _ => false
+  }
 
   private val sideEffectsCollectionMethods = Set("append", "appendAll", "clear", "insert", "insertAll",
     "prepend", "prependAll", "reduceToSize", "remove", "retain",

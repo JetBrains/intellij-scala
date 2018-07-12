@@ -1,8 +1,9 @@
-package org.jetbrains.plugins.scala.codeInspection.monads
+package org.jetbrains.plugins.scala
+package codeInspection
+package monads
 
 import com.intellij.codeInspection.ProblemsHolder
 import com.intellij.psi.PsiElement
-import org.jetbrains.plugins.scala.codeInspection.{AbstractInspection, InspectionsUtil}
 import org.jetbrains.plugins.scala.lang.psi.api.expr.ScMethodCall
 import org.jetbrains.plugins.scala.lang.psi.types.ScType
 import org.jetbrains.plugins.scala.lang.psi.types.api.ParameterizedType
@@ -36,5 +37,5 @@ object NestedStatefulMonadsInspection {
 
   private def isStatefulMonadType(scType: ScType)
                                  (implicit context: ProjectContext): Boolean =
-    StatefulMonadsTypesNames.exists(InspectionsUtil.conformsToTypeFromClass(scType, _, context))
+    StatefulMonadsTypesNames.exists(conformsToTypeFromClass(scType, _))
 }
