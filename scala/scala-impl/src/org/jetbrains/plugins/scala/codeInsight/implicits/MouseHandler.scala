@@ -40,7 +40,7 @@ class MouseHandler(project: Project,
       if (handlingRequired && !e.isConsumed && project.isInitialized && !project.isDisposed) {
         if (e.getMouseEvent.getButton == MouseEvent.BUTTON1) {
           if (SystemInfo.isMac && e.getMouseEvent.isMetaDown || e.getMouseEvent.isControlDown) {
-            activeHyperlink.foreach { case (_, text) =>
+            hyperlinkAt(e.getEditor, e.getMouseEvent.getPoint).foreach { case (_, text) =>
               e.consume()
               deactivateActiveHyperlink(e.getEditor)
               navigateTo(text)
