@@ -19,6 +19,7 @@ import org.jetbrains.plugins.scala.extensions._
 import org.jetbrains.plugins.scala.lang.psi.ScalaPsiElement
 import org.jetbrains.plugins.scala.lang.psi.api.ImplicitParametersOwner
 import org.jetbrains.plugins.scala.lang.psi.api.expr.{ScArgumentExprList, ScExpression, ScMethodCall}
+import org.jetbrains.plugins.scala.lang.psi.api.statements.ScFunction
 import org.jetbrains.plugins.scala.lang.psi.api.statements.params.ScParameterClause
 import org.jetbrains.plugins.scala.lang.psi.implicits.ImplicitCollector
 import org.jetbrains.plugins.scala.lang.psi.implicits.ImplicitCollector._
@@ -169,8 +170,9 @@ private object ImplicitHintsPass {
       .getOrElse(namedBasicPresentation(argument) ++ collapsedPresentationOf(argument.implicitParameters))
 
   private def namedBasicPresentation(result: ScalaResolveResult): Seq[Text] = {
-    val tooltip = ScalaDocumentationProvider.getQuickNavigateInfo(result)
-    Text(result.name, navigatable = result.element.asOptionOf[Navigatable], tooltip = Some(tooltip)).seq
+    val delegate = result.element.asOptionOf[ScFunction].flatMap(_.getSyntheticNavigationElement).getOrElse(result.element)
+    val tooltip = ScalaDocumentationProvider.getQuickNavigateInfo(delegate, result.substitutor)
+    Text(result.name, navigatable = delegate.asOptionOf[Navigatable], tooltip = Some(tooltip)).seq
   }
 
   private def problemPresentation(parameter: ScalaResolveResult)
