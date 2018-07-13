@@ -15,6 +15,16 @@ class FunctionParameterInfoSimpleTest extends FunctionParameterInfoTestBase {
 
   def testPropertyGeneric() = doTest()
 
+  def testPropertyInBlockArg() = doTest()
+
+  def testPropertyCaretAfter() = doTest()
+
+  def testPropertyInInfix() = doTest()
+
+  def testPropertyInInfixTuple() = doTest()
+
+  def testPropertyWithQualifier() = doTest()
+
   def testDefaultParameter() = doTest()
 
   def testDefaultParameterFromSources() = doTest()
@@ -48,4 +58,10 @@ class FunctionParameterInfoSimpleTest extends FunctionParameterInfoTestBase {
   def testTypeRefinement() = doTest()
 
   def testAliasedMethod() = doTest()
+
+  def testSeveralParameterLists() = doTest()
+
+  def testSeveralParameterLists2() = doTest()
+
+  def testSeveralParameterListsWithImplicit() = doTest()
 }

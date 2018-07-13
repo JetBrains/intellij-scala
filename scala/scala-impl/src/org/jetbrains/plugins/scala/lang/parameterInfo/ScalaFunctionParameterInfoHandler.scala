@@ -4,7 +4,7 @@ package parameterInfo
 
 import java.awt.Color
 
-import com.intellij.codeInsight.CodeInsightBundle
+import com.intellij.codeInsight.{CodeInsightBundle, TargetElementUtil}
 import com.intellij.codeInsight.completion.JavaCompletionUtil
 import com.intellij.codeInsight.hint.ShowParameterInfoHandler
 import com.intellij.codeInsight.lookup.{LookupElement, LookupItem}
@@ -508,21 +508,20 @@ class ScalaFunctionParameterInfoHandler extends ParameterInfoHandlerWithTabActio
         case args: ScArgumentExprList => Some(new CallInvocation(args))
         case t: ScTuple => create(t)(new InfixTupleInvocation(_))
         case u: ScUnitExpr => create(u)(new InfixUnitInvocation(_))
-        case e: ScReferenceExpression
-          if !e.parentsInFile.exists(it => it.isInstanceOf[ScArgumentExprList] || it.isInstanceOf[ScTypeArgs]) ||
-            isReferenceToMethodWithSingleImplicitParameterLIst(e) =>
-          Some(new ReferenceExpressionInvocation(e))
         case e: ScExpression => create(e)(new InfixExpressionInvocation(_))
         case _ => None
       }
     }
-  }
 
+    def implicitInvocation(ref: ScReferenceExpression): Option[Invocation] =
+      hasOnlyImplicitParameters(ref)
+        .option(new ReferenceExpressionInvocation(ref))
 
-  private def isReferenceToMethodWithSingleImplicitParameterLIst(e: ScReferenceExpression) = {
-    Option(e.resolve())
-      .flatMap(_.asOptionOf[ScFunctionDefinition])
-      .exists(f => f.paramClauses.clauses.length == 1 && f.paramClauses.clauses.head.isImplicit)
+    private def hasOnlyImplicitParameters(e: ScReferenceExpression) = {
+      Option(e.resolve())
+        .flatMap(_.asOptionOf[ScFunctionDefinition])
+        .exists(f => f.paramClauses.clauses.length == 1 && f.paramClauses.clauses.head.isImplicit)
+    }
   }
 
   def elementsForParameterInfo(args: Invocation): Seq[Object] = {
@@ -721,14 +720,23 @@ class ScalaFunctionParameterInfoHandler extends ParameterInfoHandlerWithTabActio
       if (res.isDefined) return res
       findArgs(elem.getParent)
     }
-    val argsOption: Option[Invocation] = findArgs(element)
+
+    def refWithImplicitArgs = {
+      TargetElementUtil.findReference(context.getEditor, offset) match {
+        case ref: ScReferenceExpression => Invocation.implicitInvocation(ref)
+        case _                          => None
+      }
+    }
+
+    val argsOption = findArgs(element).orElse(refWithImplicitArgs)
+
     if (argsOption.isEmpty) return null
     val args = argsOption.get
     implicit val project: ProjectContext = file.projectContext
     context match {
       case context: CreateParameterInfoContext =>
         context.setItemsToShow(elementsForParameterInfo(args).toArray)
-      case context: UpdateParameterInfoContext =>
+      case context: UpdateParameterInfoContext if args.arguments.nonEmpty =>
         var el = element
         while (el.getParent != args.element) el = el.getParent
         var index = 1

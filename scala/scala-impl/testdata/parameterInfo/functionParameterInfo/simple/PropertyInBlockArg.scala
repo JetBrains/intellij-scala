@@ -5,5 +5,7 @@ class Property {
 def bar(l: Long): Unit = ()
 
 val y = new Property
-bar(y.fo<caret>o)
+bar {
+  y.fo<caret>o
+}
 //l: Long

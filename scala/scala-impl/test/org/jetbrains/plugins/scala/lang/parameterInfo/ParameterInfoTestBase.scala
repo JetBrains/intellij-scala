@@ -42,7 +42,7 @@ abstract class ParameterInfoTestBase[Owner <: PsiElement] extends ScalaLightCode
     assertNotNull(expected)
     assertTrue(s"expected signatures: ${expected.mkString(",")}, actual: ${actual.mkString(",")}", expected.contains(actual))
 
-    if (testUpdate) {
+    if (testUpdate && actual.nonEmpty) {
       //todo test correct parameter index after moving caret
       val actualAfterUpdate = handleUpdateUI(handler, context)
       assertTrue(expected.contains(actualAfterUpdate))
@@ -52,7 +52,8 @@ abstract class ParameterInfoTestBase[Owner <: PsiElement] extends ScalaLightCode
   private def handleUI(handler: ParameterInfoHandler[Owner, Any],
                        context: CreateParameterInfoContext): Seq[String] = {
     val parameterOwner = handler.findElementForParameterInfo(context)
-    uiStrings(context.getItemsToShow, handler, parameterOwner)
+    val items = Option(context.getItemsToShow).getOrElse(Array.empty)
+    uiStrings(items, handler, parameterOwner)
   }
 
   private def handleUpdateUI(handler: ParameterInfoHandler[Owner, Any],

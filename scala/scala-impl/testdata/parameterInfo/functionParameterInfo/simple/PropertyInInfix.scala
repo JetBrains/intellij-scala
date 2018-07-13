@@ -1,9 +1,8 @@
 class Property {
   def foo(implicit x: Int) = 1
+  def ++ (foo: Int) = new Property
 }
 
-def bar(l: Long): Unit = ()
-
 val y = new Property
-bar(y.fo<caret>o)
-//l: Long
+y ++ y.fo<caret>o
+//foo: Int
