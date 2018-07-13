@@ -72,10 +72,10 @@ object ExhaustiveMatchCompletionContributor {
     extends PatternGenerationStrategy {
 
     override protected def patterns(implicit place: PsiElement): Seq[String] = {
-      val Inheritors(namedInheritors, anonymousInheritors) = inheritors
+      val Inheritors(namedInheritors, anonymousInheritors, javaInheritors) = inheritors
 
       val anonymousInheritorsPatterns = anonymousInheritors.map(patternTexts)
-      val maybeWildcard = if (anonymousInheritorsPatterns.exists(_.isEmpty)) Some("_")
+      val maybeWildcard = if (javaInheritors.nonEmpty || anonymousInheritorsPatterns.exists(_.isEmpty)) Some("_")
       else None
 
       anonymousInheritorsPatterns.flatten ++
@@ -89,7 +89,7 @@ object ExhaustiveMatchCompletionContributor {
     def unapply(definition: ScTypeDefinition): Option[SealedClassGenerationStrategy] = definition match {
       case SealedDefinition(inheritors) =>
         inheritors match {
-          case Inheritors(Seq(), Seq()) => None
+          case Inheritors(Seq(), Seq(), _) => None
           case _ => Some(new SealedClassGenerationStrategy(definition, inheritors))
         }
       case _ => None

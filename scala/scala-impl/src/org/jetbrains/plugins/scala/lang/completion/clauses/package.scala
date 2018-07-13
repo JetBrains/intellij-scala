@@ -2,13 +2,13 @@ package org.jetbrains.plugins.scala
 package lang
 package completion
 
-import com.intellij.psi.PsiElement
 import com.intellij.psi.search.searches.ClassInheritorsSearch
+import com.intellij.psi.{PsiClass, PsiElement}
 import org.jetbrains.plugins.scala.extensions._
 import org.jetbrains.plugins.scala.lang.psi.api.base.patterns.ScPattern
 import org.jetbrains.plugins.scala.lang.psi.api.expr.ScNewTemplateDefinition
 import org.jetbrains.plugins.scala.lang.psi.api.statements.{ScFunction, ScPatternDefinition}
-import org.jetbrains.plugins.scala.lang.psi.api.toplevel.typedef.{ScClass, ScObject, ScTypeDefinition}
+import org.jetbrains.plugins.scala.lang.psi.api.toplevel.typedef.{ScClass, ScObject, ScTemplateDefinition, ScTypeDefinition}
 import org.jetbrains.plugins.scala.lang.psi.types.ScalaType
 import org.jetbrains.plugins.scala.lang.refactoring.namesSuggester.NameSuggester
 
@@ -19,7 +19,8 @@ package object clauses {
   private[clauses] val DefaultName = "_"
 
   private[clauses] case class Inheritors(namedInheritors: Seq[ScTypeDefinition],
-                                         anonymousInheritors: Seq[ScNewTemplateDefinition])
+                                         anonymousInheritors: Seq[ScNewTemplateDefinition],
+                                         javaInheritors: Seq[PsiClass])
 
   private[clauses] object SealedDefinition {
 
@@ -28,11 +29,12 @@ package object clauses {
       val inheritors = ClassInheritorsSearch.search(sealedDefinition, sealedDefinition.resolveScope, false).asScala.toSeq
         .sortBy(_.getNavigationElement.getTextRange.getStartOffset)
 
-      val (namedInheritors, anonymousInheritors) = inheritors.partition(_.isInstanceOf[ScTypeDefinition])
+      val (scalaInheritors, javaInheritors) = inheritors.partition(_.isInstanceOf[ScTemplateDefinition])
+      val (namedInheritors, anonymousInheritors) = scalaInheritors.partition(_.isInstanceOf[ScTypeDefinition])
       val namedDefinitions = namedInheritors.map(_.asInstanceOf[ScTypeDefinition])
       val anonymousDefinitions = anonymousInheritors.map(_.asInstanceOf[ScNewTemplateDefinition])
 
-      Some(Inheritors(namedDefinitions, anonymousDefinitions))
+      Some(Inheritors(namedDefinitions, anonymousDefinitions, javaInheritors))
     } else None
   }
 

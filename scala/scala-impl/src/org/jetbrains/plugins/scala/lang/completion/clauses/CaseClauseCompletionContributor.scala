@@ -28,7 +28,7 @@ class CaseClauseCompletionContributor extends ScalaCompletionContributor {
         .flatMap(_.extractClass)
 
       val targetClasses = maybeClass match {
-        case Some(SealedDefinition(Inheritors(namedInheritors, _))) => namedInheritors
+        case Some(SealedDefinition(Inheritors(namedInheritors, _, _))) => namedInheritors
         case Some(definition: ScTypeDefinition) => Seq(definition)
         case _ => Seq.empty
       }
