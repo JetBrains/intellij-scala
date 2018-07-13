@@ -40,12 +40,9 @@ import org.jetbrains.plugins.scala.lang.psi.types.api.designator.ScProjectionTyp
 import org.jetbrains.plugins.scala.lang.psi.types.api.{Any, ParameterizedType, TypeParameterType}
 import org.jetbrains.plugins.scala.lang.refactoring.util.ScalaNamesUtil
 import org.jetbrains.plugins.scala.lang.resolve.SyntheticClassProducer
-import org.jetbrains.plugins.scala.macroAnnotations.{CachedWithoutModificationCount, ModCount, ValueWrapper}
+import org.jetbrains.plugins.scala.macroAnnotations.{CachedWithoutModificationCount, ValueWrapper}
 import org.jetbrains.plugins.scala.project.{ProjectContext, ProjectExt}
 import org.jetbrains.plugins.scala.settings.ScalaProjectSettings
-import org.scalafmt.config.ScalafmtConfig
-import org.jetbrains.plugins.scala.lang.formatting.processors.ScalaFmtPreFormatProcessor
-import org.jetbrains.plugins.scala.lang.formatting.processors.ScalaFmtPreFormatProcessor.TextRanges
 
 import scala.collection.{Seq, mutable}
 
@@ -67,9 +64,6 @@ class ScalaPsiManager(val project: Project) {
     ContainerUtil.newConcurrentMap[(ScType, GlobalSearchScope), Seq[ScType]]()
 
   val implicitCollectorCache: ImplicitCollectorCache = new ImplicitCollectorCache(project)
-
-  def getScalafmtProjectConfig(vFile: VirtualFile): ScalafmtConfig = ScalaFmtPreFormatProcessor.storeOrUpdate(scalafmtConfig, vFile, project)
-  private val scalafmtConfig: ConcurrentMap[VirtualFile, (ScalafmtConfig, Long)] = ContainerUtil.createConcurrentWeakMap[VirtualFile, (ScalafmtConfig, Long)]()
 
   private def dontCacheCompound = ScalaProjectSettings.getInstance(project).isDontCacheCompoundTypes
 

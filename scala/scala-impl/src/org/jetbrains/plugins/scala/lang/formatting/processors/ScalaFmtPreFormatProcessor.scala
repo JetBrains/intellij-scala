@@ -28,13 +28,14 @@ import org.jetbrains.plugins.scala.lang.psi.api.expr.ScBlockStatement
 import org.jetbrains.plugins.scala.lang.psi.api.toplevel.templates.ScTemplateBody
 import org.jetbrains.plugins.scala.lang.psi.api.toplevel.typedef.ScMember
 import org.jetbrains.plugins.scala.lang.psi.impl.expr.ScBlockImpl
-import org.jetbrains.plugins.scala.lang.psi.impl.{ScalaPsiElementFactory, ScalaPsiManager}
+import org.jetbrains.plugins.scala.lang.psi.impl.ScalaPsiElementFactory
 import org.jetbrains.plugins.scala.project.UserDataHolderExt
 import org.jetbrains.sbt.language.SbtFileImpl
 import org.scalafmt.Formatted.Success
 import org.scalafmt.Scalafmt
 import org.scalafmt.config.{Config, ScalafmtConfig, ScalafmtRunner}
 import org.jetbrains.plugins.scala.extensions._
+import org.jetbrains.plugins.scala.project._
 
 import scala.annotation.tailrec
 import scala.collection.mutable
@@ -64,7 +65,7 @@ object ScalaFmtPreFormatProcessor {
     val project = psi.getProject
     val config = if (settings.SCALAFMT_CONFIG_PATH.nonEmpty) {
       scalaFmtConfigFile(settings, project) match {
-        case Some(custom) => storeOrUpdate(externalScalafmtConfigs, custom, project)
+        case Some(custom) => storeOrUpdate(custom, project)
         case _ =>
           reportBadConfig(settings.SCALAFMT_CONFIG_PATH, project)
           ScalafmtConfig.intellij
@@ -80,18 +81,18 @@ object ScalaFmtPreFormatProcessor {
   }
 
   def projectDefaultConfig(project: Project): Option[ScalafmtConfig] = Option(project.getBaseDir.findChild(".scalafmt.conf")).
-    map(ScalaPsiManager.instance(project).getScalafmtProjectConfig)
+    map(project.getScalafmtProjectConfig(_))
 
   def scalaFmtConfigFile(settings: ScalaCodeStyleSettings, project: Project): Option[VirtualFile] =
     Option(StandardFileSystems.local.findFileByPath(absolutePathFromConfigPath(settings.SCALAFMT_CONFIG_PATH, project)))
 
-  def storeOrUpdate(map: ConcurrentMap[VirtualFile, (ScalafmtConfig, Long)], vFile: VirtualFile, project: Project): ScalafmtConfig = {
+  def storeOrUpdate(vFile: VirtualFile, project: Project): ScalafmtConfig = {
     vFile.refresh(false, false) //TODO use of asynchronous updates is a trade-off performance vs accuracy, can this be performance-heavy?
-    Option(map.get(vFile)) match {
+    Option(scalafmtConfigs.get(vFile)) match {
       case Some((config, stamp)) if stamp == vFile.getModificationStamp => config
       case _ =>
         loadConfig(vFile,project).map{ config =>
-          map.put(vFile, (config, vFile.getModificationStamp))
+          scalafmtConfigs.put(vFile, (config, vFile.getModificationStamp))
           config
         }.getOrElse {
           reportBadConfig(vFile.getCanonicalPath, project)
@@ -376,7 +377,7 @@ object ScalaFmtPreFormatProcessor {
     }
   }
 
-  private val externalScalafmtConfigs: ConcurrentMap[VirtualFile, (ScalafmtConfig, Long)] = ContainerUtil.createConcurrentWeakMap()
+  private val scalafmtConfigs: ConcurrentMap[VirtualFile, (ScalafmtConfig, Long)] = ContainerUtil.createConcurrentWeakMap()
 
   private def reportError(errorText: String, project: Project): Unit = {
     val popupFactory = JBPopupFactory.getInstance
