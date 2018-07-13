@@ -448,6 +448,34 @@ class ScalaClausesCompletionTest extends ScalaCodeInsightTestBase {
     item = "foo"
   )
 
+  def testJavaInheritor(): Unit = {
+    configureJavaFile(
+      fileText =
+        s"""public class Baz extends Foo {
+           |}
+         """.stripMargin,
+      className = "Baz"
+    )
+
+    doMatchCompletionTest(
+      fileText =
+        s"""sealed class Foo
+           |class Bar extends Foo
+           |
+           |(_: Foo) m$CARET
+         """.stripMargin,
+      resultText =
+        s"""sealed class Foo
+           |class Bar extends Foo
+           |
+           |(_: Foo) match {
+           |  case bar: Bar => $CARET
+           |  case _ =>
+           |}
+         """.stripMargin
+    )
+  }
+
   private def doMultipleCompletionTest(fileText: String,
                                        items: String*): Unit =
     super.doMultipleCompletionTest(fileText, items.size, DEFAULT_CHAR, DEFAULT_TIME, DEFAULT_COMPLETION_TYPE) { lookup =>
