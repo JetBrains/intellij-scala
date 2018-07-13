@@ -248,7 +248,7 @@ class ScalaFmtSelectionTest extends SelectionTest {
     doTextTest(before, after)
   }
 
-  def testSCL18939(): Unit = {
+  def testSCL13939(): Unit = {
     val before =
       s"""
          |object Test {
