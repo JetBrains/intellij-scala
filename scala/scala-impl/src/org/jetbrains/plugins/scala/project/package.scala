@@ -10,18 +10,20 @@ import com.intellij.openapi.roots.impl.libraries.{LibraryEx, ProjectLibraryTable
 import com.intellij.openapi.roots.libraries.Library
 import com.intellij.openapi.roots.ui.configuration.libraryEditor.ExistingLibraryEditor
 import com.intellij.openapi.util.{Key, UserDataHolder, UserDataHolderEx}
-import com.intellij.openapi.vfs.VfsUtilCore
+import com.intellij.openapi.vfs.{VfsUtilCore, VirtualFile}
 import com.intellij.psi.{PsiElement, PsiFile}
 import com.intellij.util.CommonProcessors.CollectProcessor
 import org.jetbrains.plugins.dotty.DottyLanguage
 import org.jetbrains.plugins.dotty.lang.psi.types.DottyTypeSystem
 import org.jetbrains.plugins.scala.caches.CachesUtil
 import org.jetbrains.plugins.scala.extensions._
+import org.jetbrains.plugins.scala.lang.formatting.processors.ScalaFmtPreFormatProcessor
 import org.jetbrains.plugins.scala.lang.psi.types.ScalaTypeSystem
 import org.jetbrains.plugins.scala.lang.psi.types.api.TypeSystem
 import org.jetbrains.plugins.scala.macroAnnotations.CachedInUserData
 import org.jetbrains.plugins.scala.project.ScalaLanguageLevel.{Scala_2_11, Scala_2_13}
 import org.jetbrains.plugins.scala.project.settings.{ScalaCompilerConfiguration, ScalaCompilerSettings}
+import org.scalafmt.config.ScalafmtConfig
 
 import scala.annotation.tailrec
 import scala.collection.JavaConverters._
@@ -191,6 +193,8 @@ package object project {
       if (project.hasDotty) DottyLanguage.INSTANCE else ScalaLanguage.INSTANCE
 
     def isPartialUnificationEnabled: Boolean = modulesWithScala.exists(_.isPartialUnificationEnabled)
+
+    def getScalafmtProjectConfig(vFile: VirtualFile): ScalafmtConfig = ScalaFmtPreFormatProcessor.storeOrUpdate(vFile, project)
   }
 
   implicit class UserDataHolderExt(val holder: UserDataHolder) extends AnyVal {
