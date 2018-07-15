@@ -1,5 +1,7 @@
 import sbt._
 import Keys._
+import org.jetbrains.sbtidea.Keys._
+
 import scala.language.implicitConversions
 import scala.language.postfixOps
 
@@ -45,27 +47,20 @@ object Common {
     val scalacTests: String = cat("ScalacTests")
   }
 
-  lazy val homePrefix = sys.props.get("tc.idea.prefix").map(new File(_)).getOrElse(Path.userHome)
+  def pluginVersion: String =
+    Option(System.getProperty("plugin.version")).getOrElse("SNAPSHOT")
 
-  def ivyHomeDir: File =
-    Option(System.getProperty("sbt.ivy.home")).fold(homePrefix / ".ivy2")(file)
+  def replaceInFile(f: File, source: String, target: String): Unit = {
+    if (!(source == null) && !(target == null)) {
+      IO.writeLines(f, IO.readLines(f) map { _.replace(source, target) })
+    }
+  }
 
-  def commonTestSettings(packagedPluginDir: SettingKey[File]): Seq[Setting[_]] = Seq(
-    fork in Test := true,
-    parallelExecution := false,
-    logBuffered := false,
-    javaOptions in Test := Seq(
-      "-Xms128m",
-      "-Xmx4096m",
-      "-server",
-      "-ea",
-      s"-Didea.system.path=${testSystemDir.value}",
-      s"-Didea.config.path=${testConfigDir.value}",
-      s"-Dsbt.ivy.home=$ivyHomeDir",
-      s"-Dplugin.path=${packagedPluginDir.value}"
-      // to enable debugging of tests running in external sbt instance
-//      ,"-agentlib:jdwp=transport=dt_socket,server=y,address=5005,suspend=y"
-    ),
-    envVars in Test += "NO_FS_ROOTS_ACCESS_CHECK" -> "yes"
-  )
+
+  def patchPluginXML(f: File): File = {
+    val tmpFile = java.io.File.createTempFile("plugin", ".xml")
+    IO.copyFile(f, tmpFile)
+    replaceInFile(tmpFile, "VERSION", pluginVersion)
+    tmpFile
+  }
 }
