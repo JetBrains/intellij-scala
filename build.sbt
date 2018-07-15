@@ -235,15 +235,15 @@ lazy val sbtRuntimeDependencies =
         "org.scala-sbt" % "util-interface" % "1.1.2" -> None,
         "org.scala-sbt" % "launcher" % "1.0.3"       -> None
       ),
-      packageFileMappings += {
+      packageMappings := {
         import Dependencies._
-        import Versions._
-        val repoDir = target.value / "repo"
         LocalRepoPackager.localPluginRepo(
-          repoDir,
-          (sbtStructureExtractor.name, sbtStructureVersion) :: ("sbt-idea-shell", sbtIdeaShellVersion) :: Nil)
-        repoDir -> "repo/"
-      })
+          target.value / "repo",
+            (sbtStructureExtractor.name,  Versions.sbtStructureVersion) ::
+            ("sbt-idea-shell",            Versions.sbtIdeaShellVersion) :: Nil)
+        packageMappings.value
+      },
+      packageFileMappings += target.value / "repo" -> "repo/" )
 
 //lazy val jmhBenchmarks =
 //  newProject("benchmarks", file("scala/benchmarks"))
