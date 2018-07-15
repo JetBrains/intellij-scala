@@ -34,6 +34,8 @@ object LocalRepoPackager {
       jarPath(plugin_sbt1, artifactId), ivyPath(plugin_sbt1)
     )
 
+    println(s"downloading ${paths.size} files to local repo: $paths")
+
     // TODO only download missing targets
     val downloadedArtifactFiles = paths.map { path =>
       val downloadUrl = remoteRepo.resolve(path).normalize().toURL
