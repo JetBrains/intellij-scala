@@ -160,6 +160,8 @@ class SbtProcessManager(project: Project) extends AbstractProjectComponent(proje
   }
 
   private object ConfigureProjectJdkAction extends NotificationAction("&Configure project jdk") {
+    override def startInTransaction(): Boolean = true
+
     // copied from ShowStructureSettingsAction
     override def actionPerformed(e: AnActionEvent, notification: Notification): Unit = {
       new SingleConfigurableEditor(project, ProjectStructureConfigurable.getInstance(project), SettingsDialog.DIMENSION_KEY) {
