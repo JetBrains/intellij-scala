@@ -9,9 +9,8 @@ ideaBuild in ThisBuild := Versions.ideaVersion
 
 resolvers in ThisBuild ++=
   BintrayJetbrains.allResolvers :+
-    Resolver.typesafeIvyRepo("releases")
-
-resolvers in ThisBuild += Resolver.sonatypeRepo("snapshots")
+    Resolver.typesafeIvyRepo("releases") :+
+    Resolver.sonatypeRepo("snapshots")
 
 // Main projects
 lazy val scalaCommunity: sbt.Project =
@@ -25,19 +24,13 @@ lazy val scalaCommunity: sbt.Project =
       intellilangIntegration % "test->test;compile->compile",
       mavenIntegration % "test->test;compile->compile",
       propertiesIntegration % "test->test;compile->compile")
-    .aggregate(
-      scalaImpl,
-//      bsp,
-      androidIntegration,
-      copyrightIntegration,
-      gradleIntegration,
-      intellilangIntegration,
-      mavenIntegration,
-      propertiesIntegration)
     .settings(
       ideExcludedDirectories    := Seq(baseDirectory.value / "target"),
       packageAdditionalProjects := Seq(compilerJps, repackagedZinc, decompiler, compilerShared, nailgunRunners, runners, sbtRuntimeDependencies),
-      packageLibraryMappings    := Dependencies.scalaLibrary -> Some("lib/scala-library.jar") :: Nil )
+      packageLibraryMappings    := Dependencies.scalaLibrary -> Some("lib/scala-library.jar") :: Nil,
+      definedTests in Test := { // all sub-project tests need to be run within main project's classpath
+        definedTests.all(ScopeFilter(inDependencies(scalaCommunity), inConfigurations(Test))
+          -- ScopeFilter(inProjects(scalaCommunity), inAnyConfiguration)).value.flatten })
 
 lazy val scalaImpl: sbt.Project =
   newProject("scala-impl", file("scala/scala-impl"))
@@ -54,11 +47,11 @@ lazy val scalaImpl: sbt.Project =
         "IntelliLang",
         "java-i18n",
         "android",
-        "smali", // required by Android
-        "gradle", // requierd by Android
-        "Groovy", // requierd by Gradle
+        "smali",      // required by Android
+        "gradle",     // requierd by Android
+        "Groovy",     // requierd by Gradle
         "properties", // required by Gradle
-        "maven", // TODO remove after extracting the SBT module (which depends on Maven)
+        "maven",      // TODO remove after extracting the SBT module (which depends on Maven)
         "junit"
       ),
       ideaInternalPluginsJars :=
@@ -104,8 +97,7 @@ lazy val repackagedZinc =
       packageOutputDir := baseDirectory.value / "plugin",
       packageAssembleLibraries := true,
       packageMethod := PackagingMethod.Standalone("lib/jps/incremental-compiler.jar"),
-      libraryDependencies += Dependencies.zinc,
-      ideSkipProject := true)
+      libraryDependencies += Dependencies.zinc)
 
 lazy val compilerShared =
   newProject("compiler-shared", file("scala/compiler-shared"))
