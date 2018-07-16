@@ -27,19 +27,18 @@ class CaseClauseCompletionContributor extends ScalaCompletionContributor {
         .flatMap(_.expectedType)
         .flatMap(_.extractClass)
 
-      val targetClasses = maybeClass match {
-        case Some(SealedDefinition(Inheritors(namedInheritors, _, _))) => namedInheritors
-        case Some(definition: ScTypeDefinition) => Seq(definition)
-        case _ => Seq.empty
-      }
+      val targetInheritors = maybeClass.collect {
+        case SealedDefinition(inheritors) => inheritors
+        case definition: ScTypeDefinition => Inheritors(Seq(definition))
+      }.toSeq
 
       // TODO find conflicting CompletionContributor
       for {
-        clazz <- targetClasses
-        if !clazz.isInstanceOf[ScObject]
-        name <- patternTexts(clazz)(position)
+        inheritors <- targetInheritors
+        (name, namedElement) <- inheritors.patterns(position)
+        if !namedElement.isInstanceOf[ScObject]
       } yield {
-        val item = new ScalaLookupItem(clazz, name)
+        val item = new ScalaLookupItem(namedElement, name)
         item.isLocalVariable = true
         item
       }

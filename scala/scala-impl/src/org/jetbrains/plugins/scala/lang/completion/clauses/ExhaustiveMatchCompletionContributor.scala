@@ -60,29 +60,19 @@ object ExhaustiveMatchCompletionContributor {
   private sealed trait PatternGenerationStrategy {
 
     final def replacement(implicit place: PsiElement): String =
-      patterns.map { pattern =>
-        s"$CASE $pattern ${ScalaPsiUtil.functionArrow}"
+      patterns.map {
+        case (pattern, _) => s"$CASE $pattern ${ScalaPsiUtil.functionArrow}"
       }.mkString(MATCH + "{", " ", "}")
 
-    protected def patterns(implicit place: PsiElement): Seq[String]
+    protected def patterns(implicit place: PsiElement): Seq[NameAndElement]
   }
 
   private class SealedClassGenerationStrategy(sealedDefinition: ScTypeDefinition,
                                               inheritors: Inheritors)
     extends PatternGenerationStrategy {
 
-    override protected def patterns(implicit place: PsiElement): Seq[String] = {
-      val Inheritors(namedInheritors, anonymousInheritors, javaInheritors) = inheritors
-
-      val anonymousInheritorsPatterns = anonymousInheritors.map(patternTexts)
-      val maybeWildcard = if (anonymousInheritorsPatterns.exists(_.isEmpty)) Some(DefaultName)
-      else None
-
-      anonymousInheritorsPatterns.flatten ++
-        namedInheritors.flatMap(patternTexts) ++
-        javaInheritors.map(patternText) ++
-        maybeWildcard
-    }
+    override protected def patterns(implicit place: PsiElement): Seq[NameAndElement] =
+      inheritors.patterns
   }
 
   private object SealedClassGenerationStrategy {
@@ -98,31 +88,27 @@ object ExhaustiveMatchCompletionContributor {
   }
 
   private abstract class EnumGenerationStrategy protected(enum: PsiClass)
-    extends PatternGenerationStrategy {
-
-    override protected def patterns(implicit place: PsiElement): Seq[String] =
-      declaredNamesPatterns(declaredNames, enum)
-
-    protected def declaredNames: Seq[String]
-  }
+    extends PatternGenerationStrategy
 
   private class JavaEnumGenerationStrategy(enum: PsiClass)
     extends EnumGenerationStrategy(enum) {
 
-    override protected def declaredNames: Seq[String] =
-      enum.getFields.collect {
-        case constant: PsiEnumConstant => constant.name
+    override protected def patterns(implicit place: PsiElement): Seq[NameAndElement] = {
+      val declaredElements = enum.getFields.collect {
+        case constant: PsiEnumConstant => constant
       }
+      declaredNamesPatterns(declaredElements, enum)
+    }
   }
 
   private class ScalaEnumGenerationStrategy(enum: ScObject,
                                             valueType: ScType)
     extends EnumGenerationStrategy(enum) {
 
-    override protected def declaredNames: Seq[String] =
+    override protected def patterns(implicit place: PsiElement): Seq[NameAndElement] =
       enum.members.collect {
         case value: ScValue if value.isPublic && isEnumerationValue(value) => value
-      }.flatMap(_.declaredNames)
+      }.flatMap(declaredNamesPatterns(_, enum))
 
     private def isEnumerationValue(value: ScValue) =
       value.`type`().exists(_.conforms(valueType))

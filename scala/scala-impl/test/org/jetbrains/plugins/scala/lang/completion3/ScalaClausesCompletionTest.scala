@@ -181,6 +181,57 @@ class ScalaClausesCompletionTest extends ScalaCodeInsightTestBase {
     item = "Foo()"
   )
 
+  def testAnonymousInheritorCompletion(): Unit = doCompletionTest(
+    fileText =
+      s"""sealed trait Foo
+         |
+         |object Foo {
+         |  val Impl = new Foo {}
+         |}
+         |
+         |(_: Foo) match {
+         |  case $CARET
+         |}
+       """.stripMargin,
+    resultText =
+      s"""sealed trait Foo
+         |
+         |object Foo {
+         |  val Impl = new Foo {}
+         |}
+         |
+         |(_: Foo) match {
+         |  case Foo.Impl$CARET
+         |}
+       """.stripMargin,
+    item = "Foo.Impl"
+  )
+
+  def testJavaInheritorCompletion(): Unit = {
+    configureJavaFile(
+      fileText = "public class Bar extends Foo {}",
+      className = "Bar"
+    )
+
+    doCompletionTest(
+      fileText =
+        s"""sealed trait Foo
+           |
+           |(_: Foo) match {
+           |  case $CARET
+           |}
+         """.stripMargin,
+      resultText =
+        s"""sealed trait Foo
+           |
+           |(_: Foo) match {
+           |  case bar: Bar$CARET
+           |}
+         """.stripMargin,
+      item = "bar: Bar"
+    )
+  }
+
   def testSealedTrait(): Unit = doMatchCompletionTest(
     fileText =
       s"""sealed trait Foo
@@ -450,10 +501,7 @@ class ScalaClausesCompletionTest extends ScalaCodeInsightTestBase {
 
   def testJavaInheritor(): Unit = {
     configureJavaFile(
-      fileText =
-        s"""public class Baz extends Foo {
-           |}
-         """.stripMargin,
+      fileText = "public class Baz extends Foo {}",
       className = "Baz"
     )
 
