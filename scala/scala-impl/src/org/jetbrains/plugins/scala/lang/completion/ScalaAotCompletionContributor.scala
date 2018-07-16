@@ -17,7 +17,6 @@ import org.jetbrains.plugins.scala.lang.psi.api.base.types.ScTypeElement
 import org.jetbrains.plugins.scala.lang.psi.api.statements.params.{ScParameter, ScParameterType}
 import org.jetbrains.plugins.scala.lang.psi.api.statements.{ScValueDeclaration, ScVariableDeclaration}
 import org.jetbrains.plugins.scala.lang.psi.impl.ScalaPsiElementFactory
-import org.jetbrains.plugins.scala.lang.refactoring.ScalaNamesValidator
 import org.jetbrains.plugins.scala.settings.ScalaProjectSettings
 
 import scala.collection.mutable
@@ -96,11 +95,12 @@ class ScalaAotCompletionContributor extends ScalaCompletionContributor {
     classOf[ScFieldId],
     new AotCompletionProvider[ScValueDeclaration] {
 
-      override protected def addCompletions(resultSet: CompletionResultSet)
+      override protected def addCompletions(resultSet: CompletionResultSet,
+                                            prefix: String)
                                            (implicit parameters: CompletionParameters,
                                             context: ProcessingContext): Unit =
         positionFromParameters.getContext.getContext.getContext match {
-          case _: ScVariableDeclaration | _: ScValueDeclaration => super.addCompletions(resultSet)
+          case _: ScVariableDeclaration | _: ScValueDeclaration => super.addCompletions(resultSet, prefix)
           case _ =>
         }
 
@@ -158,16 +158,14 @@ object ScalaAotCompletionContributor {
 
   private[completion] trait AotCompletionProvider[E <: ScalaPsiElement] extends DelegatingCompletionProvider[E] {
 
-    override protected def addCompletions(resultSet: CompletionResultSet)
+    override protected def addCompletions(resultSet: CompletionResultSet,
+                                          prefix: String)
                                          (implicit parameters: CompletionParameters,
                                           context: ProcessingContext): Unit = {
       implicit val position: PsiElement = positionFromParameters
       if (!ScalaProjectSettings.getInstance(position.getProject).isAotCompletion) return
 
-      val prefix = resultSet.getPrefixMatcher.getPrefix
-      if (!ScalaNamesValidator.isIdentifier(prefix) || prefix.exists(!_.isLetterOrDigit)) return
-
-      val replacement = createElement(Delimiter + capitalize(position.getText), resultSet)
+      val replacement = createElement(Delimiter + capitalize(position.getText), prefix)
 
       val context = findContext(replacement)
       replacement.setContext(context, context.getLastChild)

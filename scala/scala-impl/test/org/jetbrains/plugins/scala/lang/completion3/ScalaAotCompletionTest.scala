@@ -115,6 +115,39 @@ class ScalaAotCompletionTest extends ScalaCodeInsightTestBase {
     itemText = "foo: Foo"
   )
 
+  def testBeforeCase(): Unit = checkNoCompletion(
+    fileText =
+      s"""class Foo
+         |
+         |(_: Foo) match {
+         |  $CARET
+         |}
+       """.stripMargin,
+    item = "foo: Foo"
+  )
+
+  def testAfterArrow(): Unit = checkNoCompletion(
+    fileText =
+      s"""class Foo
+         |
+         |(_: Foo) match {
+         |  case _ => $CARET
+         |}
+       """.stripMargin,
+    item = "foo: Foo"
+  )
+
+  def testWildcard(): Unit = checkNoCompletion(
+    fileText =
+      s"""class Foo
+         |
+         |(_: Foo) match {
+         |  case _$CARET
+         |}
+       """.stripMargin,
+    item = "foo: Foo"
+  )
+
   private def doAotCompletionTest(fileText: String,
                                   resultText: String,
                                   lookupString: String,

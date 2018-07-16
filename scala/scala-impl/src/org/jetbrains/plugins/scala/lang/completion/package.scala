@@ -17,6 +17,7 @@ import org.jetbrains.plugins.scala.lang.psi.ScalaPsiElement
 import org.jetbrains.plugins.scala.lang.psi.api.expr.{ScBlockExpr, ScModificationTrackerOwner}
 import org.jetbrains.plugins.scala.lang.psi.api.statements.ScTypeAlias
 import org.jetbrains.plugins.scala.lang.psi.api.toplevel.typedef.ScTypeDefinition
+import org.jetbrains.plugins.scala.lang.refactoring.ScalaNamesValidator
 import org.jetbrains.plugins.scala.lang.refactoring.util.ScalaNamesUtil
 
 import scala.annotation.tailrec
@@ -93,14 +94,20 @@ package object completion {
     override final def addCompletions(parameters: CompletionParameters,
                                       context: ProcessingContext,
                                       resultSet: CompletionResultSet): Unit =
-      addCompletions(resultSet)(parameters, context)
+      resultSet.getPrefixMatcher.getPrefix match {
+        case prefix if ScalaNamesValidator.isIdentifier(prefix) && prefix.forall(_.isLetterOrDigit) =>
+          addCompletions(resultSet, prefix)(parameters, context)
+        case _ =>
+      }
 
-    protected def addCompletions(resultSet: CompletionResultSet)
-                                (implicit parameters: CompletionParameters, context: ProcessingContext): Unit
+    protected def addCompletions(resultSet: CompletionResultSet,
+                                 prefix: String)
+                                (implicit parameters: CompletionParameters,
+                                 context: ProcessingContext): Unit
 
-    protected final def createElement(text: String, resultSet: CompletionResultSet)
+    protected final def createElement(text: String, prefix: String)
                                      (implicit position: PsiElement): E =
-      createElement(resultSet.getPrefixMatcher.getPrefix + text, position.getContext, position)
+      createElement(prefix + text, position.getContext, position)
 
     protected def createElement(text: String,
                                 context: PsiElement,
