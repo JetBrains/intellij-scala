@@ -75,11 +75,12 @@ object ExhaustiveMatchCompletionContributor {
       val Inheritors(namedInheritors, anonymousInheritors, javaInheritors) = inheritors
 
       val anonymousInheritorsPatterns = anonymousInheritors.map(patternTexts)
-      val maybeWildcard = if (javaInheritors.nonEmpty || anonymousInheritorsPatterns.exists(_.isEmpty)) Some("_")
+      val maybeWildcard = if (anonymousInheritorsPatterns.exists(_.isEmpty)) Some(DefaultName)
       else None
 
       anonymousInheritorsPatterns.flatten ++
         namedInheritors.flatMap(patternTexts) ++
+        javaInheritors.map(patternText) ++
         maybeWildcard
     }
   }
