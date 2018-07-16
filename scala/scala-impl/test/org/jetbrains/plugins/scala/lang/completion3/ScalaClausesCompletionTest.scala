@@ -65,7 +65,7 @@ class ScalaClausesCompletionTest extends ScalaCodeInsightTestBase {
     items = "Foo(i, i1)", "foo: Foo"
   )
 
-  def testNoBeforeCaseCompletion(): Unit = checkNoCompletion(
+  def testBeforeCase(): Unit = checkNoCompletion(
     fileText =
       s"""case class Foo()
          |
@@ -76,7 +76,7 @@ class ScalaClausesCompletionTest extends ScalaCodeInsightTestBase {
     item = "Foo()"
   )
 
-  def testNoAfterArrowCompletion(): Unit = checkNoCompletion(
+  def testAfterArrow(): Unit = checkNoCompletion(
     fileText =
       s"""case class Foo()
          |

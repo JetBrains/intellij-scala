@@ -102,10 +102,11 @@ object CaseClauseCompletionContributor {
       * this handler add open and closed brackets to treat element as ScCodeReferenceElement
       * and run ScalaBasicCompletionContributor.
       */
-    override protected def addCompletions(resultSet: CompletionResultSet)
+    override protected def addCompletions(resultSet: CompletionResultSet,
+                                          prefix: String)
                                          (implicit parameters: CompletionParameters,
                                           context: ProcessingContext): Unit = {
-      val pattern = createElement("".parenthesize(), resultSet)
+      val pattern = createElement("".parenthesize(), prefix)
       val newParameters = createParameters(pattern)
       resultSet.runRemainingContributors(newParameters, createConsumer(resultSet))
     }
