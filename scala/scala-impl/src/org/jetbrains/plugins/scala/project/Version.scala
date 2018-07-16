@@ -16,10 +16,12 @@ case class Version(presentation: String) extends Ordered[Version] {
   def compare(other: Version): Int =
     implicitly[Ordering[Seq[Group]]].compare(essentialGroups, other.essentialGroups)
 
-  /** Returns whether this version is equal to or more specific than the other version. */
+  /** Returns whether this version is equal to or more specific than the other version.
+    * A version is "more specific" if LHS contains more digits than RHS.
+    */
   def ~=(other: Version): Boolean =
-    essentialGroups.zip(other.essentialGroups).forall(p => p._1 ~= p._2) &&
-      essentialGroups.lengthCompare(other.essentialGroups.length) >= 0
+    groups.zipAll(other.groups, Group(Seq(0l)), Group(Seq(0l))).forall(p => p._1 ~= p._2) &&
+      groups.lengthCompare(other.groups.length) >= 0
 
   /**
     * The major version of this version, in terms of the first n numbers of the dotted-numbers format.
@@ -45,9 +47,10 @@ private case class Group(numbers: Seq[Long]) extends Comparable[Group] {
   override def compareTo(other: Group): Int =
     implicitly[Ordering[Seq[Long]]].compare(essentialNumbers, other.essentialNumbers)
 
-  def ~=(other: Group): Boolean =
-    essentialNumbers.zip(other.essentialNumbers).forall(p => p._1 == p._2) &&
+  def ~=(other: Group): Boolean = {
+    Group.zipLeft(this.numbers, other.numbers, 0).forall { case (n1,n2) => n1 == n2 } &&
       essentialNumbers.lengthCompare(other.essentialNumbers.length) >= 0
+  }
 
   override def toString: String = numbers.mkString(".")
 }
@@ -55,6 +58,21 @@ private case class Group(numbers: Seq[Long]) extends Comparable[Group] {
 private object Group {
   private val IntegerPattern = "\\d+".r
 
+  /** zips and pads numbers if left is shorter, but not right */
+  private def zipLeft(left: Seq[Long], right: Seq[Long], fill: Long): Seq[(Long, Long)] = {
+    var zipped = Seq.newBuilder[(Long,Long)]
+
+    val lefts = left.iterator
+    val rights = right.iterator
+    while (lefts.hasNext && rights.hasNext)
+      zipped += ((lefts.next(), rights.next()))
+    while (rights.hasNext)
+      zipped += ((fill, rights.next()))
+
+    zipped.result()
+  }
+
   def apply(presentation: String): Group =
     Group(IntegerPattern.findAllIn(presentation).map(_.toLong).toList)
+
 }
