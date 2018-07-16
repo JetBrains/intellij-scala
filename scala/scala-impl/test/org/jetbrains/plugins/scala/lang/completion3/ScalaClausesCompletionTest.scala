@@ -470,7 +470,7 @@ class ScalaClausesCompletionTest extends ScalaCodeInsightTestBase {
            |
            |(_: Foo) match {
            |  case bar: Bar => $CARET
-           |  case _ =>
+           |  case baz: Baz =>
            |}
          """.stripMargin
     )

@@ -51,37 +51,35 @@ package object clauses {
     }.toSeq.flatMap(stableNames)
   }
 
+  private[clauses] def patternText(clazz: PsiClass): String = {
+    val designatorType = ScalaType.designator(clazz)
+    val name = NameSuggester.suggestNamesByType(designatorType)
+      .headOption
+      .getOrElse(DefaultName)
+    s"$name: ${clazz.name}"
+  }
+
   private[clauses] def patternTexts(definition: ScTypeDefinition)
                                    (implicit place: PsiElement): Seq[String] = {
-    import NameSuggester._
-    val className = definition.name
-
     val maybeText = definition match {
-      case _: ScObject => Some(className)
+      case scalaObject: ScObject => Some(scalaObject.name)
       case scalaClass: ScClass =>
         val maybeNames = if (scalaClass.isCase) constructorParameters(scalaClass)
         else {
-          val suggester = new UniqueNameSuggester(DefaultName)
+          val suggester = new NameSuggester.UniqueNameSuggester(DefaultName)
           extractorComponents(scalaClass).map(_.map(suggester))
         }
 
         maybeNames.map { names =>
-          className + names.commaSeparated(parenthesize = true)
+          scalaClass.name + names.commaSeparated(parenthesize = true)
         }
       case _ => None
     }
 
-    def defaultText = {
-      val name = suggestNamesByType(ScalaType.designator(definition))
-        .headOption
-        .getOrElse(DefaultName)
-      s"$name: $className"
-    }
-
     (definition, maybeText) match {
-      case (scalaClass: ScClass, Some(text)) if !scalaClass.isCase => Seq(text, defaultText)
+      case (scalaClass: ScClass, Some(text)) if !scalaClass.isCase => Seq(text, patternText(scalaClass))
       case (_, Some(text)) => Seq(text)
-      case _ => Seq(defaultText)
+      case _ => Seq(patternText(definition))
     }
   }
 
