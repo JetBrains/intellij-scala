@@ -100,18 +100,16 @@ object ExhaustiveMatchCompletionContributor {
   private abstract class EnumGenerationStrategy protected(enum: PsiClass)
     extends PatternGenerationStrategy {
 
-    override protected def patterns(implicit place: PsiElement): Seq[String] = {
-      val className = enum.name
-      definedNames.map(name => s"$className.$name")
-    }
+    override protected def patterns(implicit place: PsiElement): Seq[String] =
+      declaredNamesPatterns(declaredNames, enum)
 
-    protected def definedNames: Seq[String]
+    protected def declaredNames: Seq[String]
   }
 
   private class JavaEnumGenerationStrategy(enum: PsiClass)
     extends EnumGenerationStrategy(enum) {
 
-    override protected def definedNames: Seq[String] =
+    override protected def declaredNames: Seq[String] =
       enum.getFields.collect {
         case constant: PsiEnumConstant => constant.name
       }
@@ -121,7 +119,7 @@ object ExhaustiveMatchCompletionContributor {
                                             valueType: ScType)
     extends EnumGenerationStrategy(enum) {
 
-    override protected def definedNames: Seq[String] =
+    override protected def declaredNames: Seq[String] =
       enum.members.collect {
         case value: ScValue if value.isPublic && isEnumerationValue(value) => value
       }.flatMap(_.declaredNames)

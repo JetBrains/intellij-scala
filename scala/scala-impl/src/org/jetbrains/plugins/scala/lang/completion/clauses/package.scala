@@ -3,6 +3,7 @@ package lang
 package completion
 
 import com.intellij.psi.search.searches.ClassInheritorsSearch
+import com.intellij.psi.util.PsiTreeUtil
 import com.intellij.psi.{PsiClass, PsiElement}
 import org.jetbrains.plugins.scala.extensions._
 import org.jetbrains.plugins.scala.lang.psi.api.base.patterns.ScPattern
@@ -19,37 +20,42 @@ package object clauses {
   private[clauses] val DefaultName = "_"
 
   private[clauses] case class Inheritors(namedInheritors: Seq[ScTypeDefinition],
-                                         anonymousInheritors: Seq[ScNewTemplateDefinition],
-                                         javaInheritors: Seq[PsiClass])
+                                         anonymousInheritors: Seq[ScNewTemplateDefinition] = Seq.empty,
+                                         javaInheritors: Seq[PsiClass] = Seq.empty)
+
+  private[clauses] object Inheritors {
+
+    def apply(inheritors: Seq[PsiClass]): Inheritors = {
+      val (scalaInheritors, javaInheritors) = inheritors.partition(_.isInstanceOf[ScTemplateDefinition])
+      val (namedInheritors, anonymousInheritors) = scalaInheritors.partition(_.isInstanceOf[ScTypeDefinition])
+
+      Inheritors(
+        namedInheritors.map(_.asInstanceOf[ScTypeDefinition]),
+        anonymousInheritors.map(_.asInstanceOf[ScNewTemplateDefinition]),
+        javaInheritors
+      )
+    }
+  }
 
   private[clauses] object SealedDefinition {
 
-    def unapply(sealedDefinition: ScTypeDefinition): Option[Inheritors] = if (sealedDefinition.isSealed) {
+    def unapply(definition: ScTypeDefinition): Option[Inheritors] = if (definition.isSealed) {
       import JavaConverters._
-      val inheritors = ClassInheritorsSearch.search(sealedDefinition, sealedDefinition.resolveScope, false).asScala.toSeq
+      val inheritors = ClassInheritorsSearch.search(definition, definition.resolveScope, false)
+        .findAll()
+        .asScala
+        .toSeq
         .sortBy(_.getNavigationElement.getTextRange.getStartOffset)
 
-      val (scalaInheritors, javaInheritors) = inheritors.partition(_.isInstanceOf[ScTemplateDefinition])
-      val (namedInheritors, anonymousInheritors) = scalaInheritors.partition(_.isInstanceOf[ScTypeDefinition])
-      val namedDefinitions = namedInheritors.map(_.asInstanceOf[ScTypeDefinition])
-      val anonymousDefinitions = anonymousInheritors.map(_.asInstanceOf[ScNewTemplateDefinition])
-
-      Some(Inheritors(namedDefinitions, anonymousDefinitions, javaInheritors))
+      Some(Inheritors(inheritors))
     } else None
   }
 
-  private[clauses] def patternTexts(definition: ScNewTemplateDefinition): Seq[String] = {
-    def stableNames(value: ScPatternDefinition) = value.containingClass match {
-      case scalaObject: ScObject if scalaObject.isStatic =>
-        val objectName = scalaObject.name
-        value.declaredNames.map(name => s"$objectName.$name")
+  private[clauses] def patternTexts(definition: ScNewTemplateDefinition): Seq[String] =
+    PsiTreeUtil.getContextOfType(definition, classOf[ScPatternDefinition]) match {
+      case value@ScPatternDefinition.expr(`definition`) => stableNames(value)
       case _ => Seq.empty
     }
-
-    definition.findContextOfType(classOf[ScPatternDefinition]).collect {
-      case value@ScPatternDefinition.expr(`definition`) => value
-    }.toSeq.flatMap(stableNames)
-  }
 
   private[clauses] def patternText(clazz: PsiClass): String = {
     val designatorType = ScalaType.designator(clazz)
@@ -83,9 +89,20 @@ package object clauses {
     }
   }
 
+  private[clauses] def declaredNamesPatterns(declaredNames: Seq[String], clazz: PsiClass): Seq[String] = {
+    val className = clazz.name
+    declaredNames.map(name => s"$className.$name")
+  }
+
   private[clauses] def findExtractor: ScTypeDefinition => Option[ScFunction] = {
     case scalaObject: ScObject => scalaObject.functions.find(_.isUnapplyMethod)
     case typeDefinition => typeDefinition.baseCompanionModule.flatMap(findExtractor)
+  }
+
+  private[this] def stableNames(value: ScPatternDefinition) = value.containingClass match {
+    case scalaObject: ScObject if scalaObject.isStatic =>
+      declaredNamesPatterns(value.declaredNames, scalaObject)
+    case _ => Seq.empty
   }
 
   private[this] def constructorParameters(caseClass: ScClass): Option[Seq[String]] = for {
