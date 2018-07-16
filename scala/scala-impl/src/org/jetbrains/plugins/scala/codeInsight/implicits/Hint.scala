@@ -2,6 +2,8 @@ package org.jetbrains.plugins.scala.codeInsight.implicits
 
 import java.lang.reflect.{Field, Modifier}
 
+import com.intellij.openapi.application.ApplicationManager
+import com.intellij.openapi.diagnostic.Logger
 import com.intellij.openapi.editor.{Inlay, InlayModel}
 import com.intellij.openapi.util.Key
 import com.intellij.psi.PsiElement
@@ -65,6 +67,11 @@ private object Hint {
 
     Some(myOriginalOffsetField)
   } catch {
-    case _: Throwable => None
+    case _: Throwable =>
+      if (ApplicationManager.getApplication.isInternal) {
+        val log = Logger.getInstance(classOf[Hint])
+        log.warn("No myOriginalOffset field in com.intellij.openapi.editor.impl.InlayImpl")
+      }
+      None
   }
 }
