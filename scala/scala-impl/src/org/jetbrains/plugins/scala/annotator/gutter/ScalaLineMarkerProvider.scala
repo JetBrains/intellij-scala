@@ -5,7 +5,7 @@ package gutter
 import java.util
 
 import com.intellij.codeHighlighting.Pass
-import com.intellij.codeInsight.daemon.{DaemonCodeAnalyzerSettings, LineMarkerInfo, LineMarkerProvider, MergeableLineMarkerInfo}
+import com.intellij.codeInsight.daemon._
 import com.intellij.icons.AllIcons
 import com.intellij.openapi.application.ApplicationManager
 import com.intellij.openapi.editor.colors.{CodeInsightColors, EditorColorsManager}
@@ -84,11 +84,12 @@ class ScalaLineMarkerProvider(daemonSettings: DaemonCodeAnalyzerSettings, colors
     markerType:         ScalaMarkerType,
     presentationParent: Option[PsiElement] = None
   ): LineMarkerInfo[PsiElement] =
-    new ArrowUpLineMarkerInfo(
+    ArrowUpOrDownLineMarkerInfo(
       element,
       icon,
       markerType,
       Pass.UPDATE_ALL,
+      GutterIconRenderer.Alignment.LEFT,
       presentationParent
     )
 
@@ -181,11 +182,12 @@ class ScalaLineMarkerProvider(daemonSettings: DaemonCodeAnalyzerSettings, colors
 }
 
 private object GutterUtil {
-  private[gutter] final class ArrowUpLineMarkerInfo(
+  private[gutter] final case class ArrowUpOrDownLineMarkerInfo(
     element:            PsiElement,
     icon:               Icon,
     markerType:         ScalaMarkerType,
     passId:             Int,
+    alignment:          GutterIconRenderer.Alignment,
     presentationParent: Option[PsiElement] = None
   ) extends MergeableLineMarkerInfo[PsiElement](
         element,
@@ -194,11 +196,11 @@ private object GutterUtil {
         passId,
         markerType.tooltipProvider,
         markerType.navigationHandler,
-        GutterIconRenderer.Alignment.LEFT
+        alignment
       ) {
     override def canMergeWith(other: MergeableLineMarkerInfo[_]): Boolean = other match {
-      case _: ArrowUpLineMarkerInfo => getElement != null && other.getElement != null
-      case _                        => false
+      case that: ArrowUpOrDownLineMarkerInfo => icon == that.icon
+      case _                                 => false
     }
 
     override def getCommonIcon(list: util.List[MergeableLineMarkerInfo[_ <: PsiElement]]): Icon = icon
@@ -206,11 +208,15 @@ private object GutterUtil {
     override def getCommonTooltip(
       infos: util.List[MergeableLineMarkerInfo[_ <: PsiElement]]
     ): IJFunction[_ >: PsiElement, String] =
-      _ => ScalaBundle.message("multiple.overrides.tooltip")
+      _ =>
+        markerType match {
+          case ScalaMarkerType.overriddenMember => ScalaBundle.message("multiple.overriden.tooltip")
+          case _                                => ScalaBundle.message("multiple.overriding.tooltip")
+      }
 
     override def getElementPresentation(element: PsiElement): String =
-      presentationParent.fold(super.getElementPresentation(element))(parent =>
-        StringUtil.shortenTextWithEllipsis(parent.getText, 100, 0)
+      presentationParent.fold(super.getElementPresentation(element))(
+        parent => StringUtil.shortenTextWithEllipsis(parent.getText, 100, 0)
       )
   }
 
@@ -263,13 +269,11 @@ private object GutterUtil {
             else IMPLEMENTED_INTERFACE_MARKER_RENDERER
 
           val markerType = ScalaMarkerType.overriddenMember
-          new LineMarkerInfo[PsiElement](
+          ArrowUpOrDownLineMarkerInfo(
             anchor,
-            anchor.getTextRange,
             icon,
+            markerType,
             Pass.LINE_MARKERS,
-            markerType.tooltipProvider,
-            markerType.navigationHandler,
             GutterIconRenderer.Alignment.RIGHT
           ).toOption
         } else None
