@@ -125,6 +125,11 @@ class ScalaTabbedCodeStylePanel(currentSettings: CodeStyleSettings, settings: Co
     def exposeApply(settings: CodeStyleSettings) = super.apply(settings)
     def exposeResetImpl(settings: CodeStyleSettings) = super.resetImpl(settings)
   }
+
+  override def dispose(): Unit = {
+    super.dispose()
+    shortenedPanel.dispose()
+  }
 }
 
 object ScalaTabbedCodeStylePanel {
