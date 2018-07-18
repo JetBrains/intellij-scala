@@ -264,10 +264,18 @@ package object extensions {
   }
 
   implicit class StringsExt(val strings: Seq[String]) extends AnyVal {
-    def commaSeparated(parenthesize: Boolean = false): String = {
-      val (start, end) = if (parenthesize) ("(", ")") else ("", "")
-      strings.mkString(start, ", ", end)
-    }
+    def commaSeparated(model: Model.Val = Model.None): String =
+      strings.mkString(model.start, ", ", model.end)
+  }
+
+  object Model extends Enumeration {
+
+    class Val(val start: String, val end: String) extends super.Val()
+
+    val None = new Val("", "")
+    val Parentheses = new Val("(", ")")
+    val Braces = new Val("{", "}")
+    val SquareBrackets = new Val("[", "]")
   }
 
   implicit class ASTNodeExt(val node: ASTNode) extends AnyVal {

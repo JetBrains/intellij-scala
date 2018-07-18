@@ -62,7 +62,7 @@ package object clauses {
     private def patternTexts(definition: ScTypeDefinition, exhaustive: Boolean)
                             (implicit place: PsiElement): Traversable[NameAndElement] = {
       def patternText(names: Seq[String]) =
-        definition.name + names.commaSeparated(parenthesize = true)
+        definition.name + names.commaSeparated(model = Model.Parentheses)
 
       definition match {
         case scalaObject: ScObject if exhaustive => Some(scalaObject.name -> scalaObject)

@@ -30,7 +30,7 @@ trait ScalaTypePresentation extends api.TypePresentation {
                                  (implicit context: TypePresentationContext): String = {
     def typesText(types: Seq[ScType]): String = types
       .map(innerTypeText(_))
-      .commaSeparated(parenthesize = true)
+      .commaSeparated(model = Model.Parentheses)
 
     def typeTail(need: Boolean) = if (need) ".type" else ""
 

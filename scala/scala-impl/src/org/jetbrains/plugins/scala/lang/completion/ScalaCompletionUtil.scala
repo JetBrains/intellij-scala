@@ -8,7 +8,7 @@ import com.intellij.openapi.project.Project
 import com.intellij.openapi.util.{Computable, Key}
 import com.intellij.psi._
 import com.intellij.psi.util.PsiTreeUtil
-import org.jetbrains.plugins.scala.extensions.StringsExt
+import org.jetbrains.plugins.scala.extensions._
 import org.jetbrains.plugins.scala.lang.lexer._
 import org.jetbrains.plugins.scala.lang.parser._
 import org.jetbrains.plugins.scala.lang.psi.ScalaPsiUtil
@@ -65,14 +65,14 @@ object ScalaCompletionUtil {
                            (implicit project: Project): String = {
     val buffer = StringBuilder.newBuilder
 
-    if (braceArgs) buffer.append(kCASE).append(" ")
+    if (braceArgs) buffer.append(ScalaKeyword.CASE).append(" ")
 
     val suggester = new NameSuggester.UniqueNameSuggester("x")
     val names = types.map(suggester)
 
     val parametersText = names.zip(types).map {
-      case (name, scType) => name + tCOLON + " " + typeText(scType)
-    }.commaSeparated(parenthesize = names.size != 1 || !braceArgs)
+      case (name, scType) => name + ": " + typeText(scType)
+    }.commaSeparated(model = if (names.size != 1 || !braceArgs) Model.Parentheses else Model.None)
 
     buffer.append(parametersText)
 
