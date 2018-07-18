@@ -148,6 +148,17 @@ class ScalaAotCompletionTest extends ScalaCodeInsightTestBase {
     item = "foo: Foo"
   )
 
+  def testNamedPattern(): Unit = checkNoCompletion(
+    fileText =
+      s"""class Foo
+         |
+         |(_: Foo) match {
+         |  case foo@f$CARET
+         |}
+       """.stripMargin,
+    item = "foo: Foo"
+  )
+
   private def doAotCompletionTest(fileText: String,
                                   resultText: String,
                                   lookupString: String,
