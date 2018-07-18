@@ -94,10 +94,10 @@ object ExhaustiveMatchCompletionContributor {
     extends EnumGenerationStrategy(enum) {
 
     override protected def patterns(implicit place: PsiElement): Seq[NameAndElement] = {
-      val declaredElements = enum.getFields.collect {
-        case constant: PsiEnumConstant => constant
+      val typeText = adjustedTypeText(enum)
+      enum.getFields.collect {
+        case constant: PsiEnumConstant => s"$typeText.${constant.getName}" -> constant
       }
-      declaredNamesPatterns(declaredElements, enum)
     }
   }
 
