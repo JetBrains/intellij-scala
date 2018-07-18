@@ -101,6 +101,56 @@ class ImplicitParametersAnnotatorTest extends AnnotatorTestBase(ImplicitParamete
       """.stripMargin).get
     assertMessages(Error("foo(2)", notFound("Boolean")) :: Nil)(actualMessages)
   }
+
+  def testImplicitsInConstructorsMissing(): Unit = {
+    val actualMessages = messages(
+      """object Test {
+        |
+        |  class MyClass(implicit number: Int)
+        |
+        |  class MyClassWithArgs(x: Int)(implicit number: Int)
+        |
+        |  class MySecondClass extends MyClass()
+        |
+        |  class MyThirdClass extends MyClassWithArgs(42)
+        |
+        |  new MyClass()
+        |  new MyClass
+        |  new MyClassWithArgs(43)
+        |}
+        |""".stripMargin
+    ).get
+
+    assertMessages(List(
+      Error("MyClass()",           notFound("Int")),
+      Error("MyClassWithArgs(42)", notFound("Int")),
+      Error("MyClass()",           notFound("Int")),
+      Error("MyClass",             notFound("Int")),
+      Error("MyClassWithArgs(43)", notFound("Int"))
+    ))(actualMessages)
+  }
+
+  def testImplicitsInConstructors(): Unit = {
+    assertNothing(messages(
+      """object Test {
+        |  implicit val i: Int = 0
+        |
+        |  class MyClass(implicit number: Int)
+        |
+        |  class MyClassWithArgs(x: Int)(implicit number: Int)
+        |
+        |  class MySecondClass extends MyClass()
+        |
+        |  class MyThirdClass extends MyClassWithArgs(42)
+        |
+        |  new MyClass()
+        |  new MyClass
+        |  new MyClassWithArgs(43)
+        |}
+        |""".stripMargin
+    ).get)
+  }
+
 }
 
 //annotator tests doesn't have scala library, so it's not possible to use FunctionType, for example

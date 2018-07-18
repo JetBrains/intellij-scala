@@ -45,7 +45,7 @@ trait MethodInvocation extends ScExpression with ScalaPsiElement {
   /**
     * @return map of expressions and parameters
     */
-  def matchedParameters: Seq[(ScExpression, Parameter)] = matchedParametersInner.collect {
+  override def matchedParameters: Seq[(ScExpression, Parameter)] = matchedParametersInner.collect {
     case (parameter, expression, _) if expression != null => expression -> parameter // todo: catch when expression is null
   }
 
