@@ -87,7 +87,7 @@ public class MultiLineStringCodeStylePanel extends CodeStyleAbstractPanel {
   @NotNull
   @Override
   protected FileType getFileType() {
-      return ScalaFileType.INSTANCE;
+    return ScalaFileType.INSTANCE;
   }
 
   @Override
@@ -144,7 +144,7 @@ public class MultiLineStringCodeStylePanel extends CodeStyleAbstractPanel {
 
   private static boolean isInvalidInput(@NotNull String text, String selectedText, KeyEvent e) {
     return text.length() > 0 && !e.isActionKey() && e.getKeyChar() != KeyEvent.VK_BACK_SPACE &&
-        e.getKeyChar() != KeyEvent.VK_DELETE && !text.equals(selectedText);
+            e.getKeyChar() != KeyEvent.VK_DELETE && !text.equals(selectedText);
   }
 
   {
@@ -164,6 +164,7 @@ public class MultiLineStringCodeStylePanel extends CodeStyleAbstractPanel {
   private void $$$setupUI$$$() {
     panel1 = new JPanel();
     panel1.setLayout(new GridLayoutManager(7, 3, new Insets(0, 0, 0, 0), -1, -1));
+    panel1.setBorder(BorderFactory.createTitledBorder(BorderFactory.createEmptyBorder(10, 10, 10, 10), null));
     supportLevelLabel = new JLabel();
     this.$$$loadLabelText$$$(supportLevelLabel, ResourceBundle.getBundle("org/jetbrains/plugins/scala/ScalaBundle").getString("multi.line.string.support.option"));
     panel1.add(supportLevelLabel, new GridConstraints(0, 0, 1, 1, GridConstraints.ANCHOR_WEST, GridConstraints.FILL_NONE, GridConstraints.SIZEPOLICY_FIXED, GridConstraints.SIZEPOLICY_FIXED, null, null, null, 0, false));

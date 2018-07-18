@@ -1,12 +1,13 @@
 package org.jetbrains.plugins.scala.lang.formatter.tests
 
 import org.jetbrains.plugins.scala.lang.formatter.AbstractScalaFormatterTestBase
+import org.jetbrains.plugins.scala.lang.formatting.settings.ScalaCodeStyleSettings
 
 class ScalaFmtTest extends AbstractScalaFormatterTestBase {
 
   override def setUp(): Unit = {
     super.setUp()
-    getScalaSettings.USE_SCALAFMT_FORMATTER = true
+    getScalaSettings.FORMATTER = ScalaCodeStyleSettings.SCALAFMT_FORMATTER
   }
 
   def testAddSpace(): Unit = {

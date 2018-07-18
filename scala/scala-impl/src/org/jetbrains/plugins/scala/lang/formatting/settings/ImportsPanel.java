@@ -243,6 +243,7 @@ public class ImportsPanel extends CodeStyleAbstractPanel {
     private void $$$setupUI$$$() {
         contentPanel = new JPanel();
         contentPanel.setLayout(new GridLayoutManager(10, 4, new Insets(0, 0, 0, 0), -1, -1));
+        contentPanel.setBorder(BorderFactory.createTitledBorder(BorderFactory.createEmptyBorder(10, 10, 10, 10), null));
         final Spacer spacer1 = new Spacer();
         contentPanel.add(spacer1, new GridConstraints(9, 0, 1, 4, GridConstraints.ANCHOR_CENTER, GridConstraints.FILL_VERTICAL, 1, GridConstraints.SIZEPOLICY_WANT_GROW, null, null, null, 0, false));
         addImportStatementInCheckBox = new JCheckBox();
