@@ -59,9 +59,9 @@ class ScalaTabbedCodeStylePanel(currentSettings: CodeStyleSettings, settings: Co
     outerPanel.add(new JBLabel("Code formatter:"), new GridConstraints(0, 0, 1, 1, GridConstraints.ANCHOR_CENTER, GridConstraints.FILL_BOTH,
       GridConstraints.SIZEPOLICY_FIXED, GridConstraints.SIZEPOLICY_FIXED, null, null,
       null, 0, false))
-    outerPanel.add(useExternalFormatterCheckbox, new GridConstraints(0, 1, 1, 1, GridConstraints.ANCHOR_CENTER, GridConstraints.FILL_BOTH,
+    outerPanel.add(useExternalFormatterCheckbox, new GridConstraints(0, 1, 1, 1, GridConstraints.ANCHOR_CENTER, GridConstraints.FILL_HORIZONTAL,
       GridConstraints.SIZEPOLICY_CAN_SHRINK | GridConstraints.SIZEPOLICY_CAN_GROW | GridConstraints.SIZEPOLICY_WANT_GROW,
-      GridConstraints.SIZEPOLICY_CAN_SHRINK | GridConstraints.SIZEPOLICY_CAN_GROW, null, null,
+      GridConstraints.SIZEPOLICY_FIXED, null, null,
       null, 0, false))
     outerPanel.add(innerPanel,
       new GridConstraints(1, 0, 1, 2, GridConstraints.ANCHOR_CENTER, GridConstraints.FILL_BOTH,
@@ -104,11 +104,11 @@ class ScalaTabbedCodeStylePanel(currentSettings: CodeStyleSettings, settings: Co
 
   private lazy val shortenedPanel = new TabbedLanguageCodeStylePanel(ScalaLanguage.INSTANCE, currentSettings, settings) {
     protected override def initTabs(settings: CodeStyleSettings): Unit = {
+      addTab(new ScalaFmtSettingsPanel(settings))
       addTab(new ImportsPanel(settings))
       addTab(new MultiLineStringCodeStylePanel(settings))
       addTab(new TypeAnnotationsPanel(settings))
       addTab(new ScalaArrangementPanel(settings))
-      addTab(new ScalaFmtSettingsPanel(settings))
       val otherCodeStylePanel: OtherCodeStylePanel = new OtherCodeStylePanel(settings)
       addTab(otherCodeStylePanel)
       otherCodeStylePanel.toggleExternalFormatter(true)
