@@ -1,32 +1,45 @@
-package org.jetbrains.plugins.scala.lang.formatting
+package org.jetbrains.plugins.scala
+package lang
+package formatting
 
 import com.intellij.application.options.CodeStyle
-import com.intellij.openapi.application.ApplicationManager
-import com.intellij.openapi.command.CommandProcessor
-import com.intellij.openapi.compiler.{CompileContext, CompileTask, CompilerManager}
+import com.intellij.openapi.application.ApplicationManager.{getApplication => Application}
+import com.intellij.openapi.command.CommandProcessor.{getInstance => CommandProcessor}
+import com.intellij.openapi.compiler._
 import com.intellij.openapi.components.AbstractProjectComponent
 import com.intellij.openapi.project.Project
 import com.intellij.psi.PsiManager
 import com.intellij.psi.codeStyle.CodeStyleManager
-import org.jetbrains.plugins.scala.ScalaFileType
 import org.jetbrains.plugins.scala.extensions._
-import org.jetbrains.plugins.scala.lang.formatting.settings.ScalaCodeStyleSettings
 
-class ReformatOnCompileTask(val project: Project) extends AbstractProjectComponent(project) with CompileTask {
+class ReformatOnCompileTask(project: Project) extends AbstractProjectComponent(project) with CompileTask {
+
   override def execute(context: CompileContext): Boolean = {
-    val commonSettings = CodeStyle.getSettings(project)
-    val settings = commonSettings.getCustomSettings(classOf[ScalaCodeStyleSettings])
-    if (!settings.REFORMAT_ON_COMPILE) return true
-    val srcVFiles = context.getCompileScope.getFiles(ScalaFileType.INSTANCE, true)
-    val manager = PsiManager.getInstance(project)
-    val codeStyleManager = CodeStyleManager.getInstance(project)
-    for (psiFile <- srcVFiles.map { vFile => inReadAction(manager.findFile(vFile)) }.filter(_ != null)) {
-      ApplicationManager.getApplication.invokeAndWait {CommandProcessor.getInstance().runUndoTransparentAction(() => codeStyleManager.reformat(psiFile))}
+    CodeStyle.getSettings(myProject)
+      .getCustomSettings(classOf[settings.ScalaCodeStyleSettings]) match {
+      case settings if settings.REFORMAT_ON_COMPILE =>
+        reformatScopeFiles(context.getCompileScope)
+      case _ =>
     }
+
     true
   }
 
   override def projectOpened(): Unit = {
-    CompilerManager.getInstance(project).addBeforeTask(this)
+    CompilerManager.getInstance(myProject).addBeforeTask(this)
+  }
+
+  private def reformatScopeFiles(compileScope: CompileScope): Unit = for {
+    virtualFile <- compileScope.getFiles(ScalaFileType.INSTANCE, true)
+
+    psiManager = PsiManager.getInstance(myProject)
+    psiFile = inReadAction(psiManager.findFile(virtualFile))
+    if psiFile != null
+  } {
+    Application.invokeAndWait {
+      CommandProcessor.runUndoTransparentAction {
+        CodeStyleManager.getInstance(myProject).reformat(psiFile)
+      }
+    }
   }
 }
