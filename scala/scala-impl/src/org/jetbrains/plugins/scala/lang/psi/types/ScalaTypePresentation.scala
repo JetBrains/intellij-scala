@@ -24,6 +24,7 @@ import scala.annotation.tailrec
 trait ScalaTypePresentation extends api.TypePresentation {
   typeSystem: api.TypeSystem =>
 
+  import ScalaTypePresentation._
   import api.ScTypePresentation._
 
   protected override def typeText(`type`: ScType, nameFun: PsiNamedElement => String, nameWithPointFun: PsiNamedElement => String)
@@ -32,7 +33,7 @@ trait ScalaTypePresentation extends api.TypePresentation {
       .map(innerTypeText(_))
       .commaSeparated(model = Model.Parentheses)
 
-    def typeTail(need: Boolean) = if (need) ".type" else ""
+    def typeTail(need: Boolean) = if (need) ObjectTypeSuffix else ""
 
     def parametersText(parameters: Seq[ScTypeParam]): String = parameters match {
       case Seq() => ""
@@ -60,7 +61,7 @@ trait ScalaTypePresentation extends api.TypePresentation {
           buffer.toString()
         }
 
-        parameters.map(typeParamText).mkString("[", ", ", "]")
+        parameters.map(typeParamText).commaSeparated(model = Model.SquareBrackets)
     }
 
     def projectionTypeText(projType: ScProjectionType, needDotType: Boolean): String = {
@@ -107,7 +108,7 @@ trait ScalaTypePresentation extends api.TypePresentation {
             s"(${innerTypeText(p)})#$refName"
           case p =>
             val innerText = innerTypeText(p)
-            if (innerText.endsWith(".type")) innerText.stripSuffix("type") + refName
+            if (innerText.endsWith(ObjectTypeSuffix)) innerText.stripSuffix("type") + refName
             else s"$innerText#$refName"
         }
     }
@@ -127,7 +128,7 @@ trait ScalaTypePresentation extends api.TypePresentation {
           val funCopy =
             ScFunction.getCompoundCopy(s.substitutedTypes.map(_.map(_()).toList), s.typeParams.toList, rt, fun)
           val paramClauses = ScalaDocumentationProvider.parseParameters(funCopy, -1)(typeText0)
-          val retType = if (!compType.equiv(rt)) typeText0(rt) else "this.type"
+          val retType = if (!compType.equiv(rt)) typeText0(rt) else s"this$ObjectTypeSuffix"
 
           Seq(s"def ${s.name}${parametersText(funCopy.typeParameters)}$paramClauses: $retType")
         case (s: Signature, rt: ScType) if s.namedElement.isInstanceOf[ScTypedDefinition] =>
@@ -168,9 +169,10 @@ trait ScalaTypePresentation extends api.TypePresentation {
     @tailrec
     def existentialTypeText(existentialType: ScExistentialType, checkWildcard: Boolean, stable: Boolean): String = {
       def existentialArgWithBounds(wildcard: ScExistentialArgument, name: String): String = {
-        val argsText =
-          if (wildcard.typeParameters.isEmpty) ""
-          else wildcard.typeParameters.map(_.name).mkString("[", ", ", "]")
+        val argsText = wildcard.typeParameters.map(_.name) match {
+          case Seq() => ""
+          case parameters => parameters.commaSeparated(model = Model.SquareBrackets)
+        }
 
         val lowerBound = lowerBoundText(wildcard.lower)(innerTypeText(_))
         val upperBound = upperBoundText(wildcard.upper)(innerTypeText(_))
@@ -200,7 +202,7 @@ trait ScalaTypePresentation extends api.TypePresentation {
           val typeArgsText = typeArgs.map {
             case arg: ScExistentialArgument  => if (placeholders.contains(arg)) placeholder(arg) else arg.name
             case t                           => innerTypeText(t, needDotType = true, checkWildcard)
-          }.mkString("[", ", ", "]")
+          }.commaSeparated(model = Model.SquareBrackets)
 
           val prefix = s"${innerTypeText(des)}$typeArgsText"
 
@@ -283,7 +285,7 @@ trait ScalaTypePresentation extends api.TypePresentation {
 
         s"${componentText(lhs, -1)} $op ${componentText(rhs, 1)}"
       case ParameterizedType(des, typeArgs) =>
-        innerTypeText(des) + typeArgs.map(innerTypeText(_, checkWildcard = true)).mkString("[", ", ", "]")
+        innerTypeText(des) + typeArgs.map(innerTypeText(_, checkWildcard = true)).commaSeparated(model = Model.SquareBrackets)
       case JavaArrayType(argument) => s"Array[${innerTypeText(argument)}]"
       case UndefinedType(tpt, _) => "NotInfered" + tpt.name
       case c: ScCompoundType if c != null =>
@@ -294,7 +296,7 @@ trait ScalaTypePresentation extends api.TypePresentation {
         typeParameters.map {
           case TypeParameter(parameter, _, lowerType, upperType) =>
             parameter.name + lowerBoundText(lowerType)(_.toString) + upperBoundText(upperType)(_.toString)
-        }.mkString("[", ", ", "] ") + internalType.toString
+        }.commaSeparated(model = Model.SquareBrackets) + " " + internalType.toString
       case mt@ScMethodType(retType, params, _) =>
         implicit val elementScope: ElementScope = mt.elementScope
         innerTypeText(FunctionType(retType, params.map(_.paramType)), needDotType)
@@ -304,4 +306,9 @@ trait ScalaTypePresentation extends api.TypePresentation {
 
     innerTypeText(`type`)
   }
+}
+
+object ScalaTypePresentation {
+
+  val ObjectTypeSuffix = ".type"
 }

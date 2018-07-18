@@ -15,9 +15,9 @@ import org.jetbrains.plugins.scala.lang.psi.api.base.patterns.ScBindingPattern
 import org.jetbrains.plugins.scala.lang.psi.api.base.types.{ScParameterizedTypeElement, ScSimpleTypeElement, ScTypeElement, ScTypeProjection}
 import org.jetbrains.plugins.scala.lang.psi.api.statements.{ScTypeAlias, ScTypeAliasDefinition}
 import org.jetbrains.plugins.scala.lang.psi.impl.ScalaPsiElementFactory
-import org.jetbrains.plugins.scala.lang.psi.types.TypePresentationContext
 import org.jetbrains.plugins.scala.lang.psi.types.api.ScTypePresentation
 import org.jetbrains.plugins.scala.lang.psi.types.api.designator.ScDesignatorType
+import org.jetbrains.plugins.scala.lang.psi.types.{ScalaTypePresentation, TypePresentationContext}
 import org.jetbrains.plugins.scala.lang.refactoring.ScalaNamesValidator.isIdentifier
 import org.jetbrains.plugins.scala.lang.refactoring.util.ScalaNamesUtil
 import org.jetbrains.plugins.scala.lang.resolve.ResolveTargets._
@@ -389,7 +389,7 @@ object TypeAdjuster extends ApplicationAdapter {
             val prefixed = words.takeRight(prefixLength + 1).mkString(".")
 
             val suffix = origElement match {
-              case s: ScSimpleTypeElement if s.singleton => ".type"
+              case s: ScSimpleTypeElement if s.singleton => ScalaTypePresentation.ObjectTypeSuffix
               case _ => ""
             }
             Some((prefixed + suffix, Some(packageName)))

@@ -4,6 +4,7 @@ import com.intellij.psi.PsiClass
 import org.jetbrains.plugins.scala.extensions.{PsiClassExt, ResolvesTo}
 import org.jetbrains.plugins.scala.lang.psi.api.expr.{ScAnnotation, ScExpression}
 import org.jetbrains.plugins.scala.lang.psi.api.toplevel.typedef._
+import org.jetbrains.plugins.scala.lang.psi.types.ScalaTypePresentation
 
 /**
  * Support for https://gitlab.com/fommil/scalaz-deriving
@@ -40,7 +41,7 @@ class ScalazDerivingInjector extends SyntheticMembersInjector {
   override def injectFunctions(source: ScTypeDefinition): Seq[String] =
     source match {
       case cob: ScObject if hasDeriving(cob) =>
-        genImplicits(cob.name + ".type", getDeriving(cob))
+        genImplicits(cob.name + ScalaTypePresentation.ObjectTypeSuffix, getDeriving(cob))
       case obj: ScObject =>
         obj.fakeCompanionClassOrCompanionClass match {
           case clazz: ScTypeDefinition if hasDeriving(clazz) =>
