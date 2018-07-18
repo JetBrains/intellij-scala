@@ -19,13 +19,11 @@ import com.intellij.util.ArrayUtil
 import javax.swing.tree.{DefaultMutableTreeNode, DefaultTreeModel, TreePath}
 import javax.swing.{JPanel, JTree}
 import org.jetbrains.plugins.scala.actions.ScalaActionUtil
-import org.jetbrains.plugins.scala.actions.implicitArguments.ShowImplicitArgumentsAction.implicitParams
 import org.jetbrains.plugins.scala.extensions._
 import org.jetbrains.plugins.scala.lang.psi.api.ScalaFile
 import org.jetbrains.plugins.scala.lang.psi.api.base.ScConstructor
-import org.jetbrains.plugins.scala.lang.psi.api.base.types.{ScParameterizedTypeElement, ScSimpleTypeElement, ScTypeElement}
 import org.jetbrains.plugins.scala.lang.psi.api.expr.{ScExpression, ScNewTemplateDefinition}
-import org.jetbrains.plugins.scala.lang.psi.types.ScType
+import org.jetbrains.plugins.scala.lang.psi.implicits.ImplicitArgumentsUtil.implicitArgumentsFor
 import org.jetbrains.plugins.scala.lang.refactoring.util.ScalaRefactoringUtil
 import org.jetbrains.plugins.scala.lang.refactoring.util.ScalaRefactoringUtil.getExpression
 import org.jetbrains.plugins.scala.lang.resolve.ScalaResolveResult
@@ -104,7 +102,7 @@ class ShowImplicitArgumentsAction extends AnAction("Show implicit arguments acti
     implicitArgsNoConversion(element) ++ implicitArgsConversion(element)
 
   private def implicitArgsNoConversion(element: PsiElement): Option[ImplicitArgumentsTarget] = {
-    implicitParams(element) match {
+    implicitArgumentsFor(element) match {
       case Some(seq) if seq.nonEmpty =>
         element match {
           case constr: ScConstructor =>
@@ -230,53 +228,5 @@ class ShowImplicitArgumentsAction extends AnAction("Show implicit arguments acti
 
     popup.showInBestPositionFor(editor)
     popup
-  }
-}
-
-// TODO Should probably be handled by the ImplicitParametersOwner, or at least extracted into an utility method
-object ShowImplicitArgumentsAction {
-  def implicitParams(expr: PsiElement): Option[Seq[ScalaResolveResult]] = {
-    def checkTypeElement(element: ScTypeElement): Option[Option[scala.Seq[ScalaResolveResult]]] = {
-      def checkSimpleType(s: ScSimpleTypeElement) = {
-        s.findImplicitParameters
-      }
-
-      element match {
-        case s: ScSimpleTypeElement =>
-          return Some(checkSimpleType(s))
-        case p: ScParameterizedTypeElement =>
-          p.typeElement match {
-            case s: ScSimpleTypeElement =>
-              return Some(checkSimpleType(s))
-            case _ =>
-          }
-        case _ =>
-      }
-      None
-    }
-
-    expr match {
-      case expr: ScNewTemplateDefinition =>
-        expr.extendsBlock.templateParents match {
-          case Some(tp) =>
-            val elements = tp.typeElements
-            if (elements.nonEmpty) {
-              checkTypeElement(elements.head) match {
-                case Some(x) => return x
-                case None =>
-              }
-            }
-          case _ =>
-        }
-      case expr: ScExpression =>
-        return expr.findImplicitParameters
-      case constr: ScConstructor =>
-        checkTypeElement(constr.typeElement) match {
-          case Some(x) => return x
-          case _ =>
-        }
-      case _ =>
-    }
-    None
   }
 }
