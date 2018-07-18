@@ -62,7 +62,7 @@ private class ImplicitHintsPass(editor: Editor, rootElement: ScalaPsiElement)
           (showNotFoundArgs && arguments.exists(p => p.isImplicitParameterProblem && !isAmbiguous(p)))
 
       if (shouldSearch) {
-        implicitArgumentsFor(owner).toSeq.flatMap {
+        owner.findImplicitArguments.toSeq.flatMap {
           case args if shouldShow(args) =>
             implicitArgumentsHint(owner, args)(editor.getColorsScheme)
           case _ => Seq.empty

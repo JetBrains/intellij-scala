@@ -25,6 +25,7 @@ import org.jetbrains.plugins.scala.lang.psi.types._
 import org.jetbrains.plugins.scala.lang.psi.types.api.AnyRef
 import org.jetbrains.plugins.scala.lang.psi.types.api.designator.ScDesignatorType
 import org.jetbrains.plugins.scala.lang.psi.types.result._
+import org.jetbrains.plugins.scala.lang.resolve.ScalaResolveResult
 
 import scala.collection.mutable.ArrayBuffer
 
@@ -48,6 +49,10 @@ class ScNewTemplateDefinitionImpl private (stub: ScTemplateDefinitionStub, node:
     Option(extendsBlock).flatMap(_.templateParents).collect {
       case parents: ScClassParents if parents.typeElements.length == 1 => parents
     }.flatMap(_.constructor)
+
+
+  // implicit arguments are owned by ScConstructor
+  override def findImplicitArguments: Option[Seq[ScalaResolveResult]] = None
 
   protected override def innerType: TypeResult = {
     constructor match {
