@@ -224,8 +224,7 @@ lazy val sbtRuntimeDependencies =
         Dependencies.sbtStructureExtractor_100  -> Some("launcher/sbt-structure-1.0.jar"),
         Dependencies.sbtStructureExtractor_013  -> Some("launcher/sbt-structure-0.13.jar"),
         Dependencies.sbtStructureExtractor_012  -> Some("launcher/sbt-structure-0.12.jar"),
-        "org.scala-sbt" % "util-interface" % "1.1.2" -> None,
-        "org.scala-sbt" % "launcher" % "1.0.3"       -> None
+        "org.scala-sbt" % "launcher" % "1.0.3"  -> None
       ),
       update := {
         import Dependencies._
