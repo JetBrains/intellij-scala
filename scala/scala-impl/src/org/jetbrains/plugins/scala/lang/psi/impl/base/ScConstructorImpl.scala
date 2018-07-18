@@ -209,16 +209,15 @@ class ScConstructorImpl(node: ASTNode) extends ScalaPsiElementImpl(node) with Sc
     }
   }
 
-  @Cached(ModCount.getBlockModificationCount, this)
   def matchedParameters: Seq[(ScExpression, Parameter)] = matchedParametersByClauses.flatten
 
   @Cached(ModCount.getBlockModificationCount, this)
   def matchedParametersByClauses: Seq[Seq[(ScExpression, Parameter)]] = {
     val paramClauses = this.reference.flatMap(r => Option(r.resolve())) match {
-      case Some(pc: ScPrimaryConstructor) => pc.parameterList.clauses.map(_.parameters)
-      case Some(fun: ScFunction) if fun.isConstructor => fun.parameterList.clauses.map(_.parameters)
-      case Some(m: PsiMethod) if m.isConstructor => Seq(m.parameters)
-      case _ => Seq.empty
+      case Some(pc: ScPrimaryConstructor)             => pc.effectiveParameterClauses.map(_.effectiveParameters)
+      case Some(fun: ScFunction) if fun.isConstructor => fun.effectiveParameterClauses.map(_.effectiveParameters)
+      case Some(m: PsiMethod) if m.isConstructor      => Seq(m.parameters)
+      case _                                          => Seq.empty
     }
     (for {
       (paramClause, argList) <- paramClauses.zip(arguments)
