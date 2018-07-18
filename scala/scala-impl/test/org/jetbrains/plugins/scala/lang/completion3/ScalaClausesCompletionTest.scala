@@ -521,6 +521,48 @@ class ScalaClausesCompletionTest extends ScalaCodeInsightTestBase {
     )
   }
 
+  def testTypesAdjustment(): Unit = doMatchCompletionTest(
+    fileText =
+      s"""sealed trait Foo
+         |
+         |object Foo {
+         |  val Foo = new Foo {}
+         |
+         |  object Bar extends Foo
+         |
+         |  class Baz[+T, -U] extends Foo
+         |
+         |  object Baz {
+         |    def unapply[T, U](baz: Baz[T, U]) = Option(baz)
+         |  }
+         |}
+         |
+         |(_: Foo) m$CARET
+       """.stripMargin,
+    resultText =
+      s"""sealed trait Foo
+         |
+         |object Foo {
+         |  val Foo = new Foo {}
+         |
+         |  object Bar extends Foo
+         |
+         |  class Baz[+T, -U] extends Foo
+         |
+         |  object Baz {
+         |    def unapply[T, U](baz: Baz[T, U]) = Option(baz)
+         |  }
+         |}
+         |
+         |(_: Foo) match {
+         |  case Foo.Foo => $CARET
+         |  case Foo.Bar =>
+         |  case Foo.Baz(value) =>
+         |  case baz: Foo.Baz[_, _] =>
+         |}
+       """.stripMargin
+  )
+
   private def doMultipleCompletionTest(fileText: String,
                                        items: String*): Unit =
     super.doMultipleCompletionTest(fileText, items.size, DEFAULT_CHAR, DEFAULT_TIME, DEFAULT_COMPLETION_TYPE) { lookup =>
