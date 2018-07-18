@@ -43,6 +43,8 @@ case class Parameter(name: String,
   }
 
   def nameInCode: Option[String] = psiParam.map(_.getName)
+
+  def isImplicit: Boolean = paramInCode.exists(_.isImplicitParameter)
 }
 
 object Parameter {

@@ -42,7 +42,9 @@ class ScConstructorImpl(node: ASTNode) extends ScalaPsiElementImpl(node) with Sc
 
   def typeElement: ScTypeElement = findNotNullChildByClass(classOf[ScTypeElement])
 
-  def findImplicitArguments: Option[Seq[ScalaResolveResult]] = simpleTypeElement.flatMap(_.findImplicitArguments)
+  def findImplicitArguments: Option[Seq[ScalaResolveResult]] =
+    if (explicitImplicitArgList.nonEmpty) None
+    else simpleTypeElement.flatMap(_.findImplicitArguments)
 
   override def toString: String = "Constructor"
 
@@ -209,7 +211,7 @@ class ScConstructorImpl(node: ASTNode) extends ScalaPsiElementImpl(node) with Sc
     }
   }
 
-  def matchedParameters: Seq[(ScExpression, Parameter)] = matchedParametersByClauses.flatten
+  override def matchedParameters: Seq[(ScExpression, Parameter)] = matchedParametersByClauses.flatten
 
   @Cached(ModCount.getBlockModificationCount, this)
   def matchedParametersByClauses: Seq[Seq[(ScExpression, Parameter)]] = {

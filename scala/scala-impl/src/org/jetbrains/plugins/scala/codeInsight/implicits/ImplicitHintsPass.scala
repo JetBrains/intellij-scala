@@ -20,10 +20,8 @@ import org.jetbrains.plugins.scala.extensions._
 import org.jetbrains.plugins.scala.lang.psi.ScalaPsiElement
 import org.jetbrains.plugins.scala.lang.psi.api.ImplicitArgumentsOwner
 import org.jetbrains.plugins.scala.lang.psi.api.base.ScConstructor
-import org.jetbrains.plugins.scala.lang.psi.api.expr.{ScArgumentExprList, ScExpression, ScMethodCall}
+import org.jetbrains.plugins.scala.lang.psi.api.expr.{ScArgumentExprList, ScExpression}
 import org.jetbrains.plugins.scala.lang.psi.api.statements.ScFunction
-import org.jetbrains.plugins.scala.lang.psi.api.statements.params.ScParameterClause
-import org.jetbrains.plugins.scala.lang.psi.implicits.ImplicitArgumentsUtil.implicitArgumentsFor
 import org.jetbrains.plugins.scala.lang.psi.implicits.ImplicitCollector
 import org.jetbrains.plugins.scala.lang.psi.implicits.ImplicitCollector._
 import org.jetbrains.plugins.scala.lang.resolve.ScalaResolveResult
@@ -71,15 +69,16 @@ private class ImplicitHintsPass(editor: Editor, rootElement: ScalaPsiElement)
       else Seq.empty
     }
 
-    def explicitArgumentHint(e: ImplicitArgumentsOwner) = {
-      e match {
-        case call: ScMethodCall if isExplicitImplicit(call) =>
-          explicitImplicitArgumentsHint(call.args)
-        case _ => Seq.empty
-      }
+    def explicitArgumentHint(e: ImplicitArgumentsOwner): Seq[Hint] = {
+      if (!ImplicitHints.enabled) return Seq.empty
+
+      e.explicitImplicitArgList.toSeq
+        .flatMap(explicitImplicitArgumentsHint)
     }
 
     def implicitConversionHints(e: ScExpression): Seq[Hint] = {
+      if (!ImplicitHints.enabled) return Seq.empty
+
       e.implicitConversion().toSeq.flatMap { conversion =>
         implicitConversionHint(e, conversion)(editor.getColorsScheme)
       }
@@ -87,26 +86,13 @@ private class ImplicitHintsPass(editor: Editor, rootElement: ScalaPsiElement)
 
     rootElement.depthFirst().foreach {
       case e: ScExpression =>
-        if (ImplicitHints.enabled) {
-          hints ++:= implicitConversionHints(e)
-          hints ++:= explicitArgumentHint(e)
-        }
+        hints ++:= implicitConversionHints(e)
+        hints ++:= explicitArgumentHint(e)
         hints ++:= implicitArgumentsOrErrorHints(e)
-      case c: ScConstructor if c.newTemplate.isEmpty =>
+      case c: ScConstructor =>
+        hints ++:= explicitArgumentHint(c)
         hints ++:= implicitArgumentsOrErrorHints(c)
       case _ =>
-    }
-  }
-
-  private def isExplicitImplicit(call: ScMethodCall): Boolean = {
-    val matchedParameters = call.matchedParameters
-
-    matchedParameters.nonEmpty && matchedParameters.forall {
-      case (_, parameter) => parameter.psiParam match {
-        case Some(Parent(clause: ScParameterClause)) => clause.isImplicit
-        case _ => false
-      }
-      case _ => false
     }
   }
 
