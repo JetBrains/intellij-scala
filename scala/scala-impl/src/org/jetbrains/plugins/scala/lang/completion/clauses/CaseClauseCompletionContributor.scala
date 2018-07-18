@@ -50,7 +50,8 @@ class CaseClauseCompletionContributor extends ScalaCompletionContributor {
                                 resultSet: CompletionResultSet): Unit = {
       import CaseClauseCompletionContributor._
 
-      val providers = PsiTreeUtil.getContextOfType(positionFromParameters(parameters), classOf[ScPattern]) match {
+      val providers = PsiTreeUtil.getContextOfType(positionFromParameters(parameters), classOf[ScBindingPattern]) match {
+        case (_: ScReferencePattern) childOf (_: ScNamingPattern | _: ScTypedPattern) => Seq.empty
         case pattern: ScReferencePattern => Seq(AotCompletionProvider, extractorCompletionProvider(pattern))
         case _ => Seq.empty
       }
