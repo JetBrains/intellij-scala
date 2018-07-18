@@ -7,7 +7,6 @@ import com.intellij.psi.PsiElement
 import org.jetbrains.plugins.scala.annotator.AnnotatorPart
 import org.jetbrains.plugins.scala.annotator.usageTracker.UsageTracker
 import org.jetbrains.plugins.scala.lang.psi.api.ImplicitArgumentsOwner
-import org.jetbrains.plugins.scala.lang.psi.implicits.ImplicitArgumentsUtil.implicitArgumentsFor
 import org.jetbrains.plugins.scala.lang.resolve.ScalaResolveResult
 import org.jetbrains.plugins.scala.settings.ScalaProjectSettings
 
@@ -20,7 +19,7 @@ import scala.collection.Seq
 object ImplicitParametersAnnotator extends AnnotatorPart[ImplicitArgumentsOwner] {
 
   override def annotate(element: ImplicitArgumentsOwner, holder: AnnotationHolder, typeAware: Boolean): Unit = {
-    implicitArgumentsFor(element).foreach { params =>
+    element.findImplicitArguments.foreach { params =>
       UsageTracker.registerUsedElementsAndImports(element, params, checkWrite = false)
 
       val notFoundArgHighlightingEnabled =

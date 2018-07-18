@@ -20,10 +20,9 @@ import javax.swing.tree.{DefaultMutableTreeNode, DefaultTreeModel, TreePath}
 import javax.swing.{JPanel, JTree}
 import org.jetbrains.plugins.scala.actions.ScalaActionUtil
 import org.jetbrains.plugins.scala.extensions._
-import org.jetbrains.plugins.scala.lang.psi.api.ScalaFile
 import org.jetbrains.plugins.scala.lang.psi.api.base.ScConstructor
 import org.jetbrains.plugins.scala.lang.psi.api.expr.{ScExpression, ScNewTemplateDefinition}
-import org.jetbrains.plugins.scala.lang.psi.implicits.ImplicitArgumentsUtil.implicitArgumentsFor
+import org.jetbrains.plugins.scala.lang.psi.api.{ImplicitArgumentsOwner, ScalaFile}
 import org.jetbrains.plugins.scala.lang.refactoring.util.ScalaRefactoringUtil
 import org.jetbrains.plugins.scala.lang.refactoring.util.ScalaRefactoringUtil.getExpression
 import org.jetbrains.plugins.scala.lang.resolve.ScalaResolveResult
@@ -102,7 +101,7 @@ class ShowImplicitArgumentsAction extends AnAction("Show implicit arguments acti
     implicitArgsNoConversion(element) ++ implicitArgsConversion(element)
 
   private def implicitArgsNoConversion(element: PsiElement): Option[ImplicitArgumentsTarget] = {
-    implicitArgumentsFor(element) match {
+    element.asOptionOf[ImplicitArgumentsOwner].flatMap(_.findImplicitArguments) match {
       case Some(seq) if seq.nonEmpty =>
         element match {
           case constr: ScConstructor =>
