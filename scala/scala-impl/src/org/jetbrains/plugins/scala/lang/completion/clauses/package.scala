@@ -8,7 +8,7 @@ import com.intellij.psi.{PsiClass, PsiElement, PsiNamedElement}
 import org.jetbrains.plugins.scala.extensions._
 import org.jetbrains.plugins.scala.lang.psi.api.base.patterns.ScPattern
 import org.jetbrains.plugins.scala.lang.psi.api.expr.ScNewTemplateDefinition
-import org.jetbrains.plugins.scala.lang.psi.api.statements.{ScFunction, ScPatternDefinition, ScValue}
+import org.jetbrains.plugins.scala.lang.psi.api.statements.{ScPatternDefinition, ScValue}
 import org.jetbrains.plugins.scala.lang.psi.api.toplevel.typedef.{ScClass, ScObject, ScTemplateDefinition, ScTypeDefinition}
 import org.jetbrains.plugins.scala.lang.psi.types.ScalaType
 import org.jetbrains.plugins.scala.lang.refactoring.namesSuggester.NameSuggester
@@ -25,14 +25,15 @@ package object clauses {
 
     import Inheritors._
 
-    def patterns(implicit place: PsiElement): Seq[NameAndElement] = {
+    def patterns(exhaustive: Boolean = true)
+                (implicit place: PsiElement): Seq[NameAndElement] = {
       val anonymousInheritorsPatterns = anonymousInheritors.map(patternTexts)
-      val maybeWildcard = if (anonymousInheritorsPatterns.exists(_.isEmpty)) Some(DefaultName -> null)
+      val maybeWildcard = if (exhaustive && anonymousInheritorsPatterns.exists(_.isEmpty)) Some(DefaultName -> null)
       else None
 
       anonymousInheritorsPatterns.flatten ++
-        namedInheritors.flatMap(patternTexts) ++
-        javaInheritors.map(patternText) ++
+        namedInheritors.flatMap(patternTexts(_, exhaustive)) ++
+        javaInheritors.map(defaultPatternText) ++
         maybeWildcard
     }
   }
@@ -58,31 +59,32 @@ package object clauses {
         case _ => Seq.empty
       }
 
-    private def patternTexts(definition: ScTypeDefinition)
-                            (implicit place: PsiElement): Seq[NameAndElement] = {
-      val maybeText = definition match {
-        case scalaObject: ScObject => Some(scalaObject.name -> scalaObject)
-        case scalaClass: ScClass =>
-          val maybeNames = if (scalaClass.isCase) constructorParameters(scalaClass)
-          else {
-            val suggester = new NameSuggester.UniqueNameSuggester(DefaultName)
-            extractorComponents(scalaClass).map(_.map(suggester))
+    private def patternTexts(definition: ScTypeDefinition, exhaustive: Boolean)
+                            (implicit place: PsiElement): Traversable[NameAndElement] = {
+      def patternText(names: Seq[String]) =
+        definition.name + names.commaSeparated(parenthesize = true)
+
+      definition match {
+        case scalaObject: ScObject if exhaustive => Some(scalaObject.name -> scalaObject)
+        case _: ScObject => None
+        case scalaClass: ScClass if scalaClass.isCase =>
+          constructorParameters(scalaClass)
+            .map(patternText)
+            .map(_ -> scalaClass.fakeCompanionModule.get)
+        case _ =>
+          val inexhaustivePatternText = extractorComponents(definition).map {
+            case (companion, components) =>
+              patternText(components) -> companion
           }
 
-          maybeNames.map { names =>
-            (scalaClass.name + names.commaSeparated(parenthesize = true)) -> scalaClass
-          }
-        case _ => None
-      }
+          val defaultPatternText = if (exhaustive) Some(this.defaultPatternText(definition))
+          else None
 
-      (definition, maybeText) match {
-        case (scalaClass: ScClass, Some(pair)) if !scalaClass.isCase => Seq(pair, patternText(scalaClass))
-        case (_, Some(pair)) => Seq(pair)
-        case _ => Seq(patternText(definition))
+          inexhaustivePatternText ++ defaultPatternText
       }
     }
 
-    private def patternText(clazz: PsiClass) = {
+    private def defaultPatternText(clazz: PsiClass) = {
       val designatorType = ScalaType.designator(clazz)
       val name = NameSuggester.suggestNamesByType(designatorType)
         .headOption
@@ -103,11 +105,17 @@ package object clauses {
       parameter.name + (if (parameter.isVarArgs) "@_*" else "")
     }
 
-    private[this] def extractorComponents(scalaClass: ScClass)
+    private[this] def extractorComponents(definition: ScTypeDefinition)
                                          (implicit place: PsiElement) = for {
-      extractor <- findExtractor(scalaClass)
+      companion <- definition.baseCompanionModule
+      if companion.isInstanceOf[ScObject]
+
+      extractor <- companion.functions.find(_.isUnapplyMethod)
       returnType <- extractor.returnType.toOption
-    } yield ScPattern.extractorParameters(returnType, place, isOneArgCaseClass = false)
+
+      suggester = new NameSuggester.UniqueNameSuggester(DefaultName)
+      types = ScPattern.extractorParameters(returnType, place, isOneArgCaseClass = false)
+    } yield (companion.asInstanceOf[ScObject], types.map(suggester))
   }
 
   private[clauses] object SealedDefinition {
@@ -131,10 +139,5 @@ package object clauses {
   private[clauses] def declaredNamesPatterns(declaredElements: Seq[PsiNamedElement], clazz: PsiClass): Seq[NameAndElement] = {
     val className = clazz.name
     declaredElements.map(element => s"$className.${element.name}" -> element)
-  }
-
-  private[clauses] def findExtractor: ScTypeDefinition => Option[ScFunction] = {
-    case scalaObject: ScObject => scalaObject.functions.find(_.isUnapplyMethod)
-    case typeDefinition => typeDefinition.baseCompanionModule.flatMap(findExtractor)
   }
 }
