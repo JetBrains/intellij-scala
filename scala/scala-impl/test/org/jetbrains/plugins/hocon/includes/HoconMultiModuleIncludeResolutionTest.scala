@@ -10,6 +10,7 @@ import com.intellij.testFramework.UsefulTestCase
 import com.intellij.testFramework.builders.JavaModuleFixtureBuilder
 import com.intellij.testFramework.fixtures._
 import org.jetbrains.jps.model.java.JavaSourceRootType
+import org.jetbrains.plugins.scala.util.TestUtils
 
 import scala.collection.JavaConverters._
 
@@ -20,7 +21,7 @@ class HoconMultiModuleIncludeResolutionTest extends UsefulTestCase with HoconInc
 
   private var fixture: CodeInsightTestFixture = _
 
-  override protected def rootPath = "testdata/hocon/includes/multimodule"
+  override protected def rootPath = s"${TestUtils.getTestDataPath}/hocon/includes/multimodule"
 
   import HoconIncludeResolutionTest.inWriteAction
   import HoconMultiModuleIncludeResolutionTest._

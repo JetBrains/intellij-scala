@@ -3,6 +3,7 @@ package org.jetbrains.plugins.hocon.highlight
 import com.intellij.openapi.editor.LogicalPosition
 import com.intellij.testFramework.fixtures.LightPlatformCodeInsightFixtureTestCase
 import org.jetbrains.plugins.hocon.lang.HoconFileType.DefaultExtension
+import org.jetbrains.plugins.scala.util.TestUtils
 import org.junit.Assert.assertEquals
 
 /**
@@ -10,7 +11,7 @@ import org.junit.Assert.assertEquals
   */
 class HoconHighlightUsagesTest extends LightPlatformCodeInsightFixtureTestCase {
 
-  override def getTestDataPath: String = "testdata/hocon/highlight/usages"
+  override def getTestDataPath: String = s"${TestUtils.getTestDataPath}/hocon/highlight/usages"
 
   override def isWriteActionRequired: Boolean = false
 
