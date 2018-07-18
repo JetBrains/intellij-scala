@@ -28,7 +28,7 @@ import org.jetbrains.plugins.scala.lang.psi.api.toplevel.imports.ScImportStmt
 import org.jetbrains.plugins.scala.lang.psi.api.toplevel.templates.{ScClassParents, ScTemplateBody}
 import org.jetbrains.plugins.scala.lang.psi.api.toplevel.typedef._
 import org.jetbrains.plugins.scala.lang.psi.api.toplevel.{ScEarlyDefinitions, ScModifierListOwner, ScNamedElement, ScTypedDefinition}
-import org.jetbrains.plugins.scala.lang.psi.api.{ImplicitParametersOwner, ScPackage}
+import org.jetbrains.plugins.scala.lang.psi.api.{ImplicitArgumentsOwner, ScPackage}
 import org.jetbrains.plugins.scala.lang.psi.impl.ScalaPsiElementFactory._
 import org.jetbrains.plugins.scala.lang.psi.impl.toplevel.synthetic.ScSyntheticFunction
 import org.jetbrains.plugins.scala.lang.psi.types._
@@ -426,7 +426,7 @@ private[evaluation] trait ScalaEvaluatorBuilderUtil {
     } else seqEvaluator
   }
 
-  def implicitArgEvaluator(fun: ScMethodLike, param: ScParameter, owner: ImplicitParametersOwner): Evaluator = {
+  def implicitArgEvaluator(fun: ScMethodLike, param: ScParameter, owner: ImplicitArgumentsOwner): Evaluator = {
     assert(param.owner == fun)
     val implicitParameters = fun.effectiveParameterClauses.lastOption match {
       case Some(clause) if clause.isImplicit => clause.effectiveParameters
@@ -434,7 +434,7 @@ private[evaluation] trait ScalaEvaluatorBuilderUtil {
     }
     val i = implicitParameters.indexOf(param)
     val cannotFindMessage = ScalaBundle.message("cannot.find.implicit.parameters")
-    owner.findImplicitParameters match {
+    owner.findImplicitArguments match {
       case Some(resolveResults) if resolveResults.length == implicitParameters.length =>
         if (resolveResults(i) == null) throw EvaluationException(cannotFindMessage)
 

@@ -42,7 +42,7 @@ class ScConstructorImpl(node: ASTNode) extends ScalaPsiElementImpl(node) with Sc
 
   def typeElement: ScTypeElement = findNotNullChildByClass(classOf[ScTypeElement])
 
-  def findImplicitParameters: Option[Seq[ScalaResolveResult]] = simpleTypeElement.flatMap(_.findImplicitParameters)
+  def findImplicitArguments: Option[Seq[ScalaResolveResult]] = simpleTypeElement.flatMap(_.findImplicitArguments)
 
   override def toString: String = "Constructor"
 

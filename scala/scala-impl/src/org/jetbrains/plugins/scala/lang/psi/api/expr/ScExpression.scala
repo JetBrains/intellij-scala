@@ -32,7 +32,7 @@ import scala.collection.mutable
   * @author ilyas, Alexander Podkhalyuzin
   */
 
-trait ScExpression extends ScBlockStatement with PsiAnnotationMemberValue with ImplicitParametersOwner
+trait ScExpression extends ScBlockStatement with PsiAnnotationMemberValue with ImplicitArgumentsOwner
   with ScModificationTrackerOwner with Typeable {
 
   import org.jetbrains.plugins.scala.lang.psi.api.expr.ScExpression._
@@ -61,7 +61,7 @@ trait ScExpression extends ScBlockStatement with PsiAnnotationMemberValue with I
     *
     * @return implicit parameters used for this expression
     */
-  def findImplicitParameters: Option[Seq[ScalaResolveResult]] = {
+  def findImplicitArguments: Option[Seq[ScalaResolveResult]] = {
     ProgressManager.checkCanceled()
 
     if (ScUnderScoreSectionUtil.isUnderscoreFunction(this)) {

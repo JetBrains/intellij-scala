@@ -13,7 +13,7 @@ import org.jetbrains.plugins.scala.codeInspection.collections.MethodRepr
 import org.jetbrains.plugins.scala.extensions._
 import org.jetbrains.plugins.scala.highlighter.usages.ScalaHighlightImplicitUsagesHandler.TargetKind
 import org.jetbrains.plugins.scala.lang.psi.ScalaPsiUtil
-import org.jetbrains.plugins.scala.lang.psi.api.ImplicitParametersOwner
+import org.jetbrains.plugins.scala.lang.psi.api.ImplicitArgumentsOwner
 import org.jetbrains.plugins.scala.lang.psi.api.base.types.{ScSimpleTypeElement, ScTypeElement}
 import org.jetbrains.plugins.scala.lang.psi.api.base.{ScConstructor, ScMethodLike, ScReferenceElement}
 import org.jetbrains.plugins.scala.lang.psi.api.expr._
@@ -141,8 +141,8 @@ object ScalaHighlightImplicitUsagesHandler {
       e.implicitConversion().exists(matches) || isImplicitParameterOf(e)
     }
 
-    def isImplicitParameterOf(e: ImplicitParametersOwner): Boolean =
-      e.findImplicitParameters
+    def isImplicitParameterOf(e: ImplicitArgumentsOwner): Boolean =
+      e.findImplicitArguments
         .getOrElse(Seq.empty)
         .exists(matches)
   }

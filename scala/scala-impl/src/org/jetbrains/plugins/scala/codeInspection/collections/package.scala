@@ -317,7 +317,7 @@ package object collections {
 
   def implicitParameterExistsFor(expr: ScExpression): Boolean = {
     if (expr == null) false
-    else expr.findImplicitParameters match {
+    else expr.findImplicitArguments match {
       case Some(Seq(srr)) if srr.isImplicitParameterProblem => false
       case Some(Seq(_, _*)) => true
       case _ => false

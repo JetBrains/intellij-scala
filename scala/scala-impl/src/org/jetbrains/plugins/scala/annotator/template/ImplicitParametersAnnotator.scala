@@ -6,7 +6,7 @@ import com.intellij.openapi.util.TextRange
 import com.intellij.psi.PsiElement
 import org.jetbrains.plugins.scala.annotator.AnnotatorPart
 import org.jetbrains.plugins.scala.annotator.usageTracker.UsageTracker
-import org.jetbrains.plugins.scala.lang.psi.api.ImplicitParametersOwner
+import org.jetbrains.plugins.scala.lang.psi.api.ImplicitArgumentsOwner
 import org.jetbrains.plugins.scala.lang.psi.implicits.ImplicitArgumentsUtil.implicitArgumentsFor
 import org.jetbrains.plugins.scala.lang.resolve.ScalaResolveResult
 import org.jetbrains.plugins.scala.settings.ScalaProjectSettings
@@ -17,9 +17,9 @@ import scala.collection.Seq
   * Nikolay.Tropin
   * 16-Feb-18
   */
-object ImplicitParametersAnnotator extends AnnotatorPart[ImplicitParametersOwner] {
+object ImplicitParametersAnnotator extends AnnotatorPart[ImplicitArgumentsOwner] {
 
-  override def annotate(element: ImplicitParametersOwner, holder: AnnotationHolder, typeAware: Boolean): Unit = {
+  override def annotate(element: ImplicitArgumentsOwner, holder: AnnotationHolder, typeAware: Boolean): Unit = {
     implicitArgumentsFor(element).foreach { params =>
       UsageTracker.registerUsedElementsAndImports(element, params, checkWrite = false)
 
@@ -31,7 +31,7 @@ object ImplicitParametersAnnotator extends AnnotatorPart[ImplicitParametersOwner
     }
   }
 
-  private def highlightNotFound(element: ImplicitParametersOwner, parameters: Seq[ScalaResolveResult], holder: AnnotationHolder): Unit = {
+  private def highlightNotFound(element: ImplicitArgumentsOwner, parameters: Seq[ScalaResolveResult], holder: AnnotationHolder): Unit = {
     //todo: cover ambiguous implicit case (right now it is not always correct)
     parameters.filter(_.isNotFoundImplicitParameter) match {
       case Seq() =>

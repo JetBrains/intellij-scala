@@ -611,7 +611,7 @@ object ScalaPsiUtil {
     val visitor = new ScalaRecursiveElementVisitor {
       override def visitExpression(expr: ScExpression) {
         //Implicit parameters
-        expr.findImplicitParameters match {
+        expr.findImplicitArguments match {
           case Some(results) => for (r <- results if r != null) res = res ++ r.importsUsed
           case _ =>
         }
