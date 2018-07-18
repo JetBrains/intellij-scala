@@ -2,6 +2,7 @@ package org.jetbrains.plugins.scala
 package project
 
 import scala.Ordering.Implicits._
+import VersionUtil._
 
 /**
  * @author Pavel Fatin
@@ -20,7 +21,7 @@ case class Version(presentation: String) extends Ordered[Version] {
     * A version is "more specific" if LHS contains more digits than RHS.
     */
   def ~=(other: Version): Boolean =
-    groups.zipAll(other.groups, Group(Seq(0l)), Group(Seq(0l))).forall(p => p._1 ~= p._2) &&
+    zipLeft(this.groups, other.groups, Group(Seq(0l))).forall { case (l,r) => l ~= r } &&
       groups.lengthCompare(other.groups.length) >= 0
 
   /**
@@ -48,7 +49,7 @@ private case class Group(numbers: Seq[Long]) extends Comparable[Group] {
     implicitly[Ordering[Seq[Long]]].compare(essentialNumbers, other.essentialNumbers)
 
   def ~=(other: Group): Boolean = {
-    Group.zipLeft(this.numbers, other.numbers, 0).forall { case (n1,n2) => n1 == n2 } &&
+    zipLeft(this.numbers, other.numbers, 0).forall { case (n1,n2) => n1 == n2 } &&
       essentialNumbers.lengthCompare(other.essentialNumbers.length) >= 0
   }
 
@@ -58,9 +59,17 @@ private case class Group(numbers: Seq[Long]) extends Comparable[Group] {
 private object Group {
   private val IntegerPattern = "\\d+".r
 
-  /** zips and pads numbers if left is shorter, but not right */
-  private def zipLeft(left: Seq[Long], right: Seq[Long], fill: Long): Seq[(Long, Long)] = {
-    var zipped = Seq.newBuilder[(Long,Long)]
+
+
+  def apply(presentation: String): Group =
+    Group(IntegerPattern.findAllIn(presentation).map(_.toLong).toList)
+
+}
+
+private object VersionUtil {
+  /** zips and pads elements if left is shorter, but not right */
+  def zipLeft[A](left: Seq[A], right: Seq[A], fill: A): Seq[(A, A)] = {
+    var zipped = Seq.newBuilder[(A,A)]
 
     val lefts = left.iterator
     val rights = right.iterator
@@ -71,8 +80,4 @@ private object Group {
 
     zipped.result()
   }
-
-  def apply(presentation: String): Group =
-    Group(IntegerPattern.findAllIn(presentation).map(_.toLong).toList)
-
 }
