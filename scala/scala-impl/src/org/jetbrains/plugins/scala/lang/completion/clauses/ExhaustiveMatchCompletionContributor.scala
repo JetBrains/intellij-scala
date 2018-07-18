@@ -72,7 +72,7 @@ object ExhaustiveMatchCompletionContributor {
     extends PatternGenerationStrategy {
 
     override protected def patterns(implicit place: PsiElement): Seq[NameAndElement] =
-      inheritors.patterns
+      inheritors.patterns()
   }
 
   private object SealedClassGenerationStrategy {

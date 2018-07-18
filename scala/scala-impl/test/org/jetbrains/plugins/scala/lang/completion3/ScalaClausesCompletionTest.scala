@@ -62,7 +62,22 @@ class ScalaClausesCompletionTest extends ScalaCodeInsightTestBase {
          |  case $CARET
          |}
        """.stripMargin,
-    items = "Foo(i, i1)", "foo: Foo"
+    items = "Foo(i, i1)"
+  )
+
+  def testTraitUnapply(): Unit = doMultipleCompletionTest(
+    fileText =
+      s"""trait Foo
+         |
+         |object Foo {
+         |  def unapply(foo: Foo): Option[Foo] = None
+         |}
+         |
+         |(_: Foo) match {
+         |  case $CARET
+         |}
+       """.stripMargin,
+    items = "Foo(foo)"
   )
 
   def testBeforeCase(): Unit = checkNoCompletion(
@@ -104,24 +119,6 @@ class ScalaClausesCompletionTest extends ScalaCodeInsightTestBase {
     items = "FooImpl(foo)", "Bar"
   )
 
-  def testDefaultPatternCompletion(): Unit = doCompletionTest(
-    fileText =
-      s"""class Foo
-         |
-         |(_: Foo) match {
-         |  case $CARET
-         |}
-       """.stripMargin,
-    resultText =
-      s"""class Foo
-         |
-         |(_: Foo) match {
-         |  case foo: Foo$CARET
-         |}
-       """.stripMargin,
-    item = "foo: Foo"
-  )
-
   def testSealedTraitInheritors(): Unit = doMultipleCompletionTest(
     fileText =
       s"""sealed trait Foo {
@@ -142,7 +139,7 @@ class ScalaClausesCompletionTest extends ScalaCodeInsightTestBase {
          |  case $CARET
          |}
        """.stripMargin,
-    items = "FooImpl(i)", "impl: FooImpl", "Bar(foo)", "baz: Baz"
+    items = "FooImpl(i)", "Bar(foo)"
   )
 
   def testCollectPatternCompletion(): Unit = doCompletionTest(

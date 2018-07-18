@@ -32,16 +32,14 @@ class CaseClauseCompletionContributor extends ScalaCompletionContributor {
         case definition: ScTypeDefinition => Inheritors(Seq(definition))
       }.toSeq
 
-      // TODO find conflicting CompletionContributor
-      for {
-        inheritors <- targetInheritors
-        (name, namedElement) <- inheritors.patterns(position)
-        if !namedElement.isInstanceOf[ScObject]
-      } yield {
-        val item = new ScalaLookupItem(namedElement, name)
-        item.isLocalVariable = true
-        item
-      }
+      targetInheritors
+        .flatMap(_.patterns(exhaustive = false)(position))
+        .map {
+          case (name, namedElement) =>
+            val item = new ScalaLookupItem(namedElement, name)
+            item.isLocalVariable = true
+            item
+        }
     }
   })
 
