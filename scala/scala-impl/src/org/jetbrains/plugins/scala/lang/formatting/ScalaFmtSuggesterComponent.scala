@@ -50,15 +50,15 @@ class ScalaFmtSuggesterComponent(val project: Project) extends ProjectComponent 
     val newSettings = scheme.getCodeStyleSettings.getCustomSettings(classOf[ScalaCodeStyleSettings])
     newSettings.FORMATTER = ScalaCodeStyleSettings.SCALAFMT_FORMATTER
     codeStyleSchemesModel.apply()
-    notificationGroup.createNotification("Scalafmt formatting enabled for current project", NotificationType.INFORMATION).notify(project)
+    notificationGroup.createNotification("Scalafmt formatting enabled in this project", NotificationType.INFORMATION).notify(project)
   }
 
   private def createNotification: Notification = {
     val builder = new StringBuilder()
-    builder.append("Enable scalafmt formatting for current project?<br/>").append(wrapInRef(enableProjectDescription, enableProjectText))
+    builder.append("Enable scalafmt formatting in the project?<br/>").append(wrapInRef(enableProjectDescription, enableProjectText))
     if (!isProjectLevelConfiguration) builder.append(wrapInRef(enableAllDescription, enableAllText))
     builder.append(wrapInRef(dontShowDescription, dontShowText))
-    notificationGroup.createNotification("Scalafmt configuration detected", builder.toString(), NotificationType.INFORMATION, listener)
+    notificationGroup.createNotification("Scalafmt configuration detected in this project", builder.toString(), NotificationType.INFORMATION, listener)
   }
 
   private val listener: NotificationListener = new NotificationListener.Adapter {
@@ -82,11 +82,11 @@ class ScalaFmtSuggesterComponent(val project: Project) extends ProjectComponent 
 
   private def wrapInRef(description: String, text: String) = s"""<a href="$description">$text</a><br/>"""
   private val enableProjectDescription = "enable"
-  private val enableProjectText = "Enable for current project"
+  private val enableProjectText = "Enable in this project"
   private val enableAllDescription = "enableAll"
-  private val enableAllText = "Enable for all projects with scalafmt configurations"
+  private val enableAllText = "Enable in all projects with scalafmt configurations"
   private val dontShowDescription = "dont show"
-  private val dontShowText = "Don't show for current project"
+  private val dontShowText = "Don't suggest again for this project"
 
   private def isProjectLevelConfiguration: Boolean = {
     val schemesModel = new CodeStyleSchemesModel(project)
