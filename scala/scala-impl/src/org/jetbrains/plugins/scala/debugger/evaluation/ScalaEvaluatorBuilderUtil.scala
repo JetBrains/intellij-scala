@@ -1019,10 +1019,9 @@ private[evaluation] trait ScalaEvaluatorBuilderUtil {
 
         val implicitsEvals =
           for {
-            typeElem <- constr.simpleTypeElement.toSeq
             p <- implicitParams
           } yield {
-            val eval = implicitArgEvaluator(scMethod, p, typeElem)
+            val eval = implicitArgEvaluator(scMethod, p, constr)
             if (isOfPrimitiveType(p)) eval
             else boxEvaluator(eval)
           }

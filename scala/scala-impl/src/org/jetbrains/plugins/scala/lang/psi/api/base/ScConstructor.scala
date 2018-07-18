@@ -18,7 +18,7 @@ import scala.collection.Seq
 * Date: 22.02.2008
 */
 
-trait ScConstructor extends ScalaPsiElement {
+trait ScConstructor extends ScalaPsiElement with ImplicitParametersOwner {
   def typeElement: ScTypeElement
 
   def simpleTypeElement: Option[ScSimpleTypeElement]

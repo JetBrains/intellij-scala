@@ -328,7 +328,10 @@ abstract class ScalaAnnotator extends Annotator
 
 
       override def visitConstructor(constr: ScConstructor) {
-        if (typeAware) annotateConstructor(constr, holder)
+        if (typeAware) {
+          ImplicitParametersAnnotator.annotate(constr, holder, typeAware)
+          annotateConstructor(constr, holder)
+        }
         super.visitConstructor(constr)
       }
 
@@ -1057,7 +1060,6 @@ abstract class ScalaAnnotator extends Annotator
     typeElement match {
       case simpleTypeElement: ScSimpleTypeElement =>
         checkAbsentTypeArgs(simpleTypeElement, holder)
-        ImplicitParametersAnnotator.annotate(simpleTypeElement, holder, typeAware)
       case _ =>
     }
   }

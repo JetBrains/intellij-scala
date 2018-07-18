@@ -21,7 +21,7 @@ import org.jetbrains.plugins.scala.lang.formatting.settings.ScalaCodeStyleSettin
 import org.jetbrains.plugins.scala.lang.lexer.ScalaTokenTypes
 import org.jetbrains.plugins.scala.lang.psi.api.ScalaFile
 import org.jetbrains.plugins.scala.lang.psi.api.base.types.ScSimpleTypeElement
-import org.jetbrains.plugins.scala.lang.psi.api.base.{ScReferenceElement, ScStableCodeReferenceElement}
+import org.jetbrains.plugins.scala.lang.psi.api.base.{ScConstructor, ScReferenceElement, ScStableCodeReferenceElement}
 import org.jetbrains.plugins.scala.lang.psi.api.expr.{ScExpression, ScForStatement, ScMethodCall}
 import org.jetbrains.plugins.scala.lang.psi.api.toplevel.imports.ScImportStmt
 import org.jetbrains.plugins.scala.lang.psi.api.toplevel.imports.usages.ImportUsed
@@ -800,10 +800,10 @@ object ScalaImportOptimizer {
         }
       case ref: ScReferenceElement if PsiTreeUtil.getParentOfType(ref, classOf[ScImportStmt]) == null =>
         ref.multiResolveScala(false).foreach(addWithImplicits(_, ref))
-      case simple: ScSimpleTypeElement =>
-        simple.findImplicitParameters match {
+      case c: ScConstructor =>
+        c.findImplicitParameters match {
           case Some(parameters) =>
-            parameters.foreach(addWithImplicits(_, simple))
+            parameters.foreach(addWithImplicits(_, c))
           case _ =>
         }
       case _ =>

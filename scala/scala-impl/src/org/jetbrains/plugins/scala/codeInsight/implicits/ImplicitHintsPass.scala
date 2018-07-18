@@ -19,6 +19,7 @@ import org.jetbrains.plugins.scala.editor.documentationProvider.ScalaDocumentati
 import org.jetbrains.plugins.scala.extensions._
 import org.jetbrains.plugins.scala.lang.psi.ScalaPsiElement
 import org.jetbrains.plugins.scala.lang.psi.api.ImplicitParametersOwner
+import org.jetbrains.plugins.scala.lang.psi.api.base.ScConstructor
 import org.jetbrains.plugins.scala.lang.psi.api.expr.{ScArgumentExprList, ScExpression, ScMethodCall}
 import org.jetbrains.plugins.scala.lang.psi.api.statements.ScFunction
 import org.jetbrains.plugins.scala.lang.psi.api.statements.params.ScParameterClause
@@ -51,39 +52,48 @@ private class ImplicitHintsPass(editor: Editor, rootElement: ScalaPsiElement)
     if (!ImplicitHints.enabled && !showNotFoundImplicitForFile)
       return
 
+    def implicitArgumentsOrErrorHints(owner: ImplicitParametersOwner): Seq[Hint] = {
+      val showNotFoundArgs = showNotFoundImplicits(owner)
+      val shouldSearch = ImplicitHints.enabled || showNotFoundArgs
+
+      //todo: cover ambiguous implicit case (right now it is not always correct)
+      def shouldShow(arguments: Seq[ScalaResolveResult]) =
+        ImplicitHints.enabled ||
+          (showNotFoundArgs && arguments.exists(p => p.isImplicitParameterProblem && !isAmbiguous(p)))
+
+      if (shouldSearch) {
+        implicitArgumentsFor(owner).toSeq.flatMap {
+          case args if shouldShow(args) =>
+            implicitArgumentsHint(owner, args)(editor.getColorsScheme)
+          case _ => Seq.empty
+        }
+      }
+      else Seq.empty
+    }
+
+    def explicitArgumentHint(e: ImplicitParametersOwner) = {
+      e match {
+        case call: ScMethodCall if isExplicitImplicit(call) =>
+          explicitImplicitArgumentsHint(call.args)
+        case _ => Seq.empty
+      }
+    }
+
+    def implicitConversionHints(e: ScExpression): Seq[Hint] = {
+      e.implicitConversion().toSeq.flatMap { conversion =>
+        implicitConversionHint(e, conversion)(editor.getColorsScheme)
+      }
+    }
+
     rootElement.depthFirst().foreach {
       case e: ScExpression =>
         if (ImplicitHints.enabled) {
-          e.implicitConversion().foreach { conversion =>
-            hints ++:= implicitConversionHint(e, conversion)(editor.getColorsScheme)
-          }
+          hints ++:= implicitConversionHints(e)
+          hints ++:= explicitArgumentHint(e)
         }
-
-        e match {
-          case call: ScMethodCall if isExplicitImplicit(call) =>
-            if (ImplicitHints.enabled) {
-              hints ++:= explicitImplicitArgumentsHint(call.args)
-            }
-
-          case owner: ImplicitParametersOwner =>
-            val showNotFoundArgs = showNotFoundImplicits(e)
-            val shouldSearch = ImplicitHints.enabled || showNotFoundArgs
-
-            //todo: cover ambiguous implicit case (right now it is not always correct)
-            def shouldShow(arguments: Seq[ScalaResolveResult]) =
-              ImplicitHints.enabled ||
-                (showNotFoundArgs && arguments.exists(p => p.isImplicitParameterProblem && !isAmbiguous(p)))
-
-            if (shouldSearch) {
-              implicitArgumentsFor(owner) match {
-                case Some(args) if shouldShow(args) =>
-                  hints ++:= implicitArgumentsHint(owner, args)(editor.getColorsScheme)
-                case _                              =>
-              }
-            }
-
-          case _ =>
-        }
+        hints ++:= implicitArgumentsOrErrorHints(e)
+      case c: ScConstructor if c.newTemplate.isEmpty =>
+        hints ++:= implicitArgumentsOrErrorHints(c)
       case _ =>
     }
   }
@@ -126,11 +136,13 @@ private class ImplicitHintsPass(editor: Editor, rootElement: ScalaPsiElement)
 private object ImplicitHintsPass {
   private final val BulkChangeThreshold = 1000
 
-  private def implicitConversionHint(e: ScExpression, conversion: ScalaResolveResult)(implicit scheme: EditorColorsScheme): Seq[Hint] =
+  private def implicitConversionHint(e: ScExpression, conversion: ScalaResolveResult)
+                                    (implicit scheme: EditorColorsScheme): Seq[Hint] =
     Seq(Hint(namedBasicPresentation(conversion) :+ Text("("), e, suffix = false, menu = Some(menu.ImplicitConversion)),
       Hint(Text(")") +: collapsedPresentationOf(conversion.implicitParameters), e, suffix = true))
 
-  private def implicitArgumentsHint(e: ScExpression, arguments: Seq[ScalaResolveResult])(implicit scheme: EditorColorsScheme): Seq[Hint] =
+  private def implicitArgumentsHint(e: ImplicitParametersOwner, arguments: Seq[ScalaResolveResult])
+                                   (implicit scheme: EditorColorsScheme): Seq[Hint] =
     Seq(Hint(presentationOf(arguments), e, suffix = true, menu = Some(menu.ImplicitArguments)))
 
   private def explicitImplicitArgumentsHint(args: ScArgumentExprList): Seq[Hint] =
