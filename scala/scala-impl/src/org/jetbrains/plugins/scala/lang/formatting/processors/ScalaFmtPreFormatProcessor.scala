@@ -254,11 +254,11 @@ object ScalaFmtPreFormatProcessor {
   }
 
   private def loadConfig(configFile: VirtualFile, project: Project): Option[ScalafmtConfig] = {
-    PsiManager.getInstance(project).findFile(configFile) match {
+    inReadAction{PsiManager.getInstance(project).findFile(configFile) match {
       case hoconFile: HoconPsiFile =>
         Config.fromHoconString(hoconFile.getText).toEither.toOption
       case _ => None
-    }
+    }}
   }
 
   private def replaceWithFormatted(wrapFile: PsiFile, elements: Seq[PsiElement], range: TextRange, isWrapped: Boolean)(implicit fileText: String): Int = {

@@ -11,7 +11,6 @@ import com.intellij.util.xmlb.XmlSerializer;
 import org.jdom.Element;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
-import org.jetbrains.plugins.scala.lang.formatting.processors.ScalaFmtPreFormatProcessor$;
 import org.jetbrains.plugins.scala.lang.refactoring.util.ScalaNamesUtil;
 
 import java.util.Arrays;
@@ -57,8 +56,15 @@ public class ScalaCodeStyleSettings extends CustomCodeStyleSettings {
   public boolean DO_NOT_INDENT_TUPLES_CLOSE_BRACE = true;
   public boolean ALIGN_TUPLE_ELEMENTS = false;
   public boolean INDENT_FIRST_PARAMETER_CLAUSE = false;
-  public boolean USE_SCALAFMT_FORMATTER = false;
   public String SCALAFMT_CONFIG_PATH = "";
+  public int FORMATTER = INTELLIJ_FORMATTER;
+
+  public static final int INTELLIJ_FORMATTER = 0;
+  public static final int SCALAFMT_FORMATTER = 1;
+
+  public boolean USE_SCALAFMT_FORMATTER() {
+    return FORMATTER == SCALAFMT_FORMATTER;
+  }
 
   public boolean USE_ALTERNATE_CONTINUATION_INDENT_FOR_PARAMS = false;
   public int ALTERNATE_CONTINUATION_INDENT_FOR_PARAMS = 4;
@@ -164,8 +170,10 @@ public class ScalaCodeStyleSettings extends CustomCodeStyleSettings {
 
   //global
   public boolean REFORMAT_ON_COMPILE = false;
-  public boolean AUTO_DETECT_SCALAFMT = false;
-  public boolean SUGGEST_AUTO_DETECT_SCALAFMT = true;
+  public int DETECT_SCALAFMT = ASK_SCALAFMT_ENABLE;
+
+  public static final int ASK_SCALAFMT_ENABLE = 0;
+  public static final int ALWAYS_SCALAFMT_ENABLE = 1;
 
   @Override
   public void readExternal(Element parentElement) throws InvalidDataException {
