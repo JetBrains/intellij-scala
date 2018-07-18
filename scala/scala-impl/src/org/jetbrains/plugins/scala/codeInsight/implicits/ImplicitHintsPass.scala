@@ -18,7 +18,7 @@ import org.jetbrains.plugins.scala.codeInsight.implicits.ImplicitHintsPass._
 import org.jetbrains.plugins.scala.editor.documentationProvider.ScalaDocumentationProvider
 import org.jetbrains.plugins.scala.extensions._
 import org.jetbrains.plugins.scala.lang.psi.ScalaPsiElement
-import org.jetbrains.plugins.scala.lang.psi.api.ImplicitParametersOwner
+import org.jetbrains.plugins.scala.lang.psi.api.ImplicitArgumentsOwner
 import org.jetbrains.plugins.scala.lang.psi.api.base.ScConstructor
 import org.jetbrains.plugins.scala.lang.psi.api.expr.{ScArgumentExprList, ScExpression, ScMethodCall}
 import org.jetbrains.plugins.scala.lang.psi.api.statements.ScFunction
@@ -52,7 +52,7 @@ private class ImplicitHintsPass(editor: Editor, rootElement: ScalaPsiElement)
     if (!ImplicitHints.enabled && !showNotFoundImplicitForFile)
       return
 
-    def implicitArgumentsOrErrorHints(owner: ImplicitParametersOwner): Seq[Hint] = {
+    def implicitArgumentsOrErrorHints(owner: ImplicitArgumentsOwner): Seq[Hint] = {
       val showNotFoundArgs = showNotFoundImplicits(owner)
       val shouldSearch = ImplicitHints.enabled || showNotFoundArgs
 
@@ -71,7 +71,7 @@ private class ImplicitHintsPass(editor: Editor, rootElement: ScalaPsiElement)
       else Seq.empty
     }
 
-    def explicitArgumentHint(e: ImplicitParametersOwner) = {
+    def explicitArgumentHint(e: ImplicitArgumentsOwner) = {
       e match {
         case call: ScMethodCall if isExplicitImplicit(call) =>
           explicitImplicitArgumentsHint(call.args)
@@ -141,7 +141,7 @@ private object ImplicitHintsPass {
     Seq(Hint(namedBasicPresentation(conversion) :+ Text("("), e, suffix = false, menu = Some(menu.ImplicitConversion)),
       Hint(Text(")") +: collapsedPresentationOf(conversion.implicitParameters), e, suffix = true))
 
-  private def implicitArgumentsHint(e: ImplicitParametersOwner, arguments: Seq[ScalaResolveResult])
+  private def implicitArgumentsHint(e: ImplicitArgumentsOwner, arguments: Seq[ScalaResolveResult])
                                    (implicit scheme: EditorColorsScheme): Seq[Hint] =
     Seq(Hint(presentationOf(arguments), e, suffix = true, menu = Some(menu.ImplicitArguments)))
 

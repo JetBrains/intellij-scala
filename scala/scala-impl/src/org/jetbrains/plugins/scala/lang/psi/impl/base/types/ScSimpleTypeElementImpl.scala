@@ -56,7 +56,7 @@ class ScSimpleTypeElementImpl(node: ASTNode) extends ScalaPsiElementImpl(node) w
     *
     * @return implicit parameters used for this expression
     */
-  def findImplicitParameters: Option[Seq[ScalaResolveResult]] = {
+  def findImplicitArguments: Option[Seq[ScalaResolveResult]] = {
     ProgressManager.checkCanceled()
     getNonValueType(withUnnecessaryImplicitsUpdate = true) //to update implicitParameters field
     implicitParameters

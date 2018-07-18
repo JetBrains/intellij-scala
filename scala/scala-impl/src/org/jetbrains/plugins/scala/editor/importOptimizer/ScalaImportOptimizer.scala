@@ -785,7 +785,7 @@ object ScalaImportOptimizer {
         case _ =>
       }
 
-      val implicits = expr.implicitConversion() ++: expr.findImplicitParameters.getOrElse(Seq.empty)
+      val implicits = expr.implicitConversion() ++: expr.findImplicitArguments.getOrElse(Seq.empty)
 
       implicits.foreach(addWithImplicits(_, expr))
     }
@@ -801,7 +801,7 @@ object ScalaImportOptimizer {
       case ref: ScReferenceElement if PsiTreeUtil.getParentOfType(ref, classOf[ScImportStmt]) == null =>
         ref.multiResolveScala(false).foreach(addWithImplicits(_, ref))
       case c: ScConstructor =>
-        c.findImplicitParameters match {
+        c.findImplicitArguments match {
           case Some(parameters) =>
             parameters.foreach(addWithImplicits(_, c))
           case _ =>

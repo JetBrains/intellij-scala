@@ -3,7 +3,7 @@ package implicits
 
 import com.intellij.psi.{PsiClass, PsiElement}
 import org.jetbrains.plugins.scala.extensions.{&&, BooleanExt, PsiClassExt}
-import org.jetbrains.plugins.scala.lang.psi.api.ImplicitParametersOwner
+import org.jetbrains.plugins.scala.lang.psi.api.ImplicitArgumentsOwner
 import org.jetbrains.plugins.scala.lang.psi.api.base.ScReferenceElement
 import org.jetbrains.plugins.scala.lang.psi.api.expr._
 import org.jetbrains.plugins.scala.lang.psi.impl.ScalaCode._
@@ -16,7 +16,7 @@ import org.jetbrains.plugins.scala.project.ProjectContext
 class InscribeImplicitParameters extends AbstractTransformer {
   def transformation(implicit project: ProjectContext): PartialFunction[PsiElement, Unit] = {
     case (_: ScReferenceExpression | _: ScMethodCall | _: ScInfixExpr | _: ScPostfixExpr) &&
-      (e @ ImplicitParametersOwner(Seq(ps @ _*))) if ps.exists(isApplicable) =>
+      (e @ ImplicitArgumentsOwner(Seq(ps @ _*))) if ps.exists(isApplicable) =>
 
       val targets = ps.filter(isApplicable).map(targetFor)
 

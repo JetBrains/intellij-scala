@@ -17,7 +17,7 @@ class ImplicitParametersTest extends TypeInferenceTestBase {
     val scalaFile: ScalaFile = configureFromFileText("dummy.scala",
       Some(ScalaLightCodeInsightFixtureTestAdapter.normalize(fileText)))
     val expr: ScExpression = findExpression(scalaFile)
-    expr.findImplicitParameters match {
+    expr.findImplicitArguments match {
       case None =>
         Assert.fail("Expression with implicit parameters expected")
       case Some(seq) =>
