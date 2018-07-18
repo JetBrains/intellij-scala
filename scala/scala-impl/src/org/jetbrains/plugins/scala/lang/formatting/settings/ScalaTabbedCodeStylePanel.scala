@@ -7,7 +7,7 @@ import com.intellij.application.options._
 import com.intellij.openapi.ui.ComboBox
 import com.intellij.psi.codeStyle.CodeStyleSettings
 import com.intellij.ui.components.JBLabel
-import com.intellij.uiDesigner.core.{GridConstraints, GridLayoutManager}
+import com.intellij.uiDesigner.core.{GridConstraints, GridLayoutManager, Spacer}
 import javax.swing._
 import org.jetbrains.plugins.scala.ScalaLanguage
 import org.jetbrains.plugins.scala.lang.rearranger.ScalaArrangementPanel
@@ -56,20 +56,27 @@ class ScalaTabbedCodeStylePanel(currentSettings: CodeStyleSettings, settings: Co
   private def initOuterFormatterPanel(): Unit = {
     outerPanel = new JPanel(new GridLayoutManager(7, 2, new Insets(0, 0, 0, 0), -1, -1))
     useExternalFormatterCheckbox = new ComboBox(formatters.keys.toArray)
-    outerPanel.add(new JBLabel("Code formatter:"), new GridConstraints(0, 0, 1, 1, GridConstraints.ANCHOR_CENTER, GridConstraints.FILL_BOTH,
+    val formatterSelectorPanel = new JPanel(new GridLayoutManager(1, 3, new Insets(0, 10, 0, 0), -1, -1))
+    outerPanel.add(formatterSelectorPanel, new GridConstraints(0, 0, 1, 1, GridConstraints.ANCHOR_CENTER, GridConstraints.FILL_BOTH,
       GridConstraints.SIZEPOLICY_FIXED, GridConstraints.SIZEPOLICY_FIXED, null, null,
       null, 0, false))
-    outerPanel.add(useExternalFormatterCheckbox, new GridConstraints(0, 1, 1, 1, GridConstraints.ANCHOR_CENTER, GridConstraints.FILL_HORIZONTAL,
-      GridConstraints.SIZEPOLICY_CAN_SHRINK | GridConstraints.SIZEPOLICY_CAN_GROW | GridConstraints.SIZEPOLICY_WANT_GROW,
+    formatterSelectorPanel.add(new JBLabel("Formatter:"), new GridConstraints(0, 0, 1, 1, GridConstraints.ANCHOR_CENTER, GridConstraints.FILL_BOTH,
+      GridConstraints.SIZEPOLICY_FIXED, GridConstraints.SIZEPOLICY_FIXED, null, null,
+      null, 0, false))
+    formatterSelectorPanel.add(useExternalFormatterCheckbox, new GridConstraints(0, 1, 1, 1, GridConstraints.ANCHOR_CENTER, GridConstraints.FILL_HORIZONTAL,
+      GridConstraints.SIZEPOLICY_CAN_SHRINK | GridConstraints.SIZEPOLICY_CAN_GROW,
       GridConstraints.SIZEPOLICY_FIXED, null, null,
       null, 0, false))
+    formatterSelectorPanel.add(new Spacer, new GridConstraints(0, 2, 1, 1,
+      GridConstraints.ANCHOR_CENTER, GridConstraints.FILL_HORIZONTAL, GridConstraints.SIZEPOLICY_WANT_GROW,
+      GridConstraints.SIZEPOLICY_CAN_SHRINK, null, null, null, 0, false))
     outerPanel.add(innerPanel,
-      new GridConstraints(1, 0, 1, 2, GridConstraints.ANCHOR_CENTER, GridConstraints.FILL_BOTH,
+      new GridConstraints(1, 0, 1, 1, GridConstraints.ANCHOR_CENTER, GridConstraints.FILL_BOTH,
         GridConstraints.SIZEPOLICY_CAN_SHRINK | GridConstraints.SIZEPOLICY_CAN_GROW,
         GridConstraints.SIZEPOLICY_CAN_SHRINK | GridConstraints.SIZEPOLICY_CAN_GROW, null, null,
         null, 0, false))
     outerPanel.add(shortenedPanel.getPanel,
-      new GridConstraints(2, 0, 1, 2, GridConstraints.ANCHOR_CENTER, GridConstraints.FILL_BOTH,
+      new GridConstraints(2, 0, 1, 1, GridConstraints.ANCHOR_CENTER, GridConstraints.FILL_BOTH,
         GridConstraints.SIZEPOLICY_CAN_SHRINK | GridConstraints.SIZEPOLICY_CAN_GROW,
         GridConstraints.SIZEPOLICY_CAN_SHRINK | GridConstraints.SIZEPOLICY_CAN_GROW, null, null,
         null, 0, false))
@@ -121,5 +128,5 @@ class ScalaTabbedCodeStylePanel(currentSettings: CodeStyleSettings, settings: Co
 }
 
 object ScalaTabbedCodeStylePanel {
-  private val formatters: Map[String, Int] = Map(("IntelliJ formatter", ScalaCodeStyleSettings.INTELLIJ_FORMATTER), ("Scalafmt", ScalaCodeStyleSettings.SCALAFMT_FORMATTER))
+  private val formatters: Map[String, Int] = Map(("IntelliJ", ScalaCodeStyleSettings.INTELLIJ_FORMATTER), ("scalafmt", ScalaCodeStyleSettings.SCALAFMT_FORMATTER))
 }
