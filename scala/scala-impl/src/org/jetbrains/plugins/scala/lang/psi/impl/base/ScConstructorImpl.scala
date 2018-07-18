@@ -5,6 +5,7 @@ package impl
 package base
 
 import com.intellij.lang.ASTNode
+import com.intellij.openapi.progress.ProgressManager
 import com.intellij.psi._
 import org.jetbrains.plugins.scala.extensions._
 import org.jetbrains.plugins.scala.lang.psi.api.InferUtil.SafeCheckException
@@ -40,6 +41,8 @@ import scala.collection.mutable.ArrayBuffer
 class ScConstructorImpl(node: ASTNode) extends ScalaPsiElementImpl(node) with ScConstructor {
 
   def typeElement: ScTypeElement = findNotNullChildByClass(classOf[ScTypeElement])
+
+  def findImplicitParameters: Option[Seq[ScalaResolveResult]] = simpleTypeElement.flatMap(_.findImplicitParameters)
 
   override def toString: String = "Constructor"
 

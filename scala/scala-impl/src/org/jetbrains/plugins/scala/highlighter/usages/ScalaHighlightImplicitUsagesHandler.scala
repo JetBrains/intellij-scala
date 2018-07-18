@@ -7,7 +7,7 @@ import com.intellij.openapi.editor.Editor
 import com.intellij.openapi.util.TextRange
 import com.intellij.psi.search.LocalSearchScope
 import com.intellij.psi.util.PsiTreeUtil
-import com.intellij.psi.{PsiElement, PsiFile, PsiNamedElement}
+import com.intellij.psi.{PsiElement, PsiFile}
 import com.intellij.util.Consumer
 import org.jetbrains.plugins.scala.codeInspection.collections.MethodRepr
 import org.jetbrains.plugins.scala.extensions._
@@ -159,7 +159,7 @@ object ScalaHighlightImplicitUsagesHandler {
     def containsRefOrImplicitRef(elem: PsiElement): Boolean = elem match {
       case ref: ScReferenceElement if target.isTarget(ref.resolve()) => true
       case e: ScExpression if target.isImplicitConversionOrParameter(e) => true
-      case st: ScSimpleTypeElement if target.isImplicitParameterOf(st) => true
+      case c: ScConstructor if target.isImplicitParameterOf(c) => true
       case _ => false
     }
 

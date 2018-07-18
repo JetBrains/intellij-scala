@@ -7,12 +7,13 @@ package types
 
 import org.jetbrains.plugins.scala.lang.lexer.ScalaTokenTypes
 import org.jetbrains.plugins.scala.lang.psi.api.expr.ScAnnotationExpr
+import org.jetbrains.plugins.scala.lang.resolve.ScalaResolveResult
 
 /**
  * Author: Alexander Podkhalyuzin
  * Date: 22.02.2008
  */
-trait ScSimpleTypeElement extends ScTypeElement with ImplicitParametersOwner {
+trait ScSimpleTypeElement extends ScTypeElement {
   override protected val typeName = "SimpleType"
 
   def reference: Option[ScStableCodeReferenceElement] = findChild(classOf[ScStableCodeReferenceElement])
@@ -33,6 +34,9 @@ trait ScSimpleTypeElement extends ScTypeElement with ImplicitParametersOwner {
       case _ => findConstructor(this)
     }
   }
+
+  //todo: move implementation to ScConstructorImpl
+  private[psi] def findImplicitParameters: Option[Seq[ScalaResolveResult]]
 }
 
 object ScSimpleTypeElement {
