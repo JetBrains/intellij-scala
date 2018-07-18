@@ -46,7 +46,7 @@
     </extensions>
 
     <extensions defaultExtensionNs="com.intellij">
-      <breadcrumbsInfoProviderh
+      <breadcrumbsInfoProvider
               implementation="org.jetbrains.plugins.scala.lang.breadcrumbs.ScalaBreadcrumbsInfoProvider" />
       <breadcrumbsPresentationProvider
               implementation="org.jetbrains.plugins.scala.lang.breadcrumbs.ScalaBreadcrumbsPresentationProvider" />
