@@ -80,6 +80,8 @@ class ScalaBlock(val myParentBlock: ScalaBlock,
           new ChildAttributes(Indent.getSpaceIndent(4), null)
         case _: ScBlock | _: ScTemplateBody| _: ScMatchStmt | _: ScCaseClauses | _: ScCaseClause =>
           new ChildAttributes(Indent.getSpaceIndent(2), null)
+        case _ if parent.getNode.getElementType == ScalaTokenTypes.kIF =>
+          new ChildAttributes(Indent.getSpaceIndent(2), null)
         case _ =>
           new ChildAttributes(Indent.getNoneIndent, null)
       }
