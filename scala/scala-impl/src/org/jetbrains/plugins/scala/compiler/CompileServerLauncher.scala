@@ -2,13 +2,14 @@ package org.jetbrains.plugins.scala
 package compiler
 
 import java.io.{File, IOException}
-import javax.swing.event.HyperlinkEvent
 
+import javax.swing.event.HyperlinkEvent
 import com.intellij.compiler.server.BuildManager
 import com.intellij.ide.plugins.{IdeaPluginDescriptor, PluginManager}
 import com.intellij.notification.{Notification, NotificationListener, NotificationType, Notifications}
 import com.intellij.openapi.application.ApplicationManager
 import com.intellij.openapi.components.ApplicationComponent
+import com.intellij.openapi.diagnostic.Logger
 import com.intellij.openapi.extensions.PluginId
 import com.intellij.openapi.project.Project
 import com.intellij.openapi.projectRoots.{ProjectJdkTable, Sdk}
@@ -32,7 +33,8 @@ import scala.util.control.Exception._
  * @author Pavel Fatin
  */
 class CompileServerLauncher extends ApplicationComponent {
-   private var serverInstance: Option[ServerInstance] = None
+    private var serverInstance: Option[ServerInstance] = None
+    private val LOG = Logger.getInstance(getClass)
 
   override def disposeComponent(): Unit = {
      if (running) stop()
@@ -54,18 +56,21 @@ class CompileServerLauncher extends ApplicationComponent {
 
   private def start(project: Project): Boolean = {
 
-    compileServerJdk(project) match {
-      case None =>
+    val result = compileServerJdk(project).map(start(project, _)) match {
+      case None                 => Left("JDK for compiler process not found")
+      case Some(Left(msg))      => Left(msg)
+      case Some(Right(process)) =>
+        invokeLater { CompileServerManager.configureWidget(project) }
+        Right(process)
+    }
+
+    result match {
+      case Right(_)     => true
+      case Left(error)  =>
         val title = "Cannot start Scala compile server"
-        val content = "JDK for compiler process not found"
-        Notifications.Bus.notify(new Notification("scala", title, content, NotificationType.ERROR))
+        Notifications.Bus.notify(new Notification("scala", title, error, NotificationType.ERROR))
+        LOG.error(title, error)
         false
-      case Some(jdk) =>
-        start(project, jdk)
-        invokeLater {
-          CompileServerManager.configureWidget(project)
-        }
-        true
     }
   }
 
