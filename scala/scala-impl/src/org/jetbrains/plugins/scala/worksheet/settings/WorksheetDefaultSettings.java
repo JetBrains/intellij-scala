@@ -17,21 +17,12 @@ import org.jetbrains.annotations.Nullable;
     }
 )
 public class WorksheetDefaultSettings implements PersistentStateComponent<WorksheetDefaultSettings> {
-  private boolean isRepl;
   private boolean isInteractive;
   private boolean isMakeBeforeRun;
 
   private String moduleName;
   private String compilerProfileName;
-  private WorksheetRunType runType = WorksheetRunType.REPL_CELL;
-
-  public boolean getIsRepl() {
-    return isRepl;
-  }
-
-  public void setRepl(boolean isRepl) {
-    this.isRepl = isRepl;
-  }
+  private WorksheetExternalRunType runType = RunTypes.getDefaultRunType();
 
   public boolean isInteractive() {
     return isInteractive;
@@ -85,11 +76,11 @@ public class WorksheetDefaultSettings implements PersistentStateComponent<Worksh
     return ServiceManager.getService(project, WorksheetDefaultSettings.class);
   }
 
-  public WorksheetRunType getRunType() {
+  public WorksheetExternalRunType getRunType() {
     return runType;
   }
-
-  public void setRunType(WorksheetRunType runType) {
+  
+  public void setRunType(WorksheetExternalRunType runType) {
     this.runType = runType;
   }
 }

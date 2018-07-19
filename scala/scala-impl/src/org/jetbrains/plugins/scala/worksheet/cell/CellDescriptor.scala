@@ -2,12 +2,14 @@ package org.jetbrains.plugins.scala.worksheet.cell
 
 import java.lang.ref.WeakReference
 
+import com.intellij.openapi.actionSystem.AnAction
 import com.intellij.psi.PsiElement
+import org.jetbrains.plugins.scala.worksheet.settings.WorksheetExternalRunType
 
 /**
   * User: Dmitry.Naydanov
   */
-class CellDescriptor(startElementRef: WeakReference[PsiElement]) {
+class CellDescriptor(startElementRef: WeakReference[PsiElement], runType: WorksheetExternalRunType) {
   def getElement: Option[PsiElement] = Option(startElementRef.get())
   
   def getCellText: String = {
@@ -22,7 +24,10 @@ class CellDescriptor(startElementRef: WeakReference[PsiElement]) {
       case _ => null
     }
   }
+  
+  def createRunAction: Option[AnAction] = runType.createRunCellAction(this)
 }
  object CellDescriptor {
-   def apply(startElement: PsiElement): CellDescriptor = new CellDescriptor(new WeakReference[PsiElement](startElement))
+   def apply(startElement: PsiElement, runType: WorksheetExternalRunType): CellDescriptor = 
+     new CellDescriptor(new WeakReference[PsiElement](startElement), runType: WorksheetExternalRunType)
  }

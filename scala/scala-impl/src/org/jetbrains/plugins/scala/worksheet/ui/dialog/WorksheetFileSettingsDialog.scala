@@ -1,13 +1,11 @@
 package org.jetbrains.plugins.scala.worksheet.ui.dialog
 
-import com.intellij.openapi.fileEditor.FileEditorManager
 import com.intellij.openapi.ui.DialogWrapper
 import com.intellij.psi.PsiFile
 import javax.swing.{JComponent, SwingConstants}
 import org.jetbrains.plugins.scala.project.settings.{ScalaCompilerConfiguration, ScalaCompilerSettingsProfile}
 import org.jetbrains.plugins.scala.worksheet.cell.CellManager
-import org.jetbrains.plugins.scala.worksheet.runconfiguration.WorksheetCache
-import org.jetbrains.plugins.scala.worksheet.settings.{WorksheetCommonSettings, WorksheetRunType}
+import org.jetbrains.plugins.scala.worksheet.settings.WorksheetCommonSettings
 
 /**
   * User: Dmitry.Naydanov
@@ -32,14 +30,7 @@ class WorksheetFileSettingsDialog(worksheetFile: PsiFile) extends DialogWrapper(
   private def getSettingsData(settings: WorksheetCommonSettings): WorksheetSettingsData = {
     val (selectedProfile, profiles) = WorksheetFileSettingsDialog.createCompilerProfileOptions(settings)
 
-    new WorksheetSettingsData(
-      settings.getRunType,
-      settings.isInteractive,
-      settings.isMakeBeforeRun,
-      null,
-      selectedProfile,
-      profiles
-    )
+    new WorksheetSettingsData(settings.isInteractive, settings.isMakeBeforeRun, settings.getRunType, null, selectedProfile, profiles)
   }
   
   private def applySettingsData(settingsData: WorksheetSettingsData, settings: WorksheetCommonSettings): Unit = {
@@ -58,9 +49,9 @@ class WorksheetFileSettingsDialog(worksheetFile: PsiFile) extends DialogWrapper(
   private def getDefaultSettingsData: WorksheetSettingsData = getSettingsData(projectSettings)
   
   private def applyFileSettings(settingsData: WorksheetSettingsData): Unit = {
-    if (settingsData.runType == WorksheetRunType.REPL_CELL && fileSettings.getRunType != WorksheetRunType.REPL_CELL) {
+    if (settingsData.runType.isUsesCell && !fileSettings.getRunType.isUsesCell) {
       CellManager.installCells(worksheetFile)
-    } else if (settingsData.runType != WorksheetRunType.REPL_CELL && fileSettings.getRunType == WorksheetRunType.REPL_CELL) {
+    } else if (!settingsData.runType.isUsesCell && fileSettings.getRunType.isUsesCell) {
       CellManager.deleteCells(worksheetFile)
     }
     

@@ -157,7 +157,7 @@ object ScalaMacroDebuggingUtil {
       case _ => return 
     }
     
-    val macroEditor = WorksheetEditorPrinterFactory.newMacrosheetUiFor(sourceEditor, scalaPsiFile).getViewerEditor
+    val macroEditor = WorksheetEditorPrinterFactory.getMacrosheetUiFor(sourceEditor, scalaPsiFile).getViewerEditor
     val macrosheetFile = PsiDocumentManager.getInstance(project).getPsiFile(macroEditor.getDocument)
 
     copyTextBetweenEditors(sourceEditor, macroEditor, project)

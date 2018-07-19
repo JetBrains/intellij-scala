@@ -33,9 +33,9 @@ class WorksheetFileSettings(file: PsiFile) extends WorksheetCommonSettings {
   private def setSetting[T](attr: FileAttribute, value: T)(implicit ev: SerializableInFileAttribute[T]): Unit =
     ev.writeAttribute(attr, file, value)
 
-  override def getRunType: WorksheetRunType = getSetting(WORKSHEET_RUN_TYPE, getDefaultSettings.getRunType)
-
-  override def setRunType(runType: WorksheetRunType): Unit = setSetting(WORKSHEET_RUN_TYPE, runType)
+  override def getRunType: WorksheetExternalRunType = getSetting(WORKSHEET_RUN_TYPE, getDefaultSettings.getRunType)
+  
+  override def setRunType(runType: WorksheetExternalRunType): Unit = setSetting(WORKSHEET_RUN_TYPE, runType)
 
   override def isInteractive: Boolean = getSetting(IS_AUTORUN, getDefaultSettings.isInteractive)
 
@@ -94,14 +94,14 @@ object WorksheetFileSettings extends WorksheetPerFileConfig {
     file match {
       case scalaFile: ScalaFile =>
         val attrValue = FileAttributeUtilCache.readAttributeLight(WORKSHEET_RUN_TYPE, scalaFile)
-        attrValue.exists(v => v == WorksheetRunType.REPL.name() || v == WorksheetRunType.REPL_CELL.name())
+        attrValue.flatMap(RunTypes.findRunTypeByName).exists(_.isReplRunType)
       case _ => false
     }
   }
 
-  def isRepl(file: PsiFile): Boolean = WorksheetRunType.isReplRunType(new WorksheetFileSettings(file).getRunType)
+  def isRepl(file: PsiFile): Boolean = getRunType(file).isReplRunType
 
-  def getRunType(file: PsiFile): WorksheetRunType = new WorksheetFileSettings(file).getRunType
+  def getRunType(file: PsiFile): WorksheetExternalRunType = new WorksheetFileSettings(file).getRunType
   
   def shouldShowReplWarning(file: PsiFile): Boolean = isRepl(file) && WorksheetProjectSettings.getMakeType(file.getProject) != InProcessServer
 
@@ -139,9 +139,10 @@ object WorksheetFileSettings extends WorksheetPerFileConfig {
       }
     }
 
-    implicit val RunTypeFileAttribute: SerializableInFileAttribute[WorksheetRunType] = new SerializableInFileAttribute[WorksheetRunType] {
-      override def convertFrom(t: WorksheetRunType): String = t.name()
-      override def convertTo(s: String): WorksheetRunType = WorksheetRunType.valueOf(s)
+    implicit val ExternalRunTypeAttribute: SerializableInFileAttribute[WorksheetExternalRunType] = new SerializableInFileAttribute[WorksheetExternalRunType] {
+      override def convertFrom(t: WorksheetExternalRunType): String = t.getName
+
+      override def convertTo(s: String): WorksheetExternalRunType = RunTypes.findRunTypeByName(s).getOrElse(RunTypes.getDefaultRunType)
     }
   }
 }

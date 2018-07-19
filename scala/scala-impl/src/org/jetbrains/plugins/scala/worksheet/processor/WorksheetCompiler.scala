@@ -16,8 +16,8 @@ import org.jetbrains.plugins.scala.util.NotificationUtil
 import org.jetbrains.plugins.scala.worksheet.processor.WorksheetCompilerUtil._
 import org.jetbrains.plugins.scala.worksheet.runconfiguration.{ReplModeArgs, WorksheetCache}
 import org.jetbrains.plugins.scala.worksheet.server._
-import org.jetbrains.plugins.scala.worksheet.settings.{WorksheetCommonSettings, WorksheetFileSettings, WorksheetProjectSettings, WorksheetRunType}
-import org.jetbrains.plugins.scala.worksheet.ui.{WorksheetEditorPrinter, WorksheetEditorPrinterFactory}
+import org.jetbrains.plugins.scala.worksheet.settings._
+import org.jetbrains.plugins.scala.worksheet.ui.WorksheetEditorPrinter
 
 /**
   * User: Dmitry Naydanov
@@ -42,17 +42,15 @@ class WorksheetCompiler(editor: Editor, worksheetFile: ScalaFile, callback: (Str
   private def createCompilerTask: CompilerTask =
     new CompilerTask(project, s"Worksheet ${worksheetFile.getName} compilation", false, false, false, false)
   
-  private def createWorksheetPrinter(runType: WorksheetRunType): WorksheetEditorPrinter = 
-    WorksheetEditorPrinterFactory.newWorksheetUiFor(editor, worksheetFile, runType)
+  private def createWorksheetPrinter: WorksheetEditorPrinter = runType.createPrinter(editor, worksheetFile)
 
-  private def runCompilerTask(className: String, code: String, printer: WorksheetEditorPrinter, 
-                              tempFile: File, outputDir: File) {
+  private def runCompilerTask(className: String, code: String, tempFile: File, outputDir: File) {
     val afterCompileRunnable = if (makeType == OutOfProcessServer) new Runnable {
       override def run(): Unit = callback(className, outputDir.getAbsolutePath)
     } else EMPTY_RUNNABLE
 
     val task = createCompilerTask
-    val consumer = new RemoteServerConnector.CompilerInterfaceImpl(task, printer, None, auto)
+    val consumer = new RemoteServerConnector.CompilerInterfaceImpl(task, createWorksheetPrinter, None, auto)
 
     FileUtil.writeToFile(tempFile, code)
     task.start(new Runnable {
@@ -73,10 +71,10 @@ class WorksheetCompiler(editor: Editor, worksheetFile: ScalaFile, callback: (Str
     ) 
   }
   
-  private def runDumbTask(printer: WorksheetEditorPrinter, replModeArgs: Option[ReplModeArgs]) {
+  private def runDumbTask(replModeArgs: Option[ReplModeArgs]) {
     val task = createCompilerTask
     
-    val consumer = new RemoteServerConnector.CompilerInterfaceImpl(task, printer, None)
+    val consumer = new RemoteServerConnector.CompilerInterfaceImpl(task, createWorksheetPrinter, None)
     task.start(new Runnable {
       override def run(): Unit = {
         new RemoteServerConnector(worksheetFile, new File(""), new File(""), "", replModeArgs, false).compileAndRun(
@@ -95,26 +93,20 @@ class WorksheetCompiler(editor: Editor, worksheetFile: ScalaFile, callback: (Str
 
     if (makeType != NonServer) CompileServerLauncher.ensureServerRunning(project)
     
-    @inline def runDumb(code: String, runType: WorksheetRunType): Unit = 
+    @inline def runDumb(code: String): Unit = 
       runDumbTask(
-        createWorksheetPrinter(runType),
         Some(ReplModeArgs(worksheetVirtual.getCanonicalPath, code))
       ) 
     
     request match {
-      case RunOuter(code) => runDumb(Base64.encode(code.getBytes), WorksheetRunType.REPL_CELL) //assuming that can be called from external code
-      case RunSimple(code) => runDumb(code, WorksheetRunType.REPL_CELL)
-      case RunRepl(code) => runDumb(code, WorksheetRunType.REPL)
+      case request: RunCustom => WorksheetCustomRunner.findSuitableRunnerFor(request).foreach(_ handle request)
+      case RunOuter(code) => runDumb(Base64.encode(code.getBytes)) //assuming that can be called from external code
+      case RunSimple(code) => runDumb(code)
+      case RunRepl(code) => runDumb(code)
       case RunCompile(code, name) =>
         val (_, tempFile, outputDir) = WorksheetCache.getInstance(project).updateOrCreateCompilationInfo(worksheetVirtual.getCanonicalPath, worksheetFile.getName)
-        
         WorksheetCache.getInstance(project).removePrinter(editor)
-
-        runCompilerTask(
-          name, code,
-          createWorksheetPrinter(WorksheetRunType.PLAIN), 
-          tempFile, outputDir
-        )
+        runCompilerTask(name, code, tempFile, outputDir)
       case ErrorWhileCompile(message, position) =>
         if (!auto) 
           WorksheetCompilerUtil.showCompilationError(
@@ -126,7 +118,7 @@ class WorksheetCompiler(editor: Editor, worksheetFile: ScalaFile, callback: (Str
   }
 
   def compileAndRunFile() {
-    compileAndRunCode(WorksheetSourceProcessor.process(worksheetFile, Option(editor), runType))
+    compileAndRunCode(runType.process(worksheetFile, Option(editor)))
   }
 }
 

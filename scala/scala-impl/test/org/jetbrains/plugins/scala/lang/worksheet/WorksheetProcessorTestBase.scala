@@ -8,7 +8,7 @@ import com.intellij.openapi.vfs.{LocalFileSystem, VfsUtil}
 import com.intellij.psi.{PsiDocumentManager, PsiFileFactory}
 import com.intellij.testFramework.PsiTestUtil
 import org.jetbrains.plugins.scala.ScalaFileType.WORKSHEET_EXTENSION
-import org.jetbrains.plugins.scala.base.libraryLoaders.{LibraryLoader, ThirdPartyLibraryLoader}
+import org.jetbrains.plugins.scala.base.libraryLoaders.ThirdPartyLibraryLoader
 import org.jetbrains.plugins.scala.debugger.{ScalaCompilerTestBase, ScalaVersion}
 import org.jetbrains.plugins.scala.lang.psi.api.ScalaFile
 import org.jetbrains.plugins.scala.worksheet.processor.WorksheetSourceProcessor
@@ -32,7 +32,7 @@ abstract class WorksheetProcessorTestBase extends ScalaCompilerTestBase {
     val psiFile = PsiFileFactory.getInstance(myProject).createFileFromText(defaultFileName(WORKSHEET_EXTENSION), ScalaLanguage.INSTANCE, text)
     val doc = PsiDocumentManager.getInstance(myProject).getDocument(psiFile)
 
-    WorksheetSourceProcessor.processDefaultInner(psiFile.asInstanceOf[ScalaFile], Option(doc)) match {
+    WorksheetSourceProcessor.processDefault(psiFile.asInstanceOf[ScalaFile], Option(doc)) match {
       case Left((code, _)) =>
         val src = new File(getBaseDir.getCanonicalPath, "src")
         assert(src.exists(), "Cannot find src dir")

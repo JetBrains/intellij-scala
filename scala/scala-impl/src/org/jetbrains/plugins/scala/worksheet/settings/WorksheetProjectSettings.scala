@@ -15,9 +15,9 @@ import org.jetbrains.plugins.scala.worksheet.server.{InProcessServer, NonServer,
 class WorksheetProjectSettings(val project: Project) extends WorksheetCommonSettings {
   private val storeComponent = WorksheetDefaultSettings.getInstance(project)
 
-  override def getRunType: WorksheetRunType = storeComponent.getRunType
+  override def getRunType: WorksheetExternalRunType = storeComponent.getRunType
 
-  override def setRunType(runType: WorksheetRunType): Unit = storeComponent.setRunType(runType)
+  override def setRunType(runType: WorksheetExternalRunType): Unit = storeComponent.setRunType(runType)
 
   override def isInteractive: Boolean = storeComponent.isInteractive
 

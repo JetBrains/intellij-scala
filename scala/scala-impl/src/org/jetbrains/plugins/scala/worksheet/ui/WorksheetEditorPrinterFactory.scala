@@ -26,7 +26,6 @@ import com.intellij.ui.JBSplitter
 import org.jetbrains.plugins.scala.lang.psi.api.ScalaFile
 import org.jetbrains.plugins.scala.worksheet.processor.FileAttributeUtilCache
 import org.jetbrains.plugins.scala.worksheet.runconfiguration.WorksheetCache
-import org.jetbrains.plugins.scala.worksheet.settings.WorksheetRunType
 import org.jetbrains.plugins.scala.worksheet.ui.WorksheetDiffSplitters.SimpleWorksheetSplitter
 import org.jetbrains.plugins.scala.{ScalaFileType, ScalaLanguage}
 
@@ -61,13 +60,14 @@ object WorksheetEditorPrinterFactory {
     }
 
     def createListener(recipient: Editor, don: Editor): CaretListener = foldGroup map {
-      group => new CaretListener {
-        override def caretPositionChanged(e: CaretEvent) {
-          if (!e.getEditor.asInstanceOf[EditorImpl].getContentComponent.hasFocus) return
-          recipient.getCaretModel.moveToVisualPosition(
-            new VisualPosition(Math.min(group left2rightOffset don.getCaretModel.getVisualPosition.getLine, recipient.getDocument.getLineCount), 0))
+      group =>
+        new CaretListener {
+          override def caretPositionChanged(e: CaretEvent) {
+            if (!e.getEditor.asInstanceOf[EditorImpl].getContentComponent.hasFocus) return
+            recipient.getCaretModel.moveToVisualPosition(
+              new VisualPosition(Math.min(group left2rightOffset don.getCaretModel.getVisualPosition.getLine, recipient.getDocument.getLineCount), 0))
+          }
         }
-      }
     } getOrElse new CaretListener {
       override def caretPositionChanged(e: CaretEvent) {
         if (!e.getEditor.asInstanceOf[EditorImpl].getContentComponent.hasFocus) return
@@ -77,7 +77,7 @@ object WorksheetEditorPrinterFactory {
 
     def checkAndAdd(don: Editor, recipient: Editor) {
       val cache = WorksheetCache.getInstance(don.getProject)
-      
+
       cache getPatchedFlag don match {
         case "50" | null =>
           cache removePatchedFlag don
@@ -139,78 +139,72 @@ object WorksheetEditorPrinterFactory {
     FileAttributeUtilCache.writeAttribute(LAST_WORKSHEET_RUN_RATIO, file, DEFAULT_WORKSHEET_VIEWERS_RATIO.toString)
   }
 
-  def newWorksheetUiFor(editor: Editor, scalaFile: ScalaFile, runType: WorksheetRunType): WorksheetEditorPrinter = {
-    if (!WorksheetRunType.isReplRunType(runType)) {
-      val printer = newDefaultUiFor(editor, scalaFile, isPlain = true)
-      printer.scheduleWorksheetUpdate()
-      return printer
-    }
-    
-    def providePrinter(condition: WorksheetEditorPrinter => Boolean, 
-                       update: WorksheetEditorPrinter => WorksheetEditorPrinter, 
-                       create: (Editor, ScalaFile) => WorksheetEditorPrinter): WorksheetEditorPrinter = {
-      val cache = WorksheetCache.getInstance(editor.getProject)
-      
-      cache.getPrinter(editor) match {
-        case Some(cachedPrinter: WorksheetEditorPrinter) if condition(cachedPrinter) => 
-          update(cachedPrinter)
-        case _ => 
-          val printer = create(editor, scalaFile)
-          cache.addPrinter(editor, printer)
-          printer.scheduleWorksheetUpdate()
-          printer
-      }
-    }
-    
-    runType match {
-      case WorksheetRunType.REPL => 
-        providePrinter (
-          _.isInstanceOf[WorksheetIncrementalEditorPrinter],
-          (printer: WorksheetEditorPrinter) => {
-            printer.asInstanceOf[WorksheetIncrementalEditorPrinter].updateScalaFile(scalaFile)
-            printer
-          },
-          (editor: Editor, file: ScalaFile) => newIncrementalUiFor(editor, file)
-        )
-      case WorksheetRunType.REPL_CELL =>
-        providePrinter (
-          _.isInstanceOf[WorksheetConsoleEditorPrinter],
-          (printer: WorksheetEditorPrinter) => printer,
-          (editor: Editor, file: ScalaFile) => newConsoleUiFor(editor, file)
-        )
+  def createViewer(editor: Editor, virtualFile: VirtualFile): Editor =
+    setupRightSideViewer(editor, virtualFile, getOrCreateViewerEditorFor(editor, isPlain = true), modelSync = true)
+
+  //kinda legacy code
+  def getMacrosheetUiFor(editor: Editor, scalaFile: ScalaFile): WorksheetDefaultEditorPrinter =
+    newDefaultUiFor(editor, scalaFile, isPlain = false)
+
+  def getDefaultUiFor(editor: Editor, scalaFile: ScalaFile): WorksheetEditorPrinter = {
+    val printer = newDefaultUiFor(editor, scalaFile, isPlain = true)
+    printer.scheduleWorksheetUpdate()
+    printer
+  }
+
+  def getIncrementalUiFor(editor: Editor, scalaFile: ScalaFile): WorksheetEditorPrinter =
+    providePrinter(
+      editor, scalaFile,
+      _.isInstanceOf[WorksheetIncrementalEditorPrinter],
+      (printer: WorksheetEditorPrinter) => {
+        printer.asInstanceOf[WorksheetIncrementalEditorPrinter].updateScalaFile(scalaFile)
+        printer
+      },
+      (editor: Editor, file: ScalaFile) => newIncrementalUiFor(editor, file)
+    )
+
+  def getConsoleUiFor(editor: Editor, scalaFile: ScalaFile): WorksheetEditorPrinter =
+    providePrinter(
+      editor: Editor, scalaFile: ScalaFile,
+      _.isInstanceOf[WorksheetConsoleEditorPrinter],
+      (printer: WorksheetEditorPrinter) => printer,
+      (editor: Editor, file: ScalaFile) => newConsoleUiFor(editor, file)
+    )
+
+  private def providePrinter(editor: Editor, scalaFile: ScalaFile, condition: WorksheetEditorPrinter => Boolean,
+                             update: WorksheetEditorPrinter => WorksheetEditorPrinter,
+                             create: (Editor, ScalaFile) => WorksheetEditorPrinter): WorksheetEditorPrinter = {
+    val cache = WorksheetCache.getInstance(editor.getProject)
+
+    cache getPrinter editor match {
+      case Some(cachedPrinter: WorksheetEditorPrinter) if condition(cachedPrinter) =>
+        update(cachedPrinter)
+      case _ =>
+        val printer = create(editor, scalaFile)
+        cache.addPrinter(editor, printer)
+        printer.scheduleWorksheetUpdate()
+        printer
     }
   }
 
-  //kinda legacy code
-  def newMacrosheetUiFor(editor: Editor, scalaFile: ScalaFile): WorksheetDefaultEditorPrinter = 
-    newDefaultUiFor(editor,  scalaFile, isPlain = false)
- 
-  def newDefaultUiFor(editor: Editor, scalaFile: ScalaFile, isPlain: Boolean) = 
+  private def newDefaultUiFor(editor: Editor, scalaFile: ScalaFile, isPlain: Boolean) =
     new WorksheetDefaultEditorPrinter(
-      editor, 
-      setupRightSideViewer(editor, scalaFile.getVirtualFile, getOrCreateViewerEditorFor(editor, isPlain)), 
+      editor,
+      setupRightSideViewer(editor, scalaFile.getVirtualFile, getOrCreateViewerEditorFor(editor, isPlain)),
       scalaFile
     )
-  
-  def newIncrementalUiFor(editor: Editor, scalaFile: ScalaFile): WorksheetIncrementalEditorPrinter =
+
+  private def newIncrementalUiFor(editor: Editor, scalaFile: ScalaFile): WorksheetIncrementalEditorPrinter =
     new WorksheetIncrementalEditorPrinter(
-      editor, 
+      editor,
       setupRightSideViewer(editor, scalaFile.getVirtualFile, getOrCreateViewerEditorFor(editor, isPlain = true)),
       scalaFile
     )
-  
-  def newConsoleUiFor(editor: Editor, scalaFile: ScalaFile): WorksheetConsoleEditorPrinter = {
-    WorksheetToolWindowFactory.createOutputContent(scalaFile) match {
-      case Some((content, cv)) => new WorksheetConsoleEditorPrinter(editor, scalaFile, cv, content)
-      case _ => null
-    }
-  }
 
-  def createWorksheetEditor(editor: Editor): Editor = getOrCreateViewerEditorFor(editor, isPlain = true)
+  private def newConsoleUiFor(editor: Editor, scalaFile: ScalaFile): WorksheetConsoleEditorPrinter =
+    new WorksheetConsoleEditorPrinter(editor, scalaFile)
 
-  def createMacroEditor(editor: Editor): Editor = getOrCreateViewerEditorFor(editor, isPlain = false)
-
-  def setupRightSideViewer(editor: Editor, virtualFile: VirtualFile, rightSideEditor: Editor, modelSync: Boolean = false): Editor = {
+  private def setupRightSideViewer(editor: Editor, virtualFile: VirtualFile, rightSideEditor: Editor, modelSync: Boolean = false): Editor = {
     val editorComponent = editor.getComponent
     val editorContentComponent = editor.getContentComponent
 
