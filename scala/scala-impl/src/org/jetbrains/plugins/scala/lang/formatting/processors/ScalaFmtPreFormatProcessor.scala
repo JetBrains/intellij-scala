@@ -1,7 +1,6 @@
 package org.jetbrains.plugins.scala.lang.formatting.processors
 
 import java.awt.Point
-import java.util.concurrent.ConcurrentMap
 
 import com.intellij.application.options.CodeStyle
 import com.intellij.lang.ASTNode
@@ -10,15 +9,13 @@ import com.intellij.openapi.ui.MessageType
 import com.intellij.openapi.ui.popup.{Balloon, JBPopupFactory}
 import com.intellij.openapi.util.text.StringUtil
 import com.intellij.openapi.util.{Key, TextRange}
-import com.intellij.openapi.vfs.{StandardFileSystems, VirtualFile}
 import com.intellij.openapi.wm.ex.WindowManagerEx
 import com.intellij.psi._
 import com.intellij.psi.impl.source.codeStyle.PreFormatProcessor
 import com.intellij.psi.impl.source.tree.LeafPsiElement
 import com.intellij.psi.util.PsiTreeUtil
 import com.intellij.ui.awt.RelativePoint
-import com.intellij.util.containers.ContainerUtil
-import org.jetbrains.plugins.hocon.psi.HoconPsiFile
+import org.jetbrains.plugins.scala.lang.formatting.processors.ScalaFmtConfigUtil._
 import org.jetbrains.plugins.scala.ScalaFileType
 import org.jetbrains.plugins.scala.extensions.PsiElementExt
 import org.jetbrains.plugins.scala.lang.formatting.settings.ScalaCodeStyleSettings
@@ -31,12 +28,9 @@ import org.jetbrains.plugins.scala.lang.psi.api.toplevel.typedef.ScMember
 import org.jetbrains.plugins.scala.lang.psi.impl.expr.ScBlockImpl
 import org.jetbrains.plugins.scala.lang.psi.impl.ScalaPsiElementFactory
 import org.jetbrains.plugins.scala.project.UserDataHolderExt
-import org.jetbrains.sbt.language.SbtFileImpl
 import org.scalafmt.Formatted.Success
 import org.scalafmt.Scalafmt
-import org.scalafmt.config.{Config, ScalafmtConfig, ScalafmtRunner}
 import org.jetbrains.plugins.scala.extensions._
-import org.jetbrains.plugins.scala.project._
 
 import scala.annotation.tailrec
 import scala.collection.mutable
@@ -58,55 +52,7 @@ class ScalaFmtPreFormatProcessor extends PreFormatProcessor {
 
   override def changesWhitespacesOnly(): Boolean = true
 }
-
 object ScalaFmtPreFormatProcessor {
-
-  def configFor(psi: PsiFile): ScalafmtConfig = {
-    val settings = CodeStyle.getCustomSettings(psi, classOf[ScalaCodeStyleSettings])
-    val project = psi.getProject
-    val config = if (settings.SCALAFMT_CONFIG_PATH.nonEmpty) {
-      scalaFmtConfigFile(settings, project) match {
-        case Some(custom) => storeOrUpdate(custom, project)
-        case _ =>
-          reportBadConfig(settings.SCALAFMT_CONFIG_PATH, project)
-          ScalafmtConfig.intellij
-      }
-    } else {
-      //auto-detect settings
-      projectDefaultConfig(project).getOrElse(ScalafmtConfig.intellij)
-    }
-    psi match {
-      case _: SbtFileImpl => config.copy(runner = ScalafmtRunner.sbt)
-      case _ => config
-    }
-  }
-
-  def projectDefaultConfig(project: Project): Option[ScalafmtConfig] = Option(project.getBaseDir.findChild(".scalafmt.conf")).
-    map(project.getScalafmtProjectConfig(_))
-
-  def scalaFmtConfigFile(settings: ScalaCodeStyleSettings, project: Project): Option[VirtualFile] =
-    Option(StandardFileSystems.local.findFileByPath(absolutePathFromConfigPath(settings.SCALAFMT_CONFIG_PATH, project)))
-
-  def storeOrUpdate(vFile: VirtualFile, project: Project): ScalafmtConfig = {
-    vFile.refresh(false, false) //TODO use of asynchronous updates is a trade-off performance vs accuracy, can this be performance-heavy?
-    Option(scalafmtConfigs.get(vFile)) match {
-      case Some((config, stamp)) if stamp == vFile.getModificationStamp => config
-      case _ =>
-        loadConfig(vFile,project).map{ config =>
-          scalafmtConfigs.put(vFile, (config, vFile.getModificationStamp))
-          config
-        }.getOrElse {
-          reportBadConfig(vFile.getCanonicalPath, project)
-          ScalafmtConfig.intellij
-        }
-    }
-  }
-
-  private def absolutePathFromConfigPath(path: String, project: Project): String = {
-    if (path.startsWith(".")) {
-      project.getBaseDir.getCanonicalPath + "/" + path
-    } else path
-  }
 
   private def shiftRange(file: PsiFile, range: TextRange): TextRange = {
     rangesDeltaCache.get(file).map{ deltas =>
@@ -255,14 +201,6 @@ object ScalaFmtPreFormatProcessor {
     }
   }
 
-  private def loadConfig(configFile: VirtualFile, project: Project): Option[ScalafmtConfig] = {
-    inReadAction{PsiManager.getInstance(project).findFile(configFile) match {
-      case hoconFile: HoconPsiFile =>
-        Config.fromHoconString(hoconFile.getText).toEither.toOption
-      case _ => None
-    }}
-  }
-
   private def replaceWithFormatted(wrapFile: PsiFile, elements: Seq[PsiElement], range: TextRange, isWrapped: Boolean)(implicit fileText: String): Int = {
     val replaceElements: Seq[PsiElement] = if (isWrapped) unwrap(wrapFile) else Seq(wrapFile)
     val project = elements.head.getProject
@@ -380,9 +318,7 @@ object ScalaFmtPreFormatProcessor {
     }
   }
 
-  private val scalafmtConfigs: ConcurrentMap[VirtualFile, (ScalafmtConfig, Long)] = ContainerUtil.createConcurrentWeakMap()
-
-  private def reportError(errorText: String, project: Project): Unit = {
+  def reportError(errorText: String, project: Project): Unit = {
     val popupFactory = JBPopupFactory.getInstance
     val frame = WindowManagerEx.getInstanceEx.getFrame(project)
     if (frame == null) return
@@ -395,9 +331,6 @@ object ScalaFmtPreFormatProcessor {
 
   private def reportInvalidCodeFailure(project: Project): Unit =
     reportError("Failed to find correct surrounding code to pass for scalafmt, no formatting will be performed", project)
-
-  private def reportBadConfig(path: String, project: Project): Unit =
-    reportError("Failed to load scalafmt config " + path + ", using default configuration instead", project)
 
   //TODO get rid of this once com.intellij.util.text.TextRanges does not have an error on unifying (x, x+1) V (x+1, y)
   class TextRanges(val ranges: Seq[TextRange]) {

@@ -4,7 +4,7 @@ import com.intellij.application.options.codeStyle.CodeStyleSchemesModel
 import com.intellij.notification._
 import com.intellij.openapi.components.PersistentStateComponent
 import com.intellij.openapi.project.Project
-import org.jetbrains.plugins.scala.lang.formatting.processors.ScalaFmtPreFormatProcessor
+import org.jetbrains.plugins.scala.lang.formatting.processors.ScalaFmtConfigUtil
 import org.jetbrains.plugins.scala.lang.formatting.settings.ScalaCodeStyleSettings
 import com.intellij.openapi.components._
 import javax.swing.event.HyperlinkEvent
@@ -18,7 +18,7 @@ class ScalaFmtSuggesterComponent(val project: Project) extends ProjectComponent 
 
   override def projectOpened(): Unit = {
     val settings = ScalaCodeStyleSettings.getInstance(project)
-    if (!settings.USE_SCALAFMT_FORMATTER && ScalaFmtPreFormatProcessor.projectDefaultConfig(project).nonEmpty && state.enableForCurrentProject) {
+    if (!settings.USE_SCALAFMT_FORMATTER && ScalaFmtConfigUtil.projectDefaultConfig(project).nonEmpty && state.enableForCurrentProject) {
       //suggest the feature automatically
       createNotification.notify(project)
     }
