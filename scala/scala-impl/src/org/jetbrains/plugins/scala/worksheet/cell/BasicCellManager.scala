@@ -3,7 +3,7 @@ package org.jetbrains.plugins.scala.worksheet.cell
 import com.intellij.openapi.util.text.StringUtil
 import com.intellij.psi.{PsiComment, PsiElement, PsiFile, PsiWhiteSpace}
 import org.jetbrains.plugins.scala.lang.psi.api.ScalaFile
-import org.jetbrains.plugins.scala.worksheet.settings.{WorksheetFileSettings, WorksheetRunType}
+import org.jetbrains.plugins.scala.worksheet.settings.WorksheetFileSettings
 
 import scala.collection.{mutable, _}
 
@@ -16,7 +16,7 @@ class BasicCellManager extends CellManager {
   override def canHaveCells(file: PsiFile): Boolean = file match {
     case scalaFile: ScalaFile if scalaFile.isWorksheetFile => 
       refreshMarkers(file)
-      WorksheetFileSettings.getRunType(scalaFile) == WorksheetRunType.REPL_CELL
+      WorksheetFileSettings.getRunType(scalaFile).isUsesCell
     case _ => false
   }
 
@@ -82,7 +82,7 @@ class BasicCellManager extends CellManager {
   private def compare(element: PsiElement)(descriptor: CellDescriptor): Boolean = descriptor.getElement.contains(element)
   
   private def refreshMarkers(file: PsiFile): Unit = {
-    if (WorksheetFileSettings.getRunType(file) != WorksheetRunType.REPL_CELL) cells.remove(file)
+    if (!WorksheetFileSettings.getRunType(file).isUsesCell) cells.remove(file)
   }
 
   private def getSameFileCells(cellDescriptor: CellDescriptor): Option[mutable.TreeMap[Int, CellDescriptor]] =
@@ -97,14 +97,16 @@ class BasicCellManager extends CellManager {
   private def checkPair(comment: PsiComment, file: PsiFile): Boolean = canHaveCells(file) && checkComment(comment) && {
     def store(): Boolean = {
       val offset = comment.getTextOffset
+      val runType = WorksheetFileSettings.getRunType(file)
+      
       cells.get(file) match {
         case Some(fileCells) =>
           if (offset < fileCells.last._1) {
             fileCells.clear()
           }
-          fileCells.put(offset, CellDescriptor(comment))
+          fileCells.put(offset, CellDescriptor(comment, runType))
         case _ =>
-          cells.put(file, mutable.TreeMap((offset, CellDescriptor(comment))))
+          cells.put(file, mutable.TreeMap((offset, CellDescriptor(comment, runType))))
       }
 
       true

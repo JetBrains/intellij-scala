@@ -5,14 +5,14 @@ import com.intellij.openapi.actionSystem.impl.ActionButton;
 import com.intellij.openapi.module.Module;
 import com.intellij.openapi.project.Project;
 import com.intellij.psi.PsiFile;
-import com.intellij.ui.EnumComboBoxModel;
 import com.intellij.uiDesigner.core.GridConstraints;
 import com.intellij.uiDesigner.core.GridLayoutManager;
 import com.intellij.uiDesigner.core.Spacer;
 import org.jetbrains.plugins.scala.project.settings.ScalaCompilerSettingsProfile;
+import org.jetbrains.plugins.scala.worksheet.settings.RunTypes;
 import org.jetbrains.plugins.scala.worksheet.settings.WorksheetCommonSettings;
+import org.jetbrains.plugins.scala.worksheet.settings.WorksheetExternalRunType;
 import org.jetbrains.plugins.scala.worksheet.settings.WorksheetFileSettings;
-import org.jetbrains.plugins.scala.worksheet.settings.WorksheetRunType;
 import scala.Some;
 
 import javax.swing.*;
@@ -26,7 +26,6 @@ public class WorksheetSettingsSetForm {
   private PsiFile myFile;
   private Project myProject;
 
-  private JCheckBox useREPLModeCheckBox;
   private JCheckBox interactiveModeCheckBox;
   private JCheckBox makeProjectBeforeRunCheckBox;
   private ModulesComboBox moduleComboBox;
@@ -50,7 +49,7 @@ public class WorksheetSettingsSetForm {
   private void init(WorksheetSettingsData settingsData) {
     $$$setupUI$$$();
 
-    runTypeComboBox.setModel(new EnumComboBoxModel(WorksheetRunType.class));
+    runTypeComboBox.setModel(new DefaultComboBoxModel<>(RunTypes.getAllRunTypes()));
     runTypeComboBox.setSelectedItem(settingsData.runType);
     interactiveModeCheckBox.setSelected(settingsData.isInteractive);
     makeProjectBeforeRunCheckBox.setSelected(settingsData.isMakeBeforeRun);
@@ -74,10 +73,9 @@ public class WorksheetSettingsSetForm {
 
   public WorksheetSettingsData getSettings() {
     return new WorksheetSettingsData(
-        (WorksheetRunType) runTypeComboBox.getSelectedItem(),
         interactiveModeCheckBox.isSelected(),
         makeProjectBeforeRunCheckBox.isSelected(),
-        moduleComboBox.isEnabled() ? moduleComboBox.getSelectedModule() : null,
+        (WorksheetExternalRunType) runTypeComboBox.getSelectedItem(), moduleComboBox.isEnabled() ? moduleComboBox.getSelectedModule() : null,
         (ScalaCompilerSettingsProfile) compilerProfileComboBox.getSelectedItem(),
         null
     );

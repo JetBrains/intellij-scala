@@ -14,7 +14,7 @@ class RunCellMarkerContributor extends RunLineMarkerContributor {
       case Some(descriptor) =>
         new RunLineMarkerContributor.Info(
           AllIcons.RunConfigurations.TestState.Run,
-          Array[AnAction](new RunCellAction(descriptor)),
+          descriptor.createRunAction.toArray,
           new java.util.function.Function[PsiElement, String] {
             override def apply(v1: PsiElement): String = "Run"
           }

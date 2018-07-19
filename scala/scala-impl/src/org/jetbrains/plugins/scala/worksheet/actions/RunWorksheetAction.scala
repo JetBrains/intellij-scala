@@ -27,8 +27,8 @@ import org.jetbrains.plugins.scala.util.ScalaUtil
 import org.jetbrains.plugins.scala.worksheet.processor.WorksheetCompiler
 import org.jetbrains.plugins.scala.worksheet.runconfiguration.WorksheetCache
 import org.jetbrains.plugins.scala.worksheet.server.WorksheetProcessManager
-import org.jetbrains.plugins.scala.worksheet.settings.{WorksheetCommonSettings, WorksheetFileSettings, WorksheetRunType}
-import org.jetbrains.plugins.scala.worksheet.ui.WorksheetEditorPrinterFactory
+import org.jetbrains.plugins.scala.worksheet.settings.RunTypes.PlainRunType
+import org.jetbrains.plugins.scala.worksheet.settings.{WorksheetCommonSettings, WorksheetFileSettings}
 
 /**
  * @author Ksenia.Sautina
@@ -167,8 +167,8 @@ object RunWorksheetAction {
       case sc: ScalaFile => sc
       case _ => return 
     }
-
-    val worksheetPrinter =  WorksheetEditorPrinterFactory.newWorksheetUiFor(editor, scalaFile, WorksheetRunType.PLAIN)
+      
+    val worksheetPrinter = PlainRunType.createPrinter(editor, scalaFile)
 
     val myProcessListener: ProcessAdapter = new ProcessAdapter {
       override def onTextAvailable(event: ProcessEvent, outputType: Key[_]) {

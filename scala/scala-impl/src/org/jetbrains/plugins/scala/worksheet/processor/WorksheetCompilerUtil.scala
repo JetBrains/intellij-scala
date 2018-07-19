@@ -2,9 +2,10 @@ package org.jetbrains.plugins.scala.worksheet.processor
 
 import com.intellij.compiler.impl.CompilerErrorTreeView
 import com.intellij.openapi.application.ApplicationManager
-import com.intellij.openapi.editor.LogicalPosition
+import com.intellij.openapi.editor.{Editor, LogicalPosition}
 import com.intellij.openapi.project.Project
 import com.intellij.openapi.vfs.VirtualFile
+import com.intellij.psi.PsiErrorElement
 import com.intellij.ui.content.{ContentFactory, MessageView}
 import com.intellij.util.ui.MessageCategory
 import org.jetbrains.plugins.scala.project.migration.apiimpl.MigrationApiImpl
@@ -22,7 +23,17 @@ object WorksheetCompilerUtil {
   case class RunSimple(code: String) extends WorksheetCompileRunRequest
   case class RunRepl(code: String) extends WorksheetCompileRunRequest
   case class RunCompile(code: String, className: String) extends WorksheetCompileRunRequest
+  case class RunCustom(id: String, data: String) extends WorksheetCompileRunRequest
   case class ErrorWhileCompile(message: String, position: LogicalPosition) extends WorksheetCompileRunRequest
+  
+  object ErrorWhileCompile {
+    def apply(message: String, position: LogicalPosition): ErrorWhileCompile = new ErrorWhileCompile(message, position)
+    def apply(errorElement: PsiErrorElement, ifEditor: Option[Editor]): ErrorWhileCompile = 
+      new ErrorWhileCompile(
+        errorElement.getErrorDescription, 
+        ifEditor.map(_ offsetToLogicalPosition errorElement.getTextOffset) getOrElse new LogicalPosition(0, 0)
+      )
+  }
   
   sealed trait CompilationMessageSeverity {
     def toType: Int

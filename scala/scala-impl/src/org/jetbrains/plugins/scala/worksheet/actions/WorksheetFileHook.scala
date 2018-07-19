@@ -156,8 +156,7 @@ class WorksheetFileHook(private val project: Project) extends AbstractProjectCom
             PsiDocumentManager getInstance project getPsiFile ext.getDocument match {
               case scalaFile: ScalaFile => WorksheetEditorPrinterFactory.loadWorksheetEvaluation(scalaFile) foreach {
                 case (result, ratio) if !result.isEmpty =>
-                  val viewer = WorksheetEditorPrinterFactory.setupRightSideViewer(
-                    ext, file, WorksheetEditorPrinterFactory.createWorksheetEditor(ext), modelSync = true)
+                  val viewer = WorksheetEditorPrinterFactory.createViewer(ext, file)
                   val document = viewer.getDocument
 
                   val splitter = WorksheetEditorPrinterFactory.DIFF_SPLITTER_KEY.get(viewer)
