@@ -75,7 +75,7 @@ class SbtFileImpl(provider: FileViewProvider) extends ScalaFileImpl(provider, Sb
         .flatMap(ClassInheritorsSearch.search(_, moduleScope, true).findAll.asScala)
     }
   }
-
+  // TODO this might benefit a bit from caching, it is called for every expression
   override def getFileResolveScope: GlobalSearchScope =
     projectDefinitionModule.fold(super.getFileResolveScope)(_.getModuleWithDependenciesAndLibrariesScope(false))
 

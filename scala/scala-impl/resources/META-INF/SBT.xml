@@ -5,7 +5,7 @@
 
     <module-components>
         <component>
-            <implementation-class>org.jetbrains.sbt.project.module.SbtModule$ModuleState</implementation-class>
+            <implementation-class>org.jetbrains.sbt.project.module.SbtModule</implementation-class>
         </component>
     </module-components>
 
