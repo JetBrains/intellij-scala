@@ -76,7 +76,7 @@ class ScalaBlock(val myParentBlock: ScalaBlock,
           new ChildAttributes(Indent.getSpaceIndent(scalafmtConfig.continuationIndent.defnSite), null)
         case _: ScArguments if newChildIndex != 0 =>
           new ChildAttributes(Indent.getSpaceIndent(scalafmtConfig.continuationIndent.callSite), null)
-        case m: ScMatchStmt if m.caseClauses.isEmpty =>
+        case m: ScMatchStmt if m.caseClauses.nonEmpty =>
           new ChildAttributes(Indent.getSpaceIndent(4), null)
         case _: ScBlock | _: ScTemplateBody| _: ScMatchStmt | _: ScCaseClauses | _: ScCaseClause =>
           new ChildAttributes(Indent.getSpaceIndent(2), null)
