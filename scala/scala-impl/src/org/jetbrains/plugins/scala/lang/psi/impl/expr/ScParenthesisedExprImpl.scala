@@ -7,6 +7,7 @@ package expr
 import com.intellij.lang.ASTNode
 import org.jetbrains.plugins.scala.lang.psi.api.expr._
 import org.jetbrains.plugins.scala.lang.psi.types.result._
+import org.jetbrains.plugins.scala.lang.resolve.ScalaResolveResult
 
 /**
   * @author Alexander Podkhalyuzin
@@ -23,6 +24,9 @@ class ScParenthesisedExprImpl(node: ASTNode) extends ScExpressionImplBase(node) 
       case _ => Failure("No expression in parentheseses")
     }
   }
+
+  // implicit arguments are owned by inner element
+  override def findImplicitArguments: Option[Seq[ScalaResolveResult]] = None
 
   override def toString: String = "ExpressionInParenthesis"
 }
