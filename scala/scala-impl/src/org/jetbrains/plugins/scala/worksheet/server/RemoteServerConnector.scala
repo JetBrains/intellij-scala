@@ -197,7 +197,7 @@ object RemoteServerConnector {
     def trace(thr: Throwable)
   }
   
-  class CompilerInterfaceImpl(task: CompilerTask, worksheetPrinter: WorksheetEditorPrinter,
+  class CompilerInterfaceImpl(task: CompilerTask, worksheetPrinter: Option[WorksheetEditorPrinter],
                               indicator: Option[ProgressIndicator], auto: Boolean = false) extends OuterCompilerInterface {
     override def progress(text: String, done: Option[Float]) {
       if (auto) return
@@ -215,11 +215,11 @@ object RemoteServerConnector {
     }
 
     override def worksheetOutput(text: String) {
-      worksheetPrinter.processLine(text)
+      worksheetPrinter.foreach(_ processLine text)
     }
 
     override def trace(thr: Throwable) {
-      worksheetPrinter internalError s"${thr.getMessage}\n${thr.getStackTrace mkString "\n"}"
+      worksheetPrinter.foreach(_ internalError s"${thr.getMessage}\n${thr.getStackTrace mkString "\n"}")
     }
   }
 }
