@@ -42,7 +42,7 @@ class WorksheetCompiler(editor: Editor, worksheetFile: ScalaFile, callback: (Str
   private def createCompilerTask: CompilerTask =
     new CompilerTask(project, s"Worksheet ${worksheetFile.getName} compilation", false, false, false, false)
   
-  private def createWorksheetPrinter: WorksheetEditorPrinter = runType.createPrinter(editor, worksheetFile)
+  private def createWorksheetPrinter: Option[WorksheetEditorPrinter] = runType.createPrinter(editor, worksheetFile)
 
   private def runCompilerTask(className: String, code: String, tempFile: File, outputDir: File) {
     val afterCompileRunnable = if (makeType == OutOfProcessServer) new Runnable {
