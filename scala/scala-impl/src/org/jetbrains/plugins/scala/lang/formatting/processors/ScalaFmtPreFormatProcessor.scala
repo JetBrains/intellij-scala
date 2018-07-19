@@ -160,11 +160,16 @@ object ScalaFmtPreFormatProcessor {
         (Seq(file), formattedCode, false)
       case _ =>
         val wrapElements = elementsInRangeWrapped(file, range)
-        if (wrapElements.isEmpty) return 0
+        if (wrapElements.isEmpty) {
+          reportInvalidCodeFailure(project)
+          return 0
+        }
         val elementsText = wrapElements.map(getText).mkString("")
         Scalafmt.format(wrap(elementsText), config) match {
           case Success(formattedCode) => (wrapElements, formattedCode, true)
-          case _ => return 0
+          case _ =>
+            reportInvalidCodeFailure(project)
+            return 0
         }
     }
     val wrapFile = PsiFileFactory.getInstance(project).createFileFromText("ScalaFmtFormatWrapper", ScalaFileType.INSTANCE, formatted)
