@@ -8,6 +8,7 @@ import com.intellij.lang.ASTNode
 import com.intellij.openapi.project.Project
 import com.intellij.openapi.ui.MessageType
 import com.intellij.openapi.ui.popup.{Balloon, JBPopupFactory}
+import com.intellij.openapi.util.text.StringUtil
 import com.intellij.openapi.util.{Key, TextRange}
 import com.intellij.openapi.vfs.{StandardFileSystems, VirtualFile}
 import com.intellij.openapi.wm.ex.WindowManagerEx
@@ -115,7 +116,7 @@ object ScalaFmtPreFormatProcessor {
       var currentDelta = (0, 0)
       while (iterator.hasNext && currentDelta._1 < startOffset) {
         currentDelta = iterator.next()
-        if (currentDelta._1 < startOffset) startOffset += currentDelta._2
+        if (currentDelta._1 <= startOffset) startOffset += currentDelta._2
       }
       new TextRange(startOffset, startOffset + range.getLength)
     }.getOrElse(range)
@@ -285,7 +286,8 @@ object ScalaFmtPreFormatProcessor {
 
   private case class Replace(original: PsiElement, formatted: PsiElement) extends PsiChange {
     def doApply(): Int = {
-      val delta = addDelta(original, formatted.getTextLength - original.getTextLength)
+      val commonPrefixLength = StringUtil.commonPrefix(original.getText, formatted.getText).length
+      val delta = addDelta(original.getTextRange.getStartOffset + commonPrefixLength, original.getContainingFile, formatted.getTextLength - original.getTextLength)
       inWriteAction(original.replace(formatted))
       delta
     }
@@ -418,11 +420,13 @@ object ScalaFmtPreFormatProcessor {
 
   private val rangesDeltaCache: mutable.Map[PsiFile, mutable.TreeSet[(Int, Int)]] = mutable.Map[PsiFile, mutable.TreeSet[(Int, Int)]]()
 
-  private def addDelta(element: PsiElement, delta: Int): Int = {
-    val cache = rangesDeltaCache.getOrElseUpdate(element.getContainingFile, mutable.TreeSet[(Int, Int)]())
-    cache.add(element.getTextRange.getStartOffset, delta)
+  private def addDelta(offset: Int, containingFile: PsiFile, delta: Int): Int = {
+    val cache = rangesDeltaCache.getOrElseUpdate(containingFile, mutable.TreeSet[(Int, Int)]())
+    cache.add(offset, delta)
     delta
   }
+
+  private def addDelta(element: PsiElement, delta: Int): Int = addDelta(element.getTextRange.getStartOffset, element.getContainingFile, delta)
 
   def clearRangesCache(): Unit = rangesDeltaCache.clear()
 }
