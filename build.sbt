@@ -122,7 +122,7 @@ lazy val nailgunRunners =
     .settings(
       libraryDependencies += Dependencies.nailgun,
       packageLibraryMappings += Dependencies.nailgun -> Some("lib/jps/nailgun.jar"),
-      packageMethod := PackagingMethod.Standalone("lib/scala-nailgun-runners.jar")
+      packageMethod := PackagingMethod.Standalone("lib/scala-nailgun-runner.jar")
     )
 
 lazy val decompiler =
