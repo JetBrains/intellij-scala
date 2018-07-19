@@ -54,7 +54,7 @@ class ScalaFmtSuggesterComponent(val project: Project) extends ProjectComponent 
   }
 
   private def createNotification: Notification = {
-    notificationGroup.createNotification("Scalafmt configuration detected",
+    notificationGroup.createNotification("Scalafmt configuration detected in this project",
       wrapInRef(enableProjectDescription, enableProjectText) + wrapInRef(dontShowDescription, dontShowText),
       NotificationType.INFORMATION, listener)
   }
@@ -76,9 +76,9 @@ class ScalaFmtSuggesterComponent(val project: Project) extends ProjectComponent 
 
   private def wrapInRef(description: String, text: String) = s"""<a href="$description">$text</a><br/>"""
   private val enableProjectDescription = "enable"
-  private val enableProjectText = "Use scalafmt formatter in this project"
+  private val enableProjectText = "Use scalafmt formatter"
   private val dontShowDescription = "dont show"
-  private val dontShowText = "Don't suggest again for this project"
+  private val dontShowText = "Continue using IntelliJ formatter"
 
   private def isProjectLevelConfiguration: Boolean = {
     val schemesModel = new CodeStyleSchemesModel(project)
