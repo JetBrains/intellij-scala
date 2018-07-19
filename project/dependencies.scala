@@ -99,7 +99,6 @@ object Dependencies {
   val macroParadise: ModuleID = "org.scalameta" % "paradise" % paradiseVersion cross CrossVersion.full
   val scalaMetaCore: ModuleID = "org.scalameta" %% "scalameta" % scalaMetaVersion withSources() exclude("com.google.protobuf", "protobuf-java")
   val fastparse: ModuleID = "com.lihaoyi" % s"fastparse_$scalaBinaryVersion" % "0.4.3" // transitive dependency of scalaMeta, needs explicit versioning
-  val scalaMacros2: ModuleID = "org.scalamacros" %% "scalamacros" % ScalamacrosVersion
 
   val bcel: ModuleID = "org.apache.bcel" % "bcel" % "6.0"
 
@@ -131,7 +130,6 @@ object DependencyGroups {
     scalaReflect,
     scalaXml,
     scalaMetaCore,
-    scalaMacros2,
     scalaParserCombinators,
     sbtStructureCore,
     evoInflector,
