@@ -8,6 +8,8 @@ import com.intellij.openapi.module.{Module, ModuleManager}
 import com.intellij.openapi.project.Project
 import org.jetbrains.sbt.resolvers.SbtResolver
 
+import scala.beans.BeanProperty
+
 /**
  * @author Pavel Fatin
  */
@@ -21,8 +23,8 @@ object SbtModule {
   @Deprecated
   private val ResolversKey = "sbt.resolvers"
 
-  private def getState(module: Module): SbtModule.ModuleState =
-    module.getComponent(classOf[ModuleState])
+  private def getState(module: Module): SbtModuleState =
+    module.getComponent(classOf[SbtModule]).getState
 
   def getImportsFrom(module: Module): Seq[String] =
     Option(getState(module).imports)
@@ -85,24 +87,30 @@ object SbtModule {
       .replace(substitutePrefix+substitutePrefix, substitutePrefix)
       .replace(substitutePrefix+substituteDollar,"$")
 
-  @State(
-    name = "SbtModule",
-    storages = Array(new Storage(StoragePathMacros.MODULE_FILE))
-  )
-  class ModuleState extends PersistentStateComponent[ModuleState] {
+}
 
-    var imports: String = ""
-    var resolvers: String = ""
-    var buildForId: String = ""
-    var buildForURI: String = ""
+@State(
+  name = "SbtModule",
+  storages = Array(new Storage(StoragePathMacros.MODULE_FILE))
+)
+class SbtModule extends PersistentStateComponent[SbtModuleState] {
 
-    override def getState: ModuleState = this
-    override def loadState(state: ModuleState): Unit = {
-      imports = state.imports
-      resolvers = state.resolvers
-      buildForId = state.buildForId
-      buildForURI = state.buildForURI
-    }
+  @BeanProperty
+  var myState: SbtModuleState = new SbtModuleState()
+
+  override def getState: SbtModuleState = myState
+  override def loadState(state: SbtModuleState): Unit = {
+    myState = state
   }
+}
 
+class SbtModuleState {
+  @BeanProperty
+  var imports: String = ""
+  @BeanProperty
+  var resolvers: String = ""
+  @BeanProperty
+  var buildForId: String = ""
+  @BeanProperty
+  var buildForURI: String = ""
 }
