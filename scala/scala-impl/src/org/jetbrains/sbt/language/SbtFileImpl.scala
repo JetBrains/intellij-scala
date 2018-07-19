@@ -2,6 +2,7 @@ package org.jetbrains.sbt
 package language
 
 import com.intellij.openapi.module.{Module, ModuleManager, ModuleUtilCore}
+import com.intellij.openapi.roots.ProjectRootManager
 import com.intellij.psi.scope.PsiScopeProcessor
 import com.intellij.psi.search.GlobalSearchScope
 import com.intellij.psi.search.searches.ClassInheritorsSearch
@@ -11,7 +12,7 @@ import org.jetbrains.plugins.scala.lang.psi.ScDeclarationSequenceHolder
 import org.jetbrains.plugins.scala.lang.psi.api.ScalaFile
 import org.jetbrains.plugins.scala.lang.psi.impl.ScalaPsiElementFactory.createScalaFileFromText
 import org.jetbrains.plugins.scala.lang.psi.impl.{ScalaFileImpl, ScalaPsiManager}
-import org.jetbrains.plugins.scala.macroAnnotations.{Cached, ModCount}
+import org.jetbrains.plugins.scala.macroAnnotations.{Cached, CachedInUserData, ModCount}
 import org.jetbrains.sbt.project.module.SbtModule
 
 import scala.collection.JavaConverters._
@@ -75,7 +76,8 @@ class SbtFileImpl(provider: FileViewProvider) extends ScalaFileImpl(provider, Sb
         .flatMap(ClassInheritorsSearch.search(_, moduleScope, true).findAll.asScala)
     }
   }
-  // TODO this might benefit a bit from caching, it is called for every expression
+
+  @CachedInUserData(this, ProjectRootManager.getInstance(getProject))
   override def getFileResolveScope: GlobalSearchScope =
     projectDefinitionModule.fold(super.getFileResolveScope)(_.getModuleWithDependenciesAndLibrariesScope(false))
 
