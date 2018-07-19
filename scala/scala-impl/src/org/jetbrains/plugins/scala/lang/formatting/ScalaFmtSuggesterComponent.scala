@@ -25,6 +25,7 @@ class ScalaFmtSuggesterComponent(val project: Project) extends ProjectComponent 
           createNotification.notify(project)
         case ScalaCodeStyleSettings.ALWAYS_SCALAFMT_ENABLE =>
           enableForProject()
+          notificationGroup.createNotification("This project is set to use scalafmt formatter", NotificationType.INFORMATION).notify(project)
         case _ =>
       }
     }
@@ -50,15 +51,12 @@ class ScalaFmtSuggesterComponent(val project: Project) extends ProjectComponent 
     val newSettings = scheme.getCodeStyleSettings.getCustomSettings(classOf[ScalaCodeStyleSettings])
     newSettings.FORMATTER = ScalaCodeStyleSettings.SCALAFMT_FORMATTER
     codeStyleSchemesModel.apply()
-    notificationGroup.createNotification("Scalafmt formatting enabled in this project", NotificationType.INFORMATION).notify(project)
   }
 
   private def createNotification: Notification = {
-    val builder = new StringBuilder()
-    builder.append("Enable scalafmt formatting in the project?<br/>").append(wrapInRef(enableProjectDescription, enableProjectText))
-    if (!isProjectLevelConfiguration) builder.append(wrapInRef(enableAllDescription, enableAllText))
-    builder.append(wrapInRef(dontShowDescription, dontShowText))
-    notificationGroup.createNotification("Scalafmt configuration detected in this project", builder.toString(), NotificationType.INFORMATION, listener)
+    notificationGroup.createNotification("Scalafmt configuration detected",
+      wrapInRef(enableProjectDescription, enableProjectText) + wrapInRef(dontShowDescription, dontShowText),
+      NotificationType.INFORMATION, listener)
   }
 
   private val listener: NotificationListener = new NotificationListener.Adapter {
@@ -67,10 +65,6 @@ class ScalaFmtSuggesterComponent(val project: Project) extends ProjectComponent 
       e.getDescription match {
         case `enableProjectDescription` =>
           enableForProject()
-        case `enableAllDescription` =>
-          val settings = ScalaCodeStyleSettings.getInstance(project)
-          settings.DETECT_SCALAFMT = ScalaCodeStyleSettings.ALWAYS_SCALAFMT_ENABLE
-          settings.FORMATTER = ScalaCodeStyleSettings.SCALAFMT_FORMATTER
         case `dontShowDescription` =>
           val newState = new ScalaFmtSuggesterComponent.State()
           newState.enableForCurrentProject = false
@@ -82,9 +76,7 @@ class ScalaFmtSuggesterComponent(val project: Project) extends ProjectComponent 
 
   private def wrapInRef(description: String, text: String) = s"""<a href="$description">$text</a><br/>"""
   private val enableProjectDescription = "enable"
-  private val enableProjectText = "Enable in this project"
-  private val enableAllDescription = "enableAll"
-  private val enableAllText = "Enable in all projects with scalafmt configurations"
+  private val enableProjectText = "Use scalafmt formatter in this project"
   private val dontShowDescription = "dont show"
   private val dontShowText = "Don't suggest again for this project"
 
@@ -101,5 +93,5 @@ object ScalaFmtSuggesterComponent {
     var enableForCurrentProject: Boolean = true
   }
 
-  val notificationGroup: NotificationGroup = NotificationGroup.balloonGroup("Scalafmt suggester")
+  val notificationGroup: NotificationGroup = NotificationGroup.balloonGroup("Scalafmt detection")
 }
