@@ -62,7 +62,7 @@ object ExhaustiveMatchCompletionContributor {
     final def replacement(implicit place: PsiElement): String =
       patterns.map {
         case (pattern, _) => s"$CASE $pattern ${ScalaPsiUtil.functionArrow}"
-      }.mkString(MATCH + "{", " ", "}")
+      }.mkString(MATCH + "{\n", "\n", "\n}")
 
     protected def patterns(implicit place: PsiElement): Seq[NameAndElement]
   }
