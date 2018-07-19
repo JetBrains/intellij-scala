@@ -19,14 +19,13 @@ import org.jetbrains.plugins.scala.editor.typedHandler.ScalaTypedHandler
 import org.jetbrains.plugins.scala.extensions._
 import org.jetbrains.plugins.scala.lang.formatting.settings.ScalaCodeStyleSettings._
 import org.jetbrains.plugins.scala.lang.lexer.ScalaTokenTypes
-import org.jetbrains.plugins.scala.lang.psi.api.ScalaFile
-import org.jetbrains.plugins.scala.lang.psi.api.base.types.ScSimpleTypeElement
 import org.jetbrains.plugins.scala.lang.psi.api.base.{ScConstructor, ScReferenceElement, ScStableCodeReferenceElement}
 import org.jetbrains.plugins.scala.lang.psi.api.expr.{ScExpression, ScForStatement, ScMethodCall}
 import org.jetbrains.plugins.scala.lang.psi.api.toplevel.imports.ScImportStmt
 import org.jetbrains.plugins.scala.lang.psi.api.toplevel.imports.usages.ImportUsed
 import org.jetbrains.plugins.scala.lang.psi.api.toplevel.typedef.{ScObject, ScTypeDefinition}
 import org.jetbrains.plugins.scala.lang.psi.api.toplevel.{ScPackaging, ScTypedDefinition}
+import org.jetbrains.plugins.scala.lang.psi.api.{ImplicitArgumentsOwner, ScalaFile}
 import org.jetbrains.plugins.scala.lang.psi.impl.ScalaPsiElementFactory
 import org.jetbrains.plugins.scala.lang.psi.{ScImportsHolder, ScalaPsiUtil}
 import org.jetbrains.plugins.scala.lang.resolve.ScalaResolveResult
@@ -313,8 +312,8 @@ object ScalaImportOptimizer {
 
   private object ImportUser {
     def unapply(e: PsiElement): Option[PsiElement] = e match {
-      case elem @ (_: ScReferenceElement | _: ScSimpleTypeElement | _: ScExpression) => Some(elem)
-      case _ => None
+      case elem @ (_: ScReferenceElement | _: ImplicitArgumentsOwner) => Some(elem)
+      case _                                                          => None
     }
   }
 
