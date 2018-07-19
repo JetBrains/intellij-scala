@@ -61,13 +61,10 @@ lazy val scalaImpl: sbt.Project =
         "org.scalameta" %% ".*" % ".*"                        -> Some("lib/scalameta.jar"),
         "com.trueaccord.scalapb" %% "scalapb-runtime" % ".*"  -> None,
         "com.trueaccord.lenses" %% "lenses" % ".*"            -> None,
-        "com.lihaoyi" %% "sourcecode" % ".*"                  -> None,
         "com.lihaoyi" %% "fastparse-utils" % ".*"             -> None,
-        "com.typesafe" % "config" % ".*"                      -> None,
         "commons-lang" % "commons-lang" % ".*"                -> None,
         Dependencies.scalaXml                                 -> Some("lib/scala-xml.jar"),
         Dependencies.scalaReflect                             -> Some("lib/scala-reflect.jar"),
-        Dependencies.scalaParserCombinators                   -> Some("lib/scala-parser-combinators.jar"),
         Dependencies.scalaLibrary                             -> None
       ),
       packageFileMappings += baseDirectory.in(compilerJps).value / "resources" / "ILoopWrapperImpl.scala" ->
