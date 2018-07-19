@@ -34,9 +34,7 @@ class ReformatOnCompileTask(project: Project) extends AbstractProjectComponent(p
     virtualFile <- compileScope.getFiles(ScalaFileType.INSTANCE, true)
 
     psiManager = PsiManager.getInstance(myProject)
-    psiFile = inReadAction(psiManager.findFile(virtualFile))
-    if psiFile != null
-    if psiFile.isInstanceOf[ScalaFile] && !psiFile.asInstanceOf[ScalaFile].isWorksheetFile
+    psiFile <- inReadAction(psiManager.findFile(virtualFile).asOptionOf[ScalaFile].filterNot(_.isWorksheetFile))
   } {
     Application.invokeAndWait {
       CommandProcessor.runUndoTransparentAction {
