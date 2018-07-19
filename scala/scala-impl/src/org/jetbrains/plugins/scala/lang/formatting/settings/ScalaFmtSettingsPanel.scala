@@ -73,8 +73,3 @@ class ScalaFmtSettingsPanel(val settings: CodeStyleSettings) extends CodeStyleAb
   private var externalFormatterSettingsPath: TextFieldWithBrowseButton = _
   private val customSettingsTitle = "Select custom scalafmt configuration file"
 }
-
-object ScalaFmtSettingsPanel {
-  private val detectSettings: Map[String, Int] = Map(("Ask for projects with scalafmt configuration", ScalaCodeStyleSettings.ASK_SCALAFMT_ENABLE),
-    ("Apply for projects with scalafmt configuration", ScalaCodeStyleSettings.ALWAYS_SCALAFMT_ENABLE))
-}
