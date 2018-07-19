@@ -133,25 +133,26 @@ object ScalaFmtPreFormatProcessor {
       if (prev != null && !prev.isInstanceOf[PsiWhiteSpace]) new TextRange(prev.getTextRange.getEndOffset - 1, range.getEndOffset) else range
     } else range
 
-    val delta = formatRange(file, rangeUpdated)
-    def moveRanges(textRanges: TextRanges): TextRanges = {
-      textRanges.ranges.map{ otherRange =>
-        if (otherRange.getEndOffset <= rangeUpdated.getStartOffset) otherRange
-        else if (otherRange.getStartOffset >= rangeUpdated.getEndOffset) otherRange.shiftRight(delta)
-        else TextRange.EMPTY_RANGE
-      }.foldLeft(new TextRanges())((acc, aRange) => acc.union(aRange))
+    formatRange(file, rangeUpdated).foreach { delta =>
+      def moveRanges(textRanges: TextRanges): TextRanges = {
+        textRanges.ranges.map { otherRange =>
+          if (otherRange.getEndOffset <= rangeUpdated.getStartOffset) otherRange
+          else if (otherRange.getStartOffset >= rangeUpdated.getEndOffset) otherRange.shiftRight(delta)
+          else TextRange.EMPTY_RANGE
+        }.foldLeft(new TextRanges())((acc, aRange) => acc.union(aRange))
+      }
+
+      val ranges = if (cached._2 == file.getModificationStamp) moveRanges(cached._1) else new TextRanges
+
+      file.putUserData(FORMATTED_RANGES_KEY, (ranges.union(rangeUpdated.grown(delta)), file.getModificationStamp))
     }
-
-    val ranges = if (cached._2 == file.getModificationStamp) moveRanges(cached._1) else new TextRanges
-
-    file.putUserData(FORMATTED_RANGES_KEY, (ranges.union(rangeUpdated.grown(delta)), file.getModificationStamp))
   }
 
-  private def formatRange(file: PsiFile, range: TextRange): Int = {
+  private def formatRange(file: PsiFile, range: TextRange): Option[Int] = {
     val project = file.getProject
     val manager = PsiDocumentManager.getInstance(project)
     val document = manager.getDocument(file)
-    if (document == null) return 0
+    if (document == null) return None
     implicit val fileText: String = file.getText
     val config = configFor(file)
     val wholeFileFormatResult = if (range == file.getTextRange) Scalafmt.format(fileText, config).toEither.toOption else None
@@ -162,20 +163,20 @@ object ScalaFmtPreFormatProcessor {
         val wrapElements = elementsInRangeWrapped(file, range)
         if (wrapElements.isEmpty) {
           reportInvalidCodeFailure(project)
-          return 0
+          return None
         }
         val elementsText = wrapElements.map(getText).mkString("")
         Scalafmt.format(wrap(elementsText), config) match {
           case Success(formattedCode) => (wrapElements, formattedCode, true)
           case _ =>
             reportInvalidCodeFailure(project)
-            return 0
+            return None
         }
     }
     val wrapFile = PsiFileFactory.getInstance(project).createFileFromText("ScalaFmtFormatWrapper", ScalaFileType.INSTANCE, formatted)
     val textRangeDelta = replaceWithFormatted(wrapFile, elements, range, wrapped)
     manager.commitDocument(document)
-    textRangeDelta
+    Some(textRangeDelta)
   }
 
   private val wrapPrefix = "class ScalaFmtFormatWrapper {\n"
