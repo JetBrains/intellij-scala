@@ -39,6 +39,7 @@ class ScalaFmtSettingsPanel(val settings: CodeStyleSettings) extends CodeStyleAb
   override def resetImpl(codeStyleSettings: CodeStyleSettings): Unit = {
     val scalaCodeStyleSettings = codeStyleSettings.getCustomSettings(classOf[ScalaCodeStyleSettings])
     externalFormatterSettingsPath.setText(scalaCodeStyleSettings.SCALAFMT_CONFIG_PATH)
+    externalFormatterSettingsPath.getButton.grabFocus()
   }
 
 
