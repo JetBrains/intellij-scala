@@ -45,7 +45,7 @@ class ScalaFmtSettingsPanel(val settings: CodeStyleSettings) extends CodeStyleAb
 
   override def getPanel: JComponent = {
     if (myPanel == null) {
-      myPanel = new JPanel(new VerticalFlowLayout())
+      myPanel = new JPanel(new VerticalFlowLayout(0, 0))
       val inner = new JPanel(new GridLayoutManager(1, 3, new Insets(10, 10, 10, 10), -1, -1))
       inner.add(new JLabel("Configuration:"),
         new GridConstraints(0, 0, 1, 1, GridConstraints.ANCHOR_WEST, GridConstraints.FILL_NONE,
