@@ -170,10 +170,6 @@ public class ScalaCodeStyleSettings extends CustomCodeStyleSettings {
 
   //global
   public boolean REFORMAT_ON_COMPILE = false;
-  public int DETECT_SCALAFMT = ASK_SCALAFMT_ENABLE;
-
-  public static final int ASK_SCALAFMT_ENABLE = 0;
-  public static final int ALWAYS_SCALAFMT_ENABLE = 1;
 
   @Override
   public void readExternal(Element parentElement) throws InvalidDataException {

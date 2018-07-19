@@ -20,14 +20,7 @@ class ScalaFmtSuggesterComponent(val project: Project) extends ProjectComponent 
     val settings = ScalaCodeStyleSettings.getInstance(project)
     if (!settings.USE_SCALAFMT_FORMATTER && ScalaFmtPreFormatProcessor.projectDefaultConfig(project).nonEmpty && state.enableForCurrentProject) {
       //suggest the feature automatically
-      settings.DETECT_SCALAFMT match {
-        case ScalaCodeStyleSettings.ASK_SCALAFMT_ENABLE =>
-          createNotification.notify(project)
-        case ScalaCodeStyleSettings.ALWAYS_SCALAFMT_ENABLE =>
-          enableForProject()
-          notificationGroup.createNotification("This project is set to use scalafmt formatter", NotificationType.INFORMATION).notify(project)
-        case _ =>
-      }
+      createNotification.notify(project)
     }
   }
 
