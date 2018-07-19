@@ -70,7 +70,7 @@ class ScalaBlock(val myParentBlock: ScalaBlock,
         case _ => false
       })
     if (scalaSettings.USE_SCALAFMT_FORMATTER) {
-      val scalafmtConfig = ScalaFmtPreFormatProcessor.configFor(parent.getContainingFile)
+      val scalafmtConfig = ScalaFmtConfigUtil.configFor(parent.getContainingFile)
       parent match {
         case _: ScParameterClause if newChildIndex != 0 =>
           new ChildAttributes(Indent.getSpaceIndent(scalafmtConfig.continuationIndent.defnSite), null)

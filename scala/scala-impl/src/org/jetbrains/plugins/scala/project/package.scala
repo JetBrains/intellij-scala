@@ -193,8 +193,6 @@ package object project {
       if (project.hasDotty) DottyLanguage.INSTANCE else ScalaLanguage.INSTANCE
 
     def isPartialUnificationEnabled: Boolean = modulesWithScala.exists(_.isPartialUnificationEnabled)
-
-    def getScalafmtProjectConfig(vFile: VirtualFile): ScalafmtConfig = ScalaFmtPreFormatProcessor.storeOrUpdate(vFile, project)
   }
 
   implicit class UserDataHolderExt(val holder: UserDataHolder) extends AnyVal {
