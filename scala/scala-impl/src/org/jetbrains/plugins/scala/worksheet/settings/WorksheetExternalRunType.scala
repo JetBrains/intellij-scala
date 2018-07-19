@@ -22,6 +22,8 @@ abstract class WorksheetExternalRunType {
 
   def createPrinter(editor: Editor, file: ScalaFile): WorksheetEditorPrinter
 
+  def showAdditionalSettingsPanel(): Option[() => Unit] = None
+  
   def process(srcFile: ScalaFile, ifEditor: Option[Editor]): WorksheetCompileRunRequest = RunSimple(
     WorksheetSourceProcessor.processSimple(srcFile, ifEditor)
   )
