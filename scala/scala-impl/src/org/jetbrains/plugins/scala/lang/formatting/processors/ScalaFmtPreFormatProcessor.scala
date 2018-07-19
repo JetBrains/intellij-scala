@@ -286,11 +286,11 @@ object ScalaFmtPreFormatProcessor {
         val isInRange = originalElement.getTextRange.intersectsStrict(range)
         (originalElement, formattedElement) match {
           case (originalWs: PsiWhiteSpace, formattedWs: PsiWhiteSpace) => //replace whitespace
-            res += Replace(originalWs, widenWs(formattedWs))
+            if (originalWs.getText != formattedWs.getText) res += Replace(originalWs, widenWs(formattedWs))
             originalIndex += 1
             formattedIndex += 1
           case (_, formattedWs: PsiWhiteSpace) => //a whitespace has been added
-            res += Insert(originalElement, formattedWs)
+            res += Insert(originalElement, widenWs(formattedWs))
             formattedIndex += 1
           case (originalWs: PsiWhiteSpace, _) => //a whitespace has been removed
             res += Remove(originalWs)
