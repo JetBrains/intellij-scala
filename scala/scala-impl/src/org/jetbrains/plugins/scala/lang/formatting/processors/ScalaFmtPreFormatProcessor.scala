@@ -382,6 +382,7 @@ object ScalaFmtPreFormatProcessor {
   private def reportError(errorText: String, project: Project): Unit = {
     val popupFactory = JBPopupFactory.getInstance
     val frame = WindowManagerEx.getInstanceEx.getFrame(project)
+    if (frame == null) return
     val balloon = popupFactory.createHtmlTextBalloonBuilder(
       errorText,
       MessageType.WARNING,
