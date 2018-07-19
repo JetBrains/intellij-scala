@@ -17,6 +17,8 @@ import scala.Some;
 
 import javax.swing.*;
 import java.awt.*;
+import java.awt.event.ActionEvent;
+import java.awt.event.ActionListener;
 
 /**
  * User: Dmitry.Naydanov
@@ -33,6 +35,7 @@ public class WorksheetSettingsSetForm {
   private JComboBox<ScalaCompilerSettingsProfile> compilerProfileComboBox;
   private ActionButton openCompilerProfileSettingsButton;
   private JComboBox runTypeComboBox;
+  private ActionButton additionalSettingsButton;
 
   WorksheetSettingsSetForm(PsiFile file, WorksheetSettingsData settingsData) {
     myFile = file;
@@ -51,10 +54,19 @@ public class WorksheetSettingsSetForm {
 
     runTypeComboBox.setModel(new DefaultComboBoxModel<>(RunTypes.getAllRunTypes()));
     runTypeComboBox.setSelectedItem(settingsData.runType);
+    
+    runTypeComboBox.addActionListener(new ActionListener() {
+      @Override
+      public void actionPerformed(ActionEvent e) {
+        additionalSettingsButton.setVisible(isAdditionalSettingsShown());
+      }
+    });
+    
     interactiveModeCheckBox.setSelected(settingsData.isInteractive);
     makeProjectBeforeRunCheckBox.setSelected(settingsData.isMakeBeforeRun);
     compilerProfileComboBox.setModel(new DefaultComboBoxModel<>(settingsData.profiles));
     compilerProfileComboBox.setSelectedItem(settingsData.compilerProfile);
+    additionalSettingsButton.setVisible(isAdditionalSettingsShown());
   }
 
   public JPanel getMainPanel() {
@@ -63,6 +75,10 @@ public class WorksheetSettingsSetForm {
 
   public PsiFile getFile() {
     return myFile;
+  }
+
+  public WorksheetExternalRunType getRunType() {
+    return (WorksheetExternalRunType) runTypeComboBox.getSelectedItem();
   }
 
   public void onProfilesReload(ScalaCompilerSettingsProfile compilerProfile, ScalaCompilerSettingsProfile[] profiles) {
@@ -80,6 +96,11 @@ public class WorksheetSettingsSetForm {
         null
     );
   }
+  
+  private boolean isAdditionalSettingsShown() {
+    return runTypeComboBox.getSelectedItem() != null &&
+        ((WorksheetExternalRunType) runTypeComboBox.getSelectedItem()).showAdditionalSettingsPanel().isDefined();
+  }
 
   private void createUIComponents() {
     moduleComboBox = new ModulesComboBox();
@@ -96,6 +117,7 @@ public class WorksheetSettingsSetForm {
     }
 
     openCompilerProfileSettingsButton = new ShowCompilerProfileSettingsButton(this).getActionButton();
+    additionalSettingsButton = new ShowRunTypeAdditionalSettingsButton(this).getActionButton();
   }
 
   /**
@@ -117,7 +139,7 @@ public class WorksheetSettingsSetForm {
     makeProjectBeforeRunCheckBox = new JCheckBox();
     makeProjectBeforeRunCheckBox.setText("Make project before run");
     mainPanel.add(makeProjectBeforeRunCheckBox, new GridConstraints(1, 0, 1, 2, GridConstraints.ANCHOR_WEST, GridConstraints.FILL_NONE, GridConstraints.SIZEPOLICY_CAN_SHRINK | GridConstraints.SIZEPOLICY_CAN_GROW, GridConstraints.SIZEPOLICY_FIXED, null, null, null, 0, false));
-    mainPanel.add(moduleComboBox, new GridConstraints(3, 1, 1, 2, GridConstraints.ANCHOR_WEST, GridConstraints.FILL_HORIZONTAL, GridConstraints.SIZEPOLICY_CAN_GROW, GridConstraints.SIZEPOLICY_FIXED, null, null, null, 0, false));
+    mainPanel.add(moduleComboBox, new GridConstraints(3, 1, 1, 1, GridConstraints.ANCHOR_WEST, GridConstraints.FILL_HORIZONTAL, GridConstraints.SIZEPOLICY_CAN_GROW, GridConstraints.SIZEPOLICY_FIXED, null, null, null, 0, false));
     final JLabel label1 = new JLabel();
     label1.setText("Use class path of module:");
     mainPanel.add(label1, new GridConstraints(3, 0, 1, 1, GridConstraints.ANCHOR_WEST, GridConstraints.FILL_NONE, GridConstraints.SIZEPOLICY_FIXED, GridConstraints.SIZEPOLICY_FIXED, null, null, null, 0, false));
@@ -128,10 +150,11 @@ public class WorksheetSettingsSetForm {
     mainPanel.add(label2, new GridConstraints(4, 0, 1, 1, GridConstraints.ANCHOR_WEST, GridConstraints.FILL_NONE, GridConstraints.SIZEPOLICY_FIXED, GridConstraints.SIZEPOLICY_FIXED, null, null, null, 0, false));
     mainPanel.add(openCompilerProfileSettingsButton, new GridConstraints(4, 2, 1, 1, GridConstraints.ANCHOR_CENTER, GridConstraints.FILL_NONE, GridConstraints.SIZEPOLICY_CAN_SHRINK | GridConstraints.SIZEPOLICY_CAN_GROW, GridConstraints.SIZEPOLICY_CAN_SHRINK | GridConstraints.SIZEPOLICY_CAN_GROW, null, null, null, 0, false));
     runTypeComboBox = new JComboBox();
-    mainPanel.add(runTypeComboBox, new GridConstraints(2, 1, 1, 2, GridConstraints.ANCHOR_WEST, GridConstraints.FILL_HORIZONTAL, GridConstraints.SIZEPOLICY_CAN_GROW, GridConstraints.SIZEPOLICY_FIXED, null, null, null, 0, false));
+    mainPanel.add(runTypeComboBox, new GridConstraints(2, 1, 1, 1, GridConstraints.ANCHOR_WEST, GridConstraints.FILL_HORIZONTAL, GridConstraints.SIZEPOLICY_CAN_GROW, GridConstraints.SIZEPOLICY_FIXED, null, null, null, 0, false));
     final JLabel label3 = new JLabel();
     label3.setText("Run type:");
     mainPanel.add(label3, new GridConstraints(2, 0, 1, 1, GridConstraints.ANCHOR_WEST, GridConstraints.FILL_NONE, GridConstraints.SIZEPOLICY_FIXED, GridConstraints.SIZEPOLICY_FIXED, null, null, null, 0, false));
+    mainPanel.add(additionalSettingsButton, new GridConstraints(2, 2, 1, 1, GridConstraints.ANCHOR_CENTER, GridConstraints.FILL_NONE, GridConstraints.SIZEPOLICY_CAN_SHRINK | GridConstraints.SIZEPOLICY_CAN_GROW, GridConstraints.SIZEPOLICY_CAN_SHRINK | GridConstraints.SIZEPOLICY_CAN_GROW, null, null, null, 0, false));
   }
 
   /**
