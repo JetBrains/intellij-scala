@@ -148,7 +148,6 @@ object ScalaFmtPreFormatProcessor {
   }
 
   private def formatRange(file: PsiFile, range: TextRange): Int = {
-    val start = System.currentTimeMillis()
     val project = file.getProject
     val manager = PsiDocumentManager.getInstance(project)
     val document = manager.getDocument(file)
@@ -168,13 +167,9 @@ object ScalaFmtPreFormatProcessor {
           case _ => return 0
         }
     }
-    val formattedTime = System.currentTimeMillis()
     val wrapFile = PsiFileFactory.getInstance(project).createFileFromText("ScalaFmtFormatWrapper", ScalaFileType.INSTANCE, formatted)
     val textRangeDelta = replaceWithFormatted(wrapFile, elements, range, wrapped)
-    val replacedTime = System.currentTimeMillis()
     manager.commitDocument(document)
-    val doneTime = System.currentTimeMillis()
-    println("formatting range " + range +  "took " + (formattedTime - start) + "ms, replacing took " + (replacedTime - formattedTime) + "ms, committing took " + (doneTime - replacedTime) + "ms")
     textRangeDelta
   }
 
