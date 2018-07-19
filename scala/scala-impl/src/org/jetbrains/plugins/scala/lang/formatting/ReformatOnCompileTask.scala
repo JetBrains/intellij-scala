@@ -11,6 +11,7 @@ import com.intellij.openapi.project.Project
 import com.intellij.psi.PsiManager
 import com.intellij.psi.codeStyle.CodeStyleManager
 import org.jetbrains.plugins.scala.extensions._
+import org.jetbrains.plugins.scala.lang.psi.api.ScalaFile
 
 class ReformatOnCompileTask(project: Project) extends AbstractProjectComponent(project) with CompileTask {
 
@@ -35,6 +36,7 @@ class ReformatOnCompileTask(project: Project) extends AbstractProjectComponent(p
     psiManager = PsiManager.getInstance(myProject)
     psiFile = inReadAction(psiManager.findFile(virtualFile))
     if psiFile != null
+    if psiFile.isInstanceOf[ScalaFile] && !psiFile.asInstanceOf[ScalaFile].isWorksheetFile
   } {
     Application.invokeAndWait {
       CommandProcessor.runUndoTransparentAction {
