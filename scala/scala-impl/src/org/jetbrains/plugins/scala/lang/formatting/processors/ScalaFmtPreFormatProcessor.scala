@@ -92,7 +92,7 @@ object ScalaFmtPreFormatProcessor {
 
       val ranges = if (cached._2 == file.getModificationStamp) moveRanges(cached._1) else new TextRanges
 
-      file.putUserData(FORMATTED_RANGES_KEY, (ranges.union(rangeUpdated.grown(delta)), file.getModificationStamp))
+      if (rangeUpdated.getLength + delta > 0) file.putUserData(FORMATTED_RANGES_KEY, (ranges.union(rangeUpdated.grown(delta)), file.getModificationStamp))
     }
   }
 
@@ -123,20 +123,9 @@ object ScalaFmtPreFormatProcessor {
             reportInvalidCodeFailure(project)
             return None
           case wrapElements =>
-            val wrapExtended = if (wrapElements.length == 1 && wrapElements.head.isInstanceOf[PsiWhiteSpace]) {
-              //trying to format a single whitespace, needs some context
-              val ws = wrapElements.head
-              val next = PsiTreeUtil.nextLeaf(ws)
-              if (next == null) return Some(0) //don't touch the last WS, nobody should try to format it anyway
-              val prev = PsiTreeUtil.prevLeaf(ws)
-              val newRange =
-                if (prev == null) new TextRange(range.getStartOffset, next.getTextRange.getEndOffset)
-                else new TextRange(prev.getTextRange.getStartOffset, next.getTextRange.getEndOffset)
-              elementsInRangeWrapped(file, newRange, selectChildren = false)
-            } else wrapElements
-            val elementsText = wrapExtended.map(getText).mkString("")
+            val elementsText = wrapElements.map(getText).mkString("")
             Scalafmt.format(wrap(elementsText), config) match {
-              case Success(formattedCode) => (wrapExtended, formattedCode, true)
+              case Success(formattedCode) => (wrapElements, formattedCode, true)
               case _ =>
                 reportInvalidCodeFailure(project)
                 return None
@@ -179,6 +168,7 @@ object ScalaFmtPreFormatProcessor {
     case _ => false
   }
 
+  @tailrec
   private def elementsInRangeWrapped(file: PsiFile, range: TextRange, selectChildren: Boolean = true)(implicit fileText: String): Seq[PsiElement] = {
     val startElement = file.findElementAt(range.getStartOffset)
     val endElement = file.findElementAt(range.getEndOffset - 1)
@@ -190,7 +180,7 @@ object ScalaFmtPreFormatProcessor {
         case _ => Seq.empty
       }
     }
-    Option(PsiTreeUtil.findCommonParent(startElement, endElement)) match {
+    val res: Seq[PsiElement] = Option(PsiTreeUtil.findCommonParent(startElement, endElement)) match {
       case Some(parent: LeafPsiElement) => findProperParent(parent)
       case Some(parent) =>
         val rawChildren = parent.children.toArray
@@ -210,6 +200,16 @@ object ScalaFmtPreFormatProcessor {
         else findProperParent(parent)
       case _ => Seq.empty
     }
+    if (res.length == 1 && res.head.isInstanceOf[PsiWhiteSpace]) {
+      val ws = res.head
+      val next = PsiTreeUtil.nextLeaf(ws)
+      if (next == null) return Seq(ws) //don't touch the last WS, nobody should try to format it anyway
+      val prev = PsiTreeUtil.prevLeaf(ws)
+      val newRange =
+        if (prev == null) range.union(next.getTextRange)
+        else prev.getTextRange.union(next.getTextRange)
+      elementsInRangeWrapped(file, newRange, selectChildren = false)
+    } else res
   }
 
   @tailrec
