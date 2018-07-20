@@ -4,6 +4,7 @@ import java.awt._
 import java.awt.event.ItemEvent
 
 import com.intellij.application.options._
+import com.intellij.openapi.project.Project
 import com.intellij.openapi.ui.ComboBox
 import com.intellij.psi.codeStyle.CodeStyleSettings
 import com.intellij.ui.components.JBLabel
@@ -16,7 +17,7 @@ import org.jetbrains.plugins.scala.lang.rearranger.ScalaArrangementPanel
  * User: Alefas
  * Date: 23.09.11
  */
-class ScalaTabbedCodeStylePanel(currentSettings: CodeStyleSettings, settings: CodeStyleSettings)
+class ScalaTabbedCodeStylePanel(currentSettings: CodeStyleSettings, settings: CodeStyleSettings, project: () => Option[Project])
   extends TabbedLanguageCodeStylePanel(ScalaLanguage.INSTANCE, currentSettings, settings) {
 
   import ScalaTabbedCodeStylePanel._
@@ -111,7 +112,7 @@ class ScalaTabbedCodeStylePanel(currentSettings: CodeStyleSettings, settings: Co
 
   private lazy val shortenedPanel = new TabbedLanguageCodeStylePanel(ScalaLanguage.INSTANCE, currentSettings, settings) {
     protected override def initTabs(settings: CodeStyleSettings): Unit = {
-      addTab(new ScalaFmtSettingsPanel(settings))
+      addTab(new ScalaFmtSettingsPanel(settings, project))
       addTab(new ImportsPanel(settings))
       addTab(new MultiLineStringCodeStylePanel(settings))
       addTab(new TypeAnnotationsPanel(settings))

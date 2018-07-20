@@ -8,14 +8,18 @@ import com.intellij.openapi.editor.colors.EditorColorsScheme
 import com.intellij.openapi.editor.highlighter.EditorHighlighter
 import com.intellij.openapi.fileChooser.FileChooserDescriptorFactory
 import com.intellij.openapi.fileTypes.FileType
+import com.intellij.openapi.project.Project
 import com.intellij.openapi.ui.{TextFieldWithBrowseButton, VerticalFlowLayout}
 import com.intellij.psi.codeStyle.CodeStyleSettings
 import com.intellij.ui.components.{JBCheckBox, JBTextField}
 import com.intellij.uiDesigner.core.{GridConstraints, GridLayoutManager, Spacer}
 import javax.swing.{JComponent, JLabel, JPanel}
 import org.jetbrains.plugins.scala.ScalaFileType
+import org.jetbrains.plugins.scala.lang.formatting.processors.ScalaFmtConfigUtil
 
-class ScalaFmtSettingsPanel(val settings: CodeStyleSettings) extends CodeStyleAbstractPanel(settings) {
+import scala.collection.mutable
+
+class ScalaFmtSettingsPanel(val settings: CodeStyleSettings, val project: () => Option[Project]) extends CodeStyleAbstractPanel(settings) {
   override def getRightMargin: Int = 0
 
   protected override def getTabTitle: String = "Scalafmt"
@@ -26,10 +30,16 @@ class ScalaFmtSettingsPanel(val settings: CodeStyleSettings) extends CodeStyleAb
 
   override def getPreviewText: String = ""
 
+  private val notifiedPaths = mutable.Set[String]()
+
   override def apply(codeStyleSettings: CodeStyleSettings): Unit = {
     val scalaCodeStyleSettings = codeStyleSettings.getCustomSettings(classOf[ScalaCodeStyleSettings])
     scalaCodeStyleSettings.SCALAFMT_CONFIG_PATH = externalFormatterSettingsPath.getText
     scalaCodeStyleSettings.SHOW_SCALAFMT_INVALID_CODE_WARNINGS = showScalaFmtInvalidCodeWarnings.isSelected
+    if (!notifiedPaths.contains(scalaCodeStyleSettings.SCALAFMT_CONFIG_PATH) && scalaCodeStyleSettings.SCALAFMT_CONFIG_PATH != "") {
+      project().foreach(ScalaFmtConfigUtil.notifyNotSupportedFeatures(scalaCodeStyleSettings, _))
+      notifiedPaths.add(scalaCodeStyleSettings.SCALAFMT_CONFIG_PATH)
+    }
   }
 
   override def isModified(codeStyleSettings: CodeStyleSettings): Boolean = {
@@ -45,7 +55,6 @@ class ScalaFmtSettingsPanel(val settings: CodeStyleSettings) extends CodeStyleAb
     externalFormatterSettingsPath.getButton.grabFocus()
   }
 
-
   override def getPanel: JComponent = {
     if (myPanel == null) {
       myPanel = new JPanel(new VerticalFlowLayout(0, 0))
@@ -56,7 +65,7 @@ class ScalaFmtSettingsPanel(val settings: CodeStyleSettings) extends CodeStyleAb
           GridConstraints.SIZEPOLICY_FIXED, null, null,
           null, 0, false))
       val myTextField = new JBTextField
-      myTextField.getEmptyText.setText(s"Default: .${File.separatorChar}.scalafmt.conf")
+      myTextField.getEmptyText.setText(s"Default: .${File.separatorChar}${ScalaFmtConfigUtil.defaultConfigurationFileName}")
       externalFormatterSettingsPath = new TextFieldWithBrowseButton(myTextField)
       externalFormatterSettingsPath.addBrowseFolderListener(customSettingsTitle, customSettingsTitle, null,
         FileChooserDescriptorFactory.createSingleFileDescriptor("conf"))
