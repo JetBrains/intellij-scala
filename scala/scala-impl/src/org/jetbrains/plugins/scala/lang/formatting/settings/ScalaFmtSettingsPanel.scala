@@ -56,7 +56,7 @@ class ScalaFmtSettingsPanel(val settings: CodeStyleSettings) extends CodeStyleAb
           GridConstraints.SIZEPOLICY_FIXED, null, null,
           null, 0, false))
       val myTextField = new JBTextField
-      myTextField.getEmptyText.setText(s"Default: .${File.separatorChar}scalafmt.conf")
+      myTextField.getEmptyText.setText(s"Default: .${File.separatorChar}.scalafmt.conf")
       externalFormatterSettingsPath = new TextFieldWithBrowseButton(myTextField)
       externalFormatterSettingsPath.addBrowseFolderListener(customSettingsTitle, customSettingsTitle, null,
         FileChooserDescriptorFactory.createSingleFileDescriptor("conf"))
