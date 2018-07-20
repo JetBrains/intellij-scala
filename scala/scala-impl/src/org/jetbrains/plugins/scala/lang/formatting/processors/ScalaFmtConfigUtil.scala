@@ -3,6 +3,7 @@ package org.jetbrains.plugins.scala.lang.formatting.processors
 import java.util.concurrent.ConcurrentMap
 
 import com.intellij.application.options.CodeStyle
+import com.intellij.notification.{Notification, NotificationGroup, NotificationType}
 import com.intellij.openapi.project.Project
 import com.intellij.openapi.vfs.{StandardFileSystems, VirtualFile}
 import com.intellij.psi.{PsiFile, PsiManager}
@@ -12,14 +13,15 @@ import org.jetbrains.plugins.scala.extensions.inReadAction
 import org.jetbrains.plugins.scala.lang.formatting.processors.ScalaFmtPreFormatProcessor.reportError
 import org.jetbrains.plugins.scala.lang.formatting.settings.ScalaCodeStyleSettings
 import org.jetbrains.sbt.language.SbtFileImpl
-import org.scalafmt.config.{Config, ScalafmtConfig, ScalafmtRunner}
+import org.scalafmt.config.{Config, RewriteSettings, ScalafmtConfig, ScalafmtRunner}
 
 object ScalaFmtConfigUtil {
 
-  def loadConfig(configFile: VirtualFile, project: Project): Option[ScalafmtConfig] = {
+  def loadConfig(configFile: VirtualFile, project: Project, disableRewrite: Boolean = true): Option[ScalafmtConfig] = {
     inReadAction{PsiManager.getInstance(project).findFile(configFile) match {
       case hoconFile: HoconPsiFile =>
-        Config.fromHoconString(hoconFile.getText).toEither.toOption
+        Config.fromHoconString(hoconFile.getText).toEither.toOption.
+          map(config => if (disableRewrite) config.copy(rewrite = RewriteSettings()) else config)
       case _ => None
     }}
   }
@@ -42,28 +44,32 @@ object ScalaFmtConfigUtil {
   def configFor(psi: PsiFile): ScalafmtConfig = {
     val settings = CodeStyle.getCustomSettings(psi, classOf[ScalaCodeStyleSettings])
     val project = psi.getProject
-    val config = if (settings.SCALAFMT_CONFIG_PATH.nonEmpty) {
-      scalaFmtConfigFile(settings, project) match {
-        case Some(custom) => storeOrUpdate(custom, project)
+    val config = scalaFmtConfigFile(settings, project) match {
+        case Some(custom) =>
+          storeOrUpdate(custom, project)
+        case _ if settings.SCALAFMT_CONFIG_PATH.isEmpty =>
+          //auto-detect settings
+          ScalafmtConfig.intellij
         case _ =>
           reportBadConfig(settings.SCALAFMT_CONFIG_PATH, project)
           ScalafmtConfig.intellij
       }
-    } else {
-      //auto-detect settings
-      projectDefaultConfig(project).getOrElse(ScalafmtConfig.intellij)
-    }
     psi match {
       case _: SbtFileImpl => config.copy(runner = ScalafmtRunner.sbt)
       case _ => config
     }
   }
 
-  def projectDefaultConfig(project: Project): Option[ScalafmtConfig] = Option(project.getBaseDir.findChild(".scalafmt.conf")).
+  def defaultConfigurationFileName: String = ".scalafmt.conf"
+
+  private def defaultConfigurationFile(project: Project): Option[VirtualFile] = Option(project.getBaseDir.findChild(defaultConfigurationFileName))
+
+  def projectDefaultConfig(project: Project): Option[ScalafmtConfig] = defaultConfigurationFile(project).
     map(getScalafmtProjectConfig(_, project))
 
   def scalaFmtConfigFile(settings: ScalaCodeStyleSettings, project: Project): Option[VirtualFile] =
-    Option(StandardFileSystems.local.findFileByPath(absolutePathFromConfigPath(settings.SCALAFMT_CONFIG_PATH, project)))
+    if (settings.SCALAFMT_CONFIG_PATH.isEmpty) defaultConfigurationFile(project)
+    else Option(StandardFileSystems.local.findFileByPath(absolutePathFromConfigPath(settings.SCALAFMT_CONFIG_PATH, project)))
 
   private val scalafmtConfigs: ConcurrentMap[VirtualFile, (ScalafmtConfig, Long)] = ContainerUtil.createConcurrentWeakMap()
 
@@ -76,5 +82,20 @@ object ScalaFmtConfigUtil {
     if (path.startsWith(".")) {
       project.getBaseDir.getCanonicalPath + "/" + path
     } else path
+  }
+
+  private val unsupportedSettingsNotificationGroup: NotificationGroup = NotificationGroup.balloonGroup("Scalafmt unsupported features")
+
+  private def rewriteActionsNotSupported: Notification = unsupportedSettingsNotificationGroup.
+    createNotification("Scalafmt rewrite rules are not supported.", "Rewrite rules will be disabled.", NotificationType.WARNING, null)
+
+  def notifyNotSupportedFeatures(settings: ScalaCodeStyleSettings, project: Project): Unit = {
+    if (settings.USE_SCALAFMT_FORMATTER) scalaFmtConfigFile(settings, project).
+      flatMap(loadConfig(_, project, disableRewrite = false)).foreach {
+      config =>
+        if (config.rewrite.rules.nonEmpty) {
+          rewriteActionsNotSupported.notify(project)
+        }
+    }
   }
 }
