@@ -26,7 +26,8 @@ import scala.collection.JavaConverters.iterableAsScalaIterableConverter
 import scala.collection.mutable.ArrayBuffer
 import scala.collection.{immutable, mutable}
 import scala.util.{Failure, Success, Try}
-import scala.xml._
+import scala.xml.{Elem, SAXParser}
+import scala.xml.factory.XMLLoader
 
 class LibraryExtensionsManager(project: Project) extends AbstractProjectComponent(project) {
   import LibraryExtensionsManager._
@@ -43,6 +44,15 @@ class LibraryExtensionsManager(project: Project) extends AbstractProjectComponen
   private val myAvailableLibraries  = ArrayBuffer[LibraryDescriptor]()
   private val myExtensionInstances  = mutable.HashMap[Class[_], ArrayBuffer[Any]]()
   private val myClassLoaders        = mutable.HashMap[IdeaVersionDescriptor, UrlClassLoader]()
+
+  private object XMLNoDTD extends XMLLoader[Elem] {
+    override def parser: SAXParser = {
+      val f = javax.xml.parsers.SAXParserFactory.newInstance()
+      f.setValidating(false)
+      f.setFeature("http://apache.org/xml/features/nonvalidating/load-external-dtd", false)
+      f.newSAXParser()
+    }
+  }
 
   override def projectOpened(): Unit = {
     ApplicationManager.getApplication.getMessageBus
@@ -116,7 +126,7 @@ class LibraryExtensionsManager(project: Project) extends AbstractProjectComponen
   private[libextensions] def processResolvedExtension(resolved: ResolvedDependency): Unit = {
     val file = resolved.toJarVFile
     val manifest = Option(file.findFileByRelativePath(manifestPath))
-      .map(vFile => Try(using(vFile.getInputStream)(XML.load)))
+      .map(vFile => Try(using(vFile.getInputStream)(XMLNoDTD.load)))
 
     manifest match {
       case Some(Success(xml))       => loadJarWithManifest(xml, resolved.file)
