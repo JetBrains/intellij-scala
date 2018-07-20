@@ -367,4 +367,36 @@ class ScalaFmtSelectionTest extends SelectionTest {
        """.stripMargin
     doTextTest(before, after)
   }
+
+  def testWsBetweenPackageAndImport(): Unit = {
+    val before =
+      s"""
+         |package foo$startMarker
+         |  $endMarker  import bar._
+         |class C {}
+       """.stripMargin
+    val after =
+      s"""
+         |package foo
+         |import bar._
+         |class C {}
+       """.stripMargin
+    doTextTest(before, after)
+  }
+
+  def testWsBetweenImportAndClass(): Unit = {
+    val before =
+      s"""
+         |package foo
+         |import bar._$startMarker
+         |     ${endMarker}class C{}
+       """.stripMargin
+    val after =
+      s"""
+         |package foo
+         |import bar._
+         |class C{}
+       """.stripMargin
+    doTextTest(before, after)
+  }
 }
