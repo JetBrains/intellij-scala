@@ -185,7 +185,6 @@ object ScalaFmtPreFormatProcessor {
         }
         else if (isProperUpperLevelPsi(parent)) Seq(parent)
         else findProperParent(parent)
-      case Some(parent) if isProperUpperLevelPsi(parent) => Seq(parent)
       case _ => Seq.empty
     }
   }
@@ -332,8 +331,10 @@ object ScalaFmtPreFormatProcessor {
     balloon.show(new RelativePoint(frame, new Point(frame.getWidth - 20, 20)), Balloon.Position.above)
   }
 
-  private def reportInvalidCodeFailure(project: Project): Unit =
-    reportError("Failed to find correct surrounding code to pass for scalafmt, no formatting will be performed", project)
+  private def reportInvalidCodeFailure(project: Project): Unit = {
+    if (ScalaCodeStyleSettings.getInstance(project).SHOW_SCALAFMT_INVALID_CODE_WARNINGS)
+      reportError("Failed to find correct surrounding code to pass for scalafmt, no formatting will be performed", project)
+  }
 
   //TODO get rid of this once com.intellij.util.text.TextRanges does not have an error on unifying (x, x+1) V (x+1, y)
   class TextRanges(val ranges: Seq[TextRange]) {
