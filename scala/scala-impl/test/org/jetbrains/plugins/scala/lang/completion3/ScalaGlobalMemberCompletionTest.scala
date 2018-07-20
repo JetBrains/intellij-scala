@@ -2,11 +2,12 @@ package org.jetbrains.plugins.scala
 package lang
 package completion3
 
+import com.intellij.codeInsight.completion.CompletionType
 import com.intellij.testFramework.EditorTestUtil
 import org.jetbrains.plugins.scala.base.libraryLoaders.{LibraryLoader, SourcesLoader}
 import org.jetbrains.plugins.scala.extensions._
 import org.jetbrains.plugins.scala.lang.completion.lookups.ScalaLookupItem
-import org.junit.Assert.{assertArrayEquals, assertTrue}
+import org.junit.Assert.{assertArrayEquals, assertFalse}
 
 /**
   * @author Alexander Podkhalyuzin
@@ -146,7 +147,7 @@ class ScalaGlobalMemberCompletionTest extends ScalaCodeInsightTestBase {
          |}
        """.stripMargin,
     time = 2,
-    completionType = DEFAULT_COMPLETION_TYPE
+    completionType = CompletionType.BASIC
   ) {
     _ => true
   }
@@ -187,7 +188,7 @@ class ScalaGlobalMemberCompletionTest extends ScalaCodeInsightTestBase {
   )
 
   def testGlobalMember9(): Unit = {
-    val lookups = configureTest(
+    configureTest(
       fileText =
         s"""
            |object BlahBlahBlahContainer {
@@ -202,15 +203,16 @@ class ScalaGlobalMemberCompletionTest extends ScalaCodeInsightTestBase {
            |}
        """.stripMargin,
       time = 3
-    ) {
+    )
+
+    val lookups = this.lookups {
       hasLookupString(_, "doSmthPrivate")
     }
-
-    assertTrue(lookups.nonEmpty)
+    assertFalse(lookups.isEmpty)
   }
 
   def testGlobalMemberInherited(): Unit = {
-    val lookups = configureTest(
+    configureTest(
       fileText =
         s"""
            |class Base {
@@ -232,9 +234,11 @@ class ScalaGlobalMemberCompletionTest extends ScalaCodeInsightTestBase {
            |}
        """.stripMargin,
       time = 3
-    )()
+    )
 
-    val actual = lookups.collect {
+    val actual = lookups {
+      _.isInstanceOf[ScalaLookupItem]
+    }.map {
       case lookup: ScalaLookupItem => s"${lookup.containingClass.name}.${lookup.getLookupString}"
     }.toSet
 

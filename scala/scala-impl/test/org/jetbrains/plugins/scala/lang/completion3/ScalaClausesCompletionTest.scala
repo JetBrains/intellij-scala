@@ -2,6 +2,7 @@ package org.jetbrains.plugins.scala
 package lang
 package completion3
 
+import com.intellij.codeInsight.completion.CompletionType
 import com.intellij.codeInsight.lookup.LookupElement
 import com.intellij.testFramework.EditorTestUtil
 import org.jetbrains.plugins.scala.debugger.{ScalaVersion, Scala_2_12}
@@ -9,6 +10,7 @@ import org.jetbrains.plugins.scala.lang.completion.clauses.ExhaustiveMatchComple
 
 class ScalaClausesCompletionTest extends ScalaCodeInsightTestBase {
 
+  import CompletionType.BASIC
   import EditorTestUtil.{CARET_TAG => CARET}
   import ScalaCodeInsightTestBase._
 
@@ -391,7 +393,7 @@ class ScalaClausesCompletionTest extends ScalaCodeInsightTestBase {
          |(_: Foo) m$CARET
        """.stripMargin,
     time = DEFAULT_TIME,
-    completionType = DEFAULT_COMPLETION_TYPE
+    completionType = BASIC
   )(isExhaustiveMatch)
 
   def testMaybe(): Unit = doMatchCompletionTest(
@@ -574,12 +576,12 @@ class ScalaClausesCompletionTest extends ScalaCodeInsightTestBase {
 
   private def doMultipleCompletionTest(fileText: String,
                                        items: String*): Unit =
-    super.doMultipleCompletionTest(fileText, items.size, DEFAULT_CHAR, DEFAULT_TIME, DEFAULT_COMPLETION_TYPE) { lookup =>
+    super.doMultipleCompletionTest(fileText, BASIC, DEFAULT_TIME, items.size) { lookup =>
       items.contains(lookup.getLookupString)
     }
 
   private def doMatchCompletionTest(fileText: String, resultText: String): Unit =
-    super.doCompletionTest(fileText, resultText, DEFAULT_CHAR, DEFAULT_TIME, DEFAULT_COMPLETION_TYPE)(isExhaustiveMatch)
+    super.doCompletionTest(fileText, resultText, DEFAULT_CHAR, DEFAULT_TIME, BASIC)(isExhaustiveMatch)
 
   private def isExhaustiveMatch(lookup: LookupElement) = {
     import ExhaustiveMatchCompletionContributor.{ItemText, RendererTailText}
