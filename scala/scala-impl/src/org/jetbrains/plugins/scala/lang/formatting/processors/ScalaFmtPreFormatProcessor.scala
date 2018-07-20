@@ -75,7 +75,8 @@ object ScalaFmtPreFormatProcessor {
 
     //formatter implicitly supposes that ranges starting on psi element start also reformat ws before the element
     val startElement = file.findElementAt(range.getStartOffset)
-    val rangeUpdated = if (startElement != null && startElement.getTextRange.getStartOffset == range.getStartOffset) {
+    val rangeUpdated = if (startElement != null && startElement.getTextRange.getStartOffset == range.getStartOffset &&
+      !startElement.isInstanceOf[PsiWhiteSpace]) {
       val prev = PsiTreeUtil.prevLeaf(startElement, true)
       if (prev != null && !prev.isInstanceOf[PsiWhiteSpace]) new TextRange(prev.getTextRange.getEndOffset - 1, range.getEndOffset) else range
     } else range
@@ -107,17 +108,39 @@ object ScalaFmtPreFormatProcessor {
       case Some(formattedCode) =>
         (Seq(file), formattedCode, false)
       case _ =>
-        val wrapElements = elementsInRangeWrapped(file, range)
-        if (wrapElements.isEmpty) {
-          reportInvalidCodeFailure(project)
-          return None
-        }
-        val elementsText = wrapElements.map(getText).mkString("")
-        Scalafmt.format(wrap(elementsText), config) match {
-          case Success(formattedCode) => (wrapElements, formattedCode, true)
-          case _ =>
+        elementsInRangeWrapped(file, range) match {
+          case wrapElements if wrapElements.isEmpty && range != file.getTextRange =>
+            //failed to wrap some elements, try the whole file
+            Scalafmt.format(fileText, config) match {
+              case Success(formattedCode) =>
+                (Seq(file), formattedCode, false)
+              case _ =>
+                reportInvalidCodeFailure(project)
+                return None
+            }
+          case wrapElements if wrapElements.isEmpty =>
+            //wanted to format whole file, failed with file and with file elements wrapped, report failure
             reportInvalidCodeFailure(project)
             return None
+          case wrapElements =>
+            val wrapExtended = if (wrapElements.length == 1 && wrapElements.head.isInstanceOf[PsiWhiteSpace]) {
+              //trying to format a single whitespace, needs some context
+              val ws = wrapElements.head
+              val next = PsiTreeUtil.nextLeaf(ws)
+              if (next == null) return Some(0) //don't touch the last WS, nobody should try to format it anyway
+              val prev = PsiTreeUtil.prevLeaf(ws)
+              val newRange =
+                if (prev == null) new TextRange(range.getStartOffset, next.getTextRange.getEndOffset)
+                else new TextRange(prev.getTextRange.getStartOffset, next.getTextRange.getEndOffset)
+              elementsInRangeWrapped(file, newRange, selectChildren = false)
+            } else wrapElements
+            val elementsText = wrapExtended.map(getText).mkString("")
+            Scalafmt.format(wrap(elementsText), config) match {
+              case Success(formattedCode) => (wrapExtended, formattedCode, true)
+              case _ =>
+                reportInvalidCodeFailure(project)
+                return None
+            }
         }
     }
     val wrapFile = PsiFileFactory.getInstance(project).createFileFromText("ScalaFmtFormatWrapper", ScalaFileType.INSTANCE, formatted)
@@ -156,7 +179,7 @@ object ScalaFmtPreFormatProcessor {
     case _ => false
   }
 
-  private def elementsInRangeWrapped(file: PsiFile, range: TextRange)(implicit fileText: String): Seq[PsiElement] = {
+  private def elementsInRangeWrapped(file: PsiFile, range: TextRange, selectChildren: Boolean = true)(implicit fileText: String): Seq[PsiElement] = {
     val startElement = file.findElementAt(range.getStartOffset)
     val endElement = file.findElementAt(range.getEndOffset - 1)
     if (startElement == null || endElement == null) return Seq.empty
@@ -178,7 +201,7 @@ object ScalaFmtPreFormatProcessor {
         while (children.lastOption.exists(isWhitespace)) children = children.dropRight(1)
 
         if (children.isEmpty) Seq.empty
-        else if (children.forall(isProperUpperLevelPsi)) {
+        else if (selectChildren && children.forall(isProperUpperLevelPsi)) {
           //for uniformity use the upper-most of embedded elements with same contents
           if (children.length == rawChildren.length && isProperUpperLevelPsi(parent)) Seq(parent)
           else children
