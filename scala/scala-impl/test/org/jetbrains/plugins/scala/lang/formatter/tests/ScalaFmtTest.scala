@@ -183,4 +183,34 @@ class ScalaFmtTest extends AbstractScalaFormatterTestBase {
 
     doTextTest(before)
   }
+
+  def testTopLevelObjectInpackage(): Unit = {
+    val before =
+      """
+        |package foo
+        |object Scl4169 {
+        |
+        |  val b: Array[Any]={
+        |
+        |  List[Any]().toArray. map {case item => ""}
+        |
+        | }
+        |
+        |}
+      """.stripMargin
+    val after =
+      """
+        |package foo
+        |object Scl4169 {
+        |
+        |  val b: Array[Any] = {
+        |
+        |    List[Any]().toArray.map { case item => "" }
+        |
+        |  }
+        |
+        |}
+      """.stripMargin
+    doTextTest(before, after)
+  }
 }
