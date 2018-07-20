@@ -43,11 +43,13 @@ class ScalaFmtSuggesterComponent(val project: Project) extends ProjectComponent 
     }
     val newSettings = scheme.getCodeStyleSettings.getCustomSettings(classOf[ScalaCodeStyleSettings])
     newSettings.FORMATTER = ScalaCodeStyleSettings.SCALAFMT_FORMATTER
+    newSettings.SCALAFMT_CONFIG_PATH = ""
+    ScalaFmtConfigUtil.notifyNotSupportedFeatures(newSettings, project)
     codeStyleSchemesModel.apply()
   }
 
   private def createNotification: Notification = {
-    notificationGroup.createNotification("Scalafmt configuration detected in this project",
+    suggesterNotificationGroup.createNotification("Scalafmt configuration detected in this project",
       wrapInRef(enableProjectDescription, enableProjectText) + wrapInRef(dontShowDescription, dontShowText),
       NotificationType.INFORMATION, listener)
   }
@@ -86,5 +88,5 @@ object ScalaFmtSuggesterComponent {
     var enableForCurrentProject: Boolean = true
   }
 
-  val notificationGroup: NotificationGroup = NotificationGroup.balloonGroup("Scalafmt detection")
+  val suggesterNotificationGroup: NotificationGroup = NotificationGroup.balloonGroup("Scalafmt detection")
 }
