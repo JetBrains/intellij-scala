@@ -2,10 +2,11 @@ package org.jetbrains.plugins.scala
 package lang
 package completion3
 
+import com.intellij.codeInsight.completion.CompletionType.BASIC
 import com.intellij.codeInsight.lookup.LookupElement
 import com.intellij.testFramework.EditorTestUtil.{CARET_TAG => CARET}
 import org.jetbrains.plugins.scala.lang.completion.lookups.ScalaLookupItem
-import org.jetbrains.plugins.scala.lang.completion3.ScalaCodeInsightTestBase.{DEFAULT_CHAR, DEFAULT_COMPLETION_TYPE}
+import org.jetbrains.plugins.scala.lang.completion3.ScalaCodeInsightTestBase.DEFAULT_CHAR
 import org.jetbrains.plugins.scala.lang.formatting.settings.ScalaCodeStyleSettings
 import org.jetbrains.plugins.scala.lang.psi.api.toplevel.typedef.{ScClass, ScObject}
 
@@ -71,7 +72,7 @@ class ClassNameCompletionTest extends ScalaClassNameCompletionTest {
       """.stripMargin,
     char = DEFAULT_CHAR,
     time = 2,
-    completionType = DEFAULT_COMPLETION_TYPE
+    completionType = BASIC
   ) {
     predicate(_, "scala.collection.mutable.HashSet", companionObject = true)
   }
@@ -98,7 +99,7 @@ class ClassNameCompletionTest extends ScalaClassNameCompletionTest {
       """.stripMargin,
     char = DEFAULT_CHAR,
     time = 2,
-    completionType = DEFAULT_COMPLETION_TYPE
+    completionType = BASIC
   ) {
     predicate(_, "scala.collection.mutable.HashSet")
   }
@@ -126,7 +127,7 @@ class ClassNameCompletionTest extends ScalaClassNameCompletionTest {
       """.stripMargin,
     char = DEFAULT_CHAR,
     time = 2,
-    completionType = DEFAULT_COMPLETION_TYPE
+    completionType = BASIC
   ) {
     predicate(_, "scala.collection.immutable.ListSet")
   }
@@ -225,7 +226,7 @@ class ImportsWithPrefixCompletionTest extends ScalaClassNameCompletionTest {
       """.stripMargin,
     char = DEFAULT_CHAR,
     time = 2,
-    completionType = DEFAULT_COMPLETION_TYPE
+    completionType = BASIC
   ) {
     predicate(_, "scala.collection.mutable.ListMap")
   }

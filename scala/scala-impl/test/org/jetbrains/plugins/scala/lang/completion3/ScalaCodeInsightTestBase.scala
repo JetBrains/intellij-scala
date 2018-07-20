@@ -9,7 +9,7 @@ import com.intellij.psi.statistics.StatisticsManager
 import com.intellij.psi.statistics.impl.StatisticsManagerImpl
 import org.jetbrains.plugins.scala.base.ScalaLightCodeInsightFixtureTestAdapter
 import org.jetbrains.plugins.scala.base.ScalaLightCodeInsightFixtureTestAdapter.normalize
-import org.junit.Assert.{assertEquals, assertFalse, assertTrue}
+import org.junit.Assert.{assertEquals, fail}
 
 import scala.collection.JavaConverters
 
@@ -18,6 +18,7 @@ import scala.collection.JavaConverters
   */
 abstract class ScalaCodeInsightTestBase extends ScalaLightCodeInsightFixtureTestAdapter {
 
+  import CompletionType.BASIC
   import ScalaCodeInsightTestBase._
 
   protected override def setUp(): Unit = {
@@ -30,9 +31,16 @@ abstract class ScalaCodeInsightTestBase extends ScalaLightCodeInsightFixtureTest
   override def getTestDataPath: String =
     s"${super.getTestDataPath}completion3/"
 
-  protected def getActiveLookup: Option[LookupImpl] =
-    Option(LookupManager.getActiveLookup(getEditor)).collect {
-      case impl: LookupImpl => impl
+  protected final def activeLookup: Option[LookupImpl] =
+    LookupManager.getActiveLookup(getEditor) match {
+      case impl: LookupImpl => Some(impl)
+      case _ => None
+    }
+
+  protected final def lookups(predicate: LookupElement => Boolean): Seq[LookupElement] =
+    activeLookup match {
+      case Some(lookup) => lookupItems(lookup).filter(predicate)
+      case _ => Seq.empty
     }
 
   protected def doCompletionTest(fileText: String,
@@ -40,74 +48,69 @@ abstract class ScalaCodeInsightTestBase extends ScalaLightCodeInsightFixtureTest
                                  item: String,
                                  char: Char = DEFAULT_CHAR,
                                  time: Int = DEFAULT_TIME,
-                                 completionType: CompletionType = DEFAULT_COMPLETION_TYPE): Unit =
+                                 completionType: CompletionType = BASIC): Unit =
     doCompletionTest(fileText, resultText, char, time, completionType) {
       hasLookupString(_, item)
     }
 
-  protected def doCompletionTest(fileText: String,
-                                 resultText: String,
-                                 char: Char,
-                                 time: Int,
-                                 completionType: CompletionType)
-                                (predicate: LookupElement => Boolean): Unit = {
-    val lookups = configureTest(fileText, time, completionType)(predicate)
-    assertFalse(lookups.isEmpty)
+  protected final def doCompletionTest(fileText: String,
+                                       resultText: String,
+                                       char: Char,
+                                       time: Int,
+                                       completionType: CompletionType)
+                                      (predicate: LookupElement => Boolean): Unit = {
+    configureTest(fileText, completionType, time)
 
-    val lookupElement = lookups.head
-    getActiveLookup.foreach(_.finishLookup(char, lookupElement))
-    checkResultByText(resultText)
+    val maybePair = for {
+      lookup <- activeLookup
+      item <- lookupItems(lookup).find(predicate)
+    } yield (lookup, item)
+
+    maybePair match {
+      case Some((lookup, item)) =>
+        lookup.finishLookup(char, item)
+        checkResultByText(resultText)
+      case _ => fail("Lookups not found")
+    }
   }
 
   protected def doMultipleCompletionTest(fileText: String,
                                          count: Int,
                                          item: String,
-                                         char: Char = DEFAULT_CHAR,
-                                         time: Int = DEFAULT_TIME,
-                                         completionType: CompletionType = DEFAULT_COMPLETION_TYPE): Unit =
-    doMultipleCompletionTest(fileText, count, char, time, completionType) {
+                                         completionType: CompletionType = BASIC,
+                                         time: Int = DEFAULT_TIME): Unit =
+    doMultipleCompletionTest(fileText, completionType, time, count) {
       hasLookupString(_, item)
     }
 
-  protected def doMultipleCompletionTest(fileText: String,
-                                         count: Int,
-                                         char: Char,
-                                         time: Int,
-                                         completionType: CompletionType)
-                                        (predicate: LookupElement => Boolean): Unit = {
-    val lookups = configureTest(fileText, time, completionType)(predicate)
-    assertEquals(count, lookups.size)
+  protected final def doMultipleCompletionTest(fileText: String,
+                                               completionType: CompletionType,
+                                               time: Int,
+                                               count: Int)
+                                              (predicate: LookupElement => Boolean): Unit = {
+    configureTest(fileText, completionType, time)
+    assertEquals(count, lookups(predicate).size)
   }
 
   protected def checkNoCompletion(fileText: String,
                                   item: String,
-                                  time: Int = DEFAULT_TIME,
-                                  completionType: CompletionType = DEFAULT_COMPLETION_TYPE): Unit =
-    checkNoCompletion(fileText, time, completionType) {
-      hasLookupString(_, item)
-    }
+                                  completionType: CompletionType = BASIC,
+                                  time: Int = DEFAULT_TIME): Unit =
+    doMultipleCompletionTest(fileText, 0, item, completionType, time)
 
-  protected def checkNoCompletion(fileText: String,
-                                  time: Int,
-                                  completionType: CompletionType)
-                                 (predicate: LookupElement => Boolean): Unit = {
-    val lookups = configureTest(fileText, time, completionType)(predicate)
-    assertTrue(lookups.isEmpty)
-  }
+  protected final def checkNoCompletion(fileText: String,
+                                        completionType: CompletionType,
+                                        time: Int)
+                                       (predicate: LookupElement => Boolean): Unit =
+    doMultipleCompletionTest(fileText, completionType, time, 0)(predicate)
 
-  protected def configureTest(fileText: String,
-                              time: Int = DEFAULT_TIME,
-                              completionType: CompletionType = DEFAULT_COMPLETION_TYPE)
-                             (predicate: LookupElement => Boolean = _ => true): Seq[LookupElement] = {
+  protected final def configureTest(fileText: String,
+                                    completionType: CompletionType = BASIC,
+                                    time: Int = DEFAULT_TIME): Unit = {
     configureFromFileText(fileText)
 
-    new CodeCompletionHandlerBase(completionType, false, false, true).
-      invokeCompletion(getProject, getEditor, time, false, false)
-
-    import JavaConverters.asScalaBufferConverter
-    getActiveLookup.toSeq
-      .flatMap(_.getItems.asScala)
-      .filter(predicate)
+    new CodeCompletionHandlerBase(completionType, false, false, true)
+      .invokeCompletion(getProject, getEditor, time, false, false)
   }
 
   protected def checkResultByText(expectedFileText: String, ignoreTrailingSpaces: Boolean = true): Unit =
@@ -118,7 +121,6 @@ object ScalaCodeInsightTestBase {
 
   val DEFAULT_CHAR: Char = '\t'
   val DEFAULT_TIME: Int = 1
-  val DEFAULT_COMPLETION_TYPE: CompletionType = CompletionType.BASIC
 
   def hasLookupString(lookup: LookupElement, lookupString: String): Boolean =
     lookup.getLookupString == lookupString
@@ -133,4 +135,9 @@ object ScalaCodeInsightTestBase {
       presentation.getItemText == itemText &&
         presentation.getTailText == tailText
     }
+
+  private def lookupItems(lookup: LookupImpl) = {
+    import JavaConverters._
+    lookup.getItems.asScala
+  }
 }

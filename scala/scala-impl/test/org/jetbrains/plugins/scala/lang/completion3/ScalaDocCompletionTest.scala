@@ -2,6 +2,7 @@ package org.jetbrains.plugins.scala
 package lang
 package completion3
 
+import com.intellij.codeInsight.completion.CompletionType
 import com.intellij.psi.PsiClass
 import com.intellij.testFramework.EditorTestUtil
 import org.jetbrains.plugins.scala.extensions._
@@ -70,7 +71,7 @@ class ScalaDocCompletionTest extends ScalaCodeInsightTestBase {
       """.stripMargin,
     char = ScalaCodeInsightTestBase.DEFAULT_CHAR,
     time = DEFAULT_TIME,
-    completionType = ScalaCodeInsightTestBase.DEFAULT_COMPLETION_TYPE
+    completionType = CompletionType.BASIC
   ) { lookup =>
     lookup.getObject match {
       case clazz: PsiClass => clazz.qualifiedName == "java.util.HashMap"

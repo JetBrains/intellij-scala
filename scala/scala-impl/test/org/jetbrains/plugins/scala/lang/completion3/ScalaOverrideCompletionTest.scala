@@ -39,7 +39,7 @@ class ScalaOverrideCompletionTest extends ScalaCodeInsightTestBase {
       """,
     char = DEFAULT_CHAR,
     time = DEFAULT_TIME,
-    completionType = DEFAULT_COMPLETION_TYPE
+    completionType = CompletionType.BASIC
   ) {
     _ => true
   }
@@ -249,9 +249,9 @@ class ScalaOverrideCompletionTest extends ScalaCodeInsightTestBase {
 
   override protected def checkNoCompletion(fileText: String,
                                            item: String,
-                                           time: Int,
-                                           completionType: CompletionType): Unit =
-    super.checkNoCompletion(fileText, time, completionType) { lookup =>
+                                           completionType: CompletionType,
+                                           time: Int): Unit =
+    super.checkNoCompletion(fileText, completionType, time) { lookup =>
       lookup.getLookupString.contains("override") &&
         lookup.getAllLookupStrings.contains(item)
     }
@@ -326,7 +326,7 @@ class ScalaOverrideCompletionTest2 extends ScalaCodeInsightTestBase {
       """,
     char = DEFAULT_CHAR,
     time = DEFAULT_TIME,
-    completionType = DEFAULT_COMPLETION_TYPE
+    completionType = CompletionType.BASIC
   ) {
     _ => true
   }

@@ -2,6 +2,7 @@ package org.jetbrains.plugins.scala
 package lang
 package completion3
 
+import com.intellij.codeInsight.completion.CompletionType
 import com.intellij.testFramework.EditorTestUtil
 import org.jetbrains.plugins.scala.lang.completion3.ScalaCodeInsightTestBase._
 import org.jetbrains.plugins.scala.lang.psi.api.toplevel.typedef.ScClass
@@ -408,9 +409,8 @@ class ScalaBasicCompletionTest extends ScalaCodeInsightTestBase {
          |}
       """.stripMargin,
     count = 2,
-    char = DEFAULT_CHAR,
     time = 0,
-    completionType = DEFAULT_COMPLETION_TYPE
+    completionType = CompletionType.BASIC
   ) {
     _ => true
   }
@@ -758,7 +758,7 @@ class ScalaBasicCompletionTest extends ScalaCodeInsightTestBase {
     resultText = s"val x: Option[$CARET]",
     char = '[',
     time = DEFAULT_TIME,
-    completionType = DEFAULT_COMPLETION_TYPE
+    completionType = CompletionType.BASIC
   ) { lookup =>
     hasLookupString(lookup, "Option") && lookup.getPsiElement.isInstanceOf[ScClass]
   }
@@ -792,10 +792,11 @@ class ScalaBasicCompletionTest extends ScalaCodeInsightTestBase {
          |
          |  type$CARET
       """.stripMargin
-    )()
+    )
 
-    val maybeLookup = getActiveLookup.map(_.getCurrentItem)
-    assertTrue(maybeLookup.exists(hasLookupString(_, "type")))
+    assertTrue(activeLookup.exists { lookup =>
+      hasLookupString(lookup.getCurrentItem, "type")
+    })
   }
 
   def testBackticks(): Unit = doCompletionTest(

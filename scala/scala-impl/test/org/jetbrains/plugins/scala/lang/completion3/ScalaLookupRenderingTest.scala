@@ -26,17 +26,19 @@ class ScalaLookupRenderingTest extends ScalaCodeInsightTestBase {
       packageName = "a"
     )
 
-    val lookups = configureTest(
+    configureTest(
       fileText =
         """
           |import a.Java
           |class A {
           |  Java.fo<caret>
           |}
-        """.stripMargin) {
+        """.stripMargin
+    )
+
+    val lookups = this.lookups {
       hasItemText(_, "foo", "foo", "(x: Int*)")
     }
-
     assertFalse(lookups.isEmpty)
   }
 }

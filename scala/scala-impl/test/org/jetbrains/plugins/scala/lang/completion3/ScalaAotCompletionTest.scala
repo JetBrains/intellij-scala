@@ -2,6 +2,7 @@ package org.jetbrains.plugins.scala
 package lang
 package completion3
 
+import com.intellij.codeInsight.completion.CompletionType
 import com.intellij.testFramework.EditorTestUtil
 import org.jetbrains.plugins.scala.lang.psi.impl.toplevel.typedef.ScTypeDefinitionImpl
 
@@ -166,7 +167,7 @@ class ScalaAotCompletionTest extends ScalaCodeInsightTestBase {
                                   tailTextSuffix: String = ScTypeDefinitionImpl.DefaultLocationString): Unit = {
     val tailText = if (tailTextSuffix != null) " " + tailTextSuffix else null
 
-    doCompletionTest(fileText, resultText, DEFAULT_CHAR, DEFAULT_TIME, DEFAULT_COMPLETION_TYPE) {
+    doCompletionTest(fileText, resultText, DEFAULT_CHAR, DEFAULT_TIME, CompletionType.BASIC) {
       hasItemText(_, lookupString, itemText, tailText)
     }
   }
