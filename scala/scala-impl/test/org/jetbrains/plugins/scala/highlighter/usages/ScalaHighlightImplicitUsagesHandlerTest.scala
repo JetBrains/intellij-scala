@@ -166,9 +166,12 @@ class ScalaHighlightImplicitUsagesHandlerTest extends ScalaLightCodeInsightFixtu
          |
          |  new AB(1)
          |  new AB(Array(1))
+         |  new AB(2) with Serializable
+         |
+         |  class AC extends AB(3) with Serializable
          |}
        """.stripMargin
-    doTest(code, Seq("theAnswer", "new AB(1)", "new AB(Array(1))"))
+    doTest(code, Seq("theAnswer", "AB(1)", "AB(Array(1))", "AB(2)", "AB(3)"))
   }
 
   def testTypeClasses1(): Unit = {
