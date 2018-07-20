@@ -97,7 +97,9 @@ class ScalaTestGenerator extends TestGenerator {
     def addExtendsRef(refName: String) = {
       val (extendsToken, classParents) = createClassTemplateParents(refName)(typeDefinition.getManager)
       val extendsAdded = extendsBlock.addBefore(extendsToken, extendsBlock.getFirstChild)
-      extendsBlock.addAfter(classParents, extendsAdded)
+      val res = extendsBlock.addAfter(classParents, extendsAdded)
+      extendsBlock.addBefore(createWhitespace(extendsAdded.getProject), res)
+      res
     }
 
     psiClass match {
@@ -191,9 +193,11 @@ object ScalaTestGenerator {
       withAnnotation("org.scalatest.BeforeAndAfterEach", typeDef, body) { closingBrace =>
         if (generateBefore) {
           body.addBefore(createMethodFromText("override def beforeEach() {\n\n}"), closingBrace)
+          body.addBefore(createNewLine(), closingBrace)
         }
         if (generateAfter) {
           body.addBefore(createMethodFromText("override def afterEach() {\n\n}"), closingBrace)
+          body.addBefore(createNewLine(), closingBrace)
         }
       }
     }
@@ -205,13 +209,15 @@ object ScalaTestGenerator {
     if (!(generateBefore || generateAfter)) return
     typeDef.extendsBlock.templateBody.foreach { body =>
       if (generateBefore) {
-        withAnnotation("org.specs2.specification.BeforeEach", typeDef, body) {
-          body.addBefore(createMethodFromText("override protected def before: Any = {\n\n}"), _)
+        withAnnotation("org.specs2.specification.BeforeEach", typeDef, body) { last =>
+          body.addBefore(createMethodFromText("override protected def before: Any = {\n\n}"), last)
+          body.addBefore(createNewLine(), last)
         }
       }
       if (generateAfter) {
-        withAnnotation("org.specs2.specification.AfterEach", typeDef, body) {
-          body.addBefore(createMethodFromText("override protected def after: Any = {\n\n}"), _)
+        withAnnotation("org.specs2.specification.AfterEach", typeDef, body) { last =>
+          body.addBefore(createMethodFromText("override protected def after: Any = {\n\n}"), last)
+          body.addBefore(createNewLine(), last)
         }
       }
     }
@@ -225,6 +231,7 @@ object ScalaTestGenerator {
         methods.map("scenario (\"" + _.getMember.getName + "\"){\n\n}\n").
           fold("feature(\"Methods tests\") {")(_ + "\n" + _) + "}"),
         templateBody.getLastChild)
+      templateBody.addBefore(createNewLine(), templateBody.getLastChild)
     }
   }
 
@@ -250,6 +257,7 @@ object ScalaTestGenerator {
     if (methods.nonEmpty) {
       templateBody.addBefore(createExpressionFromText(
         methods.map("\"" + _.getMember.getName + "\" in {\n\n}\n").fold("\"Methods tests\" - {")(_ + "\n" + _) + "\n}"), templateBody.getLastChild)
+      templateBody.addBefore(createNewLine(), templateBody.getLastChild)
     }
   }
 
@@ -261,6 +269,7 @@ object ScalaTestGenerator {
         methods.map("it(\"should " + _.getMember.getName + "\") {\n\n}\n").
           fold("describe(\"" + className + "\") {\n")(_ + "\n" + _) + "\n}"),
         templateBody.getLastChild)
+      templateBody.addBefore(createNewLine(), templateBody.getLastChild)
     }
   }
 
@@ -300,6 +309,7 @@ object ScalaTestGenerator {
         methods.map("\"" + _.getMember.getName + "\" in {\n\n}\n").
           fold("\"" + className + "\" should {\n")(_ + "\n" + _) + "\n}"),
         templateBody.getLastChild)
+      templateBody.addBefore(createNewLine(), templateBody.getLastChild)
     }
   }
 
@@ -316,8 +326,11 @@ object ScalaTestGenerator {
     val closingBrace = templateBody.getLastChild
     templateBody.addBefore(createMethodFromText("def is = s2\"\"\"" + checkMethodsString +
       "\n" + normalIndent + "\"\"\""), closingBrace)
-    testNames.map(testName =>
-      templateBody.addBefore(createMethodFromText("def " + testName + " = ok"), closingBrace))
+    templateBody.addBefore(createNewLine(), closingBrace)
+    testNames.map { testName =>
+      templateBody.addBefore(createMethodFromText("def " + testName + " = ok"), closingBrace)
+      templateBody.addBefore(createNewLine(), closingBrace)
+    }
   }
 
   private def generateSpecs2ScriptSpecificationMethods(methods: List[MemberInfo], templateBody: ScTemplateBody, className: String, typeDef: ScTypeDefinition)
@@ -332,9 +345,11 @@ object ScalaTestGenerator {
       else ""
       templateBody.addBefore(createMethodFromText("def is = s2\"\"\"" + checkMethodsString +
         "\n" + doubleIndent + "\"\"\""), closingBrace)
+      templateBody.addBefore(createNewLine(), closingBrace)
       if (methods.nonEmpty) {
         templateBody.addBefore(createExpressionFromText(testNames.map("eg := ok //" + _).
           fold("\"" + className + "\" - new group {")(_ + "\n" + _) + "\n}"), closingBrace)
+        templateBody.addBefore(createNewLine(), closingBrace)
       }
     }
   }
@@ -346,6 +361,7 @@ object ScalaTestGenerator {
       templateBody.addBefore(createExpressionFromText(methods.
         map("\"" + _.getMember.getName + "\" in {\nok\n}\n").
         fold("\"" + className + "\" should {")(_ + "\n" + _) + "\n}"), templateBody.getLastChild)
+      templateBody.addBefore(createNewLine(), templateBody.getLastChild)
     }
   }
 

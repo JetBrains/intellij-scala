@@ -160,9 +160,15 @@ object ScalaFmtPreFormatProcessor {
     val startElement = file.findElementAt(range.getStartOffset)
     val endElement = file.findElementAt(range.getEndOffset - 1)
     if (startElement == null || endElement == null) return Seq.empty
+    def findProperParent(parent: PsiElement): Seq[PsiElement] = {
+      val proper = ScalaPsiUtil.getParentWithProperty(parent, strict = false, isProperUpperLevelPsi)
+      proper match {
+        case Some(properParent) => Seq(properParent)
+        case _ => Seq.empty
+      }
+    }
     Option(PsiTreeUtil.findCommonParent(startElement, endElement)) match {
-      case Some(_: PsiWhiteSpace) => Seq.empty
-      case Some(parent: LeafPsiElement) if isProperUpperLevelPsi(parent) => Seq(parent)
+      case Some(parent: LeafPsiElement) => findProperParent(parent)
       case Some(parent) =>
         val rawChildren = parent.children.toArray
         var children = rawChildren.filter(_.getTextRange.intersects(range))
@@ -178,10 +184,7 @@ object ScalaFmtPreFormatProcessor {
           else children
         }
         else if (isProperUpperLevelPsi(parent)) Seq(parent)
-        else ScalaPsiUtil.getParentWithProperty(parent, strict = false, isProperUpperLevelPsi) match {
-          case Some(properParent) if properParent != file => Seq(properParent)
-          case _ => Seq.empty
-        }
+        else findProperParent(parent)
       case Some(parent) if isProperUpperLevelPsi(parent) => Seq(parent)
       case _ => Seq.empty
     }
