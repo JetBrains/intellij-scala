@@ -58,7 +58,7 @@ public class ScalaCodeStyleSettings extends CustomCodeStyleSettings {
   public boolean INDENT_FIRST_PARAMETER_CLAUSE = false;
   public String SCALAFMT_CONFIG_PATH = "";
   public int FORMATTER = INTELLIJ_FORMATTER;
-  public boolean SHOW_SCALAFMT_INVALID_CODE_WARNINGS = true;
+  public boolean SHOW_SCALAFMT_INVALID_CODE_WARNINGS = false;
 
   public static final int INTELLIJ_FORMATTER = 0;
   public static final int SCALAFMT_FORMATTER = 1;
