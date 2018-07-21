@@ -20,11 +20,12 @@ object ScalaFmtConfigUtil {
   def loadConfig(configFile: VirtualFile, project: Project, disableRewrite: Boolean = true): Option[ScalafmtConfig] = {
     inReadAction{PsiManager.getInstance(project).findFile(configFile) match {
       case hoconFile: HoconPsiFile =>
-        Config.fromHoconString(hoconFile.getText).toEither.toOption.
-          map(config => if (disableRewrite) config.copy(rewrite = RewriteSettings()) else config)
+        Config.fromHoconString(hoconFile.getText).toEither.toOption
       case _ => None
     }}
   }
+
+  def disableRewriteRules(config: ScalafmtConfig): ScalafmtConfig = config.copy(rewrite = RewriteSettings())
 
   def storeOrUpdate(vFile: VirtualFile, project: Project): ScalafmtConfig = {
     vFile.refresh(false, false) //TODO use of asynchronous updates is a trade-off performance vs accuracy, can this be performance-heavy?
@@ -87,7 +88,7 @@ object ScalaFmtConfigUtil {
   private val unsupportedSettingsNotificationGroup: NotificationGroup = NotificationGroup.balloonGroup("Scalafmt unsupported features")
 
   private def rewriteActionsNotSupported: Notification = unsupportedSettingsNotificationGroup.
-    createNotification("Scalafmt rewrite rules are not supported.", "Rewrite rules will be disabled.", NotificationType.WARNING, null)
+    createNotification("Scalafmt rewrite rules are partially supported.", "Rewrite rules will be disabled for selection formatting.", NotificationType.WARNING, null)
 
   def notifyNotSupportedFeatures(settings: ScalaCodeStyleSettings, project: Project): Unit = {
     if (settings.USE_SCALAFMT_FORMATTER) scalaFmtConfigFile(settings, project).

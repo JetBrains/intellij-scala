@@ -103,35 +103,40 @@ object ScalaFmtPreFormatProcessor {
     if (document == null) return None
     implicit val fileText: String = file.getText
     val config = configFor(file)
-    val wholeFileFormatResult = if (range == file.getTextRange) Scalafmt.format(fileText, config).toEither.toOption else None
-    val (elements, formatted, wrapped) = wholeFileFormatResult match {
-      case Some(formattedCode) =>
-        (Seq(file), formattedCode, false)
-      case _ =>
-        elementsInRangeWrapped(file, range) match {
-          case wrapElements if wrapElements.isEmpty && range != file.getTextRange =>
-            //failed to wrap some elements, try the whole file
-            Scalafmt.format(fileText, config) match {
-              case Success(formattedCode) =>
-                (Seq(file), formattedCode, false)
-              case _ =>
-                reportInvalidCodeFailure(project)
-                return None
-            }
-          case wrapElements if wrapElements.isEmpty =>
-            //wanted to format whole file, failed with file and with file elements wrapped, report failure
-            reportInvalidCodeFailure(project)
-            return None
-          case wrapElements =>
-            val elementsText = wrapElements.map(getText).mkString("")
-            Scalafmt.format(wrap(elementsText), config) match {
-              case Success(formattedCode) => (wrapElements, formattedCode, true)
-              case _ =>
-                reportInvalidCodeFailure(project)
-                return None
-            }
-        }
+    if (range == file.getTextRange) {
+      Scalafmt.format(fileText, config) match {
+        case Success(formattedCode) =>
+          inWriteAction(document.setText(formattedCode))
+          manager.commitAllDocuments()
+          return None
+        case _ =>
+      }
     }
+    val configFiltered = disableRewriteRules(config)
+    val (elements, formatted, wrapped) =
+      elementsInRangeWrapped(file, range) match {
+        case wrapElements if wrapElements.isEmpty && range != file.getTextRange =>
+          //failed to wrap some elements, try the whole file
+          Scalafmt.format(fileText, configFiltered) match {
+            case Success(formattedCode) =>
+              (Seq(file), formattedCode, false)
+            case _ =>
+              reportInvalidCodeFailure(project)
+              return None
+          }
+        case wrapElements if wrapElements.isEmpty =>
+          //wanted to format whole file, failed with file and with file elements wrapped, report failure
+          reportInvalidCodeFailure(project)
+          return None
+        case wrapElements =>
+          val elementsText = wrapElements.map(getText).mkString("")
+          Scalafmt.format(wrap(elementsText), configFiltered) match {
+            case Success(formattedCode) => (wrapElements, formattedCode, true)
+            case _ =>
+              reportInvalidCodeFailure(project)
+              return None
+          }
+      }
     val wrapFile = PsiFileFactory.getInstance(project).createFileFromText("ScalaFmtFormatWrapper", ScalaFileType.INSTANCE, formatted)
     val textRangeDelta = replaceWithFormatted(wrapFile, elements, range, wrapped)
     manager.commitDocument(document)
