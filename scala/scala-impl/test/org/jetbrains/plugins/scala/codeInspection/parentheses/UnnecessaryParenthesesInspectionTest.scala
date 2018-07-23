@@ -395,6 +395,10 @@ class UnnecessaryParenthesesInspectionTest extends ScalaQuickFixTestBase {
       """.stripMargin)
   }
 
+  def testFunctionTupleParameter(): Unit = {
+    checkTextHasNoErrors("val f: ((Int, Int)) => Int = ???")
+  }
+
   def testEmptyParentheses(): Unit = {
     checkTextHasNoErrors("type Null_Unit = () => Unit")
   }

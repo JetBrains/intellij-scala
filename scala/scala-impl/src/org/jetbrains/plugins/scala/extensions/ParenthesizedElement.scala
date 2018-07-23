@@ -75,6 +75,7 @@ object ParenthesizedElement {
         case _ if parenthesized.innerElement.isEmpty       => true
         case ScParenthesizedElement(inner)
           if containsSomethingElse(inner)                  => true
+        case _ if isFunctionTupleParameter                 => true
         case SameKindParentAndInner(parent, inner)         => !parenthesesRedundant(parent, inner)
         case ChildOf(_: ScConstructor | _: ScClassParents) => true
         case _                                             => false
@@ -101,6 +102,9 @@ object ParenthesizedElement {
         getPrecedence(inner) == getPrecedence(parent) && innerFirstAssociativity(parent, inner) ||
         isFunctionTypeSingleParam
     }
+
+    private def isFunctionTupleParameter: Boolean =
+      isFunctionTypeSingleParam && parenthesized.innerElement.exists(_.isInstanceOf[ScTupleTypeElement])
 
     /**Infix chain with same precedence:
       * - If the two operators have different associativities, then the parentheses are required
