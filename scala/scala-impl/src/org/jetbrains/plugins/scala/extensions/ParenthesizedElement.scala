@@ -7,7 +7,7 @@ import org.jetbrains.plugins.scala.lang.psi.api.base.patterns._
 import org.jetbrains.plugins.scala.lang.psi.api.base.types._
 import org.jetbrains.plugins.scala.lang.psi.api.base.{ScConstructor, ScInfixElement, ScParenthesizedElement}
 import org.jetbrains.plugins.scala.lang.psi.api.expr.{ScExpression, ScParenthesisedExpr, ScSugarCallExpr}
-import org.jetbrains.plugins.scala.lang.psi.api.toplevel.templates.ScClassParents
+import org.jetbrains.plugins.scala.lang.psi.api.toplevel.templates.{ScClassParents, ScTemplateParents}
 import org.jetbrains.plugins.scala.lang.psi.{ScalaPsiElement, ScalaPsiUtil}
 
 import scala.annotation.tailrec
@@ -71,14 +71,14 @@ object ParenthesizedElement {
       */
     def isParenthesisNeeded: Boolean = {
       parenthesized match {
-        case expr@ScParenthesisedExpr(inner)               => ScalaPsiUtil.needParentheses(expr, inner)
-        case _ if parenthesized.innerElement.isEmpty       => true
+        case expr@ScParenthesisedExpr(inner)                  => ScalaPsiUtil.needParentheses(expr, inner)
+        case _ if parenthesized.innerElement.isEmpty          => true
         case ScParenthesizedElement(inner)
-          if containsSomethingElse(inner)                  => true
-        case _ if isFunctionTupleParameter                 => true
-        case SameKindParentAndInner(parent, inner)         => !parenthesesRedundant(parent, inner)
-        case ChildOf(_: ScConstructor | _: ScClassParents) => true
-        case _                                             => false
+          if containsSomethingElse(inner)                     => true
+        case _ if isFunctionTupleParameter                    => true
+        case SameKindParentAndInner(parent, inner)            => !parenthesesRedundant(parent, inner)
+        case ChildOf(_: ScConstructor | _: ScTemplateParents) => true
+        case _                                                => false
       }
     }
 

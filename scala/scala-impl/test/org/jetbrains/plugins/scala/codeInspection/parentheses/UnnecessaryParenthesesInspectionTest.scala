@@ -399,6 +399,10 @@ class UnnecessaryParenthesesInspectionTest extends ScalaQuickFixTestBase {
     checkTextHasNoErrors("val f: ((Int, Int)) => Int = ???")
   }
 
+  def testTraitParents(): Unit = {
+    checkTextHasNoErrors("trait Foo extends (Int => String)")
+  }
+
   def testEmptyParentheses(): Unit = {
     checkTextHasNoErrors("type Null_Unit = () => Unit")
   }
