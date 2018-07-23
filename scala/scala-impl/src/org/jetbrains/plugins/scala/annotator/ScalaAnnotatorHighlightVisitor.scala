@@ -3,6 +3,7 @@ package annotator
 
 import com.intellij.codeInsight.daemon.impl._
 import com.intellij.codeInsight.daemon.impl.analysis.HighlightInfoHolder
+import com.intellij.lang.annotation.HighlightSeverity.INFORMATION
 import com.intellij.openapi.application.ApplicationManager
 import com.intellij.openapi.project.{DumbService, Project}
 import com.intellij.psi._
@@ -71,14 +72,17 @@ class ScalaAnnotatorHighlightVisitor(project: Project) extends HighlightVisitor 
       return
     }
     ScalaAnnotator.forProject.annotate(element, myAnnotationHolder)
-    if (myAnnotationHolder.hasAnnotations && shouldHighlight(element.getContainingFile)) {
+    val notOnlyInformation = shouldHighlightErrorsAndWarnings(element.getContainingFile)
+    if (myAnnotationHolder.hasAnnotations) {
       myAnnotationHolder.forEach { annotation =>
-        myHolder.add(HighlightInfo.fromAnnotation(annotation))
+        if (notOnlyInformation || annotation.getSeverity == INFORMATION) {
+          myHolder.add(HighlightInfo.fromAnnotation(annotation))
+        }
       }
       myAnnotationHolder.clear()
     }
   }
 
-  private def shouldHighlight(file: PsiFile) =
+  private def shouldHighlightErrorsAndWarnings(file: PsiFile) =
     file != null && file.isWritable || ApplicationManager.getApplication.isUnitTestMode
 }
