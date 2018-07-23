@@ -12,7 +12,7 @@ import org.jetbrains.plugins.scala.lang.psi.api.toplevel.ScTypeBoundsOwner
 * Nikolay.Tropin
 * 2014-11-18
 */
-class DeprecatedViewBoundInspection extends AbstractInspection(id, description) {
+class DeprecatedViewBoundInspection extends AbstractInspection(description) {
 
   override def actionFor(implicit holder: ProblemsHolder): PartialFunction[PsiElement, Any] = {
     case boundsOwner: ScTypeBoundsOwner if boundsOwner.viewBound.nonEmpty && canBeConverted(boundsOwner) =>

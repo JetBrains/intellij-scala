@@ -9,8 +9,7 @@ import org.jetbrains.plugins.scala.lang.psi.api.expr.{ScExpression, ScInfixExpr,
 import org.jetbrains.plugins.scala.lang.psi.impl.ScalaPsiElementFactory.createExpressionWithContextFromText
 
 class BuiltinMatcherExistsInspection
-  extends AbstractInspection("Specs2Matchers",
-    InspectionBundle.message("specs2.builtin.matcher.alternative.exists")) {
+  extends AbstractInspection(InspectionBundle.message("specs2.builtin.matcher.alternative.exists")) {
 
   override protected def actionFor(implicit holder: ProblemsHolder): PartialFunction[PsiElement, Unit] = {
     case elem@ScMethodCall(matcher, Seq(ScMethodCall(inner, _))) if equalToMatcher(matcher) && optional(inner) =>

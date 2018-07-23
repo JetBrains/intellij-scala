@@ -7,38 +7,58 @@ import com.intellij.psi.{PsiElement, PsiElementVisitor}
 /**
   * Pavel Fatin
   */
-abstract class AbstractInspection(id: String, name: String) extends LocalInspectionTool {
+abstract class AbstractInspection protected(override final val getDisplayName: String = AbstractInspection.formatName(getClass.getSimpleName))
+  extends LocalInspectionTool {
 
-  protected def this() =
-    this(AbstractInspection.formatId(getClass), AbstractInspection.formatName(getClass))
-
-  protected def this(name: String) =
-    this(AbstractInspection.formatId(getClass), name)
-
+  /**
+    * use {@link AbstractInspection.PureFunctionVisitorVisitor#problemDescriptor(PsiElement, Option[LocalQuickFix], String, ProblemHighlightType)} instead
+    */
+  @Deprecated
   protected def actionFor(implicit holder: ProblemsHolder): PartialFunction[PsiElement, Any]
 
-  override def getDisplayName: String = name
+  override def buildVisitor(holder: ProblemsHolder, isOnTheFly: Boolean): PsiElementVisitor = new PartialFunctionVisitor(holder)
 
-  override final def buildVisitor(holder: ProblemsHolder, isOnTheFly: Boolean): PsiElementVisitor =
-    new AbstractInspection.VisitorWrapper(actionFor(holder))
+  protected final class PureFunctionVisitorVisitor(holder: ProblemsHolder, isOnTheFly: Boolean) extends PsiElementVisitor {
+
+    protected def problemDescriptor(element: PsiElement,
+                                    maybeQuickFix: Option[LocalQuickFix] = None,
+                                    descriptionTemplate: String = getDisplayName,
+                                    highlightType: ProblemHighlightType = ProblemHighlightType.GENERIC_ERROR_OR_WARNING): Option[ProblemDescriptor] = {
+      val fixes = maybeQuickFix match {
+        case Some(quickFix) => Array(quickFix)
+        case _ => LocalQuickFix.EMPTY_ARRAY
+      }
+      val descriptor = holder.getManager.createProblemDescriptor(element, descriptionTemplate, isOnTheFly, fixes, highlightType)
+      Some(descriptor)
+    }
+
+    override def visitElement(element: PsiElement): Unit = problemDescriptor(element) match {
+      case Some(descriptor) => holder.registerProblem(descriptor)
+      case _ =>
+    }
+  }
+
+  /**
+    * use {@link AbstractInspection.PureFunctionVisitorVisitor} instead
+    */
+  @Deprecated
+  protected final class PartialFunctionVisitor(holder: ProblemsHolder) extends PsiElementVisitor {
+
+    override def visitElement(element: PsiElement): Unit = actionFor(holder) match {
+      case action if action.isDefinedAt(element) => action(element)
+      case _ =>
+    }
+  }
+
 }
 
 object AbstractInspection {
 
   private[this] val CapitalLetterPattern = "(?<!=.)\\p{Lu}".r
+  private[this] val InspectionSuffix = "Inspection"
 
-  private def formatId(clazz: Class[_]): String =
-    clazz.getSimpleName.stripSuffix("Inspection")
-
-  private def formatName(clazz: Class[_]): String = {
-    val id = formatId(clazz)
+  private def formatName(simpleName: String): String = {
+    val id = simpleName.stripSuffix(InspectionSuffix)
     CapitalLetterPattern.replaceAllIn(id, it => s" ${it.group(0).toLowerCase}")
   }
-
-  private class VisitorWrapper(action: PartialFunction[PsiElement, Any]) extends PsiElementVisitor {
-
-    override def visitElement(element: PsiElement): Unit =
-      if (action.isDefinedAt(element)) action(element)
-  }
-
 }

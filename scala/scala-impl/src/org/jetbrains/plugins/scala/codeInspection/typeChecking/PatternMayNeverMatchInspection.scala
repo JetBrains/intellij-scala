@@ -3,7 +3,7 @@ package org.jetbrains.plugins.scala.codeInspection.typeChecking
 import com.intellij.codeInspection.{ProblemHighlightType, ProblemsHolder}
 import com.intellij.psi.PsiElement
 import org.jetbrains.plugins.scala.annotator.PatternAnnotator
-import org.jetbrains.plugins.scala.codeInspection.typeChecking.PatternMayNeverMatchInspection.{ScPatternExpectedAndPatternType, inspectionId, inspectionName}
+import org.jetbrains.plugins.scala.codeInspection.typeChecking.PatternMayNeverMatchInspection.{ScPatternExpectedAndPatternType, inspectionName}
 import org.jetbrains.plugins.scala.codeInspection.{AbstractInspection, InspectionBundle}
 import org.jetbrains.plugins.scala.lang.psi.api.base.patterns.ScPattern
 import org.jetbrains.plugins.scala.lang.psi.types.ComparingUtil._
@@ -14,7 +14,7 @@ import org.jetbrains.plugins.scala.lang.psi.types.{ScType, ScTypeExt}
   * Author: Svyatoslav Ilinskiy
   * Date: 21.12.15.
   */
-class PatternMayNeverMatchInspection extends AbstractInspection(inspectionId, inspectionName) {
+class PatternMayNeverMatchInspection extends AbstractInspection(inspectionName) {
 
   override def actionFor(implicit holder: ProblemsHolder): PartialFunction[PsiElement, Any] = {
     case pat@ScPatternExpectedAndPatternType(exTp, patType) =>

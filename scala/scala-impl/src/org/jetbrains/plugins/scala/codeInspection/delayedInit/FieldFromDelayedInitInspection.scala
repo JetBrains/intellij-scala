@@ -14,7 +14,7 @@ import org.jetbrains.plugins.scala.lang.resolve.ScalaResolveResult
 /**
   * @author Nikolay.Tropin
   */
-final class FieldFromDelayedInitInspection extends AbstractInspection("FieldFromDelayedInit", "Field from DelayedInit") {
+final class FieldFromDelayedInitInspection extends AbstractInspection("Field from DelayedInit") {
 
   import FieldFromDelayedInitInspection._
 

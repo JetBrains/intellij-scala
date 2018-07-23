@@ -13,7 +13,7 @@ import org.jetbrains.plugins.scala.lang.psi.api.statements.ScVariable
  * Pavel Fatin
  */
 
-class LoopVariableNotUpdatedInspection extends AbstractInspection("LoopVariableNotUpdatedInspection", "Loop variable not updated inside loop") {
+class LoopVariableNotUpdatedInspection extends AbstractInspection("Loop variable not updated inside loop") {
   private val ComparisonOperators = Set("==", "!=", ">", "<", ">=", "<=")
 
   override def actionFor(implicit holder: ProblemsHolder): PartialFunction[PsiElement, Unit] = {

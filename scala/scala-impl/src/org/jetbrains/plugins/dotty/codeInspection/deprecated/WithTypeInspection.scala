@@ -13,7 +13,7 @@ import org.jetbrains.plugins.scala.lang.psi.impl.ScalaPsiElementFactory.createEl
 /**
   * @author adkozlov
   */
-class WithTypeInspection extends AbstractInspection(id, name) {
+class WithTypeInspection extends AbstractInspection(name) {
 
   override def actionFor(implicit holder: ProblemsHolder): PartialFunction[PsiElement, Unit] = {
     case typeElement: DottyAndTypeElementImpl =>

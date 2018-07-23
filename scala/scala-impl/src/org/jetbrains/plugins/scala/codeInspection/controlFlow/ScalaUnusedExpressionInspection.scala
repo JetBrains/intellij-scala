@@ -19,7 +19,7 @@ import org.jetbrains.plugins.scala.util.SideEffectsUtil._
   * Nikolay.Tropin
   * 2014-09-22
   */
-class ScalaUnusedExpressionInspection extends AbstractInspection("ScalaUnusedExpression", "Unused expression") {
+class ScalaUnusedExpressionInspection extends AbstractInspection("Unused expression") {
 
   override protected def actionFor(implicit holder: ProblemsHolder): PartialFunction[PsiElement, Any] = {
     case expr: ScExpression if IntentionAvailabilityChecker.checkInspection(this, expr.getParent) =>

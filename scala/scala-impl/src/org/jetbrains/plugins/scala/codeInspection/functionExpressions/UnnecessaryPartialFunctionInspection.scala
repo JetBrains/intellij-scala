@@ -22,7 +22,7 @@ object UnnecessaryPartialFunctionInspection {
 }
 
 class UnnecessaryPartialFunctionInspection
-  extends AbstractInspection(inspectionId, inspectionName){
+  extends AbstractInspection(inspectionName) {
 
   override def actionFor(implicit holder: ProblemsHolder): PartialFunction[PsiElement, Any] = {
     case expression: ScBlockExpr =>

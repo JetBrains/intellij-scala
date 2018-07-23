@@ -10,7 +10,6 @@ import org.jetbrains.plugins.scala.lang.psi.api.base.ScStableCodeReferenceElemen
 import org.jetbrains.plugins.scala.lang.psi.api.toplevel.imports.ScImportExpr
 import org.jetbrains.plugins.scala.lang.psi.api.toplevel.typedef.ScObject
 import org.jetbrains.plugins.scala.lang.psi.impl.ScalaPsiElementFactory.createReferenceFromText
-import org.jetbrains.plugins.scala.lang.resolve.ScalaResolveResult
 
 import scala.annotation.tailrec
 import scala.collection.mutable.ArrayBuffer
@@ -19,7 +18,7 @@ import scala.collection.mutable.ArrayBuffer
  * @author Alefas
  * @since 14.09.12
  */
-class RelativeImportInspection extends AbstractInspection("RelativeImport", "Relative Import") {
+class RelativeImportInspection extends AbstractInspection("Relative Import") {
   import org.jetbrains.plugins.scala.codeInspection.relativeImports.RelativeImportInspection.qual
 
   override def actionFor(implicit holder: ProblemsHolder): PartialFunction[PsiElement, Any] = {

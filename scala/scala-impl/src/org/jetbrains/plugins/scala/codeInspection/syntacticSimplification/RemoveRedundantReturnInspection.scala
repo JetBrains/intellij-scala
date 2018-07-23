@@ -10,7 +10,7 @@ import org.jetbrains.plugins.scala.lang.psi.api.expr.ScExpression.calculateRetur
 import org.jetbrains.plugins.scala.lang.psi.api.expr.ScReturnStmt
 import org.jetbrains.plugins.scala.lang.psi.api.statements.{ScFunction, ScFunctionDefinition}
 
-class RemoveRedundantReturnInspection extends AbstractInspection("ScalaRedundantReturn", "Redundant Return") {
+class RemoveRedundantReturnInspection extends AbstractInspection("Redundant Return") {
 
   override def actionFor(implicit holder: ProblemsHolder): PartialFunction[PsiElement, Unit] = {
     case function: ScFunctionDefinition =>

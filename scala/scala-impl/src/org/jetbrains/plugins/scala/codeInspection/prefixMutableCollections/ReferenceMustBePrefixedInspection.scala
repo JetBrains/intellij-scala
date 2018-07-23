@@ -20,7 +20,7 @@ import org.jetbrains.plugins.scala.lang.resolve.ScalaResolveResult.withActual
   * @author Alefas
   * @since 26.05.12
   */
-class ReferenceMustBePrefixedInspection extends AbstractInspection(ReferenceMustBePrefixedInspection.ID, ReferenceMustBePrefixedInspection.DESCRIPTION) {
+class ReferenceMustBePrefixedInspection extends AbstractInspection(ReferenceMustBePrefixedInspection.DESCRIPTION) {
 
   import ReferenceMustBePrefixedInspection._
 

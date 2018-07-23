@@ -21,7 +21,7 @@ import org.jetbrains.plugins.scala.lang.psi.types.result._
  * Author: Svyatoslav Ilinskiy
  * Date: 6/29/15
  */
-class ConvertExpressionToSAMInspection extends AbstractInspection(inspectionId, inspectionName) {
+class ConvertExpressionToSAMInspection extends AbstractInspection(inspectionName) {
 
   override def actionFor(implicit holder: ProblemsHolder): PartialFunction[PsiElement, Any] = {
     case definition: ScNewTemplateDefinition

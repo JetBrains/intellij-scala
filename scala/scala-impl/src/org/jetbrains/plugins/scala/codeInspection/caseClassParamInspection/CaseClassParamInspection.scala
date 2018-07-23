@@ -8,7 +8,7 @@ import org.jetbrains.plugins.scala.lang.psi.api.statements.params.ScClassParamet
 import org.jetbrains.plugins.scala.lang.psi.api.toplevel.typedef.ScClass
 
 
-class CaseClassParamInspection extends AbstractInspection("CaseClassParam", "Case Class Parameter") {
+class CaseClassParamInspection extends AbstractInspection("Case Class Parameter") {
 
   override protected def actionFor(implicit holder: ProblemsHolder): PartialFunction[PsiElement, Any] = {
     case c: ScClass if c.isCase =>
