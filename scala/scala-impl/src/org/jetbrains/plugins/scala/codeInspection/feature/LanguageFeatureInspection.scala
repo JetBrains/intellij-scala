@@ -16,14 +16,13 @@ import org.jetbrains.plugins.scala.lang.psi.api.statements.params.ScTypeParamCla
 import org.jetbrains.plugins.scala.lang.psi.api.statements.{ScFunctionDefinition, ScMacroDefinition, ScTypeAliasDeclaration}
 import org.jetbrains.plugins.scala.lang.psi.api.toplevel.templates.ScClassParents
 import org.jetbrains.plugins.scala.lang.psi.impl.ScalaPsiElementFactory
-import org.jetbrains.plugins.scala.project.ScalaLanguageLevel.Scala_2_10
 import org.jetbrains.plugins.scala.project._
 import org.jetbrains.plugins.scala.project.settings.ScalaCompilerSettings
 
 /**
  * @author Pavel Fatin
  */
-class LanguageFeatureInspection extends AbstractInspection("LanguageFeature", "Advanced language features"){
+class LanguageFeatureInspection extends AbstractInspection("Advanced language features") {
   private val Features = Seq(
     Feature("postfix operator notation", "scala.language", "postfixOps", _.postfixOps, _.postfixOps = true) {
       case e: ScPostfixExpr => e.operation

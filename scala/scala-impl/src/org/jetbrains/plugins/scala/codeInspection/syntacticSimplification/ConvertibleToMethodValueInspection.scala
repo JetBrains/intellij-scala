@@ -30,7 +30,7 @@ object ConvertibleToMethodValueInspection {
   val inspectionId = "ConvertibleToMethodValue"
 }
 
-class ConvertibleToMethodValueInspection extends AbstractInspection(inspectionId, inspectionName) {
+class ConvertibleToMethodValueInspection extends AbstractInspection(inspectionName) {
 
   override def actionFor(implicit holder: ProblemsHolder): PartialFunction[PsiElement, Any] = {
     case MethodRepr(_, _, Some(ref), _)

@@ -11,7 +11,7 @@ import org.jetbrains.plugins.scala.lang.psi.api.toplevel.ScNamedElement
 /**
  * @author Nikolay.Tropin
  */
-class ScalaDeprecatedIdentifierInspection extends AbstractInspection(id, inspectionName) {
+class ScalaDeprecatedIdentifierInspection extends AbstractInspection(inspectionName) {
   private val deprecatedNames = Set("then")
 
   private def message(deprecatedName: String) = s"Usage of $deprecatedName as identifier is deprecated. It can be used as a keyword in future versions of scala."

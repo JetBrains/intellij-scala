@@ -16,7 +16,7 @@ import scala.collection.mutable
  * Nikolay.Tropin
  * 4/23/13
  */
-class DoubleNegationInspection extends AbstractInspection("DoubleNegationScala", "Double negation") {
+class DoubleNegationInspection extends AbstractInspection("Double negation") {
 
   override protected def actionFor(implicit holder: ProblemsHolder): PartialFunction[PsiElement, Any] = {
     case expr: ScExpression if DoubleNegationUtil.hasDoubleNegation(expr) =>

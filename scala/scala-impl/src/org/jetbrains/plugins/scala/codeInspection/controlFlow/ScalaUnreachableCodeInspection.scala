@@ -13,13 +13,13 @@ import org.jetbrains.plugins.scala.lang.psi.api.statements.ScFunctionDefinition
 import org.jetbrains.plugins.scala.lang.psi.controlFlow.{ControlFlowUtil, Instruction}
 
 import scala.annotation.tailrec
-import scala.collection.{Set, SortedSet}
+import scala.collection.Set
 
 /**
   * Nikolay.Tropin
   * 2014-04-22
   */
-class ScalaUnreachableCodeInspection extends AbstractInspection("ScalaUnreachableCode", "Unreachable code") {
+class ScalaUnreachableCodeInspection extends AbstractInspection("Unreachable code") {
 
   import ScalaUnreachableCodeInspection._
 

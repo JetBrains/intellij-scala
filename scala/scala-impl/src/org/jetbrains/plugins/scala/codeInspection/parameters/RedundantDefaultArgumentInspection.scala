@@ -11,7 +11,7 @@ import org.jetbrains.plugins.scala.lang.psi.api.expr.{ScAssignStmt, ScExpression
 import org.jetbrains.plugins.scala.lang.psi.api.statements.ScFunction
 import org.jetbrains.plugins.scala.lang.psi.api.statements.params.ScParameter
 
-class RedundantDefaultArgumentInspection extends AbstractInspection("RedundantDefaultArgumentInspection", "Argument duplicates corresponding parameter default value") {
+class RedundantDefaultArgumentInspection extends AbstractInspection("Argument duplicates corresponding parameter default value") {
 
   override def actionFor(implicit holder: ProblemsHolder): PartialFunction[PsiElement, Any] = {
     case ScMethodCall(referenceExpression: ScReferenceExpression, arguments: Seq[ScExpression]) =>

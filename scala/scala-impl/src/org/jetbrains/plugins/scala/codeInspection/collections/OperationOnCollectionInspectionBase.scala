@@ -3,14 +3,14 @@ package codeInspection.collections
 
 import java.awt.{Component, GridLayout}
 import java.util
-import javax.swing._
-import javax.swing.event.{ChangeEvent, ChangeListener}
 
 import com.intellij.codeInspection.{ProblemHighlightType, ProblemsHolder}
 import com.intellij.openapi.ui.{InputValidator, Messages}
 import com.intellij.openapi.wm.IdeFocusManager
 import com.intellij.psi.PsiElement
 import com.intellij.ui._
+import javax.swing._
+import javax.swing.event.{ChangeEvent, ChangeListener}
 import org.jetbrains.plugins.scala.codeInspection.collections.OperationOnCollectionInspectionBase._
 import org.jetbrains.plugins.scala.codeInspection.{AbstractInspection, InspectionBundle}
 import org.jetbrains.plugins.scala.lang.psi.api.expr._
@@ -47,7 +47,7 @@ object OperationOnCollectionInspectionBase {
   )
 }
 
-abstract class OperationOnCollectionInspectionBase extends AbstractInspection(inspectionId, inspectionName) {
+abstract class OperationOnCollectionInspectionBase extends AbstractInspection(inspectionName) {
   private val settings = ScalaApplicationSettings.getInstance()
 
   override protected def actionFor(implicit holder: ProblemsHolder): PartialFunction[PsiElement, Any] = {

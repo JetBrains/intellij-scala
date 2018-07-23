@@ -7,7 +7,6 @@ import org.jetbrains.plugins.scala.codeInspection.typeLambdaSimplify.KindProject
 import org.jetbrains.plugins.scala.codeInspection.{AbstractFixOnPsiElement, AbstractInspection}
 import org.jetbrains.plugins.scala.extensions.PsiElementExt
 import org.jetbrains.plugins.scala.lang.formatting.settings.ScalaCodeStyleSettings
-import org.jetbrains.plugins.scala.lang.psi.ScalaPsiUtil
 import org.jetbrains.plugins.scala.lang.psi.api.base.types.{ScParameterizedTypeElement, ScSimpleTypeElement}
 import org.jetbrains.plugins.scala.lang.psi.impl.ScalaPsiElementFactory.createTypeElementFromText
 
@@ -15,7 +14,7 @@ import org.jetbrains.plugins.scala.lang.psi.impl.ScalaPsiElementFactory.createTy
  * Author: Svyatoslav Ilinskiy
  * Date: 6/25/15
  */
-class KindProjectorUseCorrectLambdaKeywordInspection extends AbstractInspection(inspectionId, inspectionName) {
+class KindProjectorUseCorrectLambdaKeywordInspection extends AbstractInspection(inspectionName) {
 
   override def actionFor(implicit holder: ProblemsHolder): PartialFunction[PsiElement, Any] = {
     case param: ScParameterizedTypeElement if param.kindProjectorPluginEnabled =>

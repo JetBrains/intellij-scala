@@ -12,7 +12,7 @@ import org.jetbrains.plugins.scala.lang.psi.impl.ScalaPsiElementFactory.{createP
 import org.jetbrains.plugins.scala.lang.resolve.StdKinds
 import org.jetbrains.plugins.scala.lang.resolve.processor.ResolveProcessor
 
-class VariablePatternShadowInspection extends AbstractInspection("VariablePatternShadow", "Suspicious shadowing by a Variable Pattern") {
+class VariablePatternShadowInspection extends AbstractInspection("Suspicious shadowing by a Variable Pattern") {
 
   override def actionFor(implicit holder: ProblemsHolder): PartialFunction[PsiElement, Any] = {
     case refPat: ScReferencePattern => check(refPat, holder)

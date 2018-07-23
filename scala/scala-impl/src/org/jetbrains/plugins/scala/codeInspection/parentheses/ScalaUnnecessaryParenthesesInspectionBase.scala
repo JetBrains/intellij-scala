@@ -21,7 +21,7 @@ import org.jetbrains.plugins.scala.util.IntentionAvailabilityChecker.checkInspec
  * 4/25/13
  */
 abstract class ScalaUnnecessaryParenthesesInspectionBase
-  extends AbstractInspection("ScalaUnnecessaryParentheses", "Remove unnecessary parentheses") {
+  extends AbstractInspection("Remove unnecessary parentheses") {
 
   override def actionFor(implicit holder: ProblemsHolder): PartialFunction[PsiElement, Any] = {
     case p: ScParenthesizedElement if isProblem(p)                                                             => registerProblem(p)

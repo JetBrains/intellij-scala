@@ -7,38 +7,28 @@ import com.intellij.psi.{PsiElement, PsiElementVisitor}
 /**
   * Pavel Fatin
   */
-abstract class AbstractInspection(id: String, name: String) extends LocalInspectionTool {
-
-  protected def this() =
-    this(AbstractInspection.formatId(getClass), AbstractInspection.formatName(getClass))
-
-  protected def this(name: String) =
-    this(AbstractInspection.formatId(getClass), name)
+abstract class AbstractInspection protected(override final val getDisplayName: String = AbstractInspection.formatName(getClass.getSimpleName))
+  extends LocalInspectionTool {
 
   protected def actionFor(implicit holder: ProblemsHolder): PartialFunction[PsiElement, Any]
 
-  override def getDisplayName: String = name
-
   override final def buildVisitor(holder: ProblemsHolder, isOnTheFly: Boolean): PsiElementVisitor =
-    new AbstractInspection.VisitorWrapper(actionFor(holder))
+    new PsiElementVisitor {
+
+      override def visitElement(element: PsiElement): Unit = actionFor(holder) match {
+        case action if action.isDefinedAt(element) => action(element)
+        case _ =>
+      }
+    }
 }
 
 object AbstractInspection {
 
   private[this] val CapitalLetterPattern = "(?<!=.)\\p{Lu}".r
+  private[this] val InspectionSuffix = "Inspection"
 
-  private def formatId(clazz: Class[_]): String =
-    clazz.getSimpleName.stripSuffix("Inspection")
-
-  private def formatName(clazz: Class[_]): String = {
-    val id = formatId(clazz)
+  private def formatName(simpleName: String): String = {
+    val id = simpleName.stripSuffix(InspectionSuffix)
     CapitalLetterPattern.replaceAllIn(id, it => s" ${it.group(0).toLowerCase}")
   }
-
-  private class VisitorWrapper(action: PartialFunction[PsiElement, Any]) extends PsiElementVisitor {
-
-    override def visitElement(element: PsiElement): Unit =
-      if (action.isDefinedAt(element)) action(element)
-  }
-
 }

@@ -17,7 +17,7 @@ import org.jetbrains.plugins.scala.lang.psi.types._
 import org.jetbrains.plugins.scala.lang.psi.types.api.designator.ScDesignatorType
 import org.jetbrains.plugins.scala.lang.psi.types.api.{ScTypePresentation, _}
 import org.jetbrains.plugins.scala.lang.refactoring.util.ScTypeUtil.AliasType
-import org.jetbrains.plugins.scala.project.ProjectExt
+
 import scala.annotation.tailrec
 
 /**
@@ -74,7 +74,7 @@ object ComparingUnrelatedTypesInspection {
   }
 }
 
-class ComparingUnrelatedTypesInspection extends AbstractInspection(inspectionId, inspectionName) {
+class ComparingUnrelatedTypesInspection extends AbstractInspection(inspectionName) {
 
   override def actionFor(implicit holder: ProblemsHolder): PartialFunction[PsiElement, Any] = {
     case MethodRepr(expr, Some(left), Some(oper), Seq(right)) if Seq("==", "!=", "ne", "eq", "equals") contains oper.refName =>
