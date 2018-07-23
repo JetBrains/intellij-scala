@@ -523,44 +523,53 @@ class ScalaClausesCompletionTest extends ScalaCodeInsightTestBase {
     )
   }
 
-  def testTypesAdjustment(): Unit = doMatchCompletionTest(
+  def testPathDependent(): Unit = doMatchCompletionTest(
     fileText =
-      s"""sealed trait Foo
+      s"""class Foo {
+         |  object Bar {
+         |    sealed trait Baz
          |
-         |object Foo {
-         |  val Foo = new Foo {}
+         |    val Impl = new Baz {}
          |
-         |  object Bar extends Foo
+         |    object BazImpl extends Baz
          |
-         |  class Baz[+T, -U] extends Foo
+         |    case class CaseBaz() extends Baz
          |
-         |  object Baz {
-         |    def unapply[T, U](baz: Baz[T, U]) = Option(baz)
+         |    class BazBaz[+T, -U] extends Baz
+         |
+         |    object BazBaz {
+         |      def unapply[T, U](baz: BazBaz[T, U]) = Option(baz)
+         |    }
+         |
+         |    (_: Baz) m$CARET
          |  }
          |}
-         |
-         |(_: Foo) m$CARET
        """.stripMargin,
     resultText =
-      s"""sealed trait Foo
+      s"""class Foo {
+         |  object Bar {
+         |    sealed trait Baz
          |
-         |object Foo {
-         |  val Foo = new Foo {}
+         |    val Impl = new Baz {}
          |
-         |  object Bar extends Foo
+         |    object BazImpl extends Baz
          |
-         |  class Baz[+T, -U] extends Foo
+         |    case class CaseBaz() extends Baz
          |
-         |  object Baz {
-         |    def unapply[T, U](baz: Baz[T, U]) = Option(baz)
+         |    class BazBaz[+T, -U] extends Baz
+         |
+         |    object BazBaz {
+         |      def unapply[T, U](baz: BazBaz[T, U]) = Option(baz)
+         |    }
+         |
+         |    (_: Baz) match {
+         |      case Foo.this.Bar.Impl => $CARET
+         |      case Bar.BazImpl =>
+         |      case Bar.CaseBaz() =>
+         |      case Bar.BazBaz(value) =>
+         |      case baz: Bar.BazBaz[_, _] =>
+         |    }
          |  }
-         |}
-         |
-         |(_: Foo) match {
-         |  case Foo.Foo => $CARET
-         |  case Foo.Bar =>
-         |  case Foo.Baz(value) =>
-         |  case baz: Foo.Baz[_, _] =>
          |}
        """.stripMargin
   )
