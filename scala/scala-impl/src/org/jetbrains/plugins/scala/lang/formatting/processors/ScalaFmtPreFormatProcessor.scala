@@ -207,9 +207,9 @@ object ScalaFmtPreFormatProcessor {
     }
     if (res.length == 1 && res.head.isInstanceOf[PsiWhiteSpace]) {
       val ws = res.head
-      val next = PsiTreeUtil.nextLeaf(ws)
+      val next = PsiTreeUtil.nextLeaf(ws, true)
       if (next == null) return Seq(ws) //don't touch the last WS, nobody should try to format it anyway
-      val prev = PsiTreeUtil.prevLeaf(ws)
+      val prev = PsiTreeUtil.prevLeaf(ws, true)
       val newRange =
         if (prev == null) range.union(next.getTextRange)
         else prev.getTextRange.union(next.getTextRange)
