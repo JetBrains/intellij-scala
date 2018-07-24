@@ -8,7 +8,6 @@ import com.intellij.lang.ASTNode
 import com.intellij.openapi.progress.ProgressManager
 import com.intellij.psi._
 import com.intellij.psi.scope.PsiScopeProcessor
-import org.jetbrains.plugins.scala.extensions.PsiElementExt
 import org.jetbrains.plugins.scala.lang.lexer._
 import org.jetbrains.plugins.scala.lang.parser.ScalaElementTypes
 import org.jetbrains.plugins.scala.lang.psi.api.base.types.ScTypeElement
@@ -52,28 +51,36 @@ abstract class ScFunctionImpl protected (stub: ScFunctionStub, nodeType: ScFunct
 
   override def processDeclarations(processor: PsiScopeProcessor, state: ResolveState,
                                    lastParent: PsiElement, place: PsiElement): Boolean = {
-    // process function's process type parameters
+    if (lastParent == null) return true
+
+    // process function's type parameters
     if (!super[ScTypeParametersOwner].processDeclarations(processor, state, lastParent, place)) return false
 
-    lazy val parameterIncludingSynthetic: Seq[ScParameter] = effectiveParameterClauses.flatMap(_.effectiveParameters)
-    if (getStub == null) {
-      returnTypeElement match {
-        case Some(x) if lastParent != null && x.startOffsetInParent == lastParent.startOffsetInParent =>
-          for (p <- parameterIncludingSynthetic) {
-            ProgressManager.checkCanceled()
-            if (!processor.execute(p, state)) return false
-          }
-        case _ =>
-      }
-    } else {
-      if (lastParent != null && lastParent.getContext != lastParent.getParent) {
-        for (p <- parameterIncludingSynthetic) {
-          ProgressManager.checkCanceled()
-          if (!processor.execute(p, state)) return false
-        }
+    processParameters(processor, state, lastParent)
+  }
+
+  private def processParameters(processor: PsiScopeProcessor,
+                                state: ResolveState,
+                                lastParent: PsiElement): Boolean = {
+
+    if (lastParent != null && shouldProcessParameters(lastParent)) {
+      for {
+        clause <- effectiveParameterClauses
+        param  <- clause.effectiveParameters
+      } {
+        ProgressManager.checkCanceled()
+        if (!processor.execute(param, state)) return false
       }
     }
     true
+  }
+
+  // to resolve parameters in return type and body,
+  // references in default parameters are processed in ScParametersImpl
+  protected def shouldProcessParameters(lastParent: PsiElement): Boolean = {
+    val isSynthetic = lastParent.getContext != lastParent.getParent
+
+    isSynthetic || returnTypeElement.contains(lastParent)
   }
 
   @Cached(ModCount.anyScalaPsiModificationCount, this)
