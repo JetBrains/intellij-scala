@@ -11,35 +11,37 @@ abstract class AbstractInspection protected(override final val getDisplayName: S
   extends LocalInspectionTool {
 
   /**
-    * use {@link AbstractInspection.PureFunctionVisitorVisitor#problemDescriptor(PsiElement, Option[LocalQuickFix], String, ProblemHighlightType)} instead
+    * use [[org.jetbrains.plugins.scala.codeInspection.AbstractInspection#problemDescriptor]] instead
     */
   @Deprecated
   protected def actionFor(implicit holder: ProblemsHolder): PartialFunction[PsiElement, Any]
 
+  protected def problemDescriptor(element: PsiElement,
+                                  maybeQuickFix: Option[LocalQuickFix] = None,
+                                  descriptionTemplate: String = getDisplayName,
+                                  highlightType: ProblemHighlightType = ProblemHighlightType.GENERIC_ERROR_OR_WARNING)
+                                 (implicit manager: InspectionManager, isOnTheFly: Boolean): Option[ProblemDescriptor] = {
+    val fixes = maybeQuickFix match {
+      case Some(quickFix) => Array(quickFix)
+      case _ => LocalQuickFix.EMPTY_ARRAY
+    }
+    val descriptor = manager.createProblemDescriptor(element, descriptionTemplate, isOnTheFly, fixes, highlightType)
+    Some(descriptor)
+  }
+
   override def buildVisitor(holder: ProblemsHolder, isOnTheFly: Boolean): PsiElementVisitor = new PartialFunctionVisitor(holder)
 
-  protected final class PureFunctionVisitorVisitor(holder: ProblemsHolder, isOnTheFly: Boolean) extends PsiElementVisitor {
+  protected final class PureFunctionVisitor(holder: ProblemsHolder, isOnTheFly: Boolean) extends PsiElementVisitor {
 
-    protected def problemDescriptor(element: PsiElement,
-                                    maybeQuickFix: Option[LocalQuickFix] = None,
-                                    descriptionTemplate: String = getDisplayName,
-                                    highlightType: ProblemHighlightType = ProblemHighlightType.GENERIC_ERROR_OR_WARNING): Option[ProblemDescriptor] = {
-      val fixes = maybeQuickFix match {
-        case Some(quickFix) => Array(quickFix)
-        case _ => LocalQuickFix.EMPTY_ARRAY
+    override def visitElement(element: PsiElement): Unit =
+      problemDescriptor(element)(holder.getManager, isOnTheFly) match {
+        case Some(descriptor) => holder.registerProblem(descriptor)
+        case _ =>
       }
-      val descriptor = holder.getManager.createProblemDescriptor(element, descriptionTemplate, isOnTheFly, fixes, highlightType)
-      Some(descriptor)
-    }
-
-    override def visitElement(element: PsiElement): Unit = problemDescriptor(element) match {
-      case Some(descriptor) => holder.registerProblem(descriptor)
-      case _ =>
-    }
   }
 
   /**
-    * use {@link AbstractInspection.PureFunctionVisitorVisitor} instead
+    * use [[org.jetbrains.plugins.scala.codeInspection.AbstractInspection.PureFunctionVisitor]] instead
     */
   @Deprecated
   protected final class PartialFunctionVisitor(holder: ProblemsHolder) extends PsiElementVisitor {
