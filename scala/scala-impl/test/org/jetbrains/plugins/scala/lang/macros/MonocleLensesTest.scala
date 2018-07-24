@@ -2,6 +2,8 @@ package org.jetbrains.plugins.scala.lang.macros
 
 import com.intellij.openapi.module.Module
 import com.intellij.psi.util.PsiTreeUtil
+import org.jetbrains.plugins.scala.DependencyManagerBase._
+import org.jetbrains.plugins.scala.base.ScalaLightCodeInsightFixtureTestAdapter.normalize
 import org.jetbrains.plugins.scala.base.ScalaLightPlatformCodeInsightTestCaseAdapter
 import org.jetbrains.plugins.scala.base.libraryLoaders._
 import org.jetbrains.plugins.scala.debugger.{ScalaVersion, Scala_2_12}
@@ -10,7 +12,6 @@ import org.jetbrains.plugins.scala.lang.psi.api.statements.ScFunctionDefinition
 import org.jetbrains.plugins.scala.lang.psi.api.toplevel.typedef.ScObject
 import org.jetbrains.plugins.scala.lang.psi.types.result._
 import org.jetbrains.plugins.scala.util.TestUtils
-import org.jetbrains.plugins.scala.DependencyManagerBase._
 import org.junit.Assert._
 
 class MonocleLensesTest extends ScalaLightPlatformCodeInsightTestCaseAdapter {
@@ -30,8 +31,9 @@ class MonocleLensesTest extends ScalaLightPlatformCodeInsightTestCaseAdapter {
   protected def folderPath: String = TestUtils.getTestDataPath
 
   def doTest(text: String, methodName: String, expectedType: String): Unit = {
-    val caretPos = text.indexOf("<caret>")
-    configureFromFileTextAdapter("dummy.scala", text.replace("<caret>", ""))
+    val normalized = normalize(text)
+    val caretPos = normalized.indexOf("<caret>")
+    configureFromFileTextAdapter("dummy.scala", normalized.replace("<caret>", ""))
     val exp = PsiTreeUtil.findElementOfClassAtOffset(getFileAdapter, caretPos, classOf[ScalaPsiElement], false).asInstanceOf[ScObject]
     exp.allMethods.find(_.name == methodName) match {
       case Some(x) => x.method.asInstanceOf[ScFunctionDefinition].returnType match {
