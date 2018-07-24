@@ -213,4 +213,18 @@ class ScalaFmtTest extends AbstractScalaFormatterTestBase {
       """.stripMargin
     doTextTest(before, after)
   }
+
+  def testScl14133(): Unit = {
+    val before =
+      s"""
+         |def x  =  42
+         |//
+       """.stripMargin
+    val after =
+      s"""
+         |def x = 42
+         |//
+       """.stripMargin
+    doTextTest(before, after)
+  }
 }

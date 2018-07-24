@@ -168,7 +168,7 @@ object ScalaFmtPreFormatProcessor {
   private def isProperUpperLevelPsi(element: PsiElement): Boolean = element match {
     case block: ScBlockImpl => block.getFirstChild.getNode.getElementType == ScalaTokenTypes.tLBRACE &&
       block.getLastChild.getNode.getElementType == ScalaTokenTypes.tRBRACE
-    case _: ScBlockStatement | _: ScMember | _: PsiWhiteSpace => true
+    case _: ScBlockStatement | _: ScMember | _: PsiWhiteSpace | _: PsiComment => true
     case l: LeafPsiElement => l.getElementType == ScalaTokenTypes.tIDENTIFIER
     case _ => false
   }
