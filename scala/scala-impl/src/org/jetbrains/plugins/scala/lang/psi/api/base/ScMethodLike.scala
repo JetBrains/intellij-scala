@@ -27,14 +27,14 @@ trait ScMethodLike extends ScMember with PsiMethod with PsiTypeParametersOwnerAd
   @CachedInUserData(this, ModCount.getBlockModificationCount)
   def getConstructorTypeParameters: Option[ScTypeParamClause] = {
     ScMethodLike.this match {
-      case method: PsiMethod if method.isConstructor =>
-        val clazz = method.containingClass
+      case constructor: PsiMethod if constructor.isConstructor =>
+        val clazz = constructor.containingClass
         clazz match {
           case c: ScTypeDefinition =>
-            c.typeParametersClause.map((typeParamClause: ScTypeParamClause) => {
-              val paramClauseText = typeParamClause.getTextByStub
-              createTypeParameterClauseFromTextWithContext(paramClauseText, typeParamClause.getContext, typeParamClause)
-            })
+            c.typeParametersClause.map { clause =>
+              val paramClauseText = clause.getTextByStub
+              createTypeParameterClauseFromTextWithContext(paramClauseText, constructor, constructor.parameterList)
+            }
           case _ => None
         }
       case _ => None

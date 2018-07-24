@@ -8,8 +8,12 @@ package params
 import com.intellij.lang.ASTNode
 import com.intellij.psi._
 import com.intellij.psi.scope.PsiScopeProcessor
+import com.intellij.psi.util.PsiTreeUtil
+import com.intellij.psi.util.PsiTreeUtil.isContextAncestor
 import org.jetbrains.plugins.scala.JavaArrayFactoryUtil.ScTypeParamFactory
+import org.jetbrains.plugins.scala.extensions.{ObjectExt, PsiElementExt}
 import org.jetbrains.plugins.scala.lang.parser.ScalaElementTypes._
+import org.jetbrains.plugins.scala.lang.psi.api.base.ScMethodLike
 import org.jetbrains.plugins.scala.lang.psi.api.statements.params._
 import org.jetbrains.plugins.scala.lang.psi.stubs.ScTypeParamClauseStub
 import org.jetbrains.plugins.scala.lang.resolve.processor.BaseProcessor
@@ -33,11 +37,19 @@ class ScTypeParamClauseImpl private (stub: ScTypeParamClauseStub, node: ASTNode)
   def typeParameters: Seq[ScTypeParam] = getStubOrPsiChildren(TYPE_PARAM, ScTypeParamFactory)
 
   override def processDeclarations(processor: PsiScopeProcessor, state: ResolveState, lastParent: PsiElement, place: PsiElement): Boolean = {
-    if (!processor.isInstanceOf[BaseProcessor]) {
+    if (!processor.isInstanceOf[BaseProcessor] || isResolveInSyntheticClause(lastParent)) {
       for (param <- typeParameters) {
         if (!processor.execute(param, state)) return false
       }
     }
     true
   }
+
+  //scala syntax doesn't allow type parameters for constructors, but we need them for type inference, so they are synthetic
+  //see ScMethodLike.getConstructorTypeParameters
+  private def isSyntheticForConstructor: Boolean =
+    getContext.asOptionOf[ScMethodLike].exists(_.isConstructor)
+
+  private def isResolveInSyntheticClause(lastParent: PsiElement): Boolean =
+    isSyntheticForConstructor && this.isAncestorOf(lastParent)
 }
