@@ -44,8 +44,8 @@ package object clauses {
 
     private val DefaultName = "_"
 
-    def apply(inheritors: Seq[PsiClass]): Inheritors = {
-      val (scalaInheritors, javaInheritors) = inheritors.partition(_.isInstanceOf[ScTemplateDefinition])
+    def apply(classes: Seq[PsiClass]): Inheritors = {
+      val (scalaInheritors, javaInheritors) = classes.partition(_.isInstanceOf[ScTemplateDefinition])
       val (namedInheritors, anonymousInheritors) = scalaInheritors.partition(_.isInstanceOf[ScTypeDefinition])
 
       Inheritors(
@@ -90,22 +90,29 @@ package object clauses {
 
     private def defaultPatternText(clazz: PsiClass)
                                   (implicit place: PsiElement) = {
-      val (adjustedType, typeArguments) = clauses.adjustedType(clazz) match {
+      val scType = clazz match {
+        case definition: ScTemplateDefinition => clauses.adjustedType(definition)
+        case _ =>
+          val typeElement = ScalaPsiElementFactory.createTypeElementFromText(clazz.qualifiedName, place.getContext, place)
+          ScalaPsiUtil.adjustTypes(typeElement, addImports = false)
+          typeElement.`type`().getOrAny
+      }
+
+      val (adjustedType, typeArguments) = scType match {
         case ScParameterizedType(designator, arguments) =>
           (designator, Seq.fill(arguments.length)(DefaultName).commaSeparated(model = Model.SquareBrackets))
-        case scType => (scType, "")
+        case _ => (scType, "")
       }
 
       val name = NameSuggester.suggestNamesByType(adjustedType)
         .headOption.getOrElse(DefaultName)
-
 
       s"$name: ${adjustedType.presentableText}$typeArguments" -> clazz
     }
 
     private[this] def stableNames(value: ScPatternDefinition)
                                  (implicit place: PsiElement) = value.containingClass match {
-      case scalaObject: ScObject => declaredNamesPatterns(value, scalaObject)
+      case scalaObject: ScObject => declaredNamesPatterns(value, adjustedType(scalaObject))
       case _ => Seq.empty
     }
 
@@ -131,39 +138,35 @@ package object clauses {
 
   private[clauses] object SealedDefinition {
 
-    def unapply(definition: ScTypeDefinition): Option[Inheritors] = if (definition.isSealed) {
+    def unapply(definition: ScTypeDefinition): Option[Seq[PsiClass]] = if (definition.isSealed) {
       import JavaConverters._
-      val inheritors = DirectClassInheritorsSearch.search(definition, definition.resolveScope)
+      val inheritors = DirectClassInheritorsSearch
+        .search(definition, definition.resolveScope)
         .findAll()
         .asScala
         .toSeq
         .sortBy(_.getNavigationElement.getTextRange.getStartOffset)
-
-      Some(Inheritors(inheritors))
+      Some(inheritors)
     } else None
   }
 
-  private[clauses] def declaredNamesPatterns(value: ScValue, scalaObject: ScObject)
+  private[clauses] def declaredNamesPatterns(value: ScValue, designator: ScType)
                                             (implicit place: PsiElement): Seq[NameAndElement] = {
-    val typeText = adjustedTypeText(scalaObject)
+    val typeText = objectText(designator)
     value.declaredElements.map { element =>
       s"$typeText.${element.name}" -> element
     }
   }
 
-  private[clauses] def adjustedType(clazz: PsiClass)
-                                   (implicit place: PsiElement): ScType =
-    (clazz match {
-      case definition: ScTemplateDefinition =>
-        definition.getTypeWithProjections(true)
-      case _ =>
-        val typeElement = ScalaPsiElementFactory.createTypeElementFromText(clazz.qualifiedName, place.getContext, place)
-        ScalaPsiUtil.adjustTypes(typeElement, addImports = false)
-        typeElement.`type`()
-    }).getOrAny
+  private[clauses] def adjustedType(definition: ScTemplateDefinition): ScType =
+    definition.getTypeWithProjections(true).getOrAny
+
+  private[clauses] def objectText(designator: ScType)
+                                 (implicit place: PsiElement): String =
+    designator.presentableText
+      .stripSuffix(ScalaTypePresentation.ObjectTypeSuffix)
 
   private[this] def adjustedTypeText(scalaObject: ScObject)
                                     (implicit place: PsiElement): String =
-    adjustedType(scalaObject).presentableText
-      .stripSuffix(ScalaTypePresentation.ObjectTypeSuffix)
+    objectText(adjustedType(scalaObject))
 }

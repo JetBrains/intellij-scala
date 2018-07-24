@@ -27,19 +27,19 @@ class CaseClauseCompletionContributor extends ScalaCompletionContributor {
         .flatMap(_.expectedType)
         .flatMap(_.extractClass)
 
-      val targetInheritors = maybeClass.collect {
-        case SealedDefinition(inheritors) => inheritors
+      val maybeInheritors = maybeClass.collect {
+        case SealedDefinition(classes) => Inheritors(classes)
         case definition: ScTypeDefinition => Inheritors(Seq(definition))
-      }.toSeq
+      }
 
-      targetInheritors
-        .flatMap(_.patterns(exhaustive = false)(position))
-        .map {
-          case (name, namedElement) =>
-            val item = new ScalaLookupItem(namedElement, name)
-            item.isLocalVariable = true
-            item
-        }
+      for {
+        inheritors <- maybeInheritors.toSeq
+        (name, namedElement) <- inheritors.patterns(exhaustive = false)(position)
+      } yield {
+        val item = new ScalaLookupItem(namedElement, name)
+        item.isLocalVariable = true
+        item
+      }
     }
   })
 
@@ -56,7 +56,9 @@ class CaseClauseCompletionContributor extends ScalaCompletionContributor {
         case _ => Seq.empty
       }
 
-      providers.foreach(_.addCompletions(parameters, context, resultSet))
+      providers.foreach {
+        _.addCompletions(parameters, context, resultSet)
+      }
     }
   })
 
@@ -132,5 +134,6 @@ object CaseClauseCompletionContributor {
 
   private[this] def createPattern(text: String, context: PsiElement, child: PsiElement): ScPattern =
     ScalaPsiElementFactory.createCaseClauseFromTextWithContext(text, context, child)
-      .flatMap(_.pattern).get
+      .flatMap(_.pattern)
+      .get
 }

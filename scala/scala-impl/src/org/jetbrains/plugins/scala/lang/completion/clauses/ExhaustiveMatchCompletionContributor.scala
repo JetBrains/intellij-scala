@@ -14,10 +14,12 @@ import org.jetbrains.plugins.scala.extensions._
 import org.jetbrains.plugins.scala.lang.psi.ScalaPsiUtil
 import org.jetbrains.plugins.scala.lang.psi.api.expr.{ScMatchStmt, ScPostfixExpr}
 import org.jetbrains.plugins.scala.lang.psi.api.statements.ScValue
-import org.jetbrains.plugins.scala.lang.psi.api.toplevel.typedef.{ScObject, ScTypeDefinition}
+import org.jetbrains.plugins.scala.lang.psi.api.toplevel.typedef.{ScMember, ScObject}
 import org.jetbrains.plugins.scala.lang.psi.types.ScType
-import org.jetbrains.plugins.scala.lang.psi.types.api.designator.{DesignatorOwner, ScProjectionType}
+import org.jetbrains.plugins.scala.lang.psi.types.api.ExtractClass
+import org.jetbrains.plugins.scala.lang.psi.types.api.designator._
 import org.jetbrains.plugins.scala.lang.psi.types.result.Typeable
+import org.jetbrains.plugins.scala.lang.resolve.ResolveUtils
 
 class ExhaustiveMatchCompletionContributor extends ScalaCompletionContributor {
 
@@ -27,7 +29,8 @@ class ExhaustiveMatchCompletionContributor extends ScalaCompletionContributor {
     PlatformPatterns.psiElement.inside(classOf[ScPostfixExpr]),
     new ScalaCompletionProvider {
       override protected def completionsFor(position: PsiElement)
-                                           (implicit parameters: CompletionParameters, context: ProcessingContext): Iterable[LookupElement] =
+                                           (implicit parameters: CompletionParameters,
+                                            context: ProcessingContext): Iterable[LookupElement] =
         for {
           place@ScPostfixExpr(Typeable(PatternGenerationStrategy(strategy)), _) <- position.findContextOfType(classOf[ScPostfixExpr])
         } yield LookupElementBuilder.create(ItemText)
@@ -46,101 +49,96 @@ object ExhaustiveMatchCompletionContributor {
 
   private object PatternGenerationStrategy {
 
-    def unapply(`type`: ScType): Option[PatternGenerationStrategy] =
-      `type`.extractDesignatorSingleton.getOrElse(`type`) match {
-        case ScalaEnumGenerationStrategy(strategy) => Some(strategy)
-        case extracted =>
-          extracted.extractClass.collect {
-            case SealedClassGenerationStrategy(strategy) => strategy
-            case enum if enum.isEnum => new JavaEnumGenerationStrategy(enum)
-          }
+    def unapply(`type`: ScType): Option[PatternGenerationStrategy] = {
+      val valueType = `type`.extractDesignatorSingleton.getOrElse(`type`)
+
+      valueType match {
+        case ScProjectionType(designator@DesignatorOwner(enumeration@ScalaEnumeration()), _) =>
+          Some(new ScalaEnumGenerationStrategy(valueType, designator, enumeration.members))
+        case ScDesignatorType(enum: PsiClass) if enum.isEnum =>
+          Some(new JavaEnumGenerationStrategy(valueType, enum.getFields))
+        case ExtractClass(SealedDefinition(classes)) =>
+          val inheritors = Inheritors(classes)
+          if (inheritors.namedInheritors.isEmpty && inheritors.anonymousInheritors.isEmpty) None
+          else Some(new SealedClassGenerationStrategy(valueType, inheritors))
+        case _ => None
       }
+    }
+
+    private[this] object ScalaEnumeration {
+
+      private[this] val EnumerationFQN = "scala.Enumeration"
+
+      def unapply(scalaObject: ScObject): Boolean =
+        scalaObject.supers
+          .map(_.qualifiedName)
+          .contains(EnumerationFQN)
+    }
+
   }
 
-  private sealed trait PatternGenerationStrategy {
+  private sealed abstract class PatternGenerationStrategy protected(protected val valueType: ScType) {
 
     final def replacement(implicit place: PsiElement): String =
       patterns.map {
         case (pattern, _) => s"$CASE $pattern ${ScalaPsiUtil.functionArrow}"
-      }.mkString(MATCH + "{\n", "\n", "\n}")
+      }.mkString(s"$MATCH {\n", "\n", "\n}")
 
     protected def patterns(implicit place: PsiElement): Seq[NameAndElement]
   }
 
-  private class SealedClassGenerationStrategy(sealedDefinition: ScTypeDefinition,
+  private class SealedClassGenerationStrategy(valueType: ScType,
                                               inheritors: Inheritors)
-    extends PatternGenerationStrategy {
+    extends PatternGenerationStrategy(valueType) {
 
     override protected def patterns(implicit place: PsiElement): Seq[NameAndElement] =
       inheritors.patterns()
   }
 
-  private object SealedClassGenerationStrategy {
-
-    def unapply(definition: ScTypeDefinition): Option[SealedClassGenerationStrategy] = definition match {
-      case SealedDefinition(inheritors) =>
-        inheritors match {
-          case Inheritors(Seq(), Seq(), _) => None
-          case _ => Some(new SealedClassGenerationStrategy(definition, inheritors))
-        }
-      case _ => None
-    }
-  }
-
-  private abstract class EnumGenerationStrategy protected(enum: PsiClass)
-    extends PatternGenerationStrategy
-
-  private class JavaEnumGenerationStrategy(enum: PsiClass)
-    extends EnumGenerationStrategy(enum) {
+  private class JavaEnumGenerationStrategy(valueType: ScType,
+                                           fields: Array[PsiField])
+    extends PatternGenerationStrategy(valueType) {
 
     override protected def patterns(implicit place: PsiElement): Seq[NameAndElement] = {
-      val typeText = adjustedType(enum).presentableText
-      enum.getFields.collect {
+      val typeText = valueType.presentableText
+      fields.collect {
         case constant: PsiEnumConstant => s"$typeText.${constant.getName}" -> constant
       }
     }
   }
 
-  private class ScalaEnumGenerationStrategy(enum: ScObject,
-                                            valueType: ScType)
-    extends EnumGenerationStrategy(enum) {
+  private class ScalaEnumGenerationStrategy(valueType: ScType,
+                                            designator: ScType,
+                                            members: Seq[ScMember])
+    extends PatternGenerationStrategy(valueType) {
 
     override protected def patterns(implicit place: PsiElement): Seq[NameAndElement] =
-      enum.members.collect {
-        case value: ScValue if value.isPublic && isEnumerationValue(value) => value
-      }.flatMap(declaredNamesPatterns(_, enum))
+      members.filter {
+        ResolveUtils.isAccessible(_, place, forCompletion = true)
+      }.collect {
+        case value: ScValue if isEnumerationValue(value) => value
+      }.flatMap {
+        declaredNamesPatterns(_, designator)
+      }
 
     private def isEnumerationValue(value: ScValue) =
       value.`type`().exists(_.conforms(valueType))
   }
 
-  private object ScalaEnumGenerationStrategy {
-
-    private val EnumerationFQN = "scala.Enumeration"
-
-    def unapply(`type`: ScType): Option[ScalaEnumGenerationStrategy] = `type` match {
-      case ScProjectionType(DesignatorOwner(enum: ScObject), _)
-        if enum.supers.map(_.qualifiedName).contains(EnumerationFQN) =>
-        Some(new ScalaEnumGenerationStrategy(enum, `type`))
-      case _ => None
-    }
-
-  }
-
   private def createInsertHandler(strategy: PatternGenerationStrategy)
                                  (implicit place: PsiElement) = new InsertHandler[LookupElement] {
 
-    override def handleInsert(context: InsertionContext, lookupElement: LookupElement): Unit = {
-      val InsertionContextExt(editor, document, file, project) = context
-      val startOffset = context.getStartOffset
+    override def handleInsert(insertionContext: InsertionContext, lookupElement: LookupElement): Unit = {
+      val InsertionContextExt(editor, document, file, project) = insertionContext
+      val startOffset = insertionContext.getStartOffset
 
       if (file.findElementAt(startOffset) != null) {
         val replacement = strategy.replacement
 
-        document.replaceString(startOffset, context.getSelectionEndOffset, replacement)
+        document.replaceString(startOffset, insertionContext.getSelectionEndOffset, replacement)
         CodeStyleManager.getInstance(project)
           .reformatText(file, startOffset, startOffset + replacement.length)
-        context.commitDocument()
+        insertionContext.commitDocument()
 
         val clauses = file.findElementAt(startOffset).getParent match {
           case statement: ScMatchStmt => statement.getCaseClauses
@@ -152,9 +150,9 @@ object ExhaustiveMatchCompletionContributor {
         }
 
         sibling match {
-          case ws: PsiWhiteSpaceImpl =>
-            val newWhiteSpace = ws.replaceWithText(" " + ws.getText)
-            val caretOffset = newWhiteSpace.getStartOffset + 1
+          case whiteSpace: PsiWhiteSpaceImpl =>
+            val caretOffset = whiteSpace.getStartOffset + 1
+            whiteSpace.replaceWithText(" " + whiteSpace.getText)
 
             PsiDocumentManager.getInstance(project)
               .doPostponedOperationsAndUnblockDocument(document)
