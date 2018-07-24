@@ -2,16 +2,13 @@ package org.jetbrains.plugins.scala.lang.psi.impl.statements
 
 
 import com.intellij.lang.ASTNode
-import com.intellij.openapi.progress.ProgressManager
 import com.intellij.psi._
-import com.intellij.psi.scope._
 import org.jetbrains.plugins.scala.extensions.{PsiElementExt, ifReadAllowed}
 import org.jetbrains.plugins.scala.lang.parser.ScalaElementTypes
 import org.jetbrains.plugins.scala.lang.psi.api.ScalaElementVisitor
 import org.jetbrains.plugins.scala.lang.psi.api.base.ScStableCodeReferenceElement
 import org.jetbrains.plugins.scala.lang.psi.api.base.types.ScTypeElement
 import org.jetbrains.plugins.scala.lang.psi.api.statements._
-import org.jetbrains.plugins.scala.lang.psi.api.statements.params.ScParameter
 import org.jetbrains.plugins.scala.lang.psi.stubs.ScFunctionStub
 import org.jetbrains.plugins.scala.lang.psi.types.api.Any
 import org.jetbrains.plugins.scala.lang.psi.types.result._
@@ -26,40 +23,8 @@ class ScMacroDefinitionImpl private (stub: ScFunctionStub, node: ASTNode)
 
   def this(stub: ScFunctionStub) = this(stub, null)
 
-  override def processDeclarations(processor: PsiScopeProcessor,
-                                   state: ResolveState,
-                                   lastParent: PsiElement,
-                                   place: PsiElement): Boolean = {
-    //process function's parameters for dependent method types, and process type parameters
-    if (!super[ScFunctionImpl].processDeclarations(processor, state, lastParent, place)) return false
-
-    //do not process parameters for default parameters, only for function body
-    //processing parameters for default parameters in ScParameters
-    val parameterIncludingSynthetic: Seq[ScParameter] = effectiveParameterClauses.flatMap(_.parameters)
-    if (getStub == null) {
-      macroImplReference match {
-        case Some(x)
-          if lastParent != null &&
-            (!needCheckProcessingDeclarationsForBody ||
-            x.startOffsetInParent == lastParent.startOffsetInParent) =>
-          for (p <- parameterIncludingSynthetic) {
-            ProgressManager.checkCanceled()
-            if (!processor.execute(p, state)) return false
-          }
-        case _ =>
-      }
-    } else {
-      if (lastParent != null && lastParent.getContext != lastParent.getParent) {
-        for (p <- parameterIncludingSynthetic) {
-          ProgressManager.checkCanceled()
-          if (!processor.execute(p, state)) return false
-        }
-      }
-    }
-    true
-  }
-
-  protected def needCheckProcessingDeclarationsForBody = true
+  override protected def shouldProcessParameters(lastParent: PsiElement): Boolean =
+    super.shouldProcessParameters(lastParent) || macroImplReference.contains(lastParent)
 
   override def toString: String = "ScMacroDefinition: " + ifReadAllowed(name)("")
 
