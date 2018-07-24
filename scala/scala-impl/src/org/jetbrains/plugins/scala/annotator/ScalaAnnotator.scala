@@ -418,7 +418,6 @@ abstract class ScalaAnnotator extends Annotator
     }
     annotateScope(element, holder)
     element.accept(visitor)
-    AnnotatorHighlighter.highlightElement(element, holder)
 
     element match {
       case templateDefinition: ScTemplateDefinition =>

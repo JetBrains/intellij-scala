@@ -2,12 +2,12 @@ package org.jetbrains.plugins.scala
 package annotator
 
 import com.intellij.codeInsight.daemon.impl._
-import com.intellij.codeInsight.daemon.impl.analysis.HighlightInfoHolder
-import com.intellij.lang.annotation.HighlightSeverity.INFORMATION
+import com.intellij.codeInsight.daemon.impl.analysis.{HighlightInfoHolder, HighlightingLevelManager}
 import com.intellij.openapi.application.ApplicationManager
 import com.intellij.openapi.project.{DumbService, Project}
 import com.intellij.psi._
 import org.jetbrains.plugins.scala.annotator.usageTracker.ScalaRefCountHolder
+import org.jetbrains.plugins.scala.highlighter.AnnotatorHighlighter
 import org.jetbrains.plugins.scala.lang.psi.api.ScalaFile
 import org.jetbrains.plugins.scala.project.ProjectContext
 import org.jetbrains.plugins.scala.util.ScalaLanguageDerivative
@@ -71,18 +71,27 @@ class ScalaAnnotatorHighlightVisitor(project: Project) extends HighlightVisitor 
     if (DumbService.getInstance(project).isDumb) {
       return
     }
-    ScalaAnnotator.forProject.annotate(element, myAnnotationHolder)
-    val notOnlyInformation = shouldHighlightErrorsAndWarnings(element.getContainingFile)
-    if (myAnnotationHolder.hasAnnotations) {
-      myAnnotationHolder.forEach { annotation =>
-        if (notOnlyInformation || annotation.getSeverity == INFORMATION) {
-          myHolder.add(HighlightInfo.fromAnnotation(annotation))
-        }
-      }
-      myAnnotationHolder.clear()
+    val file = element.getContainingFile
+    if (file == null) return
+
+    if (shouldHighlight(file)) {
+      AnnotatorHighlighter.highlightElement(element, myAnnotationHolder)
     }
+
+    if (shouldInspect(file)) {
+      ScalaAnnotator.forProject.annotate(element, myAnnotationHolder)
+    }
+
+    myAnnotationHolder.forEach { annotation =>
+      myHolder.add(HighlightInfo.fromAnnotation(annotation))
+    }
+    myAnnotationHolder.clear()
   }
 
-  private def shouldHighlightErrorsAndWarnings(file: PsiFile) =
-    file != null && file.isWritable || ApplicationManager.getApplication.isUnitTestMode
+  private def shouldInspect(file: PsiFile) =
+    file != null && HighlightingLevelManager.getInstance(project).shouldInspect(file) ||
+      ApplicationManager.getApplication.isUnitTestMode
+
+  private def shouldHighlight(file: PsiFile) =
+    file != null && HighlightingLevelManager.getInstance(project).shouldHighlight(file)
 }
