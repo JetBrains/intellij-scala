@@ -34,6 +34,7 @@ object LocalRepoPackager {
       jarPath(plugin_sbt1, artifactId), ivyPath(plugin_sbt1)
     )
 
+    val start = System.currentTimeMillis()
     println(s"downloading ${paths.size} files to local repo: $paths")
 
     // TODO only download missing targets
@@ -44,6 +45,8 @@ object LocalRepoPackager {
         IO.download(downloadUrl, localFile)
       localFile
     }
+
+    println(s"Done in ${System.currentTimeMillis() - start} ms")
 
     downloadedArtifactFiles
   }

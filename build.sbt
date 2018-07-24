@@ -1,4 +1,5 @@
 import Common._
+import org.jetbrains.sbtidea.tasks.ShadePattern
 import sbtide.Keys.ideSkipProject
 
 // Global build settings
@@ -60,6 +61,7 @@ lazy val scalaImpl: sbt.Project =
       packageLibraryMappings ++= Seq(
         "org.scalameta" %% ".*" % ".*"                        -> Some("lib/scalameta.jar"),
         "com.trueaccord.scalapb" %% "scalapb-runtime" % ".*"  -> None,
+        "com.google.protobuf" % "protobuf-java" % ".*"        -> None,
         "com.trueaccord.lenses" %% "lenses" % ".*"            -> None,
         "com.lihaoyi" %% "fastparse-utils" % ".*"             -> None,
         "commons-lang" % "commons-lang" % ".*"                -> None,
@@ -93,7 +95,8 @@ lazy val repackagedZinc =
     .settings(
       packageOutputDir := baseDirectory.value / "plugin",
       packageAssembleLibraries := true,
-      packageMethod := PackagingMethod.Standalone("lib/jps/incremental-compiler.jar"),
+      shadePatterns += ShadePattern("com.google.protobuf.**", "zinc.protobuf.@1"),
+      packageMethod := PackagingMethod.DepsOnly("lib/jps/incremental-compiler.jar"),
       libraryDependencies += Dependencies.zinc)
 
 lazy val compilerShared =
