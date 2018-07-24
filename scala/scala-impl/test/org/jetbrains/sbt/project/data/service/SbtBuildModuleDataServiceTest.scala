@@ -29,7 +29,7 @@ class SbtBuildModuleDataServiceTest extends ProjectDataServiceTestCase {
       modules += new javaModule {
         val moduleName = "Module 1"
         val uri = new File(getProject.getBasePath).toURI
-        val id = ModuleNode.combinedId(moduleName, uri)
+        val id = ModuleNode.combinedId(moduleName, Option(uri))
         projectId := id
         projectURI := uri
         name := moduleName

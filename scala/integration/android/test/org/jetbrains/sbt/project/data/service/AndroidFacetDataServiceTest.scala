@@ -32,7 +32,7 @@ class AndroidFacetDataServiceTest extends ProjectDataServiceTestCase {
       modules += new javaModule {
         val uri: URI = new File(getProject.getBasePath).toURI
         val moduleName = "Module 1"
-        projectId := ModuleNode.combinedId(moduleName, uri)
+        projectId := ModuleNode.combinedId(moduleName, Option(uri))
         projectURI := uri
         name := moduleName
         moduleFileDirectoryPath := getProject.getBasePath + "/module1"

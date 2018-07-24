@@ -190,7 +190,7 @@ class ModuleExtDataServiceTest extends ProjectDataServiceTestCase with UsefulTes
       modules += new javaModule {
         val uri = new File(getProject.getBasePath).toURI
         val moduleName = "Module 1"
-        projectId := ModuleNode.combinedId(moduleName, uri)
+        projectId := ModuleNode.combinedId(moduleName, Option(uri))
         projectURI := uri
         name := moduleName
         moduleFileDirectoryPath := getProject.getBasePath + "/module1"
@@ -229,7 +229,7 @@ class ModuleExtDataServiceTest extends ProjectDataServiceTestCase with UsefulTes
       modules += new javaModule {
         val uri = new File(getProject.getBasePath).toURI
         val moduleName = "Module 1"
-        projectId := ModuleNode.combinedId(moduleName, uri)
+        projectId := ModuleNode.combinedId(moduleName, Option(uri))
         projectURI := uri
         name := moduleName
         moduleFileDirectoryPath := getProject.getBasePath + "/module1"

@@ -4,14 +4,11 @@ package project
 import java.io.File
 import java.net.URI
 
+import org.jetbrains.plugins.scala.DependencyManagerBase._
 import org.jetbrains.plugins.scala.{DependencyManager, SlowTests}
+import org.jetbrains.sbt.project.ProjectImportingTest._
 import org.jetbrains.sbt.project.ProjectStructureDsl._
 import org.junit.experimental.categories.Category
-import org.jetbrains.plugins.scala.DependencyManagerBase._
-import org.jetbrains.sbt.project.data.ModuleNode
-import ModuleNode._
-import ProjectImportingTest._
-import org.junit.Ignore
 
 @Category(Array(classOf[SlowTests]))
 class ProjectImportingTest extends ImportingTestCase with InexactMatch {

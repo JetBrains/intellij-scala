@@ -106,7 +106,7 @@ class SbtProjectDataServiceTest extends ProjectDataServiceTestCase {
         val uri = new File(getProject.getBasePath).toURI
         val moduleName = "Module 1"
         val typeId: String = SharedSourcesModuleType.instance.getId
-        projectId := ModuleNode.combinedId(moduleName, uri)
+        projectId := ModuleNode.combinedId(moduleName, Option(uri))
         projectURI := uri
         name := moduleName
         moduleFileDirectoryPath := getProject.getBasePath + "/module1"

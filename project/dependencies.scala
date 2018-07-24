@@ -7,7 +7,7 @@ object Versions {
   val sbtVersion: String = Sbt.latest
   val zincVersion = "1.1.1"
   val ideaVersion = "182.3684.2"
-  val sbtStructureVersion: String = "2018.2"
+  val sbtStructureVersion: String = "2018.2+4-701d3570"
   val sbtIdeaShellVersion: String = "2017.2"
   val aetherVersion = "1.0.0.v20140518"
   val sisuInjectVersion = "2.2.3"
@@ -64,7 +64,6 @@ object Dependencies {
   import Versions._
 
   val sbtStructureExtractor: ModuleID = "org.jetbrains" % "sbt-structure-extractor" % sbtStructureVersion
-  val sbtStructureExtractor_012: ModuleID = sbtPluginDependency(sbtStructureExtractor, Sbt.binary_0_12)
   val sbtStructureExtractor_013: ModuleID = sbtPluginDependency(sbtStructureExtractor, Sbt.binary_0_13)
   val sbtStructureExtractor_100: ModuleID = sbtPluginDependency(sbtStructureExtractor, Sbt.binary_1_0)
 
@@ -162,7 +161,6 @@ object DependencyGroups {
 
   val sbtRuntime: Seq[ModuleID] = Seq(
     sbtLaunch,
-    sbtStructureExtractor_012,
     sbtStructureExtractor_013,
     sbtStructureExtractor_100,
     compilerBridgeSources_2_10,

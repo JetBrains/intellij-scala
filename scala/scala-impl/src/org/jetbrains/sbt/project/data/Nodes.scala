@@ -36,8 +36,11 @@ object ModuleNode {
     * @param projectURI project root path or repository url
     * @return
     */
-  def combinedId(projectId: String, projectURI: URI): String =
-    if (projectURI != null) f"$projectId [$projectURI]" else projectId
+  def combinedId(projectId: String, projectURI: Option[URI]): String =
+    projectURI match {
+      case Some(uri) => f"$projectId [$uri]"
+      case None => projectId
+    }
 }
 
 class LibraryNode(val data: LibraryData)
