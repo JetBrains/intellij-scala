@@ -399,4 +399,18 @@ class ScalaFmtSelectionTest extends SelectionTest {
        """.stripMargin
     doTextTest(before, after)
   }
+
+  def testScl14147(): Unit = {
+    val before =
+      s"""
+         |class A[T]$startMarker
+         |${endMarker}class B
+       """.stripMargin
+    val after =
+      s"""
+         |class A[T]
+         |class B
+       """.stripMargin
+    doTextTest(before, after)
+  }
 }
