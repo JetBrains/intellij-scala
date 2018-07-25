@@ -18,7 +18,7 @@ lazy val scalaCommunity: sbt.Project =
   newProject("scalaCommunity", file("."))
     .dependsOn(
       scalaImpl % "test->test;compile->compile",
-//      bsp % "test->test;compile->compile",
+      bsp % "test->test;compile->compile",
       androidIntegration % "test->test;compile->compile",
       copyrightIntegration % "test->test;compile->compile",
       gradleIntegration % "test->test;compile->compile",
@@ -142,12 +142,15 @@ lazy val macroAnnotations =
 
 lazy val bsp =
   newProject("bsp", file("scala/bsp"))
-    .dependsOn(scalaImpl % "test->test;compile->compile")
+    .dependsOn(scalaImpl % "test->test;compile->compile", bspDeps)
+
+lazy val bspDeps =
+  newProject("bspDeps", file("target/tools/bspDeps"))
     .settings(
-      libraryDependencies ++= DependencyGroups.bsp,
       packageAssembleLibraries := true,
-      packageMethod := PackagingMethod.Standalone("lib/bsp.jar")
-  )
+      libraryDependencies ++= DependencyGroups.bsp,
+      packageMethod := PackagingMethod.DepsOnly("lib/bsp-deps.jar")
+    )
 
 // Integration with other IDEA plugins
 
