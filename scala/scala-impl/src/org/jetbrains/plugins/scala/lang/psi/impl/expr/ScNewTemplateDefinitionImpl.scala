@@ -9,6 +9,7 @@ import com.intellij.psi._
 import com.intellij.psi.scope.PsiScopeProcessor
 import com.intellij.psi.util.PsiTreeUtil
 import com.intellij.util.IncorrectOperationException
+import javax.swing.Icon
 import org.jetbrains.plugins.scala.extensions._
 import org.jetbrains.plugins.scala.icons.Icons
 import org.jetbrains.plugins.scala.lang.parser.ScalaElementTypes
@@ -18,6 +19,7 @@ import org.jetbrains.plugins.scala.lang.psi.api.expr._
 import org.jetbrains.plugins.scala.lang.psi.api.statements.{ScDeclaredElementsHolder, ScFunction, ScTypeAlias}
 import org.jetbrains.plugins.scala.lang.psi.api.toplevel.ScEarlyDefinitions
 import org.jetbrains.plugins.scala.lang.psi.api.toplevel.templates.{ScClassParents, ScTemplateBody}
+import org.jetbrains.plugins.scala.lang.psi.impl.ScalaPsiElementFactory.createExpressionWithContextFromText
 import org.jetbrains.plugins.scala.lang.psi.impl.toplevel.PsiClassFake
 import org.jetbrains.plugins.scala.lang.psi.impl.toplevel.typedef.TypeDefinitionMembers
 import org.jetbrains.plugins.scala.lang.psi.stubs.ScTemplateDefinitionStub
@@ -25,7 +27,7 @@ import org.jetbrains.plugins.scala.lang.psi.types._
 import org.jetbrains.plugins.scala.lang.psi.types.api.AnyRef
 import org.jetbrains.plugins.scala.lang.psi.types.api.designator.ScDesignatorType
 import org.jetbrains.plugins.scala.lang.psi.types.result._
-import org.jetbrains.plugins.scala.lang.resolve.ScalaResolveResult
+import org.jetbrains.plugins.scala.macroAnnotations.{CachedInUserData, ModCount}
 
 import scala.collection.mutable.ArrayBuffer
 
@@ -43,7 +45,7 @@ class ScNewTemplateDefinitionImpl private (stub: ScTemplateDefinitionStub, node:
 
   override def toString: String = "NewTemplateDefinition"
 
-  override def getIcon(flags: Int) = Icons.CLASS
+  override def getIcon(flags: Int): Icon = Icons.CLASS
 
   override def constructor: Option[ScConstructor] =
     Option(extendsBlock).flatMap(_.templateParents).collect {
@@ -51,36 +53,15 @@ class ScNewTemplateDefinitionImpl private (stub: ScTemplateDefinitionStub, node:
     }.flatMap(_.constructor)
 
 
-  // implicit arguments are owned by ScConstructor
-  override def findImplicitArguments: Option[Seq[ScalaResolveResult]] = None
+  override protected def updateImplicitArguments(): Unit = {
+    // for regular case implicits are owned by ScConstructor
+    setImplicitArguments(desugaredApply.flatMap(_.findImplicitArguments))
+  }
 
   protected override def innerType: TypeResult = {
-    constructor match {
-      case Some(constructor) =>
-        constructor.reference match {
-          case Some(reference) =>
-            val len = reference.resolve() match {
-              case prim: ScPrimaryConstructor => prim.effectiveParameterClauses.length
-              case f: ScFunction if f.isConstructor => f.effectiveParameterClauses.length
-              case m: PsiMethod if m.isConstructor => 1
-              case _ => -1
-            }
-            val argLen = constructor.arguments.length
-            if (len >= 0 && len < argLen) {
-              //It's very rare case, when we need to desugar apply first.
-              //So let's create new PSI and call innerType once again.
-              def calcOffset(num: Int, element: PsiElement, res: Int = 0): Int = {
-                if (num <= 0) return res
-                calcOffset(num - 1, element.getParent, res + element.getStartOffsetInParent)
-              }
-
-              val text = "(" + getText.substring(0, calcOffset(4, constructor.arguments(len))) + ")" +
-                constructor.arguments.takeRight(argLen - len).map(_.getText).mkString
-              val newExpr = ScalaPsiElementFactory.createExpressionWithContextFromText(text, getContext, this)
-              return newExpr.getNonValueType(fromUnderscore = true)
-            }
-          case _ =>
-        }
+    desugaredApply match {
+      case Some(expr) =>
+        return expr.getNonValueType()
       case _ =>
     }
 
@@ -115,6 +96,48 @@ class ScNewTemplateDefinitionImpl private (stub: ScTemplateDefinitionStub, node:
             case None => Right(AnyRef) //this is new {} case
           }
       }
+    }
+  }
+
+  override def desugaredApply: Option[ScExpression] = {
+    if (constructor.forall(_.arguments.size <= 1)) None
+    else cachedDesugaredApply
+  }
+
+  //It's very rare case, when we need to desugar `.apply` first.
+  @CachedInUserData(this, ModCount.getBlockModificationCount)
+  private def cachedDesugaredApply: Option[ScExpression] = {
+    val resolvedConstructor = constructor.flatMap(_.reference).flatMap(_.resolve().toOption)
+    val constrParamLength = resolvedConstructor.map {
+      case prim: ScPrimaryConstructor       => prim.effectiveParameterClauses.length
+      case f: ScFunction if f.isConstructor => f.effectiveParameterClauses.length
+      case m: PsiMethod if m.isConstructor  => 1
+      case _                                => -1
+    }
+    val excessArgs =
+      for {
+        arguments   <- constructor.map(_.arguments)
+        paramLength <- constrParamLength
+        if paramLength >= 0
+      } yield {
+        arguments.drop(paramLength)
+      }
+
+    excessArgs match {
+      case Some(args) if args.nonEmpty =>
+        val desugaredText = {
+          val firstArgListOfApply = args.head
+          val startOffsetInThis   = firstArgListOfApply.getTextRange.getStartOffset - this.getTextRange.getStartOffset
+
+          val thisText            = getText
+          val newTemplateDefText  = thisText.substring(0, startOffsetInThis)
+          val applyArgsText       = thisText.substring(startOffsetInThis)
+
+          s"($newTemplateDefText)$applyArgsText"
+        }
+
+        createExpressionWithContextFromText(desugaredText, getContext, this).toOption
+      case _ => None
     }
   }
 
