@@ -5,7 +5,6 @@ package impl
 package base
 
 import com.intellij.lang.ASTNode
-import com.intellij.openapi.progress.ProgressManager
 import com.intellij.psi._
 import org.jetbrains.plugins.scala.extensions._
 import org.jetbrains.plugins.scala.lang.psi.api.InferUtil.SafeCheckException
@@ -42,9 +41,10 @@ class ScConstructorImpl(node: ASTNode) extends ScalaPsiElementImpl(node) with Sc
 
   def typeElement: ScTypeElement = findNotNullChildByClass(classOf[ScTypeElement])
 
-  def findImplicitArguments: Option[Seq[ScalaResolveResult]] =
-    if (explicitImplicitArgList.nonEmpty) None
-    else simpleTypeElement.flatMap(_.findImplicitArguments)
+  override protected def updateImplicitArguments(): Unit =
+    if (explicitImplicitArgList.isEmpty) {
+      simpleTypeElement.foreach(_.getNonValueType(withUnnecessaryImplicitsUpdate = true))
+    }
 
   override def toString: String = "Constructor"
 

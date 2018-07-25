@@ -34,9 +34,6 @@ trait ScSimpleTypeElement extends ScTypeElement {
       case _ => findConstructor(this)
     }
   }
-
-  //todo: move implementation to ScConstructorImpl
-  private[psi] def findImplicitArguments: Option[Seq[ScalaResolveResult]]
 }
 
 object ScSimpleTypeElement {

@@ -39,30 +39,11 @@ trait ScExpression extends ScBlockStatement with PsiAnnotationMemberValue with I
   override def `type`(): TypeResult =
     this.getTypeAfterImplicitConversion().tr
 
-  @volatile
-  private var implicitArguments: Option[Seq[ScalaResolveResult]] = None
-
-  final protected def setImplicitArguments(results: Option[Seq[ScalaResolveResult]]): Unit = {
-    implicitArguments = results
-  }
-
-  /**
-    * Warning! There is a hack in scala compiler for ClassManifest and ClassTag.
-    * In case of implicit parameter with type ClassManifest[T]
-    * this method will return ClassManifest with substitutor of type T.
-    *
-    * @return implicit argumetns used for this expression
-    */
-  def findImplicitArguments: Option[Seq[ScalaResolveResult]] = {
-    ProgressManager.checkCanceled()
-
-    //update implicitArguments field
+  override protected def updateImplicitArguments(): Unit = {
     if (ScUnderScoreSectionUtil.isUnderscoreFunction(this))
       this.getTypeWithoutImplicits(fromUnderscore = true)
     else
       `type`()
-
-    implicitArguments
   }
 
   protected def innerType: TypeResult =
