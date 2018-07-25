@@ -19,9 +19,9 @@ import com.intellij.util.ArrayUtil
 import javax.swing.tree.{DefaultMutableTreeNode, DefaultTreeModel, TreePath}
 import javax.swing.{JPanel, JTree}
 import org.jetbrains.plugins.scala.actions.ScalaActionUtil
+import org.jetbrains.plugins.scala.actions.implicitArguments.ShowImplicitArgumentsAction.showPopup
 import org.jetbrains.plugins.scala.extensions._
-import org.jetbrains.plugins.scala.lang.psi.api.base.ScConstructor
-import org.jetbrains.plugins.scala.lang.psi.api.expr.{ScExpression, ScNewTemplateDefinition}
+import org.jetbrains.plugins.scala.lang.psi.api.expr.ScExpression
 import org.jetbrains.plugins.scala.lang.psi.api.{ImplicitArgumentsOwner, ScalaFile}
 import org.jetbrains.plugins.scala.lang.refactoring.util.ScalaRefactoringUtil
 import org.jetbrains.plugins.scala.lang.refactoring.util.ScalaRefactoringUtil.getExpression
@@ -101,32 +101,22 @@ class ShowImplicitArgumentsAction extends AnAction("Show implicit arguments acti
     implicitArgsNoConversion(element) ++ implicitArgsConversion(element)
 
   private def implicitArgsNoConversion(element: PsiElement): Option[ImplicitArgumentsTarget] = {
-    element.asOptionOf[ImplicitArgumentsOwner].flatMap(_.findImplicitArguments) match {
-      case Some(seq) if seq.nonEmpty =>
-        element match {
-          case constr: ScConstructor =>
-            var p = constr.getParent
-            if (p != null) p = p.getParent
-            if (p != null) p = p.getParent
-            if (!p.isInstanceOf[ScNewTemplateDefinition])
-              Some(ImplicitArgumentsTarget(element, seq))
-            else None
-          case _ =>
-            Some(ImplicitArgumentsTarget(element, seq))
-        }
-      case _ => None
-    }
+    element.asOptionOf[ImplicitArgumentsOwner]
+      .flatMap(_.findImplicitArguments)
+      .filter(_.nonEmpty)
+      .map(ImplicitArgumentsTarget(element, _))
   }
 
   private def implicitArgsConversion(element: PsiElement): Option[ImplicitArgumentsTarget] =
     element.asOptionOf[ScExpression]
       .flatMap(_.implicitConversion())
-      .flatMap { srr =>
-        if (srr.implicitParameters.isEmpty) None
-        else Some {
-          ImplicitArgumentsTarget(element, srr.implicitParameters, Some(srr))
-        }
+      .filter(_.implicitParameters.nonEmpty)
+      .map { srr =>
+        ImplicitArgumentsTarget(element, srr.implicitParameters, Some(srr))
       }
+}
+
+object ShowImplicitArgumentsAction {
 
   private def getSelectedNode(jTree: JTree): AbstractTreeNode[_] = {
     val path: TreePath = jTree.getSelectionPath
@@ -171,7 +161,7 @@ class ShowImplicitArgumentsAction extends AnAction("Show implicit arguments acti
     succeeded.get
   }
 
-  private def showPopup(editor: Editor, results: Seq[ScalaResolveResult], isConversion: Boolean): JBPopup = {
+  def showPopup(editor: Editor, results: Seq[ScalaResolveResult], isConversion: Boolean): JBPopup = {
     val project = editor.getProject
 
     val tree = new Tree()
