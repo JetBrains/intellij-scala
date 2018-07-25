@@ -17,8 +17,8 @@ resolvers in ThisBuild ++=
 lazy val scalaCommunity: sbt.Project =
   newProject("scalaCommunity", file("."))
     .dependsOn(
-      scalaImpl % "test->test;compile->compile",
       bsp % "test->test;compile->compile",
+      scalaImpl % "test->test;compile->compile",
       androidIntegration % "test->test;compile->compile",
       copyrightIntegration % "test->test;compile->compile",
       gradleIntegration % "test->test;compile->compile",
@@ -238,7 +238,7 @@ lazy val sbtRuntimeDependencies =
       },
       packageFileMappings += target.value / "repo" -> "repo/" )
 
-lazy val ideaRunner = createRunnerProject(scalaCommunity, "idea-runner")
+//lazy val ideaRunner = createRunnerProject(scalaCommunity, "idea-runner")
 
 //lazy val jmhBenchmarks =
 //  newProject("benchmarks", file("scala/benchmarks"))

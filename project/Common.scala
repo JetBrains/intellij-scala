@@ -59,7 +59,13 @@ object Common {
   def createRunnerProject(from: ProjectReference, name: String): Project =
     newProject(name, file(s"target/tools/$name"))
       .dependsOn(from % Provided)
-      .settings(unmanagedJars in Compile := ideaMainJars.value)
+      .settings(
+        dumpDependencyStructure := null,
+        products := packagePlugin.in(from).value :: Nil,
+        packageMethod := org.jetbrains.sbtidea.Keys.PackagingMethod.Skip(),
+        unmanagedJars in Compile := ideaMainJars.value,
+        unmanagedJars in Compile += file(System.getProperty("java.home")).getParentFile / "lib" / "tools.jar"
+      )
 
   def patchPluginXML(f: File): File = {
     val tmpFile = java.io.File.createTempFile("plugin", ".xml")
