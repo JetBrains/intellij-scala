@@ -1,6 +1,7 @@
 <component name="ProjectRunConfigurationManager">
   <configuration default="false" name="IDEA" type="Application" factoryName="Application">
     <option name="MAIN_CLASS_NAME" value="com.intellij.idea.Main" />
+    <option name="INCLUDE_PROVIDED_SCOPE" value="true" />
     <module name="idea-runner" />
     <option name="PROGRAM_PARAMETERS" value="nosplash" />
     <option name="VM_PARAMETERS" value="-Xmx800m -XX:ReservedCodeCacheSize=240m -XX:+HeapDumpOnOutOfMemoryError -ea -Didea.is.internal=true -Didea.debug.mode=true -Didea.system.path=$USER_HOME$/.ScalaPluginIC/system -Didea.config.path=$USER_HOME$/.ScalaPluginIC/config -Dapple.laf.useScreenMenuBar=true -Dplugin.path=$PROJECT_DIR$/target/plugin/Scala -Didea.platform.prefix=Idea" />

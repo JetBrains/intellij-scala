@@ -56,6 +56,10 @@ object Common {
     }
   }
 
+  def createRunnerProject(from: ProjectReference, name: String): Project =
+    newProject(name, file(s"target/tools/$name"))
+      .dependsOn(from % Provided)
+      .settings(unmanagedJars in Compile := ideaMainJars.value)
 
   def patchPluginXML(f: File): File = {
     val tmpFile = java.io.File.createTempFile("plugin", ".xml")
