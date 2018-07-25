@@ -89,39 +89,25 @@ abstract class ScTypeDefinitionImpl protected (stub: ScTemplateDefinitionStub,
       .exists(isInheritor(_, deep = true))
   }
 
-  def `type`(): TypeResult = {
-    val parentClass: ScTemplateDefinition = containingClass
-    if (typeParameters.isEmpty) {
-      if (parentClass != null) {
-        Right(ScProjectionType(ScThisType(parentClass), this))
-      } else {
-        Right(ScalaType.designator(this))
-      }
-    } else {
-      if (parentClass != null) {
-        Right(ScParameterizedType(ScProjectionType(ScThisType(parentClass), this),
-          typeParameters.map(TypeParameterType(_))))
-      } else {
-        Right(ScParameterizedType(ScalaType.designator(this),
-          typeParameters.map(TypeParameterType(_))))
-      }
+  override final def `type`(): TypeResult = getTypeWithProjections(thisProjections = true)
+
+  override final def getTypeWithProjections(thisProjections: Boolean): TypeResult = {
+    val designator = containingClass match {
+      case null => ScalaType.designator(this)
+      case clazz =>
+        val projected = if (thisProjections) ScThisType(clazz)
+        else clazz.getTypeWithProjections().getOrElse {
+          return Failure("Cannot resolve parent class")
+        }
+
+        ScProjectionType(projected, this)
     }
-  }
 
-  def getTypeWithProjections(thisProjections: Boolean = false): TypeResult = {
-    def args = typeParameters.map(TypeParameterType(_))
-    def innerType = if (typeParameters.isEmpty) ScalaType.designator(this)
-    else ScParameterizedType(ScalaType.designator(this), args)
-    val parentClazz = containingClass
-    if (parentClazz != null) {
-      val tpe: ScType = if (!thisProjections) parentClazz.getTypeWithProjections()
-        .getOrElse(return Failure("Cannot resolve parent class"))
-      else ScThisType(parentClazz)
-
-      val innerProjection = ScProjectionType(tpe, this)
-      Right(if (typeParameters.isEmpty) innerProjection
-      else ScParameterizedType(innerProjection, args))
-    } else Right(innerType)
+    val result = typeParameters match {
+      case typeArgs if typeArgs.isEmpty => designator
+      case typeArgs => ScParameterizedType(designator, typeArgs.map(TypeParameterType(_)))
+    }
+    Right(result)
   }
 
   override def getModifierList: ScModifierList = super[ScTypeDefinition].getModifierList
