@@ -1,7 +1,9 @@
 package org.jetbrains.plugins.scala.codeInsight.implicits.menu
 
-import com.intellij.openapi.actionSystem.{ActionManager, AnAction, AnActionEvent, CommonDataKeys}
+import com.intellij.openapi.actionSystem.{AnAction, AnActionEvent, CommonDataKeys}
+import org.jetbrains.plugins.scala.actions.implicitArguments.ShowImplicitArgumentsAction
 import org.jetbrains.plugins.scala.codeInsight.implicits.{Hint, MouseHandler}
+import org.jetbrains.plugins.scala.lang.psi.api.ImplicitArgumentsOwner
 
 class ImplicitArgumentsPopup extends AnAction {
   override def actionPerformed(e: AnActionEvent): Unit = {
@@ -9,12 +11,10 @@ class ImplicitArgumentsPopup extends AnAction {
     val model = editor.getInlayModel
 
     val inlay = model.getElementAt(MouseHandler.mousePressLocation)
-    val element = Hint.elementOf(inlay)
-
-    val range = element.getTextRange
-    editor.getSelectionModel.setSelection(range.getStartOffset, range.getEndOffset)
-
-    val action = ActionManager.getInstance.getAction("Scala.ShowImplicitArguments")
-    action.actionPerformed(e)
+    Hint.elementOf(inlay) match {
+      case ImplicitArgumentsOwner(args) =>
+        ShowImplicitArgumentsAction.showPopup(editor, args, isConversion = false)
+      case _ =>
+    }
   }
 }
