@@ -1,6 +1,7 @@
 package org.jetbrains.plugins.scala
 package lang.psi.api
 
+import com.intellij.openapi.progress.ProgressManager
 import org.jetbrains.plugins.scala.extensions.{PsiElementExt, TraversableExt}
 import org.jetbrains.plugins.scala.lang.psi.ScalaPsiElement
 import org.jetbrains.plugins.scala.lang.psi.api.expr.{ScArgumentExprList, ScExpression}
@@ -13,14 +14,24 @@ import org.jetbrains.plugins.scala.lang.resolve.ScalaResolveResult
  */
 // TODO Implement selectively, not by ScExpression
 trait ImplicitArgumentsOwner extends ScalaPsiElement {
+  @volatile
+  private var implicitArguments: Option[Seq[ScalaResolveResult]] = None
 
-  /**
-   * Warning! There is a hack in scala compiler for ClassManifest and ClassTag.
-   * In case of implicit parameter with type ClassManifest[T]
-   * this method will return ClassManifest with substitutor of type T.
-   * @return implicit parameters used for this expression
-   */
-  def findImplicitArguments: Option[Seq[ScalaResolveResult]]
+  private[psi] final def setImplicitArguments(results: Option[Seq[ScalaResolveResult]]): Unit = {
+    implicitArguments = results
+  }
+
+  //todo: get rid of side-effect-driven logic
+  def findImplicitArguments: Option[Seq[ScalaResolveResult]] = {
+    ProgressManager.checkCanceled()
+
+    updateImplicitArguments()
+
+    implicitArguments
+  }
+
+  //calculation which may set implicit arguments as a side effect, typically computation of a type
+  protected def updateImplicitArguments(): Unit
 
   def matchedParameters: Seq[(ScExpression, Parameter)] = Seq.empty
 

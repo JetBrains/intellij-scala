@@ -46,22 +46,6 @@ class ScSimpleTypeElementImpl(node: ASTNode) extends ScalaPsiElementImpl(node) w
   override def getNonValueType(withUnnecessaryImplicitsUpdate: Boolean = false): TypeResult =
     innerNonValueType(inferValueType = false, withUnnecessaryImplicitsUpdate = withUnnecessaryImplicitsUpdate)
 
-  @volatile
-  private var implicitParameters: Option[Seq[ScalaResolveResult]] = None
-
-  /**
-    * Warning! There is a hack in scala compiler for ClassManifest and ClassTag.
-    * In case of implicit parameter with type ClassManifest[T]
-    * this method will return ClassManifest with substitutor of type T.
-    *
-    * @return implicit parameters used for this expression
-    */
-  def findImplicitArguments: Option[Seq[ScalaResolveResult]] = {
-    ProgressManager.checkCanceled()
-    getNonValueType(withUnnecessaryImplicitsUpdate = true) //to update implicitParameters field
-    implicitParameters
-  }
-
   private def innerNonValueType(inferValueType: Boolean, noConstructor: Boolean = false, withUnnecessaryImplicitsUpdate: Boolean = false): TypeResult = {
     ProgressManager.checkCanceled()
 
@@ -107,7 +91,7 @@ class ScSimpleTypeElementImpl(node: ASTNode) extends ScalaPsiElementImpl(node) w
           case _ => ScMethodType(tp, params.last, isImplicit = true)
         }
         val res = InferUtil.updateTypeWithImplicitParameters(newTp, this, None, withExpected, fullInfo = false)
-        implicitParameters = res._2
+        findConstructor.foreach(_.setImplicitArguments(res._2))
         res._1
       } else tp
     }
