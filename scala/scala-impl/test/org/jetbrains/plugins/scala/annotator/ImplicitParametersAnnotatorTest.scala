@@ -151,6 +151,21 @@ class ImplicitParametersAnnotatorTest extends AnnotatorTestBase(ImplicitParamete
     ).get)
   }
 
+  def testApplyAfterConstructor(): Unit = {
+    val actualMessages = messages(
+      """|object A {
+         |
+         |  class B
+         |  class MyClass {
+         |    def apply(i: Int)(implicit b: B) = b
+         |  }
+         |
+         |  new MyClass()(2)
+         |}
+         |""".stripMargin).get
+    assertMessages(Error("new MyClass()(2)", notFound("B")) :: Nil)(actualMessages)
+  }
+
 }
 
 //annotator tests doesn't have scala library, so it's not possible to use FunctionType, for example

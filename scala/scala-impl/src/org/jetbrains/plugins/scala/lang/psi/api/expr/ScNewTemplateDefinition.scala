@@ -14,5 +14,8 @@ import org.jetbrains.plugins.scala.lang.psi.api.toplevel.typedef.ScTemplateDefin
 trait ScNewTemplateDefinition extends ScExpression with ScTemplateDefinition {
   def constructor: Option[ScConstructor]
 
+  //It's very rare case, when we need to desugar apply first.
+  def desugaredApply: Option[ScExpression]
+
   override def getTextOffset: Int = extendsBlock.getTextOffset
 }
