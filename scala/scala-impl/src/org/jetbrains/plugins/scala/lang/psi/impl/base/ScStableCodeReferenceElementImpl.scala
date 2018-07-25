@@ -12,7 +12,7 @@ import com.intellij.psi.util.PsiTreeUtil
 import com.intellij.util.IncorrectOperationException
 import org.jetbrains.plugins.scala.annotator.intention.ScalaImportTypeFix
 import org.jetbrains.plugins.scala.annotator.intention.ScalaImportTypeFix.{ClassTypeToImport, TypeAliasToImport, TypeToImport}
-import org.jetbrains.plugins.scala.extensions.{&&, PsiClassExt, PsiNamedElementExt, PsiTypeExt, ifReadAllowed}
+import org.jetbrains.plugins.scala.extensions.{&&, ObjectExt, PsiClassExt, PsiNamedElementExt, PsiTypeExt, ifReadAllowed}
 import org.jetbrains.plugins.scala.lang.formatting.settings.ScalaCodeStyleSettings
 import org.jetbrains.plugins.scala.lang.lexer.ScalaTokenTypes
 import org.jetbrains.plugins.scala.lang.macros.MacroDef
@@ -57,21 +57,9 @@ class ScStableCodeReferenceElementImpl(node: ASTNode) extends ScReferenceElement
   def getResolveResultVariants: Array[ScalaResolveResult] =
     doResolve(new CompletionProcessor(getKinds(incomplete = true), this))
 
-  def getConstructor: Option[ScConstructor] = {
-    getContext match {
-      case s: ScSimpleTypeElement =>
-        s.getContext match {
-          case p: ScParameterizedTypeElement =>
-            p.getContext match {
-              case constr: ScConstructor => Some(constr)
-              case _ => None
-            }
-          case constr: ScConstructor => Some(constr)
-          case _ => None
-        }
-      case _ => None
-    }
-  }
+  def getConstructor: Option[ScConstructor] =
+    getContext.asOptionOf[ScSimpleTypeElement]
+      .flatMap(_.findConstructor)
 
   def isConstructorReference: Boolean = getConstructor.nonEmpty
 
