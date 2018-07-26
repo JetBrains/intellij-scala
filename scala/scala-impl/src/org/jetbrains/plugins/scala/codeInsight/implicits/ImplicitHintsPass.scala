@@ -315,7 +315,7 @@ private object ImplicitHintsPass {
     }
 
     val result = attributes.clone()
-    if (UIUtil.isUnderDarcula) {
+    if (UIUtil.isUnderDarcula && result.getBackgroundColor != null) {
       val notSoBright = result.getBackgroundColor.brighter
       val tooBright = notSoBright.brighter
       result.setBackgroundColor(average(notSoBright, tooBright))
