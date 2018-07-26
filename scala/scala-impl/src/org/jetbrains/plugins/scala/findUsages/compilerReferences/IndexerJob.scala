@@ -11,4 +11,5 @@ object IndexerJob {
   final case class OpenWriter(isCleanBuild: Boolean, onFinish: Callback)      extends IndexerJob
   final case class ProcessChunkData(data: ChunkBuildData, onFinish: Callback) extends IndexerJob
   final case class CloseWriter(onFinish: IndexingHandler)                     extends IndexerJob
+  final case object ClearIndex                                                extends IndexerJob
 }

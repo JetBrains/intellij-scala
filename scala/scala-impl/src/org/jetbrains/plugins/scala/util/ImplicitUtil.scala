@@ -3,14 +3,14 @@ package org.jetbrains.plugins.scala.util
 import com.intellij.lang.{ASTNode, Language}
 import com.intellij.openapi.project.Project
 import com.intellij.openapi.util.TextRange
+import com.intellij.psi._
 import com.intellij.psi.impl.PsiElementBase
 import com.intellij.psi.util.PsiTreeUtil
-import com.intellij.psi._
 import org.jetbrains.plugins.scala.ScalaLanguage
 import org.jetbrains.plugins.scala.codeInspection.collections.MethodRepr
-import org.jetbrains.plugins.scala.lang.psi.api.ImplicitParametersOwner
-import org.jetbrains.plugins.scala.lang.psi.api.base.{ScConstructor, ScReferenceElement}
+import org.jetbrains.plugins.scala.lang.psi.api.ImplicitArgumentsOwner
 import org.jetbrains.plugins.scala.lang.psi.api.base.types.{ScSimpleTypeElement, ScTypeElement}
+import org.jetbrains.plugins.scala.lang.psi.api.base.{ScConstructor, ScReferenceElement}
 import org.jetbrains.plugins.scala.lang.psi.api.expr._
 import org.jetbrains.plugins.scala.lang.psi.api.statements.ScFunction
 import org.jetbrains.plugins.scala.lang.psi.api.toplevel.ScNamedElement
@@ -38,15 +38,15 @@ object ImplicitUtil {
     private def isImplicitConversionOrParameter(e: ScExpression): Boolean =
       e.implicitConversion().exists(matches) || isImplicitParameterOf(e)
 
-    private def isImplicitParameterOf(e: ImplicitParametersOwner): Boolean =
-      e.findImplicitParameters
+    private def isImplicitParameterOf(e: ImplicitArgumentsOwner): Boolean =
+      e.findImplicitArguments
         .getOrElse(Seq.empty)
         .exists(matches)
 
     def refOrImplicitRefIn(usage: PsiElement): Option[PsiReference] = usage match {
       case ref: ScReferenceElement if isTarget(ref.resolve())    => Option(ref)
       case e: ScExpression if isImplicitConversionOrParameter(e) => Option(ImplicitReference(e, targetImplicit))
-      case st: ScSimpleTypeElement if isImplicitParameterOf(st)  => Option(ImplicitReference(st, targetImplicit))
+      case c: ScConstructor if isImplicitParameterOf(c)          => Option(ImplicitReference(c, targetImplicit))
       case _                                                     => None
     }
   }

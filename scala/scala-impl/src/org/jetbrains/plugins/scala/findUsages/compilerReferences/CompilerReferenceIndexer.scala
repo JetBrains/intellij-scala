@@ -14,8 +14,8 @@ import org.jetbrains.jps.backwardRefs.index.CompilerReferenceIndex
 import org.jetbrains.jps.incremental.CompiledClass
 import org.jetbrains.plugin.scala.compilerReferences.ChunkBuildData
 import org.jetbrains.plugins.scala.extensions._
-import org.jetbrains.plugins.scala.findUsages.compilerReferences.IndexerJob.{CloseWriter, OpenWriter, ProcessChunkData}
 import org.jetbrains.plugins.scala.findUsages.compilerReferences.IndexerFailure._
+import org.jetbrains.plugins.scala.findUsages.compilerReferences.IndexerJob.{CloseWriter, OpenWriter, ProcessChunkData}
 
 import scala.collection.JavaConverters._
 import scala.util.control.NonFatal
@@ -39,7 +39,7 @@ private class CompilerReferenceIndexer(project: Project, expectedIndexVersion: I
   private[this] val fatalFailures = ContainerUtil.newConcurrentSet[Throwable]()
 
   private[this] def shutdownIfNeeded(executor: ExecutorService): Unit =
-    if (!executor.isShutdown) executor.shutdownNow()
+    if (executor != null && !executor.isShutdown) executor.shutdownNow()
 
   Disposer.register(project, () => {
     shutdownIfNeeded(parsingExecutor)
@@ -129,7 +129,6 @@ private class CompilerReferenceIndexer(project: Project, expectedIndexVersion: I
           else if (!failedToParse.isEmpty) FailedToParse(failedToParse.asScala).toOption
           else None
 
-//        Thread.sleep(5 * 1000)
         writer.foreach(_.close(!fatalFailures.isEmpty))
         writer = None
         fatalFailures.clear()
@@ -141,6 +140,7 @@ private class CompilerReferenceIndexer(project: Project, expectedIndexVersion: I
   }
 
   def indexBuildData(buildData: ChunkBuildData, onSuccess: () => Unit): Unit =
+  //@FIXME: progress not showing
     runWithProgress("Building compiler indices...") { () =>
       if (!parsingExecutor.isShutdown && !indexWritingExecutor.isShutdown) {
         writer.foreach { writer =>
@@ -197,9 +197,7 @@ private class CompilerReferenceIndexer(project: Project, expectedIndexVersion: I
   private def runWithProgress[T](title: String)(body: Runnable): Unit =
     ProgressManager
       .getInstance()
-      .runProcess(body, new ProgressIndicatorBase() {
-        setText(title)
-      })
+      .runProcess(body, new ProgressIndicatorBase() { setText(title) })
 }
 
 private object CompilerReferenceIndexer {

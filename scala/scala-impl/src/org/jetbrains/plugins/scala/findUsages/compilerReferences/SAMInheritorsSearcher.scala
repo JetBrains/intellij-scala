@@ -25,7 +25,7 @@ class SAMInheritorsSearcher
       val service = ScalaCompilerReferenceService.getInstance(project)
       if (service.isCompilerIndexReady) {
         val usages = service.SAMInheritorsOf(aClass)
-        getSAMInheritors(usages, aClass, project).foreach(processor.process)
+        getSAMInheritors(usages.unwrap, aClass, project).foreach(processor.process)
       }
     case _ => ()
   }

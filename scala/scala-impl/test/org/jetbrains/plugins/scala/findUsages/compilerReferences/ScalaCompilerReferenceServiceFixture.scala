@@ -33,7 +33,7 @@ abstract class ScalaCompilerReferenceServiceFixture extends JavaCodeInsightFixtu
   @volatile private[this] var indexReadyPredicate: Boolean = false
 
   protected lazy val service = ScalaCompilerReferenceService.getInstance(getProject)
-  
+
   override def setUp(): Unit = {
     super.setUp()
     try {
@@ -58,8 +58,8 @@ abstract class ScalaCompilerReferenceServiceFixture extends JavaCodeInsightFixtu
   protected def buildProject(): Unit = {
     getProject.getMessageBus
       .connect(getProject)
-      .subscribe(CompilerReferenceIndexingTopics.indexingStatus, new CompilerReferenceIndexingStatusListener {
-        override def onIndexingFinished(failure: Option[IndexerParsingFailure]): Unit = withLock(compilerIndexLock) {
+      .subscribe(CompilerReferenceServiceStatusListener.topic, new CompilerReferenceServiceStatusListener {
+        override def onIndexingFinished(failure: Option[IndexerFailure]): Unit = withLock(compilerIndexLock) {
           indexReadyPredicate = true
           indexReady.signal()
         }
