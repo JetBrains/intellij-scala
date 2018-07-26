@@ -200,18 +200,14 @@ object CachedMacroUtil {
       abort("Annotated function has explicit return statements, function body can't be inlined")(c)
     }
 
-    q"""if ($guard.checkReentrancy($data)) {}
-        else {
-          val realKey = $guard.createKey($data)
+    q"""val realKey = $guard.createKey($data)
 
-          val (sizeBefore, sizeAfter) = $guard.beforeComputation(realKey)
-
-          try {
-            $computation
-          }
-          finally {
-            $guard.afterComputation(realKey, sizeBefore, sizeAfter)
-          }
+        val (sizeBefore, sizeAfter) = $guard.beforeComputation(realKey)
+        try {
+          $computation
+        }
+        finally {
+          $guard.afterComputation(realKey, sizeBefore, sizeAfter)
         }
      """
   }

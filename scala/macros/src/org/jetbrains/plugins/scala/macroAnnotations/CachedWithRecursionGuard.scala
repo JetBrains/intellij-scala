@@ -17,7 +17,7 @@ import scala.reflect.macros.whitebox
   * Date: 9/28/15.
   */
 class CachedWithRecursionGuard(element: Any, defaultValue: => Any, dependecyItem: Object) extends StaticAnnotation {
-  def macroTransform(annottees: Any*) = macro CachedWithRecursionGuard.cachedWithRecursionGuardImpl
+  def macroTransform(annottees: Any*): Any = macro CachedWithRecursionGuard.cachedWithRecursionGuardImpl
 }
 
 object CachedWithRecursionGuard {
@@ -90,8 +90,9 @@ object CachedWithRecursionGuard {
           else q"$elemName"
 
         val actualCalculation = transformRhsToAnalyzeCaches(c)(cacheStatsName, retTp, rhs)
-        val guardedCalculation = withUIFreezingGuard(c)(q"$computedValue = $actualCalculation")
+        val guardedCalculation = withUIFreezingGuard(c)(actualCalculation)
         val withProbablyRecursiveException = handleProbablyRecursiveException(c)(elemName, dataName, keyVarName, guardedCalculation)
+        val calculationWithAllTheChecks = doPreventingRecursion(c)(withProbablyRecursiveException, guard, dataForGuardName, retTp)
 
         val updatedRhs = q"""
           ${if (analyzeCaches) q"$cacheStatsName.aboutToEnterCachedArea()" else EmptyTree}
@@ -110,16 +111,9 @@ object CachedWithRecursionGuard {
           if ($guard.checkReentrancy($dataForGuardName))
             return $cachesUtilFQN.handleRecursiveCall($elemName, $dataName, $keyVarName, $defValueName)
 
-          var $computedValue: $resultType = null
-
           val stackStamp = $recursionManagerFQN.markStack()
 
-          ${doPreventingRecursion(c)(withProbablyRecursiveException, guard, dataForGuardName, retTp)}
-
-          val $resultName = $computedValue match {
-            case null => $defValueName
-            case notNull => notNull
-          }
+          val $resultName: $resultType = $calculationWithAllTheChecks
 
           if (stackStamp.mayCacheNow()) {
             $updateHolder
