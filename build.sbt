@@ -138,7 +138,7 @@ lazy val repackagedZinc =
 lazy val compilerShared =
   newProject("compiler-shared", file("scala/compiler-shared"))
     .settings(
-      libraryDependencies += Dependencies.nailgun,
+      libraryDependencies ++= Seq(Dependencies.nailgun, Dependencies.compilerIndicesProtocol),
       packageLibraryMappings += Dependencies.nailgun -> Some("lib/jps/nailgun.jar"),
       packageMethod := PackagingMethod.Standalone("lib/compiler-shared.jar", static = true)
     )

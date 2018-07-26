@@ -10,6 +10,7 @@ import com.intellij.util.messages.MessageBus
 import org.jetbrains.plugins.scala.extensions._
 import org.jetbrains.plugins.scala.findUsages.compilerReferences.SbtCompilationListener.ProjectIdentifier
 import org.jetbrains.plugins.scala.findUsages.compilerReferences.SbtCompilationListener.ProjectIdentifier._
+import org.jetbrains.plugins.scala.indices.protocol.IdeaIndicesJsonProtocol.ACK
 
 import scala.util.control.NonFatal
 
@@ -23,7 +24,7 @@ class SbtCompilationManager extends ApplicationComponent {
   private[this] var server: ServerSocket = _
   private[this] val bus: MessageBus      = ApplicationManager.getApplication.getMessageBus
 
-  override def initComponent(): Unit = {
+  override def initComponent(): Unit =
     try {
       server = new ServerSocket(port)
       executeOnPooledThread {
@@ -43,7 +44,6 @@ class SbtCompilationManager extends ApplicationComponent {
         logger.error(s"Failed to open a socket to listen for SBT compilations on port: $port.", e)
         if (server != null) server.close()
     }
-  }
 
   override def disposeComponent(): Unit = if (server != null) server.close()
 
@@ -53,12 +53,23 @@ class SbtCompilationManager extends ApplicationComponent {
       val in = new DataInputStream(client.getInputStream())
       base = in.readUTF()
       val projectBase = ProjectBase(base)
-      bus.syncPublisher(SbtCompilationListener.topic).beforeCompilationStart(projectBase)
+
+      try bus.syncPublisher(SbtCompilationListener.topic).beforeCompilationStart(projectBase)
+      catch { case e: Throwable => logger.error(e) }
+
       val out = new DataOutputStream(client.getOutputStream())
       out.writeUTF(ACK)
 
-      val exitCode = in.readInt()
-      bus.syncPublisher(SbtCompilationListener.topic).compilationFinished(projectBase, exitCode == 0)
+      val isSuccessful = in.readBoolean()
+
+      val maybeCompilationInfoFile =
+        if (isSuccessful) in.readUTF().toOption
+        else None
+
+      try bus
+        .syncPublisher(SbtCompilationListener.topic)
+        .compilationFinished(projectBase, isSuccessful, maybeCompilationInfoFile)
+      catch { case e: Throwable => logger.error(e) }
     } catch {
       case NonFatal(e) =>
         e.printStackTrace()
@@ -69,13 +80,12 @@ class SbtCompilationManager extends ApplicationComponent {
   }
 
   private[this] def onConnectionFailure(identifier: ProjectIdentifier): Unit =
-    bus.syncPublisher(SbtCompilationListener.topic).connectionFailure(identifier)
+    try bus.syncPublisher(SbtCompilationListener.topic).connectionFailure(identifier)
+    catch { case e: Throwable => logger.error(e) }
 }
 
 object SbtCompilationManager {
   //@TODO: should be a setting
-  private val port = 65337
-  private val ACK  = "ack"
-
+  private val port   = 65337
   private val logger = Logger.getInstance(classOf[SbtCompilationManager])
 }

@@ -11,11 +11,15 @@ import com.intellij.openapi.project.Project
 import com.intellij.openapi.util.Disposer
 import com.intellij.util.containers.ContainerUtil
 import org.jetbrains.jps.backwardRefs.index.CompilerReferenceIndex
-import org.jetbrains.jps.incremental.CompiledClass
-import org.jetbrains.plugin.scala.compilerReferences.ChunkBuildData
 import org.jetbrains.plugins.scala.extensions._
 import org.jetbrains.plugins.scala.findUsages.compilerReferences.IndexerFailure._
-import org.jetbrains.plugins.scala.findUsages.compilerReferences.IndexerJob.{CloseWriter, OpenWriter, ProcessChunkData}
+import org.jetbrains.plugins.scala.findUsages.compilerReferences.IndexerJob.{
+  CloseWriter,
+  InvalidateIndex,
+  OpenWriter,
+  ProcessChunkData
+}
+import org.jetbrains.plugins.scala.indices.protocol.{CompilationInfo, CompiledClass}
 
 import scala.collection.JavaConverters._
 import scala.util.control.NonFatal
@@ -61,8 +65,8 @@ private class CompilerReferenceIndexer(project: Project, expectedIndexVersion: I
     while (!parserJobQueue.isEmpty && !Thread.interrupted()) {
       try {
         val compiledClasses = parserJobQueue.poll()
-        val sourceFile      = compiledClasses.headOption.map(_.getSourceFile)
-        val classfiles      = compiledClasses.map(_.getOutputFile)
+        val sourceFile      = compiledClasses.headOption.map(_.source)
+        val classfiles      = compiledClasses.map(_.output)
 
         try {
           val parsed = ClassfileParser.parse(classfiles)
@@ -98,7 +102,7 @@ private class CompilerReferenceIndexer(project: Project, expectedIndexVersion: I
           val job = writerJobQueue.poll(1, TimeUnit.SECONDS)
           job match {
             case ProcessCompiledFile(data) => processed += 1; writer.registerClassfileData(data)
-            case ProcessDeletedFile(file)  => processed += 1; writer.processDeletedFile(file)
+            case ProcessDeletedFile(file)  => processed += 1; writer.processDeletedFile(file.getPath)
             case null                      => ()
           }
         } catch {
@@ -119,10 +123,9 @@ private class CompilerReferenceIndexer(project: Project, expectedIndexVersion: I
 
   def process(job: IndexerJob): Unit = withLock(executionLock) {
     job match {
-      case OpenWriter(isCleanBuild, onFinish) =>
+      case OpenWriter(isCleanBuild) =>
         initialiseExecutorsIfNeeded()
         writer = indexDir(project).flatMap(ScalaCompilerReferenceWriter(_, expectedIndexVersion, isCleanBuild))
-        onFinish()
       case CloseWriter(onFinish) =>
         val maybeFailure =
           if (!fatalFailures.isEmpty) FatalFailure(fatalFailures.asScala).toOption
@@ -136,17 +139,19 @@ private class CompilerReferenceIndexer(project: Project, expectedIndexVersion: I
         onFinish(maybeFailure)
       case ProcessChunkData(data, onFinish) =>
         indexBuildData(data, onFinish)
+      case InvalidateIndex =>
+        writer.foreach(_.close(shouldClearIndex = true))
+        writer = None
     }
   }
 
-  def indexBuildData(buildData: ChunkBuildData, onSuccess: () => Unit): Unit =
-  //@FIXME: progress not showing
+  def indexBuildData(buildData: CompilationInfo, onSuccess: () => Unit): Unit =
+    //@FIXME: progress not showing
     runWithProgress("Building compiler indices...") { () =>
       if (!parsingExecutor.isShutdown && !indexWritingExecutor.isShutdown) {
         writer.foreach { writer =>
-
           buildData.removedSources.iterator.map(ProcessDeletedFile).foreach(writerJobQueue.add)
-          buildData.compiledClasses.groupBy(_.getSourceFile).foreach {
+          buildData.generatedClasses.groupBy(_.source).foreach {
             case (_, classes) => parserJobQueue.add(classes)
           }
 
@@ -175,7 +180,7 @@ private class CompilerReferenceIndexer(project: Project, expectedIndexVersion: I
               writeParsedClassfile(
                 writer,
                 progressIndicator,
-                buildData.compiledClasses.size + buildData.removedSources.size
+                buildData.generatedClasses.size + buildData.removedSources.size
               )
             )
           )
@@ -202,6 +207,6 @@ private class CompilerReferenceIndexer(project: Project, expectedIndexVersion: I
 
 private object CompilerReferenceIndexer {
   private sealed trait WriterJob
-  private final case class ProcessDeletedFile(file:  String)            extends WriterJob
+  private final case class ProcessDeletedFile(file:  File)              extends WriterJob
   private final case class ProcessCompiledFile(data: CompiledScalaFile) extends WriterJob
 }
