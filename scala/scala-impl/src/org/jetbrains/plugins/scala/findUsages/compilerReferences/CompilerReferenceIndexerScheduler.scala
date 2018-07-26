@@ -30,8 +30,8 @@ private class CompilerReferenceIndexerScheduler(
     drainQueue()
   }
 
-  override def schedule(job: IndexerJob): Unit = {
+  override def schedule(job: IndexerJob): Unit = withLock(lock) {
     jobQueue.add(job)
-    withLock(lock)(queueNonEmpty.signal())
+    queueNonEmpty.signal()
   }
 }

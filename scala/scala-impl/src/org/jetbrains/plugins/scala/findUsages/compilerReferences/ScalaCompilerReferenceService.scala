@@ -1,5 +1,6 @@
 package org.jetbrains.plugins.scala.findUsages.compilerReferences
 
+import java.io.File
 import java.util.UUID
 
 import com.intellij.compiler.CompilerReferenceService
@@ -18,83 +19,91 @@ import com.intellij.psi.search.GlobalSearchScope
 import com.intellij.psi.{PsiClass, PsiDocumentManager, PsiElement}
 import com.intellij.util.messages.MessageBus
 import org.jetbrains.jps.backwardRefs.CompilerRef
-import org.jetbrains.plugin.scala.compilerReferences.{ChunkBuildData, ScalaCompilerReferenceIndexBuilder => Builder}
+import org.jetbrains.plugin.scala.compilerReferences.{ScalaCompilerReferenceIndexBuilder => Builder}
 import org.jetbrains.plugins.scala.extensions._
 import org.jetbrains.plugins.scala.findUsages.compilerReferences.IndexerFailure.{FailedToParse, FatalFailure}
-import org.jetbrains.plugins.scala.findUsages.compilerReferences.IndexerJob.{CloseWriter, OpenWriter, ProcessChunkData}
-import org.jetbrains.plugins.scala.findUsages.compilerReferences.SbtCompilationListener.ProjectIdentifier
-import org.jetbrains.plugins.scala.findUsages.compilerReferences.SbtCompilationListener.ProjectIdentifier._
+import org.jetbrains.plugins.scala.findUsages.compilerReferences.IndexerJob.{CloseWriter, InvalidateIndex, OpenWriter, ProcessChunkData}
 import org.jetbrains.plugins.scala.project._
+import org.jetbrains.plugins.scala.indices.protocol.IdeaIndicesJsonProtocol._
+import org.jetbrains.plugins.scala.indices.protocol.jps.JpsCompilationInfo
+import spray.json._
 
 import scala.collection.JavaConverters._
 import scala.collection.mutable
+import scala.util.Try
 
 /**
-  *  NOTICE: all index manipulations must be done either via subclassing [[IndexerJob]] and adding custom processing logic
-  *          or in callbacks of existing jobs.
-  */
+ *  NOTICE: all index manipulations must be done either via subclassing [[IndexerJob]] and adding custom processing logic
+ *          or in callbacks of existing jobs.
+ */
 private[findUsages] class ScalaCompilerReferenceService(
   project:             Project,
   fileDocumentManager: FileDocumentManager,
   psiDocumentManager:  PsiDocumentManager
 ) extends CompilerReferenceServiceBase[ScalaCompilerReferenceReader](
-  project,
-  fileDocumentManager,
-  psiDocumentManager,
-  ScalaCompilerReferenceReaderFactory,
-  (connection, affectedModules) =>
-    connection.subscribe(
-      CompilerReferenceServiceStatusListener.topic,
-      new CompilerReferenceServiceStatusListener {
-        override def modulesUpToDate(affectedModuleNames: Iterable[String]): Unit =
-          affectedModules.addAll(affectedModuleNames.toSet.asJava)
-      }
-    )
-) { self =>
+      project,
+      fileDocumentManager,
+      psiDocumentManager,
+      ScalaCompilerReferenceReaderFactory,
+      (connection, affectedModules) =>
+        connection.subscribe(
+          CompilerReferenceServiceStatusListener.topic,
+          new CompilerReferenceServiceStatusListener {
+            override def modulesUpToDate(affectedModuleNames: Iterable[String]): Unit =
+              affectedModules.addAll(affectedModuleNames.toSet.asJava)
+          }
+      )
+    ) { self =>
   import ScalaCompilerReferenceService._
 
   private[this] val indexerScheduler =
     new CompilerReferenceIndexerScheduler(project, myReaderFactory.expectedIndexVersion())
 
   // guarded by myOpenCloseLock
-  private[this] val failedToParse = mutable.HashSet.empty[String]
+  private[this] val failedToParse = mutable.HashSet.empty[File]
 
-  @volatile private[this] var isUpToDateChecked              = false
+  @volatile private[this] var isUpToDateChecked = false
+  //@TODO: separate timestamps for each module
   @volatile private[this] var lastCompilationTimestamp: Long = -1
 
-  private[this] def handleBuilderMessage(messageType: String, messageText: String, bus: MessageBus): Unit = {
-    import org.jetbrains.plugin.scala.compilerReferences.Codec._
+  private[this] val projectBase: String = project.getBasePath
 
+  private[this] def handleBuilderMessage(messageType: String, messageText: String, bus: MessageBus): Unit = {
     val publisher = bus.syncPublisher(CompilerReferenceServiceStatusListener.topic)
     logger.debug(s"Received compiler index builder message: $messageType: $messageText.")
 
     messageType match {
-      case Builder.chunkBuildDataType =>
-        val buildData = messageText.decode[ChunkBuildData]
+      case Builder.compilationDataType =>
+        val buildData = Try(messageText.parseJson.convertTo[JpsCompilationInfo])
 
-        // @TODO: what if we actually get malformed data
-        buildData.foreach { data =>
-          val modules = data.affectedModules
-          logger.debug(s"Scheduled building index for modules ${modules.mkString("[", ", ", "]")}")
+        buildData.fold(
+          error => {
+            logger.error("Malformed messageText from builder.", error)
+            indexerScheduler.schedule(InvalidateIndex)
+          },
+          data => {
+            val modules = data.affectedModules
+            logger.debug(s"Scheduled building index for modules ${modules.mkString("[", ", ", "]")}")
 
-          indexerScheduler.schedule(ProcessChunkData(data, () => {
-            publisher.modulesUpToDate(modules)
+            indexerScheduler.schedule(ProcessChunkData(data, () => {
+              publisher.modulesUpToDate(modules)
 
-            if (failedToParse.nonEmpty) {
-              // if we failed to parse some classes during previous indexing
-              // phase running concurrently with this one, check if current phase handled
-              // these files and therefore restored index consitency
-              failedToParse --= data.removedSources
-              failedToParse --= data.compiledClasses.map(_.getOutputFile.getPath)
-            }
-          }))
-        }
+              if (failedToParse.nonEmpty) {
+                // if we failed to parse some classes during previous indexing
+                // phase running concurrently with this one, check if current phase handled
+                // these files and therefore restored index consitency
+                failedToParse --= data.removedSources
+                failedToParse --= data.generatedClasses.map(_.output)
+              }
+            }))
+          }
+        )
       case Builder.compilationStartedType =>
-        val isCleanBuild = messageText.decode[Boolean]
-        isCleanBuild.foreach(isClean => indexerScheduler.schedule(OpenWriter(isClean, () => ())))
+        val isCleanBuild = Try(messageText.parseJson.convertTo[Boolean]).getOrElse(false)
+        indexerScheduler.schedule(OpenWriter(isCleanBuild))
       case Builder.compilationFinishedType =>
-        val timestamp = messageText.decode[Long]
-        timestamp.foreach(lastCompilationTimestamp = _)
+        val timestamp = Try(messageText.parseJson.convertTo[Long]).getOrElse(-1L)
+        lastCompilationTimestamp = timestamp
         indexerScheduler.schedule(CloseWriter { maybeFailure =>
           openReaderOrInvalidateIndex(maybeFailure)
           publisher.onIndexingFinished(maybeFailure)
@@ -111,7 +120,7 @@ private[findUsages] class ScalaCompilerReferenceService(
     failure: Option[IndexerFailure]
   ): Unit = withLock(myOpenCloseLock) {
     failure.foreach {
-      case FailedToParse(classes) => failedToParse ++= classes.map(_.getPath)
+      case FailedToParse(classes) => failedToParse ++= classes
       case FatalFailure(causes) =>
         logger.error("Fatal failure occured while trying to build compiler indices.")
         causes.foreach(logger.error)
@@ -133,20 +142,22 @@ private[findUsages] class ScalaCompilerReferenceService(
     val messageBus = project.getMessageBus
     val connection = messageBus.connect(project)
 
-    ProjectManager.getInstance().addProjectManagerListener(project => {
-      if (project != self.project) true
-      else if (isIndexingInProgress) {
-        val message =
-          """
-            |Background bytecode indexing is active. Are you sure you want to stop it and exit?
-            |Exiting right now will lead to index invalidation.
+    ProjectManager
+      .getInstance()
+      .addProjectManagerListener(project => {
+        if (project != self.project) true
+        else if (isIndexingInProgress) {
+          val message =
+            """
+              |Background bytecode indexing is active. Are you sure you want to stop it and exit?
+              |Exiting right now will lead to index invalidation.
           """.stripMargin
 
-        val title    = ApplicationBundle.message("exit.confirm.title")
-        val exitCode = Messages.showYesNoDialog(project, message, title, Messages.getQuestionIcon)
-        exitCode == Messages.YES
-      } else true
-    })
+          val title    = ApplicationBundle.message("exit.confirm.title")
+          val exitCode = Messages.showYesNoDialog(project, message, title, Messages.getQuestionIcon)
+          exitCode == Messages.YES
+        } else true
+      })
 
     connection.subscribe(BuildManagerListener.TOPIC, new BuildManagerListener {
       override def buildStarted(
@@ -175,7 +186,7 @@ private[findUsages] class ScalaCompilerReferenceService(
 
     executeOnPooledThread {
       val validIndexExists = upToDateCompilerIndexExists(project, myReaderFactory.expectedIndexVersion())
-      val compilerManager = CompilerManager.getInstance(project)
+      val compilerManager  = CompilerManager.getInstance(project)
 
       if (validIndexExists) {
         val publisher = messageBus.syncPublisher(CompilerReferenceServiceStatusListener.topic)
@@ -206,8 +217,8 @@ private[findUsages] class ScalaCompilerReferenceService(
     val usages = Set.newBuilder[UsagesInFile]
 
     for {
-      info   <- asCompilerElements(target, false, false).toOption
-      reader <- myReader.toOption
+      info    <- asCompilerElements(target, false, false).toOption
+      reader  <- myReader.toOption
       targets = info.searchElements
     } yield targets.foreach(usages ++= builder(reader)(_))
 

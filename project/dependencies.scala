@@ -97,6 +97,8 @@ object Dependencies {
 
   val bcel: ModuleID = "org.apache.bcel" % "bcel" % "6.0"
 
+  val compilerIndicesProtocol: ModuleID = "org.jetbrains" %% "scala-compiler-indices-protocol" % "0.1.0"
+
   val nailgun: ModuleID = "org.jetbrains" % "nailgun-patched" % "1.0.0"
   val zinc = "org.scala-sbt" %% "zinc" % zincVersion
   val zincInterface = "org.scala-sbt" % "compiler-interface" % zincVersion

@@ -1,5 +1,6 @@
 package org.jetbrains.plugin.scala.compilerReferences
 
+import java.io.File
 import java.util
 
 import org.jetbrains.jps.ModuleChunk
@@ -8,6 +9,10 @@ import org.jetbrains.jps.builders.java.{JavaModuleBuildTargetType, JavaSourceRoo
 import org.jetbrains.jps.incremental.ModuleLevelBuilder.ExitCode
 import org.jetbrains.jps.incremental.messages.CustomBuilderMessage
 import org.jetbrains.jps.incremental.{BuilderCategory, CompileContext, ModuleBuildTarget, ModuleLevelBuilder}
+import org.jetbrains.plugins.scala.indices.protocol.CompiledClass
+import org.jetbrains.plugins.scala.indices.protocol.IdeaIndicesJsonProtocol._
+import org.jetbrains.plugins.scala.indices.protocol.jps.JpsCompilationInfo
+import spray.json._
 
 import scala.collection.JavaConverters._
 
@@ -44,20 +49,25 @@ class ScalaCompilerReferenceIndexBuilder extends ModuleLevelBuilder(BuilderCateg
     val affectedModules: Set[String] = chunk.getModules.asScala.map(_.getName)(collection.breakOut)
 
     val compiledClasses =
-      outputConsumer.getCompiledClasses.values().iterator().asScala.toSet
+      outputConsumer.getCompiledClasses
+        .values()
+        .iterator()
+        .asScala
+        .map(cc => CompiledClass(cc.getSourceFile, cc.getOutputFile))
+        .toSet
 
     val removedSources = for {
       target      <- chunk.getTargets.asScala.toSet if target != null
       removedFile <- dirtyFilesHolder.getRemovedFiles(target).asScala
-    } yield removedFile
+    } yield new File(removedFile)
 
-    val data = ChunkBuildData(
-      compiledClasses,
+    val data = JpsCompilationInfo(
+      affectedModules,
       removedSources,
-      affectedModules
+      compiledClasses
     )
 
-    if (removedSources.nonEmpty || compiledClasses.nonEmpty) context.processMessage(ChunkBuildInfo(data))
+    if (removedSources.nonEmpty || compiledClasses.nonEmpty) context.processMessage(ChunkCompilationInfo(data))
 
     ExitCode.OK
   }
@@ -70,21 +80,19 @@ class ScalaCompilerReferenceIndexBuilder extends ModuleLevelBuilder(BuilderCateg
 }
 
 object ScalaCompilerReferenceIndexBuilder {
-  val id = "sc.compiler.ref.index"
-  val chunkBuildDataType = "chunk-build-data-info"
+  val id                      = "sc.compiler.ref.index"
+  val compilationDataType     = "compilation-data"
   val compilationFinishedType = "compilation-finished"
-  val compilationStartedType = "compilation-started"
+  val compilationStartedType  = "compilation-started"
 
   private val allJavaTargetTypes = JavaModuleBuildTargetType.ALL_TYPES.asScala
 
-  import org.jetbrains.plugin.scala.compilerReferences.Codec._
-
-  final case class ChunkBuildInfo(data: ChunkBuildData)
-      extends CustomBuilderMessage(id, chunkBuildDataType, data.encode)
+  final case class ChunkCompilationInfo(data: JpsCompilationInfo)
+      extends CustomBuilderMessage(id, compilationDataType, data.toJson.compactPrint)
 
   final case class CompilationFinished(timestamp: Long)
-      extends CustomBuilderMessage(id, compilationFinishedType, timestamp.encode)
+      extends CustomBuilderMessage(id, compilationFinishedType, timestamp.toJson.compactPrint)
 
   final case class CompilationStarted(isCleanBuild: Boolean)
-      extends CustomBuilderMessage(id, compilationStartedType, isCleanBuild.encode)
+      extends CustomBuilderMessage(id, compilationStartedType, isCleanBuild.toJson.compactPrint)
 }

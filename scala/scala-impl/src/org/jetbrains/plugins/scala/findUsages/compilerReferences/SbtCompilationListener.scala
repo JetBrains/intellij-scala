@@ -8,9 +8,9 @@ import org.jetbrains.plugins.scala.findUsages.compilerReferences.SbtCompilationL
 trait SbtCompilationListener extends EventListener {
   import SbtCompilationListener._
 
-  def beforeCompilationStart(project: ProjectBase): Unit = ()
-  def connectionFailure(project:      ProjectIdentifier): Unit = ()
-  def compilationFinished(project:    ProjectBase, success: Boolean): Unit = ()
+  def beforeCompilationStart(project: ProjectBase): Unit                                                     = ()
+  def connectionFailure(project: ProjectIdentifier): Unit                                                    = ()
+  def compilationFinished(project: ProjectBase, success: Boolean, compilationInfoFile: Option[String]): Unit = ()
 }
 
 object SbtCompilationListener {
