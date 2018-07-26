@@ -48,7 +48,7 @@ class ScalaDeprecationInspection extends LocalInspectionTool {
 
           if (isDeprecated) {
             val message = for {
-              holder     <- context.asOptionOf[ScAnnotationsHolder] if isDeprecated
+              holder     <- context.asOptionOf[ScAnnotationsHolder]
               annotation <- holder.annotations("scala.deprecated").headOption
               message    <- ScalaPsiUtil.readAttribute(annotation, "value")
             } yield message
