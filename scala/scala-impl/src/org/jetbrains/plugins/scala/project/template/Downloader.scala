@@ -25,7 +25,8 @@ object Downloader {
 
     override def onTextAvailable(event: ProcessEvent, outputType: Key[_]): Unit = {
       val text = event.getText
-      progressManager.getProgressIndicator.setText(text)
+      if (progressManager != null && progressManager.hasProgressIndicator)
+        progressManager.getProgressIndicator.setText(text)
       builder ++= text
     }
 
