@@ -17,7 +17,7 @@ import org.jetbrains.plugins.scala.lang.rearranger.ScalaArrangementPanel
  * User: Alefas
  * Date: 23.09.11
  */
-class ScalaTabbedCodeStylePanel(currentSettings: CodeStyleSettings, settings: CodeStyleSettings, project: () => Option[Project])
+class ScalaTabbedCodeStylePanel(currentSettings: CodeStyleSettings, settings: CodeStyleSettings)
   extends TabbedLanguageCodeStylePanel(ScalaLanguage.INSTANCE, currentSettings, settings) {
 
   import ScalaTabbedCodeStylePanel._
@@ -91,6 +91,10 @@ class ScalaTabbedCodeStylePanel(currentSettings: CodeStyleSettings, settings: Co
     toggleSettingsVisibility(false)
   }
 
+  def onProjectSet(project: Project): Unit = {
+    scalaFmtSettingsPanel.onProjectSet(project)
+  }
+
   private def toggleSettingsVisibility(useExternalFormatter: Boolean): Unit = {
     innerPanel.setVisible(!useExternalFormatter)
     shortenedPanel.getPanel.setVisible(useExternalFormatter)
@@ -106,13 +110,15 @@ class ScalaTabbedCodeStylePanel(currentSettings: CodeStyleSettings, settings: Co
 
   private var useExternalFormatterCheckbox: JComboBox[String] = _
   private var outerPanel: JPanel = _
+  private var scalaFmtSettingsPanel: ScalaFmtSettingsPanel = _
   private def innerPanel = super.getPanel
 
   override def getPanel: JComponent = outerPanel
 
   private lazy val shortenedPanel = new TabbedLanguageCodeStylePanel(ScalaLanguage.INSTANCE, currentSettings, settings) {
     protected override def initTabs(settings: CodeStyleSettings): Unit = {
-      addTab(new ScalaFmtSettingsPanel(settings, project))
+      scalaFmtSettingsPanel = new ScalaFmtSettingsPanel(settings)
+      addTab(scalaFmtSettingsPanel)
       addTab(new ImportsPanel(settings))
       addTab(new MultiLineStringCodeStylePanel(settings))
       addTab(new TypeAnnotationsPanel(settings))
