@@ -99,10 +99,9 @@ class ScalaSigPrinter(builder: StringBuilder, verbosity: Verbosity) {
     def indent() {for (_ <- 1 to level) print("  ")}
 
     if (accessibilityOk && !isSynthetic) {
-      printSymbolAttributes(symbol, onNewLine = true, indent())
-
       symbol match {
         case o: ObjectSymbol =>
+          printSymbolAttributes(o, onNewLine = true, indent())
           indent()
           if (o.name == "package" || o.name == "`package`") {
             // print package object
@@ -111,17 +110,21 @@ class ScalaSigPrinter(builder: StringBuilder, verbosity: Verbosity) {
             printObject(level, o)
           }
         case c: ClassSymbol if !refinementClass(c) && !c.isModule =>
+          printSymbolAttributes(c, onNewLine = true, indent())
           indent()
           printClass(level, c)
         case m: MethodSymbol =>
+          printSymbolAttributes(m, onNewLine = true, indent())
           printMethod(level, m, indent _)
         case a: AliasSymbol =>
+          printSymbolAttributes(a, onNewLine = true, indent())
           indent()
           printAlias(level, a)
         case t: TypeSymbol if !t.isParam && !t.name.matches("_\\$\\d+") &&
           !t.name.matches("\\?(\\d)+") =>
           // todo: type 0? found in Suite class from scalatest package. So this is quickfix,
           // todo: we need to find why such strange type is here
+          printSymbolAttributes(t, onNewLine = true, indent())
           indent()
           printTypeSymbol(level, t)
         case _ =>
