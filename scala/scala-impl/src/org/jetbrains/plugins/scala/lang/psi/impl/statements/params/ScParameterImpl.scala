@@ -42,25 +42,13 @@ class ScParameterImpl protected (stub: ScParameterStub, nodeType: ScParamElement
   override def getNameIdentifier: PsiIdentifier = new JavaIdentifier(nameId)
 
   def deprecatedName: Option[String] = byStubOrPsi(_.deprecatedName) {
-    annotations.find(_.typeElement.getText.contains("deprecatedName")) match {
-      case Some(deprecationAnnotation) =>
-        deprecationAnnotation.constructor.args.flatMap {
-          case args =>
-            val exprs = args.exprs
-            if (exprs.length != 1) None
-            else {
-              exprs(0) match {
-                case literal: ScLiteral if literal.getNode.getFirstChildNode != null &&
-                        literal.getNode.getFirstChildNode.getElementType == ScalaTokenTypes.tSYMBOL =>
-                  val literalText = literal.getText
-                  if (literalText.length < 2) None
-                  else Some(literalText.substring(1))
-                case _ => None
-              }
-            }
-        }
-      case None => None
-    }
+    for {
+      ann        <- findAnnotation("scala.deprecatedName").asOptionOf[ScAnnotation]
+      args       <- ann.constructor.args
+      nameSymbol <- args.exprs.headOption
+      node       = nameSymbol.getNode.getFirstChildNode
+      if node != null && node.getElementType == ScalaTokenTypes.tSYMBOL
+    } yield nameSymbol.getText.substring(1)
   }
 
   def nameId: PsiElement = {
