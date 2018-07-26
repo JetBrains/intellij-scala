@@ -12,7 +12,8 @@ import com.intellij.psi.{PsiElement, PsiNamedElement}
 import com.intellij.util.containers.ContainerUtil
 import org.jetbrains.plugins.scala.ScalaBundle
 import org.jetbrains.plugins.scala.findUsages.compilerReferences.ScalaImplicitMemberUsageSearcher._
-import org.jetbrains.plugins.scala.findUsages.compilerReferences.{CompilerReferenceIndexingStatusListener, CompilerReferenceIndexingTopics, IndexerFailure}
+import org.jetbrains.plugins.scala.findUsages.compilerReferences.{
+  CompilerReferenceServiceStatusListener, IndexerFailure}
 import org.jetbrains.plugins.scala.lang.psi.api.base.ScPrimaryConstructor
 import org.jetbrains.plugins.scala.lang.psi.api.statements.ScFunction
 import org.jetbrains.plugins.scala.lang.psi.api.statements.params.ScTypeParam
@@ -75,7 +76,7 @@ class ScalaFindUsagesHandlerFactory(project: Project) extends FindUsagesHandlerF
     val manager    = CompilerManager.getInstance(project)
     val connection = project.getMessageBus.connect(project)
 
-    connection.subscribe(CompilerReferenceIndexingTopics.indexingStatus, new CompilerReferenceIndexingStatusListener {
+    connection.subscribe(CompilerReferenceServiceStatusListener.topic, new CompilerReferenceServiceStatusListener {
       override def onIndexingFinished(failure: Option[IndexerFailure]): Unit = {
         if (failure.isEmpty) {
           val findManager = FindManager.getInstance(project).asInstanceOf[FindManagerImpl]

@@ -1,50 +1,55 @@
 package org.jetbrains.plugins.scala.findUsages.compilerReferences
 
-import java.util
-import java.util.function.BiConsumer
+import java.util.UUID
 
 import com.intellij.compiler.CompilerReferenceService
 import com.intellij.compiler.backwardRefs.CompilerReferenceServiceBase
 import com.intellij.compiler.backwardRefs.CompilerReferenceServiceBase.{IndexCloseReason, IndexOpenReason}
-import com.intellij.compiler.server.CustomBuilderMessageHandler
+import com.intellij.compiler.server.{BuildManagerListener, CustomBuilderMessageHandler}
+import com.intellij.openapi.application.ApplicationBundle
 import com.intellij.openapi.compiler.CompilerManager
 import com.intellij.openapi.diagnostic.Logger
 import com.intellij.openapi.fileEditor.FileDocumentManager
 import com.intellij.openapi.module.ModuleUtilCore
-import com.intellij.openapi.project.Project
+import com.intellij.openapi.project.{Project, ProjectManager}
+import com.intellij.openapi.ui.Messages
 import com.intellij.openapi.util.Disposer
 import com.intellij.psi.search.GlobalSearchScope
 import com.intellij.psi.{PsiClass, PsiDocumentManager, PsiElement}
-import com.intellij.util.messages.{MessageBus, MessageBusConnection}
+import com.intellij.util.messages.MessageBus
 import org.jetbrains.jps.backwardRefs.CompilerRef
 import org.jetbrains.plugin.scala.compilerReferences.{ChunkBuildData, ScalaCompilerReferenceIndexBuilder => Builder}
 import org.jetbrains.plugins.scala.extensions._
 import org.jetbrains.plugins.scala.findUsages.compilerReferences.IndexerFailure.{FailedToParse, FatalFailure}
 import org.jetbrains.plugins.scala.findUsages.compilerReferences.IndexerJob.{CloseWriter, OpenWriter, ProcessChunkData}
+import org.jetbrains.plugins.scala.findUsages.compilerReferences.SbtCompilationListener.ProjectIdentifier
+import org.jetbrains.plugins.scala.findUsages.compilerReferences.SbtCompilationListener.ProjectIdentifier._
 import org.jetbrains.plugins.scala.project._
 
 import scala.collection.JavaConverters._
 import scala.collection.mutable
 
+/**
+  *  NOTICE: all index manipulations must be done either via subclassing [[IndexerJob]] and adding custom processing logic
+  *          or in callbacks of existing jobs.
+  */
 private[findUsages] class ScalaCompilerReferenceService(
   project:             Project,
   fileDocumentManager: FileDocumentManager,
   psiDocumentManager:  PsiDocumentManager
-) extends {
-  private[this] val callback: BiConsumer[MessageBusConnection, util.Set[String]] = (connection, affectedModules) =>
-    connection.subscribe(
-      CompilerReferenceIndexingTopics.indexingStatus,
-      new CompilerReferenceIndexingStatusListener {
-        override def modulesUpToDate(affectedModuleNames: Iterable[String]): Unit =
-          affectedModules.addAll(affectedModuleNames.toSet.asJava)
-      }
-  )
-} with CompilerReferenceServiceBase[ScalaCompilerReferenceReader](
+) extends CompilerReferenceServiceBase[ScalaCompilerReferenceReader](
   project,
   fileDocumentManager,
   psiDocumentManager,
   ScalaCompilerReferenceReaderFactory,
-  callback
+  (connection, affectedModules) =>
+    connection.subscribe(
+      CompilerReferenceServiceStatusListener.topic,
+      new CompilerReferenceServiceStatusListener {
+        override def modulesUpToDate(affectedModuleNames: Iterable[String]): Unit =
+          affectedModules.addAll(affectedModuleNames.toSet.asJava)
+      }
+    )
 ) { self =>
   import ScalaCompilerReferenceService._
 
@@ -60,7 +65,7 @@ private[findUsages] class ScalaCompilerReferenceService(
   private[this] def handleBuilderMessage(messageType: String, messageText: String, bus: MessageBus): Unit = {
     import org.jetbrains.plugin.scala.compilerReferences.Codec._
 
-    val publisher = bus.syncPublisher(CompilerReferenceIndexingTopics.indexingStatus)
+    val publisher = bus.syncPublisher(CompilerReferenceServiceStatusListener.topic)
     logger.debug(s"Received compiler index builder message: $messageType: $messageText.")
 
     messageType match {
@@ -85,13 +90,15 @@ private[findUsages] class ScalaCompilerReferenceService(
           }))
         }
       case Builder.compilationStartedType =>
-        publisher.beforeIndexingStarted()
         val isCleanBuild = messageText.decode[Boolean]
         isCleanBuild.foreach(isClean => indexerScheduler.schedule(OpenWriter(isClean, () => ())))
       case Builder.compilationFinishedType =>
         val timestamp = messageText.decode[Long]
         timestamp.foreach(lastCompilationTimestamp = _)
-        indexerScheduler.schedule(CloseWriter(publisher.onIndexingFinished))
+        indexerScheduler.schedule(CloseWriter { maybeFailure =>
+          openReaderOrInvalidateIndex(maybeFailure)
+          publisher.onIndexingFinished(maybeFailure)
+        })
     }
   }
 
@@ -126,15 +133,31 @@ private[findUsages] class ScalaCompilerReferenceService(
     val messageBus = project.getMessageBus
     val connection = messageBus.connect(project)
 
-    connection.subscribe(
-      CompilerReferenceIndexingTopics.indexingStatus,
-      new CompilerReferenceIndexingStatusListener {
-        override def beforeIndexingStarted(): Unit =
-          closeReaderIfNeed(IndexCloseReason.COMPILATION_STARTED)
-        override def onIndexingFinished(failure: Option[IndexerFailure]): Unit =
-          openReaderOrInvalidateIndex(failure)
+    ProjectManager.getInstance().addProjectManagerListener(project => {
+      if (project != self.project) true
+      else if (isIndexingInProgress) {
+        val message =
+          """
+            |Background bytecode indexing is active. Are you sure you want to stop it and exit?
+            |Exiting right now will lead to index invalidation.
+          """.stripMargin
+
+        val title    = ApplicationBundle.message("exit.confirm.title")
+        val exitCode = Messages.showYesNoDialog(project, message, title, Messages.getQuestionIcon)
+        exitCode == Messages.YES
+      } else true
+    })
+
+    connection.subscribe(BuildManagerListener.TOPIC, new BuildManagerListener {
+      override def buildStarted(
+        project:    Project,
+        sessionId:  UUID,
+        isAutomake: Boolean
+      ): Unit = if (project == self.project) {
+        messageBus.syncPublisher(CompilerReferenceServiceStatusListener.topic).beforeIndexingStarted()
+        closeReaderIfNeed(IndexCloseReason.COMPILATION_STARTED)
       }
-    )
+    })
 
     connection.subscribe(
       CustomBuilderMessageHandler.TOPIC,
@@ -155,15 +178,17 @@ private[findUsages] class ScalaCompilerReferenceService(
       val compilerManager = CompilerManager.getInstance(project)
 
       if (validIndexExists) {
-        val publisher = messageBus.syncPublisher(CompilerReferenceIndexingTopics.indexingStatus)
+        val publisher = messageBus.syncPublisher(CompilerReferenceServiceStatusListener.topic)
+
+        closeReaderIfNeed(IndexCloseReason.COMPILATION_STARTED)
 
         project.sourceModules.foreach { m =>
           val scope = compilerManager.createModuleCompileScope(m, false)
           if (compilerManager.isUpToDate(scope)) publisher.modulesUpToDate(Set(m.getName))
         }
 
-        myActiveBuilds += 1
-        publisher.onIndexingFinished(None)
+        openReaderIfNeed(IndexOpenReason.COMPILATION_FINISHED)
+
       }
       isUpToDateChecked = true
     }
@@ -207,9 +232,7 @@ private[findUsages] class ScalaCompilerReferenceService(
 
   def isCompilerIndexReady: Boolean = isUpToDateChecked
 
-  def isInProgress: Boolean =
-    myActiveBuilds != 0 ||
-      CompilerManager.getInstance(project).isCompilationActive
+  def isIndexingInProgress: Boolean = myActiveBuilds != 0
 
   def dirtyScopeForDefinition(e: PsiElement): GlobalSearchScope = {
     import com.intellij.psi.search.GlobalSearchScope._

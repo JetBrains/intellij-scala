@@ -56,21 +56,20 @@ private class ScalaImplicitMemberUsageSearcher
 
         val lineNumber = (e: PsiElement) => doc.getLineNumber(e.getTextOffset) + 1
 
-        if (!isOutdated) {
-          val refs       = elements.flatMap(target.refOrImplicitRefIn).toList
-          val extraLines = usage.lines.diff(refs.map(r => lineNumber(r.getElement)))
+        val refs       = elements.flatMap(target.refOrImplicitRefIn).toList
+        val extraLines = usage.lines.diff(refs.map(r => lineNumber(r.getElement)))
 
-          val unresolvedRefs = extraLines.map { line =>
-            val offset = doc.getLineStartOffset(line - 1)
-            //@TODO: perhaps it makes sense to somehow show the number of unresolved implicits in this line
-            UnresolvedImplicitReference(target, file, offset)
+        val unresolvedRefs = extraLines.flatMap { line =>
+          val offset = doc.getLineStartOffset(line - 1)
+          //@TODO: perhaps it makes sense to somehow show the number of unresolved implicits in this line
+          if (!isOutdated) UnresolvedImplicitReference(target, file, offset).toOption
+          else {
+            outdated += file.getVirtualFile.getPresentableName
+            None
           }
-
-          refs ++ unresolvedRefs
-        } else {
-          outdated += file.getVirtualFile.getPresentableName
-          Seq.empty
         }
+
+        refs ++ unresolvedRefs
         //@TODO: invoked slow search for outdated files scope
       }).getOrElse(Seq.empty)
 
@@ -105,8 +104,8 @@ object ScalaImplicitMemberUsageSearcher {
     if (!service.isCompilerIndexReady) {
       inEventDispatchThread(showIndicesNotReadyDialog(project))
       Option(CancelSearch)
-    } else if (service.isInProgress) {
-      inEventDispatchThread(showCompilationIsActiveDialog(project))
+    } else if (service.isIndexingInProgress) {
+      inEventDispatchThread(showIndexingInProgressDialog(project))
       Option(CancelSearch)
     } else {
       val (dirtyModules, upToDateModules) = dirtyModulesInDependencyChain(target)
@@ -138,9 +137,9 @@ object ScalaImplicitMemberUsageSearcher {
     modules.span(dirtyModules.contains)
   }
 
-  private[this] def showCompilationIsActiveDialog(project: Project): Unit = {
-     val message = "Implicit usages search is unavailable during compilation."
-    Messages.showInfoMessage(project, message, "Compilation In Process")
+  private[this] def showIndexingInProgressDialog(project: Project): Unit = {
+    val message = "Implicit usages search is unavailable during bytecode indexing."
+    Messages.showInfoMessage(project, message, "Indexing In Progress")
   }
 
   private[this] def showIndicesNotReadyDialog(project: Project): Unit = {
