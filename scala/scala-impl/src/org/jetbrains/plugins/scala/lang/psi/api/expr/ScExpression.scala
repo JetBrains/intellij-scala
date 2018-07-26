@@ -6,11 +6,10 @@ package expr
 
 import com.intellij.openapi.progress.ProgressManager
 import com.intellij.psi._
-import org.jetbrains.plugins.scala.extensions.{ChildOf, PsiNamedElementExt, StringExt, childOf}
-import org.jetbrains.plugins.scala.extensions.{PsiNamedElementExt, StringExt}
+import org.jetbrains.plugins.scala.extensions.{ChildOf, PsiNamedElementExt, StringExt}
 import org.jetbrains.plugins.scala.lang.psi.ScalaPsiUtil.{MethodValue, isAnonymousExpression}
 import org.jetbrains.plugins.scala.lang.psi.api.InferUtil.{SafeCheckException, extractImplicitParameterType}
-import org.jetbrains.plugins.scala.lang.psi.api.base.{ScIntLiteral, ScLiteral, ScParenthesizedElement}
+import org.jetbrains.plugins.scala.lang.psi.api.base.{ScIntLiteral, ScLiteral}
 import org.jetbrains.plugins.scala.lang.psi.api.expr.ExpectedTypes.ParameterType
 import org.jetbrains.plugins.scala.lang.psi.api.toplevel.imports.usages.ImportUsed
 import org.jetbrains.plugins.scala.lang.psi.impl.ScalaPsiElementFactory.createExpressionFromText
@@ -41,17 +40,10 @@ trait ScExpression extends ScBlockStatement with PsiAnnotationMemberValue with I
     this.getTypeAfterImplicitConversion().tr
 
   @volatile
-  private var implicitParameters: Option[Seq[ScalaResolveResult]] = None
+  private var implicitArguments: Option[Seq[ScalaResolveResult]] = None
 
-  @volatile
-  private var implicitParametersFromUnder: Option[Seq[ScalaResolveResult]] = None
-
-  final protected def setImplicitParameters(results: Option[Seq[ScalaResolveResult]],
-                                            fromUnderscore: Boolean = ScUnderScoreSectionUtil.isUnderscoreFunction(this)): Unit = {
-    if (fromUnderscore)
-      implicitParametersFromUnder = results
-    else
-      implicitParameters = results
+  final protected def setImplicitArguments(results: Option[Seq[ScalaResolveResult]]): Unit = {
+    implicitArguments = results
   }
 
   /**
@@ -59,18 +51,18 @@ trait ScExpression extends ScBlockStatement with PsiAnnotationMemberValue with I
     * In case of implicit parameter with type ClassManifest[T]
     * this method will return ClassManifest with substitutor of type T.
     *
-    * @return implicit parameters used for this expression
+    * @return implicit argumetns used for this expression
     */
   def findImplicitArguments: Option[Seq[ScalaResolveResult]] = {
     ProgressManager.checkCanceled()
 
-    if (ScUnderScoreSectionUtil.isUnderscoreFunction(this)) {
-      this.getTypeWithoutImplicits(fromUnderscore = true) //to update implicitParametersFromUnder
-      implicitParametersFromUnder
-    } else {
-      `type`() //to update implicitParameters field
-      implicitParameters
-    }
+    //update implicitArguments field
+    if (ScUnderScoreSectionUtil.isUnderscoreFunction(this))
+      this.getTypeWithoutImplicits(fromUnderscore = true)
+    else
+      `type`()
+
+    implicitArguments
   }
 
   protected def innerType: TypeResult =
@@ -442,7 +434,9 @@ object ScExpression {
     private def updateWithImplicitParameters(tpe: ScType, checkExpectedType: Boolean, fromUnderscore: Boolean): ScType = {
       val (newType, params) = updatedWithImplicitParameters(tpe, checkExpectedType)
 
-      expr.setImplicitParameters(params, fromUnderscore)
+      if (ScUnderScoreSectionUtil.isUnderscoreFunction(expr) == fromUnderscore) {
+        expr.setImplicitArguments(params)
+      }
 
       newType
     }

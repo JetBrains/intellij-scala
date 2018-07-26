@@ -70,8 +70,8 @@ abstract class MethodInvocationImpl(node: ASTNode) extends ScExpressionImplBase(
   private def tryToGetInnerTypeExt(implicit useExpectedType: Boolean): InvocationData = {
     def updateImplicitParameters(regularCase: RegularCase) = {
       val RegularCase(inferredType, problems, matched) = regularCase
-      val (newType, parameters) = this.updatedWithImplicitParameters(inferredType, useExpectedType)
-      setImplicitParameters(parameters)
+      val (newType, arguments) = this.updatedWithImplicitParameters(inferredType, useExpectedType)
+      setImplicitArguments(arguments)
 
       RegularCase(newType, problems, matched)
     }
