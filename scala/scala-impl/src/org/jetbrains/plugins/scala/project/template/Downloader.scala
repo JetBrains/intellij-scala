@@ -55,7 +55,7 @@ object Downloader {
       usingTempDirectory("sbt-project") { directory =>
         val process = executeOn(file, directory)
 
-        val handler = new OSProcessHandler(process, null, null)
+        val handler = new OSProcessHandler(process, "hydra downloader", null)
         handler.addProcessListener(processAdapter)
         handler.startNotify()
         handler.waitFor()
