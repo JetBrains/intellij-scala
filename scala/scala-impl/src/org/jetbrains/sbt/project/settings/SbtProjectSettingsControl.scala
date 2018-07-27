@@ -113,8 +113,8 @@ class SbtProjectSettingsControl(context: Context, initialSettings: SbtProjectSet
     resolveSbtClassifiersCheckBox.setSelected(settings.resolveSbtClassifiers)
 
     // option migration
-    val useShellForImport = settings.useSbtShellForImport || settings.useSbtShell
-    val useShellForBuild = settings.useSbtShellForBuild || settings.useSbtShell
+    val useShellForImport = settings.importWithShell
+    val useShellForBuild = settings.buildWithShell
     useSbtShellForImportCheckBox.setSelected(useShellForImport)
     useSbtShellForBuildCheckBox.setSelected(useShellForBuild)
     remoteDebugSbtShell.setSelected(settings.enableDebugSbtShell)

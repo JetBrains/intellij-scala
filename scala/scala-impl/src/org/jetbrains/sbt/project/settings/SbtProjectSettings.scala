@@ -54,6 +54,10 @@ class SbtProjectSettings extends ExternalProjectSettings {
   @BeanProperty
   var sbtVersion: String = null
 
+  def buildWithShell: Boolean = useSbtShellForBuild || useSbtShell
+
+  def importWithShell: Boolean = useSbtShellForImport || useSbtShell
+
   override def clone(): SbtProjectSettings = {
     val result = new SbtProjectSettings()
     copyTo(result)
