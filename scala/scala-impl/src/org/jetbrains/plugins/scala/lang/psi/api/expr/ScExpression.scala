@@ -105,6 +105,7 @@ trait ScExpression extends ScBlockStatement with PsiAnnotationMemberValue with I
         conversionForReference(infix.operation)
       case call: ScMethodCall => call.getImplicitFunction
       case generator: ScGenerator => inner(generator)
+      case p: ScParenthesisedExpr => None
       case _ =>
         this.getTypeAfterImplicitConversion(expectedOption = expectedOption, fromUnderscore = fromUnderscore).implicitConversion
     }
