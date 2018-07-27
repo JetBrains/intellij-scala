@@ -294,9 +294,15 @@ object MethodResolveProcessor {
       }
     }
 
-    def constructorCompatibility(constr: ScMethodLike with PsiNamedElement): ConformanceExtResult = {
-      val classTypeParameters: Seq[ScTypeParam] = constr.getClassTypeParameters.map(_.typeParameters).getOrElse(Seq())
-      if (typeArgElements.isEmpty || typeArgElements.length == classTypeParameters.length) {
+    def constructorCompatibility(constr: PsiMethod, classTypeParameters: Seq[PsiTypeParameter]): ConformanceExtResult = {
+      val unsubstitutedTypeParams =
+        classTypeParameters.filter { p =>
+          val tpt         = TypeParameterType(p)
+          val substituted = substitutor.subst(tpt)
+          substituted == tpt
+        }
+
+      if (typeArgElements.isEmpty || unsubstitutedTypeParams.isEmpty) {
         val result =
           Compatibility.compatible(constr, substitutor, argumentClauses, checkWithImplicits,
             ref.resolveScope, isShapeResolve)
@@ -308,18 +314,14 @@ object MethodResolveProcessor {
       }
     }
 
+    def scalaConstructorCompatibility(constr: ScMethodLike): ConformanceExtResult = {
+      val classTypeParameters = constr.getClassTypeParameters.map(_.typeParameters).getOrElse(Seq())
+      constructorCompatibility(constr, classTypeParameters)
+    }
+
     def javaConstructorCompatibility(constr: PsiMethod): ConformanceExtResult = {
       val classTypeParmeters = constr.containingClass.getTypeParameters
-      if (typeArgElements.isEmpty || typeArgElements.length == classTypeParmeters.length) {
-        val result =
-          Compatibility.compatible(constr, substitutor, argumentClauses, checkWithImplicits,
-            ref.resolveScope, isShapeResolve)
-        problems ++= result.problems
-        result.copy(problems)
-      } else {
-        problems += new ApplicabilityProblem("2")
-        ConformanceExtResult(problems)
-      }
+      constructorCompatibility(constr, classTypeParmeters)
     }
 
     val result = element match {
@@ -352,8 +354,8 @@ object MethodResolveProcessor {
       case c: ScPrimaryConstructor if c.hasMalformedSignature =>
         problems += new MalformedDefinition
         ConformanceExtResult(problems)
-      case f: ScFunction if f.isConstructor => constructorCompatibility(f)
-      case c: ScPrimaryConstructor with PsiNamedElement => constructorCompatibility(c)
+      case f: ScFunction if f.isConstructor => scalaConstructorCompatibility(f)
+      case c: ScPrimaryConstructor with PsiNamedElement => scalaConstructorCompatibility(c)
       case method: PsiMethod if method.isConstructor => javaConstructorCompatibility(method)
       case fun: ScFunction if (typeArgElements.isEmpty ||
               typeArgElements.length == fun.typeParameters.length) && fun.paramClauses.clauses.length == 1 &&
