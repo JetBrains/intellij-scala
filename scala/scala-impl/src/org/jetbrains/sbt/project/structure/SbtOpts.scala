@@ -7,9 +7,8 @@ import scala.collection.JavaConverters._
 import com.intellij.openapi.util.io.FileUtil
 
 /**
- * @author Nikolay Obedin
- * @since 11/27/14.
- */
+  * Support for the .sbtopts file loaded by the sbt launcher script as alternative to command line options.
+  */
 object SbtOpts {
 
   def loadFrom(directory: File): Seq[String] = {

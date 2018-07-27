@@ -86,12 +86,14 @@ class SbtStructureDump {
       s"*/*:dumpStructure"
     ).mkString(";", ";", "")
 
+    val jvmOptions = SbtOpts.loadFrom(directory) ++ JvmOpts.loadFrom(directory) ++ vmOptions
+
     val processCommandsRaw =
       normalizePath(vmExecutable) +:
         "-Djline.terminal=jline.UnsupportedTerminal" +:
         "-Dsbt.log.noformat=true" +:
         "-Dfile.encoding=UTF-8" +:
-        (vmOptions ++ SbtOpts.loadFrom(directory)) :+
+        jvmOptions :+
         "-jar" :+
         normalizePath(sbtLauncher)
 

@@ -24,7 +24,7 @@ import org.jetbrains.plugins.scala.project.Version
 import org.jetbrains.plugins.scala.project.external.{JdkByName, SdkUtils}
 import org.jetbrains.sbt.SbtUtil._
 import org.jetbrains.sbt.project.settings.SbtExecutionSettings
-import org.jetbrains.sbt.project.structure.SbtOpts
+import org.jetbrains.sbt.project.structure.{JvmOpts, SbtOpts}
 import org.jetbrains.sbt.project.{SbtExternalSystemManager, SbtProjectResolver, SbtProjectSystem}
 
 import scala.collection.JavaConverters._
@@ -95,6 +95,7 @@ class SbtProcessManager(project: Project) extends AbstractProjectComponent(proje
     val vmParams = javaParameters.getVMParametersList
     vmParams.add("-server")
     vmParams.addAll(SbtOpts.loadFrom(workingDir).asJava)
+    vmParams.addAll(JvmOpts.loadFrom(workingDir).asJava)
     vmParams.addAll(sbtSettings.vmOptions.asJava)
     vmParams.add(s"-Didea.runid=$runid")
 
