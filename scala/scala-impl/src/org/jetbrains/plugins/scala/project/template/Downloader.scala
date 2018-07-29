@@ -25,7 +25,8 @@ object Downloader {
 
     override def onTextAvailable(event: ProcessEvent, outputType: Key[_]): Unit = {
       val text = event.getText
-      progressManager.getProgressIndicator.setText(text)
+      if (progressManager != null && progressManager.hasProgressIndicator)
+        progressManager.getProgressIndicator.setText(text)
       builder ++= text
     }
 
@@ -55,7 +56,7 @@ object Downloader {
       usingTempDirectory("sbt-project") { directory =>
         val process = executeOn(file, directory)
 
-        val handler = new OSProcessHandler(process, null, null)
+        val handler = new OSProcessHandler(process, "hydra downloader", null)
         handler.addProcessListener(processAdapter)
         handler.startNotify()
         handler.waitFor()
