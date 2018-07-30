@@ -20,11 +20,11 @@ sealed trait Implementation {
     case literal: ScLiteral => literal.getFirstChild.getNode.getElementType != ScalaTokenTypes.kNULL
     case _: ScUnitExpr => true
     case _: ScThrowStmt => true
-    case it: ScNewTemplateDefinition if it.extendsBlock.templateBody.isEmpty => true
-    case ref: ScReferenceExpression if isApplyCall(ref) => true
+    case definition: ScNewTemplateDefinition if definition.extendsBlock.templateBody.isEmpty => true
+    case ApplyCall() => true
     case ScReferenceExpression(_: PsiEnumConstant) => true
     case EmptyCollectionFactoryCall(_) => true
-    case ScMethodCall(invoked: ScReferenceExpression, _) if isApplyCall(invoked) => true
+    case ScMethodCall(ApplyCall(), _) => true
     case _ => false
   }
 
@@ -36,7 +36,7 @@ sealed trait Implementation {
 case class Definition(element: PsiElement) extends Implementation {
 
   override protected def returnCandidates: Iterator[PsiElement] = element match {
-    case f: ScFunctionDefinition => f.returnUsages.iterator
+    case method: ScFunctionDefinition => method.returnUsages.iterator
     case _ => Iterator.empty
   }
 
@@ -57,15 +57,17 @@ case class Expression(expression: ScExpression) extends Implementation {
 
 object Implementation {
 
-  private def isApplyCall(reference: ScReferenceExpression): Boolean =
-    reference.bind().map { result =>
-      result.innerResolveResult.getOrElse(result).element
-    }.exists {
-      case function: ScFunction => function.isApplyMethod
-      case _ => false
-    }
+  private object ApplyCall {
 
-  // TODO Restore encapsulation
+    def unapply(reference: ScReferenceExpression): Boolean =
+      reference.bind().map { result =>
+        result.innerResolveResult.getOrElse(result).element
+      }.exists {
+        case function: ScFunction => function.isApplyMethod
+        case _ => false
+      }
+  }
+
   object EmptyCollectionFactoryCall {
 
     private[this] val TraversableClassNames =
