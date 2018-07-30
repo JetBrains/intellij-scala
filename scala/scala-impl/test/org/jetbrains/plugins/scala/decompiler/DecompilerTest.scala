@@ -159,4 +159,9 @@ class DecompilerTest extends DecompilerTestBase {
     doTest("Constants210.class")
     doTest("Constants213.class")
   }
+
+  def testJavaConstants(): Unit = {
+    doTest("Double.class")
+    doTest("Float.class")
+  }
 }

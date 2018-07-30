@@ -718,6 +718,17 @@ class ScalaSigPrinter(builder: StringBuilder, verbosity: Verbosity) {
     private val constantDefinitionExpr: PartialFunction[Any, String] = {
       case Ref(sym: ExternalSymbol)  => sym.path //enum value
       case Ref(typeRef: TypeRefType) => s"scala.Predef.classOf[${classTypeText(typeRef)}]" //class literal
+
+      // java numeric constants with special `toString`
+      case java.lang.Double.POSITIVE_INFINITY => "java.lang.Double.POSITIVE_INFINITY"
+      case java.lang.Double.NEGATIVE_INFINITY => "java.lang.Double.NEGATIVE_INFINITY"
+
+      case java.lang.Float.POSITIVE_INFINITY  => "java.lang.Float.POSITIVE_INFINITY"
+      case java.lang.Float.NEGATIVE_INFINITY  => "java.lang.Float.NEGATIVE_INFINITY"
+
+      // NaNs cannot be compared directly
+      case d: Double if java.lang.Double.isNaN(d) => "java.lang.Double.NaN"
+      case f: Float  if java.lang.Float.isNaN(f)  => "java.lang.Float.NaN"
     }
 
     private val literalText: PartialFunction[Any, String] = {
