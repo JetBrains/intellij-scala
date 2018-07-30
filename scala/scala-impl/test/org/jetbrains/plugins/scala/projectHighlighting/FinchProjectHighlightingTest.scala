@@ -15,7 +15,8 @@ class FinchProjectHighlightingTest extends GithubSbtAllProjectHighlightingTest {
   override def filesWithProblems: Map[String, Set[TextRange]] = Map(
     "EndpointSpec.scala" -> Set((2346, 2354), (2337, 2345)),
     "EndpointMapper.scala" -> Set((311, 314), (304, 310)),
-    "GenericSpec.scala" -> Set((225, 255)),
-    "Endpoint.scala" -> Set()
+    "GenericSpec.scala" -> Set((225, 255))
   )
+
+  override def shouldSkip(fileName: String) = fileName == "Endpoint.scala"
 }

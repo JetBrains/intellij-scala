@@ -45,7 +45,7 @@ trait AllProjectHighlightingTest {
 
     val size: Int = files.size
 
-    for ((file, index) <- files.zipWithIndex) {
+    for ((file, index) <- files.zipWithIndex if !shouldSkip(file.getName)) {
       val psiFile = fileManager.findFile(file)
 
       reporter.updateHighlightingProgress(percent(index, size))
@@ -60,6 +60,8 @@ trait AllProjectHighlightingTest {
 
     reporter.reportResults()
   }
+
+  def shouldSkip(fileName: String): Boolean = false
 
   private def percent(index: Int, size: Int): Int = (index + 1) * 100 / size
 
