@@ -1,4 +1,5 @@
 import Common._
+import Dependencies.sbtStructureExtractor
 import org.jetbrains.sbtidea.tasks.ShadePattern
 import sbtide.Keys.ideSkipProject
 
@@ -206,6 +207,11 @@ lazy val propertiesIntegration =
 
 // Utility projects
 
+val localRepoArtifacts =
+  (sbtStructureExtractor.name,  Versions.sbtStructureVersion) ::
+  ("sbt-idea-shell",            Versions.sbtIdeaShellVersion) :: Nil
+val localRepoPaths = LocalRepoPackager.localPluginRepoPaths(localRepoArtifacts)
+
 lazy val sbtRuntimeDependencies =
   (project in file("target/tools/sbt-runtime-dependencies"))
     .settings(
@@ -217,32 +223,28 @@ lazy val sbtRuntimeDependencies =
       ideSkipProject := true,
       packageMethod := PackagingMethod.Skip(),
       packageLibraryMappings ++= Seq(
-        Dependencies.sbtLaunch                  -> Some("launcher/sbt-launch.jar"),
-        Dependencies.sbtInterface               -> Some("lib/jps/sbt-interface.jar"),
-        Dependencies.zincInterface              -> Some("lib/jps/compiler-interface.jar"),
+        Dependencies.sbtLaunch -> Some("launcher/sbt-launch.jar"),
+        Dependencies.sbtInterface -> Some("lib/jps/sbt-interface.jar"),
+        Dependencies.zincInterface -> Some("lib/jps/compiler-interface.jar"),
         Dependencies.compilerBridgeSources_2_13 -> Some("lib/jps/compiler-interface-sources-2.13.jar"),
         Dependencies.compilerBridgeSources_2_11 -> Some("lib/jps/compiler-interface-sources-2.11.jar"),
         Dependencies.compilerBridgeSources_2_10 -> Some("lib/jps/compiler-interface-sources-2.10.jar"),
-        Dependencies.sbtStructureExtractor_100  -> Some("launcher/sbt-structure-1.0.jar"),
-        Dependencies.sbtStructureExtractor_013  -> Some("launcher/sbt-structure-0.13.jar"),
-        "org.scala-sbt" % "launcher" % "1.0.3"  -> None
+        Dependencies.sbtStructureExtractor_100 -> Some("launcher/sbt-structure-1.0.jar"),
+        Dependencies.sbtStructureExtractor_013 -> Some("launcher/sbt-structure-0.13.jar"),
+        "org.scala-sbt" % "launcher" % "1.0.3" -> None
       ),
       update := {
-        import Dependencies._
-        LocalRepoPackager.localPluginRepo(
-          target.value / "repo",
-            (sbtStructureExtractor.name,  Versions.sbtStructureVersion) ::
-            ("sbt-idea-shell",            Versions.sbtIdeaShellVersion) :: Nil)
+        LocalRepoPackager.localPluginRepo(target.value / "repo", localRepoPaths)
         update.value
       },
-      packageFileMappings += target.value / "repo" -> "repo/" )
+      packageFileMappings ++= {
+        val repoBase = target.value / "repo"
+        localRepoPaths.map { path =>
+          repoBase / path -> s"repo/$path"
+        }
+      }
+    )
 
-//lazy val ideaRunner = createRunnerProject(scalaCommunity, "idea-runner")
-
-//lazy val jmhBenchmarks =
-//  newProject("benchmarks", file("scala/benchmarks"))
-//    .dependsOn(scalaImpl % "test->test")
-//    .enablePlugins(JmhPlugin)
 
 // Testing keys and settings
 import Common.TestCategory._
