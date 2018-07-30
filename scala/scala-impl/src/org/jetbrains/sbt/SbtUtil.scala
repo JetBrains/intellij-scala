@@ -132,8 +132,11 @@ object SbtUtil {
     }
   }
 
+  def sbtBuildPropertiesFile(base: File): File =
+    base / Sbt.ProjectDirectory / Sbt.PropertiesFile
+
   private def sbtVersionIn(directory: File): Option[String] = {
-    val propertiesFile = directory / "project" / "build.properties"
+    val propertiesFile = sbtBuildPropertiesFile(directory)
     if (propertiesFile.exists()) readPropertyFrom(propertiesFile, "sbt.version") else None
   }
 
