@@ -1,12 +1,13 @@
 package org.jetbrains.sbt
 package project.settings
 
-import com.intellij.openapi.externalSystem.action.ExternalSystemActionUtil
 import com.intellij.openapi.externalSystem.settings.ExternalProjectSettings
 import com.intellij.openapi.externalSystem.util.ExternalSystemApiUtil
+import com.intellij.openapi.project.Project
 import org.jetbrains.annotations.Nullable
 import org.jetbrains.plugins.scala.extensions.ObjectExt
 import org.jetbrains.sbt.project.settings.SbtProjectSettings.canonical
+import org.jetbrains.sbt.settings.SbtSystemSettings
 
 import scala.beans.BeanProperty
 
@@ -50,6 +51,9 @@ class SbtProjectSettings extends ExternalProjectSettings {
   @BeanProperty
   var enableDebugSbtShell: Boolean = true
 
+  @BeanProperty
+  var allowSbtVersionOverride = true
+
   @Nullable
   @BeanProperty
   var sbtVersion: String = null
@@ -70,13 +74,20 @@ class SbtProjectSettings extends ExternalProjectSettings {
     result.useSbtShellForImport = useSbtShellForImport
     result.useSbtShellForBuild = useSbtShellForBuild
     result.enableDebugSbtShell = enableDebugSbtShell
+    result.allowSbtVersionOverride = allowSbtVersionOverride
     result
   }
 }
 
 object SbtProjectSettings {
+
   def default: SbtProjectSettings =
     new SbtProjectSettings
+
+  def forProject(project: Project): SbtProjectSettings = {
+    val settings = SbtSystemSettings.getInstance(project)
+    settings.getLinkedProjectSettings(project.getBasePath)
+  }
 
   private def canonical(path: String) =
     path.toOption.map(ExternalSystemApiUtil.toCanonicalPath).orNull

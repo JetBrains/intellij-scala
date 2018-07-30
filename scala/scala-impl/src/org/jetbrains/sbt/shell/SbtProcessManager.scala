@@ -9,6 +9,7 @@ import com.intellij.notification.{Notification, NotificationAction, Notification
 import com.intellij.openapi.actionSystem.AnActionEvent
 import com.intellij.openapi.components.AbstractProjectComponent
 import com.intellij.openapi.diagnostic.Logger
+import com.intellij.openapi.fileEditor.OpenFileDescriptor
 import com.intellij.openapi.options.ShowSettingsUtil
 import com.intellij.openapi.options.ex.SingleConfigurableEditor
 import com.intellij.openapi.options.newEditor.SettingsDialog
@@ -17,13 +18,16 @@ import com.intellij.openapi.projectRoots.Sdk
 import com.intellij.openapi.roots.ProjectRootManager
 import com.intellij.openapi.roots.ui.configuration.ProjectStructureConfigurable
 import com.intellij.openapi.ui.DialogWrapper.DialogStyle
+import com.intellij.openapi.ui.MessageType
 import com.intellij.openapi.util.Disposer
 import com.intellij.openapi.util.io.FileUtil
+import com.intellij.openapi.vfs.VfsUtil
 import org.jetbrains.plugins.scala.buildinfo.BuildInfo
 import org.jetbrains.plugins.scala.project.Version
 import org.jetbrains.plugins.scala.project.external.{JdkByName, SdkUtils}
+import org.jetbrains.sbt.SbtUtil
 import org.jetbrains.sbt.SbtUtil._
-import org.jetbrains.sbt.project.settings.SbtExecutionSettings
+import org.jetbrains.sbt.project.settings.{SbtExecutionSettings, SbtProjectSettings}
 import org.jetbrains.sbt.project.structure.{JvmOpts, SbtOpts}
 import org.jetbrains.sbt.project.{SbtExternalSystemManager, SbtProjectResolver, SbtProjectSystem}
 
@@ -75,7 +79,6 @@ class SbtProcessManager(project: Project) extends AbstractProjectComponent(proje
     val sbtSettings = getSbtSettings(workingDirPath)
     lazy val launcher = launcherJar(sbtSettings)
 
-
     // an id to identify this boot of sbt as being launched from idea, so that any plugins it injects are never ever loaded otherwise
     // use sbtStructureVersion as approximation of compatible versions of IDEA this is allowed to launch with.
     // this avoids failing reloads when multiple sbt instances are booted from IDEA (SCL-12009)
@@ -90,23 +93,39 @@ class SbtProcessManager(project: Project) extends AbstractProjectComponent(proje
 
     val debugConnection = if (sbtSettings.shellDebugMode) Option(addDebugParameters(javaParameters)) else None
 
+    val latestSbtVersion = Version(BuildInfo.sbtLatestVersion)
+    val projectSbtVersion = Version(detectSbtVersion(workingDir, launcher))
+
+    // to use the plugin injection command, we may have to override older sbt versions where possible
+    val shouldUpgradeSbtVersion =
+      sbtSettings.allowSbtVersionOverride &&
+        projectSbtVersion >= Version("1.0.0") &&
+        projectSbtVersion <= latestSbtVersion
+
+    val upgradedSbtVersion =
+      if (shouldUpgradeSbtVersion) latestSbtVersion
+      else projectSbtVersion
+
+    val autoPluginsSupported = upgradedSbtVersion >= SbtProjectResolver.sinceSbtVersionShell
+    val addPluginCommandSupported = upgradedSbtVersion >= SbtProcessManager.addPluginCommandVersion
+
     val vmParams = javaParameters.getVMParametersList
     vmParams.add("-server")
     vmParams.addAll(SbtOpts.loadFrom(workingDir).asJava)
     vmParams.addAll(JvmOpts.loadFrom(workingDir).asJava)
     vmParams.addAll(sbtSettings.vmOptions.asJava)
-    vmParams.add(s"-Didea.runid=$runid")
+    // don't add runid when using addPluginFile command
+    if (! addPluginCommandSupported)
+      vmParams.add(s"-Didea.runid=$runid")
+    if (shouldUpgradeSbtVersion)
+      vmParams.add(s"-Dsbt.version=$upgradedSbtVersion")
 
     val commandLine: GeneralCommandLine = javaParameters.toCommandLine
     getCustomVMExecutableOrWarn(sbtSettings).foreach(exe => commandLine.setExePath(exe.getAbsolutePath))
 
-    val projectSbtVersion = Version(detectSbtVersion(workingDir, launcher))
-    val autoPluginsSupported = projectSbtVersion >= SbtProjectResolver.sinceSbtVersionShell
-    val addPluginCommandSupported = projectSbtVersion >= SbtProcessManager.addPluginCommandVersion
 
     if (autoPluginsSupported) {
-      val sbtMajorVersion = binaryVersion(projectSbtVersion)
-
+      val sbtMajorVersion = binaryVersion(upgradedSbtVersion)
 
       val globalPluginsDir = globalPluginsDirectory(sbtMajorVersion, commandLine.getParametersList)
       val globalSettingsFile = new File(globalPluginsDir, "idea.sbt")
@@ -119,9 +138,8 @@ class SbtProcessManager(project: Project) extends AbstractProjectComponent(proje
       injectSettings(runid, ! addPluginCommandSupported, settingsFile, pluginResolverSetting +: injectedPlugins(sbtMajorVersion))
 
       if (addPluginCommandSupported) {
-        // ensure settings don't get loaded from an old global settings file
-        globalSettingsFile.delete()
         commandLine.addParameter(s"--addPluginSbtFile=${settingsFile.getAbsolutePath}")
+        notifyVersionUpgrade(projectSbtVersion, upgradedSbtVersion, workingDir)
       }
 
       // we have our plugins in there, load custom shell
@@ -132,6 +150,33 @@ class SbtProcessManager(project: Project) extends AbstractProjectComponent(proje
     val cpty = new ColoredProcessHandler(pty)
 
     (cpty, debugConnection)
+  }
+
+  private def notifyVersionUpgrade(projectSbtVersion: Version, upgradedSbtVersion: Version, projectPath: File): Unit = {
+    val message =
+      s"Started sbt shell with sbt version ${upgradedSbtVersion.presentation} instead of ${projectSbtVersion.presentation} configured by project."
+    val notification = SbtShellNotifications.notificationGroup.createNotification(message, MessageType.INFO)
+
+    notification.addAction(new UpdateSbtVersionAction(projectPath))
+    notification.addAction(DisableSbtVersionOverrideAction)
+    notification.notify(project)
+  }
+
+  private object DisableSbtVersionOverrideAction extends NotificationAction("Disable version override") {
+    override def actionPerformed(anActionEvent: AnActionEvent, notification: Notification): Unit = {
+      SbtProjectSettings.forProject(project).setAllowSbtVersionOverride(false)
+      notification.expire()
+    }
+  }
+
+  private class UpdateSbtVersionAction(projectPath: File)
+    extends NotificationAction(s"Update sbt version") {
+    override def actionPerformed(anActionEvent: AnActionEvent, notification: Notification): Unit = {
+      val propertiesFile = SbtUtil.sbtBuildPropertiesFile(projectPath)
+      val vFile = VfsUtil.findFileByIoFile(propertiesFile, true)
+      new OpenFileDescriptor(project, vFile).navigate(true)
+      notification.expire()
+    }
   }
 
   /** If a custom VM executable is configured, return it. If it's not a valid path, warn user. */

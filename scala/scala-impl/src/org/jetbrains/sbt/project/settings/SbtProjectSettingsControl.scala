@@ -51,6 +51,7 @@ class SbtProjectSettingsControl(context: Context, initialSettings: SbtProjectSet
   private val useSbtShellForImportCheckBox = new JCheckBox(SbtBundle("sbt.settings.useShellForImport"))
   private val useSbtShellForBuildCheckBox = new JCheckBox(SbtBundle("sbt.settings.useShellForBuild"))
   private val remoteDebugSbtShell = new JCheckBox(SbtBundle("sbt.settings.remoteDebug"))
+  private val allowSbtVersionOverride = new JCheckBox(SbtBundle("sbt.settings.allowSbtVersionOverride"))
 
   override def fillExtraControls(@NotNull content: PaintAwarePanel, indentLevel: Int) {
     val labelConstraints = getLabelConstraints(indentLevel)
@@ -71,6 +72,7 @@ class SbtProjectSettingsControl(context: Context, initialSettings: SbtProjectSet
 
     val optionPanel = new JPanel()
     optionPanel.setLayout(new BoxLayout(optionPanel, BoxLayout.Y_AXIS))
+    optionPanel.add(allowSbtVersionOverride)
     optionPanel.add(remoteDebugSbtShell)
     remoteDebugSbtShell.setAlignmentX(Component.LEFT_ALIGNMENT)
     content.add(optionPanel, fillLineConstraints)
@@ -100,7 +102,8 @@ class SbtProjectSettingsControl(context: Context, initialSettings: SbtProjectSet
       resolveSbtClassifiersCheckBox.isSelected != settings.resolveSbtClassifiers ||
       useSbtShellForImportCheckBox.isSelected != settings.useSbtShellForImport ||
       useSbtShellForBuildCheckBox.isSelected != settings.useSbtShellForBuild ||
-      remoteDebugSbtShell.isSelected != settings.enableDebugSbtShell
+      remoteDebugSbtShell.isSelected != settings.enableDebugSbtShell ||
+      allowSbtVersionOverride.isSelected != settings.allowSbtVersionOverride
   }
 
   protected def resetExtraSettings(isDefaultModuleCreation: Boolean) {
@@ -112,12 +115,11 @@ class SbtProjectSettingsControl(context: Context, initialSettings: SbtProjectSet
     resolveClassifiersCheckBox.setSelected(settings.resolveClassifiers)
     resolveSbtClassifiersCheckBox.setSelected(settings.resolveSbtClassifiers)
 
-    // option migration
-    val useShellForImport = settings.importWithShell
-    val useShellForBuild = settings.buildWithShell
-    useSbtShellForImportCheckBox.setSelected(useShellForImport)
-    useSbtShellForBuildCheckBox.setSelected(useShellForBuild)
+    useSbtShellForImportCheckBox.setSelected(settings.importWithShell)
+    useSbtShellForBuildCheckBox.setSelected(settings.buildWithShell)
+
     remoteDebugSbtShell.setSelected(settings.enableDebugSbtShell)
+    allowSbtVersionOverride.setSelected(settings.allowSbtVersionOverride)
   }
 
   override def updateInitialExtraSettings() {
@@ -131,6 +133,7 @@ class SbtProjectSettingsControl(context: Context, initialSettings: SbtProjectSet
     settings.useSbtShellForBuild = useSbtShellForBuildCheckBox.isSelected
     settings.useSbtShellForImport = useSbtShellForImportCheckBox.isSelected
     settings.enableDebugSbtShell = remoteDebugSbtShell.isSelected
+    settings.allowSbtVersionOverride = allowSbtVersionOverride.isSelected
     settings.useSbtShell = false
   }
 
