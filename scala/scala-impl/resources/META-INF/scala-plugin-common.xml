@@ -1659,8 +1659,8 @@
                     class="org.jetbrains.plugins.scala.codeInsight.hints.ScalaTypeHintsConfigurable$ToogleLocalVariableTypeAction"
                     text="Local variable type hints"/>
             <action id="ToogleForObviousType"
-                    class="org.jetbrains.plugins.scala.codeInsight.hints.ScalaTypeHintsConfigurable$ToogleForObviousTypeAction"
-                    text="Hints for obvious types"/>
+                    class="org.jetbrains.plugins.scala.codeInsight.hints.ScalaTypeHintsConfigurable$ToogleObviousTypeAction"
+                    text="Obvious types hints"/>
         </group>
 
       <group id="ImplicitConversionMenu">

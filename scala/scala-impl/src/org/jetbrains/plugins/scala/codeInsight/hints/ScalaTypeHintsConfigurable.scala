@@ -2,18 +2,16 @@ package org.jetbrains.plugins.scala
 package codeInsight
 package hints
 
-import java.lang.{Boolean => JBoolean}
-
 import com.intellij.application.options.editor.CodeFoldingOptionsProvider
-import com.intellij.codeInsight.daemon.DaemonCodeAnalyzer
+import com.intellij.codeInsight.daemon.DaemonCodeAnalyzer.{getInstance => DaemonCodeAnalyzer}
 import com.intellij.openapi.actionSystem.{AnActionEvent, ToggleAction}
 import com.intellij.openapi.options.BeanConfigurable
-import com.intellij.openapi.project.ProjectManager
+import com.intellij.openapi.project.ProjectManager.{getInstance => ProjectManager}
 import com.intellij.openapi.util.{Getter, Setter}
-import org.jetbrains.plugins.scala.codeInsight.ScalaCodeInsightSettings.{getInstance => settings}
+import org.jetbrains.plugins.scala.codeInsight.ScalaCodeInsightSettings.{getInstance => ScalaCodeInsightSettings}
 
 class ScalaTypeHintsConfigurable
-  extends BeanConfigurable[ScalaCodeInsightSettings](settings)
+  extends BeanConfigurable[ScalaCodeInsightSettings](ScalaCodeInsightSettings)
     with CodeFoldingOptionsProvider {
 
   {
@@ -45,9 +43,9 @@ class ScalaTypeHintsConfigurable
     )
 
     checkBox(
-      "Do not show when type is obvious",
-      () => (!settings.showForObviousTypes).asInstanceOf[JBoolean],
-      (value: JBoolean) => settings.showForObviousTypes = !value
+      "Show obvious types (Scala)",
+      settings.showObviousTypeGetter,
+      settings.showObviousTypeSetter
     )
   }
 
@@ -59,11 +57,13 @@ class ScalaTypeHintsConfigurable
 
 object ScalaTypeHintsConfigurable {
 
+  import java.lang.{Boolean => JBoolean}
+
   private def forceHintsUpdateOnNextPass(): Unit = {
     ScalaTypeHintsPassFactory.StampHolder.forceHintsUpdateOnNextPass()
 
-    ProjectManager.getInstance().getOpenProjects
-      .map(DaemonCodeAnalyzer.getInstance)
+    ProjectManager.getOpenProjects
+      .map(DaemonCodeAnalyzer)
       .foreach(_.restart())
   }
 
@@ -79,23 +79,23 @@ object ScalaTypeHintsConfigurable {
   }
 
   class ToogleFunctionReturnTypeAction extends ToogleTypeAction(
-    settings.showFunctionReturnTypeGetter,
-    settings.showFunctionReturnTypeSetter
+    ScalaCodeInsightSettings.showFunctionReturnTypeGetter,
+    ScalaCodeInsightSettings.showFunctionReturnTypeSetter
   )
 
   class TooglePropertyTypeAction extends ToogleTypeAction(
-    settings.showPropertyTypeGetter,
-    settings.showPropertyTypeSetter
+    ScalaCodeInsightSettings.showPropertyTypeGetter,
+    ScalaCodeInsightSettings.showPropertyTypeSetter
   )
 
   class ToogleLocalVariableTypeAction extends ToogleTypeAction(
-    settings.showLocalVariableTypeGetter,
-    settings.showLocalVariableTypeSetter
+    ScalaCodeInsightSettings.showLocalVariableTypeGetter,
+    ScalaCodeInsightSettings.showLocalVariableTypeSetter
   )
 
-  class ToogleForObviousTypeAction extends ToogleTypeAction(
-    settings.showForObviousTypesGetter,
-    settings.showForObviousTypesSetter
+  class ToogleObviousTypeAction extends ToogleTypeAction(
+    ScalaCodeInsightSettings.showObviousTypeGetter,
+    ScalaCodeInsightSettings.showObviousTypeSetter
   )
 
 }

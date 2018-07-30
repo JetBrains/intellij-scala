@@ -15,8 +15,8 @@ import org.jetbrains.annotations.NotNull;
 )
 public class ScalaCodeInsightSettings implements PersistentStateComponent<ScalaCodeInsightSettings> {
 
-    public static final int MIN_PRESENTATION_LENGTH = Byte.MAX_VALUE + Byte.MIN_VALUE;
-    public static final int MAX_PRESENTATION_LENGTH = Byte.MAX_VALUE - Byte.MIN_VALUE;
+    public static final int MIN_PRESENTATION_LENGTH = 1;
+    public static final int MAX_PRESENTATION_LENGTH = Byte.MAX_VALUE;
 
     public static ScalaCodeInsightSettings getInstance() {
         return ServiceManager.getService(ScalaCodeInsightSettings.class);
@@ -29,7 +29,7 @@ public class ScalaCodeInsightSettings implements PersistentStateComponent<ScalaC
 
     public int presentationLength = 50;
 
-    public boolean showForObviousTypes = false;
+    public boolean showObviousType = false;
 
     public Getter<Boolean> showFunctionReturnTypeGetter() {
         return () -> showFunctionReturnType;
@@ -63,12 +63,12 @@ public class ScalaCodeInsightSettings implements PersistentStateComponent<ScalaC
         return value -> presentationLength = value;
     }
 
-    public Getter<Boolean> showForObviousTypesGetter() {
-        return () -> showForObviousTypes;
+    public Getter<Boolean> showObviousTypeGetter() {
+        return () -> showObviousType;
     }
 
-    public Setter<Boolean> showForObviousTypesSetter() {
-        return value -> showForObviousTypes = value;
+    public Setter<Boolean> showObviousTypeSetter() {
+        return value -> showObviousType = value;
     }
 
     @NotNull
