@@ -166,6 +166,84 @@ class ImplicitParametersAnnotatorTest extends AnnotatorTestBase(ImplicitParamete
     assertMessages(Error("new MyClass()(2)", notFound("B")) :: Nil)(actualMessages)
   }
 
+  def testImplicitBefore(): Unit = {
+    val implicitAbstract = messages(
+      """
+        |object ImplicitAbstract {
+        |  def bar(implicit i: Int) = i
+        |  trait Actor { implicit def context: Int }
+        |  trait Stash { def context: Int = 1 }
+        |  trait ActorImpl extends Stash with Actor { bar }
+        |}
+      """.stripMargin
+    )
+    val bothAbstract = messages(
+      """
+        |object BothAbstract {
+        |  def bar(implicit i: Int) = i
+        |  trait Actor { implicit def context: Int }
+        |  trait Stash { def context: Int }
+        |  trait ActorImpl extends Stash with Actor { bar }
+        |}
+      """.stripMargin
+    )
+    val implicitConcrete = messages(
+      """
+        |object ImplicitConcrete {
+        |  def bar(implicit i: Int) = i
+        |  trait Actor { implicit def context: Int = 1 }
+        |  trait Stash { def context: Int }
+        |  trait ActorImpl extends Stash with Actor { bar }
+        |}
+      """.stripMargin
+    )
+
+    assertNothing(implicitConcrete)
+    assertNothing(bothAbstract)
+
+    assertMessages(implicitAbstract.get)(Error("bar", notFound("Int")) :: Nil)
+  }
+
+
+  def testNotImplicitBefore(): Unit = {
+    val bothAbstract = messages(
+      """
+        |object BothAbstract {
+        |  def bar(implicit i: Int) = i
+        |  trait Actor { implicit def context: Int }
+        |  trait Stash { def context: Int }
+        |  trait ActorImpl extends Actor with Stash { bar }
+        |}
+      """.stripMargin
+    )
+    val implicitAbstract = messages(
+      """
+        |object ImplicitAbstract {
+        |  def bar(implicit i: Int) = i
+        |  trait Actor { implicit def context: Int }
+        |  trait Stash { def context: Int = 1 }
+        |  trait ActorImpl extends Actor with Stash { bar }
+        |}
+      """.stripMargin
+    )
+    val implicitConcrete = messages(
+      """
+        |object ImplicitConcrete {
+        |  def bar(implicit i: Int) = i
+        |  trait Actor { implicit def context: Int = 1 }
+        |  trait Stash { def context: Int }
+        |  trait ActorImpl extends Actor with Stash { bar }
+        |}
+      """.stripMargin
+    )
+
+    assertNothing(implicitConcrete)
+
+    val error = Error("bar", notFound("Int")) :: Nil
+
+    assertMessages(bothAbstract.get)(error)
+    assertMessages(implicitAbstract.get)(error)
+  }
 }
 
 //annotator tests doesn't have scala library, so it's not possible to use FunctionType, for example

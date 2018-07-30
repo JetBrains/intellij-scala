@@ -91,13 +91,24 @@ abstract class MixinNodes {
     private var forImplicitsCache: List[SigToSuper] = null
 
     def forImplicits(): List[SigToSuper] = {
+      def implicitEntry(sigToSuper: SigToSuper): Option[SigToSuper] = {
+        val (sig, primarySuper) = sigToSuper
+
+        val nonAbstract =
+          if (isAbstract(sig) && !isAbstract(primarySuper.info)) primarySuper.info
+          else sig
+
+        if (isImplicit(nonAbstract))
+          Some((nonAbstract, primarySuper))
+        else None
+      }
+
       if (forImplicitsCache != null) return forImplicitsCache
-      val res = new ArrayBuffer[(T, Node)]()
+
+      val res = new ArrayBuffer[SigToSuper]()
       for (name <- implicitNames) {
-        val map = forName(name)._1
-        for (elem <- map) {
-          if (isImplicit(elem._1)) res += elem
-        }
+        val thisMap = forName(name)._1
+        res ++= thisMap.flatMap(implicitEntry)
       }
       forImplicitsCache = res.toList
       forImplicitsCache
