@@ -34,6 +34,9 @@ import scala.collection.mutable.{ArrayBuffer, ListBuffer}
 
 abstract class MixinNodes {
   type T
+
+  private type SigToSuper = (T, Node)
+
   def equiv(t1: T, t2: T): Boolean
   def same(t1: T, t2: T): Boolean
   def computeHashCode(t: T): Int
@@ -47,9 +50,9 @@ abstract class MixinNodes {
     var primarySuper: Option[Node] = None
   }
 
-  class Map extends mutable.HashMap[String, ArrayBuffer[(T, Node)]] {
+  class Map extends mutable.HashMap[String, ArrayBuffer[SigToSuper]] {
     private[Map] val implicitNames: mutable.HashSet[String] = new mutable.HashSet[String]
-    private val privatesMap: mutable.HashMap[String, ArrayBuffer[(T, Node)]] = mutable.HashMap.empty
+    private val privatesMap: mutable.HashMap[String, ArrayBuffer[SigToSuper]] = mutable.HashMap.empty
     def addToMap(key: T, node: Node) {
       val name = ScalaNamesUtil.clean(elemName(key))
       (if (!isPrivate(key)) this else privatesMap).
@@ -74,9 +77,9 @@ abstract class MixinNodes {
         val thisMap: NodesMap = toNodesMap(getOrElse(convertedName, new ArrayBuffer))
         val maps: List[NodesMap] = supersList.map(sup => toNodesMap(sup.getOrElse(convertedName, new ArrayBuffer)))
         val supers = mergeWithSupers(thisMap, mergeSupers(maps))
-        val list = supersList.flatMap(_.privatesMap.getOrElse(convertedName, new ArrayBuffer[(T, Node)]))
+        val list = supersList.flatMap(_.privatesMap.getOrElse(convertedName, new ArrayBuffer[SigToSuper]))
         val supersPrivates = toNodesSeq(list)
-        val thisPrivates = toNodesSeq(privatesMap.getOrElse(convertedName, new ArrayBuffer[(T, Node)]).toList ::: list)
+        val thisPrivates = toNodesSeq(privatesMap.getOrElse(convertedName, new ArrayBuffer[SigToSuper]).toList ::: list)
         val thisAllNodes = new AllNodes(thisMap, thisPrivates)
         val supersAllNodes = new AllNodes(supers, supersPrivates)
         (thisAllNodes, supersAllNodes)
@@ -85,8 +88,9 @@ abstract class MixinNodes {
     }
 
     @volatile
-    private var forImplicitsCache: List[(T, Node)] = null
-    def forImplicits(): List[(T, Node)] = {
+    private var forImplicitsCache: List[SigToSuper] = null
+
+    def forImplicits(): List[SigToSuper] = {
       if (forImplicitsCache != null) return forImplicitsCache
       val res = new ArrayBuffer[(T, Node)]()
       for (name <- implicitNames) {
@@ -122,8 +126,8 @@ abstract class MixinNodes {
       thisAndSupersMap.values().asScala.map(_._2).toSeq
     }
 
-    private def toNodesSeq(seq: List[(T, Node)]): NodesSeq = {
-      val map = new mutable.HashMap[Int, List[(T, Node)]]
+    private def toNodesSeq(seq: List[SigToSuper]): NodesSeq = {
+      val map = new mutable.HashMap[Int, List[SigToSuper]]
       for (elem <- seq) {
         val key = computeHashCode(elem._1)
         val prev = map.getOrElse(key, List.empty)
@@ -132,7 +136,7 @@ abstract class MixinNodes {
       new NodesSeq(map)
     }
 
-    private def toNodesMap(buf: ArrayBuffer[(T, Node)]): NodesMap = {
+    private def toNodesMap(buf: ArrayBuffer[SigToSuper]): NodesMap = {
       val res = new NodesMap
       res ++= buf
       res
@@ -190,34 +194,34 @@ abstract class MixinNodes {
       }
     }
 
-    def foreach(p: ((T, Node)) => Unit) {
+    def foreach(p: SigToSuper => Unit) {
       publics.foreach(p)
       privates.map.values.flatten.foreach(p)
     }
 
-    def map[R](p: ((T, Node)) => R): Seq[R] = {
+    def map[R](p: SigToSuper => R): Seq[R] = {
       publics.map(p).toSeq ++ privates.map.values.flatten.map(p)
     }
 
-    def filter(p: ((T, Node)) => Boolean): Seq[(T, Node)] = {
+    def filter(p: SigToSuper => Boolean): Seq[SigToSuper] = {
       publics.filter(p).toSeq ++ privates.map.values.flatten.filter(p)
     }
 
-    def withFilter(p: ((T, Node)) => Boolean): FilterMonadic[(T, Node), Seq[(T, Node)]] = {
+    def withFilter(p: SigToSuper => Boolean): FilterMonadic[SigToSuper, Seq[SigToSuper]] = {
       (publics.toSeq ++ privates.map.values.flatten).withFilter(p)
     }
 
-    def flatMap[R](p: ((T, Node)) => Traversable[R]): Seq[R] = {
+    def flatMap[R](p: SigToSuper => Traversable[R]): Seq[R] = {
       publics.flatMap(p).toSeq ++ privates.map.values.flatten.flatMap(p)
     }
 
-    def iterator: Iterator[(T, Node)] = {
-      new Iterator[(T, Node)] {
+    def iterator: Iterator[SigToSuper] = {
+      new Iterator[SigToSuper] {
         private val iter1 = publics.iterator
         private val iter2 = privates.map.values.flatten.iterator
         def hasNext: Boolean = iter1.hasNext || iter2.hasNext
 
-        def next(): (T, Node) = if (iter1.hasNext) iter1.next() else iter2.next()
+        def next(): SigToSuper = if (iter1.hasNext) iter1.next() else iter2.next()
       }
     }
 
@@ -231,7 +235,7 @@ abstract class MixinNodes {
     def isEmpty: Boolean = publics.isEmpty && privates.map.values.forall(_.isEmpty)
   }
 
-  class NodesSeq(private[MixinNodes] val map: mutable.HashMap[Int, List[(T, Node)]]) {
+  class NodesSeq(private[MixinNodes] val map: mutable.HashMap[Int, List[SigToSuper]]) {
     def get(s: T): Option[Node] = {
       val list = map.getOrElse(computeHashCode(s), Nil)
       val iterator = list.iterator
