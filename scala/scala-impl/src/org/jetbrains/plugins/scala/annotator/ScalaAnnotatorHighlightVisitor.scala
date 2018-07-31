@@ -6,6 +6,7 @@ import com.intellij.codeInsight.daemon.impl.analysis.{HighlightInfoHolder, Highl
 import com.intellij.openapi.application.ApplicationManager
 import com.intellij.openapi.project.{DumbService, Project}
 import com.intellij.psi._
+import org.jetbrains.plugins.scala.actions.decompileToJava.DecompiledScalaFileWritingAccessProvider
 import org.jetbrains.plugins.scala.annotator.usageTracker.ScalaRefCountHolder
 import org.jetbrains.plugins.scala.highlighter.AnnotatorHighlighter
 import org.jetbrains.plugins.scala.lang.psi.api.ScalaFile
@@ -72,7 +73,8 @@ class ScalaAnnotatorHighlightVisitor(project: Project) extends HighlightVisitor 
       return
     }
     val file = element.getContainingFile
-    if (file == null) return
+    if (file == null || 
+      DecompiledScalaFileWritingAccessProvider.isDecompiledFile(file.getVirtualFile)) return
 
     if (shouldHighlight(file)) {
       AnnotatorHighlighter.highlightElement(element, myAnnotationHolder)

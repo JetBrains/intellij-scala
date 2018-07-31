@@ -1,0 +1,8 @@
+<idea-plugin>
+    <extensions defaultExtensionNs="com.intellij">
+        <attachSourcesProvider implementation="org.jetbrains.plugins.scala.actions.decompileToJava.DecompileScalaToJavaActionProvider"/>
+        <applicationService serviceInterface="org.jetbrains.plugins.scala.actions.decompileToJava.ScalaDecompilerService"
+                            serviceImplementation="org.jetbrains.plugins.scala.actions.decompileToJava.ScalaDecompilerServiceImpl"/>
+        <writingAccessProvider implementation="org.jetbrains.plugins.scala.actions.decompileToJava.DecompiledScalaFileWritingAccessProvider"/>
+    </extensions>
+</idea-plugin>

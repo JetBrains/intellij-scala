@@ -146,8 +146,8 @@
       <externalSystemTaskNotificationListener
               implementation="org.jetbrains.plugins.scaladev.IdeaSourcesAttachListener"/>
         <externalSystemTaskNotificationListener implementation="org.jetbrains.plugins.scala.components.libextensions.LibraryExtensionsSBTListener"/>
-      
-      <toolWindow id="WorksheetResultsToolWindow" anchor="bottom" canCloseContents="false" 
+
+      <toolWindow id="WorksheetResultsToolWindow" anchor="bottom" canCloseContents="false"
                   factoryClass="org.jetbrains.plugins.scala.worksheet.ui.WorksheetToolWindowFactory"
                   conditionClass="org.jetbrains.plugins.scala.worksheet.ui.WorksheetToolWindowCondition"/>
 
@@ -489,7 +489,7 @@
 
         <spellchecker.bundledDictionaryProvider implementation="org.jetbrains.plugins.scala.spellchecker.ScalaBundledDictionaryProvider"/>
         <spellchecker.support language="Scala" implementationClass="org.jetbrains.plugins.scala.spellchecker.ScalaSpellcheckingStrategy"/>
-
+       
         <intentionAction>
             <category>Scala/String</category>
             <className>org.jetbrains.plugins.scala.codeInsight.intention.literal.InsertGapIntoStringIntention</className>
