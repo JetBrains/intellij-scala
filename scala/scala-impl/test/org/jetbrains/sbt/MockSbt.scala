@@ -3,6 +3,7 @@ package org.jetbrains.sbt
 import org.jetbrains.plugins.scala.DependencyManagerBase._
 import org.jetbrains.plugins.scala.base.libraryLoaders.{HeavyJDKLoader, IvyManagedLoader, LibraryLoader}
 import org.jetbrains.plugins.scala.debugger._
+import org.jetbrains.plugins.scala.project.Version
 
 /**
   * @author Nikolay Obedin
@@ -10,13 +11,13 @@ import org.jetbrains.plugins.scala.debugger._
   */
 trait MockSbtBase extends ScalaSdkOwner {
 
-  implicit val sbtVersion: String
+  implicit val sbtVersion: Version
 
   override protected def librariesLoaders: Seq[LibraryLoader] = Seq(HeavyJDKLoader(), IvyManagedLoader(
     "org.scala-lang" % "scala-compiler" % version.minor,
     "org.scala-lang" % "scala-library"  % version.minor,
     "org.scala-lang" % "scala-reflect"  % version.minor,
-    "org.scala-sbt" % "sbt" % sbtVersion transitive()
+    "org.scala-sbt" % "sbt" % sbtVersion.presentation transitive()
   ))
 }
 
@@ -27,7 +28,7 @@ trait MockSbt_0_12 extends MockSbtBase {
   override protected def librariesLoaders: Seq[LibraryLoader] =Seq(HeavyJDKLoader(), IvyManagedLoader(
     "org.scala-lang" % "scala-compiler" % version.minor,
     "org.scala-lang" % "scala-library"  % version.minor,
-    "org.scala-sbt" % "sbt" % sbtVersion transitive()
+    "org.scala-sbt" % "sbt" % sbtVersion.presentation transitive()
   ))
 }
 

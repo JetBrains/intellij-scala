@@ -9,6 +9,7 @@ import com.intellij.openapi.util.io.FileUtil
 import com.intellij.testFramework.UsefulTestCase
 import org.jetbrains.plugins.scala.DependencyManager
 import org.jetbrains.plugins.scala.DependencyManagerBase._
+import org.jetbrains.plugins.scala.project.Version
 import org.jetbrains.sbt.SbtUtil._
 import org.junit.Assert._
 
@@ -19,16 +20,16 @@ import org.junit.Assert._
 class SbtRunnerTest extends UsefulTestCase {
 
   def testSbtLaunch_0_12_4(): Unit =
-    doTestSbtLauncherVersionDetection("0.12.4")
+    doTestSbtLauncherVersionDetection(Version("0.12.4"))
 
   def testSbtLaunch_0_13_0(): Unit =
-    doTestSbtLauncherVersionDetection("0.13.0")
+    doTestSbtLauncherVersionDetection(Version("0.13.0"))
 
   def testSbtLaunch_0_13_5(): Unit =
-    doTestSbtLauncherVersionDetection("0.13.5")
+    doTestSbtLauncherVersionDetection(Version("0.13.5"))
 
   def testSbtLaunch_0_13_9(): Unit =
-    doTestSbtLauncherVersionDetection("0.13.9")
+    doTestSbtLauncherVersionDetection(Version("0.13.9"))
 
   def testSbtLaunch_latest_0_13(): Unit =
     doTestSbtLauncherVersionDetection(Sbt.Latest_0_13)
@@ -54,15 +55,15 @@ class SbtRunnerTest extends UsefulTestCase {
 
   private val tmpDirFile: File = new File(FileUtil.getTempDirectory)
 
-  private def doTestSbtLauncherVersionDetection(sbtVersion: String): Unit = {
+  private def doTestSbtLauncherVersionDetection(sbtVersion: Version): Unit = {
     val sbtLaunchJar = getSbtLaunchJarForVersion(sbtVersion)
     assertTrue(s"$sbtLaunchJar is not found. Make sure it is downloaded by Ivy.", sbtLaunchJar.exists())
     val actualVersion = detectSbtVersion(tmpDirFile, sbtLaunchJar)
     assertEquals(sbtVersion, actualVersion)
   }
 
-  private def getSbtLaunchJarForVersion(sbtVersion: String): File =
-    DependencyManager.resolveSingle("org.scala-sbt" % "sbt-launch" % sbtVersion).file
+  private def getSbtLaunchJarForVersion(sbtVersion: Version): File =
+    DependencyManager.resolveSingle("org.scala-sbt" % "sbt-launch" % sbtVersion.presentation).file
 
   private def generateMockLauncher(implementationVersion: String): File = {
     val manifestContents =

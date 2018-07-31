@@ -50,6 +50,8 @@ object Versions {
     val latest_0_13 = "0.13.17"
     val latest_1_0 = "1.2.0"
     val latest: String = latest_1_0
+    // ATTENTION: after adding sbt major version, also update:
+    // buildInfoKeys, Sbt.scala and SbtUtil.latestCompatibleVersion
 
     def scalaVersion(v: String): String =
       if (v.startsWith(Sbt.binary_0_12)) Scala.binary_2_9

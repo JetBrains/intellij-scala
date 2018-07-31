@@ -216,13 +216,13 @@ class SbtModuleBuilder extends AbstractExternalModuleBuilder[SbtProjectSettings]
 
   private def setupDefaultVersions(): Unit = {
     if (selections.sbtVersion == null) {
-      selections.sbtVersion = sbtVersions.headOption.getOrElse(Versions.DefaultSbtVersion)
+      selections.sbtVersion = sbtVersions.headOption.getOrElse(Versions.DefaultSbtVersion.presentation)
     }
     if (selections.scalaVersion == null) {
       selections.scalaVersion = loadedScalaVersions(selections.scalaPlatform).headOption.getOrElse {
         selections.scalaPlatform match {
-          case Dotty => Versions.DefaultDottyVersion
-          case Scala => Versions.DefaultScalaVersion
+          case Dotty => Versions.DefaultDottyVersion.presentation
+          case Scala => Versions.DefaultScalaVersion.presentation
         }
       }
     }

@@ -20,10 +20,10 @@ object SbtStructureSetup {
   val IvyCacheDir: File = new File(TestUtils.getIvyCachePath)
 
   def setUpSbtLauncherAndStructure(project: Project): Unit = {
-    val sbtVersion = BuildInfo.sbtLatest_0_13 // hardcode latest version of sbt 0.13, still need to make test 1.0-capable
-    val launcherVersion: String = BuildInfo.sbtLatestVersion
+    val sbtVersion = Sbt.Latest_0_13 // hardcode latest version of sbt 0.13, still need to make test 1.0-capable
+    val launcherVersion = Sbt.LatestVersion
     val sbtStructureVersion = BuildInfo.sbtStructureVersion
-    val customSbtLauncher = DependencyManager.resolveSingle("org.scala-sbt"  % "sbt-launch" % launcherVersion).file
+    val customSbtLauncher = DependencyManager.resolveSingle("org.scala-sbt"  % "sbt-launch" % launcherVersion.presentation).file
     val customSbtStructure = IvyCacheDir / "scala_2.10" / "sbt_0.13" / "org.jetbrains" / "sbt-structure-extractor" / "jars" / s"sbt-structure-extractor-$sbtStructureVersion.jar"
 
     assert(customSbtLauncher.isFile, s"sbt launcher not found at $customSbtLauncher")

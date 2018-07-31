@@ -1,12 +1,10 @@
 package org.jetbrains.sbt
 
-import java.io.File
 import javax.swing.Icon
-
-import com.intellij.openapi.project.Project
 import org.jetbrains.annotations.NotNull
 import org.jetbrains.plugins.scala.buildinfo.BuildInfo
 import org.jetbrains.plugins.scala.icons.Icons
+import org.jetbrains.plugins.scala.project.Version
 
 /**
  * @author Pavel Fatin
@@ -51,9 +49,10 @@ object Sbt {
   // this should be in sync with sbt.BuildUtil.baseImports
   val DefaultImplicitImports = Seq("sbt._", "Process._", "Keys._", "dsl._")
 
-  val LatestVersion: String = BuildInfo.sbtLatestVersion
-
-  val Latest_0_13: String = BuildInfo.sbtLatest_0_13
+  val LatestVersion: Version = Version(BuildInfo.sbtLatestVersion)
+  val Latest_1_0: Version = Version(BuildInfo.sbtLatest_1_0)
+  val Latest_0_12: Version = Version(BuildInfo.sbtLatest_0_12)
+  val Latest_0_13: Version = Version(BuildInfo.sbtLatest_0_13)
 
   val Icon: Icon = Icons.SBT
 

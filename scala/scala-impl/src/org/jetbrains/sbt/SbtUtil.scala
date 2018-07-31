@@ -72,7 +72,7 @@ object SbtUtil {
       Version(s"$major.0")
     } else sbtVersion.major(2)
 
-  def detectSbtVersion(directory: File, sbtLauncher: => File): String =
+  def detectSbtVersion(directory: File, sbtLauncher: => File): Version =
     sbtVersionIn(directory)
       .orElse(sbtVersionInBootPropertiesOf(sbtLauncher))
       .orElse(implementationVersionOf(sbtLauncher))
@@ -80,8 +80,9 @@ object SbtUtil {
 
   def numbersOf(version: String): Seq[String] = version.split("\\D").toSeq
 
-  private def implementationVersionOf(jar: File): Option[String] =
+  private def implementationVersionOf(jar: File): Option[Version] =
     readManifestAttributeFrom(jar, "Implementation-Version")
+    .map(Version.apply)
 
   private def readManifestAttributeFrom(file: File, name: String): Option[String] = {
     val jar = new JarFile(file)
@@ -98,14 +99,14 @@ object SbtUtil {
     }
   }
 
-  private def sbtVersionInBootPropertiesOf(jar: File): Option[String] = {
+  private def sbtVersionInBootPropertiesOf(jar: File): Option[Version] = {
     val appProperties = readSectionFromBootPropertiesOf(jar, sectionName = "app")
     for {
       name <- appProperties.get("name")
       if name == "sbt"
       versionStr <- appProperties.get("version")
       version <- "\\d+(\\.\\d+)+".r.findFirstIn(versionStr)
-    } yield version
+    } yield Version(version)
   }
 
   private def readSectionFromBootPropertiesOf(launcherFile: File, sectionName: String): Map[String, String] = {
@@ -135,9 +136,11 @@ object SbtUtil {
   def sbtBuildPropertiesFile(base: File): File =
     base / Sbt.ProjectDirectory / Sbt.PropertiesFile
 
-  private def sbtVersionIn(directory: File): Option[String] = {
+  private def sbtVersionIn(directory: File): Option[Version] = {
     val propertiesFile = sbtBuildPropertiesFile(directory)
-    if (propertiesFile.exists()) readPropertyFrom(propertiesFile, "sbt.version") else None
+    if (propertiesFile.exists())
+      readPropertyFrom(propertiesFile, "sbt.version").map(Version.apply)
+    else None
   }
 
   private def readPropertyFrom(file: File, name: String): Option[String] = {

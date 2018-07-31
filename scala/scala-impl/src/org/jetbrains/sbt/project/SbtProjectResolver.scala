@@ -57,7 +57,7 @@ class SbtProjectResolver extends ExternalSystemProjectResolver[SbtExecutionSetti
     }
 
     val sbtLauncher = settings.customLauncher.getOrElse(getDefaultLauncher)
-    val sbtVersion = Version(detectSbtVersion(projectRoot, sbtLauncher))
+    val sbtVersion = detectSbtVersion(projectRoot, sbtLauncher)
 
     if (isPreview) dummyProject(projectRoot, settings, sbtVersion).toDataNode
     else importProject(taskId, settings, projectRoot, sbtLauncher, sbtVersion, listener)

@@ -15,6 +15,7 @@ import com.intellij.util.Consumer
 import org.jetbrains.plugins.scala.SlowTests
 import org.jetbrains.plugins.scala.annotator.{Error, _}
 import org.jetbrains.plugins.scala.base.libraryLoaders.SmartJDKLoader
+import org.jetbrains.plugins.scala.project.Version
 import org.jetbrains.sbt.language.SbtFileImpl
 import org.jetbrains.sbt.project.module.SbtModuleType
 import org.jetbrains.sbt.project.settings.SbtProjectSettings
@@ -66,16 +67,16 @@ abstract class SbtAnnotatorTestBase extends AnnotatorTestBase with MockSbtBase {
 
   override def getTestProjectJdk: Sdk = SmartJDKLoader.getOrCreateJDK()
 
-  protected def runTest(sbtVersion: String, expectedMessages: Seq[Message]): Unit = {
+  protected def runTest(sbtVersion: Version, expectedMessages: Seq[Message]): Unit = {
     setSbtVersion(sbtVersion)
     val actualMessages = annotate().asJava
     UsefulTestCase.assertSameElements(actualMessages, expectedMessages: _*)
   }
 
-  protected def setSbtVersion(sbtVersion: String): Unit = {
+  protected def setSbtVersion(sbtVersion: Version): Unit = {
     val projectSettings = SbtSystemSettings.getInstance(getProject).getLinkedProjectSettings(getProject.getBasePath)
     assert(projectSettings != null)
-    projectSettings.setSbtVersion(sbtVersion)
+    projectSettings.setSbtVersion(sbtVersion.presentation)
   }
 
   private def annotate(): Seq[Message] = {
@@ -106,28 +107,28 @@ abstract class SbtAnnotatorTestBase extends AnnotatorTestBase with MockSbtBase {
 
 @Category(Array(classOf[SlowTests]))
 class SbtAnnotatorTest_0_12_4 extends SbtAnnotatorTestBase with MockSbt_0_12 {
-  override implicit val sbtVersion: String = "0.12.4"
+  override implicit val sbtVersion: Version = Version("0.12.4")
 
   def test(): Unit = runTest(sbtVersion, Expectations.sbt_0_12)
 }
 
 @Category(Array(classOf[SlowTests]))
 class SbtAnnotatorTest_0_13_1 extends SbtAnnotatorTestBase with MockSbt_0_13 {
-  override implicit val sbtVersion: String = "0.13.1"
+  override implicit val sbtVersion: Version = Version("0.13.1")
 
   def test(): Unit = runTest(sbtVersion, Expectations.sbt_0_13(sbtVersion))
 }
 
 @Category(Array(classOf[SlowTests]))
 class SbtAnnotatorTest_0_13_7 extends SbtAnnotatorTestBase with MockSbt_0_13 {
-  override implicit val sbtVersion: String = "0.13.7"
+  override implicit val sbtVersion: Version = Version("0.13.7")
 
   def test(): Unit = runTest(sbtVersion, Expectations.sbt_0_13_7)
 }
 
 @Category(Array(classOf[SlowTests]))
 class SbtAnnotatorTest_latest extends SbtAnnotatorTestBase with MockSbt_1_0 {
-  override implicit val sbtVersion: String = Sbt.LatestVersion
+  override implicit val sbtVersion: Version = Sbt.LatestVersion
 
   def test(): Unit = runTest(sbtVersion, Expectations.sbt_1_0)
 }
@@ -141,20 +142,20 @@ object Expectations {
   )
 
 
-  def sbt012_013(sbtVersion: String): Seq[Error] = sbtAll ++ Seq(
+  def sbt012_013(sbtVersion: Version): Seq[Error] = sbtAll ++ Seq(
     Error("organization", SbtBundle("sbt.annotation.expressionMustConform", "SettingKey[String]")),
     Error(""""some string"""", SbtBundle("sbt.annotation.expressionMustConform", "String")),
     Error("null", SbtBundle("sbt.annotation.expectedExpressionType")),
-    Error("""version := "SNAPSHOT"""", SbtBundle("sbt.annotation.blankLineRequired", sbtVersion))
+    Error("""version := "SNAPSHOT"""", SbtBundle("sbt.annotation.blankLineRequired", sbtVersion.presentation))
   )
 
-  def sbt_0_12: Seq[Error] = sbt012_013("0.12.4") ++ Seq(
+  def sbt_0_12: Seq[Error] = sbt012_013(Version("0.12.4")) ++ Seq(
     Error(
       """lazy val foo = project.in(file("foo")).enablePlugins(sbt.plugins.JvmPlugin)""",
       SbtBundle("sbt.annotation.sbtFileMustContainOnlyExpressions"))
   )
 
-  def sbt_0_13(sbtVersion: String): Seq[Error] = sbt012_013(sbtVersion) ++ Seq(
+  def sbt_0_13(sbtVersion: Version): Seq[Error] = sbt012_013(sbtVersion) ++ Seq(
     Error("???", SbtBundle("sbt.annotation.expectedExpressionType"))
   )
 

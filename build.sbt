@@ -74,10 +74,12 @@ lazy val scalaImpl: sbt.Project =
       buildInfoPackage := "org.jetbrains.plugins.scala.buildinfo",
       buildInfoKeys := Seq(
         name, version, scalaVersion, sbtVersion,
-        BuildInfoKey.constant("sbtLatestVersion", Versions.sbtVersion),
         BuildInfoKey.constant("sbtStructureVersion", Versions.sbtStructureVersion),
         BuildInfoKey.constant("sbtIdeaShellVersion", Versions.sbtIdeaShellVersion),
-        BuildInfoKey.constant("sbtLatest_0_13", Versions.Sbt.latest_0_13)
+        BuildInfoKey.constant("sbtLatest_0_12", Versions.Sbt.latest_0_12),
+        BuildInfoKey.constant("sbtLatest_0_13", Versions.Sbt.latest_0_13),
+        BuildInfoKey.constant("sbtLatest_1_0", Versions.Sbt.latest_1_0),
+        BuildInfoKey.constant("sbtLatestVersion", Versions.sbtVersion)
       )
     )
 

@@ -25,7 +25,7 @@ import com.intellij.openapi.vfs.VfsUtil
 import org.jetbrains.plugins.scala.buildinfo.BuildInfo
 import org.jetbrains.plugins.scala.project.Version
 import org.jetbrains.plugins.scala.project.external.{JdkByName, SdkUtils}
-import org.jetbrains.sbt.SbtUtil
+import org.jetbrains.sbt.{Sbt, SbtUtil}
 import org.jetbrains.sbt.SbtUtil._
 import org.jetbrains.sbt.project.settings.{SbtExecutionSettings, SbtProjectSettings}
 import org.jetbrains.sbt.project.structure.{JvmOpts, SbtOpts}
@@ -93,17 +93,17 @@ class SbtProcessManager(project: Project) extends AbstractProjectComponent(proje
 
     val debugConnection = if (sbtSettings.shellDebugMode) Option(addDebugParameters(javaParameters)) else None
 
-    val latestSbtVersion = Version(BuildInfo.sbtLatestVersion)
-    val projectSbtVersion = Version(detectSbtVersion(workingDir, launcher))
+    val latestSbtVersion = Sbt.LatestVersion
+    val projectSbtVersion = detectSbtVersion(workingDir, launcher)
 
     // to use the plugin injection command, we may have to override older sbt versions where possible
     val shouldUpgradeSbtVersion =
       sbtSettings.allowSbtVersionOverride &&
         projectSbtVersion >= Version("1.0.0") &&
-        projectSbtVersion <= latestSbtVersion
+        projectSbtVersion < latestSbtVersion
 
     val upgradedSbtVersion =
-      if (shouldUpgradeSbtVersion) latestSbtVersion
+      if (shouldUpgradeSbtVersion) SbtUtil.latestCompatibleVersion(projectSbtVersion)
       else projectSbtVersion
 
     val autoPluginsSupported = upgradedSbtVersion >= SbtProjectResolver.sinceSbtVersionShell
@@ -123,7 +123,6 @@ class SbtProcessManager(project: Project) extends AbstractProjectComponent(proje
     val commandLine: GeneralCommandLine = javaParameters.toCommandLine
     getCustomVMExecutableOrWarn(sbtSettings).foreach(exe => commandLine.setExePath(exe.getAbsolutePath))
 
-
     if (autoPluginsSupported) {
       val sbtMajorVersion = binaryVersion(upgradedSbtVersion)
 
@@ -131,26 +130,28 @@ class SbtProcessManager(project: Project) extends AbstractProjectComponent(proje
       val globalSettingsFile = new File(globalPluginsDir, "idea.sbt")
 
       val settingsFile =
-        if (addPluginCommandSupported) FileUtil.createTempFile("sbt-shell-settings-","", true)
+        if (addPluginCommandSupported) FileUtil.createTempFile("idea",".sbt", true)
         else globalSettingsFile
 
       // caution! writes injected plugin settings to user's global sbt config if addPlugin command is not supported
       injectSettings(runid, ! addPluginCommandSupported, settingsFile, pluginResolverSetting +: injectedPlugins(sbtMajorVersion))
 
-      if (addPluginCommandSupported) {
+      if (addPluginCommandSupported)
         commandLine.addParameter(s"--addPluginSbtFile=${settingsFile.getAbsolutePath}")
-        notifyVersionUpgrade(projectSbtVersion, upgradedSbtVersion, workingDir)
-      }
 
       // we have our plugins in there, load custom shell
       commandLine.addParameter("idea-shell")
     }
+
+    if (shouldUpgradeSbtVersion)
+      notifyVersionUpgrade(projectSbtVersion, upgradedSbtVersion, workingDir)
 
     val pty = createPtyCommandLine(commandLine)
     val cpty = new ColoredProcessHandler(pty)
 
     (cpty, debugConnection)
   }
+
 
   private def notifyVersionUpgrade(projectSbtVersion: Version, upgradedSbtVersion: Version, projectPath: File): Unit = {
     val message =
