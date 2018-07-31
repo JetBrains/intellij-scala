@@ -5,19 +5,18 @@ package hints
 import java.lang.{Boolean => JBoolean}
 
 import com.intellij.codeInsight.daemon.impl.HintRenderer
-import com.intellij.codeInsight.hints
 import com.intellij.codeInsight.hints.{ElementProcessingHintPass, ModificationStampHolder}
 import com.intellij.openapi.editor.Editor
 import com.intellij.openapi.util.Key
 import com.intellij.openapi.vfs.VirtualFile
 import com.intellij.psi.PsiElement
-import org.jetbrains.plugins.scala.extensions.StringsExt
+import org.jetbrains.plugins.scala.extensions._
 import org.jetbrains.plugins.scala.lang.lexer.ScalaTokenTypes
-import org.jetbrains.plugins.scala.lang.psi.ScalaPsiElement
 import org.jetbrains.plugins.scala.lang.psi.api.ScalaFile
+import org.jetbrains.plugins.scala.lang.psi.api.base.ScPatternList
 import org.jetbrains.plugins.scala.lang.psi.api.statements._
+import org.jetbrains.plugins.scala.lang.psi.api.statements.params.ScParameters
 import org.jetbrains.plugins.scala.lang.psi.types.api.JavaArrayType
-import org.jetbrains.plugins.scala.lang.psi.types.result.TypeResult
 import org.jetbrains.plugins.scala.lang.psi.types.{ScCompoundType, ScParameterizedType, ScType}
 import org.jetbrains.plugins.scala.lang.refactoring.ScTypePresentationExt
 import org.jetbrains.plugins.scala.settings.annotations.Definition
@@ -39,17 +38,17 @@ class ScalaTypeHintsPass(rootElement: ScalaFile,
 
     if (!settings.showObviousType && Definition(element).isTypeStable) return
 
-    val maybeInfo = element match {
-      case f@TypelessFunction(anchor) if settings.showFunctionReturnType =>
-        f.returnType.toInlayInfo(anchor)
-      case v@TypelessValueOrVariable(anchor)
+    Some(element).collect {
+      case function@Parameters(parameters) if settings.showFunctionReturnType =>
+        (parameters, function.returnType)
+      case member@PatternList(list)
         //noinspection ScalaUnnecessaryParentheses
-        if (if (v.isLocal) settings.showLocalVariableType else settings.showPropertyType) =>
-        v.`type`().toInlayInfo(anchor)
-      case _ => None
-    }
-
-    maybeInfo.foreach { info =>
+        if (if (member.isLocal) settings.showLocalVariableType else settings.showPropertyType) =>
+        (list, member.`type`())
+    }.collect {
+      case (anchor, Right(CodeText(text))) =>
+        InlayInfo(text, ScalaTokenTypes.tCOLON, anchor, relatesToPrecedingText = true)
+    }.foreach { info =>
       collector.invoke(info.getOffset, info.getText)
     }
   }
@@ -65,65 +64,65 @@ object ScalaTypeHintsPass {
 
   private val ScalaTypeInlayKey = Key.create[JBoolean]("SCALA_TYPE_INLAY_KEY")
 
-  private object TypelessFunction {
+  private object Parameters {
 
-    def unapply(definition: ScFunctionDefinition): Option[ScalaPsiElement] =
+    def unapply(definition: ScFunctionDefinition): Option[ScParameters] =
       if (definition.hasExplicitType || definition.isConstructor) None
       else Some(definition.parameterList)
   }
 
-  private object TypelessValueOrVariable {
+  private object PatternList {
 
-    def unapply(definition: ScValueOrVariable): Option[ScalaPsiElement] =
-      if (definition.hasExplicitType) None
-      else definition match {
+    def unapply(definition: ScValueOrVariable): Option[ScPatternList] =
+      definition match {
+        case _ if definition.hasExplicitType => None
         case value: ScPatternDefinition => Some(value.pList)
         case variable: ScVariableDefinition => Some(variable.pList)
         case _ => None
       }
   }
 
-  private implicit class TypeResultExt(private val result: TypeResult) {
+  private object CodeText {
 
-    def toInlayInfo(anchor: ScalaPsiElement)
-                   (implicit settings: ScalaCodeInsightSettings): Option[hints.InlayInfo] =
-      result.toOption.collect {
-        case PresentableText(Limited(text)) => text
-        case FoldedPresentableText(Limited(text)) => text
-      }.map(InlayInfo(_, ScalaTokenTypes.tCOLON, anchor, relatesToPrecedingText = true))
-  }
-
-  private[this] object Limited {
-
-    def unapply(text: String)
+    def unapply(`type`: ScType)
                (implicit settings: ScalaCodeInsightSettings): Option[String] =
-      if (text.length <= settings.presentationLength) Some(text) else None
-  }
+      `type` match {
+        case CodeText(text) if limited(text) => Some(text)
+        case FoldedCodeText(text) if limited(text) => Some(text)
+        case _ => None
+      }
 
-  private[this] object PresentableText {
+    private def limited(text: String)
+                       (implicit settings: ScalaCodeInsightSettings): Boolean =
+      text.length <= settings.presentationLength
 
-    def unapply(`type`: ScType): Some[String] =
-      Some(`type`.codeText)
-  }
+    private object CodeText {
 
-  private[this] object FoldedPresentableText {
-
-    private[this] val Ellipsis = "..."
-
-    def unapply(`type`: ScType): Option[String] = `type` match {
-      case ScCompoundType(comps, signs, types) =>
-        val mainComponent = comps.headOption.map(_.codeText).getOrElse("AnyRef")
-        val text =
-          if (comps.size > 1) s"$mainComponent with $Ellipsis"
-          else if (signs.size + types.size > 0) s"$mainComponent {$Ellipsis}"
-          else mainComponent
-        Some(text)
-      case ScParameterizedType(designator, typeArguments) =>
-        val arguments = Seq.fill(typeArguments.size)(Ellipsis)
-        Some(s"${designator.codeText}[${arguments.commaSeparated()}]")
-      case JavaArrayType(_) => Some(s"Array[$Ellipsis]")
-      case _ => None
+      def unapply(`type`: ScType) = Some(`type`.codeText)
     }
+
+    private object FoldedCodeText {
+
+      private[this] val Ellipsis = "..."
+
+      def unapply(`type`: ScType): Option[String] = `type` match {
+        case ScCompoundType(components, signatures, types) =>
+          val suffix = if (signatures.nonEmpty || types.nonEmpty) s" {$Ellipsis}" else ""
+          val text = components match {
+            case Seq(CodeText(head), _, _*) => s"$head with $Ellipsis"
+            case Seq(CodeText(head)) => head + suffix
+            case Seq() => "AnyRef" + suffix
+          }
+          Some(text)
+        case ScParameterizedType(CodeText(text), typeArguments) =>
+          val suffix = Seq.fill(typeArguments.size)(Ellipsis)
+            .commaSeparated(model = Model.SquareBrackets)
+          Some(text + suffix)
+        case JavaArrayType(_) => Some(s"Array[$Ellipsis]")
+        case _ => None
+      }
+    }
+
   }
 
 }
