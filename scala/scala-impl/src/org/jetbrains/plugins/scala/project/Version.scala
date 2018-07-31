@@ -34,6 +34,9 @@ case class Version(presentation: String) extends Ordered[Version] {
     presentation.startsWith(level.version)
   }
 
+  def inRange(atLeast: Version, lessThan: Version): Boolean =
+    this >= atLeast && this < lessThan
+
   override def toString: String = groups.map(_.toString).mkString("-")
 }
 

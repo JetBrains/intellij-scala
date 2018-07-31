@@ -217,6 +217,19 @@ object SbtUtil {
   /** Normalizes pathname so that backslashes don't get interpreted as escape characters in interpolated strings. */
   def normalizePath(file: File): String = file.getAbsolutePath.replace('\\', '/')
 
+  def latestCompatibleVersion(version: Version): Version = {
+    val major = version.major(2)
+
+    val latestInSeries =
+      if (major.inRange(Version("0.12"), Version("0.13"))) Sbt.Latest_0_12
+      else if (major.inRange(Version("0.13"), Version("1.0"))) Sbt.Latest_0_13
+      else if (major.inRange(Version("1.0"), Version("2.0"))) Sbt.Latest_1_0
+      else Sbt.LatestVersion // needs to be updated for sbt versions >= 2.0
+
+    if (version < latestInSeries) latestInSeries
+    else version
+  }
+
   private def pluginBase = {
     val file: File = jarWith[this.type]
     val deep = if (file.getName == "classes") 1 else 2

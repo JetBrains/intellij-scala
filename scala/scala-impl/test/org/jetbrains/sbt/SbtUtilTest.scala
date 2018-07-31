@@ -85,4 +85,18 @@ class SbtUtilTest {
     assertEquals(new File("tocklewick"), dir)
   }
 
+  @Test
+  def testLatestCompatibleVersion(): Unit = {
+    assertEquals(Sbt.Latest_0_12,latestCompatibleVersion(v0120))
+    assertEquals(Sbt.Latest_0_13,latestCompatibleVersion(v0130))
+    assertEquals(Sbt.Latest_0_13,latestCompatibleVersion(v01317))
+    assertEquals(Sbt.Latest_1_0,latestCompatibleVersion(v100))
+    assertEquals(Sbt.Latest_1_0,latestCompatibleVersion(v112))
+    assertEquals(Sbt.Latest_1_0,latestCompatibleVersion(Sbt.Latest_1_0))
+    assertEquals(Version("1.9001.1"),latestCompatibleVersion(Version("1.9001.1")))
+
+    // when this breaks, update latestCompatibleVersion method and this test
+    assertEquals(Sbt.Latest_1_0,latestCompatibleVersion(Sbt.LatestVersion))
+  }
+
 }
