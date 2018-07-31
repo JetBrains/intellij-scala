@@ -52,7 +52,8 @@ lazy val scalaImpl: sbt.Project =
         "Groovy",     // requierd by Gradle
         "properties", // required by Gradle
         "maven",      // TODO remove after extracting the SBT module (which depends on Maven)
-        "junit"
+        "junit",
+        "java-decompiler"
       ),
       ideaInternalPluginsJars :=
         ideaInternalPluginsJars.value.filterNot(cp => cp.data.getName.contains("junit-jupiter-api")),

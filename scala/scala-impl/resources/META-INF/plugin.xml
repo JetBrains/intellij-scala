@@ -41,6 +41,7 @@
     <depends optional="true" config-file="copyright.xml">com.intellij.copyright</depends>
     <depends optional="true" config-file="scala-i18n.xml">com.intellij.properties</depends>
     <depends optional="true" config-file="scala-gradle-integration.xml">org.jetbrains.plugins.gradle</depends>
+    <depends optional="true" config-file="decompile-scala-to-java.xml">org.jetbrains.java.decompiler</depends>
 
     <xi:include href="/META-INF/scala-plugin-common.xml" xpointer="xpointer(/idea-plugin/*)"/>
     <xi:include href="/META-INF/SBT.xml" xpointer="xpointer(/idea-plugin/*)"/>
