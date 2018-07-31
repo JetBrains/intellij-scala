@@ -54,6 +54,8 @@ object TypeParameterType {
   def apply(psiTp: PsiTypeParameter): TypeParameterType =
     new TypeParameterType(TypeParameter(psiTp))
 
+  def unapply(tpt: TypeParameterType): Option[TypeParameter] = Some(tpt.typeParameter)
+
   object ofPsi {
     def unapply(tpt: TypeParameterType): Option[PsiTypeParameter] = Some(tpt.psiTypeParameter)
   }

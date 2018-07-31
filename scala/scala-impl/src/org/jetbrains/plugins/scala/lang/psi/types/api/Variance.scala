@@ -1,5 +1,9 @@
 package org.jetbrains.plugins.scala.lang.psi.types.api
 
+import org.jetbrains.plugins.scala.lang.psi.types.ScType
+import org.jetbrains.plugins.scala.lang.psi.types.recursiveUpdate.AfterUpdate
+import org.jetbrains.plugins.scala.lang.psi.types.recursiveUpdate.AfterUpdate.{ProcessSubtypes, Stop}
+
 /** Copied almost verbatim from [[scala.reflect.internal.Variance]]
   *
   * Variances form a lattice:
