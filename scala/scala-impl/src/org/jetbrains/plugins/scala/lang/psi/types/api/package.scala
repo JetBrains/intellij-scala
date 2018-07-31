@@ -63,4 +63,9 @@ package object api {
   def Float(implicit pc: ProjectContext) = StdTypes.instance.Float
 
   def Double(implicit pc: ProjectContext) = StdTypes.instance.Double
+
+  val Bivariant     = Variance.Bivariant
+  val Covariant     = Variance.Covariant
+  val Contravariant = Variance.Contravariant
+  val Invariant     = Variance.Invariant
 }
