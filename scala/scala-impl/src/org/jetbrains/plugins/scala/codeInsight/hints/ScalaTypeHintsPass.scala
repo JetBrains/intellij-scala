@@ -13,9 +13,7 @@ import com.intellij.psi.PsiElement
 import org.jetbrains.plugins.scala.extensions._
 import org.jetbrains.plugins.scala.lang.lexer.ScalaTokenTypes
 import org.jetbrains.plugins.scala.lang.psi.api.ScalaFile
-import org.jetbrains.plugins.scala.lang.psi.api.base.ScPatternList
-import org.jetbrains.plugins.scala.lang.psi.api.statements._
-import org.jetbrains.plugins.scala.lang.psi.api.statements.params.ScParameters
+import org.jetbrains.plugins.scala.lang.psi.api.statements.{ScFunction, ScValueOrVariable}
 import org.jetbrains.plugins.scala.lang.psi.types.api.JavaArrayType
 import org.jetbrains.plugins.scala.lang.psi.types.{ScCompoundType, ScParameterizedType, ScType}
 import org.jetbrains.plugins.scala.lang.refactoring.ScTypePresentationExt
@@ -35,22 +33,15 @@ class ScalaTypeHintsPass(rootElement: ScalaFile,
 
   override def collectElementHints(element: PsiElement, collector: kotlin.jvm.functions.Function2[_ >: Integer, _ >: String, kotlin.Unit]): Unit = {
     implicit val settings: ScalaCodeInsightSettings = ScalaCodeInsightSettings.getInstance
+    val definition = Definition(element)
 
-    if (!settings.showObviousType && Definition(element).isTypeStable) return
+    if (!settings.showObviousType && definition.hasObviousType) return
 
-    Some(element).collect {
-      case function@Parameters(parameters) if settings.showFunctionReturnType =>
-        (parameters, function.returnType)
-      case member@PatternList(list)
-        //noinspection ScalaUnnecessaryParentheses
-        if (if (member.isLocal) settings.showLocalVariableType else settings.showPropertyType) =>
-        (list, member.`type`())
-    }.collect {
-      case (anchor, Right(CodeText(text))) =>
-        InlayInfo(text, ScalaTokenTypes.tCOLON, anchor, relatesToPrecedingText = true)
-    }.foreach { info =>
-      collector.invoke(info.getOffset, info.getText)
-    }
+    for {
+      anchor <- definition.parameterList
+      ReturnType(CodeText(text)) <- Some(definition)
+      info = InlayInfo(text, ScalaTokenTypes.tCOLON, anchor, relatesToPrecedingText = true)
+    } collector.invoke(info.getOffset, info.getText)
   }
 
   override def getHintKey: Key[JBoolean] = ScalaTypeInlayKey
@@ -64,22 +55,29 @@ object ScalaTypeHintsPass {
 
   private val ScalaTypeInlayKey = Key.create[JBoolean]("SCALA_TYPE_INLAY_KEY")
 
-  private object Parameters {
+  private object ReturnType {
 
-    def unapply(definition: ScFunctionDefinition): Option[ScParameters] =
-      if (definition.hasExplicitType || definition.isConstructor) None
-      else Some(definition.parameterList)
-  }
-
-  private object PatternList {
-
-    def unapply(definition: ScValueOrVariable): Option[ScPatternList] =
+    def unapply(definition: Definition)
+               (implicit settings: ScalaCodeInsightSettings): Option[ScType] = {
+      import Definition._
       definition match {
-        case _ if definition.hasExplicitType => None
-        case value: ScPatternDefinition => Some(value.pList)
-        case variable: ScVariableDefinition => Some(variable.pList)
+        case ValueDefinition(value) => unapply(value)
+        case VariableDefinition(variable) => unapply(variable)
+        case FunctionDefinition(function) => unapply(function)
         case _ => None
       }
+    }
+
+    private def unapply(member: ScValueOrVariable)
+                       (implicit settings: ScalaCodeInsightSettings) = {
+      val flag = if (member.isLocal) settings.showLocalVariableType else settings.showPropertyType
+      if (flag) member.`type`().toOption else None
+    }
+
+    private def unapply(member: ScFunction)
+                       (implicit settings: ScalaCodeInsightSettings) =
+      if (settings.showFunctionReturnType) member.returnType.toOption
+      else None
   }
 
   private object CodeText {
