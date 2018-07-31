@@ -7,5 +7,9 @@ import com.intellij.psi.PsiClass
  */
 
 object ClassQualifiedName {
-  def unapply(e: PsiClass): Some[String] = Some(e.qualifiedName)
+
+  def unapply(clazz: PsiClass): Option[String] = clazz match {
+    case null => None
+    case _ => Option(clazz.qualifiedName)
+  }
 }
