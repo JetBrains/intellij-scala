@@ -7,14 +7,12 @@ import java.{util => ju}
 import com.intellij.codeInsight.hints
 import com.intellij.lang.java.JavaLanguage
 import com.intellij.psi.{PsiElement, PsiMethod}
-import org.jetbrains.plugins.scala.codeInspection.collections.MethodRepr
 import org.jetbrains.plugins.scala.extensions._
 import org.jetbrains.plugins.scala.lang.lexer.ScalaTokenTypes
 import org.jetbrains.plugins.scala.lang.psi.api.base.{ScConstructor, ScLiteral}
 import org.jetbrains.plugins.scala.lang.psi.api.expr._
 import org.jetbrains.plugins.scala.lang.psi.api.statements.ScFunction.Ext
 import org.jetbrains.plugins.scala.lang.psi.types.nonvalue.Parameter
-import org.jetbrains.plugins.scala.lang.refactoring.util.ScalaNamesUtil
 import org.jetbrains.plugins.scala.lang.resolve.ScalaResolveResult
 
 import scala.annotation.tailrec
@@ -86,7 +84,7 @@ object ScalaInlayParameterHintsProvider {
     }.filter {
       case (_: ScUnderscoreSection, _) => false
       case (argument, _) if !referenceParameterNames.isEnabled => isUnclear(argument)
-      case (extractReferenceName(name), parameter) => name.mismatchesCamelCase(parameter.name)
+      case (ReferenceName(name, Seq()), parameter) => name.mismatchesCamelCase(parameter.name)
       case _ => true
     }.map {
       case (argument, parameter) => InlayInfo(parameter.name, ScalaTokenTypes.tASSIGN, argument)
@@ -147,29 +145,4 @@ object ScalaInlayParameterHintsProvider {
     case ScSugarCallExpr(base, _, _) => isUnclear(base)
     case _ => false
   }
-
-  private[this] object extractReferenceName {
-
-    def unapply(expression: ScExpression): Option[String] = expression match {
-      case MethodRepr(_, maybeExpression, maybeReference, Seq()) =>
-        maybeReference.orElse(maybeExpression).collect {
-          case reference: ScReferenceExpression => reference.refName
-        }
-      case _ => None
-    }
-  }
-
-  private[this] implicit class CamelCaseExt(private val string: String) extends AnyVal {
-
-    def mismatchesCamelCase(that: String): Boolean =
-      camelCaseIterator.zip(that.camelCaseIterator).exists {
-        case (leftSegment, rightSegment) => leftSegment != rightSegment
-      }
-
-    def camelCaseIterator: Iterator[String] = for {
-      name <- ScalaNamesUtil.isBacktickedName(string).iterator
-      segment <- name.split("(?<!^)(?=[A-Z])").reverseIterator
-    } yield segment.toLowerCase
-  }
-
 }

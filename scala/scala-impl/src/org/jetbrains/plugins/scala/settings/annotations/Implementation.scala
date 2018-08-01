@@ -43,11 +43,9 @@ sealed trait Definition extends Implementation {
 
   def parameterList: Option[ScalaPsiElement] = None
 
-  def hasObviousType: Boolean = hasStableType
+  def bodyCandidate: Option[ScExpression] = None
 
   protected def returnCandidates: Iterator[PsiElement] = Iterator.empty
-
-  protected def bodyCandidate: Option[ScExpression] = None
 }
 
 object Definition {
@@ -61,24 +59,24 @@ object Definition {
 
   case class ValueDefinition(value: ScPatternDefinition) extends Definition {
 
+    override def bodyCandidate: Option[ScExpression] =
+      if (value.isSimple) value.expr
+      else super.bodyCandidate
+
     override def parameterList: Option[ScalaPsiElement] =
       if (value.hasExplicitType) super.parameterList
       else Some(value.pList)
-
-    override protected def bodyCandidate: Option[ScExpression] =
-      if (value.isSimple) value.expr
-      else super.bodyCandidate
   }
 
   case class VariableDefinition(variable: ScVariableDefinition) extends Definition {
 
+    override def bodyCandidate: Option[ScExpression] =
+      if (variable.isSimple) variable.expr
+      else super.bodyCandidate
+
     override def parameterList: Option[ScalaPsiElement] =
       if (variable.hasExplicitType) super.parameterList
       else Some(variable.pList)
-
-    override protected def bodyCandidate: Option[ScExpression] =
-      if (variable.isSimple) variable.expr
-      else super.bodyCandidate
   }
 
   case class FunctionDefinition(function: ScFunctionDefinition) extends Definition {
@@ -87,12 +85,12 @@ object Definition {
       if (function.hasExplicitType || function.isConstructor) None
       else Some(function.parameterList)
 
-    override protected def returnCandidates: Iterator[PsiElement] =
-      function.returnUsages.iterator
-
-    override protected def bodyCandidate: Option[ScExpression] =
+    override def bodyCandidate: Option[ScExpression] =
       if (function.hasAssign && !function.isConstructor) function.body
       else super.bodyCandidate
+
+    override protected def returnCandidates: Iterator[PsiElement] =
+      function.returnUsages.iterator
   }
 
 }
