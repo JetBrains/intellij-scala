@@ -35,11 +35,13 @@ class ScalaTypeHintsPass(rootElement: ScalaFile,
     implicit val settings: ScalaCodeInsightSettings = ScalaCodeInsightSettings.getInstance
     val definition = Definition(element)
 
-    if (!settings.showObviousType && definition.hasObviousType) return
-
     for {
+      ReturnType(returnType) <- Some(definition)
+      if settings.showObviousType || !returnType.isObviousFor(definition)
+
       anchor <- definition.parameterList
-      ReturnType(CodeText(text)) <- Some(definition)
+      CodeText(text) <- Some(returnType)
+
       info = InlayInfo(text, ScalaTokenTypes.tCOLON, anchor, relatesToPrecedingText = true)
     } collector.invoke(info.getOffset, info.getText)
   }
@@ -123,4 +125,16 @@ object ScalaTypeHintsPass {
 
   }
 
+  private implicit class ReturnTypeExt(private val returnType: ScType) extends AnyVal {
+
+    def isObviousFor(definition: Definition): Boolean =
+      definition.hasStableType ||
+        definition.bodyCandidate
+          .zip(returnType.extractClass)
+          .exists {
+            case (ReferenceName(name, _), clazz) =>
+              !name.mismatchesCamelCase(clazz.name)
+            case _ => false
+          }
+  }
 }
