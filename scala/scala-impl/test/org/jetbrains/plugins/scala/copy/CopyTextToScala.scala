@@ -140,7 +140,7 @@ class CopyTextToScala extends CopyTestBase() {
       """
         |class Test {
         |    <selection>public static void main(String[] args) {
-        |        System.out.println("hello")
+        |        System.out.println("hello");
         |        System.out.println(" how are you?"); </selection>
         |}
       """.stripMargin
