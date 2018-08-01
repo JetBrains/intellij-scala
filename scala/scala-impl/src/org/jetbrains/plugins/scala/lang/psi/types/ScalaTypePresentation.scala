@@ -199,12 +199,10 @@ trait ScalaTypePresentation extends api.TypePresentation {
 
           val (placeholders, namedWildcards) = wildcards.partition(mayBePlaceholder)
 
-          val typeArgsText = typeArgs.map {
+          val prefix = parameterizedTypeText(quant) {
             case arg: ScExistentialArgument  => if (placeholders.contains(arg)) placeholder(arg) else arg.name
             case t                           => innerTypeText(t, needDotType = true, checkWildcard)
-          }.commaSeparated(model = Model.SquareBrackets)
-
-          val prefix = s"${innerTypeText(des)}$typeArgsText"
+          }
 
           if (namedWildcards.isEmpty) prefix
           else s"($prefix)${namedExistentials(namedWildcards)}"
@@ -212,7 +210,7 @@ trait ScalaTypePresentation extends api.TypePresentation {
           s"(${innerTypeText(ex.quantified)})${namedExistentials(ex.wildcards)}"
       }
     }
-    
+
     object InfixDesignator {
       private[this] val showAsInfixAnnotation: String = "scala.annotation.showAsInfix"
 
@@ -236,13 +234,27 @@ trait ScalaTypePresentation extends api.TypePresentation {
       }
     }
 
-    object CanBeInfixType {
-      def unapply(tpe: ScType): Option[(String, ScType, ScType, Int)] = tpe match {
-        case ParameterizedType(InfixDesignator(text), Seq(lhs, rhs)) =>
-          val assoc = InfixExpr.associate(text)
-          Option((text, lhs, rhs, assoc))
-        case _ => None
+    def parameterizedTypeText(p: ParameterizedType)(printArgsFun: ScType => String): String = p match {
+      case ParameterizedType(InfixDesignator(op), Seq(left, right)) =>
+        infixTypeText(op, left, right, printArgsFun(_))
+      case ParameterizedType(des, typeArgs) =>
+        innerTypeText(des) + typeArgs.map(printArgsFun(_)).commaSeparated(model = Model.SquareBrackets)
+    }
+
+    def infixTypeText(op: String, left: ScType, right: ScType, printArgsFun: ScType => String): String = {
+      val assoc = InfixExpr.associate(op)
+
+      def componentText(`type`: ScType, requiredAssoc: Int) = {
+        val needParenthesis = `type` match {
+          case ParameterizedType(InfixDesignator(newOp), _) =>
+            assoc != InfixExpr.associate(newOp) || assoc == requiredAssoc
+          case _ => false
+        }
+
+        printArgsFun(`type`).parenthesize(needParenthesis)
       }
+
+      s"${componentText(left, -1)} $op ${componentText(right, 1)}"
     }
 
     def innerTypeText(t: ScType,
@@ -278,20 +290,7 @@ trait ScalaTypePresentation extends api.TypePresentation {
         nameFun(element) + typeTail(flag && needDotType)
       case proj: ScProjectionType if proj != null =>
         projectionTypeText(proj, needDotType)
-      case CanBeInfixType(op, lhs, rhs, assoc) =>
-        def componentText(`type`: ScType, requiredAssoc: Int) = {
-          val needParenthesis = `type` match {
-            case CanBeInfixType(_, _, _, newAssoc) =>
-              assoc != newAssoc || assoc == requiredAssoc
-            case _ => false
-          }
-
-          innerTypeText(`type`).parenthesize(needParenthesis)
-        }
-
-        s"${componentText(lhs, -1)} $op ${componentText(rhs, 1)}"
-      case ParameterizedType(des, typeArgs) =>
-        innerTypeText(des) + typeArgs.map(innerTypeText(_, checkWildcard = true)).commaSeparated(model = Model.SquareBrackets)
+      case p: ParameterizedType => parameterizedTypeText(p)(innerTypeText(_, checkWildcard = true))
       case JavaArrayType(argument) => s"Array[${innerTypeText(argument)}]"
       case UndefinedType(tpt, _) => "NotInfered" + tpt.name
       case c: ScCompoundType if c != null =>
