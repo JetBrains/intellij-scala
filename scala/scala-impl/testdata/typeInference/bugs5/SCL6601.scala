@@ -24,4 +24,4 @@ object SCL6601 {
     arg.tail.tail.tail.tail.head
   }
 }
-//SCL6601.::[_, SCL6601.::[_, SCL6601.::[_, SCL6601.::[_, SCL6601.::[T, SCL6601.IList]]]]]
+//_ :: _ :: _ :: _ :: T :: SCL6601.IList
