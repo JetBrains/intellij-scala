@@ -79,15 +79,18 @@ object ScalaInlayParameterHintsProvider {
       case (_, parameter) => parameter.isRepeated
     }
 
-    (regular ++ varargs.headOption).filter {
-      case (argument, parameter) => isNameable(argument) && isNameable(parameter)
+    (regular ++ varargs.headOption).collect {
+      case (argument, parameter) if isNameable(argument) => (argument, parameter.name)
     }.filter {
       case (_: ScUnderscoreSection, _) => false
+      case (_, name) if name.length <= 1 => false
       case (argument, _) if !referenceParameterNames.isEnabled => isUnclear(argument)
-      case (ReferenceName(name, Seq()), parameter) => name.mismatchesCamelCase(parameter.name)
+      case (ReferenceName(name, Seq()), parameterName) => name.mismatchesCamelCase(parameterName)
       case _ => true
     }.map {
-      case (argument, parameter) => InlayInfo(parameter.name, ScalaTokenTypes.tASSIGN, argument)
+      case (argument, name) =>
+        val offset = argument.getTextRange.getStartOffset
+        new hints.InlayInfo(s"$name ${ScalaTokenTypes.tASSIGN}", offset)
     }
   }
 
@@ -134,9 +137,6 @@ object ScalaInlayParameterHintsProvider {
       case list: ScArgumentExprList => !list.isBraceArgs
       case _ => false
     }
-
-  private[this] def isNameable(parameter: Parameter) =
-    parameter.name.length > 1
 
   @tailrec
   private[this] def isUnclear(expression: ScExpression): Boolean = expression match {
