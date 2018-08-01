@@ -259,8 +259,8 @@ class ConvertUnderscoreToParameterIntention extends PsiElementBaseIntentionActio
     while (element != null) {
       element match {
         case expression: ScExpression =>
-          if (ScUnderScoreSectionUtil.isUnderscoreFunction(element)) {
-            val underscores = ScUnderScoreSectionUtil.underscores(element)
+          if (ScUnderScoreSectionUtil.isUnderscoreFunction(expression)) {
+            val underscores = ScUnderScoreSectionUtil.underscores(expression)
             val offset = editor.getCaretModel.getOffset
             for (u <- underscores) {
               val range: TextRange = u.getTextRange
