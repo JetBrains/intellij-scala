@@ -166,13 +166,10 @@ object ScalaInlayParameterHintsProvider {
         case (leftSegment, rightSegment) => leftSegment != rightSegment
       }
 
-    def camelCaseIterator: Iterator[String] = ScalaNamesUtil
-      .isBacktickedName
-      .unapply(string)
-      .getOrElse(string)
-      .split("(?<!^)(?=[A-Z])")
-      .reverseIterator
-      .map(_.toLowerCase)
+    def camelCaseIterator: Iterator[String] = for {
+      name <- ScalaNamesUtil.isBacktickedName(string).iterator
+      segment <- name.split("(?<!^)(?=[A-Z])").reverseIterator
+    } yield segment.toLowerCase
   }
 
 }

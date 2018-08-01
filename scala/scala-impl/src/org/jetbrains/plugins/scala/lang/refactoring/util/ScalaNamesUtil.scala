@@ -39,51 +39,51 @@ object ScalaNamesUtil {
     case psiNamed: PsiNamedElement => psiNamed.getName
   }
 
-  def qualifiedName(named: PsiNamedElement): Option[String] = {
+  def qualifiedName(named: PsiNamedElement): Option[String] =
     ScalaPsiUtil.nameContext(named) match {
       case pack: PsiPackage => Some(pack.getQualifiedName)
-      case clazz: PsiClass => Some(clazz.qualifiedName)
-      case memb: PsiMember =>
-        val containingClass = memb.containingClass
-        if (containingClass != null && containingClass.qualifiedName != null && memb.hasModifierProperty(PsiModifier.STATIC)) {
-          Some(Seq(containingClass.qualifiedName, named.name).filter(_ != "").mkString("."))
-        } else None
+      case ClassQualifiedName(qualifiedName) => Some(qualifiedName)
+      case member: PsiMember if !member.hasModifierProperty(PsiModifier.STATIC) => None
+      case ContainingClass(ClassQualifiedName(qualifiedName)) if qualifiedName.nonEmpty =>
+        val result = named.name match {
+          case null | "" => qualifiedName
+          case name => qualifiedName + "." + name
+        }
+        Some(result)
       case _ => None
     }
-  }
 
   object isBacktickedName {
-    def unapply(name: String): Option[String] = {
-      if (name == null || name.isEmpty) None
-      else if (name != "`" && name.startsWith("`") && name.endsWith("`")) Some(name.substring(1, name.length - 1))
-      else None
+
+    private[this] val BackTick = "`"
+
+    def unapply(name: String): Option[String] = name match {
+      case null | "" | BackTick => None
+      case _ if name.startsWith(BackTick) && name.endsWith(BackTick) =>
+        Some(name.substring(1, name.length - 1))
+      case _ => None
     }
+
+    def apply(name: String): Option[String] =
+      isBacktickedName.unapply(name).orElse {
+        Option(name)
+      }
   }
 
-  def splitName(name: String): Seq[String] = {
-    if (name == null || name.isEmpty) Seq.empty
-    else if (name.contains(".")) name.split("\\.")
-    else Seq(name)
+  def splitName(name: String): Seq[String] = name match {
+    case null | "" => Seq.empty
+    case _ if name.contains(".") => name.split("\\.")
+    case _ => Seq(name)
   }
 
-  def toJavaName(name: String): String = {
-    val toEncode = name match {
-      case ScalaNamesUtil.isBacktickedName(s) => s
-      case _ => name
-    }
-    Option(toEncode).map(NameTransformer.encode).orNull
-  }
+  def toJavaName(name: String): String =
+    withTransformation(name)(NameTransformer.encode)
 
-  def clean(name: String): String = {
-    val toDecode = name match {
-      case ScalaNamesUtil.isBacktickedName(s) => s
-      case _ => name
-    }
-    Option(toDecode).map(NameTransformer.decode).orNull
-  }
+  def clean(name: String): String =
+    withTransformation(name)(NameTransformer.decode)
 
   def cleanFqn(fqn: String): String =
-    splitName(fqn).map(clean).mkString(".")
+    fqnWithTransformation(fqn)(clean)
 
   def equivalentFqn(l: String, r: String): Boolean =
     l == r || cleanFqn(l) == cleanFqn(r)
@@ -92,7 +92,7 @@ object ScalaNamesUtil {
     l == r || clean(l) == clean(r)
 
   def escapeKeywordsFqn(fqn: String): String =
-    splitName(fqn).map(escapeKeyword).mkString(".")
+    fqnWithTransformation(fqn)(escapeKeyword)
 
   def escapeKeyword(s: String): String =
     if (isKeyword(s)) s"`$s`" else s
@@ -103,6 +103,18 @@ object ScalaNamesUtil {
     !exclude.exists(excl => fitToPattern(excl.stripPrefix(EXCLUDE_PREFIX), qualName, strict)) &&
       include.exists(fitToPattern(_, qualName, strict))
   }
+
+  private def withTransformation(name: String)
+                                (transformation: String => String) =
+    isBacktickedName(name)
+      .map(transformation)
+      .orNull
+
+  private def fqnWithTransformation(fqn: String)
+                                   (transformation: String => String) =
+    splitName(fqn)
+      .map(transformation)
+      .mkString(".")
 
   private def fitToPattern(pattern: String, qualName: String, strict: Boolean): Boolean = {
 

@@ -140,24 +140,23 @@ trait ScImportsHolder extends ScalaPsiElement {
     addImportForPath(clazz.qualifiedName, ref)
   }
 
-  def addImportForPsiNamedElement(elem: PsiNamedElement, ref: PsiElement, cClass: Option[PsiClass] = None) {
-    def needImport = ref match {
+  def addImportForPsiNamedElement(named: PsiNamedElement,
+                                  reference: PsiElement,
+                                  maybeClass: Option[PsiClass] = None): Unit = {
+    val needImport = reference match {
       case null => true
-      case ref: ScReferenceElement => ref.isValid && !ref.isReferenceTo(elem)
+      case ref: ScReferenceElement if ref.isValid => !ref.isReferenceTo(named)
       case _ => false
     }
+
     if (needImport) {
-      cClass match {
-        case Some(clazz) =>
-          val qualName = clazz.qualifiedName
-          if (qualName != null) {
-            addImportForPath(qualName + "." + elem.name, ref)
-          }
-        case _ =>
-          val qualName = ScalaNamesUtil.qualifiedName(elem).orNull
-          if (qualName != null) {
-            addImportForPath(qualName, ref)
-          }
+      val maybeQualifiedName = maybeClass match {
+        case Some(clazz) => Option(clazz.qualifiedName).map(_ + "." + named.name)
+        case _ => ScalaNamesUtil.qualifiedName(named)
+      }
+
+      maybeQualifiedName.foreach {
+        addImportForPath(_, reference)
       }
     }
   }
@@ -235,9 +234,8 @@ trait ScImportsHolder extends ScalaPsiElement {
     }
   }
 
-  def addImportForPath(path: String, ref: PsiElement = null): Unit = {
+  def addImportForPath(path: String, ref: PsiElement = null): Unit =
     addImportsForPaths(Seq(path), ref)
-  }
 
   private def hasValidQualifier(importInfo: ImportInfo, place: PsiElement): Boolean = {
     val ref = createReferenceFromText(importInfo.prefixQualifier, this, place)
