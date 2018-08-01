@@ -175,8 +175,6 @@ trait ScFunction extends ScalaPsiElement with ScMember with ScTypeParametersOwne
 
   def parameterList: ScParameters = paramClauses // TODO merge
 
-  def isProcedure: Boolean = paramClauses.clauses.isEmpty
-
   protected def returnTypeInner: TypeResult
 
   def declaredType: TypeResult = this.flatMapType(returnTypeElement)
