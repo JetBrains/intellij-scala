@@ -93,14 +93,13 @@ class SbtProcessManager(project: Project) extends AbstractProjectComponent(proje
 
     val debugConnection = if (sbtSettings.shellDebugMode) Option(addDebugParameters(javaParameters)) else None
 
-    val latestSbtVersion = Sbt.LatestVersion
     val projectSbtVersion = detectSbtVersion(workingDir, launcher)
 
     // to use the plugin injection command, we may have to override older sbt versions where possible
     val shouldUpgradeSbtVersion =
       sbtSettings.allowSbtVersionOverride &&
         projectSbtVersion >= Version("1.0.0") &&
-        projectSbtVersion < latestSbtVersion
+        projectSbtVersion < Sbt.LatestVersion
 
     val upgradedSbtVersion =
       if (shouldUpgradeSbtVersion) SbtUtil.latestCompatibleVersion(projectSbtVersion)

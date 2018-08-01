@@ -39,7 +39,7 @@ class SbtRunnerTest extends UsefulTestCase {
 
 
   def testMockLauncherWithoutSbtBootProperties(): Unit = {
-    val expectedVersion = "1.0.0"
+    val expectedVersion = Version("1.0.0")
     val launcherFile = generateMockLauncher(expectedVersion)
     assertTrue(launcherFile.exists())
     val actualVersion = detectSbtVersion(tmpDirFile, launcherFile)
@@ -65,12 +65,12 @@ class SbtRunnerTest extends UsefulTestCase {
   private def getSbtLaunchJarForVersion(sbtVersion: Version): File =
     DependencyManager.resolveSingle("org.scala-sbt" % "sbt-launch" % sbtVersion.presentation).file
 
-  private def generateMockLauncher(implementationVersion: String): File = {
+  private def generateMockLauncher(implementationVersion: Version): File = {
     val manifestContents =
       s"""|Manifest-Version: 1.0
           |Implementation-Vendor: com.example
           |Implementation-Title: launcher
-          |Implementation-Version: $implementationVersion
+          |Implementation-Version: ${implementationVersion.presentation}
           |Main-Class: com.example.Main
       """.stripMargin
     generateJarFileWithEntries("META-INF/MANIFEST.MF" -> manifestContents)
