@@ -690,7 +690,7 @@ object ScalaPsiElementFactory {
     val maybeReturnType = method match {
       case function: ScFunction =>
         function.returnType.toOption.map {
-          (_, function.isProcedure && function.typeParameters.isEmpty && isIdentifier(method.name + tCOLON))
+          (_, function.isParameterless && function.typeParameters.isEmpty && isIdentifier(method.name + tCOLON))
         }
       case _ =>
         Option(method.getReturnType).map { returnType =>
