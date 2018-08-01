@@ -5,12 +5,9 @@ import com.intellij.ide.highlighter.JavaFileType
 import com.intellij.openapi.project.Project
 import com.intellij.psi._
 import org.jetbrains.plugins.scala.debugger.evaluation.ScalaCodeFragment
-import org.jetbrains.plugins.scala.extensions.ObjectExt
+import org.jetbrains.plugins.scala.extensions.{IteratorExt, ObjectExt, PsiElementExt}
 import org.jetbrains.plugins.scala.lang.parser.ErrMsg
 import org.jetbrains.plugins.scala.lang.psi.api.ScalaFile
-
-import scala.collection.mutable
-import scala.collection.JavaConverters._
 
 /**
   * Created by Kate Ustyuzhanina on 12/27/16.
@@ -39,23 +36,18 @@ object PlainTextCopyUtil {
   def isValidJavaFile(text: String, project: Project): Boolean = createJavaFile(text, project).exists(isParsedCorrectly)
 
   def isParsedCorrectly(file: PsiFile): Boolean = {
-    lazy val javaPossibleErrors: mutable.HashSet[String] = mutable.HashSet[String](
-      JavaErrorMessages.message("expected.semicolon"), JavaErrorMessages.message("expected.rbrace"))
+    val errorElements = file.depthFirst().filterByType[PsiErrorElement].toList
 
-    lazy val scalaPossibleErrors: mutable.HashSet[String] = mutable.HashSet[String](
-      ErrMsg("rbrace.expected"), ErrMsg("semi.expected"))
-
-    def handleFile(errors: mutable.HashSet[String]) = {
-      !SyntaxTraverser.psiTraverser(file).traverse.asScala.exists {
-        case err: PsiErrorElement if errors.contains(err.getErrorDescription) => false
-        case _: PsiErrorElement => true
-        case _ => false
+    if (errorElements.isEmpty) true
+    else {
+      val allowedMessages = file match {
+        case _: ScalaFile => scalaAllowedErrors
+        case _            => javaAllowedErrors
       }
-    }
+      val (allowed, notAllowed) =
+        errorElements.partition(err => allowedMessages.contains(err.getErrorDescription))
 
-    file match {
-      case _: ScalaFile => handleFile(scalaPossibleErrors)
-      case _ => handleFile(javaPossibleErrors)
+      notAllowed.isEmpty && allowed.size <= 1
     }
   }
 
@@ -63,4 +55,12 @@ object PlainTextCopyUtil {
 
   def createJavaFile(text: String, project: Project): Option[PsiJavaFile] =
     PsiFileFactory.getInstance(project).createFileFromText("Dummy.java", JavaFileType.INSTANCE, text).asOptionOf[PsiJavaFile]
+
+  private val javaAllowedErrors: Set[String] = Set (
+    JavaErrorMessages.message("expected.semicolon"), JavaErrorMessages.message("expected.rbrace")
+  )
+
+  private val scalaAllowedErrors: Set[String] = Set (
+    ErrMsg("rbrace.expected"), ErrMsg("semi.expected")
+  )
 }
