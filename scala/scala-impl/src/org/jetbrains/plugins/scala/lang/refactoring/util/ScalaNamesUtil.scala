@@ -19,17 +19,18 @@ import scala.reflect.NameTransformer
   */
 object ScalaNamesUtil {
 
-  def isOpCharacter(c: Char): Boolean = {
-    c match {
-      case '~' | '!' | '@' | '#' | '%' | '^' | '*' | '+' | '-' | '<' | '>' | '?' | ':' | '=' | '&' | '|' | '/' | '\\' =>
-        true
-      case ch =>
-        Character.getType(ch) == Character.MATH_SYMBOL.toInt || Character.getType(ch) == Character.OTHER_SYMBOL.toInt
-    }
+  def isOpCharacter(character: Char): Boolean = character match {
+    case '~' | '!' | '@' | '#' | '%' | '^' | '*' | '+' | '-' | '<' | '>' | '?' | ':' | '=' | '&' | '|' | '/' | '\\' => true
+    case _ =>
+      import Character._
+      getType(character) match {
+        case MATH_SYMBOL | OTHER_SYMBOL => true
+        case _ => false
+      }
   }
 
   def isQualifiedName(text: String): Boolean =
-    !isEmpty(text) && text.split('.').forall(isIdentifier(_))
+    !isEmpty(text) && text.split('.').forall(isIdentifier)
 
   def isOperatorName(text: String): Boolean = isIdentifier(text) && isOpCharacter(text(0))
 
@@ -48,13 +49,6 @@ object ScalaNamesUtil {
           Some(Seq(containingClass.qualifiedName, named.name).filter(_ != "").mkString("."))
         } else None
       case _ => None
-    }
-  }
-
-  object isBackticked {
-    def unapply(named: ScNamedElement): Option[String] = {
-      val name = named.name
-      isBacktickedName.unapply(name)
     }
   }
 
