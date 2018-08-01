@@ -215,18 +215,24 @@ trait ScalaTypePresentation extends api.TypePresentation {
     
     object InfixDesignator {
       private[this] val showAsInfixAnnotation: String = "scala.annotation.showAsInfix"
-      
+
+      private def mayUseSimpleName(named: PsiNamedElement): Boolean = {
+        val simpleName = named.name
+        simpleName == nameFun(named) || context.nameResolvesTo(simpleName, named)
+      }
+
+      private def annotated(named: PsiNamedElement) = named match {
+        case c: PsiClass => c.getAnnotations.map(_.getQualifiedName).contains(showAsInfixAnnotation)
+        case _           => false
+      }
+
+      private def hasOperatorName(named: PsiNamedElement): Boolean = ScalaNamesUtil.isOperatorName(named.name)
+
       def unapply(des: ScType): Option[String] = {
-        val aClass      = des.extractClass
-        val annotations = aClass.toSeq.flatMap(_.getAnnotations)
-        val text        = innerTypeText(des)
-        val isQualified = text.contains(".")
-        
-        val isInfix = !isQualified &&
-          (annotations.exists(_.getQualifiedName == showAsInfixAnnotation) ||
-            ScalaNamesUtil.isOperatorName(text))
-        
-        if (isInfix) Some(text) else None
+        des.extractDesignated(expandAliases = true)
+          .filter(mayUseSimpleName)
+          .filter(named => annotated(named) || hasOperatorName(named))
+          .map(_.name)
       }
     }
 
