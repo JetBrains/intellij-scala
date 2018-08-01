@@ -63,7 +63,7 @@ class ScalaPsiBuilderImpl(builder: PsiBuilder)
     newlinesEnabled.pop()
   }
 
-  override def isTrailingCommasEnabled: Boolean = scalaVersion.exists(_ >= Version("2.12.2"))
+  override def isTrailingCommasEnabled: Boolean = !scalaVersion.exists(_ < Version("2.12.2"))
 
   override def isIdBindingEnabled: Boolean = scalaVersion.exists(_ >= Version("2.12"))
 
