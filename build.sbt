@@ -237,7 +237,7 @@ lazy val sbtRuntimeDependencies =
       },
       packageFileMappings += target.value / "repo" -> "repo/" )
 
-//lazy val ideaRunner = createRunnerProject(scalaCommunity, "idea-runner")
+lazy val ideaRunner = createRunnerProject(scalaCommunity, "idea-runner")
 
 //lazy val jmhBenchmarks =
 //  newProject("benchmarks", file("scala/benchmarks"))
