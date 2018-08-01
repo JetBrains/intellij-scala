@@ -14,7 +14,7 @@ package object implicits {
 
   implicit class Model(val model: InlayModel) extends AnyVal {
     def inlaysIn(range: TextRange): Seq[Inlay] =
-      model.getInlineElementsInRange(range.getStartOffset + 1, range.getEndOffset - 1)
+      model.getInlineElementsInRange(range.getStartOffset, range.getEndOffset)
         .asScala
         .filter(ScalaImplicitHintKey.isIn)
 
