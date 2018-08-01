@@ -5,7 +5,7 @@ package hints
 import java.lang.{Boolean => JBoolean}
 
 import com.intellij.codeInsight.daemon.impl.HintRenderer
-import com.intellij.codeInsight.hints.{ElementProcessingHintPass, ModificationStampHolder}
+import com.intellij.codeInsight.hints.{ElementProcessingHintPass, InlayInfo, ModificationStampHolder}
 import com.intellij.openapi.editor.Editor
 import com.intellij.openapi.util.Key
 import com.intellij.openapi.vfs.VirtualFile
@@ -37,12 +37,9 @@ class ScalaTypeHintsPass(rootElement: ScalaFile,
 
     for {
       ReturnType(returnType) <- Some(definition)
-      if settings.showObviousType || !returnType.isObviousFor(definition)
+      if settings.showObviousType || !isObviousFor(returnType, definition)
 
-      anchor <- definition.parameterList
-      CodeText(text) <- Some(returnType)
-
-      info = InlayInfo(text, ScalaTokenTypes.tCOLON, anchor, relatesToPrecedingText = true)
+      info <- createInlayInfo(definition, returnType)
     } collector.invoke(info.getOffset, info.getText)
   }
 
@@ -55,20 +52,20 @@ class ScalaTypeHintsPass(rootElement: ScalaFile,
 
 object ScalaTypeHintsPass {
 
+  import Definition._
+
   private val ScalaTypeInlayKey = Key.create[JBoolean]("SCALA_TYPE_INLAY_KEY")
 
   private object ReturnType {
 
     def unapply(definition: Definition)
-               (implicit settings: ScalaCodeInsightSettings): Option[ScType] = {
-      import Definition._
+               (implicit settings: ScalaCodeInsightSettings): Option[ScType] =
       definition match {
         case ValueDefinition(value) => unapply(value)
         case VariableDefinition(variable) => unapply(variable)
         case FunctionDefinition(function) => unapply(function)
         case _ => None
       }
-    }
 
     private def unapply(member: ScValueOrVariable)
                        (implicit settings: ScalaCodeInsightSettings) = {
@@ -82,7 +79,37 @@ object ScalaTypeHintsPass {
       else None
   }
 
-  private object CodeText {
+  private def isObviousFor(returnType: ScType, definition: Definition): Boolean =
+    definition.hasStableType ||
+      definition.bodyCandidate
+        .zip(returnType.extractClass)
+        .exists {
+          case (ReferenceName(name, _), clazz) =>
+            !name.mismatchesCamelCase(clazz.name)
+          case _ => false
+        }
+
+  private def createInlayInfo(definition: Definition, returnType: ScType)
+                             (implicit settings: ScalaCodeInsightSettings) = {
+    import ScalaTokenTypes._
+    for {
+      anchor <- definition.parameterList
+      offset = anchor.getTextRange.getEndOffset
+
+      CodeText(codeText) <- Some(returnType)
+      infix = s"$tCOLON $codeText"
+
+      text = definition match {
+        case FunctionDefinition(function) if function.hasUnitResultType =>
+          val prefix = if (function.isParameterless) s"$tLPARENTHESIS$tRPARENTHESIS" else ""
+          val suffix = if (function.hasAssign) "" else " " + tASSIGN
+          s"$prefix$infix$suffix"
+        case _ => infix
+      }
+    } yield new InlayInfo(text, offset, false, true, true)
+  }
+
+  private[this] object CodeText {
 
     def unapply(`type`: ScType)
                (implicit settings: ScalaCodeInsightSettings): Option[String] =
@@ -125,16 +152,4 @@ object ScalaTypeHintsPass {
 
   }
 
-  private implicit class ReturnTypeExt(private val returnType: ScType) extends AnyVal {
-
-    def isObviousFor(definition: Definition): Boolean =
-      definition.hasStableType ||
-        definition.bodyCandidate
-          .zip(returnType.extractClass)
-          .exists {
-            case (ReferenceName(name, _), clazz) =>
-              !name.mismatchesCamelCase(clazz.name)
-            case _ => false
-          }
-  }
 }
