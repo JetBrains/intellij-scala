@@ -3,6 +3,7 @@ package codeInsight
 package intention
 package types
 
+import com.intellij.testFramework.EditorTestUtil
 import org.jetbrains.plugins.scala.codeInsight.intentions.ScalaIntentionTestBase
 
 /**
@@ -11,22 +12,18 @@ import org.jetbrains.plugins.scala.codeInsight.intentions.ScalaIntentionTestBase
   */
 class AddUnitTypeAnnotationIntentionTest extends ScalaIntentionTestBase {
 
-  override def familyName: String = AddUnitTypeAnnotationIntention.familyName
+  import EditorTestUtil.{CARET_TAG => CARET}
 
-  def test() {
-    val text =
-      """
-        |class NameParameters {
-        |  def doSomethin<caret>g(flag: Boolean) {}
-        |}
-      """
-    val resultText =
-      """
-        |class NameParameters {
-        |  def doSomethin<caret>g(flag: Boolean): Unit = {}
-        |}
-      """
+  override def familyName: String = AddUnitTypeAnnotationIntention.FamilyName
 
-    doTest(text, resultText)
-  }
+  def test(): Unit = doTest(
+    text =
+      s"""class NameParameters {
+         |  def doSomethin${CARET}g(flag: Boolean) {}
+         |}""",
+    resultText =
+      s"""class NameParameters {
+         |  def doSomethin${CARET}g(flag: Boolean): Unit = {}
+         |}"""
+  )
 }
