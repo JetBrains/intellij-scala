@@ -90,12 +90,6 @@ trait ScFunction extends ScalaPsiElement with ScMember with ScTypeParametersOwne
     paramClauses.addClause(clause)
   }
 
-  def removeAllClauses() {
-    paramClauses.clauses.headOption.zip(paramClauses.clauses.lastOption).foreach { p =>
-      paramClauses.deleteChildRange(p._1, p._2)
-    }
-  }
-
   def isNative: Boolean = hasAnnotation("scala.native")
 
   // TODO Should be unified, see ScModifierListOwner
