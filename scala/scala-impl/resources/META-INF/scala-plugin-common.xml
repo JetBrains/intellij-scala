@@ -1097,23 +1097,48 @@
                          displayName="Empty-paren method accessed as parameterless" groupPath="Scala" groupName="Method signature"
                          shortName="EmptyParenMethodAccessedAsParameterless" level="WARNING"
                          enabledByDefault="true" language="Scala"/>
-        <localInspection implementationClass="org.jetbrains.plugins.scala.codeInspection.methodSignature.UnitMethodDeclaredWithTypeAnnotationInspection"
-                         displayName="Redundant Unit result type annotation" groupPath="Scala" groupName="Method signature"
-                         shortName="UnitMethodDeclaredWithTypeAnnotation" level="WARNING"
-                         enabledByDefault="false" language="Scala"/>
-        <localInspection implementationClass="org.jetbrains.plugins.scala.codeInspection.methodSignature.UnitMethodDefinedLikeFunctionInspection"
-                         displayName="Method with Unit result type defined like function" groupPath="Scala" groupName="Method signature"
-                         shortName="UnitMethodDefinedLikeFunction" level="WARNING"
-                         enabledByDefault="false" language="Scala"/>
-        <localInspection implementationClass="org.jetbrains.plugins.scala.codeInspection.methodSignature.UnitMethodDefinedWithEqualsSignInspection"
-                         displayName="Method with Unit result type defined with equals sign" groupPath="Scala" groupName="Method signature"
-                         shortName="UnitMethodDefinedWithEqualsSign" level="WARNING"
-                         enabledByDefault="false" language="Scala"/>
-        <localInspection implementationClass="org.jetbrains.plugins.scala.codeInspection.methodSignature.UnitMethodIsParameterlessInspection"
-                         displayName="Method with Unit result type is parameterless" groupPath="Scala" groupName="Method signature"
-                         shortName="UnitMethodIsParameterless" level="WARNING"
-                         enabledByDefault="true" language="Scala"/>
-        <localInspection implementationClass="org.jetbrains.plugins.scala.codeInspection.methodSignature.JavaAccessorMethodCalledAsEmptyParenInspection"
+        <localInspection
+                implementationClass="org.jetbrains.plugins.scala.codeInspection.methodSignature.UnitMethodInspection$ExplicitType"
+                bundle="org.jetbrains.plugins.scala.codeInspection.InspectionBundle"
+                key="method.signature.unit.explicit.type"
+                groupPath="Scala" groupName="Method signature"
+                shortName="UnitMethodDeclaredWithTypeAnnotation"
+                language="Scala" level="WARNING"
+                enabledByDefault="false"/>
+        <localInspection
+                implementationClass="org.jetbrains.plugins.scala.codeInspection.methodSignature.UnitMethodInspection$FunctionDefinition"
+                bundle="org.jetbrains.plugins.scala.codeInspection.InspectionBundle"
+                key="method.signature.unit.functional.definition"
+                groupPath="Scala" groupName="Method signature"
+                shortName="UnitMethodDefinedLikeFunction"
+                language="Scala" level="WARNING"
+                enabledByDefault="false"/>
+        <localInspection
+                implementationClass="org.jetbrains.plugins.scala.codeInspection.methodSignature.UnitMethodInspection$ExplicitAssignment"
+                bundle="org.jetbrains.plugins.scala.codeInspection.InspectionBundle"
+                key="method.signature.unit.explicit.assignment"
+                groupPath="Scala" groupName="Method signature"
+                shortName="UnitMethodDefinedWithEqualsSign"
+                language="Scala" level="WARNING"
+                enabledByDefault="false"/>
+        <localInspection
+                implementationClass="org.jetbrains.plugins.scala.codeInspection.methodSignature.UnitMethodInspection$Parameterless"
+                bundle="org.jetbrains.plugins.scala.codeInspection.InspectionBundle"
+                key="method.signature.unit.parameterless"
+                groupPath="Scala" groupName="Method signature"
+                shortName="UnitMethodIsParameterless"
+                language="Scala" level="WARNING"
+                enabledByDefault="true"/>
+      <localInspection
+              implementationClass="org.jetbrains.plugins.scala.codeInspection.methodSignature.UnitMethodInspection$ProceduralDefinition"
+              bundle="org.jetbrains.plugins.scala.codeInspection.InspectionBundle"
+              key="method.signature.unit.procedural.definition"
+              groupPath="Scala" groupName="Method signature"
+              shortName="UnitMethodDefinedLikeProcedure"
+              level="WARNING"
+              enabledByDefault="false" language="Scala"/>
+      <localInspection
+              implementationClass="org.jetbrains.plugins.scala.codeInspection.methodSignature.JavaAccessorMethodCalledAsEmptyParenInspection"
                          displayName="Java accessor method called as empty-paren" groupPath="Scala" groupName="Method signature"
                          shortName="JavaAccessorMethodCalledAsEmptyParen" level="WARNING"
                          enabledByDefault="true" language="Scala"/>
@@ -1125,10 +1150,6 @@
                          displayName="Apparent refinement of result type; are you missing an '=' sign?" groupPath="Scala" groupName="Method signature"
                          shortName="ApparentRefinementOfResultType" level="WARNING"
                          enabledByDefault="true" language="Scala"/>
-        <localInspection implementationClass="org.jetbrains.plugins.scala.codeInspection.methodSignature.UnitMethodDefinedLikeProcedureInspection"
-                         displayName="Method with Unit result type is defined like procedure" groupPath="Scala" groupName="Method signature"
-                         shortName="UnitMethodDefinedLikeProcedure" level="WARNING"
-                         enabledByDefault="false" language="Scala"/>
         <localInspection
                 implementationClass="org.jetbrains.plugins.scala.codeInspection.methodSignature.DeclarationHasNoExplicitTypeInspection"
                 displayName="Method declaration has no explicit return type" groupPath="Scala"
