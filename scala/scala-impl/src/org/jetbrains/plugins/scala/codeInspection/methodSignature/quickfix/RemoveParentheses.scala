@@ -1,16 +1,25 @@
-package org.jetbrains.plugins.scala.codeInspection.methodSignature.quickfix
+package org.jetbrains.plugins.scala
+package codeInspection
+package methodSignature
+package quickfix
 
 import com.intellij.openapi.project.Project
-import org.jetbrains.plugins.scala.codeInspection.AbstractFixOnPsiElement
 import org.jetbrains.plugins.scala.lang.psi.api.statements.ScFunction
 
 /**
- * Pavel Fatin
- */
-class RemoveParentheses(f: ScFunction) extends AbstractFixOnPsiElement("Remove redundant parentheses", f) {
+  * Pavel Fatin
+  */
+final class RemoveParentheses(function: ScFunction)
+  extends AbstractFixOnPsiElement(InspectionBundle.message("redundant.parentheses"), function) {
 
-  override protected def doApplyFix(element: ScFunction)
+  override protected def doApplyFix(function: ScFunction)
                                    (implicit project: Project): Unit = {
-    element.removeAllClauses()
+    val paramClauses = function.paramClauses
+    val clauses = paramClauses.clauses
+
+    for {
+      from <- clauses.headOption
+      to <- clauses.lastOption
+    } paramClauses.deleteChildRange(from, to)
   }
 }
