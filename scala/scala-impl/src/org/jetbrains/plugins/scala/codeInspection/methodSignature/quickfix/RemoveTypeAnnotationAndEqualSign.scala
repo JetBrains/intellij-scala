@@ -11,7 +11,7 @@ class RemoveTypeAnnotationAndEqualSign(f: ScFunctionDefinition) extends Abstract
 
   override protected def doApplyFix(funDef: ScFunctionDefinition)
                                    (implicit project: Project): Unit = {
-    funDef.removeExplicitType()
-    funDef.removeAssignment()
+    removeTypeElement(funDef)
+    removeAssignment(funDef)
   }
 }

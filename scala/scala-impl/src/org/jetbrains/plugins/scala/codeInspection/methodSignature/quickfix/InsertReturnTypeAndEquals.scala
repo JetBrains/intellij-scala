@@ -17,8 +17,8 @@ class InsertReturnTypeAndEquals(functionDef: ScFunctionDefinition)
 
   override protected def doApplyFix(funDef: ScFunctionDefinition)
                                    (implicit project: Project): Unit = {
-    funDef.removeAssignment()
-    funDef.removeExplicitType()
+    removeAssignment(funDef)
+    removeTypeElement(funDef)
 
     val fakeDecl = createDeclaration("x", "Unit", isVariable = false, null)
     val colon = fakeDecl.findFirstChildByType(ScalaTokenTypes.tCOLON)

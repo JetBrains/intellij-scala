@@ -12,6 +12,6 @@ class RemoveTypeAnnotation(f: ScFunctionDeclaration) extends AbstractFixOnPsiEle
 
   override protected def doApplyFix(element: ScFunctionDeclaration)
                                    (implicit project: Project): Unit = {
-    element.removeExplicitType()
+    removeTypeElement(element)
   }
 }

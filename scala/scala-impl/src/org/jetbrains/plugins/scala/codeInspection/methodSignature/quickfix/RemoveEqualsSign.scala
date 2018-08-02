@@ -11,6 +11,6 @@ class RemoveEqualsSign(f: ScFunctionDefinition) extends AbstractFixOnPsiElement(
 
   override protected def doApplyFix(element: ScFunctionDefinition)
                                    (implicit project: Project): Unit = {
-    element.removeAssignment()
+    removeAssignment(element)
   }
 }

@@ -151,14 +151,6 @@ trait ScFunction extends ScalaPsiElement with ScMember with ScTypeParametersOwne
 
   def hasExplicitType: Boolean = returnTypeElement.isDefined
 
-  def removeExplicitType() {
-    val colon = this.children.find(_.getNode.getElementType == ScalaTokenTypes.tCOLON)
-    (colon, returnTypeElement) match {
-      case (Some(first), Some(last)) => deleteChildRange(first, last)
-      case _ =>
-    }
-  }
-
   def paramClauses: ScParameters
 
   def parameterList: ScParameters = paramClauses // TODO merge

@@ -30,8 +30,6 @@ trait ScFunctionDefinition extends ScFunction with ScControlFlowOwner {
 
   def assignment: Option[PsiElement]
 
-  def removeAssignment()
-
   def returnUsages: Set[ScExpression] = innerReturnUsages(calculateReturns)
 
   def canBeTailRecursive: Boolean = getParent match {
