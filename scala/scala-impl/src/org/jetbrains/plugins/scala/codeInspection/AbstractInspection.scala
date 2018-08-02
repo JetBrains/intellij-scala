@@ -7,8 +7,12 @@ import com.intellij.psi.{PsiElement, PsiElementVisitor}
 /**
   * Pavel Fatin
   */
-abstract class AbstractInspection protected(override final val getDisplayName: String = AbstractInspection.formatName(getClass.getSimpleName))
+abstract class AbstractInspection protected(displayName: String = AbstractInspection.formatName(getClass))
   extends LocalInspectionTool {
+
+  override def getDisplayName: String = displayName
+
+  protected final def defaultDisplayName: String = super.getDisplayName
 
   /**
     * use [[org.jetbrains.plugins.scala.codeInspection.AbstractInspection#problemDescriptor]] instead
@@ -59,8 +63,8 @@ object AbstractInspection {
   private[this] val CapitalLetterPattern = "(?<!=.)\\p{Lu}".r
   private[this] val InspectionSuffix = "Inspection"
 
-  private def formatName(simpleName: String): String = {
-    val id = simpleName.stripSuffix(InspectionSuffix)
+  private def formatName(clazz: Class[_]): String = {
+    val id = clazz.getSimpleName.stripSuffix(InspectionSuffix)
     CapitalLetterPattern.replaceAllIn(id, it => s" ${it.group(0).toLowerCase}")
   }
 }
