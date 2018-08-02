@@ -1,20 +1,18 @@
-package org.jetbrains.plugins.scala.codeInspection.methodSignature
+package org.jetbrains.plugins.scala
+package codeInspection
+package methodSignature
 
-import com.intellij.codeInspection._
+import com.intellij.codeInspection.ProblemsHolder
 import com.intellij.psi.{PsiElement, PsiMethod}
-import org.jetbrains.plugins.scala.codeInspection.methodSignature.quickfix.AddCallParentheses
 import org.jetbrains.plugins.scala.extensions._
 import org.jetbrains.plugins.scala.lang.psi.api.expr._
 import org.jetbrains.plugins.scala.lang.psi.types.api.FunctionType
-import org.jetbrains.plugins.scala.lang.psi.types.result._
 import org.jetbrains.plugins.scala.lang.psi.{ScalaPsiElement, ScalaPsiUtil}
 
 /**
  * Pavel Fatin
  */
-
-class JavaMutatorMethodAccessedAsParameterlessInspection extends AbstractMethodSignatureInspection(
-  "ScalaJavaMutatorMethodAccessedAsParameterless", "Java mutator method accessed as parameterless") {
+final class JavaMutatorMethodAccessedAsParameterlessInspection extends AbstractInspection("Java mutator method accessed as parameterless") {
 
   override def actionFor(implicit holder: ProblemsHolder): PartialFunction[PsiElement, Unit] = {
     case e: ScReferenceExpression if !e.getParent.isInstanceOf[ScMethodCall] &&
@@ -27,11 +25,11 @@ class JavaMutatorMethodAccessedAsParameterlessInspection extends AbstractMethodS
             case gen: ScGenericCall =>
               ScalaPsiUtil.findCall(gen) match {
                 case None =>
-                  holder.registerProblem(e.nameId, getDisplayName, new AddCallParentheses(gen))
+                  holder.registerProblem(e.nameId, getDisplayName, new quickfix.AddCallParentheses(gen))
                 case Some(_) =>
               }
             case _ =>
-              holder.registerProblem(e.nameId, getDisplayName, new AddCallParentheses(e))
+              holder.registerProblem(e.nameId, getDisplayName, new quickfix.AddCallParentheses(e))
           }
         case _ =>
     }
