@@ -1,13 +1,16 @@
-package org.jetbrains.plugins.scala.codeInsight.intention.types
+package org.jetbrains.plugins.scala
+package codeInsight
+package intention
+package types
 
 import com.intellij.codeInsight.intention.PsiElementBaseIntentionAction
 import com.intellij.openapi.editor.Editor
 import com.intellij.openapi.project.Project
 import com.intellij.psi.PsiElement
-import org.jetbrains.plugins.scala.ScalaBundle
-import org.jetbrains.plugins.scala.codeInspection.methodSignature.quickfix.InsertReturnTypeAndEquals
+import org.jetbrains.plugins.scala.codeInspection.methodSignature.quickfix
 import org.jetbrains.plugins.scala.extensions.{IteratorExt, PsiElementExt}
 import org.jetbrains.plugins.scala.lang.psi.api.statements.ScFunctionDefinition
+import org.jetbrains.plugins.scala.project.ProjectContext
 import org.jetbrains.plugins.scala.util.IntentionAvailabilityChecker
 
 /**
@@ -17,13 +20,19 @@ import org.jetbrains.plugins.scala.util.IntentionAvailabilityChecker
 class AddUnitTypeAnnotationIntention extends PsiElementBaseIntentionAction {
   override def invoke(project: Project, editor: Editor, element: PsiElement): Unit = {
     if (!isAvailable(project, editor, element)) return
+
+    import quickfix._
+    implicit val context: ProjectContext = project
+
     for {
-      function <- element.parentsInFile.findByType[ScFunctionDefinition]
-      if !function.hasAssign
-      body <- function.body
+      definition <- element.parentsInFile.findByType[ScFunctionDefinition]
+      if !definition.hasAssign
+      body <- definition.body
       if !body.isAncestorOf(element)
     } {
-      new InsertReturnTypeAndEquals(function).invoke(project, element.getContainingFile, null, null)
+      removeAssignment(definition)
+      removeTypeElement(definition)
+      addUnitTypeElement(definition)
     }
   }
 
