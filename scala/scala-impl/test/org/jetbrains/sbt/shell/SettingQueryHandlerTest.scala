@@ -2,7 +2,7 @@ package org.jetbrains.sbt.shell
 
 import java.util.concurrent.TimeUnit
 
-import org.jetbrains.plugins.scala.SlowTests
+import org.jetbrains.plugins.scala.PerfCycleTests
 import org.junit.experimental.categories.Category
 
 import scala.concurrent.Await
@@ -12,7 +12,7 @@ import scala.concurrent.duration.Duration
 /**
   * Created by Roman.Shein on 27.03.2017.
   */
-@Category(Array(classOf[SlowTests]))
+@Category(Array(classOf[PerfCycleTests]))
 abstract class SettingQueryHandlerTest extends SbtProjectPlatformTestCase {
 
   def testFailedCommand(): Unit = {
