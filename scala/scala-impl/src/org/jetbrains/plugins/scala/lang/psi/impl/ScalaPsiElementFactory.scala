@@ -176,7 +176,7 @@ object ScalaPsiElementFactory {
   def createWildcardNode(implicit ctx: ProjectContext): ASTNode =
     createScalaFileFromText("import a._").getLastChild.getLastChild.getLastChild.getNode
 
-  def createClauseFromText(clauseText: String)
+  def createClauseFromText(clauseText: String = "()")
                           (implicit ctx: ProjectContext): ScParameterClause = {
     val function = createMethodFromText(s"def foo$clauseText = null")
     function.paramClauses.clauses.head

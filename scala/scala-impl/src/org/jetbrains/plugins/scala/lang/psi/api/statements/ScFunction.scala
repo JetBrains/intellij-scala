@@ -30,7 +30,6 @@ import org.jetbrains.plugins.scala.lang.psi.api.toplevel._
 import org.jetbrains.plugins.scala.lang.psi.api.toplevel.templates.ScExtendsBlock
 import org.jetbrains.plugins.scala.lang.psi.api.toplevel.typedef._
 import org.jetbrains.plugins.scala.lang.psi.fake.{FakePsiReferenceList, FakePsiTypeParameterList}
-import org.jetbrains.plugins.scala.lang.psi.impl.ScalaPsiElementFactory.createClauseFromText
 import org.jetbrains.plugins.scala.lang.psi.impl.toplevel.synthetic.{JavaIdentifier, SyntheticClasses}
 import org.jetbrains.plugins.scala.lang.psi.impl.toplevel.typedef.TypeDefinitionMembers
 import org.jetbrains.plugins.scala.lang.psi.light.ScFunctionWrapper
@@ -84,11 +83,6 @@ trait ScFunction extends ScalaPsiElement with ScMember with ScTypeParametersOwne
   def setProbablyRecursive(b: Boolean) {probablyRecursive.set(b)}
 
   def isEmptyParen: Boolean = paramClauses.clauses.size == 1 && paramClauses.params.isEmpty
-
-  def addEmptyParens() {
-    val clause = createClauseFromText("()")
-    paramClauses.addClause(clause)
-  }
 
   def isNative: Boolean = hasAnnotation("scala.native")
 

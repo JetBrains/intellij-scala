@@ -59,7 +59,7 @@ trait ScMethodLike extends ScMember with PsiMethod with PsiTypeParametersOwnerAd
     if (parameterList.clauses.length > 0)
       parameterList.clauses.apply(0).addParameter(param)
     else {
-      val clause = createClauseFromText("()")
+      val clause = createClauseFromText()
       val newClause = clause.addParameter(param)
       parameterList.addClause(newClause)
     }
