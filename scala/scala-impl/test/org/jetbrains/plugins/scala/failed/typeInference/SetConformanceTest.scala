@@ -59,4 +59,15 @@ class SetConformanceTest extends ScalaLightCodeInsightFixtureTestAdapter {
        |component(3) = "thing"
        |//true
     """.stripMargin)
+
+  def testSCL13786(): Unit = checkTextHasNoErrors(
+    s"""
+       |trait Builder {
+       |  type Self = this.type
+       |  def foo(): Self = this
+       |}
+       |class Test extends Builder
+       |val x: Test = new Test().foo()
+       |//true
+    """.stripMargin)
 }
