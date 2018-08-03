@@ -155,4 +155,21 @@ class OverridingAnnotatorTest2 extends ScalaLightCodeInsightFixtureTestAdapter {
         |}
       """.stripMargin)
   }
+
+  def testScl14152(): Unit = {
+    checkTextHasNoErrors(
+      """
+        |sealed trait TagExpr
+        |
+        |object TagExpr {
+        |
+        |  sealed trait Composite extends TagExpr {
+        |    def head: TagExpr
+        |    def tail: Seq[TagExpr]
+        |  }
+        |
+        |  final case class And(head: TagExpr, tail: TagExpr*) extends Composite
+        |}
+      """.stripMargin)
+  }
 }
