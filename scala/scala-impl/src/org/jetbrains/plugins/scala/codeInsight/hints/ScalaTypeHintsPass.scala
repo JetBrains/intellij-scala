@@ -11,7 +11,6 @@ import com.intellij.openapi.util.Key
 import com.intellij.openapi.vfs.VirtualFile
 import com.intellij.psi.PsiElement
 import org.jetbrains.plugins.scala.extensions._
-import org.jetbrains.plugins.scala.lang.lexer.ScalaTokenTypes
 import org.jetbrains.plugins.scala.lang.psi.api.ScalaFile
 import org.jetbrains.plugins.scala.lang.psi.api.statements.{ScFunction, ScValueOrVariable}
 import org.jetbrains.plugins.scala.lang.psi.types.api.JavaArrayType
@@ -90,24 +89,17 @@ object ScalaTypeHintsPass {
         }
 
   private def createInlayInfo(definition: Definition, returnType: ScType)
-                             (implicit settings: ScalaCodeInsightSettings) = {
-    import ScalaTokenTypes._
-    for {
-      anchor <- definition.parameterList
-      offset = anchor.getTextRange.getEndOffset
+                             (implicit settings: ScalaCodeInsightSettings) = for {
+    anchor <- definition.parameterList
+    offset = anchor.getTextRange.getEndOffset
 
-      CodeText(codeText) <- Some(returnType)
-      infix = s"$tCOLON $codeText"
-
-      text = definition match {
-        case FunctionDefinition(function) if function.hasUnitResultType =>
-          val prefix = if (function.isParameterless) s"$tLPARENTHESIS$tRPARENTHESIS" else ""
-          val suffix = if (function.hasAssign) "" else " " + tASSIGN
-          s"$prefix$infix$suffix"
-        case _ => infix
-      }
-    } yield new InlayInfo(text, offset, false, true, true)
-  }
+    CodeText(codeText) <- Some(returnType)
+    suffix = definition match {
+      case FunctionDefinition(function) if !function.hasAssign && function.hasUnitResultType => " ="
+      case _ => ""
+    }
+    text = s": " + codeText + suffix
+  } yield new InlayInfo(text, offset, false, true, true)
 
   private[this] object CodeText {
 
