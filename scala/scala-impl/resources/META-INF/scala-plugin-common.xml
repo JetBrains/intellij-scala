@@ -1146,11 +1146,15 @@
                          displayName="Java mutator method accessed as parameterless" groupPath="Scala" groupName="Method signature"
                          shortName="JavaMutatorMethodAccessedAsParameterless" level="WARNING"
                          enabledByDefault="true" language="Scala"/>
-        <localInspection implementationClass="org.jetbrains.plugins.scala.codeInspection.methodSignature.ApparentRefinementOfResultTypeInspection"
-                         displayName="Apparent refinement of result type; are you missing an '=' sign?" groupPath="Scala" groupName="Method signature"
-                         shortName="ApparentRefinementOfResultType" level="WARNING"
-                         enabledByDefault="true" language="Scala"/>
-        <localInspection
+      <localInspection
+              implementationClass="org.jetbrains.plugins.scala.codeInspection.methodSignature.ApparentResultTypeRefinementInspection"
+              bundle="org.jetbrains.plugins.scala.codeInspection.InspectionBundle"
+              key="method.signature.result.type.refinement"
+              groupPath="Scala" groupName="Method signature"
+              shortName="ApparentResultTypeRefinement"
+              language="Scala" level="WARNING"
+              enabledByDefault="true"/>
+      <localInspection
                 implementationClass="org.jetbrains.plugins.scala.codeInspection.methodSignature.DeclarationHasNoExplicitTypeInspection"
                 displayName="Method declaration has no explicit return type" groupPath="Scala"
                 groupName="Method signature"
