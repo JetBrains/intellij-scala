@@ -23,6 +23,7 @@
         <extensionPoint name="interpolatedStringMacroTypeProvider" interface="org.jetbrains.plugins.scala.lang.psi.impl.base.InterpolatedStringMacroTypeProvider"/>
         <extensionPoint name="worksheetExternalRunType" interface="org.jetbrains.plugins.scala.worksheet.settings.WorksheetExternalRunType"/>
         <extensionPoint name="worksheetCustomRunner" interface="org.jetbrains.plugins.scala.worksheet.processor.WorksheetCustomRunner"/>
+        <extensionPoint name="fileDeclarationsContributor" interface="org.jetbrains.plugins.scala.worksheet.FileDeclarationsContributor"/>
     </extensionPoints>
 
     <extensions defaultExtensionNs="org.intellij.scala">
@@ -45,6 +46,9 @@
                 implementation="org.jetbrains.plugins.scala.lang.refactoring.namesSuggester.genericTypes.FunctionTypeNamesProvider"/>
         <genericTypeNamesProvider
                 implementation="org.jetbrains.plugins.scala.lang.refactoring.namesSuggester.genericTypes.TupleTypeNamesProvider"/>
+      
+        <fileDeclarationsContributor implementation="org.jetbrains.plugins.scala.worksheet.ui.WorksheetFileDeclarationsContributor"/>
+        <fileDeclarationsContributor implementation="org.jetbrains.plugins.scala.worksheet.ammonite.AmmoniteFileDeclarationsContributor"/>
     </extensions>
 
     <extensions defaultExtensionNs="com.intellij">

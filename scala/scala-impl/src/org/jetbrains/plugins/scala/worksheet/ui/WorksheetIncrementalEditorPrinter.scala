@@ -9,23 +9,15 @@ import com.intellij.openapi.module.Module
 import com.intellij.openapi.util.TextRange
 import com.intellij.openapi.util.text.StringUtil
 import com.intellij.psi._
-import com.intellij.psi.scope.PsiScopeProcessor
 import org.jetbrains.plugins.scala.extensions
 import org.jetbrains.plugins.scala.extensions.implementation.iterator.PrevSiblignsIterator
-import org.jetbrains.plugins.scala.lang.completion.ScalaCompletionUtil
-import org.jetbrains.plugins.scala.lang.lexer.ScalaTokenTypes
-import org.jetbrains.plugins.scala.lang.psi.api.expr.ScExpression
-import org.jetbrains.plugins.scala.lang.psi.api.statements.ScPatternDefinition
+import org.jetbrains.plugins.scala.lang.psi.api.ScalaFile
 import org.jetbrains.plugins.scala.lang.psi.api.toplevel.typedef.{ScClass, ScObject}
-import org.jetbrains.plugins.scala.lang.psi.api.{FileDeclarationsHolder, ScalaFile}
-import org.jetbrains.plugins.scala.lang.psi.impl.ScalaPsiElementFactory
-import org.jetbrains.plugins.scala.worksheet.GotoOriginalHandlerUtil
 import org.jetbrains.plugins.scala.worksheet.interactive.WorksheetAutoRunner
 import org.jetbrains.plugins.scala.worksheet.processor.{WorksheetCompilerUtil, WorksheetInterpretExprsIterator, WorksheetPsiGlue}
 import org.jetbrains.plugins.scala.worksheet.settings.WorksheetCommonSettings
 
 import scala.collection.mutable
-import scala.collection.mutable.ArrayBuffer
 
 /**
   * User: Dmitry.Naydanov
@@ -324,46 +316,6 @@ object WorksheetIncrementalEditorPrinter {
         case _ => after
       }
     } getOrElse after
-  }
-  
-  def executeResNDeclarations(processor: PsiScopeProcessor, file: FileDeclarationsHolder, state: ResolveState): Boolean = {
-    var ind = 0
-
-    file.getChildren foreach {
-      case expr: ScExpression =>
-        val text = expr.getText
-
-        if (!text.contains(ScalaCompletionUtil.DUMMY_IDENTIFIER)) {
-          val name = s"res$ind"
-          val inds = ArrayBuffer[Int]()
-          val m = name.r.pattern.matcher(text)
-          while (m.find()) {
-            inds += m.start()
-          }
-
-          val skip = inds exists {
-            idx => file.findElementAt(expr.getTextRange.getStartOffset + idx + 1) match {
-              case psi: PsiElement if psi.getNode.getElementType == ScalaTokenTypes.tIDENTIFIER =>
-                true
-              case _ => false
-            }
-          }
-
-          if (!skip) ScalaPsiElementFactory.createDefinitionWithContext(s" val res$ind = $text", file, expr) match {
-            case patternDef: ScPatternDefinition =>
-              patternDef.declaredElements foreach {
-                declared =>
-                  GotoOriginalHandlerUtil.storeNonModifiablePsi(declared, expr)
-                  if (!processor.execute(declared, state)) return false
-              }
-            case _ =>
-          }
-          ind += 1
-        }
-      case _ =>
-    }
-    
-    true
   }
 
   def countNewLines(str: String): Int = StringUtil countNewLines str
