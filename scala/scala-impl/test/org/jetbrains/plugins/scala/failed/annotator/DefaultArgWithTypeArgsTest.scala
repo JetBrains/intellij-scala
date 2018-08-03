@@ -32,4 +32,18 @@ class DefaultArgWithTypeArgsTest extends ScalaLightCodeInsightFixtureTestAdapter
         |  requestInput[req.Value](req)
       """.stripMargin)
   }
+
+  def testSCL13810(): Unit = {
+    checkTextHasNoErrors(
+      """
+        |trait Obj[S]
+        |implicit class Ops[S](val obj: Obj[S]) extends AnyVal {
+        |  def bang[R[_]](child: String): R[S] = ???
+        |}
+        |trait Test[S] {
+        |  def in: Obj[S]
+        |  val out = in bang [Obj] "child"
+        |}
+      """.stripMargin)
+  }
 }
