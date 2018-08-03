@@ -172,4 +172,46 @@ class OverridingAnnotatorTest2 extends ScalaLightCodeInsightFixtureTestAdapter {
         |}
       """.stripMargin)
   }
+
+  def testScl13920(): Unit = {
+    checkTextHasNoErrors(
+      """
+        |trait TBase {
+        |  trait TProperty
+        |  type Property <: TProperty
+        |}
+        |
+        |trait TSub1 extends TBase {
+        |  trait TProperty extends super.TProperty {
+        |    def sub1(): String
+        |  }
+        |  override type Property <: TProperty
+        |}
+        |
+        |trait TSub2 extends TBase {
+        |  trait TProperty extends super.TProperty {
+        |    def sub2(): String
+        |  }
+        |  override type Property <: TProperty
+        |}
+        |
+        |trait TSub1AndSub2 extends TSub1 with TSub2 {
+        |  trait TProperty extends super[TSub1].TProperty with super[TSub2].TProperty
+        |  override type Property <: TProperty
+        |}
+        |
+        |class Sub1AndSub2 extends TSub1AndSub2 {
+        |  override type Property = TProperty
+        |
+        |  case class PropImpl() extends Property {
+        |    override def sub1(): String = "sub1"
+        |    override def sub2(): String = "sub2"
+        |  }
+        |
+        |  object Property {
+        |    def apply(): Property = PropImpl()
+        |  }
+        |}
+      """.stripMargin)
+  }
 }
