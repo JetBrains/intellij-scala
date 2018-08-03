@@ -46,4 +46,14 @@ class TypeAliasInferenceTest extends ScalaLightCodeInsightFixtureTestAdapter {
         |def test(f: Foo): Unit = apply[f.Bar](f)
       """.stripMargin)
   }
+
+  def testSCL13797(): Unit = {
+    checkTextHasNoErrors(
+      """
+        |trait Test {
+        |  type X
+        |  def self: Test { type X = Test.this.X } = this
+        |}
+      """.stripMargin)
+  }
 }
