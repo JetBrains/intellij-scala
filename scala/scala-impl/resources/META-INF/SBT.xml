@@ -55,7 +55,7 @@
         <externalProjectDataService implementation="org.jetbrains.sbt.project.data.service.SbtTaskDataService"/>
         <externalProjectDataService implementation="org.jetbrains.sbt.project.data.service.SbtCommandDataService"/>
         <externalProjectDataService implementation="org.jetbrains.sbt.project.data.service.Play2StubDataService"/>
-        <externalProjectDataService implementation="org.jetbrains.plugins.scala.project.migration.ImportedLibrariesService"/>
+        <!--<externalProjectDataService implementation="org.jetbrains.plugins.scala.project.migration.ImportedLibrariesService"/>-->
 
         <externalSystemConfigLocator implementation="org.jetbrains.sbt.project.SbtConfigLocator"/>
 
