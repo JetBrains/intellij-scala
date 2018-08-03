@@ -6,7 +6,7 @@ import java.util.regex.Pattern
 
 import com.intellij.psi.tree.IElementType
 import com.intellij.psi.{PsiElement, PsiMethod, PsiType}
-import org.jetbrains.plugins.scala.extensions.PsiElementExt
+import org.jetbrains.plugins.scala.extensions._
 import org.jetbrains.plugins.scala.lang.lexer.ScalaTokenTypes
 import org.jetbrains.plugins.scala.lang.psi.ScalaPsiElement
 import org.jetbrains.plugins.scala.lang.psi.api.expr.ScBlockExpr
@@ -55,10 +55,13 @@ package object quickfix {
   private[methodSignature] def hasMutatorLikeName(method: PsiMethod): Boolean =
     MutatorNamePattern.matcher(method.getName).matches()
 
-  private[methodSignature] def isMutator: PsiMethod => Boolean = {
-    case _: ScalaPsiElement => false // do nothing
-    case method => method.getReturnType == PsiType.VOID || hasMutatorLikeName(method)
-  }
+  private[methodSignature] def isMutator(method: PsiMethod): Boolean =
+    isNotScala(method) && (method.getReturnType == PsiType.VOID || hasMutatorLikeName(method))
+
+  private[methodSignature] def isAccessor(method: PsiMethod): Boolean =
+    isNotScala(method) && method.isAccessor
+
+  private[this] def isNotScala(method: PsiMethod) = !method.isInstanceOf[ScalaPsiElement]
 
   private[this] def findChild(element: PsiElement,
                               elementType: IElementType = tCOLON) =
