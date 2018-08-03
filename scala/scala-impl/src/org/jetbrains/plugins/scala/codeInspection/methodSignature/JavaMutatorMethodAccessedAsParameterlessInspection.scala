@@ -4,34 +4,38 @@ package methodSignature
 
 import com.intellij.codeInspection.ProblemsHolder
 import com.intellij.psi.{PsiElement, PsiMethod}
-import org.jetbrains.plugins.scala.extensions._
+import org.jetbrains.plugins.scala.lang.psi.ScalaPsiUtil
 import org.jetbrains.plugins.scala.lang.psi.api.expr._
 import org.jetbrains.plugins.scala.lang.psi.types.api.FunctionType
-import org.jetbrains.plugins.scala.lang.psi.{ScalaPsiElement, ScalaPsiUtil}
 
 /**
- * Pavel Fatin
- */
+  * Pavel Fatin
+  */
 final class JavaMutatorMethodAccessedAsParameterlessInspection extends AbstractInspection("Java mutator method accessed as parameterless") {
 
+  import quickfix._
+
   override def actionFor(implicit holder: ProblemsHolder): PartialFunction[PsiElement, Unit] = {
-    case e: ScReferenceExpression if !e.getParent.isInstanceOf[ScMethodCall] &&
-            !e.getParent.isInstanceOf[ScInfixExpr] &&
-            !e.getParent.isInstanceOf[ScUnderscoreSection] && e.isValid &&
-      !FunctionType.isFunctionType(e.`type`().getOrAny) => e.resolve() match {
-        case _: ScalaPsiElement => // do nothing
-        case (m: PsiMethod) if m.isMutator =>
-          e.getParent match {
-            case gen: ScGenericCall =>
-              ScalaPsiUtil.findCall(gen) match {
-                case None =>
-                  holder.registerProblem(e.nameId, getDisplayName, new quickfix.AddCallParentheses(gen))
-                case Some(_) =>
-              }
-            case _ =>
-              holder.registerProblem(e.nameId, getDisplayName, new quickfix.AddCallParentheses(e))
-          }
-        case _ =>
-    }
+    case reference@ScReferenceExpression(method: PsiMethod)
+      if isValid(reference) && isMutator(method) &&
+        !FunctionType.isFunctionType(reference.`type`().getOrAny) =>
+      val maybeElement = reference.getParent match {
+        case call: ScGenericCall if ScalaPsiUtil.findCall(call).isEmpty => Some(call)
+        case _: ScGenericCall => None
+        case _ => Some(reference)
+      }
+
+      maybeElement.map {
+        new AddCallParentheses(_)
+      }.foreach {
+        holder.registerProblem(reference.nameId, getDisplayName, _)
+      }
+  }
+
+  private def isValid(reference: ScReferenceExpression) = reference.getParent match {
+    case _: ScMethodCall |
+         _: ScInfixExpr |
+         _: ScUnderscoreSection => false
+    case _ => reference.isValid
   }
 }

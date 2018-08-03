@@ -2,10 +2,13 @@ package org.jetbrains.plugins.scala
 package codeInspection
 package methodSignature
 
-import com.intellij.psi.PsiElement
+import java.util.regex.Pattern
+
 import com.intellij.psi.tree.IElementType
+import com.intellij.psi.{PsiElement, PsiMethod, PsiType}
 import org.jetbrains.plugins.scala.extensions.PsiElementExt
 import org.jetbrains.plugins.scala.lang.lexer.ScalaTokenTypes
+import org.jetbrains.plugins.scala.lang.psi.ScalaPsiElement
 import org.jetbrains.plugins.scala.lang.psi.api.expr.ScBlockExpr
 import org.jetbrains.plugins.scala.lang.psi.api.statements.{ScFunction, ScFunctionDefinition}
 import org.jetbrains.plugins.scala.lang.psi.impl.ScalaPsiElementFactory
@@ -15,6 +18,10 @@ package object quickfix {
 
   import ScalaPsiElementFactory.{createBlockFromExpr, createDeclaration}
   import ScalaTokenTypes.{tASSIGN, tCOLON}
+
+  private[this] val MutatorNamePattern = Pattern.compile(
+    """(?-i)(?:do|set|add|remove|insert|delete|aquire|release|update)(?:\p{Lu}.*)"""
+  )
 
   def removeTypeElement(function: ScFunction): Unit = for {
     colon <- findChild(function, ScalaTokenTypes.tCOLON)
@@ -43,6 +50,14 @@ package object quickfix {
 
       expression <- definition.body
     } definition.addRangeAfter(colon, assignment, expression.getPrevSiblingNotWhitespace)
+  }
+
+  private[methodSignature] def hasMutatorLikeName(method: PsiMethod): Boolean =
+    MutatorNamePattern.matcher(method.getName).matches()
+
+  private[methodSignature] def isMutator: PsiMethod => Boolean = {
+    case _: ScalaPsiElement => false // do nothing
+    case method => method.getReturnType == PsiType.VOID || hasMutatorLikeName(method)
   }
 
   private[this] def findChild(element: PsiElement,

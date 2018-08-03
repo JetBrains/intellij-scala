@@ -3,6 +3,7 @@ package org.jetbrains.plugins.scala
 import java.io.Closeable
 import java.lang.reflect.InvocationTargetException
 import java.util.concurrent.{Callable, Future}
+import java.util.regex.Pattern
 
 import com.intellij.extapi.psi.StubBasedPsiElementBase
 import com.intellij.lang.ASTNode
@@ -70,28 +71,21 @@ package object extensions {
 
     implicit private def project: ProjectContext = repr.getProject
 
-    def isAccessor: Boolean = isParameterless && hasQueryLikeName && !hasVoidReturnType
-
-    def isMutator: Boolean = hasVoidReturnType || hasMutatorLikeName
+    def isAccessor: Boolean = isParameterless &&
+      hasQueryLikeName &&
+      repr.getReturnType != PsiType.VOID
 
     def hasQueryLikeName: Boolean = {
-      def startsWith(name: String, prefix: String) =
+      val name = repr.getName
+
+      def startsWith(prefix: String) =
         name.length > prefix.length && name.startsWith(prefix) && name.charAt(prefix.length).isUpper
 
-      repr.getName match {
-        case "getInstance" => false // TODO others?
-        case name if startsWith(name, "getAnd") || startsWith(name, "getOr") => false
-        case AccessorNamePattern() => true
-        case _ => false
-      }
+      name != "getInstance" && // TODO others?
+        AccessorNamePattern.matcher(name).matches() &&
+        !startsWith("getAnd") &&
+        !startsWith("getOr")
     }
-
-    def hasMutatorLikeName: Boolean = repr.getName match {
-      case MutatorNamePattern() => true
-      case _ => false
-    }
-
-    def hasVoidReturnType: Boolean = repr.getReturnType == PsiType.VOID
 
     def parameters: Seq[PsiParameter] =
       repr.getParameterList.getParameters
@@ -116,11 +110,9 @@ package object extensions {
   }
 
   object PsiMethodExt {
-    val AccessorNamePattern: Regex =
-      """(?-i)(?:get|is|can|could|has|have|to)\p{Lu}.*""".r
-
-    val MutatorNamePattern: Regex =
-      """(?-i)(?:do|set|add|remove|insert|delete|aquire|release|update)(?:\p{Lu}.*)""".r
+    private val AccessorNamePattern = Pattern.compile(
+      """(?-i)(?:get|is|can|could|has|have|to)\p{Lu}.*"""
+    )
   }
 
   implicit class TraversableExt[CC[X] <: Traversable[X], A](val value: CC[A]) extends AnyVal {
