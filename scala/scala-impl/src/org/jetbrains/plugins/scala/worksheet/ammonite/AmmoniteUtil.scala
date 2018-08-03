@@ -78,25 +78,6 @@ object AmmoniteUtil {
     case _ => None
   }
 
-  def executeImplicitImportsDeclarations(processor: PsiScopeProcessor, file: FileDeclarationsHolder, state: ResolveState): Boolean = {
-    file match {
-      case ammoniteFile: ScalaFile if isAmmoniteFile(ammoniteFile) =>
-        DEFAULT_BUILTINS.foreach {
-          case (name, txt) =>
-            ScalaPsiElementFactory.createElementFromText(s"class A { val $name: $txt = ??? }")(ammoniteFile.projectContext).processDeclarations(processor, state, null, ammoniteFile)
-        }
-
-        DEFAULT_IMPORTS.foreach {
-          imp =>
-            val importStmt = ScalaPsiElementFactory.createImportFromText(s"import $imp")(ammoniteFile.projectContext)
-            importStmt.processDeclarations(processor, state, null, ammoniteFile)
-        }
-      case _ =>
-    }
-
-    true
-  }
-
   /*
   Resolves $file imports
    */

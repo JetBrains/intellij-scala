@@ -22,9 +22,7 @@ import org.jetbrains.plugins.scala.lang.resolve.ResolveUtils
 import org.jetbrains.plugins.scala.lang.resolve.processor.precedence.{PrecedenceTypes, SubstitutablePrecedenceHelper}
 import org.jetbrains.plugins.scala.lang.resolve.processor.{BaseProcessor, ResolveProcessor, ResolverEnv}
 import org.jetbrains.plugins.scala.project.ProjectPsiElementExt
-import org.jetbrains.plugins.scala.worksheet.ammonite.AmmoniteUtil
-import org.jetbrains.plugins.scala.worksheet.settings.WorksheetFileSettings
-import org.jetbrains.plugins.scala.worksheet.ui.WorksheetIncrementalEditorPrinter
+import org.jetbrains.plugins.scala.worksheet.FileDeclarationsContributor
 
 import scala.collection.mutable
 import scala.collection.mutable.ArrayBuffer
@@ -115,12 +113,9 @@ trait FileDeclarationsHolder extends PsiElement with ScDeclarationSequenceHolder
       }
     }
 
-    if (isWorksheetFile && WorksheetFileSettings.isReplLight(this)) {
-      val re = WorksheetIncrementalEditorPrinter.executeResNDeclarations(processor, this, state)
-      if (!re) return false
-    }
-    
-    AmmoniteUtil.executeImplicitImportsDeclarations(processor, this, state)
+    FileDeclarationsContributor.getAllFor(this).foreach (
+      _.processAdditionalDeclarations(processor, this, state)
+    )
 
     val checkPredefinedClassesAndPackages = processor match {
       case r: ResolveProcessor => r.checkPredefinedClassesAndPackages()
