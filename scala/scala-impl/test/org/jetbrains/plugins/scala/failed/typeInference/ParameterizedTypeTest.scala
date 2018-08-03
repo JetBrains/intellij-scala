@@ -308,4 +308,13 @@ class ParameterizedTypeTest extends ScalaLightCodeInsightFixtureTestAdapter {
       """.stripMargin
     checkTextHasNoErrors(text)
   }
+
+  def testSCL14032() = {
+    val text =
+      """
+        |class Queue[+T] private (private[this] var leading: List[T],
+        |                         private[this] var trailing: List[T])
+      """.stripMargin
+    checkTextHasNoErrors(text)
+  }
 }
