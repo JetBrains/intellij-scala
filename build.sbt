@@ -224,8 +224,7 @@ lazy val sbtRuntimeDependencies =
         Dependencies.compilerBridgeSources_2_11 -> Some("lib/jps/compiler-interface-sources-2.11.jar"),
         Dependencies.compilerBridgeSources_2_10 -> Some("lib/jps/compiler-interface-sources-2.10.jar"),
         Dependencies.sbtStructureExtractor_100  -> Some("launcher/sbt-structure-1.0.jar"),
-        Dependencies.sbtStructureExtractor_013  -> Some("launcher/sbt-structure-0.13.jar"),
-        "org.scala-sbt" % "launcher" % "1.0.3"  -> None
+        Dependencies.sbtStructureExtractor_013  -> Some("launcher/sbt-structure-0.13.jar")
       ),
       update := {
         import Dependencies._
