@@ -6,6 +6,7 @@ import com.intellij.codeInspection.LocalQuickFix
 import com.intellij.openapi.project.Project
 import com.intellij.psi.PsiElement
 import org.jetbrains.plugins.scala.lang.psi.api.statements.{ScFunction, ScFunctionDeclaration, ScFunctionDefinition}
+import org.jetbrains.plugins.scala.lang.psi.impl.ScalaPsiElementFactory
 import org.jetbrains.plugins.scala.util.IntentionAvailabilityChecker
 
 sealed abstract class UnitMethodInspection extends AbstractMethodSignatureInspection {
@@ -99,7 +100,7 @@ object UnitMethodInspection {
   final class ProceduralDefinition extends UnitMethodInspection {
 
     override protected def isApplicable(function: ScFunction): Boolean =
-      super.isApplicable(function) &&
+      super.isApplicable(function) && function.isInstanceOf[ScFunctionDefinition] &&
         !function.hasAssign &&
         !function.isConstructor &&
         IntentionAvailabilityChecker.checkInspection(this, function)
@@ -113,6 +114,32 @@ object UnitMethodInspection {
           removeAssignment(function)
           removeTypeElement(function)
           addUnitTypeElement(function)
+        }
+      }
+
+      Some(quickFix)
+    }
+  }
+
+  final class DeclarationType extends UnitMethodInspection {
+
+    override protected def isApplicable(function: ScFunction): Boolean =
+      super.isApplicable(function) && function.isInstanceOf[ScFunctionDeclaration] &&
+        !function.hasExplicitType
+
+    override protected def createQuickFix(function: ScFunction): Option[LocalQuickFix] = {
+      val quickFix = new AbstractFixOnPsiElement(
+        InspectionBundle.message("add.unit.type.to.declaration"),
+        function
+      ) {
+        override protected def doApplyFix(function: ScFunction)(implicit project: Project): Unit = {
+          def addChildNode(element: PsiElement): Unit =
+            function.getNode.addChild(element.getNode)
+
+          import ScalaPsiElementFactory.{createColon, createTypeElementFromText, createWhitespace}
+          addChildNode(createColon)
+          addChildNode(createWhitespace)
+          addChildNode(createTypeElementFromText("Unit"))
         }
       }
 

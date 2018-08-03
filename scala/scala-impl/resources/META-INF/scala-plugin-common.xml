@@ -1152,10 +1152,18 @@
               level="WARNING"
               enabledByDefault="false" language="Scala"/>
       <localInspection
-              implementationClass="org.jetbrains.plugins.scala.codeInspection.methodSignature.JavaAccessorMethodCalledAsEmptyParenInspection"
-                         displayName="Java accessor method called as empty-paren" groupPath="Scala" groupName="Method signature"
-                         shortName="JavaAccessorMethodCalledAsEmptyParen" level="WARNING"
-                         enabledByDefault="true" language="Scala"/>
+              implementationClass="org.jetbrains.plugins.scala.codeInspection.methodSignature.UnitMethodInspection$DeclarationType"
+              bundle="org.jetbrains.plugins.scala.codeInspection.InspectionBundle"
+              key="method.signature.unit.declaration.type"
+              groupPath="Scala" groupName="Method signature"
+              shortName="DeclarationType"
+              language="Scala" level="WARNING"
+              enabledByDefault="false"/>
+        <localInspection
+                implementationClass="org.jetbrains.plugins.scala.codeInspection.methodSignature.JavaAccessorMethodCalledAsEmptyParenInspection"
+                displayName="Java accessor method called as empty-paren" groupPath="Scala" groupName="Method signature"
+                shortName="JavaAccessorMethodCalledAsEmptyParen" level="WARNING"
+                enabledByDefault="true" language="Scala"/>
         <localInspection implementationClass="org.jetbrains.plugins.scala.codeInspection.methodSignature.JavaMutatorMethodAccessedAsParameterlessInspection"
                          displayName="Java mutator method accessed as parameterless" groupPath="Scala" groupName="Method signature"
                          shortName="JavaMutatorMethodAccessedAsParameterless" level="WARNING"
@@ -1168,12 +1176,6 @@
               shortName="ApparentResultTypeRefinement"
               language="Scala" level="WARNING"
               enabledByDefault="true"/>
-      <localInspection
-                implementationClass="org.jetbrains.plugins.scala.codeInspection.methodSignature.DeclarationHasNoExplicitTypeInspection"
-                displayName="Method declaration has no explicit return type" groupPath="Scala"
-                groupName="Method signature"
-                shortName="DeclarationHasNoExplicitType" level="WARNING"
-                enabledByDefault="false" language="Scala"/>
 
         <!--Scalastyle inspection-->
         <localInspection implementationClass="org.jetbrains.plugins.scala.codeInspection.scalastyle.ScalastyleCodeInspection"
