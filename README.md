@@ -88,7 +88,7 @@ set up the project as described above.
 
 To run and distribute a modified version of the plugin in a regular IntelliJ instance, you need to package it.
 
-1. on the sbt shell, run `packagePluginCommunityZip`. This will output the generated plugin zip location
+1. on the sbt shell, run `packagePluginZip`. This will output the generated plugin zip location
    (typically into `<project directory>/target/scala-plugin.zip`).
 2. In IntelliJ, open Preferences, section Plugins, choose "Install plugin from disk..." and navigate to the scala-plugin.zip
 3. Restart IntelliJ
