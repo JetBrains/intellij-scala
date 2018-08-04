@@ -241,6 +241,7 @@ object AnnotatorHighlighter {
 
   def highlightElement(element: PsiElement, holder: AnnotationHolder) {
     element match {
+      case r: ScReferenceElement => highlightReferenceElement(r, holder)
       case x: ScAnnotation => visitAnnotation(x, holder)
       case x: ScParameter => visitParameter(x, holder)
       case x: ScCaseClause => visitCaseClause(x, holder)
