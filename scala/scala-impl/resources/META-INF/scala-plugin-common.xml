@@ -1118,12 +1118,23 @@
                 shortName="ParameterlessMemberOverriddenAsEmptyParen"
                 language="Scala" level="WARNING"
                 enabledByDefault="true"/>
-        <localInspection
-                implementationClass="org.jetbrains.plugins.scala.codeInspection.methodSignature.EmptyParenMethodAccessedAsParameterlessInspection"
-                         displayName="Empty-paren method accessed as parameterless" groupPath="Scala" groupName="Method signature"
-                         shortName="EmptyParenMethodAccessedAsParameterless" level="WARNING"
-                         enabledByDefault="true" language="Scala"/>
-        <localInspection
+      <localInspection
+              implementationClass="org.jetbrains.plugins.scala.codeInspection.methodSignature.ParameterlessAccessInspection$JavaMutator"
+              bundle="org.jetbrains.plugins.scala.codeInspection.InspectionBundle"
+              key="method.signature.parameterless.access.java.mutator"
+              groupPath="Scala" groupName="Method signature"
+              shortName="JavaMutatorMethodAccessedAsParameterless"
+              language="Scala" level="WARNING"
+              enabledByDefault="true"/>
+      <localInspection
+              implementationClass="org.jetbrains.plugins.scala.codeInspection.methodSignature.ParameterlessAccessInspection$EmptyParenMethod"
+              bundle="org.jetbrains.plugins.scala.codeInspection.InspectionBundle"
+              key="method.signature.parameterless.access.empty.paren"
+              groupPath="Scala" groupName="Method signature"
+              shortName="EmptyParenMethodAccessedAsParameterless"
+              language="Scala" level="WARNING"
+              enabledByDefault="true"/>
+      <localInspection
                 implementationClass="org.jetbrains.plugins.scala.codeInspection.methodSignature.UnitMethodInspection$ExplicitType"
                 bundle="org.jetbrains.plugins.scala.codeInspection.InspectionBundle"
                 key="method.signature.unit.explicit.type"
@@ -1176,10 +1187,6 @@
                 displayName="Java accessor method called as empty-paren" groupPath="Scala" groupName="Method signature"
                 shortName="JavaAccessorMethodCalledAsEmptyParen" level="WARNING"
                 enabledByDefault="true" language="Scala"/>
-        <localInspection implementationClass="org.jetbrains.plugins.scala.codeInspection.methodSignature.JavaMutatorMethodAccessedAsParameterlessInspection"
-                         displayName="Java mutator method accessed as parameterless" groupPath="Scala" groupName="Method signature"
-                         shortName="JavaMutatorMethodAccessedAsParameterless" level="WARNING"
-                         enabledByDefault="true" language="Scala"/>
       <localInspection
               implementationClass="org.jetbrains.plugins.scala.codeInspection.methodSignature.ApparentResultTypeRefinementInspection"
               bundle="org.jetbrains.plugins.scala.codeInspection.InspectionBundle"
