@@ -5,11 +5,9 @@ package api
 package statements
 package params
 
-import javax.swing.Icon
-
 import com.intellij.psi._
-import com.intellij.psi.search.{GlobalSearchScope, LocalSearchScope, SearchScope}
 import com.intellij.psi.util.PsiTreeUtil
+import javax.swing.Icon
 import org.jetbrains.plugins.scala.icons.Icons
 import org.jetbrains.plugins.scala.lang.psi.adapters.PsiParameterAdapter
 import org.jetbrains.plugins.scala.lang.psi.api.base.ScPrimaryConstructor
@@ -17,9 +15,9 @@ import org.jetbrains.plugins.scala.lang.psi.api.base.types._
 import org.jetbrains.plugins.scala.lang.psi.api.expr.{ScExpression, ScFunctionExpr, ScUnderScoreSectionUtil}
 import org.jetbrains.plugins.scala.lang.psi.api.toplevel.typedef.{ScClass, ScMember}
 import org.jetbrains.plugins.scala.lang.psi.api.toplevel.{ScImportableDeclarationsOwner, ScModifierListOwner, ScTypedDefinition}
-import org.jetbrains.plugins.scala.lang.psi.types.api.{FunctionType, ValueType}
+import org.jetbrains.plugins.scala.lang.psi.types.api.FunctionType
 import org.jetbrains.plugins.scala.lang.psi.types.result._
-import org.jetbrains.plugins.scala.lang.psi.types.{ScParameterizedType, ScType, ScTypeExt, ScalaType}
+import org.jetbrains.plugins.scala.lang.psi.types.{ScType, ScTypeExt}
 import org.jetbrains.plugins.scala.macroAnnotations.{Cached, ModCount}
 
 import scala.annotation.tailrec
@@ -64,14 +62,8 @@ trait ScParameter extends ScTypedDefinition with ScModifierListOwner
 
   def getRealParameterType: TypeResult =
     `type`() match {
-      case result if !isRepeatedParameter => result
-      case f@Right(tp) =>
-        elementScope.getCachedClass("scala.collection.Seq")
-          .map(ScalaType.designator)
-          .map(ScParameterizedType(_, Seq(tp)))
-          .map((result: ValueType) => Right(result))
-          .getOrElse(f)
-      case f => f
+      case Right(tp) if isRepeatedParameter => Right(tp.tryWrapIntoSeqType)
+      case f                                => f
     }
 
   override def getDeclarationScope: ScalaPsiElement = PsiTreeUtil.getContextOfType(this, classOf[ScParameterOwner], classOf[ScFunctionExpr])
