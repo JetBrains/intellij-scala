@@ -323,5 +323,25 @@ class FromJavaOverrideImplementTest extends JavaCodeInsightFixtureTestCase {
     val isImplement = true
     runTest(methodName, javaText, scalaText, expectedText, isImplement)
   }
+  
+  def testSCL14206(): Unit = {
+    val java = "public interface Solution { long find(int a[], int n); }"
+    
+    val scala =
+      """
+        |class Impl extends Solution {
+        |  <caret>
+        |}
+      """.stripMargin
+    
+    val expected =
+      """
+        |class Impl extends Solution {
+        |  def find(a: Array[Int], n: Int): Long = ???
+        |}
+      """.stripMargin
+    
+    runTest("find", java, scala, expected, isImplement = true)
+  }
 
 }

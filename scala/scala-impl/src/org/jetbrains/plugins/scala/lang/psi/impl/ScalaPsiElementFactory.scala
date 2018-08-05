@@ -651,10 +651,9 @@ object ScalaPsiElementFactory {
             val asterisk = if (param.isRepeatedParameter) tSTAR.toString else ""
 
             val name = param.name
-            name + param.typeElement.map(_.`type`().getOrAny)
-              .map(substitutor.subst).map { scType =>
-              colon(name) + arrow + scType.canonicalText + asterisk
-            }.getOrElse("")
+            val tpe = param.`type`().map(substitutor.subst).getOrAny
+
+            s"$name${colon(name)} $arrow${tpe.canonicalText}$asterisk"
           }
 
           myBuilder.append(parameters.mkString(if (paramClause.isImplicit) "(implicit " else "(", ", ", ")"))
@@ -671,16 +670,19 @@ object ScalaPsiElementFactory {
 
           val pName: String = escapeKeyword(paramName)
           val colon = if (pName.endsWith("_")) " " else ""
-          val maybeTypeElement = Option(param.getTypeElement)
-            .map(_.getType.toScType())
-            .map(substitutor.subst)
+          val paramType = {
+            val tpe = param.paramType()
+            substitutor.subst(tpe)
+          }
 
-          val typeText = maybeTypeElement.map {
+          val asterisk = if (param.isVarArgs) "*" else ""
+
+          val typeText = paramType match {
             case t if t.isAnyRef => "scala.Any"
-            case JavaArrayType(argument) if param.isVarArgs => argument.canonicalText + "*"
             case t => t.canonicalText
-          }.orNull
-          s"$pName$colon: $typeText"
+          }
+
+          s"$pName$colon: $typeText$asterisk"
         }
 
         myBuilder.append(params.mkString("(", ", ", ")"))
