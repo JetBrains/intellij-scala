@@ -18,7 +18,7 @@ abstract class AbstractInspection protected(displayName: String = AbstractInspec
     * use [[org.jetbrains.plugins.scala.codeInspection.AbstractInspection#problemDescriptor]] instead
     */
   @Deprecated
-  protected def actionFor(implicit holder: ProblemsHolder): PartialFunction[PsiElement, Any]
+  protected def actionFor(implicit holder: ProblemsHolder): PartialFunction[PsiElement, Any] = PartialFunction.empty
 
   protected def problemDescriptor(element: PsiElement,
                                   maybeQuickFix: Option[LocalQuickFix] = None,

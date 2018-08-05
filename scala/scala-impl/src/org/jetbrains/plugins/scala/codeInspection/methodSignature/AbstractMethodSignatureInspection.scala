@@ -16,8 +16,6 @@ abstract class AbstractMethodSignatureInspection extends AbstractInspection {
   override final def buildVisitor(holder: ProblemsHolder, isOnTheFly: Boolean) =
     new PureFunctionVisitor(holder, isOnTheFly)
 
-  override protected final def actionFor(implicit holder: ProblemsHolder): PartialFunction[PsiElement, Any] = PartialFunction.empty
-
   override protected def problemDescriptor(element: PsiElement,
                                            maybeQuickFix: Option[LocalQuickFix],
                                            descriptionTemplate: String,
