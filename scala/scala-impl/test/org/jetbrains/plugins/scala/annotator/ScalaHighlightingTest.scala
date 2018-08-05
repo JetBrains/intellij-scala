@@ -88,4 +88,21 @@ class ScalaHighlightingTest extends ScalaHighlightingTestBase {
       """.stripMargin
     assertNothing(errorsFromScalaCode(scalaText))
   }
+
+  def testSCL12708(): Unit = {
+    val code =
+      """
+        |trait T
+        |case object V extends T
+        |
+        |case class Clz(exprs: T*)
+        |
+        |def create[P](args: Seq[T], creator: (T*) => Clz) = {
+        |  creator(args :_*)
+        |}
+        |
+        |create[Clz](Seq(V, V, V), Clz.apply)
+      """.stripMargin
+    assertNothing(errorsFromScalaCode(code))
+  }
 }

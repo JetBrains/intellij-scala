@@ -148,4 +148,20 @@ class OverrideHighlightingTest extends ScalaHighlightingTestBase {
       case Error(_, "Overriding type Int does not conform to base type () => Int") :: Nil =>
     }
   }
+
+  def testSCL14152(): Unit = {
+    val code =
+      """
+        |sealed trait TagExpr
+        |
+        |sealed trait Composite extends TagExpr {
+        |  def head: TagExpr
+        |  def tail: Seq[TagExpr]
+        |  def all: Seq[TagExpr] = head +: tail
+        |}
+        |
+        |final case class And(head: TagExpr, tail: TagExpr*) extends Composite
+      """.stripMargin
+    assertNothing(errorsFromScalaCode(code))
+  }
 }

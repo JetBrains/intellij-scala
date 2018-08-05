@@ -23,9 +23,9 @@ trait ScFunctionalTypeElement extends ScDesugarizableToParametrizedTypeElement {
   override def desugarizedText: String = {
     val paramTypes = (paramTypeElement match {
       case tuple: ScTupleTypeElement => tuple.components
-      case parenthesised: ScParenthesisedTypeElement if parenthesised.innerElement.isEmpty => Seq.empty
+      case parenthesised: ScParenthesisedTypeElement => parenthesised.innerElement.toSeq
       case other => Seq(other)
-    }).map(_.getText) ++
+    }).map(_.getParamTypeText) ++
       Seq(returnTypeElement.map(_.getText).getOrElse("Any"))
     s"_root_.scala.Function${paramTypes.length - 1}${paramTypes.mkString("[", ",", "]")}"
   }
