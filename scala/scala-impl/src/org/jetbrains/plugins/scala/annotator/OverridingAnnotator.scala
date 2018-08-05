@@ -1,6 +1,5 @@
 package org.jetbrains.plugins.scala.annotator
 
-import com.intellij.codeInspection.ProblemHighlightType
 import com.intellij.lang.annotation.{Annotation, AnnotationHolder}
 import com.intellij.psi.{PsiElement, PsiMethod, PsiModifier, PsiModifierListOwner}
 import org.jetbrains.plugins.scala.ScalaBundle
@@ -11,15 +10,15 @@ import org.jetbrains.plugins.scala.lang.psi.api.base.ScFieldId
 import org.jetbrains.plugins.scala.lang.psi.api.base.patterns.ScBindingPattern
 import org.jetbrains.plugins.scala.lang.psi.api.base.types.ScRefinement
 import org.jetbrains.plugins.scala.lang.psi.api.statements._
-import org.jetbrains.plugins.scala.lang.psi.api.statements.params.ScClassParameter
+import org.jetbrains.plugins.scala.lang.psi.api.statements.params.{ScClassParameter, ScParameter}
 import org.jetbrains.plugins.scala.lang.psi.api.toplevel.typedef.ScTypeDefinition
 import org.jetbrains.plugins.scala.lang.psi.api.toplevel.{ScModifierListOwner, ScNamedElement}
 import org.jetbrains.plugins.scala.lang.psi.types.api.TypeParameterType
 import org.jetbrains.plugins.scala.lang.psi.types.api.designator.ScDesignatorType
 import org.jetbrains.plugins.scala.lang.psi.types.nonvalue.Parameter
-import org.jetbrains.plugins.scala.lang.psi.types.recursiveUpdate.{AfterUpdate, ScSubstitutor}
-import org.jetbrains.plugins.scala.lang.psi.types.{ScParameterizedType, ScType, Signature}
+import org.jetbrains.plugins.scala.lang.psi.types.recursiveUpdate.ScSubstitutor
 import org.jetbrains.plugins.scala.lang.psi.types.result.Typeable
+import org.jetbrains.plugins.scala.lang.psi.types.{ScParameterizedType, ScType, Signature}
 import org.jetbrains.plugins.scala.statistics.{FeatureKey, Stats}
 
 /**
@@ -276,8 +275,9 @@ trait OverridingAnnotator {
     }
 
     if (superSignatures.nonEmpty) member match {
-      case tMember: Typeable => tMember.`type`().map(compareWithSignatures)
-      case _ =>
+      case param: ScParameter => param.getRealParameterType.map(compareWithSignatures)
+      case tMember: Typeable  => tMember.`type`().map(compareWithSignatures)
+      case _                  =>
     }
   }
 }

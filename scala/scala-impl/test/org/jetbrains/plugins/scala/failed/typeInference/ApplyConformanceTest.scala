@@ -13,22 +13,6 @@ class ApplyConformanceTest extends ScalaLightCodeInsightFixtureTestAdapter {
 
   override protected def shouldPass: Boolean = false
 
-  def testSCL12708(): Unit = {
-    checkTextHasNoErrors(
-      s"""
-         |trait T
-         |case object V extends T
-         |
-         |case class Clz(exprs: T*)
-         |
-         |def create[P](args: Seq[T], creator: (T*) => Clz) = {
-         |  creator(args :_*)
-         |}
-         |
-         |create[Clz](Seq(V,  V, V), Clz.apply)
-      """.stripMargin)
-  }
-
   def testSCL11912(): Unit = {
     checkTextHasNoErrors(
       s"""

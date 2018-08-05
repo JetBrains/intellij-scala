@@ -890,7 +890,7 @@ object ScalaPsiElementFactory {
     createExpressionFromText(s"1$whitespace+ 1").findElementAt(1)
 
   def createTypeElementFromText(text: String, context: PsiElement, child: PsiElement): ScTypeElement =
-    createElementWithContext[ScTypeElement](text, context, child, Type.parse(_)).orNull
+    createElementWithContext[ScTypeElement](text, context, child, ParamType.parseInner).orNull
 
   def createTypeParameterClauseFromTextWithContext(text: String, context: PsiElement,
                                                    child: PsiElement): ScTypeParamClause =

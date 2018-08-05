@@ -367,12 +367,7 @@ class ScReferenceExpressionImpl(node: ASTNode) extends ScReferenceElementImpl(no
           case Right(tp) => tp
           case _ => return result
         })
-        elementScope.getCachedClass("scala.collection.Seq")
-          .map {
-            ScalaType.designator
-          }.map {
-          ScParameterizedType(_, Seq(computeType))
-        }.getOrElse(computeType)
+        computeType.tryWrapIntoSeqType
       case ScalaResolveResult(obj: ScObject, _) =>
         def tail = {
           fromType match {
