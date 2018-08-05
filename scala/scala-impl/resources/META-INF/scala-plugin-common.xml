@@ -1179,10 +1179,13 @@
               language="Scala" level="WARNING"
               enabledByDefault="false"/>
         <localInspection
-                implementationClass="org.jetbrains.plugins.scala.codeInspection.methodSignature.JavaAccessorMethodCalledAsEmptyParenInspection"
-                displayName="Java accessor method called as empty-paren" groupPath="Scala" groupName="Method signature"
-                shortName="JavaAccessorMethodCalledAsEmptyParen" level="WARNING"
-                enabledByDefault="true" language="Scala"/>
+                implementationClass="org.jetbrains.plugins.scala.codeInspection.methodSignature.JavaAccessorEmptyParenCallInspection"
+                bundle="org.jetbrains.plugins.scala.codeInspection.InspectionBundle"
+                key="method.signature.java.accessor.empty.paren"
+                groupPath="Scala" groupName="Method signature"
+                shortName="JavaAccessorMethodCalledAsEmptyParen"
+                language="Scala" level="WARNING"
+                enabledByDefault="true"/>
       <localInspection
               implementationClass="org.jetbrains.plugins.scala.codeInspection.methodSignature.ApparentResultTypeRefinementInspection"
               bundle="org.jetbrains.plugins.scala.codeInspection.InspectionBundle"
