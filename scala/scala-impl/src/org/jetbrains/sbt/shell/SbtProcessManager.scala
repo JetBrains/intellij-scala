@@ -100,7 +100,7 @@ class SbtProcessManager(project: Project) extends AbstractProjectComponent(proje
     val shouldUpgradeSbtVersion =
       sbtSettings.allowSbtVersionOverride &&
         projectSbtVersion >= Version("1.0.0") &&
-        projectSbtVersion <= latestSbtVersion
+        projectSbtVersion < latestSbtVersion
 
     val upgradedSbtVersion =
       if (shouldUpgradeSbtVersion) latestSbtVersion
