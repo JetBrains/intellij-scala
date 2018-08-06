@@ -132,9 +132,8 @@ private class CommandTask(project: Project, modules: Array[Module], command: Str
   private val taskId: UUID = UUID.randomUUID()
   private val shellRunner: SbtShellRunner = SbtProcessManager.forProject(project).acquireShellRunner
 
-  private def showShell(): Unit = ShellUIUtil.inUI {
+  private def showShell(): Unit =
     shellRunner.openShell(false)
-  }
 
   override def run(indicator: ProgressIndicator): Unit = {
     import org.jetbrains.plugins.scala.lang.macros.expansion.ReflectExpansionsCollector
