@@ -374,7 +374,11 @@ class SbtProcessManager(project: Project) extends AbstractProjectComponent(proje
 }
 
 object SbtProcessManager {
-  def forProject(project: Project): SbtProcessManager = project.getComponent(classOf[SbtProcessManager])
+  def forProject(project: Project): SbtProcessManager = {
+    val pm = project.getComponent(classOf[SbtProcessManager])
+    if (pm == null) throw new IllegalStateException(s"unable to get component SbtProcessManager for project $project")
+    else pm
+  }
 
   private case class ProcessData(processHandler: ColoredProcessHandler,
                                  runner: SbtShellRunner)
