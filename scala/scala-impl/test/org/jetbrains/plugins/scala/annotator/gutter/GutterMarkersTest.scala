@@ -151,4 +151,16 @@ class GutterMarkersTest extends ScalaFixtureTestCase {
        |case class Bar(foo: Int, bar: Int) extends Foo$caret
      """.stripMargin
   )(testLineMarker("Multiple overriding members"))
+
+  @Test
+  def testSCL14208(): Unit = doTest(
+   s"""
+      |trait Foo {
+      |  val a: Int$caret
+      |}
+      |class Bar extends Foo {
+      |  override val a: Int = 42
+      |}
+    """.stripMargin
+  )(testLineMarker("Member has overrides"))
 }
