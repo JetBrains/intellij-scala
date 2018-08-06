@@ -26,9 +26,7 @@ import org.jetbrains.plugins.scala.statistics.{FeatureKey, Stats}
 import org.jetbrains.sbt.shell.SbtShellRunner._
 
 import scala.collection.JavaConverters._
-/**
-  * Created by jast on 2016-5-29.
-  */
+
 class SbtShellRunner(project: Project, consoleTitle: String, debugConnection: Option[RemoteConnection])
   extends AbstractConsoleRunnerWithHistory[LanguageConsoleImpl](project, consoleTitle, project.getBaseDir.getCanonicalPath)
   with Disposable
@@ -50,7 +48,8 @@ class SbtShellRunner(project: Project, consoleTitle: String, debugConnection: Op
   // the process handler should only be used to listen to the running process!
   // SbtProcessManager is solely responsible for destroying/respawning
   private lazy val myProcessHandler =
-    SbtProcessManager.forProject(project).acquireShellProcessHandler
+    SbtProcessManager.forProject(project)
+      .acquireShellProcessHandler
 
   override def createProcessHandler(process: Process): OSProcessHandler = myProcessHandler
 
@@ -123,7 +122,7 @@ class SbtShellRunner(project: Project, consoleTitle: String, debugConnection: Op
                                   defaultExecutor: Executor,
                                   contentDescriptor: RunContentDescriptor): util.List[AnAction] = {
 
-    // the actual toolbar actions are initialized handled by SbtShellToolWindowFactory because this is just a hackjob
+    // the actual toolbar actions are created in SbtShellConsoleView because this is a hackjob
     // the exec action needs to be created here so it is registered. TODO refactor so we don't need this
     List(createConsoleExecAction(myConsoleExecuteActionHandler)).asJava
   }
