@@ -12,6 +12,7 @@ import com.intellij.psi._
 import com.intellij.psi.presentation.java.ClassPresentationUtil
 import com.intellij.psi.search.searches.ClassInheritorsSearch
 import javax.swing.{Icon, ListCellRenderer}
+import org.jetbrains.plugins.scala.annotator.gutter.GutterUtil.namedParent
 import org.jetbrains.plugins.scala.extensions._
 import org.jetbrains.plugins.scala.lang.psi.ScalaPsiUtil
 import org.jetbrains.plugins.scala.lang.psi.api.statements._
@@ -62,8 +63,7 @@ object ScalaMarkerType {
 
   val overridingMember: ScalaMarkerType = ScalaMarkerType(
     element =>
-      GutterUtil
-        .namedParent(element)
+      namedParent(element)
         .flatMap {
           case method: ScFunction =>
             val signatures = method.superSignaturesIncludingSelfType
@@ -100,7 +100,7 @@ object ScalaMarkerType {
         }
         .orNull,
     (event, element) =>
-      GutterUtil.namedParent(element).collect {
+      namedParent(element).collect {
         case method: ScFunction => navigateToSuperMethod(event, method, includeSelf = false)
         case param: ScClassParameter =>
           val signatures      = ScalaPsiUtil.superValsSignatures(param, withSelfType = true)
@@ -127,13 +127,13 @@ object ScalaMarkerType {
 
   val overriddenMember = ScalaMarkerType(
     element =>
-      element.parent.collect {
+      namedParent(element).collect {
         case _: ScMember =>
           if (GutterUtil.isAbstract(element)) ScalaBundle.message("has.implementations")
           else ScalaBundle.message("is.overridden.by")
       }.orNull,
     (event, element) =>
-      element.parent.collect {
+      namedParent(element).collect {
         case member: ScMember =>
           val namedElement = member match {
             case memb: ScNamedElement => Seq(memb)
