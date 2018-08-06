@@ -1,9 +1,6 @@
 package org.jetbrains.sbt
 
-import java.io.File
 import javax.swing.Icon
-
-import com.intellij.openapi.project.Project
 import org.jetbrains.annotations.NotNull
 import org.jetbrains.plugins.scala.buildinfo.BuildInfo
 import org.jetbrains.plugins.scala.icons.Icons

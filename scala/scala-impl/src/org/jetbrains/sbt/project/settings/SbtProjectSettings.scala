@@ -39,7 +39,7 @@ class SbtProjectSettings extends ExternalProjectSettings {
   var resolveJavadocs: Boolean = false
 
   @BeanProperty
-  @deprecated(message = "use separate import/build settings")
+  @deprecated(message = "use separate import/build settings", "2018.2")
   var useSbtShell: Boolean = false
 
   @BeanProperty
