@@ -113,7 +113,7 @@ lazy val runners =
       packageMethod := PackagingMethod.Standalone(),
       libraryDependencies ++= DependencyGroups.runners,
       // WORKAROUND fixes build error in sbt 0.13.12+ analogously to https://github.com/scala/scala/pull/5386/
-      ivyScala ~= (_ map (_ copy (overrideScalaVersion = false)))
+      scalaModuleInfo ~= (_ map (_.withOverrideScalaVersion(false)))
     )
 
 lazy val nailgunRunners =

@@ -2,6 +2,7 @@ import java.net.URI
 
 import sbt._
 import sbt.File
+import sbt.io.Using
 
 /**
   * Download artifacts from jetbrains bintray to mimic a simple local ivy repo that sbt can resolve artifacts from.
@@ -41,8 +42,11 @@ object LocalRepoPackager {
     val downloadedArtifactFiles = paths.map { path =>
       val downloadUrl = remoteRepo.resolve(path).normalize().toURL
       val localFile = (localRepo / path).getCanonicalFile
-      if (! localFile.exists)
-        IO.download(downloadUrl, localFile)
+      if (! localFile.exists) {
+        Using.urlInputStream(downloadUrl) { inputStream =>
+          IO.transfer(inputStream, localFile)
+        }
+      }
       localFile
     }
 
