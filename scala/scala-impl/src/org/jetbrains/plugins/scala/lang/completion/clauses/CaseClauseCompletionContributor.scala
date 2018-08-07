@@ -9,39 +9,38 @@ import com.intellij.psi.PsiElement
 import com.intellij.psi.util.PsiTreeUtil
 import com.intellij.util.{Consumer, ProcessingContext}
 import org.jetbrains.plugins.scala.extensions._
-import org.jetbrains.plugins.scala.lang.completion.lookups.ScalaLookupItem
 import org.jetbrains.plugins.scala.lang.psi.ScalaPsiElement
 import org.jetbrains.plugins.scala.lang.psi.api.base.patterns._
 import org.jetbrains.plugins.scala.lang.psi.api.statements.ScFunctionDefinition
-import org.jetbrains.plugins.scala.lang.psi.api.toplevel.typedef.{ScObject, ScTypeDefinition}
+import org.jetbrains.plugins.scala.lang.psi.api.toplevel.typedef.ScObject
 import org.jetbrains.plugins.scala.lang.psi.impl.ScalaPsiElementFactory.createPatternFromTextWithContext
 
 class CaseClauseCompletionContributor extends ScalaCompletionContributor {
 
-  extend(new ScalaCompletionProvider {
-
-    override protected def completionsFor(position: PsiElement)
-                                         (implicit parameters: CompletionParameters,
-                                          context: ProcessingContext): Iterable[ScalaLookupItem] = {
-      val maybeClass = position.findContextOfType(classOf[ScStableReferenceElementPattern])
-        .flatMap(_.expectedType)
-        .flatMap(_.extractClass)
-
-      val maybeInheritors = maybeClass.collect {
-        case SealedDefinition(classes) => Inheritors(classes)
-        case definition: ScTypeDefinition => Inheritors(Seq(definition))
-      }
-
-      for {
-        inheritors <- maybeInheritors.toSeq
-        (name, namedElement) <- inheritors.patterns(exhaustive = false)(position)
-      } yield {
-        val item = new ScalaLookupItem(namedElement, name)
-        item.isLocalVariable = true
-        item
-      }
-    }
-  })
+  //  extend(new ScalaCompletionProvider {
+  //
+  //    override protected def completionsFor(position: PsiElement)
+  //                                         (implicit parameters: CompletionParameters,
+  //                                          context: ProcessingContext): Iterable[ScalaLookupItem] = {
+  //      val maybeClass = position.findContextOfType(classOf[ScStableReferenceElementPattern])
+  //        .flatMap(_.expectedType)
+  //        .flatMap(_.extractClass)
+  //
+  //      val maybeInheritors = maybeClass.collect {
+  //        case SealedDefinition(classes) => Inheritors(classes)
+  //        case definition: ScTypeDefinition => Inheritors(Seq(definition))
+  //      }
+  //
+  //      for {
+  //        inheritors <- maybeInheritors.toSeq
+  //        (name, namedElement) <- inheritors.patterns(exhaustive = false)(position)
+  //      } yield {
+  //        val item = new ScalaLookupItem(namedElement, name)
+  //        item.isLocalVariable = true
+  //        item
+  //      }
+  //    }
+  //  })
 
   extend(new CompletionProvider[CompletionParameters] {
 
