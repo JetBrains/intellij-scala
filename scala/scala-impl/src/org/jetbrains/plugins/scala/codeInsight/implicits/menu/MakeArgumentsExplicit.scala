@@ -19,7 +19,7 @@ class MakeArgumentsExplicit extends AnAction {
 
     implicit val context: ProjectContext = ProjectContext.fromProject(e.getData(CommonDataKeys.PROJECT))
 
-    inWriteCommandAction(editor.getProject)(element.replace(code"$element$inlayText"))
+    inWriteCommandAction(element.replace(code"$element$inlayText"))(editor.getProject)
 
     inlay.dispose()
   }

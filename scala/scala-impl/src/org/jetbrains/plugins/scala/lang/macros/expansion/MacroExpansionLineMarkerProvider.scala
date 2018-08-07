@@ -3,7 +3,6 @@ package org.jetbrains.plugins.scala.lang.macros.expansion
 import java.awt.event.MouseEvent
 import java.util
 
-import javax.swing.Icon
 import com.intellij.codeHighlighting.Pass
 import com.intellij.codeInsight.daemon._
 import com.intellij.icons.AllIcons
@@ -17,6 +16,7 @@ import com.intellij.openapi.wm.ToolWindowId
 import com.intellij.psi.codeStyle.CodeStyleManager
 import com.intellij.psi.{PsiElement, PsiElementVisitor, PsiManager, PsiWhiteSpace}
 import com.intellij.util.Function
+import javax.swing.Icon
 import org.jetbrains.plugins.scala.ScalaBundle
 import org.jetbrains.plugins.scala.extensions._
 import org.jetbrains.plugins.scala.lang.lexer.ScalaTokenTypes
@@ -104,7 +104,7 @@ abstract class MacroExpansionLineMarkerProvider extends RelatedItemLineMarkerPro
     }
     val UndoExpansionData(original, savedCompanion) = parent.getCopyableUserData(EXPANDED_KEY)
     createMarker(element, AllIcons.Actions.Undo, "Undo macro expansion") { _ =>
-      inWriteCommandAction(element.getProject)(undoExpansion(original, savedCompanion))
+      inWriteCommandAction(undoExpansion(original, savedCompanion))(element.getProject)
     }
   }
 

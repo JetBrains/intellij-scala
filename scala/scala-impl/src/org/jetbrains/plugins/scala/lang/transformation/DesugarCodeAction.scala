@@ -1,6 +1,7 @@
 package org.jetbrains.plugins.scala.lang.transformation
 
 import com.intellij.openapi.actionSystem.{AnAction, AnActionEvent, CommonDataKeys}
+import com.intellij.openapi.project.Project
 import org.jetbrains.plugins.scala.actions.ScalaActionUtil
 import org.jetbrains.plugins.scala.extensions._
 import org.jetbrains.plugins.scala.lang.psi.api.ScalaFile
@@ -14,18 +15,21 @@ class DesugarCodeAction extends AnAction {
   def actionPerformed(event: AnActionEvent) {
     Stats.trigger(FeatureKey.desugarCode)
 
-    val project = event.getProject
-    val file = CommonDataKeys.PSI_FILE.getData(event.getDataContext).asInstanceOf[ScalaFile]
-    val editor = CommonDataKeys.EDITOR.getData(event.getDataContext)
+    implicit val project: Project = event.getProject
+    if (project == null) return
 
-    if (project == null || file == null || editor == null) return
+    val file = CommonDataKeys.PSI_FILE.getData(event.getDataContext).asInstanceOf[ScalaFile]
+    if (file == null) return
+
+    val editor = CommonDataKeys.EDITOR.getData(event.getDataContext)
+    if (editor == null) return
 
     val selection = editor.getSelectionModel
 
     val title = s"Desugar Scala code (${selection.hasSelection.fold("selection", "file")})"
 
     new SelectionDialog().show(title).filter(_.nonEmpty).foreach { transformers =>
-        inWriteCommandAction(project, title) {
+      inWriteCommandAction {
           val range = selection.hasSelection.option {
             val document = editor.getDocument
 

@@ -51,7 +51,7 @@ class ScalaGenerateDelegateHandler extends GenerateDelegateHandler {
 
     val elementAtOffset = file.findElementAt(editor.getCaretModel.getOffset)
 
-    inWriteCommandAction(project) {
+    inWriteCommandAction {
       try {
         val aClass = classAtOffset(editor.getCaretModel.getOffset, file)
         val generatedMethods = for (member <- candidates) yield {
@@ -81,7 +81,7 @@ class ScalaGenerateDelegateHandler extends GenerateDelegateHandler {
       catch {
         case _: IncorrectOperationException => throw new IncorrectOperationException(s"Could not delegate methods to ${target.getText}")
       }
-    }
+    }(project)
   }
 
   private def methodBody(delegate: ClassMember, prototype: ScFunction): ScExpression = {

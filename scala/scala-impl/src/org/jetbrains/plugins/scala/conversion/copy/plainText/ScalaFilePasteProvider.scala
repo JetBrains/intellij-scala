@@ -12,8 +12,7 @@ import com.intellij.openapi.project.Project
 import com.intellij.openapi.ui.Messages.showErrorDialog
 import com.intellij.psi._
 import com.intellij.util.IncorrectOperationException
-import org.jetbrains.plugins.scala.extensions
-import org.jetbrains.plugins.scala.extensions.{ToNullSafe, ObjectExt, startCommand}
+import org.jetbrains.plugins.scala.extensions.{ObjectExt, ToNullSafe, inWriteCommandAction, startCommand}
 import org.jetbrains.plugins.scala.lang.psi.api.ScalaFile
 import org.jetbrains.plugins.scala.project.ModuleExt
 
@@ -37,13 +36,14 @@ class ScalaFilePasteProvider extends PasteProvider {
     maybeProject.flatMap(PlainTextCopyUtil.createScalaFile(text, _)).zip {
       maybeIdeView.flatMap(_.getOrChooseDirectory.toOption)
     }.foreach {
-      case (scalaFile, directory) => createFileInDirectory(fileName(scalaFile), text, directory, scalaFile.getProject)
+      case (scalaFile, directory) => createFileInDirectory(fileName(scalaFile), text, directory)(scalaFile.getProject)
     }
   }
 
-  private def createFileInDirectory(fileName: String, fileText: String, directory: PsiDirectory, project: Project) = {
+  private def createFileInDirectory(fileName: String, fileText: String, directory: PsiDirectory)
+                                   (implicit project: Project) =
     Try {
-      extensions.inWriteCommandAction(project) {
+      inWriteCommandAction {
         val file = directory.createFile(fileName).asInstanceOf[ScalaFile]
         val documentManager = PsiDocumentManager.getInstance(project)
 
@@ -60,7 +60,6 @@ class ScalaFilePasteProvider extends PasteProvider {
     }.recover {
       case e: IncorrectOperationException => showErrorDialog(project, e.getMessage, "Paste")
     }
-  }
 
   private def updatePackageStatement(file: ScalaFile, targetDir: PsiDirectory, project: Project) =
     startCommand(project, new Runnable {

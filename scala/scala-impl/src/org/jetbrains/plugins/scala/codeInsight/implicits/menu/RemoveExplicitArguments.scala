@@ -12,7 +12,7 @@ class RemoveExplicitArguments extends AnAction {
     val inlay = model.getElementAt(MouseHandler.mousePressLocation)
     val element = Hint.elementOf(inlay)
 
-    inWriteCommandAction(editor.getProject)(element.getParent.replace(element.getPrevSibling))
+    inWriteCommandAction(element.getParent.replace(element.getPrevSibling))(editor.getProject)
     inlay.dispose()
   }
 }

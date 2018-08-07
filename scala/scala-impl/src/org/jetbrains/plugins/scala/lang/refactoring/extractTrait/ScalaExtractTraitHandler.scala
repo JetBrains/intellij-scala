@@ -1,9 +1,6 @@
 package org.jetbrains.plugins.scala
 package lang.refactoring.extractTrait
 
-import scala.collection.JavaConverters._
-import scala.collection.mutable
-
 import com.intellij.openapi.actionSystem.{CommonDataKeys, DataContext}
 import com.intellij.openapi.editor.{Editor, ScrollType}
 import com.intellij.openapi.project.Project
@@ -26,6 +23,9 @@ import org.jetbrains.plugins.scala.lang.refactoring.ScalaRefactoringActionHandle
 import org.jetbrains.plugins.scala.lang.refactoring.memberPullUp.ScalaPullUpProcessor
 import org.jetbrains.plugins.scala.lang.refactoring.util.ScalaDirectoryService
 import org.jetbrains.plugins.scala.statistics.{FeatureKey, Stats}
+
+import scala.collection.JavaConverters._
+import scala.collection.mutable
 
 /**
  * Nikolay.Tropin
@@ -62,7 +62,8 @@ class ScalaExtractTraitHandler extends ScalaRefactoringActionHandler {
   }
 
   @TestOnly
-  def testInvoke(project: Project, editor: Editor, file: PsiFile, onlyDeclarations: Boolean, onlyFirstMember: Boolean) {
+  def testInvoke(file: PsiFile, onlyDeclarations: Boolean, onlyFirstMember: Boolean)
+                (implicit project: Project, editor: Editor): Unit = {
     val offset: Int = editor.getCaretModel.getOffset
     editor.getScrollingModel.scrollToCaret(ScrollType.MAKE_VISIBLE)
     val element: PsiElement = file.findElementAt(offset)
@@ -74,7 +75,8 @@ class ScalaExtractTraitHandler extends ScalaRefactoringActionHandler {
     extractInfo.collect()
     val messages = extractInfo.conflicts.values().asScala
     if (messages.nonEmpty) throw new RuntimeException(messages.mkString("\n"))
-    inWriteCommandAction(project, "Extract trait") {
+
+    inWriteCommandAction {
       val traitText = "trait ExtractedTrait {\n\n}"
       val newTrt = createTemplateDefinitionFromText(traitText, clazz.getContext, clazz)
       val newTrtAdded = clazz match {
@@ -107,10 +109,10 @@ class ScalaExtractTraitHandler extends ScalaRefactoringActionHandler {
     val name = dialog.getTraitName
     val packName = dialog.getPackageName
 
-    inWriteCommandAction(project, "Extract trait") {
+    inWriteCommandAction {
       val newTrait = createTraitFromTemplate(name, packName, clazz)
       finishExtractTrait(newTrait, extractInfo)
-    }
+    }(project)
   }
 
   private def finishExtractTrait(trt: ScTrait, extractInfo: ExtractInfo) {

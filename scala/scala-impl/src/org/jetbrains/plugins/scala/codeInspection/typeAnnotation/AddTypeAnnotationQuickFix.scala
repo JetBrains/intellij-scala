@@ -30,7 +30,6 @@ class AddTypeAnnotationQuickFix(element: PsiElement)
                         descriptors: Array[CommonProblemDescriptor],
                         psiElementsToIgnore: ju.List[PsiElement],
                         refreshViews: Runnable): Unit = {
-
     val quickFixes = descriptors.flatMap(_.getFixes).collect {
       case quickFix: AddTypeAnnotationQuickFix => quickFix
     }
@@ -40,9 +39,9 @@ class AddTypeAnnotationQuickFix(element: PsiElement)
     ApplicationManagerEx.getApplicationEx
       .runProcessWithProgressSynchronously(new ComputeTypesTask(quickFixes, strategy), getFamilyName, true, project)
 
-    inWriteCommandAction(project, getFamilyName) {
+    inWriteCommandAction {
       strategy.addActualTypes(refreshViews)
-    }
+    }(project)
   }
 }
 

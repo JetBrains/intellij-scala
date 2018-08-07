@@ -39,10 +39,10 @@ import org.jetbrains.plugins.scala.lang.psi.api.toplevel.{ScEarlyDefinitions, Sc
 import org.jetbrains.plugins.scala.lang.psi.api.{ScalaFile, ScalaRecursiveElementVisitor}
 import org.jetbrains.plugins.scala.lang.psi.impl.ScalaPsiElementFactory._
 import org.jetbrains.plugins.scala.lang.psi.stubs.util.ScalaStubsUtil
-import org.jetbrains.plugins.scala.lang.psi.types.{ScType, TypePresentationContext}
 import org.jetbrains.plugins.scala.lang.psi.types.api.designator.{DesignatorOwner, ScDesignatorType}
 import org.jetbrains.plugins.scala.lang.psi.types.api.{FunctionType, TypeParameterType}
 import org.jetbrains.plugins.scala.lang.psi.types.result._
+import org.jetbrains.plugins.scala.lang.psi.types.{ScType, TypePresentationContext}
 import org.jetbrains.plugins.scala.lang.psi.{ScalaPsiElement, ScalaPsiUtil}
 import org.jetbrains.plugins.scala.lang.refactoring.ScalaNamesValidator.isIdentifier
 import org.jetbrains.plugins.scala.lang.resolve.ScalaResolveResult
@@ -226,9 +226,9 @@ object ScalaRefactoringUtil {
       expr match {
         case Some(expression: ScInfixExpr) =>
           val op1 = expression.operation
-          if (ensureFileWritable(file)(project)) {
+          if (ensureFileWritable(file)) {
             var res: Option[(ScExpression, Array[ScType])] = None
-            inWriteCommandAction(project) {
+            inWriteCommandAction {
               val document = editor.getDocument
               document.insertString(endOffset, ")")
               document.insertString(startOffset, "(")
