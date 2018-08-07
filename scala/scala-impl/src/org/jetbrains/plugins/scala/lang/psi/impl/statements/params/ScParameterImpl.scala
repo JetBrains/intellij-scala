@@ -11,7 +11,7 @@ import org.jetbrains.plugins.scala.extensions.{ObjectExt, ifReadAllowed}
 import org.jetbrains.plugins.scala.lang.lexer.ScalaTokenTypes
 import org.jetbrains.plugins.scala.lang.parser.ScalaElementTypes
 import org.jetbrains.plugins.scala.lang.psi.api.ScalaElementVisitor
-import org.jetbrains.plugins.scala.lang.psi.api.base.{ScLiteral, ScMethodLike}
+import org.jetbrains.plugins.scala.lang.psi.api.base.ScMethodLike
 import org.jetbrains.plugins.scala.lang.psi.api.base.types.ScTypeElement
 import org.jetbrains.plugins.scala.lang.psi.api.expr._
 import org.jetbrains.plugins.scala.lang.psi.api.statements.params._
@@ -42,8 +42,12 @@ class ScParameterImpl protected (stub: ScParameterStub, nodeType: ScParamElement
   override def getNameIdentifier: PsiIdentifier = new JavaIdentifier(nameId)
 
   def deprecatedName: Option[String] = byStubOrPsi(_.deprecatedName) {
+    // by-text heuristic is used because this method is called during stub creation,
+    // so actual resolving of an annotation causes deadlock
+    val deprecatedNameAnnotation = annotations.find(_.typeElement.getText.contains("deprecatedName"))
+
     for {
-      ann        <- findAnnotation("scala.deprecatedName").asOptionOf[ScAnnotation]
+      ann        <- deprecatedNameAnnotation
       args       <- ann.constructor.args
       nameSymbol <- args.exprs.headOption
       node       = nameSymbol.getNode.getFirstChildNode
