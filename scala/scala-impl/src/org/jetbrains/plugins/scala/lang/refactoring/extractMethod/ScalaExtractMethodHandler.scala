@@ -3,19 +3,15 @@ package lang
 package refactoring
 package extractMethod
 
-import scala.collection.mutable.ArrayBuffer
-
 import com.intellij.openapi.actionSystem.DataContext
 import com.intellij.openapi.application.ApplicationManager
 import com.intellij.openapi.editor.{Editor, ScrollType}
 import com.intellij.openapi.project.Project
-import com.intellij.openapi.util.TextRange
 import com.intellij.psi._
 import com.intellij.psi.codeStyle.CodeStyleManager
 import com.intellij.psi.util.PsiTreeUtil
 import org.jetbrains.annotations.Nullable
 import org.jetbrains.plugins.scala.extensions._
-import org.jetbrains.plugins.scala.lang.psi
 import org.jetbrains.plugins.scala.lang.psi.api.base.patterns.ScCaseClause
 import org.jetbrains.plugins.scala.lang.psi.api.base.{ScPrimaryConstructor, ScReferenceElement}
 import org.jetbrains.plugins.scala.lang.psi.api.expr._
@@ -26,7 +22,6 @@ import org.jetbrains.plugins.scala.lang.psi.api.toplevel.typedef._
 import org.jetbrains.plugins.scala.lang.psi.api.{ScalaFile, ScalaRecursiveElementVisitor}
 import org.jetbrains.plugins.scala.lang.psi.dataFlow.impl.reachingDefs.ReachingDefintionsCollector
 import org.jetbrains.plugins.scala.lang.psi.impl.ScalaPsiElementFactory.{createNewLine, createTemplateDefinitionFromText}
-import org.jetbrains.plugins.scala.lang.psi.stubs.elements
 import org.jetbrains.plugins.scala.lang.psi.types.ScType
 import org.jetbrains.plugins.scala.lang.psi.types.api.Unit
 import org.jetbrains.plugins.scala.lang.psi.types.result._
@@ -36,6 +31,8 @@ import org.jetbrains.plugins.scala.lang.refactoring.util.ScalaRefactoringUtil._
 import org.jetbrains.plugins.scala.project.ProjectContext
 import org.jetbrains.plugins.scala.settings.ScalaApplicationSettings
 import org.jetbrains.plugins.scala.statistics.{FeatureKey, Stats}
+
+import scala.collection.mutable.ArrayBuffer
 
 /**
  * User: Alexander Podkhalyuzin
@@ -260,7 +257,7 @@ class ScalaExtractMethodHandler extends ScalaRefactoringActionHandler {
     val duplicates = DuplicatesUtil.findDuplicates(settings)
     performRefactoring(settings, editor)
     if (settings.returnType.isEmpty && settings.typeParameters.isEmpty) {
-      if (duplicates.nonEmpty) DuplicatesUtil.processDuplicates(duplicates, settings, project, editor)
+      if (duplicates.nonEmpty) DuplicatesUtil.processDuplicates(duplicates, settings)(project, editor)
     }
   }
 
@@ -334,20 +331,16 @@ class ScalaExtractMethodHandler extends ScalaRefactoringActionHandler {
       insertedMethod
     }
 
-    def insertMethodCall =
-      ScalaExtractMethodUtils.replaceWithMethodCall(settings, settings.elements, param => param.oldName, output => output.paramName)
 
-
-    PsiDocumentManager.getInstance(editor.getProject).commitDocument(editor.getDocument)
-
-    inWriteCommandAction(editor.getProject, REFACTORING_NAME) {
-
+    implicit val project: Project = editor.getProject
+    PsiDocumentManager.getInstance(project).commitDocument(editor.getDocument)
+    inWriteCommandAction {
       val method = insertMethod()
       insertInnerClassBefore(method)
-      insertMethodCall
 
-      val manager = CodeStyleManager.getInstance(method.getProject)
-      manager.reformat(method)
+      ScalaExtractMethodUtils.replaceWithMethodCall(settings, settings.elements, param => param.oldName, output => output.paramName)
+
+      CodeStyleManager.getInstance(project).reformat(method)
       editor.getSelectionModel.removeSelection()
     }
   }

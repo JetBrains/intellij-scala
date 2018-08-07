@@ -9,7 +9,7 @@ import com.intellij.extapi.psi.StubBasedPsiElementBase
 import com.intellij.lang.ASTNode
 import com.intellij.openapi.Disposable
 import com.intellij.openapi.application.ex.ApplicationUtil
-import com.intellij.openapi.application.{Application, ApplicationManager, Result, TransactionGuard}
+import com.intellij.openapi.application.{ApplicationManager, TransactionGuard}
 import com.intellij.openapi.command.{CommandProcessor, WriteCommandAction}
 import com.intellij.openapi.progress.{ProcessCanceledException, ProgressManager}
 import com.intellij.openapi.project.Project
@@ -24,7 +24,6 @@ import com.intellij.psi.tree.{IElementType, TokenSet}
 import com.intellij.psi.util.PsiTreeUtil
 import com.intellij.util.text.CharArrayUtil
 import com.intellij.util.{ArrayFactory, Processor}
-import org.jetbrains.annotations.NotNull
 import org.jetbrains.plugins.scala.extensions.implementation.iterator._
 import org.jetbrains.plugins.scala.lang.lexer.ScalaTokenTypes
 import org.jetbrains.plugins.scala.lang.psi.ScalaPsiUtil.isInheritorDeep
@@ -727,59 +726,34 @@ package object extensions {
     startCommand(project, () => inWriteAction(body), commandName)
   }
 
-  def inWriteAction[T](body: => T): T = {
-    val application: Application = ApplicationManager.getApplication
-
-    if (application.isWriteAccessAllowed) body
-    else {
-      application.runWriteAction(
-        new Computable[T] {
-          def compute: T = body
-        }
-      )
-    }
+  def inWriteAction[T](body: => T): T = ApplicationManager.getApplication match {
+    case application if application.isWriteAccessAllowed => body
+    case application => application.runWriteAction(body)
   }
 
-  def inWriteCommandAction[T](project: Project, commandName: String = "Undefined")(body: => T): T = {
-    val computable = new Computable[T] {
-      override def compute(): T = body
-    }
-    new WriteCommandAction[T](project, commandName) {
-      protected def run(@NotNull result: Result[T]) {
-        result.setResult(computable.compute())
-      }
-    }.execute.getResultObject
-  }
+  def inWriteCommandAction[T](body: => T)(implicit project: Project): T =
+    WriteCommandAction.runWriteCommandAction(project, body)
 
-  def inReadAction[T](body: => T): T = {
-    val application = ApplicationManager.getApplication
-
-    if (application.isReadAccessAllowed) body
-    else {
-      application.runReadAction(
-        new Computable[T] {
-          override def compute(): T = body
-        }
-      )
-    }
+  def inReadAction[T](body: => T): T = ApplicationManager.getApplication match {
+    case application if application.isReadAccessAllowed => body
+    case application => application.runReadAction(body)
   }
 
   //use only for defining toString method
   def ifReadAllowed[T](body: => T)(default: => T): T = {
     try {
-      val ref: Ref[T] = Ref.create()
+      val ref = Ref.create[T]
       ProgressManager.getInstance().executeNonCancelableSection {
         ref.set(ApplicationUtil.tryRunReadAction(body))
       }
-      ref.get()
+      ref.get
     } catch {
       case _: ProcessCanceledException => default
     }
   }
 
-  def executeOnPooledThread[T](body: => T): Future[T] = {
-    ApplicationManager.getApplication.executeOnPooledThread(toCallable(body))
-  }
+  def executeOnPooledThread[T](body: => T): Future[T] =
+    ApplicationManager.getApplication.executeOnPooledThread(body)
 
   def withProgressSynchronously[T](title: String)(body: => T): T = {
     withProgressSynchronouslyTry[T](title)(_ => body) match {

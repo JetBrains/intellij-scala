@@ -1,9 +1,7 @@
 package scala.meta.intellij.editor
 
-import com.intellij.notification.{NotificationGroup, NotificationType}
+import com.intellij.notification.NotificationType
 import com.intellij.openapi.diagnostic.Logger
-import com.intellij.openapi.util.Key
-import com.intellij.openapi.wm.ToolWindowId
 import com.intellij.psi.PsiElement
 import com.intellij.psi.impl.source.codeStyle.CodeEditUtil
 import com.intellij.psi.impl.source.tree.LeafPsiElement
@@ -57,9 +55,9 @@ class MetaExpansionLineMarkerProvider extends MacroExpansionLineMarkerProvider {
             value1 == value2
           case _ => false
         }
-        inWriteCommandAction(annot.getProject) {
+        inWriteCommandAction {
           expandAnnotation(annot, MacroExpansion(null, tree.toString.trim, "", removeCompanionObject))
-        }
+        }(annot.getProject)
       case Left(errorMsg) =>
         messageGroup.createNotification(
           s"Macro expansion failed: $errorMsg", NotificationType.ERROR

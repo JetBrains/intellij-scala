@@ -14,6 +14,7 @@ import org.jetbrains.plugins.scala.lang.completion.postfix.templates.ScalaPostfi
 import org.jetbrains.plugins.scala.lang.psi.ScalaPsiElement
 import org.jetbrains.plugins.scala.util.TestUtils
 import org.junit.Assert._
+
 import scala.collection.JavaConverters._
 
 /**
@@ -49,7 +50,7 @@ abstract class PostfixTemplateTest extends ScalaLightCodeInsightFixtureTestAdapt
     val (expectedResult, template, end, expr) = prepareTest()
     assert(template.isApplicable(expr, getFile.getViewProvider.getDocument, end))
     import org.jetbrains.plugins.scala.extensions._
-    inWriteCommandAction(null) {template.expand(expr, getEditor)}
+    inWriteCommandAction(template.expand(expr, getEditor))(null)
     
     assertEquals(expectedResult, getFile.getText)
   }

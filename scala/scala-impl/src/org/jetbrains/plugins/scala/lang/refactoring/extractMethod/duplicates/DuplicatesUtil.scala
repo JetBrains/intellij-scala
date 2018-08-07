@@ -79,7 +79,8 @@ object DuplicatesUtil {
     HighlightManager.getInstance(project).removeSegmentHighlighter(editor, highlighter.get(0))
   }
 
-  private def invokeDuplicateProcessing(duplicates: Seq[DuplicateMatch], settings: ScalaExtractMethodSettings, project: Project, editor: Editor) {
+  private def invokeDuplicateProcessing(duplicates: Seq[DuplicateMatch], settings: ScalaExtractMethodSettings)
+                                       (implicit project: Project, editor: Editor): Unit = {
     var replaceAll = false
     var cancelled = false
     for ((d, idx) <- duplicates.zipWithIndex) {
@@ -88,9 +89,9 @@ object DuplicatesUtil {
           val dialog = showPromptDialog(settings.methodName, idx + 1, duplicates.size, project)
           dialog.getExitCode match {
             case FindManager.PromptResult.ALL =>
-              replaceDuplicate(project, settings, d)
+              replaceDuplicate(settings, d)
               replaceAll = true
-            case FindManager.PromptResult.OK => replaceDuplicate(project, settings, d)
+            case FindManager.PromptResult.OK => replaceDuplicate(settings, d)
             case FindManager.PromptResult.SKIP =>
             case FindManager.PromptResult.CANCEL => cancelled = true
           }
@@ -98,12 +99,13 @@ object DuplicatesUtil {
 
         if (cancelled) return
       }
-      else replaceDuplicate(project, settings, d)
+      else replaceDuplicate(settings, d)
     }
   }
 
-  private def replaceDuplicate(project: Project, settings: ScalaExtractMethodSettings, d: DuplicateMatch) =
-    inWriteCommandAction(project, "Replace duplicate") {
+  private def replaceDuplicate(settings: ScalaExtractMethodSettings, d: DuplicateMatch)
+                              (implicit project: Project): Unit =
+    inWriteCommandAction {
       ScalaExtractMethodUtils.replaceWithMethodCall(settings, d)
     }
 
@@ -114,7 +116,8 @@ object DuplicatesUtil {
     dialog
   }
 
-  def processDuplicates(duplicates: Seq[DuplicateMatch], settings: ScalaExtractMethodSettings, project: Project, editor: Editor) {
+  def processDuplicates(duplicates: Seq[DuplicateMatch], settings: ScalaExtractMethodSettings)
+                       (implicit project: Project, editor: Editor): Unit = {
     def showDuplicatesDialog(): Int = {
       val message = RefactoringBundle.message("0.has.detected.1.code.fragments.in.this.file.that.can.be.replaced.with.a.call.to.extracted.method",
         ApplicationNamesInfo.getInstance.getProductName, Int.box(duplicates.size))
@@ -122,19 +125,20 @@ object DuplicatesUtil {
     }
 
     if (ApplicationManager.getApplication.isUnitTestMode) {
-      duplicates.foreach(replaceDuplicate(project, settings, _))
+      duplicates.foreach(replaceDuplicate(settings, _))
       return
     }
 
     if (duplicates.size == 1) {
-      previewDuplicate(project, editor, duplicates(0)) {
-        if (showDuplicatesDialog() == Messages.YES) replaceDuplicate(project, settings, duplicates(0))
+      val duplicate = duplicates.head
+      previewDuplicate(project, editor, duplicate) {
+        if (showDuplicatesDialog() == Messages.YES) replaceDuplicate(settings, duplicate)
       }
       return
     }
 
     if (showDuplicatesDialog() == Messages.YES) {
-      invokeDuplicateProcessing(duplicates, settings, project, editor)
+      invokeDuplicateProcessing(duplicates, settings)
     }
   }
 
