@@ -14,7 +14,7 @@ import org.jetbrains.plugins.scala.lang.psi.ScalaPsiElement
 import org.jetbrains.plugins.scala.lang.psi.api.base.patterns._
 import org.jetbrains.plugins.scala.lang.psi.api.statements.ScFunctionDefinition
 import org.jetbrains.plugins.scala.lang.psi.api.toplevel.typedef.{ScObject, ScTypeDefinition}
-import org.jetbrains.plugins.scala.lang.psi.impl.ScalaPsiElementFactory
+import org.jetbrains.plugins.scala.lang.psi.impl.ScalaPsiElementFactory.createPatternFromTextWithContext
 
 class CaseClauseCompletionContributor extends ScalaCompletionContributor {
 
@@ -89,7 +89,7 @@ object CaseClauseCompletionContributor {
       }
 
       override protected def createElement(text: String, context: PsiElement, child: PsiElement): ScTypedPattern =
-        createPattern(text, context, child).asInstanceOf[ScTypedPattern]
+        createPatternFromTextWithContext(text, context, child).asInstanceOf[ScTypedPattern]
     }
   }
 
@@ -113,7 +113,7 @@ object CaseClauseCompletionContributor {
     }
 
     override protected def createElement(text: String, context: PsiElement, child: PsiElement): ScPattern =
-      createPattern(text, context, child)
+      createPatternFromTextWithContext(text, context, child)
 
     override protected def createConsumer(resultSet: CompletionResultSet)
                                          (implicit position: PsiElement): Consumer[CompletionResult] =
@@ -131,9 +131,4 @@ object CaseClauseCompletionContributor {
         if (extractorExists) resultSet.consume(lookupElement)
       }
   }
-
-  private[this] def createPattern(text: String, context: PsiElement, child: PsiElement): ScPattern =
-    ScalaPsiElementFactory.createCaseClauseFromTextWithContext(text, context, child)
-      .flatMap(_.pattern)
-      .get
 }

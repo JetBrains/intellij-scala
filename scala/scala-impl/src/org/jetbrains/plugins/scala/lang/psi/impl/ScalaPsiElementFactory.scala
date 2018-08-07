@@ -48,7 +48,6 @@ import org.jetbrains.plugins.scala.lang.psi.api.toplevel.typedef._
 import org.jetbrains.plugins.scala.lang.psi.api.toplevel.{ScModifierListOwner, ScTypedDefinition}
 import org.jetbrains.plugins.scala.lang.psi.impl.expr.ScBlockImpl
 import org.jetbrains.plugins.scala.lang.psi.types._
-import org.jetbrains.plugins.scala.lang.psi.types.api._
 import org.jetbrains.plugins.scala.lang.psi.types.api.designator.ScDesignatorType
 import org.jetbrains.plugins.scala.lang.psi.types.recursiveUpdate.ScSubstitutor
 import org.jetbrains.plugins.scala.lang.psi.types.result._
@@ -262,8 +261,10 @@ object ScalaPsiElementFactory {
     case _ => context.getLastChild
   }
 
-  def createCaseClauseFromTextWithContext(patternText: String, context: PsiElement, child: PsiElement): Option[ScCaseClause] =
+  def createPatternFromTextWithContext(patternText: String, context: PsiElement, child: PsiElement): ScPattern =
     createElementWithContext[ScCaseClause](s"${ScalaKeyword.CASE} $patternText", context, child, CaseClause.parse)
+      .flatMap(_.pattern)
+      .get
 
   def createAnAnnotation(name: String)
                         (implicit ctx: ProjectContext): ScAnnotation = {
