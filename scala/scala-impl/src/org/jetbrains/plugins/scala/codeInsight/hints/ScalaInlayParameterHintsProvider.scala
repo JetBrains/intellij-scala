@@ -7,14 +7,12 @@ import java.{util => ju}
 import com.intellij.codeInsight.hints
 import com.intellij.lang.java.JavaLanguage
 import com.intellij.psi.{PsiElement, PsiMethod}
-import org.jetbrains.plugins.scala.codeInspection.collections.MethodRepr
 import org.jetbrains.plugins.scala.extensions._
 import org.jetbrains.plugins.scala.lang.lexer.ScalaTokenTypes
 import org.jetbrains.plugins.scala.lang.psi.api.base.{ScConstructor, ScLiteral}
 import org.jetbrains.plugins.scala.lang.psi.api.expr._
 import org.jetbrains.plugins.scala.lang.psi.api.statements.ScFunction.Ext
 import org.jetbrains.plugins.scala.lang.psi.types.nonvalue.Parameter
-import org.jetbrains.plugins.scala.lang.refactoring.util.ScalaNamesUtil
 import org.jetbrains.plugins.scala.lang.resolve.ScalaResolveResult
 
 import scala.annotation.tailrec
@@ -81,15 +79,18 @@ object ScalaInlayParameterHintsProvider {
       case (_, parameter) => parameter.isRepeated
     }
 
-    (regular ++ varargs.headOption).filter {
-      case (argument, parameter) => isNameable(argument) && isNameable(parameter)
+    (regular ++ varargs.headOption).collect {
+      case (argument, parameter) if isNameable(argument) => (argument, parameter.name)
     }.filter {
       case (_: ScUnderscoreSection, _) => false
+      case (_, name) if name.length <= 1 => false
       case (argument, _) if !referenceParameterNames.isEnabled => isUnclear(argument)
-      case (extractReferenceName(name), parameter) => name.mismatchesCamelCase(parameter.name)
+      case (ReferenceName(name, Seq()), parameterName) => name.mismatchesCamelCase(parameterName)
       case _ => true
     }.map {
-      case (argument, parameter) => InlayInfo(parameter.name, ScalaTokenTypes.tASSIGN, argument)
+      case (argument, name) =>
+        val offset = argument.getTextRange.getStartOffset
+        new hints.InlayInfo(s"$name ${ScalaTokenTypes.tASSIGN}", offset)
     }
   }
 
@@ -137,9 +138,6 @@ object ScalaInlayParameterHintsProvider {
       case _ => false
     }
 
-  private[this] def isNameable(parameter: Parameter) =
-    parameter.name.length > 1
-
   @tailrec
   private[this] def isUnclear(expression: ScExpression): Boolean = expression match {
     case _: ScLiteral | _: ScThisReference => true
@@ -147,32 +145,4 @@ object ScalaInlayParameterHintsProvider {
     case ScSugarCallExpr(base, _, _) => isUnclear(base)
     case _ => false
   }
-
-  private[this] object extractReferenceName {
-
-    def unapply(expression: ScExpression): Option[String] = expression match {
-      case MethodRepr(_, maybeExpression, maybeReference, Seq()) =>
-        maybeReference.orElse(maybeExpression).collect {
-          case reference: ScReferenceExpression => reference.refName
-        }
-      case _ => None
-    }
-  }
-
-  private[this] implicit class CamelCaseExt(private val string: String) extends AnyVal {
-
-    def mismatchesCamelCase(that: String): Boolean =
-      camelCaseIterator.zip(that.camelCaseIterator).exists {
-        case (leftSegment, rightSegment) => leftSegment != rightSegment
-      }
-
-    def camelCaseIterator: Iterator[String] = ScalaNamesUtil
-      .isBacktickedName
-      .unapply(string)
-      .getOrElse(string)
-      .split("(?<!^)(?=[A-Z])")
-      .reverseIterator
-      .map(_.toLowerCase)
-  }
-
 }

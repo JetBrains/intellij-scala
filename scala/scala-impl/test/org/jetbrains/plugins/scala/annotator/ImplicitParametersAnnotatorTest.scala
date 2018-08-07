@@ -386,6 +386,33 @@ class ImplicitParametersAnnotatorHeavyTest extends ScalaLightCodeInsightFixtureT
     """.stripMargin
   }
 
+  def testSCL14180(): Unit = checkTextHasNoErrors {
+    """
+      |case class Boxing[-A, +B](fun: A => B) extends AnyVal
+      |
+      |object Boxing extends LowPrioBoxing {
+      |  def fromImplicitConv[A, B](implicit conv: A => B): Boxing[A, B] = Boxing(conv)
+      |
+      |  implicit val IntBoxing: Boxing[Int, java.lang.Integer] = fromImplicitConv
+      |}
+      |trait LowPrioBoxing { this: Boxing.type =>
+      |  implicit def nullableBoxing[A >: Null]: Boxing[A, A] = Boxing(identity)
+      |}
+      |
+      |final class Opt[+A] private(private val rawValue: Any) extends AnyVal with Serializable {
+      |  def boxedOrNull[B >: Null](implicit boxing: Boxing[A, B]): B = ???
+      |}
+      |
+      |object Opt {
+      |  def apply[A](value: A): Opt[A] = ???
+      |}
+      |
+      |object Test {
+      |  val jint: java.lang.Integer = Opt(41).boxedOrNull
+      |}
+    """.stripMargin
+  }
+
 }
 
 class ImplicitParameterFailingTest extends ScalaLightCodeInsightFixtureTestAdapter {

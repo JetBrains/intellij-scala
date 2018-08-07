@@ -62,6 +62,6 @@ public class ScalaFileType extends LanguageFileType implements FileTypeIdentifia
   // while FileTypeManager contains no .scala pattern)
   @Override
   public boolean isMyFileType(@NotNull VirtualFile virtualFile) {
-    return getDefaultExtension().equals(virtualFile.getExtension());
+    return getDefaultExtension().equals(virtualFile.getExtension()) || WORKSHEET_EXTENSION.equals(virtualFile.getExtension());
   }
 }

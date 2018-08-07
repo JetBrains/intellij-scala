@@ -22,8 +22,8 @@ import org.jetbrains.plugins.scala.annotator.gutter.GutterUtil._
 import org.jetbrains.plugins.scala.extensions._
 import org.jetbrains.plugins.scala.lang.lexer.ScalaTokenTypes
 import org.jetbrains.plugins.scala.lang.psi.ScalaPsiUtil
-import org.jetbrains.plugins.scala.lang.psi.api.base.ScReferenceElement
-import org.jetbrains.plugins.scala.lang.psi.api.base.patterns.ScCaseClauses
+import org.jetbrains.plugins.scala.lang.psi.api.base.{ScFieldId, ScReferenceElement}
+import org.jetbrains.plugins.scala.lang.psi.api.base.patterns.{ScCaseClauses, ScPattern}
 import org.jetbrains.plugins.scala.lang.psi.api.expr.ScExpression
 import org.jetbrains.plugins.scala.lang.psi.api.statements._
 import org.jetbrains.plugins.scala.lang.psi.api.statements.params.{ScClassParameter, ScParameter}
@@ -172,10 +172,15 @@ class ScalaLineMarkerProvider(daemonSettings: DaemonCodeAnalyzerSettings, colors
       case ident if ident.getNode.getElementType == ScalaTokenTypes.tIDENTIFIER => ident
     }.flatMap { identifier =>
       ProgressManager.checkCanceled()
-      identifier.parent match {
+      val context = identifier.parent match {
+        case Some(_: ScPattern | _: ScFieldId) => namedParent(identifier)
+        case other                             => other
+      }
+
+      context match {
         case Some(tDef: ScTypeDefinition)                => collectInheritingClassesMarker(tDef)
         case Some(member: ScMember) if member.isInstance => collectOverriddenMemberMarker(member, identifier)
-        case _                                           => Seq.empty
+        case _                                           => None
       }
     }.foreach(result.add)
   }

@@ -232,7 +232,7 @@ class SbtProjectResolver extends ExternalSystemProjectResolver[SbtExecutionSetti
   /**
     * This implementation is the same as in sbt.Project.normalizeModuleId to avoid inconsistencies in the import process.
     * Normalize a String so that it is suitable for use as a dependency management module identifier.
-    * This is a best effort implementation, since valid characters are not documented or consistent.    *
+    * This is a best effort implementation, since valid characters are not documented or consistent.
     */
   private def normalizeModuleId(s: String) =
     s.toLowerCase(Locale.ENGLISH)

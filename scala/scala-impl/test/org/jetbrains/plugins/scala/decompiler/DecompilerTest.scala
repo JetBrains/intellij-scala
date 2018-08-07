@@ -164,4 +164,8 @@ class DecompilerTest extends DecompilerTestBase {
     doTest("Double.class")
     doTest("Float.class")
   }
+
+  def testBacktickedPaths(): Unit = {
+    doTest("MediaTypes.class")
+  }
 }

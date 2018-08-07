@@ -316,16 +316,6 @@ object ScalaPsiUtil {
     }
   }
 
-  @tailrec
-  def findCall(place: PsiElement): Option[ScMethodCall] = {
-    place.getContext match {
-      case call: ScMethodCall => Some(call)
-      case p: ScParenthesisedExpr => findCall(p)
-      case g: ScGenericCall => findCall(g)
-      case _ => None
-    }
-  }
-
   def processTypeForUpdateOrApplyCandidates(call: MethodInvocation, tp: ScType, isShape: Boolean,
                                              isDynamic: Boolean): Array[ScalaResolveResult] = {
     val applyOrUpdateInvocation = ApplyOrUpdateInvocation(call, tp, isDynamic)

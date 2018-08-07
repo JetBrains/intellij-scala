@@ -53,7 +53,8 @@ lazy val scalaImpl: sbt.Project =
         "Groovy",     // requierd by Gradle
         "properties", // required by Gradle
         "maven",      // TODO remove after extracting the SBT module (which depends on Maven)
-        "junit"
+        "junit",
+        "java-decompiler"
       ),
       ideaInternalPluginsJars :=
         ideaInternalPluginsJars.value.filterNot(cp => cp.data.getName.contains("junit-jupiter-api")),
@@ -232,8 +233,7 @@ lazy val sbtRuntimeDependencies =
         Dependencies.compilerBridgeSources_2_11 -> Some("lib/jps/compiler-interface-sources-2.11.jar"),
         Dependencies.compilerBridgeSources_2_10 -> Some("lib/jps/compiler-interface-sources-2.10.jar"),
         Dependencies.sbtStructureExtractor_100 -> Some("launcher/sbt-structure-1.0.jar"),
-        Dependencies.sbtStructureExtractor_013 -> Some("launcher/sbt-structure-0.13.jar"),
-        "org.scala-sbt" % "launcher" % "1.0.3" -> None
+        Dependencies.sbtStructureExtractor_013 -> Some("launcher/sbt-structure-0.13.jar")
       ),
       update := {
         LocalRepoPackager.localPluginRepo(target.value / "repo", localRepoPaths)
@@ -247,6 +247,12 @@ lazy val sbtRuntimeDependencies =
       }
     )
 
+lazy val ideaRunner = createRunnerProject(scalaCommunity, "idea-runner")
+
+//lazy val jmhBenchmarks =
+//  newProject("benchmarks", file("scala/benchmarks"))
+//    .dependsOn(scalaImpl % "test->test")
+//    .enablePlugins(JmhPlugin)
 
 // Testing keys and settings
 import Common.TestCategory._

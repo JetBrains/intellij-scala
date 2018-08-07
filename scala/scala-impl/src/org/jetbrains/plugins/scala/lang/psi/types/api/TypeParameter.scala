@@ -2,10 +2,13 @@ package org.jetbrains.plugins.scala.lang.psi.types.api
 
 import com.intellij.psi.PsiTypeParameter
 import org.jetbrains.plugins.scala.extensions.{ObjectExt, PsiNamedElementExt}
-import org.jetbrains.plugins.scala.lang.psi.api.statements.params.ScTypeParam
+import org.jetbrains.plugins.scala.lang.psi.api.statements.params.{ScTypeParam, TypeParamIdOwner}
 import org.jetbrains.plugins.scala.lang.psi.impl.ScalaPsiManager
 import org.jetbrains.plugins.scala.lang.psi.light.scala.DummyLightTypeParam
 import org.jetbrains.plugins.scala.lang.psi.types.ScType
+import org.jetbrains.plugins.scala.lang.psi.types.api.Variance.{Covariant, Invariant}
+import org.jetbrains.plugins.scala.lang.psi.types.recursiveUpdate.AfterUpdate
+import org.jetbrains.plugins.scala.lang.psi.types.recursiveUpdate.AfterUpdate.{ProcessSubtypes, Stop}
 import org.jetbrains.plugins.scala.lang.psi.types.result._
 
 /**
@@ -41,6 +44,21 @@ sealed trait TypeParameter {
   def isCovariant: Boolean = psiTypeParameter.asOptionOf[ScTypeParam].exists(_.isCovariant)
 
   def isContravariant: Boolean = psiTypeParameter.asOptionOf[ScTypeParam].exists(_.isContravariant)
+
+  /**see [[scala.reflect.internal.Variances.varianceInType]]*/
+  def varianceInType(scType: ScType): Variance = {
+    val thisId = this.typeParamId
+    var result: Variance = Bivariant
+    val update: (ScType, Variance) => AfterUpdate = {
+      case (TypeParameterType(tp), variance: Variance) if thisId == tp.typeParamId =>
+        result = result & variance
+        Stop
+      case _ =>
+        ProcessSubtypes
+    }
+    scType.recursiveVarianceUpdate(update, Covariant)
+    result
+  }
 }
 
 object TypeParameter {

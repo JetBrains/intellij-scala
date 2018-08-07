@@ -1,7 +1,6 @@
 package org.jetbrains.sbt.shell
 
 import java.util
-import javax.swing.Icon
 
 import com.intellij.execution.Executor
 import com.intellij.execution.configurations.RemoteConnection
@@ -20,15 +19,14 @@ import com.intellij.openapi.wm.{ToolWindow, ToolWindowManager}
 import com.intellij.ui.content.{Content, ContentFactory}
 import com.pty4j.unix.UnixPtyProcess
 import com.pty4j.{PtyProcess, WinSize}
+import javax.swing.Icon
 import org.jetbrains.annotations.NotNull
 import org.jetbrains.plugins.scala.icons.Icons
 import org.jetbrains.plugins.scala.statistics.{FeatureKey, Stats}
 import org.jetbrains.sbt.shell.SbtShellRunner._
 
 import scala.collection.JavaConverters._
-/**
-  * Created by jast on 2016-5-29.
-  */
+
 class SbtShellRunner(project: Project, consoleTitle: String, debugConnection: Option[RemoteConnection])
   extends AbstractConsoleRunnerWithHistory[LanguageConsoleImpl](project, consoleTitle, project.getBaseDir.getCanonicalPath)
   with Disposable
@@ -50,7 +48,8 @@ class SbtShellRunner(project: Project, consoleTitle: String, debugConnection: Op
   // the process handler should only be used to listen to the running process!
   // SbtProcessManager is solely responsible for destroying/respawning
   private lazy val myProcessHandler =
-    SbtProcessManager.forProject(project).acquireShellProcessHandler
+    SbtProcessManager.forProject(project)
+      .acquireShellProcessHandler
 
   override def createProcessHandler(process: Process): OSProcessHandler = myProcessHandler
 
@@ -123,30 +122,19 @@ class SbtShellRunner(project: Project, consoleTitle: String, debugConnection: Op
                                   defaultExecutor: Executor,
                                   contentDescriptor: RunContentDescriptor): util.List[AnAction] = {
 
-    // the actual toolbar actions are initialized handled by SbtShellToolWindowFactory because this is just a hackjob
+    // the actual toolbar actions are created in SbtShellConsoleView because this is a hackjob
     // the exec action needs to be created here so it is registered. TODO refactor so we don't need this
     List(createConsoleExecAction(myConsoleExecuteActionHandler)).asJava
   }
 
   override def getConsoleIcon: Icon = Icons.SBT_SHELL
 
-  override def showConsole(defaultExecutor: Executor, contentDescriptor: RunContentDescriptor): Unit = {
-    val twm = ToolWindowManager.getInstance(project)
-
-    for {
-      toolWindow <- Option(twm.getToolWindow(SbtShellToolWindowFactory.ID))
-      component <- Option(toolWindow.getComponent)
-    } yield {
-      twm.getFocusManager.requestFocusInProject(component, project)
-    }
-  }
+  override def showConsole(defaultExecutor: Executor, contentDescriptor: RunContentDescriptor): Unit =
+    openShell(contentDescriptor.isAutoFocusContent)
 
   def openShell(focus: Boolean): Unit = ShellUIUtil.inUI {
     val toolWindow = ToolWindowManager.getInstance(project).getToolWindow(SbtShellToolWindowFactory.ID)
     toolWindow.activate(null, focus)
-    val content = toolWindow.getContentManager.findContent(toolWindowTitle)
-    if (content != null)
-      toolWindow.getContentManager.setSelectedContent(content, focus)
   }
 
   private def addToolWindowContent(@NotNull toolWindow: ToolWindow, @NotNull content: Content): Unit = {

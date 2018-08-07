@@ -27,6 +27,6 @@ object SCL7805 {
     /*start*/TailSwitch.tailSwitch/*end*/
 }
 /*
-SCL7805.TailSwitch[SCL7805.HNil, SCL7805.::[String, SCL7805.HNil], SCL7805.HNil] {
+SCL7805.TailSwitch[SCL7805.HNil, String :: SCL7805.HNil, SCL7805.HNil] {
   type Out = SCL7805.HNil
 }*/

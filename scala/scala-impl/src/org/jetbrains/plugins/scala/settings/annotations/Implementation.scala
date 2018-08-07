@@ -1,11 +1,14 @@
-package org.jetbrains.plugins.scala.settings.annotations
+package org.jetbrains.plugins.scala
+package settings
+package annotations
 
 import com.intellij.psi.{PsiElement, PsiEnumConstant}
 import org.jetbrains.plugins.scala.extensions._
 import org.jetbrains.plugins.scala.lang.lexer.ScalaTokenTypes
+import org.jetbrains.plugins.scala.lang.psi.ScalaPsiElement
 import org.jetbrains.plugins.scala.lang.psi.api.base.ScLiteral
 import org.jetbrains.plugins.scala.lang.psi.api.expr._
-import org.jetbrains.plugins.scala.lang.psi.api.statements.{ScFunction, ScFunctionDefinition, ScPatternDefinition, ScVariableDefinition}
+import org.jetbrains.plugins.scala.lang.psi.api.statements._
 
 /**
   * @author Pavel Fatin
@@ -14,9 +17,12 @@ sealed trait Implementation {
 
   import Implementation._
 
-  final def containsReturn: Boolean = returnCandidates.exists(_.isInstanceOf[ScReturnStmt])
+  final def containsReturn: Boolean = returnCandidates.exists {
+    case _: ScReturnStmt => true
+    case _ => false
+  }
 
-  final def isTypeStable: Boolean = bodyCandidate.exists {
+  final def hasStableType: Boolean = bodyCandidate.exists {
     case literal: ScLiteral => literal.getFirstChild.getNode.getElementType != ScalaTokenTypes.kNULL
     case _: ScUnitExpr => true
     case _: ScThrowStmt => true
@@ -33,24 +39,65 @@ sealed trait Implementation {
   protected def bodyCandidate: Option[ScExpression]
 }
 
-case class Definition(element: PsiElement) extends Implementation {
+sealed trait Definition extends Implementation {
 
-  override protected def returnCandidates: Iterator[PsiElement] = element match {
-    case method: ScFunctionDefinition => method.returnUsages.iterator
-    case _ => Iterator.empty
+  def parameterList: Option[ScalaPsiElement] = None
+
+  def bodyCandidate: Option[ScExpression] = None
+
+  protected def returnCandidates: Iterator[PsiElement] = Iterator.empty
+}
+
+object Definition {
+
+  def apply(element: PsiElement): Definition = element match {
+    case value: ScPatternDefinition => ValueDefinition(value)
+    case variable: ScVariableDefinition => VariableDefinition(variable)
+    case function: ScFunctionDefinition => FunctionDefinition(function)
+    case _ => new Definition {} // TODO support isSimple for JavaPsi
   }
 
-  override protected def bodyCandidate: Option[ScExpression] = element match {
-    case value: ScPatternDefinition if value.isSimple => value.expr
-    case variable: ScVariableDefinition if variable.isSimple => variable.expr
-    case method: ScFunctionDefinition if method.hasAssign && !method.isConstructor => method.body
-    case _ => None //support isSimple for JavaPsi
+  case class ValueDefinition(value: ScPatternDefinition) extends Definition {
+
+    override def bodyCandidate: Option[ScExpression] =
+      if (value.isSimple) value.expr
+      else super.bodyCandidate
+
+    override def parameterList: Option[ScalaPsiElement] =
+      if (value.hasExplicitType) super.parameterList
+      else Some(value.pList)
   }
+
+  case class VariableDefinition(variable: ScVariableDefinition) extends Definition {
+
+    override def bodyCandidate: Option[ScExpression] =
+      if (variable.isSimple) variable.expr
+      else super.bodyCandidate
+
+    override def parameterList: Option[ScalaPsiElement] =
+      if (variable.hasExplicitType) super.parameterList
+      else Some(variable.pList)
+  }
+
+  case class FunctionDefinition(function: ScFunctionDefinition) extends Definition {
+
+    override def parameterList: Option[ScalaPsiElement] =
+      if (function.hasExplicitType || function.isConstructor) None
+      else Some(function.parameterList)
+
+    override def bodyCandidate: Option[ScExpression] =
+      if (function.hasAssign && !function.isConstructor) function.body
+      else super.bodyCandidate
+
+    override protected def returnCandidates: Iterator[PsiElement] =
+      function.returnUsages.iterator
+  }
+
 }
 
 case class Expression(expression: ScExpression) extends Implementation {
 
-  override protected def returnCandidates: Iterator[PsiElement] = expression.depthFirst()
+  protected def returnCandidates: Iterator[PsiElement] = expression.depthFirst()
 
   override protected def bodyCandidate: Option[ScExpression] = Some(expression)
 }
@@ -80,4 +127,5 @@ object Implementation {
     }
 
   }
+
 }

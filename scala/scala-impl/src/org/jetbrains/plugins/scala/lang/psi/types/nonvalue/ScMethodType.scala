@@ -7,7 +7,6 @@ import org.jetbrains.plugins.scala.lang.psi.ElementScope
 import org.jetbrains.plugins.scala.lang.psi.api.statements.params.{ScParameter, TypeParamIdOwner}
 import org.jetbrains.plugins.scala.lang.psi.types._
 import org.jetbrains.plugins.scala.lang.psi.types.api._
-import org.jetbrains.plugins.scala.lang.psi.types.api.designator.ScDesignatorType
 import org.jetbrains.plugins.scala.lang.psi.types.recursiveUpdate.AfterUpdate.ProcessSubtypes
 import org.jetbrains.plugins.scala.lang.psi.types.recursiveUpdate.{AfterUpdate, ScSubstitutor, Update}
 import org.jetbrains.plugins.scala.lang.psi.types.result._
@@ -102,12 +101,7 @@ case class ScMethodType(returnType: ScType, params: Seq[Parameter], isImplicit: 
     FunctionType(returnType.inferValueType, params.map(p => {
       val inferredParamType = p.paramType.inferValueType
       if (!p.isRepeated) inferredParamType
-      else {
-        val seqClass = elementScope.getCachedClass("scala.collection.Seq")
-        seqClass.fold(inferredParamType) { inferred =>
-          ScParameterizedType(ScDesignatorType(inferred), Seq(inferredParamType))
-        }
-      }
+      else inferredParamType.tryWrapIntoSeqType
     }))
   }
 
@@ -212,14 +206,23 @@ case class ScTypePolymorphicType(internalType: ScType, typeParameters: Seq[TypeP
     }
   }
 
-  def abstractOrLowerTypeSubstitutor: ScSubstitutor =
+  def abstractOrLowerTypeSubstitutor: ScSubstitutor = {
+    //approximation of logic from scala.tools.nsc.typechecker.Infer.Inferencer#exprTypeArgs#variance
+    val forVarianceCheck = internalType match {
+      case mt: ScMethodType if mt.isImplicit => mt.copy(returnType = Any)(mt.elementScope)
+      case _ => internalType
+    }
     ScSubstitutor.bind(typeParameters) { tp =>
       val lowerType: ScType = if (hasRecursiveTypeParameters(tp.lowerType)) Nothing else tp.lowerType
       val upperType: ScType = if (hasRecursiveTypeParameters(tp.upperType)) Any else tp.upperType
 
       if (lowerType.equiv(Nothing)) ScAbstractType(tp, lowerType, upperType)
-      else lowerType
+      else {
+        val isContraVar = tp.varianceInType(forVarianceCheck).isContravariant
+        if (isContraVar) upperType else lowerType
+      }
     }
+  }
 
   def typeParameterOrLowerSubstitutor: ScSubstitutor =
     ScSubstitutor.bind(typeParameters) { tp =>

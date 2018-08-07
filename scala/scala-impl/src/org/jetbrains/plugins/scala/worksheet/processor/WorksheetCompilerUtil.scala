@@ -23,7 +23,7 @@ object WorksheetCompilerUtil {
   case class RunSimple(code: String) extends WorksheetCompileRunRequest
   case class RunRepl(code: String) extends WorksheetCompileRunRequest
   case class RunCompile(code: String, className: String) extends WorksheetCompileRunRequest
-  case class RunCustom(id: String, data: String) extends WorksheetCompileRunRequest
+  case class RunCustom(id: String, project: Project, data: String) extends WorksheetCompileRunRequest
   case class ErrorWhileCompile(message: String, position: LogicalPosition) extends WorksheetCompileRunRequest
   
   object ErrorWhileCompile {

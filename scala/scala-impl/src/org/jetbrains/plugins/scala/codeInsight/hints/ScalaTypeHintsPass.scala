@@ -5,19 +5,15 @@ package hints
 import java.lang.{Boolean => JBoolean}
 
 import com.intellij.codeInsight.daemon.impl.HintRenderer
-import com.intellij.codeInsight.hints
-import com.intellij.codeInsight.hints.{ElementProcessingHintPass, ModificationStampHolder}
+import com.intellij.codeInsight.hints.{ElementProcessingHintPass, InlayInfo, ModificationStampHolder}
 import com.intellij.openapi.editor.Editor
 import com.intellij.openapi.util.Key
 import com.intellij.openapi.vfs.VirtualFile
 import com.intellij.psi.PsiElement
-import org.jetbrains.plugins.scala.extensions.StringsExt
-import org.jetbrains.plugins.scala.lang.lexer.ScalaTokenTypes
-import org.jetbrains.plugins.scala.lang.psi.ScalaPsiElement
+import org.jetbrains.plugins.scala.extensions._
 import org.jetbrains.plugins.scala.lang.psi.api.ScalaFile
-import org.jetbrains.plugins.scala.lang.psi.api.statements._
+import org.jetbrains.plugins.scala.lang.psi.api.statements.{ScFunction, ScValueOrVariable}
 import org.jetbrains.plugins.scala.lang.psi.types.api.JavaArrayType
-import org.jetbrains.plugins.scala.lang.psi.types.result.TypeResult
 import org.jetbrains.plugins.scala.lang.psi.types.{ScCompoundType, ScParameterizedType, ScType}
 import org.jetbrains.plugins.scala.lang.refactoring.ScTypePresentationExt
 import org.jetbrains.plugins.scala.settings.annotations.Definition
@@ -36,22 +32,14 @@ class ScalaTypeHintsPass(rootElement: ScalaFile,
 
   override def collectElementHints(element: PsiElement, collector: kotlin.jvm.functions.Function2[_ >: Integer, _ >: String, kotlin.Unit]): Unit = {
     implicit val settings: ScalaCodeInsightSettings = ScalaCodeInsightSettings.getInstance
+    val definition = Definition(element)
 
-    if (!settings.showObviousType && Definition(element).isTypeStable) return
+    for {
+      ReturnType(returnType) <- Some(definition)
+      if settings.showObviousType || !isObviousFor(returnType, definition)
 
-    val maybeInfo = element match {
-      case f@TypelessFunction(anchor) if settings.showFunctionReturnType =>
-        f.returnType.toInlayInfo(anchor)
-      case v@TypelessValueOrVariable(anchor)
-        //noinspection ScalaUnnecessaryParentheses
-        if (if (v.isLocal) settings.showLocalVariableType else settings.showPropertyType) =>
-        v.`type`().toInlayInfo(anchor)
-      case _ => None
-    }
-
-    maybeInfo.foreach { info =>
-      collector.invoke(info.getOffset, info.getText)
-    }
+      info <- createInlayInfo(definition, returnType)
+    } collector.invoke(info.getOffset, info.getText)
   }
 
   override def getHintKey: Key[JBoolean] = ScalaTypeInlayKey
@@ -63,67 +51,97 @@ class ScalaTypeHintsPass(rootElement: ScalaFile,
 
 object ScalaTypeHintsPass {
 
+  import Definition._
+
   private val ScalaTypeInlayKey = Key.create[JBoolean]("SCALA_TYPE_INLAY_KEY")
 
-  private object TypelessFunction {
+  private object ReturnType {
 
-    def unapply(definition: ScFunctionDefinition): Option[ScalaPsiElement] =
-      if (definition.hasExplicitType || definition.isConstructor) None
-      else Some(definition.parameterList)
-  }
-
-  private object TypelessValueOrVariable {
-
-    def unapply(definition: ScValueOrVariable): Option[ScalaPsiElement] =
-      if (definition.hasExplicitType) None
-      else definition match {
-        case value: ScPatternDefinition => Some(value.pList)
-        case variable: ScVariableDefinition => Some(variable.pList)
+    def unapply(definition: Definition)
+               (implicit settings: ScalaCodeInsightSettings): Option[ScType] =
+      definition match {
+        case ValueDefinition(value) => unapply(value)
+        case VariableDefinition(variable) => unapply(variable)
+        case FunctionDefinition(function) => unapply(function)
         case _ => None
       }
-  }
 
-  private implicit class TypeResultExt(private val result: TypeResult) {
-
-    def toInlayInfo(anchor: ScalaPsiElement)
-                   (implicit settings: ScalaCodeInsightSettings): Option[hints.InlayInfo] =
-      result.toOption.collect {
-        case PresentableText(Limited(text)) => text
-        case FoldedPresentableText(Limited(text)) => text
-      }.map(InlayInfo(_, ScalaTokenTypes.tCOLON, anchor, relatesToPrecedingText = true))
-  }
-
-  private[this] object Limited {
-
-    def unapply(text: String)
-               (implicit settings: ScalaCodeInsightSettings): Option[String] =
-      if (text.length <= settings.presentationLength) Some(text) else None
-  }
-
-  private[this] object PresentableText {
-
-    def unapply(`type`: ScType): Some[String] =
-      Some(`type`.codeText)
-  }
-
-  private[this] object FoldedPresentableText {
-
-    private[this] val Ellipsis = "..."
-
-    def unapply(`type`: ScType): Option[String] = `type` match {
-      case ScCompoundType(comps, signs, types) =>
-        val mainComponent = comps.headOption.map(_.codeText).getOrElse("AnyRef")
-        val text =
-          if (comps.size > 1) s"$mainComponent with $Ellipsis"
-          else if (signs.size + types.size > 0) s"$mainComponent {$Ellipsis}"
-          else mainComponent
-        Some(text)
-      case ScParameterizedType(designator, typeArguments) =>
-        val arguments = Seq.fill(typeArguments.size)(Ellipsis)
-        Some(s"${designator.codeText}[${arguments.commaSeparated()}]")
-      case JavaArrayType(_) => Some(s"Array[$Ellipsis]")
-      case _ => None
+    private def unapply(member: ScValueOrVariable)
+                       (implicit settings: ScalaCodeInsightSettings) = {
+      val flag = if (member.isLocal) settings.showLocalVariableType else settings.showPropertyType
+      if (flag) member.`type`().toOption else None
     }
+
+    private def unapply(member: ScFunction)
+                       (implicit settings: ScalaCodeInsightSettings) =
+      if (settings.showFunctionReturnType) member.returnType.toOption
+      else None
+  }
+
+  private def isObviousFor(returnType: ScType, definition: Definition): Boolean =
+    definition.hasStableType ||
+      definition.bodyCandidate
+        .zip(returnType.extractClass)
+        .exists {
+          case (ReferenceName(name, _), clazz) =>
+            !name.mismatchesCamelCase(clazz.name)
+          case _ => false
+        }
+
+  private def createInlayInfo(definition: Definition, returnType: ScType)
+                             (implicit settings: ScalaCodeInsightSettings) = for {
+    anchor <- definition.parameterList
+    offset = anchor.getTextRange.getEndOffset
+
+    CodeText(codeText) <- Some(returnType)
+    suffix = definition match {
+      case FunctionDefinition(function) if !function.hasAssign && function.hasUnitResultType => " ="
+      case _ => ""
+    }
+    text = s": " + codeText + suffix
+  } yield new InlayInfo(text, offset, false, true, true)
+
+  private[this] object CodeText {
+
+    def unapply(`type`: ScType)
+               (implicit settings: ScalaCodeInsightSettings): Option[String] =
+      `type` match {
+        case CodeText(text) if limited(text) => Some(text)
+        case FoldedCodeText(text) if limited(text) => Some(text)
+        case _ => None
+      }
+
+    private def limited(text: String)
+                       (implicit settings: ScalaCodeInsightSettings): Boolean =
+      text.length <= settings.presentationLength
+
+    private object CodeText {
+
+      def unapply(`type`: ScType) = Some(`type`.codeText)
+    }
+
+    private object FoldedCodeText {
+
+      private[this] val Ellipsis = "..."
+
+      def unapply(`type`: ScType): Option[String] = `type` match {
+        case ScCompoundType(components, signatures, types) =>
+          val suffix = if (signatures.nonEmpty || types.nonEmpty) s" {$Ellipsis}" else ""
+          val text = components match {
+            case Seq(CodeText(head), _, _*) => s"$head with $Ellipsis"
+            case Seq(CodeText(head)) => head + suffix
+            case Seq() => "AnyRef" + suffix
+          }
+          Some(text)
+        case ScParameterizedType(CodeText(text), typeArguments) =>
+          val suffix = Seq.fill(typeArguments.size)(Ellipsis)
+            .commaSeparated(model = Model.SquareBrackets)
+          Some(text + suffix)
+        case JavaArrayType(_) => Some(s"Array[$Ellipsis]")
+        case _ => None
+      }
+    }
+
   }
 
 }

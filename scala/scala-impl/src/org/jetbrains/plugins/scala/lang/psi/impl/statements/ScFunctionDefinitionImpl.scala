@@ -6,14 +6,13 @@ package statements
 
 import com.intellij.lang.ASTNode
 import com.intellij.psi._
-import org.jetbrains.plugins.scala.extensions.{PsiElementExt, ifReadAllowed}
+import org.jetbrains.plugins.scala.extensions.ifReadAllowed
 import org.jetbrains.plugins.scala.lang.lexer.ScalaTokenTypes
 import org.jetbrains.plugins.scala.lang.parser.ScalaElementTypes
 import org.jetbrains.plugins.scala.lang.psi.api.ScalaElementVisitor
 import org.jetbrains.plugins.scala.lang.psi.api.base.types.ScTypeElement
 import org.jetbrains.plugins.scala.lang.psi.api.expr._
 import org.jetbrains.plugins.scala.lang.psi.api.statements._
-import org.jetbrains.plugins.scala.lang.psi.impl.ScalaPsiElementFactory.createBlockFromExpr
 import org.jetbrains.plugins.scala.lang.psi.stubs.ScFunctionStub
 import org.jetbrains.plugins.scala.lang.psi.types.result._
 import org.jetbrains.plugins.scala.lang.psi.types.{ScLiteralType, api}
@@ -49,17 +48,6 @@ class ScFunctionDefinitionImpl protected (stub: ScFunctionStub, node: ASTNode)
   override def hasAssign: Boolean = byStubOrPsi(_.hasAssign)(assignment.isDefined)
 
   def assignment = Option(findChildByType[PsiElement](ScalaTokenTypes.tASSIGN))
-
-  def removeAssignment(): Unit = {
-    body match {
-      case Some(_: ScBlockExpr) => // do nothing
-      case Some(exp: ScExpression) =>
-        val block = createBlockFromExpr(exp)(exp.getManager)
-        exp.replace(block)
-      case _ =>
-    }
-    assignment.foreach(_.delete())
-  }
 
   override def getBody: FakePsiCodeBlock = body match {
     case Some(b) => new FakePsiCodeBlock(b) // Needed so that LineBreakpoint.canAddLineBreakpoint allows line breakpoints on one-line method definitions

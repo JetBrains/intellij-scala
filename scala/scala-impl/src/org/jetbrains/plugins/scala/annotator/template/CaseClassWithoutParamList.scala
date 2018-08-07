@@ -50,7 +50,7 @@ class AddEmptyParenthesesToPrimaryConstructorFix(c: ScClass) extends IntentionAc
 
   override def invoke(project: Project, editor: Editor, file: PsiFile): Unit =
     c.clauses foreach {
-      _.addClause(createClauseFromText("()")(c.getManager))
+      _.addClause(createClauseFromText()(c.getManager))
     }
 }
 

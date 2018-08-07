@@ -196,9 +196,19 @@ public class ScalaIntroduceVariableDialog extends DialogWrapper implements Named
   // TODO Are all non-local variables now "private"?
   // TODO Is there a scope selection?
   private boolean needsTypeAnnotation() {
-    return ScalaTypeAnnotationSettings$.MODULE$.apply(expression.getProject()).isTypeAnnotationRequiredFor(
-        Declaration$.MODULE$.apply(Visibility$.MODULE$.apply("private"), false, false, false, false),
-            Location$.MODULE$.apply(expression), Some$.MODULE$.apply(new Definition(expression)));
+      Declaration declaration = Declaration$.MODULE$.apply(
+              Visibility$.MODULE$.apply("private"),
+              false,
+              false,
+              false,
+              false
+      );
+      return ScalaTypeAnnotationSettings$.MODULE$.apply(expression.getProject())
+              .isTypeAnnotationRequiredFor(
+                      declaration,
+                      Location$.MODULE$.apply(expression),
+                      Some$.MODULE$.apply(new Expression(expression))
+              );
   }
 
   private void setUpSpecifyTypeChb() {

@@ -97,13 +97,10 @@ class ExpectedTypesImpl extends ExpectedTypes {
       }
     }
 
-    def mapResolves(resolves: Array[ScalaResolveResult], types: Array[TypeResult]): Array[(TypeResult, Boolean)] = {
+    def mapResolves(resolves: Array[ScalaResolveResult], types: Array[TypeResult]): Array[(TypeResult, Boolean)] =
       resolves.zip(types).map {
-        case (r, tp) =>
-          (tp, isApplyDynamicNamed(r))
-        case (_, tp) => (tp, false)
+        case (r, tp) => (tp, isApplyDynamicNamed(r))
       }
-    }
 
     val sameInContext = expr.getDeepSameElementInContext
 

@@ -641,7 +641,6 @@ abstract class ScalaAnnotator extends Annotator
         }
       }
     } else {
-      AnnotatorHighlighter.highlightReferenceElement(refElement, holder)
       def showError(): Unit = {
         val error = ScalaBundle.message("forward.reference.detected")
         holder.createErrorAnnotation(refElement.nameId, error)
@@ -789,7 +788,6 @@ abstract class ScalaAnnotator extends Annotator
   }
 
   private def checkQualifiedReferenceElement(refElement: ScReferenceElement, holder: AnnotationHolder) {
-    AnnotatorHighlighter.highlightReferenceElement(refElement, holder)
     val resolve = refElement.multiResolveScala(false)
 
     UsageTracker.registerUsedElementsAndImports(refElement, resolve, checkWrite = true)

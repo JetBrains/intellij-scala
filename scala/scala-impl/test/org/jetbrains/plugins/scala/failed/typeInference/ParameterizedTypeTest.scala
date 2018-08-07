@@ -253,4 +253,68 @@ class ParameterizedTypeTest extends ScalaLightCodeInsightFixtureTestAdapter {
       """.stripMargin
     checkTextHasNoErrors(text)
   }
+
+  def testSCL13746() = {
+    val text =
+      """
+        |import scala.annotation.tailrec
+        |
+        |trait IO[A] {
+        |  def flatMap[B](f: A => IO[B]): IO[B] = FlatMap(this, f)
+        |  def map[B](f: A => B): IO[B] = flatMap(f andThen (Return(_)))
+        |}
+        |
+        |case class Return[A](a: A) extends IO[A]
+        |case class Suspend[A](r: () => A) extends IO[A]
+        |case class FlatMap[A, B](s: IO[A], k: A => IO[B]) extends IO[B]
+        |
+        |object IO {
+        |  @tailrec
+        |  def run[A](io: IO[A]): A = io match {
+        |    case Return(a) => a
+        |    case Suspend(r) => r()
+        |    case FlatMap(x, f) => x match {
+        |      case Return(a) => run(f(a))
+        |      case Suspend(r) => run(f(r()))
+        |      case FlatMap(y, g) => run(y flatMap (a => g(a) flatMap f))
+        |    }
+        |  }
+        |}
+      """.stripMargin
+    checkTextHasNoErrors(text)
+  }
+
+  def testSCL14179() = {
+    val text =
+      """
+        |trait Functor[F[_]] {
+        |  def map[A, B](fa: F[A])(f: A => B): F[B]
+        |}
+        |trait Applicative[F[_]] extends Functor[F] { self =>
+        |  def map2[A, B, C](fa: F[A], fb: F[B])(f: (A, B) => C): F[C] =
+        |    apply(map(fa)(f.curried))(fb)
+        |  def apply[A, B](fab: F[A => B])(fa: F[A]): F[B] =
+        |    map2(fab, fa)(_(_))
+        |  def map[A, B](fa: F[A])(f: A => B): F[B] =
+        |    apply(unit(f))(fa)
+        |  def unit[A](a: => A): F[A]
+        |}
+        |trait Traverse[F[_]] extends Functor[F] {
+        |  def traverse[G[_]: Applicative, A, B](fa: F[A])(f: A => G[B]): G[F[B]] =
+        |    sequence(map(fa)(f))
+        |  def sequence[G[_]: Applicative, A](fma: F[G[A]]): G[F[A]] =
+        |    traverse(fma)(ma => ma)
+        |}
+      """.stripMargin
+    checkTextHasNoErrors(text)
+  }
+
+  def testSCL14032() = {
+    val text =
+      """
+        |class Queue[+T] private (private[this] var leading: List[T],
+        |                         private[this] var trailing: List[T])
+      """.stripMargin
+    checkTextHasNoErrors(text)
+  }
 }

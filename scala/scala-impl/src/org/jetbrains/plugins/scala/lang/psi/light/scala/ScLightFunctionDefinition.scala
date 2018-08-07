@@ -50,8 +50,6 @@ class ScLightFunctionDefinition(pTypes: Seq[Seq[ScType]], tParams: Seq[TypeParam
 
   override def nameId: PsiElement = fun.nameId
 
-  override def removeAssignment(): Unit = throw new UnsupportedOperationException("Operation on light function")
-
   override def assignment: Option[PsiElement] = fun.assignment
 
   override def hasAssign: Boolean = fun.hasAssign

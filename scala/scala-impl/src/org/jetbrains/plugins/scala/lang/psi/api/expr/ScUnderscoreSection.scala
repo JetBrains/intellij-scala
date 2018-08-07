@@ -27,7 +27,7 @@ trait ScUnderscoreSection extends ScExpression {
     if (bindingExpr.isDefined) return Some(this)
 
     @tailrec
-    def go(expr: PsiElement, calcArguments: Boolean = true): Option[ScExpression] = {
+    def go(expr: ScExpression, calcArguments: Boolean = true): Option[ScExpression] = {
       expr.getContext match {
         case args: ScArgumentExprList =>
           if (!calcArguments) return Some(expr.asInstanceOf[ScExpression])
@@ -95,7 +95,7 @@ trait ScUnderscoreSection extends ScExpression {
 
 object ScUnderScoreSectionUtil {
   @tailrec
-  def isUnderscore(expr: PsiElement): Boolean = {
+  def isUnderscore(expr: ScExpression): Boolean = {
     expr match {
       case _: ScUnderscoreSection => true
       case t: ScTypedStmt => t.expr.isInstanceOf[ScUnderscoreSection]
@@ -108,9 +108,9 @@ object ScUnderScoreSectionUtil {
     }
   }
 
-  def isUnderscoreFunction(expr: PsiElement): Boolean = underscores(expr).nonEmpty
+  def isUnderscoreFunction(expr: ScExpression): Boolean = underscores(expr).nonEmpty
 
-  def underscores(expr: PsiElement): Seq[ScUnderscoreSection] = {
+  def underscores(expr: ScExpression): Seq[ScUnderscoreSection] = {
     if (expr.getText.indexOf('_') == -1) return Seq.empty
     def inner(innerExpr: PsiElement): Seq[ScUnderscoreSection] = {
       innerExpr match {

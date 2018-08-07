@@ -754,13 +754,18 @@ object ScalaSigPrinter {
 
   val compiledCodeBody = " = { /* compiled code */ }"
 
+  //name may be qualified here
   def processName(name: String): String = {
+    val parts = name.stripPrivatePrefix.split('.')
+    parts.map(processSimpleName).mkString(".")
+  }
+
+  private def processSimpleName(name: String): String = {
     name
-      .stripPrivatePrefix
       .decode
       .fixPlaceholderNames
       .fixExistentialTypeParamName
-      .escapeNonIdentifiersInPath
+      .escapeNonIdentifiers
   }
 
   private def isSetterFor(setterName: String, methodName: String) = {
@@ -796,11 +801,6 @@ object ScalaSigPrinter {
     def fixPlaceholderNames: String = {
       if (str.indexOf('_') < 0) str //optimization
       else placeholderPattern.matcher(str).replaceAll("_")
-    }
-
-    def escapeNonIdentifiersInPath: String = {
-      if (str.indexOf('.') < 0) escapeNonIdentifiers
-      else str.split('.').map(_.escapeNonIdentifiers).mkString(".")
     }
 
     def escapeNonIdentifiers: String = {

@@ -6,9 +6,14 @@ import com.intellij.execution.filters.UrlFilter.UrlFilterProvider
 import com.intellij.execution.filters._
 import com.intellij.execution.impl.ConsoleViewImpl.ClearAllAction
 import com.intellij.openapi.actionSystem.{AnAction, DefaultActionGroup}
+import com.intellij.openapi.editor.Editor
 import com.intellij.openapi.editor.actions.ToggleUseSoftWrapsToolbarAction
+import com.intellij.openapi.editor.event.{EditorMouseAdapter, EditorMouseEvent}
+import com.intellij.openapi.editor.ex.FocusChangeListener
 import com.intellij.openapi.project.Project
+import com.intellij.openapi.wm.IdeFocusManager
 import com.intellij.psi.search.GlobalSearchScope
+import javax.swing.FocusManager
 import org.jetbrains.sbt.shell.action._
 
 /**
@@ -62,8 +67,11 @@ object SbtShellConsoleView {
     // url links
     new UrlFilterProvider().getDefaultFilters(project).foreach(cv.addMessageFilter)
 
+    cv.getHistoryViewer.addEditorMouseListener(new HistoryMouseListener(cv))
+
     cv
   }
+
 
   private def filePatternFilters(project: Project) = {
     import PatternHyperlinkPart._
@@ -81,6 +89,16 @@ object SbtShellConsoleView {
 
     val dataFinder = new PatternBasedFileHyperlinkRawDataFinder(Array(fileWithLineFormat, fileOnlyFormat))
     new PatternBasedFileHyperlinkFilter(project, null, dataFinder)
+  }
+
+  class HistoryMouseListener(cv: SbtShellConsoleView) extends EditorMouseAdapter {
+    override def mouseClicked(e: EditorMouseEvent): Unit = {
+      val focusManager = IdeFocusManager.getInstance(cv.getProject)
+      val focusComponent = cv.getConsoleEditor.getContentComponent
+      focusManager.doWhenFocusSettlesDown { () =>
+        focusManager.requestFocus(focusComponent, false)
+      }
+    }
   }
 
 }

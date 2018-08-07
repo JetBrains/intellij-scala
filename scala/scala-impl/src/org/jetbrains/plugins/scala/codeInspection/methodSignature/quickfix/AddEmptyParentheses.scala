@@ -1,16 +1,21 @@
-package org.jetbrains.plugins.scala.codeInspection.methodSignature.quickfix
+package org.jetbrains.plugins.scala
+package codeInspection
+package methodSignature
+package quickfix
 
 import com.intellij.openapi.project.Project
-import org.jetbrains.plugins.scala.codeInspection.AbstractFixOnPsiElement
 import org.jetbrains.plugins.scala.lang.psi.api.statements.ScFunction
+import org.jetbrains.plugins.scala.lang.psi.impl.ScalaPsiElementFactory
 
 /**
- * Pavel Fatin
- */
-class AddEmptyParentheses(f: ScFunction) extends AbstractFixOnPsiElement("Add empty parentheses", f) {
+  * Pavel Fatin
+  */
+final class AddEmptyParentheses(function: ScFunction)
+  extends AbstractFixOnPsiElement(InspectionBundle.message("empty.parentheses"), function) {
 
-  override protected def doApplyFix(element: ScFunction)
+  override protected def doApplyFix(function: ScFunction)
                                    (implicit project: Project): Unit = {
-    element.addEmptyParens()
+    import ScalaPsiElementFactory.createClauseFromText
+    function.paramClauses.addClause(createClauseFromText())
   }
 }

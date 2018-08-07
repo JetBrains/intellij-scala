@@ -60,7 +60,7 @@ object Common {
     newProject(name, file(s"target/tools/$name"))
       .dependsOn(from % Provided)
       .settings(
-        dumpDependencyStructure := null,
+        dumpDependencyStructure := null, // avoid cyclic dependencies on products task
         products := packagePlugin.in(from).value :: Nil,
         packageMethod := org.jetbrains.sbtidea.Keys.PackagingMethod.Skip(),
         unmanagedJars in Compile := ideaMainJars.value,

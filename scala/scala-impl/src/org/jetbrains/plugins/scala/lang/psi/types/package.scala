@@ -197,6 +197,20 @@ package object types {
       case lit: ScLiteralType if lit.allowWiden => lit.wideType
       case other => other
     }
+    
+    def tryWrapIntoSeqType(implicit scope: ElementScope): ScType =
+      scope
+        .getCachedClass("scala.collection.Seq")
+        .map(ScalaType.designator)
+        .map(ScParameterizedType(_, Seq(scType)))
+        .getOrElse(scType)
+    
+    def tryUnwrapSeqType: ScType = scType match {
+      case ScParameterizedType(ScDesignatorType(des: PsiClass), Seq(targ))
+        if des.qualifiedName == "scala.collection.Seq" =>
+        targ
+      case _ => scType
+    }
   }
 
   implicit class ScTypesExt(val types: Seq[ScType]) extends AnyVal {
