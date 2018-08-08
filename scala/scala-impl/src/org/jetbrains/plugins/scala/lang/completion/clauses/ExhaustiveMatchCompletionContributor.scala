@@ -4,25 +4,19 @@ package completion
 package clauses
 
 import com.intellij.codeInsight.completion._
-import com.intellij.codeInsight.lookup._
 import com.intellij.patterns.PlatformPatterns
 import com.intellij.psi._
-import com.intellij.psi.codeStyle.CodeStyleManager
 import com.intellij.psi.impl.source.tree.PsiWhiteSpaceImpl
-import com.intellij.util.ProcessingContext
 import org.jetbrains.plugins.scala.extensions._
-import org.jetbrains.plugins.scala.lang.psi.api.base.patterns.{ScCaseClauses, ScTypedPattern}
-import org.jetbrains.plugins.scala.lang.psi.api.base.types.{ScParameterizedTypeElement, ScSimpleTypeElement, ScTypeElement}
+import org.jetbrains.plugins.scala.lang.psi.ScalaPsiUtil
+import org.jetbrains.plugins.scala.lang.psi.api.base.patterns.ScCaseClauses
 import org.jetbrains.plugins.scala.lang.psi.api.expr._
 import org.jetbrains.plugins.scala.lang.psi.api.statements.ScValue
 import org.jetbrains.plugins.scala.lang.psi.api.toplevel.typedef.ScObject
-import org.jetbrains.plugins.scala.lang.psi.impl.ScalaPsiElementFactory
 import org.jetbrains.plugins.scala.lang.psi.types.ScType
 import org.jetbrains.plugins.scala.lang.psi.types.api.ExtractClass
 import org.jetbrains.plugins.scala.lang.psi.types.api.designator._
 import org.jetbrains.plugins.scala.lang.psi.types.result.Typeable
-import org.jetbrains.plugins.scala.lang.psi.{ScalaPsiUtil, TypeAdjuster}
-import org.jetbrains.plugins.scala.lang.refactoring.namesSuggester.NameSuggester
 import org.jetbrains.plugins.scala.lang.resolve.ResolveUtils
 
 class ExhaustiveMatchCompletionContributor extends ScalaCompletionContributor {
@@ -32,21 +26,25 @@ class ExhaustiveMatchCompletionContributor extends ScalaCompletionContributor {
   extend(
     CompletionType.BASIC,
     PlatformPatterns.psiElement.inside(classOf[ScSugarCallExpr]),
-    new ScalaCompletionProvider {
-      override protected def completionsFor(position: PsiElement)
-                                           (implicit parameters: CompletionParameters,
-                                            context: ProcessingContext): Iterable[LookupElement] =
-        for {
-          sugarCall <- position.findContextOfType(classOf[ScSugarCallExpr])
-          if !sugarCall.isInstanceOf[ScPrefixExpr]
+    new ClausesCompletionProvider(classOf[ScSugarCallExpr]) {
 
-          ScSugarCallExpr(Typeable(operandType), operation, _) <- Some(sugarCall)
-          if operation.isAncestorOf(position)
+      import ClausesCompletionProvider._
 
-          PatternGenerationStrategy(strategy) <- Some(operandType)
-        } yield LookupElementBuilder.create(ItemText)
-          .withInsertHandler(createInsertHandler(strategy)(sugarCall))
-          .withRenderer(createRenderer)
+      override protected def addCompletions(sugarCall: ScSugarCallExpr,
+                                            position: PsiElement,
+                                            result: CompletionResultSet): Unit = sugarCall match {
+        case _: ScPrefixExpr =>
+        case ScSugarCallExpr(operand, operation, _) if operation.isAncestorOf(position) =>
+          operand match {
+            case Typeable(PatternGenerationStrategy(strategy)) =>
+              val lookupElement = createLookupElement(ItemText)(tailText = RendererTailText) {
+                createInsertHandler(strategy)(sugarCall)
+              }
+              result.addElement(lookupElement)
+            case _ =>
+          }
+        case _ =>
+      }
     }
   )
 }
@@ -55,7 +53,7 @@ object ExhaustiveMatchCompletionContributor {
 
   import ScalaKeyword._
 
-  private[lang] val ItemText: String = MATCH
+  private[lang] val ItemText = MATCH
   private[lang] val RendererTailText = " (exhaustive)"
 
   private object PatternGenerationStrategy {
@@ -121,8 +119,8 @@ object ExhaustiveMatchCompletionContributor {
           if ResolveUtils.isAccessible(value, place, forCompletion = true) &&
             isEnumerationValue(value) => value.declaredNames
         case _ => Seq.empty
-      }.map { name =>
-        new StablePatternComponents(enumeration, qualifiedName, name)
+      }.map {
+        new StablePatternComponents(enumeration, qualifiedName, _)
       }
     }
 
@@ -131,118 +129,46 @@ object ExhaustiveMatchCompletionContributor {
   }
 
   private def createInsertHandler(strategy: PatternGenerationStrategy)
-                                 (implicit place: PsiElement) = new InsertHandler[LookupElement] {
+                                 (implicit sugarCall: ScSugarCallExpr) = new ClausesInsertHandler(classOf[ScMatchStmt]) {
 
-    override def handleInsert(insertionContext: InsertionContext, lookupElement: LookupElement): Unit =
-      insertionContext.getFile.findElementAt(insertionContext.getStartOffset) match {
-        case null =>
-        case element => handleInsert(element)(insertionContext)
-      }
-
-    private def handleInsert(element: PsiElement)
-                            (implicit insertionContext: InsertionContext): Unit = {
+    override protected def handleInsert(implicit insertionContext: InsertionContext): Unit = {
       val patterns = strategy.patterns
-      replaceTextPhase(patterns)
 
-      val whiteSpace = element.getParent match {
-        case statement: ScMatchStmt => replacePsiPhase(patterns, statement.getCaseClauses)
+      ClausesInsertHandler.replaceTextPhase {
+        patterns.map { pattern =>
+          s"$CASE $pattern ${ScalaPsiUtil.functionArrow}"
+        }.mkString(s"$MATCH {\n", "\n", "\n}")
       }
-      moveCaretPhase(whiteSpace)
+
+      val whiteSpace = onTargetElement { statement =>
+        replacePsiPhase(patterns, statement.getCaseClauses)
+      }
+
+      moveCaretPhase(whiteSpace.getStartOffset + 1)
     }
 
-    private def replaceTextPhase(patterns: Seq[PatternComponents])
-                                (implicit insertionContext: InsertionContext): Unit = {
-      val replacement = patterns.map { pattern =>
-        s"$CASE $pattern ${ScalaPsiUtil.functionArrow}"
-      }.mkString(s"$MATCH {\n", "\n", "\n}")
-
-      val startOffset = insertionContext.getStartOffset
-      val InsertionContextExt(_, document, file, project) = insertionContext
-
-      document.replaceString(
-        startOffset,
-        insertionContext.getSelectionEndOffset,
-        replacement
-      )
-      CodeStyleManager.getInstance(project).reformatText(
-        file,
-        startOffset,
-        startOffset + replacement.length
-      )
-      insertionContext.commitDocument()
-    }
-
-    private def replacePsiPhase(patterns: Seq[PatternComponents],
-                                clauses: ScCaseClauses)
-                               (implicit insertionContext: InsertionContext): PsiWhiteSpaceImpl = inWriteCommandAction {
+    private def replacePsiPhase(components: Seq[PatternComponents],
+                                clauses: ScCaseClauses): PsiWhiteSpaceImpl = {
       val caseClauses = clauses.caseClauses
 
-      def typedPatterns = for {
-        caseClause <- caseClauses
-        pattern@ScTypedPattern(typeElement) <- caseClause.pattern
-      } yield (pattern, typeElement)
-
-      TypeAdjuster.adjustFor(
-        typedPatterns.map(_._2),
-        addImports = strategy.isInstanceOf[SealedClassGenerationStrategy],
-        useTypeAliases = false
+      adjustTypesPhase(
+        strategy.isInstanceOf[SealedClassGenerationStrategy],
+        caseClauses.flatMap(_.pattern).zip(components): _*
       )
-
-      for {
-        ((pattern, typeElement), components) <- typedPatterns.zip(patterns)
-      } {
-        val patternText = replacementText(typeElement, components)
-        val replacement = ScalaPsiElementFactory.createPatternFromTextWithContext(patternText, place.getContext, place)
-        pattern.replace(replacement)
-      }
 
       caseClauses.head.nextSibling.getOrElse(clauses.getNextSibling) match {
         case whiteSpace: PsiWhiteSpaceImpl =>
           whiteSpace.replaceWithText(" " + whiteSpace.getText).asInstanceOf[PsiWhiteSpaceImpl]
       }
-    }(insertionContext.getProject)
+    }
 
-    private def moveCaretPhase(whiteSpace: PsiWhiteSpaceImpl)
+    private def moveCaretPhase(offset: Int)
                               (implicit insertionContext: InsertionContext): Unit = {
       val InsertionContextExt(editor, document, _, project) = insertionContext
 
       PsiDocumentManager.getInstance(project)
         .doPostponedOperationsAndUnblockDocument(document)
-      editor.getCaretModel.moveToOffset(whiteSpace.getStartOffset + 1)
-    }
-
-    private def replacementText(typeElement: ScTypeElement, components: PatternComponents): String =
-      (typeElement, components) match {
-        case (simpleTypeElement@SimpleTypeReferenceText(referenceText), _) if simpleTypeElement.singleton => referenceText
-        case (_, TypedPatternComponents(constructor)) =>
-          val referenceText = typeElement match {
-            case SimpleTypeReferenceText(text) => text
-            case ScParameterizedTypeElement(SimpleTypeReferenceText(text), _) => text
-          }
-
-          referenceText + constructor.effectiveFirstParameterSection.map { parameter =>
-            parameter.name + (if (parameter.isVarArgs) "@_*" else "")
-          }.commaSeparated(model = Model.Parentheses)
-        case _ =>
-          val name = typeElement.`type`().toOption
-            .flatMap(NameSuggester.suggestNamesByType(_).headOption)
-            .getOrElse(WildcardPatternComponents.toString)
-          s"$name: ${typeElement.getText}"
-      }
-
-    private object SimpleTypeReferenceText {
-
-      def unapply(typeElement: ScSimpleTypeElement): Option[String] =
-        typeElement.reference.map(_.getText)
-    }
-  }
-
-  private def createRenderer = new LookupElementRenderer[LookupElement] {
-
-    override def renderElement(lookupElement: LookupElement, presentation: LookupElementPresentation): Unit = {
-      presentation.setItemText(lookupElement.getLookupString)
-      presentation.setItemTextBold(true)
-      presentation.setTailText(RendererTailText, true)
+      editor.getCaretModel.moveToOffset(offset)
     }
   }
 }

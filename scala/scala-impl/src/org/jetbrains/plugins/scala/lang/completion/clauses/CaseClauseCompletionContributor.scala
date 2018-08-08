@@ -11,44 +11,50 @@ import com.intellij.util.{Consumer, ProcessingContext}
 import org.jetbrains.plugins.scala.extensions._
 import org.jetbrains.plugins.scala.lang.psi.ScalaPsiElement
 import org.jetbrains.plugins.scala.lang.psi.api.base.patterns._
+import org.jetbrains.plugins.scala.lang.psi.api.base.types.ScTypeElement
 import org.jetbrains.plugins.scala.lang.psi.api.statements.ScFunctionDefinition
-import org.jetbrains.plugins.scala.lang.psi.api.toplevel.typedef.ScObject
+import org.jetbrains.plugins.scala.lang.psi.api.toplevel.typedef.{ScObject, ScTypeDefinition}
 import org.jetbrains.plugins.scala.lang.psi.impl.ScalaPsiElementFactory.createPatternFromTextWithContext
 
 class CaseClauseCompletionContributor extends ScalaCompletionContributor {
 
-  //  extend(new ScalaCompletionProvider {
-  //
-  //    override protected def completionsFor(position: PsiElement)
-  //                                         (implicit parameters: CompletionParameters,
-  //                                          context: ProcessingContext): Iterable[ScalaLookupItem] = {
-  //      val maybeClass = position.findContextOfType(classOf[ScStableReferenceElementPattern])
-  //        .flatMap(_.expectedType)
-  //        .flatMap(_.extractClass)
-  //
-  //      val maybeInheritors = maybeClass.collect {
-  //        case SealedDefinition(classes) => Inheritors(classes)
-  //        case definition: ScTypeDefinition => Inheritors(Seq(definition))
-  //      }
-  //
-  //      for {
-  //        inheritors <- maybeInheritors.toSeq
-  //        (name, namedElement) <- inheritors.patterns(exhaustive = false)(position)
-  //      } yield {
-  //        val item = new ScalaLookupItem(namedElement, name)
-  //        item.isLocalVariable = true
-  //        item
-  //      }
-  //    }
-  //  })
+  import CaseClauseCompletionContributor._
+
+  extend(new ClausesCompletionProvider(classOf[ScStableReferenceElementPattern]) {
+
+    import ClausesCompletionProvider._
+
+    override protected def addCompletions(pattern: ScStableReferenceElementPattern,
+                                          position: PsiElement,
+                                          result: CompletionResultSet): Unit = {
+      val maybeInheritors = pattern
+        .expectedType
+        .flatMap(_.extractClass)
+        .collect {
+          case SealedDefinition(classes) => Inheritors(classes)
+          case definition: ScTypeDefinition => Inheritors(Seq(definition))
+        }
+
+      maybeInheritors match {
+        case Some(inheritors) =>
+          for {
+            components <- inheritors.inexhaustivePatterns
+
+            lookupString = components.extractorText()()
+            lookupElement = createLookupElement(lookupString)(itemTextItalic = true) {
+              createInsertHandler(components)
+            }
+          } result.addElement(lookupElement)
+        case _ =>
+      }
+    }
+  })
 
   extend(new CompletionProvider[CompletionParameters] {
 
     override def addCompletions(parameters: CompletionParameters,
                                 context: ProcessingContext,
                                 resultSet: CompletionResultSet): Unit = {
-      import CaseClauseCompletionContributor._
-
       val providers = PsiTreeUtil.getContextOfType(positionFromParameters(parameters), classOf[ScBindingPattern]) match {
         case (_: ScReferencePattern) childOf (_: ScNamingPattern | _: ScTypedPattern) => Seq.empty
         case pattern: ScReferencePattern => Seq(AotCompletionProvider, extractorCompletionProvider(pattern))
@@ -89,6 +95,22 @@ object CaseClauseCompletionContributor {
 
       override protected def createElement(text: String, context: PsiElement, child: PsiElement): ScTypedPattern =
         createPatternFromTextWithContext(text, context, child).asInstanceOf[ScTypedPattern]
+    }
+  }
+
+  private def createInsertHandler(components: ExtractorPatternComponents) = new ClausesInsertHandler(classOf[ScParenthesisedPattern]) {
+
+    override def handleInsert(implicit insertionContext: InsertionContext): Unit = {
+      ClausesInsertHandler.replaceTextPhase(s"($components)")
+
+      onTargetElement { pattern =>
+        adjustTypesPhase(false, (pattern, components))
+      }
+    }
+
+    override protected def findTypeElement(pattern: ScPattern): Option[ScTypeElement] = pattern match {
+      case ScParenthesisedPattern(innerPattern) => super.findTypeElement(innerPattern)
+      case _ => None
     }
   }
 
