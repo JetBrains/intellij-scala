@@ -411,7 +411,56 @@ class ImplicitParametersAnnotatorHeavyTest extends ScalaLightCodeInsightFixtureT
       |  val jint: java.lang.Integer = Opt(41).boxedOrNull
       |}
     """.stripMargin
+
   }
+
+  def testNotFoundImplicitWithExpectedType(): Unit = {
+    checkTextHasNoErrors(
+      s"""
+         |object Z {
+         |  trait Monoid[T]
+         |
+         |  case class A(a: String, b: Int)
+         |
+         |  val list: List[A] = List(A("", 1))
+         |
+         |  implicit val intMonoid: Monoid[Int] = null
+         |
+         |  implicit def intToString(i: Int): String = null
+         |
+         |  def foldMap[A, B](list: List[A])(f: A => B)(implicit m: Monoid[B]): B = f(list.head)
+         |
+         |  val x: Double = foldMap(list)(_.b)
+         |  val y: String = foldMap(list)(_.b)
+         |
+         |}""".stripMargin)
+  }
+
+  def testAmbiguousImplicitWithExpectedType(): Unit = {
+    checkTextHasNoErrors(
+      s"""
+         |object Z {
+         |  trait Monoid[T]
+         |
+         |  case class A(a: String, b: Int)
+         |
+         |  val list: List[A] = List(A("", 1))
+         |
+         |  implicit val intMonoid: Monoid[Int] = null
+         |
+         |  implicit val doubleMonoid1: Monoid[Double] = null
+         |  implicit val doubleMonoid2: Monoid[Double] = null
+         |
+         |  implicit def intToString(i: Int): String = null
+         |
+         |  def foldMap[A, B](list: List[A])(f: A => B)(implicit m: Monoid[B]): B = f(list.head)
+         |
+         |  val x: Double = foldMap(list)(_.b)
+         |
+         |}""".stripMargin)
+
+  }
+
 
 }
 
