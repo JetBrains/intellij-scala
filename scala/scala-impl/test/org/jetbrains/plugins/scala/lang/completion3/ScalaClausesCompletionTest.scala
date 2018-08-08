@@ -16,58 +16,41 @@ class ScalaClausesCompletionTest extends ScalaCodeInsightTestBase {
 
   override implicit val version: ScalaVersion = Scala_2_12
 
-  //  def testSyntheticUnapply(): Unit = doCompletionTest(
-  //    fileText =
-  //      s"""case class Foo(foo: Int = 42)(bar: Int = 42)
-  //         |
-  //         |Foo()() match {
-  //         |  case $CARET
-  //         |}
-  //       """.stripMargin,
-  //    resultText =
-  //      s"""case class Foo(foo: Int = 42)(bar: Int = 42)
-  //         |
-  //         |Foo()() match {
-  //         |  case Foo(foo)$CARET
-  //         |}
-  //       """.stripMargin,
-  //    item = "Foo(foo)"
-  //  )
-  //
-  //  def testSyntheticUnapplyVararg(): Unit = doCompletionTest(
-  //    fileText =
-  //      s"""case class Foo(foos: Int*)
-  //         |
-  //         |Foo() match {
-  //         |  case $CARET
-  //         |}
-  //       """.stripMargin,
-  //    resultText =
-  //      s"""case class Foo(foos: Int*)
-  //         |
-  //         |Foo() match {
-  //         |  case Foo(foos@_*)$CARET
-  //         |}
-  //       """.stripMargin,
-  //    item = "Foo(foos@_*)"
-  //  )
-  //
+  def testSyntheticUnapply(): Unit = doPatternCompletionTest(
+    fileText =
+      s"""case class Foo(foo: Int = 42)(bar: Int = 42)
+         |
+         |Foo()() match {
+         |  case $CARET
+         |}
+       """.stripMargin,
+    resultText =
+      s"""case class Foo(foo: Int = 42)(bar: Int = 42)
+         |
+         |Foo()() match {
+         |  case Foo(foo)$CARET
+         |}
+       """.stripMargin
+  )
+
+  def testSyntheticUnapplyVararg(): Unit = doPatternCompletionTest(
+    fileText =
+      s"""case class Foo(foos: Int*)
+         |
+         |Foo() match {
+         |  case $CARET
+         |}
+       """.stripMargin,
+    resultText =
+      s"""case class Foo(foos: Int*)
+         |
+         |Foo() match {
+         |  case Foo(foos@_*)$CARET
+         |}
+       """.stripMargin
+  )
+
   //  def testUnapply(): Unit = doMultipleCompletionTest(
-  //    fileText =
-  //      s"""class Foo(val foo: Int = 42, val bar: Int = 42)
-  //         |
-  //         |object Foo {
-  //         |  def unapply(foo: Foo): Option[(Int, Int)] = Some(foo.foo, foo.bar)
-  //         |}
-  //         |
-  //         |new Foo() match {
-  //         |  case $CARET
-  //         |}
-  //       """.stripMargin,
-  //    items = "Foo(i, i1)"
-  //  )
-  //
-  //  def testTraitUnapply(): Unit = doMultipleCompletionTest(
   //    fileText =
   //      s"""trait Foo
   //         |
@@ -79,7 +62,7 @@ class ScalaClausesCompletionTest extends ScalaCodeInsightTestBase {
   //         |  case $CARET
   //         |}
   //       """.stripMargin,
-  //    items = "Foo(foo)"
+  //    items = "Foo"
   //  )
 
   def testBeforeCase(): Unit = checkNoCompletion(
@@ -104,83 +87,73 @@ class ScalaClausesCompletionTest extends ScalaCodeInsightTestBase {
     item = "Foo()"
   )
 
-  //  def testNestedPatternCompletion(): Unit = doMultipleCompletionTest(
-  //    fileText =
-  //      s"""sealed trait Foo
-  //         |
-  //         |case class FooImpl(foo: Int = 42) extends Foo
-  //         |
-  //         |case object Bar extends Foo
-  //         |
-  //         |case class Baz(foo: Foo = FooImpl())
-  //         |
-  //         |Baz() match {
-  //         |  case Baz(null | $CARET)
-  //         |}
-  //       """.stripMargin,
-  //    items = "FooImpl(foo)", "Bar"
-  //  )
-  //
-  //  def testSealedTraitInheritors(): Unit = doMultipleCompletionTest(
-  //    fileText =
-  //      s"""sealed trait Foo {
-  //         |  def foo: Int = 42
-  //         |}
-  //         |
-  //         |class FooImpl() extends Foo
-  //         |
-  //         |object FooImpl {
-  //         |  def unapply(foo: FooImpl): Option[Int] = Some(foo.foo)
-  //         |}
-  //         |
-  //         |case class Bar(override val foo: Int) extends Foo
-  //         |
-  //         |trait Baz extends Foo
-  //         |
-  //         |(_: Foo) match {
-  //         |  case $CARET
-  //         |}
-  //       """.stripMargin,
-  //    items = "FooImpl(i)", "Bar(foo)"
-  //  )
-  //
-  //  def testCollectPatternCompletion(): Unit = doCompletionTest(
-  //    fileText =
-  //      s"""case class Foo(foo: Int = 42)(bar: Int = 42)
-  //         |
-  //         |Some(Foo()()).collect {
-  //         |  case $CARET
-  //         |}
-  //       """.stripMargin,
-  //    resultText =
-  //      s"""case class Foo(foo: Int = 42)(bar: Int = 42)
-  //         |
-  //         |Some(Foo()()).collect {
-  //         |  case Foo(foo)$CARET
-  //         |}
-  //       """.stripMargin,
-  //    item = "Foo(foo)"
-  //  )
-  //
-  //  def testNamedPatternCompletion(): Unit = doCompletionTest(
-  //    fileText =
-  //      s"""case class Foo()
-  //         |
-  //         |Foo() match {
-  //         |  case foo@$CARET
-  //         |}
-  //       """.stripMargin,
-  //    resultText =
-  //      s"""case class Foo()
-  //         |
-  //         |Foo() match {
-  //         |  case foo@Foo()$CARET
-  //         |}
-  //       """.stripMargin,
-  //    item = "Foo()"
-  //  )
-  //
-  //  def testAnonymousInheritorCompletion(): Unit = doCompletionTest(
+  def testNestedPatternCompletion(): Unit = doPatternCompletionTest(
+    fileText =
+      s"""sealed trait Foo
+         |
+         |object Foo {
+         |  case object Bar extends Foo
+         |
+         |  case class Baz(foo: Foo = Bar) extends Foo
+         |}
+         |
+         |import Foo.Baz
+         |Baz() match {
+         |  case Baz(null | $CARET)
+         |}
+       """.stripMargin,
+    resultText =
+      s"""sealed trait Foo
+         |
+         |object Foo {
+         |  case object Bar extends Foo
+         |
+         |  case class Baz(foo: Foo = Bar) extends Foo
+         |}
+         |
+         |import Foo.Baz
+         |Baz() match {
+         |  case Baz(null | Baz(foo)$CARET)
+         |}
+       """.stripMargin,
+    itemText = "Baz(_)"
+  )
+
+  def testCollectPatternCompletion(): Unit = doPatternCompletionTest(
+    fileText =
+      s"""case class Foo(foo: Int = 42)(bar: Int = 42)
+         |
+         |Some(Foo()()).collect {
+         |  case $CARET
+         |}
+       """.stripMargin,
+    resultText =
+      s"""case class Foo(foo: Int = 42)(bar: Int = 42)
+         |
+         |Some(Foo()()).collect {
+         |  case Foo(foo)$CARET
+         |}
+       """.stripMargin
+  )
+
+  def testNamedPatternCompletion(): Unit = doPatternCompletionTest(
+    fileText =
+      s"""case class Foo(foo: Int = 42)
+         |
+         |Foo() match {
+         |  case foo@$CARET
+         |}
+       """.stripMargin,
+    resultText =
+      s"""case class Foo(foo: Int = 42)
+         |
+         |Foo() match {
+         |  case foo@Foo(foo)$CARET
+         |}
+       """.stripMargin
+  )
+
+  //  def testAnonymousInheritorCompletion(): Unit = doPatternCompletionTest(
   //    fileText =
   //      s"""sealed trait Foo
   //         |
@@ -203,16 +176,17 @@ class ScalaClausesCompletionTest extends ScalaCodeInsightTestBase {
   //         |  case Foo.Impl$CARET
   //         |}
   //       """.stripMargin,
-  //    item = "Foo.Impl"
+  //    lookupString = "_",
+  //    itemText = "Foo.Impl"
   //  )
-  //
+
   //  def testJavaInheritorCompletion(): Unit = {
   //    configureJavaFile(
   //      fileText = "public class Bar extends Foo {}",
   //      className = "Bar"
   //    )
   //
-  //    doCompletionTest(
+  //    doPatternCompletionTest(
   //      fileText =
   //        s"""sealed trait Foo
   //           |
@@ -227,7 +201,8 @@ class ScalaClausesCompletionTest extends ScalaCodeInsightTestBase {
   //           |  case bar: Bar$CARET
   //           |}
   //         """.stripMargin,
-  //      item = "bar: Bar"
+  //      lookupString = "_: Bar",
+  //      itemText = "bar: Bar"
   //    )
   //  }
 
@@ -601,6 +576,12 @@ class ScalaClausesCompletionTest extends ScalaCodeInsightTestBase {
   //         |}
   //       """.stripMargin
   //  )
+
+  private def doPatternCompletionTest(fileText: String, resultText: String,
+                                      itemText: String = "Foo(_)"): Unit =
+    super.doCompletionTest(fileText, resultText, DEFAULT_CHAR, DEFAULT_TIME, BASIC) {
+      hasItemText(_, itemText, itemText)
+    }
 
   //  private def doMultipleCompletionTest(fileText: String,
   //                                       items: String*): Unit =
