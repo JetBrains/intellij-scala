@@ -3,6 +3,7 @@ package org.jetbrains.plugins.scala.worksheet.settings
 import com.intellij.openapi.actionSystem.AnAction
 import com.intellij.openapi.editor.Editor
 import com.intellij.openapi.extensions.ExtensionPointName
+import com.intellij.psi.PsiFile
 import org.jetbrains.plugins.scala.lang.psi.api.ScalaFile
 import org.jetbrains.plugins.scala.worksheet.cell.{CellDescriptor, RunCellAction}
 import org.jetbrains.plugins.scala.worksheet.processor.WorksheetCompilerUtil._
@@ -30,6 +31,8 @@ abstract class WorksheetExternalRunType {
 
   def createRunCellAction(cellDescriptor: CellDescriptor): Option[AnAction] = None
 
+  def onSettingsConfirmed(file: PsiFile, isGlobal: Boolean): Unit = {}
+  
   override def toString: String = getName
 }
 
