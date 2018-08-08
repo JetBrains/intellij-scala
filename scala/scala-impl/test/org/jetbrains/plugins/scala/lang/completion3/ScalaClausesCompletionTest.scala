@@ -510,6 +510,27 @@ class ScalaClausesCompletionTest extends ScalaCodeInsightTestBase {
     )
   }
 
+  def testExplicitCompanion(): Unit = doMatchCompletionTest(
+    fileText =
+      s"""sealed trait Foo
+         |
+         |case class Bar() extends Foo
+         |object Bar
+         |
+         |(_: Foo) ma$CARET
+       """.stripMargin,
+    resultText =
+      s"""sealed trait Foo
+         |
+         |case class Bar() extends Foo
+         |object Bar
+         |
+         |(_: Foo) match {
+         |  case Bar() => $CARET
+         |}
+       """.stripMargin
+  )
+
   //  def testPathDependent(): Unit = doMatchCompletionTest(
   //    fileText =
   //      s"""class Foo {
