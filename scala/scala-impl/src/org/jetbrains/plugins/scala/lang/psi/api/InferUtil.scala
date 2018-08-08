@@ -20,7 +20,7 @@ import org.jetbrains.plugins.scala.lang.psi.types.Compatibility.{ConformanceExtR
 import org.jetbrains.plugins.scala.lang.psi.types._
 import org.jetbrains.plugins.scala.lang.psi.types.api._
 import org.jetbrains.plugins.scala.lang.psi.types.api.designator.{ScDesignatorType, ScProjectionType, ScThisType}
-import org.jetbrains.plugins.scala.lang.psi.types.nonvalue.{Parameter, ScMethodType, ScTypePolymorphicType}
+import org.jetbrains.plugins.scala.lang.psi.types.nonvalue.{NonValueType, Parameter, ScMethodType, ScTypePolymorphicType}
 import org.jetbrains.plugins.scala.lang.psi.types.recursiveUpdate.ScSubstitutor
 import org.jetbrains.plugins.scala.lang.psi.types.result.Typeable
 import org.jetbrains.plugins.scala.lang.resolve.ScalaResolveResult
@@ -269,47 +269,78 @@ object InferUtil {
   /**
     * Util method to update type according to expected type
     *
-    * @param _nonValueType          type, to update it should be PolymorphicType(MethodType)
-    * @param fromImplicitSearch     whether it was invoked from computing type of a regular expression or in implicit search
+    * @param _nonValueType          type, to update it should be PolymorphicType
     * @param expectedType           appropriate expected type
     * @param expr                   place
     * @param canThrowSCE            we fail to get right type then if canThrowSCE throw SafeCheckException
     * @return updated type
     */
   def updateAccordingToExpectedType(_nonValueType: ScType,
-                                    fromImplicitSearch: Boolean,
                                     filterTypeParams: Boolean,
-                                    expectedType: Option[ScType], expr: PsiElement,
+                                    expectedType: Option[ScType],
+                                    expr: PsiElement,
                                     canThrowSCE: Boolean): ScType = {
     implicit val ctx: ProjectContext = expr
     val Unit = ctx.stdTypes.Unit
 
-    val nonValueType =
-      if (expectedType.isEmpty || expectedType.exists(_.equiv(Unit))) _nonValueType
-      else {
-        val expected = expectedType.get
+    @tailrec
+    def shouldSearchImplicit(t: ScType, first: Boolean = true): Boolean = t match {
+      case ScMethodType(_, _, isImplicit) if isImplicit => !first  // implicit method type on top level means explicit implicit argument
+      case ScTypePolymorphicType(internalType, _)       => shouldSearchImplicit(internalType, first = first)
+      case ScMethodType(returnType, _, _)               => shouldSearchImplicit(returnType, first = false)
+      case _                                            => false
+    }
 
-        def doLocalInference(retType: ScType, valueType: ValueType, typeParams: Seq[TypeParameter]) = {
-          localTypeInference(retType,
-            Seq(Parameter("", None, expected, expected, isDefault = false, isRepeated = false, isByName = false)),
-            Seq(new Expression(ScSubstitutor.bind(typeParams)(UndefinedType(_)).subst(valueType))),
-            typeParams, shouldUndefineParameters = false, canThrowSCE = canThrowSCE, filterTypeParams = filterTypeParams)
+    def implicitSearchFails(tp: ScType): Boolean = expr match {
+      case e: ScExpression =>
+        val implicitArgs = e.updatedWithImplicitParameters(tp, checkExpectedType = false)._2.toSeq.flatten
+        implicitArgs.exists {
+          case srr if srr.isNotFoundImplicitParameter  => true
+          case srr if srr.isAmbiguousImplicitParameter =>
+            // we found several implicits, but not all type parameters are fully inferred yet, it may be fine
+            tp.asOptionOf[ScTypePolymorphicType].exists(_.typeParameters.isEmpty)
+          case _                                       => false
         }
+      case _ => false
+    }
 
-        _nonValueType match {
-          case ScTypePolymorphicType(m@ScMethodType(_, _, impl), typeParams) if !fromImplicitSearch || impl =>
-            val innerInternal = ofSameDepth(m, expected)
-            val updated = expr match {
-              case scExpr: ScExpression =>
-                scExpr.updatedWithImplicitParameters(innerInternal, canThrowSCE)._1
-              case _ => innerInternal
-            }
-            doLocalInference(m, updated.inferValueType, typeParams)
-          case ScTypePolymorphicType(internal, typeParams) /*if fromImplicitParameters*/ =>
-            doLocalInference(internal, internal.inferValueType, typeParams)
-          case _ => _nonValueType
-        }
+    def cantFindImplicitsFor(tp: ScType): Boolean = shouldSearchImplicit(tp) && implicitSearchFails(tp)
+
+    def doLocalTypeInference(tpt: ScTypePolymorphicType, expected: ScType): ScType = {
+      val ScTypePolymorphicType(internal, typeParams) = tpt
+
+      val sameDepth = internal match {
+        case m: ScMethodType => ofSameDepth(m, expected)
+        case _               => internal
       }
+
+      val valueType = sameDepth.inferValueType
+
+      val expectedParam = Parameter("", None, expected, expected)
+      val expressionToUpdate = new Expression(ScSubstitutor.bind(typeParams)(UndefinedType(_)).subst(valueType))
+
+      val inferredWithExpected =
+        localTypeInference(internal, Seq(expectedParam), Seq(expressionToUpdate), typeParams,
+          shouldUndefineParameters = false,
+          canThrowSCE = canThrowSCE,
+          filterTypeParams = filterTypeParams)
+
+      /** See
+        * [[scala.tools.nsc.typechecker.Typers.Typer.adapt#adaptToImplicitMethod]]
+        *
+        * If there is not found implicit for type parameters inferred using expected type,
+        * rollback type inference, it may be fixed later with implicit conversion
+        */
+      if (cantFindImplicitsFor(inferredWithExpected))
+        _nonValueType
+      else
+        inferredWithExpected
+    }
+
+    val nonValueType = (_nonValueType, expectedType) match {
+      case (tpt: ScTypePolymorphicType, Some(expected)) if !expected.equiv(Unit) => doLocalTypeInference(tpt, expected)
+      case _                                                                     => _nonValueType
+    }
 
     if (!expr.isInstanceOf[ScExpression]) return nonValueType
 
