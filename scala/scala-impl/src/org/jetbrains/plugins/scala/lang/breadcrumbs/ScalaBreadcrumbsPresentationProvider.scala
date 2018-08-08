@@ -10,6 +10,7 @@ import org.jetbrains.plugins.scala.lang.psi.api.expr.ScFunctionExpr
 import org.jetbrains.plugins.scala.lang.psi.api.statements.ScFunction
 import org.jetbrains.plugins.scala.lang.psi.api.toplevel.typedef.ScTemplateDefinition
 import com.intellij.ui.ColorUtil._
+import com.intellij.ui.JBColor
 
 /**
   * User: Dmitry.Naydanov
@@ -40,13 +41,14 @@ object ScalaBreadcrumbsPresentationProvider {
   
   private val BASE_COLORS_PAIR = (EditorColors.BREADCRUMBS_DEFAULT, EditorColors.BREADCRUMBS_HOVERED)
   private val BASE_BACKGROUND_COLOR = EditorColors.GUTTER_BACKGROUND
+  private val DEFAULT_BACKGROUND_COLOR = new JBColor(15790320, 3224373)
  
 
   case class MyCrumbPresentation(isTemplateDef: Boolean) extends CrumbPresentation {
     override def getBackgroundColor(selected: Boolean, hovered: Boolean, light: Boolean): Color = {
       if (hovered || selected) 
         return adjustColor (
-          EditorColorsManager.getInstance().getGlobalScheme.getColor(BASE_BACKGROUND_COLOR), 
+          Option(EditorColorsManager.getInstance().getGlobalScheme.getColor(BASE_BACKGROUND_COLOR)).getOrElse(DEFAULT_BACKGROUND_COLOR), 
           if (hovered && selected) 3 else 2
         ) 
       
