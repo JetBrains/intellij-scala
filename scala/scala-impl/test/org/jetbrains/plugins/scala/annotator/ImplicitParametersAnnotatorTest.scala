@@ -7,9 +7,11 @@ import org.jetbrains.plugins.scala.base.ScalaLightCodeInsightFixtureTestAdapter
   * Nikolay.Tropin
   * 16-Feb-18
   */
-class ImplicitParametersAnnotatorTest extends AnnotatorTestBase(ImplicitParametersAnnotator) {
+abstract class ImplicitParametersAnnotatorTestBase extends AnnotatorTestBase(ImplicitParametersAnnotator) {
+  protected def notFound(types: String*) = ImplicitParametersAnnotator.message(types)
+}
 
-  private def notFound(types: String*) = ImplicitParametersAnnotator.message(types)
+class ImplicitParametersAnnotatorTest extends ImplicitParametersAnnotatorTestBase {
 
   def testCorrectImplicits(): Unit = assertNothing(messages(
     """def implicitly[T](implicit e: T) = e
@@ -431,4 +433,44 @@ class ImplicitParameterFailingTest extends ScalaLightCodeInsightFixtureTestAdapt
       |  def a1 = shuffle(range)
       |}
     """.stripMargin)
+}
+
+class ImplicitParametersAnnotatorFailingTest extends ImplicitParametersAnnotatorTestBase {
+
+  override protected def shouldPass = false
+
+  def testSCL5472C(): Unit = {
+    val text =
+      """
+        |class List[+A]
+        |object List {
+        |  def apply[A](xs: A*): List[A] = new List[A]()
+        |}
+        |
+        |case class Tuple2[+A, +B]    (a: A, b: B)
+        |case class Tuple3[+A, +B, +C](a: A, b: B, c: C)
+        |
+        |trait SCL5472C {
+        |  def nothing: Nothing
+        |
+        |  class ParamDefAux[T]
+        |
+        |  implicit def forTuple[T](implicit x: ParamDefAux[Tuple3[T, T, T]]): ParamDefAux[Tuple2[T, T]] =
+        |    new ParamDefAux
+        |
+        |  implicit def forTuple                                             : ParamDefAux[Tuple2[Double, Double]] =
+        |    new ParamDefAux
+        |
+        |  implicit def forTriple[T]                                         : ParamDefAux[Tuple3[T, T, T]] =
+        |    new ParamDefAux
+        |
+        |  implicit val x: List[Int] = List(1, 2, 3)
+        |
+        |  def foo[T, S](implicit t: List[T], x: ParamDefAux[Tuple2[T, S]]): S = nothing
+        |
+        |  foo
+        |}
+      """.stripMargin
+    assertMessages(Error("foo", notFound("ParamDefAux[Tuple2[Int, S_]]")) :: Nil)(messages(text).get)
+  }
 }
