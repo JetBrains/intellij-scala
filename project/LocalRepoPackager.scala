@@ -33,9 +33,6 @@ object LocalRepoPackager {
   /** Download sbt plugin files to a local repo for both sbt 0.13 and 1.0 */
   private def downloadPathsToLocalRepo(remoteRepo: URI, localRepo: File, paths: Seq[String]): Seq[File] = {
 
-    val start = System.currentTimeMillis()
-    println(s"downloading ${paths.size} files to local repo: $paths")
-
     val downloadedArtifactFiles = paths.map { path =>
       val downloadUrl = remoteRepo.resolve(path).normalize().toURL
       val localFile = (localRepo / path).getCanonicalFile
@@ -43,8 +40,6 @@ object LocalRepoPackager {
         IO.download(downloadUrl, localFile)
       localFile
     }
-
-    println(s"Done in ${System.currentTimeMillis() - start} ms")
 
     downloadedArtifactFiles
   }
