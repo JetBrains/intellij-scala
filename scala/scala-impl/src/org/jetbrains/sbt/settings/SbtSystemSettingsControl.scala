@@ -10,12 +10,13 @@ class SbtSystemSettingsControl(settings: SbtSystemSettings) extends ExternalSyst
   private val pane = new SbtSettingsPane(settings.getProject)
 
   def isModified: Boolean = ! {
-    pane.isCustomLauncher == settings.customLauncherEnabled &&
-      pane.getLauncherPath == settings.customLauncherPath &&
-      pane.getMaximumHeapSize == settings.maximumHeapSize &&
-      pane.getVmParameters == settings.vmParameters &&
-      pane.isCustomVM == settings.customVMEnabled &&
-      pane.getCustomVMPath == settings.customVMPath
+    val state = settings.getState
+    pane.isCustomLauncher == state.customLauncherEnabled &&
+      pane.getLauncherPath == state.customLauncherPath &&
+      pane.getMaximumHeapSize == state.maximumHeapSize &&
+      pane.getVmParameters == state.vmParameters &&
+      pane.isCustomVM == state.customVMEnabled &&
+      pane.getCustomVMPath == state.customVMPath
   }
 
   def showUi(show: Boolean): Unit =
@@ -27,20 +28,22 @@ class SbtSystemSettingsControl(settings: SbtSystemSettings) extends ExternalSyst
   def disposeUIResources() {}
 
   def apply(settings: SbtSystemSettings): Unit = {
-    settings.customLauncherEnabled = pane.isCustomLauncher
-    settings.customLauncherPath = pane.getLauncherPath
-    settings.maximumHeapSize = pane.getMaximumHeapSize
-    settings.vmParameters = pane.getVmParameters
-    settings.customVMEnabled = pane.isCustomVM
-    settings.customVMPath = pane.getCustomVMPath
+    val state = settings.getState
+    state.customLauncherEnabled = pane.isCustomLauncher
+    state.customLauncherPath = pane.getLauncherPath
+    state.maximumHeapSize = pane.getMaximumHeapSize
+    state.vmParameters = pane.getVmParameters
+    state.customVMEnabled = pane.isCustomVM
+    state.customVMPath = pane.getCustomVMPath
   }
 
   def reset(): Unit = {
-    pane.setCustomLauncherEnabled(settings.customLauncherEnabled)
-    pane.setLauncherPath(settings.customLauncherPath)
-    pane.setMaximumHeapSize(settings.maximumHeapSize)
-    pane.setMyVmParameters(settings.vmParameters)
-    pane.setCustomVMPath(settings.customVMPath, settings.getCustomVMEnabled)
+    val state = settings.getState
+    pane.setCustomLauncherEnabled(state.customLauncherEnabled)
+    pane.setLauncherPath(state.customLauncherPath)
+    pane.setMaximumHeapSize(state.maximumHeapSize)
+    pane.setMyVmParameters(state.vmParameters)
+    pane.setCustomVMPath(state.customVMPath, state.getCustomVMEnabled)
     pane.setPathListeners()
   }
 

@@ -29,7 +29,7 @@ object SbtStructureSetup {
     assert(customSbtLauncher.isFile, s"sbt launcher not found at $customSbtLauncher")
     assert(customSbtStructure.isFile, s"sbt-structure not found at $customSbtStructure")
 
-    val systemSettings = SbtSystemSettings.getInstance(project)
+    val systemSettings = SbtSystemSettings.getInstance(project).getState
     systemSettings.setCustomLauncherEnabled(true)
     systemSettings.setCustomLauncherPath(customSbtLauncher.canonicalPath)
     systemSettings.setCustomSbtStructurePath(customSbtStructure.canonicalPath)

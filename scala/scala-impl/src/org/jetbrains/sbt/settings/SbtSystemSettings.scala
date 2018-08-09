@@ -11,12 +11,12 @@ import com.intellij.openapi.project.Project
 import com.intellij.openapi.roots.ProjectRootManager
 import com.intellij.psi.PsiElement
 import com.intellij.util.containers.ContainerUtilRt
-import com.intellij.util.xmlb.annotations.AbstractCollection
+import com.intellij.util.xmlb.annotations.XCollection
 import org.jetbrains.annotations.NotNull
 import org.jetbrains.sbt.project.settings.{SbtProjectSettings, SbtProjectSettingsListener, SbtProjectSettingsListenerAdapter, SbtTopic}
+import org.jetbrains.sbt.settings.SbtSystemSettings._
 
 import scala.beans.BeanProperty
-import SbtSystemSettings._
 
 /**
  * @author Pavel Fatin
@@ -31,48 +31,15 @@ class SbtSystemSettings(project: Project)
   with PersistentStateComponent[SbtSystemSettingsState]{
 
   @BeanProperty
-  var customLauncherEnabled: Boolean = false
+  var myState: SbtSystemSettingsState = new SbtSystemSettingsState
 
-  @BeanProperty
-  var customLauncherPath: String = ""
-
-  @BeanProperty
-  var maximumHeapSize: String = defaultMaxHeapSize
-
-  @BeanProperty
-  var vmParameters: String = ""
-
-  @BeanProperty
-  var customVMEnabled: Boolean = false
-
-  @BeanProperty
-  var customVMPath: String = ""
-
-  @BeanProperty
-  var customSbtStructurePath: String = ""
-
-  def getState: SbtSystemSettingsState = {
-    val state = new SbtSystemSettingsState()
-    fillState(state)
-    state.customLauncherEnabled = customLauncherEnabled
-    state.customLauncherPath    = customLauncherPath
-    state.maximumHeapSize       = maximumHeapSize
-    state.vmParameters          = vmParameters
-    state.customVMEnabled       = customVMEnabled
-    state.customVMPath          = customVMPath
-    state.customSbtStructureDir = customSbtStructurePath
-    state
+  override def getState: SbtSystemSettingsState = {
+    fillState(myState)
+    myState
   }
-
-  def loadState(state: SbtSystemSettingsState) {
+  override def loadState(state: SbtSystemSettingsState): Unit = {
     super[AbstractExternalSystemSettings].loadState(state)
-    customLauncherEnabled = state.customLauncherEnabled
-    customLauncherPath    = state.customLauncherPath
-    maximumHeapSize       = state.maximumHeapSize
-    vmParameters          = state.vmParameters
-    customVMEnabled       = state.customVMEnabled
-    customVMPath          = state.customVMPath
-    customSbtStructurePath = state.customSbtStructureDir
+    myState = state
   }
 
   def subscribe(listener: ExternalSystemSettingsListener[SbtProjectSettings]) {
@@ -108,7 +75,10 @@ object SbtSystemSettings {
 }
 
 class SbtSystemSettingsState extends AbstractExternalSystemSettings.State[SbtProjectSettings] {
-  private val projectSettings = ContainerUtilRt.newTreeSet[SbtProjectSettings]()
+
+//  @BeanProperty
+//  @XCollection(style = XCollection.Style.v1, elementTypes = Array(classOf[SbtProjectSettings]))
+  val linkedProjectSettings: util.TreeSet[SbtProjectSettings] = ContainerUtilRt.newTreeSet[SbtProjectSettings]()
 
   @BeanProperty
   var customLauncherEnabled: Boolean = false
@@ -129,16 +99,14 @@ class SbtSystemSettingsState extends AbstractExternalSystemSettings.State[SbtPro
   var customVMPath: String = ""
 
   @BeanProperty
-  var customSbtStructureDir: String = ""
+  var customSbtStructurePath: String = ""
 
-  @AbstractCollection(surroundWithTag = false, elementTypes = Array(classOf[SbtProjectSettings]))
-  def getLinkedExternalProjectsSettings: util.Set[SbtProjectSettings] = {
-    projectSettings
-  }
+  @XCollection(style = XCollection.Style.v1, elementTypes = Array(classOf[SbtProjectSettings]))
+  def getLinkedExternalProjectsSettings: util.Set[SbtProjectSettings] =
+    linkedProjectSettings
 
-  def setLinkedExternalProjectsSettings(settings: util.Set[SbtProjectSettings]) {
+  def setLinkedExternalProjectsSettings(settings: util.Set[SbtProjectSettings]): Unit =
     if (settings != null) {
-      projectSettings.addAll(settings)
+      linkedProjectSettings.addAll(settings)
     }
-  }
 }

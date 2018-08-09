@@ -12,6 +12,7 @@ import com.intellij.execution.ui.{RunContentDescriptor, RunnerLayoutUi}
 import com.intellij.openapi.Disposable
 import com.intellij.openapi.actionSystem._
 import com.intellij.openapi.application.ApplicationManager
+import com.intellij.openapi.diagnostic.Logger
 import com.intellij.openapi.editor.ex.util.EditorUtil
 import com.intellij.openapi.project.Project
 import com.intellij.openapi.util.Disposer
@@ -31,6 +32,7 @@ class SbtShellRunner(project: Project, consoleTitle: String, debugConnection: Op
   extends AbstractConsoleRunnerWithHistory[LanguageConsoleImpl](project, consoleTitle, project.getBaseDir.getCanonicalPath)
   with Disposable
 {
+  private val log = Logger.getInstance(getClass)
 
   private val toolWindowTitle = project.getName
 
@@ -103,10 +105,16 @@ class SbtShellRunner(project: Project, consoleTitle: String, debugConnection: Op
       SbtShellCommunication.forProject(project).initCommunication(myProcessHandler)
 
       if (notInTest) {
-        val twm = ToolWindowManager.getInstance(project)
-        val toolWindow = twm.getToolWindow(SbtShellToolWindowFactory.ID)
-        val content = createToolWindowContent
-        addToolWindowContent(toolWindow, content)
+        val contentCreated = for {
+          twm <- Option(ToolWindowManager.getInstance(project))
+          toolWindow <- Option(twm.getToolWindow(SbtShellToolWindowFactory.ID))
+        } yield {
+          val content = createToolWindowContent
+          addToolWindowContent(toolWindow, content)
+        }
+        if (contentCreated.isEmpty) {
+          log.error(s"Failed to create sbt shell toolwindow content for $project.")
+        }
       }
     }
   }
@@ -133,8 +141,10 @@ class SbtShellRunner(project: Project, consoleTitle: String, debugConnection: Op
     openShell(contentDescriptor.isAutoFocusContent)
 
   def openShell(focus: Boolean): Unit = ShellUIUtil.inUI {
-    val toolWindow = ToolWindowManager.getInstance(project).getToolWindow(SbtShellToolWindowFactory.ID)
-    toolWindow.activate(null, focus)
+    for {
+      twm <- Option(ToolWindowManager.getInstance(project))
+      toolWindow <- Option(twm.getToolWindow(SbtShellToolWindowFactory.ID))
+    } toolWindow.activate(null, focus)
   }
 
   private def addToolWindowContent(@NotNull toolWindow: ToolWindow, @NotNull content: Content): Unit = {
