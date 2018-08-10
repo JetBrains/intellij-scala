@@ -443,25 +443,6 @@ package object extensions {
       project.typeSystem.toScType(`type`, treatJavaObjectAsAny)(visitedRawTypes, paramTopLevel)
   }
 
-  implicit class PsiWildcardTypeExt(val `type`: PsiWildcardType) extends AnyVal {
-    def lower(implicit project: ProjectContext,
-              visitedRawTypes: Set[PsiClass],
-              paramTopLevel: Boolean): Option[ScType] =
-      bound(if (`type`.isSuper) Some(`type`.getSuperBound) else None)
-
-    def upper(implicit project: ProjectContext,
-              visitedRawTypes: Set[PsiClass],
-              paramTopLevel: Boolean): Option[ScType] =
-      bound(if (`type`.isExtends) Some(`type`.getExtendsBound) else None)
-
-    private def bound(maybeBound: Option[PsiType])
-                     (implicit project: ProjectContext,
-                      visitedRawTypes: Set[PsiClass],
-                      paramTopLevel: Boolean) = maybeBound map {
-      _.toScType(visitedRawTypes, paramTopLevel = paramTopLevel)
-    }
-  }
-
   implicit class PsiMemberExt(val member: PsiMember) extends AnyVal {
     /**
       * Second match branch is for Java only.
@@ -711,10 +692,6 @@ package object extensions {
           else newValue
       }
     }
-  }
-
-  implicit class RegexExt(val regex: Regex) extends AnyVal {
-    def matches(s: String): Boolean = regex.pattern.matcher(s).matches
   }
 
   import scala.language.implicitConversions
