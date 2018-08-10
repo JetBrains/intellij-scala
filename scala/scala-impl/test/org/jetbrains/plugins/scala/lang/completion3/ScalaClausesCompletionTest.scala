@@ -531,6 +531,27 @@ class ScalaClausesCompletionTest extends ScalaCodeInsightTestBase {
        """.stripMargin
   )
 
+  def testInfixExpression(): Unit = doMatchCompletionTest(
+    fileText =
+      s"""sealed trait Foo
+         |
+         |case class Bar() extends Foo
+         |
+         |(_: Foo) ma$CARET
+         |???
+       """.stripMargin,
+    resultText =
+      s"""sealed trait Foo
+         |
+         |case class Bar() extends Foo
+         |
+         |(_: Foo) match {
+         |  case Bar() => $CARET
+         |}
+         |???
+       """.stripMargin
+  )
+
   //  def testPathDependent(): Unit = doMatchCompletionTest(
   //    fileText =
   //      s"""class Foo {

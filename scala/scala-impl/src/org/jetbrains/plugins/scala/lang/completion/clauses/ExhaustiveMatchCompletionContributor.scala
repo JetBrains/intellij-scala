@@ -13,7 +13,7 @@ import com.intellij.util.ProcessingContext
 import org.jetbrains.plugins.scala.extensions._
 import org.jetbrains.plugins.scala.lang.psi.api.base.patterns.{ScCaseClauses, ScTypedPattern}
 import org.jetbrains.plugins.scala.lang.psi.api.base.types.{ScParameterizedTypeElement, ScSimpleTypeElement, ScTypeElement}
-import org.jetbrains.plugins.scala.lang.psi.api.expr.{ScMatchStmt, ScPostfixExpr}
+import org.jetbrains.plugins.scala.lang.psi.api.expr._
 import org.jetbrains.plugins.scala.lang.psi.api.statements.ScValue
 import org.jetbrains.plugins.scala.lang.psi.api.toplevel.typedef.ScObject
 import org.jetbrains.plugins.scala.lang.psi.impl.ScalaPsiElementFactory
@@ -29,16 +29,23 @@ class ExhaustiveMatchCompletionContributor extends ScalaCompletionContributor {
 
   import ExhaustiveMatchCompletionContributor._
 
-  extend(CompletionType.BASIC,
-    PlatformPatterns.psiElement.inside(classOf[ScPostfixExpr]),
+  extend(
+    CompletionType.BASIC,
+    PlatformPatterns.psiElement.inside(classOf[ScSugarCallExpr]),
     new ScalaCompletionProvider {
       override protected def completionsFor(position: PsiElement)
                                            (implicit parameters: CompletionParameters,
                                             context: ProcessingContext): Iterable[LookupElement] =
         for {
-          place@ScPostfixExpr(Typeable(PatternGenerationStrategy(strategy)), _) <- position.findContextOfType(classOf[ScPostfixExpr])
+          sugarCall <- position.findContextOfType(classOf[ScSugarCallExpr])
+          if !sugarCall.isInstanceOf[ScPrefixExpr]
+
+          ScSugarCallExpr(Typeable(operandType), operation, _) <- Some(sugarCall)
+          if operation.isAncestorOf(position)
+
+          PatternGenerationStrategy(strategy) <- Some(operandType)
         } yield LookupElementBuilder.create(ItemText)
-          .withInsertHandler(createInsertHandler(strategy)(place))
+          .withInsertHandler(createInsertHandler(strategy)(sugarCall))
           .withRenderer(createRenderer)
     }
   )
