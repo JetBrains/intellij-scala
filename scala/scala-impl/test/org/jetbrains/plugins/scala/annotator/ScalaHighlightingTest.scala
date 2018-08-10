@@ -105,4 +105,29 @@ class ScalaHighlightingTest extends ScalaHighlightingTestBase {
       """.stripMargin
     assertNothing(errorsFromScalaCode(code))
   }
+
+  def testSCL14238(): Unit = {
+    val code =
+      """
+        |trait X
+        |trait Y extends X
+        |
+        |trait Bug {
+        |  def maybeY(): Option[Y] = ???
+        |
+        |  def x(): X = ???
+        |
+        |  maybeY().getOrElse {
+        |    x()
+        |  }: X
+        |
+        |  maybeY().getOrElse (
+        |    x()
+        |  ): X
+        |}
+      """.stripMargin
+
+    assertNothing(errorsFromScalaCode(code))
+  }
+
 }
