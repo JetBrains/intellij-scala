@@ -11,6 +11,7 @@ class JvmOptsTest {
 
   private val input =
     """
+      |# My jvm options
       |-Xmx2G
       |-Dhoodlump=bloom
     """.stripMargin

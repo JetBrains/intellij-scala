@@ -13,7 +13,7 @@ object JvmOpts {
   def loadFrom(directory: File): Seq[String] = {
     val jvmOptsFile = directory / ".jvmopts"
     if (jvmOptsFile.exists && jvmOptsFile.isFile && jvmOptsFile.canRead)
-      FileUtil.loadLines(jvmOptsFile).asScala.map(_.trim).filter(_.nonEmpty)
+      FileUtil.loadLines(jvmOptsFile).asScala.map(_.trim).filter(_.startsWith("-"))
     else
       Seq.empty
   }
