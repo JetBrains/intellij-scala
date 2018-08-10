@@ -9,7 +9,6 @@ import com.intellij.openapi.externalSystem.service.settings.AbstractExternalProj
 import com.intellij.openapi.externalSystem.settings._
 import com.intellij.openapi.externalSystem.util.ExternalSystemUiUtil._
 import com.intellij.openapi.externalSystem.util.{ExternalSystemSettingsControl, ExternalSystemUiUtil, PaintAwarePanel}
-import com.intellij.openapi.fileChooser.FileChooserDescriptorFactory
 import com.intellij.openapi.project.Project
 import com.intellij.util.containers.ContainerUtilRt
 import com.intellij.util.messages.Topic
@@ -87,7 +86,7 @@ class BspSystemSettings(project: Project)
 {
 
   @BeanProperty
-  var bloopPath: String = "bloop"
+  var myState: BspSystemSettingsState = new BspSystemSettingsState
 
   override def subscribe(listener: ExternalSystemSettingsListener[BspProjectSettings]): Unit = {
     val adapter = new BspProjectSettingsListenerAdapter(listener)
@@ -99,17 +98,13 @@ class BspSystemSettings(project: Project)
   override def checkSettings(old: BspProjectSettings, current: BspProjectSettings): Unit = {}
 
   override def getState: BspSystemSettingsState = {
-    val state = new BspSystemSettingsState
-    fillState(state)
-
-    state.bloopPath = bloopPath
-
-    state
+    fillState(myState)
+    myState
   }
 
   override def loadState(state: BspSystemSettingsState): Unit = {
     super[AbstractExternalSystemSettings].loadState(state)
-    bloopPath = state.bloopPath
+    myState = state
   }
 }
 
@@ -155,7 +150,7 @@ object BspExecutionSettings {
     val systemSettings = BspSystemSettings.getInstance(project)
 
     val basePath = new File(path)
-    val bloopExecutable = new File(systemSettings.bloopPath)
+    val bloopExecutable = new File(systemSettings.getState.bloopPath)
     new BspExecutionSettings(basePath, bloopExecutable)
   }
 }
@@ -173,15 +168,15 @@ class BspSystemSettingsControl(settings: BspSystemSettings) extends ExternalSyst
   }
 
   override def reset(): Unit = {
-    pane.bloopExecutablePath.setText(settings.bloopPath)
+    pane.bloopExecutablePath.setText(settings.getState.bloopPath)
     pane.setPathListeners()
   }
 
   override def isModified: Boolean =
-    pane.bloopExecutablePath.getText != settings.bloopPath
+    pane.bloopExecutablePath.getText != settings.getState.bloopPath
 
   override def apply(settings: BspSystemSettings): Unit = {
-    settings.bloopPath = pane.bloopExecutablePath.getText
+    settings.getState.bloopPath = pane.bloopExecutablePath.getText
   }
   override def validate(settings: BspSystemSettings): Boolean =
     true // TODO validate bloop path or something?
