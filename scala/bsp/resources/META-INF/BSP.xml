@@ -30,9 +30,7 @@
         <externalProjectDataService implementation="org.jetbrains.bsp.data.ScalaSdkService"/>
         <externalProjectDataService implementation="org.jetbrains.bsp.data.BspMetadataService"/>
 
-        <!--<externalSystemConfigLocator implementation="org.jetbrains.bsp.BspConfigLocator"/>-->
-
-        <projectService serviceImplementation="org.jetbrains.bsp.settings.BspSystemSettings"/>
+        <applicationService serviceImplementation="org.jetbrains.bsp.settings.BspSystemSettings"/>
         <projectService serviceImplementation="org.jetbrains.bsp.settings.BspLocalSettings"/>
 
         <projectImportProvider implementation="org.jetbrains.bsp.project.BspProjectImportProvider"/>
