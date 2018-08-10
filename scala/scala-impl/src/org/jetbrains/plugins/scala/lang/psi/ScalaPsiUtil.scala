@@ -684,11 +684,10 @@ object ScalaPsiUtil {
 
     firstDifference.exists {
       case (beforeAncestor, afterAncestor) =>
+        val beforeInContext = beforeAncestor.sameElementInContext
+        val afterInContext = afterAncestor.sameElementInContext
 
-        val topChildren = beforeAncestor.getContext
-          .stubOrPsiChildren(TokenSet.ANY, PsiElement.ARRAY_FACTORY)
-
-        topChildren.indexOf(beforeAncestor.sameElementInContext) <= topChildren.indexOf(afterAncestor.sameElementInContext)
+        beforeInContext.withNextSiblings.contains(afterInContext)
     }
   }
 

@@ -368,7 +368,7 @@ package object extensions {
 
     def nextSiblings: Iterator[PsiElement] = new NextSiblignsIterator(element)
 
-    def nextSibilingsWithSelf: Iterator[PsiElement] = Iterator(element) ++ nextSiblings
+    def withNextSiblings: Iterator[PsiElement] = Iterator(element) ++ nextSiblings
 
     def contexts: Iterator[PsiElement] = new ContextsIterator(element)
 

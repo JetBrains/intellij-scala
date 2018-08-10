@@ -3,7 +3,7 @@ package org.jetbrains.plugins.scala.lang.psi.implicits
 import com.intellij.psi._
 import com.intellij.psi.tree.TokenSet
 import com.intellij.psi.util.PsiTreeUtil
-import org.jetbrains.plugins.scala.extensions.StubBasedExt
+import org.jetbrains.plugins.scala.extensions.{PsiElementExt, StubBasedExt}
 import org.jetbrains.plugins.scala.lang.psi.api.base.patterns.ScBindingPattern
 import org.jetbrains.plugins.scala.lang.psi.api.expr.ScExpression
 import org.jetbrains.plugins.scala.lang.psi.api.statements.params.{ScClassParameter, ScParameter}
@@ -103,12 +103,9 @@ object CollectImplicitsProcessor {
             case (functionContext: ScalaPsiElement, placeContext: ScalaPsiElement) =>
               val funElem = functionContext.getDeepSameElementInContext
               val conElem = placeContext.getDeepSameElementInContext
-              val children = commonContext.stubOrPsiChildren(TokenSet.ANY, PsiElement.ARRAY_FACTORY)
+              val functionIsNotBefore = conElem.withNextSiblings.contains(funElem)
 
-              children.find(elem => elem == funElem || elem == conElem) match {
-                case Some(elem) if elem == conElem => return false
-                case _ =>
-              }
+              if (functionIsNotBefore) return false
             case _ =>
           }
         }

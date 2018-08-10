@@ -143,7 +143,7 @@ object ConverterUtil {
     } else {
       val elem = parentAtOffset.next()
       val topElements =
-        elem.nextSibilingsWithSelf
+        elem.withNextSiblings
           .takeWhile(elem => elem != null && elem.getTextRange.getEndOffset < endOffset)
           .map(_.getNextSibling)
           .filter(el => el != null && el.isValid)
