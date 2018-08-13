@@ -14,7 +14,7 @@ import com.intellij.openapi.vfs.{VirtualFile, VirtualFileManager}
 import com.intellij.psi.PsiManager
 import com.intellij.task.{ProjectTaskManager, ProjectTaskNotification, ProjectTaskResult}
 import com.intellij.util.messages.MessageBusConnection
-import org.jetbrains.bsp.settings.{BspProjectSettings, BspSystemSettings}
+import org.jetbrains.bsp.settings.{BspProjectSettings, BspSettings}
 import org.jetbrains.plugins.scala.ScalaFileType
 
 import scala.collection.JavaConverters._
@@ -26,7 +26,7 @@ final class BspBuildLoop(project: Project) extends AbstractProjectComponent(proj
 
   private def bspSettings: Option[BspProjectSettings] =
     Option(
-      BspSystemSettings
+      BspSettings
         .getInstance(project)
         .getLinkedProjectSettings(project.getBasePath)
     )

@@ -13,12 +13,12 @@ import com.intellij.util.Function
 import org.jetbrains.bsp._
 import org.jetbrains.bsp.settings._
 
-class BspExternalSystemManager extends ExternalSystemManager[BspProjectSettings, BspProjectSettingsListener, BspSystemSettings, BspLocalSettings, BspExecutionSettings]
+class BspExternalSystemManager extends ExternalSystemManager[BspProjectSettings, BspProjectSettingsListener, BspSettings, BspLocalSettings, BspExecutionSettings]
   with ExternalSystemConfigurableAware {
 
   override def getSystemId: ProjectSystemId = bsp.ProjectSystemId
 
-  override def getSettingsProvider: Function[Project, BspSystemSettings] = BspSystemSettings.getInstance(_)
+  override def getSettingsProvider: Function[Project, BspSettings] = BspSettings.getInstance(_)
 
   override def getLocalSettingsProvider: Function[Project, BspLocalSettings] = BspLocalSettings.getInstance(_)
 

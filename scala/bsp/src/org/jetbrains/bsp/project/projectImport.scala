@@ -28,15 +28,15 @@ class BspProjectImportBuilder(projectDataManager: ProjectDataManager)
 }
 
 
-class BspImportControl extends AbstractImportFromExternalSystemControl[BspProjectSettings, BspProjectSettingsListener, BspSystemSettings](
-  bsp.ProjectSystemId, BspSystemSettings.getInstance(ProjectManager.getInstance.getDefaultProject), new BspProjectSettings) {
+class BspImportControl extends AbstractImportFromExternalSystemControl[BspProjectSettings, BspProjectSettingsListener, BspSettings](
+  bsp.ProjectSystemId, BspSettings.getInstance(ProjectManager.getInstance.getDefaultProject), new BspProjectSettings) {
 
   override def onLinkedProjectPathChange(path: String): Unit = {}
 
   override def createProjectSettingsControl(settings: BspProjectSettings): ExternalSystemSettingsControl[BspProjectSettings] =
     new BspProjectSettingsControl(settings)
 
-  override def createSystemSettingsControl(settings: BspSystemSettings): ExternalSystemSettingsControl[BspSystemSettings] =
+  override def createSystemSettingsControl(settings: BspSettings): ExternalSystemSettingsControl[BspSettings] =
     new BspSystemSettingsControl(settings)
 }
 

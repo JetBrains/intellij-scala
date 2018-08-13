@@ -12,6 +12,7 @@ import com.intellij.openapi.externalSystem.util.{ExternalSystemSettingsControl, 
 import com.intellij.openapi.project.Project
 import com.intellij.util.containers.ContainerUtilRt
 import com.intellij.util.messages.Topic
+import com.intellij.util.xmlb.annotations.XCollection
 import javax.swing.JCheckBox
 import org.jetbrains.bsp._
 
@@ -30,7 +31,6 @@ class BspProjectSettings extends ExternalProjectSettings {
   }
 }
 
-// TODO the hell is up with this setting duplication
 class BspProjectSettingsControl(settings: BspProjectSettings)
   extends AbstractExternalProjectSettingsControl[BspProjectSettings](null, settings, null) {
 
@@ -80,49 +80,71 @@ object BspTopic extends Topic[BspProjectSettingsListener]("bsp-specific settings
   name = "BspSettings",
   storages = Array(new Storage("bsp.xml"))
 )
-class BspSystemSettings(project: Project)
-  extends AbstractExternalSystemSettings[BspSystemSettings, BspProjectSettings, BspProjectSettingsListener](BspTopic, project)
-    with PersistentStateComponent[BspSystemSettingsState]
+class BspSettings(project: Project)
+  extends AbstractExternalSystemSettings[BspSettings, BspProjectSettings, BspProjectSettingsListener](BspTopic, project)
+    with PersistentStateComponent[BspSettings.State]
 {
 
-  @BeanProperty
-  var myState: BspSystemSettingsState = new BspSystemSettingsState
+  def getSystemSettings: BspSystemSettings = BspSystemSettings.getInstance
 
   override def subscribe(listener: ExternalSystemSettingsListener[BspProjectSettings]): Unit = {
     val adapter = new BspProjectSettingsListenerAdapter(listener)
     getProject.getMessageBus.connect(getProject).subscribe(BspTopic, adapter)
   }
 
-  override def copyExtraSettingsFrom(settings: BspSystemSettings): Unit = {}
+  override def copyExtraSettingsFrom(settings: BspSettings): Unit = {}
 
   override def checkSettings(old: BspProjectSettings, current: BspProjectSettings): Unit = {}
 
-  override def getState: BspSystemSettingsState = {
-    fillState(myState)
-    myState
+  override def getState: BspSettings.State = {
+    val state = new BspSettings.State
+    fillState(state)
+    state
   }
 
-  override def loadState(state: BspSystemSettingsState): Unit = {
+  override def loadState(state: BspSettings.State): Unit = {
     super[AbstractExternalSystemSettings].loadState(state)
+  }
+}
+
+object BspSettings {
+
+  class State extends AbstractExternalSystemSettings.State[BspProjectSettings] {
+
+    private val projectSettings = ContainerUtilRt.newTreeSet[BspProjectSettings]()
+
+    @XCollection(style = XCollection.Style.v1, elementTypes = Array(classOf[BspProjectSettings]))
+    override def getLinkedExternalProjectsSettings: util.Set[BspProjectSettings] = projectSettings
+    override def setLinkedExternalProjectsSettings(settings: util.Set[BspProjectSettings]): Unit =
+      projectSettings.addAll(settings)
+  }
+
+  def getInstance(project: Project): BspSettings = ServiceManager.getService(project, classOf[BspSettings])
+}
+
+
+@State(name = "BspSystemSettings", storages = Array(new Storage("bsp.settings.xml")))
+class BspSystemSettings extends PersistentStateComponent[BspSystemSettings.State] {
+
+  @BeanProperty
+  var myState: BspSystemSettings.State = new BspSystemSettings.State
+
+  override def getState: BspSystemSettings.State = myState
+
+  override def loadState(state: BspSystemSettings.State): Unit = {
     myState = state
   }
 }
 
 object BspSystemSettings {
-  def getInstance(project: Project): BspSystemSettings = ServiceManager.getService(project, classOf[BspSystemSettings])
+  def getInstance: BspSystemSettings = ServiceManager.getService(classOf[BspSystemSettings])
+
+  class State {
+    @BeanProperty
+    var bloopPath: String = "bloop" // TODO can we autodetect bloop path for mac/windows?
+  }
 }
 
-class BspSystemSettingsState extends AbstractExternalSystemSettings.State[BspProjectSettings] {
-
-  @BeanProperty
-  var bloopPath: String = "bloop"
-
-  private val projectSettings = ContainerUtilRt.newTreeSet[BspProjectSettings]()
-
-  override def getLinkedExternalProjectsSettings: util.Set[BspProjectSettings] = projectSettings
-  override def setLinkedExternalProjectsSettings(settings: util.Set[BspProjectSettings]): Unit =
-    projectSettings.addAll(settings)
-}
 
 @State(
   name = "BspLocalSettings",
@@ -147,7 +169,7 @@ class BspExecutionSettings(val basePath: File, val bloopExecutable: File) extend
 object BspExecutionSettings {
 
   def executionSettingsFor(project: Project, path: String): BspExecutionSettings = {
-    val systemSettings = BspSystemSettings.getInstance(project)
+    val systemSettings = BspSystemSettings.getInstance
 
     val basePath = new File(path)
     val bloopExecutable = new File(systemSettings.getState.bloopPath)
@@ -155,9 +177,10 @@ object BspExecutionSettings {
   }
 }
 
-class BspSystemSettingsControl(settings: BspSystemSettings) extends ExternalSystemSettingsControl[BspSystemSettings] {
+class BspSystemSettingsControl(settings: BspSettings) extends ExternalSystemSettingsControl[BspSettings] {
 
   private val pane = new BspSystemSettingsPane
+  private val systemSettings = settings.getSystemSettings
 
   override def fillUi(canvas: PaintAwarePanel, indentLevel: Int): Unit = {
     canvas.add(pane.content, ExternalSystemUiUtil.getFillLineConstraints(indentLevel))
@@ -168,17 +191,17 @@ class BspSystemSettingsControl(settings: BspSystemSettings) extends ExternalSyst
   }
 
   override def reset(): Unit = {
-    pane.bloopExecutablePath.setText(settings.getState.bloopPath)
+    pane.bloopExecutablePath.setText(systemSettings.getState.bloopPath)
     pane.setPathListeners()
   }
 
   override def isModified: Boolean =
-    pane.bloopExecutablePath.getText != settings.getState.bloopPath
+    pane.bloopExecutablePath.getText != systemSettings.getState.bloopPath
 
-  override def apply(settings: BspSystemSettings): Unit = {
-    settings.getState.bloopPath = pane.bloopExecutablePath.getText
+  override def apply(settings: BspSettings): Unit = {
+    systemSettings.getState.bloopPath = pane.bloopExecutablePath.getText
   }
-  override def validate(settings: BspSystemSettings): Boolean =
+  override def validate(settings: BspSettings): Boolean =
     true // TODO validate bloop path or something?
 
   override def disposeUIResources(): Unit = {}

@@ -27,6 +27,7 @@
         <externalProjectDataService implementation="org.jetbrains.bsp.data.BspMetadataService"/>
 
         <applicationService serviceImplementation="org.jetbrains.bsp.settings.BspSystemSettings"/>
+        <projectService serviceImplementation="org.jetbrains.bsp.settings.BspSettings"/>
         <projectService serviceImplementation="org.jetbrains.bsp.settings.BspLocalSettings"/>
 
         <projectImportProvider implementation="org.jetbrains.bsp.project.BspProjectImportProvider"/>
