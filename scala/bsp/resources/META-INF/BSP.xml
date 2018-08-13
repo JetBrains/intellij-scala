@@ -17,10 +17,6 @@
         </component>
     </application-components>
 
-    <extensionPoints>
-        <!--<extensionPoint name="sbtOptionsProvider" interface="org.jetbrains.sbt.project.SbtOptionsProvider"/>-->
-    </extensionPoints>
-
     <extensions defaultExtensionNs="com.intellij">
         <moduleType id="BSP_SYNTHETIC_MODULE" implementationClass="org.jetbrains.bsp.project.BspSyntheticModuleType"/>
         <moduleConfigurationEditorProvider implementation="org.jetbrains.bsp.project.BspSyntheticModuleEditorProvider"/>
