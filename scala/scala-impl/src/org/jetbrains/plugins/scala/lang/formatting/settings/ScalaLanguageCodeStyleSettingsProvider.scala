@@ -25,7 +25,7 @@ class ScalaLanguageCodeStyleSettingsProvider extends LanguageCodeStyleSettingsPr
     }
   }
 
-  def getLanguage: Language = ScalaLanguage.INSTANCE
+  override def getLanguage: Language = ScalaLanguage.INSTANCE
 
   override def customizeSettings(consumer: CodeStyleSettingsCustomizable, settingsType: SettingsType) {
     def showCustomOption(fieldName: String, title: String, groupName: String, options: AnyRef*) {

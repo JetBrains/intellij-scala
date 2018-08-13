@@ -6,7 +6,7 @@ import com.intellij.psi.codeStyle.{CodeStyleSettingsCustomizable, CommonCodeStyl
 import org.jetbrains.plugins.hocon.lang.HoconLanguage
 
 class HoconLanguageCodeStyleSettingsProvider extends LanguageCodeStyleSettingsProvider {
-  def getLanguage = HoconLanguage
+  override def getLanguage = HoconLanguage
 
   override def getDisplayPriority = DisplayPriority.COMMON_SETTINGS
 

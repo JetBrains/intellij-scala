@@ -34,6 +34,4 @@ class BspExternalSystemManager extends ExternalSystemManager[BspProjectSettings,
   override def getConfigurable(project: Project): Configurable = new BspExternalSystemConfigurable(project)
 
   override def enhanceRemoteProcessing(parameters: SimpleJavaParameters): Unit = ()
-
-  override def enhanceLocalProcessing(urls: java.util.List[URL]): Unit = ()
 }

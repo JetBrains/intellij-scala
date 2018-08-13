@@ -39,6 +39,7 @@ public class WorksheetSettingsSetForm {
 
   WorksheetSettingsSetForm(PsiFile file, WorksheetSettingsData settingsData) {
     myFile = file;
+    $$$setupUI$$$();
     myProject = file.getProject();
     init(settingsData);
   }
@@ -46,6 +47,7 @@ public class WorksheetSettingsSetForm {
   WorksheetSettingsSetForm(Project project, WorksheetSettingsData settingsData) {
     myFile = null;
     myProject = project;
+    $$$setupUI$$$();
     init(settingsData);
   }
 
@@ -54,14 +56,14 @@ public class WorksheetSettingsSetForm {
 
     runTypeComboBox.setModel(new DefaultComboBoxModel<>(RunTypes.getAllRunTypes()));
     runTypeComboBox.setSelectedItem(settingsData.runType);
-    
+
     runTypeComboBox.addActionListener(new ActionListener() {
       @Override
       public void actionPerformed(ActionEvent e) {
         additionalSettingsButton.setVisible(isAdditionalSettingsShown());
       }
     });
-    
+
     interactiveModeCheckBox.setSelected(settingsData.isInteractive);
     makeProjectBeforeRunCheckBox.setSelected(settingsData.isMakeBeforeRun);
     compilerProfileComboBox.setModel(new DefaultComboBoxModel<>(settingsData.profiles));
@@ -89,17 +91,17 @@ public class WorksheetSettingsSetForm {
 
   public WorksheetSettingsData getSettings() {
     return new WorksheetSettingsData(
-        interactiveModeCheckBox.isSelected(),
-        makeProjectBeforeRunCheckBox.isSelected(),
-        (WorksheetExternalRunType) runTypeComboBox.getSelectedItem(), moduleComboBox.isEnabled() ? moduleComboBox.getSelectedModule() : null,
-        (ScalaCompilerSettingsProfile) compilerProfileComboBox.getSelectedItem(),
-        null
+            interactiveModeCheckBox.isSelected(),
+            makeProjectBeforeRunCheckBox.isSelected(),
+            (WorksheetExternalRunType) runTypeComboBox.getSelectedItem(), moduleComboBox.isEnabled() ? moduleComboBox.getSelectedModule() : null,
+            (ScalaCompilerSettingsProfile) compilerProfileComboBox.getSelectedItem(),
+            null
     );
   }
-  
+
   private boolean isAdditionalSettingsShown() {
     return runTypeComboBox.getSelectedItem() != null &&
-        ((WorksheetExternalRunType) runTypeComboBox.getSelectedItem()).showAdditionalSettingsPanel().isDefined();
+            ((WorksheetExternalRunType) runTypeComboBox.getSelectedItem()).showAdditionalSettingsPanel().isDefined();
   }
 
   private void createUIComponents() {

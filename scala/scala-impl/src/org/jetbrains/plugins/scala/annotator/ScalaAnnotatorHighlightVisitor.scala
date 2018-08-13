@@ -20,7 +20,7 @@ import org.jetbrains.plugins.scala.util.ScalaLanguageDerivative
 class ScalaAnnotatorHighlightVisitor(project: Project) extends HighlightVisitor {
   implicit def ctx: ProjectContext = project
 
-  def order: Int = 0
+  override def order: Int = 0
 
   private var myHolder: HighlightInfoHolder = _
   private var myRefCountHolder: ScalaRefCountHolder = _

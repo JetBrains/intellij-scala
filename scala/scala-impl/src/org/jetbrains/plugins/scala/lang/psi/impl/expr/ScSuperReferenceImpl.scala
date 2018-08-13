@@ -130,7 +130,7 @@ class ScSuperReferenceImpl(node: ASTNode) extends ScExpressionImplBase(node) wit
         }
       }
 
-      def getVariants: Array[Object] = superTypes match {
+      override def getVariants: Array[Object] = superTypes match {
         case None => Array.emptyObjectArray
         case Some(supers) =>
           supers.flatMap(_.extractClass).toArray

@@ -114,7 +114,7 @@ class ScAccessModifierImpl private(stub: ScAccessModifierStub, node: ASTNode)
         find(getParent)
       }
 
-      def getVariants: Array[Object] = {
+      override def getVariants: Array[Object] = {
         val buff = new ArrayBuffer[Object]
         def processPackages(qname: String) {
           var pack: PsiPackage = ScPackageImpl(JavaPsiFacade.getInstance(getProject).findPackage(qname))

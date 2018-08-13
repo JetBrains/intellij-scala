@@ -24,7 +24,7 @@ abstract class ScReferenceElementImpl(node: ASTNode) extends ScalaPsiElementImpl
 
   def doResolve(processor: BaseProcessor, accessibilityCheck: Boolean = true): Array[ScalaResolveResult]
 
-  def getVariants: Array[Object] = completionVariants()().toArray
+  override def getVariants: Array[Object] = completionVariants()().toArray
 
   override def completionVariants(incomplete: Boolean,
                                   completion: Boolean,

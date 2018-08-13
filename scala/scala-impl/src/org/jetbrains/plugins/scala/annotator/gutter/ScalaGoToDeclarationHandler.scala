@@ -83,7 +83,7 @@ class ScalaGoToDeclarationHandler extends GotoDeclarationHandler {
     }
   }
 
-  def getActionText(context: DataContext): String = null
+  override def getActionText(context: DataContext): String = null
 }
 
 object ScalaGoToDeclarationHandler {

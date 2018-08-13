@@ -35,10 +35,6 @@ class SbtExternalSystemManager
     with ExternalSystemConfigurableAware
     with AutoImportAwareness {
 
-  override def enhanceLocalProcessing(urls: util.List[URL]) {
-    urls.add(jarWith[scala.App].toURI.toURL)
-  }
-
   override def enhanceRemoteProcessing(parameters: SimpleJavaParameters) {
     val classpath = parameters.getClassPath
 
