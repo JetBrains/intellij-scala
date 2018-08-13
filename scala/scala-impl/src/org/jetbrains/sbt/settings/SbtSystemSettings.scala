@@ -76,8 +76,6 @@ object SbtSystemSettings {
 
 class SbtSystemSettingsState extends AbstractExternalSystemSettings.State[SbtProjectSettings] {
 
-//  @BeanProperty
-//  @XCollection(style = XCollection.Style.v1, elementTypes = Array(classOf[SbtProjectSettings]))
   val linkedProjectSettings: util.TreeSet[SbtProjectSettings] = ContainerUtilRt.newTreeSet[SbtProjectSettings]()
 
   @BeanProperty
