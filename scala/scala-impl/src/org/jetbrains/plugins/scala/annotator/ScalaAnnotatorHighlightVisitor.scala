@@ -73,8 +73,7 @@ class ScalaAnnotatorHighlightVisitor(project: Project) extends HighlightVisitor 
       return
     }
     val file = element.getContainingFile
-    if (file == null || 
-      DecompiledScalaFileWritingAccessProvider.isDecompiledFile(file.getVirtualFile)) return
+    if (file == null) return
 
     if (shouldHighlight(file)) {
       AnnotatorHighlighter.highlightElement(element, myAnnotationHolder)

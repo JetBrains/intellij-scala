@@ -493,7 +493,7 @@
 
         <spellchecker.bundledDictionaryProvider implementation="org.jetbrains.plugins.scala.spellchecker.ScalaBundledDictionaryProvider"/>
         <spellchecker.support language="Scala" implementationClass="org.jetbrains.plugins.scala.spellchecker.ScalaSpellcheckingStrategy"/>
-       
+
         <intentionAction>
             <category>Scala/String</category>
             <className>org.jetbrains.plugins.scala.codeInsight.intention.literal.InsertGapIntoStringIntention</className>
@@ -1787,6 +1787,11 @@
         <add-to-group group-id="CodeEditorViewGroup" anchor="after" relative-to-action="Scala.ShowImplicits"/>
       </action>
 
+      <action id="Scala.DecompileToJava"
+              class="org.jetbrains.plugins.scala.actions.decompileToJava.DecompileScalaToJavaAction"
+              description="Run FernFlower decompiler of given classfile">
+        <add-to-group group-id="RunContextPopupGroup" anchor="last"/>
+      </action>
     </actions>
 
 </idea-plugin>
