@@ -121,11 +121,14 @@ class ScalaLineMarkerProvider(daemonSettings: DaemonCodeAnalyzerSettings, colors
     } yield arrowUpLineMarker(element, icon, markerType, Option(parent))
     else None
 
-  private[this] def getOverridesImplementsMarkers(element: PsiElement): Option[LineMarkerInfo[_ <: PsiElement]] =
-    if (element.getNode.getElementType == ScalaTokenTypes.tIDENTIFIER && element.parent.forall {
-          case _: ScReferenceElement => false
-          case _                     => true
-        }) {
+  private[this] def getOverridesImplementsMarkers(element: PsiElement): Option[LineMarkerInfo[_ <: PsiElement]] = {
+    val isIdentifier = element.getNode.getElementType == ScalaTokenTypes.tIDENTIFIER
+    val notReference = element.parent.exists {
+      case _: ScReferenceElement => false
+      case  _                    => true
+    }
+
+    if (isIdentifier && notReference) {
       def containsNamedElement(holder: ScDeclaredElementsHolder) =
         holder.declaredElements.exists(_.asInstanceOf[ScNamedElement].nameId == element)
 
@@ -155,11 +158,12 @@ class ScalaLineMarkerProvider(daemonSettings: DaemonCodeAnalyzerSettings, colors
           val elements = ScalaPsiUtil.superTypeMembers(ta, withSelfType = true)
           val icon     = IMPLEMENTING_METHOD_ICON
           val typez    = ScalaMarkerType.overridingMember
-          if (elements.nonEmpty) arrowUpLineMarker(ta.getTypeToken, icon, typez).toOption
+          if (elements.nonEmpty) arrowUpLineMarker(element, icon, typez).toOption
           else None
         case _ => None
       }
     } else None
+  }
 
   override def collectSlowLineMarkers(
     elements: util.List[PsiElement],
@@ -268,7 +272,7 @@ private object GutterUtil {
 
         val overrides = namedElems.flatMap(ScalaOverridingMemberSearcher.search(_, deep = false, withSelfType = true))
 
-        if (overrides.nonEmpty) {
+        overrides.nonEmpty.option {
           val icon =
             if (!isAbstract(member)) OVERRIDDEN_METHOD_MARKER_RENDERER
             else IMPLEMENTED_INTERFACE_MARKER_RENDERER
@@ -280,8 +284,8 @@ private object GutterUtil {
             markerType,
             Pass.LINE_MARKERS,
             GutterIconRenderer.Alignment.RIGHT
-          ).toOption
-        } else None
+          )
+        }
     }
 
   def isOverrides(element: PsiElement, supers: Seq[Signature]): Boolean =
