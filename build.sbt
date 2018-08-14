@@ -144,7 +144,7 @@ lazy val macroAnnotations =
     )
 
 lazy val bsp =
-  newProject("bsp", file("scala/bsp"))
+  newProject("bsp", file("bsp"))
     .dependsOn(scalaImpl % "test->test;compile->compile", bspDeps)
 
 lazy val bspDeps =
