@@ -275,12 +275,11 @@ object ScExpression {
 
       def isJavaReflectPolymorphic = expr.scalaLanguageLevelOrDefault >= Scala_2_11 && ScalaPsiUtil.isJavaReflectPolymorphicSignature(expr)
 
-      val expected = expectedOption.orElse {
-        expectedType(fromUnderscore = fromUnderscore)
-      }
-
       if (isShape) ExpressionTypeResult(Right(shape(expr).getOrElse(Nothing)))
       else {
+        val expected = expectedOption.orElse {
+          expectedType(fromUnderscore = fromUnderscore)
+        }
         val tr = getTypeWithoutImplicits(ignoreBaseTypes, fromUnderscore)
         (expected, tr.toOption) match {
           case (Some(expType), Some(tp))
