@@ -97,11 +97,11 @@ class ScConstructorImpl(node: ASTNode) extends ScalaPsiElementImpl(node) with Sc
     else Failure("Can't resolve type")
   }
 
-  def shapeMultiType(i: Int): Seq[TypeResult] = innerMultiType(i, isShape = true)
+  def shapeMultiType(i: Int): Array[TypeResult] = innerMultiType(i, isShape = true)
 
-  def multiType(i: Int): Seq[TypeResult] = innerMultiType(i, isShape = false)
+  def multiType(i: Int): Array[TypeResult] = innerMultiType(i, isShape = false)
 
-  private def innerMultiType(i: Int, isShape: Boolean): Seq[TypeResult] = {
+  private def innerMultiType(i: Int, isShape: Boolean): Array[TypeResult] = {
     def FAILURE = Failure("Can't resolve type")
     def workWithResolveResult(constr: PsiMethod, r: ScalaResolveResult,
                               subst: ScSubstitutor, s: ScSimpleTypeElement,
@@ -160,7 +160,7 @@ class ScConstructorImpl(node: ASTNode) extends ScalaPsiElementImpl(node) with Sc
       }
     }
 
-    def processSimple(s: ScSimpleTypeElement): Seq[TypeResult] = {
+    def processSimple(s: ScSimpleTypeElement): Array[TypeResult] = {
       s.reference match {
         case Some(ref) =>
           val buffer = new ArrayBuffer[TypeResult]
@@ -178,12 +178,13 @@ class ScConstructorImpl(node: ASTNode) extends ScalaPsiElementImpl(node) with Sc
               buffer += Right(ScMethodType(ScDesignatorType(clazz), params, isImplicit = false))
             case _ =>
           }
-          buffer
-        case _ => Seq(Failure("Hasn't reference"))
+          buffer.toArray
+        case _ => Array(Failure("Hasn't reference"))
       }
     }
 
-    simpleTypeElement.toSeq.flatMap(processSimple)
+    simpleTypeElement.map(processSimple)
+      .getOrElse(Array.empty)
   }
 
   def reference: Option[ScStableCodeReferenceElement] = {

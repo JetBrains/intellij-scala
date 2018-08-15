@@ -34,17 +34,17 @@ class ScSelfInvocationImpl(node: ASTNode) extends ScExpressionImplBase(node) wit
 
   private def bindInternal(shapeResolve: Boolean): Option[PsiElement] =
     bindMultiInternal(shapeResolve) match {
-      case Seq(head) => Some(head)
+      case Array(head) => Some(head)
       case _ => None
     }
 
-  private def bindMultiInternal(shapeResolve: Boolean): Seq[PsiElement] = {
+  private def bindMultiInternal(shapeResolve: Boolean): Array[PsiElement] = {
     val psiClass = PsiTreeUtil.getContextOfType(this, classOf[PsiClass])
-    if (psiClass == null) return Seq.empty
-    if (!psiClass.isInstanceOf[ScClass]) return Seq.empty
+    if (psiClass == null) return Array.empty
+    if (!psiClass.isInstanceOf[ScClass]) return Array.empty
     val clazz = psiClass.asInstanceOf[ScClass]
     val method = PsiTreeUtil.getContextOfType(this, classOf[ScFunction])
-    if (method == null) return Seq.empty
+    if (method == null) return Array.empty
     val expressions: Seq[Expression] = args match {
       case Some(arguments) => arguments.exprs.map(new Expression(_))
       case None => Seq.empty
@@ -59,7 +59,7 @@ class ScSelfInvocationImpl(node: ASTNode) extends ScExpressionImplBase(node) wit
       case Some(constr) => proc.execute(constr, ResolveState.initial())
       case _ =>
     }
-    proc.candidates.toSeq.map(_.element)
+    proc.candidates.map(_.element)
   }
 
   private def workWithBindInternal(bindInternal: Option[PsiElement], i: Int): TypeResult = {
@@ -82,11 +82,11 @@ class ScSelfInvocationImpl(node: ASTNode) extends ScExpressionImplBase(node) wit
     workWithBindInternal(option, i)
   }
 
-  def shapeMultiType(i: Int): Seq[TypeResult] = {
+  def shapeMultiType(i: Int): Array[TypeResult] = {
     bindMultiInternal(shapeResolve = true).map(pe => workWithBindInternal(Some(pe), i))
   }
 
-  def multiType(i: Int): Seq[TypeResult] = {
+  def multiType(i: Int): Array[TypeResult] = {
     bindMultiInternal(shapeResolve = false).map(pe => workWithBindInternal(Some(pe), i))
   }
 

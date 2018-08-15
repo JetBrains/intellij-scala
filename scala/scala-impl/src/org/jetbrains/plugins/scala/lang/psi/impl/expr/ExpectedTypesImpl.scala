@@ -82,6 +82,9 @@ class ExpectedTypesImpl extends ExpectedTypes {
   def expectedExprTypes(expr: ScExpression, withResolvedFunction: Boolean = false,
                         fromUnderscore: Boolean = true): Array[ParameterType] = {
     import expr.projectContext
+
+    val sameInContext = expr.getDeepSameElementInContext
+
     @tailrec
     def fromFunction(tp: ParameterType): Array[ParameterType] = {
       tp._1 match {
@@ -105,7 +108,38 @@ class ExpectedTypesImpl extends ExpectedTypes {
       }
     }
 
-    val sameInContext = expr.getDeepSameElementInContext
+    def argIndex(argExprs: Seq[ScExpression]) =
+      if (sameInContext == null) 0
+      else argExprs.indexWhere(_ == sameInContext).max(0)
+
+    def expectedTypesForArg(invocation: MethodInvocation, arg: ScExpression): Array[ParameterType] = {
+      val argExprs = invocation.argumentExpressions
+
+      val invoked = invocation.getEffectiveInvokedExpr
+      val tps = invoked match {
+        case ref: ScReferenceExpression =>
+          if (!withResolvedFunction) mapResolves(ref.shapeResolve, ref.shapeMultiType)
+          else mapResolves(ref.multiResolveScala(false), ref.multiType)
+        case gen: ScGenericCall =>
+          if (!withResolvedFunction) {
+            val multiType = gen.shapeMultiType
+            gen.shapeMultiResolve.map(mapResolves(_, multiType)).getOrElse(multiType.map((_, false)))
+          } else {
+            val multiType = gen.multiType
+            gen.multiResolve.map(mapResolves(_, multiType)).getOrElse(multiType.map((_, false)))
+          }
+        case _ => Array((invoked.getNonValueType(), false))
+      }
+      val updatedWithExpected = tps.map {
+        case (r, isDynamicNamed) => (r.map(invocation.updateAccordingToExpectedType), isDynamicNamed)
+      }
+      updatedWithExpected
+        .filterNot(_._1.exists(_.equiv(Nothing)))
+        .flatMap {
+          case (r, isDynamicNamed) =>
+            computeExpectedParamType(expr, r, argExprs, argIndex(argExprs), Some(invocation), isDynamicNamed = isDynamicNamed)
+        }
+    }
 
     val result: Array[ParameterType] = expr.getContext match {
       case p: ScParenthesisedExpr => p.expectedTypesEx(fromUnderscore = false)
@@ -193,22 +227,7 @@ class ExpectedTypesImpl extends ExpectedTypes {
         }
       //method application
       case tuple: ScTuple if tuple.isCall =>
-        val res = new ArrayBuffer[ParameterType]
-        val exprs: Seq[ScExpression] = tuple.exprs
-        val i = if (sameInContext == null) 0 else exprs.indexWhere(_ == sameInContext)
-        val callExpression = tuple.getContext.asInstanceOf[ScInfixExpr].operation
-        if (callExpression != null) {
-          val tps = callExpression match {
-            case ref: ScReferenceExpression =>
-              if (!withResolvedFunction) mapResolves(ref.shapeResolve, ref.shapeMultiType)
-              else mapResolves(ref.multiResolveScala(false), ref.multiType)
-            case _ => Array((callExpression.getNonValueType(), false))
-          }
-          tps.foreach { case (r, isDynamicNamed) =>
-            processArgsExpected(res, expr, r, exprs, i, isDynamicNamed = isDynamicNamed)
-          }
-        }
-        res.toArray
+        expectedTypesForArg(tuple.getContext.asInstanceOf[ScInfixExpr], expr)
       case tuple: ScTuple =>
         val buffer = new ArrayBuffer[ParameterType]
         val exprs = tuple.exprs
@@ -231,19 +250,7 @@ class ExpectedTypesImpl extends ExpectedTypes {
           case p: ScParenthesisedExpr => p.innerElement.getOrElse(return Array.empty)
           case _ => expr
         }
-        val tps =
-          if (withResolvedFunction) mapResolves(operation.multiResolveScala(false), operation.multiType)
-          else mapResolves(operation.shapeResolve, operation.shapeMultiType)
-
-        val updated = tps.map { case (tp, isDynamicNamed) =>
-          (tp.map(infix.updateAccordingToExpectedType), isDynamicNamed)
-        }
-
-        val res = new ArrayBuffer[ParameterType]
-        updated.foreach { case (tp, isDynamicNamed) =>
-            processArgsExpected(res, zExpr, tp, Seq(zExpr), 0, Some(infix), isDynamicNamed = isDynamicNamed)
-        }
-        res.toArray
+        expectedTypesForArg(infix, zExpr)
       //SLS[4.1]
       case v @ ScPatternDefinition.expr(`sameInContext`)  if v.isSimple => declaredOrInheritedType(v)
       case v @ ScVariableDefinition.expr(`sameInContext`) if v.isSimple => declaredOrInheritedType(v)
@@ -267,55 +274,31 @@ class ExpectedTypesImpl extends ExpectedTypes {
           case None => Array.empty
         }
       case args: ScArgumentExprList =>
-        val res = new ArrayBuffer[ParameterType]
-        val exprs = args.exprs
-        val i = if (sameInContext == null) 0 else {
-          val r = exprs.indexWhere(_ == sameInContext)
-          if (r == -1) 0 else r
+        args.getContext match {
+          case mc: ScMethodCall => expectedTypesForArg(mc, expr)
+          case ctx @ (_: ScConstructor | _: ScSelfInvocation) =>
+            val argExprs = args.exprs
+            val argIdx = argIndex(argExprs)
+
+            val tps = ctx match {
+              case c: ScConstructor =>
+                val clauseIdx = c.arguments.indexOf(args)
+
+                if (!withResolvedFunction) c.shapeMultiType(clauseIdx)
+                else c.multiType(clauseIdx)
+
+              case s: ScSelfInvocation =>
+                val clauseIdx = s.arguments.indexOf(args)
+
+                if (!withResolvedFunction) s.shapeMultiType(clauseIdx)
+                else s.multiType(clauseIdx)
+            }
+
+            tps.flatMap(computeExpectedParamType(expr, _, argExprs, argIdx))
+
+          case _ =>
+            Array.empty
         }
-        val callExpression = args.callExpression
-        if (callExpression != null) {
-          var tps = callExpression match {
-            case ref: ScReferenceExpression =>
-              if (!withResolvedFunction) mapResolves(ref.shapeResolve, ref.shapeMultiType)
-              else mapResolves(ref.multiResolveScala(false), ref.multiType)
-            case gen: ScGenericCall =>
-              if (!withResolvedFunction) {
-                val multiType = gen.shapeMultiType
-                gen.shapeMultiResolve.map(mapResolves(_, multiType)).getOrElse(multiType.map((_, false)))
-              } else {
-                val multiType = gen.multiType
-                gen.multiResolve.map(mapResolves(_, multiType)).getOrElse(multiType.map((_, false)))
-              }
-            case _ => Array((callExpression.getNonValueType(), false))
-          }
-          val callOption = args.getParent match {
-            case call: MethodInvocation => Some(call)
-            case _ => None
-          }
-          callOption.foreach(call => tps = tps.map { case (r, isDynamicNamed) =>
-            (r.map(call.updateAccordingToExpectedType), isDynamicNamed)
-          })
-          tps.filterNot(_._1.exists(_.equiv(Nothing)))foreach { case (r, isDynamicNamed) =>
-            processArgsExpected(res, expr, r, exprs, i, callOption, isDynamicNamed = isDynamicNamed)
-          }
-        } else {
-          //it's constructor
-          args.getContext match {
-            case constr: ScConstructor =>
-              val j = constr.arguments.indexOf(args)
-              val tps =
-                if (!withResolvedFunction) constr.shapeMultiType(j)
-                else constr.multiType(j)
-              tps.foreach((invokedExprType: TypeResult) => processArgsExpected(res, expr, invokedExprType, exprs, i))
-            case s: ScSelfInvocation =>
-              val j = s.arguments.indexOf(args)
-              if (!withResolvedFunction) s.shapeMultiType(j).foreach((invokedExprType: TypeResult) => processArgsExpected(res, expr, invokedExprType, exprs, i))
-              else s.multiType(j).foreach((invokedExprType: TypeResult) => processArgsExpected(res, expr, invokedExprType, exprs, i))
-            case _ =>
-          }
-        }
-        res.toArray
       case b: ScBlock if b.getContext.isInstanceOf[ScTryBlock]
               || b.getContext.getContext.getContext.isInstanceOf[ScCatchBlock]
               || b.getContext.isInstanceOf[ScCaseClause]
@@ -415,18 +398,6 @@ class ExpectedTypesImpl extends ExpectedTypes {
         }
       case _ => None
     }
-  }
-
-  private def processArgsExpected(res: ArrayBuffer[(ScType, Option[ScTypeElement])],
-                                  expr: ScExpression,
-                                  invokedExprType: TypeResult,
-                                  argExprs: Seq[ScExpression],
-                                  idx: Int,
-                                  call: Option[MethodInvocation] = None,
-                                  forApply: Boolean = false,
-                                  isDynamicNamed: Boolean = false): Unit = {
-
-    res ++= computeExpectedParamType(expr, invokedExprType, argExprs, idx, call, forApply, isDynamicNamed)
   }
 
   private def paramTypeFromExpr(expr: ScExpression, params: Seq[Parameter], idx: Int, isDynamicNamed: Boolean): Option[ParameterType] = {
