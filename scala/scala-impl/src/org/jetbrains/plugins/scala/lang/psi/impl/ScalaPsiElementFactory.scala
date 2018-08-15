@@ -148,7 +148,7 @@ object ScalaPsiElementFactory {
   import ScalaNamesUtil._
   import ScalaTokenTypes._
 
-  def createExpressionFromText(text: String, context: PsiElement): PsiElement = {
+  def createExpressionFromText(text: String, context: PsiElement): ScExpression = {
     try {
       createExpressionWithContextFromText(text, context, context)
     } catch {
