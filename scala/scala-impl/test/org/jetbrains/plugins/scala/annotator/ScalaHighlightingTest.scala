@@ -130,4 +130,17 @@ class ScalaHighlightingTest extends ScalaHighlightingTestBase {
     assertNothing(errorsFromScalaCode(code))
   }
 
+  def testSCL14257(): Unit = {
+    val code =
+      """
+        |class BugReport[N](a: N, b: N)(implicit numeric: Numeric[N]) {
+        |
+        |  import numeric._
+        |
+        |  def isASmaller: Boolean = a < b
+        |}
+        |""".stripMargin
+    assertNothing(errorsFromScalaCode(code))
+  }
+
 }
