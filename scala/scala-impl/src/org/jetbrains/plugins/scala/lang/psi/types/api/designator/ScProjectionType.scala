@@ -161,7 +161,7 @@ class ScProjectionType private(val projected: ScType,
               Some(element,
                 ScalaPsiUtil.superTypeMembersAndSubstitutors(candidateElement)
                   .find(_.info == element)
-                  .map(node => defaultSubstitutor.followed(node.substitutor))
+                  .map(node => node.substitutor.followed(defaultSubstitutor))
                   .getOrElse(defaultSubstitutor))
 
             } else {
