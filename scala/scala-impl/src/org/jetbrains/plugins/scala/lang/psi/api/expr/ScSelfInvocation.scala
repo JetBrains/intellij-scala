@@ -20,9 +20,9 @@ trait ScSelfInvocation extends ScalaPsiElement with PsiReference {
 
   def shapeType(i: Int): TypeResult
 
-  def shapeMultiType(i: Int): Seq[TypeResult]
+  def shapeMultiType(i: Int): Array[TypeResult]
 
-  def multiType(i: Int): Seq[TypeResult]
+  def multiType(i: Int): Array[TypeResult]
 
   def thisElement: PsiElement = getFirstChild
 
