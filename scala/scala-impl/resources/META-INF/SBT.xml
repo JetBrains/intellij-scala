@@ -112,6 +112,9 @@
                         level="WARNING" enabledByDefault="true" language="Scala"/>
 
         <configurationType implementation="org.jetbrains.sbt.runner.SbtConfigurationType"/>
+        
+        <programRunner implementation="org.jetbrains.sbt.runner.SbtProgramRunner" order="first"/>
+        <programRunner implementation="org.jetbrains.sbt.runner.SbtDebugProgramRunner" order="first"/>
 
         <projectTaskRunner implementation="org.jetbrains.sbt.shell.SbtProjectTaskRunner"/>
         <postStartupActivity implementation="org.jetbrains.sbt.project.SbtStartupActivity"/>
