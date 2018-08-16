@@ -168,7 +168,7 @@ class ScalaAotCompletionTest extends ScalaCodeInsightTestBase {
     val tailText = if (tailTextSuffix != null) " " + tailTextSuffix else null
 
     doCompletionTest(fileText, resultText, DEFAULT_CHAR, DEFAULT_TIME, CompletionType.BASIC) {
-      hasItemText(_, lookupString, itemText, tailText)
+      hasItemText(_, lookupString, itemText, tailText = tailText)
     }
   }
 }

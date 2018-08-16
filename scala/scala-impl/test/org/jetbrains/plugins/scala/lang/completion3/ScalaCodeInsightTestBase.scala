@@ -128,11 +128,13 @@ object ScalaCodeInsightTestBase {
   def hasItemText(lookup: LookupElement,
                   lookupString: String,
                   itemText: String,
+                  itemTextItalic: Boolean = false,
                   tailText: String = null): Boolean =
     hasLookupString(lookup, lookupString) && {
       val presentation = new LookupElementPresentation
       lookup.renderElement(presentation)
       presentation.getItemText == itemText &&
+        presentation.isItemTextItalic == itemTextItalic &&
         presentation.getTailText == tailText
     }
 
