@@ -50,20 +50,30 @@ class ScalaClausesCompletionTest extends ScalaCodeInsightTestBase {
        """.stripMargin
   )
 
-  //  def testUnapply(): Unit = doMultipleCompletionTest(
-  //    fileText =
-  //      s"""trait Foo
-  //         |
-  //         |object Foo {
-  //         |  def unapply(foo: Foo): Option[Foo] = None
-  //         |}
-  //         |
-  //         |(_: Foo) match {
-  //         |  case $CARET
-  //         |}
-  //       """.stripMargin,
-  //    items = "Foo"
-  //  )
+  def testUnapply(): Unit = doPatternCompletionTest(
+    fileText =
+      s"""trait Foo
+         |
+         |object Foo {
+         |  def unapply(foo: Foo): Option[Foo] = None
+         |}
+         |
+         |(_: Foo) match {
+         |  case $CARET
+         |}
+         """.stripMargin,
+    resultText =
+      s"""trait Foo
+         |
+         |object Foo {
+         |  def unapply(foo: Foo): Option[Foo] = None
+         |}
+         |
+         |(_: Foo) match {
+         |  case Foo(_)$CARET
+         |}
+         """.stripMargin
+  )
 
   def testBeforeCase(): Unit = checkNoCompletion(
     fileText =
@@ -152,59 +162,6 @@ class ScalaClausesCompletionTest extends ScalaCodeInsightTestBase {
          |}
        """.stripMargin
   )
-
-  //  def testAnonymousInheritorCompletion(): Unit = doPatternCompletionTest(
-  //    fileText =
-  //      s"""sealed trait Foo
-  //         |
-  //         |object Foo {
-  //         |  val Impl = new Foo {}
-  //         |}
-  //         |
-  //         |(_: Foo) match {
-  //         |  case $CARET
-  //         |}
-  //       """.stripMargin,
-  //    resultText =
-  //      s"""sealed trait Foo
-  //         |
-  //         |object Foo {
-  //         |  val Impl = new Foo {}
-  //         |}
-  //         |
-  //         |(_: Foo) match {
-  //         |  case Foo.Impl$CARET
-  //         |}
-  //       """.stripMargin,
-  //    lookupString = "_",
-  //    itemText = "Foo.Impl"
-  //  )
-
-  //  def testJavaInheritorCompletion(): Unit = {
-  //    configureJavaFile(
-  //      fileText = "public class Bar extends Foo {}",
-  //      className = "Bar"
-  //    )
-  //
-  //    doPatternCompletionTest(
-  //      fileText =
-  //        s"""sealed trait Foo
-  //           |
-  //           |(_: Foo) match {
-  //           |  case $CARET
-  //           |}
-  //         """.stripMargin,
-  //      resultText =
-  //        s"""sealed trait Foo
-  //           |
-  //           |(_: Foo) match {
-  //           |  case bar: Bar$CARET
-  //           |}
-  //         """.stripMargin,
-  //      lookupString = "_: Bar",
-  //      itemText = "bar: Bar"
-  //    )
-  //  }
 
   def testSealedTrait(): Unit = doMatchCompletionTest(
     fileText =

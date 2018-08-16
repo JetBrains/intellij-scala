@@ -3,13 +3,12 @@ package lang
 package completion
 package clauses
 
-import com.intellij.psi.PsiClass
+import com.intellij.psi.{PsiClass, PsiElement}
 import org.jetbrains.plugins.scala.extensions._
-import org.jetbrains.plugins.scala.lang.completion.clauses.WildcardPatternComponents.{toString => Placeholder}
 import org.jetbrains.plugins.scala.lang.psi.api.base.ScPrimaryConstructor
-import org.jetbrains.plugins.scala.lang.psi.api.statements.params.ScClassParameter
+import org.jetbrains.plugins.scala.lang.psi.api.base.patterns.ScPattern
 import org.jetbrains.plugins.scala.lang.psi.api.toplevel.typedef.{ScClass, ScTypeDefinition}
-import org.jetbrains.plugins.scala.lang.psi.types.ScalaTypePresentation
+import org.jetbrains.plugins.scala.lang.psi.types.{ScType, ScalaTypePresentation}
 
 private[clauses] sealed trait PatternComponents
 
@@ -34,22 +33,47 @@ private[clauses] class TypedPatternComponents(clazz: PsiClass,
   }
 }
 
-private[clauses] class ExtractorPatternComponents private(clazz: ScClass, constructor: ScPrimaryConstructor)
+private[clauses] sealed abstract class ExtractorPatternComponents[T](clazz: ScTypeDefinition,
+                                                                     components: Seq[T])
   extends TypedPatternComponents(clazz) {
 
-  def extractorText(referenceText: String = clazz.name)
-                   (parameterText: ScClassParameter => String = Function.const(Placeholder)): String =
-    referenceText + constructor.effectiveFirstParameterSection
-      .map(parameterText)
+  final def defaultExtractorText(referenceText: String = clazz.name): String =
+    extractorText(referenceText) {
+      Function.const(Placeholder)
+    }
+
+  final def extractorText(referenceText: String)
+                         (componentText: T => String): String =
+    referenceText + components
+      .map(componentText)
       .commaSeparated(Model.Parentheses)
 }
 
-private[clauses] object ExtractorPatternComponents {
+private[clauses] class SyntheticExtractorPatternComponents private(clazz: ScClass,
+                                                                   method: ScPrimaryConstructor)
+  extends ExtractorPatternComponents(clazz, method.effectiveFirstParameterSection)
 
-  def unapply(scalaClass: ScClass): Option[ExtractorPatternComponents] =
+private[clauses] object SyntheticExtractorPatternComponents {
+
+  def unapply(scalaClass: ScClass): Option[SyntheticExtractorPatternComponents] =
     (if (scalaClass.isCase) scalaClass.constructor else None).map {
-      new ExtractorPatternComponents(scalaClass, _)
+      new SyntheticExtractorPatternComponents(scalaClass, _)
     }
+}
+
+private[clauses] class PhysicalExtractorPatternComponents private(clazz: ScTypeDefinition,
+                                                                  components: Seq[ScType])
+  extends ExtractorPatternComponents(clazz, components)
+
+private[clauses] object PhysicalExtractorPatternComponents {
+
+  def unapply(definition: ScTypeDefinition)
+             (implicit place: PsiElement): Option[PhysicalExtractorPatternComponents] =
+    for {
+      Extractor(method) <- definition.baseCompanionModule
+      returnType <- method.returnType.toOption
+      components = ScPattern.extractorParameters(returnType, place, isOneArgCaseClass = false)
+    } yield new PhysicalExtractorPatternComponents(definition, components)
 }
 
 private[clauses] class StablePatternComponents(clazz: PsiClass,
@@ -63,5 +87,5 @@ private[clauses] class StablePatternComponents(clazz: PsiClass,
 private[clauses] object WildcardPatternComponents
   extends PatternComponents {
 
-  override val toString: String = "_"
+  override val toString: String = Placeholder
 }

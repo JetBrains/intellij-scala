@@ -2,10 +2,11 @@ package org.jetbrains.plugins.scala
 package lang
 package completion
 
-import com.intellij.psi.PsiClass
 import com.intellij.psi.search.searches.DirectClassInheritorsSearch
+import com.intellij.psi.{PsiClass, PsiElement}
 import org.jetbrains.plugins.scala.extensions._
 import org.jetbrains.plugins.scala.lang.psi.api.expr.ScNewTemplateDefinition
+import org.jetbrains.plugins.scala.lang.psi.api.statements.ScFunctionDefinition
 import org.jetbrains.plugins.scala.lang.psi.api.toplevel.typedef._
 import org.jetbrains.plugins.scala.lang.psi.types.ScalaTypePresentation
 
@@ -20,15 +21,16 @@ package object clauses {
     def exhaustivePatterns: Seq[PatternComponents] =
       namedInheritors.map {
         case scalaObject: ScObject => new TypedPatternComponents(scalaObject, scalaObject.qualifiedName + ScalaTypePresentation.ObjectTypeSuffix)
-        case ExtractorPatternComponents(components) => components
+        case SyntheticExtractorPatternComponents(components) => components
         case definition => new TypedPatternComponents(definition)
       } ++ javaInheritors.map {
         new TypedPatternComponents(_)
       } ++ (if (anonymousInheritors.nonEmpty) Some(WildcardPatternComponents) else None)
 
-    def inexhaustivePatterns: Seq[ExtractorPatternComponents] =
+    def inexhaustivePatterns(implicit place: PsiElement): Seq[ExtractorPatternComponents[_]] =
       namedInheritors.collect {
-        case ExtractorPatternComponents(components) => components
+        case SyntheticExtractorPatternComponents(components) => components
+        case PhysicalExtractorPatternComponents(components) => components
       }
   }
 
@@ -58,5 +60,12 @@ package object clauses {
         .sortBy(_.getNavigationElement.getTextRange.getStartOffset)
       Some(inheritors)
     } else None
+  }
+
+  private[clauses] object Extractor {
+
+    def unapply(`object`: ScObject): Option[ScFunctionDefinition] = `object`.members.collectFirst {
+      case function: ScFunctionDefinition if function.isUnapplyMethod => function
+    }
   }
 }
