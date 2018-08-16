@@ -93,10 +93,12 @@ private[clauses] object ClausesInsertHandler {
     (typeElement, components) match {
       case (simpleTypeElement: ScSimpleTypeElement, _) if simpleTypeElement.singleton =>
         referenceText
-      case (_, extractorComponents: ExtractorPatternComponents) =>
+      case (_, extractorComponents: SyntheticExtractorPatternComponents) =>
         extractorComponents.extractorText(referenceText) { parameter =>
           parameter.name + (if (parameter.isVarArgs) "@_*" else "")
         }
+      case (_, extractorComponents: PhysicalExtractorPatternComponents) =>
+        extractorComponents.defaultExtractorText(referenceText)
       case _ =>
         val name = typeElement.`type`().toOption
           .flatMap(NameSuggester.suggestNamesByType(_).headOption)

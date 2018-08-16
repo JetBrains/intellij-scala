@@ -63,6 +63,8 @@ import scala.util.{Failure, Success, Try}
 
 package object extensions {
 
+  val Placeholder = "_"
+
   implicit class PsiMethodExt(val repr: PsiMethod) extends AnyVal {
 
     import PsiMethodExt._

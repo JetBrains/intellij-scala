@@ -12,8 +12,7 @@ import org.jetbrains.plugins.scala.extensions._
 import org.jetbrains.plugins.scala.lang.psi.ScalaPsiElement
 import org.jetbrains.plugins.scala.lang.psi.api.base.patterns._
 import org.jetbrains.plugins.scala.lang.psi.api.base.types.ScTypeElement
-import org.jetbrains.plugins.scala.lang.psi.api.statements.ScFunctionDefinition
-import org.jetbrains.plugins.scala.lang.psi.api.toplevel.typedef.{ScObject, ScTypeDefinition}
+import org.jetbrains.plugins.scala.lang.psi.api.toplevel.typedef.ScTypeDefinition
 import org.jetbrains.plugins.scala.lang.psi.impl.ScalaPsiElementFactory.createPatternFromTextWithContext
 
 class CaseClauseCompletionContributor extends ScalaCompletionContributor {
@@ -38,9 +37,9 @@ class CaseClauseCompletionContributor extends ScalaCompletionContributor {
       maybeInheritors match {
         case Some(inheritors) =>
           for {
-            components <- inheritors.inexhaustivePatterns
+            components <- inheritors.inexhaustivePatterns(position)
 
-            lookupString = components.extractorText()()
+            lookupString = components.defaultExtractorText()
             lookupElement = createLookupElement(lookupString)(itemTextItalic = true) {
               createInsertHandler(components)
             }
@@ -98,7 +97,7 @@ object CaseClauseCompletionContributor {
     }
   }
 
-  private def createInsertHandler(components: ExtractorPatternComponents) = new ClausesInsertHandler(classOf[ScParenthesisedPattern]) {
+  private def createInsertHandler(components: ExtractorPatternComponents[_]) = new ClausesInsertHandler(classOf[ScParenthesisedPattern]) {
 
     override def handleInsert(implicit insertionContext: InsertionContext): Unit = {
       ClausesInsertHandler.replaceTextPhase(s"($components)")
@@ -141,11 +140,8 @@ object CaseClauseCompletionContributor {
       (result: CompletionResult) => {
         val lookupElement = result.getLookupElement
 
-        val extractorExists = (lookupElement.getPsiElement match {
-          case obj: ScObject => obj.members
-          case _ => Seq.empty
-        }).exists {
-          case function: ScFunctionDefinition => function.isUnapplyMethod
+        val extractorExists = lookupElement.getPsiElement match {
+          case Extractor(_) => true
           case _ => false
         }
 
