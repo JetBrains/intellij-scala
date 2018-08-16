@@ -580,7 +580,7 @@ class ScalaClausesCompletionTest extends ScalaCodeInsightTestBase {
   private def doPatternCompletionTest(fileText: String, resultText: String,
                                       itemText: String = "Foo(_)"): Unit =
     super.doCompletionTest(fileText, resultText, DEFAULT_CHAR, DEFAULT_TIME, BASIC) {
-      hasItemText(_, itemText, itemText)
+      hasItemText(_, itemText, itemText, itemTextItalic = true)
     }
 
   //  private def doMultipleCompletionTest(fileText: String,
@@ -594,6 +594,6 @@ class ScalaClausesCompletionTest extends ScalaCodeInsightTestBase {
 
   private def isExhaustiveMatch(lookup: LookupElement) = {
     import ExhaustiveMatchCompletionContributor.{ItemText, RendererTailText}
-    hasItemText(lookup, ItemText, ItemText, RendererTailText)
+    hasItemText(lookup, ItemText, ItemText, tailText = RendererTailText)
   }
 }

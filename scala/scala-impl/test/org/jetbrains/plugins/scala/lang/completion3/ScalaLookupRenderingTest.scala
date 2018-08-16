@@ -37,7 +37,7 @@ class ScalaLookupRenderingTest extends ScalaCodeInsightTestBase {
     )
 
     val lookups = this.lookups {
-      hasItemText(_, "foo", "foo", "(x: Int*)")
+      hasItemText(_, "foo", "foo", tailText = "(x: Int*)")
     }
     assertFalse(lookups.isEmpty)
   }
