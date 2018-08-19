@@ -9,6 +9,8 @@ package typedef
  * @author ilyas
  */
 
+import java.{util => ju}
+
 import com.intellij.lang.ASTNode
 import com.intellij.lang.java.JavaLanguage
 import com.intellij.navigation._
@@ -27,7 +29,6 @@ import org.jetbrains.plugins.scala.lang.psi.api.statements.params.ScTypeParam
 import org.jetbrains.plugins.scala.lang.psi.api.toplevel.ScPackaging
 import org.jetbrains.plugins.scala.lang.psi.api.toplevel.templates.{ScExtendsBlock, ScTemplateBody, ScTemplateParents}
 import org.jetbrains.plugins.scala.lang.psi.api.toplevel.typedef._
-import org.jetbrains.plugins.scala.lang.psi.impl.ScalaPsiElementFactory.createMethodFromText
 import org.jetbrains.plugins.scala.lang.psi.impl.toplevel.synthetic.JavaIdentifier
 import org.jetbrains.plugins.scala.lang.psi.stubs.ScTemplateDefinitionStub
 import org.jetbrains.plugins.scala.lang.psi.stubs.elements.ScTemplateDefinitionElementType
@@ -40,7 +41,6 @@ import org.jetbrains.plugins.scala.macroAnnotations.{Cached, ModCount}
 import org.jetbrains.plugins.scala.projectView.{ClassAndCompanionObject, SingularDefinition, TraitAndCompanionObject}
 
 import scala.annotation.tailrec
-import scala.collection.Seq
 import scala.reflect.NameTransformer
 
 abstract class ScTypeDefinitionImpl protected (stub: ScTemplateDefinitionStub,
@@ -61,7 +61,7 @@ abstract class ScTypeDefinitionImpl protected (stub: ScTemplateDefinitionStub,
         val newMemberText = JavaToScala.convertPsiToText(member).trim()
         val mem: Option[ScMember] = member match {
           case _: PsiMethod =>
-            Some(createMethodFromText(newMemberText))
+            Some(ScalaPsiElementFactory.createMethodFromText(newMemberText))
           case _ => None
         }
         mem match {
@@ -84,10 +84,9 @@ abstract class ScTypeDefinitionImpl protected (stub: ScTemplateDefinitionStub,
     }.toArray
   }
 
-  override def isAnnotationType: Boolean = {
+  override def isAnnotationType: Boolean =
     elementScope.getCachedClass("scala.annotation.Annotation")
       .exists(isInheritor(_, deep = true))
-  }
 
   override final def `type`(): TypeResult = getTypeWithProjections(thisProjections = true)
 
@@ -110,10 +109,12 @@ abstract class ScTypeDefinitionImpl protected (stub: ScTemplateDefinitionStub,
     Right(result)
   }
 
-  override def getModifierList: ScModifierList = super[ScTypeDefinition].getModifierList
+  override def getModifierList: ScModifierList =
+    super[ScTypeDefinition].getModifierList
 
   // TODO Should be unified, see ScModifierListOwner
-  override def hasModifierProperty(name: String): Boolean = super[ScTypeDefinition].hasModifierProperty(name)
+  override def hasModifierProperty(name: String): Boolean =
+    super[ScTypeDefinition].hasModifierProperty(name)
 
   override def getNavigationElement: PsiElement = getContainingFile match {
     case s: ScalaFileImpl if s.isCompiled => getSourceMirrorClass
@@ -156,7 +157,8 @@ abstract class ScTypeDefinitionImpl protected (stub: ScTemplateDefinitionStub,
 
   def nameId: PsiElement = findChildByType[PsiElement](ScalaTokenTypes.tIDENTIFIER)
 
-  override def getTextOffset: Int = nameId.getTextRange.getStartOffset
+  override def getTextOffset: Int =
+    nameId.getTextRange.getStartOffset
 
   override def getContainingClass: PsiClass = {
     super[ScTypeDefinition].getContainingClass match {
@@ -260,40 +262,31 @@ abstract class ScTypeDefinitionImpl protected (stub: ScTemplateDefinitionStub,
   }
 
 
-  override def findMethodBySignature(patternMethod: PsiMethod, checkBases: Boolean): PsiMethod = {
+  override def findMethodBySignature(patternMethod: PsiMethod, checkBases: Boolean): PsiMethod =
     super[ScTypeDefinition].findMethodBySignature(patternMethod, checkBases)
-  }
 
-  override def findMethodsBySignature(patternMethod: PsiMethod, checkBases: Boolean): Array[PsiMethod] = {
+  override def findMethodsBySignature(patternMethod: PsiMethod, checkBases: Boolean): Array[PsiMethod] =
     super[ScTypeDefinition].findMethodsBySignature(patternMethod, checkBases)
-  }
-
-  import _root_.java.util.{Collection => JCollection, List => JList}
 
   import com.intellij.openapi.util.{Pair => IPair}
 
   override def findMethodsAndTheirSubstitutorsByName(name: String,
-                                                     checkBases: Boolean): JList[IPair[PsiMethod, PsiSubstitutor]] = {
+                                                     checkBases: Boolean): ju.List[IPair[PsiMethod, PsiSubstitutor]] =
     super[ScTypeDefinition].findMethodsAndTheirSubstitutorsByName(name, checkBases)
-  }
 
-  override def getAllMethodsAndTheirSubstitutors: JList[IPair[PsiMethod, PsiSubstitutor]] = {
+  override def getAllMethodsAndTheirSubstitutors: ju.List[IPair[PsiMethod, PsiSubstitutor]] =
     super[ScTypeDefinition].getAllMethodsAndTheirSubstitutors
-  }
 
-  override def getVisibleSignatures: JCollection[HierarchicalMethodSignature] = {
+  override def getVisibleSignatures: ju.Collection[HierarchicalMethodSignature] =
     super[ScTypeDefinition].getVisibleSignatures
-  }
 
-  override def findMethodsByName(name: String, checkBases: Boolean): Array[PsiMethod] = {
+  override def findMethodsByName(name: String, checkBases: Boolean): Array[PsiMethod] =
     super[ScTypeDefinition].findMethodsByName(name, checkBases)
-  }
 
-  override def findFieldByName(name: String, checkBases: Boolean): PsiField = {
+  override def findFieldByName(name: String, checkBases: Boolean): PsiField =
     super[ScTypeDefinition].findFieldByName(name, checkBases)
-  }
 
-  override def checkDelete() {
+  override def checkDelete(): Unit = {
   }
 
   override def delete(): Unit = getContainingFile match {
@@ -306,7 +299,9 @@ abstract class ScTypeDefinitionImpl protected (stub: ScTemplateDefinitionStub,
 
   override def psiTypeParameters: Array[PsiTypeParameter] = typeParameters.toArray
 
-  override def getSupers: Array[PsiClass] = extendsBlock.supers.filter(_ != this).toArray
+  override def getSupers: Array[PsiClass] = extendsBlock.supers.filter {
+    _ != this
+  }.toArray
 
   override def isInheritor(baseClass: PsiClass, deep: Boolean): Boolean =
     super[ScTypeDefinition].isInheritor(baseClass, deep)
@@ -322,7 +317,8 @@ abstract class ScTypeDefinitionImpl protected (stub: ScTemplateDefinitionStub,
     new JavaIdentifier(nameId)
   }
 
-  override def getDocComment: PsiDocComment = super[ScTypeDefinition].getDocComment
+  override def getDocComment: PsiDocComment =
+    super[ScTypeDefinition].getDocComment
 
   override def isDeprecated: Boolean = byStubOrPsi(_.isDeprecated)(super[PsiClassFake].isDeprecated)
 
@@ -343,27 +339,22 @@ abstract class ScTypeDefinitionImpl protected (stub: ScTemplateDefinitionStub,
     } ++ inCompanionModule).toArray
   }
 
-  override def getAllInnerClasses: Array[PsiClass] = {
+  override def getAllInnerClasses: Array[PsiClass] =
     PsiClassImplUtil.getAllInnerClasses(this)
-  }
 
-  override def findInnerClassByName(name: String, checkBases: Boolean): PsiClass = {
+  override def findInnerClassByName(name: String, checkBases: Boolean): PsiClass =
     super[ScTypeDefinition].findInnerClassByName(name, checkBases)
-  }
 
-  override def getAllFields: Array[PsiField] = {
+  override def getAllFields: Array[PsiField] =
     super[ScTypeDefinition].getAllFields
-  }
 
-  override def getOriginalElement: PsiElement = {
+  override def getOriginalElement: PsiElement =
     ScalaPsiImplementationHelper.getOriginalClass(this)
-  }
 
   @Cached(ModCount.getBlockModificationCount, this)
-  private def cachedDesugared(tree: scala.meta.Tree): ScTemplateDefinition = {
+  private def cachedDesugared(tree: scala.meta.Tree): ScTemplateDefinition =
     ScalaPsiElementFactory.createTemplateDefinitionFromText(tree.toString(), getContext, this)
       .setDesugared(actualElement = this)
-  }
 
   override def desugaredElement: Option[ScTemplateDefinition] = {
     import scala.meta.intellij.psiExt._
