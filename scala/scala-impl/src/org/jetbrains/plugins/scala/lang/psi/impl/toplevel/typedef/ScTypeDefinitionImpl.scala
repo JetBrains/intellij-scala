@@ -202,26 +202,39 @@ abstract class ScTypeDefinitionImpl protected (stub: ScTemplateDefinitionStub,
 
   protected def qualifiedName(classSeparator: String, trunced: Boolean)
                              (nameTransformer: String => String): String = {
+    def transformedName(definition: ScTypeDefinition) = nameTransformer(definition.name)
+
     // Returns prefix with convenient separator sep
     @tailrec
-    def packageName(e: PsiElement, sep: String, k: (String) => String): String = e.getContext match {
-      case o: ScObject if o.isPackageObject && o.name == "`package`" => packageName(o, sep, k)
-      case _: ScClass | _: ScTrait if trunced => k("")
-      case t: ScTypeDefinition => packageName(t, sep, (s) => {
-        val name = t.name
-        k(s + nameTransformer(name) + sep)
-      })
-      case p: ScPackaging => packageName(p, ".", (s) => k(s + p.packageName + "."))
-      case _: ScalaFile => val pn = ""; k(if (pn.length > 0) pn + "." else "")
-      case _: PsiFile | null => k("")
-      case _: ScBlock => k("")
-      case parent: ScTemplateBody => packageName(parent, sep, k)
-      case parent: ScExtendsBlock => packageName(parent, sep, k)
-      case parent: ScTemplateParents => packageName(parent, sep, k)
-      case parent => packageName(parent, sep, identity)
+    def packageName(element: PsiElement)
+                   (implicit builder: List[String],
+                    separator: String): String = element.getContext match {
+      case packageObject: ScObject if packageObject.isPackageObject && packageObject.name == "`package`" =>
+        packageName(packageObject)
+      case _: ScClass | _: ScTrait if trunced => builder.mkString
+      case definition: ScTypeDefinition =>
+        packageName(definition)(
+          transformedName(definition) :: separator :: builder,
+          separator
+        )
+      case packaging: ScPackaging =>
+        val newSeparator = "."
+        packageName(packaging)(
+          packaging.packageName :: newSeparator :: builder,
+          newSeparator
+        )
+      case _: ScalaFile |
+           _: PsiFile |
+           _: ScBlock |
+           null => builder.mkString
+      case context@(_: ScTemplateBody |
+                    _: ScExtendsBlock |
+                    _: ScTemplateParents) =>
+        packageName(context)
+      case context => packageName(context)(Nil, separator)
     }
 
-    packageName(this, classSeparator, identity) + nameTransformer(name)
+    packageName(this)(Nil, classSeparator) + transformedName(this)
   }
 
   private def qualifiedJavaName(separator: String = ".") = qualifiedName(separator, trunced = false) {
