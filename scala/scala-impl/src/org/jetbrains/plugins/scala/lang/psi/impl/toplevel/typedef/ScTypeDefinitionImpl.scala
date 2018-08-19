@@ -37,11 +37,11 @@ import org.jetbrains.plugins.scala.lang.psi.types.api.TypeParameterType
 import org.jetbrains.plugins.scala.lang.psi.types.api.designator.{ScProjectionType, ScThisType}
 import org.jetbrains.plugins.scala.lang.psi.types.recursiveUpdate.ScSubstitutor
 import org.jetbrains.plugins.scala.lang.psi.types.result._
+import org.jetbrains.plugins.scala.lang.refactoring.util.ScalaNamesUtil
 import org.jetbrains.plugins.scala.macroAnnotations.{Cached, ModCount}
 import org.jetbrains.plugins.scala.projectView.{ClassAndCompanionObject, SingularDefinition, TraitAndCompanionObject}
 
 import scala.annotation.tailrec
-import scala.reflect.NameTransformer
 
 abstract class ScTypeDefinitionImpl protected (stub: ScTemplateDefinitionStub,
                                                nodeType: ScTemplateDefinitionElementType[_ <: ScTypeDefinition],
@@ -168,76 +168,64 @@ abstract class ScTypeDefinitionImpl protected (stub: ScTemplateDefinitionStub,
   }
 
   @Cached(ModCount.anyScalaPsiModificationCount, this)
-  override final def getQualifiedName: String = byStubOrPsi(_.javaQualifiedName)(javaQualName())
-
-  private def javaQualName(): String = {
-    var res = qualifiedName(".", encodeName = true).split('.').map { s =>
-      if (s.startsWith("`") && s.endsWith("`") && s.length > 2) s.drop(1).dropRight(1)
-      else s
-    }.mkString(".")
-    this match {
-      case o: ScObject =>
-        if (o.isPackageObject) res = res + ".package$"
-        else res = res + "$"
-      case _ =>
+  override final def getQualifiedName: String = byStubOrPsi(_.javaQualifiedName) {
+    val suffix = this match {
+      case o: ScObject if o.isPackageObject => ".package$"
+      case _: ScObject => "$"
+      case _ => ""
     }
-    res
+
+    val result = qualifiedJavaName()
+      .split('.')
+      .map(ScalaNamesUtil.isBacktickedName(_).orNull)
+      .mkString(".")
+
+    result + suffix
   }
 
   @Cached(ModCount.anyScalaPsiModificationCount, this)
-  override def qualifiedName: String = byStubOrPsi(_.getQualifiedName)(qualName())
-
-  private def qualName(): String = qualifiedName(".")
+  override def qualifiedName: String = byStubOrPsi(_.getQualifiedName) {
+    qualifiedName(".", trunced = false)(identity)
+  }
 
   override def getExtendsListTypes: Array[PsiClassType] = innerExtendsListTypes
 
   override def getImplementsListTypes: Array[PsiClassType] = innerExtendsListTypes
 
-  def getTruncedQualifiedName: String = qualifiedName(".", trunced = true)
+  def getTruncedQualifiedName: String = qualifiedName(".", trunced = true)(identity)
 
-  def getQualifiedNameForDebugger: String = {
-    containingClass match {
-      case td: ScTypeDefinition => td.getQualifiedNameForDebugger + "$" + transformName(encodeName = true, name)
-      case _ =>
-        if (this.isPackageObject) qualifiedName("", encodeName = true) + ".package"
-        else qualifiedName("$", encodeName = true)
-    }
+  def getQualifiedNameForDebugger: String = containingClass match {
+    case td: ScTypeDefinition => td.getQualifiedNameForDebugger + "$" + ScalaNamesUtil.toJavaName(name)
+    case _ if isPackageObject => qualifiedJavaName("") + ".package"
+    case _ => qualifiedJavaName("$")
   }
 
-  protected def transformName(encodeName: Boolean, name: String): String = {
-    if (!encodeName) name
-    else {
-      val deticked =
-        if (name.startsWith("`") && name.endsWith("`") && name.length() > 1)
-          name.substring(1, name.length() - 1)
-        else name
-      NameTransformer.encode(deticked)
-    }
-  }
-
-  protected def qualifiedName(classSeparator: String, trunced: Boolean = false,
-                              encodeName: Boolean = false): String = {
+  protected def qualifiedName(classSeparator: String, trunced: Boolean)
+                             (nameTransformer: String => String): String = {
     // Returns prefix with convenient separator sep
     @tailrec
-    def _packageName(e: PsiElement, sep: String, k: (String) => String): String = e.getContext match {
-      case o: ScObject if o.isPackageObject && o.name == "`package`" => _packageName(o, sep, k)
+    def packageName(e: PsiElement, sep: String, k: (String) => String): String = e.getContext match {
+      case o: ScObject if o.isPackageObject && o.name == "`package`" => packageName(o, sep, k)
       case _: ScClass | _: ScTrait if trunced => k("")
-      case t: ScTypeDefinition => _packageName(t, sep, (s) => {
+      case t: ScTypeDefinition => packageName(t, sep, (s) => {
         val name = t.name
-        k(s + transformName(encodeName, name) + sep)
+        k(s + nameTransformer(name) + sep)
       })
-      case p: ScPackaging => _packageName(p, ".", (s) => k(s + p.packageName + "."))
+      case p: ScPackaging => packageName(p, ".", (s) => k(s + p.packageName + "."))
       case _: ScalaFile => val pn = ""; k(if (pn.length > 0) pn + "." else "")
       case _: PsiFile | null => k("")
       case _: ScBlock => k("")
-      case parent: ScTemplateBody => _packageName(parent, sep, k)
-      case parent: ScExtendsBlock => _packageName(parent, sep, k)
-      case parent: ScTemplateParents => _packageName(parent, sep, k)
-      case parent => _packageName(parent, sep, identity)
+      case parent: ScTemplateBody => packageName(parent, sep, k)
+      case parent: ScExtendsBlock => packageName(parent, sep, k)
+      case parent: ScTemplateParents => packageName(parent, sep, k)
+      case parent => packageName(parent, sep, identity)
     }
 
-    val packageName = _packageName(this, classSeparator, identity)
-    packageName + transformName(encodeName, name)
+    packageName(this, classSeparator, identity) + nameTransformer(name)
+  }
+
+  private def qualifiedJavaName(separator: String = ".") = qualifiedName(separator, trunced = false) {
+    ScalaNamesUtil.toJavaName
   }
 
   override def getPresentation: ItemPresentation = {
