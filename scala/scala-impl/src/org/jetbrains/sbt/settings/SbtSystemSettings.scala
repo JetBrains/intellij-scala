@@ -30,16 +30,13 @@ class SbtSystemSettings(project: Project)
   extends AbstractExternalSystemSettings[SbtSystemSettings, SbtProjectSettings, SbtProjectSettingsListener](SbtTopic, project)
   with PersistentStateComponent[SbtSystemSettingsState]{
 
-  @BeanProperty
-  var myState: SbtSystemSettingsState = new SbtSystemSettingsState
-
   override def getState: SbtSystemSettingsState = {
-    fillState(myState)
-    myState
+    val state = new SbtSystemSettingsState
+    fillState(state)
+    state
   }
   override def loadState(state: SbtSystemSettingsState): Unit = {
     super[AbstractExternalSystemSettings].loadState(state)
-    myState = state
   }
 
   def subscribe(listener: ExternalSystemSettingsListener[SbtProjectSettings]) {
@@ -76,7 +73,7 @@ object SbtSystemSettings {
 
 class SbtSystemSettingsState extends AbstractExternalSystemSettings.State[SbtProjectSettings] {
 
-  val linkedProjectSettings: util.TreeSet[SbtProjectSettings] = ContainerUtilRt.newTreeSet[SbtProjectSettings]()
+  private val linkedProjectSettings: util.TreeSet[SbtProjectSettings] = ContainerUtilRt.newTreeSet[SbtProjectSettings]()
 
   @BeanProperty
   var customLauncherEnabled: Boolean = false
@@ -103,8 +100,8 @@ class SbtSystemSettingsState extends AbstractExternalSystemSettings.State[SbtPro
   def getLinkedExternalProjectsSettings: util.Set[SbtProjectSettings] =
     linkedProjectSettings
 
-  def setLinkedExternalProjectsSettings(settings: util.Set[SbtProjectSettings]): Unit =
-    if (settings != null) {
-      linkedProjectSettings.addAll(settings)
-    }
+  def setLinkedExternalProjectsSettings(settings: util.Set[SbtProjectSettings]): Unit = {
+    linkedProjectSettings.clear()
+    linkedProjectSettings.addAll(settings)
+  }
 }
