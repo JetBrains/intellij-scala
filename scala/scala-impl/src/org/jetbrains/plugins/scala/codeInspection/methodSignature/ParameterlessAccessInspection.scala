@@ -81,8 +81,8 @@ object ParameterlessAccessInspection {
     // flag in ScalaResolveResult.
     override protected def collect(expression: ScExpression,
                                    reference: ScReferenceExpression): Option[ScExpression] = expression match {
-      case HasFunctionType(Seq()) => Some(reference)
-      case _ => None
+      case HasFunctionType(Seq()) => None
+      case _                      => Some(reference)
     }
 
     override protected def isValid(element: PsiElement): Boolean =
