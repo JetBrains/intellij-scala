@@ -7,10 +7,13 @@ import com.intellij.psi.{PsiElement, PsiElementVisitor}
 /**
   * Pavel Fatin
   */
-abstract class AbstractInspection protected(displayName: String = AbstractInspection.formatName(getClass))
-  extends LocalInspectionTool {
+abstract class AbstractInspection protected (customDisplayName: String) extends LocalInspectionTool {
 
-  override def getDisplayName: String = displayName
+  protected def this() = this(customDisplayName = null)
+
+  private def classBasedDisplayName: String = AbstractInspection.formatName(this.getClass)
+
+  override def getDisplayName: String = Option(customDisplayName).getOrElse(classBasedDisplayName)
 
   protected final def defaultDisplayName: String = super.getDisplayName
 
