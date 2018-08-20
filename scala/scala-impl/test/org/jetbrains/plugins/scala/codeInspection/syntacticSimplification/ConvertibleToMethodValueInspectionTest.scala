@@ -419,4 +419,25 @@ class ConvertibleToMethodValueInspectionTest extends ScalaQuickFixTestBase {
           |}""".stripMargin
     checkTextHasNoErrors(text)
   }
+
+  def testImplicitParameters(): Unit = {
+    val text =
+      """
+        |object Test {
+        |  trait Writes[T]
+        |  trait JsValue
+        |
+        |  object Writes {
+        |    def toJson[T](o: T)(implicit tjs: Writes[T]): JsValue = ???
+        |
+        |    implicit val stringWrites: Writes[String] = ???
+        |    implicit val intWrites: Writes[Int] = ???
+        |  }
+        |
+        |
+        |  Some("some value").map(Writes.toJson(_))
+        |}
+      """.stripMargin
+    checkTextHasNoErrors(text)
+  }
 }
