@@ -1,4 +1,7 @@
-package org.jetbrains.plugins.scala.codeInsight.template.macros
+package org.jetbrains.plugins.scala
+package codeInsight
+package template
+package macros
 
 import com.intellij.codeInsight.lookup.{LookupElement, LookupElementBuilder}
 import com.intellij.codeInsight.template._
@@ -6,16 +9,15 @@ import com.intellij.psi.search.GlobalSearchScope
 import com.intellij.psi.search.searches.AnnotatedMembersSearch
 import com.intellij.psi.{PsiClass, PsiMember}
 import com.intellij.util.{EmptyQuery, Query}
-import org.jetbrains.plugins.scala.codeInsight.template.impl.ScalaCodeContextType
-import org.jetbrains.plugins.scala.codeInsight.template.util.MacroUtil
 import org.jetbrains.plugins.scala.lang.psi.impl.ScalaPsiManager
+
 import scala.collection.JavaConverters._
 
 /**
  * @author Roman.Shein
  * @since 21.09.2015.
  */
-class ScalaAnnotatedMacro extends Macro {
+class ScalaAnnotatedMacro extends ScalaMacro("macro.annotated") {
 
   protected def getAnnotatedMembers(params: Array[Expression], context: ExpressionContext): Query[PsiMember] = {
     (params, context) match {
@@ -36,10 +38,6 @@ class ScalaAnnotatedMacro extends Macro {
       case _ => member.getName
     })).orNull
   }
-
-  override def getName: String = MacroUtil.scalaIdPrefix + "annotated"
-
-  override def getPresentableName: String = MacroUtil.scalaPresentablePrefix + "annotated(\"annotation qname\")"
 
   override def calculateQuickResult(params: Array[Expression], context: ExpressionContext): Result = calculateResult(params, context)
 
@@ -62,5 +60,5 @@ class ScalaAnnotatedMacro extends Macro {
       .toArray
   }
 
-  override def isAcceptableInContext(context: TemplateContextType): Boolean = context.isInstanceOf[ScalaCodeContextType]
+  override protected def message(nameKey: String): String = ScalaMacro.message(nameKey)
 }

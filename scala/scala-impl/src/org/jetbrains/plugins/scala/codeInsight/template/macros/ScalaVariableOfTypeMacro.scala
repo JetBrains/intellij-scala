@@ -9,7 +9,6 @@ import com.intellij.codeInsight.template._
 import com.intellij.openapi.project.Project
 import com.intellij.psi.util.PsiTreeUtil
 import com.intellij.psi.{PsiClass, PsiDocumentManager}
-import org.jetbrains.plugins.scala.codeInsight.template.impl.ScalaCodeContextType
 import org.jetbrains.plugins.scala.codeInsight.template.util.MacroUtil
 import org.jetbrains.plugins.scala.extensions._
 import org.jetbrains.plugins.scala.lang.psi.api.ScalaFile
@@ -29,15 +28,15 @@ import _root_.scala.collection.mutable.ArrayBuffer
  * This class provides macros for live templates. Return elements
  * of given class type (or class types).
  */
-class ScalaVariableOfTypeMacro extends ScalaMacro {
-  def getPresentableName: String = "Scala variable of type macro"
+class ScalaVariableOfTypeMacro extends ScalaVariableOfTypeMacroBase("macro.variable.of.type")
 
-  override def innerCalculateLookupItems(exprs: Array[Expression], context: ExpressionContext): Array[LookupElement] = {
+abstract class ScalaVariableOfTypeMacroBase(nameKey: String) extends ScalaMacro(nameKey) {
+
+  override def calculateLookupItems(exprs: Array[Expression], context: ExpressionContext): Array[LookupElement] =
     calculateLookupItems(exprs.map(_.calculateResult(context).toString), context, showOne = false)
-  }
 
   def calculateLookupItems(exprs: Array[String], context: ExpressionContext, showOne: Boolean): Array[LookupElement] = {
-    if (!validExprs(exprs)) return null
+    if (!arrayIsValid(exprs)) return null
     val offset = context.getStartOffset
     val editor = context.getEditor
     val array = new ArrayBuffer[LookupElement]
@@ -71,8 +70,8 @@ class ScalaVariableOfTypeMacro extends ScalaMacro {
     array.toArray
   }
 
-  def innerCalculateResult(exprs: Array[Expression], context: ExpressionContext): Result = {
-    if (!validExprs(exprs)) return null
+  def calculateResult(exprs: Array[Expression], context: ExpressionContext): Result = {
+    if (!arrayIsValid(exprs)) return null
     val offset = context.getStartOffset
     val editor = context.getEditor
     val file = PsiDocumentManager.getInstance(editor.getProject).getPsiFile(editor.getDocument)
@@ -104,21 +103,13 @@ class ScalaVariableOfTypeMacro extends ScalaMacro {
     }
   }
 
-  override def isAcceptableInContext(context: TemplateContextType): Boolean = context.isInstanceOf[ScalaCodeContextType]
-
   override def calculateQuickResult(p1: Array[Expression], p2: ExpressionContext): Result = null
 
   def getDescription: String = CodeInsightBundle.message("macro.variable.of.type")
 
-  def getName: String = "scalaVariableOfType"
-
   override def getDefaultValue: String = "x"
 
-  def validExprs(exprs: Array[Expression]): Boolean = validExprsCount(exprs.length)
-
-  def validExprs(exprs: Array[String]): Boolean = validExprsCount(exprs.length)
-
-  def validExprsCount(exprsCount: Int): Boolean = exprsCount != 0
+  def arrayIsValid(array: Array[_]): Boolean = array.nonEmpty
 
   def getResult(exprs: Array[Expression],
                 context: ExpressionContext,

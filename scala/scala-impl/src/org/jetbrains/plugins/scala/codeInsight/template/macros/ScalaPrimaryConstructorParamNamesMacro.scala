@@ -1,20 +1,25 @@
-package org.jetbrains.plugins.scala.codeInsight.template.macros
+package org.jetbrains.plugins.scala
+package codeInsight
+package template
+package macros
 
 import com.intellij.codeInsight.template._
 import org.jetbrains.plugins.scala.codeInsight.template.util.MacroUtil
+import org.jetbrains.plugins.scala.extensions._
 
 /**
   * @author Roman.Shein
   *         Date: 21.12.2015
   */
-class ScalaPrimaryConstructorParamNamesMacro extends Macro {
+class ScalaPrimaryConstructorParamNamesMacro extends ScalaMacro("macro.primaryConstructor.param.names") {
+
   override def calculateResult(params: Array[Expression], context: ExpressionContext): Result =
-    Option(params.head.calculateResult(context).toString).map(MacroUtil.paramPairs(_).map(_._1)) match {
-      case Some(head::tail) => new TextResult(tail.foldLeft(head)(_ + ", " + _))
-      case _ => null
-    }
+    params.headOption.flatMap(_.calculateResult(context).toOption)
+      .map { result =>
+        val list = MacroUtil.paramPairs(result.toString)
+        val text = list.map(_._1).commaSeparated()
+        new TextResult(text)
+      }.orNull
 
-  def getName: String = MacroUtil.scalaIdPrefix + "primaryConstructorParamNames"
-
-  def getPresentableName: String = MacroUtil.scalaPresentablePrefix + "primaryConstructorParamNames"
+  override protected def message(nameKey: String): String = ScalaMacro.message(nameKey)
 }

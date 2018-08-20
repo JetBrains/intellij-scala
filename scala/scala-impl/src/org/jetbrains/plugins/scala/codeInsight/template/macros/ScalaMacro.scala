@@ -1,26 +1,36 @@
-package org.jetbrains.plugins.scala.codeInsight.template.macros
+package org.jetbrains.plugins.scala
+package codeInsight
+package template
+package macros
 
-import com.intellij.codeInsight.lookup.LookupElement
-import com.intellij.codeInsight.template.{Expression, ExpressionContext, Macro, Result}
-import org.jetbrains.plugins.scala.project.ProjectExt
+import com.intellij.codeInsight.CodeInsightBundle
+import com.intellij.codeInsight.template._
+import org.jetbrains.plugins.scala.codeInsight.template.impl.ScalaCodeContextType
 
 /**
   * @author adkozlov
   */
-trait ScalaMacro extends Macro {
-  override def calculateResult(params: Array[Expression], context: ExpressionContext): Result = {
-    innerCalculateResult(params, context)
-  }
+abstract class ScalaMacro(nameKey: String) extends Macro {
 
-  override def calculateLookupItems(params: Array[Expression], context: ExpressionContext): Array[LookupElement] = {
-    innerCalculateLookupItems(params, context)
-  }
+  import ScalaMacro._
 
-  protected def innerCalculateResult(params: Array[Expression], context: ExpressionContext): Result
+  override final def getName: String = getPresentableName.replaceFirst("\\(.+\\)$", "")
 
-  protected def innerCalculateLookupItems(params: Array[Expression], context: ExpressionContext): Array[LookupElement] = {
-    super.calculateLookupItems(params, context)
-  }
+  override final def getPresentableName: String = NamePrefix + message(nameKey)
 
-  private def getTypeSystem(context: ExpressionContext) = context.getProject.typeSystem
+  override final def isAcceptableInContext(context: TemplateContextType): Boolean =
+    context match {
+      case _: ScalaCodeContextType => true
+      case _ => false
+    }
+
+  protected def message(nameKey: String): String = CodeInsightBundle.message(nameKey)
+}
+
+object ScalaMacro {
+
+  private[macros] val NamePrefix = "scala_"
+  private[macros] val DefaultValue = "a"
+
+  private[macros] def message(nameKey: String) = ScalaBundle.message(nameKey)
 }

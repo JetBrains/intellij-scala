@@ -1,5 +1,7 @@
 package org.jetbrains.plugins.scala
-package codeInsight.template.macros
+package codeInsight
+package template
+package macros
 
 import com.intellij.codeInsight.lookup.{LookupElement, LookupElementBuilder}
 import com.intellij.codeInsight.template._
@@ -18,17 +20,17 @@ import org.jetbrains.plugins.scala.lang.refactoring.namesSuggester.NameSuggester
 /**
   * Macro for suggesting name.
   */
-class SuggestScalaVariableNameMacro extends ScalaMacro {
+class SuggestScalaVariableNameMacro extends ScalaMacro("macro.suggest.variable.name") {
 
   import SuggestScalaVariableNameMacro._
 
-  override def innerCalculateLookupItems(params: Array[Expression], context: ExpressionContext): Array[LookupElement] = {
+  override def calculateLookupItems(params: Array[Expression], context: ExpressionContext): Array[LookupElement] = {
     val names = getNames(params, context).toArray
     if (names.length < 2) return null
     names.map(s => LookupElementBuilder.create(s, s))
   }
 
-  override def innerCalculateResult(params: Array[Expression], context: ExpressionContext): Result =
+  override def calculateResult(params: Array[Expression], context: ExpressionContext): Result =
     getNames(params, context)
       .map(new TextResult(_))
       .headOption
@@ -36,13 +38,9 @@ class SuggestScalaVariableNameMacro extends ScalaMacro {
 
   def getDescription: String = "Macro for suggesting name"
 
-  def getName: String = "suggestScalaVariableName"
-
   override def getDefaultValue: String = "value"
 
   override def calculateQuickResult(params: Array[Expression], context: ExpressionContext): Result = null
-
-  def getPresentableName: String = "Suggest Scala variable macro"
 }
 
 object SuggestScalaVariableNameMacro {

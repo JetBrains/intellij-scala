@@ -1,4 +1,7 @@
-package org.jetbrains.plugins.scala.codeInsight.template.macros
+package org.jetbrains.plugins.scala
+package codeInsight
+package template
+package macros
 
 import com.intellij.codeInsight.template._
 import org.jetbrains.plugins.scala.codeInsight.template.util.MacroUtil
@@ -7,12 +10,11 @@ import org.jetbrains.plugins.scala.codeInsight.template.util.MacroUtil
   * @author Roman.Shein
   *         Date: 21.12.2015
   */
-class ScalaPrimaryConstructorParamsMacro extends Macro {
+class ScalaPrimaryConstructorParamsMacro extends ScalaMacro("macro.primaryConstructor.param.instances") {
+
   override def calculateResult(params: Array[Expression], context: ExpressionContext): Result = {
     MacroUtil.getPrimaryConbstructorParams(context).map(new PsiElementResult(_)).orNull
   }
 
-  def getName: String = MacroUtil.scalaIdPrefix + "primaryConstructorParams"
-
-  def getPresentableName: String = MacroUtil.scalaPresentablePrefix + "primaryConstructorParams"
+  override protected def message(nameKey: String): String = ScalaMacro.message(nameKey)
 }
