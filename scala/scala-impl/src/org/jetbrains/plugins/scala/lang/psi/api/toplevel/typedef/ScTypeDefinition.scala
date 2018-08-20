@@ -47,11 +47,6 @@ trait ScTypeDefinition extends ScTemplateDefinition with ScMember
 
   def getQualifiedNameForDebugger: String
 
-  /**
-   * Qualified name stops on outer Class level.
-   */
-  def getTruncedQualifiedName: String
-
   def signaturesByName(name: String): Seq[PhysicalSignature]
 
   def isPackageObject = false

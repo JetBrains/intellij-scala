@@ -167,6 +167,8 @@ abstract class ScTypeDefinitionImpl protected (stub: ScTemplateDefinitionStub,
     }
   }
 
+  import ScTypeDefinitionImpl._
+
   @Cached(ModCount.anyScalaPsiModificationCount, this)
   override final def getQualifiedName: String = byStubOrPsi(_.javaQualifiedName) {
     val suffix = this match {
@@ -175,71 +177,36 @@ abstract class ScTypeDefinitionImpl protected (stub: ScTemplateDefinitionStub,
       case _ => ""
     }
 
-    val result = qualifiedJavaName()
+    import ScalaNamesUtil.{isBacktickedName, toJavaName}
+    val result = qualifiedName(DefaultSeparator)(toJavaName)
       .split('.')
-      .map(ScalaNamesUtil.isBacktickedName(_).orNull)
-      .mkString(".")
+      .map(isBacktickedName(_).orNull)
+      .mkString(DefaultSeparator)
 
     result + suffix
   }
 
   @Cached(ModCount.anyScalaPsiModificationCount, this)
   override def qualifiedName: String = byStubOrPsi(_.getQualifiedName) {
-    qualifiedName(".", trunced = false)(identity)
+    qualifiedName(DefaultSeparator)(identity)
   }
 
   override def getExtendsListTypes: Array[PsiClassType] = innerExtendsListTypes
 
   override def getImplementsListTypes: Array[PsiClassType] = innerExtendsListTypes
 
-  def getTruncedQualifiedName: String = qualifiedName(".", trunced = true)(identity)
-
-  def getQualifiedNameForDebugger: String = containingClass match {
-    case td: ScTypeDefinition => td.getQualifiedNameForDebugger + "$" + ScalaNamesUtil.toJavaName(name)
-    case _ if isPackageObject => qualifiedJavaName("") + ".package"
-    case _ => qualifiedJavaName("$")
-  }
-
-  protected def qualifiedName(classSeparator: String, trunced: Boolean)
-                             (nameTransformer: String => String): String = {
-    def transformedName(definition: ScTypeDefinition) = nameTransformer(definition.name)
-
-    // Returns prefix with convenient separator sep
-    @tailrec
-    def packageName(element: PsiElement)
-                   (implicit builder: List[String],
-                    separator: String): String = element.getContext match {
-      case packageObject: ScObject if packageObject.isPackageObject && packageObject.name == "`package`" =>
-        packageName(packageObject)
-      case _: ScClass | _: ScTrait if trunced => builder.mkString
-      case definition: ScTypeDefinition =>
-        packageName(definition)(
-          transformedName(definition) :: separator :: builder,
-          separator
-        )
-      case packaging: ScPackaging =>
-        val newSeparator = "."
-        packageName(packaging)(
-          packaging.packageName :: newSeparator :: builder,
-          newSeparator
-        )
-      case _: ScalaFile |
-           _: PsiFile |
-           _: ScBlock |
-           null => builder.mkString
-      case context@(_: ScTemplateBody |
-                    _: ScExtendsBlock |
-                    _: ScTemplateParents) =>
-        packageName(context)
-      case context => packageName(context)(Nil, separator)
+  def getQualifiedNameForDebugger: String = {
+    import ScalaNamesUtil.toJavaName
+    containingClass match {
+      case td: ScTypeDefinition => td.getQualifiedNameForDebugger + "$" + toJavaName(name)
+      case _ if isPackageObject => qualifiedName("")(toJavaName) + ".package"
+      case _ => qualifiedName("$")(toJavaName)
     }
-
-    packageName(this)(Nil, classSeparator) + transformedName(this)
   }
 
-  private def qualifiedJavaName(separator: String = ".") = qualifiedName(separator, trunced = false) {
-    ScalaNamesUtil.toJavaName
-  }
+  protected def qualifiedName(separator: String)
+                             (nameTransformer: String => String): String =
+    toQualifiedName(packageName(this)(Right(this) :: Nil, separator))(nameTransformer)
 
   override def getPresentation: ItemPresentation = {
     val presentableName = this match {
@@ -377,5 +344,45 @@ abstract class ScTypeDefinitionImpl protected (stub: ScTemplateDefinitionStub,
 
 object ScTypeDefinitionImpl {
 
+  private type QualifiedNameList = List[Either[String, ScTypeDefinition]]
+
+  val DefaultSeparator = "."
+
   val DefaultLocationString = "<default>"
+
+  /**
+    * Returns prefix with a convenient separator
+    */
+  @tailrec
+  def packageName(element: PsiElement)
+                 (implicit builder: QualifiedNameList,
+                  separator: String): QualifiedNameList = element.getContext match {
+    case packageObject: ScObject if packageObject.isPackageObject && packageObject.name == "`package`" =>
+      packageName(packageObject)
+    case definition: ScTypeDefinition =>
+      packageName(definition)(
+        Right(definition) :: Left(separator) :: builder,
+        separator
+      )
+    case packaging: ScPackaging =>
+      packageName(packaging)(
+        Left(packaging.packageName) :: Left(DefaultSeparator) :: builder,
+        DefaultSeparator
+      )
+    case _: ScalaFile |
+         _: PsiFile |
+         _: ScBlock |
+         null => builder
+    case context@(_: ScTemplateBody |
+                  _: ScExtendsBlock |
+                  _: ScTemplateParents) =>
+      packageName(context)
+    case context => packageName(context)(Nil, separator)
+  }
+
+  def toQualifiedName(list: QualifiedNameList)
+                     (nameTransformer: String => String = identity): String = list.map {
+    case Right(definition) => nameTransformer(definition.name)
+    case Left(string) => string
+  }.mkString
 }

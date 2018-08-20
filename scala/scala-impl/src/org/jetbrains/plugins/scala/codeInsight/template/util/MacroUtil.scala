@@ -11,6 +11,7 @@ import org.jetbrains.plugins.scala.lang.psi.api.expr.ScExpression
 import org.jetbrains.plugins.scala.lang.psi.api.statements.params.ScParameters
 import org.jetbrains.plugins.scala.lang.psi.api.toplevel.typedef.{ScClass, ScObject, ScTypeDefinition}
 import org.jetbrains.plugins.scala.lang.psi.impl.ScalaPsiElementFactory
+import org.jetbrains.plugins.scala.lang.psi.impl.toplevel.typedef.ScTypeDefinitionImpl
 import org.jetbrains.plugins.scala.lang.psi.types.api.JavaArrayType
 import org.jetbrains.plugins.scala.lang.psi.types.{ScParameterizedType, ScType, ScTypeExt}
 import org.jetbrains.plugins.scala.lang.resolve.{ScalaResolveResult, StdKinds}
@@ -51,7 +52,7 @@ object MacroUtil {
   def getTypeLookupItem(scType: ScType, project: Project): Option[ScalaLookupItem] = {
     scType.extractClass.filter(_.isInstanceOf[ScTypeDefinition]).map {
       case typeDef: ScTypeDefinition =>
-        val lookupItem = new ScalaLookupItem(typeDef, typeDef.getTruncedQualifiedName, Option(typeDef.getContainingClass))
+        val lookupItem = new ScalaLookupItem(typeDef, truncatedQualifiedName(typeDef), Option(typeDef.getContainingClass))
         lookupItem.shouldImport = true
         lookupItem
     }
@@ -69,4 +70,9 @@ object MacroUtil {
       case a :: b :: Nil => (a, b)
       case _ => ("", "")
     }).toList
+
+  private def truncatedQualifiedName(definition: ScTypeDefinition) = {
+    import ScTypeDefinitionImpl._
+    toQualifiedName(packageName(definition)(Nil, DefaultSeparator) :+ Right(definition))()
+  }
 }

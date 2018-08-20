@@ -240,10 +240,10 @@ object AddOnlyStrategy {
     import BaseTypes.get
 
     tpe.canonicalCodeText +: (tpe.extractClass match {
-      case Some(sc: ScTypeDefinition) if sc.getTruncedQualifiedName == "scala.Some" =>
+      case Some(sc: ScTypeDefinition) if sc.qualifiedName == "scala.Some" =>
         get(tpe).map(_.canonicalCodeText)
           .filter(_.startsWith("_root_.scala.Option"))
-      case Some(sc: ScTypeDefinition) if sc.getTruncedQualifiedName.startsWith("scala.collection") =>
+      case Some(sc: ScTypeDefinition) if sc.qualifiedName.startsWith("scala.collection") =>
         val goodTypes = Set(
           "_root_.scala.collection.mutable.Seq[",
           "_root_.scala.collection.immutable.Seq[",
