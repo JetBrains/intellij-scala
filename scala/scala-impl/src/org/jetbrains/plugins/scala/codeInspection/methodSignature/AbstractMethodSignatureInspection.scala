@@ -9,12 +9,7 @@ import org.jetbrains.plugins.scala.lang.psi.api.statements.ScFunction
 /**
   * Pavel Fatin
   */
-abstract class AbstractMethodSignatureInspection extends AbstractInspection {
-
-  override def getDisplayName: String = super.defaultDisplayName
-
-  override final def buildVisitor(holder: ProblemsHolder, isOnTheFly: Boolean) =
-    new PureFunctionVisitor(holder, isOnTheFly)
+abstract class AbstractMethodSignatureInspection extends AbstractRegisteredInspection {
 
   override protected def problemDescriptor(element: PsiElement,
                                            maybeQuickFix: Option[LocalQuickFix],

@@ -15,12 +15,7 @@ import org.jetbrains.plugins.scala.lang.resolve.processor.CollectMethodsProcesso
 /**
   * Pavel Fatin
   */
-final class JavaAccessorEmptyParenCallInspection extends AbstractInspection {
-
-  override def actionFor(implicit holder: ProblemsHolder): PartialFunction[PsiElement, Unit] = PartialFunction.empty
-
-  override def buildVisitor(holder: ProblemsHolder, isOnTheFly: Boolean) =
-    new PureFunctionVisitor(holder, isOnTheFly)
+final class JavaAccessorEmptyParenCallInspection extends AbstractRegisteredInspection {
 
   override protected def problemDescriptor(element: PsiElement,
                                            maybeQuickFix: Option[LocalQuickFix],

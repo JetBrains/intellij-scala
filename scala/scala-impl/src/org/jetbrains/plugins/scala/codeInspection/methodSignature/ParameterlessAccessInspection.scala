@@ -13,12 +13,9 @@ import org.jetbrains.plugins.scala.util.IntentionAvailabilityChecker
 
 import scala.annotation.tailrec
 
-sealed abstract class ParameterlessAccessInspection extends AbstractInspection {
+sealed abstract class ParameterlessAccessInspection extends AbstractRegisteredInspection {
 
   import ParameterlessAccessInspection._
-
-  override def buildVisitor(holder: ProblemsHolder, isOnTheFly: Boolean) =
-    new PureFunctionVisitor(holder, isOnTheFly)
 
   override protected def problemDescriptor(element: PsiElement,
                                            maybeQuickFix: Option[LocalQuickFix],
