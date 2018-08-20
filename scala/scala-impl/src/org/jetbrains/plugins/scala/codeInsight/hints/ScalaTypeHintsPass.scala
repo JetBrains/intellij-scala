@@ -79,7 +79,6 @@ object ScalaTypeHintsPass {
   }
 
   private def isObviousFor(returnType: ScType, definition: Definition): Boolean =
-    definition.hasStableType ||
       definition.bodyCandidate
         .zip(returnType.extractClass)
         .exists {
