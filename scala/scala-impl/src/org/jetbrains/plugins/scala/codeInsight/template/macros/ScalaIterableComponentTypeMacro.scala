@@ -4,9 +4,6 @@ package template
 package macros
 
 import com.intellij.codeInsight.template._
-import org.jetbrains.plugins.scala.codeInsight.template.util.MacroUtil
-import org.jetbrains.plugins.scala.lang.psi.api.toplevel.typedef.ScTypeDefinition
-import org.jetbrains.plugins.scala.lang.psi.types.ScTypeExt
 
 /**
  * @author Roman.Shein
@@ -14,20 +11,16 @@ import org.jetbrains.plugins.scala.lang.psi.types.ScTypeExt
  */
 class ScalaIterableComponentTypeMacro extends ScalaMacro("macro.iterable.component.type") {
 
-  override def calculateResult(params: Array[Expression], context: ExpressionContext): Result = {
-    if (params.length != 1) return null
-    Option(params(0).calculateResult(context)).flatMap(MacroUtil.resultToScExpr(_, context)).flatMap(_.`type`().
-            toOption.flatMap{ exprType =>
-              MacroUtil.getComponentFromArrayType(exprType) match {
-                case Some(arrComponentType) => Some(arrComponentType)
-                case None =>
-                  exprType.extractClass match {
-                    case Some(x: ScTypeDefinition) if x.functionsByName("foreach").nonEmpty => Some(exprType)
-                    case _ => None
-                  }
-              }
-            }
-    ).map(new ScalaTypeResult(_)).orNull
+  override def calculateResult(params: Array[Expression], context: ExpressionContext): Result = params match {
+    case Array(head) =>
+      Option(head.calculateResult(context))
+        .flatMap(resultToScExpr(_)(context))
+        .flatMap { exprType =>
+          arrayComponent(exprType).orElse {
+            Some(exprType).filter(ScalaVariableOfTypeMacroBase.isIterable)
+          }
+        }.map(new ScalaTypeResult(_)).orNull
+    case _ => null
   }
 
   override def calculateQuickResult(params: Array[Expression], context: ExpressionContext): Result = calculateResult(params, context)

@@ -4,7 +4,6 @@ package template
 package macros
 
 import com.intellij.codeInsight.template._
-import org.jetbrains.plugins.scala.codeInsight.template.util.MacroUtil
 
 /**
  * @author Roman.Shein
@@ -12,11 +11,12 @@ import org.jetbrains.plugins.scala.codeInsight.template.util.MacroUtil
  */
 class ScalaTypeOfVariableMacro extends ScalaMacro("macro.variable.of.type") {
 
-  override def calculateResult(params: Array[Expression], context: ExpressionContext): Result = {
-    if (params.length == 0) return null
-    Option(params(0).calculateResult(context)).flatMap(MacroUtil.resultToScExpr(_, context)).
-      flatMap(_.`type`().toOption).map(new ScalaTypeResult(_)).orNull
-  }
+  override def calculateResult(params: Array[Expression], context: ExpressionContext): Result = params.headOption.map {
+    _.calculateResult(context)
+  }.flatMap {
+    resultToScExpr(_)(context)
+  }.map(new ScalaTypeResult(_))
+    .orNull
 
   override def calculateQuickResult(params: Array[Expression], context: ExpressionContext): Result = calculateResult(params, context)
 

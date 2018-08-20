@@ -5,12 +5,13 @@ package macros
 
 import com.intellij.codeInsight.lookup.{LookupElement, LookupElementBuilder}
 import com.intellij.codeInsight.template._
-import com.intellij.psi.{PsiDocumentManager, PsiNamedElement}
-import org.jetbrains.plugins.scala.extensions._
+import com.intellij.psi.PsiDocumentManager
 import org.jetbrains.plugins.scala.lang.psi.api.toplevel.ScTypedDefinition
 import org.jetbrains.plugins.scala.lang.psi.types.ScType
 import org.jetbrains.plugins.scala.lang.psi.types.api.{JavaArrayType, ParameterizedType}
 import org.jetbrains.plugins.scala.lang.refactoring.namesSuggester.NameSuggester
+
+import scala.util._
 
 /**
   * User: Alexander Podkhalyuzin
@@ -24,14 +25,17 @@ class SuggestScalaVariableNameMacro extends ScalaMacro("macro.suggest.variable.n
 
   import SuggestScalaVariableNameMacro._
 
-  override def calculateLookupItems(params: Array[Expression], context: ExpressionContext): Array[LookupElement] = {
-    val names = getNames(params, context).toArray
-    if (names.length < 2) return null
-    names.map(s => LookupElementBuilder.create(s, s))
-  }
+  override def calculateLookupItems(params: Array[Expression], context: ExpressionContext): Array[LookupElement] =
+    getNames(params)(context) match {
+      case names if names.length < 2 => null
+      case names =>
+        names.map { s =>
+          LookupElementBuilder.create(s, s)
+        }.toArray
+    }
 
   override def calculateResult(params: Array[Expression], context: ExpressionContext): Result =
-    getNames(params, context)
+    getNames(params)(context)
       .map(new TextResult(_))
       .headOption
       .orNull
@@ -44,39 +48,43 @@ class SuggestScalaVariableNameMacro extends ScalaMacro("macro.suggest.variable.n
 }
 
 object SuggestScalaVariableNameMacro {
-  private def getNames(params: Array[Expression], context: ExpressionContext): Seq[String] = {
-    val p: Array[String] = params.map(_.calculateResult(context).toString)
+
+  private def getNames(params: Array[Expression])
+                      (implicit context: ExpressionContext): Seq[String] = {
     val editor = context.getEditor
     PsiDocumentManager.getInstance(editor.getProject).commitDocument(editor.getDocument)
 
-    val default = Seq("x")
-    val typez: ScType = p match {
-      case Array() => return default //todo:
-      case x if x(0) == "option" || x(0) == "foreach" =>
-        try {
-          val items = (new ScalaVariableOfTypeMacro).calculateLookupItems(Array[String](x(0) match {
-            case "option" => "scala.Option"
-            case "foreach" => "foreach"
-          }), context, showOne = true).
-            map(_.getObject).filter(_.isInstanceOf[PsiNamedElement]).map(_.asInstanceOf[PsiNamedElement]).
-            filter(_.name == x(1))
-          if (items.length == 0) return default
-          items(0) match {
-            case typed: ScTypedDefinition => typed.`type`() match {
-              case Right(ParameterizedType(_, typeArgs)) => typeArgs.head
-              case Right(JavaArrayType(argument)) => argument
-              case _ => return default
-            }
-            case _ => return default
-          }
-        }
-        catch {
-          case e: Exception =>
-            e.printStackTrace()
-            return default
-        }
-      case _ => return default
+    temp(params.map(ScalaVariableOfTypeMacroBase.calculate)) match {
+      case Some(scType) => NameSuggester.suggestNamesByType(scType)
+      case None => Seq("x")
     }
-    NameSuggester.suggestNamesByType(typez)
   }
+
+  private def temp(expressions: Array[String])
+                  (implicit context: ExpressionContext): Option[ScType] = expressions match {
+    case Array(first@("option" | "foreach"), second, _*) =>
+      val tried = Try {
+        val str = first match {
+          case "option" => "scala.Option"
+          case "foreach" => "foreach"
+        }
+        (new ScalaVariableOfTypeMacro)
+          .calculateLookups(Array(str), showOne = true)
+          .map(_.getObject)
+          .collectFirst {
+            case typed: ScTypedDefinition if typed.name == second => typed
+          }.flatMap(_.`type`().toOption)
+          .collect {
+            case ParameterizedType(_, typeArgs) => typeArgs.head
+            case JavaArrayType(argument) => argument
+          }
+      }
+
+      tried match {
+        case Success(Some(scType)) => Some(scType)
+        case _ => None
+      }
+    case _ => None
+  }
+
 }

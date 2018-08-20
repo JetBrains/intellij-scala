@@ -5,40 +5,43 @@ package macros
 
 import com.intellij.codeInsight.lookup.LookupElement
 import com.intellij.codeInsight.template._
-import org.jetbrains.plugins.scala.codeInsight.template.util.MacroUtil
 import org.jetbrains.plugins.scala.lang.completion.lookups.ScalaLookupItem
 import org.jetbrains.plugins.scala.lang.psi.api.toplevel.typedef.ScTypeDefinition
+import org.jetbrains.plugins.scala.lang.psi.types.api.ExtractClass
 
 /**
- * @author Roman.Shein
- * @since 23.09.2015.
- */
+  * @author Roman.Shein
+  * @since 23.09.2015.
+  */
 class ScalaComponentTypeOfMacro extends ScalaMacro("macro.component.type.of.array") {
 
-  override def calculateResult(params: Array[Expression], context: ExpressionContext): Result = {
-    if (params.length != 1) return null
-    params.head.calculateResult(context) match {
-      case scTypeRes: ScalaTypeResult =>
-        MacroUtil.getComponentFromArrayType(scTypeRes.myType).map(new ScalaTypeResult(_)).orNull
-      case otherRes: Result =>
-        MacroUtil.resultToScExpr(otherRes, context).flatMap(_.`type`().toOption).
-                flatMap(MacroUtil.getComponentFromArrayType).map(new ScalaTypeResult(_)).orNull
-    }
+  override def calculateResult(params: Array[Expression], context: ExpressionContext): Result = params match {
+    case Array(head) =>
+      val maybeType = head.calculateResult(context) match {
+        case scTypeRes: ScalaTypeResult => Some(scTypeRes.myType)
+        case otherRes: Result =>
+          resultToScExpr(otherRes)(context)
+      }
+
+      maybeType.flatMap(arrayComponent)
+        .map(new ScalaTypeResult(_))
+        .orNull
+    case _ => null
   }
 
-  override def calculateLookupItems(params: Array[Expression], context: ExpressionContext): Array[LookupElement] = {
-    if (params.length != 1) return null
-    val outerItems = params(0).calculateLookupItems(context)
-    if (outerItems == null) return null
-
-    outerItems.flatMap {
-      case lookupItem: ScalaLookupItem => lookupItem.element match {
-        case typeDef: ScTypeDefinition =>
-          typeDef.`type`().toOption.flatMap(MacroUtil.getComponentFromArrayType).
-                  map(MacroUtil.getTypeLookupItem(_, context.getProject))
-        case _ => None
+  override def calculateLookupItems(params: Array[Expression], context: ExpressionContext): Array[LookupElement] = params match {
+    case Array(head) =>
+      head.calculateLookupItems(context) match {
+        case null => null
+        case outerItems =>
+          outerItems.collect {
+            case ScalaLookupItem(typeDefinition: ScTypeDefinition) => typeDefinition
+          }.flatMap(_.`type`().toOption)
+            .flatMap(arrayComponent)
+            .collect {
+              case ExtractClass(typeDefinition: ScTypeDefinition) => createLookupItem(typeDefinition)
+            }
       }
-      case _ => None
-    }.filter(_.isDefined).map(_.get)
+    case _ => null
   }
 }

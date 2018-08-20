@@ -6,100 +6,96 @@ package macros
 import com.intellij.codeInsight.CodeInsightBundle
 import com.intellij.codeInsight.lookup.{LookupElement, LookupElementBuilder}
 import com.intellij.codeInsight.template._
-import com.intellij.openapi.project.Project
+import com.intellij.codeInsight.template.impl.TextExpression
 import com.intellij.psi.util.PsiTreeUtil
-import com.intellij.psi.{PsiClass, PsiDocumentManager}
-import org.jetbrains.plugins.scala.codeInsight.template.util.MacroUtil
+import com.intellij.psi.{PsiClass, PsiElement, ResolveState}
+import org.jetbrains.plugins.scala.codeInsight.template.util.VariablesCompletionProcessor
 import org.jetbrains.plugins.scala.extensions._
-import org.jetbrains.plugins.scala.lang.psi.api.ScalaFile
-import org.jetbrains.plugins.scala.lang.psi.api.toplevel.ScTypedDefinition
 import org.jetbrains.plugins.scala.lang.psi.api.toplevel.typedef.ScTypeDefinition
+import org.jetbrains.plugins.scala.lang.psi.types.result.Typeable
 import org.jetbrains.plugins.scala.lang.psi.types.{ScType, ScTypeExt}
-import org.jetbrains.plugins.scala.lang.resolve.ScalaResolveResult
-
-import _root_.scala.collection.mutable.ArrayBuffer
+import org.jetbrains.plugins.scala.lang.resolve.{ScalaResolveResult, StdKinds}
 
 /**
- * User: Alexander Podkhalyuzin
- * Date: 30.01.2009
- */
+  * User: Alexander Podkhalyuzin
+  * Date: 30.01.2009
+  */
 
 /**
- * This class provides macros for live templates. Return elements
- * of given class type (or class types).
- */
-class ScalaVariableOfTypeMacro extends ScalaVariableOfTypeMacroBase("macro.variable.of.type")
+  * This class provides macros for live templates. Return elements
+  * of given class type (or class types).
+  */
+class ScalaVariableOfTypeMacro extends ScalaVariableOfTypeMacroBase("macro.variable.of.type") {
+
+  override def arrayIsValid(array: Array[_]): Boolean = array.nonEmpty
+}
+
+/**
+  * @author Roman.Shein
+  * @since 24.09.2015.
+  */
+class ScalaArrayVariableMacro extends ScalaVariableOfTypeMacroBase("macro.array.variable") {
+
+  private val expressions = Array("scala.Array")
+
+  override protected def typeText(expressions: Array[String], `type`: ScType): Option[String] =
+    super.typeText(this.expressions, `type`)
+
+  override protected def typeText(expressions: Array[Expression], `type`: ScType)
+                                 (implicit context: ExpressionContext): Boolean =
+    super.typeText(this.expressions.map(new TextExpression(_)), `type`)
+}
+
+/**
+  * @author Roman.Shein
+  * @since 24.09.2015.
+  */
+class ScalaIterableVariableMacro extends ScalaVariableOfTypeMacroBase("macro.iterable.variable") {
+
+  private val expressions = Array(ScalaVariableOfTypeMacroBase.IterableId)
+
+  override protected def typeText(expressions: Array[String], `type`: ScType): Option[String] =
+    super.typeText(this.expressions, `type`)
+
+  override protected def typeText(expressions: Array[Expression], `type`: ScType)
+                                 (implicit context: ExpressionContext): Boolean =
+    super.typeText(this.expressions.map(new TextExpression(_)), `type`)
+}
 
 abstract class ScalaVariableOfTypeMacroBase(nameKey: String) extends ScalaMacro(nameKey) {
 
-  override def calculateLookupItems(exprs: Array[Expression], context: ExpressionContext): Array[LookupElement] =
-    calculateLookupItems(exprs.map(_.calculateResult(context).toString), context, showOne = false)
+  import ScalaVariableOfTypeMacroBase._
 
-  def calculateLookupItems(exprs: Array[String], context: ExpressionContext, showOne: Boolean): Array[LookupElement] = {
-    if (!arrayIsValid(exprs)) return null
-    val offset = context.getStartOffset
-    val editor = context.getEditor
-    val array = new ArrayBuffer[LookupElement]
-    val file = PsiDocumentManager.getInstance(editor.getProject).getPsiFile(editor.getDocument)
-    PsiDocumentManager.getInstance(editor.getProject).commitDocument(editor.getDocument)
-    file match {
-      case file: ScalaFile =>
-        val element = file.findElementAt(offset)
-        val variants = MacroUtil.getVariablesForScope(element).filter(r => {
-          val clazz = PsiTreeUtil.getParentOfType(r.element, classOf[PsiClass])
-          if (clazz == null) true
-          else {
-            clazz.qualifiedName match {
-              case "scala.Predef" => false
-              case "scala" => false
-              case _ => true
-            }
-          }
-        })
-        for (variant <- variants) {
-          variant.getElement match {
-            case typed: ScTypedDefinition =>
-              for (t <- typed.`type`())
-                addLookupItems(exprs, context, variant, t, file.getProject, array)
-            case _ =>
-          }
-        }
-      case _ =>
-    }
-    if (array.length < 2 && !showOne) return null
-    array.toArray
+  override def calculateLookupItems(expressions: Array[Expression], context: ExpressionContext): Array[LookupElement] = expressions match {
+    case _ if arrayIsValid(expressions) =>
+      implicit val c: ExpressionContext = context
+      calculateLookups(expressions.map(calculate))
+    case _ => null
   }
 
-  def calculateResult(exprs: Array[Expression], context: ExpressionContext): Result = {
-    if (!arrayIsValid(exprs)) return null
-    val offset = context.getStartOffset
-    val editor = context.getEditor
-    val file = PsiDocumentManager.getInstance(editor.getProject).getPsiFile(editor.getDocument)
-    PsiDocumentManager.getInstance(editor.getProject).commitDocument(editor.getDocument)
-    file match {
-      case file: ScalaFile =>
-        val element = file.findElementAt(offset)
-        val variants = MacroUtil.getVariablesForScope(element).filter(r => {
-          val clazz = PsiTreeUtil.getParentOfType(r.element, classOf[PsiClass])
-          if (clazz == null) true
-          else {
-            clazz.qualifiedName match {
-              case "scala.Predef" => false
-              case "scala" => false
-              case _ => true
-            }
-          }
-        })
-        for (variant <- variants) {
-          variant.getElement match {
-            case typed: ScTypedDefinition =>
-              for (t <- typed.`type`())
-                getResult(exprs, context, variant, t, file.getProject).map(return _)
-            case _ =>
-          }
-        }
-        null
-      case _ => null
+  def calculateResult(expressions: Array[Expression], context: ExpressionContext): Result = expressions match {
+    case _ if arrayIsValid(expressions) =>
+      implicit val c: ExpressionContext = context
+      val maybeResult = findDefinitions.collectFirst {
+        case (typed, scType) if typeText(expressions, scType) => new TextResult(typed.name)
+      }
+
+      maybeResult.orNull
+    case _ => null
+  }
+
+  def calculateLookups(expressions: Array[String],
+                       showOne: Boolean = false)
+                      (implicit context: ExpressionContext): Array[LookupElement] = {
+    val elements = for {
+      (typed, scType) <- findDefinitions
+      typeText <- this.typeText(expressions, scType)
+    } yield LookupElementBuilder.create(typed, typed.name)
+      .withTypeText(typeText)
+
+    elements match {
+      case Nil | _ :: Nil if !showOne => null
+      case _ => elements.toArray
     }
   }
 
@@ -109,61 +105,64 @@ abstract class ScalaVariableOfTypeMacroBase(nameKey: String) extends ScalaMacro(
 
   override def getDefaultValue: String = "x"
 
-  def arrayIsValid(array: Array[_]): Boolean = array.nonEmpty
+  def arrayIsValid(array: Array[_]): Boolean = array.isEmpty
 
-  def getResult(exprs: Array[Expression],
-                context: ExpressionContext,
-                variant: ScalaResolveResult,
-                scType: ScType,
-                project: Project): Option[Result] = {
-    exprs.apply(0).calculateResult(context).toString match {
-      case "" =>
-        Some(new TextResult(variant.getElement.name))
-      case ScalaVariableOfTypeMacro.iterableId =>
-        if (scType.canonicalText.startsWith("_root_.scala.Array")) Some(new TextResult(variant.getElement.name))
-        else scType.extractClass.collect {
-          case x: ScTypeDefinition if x.functionsByName("foreach").nonEmpty => new TextResult(variant.getElement.name)
-        }
-      case _ =>
-        val qualName = scType.extractClass match {
-          case Some(x) => x.qualifiedName
-          case None => ""
-        }
-        exprs.find(expr => qualName == expr.calculateResult(context).toString)
-          .map(_ => new TextResult(variant.getElement.name))
-    }
-  }
+  protected def typeText(expressions: Array[Expression], `type`: ScType)
+                        (implicit context: ExpressionContext): Boolean =
+    typeText(
+      expressions.map(calculate),
+      `type`
+    ).isDefined
 
-  def addLookupItems(exprs: Array[String],
-                     context: ExpressionContext,
-                     variant: ScalaResolveResult,
-                     scType: ScType,
-                     project: Project,
-                     array: ArrayBuffer[LookupElement]) {
-    exprs.apply(0) match {
-      case "" =>
-        val item = LookupElementBuilder.create(variant.getElement, variant.getElement.name).
-          withTypeText(scType.presentableText)
-        array += item
-      case ScalaVariableOfTypeMacro.iterableId if scType.canonicalText.startsWith("_root_.scala.Array") =>
-        array += LookupElementBuilder.create(variant.getElement, variant.getElement.name)
-      case ScalaVariableOfTypeMacro.iterableId =>
-        scType.extractClass match {
-          case Some(x: ScTypeDefinition) if x.functionsByName("foreach").nonEmpty =>
-              array += LookupElementBuilder.create(variant.getElement, variant.getElement.name)
-          case _ =>
-        }
-      case  _ =>
-        for (expr <- exprs) {
-          if ((scType.extractClass match {
-            case Some(x) => x.qualifiedName
-            case None => ""
-          }) == expr) array += LookupElementBuilder.create(variant.getElement, variant.getElement.name)
-        }
-    }
+  protected def typeText(expressions: Array[String], `type`: ScType): Option[String] = expressions match {
+    case Array("", _*) => Some(`type`.presentableText)
+    case Array(IterableId, _*) =>
+      val flag = `type`.canonicalText.startsWith("_root_.scala.Array") ||
+        isIterable(`type`)
+
+      if (flag) Some(null) else None
+    case array if array.contains(`type`.extractClass.fold("")(_.qualifiedName)) =>
+      Some(null)
+    case _ => None
   }
 }
 
-object ScalaVariableOfTypeMacro {
-  val iterableId = "foreach"
+object ScalaVariableOfTypeMacroBase {
+
+  val IterableId = "foreach"
+
+  private[macros] def isIterable(`type`: ScType) = `type`.extractClass.exists {
+    case definition: ScTypeDefinition => definition.functionsByName(IterableId).nonEmpty
+    case _ => false
+  }
+
+  private def findDefinitions(implicit context: ExpressionContext) = findElementAtOffset match {
+    case Some(element) =>
+      variablesForScope(element).collect {
+        case ScalaResolveResult(definition: ScTypeDefinition, _) if isFromScala(definition) => definition
+      }.collect {
+        case definition@Typeable(scType) => (definition, scType)
+      }
+    case _ => Nil
+  }
+
+  /**
+    * @param element from which position we look at locals
+    * @return visible variables and values from element position
+    */
+  private[this] def variablesForScope(element: PsiElement) = {
+    val processor = new VariablesCompletionProcessor(StdKinds.valuesRef)(element)
+    PsiTreeUtil.treeWalkUp(processor, element, null, ResolveState.initial)
+    processor.candidates.toList
+  }
+
+  private[this] def isFromScala(definition: ScTypeDefinition) =
+    PsiTreeUtil.getParentOfType(definition, classOf[PsiClass]) match {
+      case ClassQualifiedName("scala.Predef" | "scala") => false
+      case _ => true
+    }
+
+  private[macros] def calculate(expression: Expression)
+                               (implicit context: ExpressionContext): String =
+    expression.calculateResult(context).toString
 }
