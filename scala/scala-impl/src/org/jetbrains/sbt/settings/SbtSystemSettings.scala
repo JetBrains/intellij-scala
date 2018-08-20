@@ -101,7 +101,6 @@ class SbtSystemSettingsState extends AbstractExternalSystemSettings.State[SbtPro
     linkedProjectSettings
 
   def setLinkedExternalProjectsSettings(settings: util.Set[SbtProjectSettings]): Unit = {
-    linkedProjectSettings.clear()
     linkedProjectSettings.addAll(settings)
   }
 }
