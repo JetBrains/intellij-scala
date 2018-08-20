@@ -34,8 +34,8 @@ class ConvertibleToMethodValueInspection extends AbstractInspection(inspectionNa
 
   override def actionFor(implicit holder: ProblemsHolder): PartialFunction[PsiElement, Any] = {
     case MethodRepr(_, _, Some(ref), _)
-      if ref.bind().exists(srr => srr.implicitType.nonEmpty || srr.implicitFunction.nonEmpty || hasByNameParam(srr.getElement)) =>
-      //do nothing if implicit conversions or by-name params are involved
+      if ref.bind().exists(srr => srr.implicitType.nonEmpty || srr.implicitFunction.nonEmpty || hasByNameOrImplicitParam(srr.getElement)) =>
+      //do nothing if implicits or by-name params are involved
     case MethodRepr(expr, qualOpt, Some(_), args) =>
       if (allArgsUnderscores(args) && qualOpt.forall(onlyStableValuesUsed))
         registerProblem(holder, expr, InspectionBundle.message("convertible.to.method.value.anonymous.hint"))
@@ -43,7 +43,7 @@ class ConvertibleToMethodValueInspection extends AbstractInspection(inspectionNa
       val isInParameterOfParameterizedClass = und.parentOfType(classOf[ScClassParameter])
         .exists(_.containingClass.hasTypeParameters)
       def mayReplace() = und.bindingExpr.get match {
-        case ResolvesTo(fun) if hasByNameParam(fun) => false
+        case ResolvesTo(fun) if hasByNameOrImplicitParam(fun) => false
         case ScReferenceExpression.withQualifier(qual) => onlyStableValuesUsed(qual)
         case _ => true
       }
@@ -116,9 +116,9 @@ class ConvertibleToMethodValueInspection extends AbstractInspection(inspectionNa
     withoutArguments ++ withUnderscore
   }
 
-  private def hasByNameParam(elem: PsiElement): Boolean = {
+  private def hasByNameOrImplicitParam(elem: PsiElement): Boolean = {
     elem match {
-      case fun: ScMethodLike => fun.parameterList.params.exists(_.isCallByNameParameter)
+      case fun: ScMethodLike => fun.parameterList.params.exists(p => p.isCallByNameParameter || p.isImplicitParameter)
       case _ => false
     }
   }
