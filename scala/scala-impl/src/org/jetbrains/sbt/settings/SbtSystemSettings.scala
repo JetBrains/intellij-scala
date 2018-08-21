@@ -28,7 +28,7 @@ import scala.beans.BeanProperty
 )
 class SbtSystemSettings(project: Project)
   extends AbstractExternalSystemSettings[SbtSystemSettings, SbtProjectSettings, SbtProjectSettingsListener](SbtTopic, project)
-  with PersistentStateComponent[SbtSystemSettingsState]{
+  with PersistentStateComponent[SbtSystemSettingsState] {
 
   override def getState: SbtSystemSettingsState = {
     val state = new SbtSystemSettingsState
@@ -39,12 +39,12 @@ class SbtSystemSettings(project: Project)
     super[AbstractExternalSystemSettings].loadState(state)
   }
 
-  def subscribe(listener: ExternalSystemSettingsListener[SbtProjectSettings]) {
+  override def subscribe(listener: ExternalSystemSettingsListener[SbtProjectSettings]) {
     val adapter = new SbtProjectSettingsListenerAdapter(listener)
     getProject.getMessageBus.connect(getProject).subscribe(SbtTopic, adapter)
   }
 
-  def copyExtraSettingsFrom(settings: SbtSystemSettings) {}
+  override def copyExtraSettingsFrom(settings: SbtSystemSettings) {}
 
   def getLinkedProjectSettings(module: Module): Option[SbtProjectSettings] =
     Option(ExternalSystemApiUtil.getExternalRootProjectPath(module)).safeMap(getLinkedProjectSettings)
@@ -97,10 +97,10 @@ class SbtSystemSettingsState extends AbstractExternalSystemSettings.State[SbtPro
   var customSbtStructurePath: String = ""
 
   @XCollection(style = XCollection.Style.v1, elementTypes = Array(classOf[SbtProjectSettings]))
-  def getLinkedExternalProjectsSettings: util.Set[SbtProjectSettings] =
+  override def getLinkedExternalProjectsSettings: util.Set[SbtProjectSettings] =
     linkedProjectSettings
 
-  def setLinkedExternalProjectsSettings(settings: util.Set[SbtProjectSettings]): Unit = {
+  override def setLinkedExternalProjectsSettings(settings: util.Set[SbtProjectSettings]): Unit = {
     linkedProjectSettings.addAll(settings)
   }
 }
