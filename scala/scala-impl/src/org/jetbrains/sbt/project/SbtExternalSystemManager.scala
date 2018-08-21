@@ -23,7 +23,7 @@ import com.intellij.util.net.HttpConfigurable
 import org.jetbrains.android.sdk.AndroidSdkType
 import org.jetbrains.jps.model.java.JdkVersionDetector
 import org.jetbrains.sbt.project.settings._
-import org.jetbrains.sbt.settings.{SbtExternalSystemConfigurable, SbtSettings, SbtSystemSettingsState}
+import org.jetbrains.sbt.settings.{SbtExternalSystemConfigurable, SbtSettings}
 
 import scala.collection.JavaConverters._
 
@@ -107,7 +107,7 @@ object SbtExternalSystemManager {
     jdkInProject.orElse(jdkInImportSettings)
   }
 
-  private def getVmExecutable(projectJdkName: Option[String], settings: SbtSystemSettingsState): File =
+  private def getVmExecutable(projectJdkName: Option[String], settings: SbtSettings.State): File =
       if (!ApplicationManager.getApplication.isUnitTestMode)
         getRealVmExecutable(projectJdkName, settings)
       else
@@ -120,7 +120,7 @@ object SbtExternalSystemManager {
     new File(sdkType.getVMExecutablePath(sdk))
   }
 
-  private def getRealVmExecutable(projectJdkName: Option[String], settings: SbtSystemSettingsState): File = {
+  private def getRealVmExecutable(projectJdkName: Option[String], settings: SbtSettings.State): File = {
 
     val customPath = settings.getCustomVMPath
     val customVmExecutable =
@@ -174,7 +174,7 @@ object SbtExternalSystemManager {
         }
       }.getOrElse(Map.empty)
 
-  private def getVmOptions(settings: SbtSystemSettingsState, jreHome: Option[File]): Seq[String] = {
+  private def getVmOptions(settings: SbtSettings.State, jreHome: Option[File]): Seq[String] = {
     import DefaultOptions._
     val userOptions = settings.getVmParameters.split("\\s+").toSeq.filter(_.nonEmpty)
     val ideaProxyOptions = proxyOptions { optName => !userOptions.exists(_.startsWith(optName)) }
