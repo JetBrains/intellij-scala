@@ -246,6 +246,22 @@ class ImplicitParametersAnnotatorTest extends ImplicitParametersAnnotatorTestBas
     assertMessages(bothAbstract.get)(error)
     assertMessages(implicitAbstract.get)(error)
   }
+
+  def testRecursiveFunctionSeveralImplicits(): Unit = {
+    val text =
+      """
+        |object Bug {
+        |  trait Monad[F[_]]
+        |  trait Console[F[_]]
+        |  trait Random[F[_]]
+        |
+        |  def gameLoop[F[_]](implicit m: Monad[F], c: Console[F], r: Random[F]): F[Unit] = gameLoop
+        |
+        |  def gameLoop2[F[_]: Monad : Console : Random]: F[Unit] = gameLoop2
+        |}
+      """.stripMargin
+    assertNothing(messages(text))
+  }
 }
 
 //annotator tests doesn't have scala library, so it's not possible to use FunctionType, for example
