@@ -114,10 +114,9 @@ object InferUtil {
           i += 1
           resInner match {
             case t@ScTypePolymorphicType(ScMethodType(retTypeSingle, paramsSingle, _), typeParamsSingle) =>
-              val polymorphicSubst = t.polymorphicTypeSubstitutor
               val abstractSubstitutor: ScSubstitutor = t.abstractOrLowerTypeSubstitutor
               val (paramsForInfer, exprs, resolveResults) =
-                findImplicits(paramsSingle, coreElement, element, canThrowSCE, searchImplicitsRecursively, abstractSubstitutor, polymorphicSubst)
+                findImplicits(paramsSingle, coreElement, element, canThrowSCE, searchImplicitsRecursively, abstractSubstitutor)
               resInner = localTypeInference(retTypeSingle, paramsForInfer, exprs, typeParamsSingle,
                 canThrowSCE = canThrowSCE || fullInfo)
               paramsForInferBuffer ++= paramsForInfer
@@ -166,8 +165,7 @@ object InferUtil {
 
   def findImplicits(params: Seq[Parameter], coreElement: Option[ScNamedElement], place: PsiElement,
                     canThrowSCE: Boolean, searchImplicitsRecursively: Int = 0,
-                    abstractSubstitutor: ScSubstitutor = ScSubstitutor.empty,
-                    polymorphicSubst: ScSubstitutor = ScSubstitutor.empty
+                    abstractSubstitutor: ScSubstitutor = ScSubstitutor.empty
                    ): (Seq[Parameter], Seq[Compatibility.Expression], Seq[ScalaResolveResult]) = {
 
     implicit val project = place.getProject
@@ -190,13 +188,12 @@ object InferUtil {
         def updateExpr(): Unit = {
           val maybeType = results.headOption
             .flatMap(extractImplicitParameterType)
-            .map(polymorphicSubst.subst)
 
           exprs ++= maybeType.map(new Expression(_))
         }
         val evaluator = ScalaMacroEvaluator.getInstance(project)
         evaluator.checkMacro(results.head.getElement, MacroContext(place, Some(paramType))) match {
-          case Some(tp) => exprs += new Expression(polymorphicSubst subst tp)
+          case Some(tp) => exprs += new Expression(tp)
           case None => updateExpr()
         }
         paramsForInfer += param
