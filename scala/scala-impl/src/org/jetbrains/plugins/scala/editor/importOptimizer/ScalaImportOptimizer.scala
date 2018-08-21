@@ -347,10 +347,21 @@ object ScalaImportOptimizer {
   }
 
   class ImportTextCreator {
-    def getImportText(importInfo: ImportInfo,
-                      isUnicodeArrow: Boolean,
-                      spacesInImports: Boolean,
-                      nameOrdering: Option[Ordering[String]]): String = {
+
+    private case class ImportTextData(prefix: String, dotOrNot: String, postfix: String) {
+      def fullText: String = s"import $prefix$dotOrNot$postfix"
+
+      //see ScalastyleSettings.compareImports
+      def forScalastyleSorting: String = {
+        if (postfix.startsWith("{")) prefix + dotOrNot
+        else prefix + dotOrNot + postfix
+      }
+    }
+
+    private def getImportTextData(importInfo: ImportInfo,
+                                  isUnicodeArrow: Boolean,
+                                  spacesInImports: Boolean,
+                                  nameOrdering: Option[Ordering[String]]): ImportTextData = {
       import importInfo._
 
       val groupStrings = new ArrayBuffer[String]
@@ -373,8 +384,17 @@ object ScalaImportOptimizer {
         else groupStrings.head
       val prefix = s"$root${relative.getOrElse(prefixQualifier)}"
       val dotOrNot = if (prefix.endsWith(".") || prefix.isEmpty) "" else "."
-      s"import $prefix$dotOrNot$postfix"
+      ImportTextData(prefix, dotOrNot, postfix)
     }
+
+    def getImportText(importInfo: ImportInfo,
+                      isUnicodeArrow: Boolean,
+                      spacesInImports: Boolean,
+                      nameOrdering: Option[Ordering[String]]): String =
+      getImportTextData(importInfo, isUnicodeArrow, spacesInImports, nameOrdering).fullText
+
+    def getScalastyleSortableText(importInfo: ImportInfo): String =
+      getImportTextData(importInfo, isUnicodeArrow = false, spacesInImports = false, nameOrdering = None).forScalastyleSorting
 
     def getImportText(importInfo: ImportInfo, settings: OptimizeImportSettings): String = {
       val ordering =
@@ -727,23 +747,26 @@ object ScalaImportOptimizer {
         }
   }
 
-  def greater(lPrefix: String, rPrefix: String, lText: String, rText: String, settings: OptimizeImportSettings): Boolean = {
-    val lIndex = findGroupIndex(lPrefix, settings)
-    val rIndex = findGroupIndex(rPrefix, settings)
-    if (lIndex > rIndex) true
-    else if (rIndex > lIndex) false
-    else if (settings.scalastyleOrder)
-      ScalastyleSettings.compareImports(lPrefix, rPrefix) > 0
-    else lText > rText
-  }
-
   def greater(lInfo: ImportInfo, rInfo: ImportInfo, settings: OptimizeImportSettings): Boolean = {
     val textCreator = new ImportTextCreator
+
     val lPrefix: String = lInfo.prefixQualifier
     val rPrefix: String = rInfo.prefixQualifier
-    val lText = textCreator.getImportText(lInfo, settings)
-    val rText = textCreator.getImportText(rInfo, settings)
-    ScalaImportOptimizer.greater(lPrefix, rPrefix, lText, rText, settings)
+    val lIndex = findGroupIndex(lPrefix, settings)
+    val rIndex = findGroupIndex(rPrefix, settings)
+
+    if (lIndex > rIndex) true
+    else if (rIndex > lIndex) false
+    else if (settings.scalastyleOrder) {
+      val lText = textCreator.getScalastyleSortableText(lInfo)
+      val rText = textCreator.getScalastyleSortableText(rInfo)
+      ScalastyleSettings.compareImports(lText, rText) > 0
+    }
+    else {
+      val lText = textCreator.getImportText(lInfo, settings)
+      val rText = textCreator.getImportText(rInfo, settings)
+      lText > rText
+    }
   }
 
   private def collectImportsUsed(element: PsiElement, imports: util.Set[ImportUsed], names: util.Set[UsedName]): Unit = {
