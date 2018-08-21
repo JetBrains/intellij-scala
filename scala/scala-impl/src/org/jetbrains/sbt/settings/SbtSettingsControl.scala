@@ -5,7 +5,7 @@ import com.intellij.openapi.externalSystem.util.{ExternalSystemSettingsControl, 
 /**
  * @author Pavel Fatin
  */
-class SbtSystemSettingsControl(settings: SbtSettings) extends ExternalSystemSettingsControl[SbtSettings] {
+class SbtSettingsControl(settings: SbtSettings) extends ExternalSystemSettingsControl[SbtSettings] {
 
   private val pane = new SbtSettingsPane(settings.getProject)
 

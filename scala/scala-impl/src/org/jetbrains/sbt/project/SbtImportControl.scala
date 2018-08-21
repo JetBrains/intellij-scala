@@ -5,7 +5,7 @@ import com.intellij.openapi.externalSystem.service.settings.AbstractImportFromEx
 import com.intellij.openapi.fileChooser.FileChooserDescriptor
 import com.intellij.openapi.project.ProjectManager
 import org.jetbrains.sbt.project.settings._
-import org.jetbrains.sbt.settings.{SbtSettings, SbtSystemSettingsControl}
+import org.jetbrains.sbt.settings.{SbtSettings, SbtSettingsControl}
 
 /**
  * @author Pavel Fatin
@@ -19,5 +19,5 @@ class SbtImportControl extends AbstractImportFromExternalSystemControl[SbtProjec
 
   def createProjectSettingsControl(settings: SbtProjectSettings) = new SbtProjectSettingsControl(Context.Wizard, settings)
 
-  def createSystemSettingsControl(settings: SbtSettings) = new SbtSystemSettingsControl(settings)
+  def createSystemSettingsControl(settings: SbtSettings) = new SbtSettingsControl(settings)
 }

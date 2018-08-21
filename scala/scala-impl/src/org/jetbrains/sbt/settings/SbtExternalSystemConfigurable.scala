@@ -15,7 +15,7 @@ class SbtExternalSystemConfigurable(project: Project)
 
   override def createProjectSettingsControl(settings: SbtProjectSettings): SbtProjectSettingsControl = new SbtProjectSettingsControl(Configuration, settings)
 
-  override def createSystemSettingsControl(settings: SbtSettings): SbtSystemSettingsControl = new SbtSystemSettingsControl(settings)
+  override def createSystemSettingsControl(settings: SbtSettings): SbtSettingsControl = new SbtSettingsControl(settings)
 
   override def newProjectSettings(): SbtProjectSettings = new SbtProjectSettings()
 
