@@ -135,8 +135,8 @@ object ExhaustiveMatchCompletionContributor {
       val patterns = strategy.patterns
 
       ClausesInsertHandler.replaceTextPhase {
-        patterns.map { pattern =>
-          s"$CASE $pattern ${ScalaPsiUtil.functionArrow}"
+        patterns.map(_.text).map { patternText =>
+          s"$CASE $patternText ${ScalaPsiUtil.functionArrow}"
         }.mkString(s"$MATCH {\n", "\n", "\n}")
       }
 

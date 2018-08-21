@@ -7,7 +7,6 @@ import com.intellij.codeInsight.completion.{InsertHandler, InsertionContext}
 import com.intellij.codeInsight.lookup.LookupElement
 import com.intellij.psi.codeStyle.CodeStyleManager
 import com.intellij.psi.util.PsiTreeUtil
-import org.jetbrains.plugins.scala.extensions._
 import org.jetbrains.plugins.scala.lang.psi.api.base.ScStableCodeReferenceElement
 import org.jetbrains.plugins.scala.lang.psi.api.base.patterns._
 import org.jetbrains.plugins.scala.lang.psi.api.base.types.{ScParameterizedTypeElement, ScSimpleTypeElement, ScTypeElement}
@@ -31,10 +30,7 @@ private[clauses] abstract class ClausesInsertHandler[E <: ScalaPsiElement](clazz
     val elementAtOffset = insertionContext.getFile.findElementAt(insertionContext.getStartOffset)
     PsiTreeUtil.getContextOfType(elementAtOffset, false, clazz) match {
       case null => null
-      case targetElement =>
-        inWriteCommandAction {
-          onElement(targetElement)
-        }(insertionContext.getProject)
+      case targetElement => onElement(targetElement)
     }
   }
 

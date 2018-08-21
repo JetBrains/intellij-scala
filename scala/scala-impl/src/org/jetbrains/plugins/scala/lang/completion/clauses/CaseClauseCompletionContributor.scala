@@ -100,7 +100,7 @@ object CaseClauseCompletionContributor {
   private def createInsertHandler(components: ExtractorPatternComponents[_]) = new ClausesInsertHandler(classOf[ScParenthesisedPattern]) {
 
     override def handleInsert(implicit insertionContext: InsertionContext): Unit = {
-      ClausesInsertHandler.replaceTextPhase(s"($components)")
+      ClausesInsertHandler.replaceTextPhase(components.text.parenthesize())
 
       onTargetElement { pattern =>
         adjustTypesPhase(false, (pattern, components))
