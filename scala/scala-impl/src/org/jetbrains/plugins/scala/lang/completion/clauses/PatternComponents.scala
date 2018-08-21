@@ -10,7 +10,9 @@ import org.jetbrains.plugins.scala.lang.psi.api.base.patterns.ScPattern
 import org.jetbrains.plugins.scala.lang.psi.api.toplevel.typedef.{ScClass, ScTypeDefinition}
 import org.jetbrains.plugins.scala.lang.psi.types.{ScType, ScalaTypePresentation}
 
-private[clauses] sealed trait PatternComponents
+private[clauses] sealed trait PatternComponents {
+  def text: String
+}
 
 private[clauses] class TypedPatternComponents(clazz: PsiClass,
                                               qualifiedName: String,
@@ -24,7 +26,7 @@ private[clauses] class TypedPatternComponents(clazz: PsiClass,
   def this(clazz: ScTypeDefinition) =
     this(clazz, clazz.qualifiedName, clazz.typeParameters.length)
 
-  override def toString: String = {
+  override def text: String = {
     val suffix = length match {
       case 0 => ""
       case _ => Seq.fill(length)(Placeholder).commaSeparated(Model.SquareBrackets)
@@ -81,11 +83,11 @@ private[clauses] class StablePatternComponents(clazz: PsiClass,
                                                name: String)
   extends TypedPatternComponents(clazz, qualifiedName) {
 
-  override def toString: String = s"${super.toString}.$name${ScalaTypePresentation.ObjectTypeSuffix}"
+  override def text: String = s"${super.text}.$name${ScalaTypePresentation.ObjectTypeSuffix}"
 }
 
 private[clauses] object WildcardPatternComponents
   extends PatternComponents {
 
-  override val toString: String = Placeholder
+  override val text: String = Placeholder
 }
