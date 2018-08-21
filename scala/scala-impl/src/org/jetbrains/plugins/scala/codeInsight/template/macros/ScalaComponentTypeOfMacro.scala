@@ -18,13 +18,12 @@ class ScalaComponentTypeOfMacro extends ScalaMacro("macro.component.type.of.arra
   override def calculateResult(params: Array[Expression], context: ExpressionContext): Result = params match {
     case Array(head) =>
       val maybeType = head.calculateResult(context) match {
-        case scTypeRes: ScalaTypeResult => Some(scTypeRes.myType)
-        case otherRes: Result =>
-          resultToScExpr(otherRes)(context)
+        case ScalaTypeResult(scType) => Some(scType)
+        case result => resultToScExpr(result)(context)
       }
 
       maybeType.flatMap(arrayComponent)
-        .map(new ScalaTypeResult(_))
+        .map(ScalaTypeResult)
         .orNull
     case _ => null
   }

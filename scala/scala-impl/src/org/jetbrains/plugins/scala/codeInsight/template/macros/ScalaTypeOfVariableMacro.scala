@@ -11,14 +11,15 @@ import com.intellij.codeInsight.template._
  */
 class ScalaTypeOfVariableMacro extends ScalaMacro("macro.variable.of.type") {
 
-  override def calculateResult(params: Array[Expression], context: ExpressionContext): Result = params.headOption.map {
-    _.calculateResult(context)
-  }.flatMap {
-    resultToScExpr(_)(context)
-  }.map(new ScalaTypeResult(_))
-    .orNull
+  override def calculateResult(params: Array[Expression], context: ExpressionContext): Result =
+    params.headOption
+      .map(_.calculateResult(context))
+      .flatMap(resultToScExpr(_)(context))
+      .map(ScalaTypeResult)
+      .orNull
 
-  override def calculateQuickResult(params: Array[Expression], context: ExpressionContext): Result = calculateResult(params, context)
+  override def calculateQuickResult(params: Array[Expression], context: ExpressionContext): Result =
+    calculateResult(params, context)
 
   override def getDefaultValue: String = ScalaMacro.DefaultValue.toUpperCase
 

@@ -8,7 +8,7 @@ import com.intellij.codeInsight.template._
 import com.intellij.psi.search.GlobalSearchScope
 import com.intellij.psi.search.searches.ClassInheritorsSearch
 import org.jetbrains.plugins.scala.lang.psi.api.toplevel.typedef.ScTypeDefinition
-import org.jetbrains.plugins.scala.lang.psi.types.ScTypeExt
+import org.jetbrains.plugins.scala.lang.psi.types.api.ExtractClass
 
 import scala.collection.JavaConverters
 
@@ -29,21 +29,17 @@ class ScalaSubtypesMacro extends ScalaMacro("macro.subtypes") {
 
   override def calculateLookupItems(expressions: Array[Expression], context: ExpressionContext): Array[LookupElement] =
     calculateResult(expressions, context) match {
-      case scTypeRes: ScalaTypeResult =>
-        scTypeRes.myType.extractClass match {
-          case Some(typeDefinition: ScTypeDefinition) =>
-            import JavaConverters._
-            val inheritors = ClassInheritorsSearch.search(
-              typeDefinition,
-              GlobalSearchScope.projectScope(context.getProject),
-              true
-            ).findAll().asScala
+      case ScalaTypeResult(ExtractClass(typeDefinition: ScTypeDefinition)) =>
+        import JavaConverters._
+        val inheritors = ClassInheritorsSearch.search(
+          typeDefinition,
+          GlobalSearchScope.projectScope(context.getProject),
+          true
+        ).findAll().asScala
 
-            inheritors.collect {
-              case definition: ScTypeDefinition => createLookupItem(definition)
-            }.toArray
-          case _ => LookupElement.EMPTY_ARRAY
-        }
+        inheritors.collect {
+          case definition: ScTypeDefinition => createLookupItem(definition)
+        }.toArray
       case _ => LookupElement.EMPTY_ARRAY
     }
 

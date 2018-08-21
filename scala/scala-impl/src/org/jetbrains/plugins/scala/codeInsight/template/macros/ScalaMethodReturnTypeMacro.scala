@@ -23,7 +23,7 @@ class ScalaMethodReturnTypeMacro extends ScalaMacro("macro.method.returnType") {
       map(_.`type`().getOrAny match {
               case FunctionType(rt, _) => rt
               case t => t
-            }).map(new ScalaTypeResult(_)).orNull
+      }).map(ScalaTypeResult).orNull
   }
 
   override def getDefaultValue: String = ScalaMacro.DefaultValue

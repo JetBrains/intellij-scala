@@ -1,4 +1,7 @@
-package org.jetbrains.plugins.scala.codeInsight.template.macros
+package org.jetbrains.plugins.scala
+package codeInsight
+package template
+package macros
 
 import com.intellij.codeInsight.template.Result
 import com.intellij.openapi.editor.Document
@@ -9,13 +12,16 @@ import org.jetbrains.plugins.scala.lang.psi.types.ScType
  * @author Roman.Shein
  * @since 22.09.2015.
  */
-class ScalaTypeResult(val myType: ScType) extends Result {
-  override def equalsToText(text: String, context: PsiElement): Boolean = {
-    //TODO maybe add a more meaningful implementation
+case class ScalaTypeResult(`type`: ScType) extends Result {
+
+  //TODO maybe add a more meaningful implementation
+  override def equalsToText(text: String, context: PsiElement): Boolean =
     text == toString
-  }
 
-  override def toString: String = myType.canonicalText
+  override def toString: String = `type`.canonicalText
 
-  override def handleFocused(psiFile: PsiFile, document: Document, segmentStart: Int, segmentEnd: Int): Unit = {}
+  override def handleFocused(psiFile: PsiFile,
+                             document: Document,
+                             segmentStart: Int,
+                             segmentEnd: Int): Unit = {}
 }

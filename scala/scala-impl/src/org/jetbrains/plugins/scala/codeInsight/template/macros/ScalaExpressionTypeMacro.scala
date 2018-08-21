@@ -14,7 +14,7 @@ class ScalaExpressionTypeMacro extends ScalaMacro("macro.expression.type") {
   override def calculateResult(params: Array[Expression], context: ExpressionContext): Result = params match {
     case Array(head) =>
       resultToScExpr(head.calculateResult(context))(context)
-        .map(myType => new ScalaTypeResult(myType))
+        .map(ScalaTypeResult)
         .orNull
     case _ => null
   }
