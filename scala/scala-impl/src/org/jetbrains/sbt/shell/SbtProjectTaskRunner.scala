@@ -30,7 +30,7 @@ import org.jetbrains.plugins.scala.extensions
 import org.jetbrains.sbt.SbtUtil
 import org.jetbrains.sbt.project.SbtProjectSystem
 import org.jetbrains.sbt.project.module.SbtModuleType
-import org.jetbrains.sbt.settings.SbtSystemSettings
+import org.jetbrains.sbt.settings.SbtSettings
 import org.jetbrains.sbt.shell.SbtShellCommunication._
 
 import scala.collection.JavaConverters._
@@ -48,7 +48,7 @@ class SbtProjectTaskRunner extends ProjectTaskRunner {
     case task: ModuleBuildTask =>
       val module = task.getModule
       val project = task.getModule.getProject
-      val projectSettings = SbtSystemSettings.getInstance(project).getLinkedProjectSettings(module)
+      val projectSettings = SbtSettings.getInstance(project).getLinkedProjectSettings(module)
 
       projectSettings.exists(_.useSbtShellForBuild) &&
       ES.isExternalSystemAwareModule(SbtProjectSystem.Id, module)

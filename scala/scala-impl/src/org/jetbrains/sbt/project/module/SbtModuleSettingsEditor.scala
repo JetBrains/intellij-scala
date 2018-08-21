@@ -15,7 +15,7 @@ import org.jetbrains.plugins.scala.util.JListCompatibility
 import org.jetbrains.plugins.scala.util.JListCompatibility.CollectionListModelWrapper
 import org.jetbrains.sbt.resolvers.indexes.ResolverIndex
 import org.jetbrains.sbt.resolvers.{SbtIndexesManager, SbtResolver}
-import org.jetbrains.sbt.settings.SbtSystemSettings
+import org.jetbrains.sbt.settings.SbtSettings
 
 import scala.collection.JavaConverters._
 
@@ -45,7 +45,7 @@ class SbtModuleSettingsEditor (state: ModuleConfigurationState) extends ModuleEl
   }
 
   override def reset(): Unit = {
-    val moduleSettings = SbtSystemSettings.getInstance(state.getProject).getLinkedProjectSettings(getModel.getModule)
+    val moduleSettings = SbtSettings.getInstance(state.getProject).getLinkedProjectSettings(getModel.getModule)
     myForm.sbtVersionTextField.setText(moduleSettings.map(_.sbtVersion).getOrElse(SbtBundle("sbt.settings.sbtVersionNotDetected")))
 
     modelWrapper.getModel.replaceAll(SbtModule.getImportsFrom(getModel.getModule).asJava)

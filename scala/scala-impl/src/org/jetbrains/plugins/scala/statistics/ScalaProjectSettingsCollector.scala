@@ -9,7 +9,7 @@ import org.jetbrains.plugins.scala.compiler.ScalaCompileServerSettings
 import org.jetbrains.plugins.scala.project.ProjectExt
 import org.jetbrains.plugins.scala.project.settings.ScalaCompilerConfiguration
 import org.jetbrains.plugins.scala.settings.ScalaProjectSettings
-import org.jetbrains.sbt.settings.SbtSystemSettings
+import org.jetbrains.sbt.settings.SbtSettings
 
 /**
   * Nikolay.Tropin
@@ -29,7 +29,7 @@ class ScalaProjectSettingsCollector extends AbstractProjectsUsagesCollector {
 
 
     val modules = project.modules
-    val sbtSettings = SbtSystemSettings.getInstance(project)
+    val sbtSettings = SbtSettings.getInstance(project)
     val sbtProjectSettings = modules.map(sbtSettings.getLinkedProjectSettings).flatten
     val compilerSettings = ScalaCompilerConfiguration.instanceIn(project)
     val projectSettings = ScalaProjectSettings.getInstance(project)

@@ -20,7 +20,7 @@ import org.jdom.Element
 import org.jetbrains.android.sdk.AndroidSdkType
 import org.jetbrains.plugins.scala.extensions.using
 import org.jetbrains.sbt.SbtUtil
-import org.jetbrains.sbt.settings.{SbtSystemSettings, SbtSystemSettingsState}
+import org.jetbrains.sbt.settings.{SbtSettings, SbtSystemSettingsState}
 
 /**
  * Run configuration of sbt tasks.
@@ -115,7 +115,7 @@ class SbtRunConfiguration(val project: Project, val configurationFactory: Config
       }
       params.setWorkingDirectory(workingDirectory)
       params.configureByProject(configuration.getProject, JavaParameters.JDK_ONLY, jdk)
-      val sbtSystemSettings: SbtSystemSettingsState = SbtSystemSettings.getInstance(configuration.getProject).getState
+      val sbtSystemSettings: SbtSystemSettingsState = SbtSettings.getInstance(configuration.getProject).getState
       if (sbtSystemSettings.getCustomLauncherEnabled) {
         params.getClassPath.add(sbtSystemSettings.getCustomLauncherPath)
         params.setMainClass(determineMainClass(sbtSystemSettings.getCustomLauncherPath))

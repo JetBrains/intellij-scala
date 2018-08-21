@@ -61,7 +61,7 @@
 
         <externalSystemViewContributor implementation="org.jetbrains.sbt.project.SbtViewContributor"/>
 
-        <projectService serviceImplementation="org.jetbrains.sbt.settings.SbtSystemSettings"/>
+        <projectService serviceImplementation="org.jetbrains.sbt.settings.SbtSettings"/>
         <projectService serviceImplementation="org.jetbrains.sbt.project.settings.SbtLocalSettings"/>
 
         <projectImportProvider implementation="org.jetbrains.sbt.project.SbtProjectImportProvider"/>

@@ -11,7 +11,7 @@ import com.intellij.openapi.project.Project
 import com.intellij.openapi.startup.StartupActivity
 import org.jetbrains.sbt.Sbt
 import org.jetbrains.sbt.project.SbtStartupActivity.sbtNotificationGroup
-import org.jetbrains.sbt.settings.SbtSystemSettings
+import org.jetbrains.sbt.settings.SbtSettings
 
 class SbtStartupActivity extends StartupActivity {
   override def runActivity(project: Project): Unit = {
@@ -21,7 +21,7 @@ class SbtStartupActivity extends StartupActivity {
   val ImportDescription = "import"
 
   private def showNotificationForUnlinkedSbtProject(project: Project): Unit =
-    if (SbtSystemSettings.getInstance(project).getLinkedProjectsSettings.isEmpty &&
+    if (SbtSettings.getInstance(project).getLinkedProjectsSettings.isEmpty &&
       project.getUserData(ExternalSystemDataKeys.NEWLY_IMPORTED_PROJECT) != java.lang.Boolean.TRUE &&
       SbtProjectImportProvider.canImport(project.getBaseDir)
     ) {

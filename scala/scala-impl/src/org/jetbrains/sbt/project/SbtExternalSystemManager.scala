@@ -23,7 +23,7 @@ import com.intellij.util.net.HttpConfigurable
 import org.jetbrains.android.sdk.AndroidSdkType
 import org.jetbrains.jps.model.java.JdkVersionDetector
 import org.jetbrains.sbt.project.settings._
-import org.jetbrains.sbt.settings.{SbtExternalSystemConfigurable, SbtSystemSettings, SbtSystemSettingsState}
+import org.jetbrains.sbt.settings.{SbtExternalSystemConfigurable, SbtSettings, SbtSystemSettingsState}
 
 import scala.collection.JavaConverters._
 
@@ -31,7 +31,7 @@ import scala.collection.JavaConverters._
  * @author Pavel Fatin
  */
 class SbtExternalSystemManager
-  extends ExternalSystemManager[SbtProjectSettings, SbtProjectSettingsListener, SbtSystemSettings, SbtLocalSettings, SbtExecutionSettings]
+  extends ExternalSystemManager[SbtProjectSettings, SbtProjectSettingsListener, SbtSettings, SbtLocalSettings, SbtExecutionSettings]
     with ExternalSystemConfigurableAware
     with AutoImportAwareness {
 
@@ -56,7 +56,7 @@ class SbtExternalSystemManager
 
   override def getSystemId: ProjectSystemId = SbtProjectSystem.Id
 
-  override def getSettingsProvider: Function[Project, SbtSystemSettings] = SbtSystemSettings.getInstance _
+  override def getSettingsProvider: Function[Project, SbtSettings] = SbtSettings.getInstance _
 
   override def getLocalSettingsProvider: Function[Project, SbtLocalSettings] = SbtLocalSettings.getInstance _
 
@@ -75,7 +75,7 @@ class SbtExternalSystemManager
 object SbtExternalSystemManager {
 
   def executionSettingsFor(project: Project, path: String): SbtExecutionSettings = {
-    val settings = SbtSystemSettings.getInstance(project)
+    val settings = SbtSettings.getInstance(project)
     val settingsState = settings.getState
     val projectSettings = Option(settings.getLinkedProjectSettings(path)).getOrElse(SbtProjectSettings.default)
 

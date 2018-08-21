@@ -11,11 +11,11 @@ import org.jetbrains.sbt.project.settings._
  * Date: 11/25/13
  */
 class SbtExternalSystemConfigurable(project: Project) 
-  extends AbstractExternalSystemConfigurable[SbtProjectSettings, SbtProjectSettingsListener, SbtSystemSettings](project, SbtProjectSystem.Id) {
+  extends AbstractExternalSystemConfigurable[SbtProjectSettings, SbtProjectSettingsListener, SbtSettings](project, SbtProjectSystem.Id) {
 
   override def createProjectSettingsControl(settings: SbtProjectSettings): SbtProjectSettingsControl = new SbtProjectSettingsControl(Configuration, settings)
 
-  override def createSystemSettingsControl(settings: SbtSystemSettings): SbtSystemSettingsControl = new SbtSystemSettingsControl(settings)
+  override def createSystemSettingsControl(settings: SbtSettings): SbtSystemSettingsControl = new SbtSystemSettingsControl(settings)
 
   override def newProjectSettings(): SbtProjectSettings = new SbtProjectSettings()
 

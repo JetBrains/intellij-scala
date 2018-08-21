@@ -17,7 +17,7 @@ import org.jetbrains.plugins.scala.project.external.{AbstractDataService, Abstra
 import org.jetbrains.plugins.scala.project.settings.ScalaCompilerConfiguration
 import org.jetbrains.plugins.scala.settings.ScalaProjectSettings
 import org.jetbrains.sbt.project.sources.SharedSourcesModuleType
-import org.jetbrains.sbt.settings.SbtSystemSettings
+import org.jetbrains.sbt.settings.SbtSettings
 
 import scala.collection.JavaConverters._
 
@@ -82,7 +82,7 @@ object SbtProjectDataService {
     }
 
     private def setSbtVersion(project: Project, data: SbtProjectData): Unit =
-      Option(SbtSystemSettings.getInstance(project).getLinkedProjectSettings(data.projectPath))
+      Option(SbtSettings.getInstance(project).getLinkedProjectSettings(data.projectPath))
         .foreach(s => s.sbtVersion = data.sbtVersion)
 
     private def updateIncrementalityType(project: Project): Unit = {

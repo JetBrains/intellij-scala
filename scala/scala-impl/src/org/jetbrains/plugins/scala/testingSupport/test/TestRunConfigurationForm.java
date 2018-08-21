@@ -25,7 +25,7 @@ import com.intellij.uiDesigner.core.GridLayoutManager;
 import com.intellij.uiDesigner.core.Spacer;
 import org.jetbrains.plugins.scala.lang.psi.ScalaPsiUtil;
 import org.jetbrains.plugins.scala.lang.psi.impl.ScalaPsiManager;
-import org.jetbrains.sbt.settings.SbtSystemSettings;
+import org.jetbrains.sbt.settings.SbtSettings;
 import scala.Option;
 
 import javax.swing.*;
@@ -441,7 +441,7 @@ public class TestRunConfigurationForm {
     }
 
     protected boolean hasSbt(Project project) {
-        SbtSystemSettings sbtSettings = SbtSystemSettings.getInstance(project);
+        SbtSettings sbtSettings = SbtSettings.getInstance(project);
         return sbtSettings != null && !sbtSettings.getLinkedProjectsSettings().isEmpty();
     }
 

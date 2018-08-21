@@ -19,7 +19,7 @@ import org.jetbrains.plugins.scala.project.Version
 import org.jetbrains.sbt.language.SbtFileImpl
 import org.jetbrains.sbt.project.module.SbtModuleType
 import org.jetbrains.sbt.project.settings.SbtProjectSettings
-import org.jetbrains.sbt.settings.SbtSystemSettings
+import org.jetbrains.sbt.settings.SbtSettings
 import org.junit.experimental.categories.Category
 
 import scala.collection.JavaConverters._
@@ -74,7 +74,7 @@ abstract class SbtAnnotatorTestBase extends AnnotatorTestBase with MockSbtBase {
   }
 
   protected def setSbtVersion(sbtVersion: Version): Unit = {
-    val projectSettings = SbtSystemSettings.getInstance(getProject).getLinkedProjectSettings(getProject.getBasePath)
+    val projectSettings = SbtSettings.getInstance(getProject).getLinkedProjectSettings(getProject.getBasePath)
     assert(projectSettings != null)
     projectSettings.setSbtVersion(sbtVersion.presentation)
   }
@@ -91,7 +91,7 @@ abstract class SbtAnnotatorTestBase extends AnnotatorTestBase with MockSbtBase {
     val projectSettings = SbtProjectSettings.default
     projectSettings.setExternalProjectPath(getProject.getBasePath)
     projectSettings.setModules(java.util.Collections.singleton(getModule.getModuleFilePath))
-    SbtSystemSettings.getInstance(getProject).linkProject(projectSettings)
+    SbtSettings.getInstance(getProject).linkProject(projectSettings)
     getModule.setOption("external.root.project.path", getProject.getBasePath) // TODO get rid of the deprecated method call
   }
 

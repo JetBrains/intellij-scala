@@ -5,13 +5,13 @@ import com.intellij.openapi.externalSystem.service.settings.AbstractImportFromEx
 import com.intellij.openapi.fileChooser.FileChooserDescriptor
 import com.intellij.openapi.project.ProjectManager
 import org.jetbrains.sbt.project.settings._
-import org.jetbrains.sbt.settings.{SbtSystemSettings, SbtSystemSettingsControl}
+import org.jetbrains.sbt.settings.{SbtSettings, SbtSystemSettingsControl}
 
 /**
  * @author Pavel Fatin
  */
-class SbtImportControl extends AbstractImportFromExternalSystemControl[SbtProjectSettings, SbtProjectSettingsListener, SbtSystemSettings](
-  SbtProjectSystem.Id, SbtSystemSettings.getInstance(ProjectManager.getInstance.getDefaultProject), SbtProjectSettings.default) {
+class SbtImportControl extends AbstractImportFromExternalSystemControl[SbtProjectSettings, SbtProjectSettingsListener, SbtSettings](
+  SbtProjectSystem.Id, SbtSettings.getInstance(ProjectManager.getInstance.getDefaultProject), SbtProjectSettings.default) {
 
   def getLinkedProjectChooserDescriptor = new FileChooserDescriptor(true, true, true, true, true, true)
 
@@ -19,5 +19,5 @@ class SbtImportControl extends AbstractImportFromExternalSystemControl[SbtProjec
 
   def createProjectSettingsControl(settings: SbtProjectSettings) = new SbtProjectSettingsControl(Context.Wizard, settings)
 
-  def createSystemSettingsControl(settings: SbtSystemSettings) = new SbtSystemSettingsControl(settings)
+  def createSystemSettingsControl(settings: SbtSettings) = new SbtSystemSettingsControl(settings)
 }

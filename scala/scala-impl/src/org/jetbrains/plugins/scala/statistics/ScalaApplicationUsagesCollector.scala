@@ -14,7 +14,7 @@ import com.intellij.openapi.roots.ModuleRootManager
 import com.intellij.psi.JavaPsiFacade
 import com.intellij.util.PlatformUtils
 import org.jetbrains.plugins.scala.project._
-import org.jetbrains.sbt.settings.SbtSystemSettings
+import org.jetbrains.sbt.settings.SbtSettings
 
 /**
  * @author Alefas
@@ -122,7 +122,7 @@ class ScalaApplicationUsagesCollector extends AbstractProjectsUsagesCollector {
 
   private object SbtVersion {
     def unapply(m: Module): Option[String] = {
-      SbtSystemSettings.getInstance(m.getProject)
+      SbtSettings.getInstance(m.getProject)
         .getLinkedProjectSettings(m)
         .safeMap(_.sbtVersion)
     }

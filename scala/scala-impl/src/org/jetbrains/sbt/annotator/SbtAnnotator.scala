@@ -13,7 +13,7 @@ import org.jetbrains.plugins.scala.lang.psi.types.result._
 import org.jetbrains.plugins.scala.lang.psi.types.{ScType, ScTypeExt}
 import org.jetbrains.plugins.scala.project.{ProjectContext, Version}
 import org.jetbrains.sbt.language.SbtFileImpl
-import org.jetbrains.sbt.settings.SbtSystemSettings
+import org.jetbrains.sbt.settings.SbtSettings
 
 /**
  * @author Pavel Fatin
@@ -26,7 +26,7 @@ class SbtAnnotator extends Annotator {
     case file: SbtFileImpl =>
       val project = file.getProject
       val sbtVersion =
-        SbtSystemSettings.getInstance(project)
+        SbtSettings.getInstance(project)
           .getLinkedProjectSettings(file)
           .safeMap(_.sbtVersion)
           .map(Version.apply)

@@ -27,7 +27,7 @@ import org.jetbrains.plugins.scala.project.ModuleExt
 import org.jetbrains.sbt.Sbt
 import org.jetbrains.sbt.project.SbtProjectSystem
 import org.jetbrains.sbt.resolvers.{ArtifactInfo, SbtResolver}
-import org.jetbrains.sbt.settings.SbtSystemSettings
+import org.jetbrains.sbt.settings.SbtSettings
 
 /**
   * Created by afonichkin on 7/7/17.
@@ -41,7 +41,7 @@ private class AddSbtDependencyFix(refElement: SmartPsiElementPointer[ScReference
         case _ => false
       }
 
-      isInProject && !SbtSystemSettings.getInstance(project).getLinkedProjectsSettings.isEmpty
+      isInProject && !SbtSettings.getInstance(project).getLinkedProjectsSettings.isEmpty
     case _ => false
   }
 

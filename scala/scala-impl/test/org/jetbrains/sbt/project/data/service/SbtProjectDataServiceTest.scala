@@ -19,7 +19,7 @@ import org.jetbrains.sbt.project.data
 import org.jetbrains.sbt.project.data.{ModuleNode, SbtProjectData, SbtProjectNode}
 import org.jetbrains.sbt.project.settings.SbtProjectSettings
 import org.jetbrains.sbt.project.sources.SharedSourcesModuleType
-import org.jetbrains.sbt.settings.SbtSystemSettings
+import org.jetbrains.sbt.settings.SbtSettings
 import org.junit.Assert._
 import org.jetbrains.plugins.scala.extensions._
 import org.jetbrains.plugins.scala.project.external.{JdkByName, SdkReference, SdkUtils}
@@ -88,11 +88,11 @@ class SbtProjectDataServiceTest extends ProjectDataServiceTestCase {
   def testSbtVersion(): Unit = {
     val projectSettings = SbtProjectSettings.default
     projectSettings.setExternalProjectPath(ExternalSystemApiUtil.normalizePath(getProject.getBasePath))
-    SbtSystemSettings.getInstance(getProject).linkProject(projectSettings)
+    SbtSettings.getInstance(getProject).linkProject(projectSettings)
 
     val expectedVersion = "0.13.8"
     importProjectData(generateProject(Seq.empty, None, Seq.empty, expectedVersion))
-    val actualVersion = SbtSystemSettings.getInstance(getProject).getLinkedProjectSettings(getProject.getBasePath).sbtVersion
+    val actualVersion = SbtSettings.getInstance(getProject).getLinkedProjectSettings(getProject.getBasePath).sbtVersion
     assertEquals(expectedVersion, actualVersion)
   }
 

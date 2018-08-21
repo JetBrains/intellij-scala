@@ -5,7 +5,7 @@ import com.intellij.openapi.externalSystem.util.{ExternalSystemSettingsControl, 
 /**
  * @author Pavel Fatin
  */
-class SbtSystemSettingsControl(settings: SbtSystemSettings) extends ExternalSystemSettingsControl[SbtSystemSettings] {
+class SbtSystemSettingsControl(settings: SbtSettings) extends ExternalSystemSettingsControl[SbtSettings] {
 
   private val pane = new SbtSettingsPane(settings.getProject)
 
@@ -27,7 +27,7 @@ class SbtSystemSettingsControl(settings: SbtSystemSettings) extends ExternalSyst
 
   def disposeUIResources() {}
 
-  def apply(settings: SbtSystemSettings): Unit = {
+  def apply(settings: SbtSettings): Unit = {
     val state = settings.getState
     state.customLauncherEnabled = pane.isCustomLauncher
     state.customLauncherPath = pane.getLauncherPath
@@ -47,5 +47,5 @@ class SbtSystemSettingsControl(settings: SbtSystemSettings) extends ExternalSyst
     pane.setPathListeners()
   }
 
-  def validate(settings: SbtSystemSettings) = true
+  def validate(settings: SbtSettings) = true
 }

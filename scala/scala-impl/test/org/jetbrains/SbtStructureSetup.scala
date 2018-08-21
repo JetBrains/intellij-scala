@@ -2,6 +2,9 @@ package org.jetbrains
 
 import _root_.java.io.File
 
+import _root_.org.jetbrains.plugins.scala.util.TestUtils
+import _root_.org.jetbrains.sbt._
+import _root_.org.jetbrains.sbt.settings.SbtSettings
 import _root_.org.jetbrains.plugins.scala.DependencyManager
 import _root_.org.jetbrains.plugins.scala.DependencyManagerBase._
 import _root_.org.jetbrains.plugins.scala.util.TestUtils
@@ -24,7 +27,7 @@ object SbtStructureSetup {
 
     assert(customSbtLauncher.isFile, s"sbt launcher not found at $customSbtLauncher")
 
-    val systemSettings = SbtSystemSettings.getInstance(project).getState
+    val systemSettings = SbtSettings.getInstance(project).getState
     systemSettings.setCustomLauncherEnabled(true)
     systemSettings.setCustomLauncherPath(customSbtLauncher.getCanonicalPath)
     Option(System.getProperty("sbt.ivy.home")).foreach { ivyHome =>

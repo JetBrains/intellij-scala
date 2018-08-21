@@ -14,7 +14,7 @@ import com.intellij.util.containers.ContainerUtilRt
 import com.intellij.util.xmlb.annotations.XCollection
 import org.jetbrains.annotations.NotNull
 import org.jetbrains.sbt.project.settings.{SbtProjectSettings, SbtProjectSettingsListener, SbtProjectSettingsListenerAdapter, SbtTopic}
-import org.jetbrains.sbt.settings.SbtSystemSettings._
+import org.jetbrains.sbt.settings.SbtSettings._
 
 import scala.beans.BeanProperty
 
@@ -26,8 +26,8 @@ import scala.beans.BeanProperty
   name = "ScalaSbtSettings",
   storages = Array(new Storage("sbt.xml"))
 )
-class SbtSystemSettings(project: Project)
-  extends AbstractExternalSystemSettings[SbtSystemSettings, SbtProjectSettings, SbtProjectSettingsListener](SbtTopic, project)
+class SbtSettings(project: Project)
+  extends AbstractExternalSystemSettings[SbtSettings, SbtProjectSettings, SbtProjectSettingsListener](SbtTopic, project)
   with PersistentStateComponent[SbtSystemSettingsState] {
 
   override def getState: SbtSystemSettingsState = {
@@ -44,7 +44,7 @@ class SbtSystemSettings(project: Project)
     getProject.getMessageBus.connect(getProject).subscribe(SbtTopic, adapter)
   }
 
-  override def copyExtraSettingsFrom(settings: SbtSystemSettings) {}
+  override def copyExtraSettingsFrom(settings: SbtSettings) {}
 
   def getLinkedProjectSettings(module: Module): Option[SbtProjectSettings] =
     Option(ExternalSystemApiUtil.getExternalRootProjectPath(module)).safeMap(getLinkedProjectSettings)
@@ -65,8 +65,8 @@ class SbtSystemSettings(project: Project)
   override def checkSettings(old: SbtProjectSettings, current: SbtProjectSettings): Unit = {}
 }
 
-object SbtSystemSettings {
-  def getInstance(@NotNull project: Project): SbtSystemSettings = ServiceManager.getService(project, classOf[SbtSystemSettings])
+object SbtSettings {
+  def getInstance(@NotNull project: Project): SbtSettings = ServiceManager.getService(project, classOf[SbtSettings])
 
   val defaultMaxHeapSize = "1536"
 }

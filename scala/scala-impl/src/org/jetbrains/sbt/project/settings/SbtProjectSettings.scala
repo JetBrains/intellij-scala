@@ -7,7 +7,7 @@ import com.intellij.openapi.project.Project
 import org.jetbrains.annotations.Nullable
 import org.jetbrains.plugins.scala.extensions.ObjectExt
 import org.jetbrains.sbt.project.settings.SbtProjectSettings.canonical
-import org.jetbrains.sbt.settings.SbtSystemSettings
+import org.jetbrains.sbt.settings.SbtSettings
 
 import scala.beans.BeanProperty
 
@@ -85,7 +85,7 @@ object SbtProjectSettings {
     new SbtProjectSettings
 
   def forProject(project: Project): SbtProjectSettings = {
-    val settings = SbtSystemSettings.getInstance(project)
+    val settings = SbtSettings.getInstance(project)
     settings.getLinkedProjectSettings(project.getBasePath)
   }
 
