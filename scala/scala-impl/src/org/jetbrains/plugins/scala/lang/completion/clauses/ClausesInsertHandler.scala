@@ -98,7 +98,7 @@ private[clauses] object ClausesInsertHandler {
       case _ =>
         val name = typeElement.`type`().toOption
           .flatMap(NameSuggester.suggestNamesByType(_).headOption)
-          .getOrElse(WildcardPatternComponents.toString)
+          .getOrElse(extensions.Placeholder)
         s"$name: ${typeElement.getText}"
     }
   }
