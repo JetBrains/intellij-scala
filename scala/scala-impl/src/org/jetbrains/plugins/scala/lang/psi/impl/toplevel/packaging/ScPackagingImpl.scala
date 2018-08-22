@@ -62,8 +62,6 @@ class ScPackagingImpl private(stub: ScPackagingStub, node: ASTNode)
     case parent => parentPackageName(parent)
   }
 
-  def typeDefs: Seq[ScTypeDefinition] = getStubOrPsiChildren(TYPE_DEFINITIONS, ScTypeDefinitionFactory)
-
   def declaredElements: Seq[ScPackageImpl] = {
     val topRefName = packageName.indexOf(".") match {
       case -1 => packageName
@@ -150,9 +148,5 @@ class ScPackagingImpl private(stub: ScPackagingStub, node: ASTNode)
     }
   }
 
-  override def immediateTypeDefinitions: Seq[ScTypeDefinition] =
-    byStubOrPsi(_.getChildrenByType(TYPE_DEFINITIONS, ScTypeDefinitionFactory)) {
-      findChildrenByClassScala(classOf[ScTypeDefinition])
-    }
-
+  override def immediateTypeDefinitions: Seq[ScTypeDefinition] = getStubOrPsiChildren(TYPE_DEFINITIONS, ScTypeDefinitionFactory)
 }

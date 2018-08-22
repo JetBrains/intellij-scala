@@ -128,7 +128,7 @@ object ScSyntheticPackage {
               def getClasses: Array[PsiClass] = {
                 filtered.flatMap(p =>
                   if (ScalaNamesUtil.cleanFqn(p.fullPackageName).length == cleanName.length)
-                    p.typeDefs.flatMap {
+                    p.immediateTypeDefinitions.flatMap {
                       case td@(c: ScTypeDefinition) if c.fakeCompanionModule.isDefined =>
                         Seq(td, c.fakeCompanionModule.get)
                       case td => Seq(td)
@@ -163,7 +163,7 @@ object ScSyntheticPackage {
                           addPackage(if (i > 0) own.substring(0, i) else own)
                         }
                       }
-                      p.typeDefs.foreach {
+                      p.immediateTypeDefinitions.foreach {
                         case o: ScObject if o.isPackageObject && o.getName != "`package`" =>
                           addPackage(o.name)
                         case _ =>
