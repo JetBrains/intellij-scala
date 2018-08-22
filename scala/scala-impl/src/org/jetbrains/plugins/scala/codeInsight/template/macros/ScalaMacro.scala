@@ -14,7 +14,7 @@ abstract class ScalaMacro(nameKey: String) extends Macro {
 
   import ScalaMacro._
 
-  override final def getName: String = getPresentableName.replaceFirst("\\(.+\\)$", "")
+  override final def getName: String = getPresentableName.replaceFirst("\\(.*\\)$", "")
 
   override final def getPresentableName: String = NamePrefix + message(nameKey)
 

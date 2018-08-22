@@ -9,7 +9,7 @@ import com.intellij.codeInsight.template._
  * @author Roman.Shein
  * @since 29.09.2015.
  */
-class ScalaTypeOfVariableMacro extends ScalaMacro("macro.variable.of.type") {
+class ScalaTypeOfVariableMacro extends ScalaMacro("macro.type.of.variable") {
 
   override def calculateResult(params: Array[Expression], context: ExpressionContext): Result =
     params.headOption
