@@ -66,7 +66,7 @@ public interface Icons {
 
   //Testing support
   Icon SCALA_TEST = IconLoader.getIcon("/org/jetbrains/plugins/scala/images/scala_test_icon.png");
-  Icon SCALA_TEST_NODE = IconLoader.getIcon("/org/jetbrains/plugins/scala/nodes/scalaTest.png");
+  Icon SCALA_TEST_NODE = IconLoader.getIcon("/org/jetbrains/plugins/scala/nodes/test.svg");
 
   //Console
   Icon SCALA_CONSOLE = IconLoader.getIcon("/org/jetbrains/plugins/scala/images/scala_console.png");
