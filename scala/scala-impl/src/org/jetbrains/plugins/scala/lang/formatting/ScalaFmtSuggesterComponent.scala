@@ -44,7 +44,6 @@ class ScalaFmtSuggesterComponent(val project: Project) extends ProjectComponent 
     val newSettings = scheme.getCodeStyleSettings.getCustomSettings(classOf[ScalaCodeStyleSettings])
     newSettings.FORMATTER = ScalaCodeStyleSettings.SCALAFMT_FORMATTER
     newSettings.SCALAFMT_CONFIG_PATH = ""
-    ScalaFmtConfigUtil.notifyNotSupportedFeatures(newSettings, project)
     codeStyleSchemesModel.apply()
   }
 

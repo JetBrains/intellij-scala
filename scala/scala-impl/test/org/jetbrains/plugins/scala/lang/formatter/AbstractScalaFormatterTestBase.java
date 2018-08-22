@@ -22,6 +22,8 @@ import org.jetbrains.plugins.scala.util.TestUtils;
 
 import java.io.File;
 import java.util.EnumMap;
+import java.util.LinkedList;
+import java.util.List;
 import java.util.Map;
 
 /**
@@ -38,6 +40,7 @@ public abstract class AbstractScalaFormatterTestBase extends LightIdeaTestCase {
 
   private interface TestFormatAction {
     void run(PsiFile psiFile, int startOffset, int endOffset);
+    void run(PsiFile psiFile, List<TextRange> formatRanges);
   }
 
   private static final Map<Action, TestFormatAction> ACTIONS = new EnumMap<Action, TestFormatAction>(Action.class);
@@ -46,17 +49,27 @@ public abstract class AbstractScalaFormatterTestBase extends LightIdeaTestCase {
       public void run(PsiFile psiFile, int startOffset, int endOffset) {
         CodeStyleManager.getInstance(getProject()).reformatText(psiFile, startOffset, endOffset);
       }
+
+      @Override
+      public void run(PsiFile psiFile, List<TextRange> formatRanges) {
+        CodeStyleManager.getInstance(getProject()).reformatText(psiFile, formatRanges);
+      }
     });
     ACTIONS.put(Action.INDENT, new TestFormatAction() {
       public void run(PsiFile psiFile, int startOffset, int endOffset) {
         CodeStyleManager.getInstance(getProject()).adjustLineIndent(psiFile, startOffset);
+      }
+
+      @Override
+      public void run(PsiFile psiFile, List<TextRange> formatRanges) {
+        throw new UnsupportedOperationException("Adjusting indents for a collection of ranges is not supported in tests.");
       }
     });
   }
 
   private static final String BASE_PATH = TestUtils.getTestDataPath() + "/psi/formatter";
 
-  public TextRange myTextRange;
+  public List<TextRange> myTextRanges = new LinkedList<TextRange>();
   public TextRange myLineRange;
 
   public CommonCodeStyleSettings getCommonSettings() {
@@ -96,8 +109,8 @@ public abstract class AbstractScalaFormatterTestBase extends LightIdeaTestCase {
 
     if (myLineRange != null) {
       final DocumentImpl document = new DocumentImpl(text);
-      myTextRange =
-        new TextRange(document.getLineStartOffset(myLineRange.getStartOffset()), document.getLineEndOffset(myLineRange.getEndOffset()));
+      myTextRanges = new LinkedList<TextRange>();
+      myTextRanges.add(new TextRange(document.getLineStartOffset(myLineRange.getStartOffset()), document.getLineEndOffset(myLineRange.getEndOffset())));
     }
 
     /*
@@ -127,11 +140,12 @@ public abstract class AbstractScalaFormatterTestBase extends LightIdeaTestCase {
             document.replaceString(0, document.getTextLength(), text);
             manager.commitDocument(document);
             try {
-              TextRange rangeToUse = myTextRange;
-              if (rangeToUse == null) {
-                rangeToUse = file.getTextRange();
+              if (myTextRanges.size() > 1) {
+                ACTIONS.get(action).run(file, myTextRanges);
+              } else {
+                TextRange rangeToUse = myTextRanges.isEmpty() ? file.getTextRange() : myTextRanges.get(0);
+                ACTIONS.get(action).run(file, rangeToUse.getStartOffset(), rangeToUse.getEndOffset());
               }
-              ACTIONS.get(action).run(file, rangeToUse.getStartOffset(), rangeToUse.getEndOffset());
             }
             catch (IncorrectOperationException e) {
               assertTrue(e.getLocalizedMessage(), false);

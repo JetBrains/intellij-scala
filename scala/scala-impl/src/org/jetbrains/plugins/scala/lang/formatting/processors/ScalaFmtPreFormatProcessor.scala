@@ -11,7 +11,7 @@ import com.intellij.openapi.util.text.StringUtil
 import com.intellij.openapi.util.{Key, TextRange}
 import com.intellij.openapi.wm.ex.WindowManagerEx
 import com.intellij.psi._
-import com.intellij.psi.impl.source.codeStyle.PreFormatProcessor
+import com.intellij.psi.impl.source.codeStyle.{CodeEditUtil, PreFormatProcessor}
 import com.intellij.psi.impl.source.tree.LeafPsiElement
 import com.intellij.psi.util.PsiTreeUtil
 import com.intellij.ui.awt.RelativePoint
@@ -21,8 +21,8 @@ import org.jetbrains.plugins.scala.extensions.PsiElementExt
 import org.jetbrains.plugins.scala.lang.formatting.settings.ScalaCodeStyleSettings
 import org.jetbrains.plugins.scala.lang.lexer.ScalaTokenTypes
 import org.jetbrains.plugins.scala.lang.psi.ScalaPsiUtil
-import org.jetbrains.plugins.scala.lang.psi.api.ScalaFile
-import org.jetbrains.plugins.scala.lang.psi.api.expr.ScBlockStatement
+import org.jetbrains.plugins.scala.lang.psi.api.{ScalaFile, ScalaRecursiveElementVisitor}
+import org.jetbrains.plugins.scala.lang.psi.api.expr.{ScBlockStatement, ScExpression}
 import org.jetbrains.plugins.scala.lang.psi.api.toplevel.templates.ScTemplateBody
 import org.jetbrains.plugins.scala.lang.psi.api.toplevel.typedef.ScMember
 import org.jetbrains.plugins.scala.lang.psi.impl.expr.ScBlockImpl
@@ -31,6 +31,7 @@ import org.jetbrains.plugins.scala.project.UserDataHolderExt
 import org.scalafmt.Formatted.Success
 import org.scalafmt.Scalafmt
 import org.jetbrains.plugins.scala.extensions._
+import org.scalafmt.config.ScalafmtConfig
 
 import scala.annotation.tailrec
 import scala.collection.mutable
@@ -50,7 +51,7 @@ class ScalaFmtPreFormatProcessor extends PreFormatProcessor {
     }
   }
 
-  override def changesWhitespacesOnly(): Boolean = true
+  override def changesWhitespacesOnly(): Boolean = false
 }
 object ScalaFmtPreFormatProcessor {
 
@@ -96,6 +97,24 @@ object ScalaFmtPreFormatProcessor {
     }
   }
 
+  private def formatInSingleFile(elements: Seq[PsiElement], config: ScalafmtConfig, project: Project, shouldWrap: Boolean): Option[String] = {
+    val elementsText = elements.foldLeft(""){ case (acc, element) => acc + element.getText}
+    val wrapped = if (shouldWrap) wrap(elementsText) else elementsText
+    Scalafmt.format(wrapped, config).toEither.toOption
+  }
+
+  private def attachFormattedCode(elements: Seq[PsiElement], config: ScalafmtConfig, project: Project): Seq[(PsiElement, String)] = {
+    val nonWsElements = elements.filterNot(_.isInstanceOf[PsiWhiteSpace])
+    nonWsElements.map(_.getText).map(wrap).map(Scalafmt.format(_, config)) match {
+      case successful => (nonWsElements zip successful).collect {
+        case (element, Success(formattedCode)) => (element, formattedCode)
+      }
+      case failure =>
+        reportInvalidCodeFailure(project)
+        Seq.empty
+    }
+  }
+
   private def formatRange(file: PsiFile, range: TextRange): Option[Int] = {
     val project = file.getProject
     val manager = PsiDocumentManager.getInstance(project)
@@ -103,44 +122,48 @@ object ScalaFmtPreFormatProcessor {
     if (document == null) return None
     implicit val fileText: String = file.getText
     val config = configFor(file)
-    if (range == file.getTextRange) {
+
+    def formatWholeFile(): Boolean = {
       Scalafmt.format(fileText, config) match {
         case Success(formattedCode) =>
           inWriteAction(document.setText(formattedCode))
           manager.commitAllDocuments()
-          return None
+          true
         case _ =>
+          false
       }
     }
-    val configFiltered = disableRewriteRules(config)
-    val (elements, formatted, wrapped) =
-      elementsInRangeWrapped(file, range) match {
-        case wrapElements if wrapElements.isEmpty && range != file.getTextRange =>
-          //failed to wrap some elements, try the whole file
-          Scalafmt.format(fileText, configFiltered) match {
-            case Success(formattedCode) =>
-              (Seq(file), formattedCode, false)
-            case _ =>
-              reportInvalidCodeFailure(project)
-              return None
-          }
-        case wrapElements if wrapElements.isEmpty =>
-          //wanted to format whole file, failed with file and with file elements wrapped, report failure
-          reportInvalidCodeFailure(project)
-          return None
-        case wrapElements =>
-          val elementsText = wrapElements.map(getText).mkString("")
-          Scalafmt.format(wrap(elementsText), configFiltered) match {
-            case Success(formattedCode) => (wrapElements, formattedCode, true)
-            case _ =>
-              reportInvalidCodeFailure(project)
-              return None
-          }
+
+    if (range == file.getTextRange && formatWholeFile()) return None
+
+    def processRange(elements: Seq[PsiElement], wrap: Boolean): Option[Int] = {
+      val hasRewriteRules = config.rewrite.rules.nonEmpty
+      val rewriteElements: Seq[PsiElement] = if (hasRewriteRules) elements.flatMap(maybeRewriteElements(_, range)) else Seq.empty
+      val rewriteElementsToFormatted: Seq[(PsiElement, String)] = attachFormattedCode(rewriteElements, config, project)
+      val noRewriteConfig = if (hasRewriteRules) ScalaFmtConfigUtil.disableRewriteRules(config) else config
+      val elementsToFormatted: (Seq[PsiElement], String) = formatInSingleFile(elements, noRewriteConfig, project, wrap) match {
+        case Some(formatted) => (elements, formatted)
+        case None => return None
       }
-    val wrapFile = PsiFileFactory.getInstance(project).createFileFromText("ScalaFmtFormatWrapper", ScalaFileType.INSTANCE, formatted)
-    val textRangeDelta = replaceWithFormatted(wrapFile, elements, range, wrapped)
-    manager.commitDocument(document)
-    Some(textRangeDelta)
+
+      val textRangeDelta = replaceWithFormatted(elementsToFormatted, rewriteElementsToFormatted, range, wrap)
+      manager.commitDocument(document)
+      Some(textRangeDelta)
+
+    }
+
+    elementsInRangeWrapped(file, range) match {
+      case wrapElements if wrapElements.isEmpty && range != file.getTextRange =>
+        //failed to wrap some elements, try the whole file
+        processRange(Seq(file), false)
+        None
+      case wrapElements if wrapElements.isEmpty =>
+        //wanted to format whole file, failed with file and with file elements wrapped, report failure
+        reportInvalidCodeFailure(project)
+        None
+      case wrapElements =>
+        processRange(wrapElements, true)
+    }
   }
 
   private val wrapPrefix = "class ScalaFmtFormatWrapper {\n"
@@ -173,7 +196,6 @@ object ScalaFmtPreFormatProcessor {
     case _ => false
   }
 
-  @tailrec
   private def elementsInRangeWrapped(file: PsiFile, range: TextRange, selectChildren: Boolean = true)(implicit fileText: String): Seq[PsiElement] = {
     val startElement = file.findElementAt(range.getStartOffset)
     val endElement = file.findElementAt(range.getEndOffset - 1)
@@ -196,7 +218,7 @@ object ScalaFmtPreFormatProcessor {
         while (children.lastOption.exists(isWhitespace)) children = children.dropRight(1)
 
         if (children.isEmpty) Seq.empty
-        else if (selectChildren && children.forall(isProperUpperLevelPsi)) {
+        else if (selectChildren && children.forall(isProperUpperLevelPsi) && !parent.isInstanceOf[ScExpression]) {
           //for uniformity use the upper-most of embedded elements with same contents
           if (children.length == rawChildren.length && isProperUpperLevelPsi(parent)) Seq(parent)
           else children
@@ -206,15 +228,18 @@ object ScalaFmtPreFormatProcessor {
       case _ => Seq.empty
     }
     if (res.length == 1 && res.head.isInstanceOf[PsiWhiteSpace]) {
-      val ws = res.head
-      val next = PsiTreeUtil.nextLeaf(ws, true)
-      if (next == null) return Seq(ws) //don't touch the last WS, nobody should try to format it anyway
-      val prev = PsiTreeUtil.prevLeaf(ws, true)
-      val newRange =
-        if (prev == null) range.union(next.getTextRange)
-        else prev.getTextRange.union(next.getTextRange)
-      elementsInRangeWrapped(file, newRange, selectChildren = false)
+      surroundWhitespaceWithContext(res.head, range, file)
     } else res
+  }
+
+  private def surroundWhitespaceWithContext(ws: PsiElement, range: TextRange, file: PsiFile)(implicit fileText: String): Seq[PsiElement] = {
+    val next = PsiTreeUtil.nextLeaf(ws, true)
+    if (next == null) return Seq(ws) //don't touch the last WS, nobody should try to format it anyway
+    val prev = PsiTreeUtil.prevLeaf(ws, true)
+    val newRange =
+      if (prev == null) range.union(next.getTextRange)
+      else prev.getTextRange.union(next.getTextRange)
+    elementsInRangeWrapped(file, newRange, selectChildren = false)
   }
 
   @tailrec
@@ -231,13 +256,55 @@ object ScalaFmtPreFormatProcessor {
     }
   }
 
-  private def replaceWithFormatted(wrapFile: PsiFile, elements: Seq[PsiElement], range: TextRange, isWrapped: Boolean)(implicit fileText: String): Int = {
-    val replaceElements: Seq[PsiElement] = if (isWrapped) unwrap(wrapFile) else Seq(wrapFile)
-    val project = elements.head.getProject
-    val elementsToTraverse: ListBuffer[(PsiElement, PsiElement)] = ListBuffer(replaceElements zip elements:_*).sortBy(_._2.getTextRange.getStartOffset)
-    val additionalIndent = if (isWrapped) getElementIndent(elements.head) - 2 else 0
-    val changes = buildChangesList(elementsToTraverse, range, additionalIndent, project)
+  private def maybeRewriteElements(element: PsiElement, range: TextRange, withRewrite: List[PsiElement] = List()): List[PsiElement] = {
+    if (range.getEndOffset < element.getTextRange.getStartOffset || range.getStartOffset > element.getTextRange.getEndOffset) {
+      withRewrite
+    } else if (range.contains(element.getTextRange) && isProperUpperLevelPsi(element)) {
+      element :: withRewrite
+    } else {
+      val children = element.children.toList
+      children.foldLeft(withRewrite){case ((acc, child))=> maybeRewriteElements(child, range, acc)}
+    }
+  }
+
+  private def unwrapPsiFromFormattedFile(elements: Seq[PsiElement], formattedText: String, project: Project, shouldUnwrap: Boolean): Seq[(PsiElement, PsiElement)] = {
+    val wrapFile = PsiFileFactory.getInstance(project).createFileFromText("ScalaFmtFormatWrapper", ScalaFileType.INSTANCE, formattedText)
+    elements zip (if (shouldUnwrap) unwrap(wrapFile) else Seq(wrapFile))
+  }
+
+
+  private def unwrapPsiFromFormattedElements(elementsToFormatted: Seq[(PsiElement, String)], project: Project): Seq[(PsiElement, Seq[PsiElement])] =
+    elementsToFormatted.map{ case (element, formattedText) =>
+      (element, unwrap(PsiFileFactory.getInstance(project).createFileFromText("ScalaFmtFormatWrapper", ScalaFileType.INSTANCE, formattedText)))
+    }.sortBy(_._1.getTextRange.getStartOffset)
+
+  private def replaceWithFormatted(elementsToFormatted: (Seq[PsiElement], String), rewriteToFormatted: Seq[(PsiElement, String)],
+                                   range: TextRange, shouldUnwrap: Boolean)(implicit fileText: String): Int = {
+    val project = elementsToFormatted._1.head.getProject
+    val elementsToTraverse: ListBuffer[(PsiElement, PsiElement)] = ListBuffer(unwrapPsiFromFormattedFile(elementsToFormatted._1, elementsToFormatted._2, project, shouldUnwrap):_*)
+    val rewriteElementsToTraverse: Seq[(PsiElement, Seq[PsiElement])] = unwrapPsiFromFormattedElements(rewriteToFormatted, project)
+    val additionalIndent = getElementIndent(elementsToFormatted._1.head) - 2
+    val changes = buildChangesList(elementsToTraverse, rewriteElementsToTraverse, range, additionalIndent, project, fileText)
     applyChanges(changes, range)
+  }
+
+  private class AdjustIndentsVisitor(val additionalIndent: Int, val project: Project) extends ScalaRecursiveElementVisitor {
+    override def visitWhiteSpace(space: PsiWhiteSpace): Unit = {
+      val replacer = getIndentAdjustedWhitespace(space, additionalIndent, project)
+      if (replacer != space) inWriteAction(space.replace(replacer))
+    }
+  }
+
+  private def getIndentAdjustedWhitespace(ws: PsiWhiteSpace, additionalIndent: Int, project: Project): PsiElement = {
+    val text = ws.getText
+    if (!text.contains("\n")) return ws
+    if (additionalIndent == 0) ws
+    else if (additionalIndent > 0) ScalaPsiElementFactory.createWhitespace(text + (" " * additionalIndent))(project)
+    else {
+      val newlineIndex = text.lastIndexOf("\n") + 1
+      val trailingWhitespaces = text.substring(newlineIndex).length
+      ScalaPsiElementFactory.createWhitespace(text.substring(0, newlineIndex + Math.max(0, trailingWhitespaces + additionalIndent)))(project)
+    }
   }
 
   private sealed trait PsiChange {
@@ -252,11 +319,36 @@ object ScalaFmtPreFormatProcessor {
     def getStartOffset: Int
   }
 
+  private val generatedVisitor: PsiRecursiveElementVisitor = new PsiRecursiveElementVisitor() {
+    override def visitElement(element: PsiElement): Unit = {
+      CodeEditUtil.setNodeGenerated(element.getNode, false)
+      super.visitElement(element)
+    }
+  }
+
+  private def setNotGenerated(text: String, offset: Int, parent: PsiElement): Unit = {
+    val children = parent.children.find(child => child.getTextRange.getStartOffset == offset && child.getText == text)
+    children.foreach{ child =>
+      child.accept(generatedVisitor)
+      //sometimes when an element is inserted, its neighbours also get the 'isGenerated' flag set, fix this
+      Option(child.getPrevSibling).foreach(_.accept(generatedVisitor))
+      Option(child.getNextSibling).foreach(_.accept(generatedVisitor))
+    }
+  }
+
   private case class Replace(original: PsiElement, formatted: PsiElement) extends PsiChange {
+    override def toString: String = s"${original.getTextRange}: ${original.getText} -> ${formatted.getText}"
     def doApply(): Int = {
+      if (!formatted.isValid || !original.isValid) {
+        return 0
+      }
       val commonPrefixLength = StringUtil.commonPrefix(original.getText, formatted.getText).length
       val delta = addDelta(original.getTextRange.getStartOffset + commonPrefixLength, original.getContainingFile, formatted.getTextLength - original.getTextLength)
+      val parent = original.getParent
+      val offset = original.getTextOffset
+      formatted.accept(generatedVisitor)
       inWriteAction(original.replace(formatted))
+      setNotGenerated(formatted.getText, offset, parent)
       delta
     }
     override def isInRange(range: TextRange): Boolean = original.getTextRange.intersectsStrict(range)
@@ -265,10 +357,16 @@ object ScalaFmtPreFormatProcessor {
 
   private case class Insert(before: PsiElement, formatted: PsiElement) extends PsiChange {
     override def doApply(): Int = {
+      if (!formatted.isValid) {
+        return 0
+      }
       val parent = before.getParent
+      val offset = before.getTextRange.getStartOffset
+      formatted.accept(generatedVisitor)
       if (parent != null) {
         inWriteAction(parent.addBefore(formatted, before))
       }
+      setNotGenerated(formatted.getText, offset, parent)
       addDelta(formatted, formatted.getTextLength)
     }
     override def isInRange(range: TextRange): Boolean = range.contains(before.getTextRange.getStartOffset)
@@ -285,30 +383,37 @@ object ScalaFmtPreFormatProcessor {
     override def getStartOffset: Int = remove.getTextRange.getStartOffset
   }
 
-  private def buildChangesList(elementsToTraverse: ListBuffer[(PsiElement, PsiElement)], range: TextRange, additionalIndent: Int, project: Project): ListBuffer[PsiChange] = {
-    val res = ListBuffer[PsiChange]()
-    def widenWs(ws: PsiElement): PsiElement = {
-      if (additionalIndent == 0) ws
-      else {
-        val wsText = ws.getText
-        if (!wsText.contains("\n")) ws
-        else if (additionalIndent >= 0) ScalaPsiElementFactory.createWhitespace(wsText + (" " * additionalIndent))(project)
-        else {
-          val newlineIndex = wsText.lastIndexOf("\n") + 1
-          val trailingWhitespaces = wsText.substring(newlineIndex).length
-          ScalaPsiElementFactory.createWhitespace(wsText.substring(0, newlineIndex + Math.max(0, trailingWhitespaces + additionalIndent)))(project)
-        }
-      }
+  private def processElementToElementReplace(original: PsiElement, formatted: PsiElement, rewriteElementsToTraverse: Seq[(PsiElement, Seq[PsiElement])],
+                                             range: TextRange, project: Project, additionalIndent: Int,
+                                             elementsToTraverse: ListBuffer[(PsiElement, PsiElement)],
+                                             res: ListBuffer[PsiChange], originalText: String): Unit = {
+    if (isWhitespace(formatted) && isWhitespace(original)) {
+      res += Replace(original, getIndentAdjustedWhitespace(formatted.asInstanceOf[PsiWhiteSpace], additionalIndent, project))
+      return
     }
-    def traverseSettingWs(formatted: PsiElement, original: PsiElement): Unit = {
+
+    val formattedElementText = formatted.getText
+    val originalElementText = getText(original)(originalText)
+    val rewriteElement = rewriteElementsToTraverse.find(original == _._1)
+
+    if (formattedElementText == originalElementText && rewriteElement.isEmpty) return
+
+    if (range.contains(original.getTextRange)) {
+      rewriteElement match {
+        case Some((_, replacement)) =>
+          res ++= replace(original, replacement, additionalIndent)
+        case _ =>
+          formatted.accept(new AdjustIndentsVisitor(additionalIndent, project))
+          res += Replace(original, formatted)
+      }
+    } else if (isSameElementType(original, formatted)) {
       var formattedIndex = 0
       var originalIndex = 0
-      if (isWhitespace(formatted) && isWhitespace(original)) {
-        res += Replace(original, widenWs(formatted))
-      }
 
       val formattedChildren = formatted.children.toArray
       val originalChildren = original.children.toArray
+
+      if (originalChildren.isEmpty) return
 
       while (formattedIndex < formattedChildren.length && originalIndex < originalChildren.length) {
         val originalElement = originalChildren(originalIndex)
@@ -316,34 +421,58 @@ object ScalaFmtPreFormatProcessor {
         val isInRange = originalElement.getTextRange.intersectsStrict(range)
         (originalElement, formattedElement) match {
           case (originalWs: PsiWhiteSpace, formattedWs: PsiWhiteSpace) => //replace whitespace
-            if (originalWs.getText != formattedWs.getText) res += Replace(originalWs, widenWs(formattedWs))
+            if (originalWs.getText != formattedWs.getText) res += Replace(originalWs, getIndentAdjustedWhitespace(formattedWs, additionalIndent, project))
             originalIndex += 1
             formattedIndex += 1
           case (_, formattedWs: PsiWhiteSpace) => //a whitespace has been added
-            res += Insert(originalElement, widenWs(formattedWs))
+            res += Insert(originalElement, getIndentAdjustedWhitespace(formattedWs, additionalIndent, project))
             formattedIndex += 1
           case (originalWs: PsiWhiteSpace, _) => //a whitespace has been removed
             res += Remove(originalWs)
             originalIndex += 1
           case _ =>
             if (isInRange) {
-              elementsToTraverse += ((formattedElement, originalElement))
+              elementsToTraverse += ((originalElement, formattedElement))
             }
             originalIndex += 1
             formattedIndex += 1
         }
       }
     }
+  }
+
+  private def replace(element: PsiElement, formattedElements: Seq[PsiElement], additionalIndent: Int): Seq[PsiChange] = {
+    if (formattedElements.length == 1 && formattedElements.head.getText == element.getText) return Seq.empty
+    formattedElements.foreach(_.accept(new AdjustIndentsVisitor(additionalIndent, element.getProject)))
+    formattedElements.map(Insert(element, _)) :+ Remove(element)
+  }
+
+  private def buildChangesList(elementsToTraverse: ListBuffer[(PsiElement, PsiElement)], rewriteElementsToTraverse: Seq[(PsiElement, Seq[PsiElement])],
+                               range: TextRange, additionalIndent: Int, project: Project, originalText: String): ListBuffer[PsiChange] = {
+    val res = ListBuffer[PsiChange]()
     while(elementsToTraverse.nonEmpty) {
       val head = elementsToTraverse.head
       elementsToTraverse.remove(0)
-      traverseSettingWs(head._1, head._2)
+      processElementToElementReplace(head._1, head._2, rewriteElementsToTraverse, range, project, additionalIndent,
+        elementsToTraverse, res, originalText)
     }
     res
   }
 
+  private def isSameElementType(original: PsiElement, formatted: PsiElement): Boolean = {
+    val originalNode = original.getNode
+    val formattedNode = formatted.getNode
+    originalNode != null && formattedNode != null && originalNode.getElementType == formattedNode.getElementType
+  }
+
   private def applyChanges(changes: ListBuffer[PsiChange], range: TextRange): Int = {
-    changes.filter(_.isInRange(range)).filter(_.isValid).sortBy(_.getStartOffset).foldLeft(0){
+    changes.filter(_.isInRange(range)).filter(_.isValid).sorted(Ordering.fromLessThan[PsiChange]{
+      case (_: Insert, _) => true
+      case (_, _: Insert) => false
+      case (_: Replace, _: Remove) => true
+      case (_: Remove, _: Replace) => false
+      case (left: PsiChange, right: PsiChange) => left.getStartOffset < right.getStartOffset
+    }).foldLeft(0){
       case (delta, change) => delta + change.applyAndGetDelta()
     }
   }
@@ -383,7 +512,7 @@ object ScalaFmtPreFormatProcessor {
 
   private val FORMATTED_RANGES_KEY: Key[(TextRanges, Long)] = Key.create("scala.fmt.formatted.ranges")
 
-  private val rangesDeltaCache: mutable.Map[PsiFile, mutable.TreeSet[(Int, Int)]] = mutable.Map[PsiFile, mutable.TreeSet[(Int, Int)]]()
+  private val rangesDeltaCache: mutable.Map[PsiFile, mutable.TreeSet[(Int, Int)]] = mutable.WeakHashMap[PsiFile, mutable.TreeSet[(Int, Int)]]()
 
   private def addDelta(offset: Int, containingFile: PsiFile, delta: Int): Int = {
     val cache = rangesDeltaCache.getOrElseUpdate(containingFile, mutable.TreeSet[(Int, Int)]())
@@ -393,5 +522,7 @@ object ScalaFmtPreFormatProcessor {
 
   private def addDelta(element: PsiElement, delta: Int): Int = addDelta(element.getTextRange.getStartOffset, element.getContainingFile, delta)
 
-  def clearRangesCache(): Unit = rangesDeltaCache.clear()
+  def clearRangesCache(): Unit = {
+    rangesDeltaCache.clear()
+  }
 }

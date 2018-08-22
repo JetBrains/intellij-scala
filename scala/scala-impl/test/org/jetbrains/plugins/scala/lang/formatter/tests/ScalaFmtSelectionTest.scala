@@ -1,12 +1,6 @@
 package org.jetbrains.plugins.scala.lang.formatter.tests
 
-import org.jetbrains.plugins.scala.lang.formatting.settings.ScalaCodeStyleSettings
-
-class ScalaFmtSelectionTest extends SelectionTest {
-  override def setUp(): Unit = {
-    super.setUp()
-    getScalaSettings.FORMATTER = ScalaCodeStyleSettings.SCALAFMT_FORMATTER
-  }
+class ScalaFmtSelectionTest extends SelectionTest with ScalaFmtTestBase {
 
   def testExprSelection(): Unit = {
     val before =
@@ -315,13 +309,13 @@ class ScalaFmtSelectionTest extends SelectionTest {
   }
 
   def testWhitespaceSelection(): Unit = {
-    val before = s"object O {$startMarker   ${endMarker}}"
+    val before = s"object O {$startMarker   $endMarker}"
     val after = s"object O {}"
     doTextTest(before, after)
   }
 
   def testWhitespaceSelection_1(): Unit = {
-    val before = s"def    foo$startMarker     ${endMarker}=     42"
+    val before = s"def    foo$startMarker     $endMarker=     42"
     val after = s"def    foo =     42"
     doTextTest(before, after)
   }
@@ -410,6 +404,207 @@ class ScalaFmtSelectionTest extends SelectionTest {
       s"""
          |class A[T]
          |class B
+       """.stripMargin
+    doTextTest(before, after)
+  }
+
+  def testScl14129_avoidInfix(): Unit = {
+    getScalaSettings.SCALAFMT_CONFIG_PATH = configPath + "avoidInfix.conf"
+    val before =
+      s"""
+         |class C {
+         |  ${startMarker}def foo = 1 to 42$endMarker
+         |}
+       """.stripMargin
+    val after =
+      s"""
+         |class C {
+         |  def foo = 1.to(42)
+         |}
+       """.stripMargin
+    doTextTest(before, after)
+  }
+
+  def testScl14129_avoidInfix_1(): Unit = {
+    getScalaSettings.SCALAFMT_CONFIG_PATH = configPath + "avoidInfix.conf"
+    val before =
+      s"""
+         |class C {
+         |  def foo = ${startMarker}1     ${endMarker}to   42
+         |}
+       """.stripMargin
+    val after =
+      s"""
+         |class C {
+         |  def foo = 1 to   42
+         |}
+       """.stripMargin
+    doTextTest(before, after)
+  }
+
+  def testScl14129_avoidInfix_2(): Unit = {
+    getScalaSettings.SCALAFMT_CONFIG_PATH = configPath + "avoidInfix.conf"
+    val before =
+      s"""
+         |class C {
+         |  def foo = ${startMarker}1     to  $endMarker 42
+         |}
+       """.stripMargin
+    val after =
+      s"""
+         |class C {
+         |  def foo = 1 to 42
+         |}
+       """.stripMargin
+    doTextTest(before, after)
+  }
+
+  def testScl14129_avoidInfix_3(): Unit = {
+    getScalaSettings.SCALAFMT_CONFIG_PATH = configPath + "avoidInfix.conf"
+    val before =
+      s"""
+         |class C {
+         |  def foo = ${startMarker}1     to   42$endMarker
+         |}
+       """.stripMargin
+    val after =
+      s"""
+         |class C {
+         |  def foo = 1.to(42)
+         |}
+       """.stripMargin
+    doTextTest(before, after)
+  }
+
+  def testScl14129_spacesAroundRewrite(): Unit = {
+    getScalaSettings.SCALAFMT_CONFIG_PATH = configPath + "avoidInfix.conf"
+    val before =
+      s"""
+         |class C {
+         |  def foo = $startMarker   (    1      to      42   )   +     $endMarker  11
+         |}
+       """.stripMargin
+    val after =
+      s"""
+         |class C {
+         |  def foo =    1.to(42) + 11
+         |}
+       """.stripMargin
+    doTextTest(before, after)
+  }
+
+  def testSCL14031(): Unit = {
+    val before =
+      s"""
+         |object Outer {
+         |trait T {
+         |  val foo: Int
+         |  val bar: Int
+         |}
+         |  class T1 extends T ${startMarker(1)}{${startMarker(0)}
+         |${startMarker}${endMarker(1)}override val foo: Int = ???$endMarker
+         |override val bar: Int = ???
+         |}${endMarker(0)}
+         |}
+       """.stripMargin
+    val after =
+      s"""
+         |object Outer {
+         |trait T {
+         |  val foo: Int
+         |  val bar: Int
+         |}
+         |  class T1 extends T {
+         |    override val foo: Int = ???
+         |    override val bar: Int = ???
+         |  }
+         |}
+       """.stripMargin
+    doTextTest(before, after)
+  }
+
+  def testSCL14129_expandImport(): Unit = {
+    getScalaSettings.SCALAFMT_CONFIG_PATH = configPath + "expandImport.conf"
+    val before =
+      s"""
+         |${startMarker}import a.{
+         |    b,
+         |    c
+         |  }, h.{
+         |    k, l
+         |  }
+         |  import d.e.{f, g}
+         |  import a.{
+         |      foo => bar,
+         |      zzzz => _,
+         |      _
+         |    }$endMarker
+         |class C {}
+       """.stripMargin
+    val after =
+      s"""
+         |import h.l
+         |import h.k
+         |import a.c
+         |import a.b
+         |import d.e.g
+         |import d.e.f
+         |import a.{foo => bar, zzzz => _, _}
+         |class C {}
+       """.stripMargin
+    doTextTest(before, after)
+  }
+
+  def testSCL14129_redundantBraces(): Unit = {
+    getScalaSettings.SCALAFMT_CONFIG_PATH = configPath + "redundantBraces.conf"
+    val before =
+      s"""
+         |val myString = ${startMarker}s"prefix$${myHello}"$endMarker
+       """.stripMargin
+    val after =
+      s"""
+         |val myString = s"prefix$$myHello"
+       """.stripMargin
+    doTextTest(before, after)
+  }
+
+  def testScl14129_redundantBraces_1(): Unit = {
+    getScalaSettings.SCALAFMT_CONFIG_PATH = configPath + "redundantBraces.conf"
+    val before =
+      s"""
+         |val myString = s"pre${startMarker}fix$${myHello}$endMarker"
+       """.stripMargin
+    val after =
+      s"""
+         |val myString = s"prefix$${myHello}"
+       """.stripMargin
+    doTextTest(before, after)
+  }
+
+  def testScl14129_redundantBraces_2(): Unit = {
+    getScalaSettings.SCALAFMT_CONFIG_PATH = configPath + "redundantBraces.conf"
+    val before =
+      s"""
+         |def foo ${startMarker}= {
+         |  List(1, 2, 3).sum
+         |}$endMarker
+       """.stripMargin
+    val after =
+      s"""
+         |def foo = List(1, 2, 3).sum
+       """.stripMargin
+    doTextTest(before, after)
+  }
+
+  def testScl14129_sortImports(): Unit = {
+    getScalaSettings.SCALAFMT_CONFIG_PATH = configPath + "sortImports.conf"
+    val before =
+      s"""
+         |import foo.{Zilch,$startMarker bar, Random, ${endMarker}sand}
+       """.stripMargin
+    val after =
+      s"""
+         |import foo.{Zilch, bar, Random, sand}
        """.stripMargin
     doTextTest(before, after)
   }

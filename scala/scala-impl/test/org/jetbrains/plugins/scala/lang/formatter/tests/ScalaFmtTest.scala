@@ -3,12 +3,7 @@ package org.jetbrains.plugins.scala.lang.formatter.tests
 import org.jetbrains.plugins.scala.lang.formatter.AbstractScalaFormatterTestBase
 import org.jetbrains.plugins.scala.lang.formatting.settings.ScalaCodeStyleSettings
 
-class ScalaFmtTest extends AbstractScalaFormatterTestBase {
-
-  override def setUp(): Unit = {
-    super.setUp()
-    getScalaSettings.FORMATTER = ScalaCodeStyleSettings.SCALAFMT_FORMATTER
-  }
+class ScalaFmtTest extends ScalaFmtTestBase {
 
   def testAddSpace(): Unit = {
     val before = "object O{}"
@@ -224,6 +219,68 @@ class ScalaFmtTest extends AbstractScalaFormatterTestBase {
       s"""
          |def x = 42
          |//
+       """.stripMargin
+    doTextTest(before, after)
+  }
+
+  def testRewriteRules_avoidInfix(): Unit = {
+    getScalaSettings.SCALAFMT_CONFIG_PATH = configPath + "avoidInfix.conf"
+    val before =
+      s"""
+         |class C {
+         |  def foo = 1 to 42
+         |}
+       """.stripMargin
+    val after =
+      s"""
+         |class C {
+         |  def foo = 1.to(42)
+         |}
+       """.stripMargin
+    doTextTest(before, after)
+  }
+
+  def testRewriteRules_expandImport(): Unit = {
+    getScalaSettings.SCALAFMT_CONFIG_PATH = configPath + "expandImport.conf"
+    val before =
+      s"""
+         |import a.{
+         |    b,
+         |    c
+         |  }, h.{
+         |    k, l
+         |  }
+         |  import d.e.{f, g}
+         |  import a.{
+         |      foo => bar,
+         |      zzzz => _,
+         |      _
+         |    }
+         |class C {}
+       """.stripMargin
+    val after =
+      s"""
+         |import a.b
+         |import a.c
+         |import h.k
+         |import h.l
+         |import d.e.f
+         |import d.e.g
+         |import a.{foo => bar, zzzz => _, _}
+         |class C {}
+       """.stripMargin
+    doTextTest(before, after)
+  }
+
+  def testRewriteRules_sortImports(): Unit = {
+    getScalaSettings.SCALAFMT_CONFIG_PATH = configPath + "sortImports.conf"
+    val before =
+      s"""
+         |import foo.{Zilch, bar, Random, sand}
+       """.stripMargin
+    val after =
+      s"""
+         |import foo.{bar, sand, Random, Zilch}
        """.stripMargin
     doTextTest(before, after)
   }

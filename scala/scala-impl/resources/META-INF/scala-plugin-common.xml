@@ -1458,6 +1458,7 @@
         <!-- end of inspections -->
 
         <library.type implementation="org.jetbrains.plugins.scala.project.ScalaLibraryType" />
+      <disabledIndentRangesProvider implementation="org.jetbrains.plugins.scala.lang.formatting.ScalaFmtDisabledIndentRangesProvider" />
     </extensions>
 
 
