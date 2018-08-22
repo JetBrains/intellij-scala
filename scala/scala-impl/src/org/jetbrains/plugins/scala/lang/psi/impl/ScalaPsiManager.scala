@@ -19,7 +19,7 @@ import com.intellij.psi._
 import com.intellij.psi.impl.{JavaPsiFacadeImpl, PsiTreeChangeEventImpl}
 import com.intellij.psi.search.{DelegatingGlobalSearchScope, GlobalSearchScope, PsiShortNamesCache}
 import com.intellij.psi.util.PsiModificationTracker
-import com.intellij.util.ArrayUtil
+import com.intellij.util.{ArrayUtil, ObjectUtils}
 import com.intellij.util.containers.ContainerUtil
 import org.jetbrains.annotations.TestOnly
 import org.jetbrains.plugins.scala.caches.{CachesUtil, ScalaShortNamesCacheManager}
@@ -270,26 +270,15 @@ class ScalaPsiManager(val project: Project) {
     PsiManager.getInstance(project).addPsiTreeChangeListener(CacheInvalidator, project)
   }
 
-  private val syntheticPackages = ContainerUtil.createWeakValueMap[String, AnyRef]()
-  private val emptyMarker: AnyRef = new Object
+  private val syntheticPackages = ContainerUtil.createConcurrentWeakValueMap[String, AnyRef]()
+  private val emptyMarker: AnyRef = ObjectUtils.sentinel("syntheticPackageEmptyMarker")
 
   def syntheticPackage(fqn: String): ScSyntheticPackage = {
-    var p = syntheticPackages.get(fqn)
-    if (p == null) {
-      p = ScSyntheticPackage(fqn)(project)
-      if (p == null) p = emptyMarker
-      synchronized {
-        val pp = syntheticPackages.get(fqn)
-        if (pp == null) {
-          syntheticPackages.put(fqn, p)
-        } else {
-          p = pp
-        }
-      }
-    }
+    val syntheticOrEmptyMarker =
+      syntheticPackages.computeIfAbsent(fqn, fqn => Option(ScSyntheticPackage(fqn)(project)).getOrElse(emptyMarker))
 
-    p match {
-      case synth: ScSyntheticPackage => synth
+    syntheticOrEmptyMarker match {
+      case s: ScSyntheticPackage => s
       case _ => null
     }
   }
