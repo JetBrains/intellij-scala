@@ -980,9 +980,12 @@
                          shortName="ScalaUnreachableCode" level="WARNING"
                          enabledByDefault="true" language="Scala"/>
         <localInspection implementationClass="org.jetbrains.plugins.scala.codeInspection.controlFlow.ScalaUnusedExpressionInspection"
-                         displayName="Unused expression" groupPath="Scala" groupName="General"
-                         shortName="ScalaUnusedExpression" level="WEAK WARNING"
-                         enabledByDefault="true" language="Scala"/>
+                         bundle="org.jetbrains.plugins.scala.codeInspection.InspectionBundle"
+                         key="unused.expression.name"
+                         groupPath="Scala" groupName="General"
+                         shortName="ScalaUnusedExpression"
+                         language="Scala" level="WEAK WARNING"
+                         enabledByDefault="true"/>
         <localInspection implementationClass="org.jetbrains.plugins.scala.codeInspection.implicits.DeprecatedViewBoundInspection"
                          displayName="View bounds are deprecated" groupPath="Scala" groupName="General"
                          shortName="DeprecatedViewBound" level="WARNING"
