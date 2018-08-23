@@ -6,7 +6,7 @@ import org.jetbrains.plugins.scala.lang.psi.api.base.{ScInterpolatedStringLitera
 import org.jetbrains.plugins.scala.lang.psi.api.statements.ScFunction
 import org.jetbrains.plugins.scala.lang.psi.impl.ScalaPsiElementFactory._
 import org.jetbrains.plugins.scala.lang.psi.impl.base.ScLiteralImpl
-import org.jetbrains.plugins.scala.lang.psi.types.ScType
+import org.jetbrains.plugins.scala.lang.psi.types.{ScLiteralType, ScType}
 import org.jetbrains.plugins.scala.lang.refactoring.util.ScalaNamesUtil
 
 /**
@@ -21,25 +21,30 @@ object ShapelessWitnessSelectDynamic extends ScalaMacroTypeable with ShapelessUt
     backtickedLiteralIn(context.place)
       .flatMap(typeCarrierType(_, macros))
 
-  private def backtickedLiteralIn(e: PsiElement): Option[ScLiteral] = {
+  private def backtickedLiteralIn(e: PsiElement): Option[String] = {
     val ref = e match {
       case r: ScStableCodeReferenceElement => r
       case _ => return None
     }
     ref.refName match {
       case ScalaNamesUtil.isBacktickedName(literalText) =>
-        createExpressionWithContextFromText(literalText, ref.getContext, ref) match {
+        val hasMinus = literalText.startsWith("-")
+        val cleanedText = literalText.stripPrefix("-")
+        createExpressionWithContextFromText(cleanedText, ref.getContext, ref) match {
           case _: ScInterpolatedStringLiteral => None
-          case lit: ScLiteral => Some(lit)
+          case lit: ScLiteral =>
+            ScLiteralType.kind(lit.getFirstChild.getNode, lit)
+              .flatMap { kind =>
+                if (!hasMinus || ScLiteralType.isNumeric(kind)) Some(literalText)
+                else None
+              }
           case _ => None
         }
       case _ => None
     }
   }
 
-  private def typeCarrierType(literal: ScLiteral, insertionPlace: PsiElement): Option[ScType] ={
-    val literalText = literal.getText
-
+  private def typeCarrierType(literalText: String, insertionPlace: PsiElement): Option[ScType] ={
     val text = s"""
                   |object `$literalText` {
                   |  type T = $literalText

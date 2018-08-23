@@ -114,7 +114,7 @@ object ScLiteralType {
     case _                                => false
   }
 
-  private def isNumeric(kind: Kind) =
+  def isNumeric(kind: Kind) =
     isInteger(kind) || kind == Kind.Float || kind == Kind.Double
 
   def widenRecursive(aType: ScType): ScType = aType.recursiveUpdate{
