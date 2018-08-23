@@ -2,8 +2,9 @@ package org.jetbrains.plugins.scala.lang.psi.types.recursiveUpdate
 
 import com.intellij.openapi.util.Key
 import org.jetbrains.plugins.scala.extensions.PsiElementExt
-import org.jetbrains.plugins.scala.lang.psi.api.statements.params.TypeParamId
+import org.jetbrains.plugins.scala.lang.psi.api.statements.params.{ScParameter, TypeParamId}
 import org.jetbrains.plugins.scala.lang.psi.api.toplevel.typedef.ScTemplateDefinition
+import org.jetbrains.plugins.scala.lang.psi.types.Compatibility.Expression
 import org.jetbrains.plugins.scala.lang.psi.types.ScType
 import org.jetbrains.plugins.scala.lang.psi.types.api.designator.ScThisType
 import org.jetbrains.plugins.scala.lang.psi.types.api.{TypeParameter, TypeParameterType}
@@ -117,8 +118,14 @@ object ScSubstitutor {
   def apply(updateThisType: ScType): ScSubstitutor =
     ScSubstitutor(ThisTypeSubstitution(updateThisType))
 
-  def apply(dependentMethodTypes: () => Map[Parameter, ScType]): ScSubstitutor =
-    ScSubstitutor(DepMethodParamSubstitution.fromFunction(dependentMethodTypes))
+  def paramToExprType(parameters: Seq[Parameter], expressions: Seq[Expression], useExpected: Boolean = true) =
+    ScSubstitutor(ParamsToExprs(parameters, expressions, useExpected))
+
+  def paramToParam(fromParams: Seq[ScParameter], toParams: Seq[ScParameter]) =
+    ScSubstitutor(ParamToParam(fromParams, toParams))
+
+  def paramToType(fromParams: Seq[Parameter], types: Seq[ScType]) =
+    ScSubstitutor(ParamToType(fromParams, types))
 
   def bind[T: TypeParamId](typeParamsLike: Seq[T])(toScType: T => ScType): ScSubstitutor = {
     val tvMap = TypeParamSubstitution.buildMap(typeParamsLike, typeParamsLike)(toScType)

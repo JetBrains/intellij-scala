@@ -126,14 +126,8 @@ object InferUtil {
         }
 
         implicitParameters = Some(resolveResultsBuffer)
-        val dependentSubst = ScSubstitutor(() => {
-          paramsForInferBuffer.zip(exprsBuffer).map {
-            case (param: Parameter, expr: Expression) =>
-              val paramType: ScType = expr.getTypeAfterImplicitConversion(checkImplicits = true,
-                isShape = false, Some(param.expectedType))._1.getOrAny
-              (param, paramType)
-          }.toMap
-        })
+
+        val dependentSubst = ScSubstitutor.paramToExprType(paramsForInferBuffer, exprsBuffer)
         resInner = dependentSubst.subst(resInner)
       case mt@ScMethodType(retType, _, isImplicit) if !isImplicit =>
         // See SCL-3516
@@ -148,14 +142,7 @@ object InferUtil {
 
         implicitParameters = Some(resolveResults)
         resInner = retType
-        val dependentSubst = ScSubstitutor(() => {
-          paramsForInfer.zip(exprs).map {
-            case (param: Parameter, expr: Expression) =>
-              val paramType: ScType = expr.getTypeAfterImplicitConversion(checkImplicits = true,
-                isShape = false, Some(param.expectedType))._1.getOrAny
-              (param, paramType)
-          }.toMap
-        })
+        val dependentSubst = ScSubstitutor.paramToExprType(paramsForInfer, exprs)
         resInner = dependentSubst.subst(resInner)
       case _ =>
     }
