@@ -57,4 +57,15 @@ class ShapelessConformanceTest extends TypeConformanceTestBase {
        |//False
      """.stripMargin
   )
+
+  def testWitnessNegativeLiteral(): Unit = doTest(
+    """
+      |object Test {
+      |  val W = shapeless.Witness
+      |  type MinusOne = W.`-1`.T
+      |}
+      |val minusOne: Test.MinusOne = -1
+      |//True
+    """.stripMargin
+  )
 }
