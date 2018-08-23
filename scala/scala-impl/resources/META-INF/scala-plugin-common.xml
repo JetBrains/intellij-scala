@@ -976,9 +976,12 @@
                          shortName="MatchToPartialFunction" level="WARNING"
                          enabledByDefault="true" language="Scala"/>
         <localInspection implementationClass="org.jetbrains.plugins.scala.codeInspection.controlFlow.ScalaUnreachableCodeInspection"
-                         displayName="Unreachable code" groupPath="Scala" groupName="General"
-                         shortName="ScalaUnreachableCode" level="WARNING"
-                         enabledByDefault="true" language="Scala"/>
+                         bundle="org.jetbrains.plugins.scala.codeInspection.InspectionBundle"
+                         key="unreachable.code.name"
+                         groupPath="Scala" groupName="General"
+                         shortName="ScalaUnreachableCode"
+                         language="Scala" level="WARNING"
+                         enabledByDefault="true"/>
         <localInspection implementationClass="org.jetbrains.plugins.scala.codeInspection.controlFlow.ScalaUnusedExpressionInspection"
                          bundle="org.jetbrains.plugins.scala.codeInspection.InspectionBundle"
                          key="unused.expression.name"

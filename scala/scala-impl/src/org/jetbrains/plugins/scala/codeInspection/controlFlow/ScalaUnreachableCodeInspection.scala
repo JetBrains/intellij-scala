@@ -1,53 +1,70 @@
 package org.jetbrains.plugins.scala
-package codeInspection.controlFlow
+package codeInspection
+package controlFlow
 
-import com.intellij.codeInspection.ex.ProblemDescriptorImpl
-import com.intellij.codeInspection.{LocalQuickFixOnPsiElement, ProblemHighlightType, ProblemsHolder}
+import com.intellij.codeInspection._
 import com.intellij.openapi.project.Project
-import com.intellij.psi.PsiElement
+import com.intellij.psi.{PsiElement, PsiElementVisitor}
 import org.jetbrains.plugins.scala.codeInsight.unwrap.{ScalaUnwrapContext, ScalaWhileUnwrapper}
-import org.jetbrains.plugins.scala.codeInspection.{AbstractFixOnPsiElement, AbstractFixOnTwoPsiElements, AbstractInspection}
-import org.jetbrains.plugins.scala.extensions._
 import org.jetbrains.plugins.scala.lang.psi.api.expr.{ScBlock, ScDoStmt}
 import org.jetbrains.plugins.scala.lang.psi.api.statements.ScFunctionDefinition
-import org.jetbrains.plugins.scala.lang.psi.controlFlow.{ControlFlowUtil, Instruction}
+import org.jetbrains.plugins.scala.lang.psi.controlFlow.Instruction
 
 import scala.annotation.tailrec
-import scala.collection.Set
+import scala.collection.mutable
 
 /**
   * Nikolay.Tropin
   * 2014-04-22
   */
-class ScalaUnreachableCodeInspection extends AbstractInspection("Unreachable code") {
+final class ScalaUnreachableCodeInspection extends LocalInspectionTool {
 
   import ScalaUnreachableCodeInspection._
 
-  override def actionFor(implicit holder: ProblemsHolder): PartialFunction[PsiElement, Any] = {
-    case funDef: ScFunctionDefinition => ControlFlowUtil.detectConnectedComponents(funDef.getControlFlow) match {
-      case Seq(head, tail@_*) =>
+  protected def problemDescriptors(element: PsiElement,
+                                   descriptionTemplate: String,
+                                   highlightType: ProblemHighlightType)
+                                  (implicit manager: InspectionManager, isOnTheFly: Boolean): List[ProblemDescriptor] =
+    element match {
+      case definition: ScFunctionDefinition =>
         for {
-          component <- tail
-          unreachable = component.diff(head)
-          if unreachable.nonEmpty
+          component <- unreachableComponents(definition.getControlFlow)
+          if component.nonEmpty
 
-          fragment <- fragments(unreachable)
-          fix <- createQuickFix(fragment)
+          sortedComponent = collection.SortedSet.empty[PsiElement] ++ component.flatMap(_.element)
+          fragment <- fragments(sortedComponent)
+          if fragment.nonEmpty
 
-        } {
-          val descriptor = new ProblemDescriptorImpl(fragment.head, fragment.last,
-            "Unreachable code", Array(fix),
-            ProblemHighlightType.LIKE_UNUSED_SYMBOL, false, null, null, false)
-          holder.registerProblem(descriptor)
-        }
-      case _ =>
+          head = fragment.head
+          last = fragment.last
+        } yield manager.createProblemDescriptor(
+          head,
+          last,
+          descriptionTemplate,
+          highlightType,
+          isOnTheFly,
+          createQuickFix(head, last)
+        )
+      case _ => Nil
     }
+
+  override def buildVisitor(holder: ProblemsHolder, isOnTheFly: Boolean): PsiElementVisitor = new PsiElementVisitor {
+
+    private val descriptionTemplate = getDisplayName
+
+    override def visitElement(element: PsiElement): Unit = for {
+      descriptor <- problemDescriptors(element, descriptionTemplate, ProblemHighlightType.LIKE_UNUSED_SYMBOL)(holder.getManager, isOnTheFly)
+    } holder.registerProblem(descriptor)
   }
 }
 
 object ScalaUnreachableCodeInspection {
 
-  private def fragments(instructions: Set[Instruction]): Iterable[Seq[PsiElement]] = {
+  private implicit val Ordering: Ordering[PsiElement] =
+    (x: PsiElement, y: PsiElement) => x.getTextRange.getStartOffset
+      .compareTo(y.getTextRange.getStartOffset)
+
+  private def fragments(elements: collection.SortedSet[PsiElement]) = {
     @tailrec
     def parentStatement(element: PsiElement): Option[PsiElement] = element.getParent match {
       case _: ScBlock |
@@ -57,52 +74,93 @@ object ScalaUnreachableCodeInspection {
       case parent => parentStatement(parent)
     }
 
-    val elements = instructions.toSeq
-      .flatMap(_.element)
+    elements
       .map(e => parentStatement(e).getOrElse(e))
-      .distinct
-
-    elements.groupBy(_.getParent).values
+      .groupBy(_.getParent)
+      .values
       .filter(_.nonEmpty)
-      .map(_.sortBy(_.getTextRange.getStartOffset))
   }
 
-  private def createQuickFix(fragment: Seq[PsiElement]): Option[LocalQuickFixOnPsiElement] =
-    fragment.headOption.collect {
-      case head childOf (doStatement@ScDoStmt(_, Some(condition))) if condition == head => new UnwrapDoStmtFix(doStatement)
-      case head if fragment.size == 1 => new RemoveFragmentQuickFix(head)
-      case head => new RemoveRangeQuickFix(head, fragment.last)
+  /**
+    * Detects connected components in a control-flow graph
+    */
+  def unreachableComponents(cfg: Seq[Instruction]): List[collection.Set[Instruction]] = {
+    val queue = mutable.ListBuffer(cfg: _*)
+    queue.sortBy(_.num)
+
+    val buffer = mutable.ListBuffer.empty[collection.Set[Instruction]]
+
+    def inner(instruction: Instruction): Unit = {
+      val currentSet = mutable.HashSet.empty[Instruction]
+
+      @tailrec
+      def inner(instructions: Instruction*): Unit = {
+        if (instructions.isEmpty) {
+          buffer += currentSet
+          queue --= currentSet
+        } else {
+          val currentSucc = mutable.ArrayBuffer.empty[Instruction]
+
+          for {
+            n <- instructions
+            if currentSet.add(n)
+          } currentSucc ++= n.succ
+
+          inner(currentSucc: _*)
+        }
+      }
+
+      inner(instruction)
     }
 
-  private[this] class RemoveRangeQuickFix(from: PsiElement, to: PsiElement)
-    extends AbstractFixOnTwoPsiElements("Remove unreachable code", from, to) {
+    while (queue.nonEmpty) {
+      inner(queue.head)
+    }
 
+    buffer.toList match {
+      case head :: tail => tail.map(_ -- head)
+      case _ => Nil
+    }
+  }
+
+  private def createQuickFix(head: PsiElement, last: PsiElement) = head.getParent match {
+    case doStatement@ScDoStmt(_, Some(`head`)) => new UnwrapDoStmtFix(doStatement)
+    case _ if head eq last => new RemoveFragmentQuickFix(head)
+    case _ => new RemoveRangeQuickFix(head, last)
+  }
+
+  private[this] class RemoveRangeQuickFix(from: PsiElement, to: PsiElement) extends AbstractFixOnTwoPsiElements(
+    "Remove unreachable code",
+    from,
+    to
+  ) {
     override protected def doApplyFix(from: PsiElement, to: PsiElement)
                                      (implicit project: Project): Unit = {
       from.getParent.deleteChildRange(from, to)
     }
   }
 
-  private[this] class RemoveFragmentQuickFix(fragment: PsiElement)
-    extends AbstractFixOnPsiElement("Remove unreachable code", fragment) {
-
+  private[this] class RemoveFragmentQuickFix(fragment: PsiElement) extends AbstractFixOnPsiElement(
+    "Remove unreachable code",
+    fragment
+  ) {
     override protected def doApplyFix(element: PsiElement)
                                      (implicit project: Project): Unit = {
       element.delete()
     }
   }
 
-  private[this] class UnwrapDoStmtFix(doStatement: ScDoStmt)
-    extends AbstractFixOnPsiElement("Unwrap do-statement", doStatement) {
-
+  private[this] class UnwrapDoStmtFix(doStatement: ScDoStmt) extends AbstractFixOnPsiElement(
+    "Unwrap do-statement",
+    doStatement
+  ) {
     override protected def doApplyFix(doStatement: ScDoStmt)
-                                     (implicit project: Project): Unit = {
-      doStatement.getExprBody.foreach { _ =>
+                                     (implicit project: Project): Unit =
+      if (doStatement.hasExprBody) {
         val unwrapContext = new ScalaUnwrapContext
         unwrapContext.setIsEffective(true)
         new ScalaWhileUnwrapper().doUnwrap(doStatement, unwrapContext)
       }
-    }
   }
 
 }
