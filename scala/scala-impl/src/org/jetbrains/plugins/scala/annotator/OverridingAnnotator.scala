@@ -14,8 +14,6 @@ import org.jetbrains.plugins.scala.lang.psi.api.statements.params.{ScClassParame
 import org.jetbrains.plugins.scala.lang.psi.api.toplevel.typedef.ScTypeDefinition
 import org.jetbrains.plugins.scala.lang.psi.api.toplevel.{ScModifierListOwner, ScNamedElement}
 import org.jetbrains.plugins.scala.lang.psi.types.api.TypeParameterType
-import org.jetbrains.plugins.scala.lang.psi.types.api.designator.ScDesignatorType
-import org.jetbrains.plugins.scala.lang.psi.types.nonvalue.Parameter
 import org.jetbrains.plugins.scala.lang.psi.types.recursiveUpdate.ScSubstitutor
 import org.jetbrains.plugins.scala.lang.psi.types.result.Typeable
 import org.jetbrains.plugins.scala.lang.psi.types.{ScParameterizedType, ScType, Signature}
@@ -236,8 +234,7 @@ trait OverridingAnnotator {
               s.substitutor
             else {
               val typeParamSubst = ScSubstitutor.bind(sTypeParams, mTypeParams)(TypeParameterType(_))
-              val oldParamToNewTypeMap = sParams.map(p => Parameter(p)).zip(mParams.map(ScDesignatorType(_))).toMap
-              val paramTypesSubst = ScSubstitutor(() => oldParamToNewTypeMap)
+              val paramTypesSubst = ScSubstitutor.paramToParam(sParams, mParams)
               s.substitutor.followed(typeParamSubst).followed(paramTypesSubst)
             }
           subst.subst(baseType)

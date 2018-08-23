@@ -270,13 +270,9 @@ object ScImplicitlyConvertible {
         def createDependentSubstitutors(unSubst: ScSubstitutor) = {
           val clauses = function.paramClauses.clauses
 
-          val parameters = clauses.headOption.toSeq
-            .flatMap(_.parameters)
-            .map(Parameter(_))
+          val parameters = clauses.headOption.toSeq.flatMap(_.parameters).map(Parameter(_))
 
-          val dependentSubstitutor = ScSubstitutor(() => {
-            parameters.map((_, `type`)).toMap
-          })
+          val dependentSubstitutor = ScSubstitutor.paramToType(parameters, Seq.fill(parameters.length)(`type`))
 
           def dependentMethodTypes: Option[ScParameterClause] =
             function.returnType.toOption.flatMap { functionType =>
@@ -303,18 +299,13 @@ object ScImplicitlyConvertible {
             .flatMap(_.effectiveParameters)
             .map(Parameter(_))
 
-          val implicitDependentSubstitutor = ScSubstitutor(() => {
-            val (inferredParameters, expressions, _) = findImplicits(effectiveParameters, None, expression, canThrowSCE = false,
-              abstractSubstitutor = substitutor.followed(dependentSubstitutor).followed(unSubst))
+          val (inferredParameters, expressions, _) = findImplicits(effectiveParameters, None, expression, canThrowSCE = false,
+            abstractSubstitutor = substitutor.followed(dependentSubstitutor).followed(unSubst))
 
-            val inferredTypes = expressions.map(_.getTypeAfterImplicitConversion(checkImplicits = true, isShape = false, None))
-              .map(_._1.getOrAny)
-
-            inferredParameters.zip(inferredTypes).toMap
-          })
+          val implicitDependentSubstitutor =
+            ScSubstitutor.paramToExprType(inferredParameters, expressions, useExpected = false)
 
           (dependentSubstitutor, implicitDependentSubstitutor)
-
         }
 
         uSubst.getSubstitutor
