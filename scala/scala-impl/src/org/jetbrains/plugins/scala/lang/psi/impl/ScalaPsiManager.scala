@@ -26,6 +26,7 @@ import org.jetbrains.plugins.scala.caches.{CachesUtil, ScalaShortNamesCacheManag
 import org.jetbrains.plugins.scala.extensions._
 import org.jetbrains.plugins.scala.lang.psi.api.statements.ScTypeAlias
 import org.jetbrains.plugins.scala.lang.psi.api.statements.params.idToName
+import org.jetbrains.plugins.scala.lang.psi.api.toplevel.ScPackaging
 import org.jetbrains.plugins.scala.lang.psi.api.toplevel.typedef.{ScObject, ScTemplateDefinition}
 import org.jetbrains.plugins.scala.lang.psi.impl.toplevel.synthetic.ScSyntheticPackage
 import org.jetbrains.plugins.scala.lang.psi.impl.toplevel.typedef.TypeDefinitionMembers.ParameterlessNodes.{Map => PMap}
@@ -119,6 +120,18 @@ class ScalaPsiManager(val project: Project) {
     val fqn = ScalaNamesUtil.cleanFqn(inFqn)
     Option(JavaPsiFacade.getInstance(project).findPackage(fqn))
   }
+
+  private def isPackageInScope(p: PsiPackage, scope: GlobalSearchScope): Boolean = {
+    def scalaPackageExistsInScope: Boolean = {
+      val fqn = p.getQualifiedName
+      PACKAGE_FQN_KEY.hasIntegerElements(fqn, scope, classOf[ScPackaging]) ||
+        PACKAGE_OBJECT_KEY.hasIntegerElements(fqn, scope, classOf[PsiClass])
+    }
+    scalaPackageExistsInScope || p.getSubPackages(scope).nonEmpty || p.getClasses(scope).nonEmpty
+  }
+
+  def getCachedPackageInScope(fqn: String, scope: GlobalSearchScope): Option[PsiPackage] =
+    getCachedPackage(fqn).filter(isPackageInScope(_, scope))
 
   @CachedWithoutModificationCount(synchronized = false, ValueWrapper.SofterReference, clearCacheOnOutOfBlockChange)
   def getCachedClass(scope: GlobalSearchScope, fqn: String): Option[PsiClass] = {
