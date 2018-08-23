@@ -3,7 +3,6 @@ package org.jetbrains.plugins.scala.performance
 import java.io.File
 import java.util
 
-import scala.collection.JavaConverters.collectionAsScalaIterableConverter
 import com.intellij.openapi.externalSystem.model.ProjectSystemId
 import com.intellij.openapi.externalSystem.settings.ExternalProjectSettings
 import com.intellij.openapi.externalSystem.test.ExternalSystemImportingTestCase
@@ -15,13 +14,14 @@ import com.intellij.openapi.vfs.{LocalFileSystem, VirtualFile}
 import com.intellij.psi.search.{FileTypeIndex, GlobalSearchScopesCore}
 import com.intellij.testFramework.fixtures.{CodeInsightTestFixture, IdeaTestFixtureFactory}
 import com.intellij.testFramework.{IdeaTestUtil, VfsTestUtil}
-import org.jetbrains.SbtStructureSetup.setUpSbtLauncherAndStructure
 import org.jetbrains.plugins.scala.finder.SourceFilterScope
 import org.jetbrains.plugins.scala.util.reporter.ProgressReporter
 import org.jetbrains.plugins.scala.{ScalaFileType, extensions}
 import org.jetbrains.sbt.project.SbtProjectSystem
 import org.jetbrains.sbt.project.settings.SbtProjectSettings
 import org.junit.Assert
+
+import scala.collection.JavaConverters.collectionAsScalaIterableConverter
 
 /**
   * Nikolay.Tropin
@@ -82,7 +82,6 @@ abstract class ImportingProjectTestCase extends ExternalSystemImportingTestCase 
     val projectDir = new File(projectDirPath)
 
     myProjectRoot = LocalFileSystem.getInstance.refreshAndFindFileByIoFile(projectDir)
-    setUpSbtLauncherAndStructure(myProject)
     extensions.inWriteAction {
       val internalSdk = JavaAwareProjectJdkTableImpl.getInstanceEx.getInternalJdk
       val sdk = if (internalSdk == null) IdeaTestUtil.getMockJdk18

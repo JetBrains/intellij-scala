@@ -34,6 +34,7 @@ class SbtSettings(project: Project)
     fillState(state)
     state
   }
+
   override def loadState(state: SbtSettings.State): Unit = {
     super[AbstractExternalSystemSettings].loadState(state)
   }

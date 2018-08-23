@@ -16,7 +16,6 @@ import com.intellij.psi.impl.PsiManagerEx
 import com.intellij.psi.search.FileTypeIndex
 import com.intellij.psi.{PsiElement, PsiManager}
 import com.intellij.testFramework.IdeaTestUtil
-import org.jetbrains.SbtStructureSetup._
 import org.jetbrains.plugins.scala.annotator.{AnnotatorHolderMock, ScalaAnnotator}
 import org.jetbrains.plugins.scala.finder.SourceFilterScope
 import org.jetbrains.plugins.scala.lang.psi.ScalaPsiElement
@@ -145,6 +144,5 @@ class AllProjectHighlightingTest extends ExternalSystemImportingTestCase {
     val projectDir: File = new File(getRootDir, getTestName(false))
     if (!projectDir.exists()) return
     myProjectRoot = LocalFileSystem.getInstance.refreshAndFindFileByIoFile(projectDir)
-    setUpSbtLauncherAndStructure(myProject)
   }
 }

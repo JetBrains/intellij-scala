@@ -9,7 +9,6 @@ import com.intellij.openapi.externalSystem.settings.ExternalProjectSettings
 import com.intellij.openapi.externalSystem.test.ExternalSystemImportingTestCase
 import com.intellij.openapi.projectRoots.impl.JavaAwareProjectJdkTableImpl
 import com.intellij.openapi.vfs.LocalFileSystem
-import org.jetbrains.SbtStructureSetup._
 import org.jetbrains.plugins.scala.util.TestUtils
 import org.jetbrains.sbt.project.ProjectStructureDsl._
 import org.jetbrains.sbt.project.settings.SbtProjectSettings
@@ -48,7 +47,6 @@ abstract class ImportingTestCase extends ExternalSystemImportingTestCase with Pr
   override protected def setUpInWriteAction(): Unit = {
     super.setUpInWriteAction()
     setUpProjectDirectory()
-    setUpSbtLauncherAndStructure(myProject)
   }
 
   private def setUpProjectDirectory(): Unit =
