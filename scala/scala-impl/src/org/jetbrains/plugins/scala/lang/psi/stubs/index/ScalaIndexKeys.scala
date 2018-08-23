@@ -8,6 +8,7 @@ import com.intellij.openapi.project.Project
 import com.intellij.psi.search.GlobalSearchScope
 import com.intellij.psi.stubs.{StubIndex, StubIndexKey}
 import com.intellij.psi.{PsiClass, PsiElement}
+import com.intellij.util.CommonProcessors
 import org.jetbrains.plugins.scala.finder.ScalaFilterScope
 import org.jetbrains.plugins.scala.lang.psi.api.base.types.ScSelfTypeElement
 import org.jetbrains.plugins.scala.lang.psi.api.expr.ScAnnotation
@@ -68,9 +69,20 @@ object ScalaIndexKeys {
 
     def allKeys(implicit project: Project): Iterable[Key] =
       getInstance.getAllKeys(indexKey, project).asScala
+
+    def hasElements(key: Key, scope: GlobalSearchScope, requiredClass: Class[Psi])
+                   (implicit project: Project): Boolean = {
+
+      //processElements will return true only there is no elements
+      val noElementsExistsProcessor = CommonProcessors.alwaysFalse[Psi]()
+
+      !getInstance().processElements(indexKey, key, project, scope, requiredClass, noElementsExistsProcessor)
+    }
   }
 
   implicit class StubIndexIntegerKeyExt[Psi <: PsiElement](private val indexKey: StubIndexKey[JInteger, Psi]) extends AnyVal {
+
+    private def key(fqn: String): JInteger = ScalaNamesUtil.cleanFqn(fqn).hashCode
 
     def integerElements(name: String, requiredClass: Class[Psi])
                        (implicit project: Project): Iterable[Psi] =
@@ -78,10 +90,10 @@ object ScalaIndexKeys {
 
     def integerElements(name: String, scope: GlobalSearchScope, requiredClass: Class[Psi])
                        (implicit project: Project): Iterable[Psi] =
-      indexKey.elements(
-        ScalaNamesUtil.cleanFqn(name).hashCode,
-        scope,
-        requiredClass
-      )
+      indexKey.elements(key(name), scope, requiredClass)
+
+    def hasIntegerElements(name: String, scope: GlobalSearchScope, requiredClass: Class[Psi])
+                          (implicit project: Project): Boolean =
+      indexKey.hasElements(key(name), scope, requiredClass)
   }
 }

@@ -29,6 +29,7 @@ import org.jetbrains.plugins.scala.lang.psi.types.api.TypeParameterType
 import org.jetbrains.plugins.scala.lang.psi.types.api.designator.ScThisType
 import org.jetbrains.plugins.scala.lang.psi.types.recursiveUpdate.ScSubstitutor
 import org.jetbrains.plugins.scala.lang.refactoring.util.ScalaNamesUtil
+import org.jetbrains.plugins.scala.lang.refactoring.util.ScalaNamesUtil.equivalent
 import org.jetbrains.plugins.scala.lang.resolve.ResolveTargets._
 import org.jetbrains.plugins.scala.lang.resolve.processor.{BaseProcessor, ResolveProcessor}
 import org.jetbrains.plugins.scala.util.ScEquivalenceUtil
@@ -427,9 +428,10 @@ object ResolveUtils {
 
   def packageProcessDeclarations(pack: PsiPackage, processor: PsiScopeProcessor,
                                   state: ResolveState, lastParent: PsiElement, place: PsiElement): Boolean = {
+    val manager = ScalaPsiManager.instance(pack.getProject)
     processor match {
       case b: BaseProcessor if b.isImplicitProcessor =>
-        val objectsIterator = ScalaPsiManager.instance(pack.getProject).
+        val objectsIterator = manager.
           getPackageImplicitObjects(pack.getQualifiedName, place.resolveScope).iterator
         while (objectsIterator.hasNext) {
           val obj = objectsIterator.next()
@@ -444,7 +446,6 @@ object ResolveUtils {
             base.setClassKind(classKind = false)
 
             if (base.getClassKindInner) {
-              val manager = ScalaPsiManager.instance(pack.getProject)
               val qName = pack.getQualifiedName
 
               val calcForName = {
@@ -472,7 +473,8 @@ object ResolveUtils {
               }
               val qName: String = psiPack.getQualifiedName
               val subpackageQName: String = if (qName.isEmpty) name else qName + "." + name
-              val subPackage = ScalaPsiManager.instance(psiPack.getProject).getCachedPackage(subpackageQName).orNull
+              val subPackage = manager.getCachedPackageInScope(subpackageQName, place.getResolveScope).orNull
+
               if (subPackage != null) {
                 if (!processor.execute(subPackage, state)) return false
               }
@@ -485,7 +487,6 @@ object ResolveUtils {
           try {
             if (base.getClassKindInner) {
               base.setClassKind(classKind = false)
-              val manager = ScalaPsiManager.instance(pack.getProject)
               val scope = base match {
                 case r: ResolveProcessor => r.getResolveScope
                 case _ => place.resolveScope

@@ -58,17 +58,19 @@ trait FileDeclarationsHolder extends PsiElement with ScDeclarationSequenceHolder
 
     val scope = place.resolveScope
 
+    val manager = ScalaPsiManager.instance(getProject)
+
     place match {
       case ref: ScStableCodeReferenceElement if ref.refName == "_root_" && ref.qualifier.isEmpty =>
-        val top = ScPackageImpl(ScalaPsiManager.instance(getProject).getCachedPackage("").orNull)
+        val top = ScPackageImpl(manager.getCachedPackage("").orNull)
         if (top != null && !processor.execute(top, state.put(ResolverEnv.nameKey, "_root_"))) return false
         state.put(ResolverEnv.nameKey, null)
       case ref: ScReferenceExpressionImpl if ref.refName == "_root_" && ref.qualifier.isEmpty =>
-        val top = ScPackageImpl(ScalaPsiManager.instance(getProject).getCachedPackage("").orNull)
+        val top = ScPackageImpl(manager.getCachedPackage("").orNull)
         if (top != null && !processor.execute(top, state.put(ResolverEnv.nameKey, "_root_"))) return false
         state.put(ResolverEnv.nameKey, null)
       case _ =>
-        val defaultPackage = ScPackageImpl(ScalaPsiManager.instance(getProject).getCachedPackage("").orNull)
+        val defaultPackage = ScPackageImpl(manager.getCachedPackage("").orNull)
         if (place != null && PsiTreeUtil.getParentOfType(place, classOf[ScPackaging]) == null) {
           if (defaultPackage != null &&
             !ResolveUtils.packageProcessDeclarations(defaultPackage, processor, state, null, place)) return false
@@ -98,7 +100,7 @@ trait FileDeclarationsHolder extends PsiElement with ScDeclarationSequenceHolder
               }
             }
           } else {
-            val aPackage: PsiPackage = ScPackageImpl(ScalaPsiManager.instance(getProject).getCachedPackage(name).orNull)
+            val aPackage: PsiPackage = ScPackageImpl(manager.getCachedPackageInScope(name, scope).orNull)
             if (aPackage != null && !processor.execute(aPackage, state)) return false
           }
         }
@@ -158,7 +160,7 @@ trait FileDeclarationsHolder extends PsiElement with ScDeclarationSequenceHolder
       while (implPIterator.hasNext) {
         val implP = implPIterator.next()
         ProgressManager.checkCanceled()
-        val pack: PsiPackage = ScalaPsiManager.instance(getProject).getCachedPackage(implP).orNull
+        val pack: PsiPackage = manager.getCachedPackage(implP).orNull
         if (pack != null && !ResolveUtils.packageProcessDeclarations(pack, processor, state, null, place)) return false
       }
       true
