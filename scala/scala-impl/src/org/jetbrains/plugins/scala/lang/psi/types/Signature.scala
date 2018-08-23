@@ -129,6 +129,7 @@ class Signature(val name: String,
     var undefSubst = uSubst
     if (paramLength != other.paramLength && !(paramLength.sum == 0 && other.paramLength.sum == 0)) return (false, undefSubst)
     if (hasRepeatedParam != other.hasRepeatedParam) return (false, undefSubst)
+    val depParamTypeSubst = depParamTypeSubstitutor(other)
     val unified = other.substitutor.withBindings(typeParams, other.typeParams)
     val clauseIterator = substitutedTypes.iterator
     val otherClauseIterator = other.substitutedTypes.iterator
@@ -140,7 +141,7 @@ class Signature(val name: String,
       while (typesIterator.hasNext && otherTypesIterator.hasNext) {
         val t1 = typesIterator.next()
         val t2 = otherTypesIterator.next()
-        val tp1 = unified.subst(t1())
+        val tp1 = unified.followed(depParamTypeSubst).subst(t1())
         val tp2 = unified.subst(t2())
         var t = tp2.equiv(tp1, undefSubst, falseUndef)
         if (!t._1 && tp1.equiv(api.AnyRef) && this.isJava) {
@@ -168,6 +169,17 @@ class Signature(val name: String,
       case f: ScFunction if !f.hasParameterClause => 1
       case _: PsiMethod => 2
       case _ => 3
+    }
+  }
+
+  private def depParamTypeSubstitutor(target: Signature): ScSubstitutor = {
+    (namedElement, target.namedElement) match {
+      case (from: ScFunction, to: ScFunction) =>
+        val fromParams = from.effectiveParameterClauses.flatMap(_.effectiveParameters)
+        val toParams = to.effectiveParameterClauses.flatMap(_.effectiveParameters)
+        ScSubstitutor.paramToParam(fromParams, toParams)
+      case _ =>
+        ScSubstitutor.empty
     }
   }
 

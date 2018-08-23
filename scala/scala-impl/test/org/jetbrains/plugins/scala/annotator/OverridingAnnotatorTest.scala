@@ -318,4 +318,20 @@ class OverridingAnnotatorTest extends OverridingAnnotatorTestBase {
           |}
         """.stripMargin))
   }
+
+  def testDependentParamType(): Unit = {
+    val code =
+      """
+        |class A {
+        |  class B
+        |}
+        |trait Base {
+        |  def foo(a: A)(b: a.B): Unit
+        |}
+        |trait Impl extends Base {
+        |  override def foo(a: A)(b: a.B): Unit = {}
+        |}
+      """.stripMargin
+    assertNothing(messages(code))
+  }
 }
