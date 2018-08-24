@@ -16,6 +16,4 @@ class FinchProjectHighlightingTest extends GithubSbtAllProjectHighlightingTest {
     "EndpointSpec.scala" -> Set((2346, 2354), (2337, 2345)),
     "GenericSpec.scala" -> Set((225, 255))
   )
-
-  override def shouldSkip(fileName: String) = Set("Endpoint.scala", "EndpointMapper.scala").contains(fileName)
 }
