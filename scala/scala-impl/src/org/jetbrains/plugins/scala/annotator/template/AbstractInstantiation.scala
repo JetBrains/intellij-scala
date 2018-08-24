@@ -3,7 +3,7 @@ package annotator
 package template
 
 import com.intellij.lang.annotation.AnnotationHolder
-import org.jetbrains.plugins.scala.extensions._
+import org.jetbrains.plugins.scala.extensions.PsiNamedElementExt
 import org.jetbrains.plugins.scala.lang.psi.api.expr.ScNewTemplateDefinition
 import org.jetbrains.plugins.scala.lang.psi.api.toplevel.typedef.ScTemplateDefinition
 
@@ -11,7 +11,6 @@ import org.jetbrains.plugins.scala.lang.psi.api.toplevel.typedef.ScTemplateDefin
   * Pavel Fatin
   */
 object AbstractInstantiation extends AnnotatorPart[ScTemplateDefinition] {
-  def THIS: AbstractInstantiation.type = this
 
   def annotate(definition: ScTemplateDefinition,
                holder: AnnotationHolder,
@@ -22,16 +21,10 @@ object AbstractInstantiation extends AnnotatorPart[ScTemplateDefinition] {
 
     if (!newObject || hasEarlyBody || hasBody) return
 
-    val refs = superRefs(definition)
-
-    if (refs.size != 1) return
-
-    refs.headOption.foreach {
-      case (refElement, psiClass) if isAbstract(psiClass) =>
-        holder.createErrorAnnotation(
-          refElement,
-          s"${kindOf(psiClass)} ${psiClass.name} is abstract; cannot be instantiated"
-        )
+    superRefs(definition) match {
+      case Seq((reference, clazz)) if isAbstract(clazz) =>
+        val message = ScalaBundle.message("illegal.instantiation", kindOf(clazz), clazz.name)
+        holder.createErrorAnnotation(reference, message)
       case _ =>
     }
   }

@@ -1,73 +1,66 @@
 package org.jetbrains.plugins.scala
-package annotator.template
+package annotator
+package template
 
 import com.intellij.lang.annotation.AnnotationHolder
-import com.intellij.psi.{PsiElement, PsiMethod}
-import org.jetbrains.plugins.scala.annotator.AnnotatorPart
+import com.intellij.psi.{PsiMethod, PsiModifier}
 import org.jetbrains.plugins.scala.lang.psi.api.base.patterns.ScBindingPattern
 import org.jetbrains.plugins.scala.lang.psi.api.expr.ScNewTemplateDefinition
-import org.jetbrains.plugins.scala.lang.psi.api.statements.{ScFunctionDefinition, ScPatternDefinition, ScVariableDefinition}
+import org.jetbrains.plugins.scala.lang.psi.api.statements.ScFunctionDefinition
 import org.jetbrains.plugins.scala.lang.psi.api.toplevel.typedef.{ScTemplateDefinition, ScTrait, ScTypeDefinition}
 import org.jetbrains.plugins.scala.lang.psi.impl.toplevel.typedef.TypeDefinitionMembers
 import org.jetbrains.plugins.scala.lang.psi.types.PhysicalSignature
 
 /**
- * @author Alefas
- * @since 17.10.12
- */
+  * @author Alefas
+  * @since 17.10.12
+  */
 object NeedsToBeMixin extends AnnotatorPart[ScTemplateDefinition] {
-  def annotate(element: ScTemplateDefinition, holder: AnnotationHolder, typeAware: Boolean) {
-    if (element.isInstanceOf[ScTrait]) return
-    val signaturesIterator = TypeDefinitionMembers.getSignatures(element).allFirstSeq().
-      flatMap(_.map(_._2)).iterator
 
-    while (signaturesIterator.hasNext) {
-      val signature = signaturesIterator.next()
+  def annotate(definition: ScTemplateDefinition,
+               holder: AnnotationHolder,
+               typeAware: Boolean): Unit = {
+    if (definition.isInstanceOf[ScTrait]) return
+    val signatures = TypeDefinitionMembers.getSignatures(definition)
+      .allFirstSeq()
+      .flatMap {
+        _.map(_._2)
+      }
+
+    for (signature <- signatures) {
       signature.info match {
-        case sign: PhysicalSignature =>
-          val m = sign.method
-          m match {
-            case f: ScFunctionDefinition =>
-              if (f.hasModifierPropertyScala("abstract") && f.hasModifierPropertyScala("override")) {
-                signature.supers.find {
-                  case node => node.info.namedElement match {
-                    case f: ScFunctionDefinition => !f.hasModifierPropertyScala("abstract") ||
-                            !f.hasModifierProperty("override")
-                    case v: ScBindingPattern =>
-                      v.nameContext match {
-                        case _: ScVariableDefinition if !f.hasModifierPropertyScala("abstract") ||
-                          !f.hasModifierPropertyScala("override") => true
-                        case _: ScPatternDefinition if !f.hasModifierPropertyScala("abstract") ||
-                          !f.hasModifierPropertyScala("override") => true
-                        case _ => false
-                      }
-                    case m: PsiMethod => !m.hasModifierProperty("abstract")
-                    case _ => false
-                  }
-                } match {
-                  case Some(_) => //do nothing
-                  case None =>
-                    val place: PsiElement = element match {
-                      case td: ScTypeDefinition => td.nameId
-                      case t: ScNewTemplateDefinition =>
-                        t.extendsBlock.templateParents.flatMap(_.typeElements.headOption).orNull
-                      case _ => null
-                    }
-                    if (place != null) {
-                      holder.createErrorAnnotation(place,
-                        message(kindOf(element), element.name, (f.name, f.containingClass.name)))
-                    }
-                }
-              }
-            case _ =>
+        case PhysicalSignature(function: ScFunctionDefinition, _) if isOverrideAndAbstract(function) =>
+          val flag = signature.supers.map(_.info.namedElement).forall {
+            case f: ScFunctionDefinition => isOverrideAndAbstract(f)
+            case _: ScBindingPattern => true
+            case m: PsiMethod => m.hasModifierProperty(PsiModifier.ABSTRACT)
+            case _ => true
           }
+
+          for {
+            place <- definition match {
+              case _ if !flag => None
+              case typeDefinition: ScTypeDefinition => Some(typeDefinition.nameId)
+              case templateDefinition: ScNewTemplateDefinition =>
+                templateDefinition.extendsBlock.templateParents
+                  .flatMap(_.typeElements.headOption)
+              case _ => None
+            }
+
+            message = ScalaBundle.message(
+              "mixin.required",
+              kindOf(definition),
+              definition.name,
+              function.name,
+              function.containingClass.name
+            )
+          } holder.createErrorAnnotation(place, message)
         case _ => //todo: vals?
       }
     }
   }
 
-  def message(kind: String, name: String, member: (String, String)): String = {
-    s"$kind '$name' needs to be mixin, since member '${member._1}' in '${member._2}' is marked 'abstract' and 'override', " +
-      s"but no concrete implementation could be found in a base class"
-  }
+  private def isOverrideAndAbstract(definition: ScFunctionDefinition) =
+    definition.hasModifierPropertyScala(PsiModifier.ABSTRACT) &&
+      definition.hasModifierPropertyScala("override")
 }

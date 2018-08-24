@@ -1,6 +1,7 @@
 package org.jetbrains.plugins.scala.annotator
 
 import org.intellij.lang.annotations.Language
+import org.jetbrains.plugins.scala.ScalaBundle
 import org.jetbrains.plugins.scala.base.SimpleTestCase
 import org.jetbrains.plugins.scala.extensions.PsiElementExt
 import org.jetbrains.plugins.scala.lang.psi.api.ScalaFile
@@ -61,8 +62,9 @@ class AbsentTypeArgumentAnnotatorTest extends SimpleTestCase {
       case Nil =>
     }
 
+    val message = ScalaBundle.message("illegal.instantiation", "Trait", "A2")
     assertMatches(messages("val x = new A2[A0, A0]()")){
-      case List(Error("A2[A0, A0]", "Trait A2 is abstract; cannot be instantiated")) =>
+      case List(Error("A2[A0, A0]", `message`)) =>
     }
 
     assertMatches(messages("val x = new A2[A0, A0]() {}")){

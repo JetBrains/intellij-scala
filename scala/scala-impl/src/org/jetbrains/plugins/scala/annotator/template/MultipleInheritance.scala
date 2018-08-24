@@ -14,15 +14,14 @@ object MultipleInheritance extends AnnotatorPart[ScTemplateDefinition] {
   def annotate(definition: ScTemplateDefinition,
                holder: AnnotationHolder,
                typeAware: Boolean): Unit = {
-    superRefs(definition).groupBy(_._2).foreach {
-      case (psiClass, entries) if isMixable(psiClass) && entries.size > 1 =>
-        entries.map(_._1).foreach { refElement =>
-          holder.createErrorAnnotation(
-            refElement,
-            s"${kindOf(psiClass)} ${psiClass.name} inherited multiple times"
-          )
-        }
-      case _ =>
+    superRefs(definition).groupBy(_._2).flatMap {
+      case (clazz, entries) if isMixable(clazz) && entries.size > 1 => entries.map {
+        case (reference, _) => (reference, ScalaBundle.message("illegal.inheritance.multiple", kindOf(clazz), clazz.name))
+      }
+      case _ => Seq.empty
+    }.foreach {
+      case (reference, message) =>
+        holder.createErrorAnnotation(reference, message)
     }
   }
 }

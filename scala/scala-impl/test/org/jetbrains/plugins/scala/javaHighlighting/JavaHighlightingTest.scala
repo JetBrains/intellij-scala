@@ -115,8 +115,10 @@ class JavaHighlightingTest extends JavaHighlightingTestBase() {
         |    }
         |}
       """.stripMargin
+
+    val defaultMessage = ScalaBundle.message("illegal.instantiation", "Trait", "MooSCL4289")
     assertMatches(errorsFromJavaCode(scalaCode, javaCode, "TestSCL4289")) {
-      case Error("new MooSCL4289()", CannotBeInstantianted()) :: Nil =>
+      case Error("new MooSCL4289()", message) :: Nil if defaultMessage.contains(message) =>
     }
   }
 
@@ -221,7 +223,7 @@ class JavaHighlightingTest extends JavaHighlightingTestBase() {
       """.stripMargin
 
     assertMatches(errorsFromJavaCode(scala, java, javaClassName = "JavaHighlightingValueTypes")) {
-      case Error("(42.0)", CannotBeApplied()) :: Nil =>
+      case Error("(42.0)", message) :: Nil if message.contains("cannot be applied") =>
     }
   }
 
@@ -274,7 +276,7 @@ class JavaHighlightingTest extends JavaHighlightingTestBase() {
       """.stripMargin
 
     assertMatches(errorsFromJavaCode(scala, java, javaClassName = "TestJavaAAA")) {
-      case Error("get$u0060type$u0060", CannotResolveMethod()) :: Nil =>
+      case Error("get$u0060type$u0060", message) :: Nil if message.contains("Cannot resolve method") =>
     }
   }
 

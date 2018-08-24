@@ -1,7 +1,6 @@
 package org.jetbrains.plugins.scala
-package annotator.template
-
-import org.jetbrains.plugins.scala.annotator.{AnnotatorTestBase, Error}
+package annotator
+package template
 
 /**
  * @author Alefas
@@ -9,8 +8,7 @@ import org.jetbrains.plugins.scala.annotator.{AnnotatorTestBase, Error}
  */
 class NeedsToBeMixinTest extends AnnotatorTestBase(NeedsToBeMixin) {
   def testProblem() {
-    val Message = NeedsToBeMixin.message (
-      "Class", "C", ("base", "T"))
+    val message = ScalaBundle.message("mixin.required", "Class", "C", "base", "T")
 
     assertMatches(messages(
       """
@@ -23,7 +21,7 @@ class NeedsToBeMixinTest extends AnnotatorTestBase(NeedsToBeMixin) {
         |class C extends T
       """.stripMargin
     )) {
-      case Error("C", Message) :: Nil =>
+      case Error("C", `message`) :: Nil =>
     }
   }
 

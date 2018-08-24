@@ -34,12 +34,4 @@ abstract class ScalaHighlightingTestBase extends ScalaFixtureTestCase with Asser
       case _ => false
     }
   }
-
-  val CannotResolveMethod = ContainsPattern("Cannot resolve method")
-  val CannotBeApplied = ContainsPattern("cannot be applied")
-  val CannotBeInstantianted = ContainsPattern("is abstract; cannot be instantiated")
-
-  case class ContainsPattern(fragment: String) {
-    def unapply(s: String): Boolean = s.contains(fragment)
-  }
 }

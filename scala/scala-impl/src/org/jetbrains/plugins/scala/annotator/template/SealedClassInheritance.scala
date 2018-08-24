@@ -24,14 +24,13 @@ object SealedClassInheritance extends AnnotatorPart[ScTemplateDefinition] {
 
     if (newInstance && !hasBody) return
 
-    superRefs(definition).foreach {
-      case (refElement, definition: ScTypeDefinition) if definition.isSealed &&
-        definition.getContainingFile.getNavigationElement != refElement.getContainingFile.getNavigationElement =>
-        holder.createErrorAnnotation(
-          refElement,
-          s"Illegal inheritance from sealed ${kindOf(definition).toLowerCase} ${definition.name}"
-        )
-      case _ =>
+    superRefs(definition).collect {
+      case (reference, definition: ScTypeDefinition) if definition.isSealed &&
+        definition.getContainingFile.getNavigationElement != reference.getContainingFile.getNavigationElement =>
+        (reference, ScalaBundle.message("illegal.inheritance.from.sealed.kind", kindOf(definition, toLowerCase = true), definition.name))
+    }.foreach {
+      case (reference, message) =>
+        holder.createErrorAnnotation(reference, message)
     }
   }
 }

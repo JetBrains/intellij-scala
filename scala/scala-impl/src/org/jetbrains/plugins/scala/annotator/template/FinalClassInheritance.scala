@@ -21,18 +21,14 @@ object FinalClassInheritance extends AnnotatorPart[ScTemplateDefinition] {
 
     if (newInstance && !hasBody) return
 
-    superRefs(definition).foreach {
-      case (refElement, psiClass) if psiClass.hasFinalModifier =>
-        holder.createErrorAnnotation(
-          refElement,
-          s"Illegal inheritance from final ${kindOf(psiClass).toLowerCase} ${psiClass.name}"
-        )
-      case (refElement, cl) if ValueClassType.extendsAnyVal(cl) =>
-        holder.createErrorAnnotation(
-          refElement,
-          ScalaBundle.message("illegal.inheritance.from.value.class", cl.name)
-        )
-      case _ =>
+    superRefs(definition).collect {
+      case (reference, clazz) if clazz.hasFinalModifier =>
+        (reference, ScalaBundle.message("illegal.inheritance.from.final.kind", kindOf(clazz, toLowerCase = true), clazz.name))
+      case (reference, clazz) if ValueClassType.extendsAnyVal(clazz) =>
+        (reference, ScalaBundle.message("illegal.inheritance.from.value.class", clazz.name))
+    }.foreach {
+      case (reference, message) =>
+        holder.createErrorAnnotation(reference, message)
     }
   }
 }
