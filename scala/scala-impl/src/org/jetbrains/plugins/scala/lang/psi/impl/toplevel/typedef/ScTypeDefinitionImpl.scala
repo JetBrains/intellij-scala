@@ -313,7 +313,7 @@ abstract class ScTypeDefinitionImpl protected (stub: ScTemplateDefinitionStub,
   override def delete(): Unit = getContainingFile match {
     case file @ (SingularDefinition(_) |
                  ClassAndCompanionObject(_, _) |
-                 TraitAndCompanionObject(_, _)) => file.delete()
+                 TraitAndCompanionObject(_, _)) if isTopLevel => file.delete()
 
     case _ => getParent.getNode.removeChild(getNode)
   }

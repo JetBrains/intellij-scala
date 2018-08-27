@@ -433,4 +433,62 @@ class ScalaUnusedSymbolInspectionTest extends ScalaQuickFixTestBase {
       """.stripMargin
     checkTextHasNoErrors(code)
   }
+
+  def testLocalClass(): Unit = {
+    val code =
+      s"""
+         |class Person() {
+         |  def func() = {
+         |    object ${START}A$END
+         |  }
+         |}
+      """.stripMargin
+    val before =
+      """
+        |class Person() {
+        |  def func() = {
+        |    object A
+        |  }
+        |}
+      """.stripMargin
+    val after =
+      """
+        |class Person() {
+        |  def func() = {
+        |
+        |  }
+        |}
+      """.stripMargin
+
+    checkTextHasError(code)
+    testQuickFix(before, after, hint)
+  }
+
+  def testInnerClass(): Unit = {
+    val code =
+      s"""
+         |class Person() {
+         |  private object ${START}A$END
+         |}
+      """.stripMargin
+    val before =
+      """
+        |class Person() {
+        |  private object A
+        |}
+      """.stripMargin
+    val after =
+      """
+        |class Person() {
+        |
+        |}
+      """.stripMargin
+
+    checkTextHasError(code)
+    testQuickFix(before, after, hint)
+  }
+
+}
+class Person() {
+  private object A
 }
