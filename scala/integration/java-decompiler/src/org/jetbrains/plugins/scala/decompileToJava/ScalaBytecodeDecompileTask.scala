@@ -1,4 +1,4 @@
-package org.jetbrains.plugins.scala.actions.decompileToJava
+package org.jetbrains.plugins.scala.decompileToJava
 
 import com.intellij.codeInsight.daemon.impl.analysis.{FileHighlightingSetting, HighlightLevelUtil}
 import com.intellij.openapi.application.ApplicationManager

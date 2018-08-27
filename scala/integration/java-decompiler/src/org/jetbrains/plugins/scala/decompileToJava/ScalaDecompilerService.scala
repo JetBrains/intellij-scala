@@ -1,4 +1,4 @@
-package org.jetbrains.plugins.scala.actions.decompileToJava
+package org.jetbrains.plugins.scala.decompileToJava
 
 import com.intellij.openapi.components.ServiceManager
 import org.jetbrains.plugins.scala.lang.psi.api.ScalaFile

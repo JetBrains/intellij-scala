@@ -1,0 +1,16 @@
+<idea-plugin>
+    <extensions defaultExtensionNs="com.intellij">
+        <attachSourcesProvider implementation="org.jetbrains.plugins.scala.decompileToJava.DecompileScalaToJavaActionProvider"/>
+        <applicationService serviceInterface="org.jetbrains.plugins.scala.decompileToJava.ScalaDecompilerService"
+                            serviceImplementation="org.jetbrains.plugins.scala.decompileToJava.ScalaDecompilerServiceImpl"/>
+        <writingAccessProvider implementation="org.jetbrains.plugins.scala.decompileToJava.DecompiledScalaFileWritingAccessProvider"/>
+    </extensions>
+
+    <actions>
+        <action id="Scala.DecompileToJava"
+              class="org.jetbrains.plugins.scala.decompileToJava.DecompileScalaToJavaAction"
+              description="Run FernFlower decompiler on given classfile">
+        <add-to-group group-id="RunContextPopupGroup" anchor="last"/>
+      </action>
+    </actions>
+</idea-plugin>

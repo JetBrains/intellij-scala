@@ -1,4 +1,4 @@
-package org.jetbrains.plugins.scala.actions.decompileToJava
+package org.jetbrains.plugins.scala.decompileToJava
 
 import java.util
 import java.util.Collections
@@ -11,7 +11,7 @@ import org.jetbrains.plugins.scala.lang.psi.api.ScalaFile
 
 class DecompileScalaToJavaActionProvider extends AttachSourcesProvider {
   override def getActions(
-    list: util.List[LibraryOrderEntry],
+    list:      util.List[LibraryOrderEntry],
     classFile: PsiFile
   ): util.Collection[AttachSourcesProvider.AttachSourcesAction] = classFile match {
     case sfile: ScalaFile if sfile.isCompiled =>

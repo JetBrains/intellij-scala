@@ -25,7 +25,8 @@ lazy val scalaCommunity: sbt.Project =
       gradleIntegration % "test->test;compile->compile",
       intellilangIntegration % "test->test;compile->compile",
       mavenIntegration % "test->test;compile->compile",
-      propertiesIntegration % "test->test;compile->compile")
+      propertiesIntegration % "test->test;compile->compile",
+      javaDecompilerIntegration)
     .settings(
       ideExcludedDirectories    := Seq(baseDirectory.value / "target"),
       packageAdditionalProjects := Seq(compilerJps, repackagedZinc, decompiler, compilerShared, nailgunRunners, runners, sbtRuntimeDependencies),
@@ -53,8 +54,7 @@ lazy val scalaImpl: sbt.Project =
         "Groovy",     // requierd by Gradle
         "properties", // required by Gradle
         "maven",      // TODO remove after extracting the SBT module (which depends on Maven)
-        "junit",
-        "java-decompiler"
+        "junit"
       ),
       ideaInternalPluginsJars :=
         ideaInternalPluginsJars.value.filterNot(cp => cp.data.getName.contains("junit-jupiter-api")),
@@ -205,6 +205,13 @@ lazy val propertiesIntegration =
     .dependsOn(scalaImpl % "test->test;compile->compile")
     .settings(
       ideaInternalPlugins := Seq("properties")
+    )
+
+lazy val javaDecompilerIntegration =
+  newProject("java-decompiler", file("scala/integration/java-decompiler"))
+    .dependsOn(scalaImpl % Compile)
+    .settings(
+      ideaInternalPlugins := Seq("java-decompiler")
     )
 
 

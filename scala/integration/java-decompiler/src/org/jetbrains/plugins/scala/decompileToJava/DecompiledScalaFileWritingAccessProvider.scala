@@ -1,4 +1,4 @@
-package org.jetbrains.plugins.scala.actions.decompileToJava
+package org.jetbrains.plugins.scala.decompileToJava
 
 import java.util
 import java.util.Collections

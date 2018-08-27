@@ -1,4 +1,4 @@
-package org.jetbrains.plugins.scala.actions.decompileToJava
+package org.jetbrains.plugins.scala.decompileToJava
 
 import java.io.File
 import java.util.jar
@@ -49,7 +49,7 @@ private class ScalaDecompilerServiceImpl extends ScalaDecompilerService {
       val name = classfile.getNameWithoutExtension
       name == sourceName || name.startsWith(s"$sourceName$$")
     }
-  
+
   private[this] def mappingsForClassfile(file: VirtualFile): Map[File, FileContents] =
     file.getParent.getChildren.iterator.collect {
       case child if isClassGeneratedFrom(file.getNameWithoutExtension, child) =>
@@ -65,7 +65,7 @@ object ScalaDecompilerServiceImpl {
 
   private class ScalaResultSaver extends IResultSaver {
     private[this] val decompiledTexts = mutable.Map.empty[String, String]
-    
+
     def result: String = decompiledTexts.map { case (filename, text) =>
       s"""|//decompiled from ${filename.stripSuffix(".java")}.class
           |$text
