@@ -14,6 +14,7 @@ import org.jetbrains.plugins.scala.lang.psi.api.expr._
 import org.jetbrains.plugins.scala.lang.psi.api.statements._
 import org.jetbrains.plugins.scala.lang.psi.api.statements.params.{ScClassParameter, ScParameter}
 import org.jetbrains.plugins.scala.lang.psi.api.toplevel.ScNamedElement
+import org.jetbrains.plugins.scala.lang.refactoring.util.ScalaNamesUtil
 import org.jetbrains.plugins.scala.lang.scaladoc.psi.api.ScDocTagValue
 
 final class ScalaRainbowVisitor extends RainbowVisitor {
@@ -48,7 +49,11 @@ final class ScalaRainbowVisitor extends RainbowVisitor {
     }
 
     if (context != null) {
-      val info = getInfo(context, rainbowElement, rainbowElement.getText, colorKey)
+      val elementName = rainbowElement.getText match {
+        case ScalaNamesUtil.isBacktickedName(name) => name
+        case name => name
+      }
+      val info = getInfo(context, rainbowElement, elementName, colorKey)
       addInfo(info)
     }
   }
