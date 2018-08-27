@@ -11,7 +11,7 @@ import org.jetbrains.plugins.scala.lang.psi.types.ValueClassType
 /**
   * Pavel Fatin
   */
-object FinalClassInheritance extends AnnotatorPart[ScTemplateDefinition] {
+object FinalClassInheritance extends TemplateDefinitionAnnotatorPart {
 
   def annotate(definition: ScTemplateDefinition,
                holder: AnnotationHolder,
@@ -22,13 +22,13 @@ object FinalClassInheritance extends AnnotatorPart[ScTemplateDefinition] {
     if (newInstance && !hasBody) return
 
     superRefs(definition).collect {
-      case (reference, clazz) if clazz.hasFinalModifier =>
-        (reference, ScalaBundle.message("illegal.inheritance.from.final.kind", kindOf(clazz, toLowerCase = true), clazz.name))
-      case (reference, clazz) if ValueClassType.extendsAnyVal(clazz) =>
-        (reference, ScalaBundle.message("illegal.inheritance.from.value.class", clazz.name))
+      case (range, clazz) if clazz.hasFinalModifier =>
+        (range, ScalaBundle.message("illegal.inheritance.from.final.kind", kindOf(clazz, toLowerCase = true), clazz.name))
+      case (range, clazz) if ValueClassType.extendsAnyVal(clazz) =>
+        (range, ScalaBundle.message("illegal.inheritance.from.value.class", clazz.name))
     }.foreach {
-      case (reference, message) =>
-        holder.createErrorAnnotation(reference, message)
+      case (range, message) =>
+        holder.createErrorAnnotation(range, message)
     }
   }
 }

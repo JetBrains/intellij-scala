@@ -15,7 +15,7 @@ import org.jetbrains.plugins.scala.lang.psi.types.PhysicalSignature
   * @author Alefas
   * @since 17.10.12
   */
-object NeedsToBeMixin extends AnnotatorPart[ScTemplateDefinition] {
+object NeedsToBeMixin extends TemplateDefinitionAnnotatorPart {
 
   def annotate(definition: ScTemplateDefinition,
                holder: AnnotationHolder,

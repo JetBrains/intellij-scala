@@ -10,30 +10,28 @@ import org.jetbrains.plugins.scala.lang.psi.types.ScTypeExt
   * Pavel Fatin
   */
 
-object IllegalInheritance extends AnnotatorPart[ScTemplateDefinition] {
-  val Message = "Illegal inheritance, self-type %s does not conform to %s".format(_: String, _: String)
+object IllegalInheritance extends TemplateDefinitionAnnotatorPart {
 
-  def annotate(definition: ScTemplateDefinition, holder: AnnotationHolder, typeAware: Boolean) {
-
+  def annotate(definition: ScTemplateDefinition,
+               holder: AnnotationHolder,
+               typeAware: Boolean): Unit = {
     if (!typeAware) return
 
     definition.selfTypeElement.flatMap(_.`type`().toOption).
-      orElse(definition.`type`().toOption).foreach { ownType =>
+      orElse(definition.`type`().toOption)
+      .foreach { ownType =>
 
-      collectSuperRefs(definition) {
-        _.extractClassType
-      }.foreach {
-        case (refElement, (clazz: ScTemplateDefinition, subst)) =>
-          clazz.selfType.filterNot { selfType =>
-            ownType.conforms(subst.subst(selfType))
-          }.foreach { selfType =>
-            holder.createErrorAnnotation(
-              refElement,
-              Message(ownType.presentableText, selfType.presentableText)
-            )
-          }
-        case _ =>
+        collectSuperRefs(definition) {
+          _.extractClassType
+        }.foreach {
+          case (range, (clazz: ScTemplateDefinition, substitutor)) =>
+            clazz.selfType.filterNot { selfType =>
+              ownType.conforms(substitutor.subst(selfType))
+            }.foreach { selfType =>
+              holder.createErrorAnnotation(range, ScalaBundle.message("illegal.inheritance.self.type", ownType.presentableText, selfType.presentableText))
+            }
+          case _ =>
+        }
       }
-    }
   }
 }

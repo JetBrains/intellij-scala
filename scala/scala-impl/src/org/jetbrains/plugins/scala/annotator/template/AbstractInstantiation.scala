@@ -10,7 +10,7 @@ import org.jetbrains.plugins.scala.lang.psi.api.toplevel.typedef.ScTemplateDefin
 /**
   * Pavel Fatin
   */
-object AbstractInstantiation extends AnnotatorPart[ScTemplateDefinition] {
+object AbstractInstantiation extends TemplateDefinitionAnnotatorPart {
 
   def annotate(definition: ScTemplateDefinition,
                holder: AnnotationHolder,
@@ -22,9 +22,9 @@ object AbstractInstantiation extends AnnotatorPart[ScTemplateDefinition] {
     if (!newObject || hasEarlyBody || hasBody) return
 
     superRefs(definition) match {
-      case Seq((reference, clazz)) if isAbstract(clazz) =>
+      case (range, clazz) :: Nil if isAbstract(clazz) =>
         val message = ScalaBundle.message("illegal.instantiation", kindOf(clazz), clazz.name)
-        holder.createErrorAnnotation(reference, message)
+        holder.createErrorAnnotation(range, message)
       case _ =>
     }
   }

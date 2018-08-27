@@ -14,7 +14,7 @@ import org.jetbrains.plugins.scala.overrideImplement.{ClassMember, ScalaOIUtil, 
 /**
   * Pavel Fatin
   */
-object NeedsToBeAbstract extends AnnotatorPart[ScTemplateDefinition] {
+object NeedsToBeAbstract extends TemplateDefinitionAnnotatorPart {
 
   import ScalaOIUtil.{getMembersToImplement => members}
 

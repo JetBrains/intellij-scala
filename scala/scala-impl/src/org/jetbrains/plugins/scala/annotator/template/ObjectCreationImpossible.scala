@@ -11,7 +11,7 @@ import org.jetbrains.plugins.scala.overrideImplement.{ScalaOIUtil, ScalaTypedMem
 /**
   * Pavel Fatin
   */
-object ObjectCreationImpossible extends AnnotatorPart[ScTemplateDefinition] {
+object ObjectCreationImpossible extends TemplateDefinitionAnnotatorPart {
   def annotate(definition: ScTemplateDefinition, holder: AnnotationHolder, typeAware: Boolean) {
     if (!typeAware) return
 
@@ -27,26 +27,30 @@ object ObjectCreationImpossible extends AnnotatorPart[ScTemplateDefinition] {
     }
 
     if (hasAbstract) {
-      refs.headOption.map(_._1).foreach { refElement =>
-        import ScalaOIUtil._
-
-        val undefined = for {
-          member <- getMembersToImplement(definition)
-          if member.isInstanceOf[ScalaTypedMember] // See SCL-2887
-        } yield {
-          try {
-            (member.getText, member.getParentNodeDelegate.getText)
-          } catch {
-            case iae: IllegalArgumentException =>
-              throw new RuntimeException("member: " + member.getText, iae)
+      refs match {
+        case (defaultRange, _) :: _ =>
+          val undefined = for {
+            member <- ScalaOIUtil.getMembersToImplement(definition)
+            if member.isInstanceOf[ScalaTypedMember] // See SCL-2887
+          } yield {
+            try {
+              (member.getText, member.getParentNodeDelegate.getText)
+            } catch {
+              case iae: IllegalArgumentException =>
+                throw new RuntimeException("member: " + member.getText, iae)
+            }
           }
-        }
 
-        if (undefined.nonEmpty) {
-          val element = if (isNew) refElement else definition.asInstanceOf[ScObject].nameId
-          val annotation = holder.createErrorAnnotation(element, message(undefined.toSeq: _*))
-          annotation.registerFix(new ImplementMethodsQuickFix(definition))
-        }
+          if (undefined.nonEmpty) {
+            val range = definition match {
+              case _: ScNewTemplateDefinition => defaultRange
+              case scalaObject: ScObject => scalaObject.nameId.getTextRange
+            }
+
+            val annotation = holder.createErrorAnnotation(range, message(undefined.toSeq: _*))
+            annotation.registerFix(new ImplementMethodsQuickFix(definition))
+          }
+        case _ =>
       }
     }
   }

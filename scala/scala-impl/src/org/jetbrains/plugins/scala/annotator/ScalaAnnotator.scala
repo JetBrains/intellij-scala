@@ -21,7 +21,7 @@ import org.jetbrains.plugins.scala.annotator.usageTracker.UsageTracker._
 import org.jetbrains.plugins.scala.codeInspection.caseClassParamInspection.{RemoveValFromEnumeratorIntentionAction, RemoveValFromGeneratorIntentionAction}
 import org.jetbrains.plugins.scala.components.HighlightingAdvisor
 import org.jetbrains.plugins.scala.extensions._
-import org.jetbrains.plugins.scala.highlighter.{AnnotatorHighlighter, DefaultHighlighter}
+import org.jetbrains.plugins.scala.highlighter.DefaultHighlighter
 import org.jetbrains.plugins.scala.lang.lexer.ScalaTokenTypes
 import org.jetbrains.plugins.scala.lang.macros.expansion.RecompileAnnotationAction
 import org.jetbrains.plugins.scala.lang.psi.api.base._
@@ -422,16 +422,14 @@ abstract class ScalaAnnotator extends Annotator
     element match {
       case templateDefinition: ScTemplateDefinition =>
         checkBoundsVariance(templateDefinition, holder, templateDefinition.nameId, templateDefinition.nameId, Covariant)
-        val tdParts = Seq(AbstractInstantiation, FinalClassInheritance, IllegalInheritance, ObjectCreationImpossible,
-          MultipleInheritance, NeedsToBeAbstract, NeedsToBeMixin, NeedsToBeTrait, SealedClassInheritance, UndefinedMember)
-        tdParts.foreach(_.annotate(templateDefinition, holder, typeAware))
+
+        ScalaAnnotator.AnnotatorParts.foreach {
+          _.annotate(templateDefinition, holder, typeAware)
+        }
+
         templateDefinition match {
-          case cls: ScClass =>
-            val clsParts = Seq(CaseClassWithoutParamList)
-            clsParts.foreach(_.annotate(cls, holder, typeAware))
-          case trt: ScTrait =>
-            val traitParts = Seq(TraitHasImplicitBound)
-            traitParts.foreach(_.annotate(trt, holder, typeAware))
+          case cls: ScClass => CaseClassWithoutParamList.annotate(cls, holder, typeAware)
+          case trt: ScTrait => TraitHasImplicitBound.annotate(trt, holder, typeAware)
           case _ =>
         }
       case _ =>
@@ -1381,6 +1379,19 @@ object ScalaAnnotator {
   val ignoreHighlightingKey: Key[(Long, mutable.HashSet[TextRange])] = Key.create("ignore.highlighting.key")
 
   val usedImportsKey: Key[mutable.HashSet[ImportUsed]] = Key.create("used.imports.key")
+
+  private val AnnotatorParts: Seq[TemplateDefinitionAnnotatorPart] = Seq(
+    AbstractInstantiation,
+    FinalClassInheritance,
+    IllegalInheritance,
+    ObjectCreationImpossible,
+    MultipleInheritance,
+    NeedsToBeAbstract,
+    NeedsToBeMixin,
+    NeedsToBeTrait,
+    SealedClassInheritance,
+    UndefinedMember
+  )
 
   def forProject(implicit ctx: ProjectContext): ScalaAnnotator = new ScalaAnnotator {
     override implicit def projectContext: ProjectContext = ctx

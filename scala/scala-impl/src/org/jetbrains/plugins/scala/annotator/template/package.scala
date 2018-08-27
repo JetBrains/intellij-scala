@@ -14,11 +14,11 @@ package object template {
   private[template] def collectSuperRefs[T](definition: ScTemplateDefinition)
                                            (extractor: ScType => Option[T]) =
     for {
-      parents <- definition.physicalExtendsBlock.templateParents.toSeq
+      parents <- definition.physicalExtendsBlock.templateParents.toList
       typeElement <- parents.typeElements
       scType <- typeElement.`type`().toOption
       extracted <- extractor(scType)
-    } yield (typeElement, extracted)
+    } yield (typeElement.getTextRange, extracted)
 
   private[template] def isMixable(clazz: PsiClass) = isInterface(clazz)()
 

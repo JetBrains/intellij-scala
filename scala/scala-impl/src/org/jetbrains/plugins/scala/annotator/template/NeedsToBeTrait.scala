@@ -9,17 +9,19 @@ import org.jetbrains.plugins.scala.lang.psi.api.toplevel.typedef.ScTemplateDefin
 /**
   * Pavel Fatin
   */
-object NeedsToBeTrait extends AnnotatorPart[ScTemplateDefinition] {
+object NeedsToBeTrait extends TemplateDefinitionAnnotatorPart {
 
   def annotate(definition: ScTemplateDefinition,
                holder: AnnotationHolder,
-               typeAware: Boolean): Unit = {
-    superRefs(definition).drop(1).collect {
-      case (reference, clazz) if !isMixable(clazz) =>
-        (reference, ScalaBundle.message("illegal.mixin", kindOf(clazz), clazz.name))
-    }.foreach {
-      case (reference, message) =>
-        holder.createErrorAnnotation(reference, message)
-    }
+               typeAware: Boolean): Unit = superRefs(definition) match {
+    case _ :: tail =>
+      tail.collect {
+        case (range, clazz) if !isMixable(clazz) =>
+          (range, ScalaBundle.message("illegal.mixin", kindOf(clazz), clazz.name))
+      }.foreach {
+        case (range, message) =>
+          holder.createErrorAnnotation(range, message)
+      }
+    case _ =>
   }
 }

@@ -9,19 +9,19 @@ import org.jetbrains.plugins.scala.lang.psi.api.toplevel.typedef.ScTemplateDefin
 /**
   * Pavel Fatin
   */
-object MultipleInheritance extends AnnotatorPart[ScTemplateDefinition] {
+object MultipleInheritance extends TemplateDefinitionAnnotatorPart {
 
   def annotate(definition: ScTemplateDefinition,
                holder: AnnotationHolder,
                typeAware: Boolean): Unit = {
     superRefs(definition).groupBy(_._2).flatMap {
       case (clazz, entries) if isMixable(clazz) && entries.size > 1 => entries.map {
-        case (reference, _) => (reference, ScalaBundle.message("illegal.inheritance.multiple", kindOf(clazz), clazz.name))
+        case (range, _) => (range, ScalaBundle.message("illegal.inheritance.multiple", kindOf(clazz), clazz.name))
       }
       case _ => Seq.empty
     }.foreach {
-      case (reference, message) =>
-        holder.createErrorAnnotation(reference, message)
+      case (range, message) =>
+        holder.createErrorAnnotation(range, message)
     }
   }
 }
