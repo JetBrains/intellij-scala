@@ -89,8 +89,13 @@ class ScalaRainbowVisitorTest extends ScalaLightCodeInsightFixtureTestAdapter {
   def testPatterns(): Unit = doTest(
     s"""case class Pair(p1: String = "", p2: String = "")
        |
-       |Pair() match {
-       |  case Pair(${S_1}p1$E, ${S_2}p2$E) => ${S_1}p1$E + ${S_2}p2$E
+       |def foo(${S_1}p1$E: Pair): Unit = {
+       |  val ${S_2}v2$E = Pair()
+       |  Pair() match {
+       |    case Pair(${S_1}p1$E, ${S_2}p2$E) => ${S_1}p1$E + ${S_2}p2$E
+       |    case $S_1`p1`$E =>
+       |    case $S_2`v2`$E =>
+       |  }
        |}
      """.stripMargin
   )
