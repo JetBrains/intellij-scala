@@ -1,5 +1,7 @@
 package org.jetbrains.plugins.scala.worksheet.cell
 
+import com.intellij.openapi.components.AbstractProjectComponent
+import com.intellij.openapi.project.Project
 import com.intellij.openapi.util.text.StringUtil
 import com.intellij.psi.{PsiComment, PsiElement, PsiFile, PsiWhiteSpace}
 import org.jetbrains.plugins.scala.lang.psi.api.ScalaFile
@@ -10,8 +12,8 @@ import scala.collection.{mutable, _}
 /**
   * User: Dmitry.Naydanov
   */
-class BasicCellManager extends CellManager {
-  private val cells = mutable.WeakHashMap.empty[PsiFile, mutable.TreeMap[Int, CellDescriptor]]
+class BasicCellManager(project: Project) extends AbstractProjectComponent(project) with CellManager {
+  private var cells = mutable.WeakHashMap.empty[PsiFile, mutable.TreeMap[Int, CellDescriptor]]
 
   override def canHaveCells(file: PsiFile): Boolean = file match {
     case scalaFile: ScalaFile if scalaFile.isWorksheetFile => 
@@ -38,10 +40,10 @@ class BasicCellManager extends CellManager {
   }
 
   override def processProbablyStartElement(element: PsiElement): Boolean = (element, element.getParent) match {
-    case (comment: PsiComment, file: PsiFile) => checkPair(comment, file)
+    case (comment: PsiComment, file: PsiFile) => checkAndAdd(comment, file)
     case (comment: PsiComment, owner: PsiElement)
       if owner.getParent.isInstanceOf[PsiFile] && owner.getTextOffset == comment.getTextOffset =>
-      checkPair(comment, owner.getContainingFile)
+      checkAndAdd(comment, owner.getContainingFile)
     case _ => false
   }
 
@@ -56,7 +58,7 @@ class BasicCellManager extends CellManager {
   override def getNextCell(cellDescriptor: CellDescriptor): Option[CellDescriptor] = {
     getForRange(
       cellDescriptor,
-      cellDescriptor.getElement.map(_.getTextOffset + BasicCellManager.CELL_START_MARKUP.length),
+      cellDescriptor.getElement.map(_.getTextOffset + CellManager.CELL_START_MARKUP.length),
       None
     ).flatMap(_.headOption).map(_._2)
   }
@@ -78,7 +80,12 @@ class BasicCellManager extends CellManager {
   override def clear(file: PsiFile): Unit = {
     cells.remove(file)
   }
-  
+
+
+  override def projectClosed(): Unit = {
+    cells = null
+  }
+
   private def compare(element: PsiElement)(descriptor: CellDescriptor): Boolean = descriptor.getElement.contains(element)
   
   private def refreshMarkers(file: PsiFile): Unit = {
@@ -92,9 +99,9 @@ class BasicCellManager extends CellManager {
     getSameFileCells(cellDescriptor).map(_.rangeImpl(start, end))
   }
 
-  private def checkComment(comment: PsiComment): Boolean = comment.getText.startsWith(BasicCellManager.CELL_START_MARKUP)
+  private def checkComment(comment: PsiComment): Boolean = comment.getText.startsWith(CellManager.CELL_START_MARKUP)
 
-  private def checkPair(comment: PsiComment, file: PsiFile): Boolean = canHaveCells(file) && checkComment(comment) && {
+  private def checkAndAdd(comment: PsiComment, file: PsiFile): Boolean = canHaveCells(file) && checkComment(comment) && {
     def store(): Boolean = {
       val offset = comment.getTextOffset
       val runType = WorksheetFileSettings.getRunType(file)
@@ -104,9 +111,9 @@ class BasicCellManager extends CellManager {
           if (offset < fileCells.last._1) {
             fileCells.clear()
           }
-          fileCells.put(offset, CellDescriptor(comment, runType))
+          fileCells.put(offset, createCellDescriptor(comment, runType))
         case _ =>
-          cells.put(file, mutable.TreeMap((offset, CellDescriptor(comment, runType))))
+          cells.put(file, mutable.TreeMap((offset, createCellDescriptor(comment, runType))))
       }
 
       true
@@ -118,8 +125,4 @@ class BasicCellManager extends CellManager {
       case _ => false
     })) && store()
   }
-}
-
-object BasicCellManager {
-  private val CELL_START_MARKUP = "//##"
 }

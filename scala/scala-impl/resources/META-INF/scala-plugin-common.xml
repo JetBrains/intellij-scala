@@ -24,6 +24,7 @@
         <extensionPoint name="worksheetExternalRunType" interface="org.jetbrains.plugins.scala.worksheet.settings.WorksheetExternalRunType"/>
         <extensionPoint name="worksheetCustomRunner" interface="org.jetbrains.plugins.scala.worksheet.processor.WorksheetCustomRunner"/>
         <extensionPoint name="fileDeclarationsContributor" interface="org.jetbrains.plugins.scala.worksheet.FileDeclarationsContributor"/>
+        <extensionPoint name="worksheetCellExternalIdProvider" interface="org.jetbrains.plugins.scala.worksheet.cell.WorksheetCellExternalIdProvider"/>
     </extensionPoints>
 
     <extensions defaultExtensionNs="org.intellij.scala">
@@ -1530,6 +1531,9 @@
         </component>
         <component>
             <implementation-class>org.jetbrains.plugins.scala.worksheet.interactive.WorksheetAutoRunner</implementation-class>
+        </component>
+        <component>
+            <implementation-class>org.jetbrains.plugins.scala.worksheet.cell.BasicCellManager</implementation-class>
         </component>
         <component>
           <implementation-class>org.jetbrains.plugins.scala.debugger.evaluation.ScalaEvaluatorCache</implementation-class>

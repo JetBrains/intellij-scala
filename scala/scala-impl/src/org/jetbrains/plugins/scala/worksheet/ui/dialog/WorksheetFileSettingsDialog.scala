@@ -33,18 +33,17 @@ class WorksheetFileSettingsDialog(worksheetFile: PsiFile) extends DialogWrapper(
     new WorksheetSettingsData(settings.isInteractive, settings.isMakeBeforeRun, settings.getRunType, null, selectedProfile, profiles)
   }
   
-  private def applySettingsData(settingsData: WorksheetSettingsData, settings: WorksheetCommonSettings, isGlobal: Boolean): Unit = {
+  private def applySettingsData(settingsData: WorksheetSettingsData, settings: WorksheetCommonSettings): Unit = {
     if (settings.isMakeBeforeRun != settingsData.isMakeBeforeRun) settings.setMakeBeforeRun(settingsData.isMakeBeforeRun)
-    if (settings.getRunType != settingsData.runType) {
-      settings.setRunType(settingsData.runType)
-      settingsData.runType.onSettingsConfirmed(worksheetFile, isGlobal)
-    }
+    if (settings.getRunType != settingsData.runType) settings.setRunType(settingsData.runType)
     if (settings.isInteractive != settingsData.isInteractive) settings.setInteractive(settingsData.isInteractive)
     
     if (settingsData.cpModule != null && settingsData.cpModule.getName != settings.getModuleName) 
       settings.setModuleName(settingsData.cpModule.getName)
     if (settingsData.compilerProfile != null && settingsData.compilerProfile.getName != settings.getCompilerProfileName) 
       settings.setCompilerProfileName(settingsData.compilerProfile.getName)
+
+    settingsData.runType.onSettingsConfirmed(worksheetFile)
   }
   
   private def getFileSettingsData: WorksheetSettingsData = getSettingsData(fileSettings)
@@ -58,11 +57,11 @@ class WorksheetFileSettingsDialog(worksheetFile: PsiFile) extends DialogWrapper(
       CellManager.deleteCells(worksheetFile)
     }
     
-    applySettingsData(settingsData, fileSettings, isGlobal = false)
+    applySettingsData(settingsData, fileSettings)
   }
   
   private def applyDefaultSettings(settingsData: WorksheetSettingsData): Unit = {
-    applySettingsData(settingsData, projectSettings, isGlobal = true)
+    applySettingsData(settingsData, projectSettings)
   }
 }
 
