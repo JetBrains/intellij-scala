@@ -463,7 +463,6 @@ object InferUtil {
       isShapesResolve = false)
 
     val tpe = if (problems.isEmpty) {
-      var un: ScUndefinedSubstitutor = undefSubst
       undefSubst.getSubstitutorWithBounds(canThrowSCE) match {
         case Some((unSubst, lMap, uMap)) =>
           if (!filterTypeParams) {
@@ -500,29 +499,48 @@ object InferUtil {
                 upper)
             })
           } else {
-            typeParams.foreach { tp =>
+
+            def addConstraints(un: ScUndefinedSubstitutor, tp: TypeParameter): ScUndefinedSubstitutor = {
               val typeParamId = tp.typeParamId
-              if (un.typeParamIds.contains(typeParamId) || tp.lowerType != Nothing) {
+              val substedLower = unSubst.subst(tp.lowerType)
+              val substedUpper = unSubst.subst(tp.upperType)
+
+              var result = un
+
+              if (un.typeParamIds.contains(typeParamId) || substedLower != Nothing) {
                 //todo: add only one of them according to variance
-                if (tp.lowerType != Nothing) {
-                  val substedLowerType = unSubst.subst(tp.lowerType)
-                  if (!hasRecursiveTypeParams(substedLowerType)) {
-                    un = un.addLower(typeParamId, substedLowerType, additional = true)
-                  }
+
+                //add constraints for tp from its' bounds
+                if (!substedLower.isNothing && !hasRecursiveTypeParams(substedLower)) {
+                  result = result.addLower(typeParamId, substedLower, additional = true)
                 }
-                if (tp.upperType != Any) {
-                  val substedUpperType = unSubst.subst(tp.upperType)
-                  if (!hasRecursiveTypeParams(substedUpperType)) {
-                    un = un.addUpper(typeParamId, substedUpperType, additional = true)
+                if (!substedUpper.isAny && !hasRecursiveTypeParams(substedUpper)) {
+                  result = result.addUpper(typeParamId, substedUpper, additional = true)
+                }
+
+                val lowerTpId = substedLower.asOptionOf[TypeParameterType].map(_.typeParamId).filter(typeParamIds.contains)
+                val upperTpId = substedUpper.asOptionOf[TypeParameterType].map(_.typeParamId).filter(typeParamIds.contains)
+
+                val substedTp = unSubst.subst(TypeParameterType(tp))
+
+                //add constraints for tp bounds from tp substitution
+                if (!hasRecursiveTypeParams(substedTp)) {
+                  upperTpId.foreach { id =>
+                    result = result.addLower(id, substedTp, additional = true)
+                  }
+                  lowerTpId.foreach { id =>
+                    result = result.addUpper(id, substedTp, additional = true)
                   }
                 }
               }
+
+              result
             }
 
-            def updateWithSubst(sub: ScSubstitutor): ScTypePolymorphicType = {
+            def updateWithSubst(sub: ScSubstitutor, idsToRemove: Set[Long]): ScTypePolymorphicType = {
               ScTypePolymorphicType(sub.subst(retType), typeParams.filter {
                 case tp =>
-                  val removeMe: Boolean = un.typeParamIds.contains(tp.typeParamId)
+                  val removeMe: Boolean = idsToRemove.contains(tp.typeParamId)
                   if (removeMe && canThrowSCE) {
                     //let's check type parameter kinds
                     def checkTypeParam(typeParam: ScTypeParam, tp: => ScType): Boolean = {
@@ -566,10 +584,13 @@ object InferUtil {
               })
             }
 
-            un.getSubstitutor match {
-              case Some(unSubstitutor) => updateWithSubst(unSubstitutor)
-              case _ if canThrowSCE => throw new SafeCheckException
-              case _ => updateWithSubst(unSubst)
+            val withTypeParamConstraints = typeParams.foldLeft(undefSubst)(addConstraints)
+            val idsToRemove = withTypeParamConstraints.typeParamIds
+
+            withTypeParamConstraints.getSubstitutor match {
+              case Some(unSubstitutor) => updateWithSubst(unSubstitutor, idsToRemove)
+              case _ if canThrowSCE    => throw new SafeCheckException
+              case _                   => updateWithSubst(unSubst, idsToRemove)
             }
           }
         case None => throw new SafeCheckException

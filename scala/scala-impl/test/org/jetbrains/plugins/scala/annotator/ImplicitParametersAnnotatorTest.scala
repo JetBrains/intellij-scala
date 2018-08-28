@@ -479,6 +479,47 @@ class ImplicitParametersAnnotatorHeavyTest extends ScalaLightCodeInsightFixtureT
 
   }
 
+  def testSCL14305(): Unit = {
+    val text =
+      """
+        |object TestImplicit {
+        |
+        |  /**
+        |    * @see https://github.com/squeryl/squeryl/blob/master/src/main/scala/org/squeryl/dsl/TypedExpression.scala#L27-L84
+        |    */
+        |  sealed trait TOptionBigDecimal
+        |
+        |  sealed trait TBigDecimal extends TOptionBigDecimal
+        |
+        |  sealed trait TOption extends TOptionBigDecimal
+        |
+        |  sealed trait TNumericLowerTypeBound extends TBigDecimal
+        |
+        |  case class TypedExpression[A1, T1](value: A1)
+        |
+        |  class TypedExpressionFactory[A1, T1]
+        |
+        |  /**
+        |    * @see https://github.com/squeryl/squeryl/blob/master/src/main/scala/org/squeryl/dsl/QueryDsl.scala#L172
+        |    */
+        |  def sum[T2 >: TOption, T1 >: TNumericLowerTypeBound <: T2, A1, A2]
+        |  (b: TypedExpression[A1, T1])
+        |  (implicit f: TypedExpressionFactory[A2, T2]): TypedExpression[A2, T2] =
+        |    new TypedExpression[A2, T2](Some(b.value).asInstanceOf[A2])
+        |
+        |  def main(args: Array[String]): Unit = {
+        |    implicit val optionBigDecimalTEF = new TypedExpressionFactory[Option[BigDecimal], TOptionBigDecimal]
+        |    val v = new TypedExpression[BigDecimal, TBigDecimal](BigDecimal.apply(11))
+        |    val v2 = sum(v) //complained in Intellij IDEA
+        |    // val v2 = sum[TOptionBigDecimal, TBigDecimal, BigDecimal, Option[BigDecimal]](v) // works well.
+        |    println(s"${v2.value}")
+        |  }
+        |}
+      """.stripMargin
+    checkTextHasNoErrors(text)
+  }
+
+
 
 }
 
