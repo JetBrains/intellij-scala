@@ -5,10 +5,10 @@ import org.jetbrains.plugins.scala.annotator._
 
 
 /**
- * Author: Svyatoslav Ilinskiy
- * Date: 7/8/15
- */
-class JavaHighlightingTest extends JavaHighlightingTestBase() {
+  * Author: Svyatoslav Ilinskiy
+  * Date: 7/8/15
+  */
+class JavaHighlightingTest extends JavaHighlightingTestBase {
 
   def testSignatures(): Unit = {
     val scala =
@@ -379,6 +379,7 @@ class JavaHighlightingTest extends JavaHighlightingTestBase() {
         |  def awaitCond(interval: String = ???) = ???
         |}
       """.stripMargin
+
     val java =
       """
         |public class SCL8861 extends TestKit2SCL8861 {
@@ -1115,5 +1116,30 @@ class JavaHighlightingTest extends JavaHighlightingTestBase() {
     assertNothing(errorsFromJavaCode(scala, java, "Bar"))
   }
 
+  def testSealedInheritors(): Unit = {
+    val scalaFileText =
+      s"""sealed trait Foo
+         |sealed class Bar
+       """.stripMargin
+
+    val javaFileText =
+      s"""public class Baz extends Bar implements Foo {
+         |
+         |  public static Foo createFoo() {
+         |    return new Foo() {};
+         |  }
+         |}
+       """.stripMargin
+
+    val fooMessage = ScalaBundle.message("illegal.inheritance.from.sealed.kind", "trait", "Foo")
+    val barMessage = ScalaBundle.message("illegal.inheritance.from.sealed.kind", "class", "Bar")
+
+    assertMatches(errorsFromJavaCode(scalaFileText, javaFileText, "Baz")) {
+      case Error("Bar", `barMessage`) ::
+        Error("Foo", `fooMessage`) ::
+        Error("Foo", `fooMessage`) ::
+        Nil =>
+    }
+  }
 }
 

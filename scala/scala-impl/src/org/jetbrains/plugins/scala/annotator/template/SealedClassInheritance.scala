@@ -24,13 +24,21 @@ object SealedClassInheritance extends TemplateDefinitionAnnotatorPart {
       val fileNavigationElement = file.getNavigationElement
 
       references.collect {
-        case (range, definition: ScTypeDefinition)
-          if definition.isSealed && definition.getContainingFile.getNavigationElement != fileNavigationElement =>
-          (range, ScalaBundle.message("illegal.inheritance.from.sealed.kind", kindOf(definition, toLowerCase = true), definition.name))
+        case (range, definition@ErrorAnnotationMessage(message))
+          if definition.getContainingFile.getNavigationElement != fileNavigationElement =>
+          (range, message)
       }.foreach {
         case (range, message) =>
           holder.createErrorAnnotation(range, message)
       }
     case _ =>
   }
+
+  private[template] object ErrorAnnotationMessage {
+
+    def unapply(definition: ScTypeDefinition): Option[String] =
+      if (definition.isSealed) Some(ScalaBundle.message("illegal.inheritance.from.sealed.kind", kindOf(definition, toLowerCase = true), definition.name))
+      else None
+  }
+
 }
