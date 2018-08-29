@@ -44,12 +44,15 @@ class ScLiteralImpl(node: ASTNode) extends ScalaPsiElementImpl(node) with ScLite
   }
 
   protected override def innerType: TypeResult = {
-    ScLiteralType.kind(getFirstChild.getNode, this) match {
-      case None => Failure("Wrong Psi to get Literal type")
-      case Some(Kind.Null) => Right(api.Null(projectContext))
-      case Some(kind) => Right {
-        if (allowLiteralTypes) ScLiteralType(getValue, kind)
-        else ScLiteralType.wideType(kind)
+    val node = getFirstChild.getNode
+    if (node.getElementType == ScalaTokenTypes.kNULL) Right(api.Null)
+    else {
+      ScLiteralType.kind(getFirstChild.getNode, this) match {
+        case None => Failure("Wrong Psi to get Literal type")
+        case Some(kind) => Right {
+          if (allowLiteralTypes) ScLiteralType(getValue, kind)
+          else ScLiteralType.wideType(kind)
+        }
       }
     }
   }

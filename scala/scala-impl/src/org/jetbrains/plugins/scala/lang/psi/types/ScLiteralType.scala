@@ -39,7 +39,6 @@ object ScLiteralType {
 
   sealed class Kind
   object Kind {
-    case object Null    extends Kind
     case object Boolean extends Kind
     case object String  extends Kind
     case object Symbol  extends Kind
@@ -64,7 +63,6 @@ object ScLiteralType {
     }
 
     val inner = node.getElementType match {
-      case ScalaTokenTypes.kNULL                              => Null
       case ScalaTokenTypes.tINTEGER                           => if (endsWith('l', 'L')) Long else Int //but a conversion exists to narrower types in case range fits
       case ScalaTokenTypes.tFLOAT                             => if (endsWith('f', 'F')) Float else Double
       case ScalaTokenTypes.tCHAR                              => Char
