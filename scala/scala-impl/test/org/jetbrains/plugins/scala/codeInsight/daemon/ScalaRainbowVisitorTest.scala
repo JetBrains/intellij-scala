@@ -47,8 +47,8 @@ class ScalaRainbowVisitorTest extends ScalaLightCodeInsightFixtureTestAdapter {
   )
 
   def testClassParameters(): Unit = doTest(
-    s"""class Foo(p1: Int) {
-       |  def foo(${S}p2$E: Int): Unit = {}
+    s"""case class Foo(p1: Int) {
+       |  def foo(${S}p2$E: Int) = Foo(p1 = ${S}p2$E)
        |}
        """.stripMargin,
     withColor = false

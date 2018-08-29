@@ -45,7 +45,11 @@ final class ScalaRainbowVisitor extends RainbowVisitor {
     val context = element match {
       case clause: ScCaseClause => clause
       case patterned: ScPatterned => getContextOfType(patterned, classOf[ScForStatement])
-      case _ => getContextOfType(element, false, classOf[ScFunction], classOf[ScFunctionExpr])
+      case _ =>
+        getContextOfType(element, false, classOf[ScFunction], classOf[ScFunctionExpr]) match {
+          case function: ScFunction if function.isSynthetic => null
+          case function => function
+        }
     }
 
     if (context != null) {
