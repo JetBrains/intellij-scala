@@ -1,6 +1,6 @@
 import Common._
 import Dependencies.sbtStructureExtractor
-import org.jetbrains.sbtidea.tasks.ShadePattern
+import org.jetbrains.sbtidea.tasks.packaging.ShadePattern
 import sbtide.Keys.ideSkipProject
 
 // Global build settings
@@ -88,7 +88,7 @@ lazy val compilerJps =
   newProject("compiler-jps", file("scala/compiler-jps"))
     .dependsOn(compilerShared, repackagedZinc)
     .settings(
-      packageMethod           :=  PackagingMethod.Standalone("lib/jps/compiler-jps.jar"),
+      packageMethod           :=  PackagingMethod.Standalone("lib/jps/compiler-jps.jar", static = true),
       libraryDependencies     ++= Dependencies.nailgun :: Dependencies.zincInterface  :: Nil,
       packageLibraryMappings  ++= Dependencies.nailgun       -> Some("lib/jps/nailgun.jar") ::
                                   Dependencies.zincInterface -> Some("lib/jps/compiler-interface.jar") :: Nil)
@@ -107,13 +107,13 @@ lazy val compilerShared =
     .settings(
       libraryDependencies += Dependencies.nailgun,
       packageLibraryMappings += Dependencies.nailgun -> Some("lib/jps/nailgun.jar"),
-      packageMethod := PackagingMethod.Standalone("lib/compiler-shared.jar")
+      packageMethod := PackagingMethod.Standalone("lib/compiler-shared.jar", static = true)
     )
 
 lazy val runners =
   newProject("runners", file("scala/runners"))
     .settings(
-      packageMethod := PackagingMethod.Standalone(),
+      packageMethod := PackagingMethod.Standalone(static = true),
       libraryDependencies ++= DependencyGroups.runners,
       // WORKAROUND fixes build error in sbt 0.13.12+ analogously to https://github.com/scala/scala/pull/5386/
       ivyScala ~= (_ map (_ copy (overrideScalaVersion = false)))
@@ -125,7 +125,7 @@ lazy val nailgunRunners =
     .settings(
       libraryDependencies += Dependencies.nailgun,
       packageLibraryMappings += Dependencies.nailgun -> Some("lib/jps/nailgun.jar"),
-      packageMethod := PackagingMethod.Standalone("lib/scala-nailgun-runner.jar")
+      packageMethod := PackagingMethod.Standalone("lib/scala-nailgun-runner.jar", static = true)
     )
 
 lazy val decompiler =
