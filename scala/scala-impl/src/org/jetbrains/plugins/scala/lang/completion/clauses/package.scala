@@ -14,14 +14,14 @@ import scala.collection.JavaConverters
 package object clauses {
 
   private[clauses] case class Inheritors(namedInheritors: Seq[ScTypeDefinition],
-                                         hasAnonymousInheritors: Boolean = false) {
+                                         isInstantiatiable: Boolean = false) {
 
     def exhaustivePatterns: Seq[PatternComponents] =
       namedInheritors.map {
         case scalaObject: ScObject => new TypedPatternComponents(scalaObject, scalaObject.qualifiedName + ScalaTypePresentation.ObjectTypeSuffix)
         case SyntheticExtractorPatternComponents(components) => components
         case definition => new TypedPatternComponents(definition)
-      } ++ (if (hasAnonymousInheritors) Some(WildcardPatternComponents) else None)
+      } ++ (if (isInstantiatiable) Some(WildcardPatternComponents) else None)
 
     def inexhaustivePatterns(implicit place: PsiElement): Seq[ExtractorPatternComponents[_]] =
       namedInheritors.collect {
@@ -30,30 +30,33 @@ package object clauses {
       }
   }
 
-  private[clauses] object Inheritors {
-
-    def apply(classes: Seq[ScTemplateDefinition]): Inheritors = {
-      val (namedInheritors, anonymousInheritors) = classes.partition(_.isInstanceOf[ScTypeDefinition])
-
-      Inheritors(
-        namedInheritors.asInstanceOf[Seq[ScTypeDefinition]],
-        anonymousInheritors.nonEmpty
-      )
-    }
-  }
-
   private[clauses] object SealedDefinition {
 
-    def unapply(definition: ScTypeDefinition): Option[Seq[ScTemplateDefinition]] = if (definition.isSealed) {
+    def unapply(definition: ScTypeDefinition): Option[Inheritors] = if (definition.isSealed) {
+      val (namedInheritors, anonymousInheritors) = directInheritors(definition).partition {
+        _.isInstanceOf[ScTypeDefinition]
+      }
+
+      val isConcreteClass = definition match {
+        case scalaClass: ScClass => !scalaClass.hasAbstractModifier
+        case _ => false
+      }
+
+      Some(Inheritors(
+        namedInheritors.asInstanceOf[Seq[ScTypeDefinition]],
+        isInstantiatiable = isConcreteClass || anonymousInheritors.nonEmpty
+      ))
+    } else None
+
+    private def directInheritors(definition: ScTypeDefinition) = {
       import JavaConverters._
-      val inheritors = DirectClassInheritorsSearch
+      DirectClassInheritorsSearch
         .search(definition, definition.getContainingFile.getResolveScope)
         .findAll()
         .asScala
         .toSeq
         .sortBy(_.getNavigationElement.getTextRange.getStartOffset)
-      Some(inheritors.asInstanceOf[Seq[ScTemplateDefinition]])
-    } else None
+    }
   }
 
   private[clauses] object Extractor {
@@ -62,4 +65,5 @@ package object clauses {
       case function: ScFunctionDefinition if function.isUnapplyMethod => function
     }
   }
+
 }
