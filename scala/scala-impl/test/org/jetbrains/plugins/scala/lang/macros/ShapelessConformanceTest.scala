@@ -2,16 +2,17 @@ package org.jetbrains.plugins.scala.lang.macros
 
 import org.jetbrains.plugins.scala.DependencyManagerBase.RichStr
 import org.jetbrains.plugins.scala.base.libraryLoaders.{IvyManagedLoader, LibraryLoader}
-import org.jetbrains.plugins.scala.debugger.{ScalaVersion, Scala_2_13}
+import org.jetbrains.plugins.scala.debugger.{ScalaVersion, Scala_2_12, Scala_2_13}
 import org.jetbrains.plugins.scala.lang.typeConformance.TypeConformanceTestBase
 
 /**
   * Nikolay.Tropin
   * 29-Jan-18
   */
-class ShapelessConformanceTest extends TypeConformanceTestBase {
+class ShapelessConformanceTest_2_12 extends ShapelessConformanceTestBase()(Scala_2_12)
+class ShapelessConformanceTest_2_13 extends ShapelessConformanceTestBase()(Scala_2_13)
 
-  override implicit val version: ScalaVersion = Scala_2_13
+abstract class ShapelessConformanceTestBase()(override implicit val version: ScalaVersion) extends TypeConformanceTestBase {
 
   override protected def additionalLibraries(): Seq[LibraryLoader] =
     IvyManagedLoader("com.chuusai" %% "shapeless" % "2.3.3") :: Nil
@@ -66,6 +67,28 @@ class ShapelessConformanceTest extends TypeConformanceTestBase {
       |}
       |val minusOne: Test.MinusOne = -1
       |//True
+    """.stripMargin
+  )
+
+  def testWitnessInfixExpression(): Unit = doTest(
+    """
+      |object Test {
+      |  val W = shapeless.Witness
+      |  type Zero = W.`1 - 1`.T
+      |}
+      |val z: Test.Zero = 0
+      |//True
+    """.stripMargin
+  )
+
+  def testWitnessInfixExpressionWrong(): Unit = doTest(
+    """
+      |object Test {
+      |  val W = shapeless.Witness
+      |  type Zero = W.`1 - 1`.T
+      |}
+      |val z: Test.Zero = 1
+      |//False
     """.stripMargin
   )
 }

@@ -11,21 +11,18 @@ import java.util.Random
 import com.intellij.lang.ASTNode
 import com.intellij.lang.injection.InjectedLanguageManager
 import com.intellij.openapi.util.text.StringUtil
-import com.intellij.openapi.util.{Key, Pair, TextRange}
+import com.intellij.openapi.util.{Pair, TextRange}
 import com.intellij.psi._
 import com.intellij.psi.impl.source.tree.LeafElement
 import com.intellij.psi.impl.source.tree.injected.InjectedLanguageUtil
 import com.intellij.psi.impl.source.tree.java.PsiLiteralExpressionImpl
 import com.intellij.psi.util.PsiModificationTracker
-import org.jetbrains.plugins.scala.extensions.PsiElementExt
 import org.jetbrains.plugins.scala.lang.lexer.ScalaTokenTypes
 import org.jetbrains.plugins.scala.lang.psi.api.ScalaElementVisitor
 import org.jetbrains.plugins.scala.lang.psi.api.base.{ScInterpolatedStringLiteral, ScLiteral}
-import org.jetbrains.plugins.scala.lang.psi.types.ScLiteralType.Kind
 import org.jetbrains.plugins.scala.lang.psi.types._
 import org.jetbrains.plugins.scala.lang.psi.types.result._
 import org.jetbrains.plugins.scala.macroAnnotations.CachedInUserData
-import org.jetbrains.plugins.scala.project._
 
 import scala.StringContext.InvalidEscapeException
 
@@ -39,20 +36,13 @@ class ScLiteralImpl(node: ASTNode) extends ScalaPsiElementImpl(node) with ScLite
 
   override def toString: String = "Literal"
 
-  override def allowLiteralTypes: Boolean = {
-    this.literalTypesEnabled || ScLiteralImpl.insideMacroGenerated(this)
-  }
-
   protected override def innerType: TypeResult = {
     val node = getFirstChild.getNode
     if (node.getElementType == ScalaTokenTypes.kNULL) Right(api.Null)
     else {
       ScLiteralType.kind(getFirstChild.getNode, this) match {
-        case None => Failure("Wrong Psi to get Literal type")
-        case Some(kind) => Right {
-          if (allowLiteralTypes) ScLiteralType(getValue, kind)
-          else ScLiteralType.wideType(kind)
-        }
+        case None => Failure(ScalaBundle.message("wrong.psi.for.literal.type", getText))
+        case Some(kind) => Right(ScLiteralType(getValue, kind))
       }
     }
   }
@@ -261,15 +251,4 @@ object ScLiteralImpl {
     def unapply(lit: ScLiteralImpl): Option[String] =
       if (lit.isString) Some(lit.getValue.asInstanceOf[String]) else None
   }
-
-  import java.lang.{Boolean => JBoolean}
-
-  //some macros (like shapeless.Witness.selectDynamic) allow to use literal types in any scala version
-  private val macroGeneratedKey: Key[JBoolean] = Key.create("macro.generated.literal.type")
-
-  def markMacroGenerated(element: PsiElement): Unit = element.putUserData(macroGeneratedKey, JBoolean.TRUE)
-
-  def isMacroGenerated(element: PsiElement): Boolean = element.getUserData(macroGeneratedKey) != null
-
-  def insideMacroGenerated(element: PsiElement): Boolean = element.withParentsInFile.exists(isMacroGenerated)
 }

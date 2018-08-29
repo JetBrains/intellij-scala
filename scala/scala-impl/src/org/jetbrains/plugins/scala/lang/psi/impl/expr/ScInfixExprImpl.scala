@@ -8,9 +8,9 @@ import com.intellij.lang.ASTNode
 import org.jetbrains.plugins.scala.extensions._
 import org.jetbrains.plugins.scala.lang.psi.api.expr._
 import org.jetbrains.plugins.scala.lang.psi.impl.toplevel.synthetic.ScSyntheticFunction
-import org.jetbrains.plugins.scala.lang.psi.types.{ScLiteralType, ScType}
 import org.jetbrains.plugins.scala.lang.psi.types.api.designator.ScProjectionType
 import org.jetbrains.plugins.scala.lang.psi.types.result.{TypeResult, Typeable}
+import org.jetbrains.plugins.scala.lang.psi.types.{ScLiteralType, ScType}
 import org.jetbrains.plugins.scala.lang.resolve.ScalaResolveResult
 
 /**
@@ -46,7 +46,7 @@ class ScInfixExprImpl(node: ASTNode) extends MethodInvocationImpl(node) with ScI
             foldConstTypes(left, element.`type`().toOption.filter(_.isInstanceOf[ScLiteralType]))
           case _ => super.innerType
         }
-        foldConstTypes(left.`type`().toOption, right.`type`().toOption)
+        foldConstTypes(left.getNonValueType().toOption, right.getNonValueType().toOption)
     }.getOrElse(super.innerType)
   }
 

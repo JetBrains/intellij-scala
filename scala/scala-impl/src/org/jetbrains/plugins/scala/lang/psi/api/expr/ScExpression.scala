@@ -338,6 +338,7 @@ object ScExpression {
 
             val valueType =
               nonValueType
+                .widenLiteralType(expr, expected)
                 .updateWithExpected(expr, expected, fromUnderscore)
                 .dropMethodTypeEmptyParams(expr, expected)
                 .inferValueType
@@ -492,6 +493,16 @@ object ScExpression {
   }
 
   private implicit class ExprTypeUpdates(val scType: ScType) extends AnyVal {
+
+    def widenLiteralType(expr: ScExpression, expectedType: Option[ScType]): ScType = {
+      def isLiteralType(tp: ScType) = tp.removeAliasDefinitions().isInstanceOf[ScLiteralType]
+
+      scType match {
+        case lt: ScLiteralType if !expr.literalTypesEnabled && !expectedType.exists(isLiteralType) =>
+          lt.wideType
+        case _ => scType
+      }
+    }
 
     def updateWithExpected(expr: ScExpression, expectedType: Option[ScType], fromUnderscore: Boolean): ScType = {
 

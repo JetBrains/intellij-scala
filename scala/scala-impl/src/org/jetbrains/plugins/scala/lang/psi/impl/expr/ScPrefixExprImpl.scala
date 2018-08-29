@@ -8,11 +8,11 @@ import com.intellij.lang.ASTNode
 import org.jetbrains.plugins.scala.lang.psi.api.expr._
 import org.jetbrains.plugins.scala.lang.psi.impl.toplevel.synthetic.ScSyntheticFunction
 import org.jetbrains.plugins.scala.lang.psi.types.api.designator.ScProjectionType
+import org.jetbrains.plugins.scala.lang.psi.types.result.{TypeResult, Typeable}
 import org.jetbrains.plugins.scala.lang.psi.types.{ScLiteralType, ScType}
+import org.jetbrains.plugins.scala.lang.resolve.ScalaResolveResult
 
 import scala.collection.Seq
-import org.jetbrains.plugins.scala.lang.psi.types.result.{TypeResult, Typeable}
-import org.jetbrains.plugins.scala.lang.resolve.ScalaResolveResult
 
 /**
   * @author Alexander Podkhalyuzin
@@ -37,7 +37,7 @@ class ScPrefixExprImpl(node: ASTNode) extends MethodInvocationImpl(node) with Sc
             fold(element.`type`().toOption.filter(_.isInstanceOf[ScLiteralType]))
           case _ => default
         }
-        fold(operand.`type`().toOption)
+        fold(operand.getNonValueType().toOption)
     }.getOrElse(default)
   }
 }

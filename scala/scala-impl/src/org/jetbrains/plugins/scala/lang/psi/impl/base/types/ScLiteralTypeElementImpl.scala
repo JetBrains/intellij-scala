@@ -13,8 +13,8 @@ import org.jetbrains.plugins.scala.lang.psi.types.result.{Failure, TypeResult}
 class ScLiteralTypeElementImpl(val node: ASTNode) extends ScalaPsiElementImpl(node) with ScLiteralTypeElement {
   override protected def innerType: TypeResult =
     ScLiteralType.kind(getLiteralNode, this) match {
-      case Some(kind) if getLiteral.allowLiteralTypes => Right(ScLiteralType(getLiteral.getValue, kind))
-      case _ => Failure(ScalaBundle.message("wrong.type.no.literal.types", getText))
+      case Some(kind) => Right(ScLiteralType(getLiteral.getValue, kind))
+      case _ => Failure(ScalaBundle.message("wrong.psi.for.literal.type", getText))
     }
 
   override def getLiteral: ScLiteral = getFirstChild.asInstanceOf[ScLiteral]
