@@ -417,31 +417,6 @@ class ScalaClausesCompletionTest extends ScalaCodeInsightTestBase {
     item = "foo"
   )
 
-  def testJavaInheritor(): Unit = {
-    configureJavaFile(
-      fileText = "public class Baz extends Foo {}",
-      className = "Baz"
-    )
-
-    doMatchCompletionTest(
-      fileText =
-        s"""sealed class Foo
-           |class Bar extends Foo
-           |
-           |(_: Foo) m$CARET
-         """.stripMargin,
-      resultText =
-        s"""sealed class Foo
-           |class Bar extends Foo
-           |
-           |(_: Foo) match {
-           |  case bar: Bar => $CARET
-           |  case baz: Baz =>
-           |}
-         """.stripMargin
-    )
-  }
-
   def testExplicitCompanion(): Unit = doMatchCompletionTest(
     fileText =
       s"""sealed trait Foo

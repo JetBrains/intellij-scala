@@ -68,7 +68,7 @@ object ExhaustiveMatchCompletionContributor {
           Some(new JavaEnumGenerationStrategy(valueType, enum))
         case ExtractClass(SealedDefinition(classes)) =>
           val inheritors = Inheritors(classes)
-          if (inheritors.namedInheritors.isEmpty && inheritors.anonymousInheritors.isEmpty) None
+          if (inheritors.namedInheritors.isEmpty && !inheritors.hasAnonymousInheritors) None
           else Some(new SealedClassGenerationStrategy(inheritors))
         case _ => None
       }

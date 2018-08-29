@@ -19,10 +19,6 @@ private[clauses] class TypedPatternComponents(clazz: PsiClass,
                                               length: Int = 0)
   extends PatternComponents {
 
-  //noinspection ScalaWrongMethodsUsage
-  def this(clazz: PsiClass) =
-    this(clazz, clazz.getQualifiedName, clazz.getTypeParameters.length)
-
   def this(clazz: ScTypeDefinition) =
     this(clazz, clazz.qualifiedName, clazz.typeParameters.length)
 
