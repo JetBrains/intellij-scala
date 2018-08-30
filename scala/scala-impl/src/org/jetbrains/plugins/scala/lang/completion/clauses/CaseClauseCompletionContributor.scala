@@ -11,7 +11,6 @@ import com.intellij.util.{Consumer, ProcessingContext}
 import org.jetbrains.plugins.scala.extensions._
 import org.jetbrains.plugins.scala.lang.psi.ScalaPsiElement
 import org.jetbrains.plugins.scala.lang.psi.api.base.patterns._
-import org.jetbrains.plugins.scala.lang.psi.api.base.types.ScTypeElement
 import org.jetbrains.plugins.scala.lang.psi.api.toplevel.typedef.ScTypeDefinition
 import org.jetbrains.plugins.scala.lang.psi.impl.ScalaPsiElementFactory.createPatternFromTextWithContext
 
@@ -99,17 +98,16 @@ object CaseClauseCompletionContributor {
 
   private def createInsertHandler(components: ExtractorPatternComponents[_]) = new ClausesInsertHandler(classOf[ScParenthesisedPattern]) {
 
+    import ClausesInsertHandler._
+
     override def handleInsert(implicit insertionContext: InsertionContext): Unit = {
-      ClausesInsertHandler.replaceTextPhase(components.text.parenthesize())
+      replaceTextPhase(components.text.parenthesize())
 
       onTargetElement { pattern =>
-        adjustTypesPhase(false, (pattern, components))
+        adjustTypesPhase(false, (pattern, components)) {
+          case ScParenthesisedPattern(ScTypedPattern(typeElement)) => typeElement
+        }
       }
-    }
-
-    override protected def findTypeElement(pattern: ScPattern): Option[ScTypeElement] = pattern match {
-      case ScParenthesisedPattern(innerPattern) => super.findTypeElement(innerPattern)
-      case _ => None
     }
   }
 
