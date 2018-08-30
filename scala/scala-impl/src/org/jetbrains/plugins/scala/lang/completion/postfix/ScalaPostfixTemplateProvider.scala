@@ -1,20 +1,30 @@
-package org.jetbrains.plugins.scala.lang.completion.postfix.templates
+package org.jetbrains.plugins.scala.lang
+package completion
+package postfix
 
-import java.util
+import java.{util => ju}
 
 import com.intellij.codeInsight.template.postfix.templates._
 import com.intellij.openapi.editor.Editor
 import com.intellij.psi.PsiFile
-import com.intellij.util.containers.ContainerUtil
+
+import scala.collection.JavaConverters
 
 /**
- * @author Roman.Shein
- * @since 03.09.2015.
- */
-class ScalaPostfixTemplateProvider extends PostfixTemplateProvider {
-  override def getTemplates: util.Set[PostfixTemplate] = ScalaPostfixTemplateProvider.templates
+  * @author Roman.Shein
+  * @since 03.09.2015.
+  */
+final class ScalaPostfixTemplateProvider extends PostfixTemplateProvider {
 
-  override def isTerminalSymbol(currentChar: Char): Boolean = currentChar == '.' || currentChar == '!'
+  override def getTemplates: ju.Set[PostfixTemplate] = {
+    import JavaConverters._
+    ScalaPostfixTemplateProvider.Templates.asJava
+  }
+
+  override def isTerminalSymbol(currentChar: Char): Boolean = currentChar match {
+    case '.' | '!' => true
+    case _ => false
+  }
 
   override def preExpand(file: PsiFile, editor: Editor): Unit = {}
 
@@ -24,7 +34,10 @@ class ScalaPostfixTemplateProvider extends PostfixTemplateProvider {
 }
 
 object ScalaPostfixTemplateProvider {
-  def templates: util.Set[PostfixTemplate] = ContainerUtil.newHashSet(
+
+  import templates._
+
+  private[postfix] val Templates = Set[PostfixTemplate](
     new ScalaTryPostfixTemplate,
     new ScalaAssertPostfixTemplate,
     new ScalaCastPostfixTemplate,

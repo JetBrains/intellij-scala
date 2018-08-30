@@ -3,32 +3,34 @@ package org.jetbrains.plugins.scala.lang.completion.postfix
 import java.io.File
 
 import com.intellij.codeInsight.template.postfix.templates.PostfixTemplate
+import com.intellij.openapi.editor.Editor
 import com.intellij.openapi.util.TextRange
 import com.intellij.openapi.util.io.FileUtil
 import com.intellij.openapi.util.text.StringUtil
 import com.intellij.openapi.vfs.CharsetToolkit
-import com.intellij.psi.PsiElement
+import com.intellij.psi.PsiFile
 import com.intellij.psi.util.PsiTreeUtil
 import org.jetbrains.plugins.scala.base.ScalaLightCodeInsightFixtureTestAdapter
-import org.jetbrains.plugins.scala.lang.completion.postfix.templates.ScalaPostfixTemplateProvider
+import org.jetbrains.plugins.scala.extensions
 import org.jetbrains.plugins.scala.lang.psi.ScalaPsiElement
 import org.jetbrains.plugins.scala.util.TestUtils
-import org.junit.Assert._
-
-import scala.collection.JavaConverters._
+import org.junit.Assert.{assertEquals, assertFalse, assertTrue}
 
 /**
- * @author Roman.Shein
- * @since 14.09.2015.
- */
+  * @author Roman.Shein
+  * @since 14.09.2015.
+  */
 abstract class PostfixTemplateTest extends ScalaLightCodeInsightFixtureTestAdapter {
+
+  import PostfixTemplateTest._
+
   def testPath(): String = TestUtils.getTestDataPath + "/postfixTemplate/"
 
-  protected def parseTestData(): (String, String) = {
+  protected final def parseTestData(): (String, String) = {
     var fileText: String = FileUtil.loadFile(new File(testPath() + getTestName(true) + ".test"), CharsetToolkit.UTF8)
     fileText = StringUtil.convertLineSeparators(fileText)
     var separatorIndex = fileText.indexOf("----")
-    assert(separatorIndex > 0)
+    assertTrue(separatorIndex > 0)
     val inputText = fileText.substring(0, separatorIndex).trim
     separatorIndex += 5
     if (separatorIndex >= fileText.length) return (inputText, "")
@@ -36,40 +38,69 @@ abstract class PostfixTemplateTest extends ScalaLightCodeInsightFixtureTestAdapt
     (inputText, fileText.substring(separatorIndex).trim)
   }
 
-  protected def getExprAndTemplate(inputText: String): (PostfixTemplate, Int, Int, String) = {
-    val startMarker = "<start>"
-    val nameMarker = "<"
-    val startOffset = inputText.indexOf(startMarker)
-    val nameIndex = inputText.indexOf(nameMarker, startOffset + 7)
-    val name = inputText.substring(nameIndex + 1, inputText.indexOf('>', nameIndex))
-    val template: PostfixTemplate = ScalaPostfixTemplateProvider.templates.asScala.find(_.getKey == "." + name).get
-    (template, startOffset, nameIndex - 7, inputText.replace("<start>", "").replace(s"<$name>", ""))
+  protected final def doTest(): Unit = {
+    val (inputText, expected) = parseTestData()
+    val descriptor = prepareTest(inputText)
+
+    val file = getFile
+    assertTrue(descriptor.expand(file, getEditor))
+    assertEquals(expected, file.getText)
   }
 
-  protected def doTest(): Unit = {
-    val (expectedResult, template, end, expr) = prepareTest()
-    assert(template.isApplicable(expr, getFile.getViewProvider.getDocument, end))
-    import org.jetbrains.plugins.scala.extensions._
-    inWriteCommandAction(template.expand(expr, getEditor))(null)
-    
-    assertEquals(expectedResult, getFile.getText)
+  protected final def doNotApplicableTest(): Unit = {
+    val (inputText, _) = parseTestData()
+    assertFalse(prepareTest(inputText).expand(getFile))
   }
 
-  protected def doNotApplicableTest(): Unit = {
-    val (_, template, end, expr) = prepareTest()
+  private def prepareTest(inputText: String): TemplateDescriptor = {
+    val (range, name) = extractName(inputText)
 
-    assert(!template.isApplicable(expr, getFile.getViewProvider.getDocument, end))
+    val fileText = inputText.replace(StartMarker, "")
+      .replace(TagStart + name + TagEnd, "")
+
+    myFixture.configureByText("dummy.scala", fileText)
+    updateModels(getEditor, range)
+
+    val maybeTemplate = ScalaPostfixTemplateProvider.Templates
+      .find(_.getKey == "." + name)
+    TemplateDescriptor(maybeTemplate.get, range)
+  }
+}
+
+object PostfixTemplateTest {
+
+  private val StartMarker = "<start>"
+  private val TagStart = "<"
+  private val TagEnd = ">"
+
+  private case class TemplateDescriptor(template: PostfixTemplate, range: TextRange) {
+
+    def expand(file: PsiFile, editor: Editor = null): Boolean = {
+      val startOffset = range.getStartOffset
+      val endOffset = range.getEndOffset
+
+      val element = PsiTreeUtil.findElementOfClassAtRange(file, startOffset, endOffset, classOf[ScalaPsiElement])
+      assertEquals(range, element.getTextRange)
+
+      val isApplicable = template.isApplicable(element, file.getViewProvider.getDocument, endOffset)
+      if (isApplicable) extensions.inWriteCommandAction(template.expand(element, editor))(null)
+      isApplicable
+    }
   }
 
-  protected def prepareTest(): (String, PostfixTemplate, Int, PsiElement) = {
-    val (inputTextRaw, expectedResult) = parseTestData()
-    val (template, start, end, inputTextProcessed) = getExprAndTemplate(inputTextRaw)
-    myFixture.configureByText("dummy.scala", inputTextProcessed)
-    val expr = PsiTreeUtil.findElementOfClassAtRange(getFile, start, end, classOf[ScalaPsiElement])
-    assert(expr.getTextRange == new TextRange(start, end))
-    val editor = getEditor
-    editor.getCaretModel.moveToOffset(end)
-    editor.getSelectionModel.setSelection(start, end)
-    (expectedResult, template, end, expr)
+  private def extractName(inputText: String): (TextRange, String) = {
+    val startOffset = inputText.indexOf(StartMarker)
+    val nameStartIndex = inputText.indexOf(TagStart, startOffset + StartMarker.length)
+    val nameEndIndex = inputText.indexOf(TagEnd, nameStartIndex)
+
+    val name = inputText.substring(nameStartIndex + 1, nameEndIndex)
+    (new TextRange(startOffset, nameStartIndex - StartMarker.length), name)
+  }
+
+  private def updateModels(editor: Editor, range: TextRange): Unit = {
+    val endOffset = range.getEndOffset
+
+    editor.getCaretModel.moveToOffset(endOffset)
+    editor.getSelectionModel.setSelection(range.getStartOffset, endOffset)
   }
 }
