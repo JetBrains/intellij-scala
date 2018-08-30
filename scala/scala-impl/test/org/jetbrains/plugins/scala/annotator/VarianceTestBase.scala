@@ -9,19 +9,21 @@ import org.jetbrains.plugins.scala.lang.psi.api.statements.{ScFunction, ScValue,
 import org.jetbrains.plugins.scala.lang.psi.api.toplevel.ScTypeBoundsOwner
 import org.jetbrains.plugins.scala.lang.psi.api.toplevel.typedef.ScTypeDefinition
 import org.jetbrains.plugins.scala.extensions.PsiElementExt
+import org.jetbrains.plugins.scala.lang.psi.api.statements.params.ScClassParameter
 
 abstract class VarianceTestBase extends SimpleTestCase {
   final val Header = "class A; class B\n"
 
   protected def annotateFun(element: PsiElement, annotator: ScalaAnnotator, mock: AnnotatorHolderMock): Unit = {
     element match {
-      case fun: ScFunction => annotator.annotate(fun, mock)
-      case varr: ScVariable => annotator.annotate(varr, mock)
-      case v: ScValue => annotator.annotate(v, mock)
+      case fun: ScFunction        => annotator.annotate(fun, mock)
+      case varr: ScVariable       => annotator.annotate(varr, mock)
+      case v: ScValue             => annotator.annotate(v, mock)
       case tbo: ScTypeBoundsOwner => annotator.annotate(tbo, mock)
-      case call: ScMethodCall => annotator.annotate(call, mock)
-      case td: ScTypeDefinition => annotator.annotate(td, mock)
-      case _ =>
+      case call: ScMethodCall     => annotator.annotate(call, mock)
+      case td: ScTypeDefinition   => annotator.annotate(td, mock)
+      case td: ScClassParameter   => annotator.annotate(td, mock)
+      case _                      =>
     }
   }
 
