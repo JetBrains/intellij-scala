@@ -9,14 +9,13 @@ import com.intellij.psi._
 import com.intellij.psi.impl.source.tree.PsiWhiteSpaceImpl
 import org.jetbrains.plugins.scala.extensions._
 import org.jetbrains.plugins.scala.lang.psi.ScalaPsiUtil
-import org.jetbrains.plugins.scala.lang.psi.api.base.patterns.ScCaseClauses
+import org.jetbrains.plugins.scala.lang.psi.api.base.patterns.{ScCaseClause, ScCaseClauses, ScTypedPattern}
 import org.jetbrains.plugins.scala.lang.psi.api.expr._
 import org.jetbrains.plugins.scala.lang.psi.api.statements.ScValue
 import org.jetbrains.plugins.scala.lang.psi.api.toplevel.typedef.ScObject
 import org.jetbrains.plugins.scala.lang.psi.types.ScType
 import org.jetbrains.plugins.scala.lang.psi.types.api.ExtractClass
 import org.jetbrains.plugins.scala.lang.psi.types.api.designator._
-import org.jetbrains.plugins.scala.lang.psi.types.result.Typeable
 import org.jetbrains.plugins.scala.lang.resolve.ResolveUtils
 
 class ExhaustiveMatchCompletionContributor extends ScalaCompletionContributor {
@@ -36,8 +35,8 @@ class ExhaustiveMatchCompletionContributor extends ScalaCompletionContributor {
         case _: ScPrefixExpr =>
         case ScSugarCallExpr(operand, operation, _) if operation.isAncestorOf(position) =>
           operand match {
-            case Typeable(PatternGenerationStrategy(strategy)) =>
-              val lookupElement = createLookupElement(ItemText)(tailText = RendererTailText) {
+            case PatternGenerationStrategy(strategy) =>
+              val lookupElement = createLookupElement(itemText)(tailText = rendererTailText) {
                 createInsertHandler(strategy)(sugarCall)
               }
               result.addElement(lookupElement)
@@ -53,24 +52,32 @@ object ExhaustiveMatchCompletionContributor {
 
   import ScalaKeyword._
 
-  private[lang] val ItemText = MATCH
-  private[lang] val RendererTailText = " (exhaustive)"
+  private[lang] val Match = MATCH
 
-  private object PatternGenerationStrategy {
+  private[lang] def itemText = Match
 
-    def unapply(`type`: ScType): Option[PatternGenerationStrategy] = {
-      val valueType = `type`.extractDesignatorSingleton.getOrElse(`type`)
+  private[lang] val Exhaustive = "exhaustive"
 
-      valueType match {
-        case ScProjectionType(DesignatorOwner(enumeration@ScalaEnumeration()), _) =>
-          Some(new ScalaEnumGenerationStrategy(valueType, enumeration))
-        case ScDesignatorType(enum: PsiClass) if enum.isEnum =>
-          Some(new JavaEnumGenerationStrategy(valueType, enum))
+  private[lang] def rendererTailText = s" ($Exhaustive)"
+
+  private[lang] sealed trait PatternGenerationStrategy {
+
+    def patterns(implicit place: PsiElement): Seq[PatternComponents]
+  }
+
+  private[lang] object PatternGenerationStrategy {
+
+    def unapply(expression: ScExpression): Option[PatternGenerationStrategy] =
+      expression.`type`().toOption.map { `type` =>
+        `type`.extractDesignatorSingleton.getOrElse(`type`)
+      }.collect {
+        case valueType@ScProjectionType(DesignatorOwner(enumeration@ScalaEnumeration()), _) =>
+          new ScalaEnumGenerationStrategy(valueType, enumeration)
+        case valueType@ScDesignatorType(enum: PsiClass) if enum.isEnum =>
+          new JavaEnumGenerationStrategy(valueType, enum)
         case ExtractClass(SealedDefinition(inheritors)) if inheritors.namedInheritors.nonEmpty =>
-          Some(new SealedClassGenerationStrategy(inheritors))
-        case _ => None
+          new SealedClassGenerationStrategy(inheritors)
       }
-    }
 
     private[this] object ScalaEnumeration {
 
@@ -84,10 +91,21 @@ object ExhaustiveMatchCompletionContributor {
 
   }
 
-  private sealed trait PatternGenerationStrategy {
+  private[lang] def statementText(patterns: Seq[PatternComponents])
+                                 (implicit place: PsiElement): String =
+    patterns.map(_.text).map { patternText =>
+      s"$CASE $patternText ${ScalaPsiUtil.functionArrow}"
+    }.mkString(s"$MATCH {\n", "\n", "\n}")
 
-    def patterns(implicit place: PsiElement): Seq[PatternComponents]
-  }
+  private[lang] def adjustTypesPhase(strategy: PatternGenerationStrategy,
+                                     components: Seq[PatternComponents],
+                                     caseClauses: Seq[ScCaseClause]): Unit =
+    ClausesInsertHandler.adjustTypesPhase(
+      strategy.isInstanceOf[SealedClassGenerationStrategy],
+      caseClauses.flatMap(_.pattern).zip(components): _*
+    ) {
+      case ScTypedPattern(typeElement) => typeElement
+    }
 
   private class SealedClassGenerationStrategy(inheritors: Inheritors) extends PatternGenerationStrategy {
 
@@ -131,12 +149,7 @@ object ExhaustiveMatchCompletionContributor {
 
     override protected def handleInsert(implicit insertionContext: InsertionContext): Unit = {
       val patterns = strategy.patterns
-
-      ClausesInsertHandler.replaceTextPhase {
-        patterns.map(_.text).map { patternText =>
-          s"$CASE $patternText ${ScalaPsiUtil.functionArrow}"
-        }.mkString(s"$MATCH {\n", "\n", "\n}")
-      }
+      ClausesInsertHandler.replaceTextPhase(statementText(patterns))
 
       val whiteSpace = onTargetElement { statement =>
         replacePsiPhase(patterns, statement.getCaseClauses)
@@ -148,11 +161,7 @@ object ExhaustiveMatchCompletionContributor {
     private def replacePsiPhase(components: Seq[PatternComponents],
                                 clauses: ScCaseClauses): PsiWhiteSpaceImpl = {
       val caseClauses = clauses.caseClauses
-
-      adjustTypesPhase(
-        strategy.isInstanceOf[SealedClassGenerationStrategy],
-        caseClauses.flatMap(_.pattern).zip(components): _*
-      )
+      adjustTypesPhase(strategy, components, caseClauses)
 
       caseClauses.head.nextSibling.getOrElse(clauses.getNextSibling) match {
         case whiteSpace: PsiWhiteSpaceImpl =>

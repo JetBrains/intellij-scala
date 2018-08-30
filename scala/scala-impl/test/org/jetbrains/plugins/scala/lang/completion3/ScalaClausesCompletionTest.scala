@@ -564,7 +564,7 @@ class ScalaClausesCompletionTest extends ScalaCodeInsightTestBase {
     super.doCompletionTest(fileText, resultText, DEFAULT_CHAR, DEFAULT_TIME, BASIC)(isExhaustiveMatch)
 
   private def isExhaustiveMatch(lookup: LookupElement) = {
-    import ExhaustiveMatchCompletionContributor.{ItemText, RendererTailText}
-    hasItemText(lookup, ItemText, ItemText, tailText = RendererTailText)
+    import ExhaustiveMatchCompletionContributor.{itemText, rendererTailText}
+    hasItemText(lookup, itemText, itemText, tailText = rendererTailText)
   }
 }
