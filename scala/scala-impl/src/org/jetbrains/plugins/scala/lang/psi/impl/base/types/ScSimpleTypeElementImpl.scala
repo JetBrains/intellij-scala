@@ -10,6 +10,8 @@ import com.intellij.openapi.progress.ProgressManager
 import com.intellij.psi._
 import com.intellij.psi.util.PsiTreeUtil.getContextOfType
 import org.jetbrains.plugins.scala.extensions._
+import org.jetbrains.plugins.scala.lang.macros.MacroDef
+import org.jetbrains.plugins.scala.lang.macros.evaluator.{MacroContext, ScalaMacroEvaluator}
 import org.jetbrains.plugins.scala.lang.psi.api.InferUtil.SafeCheckException
 import org.jetbrains.plugins.scala.lang.psi.api.base._
 import org.jetbrains.plugins.scala.lang.psi.api.base.types._
@@ -359,6 +361,10 @@ object ScSimpleTypeElementImpl {
     }) match {
       case Some(r@ScalaResolveResult(n: PsiMethod, _)) if n.isConstructor =>
         (n.containingClass, r.fromType)
+      case Some(ScalaResolveResult(MacroDef(f), _)) =>
+        val macroEvaluator = ScalaMacroEvaluator.getInstance(f.getProject)
+        val typeFromMacro = macroEvaluator.checkMacro(f, MacroContext(ref, None))
+        return typeFromMacro.map(Right(_)).getOrElse(Failure("Unknown macro in type position"))
       case Some(r@ScalaResolveResult(n: PsiNamedElement, _)) => (n, r.fromType)
       case _ => return Failure("Cannot resolve reference")
     }
