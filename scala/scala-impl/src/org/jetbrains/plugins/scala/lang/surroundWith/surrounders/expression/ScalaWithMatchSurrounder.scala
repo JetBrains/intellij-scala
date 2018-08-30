@@ -8,6 +8,7 @@ import com.intellij.openapi.project.Project
 import com.intellij.openapi.util.TextRange
 import com.intellij.psi.{PsiElement, PsiWhiteSpace}
 import org.jetbrains.plugins.scala.extensions.StringExt
+import org.jetbrains.plugins.scala.lang.completion.ScalaKeyword
 import org.jetbrains.plugins.scala.lang.psi.ScalaPsiUtil
 import org.jetbrains.plugins.scala.lang.psi.api.expr._
 
@@ -54,7 +55,7 @@ object ScalaWithMatchSurrounder extends ScalaExpressionSurrounder {
        |}""".stripMargin
   }
 
-  override def getTemplateDescription = "match"
+  override def getTemplateDescription: String = ScalaKeyword.MATCH
 
   override def getSurroundSelectionRange(withMatchNode: ASTNode): TextRange = {
     val element = withMatchNode.getPsi match {
