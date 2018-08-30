@@ -61,6 +61,7 @@ object ScalaPostfixTemplateProvider {
     new ScalaNotNullPostfixTemplate("nn"),
     new ScalaOptionPostfixTemplate,
     new ScalaSeqPostfixTemplate,
-    new ScalaListPostfixTemplate
+    new ScalaListPostfixTemplate,
+    new ScalaExhaustiveMatchPostfixTemplate
   )
 }

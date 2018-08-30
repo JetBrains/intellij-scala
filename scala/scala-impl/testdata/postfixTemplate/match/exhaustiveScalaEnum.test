@@ -1,0 +1,30 @@
+object Margin extends Enumeration {
+  type Margin = Value
+
+  val TOP, BOTTOM = Value
+  val LEFT, RIGHT = Value
+
+  private val NULL = Value
+}
+
+object Test {
+    def test(margin: Margin.Margin) = <start>margin<exhaustive>
+}
+-----
+object Margin extends Enumeration {
+  type Margin = Value
+
+  val TOP, BOTTOM = Value
+  val LEFT, RIGHT = Value
+
+  private val NULL = Value
+}
+
+object Test {
+    def test(margin: Margin.Margin) = margin match {
+      case Margin.TOP =>
+      case Margin.BOTTOM =>
+      case Margin.LEFT =>
+      case Margin.RIGHT =>
+    }
+}
