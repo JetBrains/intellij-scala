@@ -273,7 +273,7 @@ object ScalaRefactoringUtil {
       val text = s"$prefix$quote$rangeText$quote"
       createExpressionWithContextFromText(text, lit.getContext, lit) match {
         case newExpr: ScLiteral =>
-          val tpe = newExpr.getNonValueType().getOrAny
+          val tpe = newExpr.getTypeWithoutImplicits(ignoreBaseTypes = true).getOrAny
           Some(newExpr, Array(tpe))
         case _ => None
       }
