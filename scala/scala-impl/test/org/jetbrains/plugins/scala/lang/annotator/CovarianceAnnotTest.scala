@@ -19,4 +19,13 @@ class CovarianceAnnotTest extends ScalaLightCodeInsightFixtureTestAdapter {
       """.stripMargin
     )
   }
+
+  def testSCL14032() = {
+    val text =
+      """
+        |class Queue[+T] private (private[this] var leading: List[T],
+        |                         private[this] var trailing: List[T])
+      """.stripMargin
+    checkTextHasNoErrors(text)
+  }
 }

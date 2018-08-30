@@ -1162,7 +1162,8 @@ abstract class ScalaAnnotator extends Annotator
   }
 
   def checkClassParameterVariance(toCheck: ScClassParameter, holder: AnnotationHolder): Unit = {
-    if (toCheck.isVar && !childHasAnnotation(Some(toCheck), "uncheckedVariance")) checkTypeVariance(toCheck, Contravariant, toCheck.nameId, toCheck, holder)
+    if (toCheck.isVar && !modifierIsThis(toCheck) && !childHasAnnotation(Some(toCheck), "uncheckedVariance"))
+      checkTypeVariance(toCheck, Contravariant, toCheck.nameId, toCheck, holder)
   }
 
   def checkTemplateParentsVariance(parents: ScTemplateParents, holder: AnnotationHolder): Unit = {
