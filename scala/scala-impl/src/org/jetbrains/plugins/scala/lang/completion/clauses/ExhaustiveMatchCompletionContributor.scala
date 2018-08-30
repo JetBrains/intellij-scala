@@ -66,10 +66,8 @@ object ExhaustiveMatchCompletionContributor {
           Some(new ScalaEnumGenerationStrategy(valueType, enumeration))
         case ScDesignatorType(enum: PsiClass) if enum.isEnum =>
           Some(new JavaEnumGenerationStrategy(valueType, enum))
-        case ExtractClass(SealedDefinition(classes)) =>
-          val inheritors = Inheritors(classes)
-          if (inheritors.namedInheritors.isEmpty && !inheritors.hasAnonymousInheritors) None
-          else Some(new SealedClassGenerationStrategy(inheritors))
+        case ExtractClass(SealedDefinition(inheritors)) if inheritors.namedInheritors.nonEmpty =>
+          Some(new SealedClassGenerationStrategy(inheritors))
         case _ => None
       }
     }

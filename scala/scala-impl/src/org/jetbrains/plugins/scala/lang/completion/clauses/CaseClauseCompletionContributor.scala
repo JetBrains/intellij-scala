@@ -30,7 +30,7 @@ class CaseClauseCompletionContributor extends ScalaCompletionContributor {
         .expectedType
         .flatMap(_.extractClass)
         .collect {
-          case SealedDefinition(classes) => Inheritors(classes)
+          case SealedDefinition(inheritors) => inheritors
           case definition: ScTypeDefinition => Inheritors(Seq(definition))
         }
 

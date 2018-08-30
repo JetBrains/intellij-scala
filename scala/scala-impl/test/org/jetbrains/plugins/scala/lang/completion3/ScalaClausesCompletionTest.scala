@@ -509,6 +509,45 @@ class ScalaClausesCompletionTest extends ScalaCodeInsightTestBase {
   //       """.stripMargin
   //  )
 
+  def testConcreteClass(): Unit = doMatchCompletionTest(
+    fileText =
+      s"""sealed class Foo
+         |
+         |case class Bar() extends Foo
+         |
+         |(_: Foo) ma$CARET
+       """.stripMargin,
+    resultText =
+      s"""sealed class Foo
+         |
+         |case class Bar() extends Foo
+         |
+         |(_: Foo) match {
+         |  case Bar() => $CARET
+         |  case _ =>
+         |}
+       """.stripMargin
+  )
+
+  def testAbstractClass(): Unit = doMatchCompletionTest(
+    fileText =
+      s"""sealed abstract class Foo
+         |
+         |case class Bar() extends Foo
+         |
+         |(_: Foo) ma$CARET
+       """.stripMargin,
+    resultText =
+      s"""sealed abstract class Foo
+         |
+         |case class Bar() extends Foo
+         |
+         |(_: Foo) match {
+         |  case Bar() => $CARET
+         |}
+       """.stripMargin
+  )
+
   private def doPatternCompletionTest(fileText: String, resultText: String,
                                       itemText: String = "Foo(_)"): Unit =
     super.doCompletionTest(fileText, resultText, DEFAULT_CHAR, DEFAULT_TIME, BASIC) {
