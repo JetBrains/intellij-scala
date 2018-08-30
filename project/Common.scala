@@ -61,19 +61,10 @@ object Common {
       .dependsOn(from % Provided)
       .settings(
         dumpDependencyStructure := null, // avoid cyclic dependencies on products task
-        products := {
-          val outDir = packagePluginStatic.in(from).value
-          val root = products.in(Compile).value
-          val deps = products.all(ScopeFilter(inDependencies(from, transitive = true), inConfigurations(Compile))).value.flatten
-          deps.foreach(IO.copyDirectory(_, outDir / "classes", overwrite = true))
-          root
-        },
+        products := packagePlugin.in(from).value :: Nil,
         packageMethod := org.jetbrains.sbtidea.Keys.PackagingMethod.Skip(),
         unmanagedJars in Compile := ideaMainJars.value,
-//        unmanagedJars in Compile ++= ideaInternalPluginsJars.all(ScopeFilter(inDependencies(from, transitive = true))).value.flatten.distinct,
         unmanagedJars in Compile += file(System.getProperty("java.home")).getParentFile / "lib" / "tools.jar"
-//        unmanagedJars in Compile ++= managedClasspath
-//          .all(ScopeFilter(inDependencies(from, transitive = true), inConfigurations(Compile))).value.flatten.distinct
       )
 
   def patchPluginXML(f: File): File = {
