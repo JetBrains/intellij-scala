@@ -15,7 +15,7 @@ import org.jetbrains.plugins.scala.lang.psi.api.expr._
   * @author AlexanderPodkhalyuzin
   *         Date: 28.04.2008
   */
-class ScalaWithMatchSurrounder extends ScalaExpressionSurrounder {
+object ScalaWithMatchSurrounder extends ScalaExpressionSurrounder {
 
   import ScalaPsiUtil.{functionArrow, isLineTerminator}
 

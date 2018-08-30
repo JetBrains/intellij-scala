@@ -1,9 +1,11 @@
-package org.jetbrains.plugins.scala.lang.completion.postfix.templates
+package org.jetbrains.plugins.scala.lang
+package completion
+package postfix
+package templates
 
 import com.intellij.codeInsight.template.postfix.templates.SurroundPostfixTemplateBase
 import com.intellij.psi.PsiElement
-import org.jetbrains.plugins.scala.lang.completion.postfix.templates.selector.{SelectorConditions, AncestorSelector, ScalaPostfixTemplatePsiInfo}
-import org.jetbrains.plugins.scala.lang.completion.postfix.templates.selector.SelectorType._
+import org.jetbrains.plugins.scala.lang.completion.postfix.templates.selector.{AncestorSelector, ScalaPostfixTemplatePsiInfo, SelectorType}
 import org.jetbrains.plugins.scala.lang.psi.api.expr.ScInfixExpr
 import org.jetbrains.plugins.scala.lang.surroundWith.surrounders.expression.ScalaWithIfConditionSurrounder
 
@@ -11,20 +13,26 @@ import org.jetbrains.plugins.scala.lang.surroundWith.surrounders.expression.Scal
  * @author Roman.Shein
  * @since 14.09.2015.
  */
-abstract class ScalaNullPostfixTemplate(val name: String, val example: String) extends SurroundPostfixTemplateBase(name,
-  example, ScalaPostfixTemplatePsiInfo, AncestorSelector(ScalaNullPostfixTemplate.surrounder, Topmost)) {
+sealed abstract class ScalaNullPostfixTemplate(name: String, character: Char) extends SurroundPostfixTemplateBase(
+  name,
+  s"if (expr $character= null) {}",
+  ScalaPostfixTemplatePsiInfo,
+  AncestorSelector(ScalaWithIfConditionSurrounder, SelectorType.Topmost)
+) {
 
   override protected def getWrappedExpression(expression: PsiElement): PsiElement = {
-    val (head, tail) = expression match {
-      case _: ScInfixExpr => ("(" + getHead, ")" + getTail)
-      case _ => (getHead, getTail)
+    val (prefix, suffix) = expression match {
+      case _: ScInfixExpr => ("(", ")")
+      case _ => ("", "")
     }
-    myPsiInfo.createExpression(expression, head, tail)
+    myPsiInfo.createExpression(expression, prefix + getHead, suffix + getTail)
   }
 
-  override def getSurrounder: ScalaWithIfConditionSurrounder = ScalaNullPostfixTemplate.surrounder
+  override final def getTail: String = character + "= null"
+
+  override final def getSurrounder: ScalaWithIfConditionSurrounder.type = ScalaWithIfConditionSurrounder
 }
 
-object ScalaNullPostfixTemplate {
-  private val surrounder = new ScalaWithIfConditionSurrounder()
-}
+final class ScalaNotNullPostfixTemplate(alias: String = "notnull") extends ScalaNullPostfixTemplate(alias, '!')
+
+final class ScalaIsNullPostfixTemplate extends ScalaNullPostfixTemplate("null", '=')

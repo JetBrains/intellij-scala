@@ -1,5 +1,4 @@
-package org.jetbrains.plugins.scala
-package lang
+package org.jetbrains.plugins.scala.lang
 package surroundWith
 package surrounders
 package expression
@@ -11,12 +10,11 @@ import org.jetbrains.plugins.scala.lang.psi.api.expr.{ScExpression, ScIfStmt, Sc
 import org.jetbrains.plugins.scala.lang.psi.types.result._
 import org.jetbrains.plugins.scala.lang.psi.types.{ScTypeExt, api}
 
-
 /**
   * User: Alexander Podkhalyuzin
   * Date: 29.09.2008
   */
-class ScalaWithIfConditionSurrounder extends ScalaExpressionSurrounder {
+object ScalaWithIfConditionSurrounder extends ScalaExpressionSurrounder {
   override def getTemplateAsString(elements: Array[PsiElement]): String =
     "if (" + super.getTemplateAsString(elements) + ") {}"
 

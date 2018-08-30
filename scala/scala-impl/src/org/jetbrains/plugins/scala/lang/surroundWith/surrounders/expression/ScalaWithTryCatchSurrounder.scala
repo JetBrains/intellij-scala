@@ -1,12 +1,7 @@
-package org.jetbrains.plugins.scala
-package lang
+package org.jetbrains.plugins.scala.lang
 package surroundWith
 package surrounders
 package expression
-
-/**
-  * @author Dmitry Krasilschikov, alefas
-  */
 
 import com.intellij.lang.ASTNode
 import com.intellij.openapi.util.TextRange
@@ -15,9 +10,11 @@ import org.jetbrains.plugins.scala.lang.psi.ScalaPsiUtil
 import org.jetbrains.plugins.scala.lang.psi.api.expr._
 
 /**
-  * Surrounds block with try - catch: try { Block } catch { <Cursor> }
+  * @author Dmitry Krasilschikov, alefas
+  *
+  *         Surrounds block with try - catch: try { Block } catch { <Cursor> }
   */
-class ScalaWithTryCatchSurrounder extends ScalaExpressionSurrounder {
+object ScalaWithTryCatchSurrounder extends ScalaExpressionSurrounder {
   override def getTemplateAsString(elements: Array[PsiElement]): String = {
     val arrow = if (elements.length == 0) "=>" else ScalaPsiUtil.functionArrow(elements(0).getProject)
     "try {\n" + super.getTemplateAsString(elements) + s"\n} catch {\n case _ $arrow \n}"
