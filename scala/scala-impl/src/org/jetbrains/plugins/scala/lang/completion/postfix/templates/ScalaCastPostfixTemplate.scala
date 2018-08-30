@@ -1,20 +1,25 @@
-package org.jetbrains.plugins.scala.lang.completion.postfix.templates
+package org.jetbrains.plugins.scala.lang
+package completion
+package postfix
+package templates
 
 import com.intellij.codeInsight.template.TemplateManager
 import com.intellij.codeInsight.template.impl.TextExpression
-import com.intellij.codeInsight.template.postfix.templates.{PostfixTemplatesUtils, PostfixTemplateWithExpressionSelector}
-import org.jetbrains.plugins.scala.lang.completion.postfix.templates.selector.SelectorType._
+import com.intellij.codeInsight.template.postfix.templates.{PostfixTemplateWithExpressionSelector, PostfixTemplatesUtils}
 import com.intellij.openapi.editor.{Document, Editor}
 import com.intellij.psi.PsiElement
-import org.jetbrains.plugins.scala.lang.completion.postfix.templates.selector.{SelectorConditions, AncestorSelector}
+import org.jetbrains.plugins.scala.lang.completion.postfix.templates.selector.AncestorSelector.SelectAllAncestors
 import org.jetbrains.plugins.scala.lang.psi.api.expr._
 
 /**
  * @author Roman.Shein
  * @since 08.09.2015.
  */
-class ScalaCastPostfixTemplate extends PostfixTemplateWithExpressionSelector("cast", "expr.asInstanceOf[SomeType]",
-  new AncestorSelector(SelectorConditions.ANY_EXPR, All)) {
+final class ScalaCastPostfixTemplate extends PostfixTemplateWithExpressionSelector(
+  "cast",
+  "expr.asInstanceOf[SomeType]",
+  SelectAllAncestors()
+) {
 
   def getTemplateString(expression: PsiElement): String = "$expr$.asInstanceOf[$END$]"
 

@@ -1,16 +1,19 @@
-package org.jetbrains.plugins.scala.lang.completion.postfix.templates
+package org.jetbrains.plugins.scala.lang
+package completion
+package postfix
+package templates
 
 import com.intellij.psi.PsiElement
-import org.jetbrains.plugins.scala.lang.completion.postfix.templates.selector.{AncestorSelector, SelectorConditions}
-import org.jetbrains.plugins.scala.lang.completion.postfix.templates.selector.SelectorType._
+import org.jetbrains.plugins.scala.lang.completion.postfix.templates.selector.AncestorSelector._
 
 /**
  * @author Roman.Shein
  * @since 09.09.2015.
  */
-class ScalaForEachPostfixTemplate extends ScalaStringBasedPostfixTemplate("for", "for (elem: collection) {...}",
-  new AncestorSelector(SelectorConditions.isDescendantCondition("scala.collection.GenTraversableOnce") ||
-          SelectorConditions.isDescendantCondition("scala.Array"), Topmost)) {
-
+final class ScalaForEachPostfixTemplate extends ScalaStringBasedPostfixTemplate(
+  "for",
+  "for (elem: collection) {...}",
+  SelectTopmostAncestors(isSameOrInheritor("scala.collection.GenTraversableOnce", "scala.Array"))
+) {
   override def getTemplateString(element: PsiElement): String = "for (elem <- $expr$) {$END$}"
 }

@@ -5,7 +5,8 @@ package templates
 
 import com.intellij.codeInsight.template.postfix.templates.SurroundPostfixTemplateBase
 import com.intellij.psi.PsiElement
-import org.jetbrains.plugins.scala.lang.completion.postfix.templates.selector.{AncestorSelector, ScalaPostfixTemplatePsiInfo, SelectorType}
+import org.jetbrains.plugins.scala.lang.completion.postfix.templates.selector.AncestorSelector.SelectTopmostAncestors
+import org.jetbrains.plugins.scala.lang.completion.postfix.templates.selector.ScalaPostfixTemplatePsiInfo
 import org.jetbrains.plugins.scala.lang.psi.api.expr.ScInfixExpr
 import org.jetbrains.plugins.scala.lang.surroundWith.surrounders.expression.ScalaWithIfConditionSurrounder
 
@@ -17,7 +18,7 @@ sealed abstract class ScalaNullPostfixTemplate(name: String, character: Char) ex
   name,
   s"if (expr $character= null) {}",
   ScalaPostfixTemplatePsiInfo,
-  AncestorSelector(ScalaWithIfConditionSurrounder, SelectorType.Topmost)
+  SelectTopmostAncestors(ScalaWithIfConditionSurrounder)
 ) {
 
   override protected def getWrappedExpression(expression: PsiElement): PsiElement = {

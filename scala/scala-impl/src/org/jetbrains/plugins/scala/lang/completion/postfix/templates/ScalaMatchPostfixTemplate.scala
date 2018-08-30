@@ -7,7 +7,7 @@ import com.intellij.codeInsight.template.postfix.templates.PostfixTemplateWithEx
 import com.intellij.openapi.editor.Editor
 import com.intellij.psi.PsiElement
 import com.intellij.psi.codeStyle.CodeStyleManager
-import org.jetbrains.plugins.scala.lang.completion.postfix.templates.selector.{AncestorSelector, SelectorType}
+import org.jetbrains.plugins.scala.lang.completion.postfix.templates.selector.AncestorSelector.SelectAllAncestors
 import org.jetbrains.plugins.scala.lang.surroundWith.surrounders.expression.ScalaWithMatchSurrounder
 
 /**
@@ -18,7 +18,7 @@ final class ScalaMatchPostfixTemplate extends PostfixTemplateWithExpressionSelec
   null,
   ScalaWithMatchSurrounder.getTemplateDescription,
   "expr match {...}",
-  AncestorSelector(ScalaWithMatchSurrounder, SelectorType.All),
+  SelectAllAncestors(ScalaWithMatchSurrounder),
   null
 ) {
 
