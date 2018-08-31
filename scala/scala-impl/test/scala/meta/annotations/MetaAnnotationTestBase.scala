@@ -41,7 +41,7 @@ abstract class MetaAnnotationTestBase extends JavaCodeInsightFixtureTestCase wit
     super.setUp()
     setUpLibraries()
     PsiTestUtil.addSourceRoot(module, myFixture.getTempDirFixture.findOrCreateDir("test"), true)
-    compiler = new CompilerTester(project, Collections.singletonList(module))
+    compiler = new CompilerTester(project, Collections.singletonList(module), project)
   }
 
   override def tearDown(): Unit = try {

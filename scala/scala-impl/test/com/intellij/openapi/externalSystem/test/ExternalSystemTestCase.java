@@ -418,7 +418,7 @@ public abstract class ExternalSystemTestCase extends UsefulTestCase {
 
     private void compile(final CompileScope scope) {
         try {
-            CompilerTester tester = new CompilerTester(myProject, Arrays.asList(scope.getAffectedModules()));
+            CompilerTester tester = new CompilerTester(myProject, Arrays.asList(scope.getAffectedModules()), myProject);
             try {
                 List<CompilerMessage> messages = tester.make(scope);
                 for (CompilerMessage message : messages) {
