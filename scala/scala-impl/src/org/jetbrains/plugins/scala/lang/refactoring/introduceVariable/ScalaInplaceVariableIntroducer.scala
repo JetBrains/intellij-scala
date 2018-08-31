@@ -9,6 +9,7 @@ import java.awt.event.{ActionEvent, ItemEvent}
 import com.intellij.codeInsight.template.impl.{TemplateManagerImpl, TemplateState}
 import com.intellij.openapi.application.{ApplicationManager, Result}
 import com.intellij.openapi.command.WriteCommandAction
+import com.intellij.openapi.command.WriteCommandAction.writeCommandAction
 import com.intellij.openapi.command.impl.StartMarkAction
 import com.intellij.openapi.command.undo.UndoManager
 import com.intellij.openapi.editor.event.{DocumentEvent, DocumentListener}
@@ -137,9 +138,10 @@ class ScalaInplaceVariableIntroducer(expr: ScExpression,
       myVarCheckbox = new NonFocusableCheckBox(ScalaBundle.message("introduce.variable.declare.as.var"))
       myVarCheckbox.setMnemonic('v')
       myVarCheckbox.addActionListener((e: ActionEvent) => {
-        val writeAction = new WriteCommandAction[Unit](myProject, getCommandName, getCommandName) {
-
-          protected def run(result: Result[Unit]): Unit = {
+        writeCommandAction(myProject)
+          .withName(getCommandName)
+          .withGroupId(getCommandName)
+          .run ( () => {
             val asVar = myVarCheckbox.isSelected
             getDeclaration.collect {
               case value: ScValue if asVar => (value, createVarFromValDeclaration(value))
@@ -149,9 +151,7 @@ class ScalaInplaceVariableIntroducer(expr: ScExpression,
             }.foreach(setDeclaration)
 
             commitDocument()
-          }
-        }
-        writeAction.execute()
+          })
       })
     }
 
@@ -184,47 +184,48 @@ class ScalaInplaceVariableIntroducer(expr: ScExpression,
             } else false
           }
 
-          val writeAction = new WriteCommandAction[Unit](myProject, getCommandName, getCommandName) {
-            private def addTypeAnnotation(selectedType: ScType): Unit = {
-              getDeclaration.foreach {
-                case declaration@(_: ScDeclaredElementsHolder | _: ScEnumerator) =>
-                  val declarationCopy = declaration.copy.asInstanceOf[ScalaPsiElement]
-                  val fakeDeclaration = createDeclaration(selectedType, "x", isVariable = false, "", isPresentableText = false)
-                  val first = fakeDeclaration.findFirstChildByType(ScalaTokenTypes.tCOLON)
-                  val last = fakeDeclaration.findFirstChildByType(ScalaTokenTypes.tASSIGN)
-                  val assign = declarationCopy.findFirstChildByType(ScalaTokenTypes.tASSIGN)
-                  declarationCopy.addRangeAfter(first, last, assign)
-                  assign.delete()
+          def addTypeAnnotation(selectedType: ScType): Unit = {
+            getDeclaration.foreach {
+              case declaration@(_: ScDeclaredElementsHolder | _: ScEnumerator) =>
+                val declarationCopy = declaration.copy.asInstanceOf[ScalaPsiElement]
+                val fakeDeclaration = createDeclaration(selectedType, "x", isVariable = false, "", isPresentableText = false)
+                val first = fakeDeclaration.findFirstChildByType(ScalaTokenTypes.tCOLON)
+                val last = fakeDeclaration.findFirstChildByType(ScalaTokenTypes.tASSIGN)
+                val assign = declarationCopy.findFirstChildByType(ScalaTokenTypes.tASSIGN)
+                declarationCopy.addRangeAfter(first, last, assign)
+                assign.delete()
 
-                  val replaced = declaration.replace(declarationCopy)
-                  ScalaPsiUtil.adjustTypes(replaced)
-                  setDeclaration(replaced)
-                  commitDocument()
-                case _ =>
-              }
+                val replaced = declaration.replace(declarationCopy)
+                ScalaPsiUtil.adjustTypes(replaced)
+                setDeclaration(replaced)
+                commitDocument()
+              case _ =>
             }
+          }
 
-            private def removeTypeAnnotation(): Unit = {
-              getDeclaration.foreach {
-                case holder: ScDeclaredElementsHolder =>
-                  val colon = holder.findFirstChildByType(ScalaTokenTypes.tCOLON)
-                  val assign = holder.findFirstChildByType(ScalaTokenTypes.tASSIGN)
-                  implicit val manager: PsiManager = myFile.getManager
-                  val whiteSpace = createExpressionFromText("1 + 1").findElementAt(1)
-                  val newWhiteSpace = holder.addBefore(whiteSpace, assign)
-                  holder.getNode.removeRange(colon.getNode, newWhiteSpace.getNode)
-                  setDeclaration(holder)
-                  commitDocument()
-                case enum: ScEnumerator if enum.pattern.isInstanceOf[ScTypedPattern] =>
-                  val colon = enum.pattern.findFirstChildByType(ScalaTokenTypes.tCOLON)
-                  enum.pattern.getNode.removeRange(colon.getNode, null)
-                  setDeclaration(enum)
-                  commitDocument()
-                case _ =>
-              }
+          def removeTypeAnnotation(): Unit = {
+            getDeclaration.foreach {
+              case holder: ScDeclaredElementsHolder =>
+                val colon = holder.findFirstChildByType(ScalaTokenTypes.tCOLON)
+                val assign = holder.findFirstChildByType(ScalaTokenTypes.tASSIGN)
+                implicit val manager: PsiManager = myFile.getManager
+                val whiteSpace = createExpressionFromText("1 + 1").findElementAt(1)
+                val newWhiteSpace = holder.addBefore(whiteSpace, assign)
+                holder.getNode.removeRange(colon.getNode, newWhiteSpace.getNode)
+                setDeclaration(holder)
+                commitDocument()
+              case enum: ScEnumerator if enum.pattern.isInstanceOf[ScTypedPattern] =>
+                val colon = enum.pattern.findFirstChildByType(ScalaTokenTypes.tCOLON)
+                enum.pattern.getNode.removeRange(colon.getNode, null)
+                setDeclaration(enum)
+                commitDocument()
+              case _ =>
             }
-
-            protected def run(result: Result[Unit]): Unit = {
+          }
+          writeCommandAction(myProject)
+            .withName(getCommandName)
+            .withGroupId(getCommandName)
+            .run (() => {
               commitDocument()
               setGreedyToRightToFalse()
               if (needInferType) {
@@ -232,9 +233,8 @@ class ScalaInplaceVariableIntroducer(expr: ScExpression,
               } else {
                 removeTypeAnnotation()
               }
-            }
-          }
-          writeAction.execute()
+            })
+
           ApplicationManager.getApplication.runReadAction(new Runnable {
             def run(): Unit = {
               if (needTypeDefault) resetGreedyToRightBack()

@@ -40,7 +40,7 @@ class JavaFunctionUsagesSearcher extends QueryExecutor[PsiReference, ReferencesS
             true
           }
         }
-        val helper: PsiSearchHelper = PsiSearchHelper.SERVICE.getInstance(queryParameters.getProject)
+        val helper: PsiSearchHelper = PsiSearchHelper.getInstance(queryParameters.getProject)
         if (name == "") return true
         helper.processElementsWithWord(processor, scope, name, UsageSearchContext.IN_CODE, true)
       case _ =>

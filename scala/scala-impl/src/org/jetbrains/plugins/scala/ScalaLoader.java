@@ -21,11 +21,12 @@ import com.intellij.openapi.compiler.CompilerManager;
 import com.intellij.openapi.components.ApplicationComponent;
 import com.intellij.openapi.project.Project;
 import com.intellij.openapi.project.ProjectManager;
-import com.intellij.openapi.project.ProjectManagerAdapter;
-import com.intellij.util.containers.HashSet;
+import com.intellij.openapi.project.ProjectManagerListener;
+import com.intellij.util.messages.MessageBus;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.plugins.scala.debugger.ScalaJVMNameMapper;
 
+import java.util.HashSet;
 import java.util.Set;
 
 /**
@@ -53,13 +54,14 @@ public class ScalaLoader implements ApplicationComponent { //todo: to remove?
   }
 
   public static void loadScala() {
-    ProjectManager.getInstance().addProjectManagerListener(new ProjectManagerAdapter() {
+    MessageBus messageBus = ApplicationManager.getApplication().getMessageBus();
+    messageBus.connect().subscribe(ProjectManager.TOPIC, new ProjectManagerListener() {
       public void projectOpened(Project project) {
 
-      CompilerManager compilerManager = CompilerManager.getInstance(project);
-      compilerManager.addCompilableFileType(ScalaFileType.INSTANCE);
+        CompilerManager compilerManager = CompilerManager.getInstance(project);
+        compilerManager.addCompilableFileType(ScalaFileType.INSTANCE);
 
-      DebuggerManager.getInstance(project).addClassNameMapper(new ScalaJVMNameMapper());
+        DebuggerManager.getInstance(project).addClassNameMapper(new ScalaJVMNameMapper());
       }
     });
   }

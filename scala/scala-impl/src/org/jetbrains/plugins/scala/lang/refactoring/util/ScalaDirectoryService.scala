@@ -21,10 +21,11 @@ object ScalaDirectoryService {
   private final val LOG: Logger = Logger.getInstance("#org.jetbrains.plugins.scala.lang.refactoring.move.ScalaDirectoryService")
 
   def createClassFromTemplate(@NotNull dir: PsiDirectory, name: String, templateName: String, askToDefineVariables: Boolean): PsiClass = {
+    val templateManager = FileTemplateManager.getInstance(dir.getProject)
     val template =
       if (ApplicationManager.getApplication.isUnitTestMode) templateForUnitTest(templateName, name)
-      else FileTemplateManager.getInstance.getInternalTemplate(templateName)
-    val defaultProperties = FileTemplateManager.getInstance.getDefaultProperties
+      else templateManager.getInternalTemplate(templateName)
+    val defaultProperties = templateManager.getDefaultProperties
     val properties = new Properties(defaultProperties)
     properties.setProperty(FileTemplate.ATTRIBUTE_NAME, name)
     val fileName: String = name
@@ -45,7 +46,7 @@ object ScalaDirectoryService {
   }
 
   private def getIncorrectTemplateMessage(templateName: String): String = {
-    PsiBundle.message("psi.error.incorroect.class.template.message", FileTemplateManager.getInstance.internalTemplateToSubject(templateName), templateName)
+    PsiBundle.message("psi.error.incorroect.class.template.message", FileTemplateManager.getDefaultInstance.internalTemplateToSubject(templateName), templateName)
   }
 
   private def templateForUnitTest(templateName: String, name: String): FileTemplate = {

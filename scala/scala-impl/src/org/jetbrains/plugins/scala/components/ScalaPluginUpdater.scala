@@ -227,11 +227,10 @@ object ScalaPluginUpdater {
         }
       })
       if(info.isDefined) {
-        val strategy = new UpdateStrategy(infoImpl.getMajorVersion.toInt,
+        val strategy = new UpdateStrategy(
           infoImpl.getBuild,
           info.get,
           UpdateSettings.getInstance(),
-          UpdateStrategyCustomization.getInstance()
         )
         Some(strategy.checkForUpdates())
       } else None

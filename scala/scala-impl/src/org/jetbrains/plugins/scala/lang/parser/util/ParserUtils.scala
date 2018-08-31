@@ -317,6 +317,6 @@ object ParserUtils extends ParserUtilsBase {
       case _ => builder
     }
     
-    Option(delegate.getUserDataUnprotected(FileContextUtil.CONTAINING_FILE_KEY))
+    Option(delegate.getUserData(FileContextUtil.CONTAINING_FILE_KEY))
   }
 }

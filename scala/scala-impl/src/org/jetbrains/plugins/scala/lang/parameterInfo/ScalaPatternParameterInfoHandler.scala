@@ -36,8 +36,6 @@ class ScalaPatternParameterInfoHandler extends ParameterInfoHandlerWithTabAction
     java.util.Collections.singleton(classOf[PsiMethod]) //todo: ?
   }
 
-  override def getParameterCloseChars: String = "{},);\n"
-
   def couldShowInLookup: Boolean = true
 
   def getActualParameterDelimiterType: IElementType = ScalaTokenTypes.tCOMMA
@@ -61,8 +59,6 @@ class ScalaPatternParameterInfoHandler extends ParameterInfoHandlerWithTabAction
   def findElementForUpdatingParameterInfo(context: UpdateParameterInfoContext): ScPatternArgumentList = {
     findCall(context)
   }
-
-  override def getParametersForDocumentation(p: Any, context: ParameterInfoContext): Array[Object] = ArrayUtil.EMPTY_OBJECT_ARRAY
 
   def getParametersForLookup(item: LookupElement, context: ParameterInfoContext): Array[Object] = null
 
@@ -196,8 +192,6 @@ class ScalaPatternParameterInfoHandler extends ParameterInfoHandlerWithTabAction
     }
     context.setCurrentParameter(i)
   }
-
-  override def tracksParameterIndex: Boolean = true
 
   private def findCall(context: ParameterInfoContext): ScPatternArgumentList = {
     val (file, offset) = (context.getFile, context.getOffset)

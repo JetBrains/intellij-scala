@@ -79,7 +79,7 @@ class ScalaCopyPastePostProcessor extends SingularCopyPastePostProcessor[Associa
       case e: Exception =>
         val selections = (startOffsets, endOffsets).zipped.map((a, b) => file.getText.substring(a, b))
         val attachments = selections.zipWithIndex.map(p => new Attachment(s"Selection-${p._2 + 1}.scala", p._1))
-        Log.error(LogMessageEx.createEvent(e.getMessage, ExceptionUtil.getThrowableText(e), attachments: _*))
+        Log.error(e.getMessage, e, attachments: _*)
     } finally {
       result = new Associations(buffer.toVector)
     }

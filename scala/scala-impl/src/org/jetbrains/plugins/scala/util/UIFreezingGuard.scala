@@ -175,9 +175,6 @@ object UIFreezingGuard {
     def popState(): Unit = delegate.popState()
     def getText2: String = delegate.getText2
     def isShowing: Boolean = delegate.isShowing
-
-    override def startNonCancelableSection(): Unit = delegate.startNonCancelableSection()
-    override def finishNonCancelableSection(): Unit = delegate.finishNonCancelableSection()
   }
 
   private object UnfreezeException extends ProcessCanceledException with NoStackTrace {

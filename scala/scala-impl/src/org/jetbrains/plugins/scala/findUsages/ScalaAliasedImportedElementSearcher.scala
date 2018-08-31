@@ -60,7 +60,7 @@ class ScalaAliasedImportedElementSearcher extends QueryExecutorBase[PsiReference
           val collector: SearchRequestCollector = new SearchRequestCollector(mySession)
           val fileScope: SearchScope = new LocalSearchScope(element.getContainingFile)
           collector.searchWord(alias, fileScope, UsageSearchContext.IN_CODE, true, myTarget)
-          PsiSearchHelper.SERVICE.getInstance(element.getProject).processRequests(collector, consumer)
+          PsiSearchHelper.getInstance(element.getProject).processRequests(collector, consumer)
         case _ => true
       }
     }

@@ -48,7 +48,7 @@ class JavaValsUsagesSearcher extends QueryExecutor[PsiReference, ReferencesSearc
             true
           }
         }
-        val helper: PsiSearchHelper = PsiSearchHelper.SERVICE.getInstance(queryParameters.getProject)
+        val helper: PsiSearchHelper = PsiSearchHelper.getInstance(queryParameters.getProject)
         helper.processElementsWithWord(processor, scope, name, UsageSearchContext.IN_CODE, true)
       case wrapper@PsiTypedDefinitionWrapper(delegate) => //only this is added for find usages factory
         val name = inReadAction(wrapper.getName)
@@ -74,7 +74,7 @@ class JavaValsUsagesSearcher extends QueryExecutor[PsiReference, ReferencesSearc
             true
           }
         }
-        val helper: PsiSearchHelper = PsiSearchHelper.SERVICE.getInstance(queryParameters.getProject)
+        val helper: PsiSearchHelper = PsiSearchHelper.getInstance(queryParameters.getProject)
         helper.processElementsWithWord(processor, scope, name, UsageSearchContext.IN_CODE, true)
       case _ => true
     }

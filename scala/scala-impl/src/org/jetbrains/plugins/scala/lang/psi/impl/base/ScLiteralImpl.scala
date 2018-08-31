@@ -136,7 +136,7 @@ class ScLiteralImpl(node: ASTNode) extends ScalaPsiElementImpl(node) with ScLite
   def getInjectedPsi: util.List[Pair[PsiElement, TextRange]] = if (getValue.isInstanceOf[String]) InjectedLanguageManager.getInstance(getProject).getInjectedPsiFiles(this) else null
 
   def processInjectedPsi(visitor: PsiLanguageInjectionHost.InjectedPsiVisitor) {
-    InjectedLanguageUtil.enumerate(this, visitor)
+    InjectedLanguageManager.getInstance(getProject).enumerate(this, visitor)
   }
 
   def updateText(text: String): ScLiteralImpl = {

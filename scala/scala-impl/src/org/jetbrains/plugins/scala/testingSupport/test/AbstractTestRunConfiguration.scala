@@ -542,7 +542,6 @@ abstract class AbstractTestRunConfiguration(val project: Project,
   override def writeExternal(element: Element) {
     super.writeExternal(element)
     JavaRunConfigurationExtensionManager.getInstance.writeExternal(this, element)
-    writeModule(element)
     JDOMExternalizer.write(element, "path", getTestClassPath)
     JDOMExternalizer.write(element, "vmparams", getJavaOptions)
     JDOMExternalizer.write(element, "params", getTestArgs)

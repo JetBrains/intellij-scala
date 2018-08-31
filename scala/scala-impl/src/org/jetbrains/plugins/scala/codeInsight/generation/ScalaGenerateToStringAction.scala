@@ -27,7 +27,6 @@ class ScalaGenerateToStringHandler extends ScalaCodeInsightActionHandler {
   import ScalaGenerateToStringHandler._
 
   override def invoke(project: Project, editor: Editor, file: PsiFile): Unit = {
-    if (!CodeInsightUtilBase.prepareEditorForWrite(editor)) return
     if (!FileDocumentManager.getInstance.requestWriting(editor.getDocument, project)) return
 
     findTypeDefinition(editor, file).foreach { definition =>

@@ -1,5 +1,6 @@
 package org.jetbrains.plugins.scala.testingSupport
 
+import java.util.HashSet
 import java.util.Collections
 import java.util.regex.Pattern
 
@@ -8,7 +9,6 @@ import com.intellij.openapi.util.Pair
 import com.intellij.psi.search.{GlobalSearchScope, PsiShortNamesCache}
 import com.intellij.psi.{PsiClass, PsiElement, PsiNamedElement}
 import com.intellij.testIntegration.{JavaTestFinder, TestFinderHelper}
-import com.intellij.util.containers.HashSet
 import org.jetbrains.plugins.scala.lang.psi.api.toplevel.typedef.ScObject
 
 
@@ -22,13 +22,12 @@ class ScalaTestFinder extends JavaTestFinder {
       case obj: ScObject =>
         val objName = obj.getName.stripSuffix("$")
         val pattern = Pattern.compile(s".*$objName.*", Pattern.CASE_INSENSITIVE)
-        val names = new HashSet[String]()
         val frameworks: TestFrameworks = TestFrameworks.getInstance
         val cache = PsiShortNamesCache.getInstance(obj.getProject)
         val scope: GlobalSearchScope = getSearchScope(obj, false)
-        cache.getAllClassNames(names)
+        val names = cache.getAllClassNames.distinct
         val res = new java.util.ArrayList[Pair[_ <: PsiNamedElement, Integer]]()
-        names.forEach { testClassName =>
+        names.foreach { testClassName =>
           if (pattern.matcher(testClassName).matches()) {
             for (testClass <- cache.getClassesByName(testClassName, scope)) {
               if (frameworks.isTestClass(testClass) || frameworks.isPotentialTestClass(testClass)) {

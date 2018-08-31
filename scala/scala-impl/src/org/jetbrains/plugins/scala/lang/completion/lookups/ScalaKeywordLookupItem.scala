@@ -1,5 +1,6 @@
 package org.jetbrains.plugins.scala.lang.completion.lookups
 
+import com.intellij.application.options.CodeStyle
 import com.intellij.codeInsight.completion.{InsertHandler, InsertionContext}
 import com.intellij.codeInsight.lookup.{LookupElement, LookupElementBuilder}
 import com.intellij.openapi.project.Project
@@ -51,7 +52,7 @@ object ScalaKeywordLookupItem {
             editor.getCaretModel.moveToOffset(offset + 1)
           }
 
-          val settings = CodeStyleSettingsManager.getInstance(context.getProject).getCurrentSettings.getCommonSettings(ScalaLanguage.INSTANCE)
+          val settings = CodeStyle.getSettings(context.getProject).getCommonSettings(ScalaLanguage.INSTANCE)
           context.getCompletionChar match {
             case '(' if parentheses.contains(keyword) =>
               val add = keyword match {

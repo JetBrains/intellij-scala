@@ -41,7 +41,7 @@ class ObjectTraitReferenceSearcher extends QueryExecutor[PsiReference, Reference
           true
         }
       }
-      val helper: PsiSearchHelper = PsiSearchHelper.SERVICE.getInstance(queryParameters.getProject)
+      val helper: PsiSearchHelper = PsiSearchHelper.getInstance(queryParameters.getProject)
       try {
         helper.processElementsWithWord(processor, scope, name, UsageSearchContext.IN_CODE, true)
       }

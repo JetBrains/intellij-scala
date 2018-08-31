@@ -21,8 +21,8 @@ import org.jetbrains.plugins.scala.lang.psi.impl.ScalaPsiElementFactory.createEx
  */
 
 class ScalaBraceEnforcer(settings: CodeStyleSettings) extends ScalaRecursiveElementVisitor {
-  private val myPostProcessor: PostFormatProcessorHelper = new PostFormatProcessorHelper(settings)
   private val commonSetttings = settings.getCommonSettings(ScalaLanguage.INSTANCE)
+  private val myPostProcessor: PostFormatProcessorHelper = new PostFormatProcessorHelper(commonSetttings)
   private val scalaSettings = settings.getCustomSettings(classOf[ScalaCodeStyleSettings])
 
   override def visitIfStatement(stmt: ScIfStmt) {

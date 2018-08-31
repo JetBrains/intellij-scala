@@ -23,7 +23,7 @@ class SelfInvocationSearcher extends QueryExecutor[PsiReference, ReferencesSearc
         }
 
         localScope.forall { scope =>
-          val helper: PsiSearchHelper = PsiSearchHelper.SERVICE.getInstance(queryParameters.getProject)
+          val helper: PsiSearchHelper = PsiSearchHelper.getInstance(queryParameters.getProject)
           val processor = new TextOccurenceProcessor {
             def execute(element: PsiElement, offsetInElement: Int): Boolean = {
               inReadAction {

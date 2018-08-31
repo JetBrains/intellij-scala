@@ -82,7 +82,7 @@ abstract class MacroExpansionLineMarkerProvider extends RelatedItemLineMarkerPro
   }
 
   protected def createExpandMarker[T <: PsiElement, R](elem: T)(fun: T => R): Marker = {
-    createMarker(elem, AllIcons.General.ExpandAllHover, ScalaBundle.message("scala.meta.expand"))(fun)
+    createMarker(elem, AllIcons.Actions.Expandall, ScalaBundle.message("scala.meta.expand"))(fun)
   }
 
   protected def createUndoMarker[T](element: PsiElement): Marker = {

@@ -44,7 +44,7 @@ abstract class IdeClient(compilerName: String,
   }
 
   def trace(exception: Throwable) {
-    context.processMessage(new CompilerMessage(compilerName, exception))
+    context.processMessage(CompilerMessage.createInternalCompilationError(compilerName, exception))
   }
 
   def progress(text: String, done: Option[Float]) {

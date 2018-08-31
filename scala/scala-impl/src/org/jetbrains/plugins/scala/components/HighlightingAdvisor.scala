@@ -147,14 +147,12 @@ class HighlightingAdvisor(project: Project) extends AbstractProjectComponent(pro
   }
 
   private def reparseActiveFile() {
-    val context = DataManager.getInstance.getDataContextFromFocus
-    context.doWhenDone(new Consumer[DataContext] {
-      override def consume(dataContext: DataContext): Unit = {
-        CommonDataKeys.EDITOR_EVEN_IF_INACTIVE.getData(dataContext) match {
-          case editor: EditorEx =>
-            FileContentUtil.reparseFiles(project, Seq(editor.getVirtualFile).asJavaCollection, true)
-          case _ => // do nothing
-        }
+    val context = DataManager.getInstance.getDataContextFromFocusAsync
+    context.onSuccess((dataContext: DataContext) => {
+      CommonDataKeys.EDITOR_EVEN_IF_INACTIVE.getData(dataContext) match {
+        case editor: EditorEx =>
+          FileContentUtil.reparseFiles(project, Seq(editor.getVirtualFile).asJavaCollection, true)
+        case _                => // do nothing
       }
     })
   }

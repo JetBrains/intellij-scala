@@ -55,13 +55,13 @@ abstract class BaseScalaApplicationConfigurationProducer[T <: ApplicationConfigu
     val location = context.getLocation
     if (location == null) return false
     //use fast psi location check to filter off obvious candidates
-    if (context.getPsiLocation == null || !hasClassAncestorWithName(context.getPsiLocation, configuration.MAIN_CLASS_NAME)) return false
+    if (context.getPsiLocation == null || !hasClassAncestorWithName(context.getPsiLocation, configuration.getMainClassName)) return false
     val containingObj = ScalaMainMethodUtil.findObjectWithMain(context.getPsiLocation)
     val predefinedModule: Module = RunManagerEx.getInstanceEx(location.getProject).asInstanceOf[RunManagerImpl].
       getConfigurationTemplate(getConfigurationFactory).getConfiguration.asInstanceOf[T].getConfigurationModule.getModule
 
     val module = configuration.getConfigurationModule.getModule
-    val sameName = containingObj.map(nameForConfiguration).contains(configuration.MAIN_CLASS_NAME)
+    val sameName = containingObj.map(nameForConfiguration).contains(configuration.getMainClassName)
 
     sameName && (location.getModule == module || predefinedModule == module)
   }

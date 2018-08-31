@@ -4,7 +4,7 @@ import java.io._
 import java.lang.reflect.InvocationTargetException
 import java.net.URL
 
-import com.intellij.openapi.compiler.{CompilationStatusListener, CompileContext, CompilerManager, CompilerPaths}
+import com.intellij.openapi.compiler._
 import com.intellij.openapi.components.AbstractProjectComponent
 import com.intellij.openapi.module.Module
 import com.intellij.openapi.progress.{ProcessCanceledException, ProgressManager}
@@ -42,7 +42,6 @@ class MetaExpansionsManager(project: Project) extends AbstractProjectComponent(p
   override def projectOpened(): Unit = installCompilationListener()
 
   override def projectClosed(): Unit = {
-    uninstallCompilationListener()
     annotationClassLoaders.clear()
   }
 
@@ -60,11 +59,7 @@ class MetaExpansionsManager(project: Project) extends AbstractProjectComponent(p
   }
 
   private def installCompilationListener(): Unit = {
-    CompilerManager.getInstance(project).addCompilationStatusListener(compilationStatusListener)
-  }
-
-  private def uninstallCompilationListener(): Unit = {
-    CompilerManager.getInstance(project).removeCompilationStatusListener(compilationStatusListener)
+    project.getMessageBus.connect.subscribe(CompilerTopics.COMPILATION_STATUS, compilationStatusListener)
   }
 
   def invalidateModuleClassloader(module: Module): Option[URLClassLoader] = annotationClassLoaders.remove(module.getName)

@@ -209,7 +209,7 @@ object ScopeSuggester {
             }
           }
 
-          val helper: PsiSearchHelper = PsiSearchHelper.SERVICE.getInstance(typeElement.getProject)
+          val helper: PsiSearchHelper = PsiSearchHelper.getInstance(typeElement.getProject)
           helper.processAllFilesWithWord(word, GlobalSearchScopesCore.directoryScope(currentDirectory, true), processor, true)
 
           bufResult += buffer

@@ -19,6 +19,7 @@ import com.intellij.ui.awt.RelativePoint;
 import com.intellij.ui.components.JBList;
 import com.intellij.ui.treeStructure.Tree;
 import com.intellij.util.ui.EditableTreeModel;
+import com.intellij.util.ui.JBUI;
 import com.intellij.util.ui.tree.TreeUtil;
 
 import javax.swing.*;
@@ -60,7 +61,7 @@ public class ScalaCompilerProfilesPanel extends JPanel {
     myTree = new Tree(new MyTreeModel());
     myTree.setRootVisible(false);
     final JPanel treePanel =
-        ToolbarDecorator.createDecorator(myTree).addExtraAction(new AnActionButton("Move to", AllIcons.Actions.Nextfile) {
+        ToolbarDecorator.createDecorator(myTree).addExtraAction(new AnActionButton("Move to", AllIcons.Actions.Forward) {
           @Override
           public void actionPerformed(AnActionEvent e) {
             final MyModuleNode node = (MyModuleNode)myTree.getSelectionPath().getLastPathComponent();
@@ -152,7 +153,7 @@ public class ScalaCompilerProfilesPanel extends JPanel {
     });
     mySettingsPanel = new ScalaCompilerSettingsPanel();
     JPanel settingsComponent = mySettingsPanel.getComponent();
-    settingsComponent.setBorder(IdeBorderFactory.createEmptyBorder(0, 6, 0, 0));
+    settingsComponent.setBorder(JBUI.Borders.emptyLeft(6));
     splitter.setSecondComponent(settingsComponent);
 
     final TreeSpeedSearch search = new TreeSpeedSearch(myTree);

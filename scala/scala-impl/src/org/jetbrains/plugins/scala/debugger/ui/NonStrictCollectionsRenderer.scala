@@ -149,7 +149,7 @@ class NonStrictCollectionsRenderer extends NodeRendererImpl {
   private def isStreamView(tpe: Type): Boolean = instanceOf(tpe, streamViewClassName)
 
   def calcLabel(descriptor: ValueDescriptor, context: EvaluationContext, listener: DescriptorLabelListener): String = {
-    val stringBuilder = StringBuilderSpinAllocator.alloc()
+    val stringBuilder = new StringBuilder()
 
     descriptor.getValue match {
       case obj: ObjectReference =>
@@ -164,7 +164,6 @@ class NonStrictCollectionsRenderer extends NodeRendererImpl {
     }
 
     val label = stringBuilder.toString
-    StringBuilderSpinAllocator.dispose(stringBuilder)
     label
   }
 }

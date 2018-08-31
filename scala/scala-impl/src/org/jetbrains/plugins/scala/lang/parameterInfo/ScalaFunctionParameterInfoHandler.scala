@@ -49,8 +49,6 @@ class ScalaFunctionParameterInfoHandler extends ParameterInfoHandlerWithTabActio
     java.util.Collections.singleton(classOf[PsiMethod])
   }
 
-  override def getParameterCloseChars: String = "{},);\n"
-
   def couldShowInLookup: Boolean = true
 
   def getActualParameterDelimiterType: IElementType = ScalaTokenTypes.tCOMMA
@@ -87,14 +85,6 @@ class ScalaFunctionParameterInfoHandler extends ParameterInfoHandlerWithTabActio
 
   def findElementForUpdatingParameterInfo(context: UpdateParameterInfoContext): PsiElement = {
     findCall(context)
-  }
-
-  override def getParametersForDocumentation(p: Any, context: ParameterInfoContext): Array[Object] = {
-    p match {
-      case x: ScFunction =>
-        x.parameters.toArray
-      case _ => ArrayUtil.EMPTY_OBJECT_ARRAY
-    }
   }
 
   def showParameterInfo(element: PsiElement, context: CreateParameterInfoContext) {
@@ -436,8 +426,6 @@ class ScalaFunctionParameterInfoHandler extends ParameterInfoHandlerWithTabActio
 
     isGrey
   }
-
-  override def tracksParameterIndex: Boolean = true
 
   trait Invocation {
     def element: PsiElement

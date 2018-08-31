@@ -6,7 +6,7 @@ import com.intellij.lang.ParserDefinition.SpaceRequirements;
 
 public abstract class ScalaParserDefinitionWrapper implements ParserDefinition {
 
-  public SpaceRequirements spaceExistanceTypeBetweenTokens(ASTNode astNode, ASTNode astNode1) {
+  public SpaceRequirements spaceExistenceTypeBetweenTokens(ASTNode astNode, ASTNode astNode1) {
     return ParserDefinition.SpaceRequirements.MAY;
   }
 }

@@ -1,5 +1,6 @@
 package org.jetbrains.plugins.scala.lang.formatting.processors
 
+import com.intellij.application.options.CodeStyle
 import com.intellij.lang.ASTNode
 import com.intellij.openapi.util.TextRange
 import com.intellij.psi.PsiElement
@@ -34,7 +35,7 @@ class ScalaDocNewlinedPreFormatProcessor extends PreFormatProcessor {
   override def process(element: ASTNode, range: TextRange): TextRange =
     Option(element.getPsi).map { psiElem =>
       val oldRange = psiElem.getTextRange
-      val settings = CodeStyleSettingsManager.getSettings(psiElem.getProject).getCustomSettings(classOf[ScalaCodeStyleSettings])
+      val settings = CodeStyle.getSettings(psiElem.getProject).getCustomSettings(classOf[ScalaCodeStyleSettings])
       val visitor = new ScalaDocNewlinedPreFormatVisitor(settings)
 
       for {

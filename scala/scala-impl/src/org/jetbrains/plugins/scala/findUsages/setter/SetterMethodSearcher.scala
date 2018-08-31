@@ -66,7 +66,7 @@ class SetterMethodSearcher extends QueryExecutor[PsiReference, ReferencesSearch.
         }
       }
     }
-    val helper: PsiSearchHelper = PsiSearchHelper.SERVICE.getInstance(project)
+    val helper: PsiSearchHelper = PsiSearchHelper.getInstance(project)
     helper.processElementsWithWord(processor, scope, name.stripSuffix(suffixScala), UsageSearchContext.IN_CODE, true)
   }
 
@@ -87,7 +87,7 @@ class SetterMethodSearcher extends QueryExecutor[PsiReference, ReferencesSearch.
         true
       }
     }
-    val helper: PsiSearchHelper = PsiSearchHelper.SERVICE.getInstance(project)
+    val helper: PsiSearchHelper = PsiSearchHelper.getInstance(project)
     helper.processElementsWithWord(processor, scope, name, UsageSearchContext.IN_CODE, true)
   }
 }

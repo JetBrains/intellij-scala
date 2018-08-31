@@ -12,6 +12,7 @@ import org.jetbrains.jps.incremental.scala.local.PackageObjectsData.packageObjec
 import org.jetbrains.jps.incremental.{CompileContext, Utils}
 import org.jetbrains.org.objectweb.asm.ClassReader
 
+import scala.collection.JavaConverters.iterableAsScalaIterableConverter
 import scala.collection._
 import scala.collection.mutable.ArrayBuffer
 
@@ -49,7 +50,7 @@ class IdeClientIdea(compilerName: String,
             else consumer.registerOutputFile(rootDescriptor.target, outputFile, Collections.singleton[String](sourcePath))
           }
           catch {
-            case e: IOException => context.processMessage(new CompilerMessage(compilerName, e))
+            case e: IOException => context.processMessage(CompilerMessage.createInternalBuilderError(compilerName, e))
           }
         }
       }
@@ -110,11 +111,13 @@ class IdeClientIdea(compilerName: String,
   private def persistPackageObjectData(): Unit = {
     val compiledClasses = consumer.getCompiledClasses
 
-    for (item <- packageObjectsBaseClasses;
-         cc <- Option(compiledClasses.get(item.baseClassName));
-         className <- Option(cc.getClassName) if className.startsWith(item.packageName)) {
-
-      packageObjectsData.add(cc.getSourceFile, item.packObjectSrc)
+    for {
+      item <- packageObjectsBaseClasses
+      cc <- Option(compiledClasses.get(item.baseClassName))
+      className <- Option(cc.getClassName) if className.startsWith(item.packageName)
+      source <- cc.getSourceFiles.asScala
+    } {
+      packageObjectsData.add(source, item.packObjectSrc)
     }
 
     packageObjectsData.save(context)

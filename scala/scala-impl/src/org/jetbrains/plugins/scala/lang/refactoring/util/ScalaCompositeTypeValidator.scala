@@ -70,7 +70,7 @@ class ScalaCompositeTypeValidator(conflictsReporter: ConflictsReporter,
       }
     }
 
-    val helper: PsiSearchHelper = PsiSearchHelper.SERVICE.getInstance(directory.getProject)
+    val helper: PsiSearchHelper = PsiSearchHelper.getInstance(directory.getProject)
     helper.processAllFilesWithWord(name, GlobalSearchScopesCore.directoryScope(directory, true), processor, true)
 
     buffer

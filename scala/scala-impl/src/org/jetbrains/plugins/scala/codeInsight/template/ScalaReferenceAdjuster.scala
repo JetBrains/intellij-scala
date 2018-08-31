@@ -1,6 +1,7 @@
 package org.jetbrains.plugins.scala
 package codeInsight.template
 
+import com.intellij.application.options.CodeStyle
 import com.intellij.lang.ASTNode
 import com.intellij.openapi.project.Project
 import com.intellij.psi.codeStyle.{CodeStyleSettingsManager, JavaCodeStyleSettings, ReferenceAdjuster}
@@ -50,12 +51,12 @@ class ScalaReferenceAdjuster extends ReferenceAdjuster {
   }
 
   override def processRange(element: ASTNode, startOffset: Int, endOffset: Int, project: Project): Unit = {
-    val settings = CodeStyleSettingsManager.getSettings(project).getCustomSettings(classOf[JavaCodeStyleSettings])
+    val settings = CodeStyle.getSettings(project).getCustomSettings(classOf[JavaCodeStyleSettings])
     processRange(element, startOffset, endOffset, settings.useFqNamesInJavadocAlways, settings.USE_FQ_CLASS_NAMES)
   }
 
   override def process(element: ASTNode, addImports: Boolean, incompleteCode: Boolean, project: Project): ASTNode = {
-    val settings = CodeStyleSettingsManager.getSettings(project).getCustomSettings(classOf[JavaCodeStyleSettings])
+    val settings = CodeStyle.getSettings(project).getCustomSettings(classOf[JavaCodeStyleSettings])
     process(element, addImports, incompleteCode, settings.useFqNamesInJavadocAlways, settings.USE_FQ_CLASS_NAMES)
   }
 }

@@ -48,7 +48,7 @@ class ScalaParserDefinition extends ScalaParserDefinitionWrapper {
       .getOrElse(new ScalaFileImpl(fileViewProvider))
   }
 
-  override def spaceExistanceTypeBetweenTokens(leftNode: ASTNode, rightNode: ASTNode): ParserDefinition.SpaceRequirements = {
+  override def spaceExistenceTypeBetweenTokens(leftNode: ASTNode, rightNode: ASTNode): ParserDefinition.SpaceRequirements = {
     val isNeighbour = leftNode.getPsi.parentOfType(classOf[ScImportStmt])
       .map(_.getTextRange.getEndOffset)
       .contains(rightNode.getTextRange.getStartOffset)
@@ -58,7 +58,7 @@ class ScalaParserDefinition extends ScalaParserDefinitionWrapper {
       case ScalaTokenTypes.tWHITE_SPACE_IN_LINE if rightNode.getText.contains('\n') => MAY
       case _ if isNeighbour => MUST_LINE_BREAK
       case ScalaTokenTypes.kIMPORT => MUST_LINE_BREAK
-      case _ => super.spaceExistanceTypeBetweenTokens(leftNode, rightNode)
+      case _ => super.spaceExistenceTypeBetweenTokens(leftNode, rightNode)
     }
   }
 }

@@ -4,8 +4,6 @@ package caches
 import com.intellij.openapi.project.Project
 import com.intellij.psi._
 import com.intellij.psi.search.{GlobalSearchScope, PsiShortNamesCache}
-import com.intellij.psi.stubs.StubIndex
-import com.intellij.util.containers.HashSet
 import com.intellij.util.{ArrayUtil, Processor}
 import org.jetbrains.plugins.scala.lang.psi.ScalaPsiElement
 import org.jetbrains.plugins.scala.lang.psi.api.toplevel.typedef.{ScObject, ScTrait, ScTypeDefinition}
@@ -75,11 +73,6 @@ class ScalaShortNamesCache(implicit project: Project) extends PsiShortNamesCache
     ALL_CLASS_NAMES.allKeys.toArray
   }
 
-  override def getAllClassNames(dest: HashSet[String]): Unit = {
-    val keys = StubIndex.getInstance.getAllKeys(ScalaIndexKeys.ALL_CLASS_NAMES, project)
-    dest.addAll(keys)
-  }
-
   def getMethodsByName(name: String, scope: GlobalSearchScope): Array[PsiMethod] = {
     PsiMethod.EMPTY_ARRAY //todo:
   }
@@ -92,20 +85,12 @@ class ScalaShortNamesCache(implicit project: Project) extends PsiShortNamesCache
     ArrayUtil.EMPTY_STRING_ARRAY //todo:
   }
 
-  override def getAllMethodNames(set: HashSet[String]) {
-    //todo:
-  }
-
   def getFieldsByName(name: String, scope: GlobalSearchScope): Array[PsiField] = {
     PsiField.EMPTY_ARRAY //todo:
   }
 
   def getAllFieldNames: Array[String] = {
     ArrayUtil.EMPTY_STRING_ARRAY //todo:
-  }
-
-  override def getAllFieldNames(set: HashSet[String]) {
-    //todo:
   }
 
   def getFieldsByNameIfNotMoreThan(name: String, scope: GlobalSearchScope, maxCount: Int): Array[PsiField] = {

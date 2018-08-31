@@ -3,11 +3,8 @@ package project.notification.source
 
 import java.lang.StringBuilder
 
-import java.lang.StringBuilder
-
 import com.intellij.lexer.Lexer
 import com.intellij.openapi.util.text.StringUtil
-import com.intellij.util.StringBuilderSpinAllocator
 import org.jetbrains.plugins.scala.lang.lexer.{ScalaLexer, ScalaTokenTypes}
 
 /**
@@ -17,7 +14,7 @@ object ScalaDirUtil {
   def getPackageStatement(text: CharSequence): String = {
     val lexer: Lexer = new ScalaLexer
     lexer.start(text)
-    val buffer: StringBuilder = StringBuilderSpinAllocator.alloc()
+    val buffer: StringBuilder = new StringBuilder
     def readPackage(firstTime: Boolean) {
       skipWhiteSpaceAndComments(lexer)
       if (lexer.getTokenType != ScalaTokenTypes.kPACKAGE) return
@@ -50,15 +47,10 @@ object ScalaDirUtil {
       }
       readPackage(false)
     }
-    try {
-      readPackage(true)
-      val packageName: String = buffer.toString
-      if (packageName.length == 0 || StringUtil.endsWithChar(packageName, '.')) return null
-      packageName
-    }
-    finally {
-      StringBuilderSpinAllocator.dispose(buffer)
-    }
+    readPackage(true)
+    val packageName: String = buffer.toString
+    if (packageName.length == 0 || StringUtil.endsWithChar(packageName, '.')) return null
+    packageName
   }
 
   def skipWhiteSpaceAndComments(lexer: Lexer) {

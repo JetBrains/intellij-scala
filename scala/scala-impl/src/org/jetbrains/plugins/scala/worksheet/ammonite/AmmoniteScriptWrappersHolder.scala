@@ -3,7 +3,7 @@ package org.jetbrains.plugins.scala.worksheet.ammonite
 import java.util.function.BiFunction
 
 import com.intellij.codeInsight.daemon.DaemonCodeAnalyzer
-import com.intellij.codeInsight.daemon.DaemonCodeAnalyzer.DaemonListenerAdapter
+import com.intellij.codeInsight.daemon.DaemonCodeAnalyzer.DaemonListener
 import com.intellij.codeInsight.daemon.impl.{HighlightInfo, HighlightInfoType}
 import com.intellij.codeInspection.ex.QuickFixWrapper
 import com.intellij.openapi.command.CommandProcessor
@@ -66,7 +66,7 @@ class AmmoniteScriptWrappersHolder(project: Project) extends AbstractProjectComp
   }
 
   override def projectOpened(): Unit = {
-    project.getMessageBus.connect(project).subscribe(DaemonCodeAnalyzer.DAEMON_EVENT_TOPIC, new DaemonListenerAdapter() {
+    project.getMessageBus.connect(project).subscribe(DaemonCodeAnalyzer.DAEMON_EVENT_TOPIC, new DaemonListener {
       override def daemonFinished(): Unit = problemFiles.replaceAll(setMask(SET_DAEMON_MASK))
     })
 

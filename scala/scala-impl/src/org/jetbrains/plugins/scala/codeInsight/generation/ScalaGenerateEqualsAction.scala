@@ -4,7 +4,7 @@ package codeInsight.generation
 import com.intellij.codeInsight.hint.HintManager
 import com.intellij.codeInsight.{CodeInsightBundle, CodeInsightUtilBase}
 import com.intellij.openapi.application.ApplicationManager
-import com.intellij.openapi.editor.Editor
+import com.intellij.openapi.editor.{Editor, EditorModificationUtil}
 import com.intellij.openapi.fileEditor.FileDocumentManager
 import com.intellij.openapi.project.Project
 import com.intellij.openapi.ui.{DialogWrapper, Messages}
@@ -144,7 +144,6 @@ class ScalaGenerateEqualsHandler extends ScalaCodeInsightActionHandler {
 
 
   def invoke(project: Project, editor: Editor, file: PsiFile) {
-    if (!CodeInsightUtilBase.prepareEditorForWrite(editor)) return
     if (!FileDocumentManager.getInstance.requestWriting(editor.getDocument, project)) return
 
     try {

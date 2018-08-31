@@ -32,7 +32,6 @@ abstract class BaseRunConfiguration(val project: Project, val configurationFacto
 
   override def writeExternal(element: Element) {
     super.writeExternal(element)
-    writeModule(element)
     JDOMExternalizer.write(element, "vmparams4", javaOptions)
     JDOMExternalizer.write(element, "workingDirectory", workingDirectory)
   }

@@ -254,9 +254,6 @@ abstract class ScTypeDefinitionImpl protected (stub: ScTemplateDefinitionStub,
   override def findFieldByName(name: String, checkBases: Boolean): PsiField =
     super[ScTypeDefinition].findFieldByName(name, checkBases)
 
-  override def checkDelete(): Unit = {
-  }
-
   override def delete(): Unit = getContainingFile match {
     case file @ (SingularDefinition(_) |
                  ClassAndCompanionObject(_, _) |

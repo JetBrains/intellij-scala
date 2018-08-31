@@ -1,5 +1,6 @@
 package org.jetbrains.plugins.scala.testingSupport;
 
+import com.intellij.execution.actions.RunConfigurationProducer;
 import com.intellij.execution.configurations.ConfigurationFactory;
 import com.intellij.execution.configurations.ConfigurationType;
 import com.intellij.execution.junit.RuntimeConfigurationProducer;

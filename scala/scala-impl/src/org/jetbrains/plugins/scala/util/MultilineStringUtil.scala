@@ -3,10 +3,10 @@ package util
 
 import java.util.regex.Pattern
 
+import com.intellij.application.options.CodeStyle
 import com.intellij.openapi.editor.Document
 import com.intellij.openapi.project.Project
 import com.intellij.openapi.util.text.StringUtil
-import com.intellij.psi.codeStyle.CodeStyleSettingsManager
 import com.intellij.psi.{PsiDocumentManager, PsiElement}
 import org.jetbrains.plugins.scala.extensions._
 import org.jetbrains.plugins.scala.lang.formatting.settings.ScalaCodeStyleSettings
@@ -101,7 +101,7 @@ object MultilineStringUtil {
 
   def getMarginChar(element: PsiElement): Char = {
     val calls = findAllMethodCallsOnMLString(element, "stripMargin")
-    val defaultMargin = CodeStyleSettingsManager.getInstance(element.getProject).getCurrentSettings.
+    val defaultMargin = CodeStyle.getSettings(element.getProject).
             getCustomSettings(classOf[ScalaCodeStyleSettings]).MARGIN_CHAR
 
     if (calls.isEmpty) return defaultMargin
@@ -274,7 +274,7 @@ object MultilineStringUtil {
 }
 
 class MultilineStringSettings(project: Project) {
-  private val settings = CodeStyleSettingsManager.getInstance(project).getCurrentSettings
+  private val settings = CodeStyle.getSettings(project)
   private val scalaSettings: ScalaCodeStyleSettings = ScalaCodeStyleSettings.getInstance(project)
 
   val defaultMarginChar = settings.getCustomSettings(classOf[ScalaCodeStyleSettings]).MARGIN_CHAR

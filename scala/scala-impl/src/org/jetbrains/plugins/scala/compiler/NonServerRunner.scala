@@ -9,6 +9,7 @@ import com.intellij.execution.process._
 import com.intellij.openapi.project.Project
 import com.intellij.openapi.util.io.FileUtil
 import com.intellij.util.Consumer
+import com.intellij.util.concurrency.AppExecutorUtil
 import com.intellij.util.io.BaseDataReader
 
 import _root_.scala.collection.JavaConverters._
@@ -52,9 +53,9 @@ class NonServerRunner(project: Project, errorHandler: Option[ErrorHandler] = Non
             val reader = new BufferedReader(new InputStreamReader(p.getInputStream))
             new MyBase64StreamReader(reader, listener)
 
-            val processWaitFor = new ProcessWaitFor(p, new TaskExecutor {
-              override def executeTask(task: Runnable): Future[_] = BaseOSProcessHandler.ExecutorServiceHolder.submit(task)
-            })
+            val processName = "Non-server worksheet runner"
+            val processWaitFor =
+              new ProcessWaitFor(p, (task: Runnable) => AppExecutorUtil.getAppExecutorService.submit(task), processName)
 
             processWaitFor.setTerminationCallback(new Consumer[Integer] {
               override def consume(t: Integer) {
@@ -82,7 +83,7 @@ class NonServerRunner(project: Project, errorHandler: Option[ErrorHandler] = Non
     private val text = new StringBuilder
     
     def executeOnPooledThread(runnable: Runnable): Future[_] =
-      BaseOSProcessHandler.ExecutorServiceHolder.submit(runnable)
+      AppExecutorUtil.getAppExecutorService.submit(runnable)
 
     def onTextAvailable(text: String) {
       try {

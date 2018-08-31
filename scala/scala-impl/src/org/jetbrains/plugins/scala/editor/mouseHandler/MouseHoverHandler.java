@@ -50,6 +50,7 @@ import com.intellij.openapi.project.Project;
 import com.intellij.openapi.startup.StartupManager;
 import com.intellij.openapi.util.Ref;
 import com.intellij.openapi.util.TextRange;
+import com.intellij.openapi.util.ThrowableComputable;
 import com.intellij.openapi.util.text.StringUtil;
 import com.intellij.psi.*;
 import com.intellij.psi.impl.source.tree.injected.InjectedLanguageUtil;
@@ -59,6 +60,7 @@ import com.intellij.ui.ScreenUtil;
 import com.intellij.ui.components.JBLayeredPane;
 import com.intellij.util.Alarm;
 import com.intellij.util.Consumer;
+import com.intellij.util.ThrowableRunnable;
 import com.intellij.util.ui.UIUtil;
 import gnu.trove.TIntArrayList;
 import org.intellij.lang.annotations.JdkConstants;
@@ -295,16 +297,14 @@ public class MouseHoverHandler extends AbstractProjectComponent {
     @Override
     @NotNull
     public DocInfo getInfo() {
-      AccessToken token = ReadAction.start();
       try {
-        return generateInfo(myElementAtPointer, result);
+        return ReadAction.compute((ThrowableComputable<DocInfo, IndexNotReadyException>) () ->
+                generateInfo(myElementAtPointer, result)
+        );
       }
       catch (IndexNotReadyException e) {
         showDumbModeNotification(myElementAtPointer.getProject());
         return DocInfo.EMPTY;
-      }
-      finally {
-        token.finish();
       }
     }
 

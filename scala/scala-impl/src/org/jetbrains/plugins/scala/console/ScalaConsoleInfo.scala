@@ -5,7 +5,7 @@ import com.intellij.execution.process.ProcessHandler
 import com.intellij.openapi.editor.Editor
 import com.intellij.openapi.project.Project
 import com.intellij.psi.PsiFile
-import com.intellij.util.containers.WeakHashMap
+import com.intellij.util.containers.ContainerUtil
 
 /**
  * @author Ksenia.Sautina
@@ -16,7 +16,7 @@ object ScalaConsoleInfo {
   private val SCALA_LANGUAGE_CONSOLE_KEY = new com.intellij.openapi.util.Key[String]("ScalaLanguageConsoleKey")
   private val NULL = (null, null, null)
   private val allConsoles =
-    new WeakHashMap[Project, List[(ScalaLanguageConsole, ConsoleHistoryController, ProcessHandler)]]()
+    ContainerUtil.createWeakMap[Project, List[(ScalaLanguageConsole, ConsoleHistoryController, ProcessHandler)]]()
 
   def getConsole(file: PsiFile): ScalaLanguageConsole = get(file)._1
   def getConsole(project: Project): ScalaLanguageConsole = get(project)._1

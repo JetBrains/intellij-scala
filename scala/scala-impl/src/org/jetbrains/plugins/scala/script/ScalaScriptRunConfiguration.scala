@@ -142,7 +142,6 @@ class ScalaScriptRunConfiguration(val project: Project, val configurationFactory
 
   override def writeExternal(element: Element) {
     super.writeExternal(element)
-    writeModule(element)
     JDOMExternalizer.write(element, "path", getScriptPath)
     JDOMExternalizer.write(element, "vmparams", getJavaOptions)
     JDOMExternalizer.write(element, "consoleargs", getConsoleArgs)

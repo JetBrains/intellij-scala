@@ -74,8 +74,7 @@ object TypeAdjuster extends ApplicationAdapter {
   private def newTypeElem(name: String, position: PsiElement) = {
     val newTypeElem = ScalaPsiElementFactory.createTypeElementFromText(name, position.getContext, position)
     if (newTypeElem == null) {
-      val messageEvent = LogMessageEx.createEvent(s"Cannot create type from text:\n$name", DebugUtil.currentStackTrace())
-      LOG.error(messageEvent)
+      LOG.error(s"Cannot create type from text:\n$name", new Throwable)
     }
     newTypeElem
   }

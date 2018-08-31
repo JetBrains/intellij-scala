@@ -3,7 +3,7 @@ package project.notification
 
 import com.intellij.framework.addSupport.impl.AddSupportForSingleFrameworkDialog.createDialog
 import com.intellij.openapi.module.ModuleUtil.getModuleType
-import com.intellij.openapi.module.{JavaModuleType, Module}
+import com.intellij.openapi.module.{JavaModuleType, Module, ModuleType}
 import com.intellij.openapi.project.Project
 import com.intellij.openapi.util.Key
 import com.intellij.psi.PsiFile
@@ -21,7 +21,7 @@ class SetupScalaSdkNotificationProvider(project: Project, notifications: EditorN
   override def getKey = ProviderKey
 
   override protected def hasDeveloperKit(module: Module): Boolean =
-    getModuleType(module) != JavaModuleType.getModuleType ||
+    ModuleType.get(module) != JavaModuleType.getModuleType ||
       module.getName.endsWith("-build") || // gen-idea doesn't use the sbt module type
       module.hasScala
 

@@ -228,7 +228,7 @@ object ScalaCollectionRenderer {
     private def evaluateChildren(context: EvaluationContext, descriptor: NodeDescriptor): Value = {
       val evaluator: ExpressionEvaluator = toArrayEvaluator(context).exprEval
       val value: Value = evaluator.evaluate(context)
-      DebuggerUtilsEx.keep(value, context)
+      context.keep(value)
       value
     }
   }

@@ -1,6 +1,7 @@
 package org.jetbrains.plugins.scala
 package codeInsight.intention.literal
 
+import com.intellij.application.options.CodeStyle
 import com.intellij.codeInsight.intention.PsiElementBaseIntentionAction
 import com.intellij.openapi.editor.Editor
 import com.intellij.openapi.project.Project
@@ -36,5 +37,5 @@ class AddStripMarginToMLStringIntention extends PsiElementBaseIntentionAction{
   }
 
   private def getMarginChar(project: Project): String =
-    CodeStyleSettingsManager.getInstance(project).getCurrentSettings.getCustomSettings(classOf[ScalaCodeStyleSettings]).MARGIN_CHAR + ""
+    CodeStyle.getSettings(project).getCustomSettings(classOf[ScalaCodeStyleSettings]).MARGIN_CHAR + ""
 }

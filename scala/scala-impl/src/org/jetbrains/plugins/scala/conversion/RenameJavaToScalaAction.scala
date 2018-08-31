@@ -1,6 +1,7 @@
 package org.jetbrains.plugins.scala
 package conversion
 
+import com.intellij.application.options.CodeStyle
 import com.intellij.notification.{NotificationDisplayType, NotificationType}
 import com.intellij.openapi.actionSystem.{AnAction, AnActionEvent, CommonDataKeys, LangDataKeys}
 import com.intellij.openapi.vfs.VirtualFile
@@ -84,7 +85,7 @@ class RenameJavaToScalaAction extends AnAction {
                 document.insertString(0, newText)
                 PsiDocumentManager.getInstance(file.getProject).commitDocument(document)
                 val manager: CodeStyleManager = CodeStyleManager.getInstance(file.getProject)
-                val settings = CodeStyleSettingsManager.getSettings(file.getProject).getCommonSettings(ScalaLanguage.INSTANCE)
+                val settings = CodeStyle.getSettings(file.getProject).getCommonSettings(ScalaLanguage.INSTANCE)
                 val keep_blank_lines_in_code = settings.KEEP_BLANK_LINES_IN_CODE
                 val keep_blank_lines_in_declarations = settings.KEEP_BLANK_LINES_IN_DECLARATIONS
                 val keep_blank_lines_before_rbrace = settings.KEEP_BLANK_LINES_BEFORE_RBRACE

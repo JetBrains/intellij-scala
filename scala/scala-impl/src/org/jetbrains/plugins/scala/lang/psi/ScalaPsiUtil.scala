@@ -2,6 +2,7 @@ package org.jetbrains.plugins.scala
 package lang
 package psi
 
+import com.intellij.application.options.CodeStyle
 import com.intellij.codeInsight.AnnotationUtil
 import com.intellij.lang.java.JavaLanguage
 import com.intellij.openapi.diagnostic.Logger
@@ -69,7 +70,7 @@ object ScalaPsiUtil {
   def isJavaReflectPolymorphicSignature(expression: ScExpression): Boolean = expression match {
     case ScMethodCall(invoked, _) => Option(invoked.getReference) match {
       case Some(ResolvesTo(method: PsiMethod)) =>
-        AnnotationUtil.isAnnotated(method, CommonClassNames.JAVA_LANG_INVOKE_MH_POLYMORPHIC, false, true)
+        AnnotationUtil.isAnnotated(method, CommonClassNames.JAVA_LANG_INVOKE_MH_POLYMORPHIC, 0)
       case _ => false
     }
     case _ => false
@@ -637,7 +638,7 @@ object ScalaPsiUtil {
   }
 
   def getSettings(project: Project): ScalaCodeStyleSettings = {
-    CodeStyleSettingsManager.getSettings(project).getCustomSettings(classOf[ScalaCodeStyleSettings])
+    CodeStyle.getSettings(project).getCustomSettings(classOf[ScalaCodeStyleSettings])
   }
 
   def getElementsRange(start: PsiElement, end: PsiElement): Seq[PsiElement] = {

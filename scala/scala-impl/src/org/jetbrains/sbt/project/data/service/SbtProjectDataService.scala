@@ -9,7 +9,7 @@ import com.intellij.openapi.externalSystem.model.project.ProjectData
 import com.intellij.openapi.externalSystem.service.project.IdeModifiableModelsProvider
 import com.intellij.openapi.externalSystem.service.project.manage.ContentRootDataService
 import com.intellij.openapi.externalSystem.util.ExternalSystemApiUtil
-import com.intellij.openapi.module.ModuleUtil
+import com.intellij.openapi.module.{ModuleType, ModuleUtil}
 import com.intellij.openapi.project.Project
 import com.intellij.openapi.roots.{LanguageLevelProjectExtension, ProjectRootManager}
 import org.jetbrains.plugins.scala.project.IncrementalityType
@@ -86,7 +86,7 @@ object SbtProjectDataService {
         .foreach(s => s.sbtVersion = data.sbtVersion)
 
     private def updateIncrementalityType(project: Project): Unit = {
-      if (getModules.exists(it => ModuleUtil.getModuleType(it) == SharedSourcesModuleType.instance))
+      if (getModules.exists(it => ModuleType.get(it) == SharedSourcesModuleType.instance))
         ScalaCompilerConfiguration.instanceIn(project).incrementalityType = IncrementalityType.SBT
     }
 

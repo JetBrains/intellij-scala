@@ -6,11 +6,13 @@ import com.intellij.openapi.application.Result;
 import com.intellij.openapi.application.WriteAction;
 import com.intellij.openapi.fileChooser.FileChooser;
 import com.intellij.openapi.fileChooser.FileChooserDescriptor;
+import com.intellij.openapi.fileTypes.FileType;
 import com.intellij.openapi.project.Project;
 import com.intellij.openapi.project.ProjectBundle;
 import com.intellij.openapi.roots.LibraryOrderEntry;
 import com.intellij.openapi.roots.OrderRootType;
 import com.intellij.openapi.roots.libraries.Library;
+import com.intellij.openapi.roots.libraries.ui.DescendentBasedRootFilter;
 import com.intellij.openapi.roots.libraries.ui.FileTypeBasedRootFilter;
 import com.intellij.openapi.roots.libraries.ui.OrderRoot;
 import com.intellij.openapi.roots.libraries.ui.RootDetector;
@@ -24,7 +26,6 @@ import com.intellij.openapi.ui.popup.util.BaseListPopupStep;
 import com.intellij.openapi.util.ActionCallback;
 import com.intellij.openapi.vfs.VfsUtil;
 import com.intellij.openapi.vfs.VirtualFile;
-import com.intellij.util.containers.HashMap;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
 import org.jetbrains.plugins.scala.ScalaFileType;
@@ -171,7 +172,7 @@ public class AttachSourcesUtil {
         private List<VirtualFile> scanAndSelectDetectedJavaSourceRoots(@Nullable VirtualFile root) {
             List<RootDetector> rootDetectors = Arrays.asList(
                     new LibraryJavaSourceRootDetector(),
-                    new FileTypeBasedRootFilter(OrderRootType.SOURCES, false, ScalaFileType.INSTANCE, "source")
+                    DescendentBasedRootFilter.createFileTypeBasedFilter(OrderRootType.SOURCES, false, ScalaFileType.INSTANCE, "source")
             );
 
             List<OrderRoot> orderRoots = RootDetectionUtil.detectRoots(

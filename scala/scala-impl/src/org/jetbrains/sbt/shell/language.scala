@@ -48,7 +48,7 @@ class SbtShellParserDefinition extends ParserDefinition {
   import SbtShellParserDefinition._
   override def getWhitespaceTokens: TokenSet = WHITE_SPACES
 
-  override def spaceExistanceTypeBetweenTokens(left: ASTNode, right: ASTNode): SpaceRequirements = SpaceRequirements.MAY
+  override def spaceExistenceTypeBetweenTokens(left: ASTNode, right: ASTNode): SpaceRequirements = SpaceRequirements.MAY
   override def createFile(viewProvider: FileViewProvider): PsiFile = new SbtShellFile(viewProvider)
   override def getCommentTokens: TokenSet = TokenSet.EMPTY
   override def createElement(node: ASTNode): PsiElement = SbtShellTypes.Factory.createElement(node)

@@ -164,7 +164,7 @@ object ScalaGenerationInfo {
       if (isImplement) ScalaFileTemplateUtil.SCALA_IMPLEMENTED_METHOD_TEMPLATE
       else ScalaFileTemplateUtil.SCALA_OVERRIDDEN_METHOD_TEMPLATE
 
-    val template = FileTemplateManager.getInstance().getCodeTemplate(templateName)
+    val template = FileTemplateManager.getInstance(td.getProject).getCodeTemplate(templateName)
 
     val properties = new Properties()
 

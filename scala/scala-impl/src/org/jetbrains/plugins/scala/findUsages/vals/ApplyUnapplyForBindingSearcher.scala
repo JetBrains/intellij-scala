@@ -60,7 +60,7 @@ class ApplyUnapplyForBindingSearcher extends QueryExecutor[PsiReference, Referen
     }
 
   private def processBinding(processor: TextOccurenceProcessor, scope: SearchScope, binding: ScBindingPattern, project: Project): Boolean = {
-    val helper: PsiSearchHelper = PsiSearchHelper.SERVICE.getInstance(project)
+    val helper: PsiSearchHelper = PsiSearchHelper.getInstance(project)
     try {
       val name = inReadAction(binding.name)
       helper.processElementsWithWord(processor, scope, name, UsageSearchContext.IN_CODE, true)
