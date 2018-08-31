@@ -7,6 +7,6 @@ import org.jetbrains.plugins.scala.worksheet.processor.WorksheetCompilerUtil.Run
   * User: Dmitry.Naydanov
   * Date: 05.06.18.
   */
-class RunCellAction(cellDescriptor: CellDescriptor) extends RunCellActionBase(cellDescriptor) {
-  override def convertToRunRequest(cellText: String): WorksheetCompilerUtil.WorksheetCompileRunRequest = RunOuter(cellText)
+class RunCellAction(descriptor: CellDescriptor) extends RunCellActionBase(descriptor) {
+  override def convertToRunRequest(): WorksheetCompilerUtil.WorksheetCompileRunRequest = RunOuter(cellDescriptor.getCellText)
 }

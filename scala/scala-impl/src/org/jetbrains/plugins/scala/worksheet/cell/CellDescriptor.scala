@@ -12,6 +12,15 @@ import org.jetbrains.plugins.scala.worksheet.settings.WorksheetExternalRunType
 class CellDescriptor(startElementRef: WeakReference[PsiElement], runType: WorksheetExternalRunType, externalId: Option[String]) {
   def getElement: Option[PsiElement] = Option(startElementRef.get())
 
+  def getStartOffset: Option[Int] = getElement.map(_.getTextRange.getEndOffset)
+  
+  def getEndOffset: Option[Int] = getElement.map {
+    el => 
+      CellManager.getInstance(el.getProject).getNextCell(this).flatMap(
+        _.getElement.map(_.getTextRange.getStartOffset)
+      ).getOrElse(el.getContainingFile.getTextLength)
+  }
+  
   def getCellText: String = {
     getElement match {
       case Some(element) if element.isValid =>

@@ -49,6 +49,24 @@ object CellManager {
     })
   }
   
+  def replaceCell(file: PsiFile, startOffset: Int, endOffset: Int, newText: String) {
+    modifyUnderCommand(file, "Replace Cell", doc => {
+      doc.replaceString(startOffset, endOffset, newText)
+    })
+  }
+  
+  def replaceCell(oldCell: CellDescriptor, newCellText: String) {
+    for {
+      element <- oldCell.getElement
+      startOffset <- oldCell.getStartOffset
+      endOffset <- oldCell.getEndOffset
+    } replaceCell(element.getContainingFile, startOffset, endOffset, newCellText)
+  }
+  
+  def replaceAll(file: PsiFile, newText: String) {
+    replaceCell(file, 0, file.getTextLength, newText)
+  }
+  
   def removeCell(startElement: PsiElement) {
     val cellManager = getInstance(startElement.getProject)
     cellManager.getCellFor(startElement).foreach {

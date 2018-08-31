@@ -11,7 +11,7 @@ import org.jetbrains.plugins.scala.worksheet.processor.WorksheetCompilerUtil.Wor
   * User: Dmitry.Naydanov
   * Date: 16.07.18.
   */
-abstract class RunCellActionBase(cellDescriptor: CellDescriptor) extends AnAction("Run Cell") {
+abstract class RunCellActionBase(protected val cellDescriptor: CellDescriptor) extends AnAction("Run Cell") {
   override def actionPerformed(anActionEvent: AnActionEvent): Unit = {
     val file = cellDescriptor.getElement match {
       case Some(element) => element.getContainingFile
@@ -26,12 +26,12 @@ abstract class RunCellActionBase(cellDescriptor: CellDescriptor) extends AnActio
             file.asInstanceOf[ScalaFile],
             (_, _) => {},
             false
-          ).compileAndRunCode(convertToRunRequest(cellDescriptor.getCellText))
+          ).compileAndRunCode(convertToRunRequest())
         case _ =>
       }
       case _ =>
     }
   }
   
-  def convertToRunRequest(cellText: String): WorksheetCompileRunRequest
+  def convertToRunRequest(): WorksheetCompileRunRequest
 }
