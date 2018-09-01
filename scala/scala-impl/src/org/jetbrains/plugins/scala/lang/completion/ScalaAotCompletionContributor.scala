@@ -42,7 +42,7 @@ class ScalaAotCompletionContributor extends ScalaCompletionContributor {
         parameter.paramType
 
       override protected def createConsumer(resultSet: CompletionResultSet)
-                                           (implicit position: PsiElement): AotConsumer = new AotConsumer(resultSet) {
+                                           (implicit position: PsiElement): AotConsumer = new TypedAotConsumer(resultSet) {
 
         private val maybeRange = for {
           parameter <- position.parentOfType(classOf[ScParameter])
@@ -84,9 +84,6 @@ class ScalaAotCompletionContributor extends ScalaCompletionContributor {
             offsetMap.addOffset(START_OFFSET, startOffset)
           }
         }
-
-        override protected def suggestItemText(lookupString: String): String =
-          typedItemText(lookupString)
       }
     }
   )
@@ -117,24 +114,12 @@ class ScalaAotCompletionContributor extends ScalaCompletionContributor {
         super.findContext(element).getContext.getContext
 
       override protected def createConsumer(resultSet: CompletionResultSet)
-                                           (implicit position: PsiElement): AotConsumer = new AotConsumer(resultSet) {
+                                           (implicit position: PsiElement): AotConsumer = new UntypedAotConsumer(resultSet) {
 
         private val consumed = mutable.Set.empty[String]
 
         override protected def consume(lookupElement: LookupElement, itemText: String): Unit = {
           if (consumed.add(itemText)) super.consume(lookupElement, itemText)
-        }
-
-        override protected def suggestItemText(lookupString: String): String = itemText(lookupString)
-
-        override protected def createRenderer(itemText: String): AotLookupElementRenderer = new AotLookupElementRenderer(itemText) {
-
-          override def renderElement(decorator: Decorator, presentation: LookupElementPresentation): Unit = {
-            super.renderElement(decorator, presentation)
-
-            presentation.setIcon(null)
-            presentation.setTailText(null)
-          }
         }
       }
     }
@@ -185,7 +170,7 @@ object ScalaAotCompletionContributor {
                                          (implicit position: PsiElement): AotConsumer
   }
 
-  private[completion] abstract class AotConsumer(originalResultSet: CompletionResultSet) extends Consumer[CompletionResult] {
+  private[completion] sealed abstract class AotConsumer(originalResultSet: CompletionResultSet) extends Consumer[CompletionResult] {
 
     private val prefixMatcher = originalResultSet.getPrefixMatcher
     private val prefix = prefixMatcher.getPrefix
@@ -208,21 +193,42 @@ object ScalaAotCompletionContributor {
       resultSet.consume(decoratedLookupElement)
     }
 
-    protected def createRenderer(itemText: String) = new AotLookupElementRenderer(itemText)
+    protected def createRenderer(itemText: String): AotLookupElementRenderer
 
     protected def createInsertHandler(itemText: String) = new AotInsertHandler(itemText)
 
-    protected def suggestItemText(lookupString: String): String
-
-    protected final def itemText(lookupString: String): String = decapitalize(
+    protected def suggestItemText(lookupString: String): String = decapitalize(
       lookupString.indexOf(targetPrefix) match {
         case -1 => lookupString
         case index => lookupString.substring(index)
       }
     )
+  }
 
-    protected final def typedItemText(lookupString: String): String =
-      itemText(lookupString) + Delimiter + lookupString
+  private[completion] class TypedAotConsumer(originalResultSet: CompletionResultSet) extends AotConsumer(originalResultSet) {
+
+    override final protected def suggestItemText(lookupString: String): String =
+      super.suggestItemText(lookupString) + Delimiter + lookupString
+
+    override final protected def createRenderer(itemText: String): AotLookupElementRenderer =
+      new AotLookupElementRenderer(itemText)
+  }
+
+  private[completion] class UntypedAotConsumer(originalResultSet: CompletionResultSet) extends AotConsumer(originalResultSet) {
+
+    override final protected def suggestItemText(lookupString: String): String =
+      super.suggestItemText(lookupString)
+
+    override final protected def createRenderer(itemText: String): AotLookupElementRenderer =
+      new AotLookupElementRenderer(itemText) {
+
+        override def renderElement(decorator: Decorator, presentation: LookupElementPresentation): Unit = {
+          super.renderElement(decorator, presentation)
+
+          presentation.setIcon(null)
+          presentation.setTailText(null)
+        }
+      }
   }
 
   private[completion] class AotLookupElementRenderer(itemText: String) extends LookupElementRenderer[Decorator] {

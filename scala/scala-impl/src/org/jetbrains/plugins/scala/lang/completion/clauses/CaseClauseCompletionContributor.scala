@@ -85,11 +85,7 @@ object CaseClauseCompletionContributor {
         pattern.typePattern.map(_.typeElement)
 
       override protected def createConsumer(resultSet: CompletionResultSet)
-                                           (implicit position: PsiElement): AotConsumer = new AotConsumer(resultSet) {
-
-        override protected def suggestItemText(lookupString: String): String =
-          super.typedItemText(lookupString)
-      }
+                                           (implicit position: PsiElement): AotConsumer = new TypedAotConsumer(resultSet)
 
       override protected def createElement(text: String, context: PsiElement, child: PsiElement): ScTypedPattern =
         createPatternFromTextWithContext(text, context, child).asInstanceOf[ScTypedPattern]
