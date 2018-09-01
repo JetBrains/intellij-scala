@@ -14,8 +14,9 @@ import org.jetbrains.plugins.scala.lang.lexer.ScalaTokenTypes
 import org.jetbrains.plugins.scala.lang.psi.ScalaPsiElement
 import org.jetbrains.plugins.scala.lang.psi.api.base.ScFieldId
 import org.jetbrains.plugins.scala.lang.psi.api.base.types.ScTypeElement
-import org.jetbrains.plugins.scala.lang.psi.api.statements.params.{ScParameter, ScParameterType}
-import org.jetbrains.plugins.scala.lang.psi.api.statements.{ScValueDeclaration, ScVariableDeclaration}
+import org.jetbrains.plugins.scala.lang.psi.api.expr.ScFunctionExpr
+import org.jetbrains.plugins.scala.lang.psi.api.statements.params.{ScParameter, ScParameterClause, ScParameterType, ScParameters}
+import org.jetbrains.plugins.scala.lang.psi.api.statements.{ScFunction, ScValueDeclaration, ScVariableDeclaration}
 import org.jetbrains.plugins.scala.lang.psi.impl.ScalaPsiElementFactory
 import org.jetbrains.plugins.scala.settings.ScalaProjectSettings
 
@@ -29,17 +30,7 @@ class ScalaAotCompletionContributor extends ScalaCompletionContributor {
   import ScalaAotCompletionContributor._
 
   extend(
-    classOf[ScParameter],
-    new AotCompletionProvider[ScParameter] {
-
-      override protected def createElement(text: String,
-                                           context: PsiElement,
-                                           child: PsiElement): ScParameter =
-        ScalaPsiElementFactory.createParamClausesWithContext(text.parenthesize(), context, child)
-          .params.head
-
-      override protected def findTypeElement(parameter: ScParameter): Option[ScParameterType] =
-        parameter.paramType
+    new AotParameterCompletionProvider {
 
       override protected def createConsumer(resultSet: CompletionResultSet)
                                            (implicit position: PsiElement): AotConsumer = new TypedAotConsumer(resultSet) {
@@ -85,11 +76,20 @@ class ScalaAotCompletionContributor extends ScalaCompletionContributor {
           }
         }
       }
-    }
+    },
+    parentTypes = classOf[ScParameter], classOf[ScParameterClause], classOf[ScParameters], classOf[ScFunction]
   )
 
   extend(
-    classOf[ScFieldId],
+    new AotParameterCompletionProvider {
+
+      override protected def createConsumer(resultSet: CompletionResultSet)
+                                           (implicit position: PsiElement): AotConsumer = new UntypedAotConsumer(resultSet)
+    },
+    parentTypes = classOf[ScParameter], classOf[ScParameterClause], classOf[ScParameters], classOf[ScFunctionExpr]
+  )
+
+  extend(
     new AotCompletionProvider[ScValueDeclaration] {
 
       override protected def addCompletions(resultSet: CompletionResultSet,
@@ -122,13 +122,14 @@ class ScalaAotCompletionContributor extends ScalaCompletionContributor {
           if (consumed.add(itemText)) super.consume(lookupElement, itemText)
         }
       }
-    }
+    },
+    parentTypes = classOf[ScFieldId]
   )
 
-  private def extend(parentType: Class[_ <: ScalaPsiElement],
-                     provider: AotCompletionProvider[_ <: ScalaPsiElement]): Unit = extend(
+  private def extend(provider: AotCompletionProvider[_ <: ScalaPsiElement],
+                     parentTypes: Class[_ <: ScalaPsiElement]*): Unit = extend(
     CompletionType.BASIC,
-    PlatformPatterns.psiElement(ScalaTokenTypes.tIDENTIFIER).withParent(parentType),
+    PlatformPatterns.psiElement(ScalaTokenTypes.tIDENTIFIER).withParents(parentTypes: _*),
     provider
   )
 }
@@ -168,6 +169,18 @@ object ScalaAotCompletionContributor {
 
     override protected def createConsumer(resultSet: CompletionResultSet)
                                          (implicit position: PsiElement): AotConsumer
+  }
+
+  private abstract class AotParameterCompletionProvider extends AotCompletionProvider[ScParameter] {
+
+    override protected def createElement(text: String,
+                                         context: PsiElement,
+                                         child: PsiElement): ScParameter =
+      ScalaPsiElementFactory.createParamClausesWithContext(text.parenthesize(), context, child)
+        .params.head
+
+    override protected def findTypeElement(parameter: ScParameter): Option[ScParameterType] =
+      parameter.paramType
   }
 
   private[completion] sealed abstract class AotConsumer(originalResultSet: CompletionResultSet) extends Consumer[CompletionResult] {
