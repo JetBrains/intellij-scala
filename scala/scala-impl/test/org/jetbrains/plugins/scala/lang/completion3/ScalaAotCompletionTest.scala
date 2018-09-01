@@ -97,6 +97,20 @@ class ScalaAotCompletionTest extends ScalaCodeInsightTestBase {
     itemText = "bar: Bar"
   )
 
+  def testLambdaParameter(): Unit = doAotCompletionTest(
+    fileText =
+      s"""Seq(42).foreach { i$CARET =>
+         |}
+       """.stripMargin,
+    resultText =
+      s"""Seq(42).foreach { int$CARET =>
+         |}
+       """.stripMargin,
+    lookupString = "Int",
+    itemText = "int",
+    tailTextSuffix = null
+  )
+
   def testDefaultPattern(): Unit = doAotCompletionTest(
     fileText =
       s"""class Foo
