@@ -37,7 +37,7 @@ object ResolverIndex {
   val FORCE_UPDATE_KEY = "ivy.index.force.update" // disable index building in tests for performance reasons, use this to override
   def getIndexDirectory(root: String) = new File(indexesDir, root.shaDigest)
 
-  protected val indexesDir: File = {
+  val indexesDir: File = {
     if (ApplicationManager.getApplication.isUnitTestMode)
       Option(System.getProperty("ivy.test.indexes.dir"))
         .map(new File(_))
