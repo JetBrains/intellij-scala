@@ -25,6 +25,7 @@ trait CellManager {
   def processProbablyStartElement(element: PsiElement): Boolean
   
   def isStartCell(element: PsiElement): Boolean
+  def canStartCell(element: PsiElement): Boolean
 
   def getCellFor(startElement: PsiElement): Option[CellDescriptor]
   def getNextCell(cellDescriptor: CellDescriptor): Option[CellDescriptor]

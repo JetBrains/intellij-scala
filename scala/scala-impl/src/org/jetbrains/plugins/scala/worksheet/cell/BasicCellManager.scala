@@ -38,14 +38,10 @@ class BasicCellManager(project: Project) extends AbstractProjectComponent(projec
     refreshMarkers(startElement.getContainingFile)
     cells.get(startElement.getContainingFile).flatMap(_.get(startElement.getTextOffset).filter(compare(startElement)))
   }
+  
+  override def canStartCell(element: PsiElement): Boolean = processRawElement(element, check)
 
-  override def processProbablyStartElement(element: PsiElement): Boolean = (element, element.getParent) match {
-    case (comment: PsiComment, file: PsiFile) => checkAndAdd(comment, file)
-    case (comment: PsiComment, owner: PsiElement)
-      if owner.getParent.isInstanceOf[PsiFile] && owner.getTextOffset == comment.getTextOffset =>
-      checkAndAdd(comment, owner.getContainingFile)
-    case _ => false
-  }
+  override def processProbablyStartElement(element: PsiElement): Boolean = processRawElement(element, checkAndAdd)
 
   override def getCells(file: PsiFile): Iterable[CellDescriptor] = cells.get(file).map(_.values).getOrElse(Seq.empty)
 
@@ -88,6 +84,15 @@ class BasicCellManager(project: Project) extends AbstractProjectComponent(projec
 
   private def compare(element: PsiElement)(descriptor: CellDescriptor): Boolean = descriptor.getElement.contains(element)
   
+  private def processRawElement(element: PsiElement, processor: (PsiComment, PsiFile) => Boolean): Boolean = 
+    (element, element.getParent) match {
+      case (comment: PsiComment, file: PsiFile) => processor(comment, file)
+      case (comment: PsiComment, owner: PsiElement)
+        if owner.getParent.isInstanceOf[PsiFile] && owner.getTextOffset == comment.getTextOffset =>
+        processor(comment, owner.getContainingFile)
+      case _ => false
+    }
+  
   private def refreshMarkers(file: PsiFile): Unit = {
     if (!WorksheetFileSettings.getRunType(file).isUsesCell) cells.remove(file)
   }
@@ -101,6 +106,17 @@ class BasicCellManager(project: Project) extends AbstractProjectComponent(projec
 
   private def checkComment(comment: PsiComment): Boolean = comment.getText.startsWith(CellManager.CELL_START_MARKUP)
 
+  private def isStartsNewLine(comment: PsiComment, file: PsiFile): Boolean = {
+    val offset = comment.getTextRange.getStartOffset
+    (offset == 0) || (file.findElementAt(offset - 1) match {
+      case ws: PsiWhiteSpace => ws.getTextOffset == 0 || StringUtil.containsLineBreak(ws.getText)
+      case _ => false
+    })
+  }
+  
+  private def check(comment: PsiComment, file: PsiFile): Boolean = 
+    canHaveCells(file) && checkComment(comment) && isStartsNewLine(comment, file)
+  
   private def checkAndAdd(comment: PsiComment, file: PsiFile): Boolean = canHaveCells(file) && checkComment(comment) && {
     def store(): Boolean = {
       val offset = comment.getTextOffset
@@ -119,10 +135,6 @@ class BasicCellManager(project: Project) extends AbstractProjectComponent(projec
       true
     }
 
-    val offset = comment.getTextRange.getStartOffset
-    ((offset == 0) || (file.findElementAt(offset - 1) match {
-      case ws: PsiWhiteSpace => ws.getTextOffset == 0 || StringUtil.containsLineBreak(ws.getText)
-      case _ => false
-    })) && store()
+    isStartsNewLine(comment, file) && store()
   }
 }
