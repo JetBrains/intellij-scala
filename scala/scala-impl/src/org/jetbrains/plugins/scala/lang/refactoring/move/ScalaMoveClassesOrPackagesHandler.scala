@@ -64,10 +64,22 @@ class ScalaMoveClassesOrPackagesHandler extends JavaMoveClassesOrPackagesHandler
     }
     val initialTargetPackageName: String = MoveClassesOrPackagesImpl.getInitialTargetPackageName(initialTargetElement, adjustedElements)
     val initialTargetDirectory: PsiDirectory = MoveClassesOrPackagesImpl.getInitialTargetDirectory(initialTargetElement, adjustedElements)
-    val isTargetDirectoryFixed: Boolean = initialTargetDirectory == null
     val searchTextOccurences: Boolean = adjustedElements.exists(TextOccurrencesUtil.isSearchTextOccurencesEnabled)
+    val searchInComments: Boolean = JavaRefactoringSettings.getInstance.MOVE_SEARCH_IN_COMMENTS
+    val searchForTextOccurences: Boolean = JavaRefactoringSettings.getInstance.MOVE_SEARCH_FOR_TEXT
+
     val moveDialog: MoveClassesOrPackagesDialog =
-      new MoveClassesOrPackagesDialog(project, searchTextOccurences, adjustedElements, initialTargetElement, moveCallback) {
+      new MoveClassesOrPackagesDialog(
+        project,
+        searchTextOccurences,
+        adjustedElements,
+        initialTargetElement,
+        moveCallback,
+        initialTargetPackageName,
+        initialTargetDirectory,
+        searchInComments,
+        searchForTextOccurences) {
+
         override def createCenterPanel(): JComponent = {
           addMoveCompanionChb(super.createCenterPanel(), adjustedElements)
         }
@@ -79,9 +91,6 @@ class ScalaMoveClassesOrPackagesHandler extends JavaMoveClassesOrPackagesHandler
           new MoveClassesOrPackagesProcessor(project, elementsToMove, destination, isSearchInComments, searchTextOccurences, callback)
         }
       }
-    val searchInComments: Boolean = JavaRefactoringSettings.getInstance.MOVE_SEARCH_IN_COMMENTS
-    val searchForTextOccurences: Boolean = JavaRefactoringSettings.getInstance.MOVE_SEARCH_FOR_TEXT
-    moveDialog.setData(adjustedElements, initialTargetPackageName, initialTargetDirectory, isTargetDirectoryFixed, initialTargetElement == null, searchInComments, searchForTextOccurences, HelpID.getMoveHelpID(adjustedElements(0)))
 
     ScalaFileImpl.performMoveRefactoring {
       moveDialog.show()
