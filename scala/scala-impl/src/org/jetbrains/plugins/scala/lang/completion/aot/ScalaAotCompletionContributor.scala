@@ -1,6 +1,7 @@
 package org.jetbrains.plugins.scala
 package lang
 package completion
+package aot
 
 import com.intellij.codeInsight.completion._
 import com.intellij.codeInsight.lookup._
@@ -25,7 +26,7 @@ import scala.collection.mutable
 /**
   * @author Pavel Fatin
   */
-class ScalaAotCompletionContributor extends ScalaCompletionContributor {
+final class ScalaAotCompletionContributor extends ScalaCompletionContributor {
 
   import ScalaAotCompletionContributor._
 
@@ -45,11 +46,11 @@ class ScalaAotCompletionContributor extends ScalaCompletionContributor {
           origin = identifier.getTextRange.getEndOffset
         } yield new TextRange(origin, bound)
 
-        override protected def createInsertHandler(itemText: String): AotInsertHandler = new AotInsertHandler(itemText) {
+        override protected def createInsertHandler(itemText: String): InsertHandler = new InsertHandler(itemText) {
 
           private val delta = itemText.indexOf(Delimiter) + Delimiter.length
 
-          override def handleInsert(context: InsertionContext, decorator: Decorator): Unit = {
+          override def handleInsert(context: InsertionContext, decorator: aot.Decorator): Unit = {
             def withRange(function: (Int, Int) => Unit): Unit =
               maybeRange.foreach { range =>
                 function(context.getTailOffset, range.getLength)
@@ -140,8 +141,6 @@ object ScalaAotCompletionContributor {
 
   private val Delimiter = ": "
 
-  private type Decorator = LookupElementDecorator[LookupElement]
-
   private[completion] trait AotCompletionProvider[E <: ScalaPsiElement] extends DelegatingCompletionProvider[E] {
 
     override protected def addCompletions(resultSet: CompletionResultSet,
@@ -189,9 +188,11 @@ object ScalaAotCompletionContributor {
     private val prefix = prefixMatcher.getPrefix
     private val targetPrefix = capitalize(prefix.takeWhile(_.isLower))
 
-    val resultSet: CompletionResultSet = originalResultSet.withPrefixMatcher(prefixMatcher.cloneWithPrefix(capitalize(prefix)))
+    final val resultSet: CompletionResultSet = originalResultSet.withPrefixMatcher {
+      prefixMatcher.cloneWithPrefix(capitalize(prefix))
+    }
 
-    def consume(result: CompletionResult) {
+    final def consume(result: CompletionResult) {
       val lookupElement = result.getLookupElement
       consume(lookupElement, suggestItemText(lookupElement.getLookupString))
     }
@@ -206,9 +207,9 @@ object ScalaAotCompletionContributor {
       resultSet.consume(decoratedLookupElement)
     }
 
-    protected def createRenderer(itemText: String): AotLookupElementRenderer
+    protected def createRenderer(itemText: String): LookupElementRenderer
 
-    protected def createInsertHandler(itemText: String) = new AotInsertHandler(itemText)
+    protected def createInsertHandler(itemText: String) = new InsertHandler(itemText)
 
     protected def suggestItemText(lookupString: String): String = decapitalize(
       lookupString.indexOf(targetPrefix) match {
@@ -223,8 +224,8 @@ object ScalaAotCompletionContributor {
     override final protected def suggestItemText(lookupString: String): String =
       super.suggestItemText(lookupString) + Delimiter + lookupString
 
-    override final protected def createRenderer(itemText: String): AotLookupElementRenderer =
-      new AotLookupElementRenderer(itemText)
+    override final protected def createRenderer(itemText: String): LookupElementRenderer =
+      new LookupElementRenderer(itemText)
   }
 
   private[completion] class UntypedAotConsumer(originalResultSet: CompletionResultSet) extends AotConsumer(originalResultSet) {
@@ -232,8 +233,8 @@ object ScalaAotCompletionContributor {
     override final protected def suggestItemText(lookupString: String): String =
       super.suggestItemText(lookupString)
 
-    override final protected def createRenderer(itemText: String): AotLookupElementRenderer =
-      new AotLookupElementRenderer(itemText) {
+    override final protected def createRenderer(itemText: String): LookupElementRenderer =
+      new LookupElementRenderer(itemText) {
 
         override def renderElement(decorator: Decorator, presentation: LookupElementPresentation): Unit = {
           super.renderElement(decorator, presentation)
@@ -242,26 +243,9 @@ object ScalaAotCompletionContributor {
           presentation.setTailText(null)
         }
       }
-  }
 
-  private[completion] class AotLookupElementRenderer(itemText: String) extends LookupElementRenderer[Decorator] {
-
-    def renderElement(decorator: Decorator, presentation: LookupElementPresentation): Unit = {
-      decorator.getDelegate.renderElement(presentation)
-      presentation.setItemText(itemText)
-    }
-  }
-
-  private[completion] class AotInsertHandler(itemText: String) extends InsertHandler[Decorator] {
-
-    def handleInsert(context: InsertionContext, decorator: Decorator): Unit = {
-      context.getDocument.replaceString(
-        context.getStartOffset,
-        context.getTailOffset,
-        itemText
-      )
-      context.commitDocument()
-    }
+    override final protected def createInsertHandler(itemText: String): InsertHandler =
+      super.createInsertHandler(itemText)
   }
 
 }

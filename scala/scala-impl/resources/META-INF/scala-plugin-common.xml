@@ -166,7 +166,7 @@
         <completion.contributor language="Scala" id="scaladocTagsCompletionContributor"
                                 implementationClass="org.jetbrains.plugins.scala.lang.scaladoc.completion.ScalaDocCompletionContributor"/>
         <completion.contributor language="Scala" id="scalaIdentifierCompletionContributor"
-                                implementationClass="org.jetbrains.plugins.scala.lang.completion.ScalaAotCompletionContributor"
+                                implementationClass="org.jetbrains.plugins.scala.lang.completion.aot.ScalaAotCompletionContributor"
                                 order="before scalaCompletionContrubutor"/>
         <completion.contributor language="Scala" id="scalaClassParamContributor"
                                 implementationClass="org.jetbrains.plugins.scala.lang.completion.clauses.CaseClassParametersCompletionContributor"
