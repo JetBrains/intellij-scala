@@ -6,6 +6,8 @@ import com.intellij.codeInsight.lookup.{LookupElement, LookupElementDecorator, L
 
 package object aot {
 
+  private[aot] val Delimiter = ": "
+
   private[aot] type Decorator = LookupElementDecorator[LookupElement]
 
   private[aot] class InsertHandler(itemText: String) extends IJInsertHandler[Decorator] {

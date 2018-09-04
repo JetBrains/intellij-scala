@@ -9,7 +9,6 @@ import com.intellij.psi.PsiElement
 import com.intellij.psi.util.PsiTreeUtil
 import com.intellij.util.{Consumer, ProcessingContext}
 import org.jetbrains.plugins.scala.extensions._
-import org.jetbrains.plugins.scala.lang.completion.aot.ScalaAotCompletionContributor
 import org.jetbrains.plugins.scala.lang.psi.ScalaPsiElement
 import org.jetbrains.plugins.scala.lang.psi.api.base.patterns._
 import org.jetbrains.plugins.scala.lang.psi.api.toplevel.typedef.ScTypeDefinition
@@ -79,14 +78,14 @@ class CaseClauseCompletionContributor extends ScalaCompletionContributor {
 object CaseClauseCompletionContributor {
 
   private val AotCompletionProvider = {
-    import ScalaAotCompletionContributor._
-    new AotCompletionProvider[ScTypedPattern] {
+    import aot._
+    new ScalaAotCompletionContributor.AotCompletionProvider[ScTypedPattern] {
 
       override protected def findTypeElement(pattern: ScTypedPattern): Option[ScalaPsiElement] =
         pattern.typePattern.map(_.typeElement)
 
       override protected def createConsumer(resultSet: CompletionResultSet)
-                                           (implicit position: PsiElement): AotConsumer = new TypedAotConsumer(resultSet)
+                                           (implicit position: PsiElement): aot.Consumer = new TypedConsumer(resultSet)
 
       override protected def createElement(text: String, context: PsiElement, child: PsiElement): ScTypedPattern =
         createPatternFromTextWithContext(text, context, child).asInstanceOf[ScTypedPattern]

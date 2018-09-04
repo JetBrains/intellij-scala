@@ -9,7 +9,7 @@ import com.intellij.openapi.util.TextRange
 import com.intellij.openapi.util.text.StringUtil
 import com.intellij.patterns.PlatformPatterns
 import com.intellij.psi.PsiElement
-import com.intellij.util.{Consumer, ProcessingContext}
+import com.intellij.util.ProcessingContext
 import org.jetbrains.plugins.scala.extensions._
 import org.jetbrains.plugins.scala.lang.lexer.ScalaTokenTypes
 import org.jetbrains.plugins.scala.lang.psi.ScalaPsiElement
@@ -34,7 +34,7 @@ final class ScalaAotCompletionContributor extends ScalaCompletionContributor {
     new AotParameterCompletionProvider {
 
       override protected def createConsumer(resultSet: CompletionResultSet)
-                                           (implicit position: PsiElement): AotConsumer = new TypedAotConsumer(resultSet) {
+                                           (implicit position: PsiElement): Consumer = new TypedConsumer(resultSet) {
 
         private val maybeRange = for {
           parameter <- position.parentOfType(classOf[ScParameter])
@@ -85,7 +85,7 @@ final class ScalaAotCompletionContributor extends ScalaCompletionContributor {
     new AotParameterCompletionProvider {
 
       override protected def createConsumer(resultSet: CompletionResultSet)
-                                           (implicit position: PsiElement): AotConsumer = new UntypedAotConsumer(resultSet)
+                                           (implicit position: PsiElement): Consumer = new UntypedConsumer(resultSet)
     },
     parentTypes = classOf[ScParameter], classOf[ScParameterClause], classOf[ScParameters], classOf[ScFunctionExpr]
   )
@@ -115,7 +115,7 @@ final class ScalaAotCompletionContributor extends ScalaCompletionContributor {
         super.findContext(element).getContext.getContext
 
       override protected def createConsumer(resultSet: CompletionResultSet)
-                                           (implicit position: PsiElement): AotConsumer = new UntypedAotConsumer(resultSet) {
+                                           (implicit position: PsiElement): Consumer = new UntypedConsumer(resultSet) {
 
         private val consumed = mutable.Set.empty[String]
 
@@ -137,10 +137,6 @@ final class ScalaAotCompletionContributor extends ScalaCompletionContributor {
 
 object ScalaAotCompletionContributor {
 
-  import StringUtil.{capitalize, decapitalize}
-
-  private val Delimiter = ": "
-
   private[completion] trait AotCompletionProvider[E <: ScalaPsiElement] extends DelegatingCompletionProvider[E] {
 
     override protected def addCompletions(resultSet: CompletionResultSet,
@@ -150,16 +146,14 @@ object ScalaAotCompletionContributor {
       implicit val position: PsiElement = positionFromParameters
       if (!ScalaProjectSettings.getInstance(position.getProject).isAotCompletion) return
 
-      val replacement = createElement(Delimiter + capitalize(position.getText), prefix)
+      val replacement = createElement(Delimiter + StringUtil.capitalize(position.getText), prefix)
 
       val context = findContext(replacement)
       replacement.setContext(context, context.getLastChild)
 
       val Some(typeElement) = findTypeElement(replacement)
       val newParameters = createParameters(typeElement, Some(prefix.length))
-
-      val consumer = createConsumer(resultSet)
-      consumer.resultSet.runRemainingContributors(newParameters, consumer, true)
+      createConsumer(resultSet).runRemainingContributors(newParameters)
     }
 
     protected def findTypeElement(element: E): Option[ScalaPsiElement]
@@ -167,7 +161,7 @@ object ScalaAotCompletionContributor {
     protected def findContext(element: E): PsiElement = element.getContext.getContext
 
     override protected def createConsumer(resultSet: CompletionResultSet)
-                                         (implicit position: PsiElement): AotConsumer
+                                         (implicit position: PsiElement): Consumer
   }
 
   private abstract class AotParameterCompletionProvider extends AotCompletionProvider[ScParameter] {
@@ -180,72 +174,6 @@ object ScalaAotCompletionContributor {
 
     override protected def findTypeElement(parameter: ScParameter): Option[ScParameterType] =
       parameter.paramType
-  }
-
-  private[completion] sealed abstract class AotConsumer(originalResultSet: CompletionResultSet) extends Consumer[CompletionResult] {
-
-    private val prefixMatcher = originalResultSet.getPrefixMatcher
-    private val prefix = prefixMatcher.getPrefix
-    private val targetPrefix = capitalize(prefix.takeWhile(_.isLower))
-
-    final val resultSet: CompletionResultSet = originalResultSet.withPrefixMatcher {
-      prefixMatcher.cloneWithPrefix(capitalize(prefix))
-    }
-
-    final def consume(result: CompletionResult) {
-      val lookupElement = result.getLookupElement
-      consume(lookupElement, suggestItemText(lookupElement.getLookupString))
-    }
-
-    protected def consume(lookupElement: LookupElement, itemText: String): Unit = {
-      import LookupElementDecorator._
-
-      val decoratedLookupElement = withInsertHandler(
-        withRenderer(lookupElement, createRenderer(itemText)),
-        createInsertHandler(itemText)
-      )
-      resultSet.consume(decoratedLookupElement)
-    }
-
-    protected def createRenderer(itemText: String): LookupElementRenderer
-
-    protected def createInsertHandler(itemText: String) = new InsertHandler(itemText)
-
-    protected def suggestItemText(lookupString: String): String = decapitalize(
-      lookupString.indexOf(targetPrefix) match {
-        case -1 => lookupString
-        case index => lookupString.substring(index)
-      }
-    )
-  }
-
-  private[completion] class TypedAotConsumer(originalResultSet: CompletionResultSet) extends AotConsumer(originalResultSet) {
-
-    override final protected def suggestItemText(lookupString: String): String =
-      super.suggestItemText(lookupString) + Delimiter + lookupString
-
-    override final protected def createRenderer(itemText: String): LookupElementRenderer =
-      new LookupElementRenderer(itemText)
-  }
-
-  private[completion] class UntypedAotConsumer(originalResultSet: CompletionResultSet) extends AotConsumer(originalResultSet) {
-
-    override final protected def suggestItemText(lookupString: String): String =
-      super.suggestItemText(lookupString)
-
-    override final protected def createRenderer(itemText: String): LookupElementRenderer =
-      new LookupElementRenderer(itemText) {
-
-        override def renderElement(decorator: Decorator, presentation: LookupElementPresentation): Unit = {
-          super.renderElement(decorator, presentation)
-
-          presentation.setIcon(null)
-          presentation.setTailText(null)
-        }
-      }
-
-    override final protected def createInsertHandler(itemText: String): InsertHandler =
-      super.createInsertHandler(itemText)
   }
 
 }
