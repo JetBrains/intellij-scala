@@ -105,16 +105,14 @@ package object completion {
                                 (implicit parameters: CompletionParameters,
                                  context: ProcessingContext): Unit
 
-    protected final def createElement(text: String, prefix: String)
-                                     (implicit position: PsiElement): E =
+    protected final def createElement(text: String, prefix: String, position: PsiElement): E =
       createElement(prefix + text, position.getContext, position)
 
     protected def createElement(text: String,
                                 context: PsiElement,
                                 child: PsiElement): E
 
-    protected def createConsumer(resultSet: CompletionResultSet)
-                                (implicit position: PsiElement): Consumer[CompletionResult]
+    protected def createConsumer(resultSet: CompletionResultSet, position: PsiElement): Consumer[CompletionResult]
 
     protected final def createParameters(typeElement: ScalaPsiElement,
                                          maybeLength: Option[Int] = None)

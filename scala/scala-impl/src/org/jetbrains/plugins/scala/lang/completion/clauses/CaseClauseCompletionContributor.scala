@@ -79,13 +79,12 @@ object CaseClauseCompletionContributor {
 
   private val AotCompletionProvider = {
     import aot._
-    new ScalaAotCompletionContributor.AotCompletionProvider[ScTypedPattern] {
+    new CompletionProvider[ScTypedPattern] {
 
       override protected def findTypeElement(pattern: ScTypedPattern): Option[ScalaPsiElement] =
         pattern.typePattern.map(_.typeElement)
 
-      override protected def createConsumer(resultSet: CompletionResultSet)
-                                           (implicit position: PsiElement): aot.Consumer = new TypedConsumer(resultSet)
+      override protected def createConsumer(resultSet: CompletionResultSet, position: PsiElement): aot.Consumer = new TypedConsumer(resultSet)
 
       override protected def createElement(text: String, context: PsiElement, child: PsiElement): ScTypedPattern =
         createPatternFromTextWithContext(text, context, child).asInstanceOf[ScTypedPattern]
@@ -109,8 +108,6 @@ object CaseClauseCompletionContributor {
 
   private def extractorCompletionProvider(pattern: ScReferencePattern) = new DelegatingCompletionProvider[ScPattern] {
 
-    private implicit def element: PsiElement = pattern
-
     /**
       * Enable completion for object with unapply/unapplySeq methods on case label position.
       * Case label with low letter treat as ScReferencePattern and don't handle with ScalaBasicCompletionContributor,
@@ -121,16 +118,15 @@ object CaseClauseCompletionContributor {
                                           prefix: String)
                                          (implicit parameters: CompletionParameters,
                                           context: ProcessingContext): Unit = {
-      val pattern = createElement("".parenthesize(), prefix)
-      val newParameters = createParameters(pattern)
-      resultSet.runRemainingContributors(newParameters, createConsumer(resultSet))
+      val replacement = createElement("".parenthesize(), prefix, pattern)
+      val newParameters = createParameters(replacement)
+      resultSet.runRemainingContributors(newParameters, createConsumer(resultSet, pattern))
     }
 
     override protected def createElement(text: String, context: PsiElement, child: PsiElement): ScPattern =
       createPatternFromTextWithContext(text, context, child)
 
-    override protected def createConsumer(resultSet: CompletionResultSet)
-                                         (implicit position: PsiElement): Consumer[CompletionResult] =
+    override protected def createConsumer(resultSet: CompletionResultSet, position: PsiElement): Consumer[CompletionResult] =
       (result: CompletionResult) => {
         val lookupElement = result.getLookupElement
 

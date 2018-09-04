@@ -6,7 +6,6 @@ package aot
 import com.intellij.codeInsight.completion._
 import com.intellij.codeInsight.lookup._
 import com.intellij.openapi.util.TextRange
-import com.intellij.openapi.util.text.StringUtil
 import com.intellij.patterns.PlatformPatterns
 import com.intellij.psi.PsiElement
 import com.intellij.util.ProcessingContext
@@ -19,7 +18,6 @@ import org.jetbrains.plugins.scala.lang.psi.api.expr.ScFunctionExpr
 import org.jetbrains.plugins.scala.lang.psi.api.statements.params.{ScParameter, ScParameterClause, ScParameterType, ScParameters}
 import org.jetbrains.plugins.scala.lang.psi.api.statements.{ScFunction, ScValueDeclaration, ScVariableDeclaration}
 import org.jetbrains.plugins.scala.lang.psi.impl.ScalaPsiElementFactory
-import org.jetbrains.plugins.scala.settings.ScalaProjectSettings
 
 import scala.collection.mutable
 
@@ -31,10 +29,9 @@ final class ScalaAotCompletionContributor extends ScalaCompletionContributor {
   import ScalaAotCompletionContributor._
 
   extend(
-    new AotParameterCompletionProvider {
+    new ParameterCompletionProvider {
 
-      override protected def createConsumer(resultSet: CompletionResultSet)
-                                           (implicit position: PsiElement): Consumer = new TypedConsumer(resultSet) {
+      override protected def createConsumer(resultSet: CompletionResultSet, position: PsiElement): Consumer = new TypedConsumer(resultSet) {
 
         private val maybeRange = for {
           parameter <- position.parentOfType(classOf[ScParameter])
@@ -82,16 +79,15 @@ final class ScalaAotCompletionContributor extends ScalaCompletionContributor {
   )
 
   extend(
-    new AotParameterCompletionProvider {
+    new ParameterCompletionProvider {
 
-      override protected def createConsumer(resultSet: CompletionResultSet)
-                                           (implicit position: PsiElement): Consumer = new UntypedConsumer(resultSet)
+      override protected def createConsumer(resultSet: CompletionResultSet, position: PsiElement): Consumer = new UntypedConsumer(resultSet)
     },
     parentTypes = classOf[ScParameter], classOf[ScParameterClause], classOf[ScParameters], classOf[ScFunctionExpr]
   )
 
   extend(
-    new AotCompletionProvider[ScValueDeclaration] {
+    new CompletionProvider[ScValueDeclaration] {
 
       override protected def addCompletions(resultSet: CompletionResultSet,
                                             prefix: String)
@@ -114,8 +110,7 @@ final class ScalaAotCompletionContributor extends ScalaCompletionContributor {
       override protected def findContext(element: ScValueDeclaration): PsiElement =
         super.findContext(element).getContext.getContext
 
-      override protected def createConsumer(resultSet: CompletionResultSet)
-                                           (implicit position: PsiElement): Consumer = new UntypedConsumer(resultSet) {
+      override protected def createConsumer(resultSet: CompletionResultSet, position: PsiElement): Consumer = new UntypedConsumer(resultSet) {
 
         private val consumed = mutable.Set.empty[String]
 
@@ -127,7 +122,7 @@ final class ScalaAotCompletionContributor extends ScalaCompletionContributor {
     parentTypes = classOf[ScFieldId]
   )
 
-  private def extend(provider: AotCompletionProvider[_ <: ScalaPsiElement],
+  private def extend(provider: CompletionProvider[_ <: ScalaPsiElement],
                      parentTypes: Class[_ <: ScalaPsiElement]*): Unit = extend(
     CompletionType.BASIC,
     PlatformPatterns.psiElement(ScalaTokenTypes.tIDENTIFIER).withParents(parentTypes: _*),
@@ -137,34 +132,7 @@ final class ScalaAotCompletionContributor extends ScalaCompletionContributor {
 
 object ScalaAotCompletionContributor {
 
-  private[completion] trait AotCompletionProvider[E <: ScalaPsiElement] extends DelegatingCompletionProvider[E] {
-
-    override protected def addCompletions(resultSet: CompletionResultSet,
-                                          prefix: String)
-                                         (implicit parameters: CompletionParameters,
-                                          context: ProcessingContext): Unit = {
-      implicit val position: PsiElement = positionFromParameters
-      if (!ScalaProjectSettings.getInstance(position.getProject).isAotCompletion) return
-
-      val replacement = createElement(Delimiter + StringUtil.capitalize(position.getText), prefix)
-
-      val context = findContext(replacement)
-      replacement.setContext(context, context.getLastChild)
-
-      val Some(typeElement) = findTypeElement(replacement)
-      val newParameters = createParameters(typeElement, Some(prefix.length))
-      createConsumer(resultSet).runRemainingContributors(newParameters)
-    }
-
-    protected def findTypeElement(element: E): Option[ScalaPsiElement]
-
-    protected def findContext(element: E): PsiElement = element.getContext.getContext
-
-    override protected def createConsumer(resultSet: CompletionResultSet)
-                                         (implicit position: PsiElement): Consumer
-  }
-
-  private abstract class AotParameterCompletionProvider extends AotCompletionProvider[ScParameter] {
+  private trait ParameterCompletionProvider extends CompletionProvider[ScParameter] {
 
     override protected def createElement(text: String,
                                          context: PsiElement,
