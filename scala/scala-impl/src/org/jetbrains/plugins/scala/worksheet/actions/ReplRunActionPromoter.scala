@@ -8,5 +8,6 @@ import org.jetbrains.plugins.scala.actions.SingleActionPromoterBase
   * Date: 27.02.17.
   */
 class ReplRunActionPromoter extends SingleActionPromoterBase {
-  override def shouldPromote(anAction: AnAction): Boolean = anAction.isInstanceOf[WorksheetReplRunAction]
+  override def shouldPromote(anAction: AnAction): Boolean = 
+    anAction.isInstanceOf[WorksheetReplRunAction] || anAction.isInstanceOf[WorksheetRunCurrentCellAction]
 }

@@ -47,7 +47,7 @@ class BasicCellManager(project: Project) extends AbstractProjectComponent(projec
 
   override def getCell(file: PsiFile, offset: Int): Option[CellDescriptor] = {
     cells.get(file).flatMap(
-      fileCells => fileCells.rangeImpl(Some(offset - 1), None).headOption.map(_._2)
+      fileCells => fileCells.rangeImpl(None, Some(offset - 1)).lastOption.map(_._2)
     )
   }
 
