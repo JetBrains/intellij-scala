@@ -48,7 +48,7 @@ class CaseClauseCompletionContributor extends ScalaCompletionContributor {
     override def addCompletions(parameters: CompletionParameters,
                                 context: ProcessingContext,
                                 resultSet: CompletionResultSet): Unit = for {
-      ExtractorCompletionProvider(provider) <- positionFromParameters(parameters).findContextOfType(classOf[ScReferencePattern]).toSeq
+      ExtractorCompletionProvider(provider) <- positionFromParameters(parameters).parentOfType(classOf[ScReferencePattern]).toSeq
 
       provider <- AotCompletionProvider :: provider :: Nil
     } provider.addCompletions(parameters, context, resultSet)
