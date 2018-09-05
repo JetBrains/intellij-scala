@@ -3,7 +3,6 @@ package components
 
 import java.awt.event.MouseEvent
 
-import javax.swing.Icon
 import com.intellij.ide.DataManager
 import com.intellij.notification._
 import com.intellij.openapi.actionSystem.{ActionManager, CommonDataKeys, DataContext}
@@ -14,6 +13,7 @@ import com.intellij.openapi.project.Project
 import com.intellij.openapi.wm.StatusBarWidget.{PlatformType, WidgetPresentation}
 import com.intellij.openapi.wm.{StatusBar, StatusBarWidget, WindowManager}
 import com.intellij.util.{Consumer, FileContentUtil}
+import javax.swing.Icon
 import org.intellij.lang.annotations.Language
 import org.jetbrains.plugins.scala.extensions.ObjectExt
 import org.jetbrains.plugins.scala.icons.Icons
@@ -117,7 +117,6 @@ class HighlightingAdvisor(project: Project) extends AbstractProjectComponent(pro
   def toggle() {
     if (applicable) {
       enabled = !enabled
-      TypeAwareHighlightingApplicationState.getInstance setSuggest enabled
     }
   }
 

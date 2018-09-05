@@ -45,12 +45,12 @@ class ServerMediator(project: Project) extends AbstractProjectComponent(project)
       }
 
       if (CompileServerLauncher.needRestart(project)) {
-        CompileServerLauncher.instance.stop()
+        CompileServerLauncher.stop()
       }
 
-      if (!CompileServerLauncher.instance.running) {
+      if (!CompileServerLauncher.running) {
         invokeAndWait {
-          CompileServerLauncher.instance.tryToStart(project)
+          CompileServerLauncher.tryToStart(project)
         }
       }
     }

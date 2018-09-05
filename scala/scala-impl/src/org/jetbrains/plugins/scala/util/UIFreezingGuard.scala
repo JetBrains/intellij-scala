@@ -7,9 +7,8 @@ import java.util.concurrent.atomic.AtomicLong
 
 import com.intellij.concurrency.JobScheduler
 import com.intellij.diagnostic.PerformanceWatcher
-import com.intellij.ide.IdeEventQueue
+import com.intellij.ide.{ApplicationInitializedListener, IdeEventQueue}
 import com.intellij.openapi.application.{ApplicationManager, ModalityState, TransactionGuard}
-import com.intellij.openapi.components.ApplicationComponent
 import com.intellij.openapi.progress._
 import com.intellij.openapi.progress.util.AbstractProgressIndicatorBase
 import org.jetbrains.plugins.scala.extensions._
@@ -20,11 +19,11 @@ import scala.util.control.NoStackTrace
 /**
   * @author Nikolay.Tropin
   */
-class UIFreezingGuard extends ApplicationComponent {
+class UIFreezingGuard extends ApplicationInitializedListener {
 
   private val periodMs = 10
 
-  override def initComponent(): Unit = {
+  override def componentsInitialized(): Unit = {
     if (enabled) {
       JobScheduler.getScheduler.scheduleWithFixedDelay(cancelOnUserInput(), periodMs, periodMs, TimeUnit.MILLISECONDS)
     }
@@ -36,10 +35,6 @@ class UIFreezingGuard extends ApplicationComponent {
       progress.cancel(timestamp)
     }
   }
-
-  override def disposeComponent(): Unit = {}
-
-  override def getComponentName: String = "UI freezing guard"
 }
 
 object UIFreezingGuard {

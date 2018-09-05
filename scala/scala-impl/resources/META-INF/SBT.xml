@@ -27,17 +27,12 @@
         </component>
     </project-components>
 
-    <application-components>
-        <component>
-            <implementation-class>org.jetbrains.sbt.settings.StartupRoutine</implementation-class>
-        </component>
-    </application-components>
-
     <extensionPoints>
         <extensionPoint name="sbtOptionsProvider" interface="org.jetbrains.sbt.project.SbtOptionsProvider"/>
     </extensionPoints>
 
     <extensions defaultExtensionNs="com.intellij">
+        <applicationInitializedListener implementation="org.jetbrains.sbt.settings.StartupRoutine"/>
         <fileTypeFactory implementation="org.jetbrains.sbt.language.SbtFileTypeFactory"/>
         <fileTypeFactory implementation="org.jetbrains.sbt.shell.SbtShellFileTypeFactory"/>
         <annotator language="Scala" implementationClass="org.jetbrains.sbt.annotator.SbtAnnotator" />

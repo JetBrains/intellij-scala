@@ -16,38 +16,21 @@
 package org.jetbrains.plugins.scala;
 
 import com.intellij.debugger.DebuggerManager;
+import com.intellij.ide.ApplicationInitializedListener;
 import com.intellij.openapi.application.ApplicationManager;
 import com.intellij.openapi.compiler.CompilerManager;
-import com.intellij.openapi.components.ApplicationComponent;
 import com.intellij.openapi.project.Project;
 import com.intellij.openapi.project.ProjectManager;
 import com.intellij.openapi.project.ProjectManagerListener;
 import com.intellij.util.messages.MessageBus;
-import org.jetbrains.annotations.NotNull;
 import org.jetbrains.plugins.scala.debugger.ScalaJVMNameMapper;
-
-import java.util.HashSet;
-import java.util.Set;
 
 /**
  * @author ilyas
  */
-public class ScalaLoader implements ApplicationComponent { //todo: to remove?
+public class ScalaLoader implements ApplicationInitializedListener { //todo: to remove?
 
-  @NotNull
-  public static final String SCALA_EXTENSION = "scala";
-
-  @NotNull
-  public static final Set<String> SCALA_EXTENSIONS = new HashSet<String>();
-
-  static {
-    SCALA_EXTENSIONS.add(SCALA_EXTENSION);
-  }
-
-  public ScalaLoader() {
-  }
-
-  public void initComponent() {
+  public void componentsInitialized() {
     if (!isUnderUpsource()) {
       loadScala();
     }
@@ -69,13 +52,5 @@ public class ScalaLoader implements ApplicationComponent { //todo: to remove?
   public static boolean isUnderUpsource() {
     // The following check is hardly bulletproof, however (currently) there is no API to query that
     return ApplicationManager.getApplication().getClass().getSimpleName().contains("Upsource");
-  }
-
-  public void disposeComponent() {
-  }
-
-  @NotNull
-  public String getComponentName() {
-    return "Scala Loader";
   }
 }

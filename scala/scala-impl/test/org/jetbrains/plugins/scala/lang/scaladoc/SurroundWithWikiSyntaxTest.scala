@@ -7,8 +7,8 @@ import com.intellij.psi.PsiElement
 import com.intellij.testFramework.EditorTestUtil.{SELECTION_END_TAG => END, SELECTION_START_TAG => START}
 import org.jetbrains.plugins.scala.base.ScalaLightCodeInsightFixtureTestAdapter
 import org.jetbrains.plugins.scala.extensions.startCommand
+import org.jetbrains.plugins.scala.lang.surroundWith.descriptors.ScalaSurroundDescriptors
 import org.jetbrains.plugins.scala.lang.surroundWith.surrounders.scaladoc._
-import org.jetbrains.plugins.scala.util.ScalaToolsFactory
 import org.junit.Assert.{assertFalse, assertTrue}
 
 /**
@@ -201,9 +201,7 @@ class SurroundWithWikiSyntaxTest extends ScalaLightCodeInsightFixtureTestAdapter
 }
 
 object SurroundWithWikiSyntaxTest {
-  private val descriptor: SurroundDescriptor = ScalaToolsFactory.getInstance()
-    .createSurroundDescriptors()
-    .getSurroundDescriptors()(1)
+  private val descriptor: SurroundDescriptor = ScalaSurroundDescriptors.getSurroundDescriptors()(1)
 
   private val surrounders: Seq[ScalaDocWithSyntaxSurrounder] = descriptor.getSurrounders
     .collect {

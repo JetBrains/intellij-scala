@@ -3,12 +3,10 @@ package compiler
 
 import java.io.{File, IOException}
 
-import javax.swing.event.HyperlinkEvent
 import com.intellij.compiler.server.BuildManager
 import com.intellij.ide.plugins.{IdeaPluginDescriptor, PluginManager}
 import com.intellij.notification.{Notification, NotificationListener, NotificationType, Notifications}
 import com.intellij.openapi.application.ApplicationManager
-import com.intellij.openapi.components.ApplicationComponent
 import com.intellij.openapi.diagnostic.Logger
 import com.intellij.openapi.extensions.PluginId
 import com.intellij.openapi.project.Project
@@ -16,13 +14,14 @@ import com.intellij.openapi.projectRoots.{ProjectJdkTable, Sdk}
 import com.intellij.openapi.roots.ModuleRootManager
 import com.intellij.openapi.roots.impl.OrderEntryUtil
 import com.intellij.openapi.roots.ui.configuration.ProjectSettingsService
+import com.intellij.openapi.util.ShutDownTracker
 import com.intellij.openapi.util.io.FileUtil
 import com.intellij.util.PathUtil
 import com.intellij.util.net.NetUtils
 import gnu.trove.TByteArrayList
+import javax.swing.event.HyperlinkEvent
 import org.jetbrains.jps.incremental.BuilderService
 import org.jetbrains.plugins.hydra.compiler.HydraCompilerSettingsManager
-import org.jetbrains.plugins.scala.compiler.CompileServerLauncher._
 import org.jetbrains.plugins.scala.extensions._
 import org.jetbrains.plugins.scala.project.{Platform, ProjectExt}
 
@@ -32,13 +31,13 @@ import scala.util.control.Exception._
 /**
  * @author Pavel Fatin
  */
-class CompileServerLauncher extends ApplicationComponent {
-    private var serverInstance: Option[ServerInstance] = None
-    private val LOG = Logger.getInstance(getClass)
+object CompileServerLauncher {
+  private var serverInstance: Option[ServerInstance] = None
+  private val LOG = Logger.getInstance(getClass)
 
-  override def disposeComponent(): Unit = {
-     if (running) stop()
-   }
+  ShutDownTracker.getInstance().registerShutdownTask(() =>
+    if (running) stop()
+  )
 
   def tryToStart(project: Project): Boolean = {
     if (!running) {
@@ -83,8 +82,6 @@ class CompileServerLauncher extends ApplicationComponent {
   } yield new File(pluginsLibs, filesPath)
 
   private def start(project: Project, jdk: JDK): Either[String, Process] = {
-    import org.jetbrains.plugins.scala.compiler.CompileServerLauncher.{compilerJars, jvmParameters}
-
     val settings = ScalaCompileServerSettings.getInstance
 
     settings.COMPILE_SERVER_SDK = jdk.name
@@ -166,10 +163,6 @@ class CompileServerLauncher extends ApplicationComponent {
 
   def port: Option[Int] = serverInstance.map(_.port)
 
-  override def getComponentName: String = getClass.getSimpleName
-}
-
-object CompileServerLauncher {
   def compileServerSdk(project: Project): Option[Sdk] = {
     def defaultSdk = BuildManager.getBuildProcessRuntimeSdk(project).first
 
@@ -186,8 +179,6 @@ object CompileServerLauncher {
     val sdk = compileServerSdk(project)
     sdk.flatMap(toJdk)
   }
-
-  def instance: CompileServerLauncher = ApplicationManager.getApplication.getComponent(classOf[CompileServerLauncher])
 
   def compilerJars: Seq[File] = {
     val jpsBuildersJar = new File(PathUtil.getJarPathForClass(classOf[BuilderService]))
@@ -238,21 +229,19 @@ object CompileServerLauncher {
   }
 
   def ensureServerRunning(project: Project): Boolean = {
-    val launcher = CompileServerLauncher.instance
+    if (needRestart(project)) stop()
 
-    if (needRestart(project)) launcher.stop()
-
-    launcher.running || launcher.tryToStart(project)
+    running || tryToStart(project)
   }
 
   def needRestart(project: Project): Boolean = {
-    val serverInstance = CompileServerLauncher.instance.serverInstance
+    val currentInstance = serverInstance
     val settings = ScalaCompileServerSettings.getInstance()
-    serverInstance match {
+    currentInstance match {
       case None => true
       case Some(instance) =>
         val useProjectHome = settings.USE_PROJECT_HOME_AS_WORKING_DIR
-        val workingDirChanged = useProjectHome && projectHome(project) != serverInstance.map(_.workingDir)
+        val workingDirChanged = useProjectHome && projectHome(project) != currentInstance.map(_.workingDir)
         val jdkChanged = compileServerJdk(project) match {
           case Some(projectJdk) => projectJdk != instance.jdk
           case _ => false
@@ -261,9 +250,8 @@ object CompileServerLauncher {
     }
   }
 
-  def ensureNotRunning(project: Project) {
-    val launcher = CompileServerLauncher.instance
-    if (launcher.running) launcher.stop(project)
+  def ensureNotRunning(project: Project): Unit = {
+    if (running) stop(project)
   }
 
   def findFreePort: Int = {

@@ -54,6 +54,8 @@ public class ScalaApplicationSettings implements PersistentStateComponent<ScalaA
 
   public boolean UPGRADE_TO_INTERPOLATED = true;
 
+  public boolean SUGGEST_TYPE_AWARE_HIGHLIGHTING_ENABLED = false;
+
   //MISC
   public boolean ASK_USE_LATEST_PLUGIN_BUILDS = true;
   public boolean ASK_PLATFORM_UPDATE = true;

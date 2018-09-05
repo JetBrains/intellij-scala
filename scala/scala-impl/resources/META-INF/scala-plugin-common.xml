@@ -605,11 +605,6 @@
 
         <intentionAction>
             <category>Scala</category>
-            <className>org.jetbrains.plugins.scala.util.macroDebug.OpenSynFileIntention</className>
-        </intentionAction>
-
-        <intentionAction>
-            <category>Scala</category>
             <className>org.jetbrains.plugins.scala.codeInsight.intention.AddBracesIntention</className>
         </intentionAction>
 
@@ -1468,30 +1463,11 @@
 
         <library.type implementation="org.jetbrains.plugins.scala.project.ScalaLibraryType" />
       <disabledIndentRangesProvider implementation="org.jetbrains.plugins.scala.lang.formatting.ScalaFmtDisabledIndentRangesProvider" />
+
+      <applicationInitializedListener implementation="org.jetbrains.plugins.scala.ScalaLoader"/>
+      <applicationInitializedListener implementation="org.jetbrains.plugins.scala.components.ScalaPluginVersionVerifierListener"/>
+      <applicationInitializedListener implementation="org.jetbrains.plugins.scala.util.UIFreezingGuard"/>
     </extensions>
-
-
-    <application-components>
-        <component>
-            <interface-class>org.jetbrains.plugins.scala.util.ScalaToolsFactory</interface-class>
-            <implementation-class>org.jetbrains.plugins.scala.util.ScalaToolsFactoryImpl</implementation-class>
-        </component>
-        <component>
-            <implementation-class>org.jetbrains.plugins.scala.ScalaLoader</implementation-class>
-        </component>
-        <component>
-            <implementation-class>org.jetbrains.plugins.scala.components.ScalaPluginVersionVerifierApplicationComponent</implementation-class>
-        </component>
-        <component>
-            <implementation-class>org.jetbrains.plugins.scala.components.TypeAwareHighlightingApplicationState</implementation-class>
-        </component>
-        <component>
-          <implementation-class>org.jetbrains.plugins.scala.compiler.CompileServerLauncher</implementation-class>
-        </component>
-        <component>
-          <implementation-class>org.jetbrains.plugins.scala.util.UIFreezingGuard</implementation-class>
-        </component>
-    </application-components>
 
     <project-components>
         <component>
@@ -1546,9 +1522,6 @@
         </component>
         <component>
           <implementation-class>org.jetbrains.plugins.scala.debugger.evaluation.ScalaEvaluatorCompileHelper</implementation-class>
-        </component>
-        <component>
-            <implementation-class>org.jetbrains.plugins.scala.util.macroDebug.MacrosheetFileHook</implementation-class>
         </component>
         <!--<component>-->
             <!--<implementation-class>org.jetbrains.plugins.scala.components.libinjection.LibraryInjectorLoader</implementation-class>-->

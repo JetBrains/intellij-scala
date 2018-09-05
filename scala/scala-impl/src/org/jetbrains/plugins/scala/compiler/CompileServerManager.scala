@@ -87,7 +87,7 @@ class CompileServerManager(project: Project) extends AbstractProjectComponent(pr
 
    private var installed = false
 
-   private def launcher = CompileServerLauncher.instance
+   private def launcher = CompileServerLauncher
 
    private def bar = Option(WindowManager.getInstance.getStatusBar(project))
 
