@@ -25,6 +25,13 @@ import scala.collection.JavaConverters
 
 package object completion {
 
+  private[completion] implicit class InsertionContextExt(private val context: InsertionContext) extends AnyVal {
+
+    def setStartOffset(offset: Int): Unit = {
+      context.getOffsetMap.addOffset(CompletionInitializationContext.START_OFFSET, offset)
+    }
+  }
+
   private[completion] object InsertionContextExt {
 
     def unapply(context: InsertionContext): Some[(Editor, Document, PsiFile, Project)] =

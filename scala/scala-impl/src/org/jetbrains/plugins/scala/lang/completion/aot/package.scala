@@ -12,8 +12,16 @@ package object aot {
 
   private[aot] class InsertHandler(itemText: String) extends IJInsertHandler[Decorator] {
 
-    def handleInsert(context: InsertionContext,
-                     decorator: Decorator): Unit = {
+    final def handleInsert(context: InsertionContext, decorator: Decorator): Unit =
+      handleInsert(decorator)(context)
+
+    protected def handleInsert(decorator: Decorator)
+                              (implicit context: InsertionContext): Unit = {
+      handleReplace(context)
+      decorator.getDelegate.handleInsert(context)
+    }
+
+    protected def handleReplace(implicit context: InsertionContext): Unit = {
       context.getDocument.replaceString(
         context.getStartOffset,
         context.getTailOffset,

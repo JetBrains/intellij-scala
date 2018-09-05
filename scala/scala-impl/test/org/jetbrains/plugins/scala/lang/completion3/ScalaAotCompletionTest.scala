@@ -98,6 +98,22 @@ class ScalaAotCompletionTest extends ScalaCodeInsightTestBase {
     itemText = "bar: Bar"
   )
 
+  def testNoErasure(): Unit = doAotCompletionTest(
+    fileText =
+      s"""class Foo
+         |class Bar
+         |def foo(ba${CARET}foo: Foo): Unit = {}
+       """.stripMargin,
+    resultText =
+      s"""class Foo
+         |class Bar
+         |def foo(bar: Bar${CARET}foo: Foo): Unit = {}
+       """.stripMargin,
+    lookupString = "Bar",
+    itemText = "bar: Bar",
+    char = Lookup.NORMAL_SELECT_CHAR
+  )
+
   def testLambdaParameter(): Unit = doAotCompletionTest(
     fileText =
       s"""Seq(42).foreach { i$CARET =>
@@ -179,10 +195,11 @@ class ScalaAotCompletionTest extends ScalaCodeInsightTestBase {
                                   resultText: String,
                                   lookupString: String,
                                   itemText: String,
-                                  tailTextSuffix: String = ScTypeDefinitionImpl.DefaultLocationString): Unit = {
+                                  tailTextSuffix: String = ScTypeDefinitionImpl.DefaultLocationString,
+                                  char: Char = Lookup.REPLACE_SELECT_CHAR): Unit = {
     val tailText = if (tailTextSuffix != null) " " + tailTextSuffix else null
 
-    doCompletionTest(fileText, resultText, Lookup.REPLACE_SELECT_CHAR, DEFAULT_TIME, CompletionType.BASIC) {
+    doCompletionTest(fileText, resultText, char, DEFAULT_TIME, CompletionType.BASIC) {
       hasItemText(_, lookupString, itemText, tailText = tailText)
     }
   }

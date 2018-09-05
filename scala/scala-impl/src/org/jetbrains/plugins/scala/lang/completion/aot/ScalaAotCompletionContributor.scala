@@ -5,7 +5,6 @@ package aot
 
 import com.intellij.codeInsight.completion._
 import com.intellij.codeInsight.lookup._
-import com.intellij.openapi.util.TextRange
 import com.intellij.patterns.PlatformPatterns
 import com.intellij.psi.PsiElement
 import com.intellij.util.ProcessingContext
@@ -33,45 +32,46 @@ final class ScalaAotCompletionContributor extends ScalaCompletionContributor {
 
       override protected def createConsumer(resultSet: CompletionResultSet, position: PsiElement): Consumer = new TypedConsumer(resultSet) {
 
-        private val maybeRange = for {
-          parameter <- position.parentOfType(classOf[ScParameter])
-
-          typeElement <- findTypeElement(parameter)
-          bound = typeElement.getTextRange.getEndOffset
-
-          identifier <- findIdentifier(parameter)
-          origin = identifier.getTextRange.getEndOffset
-        } yield new TextRange(origin, bound)
-
         override protected def createInsertHandler(itemText: String): InsertHandler = new InsertHandler(itemText) {
 
-          private val delta = itemText.indexOf(Delimiter) + Delimiter.length
+          override def handleInsert(decorator: Decorator)
+                                   (implicit context: InsertionContext): Unit = {
+            super.handleInsert(decorator)
+            inReplaceMode { context =>
+              context.getEditor.getCaretModel.moveToOffset(context.getTailOffset)
+            }
+          }
 
-          override def handleInsert(context: InsertionContext, decorator: aot.Decorator): Unit = {
-            def withRange(function: (Int, Int) => Unit): Unit =
-              maybeRange.foreach { range =>
-                function(context.getTailOffset, range.getLength)
+          override protected def handleReplace(implicit context: InsertionContext): Unit = {
+            inReplaceMode { context =>
+              for {
+                parameter <- position.parentOfType(classOf[ScParameter])
+
+                typeElement <- findTypeElement(parameter)
+                bound = typeElement.getTextRange.getEndOffset
+
+                identifier <- findIdentifier(parameter)
+                origin = identifier.getTextRange.getEndOffset
+
+                length = bound - origin
+              } context.setTailOffset {
+                context.getTailOffset + length
               }
-
-            withRange {
-              case (tailOffset, length) => context.setTailOffset(tailOffset + length)
             }
 
-            super.handleInsert(context, decorator)
+            super.handleReplace
 
-            updateStartOffset(context.getOffsetMap)
-            decorator.getDelegate.handleInsert(context)
-
-            withRange {
-              case (tailOffset, _) => context.getEditor.getCaretModel.moveToOffset(tailOffset)
+            context.setStartOffset {
+              context.getStartOffset + itemText.indexOf(Delimiter) + Delimiter.length
             }
           }
 
-          private def updateStartOffset(offsetMap: OffsetMap): Unit = {
-            import CompletionInitializationContext.START_OFFSET
-            val startOffset = offsetMap.getOffset(START_OFFSET) + delta
-            offsetMap.addOffset(START_OFFSET, startOffset)
-          }
+          private def inReplaceMode(action: InsertionContext => Unit)
+                                   (implicit context: InsertionContext): Unit =
+            context.getCompletionChar match {
+              case Lookup.REPLACE_SELECT_CHAR => action(context)
+              case _ =>
+            }
         }
       }
     },
