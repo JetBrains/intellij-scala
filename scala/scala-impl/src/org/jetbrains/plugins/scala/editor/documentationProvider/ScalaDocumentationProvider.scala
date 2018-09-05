@@ -18,6 +18,7 @@ import org.jetbrains.plugins.scala.lang.psi.ScalaPsiUtil.inNameContext
 import org.jetbrains.plugins.scala.lang.psi.api.ScalaFile
 import org.jetbrains.plugins.scala.lang.psi.api.base._
 import org.jetbrains.plugins.scala.lang.psi.api.base.patterns.ScBindingPattern
+import org.jetbrains.plugins.scala.lang.psi.api.base.types.ScTypeElement
 import org.jetbrains.plugins.scala.lang.psi.api.expr.ScAnnotation
 import org.jetbrains.plugins.scala.lang.psi.api.statements._
 import org.jetbrains.plugins.scala.lang.psi.api.statements.params.{ScClassParameter, ScParameter, ScParameterClause, ScTypeParam}
@@ -1139,6 +1140,12 @@ object ScalaDocumentationProvider {
   }
 
   def generateParameterInfo(parameter: ScParameter, subst: ScSubstitutor): String = {
+    contextBoundParameterInfo(parameter).getOrElse {
+      simpleParameterInfo(parameter, subst)
+    }
+  }
+
+  private def simpleParameterInfo(parameter: ScParameter, subst: ScSubstitutor): String = {
     val name = parameter.name
     val typeAnnot = typeAnnotation(parameter)(subst.subst(_).presentableText)
 
@@ -1156,6 +1163,18 @@ object ScalaDocumentationProvider {
       case _ => ""
     }
     prefix + defaultText
+  }
+
+  private def contextBoundParameterInfo(parameter: ScParameter): Option[String] = {
+    ScalaPsiUtil.originalContextBound(parameter).map {
+
+      case (typeParam, boundTypeElem) =>
+        val tpName = typeParam.name
+        val boundText = boundTypeElem.getText
+
+        val clause = typeParam.typeParametersClause.map(_.getText).getOrElse("")
+        s"context bound $tpName$clause : $boundText"
+    }
   }
 
   private def getModifiersPresentableText(modifiers: ScModifierList): String = {

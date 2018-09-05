@@ -101,18 +101,23 @@ class ScParameterImpl protected (stub: ScParameterStub, nodeType: ScParamElement
 
   def getActualDefaultExpression: Option[ScExpression] = byPsiOrStub(findChild(classOf[ScExpression]))(_.bodyExpression)
 
-  override def getNavigationElement: PsiElement = owner match {
-    case m: ScMethodLike =>
-      m.getNavigationElement match {
-        case `m` => this
-        case other: ScMethodLike =>
-          other.effectiveParameterClauses
-            .flatMap(_.effectiveParameters)
-            .find(_.name == name)
-            .getOrElse(this)
-        case _ => this
-      }
-    case _ => this
+  override def getNavigationElement: PsiElement = {
+    def boundOrThis =
+      ScalaPsiUtil.originalContextBound(this).map(_._2).getOrElse(this)
+
+    owner match {
+      case m: ScMethodLike =>
+        m.getNavigationElement match {
+          case `m` => boundOrThis
+          case other: ScMethodLike =>
+            other.effectiveParameterClauses
+              .flatMap(_.effectiveParameters)
+              .find(_.name == name)
+              .getOrElse(boundOrThis)
+          case _ => boundOrThis
+        }
+      case _ => boundOrThis
+    }
   }
 
   override def accept(visitor: ScalaElementVisitor) {

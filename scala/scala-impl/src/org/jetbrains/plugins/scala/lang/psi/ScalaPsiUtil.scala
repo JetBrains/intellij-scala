@@ -10,9 +10,9 @@ import com.intellij.openapi.module.Module
 import com.intellij.openapi.progress.ProgressManager
 import com.intellij.openapi.project.Project
 import com.intellij.openapi.roots.{ProjectFileIndex, ProjectRootManager}
+import com.intellij.openapi.util.text.StringUtil
 import com.intellij.openapi.util.{Pair, TextRange}
 import com.intellij.psi._
-import com.intellij.psi.codeStyle.CodeStyleSettingsManager
 import com.intellij.psi.impl.light.LightModifierList
 import com.intellij.psi.scope.PsiScopeProcessor
 import com.intellij.psi.search.SearchScope
@@ -1386,6 +1386,25 @@ object ScalaPsiUtil {
     }
   }
 
+  private def contextBoundParameterName(typeParameter: ScTypeParam, bound: ScTypeElement): String = {
+    val boundName = bound match {
+      case ScSimpleTypeElement(Some(ref)) => ref.refName
+      case _                              => bound.getText
+    }
+    val tpName = typeParameter.name
+    StringUtil.decapitalize(s"$boundName$$$tpName")
+  }
+
+  def originalContextBound(parameter: ScParameter): Option[(ScTypeParam, ScTypeElement)] = {
+    if (parameter.isPhysical) return None
+
+    val ownerTypeParams = parameter.owner.asOptionOf[ScTypeParametersOwner].toSeq.flatMap(_.typeParameters)
+    val bounds = ownerTypeParams.flatMap(tp => tp.contextBoundTypeElement.map((tp, _)))
+    bounds.find {
+      case (tp, te) => contextBoundParameterName(tp, te) == parameter.name
+    }
+  }
+
   /** Creates a synthetic parameter clause based on view and context bounds */
   def syntheticParamClause(parameterOwner: ScTypeParametersOwner,
                            paramClauses: ScParameters,
@@ -1415,13 +1434,14 @@ object ScalaPsiUtil {
     val bounds = typeParameters.flatMap { typeParameter =>
       val parameterName = typeParameter.name
       typeParameter.contextBoundTypeElement.map { typeElement =>
-        s"${typeElement.getText}[$parameterName]"
+        val syntheticName = contextBoundParameterName(typeParameter, typeElement)
+        s"$syntheticName : ${typeElement.getText}[$parameterName]"
       }
     }
 
-    val clauses = (views ++ bounds).zipWithIndex.map {
+    val clauses = views.zipWithIndex.map {
       case (text, index) => s"ev$$${index + 1}: $text"
-    }
+    } ++ bounds
 
     val result = createImplicitClauseFromTextWithContext(clauses, paramClauses, isClassParameter)
     result.toSeq
