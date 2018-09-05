@@ -9,15 +9,12 @@ import com.intellij.debugger.requests.ClassPrepareRequestor
 import com.intellij.debugger.{MultiRequestPositionManager, NoDataException, PositionManager, SourcePosition}
 import com.intellij.openapi.editor.Document
 import com.intellij.openapi.project.{DumbService, Project}
-import com.intellij.openapi.roots.impl.DirectoryIndex
 import com.intellij.openapi.util.Ref
-import com.intellij.openapi.vfs.VirtualFile
 import com.intellij.psi._
 import com.intellij.psi.search.{FilenameIndex, GlobalSearchScope}
 import com.intellij.psi.util.CachedValueProvider.Result
 import com.intellij.psi.util.{CachedValueProvider, CachedValuesManager, PsiTreeUtil}
 import com.intellij.util.containers.{ConcurrentIntObjectMap, ContainerUtil}
-import com.intellij.util.{Processor, Query}
 import com.sun.jdi._
 import com.sun.jdi.request.ClassPrepareRequest
 import org.jetbrains.annotations.{NotNull, Nullable}
@@ -41,8 +38,7 @@ import org.jetbrains.plugins.scala.lang.psi.api.toplevel.typedef._
 import org.jetbrains.plugins.scala.lang.psi.impl.ScalaPsiManager
 import org.jetbrains.plugins.scala.lang.psi.types.ValueClassType
 import org.jetbrains.plugins.scala.lang.refactoring.util.ScalaNamesUtil
-import org.jetbrains.plugins.scala.macroAnnotations.{CachedInUserData, ModCount}
-import org.jetbrains.plugins.scala.util.macroDebug.ScalaMacroDebuggingUtil
+import org.jetbrains.plugins.scala.macroAnnotations.CachedInUserData
 
 import scala.annotation.tailrec
 import scala.collection.{JavaConverters, mutable}
@@ -413,42 +409,6 @@ class ScalaPositionManager(val debugProcess: DebugProcess) extends PositionManag
 
     import JavaConverters._
 
-    def searchForMacroDebugging(qName: String): PsiFile = {
-      val directoryIndex: DirectoryIndex = DirectoryIndex.getInstance(project)
-      val dotIndex = qName.lastIndexOf(".")
-      val packageName = if (dotIndex > 0) qName.substring(0, dotIndex) else ""
-      val query: Query[VirtualFile] = directoryIndex.getDirectoriesByPackageName(packageName, true)
-      val fileNameWithoutExtension = if (dotIndex > 0) qName.substring(dotIndex + 1) else qName
-      val fileNames: ju.Set[String] = new ju.HashSet[String]
-      for (extension <- ScalaLoader.SCALA_EXTENSIONS.asScala) {
-        fileNames.add(fileNameWithoutExtension + "." + extension)
-      }
-      val result = new Ref[PsiFile]
-      query.forEach(new Processor[VirtualFile] {
-        override def process(vDir: VirtualFile): Boolean = {
-          var isFound = false
-          for {
-            fileName <- fileNames.asScala
-            if !isFound
-            vFile <- vDir.findChild(fileName).toOption
-          } {
-            val psiFile: PsiFile = PsiManager.getInstance(project).findFile(vFile)
-            val debugFile: PsiFile = ScalaMacroDebuggingUtil.loadCode(psiFile, force = false)
-            if (debugFile != null) {
-              result.set(debugFile)
-              isFound = true
-            }
-            else if (psiFile.isInstanceOf[ScalaFile]) {
-              result.set(psiFile)
-              isFound = true
-            }
-          }
-          !isFound
-        }
-      })
-      result.get
-    }
-
     def findFile() = {
       def withDollarTestName(originalQName: String): Option[String] = {
         val dollarTestSuffix = "$Test" //See SCL-9340
@@ -472,13 +432,11 @@ class ScalaPositionManager(val debugProcess: DebugProcess) extends PositionManag
       val file = scriptFile.getOrElse {
         val originalQName = NameTransformer.decode(refType.name)
 
-        if (!ScalaMacroDebuggingUtil.isEnabled) {
-          val clazz = withDollarTestName(originalQName).flatMap(tryToFindClass)
-            .orElse(tryToFindClass(topLevelClassName(originalQName)))
-          clazz.map(_.getNavigationElement.getContainingFile).orNull
-        }
-        else
-          searchForMacroDebugging(topLevelClassName(originalQName))
+        val clazz = withDollarTestName(originalQName)
+          .flatMap(tryToFindClass)
+          .orElse(tryToFindClass(topLevelClassName(originalQName)))
+
+        clazz.map(_.getNavigationElement.getContainingFile).orNull
       }
       file
     }
