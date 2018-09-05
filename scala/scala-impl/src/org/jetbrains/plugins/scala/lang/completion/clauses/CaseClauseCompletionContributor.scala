@@ -54,10 +54,14 @@ class CaseClauseCompletionContributor extends ScalaCompletionContributor {
     override def addCompletions(parameters: CompletionParameters,
                                 context: ProcessingContext,
                                 resultSet: CompletionResultSet): Unit = {
-      val providers = PsiTreeUtil.getContextOfType(positionFromParameters(parameters), classOf[ScBindingPattern]) match {
-        case (_: ScReferencePattern) childOf (_: ScNamingPattern | _: ScTypedPattern) => Seq.empty
-        case pattern: ScReferencePattern => Seq(AotCompletionProvider, extractorCompletionProvider(pattern))
-        case _ => Seq.empty
+      val providers = PsiTreeUtil.getParentOfType(positionFromParameters(parameters), classOf[ScReferencePattern]) match {
+        case null => Nil
+        case pattern =>
+          pattern.getParent match {
+            case _: ScNamingPattern | _: ScTypedPattern => Nil
+            case _ => AotCompletionProvider :: extractorCompletionProvider(pattern) :: Nil
+          }
+        case _ => Nil
       }
 
       providers.foreach {

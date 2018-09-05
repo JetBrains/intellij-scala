@@ -17,7 +17,7 @@ private[clauses] abstract class ClausesCompletionProvider[E <: ScalaPsiElement](
                                     context: ProcessingContext,
                                     result: CompletionResultSet): Unit = {
     val position = positionFromParameters(parameters)
-    PsiTreeUtil.getContextOfType(position, clazz) match {
+    PsiTreeUtil.getParentOfType(position, clazz) match {
       case null =>
       case typeable => addCompletions(typeable, position, result)
     }
