@@ -3,10 +3,10 @@ package lang
 package completion3
 
 import com.intellij.codeInsight.completion.CompletionType.BASIC
+import com.intellij.codeInsight.lookup.Lookup.REPLACE_SELECT_CHAR
 import com.intellij.codeInsight.lookup.LookupElement
 import com.intellij.testFramework.EditorTestUtil.{CARET_TAG => CARET}
 import org.jetbrains.plugins.scala.lang.completion.lookups.ScalaLookupItem
-import org.jetbrains.plugins.scala.lang.completion3.ScalaCodeInsightTestBase.DEFAULT_CHAR
 import org.jetbrains.plugins.scala.lang.formatting.settings.ScalaCodeStyleSettings
 import org.jetbrains.plugins.scala.lang.psi.api.toplevel.typedef.{ScClass, ScObject}
 
@@ -70,7 +70,7 @@ class ClassNameCompletionTest extends ScalaClassNameCompletionTest {
          |  mutable.HashSet$CARET
          |}
       """.stripMargin,
-    char = DEFAULT_CHAR,
+    char = REPLACE_SELECT_CHAR,
     time = 2,
     completionType = BASIC
   ) {
@@ -97,7 +97,7 @@ class ClassNameCompletionTest extends ScalaClassNameCompletionTest {
          |  val y: mutable.HashSet$CARET
          |}
       """.stripMargin,
-    char = DEFAULT_CHAR,
+    char = REPLACE_SELECT_CHAR,
     time = 2,
     completionType = BASIC
   ) {
@@ -125,7 +125,7 @@ class ClassNameCompletionTest extends ScalaClassNameCompletionTest {
         |  val z: ListSet = null
         |}
       """.stripMargin,
-    char = DEFAULT_CHAR,
+    char = REPLACE_SELECT_CHAR,
     time = 2,
     completionType = BASIC
   ) {
@@ -224,7 +224,7 @@ class ImportsWithPrefixCompletionTest extends ScalaClassNameCompletionTest {
         |  val m: ListMap
         |}
       """.stripMargin,
-    char = DEFAULT_CHAR,
+    char = REPLACE_SELECT_CHAR,
     time = 2,
     completionType = BASIC
   ) {

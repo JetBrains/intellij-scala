@@ -3,6 +3,7 @@ package lang
 package completion3
 
 import com.intellij.codeInsight.completion.CompletionType
+import com.intellij.codeInsight.lookup.Lookup
 import com.intellij.psi.PsiClass
 import com.intellij.testFramework.EditorTestUtil
 import org.jetbrains.plugins.scala.extensions._
@@ -69,7 +70,7 @@ class ScalaDocCompletionTest extends ScalaCodeInsightTestBase {
         |  * [[java.util.HashMap
         |  */
       """.stripMargin,
-    char = ScalaCodeInsightTestBase.DEFAULT_CHAR,
+    char = Lookup.REPLACE_SELECT_CHAR,
     time = DEFAULT_TIME,
     completionType = CompletionType.BASIC
   ) { lookup =>

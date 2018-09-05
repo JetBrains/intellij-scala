@@ -1,6 +1,7 @@
 package org.jetbrains.plugins.scala.lang.completion3
 
 import com.intellij.codeInsight.completion.CompletionType
+import com.intellij.codeInsight.lookup.Lookup
 import com.intellij.psi.PsiFile
 import com.intellij.testFramework.EditorTestUtil.{CARET_TAG => CARET}
 import org.jetbrains.plugins.scala.lang.formatting.settings.ScalaCodeStyleSettings
@@ -37,7 +38,7 @@ class ScalaOverrideCompletionTest extends ScalaCodeInsightTestBase {
         |  override def foo(int: Int): Int = super.foo(int)
         |}
       """,
-    char = DEFAULT_CHAR,
+    char = Lookup.REPLACE_SELECT_CHAR,
     time = DEFAULT_TIME,
     completionType = CompletionType.BASIC
   ) {
@@ -324,7 +325,7 @@ class ScalaOverrideCompletionTest2 extends ScalaCodeInsightTestBase {
         |case class ExamplePerson(override val name: String, override val age: Int, override val gender: Boolean) extends Person("") {
         |}
       """,
-    char = DEFAULT_CHAR,
+    char = Lookup.REPLACE_SELECT_CHAR,
     time = DEFAULT_TIME,
     completionType = CompletionType.BASIC
   ) {
