@@ -152,4 +152,40 @@ class ApplicationAnnotatorTest extends ApplicationAnnotatorTestBase {
       """.stripMargin
     assert(messages(code).isEmpty)
   }
+
+  def testSCL9468A() = {
+    val code =
+      """
+        |trait Foo {
+        |  trait Factory {
+        |    type Repr[~]
+        |
+        |    def apply[S](obj: Repr[S]): Any
+        |  }
+        |
+        |  def apply[S](map: Map[Int, Factory], tid: Int, obj: Any): Any =
+        |    map.get(tid).fold(???)(f => f(obj.asInstanceOf[f.Repr[S]]))
+        |}
+      """.stripMargin
+    assert(messages(code).isEmpty)
+  }
+
+  def testSCL9468B() = {
+    val code =
+      """
+        |class Test {
+        |  def c = 1
+        |  def c(i: Option[Int]): Int = i.get + 1
+        |  def main(args: Array[String]): Unit = {
+        |    val a = new A()
+        |    a.f(c)
+        |  }
+        |}
+        |
+        |class A {
+        |  def f[A](m: Option[A] => A) = m(None)
+        |}
+      """.stripMargin
+    assert(messages(code).isEmpty)
+  }
 }
