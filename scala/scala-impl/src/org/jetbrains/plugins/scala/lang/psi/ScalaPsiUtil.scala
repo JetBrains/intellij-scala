@@ -49,7 +49,9 @@ import org.jetbrains.plugins.scala.lang.psi.types.api.designator.{ScDesignatorTy
 import org.jetbrains.plugins.scala.lang.psi.types.nonvalue.{Parameter, ScTypePolymorphicType}
 import org.jetbrains.plugins.scala.lang.psi.types.recursiveUpdate.ScSubstitutor
 import org.jetbrains.plugins.scala.lang.psi.types.result._
+import org.jetbrains.plugins.scala.lang.refactoring.ScalaNamesValidator
 import org.jetbrains.plugins.scala.lang.refactoring.util.ScTypeUtil.AliasType
+import org.jetbrains.plugins.scala.lang.refactoring.util.ScalaNamesUtil
 import org.jetbrains.plugins.scala.lang.resolve.ScalaResolveResult
 import org.jetbrains.plugins.scala.lang.resolve.processor._
 import org.jetbrains.plugins.scala.lang.structureView.ScalaElementPresentation
@@ -1389,6 +1391,7 @@ object ScalaPsiUtil {
   private def contextBoundParameterName(typeParameter: ScTypeParam, bound: ScTypeElement): String = {
     val boundName = bound match {
       case ScSimpleTypeElement(Some(ref)) => ref.refName
+      case projection: ScTypeProjection   => projection.refName
       case _                              => bound.getText
     }
     val tpName = typeParameter.name
