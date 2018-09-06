@@ -5,7 +5,7 @@ import org.jetbrains.plugins.scala.base.ScalaLightCodeInsightFixtureTestAdapter
 import org.junit.experimental.categories.Category
 
 /**
-  * Created by Anton.Yalyshev on 04/12/17.
+  * Created by Anton.Yalyshev on 06/09/18.
   */
 
 @Category(Array(classOf[PerfCycleTests]))
