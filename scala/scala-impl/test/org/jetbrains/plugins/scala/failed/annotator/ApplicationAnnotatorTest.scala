@@ -47,4 +47,41 @@ class ApplicationAnnotatorTest extends ApplicationAnnotatorTestBase {
       case Nil =>
     }
   }
+
+  def testSCL13211(): Unit = {
+    assertMatches(messages(
+      """object Glitch {
+        |  object myif {
+        |    def apply(cond: Boolean)(block: => Unit): MyIf = {
+        |      new MyIf(cond)
+        |    }
+        |  }
+        |  class MyElseIfClause(val cond : Boolean, _block: => Unit){
+        |    def unary_! : MyElseIfClause = new MyElseIfClause(!cond, _block)
+        |    def block = _block
+        |  }
+        |
+        |  implicit class MyElseIfClauseBuilder(cond : Boolean){
+        |    def apply(block : => Unit) : MyElseIfClause = new MyElseIfClause(cond, block)
+        |  }
+        |
+        |  class MyIf (prevCond: Boolean) {
+        |    def myelseif (clause : MyElseIfClause) : MyIf = privMyElseIf(clause.cond)(clause.block)
+        |    private def privMyElseIf (cond : Boolean)(block: => Unit) : MyIf = {
+        |      new MyIf(prevCond || cond)
+        |    }
+        |    def myelse (block: => Unit) {
+        |      val cond = !prevCond
+        |    }
+        |  }
+        |
+        |  myif(true) {
+        |  } myelseif (!false) { //Cannot resolve symbol !
+        |  } myelse {
+        |  }
+        |}""".stripMargin
+    )) {
+      case Nil =>
+    }
+  }
 }
