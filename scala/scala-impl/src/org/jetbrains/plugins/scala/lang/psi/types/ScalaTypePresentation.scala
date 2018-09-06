@@ -227,7 +227,7 @@ trait ScalaTypePresentation extends api.TypePresentation {
       private def hasOperatorName(named: PsiNamedElement): Boolean = ScalaNamesUtil.isOperatorName(named.name)
 
       def unapply(des: ScType): Option[String] = {
-        des.extractDesignated(expandAliases = true)
+        des.extractDesignated(expandAliases = false)
           .filter(mayUseSimpleName)
           .filter(named => annotated(named) || hasOperatorName(named))
           .map(_.name)
