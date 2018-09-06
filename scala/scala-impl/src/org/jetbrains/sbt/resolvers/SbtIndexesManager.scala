@@ -23,7 +23,7 @@ import scala.collection.mutable
 class SbtIndexesManager(val project: Project) extends AbstractProjectComponent(project) {
   import SbtIndexesManager._
 
-  private val LOG = Logger.getInstance(classOf[this.type])
+  private val LOG = Logger.getInstance(classOf[SbtIndexesManager])
 
   override def projectClosed(): Unit = {
     indexes.values.foreach(_.close())
