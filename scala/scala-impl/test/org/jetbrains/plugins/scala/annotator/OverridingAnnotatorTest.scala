@@ -334,4 +334,81 @@ class OverridingAnnotatorTest extends OverridingAnnotatorTestBase {
       """.stripMargin
     assertNothing(messages(code))
   }
+
+  def testScl12401(): Unit = {
+    val code =
+      """
+        |trait Callback {
+        |  def run(): Unit
+        |}
+        |
+        |class Target {
+        |  private[this] var callback: Callback = new Callback {
+        |    override def run(): Unit = {}
+        |  }
+        |
+        |  def setCallback(x: Callback): Target = {
+        |    callback = x
+        |    this
+        |  }
+        |
+        |  def run(): Unit = callback.run()
+        |}
+        |
+        |object Pimps {
+        |
+        |  implicit class TargetPimps(t: Target) {
+        |    def setCallback(callback: => Unit): Target = t.setCallback(new Callback {
+        |      override def run(): Unit = callback
+        |    })
+        |  }
+        |
+        |}
+        |
+        |object Main {
+        |  def main(args: Array[String]): Unit = {
+        |    import Pimps._
+        |    val target = (new Target).setCallback {
+        |      println("Hello from callback!")
+        |    } // <- Here I am getting "Expression of type Unit doesn't conform to expected type Callback"
+        |    target.run()
+        |  }
+        |}
+      """.stripMargin
+    assertNothing(messages(code))
+  }
+
+  def testScl13265(): Unit = {
+    assertNothing(
+      messages(
+        """trait Foo {
+          |  type T
+          |}
+          |
+          |trait Bar {
+          |  def apply(foo: Foo)(t: foo.T): Unit
+          |}
+          |
+          |class BarImpl extends Bar {
+          |  def apply(foo: Foo)(t: foo.T): Unit = Unit
+          |}
+        """.stripMargin))
+  }
+
+  def testScl14152(): Unit = {
+    assertNothing(
+      messages(
+        """sealed trait TagExpr
+          |
+          |object TagExpr {
+          |
+          |  sealed trait Composite extends TagExpr {
+          |    def head: TagExpr
+          |    def tail: Seq[TagExpr]
+          |  }
+          |
+          |  final case class And(head: TagExpr, tail: TagExpr*) extends Composite
+          |}
+        """.stripMargin))
+  }
 }
