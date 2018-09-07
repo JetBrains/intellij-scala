@@ -14,6 +14,4 @@ class MissingParamterClass extends FailedResolveTest("missingParameter") {
   def testSCL8967(): Unit = doTest()
 
   def testSCL9719(): Unit = doTest()
-
-  def testSCL12120(): Unit = doTest()
 }
