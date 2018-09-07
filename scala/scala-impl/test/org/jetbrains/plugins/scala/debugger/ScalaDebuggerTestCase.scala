@@ -5,10 +5,6 @@ import java.io.File
 import java.util.concurrent.TimeUnit
 import java.util.concurrent.atomic.AtomicReference
 
-import scala.collection.mutable
-import scala.concurrent.duration._
-import scala.util.{Failure, Success, Try}
-
 import com.intellij.debugger.DebuggerManagerEx
 import com.intellij.debugger.engine._
 import com.intellij.debugger.engine.evaluation._
@@ -25,6 +21,7 @@ import com.intellij.execution.runners.{ExecutionEnvironmentBuilder, ProgramRunne
 import com.intellij.execution.ui.RunContentDescriptor
 import com.intellij.openapi.module.Module
 import com.intellij.openapi.util.{Key, Ref}
+import com.intellij.psi.PsiDocumentManager
 import com.intellij.psi.search.GlobalSearchScope
 import com.intellij.testFramework.{EdtTestUtil, ThreadTracker}
 import com.intellij.util.concurrency.Semaphore
@@ -35,7 +32,13 @@ import org.jetbrains.java.debugger.breakpoints.properties.JavaLineBreakpointProp
 import org.jetbrains.plugins.scala.debugger.breakpoints.ScalaLineBreakpointType
 import org.jetbrains.plugins.scala.debugger.evaluation.ScalaCodeFragmentFactory
 import org.jetbrains.plugins.scala.extensions._
+import org.jetbrains.plugins.scala.lang.psi.api.toplevel.typedef.ScTypeDefinition
+import org.jetbrains.plugins.scala.lang.psi.impl.ScalaPsiManager
 import org.junit.Assert
+
+import scala.collection.mutable
+import scala.concurrent.duration._
+import scala.util.{Failure, Success, Try}
 
 /**
  * User: Alefas
@@ -169,6 +172,30 @@ abstract class ScalaDebuggerTestCase extends ScalaDebuggerTestBase {
       }
     }
   }
+
+  protected def setupLibraryBreakpoint(classQName: String, methodName: String, relativeLineNumber: Int = 1) {
+    invokeAndWaitInTransaction(getProject) {
+      val psiClass = ScalaPsiManager.instance.getCachedClass(GlobalSearchScope.allScope(getProject), classQName)
+      val method = psiClass.map(_.getNavigationElement.asInstanceOf[ScTypeDefinition]).flatMap(_.functions.find(_.name == methodName))
+
+      Assert.assertTrue(s"Method $methodName of $classQName not found", method.isDefined)
+
+      val file = method.get.getContainingFile
+      val document = PsiDocumentManager.getInstance(getProject).getDocument(file)
+      val vFile = file.getVirtualFile
+      val methodLine = document.getLineNumber(method.get.getTextRange.getStartOffset)
+      val lineNumber = methodLine + relativeLineNumber
+      val lineText = document.getImmutableCharSequence.subSequence(document.getLineStartOffset(lineNumber), document.getLineEndOffset(lineNumber))
+
+      val xBreakpointManager = XDebuggerManager.getInstance(getProject).getBreakpointManager
+      val properties = new JavaLineBreakpointProperties
+      inWriteAction {
+        xBreakpointManager.addLineBreakpoint(scalaLineBreakpointType, vFile.getUrl, methodLine + relativeLineNumber, properties)
+//        println(s"Breakpoint set on line $lineText in $classQName")
+      }
+    }
+  }
+
 
   private def clearXBreakpoints(): Unit = {
     EdtTestUtil.runInEdtAndWait(() => {

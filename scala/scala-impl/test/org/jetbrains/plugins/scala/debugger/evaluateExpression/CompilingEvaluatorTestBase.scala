@@ -1,6 +1,6 @@
 package org.jetbrains.plugins.scala.debugger.evaluateExpression
 
-import org.jetbrains.plugins.scala.{DebuggerTests, SlowTests}
+import org.jetbrains.plugins.scala.DebuggerTests
 import org.jetbrains.plugins.scala.compiler.CompileServerLauncher
 import org.jetbrains.plugins.scala.debugger._
 import org.junit.experimental.categories.Category
@@ -159,6 +159,27 @@ abstract class CompilingEvaluatorTestBase extends ScalaDebuggerTestCase {
       waitForBreakpoint()
       evalEquals("a", "ab")
       evalEquals("b", "abab")
+    }
+  }
+
+  addFileWithBreakpoints("FromLibrary.scala",
+    s"""object FromLibrary {
+       |  def main(args: Array[String]): Unit = {
+       |    val `this` = Seq(1, 2, 3, 4, 5)
+       |    val that = Seq(6, 7, 8, 9, 10)
+       |    `this` ++ that
+       |  }
+       |}
+     """.stripMargin)
+  def testFromLibrary(): Unit = {
+    setupLibraryBreakpoint("scala.collection.TraversableLike", "++")
+    runDebugger() {
+      waitForBreakpoint()
+      evalEquals("that", "List(6, 7, 8, 9, 10)")
+      evalEquals("that.exists(_ => true)", "true")
+      evalEquals("that.exists(_ => false)", "false")
+      evalEquals("that.exists(_ => false)", "false")
+      evalEquals("None.getOrElse(1)", "1")
     }
   }
 }
