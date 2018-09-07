@@ -54,16 +54,13 @@ final class ScalaAotCompletionContributor extends ScalaCompletionContributor {
                 origin = identifier.getTextRange.getEndOffset
 
                 length = bound - origin
-              } context.setTailOffset {
-                context.getTailOffset + length
-              }
+              } context.offsetMap(InsertionContext.TAIL_OFFSET) += length
             }
 
             super.handleReplace
 
-            context.setStartOffset {
-              context.getStartOffset + itemText.indexOf(Delimiter) + Delimiter.length
-            }
+            val delta = itemText.indexOf(Delimiter) + Delimiter.length
+            context.offsetMap(CompletionInitializationContext.START_OFFSET) += delta
           }
 
           private def inReplaceMode(action: InsertionContext => Unit)

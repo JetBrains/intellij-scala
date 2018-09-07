@@ -25,10 +25,18 @@ import scala.collection.JavaConverters
 
 package object completion {
 
+  private[completion] implicit class OffsetMapExt(private val offsetMap: OffsetMap) extends AnyVal {
+    def apply(key: OffsetKey): Int = offsetMap.getOffset(key)
+
+    def update(key: OffsetKey, offset: Int): Unit = offsetMap.addOffset(key, offset)
+  }
+
   private[completion] implicit class InsertionContextExt(private val context: InsertionContext) extends AnyVal {
 
+    def offsetMap: OffsetMap = context.getOffsetMap
+
     def setStartOffset(offset: Int): Unit = {
-      context.getOffsetMap.addOffset(CompletionInitializationContext.START_OFFSET, offset)
+      offsetMap.addOffset(CompletionInitializationContext.START_OFFSET, offset)
     }
   }
 
