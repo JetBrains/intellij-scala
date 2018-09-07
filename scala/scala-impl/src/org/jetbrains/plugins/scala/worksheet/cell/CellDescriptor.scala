@@ -9,7 +9,7 @@ import org.jetbrains.plugins.scala.worksheet.settings.WorksheetExternalRunType
 /**
   * User: Dmitry.Naydanov
   */
-class CellDescriptor(startElementRef: WeakReference[PsiElement], runType: WorksheetExternalRunType, externalId: Option[String]) {
+class CellDescriptor(startElementRef: WeakReference[PsiElement], runType: WorksheetExternalRunType, val externalId: Option[String]) {
   def getElement: Option[PsiElement] = Option(startElementRef.get())
 
   def getStartOffset: Option[Int] = getElement.map(_.getTextRange.getEndOffset)
