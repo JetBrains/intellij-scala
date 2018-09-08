@@ -106,67 +106,6 @@ class ScalaSmartCompletionContributor extends ScalaCompletionContributor {
     }
   )
 
-  private def argumentsForFunction(args: ScArgumentExprList,
-                                   referenceExpression: ScReferenceExpression,
-                                   result: CompletionResultSet) {
-    val braceArgs = args.isBraceArgs
-    val expects = referenceExpression.expectedTypes()
-    for (expected <- expects) {
-      def params(tp: ScType): Seq[ScType] = tp match {
-        case FunctionType(_, params) => params
-        case _ => null
-      }
-
-      val actualParams = params(expected)
-      if (actualParams != null) {
-        val params = actualParams match {
-          case Seq(TupleType(types)) if braceArgs => types
-          case _ => actualParams
-        }
-        val presentableParams = params.map(_.removeAbstracts)
-        val anonFunRenderer = new LookupElementRenderer[LookupElement] {
-          def renderElement(element: LookupElement, presentation: LookupElementPresentation) {
-            import ScalaCompletionUtil.anonymousFunctionText
-            import ScalaPsiUtil.functionArrow
-
-            implicit val project: Project = referenceExpression.getProject
-
-            val text = anonymousFunctionText(presentableParams, braceArgs)()(project)
-            presentation match {
-              case realPresentation: RealLookupElementPresentation =>
-                if (!realPresentation.hasEnoughSpaceFor(text, false)) {
-                  var prefixIndex = presentableParams.length - 1
-                  val suffix = s", ... $functionArrow"
-                  var end = false
-                  while (prefixIndex > 0 && !end) {
-                    val prefix = anonymousFunctionText(presentableParams.slice(0, prefixIndex), braceArgs)()(project = null)
-                    if (realPresentation.hasEnoughSpaceFor(prefix + suffix, false)) {
-                      presentation.setItemText(prefix + suffix)
-                      end = true
-                    } else prefixIndex -= 1
-                  }
-                  if (!end) {
-                    presentation.setItemText(s"... $functionArrow ")
-                  }
-                } else presentation.setItemText(text)
-                presentation.setIcon(Icons.LAMBDA)
-              case _ =>
-                presentation.setItemText(text)
-            }
-          }
-        }
-        val builder = LookupElementBuilder.create("")
-          .withRenderer(anonFunRenderer)
-          .withInsertHandler(new ScalaGenerateAnonymousFunctionInsertHandler(params, braceArgs))
-        val lookupElement =
-          if (ApplicationManager.getApplication.isUnitTestMode)
-            builder.withAutoCompletionPolicy(AutoCompletionPolicy.ALWAYS_AUTOCOMPLETE)
-          else builder.withAutoCompletionPolicy(AutoCompletionPolicy.NEVER_AUTOCOMPLETE)
-        result.addElement(lookupElement)
-      }
-    }
-  }
-
   /*
     call(exprs, ref, exprs)
     if expected type is function, so we can suggest anonymous function creation
@@ -178,7 +117,7 @@ class ScalaSmartCompletionContributor extends ScalaCompletionContributor {
                          result: CompletionResultSet) {
         val element = positionFromParameters(parameters)
         extractReference[ScArgumentExprList](element).foreach { case ReferenceWithElement(referenceExpression, args) =>
-          argumentsForFunction(args, referenceExpression, result)
+          functionArguments(args, referenceExpression, result)
         }
       }
     }
@@ -197,7 +136,7 @@ class ScalaSmartCompletionContributor extends ScalaCompletionContributor {
         val referenceExpression = element.getContext.asInstanceOf[ScReferenceExpression]
         val block = referenceExpression.getContext.asInstanceOf[ScBlockExpr]
         val args = block.getContext.asInstanceOf[ScArgumentExprList]
-        argumentsForFunction(args, referenceExpression, result)
+        functionArguments(args, referenceExpression, result)
       }
     }
   )
@@ -679,6 +618,67 @@ object ScalaSmartCompletionContributor {
           }
         }
       case _ => variants.foreach(applyVariant(_, checkForSecondCompletion = true))
+    }
+  }
+
+  private def functionArguments(args: ScArgumentExprList,
+                                referenceExpression: ScReferenceExpression,
+                                result: CompletionResultSet) {
+    val braceArgs = args.isBraceArgs
+    val expects = referenceExpression.expectedTypes()
+    for (expected <- expects) {
+      def params(tp: ScType): Seq[ScType] = tp match {
+        case FunctionType(_, params) => params
+        case _ => null
+      }
+
+      val actualParams = params(expected)
+      if (actualParams != null) {
+        val params = actualParams match {
+          case Seq(TupleType(types)) if braceArgs => types
+          case _ => actualParams
+        }
+        val presentableParams = params.map(_.removeAbstracts)
+        val anonFunRenderer = new LookupElementRenderer[LookupElement] {
+          def renderElement(element: LookupElement, presentation: LookupElementPresentation) {
+            import ScalaCompletionUtil.anonymousFunctionText
+            import ScalaPsiUtil.functionArrow
+
+            implicit val project: Project = referenceExpression.getProject
+
+            val text = anonymousFunctionText(presentableParams, braceArgs)()(project)
+            presentation match {
+              case realPresentation: RealLookupElementPresentation =>
+                if (!realPresentation.hasEnoughSpaceFor(text, false)) {
+                  var prefixIndex = presentableParams.length - 1
+                  val suffix = s", ... $functionArrow"
+                  var end = false
+                  while (prefixIndex > 0 && !end) {
+                    val prefix = anonymousFunctionText(presentableParams.slice(0, prefixIndex), braceArgs)()(project = null)
+                    if (realPresentation.hasEnoughSpaceFor(prefix + suffix, false)) {
+                      presentation.setItemText(prefix + suffix)
+                      end = true
+                    } else prefixIndex -= 1
+                  }
+                  if (!end) {
+                    presentation.setItemText(s"... $functionArrow ")
+                  }
+                } else presentation.setItemText(text)
+                presentation.setIcon(Icons.LAMBDA)
+              case _ =>
+                presentation.setItemText(text)
+            }
+          }
+        }
+        val builder = LookupElementBuilder.create("")
+          .withRenderer(anonFunRenderer)
+          .withInsertHandler(new ScalaGenerateAnonymousFunctionInsertHandler(params, braceArgs))
+        val lookupElement =
+          if (ApplicationManager.getApplication.isUnitTestMode)
+            builder.withAutoCompletionPolicy(AutoCompletionPolicy.ALWAYS_AUTOCOMPLETE)
+          else builder.withAutoCompletionPolicy(AutoCompletionPolicy.NEVER_AUTOCOMPLETE)
+        result.addElement(lookupElement)
+      }
     }
   }
 }
