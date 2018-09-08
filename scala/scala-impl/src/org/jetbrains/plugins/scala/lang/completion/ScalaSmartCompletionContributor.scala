@@ -642,17 +642,17 @@ object ScalaSmartCompletionContributor {
       case Seq(TupleType(types)) if isBraceArgs => types
       case types => types
     }.map {
-      createLookupElement(_, isBraceArgs)(reference.getProject)
+      createLookupElement(_, new AnonymousFunctionTextBuilder(isBraceArgs))(reference.getProject)
     }.asJava
   }
 
   private[this] def createLookupElement(params: Seq[ScType],
-                                        isBraceArgs: Boolean)
+                                        builder: AnonymousFunctionTextBuilder)
                                        (implicit project: Project) =
     LookupElementBuilder.create("").withRenderer {
-      new AnonymousFunctionElementRenderer(params, isBraceArgs)
+      new AnonymousFunctionElementRenderer(params, builder)
     }.withInsertHandler {
-      new AnonymousFunctionInsertHandler(params, isBraceArgs)
+      new AnonymousFunctionInsertHandler(params, builder)
     }.withAutoCompletionPolicy {
       import AutoCompletionPolicy._
       if (ApplicationManager.getApplication.isUnitTestMode) ALWAYS_AUTOCOMPLETE
@@ -661,37 +661,50 @@ object ScalaSmartCompletionContributor {
 
   import ScalaPsiUtil.functionArrow
 
-  private class AnonymousFunctionElementRenderer(params: Seq[ScType], isBraceArgs: Boolean)
+  private class AnonymousFunctionElementRenderer(params: Seq[ScType],
+                                                 builder: AnonymousFunctionTextBuilder)
                                                 (implicit project: Project) extends LookupElementRenderer[LookupElement] {
 
-    private val presentableParams = params.map(_.removeAbstracts)
-    private val text = anonymousFunctionText(presentableParams, isBraceArgs)()
+    private val presentableParams = for {
+      parameterType <- params
+      simplifiedType = parameterType.removeAbstracts
+    } yield (simplifiedType, simplifiedType.presentableText)
 
     def renderElement(element: LookupElement,
-                      presentation: LookupElementPresentation): Unit = presentation match {
-      case realPresentation: RealLookupElementPresentation =>
-        if (!realPresentation.hasEnoughSpaceFor(text, false)) {
-          var prefixIndex = presentableParams.length - 1
-          val suffix = s", ... $functionArrow"
-          var end = false
-          while (prefixIndex > 0 && !end) {
-            val prefix = anonymousFunctionText(presentableParams.slice(0, prefixIndex), isBraceArgs)()(project = null)
-            if (realPresentation.hasEnoughSpaceFor(prefix + suffix, false)) {
-              presentation.setItemText(prefix + suffix)
-              end = true
-            } else prefixIndex -= 1
+                      presentation: LookupElementPresentation): Unit = {
+      val itemText = builder(presentableParams)
+      presentation match {
+        case realPresentation: RealLookupElementPresentation =>
+          object isEnoughSpaceFor {
+            def unapply(text: String): Boolean =
+              realPresentation.hasEnoughSpaceFor(text, false)
           }
-          if (!end) {
-            presentation.setItemText(s"... $functionArrow ")
-          }
-        } else presentation.setItemText(text)
 
-        presentation.setIcon(Icons.LAMBDA)
-      case _ => presentation.setItemText(text)
+          val text = itemText match {
+            case isEnoughSpaceFor() => itemText
+            case _ =>
+              @tailrec
+              def innerItemText(index: Int): String = index - 1 match {
+                case 0 => s"... $functionArrow "
+                case newIndex =>
+                  builder(presentableParams.take(newIndex), separator = ", ...") match {
+                    case string@isEnoughSpaceFor() => string
+                    case _ => innerItemText(newIndex)
+                  }
+              }
+
+              innerItemText(presentableParams.length)
+          }
+
+          presentation.setItemText(text)
+          presentation.setIcon(Icons.LAMBDA)
+        case _ => presentation.setItemText(itemText)
+      }
     }
   }
 
-  private class AnonymousFunctionInsertHandler(params: Seq[ScType], isBraceArgs: Boolean) extends InsertHandler[LookupElement] {
+  private class AnonymousFunctionInsertHandler(params: Seq[ScType],
+                                               builder: AnonymousFunctionTextBuilder) extends InsertHandler[LookupElement] {
 
     def handleInsert(context: InsertionContext, lookupElement: LookupElement): Unit = {
       val abstracts = {
@@ -708,7 +721,11 @@ object ScalaSmartCompletionContributor {
       val InsertionContextExt(editor, document, _, project) = context
       context.setAddCompletionChar(false)
 
-      val text = anonymousFunctionText(params, isBraceArgs)(_.canonicalText)(project)
+      val text = this.builder {
+        params.map { `type` =>
+          `type` -> `type`.canonicalText
+        }
+      }(project)
 
       document.insertString(editor.getCaretModel.getOffset, text)
       val documentManager = PsiDocumentManager.getInstance(project)
@@ -796,26 +813,30 @@ object ScalaSmartCompletionContributor {
     }
   }
 
-  private[this] def anonymousFunctionText(types: Seq[ScType], braceArgs: Boolean)
-                                         (typeText: ScType => String = _.presentableText)
-                                         (implicit project: Project): String = {
-    val buffer = StringBuilder.newBuilder
+  private[this] class AnonymousFunctionTextBuilder(braceArgs: Boolean) {
 
-    if (braceArgs) buffer.append(ScalaKeyword.CASE).append(" ")
+    def apply(types: Seq[(ScType, String)], separator: String = "")
+             (implicit project: Project): String =
+      createBuffer
+        .append(suggestedParameters(types))
+        .append(separator)
+        .append(" ")
+        .append(functionArrow)
+        .toString
 
-    val suggester = new NameSuggester.UniqueNameSuggester("x")
-    val names = types.map(suggester)
-
-    val parametersText = names.zip(types).map {
-      case (name, scType) => name + ": " + typeText(scType)
-    }.commaSeparated(model = if (names.size != 1 || !braceArgs) Model.Parentheses else Model.None)
-
-    buffer.append(parametersText)
-
-    if (project != null) {
-      buffer.append(" ").append(functionArrow)
+    private def createBuffer = StringBuilder.newBuilder match {
+      case buffer if braceArgs => buffer.append(ScalaKeyword.CASE).append(" ")
+      case buffer => buffer
     }
 
-    buffer.toString
+    private def suggestedParameters(types: Seq[(ScType, String)]) = {
+      import Model._
+
+      val suggester = new NameSuggester.UniqueNameSuggester("x")
+      types.map {
+        case (scType, text) => suggester(scType) + ": " + text
+      }.commaSeparated(if (types.size != 1 || !braceArgs) Parentheses else None)
+    }
   }
+
 }
