@@ -7,7 +7,7 @@ import com.intellij.codeInsight.completion.CompletionLocation
 import com.intellij.codeInsight.lookup._
 import com.intellij.openapi.application.ApplicationManager
 import com.intellij.openapi.project.Project
-import com.intellij.patterns.ElementPattern
+import com.intellij.patterns.{PlatformPatterns, PsiElementPattern}
 import com.intellij.psi._
 import com.intellij.psi.search.searches.ClassInheritorsSearch
 import com.intellij.psi.search.{GlobalSearchScope, LocalSearchScope}
@@ -17,6 +17,7 @@ import org.jetbrains.plugins.scala.extensions._
 import org.jetbrains.plugins.scala.lang.completion.handlers.ScalaConstructorInsertHandler
 import org.jetbrains.plugins.scala.lang.completion.lookups.ScalaLookupItem
 import org.jetbrains.plugins.scala.lang.formatting.settings.ScalaCodeStyleSettings
+import org.jetbrains.plugins.scala.lang.lexer.ScalaTokenTypes
 import org.jetbrains.plugins.scala.lang.psi.api.base.types.ScSimpleTypeElement
 import org.jetbrains.plugins.scala.lang.psi.api.base.{ScConstructor, ScReferenceElement, ScStableCodeReferenceElement}
 import org.jetbrains.plugins.scala.lang.psi.api.expr.ScNewTemplateDefinition
@@ -37,8 +38,14 @@ import scala.collection.{JavaConverters, mutable}
   */
 object ScalaAfterNewCompletionUtil {
 
-  lazy val afterNewPattern: ElementPattern[PsiElement] = ScalaSmartCompletionContributor.superParentsPattern(classOf[ScStableCodeReferenceElement],
-    classOf[ScSimpleTypeElement], classOf[ScConstructor], classOf[ScClassParents], classOf[ScExtendsBlock], classOf[ScNewTemplateDefinition])
+  lazy val afterNewPattern: PsiElementPattern.Capture[PsiElement] = PlatformPatterns.psiElement(ScalaTokenTypes.tIDENTIFIER).withParents(
+    classOf[ScStableCodeReferenceElement],
+    classOf[ScSimpleTypeElement],
+    classOf[ScConstructor],
+    classOf[ScClassParents],
+    classOf[ScExtendsBlock],
+    classOf[ScNewTemplateDefinition]
+  )
 
   def expectedTypeAfterNew(position: PsiElement)
                           (implicit context: ProcessingContext): Option[(PsiClass, RenamesMap) => ScalaLookupItem] =
