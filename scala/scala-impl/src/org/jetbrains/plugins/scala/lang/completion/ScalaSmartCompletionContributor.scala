@@ -32,6 +32,7 @@ import org.jetbrains.plugins.scala.lang.resolve.processor.CompletionProcessor
 import org.jetbrains.plugins.scala.lang.resolve.{ResolveUtils, ScalaResolveResult, StdKinds}
 
 import scala.annotation.tailrec
+import scala.collection.JavaConverters
 import scala.collection.mutable.ArrayBuffer
 
 /**
@@ -117,7 +118,8 @@ class ScalaSmartCompletionContributor extends ScalaCompletionContributor {
                          result: CompletionResultSet) {
         val element = positionFromParameters(parameters)
         extractReference[ScArgumentExprList](element).foreach { case ReferenceWithElement(referenceExpression, args) =>
-          functionArguments(args, referenceExpression, result)
+          val elements = functionArguments(args, referenceExpression)
+          result.addAllElements(elements)
         }
       }
     }
@@ -136,7 +138,9 @@ class ScalaSmartCompletionContributor extends ScalaCompletionContributor {
         val referenceExpression = element.getContext.asInstanceOf[ScReferenceExpression]
         val block = referenceExpression.getContext.asInstanceOf[ScBlockExpr]
         val args = block.getContext.asInstanceOf[ScArgumentExprList]
-        functionArguments(args, referenceExpression, result)
+
+        val elements = functionArguments(args, referenceExpression)
+        result.addAllElements(elements)
       }
     }
   )
@@ -622,25 +626,30 @@ object ScalaSmartCompletionContributor {
   }
 
   private def functionArguments(args: ScArgumentExprList,
-                                referenceExpression: ScReferenceExpression,
-                                result: CompletionResultSet) {
-    val braceArgs = args.isBraceArgs
+                                reference: ScReferenceExpression) = {
+    val isBraceArgs = args.isBraceArgs
 
-    referenceExpression.expectedTypes().collect {
+    import JavaConverters._
+    reference.expectedTypes().collect {
       case FunctionType(_, types) => types
     }.map {
-      case Seq(TupleType(types)) if braceArgs => types
+      case Seq(TupleType(types)) if isBraceArgs => types
       case types => types
-    }.map { params =>
+    }.map {
+      createLookupElement(_, isBraceArgs)(reference.getProject)
+    }.asJava
+  }
+
+  private[this] def createLookupElement(params: Seq[ScType],
+                                        isBraceArgs: Boolean)
+                                       (implicit project: Project) = {
       val presentableParams = params.map(_.removeAbstracts)
       val anonFunRenderer = new LookupElementRenderer[LookupElement] {
-        def renderElement(element: LookupElement, presentation: LookupElementPresentation) {
+        def renderElement(element: LookupElement, presentation: LookupElementPresentation): Unit = {
           import ScalaCompletionUtil.anonymousFunctionText
           import ScalaPsiUtil.functionArrow
 
-          implicit val project: Project = referenceExpression.getProject
-
-          val text = anonymousFunctionText(presentableParams, braceArgs)()(project)
+          val text = anonymousFunctionText(presentableParams, isBraceArgs)()(project)
           presentation match {
             case realPresentation: RealLookupElementPresentation =>
               if (!realPresentation.hasEnoughSpaceFor(text, false)) {
@@ -648,7 +657,7 @@ object ScalaSmartCompletionContributor {
                 val suffix = s", ... $functionArrow"
                 var end = false
                 while (prefixIndex > 0 && !end) {
-                  val prefix = anonymousFunctionText(presentableParams.slice(0, prefixIndex), braceArgs)()(project = null)
+                  val prefix = anonymousFunctionText(presentableParams.slice(0, prefixIndex), isBraceArgs)()(project = null)
                   if (realPresentation.hasEnoughSpaceFor(prefix + suffix, false)) {
                     presentation.setItemText(prefix + suffix)
                     end = true
@@ -671,10 +680,7 @@ object ScalaSmartCompletionContributor {
 
       LookupElementBuilder.create("")
         .withRenderer(anonFunRenderer)
-        .withInsertHandler(new ScalaGenerateAnonymousFunctionInsertHandler(params, braceArgs))
+        .withInsertHandler(new ScalaGenerateAnonymousFunctionInsertHandler(params, isBraceArgs))
         .withAutoCompletionPolicy(policy)
-    }.foreach {
-      result.addElement
     }
-  }
 }
