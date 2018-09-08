@@ -45,7 +45,7 @@ import scala.collection.{JavaConverters, mutable}
   * User: Alexander Podkhalyuzin
   * Date: 17.09.2009
   */
-class ScalaSmartCompletionContributor extends ScalaCompletionContributor {
+final class ScalaSmartCompletionContributor extends ScalaCompletionContributor {
 
   import ScalaSmartCompletionContributor._
 
@@ -279,18 +279,6 @@ class ScalaSmartCompletionContributor extends ScalaCompletionContributor {
    for default parameters
    */
   extend(classOf[ScParameter])
-
-  extend(
-    ScalaAfterNewCompletionUtil.afterNewPattern,
-    new CompletionProvider[CompletionParameters] {
-
-      def addCompletions(parameters: CompletionParameters, context: ProcessingContext, result: CompletionResultSet): Unit = {
-        val element = positionFromParameters(parameters)
-        val items = ScalaAfterNewCompletionUtil.lookupsAfterNew(element)
-        result.addAllElements(items)
-      }
-    }
-  )
 
   private def extend[T <: PsiElement](clazz: Class[T]): Unit =
     extend(clazz, new ScalaSmartCompletionProvider)

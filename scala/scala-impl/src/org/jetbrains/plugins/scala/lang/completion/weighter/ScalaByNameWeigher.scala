@@ -98,7 +98,7 @@ class ScalaByNameWeigher extends CompletionWeigher {
       }
     }
 
-    if (ScalaAfterNewCompletionUtil.isAfterNew(position, location) ||
+    if (ScalaAfterNewCompletionContributor.isAfterNew(position, location) ||
       ScalaCompletionUtil.isTypeDefiniton(position)) {
       ScalaLookupItem.original(element) match {
         case ScalaLookupItem(element@(_: ScTypeAlias |

@@ -10,7 +10,7 @@ import com.intellij.psi._
 import com.intellij.util.{Consumer, ProcessingContext}
 import org.jetbrains.plugins.scala.annotator.intention.ScalaImportTypeFix._
 import org.jetbrains.plugins.scala.extensions._
-import org.jetbrains.plugins.scala.lang.completion.ScalaAfterNewCompletionUtil._
+import org.jetbrains.plugins.scala.lang.completion.ScalaAfterNewCompletionContributor._
 import org.jetbrains.plugins.scala.lang.completion.ScalaCompletionUtil._
 import org.jetbrains.plugins.scala.lang.lexer.ScalaTokenTypes
 import org.jetbrains.plugins.scala.lang.psi.ScalaPsiUtil

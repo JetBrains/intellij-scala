@@ -75,7 +75,7 @@ package object completion {
         case defaultSorter if parameters.getCompletionType == CompletionType.SMART => defaultSorter
         case defaultSorter =>
           val position = positionFromParameters(parameters)
-          val isAfterNew = ScalaAfterNewCompletionUtil.afterNewPattern.accepts(position)
+          val isAfterNew = ScalaAfterNewCompletionContributor.isAfterNew(position)
 
           defaultSorter
             .weighBefore("liftShorter", new ScalaByTypeWeigher(position, isAfterNew))

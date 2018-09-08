@@ -1,13 +1,11 @@
 package org.jetbrains.plugins.scala.lang
 package completion
 
-import java.{util => ju}
-
-import com.intellij.codeInsight.completion.CompletionLocation
+import com.intellij.codeInsight.completion._
 import com.intellij.codeInsight.lookup._
 import com.intellij.openapi.application.ApplicationManager
 import com.intellij.openapi.project.Project
-import com.intellij.patterns.{PlatformPatterns, PsiElementPattern}
+import com.intellij.patterns.PlatformPatterns
 import com.intellij.psi._
 import com.intellij.psi.search.searches.ClassInheritorsSearch
 import com.intellij.psi.search.{GlobalSearchScope, LocalSearchScope}
@@ -32,13 +30,42 @@ import org.jetbrains.plugins.scala.project.ProjectContext
 
 import scala.collection.{JavaConverters, mutable}
 
-/**
-  * @author Alefas
-  * @since 27.03.12
-  */
-object ScalaAfterNewCompletionUtil {
+final class ScalaAfterNewCompletionContributor extends ScalaCompletionContributor {
 
-  lazy val afterNewPattern: PsiElementPattern.Capture[PsiElement] = PlatformPatterns.psiElement(ScalaTokenTypes.tIDENTIFIER).withParents(
+  import ScalaAfterNewCompletionContributor._
+
+  extend(
+    CompletionType.SMART,
+    afterNewPattern,
+    new CompletionProvider[CompletionParameters] {
+
+      def addCompletions(parameters: CompletionParameters, context: ProcessingContext, result: CompletionResultSet): Unit = {
+        val position = positionFromParameters(parameters)
+
+        findNewTemplate(position).foreach { definition =>
+          val propses = expectedTypes(definition).flatMap {
+            collectProps(_) {
+              ResolveUtils.isAccessible(_, definition, forCompletion = true)
+            }(definition.getProject)
+          }
+
+          val items = if (propses.nonEmpty) {
+            val renamesMap = createRenamesMap(position)
+            propses.map(_.createLookupElement(renamesMap))
+          } else Seq.empty
+
+          import JavaConverters._
+          result.addAllElements(items.asJava)
+        }
+      }
+    }
+  )
+
+}
+
+object ScalaAfterNewCompletionContributor {
+
+  private val afterNewPattern = PlatformPatterns.psiElement(ScalaTokenTypes.tIDENTIFIER).withParents(
     classOf[ScStableCodeReferenceElement],
     classOf[ScSimpleTypeElement],
     classOf[ScConstructor],
@@ -50,27 +77,27 @@ object ScalaAfterNewCompletionUtil {
   def expectedTypeAfterNew(position: PsiElement)
                           (implicit context: ProcessingContext): Option[(PsiClass, RenamesMap) => ScalaLookupItem] =
   // todo: probably we need to remove all abstracts here according to variance
-    if (afterNewPattern.accepts(position, context)) expectedTypes(position).collect {
-      case (_, types) =>
-        (clazz: PsiClass, map: RenamesMap) => {
-          val (actualType, hasSubstitutionProblem) = appropriateType(types, classComponents(clazz))(clazz)
-          LookupElementProps(actualType, hasSubstitutionProblem, clazz).createLookupElement(map)
-        }
+    if (afterNewPattern.accepts(position, context)) findNewTemplate(position).map { definition =>
+      (clazz: PsiClass, map: RenamesMap) => {
+        val (actualType, hasSubstitutionProblem) = appropriateType(definition, clazz)
+        LookupElementProps(actualType, hasSubstitutionProblem, clazz).createLookupElement(map)
+      }
     }
     else None
+
+  def isAfterNew(position: PsiElement): Boolean =
+    afterNewPattern.accepts(position)
 
   def isAfterNew(position: PsiElement, location: CompletionLocation): Boolean =
     afterNewPattern.accepts(position, location.getProcessingContext)
 
-  private[this] def expectedTypes(position: PsiElement): Option[(ScNewTemplateDefinition, Seq[ScType])] =
-    PsiTreeUtil.getContextOfType(position, classOf[ScNewTemplateDefinition]) match {
-      case null => None
-      case context =>
-        val types = context.expectedTypes().map {
-          case ScAbstractType(_, _, upper) => upper
-          case tp => tp
-        }
-        Some(context, types)
+  private def findNewTemplate(position: PsiElement) =
+    position.findContextOfType(classOf[ScNewTemplateDefinition])
+
+  private def expectedTypes(definition: ScNewTemplateDefinition): Seq[ScType] =
+    definition.expectedTypes().map {
+      case ScAbstractType(_, _, upper) => upper
+      case tp => tp
     }
 
   type RenamesMap = Map[String, (PsiNamedElement, String)]
@@ -91,18 +118,17 @@ object ScalaAfterNewCompletionUtil {
       element.name -> (element, name)
     }
 
-  private[this] def appropriateType(expectedTypes: Seq[ScType],
-                                    components: (ScDesignatorType, Seq[PsiTypeParameter]))
-                                   (implicit context: ProjectContext): (ScType, Boolean) = {
-    val (designatorType, parameters) = components
+  private[this] def appropriateType(definition: ScNewTemplateDefinition, clazz: PsiClass): (ScType, Boolean) = {
+    val (designatorType, parameters) = classComponents(clazz)
     val maybeParameter = parameters match {
       case Seq(head) => Some(head)
       case _ => None
     }
 
-    findAppropriateType(expectedTypes: _*)(designatorType, maybeParameter) match {
-      case Some((scType, flag)) => (scType, flag)
-      case _ => (fromParameters(designatorType, maybeParameter), parameters.nonEmpty)
+    val types = expectedTypes(definition)
+    val maybeAppropriateType = findAppropriateType(types: _*)(designatorType, maybeParameter)(clazz)
+    maybeAppropriateType.getOrElse {
+      (fromParameters(designatorType, maybeParameter), parameters.nonEmpty)
     }
   }
 
@@ -179,41 +205,17 @@ object ScalaAfterNewCompletionUtil {
     }
   }
 
-  def lookupsAfterNew(position: PsiElement): ju.List[ScalaLookupItem] = expectedTypes(position) match {
-    case Some((definition, types)) =>
-      implicit val project: Project = definition.getProject
-
-      val propses = types.toSeq.flatMap(collectProps).filter {
-        case LookupElementProps(_, _, clazz, _) => ResolveUtils.isAccessible(clazz, definition, forCompletion = true)
+  private def collectProps(`type`: ScType)
+                          (isAccessible: PsiClass => Boolean)
+                          (implicit project: Project): Seq[LookupElementProps] = {
+    val inheritors = `type`.extractClass.toSeq
+      .flatMap(findInheritors)
+      .filter { clazz =>
+        clazz.name match {
+          case null | "" => false
+          case _ => true
+        }
       }
-
-      val items = if (propses.nonEmpty) {
-        val renamesMap = createRenamesMap(position)
-        propses.map(_.createLookupElement(renamesMap))
-      } else Seq.empty
-
-      import JavaConverters._
-      items.asJava
-    case _ => ju.Collections.emptyList()
-  }
-
-  private[this] def collectProps(`type`: ScType)
-                                (implicit project: Project): Seq[LookupElementProps] = {
-    val inheritors = `type`.extractClass.toSeq.flatMap { clazz =>
-      // this change is important for Scala Worksheet/Script classes. Will not find inheritors, due to file copy.
-      val searchScope = clazz.getUseScope match {
-        case _: LocalSearchScope => GlobalSearchScope.allScope(project)
-        case useScope => useScope
-      }
-
-      import JavaConverters._
-      ClassInheritorsSearch.search(clazz, searchScope, true).asScala
-    }.filter { clazz =>
-      clazz.name match {
-        case null | "" => false
-        case _ => true
-      }
-    }
 
     val substitutedInheritors = for {
       clazz <- inheritors
@@ -225,8 +227,20 @@ object ScalaAfterNewCompletionUtil {
     for {
       (actualType, hasSubstitutionProblem) <- (`type`, false) +: substitutedInheritors
       (extractedClass, extractedSubstitutor) <- extractValidClass(actualType)
-      if addedClasses.add(extractedClass.qualifiedName)
+      if addedClasses.add(extractedClass.qualifiedName) && isAccessible(extractedClass)
     } yield LookupElementProps(actualType, hasSubstitutionProblem, extractedClass, extractedSubstitutor)
+  }
+
+  private[this] def findInheritors(clazz: PsiClass)
+                                  (implicit project: Project) = {
+    // this change is important for Scala Worksheet/Script classes. Will not find inheritors, due to file copy.
+    val searchScope = clazz.getUseScope match {
+      case _: LocalSearchScope => GlobalSearchScope.allScope(project)
+      case useScope => useScope
+    }
+
+    import JavaConverters._
+    ClassInheritorsSearch.search(clazz, searchScope, true).asScala
   }
 
   private[this] def extractValidClass(`type`: ScType): Option[(PsiClass, ScSubstitutor)] = {
@@ -237,16 +251,15 @@ object ScalaAfterNewCompletionUtil {
 
     // filter base types (it's important for scala 2.9)
     // todo: filter inner classes smarter (how? don't forget deep inner classes)
-    def isValid(clazz: PsiClass) = !names.contains(clazz.qualifiedName) && (clazz.containingClass match {
-      case null => true
-      case _: ScObject => !clazz.hasModifierPropertyScala("static")
-      case _ => false
-    })
+    def isInvalid(clazz: PsiClass) =
+      clazz.isInstanceOf[ScObject] || names.contains(clazz.qualifiedName) || (clazz.containingClass match {
+        case null => false
+        case _: ScObject => clazz.hasModifierPropertyScala("static")
+        case _ => true
+      })
 
-    `type`.extractClassType.flatMap {
-      case (_: ScObject, _) => None
-      case (clazz: PsiClass, substitutor: ScSubstitutor) if isValid(clazz) => Some((clazz, substitutor))
-      case _ => None
+    `type`.extractClassType.filterNot {
+      case (clazz, _) => isInvalid(clazz)
     }
   }
 
@@ -267,11 +280,8 @@ object ScalaAfterNewCompletionUtil {
         case (true, undefinedSubstitutor) =>
           undefinedSubstitutor.getSubstitutor match {
             case Some(substitutor) =>
-              def hasSubstitutionProblem: UndefinedType => Boolean =
-                substitutor.subst(_).isInstanceOf[UndefinedType]
-
               val valueType = fromParameters(designatorType, parameters)
-              return Some(substitutor.subst(valueType), undefinedTypes.exists(hasSubstitutionProblem))
+              return Some(substitutor.subst(valueType), undefinedTypes.map(substitutor.subst).exists(_.isInstanceOf[UndefinedType]))
             case _ =>
           }
         case _ =>
