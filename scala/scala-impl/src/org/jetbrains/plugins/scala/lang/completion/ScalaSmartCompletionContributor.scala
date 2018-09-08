@@ -2,8 +2,11 @@ package org.jetbrains.plugins.scala
 package lang
 package completion
 
+import com.intellij.codeInsight.CodeInsightUtilCore
 import com.intellij.codeInsight.completion._
-import com.intellij.codeInsight.lookup._
+import com.intellij.codeInsight.lookup.{LookupElementRenderer, _}
+import com.intellij.codeInsight.template._
+import com.intellij.codeInsight.template.impl.ConstantNode
 import com.intellij.openapi.application.ApplicationManager
 import com.intellij.openapi.project.Project
 import com.intellij.patterns.{ElementPattern, PlatformPatterns, StandardPatterns}
@@ -13,10 +16,12 @@ import com.intellij.psi.util.PsiTreeUtil
 import com.intellij.util.ProcessingContext
 import org.jetbrains.plugins.scala.extensions._
 import org.jetbrains.plugins.scala.icons.Icons
-import org.jetbrains.plugins.scala.lang.completion.handlers.ScalaGenerateAnonymousFunctionInsertHandler
 import org.jetbrains.plugins.scala.lang.completion.lookups.{ScalaChainLookupElement, ScalaKeywordLookupItem, ScalaLookupItem}
 import org.jetbrains.plugins.scala.lang.lexer.ScalaTokenTypes
 import org.jetbrains.plugins.scala.lang.psi._
+import org.jetbrains.plugins.scala.lang.psi.api.ScalaRecursiveElementVisitor
+import org.jetbrains.plugins.scala.lang.psi.api.base.patterns.{ScCaseClause, ScTypedPattern}
+import org.jetbrains.plugins.scala.lang.psi.api.base.types.{ScSimpleTypeElement, ScTypeElement}
 import org.jetbrains.plugins.scala.lang.psi.api.expr._
 import org.jetbrains.plugins.scala.lang.psi.api.statements._
 import org.jetbrains.plugins.scala.lang.psi.api.statements.params.ScParameter
@@ -28,12 +33,13 @@ import org.jetbrains.plugins.scala.lang.psi.types.api._
 import org.jetbrains.plugins.scala.lang.psi.types.api.designator.ScProjectionType
 import org.jetbrains.plugins.scala.lang.psi.types.recursiveUpdate.ScSubstitutor
 import org.jetbrains.plugins.scala.lang.psi.types.result._
+import org.jetbrains.plugins.scala.lang.refactoring.namesSuggester.NameSuggester
 import org.jetbrains.plugins.scala.lang.resolve.processor.CompletionProcessor
 import org.jetbrains.plugins.scala.lang.resolve.{ResolveUtils, ScalaResolveResult, StdKinds}
 
 import scala.annotation.tailrec
-import scala.collection.JavaConverters
 import scala.collection.mutable.ArrayBuffer
+import scala.collection.{JavaConverters, mutable}
 
 /**
   * User: Alexander Podkhalyuzin
@@ -642,45 +648,174 @@ object ScalaSmartCompletionContributor {
 
   private[this] def createLookupElement(params: Seq[ScType],
                                         isBraceArgs: Boolean)
-                                       (implicit project: Project) = {
-      val presentableParams = params.map(_.removeAbstracts)
-      val anonFunRenderer = new LookupElementRenderer[LookupElement] {
-        def renderElement(element: LookupElement, presentation: LookupElementPresentation): Unit = {
-          import ScalaCompletionUtil.anonymousFunctionText
-          import ScalaPsiUtil.functionArrow
+                                       (implicit project: Project) =
+    LookupElementBuilder.create("").withRenderer {
+      new AnonymousFunctionElementRenderer(params, isBraceArgs)
+    }.withInsertHandler {
+      new AnonymousFunctionInsertHandler(params, isBraceArgs)
+    }.withAutoCompletionPolicy {
+      import AutoCompletionPolicy._
+      if (ApplicationManager.getApplication.isUnitTestMode) ALWAYS_AUTOCOMPLETE
+      else NEVER_AUTOCOMPLETE
+    }
 
-          val text = anonymousFunctionText(presentableParams, isBraceArgs)()(project)
-          presentation match {
-            case realPresentation: RealLookupElementPresentation =>
-              if (!realPresentation.hasEnoughSpaceFor(text, false)) {
-                var prefixIndex = presentableParams.length - 1
-                val suffix = s", ... $functionArrow"
-                var end = false
-                while (prefixIndex > 0 && !end) {
-                  val prefix = anonymousFunctionText(presentableParams.slice(0, prefixIndex), isBraceArgs)()(project = null)
-                  if (realPresentation.hasEnoughSpaceFor(prefix + suffix, false)) {
-                    presentation.setItemText(prefix + suffix)
-                    end = true
-                  } else prefixIndex -= 1
-                }
-                if (!end) {
-                  presentation.setItemText(s"... $functionArrow ")
-                }
-              } else presentation.setItemText(text)
-              presentation.setIcon(Icons.LAMBDA)
-            case _ =>
-              presentation.setItemText(text)
+  import ScalaPsiUtil.functionArrow
+
+  private class AnonymousFunctionElementRenderer(params: Seq[ScType], isBraceArgs: Boolean)
+                                                (implicit project: Project) extends LookupElementRenderer[LookupElement] {
+
+    private val presentableParams = params.map(_.removeAbstracts)
+    private val text = anonymousFunctionText(presentableParams, isBraceArgs)()
+
+    def renderElement(element: LookupElement,
+                      presentation: LookupElementPresentation): Unit = presentation match {
+      case realPresentation: RealLookupElementPresentation =>
+        if (!realPresentation.hasEnoughSpaceFor(text, false)) {
+          var prefixIndex = presentableParams.length - 1
+          val suffix = s", ... $functionArrow"
+          var end = false
+          while (prefixIndex > 0 && !end) {
+            val prefix = anonymousFunctionText(presentableParams.slice(0, prefixIndex), isBraceArgs)()(project = null)
+            if (realPresentation.hasEnoughSpaceFor(prefix + suffix, false)) {
+              presentation.setItemText(prefix + suffix)
+              end = true
+            } else prefixIndex -= 1
           }
+          if (!end) {
+            presentation.setItemText(s"... $functionArrow ")
+          }
+        } else presentation.setItemText(text)
+
+        presentation.setIcon(Icons.LAMBDA)
+      case _ => presentation.setItemText(text)
+    }
+  }
+
+  private class AnonymousFunctionInsertHandler(params: Seq[ScType], isBraceArgs: Boolean) extends InsertHandler[LookupElement] {
+
+    def handleInsert(context: InsertionContext, lookupElement: LookupElement): Unit = {
+      val abstracts = {
+        val result = mutable.HashSet.empty[ScAbstractType]
+        params.foreach {
+          _.visitRecursively {
+            case abstractType: ScAbstractType => result += abstractType
+            case _ =>
+          }
+        }
+        result.toSet
+      }
+
+      val InsertionContextExt(editor, document, _, project) = context
+      context.setAddCompletionChar(false)
+
+      val text = anonymousFunctionText(params, isBraceArgs)(_.canonicalText)(project)
+
+      document.insertString(editor.getCaretModel.getOffset, text)
+      val documentManager = PsiDocumentManager.getInstance(project)
+      documentManager.commitDocument(document)
+      val file = documentManager.getPsiFile(document)
+      val startOffset = context.getStartOffset
+      val endOffset = startOffset + text.length()
+      val commonParent = PsiTreeUtil.findCommonParent(file.findElementAt(startOffset),
+        file.findElementAt(endOffset - 1))
+      if (commonParent.getTextRange.getStartOffset != startOffset ||
+        commonParent.getTextRange.getEndOffset != endOffset) {
+        document.insertString(endOffset, " ")
+        editor.getCaretModel.moveToOffset(endOffset + 1)
+        return
+      }
+
+      ScalaPsiUtil.adjustTypes(commonParent)
+
+      val builder = TemplateBuilderFactory.getInstance()
+        .createTemplateBuilder(commonParent)
+        .asInstanceOf[TemplateBuilderImpl]
+
+      val abstractNames = abstracts.map { `type` =>
+        val name = `type`.typeParameter.name
+        name + ScTypePresentation.ABSTRACT_TYPE_POSTFIX -> (`type`, name)
+      }.toMap
+
+      def seekAbstracts(te: ScTypeElement) {
+        val visitor = new ScalaRecursiveElementVisitor {
+
+          override def visitSimpleTypeElement(simple: ScSimpleTypeElement): Unit = for {
+            reference <- simple.reference
+            refName = reference.refName
+
+            (abstractType, name) <- abstractNames.get(refName)
+            value = abstractType.simplifyType match {
+              case simplifiedType if simplifiedType.isAny || simplifiedType.isNothing => name
+              case simplifiedType => simplifiedType.presentableText
+            }
+          } builder.replaceElement(simple, refName, new ConstantNode(value), false)
+        }
+
+        te.accept(visitor)
+      }
+
+      commonParent match {
+        case f: ScFunctionExpr =>
+          for (parameter <- f.parameters) {
+            parameter.typeElement.foreach(seekAbstracts)
+            builder.replaceElement(parameter.nameId, parameter.name)
+          }
+        case c: ScCaseClause => c.pattern match {
+          case Some(pattern) =>
+            for (binding <- pattern.bindings) {
+              binding match {
+                case ScTypedPattern(typeElement) => seekAbstracts(typeElement)
+                case _ =>
+              }
+
+              builder.replaceElement(binding.nameId, binding.name)
+            }
+          case _ =>
         }
       }
 
-      import AutoCompletionPolicy._
-      val policy = if (ApplicationManager.getApplication.isUnitTestMode) ALWAYS_AUTOCOMPLETE
-      else NEVER_AUTOCOMPLETE
+      CodeInsightUtilCore.forcePsiPostprocessAndRestoreElement(commonParent)
 
-      LookupElementBuilder.create("")
-        .withRenderer(anonFunRenderer)
-        .withInsertHandler(new ScalaGenerateAnonymousFunctionInsertHandler(params, isBraceArgs))
-        .withAutoCompletionPolicy(policy)
+      val template = builder.buildTemplate()
+      for {
+        (name, (_, actualName)) <- abstractNames
+      } template.addVariable(name, actualName, actualName, false)
+
+      document.deleteString(commonParent.getTextRange.getStartOffset, commonParent.getTextRange.getEndOffset)
+      TemplateManager.getInstance(project).startTemplate(editor, template, new TemplateEditingAdapter {
+        override def templateFinished(template: Template, brokenOff: Boolean) {
+          if (!brokenOff) {
+            val offset = editor.getCaretModel.getOffset
+            inWriteAction {
+              document.insertString(offset, " ")
+            }
+            editor.getCaretModel.moveToOffset(offset + 1)
+          }
+        }
+      })
     }
+  }
+
+  private[this] def anonymousFunctionText(types: Seq[ScType], braceArgs: Boolean)
+                                         (typeText: ScType => String = _.presentableText)
+                                         (implicit project: Project): String = {
+    val buffer = StringBuilder.newBuilder
+
+    if (braceArgs) buffer.append(ScalaKeyword.CASE).append(" ")
+
+    val suggester = new NameSuggester.UniqueNameSuggester("x")
+    val names = types.map(suggester)
+
+    val parametersText = names.zip(types).map {
+      case (name, scType) => name + ": " + typeText(scType)
+    }.commaSeparated(model = if (names.size != 1 || !braceArgs) Model.Parentheses else Model.None)
+
+    buffer.append(parametersText)
+
+    if (project != null) {
+      buffer.append(" ").append(functionArrow)
+    }
+
+    buffer.toString
+  }
 }
