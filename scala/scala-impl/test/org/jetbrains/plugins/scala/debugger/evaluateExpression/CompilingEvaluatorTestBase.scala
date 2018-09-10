@@ -182,4 +182,29 @@ abstract class CompilingEvaluatorTestBase extends ScalaDebuggerTestCase {
       evalEquals("None.getOrElse(1)", "1")
     }
   }
+
+  addSourceFile("InLambda.scala",
+    s"""object InLambda {
+       |  def main(args: Array[String]): Unit = {
+       |    val list: List[Int] = List(1, 2, 3)
+       |    list.map {x => println(x)}.toList
+       |    System.out.println()
+       |  }
+       |}
+      """.stripMargin.trim()
+  )
+  addBreakpoint(line = 3, "InLambda.scala", lambdaOrdinal = 0)
+  def testInLambda(): Unit = {
+    runDebugger() {
+      waitForBreakpoint()
+      evalEquals("x", "1")
+      evalEquals("None.getOrElse(x)", "1")
+
+      resume()
+      waitForBreakpoint()
+
+      evalEquals("x", "2")
+      evalEquals("None.getOrElse(x)", "2")
+    }
+  }
 }
