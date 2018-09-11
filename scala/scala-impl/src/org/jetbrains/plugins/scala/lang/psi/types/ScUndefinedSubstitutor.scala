@@ -5,7 +5,6 @@ package types
 
 import com.intellij.openapi.util.Ref
 import org.jetbrains.plugins.scala.lang.psi.api.statements.params.TypeParamIdOwner
-import org.jetbrains.plugins.scala.lang.psi.types.ScUndefinedSubstitutor._
 import org.jetbrains.plugins.scala.lang.psi.types.api._
 import org.jetbrains.plugins.scala.lang.psi.types.recursiveUpdate.AfterUpdate.{ProcessSubtypes, ReplaceWith, Stop}
 import org.jetbrains.plugins.scala.lang.psi.types.recursiveUpdate.ScSubstitutor
@@ -29,7 +28,7 @@ sealed trait ScUndefinedSubstitutor {
 
   def removeTypeParamIds(ids: Set[Long]): ScUndefinedSubstitutor
 
-  def substitutionBounds(nonable: Boolean): Option[SubstitutionBounds]
+  def substitutionBounds(nonable: Boolean): Option[ScUndefinedSubstitutor.SubstitutionBounds]
 
   final def getSubstitutor: Option[ScSubstitutor] = substitutionBounds(nonable = true).map {
     _.substitutor
@@ -77,54 +76,38 @@ private final case class ScUndefinedSubstitutorImpl(upperMap: LongMap[Set[ScType
                                                    (implicit context: ProjectContext)
   extends ScUndefinedSubstitutor {
 
+  import ScUndefinedSubstitutor._
   import ScUndefinedSubstitutorImpl._
 
   lazy val typeParamIds: Set[Long] = upperMap.keySet ++ lowerMap.keySet
 
   override def isEmpty: Boolean = upperMap.isEmpty && lowerMap.isEmpty
 
-  private def equivNothing(tp: ScType) = tp.equiv(Nothing(tp.projectContext))
-
-  private def equivAny(tp: ScType) = tp.equiv(Any(tp.projectContext))
-
-  private def merge(map1: LongMap[Set[ScType]], map2: LongMap[Set[ScType]], forUpper: Boolean): LongMap[Set[ScType]] = {
-    def removeTrivialBounds(set: Set[ScType]): Option[Set[ScType]] = {
-      val filtered =
-        if (forUpper) set.filterNot(equivAny)
-        else set.filterNot(equivNothing)
-
-      if (filtered.isEmpty) None
-      else Some(filtered)
-    }
-
-    map1.unionWith(map2, (id, set1, set2) =>
-      set1 ++ set2
-    ).modifyOrRemove { (id, set) =>
-      removeTrivialBounds(set)
-    }
-  }
-
   override def +(substitutor: ScUndefinedSubstitutor): ScUndefinedSubstitutor = substitutor match {
     case ScUndefinedSubstitutorImpl(otherUpperMap, otherLowerMap, otherAdditionalIds) => ScUndefinedSubstitutorImpl(
-      merge(upperMap, otherUpperMap, forUpper = true),
-      merge(lowerMap, otherLowerMap, forUpper = false),
-      this.additionalIds ++ otherAdditionalIds
+      upperMap.merge(otherUpperMap)(_.equiv(Any)),
+      lowerMap.merge(otherLowerMap)(_.equiv(Nothing)),
+      additionalIds ++ otherAdditionalIds
     )
     case multi: ScMultiUndefinedSubstitutor => multi + this
   }
 
   override def addLower(id: Long, rawLower: ScType,
                         additional: Boolean, variance: Variance): ScUndefinedSubstitutor =
-    computeLower(rawLower, variance) match {
-      case nothing if nothing.isNothing => this
-      case lower => addToMap(id, lower, toUpper = false, additional)
+    computeLower(rawLower, variance).fold(this: ScUndefinedSubstitutor) { lower =>
+      copy(
+        lowerMap = lowerMap.update(id, lower),
+        additionalIds = additionalIds ++ id.toIterable(additional)
+      )
     }
 
   override def addUpper(id: Long, rawUpper: ScType,
                         additional: Boolean, variance: Variance): ScUndefinedSubstitutor =
-    computeUpper(rawUpper, variance) match {
-      case any if any.isAny => this
-      case upper => addToMap(id, upper, toUpper = true, additional)
+    computeUpper(rawUpper, variance).fold(this: ScUndefinedSubstitutor) { upper =>
+      copy(
+        upperMap = upperMap.update(id, upper),
+        additionalIds = additionalIds ++ id.toIterable(additional)
+      )
     }
 
   private lazy val substWithBounds = substitutionBoundsImpl(nonable = true)
@@ -134,18 +117,6 @@ private final case class ScUndefinedSubstitutorImpl(upperMap: LongMap[Set[ScType
   override def substitutionBounds(nonable: Boolean): Option[SubstitutionBounds] =
     if (nonable) substWithBounds
     else substWithBoundsNotNonable
-
-  private def addToMap(id: Long, scType: ScType, toUpper: Boolean, toAdditional: Boolean): ScUndefinedSubstitutor = {
-    val map = if (toUpper) upperMap else lowerMap
-
-    val forId = map.getOrElse(id, Set.empty)
-    val updated = map.updated(id, forId + scType)
-
-    val additional = if (toAdditional) additionalIds + id else additionalIds
-
-    if (toUpper) copy(upperMap = updated, additionalIds = additional)
-    else copy(lowerMap = updated, additionalIds = additional)
-  }
 
   private def substitutionBoundsImpl(nonable: Boolean): Option[SubstitutionBounds] = {
     var tvMap = LongMap.empty[ScType]
@@ -255,19 +226,43 @@ private final case class ScUndefinedSubstitutorImpl(upperMap: LongMap[Set[ScType
   }
 
   override def removeTypeParamIds(ids: Set[Long]): ScUndefinedSubstitutor = copy(
-    upperMap = removeIds(upperMap, ids),
-    lowerMap = removeIds(lowerMap, ids)
+    upperMap = upperMap.removeIds(ids),
+    lowerMap = lowerMap.removeIds(ids)
   )
 }
 
 private object ScUndefinedSubstitutorImpl {
 
-  private def removeIds(map: LongMap[Set[ScType]], set: Set[Long]) = map.filterNot {
-    case (long, _) => set(long)
+  private implicit class LongMapExt(val map: LongMap[Set[ScType]]) extends AnyVal {
+
+    def getOrDefault(id: Long): Set[ScType] = map.getOrElse(id, Set.empty)
+
+    def removeIds(set: Set[Long]): LongMap[Set[ScType]] = map.filterNot {
+      case (long, _) => set(long)
+    }
+
+    def update(id: Long, scType: ScType): LongMap[Set[ScType]] =
+      map.updated(id, getOrDefault(id) + scType)
+
+    def merge(map: LongMap[Set[ScType]])
+             (predicate: ScType => Boolean): LongMap[Set[ScType]] = {
+      this.map.unionWith(map, (_, left, right) => left ++ right).modifyOrRemove { (_, set) =>
+        set.filterNot(predicate) match {
+          case filtered if filtered.nonEmpty => Some(filtered)
+          case _ => None
+        }
+      }
+    }
+  }
+
+  private implicit class LongExt(val id: Long) extends AnyVal {
+
+    def toIterable(flag: Boolean): Option[Long] =
+      if (flag) Some(id) else None
   }
 
   private def computeUpper(rawUpper: ScType, v: Variance)
-                          (implicit context: ProjectContext): ScType = {
+                          (implicit context: ProjectContext) = {
     var index = 0
     val updated = rawUpper match {
       case ScAbstractType(_, _, absUpper) if v == Invariant =>
@@ -295,10 +290,12 @@ private object ScUndefinedSubstitutorImpl {
           case _ => ProcessSubtypes
         }, v)
     }
-    updated.unpackedType
+
+    unpackedType(updated)(_.equiv(Any))
   }
 
-  private def computeLower(rawLower: ScType, v: Variance): ScType = {
+  private def computeLower(rawLower: ScType, v: Variance)
+                          (implicit context: ProjectContext) = {
     var index = 0
     val updated = rawLower match {
       case ScAbstractType(_, absLower, _) =>
@@ -323,8 +320,13 @@ private object ScUndefinedSubstitutorImpl {
           case _ => ProcessSubtypes
         }, v, revertVariances = true)
     }
-    updated.unpackedType
+
+    unpackedType(updated)(_.equiv(Nothing))
   }
+
+  private[this] def unpackedType(`type`: ScType)
+                                (predicate: ScType => Boolean) =
+    Some(`type`.unpackedType).filterNot(predicate)
 }
 
 private final case class ScMultiUndefinedSubstitutor(impls: Set[ScUndefinedSubstitutorImpl])
@@ -345,7 +347,7 @@ private final case class ScMultiUndefinedSubstitutor(impls: Set[ScUndefinedSubst
     _.addUpper(id, upper, additional, variance)
   }
 
-  override def substitutionBounds(nonable: Boolean): Option[SubstitutionBounds] =
+  override def substitutionBounds(nonable: Boolean): Option[ScUndefinedSubstitutor.SubstitutionBounds] =
     impls.iterator.map {
       _.substitutionBounds(nonable)
     }.collectFirst {
