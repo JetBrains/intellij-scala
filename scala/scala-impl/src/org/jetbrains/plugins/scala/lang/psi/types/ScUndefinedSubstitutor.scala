@@ -15,19 +15,19 @@ import scala.collection.immutable.LongMap
 
 sealed trait ScUndefinedSubstitutor {
 
+  def isEmpty: Boolean
+
   def addLower(id: Long, lower: ScType,
                additional: Boolean = false, variance: Variance = Contravariant): ScUndefinedSubstitutor
 
   def addUpper(id: Long, upper: ScType,
                additional: Boolean = false, variance: Variance = Covariant): ScUndefinedSubstitutor
 
-  def filterTypeParamIds(fun: Long => Boolean): ScUndefinedSubstitutor
-
   def +(substitutor: ScUndefinedSubstitutor): ScUndefinedSubstitutor
 
-  def isEmpty: Boolean
-
   def typeParamIds: Set[Long]
+
+  def removeTypeParamIds(ids: Set[Long]): ScUndefinedSubstitutor
 
   def substitutionBounds(nonable: Boolean): Option[SubstitutionBounds]
 
@@ -69,67 +69,6 @@ object ScUndefinedSubstitutor {
 
   def unapply(substitutor: ScUndefinedSubstitutor): Option[ScSubstitutor] =
     substitutor.getSubstitutor
-
-  private[types] def computeLower(rawLower: ScType, v: Variance): ScType = {
-    var index = 0
-    val updated = rawLower match {
-      case ScAbstractType(_, absLower, _) =>
-        absLower //upper will be added separately
-      case _ =>
-        rawLower.recursiveVarianceUpdate({
-          case (ScAbstractType(_, absLower, upper), variance) =>
-            variance match {
-              case Contravariant => ReplaceWith(absLower)
-              case Covariant => ReplaceWith(upper)
-              case Invariant => ReplaceWith(absLower /*ScExistentialArgument(s"_$$${index += 1; index}", Nil, absLower, upper)*/) //todo: why this is right?
-            }
-          case (ScExistentialArgument(_, _, skoLower, upper), variance) =>
-            variance match {
-              case Contravariant => ReplaceWith(skoLower)
-              case Covariant => ReplaceWith(upper)
-              case Invariant =>
-                index += 1
-                ReplaceWith(ScExistentialArgument(s"_$$$index", Nil, skoLower, upper))
-            }
-          case (_: ScExistentialType, _) => Stop
-          case _ => ProcessSubtypes
-        }, v, revertVariances = true)
-    }
-    updated.unpackedType
-  }
-
-  private[types] def computeUpper(rawUpper: ScType, v: Variance): ScType = {
-    import rawUpper.projectContext
-
-    var index = 0
-    val updated = rawUpper match {
-      case ScAbstractType(_, _, absUpper) if v == Invariant =>
-        absUpper // lower will be added separately
-      case ScAbstractType(_, _, absUpper) if v == Covariant && absUpper.equiv(Any) => Any
-      case _ =>
-        rawUpper.recursiveVarianceUpdate({
-          case (ScAbstractType(_, lower, absUpper), variance) =>
-            variance match {
-              case Contravariant => ReplaceWith(lower)
-              case Covariant => ReplaceWith(absUpper)
-              case Invariant =>
-                index += 1
-                ReplaceWith(ScExistentialArgument(s"_$$$index", Nil, lower, absUpper)) //todo: why this is right?
-            }
-          case (ScExistentialArgument(nm, _, lower, skoUpper), variance) =>
-            variance match {
-              case Contravariant => ReplaceWith(lower)
-              case Covariant => ReplaceWith(skoUpper)
-              case Invariant =>
-                index += 1
-                ReplaceWith(ScExistentialArgument(s"_$$$index", Nil, lower, skoUpper))
-            }
-          case (ex: ScExistentialType, _) => Stop
-          case _ => ProcessSubtypes
-        }, v)
-    }
-    updated.unpackedType
-  }
 }
 
 private final case class ScUndefinedSubstitutorImpl(upperMap: LongMap[Set[ScType]],
@@ -138,7 +77,11 @@ private final case class ScUndefinedSubstitutorImpl(upperMap: LongMap[Set[ScType
                                                    (implicit context: ProjectContext)
   extends ScUndefinedSubstitutor {
 
-  def isEmpty: Boolean = upperMap.isEmpty && lowerMap.isEmpty
+  import ScUndefinedSubstitutorImpl._
+
+  lazy val typeParamIds: Set[Long] = upperMap.keySet ++ lowerMap.keySet
+
+  override def isEmpty: Boolean = upperMap.isEmpty && lowerMap.isEmpty
 
   private def equivNothing(tp: ScType) = tp.equiv(Nothing(tp.projectContext))
 
@@ -183,8 +126,6 @@ private final case class ScUndefinedSubstitutorImpl(upperMap: LongMap[Set[ScType
       case any if any.isAny => this
       case upper => addToMap(id, upper, toUpper = true, additional)
     }
-
-  lazy val typeParamIds: Set[Long] = upperMap.keySet ++ lowerMap.keySet
 
   private lazy val substWithBounds = substitutionBoundsImpl(nonable = true)
 
@@ -313,14 +254,86 @@ private final case class ScUndefinedSubstitutorImpl(upperMap: LongMap[Set[ScType
     Some(SubstitutionBounds(tvMap, lMap, uMap))
   }
 
-  override def filterTypeParamIds(fun: Long => Boolean): ScUndefinedSubstitutor = {
-    copy(upperMap = upperMap.filter(entry => fun(entry._1)), lowerMap = lowerMap.filter(entry => fun(entry._1)))
+  override def removeTypeParamIds(ids: Set[Long]): ScUndefinedSubstitutor = copy(
+    upperMap = removeIds(upperMap, ids),
+    lowerMap = removeIds(lowerMap, ids)
+  )
+}
+
+private object ScUndefinedSubstitutorImpl {
+
+  private def removeIds(map: LongMap[Set[ScType]], set: Set[Long]) = map.filterNot {
+    case (long, _) => set(long)
+  }
+
+  private def computeUpper(rawUpper: ScType, v: Variance)
+                          (implicit context: ProjectContext): ScType = {
+    var index = 0
+    val updated = rawUpper match {
+      case ScAbstractType(_, _, absUpper) if v == Invariant =>
+        absUpper // lower will be added separately
+      case ScAbstractType(_, _, absUpper) if v == Covariant && absUpper.equiv(Any) => Any
+      case _ =>
+        rawUpper.recursiveVarianceUpdate({
+          case (ScAbstractType(_, lower, absUpper), variance) =>
+            variance match {
+              case Contravariant => ReplaceWith(lower)
+              case Covariant => ReplaceWith(absUpper)
+              case Invariant =>
+                index += 1
+                ReplaceWith(ScExistentialArgument(s"_$$$index", Nil, lower, absUpper)) //todo: why this is right?
+            }
+          case (ScExistentialArgument(_, _, lower, skoUpper), variance) =>
+            variance match {
+              case Contravariant => ReplaceWith(lower)
+              case Covariant => ReplaceWith(skoUpper)
+              case Invariant =>
+                index += 1
+                ReplaceWith(ScExistentialArgument(s"_$$$index", Nil, lower, skoUpper))
+            }
+          case (_: ScExistentialType, _) => Stop
+          case _ => ProcessSubtypes
+        }, v)
+    }
+    updated.unpackedType
+  }
+
+  private def computeLower(rawLower: ScType, v: Variance): ScType = {
+    var index = 0
+    val updated = rawLower match {
+      case ScAbstractType(_, absLower, _) =>
+        absLower //upper will be added separately
+      case _ =>
+        rawLower.recursiveVarianceUpdate({
+          case (ScAbstractType(_, absLower, upper), variance) =>
+            variance match {
+              case Contravariant => ReplaceWith(absLower)
+              case Covariant => ReplaceWith(upper)
+              case Invariant => ReplaceWith(absLower /*ScExistentialArgument(s"_$$${index += 1; index}", Nil, absLower, upper)*/) //todo: why this is right?
+            }
+          case (ScExistentialArgument(_, _, skoLower, upper), variance) =>
+            variance match {
+              case Contravariant => ReplaceWith(skoLower)
+              case Covariant => ReplaceWith(upper)
+              case Invariant =>
+                index += 1
+                ReplaceWith(ScExistentialArgument(s"_$$$index", Nil, skoLower, upper))
+            }
+          case (_: ScExistentialType, _) => Stop
+          case _ => ProcessSubtypes
+        }, v, revertVariances = true)
+    }
+    updated.unpackedType
   }
 }
 
 private final case class ScMultiUndefinedSubstitutor(impls: Set[ScUndefinedSubstitutorImpl])
                                                     (implicit project: ProjectContext)
   extends ScUndefinedSubstitutor {
+
+  override val typeParamIds: Set[Long] = impls.flatMap(_.typeParamIds)
+
+  override def isEmpty: Boolean = typeParamIds.isEmpty
 
   override def addLower(id: Long, lower: ScType,
                         additional: Boolean, variance: Variance): ScUndefinedSubstitutor = this {
@@ -339,8 +352,8 @@ private final case class ScMultiUndefinedSubstitutor(impls: Set[ScUndefinedSubst
       case Some(bounds) => bounds
     }
 
-  override def filterTypeParamIds(fun: Long => Boolean): ScUndefinedSubstitutor = this {
-    _.filterTypeParamIds(fun)
+  override def removeTypeParamIds(ids: Set[Long]): ScUndefinedSubstitutor = this {
+    _.removeTypeParamIds(ids)
   }
 
   override def +(substitutor: ScUndefinedSubstitutor): ScUndefinedSubstitutor = {
@@ -356,10 +369,6 @@ private final case class ScMultiUndefinedSubstitutor(impls: Set[ScUndefinedSubst
       } yield left + right
     }
   }
-
-  override def isEmpty: Boolean = typeParamIds.isEmpty
-
-  override val typeParamIds: Set[Long] = impls.map(_.typeParamIds).reduce(_ intersect _)
 
   private def apply(function: ScUndefinedSubstitutorImpl => ScUndefinedSubstitutor) =
     ScUndefinedSubstitutor(impls.map(function))

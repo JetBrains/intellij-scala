@@ -1205,8 +1205,10 @@ trait ScalaConformance extends api.Conformance {
             }
             if (result == null) {
               //ignore undefined types from existential arguments
-              val typeParamIds = undefines.map(_.typeParameter.typeParamId)
-              val newUndefSubst = unSubst.filterTypeParamIds(!typeParamIds.contains(_))
+              val typeParamIds = undefines.map {
+                _.typeParameter.typeParamId
+              }.toSet
+              val newUndefSubst = unSubst.removeTypeParamIds(typeParamIds)
 
               undefinedSubst += newUndefSubst
               result = (true, undefinedSubst)
