@@ -128,100 +128,105 @@ private final case class ScUndefinedSubstitutorImpl(upperMap: LongMap[Set[ScType
     var lMap = LongMap.empty[ScType]
     var uMap = LongMap.empty[ScType]
 
-    def recursion(needTvMap: Ref[Boolean], visited: Set[Long])
-                 (`type`: ScType): Boolean = {
-      `type`.visitRecursively {
-        case tpt: TypeParameterType =>
-          tpt.typeParamId match {
-            case id if additionalIds(id) =>
-              needTvMap.set(true)
-
-              if (solve(id, visited).isEmpty && canThrowSCE) return true
-            case _ =>
-          }
-        case UndefinedType(tp, _) =>
-          tp.typeParamId match {
-            case id if typeParamIds(id) =>
-              needTvMap.set(true)
-
-              if (solve(id, visited).isEmpty && canThrowSCE) return true
-            case _ =>
-          }
-        case _ =>
-      }
-
-      false
-    }
-
-    def solve(id: Long, visited: Set[Long]): Option[ScType] = {
+    def solve(visited: Set[Long])
+             (id: Long): Boolean = {
       if (visited.contains(id)) {
         tvMap += ((id, Nothing))
-        return None
+        return false
       }
 
-      tvMap.get(id).orElse {
-        val maybeLower = lowerMap.getOrElse(id, Set.empty) match {
+      def existsRecursion(set: Set[ScType]) = {
+        val needTvMap = Ref.create(false)
+        val predicate = recursion(needTvMap, canThrowSCE) {
+          solve(visited + id)
+        }(_)
+        if (set.exists(predicate)) None
+        else Some(needTvMap)
+      }
+
+      tvMap.contains(id) || {
+        lowerMap.getOrDefault(id) match {
           case set if set.nonEmpty =>
-            val needTvMap = Ref.create(false)
-            if (set.exists(recursion(needTvMap, visited + id))) {
-              tvMap += ((id, Nothing))
-              return None
+            val substitutor = existsRecursion(set) match {
+              case Some(map) if map.get => ScSubstitutor(tvMap)
+              case Some(_) => ScSubstitutor.empty
+              case None =>
+                tvMap += ((id, Nothing))
+                return false
             }
 
-            val subst = if (needTvMap.get) ScSubstitutor(tvMap) else ScSubstitutor.empty
-
-            val lower = set.map(subst.subst).reduce {
+            val lower = set.map(substitutor.subst).reduce {
               _ lub _
             }
-            Some(lower)
-          case _ => None
+
+            lMap += ((id, lower))
+            tvMap += ((id, lower))
+          case _ =>
         }
 
-        maybeLower.foreach { lower =>
-          lMap += ((id, lower))
-          tvMap += ((id, lower))
-        }
-
-        val maybeUpper = upperMap.getOrElse(id, Set.empty) match {
+        upperMap.getOrDefault(id) match {
           case set if set.nonEmpty =>
-            val needTvMap = Ref.create(false)
-            if (set.exists(recursion(needTvMap, visited + id))) {
-              tvMap += ((id, Nothing))
-              return None
+            val substitutor = existsRecursion(set) match {
+              case Some(map) if map.get => ScSubstitutor(tvMap)
+              case Some(_) => ScSubstitutor.empty
+              case _ =>
+                tvMap += ((id, Nothing))
+                return false
             }
 
-            val subst = if (needTvMap.get) ScSubstitutor(tvMap) else ScSubstitutor.empty
-            val upper = set.map(subst.subst).reduce {
+            val upper = set.map(substitutor.subst).reduce {
               _ glb _
             }
-            Some(upper)
-          case _ => None
-        }
+            uMap += ((id, upper))
 
-        maybeUpper.foreach { upper =>
-          uMap += ((id, upper))
-
-          tvMap.get(id) match {
-            case Some(lower) =>
-              if (canThrowSCE && !lower.conforms(upper)) {
-                return None
-              }
-            case None => tvMap += ((id, upper))
-          }
+            tvMap.get(id) match {
+              case Some(lower) =>
+                if (canThrowSCE && !lower.conforms(upper)) {
+                  return false
+                }
+              case _ => tvMap += ((id, upper))
+            }
+          case _ =>
         }
 
         if (tvMap.get(id).isEmpty) {
           tvMap += ((id, Nothing))
         }
-        tvMap.get(id)
+        tvMap.contains(id)
       }
     }
 
     for (id <- typeParamIds) {
-      if (solve(id, Set.empty).isEmpty && canThrowSCE) return None
+      if (!solve(Set.empty)(id) && canThrowSCE) return None
     }
 
     Some(SubstitutionBounds(tvMap, lMap, uMap))
+  }
+
+  private def recursion(needTvMap: Ref[Boolean], canThrowSCE: Boolean)
+                       (solve: Long => Boolean)
+                       (`type`: ScType): Boolean = {
+    `type`.visitRecursively {
+      case tpt: TypeParameterType =>
+        tpt.typeParamId match {
+          case id if additionalIds(id) =>
+            needTvMap.set(true)
+
+            if (!solve(id) && canThrowSCE) return true
+          case _ =>
+        }
+      case UndefinedType(tp, _) =>
+        tp.typeParamId match {
+          case id if typeParamIds(id) =>
+            needTvMap.set(true)
+
+            if (!solve(id) && canThrowSCE) return true
+          case _ =>
+        }
+      case _ =>
+    }
+
+    false
   }
 }
 
