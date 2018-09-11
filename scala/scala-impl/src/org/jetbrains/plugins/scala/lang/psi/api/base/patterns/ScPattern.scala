@@ -31,7 +31,7 @@ import org.jetbrains.plugins.scala.project.ScalaLanguageLevel.Scala_2_11
 import org.jetbrains.plugins.scala.project._
 
 import scala.annotation.tailrec
-import scala.collection.mutable.ArrayBuffer
+import scala.collection.mutable
 import scala.meta.intellij.QuasiquoteInferUtil
 
 /**
@@ -44,7 +44,7 @@ trait ScPattern extends ScalaPsiElement with Typeable {
   override def `type`(): TypeResult = Failure("Cannot type pattern")
 
   def bindings: Seq[ScBindingPattern] = {
-    val b = new ArrayBuffer[ScBindingPattern]
+    val b = mutable.ArrayBuffer.empty[ScBindingPattern]
 
     def inner(p: ScPattern) {
       p match {
@@ -62,7 +62,7 @@ trait ScPattern extends ScalaPsiElement with Typeable {
   }
 
   def typeVariables: Seq[ScTypeVariableTypeElement] = {
-    val b = new ArrayBuffer[ScTypeVariableTypeElement]
+    val b = mutable.ArrayBuffer.empty[ScTypeVariableTypeElement]
 
     def inner(p: ScPattern) {
       p match {
@@ -423,24 +423,20 @@ object ScPattern {
     }.headOption
   }
 
-  private def extractPossibleProductParts(receiverType: ScType, place: PsiElement, isOneArgCaseClass: Boolean): Seq[ScType] = {
-    val res: ArrayBuffer[ScType] = new ArrayBuffer[ScType]()
-    @tailrec
-    def collect(i: Int) {
-      findMember(s"_$i", receiverType, place) match {
-        case Some(tp) if !isOneArgCaseClass =>
-          res += tp
-          collect(i + 1)
-        case _ =>
-          if (i == 1) res += receiverType
-      }
-    }
-    collect(1)
-    res.toSeq
-  }
+  def extractPossibleProductParts(receiverType: ScType, place: PsiElement, isOneArgCaseClass: Boolean): Seq[ScType] = {
+    val result = mutable.ArrayBuffer.empty[ScType]
 
-  def extractProductParts(tp: ScType, place: PsiElement): Seq[ScType] = {
-    extractPossibleProductParts(tp, place, isOneArgCaseClass = false)
+    @tailrec
+    def collect(i: Int): Unit = findMember(s"_$i", receiverType, place) match {
+      case Some(tp) if !isOneArgCaseClass =>
+        result += tp
+        collect(i + 1)
+      case _ =>
+        if (i == 1) result += receiverType
+    }
+
+    collect(1)
+    result
   }
 
   def expectedNumberOfExtractorArguments(returnType: ScType, place: PsiElement, isOneArgCaseClass: Boolean): Int =
