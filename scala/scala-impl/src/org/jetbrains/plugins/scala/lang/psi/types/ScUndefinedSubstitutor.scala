@@ -85,8 +85,8 @@ private final case class ScUndefinedSubstitutorImpl(upperMap: LongMap[Set[ScType
 
   override def +(substitutor: ScUndefinedSubstitutor): ScUndefinedSubstitutor = substitutor match {
     case ScUndefinedSubstitutorImpl(otherUpperMap, otherLowerMap, otherAdditionalIds) => ScUndefinedSubstitutorImpl(
-      upperMap.merge(otherUpperMap)(_.equiv(Any)),
-      lowerMap.merge(otherLowerMap)(_.equiv(Nothing)),
+      upperMap.merge(otherUpperMap)(isAny),
+      lowerMap.merge(otherLowerMap)(isNothing),
       additionalIds ++ otherAdditionalIds
     )
     case multi: ScMultiUndefinedSubstitutor => multi + this
@@ -94,7 +94,7 @@ private final case class ScUndefinedSubstitutorImpl(upperMap: LongMap[Set[ScType
 
   override def addLower(id: Long, rawLower: ScType,
                         additional: Boolean, variance: Variance): ScUndefinedSubstitutor =
-    computeLower(rawLower, variance).fold(this: ScUndefinedSubstitutor) { lower =>
+    computeLower(variance)(rawLower).fold(this: ScUndefinedSubstitutor) { lower =>
       copy(
         lowerMap = lowerMap.update(id, lower),
         additionalIds = additionalIds ++ id.toIterable(additional)
@@ -103,7 +103,7 @@ private final case class ScUndefinedSubstitutorImpl(upperMap: LongMap[Set[ScType
 
   override def addUpper(id: Long, rawUpper: ScType,
                         additional: Boolean, variance: Variance): ScUndefinedSubstitutor =
-    computeUpper(rawUpper, variance).fold(this: ScUndefinedSubstitutor) { upper =>
+    computeUpper(variance)(rawUpper).fold(this: ScUndefinedSubstitutor) { upper =>
       copy(
         upperMap = upperMap.update(id, upper),
         additionalIds = additionalIds ++ id.toIterable(additional)
@@ -261,59 +261,77 @@ private object ScUndefinedSubstitutorImpl {
       if (flag) Some(id) else None
   }
 
-  private def computeUpper(rawUpper: ScType, v: Variance)
-                          (implicit context: ProjectContext) = {
-    var index = 0
-    val updated = rawUpper match {
-      case ScAbstractType(_, _, absUpper) if v == Invariant => absUpper // lower will be added separately
-      case ScAbstractType(_, _, absUpper) if v == Covariant && absUpper.equiv(Any) => Any
-      case _ =>
-        rawUpper.recursiveVarianceUpdate({
-          case (ScAbstractType(_, lower, absUpper), variance) =>
-            replaceWith(variance)(lower, absUpper) {
-              index += 1
-              existentialArgument(index, _, _) // TODO: why this is right?
-            }
-          case (ScExistentialArgument(_, _, lower, skoUpper), variance) =>
-            replaceWith(variance)(lower, skoUpper) {
-              index += 1
-              existentialArgument(index, _, _)
-            }
-          case (_: ScExistentialType, _) => Stop
-          case _ => ProcessSubtypes
-        }, v)
+  private def computeUpper(variance: Variance) =
+    updateUpper(variance).andThen {
+      unpackedType(isAny)
     }
 
-    unpackedType(updated)(_.equiv(Any))
-  }
-
-  private def computeLower(rawLower: ScType, v: Variance)
-                          (implicit context: ProjectContext) = {
-    var index = 0
-    val updated = rawLower match {
-      case ScAbstractType(_, absLower, _) => absLower //upper will be added separately
-      case _ =>
-        rawLower.recursiveVarianceUpdate({
-          case (ScAbstractType(_, absLower, upper), variance) =>
-            replaceWith(variance)(absLower, upper) {
-              case (_, _) => absLower /*ScExistentialArgument(s"_$$${index += 1; index}", Nil, absLower, upper)*/
-              // TODO: why this is right?
-            }
-          case (ScExistentialArgument(_, _, skoLower, upper), variance) =>
-            replaceWith(variance)(skoLower, upper) {
-              index += 1
-              existentialArgument(index, _, _)
-            }
-          case (_: ScExistentialType, _) => Stop
-          case _ => ProcessSubtypes
-        }, v, revertVariances = true)
+  private def computeLower(variance: Variance) =
+    updateLower(variance).andThen {
+      unpackedType(isNothing)
     }
 
-    unpackedType(updated)(_.equiv(Nothing))
+  private def isAny(`type`: ScType) = {
+    import `type`.projectContext
+    `type`.equiv(Any)
   }
 
-  private[this] def replaceWith(variance: Variance)
-                               (lower: ScType, upper: ScType)
+  private def isNothing(`type`: ScType) = {
+    import `type`.projectContext
+    `type`.equiv(Nothing)
+  }
+
+  private[this] def updateUpper(variance: Variance): ScType => ScType = {
+    case ScAbstractType(_, _, upper) if variance == Invariant => upper // lower will be added separately
+    case ScAbstractType(_, _, upper) if variance == Covariant && isAny(upper) =>
+      import upper.projectContext
+      Any
+    case rawUpper =>
+      var index = 0
+      recursiveVarianceUpdate(rawUpper, variance)(
+        {
+          index += 1
+          existentialArgument(index, _, _)
+          // TODO: why this is right?
+        }, {
+          index += 1
+          existentialArgument(index, _, _)
+        }
+      )
+  }
+
+  private[this] def updateLower(variance: Variance): ScType => ScType = {
+    case ScAbstractType(_, lower, _) => lower // upper will be added separately
+    case rawLower =>
+      var index = 0
+      recursiveVarianceUpdate(rawLower, variance, revertVariances = true)(
+        {
+          case (lower, _) => lower
+          //          index += 1
+          //          existentialArgument(index, Nil, _, _)
+          // TODO: why this is right?
+        }, {
+          index += 1
+          existentialArgument(index, _, _)
+        }
+      )
+  }
+
+  private[this] def recursiveVarianceUpdate(`type`: ScType, variance: Variance, revertVariances: Boolean = false)
+                                           (abstractCase: (ScType, ScType) => ScType,
+                                            existentialArgumentCase: (ScType, ScType) => ScType) =
+    `type`.recursiveVarianceUpdate(
+      {
+        case (ScAbstractType(_, lower, upper), newVariance) => replaceWith(newVariance, lower, upper)(abstractCase)
+        case (ScExistentialArgument(_, _, lower, upper), newVariance) => replaceWith(newVariance, lower, upper)(existentialArgumentCase)
+        case (_: ScExistentialType, _) => Stop
+        case _ => ProcessSubtypes
+      },
+      variance,
+      revertVariances = revertVariances
+    )
+
+  private[this] def replaceWith(variance: Variance, lower: ScType, upper: ScType)
                                (invariantCase: (ScType, ScType) => ScType) = ReplaceWith {
     variance match {
       case Contravariant => lower
@@ -325,8 +343,8 @@ private object ScUndefinedSubstitutorImpl {
   private[this] def existentialArgument(index: Int, lower: ScType, upper: ScType) =
     ScExistentialArgument(s"_$$$index", Nil, lower, upper)
 
-  private[this] def unpackedType(`type`: ScType)
-                                (predicate: ScType => Boolean) =
+  private[this] def unpackedType(predicate: ScType => Boolean)
+                                (`type`: ScType) =
     Some(`type`.unpackedType).filterNot(predicate)
 }
 
