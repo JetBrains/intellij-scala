@@ -241,8 +241,8 @@ private object ScUndefinedSubstitutorImpl {
       case (long, _) => set(long)
     }
 
-    def update(id: Long, scType: ScType): LongMap[Set[ScType]] =
-      map.updated(id, getOrDefault(id) + scType)
+    def update(id: Long, `type`: ScType): LongMap[Set[ScType]] =
+      map.updated(id, getOrDefault(id) + `type`)
 
     def merge(map: LongMap[Set[ScType]])
              (predicate: ScType => Boolean): LongMap[Set[ScType]] = {
@@ -265,26 +265,19 @@ private object ScUndefinedSubstitutorImpl {
                           (implicit context: ProjectContext) = {
     var index = 0
     val updated = rawUpper match {
-      case ScAbstractType(_, _, absUpper) if v == Invariant =>
-        absUpper // lower will be added separately
+      case ScAbstractType(_, _, absUpper) if v == Invariant => absUpper // lower will be added separately
       case ScAbstractType(_, _, absUpper) if v == Covariant && absUpper.equiv(Any) => Any
       case _ =>
         rawUpper.recursiveVarianceUpdate({
           case (ScAbstractType(_, lower, absUpper), variance) =>
-            variance match {
-              case Contravariant => ReplaceWith(lower)
-              case Covariant => ReplaceWith(absUpper)
-              case Invariant =>
-                index += 1
-                ReplaceWith(ScExistentialArgument(s"_$$$index", Nil, lower, absUpper)) //todo: why this is right?
+            replaceWith(variance)(lower, absUpper) {
+              index += 1
+              existentialArgument(index, _, _) // TODO: why this is right?
             }
           case (ScExistentialArgument(_, _, lower, skoUpper), variance) =>
-            variance match {
-              case Contravariant => ReplaceWith(lower)
-              case Covariant => ReplaceWith(skoUpper)
-              case Invariant =>
-                index += 1
-                ReplaceWith(ScExistentialArgument(s"_$$$index", Nil, lower, skoUpper))
+            replaceWith(variance)(lower, skoUpper) {
+              index += 1
+              existentialArgument(index, _, _)
             }
           case (_: ScExistentialType, _) => Stop
           case _ => ProcessSubtypes
@@ -298,23 +291,18 @@ private object ScUndefinedSubstitutorImpl {
                           (implicit context: ProjectContext) = {
     var index = 0
     val updated = rawLower match {
-      case ScAbstractType(_, absLower, _) =>
-        absLower //upper will be added separately
+      case ScAbstractType(_, absLower, _) => absLower //upper will be added separately
       case _ =>
         rawLower.recursiveVarianceUpdate({
           case (ScAbstractType(_, absLower, upper), variance) =>
-            variance match {
-              case Contravariant => ReplaceWith(absLower)
-              case Covariant => ReplaceWith(upper)
-              case Invariant => ReplaceWith(absLower /*ScExistentialArgument(s"_$$${index += 1; index}", Nil, absLower, upper)*/) //todo: why this is right?
+            replaceWith(variance)(absLower, upper) {
+              case (_, _) => absLower /*ScExistentialArgument(s"_$$${index += 1; index}", Nil, absLower, upper)*/
+              // TODO: why this is right?
             }
           case (ScExistentialArgument(_, _, skoLower, upper), variance) =>
-            variance match {
-              case Contravariant => ReplaceWith(skoLower)
-              case Covariant => ReplaceWith(upper)
-              case Invariant =>
-                index += 1
-                ReplaceWith(ScExistentialArgument(s"_$$$index", Nil, skoLower, upper))
+            replaceWith(variance)(skoLower, upper) {
+              index += 1
+              existentialArgument(index, _, _)
             }
           case (_: ScExistentialType, _) => Stop
           case _ => ProcessSubtypes
@@ -323,6 +311,19 @@ private object ScUndefinedSubstitutorImpl {
 
     unpackedType(updated)(_.equiv(Nothing))
   }
+
+  private[this] def replaceWith(variance: Variance)
+                               (lower: ScType, upper: ScType)
+                               (invariantCase: (ScType, ScType) => ScType) = ReplaceWith {
+    variance match {
+      case Contravariant => lower
+      case Covariant => upper
+      case Invariant => invariantCase(lower, upper)
+    }
+  }
+
+  private[this] def existentialArgument(index: Int, lower: ScType, upper: ScType) =
+    ScExistentialArgument(s"_$$$index", Nil, lower, upper)
 
   private[this] def unpackedType(`type`: ScType)
                                 (predicate: ScType => Boolean) =
