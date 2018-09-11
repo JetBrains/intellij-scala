@@ -14,9 +14,12 @@ import org.jetbrains.plugins.scala.project.ProjectContext
 import scala.collection.immutable.LongMap
 
 sealed trait ScUndefinedSubstitutor {
-  def addLower(id: Long, _lower: ScType, additional: Boolean = false, variance: Variance = Contravariant): ScUndefinedSubstitutor
 
-  def addUpper(id: Long, _upper: ScType, additional: Boolean = false, variance: Variance = Covariant): ScUndefinedSubstitutor
+  def addLower(id: Long, lower: ScType,
+               additional: Boolean = false, variance: Variance = Contravariant): ScUndefinedSubstitutor
+
+  def addUpper(id: Long, upper: ScType,
+               additional: Boolean = false, variance: Variance = Covariant): ScUndefinedSubstitutor
 
   def filterTypeParamIds(fun: Long => Boolean): ScUndefinedSubstitutor
 
@@ -48,20 +51,24 @@ object ScUndefinedSubstitutor {
     Set.empty
   )
 
-  def unapply(substitutor: ScUndefinedSubstitutor): Option[ScSubstitutor] =
-    substitutor.getSubstitutor
-
-  def multi(subs: Set[ScUndefinedSubstitutor])(implicit project: ProjectContext): ScUndefinedSubstitutor = {
-    val flatten = subs.filterNot(_.isEmpty).flatMap {
-      case m: ScMultiUndefinedSubstitutor => m.substitutors
-      case s: ScUndefinedSubstitutorImpl => Set(s)
+  def apply(substitutors: Set[ScUndefinedSubstitutor])
+           (implicit project: ProjectContext): ScUndefinedSubstitutor = {
+    val newSubstitutors = substitutors.filterNot {
+      _.isEmpty
+    }.flatMap {
+      case impl: ScUndefinedSubstitutorImpl => Set(impl)
+      case ScMultiUndefinedSubstitutor(impls) => impls
     }
-    flatten.size match {
+
+    newSubstitutors.size match {
       case 0 => ScUndefinedSubstitutor()
-      case 1 => flatten.head
-      case _ => ScMultiUndefinedSubstitutor(flatten)
+      case 1 => newSubstitutors.head
+      case _ => ScMultiUndefinedSubstitutor(newSubstitutors)
     }
   }
+
+  def unapply(substitutor: ScUndefinedSubstitutor): Option[ScSubstitutor] =
+    substitutor.getSubstitutor
 
   private[types] def computeLower(rawLower: ScType, v: Variance): ScType = {
     var index = 0
@@ -163,19 +170,19 @@ private final case class ScUndefinedSubstitutorImpl(upperMap: LongMap[Set[ScType
     case multi: ScMultiUndefinedSubstitutor => multi + this
   }
 
-  def addLower(id: Long, _lower: ScType, additional: Boolean = false, variance: Variance = Contravariant): ScUndefinedSubstitutor = {
-    val lower = computeLower(_lower, variance)
+  override def addLower(id: Long, rawLower: ScType,
+                        additional: Boolean, variance: Variance): ScUndefinedSubstitutor =
+    computeLower(rawLower, variance) match {
+      case nothing if nothing.isNothing => this
+      case lower => addToMap(id, lower, toUpper = false, additional)
+    }
 
-    if (equivNothing(lower)) this
-    else addToMap(id, lower, toUpper = false, additional)
-  }
-
-  def addUpper(id: Long, _upper: ScType, additional: Boolean = false, variance: Variance = Covariant): ScUndefinedSubstitutor = {
-    val upper = computeUpper(_upper, variance)
-
-    if (equivAny(upper)) this
-    else addToMap(id, upper, toUpper = true, additional)
-  }
+  override def addUpper(id: Long, rawUpper: ScType,
+                        additional: Boolean, variance: Variance): ScUndefinedSubstitutor =
+    computeUpper(rawUpper, variance) match {
+      case any if any.isAny => this
+      case upper => addToMap(id, upper, toUpper = true, additional)
+    }
 
   lazy val typeParamIds: Set[Long] = upperMap.keySet ++ lowerMap.keySet
 
@@ -183,10 +190,9 @@ private final case class ScUndefinedSubstitutorImpl(upperMap: LongMap[Set[ScType
 
   private lazy val substWithBoundsNotNonable = substitutionBoundsImpl(nonable = false)
 
-  override def substitutionBounds(nonable: Boolean): Option[SubstitutionBounds] = {
+  override def substitutionBounds(nonable: Boolean): Option[SubstitutionBounds] =
     if (nonable) substWithBounds
     else substWithBoundsNotNonable
-  }
 
   private def addToMap(id: Long, scType: ScType, toUpper: Boolean, toAdditional: Boolean): ScUndefinedSubstitutor = {
     val map = if (toUpper) upperMap else lowerMap
@@ -312,41 +318,49 @@ private final case class ScUndefinedSubstitutorImpl(upperMap: LongMap[Set[ScType
   }
 }
 
-private final case class ScMultiUndefinedSubstitutor(substitutors: Set[ScUndefinedSubstitutorImpl])
+private final case class ScMultiUndefinedSubstitutor(impls: Set[ScUndefinedSubstitutorImpl])
                                                     (implicit project: ProjectContext)
   extends ScUndefinedSubstitutor {
 
-  override def addLower(id: Long, _lower: ScType, additional: Boolean, variance: Variance): ScUndefinedSubstitutor =
-    multi(substitutors.map(_.addLower(id, _lower, additional, variance)))
+  override def addLower(id: Long, lower: ScType,
+                        additional: Boolean, variance: Variance): ScUndefinedSubstitutor = this {
+    _.addLower(id, lower, additional, variance)
+  }
 
-  override def addUpper(id: Long, _upper: ScType, additional: Boolean, variance: Variance): ScUndefinedSubstitutor =
-    multi(substitutors.map(_.addUpper(id, _upper, additional, variance)))
+  override def addUpper(id: Long, upper: ScType,
+                        additional: Boolean, variance: Variance): ScUndefinedSubstitutor = this {
+    _.addUpper(id, upper, additional, variance)
+  }
 
   override def substitutionBounds(nonable: Boolean): Option[SubstitutionBounds] =
-    substitutors.iterator.map {
+    impls.iterator.map {
       _.substitutionBounds(nonable)
-    }.find {
-      _.isDefined
-    }.flatten
+    }.collectFirst {
+      case Some(bounds) => bounds
+    }
 
-  override def filterTypeParamIds(fun: Long => Boolean): ScUndefinedSubstitutor =
-    multi(substitutors.map(_.filterTypeParamIds(fun)))
+  override def filterTypeParamIds(fun: Long => Boolean): ScUndefinedSubstitutor = this {
+    _.filterTypeParamIds(fun)
+  }
 
   override def +(substitutor: ScUndefinedSubstitutor): ScUndefinedSubstitutor = {
-    val otherSubs = substitutor match {
+    val otherImpls = substitutor match {
       case impl: ScUndefinedSubstitutorImpl => Set(impl)
       case ScMultiUndefinedSubstitutor(otherSubstitutors) => otherSubstitutors
     }
 
-    multi {
+    ScUndefinedSubstitutor {
       for {
-        left <- substitutors
-        right <- otherSubs
+        left <- impls
+        right <- otherImpls
       } yield left + right
     }
   }
 
   override def isEmpty: Boolean = typeParamIds.isEmpty
 
-  override val typeParamIds: Set[Long] = substitutors.map(_.typeParamIds).reduce(_ intersect _)
+  override val typeParamIds: Set[Long] = impls.map(_.typeParamIds).reduce(_ intersect _)
+
+  private def apply(function: ScUndefinedSubstitutorImpl => ScUndefinedSubstitutor) =
+    ScUndefinedSubstitutor(impls.map(function))
 }

@@ -26,8 +26,8 @@ import org.jetbrains.plugins.scala.lang.resolve.processor.{CompoundTypeCheckSign
 import org.jetbrains.plugins.scala.util.ScEquivalenceUtil._
 
 import scala.annotation.tailrec
-import scala.collection.immutable.HashSet
 import scala.collection.Seq
+import scala.collection.immutable.HashSet
 import scala.collection.mutable.ArrayBuffer
 
 trait ScalaConformance extends api.Conformance {
@@ -374,7 +374,7 @@ trait ScalaConformance extends api.Conformance {
           result = (true, results.head)
           return
         } else if (results.size > 1) {
-          result = (true, ScUndefinedSubstitutor.multi(results))
+          result = (true, ScUndefinedSubstitutor(results))
           return
         }
 
