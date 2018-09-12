@@ -11,7 +11,7 @@ import org.jetbrains.plugins.scala.lang.psi.api.base.types.ScTypeElement
 import org.jetbrains.plugins.scala.lang.psi.api.base.{ScMethodLike, ScPrimaryConstructor}
 import org.jetbrains.plugins.scala.lang.psi.api.expr._
 import org.jetbrains.plugins.scala.lang.psi.api.statements._
-import org.jetbrains.plugins.scala.lang.psi.api.statements.params.{ScTypeParam, TypeParamIdOwner}
+import org.jetbrains.plugins.scala.lang.psi.api.statements.params.TypeParamIdOwner
 import org.jetbrains.plugins.scala.lang.psi.api.toplevel.typedef.{ScClass, ScMember, ScObject, ScTemplateDefinition}
 import org.jetbrains.plugins.scala.lang.psi.api.toplevel.{ScTypeParametersOwner, ScTypedDefinition}
 import org.jetbrains.plugins.scala.lang.psi.impl.ScPackageImpl
@@ -426,32 +426,40 @@ object MethodResolveProcessor {
     }
 
     if (result.problems.forall(_ == ExpectedTypeMismatch)) {
-      var uSubst = result.undefSubst
-      uSubst.getSubstitutor match {
-        case None =>
-          result.copy(problems = Seq(WrongTypeParameterInferred))
-        case Some(unSubst) =>
-          val typeParamIds = typeParameters.map(_.typeParamId).toSet
-          def hasRecursiveTypeParameters(typez: ScType): Boolean = typez.hasRecursiveTypeParameters(typeParamIds)
+      val maybeResult = result.undefSubst match {
+        case undefined@ScUndefinedSubstitutor(newSubstitutor) =>
+          val typeParamIds = typeParameters.map {
+            _.typeParamId
+          }.toSet
 
+          var uSubst = undefined
           for (TypeParameter(tParam, _, lowerType, upperType) <- typeParameters) {
-            if (lowerType != Nothing) {
-              val substedLower = s.subst(unSubst.subst(lowerType))
-              if (!hasRecursiveTypeParameters(substedLower)) {
-                uSubst = uSubst.addLower(tParam.typeParamId, substedLower, additional = true)
+            if (!lowerType.isNothing) {
+              s.subst(newSubstitutor.subst(lowerType)) match {
+                case lower if !lower.hasRecursiveTypeParameters(typeParamIds) =>
+                  uSubst = uSubst.addLower(tParam.typeParamId, lower, additional = true)
+                case _ =>
               }
             }
-            if (upperType != Any) {
-              val substedUpper = s.subst(unSubst.subst(upperType))
-              if (!hasRecursiveTypeParameters(substedUpper)) {
-                uSubst = uSubst.addUpper(tParam.typeParamId, substedUpper, additional = true)
+
+            if (!upperType.isAny) {
+              s.subst(newSubstitutor.subst(upperType)) match {
+                case upper if !upper.hasRecursiveTypeParameters(typeParamIds) =>
+                  uSubst = uSubst.addUpper(tParam.typeParamId, upper, additional = true)
+                case _ =>
               }
             }
           }
-          uSubst.getSubstitutor match {
-            case Some(_) => result
-            case _ => result.copy(problems = Seq(WrongTypeParameterInferred))
+
+          uSubst match {
+            case ScUndefinedSubstitutor(_) => Some(result)
+            case _ => None
           }
+        case _ => None
+      }
+
+      maybeResult.getOrElse {
+        result.copy(problems = Seq(WrongTypeParameterInferred))
       }
     } else result
   }

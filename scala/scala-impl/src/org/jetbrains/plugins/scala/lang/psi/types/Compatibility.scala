@@ -52,40 +52,32 @@ object Compatibility {
 
 
     @CachedWithRecursionGuard(place, (Right(typez), Set.empty), ModCount.getBlockModificationCount)
-    private def eval(typez: ScType, expectedOption: Option[ScType]): (TypeResult, Set[ImportUsed]) = {
-      expectedOption match {
-        case Some(expected) if typez.conforms(expected) => (Right(typez), Set.empty)
-        case Some(expected) =>
-          val defaultResult: (TypeResult, Set[ImportUsed]) = (Right(typez), Set.empty)
-          implicit val elementScope = place.elementScope
+    private def eval(typez: ScType, expectedOption: Option[ScType]): (TypeResult, Set[ImportUsed]) =
+      expectedOption.filterNot(typez.conforms(_)).flatMap { expected =>
+        implicit val elementScope: ElementScope = place.elementScope
 
-          val functionType = FunctionType(expected, Seq(typez))
-          val results = new ImplicitCollector(place, functionType, functionType, None, isImplicitConversion = true).collect()
-          if (results.length == 1) {
-            val res = results.head
-
-            val maybeType: Option[ScType] = extractImplicitParameterType(res).flatMap {
+        val functionType = FunctionType(expected, Seq(typez))
+        new ImplicitCollector(place, functionType, functionType, None, isImplicitConversion = true).collect() match {
+          case Seq(res) =>
+            extractImplicitParameterType(res).flatMap {
               case FunctionType(rt, Seq(_)) => Some(rt)
               case paramType =>
                 elementScope.cachedFunction1Type.flatMap { functionType =>
-                  val (_, substitutor) = paramType.conforms(functionType, ScUndefinedSubstitutor())
-                  substitutor.getSubstitutor.map {
-                    _.subst(functionType.typeArguments(1))
-                  }.filter {
-                    !_.isInstanceOf[UndefinedType]
+                  paramType.conforms(functionType, ScUndefinedSubstitutor()) match {
+                    case (_, ScUndefinedSubstitutor(substitutor)) => Some(substitutor.subst(functionType.typeArguments(1)))
+                    case _ => None
                   }
+                }.filterNot {
+                  _.isInstanceOf[UndefinedType]
                 }
+            }.map { result =>
+              (Right(result), res.importsUsed)
             }
-
-            maybeType.map {
-              (result: ScType) => Right(result)
-            }.map {
-              (_, res.importsUsed)
-            }.getOrElse(defaultResult)
-          } else defaultResult
-        case _ => (Right(typez), Set.empty)
+          case _ => None
+        }
+      }.getOrElse {
+        (Right(typez), Set.empty)
       }
-    }
 
     def getTypeAfterImplicitConversion(checkImplicits: Boolean, isShape: Boolean,
                                        expectedOption: Option[ScType]): (TypeResult, collection.Set[ImportUsed]) = {

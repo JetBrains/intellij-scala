@@ -1180,41 +1180,35 @@ trait ScalaConformance extends api.Conformance {
         case _                          => ProcessSubtypes
       }
 
-      val res = conformsInner(updatedWithUndefinedTypes, r, HashSet.empty, undefinedSubst)
-      if (!res._1) {
-        result = (false, undefinedSubst)
-      } else {
-        val unSubst: ScUndefinedSubstitutor = res._2
-        unSubst.getSubstitutor match {
-          case Some(solvingSubstitutor) =>
-            for (un <- undefines if result == null) {
-              val solvedType = solvingSubstitutor.subst(un)
+      conformsInner(updatedWithUndefinedTypes, r, HashSet.empty, undefinedSubst) match {
+        case (true, unSubst@ScUndefinedSubstitutor(solvingSubstitutor)) =>
+          for (un <- undefines if result == null) {
+            val solvedType = solvingSubstitutor.subst(un)
 
-              var t = conformsInner(solvedType, un.typeParameter.lowerType.unpackedType, substitutor = undefinedSubst)
-              if (solvedType != un && !t._1) {
-                result = (false, undefinedSubst)
-                return
-              }
-              undefinedSubst = t._2
-              t = conformsInner(un.typeParameter.upperType.unpackedType, solvedType, substitutor = undefinedSubst)
-              if (solvedType != un && !t._1) {
-                result = (false, undefinedSubst)
-                return
-              }
-              undefinedSubst = t._2
+            var t = conformsInner(solvedType, un.typeParameter.lowerType.unpackedType, substitutor = undefinedSubst)
+            if (solvedType != un && !t._1) {
+              result = (false, undefinedSubst)
+              return
             }
-            if (result == null) {
-              //ignore undefined types from existential arguments
-              val typeParamIds = undefines.map {
-                _.typeParameter.typeParamId
-              }.toSet
-              val newUndefSubst = unSubst.removeTypeParamIds(typeParamIds)
+            undefinedSubst = t._2
+            t = conformsInner(un.typeParameter.upperType.unpackedType, solvedType, substitutor = undefinedSubst)
+            if (solvedType != un && !t._1) {
+              result = (false, undefinedSubst)
+              return
+            }
+            undefinedSubst = t._2
+          }
 
-              undefinedSubst += newUndefSubst
-              result = (true, undefinedSubst)
-            }
-          case None => result = (false, undefinedSubst)
-        }
+          if (result == null) {
+            //ignore undefined types from existential arguments
+            val typeParamIds = undefines.map {
+              _.typeParameter.typeParamId
+            }.toSet
+
+            undefinedSubst += unSubst.removeTypeParamIds(typeParamIds)
+            result = (true, undefinedSubst)
+          }
+        case _ => result = (false, undefinedSubst)
       }
     }
 

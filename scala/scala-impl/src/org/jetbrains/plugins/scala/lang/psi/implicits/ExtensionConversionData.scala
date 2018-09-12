@@ -1,6 +1,7 @@
 package org.jetbrains.plugins.scala.lang.psi.implicits
 
 import com.intellij.openapi.progress.ProgressManager
+import com.intellij.openapi.project.Project
 import com.intellij.psi.ResolveState
 import org.jetbrains.plugins.scala.lang.psi.ElementScope
 import org.jetbrains.plugins.scala.lang.psi.api.InferUtil.extractImplicitParameterType
@@ -36,16 +37,15 @@ object ExtensionConversionHelper {
     val result = extractImplicitParameterType(resolveResult).flatMap {
       case functionType@FunctionType(_, _) => Some(functionType)
       case implicitParameterType =>
-        implicit val project = resolveResult.element.getProject
-        ElementScope(project).cachedFunction1Type
-          .flatMap { functionType =>
-            val (_, substitutor) = implicitParameterType.conforms(functionType, ScUndefinedSubstitutor())
-            substitutor.getSubstitutor.map {
-              _.subst(functionType)
-            }.map {
-              _.removeUndefines()
-            }
+        implicit val project: Project = resolveResult.element.getProject
+        ElementScope(project).cachedFunction1Type.flatMap { functionType =>
+          implicitParameterType.conforms(functionType, ScUndefinedSubstitutor()) match {
+            case (_, ScUndefinedSubstitutor(substitutor)) => Some(substitutor.subst(functionType))
+            case _ => None
           }
+        }.map {
+          _.removeUndefines()
+        }
     }
 
     result.collect {
@@ -89,15 +89,16 @@ object ExtensionConversionHelper {
   private def update(candidate: Candidate, foundInType: ScalaResolveResult): Candidate = {
     val (candidateResult, candidateSubstitutor) = candidate
 
-    foundInType.resultUndef.flatMap {
-      _.getSubstitutor
-    }.map { substitutor =>
-      val result = candidateResult.copy(subst = foundInType.substitutor.followed(substitutor),
-        implicitParameterType = candidateResult.implicitParameterType.map(substitutor.subst))
+    foundInType.resultUndef.collect {
+      case ScUndefinedSubstitutor(substitutor) => substitutor
+    }.fold(candidate) { substitutor =>
+      val parameterType = candidateResult.implicitParameterType
+      val result = candidateResult.copy(
+        subst = foundInType.substitutor.followed(substitutor),
+        implicitParameterType = parameterType.map(substitutor.subst)
+      )
 
       (result, candidateSubstitutor.followed(substitutor))
-    }.getOrElse {
-      candidate
     }
   }
 

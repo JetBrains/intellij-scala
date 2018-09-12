@@ -242,32 +242,27 @@ object ScPattern {
         case m => m
       }
 
-      def calculateSubstitutor(_tp: ScType, funType: ScType, substitutor: ScSubstitutor): ScSubstitutor = {
-        val tp = _tp match {
-          case ex: ScExistentialType => ex.quantified
-          case _                     => _tp
+      def calculateSubstitutor(`type`: ScType, functionType: ScType,
+                               substitutor: ScSubstitutor): ScSubstitutor = {
+        val tp = `type` match {
+          case ScExistentialType(quantified, _) => quantified
+          case _ => `type`
         }
 
-        def rightWay: ScSubstitutor = {
-          val conformance = substitutor.subst(funType).conforms(tp, ScUndefinedSubstitutor())
-          if (conformance._1) {
-            val undefSubst = conformance._2
-            undefSubst.getSubstitutor match {
-              case Some(newSubst) => newSubst.followed(substitutor)
-              case _              => substitutor
+        val substitutedFunctionType = substitutor.subst(functionType)
+
+        val maybeSubstitutor = tp.conforms(substitutedFunctionType, ScUndefinedSubstitutor()) match {
+          case (true, ScUndefinedSubstitutor(newSubstitutor)) => Some(newSubstitutor)
+          case _ =>
+            substitutedFunctionType.conforms(tp, ScUndefinedSubstitutor()) match {
+              case (true, ScUndefinedSubstitutor(newSubstitutor)) => Some(newSubstitutor)
+              case _ => None
             }
-          } else substitutor
         }
 
-        //todo: looks quite hacky to try another direction first, do you know better? see SCL-6543
-        val conformance = tp.conforms(substitutor.subst(funType), ScUndefinedSubstitutor())
-        if (conformance._1) {
-          val undefSubst = conformance._2
-          undefSubst.getSubstitutor match {
-            case Some(newSubst) => newSubst.followed(substitutor)
-            case _              => rightWay
-          }
-        } else rightWay
+        maybeSubstitutor.fold(substitutor) {
+          _.followed(substitutor)
+        }
       }
 
       bind match {

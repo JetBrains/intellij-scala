@@ -151,8 +151,15 @@ class ScConstructorImpl(node: ASTNode) extends ScalaPsiElementImpl(node) with Sc
               val undefParams = paramsByClauses.map(_._2).map(
                 param => Parameter(mySubst.subst(param.paramType), param.isRepeated, param.index)
               )
+
               val extRes = Compatibility.checkConformanceExt(false, undefParams, paramsByClauses.map(_._1), false, false)
-              val result = extRes.undefSubst.getSubstitutor.map(_.subst(nonValueType)).getOrElse(nonValueType)
+              val maybeSubstitutor = extRes.undefSubst match {
+                case ScUndefinedSubstitutor(substitutor) => Some(substitutor)
+                case _ => None
+              }
+              val result = maybeSubstitutor.fold(nonValueType: ScType) {
+                _.subst(nonValueType)
+              }
               return Right(result)
             case _ =>
           }

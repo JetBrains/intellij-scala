@@ -29,10 +29,6 @@ sealed trait ScUndefinedSubstitutor {
   def removeTypeParamIds(ids: Set[Long]): ScUndefinedSubstitutor
 
   def substitutionBounds(canThrowSCE: Boolean): Option[ScUndefinedSubstitutor.SubstitutionBounds]
-
-  final def getSubstitutor: Option[ScSubstitutor] = substitutionBounds(canThrowSCE = true).map {
-    _.substitutor
-  }
 }
 
 object ScUndefinedSubstitutor {
@@ -67,7 +63,9 @@ object ScUndefinedSubstitutor {
   }
 
   def unapply(substitutor: ScUndefinedSubstitutor): Option[ScSubstitutor] =
-    substitutor.getSubstitutor
+    substitutor.substitutionBounds(canThrowSCE = true).map {
+      _.substitutor
+    }
 }
 
 private final case class ScUndefinedSubstitutorImpl(upperMap: LongMap[Set[ScType]],
