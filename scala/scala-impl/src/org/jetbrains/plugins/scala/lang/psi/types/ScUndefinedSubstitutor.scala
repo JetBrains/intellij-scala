@@ -4,7 +4,7 @@ package psi
 package types
 
 import com.intellij.openapi.util.Ref
-import org.jetbrains.plugins.scala.lang.psi.api.statements.params.TypeParamIdOwner
+import org.jetbrains.plugins.scala.lang.psi.api.statements.params.TypeParamId
 import org.jetbrains.plugins.scala.lang.psi.types.api._
 import org.jetbrains.plugins.scala.lang.psi.types.recursiveUpdate.AfterUpdate.{ProcessSubtypes, ReplaceWith, Stop}
 import org.jetbrains.plugins.scala.lang.psi.types.recursiveUpdate.ScSubstitutor
@@ -133,24 +133,20 @@ private final case class ScUndefinedSubstitutorImpl(upperMap: LongMap[Set[ScType
         return false
       }
 
-      def existsRecursion(set: Set[ScType]) = {
-        val needTvMap = Ref.create(false)
-        val predicate = recursion(needTvMap, canThrowSCE) {
-          solve(visited + id)
-        }(_)
-        if (set.exists(predicate)) None
-        else Some(needTvMap)
-      }
-
       tvMap.contains(id) || {
+        val needTvMap = {
+          val newVisited = visited + id
+          recursion(!solve(newVisited)(_) && canThrowSCE) _
+        }
+
         lowerMap.getOrDefault(id) match {
           case set if set.nonEmpty =>
-            val substitutor = existsRecursion(set) match {
-              case Some(map) if map.get => ScSubstitutor(tvMap)
-              case Some(_) => ScSubstitutor.empty
-              case None =>
-                tvMap += ((id, Nothing))
-                return false
+            val substitutor = needTvMap(set).fold {
+              tvMap += ((id, Nothing))
+              return false
+            } {
+              case true => ScSubstitutor(tvMap)
+              case _ => ScSubstitutor.empty
             }
 
             val lower = set.map(substitutor.subst).reduce {
@@ -164,12 +160,12 @@ private final case class ScUndefinedSubstitutorImpl(upperMap: LongMap[Set[ScType
 
         upperMap.getOrDefault(id) match {
           case set if set.nonEmpty =>
-            val substitutor = existsRecursion(set) match {
-              case Some(map) if map.get => ScSubstitutor(tvMap)
-              case Some(_) => ScSubstitutor.empty
-              case _ =>
-                tvMap += ((id, Nothing))
-                return false
+            val substitutor = needTvMap(set).fold {
+              tvMap += ((id, Nothing))
+              return false
+            } {
+              case true => ScSubstitutor(tvMap)
+              case _ => ScSubstitutor.empty
             }
 
             val upper = set.map(substitutor.subst).reduce {
@@ -201,30 +197,31 @@ private final case class ScUndefinedSubstitutorImpl(upperMap: LongMap[Set[ScType
     Some(SubstitutionBounds(tvMap, lMap, uMap))
   }
 
-  private def recursion(needTvMap: Ref[Boolean], canThrowSCE: Boolean)
-                       (solve: Long => Boolean)
-                       (`type`: ScType): Boolean = {
-    `type`.visitRecursively {
-      case tpt: TypeParameterType =>
-        tpt.typeParamId match {
-          case id if additionalIds(id) =>
-            needTvMap.set(true)
+  private def recursion(break: Long => Boolean)
+                       (set: Set[ScType]): Option[Boolean] = {
+    def predicate(flag: Ref[Boolean])
+                 (`type`: ScType): Boolean = {
+      def innerBreak[T](set: Set[Long], owner: T)
+                       (implicit evidence: TypeParamId[T]) = evidence.typeParamId(owner) match {
+        case id if set(id) =>
+          flag.set(true)
+          break(id)
+        case _ => false
+      }
 
-            if (!solve(id) && canThrowSCE) return true
-          case _ =>
-        }
-      case UndefinedType(tp, _) =>
-        tp.typeParamId match {
-          case id if typeParamIds(id) =>
-            needTvMap.set(true)
+      `type`.visitRecursively {
+        case tpt: TypeParameterType if innerBreak(additionalIds, tpt) => return false
+        case UndefinedType(tp, _) if innerBreak(typeParamIds, tp) => return false
+        case _ =>
+      }
 
-            if (!solve(id) && canThrowSCE) return true
-          case _ =>
-        }
-      case _ =>
+      true
     }
 
-    false
+    Ref.create(false) match {
+      case needTvMap if set.forall(predicate(needTvMap)) => Some(needTvMap.get)
+      case _ => None
+    }
   }
 }
 
