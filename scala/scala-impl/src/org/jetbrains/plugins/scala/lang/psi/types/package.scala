@@ -42,6 +42,12 @@ package object types {
       typeSystem.conformsInner(`type`, scType, checkWeak = true)._1
     }
 
+    def conformanceSubstitutor(`type`: ScType): Option[ScSubstitutor] =
+      conforms(`type`, ScUndefinedSubstitutor()(`type`.projectContext)) match {
+        case (true, ScUndefinedSubstitutor(substitutor)) => Some(substitutor)
+        case _ => None
+      }
+
     def conforms(`type`: ScType,
                  undefinedSubstitutor: ScUndefinedSubstitutor,
                  checkWeak: Boolean = false): (Boolean, ScUndefinedSubstitutor) = {

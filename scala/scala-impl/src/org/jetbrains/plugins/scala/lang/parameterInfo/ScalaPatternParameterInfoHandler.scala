@@ -222,10 +222,7 @@ class ScalaPatternParameterInfoHandler extends ParameterInfoHandlerWithTabAction
                           substituted = undefSubst.subst(parameterType)
                           expectedType <- constr.expectedType
 
-                          substitutor <- substituted.conforms(expectedType, ScUndefinedSubstitutor()) match {
-                            case (true, ScUndefinedSubstitutor(newSubst)) => Some(newSubst)
-                            case _ => None
-                          }
+                          substitutor <- substituted.conformanceSubstitutor(expectedType)
                         } yield substitutor
 
                         maybeSubstitutor.fold(substitutor) {

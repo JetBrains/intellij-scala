@@ -251,16 +251,9 @@ object ScPattern {
 
         val substitutedFunctionType = substitutor.subst(functionType)
 
-        val maybeSubstitutor = tp.conforms(substitutedFunctionType, ScUndefinedSubstitutor()) match {
-          case (true, ScUndefinedSubstitutor(newSubstitutor)) => Some(newSubstitutor)
-          case _ =>
-            substitutedFunctionType.conforms(tp, ScUndefinedSubstitutor()) match {
-              case (true, ScUndefinedSubstitutor(newSubstitutor)) => Some(newSubstitutor)
-              case _ => None
-            }
-        }
-
-        maybeSubstitutor.fold(substitutor) {
+        tp.conformanceSubstitutor(substitutedFunctionType).orElse {
+          substitutedFunctionType.conformanceSubstitutor(tp)
+        }.fold(substitutor) {
           _.followed(substitutor)
         }
       }

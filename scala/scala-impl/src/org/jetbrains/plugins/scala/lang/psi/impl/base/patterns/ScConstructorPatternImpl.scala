@@ -84,10 +84,8 @@ class ScConstructorPatternImpl(node: ASTNode) extends ScalaPsiElementImpl (node)
               val clazzType = ScParameterizedType(refType, td.getTypeParameters.map(UndefinedType(_)))
               val toAnySubst = bind(td.typeParameters)(Function.const(Any))
 
-              this.expectedType.map {
-                clazzType.conforms(_, ScUndefinedSubstitutor())
-              }.collect {
-                case (true, ScUndefinedSubstitutor(substitutor)) => substitutor
+              this.expectedType.flatMap {
+                clazzType.conformanceSubstitutor(_)
               }.fold(toAnySubst) {
                 _.followed(toAnySubst)
               }
@@ -106,9 +104,8 @@ class ScConstructorPatternImpl(node: ASTNode) extends ScalaPsiElementImpl (node)
                   Typeable(parameterType) <- fun.parameters.headOption
                   functionType = bind(typeParams)(UndefinedType(_)).subst(parameterType)
 
-                  (true, ScUndefinedSubstitutor(newSubstitutor)) <- this.expectedType.map {
-                    functionType.conforms(_, ScUndefinedSubstitutor())
-                  }
+                  expectedType <- this.expectedType
+                  newSubstitutor <- functionType.conformanceSubstitutor(expectedType)
                 } yield newSubstitutor
 
                 maybeSubstitutor.fold(substitutor) {

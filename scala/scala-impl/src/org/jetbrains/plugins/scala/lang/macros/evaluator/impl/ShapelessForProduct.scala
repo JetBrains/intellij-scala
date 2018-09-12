@@ -89,9 +89,6 @@ object ShapelessForProduct extends ScalaMacroTypeable {
     undefinedType = UndefinedType(parameter)
     genericType = ScParameterizedType(ScDesignatorType(genericClass), Seq(undefinedType))
 
-    substitutor <- expectedType.conforms(genericType, ScUndefinedSubstitutor()) match {
-      case (true, ScUndefinedSubstitutor(newSubstitutor)) => Some(newSubstitutor)
-      case _ => None
-    }
+    substitutor <- expectedType.conformanceSubstitutor(genericType)
   } yield substitutor.subst(undefinedType)
 }

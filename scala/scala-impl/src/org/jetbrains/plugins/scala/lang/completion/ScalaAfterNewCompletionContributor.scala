@@ -275,8 +275,8 @@ object ScalaAfterNewCompletionContributor {
     val predefinedType = fromParametersTypes(designatorType, undefinedTypes)
 
     for (t <- types) {
-      predefinedType.conforms(t, ScUndefinedSubstitutor()) match {
-        case (true, ScUndefinedSubstitutor(substitutor)) =>
+      predefinedType.conformanceSubstitutor(t) match {
+        case Some(substitutor) =>
           val valueType = fromParameters(designatorType, parameters)
           return Some(substitutor.subst(valueType), undefinedTypes.map(substitutor.subst).exists(_.isInstanceOf[UndefinedType]))
         case _ =>
