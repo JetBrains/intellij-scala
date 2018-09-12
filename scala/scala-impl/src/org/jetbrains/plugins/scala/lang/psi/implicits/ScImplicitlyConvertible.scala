@@ -24,6 +24,7 @@ import org.jetbrains.plugins.scala.lang.psi.types.recursiveUpdate.ScSubstitutor
 import org.jetbrains.plugins.scala.lang.psi.types.result._
 import org.jetbrains.plugins.scala.lang.resolve.ScalaResolveResult
 import org.jetbrains.plugins.scala.macroAnnotations.{CachedWithRecursionGuard, ModCount}
+import org.jetbrains.plugins.scala.project.ProjectContext
 
 import scala.collection.mutable.ArrayBuffer
 import scala.collection.{Set, mutable}
@@ -65,7 +66,8 @@ class ScImplicitlyConvertible(val expression: ScExpression,
   }
 
   private def adaptResults[IR <: ImplicitResolveResult](processor: CollectImplicitsProcessor, `type`: ScType)
-                                                       (f: (ScalaResolveResult, ScType, ScSubstitutor) => IR): Set[IR] =
+                                                       (f: (ScalaResolveResult, ScType, ScSubstitutor) => IR)
+                                                       (implicit context: ProjectContext = `type`.projectContext): Set[IR] =
     processor.candidatesS.flatMap {
       forMap(expression, _, `type`)
     }.collect {
@@ -225,7 +227,8 @@ object ScImplicitlyConvertible {
                                  function: ScFunction,
                                  `type`: ScType,
                                  substitutor: ScSubstitutor,
-                                 undefinedSubstitutor: ScUndefinedSubstitutor) = undefinedSubstitutor match {
+                                 undefinedSubstitutor: ScUndefinedSubstitutor)
+                                (implicit context: ProjectContext = `type`.projectContext) = undefinedSubstitutor match {
     case ScUndefinedSubstitutor(unSubst) =>
         val typeParamIds = function.typeParameters.map(_.typeParamId).toSet
         def hasRecursiveTypeParameters(`type`: ScType): Boolean = `type`.hasRecursiveTypeParameters(typeParamIds)

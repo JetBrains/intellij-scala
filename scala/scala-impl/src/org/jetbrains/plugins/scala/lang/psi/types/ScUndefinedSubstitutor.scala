@@ -28,7 +28,8 @@ sealed trait ScUndefinedSubstitutor {
 
   def removeTypeParamIds(ids: Set[Long]): ScUndefinedSubstitutor
 
-  def substitutionBounds(canThrowSCE: Boolean): Option[ScUndefinedSubstitutor.SubstitutionBounds]
+  def substitutionBounds(canThrowSCE: Boolean)
+                        (implicit context: ProjectContext): Option[ScUndefinedSubstitutor.SubstitutionBounds]
 }
 
 object ScUndefinedSubstitutor {
@@ -40,14 +41,13 @@ object ScUndefinedSubstitutor {
     val substitutor = ScSubstitutor(tvMap)
   }
 
-  def apply()(implicit project: ProjectContext): ScUndefinedSubstitutor = ScUndefinedSubstitutorImpl(
+  def apply(): ScUndefinedSubstitutor = ScUndefinedSubstitutorImpl(
     LongMap.empty,
     LongMap.empty,
     Set.empty
   )
 
-  def apply(substitutors: Set[ScUndefinedSubstitutor])
-           (implicit project: ProjectContext): ScUndefinedSubstitutor = {
+  def apply(substitutors: Set[ScUndefinedSubstitutor]): ScUndefinedSubstitutor = {
     val newSubstitutors = substitutors.filterNot {
       _.isEmpty
     }.flatMap {
@@ -62,7 +62,8 @@ object ScUndefinedSubstitutor {
     }
   }
 
-  def unapply(substitutor: ScUndefinedSubstitutor): Option[ScSubstitutor] =
+  def unapply(substitutor: ScUndefinedSubstitutor)
+             (implicit context: ProjectContext): Option[ScSubstitutor] =
     substitutor.substitutionBounds(canThrowSCE = true).map {
       _.substitutor
     }
@@ -71,11 +72,14 @@ object ScUndefinedSubstitutor {
 private final case class ScUndefinedSubstitutorImpl(upperMap: LongMap[Set[ScType]],
                                                     lowerMap: LongMap[Set[ScType]],
                                                     additionalIds: Set[Long])
-                                                   (implicit context: ProjectContext)
   extends ScUndefinedSubstitutor {
 
   import ScUndefinedSubstitutor._
   import ScUndefinedSubstitutorImpl._
+
+  private[this] var substWithBounds: Option[SubstitutionBounds] = _
+
+  private[this] var substWithBoundsNoSCE: Option[SubstitutionBounds] = _
 
   lazy val typeParamIds: Set[Long] = upperMap.keySet ++ lowerMap.keySet
 
@@ -108,20 +112,28 @@ private final case class ScUndefinedSubstitutorImpl(upperMap: LongMap[Set[ScType
       )
     }
 
-  private lazy val substWithBounds = substitutionBoundsImpl(canThrowSCE = true)
+  override def substitutionBounds(canThrowSCE: Boolean)
+                                 (implicit context: ProjectContext): Option[SubstitutionBounds] = {
+    def init(get: => Option[SubstitutionBounds])
+            (set: Option[SubstitutionBounds] => Unit) = get match {
+      case null =>
+        val value = substitutionBoundsImpl(canThrowSCE)
+        set(value)
+        value
+      case value => value
+    }
 
-  private lazy val substWithBoundsNoSCE = substitutionBoundsImpl(canThrowSCE = false)
-
-  override def substitutionBounds(canThrowSCE: Boolean): Option[SubstitutionBounds] =
-    if (canThrowSCE) substWithBounds
-    else substWithBoundsNoSCE
+    if (canThrowSCE) init(substWithBounds)(substWithBounds = _)
+    else init(substWithBoundsNoSCE)(substWithBoundsNoSCE = _)
+  }
 
   override def removeTypeParamIds(ids: Set[Long]): ScUndefinedSubstitutor = copy(
     upperMap = upperMap.removeIds(ids),
     lowerMap = lowerMap.removeIds(ids)
   )
 
-  private def substitutionBoundsImpl(canThrowSCE: Boolean): Option[SubstitutionBounds] = {
+  private def substitutionBoundsImpl(canThrowSCE: Boolean)
+                                    (implicit context: ProjectContext): Option[SubstitutionBounds] = {
     var tvMap = LongMap.empty[ScType]
     var lMap = LongMap.empty[ScType]
     var uMap = LongMap.empty[ScType]
@@ -343,7 +355,6 @@ private object ScUndefinedSubstitutorImpl {
 }
 
 private final case class ScMultiUndefinedSubstitutor(impls: Set[ScUndefinedSubstitutorImpl])
-                                                    (implicit project: ProjectContext)
   extends ScUndefinedSubstitutor {
 
   override val typeParamIds: Set[Long] = impls.flatMap(_.typeParamIds)
@@ -360,7 +371,8 @@ private final case class ScMultiUndefinedSubstitutor(impls: Set[ScUndefinedSubst
     _.addUpper(id, upper, additional, variance)
   }
 
-  override def substitutionBounds(canThrowSCE: Boolean): Option[ScUndefinedSubstitutor.SubstitutionBounds] =
+  override def substitutionBounds(canThrowSCE: Boolean)
+                                 (implicit context: ProjectContext): Option[ScUndefinedSubstitutor.SubstitutionBounds] =
     impls.iterator.map {
       _.substitutionBounds(canThrowSCE)
     }.collectFirst {

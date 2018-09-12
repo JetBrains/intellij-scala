@@ -42,11 +42,13 @@ package object types {
       typeSystem.conformsInner(`type`, scType, checkWeak = true)._1
     }
 
-    def conformanceSubstitutor(`type`: ScType): Option[ScSubstitutor] =
-      conforms(`type`, ScUndefinedSubstitutor()(`type`.projectContext)) match {
+    def conformanceSubstitutor(`type`: ScType): Option[ScSubstitutor] = {
+      implicit val context: ProjectContext = `type`.projectContext
+      conforms(`type`, ScUndefinedSubstitutor()) match {
         case (true, ScUndefinedSubstitutor(substitutor)) => Some(substitutor)
         case _ => None
       }
+    }
 
     def conforms(`type`: ScType,
                  undefinedSubstitutor: ScUndefinedSubstitutor,

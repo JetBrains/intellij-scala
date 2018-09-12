@@ -11,6 +11,7 @@ import org.jetbrains.plugins.scala.lang.psi.types.api.{FunctionType, TypeParamet
 import org.jetbrains.plugins.scala.lang.psi.types.{ScType, ScUndefinedSubstitutor}
 import org.jetbrains.plugins.scala.lang.resolve.processor.{BaseProcessor, MethodResolveProcessor, ResolveProcessor}
 import org.jetbrains.plugins.scala.lang.resolve.{ResolveTargets, ScalaResolveResult}
+import org.jetbrains.plugins.scala.project.ProjectContext
 
 import scala.collection.{Seq, Set}
 
@@ -86,7 +87,8 @@ object ExtensionConversionHelper {
     }
   }
 
-  private def update(candidate: Candidate, foundInType: ScalaResolveResult): Candidate = {
+  private def update(candidate: Candidate, foundInType: ScalaResolveResult)
+                    (implicit context: ProjectContext = foundInType.projectContext): Candidate = {
     val (candidateResult, candidateSubstitutor) = candidate
 
     foundInType.resultUndef.collect {
