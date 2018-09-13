@@ -66,7 +66,7 @@ sealed trait ConstraintSystem extends ConstraintsResult {
 
   def +(constraints: ConstraintSystem): ConstraintSystem
 
-  def typeParamIds: Set[Long]
+  def isApplicable(id: Long): Boolean
 
   def removeTypeParamIds(ids: Set[Long]): ConstraintSystem
 
@@ -123,7 +123,8 @@ private final case class ConstraintSystemImpl(upperMap: LongMap[Set[ScType]],
 
   private[this] var substWithBoundsNoSCE: Option[SubstitutionBounds] = _
 
-  lazy val typeParamIds: Set[Long] = upperMap.keySet ++ lowerMap.keySet
+  override def isApplicable(id: Long): Boolean =
+    upperMap.contains(id) || lowerMap.contains(id)
 
   override def isEmpty: Boolean = upperMap.isEmpty && lowerMap.isEmpty
 
@@ -244,7 +245,7 @@ private final case class ConstraintSystemImpl(upperMap: LongMap[Set[ScType]],
       }
     }
 
-    for (id <- typeParamIds) {
+    for ((id, _) <- upperMap.iterator ++ lowerMap.iterator) {
       if (!solve(Set.empty)(id) && canThrowSCE) return None
     }
 
@@ -255,17 +256,18 @@ private final case class ConstraintSystemImpl(upperMap: LongMap[Set[ScType]],
                        (set: Set[ScType]): Option[Boolean] = {
     def predicate(flag: Ref[Boolean])
                  (`type`: ScType): Boolean = {
-      def innerBreak[T](set: Set[Long], owner: T)
+      def innerBreak[T](owner: T)
+                       (visited: Long => Boolean)
                        (implicit evidence: TypeParamId[T]) = evidence.typeParamId(owner) match {
-        case id if set(id) =>
+        case id if visited(id) =>
           flag.set(true)
           break(id)
         case _ => false
       }
 
       `type`.visitRecursively {
-        case tpt: TypeParameterType if innerBreak(additionalIds, tpt) => return false
-        case UndefinedType(tp, _) if innerBreak(typeParamIds, tp) => return false
+        case tpt: TypeParameterType if innerBreak(tpt)(additionalIds.contains) => return false
+        case UndefinedType(tp, _) if innerBreak(tp)(isApplicable) => return false
         case _ =>
       }
 
@@ -393,9 +395,13 @@ private object ConstraintSystemImpl {
 private final case class MultiConstraintSystem(impls: Set[ConstraintSystemImpl])
   extends ConstraintSystem {
 
-  override val typeParamIds: Set[Long] = impls.flatMap(_.typeParamIds)
+  override def isApplicable(id: Long): Boolean = impls.exists {
+    _.isApplicable(id)
+  }
 
-  override def isEmpty: Boolean = typeParamIds.isEmpty
+  override def isEmpty: Boolean = impls.forall {
+    _.isEmpty
+  }
 
   override def withTypeParamId(id: Long): ConstraintSystem = this.map {
     _.withTypeParamId(id)
