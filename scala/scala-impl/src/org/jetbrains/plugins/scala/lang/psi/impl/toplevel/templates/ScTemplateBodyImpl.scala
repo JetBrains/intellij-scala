@@ -56,7 +56,8 @@ class ScTemplateBodyImpl private (stub: ScTemplateBodyStub, node: ASTNode)
     }
 
   def exprs: Seq[ScExpression] =
-    getStubOrPsiChildren(EXPRESSION_SET, ScExpressionFactory).toSeq
+    if (this.getStub != null) Seq.empty //we don't have stubbed expressions
+    else findChildrenByClassScala(classOf[ScExpression])
 
   @Cached(ModCount.anyScalaPsiModificationCount, this)
   def selfTypeElement: Option[ScSelfTypeElement] =

@@ -21,51 +21,6 @@ object TokenSets {
     kIMPLICIT, kFINAL, kOVERRIDE, kPROTECTED,
     kPRIVATE, kSEALED)
 
-  private val EXPR1_SET: TokenSet = TokenSet.create(IF_STMT,
-    FOR_STMT,
-    WHILE_STMT,
-    DO_STMT,
-    TRY_STMT,
-    TRY_BLOCK,
-    CATCH_BLOCK,
-    FINALLY_BLOCK,
-    RETURN_STMT,
-    THROW_STMT,
-    ASSIGN_STMT,
-    MATCH_STMT,
-    TYPED_EXPR_STMT,
-    POSTFIX_EXPR,
-    INFIX_EXPR,
-    PLACEHOLDER_EXPR,
-    PREFIX_EXPR)
-
-  val EXPRESSION_SET: TokenSet = TokenSet.orSet(EXPR1_SET,
-    TokenSet.create(LITERAL,
-      STRING_LITERAL,
-      BOOLEAN_LITERAL,
-      PREFIX_EXPR,
-      PREFIX,
-      POSTFIX_EXPR,
-      INFIX_EXPR,
-      PLACEHOLDER_EXPR,
-      EXPR1,
-      FUNCTION_EXPR,
-      AN_FUN,
-      GENERATOR,
-      ENUMERATOR,
-      ENUMERATORS,
-      EXPRS,
-      ARG_EXPRS,
-      BLOCK_EXPR,
-      ERROR_STMT,
-      BLOCK,
-      PARENT_EXPR,
-      METHOD_CALL,
-      REFERENCE_EXPRESSION,
-      THIS_REFERENCE,
-      SUPER_REFERENCE,
-      GENERIC_CALL))
-
   val ID_SET: TokenSet = TokenSet.create(tIDENTIFIER, tUNDER)
 
   val SELF_TYPE_ID: TokenSet = TokenSet.create(kTHIS, tIDENTIFIER, tUNDER)
