@@ -41,11 +41,7 @@ object ScUndefinedSubstitutor {
     val substitutor = ScSubstitutor(tvMap)
   }
 
-  def apply(): ScUndefinedSubstitutor = ScUndefinedSubstitutorImpl(
-    LongMap.empty,
-    LongMap.empty,
-    Set.empty
-  )
+  def apply(): ScUndefinedSubstitutor = empty
 
   def apply(substitutors: Set[ScUndefinedSubstitutor]): ScUndefinedSubstitutor = {
     val newSubstitutors = substitutors.filterNot {
@@ -67,6 +63,12 @@ object ScUndefinedSubstitutor {
     substitutor.substitutionBounds(canThrowSCE = true).map {
       _.substitutor
     }
+
+  private val empty = ScUndefinedSubstitutorImpl(
+    LongMap.empty,
+    LongMap.empty,
+    Set.empty
+  )
 }
 
 private final case class ScUndefinedSubstitutorImpl(upperMap: LongMap[Set[ScType]],
