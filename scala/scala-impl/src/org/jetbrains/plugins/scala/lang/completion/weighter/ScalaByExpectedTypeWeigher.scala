@@ -1,12 +1,14 @@
-package org.jetbrains.plugins.scala.lang.completion.weighter
+package org.jetbrains.plugins.scala
+package lang
+package completion
+package weighter
 
 import com.intellij.codeInsight.lookup.{LookupElement, LookupElementWeigher, WeighingContext}
 import com.intellij.psi.{PsiElement, PsiField, PsiMethod, PsiNamedElement}
-import org.jetbrains.plugins.scala.extensions.{PsiClassExt, PsiElementExt, PsiTypeExt}
-import org.jetbrains.plugins.scala.lang.completion.ScalaSmartCompletionContributor
+import org.jetbrains.plugins.scala.extensions.{PsiClassExt, PsiTypeExt}
 import org.jetbrains.plugins.scala.lang.completion.lookups.ScalaLookupItem
 import org.jetbrains.plugins.scala.lang.psi.ScalaPsiUtil
-import org.jetbrains.plugins.scala.lang.psi.api.expr.ScNewTemplateDefinition
+import org.jetbrains.plugins.scala.lang.psi.api.expr.ScExpression
 import org.jetbrains.plugins.scala.lang.psi.api.statements.ScFunction
 import org.jetbrains.plugins.scala.lang.psi.api.toplevel.ScTypedDefinition
 import org.jetbrains.plugins.scala.lang.psi.api.toplevel.typedef.ScMember
@@ -15,30 +17,26 @@ import org.jetbrains.plugins.scala.lang.psi.types.api.{Nothing, ParameterizedTyp
 import org.jetbrains.plugins.scala.lang.psi.types.recursiveUpdate.ScSubstitutor
 import org.jetbrains.plugins.scala.lang.psi.types.{ScType, ScalaType}
 import org.jetbrains.plugins.scala.lang.resolve.ResolveUtils
-import org.jetbrains.plugins.scala.project.ProjectContext
 
 /**
   * Created by Kate Ustyuzhanina on 11/24/16.
   */
-class ScalaByExpectedTypeWeigher(position: PsiElement, isAfterNew: Boolean) extends LookupElementWeigher("scalaExpectedType") {
+final class ScalaByExpectedTypeWeigher(maybeDefinition: Option[ScExpression])
+                                      (implicit position: PsiElement) extends LookupElementWeigher("scalaExpectedType") {
 
-  private implicit def project: ProjectContext = position.projectContext
+  import ScalaByExpectedTypeWeigher._
 
-  private lazy val expectedTypes: Seq[ScType] = {
-    val maybeDefinition = ScalaSmartCompletionContributor.extractReference[PsiElement](position)
-      .map(_.reference).orElse {
-      if (isAfterNew) position.findContextOfType(classOf[ScNewTemplateDefinition]) else None
-    }
-
-    maybeDefinition match {
-      case Some(expression) => expression.expectedTypes()
-      case _ => Seq.empty
-    }
+  private lazy val expectedTypes = maybeDefinition.fold(Seq.empty[ScType]) {
+    _.expectedTypes()
   }
 
   override def weigh(element: LookupElement, context: WeighingContext): Integer =
     ScalaLookupItem.original(element) match {
-      case s: ScalaLookupItem if expectedTypes.nonEmpty && computeType(s).exists(expectedType) => 0
+      case item@ScalaLookupItem(target) if expectedTypes.nonEmpty &&
+        isAccessible(target) &&
+        !item.isNamedParameterOrAssignment =>
+        if (computeType(target, item.substitutor).exists(expectedType)) 0
+        else 1
       case _ => 1
     }
 
@@ -53,17 +51,22 @@ class ScalaByExpectedTypeWeigher(position: PsiElement, isAfterNew: Boolean) exte
         } && scType.conforms(arg)
       case _ => false
     }
+}
 
-  private def computeType(item: ScalaLookupItem): Option[ScType] = {
-    def helper(scType: ScType, substitutor: ScSubstitutor = ScSubstitutor.empty) = {
+object ScalaByExpectedTypeWeigher {
+
+  import ScalaPsiUtil.inferMethodTypesArgs
+
+  private def computeType(element: PsiNamedElement, itemSubstitutor: ScSubstitutor)
+                         (implicit place: PsiElement): Option[ScType] = {
+    def substitution(scType: ScType,
+                     substitutor: ScSubstitutor = ScSubstitutor.empty) = {
       val substituted = substitutor.subst(scType)
-      item.substitutor.subst(substituted)
+      itemSubstitutor.subst(substituted)
     }
 
-    import ScalaPsiUtil.inferMethodTypesArgs
-    item.element match {
-      case element if !isAccessible(element, position) || item.isNamedParameterOrAssignment => None
-      case fun: ScSyntheticFunction => Some(helper(fun.retType))
+    element match {
+      case fun: ScSyntheticFunction => Some(substitution(fun.retType))
       case fun: ScFunction =>
         if (fun.containingClass != null && fun.containingClass.qualifiedName == "scala.Predef") {
           fun.name match {
@@ -73,23 +76,27 @@ class ScalaByExpectedTypeWeigher(position: PsiElement, isAfterNew: Boolean) exte
         }
         fun.returnType.toOption
           .orElse(fun.`type`().toOption)
-          .map(helper(_, inferMethodTypesArgs(fun, item.substitutor)))
+          .map {
+            substitution(_, inferMethodTypesArgs(fun, itemSubstitutor))
+          }
       case method: PsiMethod =>
-        val substitutor = inferMethodTypesArgs(method, item.substitutor)
-        Some(helper(method.getReturnType.toScType(), substitutor))
+        val substitutor = inferMethodTypesArgs(method, itemSubstitutor)
+        Some(substitution(method.getReturnType.toScType(), substitutor))
       case typed: ScTypedDefinition =>
-        typed.`type`().map(helper(_)).toOption
-      case f: PsiField =>
-        Some(helper(f.getType.toScType()))
-      case el => Some(ScalaType.designator(el))
+        typed.`type`().toOption
+          .map {
+            substitution(_)
+          }
+      case f: PsiField => Some(substitution(f.getType.toScType()))
+      case _ => Some(ScalaType.designator(element))
     }
   }
 
-  private def isAccessible(element: PsiNamedElement, place: PsiElement): Boolean =
-    ScalaPsiUtil.nameContext(element) match {
-      case member: ScMember => ResolveUtils.isAccessible(member, place, forCompletion = true)
-      case _ => true
-    }
+  private def isAccessible(element: PsiNamedElement)
+                          (implicit place: PsiElement): Boolean = ScalaPsiUtil.nameContext(element) match {
+    case member: ScMember => ResolveUtils.isAccessible(member, place, forCompletion = true)
+    case _ => true
+  }
 }
 
 

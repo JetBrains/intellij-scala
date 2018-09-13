@@ -14,7 +14,7 @@ import org.jetbrains.plugins.scala.lang.completion.lookups.ScalaLookupItem
 import org.jetbrains.plugins.scala.lang.completion.weighter.ScalaByExpectedTypeWeigher
 import org.jetbrains.plugins.scala.lang.lexer.ScalaTokenTypes
 import org.jetbrains.plugins.scala.lang.psi.ScalaPsiElement
-import org.jetbrains.plugins.scala.lang.psi.api.expr.{ScBlockExpr, ScModificationTrackerOwner}
+import org.jetbrains.plugins.scala.lang.psi.api.expr.{ScBlockExpr, ScModificationTrackerOwner, ScNewTemplateDefinition}
 import org.jetbrains.plugins.scala.lang.psi.api.statements.ScTypeAlias
 import org.jetbrains.plugins.scala.lang.psi.api.toplevel.typedef.ScTypeDefinition
 import org.jetbrains.plugins.scala.lang.refactoring.ScalaNamesValidator
@@ -77,9 +77,15 @@ package object completion {
           val position = positionFromParameters(parameters)
           val isAfterNew = ScalaAfterNewCompletionContributor.isAfterNew(position)
 
+          val maybeDefinition = position match {
+            case ScalaSmartCompletionContributor.Reference(reference) => Some(reference)
+            case _ if isAfterNew => position.findContextOfType(classOf[ScNewTemplateDefinition])
+            case _ => None
+          }
+
           defaultSorter
             .weighBefore("liftShorter", new ScalaByTypeWeigher(position, isAfterNew))
-            .weighAfter(if (isAfterNew) "scalaTypeCompletionWeigher" else "scalaKindWeigher", new ScalaByExpectedTypeWeigher(position, isAfterNew))
+            .weighAfter(if (isAfterNew) "scalaTypeCompletionWeigher" else "scalaKindWeigher", new ScalaByExpectedTypeWeigher(maybeDefinition)(position))
       }
 
       val updatedResultSet = resultSet
