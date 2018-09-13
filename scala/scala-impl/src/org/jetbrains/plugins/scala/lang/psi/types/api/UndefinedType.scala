@@ -25,12 +25,12 @@ case class UndefinedType(typeParameter: TypeParameter, level: Int = 0) extends N
       case _ if falseUndef => constraints
       case UndefinedType(_, thatLevel) if thatLevel == level => constraints
       case UndefinedType(tp, thatLevel) if thatLevel > level =>
-        constraints.addUpper(tp.typeParamId, this)
+        constraints.withUpper(tp.typeParamId, this)
       case that: UndefinedType if that.level < level =>
-        constraints.addUpper(typeParameter.typeParamId, that)
+        constraints.withUpper(typeParameter.typeParamId, that)
       case that =>
         val name = typeParameter.typeParamId
-        constraints.addLower(name, that).addUpper(name, that)
+        constraints.withLower(name, that).withUpper(name, that)
     }
   }
 }

@@ -149,8 +149,8 @@ trait ScalaConformance extends api.Conformance {
     private def addBounds(typeParameter: TypeParameter, `type`: ScType) = {
       val name = typeParameter.typeParamId
       constraints = constraints
-        .addLower(name, `type`, variance = Invariant)
-        .addUpper(name, `type`, variance = Invariant)
+        .withLower(name, `type`, variance = Invariant)
+        .withUpper(name, `type`, variance = Invariant)
     }
 
     /*
@@ -175,7 +175,7 @@ trait ScalaConformance extends api.Conformance {
 
     trait UndefinedSubstVisitor extends ScalaTypeVisitor {
       override def visitUndefinedType(u: UndefinedType) {
-        result = constraints.addUpper(u.typeParameter.typeParamId, l)
+        result = constraints.withUpper(u.typeParameter.typeParamId, l)
       }
     }
 
@@ -977,7 +977,7 @@ trait ScalaConformance extends api.Conformance {
             case (_: UndefinedType, UndefinedType(typeParameter, _)) =>
               (if (args1.length != args2.length) findDiffLengthArgs(l, args2.length) else Some((args1, des1))) match {
                 case Some((aArgs, aType)) =>
-                  constraints = constraints.addUpper(typeParameter.typeParamId, aType)
+                  constraints = constraints.withUpper(typeParameter.typeParamId, aType)
                   result = checkParameterizedType(typeParameter.typeParameters.map(_.psiTypeParameter).iterator, aArgs,
                     args2, constraints, visited, checkWeak)
                 case _ =>
@@ -986,7 +986,7 @@ trait ScalaConformance extends api.Conformance {
             case (UndefinedType(typeParameter, _), _) =>
               (if (args1.length != args2.length) findDiffLengthArgs(r, args1.length) else Some((args2, des2))) match {
                 case Some((aArgs, aType)) =>
-                  constraints = constraints.addLower(typeParameter.typeParamId, aType)
+                  constraints = constraints.withLower(typeParameter.typeParamId, aType)
                   result = checkParameterizedType(typeParameter.typeParameters.map(_.psiTypeParameter).iterator, args1,
                     aArgs, constraints, visited, checkWeak)
                 case _ =>
@@ -1014,7 +1014,7 @@ trait ScalaConformance extends api.Conformance {
             case (_, UndefinedType(typeParameter, _)) =>
               (if (args1.length != args2.length) findDiffLengthArgs(l, args2.length) else Some((args1, des1))) match {
                 case Some((aArgs, aType)) =>
-                  constraints = constraints.addUpper(typeParameter.typeParamId, aType)
+                  constraints = constraints.withUpper(typeParameter.typeParamId, aType)
                   result = checkParameterizedType(typeParameter.typeParameters.map(_.psiTypeParameter).iterator, aArgs,
                     args2, constraints, visited, checkWeak)
                 case _ =>
@@ -1371,9 +1371,9 @@ trait ScalaConformance extends api.Conformance {
         override def visitUndefinedType(u2: UndefinedType) {
           val name = u2.typeParameter.typeParamId
           result = if (u2.level > u.level) {
-            constraints.addUpper(name, u)
+            constraints.withUpper(name, u)
           } else if (u.level > u2.level) {
-            constraints.addUpper(name, u)
+            constraints.withUpper(name, u)
           } else {
             constraints
           }
@@ -1385,9 +1385,9 @@ trait ScalaConformance extends api.Conformance {
           case lit: ScLiteralType if lit.allowWiden && !u.typeParameter.upperType.conforms(Singleton) =>
             result = conformsInner(l, lit.wideType, visited, constraints, checkWeak)
           case lit: ScLiteralType =>
-            result = constraints.addLower(u.typeParameter.typeParamId, lit.blockWiden())
+            result = constraints.withLower(u.typeParameter.typeParamId, lit.blockWiden())
           case _ =>
-            result = constraints.addLower(u.typeParameter.typeParamId, r)
+            result = constraints.withLower(u.typeParameter.typeParamId, r)
         }
       }
     }
@@ -1583,8 +1583,8 @@ trait ScalaConformance extends api.Conformance {
                     variance: Variance = Covariant, addUpper: Boolean = false, addLower: Boolean = false): ConstraintsResult = {
     if (!addUpper && !addLower) return ConstraintsResult.Failure
     var res = constraints
-    if (addUpper) res = res.addUpper(typeParameter.typeParamId, bound, variance = variance)
-    if (addLower) res = res.addLower(typeParameter.typeParamId, bound, variance = variance)
+    if (addUpper) res = res.withUpper(typeParameter.typeParamId, bound, variance = variance)
+    if (addLower) res = res.withLower(typeParameter.typeParamId, bound, variance = variance)
     res
   }
 

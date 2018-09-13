@@ -514,10 +514,12 @@ object InferUtil {
 
                 //add constraints for tp from its' bounds
                 if (!substedLower.isNothing && !hasRecursiveTypeParams(substedLower)) {
-                  result = result.addLower(typeParamId, substedLower, additional = true)
+                  result = result.withLower(typeParamId, substedLower)
+                    .withTypeParamId(typeParamId)
                 }
                 if (!substedUpper.isAny && !hasRecursiveTypeParams(substedUpper)) {
-                  result = result.addUpper(typeParamId, substedUpper, additional = true)
+                  result = result.withUpper(typeParamId, substedUpper)
+                    .withTypeParamId(typeParamId)
                 }
 
                 val lowerTpId = substedLower.asOptionOf[TypeParameterType].map(_.typeParamId).filter(typeParamIds.contains)
@@ -528,10 +530,12 @@ object InferUtil {
                 //add constraints for tp bounds from tp substitution
                 if (!hasRecursiveTypeParams(substedTp)) {
                   upperTpId.foreach { id =>
-                    result = result.addLower(id, substedTp, additional = true)
+                    result = result.withLower(id, substedTp)
+                      .withTypeParamId(id)
                   }
                   lowerTpId.foreach { id =>
-                    result = result.addUpper(id, substedTp, additional = true)
+                    result = result.withUpper(id, substedTp)
+                      .withTypeParamId(id)
                   }
                 }
               }

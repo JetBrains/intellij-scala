@@ -58,11 +58,11 @@ sealed trait ConstraintSystem extends ConstraintsResult {
 
   def isEmpty: Boolean
 
-  def addLower(id: Long, lower: ScType,
-               additional: Boolean = false, variance: Variance = Contravariant): ConstraintSystem
+  def withTypeParamId(id: Long): ConstraintSystem
 
-  def addUpper(id: Long, upper: ScType,
-               additional: Boolean = false, variance: Variance = Covariant): ConstraintSystem
+  def withLower(id: Long, lower: ScType, variance: Variance = Contravariant): ConstraintSystem
+
+  def withUpper(id: Long, upper: ScType, variance: Variance = Covariant): ConstraintSystem
 
   def +(constraints: ConstraintSystem): ConstraintSystem
 
@@ -136,21 +136,21 @@ private final case class ConstraintSystemImpl(upperMap: LongMap[Set[ScType]],
     case multi: MultiConstraintSystem => multi + this
   }
 
-  override def addLower(id: Long, rawLower: ScType,
-                        additional: Boolean, variance: Variance): ConstraintSystem =
+  override def withTypeParamId(id: Long): ConstraintSystem = copy(
+    additionalIds = additionalIds + id
+  )
+
+  override def withLower(id: Long, rawLower: ScType, variance: Variance): ConstraintSystem =
     computeLower(variance)(rawLower).fold(this: ConstraintSystem) { lower =>
       copy(
-        lowerMap = lowerMap.update(id, lower),
-        additionalIds = additionalIds ++ id.toIterable(additional)
+        lowerMap = lowerMap.update(id, lower)
       )
     }
 
-  override def addUpper(id: Long, rawUpper: ScType,
-                        additional: Boolean, variance: Variance): ConstraintSystem =
+  override def withUpper(id: Long, rawUpper: ScType, variance: Variance): ConstraintSystem =
     computeUpper(variance)(rawUpper).fold(this: ConstraintSystem) { upper =>
       copy(
-        upperMap = upperMap.update(id, upper),
-        additionalIds = additionalIds ++ id.toIterable(additional)
+        upperMap = upperMap.update(id, upper)
       )
     }
 
@@ -303,12 +303,6 @@ private object ConstraintSystemImpl {
     }
   }
 
-  private implicit class LongExt(val id: Long) extends AnyVal {
-
-    def toIterable(flag: Boolean): Option[Long] =
-      if (flag) Some(id) else None
-  }
-
   private def computeUpper(variance: Variance) =
     updateUpper(variance).andThen {
       unpackedType(isAny)
@@ -403,14 +397,16 @@ private final case class MultiConstraintSystem(impls: Set[ConstraintSystemImpl])
 
   override def isEmpty: Boolean = typeParamIds.isEmpty
 
-  override def addLower(id: Long, lower: ScType,
-                        additional: Boolean, variance: Variance): ConstraintSystem = this.map {
-    _.addLower(id, lower, additional, variance)
+  override def withTypeParamId(id: Long): ConstraintSystem = this.map {
+    _.withTypeParamId(id)
   }
 
-  override def addUpper(id: Long, upper: ScType,
-                        additional: Boolean, variance: Variance): ConstraintSystem = this.map {
-    _.addUpper(id, upper, additional, variance)
+  override def withLower(id: Long, lower: ScType, variance: Variance): ConstraintSystem = this.map {
+    _.withLower(id, lower, variance)
+  }
+
+  override def withUpper(id: Long, upper: ScType, variance: Variance): ConstraintSystem = this.map {
+    _.withUpper(id, upper, variance)
   }
 
   override def substitutionBounds(canThrowSCE: Boolean)

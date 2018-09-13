@@ -438,10 +438,13 @@ object MethodResolveProcessor {
 
           var uSubst = undefined
           for (TypeParameter(tParam, _, lowerType, upperType) <- typeParameters) {
+            val typeParamId = tParam.typeParamId
+
             if (!lowerType.isNothing) {
               s.subst(newSubstitutor.subst(lowerType)) match {
                 case lower if !lower.hasRecursiveTypeParameters(typeParamIds) =>
-                  uSubst = uSubst.addLower(tParam.typeParamId, lower, additional = true)
+                  uSubst = uSubst.withLower(typeParamId, lower)
+                    .withTypeParamId(typeParamId)
                 case _ =>
               }
             }
@@ -449,7 +452,8 @@ object MethodResolveProcessor {
             if (!upperType.isAny) {
               s.subst(newSubstitutor.subst(upperType)) match {
                 case upper if !upper.hasRecursiveTypeParameters(typeParamIds) =>
-                  uSubst = uSubst.addUpper(tParam.typeParamId, upper, additional = true)
+                  uSubst = uSubst.withUpper(typeParamId, upper)
+                    .withTypeParamId(typeParamId)
                 case _ =>
               }
             }

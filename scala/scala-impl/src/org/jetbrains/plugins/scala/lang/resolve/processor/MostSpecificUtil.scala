@@ -190,13 +190,15 @@ case class MostSpecificUtil(elem: PsiElement, length: Int) {
                   tp.lowerType match {
                     case lower if lower.isNothing || lower.hasRecursiveTypeParameters(typeParamIds) =>
                     case lower =>
-                      u = u.addLower(typeParamId, uSubst.subst(lower), additional = true)
+                      u = u.withLower(typeParamId, uSubst.subst(lower))
+                        .withTypeParamId(typeParamId)
                   }
 
                   tp.upperType match {
                     case upper if upper.isAny || upper.hasRecursiveTypeParameters(typeParamIds) =>
                     case upper =>
-                      u = u.addUpper(typeParamId, uSubst.subst(upper), additional = true)
+                      u = u.withUpper(typeParamId, uSubst.subst(upper))
+                        .withTypeParamId(typeParamId)
                   }
                 }
               case _ =>
