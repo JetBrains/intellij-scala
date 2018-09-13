@@ -761,7 +761,7 @@ object ScalaPositionManager {
 
   def isIndyLambda(m: Method): Boolean = {
     val name = m.name()
-    name.contains("$anonfun$") && !name.endsWith("$adapted")
+    name.contains("$anonfun$") && name.charAt(name.length - 1).isDigit
   }
 
   def isAnonfunType(refType: ReferenceType): Boolean = {
