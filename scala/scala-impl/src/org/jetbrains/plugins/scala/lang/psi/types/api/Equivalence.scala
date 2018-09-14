@@ -25,7 +25,7 @@ trait Equivalence {
     override def initialValue(): Boolean = false
   }
 
-  final def equiv(left: ScType, right: ScType): Boolean = equivInner(left, right)._1
+  final def equiv(left: ScType, right: ScType): Boolean = equivInner(left, right).isSuccess
 
   def clearCache(): Unit = cache.clear()
 
@@ -37,14 +37,14 @@ trait Equivalence {
                        falseUndef: Boolean = true): ConstraintsResult = {
     ProgressManager.checkCanceled()
 
-    if (left == right) return (true, substitutor)
+    if (left == right) return substitutor
 
-    if (!left.canBeSameClass(right)) return (false, substitutor)
+    if (!left.canBeSameClass(right)) return ConstraintsResult.Failure
 
     val key = (left, right, falseUndef)
 
     val nowEval = eval.get()
-    val tuple = if (nowEval) null
+    val fromCache = if (nowEval) null
     else {
       try {
         eval.set(true)
@@ -53,20 +53,20 @@ trait Equivalence {
         eval.set(false)
       }
     }
-    if (tuple != null) {
-      if (substitutor.isEmpty) return tuple
-      return tuple.copy(_2 = substitutor + tuple._2)
+    if (fromCache != null) {
+      return fromCache.combine(substitutor)
     }
 
     if (guard.checkReentrancy(key)) {
-      return (false, ScUndefinedSubstitutor())
+      return ConstraintsResult.Failure
     }
 
     val stackStamp = RecursionManager.markStack()
 
     val result = guard.doPreventingRecursion(key, equivComputable(left, right, ScUndefinedSubstitutor(), falseUndef))
 
-    if (result == null) return (false, ScUndefinedSubstitutor())
+    if (result == null) return ConstraintsResult.Failure
+
     if (!nowEval && stackStamp.mayCacheNow()) {
       try {
         eval.set(true)
@@ -75,8 +75,7 @@ trait Equivalence {
         eval.set(false)
       }
     }
-    if (substitutor.isEmpty) return result
-    result.copy(_2 = substitutor + result._2)
+    result.combine(substitutor)
   }
 
   protected def equivComputable(left: ScType, right: ScType,

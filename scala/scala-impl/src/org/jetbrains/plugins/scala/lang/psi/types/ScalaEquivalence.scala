@@ -36,16 +36,16 @@ trait ScalaEquivalence extends api.Equivalence {
       (left, right) match {
         case (UndefinedType(_, _), _) if right.isAliasType.isDefined =>
           val t = left.equivInner(right, substitutor, falseUndef)
-          if (t._1) return (true, t._2)
+          if (t.isSuccess) return t
         case (_, UndefinedType(_, _)) if left.isAliasType.isDefined =>
           val t = left.equivInner(right, substitutor, falseUndef)
-          if (t._1) return (true, t._2)
+          if (t.isSuccess) return t
         case (ParameterizedType(UndefinedType(_, _), _), _) if right.isAliasType.isDefined =>
           val t = left.equivInner(right, substitutor, falseUndef)
-          if (t._1) return (true, t._2)
+          if (t.isSuccess) return t
         case (_, ParameterizedType(UndefinedType(_, _), _)) if left.isAliasType.isDefined =>
           val t = right.equivInner(left, substitutor, falseUndef)
-          if (t._1) return (true, t._2)
+          if (t.isSuccess) return t
         case _ =>
       }
 
