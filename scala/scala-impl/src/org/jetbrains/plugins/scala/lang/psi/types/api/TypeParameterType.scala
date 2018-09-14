@@ -29,8 +29,8 @@ class TypeParameterType private (val typeParameter: TypeParameter)
 
   def isContravariant: Boolean = typeParameter.isContravariant
 
-  override def equivInner(`type`: ScType, substitutor: ScUndefinedSubstitutor, falseUndef: Boolean): ConstraintsResult =
-    (`type` match {
+  override def equivInner(`type`: ScType, substitutor: ScUndefinedSubstitutor, falseUndef: Boolean): ConstraintsResult = {
+    val success = `type` match {
       case that: TypeParameterType => (that.psiTypeParameter eq psiTypeParameter) || {
         (psiTypeParameter, that.psiTypeParameter) match {
           case (myBound: ScTypeParam, thatBound: ScTypeParam) =>
@@ -42,7 +42,10 @@ class TypeParameterType private (val typeParameter: TypeParameter)
         }
       }
       case _ => false
-    }, substitutor)
+    }
+    if (success) substitutor
+    else ConstraintsResult.Failure
+  }
 
   override def visitType(visitor: TypeVisitor): Unit = visitor.visitTypeParameterType(this)
 }

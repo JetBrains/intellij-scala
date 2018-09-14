@@ -205,10 +205,10 @@ class ScProjectionType private(val projected: ScType,
         tp match {
           case designatorOwner: DesignatorOwner if designatorOwner.isSingleton =>
             val resInner = tp.equiv(r, uSubst, falseUndef)
-            if (resInner._1) return resInner
+            if (resInner.isSuccess) return resInner
           case lit: ScLiteralType =>
             val resInner = tp.equiv(r, uSubst, falseUndef)
-            if (resInner._1) return resInner
+            if (resInner.isSuccess) return resInner
           case _ =>
         }
       case _ =>
@@ -217,7 +217,7 @@ class ScProjectionType private(val projected: ScType,
       case Some(AliasType(_: ScTypeAliasDefinition, lower, _)) =>
         return (lower match {
           case Right(tp) => tp
-          case _ => return (false, uSubst)
+          case _ => return ConstraintsResult.Failure
         }).equiv(r, uSubst, falseUndef)
       case _ =>
     }
@@ -225,16 +225,16 @@ class ScProjectionType private(val projected: ScType,
       case t: StdType =>
         element match {
           case synth: ScSyntheticClass => synth.stdType.equiv(t, uSubst, falseUndef)
-          case _ => (false, uSubst)
+          case _ => ConstraintsResult.Failure
         }
       case ParameterizedType(ScProjectionType(_, _), _) =>
         r.isAliasType match {
           case Some(AliasType(_: ScTypeAliasDefinition, lower, _)) =>
             this.equiv(lower match {
               case Right(tp) => tp
-              case _ => return (false, uSubst)
+              case _ => return ConstraintsResult.Failure
             }, uSubst, falseUndef)
-          case _ => (false, uSubst)
+          case _ => ConstraintsResult.Failure
         }
       case proj2@ScProjectionType(p1, _) =>
         proj2.actualElement match {
@@ -244,7 +244,7 @@ class ScProjectionType private(val projected: ScType,
             tp match {
               case designatorOwner: DesignatorOwner if designatorOwner.isSingleton =>
                 val resInner = tp.equiv(this, uSubst, falseUndef)
-                if (resInner._1) return resInner
+                if (resInner.isSuccess) return resInner
               case _ =>
             }
           case _ =>
@@ -253,7 +253,7 @@ class ScProjectionType private(val projected: ScType,
           case Some(AliasType(_: ScTypeAliasDefinition, lower, _)) =>
             this.equiv(lower match {
               case Right(tp) => tp
-              case _ => return (false, uSubst)
+              case _ => return ConstraintsResult.Failure
             }, uSubst, falseUndef)
           case _ =>
         }
@@ -281,22 +281,22 @@ class ScProjectionType private(val projected: ScType,
               }
             case _ =>
           }
-          return (false, uSubst)
+          return ConstraintsResult.Failure
         }
         projected.equiv(p1, uSubst, falseUndef)
       case ScThisType(_) =>
         element match {
-          case _: ScObject => (false, uSubst)
+          case _: ScObject => ConstraintsResult.Failure
           case t: ScTypedDefinition if t.isStable =>
             t.`type`() match {
               case Right(singleton: DesignatorOwner) if singleton.isSingleton =>
                 val newSubst = actualSubst.followed(ScSubstitutor(projected))
                 r.equiv(newSubst.subst(singleton), uSubst, falseUndef)
-              case _ => (false, uSubst)
+              case _ => ConstraintsResult.Failure
             }
-          case _ => (false, uSubst)
+          case _ => ConstraintsResult.Failure
         }
-      case _ => (false, uSubst)
+      case _ => ConstraintsResult.Failure
     }
   }
 

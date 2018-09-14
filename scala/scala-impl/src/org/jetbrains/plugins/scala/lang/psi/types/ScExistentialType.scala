@@ -51,31 +51,31 @@ class ScExistentialType private (val quantified: ScType,
             case u => ScExistentialType(ScParameterizedType(u, args))
           }
         val conformance = r.conforms(upper, undefinedSubst)
-        if (!conformance._1) return conformance
+        if (conformance.isFailure) return conformance
 
         val lower: ScType =
           subst.subst(lowerBound) match {
             case ParameterizedType(l, _) => ScExistentialType(ScParameterizedType(l, args))
             case l => ScExistentialType(ScParameterizedType(l, args))
           }
-        return lower.conforms(r, conformance._2)
+        return lower.conforms(r, conformance.substitutor)
       case (ParameterizedType(UndefinedType(typeParameter, _), args), _) if !falseUndef =>
         r match {
           case ParameterizedType(des, _) =>
             val y = conformance.addParam(typeParameter, des, undefinedSubst)
-            if (!y._1) return (false, undefinedSubst)
-            undefinedSubst = y._2
+            if (y.isFailure) return ConstraintsResult.Failure
+            undefinedSubst = y.substitutor
             return ScExistentialType(ScParameterizedType(des, args)).equiv(r, undefinedSubst, falseUndef)
           case ScExistentialType(ParameterizedType(des, _), _) =>
             val y = conformance.addParam(typeParameter, des, undefinedSubst)
-            if (!y._1) return (false, undefinedSubst)
-            undefinedSubst = y._2
+            if (y.isFailure) return ConstraintsResult.Failure
+            undefinedSubst = y.substitutor
             return ScExistentialType(ScParameterizedType(des, args)).equiv(r, undefinedSubst, falseUndef)
-          case _ => return (false, undefinedSubst) //looks like something is wrong
+          case _ => return ConstraintsResult.Failure //looks like something is wrong
         }
       case (ParameterizedType(pType, args), ParameterizedType(rType, _)) =>
         val res = pType.equivInner(rType, undefinedSubst, falseUndef)
-        if (!res._1) return res
+        if (res.isFailure) return res
         conformance.extractParams(rType) match {
           case Some(iter) =>
             val (names, existArgsBounds) =
@@ -100,24 +100,27 @@ class ScExistentialType private (val quantified: ScType,
         while (iterator.hasNext) {
           val (w1, w2) = iterator.next()
           val t = w2.equivInner(w1, undefinedSubst, falseUndef)
-          if (!t._1) return (false, undefinedSubst)
-          undefinedSubst = t._2
+          if (t.isFailure) return ConstraintsResult.Failure
+          undefinedSubst = t.substitutor
         }
         quantified.equiv(ex.quantified, undefinedSubst, falseUndef) //todo: probable problems with different positions of skolemized types.
       case poly: ScTypePolymorphicType if poly.typeParameters.length == wildcards.length =>
         val list = wildcards.zip(poly.typeParameters)
         val iterator = list.iterator
-        var t = (true, undefinedSubst)
+        var t: ConstraintsResult = undefinedSubst
+
         while (iterator.hasNext) {
           val (w, tp) = iterator.next()
-          t = w.lower.equivInner(tp.lowerType, t._2, falseUndef)
-          if (!t._1) return (false, undefinedSubst)
-          t = w.upper.equivInner(tp.upperType, t._2, falseUndef)
-          if (!t._1) return (false, undefinedSubst)
+
+          t = w.lower.equivInner(tp.lowerType, t.substitutor, falseUndef)
+          if (t.isFailure) return ConstraintsResult.Failure
+
+          t = w.upper.equivInner(tp.upperType, t.substitutor, falseUndef)
+          if (t.isFailure) return ConstraintsResult.Failure
         }
         val polySubst = ScSubstitutor.bind(poly.typeParameters, wildcards)
-        quantified.equiv(polySubst.subst(poly.internalType), t._2, falseUndef)
-      case _ => (false, undefinedSubst)
+        quantified.equiv(polySubst.subst(poly.internalType), t.substitutor, falseUndef)
+      case _ => ConstraintsResult.Failure
     }
   }
 

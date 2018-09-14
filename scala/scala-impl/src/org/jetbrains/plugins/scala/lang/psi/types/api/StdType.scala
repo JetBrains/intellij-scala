@@ -29,8 +29,8 @@ sealed class StdType(val name: String, val tSuper: Option[StdType])
     if (classes.isClassesRegistered) classes.byName(name) else None
   }
 
-  override def equivInner(`type`: ScType, substitutor: ScUndefinedSubstitutor, falseUndef: Boolean): ConstraintsResult =
-    (`type` match {
+  override def equivInner(`type`: ScType, substitutor: ScUndefinedSubstitutor, falseUndef: Boolean): ConstraintsResult = {
+    val success = `type` match {
       case stdType: StdType => this == stdType
       case _ =>
         `type`.extractClass match {
@@ -42,7 +42,10 @@ sealed class StdType(val name: String, val tSuper: Option[StdType])
           }
           case _ => false
         }
-    }, substitutor)
+    }
+    if (success) substitutor
+    else ConstraintsResult.Failure
+  }
 }
 
 object StdType {

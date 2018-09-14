@@ -120,50 +120,55 @@ case class ScCompoundType(components: Seq[ScType],
     var undefinedSubst = uSubst
     r match {
       case r: ScCompoundType =>
-        if (r == this) return (true, undefinedSubst)
-        if (components.length != r.components.length) return (false, undefinedSubst)
+        if (r == this) return undefinedSubst
+        if (components.length != r.components.length) return ConstraintsResult.Failure
         val list = components.zip(r.components)
         val iterator = list.iterator
         while (iterator.hasNext) {
           val (w1, w2) = iterator.next()
           val t = w1.equiv(w2, undefinedSubst, falseUndef)
-          if (!t._1) return (false, undefinedSubst)
-          undefinedSubst = t._2
+          if (t.isFailure) return ConstraintsResult.Failure
+          
+          undefinedSubst = t.substitutor
         }
 
-        if (signatureMap.size != r.signatureMap.size) return (false, undefinedSubst)
+        if (signatureMap.size != r.signatureMap.size) return ConstraintsResult.Failure
 
         val iterator2 = signatureMap.iterator
         while (iterator2.hasNext) {
           val (sig, t) = iterator2.next()
           r.signatureMap.get(sig) match {
-            case None => return (false, undefinedSubst)
+            case None => return ConstraintsResult.Failure
             case Some(t1) =>
               val f = t.equiv(t1, undefinedSubst, falseUndef)
-              if (!f._1) return (false, undefinedSubst)
-              undefinedSubst = f._2
+              
+              if (f.isFailure) return ConstraintsResult.Failure
+              undefinedSubst = f.substitutor
           }
         }
 
         val types1 = typesMap
         val types2 = r.typesMap
-        if (types1.size != types2.size) (false, undefinedSubst)
+        if (types1.size != types2.size) ConstraintsResult.Failure
         else {
           val types1iterator = types1.iterator
           while (types1iterator.hasNext) {
             val (name, bounds1) = types1iterator.next()
             types2.get(name) match {
-              case None => return (false, undefinedSubst)
+              case None => return ConstraintsResult.Failure
               case Some (bounds2) =>
                 var t = bounds1.lowerBound.equiv(bounds2.lowerBound, undefinedSubst, falseUndef)
-                if (!t._1) return (false, undefinedSubst)
-                undefinedSubst = t._2
+
+                if (t.isFailure) return ConstraintsResult.Failure
+                undefinedSubst = t.substitutor
+
                 t = bounds1.upperBound.equiv(bounds2.upperBound, undefinedSubst, falseUndef)
-                if (!t._1) return (false, undefinedSubst)
-                undefinedSubst = t._2
+                if (t.isFailure) return ConstraintsResult.Failure
+
+                undefinedSubst = t.substitutor
             }
           }
-          (true, undefinedSubst)
+          undefinedSubst
         }
       case _ =>
         val needOnlyComponents = signatureMap.isEmpty && typesMap.isEmpty || ScCompoundType(components).conforms(this)
@@ -171,16 +176,16 @@ case class ScCompoundType(components: Seq[ScType],
           val filtered = components.filter {
             case t if t.isAny => false
             case t if t.isAnyRef =>
-              if (!r.conforms(AnyRef)) return (false, undefinedSubst)
+              if (!r.conforms(AnyRef)) return ConstraintsResult.Failure
               false
             case ScDesignatorType(obj: PsiClass) if obj.qualifiedName == "java.lang.Object" =>
-              if (!r.conforms(AnyRef)) return (false, undefinedSubst)
+              if (!r.conforms(AnyRef)) return ConstraintsResult.Failure
               false
             case _ => true
           }
           if (filtered.length == 1) filtered.head.equiv(r, undefinedSubst, falseUndef)
-          else (false, undefinedSubst)
-        } else (false, undefinedSubst)
+          else ConstraintsResult.Failure
+        } else ConstraintsResult.Failure
     }
   }
 }

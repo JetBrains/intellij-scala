@@ -145,21 +145,21 @@ case class ScMethodType(returnType: ScType, params: Seq[Parameter], isImplicit: 
     var undefinedSubst = uSubst
     r match {
       case m: ScMethodType =>
-        if (m.params.length != params.length) return (false, undefinedSubst)
+        if (m.params.length != params.length) return ConstraintsResult.Failure
         var t = m.returnType.equiv(returnType, undefinedSubst, falseUndef)
-        if (!t._1) return (false, undefinedSubst)
-        undefinedSubst = t._2
+        if (t.isFailure) return ConstraintsResult.Failure
+        undefinedSubst = t.substitutor
         var i = 0
         while (i < params.length) {
           //todo: Seq[Type] instead of Type*
-          if (params(i).isRepeated != m.params(i).isRepeated) return (false, undefinedSubst)
+          if (params(i).isRepeated != m.params(i).isRepeated) return ConstraintsResult.Failure
           t = params(i).paramType.equiv(m.params(i).paramType, undefinedSubst, falseUndef)
-          if (!t._1) return (false, undefinedSubst)
-          undefinedSubst = t._2
+          if (t.isFailure) return ConstraintsResult.Failure
+          undefinedSubst = t.substitutor
           i = i + 1
         }
-        (true, undefinedSubst)
-      case _ => (false, undefinedSubst)
+        undefinedSubst
+      case _ => ConstraintsResult.Failure
     }
   }
 }
@@ -266,20 +266,20 @@ case class ScTypePolymorphicType(internalType: ScType, typeParameters: Seq[TypeP
     var undefinedSubst = uSubst
     r match {
       case p: ScTypePolymorphicType =>
-        if (typeParameters.length != p.typeParameters.length) return (false, undefinedSubst)
+        if (typeParameters.length != p.typeParameters.length) return ConstraintsResult.Failure
         var i = 0
         while (i < typeParameters.length) {
           var t = typeParameters(i).lowerType.equiv(p.typeParameters(i).lowerType, undefinedSubst, falseUndef)
-          if (!t._1) return (false, undefinedSubst)
-          undefinedSubst = t._2
+          if (t.isFailure) return ConstraintsResult.Failure
+          undefinedSubst = t.substitutor
           t = typeParameters(i).upperType.equiv(p.typeParameters(i).upperType, undefinedSubst, falseUndef)
-          if (!t._1) return (false, undefinedSubst)
-          undefinedSubst = t._2
+          if (t.isFailure) return ConstraintsResult.Failure
+          undefinedSubst = t.substitutor
           i = i + 1
         }
         val subst = ScSubstitutor.bind(typeParameters, p.typeParameters)(TypeParameterType(_))
         subst.subst(internalType).equiv(p.internalType, undefinedSubst, falseUndef)
-      case _ => (false, undefinedSubst)
+      case _ => ConstraintsResult.Failure
     }
   }
 

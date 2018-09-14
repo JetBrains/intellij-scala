@@ -7,7 +7,7 @@ import java.util.Objects
 
 import org.jetbrains.plugins.scala.lang.psi.types.api._
 import org.jetbrains.plugins.scala.lang.psi.types.nonvalue.NonValueType
-import org.jetbrains.plugins.scala.lang.psi.types.recursiveUpdate.{AfterUpdate, RecursiveUpdateException, Update}
+import org.jetbrains.plugins.scala.lang.psi.types.recursiveUpdate.{AfterUpdate, Update}
 import org.jetbrains.plugins.scala.project.ProjectContext
 
 
@@ -41,13 +41,12 @@ case class ScAbstractType(typeParameter: TypeParameter, lower: ScType, upper: Sc
 
   override def equivInner(r: ScType, uSubst: ScUndefinedSubstitutor, falseUndef: Boolean): ConstraintsResult = {
     r match {
-      case _ if falseUndef => (false, uSubst)
+      case _ if falseUndef => ConstraintsResult.Failure
       case _ =>
-        var t = r.conforms(upper, uSubst)
-        if (!t._1) return (false, uSubst)
-        t = lower.conforms(r, t._2)
-        if (!t._1) return (false, uSubst)
-        (true, t._2)
+        val conformsUpper = r.conforms(upper, uSubst)
+        if (conformsUpper.isFailure) return ConstraintsResult.Failure
+
+        lower.conforms(r, conformsUpper.substitutor)
     }
   }
 

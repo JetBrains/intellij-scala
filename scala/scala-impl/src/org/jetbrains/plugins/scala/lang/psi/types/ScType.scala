@@ -61,7 +61,7 @@ trait ScType extends ProjectContextOwner {
   def removeAbstracts: ScType = this
 
   def equivInner(r: ScType, uSubst: ScUndefinedSubstitutor, falseUndef: Boolean): ConstraintsResult = {
-    (false, uSubst)
+    ConstraintsResult.Failure
   }
 
   def updateSubtypes(updates: Seq[Update], visited: Set[ScType]): ScType = this

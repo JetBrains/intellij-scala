@@ -37,9 +37,9 @@ case class JavaArrayType(argument: ScType) extends ValueType {
       case ParameterizedType(designator, arguments) if arguments.length == 1 =>
         designator.extractClass match {
           case Some(td) if td.qualifiedName == "scala.Array" => argument.equiv(arguments.head, substitutor, falseUndef)
-          case _ => (false, substitutor)
+          case _ => ConstraintsResult.Failure
         }
-      case _ => (false, substitutor)
+      case _ => ConstraintsResult.Failure
     }
 
   override def visitType(visitor: TypeVisitor): Unit = visitor.visitJavaArrayType(this)
