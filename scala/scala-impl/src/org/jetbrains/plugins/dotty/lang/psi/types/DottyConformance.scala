@@ -12,7 +12,7 @@ trait DottyConformance extends api.Conformance {
 
   override protected def conformsComputable(left: ScType, right: ScType, visited: Set[PsiClass], checkWeak: Boolean) =
     new Computable[ConstraintsResult] {
-      override def compute(): ConstraintsResult = (false, ScUndefinedSubstitutor())
+      override def compute(): ConstraintsResult = ConstraintsResult.Failure
     }
 
   private def isSubType(left: ScType, right: ScType) = right match {

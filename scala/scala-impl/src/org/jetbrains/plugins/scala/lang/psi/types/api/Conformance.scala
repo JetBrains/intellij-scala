@@ -33,32 +33,29 @@ trait Conformance {
                           checkWeak: Boolean = false): ConstraintsResult = {
     ProgressManager.checkCanceled()
 
-    if (left.isAny || right.isNothing || left == right) return (true, substitutor)
+    if (left.isAny || right.isNothing || left == right) return substitutor
 
-    if (!right.canBeSameOrInheritor(left)) return (false, substitutor)
+    if (!right.canBeSameOrInheritor(left)) return ConstraintsResult.Failure
 
     val key = (left, right, checkWeak)
 
-    val tuple = cache.get(key)
-    if (tuple != null) {
-      if (substitutor.isEmpty) return tuple
-      return tuple.copy(_2 = substitutor + tuple._2)
+    val fromCache = cache.get(key)
+    if (fromCache != null) {
+      return fromCache.combine(substitutor)
     }
     if (guard.checkReentrancy(key)) {
-      return (false, ScUndefinedSubstitutor())
+      return ConstraintsResult.Failure
     }
 
     val stackStamp = RecursionManager.markStack()
 
     val res = guard.doPreventingRecursion(key, conformsComputable(left, right, visited, checkWeak))
-    if (res == null) return (false, ScUndefinedSubstitutor())
+    if (res == null) return ConstraintsResult.Failure
 
     if (stackStamp.mayCacheNow()) {
       cache.put(key, res)
     }
-
-    if (substitutor.isEmpty) return res
-    res.copy(_2 = substitutor + res._2)
+    res.combine(substitutor)
   }
 
   def clearCache(): Unit = cache.clear()
