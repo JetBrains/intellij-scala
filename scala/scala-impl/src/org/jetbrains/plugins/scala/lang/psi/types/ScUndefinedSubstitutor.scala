@@ -11,8 +11,52 @@ import org.jetbrains.plugins.scala.lang.psi.types.recursiveUpdate.ScSubstitutor
 import org.jetbrains.plugins.scala.project.ProjectContext
 
 import scala.collection.immutable.LongMap
+import scala.language.implicitConversions
 
-sealed trait ScUndefinedSubstitutor {
+sealed trait ConstraintsResult {
+  def isFailure: Boolean
+
+  final def isSuccess: Boolean = !isFailure
+
+  def substitutor: ScUndefinedSubstitutor
+
+  def combine(other: ConstraintsResult): ConstraintsResult
+}
+
+object ConstraintsResult {
+  def unapply(cr: ConstraintsResult): Option[ScUndefinedSubstitutor] = cr match {
+    case Failure => None
+    case substitutor: ScUndefinedSubstitutor => Some(substitutor)
+  }
+
+  case object Failure extends ConstraintsResult {
+    override def isFailure: Boolean = true
+
+    override def substitutor: ScUndefinedSubstitutor = ScUndefinedSubstitutor()
+
+    override def combine(other: ConstraintsResult): ConstraintsResult = this
+  }
+
+  implicit def fromTuple(tuple: (Boolean, ScUndefinedSubstitutor)): ConstraintsResult = {
+    if (tuple._1) tuple._2
+    else Failure
+  }
+
+  implicit def toTuple(result: ConstraintsResult): (Boolean, ScUndefinedSubstitutor) = (result.isSuccess, result.substitutor)
+}
+
+sealed trait ScUndefinedSubstitutor extends ConstraintsResult {
+
+  override def isFailure: Boolean = false
+
+  override def substitutor: ScUndefinedSubstitutor = this
+
+  override def combine(other: ConstraintsResult): ConstraintsResult = other match {
+    case ConstraintsResult.Failure => ConstraintsResult.Failure
+    case substitutor: ScUndefinedSubstitutor =>
+      if (substitutor.isEmpty) this
+      else this + substitutor
+  }
 
   def isEmpty: Boolean
 
