@@ -15,6 +15,7 @@ import org.jetbrains.plugins.scala.lang.psi.api.statements.params._
 import org.jetbrains.plugins.scala.lang.psi.api.toplevel.ScTypeParametersOwner
 import org.jetbrains.plugins.scala.lang.psi.api.toplevel.typedef.ScTypeDefinition
 import org.jetbrains.plugins.scala.lang.psi.impl.toplevel.synthetic.ScSyntheticClass
+import org.jetbrains.plugins.scala.lang.psi.types.ScalaConformance.SmartInheritanceResult
 import org.jetbrains.plugins.scala.lang.psi.types.api._
 import org.jetbrains.plugins.scala.lang.psi.types.api.designator.{ScDesignatorType, ScProjectionType, ScThisType}
 import org.jetbrains.plugins.scala.lang.psi.types.nonvalue.{ScMethodType, ScTypePolymorphicType}
@@ -53,8 +54,8 @@ trait ScalaConformance extends api.Conformance {
                   return conformsInner(AnyRef, right, visited, substitutor, checkWeak)
                 }
                 val inh = smartIsInheritor(rClass, subst, lClass)
-                if (!inh._1) return (false, substitutor)
-                val tp = inh._2
+                if (inh.isFailure) return (false, substitutor)
+                val tp = inh.result
                 //Special case for higher kind types passed to generics.
                 if (lClass.hasTypeParameters) {
                   left match {
@@ -1506,18 +1507,18 @@ trait ScalaConformance extends api.Conformance {
     }
   }
 
-  private def smartIsInheritor(leftClass: PsiClass, substitutor: ScSubstitutor, rightClass: PsiClass) : (Boolean, ScType) = {
-    if (areClassesEquivalent(leftClass, rightClass)) return (false, null)
-    if (!isInheritorDeep(leftClass, rightClass)) return (false, null)
+  private def smartIsInheritor(leftClass: PsiClass, substitutor: ScSubstitutor, rightClass: PsiClass) : SmartInheritanceResult = {
+    if (areClassesEquivalent(leftClass, rightClass)) return SmartInheritanceResult.failure
+    if (!isInheritorDeep(leftClass, rightClass)) return SmartInheritanceResult.failure
     smartIsInheritor(leftClass, substitutor, areClassesEquivalent(_, rightClass), new collection.immutable.HashSet[PsiClass])
   }
 
-  private def parentWithArgNumber(leftClass: PsiClass, substitutor: ScSubstitutor, argsNumber: Int): (Boolean, ScType) = {
+  private def parentWithArgNumber(leftClass: PsiClass, substitutor: ScSubstitutor, argsNumber: Int): SmartInheritanceResult = {
     smartIsInheritor(leftClass, substitutor, c => c.getTypeParameters.length == argsNumber, new collection.immutable.HashSet[PsiClass]())
   }
 
   private def smartIsInheritor(leftClass: PsiClass, substitutor: ScSubstitutor, condition: PsiClass => Boolean,
-                               visited: collection.immutable.HashSet[PsiClass]): (Boolean, ScType) = {
+                               visited: collection.immutable.HashSet[PsiClass]): SmartInheritanceResult = {
     ProgressManager.checkCanceled()
     val bases: Seq[Any] = leftClass match {
       case td: ScTypeDefinition => td.superTypes
@@ -1549,13 +1550,15 @@ trait ScalaConformance extends api.Conformance {
     while (laterIterator.hasNext) {
       val (clazz, subst) = laterIterator.next()
       val recursive = smartIsInheritor(clazz, subst, condition, visited + clazz)
-      if (recursive._1) {
-        if (res == null) res = recursive._2
-        else if (recursive._2.conforms(res)) res = recursive._2
+      if (!recursive.isFailure) {
+        val lastResult = recursive.result
+
+        if (res == null || lastResult.conforms(res)) {
+          res = lastResult
+        }
       }
     }
-    if (res == null) (false, null)
-    else (true, res)
+    SmartInheritanceResult(res)
   }
 
   def extractParams(des: ScType): Option[Iterator[PsiTypeParameter]] = {
@@ -1652,10 +1655,9 @@ trait ScalaConformance extends api.Conformance {
   def findDiffLengthArgs(eType: ScType, argLength: Int): Option[(Seq[ScType], ScType)] =
     eType.extractClassType match {
       case Some((clazz, classSubst)) =>
-        val t: (Boolean, ScType) = parentWithArgNumber(clazz, classSubst, argLength)
-        if (!t._1) {
-          None
-        } else t._2 match {
+        val t = parentWithArgNumber(clazz, classSubst, argLength)
+        if (t.isFailure) None
+        else t.result match {
           case ParameterizedType(newDes, newArgs) =>
             Some(newArgs, newDes)
           case _ =>
@@ -1664,4 +1666,18 @@ trait ScalaConformance extends api.Conformance {
       case _ =>
         None
     }
+}
+
+private object ScalaConformance {
+  //avoid unnecessary Tuple2(Boolean, ScType), it generates a lot of garbage
+  private class SmartInheritanceResult(val result: ScType) extends AnyVal {
+    def isFailure: Boolean = result == null
+  }
+
+  private object SmartInheritanceResult {
+    val failure: SmartInheritanceResult = new SmartInheritanceResult(null)
+
+    def apply(res: ScType): SmartInheritanceResult = new SmartInheritanceResult(res)
+  }
+
 }
