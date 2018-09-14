@@ -15,8 +15,8 @@ trait ScalaEquivalence extends api.Equivalence {
   typeSystem: api.TypeSystem =>
 
   override protected def equivComputable(left: ScType, right: ScType, substitutor: ScUndefinedSubstitutor,
-                                         falseUndef: Boolean) = new Computable[(Boolean, ScUndefinedSubstitutor)] {
-    override def compute(): (Boolean, ScUndefinedSubstitutor) = {
+                                         falseUndef: Boolean) = new Computable[ConstraintsResult] {
+    override def compute(): ConstraintsResult = {
       left match {
         case designator: ScDesignatorType => designator.getValType match {
           case Some(valType) => return equivInner(valType, right, substitutor, falseUndef)

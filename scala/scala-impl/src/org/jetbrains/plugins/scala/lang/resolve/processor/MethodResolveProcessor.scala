@@ -237,13 +237,13 @@ object MethodResolveProcessor {
           }.getOrElse(Nothing)
         case _ => Nothing
       }
-      val (conforms, subst) = retType.typeSystem.conformsInner(expected, retType)
-      if (!conforms && !expected.equiv(api.Unit)) {
+      val conforms = retType.typeSystem.conformsInner(expected, retType)
+      if (conforms.isFailure && !expected.equiv(api.Unit)) {
         problems += ExpectedTypeMismatch
       }
       result match {
-        case Some(aResult) => aResult.copy(problems, if (expected.equiv(api.Unit)) aResult.undefSubst else aResult.undefSubst + subst)
-        case None => ConformanceExtResult(problems, subst)
+        case Some(aResult) => aResult.copy(problems, if (expected.equiv(api.Unit)) aResult.undefSubst else aResult.undefSubst + conforms.substitutor)
+        case None => ConformanceExtResult(problems, conforms.substitutor)
       }
     }
 

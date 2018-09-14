@@ -41,7 +41,7 @@ object ExtensionConversionHelper {
         implicit val project: Project = resolveResult.element.getProject
         ElementScope(project).cachedFunction1Type.flatMap { functionType =>
           implicitParameterType.conforms(functionType, ScUndefinedSubstitutor()) match {
-            case (_, ScUndefinedSubstitutor(substitutor)) => Some(substitutor.subst(functionType))
+            case ScUndefinedSubstitutor(substitutor) => Some(substitutor.subst(functionType))
             case _ => None
           }
         }.map {

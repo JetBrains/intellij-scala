@@ -4,7 +4,7 @@ import org.jetbrains.plugins.scala.extensions.PsiClassExt
 import org.jetbrains.plugins.scala.lang.psi.ElementScope
 import org.jetbrains.plugins.scala.lang.psi.api.toplevel.typedef.ScClass
 import org.jetbrains.plugins.scala.lang.psi.types.recursiveUpdate.{AfterUpdate, Update}
-import org.jetbrains.plugins.scala.lang.psi.types.{ScParameterizedType, ScType, ScTypeExt, ScUndefinedSubstitutor, ScalaType}
+import org.jetbrains.plugins.scala.lang.psi.types.{ConstraintsResult, ScParameterizedType, ScType, ScTypeExt, ScUndefinedSubstitutor, ScalaType}
 import org.jetbrains.plugins.scala.project.ProjectContext
 
 case class JavaArrayType(argument: ScType) extends ValueType {
@@ -31,7 +31,7 @@ case class JavaArrayType(argument: ScType) extends ValueType {
                                      (implicit visited: Set[ScType]): ScType =
     JavaArrayType(argument.recursiveVarianceUpdate(update, Invariant))
 
-  override def equivInner(`type`: ScType, substitutor: ScUndefinedSubstitutor, falseUndef: Boolean): (Boolean, ScUndefinedSubstitutor) =
+  override def equivInner(`type`: ScType, substitutor: ScUndefinedSubstitutor, falseUndef: Boolean): ConstraintsResult =
     `type` match {
       case JavaArrayType(thatArgument) => argument.equiv(thatArgument, substitutor, falseUndef)
       case ParameterizedType(designator, arguments) if arguments.length == 1 =>

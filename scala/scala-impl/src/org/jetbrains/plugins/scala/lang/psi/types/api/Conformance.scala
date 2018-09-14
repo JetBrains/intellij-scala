@@ -17,12 +17,11 @@ trait Conformance {
   typeSystem: TypeSystem =>
 
   private type Data = (ScType, ScType, Boolean)
-  private type Result = (Boolean, ScUndefinedSubstitutor)
 
-  private val guard = RecursionManager.RecursionGuard[Data, Result](s"${typeSystem.name}.conformance.guard")
+  private val guard = RecursionManager.RecursionGuard[Data, ConstraintsResult](s"${typeSystem.name}.conformance.guard")
 
-  private val cache: ConcurrentMap[(ScType, ScType, Boolean), (Boolean, ScUndefinedSubstitutor)] =
-    ContainerUtil.newConcurrentMap[(ScType, ScType, Boolean), (Boolean, ScUndefinedSubstitutor)]()
+  private val cache: ConcurrentMap[(ScType, ScType, Boolean), ConstraintsResult] =
+    ContainerUtil.newConcurrentMap[(ScType, ScType, Boolean), ConstraintsResult]()
 
   /**
     * Checks, whether the following assignment is correct:
@@ -31,7 +30,7 @@ trait Conformance {
   final def conformsInner(left: ScType, right: ScType,
                           visited: Set[PsiClass] = Set.empty,
                           substitutor: ScUndefinedSubstitutor = ScUndefinedSubstitutor(),
-                          checkWeak: Boolean = false): Result = {
+                          checkWeak: Boolean = false): ConstraintsResult = {
     ProgressManager.checkCanceled()
 
     if (left.isAny || right.isNothing || left == right) return (true, substitutor)
@@ -66,5 +65,5 @@ trait Conformance {
 
   protected def conformsComputable(left: ScType, right: ScType,
                                    visited: Set[PsiClass],
-                                   checkWeak: Boolean): Computable[(Boolean, ScUndefinedSubstitutor)]
+                                   checkWeak: Boolean): Computable[ConstraintsResult]
 }

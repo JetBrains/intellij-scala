@@ -30,7 +30,7 @@ package object types {
       typeSystem.equiv(scType, `type`)
     }
 
-    def equiv(`type`: ScType, undefinedSubstitutor: ScUndefinedSubstitutor, falseUndef: Boolean = true): (Boolean, ScUndefinedSubstitutor) = {
+    def equiv(`type`: ScType, undefinedSubstitutor: ScUndefinedSubstitutor, falseUndef: Boolean = true): ConstraintsResult = {
       typeSystem.equivInner(scType, `type`, undefinedSubstitutor, falseUndef)
     }
 
@@ -45,14 +45,14 @@ package object types {
     def conformanceSubstitutor(`type`: ScType): Option[ScSubstitutor] = {
       implicit val context: ProjectContext = `type`.projectContext
       conforms(`type`, ScUndefinedSubstitutor()) match {
-        case (true, ScUndefinedSubstitutor(substitutor)) => Some(substitutor)
+        case ScUndefinedSubstitutor(substitutor) => Some(substitutor)
         case _ => None
       }
     }
 
     def conforms(`type`: ScType,
                  undefinedSubstitutor: ScUndefinedSubstitutor,
-                 checkWeak: Boolean = false): (Boolean, ScUndefinedSubstitutor) = {
+                 checkWeak: Boolean = false): ConstraintsResult = {
       typeSystem.conformsInner(`type`, scType, substitutor = undefinedSubstitutor, checkWeak = checkWeak)
     }
 

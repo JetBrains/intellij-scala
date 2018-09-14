@@ -64,7 +64,7 @@ object Compatibility {
               case paramType =>
                 elementScope.cachedFunction1Type.flatMap { functionType =>
                   paramType.conforms(functionType, ScUndefinedSubstitutor()) match {
-                    case (_, ScUndefinedSubstitutor(substitutor)) => Some(substitutor.subst(functionType.typeArguments(1)))
+                    case ScUndefinedSubstitutor(substitutor) => Some(substitutor.subst(functionType.typeArguments(1)))
                     case _ => None
                   }
                 }.filterNot {
@@ -119,7 +119,7 @@ object Compatibility {
                        parameters: Seq[Parameter],
                        exprs: Seq[Expression],
                        checkWithImplicits: Boolean)
-                      (implicit project: ProjectContext): (Boolean, ScUndefinedSubstitutor) = {
+                      (implicit project: ProjectContext): ConstraintsResult = {
     val r = checkConformanceExt(checkNames, parameters, exprs, checkWithImplicits, isShapesResolve = false)
     (r.problems.isEmpty, r.undefSubst)
   }

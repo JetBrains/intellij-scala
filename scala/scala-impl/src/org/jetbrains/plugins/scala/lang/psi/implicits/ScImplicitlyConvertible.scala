@@ -167,7 +167,7 @@ object ScImplicitlyConvertible {
 
     val mapResult = result.element match {
       case function: ScFunction if function.hasTypeParameters =>
-        val (_, undefinedSubstitutor) = `type`.conforms(substituted, ScUndefinedSubstitutor())
+        val undefinedSubstitutor = `type`.conforms(substituted, ScUndefinedSubstitutor()).substitutor
         createSubstitutors(expression, function, `type`, substitutor, undefinedSubstitutor).map {
           case (dependentSubst, uSubst, implicitDependentSubst) =>
             DependentImplicitMapResult(result, dependentSubst.subst(retTp), uSubst, implicitDependentSubst)
@@ -214,7 +214,7 @@ object ScImplicitlyConvertible {
       elementType <- maybeElementType
 
       substitution = substitutor.subst(elementType).conforms(funType, ScUndefinedSubstitutor()) match {
-        case (_, ScUndefinedSubstitutor(newSubstitutor)) => newSubstitutor.subst _
+        case ScUndefinedSubstitutor(newSubstitutor) => newSubstitutor.subst _
         case _ => Function.const(Nothing) _
       }
 

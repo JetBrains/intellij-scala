@@ -189,7 +189,7 @@ class ScProjectionType private(val projected: ScType,
   def actualElement: PsiNamedElement = actual._1
   def actualSubst: ScSubstitutor = actual._2
 
-  override def equivInner(r: ScType, uSubst: ScUndefinedSubstitutor, falseUndef: Boolean): (Boolean, ScUndefinedSubstitutor) = {
+  override def equivInner(r: ScType, uSubst: ScUndefinedSubstitutor, falseUndef: Boolean): ConstraintsResult = {
     def isSingletonOk(typed: ScTypedDefinition): Boolean = {
       typed.nameContext match {
         case _: ScValue => true

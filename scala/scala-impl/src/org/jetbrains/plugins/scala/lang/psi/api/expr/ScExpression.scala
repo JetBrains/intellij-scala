@@ -299,7 +299,7 @@ object ScExpression {
                     case paramType =>
                       expr.elementScope.cachedFunction1Type.flatMap { functionType =>
                         paramType.conforms(functionType, ScUndefinedSubstitutor()) match {
-                          case (_, ScUndefinedSubstitutor(substitutor)) => Some(substitutor.subst(functionType.typeArguments(1)))
+                          case ScUndefinedSubstitutor(substitutor) => Some(substitutor.subst(functionType.typeArguments(1)))
                           case _ => None
                         }
                       }.filterNot {

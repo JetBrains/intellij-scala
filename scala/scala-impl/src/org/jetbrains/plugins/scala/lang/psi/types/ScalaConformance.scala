@@ -35,8 +35,8 @@ trait ScalaConformance extends api.Conformance {
   typeSystem: api.TypeSystem =>
 
   override protected def conformsComputable(left: ScType, right: ScType, visited: Set[PsiClass], checkWeak: Boolean) =
-    new Computable[(Boolean, ScUndefinedSubstitutor)] {
-      override def compute(): (Boolean, ScUndefinedSubstitutor) = {
+    new Computable[ConstraintsResult] {
+      override def compute(): ConstraintsResult = {
         val substitutor = ScUndefinedSubstitutor()
         val leftVisitor = new LeftConformanceVisitor(left, right, visited, substitutor, checkWeak)
         left.visitType(leftVisitor)
@@ -83,7 +83,7 @@ trait ScalaConformance extends api.Conformance {
 
   private def checkParameterizedType(parametersIterator: Iterator[PsiTypeParameter], args1: scala.Seq[ScType],
                              args2: scala.Seq[ScType], _undefinedSubst: ScUndefinedSubstitutor,
-                             visited: Set[PsiClass], checkWeak: Boolean): (Boolean, ScUndefinedSubstitutor) = {
+                             visited: Set[PsiClass], checkWeak: Boolean): ConstraintsResult = {
     var undefinedSubst = _undefinedSubst
 
     def addAbstract(upper: ScType, lower: ScType, tp: ScType): Boolean = {
@@ -356,7 +356,7 @@ trait ScalaConformance extends api.Conformance {
       override def visitCompoundType(c: ScCompoundType) {
         val comps = c.components
         var results = Set[ScUndefinedSubstitutor]()
-        def traverse(check: (ScType, ScUndefinedSubstitutor) => (Boolean, ScUndefinedSubstitutor)) = {
+        def traverse(check: (ScType, ScUndefinedSubstitutor) => ConstraintsResult) = {
           val iterator = comps.iterator
           while (iterator.hasNext) {
             val comp = iterator.next()
@@ -438,7 +438,7 @@ trait ScalaConformance extends api.Conformance {
                   maybeLeft.zip(maybeRight).map {
                     case (left, right) => conformsInner(left, right, visited, undefinedSubst)
                   }.foreach {
-                    case r@(true, _) => result = r
+                    case r if r.isSuccess => result = r
                     case _ =>
                   }
                 } else {
@@ -469,10 +469,10 @@ trait ScalaConformance extends api.Conformance {
       }
     }
 
-    private var result: (Boolean, ScUndefinedSubstitutor) = null
+    private var result: ConstraintsResult = null
     private var undefinedSubst: ScUndefinedSubstitutor = subst
 
-    def getResult: (Boolean, ScUndefinedSubstitutor) = result
+    def getResult: ConstraintsResult = result
 
     override def visitStdType(x: StdType) {
       var rightVisitor: ScalaTypeVisitor =
@@ -1182,7 +1182,7 @@ trait ScalaConformance extends api.Conformance {
       }
 
       conformsInner(updatedWithUndefinedTypes, r, HashSet.empty, undefinedSubst) match {
-        case (true, unSubst@ScUndefinedSubstitutor(solvingSubstitutor)) =>
+        case unSubst@ScUndefinedSubstitutor(solvingSubstitutor) =>
           for (un <- undefines if result == null) {
             val solvedType = solvingSubstitutor.subst(un)
 
@@ -1573,11 +1573,11 @@ trait ScalaConformance extends api.Conformance {
     }
   }
 
-  def addParam(typeParameter: TypeParameter, bound: ScType, undefinedSubst: ScUndefinedSubstitutor): (Boolean, ScUndefinedSubstitutor) =
+  def addParam(typeParameter: TypeParameter, bound: ScType, undefinedSubst: ScUndefinedSubstitutor): ConstraintsResult =
     addArgedBound(typeParameter, bound, undefinedSubst, variance = Invariant, addUpper = true, addLower = true)
 
   def addArgedBound(typeParameter: TypeParameter, bound: ScType, undefinedSubst: ScUndefinedSubstitutor,
-                    variance: Variance = Covariant, addUpper: Boolean = false, addLower: Boolean = false): (Boolean, ScUndefinedSubstitutor) = {
+                    variance: Variance = Covariant, addUpper: Boolean = false, addLower: Boolean = false): ConstraintsResult = {
     if (!addUpper && !addLower) return (false, undefinedSubst)
     var res = undefinedSubst
     if (addUpper) res = res.addUpper(typeParameter.typeParamId, bound, variance = variance)
@@ -1586,7 +1586,7 @@ trait ScalaConformance extends api.Conformance {
   }
 
   def processHigherKindedTypeParams(undefType: ParameterizedType, defType: ParameterizedType, undefinedSubst: ScUndefinedSubstitutor,
-                                    falseUndef: Boolean): (Boolean, ScUndefinedSubstitutor) = {
+                                    falseUndef: Boolean): ConstraintsResult = {
     val defTypeExpanded = defType.isAliasType.map(_.lower).map {
       case Right(p: ScParameterizedType) => p
       case _ => defType

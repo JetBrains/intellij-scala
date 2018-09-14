@@ -39,11 +39,11 @@ case class ScAbstractType(typeParameter: TypeParameter, lower: ScType, upper: Sc
     }
   }
 
-  override def equivInner(r: ScType, uSubst: ScUndefinedSubstitutor, falseUndef: Boolean): (Boolean, ScUndefinedSubstitutor) = {
+  override def equivInner(r: ScType, uSubst: ScUndefinedSubstitutor, falseUndef: Boolean): ConstraintsResult = {
     r match {
       case _ if falseUndef => (false, uSubst)
       case _ =>
-        var t: (Boolean, ScUndefinedSubstitutor) = r.conforms(upper, uSubst)
+        var t = r.conforms(upper, uSubst)
         if (!t._1) return (false, uSubst)
         t = lower.conforms(r, t._2)
         if (!t._1) return (false, uSubst)

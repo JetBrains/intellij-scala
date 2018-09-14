@@ -15,12 +15,11 @@ trait Equivalence {
   typeSystem: TypeSystem =>
 
   private type Data = (ScType, ScType, Boolean)
-  private type Result = (Boolean, ScUndefinedSubstitutor)
 
-  private val guard = RecursionManager.RecursionGuard[Data, Result](s"${typeSystem.name}.equivalence.guard")
+  private val guard = RecursionManager.RecursionGuard[Data, ConstraintsResult](s"${typeSystem.name}.equivalence.guard")
 
-  private val cache: ConcurrentMap[(ScType, ScType, Boolean), (Boolean, ScUndefinedSubstitutor)] =
-    ContainerUtil.newConcurrentMap[(ScType, ScType, Boolean), (Boolean, ScUndefinedSubstitutor)]()
+  private val cache: ConcurrentMap[(ScType, ScType, Boolean), ConstraintsResult] =
+    ContainerUtil.newConcurrentMap[(ScType, ScType, Boolean), ConstraintsResult]()
 
   private val eval = new ThreadLocal[Boolean] {
     override def initialValue(): Boolean = false
@@ -35,7 +34,7 @@ trait Equivalence {
     */
   final def equivInner(left: ScType, right: ScType,
                        substitutor: ScUndefinedSubstitutor = ScUndefinedSubstitutor(),
-                       falseUndef: Boolean = true): (Boolean, ScUndefinedSubstitutor) = {
+                       falseUndef: Boolean = true): ConstraintsResult = {
     ProgressManager.checkCanceled()
 
     if (left == right) return (true, substitutor)
@@ -82,5 +81,5 @@ trait Equivalence {
 
   protected def equivComputable(left: ScType, right: ScType,
                                 substitutor: ScUndefinedSubstitutor,
-                                falseUndef: Boolean): Computable[(Boolean, ScUndefinedSubstitutor)]
+                                falseUndef: Boolean): Computable[ConstraintsResult]
 }

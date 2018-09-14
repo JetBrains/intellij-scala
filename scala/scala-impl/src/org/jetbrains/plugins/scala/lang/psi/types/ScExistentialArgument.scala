@@ -23,7 +23,7 @@ trait ScExistentialArgument extends NamedType with ValueType {
   override def removeAbstracts: ScExistentialArgument =
     copyWithBounds(lower.removeAbstracts, upper.removeAbstracts)
 
-  override def equivInner(r: ScType, uSubst: ScUndefinedSubstitutor, falseUndef: Boolean): (Boolean, ScUndefinedSubstitutor) = {
+  override def equivInner(r: ScType, uSubst: ScUndefinedSubstitutor, falseUndef: Boolean): ConstraintsResult = {
     r match {
       case arg: ScExistentialArgument =>
         var undefinedSubst = uSubst

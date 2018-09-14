@@ -7,7 +7,7 @@ import org.jetbrains.plugins.scala.lang.psi.api.statements.{ScTypeAlias, ScTypeA
 import org.jetbrains.plugins.scala.lang.psi.api.toplevel.typedef.ScObject
 import org.jetbrains.plugins.scala.lang.psi.types.api._
 import org.jetbrains.plugins.scala.lang.psi.types.recursiveUpdate.ScSubstitutor
-import org.jetbrains.plugins.scala.lang.psi.types.{ScExistentialArgument, ScExistentialType, ScType, ScTypeExt, ScUndefinedSubstitutor}
+import org.jetbrains.plugins.scala.lang.psi.types.{ConstraintsResult, ScExistentialArgument, ScExistentialType, ScType, ScTypeExt, ScUndefinedSubstitutor}
 import org.jetbrains.plugins.scala.lang.refactoring.util.ScTypeUtil.AliasType
 import org.jetbrains.plugins.scala.util.ScEquivalenceUtil.smartEquivalence
 
@@ -59,7 +59,7 @@ case class ScDesignatorType(element: PsiNamedElement, isStatic: Boolean = false)
     case _ => None
   }
 
-  override def equivInner(`type`: ScType, substitutor: ScUndefinedSubstitutor, falseUndef: Boolean): (Boolean, ScUndefinedSubstitutor) = {
+  override def equivInner(`type`: ScType, substitutor: ScUndefinedSubstitutor, falseUndef: Boolean): ConstraintsResult = {
     def equivSingletons(left: DesignatorOwner, right: DesignatorOwner) = left.designatorSingletonType.filter {
       case designatorOwner: DesignatorOwner if designatorOwner.isSingleton => true
       case _ => false
@@ -75,7 +75,7 @@ case class ScDesignatorType(element: PsiNamedElement, isStatic: Boolean = false)
       case _ =>
         `type` match {
           case ScDesignatorType(thatElement) if smartEquivalence(element, thatElement) =>
-            Some((true, substitutor))
+            Some(substitutor)
           case that: DesignatorOwner if isSingleton && that.isSingleton =>
             equivSingletons(this, that) match {
               case None => equivSingletons(that, this)
@@ -84,7 +84,7 @@ case class ScDesignatorType(element: PsiNamedElement, isStatic: Boolean = false)
           case _ => None
         }
     }).getOrElse {
-      (false, substitutor)
+      ConstraintsResult.Failure
     }
   }
 

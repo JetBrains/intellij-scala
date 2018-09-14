@@ -141,7 +141,7 @@ case class ScMethodType(returnType: ScType, params: Seq[Parameter], isImplicit: 
       isImplicit)
   }
 
-  override def equivInner(r: ScType, uSubst: ScUndefinedSubstitutor, falseUndef: Boolean): (Boolean, ScUndefinedSubstitutor) = {
+  override def equivInner(r: ScType, uSubst: ScUndefinedSubstitutor, falseUndef: Boolean): ConstraintsResult = {
     var undefinedSubst = uSubst
     r match {
       case m: ScMethodType =>
@@ -262,7 +262,7 @@ case class ScTypePolymorphicType(internalType: ScType, typeParameters: Seq[TypeP
     )
   }
 
-  override def equivInner(r: ScType, uSubst: ScUndefinedSubstitutor, falseUndef: Boolean): (Boolean, ScUndefinedSubstitutor) = {
+  override def equivInner(r: ScType, uSubst: ScUndefinedSubstitutor, falseUndef: Boolean): ConstraintsResult = {
     var undefinedSubst = uSubst
     r match {
       case p: ScTypePolymorphicType =>

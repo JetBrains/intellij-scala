@@ -4,7 +4,7 @@ import com.intellij.psi.PsiTypeParameter
 import org.jetbrains.plugins.scala.lang.psi.api.statements.params.TypeParamIdOwner
 import org.jetbrains.plugins.scala.lang.psi.types.nonvalue.NonValueType
 import org.jetbrains.plugins.scala.lang.psi.types.recursiveUpdate.ScSubstitutor
-import org.jetbrains.plugins.scala.lang.psi.types.{ScType, ScUndefinedSubstitutor}
+import org.jetbrains.plugins.scala.lang.psi.types.{ConstraintsResult, ScType, ScUndefinedSubstitutor}
 import org.jetbrains.plugins.scala.project.ProjectContext
 
 /**
@@ -20,7 +20,7 @@ case class UndefinedType(typeParameter: TypeParameter, level: Int = 0) extends N
 
   def inferValueType: TypeParameterType = TypeParameterType(typeParameter)
 
-  override def equivInner(`type`: ScType, substitutor: ScUndefinedSubstitutor, falseUndef: Boolean): (Boolean, ScUndefinedSubstitutor) = {
+  override def equivInner(`type`: ScType, substitutor: ScUndefinedSubstitutor, falseUndef: Boolean): ConstraintsResult = {
     val result = `type` match {
       case _ if falseUndef => substitutor
       case UndefinedType(_, thatLevel) if thatLevel == level => substitutor

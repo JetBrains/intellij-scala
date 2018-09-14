@@ -176,7 +176,7 @@ case class MostSpecificUtil(elem: PsiElement, length: Int) {
           }
 
         conformance match {
-          case (true, undefined@ScUndefinedSubstitutor(uSubst)) =>
+          case undefined@ScUndefinedSubstitutor(uSubst) =>
             var u = undefined
             t2 match {
               case ScTypePolymorphicType(_, typeParams) =>

@@ -36,7 +36,7 @@ class ScExistentialType private (val quantified: ScType,
     ScExistentialType(quantified.recursiveVarianceUpdate(update, variance))
   }
 
-  override def equivInner(r: ScType, uSubst: ScUndefinedSubstitutor, falseUndef: Boolean): (Boolean, ScUndefinedSubstitutor) = {
+  override def equivInner(r: ScType, uSubst: ScUndefinedSubstitutor, falseUndef: Boolean): ConstraintsResult = {
     if (r.equiv(Nothing)) return quantified.equiv(Nothing, uSubst)
     var undefinedSubst = uSubst
     val simplified = simplify()

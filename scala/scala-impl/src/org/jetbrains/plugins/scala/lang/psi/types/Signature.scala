@@ -124,7 +124,7 @@ class Signature(val name: String,
 
 
   def paramTypesEquivExtended(other: Signature, uSubst: ScUndefinedSubstitutor,
-                              falseUndef: Boolean): (Boolean, ScUndefinedSubstitutor) = {
+                              falseUndef: Boolean): ConstraintsResult = {
 
     var undefSubst = uSubst
     if (paramLength != other.paramLength && !(paramLength.sum == 0 && other.paramLength.sum == 0)) return (false, undefSubst)
