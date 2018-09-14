@@ -121,7 +121,9 @@ object Compatibility {
                        checkWithImplicits: Boolean)
                       (implicit project: ProjectContext): ConstraintsResult = {
     val r = checkConformanceExt(checkNames, parameters, exprs, checkWithImplicits, isShapesResolve = false)
-    (r.problems.isEmpty, r.undefSubst)
+
+    if (r.problems.nonEmpty) ConstraintsResult.Failure
+    else r.undefSubst
   }
 
   def clashedAssignmentsIn(exprs: Seq[Expression]): Seq[ScAssignStmt] = {
@@ -223,7 +225,7 @@ object Compatibility {
             matched ::= (param, expr.expr, exprType)
             if (!conforms) List(TypeMismatch(expr.expr, paramType))
             else {
-              undefSubst += exprType.conforms(paramType, ScUndefinedSubstitutor(), checkWeak = true)._2
+              undefSubst += exprType.conforms(paramType, ScUndefinedSubstitutor(), checkWeak = true).substitutor
               List.empty
             }
         }
@@ -248,7 +250,7 @@ object Compatibility {
               for (exprType <- expr.getTypeAfterImplicitConversion(checkWithImplicits, isShapesResolve, Some(expectedType)).tr.toOption) {
                 if (exprType.weakConforms(tp)) {
                   matched ::= (param, expr, exprType)
-                  undefSubst += exprType.conforms(tp, ScUndefinedSubstitutor(), checkWeak = true)._2
+                  undefSubst += exprType.conforms(tp, ScUndefinedSubstitutor(), checkWeak = true).substitutor
                 } else {
                   return ConformanceExtResult(Seq(TypeMismatch(expr, tp)), undefSubst, defaultParameterUsed, matched)
                 }
@@ -299,7 +301,7 @@ object Compatibility {
                 for (exprType <- expr.getTypeAfterImplicitConversion(checkWithImplicits, isShapesResolve, Some(expectedType)).tr.toOption) {
                   if (exprType.weakConforms(paramType)) {
                     matched ::= (param, expr, exprType)
-                    undefSubst += exprType.conforms(paramType, ScUndefinedSubstitutor(), checkWeak = true)._2
+                    undefSubst += exprType.conforms(paramType, ScUndefinedSubstitutor(), checkWeak = true).substitutor
                   } else {
                     problems ::= TypeMismatch(expr, paramType)
                   }
@@ -332,7 +334,7 @@ object Compatibility {
               undefSubst, defaultParameterUsed, matched)
           } else {
             matched ::= (parameters.last, exprs(k).expr, exprType)
-            undefSubst += exprType.conforms(paramType, ScUndefinedSubstitutor(), checkWeak = true)._2
+            undefSubst += exprType.conforms(paramType, ScUndefinedSubstitutor(), checkWeak = true).substitutor
           }
         }
         k = k + 1
@@ -358,7 +360,7 @@ object Compatibility {
                 .get // safe (see defaultType implementation)
               matched ::= (param, expr, defaultTp)
 
-              undefSubst += defaultTp.conforms(paramType, ScUndefinedSubstitutor())._2
+              undefSubst += defaultTp.conforms(paramType, ScUndefinedSubstitutor()).substitutor
             case Some(defaultTp) =>
                 return ConformanceExtResult(Seq(DefaultTypeParameterMismatch(defaultTp, paramType)), undefSubst,
                   defaultParameterUsed = true, matched)

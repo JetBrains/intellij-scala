@@ -11,7 +11,6 @@ import org.jetbrains.plugins.scala.lang.psi.types.recursiveUpdate.ScSubstitutor
 import org.jetbrains.plugins.scala.project.ProjectContext
 
 import scala.collection.immutable.LongMap
-import scala.language.implicitConversions
 
 sealed trait ConstraintsResult {
   def isFailure: Boolean
@@ -36,13 +35,6 @@ object ConstraintsResult {
 
     override def combine(other: ConstraintsResult): ConstraintsResult = this
   }
-
-  implicit def fromTuple(tuple: (Boolean, ScUndefinedSubstitutor)): ConstraintsResult = {
-    if (tuple._1) tuple._2
-    else Failure
-  }
-
-  implicit def toTuple(result: ConstraintsResult): (Boolean, ScUndefinedSubstitutor) = (result.isSuccess, result.substitutor)
 }
 
 sealed trait ScUndefinedSubstitutor extends ConstraintsResult {
