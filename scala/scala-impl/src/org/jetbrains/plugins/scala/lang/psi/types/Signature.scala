@@ -119,20 +119,20 @@ class Signature(val name: String,
   }
 
   def paramTypesEquiv(other: Signature): Boolean = {
-    paramTypesEquivExtended(other, ScUndefinedSubstitutor(), falseUndef = true).isSuccess
+    paramTypesEquivExtended(other, ConstraintSystem.empty, falseUndef = true).isSuccess
   }
 
 
-  def paramTypesEquivExtended(other: Signature, uSubst: ScUndefinedSubstitutor,
+  def paramTypesEquivExtended(other: Signature, constraints: ConstraintSystem,
                               falseUndef: Boolean): ConstraintsResult = {
 
-    var undefSubst = uSubst
     if (paramLength != other.paramLength && !(paramLength.sum == 0 && other.paramLength.sum == 0)) return ConstraintsResult.Failure
     if (hasRepeatedParam != other.hasRepeatedParam) return ConstraintsResult.Failure
     val depParamTypeSubst = depParamTypeSubstitutor(other)
     val unified = other.substitutor.withBindings(typeParams, other.typeParams)
     val clauseIterator = substitutedTypes.iterator
     val otherClauseIterator = other.substitutedTypes.iterator
+    var lastConstraints = constraints
     while (clauseIterator.hasNext && otherClauseIterator.hasNext) {
       val clause1 = clauseIterator.next()
       val clause2 = otherClauseIterator.next()
@@ -143,20 +143,20 @@ class Signature(val name: String,
         val t2 = otherTypesIterator.next()
         val tp1 = unified.followed(depParamTypeSubst).subst(t1())
         val tp2 = unified.subst(t2())
-        var t = tp2.equiv(tp1, undefSubst, falseUndef)
+        var t = tp2.equiv(tp1, lastConstraints, falseUndef)
         if (t.isFailure && tp1.equiv(api.AnyRef) && this.isJava) {
-          t = tp2.equiv(Any, undefSubst, falseUndef)
+          t = tp2.equiv(Any, lastConstraints, falseUndef)
         }
         if (t.isFailure && tp2.equiv(api.AnyRef) && other.isJava) {
-          t = Any.equiv(tp1, undefSubst, falseUndef)
+          t = Any.equiv(tp1, lastConstraints, falseUndef)
         }
         if (t.isFailure) {
           return ConstraintsResult.Failure
         }
-        undefSubst = t.substitutor
+        lastConstraints = t.constraints
       }
     }
-    undefSubst
+    lastConstraints
   }
 
   override def equals(that: Any): Boolean = that match {

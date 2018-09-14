@@ -3,7 +3,7 @@ package org.jetbrains.plugins.scala.lang.psi.types.api
 import com.intellij.psi.PsiTypeParameter
 import org.jetbrains.plugins.scala.lang.psi.api.statements.params.ScTypeParam
 import org.jetbrains.plugins.scala.lang.psi.types.result._
-import org.jetbrains.plugins.scala.lang.psi.types.{ConstraintsResult, NamedType, ScType, ScUndefinedSubstitutor}
+import org.jetbrains.plugins.scala.lang.psi.types.{ConstraintsResult, NamedType, ScType, ConstraintSystem}
 import org.jetbrains.plugins.scala.project.ProjectContext
 
 class TypeParameterType private (val typeParameter: TypeParameter)
@@ -29,7 +29,7 @@ class TypeParameterType private (val typeParameter: TypeParameter)
 
   def isContravariant: Boolean = typeParameter.isContravariant
 
-  override def equivInner(`type`: ScType, substitutor: ScUndefinedSubstitutor, falseUndef: Boolean): ConstraintsResult = {
+  override def equivInner(`type`: ScType, constraints: ConstraintSystem, falseUndef: Boolean): ConstraintsResult = {
     val success = `type` match {
       case that: TypeParameterType => (that.psiTypeParameter eq psiTypeParameter) || {
         (psiTypeParameter, that.psiTypeParameter) match {
@@ -43,7 +43,7 @@ class TypeParameterType private (val typeParameter: TypeParameter)
       }
       case _ => false
     }
-    if (success) substitutor
+    if (success) constraints
     else ConstraintsResult.Failure
   }
 

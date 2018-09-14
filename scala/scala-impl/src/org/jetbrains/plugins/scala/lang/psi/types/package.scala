@@ -30,8 +30,8 @@ package object types {
       typeSystem.equiv(scType, `type`)
     }
 
-    def equiv(`type`: ScType, undefinedSubstitutor: ScUndefinedSubstitutor, falseUndef: Boolean = true): ConstraintsResult = {
-      typeSystem.equivInner(scType, `type`, undefinedSubstitutor, falseUndef)
+    def equiv(`type`: ScType, constraints: ConstraintSystem, falseUndef: Boolean = true): ConstraintsResult = {
+      typeSystem.equivInner(scType, `type`, constraints, falseUndef)
     }
 
     def conforms(`type`: ScType): Boolean = {
@@ -44,16 +44,16 @@ package object types {
 
     def conformanceSubstitutor(`type`: ScType): Option[ScSubstitutor] = {
       implicit val context: ProjectContext = `type`.projectContext
-      conforms(`type`, ScUndefinedSubstitutor()) match {
-        case ScUndefinedSubstitutor(substitutor) => Some(substitutor)
+      conforms(`type`, ConstraintSystem.empty) match {
+        case ConstraintSystem(substitutor) => Some(substitutor)
         case _ => None
       }
     }
 
     def conforms(`type`: ScType,
-                 undefinedSubstitutor: ScUndefinedSubstitutor,
+                 constraints: ConstraintSystem,
                  checkWeak: Boolean = false): ConstraintsResult = {
-      typeSystem.conformsInner(`type`, scType, substitutor = undefinedSubstitutor, checkWeak = checkWeak)
+      typeSystem.conformsInner(`type`, scType, constraints = constraints, checkWeak = checkWeak)
     }
 
     def glb(`type`: ScType, checkWeak: Boolean = false): ScType = {

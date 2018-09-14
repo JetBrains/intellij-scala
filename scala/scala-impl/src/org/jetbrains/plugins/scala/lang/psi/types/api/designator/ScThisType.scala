@@ -4,7 +4,7 @@ import org.jetbrains.plugins.scala.lang.psi.api.toplevel.ScTypedDefinition
 import org.jetbrains.plugins.scala.lang.psi.api.toplevel.typedef.{ScObject, ScTemplateDefinition}
 import org.jetbrains.plugins.scala.lang.psi.types.api.TypeVisitor
 import org.jetbrains.plugins.scala.lang.psi.types.recursiveUpdate.ScSubstitutor
-import org.jetbrains.plugins.scala.lang.psi.types.{ConstraintsResult, ScType, ScTypeExt, ScUndefinedSubstitutor}
+import org.jetbrains.plugins.scala.lang.psi.types.{ConstraintsResult, ScType, ScTypeExt, ConstraintSystem}
 import org.jetbrains.plugins.scala.util.ScEquivalenceUtil
 
 /**
@@ -33,20 +33,20 @@ case class ScThisType(element: ScTemplateDefinition) extends DesignatorOwner {
 
   override private[types] def designatorSingletonType = None
 
-  override def equivInner(`type`: ScType, substitutor: ScUndefinedSubstitutor, falseUndef: Boolean): ConstraintsResult = {
+  override def equivInner(`type`: ScType, constraints: ConstraintSystem, falseUndef: Boolean): ConstraintsResult = {
     (this, `type`) match {
       case (ScThisType(clazz1), ScThisType(clazz2)) =>
-        if (ScEquivalenceUtil.areClassesEquivalent(clazz1, clazz2)) substitutor
+        if (ScEquivalenceUtil.areClassesEquivalent(clazz1, clazz2)) constraints
         else ConstraintsResult.Failure
       case (ScThisType(obj1: ScObject), ScDesignatorType(obj2: ScObject)) =>
-        if (ScEquivalenceUtil.areClassesEquivalent(obj1, obj2)) substitutor
+        if (ScEquivalenceUtil.areClassesEquivalent(obj1, obj2)) constraints
         else ConstraintsResult.Failure
       case (_, ScDesignatorType(_: ScObject)) =>
         ConstraintsResult.Failure
       case (_, ScDesignatorType(typed: ScTypedDefinition)) if typed.isStable =>
         typed.`type`() match {
           case Right(tp: DesignatorOwner) if tp.isSingleton =>
-            this.equiv(tp, substitutor, falseUndef)
+            this.equiv(tp, constraints, falseUndef)
           case _ =>
             ConstraintsResult.Failure
         }
@@ -55,7 +55,7 @@ case class ScThisType(element: ScTemplateDefinition) extends DesignatorOwner {
         elem.`type`() match {
           case Right(singleton: DesignatorOwner) if singleton.isSingleton =>
             val newSubst = p.actualSubst.followed(ScSubstitutor(tp))
-            this.equiv(newSubst.subst(singleton), substitutor, falseUndef)
+            this.equiv(newSubst.subst(singleton), constraints, falseUndef)
           case _ => ConstraintsResult.Failure
         }
       case _ => ConstraintsResult.Failure

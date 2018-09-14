@@ -116,20 +116,20 @@ case class ScCompoundType(components: Seq[ScType],
     })
   }
 
-  override def equivInner(r: ScType, uSubst: ScUndefinedSubstitutor, falseUndef: Boolean): ConstraintsResult = {
-    var undefinedSubst = uSubst
+  override def equivInner(r: ScType, constraints: ConstraintSystem, falseUndef: Boolean): ConstraintsResult = {
+    var lastConstraints = constraints
     r match {
       case r: ScCompoundType =>
-        if (r == this) return undefinedSubst
+        if (r == this) return lastConstraints
         if (components.length != r.components.length) return ConstraintsResult.Failure
         val list = components.zip(r.components)
         val iterator = list.iterator
         while (iterator.hasNext) {
           val (w1, w2) = iterator.next()
-          val t = w1.equiv(w2, undefinedSubst, falseUndef)
+          val t = w1.equiv(w2, lastConstraints, falseUndef)
           if (t.isFailure) return ConstraintsResult.Failure
-          
-          undefinedSubst = t.substitutor
+
+          lastConstraints = t.constraints
         }
 
         if (signatureMap.size != r.signatureMap.size) return ConstraintsResult.Failure
@@ -140,10 +140,10 @@ case class ScCompoundType(components: Seq[ScType],
           r.signatureMap.get(sig) match {
             case None => return ConstraintsResult.Failure
             case Some(t1) =>
-              val f = t.equiv(t1, undefinedSubst, falseUndef)
-              
+              val f = t.equiv(t1, lastConstraints, falseUndef)
+
               if (f.isFailure) return ConstraintsResult.Failure
-              undefinedSubst = f.substitutor
+              lastConstraints = f.constraints
           }
         }
 
@@ -157,18 +157,18 @@ case class ScCompoundType(components: Seq[ScType],
             types2.get(name) match {
               case None => return ConstraintsResult.Failure
               case Some (bounds2) =>
-                var t = bounds1.lowerBound.equiv(bounds2.lowerBound, undefinedSubst, falseUndef)
+                var t = bounds1.lowerBound.equiv(bounds2.lowerBound, lastConstraints, falseUndef)
 
                 if (t.isFailure) return ConstraintsResult.Failure
-                undefinedSubst = t.substitutor
+                lastConstraints = t.constraints
 
-                t = bounds1.upperBound.equiv(bounds2.upperBound, undefinedSubst, falseUndef)
+                t = bounds1.upperBound.equiv(bounds2.upperBound, lastConstraints, falseUndef)
                 if (t.isFailure) return ConstraintsResult.Failure
 
-                undefinedSubst = t.substitutor
+                lastConstraints = t.constraints
             }
           }
-          undefinedSubst
+          lastConstraints
         }
       case _ =>
         val needOnlyComponents = signatureMap.isEmpty && typesMap.isEmpty || ScCompoundType(components).conforms(this)
@@ -183,7 +183,7 @@ case class ScCompoundType(components: Seq[ScType],
               false
             case _ => true
           }
-          if (filtered.length == 1) filtered.head.equiv(r, undefinedSubst, falseUndef)
+          if (filtered.length == 1) filtered.head.equiv(r, lastConstraints, falseUndef)
           else ConstraintsResult.Failure
         } else ConstraintsResult.Failure
     }

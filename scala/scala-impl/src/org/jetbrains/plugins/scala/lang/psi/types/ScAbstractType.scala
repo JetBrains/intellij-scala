@@ -39,14 +39,14 @@ case class ScAbstractType(typeParameter: TypeParameter, lower: ScType, upper: Sc
     }
   }
 
-  override def equivInner(r: ScType, uSubst: ScUndefinedSubstitutor, falseUndef: Boolean): ConstraintsResult = {
+  override def equivInner(r: ScType, constraints: ConstraintSystem, falseUndef: Boolean): ConstraintsResult = {
     r match {
       case _ if falseUndef => ConstraintsResult.Failure
       case _ =>
-        val conformsUpper = r.conforms(upper, uSubst)
+        val conformsUpper = r.conforms(upper, constraints)
         if (conformsUpper.isFailure) return ConstraintsResult.Failure
 
-        lower.conforms(r, conformsUpper.substitutor)
+        lower.conforms(r, conformsUpper.constraints)
     }
   }
 

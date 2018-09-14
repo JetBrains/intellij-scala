@@ -17,7 +17,7 @@ import org.jetbrains.plugins.scala.lang.psi.impl.ScalaPsiElementFactory.{createE
 import org.jetbrains.plugins.scala.lang.psi.implicits.ImplicitCollector.ImplicitState
 import org.jetbrains.plugins.scala.lang.psi.implicits.{ImplicitCollector, ImplicitsRecursionGuard}
 import org.jetbrains.plugins.scala.lang.psi.types.Compatibility.{ConformanceExtResult, Expression}
-import org.jetbrains.plugins.scala.lang.psi.types.ScUndefinedSubstitutor.SubstitutionBounds
+import org.jetbrains.plugins.scala.lang.psi.types.ConstraintSystem.SubstitutionBounds
 import org.jetbrains.plugins.scala.lang.psi.types._
 import org.jetbrains.plugins.scala.lang.psi.types.api._
 import org.jetbrains.plugins.scala.lang.psi.types.api.designator.{ScDesignatorType, ScProjectionType, ScThisType}
@@ -459,12 +459,12 @@ object InferUtil {
     val abstractSubst = ScTypePolymorphicType(retType, typeParams).abstractTypeSubstitutor
     val paramsWithUndefTypes = params.map(p => p.copy(paramType = s.subst(p.paramType),
       expectedType = abstractSubst.subst(p.paramType), defaultType = p.defaultType.map(s.subst)))
-    val conformanceResult@ConformanceExtResult(problems, undefSubst, _, matched) =
+    val conformanceResult@ConformanceExtResult(problems, constraints, _, matched) =
       Compatibility.checkConformanceExt(checkNames = true, paramsWithUndefTypes, exprs, checkWithImplicits = true,
       isShapesResolve = false)
 
     val tpe = if (problems.isEmpty) {
-      undefSubst.substitutionBounds(canThrowSCE) match {
+      constraints.substitutionBounds(canThrowSCE) match {
         case Some(bounds@SubstitutionBounds(_, lowerMap, upperMap)) =>
           val unSubst = bounds.substitutor
           if (!filterTypeParams) {
@@ -502,7 +502,7 @@ object InferUtil {
             })
           } else {
 
-            def addConstraints(un: ScUndefinedSubstitutor, tp: TypeParameter): ScUndefinedSubstitutor = {
+            def addConstraints(un: ConstraintSystem, tp: TypeParameter): ConstraintSystem = {
               val typeParamId = tp.typeParamId
               val substedLower = unSubst.subst(tp.lowerType)
               val substedUpper = unSubst.subst(tp.upperType)
@@ -586,9 +586,9 @@ object InferUtil {
               })
             }
 
-            typeParams.foldLeft(undefSubst)(addConstraints) match {
-              case undefSubst@ScUndefinedSubstitutor(substitutor) => updateWithSubst(substitutor, undefSubst.typeParamIds)
-              case undefSubst if !canThrowSCE => updateWithSubst(unSubst, undefSubst.typeParamIds)
+            typeParams.foldLeft(constraints)(addConstraints) match {
+              case constraints@ConstraintSystem(substitutor) => updateWithSubst(substitutor, constraints.typeParamIds)
+              case constraints if !canThrowSCE => updateWithSubst(unSubst, constraints.typeParamIds)
               case _ => throw new SafeCheckException
             }
           }

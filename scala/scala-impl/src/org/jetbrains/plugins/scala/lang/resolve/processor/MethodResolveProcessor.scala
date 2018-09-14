@@ -244,10 +244,10 @@ object MethodResolveProcessor {
       result match {
         case Some(aResult) =>
           val substitutor =
-            if (expected.equiv(api.Unit)) aResult.undefSubst
-            else aResult.undefSubst + conformance.substitutor
+            if (expected.equiv(api.Unit)) aResult.constraints
+            else aResult.constraints + conformance.constraints
           aResult.copy(problems, substitutor)
-        case None => ConformanceExtResult(problems, conformance.substitutor)
+        case None => ConformanceExtResult(problems, conformance.constraints)
       }
     }
 
@@ -430,8 +430,8 @@ object MethodResolveProcessor {
     }
 
     if (result.problems.forall(_ == ExpectedTypeMismatch)) {
-      val maybeResult = result.undefSubst match {
-        case undefined@ScUndefinedSubstitutor(newSubstitutor) =>
+      val maybeResult = result.constraints match {
+        case undefined@ConstraintSystem(newSubstitutor) =>
           val typeParamIds = typeParameters.map {
             _.typeParamId
           }.toSet
@@ -456,7 +456,7 @@ object MethodResolveProcessor {
           }
 
           uSubst match {
-            case ScUndefinedSubstitutor(_) => Some(result)
+            case ConstraintSystem(_) => Some(result)
             case _ => None
           }
         case _ => None
@@ -575,7 +575,7 @@ object MethodResolveProcessor {
           case Some(rr) if argumentClauses.nonEmpty =>
             val innerCopy = rr.copy(problems = pr.problems, defaultParameterUsed = pr.defaultParameterUsed)
             r.copy(innerResolveResult = Some(innerCopy))
-          case _ => r.copy(problems = pr.problems, defaultParameterUsed = pr.defaultParameterUsed, resultUndef = Some(pr.undefSubst))
+          case _ => r.copy(problems = pr.problems, defaultParameterUsed = pr.defaultParameterUsed, resultUndef = Some(pr.constraints))
         }
         results += result
       }

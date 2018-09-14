@@ -33,11 +33,11 @@ trait Equivalence {
     * @param falseUndef use false to consider undef type equals to any type
     */
   final def equivInner(left: ScType, right: ScType,
-                       substitutor: ScUndefinedSubstitutor = ScUndefinedSubstitutor(),
+                       constraints: ConstraintSystem = ConstraintSystem.empty,
                        falseUndef: Boolean = true): ConstraintsResult = {
     ProgressManager.checkCanceled()
 
-    if (left == right) return substitutor
+    if (left == right) return constraints
 
     if (!left.canBeSameClass(right)) return ConstraintsResult.Failure
 
@@ -54,7 +54,7 @@ trait Equivalence {
       }
     }
     if (fromCache != null) {
-      return fromCache.combine(substitutor)
+      return fromCache.combine(constraints)
     }
 
     if (guard.checkReentrancy(key)) {
@@ -63,7 +63,7 @@ trait Equivalence {
 
     val stackStamp = RecursionManager.markStack()
 
-    val result = guard.doPreventingRecursion(key, equivComputable(left, right, ScUndefinedSubstitutor(), falseUndef))
+    val result = guard.doPreventingRecursion(key, equivComputable(left, right, ConstraintSystem.empty, falseUndef))
 
     if (result == null) return ConstraintsResult.Failure
 
@@ -75,10 +75,10 @@ trait Equivalence {
         eval.set(false)
       }
     }
-    result.combine(substitutor)
+    result.combine(constraints)
   }
 
   protected def equivComputable(left: ScType, right: ScType,
-                                substitutor: ScUndefinedSubstitutor,
+                                constraints: ConstraintSystem,
                                 falseUndef: Boolean): Computable[ConstraintsResult]
 }

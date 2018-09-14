@@ -37,7 +37,7 @@ trait ScalaConformance extends api.Conformance {
   override protected def conformsComputable(left: ScType, right: ScType, visited: Set[PsiClass], checkWeak: Boolean) =
     new Computable[ConstraintsResult] {
       override def compute(): ConstraintsResult = {
-        val substitutor = ScUndefinedSubstitutor()
+        val substitutor = ConstraintSystem.empty
         val leftVisitor = new LeftConformanceVisitor(left, right, visited, substitutor, checkWeak)
         left.visitType(leftVisitor)
         if (leftVisitor.getResult != null) return leftVisitor.getResult
@@ -73,27 +73,27 @@ trait ScalaConformance extends api.Conformance {
           ProgressManager.checkCanceled()
           val tp = iterator.next()
           val t = conformsInner(left, tp, visited, substitutor, checkWeak = true)
-          if (t.isSuccess) return t.substitutor
+          if (t.isSuccess) return t.constraints
         }
         ConstraintsResult.Failure
       }
     }
 
   private def checkParameterizedType(parametersIterator: Iterator[PsiTypeParameter], args1: scala.Seq[ScType],
-                             args2: scala.Seq[ScType], _undefinedSubst: ScUndefinedSubstitutor,
-                             visited: Set[PsiClass], checkWeak: Boolean): ConstraintsResult = {
-    var undefinedSubst = _undefinedSubst
+                                     args2: scala.Seq[ScType], _constraints: ConstraintSystem,
+                                     visited: Set[PsiClass], checkWeak: Boolean): ConstraintsResult = {
+    var constraints = _constraints
 
     def addAbstract(upper: ScType, lower: ScType, tp: ScType): Boolean = {
       if (!upper.equiv(Any)) {
-        val t = conformsInner(upper, tp, visited, undefinedSubst, checkWeak)
+        val t = conformsInner(upper, tp, visited, constraints, checkWeak)
         if (t.isFailure) return false
-        undefinedSubst = t.substitutor
+        constraints = t.constraints
       }
       if (!lower.equiv(Nothing)) {
-        val t = conformsInner(tp, lower, visited, undefinedSubst, checkWeak)
+        val t = conformsInner(tp, lower, visited, constraints, checkWeak)
         if (t.isFailure) return false
-        undefinedSubst = t.substitutor
+        constraints = t.constraints
       }
       true
     }
@@ -106,24 +106,24 @@ trait ScalaConformance extends api.Conformance {
       val argsPair = (args1Iterator.next(), args2Iterator.next())
       tp match {
         case scp: ScTypeParam if scp.isContravariant =>
-          val y = conformsInner(argsPair._2, argsPair._1, HashSet.empty, undefinedSubst)
+          val y = conformsInner(argsPair._2, argsPair._1, HashSet.empty, constraints)
           if (y.isFailure) return ConstraintsResult.Failure
-          else undefinedSubst = y.substitutor
+          else constraints = y.constraints
         case scp: ScTypeParam if scp.isCovariant =>
-          val y = conformsInner(argsPair._1, argsPair._2, HashSet.empty, undefinedSubst)
+          val y = conformsInner(argsPair._1, argsPair._2, HashSet.empty, constraints)
           if (y.isFailure) return ConstraintsResult.Failure
-          else undefinedSubst = y.substitutor
+          else constraints = y.constraints
         //this case filter out such cases like undefined type
         case _ =>
           argsPair match {
             case (UndefinedType(typeParameter, _), rt) =>
-              val y = addParam(typeParameter, rt, undefinedSubst)
+              val y = addParam(typeParameter, rt, constraints)
               if (y.isFailure) return ConstraintsResult.Failure
-              undefinedSubst = y.substitutor
+              constraints = y.constraints
             case (lt, UndefinedType(typeParameter, _)) =>
-              val y = addParam(typeParameter, lt, undefinedSubst)
+              val y = addParam(typeParameter, lt, constraints)
               if (y.isFailure) return ConstraintsResult.Failure
-              undefinedSubst = y.substitutor
+              constraints = y.constraints
             case (ScAbstractType(_, lower, upper), right) =>
               if (!addAbstract(upper, lower, right))
                 return ConstraintsResult.Failure
@@ -131,24 +131,24 @@ trait ScalaConformance extends api.Conformance {
               if (!addAbstract(upper, lower, left))
                 return ConstraintsResult.Failure
             case _ =>
-              val t = argsPair._1.equiv(argsPair._2, undefinedSubst, falseUndef = false)
+              val t = argsPair._1.equiv(argsPair._2, constraints, falseUndef = false)
               if (t.isFailure) return ConstraintsResult.Failure
-              undefinedSubst = t.substitutor
+              constraints = t.constraints
           }
       }
     }
-    undefinedSubst
+    constraints
   }
 
   private class LeftConformanceVisitor(l: ScType, r: ScType, visited: Set[PsiClass],
-                                       subst: ScUndefinedSubstitutor,
+                                       prevConstraints: ConstraintSystem,
                                        checkWeak: Boolean = false) extends ScalaTypeVisitor {
 
     private implicit val projectContext = l.projectContext
 
     private def addBounds(typeParameter: TypeParameter, `type`: ScType) = {
       val name = typeParameter.typeParamId
-      undefinedSubst = undefinedSubst
+      constraints = constraints
         .addLower(name, `type`, variance = Invariant)
         .addUpper(name, `type`, variance = Invariant)
     }
@@ -161,7 +161,7 @@ trait ScalaConformance extends api.Conformance {
       override def visitDesignatorType(d: ScDesignatorType) {
         d.getValType match {
           case Some(v) =>
-            result = conformsInner(l, v, visited, subst, checkWeak)
+            result = conformsInner(l, v, visited, constraints, checkWeak)
           case _ =>
         }
       }
@@ -169,25 +169,25 @@ trait ScalaConformance extends api.Conformance {
 
     trait LiteralTypeWideningVisitor extends ScalaTypeVisitor {
       override def visitLiteralType(lit: ScLiteralType): Unit = {
-        result = if (l eq Singleton) subst else conformsInner(l, lit.wideType, visited, subst, checkWeak)
+        result = if (l eq Singleton) constraints else conformsInner(l, lit.wideType, visited, constraints, checkWeak)
       }
     }
 
     trait UndefinedSubstVisitor extends ScalaTypeVisitor {
       override def visitUndefinedType(u: UndefinedType) {
-        result = undefinedSubst.addUpper(u.typeParameter.typeParamId, l)
+        result = constraints.addUpper(u.typeParameter.typeParamId, l)
       }
     }
 
     trait AbstractVisitor extends ScalaTypeVisitor {
       override def visitAbstractType(a: ScAbstractType) {
         if (!a.lower.equiv(Nothing)) {
-          result = conformsInner(l, a.lower, visited, undefinedSubst, checkWeak)
+          result = conformsInner(l, a.lower, visited, constraints, checkWeak)
         } else {
-          result = undefinedSubst
+          result = constraints
         }
         if (result.isSuccess && !a.upper.equiv(Any)) {
-          val t = conformsInner(a.upper, l, visited, result.substitutor, checkWeak)
+          val t = conformsInner(a.upper, l, visited, result.constraints, checkWeak)
           if (t.isSuccess) result = t //this is optionally
         }
       }
@@ -204,7 +204,7 @@ trait ScalaConformance extends api.Conformance {
                 case lower => ScParameterizedType(lower, p.typeArguments)
               }
             if (!lower.equiv(Nothing)) {
-              result = conformsInner(l, lower, visited, undefinedSubst, checkWeak)
+              result = conformsInner(l, lower, visited, constraints, checkWeak)
             }
           case _ =>
         }
@@ -212,20 +212,20 @@ trait ScalaConformance extends api.Conformance {
     }
 
     private def checkEquiv() {
-      val equiv = l.equiv(r, undefinedSubst)
+      val equiv = l.equiv(r, constraints)
       if (equiv.isSuccess) result = equiv
     }
 
     trait ExistentialSimplification extends ScalaTypeVisitor {
       override def visitExistentialType(e: ScExistentialType) {
         val simplified = e.simplify()
-        if (simplified != r) result = conformsInner(l, simplified, visited, undefinedSubst, checkWeak)
+        if (simplified != r) result = conformsInner(l, simplified, visited, constraints, checkWeak)
       }
     }
 
     trait ExistentialArgumentVisitor extends ScalaTypeVisitor {
       override def visitExistentialArgument(s: ScExistentialArgument): Unit = {
-        result = conformsInner(l, s.upper, HashSet.empty, undefinedSubst)
+        result = conformsInner(l, s.upper, HashSet.empty, constraints)
       }
     }
 
@@ -235,9 +235,9 @@ trait ScalaConformance extends api.Conformance {
           case s: ScExistentialArgument =>
             s.upper match {
               case ParameterizedType(upper, _) =>
-                result = conformsInner(l, upper, visited, undefinedSubst, checkWeak)
+                result = conformsInner(l, upper, visited, constraints, checkWeak)
               case upper =>
-                result = conformsInner(l, upper, visited, undefinedSubst, checkWeak)
+                result = conformsInner(l, upper, visited, constraints, checkWeak)
             }
           case _ =>
         }
@@ -264,11 +264,11 @@ trait ScalaConformance extends api.Conformance {
 
     trait NothingNullVisitor extends ScalaTypeVisitor {
       override def visitLiteralType(lt: ScLiteralType): Unit = {
-        if (lt.wideType.eq(Null) && l.conforms(AnyRef)) result = undefinedSubst
+        if (lt.wideType.eq(Null) && l.conforms(AnyRef)) result = constraints
       }
 
       override def visitStdType(x: StdType) {
-        if (x eq Nothing) result = undefinedSubst
+        if (x eq Nothing) result = constraints
         else if (x eq Null) {
           /*
             this case for checking: val x: T = null
@@ -285,10 +285,10 @@ trait ScalaConformance extends api.Conformance {
                   .map(ScDesignatorType(_))
                   .exists(l.conforms(_))
 
-              result = // todo: think about undefinedSubst
-                if (!flag) undefinedSubst
+              result = // todo: think about constraints
+                if (!flag) constraints
                 else ConstraintsResult.Failure
-            case _ => result = undefinedSubst
+            case _ => result = constraints
           }
         }
       }
@@ -296,14 +296,14 @@ trait ScalaConformance extends api.Conformance {
 
     trait TypeParameterTypeVisitor extends ScalaTypeVisitor {
       override def visitTypeParameterType(tpt: TypeParameterType) {
-        result = conformsInner(l, tpt.upperType, substitutor = undefinedSubst)
+        result = conformsInner(l, tpt.upperType, constraints = constraints)
       }
     }
 
     trait ThisVisitor extends ScalaTypeVisitor {
       override def visitThisType(t: ScThisType): Unit = {
         result = t.element.getTypeWithProjections() match {
-          case Right(value) => conformsInner(l, value, visited, subst, checkWeak)
+          case Right(value) => conformsInner(l, value, visited, constraints, checkWeak)
           case _ => ConstraintsResult.Failure
         }
       }
@@ -319,7 +319,7 @@ trait ScalaConformance extends api.Conformance {
         }
 
         result = maybeType match {
-          case Right(value) => conformsInner(l, value, visited, undefinedSubst)
+          case Right(value) => conformsInner(l, value, visited, constraints)
           case _ => ConstraintsResult.Failure
         }
       }
@@ -330,7 +330,7 @@ trait ScalaConformance extends api.Conformance {
         p.isAliasType match {
           case Some(AliasType(_, _, upper)) =>
             result = upper match {
-              case Right(value) => conformsInner(l, value, visited, undefinedSubst)
+              case Right(value) => conformsInner(l, value, visited, constraints)
               case _ => ConstraintsResult.Failure
             }
           case _ =>
@@ -344,7 +344,7 @@ trait ScalaConformance extends api.Conformance {
       override def visitDesignatorType(des: ScDesignatorType) {
         des.isAliasType match {
           case Some(AliasType(_, _, Right(value))) =>
-            val res = conformsInner(l, value, visited, undefinedSubst)
+            val res = conformsInner(l, value, visited, constraints)
             if (stopDesignatorAliasOnFailure || res.isSuccess) result = res
           case _ =>
         }
@@ -354,14 +354,14 @@ trait ScalaConformance extends api.Conformance {
     trait CompoundTypeVisitor extends ScalaTypeVisitor {
       override def visitCompoundType(c: ScCompoundType) {
         val comps = c.components
-        var results = Set[ScUndefinedSubstitutor]()
-        def traverse(check: (ScType, ScUndefinedSubstitutor) => ConstraintsResult) = {
+        var results = Set[ConstraintSystem]()
+        def traverse(check: (ScType, ConstraintSystem) => ConstraintsResult) = {
           val iterator = comps.iterator
           while (iterator.hasNext) {
             val comp = iterator.next()
-            val t = check(comp, undefinedSubst)
+            val t = check(comp, constraints)
             if (t.isSuccess) {
-              results = results + t.substitutor
+              results = results + t.constraints
             }
           }
         }
@@ -374,13 +374,13 @@ trait ScalaConformance extends api.Conformance {
           result = results.head
           return
         } else if (results.size > 1) {
-          result = ScUndefinedSubstitutor(results)
+          result = ConstraintSystem(results)
           return
         }
 
         result = l.isAliasType match {
           case Some(AliasType(_: ScTypeAliasDefinition, Right(comp: ScCompoundType), _)) =>
-            conformsInner(comp, c, HashSet.empty, undefinedSubst)
+            conformsInner(comp, c, HashSet.empty, constraints)
           case _ => ConstraintsResult.Failure
         }
       }
@@ -388,7 +388,7 @@ trait ScalaConformance extends api.Conformance {
 
     trait ExistentialVisitor extends ScalaTypeVisitor {
       override def visitExistentialType(ex: ScExistentialType) {
-        result = conformsInner(l, ex.quantified, HashSet.empty, undefinedSubst)
+        result = conformsInner(l, ex.quantified, HashSet.empty, constraints)
       }
     }
 
@@ -399,14 +399,14 @@ trait ScalaConformance extends api.Conformance {
         proj2.isAliasType match {
           case Some(AliasType(_, _, Left(_))) =>
           case Some(AliasType(_, _, Right(value))) =>
-            val res = conformsInner(l, value, visited, undefinedSubst)
+            val res = conformsInner(l, value, visited, constraints)
             if (stopProjectionAliasOnFailure || res.isSuccess) result = res
           case _ =>
             l match {
             case proj1: ScProjectionType if smartEquivalence(proj1.actualElement, proj2.actualElement) =>
               val projected1 = proj1.projected
               val projected2 = proj2.projected
-              result = conformsInner(projected1, projected2, visited, undefinedSubst)
+              result = conformsInner(projected1, projected2, visited, constraints)
             case ParameterizedType(projDes: ScProjectionType, typeArguments) =>
               //TODO this looks overcomplicated. Improve the code.
               def cutProj(p: ScType, acc: List[ScProjectionType]): ScType = {
@@ -416,9 +416,9 @@ trait ScalaConformance extends api.Conformance {
               }
               @tailrec
               def findProjectionBase(proj: ScProjectionType, acc: List[ScProjectionType] = List()): Unit = {
-                val t = proj.projected.equiv(projDes.projected, undefinedSubst)
+                val t = proj.projected.equiv(projDes.projected, constraints)
                 if (t.isSuccess) {
-                  undefinedSubst = t.substitutor
+                  constraints = t.constraints
                   val (maybeLeft, maybeRight) = (projDes.actualElement, proj.actualElement) match {
                     case (desT: Typeable, projT: Typeable) =>
                       val left = desT.`type`().toOption
@@ -435,7 +435,7 @@ trait ScalaConformance extends api.Conformance {
                   }
 
                   maybeLeft.zip(maybeRight).map {
-                    case (left, right) => conformsInner(left, right, visited, undefinedSubst)
+                    case (left, right) => conformsInner(left, right, visited, constraints)
                   }.foreach {
                     case conformance if conformance.isSuccess => result = conformance
                     case _ =>
@@ -451,7 +451,7 @@ trait ScalaConformance extends api.Conformance {
             case _ =>
               val res = proj2.actualElement match {
                 case syntheticClass: ScSyntheticClass =>
-                  result = conformsInner(l, syntheticClass.stdType, HashSet.empty, undefinedSubst)
+                  result = conformsInner(l, syntheticClass.stdType, HashSet.empty, constraints)
                   return
                 case v: ScBindingPattern => v.`type`()
                 case v: ScParameter => v.`type`()
@@ -460,7 +460,7 @@ trait ScalaConformance extends api.Conformance {
               }
 
               result = res match {
-                case Right(value) => conformsInner(l, proj2.actualSubst.subst(value), visited, undefinedSubst)
+                case Right(value) => conformsInner(l, proj2.actualSubst.subst(value), visited, constraints)
                 case _ => ConstraintsResult.Failure
               }
           }
@@ -469,7 +469,7 @@ trait ScalaConformance extends api.Conformance {
     }
 
     private var result: ConstraintsResult = null
-    private var undefinedSubst: ScUndefinedSubstitutor = subst
+    private var constraints: ConstraintSystem = prevConstraints
 
     def getResult: ConstraintsResult = result
 
@@ -495,29 +495,29 @@ trait ScalaConformance extends api.Conformance {
 
         (r, x) match {
           case (Byte, Short | Int | Long | Float | Double) =>
-            result = undefinedSubst
+            result = constraints
             return
           case (Short, Int | Long | Float | Double) =>
-            result = undefinedSubst
+            result = constraints
             return
           case (Char, Byte | Short | Int | Long | Float | Double) =>
-            result = undefinedSubst
+            result = constraints
             return
           case (Int, Long | Float | Double) =>
-            result = undefinedSubst
+            result = constraints
             return
           case (Long, Float | Double) =>
-            result = undefinedSubst
+            result = constraints
             return
           case (Float, Double) =>
-            result = undefinedSubst
+            result = constraints
             return
           case _ =>
         }
       }
 
       if (x eq Any) {
-        result = undefinedSubst
+        result = constraints
         return
       }
 
@@ -545,7 +545,7 @@ trait ScalaConformance extends api.Conformance {
       if (result != null) return
 
       if (x eq Null) {
-        result = if (r.isNothing) undefinedSubst else ConstraintsResult.Failure
+        result = if (r.isNothing) constraints else ConstraintsResult.Failure
         return
       }
 
@@ -574,7 +574,7 @@ trait ScalaConformance extends api.Conformance {
           }
           r.visitType(rightVisitor)
           if (result != null) return
-          result = undefinedSubst
+          result = constraints
           return
         }
       }
@@ -585,7 +585,7 @@ trait ScalaConformance extends api.Conformance {
 
       if (x eq AnyVal) {
         result =
-          if (r.isInstanceOf[ValType] || ValueClassType.isValueType(r)) undefinedSubst
+          if (r.isInstanceOf[ValType] || ValueClassType.isValueType(r)) constraints
           else ConstraintsResult.Failure
         return
       }
@@ -623,22 +623,22 @@ trait ScalaConformance extends api.Conformance {
       U1	with	. . .	with	Un       === comps1
       Un                            === compn*/
       def workWithSignature(s: Signature, retType: ScType): Boolean = {
-        val processor = new CompoundTypeCheckSignatureProcessor(s,retType, undefinedSubst, s.substitutor)
+        val processor = new CompoundTypeCheckSignatureProcessor(s,retType, constraints, s.substitutor)
         processor.processType(r, s.namedElement)
-        undefinedSubst = processor.getUndefinedSubstitutor
+        constraints = processor.getConstraints
         processor.getResult
       }
 
       def workWithTypeAlias(sign: TypeAliasSignature): Boolean = {
-        val processor = new CompoundTypeCheckTypeAliasProcessor(sign, undefinedSubst, ScSubstitutor.empty)
+        val processor = new CompoundTypeCheckTypeAliasProcessor(sign, constraints, ScSubstitutor.empty)
         processor.processType(r, sign.ta)
-        undefinedSubst = processor.getUndefinedSubstitutor
+        constraints = processor.getConstraints
         processor.getResult
       }
 
       val isSuccess = c.components.forall(comp => {
-        val t = conformsInner(comp, r, HashSet.empty, undefinedSubst)
-        undefinedSubst = t.substitutor
+        val t = conformsInner(comp, r, HashSet.empty, constraints)
+        constraints = t.constraints
         t.isSuccess
       }) && c.signatureMap.forall {
         case (s: Signature, retType) => workWithSignature(s, retType)
@@ -646,7 +646,7 @@ trait ScalaConformance extends api.Conformance {
         case (_, sign) => workWithTypeAlias(sign)
       }
 
-      result = if (isSuccess) undefinedSubst else ConstraintsResult.Failure
+      result = if (isSuccess) constraints else ConstraintsResult.Failure
     }
 
     override def visitProjectionType(proj: ScProjectionType) {
@@ -673,12 +673,12 @@ trait ScalaConformance extends api.Conformance {
         case proj1: ScProjectionType if smartEquivalence(proj1.actualElement, proj.actualElement) =>
           val projected1 = proj.projected
           val projected2 = proj1.projected
-          result = conformsInner(projected1, projected2, visited, undefinedSubst)
+          result = conformsInner(projected1, projected2, visited, constraints)
           if (result != null) return
         case proj1: ScProjectionType if proj1.actualElement.name == proj.actualElement.name =>
           val projected1 = proj.projected
           val projected2 = proj1.projected
-          val t = conformsInner(projected1, projected2, visited, undefinedSubst)
+          val t = conformsInner(projected1, projected2, visited, constraints)
           if (t.isSuccess) {
             result = t
             return
@@ -693,7 +693,7 @@ trait ScalaConformance extends api.Conformance {
       proj.isAliasType match {
         case Some(AliasType(_, lower, _)) =>
           result = lower match {
-            case Right(value) => conformsInner(value, r, visited, undefinedSubst)
+            case Right(value) => conformsInner(value, r, visited, constraints)
             case _ => ConstraintsResult.Failure
           }
         case _ =>
@@ -740,49 +740,49 @@ trait ScalaConformance extends api.Conformance {
           argsPair match {
             case (ScAbstractType(_, lower, upper), right) =>
               if (!upper.equiv(Any)) {
-                val t = conformsInner(upper, right, visited, undefinedSubst, checkWeak)
+                val t = conformsInner(upper, right, visited, constraints, checkWeak)
                 if (t.isFailure) {
                   result = ConstraintsResult.Failure
                   return
                 }
-                undefinedSubst = t.substitutor
+                constraints = t.constraints
               }
               if (!lower.equiv(Nothing)) {
-                val t = conformsInner(right, lower, visited, undefinedSubst, checkWeak)
+                val t = conformsInner(right, lower, visited, constraints, checkWeak)
                 if (t.isFailure) {
                   result = ConstraintsResult.Failure
                   return
                 }
-                undefinedSubst = t.substitutor
+                constraints = t.constraints
               }
             case (left, ScAbstractType(_, lower, upper)) =>
               if (!upper.equiv(Any)) {
-                val t = conformsInner(upper, left, visited, undefinedSubst, checkWeak)
+                val t = conformsInner(upper, left, visited, constraints, checkWeak)
                 if (t.isFailure) {
                   result = ConstraintsResult.Failure
                   return
                 }
-                undefinedSubst = t.substitutor
+                constraints = t.constraints
               }
               if (!lower.equiv(Nothing)) {
-                val t = conformsInner(left, lower, visited, undefinedSubst, checkWeak)
+                val t = conformsInner(left, lower, visited, constraints, checkWeak)
                 if (t.isFailure) {
                   result = ConstraintsResult.Failure
                   return
                 }
-                undefinedSubst = t.substitutor
+                constraints = t.constraints
               }
             case (UndefinedType(typeParameter, _), rt) => addBounds(typeParameter, rt)
             case (lt, UndefinedType(typeParameter, _)) => addBounds(typeParameter, lt)
             case _ =>
-              val t = argsPair._1.equiv(argsPair._2, undefinedSubst, falseUndef = false)
+              val t = argsPair._1.equiv(argsPair._2, constraints, falseUndef = false)
               if (t.isFailure) {
                 result = ConstraintsResult.Failure
                 return
               }
-              undefinedSubst = t.substitutor
+              constraints = t.constraints
           }
-          result = undefinedSubst
+          result = constraints
           return
         case p2: ScParameterizedType =>
           val args = p2.typeArguments
@@ -796,49 +796,49 @@ trait ScalaConformance extends api.Conformance {
             argsPair match {
               case (ScAbstractType(_, lower, upper), right) =>
                 if (!upper.equiv(Any)) {
-                  val t = conformsInner(upper, right, visited, undefinedSubst, checkWeak)
+                  val t = conformsInner(upper, right, visited, constraints, checkWeak)
                   if (t.isFailure) {
                     result = ConstraintsResult.Failure
                     return
                   }
-                  undefinedSubst = t.substitutor
+                  constraints = t.constraints
                 }
                 if (!lower.equiv(Nothing)) {
-                  val t = conformsInner(right, lower, visited, undefinedSubst, checkWeak)
+                  val t = conformsInner(right, lower, visited, constraints, checkWeak)
                   if (t.isFailure) {
                     result = ConstraintsResult.Failure
                     return
                   }
-                  undefinedSubst = t.substitutor
+                  constraints = t.constraints
                 }
               case (left, ScAbstractType(_, lower, upper)) =>
                 if (!upper.equiv(Any)) {
-                  val t = conformsInner(upper, left, visited, undefinedSubst, checkWeak)
+                  val t = conformsInner(upper, left, visited, constraints, checkWeak)
                   if (t.isFailure) {
                     result = ConstraintsResult.Failure
                     return
                   }
-                  undefinedSubst = t.substitutor
+                  constraints = t.constraints
                 }
                 if (!lower.equiv(Nothing)) {
-                  val t = conformsInner(left, lower, visited, undefinedSubst, checkWeak)
+                  val t = conformsInner(left, lower, visited, constraints, checkWeak)
                   if (t.isFailure) {
                     result = ConstraintsResult.Failure
                     return
                   }
-                  undefinedSubst = t.substitutor
+                  constraints = t.constraints
                 }
               case (UndefinedType(typeParameter, _), rt) => addBounds(typeParameter, rt)
               case (lt, UndefinedType(typeParameter, _)) => addBounds(typeParameter, lt)
               case _ =>
-                val t = argsPair._1.equiv(argsPair._2, undefinedSubst, falseUndef = false)
+                val t = argsPair._1.equiv(argsPair._2, constraints, falseUndef = false)
                 if (t.isFailure) {
                   result = ConstraintsResult.Failure
                   return
                 }
-                undefinedSubst = t.substitutor
+                constraints = t.constraints
             }
-            result = undefinedSubst
+            result = constraints
             return
           }
         case _ =>
@@ -865,9 +865,9 @@ trait ScalaConformance extends api.Conformance {
               case up => ScParameterizedType(up, p.typeArguments)
             }
           if (!upper.equiv(Any)) {
-            result = conformsInner(upper, r, visited, undefinedSubst, checkWeak)
+            result = conformsInner(upper, r, visited, constraints, checkWeak)
           } else {
-            result = undefinedSubst
+            result = constraints
           }
           if (result.isSuccess) {
             val lower: ScType =
@@ -876,7 +876,7 @@ trait ScalaConformance extends api.Conformance {
                 case low => ScParameterizedType(low, p.typeArguments)
               }
             if (!lower.equiv(Nothing)) {
-              val t = conformsInner(r, lower, visited, result.substitutor, checkWeak)
+              val t = conformsInner(r, lower, visited, result.constraints, checkWeak)
               if (t.isSuccess) result = t
             }
           }
@@ -899,10 +899,10 @@ trait ScalaConformance extends api.Conformance {
         case s: ScExistentialArgument =>
           s.lower match {
             case ParameterizedType(lower, _) =>
-              result = conformsInner(lower, r, visited, undefinedSubst, checkWeak)
+              result = conformsInner(lower, r, visited, constraints, checkWeak)
               return
             case lower =>
-              result = conformsInner(lower, r, visited, undefinedSubst, checkWeak)
+              result = conformsInner(lower, r, visited, constraints, checkWeak)
               return
           }
         case _ =>
@@ -930,7 +930,7 @@ trait ScalaConformance extends api.Conformance {
                 return
             }
             result = checkParameterizedType(parametersIterator, args1, args2,
-              undefinedSubst, visited, checkWeak)
+              constraints, visited, checkWeak)
           case _ =>
             result = ConstraintsResult.Failure
         }
@@ -949,7 +949,7 @@ trait ScalaConformance extends api.Conformance {
             }
 
           result = lower match {
-            case Right(value) => conformsInner(value, r, visited, undefinedSubst)
+            case Right(value) => conformsInner(value, r, visited, constraints)
             case _ => ConstraintsResult.Failure
           }
           return
@@ -969,7 +969,7 @@ trait ScalaConformance extends api.Conformance {
                   result = ConstraintsResult.Failure
                 } else {
                   result = checkParameterizedType(owner1.typeParameters.map(_.psiTypeParameter).iterator, args1, args2,
-                    undefinedSubst, visited, checkWeak)
+                    constraints, visited, checkWeak)
                 }
               } else {
                 result = ConstraintsResult.Failure
@@ -977,18 +977,18 @@ trait ScalaConformance extends api.Conformance {
             case (_: UndefinedType, UndefinedType(typeParameter, _)) =>
               (if (args1.length != args2.length) findDiffLengthArgs(l, args2.length) else Some((args1, des1))) match {
                 case Some((aArgs, aType)) =>
-                  undefinedSubst = undefinedSubst.addUpper(typeParameter.typeParamId, aType)
+                  constraints = constraints.addUpper(typeParameter.typeParamId, aType)
                   result = checkParameterizedType(typeParameter.typeParameters.map(_.psiTypeParameter).iterator, aArgs,
-                    args2, undefinedSubst, visited, checkWeak)
+                    args2, constraints, visited, checkWeak)
                 case _ =>
                   result = ConstraintsResult.Failure
               }
             case (UndefinedType(typeParameter, _), _) =>
               (if (args1.length != args2.length) findDiffLengthArgs(r, args1.length) else Some((args2, des2))) match {
                 case Some((aArgs, aType)) =>
-                  undefinedSubst = undefinedSubst.addLower(typeParameter.typeParamId, aType)
+                  constraints = constraints.addLower(typeParameter.typeParamId, aType)
                   result = checkParameterizedType(typeParameter.typeParameters.map(_.psiTypeParameter).iterator, args1,
-                    aArgs, undefinedSubst, visited, checkWeak)
+                    aArgs, constraints, visited, checkWeak)
                 case _ =>
                   result = ConstraintsResult.Failure
               }
@@ -998,7 +998,7 @@ trait ScalaConformance extends api.Conformance {
 
                 val (captured, abstracted) = args2.splitAt(captureLength)
                 val t = checkParameterizedType(typeParameter.typeParameters.map(_.psiTypeParameter).iterator, args1, abstracted,
-                  undefinedSubst, visited, checkWeak)
+                  constraints, visited, checkWeak)
                 //TODO actually remember to what designator we are mapping and what captured parameters are
                 //TODO right now, anything compiles, fix once it's fixed in the compiler
                 result = if (t.isSuccess) {
@@ -1006,7 +1006,7 @@ trait ScalaConformance extends api.Conformance {
                     case (_, i) => TypeParameter.light("p" + i + "$$", Seq(), Nothing, Any)
                   }
                   addParam(typeParameter, ScTypePolymorphicType(ScParameterizedType(des2,
-                    captured ++ abstractedTypeParams.map(TypeParameterType(_))), abstractedTypeParams), t.substitutor)
+                    captured ++ abstractedTypeParams.map(TypeParameterType(_))), abstractedTypeParams), t.constraints)
                 } else {
                   t
                 }
@@ -1014,9 +1014,9 @@ trait ScalaConformance extends api.Conformance {
             case (_, UndefinedType(typeParameter, _)) =>
               (if (args1.length != args2.length) findDiffLengthArgs(l, args2.length) else Some((args1, des1))) match {
                 case Some((aArgs, aType)) =>
-                  undefinedSubst = undefinedSubst.addUpper(typeParameter.typeParamId, aType)
+                  constraints = constraints.addUpper(typeParameter.typeParamId, aType)
                   result = checkParameterizedType(typeParameter.typeParameters.map(_.psiTypeParameter).iterator, aArgs,
-                    args2, undefinedSubst, visited, checkWeak)
+                    args2, constraints, visited, checkWeak)
                 case _ =>
                   result = ConstraintsResult.Failure
               }
@@ -1024,27 +1024,27 @@ trait ScalaConformance extends api.Conformance {
               result =
                 if (args1.length != args2.length) ConstraintsResult.Failure
                 else extractParams(des1) match {
-                  case Some(params) => checkParameterizedType(params, args1, args2, undefinedSubst, visited, checkWeak)
+                  case Some(params) => checkParameterizedType(params, args1, args2, constraints, visited, checkWeak)
                   case _ => ConstraintsResult.Failure
                 }
             case (_, t: TypeParameterType) if t.typeParameters.length == p2.typeArguments.length =>
               val subst = ScSubstitutor.bind(t.typeParameters, p.typeArguments)
-              result = conformsInner(des1, subst.subst(t.upperType), visited, undefinedSubst, checkWeak)
+              result = conformsInner(des1, subst.subst(t.upperType), visited, constraints, checkWeak)
             case (proj1: ScProjectionType, proj2: ScProjectionType)
               if smartEquivalence(proj1.actualElement, proj2.actualElement) =>
-              val t = conformsInner(proj1, proj2, visited, undefinedSubst)
+              val t = conformsInner(proj1, proj2, visited, constraints)
               if (t.isFailure) {
                 result = ConstraintsResult.Failure
               } else {
-                undefinedSubst = t.substitutor
+                constraints = t.constraints
                 if (args1.length != args2.length) {
                   result = ConstraintsResult.Failure
                 } else {
                   proj1.actualElement match {
                     case td: ScTypeParametersOwner =>
-                      result = checkParameterizedType(td.typeParameters.iterator, args1, args2, undefinedSubst, visited, checkWeak)
+                      result = checkParameterizedType(td.typeParameters.iterator, args1, args2, constraints, visited, checkWeak)
                     case td: PsiTypeParameterListOwner =>
-                      result = checkParameterizedType(td.getTypeParameters.iterator, args1, args2, undefinedSubst, visited, checkWeak)
+                      result = checkParameterizedType(td.getTypeParameters.iterator, args1, args2, constraints, visited, checkWeak)
                     case _ =>
                       result = ConstraintsResult.Failure
                   }
@@ -1083,49 +1083,49 @@ trait ScalaConformance extends api.Conformance {
             argsPair match {
               case (ScAbstractType(_, lower, upper), right) =>
                 if (!upper.equiv(Any)) {
-                  val t = conformsInner(upper, right, visited, undefinedSubst, checkWeak)
+                  val t = conformsInner(upper, right, visited, constraints, checkWeak)
                   if (t.isFailure) {
                     result = ConstraintsResult.Failure
                     return
                   }
-                  undefinedSubst = t.substitutor
+                  constraints = t.constraints
                 }
                 if (!lower.equiv(Nothing)) {
-                  val t = conformsInner(right, lower, visited, undefinedSubst, checkWeak)
+                  val t = conformsInner(right, lower, visited, constraints, checkWeak)
                   if (t.isFailure) {
                     result = ConstraintsResult.Failure
                     return
                   }
-                  undefinedSubst = t.substitutor
+                  constraints = t.constraints
                 }
               case (left, ScAbstractType(_, lower, upper)) =>
                 if (!upper.equiv(Any)) {
-                  val t = conformsInner(upper, left, visited, undefinedSubst, checkWeak)
+                  val t = conformsInner(upper, left, visited, constraints, checkWeak)
                   if (t.isFailure) {
                     result = ConstraintsResult.Failure
                     return
                   }
-                  undefinedSubst = t.substitutor
+                  constraints = t.constraints
                 }
                 if (!lower.equiv(Nothing)) {
-                  val t = conformsInner(left, lower, visited, undefinedSubst, checkWeak)
+                  val t = conformsInner(left, lower, visited, constraints, checkWeak)
                   if (t.isFailure) {
                     result = ConstraintsResult.Failure
                     return
                   }
-                  undefinedSubst = t.substitutor
+                  constraints = t.constraints
                 }
               case (UndefinedType(typeParameter, _), rt) => addBounds(typeParameter, rt)
               case (lt, UndefinedType(typeParameter, _)) => addBounds(typeParameter, lt)
               case _ =>
-                val t = argsPair._1.equiv(argsPair._2, undefinedSubst, falseUndef = false)
+                val t = argsPair._1.equiv(argsPair._2, constraints, falseUndef = false)
                 if (t.isFailure) {
                   result = ConstraintsResult.Failure
                   return
                 }
-                undefinedSubst = t.substitutor
+                constraints = t.constraints
             }
-            result = undefinedSubst
+            result = constraints
             return
           }
         case _ =>
@@ -1134,7 +1134,7 @@ trait ScalaConformance extends api.Conformance {
       p.designator match {
         case t: TypeParameterType if t.typeParameters.length == p.typeArguments.length =>
           val subst = ScSubstitutor.bind(t.typeParameters, p.typeArguments)
-          result = conformsInner(subst.subst(t.lowerType), r, visited, undefinedSubst, checkWeak)
+          result = conformsInner(subst.subst(t.lowerType), r, visited, constraints, checkWeak)
           return
         case _ =>
       }
@@ -1158,7 +1158,7 @@ trait ScalaConformance extends api.Conformance {
 
       val simplified = e.simplify()
       if (simplified != l) {
-        result = conformsInner(simplified, r, visited, undefinedSubst, checkWeak)
+        result = conformsInner(simplified, r, visited, constraints, checkWeak)
         return
       }
 
@@ -1184,23 +1184,23 @@ trait ScalaConformance extends api.Conformance {
         case _                          => ProcessSubtypes
       }
 
-      conformsInner(updatedWithUndefinedTypes, r, HashSet.empty, undefinedSubst) match {
-        case unSubst@ScUndefinedSubstitutor(solvingSubstitutor) =>
+      conformsInner(updatedWithUndefinedTypes, r, HashSet.empty, constraints) match {
+        case unSubst@ConstraintSystem(solvingSubstitutor) =>
           for (un <- undefines if result == null) {
             val solvedType = solvingSubstitutor.subst(un)
 
-            var t = conformsInner(solvedType, un.typeParameter.lowerType.unpackedType, substitutor = undefinedSubst)
+            var t = conformsInner(solvedType, un.typeParameter.lowerType.unpackedType, constraints = constraints)
             if (solvedType != un && t.isFailure) {
               result = ConstraintsResult.Failure
               return
             }
-            undefinedSubst = t.substitutor
-            t = conformsInner(un.typeParameter.upperType.unpackedType, solvedType, substitutor = undefinedSubst)
+            constraints = t.constraints
+            t = conformsInner(un.typeParameter.upperType.unpackedType, solvedType, constraints = constraints)
             if (solvedType != un && t.isFailure) {
               result = ConstraintsResult.Failure
               return
             }
-            undefinedSubst = t.substitutor
+            constraints = t.constraints
           }
 
           if (result == null) {
@@ -1209,8 +1209,8 @@ trait ScalaConformance extends api.Conformance {
               _.typeParameter.typeParamId
             }.toSet
 
-            undefinedSubst += unSubst.removeTypeParamIds(typeParamIds)
-            result = undefinedSubst
+            constraints += unSubst.removeTypeParamIds(typeParamIds)
+            result = constraints
           }
         case _ => result = ConstraintsResult.Failure
       }
@@ -1233,7 +1233,7 @@ trait ScalaConformance extends api.Conformance {
       if (result != null) return
 
       result = t.element.getTypeWithProjections() match {
-        case Right(value) => conformsInner(value, r, visited, subst, checkWeak)
+        case Right(value) => conformsInner(value, r, visited, constraints, checkWeak)
         case _ => ConstraintsResult.Failure
       }
     }
@@ -1241,7 +1241,7 @@ trait ScalaConformance extends api.Conformance {
     override def visitDesignatorType(des: ScDesignatorType) {
       des.getValType match {
         case Some(v) =>
-          result = conformsInner(v, r, visited, subst, checkWeak)
+          result = conformsInner(v, r, visited, constraints, checkWeak)
           return
         case _ =>
       }
@@ -1273,7 +1273,7 @@ trait ScalaConformance extends api.Conformance {
       des.isAliasType match {
         case Some(AliasType(_, lower, _)) =>
           result = lower match {
-            case Right(value) => conformsInner(value, r, visited, undefinedSubst)
+            case Right(value) => conformsInner(value, r, visited, constraints)
             case _ => ConstraintsResult.Failure
           }
         case _ =>
@@ -1298,9 +1298,9 @@ trait ScalaConformance extends api.Conformance {
 
       trait TypeParameterTypeNothingNullVisitor extends NothingNullVisitor {
         override def visitStdType(x: StdType) {
-          if (x eq Nothing) result = undefinedSubst
+          if (x eq Nothing) result = constraints
           else if (x eq Null) {
-            result = conformsInner(tpt1.lowerType, r, HashSet.empty, undefinedSubst)
+            result = conformsInner(tpt1.lowerType, r, HashSet.empty, constraints)
           }
         }
       }
@@ -1313,17 +1313,17 @@ trait ScalaConformance extends api.Conformance {
 
       r match {
         case tpt2: TypeParameterType =>
-          val res = conformsInner(tpt1.lowerType, r, HashSet.empty, undefinedSubst)
+          val res = conformsInner(tpt1.lowerType, r, HashSet.empty, constraints)
           if (res.isSuccess) {
             result = res
             return
           }
-          result = conformsInner(l, tpt2.upperType, HashSet.empty, undefinedSubst)
+          result = conformsInner(l, tpt2.upperType, HashSet.empty, constraints)
           return
         case _ =>
       }
 
-      val t = conformsInner(tpt1.lowerType, r, HashSet.empty, undefinedSubst)
+      val t = conformsInner(tpt1.lowerType, r, HashSet.empty, constraints)
       if (t.isSuccess) {
         result = t
         return
@@ -1348,10 +1348,10 @@ trait ScalaConformance extends api.Conformance {
       checkEquiv()
       if (result != null) return
 
-      val t = conformsInner(s.lower, r, HashSet.empty, undefinedSubst)
+      val t = conformsInner(s.lower, r, HashSet.empty, constraints)
 
       if (t.isSuccess) {
-        result = t.substitutor
+        result = t.constraints
         return
       }
 
@@ -1371,11 +1371,11 @@ trait ScalaConformance extends api.Conformance {
         override def visitUndefinedType(u2: UndefinedType) {
           val name = u2.typeParameter.typeParamId
           result = if (u2.level > u.level) {
-            undefinedSubst.addUpper(name, u)
+            constraints.addUpper(name, u)
           } else if (u.level > u2.level) {
-            undefinedSubst.addUpper(name, u)
+            constraints.addUpper(name, u)
           } else {
-            undefinedSubst
+            constraints
           }
         }
       }
@@ -1383,11 +1383,11 @@ trait ScalaConformance extends api.Conformance {
       if (result == null) {
         r match {
           case lit: ScLiteralType if lit.allowWiden && !u.typeParameter.upperType.conforms(Singleton) =>
-            result = conformsInner(l, lit.wideType, visited, undefinedSubst, checkWeak)
+            result = conformsInner(l, lit.wideType, visited, constraints, checkWeak)
           case lit: ScLiteralType =>
-            result = undefinedSubst.addLower(u.typeParameter.typeParamId, lit.blockWiden())
+            result = constraints.addLower(u.typeParameter.typeParamId, lit.blockWiden())
           case _ =>
-            result = undefinedSubst.addLower(u.typeParameter.typeParamId, r)
+            result = constraints.addLower(u.typeParameter.typeParamId, r)
         }
       }
     }
@@ -1417,27 +1417,27 @@ trait ScalaConformance extends api.Conformance {
             result = ConstraintsResult.Failure
             return
           }
-          var t = conformsInner(returnType1, returnType2, HashSet.empty, undefinedSubst)
+          var t = conformsInner(returnType1, returnType2, HashSet.empty, constraints)
           if (t.isFailure) {
             result = ConstraintsResult.Failure
             return
           }
-          undefinedSubst = t.substitutor
+          constraints = t.constraints
           var i = 0
           while (i < params1.length) {
             if (params1(i).isRepeated != params2(i).isRepeated) {
               result = ConstraintsResult.Failure
               return
             }
-            t = params1(i).paramType.equiv(params2(i).paramType, undefinedSubst, falseUndef = false)
+            t = params1(i).paramType.equiv(params2(i).paramType, constraints, falseUndef = false)
             if (t.isFailure) {
               result = ConstraintsResult.Failure
               return
             }
-            undefinedSubst = t.substitutor
+            constraints = t.constraints
             i = i + 1
           }
-          result = undefinedSubst
+          result = constraints
         case _ =>
           result = ConstraintsResult.Failure
       }
@@ -1448,9 +1448,9 @@ trait ScalaConformance extends api.Conformance {
       r.visitType(rightVisitor)
       if (result != null) return
 
-      result = conformsInner(a.upper, r, visited, undefinedSubst, checkWeak)
+      result = conformsInner(a.upper, r, visited, constraints, checkWeak)
       if (result.isSuccess) {
-        val t = conformsInner(r, a.lower, visited, result.substitutor, checkWeak)
+        val t = conformsInner(r, a.lower, visited, result.constraints, checkWeak)
         if (t.isSuccess) result = t
       }
     }
@@ -1482,28 +1482,28 @@ trait ScalaConformance extends api.Conformance {
           }
           var i = 0
           while (i < typeParameters1.length) {
-            var t = conformsInner(typeParameters1(i).lowerType, typeParameters2(i).lowerType, HashSet.empty, undefinedSubst)
+            var t = conformsInner(typeParameters1(i).lowerType, typeParameters2(i).lowerType, HashSet.empty, constraints)
             if (t.isFailure) {
               result = ConstraintsResult.Failure
               return
             }
-            undefinedSubst = t.substitutor
-            t = conformsInner(typeParameters2(i).upperType, typeParameters1(i).lowerType, HashSet.empty, undefinedSubst)
+            constraints = t.constraints
+            t = conformsInner(typeParameters2(i).upperType, typeParameters1(i).lowerType, HashSet.empty, constraints)
             if (t.isFailure) {
               result = ConstraintsResult.Failure
               return
             }
-            undefinedSubst = t.substitutor
+            constraints = t.constraints
             i = i + 1
           }
           val subst = ScSubstitutor.bind(typeParameters1, typeParameters2)(TypeParameterType(_))
-          val t = conformsInner(subst.subst(internalType1), internalType2, HashSet.empty, undefinedSubst)
+          val t = conformsInner(subst.subst(internalType1), internalType2, HashSet.empty, constraints)
           if (t.isFailure) {
             result = ConstraintsResult.Failure
             return
           }
-          undefinedSubst = t.substitutor
-          result = undefinedSubst
+          constraints = t.constraints
+          result = constraints
         case _ =>
           result = ConstraintsResult.Failure
       }
@@ -1576,19 +1576,19 @@ trait ScalaConformance extends api.Conformance {
     }
   }
 
-  def addParam(typeParameter: TypeParameter, bound: ScType, undefinedSubst: ScUndefinedSubstitutor): ConstraintsResult =
-    addArgedBound(typeParameter, bound, undefinedSubst, variance = Invariant, addUpper = true, addLower = true)
+  def addParam(typeParameter: TypeParameter, bound: ScType, constraints: ConstraintSystem): ConstraintsResult =
+    addArgedBound(typeParameter, bound, constraints, variance = Invariant, addUpper = true, addLower = true)
 
-  def addArgedBound(typeParameter: TypeParameter, bound: ScType, undefinedSubst: ScUndefinedSubstitutor,
+  def addArgedBound(typeParameter: TypeParameter, bound: ScType, constraints: ConstraintSystem,
                     variance: Variance = Covariant, addUpper: Boolean = false, addLower: Boolean = false): ConstraintsResult = {
     if (!addUpper && !addLower) return ConstraintsResult.Failure
-    var res = undefinedSubst
+    var res = constraints
     if (addUpper) res = res.addUpper(typeParameter.typeParamId, bound, variance = variance)
     if (addLower) res = res.addLower(typeParameter.typeParamId, bound, variance = variance)
     res
   }
 
-  def processHigherKindedTypeParams(undefType: ParameterizedType, defType: ParameterizedType, undefinedSubst: ScUndefinedSubstitutor,
+  def processHigherKindedTypeParams(undefType: ParameterizedType, defType: ParameterizedType, constraints: ConstraintSystem,
                                     falseUndef: Boolean): ConstraintsResult = {
     val defTypeExpanded = defType.isAliasType.map(_.lower).map {
       case Right(p: ScParameterizedType) => p
@@ -1609,13 +1609,13 @@ trait ScalaConformance extends api.Conformance {
                 case _ if undefType.typeArguments.length < defType.typeArguments.length =>
                   val captureLength = defType.typeArguments.length - undefType.typeArguments.length
                   val (captured, abstracted) = defType.typeArguments.splitAt(captureLength)
-                  var subst = undefinedSubst
+                  var subst = constraints
                   for ((arg1, arg2) <- abstracted.zip(undefType.typeArguments)) {
                     val t = arg2.equivInner(arg1, subst, falseUndef)
                     if (t.isFailure) {
                       return ConstraintsResult.Failure
                     } else {
-                      subst = t.substitutor
+                      subst = t.constraints
                     }
                   }
                   val abstractedTypeParams = abstracted.zipWithIndex.map {
@@ -1635,19 +1635,19 @@ trait ScalaConformance extends api.Conformance {
         } else {
           defTypeExpanded.designator
         }
-        val y = undef.equiv(bound, undefinedSubst, falseUndef)
+        val y = undef.equiv(bound, constraints, falseUndef)
         if (y.isFailure) {
           ConstraintsResult.Failure
         } else {
           val undefArgIterator = undefType.typeArguments.iterator
           val defIterator = defArgsReplace.iterator
-          var sub = y.substitutor
+          var sub = y.constraints
           while (params.hasNext && undefArgIterator.hasNext && defIterator.hasNext) {
             val arg1 = undefArgIterator.next()
             val arg2 = defIterator.next()
             val t = arg1.equiv(arg2, sub, falseUndef = false)
             if (t.isFailure) return ConstraintsResult.Failure
-            sub = t.substitutor
+            sub = t.constraints
           }
           sub
         }

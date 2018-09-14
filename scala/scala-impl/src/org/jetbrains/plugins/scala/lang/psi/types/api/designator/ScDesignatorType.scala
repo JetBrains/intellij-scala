@@ -7,7 +7,7 @@ import org.jetbrains.plugins.scala.lang.psi.api.statements.{ScTypeAlias, ScTypeA
 import org.jetbrains.plugins.scala.lang.psi.api.toplevel.typedef.ScObject
 import org.jetbrains.plugins.scala.lang.psi.types.api._
 import org.jetbrains.plugins.scala.lang.psi.types.recursiveUpdate.ScSubstitutor
-import org.jetbrains.plugins.scala.lang.psi.types.{ConstraintsResult, ScExistentialArgument, ScExistentialType, ScType, ScTypeExt, ScUndefinedSubstitutor}
+import org.jetbrains.plugins.scala.lang.psi.types.{ConstraintsResult, ScExistentialArgument, ScExistentialType, ScType, ScTypeExt, ConstraintSystem}
 import org.jetbrains.plugins.scala.lang.refactoring.util.ScTypeUtil.AliasType
 import org.jetbrains.plugins.scala.util.ScEquivalenceUtil.smartEquivalence
 
@@ -59,23 +59,23 @@ case class ScDesignatorType(element: PsiNamedElement, isStatic: Boolean = false)
     case _ => None
   }
 
-  override def equivInner(`type`: ScType, substitutor: ScUndefinedSubstitutor, falseUndef: Boolean): ConstraintsResult = {
+  override def equivInner(`type`: ScType, constraints: ConstraintSystem, falseUndef: Boolean): ConstraintsResult = {
     def equivSingletons(left: DesignatorOwner, right: DesignatorOwner) = left.designatorSingletonType.filter {
       case designatorOwner: DesignatorOwner if designatorOwner.isSingleton => true
       case _ => false
     }.map {
-      _.equiv(right, substitutor, falseUndef)
+      _.equiv(right, constraints, falseUndef)
     }
 
     (element match {
       case definition: ScTypeAliasDefinition =>
         definition.aliasedType.toOption.map {
-          _.equiv(`type`, substitutor, falseUndef)
+          _.equiv(`type`, constraints, falseUndef)
         }
       case _ =>
         `type` match {
           case ScDesignatorType(thatElement) if smartEquivalence(element, thatElement) =>
-            Some(substitutor)
+            Some(constraints)
           case that: DesignatorOwner if isSingleton && that.isSingleton =>
             equivSingletons(this, that) match {
               case None => equivSingletons(that, this)

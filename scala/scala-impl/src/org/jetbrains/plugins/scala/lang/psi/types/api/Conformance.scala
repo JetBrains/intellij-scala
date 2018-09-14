@@ -29,11 +29,11 @@ trait Conformance {
     */
   final def conformsInner(left: ScType, right: ScType,
                           visited: Set[PsiClass] = Set.empty,
-                          substitutor: ScUndefinedSubstitutor = ScUndefinedSubstitutor(),
+                          constraints: ConstraintSystem = ConstraintSystem.empty,
                           checkWeak: Boolean = false): ConstraintsResult = {
     ProgressManager.checkCanceled()
 
-    if (left.isAny || right.isNothing || left == right) return substitutor
+    if (left.isAny || right.isNothing || left == right) return constraints
 
     if (!right.canBeSameOrInheritor(left)) return ConstraintsResult.Failure
 
@@ -41,7 +41,7 @@ trait Conformance {
 
     val fromCache = cache.get(key)
     if (fromCache != null) {
-      return fromCache.combine(substitutor)
+      return fromCache.combine(constraints)
     }
     if (guard.checkReentrancy(key)) {
       return ConstraintsResult.Failure
@@ -55,7 +55,7 @@ trait Conformance {
     if (stackStamp.mayCacheNow()) {
       cache.put(key, res)
     }
-    res.combine(substitutor)
+    res.combine(constraints)
   }
 
   def clearCache(): Unit = cache.clear()

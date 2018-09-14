@@ -298,8 +298,8 @@ object ScExpression {
                     case FunctionType(rt, Seq(_)) => Some(rt)
                     case paramType =>
                       expr.elementScope.cachedFunction1Type.flatMap { functionType =>
-                        paramType.conforms(functionType, ScUndefinedSubstitutor()) match {
-                          case ScUndefinedSubstitutor(substitutor) => Some(substitutor.subst(functionType.typeArguments(1)))
+                        paramType.conforms(functionType, ConstraintSystem.empty) match {
+                          case ConstraintSystem(substitutor) => Some(substitutor.subst(functionType.typeArguments(1)))
                           case _ => None
                         }
                       }.filterNot {

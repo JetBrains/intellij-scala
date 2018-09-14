@@ -68,22 +68,21 @@ class ScParameterizedType private(val designator: ScType, val typeArguments: Seq
     }
   }
 
-  override def equivInner(r: ScType, uSubst: ScUndefinedSubstitutor, falseUndef: Boolean): ConstraintsResult = {
+  override def equivInner(r: ScType, constraints: ConstraintSystem, falseUndef: Boolean): ConstraintsResult = {
     val Conformance: ScalaConformance = typeSystem
     val Nothing = projectContext.stdTypes.Nothing
 
-    var undefinedSubst = uSubst
     (this, r) match {
-      case (ParameterizedType(Nothing, _), Nothing) => uSubst
-      case (ParameterizedType(Nothing, _), ParameterizedType(Nothing, _)) => uSubst
+      case (ParameterizedType(Nothing, _), Nothing) => constraints
+      case (ParameterizedType(Nothing, _), ParameterizedType(Nothing, _)) => constraints
       case (ParameterizedType(ScAbstractType(tp, lower, upper), args), _) =>
         if (falseUndef) return ConstraintsResult.Failure
-        
+
         val subst = ScSubstitutor.bind(tp.typeParameters, args)
-        var conformance = r.conforms(subst.subst(upper), uSubst)
+        var conformance = r.conforms(subst.subst(upper), constraints)
         if (conformance.isFailure) return ConstraintsResult.Failure
 
-        conformance = subst.subst(lower).conforms(r, conformance.substitutor)
+        conformance = subst.subst(lower).conforms(r, conformance.constraints)
         if (conformance.isFailure) return ConstraintsResult.Failure
 
         conformance
@@ -93,7 +92,7 @@ class ScParameterizedType private(val designator: ScType, val typeArguments: Seq
             (lower match {
               case Right(tp) => tp
               case _ => return ConstraintsResult.Failure
-            }).equiv(r, uSubst, falseUndef)
+            }).equiv(r, constraints, falseUndef)
           case _ => ConstraintsResult.Failure
         }
       case (ParameterizedType(ScDesignatorType(_: ScTypeAliasDefinition), _), _) =>
@@ -102,28 +101,29 @@ class ScParameterizedType private(val designator: ScType, val typeArguments: Seq
             (lower match {
               case Right(tp) => tp
               case _ => return ConstraintsResult.Failure
-            }).equiv(r, uSubst, falseUndef)
+            }).equiv(r, constraints, falseUndef)
           case _ => ConstraintsResult.Failure
         }
       case (ParameterizedType(UndefinedType(_, _), _), ParameterizedType(_, _)) =>
-        Conformance.processHigherKindedTypeParams(this, r.asInstanceOf[ParameterizedType], undefinedSubst, falseUndef)
+        Conformance.processHigherKindedTypeParams(this, r.asInstanceOf[ParameterizedType], constraints, falseUndef)
       case (ParameterizedType(_, _), ParameterizedType(UndefinedType(_, _), _)) =>
-        Conformance.processHigherKindedTypeParams(r.asInstanceOf[ParameterizedType], this, undefinedSubst, falseUndef)
+        Conformance.processHigherKindedTypeParams(r.asInstanceOf[ParameterizedType], this, constraints, falseUndef)
       case (ParameterizedType(_, _), ParameterizedType(designator1, typeArgs1)) =>
-        var t = designator.equiv(designator1, undefinedSubst, falseUndef)
+        var lastConstraints = constraints
+        var t = designator.equiv(designator1, constraints, falseUndef)
         if (t.isFailure) return ConstraintsResult.Failure
-        undefinedSubst = t.substitutor
+        lastConstraints = t.constraints
         if (typeArguments.length != typeArgs1.length) return ConstraintsResult.Failure
         val iterator1 = typeArguments.iterator
         val iterator2 = typeArgs1.iterator
         while (iterator1.hasNext && iterator2.hasNext) {
-          t = iterator1.next().equiv(iterator2.next(), undefinedSubst, falseUndef)
-          
+          t = iterator1.next().equiv(iterator2.next(), lastConstraints, falseUndef)
+
           if (t.isFailure) return ConstraintsResult.Failure
-          
-          undefinedSubst = t.substitutor
+
+          lastConstraints = t.constraints
         }
-        undefinedSubst
+        lastConstraints
       case _ => ConstraintsResult.Failure
     }
   }

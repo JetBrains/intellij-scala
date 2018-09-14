@@ -3,12 +3,12 @@ package org.jetbrains.plugins.scala.lang.psi.types.api
 import com.intellij.psi.PsiTypeParameter
 import org.jetbrains.plugins.scala.lang.psi.api.statements.params.TypeParamIdOwner
 import org.jetbrains.plugins.scala.lang.psi.types.nonvalue.NonValueType
-import org.jetbrains.plugins.scala.lang.psi.types.{ConstraintsResult, ScType, ScUndefinedSubstitutor}
+import org.jetbrains.plugins.scala.lang.psi.types.{ConstraintsResult, ScType, ConstraintSystem}
 import org.jetbrains.plugins.scala.project.ProjectContext
 
 /**
   * Use this type if you want to resolve generics.
-  * In conformance using ScUndefinedSubstitutor you can accumulate information
+  * In conformance using ConstraintSystem you can accumulate information
   * about possible generic type.
   */
 case class UndefinedType(typeParameter: TypeParameter, level: Int = 0) extends NonValueType {
@@ -19,18 +19,18 @@ case class UndefinedType(typeParameter: TypeParameter, level: Int = 0) extends N
 
   def inferValueType: TypeParameterType = TypeParameterType(typeParameter)
 
-  override def equivInner(`type`: ScType, substitutor: ScUndefinedSubstitutor, falseUndef: Boolean): ConstraintsResult = {
+  override def equivInner(`type`: ScType, constraints: ConstraintSystem, falseUndef: Boolean): ConstraintsResult = {
     if (falseUndef) ConstraintsResult.Failure
     else `type` match {
-      case _ if falseUndef => substitutor
-      case UndefinedType(_, thatLevel) if thatLevel == level => substitutor
+      case _ if falseUndef => constraints
+      case UndefinedType(_, thatLevel) if thatLevel == level => constraints
       case UndefinedType(tp, thatLevel) if thatLevel > level =>
-        substitutor.addUpper(tp.typeParamId, this)
+        constraints.addUpper(tp.typeParamId, this)
       case that: UndefinedType if that.level < level =>
-        substitutor.addUpper(typeParameter.typeParamId, that)
+        constraints.addUpper(typeParameter.typeParamId, that)
       case that =>
         val name = typeParameter.typeParamId
-        substitutor.addLower(name, that).addUpper(name, that)
+        constraints.addLower(name, that).addUpper(name, that)
     }
   }
 }

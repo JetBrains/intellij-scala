@@ -8,7 +8,7 @@ import org.jetbrains.plugins.scala.lang.psi.api.InferUtil.extractImplicitParamet
 import org.jetbrains.plugins.scala.lang.psi.api.expr.ScExpression
 import org.jetbrains.plugins.scala.lang.psi.api.statements.ScFunction
 import org.jetbrains.plugins.scala.lang.psi.types.api.{FunctionType, TypeParameter, ValType}
-import org.jetbrains.plugins.scala.lang.psi.types.{ScType, ScUndefinedSubstitutor}
+import org.jetbrains.plugins.scala.lang.psi.types.{ScType, ConstraintSystem}
 import org.jetbrains.plugins.scala.lang.resolve.processor.{BaseProcessor, MethodResolveProcessor, ResolveProcessor}
 import org.jetbrains.plugins.scala.lang.resolve.{ResolveTargets, ScalaResolveResult}
 import org.jetbrains.plugins.scala.project.ProjectContext
@@ -40,8 +40,8 @@ object ExtensionConversionHelper {
       case implicitParameterType =>
         implicit val project: Project = resolveResult.element.getProject
         ElementScope(project).cachedFunction1Type.flatMap { functionType =>
-          implicitParameterType.conforms(functionType, ScUndefinedSubstitutor()) match {
-            case ScUndefinedSubstitutor(substitutor) => Some(substitutor.subst(functionType))
+          implicitParameterType.conforms(functionType, ConstraintSystem.empty) match {
+            case ConstraintSystem(substitutor) => Some(substitutor.subst(functionType))
             case _ => None
           }
         }.map {
@@ -92,7 +92,7 @@ object ExtensionConversionHelper {
     val (candidateResult, candidateSubstitutor) = candidate
 
     foundInType.resultUndef.collect {
-      case ScUndefinedSubstitutor(substitutor) => substitutor
+      case ConstraintSystem(substitutor) => substitutor
     }.fold(candidate) { substitutor =>
       val parameterType = candidateResult.implicitParameterType
       val result = candidateResult.copy(

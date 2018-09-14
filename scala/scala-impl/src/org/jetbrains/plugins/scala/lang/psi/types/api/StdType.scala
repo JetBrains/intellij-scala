@@ -7,7 +7,7 @@ import com.intellij.psi.CommonClassNames._
 import org.jetbrains.plugins.scala.extensions.PsiClassExt
 import org.jetbrains.plugins.scala.lang.psi.api.toplevel.typedef.ScObject
 import org.jetbrains.plugins.scala.lang.psi.impl.toplevel.synthetic.{ScSyntheticClass, SyntheticClasses}
-import org.jetbrains.plugins.scala.lang.psi.types.{ConstraintsResult, NamedType, ScType, ScTypeExt, ScUndefinedSubstitutor}
+import org.jetbrains.plugins.scala.lang.psi.types.{ConstraintsResult, NamedType, ScType, ScTypeExt, ConstraintSystem}
 import org.jetbrains.plugins.scala.project.ProjectContext
 
 sealed class StdType(val name: String, val tSuper: Option[StdType])
@@ -29,7 +29,7 @@ sealed class StdType(val name: String, val tSuper: Option[StdType])
     if (classes.isClassesRegistered) classes.byName(name) else None
   }
 
-  override def equivInner(`type`: ScType, substitutor: ScUndefinedSubstitutor, falseUndef: Boolean): ConstraintsResult = {
+  override def equivInner(`type`: ScType, constraints: ConstraintSystem, falseUndef: Boolean): ConstraintsResult = {
     val success = `type` match {
       case stdType: StdType => this == stdType
       case _ =>
@@ -43,7 +43,7 @@ sealed class StdType(val name: String, val tSuper: Option[StdType])
           case _ => false
         }
     }
-    if (success) substitutor
+    if (success) constraints
     else ConstraintsResult.Failure
   }
 }

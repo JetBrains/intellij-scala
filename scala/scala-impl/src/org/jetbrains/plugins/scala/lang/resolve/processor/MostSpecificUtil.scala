@@ -168,7 +168,7 @@ case class MostSpecificUtil(elem: PsiElement, length: Int) {
                       Seq.fill(i)(default)
               Compatibility.checkConformance(checkNames = false, params2, exprs, checkImplicits)
             case (Right(type1), Right(type2)) =>
-              type1.conforms(type2, ScUndefinedSubstitutor()) //todo: with implcits?
+              type1.conforms(type2, ConstraintSystem.empty) //todo: with implcits?
             //todo this is possible, when one variant is empty with implicit parameters, and second without parameters.
             //in this case it's logical that method without parameters must win...
             case (Left(_), Right(_)) if !r1.implicitCase => return false
@@ -176,7 +176,7 @@ case class MostSpecificUtil(elem: PsiElement, length: Int) {
           }
 
         conformance match {
-          case undefined@ScUndefinedSubstitutor(uSubst) =>
+          case undefined@ConstraintSystem(uSubst) =>
             var u = undefined
             t2 match {
               case ScTypePolymorphicType(_, typeParams) =>
@@ -202,7 +202,7 @@ case class MostSpecificUtil(elem: PsiElement, length: Int) {
               case _ =>
             }
 
-            ScUndefinedSubstitutor.unapply(u).isDefined
+            ConstraintSystem.unapply(u).isDefined
           case _ => false
         }
       case (_, _: PsiMethod) => true

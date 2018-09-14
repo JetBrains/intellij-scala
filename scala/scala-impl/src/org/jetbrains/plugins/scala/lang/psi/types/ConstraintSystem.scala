@@ -12,63 +12,75 @@ import org.jetbrains.plugins.scala.project.ProjectContext
 
 import scala.collection.immutable.LongMap
 
+/** ConstraintsResult allows to represent failures in conformance and equivalence
+  * without wrapping [[ConstraintSystem]] into a tuple
+  */
 sealed trait ConstraintsResult {
   def isFailure: Boolean
 
   final def isSuccess: Boolean = !isFailure
 
-  def substitutor: ScUndefinedSubstitutor
+  def constraints: ConstraintSystem
 
   def combine(other: ConstraintsResult): ConstraintsResult
 }
 
 object ConstraintsResult {
-  def unapply(cr: ConstraintsResult): Option[ScUndefinedSubstitutor] = cr match {
+  def unapply(result: ConstraintsResult): Option[ConstraintSystem] = result match {
     case Failure => None
-    case substitutor: ScUndefinedSubstitutor => Some(substitutor)
+    case constraints: ConstraintSystem => Some(constraints)
   }
 
   case object Failure extends ConstraintsResult {
     override def isFailure: Boolean = true
 
-    override def substitutor: ScUndefinedSubstitutor = ScUndefinedSubstitutor()
+    override def constraints: ConstraintSystem = ConstraintSystem.empty
 
     override def combine(other: ConstraintsResult): ConstraintsResult = this
   }
 }
 
-sealed trait ScUndefinedSubstitutor extends ConstraintsResult {
+/** ConstraintSystem is used to accumulate information about generic types
+  * during type inference, usually in combination with [[UndefinedType]]
+  */
+sealed trait ConstraintSystem extends ConstraintsResult {
 
   override def isFailure: Boolean = false
 
-  override def substitutor: ScUndefinedSubstitutor = this
+  override def constraints: ConstraintSystem = this
 
   override def combine(other: ConstraintsResult): ConstraintsResult = other match {
     case ConstraintsResult.Failure => ConstraintsResult.Failure
-    case substitutor: ScUndefinedSubstitutor =>
-      if (substitutor.isEmpty) this
-      else this + substitutor
+    case constraints: ConstraintSystem =>
+      if (constraints.isEmpty) this
+      else this + constraints
   }
 
   def isEmpty: Boolean
 
   def addLower(id: Long, lower: ScType,
-               additional: Boolean = false, variance: Variance = Contravariant): ScUndefinedSubstitutor
+               additional: Boolean = false, variance: Variance = Contravariant): ConstraintSystem
 
   def addUpper(id: Long, upper: ScType,
-               additional: Boolean = false, variance: Variance = Covariant): ScUndefinedSubstitutor
+               additional: Boolean = false, variance: Variance = Covariant): ConstraintSystem
 
-  def +(substitutor: ScUndefinedSubstitutor): ScUndefinedSubstitutor
+  def +(constraints: ConstraintSystem): ConstraintSystem
 
   def typeParamIds: Set[Long]
 
-  def removeTypeParamIds(ids: Set[Long]): ScUndefinedSubstitutor
+  def removeTypeParamIds(ids: Set[Long]): ConstraintSystem
 
   def substitutionBounds(canThrowSCE: Boolean)
-                        (implicit context: ProjectContext): Option[ScUndefinedSubstitutor.SubstitutionBounds]
+                        (implicit context: ProjectContext): Option[ConstraintSystem.SubstitutionBounds]
 }
 
-object ScUndefinedSubstitutor {
+object ConstraintSystem {
+
+  val empty: ConstraintSystem = ConstraintSystemImpl(
+    LongMap.empty,
+    LongMap.empty,
+    Set.empty
+  )
 
   //subst, lowers, uppers
   final case class SubstitutionBounds(tvMap: LongMap[ScType],
@@ -77,43 +89,35 @@ object ScUndefinedSubstitutor {
     val substitutor = ScSubstitutor(tvMap)
   }
 
-  def apply(): ScUndefinedSubstitutor = empty
-
-  def apply(substitutors: Set[ScUndefinedSubstitutor]): ScUndefinedSubstitutor = {
-    val newSubstitutors = substitutors.filterNot {
+  def apply(constraintsSet: Set[ConstraintSystem]): ConstraintSystem = {
+    val flattened = constraintsSet.filterNot {
       _.isEmpty
     }.flatMap {
-      case impl: ScUndefinedSubstitutorImpl => Set(impl)
-      case ScMultiUndefinedSubstitutor(impls) => impls
+      case impl: ConstraintSystemImpl => Set(impl)
+      case MultiConstraintSystem(impls) => impls
     }
 
-    newSubstitutors.size match {
-      case 0 => ScUndefinedSubstitutor()
-      case 1 => newSubstitutors.head
-      case _ => ScMultiUndefinedSubstitutor(newSubstitutors)
+    flattened.size match {
+      case 0 => ConstraintSystem.empty
+      case 1 => flattened.head
+      case _ => MultiConstraintSystem(flattened)
     }
   }
 
-  def unapply(substitutor: ScUndefinedSubstitutor)
+  def unapply(constraints: ConstraintSystem)
              (implicit context: ProjectContext): Option[ScSubstitutor] =
-    substitutor.substitutionBounds(canThrowSCE = true).map {
+    constraints.substitutionBounds(canThrowSCE = true).map {
       _.substitutor
     }
-
-  private val empty = ScUndefinedSubstitutorImpl(
-    LongMap.empty,
-    LongMap.empty,
-    Set.empty
-  )
 }
 
-private final case class ScUndefinedSubstitutorImpl(upperMap: LongMap[Set[ScType]],
-                                                    lowerMap: LongMap[Set[ScType]],
-                                                    additionalIds: Set[Long])
-  extends ScUndefinedSubstitutor {
+private final case class ConstraintSystemImpl(upperMap: LongMap[Set[ScType]],
+                                              lowerMap: LongMap[Set[ScType]],
+                                              additionalIds: Set[Long])
+  extends ConstraintSystem {
 
-  import ScUndefinedSubstitutor._
-  import ScUndefinedSubstitutorImpl._
+  import ConstraintSystem._
+  import ConstraintSystemImpl._
 
   private[this] var substWithBounds: Option[SubstitutionBounds] = _
 
@@ -123,18 +127,18 @@ private final case class ScUndefinedSubstitutorImpl(upperMap: LongMap[Set[ScType
 
   override def isEmpty: Boolean = upperMap.isEmpty && lowerMap.isEmpty
 
-  override def +(substitutor: ScUndefinedSubstitutor): ScUndefinedSubstitutor = substitutor match {
-    case ScUndefinedSubstitutorImpl(otherUpperMap, otherLowerMap, otherAdditionalIds) => ScUndefinedSubstitutorImpl(
+  override def +(constraints: ConstraintSystem): ConstraintSystem = constraints match {
+    case ConstraintSystemImpl(otherUpperMap, otherLowerMap, otherAdditionalIds) => ConstraintSystemImpl(
       upperMap.merge(otherUpperMap)(isAny),
       lowerMap.merge(otherLowerMap)(isNothing),
       additionalIds ++ otherAdditionalIds
     )
-    case multi: ScMultiUndefinedSubstitutor => multi + this
+    case multi: MultiConstraintSystem => multi + this
   }
 
   override def addLower(id: Long, rawLower: ScType,
-                        additional: Boolean, variance: Variance): ScUndefinedSubstitutor =
-    computeLower(variance)(rawLower).fold(this: ScUndefinedSubstitutor) { lower =>
+                        additional: Boolean, variance: Variance): ConstraintSystem =
+    computeLower(variance)(rawLower).fold(this: ConstraintSystem) { lower =>
       copy(
         lowerMap = lowerMap.update(id, lower),
         additionalIds = additionalIds ++ id.toIterable(additional)
@@ -142,8 +146,8 @@ private final case class ScUndefinedSubstitutorImpl(upperMap: LongMap[Set[ScType
     }
 
   override def addUpper(id: Long, rawUpper: ScType,
-                        additional: Boolean, variance: Variance): ScUndefinedSubstitutor =
-    computeUpper(variance)(rawUpper).fold(this: ScUndefinedSubstitutor) { upper =>
+                        additional: Boolean, variance: Variance): ConstraintSystem =
+    computeUpper(variance)(rawUpper).fold(this: ConstraintSystem) { upper =>
       copy(
         upperMap = upperMap.update(id, upper),
         additionalIds = additionalIds ++ id.toIterable(additional)
@@ -165,7 +169,7 @@ private final case class ScUndefinedSubstitutorImpl(upperMap: LongMap[Set[ScType
     else init(substWithBoundsNoSCE)(substWithBoundsNoSCE = _)
   }
 
-  override def removeTypeParamIds(ids: Set[Long]): ScUndefinedSubstitutor = copy(
+  override def removeTypeParamIds(ids: Set[Long]): ConstraintSystem = copy(
     upperMap = upperMap.removeIds(ids),
     lowerMap = lowerMap.removeIds(ids)
   )
@@ -275,7 +279,7 @@ private final case class ScUndefinedSubstitutorImpl(upperMap: LongMap[Set[ScType
   }
 }
 
-private object ScUndefinedSubstitutorImpl {
+private object ConstraintSystemImpl {
 
   private implicit class LongMapExt(val map: LongMap[Set[ScType]]) extends AnyVal {
 
@@ -392,42 +396,42 @@ private object ScUndefinedSubstitutorImpl {
     Some(`type`.unpackedType).filterNot(predicate)
 }
 
-private final case class ScMultiUndefinedSubstitutor(impls: Set[ScUndefinedSubstitutorImpl])
-  extends ScUndefinedSubstitutor {
+private final case class MultiConstraintSystem(impls: Set[ConstraintSystemImpl])
+  extends ConstraintSystem {
 
   override val typeParamIds: Set[Long] = impls.flatMap(_.typeParamIds)
 
   override def isEmpty: Boolean = typeParamIds.isEmpty
 
   override def addLower(id: Long, lower: ScType,
-                        additional: Boolean, variance: Variance): ScUndefinedSubstitutor = this {
+                        additional: Boolean, variance: Variance): ConstraintSystem = this.map {
     _.addLower(id, lower, additional, variance)
   }
 
   override def addUpper(id: Long, upper: ScType,
-                        additional: Boolean, variance: Variance): ScUndefinedSubstitutor = this {
+                        additional: Boolean, variance: Variance): ConstraintSystem = this.map {
     _.addUpper(id, upper, additional, variance)
   }
 
   override def substitutionBounds(canThrowSCE: Boolean)
-                                 (implicit context: ProjectContext): Option[ScUndefinedSubstitutor.SubstitutionBounds] =
+                                 (implicit context: ProjectContext): Option[ConstraintSystem.SubstitutionBounds] =
     impls.iterator.map {
       _.substitutionBounds(canThrowSCE)
     }.collectFirst {
       case Some(bounds) => bounds
     }
 
-  override def removeTypeParamIds(ids: Set[Long]): ScUndefinedSubstitutor = this {
+  override def removeTypeParamIds(ids: Set[Long]): ConstraintSystem = this.map {
     _.removeTypeParamIds(ids)
   }
 
-  override def +(substitutor: ScUndefinedSubstitutor): ScUndefinedSubstitutor = {
-    val otherImpls = substitutor match {
-      case impl: ScUndefinedSubstitutorImpl => Set(impl)
-      case ScMultiUndefinedSubstitutor(otherSubstitutors) => otherSubstitutors
+  override def +(constraints: ConstraintSystem): ConstraintSystem = {
+    val otherImpls = constraints match {
+      case impl: ConstraintSystemImpl => Set(impl)
+      case MultiConstraintSystem(otherSubstitutors) => otherSubstitutors
     }
 
-    ScUndefinedSubstitutor {
+    ConstraintSystem {
       for {
         left <- impls
         right <- otherImpls
@@ -435,6 +439,6 @@ private final case class ScMultiUndefinedSubstitutor(impls: Set[ScUndefinedSubst
     }
   }
 
-  private def apply(function: ScUndefinedSubstitutorImpl => ScUndefinedSubstitutor) =
-    ScUndefinedSubstitutor(impls.map(function))
+  private def map(function: ConstraintSystemImpl => ConstraintSystem) =
+    ConstraintSystem(impls.map(function))
 }
