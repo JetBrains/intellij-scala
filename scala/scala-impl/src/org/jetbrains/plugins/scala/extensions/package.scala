@@ -311,12 +311,14 @@ package object extensions {
 
     def containingFile: Option[PsiFile] = Option(element.getContainingFile)
 
-    def containingScalaFile: Option[ScalaFile] = element.containingFile.collect {
-      case file: ScalaFile => file
+    def containingScalaFile: Option[ScalaFile] = element.getContainingFile match {
+      case file: ScalaFile => Some(file)
+      case _ => None
     }
 
-    def containingVirtualFile: Option[VirtualFile] = containingFile.flatMap { file =>
-      Option(file.getVirtualFile)
+    def containingVirtualFile: Option[VirtualFile] = element.getContainingFile match {
+      case null => None
+      case file => Option(file.getVirtualFile)
     }
 
     def sameElementInContext: PsiElement = element match {
