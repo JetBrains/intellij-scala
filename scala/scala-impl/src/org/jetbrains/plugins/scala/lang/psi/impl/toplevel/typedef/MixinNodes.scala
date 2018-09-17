@@ -11,6 +11,7 @@ package typedef
 import com.intellij.openapi.progress.ProgressManager
 import com.intellij.psi.{PsiClass, PsiClassType, PsiElement}
 import com.intellij.util.containers.ContainerUtil
+import gnu.trove.TIntObjectHashMap
 import org.jetbrains.plugins.scala.caches.CachesUtil
 import org.jetbrains.plugins.scala.extensions._
 import org.jetbrains.plugins.scala.lang.psi.api.statements.ScTypeAliasDefinition
@@ -138,11 +139,11 @@ abstract class MixinNodes {
     }
 
     private def toNodesSeq(seq: List[SigToSuper]): NodesSeq = {
-      val map = new mutable.HashMap[Int, List[SigToSuper]]
+      val map = new TIntObjectHashMap[List[SigToSuper]]()
       for (elem <- seq) {
         val key = computeHashCode(elem._1)
         val prev = map.getOrElse(key, List.empty)
-        map.update(key, elem :: prev)
+        map.put(key, elem :: prev)
       }
       new NodesSeq(map)
     }
@@ -207,29 +208,29 @@ abstract class MixinNodes {
 
     def foreach(p: SigToSuper => Unit) {
       publics.foreach(p)
-      privates.map.values.flatten.foreach(p)
+      privates.map.flattenValues.foreach(p)
     }
 
     def map[R](p: SigToSuper => R): Seq[R] = {
-      publics.map(p).toSeq ++ privates.map.values.flatten.map(p)
+      publics.map(p).toSeq ++ privates.map.flattenValues.map(p)
     }
 
     def filter(p: SigToSuper => Boolean): Seq[SigToSuper] = {
-      publics.filter(p).toSeq ++ privates.map.values.flatten.filter(p)
+      publics.filter(p).toSeq ++ privates.map.flattenValues.filter(p)
     }
 
     def withFilter(p: SigToSuper => Boolean): FilterMonadic[SigToSuper, Seq[SigToSuper]] = {
-      (publics.toSeq ++ privates.map.values.flatten).withFilter(p)
+      (publics.toSeq ++ privates.map.flattenValues).withFilter(p)
     }
 
     def flatMap[R](p: SigToSuper => Traversable[R]): Seq[R] = {
-      publics.flatMap(p).toSeq ++ privates.map.values.flatten.flatMap(p)
+      publics.flatMap(p).toSeq ++ privates.map.flattenValues.flatMap(p)
     }
 
     def iterator: Iterator[SigToSuper] = {
       new Iterator[SigToSuper] {
         private val iter1 = publics.iterator
-        private val iter2 = privates.map.values.flatten.iterator
+        private val iter2 = privates.map.flattenValues.iterator
         def hasNext: Boolean = iter1.hasNext || iter2.hasNext
 
         def next(): SigToSuper = if (iter1.hasNext) iter1.next() else iter2.next()
@@ -243,10 +244,10 @@ abstract class MixinNodes {
       }
     }
 
-    def isEmpty: Boolean = publics.isEmpty && privates.map.values.forall(_.isEmpty)
+    def isEmpty: Boolean = publics.isEmpty && privates.map.forEachValue(_.isEmpty)
   }
 
-  class NodesSeq(private[MixinNodes] val map: mutable.HashMap[Int, List[SigToSuper]]) {
+  class NodesSeq(private[MixinNodes] val map: TIntObjectHashMap[List[SigToSuper]]) {
     def get(s: T): Option[Node] = {
       val list = map.getOrElse(computeHashCode(s), Nil)
       val iterator = list.iterator
@@ -586,5 +587,24 @@ object MixinNodes {
     }
     if (addTp) add(tp)
     buffer
+  }
+
+  private implicit class TIntListHashMapOps[T](val map: TIntObjectHashMap[List[T]]) extends AnyVal {
+    def getOrElse(key: Int, t: List[T]): List[T] = {
+      val fromMap = map.get(key)
+
+      if (fromMap != null) fromMap
+      else t
+    }
+
+    def flattenValues: Seq[T] = {
+      val result = ArrayBuffer[T]()
+
+      map.forEachValue(list => {
+        result ++= list
+        true
+      })
+      result
+    }
   }
 }
