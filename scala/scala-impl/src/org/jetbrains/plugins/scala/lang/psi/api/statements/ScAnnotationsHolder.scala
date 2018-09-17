@@ -34,7 +34,7 @@ trait ScAnnotationsHolder extends ScalaPsiElement with PsiAnnotatedAdapter {
   override def hasAnnotation(qualifiedName: String): Boolean = annotations(qualifiedName).nonEmpty
 
   def annotations(qualifiedName: String): Seq[ScAnnotation] = {
-    def acceptType: ScType => Boolean = {
+    def acceptType(scType: ScType): Boolean = scType match {
       case ScDesignatorType(clazz: PsiClass) =>
         clazz.qualifiedName == qualifiedName
       case ParameterizedType(designator@ScDesignatorType(_: PsiClass), _) =>
@@ -48,13 +48,9 @@ trait ScAnnotationsHolder extends ScalaPsiElement with PsiAnnotatedAdapter {
         }
     }
 
-    annotations map { annotation =>
-      (annotation, annotation.typeElement.`type`().getOrAny)
-    } filter {
-      case (_, scType) => acceptType(scType)
-    } map {
-      _._1
-    }
+    def checkTypeName(annotation: ScAnnotation): Boolean = acceptType(annotation.typeElement.`type`().getOrAny)
+
+    annotations.filter(checkTypeName)
   }
 
   def addAnnotation(qualifiedName: String): PsiAnnotation = {
@@ -71,7 +67,7 @@ trait ScAnnotationsHolder extends ScalaPsiElement with PsiAnnotatedAdapter {
     annotations(qualifiedName).headOption.orNull
 
   def findAnnotationNoAliases(qualifiedName: String): PsiAnnotation = {
-    def sameName: ScTypeElement => Boolean = {
+    def sameName(te: ScTypeElement): Boolean = te match {
       case simple: ScSimpleTypeElement =>
         simple.reference exists {
           _.refName == qualifiedName.substring(qualifiedName.lastIndexOf('.') + 1)
@@ -79,14 +75,9 @@ trait ScAnnotationsHolder extends ScalaPsiElement with PsiAnnotatedAdapter {
       case ScParameterizedTypeElement(simple: ScSimpleTypeElement, _) => sameName(simple)
       case _ => false
     }
+    def hasSameName(annotation: ScAnnotation) = sameName(annotation.typeElement)
 
-    annotations map {
-      _.typeElement
-    } find {
-      sameName
-    } map { _ =>
-      findAnnotation(qualifiedName)
-    } orNull
+    annotations.find(hasSameName).orNull
   }
 
   def getApplicableAnnotations: Array[PsiAnnotation] = getAnnotations //todo: understatnd and fix
