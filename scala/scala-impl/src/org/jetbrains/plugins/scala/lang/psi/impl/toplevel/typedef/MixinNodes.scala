@@ -74,12 +74,12 @@ abstract class MixinNodes {
     def forName(name: String): (AllNodes, AllNodes) = {
       val convertedName = ScalaNamesUtil.clean(name)
       def calculate: (AllNodes, AllNodes) = {
-        val thisMap: NodesMap = toNodesMap(getOrElse(convertedName, new ArrayBuffer))
-        val maps: List[NodesMap] = supersList.map(sup => toNodesMap(sup.getOrElse(convertedName, new ArrayBuffer)))
+        val thisMap: NodesMap = toNodesMap(getOrElse(convertedName, Nil))
+        val maps: List[NodesMap] = supersList.map(sup => toNodesMap(sup.getOrElse(convertedName, Nil)))
         val supers = mergeWithSupers(thisMap, mergeSupers(maps))
-        val list = supersList.flatMap(_.privatesMap.getOrElse(convertedName, new ArrayBuffer[SigToSuper]))
+        val list = supersList.flatMap(_.privatesMap.getOrElse(convertedName, Nil))
         val supersPrivates = toNodesSeq(list)
-        val thisPrivates = toNodesSeq(privatesMap.getOrElse(convertedName, new ArrayBuffer[SigToSuper]).toList ::: list)
+        val thisPrivates = toNodesSeq(privatesMap.getOrElse(convertedName, Nil).toList ::: list)
         val thisAllNodes = new AllNodes(thisMap, thisPrivates)
         val supersAllNodes = new AllNodes(supers, supersPrivates)
         (thisAllNodes, supersAllNodes)
@@ -147,7 +147,7 @@ abstract class MixinNodes {
       new NodesSeq(map)
     }
 
-    private def toNodesMap(buf: ArrayBuffer[SigToSuper]): NodesMap = {
+    private def toNodesMap(buf: Seq[SigToSuper]): NodesMap = {
       val res = new NodesMap
       res ++= buf
       res
