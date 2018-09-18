@@ -64,7 +64,7 @@ trait ScType extends ProjectContextOwner {
     (false, uSubst)
   }
 
-  def updateSubtypes(updates: Seq[Update], visited: Set[ScType]): ScType = this
+  def updateSubtypes(updates: Array[Update], index: Int, visited: Set[ScType]): ScType = this
 
   def updateSubtypesVariance(update: (ScType, Variance) => AfterUpdate,
                              variance: Variance,

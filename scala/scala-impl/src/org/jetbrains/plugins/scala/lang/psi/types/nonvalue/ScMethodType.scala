@@ -109,8 +109,8 @@ case class ScMethodType(returnType: ScType, params: Seq[Parameter], isImplicit: 
     params.map(p => p.copy(paramType = p.paramType.removeAbstracts)),
     isImplicit)
 
-  override def updateSubtypes(updates: Seq[Update], visited: Set[ScType]): ScMethodType = {
-    def update(tp: ScType) = tp.recursiveUpdateImpl(updates, visited, isLazySubtype = true)
+  override def updateSubtypes(updates: Array[Update], index: Int, visited: Set[ScType]): ScMethodType = {
+    def update(tp: ScType) = tp.recursiveUpdateImpl(updates, index, visited, isLazySubtype = true)
     def updateParameter(p: Parameter): Parameter = p.copy(
       paramType = update(p.paramType),
       expectedType = update(p.expectedType),
@@ -118,7 +118,7 @@ case class ScMethodType(returnType: ScType, params: Seq[Parameter], isImplicit: 
     )
 
     ScMethodType(
-      returnType.recursiveUpdateImpl(updates, visited),
+      returnType.recursiveUpdateImpl(updates, index, visited),
       params.map(updateParameter),
       isImplicit
     )
@@ -245,10 +245,10 @@ case class ScTypePolymorphicType(internalType: ScType, typeParameters: Seq[TypeP
     typeParameters.update(_.removeAbstracts)
   )
 
-  override def updateSubtypes(updates: Seq[Update], visited: Set[ScType]): ScType = {
+  override def updateSubtypes(updates: Array[Update], index: Int, visited: Set[ScType]): ScType = {
     ScTypePolymorphicType(
-      internalType.recursiveUpdateImpl(updates, visited),
-      typeParameters.update(_.recursiveUpdateImpl(updates, visited, isLazySubtype = true))
+      internalType.recursiveUpdateImpl(updates, index, visited),
+      typeParameters.update(_.recursiveUpdateImpl(updates, index, visited, isLazySubtype = true))
     )
   }
 

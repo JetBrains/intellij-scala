@@ -26,8 +26,8 @@ class ScExistentialType private (val quantified: ScType,
 
   override def removeAbstracts = ScExistentialType(quantified.removeAbstracts)
 
-  override def updateSubtypes(updates: Seq[Update], visited: Set[ScType]): ScExistentialType =
-    ScExistentialType(quantified.recursiveUpdateImpl(updates, visited))
+  override def updateSubtypes(updates: Array[Update], index: Int, visited: Set[ScType]): ScExistentialType =
+    ScExistentialType(quantified.recursiveUpdateImpl(updates, index, visited))
 
   override def updateSubtypesVariance(update: (ScType, Variance) => AfterUpdate,
                                        variance: Variance = Covariant,
