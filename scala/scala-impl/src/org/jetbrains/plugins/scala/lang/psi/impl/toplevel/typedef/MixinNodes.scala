@@ -51,15 +51,20 @@ abstract class MixinNodes {
     var primarySuper: Option[Node] = None
   }
 
-  class Map extends mutable.HashMap[String, ArrayBuffer[SigToSuper]] {
+  class Map {
     private[Map] val implicitNames: SmartHashSet[String] = new SmartHashSet[String]
+    private val publicsMap: mutable.HashMap[String, ArrayBuffer[SigToSuper]] = mutable.HashMap.empty
     private val privatesMap: mutable.HashMap[String, ArrayBuffer[SigToSuper]] = mutable.HashMap.empty
     def addToMap(key: T, node: Node) {
       val name = ScalaNamesUtil.clean(elemName(key))
-      (if (!isPrivate(key)) this else privatesMap).
-        getOrElseUpdate(name, new ArrayBuffer) += ((key, node))
+      val map = if (!isPrivate(key)) publicsMap else privatesMap
+      map.getOrElseUpdate(name, new ArrayBuffer) += ((key, node))
       if (isImplicit(key)) implicitNames.add(name)
     }
+
+    def publicNames: collection.Set[String] = publicsMap.keySet
+
+    def addPublicsFrom(map: Map): Unit = publicsMap ++= map.publicsMap
 
     @volatile
     private var supersList: List[Map] = List.empty
@@ -75,8 +80,8 @@ abstract class MixinNodes {
     def forName(name: String): (AllNodes, AllNodes) = {
       val convertedName = ScalaNamesUtil.clean(name)
       def calculate: (AllNodes, AllNodes) = {
-        val thisMap: NodesMap = toNodesMap(getOrElse(convertedName, Nil))
-        val maps: List[NodesMap] = supersList.map(sup => toNodesMap(sup.getOrElse(convertedName, Nil)))
+        val thisMap: NodesMap = toNodesMap(publicsMap.getOrElse(convertedName, Nil))
+        val maps: List[NodesMap] = supersList.map(sup => toNodesMap(sup.publicsMap.getOrElse(convertedName, Nil)))
         val supers = mergeWithSupers(thisMap, mergeSupers(maps))
         val list = supersList.flatMap(_.privatesMap.getOrElse(convertedName, Nil))
         val supersPrivates = toNodesSeq(list)
@@ -118,10 +123,10 @@ abstract class MixinNodes {
 
     def allNames(): Set[String] = {
       val names = new mutable.HashSet[String]
-      names ++= keySet
+      names ++= publicsMap.keySet
       names ++= privatesMap.keySet
       for (sup <- supersList) {
-        names ++= sup.keySet
+        names ++= sup.publicsMap.keySet
         names ++= sup.privatesMap.keySet
       }
       names.toSet
@@ -257,21 +262,6 @@ abstract class MixinNodes {
         if (same(s, next._1)) return Some(next._2)
       }
       None
-    }
-
-    def fastPhysicalSignatureGet(key: T): Option[Node] = {
-      val list = map.getOrElse(computeHashCode(key), List.empty)
-      list match {
-        case Nil => None
-        case x :: Nil => Some(x._2)
-        case e =>
-          val iterator = e.iterator
-          while (iterator.hasNext) {
-            val next = iterator.next()
-            if (same(key, next._1)) return Some(next._2)
-          }
-          None
-      }
     }
   }
 

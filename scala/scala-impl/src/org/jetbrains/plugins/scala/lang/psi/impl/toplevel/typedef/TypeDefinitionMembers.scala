@@ -525,7 +525,7 @@ object TypeDefinitionMembers {
     val ans = buildNodesClass()
     place.foreach {
       case _: ScInterpolatedPrefixReference =>
-        val allowedNames = ans.keySet
+        val allowedNames = ans.publicNames
         val eb = clazz match {
           case td: ScTemplateDefinition => Some(td.extendsBlock)
           case _ => clazz.getChildren.collectFirst({case e: ScExtendsBlock => e})
@@ -540,7 +540,7 @@ object TypeDefinitionMembers {
                   def buildNodesObject(): SMap = SignatureNodes.build(o)
 
                   val add = buildNodesObject()
-                  ans ++= add
+                  ans.addPublicsFrom(add)
                 }
               case c: ScClass =>
                 if (allowedNames.contains(c.name)) {
@@ -548,7 +548,7 @@ object TypeDefinitionMembers {
                   def buildNodesClass2(): SMap = SignatureNodes.build(c)
 
                   val add = buildNodesClass2()
-                  ans ++= add
+                  ans.addPublicsFrom(add)
                 }
               case _ =>
             }
@@ -878,7 +878,7 @@ object TypeDefinitionMembers {
           }
           if (!checkList(decodedName)) return false
         } else if (BaseProcessor.isImplicitProcessor(processor)) {
-          val implicits: List[(T#T, T#Node)] = signatures.forImplicits()
+          val implicits = signatures.forImplicits()
           val iterator: Iterator[(T#T, T#Node)] = implicits.iterator
           while (iterator.hasNext) {
             val (sig, n) = iterator.next()
