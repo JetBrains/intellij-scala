@@ -249,11 +249,10 @@ object ResolveProcessor {
                       set: mutable.HashSet[ScalaResolveResult]): Boolean = {
     if (ignoredSet.nonEmpty && set.isEmpty) return false
 
-    val ignoredElements = ignoredSet.map(_.getActualElement)
-    val elements = set.map(_.getActualElement)
-
-    ignoredElements.forall { result =>
-      elements.forall(areEquivalent(result, _))
+    ignoredSet.forall { ignored =>
+      set.forall { result =>
+        areEquivalent(ignored.getActualElement, result.getActualElement)
+      }
     }
   }
 
