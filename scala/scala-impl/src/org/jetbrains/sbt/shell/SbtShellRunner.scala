@@ -146,6 +146,8 @@ class SbtShellRunner(project: Project, consoleTitle: String, debugConnection: Op
       toolWindow <- Option(twm.getToolWindow(SbtShellToolWindowFactory.ID))
     } toolWindow.activate(null, focus)
   }
+  
+  def getDebugConnection: Option[RemoteConnection] = debugConnection
 
   private def addToolWindowContent(@NotNull toolWindow: ToolWindow, @NotNull content: Content): Unit = {
     val twContentManager = toolWindow.getContentManager

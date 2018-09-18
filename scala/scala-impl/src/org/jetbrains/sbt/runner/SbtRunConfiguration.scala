@@ -4,12 +4,12 @@ import java.io.File
 import java.util
 import java.util.jar.JarFile
 
-import com.intellij.execution.Executor
 import com.intellij.execution.configuration.EnvironmentVariablesComponent
 import com.intellij.execution.configurations._
 import com.intellij.execution.filters.TextConsoleBuilderFactory
-import com.intellij.execution.runners.ExecutionEnvironment
+import com.intellij.execution.runners.{ExecutionEnvironment, ProgramRunner}
 import com.intellij.execution.util.JavaParametersUtil
+import com.intellij.execution.{ExecutionResult, Executor}
 import com.intellij.openapi.module.Module
 import com.intellij.openapi.options.SettingsEditor
 import com.intellij.openapi.project.Project
@@ -20,7 +20,11 @@ import org.jdom.Element
 import org.jetbrains.android.sdk.AndroidSdkType
 import org.jetbrains.plugins.scala.extensions.using
 import org.jetbrains.sbt.SbtUtil
-import org.jetbrains.sbt.settings.SbtSettings
+import org.jetbrains.sbt.settings.SbtSystemSettings
+import SbtRunConfiguration._
+import com.intellij.util.execution.ParametersListUtil
+
+import scala.collection.JavaConverters._
 
 /**
  * Run configuration of sbt tasks.
@@ -31,45 +35,50 @@ class SbtRunConfiguration(val project: Project, val configurationFactory: Config
   /**
    * List of task to execute in format of sbt.
    */
-  private var tasks = ""
+  protected var tasks: String = ""
 
   /**
    * Extra java options.
    */
-  private var javaOptions = "-Xms512M -Xmx1024M -Xss1M -XX:+CMSClassUnloadingEnabled"
+  protected var javaOptions: String = "-Xms512M -Xmx1024M -Xss1M -XX:+CMSClassUnloadingEnabled"
 
   /**
    * Environment variables.
    */
-  private val environmentVariables: java.util.Map[String, String] = new java.util.HashMap[String, String]()
+  protected val environmentVariables: java.util.Map[String, String] = new java.util.HashMap[String, String]()
 
-  private var workingDirectory: String = defaultWorkingDirectory
+  protected var workingDirectory: String = defaultWorkingDirectory
+  
+  protected var isUsingSbtShell: Boolean = true
 
   private def defaultWorkingDirectory = Option(project.getBaseDir).fold("")(_.getPath)
 
   override def getValidModules: util.Collection[Module] = new java.util.ArrayList
 
-  override def getState(executor: Executor, env: ExecutionEnvironment): RunProfileState = {
-    val state: SbtComandLineState = new SbtComandLineState(this, env)
-    state.setConsoleBuilder(TextConsoleBuilderFactory.getInstance.createBuilder(getProject))
-    state
-  }
+  override def getState(executor: Executor, env: ExecutionEnvironment): RunProfileState = 
+    if (getUseSbtShell) new SbtSimpleCommandLineState(preprocessTasks()) else {
+      val state: SbtCommandLineState = new SbtCommandLineState(this, env)
+      state.setConsoleBuilder(TextConsoleBuilderFactory.getInstance.createBuilder(getProject))
+      state
+    }
 
   override def getConfigurationEditor: SettingsEditor[_ <: RunConfiguration] = new SbtRunConfigurationEditor(project, this)
 
   override def writeExternal(element: Element) {
     super.writeExternal(element)
-    JDOMExternalizer.write(element, "tasks", getTasks)
-    JDOMExternalizer.write(element, "vmparams", getJavaOptions)
-    JDOMExternalizer.write(element, "workingDir", getWorkingDir)
+    JDOMExternalizer.write(element, TASKS_KEY, getTasks)
+    JDOMExternalizer.write(element, VM_PARAMS_KEY, getJavaOptions)
+    JDOMExternalizer.write(element, WORK_DIR_KEY, getWorkingDir)
+    JDOMExternalizer.write(element, USE_SBT_SHELL_KEY, getUseSbtShell)
     EnvironmentVariablesComponent.writeExternal(element, getEnvironmentVariables)
   }
 
   override def readExternal(element: Element) {
     super.readExternal(element)
-    tasks = JDOMExternalizer.readString(element, "tasks")
-    javaOptions = JDOMExternalizer.readString(element, "vmparams")
-    workingDirectory = JDOMExternalizer.readString(element, "workingDir")
+    tasks = JDOMExternalizer.readString(element, TASKS_KEY)
+    javaOptions = JDOMExternalizer.readString(element, VM_PARAMS_KEY)
+    workingDirectory = JDOMExternalizer.readString(element, WORK_DIR_KEY)
+    isUsingSbtShell = JDOMExternalizer.readBoolean(element, USE_SBT_SHELL_KEY)
     EnvironmentVariablesComponent.readExternal(element, environmentVariables)
   }
 
@@ -81,6 +90,7 @@ class SbtRunConfiguration(val project: Project, val configurationFactory: Config
     workingDirectory = params.getWorkingDir
     environmentVariables.clear()
     environmentVariables.putAll(params.getEnvironmentVariables)
+    isUsingSbtShell = params.isUseSbtShell
   }
 
   def determineMainClass(launcherPath: String): String = {
@@ -90,6 +100,8 @@ class SbtRunConfiguration(val project: Project, val configurationFactory: Config
     }
   }
 
+  def getUseSbtShell: Boolean = isUsingSbtShell
+  
   def getTasks: String = tasks
 
   def getJavaOptions: String = javaOptions
@@ -98,7 +110,12 @@ class SbtRunConfiguration(val project: Project, val configurationFactory: Config
 
   def getWorkingDir: String = if (StringUtil.isEmpty(workingDirectory)) defaultWorkingDirectory else workingDirectory
 
-  class SbtComandLineState(configuration: SbtRunConfiguration, environment: ExecutionEnvironment)
+  private def preprocessTasks(): String = if (tasks.trim startsWith ";") tasks else {
+    val commands = ParametersListUtil.parse(tasks, true).asScala
+    if (commands.length == 1) commands.head else commands.mkString(";", " ;", "")
+  }
+  
+  private class SbtCommandLineState(configuration: SbtRunConfiguration, environment: ExecutionEnvironment)
           extends JavaCommandLineState(environment) {
 
     def createJavaParameters(): JavaParameters = {
@@ -111,11 +128,11 @@ class SbtRunConfiguration(val project: Project, val configurationFactory: Config
           case _ => // do nothing
         }
       } catch {
-        case _ : NoClassDefFoundError => // no android plugin, do nothing
+        case _: NoClassDefFoundError => // no android plugin, do nothing
       }
       params.setWorkingDirectory(workingDirectory)
       params.configureByProject(configuration.getProject, JavaParameters.JDK_ONLY, jdk)
-      val sbtSystemSettings: SbtSettings.State = SbtSettings.getInstance(configuration.getProject).getState
+      val sbtSystemSettings: SbtSystemSettings = SbtSystemSettings.getInstance(configuration.getProject)
       if (sbtSystemSettings.getCustomLauncherEnabled) {
         params.getClassPath.add(sbtSystemSettings.getCustomLauncherPath)
         params.setMainClass(determineMainClass(sbtSystemSettings.getCustomLauncherPath))
@@ -129,8 +146,16 @@ class SbtRunConfiguration(val project: Project, val configurationFactory: Config
       params.getProgramParametersList.addParametersString(tasks)
       params
     }
-
-    override def ansiColoringEnabled(): Boolean = true
   }
+}
 
+object SbtRunConfiguration {
+  private val TASKS_KEY = "tasks"
+  private val VM_PARAMS_KEY = "vmparams"
+  private val WORK_DIR_KEY = "workingDir"
+  private val USE_SBT_SHELL_KEY = "useSbtShell"
+}
+
+class SbtSimpleCommandLineState(val commands: String) extends RunProfileState {
+  override def execute(executor: Executor, runner: ProgramRunner[_ <: RunnerSettings]): ExecutionResult = null
 }

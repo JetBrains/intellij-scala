@@ -87,7 +87,7 @@ class WorksheetFileHook(private val project: Project) extends AbstractProjectCom
 
       extensions.inReadAction {
         statusDisplay = constructor.initTopPanel(panel, file, run, exec)
-        WorksheetFileHook.addReplAction(editor)
+        WorksheetFileHook.plugWorksheetActions(editor)
       }
 
       myFileEditorManager.addTopComponent(editor, panel)
@@ -95,13 +95,13 @@ class WorksheetFileHook(private val project: Project) extends AbstractProjectCom
   }
 
   def disableRun(file: VirtualFile, exec: Option[CompilationProcess]) {
-    WorksheetFileHook.removeReplAction(file, project)
+    WorksheetFileHook.unplugWorksheetActions(file, project)
     cleanAndAdd(file, exec map (new StopWorksheetAction(_)))
     statusDisplay.foreach(_.onStartCompiling())
   }
 
   def enableRun(file: VirtualFile, hasErrors: Boolean) {
-    WorksheetFileHook.addReplAction(file, project)
+    WorksheetFileHook.plugWorksheetActions(file, project)
     cleanAndAdd(file, Some(new RunWorksheetAction))
     statusDisplay.foreach(display => if (hasErrors) display.onFailedCompiling() else display.onSuccessfulCompiling())
   }
@@ -188,6 +188,8 @@ class WorksheetFileHook(private val project: Project) extends AbstractProjectCom
 }
 
 object WorksheetFileHook {
+  private val WORKSHEET_HK_ACTIONS: Array[AnAction] = 
+    Array(WorksheetReplRunAction.ACTION_INSTANCE, WorksheetRunCurrentCellAction.ACTION_INSTANCE)
   private val file2panel = new util.WeakHashMap[VirtualFile, WeakReference[MyPanel]]()
   
   private class MyPanel(file: VirtualFile) extends JPanel {
@@ -203,41 +205,46 @@ object WorksheetFileHook {
 
   private def getPanel(file: VirtualFile): Option[WeakReference[MyPanel]] = Option(file2panel get file)
   
-  private def addReplAction(file: VirtualFile, project: Project) {
+  private def plugWorksheetActions(file: VirtualFile, project: Project) {
     extensions.inReadAction {
-      FileEditorManager.getInstance(project).getAllEditors(file) foreach addReplAction
+      FileEditorManager.getInstance(project).getAllEditors(file) foreach plugWorksheetActions
     }
   }
 
-  private def addReplAction(editor: FileEditor) {
-    val c = editor.getComponent
-
-    val oldActions = UIUtil.getClientProperty(c, AnAction.ACTIONS_KEY)
-    val newActions =
-      if (oldActions == null) util.Arrays.asList(WorksheetReplRunAction.ACTION_INSTANCE: AnAction) else
-      if (oldActions contains WorksheetReplRunAction.ACTION_INSTANCE) oldActions else {
-        oldActions.add(WorksheetReplRunAction.ACTION_INSTANCE)
-        oldActions
-      }
-
-    UIUtil.putClientProperty(c, AnAction.ACTIONS_KEY, newActions)
-  }
-  
-  private def removeReplAction(file: VirtualFile, project: Project) {
-    extensions.inReadAction {
-      FileEditorManager.getInstance(project).getAllEditors(file) foreach removeReplAction
+  private def plugWorksheetActions(editor: FileEditor) {
+    patchComponentActions(editor) {
+      oldActions => 
+        if (oldActions == null) util.Arrays.asList(WORKSHEET_HK_ACTIONS: _*) else {
+          val newActions = new util.ArrayList(oldActions)
+          WORKSHEET_HK_ACTIONS.foreach {
+            action => if (!newActions.contains(action)) newActions.add(action)
+          }
+          newActions
+        }
     }
   }
   
-  private def removeReplAction(editor: FileEditor) {
-    val c = editor.getComponent
-    val actions = UIUtil.getClientProperty(c, AnAction.ACTIONS_KEY)
-    
-    if (actions != null && actions.contains(WorksheetReplRunAction.ACTION_INSTANCE)) {
-      val al = new util.ArrayList(actions)
-      al remove WorksheetReplRunAction.ACTION_INSTANCE
-      UIUtil.putClientProperty(c, AnAction.ACTIONS_KEY, al)
+  private def unplugWorksheetActions(file: VirtualFile, project: Project) {
+    extensions.inReadAction {
+      FileEditorManager.getInstance(project).getAllEditors(file) foreach unplugWorksheetActions
     }
+  }
+  
+  private def unplugWorksheetActions(editor: FileEditor) {
+    patchComponentActions(editor) {
+      oldActions => 
+        if (oldActions == null) null else {
+          val newActions = new util.ArrayList(oldActions)
+          WORKSHEET_HK_ACTIONS.foreach(newActions.remove)
+          newActions
+        }
+    }
+  }
+  
+  private def patchComponentActions(editor: FileEditor)(patcher: util.List[AnAction] => util.List[AnAction]) {
+    val c = editor.getComponent
+    val patchedActions = patcher(UIUtil.getClientProperty(c, AnAction.ACTIONS_KEY))
+    if (patchedActions != null) UIUtil.putClientProperty(c, AnAction.ACTIONS_KEY, patchedActions)
   }
 
   def instance(project: Project): WorksheetFileHook = project.getComponent(classOf[WorksheetFileHook])

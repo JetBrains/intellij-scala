@@ -23,7 +23,7 @@ abstract class WorksheetExternalRunType {
 
   def createPrinter(editor: Editor, file: ScalaFile): Option[WorksheetEditorPrinter]
 
-  def showAdditionalSettingsPanel(): Option[() => Unit] = None
+  def showAdditionalSettingsPanel(): Option[PsiFile => Unit] = None
   
   def process(srcFile: ScalaFile, ifEditor: Option[Editor]): WorksheetCompileRunRequest = RunSimple(
     WorksheetSourceProcessor.processSimple(srcFile, ifEditor)
@@ -31,7 +31,7 @@ abstract class WorksheetExternalRunType {
 
   def createRunCellAction(cellDescriptor: CellDescriptor): Option[AnAction] = None
 
-  def onSettingsConfirmed(file: PsiFile, isGlobal: Boolean): Unit = {}
+  def onSettingsConfirmed(file: PsiFile): Unit = {}
   
   override def toString: String = getName
 }

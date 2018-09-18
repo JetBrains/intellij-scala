@@ -12,8 +12,8 @@ import com.intellij.psi.PsiElement
   */
 class CellMarkupProvider extends LineMarkerProvider {
   override def getLineMarkerInfo(psiElement: PsiElement): LineMarkerInfo[_ <: PsiElement] = {
-    if (!CellManager.getInstance(psiElement.getProject).processProbablyStartElement(psiElement)) return null
-    LineMarkersPass.createMethodSeparatorLineMarker(psiElement, EditorColorsManager.getInstance())
+    if (CellManager.getInstance(psiElement.getProject).canStartCell(psiElement))
+      LineMarkersPass.createMethodSeparatorLineMarker(psiElement, EditorColorsManager.getInstance()) else null
   }
 
   override def collectSlowLineMarkers(list: util.List[PsiElement], 

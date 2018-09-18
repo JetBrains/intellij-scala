@@ -20,7 +20,10 @@ class WorksheetReplRunAction extends AnAction with WorksheetAction {
     RunWorksheetAction.runCompiler(e.getProject, auto = false)
   }
 
-  override def acceptFile(file: ScalaFile): Boolean = WorksheetFileSettings.isRepl(file)
+  override def acceptFile(file: ScalaFile): Boolean = {
+    val rt = WorksheetFileSettings.getRunType(file)
+    rt.isReplRunType && !rt.isUsesCell
+  }
 }
 
 object WorksheetReplRunAction {
