@@ -58,10 +58,10 @@ object ScExistentialArgument {
       else this //we shouldn't create `Complete` instance, because it'll break equals/hashcode
     }
 
-    override def updateSubtypes(updates: Seq[Update], visited: Set[ScType]): ScExistentialArgument =
+    override def updateSubtypes(updates: Array[Update], index: Int, visited: Set[ScType]): ScExistentialArgument =
       copyWithBounds(
-        lower.recursiveUpdateImpl(updates, visited, isLazySubtype = true),
-        upper.recursiveUpdateImpl(updates, visited, isLazySubtype = true),
+        lower.recursiveUpdateImpl(updates, index, visited, isLazySubtype = true),
+        upper.recursiveUpdateImpl(updates, index, visited, isLazySubtype = true),
       )
 
     override def updateSubtypesVariance(update: (ScType, Variance) => AfterUpdate,
@@ -81,10 +81,10 @@ object ScExistentialArgument {
 
     extends ScExistentialArgument {
 
-    override def updateSubtypes(updates: Seq[Update], visited: Set[ScType]): ScExistentialArgument =
+    override def updateSubtypes(updates: Array[Update], index: Int, visited: Set[ScType]): ScExistentialArgument =
       copyWithBounds(
-        lower.recursiveUpdateImpl(updates, visited),
-        upper.recursiveUpdateImpl(updates, visited)
+        lower.recursiveUpdateImpl(updates, index, visited),
+        upper.recursiveUpdateImpl(updates, index, visited)
       )
 
     override def updateSubtypesVariance(update: (ScType, Variance) => AfterUpdate,

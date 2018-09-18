@@ -13,12 +13,13 @@ import org.jetbrains.plugins.scala.lang.psi.types.nonvalue.Parameter
 import scala.collection.Seq
 import scala.collection.immutable.LongMap
 import scala.collection.mutable.ArrayBuffer
+import scala.util.hashing.MurmurHash3
 
 /**
   * Nikolay.Tropin
   * 01-Feb-18
   */
-final class ScSubstitutor private(private val substitutions: Array[Substitution]) {
+final class ScSubstitutor private(private val substitutions: Array[Update]) {
   //Array is used for the best concatenation performance, it is effectively immutable
   //todo: replace with ImmutableArray wrapper after migrating to scala 2.13
 
@@ -26,8 +27,7 @@ final class ScSubstitutor private(private val substitutions: Array[Substitution]
     if (ScSubstitutor.cacheSubstitutions)
       ScSubstitutor.cache ++= this.allTypeParamsMap
 
-    val view = substitutions.view //has more efficient `.tail` operation
-    t.recursiveUpdateImpl(view)
+    t.recursiveUpdateImpl(substitutions)
   }
 
   def followed(other: ScSubstitutor): ScSubstitutor = {
@@ -77,7 +77,7 @@ final class ScSubstitutor private(private val substitutions: Array[Substitution]
     }
   }
 
-  override def hashCode(): Int = substitutions.hashCode()
+  override def hashCode(): Int = MurmurHash3.arrayHash(substitutions)
 
   override def equals(obj: Any): Boolean = obj match {
     case other: ScSubstitutor => other.substitutions sameElements substitutions
