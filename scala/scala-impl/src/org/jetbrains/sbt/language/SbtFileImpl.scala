@@ -85,7 +85,7 @@ class SbtFileImpl(provider: FileViewProvider) extends ScalaFileImpl(provider, Sb
     val result = for {
       module <- fileModule
       data <- SbtUtil.getSbtModuleData(module)
-      buildModule <- SbtModule.findBuildModule(getProject, data.id, data.buildURI)
+      buildModule <- SbtModule.findBuildModule(getProject, data.buildURI)
     } yield {
       buildModule
     }
