@@ -10,7 +10,7 @@ package typedef
 
 import com.intellij.openapi.progress.ProgressManager
 import com.intellij.psi.{PsiClass, PsiClassType, PsiElement}
-import com.intellij.util.containers.ContainerUtil
+import com.intellij.util.containers.{ContainerUtil, SmartHashSet}
 import gnu.trove.TIntObjectHashMap
 import org.jetbrains.plugins.scala.caches.CachesUtil
 import org.jetbrains.plugins.scala.extensions._
@@ -52,7 +52,7 @@ abstract class MixinNodes {
   }
 
   class Map extends mutable.HashMap[String, ArrayBuffer[SigToSuper]] {
-    private[Map] val implicitNames: mutable.HashSet[String] = new mutable.HashSet[String]
+    private[Map] val implicitNames: SmartHashSet[String] = new SmartHashSet[String]
     private val privatesMap: mutable.HashMap[String, ArrayBuffer[SigToSuper]] = mutable.HashMap.empty
     def addToMap(key: T, node: Node) {
       val name = ScalaNamesUtil.clean(elemName(key))
@@ -65,7 +65,7 @@ abstract class MixinNodes {
     private var supersList: List[Map] = List.empty
     def setSupersMap(list: List[Map]) {
       for (m <- list) {
-        implicitNames ++= m.implicitNames
+        implicitNames.addAll(m.implicitNames)
       }
       supersList = list
     }
@@ -107,8 +107,9 @@ abstract class MixinNodes {
       if (forImplicitsCache != null) return forImplicitsCache
 
       val res = new ArrayBuffer[SigToSuper]()
-      for (name <- implicitNames) {
-        val thisMap = forName(name)._1
+      val iterator = implicitNames.iterator()
+      while (iterator.hasNext) {
+        val thisMap = forName(iterator.next)._1
         res ++= thisMap.flatMap(implicitEntry)
       }
       forImplicitsCache = res.toList
