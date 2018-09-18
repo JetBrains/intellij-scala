@@ -39,7 +39,6 @@ public class WorksheetSettingsSetForm {
 
   WorksheetSettingsSetForm(PsiFile file, WorksheetSettingsData settingsData) {
     myFile = file;
-    $$$setupUI$$$();
     myProject = file.getProject();
     init(settingsData);
   }
@@ -47,7 +46,6 @@ public class WorksheetSettingsSetForm {
   WorksheetSettingsSetForm(Project project, WorksheetSettingsData settingsData) {
     myFile = null;
     myProject = project;
-    $$$setupUI$$$();
     init(settingsData);
   }
 
