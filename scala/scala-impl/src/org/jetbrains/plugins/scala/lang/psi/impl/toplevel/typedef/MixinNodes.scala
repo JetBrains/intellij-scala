@@ -1,6 +1,6 @@
 /**
-* @author ven
-*/
+  * @author ven
+  */
 package org.jetbrains.plugins.scala
 package lang
 package psi
@@ -53,12 +53,17 @@ abstract class MixinNodes {
 
   class Map {
     private[Map] val implicitNames: SmartHashSet[String] = new SmartHashSet[String]
-    private val publicsMap: mutable.HashMap[String, ArrayBuffer[SigToSuper]] = mutable.HashMap.empty
+    private val publicsMap: mutable.HashMap[String, NodesMap] = mutable.HashMap.empty
     private val privatesMap: mutable.HashMap[String, ArrayBuffer[SigToSuper]] = mutable.HashMap.empty
     def addToMap(key: T, node: Node) {
       val name = ScalaNamesUtil.clean(elemName(key))
-      val map = if (!isPrivate(key)) publicsMap else privatesMap
-      map.getOrElseUpdate(name, new ArrayBuffer) += ((key, node))
+      if (isPrivate(key)) {
+        privatesMap.getOrElseUpdate(name, ArrayBuffer.empty) += ((key, node))
+      }
+      else {
+        val nodesMap = publicsMap.getOrElseUpdate(name, new NodesMap)
+        nodesMap.update(key, node)
+      }
       if (isImplicit(key)) implicitNames.add(name)
     }
 
@@ -80,8 +85,8 @@ abstract class MixinNodes {
     def forName(name: String): (AllNodes, AllNodes) = {
       val convertedName = ScalaNamesUtil.clean(name)
       def calculate: (AllNodes, AllNodes) = {
-        val thisMap: NodesMap = toNodesMap(publicsMap.getOrElse(convertedName, Nil))
-        val maps: List[NodesMap] = supersList.map(sup => toNodesMap(sup.publicsMap.getOrElse(convertedName, Nil)))
+        val thisMap: NodesMap = publicsMap.getOrElse(convertedName, NodesMap.empty)
+        val maps: List[NodesMap] = supersList.map(sup => sup.publicsMap.getOrElse(convertedName, NodesMap.empty))
         val supers = mergeWithSupers(thisMap, mergeSupers(maps))
         val list = supersList.flatMap(_.privatesMap.getOrElse(convertedName, Nil))
         val supersPrivates = toNodesSeq(list)
@@ -152,12 +157,6 @@ abstract class MixinNodes {
         map.put(key, elem :: prev)
       }
       new NodesSeq(map)
-    }
-
-    private def toNodesMap(buf: Seq[SigToSuper]): NodesMap = {
-      val res = new NodesMap
-      res ++= buf
-      res
     }
 
     private class MultiMap extends mutable.HashMap[T, mutable.Set[Node]] with collection.mutable.MultiMap[T, Node] {
@@ -254,6 +253,18 @@ abstract class MixinNodes {
   }
 
   class NodesSeq(private[MixinNodes] val map: TIntObjectHashMap[List[SigToSuper]]) {
+    def add(s: T, node: Node): Unit = {
+      val key = computeHashCode(s)
+      val prev = map.get(key)
+      map.put(key, (s, node) :: prev)
+    }
+
+    def addAll(list: List[SigToSuper]): Unit = {
+      list.foreach {
+        case (s, node) => add(s, node)
+      }
+    }
+
     def get(s: T): Option[Node] = {
       val list = map.getOrElse(computeHashCode(s), Nil)
       val iterator = list.iterator
@@ -270,10 +281,10 @@ abstract class MixinNodes {
     override def elemEquals(t1 : T, t2 : T): Boolean = equiv(t1, t2)
 
     /**
-     * Use this method if you are sure, that map contains key
-     */
+      * Use this method if you are sure, that map contains key
+      */
     def fastGet(key: T): Option[Node] = {
-    //todo: possible optimization to filter without types first then if only one variant left, get it.
+      //todo: possible optimization to filter without types first then if only one variant left, get it.
       val h = index(elemHashCode(key))
       var e = table(h).asInstanceOf[Entry]
       if (e != null && e.next == null) return Some(e.value)
@@ -310,6 +321,10 @@ abstract class MixinNodes {
         case _ => fastGet(key)
       }
     }
+  }
+
+  object NodesMap {
+    def empty: NodesMap = new NodesMap()
   }
 
   def emptyMap: Map = new Map()
@@ -514,9 +529,9 @@ object MixinNodes {
           set += classString(clazz)
         case Some(clazz) if clazz.getTypeParameters.nonEmpty =>
           val i = buffer.indexWhere(_.extractClass match {
-              case Some(newClazz) if ScEquivalenceUtil.areClassesEquivalent(newClazz, clazz) => true
-              case _ => false
-            }
+            case Some(newClazz) if ScEquivalenceUtil.areClassesEquivalent(newClazz, clazz) => true
+            case _ => false
+          }
           )
           if (i != -1) {
             val newTp = buffer.apply(i)
