@@ -401,7 +401,7 @@ object ScalaPsiUtil {
     val tp = _tp.removeAliasDefinitions()
     val implicitObjectsCache = ScalaPsiManager.instance(project).collectImplicitObjectsCache
     val cacheKey = (tp, scope)
-    var cachedResult = implicitObjectsCache.get(cacheKey)
+    val cachedResult = implicitObjectsCache.get(cacheKey)
     if (cachedResult != null) return cachedResult
 
     val visited: mutable.HashSet[ScType] = new mutable.HashSet[ScType]()
@@ -516,56 +516,52 @@ object ScalaPsiUtil {
       }
     }
 
-    while (parts.nonEmpty) {
-      val part = parts.dequeue()
-      //here we want to convert projection types to right projections
-      val visited = new mutable.HashSet[PsiClass]()
-
-      @tailrec
-      def collectObjects(tp: ScType) {
-        tp match {
-          case _ if tp.isAny =>
-          case tp: StdType if Seq("Int", "Float", "Double", "Boolean", "Byte", "Short", "Long", "Char").contains(tp.name) =>
-            elementScope.getCachedObject("scala." + tp.name)
-              .foreach { o =>
+    @tailrec
+    def collectObjects(tp: ScType) {
+      tp match {
+        case _ if tp.isAny =>
+        case tp: StdType if Seq("Int", "Float", "Double", "Boolean", "Byte", "Short", "Long", "Char").contains(tp.name) =>
+          elementScope.getCachedObject("scala." + tp.name)
+            .foreach { o =>
               addResult(o.qualifiedName, ScDesignatorType(o))
             }
-          case ScDesignatorType(ta: ScTypeAliasDefinition) => collectObjects(ta.aliasedType.getOrAny)
-          case ScProjectionType.withActual(actualElem: ScTypeAliasDefinition, actualSubst) =>
-            collectObjects(actualSubst.subst(actualElem.aliasedType.getOrAny))
-          case ParameterizedType(ScDesignatorType(ta: ScTypeAliasDefinition), args) =>
-            val genericSubst = ScSubstitutor.bind(ta.typeParameters, args)
-            collectObjects(genericSubst.subst(ta.aliasedType.getOrAny))
-          case ParameterizedType(ScProjectionType.withActual(actualElem: ScTypeAliasDefinition, actualSubst), args) =>
-            val genericSubst = ScSubstitutor.bind(actualElem.typeParameters, args)
-            val s = actualSubst.followed(genericSubst)
-            collectObjects(s.subst(actualElem.aliasedType.getOrAny))
-          case _ =>
-            tp.extractClass match {
-              case Some(obj: ScObject) if !visited.contains(obj) => addResult(obj.qualifiedName, tp)
-              case Some(clazz) if !visited.contains(clazz) =>
-                getCompanionModule(clazz) match {
-                  case Some(obj: ScObject) =>
-                    tp match {
-                      case ScProjectionType(proj, _) =>
-                        addResult(obj.qualifiedName, ScProjectionType(proj, obj))
-                      case ParameterizedType(ScProjectionType(proj, _), _) =>
-                        addResult(obj.qualifiedName, ScProjectionType(proj, obj))
-                      case _ =>
-                        addResult(obj.qualifiedName, ScDesignatorType(obj))
-                    }
-                  case _ =>
-                }
-              case _ =>
-            }
-        }
+        case ScDesignatorType(ta: ScTypeAliasDefinition) => collectObjects(ta.aliasedType.getOrAny)
+        case ScProjectionType.withActual(actualElem: ScTypeAliasDefinition, actualSubst) =>
+          collectObjects(actualSubst.subst(actualElem.aliasedType.getOrAny))
+        case ParameterizedType(ScDesignatorType(ta: ScTypeAliasDefinition), args) =>
+          val genericSubst = ScSubstitutor.bind(ta.typeParameters, args)
+          collectObjects(genericSubst.subst(ta.aliasedType.getOrAny))
+        case ParameterizedType(ScProjectionType.withActual(actualElem: ScTypeAliasDefinition, actualSubst), args) =>
+          val genericSubst = ScSubstitutor.bind(actualElem.typeParameters, args)
+          val s = actualSubst.followed(genericSubst)
+          collectObjects(s.subst(actualElem.aliasedType.getOrAny))
+        case _ =>
+          tp.extractClass match {
+            case Some(obj: ScObject) => addResult(obj.qualifiedName, tp)
+            case Some(clazz) =>
+              getCompanionModule(clazz) match {
+                case Some(obj: ScObject) =>
+                  tp match {
+                    case ScProjectionType(proj, _) =>
+                      addResult(obj.qualifiedName, ScProjectionType(proj, obj))
+                    case ParameterizedType(ScProjectionType(proj, _), _) =>
+                      addResult(obj.qualifiedName, ScProjectionType(proj, obj))
+                    case _ =>
+                      addResult(obj.qualifiedName, ScDesignatorType(obj))
+                  }
+                case _ =>
+              }
+            case _ =>
+          }
       }
-
-      collectObjects(part)
     }
-    cachedResult = res.values.flatten.toSeq
-    implicitObjectsCache.put(cacheKey, cachedResult)
-    cachedResult
+
+    while (parts.nonEmpty) {
+      collectObjects(parts.dequeue())
+    }
+    val result = res.values.flatten.toSeq
+    implicitObjectsCache.put(cacheKey, result)
+    result
   }
 
   def parentPackage(packageFqn: String, project: Project): Option[ScPackageImpl] = {
