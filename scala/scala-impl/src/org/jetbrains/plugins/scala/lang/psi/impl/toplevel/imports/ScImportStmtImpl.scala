@@ -199,7 +199,7 @@ class ScImportStmtImpl private (stub: ScImportStmtStub, node: ASTNode)
                 if (!checkWildcardImports) return true
                 val processed = (elem, refType, processor) match {
                   case (cl: PsiClass, _, processor: BaseProcessor) if !cl.isInstanceOf[ScTemplateDefinition] =>
-                    processor.processType(new ScDesignatorType(cl, true), place, newState)
+                    processor.processType(ScDesignatorType.static(cl), place, newState)
                   case (_, Right(value), processor: BaseProcessor) =>
                     processor.processType(value, place, newState)
                   case _ =>
@@ -292,7 +292,7 @@ class ScImportStmtImpl private (stub: ScImportStmtStub, node: ASTNode)
                         calculateRefType(checkResolve(next)).foreach {tp =>
                           newState = newState.put(BaseProcessor.FROM_TYPE_KEY, tp)
                         }
-                        if (!processor.processType(new ScDesignatorType(cl, true), place, newState)) return false
+                        if (!processor.processType(ScDesignatorType.static(cl), place, newState)) return false
                       case _ =>
                         if (!elem.processDeclarations(p1,
                           // In this case import optimizer should check for used selectors
