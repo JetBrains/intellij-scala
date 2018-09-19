@@ -20,11 +20,8 @@ trait ParameterizedType extends ValueType {
   val designator: ScType
   val typeArguments: Seq[ScType]
 
-  def substitutor: ScSubstitutor = Option(substitutorCache.get(this)).getOrElse {
-    val result = substitutorInner
-    substitutorCache.put(this, result)
-    result
-  }
+  def substitutor: ScSubstitutor =
+    substitutorCache.computeIfAbsent(this, _ => substitutorInner)
 
   protected def substitutorInner: ScSubstitutor
 
