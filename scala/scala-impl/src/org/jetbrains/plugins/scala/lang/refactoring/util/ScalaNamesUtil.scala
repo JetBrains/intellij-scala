@@ -59,7 +59,7 @@ object ScalaNamesUtil {
 
     def unapply(name: String): Option[String] = name match {
       case null | "" | BackTick => None
-      case _ if name.startsWith(BackTick) && name.endsWith(BackTick) =>
+      case _ if isBackticked(name) =>
         Some(name.substring(1, name.length - 1))
       case _ => None
     }
@@ -68,7 +68,14 @@ object ScalaNamesUtil {
       isBacktickedName.unapply(name).orElse {
         Option(name)
       }
+
+    def isBackticked(s: String): Boolean =
+      s != null && s.length > 1 && s.startsWith(BackTick) && s.endsWith(BackTick)
   }
+
+  def withoutBackticks(name: String): String =
+    if (isBacktickedName.isBackticked(name)) name.substring(1, name.length - 1)
+    else name
 
   def splitName(name: String): Seq[String] = name match {
     case null | "" => Seq.empty
@@ -105,10 +112,14 @@ object ScalaNamesUtil {
   }
 
   private def withTransformation(name: String)
-                                (transformation: String => String) =
-    isBacktickedName(name)
-      .map(transformation)
-      .orNull
+                                (transformation: String => String) = {
+
+    val noBackticks = withoutBackticks(name)
+
+    if (noBackticks == null) null
+    else transformation(noBackticks)
+  }
+
 
   private def fqnWithTransformation(fqn: String)
                                    (transformation: String => String) =
