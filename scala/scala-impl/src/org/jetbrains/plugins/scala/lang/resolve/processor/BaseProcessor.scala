@@ -67,7 +67,7 @@ object BaseProcessor {
 
 abstract class BaseProcessor(val kinds: Set[ResolveTargets.Value])
                             (implicit val projectContext: ProjectContext) extends PsiScopeProcessor {
-  protected val candidatesSet: mutable.HashSet[ScalaResolveResult] = new mutable.HashSet[ScalaResolveResult]
+  protected var candidatesSet: Set[ScalaResolveResult] = Set.empty
 
   def isImplicitProcessor: Boolean = false
 
