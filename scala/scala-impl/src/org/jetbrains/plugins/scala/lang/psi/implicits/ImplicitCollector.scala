@@ -694,7 +694,7 @@ class ImplicitCollector(place: PsiElement,
 
   private def argsConformWeakly(left: ScType, right: ScType): Boolean = {
     def function1Arg(scType: ScType): Option[ScType] = scType match {
-      case ScParameterizedType(ScDesignatorType(c: PsiClass), args) if args.size == 2 =>
+      case ParameterizedType(ScDesignatorType(c: PsiClass), args) if args.size == 2 =>
         if (c.qualifiedName == "scala.Function1") args.headOption
         else None
       case _ => None

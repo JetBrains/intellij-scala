@@ -174,6 +174,4 @@ object ScParameterizedType {
       case _ => simple
     }
   }
-
-  def unapply(arg: ScParameterizedType): Option[(ScType, Seq[ScType])] = Some((arg.designator, arg.typeArguments))
 }

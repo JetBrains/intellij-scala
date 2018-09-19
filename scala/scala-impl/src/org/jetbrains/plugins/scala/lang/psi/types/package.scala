@@ -214,7 +214,7 @@ package object types {
         .getOrElse(scType)
     
     def tryUnwrapSeqType: ScType = scType match {
-      case ScParameterizedType(ScDesignatorType(des: PsiClass), Seq(targ))
+      case ParameterizedType(ScDesignatorType(des: PsiClass), Seq(targ))
         if des.qualifiedName == "scala.collection.Seq" =>
         targ
       case _ => scType

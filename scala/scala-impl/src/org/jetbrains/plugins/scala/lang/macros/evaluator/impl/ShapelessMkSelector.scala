@@ -5,7 +5,8 @@ import org.jetbrains.plugins.scala.lang.psi.api.base.ScLiteral
 import org.jetbrains.plugins.scala.lang.psi.api.expr.ScMethodCall
 import org.jetbrains.plugins.scala.lang.psi.api.statements.ScFunction
 import org.jetbrains.plugins.scala.lang.psi.impl.ScalaPsiElementFactory
-import org.jetbrains.plugins.scala.lang.psi.types.{ScCompoundType, ScParameterizedType, ScType}
+import org.jetbrains.plugins.scala.lang.psi.types.api.ParameterizedType
+import org.jetbrains.plugins.scala.lang.psi.types.{ScCompoundType, ScType}
 
 /**
   * Generates accessor types for shapeless LabelledGeneric
@@ -19,18 +20,18 @@ object ShapelessMkSelector extends ScalaMacroTypeable with ShapelessUtils {
 
   private def findValType(name: String)(labelled: ScType): Option[ScType] = {
     def extractKey(tp: ScCompoundType): Option[String] = tp.components.last match {
-      case ScParameterizedType(des, Seq(tp: ScCompoundType)) if des.canonicalText == fqTagged =>
+      case ParameterizedType(des, Seq(tp: ScCompoundType)) if des.canonicalText == fqTagged =>
         tp.typesMap.headOption.map(_._1)
       case _ => None
     }
     def doFind(tp: ScType): Option[ScType] = tp match {
-      case ScParameterizedType(des, args) if des.canonicalText == fqSelector =>
+      case ParameterizedType(des, args) if des.canonicalText == fqSelector =>
         doFind(args.head)
-      case ScParameterizedType(des, Seq(left, right)) if des.canonicalText == fqColonColon =>
+      case ParameterizedType(des, Seq(left, right)) if des.canonicalText == fqColonColon =>
         doFind(left).orElse(doFind(right))
-      case ScParameterizedType(des, Seq(l: ScCompoundType, _)) if des.canonicalText == fqFieldType =>
+      case ParameterizedType(des, Seq(l: ScCompoundType, _)) if des.canonicalText == fqFieldType =>
         doFind(l.components.last)
-      case ScParameterizedType(des, Seq(l: ScCompoundType, r)) if des.canonicalText == fqKeyTag =>
+      case ParameterizedType(des, Seq(l: ScCompoundType, r)) if des.canonicalText == fqKeyTag =>
         if (extractKey(l).contains(name)) Some(r) else None
       case t: ScCompoundType =>
         findValType(name)(t.components.last)

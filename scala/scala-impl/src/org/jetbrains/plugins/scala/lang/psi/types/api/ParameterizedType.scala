@@ -70,6 +70,13 @@ trait ParameterizedType extends ValueType {
 
   override def isFinalType: Boolean =
     designator.isFinalType && typeArguments.filterBy[TypeParameterType].forall(_.isInvariant)
+
+
+  //for name-based extractor
+  final def isEmpty: Boolean = false
+  final def get: ParameterizedType = this
+  final def _1: ScType = designator
+  final def _2: Seq[ScType] = typeArguments
 }
 
 object ParameterizedType {
@@ -79,6 +86,6 @@ object ParameterizedType {
   def apply(designator: ScType, typeArguments: Seq[ScType]): ValueType =
     designator.typeSystem.parameterizedType(designator, typeArguments)
 
-  def unapply(parameterized: ParameterizedType): Option[(ScType, Seq[ScType])] =
-    Some(parameterized.designator, parameterized.typeArguments)
+  //designator and type arguments
+  def unapply(p: ParameterizedType): ParameterizedType = p
 }

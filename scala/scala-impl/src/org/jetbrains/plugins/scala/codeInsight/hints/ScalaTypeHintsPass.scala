@@ -13,8 +13,8 @@ import com.intellij.psi.PsiElement
 import org.jetbrains.plugins.scala.extensions._
 import org.jetbrains.plugins.scala.lang.psi.api.ScalaFile
 import org.jetbrains.plugins.scala.lang.psi.api.statements.{ScFunction, ScValueOrVariable}
-import org.jetbrains.plugins.scala.lang.psi.types.api.JavaArrayType
-import org.jetbrains.plugins.scala.lang.psi.types.{ScCompoundType, ScParameterizedType, ScType}
+import org.jetbrains.plugins.scala.lang.psi.types.api.{JavaArrayType, ParameterizedType}
+import org.jetbrains.plugins.scala.lang.psi.types.{ScCompoundType, ScType}
 import org.jetbrains.plugins.scala.lang.refactoring.ScTypePresentationExt
 import org.jetbrains.plugins.scala.settings.annotations.Definition
 
@@ -132,7 +132,7 @@ object ScalaTypeHintsPass {
             case Seq() => "AnyRef" + suffix
           }
           Some(text)
-        case ScParameterizedType(CodeText(text), typeArguments) =>
+        case ParameterizedType(CodeText(text), typeArguments) =>
           val suffix = Seq.fill(typeArguments.size)(Ellipsis)
             .commaSeparated(model = Model.SquareBrackets)
           Some(text + suffix)

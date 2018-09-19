@@ -13,10 +13,10 @@ import org.jetbrains.plugins.scala.lang.psi.api.statements._
 import org.jetbrains.plugins.scala.lang.psi.api.statements.params.{ScClassParameter, ScParameter}
 import org.jetbrains.plugins.scala.lang.psi.api.toplevel.typedef.ScTypeDefinition
 import org.jetbrains.plugins.scala.lang.psi.api.toplevel.{ScModifierListOwner, ScNamedElement}
-import org.jetbrains.plugins.scala.lang.psi.types.api.TypeParameterType
+import org.jetbrains.plugins.scala.lang.psi.types.api.{ParameterizedType, TypeParameterType}
 import org.jetbrains.plugins.scala.lang.psi.types.recursiveUpdate.ScSubstitutor
 import org.jetbrains.plugins.scala.lang.psi.types.result.Typeable
-import org.jetbrains.plugins.scala.lang.psi.types.{ScParameterizedType, ScType, Signature}
+import org.jetbrains.plugins.scala.lang.psi.types.{ScType, Signature}
 import org.jetbrains.plugins.scala.statistics.{FeatureKey, Stats}
 
 /**
@@ -217,7 +217,7 @@ trait OverridingAnnotator {
     def overrideTypeMatchesBase(baseType: ScType, overType: ScType, s: Signature, baseName: String): Boolean = {
       val actualType = if (s.name == baseName + "_=") {
         overType match {
-          case ScParameterizedType(des, args) if des.canonicalText == "_root_.scala.Function1" => args.head
+          case ParameterizedType(des, args) if des.canonicalText == "_root_.scala.Function1" => args.head
           case _ => return true
         }
       } else overType
@@ -245,11 +245,11 @@ trait OverridingAnnotator {
         case _ => false
       }
       actualType.conforms(actualBase) || ((actualBase, actualType, member) match {
-        case (ScParameterizedType(des, args), _, pat: ScBindingPattern) if des.canonicalText == "_root_.scala.Function0" &&
+        case (ParameterizedType(des, args), _, pat: ScBindingPattern) if des.canonicalText == "_root_.scala.Function0" &&
           allowEmptyParens(pat) => actualType.conforms(args.head)
-        case (ScParameterizedType(des, args), _, _: ScFunction) if des.canonicalText == "_root_.scala.Function0" =>
+        case (ParameterizedType(des, args), _, _: ScFunction) if des.canonicalText == "_root_.scala.Function0" =>
           actualType.conforms(args.head)
-        case (aType, ScParameterizedType(des, args), _: ScFunction) if des.canonicalText == "_root_.scala.Function0" =>
+        case (aType, ParameterizedType(des, args), _: ScFunction) if des.canonicalText == "_root_.scala.Function0" =>
           aType.conforms(args.head)
         case _ => false
       })
