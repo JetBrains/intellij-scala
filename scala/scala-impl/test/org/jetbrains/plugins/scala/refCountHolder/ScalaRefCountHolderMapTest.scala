@@ -12,7 +12,7 @@ import scala.concurrent.duration.{Duration, DurationInt}
 class ScalaRefCountHolderMapTest extends TestCase {
 
   def testMap(): Unit = {
-    val map = createTestMap(2, 100.millis)
+    val map = createTestMap(2, 5, 100.millis)
 
     val key1 = Key(1)
     val key2 = Key(2)
@@ -58,8 +58,40 @@ class ScalaRefCountHolderMapTest extends TestCase {
     Assert.assertEquals("new3", resultAfter3)
   }
 
-  private def createTestMap(minSize: Int, storageTime: Duration) =
-    new ScalaRefCountHolder.WeakKeyTimestampedValueMap[Key, String](minSize, storageTime)
+  def testMap2(): Unit = {
+    val map = createTestMap(2, 4, 100.millis)
+
+    val key1 = Key(1)
+    val key2 = Key(2)
+    val key3 = Key(3)
+    val key4 = Key(4)
+    val key5 = Key(5)
+
+    map.getOrCreate(key1, "old1")
+    map.getOrCreate(key2, "old2")
+    map.getOrCreate(key3, "old3")
+    map.getOrCreate(key4, "old4")
+    map.getOrCreate(key5, "old5")
+
+    //4 last values are still there
+    val result2 = map.getOrCreate(key2, "new2")
+    val result3 = map.getOrCreate(key3, "new3")
+    val result4 = map.getOrCreate(key4, "new4")
+    val result5 = map.getOrCreate(key5, "new5")
+
+    Assert.assertEquals("old2", result2)
+    Assert.assertEquals("old3", result3)
+    Assert.assertEquals("old4", result4)
+    Assert.assertEquals("old5", result5)
+
+    //first result was removed
+    val result1 = map.getOrCreate(key1, "new1")
+    Assert.assertEquals("new1", result1)
+  }
+
+
+  private def createTestMap(minSize: Int, maxSize: Int, storageTime: Duration) =
+    new ScalaRefCountHolder.TimestampedValueMap[Key, String](minSize, maxSize, storageTime)
 
   private case class Key(x: Int)
 }
