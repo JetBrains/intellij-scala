@@ -111,12 +111,11 @@ class ProjectImportingTest extends ImportingTestCase with InexactMatch {
         moduleDependencies += sharedModule
         contentRoots += getProjectPath + "/p1/jvm"
       }
-      val jvmBuildModule: module = new module("p1JVM-build") {}
 
       val rootModule: module = new module("scl12520") {}
       val rootBuildModule: module = new module("scl12520-build") {}
 
-      modules := Seq(sharedModule, rootModule, rootBuildModule, jvmModule, jvmBuildModule)
+      modules := Seq(sharedModule, rootModule, rootBuildModule, jvmModule)
     }
   )
 

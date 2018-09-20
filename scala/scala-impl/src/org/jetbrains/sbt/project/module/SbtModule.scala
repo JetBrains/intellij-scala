@@ -65,7 +65,7 @@ object SbtModule {
     }
   }
 
-  def setBuildForModule(module: Module, id: String, uri: URI): Unit = {
+  def setBuildForModule(module: Module, uri: URI): Unit = {
     val state = getState(module)
     state.buildForURI = uri.toString
   }

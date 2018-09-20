@@ -7,7 +7,7 @@ object Versions {
   val sbtVersion: String = Sbt.latest
   val zincVersion = "1.1.1"
   val ideaVersion = "183.2153.8"
-  val sbtStructureVersion: String = "2018.2.1+1-b668a99f"
+  val sbtStructureVersion: String = "2018.2.1+4-88400d3f"
   val sbtIdeaShellVersion: String = "2017.2"
   val aetherVersion = "1.0.0.v20140518"
   val sisuInjectVersion = "2.2.3"
@@ -121,7 +121,7 @@ object DependencyGroups {
   import Dependencies._
   import Versions._
 
-  val sbtBundled = Seq(
+  val sbtBundled: Seq[ModuleID] = Seq(
     zinc,
     zincInterface
   )
@@ -141,12 +141,12 @@ object DependencyGroups {
     scalariform
   ) ++ scalafmt
 
-  val bsp = Seq(
+  val bsp: Seq[ModuleID] = Seq(
     "org.scala-sbt.ipcsocket" % "ipcsocket" % "1.0.0",
     "ch.epfl.scala" %% "bsp" % "1.0.0"
   )
 
-  val decompiler = Seq(
+  val decompiler: Seq[ModuleID] = Seq(
     scalaLibrary,
     scalaReflect,
     scalaCompiler,
@@ -154,7 +154,7 @@ object DependencyGroups {
     bcel
   )
 
-  val runners = Seq(
+  val runners: Seq[ModuleID] = Seq(
     specs2,
     "org.scala-lang" % "scala-compiler" % scalaVersion,
     "org.scalatest" %% "scalatest" % "3.0.1" % "provided",

@@ -220,15 +220,13 @@ class SbtProjectResolver extends ExternalSystemProjectResolver[SbtExecutionSetti
     val moduleFilesDirectory = new File(projectPath, Sbt.ModulesDirectory)
     val projectToModule = createModules(projects, libraryNodes, moduleFilesDirectory)
 
-    projectNode.add(new SbtProjectNode(SbtProjectData(Seq.empty, settings.jdk.map(JdkByName), Seq.empty, sbtVersion.presentation, projectPath)))
+    val dummySbtProjectData = SbtProjectData(Seq.empty, settings.jdk.map(JdkByName), Seq.empty, sbtVersion.presentation, projectPath)
+    projectNode.add(new SbtProjectNode(dummySbtProjectData))
     projectNode.addAll(projectToModule.values)
 
     val dummyBuildData = BuildData(projectRoot.toURI, Seq.empty, Seq.empty, Seq.empty, Seq.empty)
-    val buildModule = createBuildModule(dummyBuildData, moduleFilesDirectory, None)
+    val buildModule = createBuildModule(dummyBuildData, projects, moduleFilesDirectory, None)
     projectNode.add(buildModule)
-
-//    val buildModuleForProject: ProjectData => ModuleNode = createBuildModule(_, moduleFilesDirectory, None)
-//    projectNode.addAll(allBuildModules(dummyRootProject, projects, buildModuleForProject))
 
     projectNode
   }
@@ -272,8 +270,7 @@ class SbtProjectResolver extends ExternalSystemProjectResolver[SbtExecutionSetti
     val sharedSourceModules = createSharedSourceModules(projectToModule, libraryNodes, moduleFilesDirectory)
     projectNode.addAll(sharedSourceModules)
 
-    val buildModuleForProject: BuildData => ModuleNode = createBuildModule(_, moduleFilesDirectory, data.localCachePath.map(_.getCanonicalPath))
-//    val buildModules = allBuildModules(rootProject, projects, buildModuleForProject)
+    val buildModuleForProject: BuildData => ModuleNode = createBuildModule(_, projects, moduleFilesDirectory, data.localCachePath.map(_.getCanonicalPath))
     val buildModules = data.builds.map(buildModuleForProject)
     projectNode.addAll(buildModules)
     projectNode
@@ -295,21 +292,6 @@ class SbtProjectResolver extends ExternalSystemProjectResolver[SbtExecutionSetti
       .orElse(jdkHomeInSbtProject)
       .orElse(default)
   }
-
-//  private def allBuildModules(builds: Seq[BuildData], buildModule: BuildData => ModuleNode) = {
-//
-//    val rootBuildModule = buildModule(rootProject)
-//    projects.map { p =>
-//      val mod = buildModule(p)
-//
-//      // subprojects of the main root project inherit the build definitions classpath
-//      if (p.id != rootProject.id && p.buildURI == rootProject.buildURI) {
-//        val depNode = new ModuleDependencyNode(mod, rootBuildModule)
-//        mod.add(depNode)
-//      }
-//      mod
-//    }
-//  }
 
   private def createModuleDependencies(projectToModule: Map[ProjectData,ModuleNode]): Unit = {
     projectToModule.foreach { case (moduleProject, moduleNode) =>
@@ -508,18 +490,23 @@ class SbtProjectResolver extends ExternalSystemProjectResolver[SbtExecutionSetti
     } else List(project.target)
   }
 
-  private def createBuildModule(build: sbtStructure.BuildData, moduleFilesDirectory: File, localCachePath: Option[String]): ModuleNode = {
-    val buildId = build.uri.toString
+  private def createBuildModule(build: sbtStructure.BuildData, projects: Seq[ProjectData], moduleFilesDirectory: File, localCachePath: Option[String]): ModuleNode = {
+
+    val buildId =
+      projects
+        .find(p => p.base == new File(build.uri))
+        .map(_.name +  Sbt.BuildModuleSuffix)
+        .getOrElse(build.uri.toString)
+
     val buildRoot = new File(build.uri) / Sbt.ProjectDirectory
 
-    // TODO use both ID and Name when related flaws in the External System will be fixed
     // TODO explicit canonical path is needed until IDEA-126011 is fixed
     val result = new ModuleNode(SbtModuleType.instance.getId, buildId, build.uri, buildId, moduleFilesDirectory.path, buildRoot.canonicalPath)
+
 
     result.setInheritProjectCompileOutputPath(false)
     result.setCompileOutputPath(ExternalSystemSourceType.SOURCE, (buildRoot / Sbt.TargetDirectory / "idea-classes").path)
     result.setCompileOutputPath(ExternalSystemSourceType.TEST, (buildRoot / Sbt.TargetDirectory / "idea-test-classes").path)
-
     result.add(createBuildContentRoot(buildRoot))
 
     val library = {
@@ -531,7 +518,7 @@ class SbtProjectResolver extends ExternalSystemProjectResolver[SbtExecutionSetti
 
     result.add(library)
 
-    result.add(createSbtBuildModuleData(build, localCachePath))
+    result.add(createSbtBuildModuleData(build, projects, localCachePath))
 
     result
   }
@@ -551,12 +538,14 @@ class SbtProjectResolver extends ExternalSystemProjectResolver[SbtExecutionSetti
     result
   }
 
-  private def createSbtBuildModuleData(build: sbtStructure.BuildData, localCachePath: Option[String]): SbtBuildModuleNode = {
+  private def createSbtBuildModuleData(build: sbtStructure.BuildData, projects: Seq[ProjectData], localCachePath: Option[String]): SbtBuildModuleNode = {
+
+    val buildProjects = projects.filter(p => p.buildURI == build.uri)
     val imports = build.imports.flatMap(_.trim.substring(7).split(", "))
-//    val resolvers = project.resolvers map { r => new SbtMavenResolver(r.name, r.root).asInstanceOf[SbtResolver] }
-    val resolvers = Set.empty[SbtResolver] // FIXME pass through resolvers
-    val buildFor = SbtModuleData(build.uri.toString, build.uri) // FIXME better name for build module
-    new SbtBuildModuleNode(SbtBuildModuleData(imports, resolvers + SbtResolver.localCacheResolver(localCachePath), buildFor))
+    val projectResolvers = buildProjects.flatMap(_.resolvers)
+    val resolvers = projectResolvers.map { r => new SbtMavenResolver(r.name, r.root).asInstanceOf[SbtResolver] }
+
+    new SbtBuildModuleNode(SbtBuildModuleData(imports, resolvers.toSet + SbtResolver.localCacheResolver(localCachePath), build.uri))
   }
 
   private def validRootPathsIn(project: sbtStructure.ProjectData, scope: String)
