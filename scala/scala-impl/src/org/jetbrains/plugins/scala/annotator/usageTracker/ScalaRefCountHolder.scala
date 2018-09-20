@@ -76,7 +76,7 @@ class ScalaRefCountHolder private () {
       val iterator: java.util.Iterator[ImportUsed] = myImportUsed.iterator
       while (iterator.hasNext) {
         val ref: ImportUsed = iterator.next
-        if (!ref.e.isValid) {
+        if (!ref.element.isValid) {
           iterator.remove()
         }
       }

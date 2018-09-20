@@ -194,7 +194,7 @@ object AmmoniteUtil {
     case _ => false
   }
   
-  def isAmmoniteSpecificImport(imp: ImportUsed): Boolean = imp.e match {
+  def isAmmoniteSpecificImport(imp: ImportUsed): Boolean = imp.element match {
     case expr: ScImportExpr => isAmmoniteSpecificImport(expr)
     case selector: ScImportSelector => 
       selector.getContext match {
