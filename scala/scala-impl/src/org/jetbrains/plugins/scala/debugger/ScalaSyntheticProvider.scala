@@ -17,6 +17,11 @@ import scala.collection.JavaConverters._
  */
 class ScalaSyntheticProvider extends SyntheticTypeComponentProvider {
   override def isSynthetic(typeComponent: TypeComponent): Boolean = ScalaSyntheticProvider.isSynthetic(typeComponent)
+
+  override def isNotSynthetic(typeComponent: TypeComponent): Boolean = typeComponent match {
+    case m: Method => ScalaPositionManager.isIndyLambda(m)
+    case _ => false
+  }
 }
 
 object ScalaSyntheticProvider {
@@ -35,7 +40,7 @@ object ScalaSyntheticProvider {
       case _ if hasSpecialization(typeComponent) && !isMacroDefined(typeComponent) => true
       case m: Method if m.isConstructor && ScalaPositionManager.isAnonfunType(m.declaringType()) => true
       case m: Method if isDefaultArg(m) => true
-      case m: Method if isTraitForwarder(m) => true
+      case m: Method if isForwarder(m) => true
       case m: Method if m.name().endsWith("$adapted") => true
       case m: Method if ScalaPositionManager.isIndyLambda(m) => false
       case m: Method if isAccessorInDelayedInit(m) => true
@@ -82,7 +87,7 @@ object ScalaSyntheticProvider {
     }
   }
 
-  private def isTraitForwarder(m: Method): Boolean = {
+  private def isForwarder(m: Method): Boolean = {
     //trait forwarders are usually generated with line number of the containing class
     def looksLikeForwarderLocation: Boolean = {
       val line = m.location().lineNumber()
@@ -99,7 +104,8 @@ object ScalaSyntheticProvider {
       lines.nonEmpty && line <= lines.min
     }
 
-    Try(onlyInvokesStatic(m) && hasTraitWithImplementation(m) && looksLikeForwarderLocation).getOrElse(false)
+    Try(onlyInvokesStatic(m) && (hasTraitWithImplementation(m) || isSAMImplementation(m)) && looksLikeForwarderLocation)
+      .getOrElse(false)
   }
 
   def isMacroDefined(typeComponent: TypeComponent): Boolean = {
@@ -154,6 +160,21 @@ object ScalaSyntheticProvider {
           return true
         }
         false
+      case _ => false
+    }
+  }
+
+  private def isSAMImplementation(m: Method): Boolean = {
+    m.declaringType() match {
+      case ct: ClassType =>
+        ct.superclass() match {
+          case sp: ReferenceType =>
+            sp.methods().asScala.filter(_.isAbstract) match {
+              case Seq(sam) => sam.name == m.name
+              case _ => false
+            }
+          case _ => false
+        }
       case _ => false
     }
   }

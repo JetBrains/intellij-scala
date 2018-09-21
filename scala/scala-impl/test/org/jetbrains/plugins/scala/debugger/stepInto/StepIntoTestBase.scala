@@ -23,6 +23,29 @@ class StepIntoTest extends StepIntoTestBase {
 @Category(Array(classOf[DebuggerTests]))
 class StepIntoTest_212 extends StepIntoTestBase {
   override implicit val version: ScalaVersion = Scala_2_12
+
+  addFileWithBreakpoints("SamAbstractClass.scala",
+    s"""object SamAbstractClass {
+       |  def main(args: Array[String]): Unit = {
+       |    val test: Parser[String] = (in: String) => {
+       |      println("Printing") //should step here
+       |      in
+       |    }
+       |
+       |    test.parse("aaa")$bp
+       |  }
+       |}
+       |
+       |abstract class Parser[T] {
+       |  def parse(s: String): T
+       |}
+      """.stripMargin.trim()
+  )
+  def testSamAbstractClass() {
+    runDebugger() {
+      waitBreakpointAndStepInto("SamAbstractClass.scala", "SamAbstractClass$$$anonfun$main$1", 4)
+    }
+  }
 }
 
 abstract class StepIntoTestBase extends ScalaDebuggerTestCase {
