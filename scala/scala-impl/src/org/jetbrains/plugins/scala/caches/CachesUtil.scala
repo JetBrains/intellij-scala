@@ -107,13 +107,17 @@ object CachesUtil {
   }
 
   @tailrec
-  def updateModificationCount(elem: PsiElement): Unit =
-    Option(PsiTreeUtil.getContextOfType(elem, false, classOf[ScModificationTrackerOwner], classOf[ScalaCodeFragment])) match {
-      case Some(_: ScalaCodeFragment) => //do not update on changes in dummy file
-      case Some(owner@ScModificationTrackerOwner()) => owner.incModificationCount()
-      case Some(owner) => updateModificationCount(owner.getContext)
-      case _ => ScalaPsiManager.instance(elem.getProject).incModificationCount()
+  def updateModificationCount(elem: PsiElement): Unit = {
+    val elementOrContext = PsiTreeUtil.getContextOfType(elem, false,
+      classOf[ScModificationTrackerOwner], classOf[ScalaCodeFragment], classOf[PsiComment])
+
+    elementOrContext match {
+      case null => ScalaPsiManager.instance(elem.getProject).incModificationCount()
+      case _: ScalaCodeFragment | _: PsiComment => //do not update on changes in dummy file or comments
+      case owner@ScModificationTrackerOwner() => owner.incModificationCount()
+      case owner => updateModificationCount(owner.getContext)
     }
+  }
 
   case class ProbablyRecursionException[Data](elem: PsiElement,
                                               data: Data,
