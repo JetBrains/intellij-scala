@@ -3,11 +3,8 @@ package lang
 package psi
 
 import com.intellij.psi.PsiElement
-import com.intellij.psi.search.{LocalSearchScope, SearchScope}
 import com.intellij.psi.tree.{IElementType, TokenSet}
-import org.jetbrains.plugins.scala.extensions.PsiElementExt
-import org.jetbrains.plugins.scala.lang.psi.ScalaPsiUtil.intersectScopes
-import org.jetbrains.plugins.scala.lang.psi.api.ScalaElementVisitor
+import org.jetbrains.plugins.scala.lang.psi.api.{ScalaElementVisitor, ScalaFile}
 import org.jetbrains.plugins.scala.project.{ProjectContext, ProjectContextOwner}
 
 trait ScalaPsiElement extends PsiElement with ProjectContextOwner {
@@ -18,10 +15,10 @@ trait ScalaPsiElement extends PsiElement with ProjectContextOwner {
 
   implicit def projectContext: ProjectContext = this.getProject
 
-  def isInCompiledFile: Boolean =
-    this.containingScalaFile.exists {
-      _.isCompiled
-    }
+  def isInCompiledFile: Boolean = getContainingFile match {
+    case sf: ScalaFile => sf.isCompiled
+    case _ => false
+  }
 
   def setContext(element: PsiElement, child: PsiElement) {
     context = element
@@ -109,9 +106,8 @@ trait ScalaPsiElement extends PsiElement with ProjectContextOwner {
     * Override in inheritors
     */
   def acceptChildren(visitor: ScalaElementVisitor): Unit =
-    getChildren.collect {
-      case element: ScalaPsiElement => element
-    }.foreach {
-      _.accept(visitor)
+    getChildren.foreach {
+      case element: ScalaPsiElement => element.accept(visitor)
+      case _ =>
     }
 }

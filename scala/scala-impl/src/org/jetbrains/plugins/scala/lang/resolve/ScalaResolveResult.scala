@@ -274,12 +274,17 @@ class ScalaResolveResult(val element: PsiNamedElement,
     precedence
   }
 
+  //for name-based extractor
+  def isEmpty: Boolean = false
+  def get: ScalaResolveResult = this
+  def _1: PsiNamedElement = element
+  def _2: ScSubstitutor = substitutor
 }
 
 object ScalaResolveResult {
   def empty = new ScalaResolveResult(null, ScSubstitutor.empty, Set[ImportUsed]())
 
-  def unapply(r: ScalaResolveResult): Some[(PsiNamedElement, ScSubstitutor)] = Some(r.element, r.substitutor)
+  def unapply(r: ScalaResolveResult): ScalaResolveResult = r
 
   object withActual {
     def unapply(r: ScalaResolveResult): Option[PsiNamedElement] = Some(r.getActualElement)

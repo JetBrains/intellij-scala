@@ -26,9 +26,9 @@ private case class TypeParamSubstitution(tvMap: LongMap[ScType]) extends Substit
 
   private def updatedAbstract(a: ScAbstractType): ScType = {
     val typeParameter = a.typeParameter
-    tvMap.get(typeParameter.typeParamId) match {
-      case None => a
-      case Some(v) => v match {
+    tvMap.getOrElse(typeParameter.typeParamId, null) match {
+      case null => a
+      case v => v match {
         case tpt: TypeParameterType if tpt.psiTypeParameter == typeParameter.psiTypeParameter => a
         case _ => extractDesignator(typeParameter, v)
       }
@@ -37,9 +37,9 @@ private case class TypeParamSubstitution(tvMap: LongMap[ScType]) extends Substit
 
   private def updatedUndefined(u: UndefinedType): ScType = {
     val typeParameter = u.typeParameter
-    tvMap.get(typeParameter.typeParamId) match {
-      case None => u
-      case Some(v) => v match {
+    tvMap.getOrElse(typeParameter.typeParamId, null) match {
+      case null => u
+      case v => v match {
         case tpt: TypeParameterType if tpt.psiTypeParameter == typeParameter.psiTypeParameter => u
         case _ => extractDesignator(typeParameter, v)
       }
@@ -47,10 +47,10 @@ private case class TypeParamSubstitution(tvMap: LongMap[ScType]) extends Substit
   }
 
   private def updatedTypeParameter(tpt: TypeParameterType): ScType = {
-    tvMap.get(tpt.typeParamId) match {
-      case None => tpt
-      case Some(v: ScLiteralType) => v.blockWiden()
-      case Some(v) => extractDesignator(tpt.typeParameter, v)
+    tvMap.getOrElse(tpt.typeParamId, null) match {
+      case null => tpt
+      case v: ScLiteralType => v.blockWiden()
+      case v => extractDesignator(tpt.typeParameter, v)
     }
   }
 
