@@ -106,7 +106,15 @@ trait ScTypeDefinition extends ScTemplateDefinition with ScMember
       case _ => false
     }
 
-    var sibling: PsiElement = this
+    val sameElementInContext = this.getSameElementInContext
+
+    sameElementInContext match {
+      case td: ScTypeDefinition if isCompanion(td) => return Some(td)
+      case _ =>
+    }
+
+    var sibling: PsiElement = sameElementInContext
+
     while (sibling != null) {
 
       sibling = sibling.getNextSibling
@@ -117,7 +125,7 @@ trait ScTypeDefinition extends ScTemplateDefinition with ScMember
       }
     }
 
-    sibling = this
+    sibling = sameElementInContext
     while (sibling != null) {
 
       sibling = sibling.getPrevSibling
