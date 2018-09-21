@@ -11,7 +11,7 @@ import com.intellij.ide.highlighter.JavaFileType
 import com.intellij.openapi.components.ProjectComponent
 import com.intellij.openapi.diagnostic.Logger
 import com.intellij.openapi.project.{DumbService, Project, ProjectUtil}
-import com.intellij.openapi.roots.{ModuleRootEvent, ModuleRootListener}
+import com.intellij.openapi.roots.{ModuleRootEvent, ModuleRootListener, ProjectRootManager}
 import com.intellij.openapi.util._
 import com.intellij.openapi.vfs.VirtualFile
 import com.intellij.psi._
@@ -27,6 +27,7 @@ import org.jetbrains.plugins.scala.lang.psi.api.statements.params.idToName
 import org.jetbrains.plugins.scala.lang.psi.api.toplevel.ScPackaging
 import org.jetbrains.plugins.scala.lang.psi.api.toplevel.typedef.{ScObject, ScTemplateDefinition}
 import org.jetbrains.plugins.scala.lang.psi.impl.toplevel.synthetic.ScSyntheticPackage
+import org.jetbrains.plugins.scala.lang.psi.impl.toplevel.typedef.MixinNodes
 import org.jetbrains.plugins.scala.lang.psi.impl.toplevel.typedef.TypeDefinitionMembers.ParameterlessNodes.{Map => PMap}
 import org.jetbrains.plugins.scala.lang.psi.impl.toplevel.typedef.TypeDefinitionMembers.SignatureNodes.{Map => SMap}
 import org.jetbrains.plugins.scala.lang.psi.impl.toplevel.typedef.TypeDefinitionMembers.TypeNodes.{Map => TMap}
@@ -39,7 +40,7 @@ import org.jetbrains.plugins.scala.lang.psi.types.api.designator.ScProjectionTyp
 import org.jetbrains.plugins.scala.lang.psi.types.api.{Any, ParameterizedType, TypeParameterType}
 import org.jetbrains.plugins.scala.lang.refactoring.util.ScalaNamesUtil
 import org.jetbrains.plugins.scala.lang.resolve.SyntheticClassProducer
-import org.jetbrains.plugins.scala.macroAnnotations.{CachedWithoutModificationCount, ValueWrapper}
+import org.jetbrains.plugins.scala.macroAnnotations.{CachedInUserData, CachedWithoutModificationCount, ValueWrapper}
 import org.jetbrains.plugins.scala.project.{ProjectContext, ProjectExt}
 import org.jetbrains.plugins.scala.settings.ScalaProjectSettings
 
@@ -316,10 +317,42 @@ class ScalaPsiManager(val project: Project) {
   private val nonScalaModificationTracker = new SimpleModificationTracker
 
   val topLevelModificationTracker: ScalaTopLevelTracker = new ScalaTopLevelTracker(nonScalaModificationTracker)
+  val rootManager: ModificationTracker = ProjectRootManager.getInstance(project)
 
   def getModificationCount: Long = topLevelModificationTracker.getModificationCount
 
   def incModificationCount(): Unit = topLevelModificationTracker.incModificationCount()
+
+  sealed abstract class SignatureCaches[N <: MixinNodes](val nodes: N) {
+
+    private val forLibraryMap: ConcurrentMap[PsiClass, nodes.Map] = ContainerUtil.createConcurrentWeakMap()
+    private val forTopLevelMap: ConcurrentMap[PsiClass, nodes.Map] = ContainerUtil.createConcurrentWeakMap()
+
+    clearCacheOnRootsChange += forLibraryMap
+    clearCacheOnTopLevelChange += forTopLevelMap
+
+    private def forLibraryClasses(clazz: PsiClass): nodes.Map = forLibraryMap.computeIfAbsent(clazz, nodes.build)
+
+    private def forTopLevelClasses(clazz: PsiClass): nodes.Map = forTopLevelMap.computeIfAbsent(clazz, nodes.build)
+
+    def cachedMap(clazz: PsiClass): nodes.Map = {
+      CachesUtil.libraryAwareModTracker(clazz) match {
+        case `rootManager`                 => forLibraryClasses(clazz)
+        case `topLevelModificationTracker` => forTopLevelClasses(clazz)
+        case tracker =>
+
+          @CachedInUserData(clazz, tracker)
+          def cachedInUserData(clazz: PsiClass, n: MixinNodes): nodes.Map = nodes.build(clazz)
+
+          //@CachedInUserData creates a single map for all 3 cases, so we need to pass `nodes` as a parameter to have different keys
+          cachedInUserData(clazz, nodes)
+      }
+    }
+  }
+
+  object SignatureNodesCache     extends SignatureCaches(SignatureNodes)
+  object ParameterlessNodesCache extends SignatureCaches(ParameterlessNodes)
+  object TypeNodesCache          extends SignatureCaches(TypeNodes)
 
   object CacheInvalidator extends PsiTreeChangeAdapter {
     @volatile
