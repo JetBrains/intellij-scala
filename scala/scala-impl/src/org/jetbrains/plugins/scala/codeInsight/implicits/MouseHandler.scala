@@ -5,7 +5,7 @@ import java.awt.{Cursor, Point}
 
 import com.intellij.codeInsight.hint.{HintManager, HintManagerImpl, HintUtil}
 import com.intellij.openapi.command.CommandProcessor
-import com.intellij.openapi.components.AbstractProjectComponent
+import com.intellij.openapi.components.ProjectComponent
 import com.intellij.openapi.editor.event._
 import com.intellij.openapi.editor.{Editor, EditorFactory, Inlay}
 import com.intellij.openapi.project.Project
@@ -24,7 +24,7 @@ import scala.collection.JavaConverters._
 
 class MouseHandler(project: Project,
                    startupManager: StartupManager,
-                   editorFactory: EditorFactory) extends AbstractProjectComponent(project) {
+                   editorFactory: EditorFactory) extends ProjectComponent {
 
   private var activeHyperlink = Option.empty[(Inlay, Text)]
   private var highlightedMatches = Set.empty[(Inlay, Text)]

@@ -34,7 +34,7 @@ import scala.reflect.ClassTag
  * date 19.12.14
  */
 
-class ScalaMacroEvaluator(project: Project) extends AbstractProjectComponent(project) {
+class ScalaMacroEvaluator(project: Project) extends ProjectComponent {
   import ScalaMacroEvaluator._
 
   override def getComponentName = "ScalaMacroEvaluator"

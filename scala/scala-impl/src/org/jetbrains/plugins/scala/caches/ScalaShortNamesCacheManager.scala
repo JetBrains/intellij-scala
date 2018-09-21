@@ -1,6 +1,6 @@
 package org.jetbrains.plugins.scala.caches
 
-import com.intellij.openapi.components.AbstractProjectComponent
+import com.intellij.openapi.components.ProjectComponent
 import com.intellij.openapi.diagnostic.Logger
 import com.intellij.openapi.project.{DumbService, Project}
 import com.intellij.psi._
@@ -22,7 +22,7 @@ import scala.collection.{JavaConverters, mutable}
  * Date: 09.02.12
  */
 
-class ScalaShortNamesCacheManager(implicit project: Project) extends AbstractProjectComponent(project) {
+class ScalaShortNamesCacheManager(implicit project: Project) extends ProjectComponent {
   private val LOG: Logger = Logger.getInstance("#org.jetbrains.plugins.scala.caches.ScalaShortNamesCacheManager")
 
   import ScalaIndexKeys._

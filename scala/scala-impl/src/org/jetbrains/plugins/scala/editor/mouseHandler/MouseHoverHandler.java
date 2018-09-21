@@ -31,7 +31,7 @@ import com.intellij.openapi.actionSystem.impl.PresentationFactory;
 import com.intellij.openapi.application.AccessToken;
 import com.intellij.openapi.application.ApplicationManager;
 import com.intellij.openapi.application.ReadAction;
-import com.intellij.openapi.components.AbstractProjectComponent;
+import com.intellij.openapi.components.ProjectComponent;
 import com.intellij.openapi.editor.Document;
 import com.intellij.openapi.editor.Editor;
 import com.intellij.openapi.editor.EditorFactory;
@@ -85,13 +85,14 @@ import java.util.EventObject;
 import java.util.List;
 
 //todo: move changes to CtrlMouseHandler!!! This is ok, for IDEA 12, but it's not ok for IDEA 13, where it's possible to patch.
-public class MouseHoverHandler extends AbstractProjectComponent {
+public class MouseHoverHandler implements ProjectComponent {
 
   private static final AbstractDocumentationTooltipAction[] ourTooltipActions = {new ShowQuickDocAtPinnedWindowFromTooltipAction()};
   private                              TooltipProvider myTooltipProvider = null;
   private final     DocumentationManager myDocumentationManager;
   @Nullable private Point                myPrevMouseLocation;
   private LightweightHint myHint;
+  private Project myProject;
 
   private enum BrowseMode {None, Hover}
 
@@ -182,7 +183,7 @@ public class MouseHoverHandler extends AbstractProjectComponent {
   public MouseHoverHandler(final Project project, StartupManager startupManager, EditorColorsManager colorsManager,
                            FileEditorManager fileEditorManager, @NotNull DocumentationManager documentationManager,
                            @NotNull final EditorFactory editorFactory) {
-    super(project);
+    myProject = project;
     startupManager.registerPostStartupActivity(new DumbAwareRunnable() {
       @Override
       public void run() {

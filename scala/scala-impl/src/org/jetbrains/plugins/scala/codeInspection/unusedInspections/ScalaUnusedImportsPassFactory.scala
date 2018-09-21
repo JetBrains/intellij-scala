@@ -5,7 +5,7 @@ package unusedInspections
 
 import com.intellij.codeHighlighting._
 import com.intellij.codeInsight.daemon.impl.{DefaultHighlightInfoProcessor, HighlightInfoProcessor}
-import com.intellij.openapi.components.AbstractProjectComponent
+import com.intellij.openapi.components.ProjectComponent
 import com.intellij.openapi.editor.{Document, Editor}
 import com.intellij.openapi.project.Project
 import com.intellij.psi.PsiFile
@@ -16,7 +16,7 @@ import org.jetbrains.plugins.scala.annotator.usageTracker.ScalaRefCountHolder
  * Date: 15.06.2009
  */
 class ScalaUnusedImportsPassFactory(project: Project, highlightingPassRegistrar: TextEditorHighlightingPassRegistrar)
-        extends AbstractProjectComponent(project) with MainHighlightingPassFactory {
+        extends ProjectComponent with MainHighlightingPassFactory {
   highlightingPassRegistrar.registerTextEditorHighlightingPass(this, Array[Int](Pass.UPDATE_ALL),
     null, false, -1)
 

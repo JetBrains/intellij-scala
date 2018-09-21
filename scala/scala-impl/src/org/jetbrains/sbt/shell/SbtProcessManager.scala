@@ -7,7 +7,7 @@ import com.intellij.execution.configurations._
 import com.intellij.execution.process.ColoredProcessHandler
 import com.intellij.notification.{Notification, NotificationAction, NotificationType}
 import com.intellij.openapi.actionSystem.AnActionEvent
-import com.intellij.openapi.components.AbstractProjectComponent
+import com.intellij.openapi.components.ProjectComponent
 import com.intellij.openapi.diagnostic.Logger
 import com.intellij.openapi.fileEditor.OpenFileDescriptor
 import com.intellij.openapi.options.ShowSettingsUtil
@@ -38,7 +38,7 @@ import scala.collection.JavaConverters._
   *
   * Created by jast on 2016-11-27.
   */
-class SbtProcessManager(project: Project) extends AbstractProjectComponent(project) {
+class SbtProcessManager(project: Project) extends ProjectComponent {
 
   import SbtProcessManager.ProcessData
 

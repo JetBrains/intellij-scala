@@ -8,7 +8,7 @@ import java.util.concurrent.ConcurrentMap
 
 import com.intellij.ProjectTopics
 import com.intellij.ide.highlighter.JavaFileType
-import com.intellij.openapi.components.AbstractProjectComponent
+import com.intellij.openapi.components.ProjectComponent
 import com.intellij.openapi.diagnostic.Logger
 import com.intellij.openapi.project.{DumbService, Project, ProjectUtil}
 import com.intellij.openapi.roots.{ModuleRootEvent, ModuleRootListener}
@@ -420,7 +420,7 @@ object ScalaPsiManager {
   object AnyScalaPsiModificationTracker extends SimpleModificationTracker
 }
 
-class ScalaPsiManagerComponent(project: Project) extends AbstractProjectComponent(project) {
+class ScalaPsiManagerComponent(project: Project) extends ProjectComponent {
   private var manager = new ScalaPsiManager(project)
 
   def instance: ScalaPsiManager =

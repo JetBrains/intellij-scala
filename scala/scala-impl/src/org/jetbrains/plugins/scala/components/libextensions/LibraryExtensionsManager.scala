@@ -6,7 +6,7 @@ import com.intellij.ide.plugins.PluginManager
 import com.intellij.ide.util.PropertiesComponent
 import com.intellij.notification._
 import com.intellij.openapi.application.ApplicationManager
-import com.intellij.openapi.components.AbstractProjectComponent
+import com.intellij.openapi.components.ProjectComponent
 import com.intellij.openapi.diagnostic.Logger
 import com.intellij.openapi.extensions.PluginId
 import com.intellij.openapi.progress.{ProgressIndicator, ProgressManager, Task}
@@ -29,7 +29,7 @@ import scala.util.{Failure, Success, Try}
 import scala.xml.{Elem, SAXParser}
 import scala.xml.factory.XMLLoader
 
-class LibraryExtensionsManager(project: Project) extends AbstractProjectComponent(project) {
+class LibraryExtensionsManager(project: Project) extends ProjectComponent {
   import LibraryExtensionsManager._
 
   class ExtensionNotRegisteredException(iface: Class[_]) extends Exception(s"No extensions registered for class $iface")

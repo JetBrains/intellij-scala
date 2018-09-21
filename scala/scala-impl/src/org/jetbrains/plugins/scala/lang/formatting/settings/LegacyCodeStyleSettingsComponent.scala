@@ -1,6 +1,6 @@
 package org.jetbrains.plugins.scala.lang.formatting.settings
 
-import com.intellij.openapi.components.AbstractProjectComponent
+import com.intellij.openapi.components.ProjectComponent
 import com.intellij.openapi.project.Project
 import com.intellij.psi.codeStyle.CodeStyleScheme
 import com.intellij.psi.impl.source.codeStyle.CodeStyleSchemesImpl
@@ -11,7 +11,7 @@ import scala.collection.JavaConverters._
   * @author Roman.Shein
   *         Date: 24.01.2017
   */
-class LegacyCodeStyleSettingsComponent(project: Project) extends AbstractProjectComponent(project) {
+class LegacyCodeStyleSettingsComponent(project: Project) extends ProjectComponent {
 
   override def projectOpened(): Unit = {
     CodeStyleSchemesImpl.getSchemeManager.getAllSchemes.forEach { scheme =>

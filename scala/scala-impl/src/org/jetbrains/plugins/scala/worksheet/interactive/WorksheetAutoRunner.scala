@@ -1,7 +1,7 @@
 package org.jetbrains.plugins.scala
 package worksheet.interactive
 
-import com.intellij.openapi.components.AbstractProjectComponent
+import com.intellij.openapi.components.ProjectComponent
 import com.intellij.openapi.editor.Document
 import com.intellij.openapi.editor.event.{DocumentEvent, DocumentListener}
 import com.intellij.openapi.fileEditor.FileEditorManager
@@ -28,7 +28,7 @@ object WorksheetAutoRunner extends WorksheetPerFileConfig {
   def getInstance(project: Project): WorksheetAutoRunner = project.getComponent(classOf[WorksheetAutoRunner])
 }
 
-class WorksheetAutoRunner(project: Project, woof: WolfTheProblemSolver) extends AbstractProjectComponent(project) {
+class WorksheetAutoRunner(project: Project, woof: WolfTheProblemSolver) extends ProjectComponent {
   private val listeners = ContainerUtil.createConcurrentWeakMap[Document, DocumentListener]()
   private val myAlarm = new Alarm(Alarm.ThreadToUse.SWING_THREAD, project)
 

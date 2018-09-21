@@ -4,7 +4,7 @@ import java.io._
 
 import com.intellij.codeInsight.daemon.DaemonCodeAnalyzer
 import com.intellij.openapi.application.ApplicationManager
-import com.intellij.openapi.components.AbstractProjectComponent
+import com.intellij.openapi.components.ProjectComponent
 import com.intellij.openapi.fileEditor.FileEditorManager
 import com.intellij.openapi.project.Project
 import com.intellij.psi.{PsiElement, PsiManager}
@@ -21,7 +21,7 @@ import org.jetbrains.plugins.scala.extensions.invokeLater
   * @author Mikhail Mutcianko
   * @since 20.09.16
   */
-class ReflectExpansionsCollector(project: Project) extends AbstractProjectComponent(project) {
+class ReflectExpansionsCollector(project: Project) extends ProjectComponent {
   import ReflectExpansionsCollector._
 
   override def getComponentName = "ReflectExpansionsCollector"

@@ -2,12 +2,12 @@ package org.jetbrains.plugins.scala.lang.psi.types.api
 
 import java.util.concurrent.atomic.AtomicReference
 
-import com.intellij.openapi.components.AbstractProjectComponent
+import com.intellij.openapi.components.ProjectComponent
 import com.intellij.psi.CommonClassNames._
 import org.jetbrains.plugins.scala.extensions.PsiClassExt
 import org.jetbrains.plugins.scala.lang.psi.api.toplevel.typedef.ScObject
 import org.jetbrains.plugins.scala.lang.psi.impl.toplevel.synthetic.{ScSyntheticClass, SyntheticClasses}
-import org.jetbrains.plugins.scala.lang.psi.types.{ConstraintsResult, NamedType, ScType, ScTypeExt, ConstraintSystem}
+import org.jetbrains.plugins.scala.lang.psi.types.{ConstraintSystem, ConstraintsResult, NamedType, ScType, ScTypeExt}
 import org.jetbrains.plugins.scala.project.ProjectContext
 
 sealed class StdType(val name: String, val tSuper: Option[StdType])
@@ -58,8 +58,7 @@ sealed class ValType(override val name: String)(implicit projectContext: Project
   override def isFinalType = true
 }
 
-class StdTypes(implicit private val projectContext: ProjectContext)
-  extends AbstractProjectComponent(projectContext) {
+class StdTypes(implicit private val projectContext: ProjectContext) extends ProjectComponent {
 
   lazy val Any = new StdType("Any", None)
 

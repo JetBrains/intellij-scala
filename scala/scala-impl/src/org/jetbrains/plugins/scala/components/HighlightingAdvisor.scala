@@ -26,7 +26,7 @@ import scala.collection.JavaConverters._
   name = "HighlightingAdvisor", storages = Array(
   new Storage("highlighting.xml"))
 )
-class HighlightingAdvisor(project: Project) extends AbstractProjectComponent(project) with PersistentStateComponent[HighlightingSettings] {
+class HighlightingAdvisor(project: Project) extends ProjectComponent with PersistentStateComponent[HighlightingSettings] {
   @Language("HTML")
   private val AdviceMessage = """
   <html>

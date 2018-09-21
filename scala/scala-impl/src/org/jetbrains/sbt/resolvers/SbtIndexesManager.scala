@@ -2,7 +2,7 @@ package org.jetbrains.sbt.resolvers
 
 import java.io.File
 
-import com.intellij.openapi.components.AbstractProjectComponent
+import com.intellij.openapi.components.ProjectComponent
 import com.intellij.openapi.diagnostic.Logger
 import com.intellij.openapi.progress.{ProgressIndicator, ProgressManager, Task}
 import com.intellij.openapi.project.Project
@@ -20,7 +20,7 @@ import scala.collection.mutable
   * @author Mikhail Mutcianko
   * @since 26.07.16
   */
-class SbtIndexesManager(val project: Project) extends AbstractProjectComponent(project) {
+class SbtIndexesManager(val project: Project) extends ProjectComponent {
   import SbtIndexesManager._
 
   private val LOG = Logger.getInstance(classOf[SbtIndexesManager])

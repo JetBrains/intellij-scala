@@ -5,7 +5,7 @@ import java.net.URI
 import java.nio.file._
 
 import ch.epfl.scala.bsp._
-import com.intellij.openapi.components.AbstractProjectComponent
+import com.intellij.openapi.components.ProjectComponent
 import com.intellij.openapi.project.Project
 import com.intellij.openapi.util.SystemInfo
 import com.intellij.util.net.NetUtils
@@ -17,7 +17,7 @@ import org.jetbrains.bsp.settings.BspExecutionSettings
 
 import scala.util.Random
 
-class BspCommunication(project: Project) extends AbstractProjectComponent(project) {
+class BspCommunication(project: Project) extends ProjectComponent {
   // TODO support persistent sessions for more features!
   // * quicker response times
   // * background project update notifications

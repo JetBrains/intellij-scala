@@ -9,7 +9,7 @@ import com.intellij.codeInsight.daemon.DaemonCodeAnalyzer
 import com.intellij.notification.impl.NotificationsConfigurationImpl
 import com.intellij.notification.{Notification, NotificationDisplayType}
 import com.intellij.openapi.application.{ApplicationManager, TransactionGuard}
-import com.intellij.openapi.components.AbstractProjectComponent
+import com.intellij.openapi.components.ProjectComponent
 import com.intellij.openapi.externalSystem.service.notification.{ExternalSystemNotificationManager, NotificationCategory, NotificationData, NotificationSource}
 import com.intellij.openapi.module.ModuleType
 import com.intellij.openapi.options.ex.SingleConfigurableEditor
@@ -29,7 +29,7 @@ import scala.collection.JavaConverters._
 /**
  * @author Pavel Fatin
  */
-class SbtProjectComponent(project: Project) extends AbstractProjectComponent(project) {
+class SbtProjectComponent(project: Project) extends ProjectComponent {
 
   private val SBT_MAVEN_NOTIFICATION_GROUP = "Unindexed maven repositories for sbt detection"
 
@@ -129,7 +129,7 @@ class SbtProjectComponent(project: Project) extends AbstractProjectComponent(pro
       })
     notificationData.setListener(
       "#disable", (notification: Notification, e: HyperlinkEvent) => {
-        val result: Int = Messages.showYesNoDialog(myProject,
+        val result: Int = Messages.showYesNoDialog(project,
           s"""Notification will be disabled for all projects
 Settings | Appearance & Behavior | Notifications | $SBT_MAVEN_NOTIFICATION_GROUP
 can be used to configure the notification.""".stripMargin,

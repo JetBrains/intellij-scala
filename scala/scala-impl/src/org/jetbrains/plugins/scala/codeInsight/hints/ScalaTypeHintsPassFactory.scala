@@ -4,7 +4,7 @@ package hints
 
 import com.intellij.codeHighlighting.{TextEditorHighlightingPass, TextEditorHighlightingPassFactory, TextEditorHighlightingPassRegistrar}
 import com.intellij.codeInsight.hints.ModificationStampHolder
-import com.intellij.openapi.components.AbstractProjectComponent
+import com.intellij.openapi.components.ProjectComponent
 import com.intellij.openapi.editor.Editor
 import com.intellij.openapi.project.Project
 import com.intellij.openapi.util.Key
@@ -12,7 +12,7 @@ import com.intellij.psi.PsiFile
 import org.jetbrains.plugins.scala.lang.psi.api.ScalaFile
 
 class ScalaTypeHintsPassFactory(project: Project, registrar: TextEditorHighlightingPassRegistrar)
-  extends AbstractProjectComponent(project) with TextEditorHighlightingPassFactory {
+  extends ProjectComponent with TextEditorHighlightingPassFactory {
 
   registrar.registerTextEditorHighlightingPass(this, null, null, false, -1)
 

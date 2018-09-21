@@ -5,7 +5,7 @@ import java.lang.reflect.InvocationTargetException
 import java.net.URL
 
 import com.intellij.openapi.compiler._
-import com.intellij.openapi.components.AbstractProjectComponent
+import com.intellij.openapi.components.ProjectComponent
 import com.intellij.openapi.module.Module
 import com.intellij.openapi.progress.{ProcessCanceledException, ProgressManager}
 import com.intellij.openapi.project.Project
@@ -32,7 +32,7 @@ import scala.reflect.internal.util.ScalaClassLoader.URLClassLoader
   * @author Mikhail Mutcianko
   * @since 20.09.16
   */
-class MetaExpansionsManager(project: Project) extends AbstractProjectComponent(project)  {
+class MetaExpansionsManager(project: Project) extends ProjectComponent  {
   import org.jetbrains.plugins.scala.project._
 
   import MetaExpansionsManager.META_MAJOR_VERSION

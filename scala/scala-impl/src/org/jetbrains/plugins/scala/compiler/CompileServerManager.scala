@@ -10,7 +10,7 @@ import com.intellij.ide.DataManager
 import com.intellij.notification.{Notification, NotificationType, Notifications}
 import com.intellij.openapi.actionSystem.{AnAction, AnActionEvent, DefaultActionGroup, Separator}
 import com.intellij.openapi.application.ApplicationManager
-import com.intellij.openapi.components.AbstractProjectComponent
+import com.intellij.openapi.components.ProjectComponent
 import com.intellij.openapi.options.ShowSettingsUtil
 import com.intellij.openapi.project.{DumbAware, Project}
 import com.intellij.openapi.ui.popup.JBPopupFactory
@@ -26,7 +26,7 @@ import org.jetbrains.plugins.scala.project._
 /**
  * @author Pavel Fatin
  */
-class CompileServerManager(project: Project) extends AbstractProjectComponent(project) {
+class CompileServerManager(project: Project) extends ProjectComponent {
    private val IconRunning = Icons.COMPILE_SERVER
 
    private val IconStopped = IconLoader.getDisabledIcon(IconRunning)
