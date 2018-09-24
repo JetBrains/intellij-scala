@@ -2,19 +2,17 @@ package org.jetbrains.plugins.scala
 package worksheet.actions
 
 import java.awt.datatransfer.StringSelection
-import javax.swing.Icon
 
 import com.intellij.icons.AllIcons
 import com.intellij.openapi.actionSystem.{AnAction, AnActionEvent}
 import com.intellij.openapi.editor._
-import com.intellij.openapi.editor.impl.FoldingModelImpl
 import com.intellij.openapi.fileEditor.FileEditorManager
 import com.intellij.openapi.ide.CopyPasteManager
-import com.intellij.openapi.util.TextRange
 import com.intellij.openapi.util.text.StringUtil
 import com.intellij.psi.{PsiDocumentManager, PsiFile}
-import worksheet.runconfiguration.WorksheetCache
-import worksheet.ui.WorksheetFoldRegionDelegate
+import javax.swing.Icon
+import org.jetbrains.plugins.scala.worksheet.runconfiguration.WorksheetCache
+import org.jetbrains.plugins.scala.worksheet.ui.WorksheetFoldGroup
 
 /**
  * @author Dmitry.Naydanov
@@ -29,92 +27,58 @@ class CopyWorksheetAction extends AnAction with TopComponentAction {
 
     val psiFile: PsiFile = PsiDocumentManager.getInstance(project).getPsiFile(editor.getDocument)
     val viewer = WorksheetCache.getInstance(project).getViewer(editor)
-    if (psiFile == null || viewer == null) return
+    if (psiFile == null) return
 
-    var s = createMerged(editor, viewer)
+    var s = createMerged2(editor, viewer, psiFile)
     s = StringUtil.convertLineSeparators(s)
     val contents: StringSelection = new StringSelection(s)
     CopyPasteManager.getInstance.setContents(contents)
   }
-
-  private def createMerged(editor: Editor, viewer: Editor): String = {
+  
+  private def createMerged2(editor: Editor, viewer: Editor, psiFile: PsiFile): String = {
+    val leftDocument = editor.getDocument
+    if (viewer == null) return leftDocument.getText
+    val rightDocument = viewer.getDocument
+    
     val result = new StringBuilder
     val fullShift = StringUtil.repeat(" ", CopyWorksheetAction.COPY_BORDER)
     val lineSeparator = "\n"
+    
+    val mappings = WorksheetFoldGroup.computeMappings(viewer, editor, psiFile)
 
-    val leftDocument = editor.getDocument
-    val rightDocument = viewer.getDocument
-
-    def append2Result(textLeft: String, textRight: String, sym: String) {
-      result append ( if (textLeft.length < CopyWorksheetAction.COPY_BORDER) textLeft else textLeft.substring(0, CopyWorksheetAction.COPY_BORDER))
-      for (_ <- 1 to (CopyWorksheetAction.COPY_BORDER - textLeft.length)) result append sym
-      result append "//"
-      result append textRight
-      result append lineSeparator
+    def getFromDoc(lineNumber: Int, document: Document): CharSequence = {
+      if (lineNumber >= document.getLineCount) "" else 
+        document.getImmutableCharSequence.subSequence(
+          document.getLineStartOffset(lineNumber), document.getLineEndOffset(lineNumber)
+        )
     }
 
-    def getFromDoc(lineNumber: Int, document: Document) = if (document.getLineCount > lineNumber) document getText {
-      new TextRange(document getLineStartOffset lineNumber, document getLineEndOffset lineNumber)
-    } else ""
-
-    def getFromLeft(lineNumber: Int) = getFromDoc(lineNumber, leftDocument)
-
-    def getFromRight(lineNumber: Int) = getFromDoc(lineNumber, rightDocument)
-
-    val marker = viewer.getFoldingModel.asInstanceOf[FoldingModelImpl].getAllFoldRegions find {
-      case _: WorksheetFoldRegionDelegate => true
-      case _ => false
-    }
-
-    var lastLeftEnd  = 0
-    var lastRightEnd = 0
-
-    marker map {
-      case m: WorksheetFoldRegionDelegate => (0 /: m.getWorksheetGroup.getCorrespondInfo) {
-        case (lastEnd, (rightStartOffset, rightEndOffset, leftOffset, spaces, leftLength)) =>
-          val leftStart = {
-            var j = lastEnd
-
-            while (getFromLeft(j).trim.length == 0 && j < leftDocument.getLineCount) j += 1
-            if (j == leftDocument.getLineCount) return result.toString() else j
+    def getLinesFrom(f: Int, t: Int, document: Document) = 
+      for (i <- f until t) yield getFromDoc(i, document)
+    
+    def getLines(doc: Document) = getLinesFrom(0, doc.getLineCount, doc)
+    
+    def append2Result(leftLines: Seq[CharSequence], rightLines: Seq[CharSequence]) {
+      leftLines.zipAll(rightLines, "", fullShift).foreach {
+        case (textLeft, textRight) =>
+          result.append(StringUtil.trimTrailing(textLeft))
+          
+          if (textRight.length() > 0) {
+            for (_ <- 1 to (CopyWorksheetAction.COPY_BORDER - textLeft.length)) result append CopyWorksheetAction.FILL_SYMBOL
+            result append " //"
+            result append textRight
           }
-          val currentLeftStart = leftDocument getLineNumber leftOffset
-          val leftEnd = leftDocument getLineNumber leftOffset // + spaces
-
-          val rightStart = rightDocument getLineNumber rightStartOffset
-          val rightEnd = rightDocument getLineNumber rightEndOffset
-
-          for (_ <- lastEnd until leftStart) {
-            append2Result(" ", " ", " ")
-          }
-
-          for (i <- leftStart to leftEnd) {
-            val txt = getFromLeft(i)
-
-            append2Result(txt, getFromRight(rightStart + i - currentLeftStart), " ")
-          }
-
-          if (spaces > 0) for (j <- (spaces - 1).to(0, -1)) {
-            result append fullShift
-            result append "//"
-            result append {
-              rightDocument getText {
-                new TextRange(rightDocument getLineStartOffset (rightEnd - j), rightDocument getLineEndOffset (rightEnd - j))
-              }
-            }
-            result append lineSeparator
-          }
-
-          lastLeftEnd = leftEnd + 1
-          lastRightEnd = rightEnd + 1
-
-          (leftDocument getLineNumber leftOffset) + leftLength
+          
+          result append lineSeparator
       }
     }
-
-    for (i <- 0 until (leftDocument.getLineCount - lastLeftEnd))
-      append2Result(getFromLeft(lastLeftEnd + i), getFromRight(lastRightEnd + i), " ")
-
+    
+    if (mappings.length < 2) append2Result(getLines(leftDocument), getLines(rightDocument)) else (mappings.head /: (mappings.tail :+ (leftDocument.getLineCount, rightDocument.getLineCount))) {
+      case ((pl, pr), (l, r)) => 
+        append2Result(getLinesFrom(pl, l, leftDocument), getLinesFrom(pr, r, rightDocument))
+        (l, r)
+    }
+    
     result.toString()
   }
 
@@ -125,4 +89,5 @@ class CopyWorksheetAction extends AnAction with TopComponentAction {
 
 object CopyWorksheetAction {
   private val COPY_BORDER = 80
+  private val FILL_SYMBOL = " "
 }
