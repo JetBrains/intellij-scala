@@ -8,6 +8,6 @@ import com.intellij.openapi.actionSystem.AnActionEvent
   */
 class ShowRunTypeAdditionalSettingsButton(form: WorksheetSettingsSetForm) extends DedicatedSettingsButton("Show additional settings") {
   override def actionPerformed(anActionEvent: AnActionEvent): Unit = {
-    form.getRunType.showAdditionalSettingsPanel().foreach(_(form.getFile))
+    Option(form.getRunType.showAdditionalSettingsPanel()).foreach(_(form.getFile))
   }
 }

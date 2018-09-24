@@ -21,15 +21,18 @@ abstract class WorksheetExternalRunType {
 
   def isUsesCell: Boolean
 
-  def createPrinter(editor: Editor, file: ScalaFile): Option[WorksheetEditorPrinter]
+  def createPrinter(editor: Editor, file: ScalaFile): WorksheetEditorPrinter
 
-  def showAdditionalSettingsPanel(): Option[PsiFile => Unit] = None
+  def showAdditionalSettingsPanel(): PsiFile => Unit = null
   
   def process(srcFile: ScalaFile, ifEditor: Option[Editor]): WorksheetCompileRunRequest = RunSimple(
     WorksheetSourceProcessor.processSimple(srcFile, ifEditor)
   )
+  
+  def process(srcFile: ScalaFile, editor: Editor): WorksheetCompileRunRequest = 
+    process(srcFile, Option(editor))
 
-  def createRunCellAction(cellDescriptor: CellDescriptor): Option[AnAction] = None
+  def createRunCellAction(cellDescriptor: CellDescriptor): AnAction = null
 
   def onSettingsConfirmed(file: PsiFile): Unit = {}
   
@@ -59,8 +62,8 @@ object RunTypes {
 
     override def isUsesCell: Boolean = false
 
-    override def createPrinter(editor: Editor, file: ScalaFile): Option[WorksheetEditorPrinter] =
-      Option(WorksheetEditorPrinterFactory.getDefaultUiFor(editor, file))
+    override def createPrinter(editor: Editor, file: ScalaFile): WorksheetEditorPrinter =
+      WorksheetEditorPrinterFactory.getDefaultUiFor(editor, file)
 
     override def process(srcFile: ScalaFile, ifEditor: Option[Editor]): WorksheetCompileRunRequest =
       WorksheetSourceProcessor.processDefault(srcFile, ifEditor.map(_.getDocument)) match {
@@ -76,8 +79,8 @@ object RunTypes {
 
     override def isUsesCell: Boolean = false
 
-    override def createPrinter(editor: Editor, file: ScalaFile): Option[WorksheetEditorPrinter] =
-      Option(WorksheetEditorPrinterFactory.getIncrementalUiFor(editor, file))
+    override def createPrinter(editor: Editor, file: ScalaFile): WorksheetEditorPrinter =
+      WorksheetEditorPrinterFactory.getIncrementalUiFor(editor, file)
 
     override def process(srcFile: ScalaFile, ifEditor: Option[Editor]): WorksheetCompileRunRequest =
       WorksheetSourceProcessor.processIncremental(srcFile, ifEditor) match {
@@ -93,9 +96,9 @@ object RunTypes {
 
     override def isUsesCell: Boolean = true
 
-    override def createPrinter(editor: Editor, file: ScalaFile): Option[WorksheetEditorPrinter] =
-      Option(WorksheetEditorPrinterFactory.getConsoleUiFor(editor, file))
+    override def createPrinter(editor: Editor, file: ScalaFile): WorksheetEditorPrinter =
+      WorksheetEditorPrinterFactory.getConsoleUiFor(editor, file)
 
-    override def createRunCellAction(cellDescriptor: CellDescriptor): Option[AnAction] = Option(new RunCellAction(cellDescriptor))
+    override def createRunCellAction(cellDescriptor: CellDescriptor): AnAction = new RunCellAction(cellDescriptor)
   }
 }

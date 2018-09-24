@@ -34,7 +34,7 @@ class CellDescriptor(startElementRef: WeakReference[PsiElement], runType: Worksh
     }
   }
 
-  def createRunAction: Option[AnAction] = runType.createRunCellAction(this)
+  def createRunAction: Option[AnAction] = Option(runType.createRunCellAction(this))
 }
 
 object CellDescriptor {

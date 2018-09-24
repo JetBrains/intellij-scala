@@ -168,7 +168,8 @@ object RunWorksheetAction {
       case _ => return 
     }
       
-    val worksheetPrinter = PlainRunType.createPrinter(editor, scalaFile).getOrElse { return }
+    val worksheetPrinter = PlainRunType.createPrinter(editor, scalaFile)
+    if (worksheetPrinter == null) return 
 
     val myProcessListener: ProcessAdapter = new ProcessAdapter {
       override def onTextAvailable(event: ProcessEvent, outputType: Key[_]) {

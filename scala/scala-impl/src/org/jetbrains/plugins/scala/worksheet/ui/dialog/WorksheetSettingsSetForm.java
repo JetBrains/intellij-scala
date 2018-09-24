@@ -99,7 +99,7 @@ public class WorksheetSettingsSetForm {
 
   private boolean isAdditionalSettingsShown() {
     return runTypeComboBox.getSelectedItem() != null &&
-            ((WorksheetExternalRunType) runTypeComboBox.getSelectedItem()).showAdditionalSettingsPanel().isDefined();
+            ((WorksheetExternalRunType) runTypeComboBox.getSelectedItem()).showAdditionalSettingsPanel() != null;
   }
 
   private void createUIComponents() {
