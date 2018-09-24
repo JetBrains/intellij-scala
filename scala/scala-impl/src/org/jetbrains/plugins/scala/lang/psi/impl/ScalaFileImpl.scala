@@ -363,7 +363,7 @@ class ScalaFileImpl(viewProvider: FileViewProvider, fileType: LanguageFileType =
     } else PsiClass.EMPTY_ARRAY
   }
 
-  @CachedInUserData(this, ScalaPsiManager.instance(getProject).modificationTracker)
+  @CachedInUserData(this, ScalaPsiManager.instance(getProject).topLevelModificationTracker)
   protected def isScalaPredefinedClass: Boolean = {
     typeDefinitions.length == 1 && Set("scala", "scala.Predef").contains(typeDefinitions.head.qualifiedName)
   }

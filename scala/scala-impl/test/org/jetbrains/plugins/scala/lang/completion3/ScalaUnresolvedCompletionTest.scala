@@ -1,6 +1,6 @@
 package org.jetbrains.plugins.scala.lang.completion3
 
-import com.intellij.codeInsight.lookup.LookupElement
+import com.intellij.codeInsight.lookup.{Lookup, LookupElement}
 import com.intellij.lang.annotation.HighlightSeverity
 import com.intellij.testFramework.EditorTestUtil
 import org.jetbrains.plugins.scala.lang.completion.ScalaTextLookupItem
@@ -156,7 +156,7 @@ class ScalaUnresolvedCompletionTest extends ScalaCodeInsightTestBase {
       """
     complete(fileText)
 
-    getFixture.finishLookup(ScalaCodeInsightTestBase.DEFAULT_CHAR)
+    getFixture.finishLookup(Lookup.REPLACE_SELECT_CHAR)
 
     val expectedFileText =
       """

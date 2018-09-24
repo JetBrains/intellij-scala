@@ -1,6 +1,6 @@
 /**
-* @author ven
-*/
+  * @author ven
+  */
 package org.jetbrains.plugins.scala
 package lang
 package psi
@@ -10,7 +10,8 @@ package typedef
 
 import com.intellij.openapi.progress.ProgressManager
 import com.intellij.psi.{PsiClass, PsiClassType, PsiElement}
-import com.intellij.util.containers.ContainerUtil
+import com.intellij.util.containers.{ContainerUtil, SmartHashSet}
+import gnu.trove.TIntObjectHashMap
 import org.jetbrains.plugins.scala.caches.CachesUtil
 import org.jetbrains.plugins.scala.extensions._
 import org.jetbrains.plugins.scala.lang.psi.api.statements.ScTypeAliasDefinition
@@ -50,21 +51,31 @@ abstract class MixinNodes {
     var primarySuper: Option[Node] = None
   }
 
-  class Map extends mutable.HashMap[String, ArrayBuffer[SigToSuper]] {
-    private[Map] val implicitNames: mutable.HashSet[String] = new mutable.HashSet[String]
+  class Map {
+    private[Map] val implicitNames: SmartHashSet[String] = new SmartHashSet[String]
+    private val publicsMap: mutable.HashMap[String, NodesMap] = mutable.HashMap.empty
     private val privatesMap: mutable.HashMap[String, ArrayBuffer[SigToSuper]] = mutable.HashMap.empty
     def addToMap(key: T, node: Node) {
       val name = ScalaNamesUtil.clean(elemName(key))
-      (if (!isPrivate(key)) this else privatesMap).
-        getOrElseUpdate(name, new ArrayBuffer) += ((key, node))
+      if (isPrivate(key)) {
+        privatesMap.getOrElseUpdate(name, ArrayBuffer.empty) += ((key, node))
+      }
+      else {
+        val nodesMap = publicsMap.getOrElseUpdate(name, new NodesMap)
+        nodesMap.update(key, node)
+      }
       if (isImplicit(key)) implicitNames.add(name)
     }
+
+    def publicNames: collection.Set[String] = publicsMap.keySet
+
+    def addPublicsFrom(map: Map): Unit = publicsMap ++= map.publicsMap
 
     @volatile
     private var supersList: List[Map] = List.empty
     def setSupersMap(list: List[Map]) {
       for (m <- list) {
-        implicitNames ++= m.implicitNames
+        implicitNames.addAll(m.implicitNames)
       }
       supersList = list
     }
@@ -74,12 +85,12 @@ abstract class MixinNodes {
     def forName(name: String): (AllNodes, AllNodes) = {
       val convertedName = ScalaNamesUtil.clean(name)
       def calculate: (AllNodes, AllNodes) = {
-        val thisMap: NodesMap = toNodesMap(getOrElse(convertedName, new ArrayBuffer))
-        val maps: List[NodesMap] = supersList.map(sup => toNodesMap(sup.getOrElse(convertedName, new ArrayBuffer)))
+        val thisMap: NodesMap = publicsMap.getOrElse(convertedName, NodesMap.empty)
+        val maps: List[NodesMap] = supersList.map(sup => sup.publicsMap.getOrElse(convertedName, NodesMap.empty))
         val supers = mergeWithSupers(thisMap, mergeSupers(maps))
-        val list = supersList.flatMap(_.privatesMap.getOrElse(convertedName, new ArrayBuffer[SigToSuper]))
+        val list = supersList.flatMap(_.privatesMap.getOrElse(convertedName, Nil))
         val supersPrivates = toNodesSeq(list)
-        val thisPrivates = toNodesSeq(privatesMap.getOrElse(convertedName, new ArrayBuffer[SigToSuper]).toList ::: list)
+        val thisPrivates = toNodesSeq(privatesMap.getOrElse(convertedName, Nil).toList ::: list)
         val thisAllNodes = new AllNodes(thisMap, thisPrivates)
         val supersAllNodes = new AllNodes(supers, supersPrivates)
         (thisAllNodes, supersAllNodes)
@@ -106,8 +117,9 @@ abstract class MixinNodes {
       if (forImplicitsCache != null) return forImplicitsCache
 
       val res = new ArrayBuffer[SigToSuper]()
-      for (name <- implicitNames) {
-        val thisMap = forName(name)._1
+      val iterator = implicitNames.iterator()
+      while (iterator.hasNext) {
+        val thisMap = forName(iterator.next)._1
         res ++= thisMap.flatMap(implicitEntry)
       }
       forImplicitsCache = res.toList
@@ -116,10 +128,10 @@ abstract class MixinNodes {
 
     def allNames(): Set[String] = {
       val names = new mutable.HashSet[String]
-      names ++= keySet
+      names ++= publicsMap.keySet
       names ++= privatesMap.keySet
       for (sup <- supersList) {
-        names ++= sup.keySet
+        names ++= sup.publicsMap.keySet
         names ++= sup.privatesMap.keySet
       }
       names.toSet
@@ -138,19 +150,13 @@ abstract class MixinNodes {
     }
 
     private def toNodesSeq(seq: List[SigToSuper]): NodesSeq = {
-      val map = new mutable.HashMap[Int, List[SigToSuper]]
+      val map = new TIntObjectHashMap[List[SigToSuper]]()
       for (elem <- seq) {
         val key = computeHashCode(elem._1)
         val prev = map.getOrElse(key, List.empty)
-        map.update(key, elem :: prev)
+        map.put(key, elem :: prev)
       }
       new NodesSeq(map)
-    }
-
-    private def toNodesMap(buf: ArrayBuffer[SigToSuper]): NodesMap = {
-      val res = new NodesMap
-      res ++= buf
-      res
     }
 
     private class MultiMap extends mutable.HashMap[T, mutable.Set[Node]] with collection.mutable.MultiMap[T, Node] {
@@ -207,29 +213,29 @@ abstract class MixinNodes {
 
     def foreach(p: SigToSuper => Unit) {
       publics.foreach(p)
-      privates.map.values.flatten.foreach(p)
+      privates.map.flattenValues.foreach(p)
     }
 
     def map[R](p: SigToSuper => R): Seq[R] = {
-      publics.map(p).toSeq ++ privates.map.values.flatten.map(p)
+      publics.map(p).toSeq ++ privates.map.flattenValues.map(p)
     }
 
     def filter(p: SigToSuper => Boolean): Seq[SigToSuper] = {
-      publics.filter(p).toSeq ++ privates.map.values.flatten.filter(p)
+      publics.filter(p).toSeq ++ privates.map.flattenValues.filter(p)
     }
 
     def withFilter(p: SigToSuper => Boolean): FilterMonadic[SigToSuper, Seq[SigToSuper]] = {
-      (publics.toSeq ++ privates.map.values.flatten).withFilter(p)
+      (publics.toSeq ++ privates.map.flattenValues).withFilter(p)
     }
 
     def flatMap[R](p: SigToSuper => Traversable[R]): Seq[R] = {
-      publics.flatMap(p).toSeq ++ privates.map.values.flatten.flatMap(p)
+      publics.flatMap(p).toSeq ++ privates.map.flattenValues.flatMap(p)
     }
 
     def iterator: Iterator[SigToSuper] = {
       new Iterator[SigToSuper] {
         private val iter1 = publics.iterator
-        private val iter2 = privates.map.values.flatten.iterator
+        private val iter2 = privates.map.flattenValues.iterator
         def hasNext: Boolean = iter1.hasNext || iter2.hasNext
 
         def next(): SigToSuper = if (iter1.hasNext) iter1.next() else iter2.next()
@@ -243,10 +249,22 @@ abstract class MixinNodes {
       }
     }
 
-    def isEmpty: Boolean = publics.isEmpty && privates.map.values.forall(_.isEmpty)
+    def isEmpty: Boolean = publics.isEmpty && privates.map.forEachValue(_.isEmpty)
   }
 
-  class NodesSeq(private[MixinNodes] val map: mutable.HashMap[Int, List[SigToSuper]]) {
+  class NodesSeq(private[MixinNodes] val map: TIntObjectHashMap[List[SigToSuper]]) {
+    def add(s: T, node: Node): Unit = {
+      val key = computeHashCode(s)
+      val prev = map.get(key)
+      map.put(key, (s, node) :: prev)
+    }
+
+    def addAll(list: List[SigToSuper]): Unit = {
+      list.foreach {
+        case (s, node) => add(s, node)
+      }
+    }
+
     def get(s: T): Option[Node] = {
       val list = map.getOrElse(computeHashCode(s), Nil)
       val iterator = list.iterator
@@ -256,21 +274,6 @@ abstract class MixinNodes {
       }
       None
     }
-
-    def fastPhysicalSignatureGet(key: T): Option[Node] = {
-      val list = map.getOrElse(computeHashCode(key), List.empty)
-      list match {
-        case Nil => None
-        case x :: Nil => Some(x._2)
-        case e =>
-          val iterator = e.iterator
-          while (iterator.hasNext) {
-            val next = iterator.next()
-            if (same(key, next._1)) return Some(next._2)
-          }
-          None
-      }
-    }
   }
 
   class NodesMap extends mutable.HashMap[T, Node] {
@@ -278,10 +281,10 @@ abstract class MixinNodes {
     override def elemEquals(t1 : T, t2 : T): Boolean = equiv(t1, t2)
 
     /**
-     * Use this method if you are sure, that map contains key
-     */
+      * Use this method if you are sure, that map contains key
+      */
     def fastGet(key: T): Option[Node] = {
-    //todo: possible optimization to filter without types first then if only one variant left, get it.
+      //todo: possible optimization to filter without types first then if only one variant left, get it.
       val h = index(elemHashCode(key))
       var e = table(h).asInstanceOf[Entry]
       if (e != null && e.next == null) return Some(e.value)
@@ -318,6 +321,10 @@ abstract class MixinNodes {
         case _ => fastGet(key)
       }
     }
+  }
+
+  object NodesMap {
+    def empty: NodesMap = new NodesMap()
   }
 
   def emptyMap: Map = new Map()
@@ -522,9 +529,9 @@ object MixinNodes {
           set += classString(clazz)
         case Some(clazz) if clazz.getTypeParameters.nonEmpty =>
           val i = buffer.indexWhere(_.extractClass match {
-              case Some(newClazz) if ScEquivalenceUtil.areClassesEquivalent(newClazz, clazz) => true
-              case _ => false
-            }
+            case Some(newClazz) if ScEquivalenceUtil.areClassesEquivalent(newClazz, clazz) => true
+            case _ => false
+          }
           )
           if (i != -1) {
             val newTp = buffer.apply(i)
@@ -586,5 +593,24 @@ object MixinNodes {
     }
     if (addTp) add(tp)
     buffer
+  }
+
+  private implicit class TIntListHashMapOps[T](val map: TIntObjectHashMap[List[T]]) extends AnyVal {
+    def getOrElse(key: Int, t: List[T]): List[T] = {
+      val fromMap = map.get(key)
+
+      if (fromMap != null) fromMap
+      else t
+    }
+
+    def flattenValues: Seq[T] = {
+      val result = ArrayBuffer[T]()
+
+      map.forEachValue(list => {
+        result ++= list
+        true
+      })
+      result
+    }
   }
 }

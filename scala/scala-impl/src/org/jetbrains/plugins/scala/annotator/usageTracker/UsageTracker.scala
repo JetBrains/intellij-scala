@@ -47,14 +47,15 @@ object UsageTracker {
 
     refHolder.retrieveUnusedReferencesInfo { () =>
       imports.groupBy(_.importExpr).foreach {
-        case (expr, importsUsed) =>
+        case (expr, importsUsed) if expr.nonEmpty =>
           val toHighlight =
             importsUsed.filter(imp => refHolder.noUsagesFound(imp) && !imp.isAlwaysUsed)
 
           if (toHighlight.size == importsUsed.size)
-            redundant += ImportExprUsed(expr)
+            redundant += ImportExprUsed(expr.get)
           else
             redundant ++= toHighlight
+        case _ =>
       }
     }
     ScalaScriptImportsUtil.filterScriptImportsInUnused(file, redundant)

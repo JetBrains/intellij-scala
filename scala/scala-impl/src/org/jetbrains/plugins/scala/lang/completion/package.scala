@@ -14,7 +14,7 @@ import org.jetbrains.plugins.scala.lang.completion.lookups.ScalaLookupItem
 import org.jetbrains.plugins.scala.lang.completion.weighter.ScalaByExpectedTypeWeigher
 import org.jetbrains.plugins.scala.lang.lexer.ScalaTokenTypes
 import org.jetbrains.plugins.scala.lang.psi.ScalaPsiElement
-import org.jetbrains.plugins.scala.lang.psi.api.expr.{ScBlockExpr, ScModificationTrackerOwner}
+import org.jetbrains.plugins.scala.lang.psi.api.expr.{ScBlockExpr, ScModificationTrackerOwner, ScNewTemplateDefinition}
 import org.jetbrains.plugins.scala.lang.psi.api.statements.ScTypeAlias
 import org.jetbrains.plugins.scala.lang.psi.api.toplevel.typedef.ScTypeDefinition
 import org.jetbrains.plugins.scala.lang.refactoring.ScalaNamesValidator
@@ -24,6 +24,21 @@ import scala.annotation.tailrec
 import scala.collection.JavaConverters
 
 package object completion {
+
+  private[completion] implicit class OffsetMapExt(private val offsetMap: OffsetMap) extends AnyVal {
+    def apply(key: OffsetKey): Int = offsetMap.getOffset(key)
+
+    def update(key: OffsetKey, offset: Int): Unit = offsetMap.addOffset(key, offset)
+  }
+
+  private[completion] implicit class InsertionContextExt(private val context: InsertionContext) extends AnyVal {
+
+    def offsetMap: OffsetMap = context.getOffsetMap
+
+    def setStartOffset(offset: Int): Unit = {
+      offsetMap.addOffset(CompletionInitializationContext.START_OFFSET, offset)
+    }
+  }
 
   private[completion] object InsertionContextExt {
 
@@ -60,11 +75,17 @@ package object completion {
         case defaultSorter if parameters.getCompletionType == CompletionType.SMART => defaultSorter
         case defaultSorter =>
           val position = positionFromParameters(parameters)
-          val isAfterNew = ScalaAfterNewCompletionUtil.afterNewPattern.accepts(position)
+          val isAfterNew = ScalaAfterNewCompletionContributor.isAfterNew(position)
+
+          val maybeDefinition = position match {
+            case ScalaSmartCompletionContributor.Reference(reference) => Some(reference)
+            case _ if isAfterNew => position.findContextOfType(classOf[ScNewTemplateDefinition])
+            case _ => None
+          }
 
           defaultSorter
             .weighBefore("liftShorter", new ScalaByTypeWeigher(position, isAfterNew))
-            .weighAfter(if (isAfterNew) "scalaTypeCompletionWeigher" else "scalaKindWeigher", new ScalaByExpectedTypeWeigher(position, isAfterNew))
+            .weighAfter(if (isAfterNew) "scalaTypeCompletionWeigher" else "scalaKindWeigher", new ScalaByExpectedTypeWeigher(maybeDefinition)(position))
       }
 
       val updatedResultSet = resultSet
@@ -105,16 +126,14 @@ package object completion {
                                 (implicit parameters: CompletionParameters,
                                  context: ProcessingContext): Unit
 
-    protected final def createElement(text: String, prefix: String)
-                                     (implicit position: PsiElement): E =
+    protected final def createElement(text: String, prefix: String, position: PsiElement): E =
       createElement(prefix + text, position.getContext, position)
 
     protected def createElement(text: String,
                                 context: PsiElement,
                                 child: PsiElement): E
 
-    protected def createConsumer(resultSet: CompletionResultSet)
-                                (implicit position: PsiElement): Consumer[CompletionResult]
+    protected def createConsumer(resultSet: CompletionResultSet, position: PsiElement): Consumer[CompletionResult]
 
     protected final def createParameters(typeElement: ScalaPsiElement,
                                          maybeLength: Option[Int] = None)

@@ -42,7 +42,7 @@ object SbtEntityData {
 @SerialVersionUID(2)
 case class SbtBuildModuleData(imports: Seq[String],
                               resolvers: Set[SbtResolver],
-                              buildFor: SbtModuleData) extends SbtEntityData
+                              buildFor: URI) extends SbtEntityData
 
 object SbtBuildModuleData {
   val Key: Key[SbtBuildModuleData] = datakey(classOf[SbtBuildModuleData])

@@ -7,7 +7,7 @@ import org.jetbrains.plugins.scala.lang.psi.api.statements.{ScTypeAlias, ScTypeA
 import org.jetbrains.plugins.scala.lang.psi.api.toplevel.typedef.ScObject
 import org.jetbrains.plugins.scala.lang.psi.types.api._
 import org.jetbrains.plugins.scala.lang.psi.types.recursiveUpdate.ScSubstitutor
-import org.jetbrains.plugins.scala.lang.psi.types.{ScExistentialArgument, ScExistentialType, ScType, ScTypeExt, ScUndefinedSubstitutor}
+import org.jetbrains.plugins.scala.lang.psi.types.{ConstraintsResult, ScExistentialArgument, ScExistentialType, ScType, ScTypeExt, ConstraintSystem}
 import org.jetbrains.plugins.scala.lang.refactoring.util.ScTypeUtil.AliasType
 import org.jetbrains.plugins.scala.util.ScEquivalenceUtil.smartEquivalence
 
@@ -16,7 +16,12 @@ import org.jetbrains.plugins.scala.util.ScEquivalenceUtil.smartEquivalence
   * It can be whether singleton type (v.type) or simple type (java.lang.String).
   * element can be any stable element, class, value or type alias
   */
-case class ScDesignatorType(element: PsiNamedElement, isStatic: Boolean = false) extends DesignatorOwner {
+case class ScDesignatorType(element: PsiNamedElement) extends DesignatorOwner {
+
+  private var static = false
+
+  private def setStatic(): Unit = static = true
+  def isStatic: Boolean = static
 
   override protected def isAliasTypeInner: Option[AliasType] = {
     element match {
@@ -59,23 +64,23 @@ case class ScDesignatorType(element: PsiNamedElement, isStatic: Boolean = false)
     case _ => None
   }
 
-  override def equivInner(`type`: ScType, substitutor: ScUndefinedSubstitutor, falseUndef: Boolean): (Boolean, ScUndefinedSubstitutor) = {
+  override def equivInner(`type`: ScType, constraints: ConstraintSystem, falseUndef: Boolean): ConstraintsResult = {
     def equivSingletons(left: DesignatorOwner, right: DesignatorOwner) = left.designatorSingletonType.filter {
       case designatorOwner: DesignatorOwner if designatorOwner.isSingleton => true
       case _ => false
     }.map {
-      _.equiv(right, substitutor, falseUndef)
+      _.equiv(right, constraints, falseUndef)
     }
 
     (element match {
       case definition: ScTypeAliasDefinition =>
         definition.aliasedType.toOption.map {
-          _.equiv(`type`, substitutor, falseUndef)
+          _.equiv(`type`, constraints, falseUndef)
         }
       case _ =>
         `type` match {
           case ScDesignatorType(thatElement) if smartEquivalence(element, thatElement) =>
-            Some((true, substitutor))
+            Some(constraints)
           case that: DesignatorOwner if isSingleton && that.isSingleton =>
             equivSingletons(this, that) match {
               case None => equivSingletons(that, this)
@@ -84,7 +89,7 @@ case class ScDesignatorType(element: PsiNamedElement, isStatic: Boolean = false)
           case _ => None
         }
     }).getOrElse {
-      (false, substitutor)
+      ConstraintsResult.Failure
     }
   }
 
@@ -92,8 +97,10 @@ case class ScDesignatorType(element: PsiNamedElement, isStatic: Boolean = false)
 }
 
 object ScDesignatorType {
-  def unapply(`type`: ScType): Option[PsiNamedElement] = `type` match {
-    case designatorType: ScDesignatorType => Some(designatorType.element)
-    case _ => None
+
+  def static(element: PsiNamedElement): ScDesignatorType = {
+    val des = ScDesignatorType(element)
+    des.setStatic()
+    des
   }
 }

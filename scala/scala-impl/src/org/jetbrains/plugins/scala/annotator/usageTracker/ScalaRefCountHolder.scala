@@ -1,23 +1,25 @@
 package org.jetbrains.plugins.scala.annotator.usageTracker
 
+import java.util
 import java.util.concurrent.TimeUnit
-import java.util.concurrent.atomic.{AtomicLong, AtomicReference}
+import java.util.concurrent.atomic.AtomicReference
 
 import com.intellij.codeHighlighting.Pass
 import com.intellij.codeInsight.daemon.DaemonCodeAnalyzer
 import com.intellij.codeInsight.daemon.impl.DaemonCodeAnalyzerImpl
 import com.intellij.concurrency.JobScheduler
-import com.intellij.openapi.components.AbstractProjectComponent
+import com.intellij.openapi.components.ProjectComponent
 import com.intellij.openapi.editor.Document
 import com.intellij.openapi.project.Project
-import com.intellij.openapi.util.{Ref, TextRange}
+import com.intellij.openapi.util.{LowMemoryWatcher, Ref, TextRange}
 import com.intellij.psi._
 import com.intellij.util.containers.ContainerUtil
-import org.jetbrains.plugins.scala.annotator.usageTracker.ScalaRefCountHolder.WeakKeyTimestampedValueMap
+import com.intellij.util.containers.hash.LinkedHashMap
+import org.jetbrains.plugins.scala.annotator.usageTracker.ScalaRefCountHolder.TimestampedValueMap
 import org.jetbrains.plugins.scala.lang.psi.api.toplevel.imports.usages._
 import org.jetbrains.plugins.scala.util.ScalaLanguageDerivative
 
-import scala.collection.mutable
+import scala.collection.JavaConverters.asScalaIteratorConverter
 import scala.concurrent.duration.{Duration, DurationLong}
 
 /**
@@ -74,7 +76,7 @@ class ScalaRefCountHolder private () {
       val iterator: java.util.Iterator[ImportUsed] = myImportUsed.iterator
       while (iterator.hasNext) {
         val ref: ImportUsed = iterator.next
-        if (!ref.e.isValid) {
+        if (!ref.element.isValid) {
           iterator.remove()
         }
       }
@@ -156,16 +158,32 @@ object ScalaRefCountHolder {
     component.getOrCreate(file, new ScalaRefCountHolder)
   }
 
-  class WeakKeyTimestampedValueMap[K, V](minimumSize: Int, storageTime: Duration) {
-    private case class Timestamped(value: V, var timestamp: Long = -1, var accessId: Long = -1)
+  private case class Timestamped[V](value: V, var timestamp: Long = -1)
 
-    private[this] val accessId = new AtomicLong(0)
-    private[this] val innerMap: mutable.WeakHashMap[K, Timestamped] = mutable.WeakHashMap()
+  class TimestampedValueMap[K, V](minimumSize: Int, maximumSize: Int, storageTime: Duration) {
+
+    private[this] val innerMap: util.Map[K, Timestamped[V]] =
+      new LinkedHashMap[K, Timestamped[V]](maximumSize, true) {
+
+        override def removeEldestEntry(eldest: util.Map.Entry[K, Timestamped[V]]): Boolean = size() > maximumSize
+
+        override def doRemoveEldestEntry(): Unit = innerMap.synchronized {
+          super.doRemoveEldestEntry()
+        }
+      }
 
     def getOrCreate(k: K, v: => V): V = innerMap.synchronized {
-      val value = innerMap.getOrElseUpdate(k, Timestamped(v))
+      val value = {
+        val cached = innerMap.get(k)
+        if (cached != null) cached
+        else {
+          val newValue = Timestamped(v)
+          innerMap.put(k, newValue)
+          newValue
+        }
+      }
+
       value.timestamp = System.currentTimeMillis()
-      value.accessId = accessId.incrementAndGet()
       value.value
     }
 
@@ -174,43 +192,49 @@ object ScalaRefCountHolder {
       if (currentSize <= minimumSize) return
 
       val currentTime = System.currentTimeMillis()
-      val sorted = innerMap.toArray.sortBy(_._2.accessId)
+      val iterator = innerMap.entrySet().iterator()
 
-      val possiblyStale = sorted.take(currentSize - minimumSize)
+      val possiblyStale = iterator.asScala.take(currentSize - minimumSize)
+
       possiblyStale.foreach {
-        case (k, v) if currentTime - v.timestamp > storageTime.toMillis =>
-          innerMap.remove(k)
+        case e if currentTime - e.getValue.timestamp > storageTime.toMillis =>
+          innerMap.remove(e.getKey)
         case _ =>
       }
     }
   }
 }
 
-class ScalaRefCountHolderComponent(project: Project) extends AbstractProjectComponent(project) {
-  private val autoCleaningMap: Ref[WeakKeyTimestampedValueMap[PsiFile, ScalaRefCountHolder]] = Ref.create()
+class ScalaRefCountHolderComponent(project: Project) extends ProjectComponent {
+  private val autoCleaningMap: Ref[TimestampedValueMap[String, ScalaRefCountHolder]] = Ref.create()
 
   private val numberOfFilesToKeep = 3
+  private val maxNumberOfFiles = 20
   private val otherFilesStorageTime = 5.minutes
   private val cleanupInterval = 1.minute
 
   override def projectOpened(): Unit = {
-    autoCleaningMap.set(new WeakKeyTimestampedValueMap(numberOfFilesToKeep, otherFilesStorageTime))
+    autoCleaningMap.set(new TimestampedValueMap(numberOfFilesToKeep, maxNumberOfFiles, otherFilesStorageTime))
 
     JobScheduler.getScheduler.scheduleWithFixedDelay (
       cleanupTask(autoCleaningMap), cleanupInterval.toMillis, cleanupInterval.toMillis, TimeUnit.MILLISECONDS
     )
+
+    LowMemoryWatcher.register(cleanupTask(autoCleaningMap), project)
   }
 
   override def projectClosed(): Unit = {
     autoCleaningMap.set(null)
   }
 
-  private def cleanupTask(map: Ref[WeakKeyTimestampedValueMap[PsiFile, ScalaRefCountHolder]]): Runnable = () => {
+  private def cleanupTask(map: Ref[TimestampedValueMap[String, ScalaRefCountHolder]]): Runnable = () => {
     map.get().removeStaleEntries()
   }
 
-  def getOrCreate(file: PsiFile, holder: => ScalaRefCountHolder): ScalaRefCountHolder =
+  def getOrCreate(file: PsiFile, holder: => ScalaRefCountHolder): ScalaRefCountHolder = {
+    val key = file.getName + file.hashCode()
     Option(autoCleaningMap.get())
-      .map(_.getOrCreate(file, holder))
+      .map(_.getOrCreate(key, holder))
       .getOrElse(holder)
+  }
 }

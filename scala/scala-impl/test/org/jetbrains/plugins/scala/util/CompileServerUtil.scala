@@ -11,7 +11,7 @@ import org.junit.Assert
   */
 object CompileServerUtil {
   def stopAndWait(timeout: Duration): Unit = {
-    val exited = CompileServerLauncher.instance.stopAndWaitTermination(timeout.toMillis)
+    val exited = CompileServerLauncher.stopAndWaitTermination(timeout.toMillis)
     Assert.assertTrue(s"Compile server process have not terminated after $timeout", exited)
   }
 }

@@ -20,21 +20,18 @@ trait ParameterizedType extends ValueType {
   val designator: ScType
   val typeArguments: Seq[ScType]
 
-  def substitutor: ScSubstitutor = Option(substitutorCache.get(this)).getOrElse {
-    val result = substitutorInner
-    substitutorCache.put(this, result)
-    result
-  }
+  def substitutor: ScSubstitutor =
+    substitutorCache.computeIfAbsent(this, _ => substitutorInner)
 
   protected def substitutorInner: ScSubstitutor
 
   override def removeAbstracts = ParameterizedType(designator.removeAbstracts,
     typeArguments.map(_.removeAbstracts))
 
-  override def updateSubtypes(updates: Seq[Update], visited: Set[ScType]): ValueType = {
+  override def updateSubtypes(updates: Array[Update], index: Int, visited: Set[ScType]): ValueType = {
     ParameterizedType(
-      designator.recursiveUpdateImpl(updates, visited),
-      typeArguments.map(_.recursiveUpdateImpl(updates, visited))
+      designator.recursiveUpdateImpl(updates, index, visited),
+      typeArguments.map(_.recursiveUpdateImpl(updates, index, visited))
     )
   }
 
@@ -70,6 +67,13 @@ trait ParameterizedType extends ValueType {
 
   override def isFinalType: Boolean =
     designator.isFinalType && typeArguments.filterBy[TypeParameterType].forall(_.isInvariant)
+
+
+  //for name-based extractor
+  final def isEmpty: Boolean = false
+  final def get: ParameterizedType = this
+  final def _1: ScType = designator
+  final def _2: Seq[ScType] = typeArguments
 }
 
 object ParameterizedType {
@@ -79,6 +83,6 @@ object ParameterizedType {
   def apply(designator: ScType, typeArguments: Seq[ScType]): ValueType =
     designator.typeSystem.parameterizedType(designator, typeArguments)
 
-  def unapply(parameterized: ParameterizedType): Option[(ScType, Seq[ScType])] =
-    Some(parameterized.designator, parameterized.typeArguments)
+  //designator and type arguments
+  def unapply(p: ParameterizedType): ParameterizedType = p
 }

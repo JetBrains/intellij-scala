@@ -15,18 +15,17 @@ trait Equivalence {
   typeSystem: TypeSystem =>
 
   private type Data = (ScType, ScType, Boolean)
-  private type Result = (Boolean, ScUndefinedSubstitutor)
 
-  private val guard = RecursionManager.RecursionGuard[Data, Result](s"${typeSystem.name}.equivalence.guard")
+  private val guard = RecursionManager.RecursionGuard[Data, ConstraintsResult](s"${typeSystem.name}.equivalence.guard")
 
-  private val cache: ConcurrentMap[(ScType, ScType, Boolean), (Boolean, ScUndefinedSubstitutor)] =
-    ContainerUtil.newConcurrentMap[(ScType, ScType, Boolean), (Boolean, ScUndefinedSubstitutor)]()
+  private val cache: ConcurrentMap[(ScType, ScType, Boolean), ConstraintsResult] =
+    ContainerUtil.newConcurrentMap[(ScType, ScType, Boolean), ConstraintsResult]()
 
   private val eval = new ThreadLocal[Boolean] {
     override def initialValue(): Boolean = false
   }
 
-  final def equiv(left: ScType, right: ScType): Boolean = equivInner(left, right)._1
+  final def equiv(left: ScType, right: ScType): Boolean = equivInner(left, right).isSuccess
 
   def clearCache(): Unit = cache.clear()
 
@@ -34,18 +33,18 @@ trait Equivalence {
     * @param falseUndef use false to consider undef type equals to any type
     */
   final def equivInner(left: ScType, right: ScType,
-                       substitutor: ScUndefinedSubstitutor = ScUndefinedSubstitutor(),
-                       falseUndef: Boolean = true): (Boolean, ScUndefinedSubstitutor) = {
+                       constraints: ConstraintSystem = ConstraintSystem.empty,
+                       falseUndef: Boolean = true): ConstraintsResult = {
     ProgressManager.checkCanceled()
 
-    if (left == right) return (true, substitutor)
+    if (left == right) return constraints
 
-    if (!left.canBeSameClass(right)) return (false, substitutor)
+    if (!left.canBeSameClass(right)) return ConstraintsResult.Failure
 
     val key = (left, right, falseUndef)
 
     val nowEval = eval.get()
-    val tuple = if (nowEval) null
+    val fromCache = if (nowEval) null
     else {
       try {
         eval.set(true)
@@ -54,20 +53,20 @@ trait Equivalence {
         eval.set(false)
       }
     }
-    if (tuple != null) {
-      if (substitutor.isEmpty) return tuple
-      return tuple.copy(_2 = substitutor + tuple._2)
+    if (fromCache != null) {
+      return fromCache.combine(constraints)
     }
 
     if (guard.checkReentrancy(key)) {
-      return (false, ScUndefinedSubstitutor())
+      return ConstraintsResult.Failure
     }
 
     val stackStamp = RecursionManager.markStack()
 
-    val result = guard.doPreventingRecursion(key, equivComputable(left, right, ScUndefinedSubstitutor(), falseUndef))
+    val result = guard.doPreventingRecursion(key, equivComputable(left, right, ConstraintSystem.empty, falseUndef))
 
-    if (result == null) return (false, ScUndefinedSubstitutor())
+    if (result == null) return ConstraintsResult.Failure
+
     if (!nowEval && stackStamp.mayCacheNow()) {
       try {
         eval.set(true)
@@ -76,11 +75,10 @@ trait Equivalence {
         eval.set(false)
       }
     }
-    if (substitutor.isEmpty) return result
-    result.copy(_2 = substitutor + result._2)
+    result.combine(constraints)
   }
 
   protected def equivComputable(left: ScType, right: ScType,
-                                substitutor: ScUndefinedSubstitutor,
-                                falseUndef: Boolean): Computable[(Boolean, ScUndefinedSubstitutor)]
+                                constraints: ConstraintSystem,
+                                falseUndef: Boolean): Computable[ConstraintsResult]
 }

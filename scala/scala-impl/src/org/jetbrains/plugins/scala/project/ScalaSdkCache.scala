@@ -2,7 +2,7 @@ package org.jetbrains.plugins.scala.project
 
 import java.util.concurrent.ConcurrentHashMap
 
-import com.intellij.openapi.components.AbstractProjectComponent
+import com.intellij.openapi.components.ProjectComponent
 import com.intellij.openapi.module.Module
 import com.intellij.openapi.project.Project
 import com.intellij.openapi.roots.ModuleRootManager
@@ -12,7 +12,7 @@ import com.intellij.util.Processor
 /**
  * @author Pavel Fatin
  */
-class ScalaSdkCache(project: Project, events: ScalaProjectEvents) extends AbstractProjectComponent(project) {
+class ScalaSdkCache(project: Project, events: ScalaProjectEvents) extends ProjectComponent {
   private val cache = new ConcurrentHashMap[Module, Option[ScalaSdk]]()
 
   events.addScalaProjectListener(new ScalaProjectListener {

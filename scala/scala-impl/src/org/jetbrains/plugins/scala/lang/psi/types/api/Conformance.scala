@@ -17,12 +17,11 @@ trait Conformance {
   typeSystem: TypeSystem =>
 
   private type Data = (ScType, ScType, Boolean)
-  private type Result = (Boolean, ScUndefinedSubstitutor)
 
-  private val guard = RecursionManager.RecursionGuard[Data, Result](s"${typeSystem.name}.conformance.guard")
+  private val guard = RecursionManager.RecursionGuard[Data, ConstraintsResult](s"${typeSystem.name}.conformance.guard")
 
-  private val cache: ConcurrentMap[(ScType, ScType, Boolean), (Boolean, ScUndefinedSubstitutor)] =
-    ContainerUtil.newConcurrentMap[(ScType, ScType, Boolean), (Boolean, ScUndefinedSubstitutor)]()
+  private val cache: ConcurrentMap[(ScType, ScType, Boolean), ConstraintsResult] =
+    ContainerUtil.newConcurrentMap[(ScType, ScType, Boolean), ConstraintsResult]()
 
   /**
     * Checks, whether the following assignment is correct:
@@ -30,41 +29,38 @@ trait Conformance {
     */
   final def conformsInner(left: ScType, right: ScType,
                           visited: Set[PsiClass] = Set.empty,
-                          substitutor: ScUndefinedSubstitutor = ScUndefinedSubstitutor(),
-                          checkWeak: Boolean = false): Result = {
+                          constraints: ConstraintSystem = ConstraintSystem.empty,
+                          checkWeak: Boolean = false): ConstraintsResult = {
     ProgressManager.checkCanceled()
 
-    if (left.isAny || right.isNothing || left == right) return (true, substitutor)
+    if (left.isAny || right.isNothing || left == right) return constraints
 
-    if (!right.canBeSameOrInheritor(left)) return (false, substitutor)
+    if (!right.canBeSameOrInheritor(left)) return ConstraintsResult.Failure
 
     val key = (left, right, checkWeak)
 
-    val tuple = cache.get(key)
-    if (tuple != null) {
-      if (substitutor.isEmpty) return tuple
-      return tuple.copy(_2 = substitutor + tuple._2)
+    val fromCache = cache.get(key)
+    if (fromCache != null) {
+      return fromCache.combine(constraints)
     }
     if (guard.checkReentrancy(key)) {
-      return (false, ScUndefinedSubstitutor())
+      return ConstraintsResult.Failure
     }
 
     val stackStamp = RecursionManager.markStack()
 
     val res = guard.doPreventingRecursion(key, conformsComputable(left, right, visited, checkWeak))
-    if (res == null) return (false, ScUndefinedSubstitutor())
+    if (res == null) return ConstraintsResult.Failure
 
     if (stackStamp.mayCacheNow()) {
       cache.put(key, res)
     }
-
-    if (substitutor.isEmpty) return res
-    res.copy(_2 = substitutor + res._2)
+    res.combine(constraints)
   }
 
   def clearCache(): Unit = cache.clear()
 
   protected def conformsComputable(left: ScType, right: ScType,
                                    visited: Set[PsiClass],
-                                   checkWeak: Boolean): Computable[(Boolean, ScUndefinedSubstitutor)]
+                                   checkWeak: Boolean): Computable[ConstraintsResult]
 }

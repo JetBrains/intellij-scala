@@ -6,8 +6,8 @@ package clauses
 import com.intellij.codeInsight.completion.{CompletionParameters, CompletionProvider, CompletionResultSet}
 import com.intellij.codeInsight.lookup.{LookupElement, LookupElementBuilder, LookupElementPresentation}
 import com.intellij.psi.PsiElement
-import com.intellij.psi.util.PsiTreeUtil
 import com.intellij.util.ProcessingContext
+import org.jetbrains.plugins.scala.extensions.PsiElementExt
 import org.jetbrains.plugins.scala.lang.psi.ScalaPsiElement
 
 private[clauses] abstract class ClausesCompletionProvider[E <: ScalaPsiElement](clazz: Class[E])
@@ -17,9 +17,8 @@ private[clauses] abstract class ClausesCompletionProvider[E <: ScalaPsiElement](
                                     context: ProcessingContext,
                                     result: CompletionResultSet): Unit = {
     val position = positionFromParameters(parameters)
-    PsiTreeUtil.getContextOfType(position, clazz) match {
-      case null =>
-      case typeable => addCompletions(typeable, position, result)
+    position.parentOfType(clazz).foreach {
+      addCompletions(_, position, result)
     }
   }
 

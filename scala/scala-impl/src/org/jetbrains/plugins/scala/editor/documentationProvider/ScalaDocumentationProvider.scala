@@ -18,6 +18,7 @@ import org.jetbrains.plugins.scala.lang.psi.ScalaPsiUtil.inNameContext
 import org.jetbrains.plugins.scala.lang.psi.api.ScalaFile
 import org.jetbrains.plugins.scala.lang.psi.api.base._
 import org.jetbrains.plugins.scala.lang.psi.api.base.patterns.ScBindingPattern
+import org.jetbrains.plugins.scala.lang.psi.api.base.types.ScTypeElement
 import org.jetbrains.plugins.scala.lang.psi.api.expr.ScAnnotation
 import org.jetbrains.plugins.scala.lang.psi.api.statements._
 import org.jetbrains.plugins.scala.lang.psi.api.statements.params.{ScClassParameter, ScParameter, ScParameterClause, ScTypeParam}
@@ -145,9 +146,9 @@ class ScalaDocumentationProvider extends CodeDocumentationProvider {
         }
 
         append(element match {
-          case typed: ScTypedDefinition => parseType(typed)
-          case _ if needsTpe => ": Nothing"
-          case _ => ""
+          case typed: ScTypedDefinition => typeAnnotation(typed)
+          case _ if needsTpe            => ": Nothing"
+          case _                        => ""
         })
 
         epilogue
@@ -221,7 +222,7 @@ class ScalaDocumentationProvider extends CodeDocumentationProvider {
             b {
               append(escapeHtml(pattern.name))
             }
-            append(parseType(pattern))
+            append(typeAnnotation(pattern))
             if (pattern.getContext != null)
               pattern.getContext.getContext match {
                 case co: PsiDocCommentOwner => append(parseDocComment(co))
@@ -466,14 +467,44 @@ object ScalaDocumentationProvider {
     }
   }
 
-  def parseType(elem: ScTypedDefinition)
-               (implicit typeToString: ScType => String): String = {
+  def typeAnnotation(elem: ScTypedDefinition)
+                    (implicit typeToString: ScType => String): String = {
     val buffer: StringBuilder = new StringBuilder(": ")
     val typez = elem match {
       case fun: ScFunction => fun.returnType.getOrAny
       case _ => elem.`type`().getOrAny
     }
-    buffer.append(typeToString(typez))
+    val typeText = elem match {
+      case param: ScParameter => decoratedParameterType(param, typeToString(typez))
+      case _                  => typeToString(typez)
+    }
+    buffer.append(typeText)
+    buffer.toString()
+  }
+
+  private def decoratedParameterType(param: ScParameter, typeText: String): String = {
+    val buffer = StringBuilder.newBuilder
+
+    if (param.isCallByNameParameter) {
+      val arrow = ScalaPsiUtil.functionArrow(param.getProject)
+      buffer.append(s"$arrow ")
+    }
+
+    buffer.append(typeText)
+
+    if (param.isRepeatedParameter) buffer.append("*")
+
+    if (param.isDefaultParam) {
+      buffer.append(" = ")
+      param.getDefaultExpressionInSource match {
+        case Some(expr) =>
+          val text: String = expr.getText.replace(" /* compiled code */ ", "")
+          val cutTo = 20
+          buffer.append(text.substring(0, text.length.min(cutTo)))
+          if (text.length > cutTo) buffer.append("...")
+        case None => buffer.append("...")
+      }
+    }
     buffer.toString()
   }
 
@@ -678,22 +709,8 @@ object ScalaDocumentationProvider {
     }
     buffer.append(if (escape) escapeHtml(param.name) else param.name)
 
-    val arrow = ScalaPsiUtil.functionArrow(param.getProject)
-    buffer.append(parseType(param)(t => {
-      (if (param.isCallByNameParameter) s"$arrow " else "") + typeToString(t)
-    }))
-    if (param.isRepeatedParameter) buffer.append("*")
-    if (param.isDefaultParam) {
-      buffer.append(" = ")
-      param.getDefaultExpressionInSource match {
-        case Some(expr) =>
-          val text: String = expr.getText.replace(" /* compiled code */ ", "")
-          val cutTo = 20
-          buffer.append(text.substring(0, text.length.min(cutTo)))
-          if (text.length > cutTo) buffer.append("...")
-        case None => buffer.append("...")
-      }
-    }
+    buffer.append(typeAnnotation(param))
+
     buffer.toString()
   }
 
@@ -1123,18 +1140,41 @@ object ScalaDocumentationProvider {
   }
 
   def generateParameterInfo(parameter: ScParameter, subst: ScSubstitutor): String = {
-    val defaultText = s"${parameter.name}: ${subst.subst(parameter.`type`().getOrAny).presentableText}"
+    contextBoundParameterInfo(parameter).getOrElse {
+      simpleParameterInfo(parameter, subst)
+    }
+  }
 
-    (parameter match {
+  private def simpleParameterInfo(parameter: ScParameter, subst: ScSubstitutor): String = {
+    val name = parameter.name
+    val typeAnnot = typeAnnotation(parameter)(subst.subst(_).presentableText)
+
+    val defaultText = s"$name$typeAnnot"
+
+    val prefix = parameter match {
       case clParameter: ScClassParameter =>
-        val clazz = PsiTreeUtil.getParentOfType(clParameter, classOf[ScTypeDefinition])
+        clParameter.containingClass.toOption.map { clazz =>
+          val classWithLocation = clazz.name + " " + clazz.getPresentation.getLocationString + "\n"
+          val keyword = if (clParameter.isVal) "val " else if (clParameter.isVar) "var " else ""
 
-        if (clazz == null) defaultText else clazz.name + " " + clazz.getPresentation.getLocationString + "\n" +
-          (if (clParameter.isVal) "val " else if (clParameter.isVar) "var " else "") + clParameter.name +
-          ": " + subst.subst(clParameter.`type`().getOrAny).presentableText
-      case _ => defaultText
-    }) +
-      (if (parameter.isRepeatedParameter) "*" else "")
+          classWithLocation + keyword
+
+        }.getOrElse("")
+      case _ => ""
+    }
+    prefix + defaultText
+  }
+
+  private def contextBoundParameterInfo(parameter: ScParameter): Option[String] = {
+    ScalaPsiUtil.originalContextBound(parameter).map {
+
+      case (typeParam, boundTypeElem) =>
+        val tpName = typeParam.name
+        val boundText = boundTypeElem.getText
+
+        val clause = typeParam.typeParametersClause.map(_.getText).getOrElse("")
+        s"context bound $tpName$clause : $boundText"
+    }
   }
 
   private def getModifiersPresentableText(modifiers: ScModifierList): String = {

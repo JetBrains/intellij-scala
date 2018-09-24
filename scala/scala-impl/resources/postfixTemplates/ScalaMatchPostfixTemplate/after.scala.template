@@ -1,6 +1,6 @@
 object Example {
   def foo(o: AnyRef) {
-    match o {
+    o match {
       case <spot></spot> =>
     }
   }

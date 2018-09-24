@@ -2,13 +2,13 @@ package org.jetbrains.bsp
 
 import java.util.MissingResourceException
 
-import com.intellij.openapi.components.ApplicationComponent
+import com.intellij.ide.ApplicationInitializedListener
 import com.intellij.openapi.externalSystem.util.ExternalSystemConstants
 import com.intellij.openapi.util.registry.Registry
 
-class StartupRoutine extends ApplicationComponent {
+class StartupRoutine extends ApplicationInitializedListener {
 
-  override def initComponent(): Unit = {
+  override def componentsInitialized(): Unit = {
 
     val bspEnabled = Registry.get(bsp.RegistryKeyFeatureEnabled)
 

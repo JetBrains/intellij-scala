@@ -2,16 +2,16 @@ package org.jetbrains.plugins.scala
 package components
 
 import java.io.File
-import javax.swing.event.HyperlinkEvent
 
+import com.intellij.ide.ApplicationInitializedListener
 import com.intellij.ide.plugins._
 import com.intellij.ide.plugins.cl.PluginClassLoader
 import com.intellij.notification._
 import com.intellij.openapi.application.{Application, ApplicationManager}
-import com.intellij.openapi.components.ApplicationComponent
 import com.intellij.openapi.diagnostic.Logger
 import com.intellij.openapi.extensions.{ExtensionPointName, PluginId}
 import com.intellij.util.PathUtil
+import javax.swing.event.HyperlinkEvent
 import org.jetbrains.plugins.scala.extensions.invokeLater
 
 /**
@@ -70,17 +70,12 @@ object ScalaPluginVersionVerifier {
   }
 
   def scalaPluginId: String = getPluginDescriptor.getPluginId.getIdString
+
+  private[components] val LOG = Logger.getInstance("#org.jetbrains.plugins.scala.components.ScalaPluginVersionVerifier")
 }
 
-object ScalaPluginVersionVerifierApplicationComponent {
-  private val LOG = Logger.getInstance("#org.jetbrains.plugins.scala.components.ScalaPluginVersionVerifierApplicationComponent")
-}
-
-class ScalaPluginVersionVerifierApplicationComponent extends ApplicationComponent {
-
-  override def getComponentName: String = "ScalaPluginVersionVerifierApplicationComponent"
-
-  override def initComponent(): Unit = {
+class ScalaPluginVersionVerifierListener extends ApplicationInitializedListener {
+  override def componentsInitialized(): Unit = {
     invokeLater {
       ScalaPluginUpdater.upgradeRepo()
       checkVersion()
@@ -141,7 +136,7 @@ class ScalaPluginVersionVerifierApplicationComponent extends ApplicationComponen
 
   private def showIncompatiblePluginNotification(plugin: IdeaPluginDescriptor, message: String)(callback: String => Unit): Unit = {
     if (ApplicationManager.getApplication.isUnitTestMode) {
-      ScalaPluginVersionVerifierApplicationComponent.LOG.error(message)
+      ScalaPluginVersionVerifier.LOG.error(message)
     } else {
       val Scala_Group = "Scala Plugin Incompatibility"
       val app: Application = ApplicationManager.getApplication
@@ -175,7 +170,7 @@ class ScalaPluginVersionVerifierApplicationComponent extends ApplicationComponen
     } catch {
       case _: ClassNotFoundException => false
       case e: Exception =>
-        ScalaPluginVersionVerifierApplicationComponent.LOG.debug(e)
+        ScalaPluginVersionVerifier.LOG.debug(e)
         false
     }
     if (hasScala211) {

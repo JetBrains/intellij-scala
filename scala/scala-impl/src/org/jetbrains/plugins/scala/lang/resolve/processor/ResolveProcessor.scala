@@ -170,7 +170,7 @@ class ResolveProcessor(override val kinds: Set[ResolveTargets.Value],
 
   override protected def clear(): Unit = {
     ignoredSet.clear()
-    candidatesSet.clear()
+    candidatesSet = Set.empty
     super.clear()
 
     fromHistory = true
@@ -192,10 +192,9 @@ class ResolveProcessor(override val kinds: Set[ResolveTargets.Value],
       res += iterator.next()
     }
     if (!ResolveProcessor.compare(ignoredSet, res)) {
-      res.clear()
+      res = Set.empty
       clear()
       //now let's add everything again
-      res = candidatesSet
       val iterator = levelSet.iterator()
       while (iterator.hasNext) {
         res += iterator.next()
@@ -245,15 +244,13 @@ object ResolveProcessor {
 
   private case class AddResult(results: Seq[ScalaResolveResult]) extends HistoryEvent
 
-  private def compare(ignoredSet: mutable.HashSet[ScalaResolveResult],
-                      set: mutable.HashSet[ScalaResolveResult]): Boolean = {
+  private def compare(ignoredSet: Set[ScalaResolveResult], set: Set[ScalaResolveResult]): Boolean = {
     if (ignoredSet.nonEmpty && set.isEmpty) return false
 
-    val ignoredElements = ignoredSet.map(_.getActualElement)
-    val elements = set.map(_.getActualElement)
-
-    ignoredElements.forall { result =>
-      elements.forall(areEquivalent(result, _))
+    ignoredSet.forall { ignored =>
+      set.forall { result =>
+        areEquivalent(ignored.getActualElement, result.getActualElement)
+      }
     }
   }
 

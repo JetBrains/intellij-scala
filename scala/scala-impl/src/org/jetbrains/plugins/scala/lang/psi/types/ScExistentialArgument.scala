@@ -23,16 +23,16 @@ trait ScExistentialArgument extends NamedType with ValueType {
   override def removeAbstracts: ScExistentialArgument =
     copyWithBounds(lower.removeAbstracts, upper.removeAbstracts)
 
-  override def equivInner(r: ScType, uSubst: ScUndefinedSubstitutor, falseUndef: Boolean): (Boolean, ScUndefinedSubstitutor) = {
+  override def equivInner(r: ScType, constraints: ConstraintSystem, falseUndef: Boolean): ConstraintsResult = {
     r match {
       case arg: ScExistentialArgument =>
-        var undefinedSubst = uSubst
         val s = ScSubstitutor.bind(arg.typeParameters, typeParameters)(TypeParameterType(_))
-        val t = lower.equiv(s.subst(arg.lower), undefinedSubst, falseUndef)
-        if (!t._1) return (false, undefinedSubst)
-        undefinedSubst = t._2
-        upper.equiv(s.subst(arg.upper), undefinedSubst, falseUndef)
-      case _ => (false, uSubst)
+        val t = lower.equiv(s.subst(arg.lower), constraints, falseUndef)
+
+        if (t.isFailure) return ConstraintsResult.Failure
+
+        upper.equiv(s.subst(arg.upper), t.constraints, falseUndef)
+      case _ => ConstraintsResult.Failure
     }
   }
 
@@ -58,10 +58,10 @@ object ScExistentialArgument {
       else this //we shouldn't create `Complete` instance, because it'll break equals/hashcode
     }
 
-    override def updateSubtypes(updates: Seq[Update], visited: Set[ScType]): ScExistentialArgument =
+    override def updateSubtypes(updates: Array[Update], index: Int, visited: Set[ScType]): ScExistentialArgument =
       copyWithBounds(
-        lower.recursiveUpdateImpl(updates, visited, isLazySubtype = true),
-        upper.recursiveUpdateImpl(updates, visited, isLazySubtype = true),
+        lower.recursiveUpdateImpl(updates, index, visited, isLazySubtype = true),
+        upper.recursiveUpdateImpl(updates, index, visited, isLazySubtype = true),
       )
 
     override def updateSubtypesVariance(update: (ScType, Variance) => AfterUpdate,
@@ -81,10 +81,10 @@ object ScExistentialArgument {
 
     extends ScExistentialArgument {
 
-    override def updateSubtypes(updates: Seq[Update], visited: Set[ScType]): ScExistentialArgument =
+    override def updateSubtypes(updates: Array[Update], index: Int, visited: Set[ScType]): ScExistentialArgument =
       copyWithBounds(
-        lower.recursiveUpdateImpl(updates, visited),
-        upper.recursiveUpdateImpl(updates, visited)
+        lower.recursiveUpdateImpl(updates, index, visited),
+        upper.recursiveUpdateImpl(updates, index, visited)
       )
 
     override def updateSubtypesVariance(update: (ScType, Variance) => AfterUpdate,

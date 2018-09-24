@@ -13,22 +13,6 @@ class ParameterizedTypeTest extends ScalaLightCodeInsightFixtureTestAdapter {
 
   override protected def shouldPass: Boolean = false
 
-  def testSCL7891() = {
-    val text =
-      """
-        |trait TestTrait[A, B] { def foo(a: A): B }
-        |class TestClass[A, B] extends TestTrait[A, B] { override def foo(a: A): B = ??? }
-        |class Test {
-        |  type Trait[B] = TestTrait[Test, B]
-        |  type Cls[B] = TestClass[Test, B]
-        |  object tc extends Cls[Any] { //Shows error "Wrong number of type parameters. Expected: 2, actual: 1"
-        |      override def foo(a: Test): Any = ???
-        |    }
-        |  }
-      """.stripMargin
-    checkTextHasNoErrors(text)
-  }
-
   def testSCL9014() = {
     val text =
       """
@@ -63,39 +47,6 @@ class ParameterizedTypeTest extends ScalaLightCodeInsightFixtureTestAdapter {
         |}
       """.stripMargin
     checkTextHasNoErrors(text)
-  }
-
-  def testSCL10156() = {
-    checkTextHasNoErrors(
-      """  import scala.language.higherKinds
-        |  import scala.language.reflectiveCalls
-        |
-        |  object Test {
-        |
-        |    trait Functor[F[_]] {
-        |      def map[A, B](fa: F[A])(f: A => B): F[B]
-        |    }
-        |
-        |    trait Applicative[F[_]] extends Functor[F] {
-        |      self =>
-        |      def apply[A, B](fab: F[A => B])(fa: F[A]): F[B] =
-        |        map2(fab, fa)((ab, a) => ab(a))
-        |
-        |      def unit[A](a: => A): F[A]
-        |
-        |      def map[A, B](fa: F[A])(f: A => B): F[B] =
-        |        apply[A, B](unit(f))(fa)
-        |
-        |      def map2[A, B, C](fa: F[A], fb: F[B])(f: (A, B) => C): F[C] =
-        |        apply(apply[A, B => C](unit((a: A) => (b: B) => f(a, b)))(fa))(fb)
-        |
-        |      def compose[G[_]](G: Applicative[G]) =
-        |        new Applicative[({type f[x] = F[G[x]]})#f] {
-        |          override def unit[A](a: => A): F[G[A]] = self.unit(G.unit(a))
-        |        }
-        |    }
-        |  }""".stripMargin
-    )
   }
 
   def testSCL8031(): Unit = {
@@ -141,47 +92,6 @@ class ParameterizedTypeTest extends ScalaLightCodeInsightFixtureTestAdapter {
          |  sealed trait Concat[B <: HList] { def :::[A <: HList](a: A): A ::: B }
          |}
       """.stripMargin.trim
-    )
-  }
-
-  //this test is intermittent!
-  def testSCL10399(): Unit = {
-    val fileText =
-      s"""
-         |trait AA[T]
-         |trait QQ[T] extends AA[T]
-         |
-         |class Z extends QQ[AnyRef]
-         |
-         |object Example {
-         |  def asFA[F[_], A](fa: F[A]): F[A] = fa
-         |
-         |  val z: QQ[AnyRef] = asFA(new Z) // sometimes type of the rhs is AA[T] instead of QQ[T]
-         |}
-     """.stripMargin
-    checkTextHasNoErrors(fileText)
-  }
-
-  def testSCL11597() = {
-    checkTextHasNoErrors(
-      """trait Node
-        |
-        |  class A(val a: Int, val b: Int) extends Node
-        |
-        |  class DefExtractorSimple[T <: Node, X](func: T => X) {
-        |    def unapply(arg: T): Option[X] = Some(func(arg))
-        |  }
-        |
-        |  def extractSimple[T <: Node, X](func: T => X): DefExtractorSimple[T, X] = new DefExtractorSimple[T, X](func)
-        |
-        |  val extractA = extractSimple((arg: A) => (arg.a, arg.b))
-        |
-        |  object ExtractAA {
-        |    def unapply(arg: Node): Option[Int] = arg match {
-        |      case extractA(a, _) => Some(a)
-        |      case _ => None
-        |    }
-        |  }""".stripMargin
     )
   }
 

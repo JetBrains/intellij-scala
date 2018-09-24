@@ -5,21 +5,22 @@ import java.io.File
 import java.net.URI
 import java.util
 
-import com.intellij.codeInsight.CodeInsightUtilCore
+import com.intellij.codeInsight.CodeInsightUtilCore.findElementInRange
+import com.intellij.debugger.SourcePosition
 import com.intellij.debugger.engine._
 import com.intellij.debugger.engine.evaluation._
 import com.intellij.debugger.engine.evaluation.expression.{Evaluator, ExpressionEvaluator, Modifier}
 import com.intellij.debugger.jdi.VirtualMachineProxyImpl
-import com.intellij.debugger.{DebuggerInvocationUtil, EvaluatingComputable, SourcePosition}
-import com.intellij.openapi.module.ModuleUtilCore
-import com.intellij.openapi.project.Project
+import com.intellij.openapi.module.Module
+import com.intellij.openapi.module.ModuleUtilCore.findModuleForPsiElement
 import com.intellij.openapi.util.io.FileUtil
 import com.intellij.openapi.util.{Key, TextRange}
 import com.intellij.psi.{PsiElement, PsiFile, PsiFileFactory}
 import com.sun.jdi._
 import org.jetbrains.plugins.scala.debugger.evaluation._
+import org.jetbrains.plugins.scala.debugger.evaluation.evaluator.GeneratedClass.generatedMethodName
 import org.jetbrains.plugins.scala.extensions._
-import org.jetbrains.plugins.scala.lang.psi.api.expr.{ScBlock, ScBlockStatement}
+import org.jetbrains.plugins.scala.lang.psi.api.expr.{ScBlock, ScBlockStatement, ScNewTemplateDefinition}
 import org.jetbrains.plugins.scala.lang.psi.api.statements.ScFunctionDefinition
 import org.jetbrains.plugins.scala.lang.psi.api.toplevel.templates.ScTemplateBody
 import org.jetbrains.plugins.scala.lang.psi.api.toplevel.typedef.ScClass
@@ -86,8 +87,8 @@ class ScalaCompilingEvaluator(psiContext: PsiElement, fragment: ScalaCodeFragmen
   private def callEvaluator(evaluationContext: EvaluationContext): ExpressionEvaluator =
     inReadAction {
       val callCode = new TextWithImportsImpl(CodeFragmentKind.CODE_BLOCK, generatedClass.callText)
-      val codeFragment = new ScalaCodeFragmentFactory().createCodeFragment(callCode, generatedClass.getAnchor, project)
-      ScalaEvaluatorBuilder.build(codeFragment, SourcePosition.createFromElement(generatedClass.getAnchor))
+      val codeFragment = new ScalaCodeFragmentFactory().createCodeFragment(callCode, generatedClass.newContext, project)
+      ScalaEvaluatorBuilder.build(codeFragment, SourcePosition.createFromElement(generatedClass.newContext))
     }
 
   private def defineClasses(classes: Seq[OutputFileObject], context: EvaluationContext,
@@ -130,8 +131,8 @@ class ScalaCompilingEvaluator(psiContext: PsiElement, fragment: ScalaCodeFragmen
 
 object ScalaCompilingEvaluator {
 
-  val classNameKey = Key.create[String]("generated.class.name")
-  val originalFileKey = Key.create[PsiFile]("compiling.evaluator.original.file")
+  val classNameKey: Key[String] = Key.create[String]("generated.class.name")
+  val originalFileKey: Key[PsiFile] = Key.create[PsiFile]("compiling.evaluator.original.file")
 
   private def keep(reference: ObjectReference, context: EvaluationContext) {
     context.getSuspendContext.asInstanceOf[SuspendContextImpl].keep(reference)
@@ -175,64 +176,72 @@ class OutputFileObject(file: File, val origName: String) {
   def toByteArray: Array[Byte] = FileUtil.loadFileBytes(file)
 }
 
-private class GeneratedClass(fragment: ScalaCodeFragment, context: PsiElement, id: Int) {
+private case class GeneratedClass(syntheticFile: PsiFile, newContext: PsiElement, generatedClassName: String) {
 
-  private val project: Project = context.getProject
-  implicit val ctx: ProjectContext = project
-
-  val generatedClassName = "GeneratedEvaluatorClass$" + id
-  val generatedMethodName = "invoke"
-  val callText = s"new $generatedClassName().$generatedMethodName()"
-  var compiledClasses: Seq[OutputFileObject] = null
-
-  private var anchorRange: TextRange = null
-  
-  private var anchor: PsiElement = null
-  def getAnchor: PsiElement = anchor
-
-  init()
-
-  private def init(): Unit = {
-    val file = context.getContainingFile
-
-    //create and modify non-physical copy first to avoid write action
-    val textWithLocalClass = createFileTextWithLocalClass(context)
-    //create physical file to work with source positions
-    val copy = PsiFileFactory.getInstance(project).createFileFromText(file.getName, file.getFileType, textWithLocalClass, file.getModificationStamp, true)
-    copy.putUserData(ScalaCompilingEvaluator.classNameKey, generatedClassName)
-    copy.putUserData(ScalaCompilingEvaluator.originalFileKey, file)
-    anchor = CodeInsightUtilCore.findElementInRange(copy, anchorRange.getStartOffset, anchorRange.getEndOffset, classOf[ScBlockStatement], file.getLanguage)
-    compileGeneratedClass(copy.getText)
+  private val module: Module = inReadAction {
+    val originalFile = syntheticFile.getUserData(ScalaCompilingEvaluator.originalFileKey)
+    Option(originalFile).map(findModuleForPsiElement).orNull
   }
-  
-  private def compileGeneratedClass(fileText: String): Unit = {
-    val module = inReadAction(ModuleUtilCore.findModuleForPsiElement(context))
 
-    if (module == null) throw EvaluationException("Could not evaluate due to a change in a source file")
+  val callText = s"new $generatedClassName().$generatedMethodName()"
+
+  def compiledClasses: Seq[OutputFileObject] = compileGeneratedClass(syntheticFile.getText)
+
+  private def compileGeneratedClass(fileText: String): Seq[OutputFileObject] = {
+    if (module == null) throw EvaluationException("Module for compilation is not found")
 
     val helper = EvaluatorCompileHelper.EP_NAME.getExtensions.headOption.getOrElse {
-      ScalaEvaluatorCompileHelper.instance(project)
+      ScalaEvaluatorCompileHelper.instance(module.getProject)
     }
     val compiled = helper.compile(fileText, module)
-    compiledClasses = compiled.collect {
+    compiled.collect {
       case (f, name) if name.contains(generatedClassName) => new OutputFileObject(f, name)
     }
   }
+}
 
-  private def createFileTextWithLocalClass(context: PsiElement): String = {
+private object GeneratedClass {
+  var counter = 0
+  val generatedMethodName: String = "invoke"
+
+  def apply(fragment: ScalaCodeFragment, context: PsiElement): GeneratedClass = {
+    counter += 1
+
+    val generatedClassName = "GeneratedEvaluatorClass$" + counter
     val file = context.getContainingFile
-    val copy = PsiFileFactory.getInstance(project).createFileFromText(file.getName, file.getFileType, file.getText, file.getModificationStamp, false)
+
+    //create and modify non-physical copy first to avoid write action
+    val nonPhysicalCopy = copy(file, physical = false)
     val range = context.getTextRange
-    val copyContext: PsiElement = CodeInsightUtilCore.findElementInRange(copy, range.getStartOffset, range.getEndOffset, context.getClass, file.getLanguage)
+    val contextCopy = findElement(nonPhysicalCopy, range, context.getClass)
 
-    if (copyContext == null) throw EvaluationException("Could not evaluate due to a change in a source file")
+    if (contextCopy == null) throw EvaluationException("Could not evaluate due to a change in a source file")
 
-    val clazz = localClass(fragment, copyContext)
-    addLocalClass(copyContext, clazz)
-    copy.getText
+    val (scClass, constructor) = addLocalClassAndConstructor(contextCopy, fragment, generatedClassName)
+    val newContextRange = constructor.getTextRange
+
+    //create physical file to work with source positions
+    val physicalCopy = copy(nonPhysicalCopy, physical = true)
+    val newContext = findElement(physicalCopy, newContextRange, classOf[ScNewTemplateDefinition])
+
+    physicalCopy.putUserData(ScalaCompilingEvaluator.classNameKey, generatedClassName)
+    physicalCopy.putUserData(ScalaCompilingEvaluator.originalFileKey, file)
+
+    GeneratedClass(physicalCopy, newContext, generatedClassName)
   }
 
-  private def addLocalClass(context: PsiElement, scClass: ScClass): Unit = {
+  private def copy(file: PsiFile, physical: Boolean): PsiFile = {
+    val fileFactory = PsiFileFactory.getInstance(file.getProject)
+
+    fileFactory.createFileFromText(file.getName, file.getFileType, file.getText, file.getModificationStamp, physical)
+  }
+
+  private def findElement[T <: PsiElement](file: PsiFile, range: TextRange, elementClass: Class[T]): T =
+    findElementInRange(file, range.getStartOffset, range.getEndOffset, elementClass, file.getLanguage)
+
+  private def addLocalClassAndConstructor(context: PsiElement,
+                                          fragment: ScalaCodeFragment,
+                                          generatedClassName: String): (ScClass, ScNewTemplateDefinition) = {
     @tailrec
     def findAnchorAndParent(elem: PsiElement): (ScBlockStatement, PsiElement) = elem match {
       case (stmt: ScBlockStatement) childOf (b: ScBlock) => (stmt, b)
@@ -264,36 +273,35 @@ private class GeneratedClass(fragment: ScalaCodeFragment, context: PsiElement, i
       }
       else prevParent
 
-    val newInstance = createExpressionWithContextFromText(s"new $generatedClassName()", anchor.getContext, anchor)
+    val constructorInvocation =
+      createExpressionWithContextFromText(s"new $generatedClassName()", anchor.getContext, anchor)
 
-    parent.addBefore(scClass, anchor)
+    implicit val ctx: ProjectContext = context.getProject
+
+    val classText = localClassText(fragment, generatedClassName)
+    val classToInsert = createTemplateDefinitionFromText(classText, context.getContext, context).asInstanceOf[ScClass]
+
+    val insertedClass = parent.addBefore(classToInsert, anchor)
     parent.addBefore(createNewLine(), anchor)
-    parent.addBefore(newInstance, anchor)
+
+    //add constructor to synthetic file to avoid compiler optimizations
+    val insertedConstructor = parent.addBefore(constructorInvocation, anchor)
     parent.addBefore(createNewLine(), anchor)
-    anchorRange = anchor.getTextRange
+
+    (insertedClass.asInstanceOf[ScClass], insertedConstructor.asInstanceOf[ScNewTemplateDefinition])
   }
 
-  private def localClass(fragment: ScalaCodeFragment, context: PsiElement) = {
+  private def localClassText(fragment: ScalaCodeFragment, generatedClassName: String): String = {
     val fragmentImports = fragment.importsToString().split(",").filter(!_.isEmpty).map("import _root_." + _)
     val importsText = fragmentImports.mkString("\n")
+
     //todo type parameters?
-    val text =
-     s"""|class $generatedClassName {
-         |  def $generatedMethodName() = {
-         |    $importsText
-         |    
-         |    ${fragment.getText}
-         |  }
-         |}""".stripMargin
-    createTemplateDefinitionFromText(text, context.getContext, context).asInstanceOf[ScClass]
-  }
-}
-
-private object GeneratedClass {
-  var counter = 0
-
-  def apply(fragment: ScalaCodeFragment, context: PsiElement): GeneratedClass = {
-    counter += 1
-    new GeneratedClass(fragment, context, counter)
+    s"""|class $generatedClassName {
+        |  def $generatedMethodName() = {
+        |    $importsText
+        |
+        |    ${fragment.getText}
+        |  }
+        |}""".stripMargin
   }
 }

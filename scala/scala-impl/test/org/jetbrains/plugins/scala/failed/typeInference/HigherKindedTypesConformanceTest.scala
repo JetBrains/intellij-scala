@@ -97,15 +97,6 @@ class HigherKindedTypesConformanceTest extends TypeConformanceTestBase {
       |}
       |//true""".stripMargin
   }
-
-  def testSCL10354(): Unit = doTest {
-    s"""object X {
-        |  val a = ""
-        |  ${caretMarker}val b: Option[a.type] = Some(a)
-        |}
-        |//true""".stripMargin
-  }
-
   def testSCL13103(): Unit = doTest {
     s"""
        |import scala.language.higherKinds
@@ -148,14 +139,4 @@ class HigherKindedTypesConformanceTest extends TypeConformanceTestBase {
        |//true""".stripMargin
   }
 
-  def testSCL13114(): Unit = doTest {
-    s"""object X {
-       |  val v : List[Int] = Nil
-       |}
-       |
-       |object Z {
-       |  ${caretMarker}val x : { val v : List[T] } forSome { type T } = X
-       |}
-       |//true""".stripMargin
-  }
 }

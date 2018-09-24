@@ -4,14 +4,11 @@ package completion
 
 import com.intellij.codeInsight.completion.{CompletionParameters, CompletionUtil, JavaCompletionUtil, PrefixMatcher}
 import com.intellij.openapi.application.ApplicationManager
-import com.intellij.openapi.project.Project
 import com.intellij.openapi.util.{Computable, Key}
 import com.intellij.psi._
 import com.intellij.psi.util.PsiTreeUtil
-import org.jetbrains.plugins.scala.extensions._
 import org.jetbrains.plugins.scala.lang.lexer._
 import org.jetbrains.plugins.scala.lang.parser._
-import org.jetbrains.plugins.scala.lang.psi.ScalaPsiUtil
 import org.jetbrains.plugins.scala.lang.psi.api.ScalaFile
 import org.jetbrains.plugins.scala.lang.psi.api.base.ScReferenceElement
 import org.jetbrains.plugins.scala.lang.psi.api.base.patterns.ScCaseClause
@@ -20,9 +17,7 @@ import org.jetbrains.plugins.scala.lang.psi.api.expr._
 import org.jetbrains.plugins.scala.lang.psi.api.toplevel.ScPackaging
 import org.jetbrains.plugins.scala.lang.psi.api.toplevel.templates._
 import org.jetbrains.plugins.scala.lang.psi.api.toplevel.typedef.ScTypeDefinition
-import org.jetbrains.plugins.scala.lang.psi.types.ScType
 import org.jetbrains.plugins.scala.lang.refactoring.ScalaNamesValidator.{isIdentifier, isKeyword}
-import org.jetbrains.plugins.scala.lang.refactoring.namesSuggester.NameSuggester
 
 /**
 * User: Alexander Podkhalyuzin
@@ -58,30 +53,6 @@ object ScalaCompletionUtil {
 
     val prefix = prefixMatcher.getPrefix
     prefix.nonEmpty && prefix.charAt(0).isUpper
-  }
-
-  def anonymousFunctionText(types: Seq[ScType], braceArgs: Boolean)
-                           (typeText: ScType => String = _.presentableText)
-                           (implicit project: Project): String = {
-    val buffer = StringBuilder.newBuilder
-
-    if (braceArgs) buffer.append(ScalaKeyword.CASE).append(" ")
-
-    val suggester = new NameSuggester.UniqueNameSuggester("x")
-    val names = types.map(suggester)
-
-    val parametersText = names.zip(types).map {
-      case (name, scType) => name + ": " + typeText(scType)
-    }.commaSeparated(model = if (names.size != 1 || !braceArgs) Model.Parentheses else Model.None)
-
-    buffer.append(parametersText)
-
-    if (project != null) {
-      buffer.append(" ")
-        .append(ScalaPsiUtil.functionArrow)
-    }
-
-    buffer.toString()
   }
 
   def getLeafByOffset(offset: Int, element: PsiElement): PsiElement = {

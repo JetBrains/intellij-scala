@@ -1123,4 +1123,50 @@ class ScalaOverrideImplementTest extends ScalaLightPlatformCodeInsightTestCaseAd
     val isImplement = false
     runTest(methodName, fileText, expectedText, isImplement)
   }
+
+  def testInfixTypeAlias(): Unit = {
+    val fileText =
+      """
+        |import tag._
+        |
+        |object tag {
+        |  trait Tagged[U]
+        |  type @@[+T, U] = T with Tagged[U]
+        |}
+        |
+        |
+        |trait UserRepo {
+        |  sealed trait UserId // used for tagging
+        |
+        |  def deleteUser(userId: Int @@ UserId)
+        |}
+        |
+        |class UserRepoImpl extends UserRepo {
+        |  <caret>
+        |}
+      """
+    val expectedText =
+      """
+        |import tag._
+        |
+        |object tag {
+        |  trait Tagged[U]
+        |  type @@[+T, U] = T with Tagged[U]
+        |}
+        |
+        |
+        |trait UserRepo {
+        |  sealed trait UserId // used for tagging
+        |
+        |  def deleteUser(userId: Int @@ UserId)
+        |}
+        |
+        |class UserRepoImpl extends UserRepo {
+        |  def deleteUser(userId: Int @@ UserId): Unit = ???
+        |}
+      """
+    val methodName = "deleteUser"
+    val isImplement = true
+    runTest(methodName, fileText, expectedText, isImplement)
+  }
 }

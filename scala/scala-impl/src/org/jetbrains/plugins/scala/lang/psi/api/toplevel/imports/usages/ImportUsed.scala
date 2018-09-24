@@ -8,9 +8,9 @@ package usages
 
 
 import com.intellij.openapi.util.Key
-import com.intellij.psi.PsiElement
 import com.intellij.psi.util.PsiTreeUtil
-import org.jetbrains.plugins.scala.extensions.ifReadAllowed
+import com.intellij.psi.{PsiElement, SmartPointerManager, SmartPsiElementPointer}
+import org.jetbrains.plugins.scala.extensions.{ObjectExt, ifReadAllowed}
 import org.jetbrains.plugins.scala.lang.formatting.settings.ScalaCodeStyleSettings
 import org.jetbrains.plugins.scala.lang.psi.api.toplevel.typedef.ScObject
 
@@ -19,52 +19,70 @@ import org.jetbrains.plugins.scala.lang.psi.api.toplevel.typedef.ScObject
  *
  * @author ilyas
  */
-abstract sealed class ImportUsed(val e: PsiElement) {
-  def importExpr: ScImportExpr
+abstract sealed class ImportUsed(_e: PsiElement) {
+  private val pointer: SmartPsiElementPointer[PsiElement] = SmartPointerManager.createPointer(_e)
 
-  override def toString: String = ifReadAllowed(e.getText)("")
+  def element: PsiElement = pointer.getElement
+
+  def importExpr: Option[ScImportExpr]
+
+  override def toString: String = ifReadAllowed(element.getText)("")
 
   def qualName: Option[String]
 
   def isAlwaysUsed: Boolean = {
-    val settings = ScalaCodeStyleSettings.getInstance(e.getProject)
+    val settings = ScalaCodeStyleSettings.getInstance(pointer.getProject)
     qualName.exists(settings.isAlwaysUsedImport) || isLanguageFeatureImport
   }
 
   private def isLanguageFeatureImport: Boolean = {
-    val expr = importExpr
-
-    if (expr == null) return false
-    if (expr.qualifier == null) return false
-    expr.qualifier.resolve() match {
-      case o: ScObject =>
-        o.qualifiedName.startsWith("scala.language")
+    importExpr.exists {
+      case expr if expr.qualifier != null =>
+        expr.qualifier.resolve() match {
+          case o: ScObject =>
+            o.qualifiedName.startsWith("scala.language")
+          case _ => false
+        }
       case _ => false
     }
   }
 
+  override def hashCode(): Int = pointer.hashCode()
+
+  override def equals(obj: Any): Boolean = obj match {
+    case iu: ImportUsed => iu.pointer == pointer
+    case _ => false
+  }
 }
 
 object ImportUsed {
   val key: Key[_root_.scala.collection.Set[ImportUsed]] = Key.create("scala.used.imports.key")
 
-  def unapply(importUsed: ImportUsed): Option[PsiElement] = {
-    Some(importUsed.e)
-  }
+  def unapply(importUsed: ImportUsed): Option[PsiElement] = Option(importUsed.element)
 }
 
 
 /**
  * Class to mark whole import expression as used (qualified or ending with reference id)
  */
-case class ImportExprUsed(importExpr: ScImportExpr) extends ImportUsed(importExpr) {
+class ImportExprUsed(e: ScImportExpr) extends ImportUsed(e) {
+  override def importExpr: Option[ScImportExpr] = element.asOptionOf[ScImportExpr]
+
   override def qualName: Option[String] = {
-    if (importExpr.qualifier == null) None
-    else if (importExpr.isSingleWildcard) Some(importExpr.qualifier.qualName + "._")
-    else importExpr.reference.map(ref => importExpr.qualifier.qualName + "." + ref.refName)
+    val expr = importExpr.getOrElse(return None)
+
+    if (expr.qualifier == null) None
+    else if (expr.isSingleWildcard) Some(expr.qualifier.qualName + "._")
+    else expr.reference.map(ref => expr.qualifier.qualName + "." + ref.refName)
   }
 
   override def toString: String = "ImportExprUsed(" + super.toString + ")"
+}
+
+object ImportExprUsed {
+  def apply(importExpr: ScImportExpr): ImportExprUsed = new ImportExprUsed(importExpr)
+
+  def unapply(arg: ImportExprUsed): Option[ScImportExpr] = arg.importExpr
 }
 
 /**
@@ -78,7 +96,7 @@ case class ImportExprUsed(importExpr: ScImportExpr) extends ImportUsed(importExp
  * resulting code may be incorrect <p>
  *
  * Example<p>
- * <code lnaguage="java">
+ * <code language="java">
  * package aaa.bbb {
  *   class C;
  *   class E;
@@ -95,12 +113,13 @@ case class ImportExprUsed(importExpr: ScImportExpr) extends ImportUsed(importExp
  * reference to E may clash with some other in that place.
  *
  */
-case class ImportSelectorUsed(sel: ScImportSelector) extends ImportUsed(sel) {
+class ImportSelectorUsed(sel: ScImportSelector) extends ImportUsed(sel) {
 
-  override def importExpr: ScImportExpr = PsiTreeUtil.getParentOfType(sel, classOf[ScImportExpr])
+  override def importExpr: Option[ScImportExpr] =
+    Option(element).map(PsiTreeUtil.getParentOfType(_, classOf[ScImportExpr]))
 
   override def qualName: Option[String] = {
-    importExpr.reference.zip(sel.reference).map {
+    importExpr.flatMap(_.reference).zip(sel.reference).map {
       case (left, right) => s"${left.qualName}.${right.refName}"
     }.headOption
   }
@@ -111,16 +130,32 @@ case class ImportSelectorUsed(sel: ScImportSelector) extends ImportUsed(sel) {
   override def isAlwaysUsed: Boolean = sel.importedName.contains("_") || super.isAlwaysUsed
 }
 
+object ImportSelectorUsed {
+  def apply(sel: ScImportSelector): ImportSelectorUsed = new ImportSelectorUsed(sel)
+
+  def unapply(arg: ImportSelectorUsed): Option[ScImportSelector] = arg.element.asOptionOf[ScImportSelector]
+}
+
 /**
  * Marks import expression with trailing wildcard selector as used
  * Example:
  *
  * import aaa.bbb.{A => B, C => _ , _}
  */
-case class ImportWildcardSelectorUsed(importExpr: ScImportExpr) extends ImportUsed(importExpr) {
+class ImportWildcardSelectorUsed(e: ScImportExpr) extends ImportUsed(e) {
+
+  override def importExpr: Option[ScImportExpr] = element.asOptionOf[ScImportExpr]
+
   override def qualName: Option[String] = {
-    importExpr.reference.map(ref => ref.qualName + "._")
+    importExpr.flatMap(_.reference).map(ref => ref.qualName + "._")
   }
 
   override def toString: String = "ImportWildcardSelectorUsed(" + super.toString + ")"
+
+}
+
+object ImportWildcardSelectorUsed {
+  def apply(importExpr: ScImportExpr): ImportWildcardSelectorUsed = new ImportWildcardSelectorUsed(importExpr)
+
+  def unapply(arg: ImportWildcardSelectorUsed): Option[ScImportExpr] = arg.importExpr
 }

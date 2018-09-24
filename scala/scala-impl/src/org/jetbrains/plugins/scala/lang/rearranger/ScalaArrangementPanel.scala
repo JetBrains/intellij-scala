@@ -15,5 +15,4 @@ class ScalaArrangementPanel(settings: CodeStyleSettings) extends ArrangementSett
     override protected def getFileType: ScalaFileType = ScalaFileType.INSTANCE
 
     override protected def getPreviewText: String = null
-
 }

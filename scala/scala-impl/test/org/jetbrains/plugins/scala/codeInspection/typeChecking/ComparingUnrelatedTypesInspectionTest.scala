@@ -540,3 +540,25 @@ class Test32 extends ComparingUnrelatedTypesInspectionTest {
       """.stripMargin
   )
 }
+
+class TestUnderscore extends ComparingUnrelatedTypesInspectionTest {
+
+  override protected val description: String =
+    InspectionBundle.message("comparing.unrelated.types.hint", "Int", "Some[Int]")
+
+  def testLeftIsUnderscore(): Unit = checkTextHasError(
+    s"""
+       |object Test {
+       |  Seq(1, 2).find(${START}_ == Some(1)$END)
+       |}
+      """.stripMargin
+  )
+
+  def testLeftContainsUnderscoreNoErrors(): Unit = checkTextHasNoErrors(
+    s"""
+       |object Test {
+       |  List("").filter(_.getClass.equals(classOf[String]))
+       |}
+      """.stripMargin
+  )
+}

@@ -17,10 +17,11 @@ import org.jetbrains.plugins.scala.lang.psi.impl.ScalaPsiElementFactory.{createE
 import org.jetbrains.plugins.scala.lang.psi.implicits.ImplicitCollector.ImplicitState
 import org.jetbrains.plugins.scala.lang.psi.implicits.{ImplicitCollector, ImplicitsRecursionGuard}
 import org.jetbrains.plugins.scala.lang.psi.types.Compatibility.{ConformanceExtResult, Expression}
+import org.jetbrains.plugins.scala.lang.psi.types.ConstraintSystem.SubstitutionBounds
 import org.jetbrains.plugins.scala.lang.psi.types._
 import org.jetbrains.plugins.scala.lang.psi.types.api._
 import org.jetbrains.plugins.scala.lang.psi.types.api.designator.{ScDesignatorType, ScProjectionType, ScThisType}
-import org.jetbrains.plugins.scala.lang.psi.types.nonvalue.{NonValueType, Parameter, ScMethodType, ScTypePolymorphicType}
+import org.jetbrains.plugins.scala.lang.psi.types.nonvalue.{Parameter, ScMethodType, ScTypePolymorphicType}
 import org.jetbrains.plugins.scala.lang.psi.types.recursiveUpdate.ScSubstitutor
 import org.jetbrains.plugins.scala.lang.psi.types.result.Typeable
 import org.jetbrains.plugins.scala.lang.resolve.ScalaResolveResult
@@ -458,19 +459,20 @@ object InferUtil {
     val abstractSubst = ScTypePolymorphicType(retType, typeParams).abstractTypeSubstitutor
     val paramsWithUndefTypes = params.map(p => p.copy(paramType = s.subst(p.paramType),
       expectedType = abstractSubst.subst(p.paramType), defaultType = p.defaultType.map(s.subst)))
-    val conformanceResult@ConformanceExtResult(problems, undefSubst, _, matched) =
+    val conformanceResult@ConformanceExtResult(problems, constraints, _, matched) =
       Compatibility.checkConformanceExt(checkNames = true, paramsWithUndefTypes, exprs, checkWithImplicits = true,
       isShapesResolve = false)
 
     val tpe = if (problems.isEmpty) {
-      undefSubst.getSubstitutorWithBounds(canThrowSCE) match {
-        case Some((unSubst, lMap, uMap)) =>
+      constraints.substitutionBounds(canThrowSCE) match {
+        case Some(bounds@SubstitutionBounds(_, lowerMap, upperMap)) =>
+          val unSubst = bounds.substitutor
           if (!filterTypeParams) {
 
             def combineBounds(tp: TypeParameter, isLower: Boolean): ScType = {
               val bound = if (isLower) tp.lowerType else tp.upperType
               val substedBound = unSubst.subst(bound)
-              val boundsMap = if (isLower) lMap else uMap
+              val boundsMap = if (isLower) lowerMap else upperMap
               val combine: (ScType, ScType) => ScType = if (isLower) _ lub _ else _ glb _
 
               boundsMap.get(tp.typeParamId) match {
@@ -500,22 +502,24 @@ object InferUtil {
             })
           } else {
 
-            def addConstraints(un: ScUndefinedSubstitutor, tp: TypeParameter): ScUndefinedSubstitutor = {
+            def addConstraints(un: ConstraintSystem, tp: TypeParameter): ConstraintSystem = {
               val typeParamId = tp.typeParamId
               val substedLower = unSubst.subst(tp.lowerType)
               val substedUpper = unSubst.subst(tp.upperType)
 
               var result = un
 
-              if (un.typeParamIds.contains(typeParamId) || substedLower != Nothing) {
+              if (un.isApplicable(typeParamId) || substedLower != Nothing) {
                 //todo: add only one of them according to variance
 
                 //add constraints for tp from its' bounds
                 if (!substedLower.isNothing && !hasRecursiveTypeParams(substedLower)) {
-                  result = result.addLower(typeParamId, substedLower, additional = true)
+                  result = result.withLower(typeParamId, substedLower)
+                    .withTypeParamId(typeParamId)
                 }
                 if (!substedUpper.isAny && !hasRecursiveTypeParams(substedUpper)) {
-                  result = result.addUpper(typeParamId, substedUpper, additional = true)
+                  result = result.withUpper(typeParamId, substedUpper)
+                    .withTypeParamId(typeParamId)
                 }
 
                 val lowerTpId = substedLower.asOptionOf[TypeParameterType].map(_.typeParamId).filter(typeParamIds.contains)
@@ -526,10 +530,12 @@ object InferUtil {
                 //add constraints for tp bounds from tp substitution
                 if (!hasRecursiveTypeParams(substedTp)) {
                   upperTpId.foreach { id =>
-                    result = result.addLower(id, substedTp, additional = true)
+                    result = result.withLower(id, substedTp)
+                      .withTypeParamId(id)
                   }
                   lowerTpId.foreach { id =>
-                    result = result.addUpper(id, substedTp, additional = true)
+                    result = result.withUpper(id, substedTp)
+                      .withTypeParamId(id)
                   }
                 }
               }
@@ -537,60 +543,62 @@ object InferUtil {
               result
             }
 
-            def updateWithSubst(sub: ScSubstitutor, idsToRemove: Set[Long]): ScTypePolymorphicType = {
-              ScTypePolymorphicType(sub.subst(retType), typeParams.filter {
-                case tp =>
-                  val removeMe: Boolean = idsToRemove.contains(tp.typeParamId)
-                  if (removeMe && canThrowSCE) {
-                    //let's check type parameter kinds
-                    def checkTypeParam(typeParam: ScTypeParam, tp: => ScType): Boolean = {
-                      val typeParams: Seq[ScTypeParam] = typeParam.typeParameters
-                      if (typeParams.isEmpty) return true
-                      tp match {
-                        case ParameterizedType(_, typeArgs) =>
-                          if (typeArgs.length != typeParams.length) return false
-                          typeArgs.zip(typeParams).forall {
-                            case (tp: ScType, typeParam: ScTypeParam) => checkTypeParam(typeParam, tp)
-                          }
-                        case _ =>
-                          def checkNamed(named: PsiNamedElement, typeParams: Seq[ScTypeParam]): Boolean = {
-                            named match {
-                              case t: ScTypeParametersOwner =>
-                                if (typeParams.length != t.typeParameters.length) return false
-                                typeParams.zip(t.typeParameters).forall {
-                                  case (p1: ScTypeParam, p2: ScTypeParam) =>
-                                    if (p1.typeParameters.nonEmpty) checkNamed(p2, p1.typeParameters)
-                                    else true
-                                }
-                              case p: PsiTypeParameterListOwner =>
-                                if (typeParams.length != p.getTypeParameters.length) return false
-                                typeParams.forall(_.typeParameters.isEmpty)
-                              case _ => false
-                            }
-                          }
-                          tp.extractDesignated(expandAliases = false).exists(checkNamed(_, typeParams))
-                      }
-                    }
-                    tp.psiTypeParameter match {
-                      case typeParam: ScTypeParam =>
-                        if (!checkTypeParam(typeParam, sub.subst(TypeParameterType(tp.psiTypeParameter))))
-                          throw new SafeCheckException
+            val newConstraints = typeParams.foldLeft(constraints)(addConstraints)
+
+            def updateWithSubst(sub: ScSubstitutor) = ScTypePolymorphicType(
+              sub.subst(retType),
+              typeParams.filter { tp =>
+                val removeMe = newConstraints.isApplicable(tp.typeParamId)
+
+                if (removeMe && canThrowSCE) {
+                  //let's check type parameter kinds
+                  def checkTypeParam(typeParam: ScTypeParam, tp: => ScType): Boolean = {
+                    val typeParams: Seq[ScTypeParam] = typeParam.typeParameters
+                    if (typeParams.isEmpty) return true
+                    tp match {
+                      case ParameterizedType(_, typeArgs) =>
+                        if (typeArgs.length != typeParams.length) return false
+                        typeArgs.zip(typeParams).forall {
+                          case (tp: ScType, typeParam: ScTypeParam) => checkTypeParam(typeParam, tp)
+                        }
                       case _ =>
+                        def checkNamed(named: PsiNamedElement, typeParams: Seq[ScTypeParam]): Boolean = {
+                          named match {
+                            case t: ScTypeParametersOwner =>
+                              if (typeParams.length != t.typeParameters.length) return false
+                              typeParams.zip(t.typeParameters).forall {
+                                case (p1: ScTypeParam, p2: ScTypeParam) =>
+                                  if (p1.typeParameters.nonEmpty) checkNamed(p2, p1.typeParameters)
+                                  else true
+                              }
+                            case p: PsiTypeParameterListOwner =>
+                              if (typeParams.length != p.getTypeParameters.length) return false
+                              typeParams.forall(_.typeParameters.isEmpty)
+                            case _ => false
+                          }
+                        }
+
+                        tp.extractDesignated(expandAliases = false).exists(checkNamed(_, typeParams))
                     }
                   }
-                  !removeMe
+
+                  tp.psiTypeParameter match {
+                    case typeParam: ScTypeParam =>
+                      if (!checkTypeParam(typeParam, sub.subst(TypeParameterType(tp.psiTypeParameter))))
+                        throw new SafeCheckException
+                    case _ =>
+                  }
+                }
+                !removeMe
               }.map {
                 _.update(sub.subst)
-              })
-            }
+              }
+            )
 
-            val withTypeParamConstraints = typeParams.foldLeft(undefSubst)(addConstraints)
-            val idsToRemove = withTypeParamConstraints.typeParamIds
-
-            withTypeParamConstraints.getSubstitutor match {
-              case Some(unSubstitutor) => updateWithSubst(unSubstitutor, idsToRemove)
-              case _ if canThrowSCE    => throw new SafeCheckException
-              case _                   => updateWithSubst(unSubst, idsToRemove)
+            newConstraints match {
+              case ConstraintSystem(substitutor) => updateWithSubst(substitutor)
+              case _ if !canThrowSCE => updateWithSubst(unSubst)
+              case _ => throw new SafeCheckException
             }
           }
         case None => throw new SafeCheckException

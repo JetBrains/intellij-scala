@@ -11,7 +11,7 @@ import org.jetbrains.plugins.scala.lang.psi.api.base.types.ScTypeElement
 import org.jetbrains.plugins.scala.lang.psi.api.base.{ScMethodLike, ScPrimaryConstructor}
 import org.jetbrains.plugins.scala.lang.psi.api.expr._
 import org.jetbrains.plugins.scala.lang.psi.api.statements._
-import org.jetbrains.plugins.scala.lang.psi.api.statements.params.{ScTypeParam, TypeParamIdOwner}
+import org.jetbrains.plugins.scala.lang.psi.api.statements.params.TypeParamIdOwner
 import org.jetbrains.plugins.scala.lang.psi.api.toplevel.typedef.{ScClass, ScMember, ScObject, ScTemplateDefinition}
 import org.jetbrains.plugins.scala.lang.psi.api.toplevel.{ScTypeParametersOwner, ScTypedDefinition}
 import org.jetbrains.plugins.scala.lang.psi.impl.ScPackageImpl
@@ -237,13 +237,17 @@ object MethodResolveProcessor {
           }.getOrElse(Nothing)
         case _ => Nothing
       }
-      val (conforms, subst) = retType.typeSystem.conformsInner(expected, retType)
-      if (!conforms && !expected.equiv(api.Unit)) {
+      val conformance = retType.typeSystem.conformsInner(expected, retType)
+      if (conformance.isFailure && !expected.equiv(api.Unit)) {
         problems += ExpectedTypeMismatch
       }
       result match {
-        case Some(aResult) => aResult.copy(problems, if (expected.equiv(api.Unit)) aResult.undefSubst else aResult.undefSubst + subst)
-        case None => ConformanceExtResult(problems, subst)
+        case Some(aResult) =>
+          val substitutor =
+            if (expected.equiv(api.Unit)) aResult.constraints
+            else aResult.constraints + conformance.constraints
+          aResult.copy(problems, substitutor)
+        case None => ConformanceExtResult(problems, conformance.constraints)
       }
     }
 
@@ -426,32 +430,44 @@ object MethodResolveProcessor {
     }
 
     if (result.problems.forall(_ == ExpectedTypeMismatch)) {
-      var uSubst = result.undefSubst
-      uSubst.getSubstitutor match {
-        case None =>
-          result.copy(problems = Seq(WrongTypeParameterInferred))
-        case Some(unSubst) =>
-          val typeParamIds = typeParameters.map(_.typeParamId).toSet
-          def hasRecursiveTypeParameters(typez: ScType): Boolean = typez.hasRecursiveTypeParameters(typeParamIds)
+      val maybeResult = result.constraints match {
+        case undefined@ConstraintSystem(newSubstitutor) =>
+          val typeParamIds = typeParameters.map {
+            _.typeParamId
+          }.toSet
 
+          var uSubst = undefined
           for (TypeParameter(tParam, _, lowerType, upperType) <- typeParameters) {
-            if (lowerType != Nothing) {
-              val substedLower = s.subst(unSubst.subst(lowerType))
-              if (!hasRecursiveTypeParameters(substedLower)) {
-                uSubst = uSubst.addLower(tParam.typeParamId, substedLower, additional = true)
+            val typeParamId = tParam.typeParamId
+
+            if (!lowerType.isNothing) {
+              s.subst(newSubstitutor.subst(lowerType)) match {
+                case lower if !lower.hasRecursiveTypeParameters(typeParamIds) =>
+                  uSubst = uSubst.withLower(typeParamId, lower)
+                    .withTypeParamId(typeParamId)
+                case _ =>
               }
             }
-            if (upperType != Any) {
-              val substedUpper = s.subst(unSubst.subst(upperType))
-              if (!hasRecursiveTypeParameters(substedUpper)) {
-                uSubst = uSubst.addUpper(tParam.typeParamId, substedUpper, additional = true)
+
+            if (!upperType.isAny) {
+              s.subst(newSubstitutor.subst(upperType)) match {
+                case upper if !upper.hasRecursiveTypeParameters(typeParamIds) =>
+                  uSubst = uSubst.withUpper(typeParamId, upper)
+                    .withTypeParamId(typeParamId)
+                case _ =>
               }
             }
           }
-          uSubst.getSubstitutor match {
-            case Some(_) => result
-            case _ => result.copy(problems = Seq(WrongTypeParameterInferred))
+
+          uSubst match {
+            case ConstraintSystem(_) => Some(result)
+            case _ => None
           }
+        case _ => None
+      }
+
+      maybeResult.getOrElse {
+        result.copy(problems = Seq(WrongTypeParameterInferred))
       }
     } else result
   }
@@ -563,7 +579,7 @@ object MethodResolveProcessor {
           case Some(rr) if argumentClauses.nonEmpty =>
             val innerCopy = rr.copy(problems = pr.problems, defaultParameterUsed = pr.defaultParameterUsed)
             r.copy(innerResolveResult = Some(innerCopy))
-          case _ => r.copy(problems = pr.problems, defaultParameterUsed = pr.defaultParameterUsed, resultUndef = Some(pr.undefSubst))
+          case _ => r.copy(problems = pr.problems, defaultParameterUsed = pr.defaultParameterUsed, resultUndef = Some(pr.constraints))
         }
         results += result
       }

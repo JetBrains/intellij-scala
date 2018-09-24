@@ -1,10 +1,9 @@
 package org.jetbrains.plugins.scala.lang.macros.evaluator.impl
 import org.jetbrains.plugins.scala.extensions.PsiElementExt
 import org.jetbrains.plugins.scala.lang.macros.evaluator.MacroContext
-import org.jetbrains.plugins.scala.lang.macros.evaluator.impl.ShapelessMaterializeGeneric.{fqColonColon, fqHNil}
 import org.jetbrains.plugins.scala.lang.psi.api.toplevel.typedef.ScClass
-import org.jetbrains.plugins.scala.lang.psi.types.api.StdTypes
 import org.jetbrains.plugins.scala.lang.psi.types.api.designator.{ScDesignatorType, ScProjectionType}
+import org.jetbrains.plugins.scala.lang.psi.types.api.{ParameterizedType, StdTypes}
 import org.jetbrains.plugins.scala.lang.psi.types.{ScParameterizedType, ScType}
 
 trait ShapelessUtils {
@@ -36,7 +35,7 @@ trait ShapelessUtils {
     * Extracts case class field names and types or element types from tuples to be used by HList generator
     */
   protected def extractFields(tp: ScType): Seq[(String, ScType)] = tp match {
-    case ScParameterizedType(ScDesignatorType(c: ScClass), args) if c.name.startsWith(tupleN) =>
+    case ParameterizedType(ScDesignatorType(c: ScClass), args) if c.name.startsWith(tupleN) =>
       args.zipWithIndex.map{e => (s"_${e._2}", e._1)}
     case ScDesignatorType(c: ScClass) if c.isCase =>
       extractFiledsFromClass(c)

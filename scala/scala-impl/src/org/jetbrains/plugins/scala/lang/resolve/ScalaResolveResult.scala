@@ -47,7 +47,7 @@ class ScalaResolveResult(val element: PsiNamedElement,
                          val isAssignment: Boolean = false,
                          val notCheckedResolveResult: Boolean = false,
                          val isAccessible: Boolean = true,
-                         val resultUndef: Option[ScUndefinedSubstitutor] = None,
+                         val resultUndef: Option[ConstraintSystem] = None,
                          val prefixCompletion: Boolean = false,
                          val nameArgForDynamic: Option[String] = None, //argument to a dynamic call
                          val isForwardReference: Boolean = false,
@@ -105,7 +105,7 @@ class ScalaResolveResult(val element: PsiNamedElement,
            isSetterFunction: Boolean = isSetterFunction,
            isAssignment: Boolean = isAssignment,
            notCheckedResolveResult: Boolean = notCheckedResolveResult,
-           isAccessible: Boolean = isAccessible, resultUndef: Option[ScUndefinedSubstitutor] = None,
+           isAccessible: Boolean = isAccessible, resultUndef: Option[ConstraintSystem] = None,
            nameArgForDynamic: Option[String] = nameArgForDynamic,
            isForwardReference: Boolean = isForwardReference,
            implicitParameterType: Option[ScType] = implicitParameterType,
@@ -274,12 +274,17 @@ class ScalaResolveResult(val element: PsiNamedElement,
     precedence
   }
 
+  //for name-based extractor
+  def isEmpty: Boolean = false
+  def get: ScalaResolveResult = this
+  def _1: PsiNamedElement = element
+  def _2: ScSubstitutor = substitutor
 }
 
 object ScalaResolveResult {
   def empty = new ScalaResolveResult(null, ScSubstitutor.empty, Set[ImportUsed]())
 
-  def unapply(r: ScalaResolveResult): Some[(PsiNamedElement, ScSubstitutor)] = Some(r.element, r.substitutor)
+  def unapply(r: ScalaResolveResult): ScalaResolveResult = r
 
   object withActual {
     def unapply(r: ScalaResolveResult): Option[PsiNamedElement] = Some(r.getActualElement)

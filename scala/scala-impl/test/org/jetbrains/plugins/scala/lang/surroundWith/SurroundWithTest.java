@@ -10,8 +10,8 @@ import com.intellij.openapi.fileEditor.OpenFileDescriptor;
 import com.intellij.openapi.project.Project;
 import com.intellij.psi.PsiFile;
 import junit.framework.Test;
+import org.jetbrains.plugins.scala.lang.surroundWith.descriptors.ScalaSurroundDescriptors$;
 import org.jetbrains.plugins.scala.testcases.BaseScalaFileSetTestCase;
-import org.jetbrains.plugins.scala.util.ScalaToolsFactory;
 import org.jetbrains.plugins.scala.util.TestUtils;
 import org.junit.runner.RunWith;
 import org.junit.runners.AllTests;
@@ -57,7 +57,7 @@ public class SurroundWithTest extends BaseScalaFileSetTestCase{
     final int surroundType = res._4();
     final PsiFile psiFile = TestUtils.createPseudoPhysicalScalaFile(getProject(), fileText);
 
-    final Surrounder[] surrounder = ScalaToolsFactory.getInstance().createSurroundDescriptors().getSurroundDescriptors()[0].getSurrounders();
+    final Surrounder[] surrounder = ScalaSurroundDescriptors$.MODULE$.getSurroundDescriptors()[0].getSurrounders();
     CommandProcessor.getInstance().executeCommand(getProject(), new Runnable() {
       public void run() {
         ApplicationManager.getApplication().runWriteAction(new Runnable() {

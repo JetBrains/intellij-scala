@@ -60,11 +60,11 @@ trait ScType extends ProjectContextOwner {
    */
   def removeAbstracts: ScType = this
 
-  def equivInner(r: ScType, uSubst: ScUndefinedSubstitutor, falseUndef: Boolean): (Boolean, ScUndefinedSubstitutor) = {
-    (false, uSubst)
+  def equivInner(r: ScType, constraints: ConstraintSystem, falseUndef: Boolean): ConstraintsResult = {
+    ConstraintsResult.Failure
   }
 
-  def updateSubtypes(updates: Seq[Update], visited: Set[ScType]): ScType = this
+  def updateSubtypes(updates: Array[Update], index: Int, visited: Set[ScType]): ScType = this
 
   def updateSubtypesVariance(update: (ScType, Variance) => AfterUpdate,
                              variance: Variance,

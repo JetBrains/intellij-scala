@@ -2,12 +2,12 @@ package org.jetbrains.plugins.scala.lang.psi.types.api
 
 import java.util.concurrent.atomic.AtomicReference
 
-import com.intellij.openapi.components.AbstractProjectComponent
+import com.intellij.openapi.components.ProjectComponent
 import com.intellij.psi.CommonClassNames._
 import org.jetbrains.plugins.scala.extensions.PsiClassExt
 import org.jetbrains.plugins.scala.lang.psi.api.toplevel.typedef.ScObject
 import org.jetbrains.plugins.scala.lang.psi.impl.toplevel.synthetic.{ScSyntheticClass, SyntheticClasses}
-import org.jetbrains.plugins.scala.lang.psi.types.{NamedType, ScType, ScTypeExt, ScUndefinedSubstitutor}
+import org.jetbrains.plugins.scala.lang.psi.types.{ConstraintSystem, ConstraintsResult, NamedType, ScType, ScTypeExt}
 import org.jetbrains.plugins.scala.project.ProjectContext
 
 sealed class StdType(val name: String, val tSuper: Option[StdType])
@@ -29,8 +29,8 @@ sealed class StdType(val name: String, val tSuper: Option[StdType])
     if (classes.isClassesRegistered) classes.byName(name) else None
   }
 
-  override def equivInner(`type`: ScType, substitutor: ScUndefinedSubstitutor, falseUndef: Boolean): (Boolean, ScUndefinedSubstitutor) =
-    (`type` match {
+  override def equivInner(`type`: ScType, constraints: ConstraintSystem, falseUndef: Boolean): ConstraintsResult = {
+    val success = `type` match {
       case stdType: StdType => this == stdType
       case _ =>
         `type`.extractClass match {
@@ -42,7 +42,10 @@ sealed class StdType(val name: String, val tSuper: Option[StdType])
           }
           case _ => false
         }
-    }, substitutor)
+    }
+    if (success) constraints
+    else ConstraintsResult.Failure
+  }
 }
 
 object StdType {
@@ -55,8 +58,7 @@ sealed class ValType(override val name: String)(implicit projectContext: Project
   override def isFinalType = true
 }
 
-class StdTypes(implicit private val projectContext: ProjectContext)
-  extends AbstractProjectComponent(projectContext) {
+class StdTypes(implicit private val projectContext: ProjectContext) extends ProjectComponent {
 
   lazy val Any = new StdType("Any", None)
 

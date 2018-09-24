@@ -2,7 +2,7 @@ package org.jetbrains.plugins.scala.worksheet.runconfiguration
 
 import java.io.File
 
-import com.intellij.openapi.components.AbstractProjectComponent
+import com.intellij.openapi.components.ProjectComponent
 import com.intellij.openapi.editor.impl.EditorImpl
 import com.intellij.openapi.editor.{Editor, EditorFactory}
 import com.intellij.openapi.project.Project
@@ -16,7 +16,7 @@ import scala.collection.mutable
   * User: Dmitry.Naydanov
   * Date: 03.02.17.
   */
-class WorksheetCache(project: Project) extends AbstractProjectComponent(project)  {
+class WorksheetCache(project: Project) extends ProjectComponent  {
   private val allViewers = ContainerUtil.createWeakMap[Editor, List[Editor]]()
   private val allReplPrinters = ContainerUtil.createWeakMap[Editor, WorksheetEditorPrinter]()
   private val patchedEditors = ContainerUtil.createWeakMap[Editor, String]()

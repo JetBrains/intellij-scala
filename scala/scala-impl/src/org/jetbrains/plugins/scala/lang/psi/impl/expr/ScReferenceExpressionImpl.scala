@@ -423,7 +423,7 @@ class ScReferenceExpressionImpl(node: ASTNode) extends ScReferenceElementImpl(no
       case ScalaResolveResult(clazz: ScTypeDefinition, s) if clazz.typeParameters.nonEmpty =>
         s.subst(ScParameterizedType(ScalaType.designator(clazz),
           clazz.typeParameters.map(TypeParameterType(_))))
-      case ScalaResolveResult(clazz: PsiClass, _) => new ScDesignatorType(clazz, true) //static Java class
+      case ScalaResolveResult(clazz: PsiClass, _) => ScDesignatorType.static(clazz) //static Java class
       case ScalaResolveResult(field: PsiField, s) =>
         s.subst(field.getType.toScType())
       case ScalaResolveResult(method: PsiMethod, s) =>

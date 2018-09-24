@@ -17,8 +17,6 @@ import org.jetbrains.plugins.scala.lang.refactoring.namesSuggester.NameSuggester
 private[clauses] abstract class ClausesInsertHandler[E <: ScalaPsiElement](clazz: Class[E])
   extends InsertHandler[LookupElement] {
 
-  import ClausesInsertHandler._
-
   override final def handleInsert(insertionContext: InsertionContext,
                                   lookupElement: LookupElement): Unit =
     handleInsert(insertionContext)
@@ -32,30 +30,6 @@ private[clauses] abstract class ClausesInsertHandler[E <: ScalaPsiElement](clazz
       case null => null
       case targetElement => onElement(targetElement)
     }
-  }
-
-  protected final def adjustTypesPhase(addImports: Boolean,
-                                       pairs: (ScPattern, PatternComponents)*): Unit = {
-    TypeAdjuster.adjustFor(
-      pairs.flatMap {
-        case (pattern, _) => findTypeElement(pattern)
-      },
-      addImports = addImports,
-      useTypeAliases = false
-    )
-
-    for {
-      (pattern, components) <- pairs
-      typeElement <- findTypeElement(pattern)
-
-      patternText = replacementText(typeElement, components)
-      replacement = ScalaPsiElementFactory.createPatternFromTextWithContext(patternText, pattern.getContext, pattern)
-    } pattern.replace(replacement)
-  }
-
-  protected def findTypeElement(pattern: ScPattern): Option[ScTypeElement] = pattern match {
-    case ScTypedPattern(typeElement) => Some(typeElement)
-    case _ => None
   }
 }
 
@@ -79,8 +53,29 @@ private[clauses] object ClausesInsertHandler {
     insertionContext.commitDocument()
   }
 
-  private def replacementText(typeElement: ScTypeElement,
-                              components: PatternComponents): String = {
+  def adjustTypesPhase(addImports: Boolean,
+                       pairs: (ScPattern, PatternComponents)*)
+                      (collector: PartialFunction[ScPattern, ScTypeElement]): Unit = {
+    val findTypeElement = collector.lift
+    TypeAdjuster.adjustFor(
+      pairs.flatMap {
+        case (pattern, _) => findTypeElement(pattern)
+      },
+      addImports = addImports,
+      useTypeAliases = false
+    )
+
+    for {
+      (pattern, components) <- pairs
+      typeElement <- findTypeElement(pattern)
+
+      patternText = replacementText(typeElement, components)
+      replacement = ScalaPsiElementFactory.createPatternFromTextWithContext(patternText, pattern.getContext, pattern)
+    } pattern.replace(replacement)
+  }
+
+  private[this] def replacementText(typeElement: ScTypeElement,
+                                    components: PatternComponents): String = {
     def referenceText = (typeElement match {
       case SimpleTypeReferenceReference(reference) => reference
       case ScParameterizedTypeElement(SimpleTypeReferenceReference(reference), _) => reference

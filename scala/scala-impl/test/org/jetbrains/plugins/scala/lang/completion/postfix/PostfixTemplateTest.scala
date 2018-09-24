@@ -1,4 +1,6 @@
-package org.jetbrains.plugins.scala.lang.completion.postfix
+package org.jetbrains.plugins.scala.lang
+package completion
+package postfix
 
 import java.io.File
 
@@ -11,7 +13,7 @@ import com.intellij.openapi.vfs.CharsetToolkit
 import com.intellij.psi.PsiFile
 import com.intellij.psi.util.PsiTreeUtil
 import org.jetbrains.plugins.scala.base.ScalaLightCodeInsightFixtureTestAdapter
-import org.jetbrains.plugins.scala.extensions
+import org.jetbrains.plugins.scala.extensions.inWriteCommandAction
 import org.jetbrains.plugins.scala.lang.psi.ScalaPsiElement
 import org.jetbrains.plugins.scala.util.TestUtils
 import org.junit.Assert.{assertEquals, assertFalse, assertTrue}
@@ -61,9 +63,7 @@ abstract class PostfixTemplateTest extends ScalaLightCodeInsightFixtureTestAdapt
     myFixture.configureByText("dummy.scala", fileText)
     updateModels(getEditor, range)
 
-    val maybeTemplate = ScalaPostfixTemplateProvider.Templates
-      .find(_.getKey == "." + name)
-    TemplateDescriptor(maybeTemplate.get, range)
+    TemplateDescriptor(Templates(name), range)
   }
 }
 
@@ -72,6 +72,18 @@ object PostfixTemplateTest {
   private val StartMarker = "<start>"
   private val TagStart = "<"
   private val TagEnd = ">"
+
+  private val Templates = {
+    import templates.ScalaExhaustiveMatchPostfixTemplate
+    def presentableName: PostfixTemplate => String = {
+      case _: ScalaExhaustiveMatchPostfixTemplate => ScalaExhaustiveMatchPostfixTemplate.exhaustiveAlias
+      case template => template.getPresentableName
+    }
+
+    ScalaPostfixTemplateProvider.Templates.map { template =>
+      presentableName(template) -> template
+    }.toMap
+  }
 
   private case class TemplateDescriptor(template: PostfixTemplate, range: TextRange) {
 
@@ -83,7 +95,7 @@ object PostfixTemplateTest {
       assertEquals(range, element.getTextRange)
 
       val isApplicable = template.isApplicable(element, file.getViewProvider.getDocument, endOffset)
-      if (isApplicable) extensions.inWriteCommandAction(template.expand(element, editor))(null)
+      if (isApplicable) inWriteCommandAction(template.expand(element, editor))(null)
       isApplicable
     }
   }

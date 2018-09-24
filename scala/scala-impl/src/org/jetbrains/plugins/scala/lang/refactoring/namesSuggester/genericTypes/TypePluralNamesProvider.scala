@@ -5,6 +5,7 @@ package namesSuggester
 package genericTypes
 
 import org.atteo.evo.inflector.English
+import org.jetbrains.plugins.scala.lang.psi.types.api.ParameterizedType
 import org.jetbrains.plugins.scala.lang.psi.types.{ScParameterizedType, ScType}
 import org.jetbrains.plugins.scala.lang.refactoring.namesSuggester.NameSuggester.namesByType
 
@@ -49,7 +50,7 @@ object TypePluralNamesProvider {
     import GenericTypeNamesProvider.isInheritor
 
     def unapply(`type`: ScParameterizedType): Option[(ScType, ScType)] = `type` match {
-      case ScParameterizedType(designator, Seq(argument))
+      case ParameterizedType(designator, Seq(argument))
         if designator.canonicalText == "_root_.scala.Array" ||
           isInheritor(`type`, "scala.collection.GenTraversableOnce", "java.lang.Iterable") =>
         Some(designator, argument)

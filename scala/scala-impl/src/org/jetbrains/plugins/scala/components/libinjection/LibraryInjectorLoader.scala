@@ -8,7 +8,7 @@ import java.util.concurrent.atomic.AtomicBoolean
 import com.intellij.ide.plugins.cl.PluginClassLoader
 import com.intellij.notification._
 import com.intellij.openapi.application.ApplicationManager
-import com.intellij.openapi.components.AbstractProjectComponent
+import com.intellij.openapi.components.ProjectComponent
 import com.intellij.openapi.diagnostic.Logger
 import com.intellij.openapi.module._
 import com.intellij.openapi.progress.ProgressManager
@@ -73,7 +73,7 @@ object InjectorPersistentCache {
   }
 }
 
-class LibraryInjectorLoader(val project: Project) extends AbstractProjectComponent(project) {
+class LibraryInjectorLoader(val project: Project) extends ProjectComponent {
 
   import LibraryInjectorLoader.{LOG, _}
 

@@ -28,14 +28,14 @@ class SbtBuildModuleDataServiceTest extends ProjectDataServiceTestCase {
       linkedProjectPath := getProject.getBasePath
       modules += new javaModule {
         val moduleName = "Module 1"
-        val uri = new File(getProject.getBasePath).toURI
-        val id = ModuleNode.combinedId(moduleName, Option(uri))
+        val uri: URI = new File(getProject.getBasePath).toURI
+        val id: String = ModuleNode.combinedId(moduleName, Option(uri))
         projectId := id
         projectURI := uri
         name := moduleName
         moduleFileDirectoryPath := getProject.getBasePath + "/module1"
         externalConfigPath := getProject.getBasePath + "/module1"
-        arbitraryNodes += new SbtBuildModuleNode(SbtBuildModuleData(imports, resolvers, SbtModuleData(id, uri)))
+        arbitraryNodes += new SbtBuildModuleNode(SbtBuildModuleData(imports, resolvers, uri))
       }
     }.build.toDataNode
 
@@ -75,7 +75,7 @@ class SbtBuildModuleDataServiceTest extends ProjectDataServiceTestCase {
       name := getProject.getName
       ideDirectoryPath := getProject.getBasePath
       linkedProjectPath := getProject.getBasePath
-      arbitraryNodes += new SbtBuildModuleNode(SbtBuildModuleData(Seq("some import"), Set.empty, SbtModuleData("something", new URI("somewhere"))))
+      arbitraryNodes += new SbtBuildModuleNode(SbtBuildModuleData(Seq("some import"), Set.empty, new URI("somewhere")))
     }.build.toDataNode
 
     importProjectData(testProject)

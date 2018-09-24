@@ -26,8 +26,8 @@ class ScExistentialType private (val quantified: ScType,
 
   override def removeAbstracts = ScExistentialType(quantified.removeAbstracts)
 
-  override def updateSubtypes(updates: Seq[Update], visited: Set[ScType]): ScExistentialType =
-    ScExistentialType(quantified.recursiveUpdateImpl(updates, visited))
+  override def updateSubtypes(updates: Array[Update], index: Int, visited: Set[ScType]): ScExistentialType =
+    ScExistentialType(quantified.recursiveUpdateImpl(updates, index, visited))
 
   override def updateSubtypesVariance(update: (ScType, Variance) => AfterUpdate,
                                        variance: Variance = Covariant,
@@ -36,12 +36,11 @@ class ScExistentialType private (val quantified: ScType,
     ScExistentialType(quantified.recursiveVarianceUpdate(update, variance))
   }
 
-  override def equivInner(r: ScType, uSubst: ScUndefinedSubstitutor, falseUndef: Boolean): (Boolean, ScUndefinedSubstitutor) = {
-    if (r.equiv(Nothing)) return quantified.equiv(Nothing, uSubst)
-    var undefinedSubst = uSubst
+  override def equivInner(r: ScType, constraints: ConstraintSystem, falseUndef: Boolean): ConstraintsResult = {
+    if (r.equiv(Nothing)) return quantified.equiv(Nothing, constraints)
     val simplified = simplify()
     val conformance: ScalaConformance = typeSystem
-    if (this != simplified) return simplified.equiv(r, undefinedSubst, falseUndef)
+    if (this != simplified) return simplified.equiv(r, constraints, falseUndef)
     (quantified, r) match {
       case (ParameterizedType(ScAbstractType(typeParameter, lowerBound, upperBound), args), _) if !falseUndef =>
         val subst = ScSubstitutor.bind(typeParameter.typeParameters, args)
@@ -50,32 +49,32 @@ class ScExistentialType private (val quantified: ScType,
             case ParameterizedType(u, _) => ScExistentialType(ScParameterizedType(u, args))
             case u => ScExistentialType(ScParameterizedType(u, args))
           }
-        val conformance = r.conforms(upper, undefinedSubst)
-        if (!conformance._1) return conformance
+        val conformance = r.conforms(upper, constraints)
+        if (conformance.isFailure) return conformance
 
         val lower: ScType =
           subst.subst(lowerBound) match {
             case ParameterizedType(l, _) => ScExistentialType(ScParameterizedType(l, args))
             case l => ScExistentialType(ScParameterizedType(l, args))
           }
-        return lower.conforms(r, conformance._2)
+        return lower.conforms(r, conformance.constraints)
       case (ParameterizedType(UndefinedType(typeParameter, _), args), _) if !falseUndef =>
         r match {
           case ParameterizedType(des, _) =>
-            val y = conformance.addParam(typeParameter, des, undefinedSubst)
-            if (!y._1) return (false, undefinedSubst)
-            undefinedSubst = y._2
-            return ScExistentialType(ScParameterizedType(des, args)).equiv(r, undefinedSubst, falseUndef)
+            val y = conformance.addParam(typeParameter, des, constraints)
+            if (y.isFailure) return ConstraintsResult.Failure
+
+            return ScExistentialType(ScParameterizedType(des, args)).equiv(r, y.constraints, falseUndef)
           case ScExistentialType(ParameterizedType(des, _), _) =>
-            val y = conformance.addParam(typeParameter, des, undefinedSubst)
-            if (!y._1) return (false, undefinedSubst)
-            undefinedSubst = y._2
-            return ScExistentialType(ScParameterizedType(des, args)).equiv(r, undefinedSubst, falseUndef)
-          case _ => return (false, undefinedSubst) //looks like something is wrong
+            val y = conformance.addParam(typeParameter, des, constraints)
+            if (y.isFailure) return ConstraintsResult.Failure
+
+            return ScExistentialType(ScParameterizedType(des, args)).equiv(r, y.constraints, falseUndef)
+          case _ => return ConstraintsResult.Failure //looks like something is wrong
         }
       case (ParameterizedType(pType, args), ParameterizedType(rType, _)) =>
-        val res = pType.equivInner(rType, undefinedSubst, falseUndef)
-        if (!res._1) return res
+        val res = pType.equivInner(rType, constraints, falseUndef)
+        if (res.isFailure) return res
         conformance.extractParams(rType) match {
           case Some(iter) =>
             val (names, existArgsBounds) =
@@ -86,7 +85,7 @@ class ScExistentialType private (val quantified: ScType,
                   if rParam.isContravariant && wildcards.contains(arg) => (arg.name, arg.lower)
               }.unzip
             val subst = ScSubstitutor.bind(names, existArgsBounds)(TypeParamId.nameBased)
-            return subst.subst(quantified).equiv(r, undefinedSubst, falseUndef)
+            return subst.subst(quantified).equiv(r, constraints, falseUndef)
           case _ =>
         }
       case _ =>
@@ -94,30 +93,34 @@ class ScExistentialType private (val quantified: ScType,
     r.unpackedType match {
       case ex: ScExistentialType =>
         val simplified = ex.simplify()
-        if (ex != simplified) return this.equiv(simplified, undefinedSubst, falseUndef)
+        if (ex != simplified) return this.equiv(simplified, constraints, falseUndef)
         val list = wildcards.zip(ex.wildcards)
         val iterator = list.iterator
+        var lastConstraints = constraints
         while (iterator.hasNext) {
           val (w1, w2) = iterator.next()
-          val t = w2.equivInner(w1, undefinedSubst, falseUndef)
-          if (!t._1) return (false, undefinedSubst)
-          undefinedSubst = t._2
+          val t = w2.equivInner(w1, lastConstraints, falseUndef)
+          if (t.isFailure) return ConstraintsResult.Failure
+          lastConstraints = t.constraints
         }
-        quantified.equiv(ex.quantified, undefinedSubst, falseUndef) //todo: probable problems with different positions of skolemized types.
+        quantified.equiv(ex.quantified, constraints, falseUndef) //todo: probable problems with different positions of skolemized types.
       case poly: ScTypePolymorphicType if poly.typeParameters.length == wildcards.length =>
         val list = wildcards.zip(poly.typeParameters)
         val iterator = list.iterator
-        var t = (true, undefinedSubst)
+        var t: ConstraintsResult = constraints
+
         while (iterator.hasNext) {
           val (w, tp) = iterator.next()
-          t = w.lower.equivInner(tp.lowerType, t._2, falseUndef)
-          if (!t._1) return (false, undefinedSubst)
-          t = w.upper.equivInner(tp.upperType, t._2, falseUndef)
-          if (!t._1) return (false, undefinedSubst)
+
+          t = w.lower.equivInner(tp.lowerType, t.constraints, falseUndef)
+          if (t.isFailure) return ConstraintsResult.Failure
+
+          t = w.upper.equivInner(tp.upperType, t.constraints, falseUndef)
+          if (t.isFailure) return ConstraintsResult.Failure
         }
         val polySubst = ScSubstitutor.bind(poly.typeParameters, wildcards)
-        quantified.equiv(polySubst.subst(poly.internalType), t._2, falseUndef)
-      case _ => (false, undefinedSubst)
+        quantified.equiv(polySubst.subst(poly.internalType), t.constraints, falseUndef)
+      case _ => ConstraintsResult.Failure
     }
   }
 

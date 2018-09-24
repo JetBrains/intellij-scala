@@ -7,7 +7,7 @@ import com.intellij.codeInsight.daemon.DaemonCodeAnalyzer.DaemonListener
 import com.intellij.codeInsight.daemon.impl.{HighlightInfo, HighlightInfoType}
 import com.intellij.codeInspection.ex.QuickFixWrapper
 import com.intellij.openapi.command.CommandProcessor
-import com.intellij.openapi.components.AbstractProjectComponent
+import com.intellij.openapi.components.ProjectComponent
 import com.intellij.openapi.editor.ex.{MarkupModelEx, RangeHighlighterEx}
 import com.intellij.openapi.editor.impl.DocumentMarkupModel
 import com.intellij.openapi.fileEditor.{FileEditorManager, FileEditorManagerListener}
@@ -29,7 +29,7 @@ import scala.collection.mutable
   * User: Dmitry.Naydanov
   * Date: 03.08.17.
   */
-class AmmoniteScriptWrappersHolder(project: Project) extends AbstractProjectComponent(project) {
+class AmmoniteScriptWrappersHolder(project: Project) extends ProjectComponent {
   import AmmoniteScriptWrappersHolder._
   
   private val file2object = mutable.WeakHashMap.empty[ScalaFile, (ScObject, Long)]

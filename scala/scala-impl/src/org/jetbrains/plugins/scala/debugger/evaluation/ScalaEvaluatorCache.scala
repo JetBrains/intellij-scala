@@ -5,7 +5,7 @@ import com.intellij.codeInsight.PsiEquivalenceUtil
 import com.intellij.debugger.engine.evaluation.expression.Evaluator
 import com.intellij.debugger.impl.{DebuggerManagerListener, DebuggerSession}
 import com.intellij.debugger.{DebuggerManagerEx, SourcePosition}
-import com.intellij.openapi.components.AbstractProjectComponent
+import com.intellij.openapi.components.ProjectComponent
 import com.intellij.openapi.project.Project
 import com.intellij.psi.{PsiElement, PsiFile}
 
@@ -15,7 +15,7 @@ import scala.collection.mutable
  * Nikolay.Tropin
  * 2014-06-03
  */
-class ScalaEvaluatorCache(project: Project) extends AbstractProjectComponent(project) {
+class ScalaEvaluatorCache(project: Project) extends ProjectComponent {
 
   private val cachedEvaluators = mutable.HashMap[(PsiFile, Int), mutable.HashMap[PsiElement, Evaluator]]()
   private val cachedStamp = mutable.HashMap[PsiFile, Long]()

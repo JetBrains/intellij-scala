@@ -16,9 +16,9 @@ import org.jetbrains.plugins.scala.extensions._
 import org.jetbrains.plugins.scala.lang.psi.api.statements.{ScTypeAlias, ScTypeAliasDefinition}
 import org.jetbrains.plugins.scala.lang.psi.api.toplevel.ScTypeParametersOwner
 import org.jetbrains.plugins.scala.lang.psi.types.api.designator.{ScDesignatorType, ScProjectionType}
-import org.jetbrains.plugins.scala.lang.psi.types.api.{Contravariant, Covariant, Invariant, ParameterizedType, TypeParameterType, TypeVisitor, UndefinedType, ValueType, Variance}
+import org.jetbrains.plugins.scala.lang.psi.types.api.{ParameterizedType, TypeParameterType, TypeVisitor, UndefinedType, ValueType}
 import org.jetbrains.plugins.scala.lang.psi.types.nonvalue.ScTypePolymorphicType
-import org.jetbrains.plugins.scala.lang.psi.types.recursiveUpdate.{AfterUpdate, ScSubstitutor}
+import org.jetbrains.plugins.scala.lang.psi.types.recursiveUpdate.ScSubstitutor
 import org.jetbrains.plugins.scala.lang.refactoring.util.ScTypeUtil.AliasType
 
 class ScParameterizedType private(val designator: ScType, val typeArguments: Seq[ScType]) extends ParameterizedType with ScalaType {
@@ -68,62 +68,63 @@ class ScParameterizedType private(val designator: ScType, val typeArguments: Seq
     }
   }
 
-  override def equivInner(r: ScType, uSubst: ScUndefinedSubstitutor, falseUndef: Boolean): (Boolean, ScUndefinedSubstitutor) = {
+  override def equivInner(r: ScType, constraints: ConstraintSystem, falseUndef: Boolean): ConstraintsResult = {
     val Conformance: ScalaConformance = typeSystem
     val Nothing = projectContext.stdTypes.Nothing
 
-    var undefinedSubst = uSubst
     (this, r) match {
-      case (ParameterizedType(Nothing, _), Nothing) => (true, uSubst)
-      case (ParameterizedType(Nothing, _), ParameterizedType(Nothing, _)) => (true, uSubst)
+      case (ParameterizedType(Nothing, _), Nothing) => constraints
+      case (ParameterizedType(Nothing, _), ParameterizedType(Nothing, _)) => constraints
       case (ParameterizedType(ScAbstractType(tp, lower, upper), args), _) =>
-        if (falseUndef) return (false, uSubst)
+        if (falseUndef) return ConstraintsResult.Failure
+
         val subst = ScSubstitutor.bind(tp.typeParameters, args)
-        var conformance = r.conforms(subst.subst(upper), uSubst)
-        if (!conformance._1) return (false, uSubst)
-        conformance = subst.subst(lower).conforms(r, conformance._2)
-        if (!conformance._1) return (false, uSubst)
-        (true, conformance._2)
+        var conformance = r.conforms(subst.subst(upper), constraints)
+        if (conformance.isFailure) return ConstraintsResult.Failure
+
+        conformance = subst.subst(lower).conforms(r, conformance.constraints)
+        if (conformance.isFailure) return ConstraintsResult.Failure
+
+        conformance
       case (ParameterizedType(proj@ScProjectionType(_, _), _), _) if proj.actualElement.isInstanceOf[ScTypeAliasDefinition] =>
         isAliasType match {
           case Some(AliasType(_: ScTypeAliasDefinition, lower, _)) =>
             (lower match {
               case Right(tp) => tp
-              case _ => return (false, uSubst)
-            }).equiv(r, uSubst, falseUndef)
-          case _ => (false, uSubst)
+              case _ => return ConstraintsResult.Failure
+            }).equiv(r, constraints, falseUndef)
+          case _ => ConstraintsResult.Failure
         }
       case (ParameterizedType(ScDesignatorType(_: ScTypeAliasDefinition), _), _) =>
         isAliasType match {
           case Some(AliasType(_: ScTypeAliasDefinition, lower, _)) =>
             (lower match {
               case Right(tp) => tp
-              case _ => return (false, uSubst)
-            }).equiv(r, uSubst, falseUndef)
-          case _ => (false, uSubst)
+              case _ => return ConstraintsResult.Failure
+            }).equiv(r, constraints, falseUndef)
+          case _ => ConstraintsResult.Failure
         }
       case (ParameterizedType(UndefinedType(_, _), _), ParameterizedType(_, _)) =>
-        val t = Conformance.processHigherKindedTypeParams(this, r.asInstanceOf[ParameterizedType], undefinedSubst, falseUndef)
-        if (!t._1) return (false, undefinedSubst)
-        (true, t._2)
+        Conformance.processHigherKindedTypeParams(this, r.asInstanceOf[ParameterizedType], constraints, falseUndef)
       case (ParameterizedType(_, _), ParameterizedType(UndefinedType(_, _), _)) =>
-        val t = Conformance.processHigherKindedTypeParams(r.asInstanceOf[ParameterizedType], this, undefinedSubst, falseUndef)
-        if (!t._1) return (false, undefinedSubst)
-        (true, t._2)
+        Conformance.processHigherKindedTypeParams(r.asInstanceOf[ParameterizedType], this, constraints, falseUndef)
       case (ParameterizedType(_, _), ParameterizedType(designator1, typeArgs1)) =>
-        var t = designator.equiv(designator1, undefinedSubst, falseUndef)
-        if (!t._1) return (false, undefinedSubst)
-        undefinedSubst = t._2
-        if (typeArguments.length != typeArgs1.length) return (false, undefinedSubst)
+        var lastConstraints = constraints
+        var t = designator.equiv(designator1, constraints, falseUndef)
+        if (t.isFailure) return ConstraintsResult.Failure
+        lastConstraints = t.constraints
+        if (typeArguments.length != typeArgs1.length) return ConstraintsResult.Failure
         val iterator1 = typeArguments.iterator
         val iterator2 = typeArgs1.iterator
         while (iterator1.hasNext && iterator2.hasNext) {
-          t = iterator1.next().equiv(iterator2.next(), undefinedSubst, falseUndef)
-          if (!t._1) return (false, undefinedSubst)
-          undefinedSubst = t._2
+          t = iterator1.next().equiv(iterator2.next(), lastConstraints, falseUndef)
+
+          if (t.isFailure) return ConstraintsResult.Failure
+
+          lastConstraints = t.constraints
         }
-        (true, undefinedSubst)
-      case _ => (false, undefinedSubst)
+        lastConstraints
+      case _ => ConstraintsResult.Failure
     }
   }
 
@@ -173,6 +174,4 @@ object ScParameterizedType {
       case _ => simple
     }
   }
-
-  def unapply(arg: ScParameterizedType): Option[(ScType, Seq[ScType])] = Some((arg.designator, arg.typeArguments))
 }

@@ -10,9 +10,9 @@ import com.intellij.openapi.module.Module
 import com.intellij.openapi.progress.ProgressManager
 import com.intellij.openapi.project.Project
 import com.intellij.openapi.roots.{ProjectFileIndex, ProjectRootManager}
+import com.intellij.openapi.util.text.StringUtil
 import com.intellij.openapi.util.{Pair, TextRange}
 import com.intellij.psi._
-import com.intellij.psi.codeStyle.CodeStyleSettingsManager
 import com.intellij.psi.impl.light.LightModifierList
 import com.intellij.psi.scope.PsiScopeProcessor
 import com.intellij.psi.search.SearchScope
@@ -49,7 +49,9 @@ import org.jetbrains.plugins.scala.lang.psi.types.api.designator.{ScDesignatorTy
 import org.jetbrains.plugins.scala.lang.psi.types.nonvalue.{Parameter, ScTypePolymorphicType}
 import org.jetbrains.plugins.scala.lang.psi.types.recursiveUpdate.ScSubstitutor
 import org.jetbrains.plugins.scala.lang.psi.types.result._
+import org.jetbrains.plugins.scala.lang.refactoring.ScalaNamesValidator
 import org.jetbrains.plugins.scala.lang.refactoring.util.ScTypeUtil.AliasType
+import org.jetbrains.plugins.scala.lang.refactoring.util.ScalaNamesUtil
 import org.jetbrains.plugins.scala.lang.resolve.ScalaResolveResult
 import org.jetbrains.plugins.scala.lang.resolve.processor._
 import org.jetbrains.plugins.scala.lang.structureView.ScalaElementPresentation
@@ -399,7 +401,7 @@ object ScalaPsiUtil {
     val tp = _tp.removeAliasDefinitions()
     val implicitObjectsCache = ScalaPsiManager.instance(project).collectImplicitObjectsCache
     val cacheKey = (tp, scope)
-    var cachedResult = implicitObjectsCache.get(cacheKey)
+    val cachedResult = implicitObjectsCache.get(cacheKey)
     if (cachedResult != null) return cachedResult
 
     val visited: mutable.HashSet[ScType] = new mutable.HashSet[ScType]()
@@ -514,56 +516,52 @@ object ScalaPsiUtil {
       }
     }
 
-    while (parts.nonEmpty) {
-      val part = parts.dequeue()
-      //here we want to convert projection types to right projections
-      val visited = new mutable.HashSet[PsiClass]()
-
-      @tailrec
-      def collectObjects(tp: ScType) {
-        tp match {
-          case _ if tp.isAny =>
-          case tp: StdType if Seq("Int", "Float", "Double", "Boolean", "Byte", "Short", "Long", "Char").contains(tp.name) =>
-            elementScope.getCachedObject("scala." + tp.name)
-              .foreach { o =>
+    @tailrec
+    def collectObjects(tp: ScType) {
+      tp match {
+        case _ if tp.isAny =>
+        case tp: StdType if Seq("Int", "Float", "Double", "Boolean", "Byte", "Short", "Long", "Char").contains(tp.name) =>
+          elementScope.getCachedObject("scala." + tp.name)
+            .foreach { o =>
               addResult(o.qualifiedName, ScDesignatorType(o))
             }
-          case ScDesignatorType(ta: ScTypeAliasDefinition) => collectObjects(ta.aliasedType.getOrAny)
-          case ScProjectionType.withActual(actualElem: ScTypeAliasDefinition, actualSubst) =>
-            collectObjects(actualSubst.subst(actualElem.aliasedType.getOrAny))
-          case ParameterizedType(ScDesignatorType(ta: ScTypeAliasDefinition), args) =>
-            val genericSubst = ScSubstitutor.bind(ta.typeParameters, args)
-            collectObjects(genericSubst.subst(ta.aliasedType.getOrAny))
-          case ParameterizedType(ScProjectionType.withActual(actualElem: ScTypeAliasDefinition, actualSubst), args) =>
-            val genericSubst = ScSubstitutor.bind(actualElem.typeParameters, args)
-            val s = actualSubst.followed(genericSubst)
-            collectObjects(s.subst(actualElem.aliasedType.getOrAny))
-          case _ =>
-            tp.extractClass match {
-              case Some(obj: ScObject) if !visited.contains(obj) => addResult(obj.qualifiedName, tp)
-              case Some(clazz) if !visited.contains(clazz) =>
-                getCompanionModule(clazz) match {
-                  case Some(obj: ScObject) =>
-                    tp match {
-                      case ScProjectionType(proj, _) =>
-                        addResult(obj.qualifiedName, ScProjectionType(proj, obj))
-                      case ParameterizedType(ScProjectionType(proj, _), _) =>
-                        addResult(obj.qualifiedName, ScProjectionType(proj, obj))
-                      case _ =>
-                        addResult(obj.qualifiedName, ScDesignatorType(obj))
-                    }
-                  case _ =>
-                }
-              case _ =>
-            }
-        }
+        case ScDesignatorType(ta: ScTypeAliasDefinition) => collectObjects(ta.aliasedType.getOrAny)
+        case ScProjectionType.withActual(actualElem: ScTypeAliasDefinition, actualSubst) =>
+          collectObjects(actualSubst.subst(actualElem.aliasedType.getOrAny))
+        case ParameterizedType(ScDesignatorType(ta: ScTypeAliasDefinition), args) =>
+          val genericSubst = ScSubstitutor.bind(ta.typeParameters, args)
+          collectObjects(genericSubst.subst(ta.aliasedType.getOrAny))
+        case ParameterizedType(ScProjectionType.withActual(actualElem: ScTypeAliasDefinition, actualSubst), args) =>
+          val genericSubst = ScSubstitutor.bind(actualElem.typeParameters, args)
+          val s = actualSubst.followed(genericSubst)
+          collectObjects(s.subst(actualElem.aliasedType.getOrAny))
+        case _ =>
+          tp.extractClass match {
+            case Some(obj: ScObject) => addResult(obj.qualifiedName, tp)
+            case Some(clazz) =>
+              getCompanionModule(clazz) match {
+                case Some(obj: ScObject) =>
+                  tp match {
+                    case ScProjectionType(proj, _) =>
+                      addResult(obj.qualifiedName, ScProjectionType(proj, obj))
+                    case ParameterizedType(ScProjectionType(proj, _), _) =>
+                      addResult(obj.qualifiedName, ScProjectionType(proj, obj))
+                    case _ =>
+                      addResult(obj.qualifiedName, ScDesignatorType(obj))
+                  }
+                case _ =>
+              }
+            case _ =>
+          }
       }
-
-      collectObjects(part)
     }
-    cachedResult = res.values.flatten.toSeq
-    implicitObjectsCache.put(cacheKey, cachedResult)
-    cachedResult
+
+    while (parts.nonEmpty) {
+      collectObjects(parts.dequeue())
+    }
+    val result = res.values.flatten.toSeq
+    implicitObjectsCache.put(cacheKey, result)
+    result
   }
 
   def parentPackage(packageFqn: String, project: Project): Option[ScPackageImpl] = {
@@ -1386,6 +1384,26 @@ object ScalaPsiUtil {
     }
   }
 
+  private def contextBoundParameterName(typeParameter: ScTypeParam, bound: ScTypeElement): String = {
+    val boundName = bound match {
+      case ScSimpleTypeElement(Some(ref)) => ref.refName
+      case projection: ScTypeProjection   => projection.refName
+      case _                              => bound.getText
+    }
+    val tpName = typeParameter.name
+    StringUtil.decapitalize(s"$boundName$$$tpName")
+  }
+
+  def originalContextBound(parameter: ScParameter): Option[(ScTypeParam, ScTypeElement)] = {
+    if (parameter.isPhysical) return None
+
+    val ownerTypeParams = parameter.owner.asOptionOf[ScTypeParametersOwner].toSeq.flatMap(_.typeParameters)
+    val bounds = ownerTypeParams.flatMap(tp => tp.contextBoundTypeElement.map((tp, _)))
+    bounds.find {
+      case (tp, te) => contextBoundParameterName(tp, te) == parameter.name
+    }
+  }
+
   /** Creates a synthetic parameter clause based on view and context bounds */
   def syntheticParamClause(parameterOwner: ScTypeParametersOwner,
                            paramClauses: ScParameters,
@@ -1415,13 +1433,14 @@ object ScalaPsiUtil {
     val bounds = typeParameters.flatMap { typeParameter =>
       val parameterName = typeParameter.name
       typeParameter.contextBoundTypeElement.map { typeElement =>
-        s"${typeElement.getText}[$parameterName]"
+        val syntheticName = contextBoundParameterName(typeParameter, typeElement)
+        s"$syntheticName : ${typeElement.getText}[$parameterName]"
       }
     }
 
-    val clauses = (views ++ bounds).zipWithIndex.map {
+    val clauses = views.zipWithIndex.map {
       case (text, index) => s"ev$$${index + 1}: $text"
-    }
+    } ++ bounds
 
     val result = createImplicitClauseFromTextWithContext(clauses, paramClauses, isClassParameter)
     result.toSeq

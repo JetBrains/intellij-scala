@@ -118,7 +118,7 @@ class CompletionProcessor(override val kinds: Set[ResolveTargets.Value],
   }
 
   override def changedLevel: Boolean = {
-    collectResults(candidatesSet)
+    collectFromLevelSet()
 
     if (!levelSet.isEmpty) {
       uniqueNamesSet.addAll(levelUniqueNamesSet)
@@ -130,17 +130,17 @@ class CompletionProcessor(override val kinds: Set[ResolveTargets.Value],
   }
 
   override def candidatesS: Set[ScalaResolveResult] = {
-    collectResults(candidatesSet)
+    collectFromLevelSet()
     candidatesSet
   }
 
 
-  private def collectResults(accumulator: mutable.HashSet[ScalaResolveResult]): Unit = {
+  private def collectFromLevelSet(): Unit = {
     val iterator = levelSet.iterator()
     while (iterator.hasNext) {
       val next = iterator.next()
       postProcess(next)
-      accumulator.add(next)
+      candidatesSet += next
     }
   }
 

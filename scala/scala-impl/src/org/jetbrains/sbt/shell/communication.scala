@@ -3,7 +3,7 @@ package org.jetbrains.sbt.shell
 import java.util.concurrent._
 
 import com.intellij.execution.process.{AnsiEscapeDecoder, OSProcessHandler, ProcessAdapter, ProcessEvent}
-import com.intellij.openapi.components.AbstractProjectComponent
+import com.intellij.openapi.components.ProjectComponent
 import com.intellij.openapi.project.Project
 import com.intellij.openapi.util.Key
 import org.jetbrains.ide.PooledThreadExecutor
@@ -18,7 +18,7 @@ import scala.util.{Success, Try}
 /**
   * Created by jast on 2016-11-06.
   */
-class SbtShellCommunication(project: Project) extends AbstractProjectComponent(project) {
+class SbtShellCommunication(project: Project) extends ProjectComponent {
 
   private lazy val process = SbtProcessManager.forProject(project)
 

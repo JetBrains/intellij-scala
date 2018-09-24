@@ -30,22 +30,30 @@ package object types {
       typeSystem.equiv(scType, `type`)
     }
 
-    def equiv(`type`: ScType, undefinedSubstitutor: ScUndefinedSubstitutor, falseUndef: Boolean = true): (Boolean, ScUndefinedSubstitutor) = {
-      typeSystem.equivInner(scType, `type`, undefinedSubstitutor, falseUndef)
+    def equiv(`type`: ScType, constraints: ConstraintSystem, falseUndef: Boolean = true): ConstraintsResult = {
+      typeSystem.equivInner(scType, `type`, constraints, falseUndef)
     }
 
     def conforms(`type`: ScType): Boolean = {
-      typeSystem.conformsInner(`type`, scType)._1
+      typeSystem.conformsInner(`type`, scType).isSuccess
     }
 
     def weakConforms(`type`: ScType): Boolean = {
-      typeSystem.conformsInner(`type`, scType, checkWeak = true)._1
+      typeSystem.conformsInner(`type`, scType, checkWeak = true).isSuccess
+    }
+
+    def conformanceSubstitutor(`type`: ScType): Option[ScSubstitutor] = {
+      implicit val context: ProjectContext = `type`.projectContext
+      conforms(`type`, ConstraintSystem.empty) match {
+        case ConstraintSystem(substitutor) => Some(substitutor)
+        case _ => None
+      }
     }
 
     def conforms(`type`: ScType,
-                 undefinedSubstitutor: ScUndefinedSubstitutor,
-                 checkWeak: Boolean = false): (Boolean, ScUndefinedSubstitutor) = {
-      typeSystem.conformsInner(`type`, scType, substitutor = undefinedSubstitutor, checkWeak = checkWeak)
+                 constraints: ConstraintSystem,
+                 checkWeak: Boolean = false): ConstraintsResult = {
+      typeSystem.conformsInner(`type`, scType, constraints = constraints, checkWeak = checkWeak)
     }
 
     def glb(`type`: ScType, checkWeak: Boolean = false): ScType = {
@@ -206,7 +214,7 @@ package object types {
         .getOrElse(scType)
     
     def tryUnwrapSeqType: ScType = scType match {
-      case ScParameterizedType(ScDesignatorType(des: PsiClass), Seq(targ))
+      case ParameterizedType(ScDesignatorType(des: PsiClass), Seq(targ))
         if des.qualifiedName == "scala.collection.Seq" =>
         targ
       case _ => scType

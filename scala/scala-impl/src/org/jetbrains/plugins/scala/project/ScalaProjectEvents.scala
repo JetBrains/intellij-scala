@@ -2,14 +2,14 @@ package org.jetbrains.plugins.scala
 package project
 
 import com.intellij.ProjectTopics
-import com.intellij.openapi.components.AbstractProjectComponent
+import com.intellij.openapi.components.ProjectComponent
 import com.intellij.openapi.project.Project
 import com.intellij.openapi.roots.{ModuleRootEvent, ModuleRootListener}
 
 /**
  * @author Pavel Fatin
  */
-class ScalaProjectEvents(project: Project) extends AbstractProjectComponent(project) {
+class ScalaProjectEvents(project: Project) extends ProjectComponent {
   private var listeners: List[ScalaProjectListener] = Nil
 
   private val connection = project.getMessageBus.connect()

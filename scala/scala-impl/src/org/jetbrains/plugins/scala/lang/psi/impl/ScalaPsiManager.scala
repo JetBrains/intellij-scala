@@ -5,22 +5,20 @@ package impl
 
 import java.util
 import java.util.concurrent.ConcurrentMap
-import java.util.concurrent.atomic.AtomicLong
 
 import com.intellij.ProjectTopics
 import com.intellij.ide.highlighter.JavaFileType
-import com.intellij.openapi.components.AbstractProjectComponent
+import com.intellij.openapi.components.ProjectComponent
 import com.intellij.openapi.diagnostic.Logger
 import com.intellij.openapi.project.{DumbService, Project, ProjectUtil}
-import com.intellij.openapi.roots.{ModuleRootEvent, ModuleRootListener}
+import com.intellij.openapi.roots.{ModuleRootEvent, ModuleRootListener, ProjectRootManager}
 import com.intellij.openapi.util._
 import com.intellij.openapi.vfs.VirtualFile
 import com.intellij.psi._
 import com.intellij.psi.impl.{JavaPsiFacadeImpl, PsiTreeChangeEventImpl}
 import com.intellij.psi.search.{DelegatingGlobalSearchScope, GlobalSearchScope, PsiShortNamesCache}
-import com.intellij.psi.util.PsiModificationTracker
-import com.intellij.util.{ArrayUtil, ObjectUtils}
 import com.intellij.util.containers.ContainerUtil
+import com.intellij.util.{ArrayUtil, ObjectUtils}
 import org.jetbrains.annotations.TestOnly
 import org.jetbrains.plugins.scala.caches.{CachesUtil, ScalaShortNamesCacheManager}
 import org.jetbrains.plugins.scala.extensions._
@@ -29,10 +27,11 @@ import org.jetbrains.plugins.scala.lang.psi.api.statements.params.idToName
 import org.jetbrains.plugins.scala.lang.psi.api.toplevel.ScPackaging
 import org.jetbrains.plugins.scala.lang.psi.api.toplevel.typedef.{ScObject, ScTemplateDefinition}
 import org.jetbrains.plugins.scala.lang.psi.impl.toplevel.synthetic.ScSyntheticPackage
+import org.jetbrains.plugins.scala.lang.psi.impl.toplevel.typedef.MixinNodes
 import org.jetbrains.plugins.scala.lang.psi.impl.toplevel.typedef.TypeDefinitionMembers.ParameterlessNodes.{Map => PMap}
 import org.jetbrains.plugins.scala.lang.psi.impl.toplevel.typedef.TypeDefinitionMembers.SignatureNodes.{Map => SMap}
 import org.jetbrains.plugins.scala.lang.psi.impl.toplevel.typedef.TypeDefinitionMembers.TypeNodes.{Map => TMap}
-import org.jetbrains.plugins.scala.lang.psi.impl.toplevel.typedef.TypeDefinitionMembers._
+import org.jetbrains.plugins.scala.lang.psi.impl.toplevel.typedef.TypeDefinitionMembers.{ParameterlessNodes, SignatureNodes, TypeNodes}
 import org.jetbrains.plugins.scala.lang.psi.implicits.ImplicitCollectorCache
 import org.jetbrains.plugins.scala.lang.psi.light.PsiClassWrapper
 import org.jetbrains.plugins.scala.lang.psi.stubs.index.ScalaIndexKeys
@@ -41,7 +40,7 @@ import org.jetbrains.plugins.scala.lang.psi.types.api.designator.ScProjectionTyp
 import org.jetbrains.plugins.scala.lang.psi.types.api.{Any, ParameterizedType, TypeParameterType}
 import org.jetbrains.plugins.scala.lang.refactoring.util.ScalaNamesUtil
 import org.jetbrains.plugins.scala.lang.resolve.SyntheticClassProducer
-import org.jetbrains.plugins.scala.macroAnnotations.{CachedWithoutModificationCount, ValueWrapper}
+import org.jetbrains.plugins.scala.macroAnnotations.{CachedInUserData, CachedWithoutModificationCount, ValueWrapper}
 import org.jetbrains.plugins.scala.project.{ProjectContext, ProjectExt}
 import org.jetbrains.plugins.scala.settings.ScalaProjectSettings
 
@@ -58,8 +57,8 @@ class ScalaPsiManager(val project: Project) {
   def isInJavaPsiFacade: Boolean = inJavaPsiFacade.get
 
   private val clearCacheOnChange = new mutable.ArrayBuffer[util.Map[_ <: Any, _ <: Any]]()
-  private val clearCacheOnLowMemory = new mutable.ArrayBuffer[util.Map[_ <: Any, _ <: Any]]()
-  private val clearCacheOnOutOfBlockChange = new mutable.ArrayBuffer[util.Map[_ <: Any, _ <: Any]]()
+  private val clearCacheOnTopLevelChange = new mutable.ArrayBuffer[util.Map[_ <: Any, _ <: Any]]()
+  private val clearCacheOnRootsChange = new mutable.ArrayBuffer[util.Map[_ <: Any, _ <: Any]]()
 
   val collectImplicitObjectsCache: ConcurrentMap[(ScType, GlobalSearchScope), Seq[ScType]] =
     ContainerUtil.newConcurrentMap[(ScType, GlobalSearchScope), Seq[ScType]]()
@@ -73,7 +72,7 @@ class ScalaPsiManager(val project: Project) {
     else getParameterlessSignaturesCached(tp, compoundTypeThisType)
   }
 
-  @CachedWithoutModificationCount(synchronized = false, valueWrapper = ValueWrapper.SofterReference, clearCacheOnChange, clearCacheOnLowMemory)
+  @CachedWithoutModificationCount(synchronized = false, valueWrapper = ValueWrapper.SofterReference, clearCacheOnChange)
   private def getParameterlessSignaturesCached(tp: ScCompoundType, compoundTypeThisType: Option[ScType]): PMap = {
     ParameterlessNodes.build(tp, compoundTypeThisType)
   }
@@ -83,7 +82,7 @@ class ScalaPsiManager(val project: Project) {
     else getTypesCached(tp, compoundTypeThisType)
   }
 
-  @CachedWithoutModificationCount(synchronized = false, ValueWrapper.SofterReference, clearCacheOnChange, clearCacheOnLowMemory)
+  @CachedWithoutModificationCount(synchronized = false, ValueWrapper.SofterReference, clearCacheOnChange)
   private def getTypesCached(tp: ScCompoundType, compoundTypeThisType: Option[ScType]): TMap = {
     TypeNodes.build(tp, compoundTypeThisType)
   }
@@ -93,12 +92,12 @@ class ScalaPsiManager(val project: Project) {
     getSignaturesCached(tp, compoundTypeThisType)
   }
 
-  @CachedWithoutModificationCount(synchronized = false, ValueWrapper.SofterReference, clearCacheOnChange, clearCacheOnLowMemory)
+  @CachedWithoutModificationCount(synchronized = false, ValueWrapper.SofterReference, clearCacheOnChange)
   private def getSignaturesCached(tp: ScCompoundType, compoundTypeThisType: Option[ScType]): SMap = {
     SignatureNodes.build(tp, compoundTypeThisType)
   }
 
-  @CachedWithoutModificationCount(synchronized = false, ValueWrapper.SofterReference, clearCacheOnChange, clearCacheOnLowMemory)
+  @CachedWithoutModificationCount(synchronized = false, ValueWrapper.SofterReference, clearCacheOnChange)
   def simpleAliasProjectionCached(projection: ScProjectionType): ScType = {
     ScProjectionType.simpleAliasProjection(projection)
   }
@@ -110,11 +109,11 @@ class ScalaPsiManager(val project: Project) {
 
   import ScalaIndexKeys._
 
-  @CachedWithoutModificationCount(synchronized = false, ValueWrapper.SofterReference, clearCacheOnOutOfBlockChange)
+  @CachedWithoutModificationCount(synchronized = false, ValueWrapper.SofterReference, clearCacheOnTopLevelChange)
   private def getPackageImplicitObjectsCached(fqn: String, scope: GlobalSearchScope): Iterable[ScObject] =
     IMPLICIT_OBJECT_KEY.elements(ScalaNamesUtil.cleanFqn(fqn), scope, classOf[ScObject])
 
-  @CachedWithoutModificationCount(synchronized = false, ValueWrapper.SofterReference, clearCacheOnOutOfBlockChange)
+  @CachedWithoutModificationCount(synchronized = false, ValueWrapper.SofterReference, clearCacheOnTopLevelChange)
   def getCachedPackage(inFqn: String): Option[PsiPackage] = {
     //to find java packages with scala keyword name as PsiPackage not ScSyntheticPackage
     val fqn = ScalaNamesUtil.cleanFqn(inFqn)
@@ -133,7 +132,7 @@ class ScalaPsiManager(val project: Project) {
   def getCachedPackageInScope(fqn: String, scope: GlobalSearchScope): Option[PsiPackage] =
     getCachedPackage(fqn).filter(isPackageInScope(_, scope))
 
-  @CachedWithoutModificationCount(synchronized = false, ValueWrapper.SofterReference, clearCacheOnOutOfBlockChange)
+  @CachedWithoutModificationCount(synchronized = false, ValueWrapper.SofterReference, clearCacheOnTopLevelChange)
   def getCachedClass(scope: GlobalSearchScope, fqn: String): Option[PsiClass] = {
     def getCachedFacadeClass(scope: GlobalSearchScope, fqn: String): Option[PsiClass] = {
       inJavaPsiFacade.set(true)
@@ -171,7 +170,7 @@ class ScalaPsiManager(val project: Project) {
     else getClassesImpl(pack, scope)
   }
 
-  @CachedWithoutModificationCount(synchronized = false, ValueWrapper.None, clearCacheOnLowMemory, clearCacheOnOutOfBlockChange)
+  @CachedWithoutModificationCount(synchronized = false, ValueWrapper.None, clearCacheOnTopLevelChange)
   private def getClassesCached(pack: PsiPackage, scope: GlobalSearchScope): Array[PsiClass] = getClassesImpl(pack, scope)
 
   private[this] def getClassesImpl(pack: PsiPackage, scope: GlobalSearchScope): Array[PsiClass] = {
@@ -189,7 +188,7 @@ class ScalaPsiManager(val project: Project) {
     classes ++ scalaClasses
   }
 
-  @CachedWithoutModificationCount(synchronized = false, ValueWrapper.SofterReference, clearCacheOnOutOfBlockChange)
+  @CachedWithoutModificationCount(synchronized = false, ValueWrapper.SofterReference, clearCacheOnTopLevelChange)
   def getCachedClasses(scope: GlobalSearchScope, fqn: String): Array[PsiClass] = {
     def getCachedFacadeClasses(scope: GlobalSearchScope, fqn: String): Array[PsiClass] = {
       inJavaPsiFacade.set(true)
@@ -213,7 +212,7 @@ class ScalaPsiManager(val project: Project) {
     ArrayUtil.mergeArrays(classes, ArrayUtil.mergeArrays(fromScala.toArray, SyntheticClassProducer.getAllClasses(fqn, scope)))
   }
 
-  @CachedWithoutModificationCount(synchronized = false, ValueWrapper.SofterReference, clearCacheOnOutOfBlockChange)
+  @CachedWithoutModificationCount(synchronized = false, ValueWrapper.SofterReference, clearCacheOnTopLevelChange)
   def cachedFunction1Type(elementScope: ElementScope): Option[ScParameterizedType] =
     elementScope.function1Type()
 
@@ -222,7 +221,7 @@ class ScalaPsiManager(val project: Project) {
     getJavaPackageClassNamesCached(psiPackage, scope)
   }
 
-  @CachedWithoutModificationCount(synchronized = false, ValueWrapper.None, clearCacheOnLowMemory, clearCacheOnOutOfBlockChange)
+  @CachedWithoutModificationCount(synchronized = false, ValueWrapper.None, clearCacheOnTopLevelChange)
   private def getJavaPackageClassNamesCached(psiPackage: PsiPackage, scope: GlobalSearchScope): Set[String] = {
     val classes = JAVA_CLASS_NAME_IN_PACKAGE_KEY.elements(ScalaNamesUtil.cleanFqn(psiPackage.getQualifiedName), scope, classOf[PsiClass])
 
@@ -243,7 +242,7 @@ class ScalaPsiManager(val project: Project) {
     getScalaClassNamesCached(psiPackage, scope)
   }
 
-  @CachedWithoutModificationCount(synchronized = false, ValueWrapper.None, clearCacheOnLowMemory, clearCacheOnOutOfBlockChange)
+  @CachedWithoutModificationCount(synchronized = false, ValueWrapper.None, clearCacheOnTopLevelChange)
   def getScalaClassNamesCached(psiPackage: PsiPackage, scope: GlobalSearchScope): Set[String] =
     CLASS_NAME_IN_PACKAGE_KEY.elements(ScalaNamesUtil.cleanFqn(psiPackage.getQualifiedName), scope, classOf[PsiClass])
       .map(_.name)
@@ -265,14 +264,17 @@ class ScalaPsiManager(val project: Project) {
     clearCaches()
   }
 
-  private def clearOnLowMemory(): Unit = {
-    clearCacheOnLowMemory.foreach(_.clear())
-    clearCaches()
+  private def clearOnLowMemory(): Unit = clearAllCaches()
+
+  private def clearOnTopLevelChange(): Unit = {
+    clearOnChange()
+    clearCacheOnTopLevelChange.foreach(_.clear())
+    syntheticPackages.clear()
   }
 
-  private def clearOnJavaStructureChange(): Unit = {
-    clearCacheOnOutOfBlockChange.foreach(_.clear())
-    syntheticPackages.clear()
+  private def clearOnRootsChange(): Unit = {
+    clearOnTopLevelChange()
+    clearCacheOnRootsChange.foreach(_.clear())
   }
 
   private[impl] def projectOpened(): Unit = {
@@ -312,9 +314,49 @@ class ScalaPsiManager(val project: Project) {
     STABLE_ALIAS_NAME_KEY.allKeys
   }
 
+  private val nonScalaModificationTracker = new SimpleModificationTracker
+
+  val topLevelModificationTracker: ScalaTopLevelTracker = new ScalaTopLevelTracker(nonScalaModificationTracker)
+  val rootManager: ModificationTracker = ProjectRootManager.getInstance(project)
+
+  def getModificationCount: Long = topLevelModificationTracker.getModificationCount
+
+  def incModificationCount(): Unit = topLevelModificationTracker.incModificationCount()
+
+  sealed abstract class SignatureCaches[N <: MixinNodes](val nodes: N) {
+
+    private val forLibraryMap: ConcurrentMap[PsiClass, nodes.Map] = ContainerUtil.createConcurrentWeakMap()
+    private val forTopLevelMap: ConcurrentMap[PsiClass, nodes.Map] = ContainerUtil.createConcurrentWeakMap()
+
+    clearCacheOnRootsChange += forLibraryMap
+    clearCacheOnTopLevelChange += forTopLevelMap
+
+    private def forLibraryClasses(clazz: PsiClass): nodes.Map = forLibraryMap.computeIfAbsent(clazz, nodes.build)
+
+    private def forTopLevelClasses(clazz: PsiClass): nodes.Map = forTopLevelMap.computeIfAbsent(clazz, nodes.build)
+
+    def cachedMap(clazz: PsiClass): nodes.Map = {
+      CachesUtil.libraryAwareModTracker(clazz) match {
+        case `rootManager`                 => forLibraryClasses(clazz)
+        case `topLevelModificationTracker` => forTopLevelClasses(clazz)
+        case tracker =>
+
+          @CachedInUserData(clazz, tracker)
+          def cachedInUserData(clazz: PsiClass, n: MixinNodes): nodes.Map = nodes.build(clazz)
+
+          //@CachedInUserData creates a single map for all 3 cases, so we need to pass `nodes` as a parameter to have different keys
+          cachedInUserData(clazz, nodes)
+      }
+    }
+  }
+
+  object SignatureNodesCache     extends SignatureCaches(SignatureNodes)
+  object ParameterlessNodesCache extends SignatureCaches(ParameterlessNodes)
+  object TypeNodesCache          extends SignatureCaches(TypeNodes)
+
   object CacheInvalidator extends PsiTreeChangeAdapter {
     @volatile
-    private var javaStructureModCount: Long = 0L
+    private var topLevelModCount: Long = 0L
 
     private def fromIdeaInternalFile(event: PsiTreeChangeEvent) = {
       val virtFile = event.getFile match {
@@ -327,47 +369,49 @@ class ScalaPsiManager(val project: Project) {
       virtFile.exists(ProjectUtil.isProjectOrWorkspaceFile)
     }
 
-    private def onPsiChange(event: PsiTreeChangeEvent): Unit = {
+    private def shouldClear(event: PsiTreeChangeEvent): Boolean = {
       event match {
-        case impl: PsiTreeChangeEventImpl if impl.isGenericChange => return
-        case _ if fromIdeaInternalFile(event) => return
-        case _ =>
-      }
-
-      ScalaPsiManager.LOG.debug(s"Clear caches on psi change: $event")
-
-      CachesUtil.updateModificationCount(event.getParent)
-      clearOnChange()
-      val count = PsiModificationTracker.SERVICE.getInstance(project).getJavaStructureModificationCount
-      if (javaStructureModCount != count) {
-        javaStructureModCount = count
-        clearOnJavaStructureChange()
+        case impl: PsiTreeChangeEventImpl if impl.isGenericChange => false
+        case _ if fromIdeaInternalFile(event)                     => false
+        case _                                                    => true
       }
     }
 
-    override def childRemoved(event: PsiTreeChangeEvent): Unit = onPsiChange(event)
+    private def onPsiChange(event: PsiTreeChangeEvent, psiElement: PsiElement): Unit = {
+      if (!shouldClear(event)) return
 
-    override def childReplaced(event: PsiTreeChangeEvent): Unit = onPsiChange(event)
+      ScalaPsiManager.LOG.debug(s"Clear caches on psi change: $event")
 
-    override def childAdded(event: PsiTreeChangeEvent): Unit = onPsiChange(event)
+      val isScala = psiElement != null && psiElement.getLanguage.isKindOf(ScalaLanguage.INSTANCE)
 
-    override def childrenChanged(event: PsiTreeChangeEvent): Unit = onPsiChange(event)
+      if (isScala) {
+        CachesUtil.updateModificationCount(psiElement)
+      } else {
+        nonScalaModificationTracker.incModificationCount()
+      }
 
-    override def childMoved(event: PsiTreeChangeEvent): Unit = onPsiChange(event)
+      val count = topLevelModificationTracker.getModificationCount
+      if (topLevelModCount != count) {
+        topLevelModCount = count
+        clearOnTopLevelChange()
+      }
+      else clearOnChange()
+    }
 
-    override def propertyChanged(event: PsiTreeChangeEvent): Unit = onPsiChange(event)
+    override def childRemoved(event: PsiTreeChangeEvent): Unit = onPsiChange(event, event.getParent)
+
+    override def childReplaced(event: PsiTreeChangeEvent): Unit = onPsiChange(event, event.getNewChild)
+
+    override def childAdded(event: PsiTreeChangeEvent): Unit = onPsiChange(event, event.getChild)
+
+    override def childrenChanged(event: PsiTreeChangeEvent): Unit = onPsiChange(event, event.getParent)
+
+    override def childMoved(event: PsiTreeChangeEvent): Unit = onPsiChange(event, event.getChild)
+
+    override def propertyChanged(event: PsiTreeChangeEvent): Unit = onPsiChange(event, null)
   }
 
-  val modificationTracker: ScalaPsiModificationTracker = new ScalaPsiModificationTracker(project)
-
-  def getModificationCount: Long = modificationTracker.getModificationCount
-
-  def incModificationCount(): Long = modificationTracker.incModificationCount()
-
-  def clearAllCaches(): Unit = {
-    clearOnChange()
-    clearOnJavaStructureChange()
-  }
+  def clearAllCaches(): Unit = clearOnRootsChange()
 
   @TestOnly
   def clearCachesOnChange(): Unit = {
@@ -390,8 +434,7 @@ object ScalaPsiManager {
       override def rootsChanged(event: ModuleRootEvent) {
         LOG.debug("Clear caches on root change")
         val manager = ScalaPsiManager.instance(project)
-        manager.clearOnChange()
-        manager.clearOnJavaStructureChange()
+        manager.clearOnRootsChange()
         project.putUserData(CachesUtil.PROJECT_HAS_DOTTY_KEY, null)
       }
     })
@@ -408,7 +451,7 @@ object ScalaPsiManager {
   object AnyScalaPsiModificationTracker extends SimpleModificationTracker
 }
 
-class ScalaPsiManagerComponent(project: Project) extends AbstractProjectComponent(project) {
+class ScalaPsiManagerComponent(project: Project) extends ProjectComponent {
   private var manager = new ScalaPsiManager(project)
 
   def instance: ScalaPsiManager =
@@ -428,15 +471,8 @@ class ScalaPsiManagerComponent(project: Project) extends AbstractProjectComponen
   }
 }
 
-class ScalaPsiModificationTracker(project: Project) extends ModificationTracker {
-
-  private val myRawModificationCount = new AtomicLong(0)
-
-  private val mainModificationTracker = PsiManager.getInstance(project).getModificationTracker
-
-  def getModificationCount: Long = {
-    myRawModificationCount.get() + mainModificationTracker.getJavaStructureModificationCount
+class ScalaTopLevelTracker(nonScalaPsiModTracker: ModificationTracker) extends SimpleModificationTracker {
+  override def getModificationCount: Long = {
+    super.getModificationCount + nonScalaPsiModTracker.getModificationCount
   }
-
-  def incModificationCount(): Long = myRawModificationCount.incrementAndGet()
 }

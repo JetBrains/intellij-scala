@@ -13,73 +13,82 @@
  * limitations under the License.
  */
 
-package org.jetbrains.plugins.scala.lang.macros.evaluator.impl
+package org.jetbrains.plugins.scala.lang
+package macros
+package evaluator
+package impl
 
-import com.intellij.psi.PsiNamedElement
+import com.intellij.psi.PsiElement
 import org.jetbrains.plugins.scala.extensions.PsiElementExt
-import org.jetbrains.plugins.scala.lang.macros.evaluator.{MacroContext, MacroImpl, ScalaMacroTypeable}
-import org.jetbrains.plugins.scala.lang.psi.{ElementScope, ScalaPsiUtil}
 import org.jetbrains.plugins.scala.lang.psi.api.base.patterns.ScPattern
 import org.jetbrains.plugins.scala.lang.psi.api.statements.{ScFunction, ScTypeAlias}
 import org.jetbrains.plugins.scala.lang.psi.api.toplevel.typedef.{ScObject, ScTypeDefinition}
 import org.jetbrains.plugins.scala.lang.psi.types._
 import org.jetbrains.plugins.scala.lang.psi.types.api.UndefinedType
 import org.jetbrains.plugins.scala.lang.psi.types.api.designator.{ScDesignatorType, ScProjectionType}
+import org.jetbrains.plugins.scala.lang.psi.{ElementScope, ScalaPsiUtil}
+import org.jetbrains.plugins.scala.project.ProjectContext
 
 /**
- * @author Mikhail.Mutcianko
- *         date 22.12.14
- */
-
+  * @author Mikhail.Mutcianko
+  *         date 22.12.14
+  */
 object ShapelessForProduct extends ScalaMacroTypeable {
 
   override val boundMacro: Seq[MacroImpl] =
-      MacroImpl("product", "shapeless.Generic") ::
-      MacroImpl("apply", "shapeless.LowPriorityGeneric") :: Nil
+    MacroImpl("product", "shapeless.Generic") ::
+      MacroImpl("apply", "shapeless.LowPriorityGeneric") ::
+      Nil
 
   override def checkMacro(macros: ScFunction, context: MacroContext): Option[ScType] = {
-    if (context.expectedType.isEmpty) return None
+    val place = context.place
+    implicit val elementScope: ElementScope = place.elementScope
 
-    implicit val elementScope: ElementScope = context.place.elementScope
+    for {
+      expectedType <- context.expectedType
+      genericClass <- findShapelessClass("Generic").collect {
+        case scalaClass: ScTypeDefinition => scalaClass
+      }
 
-    val clazz = elementScope.getCachedClass("shapeless.Generic")
-    clazz match {
-      case Some(c: ScTypeDefinition) =>
-        val tpt = c.typeParameters
-        if (tpt.isEmpty) return None
-        val undef = UndefinedType(tpt.head)
-        val genericType = ScParameterizedType(ScDesignatorType(c), Seq(undef))
-        val (res, undefSubst) = context.expectedType.get.conforms(genericType, ScUndefinedSubstitutor())
-        if (!res) return None
-        undefSubst.getSubstitutor match {
-          case Some(subst) =>
-            val productLikeType = subst.subst(undef)
-            val parts = ScPattern.extractProductParts(productLikeType, context.place)
-            if (parts.isEmpty) return None
-            val coloncolon = elementScope.getCachedClass("shapeless.::").getOrElse {
-              return None
-            }
-            val hnil = elementScope.getCachedClass("shapeless.HNil").getOrElse {
-              return None
-            }
-            val repr = parts.foldRight(ScDesignatorType(hnil): ScType) {
-              case (part, resultType) => ScParameterizedType(ScDesignatorType(coloncolon), Seq(part, resultType))
-            }
-            ScalaPsiUtil.getCompanionModule(c) match {
-              case Some(obj: ScObject) =>
-                val elem = obj.members.find {
-                  case a: ScTypeAlias if a.name == "Aux" => true
-                  case _ => false
-                }
-                if (elem.isEmpty) return None
-                Some(ScParameterizedType(ScProjectionType(ScDesignatorType(obj), elem.get.asInstanceOf[PsiNamedElement]),
-                  Seq(productLikeType, repr)))
-              case _ => None
-            }
-          case _ => None
-        }
-      case _ => None
-    }
+      nilTrait <- findShapelessClass("HNil")
+      nilType = ScDesignatorType(nilTrait)
+
+      consClass <- findShapelessClass("::")
+      consType = ScDesignatorType(consClass)
+
+      genericObject <- ScalaPsiUtil.getCompanionModule(genericClass).collect {
+        case scalaObject: ScObject => scalaObject
+      }
+      auxAlias <- genericObject.members.collectFirst {
+        case alias: ScTypeAlias if alias.name == "Aux" => alias
+      }
+
+      productLikeType <- productLikeType(genericClass, expectedType)
+
+      repr = reprType(productLikeType, place)(nilType, consType)
+      if !repr.isInstanceOf[ScDesignatorType]
+
+      projectionType = ScProjectionType(ScDesignatorType(genericObject), auxAlias)
+    } yield ScParameterizedType(projectionType, Seq(productLikeType, repr))
   }
 
+  private[this] def findShapelessClass(name: String)
+                                      (implicit scope: ElementScope) =
+    scope.getCachedClass(s"shapeless.$name")
+
+  private[this] def reprType(`type`: ScType, place: PsiElement)
+                            (nilType: ScType, consType: ScType) =
+    ScPattern.extractPossibleProductParts(`type`, place, isOneArgCaseClass = false).foldRight(nilType) {
+      case (part, resultType) => ScParameterizedType(consType, Seq(part, resultType))
+    }
+
+  private[this] def productLikeType(genericClass: ScTypeDefinition,
+                                    expectedType: ScType)
+                                   (implicit context: ProjectContext) = for {
+    parameter <- genericClass.typeParameters.headOption
+    undefinedType = UndefinedType(parameter)
+    genericType = ScParameterizedType(ScDesignatorType(genericClass), Seq(undefinedType))
+
+    substitutor <- expectedType.conformanceSubstitutor(genericType)
+  } yield substitutor.subst(undefinedType)
 }

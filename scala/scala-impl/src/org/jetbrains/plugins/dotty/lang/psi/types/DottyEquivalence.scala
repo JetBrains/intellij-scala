@@ -9,13 +9,15 @@ import org.jetbrains.plugins.scala.lang.psi.types._
 trait DottyEquivalence extends api.Equivalence {
   typeSystem: api.TypeSystem =>
 
-  override protected def equivComputable(left: ScType, right: ScType, substitutor: ScUndefinedSubstitutor, falseUndef: Boolean) = {
-    new Computable[(Boolean, ScUndefinedSubstitutor)] {
-      override def compute(): (Boolean, ScUndefinedSubstitutor) = (left match {
-        case DottyNoType() => false
-        case _ if left eq right => true
-        case _ => (left conforms right) && (right conforms left)
-      }, substitutor)
+  override protected def equivComputable(left: ScType, right: ScType, constraints: ConstraintSystem, falseUndef: Boolean): Computable[ConstraintsResult] = {
+    new Computable[ConstraintsResult] {
+      override def compute(): ConstraintsResult = left match {
+        case DottyNoType() => ConstraintsResult.Failure
+        case _ if left eq right => constraints
+        case _ =>
+          if ((left conforms right) && (right conforms left)) constraints
+          else ConstraintsResult.Failure
+      }
     }
   }
 }

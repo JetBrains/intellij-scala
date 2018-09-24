@@ -3,7 +3,7 @@ package project.notifications
 
 import com.intellij.notification.NotificationType
 import com.intellij.openapi.actionSystem.{ActionManager, ActionPlaces}
-import com.intellij.openapi.components.AbstractProjectComponent
+import com.intellij.openapi.components.ProjectComponent
 import com.intellij.openapi.module.ModuleManager
 import com.intellij.openapi.project.Project
 import com.intellij.openapi.ui.playback.commands.ActionCommand
@@ -14,7 +14,7 @@ import org.jetbrains.sbt.project.settings.SbtLocalSettings
 /**
  * @author Pavel Fatin
  */
-class LegacyProjectFormatNotifier(project: Project) extends AbstractProjectComponent(project) {
+class LegacyProjectFormatNotifier(project: Project) extends ProjectComponent {
   override def projectOpened() {
 
     val sbtSettings = SbtLocalSettings.getInstance(project)

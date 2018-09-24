@@ -57,18 +57,16 @@ object SbtModule {
   }
 
   /** The build module for given id/uri in project. */
-  def findBuildModule(project: Project, id: String, uri: URI): Option[Module] = {
+  def findBuildModule(project: Project, uri: URI): Option[Module] = {
     val moma = ModuleManager.getInstance(project)
 
     moma.getModules.find { m =>
-      val state = getState(m)
-      state.buildForId == id && new URI(state.buildForURI) == uri
+      new URI(getState(m).buildForURI) == uri
     }
   }
 
-  def setBuildForModule(module: Module, id: String, uri: URI): Unit = {
+  def setBuildForModule(module: Module, uri: URI): Unit = {
     val state = getState(module)
-    state.buildForId = id
     state.buildForURI = uri.toString
   }
 
@@ -109,8 +107,6 @@ class SbtModuleState {
   var imports: String = ""
   @BeanProperty
   var resolvers: String = ""
-  @BeanProperty
-  var buildForId: String = ""
   @BeanProperty
   var buildForURI: String = ""
 }

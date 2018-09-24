@@ -162,12 +162,14 @@
         <completion.contributor language="Scala" id="keywordCompletionContributor"
                                 implementationClass="org.jetbrains.plugins.scala.lang.completion.ScalaKeywordCompletionContributor"/>
         <completion.contributor language="Scala" implementationClass="org.jetbrains.plugins.scala.lang.completion.ScalaSmartCompletionContributor"/>
+        <completion.contributor language="Scala"
+                                implementationClass="org.jetbrains.plugins.scala.lang.completion.ScalaAfterNewCompletionContributor"/>
         <completion.contributor language="Scala" id="memberNameCompletionContributor"
                                 implementationClass="org.jetbrains.plugins.scala.lang.completion.ScalaMemberNameCompletionContributor"/>
         <completion.contributor language="Scala" id="scaladocTagsCompletionContributor"
                                 implementationClass="org.jetbrains.plugins.scala.lang.scaladoc.completion.ScalaDocCompletionContributor"/>
         <completion.contributor language="Scala" id="scalaIdentifierCompletionContributor"
-                                implementationClass="org.jetbrains.plugins.scala.lang.completion.ScalaAotCompletionContributor"
+                                implementationClass="org.jetbrains.plugins.scala.lang.completion.aot.ScalaAotCompletionContributor"
                                 order="before scalaCompletionContrubutor"/>
         <completion.contributor language="Scala" id="scalaClassParamContributor"
                                 implementationClass="org.jetbrains.plugins.scala.lang.completion.clauses.CaseClassParametersCompletionContributor"
@@ -602,11 +604,6 @@
         <intentionAction>
             <category>Scala</category>
             <className>org.jetbrains.plugins.scala.codeInsight.intention.types.ConvertImplicitBoundsToImplicitParameter</className>
-        </intentionAction>
-
-        <intentionAction>
-            <category>Scala</category>
-            <className>org.jetbrains.plugins.scala.util.macroDebug.OpenSynFileIntention</className>
         </intentionAction>
 
         <intentionAction>
@@ -1469,30 +1466,11 @@
 
         <library.type implementation="org.jetbrains.plugins.scala.project.ScalaLibraryType" />
       <disabledIndentRangesProvider implementation="org.jetbrains.plugins.scala.lang.formatting.ScalaFmtDisabledIndentRangesProvider" />
+
+      <applicationInitializedListener implementation="org.jetbrains.plugins.scala.ScalaLoader"/>
+      <applicationInitializedListener implementation="org.jetbrains.plugins.scala.components.ScalaPluginVersionVerifierListener"/>
+      <applicationInitializedListener implementation="org.jetbrains.plugins.scala.util.UIFreezingGuard"/>
     </extensions>
-
-
-    <application-components>
-        <component>
-            <interface-class>org.jetbrains.plugins.scala.util.ScalaToolsFactory</interface-class>
-            <implementation-class>org.jetbrains.plugins.scala.util.ScalaToolsFactoryImpl</implementation-class>
-        </component>
-        <component>
-            <implementation-class>org.jetbrains.plugins.scala.ScalaLoader</implementation-class>
-        </component>
-        <component>
-            <implementation-class>org.jetbrains.plugins.scala.components.ScalaPluginVersionVerifierApplicationComponent</implementation-class>
-        </component>
-        <component>
-            <implementation-class>org.jetbrains.plugins.scala.components.TypeAwareHighlightingApplicationState</implementation-class>
-        </component>
-        <component>
-          <implementation-class>org.jetbrains.plugins.scala.compiler.CompileServerLauncher</implementation-class>
-        </component>
-        <component>
-          <implementation-class>org.jetbrains.plugins.scala.util.UIFreezingGuard</implementation-class>
-        </component>
-    </application-components>
 
     <project-components>
         <component>
@@ -1550,9 +1528,6 @@
         </component>
         <component>
           <implementation-class>org.jetbrains.plugins.scala.debugger.evaluation.ScalaEvaluatorCompileHelper</implementation-class>
-        </component>
-        <component>
-            <implementation-class>org.jetbrains.plugins.scala.util.macroDebug.MacrosheetFileHook</implementation-class>
         </component>
         <!--<component>-->
             <!--<implementation-class>org.jetbrains.plugins.scala.components.libinjection.LibraryInjectorLoader</implementation-class>-->

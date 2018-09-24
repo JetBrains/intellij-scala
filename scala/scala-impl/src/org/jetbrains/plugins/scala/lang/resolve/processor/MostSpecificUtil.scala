@@ -19,7 +19,7 @@ import org.jetbrains.plugins.scala.lang.psi.implicits.ImplicitResolveResult
 import org.jetbrains.plugins.scala.lang.psi.types.Compatibility.Expression
 import org.jetbrains.plugins.scala.lang.psi.types._
 import org.jetbrains.plugins.scala.lang.psi.types.api.designator.ScDesignatorType
-import org.jetbrains.plugins.scala.lang.psi.types.api.{Any, Nothing, _}
+import org.jetbrains.plugins.scala.lang.psi.types.api.{Nothing, _}
 import org.jetbrains.plugins.scala.lang.psi.types.nonvalue.{Parameter, ScMethodType, ScTypePolymorphicType}
 import org.jetbrains.plugins.scala.lang.psi.types.recursiveUpdate.ScSubstitutor
 import org.jetbrains.plugins.scala.lang.psi.types.result._
@@ -168,43 +168,45 @@ case class MostSpecificUtil(elem: PsiElement, length: Int) {
                       Seq.fill(i)(default)
               Compatibility.checkConformance(checkNames = false, params2, exprs, checkImplicits)
             case (Right(type1), Right(type2)) =>
-              type1.conforms(type2, ScUndefinedSubstitutor()) //todo: with implcits?
+              type1.conforms(type2, ConstraintSystem.empty) //todo: with implcits?
             //todo this is possible, when one variant is empty with implicit parameters, and second without parameters.
             //in this case it's logical that method without parameters must win...
             case (Left(_), Right(_)) if !r1.implicitCase => return false
             case _ => return true
           }
 
-        var u = conformance._2
-        if (!conformance._1) return false
+        conformance match {
+          case undefined@ConstraintSystem(uSubst) =>
+            var u = undefined
+            t2 match {
+              case ScTypePolymorphicType(_, typeParams) =>
+                val typeParamIds = typeParams.map {
+                  _.typeParamId
+                }.toSet
 
-        t2 match {
-          case ScTypePolymorphicType(_, typeParams) =>
-            u.getSubstitutor match {
-              case Some(uSubst) =>
+                typeParams.foreach { tp =>
+                  val typeParamId = tp.typeParamId
 
-                val typeParamIds = typeParams.map(_.typeParamId).toSet
-                def hasRecursiveTypeParameters(typez: ScType): Boolean = typez.hasRecursiveTypeParameters(typeParamIds)
-
-                typeParams.foreach(tp => {
-                  if (tp.lowerType != Nothing) {
-                    val substedLower = uSubst.subst(tp.lowerType)
-                    if (!hasRecursiveTypeParameters(tp.lowerType)) {
-                      u = u.addLower(tp.typeParamId, substedLower, additional = true)
-                    }
+                  tp.lowerType match {
+                    case lower if lower.isNothing || lower.hasRecursiveTypeParameters(typeParamIds) =>
+                    case lower =>
+                      u = u.withLower(typeParamId, uSubst.subst(lower))
+                        .withTypeParamId(typeParamId)
                   }
-                  if (tp.upperType != Any) {
-                    val substedUpper = uSubst.subst(tp.upperType)
-                    if (!hasRecursiveTypeParameters(tp.upperType)) {
-                      u = u.addUpper(tp.typeParamId, substedUpper, additional = true)
-                    }
+
+                  tp.upperType match {
+                    case upper if upper.isAny || upper.hasRecursiveTypeParameters(typeParamIds) =>
+                    case upper =>
+                      u = u.withUpper(typeParamId, uSubst.subst(upper))
+                        .withTypeParamId(typeParamId)
                   }
-                })
-              case None => return false
+                }
+              case _ =>
             }
-          case _ =>
+
+            ConstraintSystem.unapply(u).isDefined
+          case _ => false
         }
-        u.getSubstitutor.isDefined
       case (_, _: PsiMethod) => true
       case (e1, e2) =>
         val t1: ScType = getType(e1, r1.implicitCase)

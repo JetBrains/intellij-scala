@@ -1,12 +1,6 @@
 package scala.meta.annotations
 
 import java.io.File
-import java.util.Collections
-
-import scala.collection.JavaConverters.collectionAsScalaIterableConverter
-import scala.concurrent.duration.DurationInt
-import scala.meta.ScalaMetaTestBase
-import scala.meta.intellij.MetaExpansionsManager.{META_MINOR_VERSION, PARADISE_VERSION}
 
 import com.intellij.lang.annotation.HighlightSeverity
 import com.intellij.openapi.compiler.CompilerMessageCategory
@@ -30,6 +24,11 @@ import org.jetbrains.plugins.scala.util.{CompileServerUtil, TestUtils}
 import org.junit.Assert
 import org.junit.Assert.fail
 
+import scala.collection.JavaConverters.collectionAsScalaIterableConverter
+import scala.concurrent.duration.DurationInt
+import scala.meta.ScalaMetaTestBase
+import scala.meta.intellij.MetaExpansionsManager.{META_MINOR_VERSION, PARADISE_VERSION}
+
 abstract class MetaAnnotationTestBase extends JavaCodeInsightFixtureTestCase with ScalaMetaTestBase {
 
   override implicit protected def module: Module = myModule
@@ -41,7 +40,7 @@ abstract class MetaAnnotationTestBase extends JavaCodeInsightFixtureTestCase wit
     super.setUp()
     setUpLibraries()
     PsiTestUtil.addSourceRoot(module, myFixture.getTempDirFixture.findOrCreateDir("test"), true)
-    compiler = new CompilerTester(project, Collections.singletonList(module), project)
+    compiler = new CompilerTester(module)
   }
 
   override def tearDown(): Unit = try {

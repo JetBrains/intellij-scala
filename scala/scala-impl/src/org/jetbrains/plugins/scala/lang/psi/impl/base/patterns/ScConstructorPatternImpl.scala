@@ -72,26 +72,22 @@ class ScConstructorPatternImpl(node: ASTNode) extends ScalaPsiElementImpl (node)
   }
 
   override def `type`(): TypeResult = {
+    import ScSubstitutor.bind
     ref.bind() match {
       case Some(r) =>
         r.element match {
           //todo: remove all classes?
           case td: ScClass if td.typeParameters.nonEmpty =>
             val refType: ScType = ScSimpleTypeElementImpl.
-              calculateReferenceType(ref, shapesOnly = false).getOrElse(ScalaType.designator(td))
+              calculateReferenceType(ref).getOrElse(ScalaType.designator(td))
             val newSubst = {
               val clazzType = ScParameterizedType(refType, td.getTypeParameters.map(UndefinedType(_)))
-              val toAnySubst: ScSubstitutor = ScSubstitutor.bind(td.typeParameters)(Function.const(Any))
-              this.expectedType match {
-                case Some(tp) =>
-                  val conformance = clazzType.conforms(tp, ScUndefinedSubstitutor())
-                  if (conformance._1) {
-                    conformance._2.getSubstitutor match {
-                      case Some(subst) => subst.followed(toAnySubst)
-                      case _ => toAnySubst
-                    }
-                  } else toAnySubst
-                case _ => toAnySubst
+              val toAnySubst = bind(td.typeParameters)(Function.const(Any))
+
+              this.expectedType.flatMap {
+                clazzType.conformanceSubstitutor(_)
+              }.fold(toAnySubst) {
+                _.followed(toAnySubst)
               }
             }
             Right(ScParameterizedType(refType, td.getTypeParameters.map(tp => newSubst.subst(TypeParameterType(tp)))))
@@ -104,25 +100,18 @@ class ScConstructorPatternImpl(node: ASTNode) extends ScalaPsiElementImpl (node)
             val subst =
               if (typeParams.isEmpty) substitutor
               else {
-                val undefSubst: ScSubstitutor = ScSubstitutor.bind(typeParams)(UndefinedType(_))
-                val toUpperSubst: ScSubstitutor = ScSubstitutor.bind(typeParams)(_.upperBound.getOrAny)
+                val maybeSubstitutor = for {
+                  Typeable(parameterType) <- fun.parameters.headOption
+                  functionType = bind(typeParams)(UndefinedType(_)).subst(parameterType)
 
-                val emptyRes = substitutor.followed(toUpperSubst)
-                fun.parameters.head.`type`() match {
-                  case Right(result) =>
-                    val funType = undefSubst.subst(result)
-                    this.expectedType match {
-                      case Some(tp) =>
-                        val conformance = funType.conforms(tp, ScUndefinedSubstitutor())
-                        if (conformance._1) {
-                          conformance._2.getSubstitutor match {
-                            case Some(newSubst) => newSubst followed substitutor followed toUpperSubst
-                            case _ => emptyRes
-                          }
-                        } else emptyRes
-                      case _ => emptyRes
-                    }
-                  case Left(_) => emptyRes
+                  expectedType <- this.expectedType
+                  newSubstitutor <- functionType.conformanceSubstitutor(expectedType)
+                } yield newSubstitutor
+
+                maybeSubstitutor.fold(substitutor) {
+                  _.followed(substitutor)
+                }.followed {
+                  bind(typeParams)(_.upperBound.getOrAny)
                 }
               }
             fun.paramClauses.clauses.head.parameters.head.`type`().map(subst.subst)

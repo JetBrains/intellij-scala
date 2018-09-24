@@ -3,6 +3,7 @@ package lang
 package completion3
 
 import com.intellij.codeInsight.completion.CompletionType
+import com.intellij.codeInsight.lookup.Lookup
 import com.intellij.testFramework.EditorTestUtil
 import org.jetbrains.plugins.scala.lang.psi.impl.toplevel.typedef.ScTypeDefinitionImpl
 
@@ -97,6 +98,36 @@ class ScalaAotCompletionTest extends ScalaCodeInsightTestBase {
     itemText = "bar: Bar"
   )
 
+  def testNoErasure(): Unit = doAotCompletionTest(
+    fileText =
+      s"""class Foo
+         |class Bar
+         |def foo(ba${CARET}foo: Foo): Unit = {}
+       """.stripMargin,
+    resultText =
+      s"""class Foo
+         |class Bar
+         |def foo(bar: Bar${CARET}foo: Foo): Unit = {}
+       """.stripMargin,
+    lookupString = "Bar",
+    itemText = "bar: Bar",
+    char = Lookup.NORMAL_SELECT_CHAR
+  )
+
+  def testLambdaParameter(): Unit = doAotCompletionTest(
+    fileText =
+      s"""Seq(42).foreach { i$CARET =>
+         |}
+       """.stripMargin,
+    resultText =
+      s"""Seq(42).foreach { int$CARET =>
+         |}
+       """.stripMargin,
+    lookupString = "Int",
+    itemText = "int",
+    tailTextSuffix = null
+  )
+
   def testDefaultPattern(): Unit = doAotCompletionTest(
     fileText =
       s"""class Foo
@@ -164,10 +195,11 @@ class ScalaAotCompletionTest extends ScalaCodeInsightTestBase {
                                   resultText: String,
                                   lookupString: String,
                                   itemText: String,
-                                  tailTextSuffix: String = ScTypeDefinitionImpl.DefaultLocationString): Unit = {
+                                  tailTextSuffix: String = ScTypeDefinitionImpl.DefaultLocationString,
+                                  char: Char = Lookup.REPLACE_SELECT_CHAR): Unit = {
     val tailText = if (tailTextSuffix != null) " " + tailTextSuffix else null
 
-    doCompletionTest(fileText, resultText, DEFAULT_CHAR, DEFAULT_TIME, CompletionType.BASIC) {
+    doCompletionTest(fileText, resultText, char, DEFAULT_TIME, CompletionType.BASIC) {
       hasItemText(_, lookupString, itemText, tailText = tailText)
     }
   }

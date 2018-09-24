@@ -6,7 +6,7 @@ import java.io.File
 import com.intellij.debugger.DebuggerManagerEx
 import com.intellij.debugger.impl.{DebuggerManagerAdapter, DebuggerManagerListener, DebuggerSession}
 import com.intellij.openapi.application.ApplicationManager
-import com.intellij.openapi.components.AbstractProjectComponent
+import com.intellij.openapi.components.ProjectComponent
 import com.intellij.openapi.module.Module
 import com.intellij.openapi.project.Project
 import com.intellij.openapi.util.io.FileUtil
@@ -23,7 +23,7 @@ import scala.collection.mutable.ListBuffer
  * Nikolay.Tropin
  * 2014-10-07
  */
-class ScalaEvaluatorCompileHelper(project: Project) extends AbstractProjectComponent(project) with EvaluatorCompileHelper {
+class ScalaEvaluatorCompileHelper(project: Project) extends ProjectComponent with EvaluatorCompileHelper {
 
   private val tempFiles = mutable.Set[File]()
 

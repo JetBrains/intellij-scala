@@ -10,7 +10,6 @@ import com.intellij.psi._
 import com.intellij.psi.impl.light.LightMethod
 import com.intellij.psi.scope.{ElementClassHint, NameHint, PsiScopeProcessor}
 import com.intellij.psi.util._
-import org.jetbrains.plugins.scala.caches.CachesUtil
 import org.jetbrains.plugins.scala.extensions._
 import org.jetbrains.plugins.scala.lang.psi.api.base.{ScAccessModifier, ScFieldId, ScPrimaryConstructor}
 import org.jetbrains.plugins.scala.lang.psi.api.statements._
@@ -25,7 +24,6 @@ import org.jetbrains.plugins.scala.lang.psi.types.recursiveUpdate.ScSubstitutor
 import org.jetbrains.plugins.scala.lang.psi.types.result._
 import org.jetbrains.plugins.scala.lang.refactoring.util.ScalaNamesUtil
 import org.jetbrains.plugins.scala.lang.resolve.processor._
-import org.jetbrains.plugins.scala.macroAnnotations.CachedInUserData
 import org.jetbrains.plugins.scala.project.ProjectContext
 import org.jetbrains.plugins.scala.util.UIFreezingGuard.withResponsibleUI
 
@@ -503,29 +501,15 @@ object TypeDefinitionMembers {
   import org.jetbrains.plugins.scala.lang.psi.impl.toplevel.typedef.TypeDefinitionMembers.SignatureNodes.{Map => SMap}
   import org.jetbrains.plugins.scala.lang.psi.impl.toplevel.typedef.TypeDefinitionMembers.TypeNodes.{Map => TMap}
 
-  def getParameterlessSignatures(clazz: PsiClass): PMap = {
-    @CachedInUserData(clazz, CachesUtil.libraryAwareModTracker(clazz))
-    def inner(): PMap = ParameterlessNodes.build(clazz)
-
-    inner()
-  }
-
-  def getTypes(clazz: PsiClass): TMap = {
-
-    @CachedInUserData(clazz, CachesUtil.libraryAwareModTracker(clazz))
-    def inner(): TMap =TypeNodes.build(clazz)
-
-    inner()
-  }
+  def getSignatures(clazz: PsiClass): SMap              = ScalaPsiManager.instance(clazz).SignatureNodesCache.cachedMap(clazz)
+  def getParameterlessSignatures(clazz: PsiClass): PMap = ScalaPsiManager.instance(clazz).ParameterlessNodesCache.cachedMap(clazz)
+  def getTypes(clazz: PsiClass): TMap                   = ScalaPsiManager.instance(clazz).TypeNodesCache.cachedMap(clazz)
 
   def getSignatures(clazz: PsiClass, place: Option[PsiElement] = None): SMap = {
-    @CachedInUserData(clazz, CachesUtil.libraryAwareModTracker(clazz))
-    def buildNodesClass(): SMap = SignatureNodes.build(clazz)
-
-    val ans = buildNodesClass()
+    val ans = getSignatures(clazz)
     place.foreach {
       case _: ScInterpolatedPrefixReference =>
-        val allowedNames = ans.keySet
+        val allowedNames = ans.publicNames
         val eb = clazz match {
           case td: ScTemplateDefinition => Some(td.extendsBlock)
           case _ => clazz.getChildren.collectFirst({case e: ScExtendsBlock => e})
@@ -536,19 +520,13 @@ object TypeDefinitionMembers {
             c match {
               case o: ScObject =>
                 if (allowedNames.contains(o.name)) {
-                  @CachedInUserData(o, CachesUtil.libraryAwareModTracker(o))
-                  def buildNodesObject(): SMap = SignatureNodes.build(o)
-
-                  val add = buildNodesObject()
-                  ans ++= add
+                  val add = getSignatures(o)
+                  ans.addPublicsFrom(add)
                 }
               case c: ScClass =>
                 if (allowedNames.contains(c.name)) {
-                  @CachedInUserData(c, CachesUtil.libraryAwareModTracker(c))
-                  def buildNodesClass2(): SMap = SignatureNodes.build(c)
-
-                  val add = buildNodesClass2()
-                  ans ++= add
+                  val add = getSignatures(c)
+                  ans.addPublicsFrom(add)
                 }
               case _ =>
             }
@@ -573,30 +551,23 @@ object TypeDefinitionMembers {
 
   def getSelfTypeSignatures(clazz: PsiClass): SMap = {
 
-    @CachedInUserData(clazz, CachesUtil.libraryAwareModTracker(clazz))
-    def selfTypeSignaturesInner(): SMap = {
-      implicit val ctx: ProjectContext = clazz
-
-      clazz match {
-        case td: ScTypeDefinition =>
-          td.selfType match {
-            case Some(selfType) =>
-              val clazzType = td.getTypeWithProjections().getOrAny
-              selfType.glb(clazzType) match {
-                case c: ScCompoundType =>
-                  getSignatures(c, Some(clazzType), clazz)
-                case tp =>
-                  val cl = tp.extractClass.getOrElse(clazz)
-                  getSignatures(cl)
-              }
-            case _ =>
-              getSignatures(clazz)
-          }
-        case _ => getSignatures(clazz)
-      }
+    clazz match {
+      case td: ScTypeDefinition =>
+        td.selfType match {
+          case Some(selfType) =>
+            val clazzType = td.getTypeWithProjections().getOrAny
+            selfType.glb(clazzType) match {
+              case c: ScCompoundType =>
+                getSignatures(c, Some(clazzType), clazz)
+              case tp =>
+                val cl = tp.extractClass.getOrElse(clazz)
+                getSignatures(cl)
+            }
+          case _ =>
+            getSignatures(clazz)
+        }
+      case _ => getSignatures(clazz)
     }
-
-    selfTypeSignaturesInner()
   }
 
   def getSelfTypeTypes(clazz: PsiClass): TMap = {
@@ -878,7 +849,7 @@ object TypeDefinitionMembers {
           }
           if (!checkList(decodedName)) return false
         } else if (BaseProcessor.isImplicitProcessor(processor)) {
-          val implicits: List[(T#T, T#Node)] = signatures.forImplicits()
+          val implicits = signatures.forImplicits()
           val iterator: Iterator[(T#T, T#Node)] = implicits.iterator
           while (iterator.hasNext) {
             val (sig, n) = iterator.next()

@@ -10,8 +10,8 @@ import org.jetbrains.plugins.scala.lang.psi.api.ScalaFile
 import org.jetbrains.plugins.scala.lang.psi.api.toplevel.typedef.ScTypeDefinition
 import org.jetbrains.plugins.scala.lang.psi.impl.ScalaPsiElementFactory
 import org.jetbrains.plugins.scala.lang.psi.impl.toplevel.typedef.ScTypeDefinitionImpl
-import org.jetbrains.plugins.scala.lang.psi.types.api.JavaArrayType
-import org.jetbrains.plugins.scala.lang.psi.types.{ScParameterizedType, ScType}
+import org.jetbrains.plugins.scala.lang.psi.types.ScType
+import org.jetbrains.plugins.scala.lang.psi.types.api.{JavaArrayType, ParameterizedType}
 
 import scala.util._
 
@@ -40,7 +40,7 @@ package object macros {
 
   private[macros] def arrayComponent(scType: ScType): Option[ScType] = scType match {
     case JavaArrayType(argument) => Some(argument)
-    case paramType@ScParameterizedType(_, Seq(head)) if paramType.canonicalText.startsWith("_root_.scala.Array") => Some(head)
+    case paramType@ParameterizedType(_, Seq(head)) if paramType.canonicalText.startsWith("_root_.scala.Array") => Some(head)
     case _ => None
   }
 

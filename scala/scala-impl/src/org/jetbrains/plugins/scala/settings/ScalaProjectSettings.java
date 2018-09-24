@@ -53,7 +53,7 @@ public class ScalaProjectSettings  implements PersistentStateComponent<ScalaProj
   private boolean PROJECT_VIEW_HIGHLIGHTING = false;
   private boolean SCALA_CLASSES_PRIORITY = true;
   private boolean GENERATE_TOSTRING_WITH_FIELD_NAMES = false;
-  
+
   public enum TrailingCommasMode {Enabled, Disabled, Auto}
   private TrailingCommasMode TRAILING_COMMAS_ENABLED = TrailingCommasMode.Auto;
 
@@ -95,6 +95,9 @@ public class ScalaProjectSettings  implements PersistentStateComponent<ScalaProj
   {
     Collections.addAll(LEXT_SEARCH_PATTERNS, LibraryExtensionsManager$.MODULE$.DEFAULT_PATTERNS());
   }
+
+  //INDEXING
+  private boolean ENABLE_LOCAL_DEPENDENCY_INDEXING = true;
 
 
   private Map<String, String> INTERPOLATED_INJECTION_MAPPING = new HashMap<String, String>();
@@ -511,4 +514,13 @@ public class ScalaProjectSettings  implements PersistentStateComponent<ScalaProj
   public void setMetaTrimMethodBodies(boolean metaTrimMethodBodies) {
     this.metaTrimMethodBodies = metaTrimMethodBodies;
   }
+
+  public boolean isEnableLocalDependencyIndexing() {
+    return ENABLE_LOCAL_DEPENDENCY_INDEXING;
+  }
+
+  public void setEnableLocalDependencyIndexing(boolean ENABLE_LOCAL_DEPENDENCY_INDEXING) {
+    this.ENABLE_LOCAL_DEPENDENCY_INDEXING = ENABLE_LOCAL_DEPENDENCY_INDEXING;
+  }
+
 }

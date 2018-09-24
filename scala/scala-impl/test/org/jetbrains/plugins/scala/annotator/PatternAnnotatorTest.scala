@@ -570,4 +570,22 @@ class PatternAnnotatorTest extends ScalaLightPlatformCodeInsightTestCaseAdapter 
     checkError(code, "ScFunctionType(_)", constructorCannotBeInstantiated("ScFunctionType", "(Int, Int)"))
   }*/
 
+  def testSCL12977(): Unit = {
+    val code =
+      """
+        |class Unapply[T](fn: String => T) {
+        |  def unapply(s: String): T =
+        |    fn(s)
+        |}
+        |
+        |val FirstCapitalLetter: Unapply[Option[Char]] =
+        |  new Unapply(s => s.headOption.filter(_.isUpper))
+        |
+        |"Test" match {
+        |  case FirstCapitalLetter(letter) => println(s"Starts with: $letter")
+        |  case x => println("Does not start with a capital letter")
+        |}
+      """.stripMargin
+    emptyMessages(code)
+  }
 }

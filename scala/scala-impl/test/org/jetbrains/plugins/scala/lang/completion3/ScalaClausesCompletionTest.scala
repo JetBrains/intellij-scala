@@ -3,7 +3,7 @@ package lang
 package completion3
 
 import com.intellij.codeInsight.completion.CompletionType
-import com.intellij.codeInsight.lookup.LookupElement
+import com.intellij.codeInsight.lookup.{Lookup, LookupElement}
 import com.intellij.testFramework.EditorTestUtil
 import org.jetbrains.plugins.scala.debugger.{ScalaVersion, Scala_2_12}
 import org.jetbrains.plugins.scala.lang.completion.clauses.ExhaustiveMatchCompletionContributor
@@ -12,6 +12,7 @@ class ScalaClausesCompletionTest extends ScalaCodeInsightTestBase {
 
   import CompletionType.BASIC
   import EditorTestUtil.{CARET_TAG => CARET}
+  import Lookup.REPLACE_SELECT_CHAR
   import ScalaCodeInsightTestBase._
 
   override implicit val version: ScalaVersion = Scala_2_12
@@ -550,7 +551,7 @@ class ScalaClausesCompletionTest extends ScalaCodeInsightTestBase {
 
   private def doPatternCompletionTest(fileText: String, resultText: String,
                                       itemText: String = "Foo(_)"): Unit =
-    super.doCompletionTest(fileText, resultText, DEFAULT_CHAR, DEFAULT_TIME, BASIC) {
+    super.doCompletionTest(fileText, resultText, REPLACE_SELECT_CHAR, DEFAULT_TIME, BASIC) {
       hasItemText(_, itemText, itemText, itemTextItalic = true)
     }
 
@@ -561,10 +562,10 @@ class ScalaClausesCompletionTest extends ScalaCodeInsightTestBase {
   //    }
 
   private def doMatchCompletionTest(fileText: String, resultText: String): Unit =
-    super.doCompletionTest(fileText, resultText, DEFAULT_CHAR, DEFAULT_TIME, BASIC)(isExhaustiveMatch)
+    super.doCompletionTest(fileText, resultText, REPLACE_SELECT_CHAR, DEFAULT_TIME, BASIC)(isExhaustiveMatch)
 
   private def isExhaustiveMatch(lookup: LookupElement) = {
-    import ExhaustiveMatchCompletionContributor.{ItemText, RendererTailText}
-    hasItemText(lookup, ItemText, ItemText, tailText = RendererTailText)
+    import ExhaustiveMatchCompletionContributor.{itemText, rendererTailText}
+    hasItemText(lookup, itemText, itemText, tailText = rendererTailText)
   }
 }

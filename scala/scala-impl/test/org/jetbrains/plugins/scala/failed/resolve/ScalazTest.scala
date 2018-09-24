@@ -15,7 +15,5 @@ class ScalazTest extends FailedResolveTest("scalaz") {
   override protected def additionalLibraries(): Seq[LibraryLoader] =
     IvyManagedLoader("org.scalaz" % "scalaz-core_2.11" % "7.1.0") :: Nil
 
-  def testSCL7213(): Unit = doTest()
-
   def testSCL7227(): Unit = doTest()
 }

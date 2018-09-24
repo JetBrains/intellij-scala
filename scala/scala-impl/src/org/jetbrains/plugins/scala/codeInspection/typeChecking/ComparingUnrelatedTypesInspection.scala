@@ -11,7 +11,6 @@ import org.jetbrains.plugins.scala.extensions.{ObjectExt, PsiClassExt, ResolvesT
 import org.jetbrains.plugins.scala.lang.psi.api.expr.ScReferenceExpression
 import org.jetbrains.plugins.scala.lang.psi.api.statements.ScFunction
 import org.jetbrains.plugins.scala.lang.psi.api.toplevel.typedef.ScClass
-import org.jetbrains.plugins.scala.lang.psi.impl.ScalaPsiElementFactory
 import org.jetbrains.plugins.scala.lang.psi.impl.toplevel.synthetic.ScSyntheticFunction
 import org.jetbrains.plugins.scala.lang.psi.types._
 import org.jetbrains.plugins.scala.lang.psi.types.api.designator.ScDesignatorType
@@ -84,9 +83,7 @@ class ComparingUnrelatedTypesInspection extends AbstractInspection(inspectionNam
         case _ => false
       }
       if (needHighlighting) {
-        //getType() for the reference on the left side returns singleton type, little hack here
-        val leftOnTheRight = ScalaPsiElementFactory.createExpressionWithContextFromText(left.getText, right.getParent, right)
-        Seq(leftOnTheRight, right) map (_.`type`()) match {
+        Seq(left, right).map(_.`type`().map(_.tryExtractDesignatorSingleton)) match {
           case Seq(Right(leftType), Right(rightType)) if cannotBeCompared(leftType, rightType) =>
             val message = generateComparingUnrelatedTypesMsg(leftType, rightType)
             holder.registerProblem(expr, message, ProblemHighlightType.GENERIC_ERROR_OR_WARNING)
@@ -104,7 +101,7 @@ class ComparingUnrelatedTypesInspection extends AbstractInspection(inspectionNam
       }
     case IsInstanceOfCall(call) =>
       val qualType = call.referencedExpr match {
-        case ScReferenceExpression.withQualifier(q) => q.`type`().toOption
+        case ScReferenceExpression.withQualifier(q) => q.`type`().map(_.tryExtractDesignatorSingleton).toOption
         case _ => None
       }
       val argType = call.arguments.headOption.flatMap(_.`type`().toOption)

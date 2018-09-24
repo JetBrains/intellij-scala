@@ -78,14 +78,14 @@ case class ScCompoundType(components: Seq[ScType],
       case (s: String, sign) => (s, sign.updateTypes(_.removeAbstracts))
     })
 
-  override def updateSubtypes(updates: Seq[Update], visited: Set[ScType]): ScCompoundType = {
-    new ScCompoundType(components.map(_.recursiveUpdateImpl(updates, visited)), signatureMap.map {
+  override def updateSubtypes(updates: Array[Update], index: Int, visited: Set[ScType]): ScCompoundType = {
+    new ScCompoundType(components.map(_.recursiveUpdateImpl(updates, index, visited)), signatureMap.map {
       case (s: Signature, tp) =>
 
         val pTypes: Seq[Seq[() => ScType]] =
-          s.substitutedTypes.map(_.map(f => () => f().recursiveUpdateImpl(updates, visited, isLazySubtype = true)))
-        val tParams = s.typeParams.update(_.recursiveUpdateImpl(updates, visited, isLazySubtype = true))
-        val rt: ScType = tp.recursiveUpdateImpl(updates, visited)
+          s.substitutedTypes.map(_.map(f => () => f().recursiveUpdateImpl(updates, index, visited, isLazySubtype = true)))
+        val tParams = s.typeParams.update(_.recursiveUpdateImpl(updates, index, visited, isLazySubtype = true))
+        val rt: ScType = tp.recursiveUpdateImpl(updates, index, visited)
         (new Signature(
           s.name, pTypes, tParams, ScSubstitutor.empty, s.namedElement match {
             case fun: ScFunction =>
@@ -96,7 +96,7 @@ case class ScCompoundType(components: Seq[ScType],
           }, s.hasRepeatedParam
         ), rt)
     }, typesMap.map {
-      case (s, sign) => (s, sign.updateTypes(_.recursiveUpdateImpl(updates, visited, isLazySubtype = true)))
+      case (s, sign) => (s, sign.updateTypes(_.recursiveUpdateImpl(updates, index, visited, isLazySubtype = true)))
     })
   }
 
@@ -116,54 +116,59 @@ case class ScCompoundType(components: Seq[ScType],
     })
   }
 
-  override def equivInner(r: ScType, uSubst: ScUndefinedSubstitutor, falseUndef: Boolean): (Boolean, ScUndefinedSubstitutor) = {
-    var undefinedSubst = uSubst
+  override def equivInner(r: ScType, constraints: ConstraintSystem, falseUndef: Boolean): ConstraintsResult = {
+    var lastConstraints = constraints
     r match {
       case r: ScCompoundType =>
-        if (r == this) return (true, undefinedSubst)
-        if (components.length != r.components.length) return (false, undefinedSubst)
+        if (r == this) return lastConstraints
+        if (components.length != r.components.length) return ConstraintsResult.Failure
         val list = components.zip(r.components)
         val iterator = list.iterator
         while (iterator.hasNext) {
           val (w1, w2) = iterator.next()
-          val t = w1.equiv(w2, undefinedSubst, falseUndef)
-          if (!t._1) return (false, undefinedSubst)
-          undefinedSubst = t._2
+          val t = w1.equiv(w2, lastConstraints, falseUndef)
+          if (t.isFailure) return ConstraintsResult.Failure
+
+          lastConstraints = t.constraints
         }
 
-        if (signatureMap.size != r.signatureMap.size) return (false, undefinedSubst)
+        if (signatureMap.size != r.signatureMap.size) return ConstraintsResult.Failure
 
         val iterator2 = signatureMap.iterator
         while (iterator2.hasNext) {
           val (sig, t) = iterator2.next()
           r.signatureMap.get(sig) match {
-            case None => return (false, undefinedSubst)
+            case None => return ConstraintsResult.Failure
             case Some(t1) =>
-              val f = t.equiv(t1, undefinedSubst, falseUndef)
-              if (!f._1) return (false, undefinedSubst)
-              undefinedSubst = f._2
+              val f = t.equiv(t1, lastConstraints, falseUndef)
+
+              if (f.isFailure) return ConstraintsResult.Failure
+              lastConstraints = f.constraints
           }
         }
 
         val types1 = typesMap
         val types2 = r.typesMap
-        if (types1.size != types2.size) (false, undefinedSubst)
+        if (types1.size != types2.size) ConstraintsResult.Failure
         else {
           val types1iterator = types1.iterator
           while (types1iterator.hasNext) {
             val (name, bounds1) = types1iterator.next()
             types2.get(name) match {
-              case None => return (false, undefinedSubst)
+              case None => return ConstraintsResult.Failure
               case Some (bounds2) =>
-                var t = bounds1.lowerBound.equiv(bounds2.lowerBound, undefinedSubst, falseUndef)
-                if (!t._1) return (false, undefinedSubst)
-                undefinedSubst = t._2
-                t = bounds1.upperBound.equiv(bounds2.upperBound, undefinedSubst, falseUndef)
-                if (!t._1) return (false, undefinedSubst)
-                undefinedSubst = t._2
+                var t = bounds1.lowerBound.equiv(bounds2.lowerBound, lastConstraints, falseUndef)
+
+                if (t.isFailure) return ConstraintsResult.Failure
+                lastConstraints = t.constraints
+
+                t = bounds1.upperBound.equiv(bounds2.upperBound, lastConstraints, falseUndef)
+                if (t.isFailure) return ConstraintsResult.Failure
+
+                lastConstraints = t.constraints
             }
           }
-          (true, undefinedSubst)
+          lastConstraints
         }
       case _ =>
         val needOnlyComponents = signatureMap.isEmpty && typesMap.isEmpty || ScCompoundType(components).conforms(this)
@@ -171,16 +176,16 @@ case class ScCompoundType(components: Seq[ScType],
           val filtered = components.filter {
             case t if t.isAny => false
             case t if t.isAnyRef =>
-              if (!r.conforms(AnyRef)) return (false, undefinedSubst)
+              if (!r.conforms(AnyRef)) return ConstraintsResult.Failure
               false
             case ScDesignatorType(obj: PsiClass) if obj.qualifiedName == "java.lang.Object" =>
-              if (!r.conforms(AnyRef)) return (false, undefinedSubst)
+              if (!r.conforms(AnyRef)) return ConstraintsResult.Failure
               false
             case _ => true
           }
-          if (filtered.length == 1) filtered.head.equiv(r, undefinedSubst, falseUndef)
-          else (false, undefinedSubst)
-        } else (false, undefinedSubst)
+          if (filtered.length == 1) filtered.head.equiv(r, lastConstraints, falseUndef)
+          else ConstraintsResult.Failure
+        } else ConstraintsResult.Failure
     }
   }
 }

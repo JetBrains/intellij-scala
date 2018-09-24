@@ -3,7 +3,7 @@ package org.jetbrains.bsp
 import java.util
 
 import com.intellij.ide.highlighter.JavaFileType
-import com.intellij.openapi.components.AbstractProjectComponent
+import com.intellij.openapi.components.ProjectComponent
 import com.intellij.openapi.externalSystem.service.project.autoimport.FileChangeListenerBase
 import com.intellij.openapi.module.Module
 import com.intellij.openapi.fileTypes.FileType
@@ -22,7 +22,7 @@ import scala.collection.JavaConverters._
 /**
   * Builds bsp modules on file save. We should change this to support the bsp file change notifications
   */
-final class BspBuildLoop(project: Project) extends AbstractProjectComponent(project) {
+final class BspBuildLoop(project: Project) extends ProjectComponent {
 
   private def bspSettings: Option[BspProjectSettings] =
     Option(
@@ -31,7 +31,7 @@ final class BspBuildLoop(project: Project) extends AbstractProjectComponent(proj
         .getLinkedProjectSettings(project.getBasePath)
     )
 
-  private val busConnection: MessageBusConnection = myProject.getMessageBus.connect(project)
+  private val busConnection: MessageBusConnection = project.getMessageBus.connect(project)
   private val fileIndex = ProjectRootManager.getInstance(project).getFileIndex
   private val psiManager: PsiManager = PsiManager.getInstance(project)
   private val taskManager = ProjectTaskManager.getInstance(project)

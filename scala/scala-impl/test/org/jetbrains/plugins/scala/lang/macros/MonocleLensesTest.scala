@@ -19,7 +19,7 @@ class MonocleLensesTest extends ScalaLightPlatformCodeInsightTestCaseAdapter {
   override implicit val version: ScalaVersion = Scala_2_12
   implicit def mainModule: Module = module()
 
-  private val (monocleOrg, monocleVer) = ("com.github.julien-truffaut", "1.4.0")
+  protected val (monocleOrg, monocleVer) = ("com.github.julien-truffaut", "1.5.0")
 
   override protected def additionalLibraries(): Seq[LibraryLoader] =
     IvyManagedLoader(

@@ -20,7 +20,7 @@ import org.jetbrains.plugins.scala.lang.resolve.{ResolveTargets, StdKinds}
  */
 
 class CompoundTypeCheckSignatureProcessor(s: Signature, retType: ScType,
-                                 undefSubst: ScUndefinedSubstitutor, substitutor: ScSubstitutor)
+                                          constraints: ConstraintSystem, substitutor: ScSubstitutor)
   extends BaseProcessor(StdKinds.methodRef + ResolveTargets.CLASS)(s.projectContext) {
 
   private def nameHint: NameHint = _ => s.name
@@ -33,9 +33,9 @@ class CompoundTypeCheckSignatureProcessor(s: Signature, retType: ScType,
 
   def getResult: Boolean = trueResult
 
-  private var innerUndefinedSubstitutor = undefSubst
+  private var innerConstraints = constraints
 
-  def getUndefinedSubstitutor: ScUndefinedSubstitutor = innerUndefinedSubstitutor
+  def getConstraints: ConstraintSystem = innerConstraints
 
   def execute(element: PsiElement, state: ResolveState): Boolean = {
     if (!element.isInstanceOf[PsiNamedElement]) return true
@@ -43,7 +43,7 @@ class CompoundTypeCheckSignatureProcessor(s: Signature, retType: ScType,
     val subst = getSubst(state)
     if (namedElement.name != s.name) return true
 
-    var undef = undefSubst
+    var undef = constraints
 
     def checkTypeParameters(tp1: PsiTypeParameter, tp2: TypeParameter, v: Variance = Covariant): Boolean = {
       tp1 match {
@@ -61,8 +61,8 @@ class CompoundTypeCheckSignatureProcessor(s: Signature, retType: ScType,
             if (v == Covariant) lower1.conforms(lower2, undef)
             else lower2.conforms(lower1, undef)
 
-          if (!lowerConformance._1) return false
-          undef = lowerConformance._2
+          if (lowerConformance.isFailure) return false
+          undef = lowerConformance.constraints
 
           val upper1 = tp1.upperBound.getOrAny
           val upper2 = substitutor.subst(tp2.upperType)
@@ -70,8 +70,8 @@ class CompoundTypeCheckSignatureProcessor(s: Signature, retType: ScType,
             if (v == Covariant) upper2.conforms(upper1, undef)
             else upper1.conforms(upper2, undef)
 
-          if (!upperConformance._1) return false
-          undef = upperConformance._2
+          if (upperConformance.isFailure) return false
+          undef = upperConformance.constraints
 
           //todo: view?
           true
@@ -108,9 +108,9 @@ class CompoundTypeCheckSignatureProcessor(s: Signature, retType: ScType,
       if (!sign1.parameterlessCompatible(sign2)) return true
 
       var t = sign1.paramTypesEquivExtended(sign2, undef, falseUndef = false)
-      if (!t._1) return true
-      undef = t._2
-      innerUndefinedSubstitutor = undef
+      if (t.isFailure) return true
+      undef = t.constraints
+      innerConstraints = undef
 
       val typeParams = sign1.typeParams
       val otherTypeParams = s.typeParams
@@ -120,10 +120,10 @@ class CompoundTypeCheckSignatureProcessor(s: Signature, retType: ScType,
       val bType = unified1.subst(subst.subst(returnType))
       val gType = unified2.subst(substitutor.subst(retType))
       t = bType.conforms(gType, undef)
-      if (t._1) {
+      if (t.isSuccess) {
         trueResult = true
-        undef = t._2
-        innerUndefinedSubstitutor = undef
+        undef = t.constraints
+        innerConstraints = undef
         return false
       }
       true
@@ -154,7 +154,7 @@ class CompoundTypeCheckSignatureProcessor(s: Signature, retType: ScType,
   }
 }
 
-class CompoundTypeCheckTypeAliasProcessor(sign: TypeAliasSignature, undefSubst: ScUndefinedSubstitutor, substitutor: ScSubstitutor)
+class CompoundTypeCheckTypeAliasProcessor(sign: TypeAliasSignature, constraints: ConstraintSystem, substitutor: ScSubstitutor)
   extends BaseProcessor(StdKinds.methodRef + ResolveTargets.CLASS)(sign.projectContext) {
   private val name = sign.name
 
@@ -162,9 +162,9 @@ class CompoundTypeCheckTypeAliasProcessor(sign: TypeAliasSignature, undefSubst: 
 
   def getResult: Boolean = trueResult
 
-  private var innerUndefinedSubstitutor = undefSubst
+  private var innerConstraints = constraints
 
-  def getUndefinedSubstitutor: ScUndefinedSubstitutor = innerUndefinedSubstitutor
+  def getConstraints: ConstraintSystem = innerConstraints
 
   def execute(element: PsiElement, state: ResolveState): Boolean = {
     if (!element.isInstanceOf[PsiNamedElement]) return true
@@ -172,7 +172,7 @@ class CompoundTypeCheckTypeAliasProcessor(sign: TypeAliasSignature, undefSubst: 
     val subst = getSubst(state)
     if (namedElement.name != name) return true
 
-    var undef = undefSubst
+    var undef = constraints
 
     def checkTypeParameters(tp1: PsiTypeParameter, tp2: TypeParameter, v: Variance = Covariant): Boolean = {
       tp1 match {
@@ -190,8 +190,8 @@ class CompoundTypeCheckTypeAliasProcessor(sign: TypeAliasSignature, undefSubst: 
             if (v == Covariant) lower1.conforms(lower2, undef)
             else lower2.conforms(lower1, undef)
 
-          if (!lowerConformance._1) return false
-          undef = lowerConformance._2
+          if (lowerConformance.isFailure) return false
+          undef = lowerConformance.constraints
 
           val upper1 = tp1.upperBound.getOrAny
           val upper2 = substitutor.subst(tp2.upperType)
@@ -199,8 +199,8 @@ class CompoundTypeCheckTypeAliasProcessor(sign: TypeAliasSignature, undefSubst: 
             if (v == Covariant) upper2.conforms(upper1, undef)
             else upper1.conforms(upper2, undef)
 
-          if (!upperConformance._1) return false
-          undef = upperConformance._2
+          if (upperConformance.isFailure) return false
+          undef = upperConformance.constraints
 
           //todo: view?
           true
@@ -234,12 +234,12 @@ class CompoundTypeCheckTypeAliasProcessor(sign: TypeAliasSignature, undefSubst: 
       sign.ta match {
         case _: ScTypeAliasDeclaration =>
           var conformance = substitutor.subst(sign.lowerBound).conforms(subst.subst(tp.lowerBound.getOrNothing), undef)
-          if (conformance._1) {
-            conformance = subst.subst(tp.upperBound.getOrAny).conforms(substitutor.subst(sign.upperBound), conformance._2)
-            if (conformance._1) {
+          if (conformance.isSuccess) {
+            conformance = subst.subst(tp.upperBound.getOrAny).conforms(substitutor.subst(sign.upperBound), conformance.constraints)
+            if (conformance.isSuccess) {
               trueResult = true
-              undef = conformance._2
-              innerUndefinedSubstitutor = undef
+              undef = conformance.constraints
+              innerConstraints = undef
               return true
             }
           }
@@ -253,10 +253,10 @@ class CompoundTypeCheckTypeAliasProcessor(sign: TypeAliasSignature, undefSubst: 
         sign.ta match {
           case _: ScTypeAliasDefinition =>
             val t = subst.subst(tp.aliasedType.getOrNothing).equiv(substitutor.subst(sign.lowerBound), undef, falseUndef = false)
-            if (t._1) {
-              undef = t._2
+            if (t.isSuccess) {
+              undef = t.constraints
               trueResult = true
-              innerUndefinedSubstitutor = undef
+              innerConstraints = undef
               return false
             }
           case _: ScTypeAliasDeclaration => if (checkDeclarationForTypeAlias(tp)) return false

@@ -16,14 +16,15 @@ class Extensions(val tp: ScType) extends AnyVal {
   //WARNING: If several updates are used, they should be applicable only for leaf types, e.g. which return themselves
   //from `updateSubtypes` method
   @tailrec
-  final def recursiveUpdateImpl(updates: Seq[Update], visited: Set[ScType] = Set.empty, isLazySubtype: Boolean = false): ScType = {
-    if (updates.isEmpty || visited(tp)) tp
-    else updates.head(tp) match {
-      case ReplaceWith(res) => res.recursiveUpdateImpl(updates.tail, visited, isLazySubtype)
+  final def recursiveUpdateImpl(updates: Array[Update], index: Int = 0,
+                                visited: Set[ScType] = Set.empty, isLazySubtype: Boolean = false): ScType = {
+    if (index >= updates.length || visited(tp)) tp
+    else updates(index)(tp) match {
+      case ReplaceWith(res) => res.recursiveUpdateImpl(updates, index + 1, visited, isLazySubtype)
       case Stop => tp
       case ProcessSubtypes =>
         val newVisited = if (isLazySubtype) visited + tp else visited
-        tp.updateSubtypes(updates, newVisited)
+        tp.updateSubtypes(updates, index, newVisited)
     }
   }
 
@@ -45,8 +46,11 @@ class Extensions(val tp: ScType) extends AnyVal {
   }
 
   //allows most control on what should be done when encountering a type
-  def recursiveUpdate(update: Update): ScType =
-    recursiveUpdateImpl(update :: Nil)
+  def recursiveUpdate(update: Update): ScType = update(tp) match {
+    case ReplaceWith(res) => res
+    case Stop => tp
+    case ProcessSubtypes => tp.updateSubtypes(Array(update), 0, Set.empty)
+  }
 
   //updates all matching subtypes recursively
   def updateRecursively(pf: PartialFunction[ScType, ScType]): ScType =

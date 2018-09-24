@@ -539,7 +539,7 @@ class ImplicitCollector(place: PsiElement,
       val element = coreElement.getOrElse(place)
 
       def equivOrDominates(tp: ScType, found: ScType): Boolean =
-        found.equiv(tp, ScUndefinedSubstitutor(), falseUndef = false)._1 || dominates(tp, found)
+        found.equiv(tp, ConstraintSystem.empty, falseUndef = false).isSuccess || dominates(tp, found)
 
       def checkRecursive(tp: ScType, searches: Seq[ScType]): Boolean = searches.exists(equivOrDominates(tp, _))
 
@@ -693,12 +693,18 @@ class ImplicitCollector(place: PsiElement,
   }
 
   private def argsConformWeakly(left: ScType, right: ScType): Boolean = {
-    (left, right) match {
-      case (leftFun: ScParameterizedType, rightFun: ScParameterizedType) =>
-        leftFun.designator.canonicalText == "_root_.scala.Function1" &&
-          rightFun.designator.canonicalText == "_root_.scala.Function1" &&
-          rightFun.typeArguments.nonEmpty && leftFun.typeArguments.nonEmpty &&
-          (rightFun.typeArguments.head weakConforms leftFun.typeArguments.head)
+    def function1Arg(scType: ScType): Option[ScType] = scType match {
+      case ParameterizedType(ScDesignatorType(c: PsiClass), args) if args.size == 2 =>
+        if (c.qualifiedName == "scala.Function1") args.headOption
+        else None
+      case _ => None
+    }
+
+    function1Arg(left) match {
+      case Some(leftArg) => function1Arg(right) match {
+        case Some(rightArg) => rightArg.weakConforms(leftArg)
+        case _ => false
+      }
       case _ => false
     }
   }

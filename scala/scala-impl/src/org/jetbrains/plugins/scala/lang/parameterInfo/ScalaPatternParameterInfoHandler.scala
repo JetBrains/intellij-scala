@@ -10,7 +10,6 @@ import com.intellij.lang.parameterInfo._
 import com.intellij.psi._
 import com.intellij.psi.tree.IElementType
 import com.intellij.psi.util.PsiTreeUtil
-import com.intellij.util.ArrayUtil
 import org.jetbrains.plugins.scala.extensions._
 import org.jetbrains.plugins.scala.lang.lexer.ScalaTokenTypes
 import org.jetbrains.plugins.scala.lang.psi.ScalaPsiUtil
@@ -217,21 +216,17 @@ class ScalaPatternParameterInfoHandler extends ParameterInfoHandlerWithTabAction
                       val subst = if (typeParameters.isEmpty) substitutor
                       else {
                         val undefSubst = ScSubstitutor.bind(typeParameters)(UndefinedType(_))
-                        fun.parameters.head.`type`() match {
-                          case Right(result) =>
-                            val funType = undefSubst.subst(result)
-                            constr.expectedType match {
-                              case Some(tp) =>
-                                val conformance = funType.conforms(tp, ScUndefinedSubstitutor())
-                                if (conformance._1) {
-                                  conformance._2.getSubstitutor match {
-                                    case Some(newSubst) => newSubst.followed(substitutor)
-                                    case _ => substitutor
-                                  }
-                                } else substitutor
-                              case _ => substitutor
-                            }
-                          case Left(_) => substitutor
+
+                        val maybeSubstitutor = for {
+                          Typeable(parameterType) <- fun.parameters.headOption
+                          substituted = undefSubst.subst(parameterType)
+                          expectedType <- constr.expectedType
+
+                          substitutor <- substituted.conformanceSubstitutor(expectedType)
+                        } yield substitutor
+
+                        maybeSubstitutor.fold(substitutor) {
+                          _.followed(substitutor)
                         }
                       }
                       res += ((new PhysicalSignature(fun, subst), 0))

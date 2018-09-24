@@ -294,20 +294,18 @@ object ScExpression {
               val implicitCollector = new ImplicitCollector(expr, functionType, functionType, None, isImplicitConversion = true)
               val fromImplicit = implicitCollector.collect() match {
                 case Seq(res) =>
-                  val `type` = extractImplicitParameterType(res).flatMap {
+                  extractImplicitParameterType(res).flatMap {
                     case FunctionType(rt, Seq(_)) => Some(rt)
                     case paramType =>
                       expr.elementScope.cachedFunction1Type.flatMap { functionType =>
-                        val (_, substitutor) = paramType.conforms(functionType, ScUndefinedSubstitutor())
-                        substitutor.getSubstitutor.map {
-                          _.subst(functionType.typeArguments(1))
-                        }.filter {
-                          !_.isInstanceOf[UndefinedType]
+                        paramType.conforms(functionType, ConstraintSystem.empty) match {
+                          case ConstraintSystem(substitutor) => Some(substitutor.subst(functionType.typeArguments(1)))
+                          case _ => None
                         }
+                      }.filterNot {
+                        _.isInstanceOf[UndefinedType]
                       }
-                  }
-
-                  `type`.map((_, res))
+                  }.map(_ -> res)
                 case _ => None
               }
               fromImplicit match {

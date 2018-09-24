@@ -9,6 +9,7 @@ import org.jetbrains.plugins.scala.lang.psi.ScalaPsiElement
 import org.jetbrains.plugins.scala.lang.psi.api.base.ScLiteral
 import org.jetbrains.plugins.scala.lang.psi.api.expr._
 import org.jetbrains.plugins.scala.lang.psi.api.statements._
+import org.jetbrains.plugins.scala.lang.psi.api.toplevel.typedef.ScObject
 
 /**
   * @author Pavel Fatin
@@ -27,10 +28,10 @@ sealed trait Implementation {
     case _: ScUnitExpr => true
     case _: ScThrowStmt => true
     case definition: ScNewTemplateDefinition if definition.extendsBlock.templateBody.isEmpty => true
-    case ApplyCall() => true
+    case StableApplyCall() => true
     case ScReferenceExpression(_: PsiEnumConstant) => true
     case EmptyCollectionFactoryCall(_) => true
-    case ScMethodCall(ApplyCall(), _) => true
+    case ScMethodCall(StableApplyCall(), _) => true
     case _ => false
   }
 
@@ -104,13 +105,13 @@ case class Expression(expression: ScExpression) extends Implementation {
 
 object Implementation {
 
-  private object ApplyCall {
+  private object StableApplyCall {
 
     def unapply(reference: ScReferenceExpression): Boolean =
       reference.bind().map { result =>
         result.innerResolveResult.getOrElse(result).element
       }.exists {
-        case function: ScFunction => function.isApplyMethod
+        case (f: ScFunction) && ContainingClass(o: ScObject) => f.isApplyMethod
         case _ => false
       }
   }

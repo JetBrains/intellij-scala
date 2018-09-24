@@ -4,7 +4,7 @@ package completion3
 
 import com.intellij.codeInsight.completion.{CodeCompletionHandlerBase, CompletionType}
 import com.intellij.codeInsight.lookup.impl.LookupImpl
-import com.intellij.codeInsight.lookup.{LookupElement, LookupElementPresentation, LookupManager}
+import com.intellij.codeInsight.lookup.{Lookup, LookupElement, LookupElementPresentation, LookupManager}
 import com.intellij.psi.statistics.StatisticsManager
 import com.intellij.psi.statistics.impl.StatisticsManagerImpl
 import org.jetbrains.plugins.scala.base.ScalaLightCodeInsightFixtureTestAdapter
@@ -19,6 +19,7 @@ import scala.collection.JavaConverters
 abstract class ScalaCodeInsightTestBase extends ScalaLightCodeInsightFixtureTestAdapter {
 
   import CompletionType.BASIC
+  import Lookup.REPLACE_SELECT_CHAR
   import ScalaCodeInsightTestBase._
 
   protected override def setUp(): Unit = {
@@ -46,7 +47,7 @@ abstract class ScalaCodeInsightTestBase extends ScalaLightCodeInsightFixtureTest
   protected def doCompletionTest(fileText: String,
                                  resultText: String,
                                  item: String,
-                                 char: Char = DEFAULT_CHAR,
+                                 char: Char = REPLACE_SELECT_CHAR,
                                  time: Int = DEFAULT_TIME,
                                  completionType: CompletionType = BASIC): Unit =
     doCompletionTest(fileText, resultText, char, time, completionType) {
@@ -119,7 +120,6 @@ abstract class ScalaCodeInsightTestBase extends ScalaLightCodeInsightFixtureTest
 
 object ScalaCodeInsightTestBase {
 
-  val DEFAULT_CHAR: Char = '\t'
   val DEFAULT_TIME: Int = 1
 
   def hasLookupString(lookup: LookupElement, lookupString: String): Boolean =

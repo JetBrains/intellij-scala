@@ -11,8 +11,8 @@ trait DottyConformance extends api.Conformance {
   typeSystem: api.TypeSystem =>
 
   override protected def conformsComputable(left: ScType, right: ScType, visited: Set[PsiClass], checkWeak: Boolean) =
-    new Computable[(Boolean, ScUndefinedSubstitutor)] {
-      override def compute(): (Boolean, ScUndefinedSubstitutor) = (false, ScUndefinedSubstitutor())
+    new Computable[ConstraintsResult] {
+      override def compute(): ConstraintsResult = ConstraintsResult.Failure
     }
 
   private def isSubType(left: ScType, right: ScType) = right match {

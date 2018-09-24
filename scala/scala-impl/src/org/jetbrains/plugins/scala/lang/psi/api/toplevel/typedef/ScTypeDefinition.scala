@@ -91,46 +91,52 @@ trait ScTypeDefinition extends ScTemplateDefinition with ScMember
   //Performance critical method
   //And it is REALLY SO!
   def baseCompanionModule: Option[ScTypeDefinition] = {
-    val scope = getContext
-    if (scope == null) return None
+    val isObject = this match {
+      case _: ScObject => true
+      case _: ScTrait | _: ScClass => false
+      case _ => return None
+    }
 
     val thisName: String = name
-    val tokenSet = TokenSets.TYPE_DEFINITIONS
-    val stub = scope match {
-      case stub: ScalaStubBasedElementImpl[_, _] => Option(stub.getStub)
-      case file: PsiFileImpl => Option(file.getStub)
-      case _ => None
-    }
-    val arrayOfElements: Array[PsiElement] =
-      stub.map(_.getChildrenByType(tokenSet, JavaArrayFactoryUtil.PsiElementFactory))
-        .getOrElse(scope.getChildren)
 
-    val length  = arrayOfElements.length
-    this match {
-      case _: ScClass | _: ScTrait =>
-        var i = 0
-        while (i < length) {
-          arrayOfElements(i) match {
-            case obj: ScObject if obj.name == thisName => return Some(obj)
-            case _ =>
-          }
-          i = i + 1
-        }
-        None
-      case _: ScObject =>
-        var i = 0
-        val length  = arrayOfElements.length
-        while (i < length) {
-          arrayOfElements(i) match {
-            case c: ScClass if c.name == thisName => return Some(c)
-            case t: ScTrait if t.name == thisName => return Some(t)
-            case _ =>
-          }
-          i = i + 1
-        }
-        None
-      case _ => None
+    def isCompanion(td: ScTypeDefinition): Boolean = td match {
+      case td @ (_: ScClass | _: ScTrait)
+        if isObject && td.asInstanceOf[ScTypeDefinition].name == thisName => true
+      case o: ScObject if !isObject && thisName == o.name => true
+      case _ => false
     }
+
+    val sameElementInContext = this.getSameElementInContext
+
+    sameElementInContext match {
+      case td: ScTypeDefinition if isCompanion(td) => return Some(td)
+      case _ =>
+    }
+
+    var sibling: PsiElement = sameElementInContext
+
+    while (sibling != null) {
+
+      sibling = sibling.getNextSibling
+
+      sibling match {
+        case td: ScTypeDefinition if isCompanion(td) => return Some(td)
+        case _ =>
+      }
+    }
+
+    sibling = sameElementInContext
+    while (sibling != null) {
+
+      sibling = sibling.getPrevSibling
+
+      sibling match {
+        case td: ScTypeDefinition if isCompanion(td) => return Some(td)
+        case _ =>
+      }
+    }
+
+    None
   }
 
   @Cached(CachesUtil.libraryAwareModTracker(this), this)
