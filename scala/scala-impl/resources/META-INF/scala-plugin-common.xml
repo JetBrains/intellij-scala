@@ -18,6 +18,7 @@
         <extensionPoint name="scalaDynamicTypeResolver" interface="org.jetbrains.plugins.scala.lang.resolve.DynamicTypeReferenceResolver"/>
         <extensionPoint name="genericTypeNamesProvider" interface="org.jetbrains.plugins.scala.lang.refactoring.namesSuggester.genericTypes.GenericTypeNamesProvider"/>
         <extensionPoint name="nailgunServerAdditionalCp" beanClass="org.jetbrains.plugins.scala.compiler.NailgunServerAdditionalCp"/>
+        <extensionPoint name="compileServerVmOptionsProvider" interface="org.jetbrains.plugins.scala.compiler.CompileServerVmOptionsProvider"/>
         <extensionPoint name="sdkResolver" interface="org.jetbrains.plugins.scala.project.external.SdkResolver"/>
         <extensionPoint name="unresolvedReferenceFixProvider" interface="org.jetbrains.plugins.scala.annotator.UnresolvedReferenceFixProvider"/>
         <extensionPoint name="interpolatedStringMacroTypeProvider" interface="org.jetbrains.plugins.scala.lang.psi.impl.base.InterpolatedStringMacroTypeProvider"/>
@@ -50,6 +51,7 @@
       
         <fileDeclarationsContributor implementation="org.jetbrains.plugins.scala.worksheet.ui.WorksheetFileDeclarationsContributor"/>
         <fileDeclarationsContributor implementation="org.jetbrains.plugins.scala.worksheet.ammonite.AmmoniteFileDeclarationsContributor"/>
+        <compileServerJvmParametersProvider implementation="org.jetbrains.plugins.hydra.compiler.HydraCompileServerVmOptionsProvider"/>
     </extensions>
 
     <extensions defaultExtensionNs="com.intellij">
