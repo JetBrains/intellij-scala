@@ -29,12 +29,6 @@ object ConstraintsResult {
       case constraints: ConstraintSystem => constraints
       case _ => ConstraintSystem.empty
     }
-
-    def combine(other: ConstraintsResult): ConstraintsResult = (result, other) match {
-      case (left: ConstraintSystem, right: ConstraintSystem) =>
-        if (right.isEmpty) left else left + right
-      case _ => Left
-    }
   }
 
   case object Left extends ConstraintsResult

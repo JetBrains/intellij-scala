@@ -24,6 +24,7 @@ import org.jetbrains.plugins.scala.lang.psi.types.recursiveUpdate.ScSubstitutor
 import org.jetbrains.plugins.scala.lang.psi.types.result._
 import org.jetbrains.plugins.scala.lang.refactoring.util.ScTypeUtil.AliasType
 import org.jetbrains.plugins.scala.lang.resolve.processor.{CompoundTypeCheckSignatureProcessor, CompoundTypeCheckTypeAliasProcessor}
+import org.jetbrains.plugins.scala.project.ProjectContext
 import org.jetbrains.plugins.scala.util.ScEquivalenceUtil._
 
 import scala.annotation.tailrec
@@ -34,12 +35,13 @@ import scala.collection.mutable.ArrayBuffer
 trait ScalaConformance extends api.Conformance {
   typeSystem: api.TypeSystem =>
 
-  override protected def conformsComputable(left: ScType, right: ScType,
-                                            visited: Set[PsiClass], checkWeak: Boolean): Computable[ConstraintsResult] =
+  override protected def conformsComputable(key: Key,
+                                            visited: Set[PsiClass]): Computable[ConstraintsResult] =
     new Computable[ConstraintsResult] {
       override def compute(): ConstraintsResult = {
-        val substitutor = ConstraintSystem.empty
-        val leftVisitor = new LeftConformanceVisitor(left, right, visited, substitutor, checkWeak)
+        val Key(left, right, checkWeak) = key
+
+        val leftVisitor = new LeftConformanceVisitor(key, visited)
         left.visitType(leftVisitor)
         if (leftVisitor.getResult != null) return leftVisitor.getResult
 
@@ -50,9 +52,9 @@ trait ScalaConformance extends api.Conformance {
             left.extractClass match {
               case Some(lClass) =>
                 if (rClass.qualifiedName == "java.lang.Object") {
-                  return conformsInner(left, AnyRef, visited, substitutor, checkWeak)
+                  return conformsInner(left, AnyRef, visited, checkWeak = checkWeak)
                 } else if (lClass.qualifiedName == "java.lang.Object") {
-                  return conformsInner(AnyRef, right, visited, substitutor, checkWeak)
+                  return conformsInner(AnyRef, right, visited, checkWeak = checkWeak)
                 }
                 val inh = smartIsInheritor(rClass, subst, lClass)
                 if (inh.isFailure) return ConstraintsResult.Left
@@ -61,10 +63,10 @@ trait ScalaConformance extends api.Conformance {
                 if (lClass.hasTypeParameters) {
                   left match {
                     case _: ScParameterizedType =>
-                    case _ => return substitutor
+                    case _ => return ConstraintSystem.empty
                   }
                 }
-                return conformsInner(left, tp, visited + rClass, substitutor, checkWeak = false)
+                return conformsInner(left, tp, visited + rClass)
               case _ =>
             }
           case _ =>
@@ -73,7 +75,7 @@ trait ScalaConformance extends api.Conformance {
         while (iterator.hasNext) {
           ProgressManager.checkCanceled()
           val tp = iterator.next()
-          val t = conformsInner(left, tp, visited, substitutor, checkWeak = true)
+          val t = conformsInner(left, tp, visited, checkWeak = true)
           if (t.isRight) return t.constraints
         }
         ConstraintsResult.Left
@@ -141,13 +143,13 @@ trait ScalaConformance extends api.Conformance {
     constraints
   }
 
-  private class LeftConformanceVisitor(l: ScType, r: ScType, visited: Set[PsiClass],
-                                       prevConstraints: ConstraintSystem,
-                                       checkWeak: Boolean = false) extends ScalaTypeVisitor {
+  private class LeftConformanceVisitor(key: Key, visited: Set[PsiClass]) extends ScalaTypeVisitor {
 
-    private implicit val projectContext = l.projectContext
+    private val Key(l, r, checkWeak) = key
 
-    private def addBounds(typeParameter: TypeParameter, `type`: ScType) = {
+    private implicit val projectContext: ProjectContext = l.projectContext
+
+    private def addBounds(typeParameter: TypeParameter, `type`: ScType): Unit = {
       val name = typeParameter.typeParamId
       constraints = constraints
         .withLower(name, `type`, variance = Invariant)
@@ -470,7 +472,7 @@ trait ScalaConformance extends api.Conformance {
     }
 
     private var result: ConstraintsResult = null
-    private var constraints: ConstraintSystem = prevConstraints
+    private var constraints: ConstraintSystem = ConstraintSystem.empty
 
     def getResult: ConstraintsResult = result
 

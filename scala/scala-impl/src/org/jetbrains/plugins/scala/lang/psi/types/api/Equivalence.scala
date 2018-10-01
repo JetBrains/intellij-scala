@@ -1,12 +1,11 @@
-package org.jetbrains.plugins.scala.lang.psi.types.api
-
-import java.util.concurrent.ConcurrentMap
+package org.jetbrains.plugins.scala.lang.psi
+package types
+package api
 
 import com.intellij.openapi.progress.ProgressManager
 import com.intellij.openapi.util.Computable
 import com.intellij.util.containers.ContainerUtil
 import org.jetbrains.plugins.scala.caches.RecursionManager
-import org.jetbrains.plugins.scala.lang.psi.types._
 
 /**
   * @author adkozlov
@@ -14,12 +13,12 @@ import org.jetbrains.plugins.scala.lang.psi.types._
 trait Equivalence {
   typeSystem: TypeSystem =>
 
-  private type Data = (ScType, ScType, Boolean)
+  import TypeSystem._
+  import ConstraintsResult.Left
 
-  private val guard = RecursionManager.RecursionGuard[Data, ConstraintsResult](s"${typeSystem.name}.equivalence.guard")
+  private val guard = RecursionManager.RecursionGuard[Key, ConstraintsResult](s"${typeSystem.name}.equivalence.guard")
 
-  private val cache: ConcurrentMap[(ScType, ScType, Boolean), ConstraintsResult] =
-    ContainerUtil.newConcurrentMap[(ScType, ScType, Boolean), ConstraintsResult]()
+  private val cache = ContainerUtil.newConcurrentMap[Key, ConstraintsResult]()
 
   private val eval = new ThreadLocal[Boolean] {
     override def initialValue(): Boolean = false
@@ -37,12 +36,16 @@ trait Equivalence {
                        falseUndef: Boolean = true): ConstraintsResult = {
     ProgressManager.checkCanceled()
 
-    if (left == right) return constraints
+    if (left == right) constraints
+    else if (left.canBeSameClass(right)) {
+      val result = equivInner(Key(left, right, falseUndef))
+      combine(result)(constraints)
+    } else Left
+  }
 
-    if (!left.canBeSameClass(right)) return ConstraintsResult.Left
+  protected def equivComputable(key: Key): Computable[ConstraintsResult]
 
-    val key = (left, right, falseUndef)
-
+  private def equivInner(key: Key): ConstraintsResult = {
     val nowEval = eval.get()
     val fromCache = if (nowEval) null
     else {
@@ -53,32 +56,26 @@ trait Equivalence {
         eval.set(false)
       }
     }
-    if (fromCache != null) {
-      return fromCache.combine(constraints)
+
+    fromCache match {
+      case null if guard.checkReentrancy(key) => Left
+      case null =>
+        val stackStamp = RecursionManager.markStack()
+
+        guard.doPreventingRecursion(key, equivComputable(key)) match {
+          case null => Left
+          case result =>
+            if (!nowEval && stackStamp.mayCacheNow()) {
+              try {
+                eval.set(true)
+                cache.put(key, result)
+              } finally {
+                eval.set(false)
+              }
+            }
+            result
+        }
+      case cached => cached
     }
-
-    if (guard.checkReentrancy(key)) {
-      return ConstraintsResult.Left
-    }
-
-    val stackStamp = RecursionManager.markStack()
-
-    val result = guard.doPreventingRecursion(key, equivComputable(left, right, ConstraintSystem.empty, falseUndef))
-
-    if (result == null) return ConstraintsResult.Left
-
-    if (!nowEval && stackStamp.mayCacheNow()) {
-      try {
-        eval.set(true)
-        cache.put(key, result)
-      } finally {
-        eval.set(false)
-      }
-    }
-    result.combine(constraints)
   }
-
-  protected def equivComputable(left: ScType, right: ScType,
-                                constraints: ConstraintSystem,
-                                falseUndef: Boolean): Computable[ConstraintsResult]
 }

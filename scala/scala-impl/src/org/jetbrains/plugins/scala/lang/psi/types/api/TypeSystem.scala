@@ -1,6 +1,7 @@
-package org.jetbrains.plugins.scala.lang.psi.types.api
+package org.jetbrains.plugins.scala.lang.psi
+package types
+package api
 
-import org.jetbrains.plugins.scala.lang.psi.types.ScType
 import org.jetbrains.plugins.scala.project.ProjectContextOwner
 
 /**
@@ -13,6 +14,10 @@ trait TypeSystem extends ProjectContextOwner
   with PsiTypeBridge
   with TypePresentation {
 
+  protected case class Key(left: ScType,
+                           right: ScType,
+                           flag: Boolean)
+
   val name: String
 
   def andType(types: Seq[ScType]): ScType
@@ -22,5 +27,14 @@ trait TypeSystem extends ProjectContextOwner
   override final def clearCache(): Unit = {
     super[Equivalence].clearCache()
     super[Conformance].clearCache()
+  }
+}
+
+object TypeSystem {
+
+  private[api] def combine(result: ConstraintsResult)(constraints: ConstraintSystem): ConstraintsResult = result match {
+    case system: ConstraintSystem =>
+      if (constraints.isEmpty) system else system + constraints
+    case _ => ConstraintsResult.Left
   }
 }
