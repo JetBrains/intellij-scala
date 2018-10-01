@@ -15,7 +15,7 @@ trait ScalaEquivalence extends api.Equivalence {
   typeSystem: api.TypeSystem =>
 
   override protected def equivComputable(left: ScType, right: ScType, constraints: ConstraintSystem,
-                                         falseUndef: Boolean) = new Computable[ConstraintsResult] {
+                                         falseUndef: Boolean): Computable[ConstraintsResult] = new Computable[ConstraintsResult] {
     override def compute(): ConstraintsResult = {
       left match {
         case designator: ScDesignatorType => designator.getValType match {
@@ -36,16 +36,16 @@ trait ScalaEquivalence extends api.Equivalence {
       (left, right) match {
         case (UndefinedType(_, _), _) if right.isAliasType.isDefined =>
           val t = left.equivInner(right, constraints, falseUndef)
-          if (t.isSuccess) return t
+          if (t.isRight) return t
         case (_, UndefinedType(_, _)) if left.isAliasType.isDefined =>
           val t = left.equivInner(right, constraints, falseUndef)
-          if (t.isSuccess) return t
+          if (t.isRight) return t
         case (ParameterizedType(UndefinedType(_, _), _), _) if right.isAliasType.isDefined =>
           val t = left.equivInner(right, constraints, falseUndef)
-          if (t.isSuccess) return t
+          if (t.isRight) return t
         case (_, ParameterizedType(UndefinedType(_, _), _)) if left.isAliasType.isDefined =>
           val t = right.equivInner(left, constraints, falseUndef)
-          if (t.isSuccess) return t
+          if (t.isRight) return t
         case _ =>
       }
 

@@ -15,46 +15,35 @@ import scala.collection.immutable.LongMap
 /** ConstraintsResult allows to represent failures in conformance and equivalence
   * without wrapping [[ConstraintSystem]] into a tuple
   */
-sealed trait ConstraintsResult {
-  def isFailure: Boolean
-
-  final def isSuccess: Boolean = !isFailure
-
-  def constraints: ConstraintSystem
-
-  def combine(other: ConstraintsResult): ConstraintsResult
-}
+sealed trait ConstraintsResult
 
 object ConstraintsResult {
-  def unapply(result: ConstraintsResult): Option[ConstraintSystem] = result match {
-    case Failure => None
-    case constraints: ConstraintSystem => Some(constraints)
+
+  implicit class ConstraintsResultExt(val result: ConstraintsResult) extends AnyVal {
+
+    def isLeft: Boolean = result eq Left
+
+    def isRight: Boolean = !isLeft
+
+    def constraints: ConstraintSystem = result match {
+      case constraints: ConstraintSystem => constraints
+      case _ => ConstraintSystem.empty
+    }
+
+    def combine(other: ConstraintsResult): ConstraintsResult = (result, other) match {
+      case (left: ConstraintSystem, right: ConstraintSystem) =>
+        if (right.isEmpty) left else left + right
+      case _ => Left
+    }
   }
 
-  case object Failure extends ConstraintsResult {
-    override def isFailure: Boolean = true
-
-    override def constraints: ConstraintSystem = ConstraintSystem.empty
-
-    override def combine(other: ConstraintsResult): ConstraintsResult = this
-  }
+  case object Left extends ConstraintsResult
 }
 
 /** ConstraintSystem is used to accumulate information about generic types
   * during type inference, usually in combination with [[UndefinedType]]
   */
 sealed trait ConstraintSystem extends ConstraintsResult {
-
-  override def isFailure: Boolean = false
-
-  override def constraints: ConstraintSystem = this
-
-  override def combine(other: ConstraintsResult): ConstraintsResult = other match {
-    case ConstraintsResult.Failure => ConstraintsResult.Failure
-    case constraints: ConstraintSystem =>
-      if (constraints.isEmpty) this
-      else this + constraints
-  }
 
   def isEmpty: Boolean
 
@@ -403,15 +392,15 @@ private final case class MultiConstraintSystem(impls: Set[ConstraintSystemImpl])
     _.isEmpty
   }
 
-  override def withTypeParamId(id: Long): ConstraintSystem = this.map {
+  override def withTypeParamId(id: Long): ConstraintSystem = map {
     _.withTypeParamId(id)
   }
 
-  override def withLower(id: Long, lower: ScType, variance: Variance): ConstraintSystem = this.map {
+  override def withLower(id: Long, lower: ScType, variance: Variance): ConstraintSystem = map {
     _.withLower(id, lower, variance)
   }
 
-  override def withUpper(id: Long, upper: ScType, variance: Variance): ConstraintSystem = this.map {
+  override def withUpper(id: Long, upper: ScType, variance: Variance): ConstraintSystem = map {
     _.withUpper(id, upper, variance)
   }
 
@@ -423,7 +412,7 @@ private final case class MultiConstraintSystem(impls: Set[ConstraintSystemImpl])
       case Some(bounds) => bounds
     }
 
-  override def removeTypeParamIds(ids: Set[Long]): ConstraintSystem = this.map {
+  override def removeTypeParamIds(ids: Set[Long]): ConstraintSystem = map {
     _.removeTypeParamIds(ids)
   }
 

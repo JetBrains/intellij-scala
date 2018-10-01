@@ -10,10 +10,9 @@ import org.jetbrains.plugins.scala.lang.psi.types._
 trait DottyConformance extends api.Conformance {
   typeSystem: api.TypeSystem =>
 
-  override protected def conformsComputable(left: ScType, right: ScType, visited: Set[PsiClass], checkWeak: Boolean) =
-    new Computable[ConstraintsResult] {
-      override def compute(): ConstraintsResult = ConstraintsResult.Failure
-    }
+  override protected def conformsComputable(left: ScType, right: ScType,
+                                            visited: Set[PsiClass], checkWeak: Boolean): Computable[ConstraintsResult] =
+    () => ConstraintsResult.Left
 
   private def isSubType(left: ScType, right: ScType) = right match {
     case DottyNoType() => false

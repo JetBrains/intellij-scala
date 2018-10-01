@@ -61,7 +61,7 @@ class CompoundTypeCheckSignatureProcessor(s: Signature, retType: ScType,
             if (v == Covariant) lower1.conforms(lower2, undef)
             else lower2.conforms(lower1, undef)
 
-          if (lowerConformance.isFailure) return false
+          if (lowerConformance.isLeft) return false
           undef = lowerConformance.constraints
 
           val upper1 = tp1.upperBound.getOrAny
@@ -70,7 +70,7 @@ class CompoundTypeCheckSignatureProcessor(s: Signature, retType: ScType,
             if (v == Covariant) upper2.conforms(upper1, undef)
             else upper1.conforms(upper2, undef)
 
-          if (upperConformance.isFailure) return false
+          if (upperConformance.isLeft) return false
           undef = upperConformance.constraints
 
           //todo: view?
@@ -108,7 +108,7 @@ class CompoundTypeCheckSignatureProcessor(s: Signature, retType: ScType,
       if (!sign1.parameterlessCompatible(sign2)) return true
 
       var t = sign1.paramTypesEquivExtended(sign2, undef, falseUndef = false)
-      if (t.isFailure) return true
+      if (t.isLeft) return true
       undef = t.constraints
       innerConstraints = undef
 
@@ -120,7 +120,7 @@ class CompoundTypeCheckSignatureProcessor(s: Signature, retType: ScType,
       val bType = unified1.subst(subst.subst(returnType))
       val gType = unified2.subst(substitutor.subst(retType))
       t = bType.conforms(gType, undef)
-      if (t.isSuccess) {
+      if (t.isRight) {
         trueResult = true
         undef = t.constraints
         innerConstraints = undef
@@ -190,7 +190,7 @@ class CompoundTypeCheckTypeAliasProcessor(sign: TypeAliasSignature, constraints:
             if (v == Covariant) lower1.conforms(lower2, undef)
             else lower2.conforms(lower1, undef)
 
-          if (lowerConformance.isFailure) return false
+          if (lowerConformance.isLeft) return false
           undef = lowerConformance.constraints
 
           val upper1 = tp1.upperBound.getOrAny
@@ -199,7 +199,7 @@ class CompoundTypeCheckTypeAliasProcessor(sign: TypeAliasSignature, constraints:
             if (v == Covariant) upper2.conforms(upper1, undef)
             else upper1.conforms(upper2, undef)
 
-          if (upperConformance.isFailure) return false
+          if (upperConformance.isLeft) return false
           undef = upperConformance.constraints
 
           //todo: view?
@@ -234,9 +234,9 @@ class CompoundTypeCheckTypeAliasProcessor(sign: TypeAliasSignature, constraints:
       sign.ta match {
         case _: ScTypeAliasDeclaration =>
           var conformance = substitutor.subst(sign.lowerBound).conforms(subst.subst(tp.lowerBound.getOrNothing), undef)
-          if (conformance.isSuccess) {
+          if (conformance.isRight) {
             conformance = subst.subst(tp.upperBound.getOrAny).conforms(substitutor.subst(sign.upperBound), conformance.constraints)
-            if (conformance.isSuccess) {
+            if (conformance.isRight) {
               trueResult = true
               undef = conformance.constraints
               innerConstraints = undef
@@ -253,7 +253,7 @@ class CompoundTypeCheckTypeAliasProcessor(sign: TypeAliasSignature, constraints:
         sign.ta match {
           case _: ScTypeAliasDefinition =>
             val t = subst.subst(tp.aliasedType.getOrNothing).equiv(substitutor.subst(sign.lowerBound), undef, falseUndef = false)
-            if (t.isSuccess) {
+            if (t.isRight) {
               undef = t.constraints
               trueResult = true
               innerConstraints = undef

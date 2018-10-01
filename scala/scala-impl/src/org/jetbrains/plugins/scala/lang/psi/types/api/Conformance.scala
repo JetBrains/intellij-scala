@@ -35,7 +35,7 @@ trait Conformance {
 
     if (left.isAny || right.isNothing || left == right) return constraints
 
-    if (!right.canBeSameOrInheritor(left)) return ConstraintsResult.Failure
+    if (!right.canBeSameOrInheritor(left)) return ConstraintsResult.Left
 
     val key = (left, right, checkWeak)
 
@@ -44,13 +44,13 @@ trait Conformance {
       return fromCache.combine(constraints)
     }
     if (guard.checkReentrancy(key)) {
-      return ConstraintsResult.Failure
+      return ConstraintsResult.Left
     }
 
     val stackStamp = RecursionManager.markStack()
 
     val res = guard.doPreventingRecursion(key, conformsComputable(left, right, visited, checkWeak))
-    if (res == null) return ConstraintsResult.Failure
+    if (res == null) return ConstraintsResult.Left
 
     if (stackStamp.mayCacheNow()) {
       cache.put(key, res)

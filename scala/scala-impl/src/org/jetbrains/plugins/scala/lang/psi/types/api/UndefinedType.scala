@@ -20,7 +20,7 @@ case class UndefinedType(typeParameter: TypeParameter, level: Int = 0) extends N
   def inferValueType: TypeParameterType = TypeParameterType(typeParameter)
 
   override def equivInner(`type`: ScType, constraints: ConstraintSystem, falseUndef: Boolean): ConstraintsResult = {
-    if (falseUndef) ConstraintsResult.Failure
+    if (falseUndef) ConstraintsResult.Left
     else `type` match {
       case _ if falseUndef => constraints
       case UndefinedType(_, thatLevel) if thatLevel == level => constraints

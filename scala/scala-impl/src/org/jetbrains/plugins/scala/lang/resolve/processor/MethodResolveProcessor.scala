@@ -238,7 +238,7 @@ object MethodResolveProcessor {
         case _ => Nothing
       }
       val conformance = retType.typeSystem.conformsInner(expected, retType)
-      if (conformance.isFailure && !expected.equiv(api.Unit)) {
+      if (conformance.isLeft && !expected.equiv(api.Unit)) {
         problems += ExpectedTypeMismatch
       }
       result match {

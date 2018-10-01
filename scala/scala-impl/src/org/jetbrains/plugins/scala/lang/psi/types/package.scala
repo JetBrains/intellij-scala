@@ -35,11 +35,11 @@ package object types {
     }
 
     def conforms(`type`: ScType): Boolean = {
-      typeSystem.conformsInner(`type`, scType).isSuccess
+      typeSystem.conformsInner(`type`, scType).isRight
     }
 
     def weakConforms(`type`: ScType): Boolean = {
-      typeSystem.conformsInner(`type`, scType, checkWeak = true).isSuccess
+      typeSystem.conformsInner(`type`, scType, checkWeak = true).isRight
     }
 
     def conformanceSubstitutor(`type`: ScType): Option[ScSubstitutor] = {

@@ -119,15 +119,15 @@ class Signature(val name: String,
   }
 
   def paramTypesEquiv(other: Signature): Boolean = {
-    paramTypesEquivExtended(other, ConstraintSystem.empty, falseUndef = true).isSuccess
+    paramTypesEquivExtended(other, ConstraintSystem.empty, falseUndef = true).isRight
   }
 
 
   def paramTypesEquivExtended(other: Signature, constraints: ConstraintSystem,
                               falseUndef: Boolean): ConstraintsResult = {
 
-    if (paramLength != other.paramLength && !(paramLength.sum == 0 && other.paramLength.sum == 0)) return ConstraintsResult.Failure
-    if (hasRepeatedParam != other.hasRepeatedParam) return ConstraintsResult.Failure
+    if (paramLength != other.paramLength && !(paramLength.sum == 0 && other.paramLength.sum == 0)) return ConstraintsResult.Left
+    if (hasRepeatedParam != other.hasRepeatedParam) return ConstraintsResult.Left
     val depParamTypeSubst = depParamTypeSubstitutor(other)
     val unified = other.substitutor.withBindings(typeParams, other.typeParams)
     val clauseIterator = substitutedTypes.iterator
@@ -144,14 +144,14 @@ class Signature(val name: String,
         val tp1 = unified.followed(depParamTypeSubst).subst(t1())
         val tp2 = unified.subst(t2())
         var t = tp2.equiv(tp1, lastConstraints, falseUndef)
-        if (t.isFailure && tp1.equiv(api.AnyRef) && this.isJava) {
+        if (t.isLeft && tp1.equiv(api.AnyRef) && this.isJava) {
           t = tp2.equiv(Any, lastConstraints, falseUndef)
         }
-        if (t.isFailure && tp2.equiv(api.AnyRef) && other.isJava) {
+        if (t.isLeft && tp2.equiv(api.AnyRef) && other.isJava) {
           t = Any.equiv(tp1, lastConstraints, falseUndef)
         }
-        if (t.isFailure) {
-          return ConstraintsResult.Failure
+        if (t.isLeft) {
+          return ConstraintsResult.Left
         }
         lastConstraints = t.constraints
       }

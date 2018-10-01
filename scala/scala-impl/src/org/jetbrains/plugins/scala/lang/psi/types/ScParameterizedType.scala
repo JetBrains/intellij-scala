@@ -76,14 +76,14 @@ class ScParameterizedType private(val designator: ScType, val typeArguments: Seq
       case (ParameterizedType(Nothing, _), Nothing) => constraints
       case (ParameterizedType(Nothing, _), ParameterizedType(Nothing, _)) => constraints
       case (ParameterizedType(ScAbstractType(tp, lower, upper), args), _) =>
-        if (falseUndef) return ConstraintsResult.Failure
+        if (falseUndef) return ConstraintsResult.Left
 
         val subst = ScSubstitutor.bind(tp.typeParameters, args)
         var conformance = r.conforms(subst.subst(upper), constraints)
-        if (conformance.isFailure) return ConstraintsResult.Failure
+        if (conformance.isLeft) return ConstraintsResult.Left
 
         conformance = subst.subst(lower).conforms(r, conformance.constraints)
-        if (conformance.isFailure) return ConstraintsResult.Failure
+        if (conformance.isLeft) return ConstraintsResult.Left
 
         conformance
       case (ParameterizedType(proj@ScProjectionType(_, _), _), _) if proj.actualElement.isInstanceOf[ScTypeAliasDefinition] =>
@@ -91,18 +91,18 @@ class ScParameterizedType private(val designator: ScType, val typeArguments: Seq
           case Some(AliasType(_: ScTypeAliasDefinition, lower, _)) =>
             (lower match {
               case Right(tp) => tp
-              case _ => return ConstraintsResult.Failure
+              case _ => return ConstraintsResult.Left
             }).equiv(r, constraints, falseUndef)
-          case _ => ConstraintsResult.Failure
+          case _ => ConstraintsResult.Left
         }
       case (ParameterizedType(ScDesignatorType(_: ScTypeAliasDefinition), _), _) =>
         isAliasType match {
           case Some(AliasType(_: ScTypeAliasDefinition, lower, _)) =>
             (lower match {
               case Right(tp) => tp
-              case _ => return ConstraintsResult.Failure
+              case _ => return ConstraintsResult.Left
             }).equiv(r, constraints, falseUndef)
-          case _ => ConstraintsResult.Failure
+          case _ => ConstraintsResult.Left
         }
       case (ParameterizedType(UndefinedType(_, _), _), ParameterizedType(_, _)) =>
         Conformance.processHigherKindedTypeParams(this, r.asInstanceOf[ParameterizedType], constraints, falseUndef)
@@ -111,20 +111,20 @@ class ScParameterizedType private(val designator: ScType, val typeArguments: Seq
       case (ParameterizedType(_, _), ParameterizedType(designator1, typeArgs1)) =>
         var lastConstraints = constraints
         var t = designator.equiv(designator1, constraints, falseUndef)
-        if (t.isFailure) return ConstraintsResult.Failure
+        if (t.isLeft) return ConstraintsResult.Left
         lastConstraints = t.constraints
-        if (typeArguments.length != typeArgs1.length) return ConstraintsResult.Failure
+        if (typeArguments.length != typeArgs1.length) return ConstraintsResult.Left
         val iterator1 = typeArguments.iterator
         val iterator2 = typeArgs1.iterator
         while (iterator1.hasNext && iterator2.hasNext) {
           t = iterator1.next().equiv(iterator2.next(), lastConstraints, falseUndef)
 
-          if (t.isFailure) return ConstraintsResult.Failure
+          if (t.isLeft) return ConstraintsResult.Left
 
           lastConstraints = t.constraints
         }
         lastConstraints
-      case _ => ConstraintsResult.Failure
+      case _ => ConstraintsResult.Left
     }
   }
 

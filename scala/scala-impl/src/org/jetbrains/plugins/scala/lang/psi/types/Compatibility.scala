@@ -122,7 +122,7 @@ object Compatibility {
                       (implicit project: ProjectContext): ConstraintsResult = {
     val r = checkConformanceExt(checkNames, parameters, exprs, checkWithImplicits, isShapesResolve = false)
 
-    if (r.problems.nonEmpty) ConstraintsResult.Failure
+    if (r.problems.nonEmpty) ConstraintsResult.Left
     else r.constraints
   }
 

@@ -44,7 +44,7 @@ sealed class StdType(val name: String, val tSuper: Option[StdType])
         }
     }
     if (success) constraints
-    else ConstraintsResult.Failure
+    else ConstraintsResult.Left
   }
 }
 

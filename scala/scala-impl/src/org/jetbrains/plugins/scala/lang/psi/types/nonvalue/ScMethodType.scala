@@ -145,21 +145,21 @@ case class ScMethodType(returnType: ScType, params: Seq[Parameter], isImplicit: 
     var lastConstraints = constraints
     r match {
       case m: ScMethodType =>
-        if (m.params.length != params.length) return ConstraintsResult.Failure
+        if (m.params.length != params.length) return ConstraintsResult.Left
         var t = m.returnType.equiv(returnType, lastConstraints, falseUndef)
-        if (t.isFailure) return ConstraintsResult.Failure
+        if (t.isLeft) return ConstraintsResult.Left
         lastConstraints = t.constraints
         var i = 0
         while (i < params.length) {
           //todo: Seq[Type] instead of Type*
-          if (params(i).isRepeated != m.params(i).isRepeated) return ConstraintsResult.Failure
+          if (params(i).isRepeated != m.params(i).isRepeated) return ConstraintsResult.Left
           t = params(i).paramType.equiv(m.params(i).paramType, lastConstraints, falseUndef)
-          if (t.isFailure) return ConstraintsResult.Failure
+          if (t.isLeft) return ConstraintsResult.Left
           lastConstraints = t.constraints
           i = i + 1
         }
         lastConstraints
-      case _ => ConstraintsResult.Failure
+      case _ => ConstraintsResult.Left
     }
   }
 }
@@ -266,20 +266,20 @@ case class ScTypePolymorphicType(internalType: ScType, typeParameters: Seq[TypeP
     var lastConstraints = constraints
     r match {
       case p: ScTypePolymorphicType =>
-        if (typeParameters.length != p.typeParameters.length) return ConstraintsResult.Failure
+        if (typeParameters.length != p.typeParameters.length) return ConstraintsResult.Left
         var i = 0
         while (i < typeParameters.length) {
           var t = typeParameters(i).lowerType.equiv(p.typeParameters(i).lowerType, lastConstraints, falseUndef)
-          if (t.isFailure) return ConstraintsResult.Failure
+          if (t.isLeft) return ConstraintsResult.Left
           lastConstraints = t.constraints
           t = typeParameters(i).upperType.equiv(p.typeParameters(i).upperType, lastConstraints, falseUndef)
-          if (t.isFailure) return ConstraintsResult.Failure
+          if (t.isLeft) return ConstraintsResult.Left
           lastConstraints = t.constraints
           i = i + 1
         }
         val subst = ScSubstitutor.bind(typeParameters, p.typeParameters)(TypeParameterType(_))
         subst.subst(internalType).equiv(p.internalType, lastConstraints, falseUndef)
-      case _ => ConstraintsResult.Failure
+      case _ => ConstraintsResult.Left
     }
   }
 

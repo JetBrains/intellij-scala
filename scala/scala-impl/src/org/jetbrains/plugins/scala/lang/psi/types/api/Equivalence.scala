@@ -25,7 +25,7 @@ trait Equivalence {
     override def initialValue(): Boolean = false
   }
 
-  final def equiv(left: ScType, right: ScType): Boolean = equivInner(left, right).isSuccess
+  final def equiv(left: ScType, right: ScType): Boolean = equivInner(left, right).isRight
 
   def clearCache(): Unit = cache.clear()
 
@@ -39,7 +39,7 @@ trait Equivalence {
 
     if (left == right) return constraints
 
-    if (!left.canBeSameClass(right)) return ConstraintsResult.Failure
+    if (!left.canBeSameClass(right)) return ConstraintsResult.Left
 
     val key = (left, right, falseUndef)
 
@@ -58,14 +58,14 @@ trait Equivalence {
     }
 
     if (guard.checkReentrancy(key)) {
-      return ConstraintsResult.Failure
+      return ConstraintsResult.Left
     }
 
     val stackStamp = RecursionManager.markStack()
 
     val result = guard.doPreventingRecursion(key, equivComputable(left, right, ConstraintSystem.empty, falseUndef))
 
-    if (result == null) return ConstraintsResult.Failure
+    if (result == null) return ConstraintsResult.Left
 
     if (!nowEval && stackStamp.mayCacheNow()) {
       try {
