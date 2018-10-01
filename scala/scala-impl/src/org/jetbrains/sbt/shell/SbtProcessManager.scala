@@ -13,7 +13,7 @@ import com.intellij.openapi.fileEditor.OpenFileDescriptor
 import com.intellij.openapi.options.ShowSettingsUtil
 import com.intellij.openapi.options.ex.SingleConfigurableEditor
 import com.intellij.openapi.options.newEditor.SettingsDialog
-import com.intellij.openapi.project.Project
+import com.intellij.openapi.project.{Project, ProjectUtil}
 import com.intellij.openapi.projectRoots.Sdk
 import com.intellij.openapi.roots.ProjectRootManager
 import com.intellij.openapi.roots.ui.configuration.ProjectStructureConfigurable
@@ -73,7 +73,10 @@ class SbtProcessManager(project: Project) extends ProjectComponent {
 
 
   private def createShellProcessHandler(): (ColoredProcessHandler, Option[RemoteConnection]) = {
-    val workingDirPath = project.getBaseDir.getCanonicalPath
+    val workingDirPath =
+      Option(ProjectUtil.guessProjectDir(project))
+        .getOrElse(throw new IllegalStateException(s"no project directory found for project ${project.getName}"))
+        .getCanonicalPath
     val workingDir = new File(workingDirPath)
 
     val sbtSettings = getSbtSettings(workingDirPath)
@@ -126,6 +129,9 @@ class SbtProcessManager(project: Project) extends ProjectComponent {
       val sbtMajorVersion = binaryVersion(upgradedSbtVersion)
 
       val globalPluginsDir = globalPluginsDirectory(sbtMajorVersion, commandLine.getParametersList)
+      // workaround: --addPluginsSbtFile fails if global plugins dir does not exist. https://youtrack.jetbrains.com/issue/SCL-14415
+      globalPluginsDir.mkdirs()
+
       val globalSettingsFile = new File(globalPluginsDir, "idea.sbt")
 
       val settingsFile =
