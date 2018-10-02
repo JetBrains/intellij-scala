@@ -18,12 +18,7 @@ import org.jetbrains.plugins.scala.lang.parser.parsing.types.ParamType
 /*
  * ClassParam ::= {Annotation} [{Modifier} ('val' | 'var')] id ':' ParamType ['=' Expr]
  */
-object ClassParam extends ClassParam {
-  override protected def paramType = ParamType
-}
-
-trait ClassParam {
-  protected def paramType: ParamType
+object ClassParam {
 
   def parse(builder: ScalaPsiBuilder): Boolean = {
     val classParamMarker = builder.mark
@@ -59,7 +54,7 @@ trait ClassParam {
     builder.getTokenType match {
       case ScalaTokenTypes.tCOLON =>
         builder.advanceLexer() //Ate ':'
-        if (!paramType.parse(builder)) {
+        if (!ParamType.parse(builder)) {
           builder.error(ScalaBundle.message("parameter.type.expected"))
         }
       case _ =>

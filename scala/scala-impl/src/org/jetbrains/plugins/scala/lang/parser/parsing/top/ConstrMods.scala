@@ -7,18 +7,13 @@ import org.jetbrains.plugins.scala.lang.parser.parsing.builder.ScalaPsiBuilder
 /**
   * @author adkozlov
   */
-object ConstrMods extends ConstrMods
-
-trait ConstrMods {
+object ConstrMods {
   def parse(builder: ScalaPsiBuilder): Boolean = {
     val marker = builder.mark()
     if (!builder.newlineBeforeCurrentToken) {
-      parseModifier(builder)
+      AccessModifier.parse(builder)
     }
     marker.done(ScalaElementTypes.MODIFIERS)
     true
   }
-
-  protected def parseModifier(builder: ScalaPsiBuilder): Boolean =
-    AccessModifier.parse(builder)
 }

@@ -18,14 +18,7 @@ import org.jetbrains.plugins.scala.lang.parser.parsing.top.params.ClassParamClau
 /*
  * ClassDef ::= id [TypeParamClause] {Annotation} [AcessModifier] [ClassParamClauses] ClassTemplateOpt
  */
-object ClassDef extends ClassDef {
-  override protected def classParamClauses = ClassParamClauses
-  override protected def constrMods = ConstrMods
-}
-
-trait ClassDef {
-  protected def classParamClauses: ClassParamClauses
-  protected def constrMods: ConstrMods
+object ClassDef {
 
   def parse(builder: ScalaPsiBuilder): Boolean = builder.getTokenType match {
     case ScalaTokenTypes.tIDENTIFIER =>
@@ -34,8 +27,8 @@ trait ClassDef {
 
       val constructorMarker = builder.mark()
       parseAnnotations(builder)
-      constrMods.parse(builder)
-      classParamClauses.parse(builder)
+      ConstrMods.parse(builder)
+      ClassParamClauses.parse(builder)
       constructorMarker.done(ScalaElementTypes.PRIMARY_CONSTRUCTOR)
 
       //parse extends block
