@@ -16,15 +16,8 @@ import org.jetbrains.plugins.scala.lang.parser.parsing.top.template.{MixinParent
 /*
  * TraitTemplateOpt ::= 'extends' TraitTemplate | [['extends'] TemplateBody]
  */
-object TraitTemplateOpt extends TraitTemplateOpt {
-  override protected def templateBody = TemplateBody
-  override protected def earlyDef = EarlyDef
-}
-
 //It's very similar code to ClassTemplateOpt
-trait TraitTemplateOpt extends TemplateOpt {
-  protected def templateBody: TemplateBody
-  protected def earlyDef: EarlyDef
+object TraitTemplateOpt {
 
   def parse(builder: ScalaPsiBuilder): Unit = {
     val extendsMarker = builder.mark
@@ -36,7 +29,7 @@ trait TraitTemplateOpt extends TemplateOpt {
           extendsMarker.done(ScalaElementTypes.EXTENDS_BLOCK)
           return
         }
-        templateBody parse builder
+        TemplateBody parse builder
         extendsMarker.done(ScalaElementTypes.EXTENDS_BLOCK)
         return
       case _ =>
@@ -48,7 +41,7 @@ trait TraitTemplateOpt extends TemplateOpt {
       //hardly case, becase it's same token for ClassParents and TemplateBody
       case ScalaTokenTypes.tLBRACE =>
         //try to parse early definition if we can't => it's template body
-        if (earlyDef parse builder) {
+        if (EarlyDef parse builder) {
           MixinParents parse builder
           //parse template body
           builder.getTokenType match {
@@ -57,7 +50,7 @@ trait TraitTemplateOpt extends TemplateOpt {
                 extendsMarker.done(ScalaElementTypes.EXTENDS_BLOCK)
                 return
               }
-              templateBody parse builder
+              TemplateBody parse builder
               extendsMarker.done(ScalaElementTypes.EXTENDS_BLOCK)
               return
             }
@@ -71,7 +64,7 @@ trait TraitTemplateOpt extends TemplateOpt {
           //parse template body
           builder.getTokenType match {
             case ScalaTokenTypes.tLBRACE => {
-              templateBody parse builder
+              TemplateBody parse builder
               extendsMarker.done(ScalaElementTypes.EXTENDS_BLOCK)
               return
             }
@@ -92,7 +85,7 @@ trait TraitTemplateOpt extends TemplateOpt {
               extendsMarker.done(ScalaElementTypes.EXTENDS_BLOCK)
               return
             }
-            templateBody parse builder
+            TemplateBody parse builder
             extendsMarker.done(ScalaElementTypes.EXTENDS_BLOCK)
             return
           }

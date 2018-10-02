@@ -18,25 +18,18 @@ import scala.annotation.tailrec
 /*
  *  TemplateBody ::= '{' [SelfType] TemplateStat {semi TemplateStat} '}'
  */
-object TemplateBody extends TemplateBody {
-  override protected def templateStat = TemplateStat
-  override protected def selfType = SelfType
-}
-
-trait TemplateBody {
-  protected def templateStat: TemplateStat
-  protected def selfType: SelfType
+object TemplateBody {
 
   def parse(builder: ScalaPsiBuilder) {
     val templateBodyMarker = builder.mark
     //Look for {
-    builder.enableNewlines
+    builder.enableNewlines()
     builder.getTokenType match {
       case ScalaTokenTypes.tLBRACE =>
         builder.advanceLexer() //Ate {
       case _ => builder error ScalaBundle.message("lbrace.expected")
     }
-    selfType parse builder
+    SelfType parse builder
     //this metod parse recursively TemplateStat {semi TemplateStat}
     @tailrec
     def subparse(): Boolean = {
@@ -48,24 +41,21 @@ trait TemplateBody {
           builder error ScalaBundle.message("rbrace.expected")
           true
         case _ =>
-          if (templateStat parse builder) {
+          if (TemplateStat parse builder) {
             builder.getTokenType match {
-              case ScalaTokenTypes.tRBRACE => {
+              case ScalaTokenTypes.tRBRACE =>
                 builder.advanceLexer() //Ate }
                 true
-              }
-              case ScalaTokenTypes.tSEMICOLON => {
+              case ScalaTokenTypes.tSEMICOLON =>
                 while (builder.getTokenType == ScalaTokenTypes.tSEMICOLON) builder.advanceLexer()
                 subparse()
-              }
-              case _ => {
+              case _ =>
                 if (builder.newlineBeforeCurrentToken) subparse()
                 else {
                   builder error ScalaBundle.message("semi.expected")
                   builder.advanceLexer() //Ate something
                   subparse()
                 }
-              }
             }
           }
           else {
@@ -76,7 +66,7 @@ trait TemplateBody {
       }
     }
     subparse()
-    builder.restoreNewlinesState
+    builder.restoreNewlinesState()
     templateBodyMarker.done(ScalaElementTypes.TEMPLATE_BODY)
   }
 }

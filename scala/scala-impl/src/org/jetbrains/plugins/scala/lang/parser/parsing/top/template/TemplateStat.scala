@@ -21,36 +21,19 @@ import org.jetbrains.plugins.scala.lang.parser.parsing.statements._
  *              | {AttributeClause} {Modifier} Dcl
  *              | Expr
  */
-object TemplateStat extends TemplateStat {
-  override protected def `def` = Def
-  override protected def dcl = Dcl
-  override protected def expr = Expr
-  override protected def emptyDcl = EmptyDcl
-}
-
-trait TemplateStat {
-  protected def `def`: Def
-  protected def dcl: Dcl
-  protected def expr: Expr
-  protected def emptyDcl: EmptyDcl
+object TemplateStat {
 
   def parse(builder: ScalaPsiBuilder): Boolean = {
     builder.getTokenType match {
       case ScalaTokenTypes.kIMPORT =>
-        Import parse builder
-        return true
+        Import.parse(builder)
+        true
       case _ =>
-        if (`def` parse builder) {
-          return true
-        } else if (dcl parse builder) {
-          return true
-        } else if (emptyDcl parse builder) {
-          return true
-        } else if (expr.parse(builder)) {
-          return true
-        } else {
-          return false
-        }
+        if (Def.parse(builder)) true
+        else if (Dcl.parse(builder)) true
+        else if (EmptyDcl.parse(builder)) true
+        else if (Expr.parse(builder)) true
+        else false
     }
   }
 }

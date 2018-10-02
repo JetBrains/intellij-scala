@@ -16,16 +16,9 @@ import org.jetbrains.plugins.scala.lang.parser.parsing.top.template.{ClassParent
 /*
  * ClassTemplateOpt ::= 'extends' ClassTemplate | [['extends'] TemplateBody]
  */
-object ClassTemplateOpt extends ClassTemplateOpt {
-  override protected def templateBody = TemplateBody
-  override protected def earlyDef = EarlyDef
-}
-
 //May be hard to read. Because written before understanding that before TemplateBody could be nl token
 //So there are fixed it, but may be should be some rewrite.
-trait ClassTemplateOpt extends TemplateOpt {
-  protected def templateBody: TemplateBody
-  protected def earlyDef: EarlyDef
+object ClassTemplateOpt {
 
   def parse(builder: ScalaPsiBuilder): Unit = {
     val extendsMarker = builder.mark
@@ -33,7 +26,7 @@ trait ClassTemplateOpt extends TemplateOpt {
     builder.getTokenType match {
       case ScalaTokenTypes.kEXTENDS | ScalaTokenTypes.tUPPER_BOUND => builder.advanceLexer() //Ate extends
       case ScalaTokenTypes.tLBRACE =>
-        templateBody parse builder
+        TemplateBody parse builder
         extendsMarker.done(ScalaElementTypes.EXTENDS_BLOCK)
         return
       case _ =>
@@ -44,7 +37,7 @@ trait ClassTemplateOpt extends TemplateOpt {
         else {
           builder.getTokenType match {
             case ScalaTokenTypes.tLBRACE => {
-              templateBody parse builder
+              TemplateBody parse builder
               extendsMarker.done(ScalaElementTypes.EXTENDS_BLOCK)
               return
             }
@@ -60,12 +53,12 @@ trait ClassTemplateOpt extends TemplateOpt {
       //hardly case, becase it's same token for ClassParents and TemplateBody
       case ScalaTokenTypes.tLBRACE =>
         //try to parse early definition if we can't => it's template body
-        if (earlyDef parse builder) {
+        if (EarlyDef parse builder) {
           ClassParents parse builder
           //parse template body
           builder.getTokenType match {
             case ScalaTokenTypes.tLBRACE => {
-              templateBody parse builder
+              TemplateBody parse builder
               extendsMarker.done(ScalaElementTypes.EXTENDS_BLOCK)
               return
             }
@@ -77,7 +70,7 @@ trait ClassTemplateOpt extends TemplateOpt {
               else {
                 builder.getTokenType match {
                   case ScalaTokenTypes.tLBRACE => {
-                    templateBody parse builder
+                    TemplateBody parse builder
                     extendsMarker.done(ScalaElementTypes.EXTENDS_BLOCK)
                     return
                   }
@@ -94,7 +87,7 @@ trait ClassTemplateOpt extends TemplateOpt {
           //parse template body
           builder.getTokenType match {
             case ScalaTokenTypes.tLBRACE => {
-              templateBody parse builder
+              TemplateBody parse builder
               extendsMarker.done(ScalaElementTypes.EXTENDS_BLOCK)
               return
             }
@@ -111,7 +104,7 @@ trait ClassTemplateOpt extends TemplateOpt {
         //parse template body
         builder.getTokenType match {
           case ScalaTokenTypes.tLBRACE => {
-            templateBody parse builder
+            TemplateBody parse builder
             extendsMarker.done(ScalaElementTypes.EXTENDS_BLOCK)
             return
           }
@@ -123,7 +116,7 @@ trait ClassTemplateOpt extends TemplateOpt {
             else {
               builder.getTokenType match {
                 case ScalaTokenTypes.tLBRACE => {
-                  templateBody parse builder
+                  TemplateBody parse builder
                   extendsMarker.done(ScalaElementTypes.EXTENDS_BLOCK)
                   return
                 }
