@@ -18,14 +18,7 @@ import org.jetbrains.plugins.scala.lang.parser.parsing.expressions.Annotation
  * PatVarDef ::= {Annotation} {Modifier} 'val' PatDef |
  *               {Annotation} {Modifier} 'var' VarDef
  */
-object PatVarDef extends PatVarDef {
-  override protected def patDef = PatDef
-  override protected def varDef = VarDef
-}
-
-trait PatVarDef {
-  protected def patDef: PatDef
-  protected def varDef: VarDef
+object PatVarDef {
 
   def parse(builder: ScalaPsiBuilder):Boolean = {
     val patVarMarker = builder.mark
@@ -39,7 +32,7 @@ trait PatVarDef {
     builder.getTokenType match {
       case ScalaTokenTypes.kVAL =>
         builder.advanceLexer() //Ate val
-        if (patDef parse builder) {
+        if (PatDef parse builder) {
           patVarMarker.done(ScalaElementTypes.PATTERN_DEFINITION)
           true
         }
@@ -49,7 +42,7 @@ trait PatVarDef {
         }
       case ScalaTokenTypes.kVAR =>
         builder.advanceLexer() //Ate var
-        if (varDef parse builder) {
+        if (VarDef parse builder) {
           patVarMarker.done(ScalaElementTypes.VARIABLE_DEFINITION)
           true
         }

@@ -21,18 +21,9 @@ import org.jetbrains.plugins.scala.lang.parser.parsing.expressions.Annotation
  *         | 'def' FunDcl
  *         | 'type' {nl} TypeDcl)
  */
-object Dcl extends Dcl {
-  override protected def funDcl = FunDcl
-  override protected def typeDcl = TypeDcl
-  override protected def varDcl = VarDcl
-  override protected def valDcl = ValDcl
-}
+object Dcl extends Dcl
 
 trait Dcl {
-  protected def funDcl: FunDcl
-  protected def valDcl: ValDcl
-  protected def varDcl: VarDcl
-  protected def typeDcl: TypeDcl
 
   def parse(builder: ScalaPsiBuilder, isMod: Boolean = true): Boolean = {
     val dclMarker = builder.mark
@@ -57,7 +48,7 @@ trait Dcl {
     //Look for val,var,def or type
     builder.getTokenType match {
       case ScalaTokenTypes.kVAL =>
-        if (valDcl parse builder) {
+        if (ValDcl parse builder) {
           dclMarker.done(ScalaElementTypes.VALUE_DECLARATION)
           true
         }
@@ -66,7 +57,7 @@ trait Dcl {
           false
         }
       case ScalaTokenTypes.kVAR =>
-        if (varDcl parse builder) {
+        if (VarDcl parse builder) {
           dclMarker.done(ScalaElementTypes.VARIABLE_DECLARATION)
           true
         }
@@ -75,7 +66,7 @@ trait Dcl {
           false
         }
       case ScalaTokenTypes.kDEF =>
-        if (funDcl parse builder) {
+        if (FunDcl parse builder) {
           dclMarker.done(ScalaElementTypes.FUNCTION_DECLARATION)
           true
         }
@@ -84,7 +75,7 @@ trait Dcl {
           false
         }
       case ScalaTokenTypes.kTYPE =>
-        if (typeDcl parse builder) {
+        if (TypeDcl parse builder) {
           dclMarker.done(ScalaElementTypes.TYPE_DECLARATION)
           true
         }
