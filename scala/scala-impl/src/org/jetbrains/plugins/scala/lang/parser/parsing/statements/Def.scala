@@ -23,9 +23,7 @@ import org.jetbrains.plugins.scala.lang.parser.parsing.top.TmplDef
  *         | 'def' MacroDef
  *         | 'type' {nl} TypeDef)
  */
-object Def extends Def
-
-trait Def {
+object Def {
 
   def parse(builder: ScalaPsiBuilder,
             isMod: Boolean = true,

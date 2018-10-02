@@ -17,13 +17,7 @@ import org.jetbrains.plugins.scala.lang.parser.parsing.types.ParamType
 /**
  * Binding ::= (id | '_') [':' Type]
  */
-
-object Binding extends Binding {
-  override protected def paramType = ParamType
-}
-
-trait Binding {
-  protected def paramType: ParamType
+object Binding {
 
   def parse(builder: ScalaPsiBuilder): Boolean = {
     val paramMarker = builder.mark
@@ -39,7 +33,7 @@ trait Binding {
     builder.getTokenType match {
       case ScalaTokenTypes.tCOLON =>
         builder.advanceLexer() //Ate :
-        if (!paramType.parse(builder)) builder error ErrMsg("wrong.type")
+        if (!ParamType.parse(builder)) builder error ErrMsg("wrong.type")
       case _ =>
     }
 

@@ -21,9 +21,7 @@ import org.jetbrains.plugins.scala.lang.parser.parsing.expressions.Annotation
  *         | 'def' FunDcl
  *         | 'type' {nl} TypeDcl)
  */
-object Dcl extends Dcl
-
-trait Dcl {
+object Dcl {
 
   def parse(builder: ScalaPsiBuilder, isMod: Boolean = true): Boolean = {
     val dclMarker = builder.mark

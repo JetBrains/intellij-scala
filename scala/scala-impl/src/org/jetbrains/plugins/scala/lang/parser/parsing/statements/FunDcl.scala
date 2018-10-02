@@ -16,12 +16,7 @@ import org.jetbrains.plugins.scala.lang.parser.parsing.types.Type
 /*
  * FunDcl ::= FunSig [':' Type]
  */
-object FunDcl extends FunDcl {
-  override protected def `type` = Type
-}
-
-trait FunDcl {
-  protected def `type`: Type
+object FunDcl {
 
   def parse(builder: ScalaPsiBuilder): Boolean = {
     //val returnMarker = builder.mark
@@ -39,7 +34,7 @@ trait FunDcl {
     builder.getTokenType match {
       case ScalaTokenTypes.tCOLON =>
         builder.advanceLexer() //Ate :
-        if (`type`.parse(builder)) {
+        if (Type.parse(builder)) {
           //returnMarker.drop
           true
         }

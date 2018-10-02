@@ -4,6 +4,7 @@ import com.intellij.lang.PsiBuilder.Marker
 import org.jetbrains.plugins.scala.lang.parser.ScalaElementTypes.SIMPLE_TYPE
 import org.jetbrains.plugins.scala.lang.parser.parsing.builder.ScalaPsiBuilder
 import org.jetbrains.plugins.scala.lang.parser.parsing.expressions.Literal
+import org.jetbrains.plugins.scala.lang.parser.parsing.types.Refinement
 
 /**
   * @author adkozlov
