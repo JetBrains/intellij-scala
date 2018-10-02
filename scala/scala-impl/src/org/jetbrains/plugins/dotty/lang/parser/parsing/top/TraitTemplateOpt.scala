@@ -1,6 +1,6 @@
 package org.jetbrains.plugins.dotty.lang.parser.parsing.top
 
-import org.jetbrains.plugins.dotty.lang.parser.parsing.top.template.{MixinParents, TemplateBody}
+import org.jetbrains.plugins.dotty.lang.parser.parsing.top.template.TemplateBody
 
 /**
   * @author adkozlov
@@ -8,5 +8,4 @@ import org.jetbrains.plugins.dotty.lang.parser.parsing.top.template.{MixinParent
 object TraitTemplateOpt extends org.jetbrains.plugins.scala.lang.parser.parsing.top.TraitTemplateOpt {
   override protected def templateBody = TemplateBody
   override protected def earlyDef = EarlyDef
-  override protected def mixinParents = MixinParents
 }

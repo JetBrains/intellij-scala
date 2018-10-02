@@ -15,12 +15,7 @@ import org.jetbrains.plugins.scala.lang.parser.parsing.builder.ScalaPsiBuilder
 /*
  * SelfInvocation ::= 'this' ArgumentExprs {ArgumentExprs}
  */
-object SelfInvocation extends SelfInvocation {
-  override protected def argumentExprs = ArgumentExprs
-}
-
-trait SelfInvocation {
-  protected def argumentExprs: ArgumentExprs
+object SelfInvocation {
 
   def parse(builder: ScalaPsiBuilder): Boolean = {
     val selfMarker = builder.mark
@@ -32,11 +27,11 @@ trait SelfInvocation {
         selfMarker.drop()
         return true
     }
-    if (!argumentExprs.parse(builder)) {
+    if (!ArgumentExprs.parse(builder)) {
       selfMarker.done(ScalaElementTypes.SELF_INVOCATION)
       return true
     }
-    while (!builder.newlineBeforeCurrentToken && argumentExprs.parse(builder)) {}
+    while (!builder.newlineBeforeCurrentToken && ArgumentExprs.parse(builder)) {}
     selfMarker.done(ScalaElementTypes.SELF_INVOCATION)
     true
   }

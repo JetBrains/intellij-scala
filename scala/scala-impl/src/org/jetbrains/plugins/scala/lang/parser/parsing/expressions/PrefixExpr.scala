@@ -14,12 +14,9 @@ import org.jetbrains.plugins.scala.lang.parser.parsing.builder.ScalaPsiBuilder
 /*
  * PrefixExpr ::= ['-' | '+' | '~' | '!'] SimpleExpr
  */
-object PrefixExpr extends PrefixExpr {
-  override protected def simpleExpr = SimpleExpr
-}
+object PrefixExpr extends PrefixExpr
 
 trait PrefixExpr {
-  protected def simpleExpr: SimpleExpr
 
   def parse(builder: ScalaPsiBuilder): Boolean = {
     builder.getTokenText match {
@@ -28,12 +25,12 @@ trait PrefixExpr {
         val refExpr = builder.mark
         builder.advanceLexer()
         refExpr.done(ScalaElementTypes.REFERENCE_EXPRESSION)
-        if (!simpleExpr.parse(builder)) {
+        if (!SimpleExpr.parse(builder)) {
           prefixMarker.rollbackTo(); false
         } else {
           prefixMarker.done(ScalaElementTypes.PREFIX_EXPR); true
         }
-      case _ => simpleExpr.parse(builder)
+      case _ => SimpleExpr.parse(builder)
     }
   }
 }

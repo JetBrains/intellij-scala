@@ -27,16 +27,12 @@ import org.jetbrains.plugins.scala.lang.parser.util.ParserUtils
  *                 | XmlPattern
  */
 object SimplePattern extends SimplePattern {
-  override protected def literal = Literal
-  override protected def interpolationPattern = InterpolationPattern
   override protected def pattern = Pattern
   override protected def patterns = Patterns
 }
 
 trait SimplePattern extends ParserNode {
-  protected def literal: Literal
   protected def pattern: Pattern
-  protected def interpolationPattern: InterpolationPattern
   protected def patterns: Patterns
 
   def parse(builder: ScalaPsiBuilder): Boolean = {
@@ -90,12 +86,12 @@ trait SimplePattern extends ParserNode {
         }
       case _ =>
     }
-    if (interpolationPattern parse builder) {
+    if (InterpolationPattern parse builder) {
       simplePatternMarker.done(ScalaElementTypes.INTERPOLATION_PATTERN)
       return true
     }
 
-    if (literal parse builder) {
+    if (Literal parse builder) {
       simplePatternMarker.done(ScalaElementTypes.LITERAL_PATTERN)
       return true
     }

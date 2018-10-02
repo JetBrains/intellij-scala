@@ -7,7 +7,7 @@ package expressions
 import com.intellij.lang.PsiBuilder
 import org.jetbrains.plugins.scala.lang.lexer.ScalaTokenTypes
 import org.jetbrains.plugins.scala.lang.parser.parsing.builder.ScalaPsiBuilder
-import org.jetbrains.plugins.scala.lang.parser.parsing.statements.{Def, FunDef}
+import org.jetbrains.plugins.scala.lang.parser.parsing.statements.Def
 import org.jetbrains.plugins.scala.lang.parser.parsing.top.ClassTemplate
 import org.jetbrains.plugins.scala.lang.parser.parsing.types.{Path, TypeArgs}
 import org.jetbrains.plugins.scala.lang.parser.parsing.xml.XmlExpr
@@ -35,23 +35,7 @@ import scala.annotation.tailrec
  *               | SimpleExpr1 ArgumentExprs
  *               | XmlExpr
  */
-object SimpleExpr extends SimpleExpr {
-  override protected def argumentExprs = ArgumentExprs
-  override protected def classTemplate = ClassTemplate
-  override protected def literal = Literal
-  override protected def blockExpr = BlockExpr
-  override protected def expr = Expr
-
-  override protected def someDef: Def = Def
-}
-
-trait SimpleExpr extends ParserNode with ScalaTokenTypes {
-  protected def argumentExprs: ArgumentExprs
-  protected def expr: Expr
-  protected def blockExpr: BlockExpr
-  protected def classTemplate: ClassTemplate
-  protected def literal: Literal
-  protected def someDef: Def
+object SimpleExpr extends ParserNode with ScalaTokenTypes {
 
   def parse(builder: ScalaPsiBuilder): Boolean = {
     val simpleMarker = builder.mark
@@ -60,7 +44,7 @@ trait SimpleExpr extends ParserNode with ScalaTokenTypes {
     builder.getTokenType match {
       case ScalaTokenTypes.kNEW =>
         builder.advanceLexer() //Ate new
-        if (!classTemplate.parse(builder, nonEmpty = true)) {
+        if (!ClassTemplate.parse(builder, nonEmpty = true)) {
           builder error ErrMsg("identifier.expected")
           simpleMarker.drop()
           return false
@@ -70,7 +54,7 @@ trait SimpleExpr extends ParserNode with ScalaTokenTypes {
       case ScalaTokenTypes.tLBRACE =>
         newMarker = simpleMarker.precede
         simpleMarker.drop()
-        if (!blockExpr.parse(builder)) {
+        if (!BlockExpr.parse(builder)) {
           newMarker.drop()
           return false
         }
@@ -90,7 +74,7 @@ trait SimpleExpr extends ParserNode with ScalaTokenTypes {
             newMarker = simpleMarker.precede
             simpleMarker.done(ScalaElementTypes.UNIT_EXPR)
           case _ =>
-            if (!expr.parse(builder)) {
+            if (!Expr.parse(builder)) {
               builder error ErrMsg("rparenthesis.expected")
               builder.restoreNewlinesState()
               newMarker = simpleMarker.precede
@@ -101,7 +85,7 @@ trait SimpleExpr extends ParserNode with ScalaTokenTypes {
                 !lookAhead(builder, ScalaTokenTypes.tCOMMA, ScalaTokenTypes.tRPARENTHESIS)) {
                 isTuple = true
                 builder.advanceLexer()
-                if (!expr.parse(builder)) {
+                if (!Expr.parse(builder)) {
                   builder error ErrMsg("wrong.expression")
                 }
               }
@@ -121,7 +105,7 @@ trait SimpleExpr extends ParserNode with ScalaTokenTypes {
         }
       case _ =>
         state = true
-        if (!literal.parse(builder)) {
+        if (!Literal.parse(builder)) {
           if (!XmlExpr.parse(builder)) {
             if (!Path.parse(builder, ScalaElementTypes.REFERENCE_EXPRESSION)) {
               simpleMarker.drop()
@@ -160,7 +144,7 @@ trait SimpleExpr extends ParserNode with ScalaTokenTypes {
           }
         case ScalaTokenTypes.tLPARENTHESIS | ScalaTokenTypes.tLBRACE if
         builder.getTokenType != ScalaTokenTypes.tLPARENTHESIS || !builder.newlineBeforeCurrentToken =>
-          if (state && argumentExprs.parse(builder)) {
+          if (state && ArgumentExprs.parse(builder)) {
             val tMarker = marker.precede
             marker.done(ScalaElementTypes.METHOD_CALL)
             subparse(tMarker)
@@ -178,7 +162,7 @@ trait SimpleExpr extends ParserNode with ScalaTokenTypes {
           //This is kinda hack for cases when we have to build stubs for sources, that use meta and contain inline keyword
           //Without this we would get different count of stub elements and ast nodes (and exception as the result)  
           marker.drop()
-          someDef.parse(builder)
+          Def.parse(builder)
         case _ =>
           marker.drop()
       }

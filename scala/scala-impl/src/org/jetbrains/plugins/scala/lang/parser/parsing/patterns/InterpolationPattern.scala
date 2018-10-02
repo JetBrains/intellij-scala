@@ -9,17 +9,12 @@ import org.jetbrains.plugins.scala.lang.parser.parsing.builder.ScalaPsiBuilder
  * @author kfeodorov
  * @since 01.03.14.
  */
-object InterpolationPattern extends InterpolationPattern {
-  override protected def commonUtils = CommonUtils
-}
-
-trait InterpolationPattern {
-  protected def commonUtils: CommonUtils
+object InterpolationPattern {
 
   def parse(builder: ScalaPsiBuilder): Boolean =
     builder.getTokenType match {
       case ScalaTokenTypes.tINTERPOLATED_STRING_ID =>
-        commonUtils.parseInterpolatedString(builder, isPattern = true)
+        CommonUtils.parseInterpolatedString(builder, isPattern = true)
         true
       case _ => false
     }

@@ -20,14 +20,12 @@ import org.jetbrains.plugins.scala.lang.parser.parsing.top.template.{ClassParent
  */
 object ClassTemplate extends ClassTemplate {
   override protected def earlyDef = EarlyDef
-  override protected def classParents = ClassParents
   override protected def templateBody = TemplateBody
 }
 
 trait ClassTemplate {
   protected def earlyDef: EarlyDef
   protected def templateBody: TemplateBody
-  protected def classParents: ClassParents
 
   def parse(builder: ScalaPsiBuilder): Boolean = parse(builder, nonEmpty = false)
   def parse(builder: ScalaPsiBuilder, nonEmpty: Boolean): Boolean = {
@@ -39,7 +37,7 @@ trait ClassTemplate {
         empty = false
         //try to parse early definition if we can't => it's template body
         if (earlyDef parse builder) {
-          classParents parse builder
+          ClassParents parse builder
           //parse template body
           builder.getTokenType match {
             case ScalaTokenTypes.tLBRACE => {
@@ -66,7 +64,7 @@ trait ClassTemplate {
       //if we find nl => it could be TemplateBody only, but we can't find nl after extends keyword
       //In this case of course it's ClassParents
       case _ =>
-        if (classParents parse builder) empty = false
+        if (ClassParents parse builder) empty = false
         else if (nonEmpty) {
           extendsMarker.drop()
           return false

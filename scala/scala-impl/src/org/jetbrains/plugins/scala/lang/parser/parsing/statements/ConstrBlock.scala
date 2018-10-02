@@ -12,14 +12,7 @@ import org.jetbrains.plugins.scala.lang.parser.parsing.expressions.{BlockStat, S
 * @author Alexander Podkhalyuzin
 * Date: 13.03.2008
 */
-object ConstrBlock extends ConstrBlock {
-  override protected def selfInvocation = SelfInvocation
-  override protected def blockStat = BlockStat
-}
-
-trait ConstrBlock {
-  protected def selfInvocation: SelfInvocation
-  protected def blockStat: BlockStat
+object ConstrBlock {
 
   def parse(builder: ScalaPsiBuilder): Boolean = {
     val constrExprMarker = builder.mark
@@ -27,7 +20,7 @@ trait ConstrBlock {
       case ScalaTokenTypes.tLBRACE =>
         builder.advanceLexer() //Ate {
         builder.enableNewlines
-        selfInvocation parse builder
+        SelfInvocation parse builder
         while (true) {
           builder.getTokenType match {
             case ScalaTokenTypes.tRBRACE => {
@@ -38,10 +31,10 @@ trait ConstrBlock {
             }
             case ScalaTokenTypes.tSEMICOLON => {
               builder.advanceLexer() //Ate semi
-              blockStat parse builder
+              BlockStat parse builder
             }
             case _ if builder.newlineBeforeCurrentToken =>
-              if (!blockStat.parse(builder)) {
+              if (!BlockStat.parse(builder)) {
                 builder error ErrMsg("rbrace.expected")
                 builder.restoreNewlinesState
                 while (!builder.eof && !ScalaTokenTypes.tRBRACE.eq(builder.getTokenType) &&

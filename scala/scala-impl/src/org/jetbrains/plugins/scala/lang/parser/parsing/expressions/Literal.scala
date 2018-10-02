@@ -24,12 +24,7 @@ Literal ::= ['-']integerLiteral
             | null
             | javaId"StringLiteral" 
 */
-object Literal extends Literal {
-  override protected def commonUtils = CommonUtils
-}
-
-trait Literal {
-  protected def commonUtils: CommonUtils
+object Literal {
 
   def parse(builder: ScalaPsiBuilder): Boolean = {
     val marker = builder.mark()
@@ -55,7 +50,7 @@ trait Literal {
           false
         }
       case ScalaTokenTypes.tINTERPOLATED_STRING_ID =>
-        commonUtils.parseInterpolatedString(builder, isPattern = false)
+        CommonUtils.parseInterpolatedString(builder, isPattern = false)
         marker.done(ScalaElementTypes.INTERPOLATED_STRING_LITERAL)
         true
       case ScalaTokenTypes.tINTERPOLATED_MULTILINE_STRING | ScalaTokenTypes.tINTERPOLATED_STRING =>

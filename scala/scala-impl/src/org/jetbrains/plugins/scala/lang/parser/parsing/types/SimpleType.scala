@@ -27,13 +27,11 @@ import scala.annotation.tailrec
 object SimpleType extends SimpleType {
   override protected def typeArgs = TypeArgs
   override protected def types = Types
-  override protected def literal = Literal
 }
 
 trait SimpleType {
   protected def typeArgs: TypeArgs
   protected def types: Types
-  protected def literal: Literal
 
   def parse(builder: ScalaPsiBuilder, isPattern: Boolean, multipleSQBrackets: Boolean = true): Boolean = {
     @tailrec
@@ -61,7 +59,7 @@ trait SimpleType {
       }
     }
     def parseLiteral(curMarker: PsiBuilder.Marker): Boolean = {
-      if (!literal.parse(builder)) {
+      if (!Literal.parse(builder)) {
         curMarker.rollbackTo()
         return false
       }

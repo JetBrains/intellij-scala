@@ -4,6 +4,7 @@ import org.jetbrains.plugins.scala.lang.parser.parsing.builder.ScalaPsiBuilder
 import org.jetbrains.plugins.scala.lang.parser.parsing.top.Parents
 import org.jetbrains.plugins.scala.lang.parser.parsing.types.AnnotType
 import org.jetbrains.plugins.scala.lang.parser.{ErrMsg, ScalaElementTypes}
+import org.jetbrains.plugins.scala.lang.psi.stubs.elements.ScTraitParentsElementType
 
 /**
 * @author Alexander Podkhalyuzin
@@ -13,17 +14,12 @@ import org.jetbrains.plugins.scala.lang.parser.{ErrMsg, ScalaElementTypes}
 /*
  * MixinParents ::= AnnotType {'with' AnnotType}
  */
-object MixinParents extends MixinParents {
-  override protected def annotType = AnnotType
-}
+object MixinParents extends Parents {
 
-trait MixinParents extends Parents {
-  protected def annotType: AnnotType
+  override protected def elementType: ScTraitParentsElementType = ScalaElementTypes.TRAIT_PARENTS
 
-  override protected def elementType = ScalaElementTypes.TRAIT_PARENTS
-
-  override protected def parseFirstParent(builder: ScalaPsiBuilder) = {
-    val result = annotType.parse(builder, isPattern = false)
+  override protected def parseFirstParent(builder: ScalaPsiBuilder): Boolean = {
+    val result = AnnotType.parse(builder, isPattern = false)
     if (!result) {
       builder.error(ErrMsg("wrong.simple.type"))
     }

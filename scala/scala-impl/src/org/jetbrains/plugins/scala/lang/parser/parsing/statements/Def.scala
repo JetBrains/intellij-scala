@@ -24,7 +24,6 @@ import org.jetbrains.plugins.scala.lang.parser.parsing.top.TmplDef
  *         | 'type' {nl} TypeDef)
  */
 object Def extends Def {
-  override protected def funDef = FunDef
   override protected def patDef = PatDef
   override protected def varDef = VarDef
   override protected def tmplDef = TmplDef
@@ -34,7 +33,6 @@ object Def extends Def {
 }
 
 trait Def {
-  protected def funDef: FunDef
   protected def macroDef: MacroDef
   protected def tmplDef: TmplDef
   protected def patDef: PatDef
@@ -102,7 +100,7 @@ trait Def {
         if (macroDef parse builder) {
           defMarker.done(ScalaElementTypes.MACRO_DEFINITION)
           true
-        } else if (funDef parse builder) {
+        } else if (FunDef parse builder) {
           defMarker.done(ScalaElementTypes.FUNCTION_DEFINITION)
           true
         } else {
