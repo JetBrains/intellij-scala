@@ -369,11 +369,11 @@ object ScalaTestGenerator {
                                   (implicit normalIndent: String): Unit = {
     import templateBody.projectContext
 
-    templateBody.addBefore(createElement("val tests = TestSuite{}", Def.parse),
+    templateBody.addBefore(createElement("val tests = TestSuite{}", Def.parse(_)),
       templateBody.getLastChild)
     if (methods.nonEmpty) {
       templateBody.addBefore(createElement(methods.map(normalIndent + "\"" +
-        _.getMember.getName + "\" - {}\n").fold("val methodsTests = TestSuite{")(_ + "\n" + _) + "}", Def.parse), templateBody.getLastChild)
+        _.getMember.getName + "\" - {}\n").fold("val methodsTests = TestSuite{")(_ + "\n" + _) + "}", Def.parse(_)), templateBody.getLastChild)
     }
   }
 

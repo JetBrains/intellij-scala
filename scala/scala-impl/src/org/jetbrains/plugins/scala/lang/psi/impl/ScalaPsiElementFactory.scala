@@ -778,10 +778,10 @@ object ScalaPsiElementFactory {
   }
 
   def createMethodWithContext(text: String, context: PsiElement, child: PsiElement): ScFunction =
-    createElementWithContext[ScFunction](text, context, child, Def.parse).orNull
+    createElementWithContext[ScFunction](text, context, child, Def.parse(_)).orNull
 
   def createDefinitionWithContext(text: String, context: PsiElement, child: PsiElement): ScMember =
-    createElementWithContext[ScMember](text, context, child, Def.parse).orNull
+    createElementWithContext[ScMember](text, context, child, Def.parse(_)).orNull
 
   def createObjectWithContext(text: String, context: PsiElement, child: PsiElement): ScObject =
     createElementWithContext[ScObject](text, context, child, TmplDef.parse).orNull
@@ -905,7 +905,7 @@ object ScalaPsiElementFactory {
   }
 
   def createPatterListFromText(text: String, context: PsiElement, child: PsiElement): ScPatternList = {
-    val result = createElementWithContext[ScPatternDefinition](s"val $text = 239", context, child, Def.parse).map {
+    val result = createElementWithContext[ScPatternDefinition](s"val $text = 239", context, child, Def.parse(_)).map {
       _.pList
     }
     withContext(result, context, child).orNull
@@ -927,7 +927,7 @@ object ScalaPsiElementFactory {
     createElementWithContext[ScDeclaration](text, context, child, Dcl.parse(_)).orNull
 
   def createTypeAliasDefinitionFromText(text: String, context: PsiElement, child: PsiElement): ScTypeAliasDefinition =
-    createElementWithContext[ScTypeAliasDefinition](text, context, child, Def.parse).orNull
+    createElementWithContext[ScTypeAliasDefinition](text, context, child, Def.parse(_)).orNull
 
   def createDocCommentFromText(text: String)
                               (implicit ctx: ProjectContext): ScDocComment =

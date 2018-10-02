@@ -15,14 +15,7 @@ import org.jetbrains.plugins.scala.lang.parser.parsing.types.{Type, TypeArgs}
  *
  * MacroDef ::= MacroDef ::= FunSig [‘:’ Type] ‘=’ ‘macro’ QualId [TypeArgs]
  */
-object MacroDef extends MacroDef {
-  override protected def `type` = Type
-  override protected def typeArgs = TypeArgs
-}
-
-trait MacroDef {
-  protected def `type`: Type
-  protected def typeArgs: TypeArgs
+object MacroDef {
 
   def parse(builder: ScalaPsiBuilder): Boolean = {
     val marker = builder.mark
@@ -38,7 +31,7 @@ trait MacroDef {
         builder.getTokenType match {
           case ScalaTokenTypes.tCOLON =>
             builder.advanceLexer() //Ate :
-            if (`type`.parse(builder)) {
+            if (Type.parse(builder)) {
               builder.getTokenType match {
                 case ScalaTokenTypes.tASSIGN =>
                   builder.advanceLexer() //Ate =

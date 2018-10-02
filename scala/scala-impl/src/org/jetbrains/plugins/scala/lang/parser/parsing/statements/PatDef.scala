@@ -19,13 +19,8 @@ import org.jetbrains.plugins.scala.lang.parser.util.ParserUtils
 /*
  * PatDef ::= Pattern2 {',' Pattern2} [':' Type] '=' Expr
  */
-object PatDef extends PatDef {
-  override protected def `type` = Type
-}
-
 //TODO: Rewrite this
-trait PatDef {
-  protected def `type`: Type
+object PatDef {
 
   def parse(builder: ScalaPsiBuilder): Boolean = {
     val someMarker = builder.mark
@@ -54,7 +49,7 @@ trait PatDef {
     if (ScalaTokenTypes.tCOLON.equals(builder.getTokenType)) {
       ParserUtils.eatElement(builder, ScalaTokenTypes.tCOLON)
 
-      if (!`type`.parse(builder)) {
+      if (!Type.parse(builder)) {
         builder error "type declaration expected"
       }
 

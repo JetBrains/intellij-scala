@@ -19,17 +19,10 @@ import org.jetbrains.plugins.scala.lang.parser.util.ParserUtils
  *  ValDef ::= PatDef |
  *             ids ':' Type '=' '_'
  */
-object VarDef extends VarDef {
-  override protected def patDef = PatDef
-  override protected def `type` = Type
-}
-
-trait VarDef {
-  protected def patDef: PatDef
-  protected def `type`: Type
+object VarDef {
 
   def parse(builder: ScalaPsiBuilder): Boolean = {
-    if (patDef parse builder) {
+    if (PatDef.parse(builder)) {
       return true
     }
 
@@ -42,34 +35,33 @@ trait VarDef {
 
         if (ScalaTokenTypes.tCOLON.equals(builder.getTokenType)) {
           ParserUtils.eatElement(builder, ScalaTokenTypes.tCOLON)
-          if (!`type`.parse(builder)) {
+          if (!Type.parse(builder)) {
             builder error "type declaration expected"
           }
           hasTypeDcl = true
         }
         else {
-          valDefMarker.rollbackTo
+          valDefMarker.rollbackTo()
           return false
         }
         if (!ScalaTokenTypes.tASSIGN.equals(builder.getTokenType)) {
-          valDefMarker.rollbackTo
-          return false
+          valDefMarker.rollbackTo()
+          false
         } else {
           ParserUtils.eatElement(builder, ScalaTokenTypes.tASSIGN)
           builder.getTokenType match {
-            case ScalaTokenTypes.tUNDER => builder.advanceLexer
+            case ScalaTokenTypes.tUNDER => builder.advanceLexer()
             //Ate _
-            case _ => {
-              valDefMarker.rollbackTo
+            case _ =>
+              valDefMarker.rollbackTo()
               return false
-            }
           }
-          valDefMarker.drop
-          return true
+          valDefMarker.drop()
+          true
         }
       case _ =>
-        valDefMarker.drop
-        return false
+        valDefMarker.drop()
+        false
     }
   }
 }

@@ -13,48 +13,43 @@ import org.jetbrains.plugins.scala.lang.parser.parsing.types.Type
 * @author Alexander Podkhalyuzin
 * Date: 13.02.2008
 */
-object TypeDef extends TypeDef {
-  override protected def `type` = Type
-}
-
-trait TypeDef {
-  protected def `type`: Type
+object TypeDef {
 
   def parse(builder: ScalaPsiBuilder): Boolean = {
     val faultMarker = builder.mark
     builder.getTokenType match {
       case ScalaTokenTypes.kTYPE =>
-        builder.advanceLexer //Ate type
+        builder.advanceLexer() //Ate type
       case _ =>
-        faultMarker.rollbackTo
+        faultMarker.rollbackTo()
         return false
     }
     builder.getTokenType match {
       case ScalaTokenTypes.tIDENTIFIER =>
-        builder.advanceLexer //Ate identifier
+        builder.advanceLexer() //Ate identifier
       case _ =>
         builder error ScalaBundle.message("identifier.expected")
-        faultMarker.rollbackTo
+        faultMarker.rollbackTo()
         return false
     }
-    val isTypeParamClause = if (TypeParamClause parse builder) {
+    val isTypeParamClause = if (TypeParamClause.parse(builder)) {
       true
     } else false
     builder.getTokenType match {
       case ScalaTokenTypes.tASSIGN =>
-        builder.advanceLexer //Ate =
-        if (`type`.parse(builder)) {
-          faultMarker.drop
-          return true
+        builder.advanceLexer() //Ate =
+        if (Type.parse(builder)) {
+          faultMarker.drop()
+          true
         }
         else {
-          faultMarker.drop
+          faultMarker.drop()
           builder error ScalaBundle.message("wrong.type")
-          return false
+          false
         }
       case _ =>
-        faultMarker.rollbackTo
-        return false
+        faultMarker.rollbackTo()
+        false
     }
   }
 }
