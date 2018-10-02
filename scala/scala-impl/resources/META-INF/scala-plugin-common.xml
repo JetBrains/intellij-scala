@@ -1416,11 +1416,6 @@
                          displayName="Multiple arg lists in annotation constructor" groupPath="Scala" groupName="General"
                          shortName="MultipleArgListsInAnnotation" level="WARNING"
                          enabledByDefault="true" language="Scala"/>
-        <localInspection implementationClass="org.jetbrains.plugins.dotty.codeInspection.deprecated.WithTypeInspection"
-                         displayName="Deprecated with type" groupPath="Scala" groupName="Other"
-                         shortName="DottyDeprecatedWith" level="WARNING"
-                         enabledByDefault="true" language="Scala"/>
-
 
         <!-- scaladoc inspections -->
         <localInspection implementationClass="org.jetbrains.plugins.scala.codeInspection.scaladoc.ScalaDocUnclosedTagWithoutParserInspection"
