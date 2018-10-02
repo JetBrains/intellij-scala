@@ -38,7 +38,6 @@ import org.jetbrains.plugins.scala.lang.parser.util.{ParserPatcher, ParserUtils}
  */
 object Expr1 extends Expr1 {
   override protected def block: Block.type = Block
-  override protected def caseClauses: CaseClauses.type = CaseClauses
   override protected def expr: Expr.type = Expr
   override protected def postfixExpr: PostfixExpr.type = PostfixExpr
   override protected def enumerators: Enumerators.type = Enumerators
@@ -50,7 +49,6 @@ trait Expr1 {
   protected def expr: Expr
   protected def postfixExpr: PostfixExpr
   protected def enumerators: Enumerators
-  protected def caseClauses: CaseClauses
   protected def ascription: Ascription
 
   def parse(builder: ScalaPsiBuilder): Boolean = {
@@ -304,7 +302,7 @@ trait Expr1 {
                 builder.advanceLexer() //Ate {
                 builder.enableNewlines()
                 def foo() {
-                  if (!caseClauses.parse(builder)) {
+                  if (!CaseClauses.parse(builder)) {
                     builder error ErrMsg("case.clauses.expected")
                   }
                 }

@@ -18,14 +18,7 @@ import org.jetbrains.plugins.scala.lang.parser.util.ParserUtils
  *            | '_' ':' TypePat
  *            | Pattern2
  */
-object Pattern1 extends Pattern1 {
-  override protected def pattern2 = Pattern2
-  override protected def typePattern = TypePattern
-}
-
-trait Pattern1 {
-  protected def pattern2: Pattern2
-  protected def typePattern: TypePattern
+object Pattern1 {
 
   def parse(builder: ScalaPsiBuilder): Boolean = {
     val pattern1Marker = builder.mark
@@ -40,7 +33,7 @@ trait Pattern1 {
             case ScalaTokenTypes.tCOLON =>
               builder.advanceLexer() //Ate :
               backupMarker.drop()
-              if (!typePattern.parse(builder)) {
+              if (!TypePattern.parse(builder)) {
                 builder error ScalaBundle.message("wrong.type")
               }
               pattern1Marker.done(ScalaElementTypes.TYPED_PATTERN)
@@ -56,7 +49,7 @@ trait Pattern1 {
           case ScalaTokenTypes.tCOLON =>
             builder.advanceLexer() //Ate :
             backupMarker.drop()
-            if (!typePattern.parse(builder)) {
+            if (!TypePattern.parse(builder)) {
               builder error ScalaBundle.message("wrong.type")
             }
             pattern1Marker.done(ScalaElementTypes.TYPED_PATTERN)
@@ -68,6 +61,6 @@ trait Pattern1 {
         backupMarker.drop()
     }
     pattern1Marker.drop()
-    pattern2.parse(builder, forDef = false)
+    Pattern2.parse(builder, forDef = false)
   }
 }

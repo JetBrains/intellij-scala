@@ -7,28 +7,23 @@ package patterns
 import org.jetbrains.plugins.scala.lang.parser.parsing.builder.ScalaPsiBuilder
 
 /**
-* @author Alexander Podkhalyuzin
-* Date: 28.02.2008
-*/
+  * @author Alexander Podkhalyuzin
+  *         Date: 28.02.2008
+  */
 
 /*
  *  CaseClauses ::= CaseClause {CaseClause}
  */
-object CaseClauses extends CaseClauses {
-  override protected def caseClause = CaseClause
-}
-
-trait CaseClauses {
-  protected def caseClause: CaseClause
+object CaseClauses {
 
   def parse(builder: ScalaPsiBuilder): Boolean = {
     val caseClausesMarker = builder.mark
-    if (!caseClause.parse(builder)) {
+    if (!CaseClause.parse(builder)) {
       caseClausesMarker.drop()
       return false
     }
-    while (caseClause parse builder) {}
+    while (CaseClause.parse(builder)) {}
     caseClausesMarker.done(ScalaElementTypes.CASE_CLAUSES)
-    return true
+    true
   }
 }

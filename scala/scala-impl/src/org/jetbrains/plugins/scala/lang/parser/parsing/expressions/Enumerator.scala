@@ -20,27 +20,21 @@ import org.jetbrains.plugins.scala.lang.parser.parsing.patterns.{Guard, Pattern1
  */
 object Enumerator extends Enumerator {
   override protected def expr = Expr
-  override protected def generator = Generator
-  override protected def guard = Guard
-  override protected def pattern1 = Pattern1
 }
 
 trait Enumerator {
   protected def expr: Expr
-  protected def generator: Generator
-  protected def guard: Guard
-  protected def pattern1: Pattern1
 
   def parse(builder: ScalaPsiBuilder): Boolean = {
     val enumMarker = builder.mark
 
     def parseNonGuard(f: Boolean): Boolean = {
-      if (!pattern1.parse(builder)) {
+      if (!Pattern1.parse(builder)) {
         if (!f) {
           builder error ErrMsg("wrong.pattern")
           enumMarker.done(ScalaElementTypes.ENUMERATOR)
           return true
-        } else if (!guard.parse(builder, noIf = true)) {
+        } else if (!Guard.parse(builder, noIf = true)) {
           enumMarker.rollbackTo()
           return false
         } else {
@@ -53,7 +47,7 @@ trait Enumerator {
           builder.advanceLexer() //Ate =
         case ScalaTokenTypes.tCHOOSE =>
           enumMarker.rollbackTo()
-          return generator parse builder
+          return Generator parse builder
         case _ =>
           if (!f) {
             builder error ErrMsg("choose.expected")
@@ -61,7 +55,7 @@ trait Enumerator {
             return true
           } else {
             enumMarker.rollbackTo()
-            return guard.parse(builder, noIf = true)
+            return Guard.parse(builder, noIf = true)
           }
       }
       if (!expr.parse(builder)) {
@@ -73,7 +67,7 @@ trait Enumerator {
 
     builder.getTokenType match {
       case ScalaTokenTypes.kIF =>
-        guard parse builder
+        Guard parse builder
         enumMarker.drop()
         true
       case ScalaTokenTypes.kVAL =>

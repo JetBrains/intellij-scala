@@ -21,21 +21,19 @@ import org.jetbrains.plugins.scala.lang.parser.util.ParserUtils
  */
 object PatDef extends PatDef {
   override protected def expr = Expr
-  override protected def pattern2 = Pattern2
   override protected def `type` = Type
 }
 
 //TODO: Rewrite this
 trait PatDef {
   protected def expr: Expr
-  protected def pattern2: Pattern2
   protected def `type`: Type
 
   def parse(builder: ScalaPsiBuilder): Boolean = {
     val someMarker = builder.mark
     val pattern2sMarker = builder.mark
 
-    if (!pattern2.parse(builder, forDef = true)) {
+    if (!Pattern2.parse(builder, forDef = true)) {
       pattern2sMarker.rollbackTo()
       someMarker.drop()
       return false
@@ -44,7 +42,7 @@ trait PatDef {
     while (ScalaTokenTypes.tCOMMA.equals(builder.getTokenType)) {
       ParserUtils.eatElement(builder, ScalaTokenTypes.tCOMMA)
 
-      if (!pattern2.parse(builder, forDef = true)) {
+      if (!Pattern2.parse(builder, forDef = true)) {
         pattern2sMarker.rollbackTo()
         someMarker.drop()
         return false

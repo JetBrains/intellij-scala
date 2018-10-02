@@ -26,14 +26,7 @@ import org.jetbrains.plugins.scala.lang.parser.util.ParserUtils
  *                 |'(' [Patterns [',']] ')'
  *                 | XmlPattern
  */
-object SimplePattern extends SimplePattern {
-  override protected def pattern = Pattern
-  override protected def patterns = Patterns
-}
-
-trait SimplePattern extends ParserNode {
-  protected def pattern: Pattern
-  protected def patterns: Patterns
+object SimplePattern extends ParserNode {
 
   def parse(builder: ScalaPsiBuilder): Boolean = {
     val simplePatternMarker = builder.mark
@@ -59,7 +52,7 @@ trait SimplePattern extends ParserNode {
             return true
           case _ =>
         }
-        if (patterns parse builder) {
+        if (Patterns.parse(builder)) {
           builder.getTokenType match {
             case ScalaTokenTypes.tRPARENTHESIS =>
               builder.advanceLexer() //Ate )
@@ -73,7 +66,7 @@ trait SimplePattern extends ParserNode {
               return true
           }
         }
-        if (pattern parse builder) {
+        if (Pattern parse builder) {
           builder.getTokenType match {
             case ScalaTokenTypes.tRPARENTHESIS =>
               builder.advanceLexer() //Ate )
@@ -156,10 +149,10 @@ trait SimplePattern extends ParserNode {
             } else false
           }
 
-          if (!parseSeqWildcard(withComma = false) && !parseSeqWildcardBinding(withComma = false) && pattern.parse(builder)) {
+          if (!parseSeqWildcard(withComma = false) && !parseSeqWildcardBinding(withComma = false) && Pattern.parse(builder)) {
             while (builder.getTokenType == ScalaTokenTypes.tCOMMA) {
               builder.advanceLexer() // eat comma
-              if (!parseSeqWildcard(withComma = false) && !parseSeqWildcardBinding(withComma = false)) pattern.parse(builder)
+              if (!parseSeqWildcard(withComma = false) && !parseSeqWildcardBinding(withComma = false)) Pattern.parse(builder)
             }
           }
           builder.getTokenType match {

@@ -16,36 +16,27 @@ import org.jetbrains.plugins.scala.lang.parser.parsing.patterns.{Guard, Pattern1
 /*
  * Generator ::= Pattern1 '<-' Expr [Guard]
  */
-object Generator extends Generator {
-  override protected def expr = Expr
-  override protected def guard = Guard
-  override protected def pattern1 = Pattern1
-}
-
-trait Generator {
-  protected def expr: Expr
-  protected def guard: Guard
-  protected def pattern1: Pattern1
+object Generator {
 
   def parse(builder: ScalaPsiBuilder): Boolean = {
     val genMarker = builder.mark
     if (builder.getTokenType == ScalaTokenTypes.kVAL) builder.advanceLexer() //deprecated
-    if (!pattern1.parse(builder)) {
+    if (!Pattern1.parse(builder)) {
       genMarker.drop()
       return false
     }
     builder.getTokenType match {
       case ScalaTokenTypes.tCHOOSE =>
-        builder.advanceLexer
+        builder.advanceLexer()
       case _ =>
         builder error ErrMsg("choose.expected")
     }
-    if (!expr.parse(builder)) builder error ErrMsg("wrong.expression")
+    if (!Expr.parse(builder)) builder error ErrMsg("wrong.expression")
     genMarker.done(ScalaElementTypes.GENERATOR)
     builder.getTokenType match {
-      case ScalaTokenTypes.kIF => guard parse builder
+      case ScalaTokenTypes.kIF => Guard parse builder
       case _ =>
     }
-    return true
+    true
   }
 }
