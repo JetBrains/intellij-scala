@@ -7,7 +7,7 @@ package expressions
 import com.intellij.lang.PsiBuilder
 import org.jetbrains.plugins.scala.lang.lexer.ScalaTokenTypes
 import org.jetbrains.plugins.scala.lang.parser.parsing.builder.ScalaPsiBuilder
-import org.jetbrains.plugins.scala.lang.parser.parsing.types.{CompoundType, Type}
+import org.jetbrains.plugins.scala.lang.parser.parsing.types.CompoundType
 
 /**
 * @author Alexander Podkhalyuzin
@@ -18,16 +18,7 @@ import org.jetbrains.plugins.scala.lang.parser.parsing.types.{CompoundType, Type
  * ResultExpr ::= Expr1
  *              | (Bindings | id ':' CompoundType) '=>' Block
  */
-object ResultExpr extends ResultExpr {
-  override protected def bindings = Bindings
-  override protected def `type` = CompoundType
-  override protected def block = Block
-}
-
-trait ResultExpr {
-  protected def bindings: Bindings
-  protected def `type`: Type
-  protected def block: Block
+object ResultExpr {
 
   def parse(builder: ScalaPsiBuilder): Boolean = {
     val resultMarker = builder.mark
@@ -36,7 +27,7 @@ trait ResultExpr {
     def parseFunctionEnd() = builder.getTokenType match {
       case ScalaTokenTypes.tFUNTYPE =>
         builder.advanceLexer() //Ate =>
-        block parse(builder, hasBrace = false, needNode = true)
+        Block.parse(builder, hasBrace = false, needNode = true)
         backupMarker.drop()
         resultMarker.done(ScalaElementTypes.FUNCTION_EXPR)
         true
@@ -52,7 +43,7 @@ trait ResultExpr {
       if (ScalaTokenTypes.tCOLON == builder.getTokenType) {
         builder.advanceLexer() // ate ':'
         val pt = builder.mark
-        `type`.parse(builder, isPattern = false)
+        CompoundType.parse(builder)
         pt.done(ScalaElementTypes.PARAM_TYPE)
       }
       builder.getTokenType match {
@@ -71,7 +62,7 @@ trait ResultExpr {
 
     builder.getTokenType match {
       case ScalaTokenTypes.tLPARENTHESIS =>
-        bindings parse builder
+        Bindings parse builder
         return parseFunctionEnd()
       case ScalaTokenTypes.kIMPLICIT =>
         val pmarker = builder.mark()

@@ -18,12 +18,7 @@ import org.jetbrains.plugins.scala.lang.parser.parsing.patterns.{Guard, Pattern1
  *              | Guard
  *              | 'val' Pattern1 '=' Expr
  */
-object Enumerator extends Enumerator {
-  override protected def expr = Expr
-}
-
-trait Enumerator {
-  protected def expr: Expr
+object Enumerator {
 
   def parse(builder: ScalaPsiBuilder): Boolean = {
     val enumMarker = builder.mark
@@ -58,7 +53,7 @@ trait Enumerator {
             return Guard.parse(builder, noIf = true)
           }
       }
-      if (!expr.parse(builder)) {
+      if (!Expr.parse(builder)) {
         builder error ErrMsg("wrong.expression")
       }
       enumMarker.done(ScalaElementTypes.ENUMERATOR)

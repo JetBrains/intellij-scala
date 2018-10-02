@@ -23,7 +23,6 @@ import org.jetbrains.plugins.scala.lang.parser.parsing.expressions.Annotation
  */
 object Dcl extends Dcl {
   override protected def funDcl = FunDcl
-  override protected def annotation = Annotation
   override protected def typeDcl = TypeDcl
   override protected def varDcl = VarDcl
   override protected def valDcl = ValDcl
@@ -31,18 +30,16 @@ object Dcl extends Dcl {
 
 trait Dcl {
   protected def funDcl: FunDcl
-  protected def annotation: Annotation
   protected def valDcl: ValDcl
   protected def varDcl: VarDcl
   protected def typeDcl: TypeDcl
 
-  def parse(builder: ScalaPsiBuilder): Boolean = parse(builder,isMod = true)
-  def parse(builder: ScalaPsiBuilder, isMod: Boolean): Boolean = {
+  def parse(builder: ScalaPsiBuilder, isMod: Boolean = true): Boolean = {
     val dclMarker = builder.mark
     dclMarker.setCustomEdgeTokenBinders(ScalaTokenBinders.PRECEEDING_COMMENTS_TOKEN, null)
     if (isMod) {
       val annotationsMarker = builder.mark
-      while (annotation.parse(builder)) {}
+      while (Annotation.parse(builder)) {}
       annotationsMarker.done(ScalaElementTypes.ANNOTATIONS)
       annotationsMarker.setCustomEdgeTokenBinders(ScalaTokenBinders.DEFAULT_LEFT_EDGE_BINDER, null)
       //parse modifiers

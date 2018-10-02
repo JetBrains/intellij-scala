@@ -16,13 +16,7 @@ import org.jetbrains.plugins.scala.lang.parser.util.ParserUtils
 /*
  * Bindings ::= '(' Binding {',' Binding } ')'
  */
-
-object Bindings extends Bindings {
-  override protected def binding = Binding
-}
-
-trait Bindings {
-  protected def binding: Binding
+object Bindings {
 
   def parse(builder: ScalaPsiBuilder): Boolean = {
     val bindingsMarker = builder.mark
@@ -34,10 +28,10 @@ trait Bindings {
         bindingsMarker.drop()
         return false
     }
-    binding parse builder
+    Binding parse builder
     while (builder.getTokenType == ScalaTokenTypes.tCOMMA && !ParserUtils.eatTrailingComma(builder, ScalaTokenTypes.tRPARENTHESIS)) {
       builder.advanceLexer() //Ate ,
-      if (!binding.parse(builder)) {
+      if (!Binding.parse(builder)) {
         builder error ErrMsg("wrong.binding")
       }
     }

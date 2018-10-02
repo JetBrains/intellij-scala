@@ -28,7 +28,6 @@ object Def extends Def {
   override protected def varDef = VarDef
   override protected def macroDef = MacroDef
   override protected def typeDef = TypeDef
-  override protected def annotation = Annotation
 }
 
 trait Def {
@@ -36,7 +35,6 @@ trait Def {
   protected def patDef: PatDef
   protected def varDef: VarDef
   protected def typeDef: TypeDef
-  protected def annotation: Annotation
 
   def parse(builder: ScalaPsiBuilder): Boolean = parse(builder, isMod = true)
   def parse(builder: ScalaPsiBuilder, isMod: Boolean): Boolean = parse(builder, isMod, isImplicit = false)
@@ -45,7 +43,7 @@ trait Def {
     defMarker.setCustomEdgeTokenBinders(ScalaTokenBinders.PRECEEDING_COMMENTS_TOKEN, null)
     if (isMod || isImplicit) {
       val annotationsMarker = builder.mark
-      while (annotation.parse(builder)) {}
+      while (Annotation.parse(builder)) {}
       annotationsMarker.done(ScalaElementTypes.ANNOTATIONS)
       annotationsMarker.setCustomEdgeTokenBinders(ScalaTokenBinders.DEFAULT_LEFT_EDGE_BINDER, null)
       //parse modifiers

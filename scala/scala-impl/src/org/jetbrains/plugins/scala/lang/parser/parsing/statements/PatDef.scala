@@ -20,13 +20,11 @@ import org.jetbrains.plugins.scala.lang.parser.util.ParserUtils
  * PatDef ::= Pattern2 {',' Pattern2} [':' Type] '=' Expr
  */
 object PatDef extends PatDef {
-  override protected def expr = Expr
   override protected def `type` = Type
 }
 
 //TODO: Rewrite this
 trait PatDef {
-  protected def expr: Expr
   protected def `type`: Type
 
   def parse(builder: ScalaPsiBuilder): Boolean = {
@@ -68,7 +66,7 @@ trait PatDef {
     } else {
       ParserUtils.eatElement(builder, ScalaTokenTypes.tASSIGN)
 
-      if (!expr.parse(builder)) {
+      if (!Expr.parse(builder)) {
         builder error "expression expected"
       }
 

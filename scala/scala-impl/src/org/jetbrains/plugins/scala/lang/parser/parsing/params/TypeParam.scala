@@ -18,13 +18,11 @@ import org.jetbrains.plugins.scala.lang.parser.parsing.types.Type
  * TypeParam ::= {Annotation} (id | '_') [TypeParamClause] ['>:' Type] ['<:'Type] {'<%' Type} {':' Type}
  */
 object TypeParam extends TypeParam {
-  override protected def annotation = Annotation
   override protected def `type` = Type
   override protected def typeParamClause = TypeParamClause
 }
 
 trait TypeParam {
-  protected def annotation: Annotation
   protected def `type`: Type
   protected def typeParamClause: TypeParamClause
 
@@ -32,7 +30,7 @@ trait TypeParam {
     val paramMarker = builder.mark
     val annotationMarker = builder.mark
     var exist = false
-    while (annotation.parse(builder)) {
+    while (Annotation.parse(builder)) {
       exist = true
     }
     if (exist) annotationMarker.done(ScalaElementTypes.ANNOTATIONS)
@@ -46,9 +44,9 @@ trait TypeParam {
     }
     builder.getTokenType match {
       case ScalaTokenTypes.tIDENTIFIER | ScalaTokenTypes.tUNDER =>
-        builder.advanceLexer //Ate identifier
+        builder.advanceLexer() //Ate identifier
       case _ =>
-        paramMarker.rollbackTo
+        paramMarker.rollbackTo()
         return false
     }
     builder.getTokenType match {
@@ -64,13 +62,13 @@ trait TypeParam {
     while (boundParser(":")) {}
 
     paramMarker.done(ScalaElementTypes.TYPE_PARAM)
-    return true
+    true
   }
 
   def parseBound(builder: ScalaPsiBuilder)(bound: String): Boolean = {
     builder.getTokenText match {
       case x if x == bound =>
-        builder.advanceLexer
+        builder.advanceLexer()
         if (!`type`.parse(builder)) builder error ErrMsg("wrong.type")
         true
       case _ => false
