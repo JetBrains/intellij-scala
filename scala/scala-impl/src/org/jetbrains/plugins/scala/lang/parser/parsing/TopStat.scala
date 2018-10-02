@@ -22,18 +22,7 @@ import scala.annotation.tailrec
 *            | Import
 *            | Packaging
 */
-object TopStat extends TopStat {
-  override protected def tmplDef = TmplDef
-  override protected def templateStat = TemplateStat
-  override protected def packaging = Packaging
-  override protected def packageObject = PackageObject
-}
-
-trait TopStat {
-  protected def tmplDef: TmplDef
-  protected def templateStat: TemplateStat
-  protected def packageObject: PackageObject
-  protected def packaging: Packaging
+object TopStat {
 
   @tailrec
   final def parse(builder: ScalaPsiBuilder, state: Int): Int = {
@@ -47,10 +36,10 @@ trait TopStat {
         if (state == 2) ParserState.EMPTY_STATE
         else {
           if (ParserUtils.lookAhead(builder, ScalaTokenTypes.kPACKAGE, ScalaTokenTypes.kOBJECT)) {
-            if (packageObject parse builder) ParserState.FILE_STATE
+            if (PackageObject parse builder) ParserState.FILE_STATE
             else ParserState.EMPTY_STATE
           } else {
-            if (packaging parse builder) ParserState.FILE_STATE
+            if (Packaging parse builder) ParserState.FILE_STATE
             else ParserState.EMPTY_STATE
           }
         }
@@ -58,13 +47,13 @@ trait TopStat {
         if (!builder.eof()) parse(builder, state) else ParserState.SCRIPT_STATE
       case _ =>
         state match {
-          case ParserState.EMPTY_STATE => if (!tmplDef.parse(builder)) {
-            if (!templateStat.parse(builder)) ParserState.EMPTY_STATE
+          case ParserState.EMPTY_STATE => if (!TmplDef.parse(builder)) {
+            if (!TemplateStat.parse(builder)) ParserState.EMPTY_STATE
             else ParserState.SCRIPT_STATE
           } else ParserState.ADDITIONAL_STATE
-          case ParserState.FILE_STATE => if (!tmplDef.parse(builder)) ParserState.EMPTY_STATE
+          case ParserState.FILE_STATE => if (!TmplDef.parse(builder)) ParserState.EMPTY_STATE
           else ParserState.FILE_STATE
-          case ParserState.SCRIPT_STATE => if (!templateStat.parse(builder)) ParserState.EMPTY_STATE
+          case ParserState.SCRIPT_STATE => if (!TemplateStat.parse(builder)) ParserState.EMPTY_STATE
           else ParserState.SCRIPT_STATE
         }
     }

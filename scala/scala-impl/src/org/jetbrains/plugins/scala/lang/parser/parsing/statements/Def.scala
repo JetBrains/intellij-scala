@@ -26,7 +26,6 @@ import org.jetbrains.plugins.scala.lang.parser.parsing.top.TmplDef
 object Def extends Def {
   override protected def patDef = PatDef
   override protected def varDef = VarDef
-  override protected def tmplDef = TmplDef
   override protected def macroDef = MacroDef
   override protected def typeDef = TypeDef
   override protected def annotation = Annotation
@@ -34,7 +33,6 @@ object Def extends Def {
 
 trait Def {
   protected def macroDef: MacroDef
-  protected def tmplDef: TmplDef
   protected def patDef: PatDef
   protected def varDef: VarDef
   protected def typeDef: TypeDef
@@ -119,7 +117,7 @@ trait Def {
       case ScalaTokenTypes.kCASE | ScalaTokenTypes.kCLASS
            | ScalaTokenTypes.kOBJECT | ScalaTokenTypes.kTRAIT =>
         defMarker.rollbackTo()
-        tmplDef parse builder
+        TmplDef parse builder
       case _ =>
         defMarker.rollbackTo()
         false

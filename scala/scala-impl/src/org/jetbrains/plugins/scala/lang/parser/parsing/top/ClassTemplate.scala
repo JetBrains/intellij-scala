@@ -18,72 +18,61 @@ import org.jetbrains.plugins.scala.lang.parser.parsing.top.template.{ClassParent
  * ClassTemplate ::= [EarlyDefs] ClassParents [TemplateBody]
  *                 | TemplateBody (for 'new' statement)
  */
-object ClassTemplate extends ClassTemplate {
-  override protected def earlyDef = EarlyDef
-  override protected def templateBody = TemplateBody
-}
+object ClassTemplate {
 
-trait ClassTemplate {
-  protected def earlyDef: EarlyDef
-  protected def templateBody: TemplateBody
-
-  def parse(builder: ScalaPsiBuilder): Boolean = parse(builder, nonEmpty = false)
-  def parse(builder: ScalaPsiBuilder, nonEmpty: Boolean): Boolean = {
+  def parse(builder: ScalaPsiBuilder): Boolean = {
     val extendsMarker = builder.mark
-    var empty = true
+    var nonEmpty = false
+
     builder.getTokenType match {
-      //hardly case, becase it's same token for ClassParents and TemplateBody
+      //hardly case, because it's same token for ClassParents and TemplateBody
       case ScalaTokenTypes.tLBRACE =>
-        empty = false
+        nonEmpty = true
         //try to parse early definition if we can't => it's template body
-        if (earlyDef parse builder) {
+        if (EarlyDef parse builder) {
           ClassParents parse builder
           //parse template body
           builder.getTokenType match {
-            case ScalaTokenTypes.tLBRACE => {
+            case ScalaTokenTypes.tLBRACE =>
               if (builder.twoNewlinesBeforeCurrentToken) {
                 extendsMarker.done(ScalaElementTypes.EXTENDS_BLOCK)
-                return !nonEmpty || !empty
+                return nonEmpty
               }
-              templateBody parse builder
+              TemplateBody parse builder
               extendsMarker.done(ScalaElementTypes.EXTENDS_BLOCK)
-              !nonEmpty || !empty
-            }
-            case _ => {
+              nonEmpty
+            case _ =>
               extendsMarker.done(ScalaElementTypes.EXTENDS_BLOCK)
-              !nonEmpty || !empty
-            }
+              nonEmpty
           }
         }
         else {
           //parse template body
-          templateBody parse builder
+          TemplateBody parse builder
           extendsMarker.done(ScalaElementTypes.EXTENDS_BLOCK)
-          !nonEmpty || !empty
+          nonEmpty
         }
       //if we find nl => it could be TemplateBody only, but we can't find nl after extends keyword
       //In this case of course it's ClassParents
       case _ =>
-        if (ClassParents parse builder) empty = false
-        else if (nonEmpty) {
+        if (ClassParents parse builder) nonEmpty = true
+        else if (true) {
           extendsMarker.drop()
           return false
         }
         //parse template body
         builder.getTokenType match {
-          case ScalaTokenTypes.tLBRACE => {
+          case ScalaTokenTypes.tLBRACE =>
             if (builder.twoNewlinesBeforeCurrentToken) {
               extendsMarker.done(ScalaElementTypes.EXTENDS_BLOCK)
-              return !nonEmpty || !empty
+              return nonEmpty
             }
-            templateBody parse builder
+            TemplateBody parse builder
             extendsMarker.done(ScalaElementTypes.EXTENDS_BLOCK)
-            !nonEmpty || !empty
-          }
-          case _ => {
+            nonEmpty
+          case _ =>
             extendsMarker.done(ScalaElementTypes.EXTENDS_BLOCK)
-            !nonEmpty || !empty
-          }
+            nonEmpty
         }
     }
   }

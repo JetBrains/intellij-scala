@@ -26,13 +26,11 @@ object BlockStat extends BlockStat {
   override protected def `def` = Def
   override protected def expr1 = Expr1
   override protected def dcl = Dcl
-  override protected def tmplDef = TmplDef
   override protected def emptyDcl = EmptyDcl
 }
 
 trait BlockStat {
   protected def `def`: Def
-  protected def tmplDef: TmplDef
   protected def expr1: Expr1
   protected def dcl: Dcl
   protected def emptyDcl: EmptyDcl
@@ -61,12 +59,12 @@ trait BlockStat {
           }
         }
       case ScalaTokenTypes.kCLASS | ScalaTokenTypes.kTRAIT | ScalaTokenTypes.kOBJECT =>
-        return tmplDef.parse(builder)
+        return TmplDef.parse(builder)
       case _ if patcher.parse(builder) => parse(builder)
       case _ =>
         if (!expr1.parse(builder)) {
           if (!`def`.parse(builder, isMod = false, isImplicit = true)) {
-            if (!tmplDef.parse(builder)) {
+            if (!TmplDef.parse(builder)) {
               if (dcl.parse(builder)) {
                 builder error ErrMsg("wrong.declaration.in.block")
                 return true

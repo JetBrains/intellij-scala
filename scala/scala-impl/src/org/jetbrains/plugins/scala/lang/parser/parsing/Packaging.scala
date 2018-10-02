@@ -16,12 +16,7 @@ import org.jetbrains.plugins.scala.lang.parser.util.ParserUtils
 /*
  * Packaging := 'package' QualId [nl] '{' TopStatSeq '}'
  */
-object Packaging extends Packaging {
-  override protected def topStatSeq = TopStatSeq
-}
-
-trait Packaging {
-  protected def topStatSeq: TopStatSeq
+object Packaging {
 
   def parse(builder: ScalaPsiBuilder):Boolean = {
     val packMarker = builder.mark
@@ -34,27 +29,25 @@ trait Packaging {
         }
         //parsing body of regular packaging
         builder.getTokenType match {
-          case ScalaTokenTypes.tLBRACE => {
+          case ScalaTokenTypes.tLBRACE =>
             if (builder.twoNewlinesBeforeCurrentToken) {
               builder error ScalaBundle.message("lbrace.expected")
               packMarker.done(ScalaElementTypes.PACKAGING)
               return true
             }
             builder.advanceLexer() //Ate '{'
-            builder.enableNewlines
+            builder.enableNewlines()
             ParserUtils.parseLoopUntilRBrace(builder, () => {
               //parse packaging body
-              topStatSeq parse(builder, true)
+              TopStatSeq.parse(builder)
             })
-            builder.restoreNewlinesState
+            builder.restoreNewlinesState()
             packMarker.done(ScalaElementTypes.PACKAGING)
             true
-          }
-          case _ => {
+          case _ =>
             builder error ScalaBundle.message("lbrace.expected")
             packMarker.done(ScalaElementTypes.PACKAGING)
             true
-          }
         }
       case _ =>
         //this code shouldn't be reachable, if it is, this is unexpected error

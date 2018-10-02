@@ -44,7 +44,7 @@ object SimpleExpr extends ParserNode with ScalaTokenTypes {
     builder.getTokenType match {
       case ScalaTokenTypes.kNEW =>
         builder.advanceLexer() //Ate new
-        if (!ClassTemplate.parse(builder, nonEmpty = true)) {
+        if (!ClassTemplate.parse(builder)) {
           builder error ErrMsg("identifier.expected")
           simpleMarker.drop()
           return false
