@@ -15,12 +15,10 @@ import org.jetbrains.plugins.scala.lang.parser.parsing.types.Type
 */
 object TypeDef extends TypeDef {
   override protected def `type` = Type
-  override protected def typeParamClause = TypeParamClause
 }
 
 trait TypeDef {
   protected def `type`: Type
-  protected def typeParamClause: TypeParamClause
 
   def parse(builder: ScalaPsiBuilder): Boolean = {
     val faultMarker = builder.mark
@@ -39,7 +37,7 @@ trait TypeDef {
         faultMarker.rollbackTo
         return false
     }
-    val isTypeParamClause = if (typeParamClause parse builder) {
+    val isTypeParamClause = if (TypeParamClause parse builder) {
       true
     } else false
     builder.getTokenType match {

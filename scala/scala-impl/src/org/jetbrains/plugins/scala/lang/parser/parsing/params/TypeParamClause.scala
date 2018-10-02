@@ -16,12 +16,7 @@ import org.jetbrains.plugins.scala.lang.parser.util.ParserUtils
 /*
  * TypeParamClause ::= '[' VariantTypeParam {',' VariantTypeParam} ']'
  */
-object TypeParamClause extends TypeParamClause {
-  override protected def typeParam = TypeParam
-}
-
-trait TypeParamClause {
-  protected def typeParam: TypeParam
+object TypeParamClause {
 
   def parse(builder: ScalaPsiBuilder): Boolean = {
     val typeMarker = builder.mark
@@ -33,12 +28,12 @@ trait TypeParamClause {
         typeMarker.drop()
         return false
     }
-    if (!typeParam.parse(builder, mayHaveVariance = true)) {
+    if (!TypeParam.parse(builder)) {
       builder error ScalaBundle.message("wrong.parameter")
     }
     while (builder.getTokenType == ScalaTokenTypes.tCOMMA && !ParserUtils.eatTrailingComma(builder, ScalaTokenTypes.tRSQBRACKET)) {
       builder.advanceLexer() //Ate
-      if (!typeParam.parse(builder, mayHaveVariance = true)) {
+      if (!TypeParam.parse(builder)) {
         builder error ScalaBundle.message("wrong.parameter")
       }
     }

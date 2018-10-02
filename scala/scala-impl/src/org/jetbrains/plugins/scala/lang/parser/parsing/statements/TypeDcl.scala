@@ -19,12 +19,10 @@ import org.jetbrains.plugins.scala.lang.parser.parsing.types.Type
  */
 object TypeDcl extends TypeDcl {
   override protected def `type` = Type
-  override protected def typeParamClause = TypeParamClause
 }
 
 trait TypeDcl {
   protected def `type`: Type
-  protected def typeParamClause: TypeParamClause
 
   def parse(builder: ScalaPsiBuilder): Boolean = {
     val returnMarker = builder.mark
@@ -43,7 +41,7 @@ trait TypeDcl {
         returnMarker.drop()
         return false
     }
-    typeParamClause parse builder
+    TypeParamClause parse builder
     builder.getTokenText match {
       case ">:" =>
         builder.advanceLexer()

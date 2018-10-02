@@ -17,16 +17,9 @@ import org.jetbrains.plugins.scala.lang.parser.parsing.types.Type
 /*
  * TypeParam ::= {Annotation} (id | '_') [TypeParamClause] ['>:' Type] ['<:'Type] {'<%' Type} {':' Type}
  */
-object TypeParam extends TypeParam {
-  override protected def `type` = Type
-  override protected def typeParamClause = TypeParamClause
-}
+object TypeParam {
 
-trait TypeParam {
-  protected def `type`: Type
-  protected def typeParamClause: TypeParamClause
-
-  def parse(builder: ScalaPsiBuilder, mayHaveVariance: Boolean): Boolean = {
+  def parse(builder: ScalaPsiBuilder, mayHaveVariance: Boolean = true): Boolean = {
     val paramMarker = builder.mark
     val annotationMarker = builder.mark
     var exist = false
@@ -51,7 +44,7 @@ trait TypeParam {
     }
     builder.getTokenType match {
       case ScalaTokenTypes.tLSQBRACKET =>
-        typeParamClause parse builder
+        TypeParamClause parse builder
       case _ =>
     }
 
@@ -69,7 +62,7 @@ trait TypeParam {
     builder.getTokenText match {
       case x if x == bound =>
         builder.advanceLexer()
-        if (!`type`.parse(builder)) builder error ErrMsg("wrong.type")
+        if (!Type.parse(builder)) builder error ErrMsg("wrong.type")
         true
       case _ => false
     }
