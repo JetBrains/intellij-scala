@@ -10,7 +10,6 @@ import org.jetbrains.plugins.scala.lang.lexer.ScalaTokenTypes._
 import org.jetbrains.plugins.scala.lang.parser.ScalaElementTypes._
 import org.jetbrains.plugins.scala.lang.parser.parsing.builder.ScalaPsiBuilder
 
-
 /**
 * @author Alexander Podkhalyuzin
 */
@@ -19,10 +18,10 @@ import org.jetbrains.plugins.scala.lang.parser.parsing.builder.ScalaPsiBuilder
  * Path ::= StableId
  *        | [id '.'] 'this'
  */
+object Path extends ScalaTokenTypes {
 
-object Path extends ParserNode with ScalaTokenTypes {
   def parse(builder: ScalaPsiBuilder, element: IElementType): Boolean = {
-    if (lookAhead(builder, tIDENTIFIER, tDOT, kTHIS)) {
+    if (builder.lookAhead(tIDENTIFIER, tDOT, kTHIS)) {
       val thisMarker = builder.mark
       val refMarker = builder.mark
       builder.advanceLexer()
@@ -33,16 +32,16 @@ object Path extends ParserNode with ScalaTokenTypes {
       builder.advanceLexer()
       val nm = thisMarker.precede
       thisMarker.done(THIS_REFERENCE)
-      if (lookAhead(builder, tDOT, tIDENTIFIER)) {
+      if (builder.lookAhead(tDOT, tIDENTIFIER)) {
         builder.advanceLexer()
         StableId parseQualId(builder, nm, element, false)
       } else {
         nm.drop()
       }
       true
-    } else if (lookAhead(builder, kTHIS, tDOT, kTYPE) ||
+    } else if (builder.lookAhead(kTHIS, tDOT, kTYPE) ||
                  builder.getTokenType == kTHIS &&
-                 !lookAhead(builder, kTHIS, tDOT)) {
+                 !builder.lookAhead(kTHIS, tDOT)) {
       val thisMarker = builder.mark
       builder.advanceLexer()
       thisMarker.done(THIS_REFERENCE)

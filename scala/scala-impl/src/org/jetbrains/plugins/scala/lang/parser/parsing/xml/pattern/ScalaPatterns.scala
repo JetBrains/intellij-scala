@@ -14,7 +14,7 @@ import org.jetbrains.plugins.scala.lang.parser.util.ParserUtils
 * Date: 21.04.2008
 */
 
-object ScalaPatterns extends ParserNode {
+object ScalaPatterns {
 
   def parse(builder: ScalaPsiBuilder): Boolean = {
     builder.getTokenType match {
@@ -37,8 +37,8 @@ object ScalaPatterns extends ParserNode {
     val args = builder.mark
     def parseSeqWildcard(withComma: Boolean): Boolean = {
       if (if (withComma)
-        lookAhead(builder, ScalaTokenTypes.tCOMMA, ScalaTokenTypes.tUNDER, ScalaTokenTypes.tIDENTIFIER)
-      else lookAhead(builder, ScalaTokenTypes.tUNDER, ScalaTokenTypes.tIDENTIFIER)) {
+        builder.lookAhead(ScalaTokenTypes.tCOMMA, ScalaTokenTypes.tUNDER, ScalaTokenTypes.tIDENTIFIER)
+      else builder.lookAhead(ScalaTokenTypes.tUNDER, ScalaTokenTypes.tIDENTIFIER)) {
         if (withComma) builder.advanceLexer()
         val wild = builder.mark
         builder.getTokenType
@@ -57,9 +57,9 @@ object ScalaPatterns extends ParserNode {
     }
 
     def parseSeqWildcardBinding(withComma: Boolean): Boolean = {
-      if (if (withComma) lookAhead(builder, ScalaTokenTypes.tCOMMA, ScalaTokenTypes.tIDENTIFIER, ScalaTokenTypes.tAT,
+      if (if (withComma) builder.lookAhead(ScalaTokenTypes.tCOMMA, ScalaTokenTypes.tIDENTIFIER, ScalaTokenTypes.tAT,
         ScalaTokenTypes.tUNDER, ScalaTokenTypes.tIDENTIFIER)
-      else lookAhead(builder, ScalaTokenTypes.tIDENTIFIER, ScalaTokenTypes.tAT,
+      else builder.lookAhead(ScalaTokenTypes.tIDENTIFIER, ScalaTokenTypes.tAT,
         ScalaTokenTypes.tUNDER, ScalaTokenTypes.tIDENTIFIER)) {
         if (withComma) builder.advanceLexer() // ,
         ParserUtils.parseVarIdWithWildcardBinding(builder, builder.mark())

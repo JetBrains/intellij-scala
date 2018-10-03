@@ -19,7 +19,7 @@ object Types extends Types {
   override protected def `type` = ParamType
 }
 
-trait Types extends ParserNode {
+trait Types {
   protected def `type`: ParamType
 
   def parse(builder: ScalaPsiBuilder): (Boolean, Boolean) ={

@@ -18,7 +18,7 @@ import org.jetbrains.plugins.scala.lang.parser.util.ParserUtils
  */
 
 
-object ImportSelectors extends ParserNode {
+object ImportSelectors {
   def parse(builder: ScalaPsiBuilder): Boolean = {
     val importSelectorMarker = builder.mark
     //Look for {

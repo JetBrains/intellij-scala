@@ -35,7 +35,7 @@ import scala.annotation.tailrec
  *               | SimpleExpr1 ArgumentExprs
  *               | XmlExpr
  */
-object SimpleExpr extends ParserNode with ScalaTokenTypes {
+object SimpleExpr extends ScalaTokenTypes {
 
   def parse(builder: ScalaPsiBuilder): Boolean = {
     val simpleMarker = builder.mark
@@ -82,7 +82,7 @@ object SimpleExpr extends ParserNode with ScalaTokenTypes {
             } else {
               var isTuple = false
               while (builder.getTokenType == ScalaTokenTypes.tCOMMA &&
-                !lookAhead(builder, ScalaTokenTypes.tCOMMA, ScalaTokenTypes.tRPARENTHESIS)) {
+                !builder.lookAhead(ScalaTokenTypes.tCOMMA, ScalaTokenTypes.tRPARENTHESIS)) {
                 isTuple = true
                 builder.advanceLexer()
                 if (!Expr.parse(builder)) {

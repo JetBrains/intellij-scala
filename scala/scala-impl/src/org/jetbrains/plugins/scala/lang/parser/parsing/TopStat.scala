@@ -22,7 +22,7 @@ import scala.annotation.tailrec
 *            | Import
 *            | Packaging
 */
-object TopStat extends ParserNode {
+object TopStat {
 
   @tailrec
   final def parse(builder: ScalaPsiBuilder, state: Int): Int = {
@@ -35,7 +35,7 @@ object TopStat extends ParserNode {
       case ScalaTokenTypes.kPACKAGE =>
         if (state == 2) ParserState.EMPTY_STATE
         else {
-          if (lookAhead(builder, ScalaTokenTypes.kPACKAGE, ScalaTokenTypes.kOBJECT)) {
+          if (builder.lookAhead(ScalaTokenTypes.kPACKAGE, ScalaTokenTypes.kOBJECT)) {
             if (PackageObject parse builder) ParserState.FILE_STATE
             else ParserState.EMPTY_STATE
           } else {

@@ -3,13 +3,12 @@ package lang
 package parser
 package parsing
 
-import scala.annotation.tailrec
-
 import org.jetbrains.plugins.scala.lang.lexer.ScalaTokenTypes
 import org.jetbrains.plugins.scala.lang.parser.parsing.builder.ScalaPsiBuilder
 import org.jetbrains.plugins.scala.lang.parser.parsing.top.Qual_Id
-import org.jetbrains.plugins.scala.lang.parser.util.ParserUtils
 import org.jetbrains.plugins.scala.statistics.{FeatureKey, Stats}
+
+import scala.annotation.tailrec
 
 /**
   * @author Alexander Podkhalyuzin
@@ -19,7 +18,7 @@ import org.jetbrains.plugins.scala.statistics.{FeatureKey, Stats}
 /*
  *  CompilationUnit ::= [package QualId StatementSeparator] TopStatSeq
  */
-object CompilationUnit extends ParserNode {
+object CompilationUnit {
 
   def parse(builder: ScalaPsiBuilder): Int = {
     var parseState = ParserState.EMPTY_STATE
@@ -60,7 +59,7 @@ object CompilationUnit extends ParserNode {
               builder.error(ErrMsg("semi.expected"))
             }
             if (ScalaTokenTypes.kPACKAGE == askType &&
-              !lookAhead(builder, ScalaTokenTypes.kPACKAGE, ScalaTokenTypes.kOBJECT)) {
+              !builder.lookAhead(ScalaTokenTypes.kPACKAGE, ScalaTokenTypes.kOBJECT)) {
               // Parse package statement
               val newMarker = builder.mark
               builder.advanceLexer() //package
@@ -68,7 +67,7 @@ object CompilationUnit extends ParserNode {
                 case ScalaTokenTypes.tIDENTIFIER =>
                   Qual_Id parse builder
                   // Detect explicit packaging with curly braces
-                  if (lookAhead(builder, ScalaTokenTypes.tLBRACE) &&
+                  if (builder.lookAhead(ScalaTokenTypes.tLBRACE) &&
                     !builder.getTokenText.matches(".*\n.*\n.*")) {
                     newMarker.rollbackTo()
                     parsePackagingBody(true)
