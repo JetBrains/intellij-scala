@@ -8,7 +8,6 @@ import org.jetbrains.plugins.scala.lang.lexer.ScalaTokenTypes
 import org.jetbrains.plugins.scala.lang.parser.parsing.base.Ids
 import org.jetbrains.plugins.scala.lang.parser.parsing.builder.ScalaPsiBuilder
 import org.jetbrains.plugins.scala.lang.parser.parsing.types.Type
-import org.jetbrains.plugins.scala.lang.parser.util.ParserUtils
 
 /**
 * @author Alexander Podkhalyuzin
@@ -34,7 +33,7 @@ object VarDef {
         var hasTypeDcl = false
 
         if (ScalaTokenTypes.tCOLON.equals(builder.getTokenType)) {
-          ParserUtils.eatElement(builder, ScalaTokenTypes.tCOLON)
+          builder.checkedAdvanceLexer()
           if (!Type.parse(builder)) {
             builder error "type declaration expected"
           }
@@ -48,7 +47,7 @@ object VarDef {
           valDefMarker.rollbackTo()
           false
         } else {
-          ParserUtils.eatElement(builder, ScalaTokenTypes.tASSIGN)
+          builder.checkedAdvanceLexer()
           builder.getTokenType match {
             case ScalaTokenTypes.tUNDER => builder.advanceLexer()
             //Ate _

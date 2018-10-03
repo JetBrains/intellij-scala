@@ -19,7 +19,7 @@ import org.jetbrains.plugins.scala.statistics.{FeatureKey, Stats}
 /*
  *  CompilationUnit ::= [package QualId StatementSeparator] TopStatSeq
  */
-object CompilationUnit {
+object CompilationUnit extends ParserNode {
 
   def parse(builder: ScalaPsiBuilder): Int = {
     var parseState = ParserState.EMPTY_STATE
@@ -60,7 +60,7 @@ object CompilationUnit {
               builder.error(ErrMsg("semi.expected"))
             }
             if (ScalaTokenTypes.kPACKAGE == askType &&
-              !ParserUtils.lookAhead(builder, ScalaTokenTypes.kPACKAGE, ScalaTokenTypes.kOBJECT)) {
+              !lookAhead(builder, ScalaTokenTypes.kPACKAGE, ScalaTokenTypes.kOBJECT)) {
               // Parse package statement
               val newMarker = builder.mark
               builder.advanceLexer() //package
@@ -68,7 +68,7 @@ object CompilationUnit {
                 case ScalaTokenTypes.tIDENTIFIER =>
                   Qual_Id parse builder
                   // Detect explicit packaging with curly braces
-                  if (ParserUtils.lookAhead(builder, ScalaTokenTypes.tLBRACE) &&
+                  if (lookAhead(builder, ScalaTokenTypes.tLBRACE) &&
                     !builder.getTokenText.matches(".*\n.*\n.*")) {
                     newMarker.rollbackTo()
                     parsePackagingBody(true)

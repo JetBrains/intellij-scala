@@ -7,7 +7,6 @@ import com.intellij.lang.PsiBuilder
 import com.intellij.lang.PsiBuilder.Marker
 import com.intellij.lang.impl.PsiBuilderAdapter
 import com.intellij.openapi.application.ApplicationManager
-import com.intellij.openapi.project.DumbService
 import com.intellij.openapi.util.text.StringUtil
 import com.intellij.psi.PsiFile
 import com.intellij.psi.impl.source.resolve.FileContextUtil
@@ -15,56 +14,11 @@ import com.intellij.psi.tree.{IElementType, TokenSet}
 import com.intellij.testFramework.LightVirtualFileBase
 import org.jetbrains.plugins.scala.lang.lexer.ScalaTokenTypes
 import org.jetbrains.plugins.scala.lang.parser.parsing.builder.ScalaPsiBuilder
-import org.jetbrains.plugins.scala.lang.psi.stubs.elements.ScStubElementType
 import org.jetbrains.plugins.scala.settings.ScalaProjectSettings
-import org.jetbrains.plugins.scala.util.DebugPrint
 
 import scala.annotation.tailrec
-import scala.collection.immutable.IndexedSeq
-import scala.meta.intellij.IdeaUtil
 
-
-object ParserUtils extends ParserUtilsBase {
-  def lookAheadSeq(n: Int)(builder: PsiBuilder): IndexedSeq[IElementType] = (1 to n).map(_ => {
-    val token = if (!builder.eof) builder.getTokenType else null
-    builder.advanceLexer()
-    token
-  })
-
-  def lookBack(psiBuilder: PsiBuilder, n: Int): IElementType = {
-    @scala.annotation.tailrec
-    def lookBackImpl(step: Int, all: Int): IElementType = {
-      psiBuilder.rawLookup(step) match {
-        case ws if TokenSets.WHITESPACE_OR_COMMENT_SET.contains(ws) => lookBackImpl(step-1, all)
-        case other if all == 0 => other
-        case other => lookBackImpl(step-1, all-1)
-      }
-    }
-
-    lookBackImpl(-1, n)
-  }
-
-  def lookBack(psiBuilder: PsiBuilder): IElementType = lookBack(psiBuilder, 1)
-  
-  //Write element node
-  def eatElement(builder: PsiBuilder, elem: IElementType) {
-    if (!builder.eof()) {
-      builder.advanceLexer() // Ate something
-    }
-    ()
-
-  }
-
-  def parseTillLast(builder: PsiBuilder, lastSet: TokenSet) {
-    while (!builder.eof() && !lastSet.contains(builder.getTokenType)) {
-      builder.advanceLexer()
-      DebugPrint println "an error"
-    }
-
-    if (builder.eof()) /*builder error "unexpected end of file"; */ return
-
-    if (lastSet.contains(builder.getTokenType)) builder.advanceLexer()
-  }
+object ParserUtils {
 
   def eatSeqWildcardNext(builder: PsiBuilder): Boolean = {
     val marker = builder.mark
@@ -83,14 +37,6 @@ object ParserUtils extends ParserUtilsBase {
       marker.drop()
       false
     }
-  }
-
-
-  def build(t: IElementType, builder: PsiBuilder)(inner: => Boolean): Boolean = {
-    val marker = builder.mark
-    val parsed = inner
-    if (parsed) marker.done(t) else marker.rollbackTo()
-    parsed
   }
 
   def isAssignmentOperator: String => Boolean = {
@@ -265,7 +211,7 @@ object ParserUtils extends ParserUtilsBase {
     }
     
     builder.advanceLexer() // @
-    if (ParserUtils.eatSeqWildcardNext(builder)) {
+    if (eatSeqWildcardNext(builder)) {
       rollbackMarker.done(ScalaElementTypes.NAMING_PATTERN)
       true
     } else {
@@ -305,12 +251,7 @@ object ParserUtils extends ParserUtilsBase {
 
     true
   }
-  
-  def hasMeta(builder: PsiBuilder): Boolean = !ScStubElementType.isStubBuilding &&
-    !DumbService.isDumb(builder.getProject) && getPsiFile(builder).exists {
-    file => IdeaUtil.inModuleWithParadisePlugin(file)
-  }
-  
+
   def getPsiFile(builder: PsiBuilder): Option[PsiFile] = {
     val delegate = builder match {
       case adapterBuilder: PsiBuilderAdapter => adapterBuilder.getDelegate

@@ -18,7 +18,7 @@ object FunSig {
 
   def parse(builder: ScalaPsiBuilder): Boolean = {
     if (ScalaTokenTypes.tIDENTIFIER.equals(builder.getTokenType)) {
-      ParserUtils.eatElement(builder, ScalaTokenTypes.tIDENTIFIER)
+      builder.checkedAdvanceLexer()
       FunTypeParamClause parse builder
       ParamClauses parse builder
       true

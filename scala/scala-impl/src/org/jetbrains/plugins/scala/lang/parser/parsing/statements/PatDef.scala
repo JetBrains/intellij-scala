@@ -9,7 +9,6 @@ import org.jetbrains.plugins.scala.lang.parser.parsing.builder.ScalaPsiBuilder
 import org.jetbrains.plugins.scala.lang.parser.parsing.expressions.Expr
 import org.jetbrains.plugins.scala.lang.parser.parsing.patterns.Pattern2
 import org.jetbrains.plugins.scala.lang.parser.parsing.types.Type
-import org.jetbrains.plugins.scala.lang.parser.util.ParserUtils
 
 /**
 * @author Alexander Podkhalyuzin
@@ -33,7 +32,7 @@ object PatDef {
     }
 
     while (ScalaTokenTypes.tCOMMA.equals(builder.getTokenType)) {
-      ParserUtils.eatElement(builder, ScalaTokenTypes.tCOMMA)
+      builder.checkedAdvanceLexer()
 
       if (!Pattern2.parse(builder, forDef = true)) {
         pattern2sMarker.rollbackTo()
@@ -47,7 +46,7 @@ object PatDef {
     var hasTypeDcl = false
 
     if (ScalaTokenTypes.tCOLON.equals(builder.getTokenType)) {
-      ParserUtils.eatElement(builder, ScalaTokenTypes.tCOLON)
+      builder.checkedAdvanceLexer()
 
       if (!Type.parse(builder)) {
         builder error "type declaration expected"
@@ -59,7 +58,7 @@ object PatDef {
       someMarker.rollbackTo()
       false
     } else {
-      ParserUtils.eatElement(builder, ScalaTokenTypes.tASSIGN)
+      builder.checkedAdvanceLexer()
 
       if (!Expr.parse(builder)) {
         builder error "expression expected"
