@@ -7,6 +7,7 @@ import com.intellij.psi.PsiElement
 import com.intellij.psi.codeStyle.CodeStyleSettingsManager
 import com.intellij.psi.impl.source.codeStyle.PreFormatProcessor
 import com.intellij.psi.util.PsiTreeUtil
+import org.jetbrains.plugins.scala
 import org.jetbrains.plugins.scala.extensions.PsiElementExt
 import org.jetbrains.plugins.scala.lang.formatting.settings.ScalaCodeStyleSettings
 import org.jetbrains.plugins.scala.lang.psi.api.ScalaElementVisitor
@@ -133,9 +134,11 @@ class ScalaDocNewlinedPreFormatProcessor extends PreFormatProcessor {
           val parent = lastWs.getParent
           val prev = lastWs.getPrevSibling
 
-          for (i <- 1 to newlinesNew - newlinesOld) {
-            parent.addBefore(createLeadingAsterisk, lastWs)
-            parent.addAfter(createDocWhiteSpace, prev)
+          scala.extensions.inWriteAction {
+            for (_ <- 1 to newlinesNew - newlinesOld) {
+              parent.addBefore(createLeadingAsterisk, lastWs)
+              parent.addAfter(createDocWhiteSpace, prev)
+            }
           }
         }
       case _ =>
