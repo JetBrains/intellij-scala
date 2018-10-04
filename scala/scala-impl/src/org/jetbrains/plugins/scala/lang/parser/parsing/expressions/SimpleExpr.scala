@@ -89,7 +89,7 @@ object SimpleExpr extends ScalaTokenTypes {
                   builder error ErrMsg("wrong.expression")
                 }
               }
-              if (builder.getTokenType == ScalaTokenTypes.tCOMMA && !ParserUtils.eatTrailingComma(builder, ScalaTokenTypes.tRPARENTHESIS)) {
+              if (builder.getTokenType == ScalaTokenTypes.tCOMMA && !builder.consumeTrailingComma(ScalaTokenTypes.tRPARENTHESIS)) {
                 builder.advanceLexer()
                 isTuple = true
               }

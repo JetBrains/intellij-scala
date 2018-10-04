@@ -2,6 +2,9 @@ package org.jetbrains.plugins.scala.lang
 
 import com.intellij.lang.PsiBuilder
 import com.intellij.psi.tree.IElementType
+import org.jetbrains.plugins.scala.lang.lexer.ScalaTokenTypes
+import org.jetbrains.plugins.scala.lang.parser.parsing.builder.ScalaPsiBuilder
+import org.jetbrains.plugins.scala.lang.parser.util.ParserUtils.countNewLinesBeforeCurrentTokenRaw
 
 import scala.annotation.tailrec
 
@@ -10,23 +13,12 @@ package object parser {
   implicit class PsiBuilderExt[B <: PsiBuilder](val builder: B) extends AnyVal {
 
     def checkedAdvanceLexer(): Unit = {
-      if (!builder.eof) builder.advanceLexer()
-    }
-
-    def build(elementType: IElementType)
-             (parse: B => Boolean): Boolean = {
-      val marker = mark
-      val result = parse(builder)
-
-      if (result) marker.done(elementType)
-      else marker.rollbackTo()
-
-      result
+      if (notEOF) builder.advanceLexer()
     }
 
     def lookAhead(expected: IElementType,
                   elementTypes: IElementType*): Boolean =
-      currentTokenType == expected && matchTokenTypes(elementTypes)
+      currentTokenMatches(expected) && matchTokenTypes(elementTypes)
 
     def lookBack(): IElementType = lookBack(n = 1)
 
@@ -36,13 +28,13 @@ package object parser {
         @tailrec
         def matchTokenTypes(list: List[IElementType]): Boolean = list match {
           case Nil => true
-          case head :: tail if !builder.eof && currentTokenType == head =>
+          case head :: tail if notEOF && currentTokenMatches(head) =>
             builder.advanceLexer()
             matchTokenTypes(tail)
           case _ => false
         }
 
-        val marker = mark
+        val marker = builder.mark
         builder.advanceLexer()
 
         val result = matchTokenTypes(list)
@@ -58,9 +50,43 @@ package object parser {
       case _ => lookBack(n - 1, step + 1)
     }
 
-    private def mark = builder.mark
+    private[parser] def currentTokenMatches(expected: IElementType) =
+      builder.getTokenType == expected
 
-    private def currentTokenType = builder.getTokenType
+    private def notEOF = !builder.eof
+  }
+
+  implicit class ScalaPsiBuilderExt(val builder: ScalaPsiBuilder) extends AnyVal {
+
+    def build(elementType: IElementType)
+             (parse: ScalaPsiBuilder => Boolean): Boolean = {
+      val marker = builder.mark
+      val result = parse(builder)
+
+      if (result) marker.done(elementType)
+      else marker.rollbackTo()
+
+      result
+    }
+
+    def consumeTrailingComma(expectedBrace: IElementType): Boolean = builder.getTokenType match {
+      case ScalaTokenTypes.tCOMMA if builder.isTrailingCommasEnabled &&
+        nextTokenMatches(expectedBrace) =>
+        builder.advanceLexer()
+        true
+      case _ => false
+    }
+
+    private def nextTokenMatches(expected: IElementType): Boolean = {
+      val marker = builder.mark
+      builder.advanceLexer()
+
+      val result = builder.currentTokenMatches(expected) &&
+        countNewLinesBeforeCurrentTokenRaw(builder) > 0
+
+      marker.rollbackTo()
+      result
+    }
   }
 
 }

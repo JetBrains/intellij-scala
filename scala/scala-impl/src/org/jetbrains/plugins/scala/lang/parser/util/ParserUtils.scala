@@ -5,7 +5,7 @@ package util
 
 import com.intellij.lang.PsiBuilder
 import com.intellij.openapi.util.text.StringUtil
-import com.intellij.psi.tree.{IElementType, TokenSet}
+import com.intellij.psi.tree.TokenSet
 import org.jetbrains.plugins.scala.lang.lexer.ScalaTokenTypes
 import org.jetbrains.plugins.scala.lang.parser.parsing.builder.ScalaPsiBuilder
 
@@ -164,25 +164,5 @@ object ParserUtils {
       rollbackMarker.rollbackTo()
       false
     }
-  }
-
-  def eatTrailingComma(builder: ScalaPsiBuilder, expectedBrace: IElementType): Boolean = {
-    builder.getTokenType match {
-      case ScalaTokenTypes.tCOMMA if builder.isTrailingCommasEnabled && isTrailingComma(builder, expectedBrace) =>
-        builder.advanceLexer() // eat `,`
-        true
-      case _ => false
-    }
-  }
-
-  private def isTrailingComma(builder: ScalaPsiBuilder, expectedBrace: IElementType): Boolean = {
-    val marker = builder.mark()
-    builder.advanceLexer()
-
-    val result = builder.getTokenType == expectedBrace &&
-      countNewLinesBeforeCurrentTokenRaw(builder) > 0
-
-    marker.rollbackTo()
-    result
   }
 }

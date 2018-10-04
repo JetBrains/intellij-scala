@@ -6,7 +6,6 @@ package params
 
 import org.jetbrains.plugins.scala.lang.lexer.ScalaTokenTypes
 import org.jetbrains.plugins.scala.lang.parser.parsing.builder.ScalaPsiBuilder
-import org.jetbrains.plugins.scala.lang.parser.util.ParserUtils
 
 /**
 * @author Alexander Podkhalyuzin
@@ -31,7 +30,7 @@ object TypeParamClause {
     if (!TypeParam.parse(builder)) {
       builder error ScalaBundle.message("wrong.parameter")
     }
-    while (builder.getTokenType == ScalaTokenTypes.tCOMMA && !ParserUtils.eatTrailingComma(builder, ScalaTokenTypes.tRSQBRACKET)) {
+    while (builder.getTokenType == ScalaTokenTypes.tCOMMA && !builder.consumeTrailingComma(ScalaTokenTypes.tRSQBRACKET)) {
       builder.advanceLexer() //Ate
       if (!TypeParam.parse(builder)) {
         builder error ScalaBundle.message("wrong.parameter")
