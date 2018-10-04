@@ -21,9 +21,9 @@ import org.jetbrains.plugins.scala.lang.psi.types.result._
 class ScThisReferenceImpl(node: ASTNode) extends ScExpressionImplBase(node) with ScThisReference {
 
   protected override def innerType: TypeResult = {
-    import scala.meta.intellij.psiExt.TemplateDefExt
+    import scala.meta.intellij.psiExt.TemplateDefinitionExt
     refTemplate match {
-      case Some(td) if td.isMetaAnnotatationImpl => createTypeFromText("scala.meta.Stat", this, null).asTypeResult
+      case Some(td) if td.isMetaAnnotationImpl => createTypeFromText("scala.meta.Stat", this, null).asTypeResult
       case Some(td) => ScThisReferenceImpl.getThisTypeForTypeDefinition(td, this)
       case _ => Failure("Cannot infer type")
     }

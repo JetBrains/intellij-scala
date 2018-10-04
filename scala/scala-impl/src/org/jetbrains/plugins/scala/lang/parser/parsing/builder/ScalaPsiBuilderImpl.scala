@@ -6,18 +6,16 @@ package builder
 import com.intellij.lang.PsiBuilder
 import com.intellij.lang.impl.PsiBuilderAdapter
 import com.intellij.openapi.application.ApplicationManager
-import com.intellij.openapi.project.DumbService
 import com.intellij.openapi.util.text.StringUtil
 import com.intellij.psi.impl.source.resolve.FileContextUtil
 import com.intellij.testFramework.LightVirtualFileBase
-import org.jetbrains.plugins.scala.lang.psi.stubs.elements.ScStubElementType
 import org.jetbrains.plugins.scala.project.Version
 import org.jetbrains.plugins.scala.settings.ScalaProjectSettings
 import org.jetbrains.plugins.scala.util.ScalaUtil
 
 import scala.annotation.tailrec
 import scala.collection.mutable
-import scala.meta.intellij.IdeaUtil
+import scala.meta.intellij.psiExt._
 
 /**
   * @author Alexander Podkhalyuzin
@@ -35,10 +33,9 @@ class ScalaPsiBuilderImpl(delegate: PsiBuilder)
     maybePsiFile.flatMap(ScalaUtil.getScalaVersion)
       .map(Version(_))
 
-  override lazy val isMetaEnabled: Boolean =
-    !ScStubElementType.isStubBuilding &&
-      !DumbService.isDumb(getProject) &&
-      maybePsiFile.exists(IdeaUtil.inModuleWithParadisePlugin)
+  override lazy val isMetaEnabled: Boolean = maybePsiFile.exists {
+    _.isMetaEnabled(getProject)
+  }
 
   override def newlineBeforeCurrentToken: Boolean =
     checkedFindPreviousNewLine.isDefined

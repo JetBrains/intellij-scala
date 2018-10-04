@@ -1,99 +1,128 @@
 package scala.meta
 
-import scala.collection.Seq
+import java.io.File
+import java.util.jar.Attributes.{Name => AttributeName}
 
-import com.intellij.openapi.project.DumbService
-import com.intellij.psi.ResolveResult
-import org.jetbrains.plugins.scala.extensions.PsiElementExt
+import com.intellij.openapi.application.ApplicationManager
+import com.intellij.openapi.module.{Module, ModuleUtilCore}
+import com.intellij.openapi.project.{DumbService, Project}
+import com.intellij.openapi.util.ModificationTracker
+import com.intellij.openapi.util.io.JarUtil
+import com.intellij.psi.{PsiElement, PsiFile}
 import org.jetbrains.plugins.scala.lang.lexer.ScalaTokenTypes
-import org.jetbrains.plugins.scala.lang.psi.ScalaPsiElement
+import org.jetbrains.plugins.scala.lang.psi.api.ScalaFile
 import org.jetbrains.plugins.scala.lang.psi.api.base.ScPrimaryConstructor
 import org.jetbrains.plugins.scala.lang.psi.api.expr.ScAnnotation
 import org.jetbrains.plugins.scala.lang.psi.api.statements.ScAnnotationsHolder
 import org.jetbrains.plugins.scala.lang.psi.api.toplevel.typedef.{ScTemplateDefinition, ScTypeDefinition}
 import org.jetbrains.plugins.scala.lang.psi.impl.base.ScStableCodeReferenceElementImpl
 import org.jetbrains.plugins.scala.lang.psi.stubs.elements.ScStubElementType
-import org.jetbrains.plugins.scala.lang.resolve.ScalaResolveResult
 import org.jetbrains.plugins.scala.lang.resolve.processor.ResolveProcessor
-import org.jetbrains.plugins.scala.macroAnnotations.{CachedInUserData, CachedWithRecursionGuard, ModCount}
+import org.jetbrains.plugins.scala.macroAnnotations.{Cached, CachedInUserData, CachedWithRecursionGuard, ModCount}
+import org.jetbrains.plugins.scala.project.settings.ScalaCompilerConfiguration
 import org.jetbrains.plugins.scala.settings.ScalaProjectSettings
 
+import scala.collection.Seq
+
 package object intellij {
+
   object psiExt {
 
-    private def metaEnabled(element: ScalaPsiElement): Boolean = {
-      !ScStubElementType.isStubBuilding &&
-        !DumbService.isDumb(element.getProject) &&
-        !element.isInCompiledFile &&
-        element.containingFile.exists(IdeaUtil.inModuleWithParadisePlugin)
-    }
+    @Cached(ModificationTracker.NEVER_CHANGED, null)
+    private[this] def isMetaParadiseJar(pathName: String): Boolean = {
+      import JarUtil._
+      new File(pathName) match {
+        case file if containsEntry(file, "scalac-plugin.xml") =>
+          def attribute(nameSuffix: String) =
+            getJarAttribute(file, new AttributeName(s"Specification-$nameSuffix"))
 
-    implicit class AnnotExt(val annotation: ScAnnotation) extends AnyVal {
-
-      private def hasMetaAnnotation(results: Array[ScalaResolveResult]) = results.map(_.getElement).exists {
-        case c: ScPrimaryConstructor => c.containingClass.isMetaAnnotatationImpl
-        case o: ScTypeDefinition => o.isMetaAnnotatationImpl
+          attribute("Vendor") == "org.scalameta" &&
+            attribute("Title") == "paradise"
         case _ => false
       }
+    }
 
-      def isMetaMacro: Boolean = {
-        if (!metaEnabled(annotation))
-          return false
+    private implicit class ScalaPsiElementExt(val repr: PsiElement) extends AnyVal {
 
-        @CachedInUserData(annotation, ModCount.getBlockModificationCount)
-        def cached: Boolean = {
-          annotation.constructor.reference.exists {
-            case stRef: ScStableCodeReferenceElementImpl =>
-              val processor = new ResolveProcessor(stRef.getKinds(incomplete = false), stRef, stRef.refName)
-              hasMetaAnnotation(stRef.doResolve(processor))
-            case _ => false
-          }
-        }
-
-        cached
+      def isMetaEnabled: Boolean = repr.getContainingFile match {
+        case file: ScalaFile if !file.isCompiled => file.isMetaEnabled(repr.getProject)
+        case _ => false
       }
     }
 
-    implicit class AnnotHolderExt(val ah: ScAnnotationsHolder) extends AnyVal {
-      def getMetaExpansion: Either[String, scala.meta.Tree] = {
+    implicit class PsiFileExt(val repr: PsiFile) extends AnyVal {
 
-        @CachedWithRecursionGuard(ah, Left("Recursive meta expansion"), ModCount.getBlockModificationCount)
-        def getMetaExpansionCached: Either[String, Tree] = {
-          import ScalaProjectSettings.ScalaMetaMode
-          if (ScalaProjectSettings.getInstance(ah.getProject).getScalaMetaMode == ScalaMetaMode.Enabled) {
-            val metaAnnotation = ah.annotations.find(AnnotExt(_).isMetaMacro)
-            metaAnnotation match {
-              case Some(annot) => MetaExpansionsManager.runMetaAnnotation(annot)
-              case None => Left("No meta annotation")
+      def isMetaEnabled(project: Project): Boolean =
+        !ScStubElementType.isStubBuilding &&
+          !DumbService.isDumb(project) &&
+          (ApplicationManager.getApplication.isUnitTestMode ||
+            findModule.exists(hasMetaParadiseJar))
+
+      private def findModule = Option {
+        ModuleUtilCore.findModuleForFile(repr.getOriginalFile)
+      }
+
+      private def hasMetaParadiseJar(module: Module) = ScalaCompilerConfiguration.instanceIn(repr.getProject)
+        .getSettingsForModule(module)
+        .plugins.exists(isMetaParadiseJar)
+    }
+
+    implicit class AnnotationExt(val repr: ScAnnotation) extends AnyVal {
+
+      def isMetaMacro: Boolean = repr.isMetaEnabled && cached
+
+      @CachedInUserData(repr, ModCount.getBlockModificationCount)
+      private def cached: Boolean = repr.constructor.reference.exists {
+        case reference: ScStableCodeReferenceElementImpl =>
+          val processor = new ResolveProcessor(reference.getKinds(incomplete = false), reference, reference.refName)
+          reference.doResolve(processor)
+            .map(_.getElement)
+            .exists {
+              case c: ScPrimaryConstructor => c.containingClass.isMetaAnnotationImpl
+              case o: ScTypeDefinition => o.isMetaAnnotationImpl
+              case _ => false
             }
-          } else Left("Meta expansions disabled in settings")
+        case _ => false
+      }
+    }
+
+    implicit class AnnotationHolderExt(val repr: ScAnnotationsHolder) extends AnyVal {
+
+      def getMetaExpansion: Either[String, Tree] =
+        if (repr.isMetaEnabled) cached
+        else Left("")
+
+      def getMetaCompanionObject: Option[Defn.Object] =
+        getMetaExpansion.toOption.collect {
+          case Term.Block(Seq(_: Defn, obj: Defn.Object)) => obj
         }
 
-        if (!metaEnabled(ah))
-          Left("")
-        else
-          getMetaExpansionCached
-      }
-
-      def getMetaCompanionObject: Option[scala.meta.Defn.Object] = {
-        import scala.{meta => m}
-
-        if (!metaEnabled(ah)) return None
-
-        ah.getMetaExpansion match {
-          case Left(_) => None
-          case Right(m.Term.Block(Seq(_: m.Defn, obj: m.Defn.Object))) => Some(obj)
-          case Right(_) => None
+      @CachedWithRecursionGuard(repr, Left("Recursive meta expansion"), ModCount.getBlockModificationCount)
+      private def cached: Either[String, Tree] = {
+        import ScalaProjectSettings.ScalaMetaMode.Enabled
+        ScalaProjectSettings.getInstance(repr.getProject).getScalaMetaMode match {
+          case Enabled =>
+            repr.annotations.find(_.isMetaMacro)
+              .toRight("No meta annotation")
+              .flatMap(MetaExpansionsManager.runMetaAnnotation)
+          case _ => Left("Meta expansions disabled in settings")
         }
       }
     }
 
-    implicit class TemplateDefExt(val td: ScTemplateDefinition) extends AnyVal {
-      def isMetaAnnotatationImpl: Boolean = {
-        td.members.exists(_.getModifierList.findChildrenByType(ScalaTokenTypes.kINLINE).nonEmpty) ||
-          td.members.exists({case ah: ScAnnotationsHolder => ah.hasAnnotation("scala.meta.internal.inline.inline")})
+    implicit class TemplateDefinitionExt(val repr: ScTemplateDefinition) extends AnyVal {
+
+      def isMetaAnnotationImpl: Boolean = {
+        val members = repr.members
+        members.exists {
+          _.getModifierList.findFirstChildByType(ScalaTokenTypes.kINLINE) != null
+        } || members.exists {
+          case holder: ScAnnotationsHolder => holder.hasAnnotation("scala.meta.internal.inline.inline")
+          case _ => false
+        }
       }
     }
 
   }
+
 }
