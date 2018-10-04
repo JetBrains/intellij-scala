@@ -25,7 +25,7 @@ object Pattern1 {
     val backupMarker = builder.mark
     builder.getTokenType match {
       case ScalaTokenTypes.tIDENTIFIER =>
-        if (ParserUtils.isCurrentVarId(builder) && !ParserUtils.isIdBindingEnabled(builder)) {
+        if (ParserUtils.isCurrentVarId(builder) && !builder.isIdBindingEnabled) {
           backupMarker.rollbackTo()
         } else {
           builder.advanceLexer() //Ate id

@@ -43,7 +43,7 @@ object Pattern2 {
           builder.advanceLexer()
           pattern2Marker.done(ScalaElementTypes.REFERENCE_PATTERN)
           return true
-        } else if (ParserUtils.isCurrentVarId(builder) && !ParserUtils.isIdBindingEnabled(builder)) {
+        } else if (ParserUtils.isCurrentVarId(builder) && !builder.isIdBindingEnabled) {
           backupMarker.rollbackTo()
         } else {
           builder.advanceLexer() //Ate id
