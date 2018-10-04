@@ -1,6 +1,5 @@
-package scala.meta.annotations
-
-import scala.collection.JavaConverters._
+package scala.meta
+package annotations
 
 import com.intellij.lang.annotation.HighlightSeverity
 import org.jetbrains.plugins.scala.ScalaBundle
@@ -9,10 +8,12 @@ import org.jetbrains.plugins.scala.lang.psi.api.toplevel.typedef.{ScClass, ScObj
 import org.junit.Assert
 import org.junit.Assert.{assertEquals, assertFalse, assertTrue, fail}
 
+import scala.collection.JavaConverters._
+
 class MetaAnnotationBugsTest extends MetaAnnotationTestBase {
 
   def testSCL10965(): Unit = {
-    import scala.meta.intellij.psiExt._
+    import intellij.psi._
     compileMetaSource()
     myFixture.configureByText("Foo.scala",
       """
@@ -35,7 +36,7 @@ class MetaAnnotationBugsTest extends MetaAnnotationTestBase {
         |    final case class AOp[A](a: A) extends FooOp[A]
         |  }
         |}""".stripMargin
-    myFixture.findClass("FooOp").asInstanceOf[ScTypeDefinition].getMetaExpansion match {
+    myFixture.findClass("FooOp").asInstanceOf[ScTypeDefinition].metaExpand match {
       case Right(tree)                      => assertEquals(expectedExpansion, tree.toString())
       case Left(reason) if reason.nonEmpty  => fail(reason)
       case Left("")                         => fail("Expansion was empty - did annotation even run?")

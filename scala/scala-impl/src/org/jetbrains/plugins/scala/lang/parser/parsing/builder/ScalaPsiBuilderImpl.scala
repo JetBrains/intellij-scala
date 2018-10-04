@@ -15,7 +15,7 @@ import org.jetbrains.plugins.scala.util.ScalaUtil
 
 import scala.annotation.tailrec
 import scala.collection.mutable
-import scala.meta.intellij.psiExt._
+import scala.meta.intellij.psi
 
 /**
   * @author Alexander Podkhalyuzin
@@ -34,6 +34,7 @@ class ScalaPsiBuilderImpl(delegate: PsiBuilder)
       .map(Version(_))
 
   override lazy val isMetaEnabled: Boolean = maybePsiFile.exists {
+    import psi._
     _.isMetaEnabled(getProject)
   }
 

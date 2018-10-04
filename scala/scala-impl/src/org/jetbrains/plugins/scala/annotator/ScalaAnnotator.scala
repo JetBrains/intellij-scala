@@ -447,14 +447,14 @@ abstract class ScalaAnnotator extends Annotator
   private def checkMetaAnnotation(annotation: ScAnnotation, holder: AnnotationHolder): Unit = {
     import ScalaProjectSettings.ScalaMetaMode
 
-    import scala.meta.intellij.psiExt._
+    import scala.meta.intellij.psi._
     if (annotation.isMetaMacro) {
       if (!MetaExpansionsManager.isUpToDate(annotation)) {
         val warning = holder.createWarningAnnotation(annotation, ScalaBundle.message("scala.meta.recompile"))
         warning.registerFix(new RecompileAnnotationAction(annotation))
       }
       val result = annotation.parent.flatMap(_.parent) match {
-        case Some(ah: ScAnnotationsHolder) => ah.getMetaExpansion
+        case Some(ah: ScAnnotationsHolder) => ah.metaExpand
         case _ => Right("")
       }
       val settings = ScalaProjectSettings.getInstance(annotation.getProject)

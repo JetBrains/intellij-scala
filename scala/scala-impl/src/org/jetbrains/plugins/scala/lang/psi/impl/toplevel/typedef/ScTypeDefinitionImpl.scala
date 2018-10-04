@@ -322,10 +322,10 @@ abstract class ScTypeDefinitionImpl protected (stub: ScTemplateDefinitionStub,
       .setDesugared(actualElement = this)
 
   override def desugaredElement: Option[ScTemplateDefinition] = {
-    import scala.meta.intellij.psiExt._
+    import scala.meta.intellij.psi._
     import scala.meta.{Defn, Term}
 
-    val defn = this.getMetaExpansion match {
+    val defn = this.metaExpand match {
       case Right(templ: Defn.Class) => Some(templ)
       case Right(templ: Defn.Trait) => Some(templ)
       case Right(templ: Defn.Object) => Some(templ)

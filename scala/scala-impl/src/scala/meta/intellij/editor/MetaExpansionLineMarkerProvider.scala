@@ -1,4 +1,6 @@
-package scala.meta.intellij.editor
+package scala.meta
+package intellij
+package editor
 
 import com.intellij.notification.NotificationType
 import com.intellij.openapi.diagnostic.Logger
@@ -14,15 +16,12 @@ import org.jetbrains.plugins.scala.lang.psi.api.statements.ScAnnotationsHolder
 import org.jetbrains.plugins.scala.lang.psi.api.toplevel.typedef.ScTypeDefinition
 import org.jetbrains.plugins.scala.lang.psi.impl.ScalaPsiElementFactory
 
-import scala.meta.intellij.MetaExpansionsManager
-import scala.meta.intellij.MetaExpansionsManager.isUpToDate
-
 class MetaExpansionLineMarkerProvider extends MacroExpansionLineMarkerProvider {
 
   private val LOG = Logger.getInstance(getClass)
 
   override protected def getExpandMarker(element: PsiElement): Option[Marker] = {
-    import scala.meta.intellij.psiExt._
+    import intellij.psi._
 
     val maybeAnnotation = element.getParent match {
       case holder: ScAnnotationsHolder => holder.annotations.find(_.isMetaMacro)
@@ -30,7 +29,7 @@ class MetaExpansionLineMarkerProvider extends MacroExpansionLineMarkerProvider {
     }
     maybeAnnotation.map { annot =>
       MetaExpansionsManager.getCompiledMetaAnnotClass(annot) match {
-        case Some(clazz) if isUpToDate(annot, clazz) => createExpandMarker(annot.getFirstChild)(_=>expandMetaAnnotation(annot))
+        case Some(clazz) if MetaExpansionsManager.isUpToDate(annot, clazz) => createExpandMarker(annot.getFirstChild)(_ => expandMetaAnnotation(annot))
         case _ => createNotCompiledLineMarker(annot.getFirstChild, annot)
       }
     }
@@ -44,9 +43,7 @@ class MetaExpansionLineMarkerProvider extends MacroExpansionLineMarkerProvider {
   }
 
   def expandMetaAnnotation(annot: ScAnnotation): Unit = {
-    import scala.meta._
-    val result = MetaExpansionsManager.runMetaAnnotation(annot)
-    result match {
+    MetaExpansionsManager.runMetaAnnotation(annot) match {
       case Right(tree) =>
         val removeCompanionObject = tree match {
           case Term.Block(Seq(Defn.Class(_, Type.Name(value1), _, _, _), Defn.Object(_, Term.Name(value2), _))) =>
