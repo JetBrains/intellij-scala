@@ -7,13 +7,13 @@ import org.jetbrains.plugins.scala.extensions._
 import org.jetbrains.plugins.scala.lang.psi.api.statements.ScFunction
 import org.jetbrains.plugins.scala.lang.psi.api.statements.params._
 import org.jetbrains.plugins.scala.lang.psi.api.toplevel.templates.ScTemplateBody
+import org.jetbrains.plugins.scala.lang.psi.impl.toplevel.synthetic.SyntheticClasses
 import org.jetbrains.plugins.scala.lang.psi.types.ScType
 import org.jetbrains.plugins.scala.lang.psi.types.nonvalue.Parameter
 import org.jetbrains.plugins.scala.lang.psi.types.recursiveUpdate.ScSubstitutor
 import org.jetbrains.plugins.scala.lang.psi.types.result._
 import org.jetbrains.plugins.scala.lang.refactoring.util.ScTypeUtil
 import org.jetbrains.plugins.scala.project.{ProjectContext, ProjectContextOwner}
-import org.jetbrains.plugins.scala.util.ScalaUtils
 
 /**
  * User: Alexander Podkhalyuzin
@@ -118,6 +118,6 @@ object PresentationUtil {
       case null => ""
       case _ => obj.toString
     }
-    res.replace(ScalaUtils.typeParameter, "T")
+    res.replace(SyntheticClasses.TypeParameter, "T")
   }
 }

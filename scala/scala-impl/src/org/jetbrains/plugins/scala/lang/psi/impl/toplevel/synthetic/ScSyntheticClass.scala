@@ -5,8 +5,6 @@ package impl
 package toplevel
 package synthetic
 
-import javax.swing.Icon
-
 import com.intellij.navigation.ItemPresentation
 import com.intellij.openapi.editor.colors.TextAttributesKey
 import com.intellij.openapi.progress.ProcessCanceledException
@@ -15,6 +13,7 @@ import com.intellij.psi._
 import com.intellij.psi.impl.light.LightElement
 import com.intellij.psi.search.GlobalSearchScope
 import com.intellij.util.IncorrectOperationException
+import javax.swing.Icon
 import org.jetbrains.plugins.scala.extensions._
 import org.jetbrains.plugins.scala.lang.psi.adapters.PsiClassAdapter
 import org.jetbrains.plugins.scala.lang.psi.api.ScalaFile
@@ -28,7 +27,6 @@ import org.jetbrains.plugins.scala.lang.psi.types.nonvalue.Parameter
 import org.jetbrains.plugins.scala.lang.refactoring.util.ScalaNamesUtil
 import org.jetbrains.plugins.scala.lang.resolve.processor.{BaseProcessor, ImplicitProcessor, ResolveProcessor, ResolverEnv}
 import org.jetbrains.plugins.scala.project.ProjectContext
-import org.jetbrains.plugins.scala.util.ScalaUtils
 
 import scala.collection.mutable.ArrayBuffer
 import scala.collection.{Seq, mutable}
@@ -166,7 +164,7 @@ class ScSyntheticFunction(val name: String, val retType: ScType, val paramClause
           (implicit ctx: ProjectContext) =
     this(name, retType, paramTypes.mapWithIndex {
       case (p, index) => p.map(Parameter(_, isRepeated = false, index = index))
-    }, Seq.empty)
+    }, Nil)
 
   val typeParams: Seq[ScSyntheticTypeParameter] =
     typeParameterNames.map { name => new ScSyntheticTypeParameter(name, this) }
@@ -249,6 +247,7 @@ class SyntheticClasses(project: Project) extends PsiElementFinder with ProjectCo
   def registerClasses() {
     val stdTypes = ctx.stdTypes
     import stdTypes._
+    val typeParameters = SyntheticClasses.TypeParameter :: Nil
 
     all = new mutable.HashMap[String, ScSyntheticClass]
     file = PsiFileFactory.getInstance(project).createFileFromText(
@@ -257,16 +256,16 @@ class SyntheticClasses(project: Project) extends PsiElementFinder with ProjectCo
     val any = registerClass(Any, "Any")
     any.addMethod(new ScSyntheticFunction("==", Boolean, Seq(Seq(Any))))
     any.addMethod(new ScSyntheticFunction("!=", Boolean, Seq(Seq(Any))))
-    any.addMethod(new ScSyntheticFunction("##", Int, Seq.empty))
-    any.addMethod(new ScSyntheticFunction("isInstanceOf", Boolean, Seq.empty, Seq(ScalaUtils.typeParameter)))
-    any.addMethod(new ScSyntheticFunction("asInstanceOf", Any, Seq.empty, Seq(ScalaUtils.typeParameter)) {
+    any.addMethod(new ScSyntheticFunction("##", Int, Nil))
+    any.addMethod(new ScSyntheticFunction("isInstanceOf", Boolean, Nil, typeParameters))
+    any.addMethod(new ScSyntheticFunction("asInstanceOf", Any, Nil, typeParameters) {
       override val retType = TypeParameterType(typeParams.head)
     })
 
     val anyRef = registerClass(AnyRef, "AnyRef")
     anyRef.addMethod(new ScSyntheticFunction("eq", Boolean, Seq(Seq(AnyRef))))
     anyRef.addMethod(new ScSyntheticFunction("ne", Boolean, Seq(Seq(AnyRef))))
-    anyRef.addMethod(new ScSyntheticFunction("synchronized", Any, Seq.empty, Seq(ScalaUtils.typeParameter)) {
+    anyRef.addMethod(new ScSyntheticFunction("synchronized", Any, Nil, typeParameters) {
       override val paramClauses: Seq[Seq[Parameter]] = Seq(Seq(Parameter(
         TypeParameterType(typeParams.head), isRepeated = false, index = 0)))
       override val retType: ScType = TypeParameterType(typeParams.head)
@@ -281,7 +280,7 @@ class SyntheticClasses(project: Project) extends PsiElementFinder with ProjectCo
     val boolc = registerClass(Boolean, "Boolean")
     for (op <- bool_bin_ops)
       boolc.addMethod(new ScSyntheticFunction(op, Boolean, Seq(Seq(Boolean))))
-    boolc.addMethod(new ScSyntheticFunction("unary_!", Boolean, Seq.empty))
+    boolc.addMethod(new ScSyntheticFunction("unary_!", Boolean, Nil))
 
     registerIntegerClass(registerNumericClass(registerClass(Char, "Char")))
     registerIntegerClass(registerNumericClass(registerClass(Int, "Int")))
@@ -297,18 +296,18 @@ class SyntheticClasses(project: Project) extends PsiElementFinder with ProjectCo
       for (nc1 <- numeric; op <- numeric_arith_ops)
         nc.addMethod(new ScSyntheticFunction(op, op_type(nc, nc1), Seq(Seq(nc1.stdType))))
       for (nc1 <- numeric)
-        nc.addMethod(new ScSyntheticFunction("to" + nc1.className, nc1.stdType, Seq.empty))
+        nc.addMethod(new ScSyntheticFunction("to" + nc1.className, nc1.stdType, Nil))
       for (un_op <- numeric_arith_unary_ops)
         nc.addMethod(new ScSyntheticFunction("unary_" + un_op, nc.stdType match {
           case Long | Double | Float => nc.stdType
           case _ => Int
-        }, Seq.empty))
+        }, Nil))
     }
 
     for (ic <- integer) {
       for (ic1 <- integer; op <- bitwise_bin_ops)
         ic.addMethod(new ScSyntheticFunction(op, op_type(ic, ic1), Seq(Seq(ic1.stdType))))
-      ic.addMethod(new ScSyntheticFunction("unary_~", ic.stdType, Seq.empty))
+      ic.addMethod(new ScSyntheticFunction("unary_~", ic.stdType, Nil))
 
       val ret = ic.stdType match {
         case Long => Long
@@ -541,5 +540,7 @@ object Unit
 
 object SyntheticClasses {
   def get(project: Project): SyntheticClasses = project.getComponent(classOf[SyntheticClasses])
+
+  val TypeParameter = "TypeParameterForSyntheticFunction"
 }
 

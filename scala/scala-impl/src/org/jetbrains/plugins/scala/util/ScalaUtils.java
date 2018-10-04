@@ -18,20 +18,7 @@ package org.jetbrains.plugins.scala.util;
 import com.intellij.openapi.application.ApplicationManager;
 import com.intellij.openapi.command.CommandProcessor;
 import com.intellij.openapi.command.UndoConfirmationPolicy;
-import com.intellij.openapi.module.JavaModuleType;
-import com.intellij.openapi.module.Module;
-import com.intellij.openapi.module.ModuleType;
 import com.intellij.openapi.project.Project;
-import com.intellij.openapi.roots.ModuleRootManager;
-import com.intellij.openapi.roots.ProjectRootManager;
-import com.intellij.openapi.vfs.VirtualFile;
-import com.intellij.psi.PsiFile;
-import org.jetbrains.annotations.NotNull;
-import org.jetbrains.plugins.scala.ScalaFileType;
-
-import java.io.File;
-import java.io.FilenameFilter;
-import java.util.regex.Pattern;
 
 /**
  * @author Ilya.Sergey
@@ -43,93 +30,6 @@ public abstract class ScalaUtils {
    * This name should be unique, nobody can't use such name (it means that it has small probability).
    * In presentable text should be replace for T. So this string only for internal usage.
    */
-  public static String typeParameter = "TypeParameterForSyntheticFunction";
-
-  /**
-   * @param dir
-   * @return true if current file is VCS auxiliary directory
-   */
-  public static boolean isVersionControlSysDir(final VirtualFile dir) {
-    if (!dir.isDirectory()) {
-      return false;
-    }
-    final String name = dir.getName().toLowerCase();
-    return ".svn".equals(name) || "_svn".equals(name) ||
-            ".cvs".equals(name) || "_cvs".equals(name);
-  }
-
-  public static final String PLUGIN_MODULE_ID = "PLUGIN_MODULE";
-
-  /**
-   * @param file
-   * @return true if current file is true scala file
-   */
-  public static boolean isScalaFile(final VirtualFile file) {
-    return (file != null) && !file.isDirectory() &&
-            ScalaFileType.INSTANCE.getDefaultExtension().equals(file.getExtension());
-  }
-
-  /**
-   * @param module Module to get content root
-   * @return VirtualFile corresponding to content root
-   */
-  @NotNull
-  public static VirtualFile getModuleRoot(final Module module) {
-    final VirtualFile[] roots = ModuleRootManager.getInstance(module).getSourceRoots();
-    if (roots.length > 0) {
-      return roots[0];
-    }
-    return module.getModuleFile().getParent();
-  }
-
-  /**
-   * @param module Module to get content root
-   * @return VirtualFile array corresponding to content roots of current module
-   */
-  @NotNull
-  public static VirtualFile[] getModuleRoots(final Module module) {
-    final VirtualFile[] roots = ModuleRootManager.getInstance(module).getSourceRoots();
-    return roots;
-  }
-
-  /**
-   * @param module Module to get content root
-   * @return VirtualFile corresponding to content root
-   */
-  @NotNull
-  public static String[] getModuleRootUrls(final Module module) {
-    VirtualFile[] roots = ModuleRootManager.getInstance(module).getSourceRoots();
-    if (roots.length == 0) {
-      VirtualFile file = module.getModuleFile();
-      roots = file != null ? new VirtualFile[]{(file.getParent())} : VirtualFile.EMPTY_ARRAY;
-    }
-    String[] urls = new String[roots.length];
-    int i = 0;
-    for (VirtualFile root : roots) {
-      urls[i++] = root.getUrl();
-    }
-    return urls;
-  }
-
-  /**
-   * @param file
-   * @return true if current file is true scala file
-   */
-
-  public static boolean isScalaFileOrDirectory(final @NotNull VirtualFile file) {
-    return isScalaFile(file) || file.isDirectory();
-  }
-
-  public static File[] getFilesInDirectoryByPattern(String dirPath, final String patternString) {
-    File distDir = new File(dirPath);
-    final Pattern pattern = Pattern.compile(patternString);
-    File[] files = distDir.listFiles(new FilenameFilter() {
-      public boolean accept(File dir, String name) {
-        return pattern.matcher(name).matches();
-      }
-    });
-    return files != null ? files : new File[0];
-  }
 
   public static void runWriteAction(final Runnable runnable, Project project, String name) {
     CommandProcessor.getInstance().executeCommand(project, new Runnable() {
@@ -145,25 +45,5 @@ public abstract class ScalaUtils {
         ApplicationManager.getApplication().runWriteAction(runnable);
       }
     }, name, null, UndoConfirmationPolicy.DO_NOT_REQUEST_CONFIRMATION);
-  }
-
-  public static void runReadAction(final Runnable runnable, Project project, String name) {
-    CommandProcessor.getInstance().executeCommand(project, new Runnable() {
-      public void run() {
-        ApplicationManager.getApplication().runReadAction(runnable);
-      }
-    }, name, null);
-  }
-
-  public static boolean isSuitableModule(Module module) {
-    if (module == null) return false;
-    ModuleType moduleType = ModuleType.get(module);
-    return moduleType instanceof JavaModuleType || moduleType.getId().equals(PLUGIN_MODULE_ID);
-  }
-
-  public static boolean isUnderSources(PsiFile file) {
-    ProjectRootManager rm = ProjectRootManager.getInstance(file.getProject());
-    VirtualFile f = file.getVirtualFile();
-    return f != null && rm.getFileIndex().isInSourceContent(f);
   }
 }
