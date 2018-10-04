@@ -7,14 +7,15 @@ import com.intellij.lang.PsiBuilder
 import com.intellij.lang.impl.PsiBuilderAdapter
 import com.intellij.openapi.application.ApplicationManager
 import com.intellij.openapi.project.DumbService
+import com.intellij.openapi.util.text.StringUtil
 import com.intellij.psi.impl.source.resolve.FileContextUtil
 import com.intellij.testFramework.LightVirtualFileBase
-import org.jetbrains.plugins.scala.lang.parser.util.ParserUtils
 import org.jetbrains.plugins.scala.lang.psi.stubs.elements.ScStubElementType
 import org.jetbrains.plugins.scala.project.Version
 import org.jetbrains.plugins.scala.settings.ScalaProjectSettings
 import org.jetbrains.plugins.scala.util.ScalaUtil
 
+import scala.annotation.tailrec
 import scala.collection.mutable
 import scala.meta.intellij.IdeaUtil
 
@@ -23,8 +24,6 @@ import scala.meta.intellij.IdeaUtil
   */
 class ScalaPsiBuilderImpl(delegate: PsiBuilder)
   extends PsiBuilderAdapter(delegate) with ScalaPsiBuilder {
-
-  import ParserUtils._
 
   private val newlinesEnabled = new mutable.Stack[Boolean]
 
@@ -41,9 +40,13 @@ class ScalaPsiBuilderImpl(delegate: PsiBuilder)
       !DumbService.isDumb(getProject) &&
       maybePsiFile.exists(IdeaUtil.inModuleWithParadisePlugin)
 
-  override def newlineBeforeCurrentToken: Boolean = countNewlineBeforeCurrentToken > 0
+  override def newlineBeforeCurrentToken: Boolean =
+    checkedFindPreviousNewLine.isDefined
 
-  override def twoNewlinesBeforeCurrentToken: Boolean = countNewlineBeforeCurrentToken > 1
+  override def twoNewlinesBeforeCurrentToken: Boolean =
+    checkedFindPreviousNewLine.toSeq.flatMap { text =>
+      s"start $text end".split('\n')
+    }.exists(ScalaPsiBuilderImpl.isBlank)
 
   override final def disableNewlines(): Unit = {
     newlinesEnabled.push(false)
@@ -72,18 +75,26 @@ class ScalaPsiBuilderImpl(delegate: PsiBuilder)
 
   protected final def isNewlinesEnabled: Boolean = newlinesEnabled.isEmpty || newlinesEnabled.top
 
-  /**
-    * @return 0 if new line is disabled here, or there is no \n chars between tokens
-    *         1 if there is no blank lines between tokens
-    *         2 otherwise
-    */
-  private def countNewlineBeforeCurrentToken =
+  final def findPreviousNewLine: Option[String] = {
+    @tailrec
+    def whiteSpacesAndComments(steps: Int = 1): String =
+      if (steps < getCurrentOffset && TokenSets.WHITESPACE_OR_COMMENT_SET.contains(rawLookup(-steps)))
+        whiteSpacesAndComments(steps + 1)
+      else
+        originalSubText(1 - steps)
+
+
+    whiteSpacesAndComments() match {
+      case text if text.contains('\n') => Some(text)
+      case _ => None
+    }
+  }
+
+  private def checkedFindPreviousNewLine =
     if (isNewlinesEnabled &&
       !eof &&
-      tokenCanStartStatement)
-      countNewLinesBeforeCurrentTokenRaw(this)
-    else
-      0
+      canStartStatement) findPreviousNewLine
+    else None
 
   private def isTestFile =
     ApplicationManager.getApplication.isUnitTestMode &&
@@ -91,7 +102,7 @@ class ScalaPsiBuilderImpl(delegate: PsiBuilder)
 
   import lexer.{ScalaTokenTypes => T}
 
-  private def tokenCanStartStatement: Boolean = getTokenType match {
+  private def canStartStatement: Boolean = getTokenType match {
     case T.kCATCH |
          T.kELSE |
          T.kEXTENDS |
@@ -128,4 +139,15 @@ class ScalaPsiBuilderImpl(delegate: PsiBuilder)
       result
     case _ => true
   }
+
+  private def originalSubText(steps: Int) = getOriginalText.subSequence(
+    rawTokenTypeStart(steps),
+    rawTokenTypeStart(0)
+  ).toString
+}
+
+object ScalaPsiBuilderImpl {
+
+  private def isBlank(string: String) =
+    string.forall(StringUtil.isWhiteSpace)
 }

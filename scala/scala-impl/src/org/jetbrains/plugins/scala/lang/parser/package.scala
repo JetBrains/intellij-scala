@@ -3,8 +3,7 @@ package org.jetbrains.plugins.scala.lang
 import com.intellij.lang.PsiBuilder
 import com.intellij.psi.tree.IElementType
 import org.jetbrains.plugins.scala.lang.lexer.ScalaTokenTypes
-import org.jetbrains.plugins.scala.lang.parser.parsing.builder.ScalaPsiBuilder
-import org.jetbrains.plugins.scala.lang.parser.util.ParserUtils.countNewLinesBeforeCurrentTokenRaw
+import org.jetbrains.plugins.scala.lang.parser.parsing.builder.{ScalaPsiBuilder, ScalaPsiBuilderImpl}
 
 import scala.annotation.tailrec
 
@@ -82,7 +81,7 @@ package object parser {
       builder.advanceLexer()
 
       val result = builder.currentTokenMatches(expected) &&
-        countNewLinesBeforeCurrentTokenRaw(builder) > 0
+        builder.asInstanceOf[ScalaPsiBuilderImpl].findPreviousNewLine.isDefined
 
       marker.rollbackTo()
       result

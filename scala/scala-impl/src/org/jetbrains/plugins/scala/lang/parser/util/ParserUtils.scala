@@ -126,16 +126,6 @@ object ParserUtils {
     seen == count
   }
 
-  def countNewLinesBeforeCurrentTokenRaw(builder: ScalaPsiBuilder): Int = {
-    var i = 1
-    while (i < builder.getCurrentOffset && TokenSets.WHITESPACE_OR_COMMENT_SET.contains(builder.rawLookup(-i))) i += 1
-    val textBefore = builder.getOriginalText.subSequence(builder.rawTokenTypeStart(-i + 1), builder.rawTokenTypeStart(0)).toString
-    if (!textBefore.contains('\n')) return 0
-    val lines = s"start $textBefore end".split('\n')
-    if (lines.exists(_.forall(StringUtil.isWhiteSpace))) 2
-    else 1
-  }
-
   def hasTextBefore(builder: ScalaPsiBuilder, text: String): Boolean = {
     Option(builder.getLatestDoneMarker).exists {
       marker =>
