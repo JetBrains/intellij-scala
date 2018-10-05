@@ -128,7 +128,14 @@ class ScalaConstructorInsertHandler extends InsertHandler[LookupElement] {
                   ScalaApplicationSettings.getInstance().SPECIFY_RETURN_TYPE_EXPLICITLY =
                     ScalaApplicationSettings.ReturnTypeLevel.BY_CODE_STYLE
 
-                  ScalaOIUtil.runAction(members.toSeq, isImplement = true, newTemplateDef, editor)
+                  ScalaOIUtil.runAction(
+                    members.toSeq,
+                    isImplement = true,
+                    newTemplateDef
+                  )(
+                    newTemplateDef.getProject,
+                    editor
+                  )
                 case _ => 
               }
             }

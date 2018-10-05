@@ -15,5 +15,5 @@ class ScalaOverrideMethodsHandler extends ScalaCodeInsightActionHandler {
   override def startInWriteAction: Boolean = false
 
   def invoke(project: Project, editor: Editor, file: PsiFile): Unit =
-    invokeOverrideImplement(project, editor, file, isImplement = false)
+    invokeOverrideImplement(file, isImplement = false)(project, editor)
 }

@@ -1,5 +1,7 @@
 package org.jetbrains.plugins.scala.lang.overrideImplement
 
+import com.intellij.openapi.editor.Editor
+import com.intellij.openapi.project.Project
 import org.jetbrains.plugins.scala.base.ScalaLightPlatformCodeInsightTestCaseAdapter
 import org.jetbrains.plugins.scala.lang.formatting.settings.ScalaCodeStyleSettings
 import org.jetbrains.plugins.scala.overrideImplement.ScalaOIUtil
@@ -12,18 +14,20 @@ import org.jetbrains.plugins.scala.util.TypeAnnotationSettings
  */
 class ScalaOverrideImplementTest extends ScalaLightPlatformCodeInsightTestCaseAdapter {
 
-  def runTest(methodName: String, fileText: String, expectedText: String, isImplement: Boolean,
-              settings: ScalaCodeStyleSettings = TypeAnnotationSettings.alwaysAddType(ScalaCodeStyleSettings.getInstance(getProjectAdapter)),
-              copyScalaDoc: Boolean = false) {
-    configureFromFileTextAdapter("dummy.scala", fileText.replace("\r", "").stripMargin.trim)
-    val oldSettings = ScalaCodeStyleSettings.getInstance(getProjectAdapter).clone()
-    TypeAnnotationSettings.set(getProjectAdapter, settings)
-    
+  private def runTest(methodName: String, fileText: String, expectedText: String, isImplement: Boolean,
+                      settings: ScalaCodeStyleSettings = TypeAnnotationSettings.alwaysAddType(ScalaCodeStyleSettings.getInstance(getProjectAdapter)),
+                      copyScalaDoc: Boolean = false): Unit = {
+    implicit val project: Project = getProjectAdapter
 
+    configureFromFileTextAdapter("dummy.scala", fileText.replace("\r", "").stripMargin.trim)
+    val oldSettings = ScalaCodeStyleSettings.getInstance(project).clone()
+    TypeAnnotationSettings.set(project, settings)
+
+    implicit val editor: Editor = getEditorAdapter
     ScalaApplicationSettings.getInstance().COPY_SCALADOC = copyScalaDoc
-    ScalaOIUtil.invokeOverrideImplement(getProjectAdapter, getEditorAdapter, getFileAdapter, isImplement, methodName)
-    
-    TypeAnnotationSettings.set(getProjectAdapter, oldSettings.asInstanceOf[ScalaCodeStyleSettings])
+    ScalaOIUtil.invokeOverrideImplement(getFileAdapter, isImplement, methodName)
+
+    TypeAnnotationSettings.set(project, oldSettings.asInstanceOf[ScalaCodeStyleSettings])
     checkResultByText(expectedText.replace("\r", "").stripMargin.trim)
   }
 

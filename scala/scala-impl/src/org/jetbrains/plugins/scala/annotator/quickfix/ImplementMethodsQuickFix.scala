@@ -22,9 +22,8 @@ class ImplementMethodsQuickFix(clazz: ScTemplateDefinition) extends IntentionAct
   override def isAvailable(project: Project, editor: Editor, file: PsiFile): Boolean =
     clazz.isValid && clazz.getManager.isInProject(file) && file.isWritable
 
-  override def invoke(project: Project, editor: Editor, file: PsiFile): Unit = {
-    ScalaOIUtil.invokeOverrideImplement(project, editor, file, isImplement = true)
-  }
+  override def invoke(project: Project, editor: Editor, file: PsiFile): Unit =
+    ScalaOIUtil.invokeOverrideImplement(file, isImplement = true)(project, editor)
 
   override def getFamilyName: String = ScalaBundle.message("implement.methods.fix")
 }
