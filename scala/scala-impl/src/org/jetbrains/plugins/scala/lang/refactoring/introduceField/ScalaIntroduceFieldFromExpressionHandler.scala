@@ -8,7 +8,7 @@ import com.intellij.openapi.project.Project
 import com.intellij.openapi.util.TextRange
 import com.intellij.psi.{PsiDocumentManager, PsiElement, PsiFile}
 import com.intellij.refactoring.HelpID
-import org.jetbrains.plugins.scala.extensions.childOf
+import org.jetbrains.plugins.scala.extensions.{childOf, executeWriteActionCommand}
 import org.jetbrains.plugins.scala.lang.psi.ScalaPsiUtil
 import org.jetbrains.plugins.scala.lang.psi.api.expr._
 import org.jetbrains.plugins.scala.lang.psi.api.toplevel.ScEarlyDefinitions
@@ -21,7 +21,6 @@ import org.jetbrains.plugins.scala.lang.refactoring.util.ScalaRefactoringUtil
 import org.jetbrains.plugins.scala.lang.refactoring.util.ScalaRefactoringUtil._
 import org.jetbrains.plugins.scala.project.ProjectContext
 import org.jetbrains.plugins.scala.statistics.{FeatureKey, Stats}
-import org.jetbrains.plugins.scala.util.ScalaUtils
 
 
 /**
@@ -147,11 +146,11 @@ class ScalaIntroduceFieldFromExpressionHandler extends ScalaIntroduceFieldHandle
     ScalaPsiUtil.adjustTypes(createdDeclaration)
   }
 
-  def runRefactoring(ifc: IntroduceFieldContext[ScExpression], settings: IntroduceFieldSettings[ScExpression]) {
-    val runnable = new Runnable {
-      def run(): Unit = runRefactoringInside(ifc, settings)
-    }
-    ScalaUtils.runWriteAction(runnable, ifc.project, REFACTORING_NAME)
+  def runRefactoring(ifc: IntroduceFieldContext[ScExpression],
+                     settings: IntroduceFieldSettings[ScExpression]): Unit = {
+    executeWriteActionCommand(REFACTORING_NAME) {
+      runRefactoringInside(ifc, settings)
+    }(ifc.project)
     ifc.editor.getSelectionModel.removeSelection()
   }
 
