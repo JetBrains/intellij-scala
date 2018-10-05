@@ -89,9 +89,9 @@ abstract class ScalaQuickFixTestBase extends ScalaInspectionTestBase {
     val maybeAction = findQuickFix(text, hint)
     assertFalse(s"Quick fix not found: $hint", maybeAction.isEmpty)
 
-    startCommand(getProject) {
+    startCommand() {
       maybeAction.get.invoke(getProject, getEditor, getFile)
-    }
+    }(getProject)
 
     val expectedFileText = createTestText(expected)
     getFixture.checkResult(normalize(expectedFileText), /*stripTrailingSpaces = */ true)

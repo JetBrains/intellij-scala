@@ -25,9 +25,9 @@ abstract class ScalaGenerateTestBase extends ScalaLightCodeInsightFixtureTestAda
       assertTrue("Generate action is not available", handlerIsValid)
     }
 
-    startCommand(getProject, "Generate Action Test") {
+    startCommand("Generate Action Test") {
       handler.invoke(getProject, getEditor, getFile)
-    }
+    }(getProject)
 
     val (expected, expectedOffset) = findCaretOffset(expectedText, stripTrailingSpaces)
     if (checkCaretOffset) {

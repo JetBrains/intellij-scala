@@ -78,8 +78,8 @@ trait IntroduceExpressions {
 
   def runRefactoring(occurrences: OccurrencesInFile, expression: ScExpression, varName: String, varType: ScType,
                      replaceAllOccurrences: Boolean, isVariable: Boolean)
-                    (implicit editor: Editor): Unit = {
-    startCommand(editor.getProject, INTRODUCE_VARIABLE_REFACTORING_NAME) {
+                    (implicit project: Project, editor: Editor): Unit = {
+    startCommand(INTRODUCE_VARIABLE_REFACTORING_NAME) {
       runRefactoringInside(occurrences, expression, varName, varType, replaceAllOccurrences, isVariable, fromDialogMode = true) // this for better debug
     }
     editor.getSelectionModel.removeSelection()
@@ -92,7 +92,7 @@ trait IntroduceExpressions {
     val callback: Pass[ReplaceChoice] = (replaceChoice: ReplaceChoice) => {
       val replaceAll = ReplaceChoice.NO != replaceChoice
 
-      startCommand(project, INTRODUCE_VARIABLE_REFACTORING_NAME) {
+      startCommand(INTRODUCE_VARIABLE_REFACTORING_NAME) {
         val SuggestedNames(expression, types, names) = suggestedNames
         val reference = inWriteAction {
           runRefactoringInside(occurrences, expression, names.head, types.head, replaceAll, isVariable = false, fromDialogMode = false)

@@ -33,9 +33,9 @@ class SurroundWithWikiSyntaxTest extends ScalaLightCodeInsightFixtureTestAdapter
     val elements = configureByText(text, stripTrailingSpaces)
     assertFalse("No elements to be surrounded", elements.isEmpty)
 
-    startCommand(getProject, "Surround With Test") {
+    startCommand("Surround With Test") {
       SurroundWithHandler.invoke(getProject, getEditor, getFile, surrounder)
-    }
+    }(getProject)
     val surrounded = surroundWith(text, surrounder)
 
     val expected = normalize(surrounded, stripTrailingSpaces)
