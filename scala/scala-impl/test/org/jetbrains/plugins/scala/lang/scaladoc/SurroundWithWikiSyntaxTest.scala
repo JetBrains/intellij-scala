@@ -6,7 +6,7 @@ import com.intellij.lang.surroundWith.SurroundDescriptor
 import com.intellij.psi.PsiElement
 import com.intellij.testFramework.EditorTestUtil.{SELECTION_END_TAG => END, SELECTION_START_TAG => START}
 import org.jetbrains.plugins.scala.base.ScalaLightCodeInsightFixtureTestAdapter
-import org.jetbrains.plugins.scala.extensions.startCommand
+import org.jetbrains.plugins.scala.extensions.executeWriteActionCommand
 import org.jetbrains.plugins.scala.lang.surroundWith.descriptors.ScalaSurroundDescriptors
 import org.jetbrains.plugins.scala.lang.surroundWith.surrounders.scaladoc._
 import org.junit.Assert.{assertFalse, assertTrue}
@@ -33,7 +33,7 @@ class SurroundWithWikiSyntaxTest extends ScalaLightCodeInsightFixtureTestAdapter
     val elements = configureByText(text, stripTrailingSpaces)
     assertFalse("No elements to be surrounded", elements.isEmpty)
 
-    startCommand("Surround With Test") {
+    executeWriteActionCommand("Surround With Test") {
       SurroundWithHandler.invoke(getProject, getEditor, getFile, surrounder)
     }(getProject)
     val surrounded = surroundWith(text, surrounder)

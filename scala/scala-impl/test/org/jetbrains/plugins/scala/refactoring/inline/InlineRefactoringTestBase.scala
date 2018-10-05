@@ -7,6 +7,7 @@ import java.io.File
 
 import com.intellij.ide.DataManager
 import com.intellij.openapi.actionSystem.CommonDataKeys
+import com.intellij.openapi.command.UndoConfirmationPolicy
 import com.intellij.openapi.util.io.FileUtil
 import com.intellij.openapi.util.text.StringUtil
 import com.intellij.openapi.vfs.{CharsetToolkit, LocalFileSystem}
@@ -14,10 +15,10 @@ import com.intellij.refactoring.actions.BaseRefactoringAction
 import com.intellij.refactoring.inline.GenericInlineHandler
 import com.intellij.refactoring.util.CommonRefactoringUtil.RefactoringErrorHintException
 import org.jetbrains.plugins.scala.base.ScalaLightPlatformCodeInsightTestCaseAdapter
+import org.jetbrains.plugins.scala.extensions.executeWriteActionCommand
 import org.jetbrains.plugins.scala.lang.lexer.ScalaTokenTypes
 import org.jetbrains.plugins.scala.lang.psi.api.ScalaFile
 import org.jetbrains.plugins.scala.lang.refactoring.inline.ScalaInlineHandler
-import org.jetbrains.plugins.scala.util.ScalaUtils
 
 /**
  * User: Alexander Podkhalyuzin
@@ -57,11 +58,9 @@ abstract class InlineRefactoringTestBase extends ScalaLightPlatformCodeInsightTe
     val lastPsi = scalaFile.findElementAt(scalaFile.getText.length - 1)
     //start to inline
     try {
-      ScalaUtils.runWriteActionDoNotRequestConfirmation(new Runnable {
-        def run() {
-          GenericInlineHandler.invoke(element, editor, new ScalaInlineHandler)
-        }
-      }, getProjectAdapter, "Test")
+      executeWriteActionCommand("Test", UndoConfirmationPolicy.DO_NOT_REQUEST_CONFIRMATION) {
+        GenericInlineHandler.invoke(element, editor, new ScalaInlineHandler)
+      }(getProjectAdapter)
       res = scalaFile.getText.substring(0, lastPsi.getTextOffset).trim //getImportStatements.map(_.getText()).mkString("\n")
     }
     catch {

@@ -17,7 +17,6 @@ package org.jetbrains.plugins.scala.util;
 
 import com.intellij.openapi.application.ApplicationManager;
 import com.intellij.openapi.command.CommandProcessor;
-import com.intellij.openapi.command.UndoConfirmationPolicy;
 import com.intellij.openapi.project.Project;
 
 /**
@@ -37,13 +36,5 @@ public abstract class ScalaUtils {
         ApplicationManager.getApplication().runWriteAction(runnable);
       }
     }, name, null);
-  }
-
-  public static void runWriteActionDoNotRequestConfirmation(final Runnable runnable, Project project, String name) {
-    CommandProcessor.getInstance().executeCommand(project, new Runnable() {
-      public void run() {
-        ApplicationManager.getApplication().runWriteAction(runnable);
-      }
-    }, name, null, UndoConfirmationPolicy.DO_NOT_REQUEST_CONFIRMATION);
   }
 }

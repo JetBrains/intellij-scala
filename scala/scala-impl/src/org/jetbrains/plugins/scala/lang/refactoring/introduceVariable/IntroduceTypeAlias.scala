@@ -17,7 +17,7 @@ import com.intellij.psi.impl.source.tree.injected.InjectedLanguageUtil
 import com.intellij.psi.util.PsiTreeUtil.{findElementOfClassAtRange, getChildOfType, getParentOfType}
 import javax.swing.event.{ListSelectionEvent, ListSelectionListener}
 import org.jetbrains.plugins.scala.ScalaBundle
-import org.jetbrains.plugins.scala.extensions.{PsiElementExt, ValidSmartPointer, callbackInTransaction, inWriteAction, startCommand}
+import org.jetbrains.plugins.scala.extensions.{PsiElementExt, ValidSmartPointer, callbackInTransaction, executeWriteActionCommand, inWriteAction}
 import org.jetbrains.plugins.scala.lang.psi.ScalaPsiUtil
 import org.jetbrains.plugins.scala.lang.psi.api.base.ScStableCodeReferenceElement
 import org.jetbrains.plugins.scala.lang.psi.api.base.types._
@@ -97,7 +97,7 @@ trait IntroduceTypeAlias {
             scopeItem
           )
 
-          startCommand(INTRODUCE_TYPEALIAS_REFACTORING_NAME) {
+          executeWriteActionCommand(INTRODUCE_TYPEALIAS_REFACTORING_NAME) {
             val (namedElementReference, typeElementReference) = inWriteAction {
               runRefactoringForTypeInside(file, inTypeElement, suggestedNames.iterator().next(), allOccurrences, scopeItem)
             }
@@ -231,7 +231,7 @@ trait IntroduceTypeAlias {
   def runRefactoringForTypes(file: PsiFile, typeElement: ScTypeElement, typeName: String,
                              occurrences_ : OccurrenceData, scope: ScopeItem)
                             (implicit project: Project, editor: Editor): Unit = {
-    startCommand(INTRODUCE_TYPEALIAS_REFACTORING_NAME) {
+    executeWriteActionCommand(INTRODUCE_TYPEALIAS_REFACTORING_NAME) {
       runRefactoringForTypeInside(file, typeElement, typeName, occurrences_, scope)
     }
     editor.getSelectionModel.removeSelection()

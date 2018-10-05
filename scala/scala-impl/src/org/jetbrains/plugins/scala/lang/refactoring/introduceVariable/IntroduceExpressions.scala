@@ -12,7 +12,7 @@ import com.intellij.psi.util.PsiTreeUtil
 import com.intellij.psi.util.PsiTreeUtil.findElementOfClassAtOffset
 import com.intellij.refactoring.introduce.inplace.OccurrencesChooser
 import org.jetbrains.plugins.scala.ScalaBundle
-import org.jetbrains.plugins.scala.extensions.{PsiElementExt, childOf, inWriteAction, startCommand}
+import org.jetbrains.plugins.scala.extensions.{PsiElementExt, childOf, executeWriteActionCommand, inWriteAction}
 import org.jetbrains.plugins.scala.lang.lexer.ScalaTokenTypes
 import org.jetbrains.plugins.scala.lang.psi.ScalaPsiUtil
 import org.jetbrains.plugins.scala.lang.psi.api.expr._
@@ -79,7 +79,7 @@ trait IntroduceExpressions {
   def runRefactoring(occurrences: OccurrencesInFile, expression: ScExpression, varName: String, varType: ScType,
                      replaceAllOccurrences: Boolean, isVariable: Boolean)
                     (implicit project: Project, editor: Editor): Unit = {
-    startCommand(INTRODUCE_VARIABLE_REFACTORING_NAME) {
+    executeWriteActionCommand(INTRODUCE_VARIABLE_REFACTORING_NAME) {
       runRefactoringInside(occurrences, expression, varName, varType, replaceAllOccurrences, isVariable, fromDialogMode = true) // this for better debug
     }
     editor.getSelectionModel.removeSelection()
@@ -92,7 +92,7 @@ trait IntroduceExpressions {
     val callback: Pass[ReplaceChoice] = (replaceChoice: ReplaceChoice) => {
       val replaceAll = ReplaceChoice.NO != replaceChoice
 
-      startCommand(INTRODUCE_VARIABLE_REFACTORING_NAME) {
+      executeWriteActionCommand(INTRODUCE_VARIABLE_REFACTORING_NAME) {
         val SuggestedNames(expression, types, names) = suggestedNames
         val reference = inWriteAction {
           runRefactoringInside(occurrences, expression, names.head, types.head, replaceAll, isVariable = false, fromDialogMode = false)

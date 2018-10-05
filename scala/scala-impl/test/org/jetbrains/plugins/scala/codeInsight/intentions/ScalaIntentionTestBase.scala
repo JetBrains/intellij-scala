@@ -29,13 +29,13 @@ abstract class ScalaIntentionTestBase extends ScalaLightCodeInsightFixtureTestAd
 
     findIntention(text) match {
       case Some(action) =>
-        startCommand("Test Intention") {
+        executeWriteActionCommand("Test Intention") {
           action.invoke(project, getEditor, getFile)
         }
       case None => fail("Intention is not found")
     }
 
-    startCommand("Test Intention Formatting") {
+    executeWriteActionCommand("Test Intention Formatting") {
       CodeStyleManager.getInstance(project).reformat(getFile)
       getFixture.checkResult(normalize(resultText))
     }

@@ -702,18 +702,33 @@ package object extensions {
   def startCommand(project: Project, runnable: Runnable, commandName: String): Unit =
     CommandProcessor.getInstance().executeCommand(project, runnable, commandName, null)
 
-  def startCommand(commandName: String = "",
-                   policy: UndoConfirmationPolicy = UndoConfirmationPolicy.DEFAULT)
-                  (body: => Unit)
-                  (implicit project: Project): Unit =
-    startCommand(project, () => inWriteAction(body), commandName)
+  def executeWriteActionCommand(commandName: String = "",
+                                policy: UndoConfirmationPolicy = UndoConfirmationPolicy.DEFAULT)
+                               (body: => Unit)
+                               (implicit project: Project): Unit =
+    startCommand(
+      project,
+      () => inWriteAction(body),
+      commandName
+    )
+
+  def executeWriteActionCommand(runnable: Runnable,
+                                commandName: String,
+                                policy: UndoConfirmationPolicy)
+                               (implicit project: Project): Unit =
+    startCommand(
+      project,
+      () => WriteCommandAction.runWriteCommandAction(project, runnable),
+      commandName
+    )
 
   def inWriteAction[T](body: => T): T = ApplicationManager.getApplication match {
     case application if application.isWriteAccessAllowed => body
     case application => application.runWriteAction(body)
   }
 
-  def inWriteCommandAction[T](body: => T)(implicit project: Project): T =
+  def inWriteCommandAction[T](body: => T)
+                             (implicit project: Project): T =
     WriteCommandAction.runWriteCommandAction(project, body)
 
   def inReadAction[T](body: => T): T = ApplicationManager.getApplication match {

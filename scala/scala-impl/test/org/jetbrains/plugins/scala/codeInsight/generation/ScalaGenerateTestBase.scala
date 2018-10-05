@@ -3,7 +3,7 @@ package codeInsight.generation
 
 import com.intellij.lang.LanguageCodeInsightActionHandler
 import org.jetbrains.plugins.scala.base.ScalaLightCodeInsightFixtureTestAdapter
-import org.jetbrains.plugins.scala.extensions.startCommand
+import org.jetbrains.plugins.scala.extensions.executeWriteActionCommand
 import org.junit.Assert._
 
 /**
@@ -25,7 +25,7 @@ abstract class ScalaGenerateTestBase extends ScalaLightCodeInsightFixtureTestAda
       assertTrue("Generate action is not available", handlerIsValid)
     }
 
-    startCommand("Generate Action Test") {
+    executeWriteActionCommand("Generate Action Test") {
       handler.invoke(getProject, getEditor, getFile)
     }(getProject)
 

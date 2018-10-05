@@ -6,16 +6,17 @@ package optimize
 import java.io.File
 
 import _root_.com.intellij.psi.impl.source.tree.TreeUtil
+import com.intellij.openapi.command.UndoConfirmationPolicy
 import com.intellij.openapi.project.Project
 import com.intellij.openapi.util.io.FileUtil
 import com.intellij.openapi.util.text.StringUtil
 import com.intellij.openapi.vfs.{CharsetToolkit, LocalFileSystem}
 import org.jetbrains.plugins.scala.base.ScalaLightPlatformCodeInsightTestCaseAdapter
 import org.jetbrains.plugins.scala.editor.importOptimizer.{OptimizeImportSettings, ScalaImportOptimizer}
+import org.jetbrains.plugins.scala.extensions.executeWriteActionCommand
 import org.jetbrains.plugins.scala.lang.formatting.settings.ScalaCodeStyleSettings
 import org.jetbrains.plugins.scala.lang.lexer.ScalaTokenTypes
 import org.jetbrains.plugins.scala.lang.psi.api.ScalaFile
-import org.jetbrains.plugins.scala.util.ScalaUtils
 
 /**
  * User: Alexander Podkhalyuzin
@@ -46,7 +47,13 @@ abstract class OptimizeImportsTestBase extends ScalaLightPlatformCodeInsightTest
     var lastPsi = TreeUtil.findLastLeaf(scalaFile.getNode).getPsi
 
     if (getTestName(true).startsWith("sorted")) ScalaCodeStyleSettings.getInstance(getProjectAdapter).setSortImports(true)
-    ScalaUtils.runWriteActionDoNotRequestConfirmation(importOptimizer.processFile(scalaFile), getProjectAdapter, "Test")
+
+    executeWriteActionCommand(
+      importOptimizer.processFile(scalaFile),
+      "Test",
+      UndoConfirmationPolicy.DO_NOT_REQUEST_CONFIRMATION
+    )(getProjectAdapter)
+
     res = scalaFile.getText.substring(0, lastPsi.getTextOffset).trim//getImportStatements.map(_.getText()).mkString("\n")
 
     lastPsi = scalaFile.findElementAt(scalaFile.getText.length - 1)

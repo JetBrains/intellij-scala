@@ -3,12 +3,14 @@ package refactoring.introduceField
 
 import java.io.File
 
+import com.intellij.openapi.command.UndoConfirmationPolicy
+import com.intellij.openapi.project.Project
 import com.intellij.openapi.util.io.FileUtil
 import com.intellij.openapi.util.text.StringUtil
 import com.intellij.openapi.vfs.{CharsetToolkit, LocalFileSystem}
 import com.intellij.testFramework.UsefulTestCase
 import org.jetbrains.plugins.scala.base.ScalaLightPlatformCodeInsightTestCaseAdapter
-import org.jetbrains.plugins.scala.extensions.PsiElementExt
+import org.jetbrains.plugins.scala.extensions.{PsiElementExt, executeWriteActionCommand}
 import org.jetbrains.plugins.scala.lang.lexer.ScalaTokenTypes
 import org.jetbrains.plugins.scala.lang.psi.api.ScalaFile
 import org.jetbrains.plugins.scala.lang.psi.api.expr.ScExpression
@@ -17,8 +19,6 @@ import org.jetbrains.plugins.scala.lang.psi.types.ScType
 import org.jetbrains.plugins.scala.lang.psi.types.api.Int
 import org.jetbrains.plugins.scala.lang.refactoring.introduceField.{IntroduceFieldContext, IntroduceFieldSettings, ScalaIntroduceFieldFromExpressionHandler}
 import org.jetbrains.plugins.scala.lang.refactoring.util.ScalaRefactoringUtil.getExpressionWithTypes
-import org.jetbrains.plugins.scala.project.ProjectContext
-import org.jetbrains.plugins.scala.util.ScalaUtils
 import org.junit.Assert._
 
 /**
@@ -35,7 +35,7 @@ abstract class IntroduceFieldTestBase() extends ScalaLightPlatformCodeInsightTes
 
   def folderPath: String = baseRootPath() + "introduceField/"
 
-  implicit def projectContext: ProjectContext = getProjectAdapter
+  implicit def projectContext: Project = getProjectAdapter
 
   protected def doTest(scType: ScType = Int) {
     val filePath = folderPath + getTestName(false) + ".scala"
@@ -80,12 +80,12 @@ abstract class IntroduceFieldTestBase() extends ScalaLightPlatformCodeInsightTes
       settings.defineVar = true
       settings.name = "i"
       settings.scType = scType
-      ScalaUtils.runWriteActionDoNotRequestConfirmation(new Runnable {
-        def run() {
-          handler.runRefactoring(ifc, settings)
-          UsefulTestCase.doPostponedFormatting(getProjectAdapter)
-        }
-      }, getProjectAdapter, "Test")
+
+      executeWriteActionCommand("Test", UndoConfirmationPolicy.DO_NOT_REQUEST_CONFIRMATION) {
+        handler.runRefactoring(ifc, settings)
+        UsefulTestCase.doPostponedFormatting(getProjectAdapter)
+      }
+
       res = scalaFile.getText.substring(0, lastPsi.getTextOffset).trim
     }
     catch {
