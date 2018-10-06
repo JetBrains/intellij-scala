@@ -89,7 +89,6 @@ class CirceCodecInjector extends SyntheticMembersInjector {
       s"implicit def enc_$id$encCtxBounds: $Enc[$nme$encParams] = $Dummy",
       s"implicit def dec_$id$decCtxBounds: $Dec[$nme$decParams] = $Dummy"
     )
-    Seq.empty
   }
 
   private def join(xs: Seq[String]): String = xs.mkString(",")
