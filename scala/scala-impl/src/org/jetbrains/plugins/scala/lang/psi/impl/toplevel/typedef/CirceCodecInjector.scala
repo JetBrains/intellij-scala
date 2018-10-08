@@ -34,14 +34,6 @@ class CirceCodecInjector extends SyntheticMembersInjector {
       (source.findAnnotationNoAliases(FqnCjc) != null)
   }
 
-  // slower, more correct
-  private def getDeriving(source: ScTypeDefinition): Option[ScAnnotation] = {
-    source.annotations(Jc).headOption orElse
-      source.annotations(Cjc).headOption orElse
-      source.annotations(FqnJc).headOption orElse
-      source.annotations(FqnCjc).headOption
-  }
-
   // so annotated sealed traits will generate a companion
   override def needsCompanionObject(source: ScTypeDefinition): Boolean = {
     hasCodecs(source)
