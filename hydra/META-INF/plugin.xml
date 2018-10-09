@@ -1,0 +1,15 @@
+<!DOCTYPE idea-plugin PUBLIC "Plugin/DTD" "http://plugins.jetbrains.com/plugin.dtd">
+<idea-plugin url="https://docs.triplequote.com/user-guide/idea/" version="2"
+    xmlns:xi="http://www.w3.org/2001/XInclude">
+    <id>com.triplequote.hydra</id>
+    <name>Hydra</name>
+    <description>
+        <![CDATA[
+        Adds support for compiling Scala with Triplequote Hydra.
+      ]]>
+    </description>
+    <version>VERSION</version>
+    <vendor url="http://www.triplequote.com" logo="<MISSING_PATH>">Triplequote</vendor>
+    <idea-version since-build="183.0" until-build="191.0"/>
+    <xi:include href="/META-INF/hydra-plugin-common.xml" xpointer="xpointer(/idea-plugin/*)"/>
+</idea-plugin>

@@ -7,7 +7,7 @@ import com.intellij.codeInspection._
 import com.intellij.lang.annotation._
 import com.intellij.openapi.editor.markup.TextAttributes
 import com.intellij.openapi.project.DumbAware
-import com.intellij.openapi.roots.ProjectFileIndex
+import com.intellij.openapi.roots.{ProjectFileIndex, ProjectRootManager}
 import com.intellij.openapi.util.{Condition, Key, TextRange}
 import com.intellij.psi._
 import com.intellij.psi.util.PsiTreeUtil
@@ -55,7 +55,7 @@ import org.jetbrains.plugins.scala.macroAnnotations.CachedInUserData
 import org.jetbrains.plugins.scala.project.{ProjectContext, ProjectContextOwner, ProjectPsiElementExt, ScalaLanguageLevel}
 import org.jetbrains.plugins.scala.settings.ScalaProjectSettings
 import org.jetbrains.plugins.scala.statistics.{FeatureKey, Stats}
-import org.jetbrains.plugins.scala.util.{MultilineStringUtil, ScalaUtils}
+import org.jetbrains.plugins.scala.util.MultilineStringUtil
 
 import scala.collection.mutable.ArrayBuffer
 import scala.collection.{Seq, mutable}
@@ -74,20 +74,24 @@ abstract class ScalaAnnotator extends Annotator
   with OverridingAnnotator with ValueClassAnnotator
   with ProjectContextOwner with DumbAware {
 
-  override def annotate(element: PsiElement, holder: AnnotationHolder) {
+  override def annotate(element: PsiElement, holder: AnnotationHolder): Unit = {
 
     val typeAware = isAdvancedHighlightingEnabled(element)
-
     val (compiled, isInSources) = element.getContainingFile match {
       case file: ScalaFile =>
-        val isInSources: Boolean = ScalaUtils.isUnderSources(file)
-        if (isInSources && (element eq file)) {
-          val key = if (typeAware) FeatureKey.annotatorTypeAware else FeatureKey.annotatorNotTypeAware
-          Stats.trigger(key)
+        val isInSources = file.getVirtualFile.nullSafe.exists {
+          ProjectRootManager.getInstance(file.getProject).getFileIndex.isInSourceContent
         }
-
         (file.isCompiled, isInSources)
       case _ => (false, false)
+    }
+
+    if (isInSources && (element eq element.getContainingFile)) {
+      Stats.trigger {
+        import FeatureKey._
+        if (typeAware) annotatorTypeAware
+        else annotatorNotTypeAware
+      }
     }
 
     val visitor = new ScalaElementVisitor {
@@ -447,14 +451,14 @@ abstract class ScalaAnnotator extends Annotator
   private def checkMetaAnnotation(annotation: ScAnnotation, holder: AnnotationHolder): Unit = {
     import ScalaProjectSettings.ScalaMetaMode
 
-    import scala.meta.intellij.psiExt._
+    import scala.meta.intellij.psi._
     if (annotation.isMetaMacro) {
       if (!MetaExpansionsManager.isUpToDate(annotation)) {
         val warning = holder.createWarningAnnotation(annotation, ScalaBundle.message("scala.meta.recompile"))
         warning.registerFix(new RecompileAnnotationAction(annotation))
       }
       val result = annotation.parent.flatMap(_.parent) match {
-        case Some(ah: ScAnnotationsHolder) => ah.getMetaExpansion
+        case Some(ah: ScAnnotationsHolder) => ah.metaExpand
         case _ => Right("")
       }
       val settings = ScalaProjectSettings.getInstance(annotation.getProject)

@@ -18,44 +18,31 @@ import org.jetbrains.plugins.scala.lang.parser.parsing.top.params.ClassParamClau
 /*
  * ClassDef ::= id [TypeParamClause] {Annotation} [AcessModifier] [ClassParamClauses] ClassTemplateOpt
  */
-object ClassDef extends ClassDef {
-  override protected def classParamClauses = ClassParamClauses
-  override protected def templateOpt = ClassTemplateOpt
-  override protected def annotation = Annotation
-  override protected def constrMods = ConstrMods
-  override protected def typeParamClause = TypeParamClause
-}
-
-trait ClassDef {
-  protected def classParamClauses: ClassParamClauses
-  protected def templateOpt: TemplateOpt
-  protected def annotation: Annotation
-  protected def constrMods: ConstrMods
-  protected def typeParamClause: TypeParamClause
+object ClassDef {
 
   def parse(builder: ScalaPsiBuilder): Boolean = builder.getTokenType match {
     case ScalaTokenTypes.tIDENTIFIER =>
       builder.advanceLexer() //Ate identifier
-      typeParamClause.parse(builder)
+      TypeParamClause.parse(builder)
 
       val constructorMarker = builder.mark()
       parseAnnotations(builder)
-      constrMods.parse(builder)
-      classParamClauses.parse(builder)
+      ConstrMods.parse(builder)
+      ClassParamClauses.parse(builder)
       constructorMarker.done(ScalaElementTypes.PRIMARY_CONSTRUCTOR)
 
       //parse extends block
-      templateOpt.parse(builder)
+      ClassTemplateOpt.parse(builder)
       true
     case _ =>
       builder.error(ErrMsg("identifier.expected"))
       false
   }
 
-  private def parseAnnotations(builder: ScalaPsiBuilder) = {
+  private def parseAnnotations(builder: ScalaPsiBuilder): Unit = {
     val modifierMarker = builder.mark()
     if (!builder.newlineBeforeCurrentToken) {
-      while (annotation.parse(builder)) {}
+      while (Annotation.parse(builder)) {}
     }
     modifierMarker.done(ScalaElementTypes.ANNOTATIONS)
   }

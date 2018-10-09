@@ -17,12 +17,7 @@ import org.jetbrains.plugins.scala.lang.parser.parsing.types.Type
 /*
  * ValDcl ::= ids ':' Type
  */
-object ValDcl extends ValDcl {
-  override protected def `type` = Type
-}
-
-trait ValDcl {
-  protected def `type`: Type
+object ValDcl {
 
   def parse(builder: ScalaPsiBuilder): Boolean = {
     val returnMarker = builder.mark
@@ -30,7 +25,7 @@ trait ValDcl {
     builder.getTokenType match {
       case ScalaTokenTypes.kVAL => builder.advanceLexer() //Ate val
       case _ =>
-        returnMarker.rollbackTo
+        returnMarker.rollbackTo()
         return false
     }
     //Look for identifier
@@ -39,36 +34,31 @@ trait ValDcl {
         Ids parse builder
         //Look for :
         builder.getTokenType match {
-          case ScalaTokenTypes.tCOLON => {
-            builder.advanceLexer //Ate :
-            if (`type`.parse(builder)) {
-              returnMarker.drop
+          case ScalaTokenTypes.tCOLON =>
+            builder.advanceLexer() //Ate :
+            if (Type.parse(builder)) {
+              returnMarker.drop()
             }
             else {
               builder error ErrMsg("wrong.type")
-              returnMarker.drop
+              returnMarker.drop()
             }
-          }
-          case _ => {
+          case _ =>
             builder error ErrMsg("wrong.val.declaration")
-            returnMarker.drop
-          }
+            returnMarker.drop()
         }
 
         builder.getTokenType match {
-          case ScalaTokenTypes.tASSIGN => {
-            builder.advanceLexer
+          case ScalaTokenTypes.tASSIGN =>
+            builder.advanceLexer()
             builder.error("Expected expression")
-            return true
-          }
-          case _ => {
-            return true
-          }
+          case _ =>
         }
+        true
       case _ =>
         builder error ErrMsg("identifier.expected")
-        returnMarker.drop
-        return false
+        returnMarker.drop()
+        false
     }
   }
 }

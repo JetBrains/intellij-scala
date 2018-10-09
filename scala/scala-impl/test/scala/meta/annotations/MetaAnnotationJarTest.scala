@@ -1,4 +1,5 @@
-package scala.meta.annotations
+package scala.meta
+package annotations
 
 import java.io.File
 
@@ -15,7 +16,6 @@ import org.jetbrains.plugins.scala.util.TestUtils
 import org.junit.Assert._
 
 import scala.meta.intellij.MetaExpansionsManager.PARADISE_VERSION
-import scala.meta.{ScalaMetaTestBase, _}
 
 /**
   * @author mutcianm
@@ -48,7 +48,7 @@ class MetaAnnotationJarTest extends JavaCodeInsightFixtureTestCase with ScalaMet
   }
 
   def testLoadAnnotationFromJar(): Unit = {
-    import scala.meta.intellij.psiExt._
+    import intellij.psi._
     val source =
       """
         |@addFoo
@@ -56,8 +56,7 @@ class MetaAnnotationJarTest extends JavaCodeInsightFixtureTestCase with ScalaMet
         |""".stripMargin
     myFixture.configureByText("foo.scala", source)
     val clazz = myFixture.findClass("foo").asInstanceOf[ScClass]
-    val expansion = clazz.getMetaExpansion
-    expansion match {
+    clazz.metaExpand match {
       case Right(q"class foo { def fooBar: Int = 42 }") => // ok
       case Right(other) => fail(s"Got unexpected expansion: $other")
       case Left(error)  => fail(s"Failed to expand meta annotation: $error")

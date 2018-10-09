@@ -8,6 +8,7 @@ import org.jetbrains.plugins.scala.lang.parser.parsing.base.Constructor
 import org.jetbrains.plugins.scala.lang.parser.parsing.builder.ScalaPsiBuilder
 import org.jetbrains.plugins.scala.lang.parser.parsing.top.Parents
 import org.jetbrains.plugins.scala.lang.parser.parsing.types.AnnotType
+import org.jetbrains.plugins.scala.lang.psi.stubs.elements.ScClassParentsElementType
 
 /**
 * @author Alexander Podkhalyuzin
@@ -17,17 +18,11 @@ import org.jetbrains.plugins.scala.lang.parser.parsing.types.AnnotType
 /*
  *  TemplateParents ::= Constr {with AnnotType}
  */
-object ClassParents extends ClassParents {
-  override protected def constructor = Constructor
+object ClassParents extends Parents {
 
-  override protected def parseParent(builder: ScalaPsiBuilder): Boolean =
-    AnnotType.parse(builder, isPattern = false)
-}
+  override protected def elementType: ScClassParentsElementType = ScalaElementTypes.CLASS_PARENTS
 
-trait ClassParents extends Parents {
-  protected def constructor: Constructor
+  override protected def parseFirstParent(builder: ScalaPsiBuilder): Boolean = Constructor.parse(builder)
 
-  override protected def elementType = ScalaElementTypes.CLASS_PARENTS
-
-  override protected def parseFirstParent(builder: ScalaPsiBuilder) = constructor.parse(builder)
+  override protected def parseParent(builder: ScalaPsiBuilder): Boolean = AnnotType.parse(builder, isPattern = false)
 }

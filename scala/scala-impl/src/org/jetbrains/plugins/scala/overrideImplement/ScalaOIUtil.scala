@@ -19,7 +19,6 @@ import org.jetbrains.plugins.scala.lang.psi.types.recursiveUpdate.ScSubstitutor
 import org.jetbrains.plugins.scala.lang.resolve.ResolveUtils
 import org.jetbrains.plugins.scala.project.ProjectContext
 import org.jetbrains.plugins.scala.statistics.{FeatureKey, Stats}
-import org.jetbrains.plugins.scala.util.ScalaUtils
 
 import scala.Function.const
 import scala.collection.JavaConverters._
@@ -71,8 +70,9 @@ object ScalaOIUtil {
     }
   }
 
-  def invokeOverrideImplement(project: Project, editor: Editor, file: PsiFile, isImplement: Boolean,
-                              methodName: String = null) {
+  def invokeOverrideImplement(file: PsiFile, isImplement: Boolean,
+                              methodName: String = null)
+                             (implicit project: Project, editor: Editor): Unit = {
 
     Stats.trigger(FeatureKey.overrideImplement)
 
@@ -103,20 +103,21 @@ object ScalaOIUtil {
       }.toSeq
     }
 
-    runAction(selectedMembers, isImplement, clazz, editor)
+    runAction(selectedMembers, isImplement, clazz)
   }
 
 
   def runAction(selectedMembers: Seq[ClassMember],
-               isImplement: Boolean, clazz: ScTemplateDefinition, editor: Editor) {
-    ScalaUtils.runWriteAction(() => {
+                isImplement: Boolean,
+                clazz: ScTemplateDefinition)
+               (implicit project: Project, editor: Editor): Unit =
+    executeWriteActionCommand(if (isImplement) "Implement method" else "Override method") {
       val sortedMembers = ScalaMemberChooser.sorted(selectedMembers, clazz)
       val genInfos = sortedMembers.map(new ScalaGenerationInfo(_))
       val anchor = getAnchor(editor.getCaretModel.getOffset, clazz)
       val inserted = GenerateMembersUtil.insertMembersBeforeAnchor(clazz, anchor.orNull, genInfos.reverse.asJava).asScala
       inserted.lastOption.foreach(_.positionCaret(editor, toEditMethodBody = true))
-    }, clazz.getProject, if (isImplement) "Implement method" else "Override method")
-  }
+    }
 
   def getMembersToImplement(clazz: ScTemplateDefinition, withOwn: Boolean = false, withSelfType: Boolean = false): Iterable[ClassMember] =
     classMembersWithFilter(clazz, withSelfType, isOverride = false)(needImplement(_, clazz, withOwn), needImplement(_, clazz, withOwn))

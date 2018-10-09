@@ -20,6 +20,7 @@ lazy val scalaCommunity: sbt.Project =
     .dependsOn(
       bsp % "test->test;compile->compile",
       scalaImpl % "test->test;compile->compile",
+      hydraImpl % "test->test;compile->compile",
       androidIntegration % "test->test;compile->compile",
       copyrightIntegration % "test->test;compile->compile",
       gradleIntegration % "test->test;compile->compile",
@@ -82,6 +83,16 @@ lazy val scalaImpl: sbt.Project =
         BuildInfoKey.constant("sbtLatest_1_0", Versions.Sbt.latest_1_0),
         BuildInfoKey.constant("sbtLatestVersion", Versions.sbtVersion)
       )
+    )
+
+lazy val hydraImpl: sbt.Project =
+  newProject("hydra-impl", file("hydra"))
+    .dependsOn(scalaImpl)
+    .enablePlugins(BuildInfoPlugin)
+    .settings(
+      javacOptions in Global ++= Seq("-source", "1.8", "-target", "1.8"),
+      scalacOptions in Global ++= Seq("-target:jvm-1.8", "-deprecation"),
+      packageMethod := PackagingMethod.MergeIntoOther(scalaCommunity)
     )
 
 lazy val compilerJps =

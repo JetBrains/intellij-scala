@@ -15,12 +15,7 @@ import org.jetbrains.plugins.scala.lang.parser.parsing.builder.ScalaPsiBuilder
 /*
  * Annmotation ::= '@' AnnotationExpr [nl]
  */
-object Annotation extends Annotation {
-  override protected def annotationExpr = AnnotationExpr
-}
-
-trait Annotation {
-  protected def annotationExpr: AnnotationExpr
+object Annotation {
 
   def parse(builder: ScalaPsiBuilder, countLinesAfterAnnotation: Boolean = true): Boolean = {
     val rollbackMarker = builder.mark()
@@ -33,7 +28,7 @@ trait Annotation {
         rollbackMarker.drop()
         return false
     }
-    if (!annotationExpr.parse(builder)) {
+    if (!AnnotationExpr.parse(builder)) {
       builder error ScalaBundle.message("wrong.annotation.expression")
       annotMarker.drop()
     } else {

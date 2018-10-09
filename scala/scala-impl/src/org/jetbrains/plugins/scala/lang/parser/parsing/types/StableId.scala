@@ -24,7 +24,7 @@ import scala.annotation.tailrec
  *            | [id '.'] 'super' [ClassQualifier] '.' id
  */
 
-object StableId extends ParserNode {
+object StableId {
 
   def parse(builder: ScalaPsiBuilder, element: IElementType): Boolean = parse(builder, forImport = false, element)
 
@@ -36,9 +36,9 @@ object StableId extends ParserNode {
         if (stopAtImportEnd(builder, forImport)) {
           marker.done(element)
           return true
-        } else if (builder.getTokenType == tDOT && !lookAhead(builder, tDOT, kTYPE)) {
+        } else if (builder.getTokenType == tDOT && !builder.lookAhead(tDOT, kTYPE)) {
           val nm = marker.precede
-          if (lookAhead(builder, tDOT, kTHIS) || lookAhead(builder, tDOT, kSUPER))
+          if (builder.lookAhead(tDOT, kTHIS) || builder.lookAhead(tDOT, kSUPER))
             marker.done(REFERENCE)
           else
             marker.done(element)
@@ -127,7 +127,7 @@ object StableId extends ParserNode {
     if (stopAtImportEnd(builder, forImport)) {
       nm.done(element)
       true
-    } else if (builder.getTokenType == tDOT && !lookAhead(builder, tDOT, kTYPE)) {
+    } else if (builder.getTokenType == tDOT && !builder.lookAhead(tDOT, kTYPE)) {
       val nm1 = nm.precede()
       nm.done(element)
       builder.advanceLexer()
@@ -150,7 +150,7 @@ object StableId extends ParserNode {
     if (stopAtImportEnd(builder, forImport)) {
       marker.done(element)
       true
-    } else if (builder.getTokenType == tDOT && !lookAhead(builder, tDOT, kTYPE)) {
+    } else if (builder.getTokenType == tDOT && !builder.lookAhead(tDOT, kTYPE)) {
       val nm = marker.precede
       marker.done(element)
       builder.advanceLexer() // ate dot
@@ -164,7 +164,7 @@ object StableId extends ParserNode {
   def stopAtImportEnd(builder: ScalaPsiBuilder, forImport: Boolean): Boolean = forImport && isImportEnd(builder)
 
   def isImportEnd(builder: ScalaPsiBuilder): Boolean = {
-    lookAhead(builder, tDOT, tUNDER) || lookAhead(builder, tDOT, tLBRACE)
+    builder.lookAhead(tDOT, tUNDER) || builder.lookAhead(tDOT, tLBRACE)
   }
 
 }

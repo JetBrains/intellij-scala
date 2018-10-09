@@ -44,7 +44,7 @@ class TypeParameterType private (val typeParameter: TypeParameter)
       case _ => false
     }
     if (success) constraints
-    else ConstraintsResult.Failure
+    else ConstraintsResult.Left
   }
 
   override def visitType(visitor: TypeVisitor): Unit = visitor.visitTypeParameterType(this)

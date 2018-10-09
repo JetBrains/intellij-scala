@@ -2,6 +2,7 @@ package org.jetbrains.plugins.dotty.lang.parser.parsing.types
 
 import org.jetbrains.plugins.dotty.lang.parser.DottyElementTypes._
 import org.jetbrains.plugins.scala.lang.parser.parsing.builder.ScalaPsiBuilder
+import org.jetbrains.plugins.scala.lang.parser.parsing.types.Refinement
 
 /**
   * @author adkozlov

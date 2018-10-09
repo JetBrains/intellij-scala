@@ -10,7 +10,7 @@ import com.intellij.lang.ASTNode
 import com.intellij.openapi.Disposable
 import com.intellij.openapi.application.ex.ApplicationUtil
 import com.intellij.openapi.application.{ApplicationManager, TransactionGuard}
-import com.intellij.openapi.command.{CommandProcessor, WriteCommandAction}
+import com.intellij.openapi.command.{CommandProcessor, UndoConfirmationPolicy, WriteCommandAction}
 import com.intellij.openapi.progress.{ProcessCanceledException, ProgressManager}
 import com.intellij.openapi.project.Project
 import com.intellij.openapi.util.{Computable, Ref, TextRange, ThrowableComputable}
@@ -702,16 +702,33 @@ package object extensions {
   def startCommand(project: Project, runnable: Runnable, commandName: String): Unit =
     CommandProcessor.getInstance().executeCommand(project, runnable, commandName, null)
 
-  def startCommand(project: Project, commandName: String = "")(body: => Unit): Unit = {
-    startCommand(project, () => inWriteAction(body), commandName)
-  }
+  def executeWriteActionCommand(commandName: String = "",
+                                policy: UndoConfirmationPolicy = UndoConfirmationPolicy.DEFAULT)
+                               (body: => Unit)
+                               (implicit project: Project): Unit =
+    startCommand(
+      project,
+      () => inWriteAction(body),
+      commandName
+    )
+
+  def executeWriteActionCommand(runnable: Runnable,
+                                commandName: String,
+                                policy: UndoConfirmationPolicy)
+                               (implicit project: Project): Unit =
+    startCommand(
+      project,
+      () => WriteCommandAction.runWriteCommandAction(project, runnable),
+      commandName
+    )
 
   def inWriteAction[T](body: => T): T = ApplicationManager.getApplication match {
     case application if application.isWriteAccessAllowed => body
     case application => application.runWriteAction(body)
   }
 
-  def inWriteCommandAction[T](body: => T)(implicit project: Project): T =
+  def inWriteCommandAction[T](body: => T)
+                             (implicit project: Project): T =
     WriteCommandAction.runWriteCommandAction(project, body)
 
   def inReadAction[T](body: => T): T = ApplicationManager.getApplication match {

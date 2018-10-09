@@ -9,8 +9,6 @@ import com.intellij.compiler.server.BuildManager
 import com.intellij.openapi.options.Configurable
 import com.intellij.openapi.options.Configurable.Composite
 import com.intellij.openapi.project.Project
-import org.jetbrains.plugins.hydra.compiler.HydraCompilerConfigurable
-import org.jetbrains.plugins.hydra.settings.HydraApplicationSettings
 import org.jetbrains.plugins.scala.project.AbstractConfigurable
 import org.jetbrains.plugins.scala.statistics.{FeatureKey, Stats}
 
@@ -47,13 +45,5 @@ class ScalaCompilerConfigurable(project: Project, configuration: ScalaCompilerCo
     BuildManager.getInstance().clearState(project)
   }
 
-  override def getConfigurables: Array[Configurable] = {
-    if (project == null || project.isDefault)
-      return Array.empty
-
-    if (HydraApplicationSettings.getInstance().isHydraSettingsEnabled)
-      Array(new HydraCompilerConfigurable(project))
-    else
-      Array()
-  }
+  override def getConfigurables: Array[Configurable] = Array()
 }

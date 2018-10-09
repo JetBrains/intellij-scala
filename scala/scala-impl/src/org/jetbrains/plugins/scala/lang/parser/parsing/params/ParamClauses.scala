@@ -14,26 +14,19 @@ import org.jetbrains.plugins.scala.lang.parser.parsing.builder.ScalaPsiBuilder
 /*
  * ParamClauses ::= {ParamClause} [ImplicitParamClause]
  */
-object ParamClauses extends ParamClauses {
-  override protected def paramClause = ParamClause
-  override protected def implicitParamClause = ImplicitParamClause
-}
-
-trait ParamClauses {
-  protected def paramClause: ParamClause
-  protected def implicitParamClause: ImplicitParamClause
+object ParamClauses {
 
   def parse(builder: ScalaPsiBuilder): Boolean = parse(builder, flag = false)
   def parse(builder: ScalaPsiBuilder, flag: Boolean): Boolean = {
     val paramMarker = builder.mark
     if (flag) {
-      if (!paramClause.parse(builder)) {
+      if (!ParamClause.parse(builder)) {
         builder error ErrMsg("param.clause.expected")
       }
     }
-    while (paramClause.parse(builder)) {}
-    implicitParamClause parse builder
+    while (ParamClause.parse(builder)) {}
+    ImplicitParamClause parse builder
     paramMarker.done(ScalaElementTypes.PARAM_CLAUSES)
-    return true
+    true
   }
 }

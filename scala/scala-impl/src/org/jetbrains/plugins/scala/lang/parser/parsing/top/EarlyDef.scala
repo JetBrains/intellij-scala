@@ -18,12 +18,7 @@ import scala.annotation.tailrec
 /*
  * EarlyDef ::= '{' [PatVarDef {semi PatVarDef}] '}' 'with'
  */
-object EarlyDef extends EarlyDef {
-  override protected def patVarDef = PatVarDef
-}
-
-trait EarlyDef {
-  protected def patVarDef: PatVarDef
+object EarlyDef {
 
   def parse(builder: ScalaPsiBuilder): Boolean = {
     val earlyMarker = builder.mark
@@ -31,7 +26,7 @@ trait EarlyDef {
     builder.getTokenType match {
       case ScalaTokenTypes.tLBRACE =>
         builder.advanceLexer() //Ate {
-        builder.enableNewlines
+        builder.enableNewlines()
       case _ =>
         builder error ScalaBundle.message("unreachable.error")
         earlyMarker.drop()
@@ -45,23 +40,20 @@ trait EarlyDef {
           builder.advanceLexer() //Ate }
           true
         case _ =>
-          if (patVarDef parse builder) {
+          if (PatVarDef parse builder) {
             builder.getTokenType match {
-              case ScalaTokenTypes.tRBRACE => {
+              case ScalaTokenTypes.tRBRACE =>
                 builder.advanceLexer() //Ate }
                 true
-              }
-              case ScalaTokenTypes.tSEMICOLON => {
+              case ScalaTokenTypes.tSEMICOLON =>
                 builder.advanceLexer() //Ate semicolon
                 subparse
-              }
-              case _ => {
+              case _ =>
                 if (builder.newlineBeforeCurrentToken) {
                   subparse
                 } else {
                   false
                 }
-              }
             }
           }
           else {
@@ -70,12 +62,12 @@ trait EarlyDef {
       }
     }
     if (!subparse) {
-      builder.restoreNewlinesState
+      builder.restoreNewlinesState()
       builder error ScalaBundle.message("unreachable.error")
       earlyMarker.rollbackTo()
       return false
     }
-    builder.restoreNewlinesState
+    builder.restoreNewlinesState()
     //finally look for 'with' keyword
     builder.getTokenType match {
       case ScalaTokenTypes.kWITH =>

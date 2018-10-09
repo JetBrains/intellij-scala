@@ -15,23 +15,18 @@ import org.jetbrains.plugins.scala.lang.parser.parsing.builder.ScalaPsiBuilder
 /*
  * PostfixExpr ::= InfixExpr [id [nl]]
  */
-object PostfixExpr extends PostfixExpr {
-  override protected def infixExpr = InfixExpr
-}
-
-trait PostfixExpr {
-  protected def infixExpr: InfixExpr
+object PostfixExpr {
 
   def parse(builder: ScalaPsiBuilder): Boolean = {
     val postfixMarker = builder.mark
-    if (!infixExpr.parse(builder)) {
+    if (!InfixExpr.parse(builder)) {
       postfixMarker.drop()
       return false
     }
     builder.getTokenType match {
       case ScalaTokenTypes.tIDENTIFIER if !builder.newlineBeforeCurrentToken =>
         val refMarker = builder.mark
-        builder.advanceLexer //Ate id
+        builder.advanceLexer() //Ate id
         refMarker.done(ScalaElementTypes.REFERENCE_EXPRESSION)
         /*builder.getTokenType match {
           case ScalaTokenTypes.tLINE_TERMINATOR => {
@@ -41,8 +36,8 @@ trait PostfixExpr {
         }*/
         postfixMarker.done(ScalaElementTypes.POSTFIX_EXPR)
       case _ =>
-        postfixMarker.drop
+        postfixMarker.drop()
     }
-    return true
+    true
   }
 }

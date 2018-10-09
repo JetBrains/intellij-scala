@@ -17,12 +17,7 @@ import org.jetbrains.plugins.scala.lang.parser.util.ParserUtils
  * SelfType ::= id [':' Type] '=>' |
  *              ['this' | '_'] ':' Type '=>'
  */
-object SelfType extends SelfType {
-  override protected def infixType = InfixType
-}
-
-trait SelfType {
-  protected def infixType: InfixType
+object SelfType {
 
   def parse(builder: ScalaPsiBuilder) {
     val selfTypeMarker = builder.mark
@@ -71,7 +66,7 @@ trait SelfType {
 
   def parseType(builder : ScalaPsiBuilder) : Boolean = {
     val typeMarker = builder.mark
-    if (!infixType.parse(builder, star = false, isPattern = true)) {
+    if (!InfixType.parse(builder, star = false, isPattern = true)) {
       typeMarker.drop()
       return false
     }

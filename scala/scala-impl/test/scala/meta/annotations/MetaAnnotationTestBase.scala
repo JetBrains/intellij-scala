@@ -1,4 +1,5 @@
-package scala.meta.annotations
+package scala.meta
+package annotations
 
 import java.io.File
 
@@ -26,7 +27,6 @@ import org.junit.Assert.fail
 
 import scala.collection.JavaConverters.collectionAsScalaIterableConverter
 import scala.concurrent.duration.DurationInt
-import scala.meta.ScalaMetaTestBase
 import scala.meta.intellij.MetaExpansionsManager.{META_MINOR_VERSION, PARADISE_VERSION}
 
 abstract class MetaAnnotationTestBase extends JavaCodeInsightFixtureTestCase with ScalaMetaTestBase {
@@ -89,11 +89,12 @@ abstract class MetaAnnotationTestBase extends JavaCodeInsightFixtureTestCase wit
       Assert.fail(prefix + suffix)
   }
 
+  import intellij.psi._
+
   protected def checkExpansionEquals(code: String, expectedExpansion: String): Unit = {
-    import scala.meta.intellij.psiExt._
     myFixture.configureByText(s"Usage${getTestName(false)}.scala", code)
     val holder = elementAtCaret.parentOfType(classOf[ScAnnotationsHolder], strict = false).orNull
-    holder.getMetaExpansion match {
+    holder.metaExpand match {
       case Right(tree) => Assert.assertEquals(expectedExpansion, tree.toString())
       case Left(reason) if reason.nonEmpty => Assert.fail(reason)
       case Left("") => Assert.fail("Expansion was empty - did annotation even run?")
@@ -109,13 +110,11 @@ abstract class MetaAnnotationTestBase extends JavaCodeInsightFixtureTestCase wit
       Assert.fail(s"Reference $ref resolved to multiple elements: ${result.mkString("\n")}")
   }
 
-  protected def checkExpandsNoError(): Unit = {
-    import scala.meta.intellij.psiExt._
-    testClass.getMetaExpansion match {
-      case Left(error)  => fail(s"Expansion failed: $error")
+  protected def checkExpandsNoError(): Unit =
+    testClass.metaExpand match {
+      case Left(error) => fail(s"Expansion failed: $error")
       case _ =>
     }
-  }
 
   protected def checkHasMember(name: String): Unit = Assert.assertTrue(s"Member $name not found", testClass.members.exists(_.getName == name))
 

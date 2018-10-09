@@ -2,7 +2,6 @@ package org.jetbrains.plugins.scala.annotator.intention
 
 
 import java.awt.Point
-import javax.swing.Icon
 
 import com.intellij.codeInsight.completion.JavaCompletionUtil
 import com.intellij.codeInsight.daemon.impl.actions.AddImportAction
@@ -19,6 +18,7 @@ import com.intellij.openapi.util.TextRange
 import com.intellij.psi._
 import com.intellij.psi.util.PsiTreeUtil
 import com.intellij.util.ObjectUtils
+import javax.swing.Icon
 import org.jetbrains.plugins.scala.ScalaBundle
 import org.jetbrains.plugins.scala.annotator.intention.ScalaImportTypeFix.TypeToImport
 import org.jetbrains.plugins.scala.extensions._
@@ -37,7 +37,6 @@ import org.jetbrains.plugins.scala.lang.psi.{ScImportsHolder, ScalaPsiUtil}
 import org.jetbrains.plugins.scala.lang.resolve.ResolveUtils
 import org.jetbrains.plugins.scala.lang.scaladoc.psi.api.ScDocResolvableCodeReference
 import org.jetbrains.plugins.scala.settings._
-import org.jetbrains.plugins.scala.util.ScalaUtils
 
 import scala.annotation.tailrec
 import scala.collection.mutable.ArrayBuffer
@@ -154,21 +153,20 @@ class ScalaImportTypeFix(private var classes: Array[TypeToImport], ref: ScRefere
       ApplicationManager.getApplication.invokeLater(new Runnable() {
         override def run() {
           if (!ref.isValid || !FileModificationService.getInstance.prepareFileForWrite(ref.getContainingFile)) return
-          ScalaUtils.runWriteAction(new Runnable {
-            override def run() {
-              PsiDocumentManager.getInstance(project).commitDocument(editor.getDocument)
-              if (!ref.isValid) return
 
-              ref match {
-                case _: ScDocResolvableCodeReference => ref.replace(createDocLinkValue(clazz.qualifiedName)(ref.getManager))
-                case _ =>
-                  clazz match {
-                    case ScalaImportTypeFix.PrefixPackageToImport(pack) => ref.bindToPackage(pack, addImport = true)
-                    case _ => ref.bindToElement(clazz.element)
-                  }
-              }
+          executeWriteActionCommand("Add import action") {
+            PsiDocumentManager.getInstance(project).commitDocument(editor.getDocument)
+            if (!ref.isValid) return
+
+            ref match {
+              case _: ScDocResolvableCodeReference => ref.replace(createDocLinkValue(clazz.qualifiedName)(ref.getManager))
+              case _ =>
+                clazz match {
+                  case ScalaImportTypeFix.PrefixPackageToImport(pack) => ref.bindToPackage(pack, addImport = true)
+                  case _ => ref.bindToElement(clazz.element)
+                }
             }
-          }, clazz.element.getProject, "Add import action")
+          }(clazz.element.getProject)
         }
       })
     }

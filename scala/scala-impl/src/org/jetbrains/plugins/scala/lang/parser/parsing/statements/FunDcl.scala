@@ -16,43 +16,36 @@ import org.jetbrains.plugins.scala.lang.parser.parsing.types.Type
 /*
  * FunDcl ::= FunSig [':' Type]
  */
-object FunDcl extends FunDcl {
-  override protected def funSig = FunSig
-  override protected def `type` = Type
-}
-
-trait FunDcl {
-  protected def funSig: FunSig
-  protected def `type`: Type
+object FunDcl {
 
   def parse(builder: ScalaPsiBuilder): Boolean = {
     //val returnMarker = builder.mark
     builder.getTokenType match {
       case ScalaTokenTypes.kDEF =>
-        builder.advanceLexer //Ate def
+        builder.advanceLexer() //Ate def
       case _ =>
         //returnMarker.drop
         return false
     }
-    if (!(funSig parse builder)) {
+    if (!(FunSig parse builder)) {
       //returnMarker.drop
       return false
     }
     builder.getTokenType match {
       case ScalaTokenTypes.tCOLON =>
-        builder.advanceLexer //Ate :
-        if (`type`.parse(builder)) {
+        builder.advanceLexer() //Ate :
+        if (Type.parse(builder)) {
           //returnMarker.drop
-          return true
+          true
         }
         else {
           builder error ScalaBundle.message("wrong.type")
           //returnMarker.drop
-          return true
+          true
         }
       case _ =>
         //returnMarker.drop
-        return true
+        true
     }
   }
 }

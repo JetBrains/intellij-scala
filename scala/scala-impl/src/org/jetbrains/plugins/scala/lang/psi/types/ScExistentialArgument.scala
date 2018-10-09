@@ -29,10 +29,10 @@ trait ScExistentialArgument extends NamedType with ValueType {
         val s = ScSubstitutor.bind(arg.typeParameters, typeParameters)(TypeParameterType(_))
         val t = lower.equiv(s.subst(arg.lower), constraints, falseUndef)
 
-        if (t.isFailure) return ConstraintsResult.Failure
+        if (t.isLeft) return ConstraintsResult.Left
 
         upper.equiv(s.subst(arg.upper), t.constraints, falseUndef)
-      case _ => ConstraintsResult.Failure
+      case _ => ConstraintsResult.Left
     }
   }
 

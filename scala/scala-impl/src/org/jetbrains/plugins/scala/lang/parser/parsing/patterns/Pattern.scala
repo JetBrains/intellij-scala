@@ -14,16 +14,11 @@ import org.jetbrains.plugins.scala.lang.parser.parsing.builder.ScalaPsiBuilder
 /*
  * Patern ::= Pattern1 {'|' Pattern1}
  */
-object Pattern extends Pattern {
-  override protected def pattern1 = Pattern1
-}
-
-trait Pattern {
-  protected def pattern1: Pattern1
+object Pattern {
 
   def parse(builder: ScalaPsiBuilder): Boolean = {
     val patternMarker = builder.mark
-    if (!pattern1.parse(builder)) {
+    if (!Pattern1.parse(builder)) {
       patternMarker.drop()
       return false
     }
@@ -31,7 +26,7 @@ trait Pattern {
     while (builder.getTokenText == "|") {
       isComposite = true
       builder.advanceLexer() //Ate |
-      if (!pattern1.parse(builder)) {
+      if (!Pattern1.parse(builder)) {
         builder error ScalaBundle.message("wrong.pattern")
       }
     }

@@ -89,7 +89,7 @@ case class ScDesignatorType(element: PsiNamedElement) extends DesignatorOwner {
           case _ => None
         }
     }).getOrElse {
-      ConstraintsResult.Failure
+      ConstraintsResult.Left
     }
   }
 

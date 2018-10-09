@@ -539,7 +539,7 @@ class ImplicitCollector(place: PsiElement,
       val element = coreElement.getOrElse(place)
 
       def equivOrDominates(tp: ScType, found: ScType): Boolean =
-        found.equiv(tp, ConstraintSystem.empty, falseUndef = false).isSuccess || dominates(tp, found)
+        found.equiv(tp, ConstraintSystem.empty, falseUndef = false).isRight || dominates(tp, found)
 
       def checkRecursive(tp: ScType, searches: Seq[ScType]): Boolean = searches.exists(equivOrDominates(tp, _))
 

@@ -9,7 +9,6 @@ import org.jetbrains.plugins.scala.lang.parser.parsing.builder.ScalaPsiBuilder
 import org.jetbrains.plugins.scala.lang.parser.parsing.expressions.Expr
 import org.jetbrains.plugins.scala.lang.parser.parsing.patterns.Pattern2
 import org.jetbrains.plugins.scala.lang.parser.parsing.types.Type
-import org.jetbrains.plugins.scala.lang.parser.util.ParserUtils
 
 /**
 * @author Alexander Podkhalyuzin
@@ -19,32 +18,23 @@ import org.jetbrains.plugins.scala.lang.parser.util.ParserUtils
 /*
  * PatDef ::= Pattern2 {',' Pattern2} [':' Type] '=' Expr
  */
-object PatDef extends PatDef {
-  override protected def expr = Expr
-  override protected def pattern2 = Pattern2
-  override protected def `type` = Type
-}
-
 //TODO: Rewrite this
-trait PatDef {
-  protected def expr: Expr
-  protected def pattern2: Pattern2
-  protected def `type`: Type
+object PatDef {
 
   def parse(builder: ScalaPsiBuilder): Boolean = {
     val someMarker = builder.mark
     val pattern2sMarker = builder.mark
 
-    if (!pattern2.parse(builder, forDef = true)) {
+    if (!Pattern2.parse(builder, forDef = true)) {
       pattern2sMarker.rollbackTo()
       someMarker.drop()
       return false
     }
 
     while (ScalaTokenTypes.tCOMMA.equals(builder.getTokenType)) {
-      ParserUtils.eatElement(builder, ScalaTokenTypes.tCOMMA)
+      builder.checkedAdvanceLexer()
 
-      if (!pattern2.parse(builder, forDef = true)) {
+      if (!Pattern2.parse(builder, forDef = true)) {
         pattern2sMarker.rollbackTo()
         someMarker.drop()
         return false
@@ -56,9 +46,9 @@ trait PatDef {
     var hasTypeDcl = false
 
     if (ScalaTokenTypes.tCOLON.equals(builder.getTokenType)) {
-      ParserUtils.eatElement(builder, ScalaTokenTypes.tCOLON)
+      builder.checkedAdvanceLexer()
 
-      if (!`type`.parse(builder)) {
+      if (!Type.parse(builder)) {
         builder error "type declaration expected"
       }
 
@@ -68,9 +58,9 @@ trait PatDef {
       someMarker.rollbackTo()
       false
     } else {
-      ParserUtils.eatElement(builder, ScalaTokenTypes.tASSIGN)
+      builder.checkedAdvanceLexer()
 
-      if (!expr.parse(builder)) {
+      if (!Expr.parse(builder)) {
         builder error "expression expected"
       }
 

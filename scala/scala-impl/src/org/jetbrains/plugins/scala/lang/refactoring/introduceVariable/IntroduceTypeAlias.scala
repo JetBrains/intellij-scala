@@ -2,7 +2,6 @@ package org.jetbrains.plugins.scala.lang.refactoring.introduceVariable
 
 import java.awt.Component
 import java.util
-import javax.swing.event.{ListSelectionEvent, ListSelectionListener}
 
 import com.intellij.codeInsight.template.impl.{TemplateManagerImpl, TemplateState}
 import com.intellij.codeInsight.unwrap.ScopeHighlighter
@@ -16,8 +15,9 @@ import com.intellij.openapi.util.{Key, TextRange}
 import com.intellij.psi._
 import com.intellij.psi.impl.source.tree.injected.InjectedLanguageUtil
 import com.intellij.psi.util.PsiTreeUtil.{findElementOfClassAtRange, getChildOfType, getParentOfType}
+import javax.swing.event.{ListSelectionEvent, ListSelectionListener}
 import org.jetbrains.plugins.scala.ScalaBundle
-import org.jetbrains.plugins.scala.extensions.{PsiElementExt, ValidSmartPointer, callbackInTransaction, inWriteAction, startCommand}
+import org.jetbrains.plugins.scala.extensions.{PsiElementExt, ValidSmartPointer, callbackInTransaction, executeWriteActionCommand, inWriteAction}
 import org.jetbrains.plugins.scala.lang.psi.ScalaPsiUtil
 import org.jetbrains.plugins.scala.lang.psi.api.base.ScStableCodeReferenceElement
 import org.jetbrains.plugins.scala.lang.psi.api.base.types._
@@ -97,7 +97,7 @@ trait IntroduceTypeAlias {
             scopeItem
           )
 
-          startCommand(project, INTRODUCE_TYPEALIAS_REFACTORING_NAME) {
+          executeWriteActionCommand(INTRODUCE_TYPEALIAS_REFACTORING_NAME) {
             val (namedElementReference, typeElementReference) = inWriteAction {
               runRefactoringForTypeInside(file, inTypeElement, suggestedNames.iterator().next(), allOccurrences, scopeItem)
             }
@@ -230,8 +230,8 @@ trait IntroduceTypeAlias {
 
   def runRefactoringForTypes(file: PsiFile, typeElement: ScTypeElement, typeName: String,
                              occurrences_ : OccurrenceData, scope: ScopeItem)
-                            (implicit editor: Editor): Unit = {
-    startCommand(editor.getProject, INTRODUCE_TYPEALIAS_REFACTORING_NAME) {
+                            (implicit project: Project, editor: Editor): Unit = {
+    executeWriteActionCommand(INTRODUCE_TYPEALIAS_REFACTORING_NAME) {
       runRefactoringForTypeInside(file, typeElement, typeName, occurrences_, scope)
     }
     editor.getSelectionModel.removeSelection()

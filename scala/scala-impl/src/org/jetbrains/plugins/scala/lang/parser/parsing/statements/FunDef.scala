@@ -22,24 +22,7 @@ import org.jetbrains.plugins.scala.lang.parser.util.ParserPatcher
  *          | 'this' ParamClause ParamClauses
  *            ('=' ConstrExpr | [nl] ConstrBlock)
  */
-object FunDef extends FunDef {
-  override protected def constrExpr = ConstrExpr
-  override protected def constrBlock = ConstrBlock
-  override protected def block = Block
-  override protected def funSig = FunSig
-  override protected def expr = Expr
-  override protected def paramClauses = ParamClauses
-  override protected def `type` = Type
-}
-
-trait FunDef {
-  protected def constrExpr: ConstrExpr
-  protected def constrBlock: ConstrBlock
-  protected def expr: Expr
-  protected def block: Block
-  protected def paramClauses: ParamClauses
-  protected def funSig: FunSig
-  protected def `type`: Type
+object FunDef {
 
   def parse(builder: ScalaPsiBuilder): Boolean = {
     val faultMarker = builder.mark
@@ -51,15 +34,15 @@ trait FunDef {
     }
     builder.getTokenType match {
       case ScalaTokenTypes.tIDENTIFIER =>
-        funSig parse builder
+        FunSig parse builder
         builder.getTokenType match {
           case ScalaTokenTypes.tCOLON =>
             builder.advanceLexer() //Ate :
-            if (`type`.parse(builder)) {
+            if (Type.parse(builder)) {
               builder.getTokenType match {
                 case ScalaTokenTypes.tASSIGN =>
                   builder.advanceLexer() //Ate =
-                  if (expr.parse(builder)) {
+                  if (Expr.parse(builder)) {
                     faultMarker.drop()
                     true
                   }
@@ -80,7 +63,7 @@ trait FunDef {
           case ScalaTokenTypes.tASSIGN =>
             builder.advanceLexer() //Ate =
             ParserPatcher getSuitablePatcher builder parse builder
-            if (expr parse builder) {
+            if (Expr parse builder) {
               faultMarker.drop()
               true
             }
@@ -94,7 +77,7 @@ trait FunDef {
               faultMarker.rollbackTo()
               return false
             }
-            block.parse(builder, hasBrace = true)
+            Block.parse(builder, hasBrace = true)
             faultMarker.drop()
             true
           case _ =>
@@ -103,11 +86,11 @@ trait FunDef {
         }
       case ScalaTokenTypes.kTHIS =>
         builder.advanceLexer() //Ate this
-        paramClauses parse(builder, true)
+        ParamClauses parse(builder, true)
         builder.getTokenType match {
           case ScalaTokenTypes.tASSIGN =>
             builder.advanceLexer() //Ate =
-            if (!constrExpr.parse(builder)) {
+            if (!ConstrExpr.parse(builder)) {
               builder error ScalaBundle.message("wrong.constr.expression")
             }
             faultMarker.drop()
@@ -118,7 +101,7 @@ trait FunDef {
               faultMarker.drop()
               return true
             }
-            if (!constrBlock.parse(builder)) {
+            if (!ConstrBlock.parse(builder)) {
               builder error ScalaBundle.message("constr.block.expected")
             }
             faultMarker.drop()

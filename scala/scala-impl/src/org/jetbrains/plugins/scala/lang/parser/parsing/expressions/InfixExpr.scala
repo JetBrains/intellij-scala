@@ -19,12 +19,7 @@ import org.jetbrains.plugins.scala.lang.parser.parsing.types.TypeArgs
  * InfixExpr ::= PrefixExpr
  *             | InfixExpr id [TypeArgs] [nl] InfixExpr
  */
-object InfixExpr extends InfixExpr {
-  override protected def prefixExpr = PrefixExpr
-}
-
-trait InfixExpr {
-  protected def prefixExpr: PrefixExpr
+object InfixExpr {
 
   import org.jetbrains.plugins.scala.lang.parser.util.ParserUtils._
 
@@ -37,7 +32,7 @@ trait InfixExpr {
     val infixMarker = builder.mark
     var backupMarker = builder.mark
     var count = 0
-    if (!prefixExpr.parse(builder)) {
+    if (!PrefixExpr.parse(builder)) {
       backupMarker.drop()
       infixMarker.drop()
       return false
@@ -81,7 +76,7 @@ trait InfixExpr {
       } else {
         backupMarker.drop()
         backupMarker = builder.mark
-        if (!prefixExpr.parse(builder)) {
+        if (!PrefixExpr.parse(builder)) {
           setMarker.rollbackTo()
           count = 0
           exitOf = false

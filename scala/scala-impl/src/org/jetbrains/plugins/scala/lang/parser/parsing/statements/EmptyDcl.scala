@@ -9,30 +9,24 @@ import org.jetbrains.plugins.scala.lang.parser.parsing.expressions.Annotation
 /**
  * @author Alexander Podkhalyuzin
  */
-object EmptyDcl extends EmptyDcl {
-  override protected def annotation = Annotation
-}
+object EmptyDcl {
 
-trait EmptyDcl {
-  protected def annotation: Annotation
-
-  def parse(builder: ScalaPsiBuilder): Boolean = parse(builder,isMod = true)
-  def parse(builder: ScalaPsiBuilder, isMod: Boolean): Boolean = {
+  def parse(builder: ScalaPsiBuilder, isMod: Boolean = true): Boolean = {
     val dclMarker = builder.mark
     if (isMod) {
-      while (annotation.parse(builder)) {}
+      while (Annotation.parse(builder)) {}
       while (Modifier.parse(builder)) {}
     }
     builder.getTokenType match {
       case ScalaTokenTypes.kDEF | ScalaTokenTypes.kVAL | ScalaTokenTypes.kVAR |
            ScalaTokenTypes.kTYPE =>
-        builder.advanceLexer
+        builder.advanceLexer()
         builder.error(ScalaBundle.message("identifier.expected"))
-        dclMarker.drop
-        return true
+        dclMarker.drop()
+        true
       case _ =>
-        dclMarker.rollbackTo
-        return false
+        dclMarker.rollbackTo()
+        false
     }
   }
 }

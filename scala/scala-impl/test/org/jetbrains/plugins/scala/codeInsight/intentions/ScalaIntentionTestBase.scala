@@ -3,13 +3,14 @@ package codeInsight
 package intentions
 
 import com.intellij.codeInsight.intention.IntentionAction
+import com.intellij.openapi.project.Project
 import com.intellij.psi.codeStyle.CodeStyleManager
+import com.intellij.testFramework.EditorTestUtil
 import org.jetbrains.plugins.scala.base.ScalaLightCodeInsightFixtureTestAdapter
 import org.jetbrains.plugins.scala.extensions._
 import org.junit.Assert.{assertFalse, assertTrue, fail}
-import scala.collection.JavaConverters._
 
-import com.intellij.testFramework.EditorTestUtil
+import scala.collection.JavaConverters._
 
 /**
   * @author Ksenia.Sautina
@@ -24,17 +25,17 @@ abstract class ScalaIntentionTestBase extends ScalaLightCodeInsightFixtureTestAd
   def caretTag: String = EditorTestUtil.CARET_TAG
 
   protected def doTest(text: String, resultText: String): Unit = {
-    val project = getProject
+    implicit val project: Project = getProject
 
     findIntention(text) match {
       case Some(action) =>
-        startCommand(project, "Test Intention") {
+        executeWriteActionCommand("Test Intention") {
           action.invoke(project, getEditor, getFile)
         }
       case None => fail("Intention is not found")
     }
 
-    startCommand(project, "Test Intention Formatting") {
+    executeWriteActionCommand("Test Intention Formatting") {
       CodeStyleManager.getInstance(project).reformat(getFile)
       getFixture.checkResult(normalize(resultText))
     }

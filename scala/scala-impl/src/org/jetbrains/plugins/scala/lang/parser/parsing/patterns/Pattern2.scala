@@ -18,12 +18,8 @@ import org.jetbrains.plugins.scala.lang.parser.util.ParserUtils
  *            | _ '@' Pattern3
  *            | Pattern3
  */
-object Pattern2 extends Pattern2 {
-  override protected def pattern3 = Pattern3
-}
-
-trait Pattern2 {
-  protected def pattern3: Pattern3
+object Pattern2 {
+  protected def pattern3= Pattern3
 
   def parse(builder: ScalaPsiBuilder, forDef: Boolean): Boolean = {
     def testForId = {
@@ -47,7 +43,7 @@ trait Pattern2 {
           builder.advanceLexer()
           pattern2Marker.done(ScalaElementTypes.REFERENCE_PATTERN)
           return true
-        } else if (ParserUtils.isCurrentVarId(builder) && !ParserUtils.isIdBindingEnabled(builder)) {
+        } else if (ParserUtils.isCurrentVarId(builder) && !builder.isIdBindingEnabled) {
           backupMarker.rollbackTo()
         } else {
           builder.advanceLexer() //Ate id

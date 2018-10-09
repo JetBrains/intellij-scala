@@ -121,49 +121,49 @@ case class ScCompoundType(components: Seq[ScType],
     r match {
       case r: ScCompoundType =>
         if (r == this) return lastConstraints
-        if (components.length != r.components.length) return ConstraintsResult.Failure
+        if (components.length != r.components.length) return ConstraintsResult.Left
         val list = components.zip(r.components)
         val iterator = list.iterator
         while (iterator.hasNext) {
           val (w1, w2) = iterator.next()
           val t = w1.equiv(w2, lastConstraints, falseUndef)
-          if (t.isFailure) return ConstraintsResult.Failure
+          if (t.isLeft) return ConstraintsResult.Left
 
           lastConstraints = t.constraints
         }
 
-        if (signatureMap.size != r.signatureMap.size) return ConstraintsResult.Failure
+        if (signatureMap.size != r.signatureMap.size) return ConstraintsResult.Left
 
         val iterator2 = signatureMap.iterator
         while (iterator2.hasNext) {
           val (sig, t) = iterator2.next()
           r.signatureMap.get(sig) match {
-            case None => return ConstraintsResult.Failure
+            case None => return ConstraintsResult.Left
             case Some(t1) =>
               val f = t.equiv(t1, lastConstraints, falseUndef)
 
-              if (f.isFailure) return ConstraintsResult.Failure
+              if (f.isLeft) return ConstraintsResult.Left
               lastConstraints = f.constraints
           }
         }
 
         val types1 = typesMap
         val types2 = r.typesMap
-        if (types1.size != types2.size) ConstraintsResult.Failure
+        if (types1.size != types2.size) ConstraintsResult.Left
         else {
           val types1iterator = types1.iterator
           while (types1iterator.hasNext) {
             val (name, bounds1) = types1iterator.next()
             types2.get(name) match {
-              case None => return ConstraintsResult.Failure
+              case None => return ConstraintsResult.Left
               case Some (bounds2) =>
                 var t = bounds1.lowerBound.equiv(bounds2.lowerBound, lastConstraints, falseUndef)
 
-                if (t.isFailure) return ConstraintsResult.Failure
+                if (t.isLeft) return ConstraintsResult.Left
                 lastConstraints = t.constraints
 
                 t = bounds1.upperBound.equiv(bounds2.upperBound, lastConstraints, falseUndef)
-                if (t.isFailure) return ConstraintsResult.Failure
+                if (t.isLeft) return ConstraintsResult.Left
 
                 lastConstraints = t.constraints
             }
@@ -176,16 +176,16 @@ case class ScCompoundType(components: Seq[ScType],
           val filtered = components.filter {
             case t if t.isAny => false
             case t if t.isAnyRef =>
-              if (!r.conforms(AnyRef)) return ConstraintsResult.Failure
+              if (!r.conforms(AnyRef)) return ConstraintsResult.Left
               false
             case ScDesignatorType(obj: PsiClass) if obj.qualifiedName == "java.lang.Object" =>
-              if (!r.conforms(AnyRef)) return ConstraintsResult.Failure
+              if (!r.conforms(AnyRef)) return ConstraintsResult.Left
               false
             case _ => true
           }
           if (filtered.length == 1) filtered.head.equiv(r, lastConstraints, falseUndef)
-          else ConstraintsResult.Failure
-        } else ConstraintsResult.Failure
+          else ConstraintsResult.Left
+        } else ConstraintsResult.Left
     }
   }
 }

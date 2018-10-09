@@ -7,6 +7,7 @@ package parsing
 import com.intellij.lang.PsiBuilder
 import com.intellij.psi.tree.{IElementType, TokenSet}
 import org.jetbrains.plugins.scala.lang.lexer.ScalaTokenTypes
+import org.jetbrains.plugins.scala.lang.parser.PsiBuilderExt
 import org.jetbrains.plugins.scala.lang.parser.parsing.builder.ScalaPsiBuilderImpl
 import org.jetbrains.plugins.scala.lang.parser.parsing.types.StableId
 import org.jetbrains.plugins.scala.lang.scaladoc.lexer.ScalaDocTokenType._
@@ -183,7 +184,7 @@ class MyScaladocParsing(private val psiBuilder: PsiBuilder) extends ScalaDocElem
           closedBy("Inner code tag")
           return true
         case DOC_INLINE_TAG_START
-          if ParserUtils.lookAhead(builder, DOC_INLINE_TAG_START, DOC_TAG_NAME) && canHaveTags =>
+          if builder.lookAhead(DOC_INLINE_TAG_START, DOC_TAG_NAME) && canHaveTags =>
           isInInlinedTag = true
           parseTag
         case DOC_WHITESPACE if tokenType != DOC_MONOSPACE_TAG =>
@@ -238,15 +239,17 @@ class MyScaladocParsing(private val psiBuilder: PsiBuilder) extends ScalaDocElem
   }
 
   private def parseTag(implicit builder: PsiBuilder): Boolean = {
-    import org.jetbrains.plugins.scala.lang.scaladoc.parser.parsing.MyScaladocParsing._
+    import MyScaladocParsing._
 
     val marker = builder.mark()
-    if (isInInlinedTag) ParserUtils.getToken(builder, DOC_INLINE_TAG_START)
-
-    assert(builder.getTokenType eq DOC_TAG_NAME, builder.getTokenText + "  "
-            + builder.getTokenType + "  " + builder.getCurrentOffset)
+    builder.getTokenType match {
+      case DOC_INLINE_TAG_START if isInInlinedTag => builder.advanceLexer()
+      case _ =>
+    }
 
     val tagName = builder.getTokenText
+    assert(builder.getTokenType eq DOC_TAG_NAME, s"$tagName  ${builder.getTokenType}  ${builder.getCurrentOffset}")
+
     if (!isEndOfComment) builder.advanceLexer() else scaladocError(builder, "Unexpected end of tag body")
     
     if (isInInlinedTag) scaladocError(builder, "Inline tag") else {
@@ -257,7 +260,7 @@ class MyScaladocParsing(private val psiBuilder: PsiBuilder) extends ScalaDocElem
           }
           StableId.parse(new ScalaPsiBuilderImpl(builder), forImport = true, DOC_TAG_VALUE_TOKEN)
         case PARAM_TAG | TYPE_PARAM_TAG | DEFINE_TAG =>
-          if (!ParserUtils.lookAhead(builder, builder.getTokenType, DOC_TAG_VALUE_TOKEN)) scaladocError(builder, "Missing tag param")
+          if (!builder.lookAhead(builder.getTokenType, DOC_TAG_VALUE_TOKEN)) scaladocError(builder, "Missing tag param")
         case tag if allTags.contains(tag) =>
           //do nothing
         case _ =>

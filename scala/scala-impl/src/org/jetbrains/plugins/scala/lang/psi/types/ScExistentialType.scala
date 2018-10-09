@@ -50,7 +50,7 @@ class ScExistentialType private (val quantified: ScType,
             case u => ScExistentialType(ScParameterizedType(u, args))
           }
         val conformance = r.conforms(upper, constraints)
-        if (conformance.isFailure) return conformance
+        if (conformance.isLeft) return conformance
 
         val lower: ScType =
           subst.subst(lowerBound) match {
@@ -62,19 +62,19 @@ class ScExistentialType private (val quantified: ScType,
         r match {
           case ParameterizedType(des, _) =>
             val y = conformance.addParam(typeParameter, des, constraints)
-            if (y.isFailure) return ConstraintsResult.Failure
+            if (y.isLeft) return ConstraintsResult.Left
 
             return ScExistentialType(ScParameterizedType(des, args)).equiv(r, y.constraints, falseUndef)
           case ScExistentialType(ParameterizedType(des, _), _) =>
             val y = conformance.addParam(typeParameter, des, constraints)
-            if (y.isFailure) return ConstraintsResult.Failure
+            if (y.isLeft) return ConstraintsResult.Left
 
             return ScExistentialType(ScParameterizedType(des, args)).equiv(r, y.constraints, falseUndef)
-          case _ => return ConstraintsResult.Failure //looks like something is wrong
+          case _ => return ConstraintsResult.Left //looks like something is wrong
         }
       case (ParameterizedType(pType, args), ParameterizedType(rType, _)) =>
         val res = pType.equivInner(rType, constraints, falseUndef)
-        if (res.isFailure) return res
+        if (res.isLeft) return res
         conformance.extractParams(rType) match {
           case Some(iter) =>
             val (names, existArgsBounds) =
@@ -100,7 +100,7 @@ class ScExistentialType private (val quantified: ScType,
         while (iterator.hasNext) {
           val (w1, w2) = iterator.next()
           val t = w2.equivInner(w1, lastConstraints, falseUndef)
-          if (t.isFailure) return ConstraintsResult.Failure
+          if (t.isLeft) return ConstraintsResult.Left
           lastConstraints = t.constraints
         }
         quantified.equiv(ex.quantified, constraints, falseUndef) //todo: probable problems with different positions of skolemized types.
@@ -113,14 +113,14 @@ class ScExistentialType private (val quantified: ScType,
           val (w, tp) = iterator.next()
 
           t = w.lower.equivInner(tp.lowerType, t.constraints, falseUndef)
-          if (t.isFailure) return ConstraintsResult.Failure
+          if (t.isLeft) return ConstraintsResult.Left
 
           t = w.upper.equivInner(tp.upperType, t.constraints, falseUndef)
-          if (t.isFailure) return ConstraintsResult.Failure
+          if (t.isLeft) return ConstraintsResult.Left
         }
         val polySubst = ScSubstitutor.bind(poly.typeParameters, wildcards)
         quantified.equiv(polySubst.subst(poly.internalType), t.constraints, falseUndef)
-      case _ => ConstraintsResult.Failure
+      case _ => ConstraintsResult.Left
     }
   }
 

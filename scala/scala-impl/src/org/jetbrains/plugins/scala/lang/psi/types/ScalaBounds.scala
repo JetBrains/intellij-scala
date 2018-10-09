@@ -83,7 +83,7 @@ trait ScalaBounds extends api.Bounds {
     lubDepthAdjust(td, td max bd)
   }
 
-  private def conforms(t1: ScType, t2: ScType, checkWeak: Boolean) = t1.conforms(t2, ConstraintSystem.empty, checkWeak).isSuccess
+  private def conforms(t1: ScType, t2: ScType, checkWeak: Boolean) = t1.conforms(t2, ConstraintSystem.empty, checkWeak).isRight
 
   //This weird method is copy from Scala compiler. See scala.reflect.internal.Types#lubDepthAdjust
   private def lubDepthAdjust(td: Int, bd: Int): Int = {

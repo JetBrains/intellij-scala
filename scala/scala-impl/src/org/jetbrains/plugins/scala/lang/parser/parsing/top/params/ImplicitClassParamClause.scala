@@ -6,7 +6,6 @@ package top.params
 
 import org.jetbrains.plugins.scala.lang.lexer.ScalaTokenTypes
 import org.jetbrains.plugins.scala.lang.parser.parsing.builder.ScalaPsiBuilder
-import org.jetbrains.plugins.scala.lang.parser.util.ParserUtils
 
 /**
 * @author Alexander Podkhalyuzin
@@ -16,12 +15,7 @@ import org.jetbrains.plugins.scala.lang.parser.util.ParserUtils
 /*
  * ClassParamClause ::= [nl] '(' 'implicit' ClassParam {',' ClassParam} ')'
  */
-object ImplicitClassParamClause extends ImplicitClassParamClause {
-  override protected def classParam = ClassParam
-}
-
-trait ImplicitClassParamClause {
-  protected def classParam: ClassParam
+object ImplicitClassParamClause {
 
   def parse(builder: ScalaPsiBuilder): Boolean = {
     val classParamMarker = builder.mark
@@ -43,14 +37,14 @@ trait ImplicitClassParamClause {
             builder error ErrMsg("wrong.parameter")
         }
         //ok, let's parse parameters
-        if (!(classParam parse builder)) {
+        if (!ClassParam.parse(builder)) {
           classParamMarker.rollbackTo()
           builder.restoreNewlinesState()
           return false
         }
-        while (builder.getTokenType == ScalaTokenTypes.tCOMMA && !ParserUtils.eatTrailingComma(builder, ScalaTokenTypes.tRPARENTHESIS)) {
+        while (builder.getTokenType == ScalaTokenTypes.tCOMMA && !builder.consumeTrailingComma(ScalaTokenTypes.tRPARENTHESIS)) {
           builder.advanceLexer() //Ate ,
-          if (!(classParam parse builder)) {
+          if (!ClassParam.parse(builder)) {
             classParamMarker.rollbackTo()
             builder.restoreNewlinesState()
             return false

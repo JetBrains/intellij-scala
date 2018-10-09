@@ -16,16 +16,7 @@ import org.jetbrains.plugins.scala.lang.parser.parsing.types.{AnnotType, SimpleT
 /*
  * Constr ::= AnnotType {ArgumentExprs}
  */
-object Constructor extends Constructor {
-  override protected def argumentExprs = ArgumentExprs
-  override protected def annotType = AnnotType
-  override protected def simpleType = SimpleType
-}
-
-trait Constructor {
-  protected def argumentExprs: ArgumentExprs
-  protected def annotType: AnnotType
-  protected def simpleType: SimpleType
+object Constructor {
 
   def parse(builder: ScalaPsiBuilder): Boolean = parse(builder, isAnnotation = false)
   
@@ -37,17 +28,17 @@ trait Constructor {
         latestDoneMarker.getTokenType != ScalaElementTypes.MODIFIERS && 
         latestDoneMarker.getTokenType != ScalaElementTypes.TYPE_PARAM_CLAUSE)
 
-    if ((!isAnnotation && !annotType.parse(builder, isPattern = false, multipleSQBrackets = false)) ||
-      (isAnnotation && !simpleType.parse(builder, isPattern = false))) {
+    if ((!isAnnotation && !AnnotType.parse(builder, isPattern = false, multipleSQBrackets = false)) ||
+      (isAnnotation && !SimpleType.parse(builder, isPattern = false))) {
       constrMarker.drop()
       return false
     }
     
     if (builder.getTokenType == ScalaTokenTypes.tLPARENTHESIS) {
       if (!builder.newlineBeforeCurrentToken)
-        argumentExprs parse builder
+        ArgumentExprs parse builder
       while (builder.getTokenType == ScalaTokenTypes.tLPARENTHESIS && (!isAnnotation || annotationAllowed) && !builder.newlineBeforeCurrentToken) {
-        argumentExprs parse builder
+        ArgumentExprs parse builder
       }
     }
     constrMarker.done(ScalaElementTypes.CONSTRUCTOR)

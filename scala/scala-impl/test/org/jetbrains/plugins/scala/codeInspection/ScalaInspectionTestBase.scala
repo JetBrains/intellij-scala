@@ -8,7 +8,7 @@ import com.intellij.openapi.editor.SelectionModel
 import com.intellij.openapi.util.TextRange
 import org.jetbrains.plugins.scala.base.ScalaLightCodeInsightFixtureTestAdapter
 import org.jetbrains.plugins.scala.base.ScalaLightCodeInsightFixtureTestAdapter.{findCaretOffset, normalize}
-import org.jetbrains.plugins.scala.extensions.startCommand
+import org.jetbrains.plugins.scala.extensions.executeWriteActionCommand
 import org.junit.Assert._
 
 import scala.collection.JavaConverters
@@ -89,9 +89,9 @@ abstract class ScalaQuickFixTestBase extends ScalaInspectionTestBase {
     val maybeAction = findQuickFix(text, hint)
     assertFalse(s"Quick fix not found: $hint", maybeAction.isEmpty)
 
-    startCommand(getProject) {
+    executeWriteActionCommand() {
       maybeAction.get.invoke(getProject, getEditor, getFile)
-    }
+    }(getProject)
 
     val expectedFileText = createTestText(expected)
     getFixture.checkResult(normalize(expectedFileText), /*stripTrailingSpaces = */ true)

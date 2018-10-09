@@ -22,25 +22,14 @@ import org.jetbrains.plugins.scala.lang.parser.parsing.expressions.Annotation
  *          | trait TraitDef
  *
  */
-object TmplDef extends TmplDef {
-  override protected def classDef = ClassDef
-  override protected def objectDef = ObjectDef
-  override protected def traitDef = TraitDef
-  override protected def annotation = Annotation
-}
-
-trait TmplDef {
-  protected def classDef: ClassDef
-  protected def objectDef: ObjectDef
-  protected def traitDef: TraitDef
-  protected def annotation: Annotation
+object TmplDef {
 
   def parse(builder: ScalaPsiBuilder): Boolean = {
     val templateMarker = builder.mark()
     templateMarker.setCustomEdgeTokenBinders(ScalaTokenBinders.PRECEEDING_COMMENTS_TOKEN, null)
 
     val annotationsMarker = builder.mark()
-    while (annotation.parse(builder)) {
+    while (Annotation.parse(builder)) {
     }
     annotationsMarker.done(ScalaElementTypes.ANNOTATIONS)
     annotationsMarker.setCustomEdgeTokenBinders(ScalaTokenBinders.DEFAULT_LEFT_EDGE_BINDER, null)
@@ -87,11 +76,11 @@ trait TmplDef {
   }
 
   private def templateParser(tokenType: IElementType, caseState: Boolean) = tokenType match {
-    case ScalaTokenTypes.kCLASS => Some(classDef.parse _, ScalaElementTypes.CLASS_DEFINITION)
-    case ScalaTokenTypes.kOBJECT => Some(objectDef.parse _, ScalaElementTypes.OBJECT_DEFINITION)
+    case ScalaTokenTypes.kCLASS => Some(ClassDef.parse _, ScalaElementTypes.CLASS_DEFINITION)
+    case ScalaTokenTypes.kOBJECT => Some(ObjectDef.parse _, ScalaElementTypes.OBJECT_DEFINITION)
     case ScalaTokenTypes.kTRAIT =>
       def parse(builder: ScalaPsiBuilder): Boolean = {
-        val result = traitDef.parse(builder)
+        val result = TraitDef.parse(builder)
         if (caseState) true else result
       }
 

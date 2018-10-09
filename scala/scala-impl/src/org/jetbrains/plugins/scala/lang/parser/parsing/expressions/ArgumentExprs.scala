@@ -6,7 +6,6 @@ package expressions
 
 import org.jetbrains.plugins.scala.lang.lexer.ScalaTokenTypes
 import org.jetbrains.plugins.scala.lang.parser.parsing.builder.ScalaPsiBuilder
-import org.jetbrains.plugins.scala.lang.parser.util.ParserUtils
 
 /**
 * @author Alexander Podkhalyuzin
@@ -17,14 +16,7 @@ import org.jetbrains.plugins.scala.lang.parser.util.ParserUtils
  * ArgumentExprs ::= '(' [Exprs [',']] ')'
  *                 | [nl] BlockExpr
  */
-object ArgumentExprs extends ArgumentExprs {
-  override protected def blockExpr = BlockExpr
-  override protected def expr = Expr
-}
-
-trait ArgumentExprs {
-  protected def blockExpr: BlockExpr
-  protected def expr: Expr
+object ArgumentExprs {
 
   def parse(builder: ScalaPsiBuilder): Boolean = {
     val argMarker = builder.mark
@@ -32,10 +24,10 @@ trait ArgumentExprs {
       case ScalaTokenTypes.tLPARENTHESIS =>
         builder.advanceLexer() //Ate (
         builder.disableNewlines()
-        expr parse builder
-        while (builder.getTokenType == ScalaTokenTypes.tCOMMA && !ParserUtils.eatTrailingComma(builder, ScalaTokenTypes.tRPARENTHESIS)) {
+        Expr parse builder
+        while (builder.getTokenType == ScalaTokenTypes.tCOMMA && !builder.consumeTrailingComma(ScalaTokenTypes.tRPARENTHESIS)) {
           builder.advanceLexer()
-          if (!expr.parse(builder)) builder error ErrMsg("wrong.expression")
+          if (!Expr.parse(builder)) builder error ErrMsg("wrong.expression")
         }
       
         builder.getTokenType match {
@@ -52,7 +44,7 @@ trait ArgumentExprs {
           argMarker.rollbackTo()
           return false
         }
-        blockExpr parse builder
+        BlockExpr parse builder
         argMarker.done(ScalaElementTypes.ARG_EXPRS)
         true
       case _ =>

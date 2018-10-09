@@ -12,14 +12,7 @@ import org.jetbrains.plugins.scala.lang.parser.parsing.types.Type
 * @author Alexander Podkhalyuzin
 * Date: 03.03.2008
 */
-object Ascription extends Ascription {
-  override protected def annotation = Annotation
-  override protected def `type` = Type
-}
-
-trait Ascription {
-  protected def annotation: Annotation
-  protected def `type`: Type
+object Ascription {
 
   def parse(builder: ScalaPsiBuilder): Boolean = {
     val ascriptionMarker = builder.mark
@@ -45,10 +38,10 @@ trait Ascription {
         return true
       case _ =>
     }
-    if (!`type`.parse(builder)) {
+    if (!Type.parse(builder)) {
       var x = 0
       val annotationsMarker = builder.mark
-      while (annotation.parse(builder)) {
+      while (Annotation.parse(builder)) {
         x = x + 1
       }
       annotationsMarker.done(ScalaElementTypes.ANNOTATIONS)

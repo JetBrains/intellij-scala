@@ -1,6 +1,6 @@
-package scala.meta.intellij
+package scala.meta
+package intellij
 
-import org.jetbrains.plugins.scala.lang.psi.ScalaPsiUtil
 import org.jetbrains.plugins.scala.lang.psi.api.toplevel.typedef.ScTypeDefinition
 import org.jetbrains.plugins.scala.lang.psi.impl.toplevel.typedef.{ScObjectImpl, SyntheticMembersInjector}
 
@@ -27,6 +27,7 @@ class MetaSupportInjector extends SyntheticMembersInjector {
     }
   }
 
+  import intellij.psi._
   /**
     * Use this method to mark class or trait, that it requires companion object.
     * Note that object as source is not possible.
@@ -34,9 +35,9 @@ class MetaSupportInjector extends SyntheticMembersInjector {
     * @param source class or trait
     * @return if this source requires companion object
     */
-  override def needsCompanionObject(source: ScTypeDefinition): Boolean = {
-    import scala.meta.intellij.psiExt._
-
-    source.getMetaCompanionObject.isDefined
-  }
+  override def needsCompanionObject(source: ScTypeDefinition): Boolean =
+    source.metaExpand.exists {
+      case Term.Block(Seq(_: Defn, obj: Defn.Object)) => true
+      case _ => false
+    }
 }

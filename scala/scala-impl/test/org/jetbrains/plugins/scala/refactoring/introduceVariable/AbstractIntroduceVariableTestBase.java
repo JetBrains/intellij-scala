@@ -149,7 +149,7 @@ abstract public class AbstractIntroduceVariableTestBase extends ActionTestBase {
         Assert.assertNotNull("Selected expression reference points to null", selectedExpr);
 
         OccurrencesInFile occurrencesInFile = new OccurrencesInFile(myFile, new TextRange(startOffset, endOffset), ScalaRefactoringUtil.getOccurrenceRanges(selectedExpr, myFile));
-          introduceVariableHandler.runRefactoring(occurrencesInFile, selectedExpr, "value", types[0], replaceAllOccurences, false, myEditor);
+        introduceVariableHandler.runRefactoring(occurrencesInFile, selectedExpr, "value", types[0], replaceAllOccurences, false, myEditor.getProject(), myEditor);
 
         result = myEditor.getDocument().getText();
       } else if (element instanceof ScTypeElement){
@@ -177,7 +177,7 @@ abstract public class AbstractIntroduceVariableTestBase extends ActionTestBase {
           OccurrenceData occurrences = OccurrenceData.apply(typeElement, replaceAllOccurences,
                   replaceCompanionObjOccurrences, replaceOccurrencesFromInheritors, scopes[0]);
 
-          introduceVariableHandler.runRefactoringForTypes(myFile, typeElement, typeName, occurrences, scopes[0], myEditor);
+          introduceVariableHandler.runRefactoringForTypes(myFile, typeElement, typeName, occurrences, scopes[0], myEditor.getProject(), myEditor);
 
           result = removeTypenameComment(myEditor.getDocument().getText());
         }

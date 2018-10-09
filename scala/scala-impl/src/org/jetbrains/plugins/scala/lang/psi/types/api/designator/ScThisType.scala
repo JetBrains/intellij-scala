@@ -37,28 +37,28 @@ case class ScThisType(element: ScTemplateDefinition) extends DesignatorOwner {
     (this, `type`) match {
       case (ScThisType(clazz1), ScThisType(clazz2)) =>
         if (ScEquivalenceUtil.areClassesEquivalent(clazz1, clazz2)) constraints
-        else ConstraintsResult.Failure
+        else ConstraintsResult.Left
       case (ScThisType(obj1: ScObject), ScDesignatorType(obj2: ScObject)) =>
         if (ScEquivalenceUtil.areClassesEquivalent(obj1, obj2)) constraints
-        else ConstraintsResult.Failure
+        else ConstraintsResult.Left
       case (_, ScDesignatorType(_: ScObject)) =>
-        ConstraintsResult.Failure
+        ConstraintsResult.Left
       case (_, ScDesignatorType(typed: ScTypedDefinition)) if typed.isStable =>
         typed.`type`() match {
           case Right(tp: DesignatorOwner) if tp.isSingleton =>
             this.equiv(tp, constraints, falseUndef)
           case _ =>
-            ConstraintsResult.Failure
+            ConstraintsResult.Left
         }
-      case (_, ScProjectionType(_, _: ScObject)) => ConstraintsResult.Failure
+      case (_, ScProjectionType(_, _: ScObject)) => ConstraintsResult.Left
       case (_, p@ScProjectionType(tp, elem: ScTypedDefinition)) if elem.isStable =>
         elem.`type`() match {
           case Right(singleton: DesignatorOwner) if singleton.isSingleton =>
             val newSubst = p.actualSubst.followed(ScSubstitutor(tp))
             this.equiv(newSubst.subst(singleton), constraints, falseUndef)
-          case _ => ConstraintsResult.Failure
+          case _ => ConstraintsResult.Left
         }
-      case _ => ConstraintsResult.Failure
+      case _ => ConstraintsResult.Left
     }
   }
 

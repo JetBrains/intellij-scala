@@ -6,7 +6,6 @@ package types
 
 import org.jetbrains.plugins.scala.lang.lexer.ScalaTokenTypes
 import org.jetbrains.plugins.scala.lang.parser.parsing.builder.ScalaPsiBuilder
-import org.jetbrains.plugins.scala.lang.parser.util.ParserUtils._
 
 /**
 * @author Alexander Podkhalyuzin
@@ -25,6 +24,11 @@ object ParamType extends ParamType {
 trait ParamType {
   protected def `type`: Type
 
+  def parse(builder: ScalaPsiBuilder): Boolean =
+    builder.build(ScalaElementTypes.PARAM_TYPE) {
+      parseInner
+    }
+
   def parseInner(builder: ScalaPsiBuilder): Boolean = {
     builder.getTokenType match {
       case ScalaTokenTypes.tFUNTYPE =>
@@ -41,6 +45,4 @@ trait ParamType {
         }
     }
   }
-
-  def parse(builder: ScalaPsiBuilder): Boolean = build(ScalaElementTypes.PARAM_TYPE, builder) { parseInner(builder) }
 }

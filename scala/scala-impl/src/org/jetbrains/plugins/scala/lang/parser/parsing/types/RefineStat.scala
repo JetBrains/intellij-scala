@@ -17,37 +17,28 @@ import org.jetbrains.plugins.scala.lang.parser.parsing.statements.{Dcl, Def, Emp
  * RefineStat ::= Dcl
  *              | 'type' TypeDef
  */
-object RefineStat extends RefineStat {
-  override protected def `def` = Def
-  override protected def dcl = Dcl
-  override protected def emptyDcl = EmptyDcl
-}
-
-trait RefineStat {
-  protected def `def`: Def
-  protected def dcl: Dcl
-  protected def emptyDcl: EmptyDcl
+object RefineStat {
 
   def parse(builder: ScalaPsiBuilder): Boolean = {
     builder.getTokenType match {
       case ScalaTokenTypes.kTYPE =>
-        if (!`def`.parse(builder, isMod = false)) {
-          if (!dcl.parse(builder, isMod = false)) {
-            emptyDcl.parse(builder, isMod = false)
+        if (!Def.parse(builder, isMod = false)) {
+          if (!Dcl.parse(builder, isMod = false)) {
+            EmptyDcl.parse(builder, isMod = false)
           }
         }
-        return true
+        true
       case ScalaTokenTypes.kVAR | ScalaTokenTypes.kVAL
            | ScalaTokenTypes.kDEF =>
-        if (dcl.parse(builder, isMod = false)) {
-          return true
+        if (Dcl.parse(builder, isMod = false)) {
+          true
         }
         else {
-          emptyDcl.parse(builder, isMod = false)
-          return true
+          EmptyDcl.parse(builder, isMod = false)
+          true
         }
       case _ =>
-        return false
+        false
     }
   }
 }

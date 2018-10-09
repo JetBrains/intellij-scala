@@ -12,14 +12,7 @@ import org.jetbrains.plugins.scala.lang.parser.util.ParserUtils
  * @author kfeodorov
  * @since 03.03.14.
  */
-object CommonUtils extends CommonUtils {
-  override protected def blockExpr = BlockExpr
-  override protected def pattern = Pattern
-}
-
-trait CommonUtils {
-  protected def blockExpr: BlockExpr
-  protected def pattern: Pattern
+object CommonUtils {
 
   def parseInterpolatedString(builder: ScalaPsiBuilder, isPattern: Boolean): Unit = {
     val prefixMarker = builder.mark()
@@ -38,13 +31,13 @@ trait CommonUtils {
               idMarker.done(ScalaElementTypes.REFERENCE_PATTERN)
           } else if (builder.getTokenType == ScalaTokenTypes.tLBRACE) {
             builder.advanceLexer()
-            if (!pattern.parse(builder)) builder.error("Wrong pattern")
+            if (!Pattern.parse(builder)) builder.error("Wrong pattern")
             else if (builder.getTokenType != ScalaTokenTypes.tRBRACE) {
               builder.error("'}' is expected")
               ParserUtils.parseLoopUntilRBrace(builder, () => (), braceReported = true)
             } else builder.advanceLexer()
           }
-        } else if (!blockExpr.parse(builder)) {
+        } else if (!BlockExpr.parse(builder)) {
           if (builder.getTokenType == ScalaTokenTypes.tIDENTIFIER) {
             val idMarker = builder.mark()
             builder.advanceLexer()

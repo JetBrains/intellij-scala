@@ -17,22 +17,13 @@ import org.jetbrains.plugins.scala.lang.parser.parsing.types.ParamType
 /*
  * Param ::= {Annotation} id [':' ParamType] ['=' Expr]
  */
-object Param extends Param {
-  override protected def expr = Expr
-  override protected def annotation = Annotation
-  override protected def paramType = ParamType
-}
-
-trait Param {
-  protected def expr: Expr
-  protected def annotation: Annotation
-  protected def paramType: ParamType
+object Param {
 
   def parse(builder: ScalaPsiBuilder): Boolean = {
     val paramMarker = builder.mark
     //parse annotations
     val annotationsMarker = builder.mark
-    while (annotation.parse(builder)) {}
+    while (Annotation.parse(builder)) {}
     annotationsMarker.done(ScalaElementTypes.ANNOTATIONS)
 
     //empty modifiers
@@ -50,13 +41,13 @@ trait Param {
     builder.getTokenType match {
       case ScalaTokenTypes.tCOLON =>
         builder.advanceLexer() //Ate :
-        if (!paramType.parse(builder)) builder error ErrMsg("wrong.type")
+        if (!ParamType.parse(builder)) builder error ErrMsg("wrong.type")
       case _ =>
     }
     builder.getTokenType match {
       case ScalaTokenTypes.tASSIGN =>
         builder.advanceLexer() //Ate =
-        if (!expr.parse(builder)) builder error ErrMsg("wrong.expression")
+        if (!Expr.parse(builder)) builder error ErrMsg("wrong.expression")
       case _ =>
     }
     paramMarker.done(ScalaElementTypes.PARAM)

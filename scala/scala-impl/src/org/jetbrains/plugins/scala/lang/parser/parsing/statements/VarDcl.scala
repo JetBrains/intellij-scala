@@ -17,12 +17,7 @@ import org.jetbrains.plugins.scala.lang.parser.parsing.types.Type
 /*
  * VarDcl ::= ids ':' Type
  */
-object VarDcl extends VarDcl {
-  override protected def `type` = Type
-}
-
-trait VarDcl {
-  protected def `type`: Type
+object VarDcl {
 
   def parse(builder: ScalaPsiBuilder): Boolean = {
     val returnMarker = builder.mark
@@ -30,7 +25,7 @@ trait VarDcl {
     builder.getTokenType match {
       case ScalaTokenTypes.kVAR => builder.advanceLexer() //Ate var
       case _ =>
-        returnMarker.rollbackTo
+        returnMarker.rollbackTo()
         return false
     }
     //Look for identifier
@@ -39,36 +34,31 @@ trait VarDcl {
         Ids parse builder
         //Look for :
         builder.getTokenType match {
-          case ScalaTokenTypes.tCOLON => {
-            builder.advanceLexer //Ate :
-            if (`type`.parse(builder)) {
-              returnMarker.drop
+          case ScalaTokenTypes.tCOLON =>
+            builder.advanceLexer() //Ate :
+            if (Type.parse(builder)) {
+              returnMarker.drop()
             }
             else {
               builder error ScalaBundle.message("wrong.type")
-              returnMarker.drop
+              returnMarker.drop()
             }
-          }
-          case _ => {
+          case _ =>
             builder error ScalaBundle.message("wrong.var.declaration")
-            returnMarker.drop
-          }
+            returnMarker.drop()
         }
 
         builder.getTokenType match {
-          case ScalaTokenTypes.tASSIGN => {
-            builder.advanceLexer
+          case ScalaTokenTypes.tASSIGN =>
+            builder.advanceLexer()
             builder.error("Expected expression")
-            return true
-          }
-          case _ => {
-            return true
-          }
+          case _ =>
         }
+        true
       case _ =>
         builder error ScalaBundle.message("identifier.expected")
-        returnMarker.drop
-        return false
+        returnMarker.drop()
+        false
     }
   }
 }

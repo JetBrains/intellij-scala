@@ -17,18 +17,11 @@ import org.jetbrains.plugins.scala.lang.parser.util.ParserUtils
 /*
  * AnnotationExpr ::= Constr [[nl] '{' {NameValuePair} '}']
  */
-object AnnotationExpr extends AnnotationExpr {
-  override protected def constructor = Constructor
-  override protected def nameValuePair = NameValuePair
-}
-
-trait AnnotationExpr {
-  protected def constructor: Constructor
-  protected def nameValuePair: NameValuePair
+object AnnotationExpr {
 
   def parse(builder: ScalaPsiBuilder): Boolean = {
     val annotExprMarker = builder.mark
-    if (!constructor.parse(builder, isAnnotation = true)) {
+    if (!Constructor.parse(builder, isAnnotation = true)) {
       annotExprMarker.drop()
       return false
     }
@@ -44,7 +37,7 @@ trait AnnotationExpr {
         builder.enableNewlines()
         
         def foo() {
-          while (nameValuePair.parse(builder)) {
+          while (NameValuePair.parse(builder)) {
             builder.getTokenType match {
               case ScalaTokenTypes.tCOMMA => builder.advanceLexer()
               case _ =>

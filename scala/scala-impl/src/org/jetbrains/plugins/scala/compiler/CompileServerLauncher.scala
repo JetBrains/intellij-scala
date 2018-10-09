@@ -21,7 +21,6 @@ import com.intellij.util.net.NetUtils
 import gnu.trove.TByteArrayList
 import javax.swing.event.HyperlinkEvent
 import org.jetbrains.jps.incremental.BuilderService
-import org.jetbrains.plugins.hydra.compiler.HydraCompilerSettingsManager
 import org.jetbrains.plugins.scala.extensions._
 import org.jetbrains.plugins.scala.project.{Platform, ProjectExt}
 
@@ -113,8 +112,10 @@ object CompileServerLauncher {
           Seq(s"-Dshutdown.delay=$shutdownDelay")
         } else Nil
 
+        val extraJvmParameters = CompileServerVmOptionsProvider.implementations.flatMap(_.vmOptionsFor(project))
+
         val commands = jdk.executable.canonicalPath +: bootclasspathArg ++: "-cp" +: classpath +: jvmParameters ++: shutdownDelayArg ++:
-          HydraCompilerSettingsManager.getHydraLogJvmParameter(project) ++: ngRunnerFqn +: freePort.toString +: id.toString +: Nil
+          extraJvmParameters ++: ngRunnerFqn +: freePort.toString +: id.toString +: Nil
 
         val builder = new ProcessBuilder(commands.asJava)
 

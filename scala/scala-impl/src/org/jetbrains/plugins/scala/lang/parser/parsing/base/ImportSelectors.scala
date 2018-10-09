@@ -18,7 +18,7 @@ import org.jetbrains.plugins.scala.lang.parser.util.ParserUtils
  */
 
 
-object ImportSelectors extends ParserNode {
+object ImportSelectors {
   def parse(builder: ScalaPsiBuilder): Boolean = {
     val importSelectorMarker = builder.mark
     //Look for {
@@ -63,8 +63,8 @@ object ImportSelectors extends ParserNode {
           }
         case ScalaTokenTypes.tIDENTIFIER =>
           ImportSelector parse builder
-          
-          if (ParserUtils.eatTrailingComma(builder, ScalaTokenTypes.tRBRACE)) {
+
+          if (builder.consumeTrailingComma(ScalaTokenTypes.tRBRACE)) {
             doneImportSelectors()
             return true
           }

@@ -11,6 +11,7 @@ import com.intellij.openapi.vfs.{CharsetToolkit, LocalFileSystem}
 import com.intellij.psi.PsiDocumentManager
 import com.intellij.psi.util.PsiTreeUtil
 import org.jetbrains.plugins.scala.base.ScalaLightPlatformCodeInsightTestCaseAdapter
+import org.jetbrains.plugins.scala.extensions.executeWriteActionCommand
 import org.jetbrains.plugins.scala.lang.lexer.ScalaTokenTypes
 import org.jetbrains.plugins.scala.lang.psi.api.ScalaFile
 import org.jetbrains.plugins.scala.lang.psi.api.base.ScMethodLike
@@ -22,7 +23,6 @@ import org.jetbrains.plugins.scala.lang.refactoring.changeSignature.changeInfo.S
 import org.jetbrains.plugins.scala.lang.refactoring.changeSignature.{ScalaChangeSignatureProcessor, ScalaMethodDescriptor, ScalaParameterInfo}
 import org.jetbrains.plugins.scala.lang.refactoring.introduceParameter.ScalaIntroduceParameterHandler
 import org.jetbrains.plugins.scala.lang.refactoring.util.ScalaRefactoringUtil.{afterExpressionChoosing, trimSpacesAndComments}
-import org.jetbrains.plugins.scala.util.ScalaUtils
 
 /**
  * @author Alexander Podkhalyuzin
@@ -76,36 +76,34 @@ abstract class IntroduceParameterTestBase extends ScalaLightPlatformCodeInsightT
 
     //start to inline
     try {
-      ScalaUtils.runWriteActionDoNotRequestConfirmation(new Runnable {
-        def run() {
-          editor.getSelectionModel.setSelection(startOffset, endOffset)
-          afterExpressionChoosing(scalaFile, "Introduce Variable", filterExpressions = false) {
-            trimSpacesAndComments(editor, scalaFile)
-            PsiDocumentManager.getInstance(project).commitAllDocuments()
-            val handler = new ScalaIntroduceParameterHandler()
-            val (exprWithTypes, elems) = handler.selectedElementsInFile(scalaFile).getOrElse(return)
+      executeWriteActionCommand("Test") {
+        editor.getSelectionModel.setSelection(startOffset, endOffset)
+        afterExpressionChoosing(scalaFile, "Introduce Variable", filterExpressions = false) {
+          trimSpacesAndComments(editor, scalaFile)
+          PsiDocumentManager.getInstance(project).commitAllDocuments()
+          val handler = new ScalaIntroduceParameterHandler()
+          val (exprWithTypes, elems) = handler.selectedElementsInFile(scalaFile).getOrElse(return)
 
-            val (methodLike: ScMethodLike, returnType) =
-              if (toPrimaryConstructor)
-                (PsiTreeUtil.getContextOfType(elems.head, true, classOf[ScClass]).constructor.get, Any)
-              else {
-                val fun = PsiTreeUtil.getContextOfType(elems.head, true, classOf[ScFunctionDefinition])
-                (fun, fun.returnType.getOrAny)
-              }
-            val collectedData = handler.collectData(exprWithTypes, elems, methodLike, editor)
-            assert(collectedData.isDefined, "Could not collect data for introduce parameter")
-            val data = collectedData.get.copy(paramName = paramName, replaceAll = replaceAllOccurrences)
+          val (methodLike: ScMethodLike, returnType) =
+            if (toPrimaryConstructor)
+              (PsiTreeUtil.getContextOfType(elems.head, true, classOf[ScClass]).constructor.get, Any)
+            else {
+              val fun = PsiTreeUtil.getContextOfType(elems.head, true, classOf[ScFunctionDefinition])
+              (fun, fun.returnType.getOrAny)
+            }
+          val collectedData = handler.collectData(exprWithTypes, elems, methodLike, editor)
+          assert(collectedData.isDefined, "Could not collect data for introduce parameter")
+          val data = collectedData.get.copy(paramName = paramName, replaceAll = replaceAllOccurrences)
 
-            val paramInfo = new ScalaParameterInfo(data.paramName, -1, data.tp, project, false, false, data.defaultArg, isIntroducedParameter = true)
-            val descriptor: ScalaMethodDescriptor = handler.createMethodDescriptor(data.methodToSearchFor, paramInfo)
-            val changeInfo = new ScalaChangeInfo(descriptor.getVisibility, data.methodToSearchFor, descriptor.getName, returnType,
-              descriptor.parameters, isDefaultParam)
+          val paramInfo = new ScalaParameterInfo(data.paramName, -1, data.tp, project, false, false, data.defaultArg, isIntroducedParameter = true)
+          val descriptor: ScalaMethodDescriptor = handler.createMethodDescriptor(data.methodToSearchFor, paramInfo)
+          val changeInfo = new ScalaChangeInfo(descriptor.getVisibility, data.methodToSearchFor, descriptor.getName, returnType,
+            descriptor.parameters, isDefaultParam)
 
-            changeInfo.introducedParameterData = Some(data)
-            new ScalaChangeSignatureProcessor(project, changeInfo).run()
-          }
+          changeInfo.introducedParameterData = Some(data)
+          new ScalaChangeSignatureProcessor(project, changeInfo).run()
         }
-      }, project, "Test")
+      }
       res = scalaFile.getText.substring(0, lastPsi.getTextOffset).trim
     }
     catch {
