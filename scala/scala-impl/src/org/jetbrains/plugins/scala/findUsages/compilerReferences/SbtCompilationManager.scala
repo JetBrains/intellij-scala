@@ -6,7 +6,7 @@ import java.nio.file.Paths
 import java.util.UUID
 
 import com.intellij.openapi.application.ApplicationManager
-import com.intellij.openapi.components.ApplicationComponent
+import com.intellij.openapi.components.BaseComponent
 import com.intellij.openapi.diagnostic.Logger
 import com.intellij.openapi.util.Disposer
 import com.intellij.util.messages.MessageBus
@@ -32,11 +32,12 @@ import scala.util.control.NonFatal
   * Explicit waiting for acknowledgement on the sbt side is done in order to ensure that
   * dependent compilations are processed in their respective order.
  */
-class SbtCompilationManager extends ApplicationComponent {
+class SbtCompilationManager() extends BaseComponent {
   import SbtCompilationManager._
 
   private[this] var server: ServerSocket = _
   private[this] val bus: MessageBus      = ApplicationManager.getApplication.getMessageBus
+  private[this] val port                 = CompilerIndicesSbtSettings().sbtConnectionPort
 
   Disposer.register(ApplicationManager.getApplication, () => if (server != null) server.close())
 
@@ -106,7 +107,5 @@ class SbtCompilationManager extends ApplicationComponent {
 }
 
 object SbtCompilationManager {
-  //@TODO: should be a setting
-  private val port   = 65337
   private val logger = Logger.getInstance(classOf[SbtCompilationManager])
 }
