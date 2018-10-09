@@ -47,31 +47,28 @@ class ScalaFilePasteProvider extends PasteProvider {
         val file = directory.createFile(fileName).asInstanceOf[ScalaFile]
         val documentManager = PsiDocumentManager.getInstance(project)
 
-        Option(documentManager.getDocument(file))
-          .foreach { document =>
+        Option(documentManager.getDocument(file)).foreach { document =>
             document.setText(fileText)
             documentManager.commitDocument(document)
-            updatePackageStatement(file, directory, project)
+          updatePackageStatement(file, directory)
 
-            new OpenFileDescriptor(project, file.getVirtualFile)
-              .navigate(true)
+          new OpenFileDescriptor(project, file.getVirtualFile).navigate(true)
           }
       }
     }.recover {
       case e: IncorrectOperationException => showErrorDialog(project, e.getMessage, "Paste")
     }
 
-  private def updatePackageStatement(file: ScalaFile, targetDir: PsiDirectory, project: Project) =
-    startCommand(project, new Runnable {
-      def run(): Unit = {
-        Try {
-          JavaDirectoryService.getInstance().nullSafe
-            .map(_.getPackage(targetDir))
-            .map(_.getQualifiedName)
-            .foreach(file.setPackageName)
-        }
+  private def updatePackageStatement(file: ScalaFile, targetDir: PsiDirectory)
+                                    (implicit project: Project): Unit =
+    startCommand("Updating package statement") {
+      Try {
+        JavaDirectoryService.getInstance().nullSafe
+          .map(_.getPackage(targetDir))
+          .map(_.getQualifiedName)
+          .foreach(file.setPackageName)
       }
-    }, "Updating package statement")
+    }
 
   override def isPastePossible(dataContext: DataContext): Boolean = true
 

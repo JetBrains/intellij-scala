@@ -63,7 +63,7 @@ abstract class WorksheetEditorPrinterBase(protected val originalEditor: Editor,
     *
     * @param foldings : (Start output, End output, Input lines count, End input)*
     */
-  protected def updateFoldings(foldings: Seq[(Int, Int, Int, Int)]): Unit = startCommand(project, () => {
+  protected def updateFoldings(foldings: Seq[(Int, Int, Int, Int)]): Unit = startCommand() {
     val isExpanded = !ScalaProjectSettings.getInstance(project).isWorksheetFoldCollapsedByDefault
 
     viewerFolding.runBatchFoldingOperation(() => {
@@ -78,7 +78,7 @@ abstract class WorksheetEditorPrinterBase(protected val originalEditor: Editor,
 
       WorksheetFoldGroup.save(getScalaFile, group)
     }, false)
-  })
+  }
 
   protected def isInited: Boolean = inited
 

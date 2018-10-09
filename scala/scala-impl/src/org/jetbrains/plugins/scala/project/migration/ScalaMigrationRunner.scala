@@ -19,7 +19,8 @@ import scala.util.{Failure, Success, Try}
   * User: Dmitry.Naydanov
   * Date: 21.09.16.
   */
-class ScalaMigrationRunner(project: Project) {
+final class ScalaMigrationRunner(implicit private val project: Project) {
+
   def runMigrators(migrators: Seq[ScalaLibraryMigrator], projectStructure: MigrationApiService) {
     def catchRun(migrate: MigrationApiService => Option[MigrationReport]) {
       Try(migrate(projectStructure)) match {
@@ -67,12 +68,12 @@ class ScalaMigrationRunner(project: Project) {
               checkForUserCancel()
 
               invokeLater {
-                startCommand(project, () => {
+                startCommand("ScalaMigrator") {
                   catchRun { _ =>
                     inWriteAction(fix.invoke(project, scalaFile, null, null))
                     None
                   }
-                }, "ScalaMigrator")
+                }
               }
             }
           case _ =>

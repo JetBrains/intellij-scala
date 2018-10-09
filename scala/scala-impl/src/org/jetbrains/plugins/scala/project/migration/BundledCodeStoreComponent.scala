@@ -7,7 +7,7 @@ import com.intellij.openapi.roots.libraries.Library
 import com.intellij.openapi.startup.StartupManager
 import org.jetbrains.plugins.scala.codeInspection.bundled.BundledInspectionBase
 import org.jetbrains.plugins.scala.components.libinjection.LibraryInjectorLoader
-import org.jetbrains.plugins.scala.extensions
+import org.jetbrains.plugins.scala.extensions._
 import org.jetbrains.plugins.scala.project.ProjectExt
 import org.jetbrains.plugins.scala.project.migration.BundledCodeStoreComponent._
 import org.jetbrains.plugins.scala.project.migration.api.{MigrationApiService, MigrationReport, SettingsDescriptor}
@@ -142,7 +142,7 @@ class BundledCodeStoreComponent(project: Project, private val injector: LibraryI
                     case ((_, isSelected), migrator) if isSelected => migrator
                   }
 
-                  new ScalaMigrationRunner(project).runMigrators(chosen.map(_._1).toSeq, service)
+                  new ScalaMigrationRunner()(project).runMigrators(chosen.map(_._1).toSeq, service)
                 }, ())
             case "close" =>
             case _ =>
@@ -158,7 +158,7 @@ class BundledCodeStoreComponent(project: Project, private val injector: LibraryI
   
   
   override def projectOpened(): Unit = {
-    extensions.inReadAction()
+    inReadAction()
     StartupManager.getInstance(project).registerPostStartupActivity(() => {
       injector.addListener(BundledCodeStoreComponent.this)
     })

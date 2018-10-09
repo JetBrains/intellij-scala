@@ -699,28 +699,38 @@ package object extensions {
 
   implicit def toCallable[T](action: => T): Callable[T] = () => action
 
-  def startCommand(project: Project, runnable: Runnable,
-                   commandName: String = null): Unit =
-    CommandProcessor.getInstance().executeCommand(project, runnable, commandName, null)
+  def startCommand(commandName: String = null)
+                  (body: => Unit)
+                  (implicit project: Project): Unit =
+    CommandProcessor.getInstance().executeCommand(
+      project,
+      () => body,
+      commandName,
+      null
+    )
 
   def executeWriteActionCommand(commandName: String = "",
                                 policy: UndoConfirmationPolicy = UndoConfirmationPolicy.DEFAULT)
                                (body: => Unit)
                                (implicit project: Project): Unit =
-    startCommand(
+    CommandProcessor.getInstance().executeCommand(
       project,
       () => inWriteAction(body),
-      commandName
+      commandName,
+      null,
+      policy
     )
 
   def executeWriteActionCommand(runnable: Runnable,
                                 commandName: String,
                                 policy: UndoConfirmationPolicy)
                                (implicit project: Project): Unit =
-    startCommand(
+    CommandProcessor.getInstance().executeCommand(
       project,
       () => WriteCommandAction.runWriteCommandAction(project, runnable),
-      commandName
+      commandName,
+      null,
+      policy
     )
 
   def inWriteAction[T](body: => T): T = ApplicationManager.getApplication match {

@@ -65,7 +65,7 @@ abstract class EditorActionTestBase extends ScalaLightCodeInsightFixtureTestAdap
     }
 
   private def performEditorAction(action: String): Unit =
-    startCommand(getProject, new Runnable {
-      override def run(): Unit = getFixture.performEditorAction(action)
-    }, "")
+    startCommand() {
+      getFixture.performEditorAction(action)
+    }(getProject)
 }

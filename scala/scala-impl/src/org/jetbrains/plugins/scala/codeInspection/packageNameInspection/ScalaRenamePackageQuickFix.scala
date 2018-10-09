@@ -14,11 +14,10 @@ class ScalaRenamePackageQuickFix(myFile: ScalaFile, name: String)
       extends AbstractFixOnPsiElement(if (name == null || name.isEmpty) "Remove package statement" else s"Rename Package to $name", myFile) {
 
   override protected def doApplyFix(file: ScalaFile)
-                                   (implicit project: Project): Unit = {
-    startCommand(project, () => {
+                                   (implicit project: Project): Unit =
+    startCommand("Rename Package QuickFix") {
       file.setPackageName(name)
-    }, "Rename Package QuickFix")
-  }
+    }
 
   override def getFamilyName: String = "Rename Package"
 }
