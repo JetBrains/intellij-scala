@@ -1,14 +1,10 @@
 package org.jetbrains.plugins.scala.findUsages.compilerReferences
 
-import java.awt.event.ActionEvent
-import java.awt.{List => _, _}
-import java.text.MessageFormat
+import java.awt.{List => _}
 
 import com.intellij.find.FindManager
 import com.intellij.find.impl.FindManagerImpl
-import com.intellij.icons.AllIcons
 import com.intellij.notification.{Notification, NotificationType, Notifications}
-import com.intellij.openapi.actionSystem.{ActionToolbarPosition, AnActionEvent}
 import com.intellij.openapi.application.{QueryExecutorBase, TransactionGuard}
 import com.intellij.openapi.fileEditor.FileDocumentManager
 import com.intellij.openapi.module.Module
@@ -18,18 +14,15 @@ import com.intellij.openapi.ui.{DialogWrapper, Messages}
 import com.intellij.psi._
 import com.intellij.psi.util.PsiTreeUtil
 import com.intellij.task.{ProjectTaskManager, ProjectTaskNotification}
-import com.intellij.ui._
 import com.intellij.util.Processor
-import com.intellij.util.ui.JBUI
 import javax.swing._
-import javax.swing.border.MatteBorder
 import org.jetbrains.plugins.scala.ScalaBundle
 import org.jetbrains.plugins.scala.extensions._
+import org.jetbrains.plugins.scala.findUsages.compilerReferences.ImplicitUsagesSearchUI.{EnableCompilerIndicesDialog, ImplicitFindUsagesDialog}
 import org.jetbrains.plugins.scala.findUsages.factory.{ScalaFindUsagesHandler, ScalaFindUsagesHandlerFactory}
 import org.jetbrains.plugins.scala.project._
 import org.jetbrains.plugins.scala.util.ImplicitUtil._
-import org.jetbrains.sbt.shell.SbtShellCommunication
-import org.jetbrains.sbt.shell.moduleBuildCommand
+import org.jetbrains.sbt.shell.{SbtShellCommunication, moduleBuildCommand}
 
 import scala.collection.JavaConverters._
 
@@ -136,13 +129,12 @@ object ScalaImplicitMemberUsageSearcher {
   private[findUsages] final case class BuildModules(
     target:  PsiElement,
     project: Project,
-    modules: Seq[Module]
+    modules: Set[Module]
   ) extends BeforeImplicitSearchAction {
-    override def runAction(): Boolean = {
+    override def runAction(): Boolean = if (modules.nonEmpty) {
       val manager    = ProjectTaskManager.getInstance(project)
       val connection = project.getMessageBus.connect(project)
 
-      //FIXME: sbt compilation consists of multiple
       connection.subscribe(CompilerReferenceServiceStatusListener.topic, new CompilerReferenceServiceStatusListener {
         override def onIndexingFinished(): Unit = {
           val findManager = FindManager.getInstance(project).asInstanceOf[FindManagerImpl]
@@ -167,14 +159,17 @@ object ScalaImplicitMemberUsageSearcher {
 
       manager.build(modules.toArray, notification)
       false
-    }
+    } else true
   }
 
   private[findUsages] def assertSearchScopeIsSufficient(target: PsiNamedElement): Option[BeforeImplicitSearchAction] = {
     val project = target.getProject
     val service = ScalaCompilerReferenceService(project)
 
-    if (service.isIndexingInProgress) {
+    if (!CompilerIndicesSettings(project).classfileIndexingEnabled) {
+      inEventDispatchThread(new EnableCompilerIndicesDialog(project, canBeParent = false).show())
+      Option(CancelSearch)
+    } else if (service.isIndexingInProgress) {
       inEventDispatchThread(showIndexingInProgressDialog(project))
       Option(CancelSearch)
     } else {
@@ -198,15 +193,15 @@ object ScalaImplicitMemberUsageSearcher {
 
   private[this] def inEventDispatchThread[T](body: => T): Unit =
     if (SwingUtilities.isEventDispatchThread) body
-    else invokeAndWait(body)
+    else                                      invokeAndWait(body)
 
-  private[this] def dirtyModulesInDependencyChain(element: PsiElement): (Seq[Module], Seq[Module]) = {
+  private[this] def dirtyModulesInDependencyChain(element: PsiElement): (Set[Module], Set[Module]) = {
     val project      = element.getProject
     val file         = PsiTreeUtil.getContextOfType(element, classOf[PsiFile]).getVirtualFile
     val index        = ProjectFileIndex.getInstance(project)
-    val modules      = index.getOrderEntriesForFile(file).asScala.map(_.getOwnerModule)
+    val modules      = index.getOrderEntriesForFile(file).asScala.map(_.getOwnerModule).toSet
     val service      = ScalaCompilerReferenceService(project)
-    val dirtyModules = service.getDirtyScopeHolder.getAllDirtyModules
+    val dirtyModules = service.dirtyScopeHolder.getAllDirtyModules
     modules.partition(dirtyModules.contains)
   }
 
@@ -215,10 +210,10 @@ object ScalaImplicitMemberUsageSearcher {
     Messages.showInfoMessage(project, message, "Indexing In Progress")
   }
 
-  private def showRebuildSuggestionDialog(
+  private[this] def showRebuildSuggestionDialog(
     project:          Project,
-    dirtyModules:     Seq[Module],
-    upToDateModules:  Seq[Module],
+    dirtyModules:     Set[Module],
+    upToDateModules:  Set[Module],
     validIndexExists: Boolean,
     element:          PsiNamedElement
   ): BeforeImplicitSearchAction = {
@@ -235,125 +230,8 @@ object ScalaImplicitMemberUsageSearcher {
 
     dialog.getExitCode match {
       case OK_EXIT_CODE if !validIndexExists => RebuildProject(project)
-      case OK_EXIT_CODE                      => BuildModules(element, project, dirtyModules)
+      case OK_EXIT_CODE                      => BuildModules(element, project, dialog.moduleSelection)
       case CANCEL_EXIT_CODE                  => CancelSearch
-    }
-  }
-
-  private class ImplicitFindUsagesDialog(
-    canBeParent:      Boolean,
-    dirtyModules:     Seq[Module],
-    upToDateModules:  Seq[Module],
-    validIndexExists: Boolean,
-    element:          PsiNamedElement
-  ) extends DialogWrapper(element.getProject, canBeParent) {
-
-    private[this] val buildDescription: String =
-      s"""|<html>
-          |<body>
-          |Implicit usages search is only supported inside a compiled scope,<br>
-          |but the use scope of member <code>{0}</code> contains dirty modules.<br>
-          |<br>
-          |You can:<br>
-          |-&nbsp;<strong>Build</strong> some of the modules before proceeding, or<br>
-          |-&nbsp;Search for usages in already up-to-date modules: <br>
-          | &nbsp;<code>{1}</code>
-          |<br>
-          |<br>
-          |Select modules to <strong>build</strong>:
-          |</body>
-          |</html>
-          |""".stripMargin
-
-    private[this] val rebuildDescription: String =
-      s"""|<html>
-          |<body>
-          |Implicit usages search in only supported inside a compiled scope, <br>
-          |via bytecode indices, but no valid indices exist.<br>
-          |Please <strong>rebuild</strong> the project to initialise compiler indices.
-          |</body>
-          |</html>
-          |""".stripMargin
-
-    setTitle(ScalaBundle.message("find.usages.implicit.dialog.title"))
-    setResizable(false)
-    init()
-
-    override def createActions(): Array[Action] = {
-      val defaultActions = super.createActions()
-      if (!validIndexExists)
-        new DialogWrapperAction("Rebuild") {
-          override def doAction(actionEvent: ActionEvent): Unit = doOKAction()
-        } +: defaultActions.filterNot(getOKAction == _)
-      else defaultActions
-    }
-
-    private def createDescriptionLabel: JComponent = {
-      // @TODO: in case of context bound usages search element.name might not be a user-friendly identifier
-      val upToDateModulesText = if (upToDateModules.isEmpty) "&lt;empty&gt;" else upToDateModules.mkString(", ")
-
-      val message =
-        if (validIndexExists) MessageFormat.format(buildDescription, element.name, upToDateModulesText)
-        else                  rebuildDescription
-
-      new JLabel(message)
-    }
-
-    private class DirtyModulesList() extends CheckBoxList[Module] {
-      setSelectionMode(ListSelectionModel.MULTIPLE_INTERVAL_SELECTION)
-      setItems(dirtyModules.asJava, _.getName)
-      setItemsSelected(true)
-      setBorder(JBUI.Borders.empty(3))
-
-      def selectAllButton: AnActionButton =
-        new AnActionButton("Select All", "", AllIcons.Actions.Selectall) {
-          override def actionPerformed(e: AnActionEvent): Unit =
-            setItemsSelected(true)
-        }
-
-      def unselectAllButton: AnActionButton =
-        new AnActionButton("Unselect All", "", AllIcons.Actions.Unselectall) {
-          override def actionPerformed(e: AnActionEvent): Unit =
-            setItemsSelected(false)
-        }
-
-      def setItemsSelected(selected: Boolean): Unit = {
-        (0 until getItemsCount).foreach(idx => setItemSelected(getItemAt(idx), selected))
-        repaint()
-      }
-    }
-
-    private def createModulesList: JComponent = {
-      val dirtyModulesList = new DirtyModulesList()
-
-      val panel = ToolbarDecorator
-        .createDecorator(dirtyModulesList)
-        .disableRemoveAction()
-        .disableAddAction()
-        .addExtraAction(dirtyModulesList.selectAllButton)
-        .addExtraAction(dirtyModulesList.unselectAllButton)
-        .setToolbarPosition(ActionToolbarPosition.BOTTOM)
-        .setToolbarBorder(JBUI.Borders.empty())
-        .createPanel()
-
-      panel.setBorder(new MatteBorder(0, 0, 1, 0, JBColor.border()))
-      panel.setMaximumSize(JBUI.size(-1, 300))
-      panel
-    }
-
-    override def createCenterPanel(): JComponent =
-      if (validIndexExists) {
-        val panel = new JPanel(new BorderLayout)
-        panel.add(createModulesList)
-        panel
-      } else null
-
-    override def createNorthPanel(): JComponent = {
-      val gbConstraints = new GridBagConstraints
-      val panel         = new JPanel(new GridBagLayout)
-      gbConstraints.insets = JBUI.insets(4, 0, 10, 8)
-      panel.add(createDescriptionLabel, gbConstraints)
-      panel
     }
   }
 }

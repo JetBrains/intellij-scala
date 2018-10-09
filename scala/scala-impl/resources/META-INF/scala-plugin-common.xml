@@ -111,8 +111,12 @@
         <projectConfigurable groupId="language" displayName="Scala" instance="org.jetbrains.plugins.scala.settings.ScalaProjectSettingsConfigurable"/>
         <applicationConfigurable displayName="Scala Compile Server" parentId="Scala Compiler"
                                  instance="org.jetbrains.plugins.scala.compiler.ScalaCompileServerForm"/>
-        <applicationService serviceInterface="org.jetbrains.plugins.scala.settings.ScalaApplicationSettings"
-                            serviceImplementation="org.jetbrains.plugins.scala.settings.ScalaApplicationSettings"/>
+        <projectService serviceImplementation="org.jetbrains.plugins.scala.findUsages.compilerReferences.CompilerIndicesSettings"/>
+        <projectConfigurable id="Compiler Indices" parentId="Scala Compiler"
+                             instance="org.jetbrains.plugins.scala.findUsages.compilerReferences.CompilerIndicesConfigurable"/>
+        <applicationService serviceImplementation="org.jetbrains.plugins.scala.findUsages.compilerReferences.CompilerIndicesSbtSettings"/>
+        <applicationConfigurable parentId="Compiler Indices" instance="org.jetbrains.plugins.scala.findUsages.compilerReferences.CompilerIndicesSbtConfigurable"/>
+        <applicationService serviceImplementation="org.jetbrains.plugins.scala.settings.ScalaApplicationSettings"/>
         <applicationService serviceInterface="org.jetbrains.plugins.scala.settings.ScalaCodeFoldingSettings"
                             serviceImplementation="org.jetbrains.plugins.scala.settings.ScalaCodeFoldingSettings"/>
         <projectService serviceInterface="org.jetbrains.plugins.scala.settings.ScalaProjectSettings"
@@ -1420,6 +1424,12 @@
         <implementation-class>org.jetbrains.plugins.scala.findUsages.compilerReferences.ScalaCompilerReferenceService</implementation-class>
       </component>
     </project-components>
+
+    <application-components>
+      <component>
+        <implementation-class>org.jetbrains.plugins.scala.findUsages.compilerReferences.SbtCompilationManager</implementation-class>
+      </component>
+    </application-components>
 
     <actions>
         <action id="Scala.NewClass" class="org.jetbrains.plugins.scala.actions.NewScalaTypeDefinitionAction"
