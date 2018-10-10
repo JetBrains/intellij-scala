@@ -7,7 +7,7 @@ import org.jetbrains.plugins.scala.lang.psi.api.base.patterns._
 import org.jetbrains.plugins.scala.lang.psi.api.base.types._
 import org.jetbrains.plugins.scala.lang.psi.api.base.{ScConstructor, ScInfixElement, ScParenthesizedElement}
 import org.jetbrains.plugins.scala.lang.psi.api.expr.{ScExpression, ScParenthesisedExpr, ScSugarCallExpr}
-import org.jetbrains.plugins.scala.lang.psi.api.toplevel.templates.{ScClassParents, ScTemplateParents}
+import org.jetbrains.plugins.scala.lang.psi.api.toplevel.templates.ScTemplateParents
 import org.jetbrains.plugins.scala.lang.psi.{ScalaPsiElement, ScalaPsiUtil}
 
 import scala.annotation.tailrec
@@ -96,12 +96,10 @@ object ParenthesizedElement {
     }
 
     //shouldn't be called on expression
-    private def parenthesesRedundant[Kind <: ScParenthesizedElement#Kind](parent: Kind, inner: Kind): Boolean = {
+    private def parenthesesRedundant[Kind <: ScParenthesizedElement#Kind](parent: Kind, inner: Kind): Boolean =
       isIndivisible(inner) ||
         getPrecedence(inner) < getPrecedence(parent) ||
-        getPrecedence(inner) == getPrecedence(parent) && innerFirstAssociativity(parent, inner) ||
-        isFunctionTypeSingleParam
-    }
+        getPrecedence(inner) == getPrecedence(parent) && innerFirstAssociativity(parent, inner)
 
     private def isFunctionTupleParameter: Boolean =
       isFunctionTypeSingleParam && parenthesized.innerElement.exists(_.isInstanceOf[ScTupleTypeElement])

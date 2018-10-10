@@ -406,4 +406,8 @@ class UnnecessaryParenthesesInspectionTest extends ScalaQuickFixTestBase {
   def testEmptyParentheses(): Unit = {
     checkTextHasNoErrors("type Null_Unit = () => Unit")
   }
+  
+  def testSCL14395(): Unit =  {
+    checkTextHasNoErrors("val f: (Int => Int) => Int = ???")
+  }
 }
