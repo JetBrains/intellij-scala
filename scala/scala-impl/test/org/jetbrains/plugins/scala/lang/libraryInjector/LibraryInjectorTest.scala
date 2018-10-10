@@ -3,22 +3,20 @@ package org.jetbrains.plugins.scala.lang.libraryInjector
 import java.io.{BufferedOutputStream, File, FileOutputStream}
 import java.util.zip.{ZipEntry, ZipOutputStream}
 
-import scala.concurrent.duration.DurationInt
-
 import com.intellij.compiler.CompilerTestUtil
 import com.intellij.openapi.module.Module
 import com.intellij.openapi.projectRoots.Sdk
 import com.intellij.testFramework.ModuleTestCase
 import org.jetbrains.plugins.scala.PerfCycleTests
 import org.jetbrains.plugins.scala.base.libraryLoaders._
-import org.jetbrains.plugins.scala.components.libinjection.LibraryInjectorLoader
-import org.jetbrains.plugins.scala.components.libinjection.TestAcknowledgementProvider.TEST_ENABLED_KEY
+import org.jetbrains.plugins.scala.components.libinjection.{LibraryInjectorLoader, TestAcknowledgementProvider}
 import org.jetbrains.plugins.scala.debugger._
-import org.jetbrains.plugins.scala.lang.libraryInjector.LibraryInjectorTest.InjectorLibraryLoader
 import org.jetbrains.plugins.scala.lang.psi.impl.toplevel.typedef.SyntheticMembersInjector
-import org.jetbrains.plugins.scala.util.{CompileServerUtil, ScalaUtil}
+import org.jetbrains.plugins.scala.util.CompileServerUtil
 import org.junit.Assert.assertTrue
 import org.junit.experimental.categories.Category
+
+import scala.concurrent.duration.DurationInt
 
 /**
   * Created by mucianm on 16.03.16.
@@ -34,13 +32,13 @@ class LibraryInjectorTest extends ModuleTestCase with ScalaSdkOwner {
     ScalaSDKLoader(includeScalaReflect = true),
     HeavyJDKLoader(),
     SourcesLoader(project.getBasePath),
-    InjectorLibraryLoader()
+    LibraryInjectorTest.InjectorLibraryLoader()
   )
 
   override protected def getTestProjectJdk: Sdk = SmartJDKLoader.getOrCreateJDK()
 
   override def setUp(): Unit = {
-    sys.props += (TEST_ENABLED_KEY -> "true")
+    sys.props += (TestAcknowledgementProvider.TEST_ENABLED_KEY -> "true")
     super.setUp()
 
     CompilerTestUtil.enableExternalCompiler()
@@ -69,10 +67,10 @@ object LibraryInjectorTest {
   case class InjectorLibraryLoader() extends ThirdPartyLibraryLoader {
     override protected val name: String = "injector"
 
-    override protected def path(implicit sdkVersion: ScalaVersion): String = {
-      val tmpDir = ScalaUtil.createTmpDir("injectorTestLib")
-      InjectorLibraryLoader.simpleInjector.zip(tmpDir).getAbsolutePath
-    }
+    override protected def path(implicit sdkVersion: ScalaVersion): String =
+      InjectorLibraryLoader.simpleInjector.zip {
+        LibraryInjectorLoader.createTmpDir("injectorTestLib")
+      }.getAbsolutePath
   }
 
   object InjectorLibraryLoader {

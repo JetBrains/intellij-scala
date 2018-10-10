@@ -2,12 +2,12 @@ package org.jetbrains.plugins.scala.components.libinjection
 
 import java.io._
 import java.net.URL
-import java.util
 import java.util.concurrent.atomic.AtomicBoolean
+import java.{util => ju}
 
 import com.intellij.ide.plugins.cl.PluginClassLoader
 import com.intellij.notification._
-import com.intellij.openapi.application.ApplicationManager
+import com.intellij.openapi.application.{ApplicationManager, PathManager}
 import com.intellij.openapi.components.ProjectComponent
 import com.intellij.openapi.diagnostic.Logger
 import com.intellij.openapi.module._
@@ -24,15 +24,13 @@ import org.jetbrains.plugins.scala.components.ScalaPluginVersionVerifier.Version
 import org.jetbrains.plugins.scala.debugger.evaluation.EvaluationException
 import org.jetbrains.plugins.scala.project._
 import org.jetbrains.plugins.scala.settings.ScalaProjectSettings
-import org.jetbrains.plugins.scala.util.ScalaUtil
 
-import scala.collection.JavaConverters._
-import scala.collection.mutable
-import scala.collection.mutable.ArrayBuffer
+import scala.collection.{JavaConverters, mutable}
 import scala.util.control.NonFatal
 
 @SerialVersionUID(-8361292897316544896L)
-case class InjectorPersistentCache(pluginVersion: Version, cache: java.util.HashMap[String, JarManifest]) {
+case class InjectorPersistentCache(pluginVersion: Version,
+                                   cache: ju.Map[String, JarManifest] = ju.Collections.emptyMap()) {
   def ensurePathExists(): Unit = {
    if (!LibraryInjectorLoader.myInjectorCacheDir.exists())
      FileUtil.createDirectory(LibraryInjectorLoader.myInjectorCacheDir)
@@ -66,7 +64,8 @@ object InjectorPersistentCache {
     } catch {
       case e: Throwable =>
         LOG.warn(s"Failed to load injector cache, continuing with empty(${e.getMessage})")
-        InjectorPersistentCache(ScalaPluginVersionVerifier.getPluginVersion.getOrElse(Version.Snapshot), new util.HashMap())
+        val pluginVersion = ScalaPluginVersionVerifier.getPluginVersion.getOrElse(Version.Snapshot)
+        InjectorPersistentCache(pluginVersion)
     } finally {
       if (stream != null) stream.close()
     }
@@ -125,7 +124,14 @@ class LibraryInjectorLoader(val project: Project) extends ProjectComponent {
   override def projectOpened(): Unit = {
     myInjectorCacheDir.mkdirs()
     LibraryTablesRegistrar.getInstance().getLibraryTable(project).addListener(myLibraryTableListener)
-    jarCache = verifyAndLoadCache
+
+    val cache = InjectorPersistentCache.loadJarCache
+
+    jarCache = ScalaPluginVersionVerifier.getPluginVersion
+      .filterNot(_ == cache.pluginVersion)
+      .fold(cache) {
+        InjectorPersistentCache(_)
+      }
     //    init()
   }
 
@@ -241,7 +247,9 @@ class LibraryInjectorLoader(val project: Project) extends ProjectComponent {
 
 
   private def loadCachedInjectors(): Unit = {
+    import JavaConverters._
     val allProjectJars = getAllJarsWithManifest.map(_.getPath).toSet
+
     val cachedProjectJars = jarCache.cache.asScala.filter(cacheItem => allProjectJars.contains(s"${cacheItem._1}!/")).values
     var numLoaded = 0
     for (manifest <- cachedProjectJars if !manifest.isBlackListed) {
@@ -328,7 +336,7 @@ class LibraryInjectorLoader(val project: Project) extends ProjectComponent {
 
   // don't forget to remove temp directory after compilation
   private def extractInjectorSources(jar: File, injectorDescriptor: InjectorDescriptor): Seq[File] = {
-    val tmpDir = ScalaUtil.createTmpDir("inject")
+    val tmpDir = createTmpDir("inject")
     def copyToTmpDir(virtualFile: VirtualFile): File = {
       val target = new File(tmpDir, virtualFile.getName)
       val targetStream = new BufferedOutputStream(new FileOutputStream(target))
@@ -429,8 +437,8 @@ class LibraryInjectorLoader(val project: Project) extends ProjectComponent {
   }
 
   private def collectPlatformJars(): Seq[File] = {
-
-    val buffer: ArrayBuffer[File] = mutable.ArrayBuffer()
+    import JavaConverters._
+    val buffer = mutable.ArrayBuffer.empty[File]
 
     // these are actually different classes calling different methods which are surprisingly called the same
     this.getClass.getClassLoader match {
@@ -479,7 +487,7 @@ class LibraryInjectorLoader(val project: Project) extends ProjectComponent {
 
     val scalaSDK = project.modulesWithScala.head.scalaSdk.get
     val model = project.modifiableModel
-    val module = model.newModule(ScalaUtil.createTmpDir("injectorModule").getAbsolutePath +
+    val module = model.newModule(createTmpDir("injectorModule").getAbsolutePath +
       "/" + INJECTOR_MODULE_NAME, JavaModuleType.getModuleType.getId)
     model.commit()
     module.configureScalaCompilerSettingsFrom("Default", Seq())
@@ -512,28 +520,28 @@ class LibraryInjectorLoader(val project: Project) extends ProjectComponent {
 }
 
 object LibraryInjectorLoader {
+
   trait InjectorsLoadedListener {
     def onLoadingCompleted(): Unit
   }
 
-  val HELPER_LIBRARY_NAME    = "scala-plugin-dev"
+  val HELPER_LIBRARY_NAME = "scala-plugin-dev"
   val INJECTOR_MANIFEST_NAME = "intellij-compat.xml"
-  val INJECTOR_MODULE_NAME   = "ijscala-plugin-injector-compile.iml" // TODO: use UUID
-  val myInjectorCacheDir     = new File(ScalaUtil.getScalaPluginSystemPath + "injectorCache/")
-  val myInjectorCacheIndex   = new File(ScalaUtil.getScalaPluginSystemPath + "injectorCache/libs.index")
+  val INJECTOR_MODULE_NAME = "ijscala-plugin-injector-compile.iml" // TODO: use UUID
+
+  private val injectorCachePath = s"${PathManager.getSystemPath}/scala/injectorCache/"
+  val myInjectorCacheDir = new File(injectorCachePath)
+  val myInjectorCacheIndex = new File(injectorCachePath + "libs.index")
+
   implicit val LOG: Logger = Logger.getInstance(getClass)
   private val GROUP = new NotificationGroup("Injector", NotificationDisplayType.STICKY_BALLOON, false)
 
   def getInstance(project: Project): LibraryInjectorLoader = project.getComponent(classOf[LibraryInjectorLoader])
 
-  private def verifyLibraryCache(cache: InjectorPersistentCache): InjectorPersistentCache = {
-    if (ScalaPluginVersionVerifier.getPluginVersion.exists(_ != cache.pluginVersion))
-      InjectorPersistentCache(ScalaPluginVersionVerifier.getPluginVersion.get, new util.HashMap())
-    else
-      cache
-  }
-
-  def verifyAndLoadCache: InjectorPersistentCache = {
-    verifyLibraryCache(InjectorPersistentCache.loadJarCache)
+  def createTmpDir(prefix: String): File = {
+    val tmpDir = File.createTempFile(prefix, "")
+    tmpDir.delete()
+    tmpDir.mkdir()
+    tmpDir
   }
 }

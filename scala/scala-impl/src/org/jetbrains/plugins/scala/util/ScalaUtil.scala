@@ -1,8 +1,5 @@
 package org.jetbrains.plugins.scala.util
 
-import java.io.File
-
-import com.intellij.openapi.application.PathManager
 import com.intellij.openapi.module.Module
 import com.intellij.openapi.project.Project
 import com.intellij.openapi.roots.ProjectRootManager
@@ -26,17 +23,6 @@ object ScalaUtil {
 
   def testingSupportTestPath(): String = runnersPath()
 
-  def getScalaPluginSystemPath: String = {
-    PathManager.getSystemPath + "/scala"
-  }
-
-  def createTmpDir(prefix: String): File = {
-    val tmpDir = File.createTempFile(prefix, "")
-    tmpDir.delete()
-    tmpDir.mkdir()
-    tmpDir
-  }
-  
   def findVirtualFile(psiFile: PsiFile): Option[VirtualFile] = {
     Option(psiFile.getVirtualFile).orElse(Option(psiFile.getViewProvider.getVirtualFile).flatMap {
       case light: LightVirtualFile => Option(light.getOriginalFile)
