@@ -134,5 +134,20 @@ import io.circe.generic.JsonCodec
 
     doTest(fileText, "Y")
   }
+  
+  def testCaseClassWithCompanion(): Unit = {
+    val fileText: String = """
+package foo
+
+import io.circe.generic.JsonCodec
+
+@JsonCodec case class Boom(i: Int)
+object Boom {
+  val something: String = ""
+}
+"""
+
+    doTest(fileText, "Boom")
+  }
 
 }
