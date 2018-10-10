@@ -388,11 +388,8 @@ abstract class AbstractTestRunConfiguration(val project: Project,
 
         val rtJarPath = ScalaUtil.runnersPath()
         params.getClassPath.add(rtJarPath)
-        if (addIntegrationTestsClasspath) {
-          //a workaround to add jars for integration tests
-          val integrationTestsPath = ScalaUtil.testingSupportTestPath()
-          params.getClassPath.add(integrationTestsPath)
-        }
+        //a workaround to add jars for integration tests
+        if (addIntegrationTestsClasspath) params.getClassPath.add(ScalaUtil.runnersPath())
 
         ManagingFS.getInstance match {
           case fs: PersistentFSImpl => fs.incStructuralModificationCount()

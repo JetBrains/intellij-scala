@@ -21,8 +21,6 @@ object ScalaUtil {
     PathUtil.getJarPathForClass(classOf[Client]).replace("compiler-shared", "runners")
   }
 
-  def testingSupportTestPath(): String = runnersPath()
-
   def findVirtualFile(psiFile: PsiFile): Option[VirtualFile] = {
     Option(psiFile.getVirtualFile).orElse(Option(psiFile.getViewProvider.getVirtualFile).flatMap {
       case light: LightVirtualFile => Option(light.getOriginalFile)
