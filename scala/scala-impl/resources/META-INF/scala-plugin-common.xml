@@ -222,6 +222,7 @@
         <codeInsight.overrideMethod language="Scala" implementationClass="org.jetbrains.plugins.scala.overrideImplement.ScalaOverrideMethodsHandler"/>
         <codeInsight.implementMethod language="Scala" implementationClass="org.jetbrains.plugins.scala.overrideImplement.ScalaImplementMethodsHandler"/>
         <codeInsight.delegateMethods language="Scala" implementationClass="org.jetbrains.plugins.scala.codeInsight.delegate.ScalaGenerateDelegateHandler"/>
+        <codeInsight.typeInfo language="Scala" implementationClass="org.jetbrains.plugins.scala.actions.ScalaExpressionTypeProvider"/>
         <methodImplementor implementation="org.jetbrains.plugins.scala.overrideImplement.ScalaMethodImplementor"/>
         <lookup.charFilter implementation="org.jetbrains.plugins.scala.lang.completion.ScalaCharFilter"/>
         <lang.findUsagesProvider language="Scala" implementationClass="org.jetbrains.plugins.scala.lang.findUsages.ScalaFindUsagesProvider"/>
@@ -1638,14 +1639,6 @@
             <add-to-group group-id="CodeMenu" anchor="last"/>
             <add-to-group group-id="EditorPopupMenu" anchor="last"/>
             <keyboard-shortcut first-keystroke="control alt D" keymap="$default"/>
-        </action>
-        <action id="Scala.TypeInfo" class="org.jetbrains.plugins.scala.actions.ShowTypeInfoAction">
-            <keyboard-shortcut first-keystroke="alt EQUALS" keymap="$default"/>
-            <keyboard-shortcut first-keystroke="control shift P" keymap="Mac OS X"/>
-            <keyboard-shortcut first-keystroke="alt EQUALS" keymap="Mac OS X" remove="true"/>
-            <keyboard-shortcut first-keystroke="control shift P" keymap="Mac OS X 10.5+"/>
-            <keyboard-shortcut first-keystroke="alt EQUALS" keymap="Mac OS X 10.5+" remove="true"/>
-            <add-to-group group-id="CodeEditorViewGroup" anchor="before" relative-to-action="Scala.ShowImplicits"/>
         </action>
         <action id="Scala.GenerateScaladoc" class="org.jetbrains.plugins.scala.lang.scaladoc.generate.ScaladocAction"
                 text="Generate Scaladoc" description="Generate Scaladoc">

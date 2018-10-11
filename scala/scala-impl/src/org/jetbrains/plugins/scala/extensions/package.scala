@@ -284,19 +284,17 @@ package object extensions {
       def lift(`type`: PsiType) = Option(`type`.toScType())
 
       (element match {
-        case _: ScPrimaryConstructor => None
+        case _: ScPrimaryConstructor          => None
         case e: ScFunction if e.isConstructor => None
-        case e: ScFunction => e.returnType.toOption
-        case e: ScBindingPattern => e.`type`().toOption
-        case e: ScFieldId => e.`type`().toOption
-        case e: ScParameter => e.getRealParameterType.toOption
-        case e: PsiMethod if e.isConstructor => None
-        case e: PsiMethod => lift(e.getReturnType)
-        case e: PsiVariable => lift(e.getType)
-        case _ => None
-      }).map {
-        substitutor.subst
-      }
+        case e: ScFunction                    => e.`type`().toOption
+        case e: ScBindingPattern              => e.`type`().toOption
+        case e: ScFieldId                     => e.`type`().toOption
+        case e: ScParameter                   => e.getRealParameterType.toOption
+        case e: PsiMethod if e.isConstructor  => None
+        case e: PsiMethod                     => lift(e.getReturnType)
+        case e: PsiVariable                   => lift(e.getType)
+        case _                                => None
+      }).map(substitutor.subst)
     }
 
     def firstChild: Option[PsiElement] = Option(element.getFirstChild)

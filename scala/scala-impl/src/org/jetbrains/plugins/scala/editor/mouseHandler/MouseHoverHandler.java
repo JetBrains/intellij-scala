@@ -28,7 +28,6 @@ import com.intellij.ide.PowerSaveMode;
 import com.intellij.lang.documentation.DocumentationProvider;
 import com.intellij.openapi.actionSystem.impl.ActionButton;
 import com.intellij.openapi.actionSystem.impl.PresentationFactory;
-import com.intellij.openapi.application.AccessToken;
 import com.intellij.openapi.application.ApplicationManager;
 import com.intellij.openapi.application.ReadAction;
 import com.intellij.openapi.components.ProjectComponent;
@@ -60,14 +59,13 @@ import com.intellij.ui.ScreenUtil;
 import com.intellij.ui.components.JBLayeredPane;
 import com.intellij.util.Alarm;
 import com.intellij.util.Consumer;
-import com.intellij.util.ThrowableRunnable;
 import com.intellij.util.ui.UIUtil;
 import gnu.trove.TIntArrayList;
 import org.intellij.lang.annotations.JdkConstants;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
 import org.jetbrains.plugins.scala.ScalaLanguage;
-import org.jetbrains.plugins.scala.actions.ShowTypeInfoAction;
+import org.jetbrains.plugins.scala.actions.ScalaExpressionTypeProvider;
 import org.jetbrains.plugins.scala.compiler.ScalaCompileServerSettings;
 import org.jetbrains.plugins.scala.lang.psi.api.ScalaFile;
 import scala.Option;
@@ -235,7 +233,7 @@ public class MouseHoverHandler implements ProjectComponent {
     }
     return new Rectangle(hintComponent.getLocationOnScreen(), hintComponent.getSize());
   }
-  
+
   private static BrowseMode getBrowseMode(@JdkConstants.InputEventMask int modifiers) {
     if (modifiers == 0) {
       return BrowseMode.Hover;
@@ -329,7 +327,7 @@ public class MouseHoverHandler implements ProjectComponent {
       if (file instanceof ScalaFile) {
         final PsiElement elementAtPointer = file.findElementAt(offset);
         if (elementAtPointer == null) return null;
-        Option<String> typeInfoHint = ShowTypeInfoAction.getTypeInfoHint(editor, file, offset);
+        Option<String> typeInfoHint = ScalaExpressionTypeProvider.getTypeInfoHint(elementAtPointer);
         String result = null;
         if (typeInfoHint.isDefined()) {
           result = typeInfoHint.get();
@@ -382,7 +380,7 @@ public class MouseHoverHandler implements ProjectComponent {
         UIUtil.invokeLaterIfNeeded(new Runnable() {
           @Override
           public void run() {
-            
+
             // There is a possible case that quick doc control width is changed, e.g. it contained text
             // like 'public final class String implements java.io.Serializable, java.lang.Comparable<java.lang.String>' and
             // new text replaces fully-qualified class names by hyperlinks with short name.
@@ -392,7 +390,7 @@ public class MouseHoverHandler implements ProjectComponent {
             JComponent component = hint.getComponent();
             Dimension oldSize = component.getPreferredSize();
             newTextConsumer.consume(newHtml);
-            
+
             final int widthIncrease;
             if (component instanceof QuickDocInfoPane) {
               int buttonWidth = ((QuickDocInfoPane)component).getButtonWidth();
@@ -405,16 +403,16 @@ public class MouseHoverHandler implements ProjectComponent {
             if (oldSize == null) {
               return;
             }
-            
+
             Dimension newSize = component.getPreferredSize();
             if (newSize.width + widthIncrease == oldSize.width) {
               return;
             }
             component.setPreferredSize(new Dimension(newSize.width + widthIncrease, newSize.height));
-            
+
             // We're assuming here that there are two possible hint representation modes: popup and layered pane.
             if (hint.isRealPopup()) {
-              
+
               TooltipProvider tooltipProvider = myTooltipProvider;
               if (tooltipProvider != null) {
                 // There is a possible case that 'raw' control was rather wide but the 'rich' one is narrower. That's why we try to
@@ -441,7 +439,7 @@ public class MouseHoverHandler implements ProjectComponent {
                 topLevelLayeredPaneChild = current;
               }
             }
-            
+
             if (adjustBounds && topLevelLayeredPaneChild != null) {
               Rectangle bounds = topLevelLayeredPaneChild.getBounds();
               topLevelLayeredPaneChild.setBounds(bounds.x, bounds.y, bounds.width + newSize.width + widthIncrease - oldSize.width, bounds.height);
@@ -455,7 +453,7 @@ public class MouseHoverHandler implements ProjectComponent {
   /**
    * It's possible that we need to expand quick doc control's width in order to provide better visual representation
    * (see http://youtrack.jetbrains.com/issue/IDEA-101425). This method calculates that width expand.
-   * 
+   *
    * @param buttonWidth  icon button's width
    * @param updatedText  text which will be should at the quick doc control
    * @return             width increase to apply to the target quick doc control (zero if no additional width increase is required)
@@ -559,7 +557,7 @@ public class MouseHoverHandler implements ProjectComponent {
       if (!info.isValid(myEditor.getDocument())) {
         return;
       }
-      
+
       DocInfo docInfo = info.getInfo();
 
       if (docInfo.text == null) return;
@@ -567,7 +565,7 @@ public class MouseHoverHandler implements ProjectComponent {
       if (myDocumentationManager.hasActiveDockedDocWindow()) {
         info.showDocInfo(myDocumentationManager);
       }
-      
+
       HyperlinkListener hyperlinkListener = docInfo.docProvider == null
                                    ? null
                                    : new QuickDocHyperlinkListener(docInfo.docProvider, info.myElementAtPointer);
@@ -605,7 +603,7 @@ public class MouseHoverHandler implements ProjectComponent {
         quickDocPane = new QuickDocInfoPane(docInfo.documentationAnchor, info.myElementAtPointer, label, docInfo.text);
         quickDocPaneRef.set(quickDocPane);
       }
-      
+
       JComponent hintContent = quickDocPane == null ? label : quickDocPane;
 
       final LightweightHint hint = new LightweightHint(hintContent);
@@ -735,7 +733,7 @@ public class MouseHoverHandler implements ProjectComponent {
       }
       return new Dimension(Math.max(myMinWidth, base.width), Math.max(myMinHeight, base.height));
     }
-    
+
     @Override
     public void doLayout() {
       Rectangle bounds = getBounds();
@@ -769,7 +767,7 @@ public class MouseHoverHandler implements ProjectComponent {
         return;
       }
 
-      // Skip event triggered when mouse leaves action button area. 
+      // Skip event triggered when mouse leaves action button area.
       if (!mouseEntered && new Rectangle(getLocationOnScreen(), getSize()).contains(mouseScreenLocation)) {
         return;
       }
