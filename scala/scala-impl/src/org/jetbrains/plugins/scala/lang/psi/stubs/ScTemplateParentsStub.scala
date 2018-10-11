@@ -11,7 +11,7 @@ import org.jetbrains.plugins.scala.lang.psi.api.toplevel.templates.ScTemplatePar
   * User: Alexander Podkhalyuzin
   * Date: 17.06.2009
   */
-trait ScTemplateParentsStub[P <: ScTemplateParents] extends StubElement[P] {
+trait ScTemplateParentsStub extends StubElement[ScTemplateParents] {
   def parentTypesTexts: Array[String]
 
   def parentTypeElements: Seq[ScTypeElement]

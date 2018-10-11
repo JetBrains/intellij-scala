@@ -9,12 +9,12 @@ import com.intellij.lang.ASTNode
 import com.intellij.psi.PsiClass
 import org.jetbrains.plugins.scala.JavaArrayFactoryUtil.ScTemplateParentsFactory
 import org.jetbrains.plugins.scala.extensions._
-import org.jetbrains.plugins.scala.lang.TokenSets.TEMPLATE_PARENTS
 import org.jetbrains.plugins.scala.lang.lexer.ScalaTokenTypes
 import org.jetbrains.plugins.scala.lang.parser.ScalaElementTypes._
+import org.jetbrains.plugins.scala.lang.psi.api.base.ScStableCodeReferenceElement
 import org.jetbrains.plugins.scala.lang.psi.api.base.types._
 import org.jetbrains.plugins.scala.lang.psi.api.expr.ScNewTemplateDefinition
-import org.jetbrains.plugins.scala.lang.psi.api.statements.{ScFunction, ScTypeAlias}
+import org.jetbrains.plugins.scala.lang.psi.api.statements.{ScFunction, ScTypeAlias, ScTypeAliasDefinition}
 import org.jetbrains.plugins.scala.lang.psi.api.toplevel.ScEarlyDefinitions
 import org.jetbrains.plugins.scala.lang.psi.api.toplevel.templates._
 import org.jetbrains.plugins.scala.lang.psi.api.toplevel.typedef._
@@ -25,9 +25,9 @@ import org.jetbrains.plugins.scala.lang.psi.types._
 import org.jetbrains.plugins.scala.lang.psi.types.api.designator.ScDesignatorType
 import org.jetbrains.plugins.scala.lang.psi.types.result._
 import org.jetbrains.plugins.scala.macroAnnotations.{Cached, CachedInUserData, ModCount}
+import org.jetbrains.plugins.scala.project.ProjectContext
 
-import scala.collection.Seq
-import scala.collection.mutable.ListBuffer
+import scala.collection.{Seq, mutable}
 
 /**
   * @author AlexanderPodkhalyuzin
@@ -67,7 +67,7 @@ class ScExtendsBlockImpl private(stub: ScExtendsBlockStub, node: ASTNode)
 
   @CachedInUserData(this, ModCount.getBlockModificationCount)
   def superTypes: List[ScType] = {
-    val buffer = new ListBuffer[ScType]
+    val buffer = mutable.ListBuffer.empty[ScType]
 
     val stdTypes = projectContext.stdTypes
     import stdTypes._
@@ -181,16 +181,11 @@ class ScExtendsBlockImpl private(stub: ScExtendsBlockStub, node: ASTNode)
 
   @CachedInUserData(this, ModCount.getBlockModificationCount)
   def supers: Seq[PsiClass] = {
-    val buffer = new ListBuffer[PsiClass]
-
-    def addClass(t: PsiClass) {
-      buffer += t
+    val typeElements = templateParents.fold(syntheticTypeElements) {
+      _.allTypeElements
     }
+    val buffer = mutable.ListBuffer(ScExtendsBlockImpl.extractSupers(typeElements): _*)
 
-    templateParents match {
-      case Some(parents: ScTemplateParents) => parents.supers foreach { t => addClass(t) }
-      case _ => ScTemplateParents.extractSupers(syntheticTypeElements) foreach { t => addClass(t) }
-    }
     if (isUnderCaseClass) {
       val prod = scalaProductClass
       if (prod != null) buffer += prod
@@ -279,4 +274,39 @@ class ScExtendsBlockImpl private(stub: ScExtendsBlockStub, node: ASTNode)
   }
 
   private def templateBodies = templateBody.toSeq
+}
+
+
+object ScExtendsBlockImpl {
+
+  private def extractSupers(typeElements: Seq[ScTypeElement])
+                           (implicit project: ProjectContext): Seq[PsiClass] =
+    typeElements.flatMap { element =>
+      def tail(): Option[PsiClass] =
+        element.`type`().toOption
+          .flatMap(_.extractClass)
+
+      def refTail(reference: ScStableCodeReferenceElement): Option[PsiClass] =
+        reference.resolveNoConstructor match {
+          case Array(head) => head.element match {
+            case c: PsiClass => Some(c)
+            case ta: ScTypeAliasDefinition =>
+              ta.aliasedType.toOption
+                .flatMap(_.extractClass)
+            case _ => tail()
+          }
+          case _ => tail()
+        }
+
+      val maybeReference = element match {
+        case ScSimpleTypeElement(result) => result
+        case ScParameterizedTypeElement(ScSimpleTypeElement(result), _) => result
+        case _ => None
+      }
+
+      maybeReference match {
+        case Some(reference) => refTail(reference)
+        case _ => tail()
+      }
+    }
 }

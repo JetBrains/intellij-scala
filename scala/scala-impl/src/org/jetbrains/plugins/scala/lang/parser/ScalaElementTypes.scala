@@ -65,8 +65,7 @@ object ScalaElementTypes {
   val BLOCK_EXPR = new ScCodeBlockElementType
   val PACKAGING = new ScPackagingElementType
   val EXTENDS_BLOCK = new ScExtendsBlockElementType
-  val CLASS_PARENTS = new ScClassParentsElementType
-  val TRAIT_PARENTS = new ScTraitParentsElementType
+  val TEMPLATE_PARENTS = new ScTemplateParentsElementType
   val TEMPLATE_BODY = new ScTemplateBodyElementType
   val NEW_TEMPLATE = new ScNewTemplateDefinitionStubElementType
   val PARAM = new ScParameterElementType

@@ -7,7 +7,7 @@ ScalaFile
         PsiElement(new)('new')
         PsiWhiteSpace(' ')
         ExtendsBlock
-          ClassParents
+          TemplateParents
             Constructor
               ParametrizedType: X[Int]
                 SimpleType: X

@@ -6,7 +6,6 @@ import org.jetbrains.plugins.scala.lang.psi.api.base.ScLiteral
 import org.jetbrains.plugins.scala.lang.psi.api.expr._
 import org.jetbrains.plugins.scala.lang.psi.api.statements.ScAnnotationsHolder
 import org.jetbrains.plugins.scala.lang.psi.api.toplevel.ScModifierListOwner
-import org.jetbrains.plugins.scala.lang.psi.api.toplevel.templates.ScClassParents
 import org.jetbrains.plugins.scala.lang.psi.types.{ScType, ScTypeExt}
 
 /**
@@ -102,22 +101,18 @@ object JavaConversionUtil {
           } else problem
         } else problem
       case n: ScNewTemplateDefinition =>
-        n.extendsBlock.templateParents match {
-          case Some(c: ScClassParents) =>
-            c.constructor match {
-              case Some(constr) =>
-                constr.reference match {
-                  case Some(ref) =>
-                    ref.resolve() match {
-                      case c: PsiClass =>
-                        var res = "@" + c.getQualifiedName
-                        constr.args match {
-                          case Some(constrArgs) => res += convertArgs(constrArgs.exprs)
-                          case _ =>
-                        }
-                        res
-                      case _ => problem
+        n.extendsBlock.templateParents.flatMap(_.constructor) match {
+          case Some(constr) =>
+            constr.reference match {
+              case Some(ref) =>
+                ref.resolve() match {
+                  case c: PsiClass =>
+                    var res = "@" + c.getQualifiedName
+                    constr.args match {
+                      case Some(constrArgs) => res += convertArgs(constrArgs.exprs)
+                      case _ =>
                     }
+                    res
                   case _ => problem
                 }
               case _ => problem

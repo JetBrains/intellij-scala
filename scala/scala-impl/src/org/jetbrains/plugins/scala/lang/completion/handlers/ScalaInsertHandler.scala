@@ -16,7 +16,7 @@ import org.jetbrains.plugins.scala.lang.psi.ScalaPsiUtil
 import org.jetbrains.plugins.scala.lang.psi.api.base.{ScInterpolated, ScStableCodeReferenceElement}
 import org.jetbrains.plugins.scala.lang.psi.api.expr._
 import org.jetbrains.plugins.scala.lang.psi.api.statements.{ScFun, ScFunction, ScTypeAlias}
-import org.jetbrains.plugins.scala.lang.psi.api.toplevel.templates.{ScClassParents, ScExtendsBlock}
+import org.jetbrains.plugins.scala.lang.psi.api.toplevel.templates.{ScExtendsBlock, ScTemplateParents}
 import org.jetbrains.plugins.scala.lang.psi.api.toplevel.typedef.ScTypeDefinition
 import org.jetbrains.plugins.scala.lang.psi.impl.ScalaPsiElementFactory.createExpressionFromText
 import org.jetbrains.plugins.scala.lang.psi.impl.toplevel.synthetic.ScSyntheticFunction
@@ -308,10 +308,10 @@ class ScalaInsertHandler extends InsertHandler[LookupElement] {
         if (context.getCompletionChar != '[') {
           //add space between the added element and the '{' in extends block when necessary
           val documentText = document.getImmutableCharSequence
-          val isInClassParents =
-            PsiTreeUtil.getParentOfType(element, classOf[ScClassParents], false, classOf[ScExtendsBlock]) != null
+          val isInTemplateParents =
+            PsiTreeUtil.getParentOfType(element, classOf[ScTemplateParents], false, classOf[ScExtendsBlock]) != null
           val lBraceAtCaret = endOffset < documentText.length() && documentText.charAt(endOffset) == '{'
-          if (lBraceAtCaret && isInClassParents) {
+          if (lBraceAtCaret && isInTemplateParents) {
             document.insertString(endOffset, " ")
             endOffset += 1
             editor.getCaretModel.moveToOffset(endOffset)

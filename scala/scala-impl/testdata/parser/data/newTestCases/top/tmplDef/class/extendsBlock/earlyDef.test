@@ -65,7 +65,7 @@ ScalaFile
       PsiWhiteSpace(' ')
       PsiElement(with)('with')
       PsiWhiteSpace(' ')
-      ClassParents
+      TemplateParents
         Constructor
           SimpleType: C
             CodeReferenceElement: C

@@ -70,7 +70,7 @@ ScalaFile
     ExtendsBlock
       PsiElement(extends)('extends')
       PsiWhiteSpace(' ')
-      ClassParents
+      TemplateParents
         Constructor
           ParametrizedType: ReferenceWrapper[T]
             SimpleType: ReferenceWrapper
@@ -129,7 +129,7 @@ ScalaFile
             PsiElement(new)('new')
             PsiWhiteSpace(' ')
             ExtendsBlock
-              ClassParents
+              TemplateParents
                 Constructor
                   ParametrizedType: java.lang.ref.PhantomReference[T]
                     SimpleType: java.lang.ref.PhantomReference

@@ -20,7 +20,7 @@ ScalaFile
     ExtendsBlock
       PsiElement(extends)('extends')
       PsiWhiteSpace(' ')
-      ClassParents
+      TemplateParents
         Constructor
           TypeWithAnnotation: A@t(2+2,3)
             SimpleType: A

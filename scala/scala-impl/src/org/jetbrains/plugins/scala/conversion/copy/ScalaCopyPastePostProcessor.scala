@@ -3,7 +3,6 @@ package org.jetbrains.plugins.scala.conversion.copy
 import java.awt.datatransfer.Transferable
 
 import com.intellij.codeInsight.CodeInsightSettings
-import com.intellij.diagnostic.LogMessageEx
 import com.intellij.openapi.diagnostic.{Attachment, Logger}
 import com.intellij.openapi.editor.richcopy.settings.RichCopySettings
 import com.intellij.openapi.editor.{Editor, RangeMarker}
@@ -14,7 +13,6 @@ import com.intellij.openapi.ui.DialogWrapper
 import com.intellij.openapi.util.{Ref, TextRange}
 import com.intellij.psi._
 import com.intellij.psi.util.PsiTreeUtil
-import com.intellij.util.ExceptionUtil
 import org.jetbrains.plugins.scala.annotator.intention.ScalaImportTypeFix
 import org.jetbrains.plugins.scala.extensions.{PsiElementExt, _}
 import org.jetbrains.plugins.scala.lang.dependency.Dependency
@@ -25,7 +23,7 @@ import org.jetbrains.plugins.scala.lang.psi.api.base.types.ScTypeProjection
 import org.jetbrains.plugins.scala.lang.psi.api.expr.{ScReferenceExpression, ScSugarCallExpr}
 import org.jetbrains.plugins.scala.lang.psi.api.toplevel.ScPackaging
 import org.jetbrains.plugins.scala.lang.psi.api.toplevel.imports.ScImportStmt
-import org.jetbrains.plugins.scala.lang.psi.api.toplevel.templates.ScClassParents
+import org.jetbrains.plugins.scala.lang.psi.api.toplevel.templates.ScTemplateParents
 import org.jetbrains.plugins.scala.lang.psi.impl.base.ScStableCodeReferenceElementImpl
 import org.jetbrains.plugins.scala.settings._
 
@@ -172,7 +170,7 @@ class ScalaCopyPastePostProcessor extends SingularCopyPastePostProcessor[Associa
         .collectFirst {
           case i: ScImportStmt => i
           case p: ScPackaging => p
-          case cp: ScClassParents => cp
+          case cp: ScTemplateParents => cp
         }
     }
 

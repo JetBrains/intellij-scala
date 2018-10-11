@@ -15,7 +15,7 @@ ScalaFile
     ExtendsBlock
       PsiElement(extends)('extends')
       PsiWhiteSpace(' ')
-      TraitParents
+      TemplateParents
         SimpleType: TypeFunction1
           CodeReferenceElement: TypeFunction1
             PsiElement(identifier)('TypeFunction1')

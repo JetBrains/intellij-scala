@@ -35,7 +35,7 @@ ScalaFile
             PsiElement(new)('new')
             PsiWhiteSpace(' ')
             ExtendsBlock
-              ClassParents
+              TemplateParents
                 Constructor
                   SimpleType: AnyRef
                     CodeReferenceElement: AnyRef

@@ -25,7 +25,7 @@ import org.jetbrains.plugins.scala.lang.psi.api.expr.xml.ScXmlPattern
 import org.jetbrains.plugins.scala.lang.psi.api.statements._
 import org.jetbrains.plugins.scala.lang.psi.api.statements.params.{ScClassParameter, ScParameter, ScParameterClause}
 import org.jetbrains.plugins.scala.lang.psi.api.toplevel.imports.ScImportStmt
-import org.jetbrains.plugins.scala.lang.psi.api.toplevel.templates.{ScClassParents, ScTemplateBody}
+import org.jetbrains.plugins.scala.lang.psi.api.toplevel.templates.ScTemplateBody
 import org.jetbrains.plugins.scala.lang.psi.api.toplevel.typedef._
 import org.jetbrains.plugins.scala.lang.psi.api.toplevel.{ScEarlyDefinitions, ScModifierListOwner, ScNamedElement, ScTypedDefinition}
 import org.jetbrains.plugins.scala.lang.psi.api.{ImplicitArgumentsOwner, ScPackage}
@@ -960,7 +960,7 @@ private[evaluation] trait ScalaEvaluatorBuilderUtil {
 
   def newTemplateDefinitionEvaluator(templ: ScNewTemplateDefinition): Evaluator = {
     templ.extendsBlock.templateParents match {
-      case Some(parents: ScClassParents) =>
+      case Some(parents) =>
         if (parents.typeElements.length != 1) {
           throw new NeedCompilationException(ScalaBundle.message("anon.classes.not.supported"))
         }

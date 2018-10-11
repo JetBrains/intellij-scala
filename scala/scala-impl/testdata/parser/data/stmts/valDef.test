@@ -79,7 +79,7 @@ ScalaFile
             PsiElement(new)('new')
             PsiWhiteSpace(' ')
             ExtendsBlock
-              ClassParents
+              TemplateParents
                 Constructor
                   SimpleType: Some
                     CodeReferenceElement: Some

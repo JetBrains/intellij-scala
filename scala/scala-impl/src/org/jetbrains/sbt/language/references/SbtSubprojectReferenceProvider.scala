@@ -13,7 +13,7 @@ import org.jetbrains.plugins.scala.lang.psi.api.ScalaRecursiveElementVisitor
 import org.jetbrains.plugins.scala.lang.psi.api.base.{ScConstructor, ScLiteral}
 import org.jetbrains.plugins.scala.lang.psi.api.expr.{ScInfixExpr, ScMethodCall, ScNewTemplateDefinition, ScReferenceExpression}
 import org.jetbrains.plugins.scala.lang.psi.api.statements.ScPatternDefinition
-import org.jetbrains.plugins.scala.lang.psi.api.toplevel.templates.ScClassParents
+import org.jetbrains.plugins.scala.lang.psi.api.toplevel.templates.ScTemplateParents
 import org.jetbrains.plugins.scala.lang.psi.impl.base.ScLiteralImpl
 
 /**
@@ -72,7 +72,7 @@ class SbtSubprojectReferenceProvider extends PsiReferenceProvider {
   private def extractPathFromFileParam(element: PsiElement): Option[String] = element match {
     case newFileDef : ScNewTemplateDefinition =>
       newFileDef.extendsBlock.getChildren.toSeq.headOption.collect {
-        case classParent : ScClassParents => classParent.constructor.flatMap(extractPathFromFileCtor)
+        case classParent: ScTemplateParents => classParent.constructor.flatMap(extractPathFromFileCtor)
       }.flatten
     case expr@ScInfixExpr(_, op, _) if op.getText == "/" =>
       extractPathFromConcatenation(expr)

@@ -35,7 +35,7 @@ ScalaFile
     ExtendsBlock
       PsiElement(extends)('extends')
       PsiWhiteSpace(' ')
-      ClassParents
+      TemplateParents
         Constructor
           SimpleType: Thread
             CodeReferenceElement: Thread

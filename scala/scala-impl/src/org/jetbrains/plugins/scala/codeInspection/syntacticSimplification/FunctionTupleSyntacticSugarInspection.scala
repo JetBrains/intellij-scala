@@ -8,7 +8,7 @@ import com.intellij.psi.{PsiClass, PsiElement, PsiElementVisitor}
 import org.jetbrains.plugins.scala.extensions._
 import org.jetbrains.plugins.scala.lang.psi.api.base.ScConstructor
 import org.jetbrains.plugins.scala.lang.psi.api.base.types.{ScFunctionalTypeElement, ScInfixTypeElement, ScParameterizedTypeElement, ScSimpleTypeElement}
-import org.jetbrains.plugins.scala.lang.psi.api.toplevel.templates.{ScClassParents, ScTraitParents}
+import org.jetbrains.plugins.scala.lang.psi.api.toplevel.templates.ScTemplateParents
 import org.jetbrains.plugins.scala.lang.psi.api.{ScalaElementVisitor, ScalaFile}
 import org.jetbrains.plugins.scala.lang.psi.types.api.{FunctionType, TupleType}
 import org.jetbrains.plugins.scala.lang.psi.{ScalaPsiElement, ScalaPsiUtil}
@@ -105,7 +105,7 @@ object FunctionTupleSyntacticSugarInspection {
         val needParens = typeElement.getContext match {
           case _: ScFunctionalTypeElement => true
           case _: ScInfixTypeElement => true
-          case _: ScConstructor | _: ScTraitParents | _: ScClassParents => true
+          case _: ScConstructor | _: ScTemplateParents => true
           case _ => false
         }
         val arrow = ScalaPsiUtil.functionArrow(project)

@@ -37,8 +37,6 @@ object TokenSets {
     FUNCTIONS ++ ALIASES_SET ++ TYPE_DEFINITIONS ++ VALUES ++ VARIABLES + PRIMARY_CONSTRUCTOR ++
       MemberElementTypesExtension.getAllElementTypes
 
-  val TEMPLATE_PARENTS: TokenSet = TokenSet.create(CLASS_PARENTS, TRAIT_PARENTS)
-
   val DECLARED_ELEMENTS_HOLDER: TokenSet = TokenSet.orSet(FUNCTIONS, TokenSet.orSet(VALUES, VARIABLES))
 
   val PARAMETERS: TokenSet = TokenSet.create(PARAM, CLASS_PARAM)

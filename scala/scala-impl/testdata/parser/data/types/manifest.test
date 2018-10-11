@@ -44,7 +44,7 @@ ScalaFile
             PsiElement(new)('new')
             PsiWhiteSpace(' ')
             ExtendsBlock
-              ClassParents
+              TemplateParents
                 Constructor
                   TypeInParenthesis: (Manifest[Byte] @serializable)
                     PsiElement(()('(')
@@ -159,7 +159,7 @@ ScalaFile
                     PsiElement(new)('new')
                     PsiWhiteSpace(' ')
                     ExtendsBlock
-                      ClassParents
+                      TemplateParents
                         Constructor
                           SimpleType: BoxedByteArray
                             CodeReferenceElement: BoxedByteArray
@@ -170,7 +170,7 @@ ScalaFile
                               PsiElement(new)('new')
                               PsiWhiteSpace(' ')
                               ExtendsBlock
-                                ClassParents
+                                TemplateParents
                                   Constructor
                                     ParametrizedType: Array[Byte]
                                       SimpleType: Array
@@ -208,7 +208,7 @@ ScalaFile
             PsiElement(new)('new')
             PsiWhiteSpace(' ')
             ExtendsBlock
-              ClassParents
+              TemplateParents
                 Constructor
                   TypeInParenthesis: (Manifest[Short] @serializable)
                     PsiElement(()('(')
@@ -323,7 +323,7 @@ ScalaFile
                     PsiElement(new)('new')
                     PsiWhiteSpace(' ')
                     ExtendsBlock
-                      ClassParents
+                      TemplateParents
                         Constructor
                           SimpleType: BoxedShortArray
                             CodeReferenceElement: BoxedShortArray
@@ -334,7 +334,7 @@ ScalaFile
                               PsiElement(new)('new')
                               PsiWhiteSpace(' ')
                               ExtendsBlock
-                                ClassParents
+                                TemplateParents
                                   Constructor
                                     ParametrizedType: Array[Short]
                                       SimpleType: Array

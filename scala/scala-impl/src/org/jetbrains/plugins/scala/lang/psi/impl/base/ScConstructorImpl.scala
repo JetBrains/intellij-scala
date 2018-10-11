@@ -14,7 +14,7 @@ import org.jetbrains.plugins.scala.lang.psi.api.expr.{ScAssignStmt, ScExpression
 import org.jetbrains.plugins.scala.lang.psi.api.statements.params.ScParameter
 import org.jetbrains.plugins.scala.lang.psi.api.statements.{ScFunction, ScTypeAliasDefinition}
 import org.jetbrains.plugins.scala.lang.psi.api.toplevel.ScTypeParametersOwner
-import org.jetbrains.plugins.scala.lang.psi.api.toplevel.templates.{ScClassParents, ScExtendsBlock}
+import org.jetbrains.plugins.scala.lang.psi.api.toplevel.templates.{ScExtendsBlock, ScTemplateParents}
 import org.jetbrains.plugins.scala.lang.psi.api.toplevel.typedef.ScTemplateDefinition
 import org.jetbrains.plugins.scala.lang.psi.api.{InferUtil, ScalaElementVisitor}
 import org.jetbrains.plugins.scala.lang.psi.impl.base.types.ScSimpleTypeElementImpl
@@ -48,9 +48,8 @@ class ScConstructorImpl(node: ASTNode) extends ScalaPsiElementImpl(node) with Sc
 
   override def toString: String = "Constructor"
 
-  def expectedType: Option[ScType] = {
-    getContext match {
-      case parents: ScClassParents =>
+  def expectedType: Option[ScType] = getContext match {
+    case parents: ScTemplateParents =>
         if (parents.allTypeElements.length != 1) None
         else {
           parents.getContext match {
@@ -64,22 +63,19 @@ class ScConstructorImpl(node: ASTNode) extends ScalaPsiElementImpl(node) with Sc
           }
         }
       case _ => None
-    }
   }
 
-  def newTemplate: Option[ScNewTemplateDefinition] = {
-    getContext match {
-      case parents: ScClassParents =>
-        parents.getContext match {
-          case e: ScExtendsBlock =>
-            e.getContext match {
-              case n: ScNewTemplateDefinition =>
-                Some(n)
-              case _ => None
-            }
-        }
-      case _ => None
-    }
+  def newTemplate: Option[ScNewTemplateDefinition] = getContext match {
+    case parents: ScTemplateParents =>
+      parents.getContext match {
+        case e: ScExtendsBlock =>
+          e.getContext match {
+            case n: ScNewTemplateDefinition =>
+              Some(n)
+            case _ => None
+          }
+      }
+    case _ => None
   }
 
   //todo: duplicate ScSimpleTypeElementImpl

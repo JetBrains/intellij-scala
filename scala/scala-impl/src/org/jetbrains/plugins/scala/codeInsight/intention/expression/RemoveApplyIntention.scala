@@ -16,7 +16,7 @@ import org.jetbrains.plugins.scala.lang.psi.api.expr._
 import org.jetbrains.plugins.scala.lang.psi.api.statements.ScFunction
 import org.jetbrains.plugins.scala.lang.psi.api.statements.params.ScClassParameter
 import org.jetbrains.plugins.scala.lang.psi.api.toplevel.ScEarlyDefinitions
-import org.jetbrains.plugins.scala.lang.psi.api.toplevel.templates.{ScClassParents, ScTemplateBody}
+import org.jetbrains.plugins.scala.lang.psi.api.toplevel.templates.ScTemplateBody
 import org.jetbrains.plugins.scala.lang.psi.api.toplevel.typedef.ScTemplateDefinition
 import org.jetbrains.plugins.scala.lang.psi.impl.ScalaPsiElementFactory.createExpressionFromText
 
@@ -153,9 +153,8 @@ class RemoveApplyIntention extends PsiElementBaseIntentionAction {
         }
 
       case templ: ScNewTemplateDefinition =>
-        templ.extendsBlock.templateParents match {
-          case Some(parents: ScClassParents) =>
-            parents.constructor match {
+        templ.extendsBlock.templateParents
+          .flatMap(_.constructor) match {
               case Some(constr) =>
                 constr.reference match {
                   case Some(ref) =>
@@ -165,22 +164,18 @@ class RemoveApplyIntention extends PsiElementBaseIntentionAction {
                       case con: ScPrimaryConstructor =>
                         val clauses = con.effectiveParameterClauses
                         if (clauses.length > 1 && clauses.last.isImplicit && clauses.length == argsCount + 1) {
-                          showErrorHint(InspectionBundle.message("remove.apply.constructor.implicit.parameter",
-                              parents.constructor.get.getText))
+                          showErrorHint(InspectionBundle.message("remove.apply.constructor.implicit.parameter", constr.getText))
                           return
                         }
                       case fun: ScFunction =>
                         val clauses = fun.effectiveParameterClauses
                         if (clauses.length > 1 && clauses.last.isImplicit && clauses.length == argsCount + 1) {
-                          showErrorHint(InspectionBundle.message("remove.apply.constructor.implicit.parameter",
-                                                          parents.constructor.get.getText))
+                          showErrorHint(InspectionBundle.message("remove.apply.constructor.implicit.parameter", constr.getText))
                           return
                         }
                       case _ =>
                     }
                   case _ => //all is ok
-                }
-              case _ => //all is ok
             }
           case _ => //all is ok
         }

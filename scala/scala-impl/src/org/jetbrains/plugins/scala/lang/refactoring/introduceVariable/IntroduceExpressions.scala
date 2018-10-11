@@ -18,7 +18,7 @@ import org.jetbrains.plugins.scala.lang.psi.ScalaPsiUtil
 import org.jetbrains.plugins.scala.lang.psi.api.expr._
 import org.jetbrains.plugins.scala.lang.psi.api.statements.{ScDeclaredElementsHolder, ScPatternDefinition, ScVariableDefinition}
 import org.jetbrains.plugins.scala.lang.psi.api.toplevel.ScEarlyDefinitions
-import org.jetbrains.plugins.scala.lang.psi.api.toplevel.templates.{ScClassParents, ScExtendsBlock, ScTemplateBody}
+import org.jetbrains.plugins.scala.lang.psi.api.toplevel.templates.{ScExtendsBlock, ScTemplateBody, ScTemplateParents}
 import org.jetbrains.plugins.scala.lang.psi.api.toplevel.typedef.ScMember
 import org.jetbrains.plugins.scala.lang.psi.impl.ScalaPsiElementFactory._
 import org.jetbrains.plugins.scala.lang.psi.types.ScType
@@ -232,7 +232,7 @@ object IntroduceExpressions {
         e match {
           case extBl: ScExtendsBlock =>
             Some(extBl)
-          case elem if PsiTreeUtil.getParentOfType(elem, classOf[ScClassParents]) != null =>
+          case elem if PsiTreeUtil.getParentOfType(elem, classOf[ScTemplateParents]) != null =>
             PsiTreeUtil.getParentOfType(elem, classOf[ScExtendsBlock]) match {
               case _ childOf (_: ScNewTemplateDefinition) => None
               case extBl => Some(extBl)

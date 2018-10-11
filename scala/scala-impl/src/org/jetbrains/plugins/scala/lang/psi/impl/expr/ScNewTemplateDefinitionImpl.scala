@@ -18,7 +18,7 @@ import org.jetbrains.plugins.scala.lang.psi.api.base.{ScConstructor, ScPrimaryCo
 import org.jetbrains.plugins.scala.lang.psi.api.expr._
 import org.jetbrains.plugins.scala.lang.psi.api.statements.{ScDeclaredElementsHolder, ScFunction, ScTypeAlias}
 import org.jetbrains.plugins.scala.lang.psi.api.toplevel.ScEarlyDefinitions
-import org.jetbrains.plugins.scala.lang.psi.api.toplevel.templates.{ScClassParents, ScTemplateBody}
+import org.jetbrains.plugins.scala.lang.psi.api.toplevel.templates.ScTemplateBody
 import org.jetbrains.plugins.scala.lang.psi.impl.ScalaPsiElementFactory.createExpressionWithContextFromText
 import org.jetbrains.plugins.scala.lang.psi.impl.toplevel.PsiClassFake
 import org.jetbrains.plugins.scala.lang.psi.impl.toplevel.typedef.TypeDefinitionMembers
@@ -48,10 +48,10 @@ class ScNewTemplateDefinitionImpl private (stub: ScTemplateDefinitionStub, node:
   override def getIcon(flags: Int): Icon = Icons.CLASS
 
   override def constructor: Option[ScConstructor] =
-    Option(extendsBlock).flatMap(_.templateParents).collect {
-      case parents: ScClassParents if parents.typeElements.length == 1 => parents
-    }.flatMap(_.constructor)
-
+    Option(extendsBlock)
+      .flatMap(_.templateParents)
+      .filter(_.typeElements.length == 1)
+      .flatMap(_.constructor)
 
   override protected def updateImplicitArguments(): Unit = {
     // for regular case implicits are owned by ScConstructor

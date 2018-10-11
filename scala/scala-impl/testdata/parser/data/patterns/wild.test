@@ -98,7 +98,7 @@ ScalaFile
             PsiElement(new)('new')
             PsiWhiteSpace(' ')
             ExtendsBlock
-              ClassParents
+              TemplateParents
                 Constructor
                   ParametrizedType: Parser[U]
                     SimpleType: Parser

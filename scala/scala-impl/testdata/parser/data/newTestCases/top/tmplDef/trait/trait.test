@@ -45,7 +45,7 @@ ScalaFile
       PsiWhiteSpace(' ')
       PsiElement(with)('with')
       PsiWhiteSpace(' ')
-      TraitParents
+      TemplateParents
         SimpleType: F
           CodeReferenceElement: F
             PsiElement(identifier)('F')

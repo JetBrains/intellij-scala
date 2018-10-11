@@ -188,7 +188,7 @@ ScalaFile
       PsiWhiteSpace(' ')
       PsiElement(with)('with')
       PsiWhiteSpace(' ')
-      ClassParents
+      TemplateParents
         Constructor
           SimpleType: AbstractCurrency
             CodeReferenceElement: AbstractCurrency
@@ -228,7 +228,7 @@ ScalaFile
             PsiElement(new)('new')
             PsiWhiteSpace(' ')
             ExtendsBlock
-              ClassParents
+              TemplateParents
                 Constructor
                   SimpleType: USD
                     CodeReferenceElement: USD

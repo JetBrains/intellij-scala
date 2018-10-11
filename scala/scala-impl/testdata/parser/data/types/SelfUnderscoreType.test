@@ -1,25 +1,25 @@
-trait ReplyableReactor extends Replyable[Any, Any] {
+trait RepliableReactor extends Repliable[Any, Any] {
   _: ReplyReactor =>
 }
 -----
 ScalaFile
-  ScTrait: ReplyableReactor
+  ScTrait: RepliableReactor
     AnnotationsList
       <empty list>
     Modifiers
       <empty list>
     PsiElement(trait)('trait')
     PsiWhiteSpace(' ')
-    PsiElement(identifier)('ReplyableReactor')
+    PsiElement(identifier)('RepliableReactor')
     PsiWhiteSpace(' ')
     ExtendsBlock
       PsiElement(extends)('extends')
       PsiWhiteSpace(' ')
-      TraitParents
-        ParametrizedType: Replyable[Any, Any]
-          SimpleType: Replyable
-            CodeReferenceElement: Replyable
-              PsiElement(identifier)('Replyable')
+      TemplateParents
+        ParametrizedType: Repliable[Any, Any]
+          SimpleType: Repliable
+            CodeReferenceElement: Repliable
+              PsiElement(identifier)('Repliable')
           TypeArgumentsList
             PsiElement([)('[')
             SimpleType: Any

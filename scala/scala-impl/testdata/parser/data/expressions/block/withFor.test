@@ -30,7 +30,7 @@ ScalaFile
       ExtendsBlock
         PsiElement(extends)('extends')
         PsiWhiteSpace(' ')
-        ClassParents
+        TemplateParents
           Constructor
             SimpleType: Application
               CodeReferenceElement: Application

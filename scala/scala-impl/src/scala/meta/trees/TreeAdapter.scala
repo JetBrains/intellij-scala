@@ -224,7 +224,7 @@ trait TreeAdapter {
   def newTemplate(t: ScTemplateDefinition): m.Template = {
     val early= t.extendsBlock.earlyDefinitions map (it => Seq(it.members.map(ideaToMeta(_).asInstanceOf[m.Stat]):_*)) getOrElse Seq.empty
     val ctor = t.extendsBlock.templateParents match {
-      case Some(parents: p.toplevel.templates.ScClassParents) =>
+      case Some(parents) =>
         parents.constructor match {
           case Some(ctr) => toCtor(ctr)
           case None      => unreachable(s"no constructor found in class ${t.qualifiedName}")

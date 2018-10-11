@@ -103,7 +103,7 @@ ScalaFile
       PsiWhiteSpace(' ')
       PsiElement(with)('with')
       PsiWhiteSpace(' ')
-      ClassParents
+      TemplateParents
         Constructor
           SimpleType: Greeting
             CodeReferenceElement: Greeting

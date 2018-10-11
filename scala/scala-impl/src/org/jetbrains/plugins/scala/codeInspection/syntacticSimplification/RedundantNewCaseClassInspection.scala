@@ -8,7 +8,7 @@ import org.jetbrains.plugins.scala.extensions.PsiElementExt
 import org.jetbrains.plugins.scala.lang.psi.api.base.{ScConstructor, ScPrimaryConstructor}
 import org.jetbrains.plugins.scala.lang.psi.api.expr.{ScExpression, ScMethodCall, ScNewTemplateDefinition, ScReferenceExpression}
 import org.jetbrains.plugins.scala.lang.psi.api.statements.{ScFunctionDefinition, ScTypeAlias}
-import org.jetbrains.plugins.scala.lang.psi.api.toplevel.templates.ScClassParents
+import org.jetbrains.plugins.scala.lang.psi.api.toplevel.templates.ScTemplateParents
 import org.jetbrains.plugins.scala.lang.psi.api.toplevel.typedef.ScClass
 import org.jetbrains.plugins.scala.lang.psi.impl.ScalaPsiElementFactory
 import org.jetbrains.plugins.scala.lang.resolve.ScalaResolveResult
@@ -82,7 +82,7 @@ class RedundantNewCaseClassInspection extends AbstractInspection("Redundant New 
 
   private def getConstructorFromTemplate(newTemplate: ScNewTemplateDefinition): Option[ScConstructor] = {
     newTemplate.extendsBlock.firstChild.flatMap {
-      case parents: ScClassParents => parents.constructor
+      case parents: ScTemplateParents => parents.constructor
       case _ => None
     }
   }

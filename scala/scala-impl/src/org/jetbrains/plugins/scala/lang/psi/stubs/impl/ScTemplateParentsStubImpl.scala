@@ -18,11 +18,11 @@ import org.jetbrains.plugins.scala.lang.psi.stubs.impl.ScTemplateParentsStubImpl
 /**
   * User: Alexander Podkhalyuzin
   */
-class ScTemplateParentsStubImpl[P <: ScTemplateParents](parent: StubElement[_ <: PsiElement],
-                                                        elementType: IStubElementType[_ <: StubElement[_ <: PsiElement], _ <: PsiElement],
-                                                        private val parentTypeTextRefs: Array[StringRef],
-                                                        private val constructorRef: Option[StringRef])
-  extends StubBase[P](parent, elementType) with ScTemplateParentsStub[P] with PsiOwner[P] {
+final class ScTemplateParentsStubImpl(parent: StubElement[_ <: PsiElement],
+                                      elementType: IStubElementType[_ <: StubElement[_ <: PsiElement], _ <: PsiElement],
+                                      private val parentTypeTextRefs: Array[StringRef],
+                                      private val constructorRef: Option[StringRef])
+  extends StubBase[ScTemplateParents](parent, elementType) with ScTemplateParentsStub with PsiOwner[ScTemplateParents] {
 
   private var constructorAndParentTypeElementsReference: SofterReference[Data] = null
 

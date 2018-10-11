@@ -14,7 +14,7 @@ import org.jetbrains.plugins.scala.lang.psi.api.base.types.{ScExistentialClause,
 import org.jetbrains.plugins.scala.lang.psi.api.expr.ScPostfixExpr
 import org.jetbrains.plugins.scala.lang.psi.api.statements.params.ScTypeParamClause
 import org.jetbrains.plugins.scala.lang.psi.api.statements.{ScFunctionDefinition, ScMacroDefinition, ScTypeAliasDeclaration}
-import org.jetbrains.plugins.scala.lang.psi.api.toplevel.templates.ScClassParents
+import org.jetbrains.plugins.scala.lang.psi.api.toplevel.templates.ScTemplateParents
 import org.jetbrains.plugins.scala.lang.psi.impl.ScalaPsiElementFactory
 import org.jetbrains.plugins.scala.project._
 import org.jetbrains.plugins.scala.project.settings.ScalaCompilerSettings
@@ -34,7 +34,7 @@ class LanguageFeatureInspection extends AbstractInspection("Advanced language fe
       }
     },
     Feature("dynamic member selection", "scala.language", "dynamics", _.dynamics, _.dynamics = true) {
-      case e @ ReferenceTarget(ClassQualifiedName("scala.Dynamic")) && Parent(Parent(Parent(_: ScClassParents))) => e
+      case e@ReferenceTarget(ClassQualifiedName("scala.Dynamic")) && Parent(Parent(Parent(_: ScTemplateParents))) => e
     },
     Feature("implicit conversion", "scala.language", "implicitConversions", _.implicitConversions, _.implicitConversions = true) {
       case e: ScFunctionDefinition if e.getModifierList.has(ScalaTokenTypes.kIMPLICIT) &&
