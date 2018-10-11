@@ -6,7 +6,7 @@ package top
 
 import org.jetbrains.plugins.scala.lang.lexer.ScalaTokenTypes
 import org.jetbrains.plugins.scala.lang.parser.parsing.builder.ScalaPsiBuilder
-import org.jetbrains.plugins.scala.lang.parser.parsing.top.template.{ClassParents, TemplateBody}
+import org.jetbrains.plugins.scala.lang.parser.parsing.top.template.TemplateBody
 
 /**
 * @author Alexander Podkhalyuzin
