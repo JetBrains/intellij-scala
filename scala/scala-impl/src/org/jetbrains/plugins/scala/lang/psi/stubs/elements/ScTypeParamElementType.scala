@@ -17,6 +17,7 @@ import org.jetbrains.plugins.scala.lang.psi.stubs.impl.ScTypeParamStubImpl
   * Date: 17.06.2009
   */
 class ScTypeParamElementType extends ScStubElementType[ScTypeParamStub, ScTypeParam]("type parameter") {
+
   override def serialize(stub: ScTypeParamStub, dataStream: StubOutputStream): Unit = {
     dataStream.writeName(stub.getName)
     dataStream.writeName(stub.text)
@@ -30,51 +31,45 @@ class ScTypeParamElementType extends ScStubElementType[ScTypeParamStub, ScTypePa
     dataStream.writeInt(stub.positionInFile)
   }
 
-  override def deserialize(dataStream: StubInputStream, parentStub: StubElement[_ <: PsiElement]): ScTypeParamStub = {
-    new ScTypeParamStubImpl(parentStub, this,
-      nameRef = dataStream.readName,
-      textRef = dataStream.readName,
-      lowerBoundTextRef = dataStream.readOptionName,
-      upperBoundTextRef = dataStream.readOptionName,
-      viewBoundsTextRefs = dataStream.readNames,
-      contextBoundsTextRefs = dataStream.readNames,
-      isCovariant = dataStream.readBoolean,
-      isContravariant = dataStream.readBoolean,
-      containingFileNameRef = dataStream.readName(),
-      positionInFile = dataStream.readInt)
-  }
+  override def deserialize(dataStream: StubInputStream,
+                           parentStub: StubElement[_ <: PsiElement]) = new ScTypeParamStubImpl(
+    parentStub,
+    this,
+    nameRef = dataStream.readName,
+    textRef = dataStream.readName,
+    lowerBoundTextRef = dataStream.readOptionName,
+    upperBoundTextRef = dataStream.readOptionName,
+    viewBoundsTextRefs = dataStream.readNames,
+    contextBoundsTextRefs = dataStream.readNames,
+    isCovariant = dataStream.readBoolean,
+    isContravariant = dataStream.readBoolean,
+    containingFileNameRef = dataStream.readName(),
+    positionInFile = dataStream.readInt
+  )
 
   override def createStubImpl(typeParam: ScTypeParam, parentStub: StubElement[_ <: PsiElement]): ScTypeParamStub = {
-    val lowerBoundText = typeParam.lowerTypeElement.map {
-      _.getText
-    }
+    val lowerBoundText = typeParam.lowerTypeElement
+      .map(_.getText)
+    val upperBoundText = typeParam.upperTypeElement
+      .map(_.getText)
 
-    val upperBoundText = typeParam.upperTypeElement.map {
-      _.getText
-    }
-
-    val viewBoundsTexts = typeParam.viewTypeElement.map {
-      _.getText
-    }.toArray
-
-    val contextBoundsTexts = typeParam.contextBoundTypeElement.map {
-      _.getText
-    }.toArray
-
-    new ScTypeParamStubImpl(parentStub, this,
+    new ScTypeParamStubImpl(
+      parentStub,
+      this,
       nameRef = fromString(typeParam.name),
       textRef = fromString(typeParam.getText),
       lowerBoundTextRef = lowerBoundText.asReference,
       upperBoundTextRef = upperBoundText.asReference,
-      viewBoundsTextRefs = viewBoundsTexts.asReferences,
-      contextBoundsTextRefs = contextBoundsTexts.asReferences,
+      viewBoundsTextRefs = typeParam.viewTypeElement.asReferences(),
+      contextBoundsTextRefs = typeParam.contextBoundTypeElement.asReferences(),
       isCovariant = typeParam.isCovariant,
       isContravariant = typeParam.isContravariant,
       containingFileNameRef = fromString(typeParam.getContainingFileName),
-      positionInFile = typeParam.getTextRange.getStartOffset)
+      positionInFile = typeParam.getTextRange.getStartOffset
+    )
   }
 
-  override def createElement(node: ASTNode): ScTypeParam = new ScTypeParamImpl(node)
+  override def createElement(node: ASTNode) = new ScTypeParamImpl(node)
 
-  override def createPsi(stub: ScTypeParamStub): ScTypeParam = new ScTypeParamImpl(stub)
+  override def createPsi(stub: ScTypeParamStub) = new ScTypeParamImpl(stub)
 }

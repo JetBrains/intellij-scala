@@ -10,7 +10,6 @@ import com.intellij.psi.stubs.{IndexSink, StubElement, StubInputStream, StubOutp
 import org.jetbrains.plugins.scala.lang.psi.api.base.types.{ScInfixTypeElement, ScParameterizedTypeElement, ScParenthesisedTypeElement, ScSimpleTypeElement, ScTypeElement}
 import org.jetbrains.plugins.scala.lang.psi.api.toplevel.templates.ScExtendsBlock
 import org.jetbrains.plugins.scala.lang.psi.impl.toplevel.templates.ScExtendsBlockImpl
-import org.jetbrains.plugins.scala.lang.psi.stubs.elements.ScExtendsBlockElementType.directSupersNames
 import org.jetbrains.plugins.scala.lang.psi.stubs.impl.ScExtendsBlockStubImpl
 import org.jetbrains.plugins.scala.lang.psi.stubs.index.ScalaIndexKeys.SUPER_CLASS_NAME_KEY
 
@@ -26,26 +25,31 @@ class ScExtendsBlockElementType extends ScStubElementType[ScExtendsBlockStub, Sc
     dataStream.writeNames(stub.baseClasses)
   }
 
-  override def deserialize(dataStream: StubInputStream, parentStub: StubElement[_ <: PsiElement]): ScExtendsBlockStub = {
-    new ScExtendsBlockStubImpl(parentStub, this,
-      baseClassesRefs = dataStream.readNames)
-  }
+  override def deserialize(dataStream: StubInputStream,
+                           parentStub: StubElement[_ <: PsiElement]) = new ScExtendsBlockStubImpl(
+    parentStub,
+    this,
+    baseClassesRefs = dataStream.readNames
+  )
 
-  override def createStubImpl(block: ScExtendsBlock, parentStub: StubElement[_ <: PsiElement]): ScExtendsBlockStub =
-    new ScExtendsBlockStubImpl(parentStub, this,
-      baseClassesRefs = directSupersNames(block).toArray.asReferences)
+  override def createStubImpl(block: ScExtendsBlock,
+                              parentStub: StubElement[_ <: PsiElement]) = new ScExtendsBlockStubImpl(
+    parentStub,
+    this,
+    baseClassesRefs = ScExtendsBlockElementType.directSupersNames(block).asReferences
+  )
 
   override def indexStub(stub: ScExtendsBlockStub, sink: IndexSink): Unit =
     this.indexStub(stub.baseClasses, sink, SUPER_CLASS_NAME_KEY)
 
-  override def createElement(node: ASTNode): ScExtendsBlock = new ScExtendsBlockImpl(node)
+  override def createElement(node: ASTNode) = new ScExtendsBlockImpl(node)
 
-  override def createPsi(stub: ScExtendsBlockStub): ScExtendsBlock = new ScExtendsBlockImpl(stub)
+  override def createPsi(stub: ScExtendsBlockStub) = new ScExtendsBlockImpl(stub)
 }
 
 private object ScExtendsBlockElementType {
-  def directSupersNames(extBlock: ScExtendsBlock): Seq[String] = {
 
+  private def directSupersNames(extBlock: ScExtendsBlock): Seq[String] = {
     @tailrec
     def refName(te: ScTypeElement): Option[String] = {
       te match {

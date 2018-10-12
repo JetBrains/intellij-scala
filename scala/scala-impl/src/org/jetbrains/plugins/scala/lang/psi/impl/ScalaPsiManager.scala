@@ -25,7 +25,7 @@ import org.jetbrains.plugins.scala.extensions._
 import org.jetbrains.plugins.scala.lang.psi.api.statements.ScTypeAlias
 import org.jetbrains.plugins.scala.lang.psi.api.statements.params.idToName
 import org.jetbrains.plugins.scala.lang.psi.api.toplevel.ScPackaging
-import org.jetbrains.plugins.scala.lang.psi.api.toplevel.typedef.{ScObject, ScTemplateDefinition}
+import org.jetbrains.plugins.scala.lang.psi.api.toplevel.typedef.{ScObject, ScTemplateDefinition, ScTypeDefinition}
 import org.jetbrains.plugins.scala.lang.psi.impl.toplevel.synthetic.ScSyntheticPackage
 import org.jetbrains.plugins.scala.lang.psi.impl.toplevel.typedef.MixinNodes
 import org.jetbrains.plugins.scala.lang.psi.impl.toplevel.typedef.TypeDefinitionMembers.ParameterlessNodes.{Map => PMap}
@@ -227,8 +227,8 @@ class ScalaPsiManager(val project: Project) {
 
     def names(clazz: PsiClass): Set[String] = {
       def additionalJavaNames = clazz match {
-        case definition: ScTemplateDefinition => definition.additionalJavaNames
-        case _ => Array.empty
+        case definition: ScTypeDefinition => definition.additionalJavaName
+        case _ => None
       }
 
       Set(clazz.getName) ++ additionalJavaNames

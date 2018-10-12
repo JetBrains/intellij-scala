@@ -1,11 +1,12 @@
-package org.jetbrains.plugins.scala.lang.psi.stubs
+package org.jetbrains.plugins.scala
+package lang
+package psi
+package stubs
 
 import com.intellij.psi.PsiElement
 import com.intellij.psi.stubs._
-import com.intellij.util.ArrayUtil.EMPTY_STRING_ARRAY
-import com.intellij.util.SofterReference
+import com.intellij.util.ArrayUtil
 import com.intellij.util.io.StringRef
-import org.jetbrains.plugins.scala.lang.psi.stubs.index.ScalaIndexKeys.IMPLICITS_KEY
 import org.jetbrains.plugins.scala.lang.refactoring.util.ScalaNamesUtil._
 
 /**
@@ -65,16 +66,28 @@ package object elements {
     }.filter {
       _.nonEmpty
     } match {
-      case Array() => EMPTY_STRING_ARRAY
+      case Array() => ArrayUtil.EMPTY_STRING_ARRAY
       case array => array
     }
   }
 
-  implicit class StringArrayExt(val strings: Array[String]) extends AnyVal {
-    def asReferences: Array[StringRef] = strings.filter {
-      _.nonEmpty
-    }.map {
-      StringRef.fromString
+  implicit class PsiElementsExt(val elements: Seq[PsiElement]) extends AnyVal {
+
+    def asReferences(transformText: String => String = identity): Array[StringRef] =
+      if (elements.nonEmpty) elements
+        .map(_.getText)
+        .map(transformText)
+        .map(StringRef.fromString).toArray
+      else StringRef.EMPTY_ARRAY
+  }
+
+  implicit class StringsExt(val strings: Seq[String]) extends AnyVal {
+
+    def asReferences: Array[StringRef] = {
+      val result = strings.filter(_.nonEmpty)
+
+      if (result.nonEmpty) result.map(StringRef.fromString).toArray
+      else StringRef.EMPTY_ARRAY
     }
   }
 
@@ -91,7 +104,7 @@ package object elements {
       }
 
     def indexImplicit(sink: IndexSink): Unit =
-      sink.occurrence(IMPLICITS_KEY, "implicit")
+      sink.occurrence(index.ScalaIndexKeys.IMPLICITS_KEY, "implicit")
   }
 
 }

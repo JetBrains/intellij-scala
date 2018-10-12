@@ -16,7 +16,7 @@ import org.jetbrains.plugins.scala.lang.psi.stubs.ScSelfTypeElementStub
 import org.jetbrains.plugins.scala.lang.psi.types._
 import org.jetbrains.plugins.scala.lang.psi.types.result.TypeResult
 
-import scala.collection.mutable.ArrayBuffer
+import scala.collection.mutable
 
 /**
   * @author Alexander Podkhalyuzin
@@ -47,8 +47,8 @@ class ScSelfTypeElementImpl private(stub: ScSelfTypeElementStub, node: ASTNode)
 
   def typeElement: Option[ScTypeElement] = byPsiOrStub(findChild(classOf[ScTypeElement]))(_.typeElement)
 
-  def classNames: Array[String] = byStubOrPsi(_.classNames) {
-    val names = new ArrayBuffer[String]()
+  def classNames: Seq[String] = byStubOrPsi(_.classNames.toSeq) {
+    val names = mutable.ArrayBuffer.empty[String]
 
     def fillNames(typeElement: ScTypeElement) {
       typeElement match {
@@ -64,6 +64,6 @@ class ScSelfTypeElementImpl private(stub: ScSelfTypeElementStub, node: ASTNode)
     }
 
     typeElement.foreach(fillNames)
-    names.toArray
+    names
   }
 }

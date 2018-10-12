@@ -28,16 +28,19 @@ abstract class ScFunctionElementType(debugName: String) extends ScStubElementTyp
     dataStream.writeBoolean(stub.isLocal)
   }
 
-  override def deserialize(dataStream: StubInputStream, parentStub: StubElement[_ <: PsiElement]): ScFunctionStub =
-    new ScFunctionStubImpl(parentStub, this,
-      nameRef = dataStream.readName,
-      isDeclaration = dataStream.readBoolean,
-      annotationsRefs = dataStream.readNames,
-      typeTextRef = dataStream.readOptionName,
-      bodyTextRef = dataStream.readOptionName,
-      hasAssign = dataStream.readBoolean,
-      isImplicit = dataStream.readBoolean,
-      isLocal = dataStream.readBoolean)
+  override def deserialize(dataStream: StubInputStream,
+                           parentStub: StubElement[_ <: PsiElement]) = new ScFunctionStubImpl(
+    parentStub,
+    this,
+    nameRef = dataStream.readName,
+    isDeclaration = dataStream.readBoolean,
+    annotationsRefs = dataStream.readNames,
+    typeTextRef = dataStream.readOptionName,
+    bodyTextRef = dataStream.readOptionName,
+    hasAssign = dataStream.readBoolean,
+    isImplicit = dataStream.readBoolean,
+    isLocal = dataStream.readBoolean
+  )
 
   override def createStubImpl(function: ScFunction, parentStub: StubElement[_ <: PsiElement]): ScFunctionStub = {
     val maybeFunction = Option(function)
@@ -54,30 +57,23 @@ abstract class ScFunctionElementType(debugName: String) extends ScStubElementTyp
     val bodyText = returnTypeText match {
       case Some(_) => None
       case None =>
-        maybeDefinition.flatMap {
-          _.body
-        }.map {
-          _.getText
-        }
+        maybeDefinition.flatMap(_.body)
+          .map(_.getText)
     }
 
-    val hasAssign = maybeDefinition.exists {
-      _.hasAssign
-    }
-
-    val annotations = function.annotations.map {
-      _.annotationExpr.constr.typeElement.getText
-    }.map { text =>
-      text.substring(text.lastIndexOf('.') + 1)
-    }.toArray
+    val annotations = function.annotations
+      .map(_.annotationExpr.constr.typeElement)
+      .asReferences { text =>
+        text.substring(text.lastIndexOf('.') + 1)
+      }
 
     new ScFunctionStubImpl(parentStub, this,
       nameRef = StringRef.fromString(function.name),
       isDeclaration = function.isInstanceOf[ScFunctionDeclaration],
-      annotationsRefs = annotations.asReferences,
+      annotationsRefs = annotations,
       typeTextRef = returnTypeText.asReference,
       bodyTextRef = bodyText.asReference,
-      hasAssign = hasAssign,
+      hasAssign = maybeDefinition.exists(_.hasAssign),
       isImplicit = function.hasModifierProperty("implicit"),
       isLocal = function.containingClass == null)
   }

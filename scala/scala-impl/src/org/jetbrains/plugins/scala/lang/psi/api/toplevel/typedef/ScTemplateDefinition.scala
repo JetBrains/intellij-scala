@@ -48,8 +48,6 @@ trait ScTemplateDefinition extends ScNamedElement with PsiClassAdapter with Type
   import com.intellij.psi.PsiMethod
   def qualifiedName: String = null
 
-  def additionalJavaNames: Array[String] = Array.empty
-
   def originalElement: Option[ScTemplateDefinition] = Option(getUserData(originalElemKey))
   def setDesugared(actualElement: ScTypeDefinition): ScTemplateDefinition = {
     putUserData(originalElemKey, actualElement)

@@ -25,27 +25,33 @@ class ScSelfTypeElementElementType extends ScStubElementType[ScSelfTypeElementSt
     dataStream.writeNames(stub.classNames)
   }
 
-  override def deserialize(dataStream: StubInputStream, parentStub: StubElement[_ <: PsiElement]): ScSelfTypeElementStub =
-    new ScSelfTypeElementStubImpl(parentStub, this,
-      nameRef = dataStream.readName,
-      typeTextRef = dataStream.readOptionName,
-      typeNamesRefs = dataStream.readNames)
+  override def deserialize(dataStream: StubInputStream,
+                           parentStub: StubElement[_ <: PsiElement]) = new ScSelfTypeElementStubImpl(
+    parentStub,
+    this,
+    nameRef = dataStream.readName,
+    typeTextRef = dataStream.readOptionName,
+    typeNamesRefs = dataStream.readNames
+  )
 
-  override def createStubImpl(typeElement: ScSelfTypeElement, parentStub: StubElement[_ <: PsiElement]): ScSelfTypeElementStub = {
-    val typeElementText = typeElement.typeElement.map {
-      _.getText
-    }
+  override def createStubImpl(typeElement: ScSelfTypeElement,
+                              parentStub: StubElement[_ <: PsiElement]): ScSelfTypeElementStub = {
+    val typeElementText = typeElement.typeElement
+      .map(_.getText)
 
-    new ScSelfTypeElementStubImpl(parentStub, this,
+    new ScSelfTypeElementStubImpl(
+      parentStub,
+      this,
       nameRef = StringRef.fromString(typeElement.name),
       typeTextRef = typeElementText.asReference,
-      typeNamesRefs = typeElement.classNames.asReferences)
+      typeNamesRefs = typeElement.classNames.asReferences
+    )
   }
 
   override def indexStub(stub: ScSelfTypeElementStub, sink: IndexSink): Unit =
     this.indexStub(stub.classNames, sink, ScalaIndexKeys.SELF_TYPE_CLASS_NAME_KEY)
 
-  override def createElement(node: ASTNode): ScSelfTypeElement = new ScSelfTypeElementImpl(node)
+  override def createElement(node: ASTNode) = new ScSelfTypeElementImpl(node)
 
-  override def createPsi(stub: ScSelfTypeElementStub): ScSelfTypeElement = new ScSelfTypeElementImpl(stub)
+  override def createPsi(stub: ScSelfTypeElementStub) = new ScSelfTypeElementImpl(stub)
 }

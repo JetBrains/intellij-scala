@@ -10,7 +10,6 @@ import com.intellij.openapi.progress.ProcessCanceledException
 import com.intellij.openapi.util.Iconable
 import com.intellij.psi._
 import com.intellij.psi.impl.PsiClassImplUtil
-import com.intellij.psi.impl.source.PsiFileImpl
 import org.jetbrains.plugins.scala.caches.CachesUtil
 import org.jetbrains.plugins.scala.extensions.PsiElementExt
 import org.jetbrains.plugins.scala.lang.psi.adapters.PsiClassAdapter
@@ -31,7 +30,7 @@ trait ScTypeDefinition extends ScTemplateDefinition with ScMember
     with NavigationItem with PsiClassAdapter with ScTypeParametersOwner with Iconable with ScDocCommentOwner
     with ScCommentOwner {
 
-  override def extendsBlock = super.extendsBlock
+  def additionalJavaName: Option[String] = fakeCompanionModule.map(_.getName)
 
   def isCase: Boolean = false
 

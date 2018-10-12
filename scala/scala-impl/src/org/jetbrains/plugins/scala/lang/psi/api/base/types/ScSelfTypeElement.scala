@@ -13,5 +13,5 @@ import org.jetbrains.plugins.scala.lang.psi.api.toplevel.{ScNamedElement, ScType
 trait ScSelfTypeElement extends ScNamedElement with ScTypedDefinition {
   def typeElement: Option[ScTypeElement]
 
-  def classNames: Array[String]
+  def classNames: Seq[String]
 }

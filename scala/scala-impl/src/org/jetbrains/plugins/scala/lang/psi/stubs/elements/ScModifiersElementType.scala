@@ -17,23 +17,29 @@ import org.jetbrains.plugins.scala.lang.psi.stubs.impl.ScModifiersStubImpl
   */
 class ScModifiersElementType(debugName: String)
   extends ScStubElementType[ScModifiersStub, ScModifierList](debugName) {
+
   override def serialize(stub: ScModifiersStub, dataStream: StubOutputStream): Unit = {
     dataStream.writeBoolean(stub.hasExplicitModifiers)
     dataStream.writeNames(stub.modifiers)
   }
 
-  override def deserialize(dataStream: StubInputStream, parentStub: StubElement[_ <: PsiElement]): ScModifiersStub = {
-    new ScModifiersStubImpl(parentStub, this,
+  override def deserialize(dataStream: StubInputStream,
+                           parentStub: StubElement[_ <: PsiElement]) = new ScModifiersStubImpl(
+    parentStub,
+    this,
       hasExplicitModifiers = dataStream.readBoolean,
-      modifiersRefs = dataStream.readNames)
-  }
+    modifiersRefs = dataStream.readNames
+  )
 
-  override def createStubImpl(list: ScModifierList, parentStub: StubElement[_ <: PsiElement]): ScModifiersStub =
-    new ScModifiersStubImpl(parentStub, this,
+  override def createStubImpl(list: ScModifierList,
+                              parentStub: StubElement[_ <: PsiElement]) = new ScModifiersStubImpl(
+    parentStub,
+    this,
       hasExplicitModifiers = list.hasExplicitModifiers,
-      modifiersRefs = list.modifiers.asReferences)
+    modifiersRefs = list.modifiers.asReferences
+  )
 
-  override def createElement(node: ASTNode): ScModifierList = new ScModifierListImpl(node)
+  override def createElement(node: ASTNode) = new ScModifierListImpl(node)
 
-  override def createPsi(stub: ScModifiersStub): ScModifierList = new ScModifierListImpl(stub)
+  override def createPsi(stub: ScModifiersStub) = new ScModifierListImpl(stub)
 }

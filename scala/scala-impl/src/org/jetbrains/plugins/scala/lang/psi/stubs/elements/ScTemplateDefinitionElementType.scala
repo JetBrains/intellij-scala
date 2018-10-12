@@ -35,32 +35,36 @@ abstract class ScTemplateDefinitionElementType[TypeDef <: ScTemplateDefinition](
     dataStream.writeBoolean(stub.isImplicitObject)
     dataStream.writeBoolean(stub.isImplicitClass)
     dataStream.writeName(stub.javaName)
-    dataStream.writeNames(stub.additionalJavaNames)
+    dataStream.writeOptionName(stub.additionalJavaName)
     dataStream.writeBoolean(stub.isLocal)
     dataStream.writeBoolean(stub.isVisibleInJava)
   }
 
+  override def deserialize(dataStream: StubInputStream,
+                           parentStub: StubElement[_ <: PsiElement]) = new ScTemplateDefinitionStubImpl(
+    parentStub,
+    this,
+    nameRef = dataStream.readName,
+    qualifiedNameRef = dataStream.readName,
+    javaQualifiedNameRef = dataStream.readName,
+    isDotty = dataStream.readBoolean,
+    isPackageObject = dataStream.readBoolean,
+    isScriptFileClass = dataStream.readBoolean,
+    sourceFileNameRef = dataStream.readName,
+    isDeprecated = dataStream.readBoolean,
+    isImplicitObject = dataStream.readBoolean,
+    isImplicitClass = dataStream.readBoolean,
+    javaNameRef = dataStream.readName,
+    additionalJavaNameRef = dataStream.readOptionName,
+    isLocal = dataStream.readBoolean,
+    isVisibleInJava = dataStream.readBoolean
+  )
 
-  override def deserialize(dataStream: StubInputStream, parentStub: StubElement[_ <: PsiElement]): ScTemplateDefinitionStub =
-    new ScTemplateDefinitionStubImpl(parentStub, this,
-      nameRef = dataStream.readName,
-      qualifiedNameRef = dataStream.readName,
-      javaQualifiedNameRef = dataStream.readName,
-      isDotty = dataStream.readBoolean,
-      isPackageObject = dataStream.readBoolean,
-      isScriptFileClass = dataStream.readBoolean,
-      sourceFileNameRef = dataStream.readName,
-      isDeprecated = dataStream.readBoolean,
-      isImplicitObject = dataStream.readBoolean,
-      isImplicitClass = dataStream.readBoolean,
-      javaNameRef = dataStream.readName,
-      additionalJavaNamesRefs = dataStream.readNames,
-      isLocal = dataStream.readBoolean,
-      isVisibleInJava = dataStream.readBoolean)
-
-  override def createStubImpl(definition: ScTemplateDefinition, parent: StubElement[_ <: PsiElement]): ScTemplateDefinitionStub = {
+  override def createStubImpl(definition: ScTemplateDefinition,
+                              parent: StubElement[_ <: PsiElement]): ScTemplateDefinitionStub = {
+    import ScTemplateDefinitionElementType.isStubBuilding
     try {
-      ScTemplateDefinitionElementType.isStubBuilding.set(true)
+      isStubBuilding.set(true)
       val fileName = definition.containingVirtualFile.map {
         _.getName
       }.orNull
@@ -93,6 +97,11 @@ abstract class ScTemplateDefinitionElementType[TypeDef <: ScTemplateDefinition](
       val isLocal = definition.containingClass == null &&
         PsiTreeUtil.getParentOfType(definition, classOf[ScTemplateDefinition]) != null
 
+      val maybeAdditionalJavaName = definition match {
+        case typeDefinition: ScTypeDefinition => typeDefinition.additionalJavaName
+        case _ => None
+      }
+
       new ScTemplateDefinitionStubImpl(parent, this,
         nameRef = fromString(definition.name),
         qualifiedNameRef = fromString(definition.qualifiedName),
@@ -105,12 +114,12 @@ abstract class ScTemplateDefinitionElementType[TypeDef <: ScTemplateDefinition](
         isImplicitObject = definition.isInstanceOf[ScObject] && definition.hasModifierProperty("implicit"),
         isImplicitClass = definition.isInstanceOf[ScClass] && definition.hasModifierProperty("implicit"),
         javaNameRef = fromString(definition.getName),
-        additionalJavaNamesRefs = definition.additionalJavaNames.asReferences,
+        additionalJavaNameRef = maybeAdditionalJavaName.asReference,
         isLocal = isLocal,
         isVisibleInJava = isOkForJava(definition))
 
     } finally {
-      ScTemplateDefinitionElementType.isStubBuilding.set(false)
+      isStubBuilding.set(false)
     }
   }
 
@@ -124,7 +133,7 @@ abstract class ScTemplateDefinitionElementType[TypeDef <: ScTemplateDefinition](
     if (javaName != null && stub.isVisibleInJava) sink.occurrence(JavaStubIndexKeys.CLASS_SHORT_NAMES, javaName)
     else sink.occurrence(ScalaIndexKeys.NOT_VISIBLE_IN_JAVA_SHORT_NAME_KEY, name)
     sink.occurrence(ScalaIndexKeys.ALL_CLASS_NAMES, javaName)
-    val additionalNames = stub.additionalJavaNames
+    val additionalNames = stub.additionalJavaName
     for (name <- additionalNames) {
       sink.occurrence(ScalaIndexKeys.ALL_CLASS_NAMES, name)
     }
@@ -166,5 +175,6 @@ abstract class ScTemplateDefinitionElementType[TypeDef <: ScTemplateDefinition](
 }
 
 object ScTemplateDefinitionElementType {
-  val isStubBuilding: ThreadLocal[Boolean] = new ThreadLocal[Boolean]
+
+  private val isStubBuilding = new ThreadLocal[Boolean]
 }

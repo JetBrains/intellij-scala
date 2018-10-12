@@ -17,9 +17,9 @@ import org.jetbrains.plugins.scala.lang.psi.stubs.impl.ScTemplateParentsStubImpl
   */
 final class ScTemplateParentsElementType extends ScStubElementType[ScTemplateParentsStub, ScTemplateParents]("template parents") {
 
-  override def createElement(node: ASTNode): ScTemplateParents = new ScTemplateParentsImpl(node)
+  override def createElement(node: ASTNode) = new ScTemplateParentsImpl(node)
 
-  override def createPsi(stub: ScTemplateParentsStub): ScTemplateParents = new ScTemplateParentsImpl(stub)
+  override def createPsi(stub: ScTemplateParentsStub) = new ScTemplateParentsImpl(stub)
 
   override def serialize(stub: ScTemplateParentsStub,
                          dataStream: StubOutputStream): Unit = {
@@ -28,24 +28,18 @@ final class ScTemplateParentsElementType extends ScStubElementType[ScTemplatePar
   }
 
   override def deserialize(dataStream: StubInputStream,
-                           parentStub: StubElement[_ <: PsiElement]): ScTemplateParentsStub =
-    new ScTemplateParentsStubImpl(
-      parentStub.asInstanceOf[StubElement[PsiElement]],
-      this,
-      parentTypeTextRefs = dataStream.readNames,
-      constructorRef = dataStream.readOptionName
-    )
+                           parentStub: StubElement[_ <: PsiElement]) = new ScTemplateParentsStubImpl(
+    parentStub,
+    this,
+    parentTypeTextRefs = dataStream.readNames,
+    constructorRef = dataStream.readOptionName
+  )
 
   override def createStubImpl(templateParents: ScTemplateParents,
-                              parentStub: StubElement[_ <: PsiElement]): ScTemplateParentsStub = {
-    val parentsTypesTexts = templateParents.typeElementsWithoutConstructor.map(_.getText)
-    val constructorText = templateParents.constructor.map(_.getText)
-
-    new ScTemplateParentsStubImpl(
-      parentStub,
-      this,
-      parentTypeTextRefs = parentsTypesTexts.toArray.asReferences,
-      constructorRef = constructorText.asReference
-    )
-  }
+                              parentStub: StubElement[_ <: PsiElement]) = new ScTemplateParentsStubImpl(
+    parentStub,
+    this,
+    parentTypeTextRefs = templateParents.typeElementsWithoutConstructor.asReferences(),
+    constructorRef = templateParents.constructor.map(_.getText).asReference
+  )
 }

@@ -24,14 +24,14 @@ abstract class ScValueOrVariableElementType[S <: ScValueOrVariableStub[V], V <: 
   override def indexStub(stub: S, sink: IndexSink): Unit =
     this.indexStub(stub.names, sink, key)
 
-  protected def isDeclaration(valueOrVariable: ScValueOrVariable): Boolean =
+  protected final def isDeclaration(valueOrVariable: ScValueOrVariable): Boolean =
     valueOrVariable.isInstanceOf[ScVariableDeclaration]
 
-  protected def typeText(valueOrVariable: ScValueOrVariable): Option[StringRef] =
+  protected final def typeText(valueOrVariable: ScValueOrVariable): Option[StringRef] =
     valueOrVariable.typeElement.map(_.getText).asReference
 
-  protected def names(valueOrVariable: ScValueOrVariable): Array[StringRef] =
-    valueOrVariable.declaredElements.map(_.name).toArray.asReferences
+  protected final def names(valueOrVariable: ScValueOrVariable): Array[StringRef] =
+    valueOrVariable.declaredNames.asReferences
 
   protected def bodyText(valueOrVariable: ScValueOrVariable): Option[StringRef] = {
     valueOrVariable match {

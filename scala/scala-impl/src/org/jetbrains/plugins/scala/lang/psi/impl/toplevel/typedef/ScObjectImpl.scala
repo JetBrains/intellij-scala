@@ -43,13 +43,6 @@ class ScObjectImpl protected (stub: ScTemplateDefinitionStub, node: ASTNode)
 
   def this(stub: ScTemplateDefinitionStub) = this(stub, null)
 
-  override def additionalJavaNames: Array[String] = {
-    fakeCompanionClass match {
-      case Some(c) => Array(c.getName)
-      case _ => Array.empty
-    }
-  }
-
   override def getNavigationElement: PsiElement = {
     if (isSyntheticObject) {
       getCompanionModule(this) match {

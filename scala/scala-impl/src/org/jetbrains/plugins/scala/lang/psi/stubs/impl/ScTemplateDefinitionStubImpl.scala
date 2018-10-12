@@ -9,7 +9,7 @@ import com.intellij.psi.PsiElement
 import com.intellij.psi.stubs.{IStubElementType, StubElement}
 import com.intellij.util.io.StringRef
 import org.jetbrains.plugins.scala.lang.psi.api.toplevel.typedef.ScTemplateDefinition
-import org.jetbrains.plugins.scala.lang.psi.stubs.elements.StringRefArrayExt
+import org.jetbrains.plugins.scala.lang.psi.stubs.elements.MaybeStringRefExt
 
 /**
   * @author ilyas
@@ -27,7 +27,7 @@ class ScTemplateDefinitionStubImpl(parent: StubElement[_ <: PsiElement],
                                    val isImplicitObject: Boolean,
                                    val isImplicitClass: Boolean,
                                    private val javaNameRef: StringRef,
-                                   private val additionalJavaNamesRefs: Array[StringRef],
+                                   private val additionalJavaNameRef: Option[StringRef],
                                    val isLocal: Boolean,
                                    val isVisibleInJava: Boolean)
   extends ScNamedStubBase[ScTemplateDefinition](parent, elementType, nameRef) with ScTemplateDefinitionStub {
@@ -40,7 +40,7 @@ class ScTemplateDefinitionStubImpl(parent: StubElement[_ <: PsiElement],
 
   override def javaName: String = StringRef.toString(javaNameRef)
 
-  override def additionalJavaNames: Array[String] = additionalJavaNamesRefs.asStrings
+  override def additionalJavaName: Option[String] = additionalJavaNameRef.asString
 
   //todo PsiClassStub methods
   override def getLanguageLevel: LanguageLevel = LanguageLevel.JDK_1_5

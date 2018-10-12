@@ -31,9 +31,8 @@ class ScTraitImpl private (stub: ScTemplateDefinitionStub, node: ASTNode)
 
   def this(stub: ScTemplateDefinitionStub) = this(stub, null)
 
-  override def additionalJavaNames: Array[String] = {
-    Array(fakeCompanionClass.getName) //do not add fakeCompanionModule => will build tree from stubs everywhere
-  }
+  //do not add fakeCompanionModule => will build tree from stubs everywhere
+  override def additionalJavaName: Option[String] = Some(fakeCompanionClass.getName)
 
   override def accept(visitor: PsiElementVisitor) {
     visitor match {

@@ -39,7 +39,7 @@ class ScModifierListImpl private (stub: ScModifiersStub, node: ASTNode)
   override def hasModifierProperty(name: String): Boolean = modifiers.contains(name)
 
   @Cached(ModCount.anyScalaPsiModificationCount, this)
-  def modifiers: Array[String] = byStubOrPsi(_.modifiers)(AllModifiers.filter(hasModifierPropertyImpl))
+  def modifiers: Seq[String] = byStubOrPsi(_.modifiers.toSeq)(AllModifiers.filter(hasModifierPropertyImpl).toSeq)
 
   private def hasModifierPropertyImpl(name: String): Boolean = {
     name match {

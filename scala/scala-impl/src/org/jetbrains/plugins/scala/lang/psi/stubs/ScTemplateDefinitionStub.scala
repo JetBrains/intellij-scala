@@ -24,7 +24,7 @@ trait ScTemplateDefinitionStub extends PsiClassStub[ScTemplateDefinition] with S
 
   def isImplicitClass: Boolean
 
-  def additionalJavaNames: Array[String]
+  def additionalJavaName: Option[String]
 
   def javaName: String
 }
