@@ -8,30 +8,32 @@ import com.intellij.openapi.editor.InlayModel
 import com.intellij.openapi.util.Key
 import com.intellij.psi.PsiElement
 import org.jetbrains.plugins.scala.codeInsight.implicits.Hint._
+import org.jetbrains.plugins.scala.codeInsight.implicits.presentation.Presentation
 import org.jetbrains.plugins.scala.extensions.ObjectExt
 
 import scala.collection.JavaConverters._
 
-private case class Hint(parts: Seq[Text],
+private case class Hint(presentation: Presentation,
                         element: PsiElement,
                         suffix: Boolean,
-                        menu: Option[String] = None) {
+                        menu: Option[String] = None) { // TODO no menu
 
-  def addTo(model: InlayModel): Inlay = {
+  def addTo(model: InlayModel): Option[Inlay] = {
     val offset = if (suffix) element.getTextRange.getEndOffset else element.getTextRange.getStartOffset
 
     val existingInlays = model.getInlineElementsInRange(offset, offset).asScala.filter(isImplicitHint)
 
     val inlay = {
-      val renderer = new TextRenderer(parts, menu)
+      val renderer = new PresentationRenderer(presentation) // TODO
       if (ImplicitHints.expanded) {
-        renderer.expand()
+        presentation.expand(ImplicitHints.ExpansionThreshold)
       }
       //gives more natural behaviour
       val relatesToPrecedingText = false
       model.addInlineElement(offset, relatesToPrecedingText, renderer)
     }
 
+    // TODO merge to sequence
     if (existingInlays.nonEmpty) {
       // InlayImpl.myOriginalOffset is used solely for inlay sorting by InlayModelImpl
       // TODO Support user-defined order of inlays with the same offset in IDEA API
@@ -42,7 +44,7 @@ private case class Hint(parts: Seq[Text],
     }
 
     inlay.putUserData(Hint.ElementKey, element)
-    inlay
+    Option(inlay)
   }
 
   // We want auto-generate apply() and copy() methods, but reference-based equality
@@ -56,6 +58,7 @@ private object Hint {
 
   def isImplicitHint(inlay: Inlay): Boolean = inlay.getUserData(Hint.ElementKey) != null
 
+  // TODO
   private val myOriginalOffsetField: Option[Field] = try {
     val inlayImplClass = Class.forName("com.intellij.openapi.editor.impl.InlayImpl")
     val myOriginalOffsetField = inlayImplClass.getDeclaredField("myOriginalOffset")

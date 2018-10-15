@@ -11,6 +11,7 @@ class ShowImplicitHintsAction extends ToggleAction {
     ImplicitHints.enabled = state
     ImplicitHints.updateInAllEditors()
     if (!state) {
+      // TODO
       MouseHandler.removeEscKeyListeners()
     }
   }

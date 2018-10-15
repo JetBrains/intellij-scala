@@ -9,6 +9,8 @@ import org.jetbrains.plugins.scala.extensions.ObjectExt
 private object ImplicitHints {
   private val ModificationCount = new ModificationCount("IMPLICIT_HINTS_MODIFICATION_COUNT")
 
+  val ExpansionThreshold = 5
+
   private var _enabled: Boolean = false
   private var _expanded: Boolean = false
 
@@ -50,25 +52,20 @@ private object ImplicitHints {
   }
 
   def expandIn(editor: Editor): Unit = {
-    val model = editor.getInlayModel
-
-    inlaysIn(model).forEach { inlay =>
-      inlay.getRenderer.asOptionOf[TextRenderer].foreach(_.expand())
-      inlay.updateSize()
-    }
+    expand(editor, ExpansionThreshold)
   }
 
   def collapseIn(editor: Editor): Unit = {
-    val model = editor.getInlayModel
-
-    inlaysIn(model).forEach { inlay =>
-      inlay.getRenderer.asOptionOf[TextRenderer].filter(_.expanded).foreach(_.collapse())
-      inlay.updateSize()
-    }
+    expand(editor, 0)
   }
 
-  private def inlaysIn(model: InlayModel) =
-    model.getInlineElementsInRange(0, Int.MaxValue)
+  private def expand(editor: Editor, level: Int): Unit = {
+    val model = editor.getInlayModel
+
+    model.getInlineElementsInRange(0, Int.MaxValue).forEach { inlay =>
+      inlay.getRenderer.asOptionOf[PresentationRenderer].foreach(_.presentation.expand(level))
+    }
+  }
 }
 
 

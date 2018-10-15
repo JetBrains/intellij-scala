@@ -6,6 +6,7 @@ import com.intellij.openapi.editor.{EditorCustomElementRenderer, InlayModel}
 import com.intellij.openapi.keymap.KeymapManager
 import com.intellij.openapi.util.{Key, TextRange}
 import javax.swing.KeyStroke
+import org.jetbrains.plugins.scala.codeInsight.implicits.presentation.Presentation
 
 import scala.collection.JavaConverters._
 
@@ -20,9 +21,16 @@ package object implicits {
         .asScala
         .filter(ScalaImplicitHintKey.isIn)
 
-    def add(hint: Hint): Unit = {
-      Option(hint.addTo(model)).foreach(_.putUserData(ScalaImplicitHintKey, true))
+    def add(hint: Hint): Option[Inlay] = {
+      val inlay = hint.addTo(model)
+      inlay.foreach(_.putUserData(ScalaImplicitHintKey, true))
+      inlay
     }
+  }
+
+  // TODO
+  implicit class InlayExt(val inlay: Inlay) extends AnyVal {
+    def presentation: Presentation = inlay.getRenderer.asInstanceOf[PresentationRenderer].presentation
   }
 
   val EnableShortcuts = Seq(
