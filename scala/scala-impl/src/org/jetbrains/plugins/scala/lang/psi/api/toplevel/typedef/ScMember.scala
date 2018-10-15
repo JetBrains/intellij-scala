@@ -5,15 +5,11 @@ package api
 package toplevel
 package typedef
 
-import scala.annotation.tailrec
-
 import com.intellij.openapi.util.Key
 import com.intellij.psi._
-import com.intellij.psi.search.{LocalSearchScope, PackageScope, SearchScope}
 import com.intellij.psi.util._
-import org.jetbrains.plugins.scala.extensions.{PsiElementExt, StubBasedExt}
+import org.jetbrains.plugins.scala.extensions.StubBasedExt
 import org.jetbrains.plugins.scala.lang.psi.api.base.{ScAccessModifier, ScPrimaryConstructor}
-import org.jetbrains.plugins.scala.lang.psi.api.expr.ScBlock
 import org.jetbrains.plugins.scala.lang.psi.api.statements.params.ScClassParameter
 import org.jetbrains.plugins.scala.lang.psi.api.statements.{ScFunction, ScTypeAlias, ScValueOrVariable}
 import org.jetbrains.plugins.scala.lang.psi.api.toplevel.templates.{ScExtendsBlock, ScTemplateBody}
@@ -21,6 +17,7 @@ import org.jetbrains.plugins.scala.lang.psi.api.toplevel.typedef.ScMember._
 import org.jetbrains.plugins.scala.lang.psi.impl.ScalaFileImpl
 import org.jetbrains.plugins.scala.lang.psi.stubs.ScMemberOrLocal
 import org.jetbrains.plugins.scala.macroAnnotations.{Cached, ModCount}
+
 import scala.collection.mutable.ArrayBuffer
 
 /**
@@ -115,13 +112,15 @@ trait ScMember extends ScalaPsiElement with ScModifierListOwner with PsiMember {
 
   // TODO Should be unified, see ScModifierListOwner
   override def hasModifierProperty(name: String): Boolean = {
+    import PsiModifier._
     name match {
-      case PsiModifier.PUBLIC =>
-        !hasModifierProperty("private") && !hasModifierProperty("protected")
-      case PsiModifier.STATIC => containingClass.isInstanceOf[ScObject]
-      case PsiModifier.PRIVATE =>
+      case STATIC => containingClass.isInstanceOf[ScObject]
+      case PUBLIC =>
+        !hasModifierProperty(PRIVATE) &&
+          !hasModifierProperty(PROTECTED)
+      case PRIVATE =>
         getModifierList.accessModifier.exists(_.access == ScAccessModifier.Type.THIS_PRIVATE)
-      case PsiModifier.PROTECTED =>
+      case PROTECTED =>
         getModifierList.accessModifier.exists(_.access == ScAccessModifier.Type.THIS_PROTECTED)
       case _ =>
         getModifierList.hasModifierProperty(name)

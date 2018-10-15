@@ -73,9 +73,9 @@ class ScObjectImpl protected (stub: ScTemplateDefinitionStub, node: ASTNode)
   }
 
   // TODO Should be unified, see ScModifierListOwner
-  override def hasModifierProperty(name: String): Boolean = {
-    if (name == "final") return true
-    super[ScTypeDefinitionImpl].hasModifierProperty(name)
+  override def hasModifierProperty(name: String): Boolean = name match {
+    case PsiModifier.FINAL => true
+    case _ => super[ScTypeDefinitionImpl].hasModifierProperty(name)
   }
 
   override def isObject : Boolean = true
