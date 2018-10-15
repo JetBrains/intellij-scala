@@ -570,19 +570,19 @@ object ScalaPsiElementFactory {
       case fun: ScFunction =>
         val res = function.getModifierList.replace(fun.getModifierList)
         if (res.getText.nonEmpty) res.getParent.addAfter(createWhitespace(fun.getManager), res)
-        if (!fun.hasModifierProperty("override") && addOverride) function.setModifierProperty("override", value = true)
+        if (!fun.hasModifierProperty("override") && addOverride) function.setModifierProperty("override")
       case m: PsiMethod =>
         var hasOverride = false
         if (m.getModifierList.getNode != null)
           for (modifier <- m.getModifierList.getNode.getChildren(null); modText = modifier.getText) {
             modText match {
-              case "override" => hasOverride = true; function.setModifierProperty("override", value = true)
-              case "protected" => function.setModifierProperty("protected", value = true)
-              case "final" => function.setModifierProperty("final", value = true)
+              case "override" => hasOverride = true; function.setModifierProperty("override")
+              case "protected" => function.setModifierProperty("protected")
+              case "final" => function.setModifierProperty("final")
               case _ =>
             }
           }
-        if (addOverride && !hasOverride) function.setModifierProperty("override", value = true)
+        if (addOverride && !hasOverride) function.setModifierProperty("override")
     }
     function
   }

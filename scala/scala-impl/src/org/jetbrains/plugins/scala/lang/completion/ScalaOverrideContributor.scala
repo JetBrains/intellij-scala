@@ -9,6 +9,7 @@ import com.intellij.psi.filters._
 import com.intellij.psi.filters.position.{FilterPattern, LeftNeighbour}
 import com.intellij.psi.util.PsiTreeUtil
 import com.intellij.util.ProcessingContext
+import org.jetbrains.plugins.scala.extensions.PsiModifierListOwnerExt
 import org.jetbrains.plugins.scala.lang.completion.filters.modifiers.ModifiersFilter
 import org.jetbrains.plugins.scala.lang.lexer.ScalaTokenTypes
 import org.jetbrains.plugins.scala.lang.psi.TypeAdjuster
@@ -204,7 +205,7 @@ object ScalaOverrideContributor {
     private def onMember(member: ScModifierListOwner with PsiMember): Unit = {
       TypeAdjuster.markToAdjust(member)
       if (!hasOverride && !member.hasModifierProperty("override")) {
-        member.setModifierProperty("override", value = true)
+        member.setModifierProperty("override")
       }
     }
   }

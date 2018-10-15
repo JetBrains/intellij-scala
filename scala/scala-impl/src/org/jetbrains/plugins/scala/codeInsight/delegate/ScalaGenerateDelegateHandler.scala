@@ -1,8 +1,8 @@
 package org.jetbrains.plugins.scala
 package codeInsight.delegate
 
+import com.intellij.codeInsight.CodeInsightBundle
 import com.intellij.codeInsight.generation._
-import com.intellij.codeInsight.{CodeInsightBundle, CodeInsightUtilBase}
 import com.intellij.openapi.application.ApplicationManager
 import com.intellij.openapi.editor.{Editor, ScrollType}
 import com.intellij.openapi.fileEditor.FileDocumentManager
@@ -64,7 +64,7 @@ class ScalaGenerateDelegateHandler extends GenerateDelegateHandler {
           val genInfo = new ScalaGenerationInfo(member)
           val added = aClass.addMember(prototype, Option(genInfo.findInsertionAnchor(aClass, elementAtOffset)))
                   .asInstanceOf[ScFunctionDefinition]
-          if (added.superMethod.nonEmpty) added.setModifierProperty("override", value = true)
+          if (added.superMethod.nonEmpty) added.setModifierProperty("override")
           added
         }
 

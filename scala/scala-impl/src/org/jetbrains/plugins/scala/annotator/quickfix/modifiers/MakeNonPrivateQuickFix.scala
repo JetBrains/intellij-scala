@@ -6,6 +6,7 @@ import com.intellij.openapi.editor.Editor
 import com.intellij.openapi.project.Project
 import com.intellij.psi.codeStyle.CodeStyleManager
 import com.intellij.psi.{PsiDocumentManager, PsiFile}
+import org.jetbrains.plugins.scala.extensions.PsiModifierListOwnerExt
 import org.jetbrains.plugins.scala.lang.psi.api.toplevel.ScModifierListOwner
 
 /**
@@ -16,7 +17,7 @@ class MakeNonPrivateQuickFix(member: ScModifierListOwner, toProtected: Boolean) 
 
   override def invoke(project: Project, editor: Editor, file: PsiFile) {
     member.setModifierProperty("private", value = false)
-    if (toProtected) member.setModifierProperty("protected", value = true)
+    if (toProtected) member.setModifierProperty("protected")
     PsiDocumentManager.getInstance(project).doPostponedOperationsAndUnblockDocument(editor.getDocument)
     CodeStyleManager.getInstance(project).adjustLineIndent(file, member.getModifierList.getTextRange.getStartOffset)
   }

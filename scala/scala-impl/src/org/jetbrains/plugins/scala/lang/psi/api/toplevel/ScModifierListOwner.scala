@@ -5,7 +5,7 @@ package api
 package toplevel
 
 import com.intellij.psi._
-import org.jetbrains.plugins.scala.extensions.StubBasedExt
+import org.jetbrains.plugins.scala.extensions.{StubBasedExt, ToNullSafe}
 import org.jetbrains.plugins.scala.lang.parser.ScalaElementTypes
 import org.jetbrains.plugins.scala.lang.psi.adapters.PsiModifierListOwnerAdapter
 import org.jetbrains.plugins.scala.lang.psi.api.base._
@@ -32,17 +32,18 @@ trait ScModifierListOwner extends ScalaPsiElement with ScAnnotationsHolder with 
   // TODO This method is, in fact, ...Java, as it interprets the absence of 'private' / 'protected' as the presence of 'public'
   // TODO We need to implement this in the hasModifierProperty itself.
   // TODO Also, we should probably do that at the level of ScModifierList.
-  def hasModifierPropertyScala(name: String): Boolean = {
-    if (name == PsiModifier.PUBLIC)
-      !hasModifierPropertyScala("private") && !hasModifierPropertyScala("protected")
-    else
-      hasModifierPropertyInner(name)
+  final def hasModifierPropertyScala(name: String): Boolean = {
+    import PsiModifier._
+    name match {
+      case PUBLIC =>
+        !hasModifierPropertyInner(PRIVATE) &&
+          !hasModifierPropertyInner(PROTECTED)
+      case _ => hasModifierPropertyInner(name)
+    }
   }
 
   private def hasModifierPropertyInner(name: String): Boolean =
-    Option(getModifierList).exists(_.hasModifierProperty(name))
-
-  def setModifierProperty(name: String, value: Boolean) {
-    Option(getModifierList).foreach(_.setModifierProperty(name, value))
-  }
+    getModifierList.nullSafe.exists {
+      _.hasModifierProperty(name)
+    }
 }

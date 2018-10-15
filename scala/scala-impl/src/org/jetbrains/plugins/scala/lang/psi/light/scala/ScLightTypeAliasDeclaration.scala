@@ -29,10 +29,6 @@ class ScLightTypeAliasDeclaration(s: TypeAliasSignature, val ta: ScTypeAliasDecl
 
   override def toString: String = ta.toString
 
-  override def setModifierProperty(name: String, value: Boolean): Unit = ta.setModifierProperty(name, value)
-
-  override def hasModifierPropertyScala(name: String): Boolean = ta.hasModifierPropertyScala(name)
-
   override def getModifierList: ScModifierList = ta.getModifierList
 
   override def psiAnnotations: Array[PsiAnnotation] = ta.getAnnotations

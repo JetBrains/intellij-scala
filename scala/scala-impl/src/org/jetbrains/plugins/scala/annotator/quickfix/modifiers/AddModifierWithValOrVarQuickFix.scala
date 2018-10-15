@@ -4,6 +4,7 @@ package annotator.quickfix.modifiers
 import com.intellij.openapi.editor.Editor
 import com.intellij.openapi.project.Project
 import com.intellij.psi.PsiFile
+import org.jetbrains.plugins.scala.extensions.PsiModifierListOwnerExt
 import org.jetbrains.plugins.scala.lang.lexer.ScalaTokenTypes
 import org.jetbrains.plugins.scala.lang.psi.api.toplevel.ScModifierListOwner
 import org.jetbrains.plugins.scala.lang.psi.impl.ScalaPsiElementFactory
@@ -25,7 +26,7 @@ class AddModifierWithValOrVarQuickFix(member: ScModifierListOwner, modifier: Str
         decl.findFirstChildByType(ScalaTokenTypes.kVAR)
       }
     member.addAfter(psiKeyword, member.getModifierList)
-    member.setModifierProperty(modifier, value = true)
+    member.setModifierProperty(modifier)
   }
   
 }

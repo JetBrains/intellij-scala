@@ -12,7 +12,7 @@ import com.intellij.psi.util.PsiTreeUtil
 import com.intellij.psi.util.PsiTreeUtil.findElementOfClassAtOffset
 import com.intellij.refactoring.introduce.inplace.OccurrencesChooser
 import org.jetbrains.plugins.scala.ScalaBundle
-import org.jetbrains.plugins.scala.extensions.{PsiElementExt, childOf, executeWriteActionCommand, inWriteAction}
+import org.jetbrains.plugins.scala.extensions.{PsiElementExt, PsiModifierListOwnerExt, childOf, executeWriteActionCommand, inWriteAction}
 import org.jetbrains.plugins.scala.lang.lexer.ScalaTokenTypes
 import org.jetbrains.plugins.scala.lang.psi.ScalaPsiUtil
 import org.jetbrains.plugins.scala.lang.psi.api.expr._
@@ -399,7 +399,7 @@ object IntroduceExpressions {
   }
 
   private[this] def setPrivateModifier(declaration: PsiElement): Unit = declaration match {
-    case member: ScMember if !member.isLocal => member.setModifierProperty(PRIVATE, value = true)
+    case member: ScMember if !member.isLocal => member.setModifierProperty(PRIVATE)
     case _ =>
   }
 

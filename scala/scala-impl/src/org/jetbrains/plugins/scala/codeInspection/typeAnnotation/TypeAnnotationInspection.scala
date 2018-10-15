@@ -66,7 +66,7 @@ object TypeAnnotationInspection {
 
     override protected def doApplyFix(element: ScModifierListOwner)
                                      (implicit project: Project): Unit = {
-      element.setModifierProperty("private", value = true)
+      element.setModifierProperty("private")
     }
   }
 

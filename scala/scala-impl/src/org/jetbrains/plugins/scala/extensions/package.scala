@@ -618,6 +618,13 @@ package object extensions {
       case member: ScModifierListOwner => member.hasModifierPropertyScala(name)
       case _ => member.hasModifierProperty(name)
     }
+
+    def setModifierProperty(name: String,
+                            value: Boolean = true): Unit =
+      member.getModifierList.nullSafe.foreach {
+        _.setModifierProperty(name, value)
+      }
+
   }
 
   implicit class PipedObject[T](val value: T) extends AnyVal {

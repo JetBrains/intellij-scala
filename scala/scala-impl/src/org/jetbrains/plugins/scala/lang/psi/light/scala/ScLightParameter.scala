@@ -43,8 +43,6 @@ class ScLightParameter(val param: ScParameter, tp: ScType, i: Int)
 
   override def hasModifierProperty(name: String): Boolean = param.hasModifierProperty(name)
 
-  override def hasModifierPropertyScala(name: String): Boolean = param.hasModifierPropertyScala(name)
-
   override def psiAnnotations: Array[PsiAnnotation] = param.getAnnotations
 
   override def getApplicableAnnotations: Array[PsiAnnotation] = param.getApplicableAnnotations
@@ -57,9 +55,6 @@ class ScLightParameter(val param: ScParameter, tp: ScType, i: Int)
   override def hasAnnotation(qualifiedName: String): Boolean = param.hasAnnotation(qualifiedName)
 
   override def annotations: Seq[ScAnnotation] = param.annotations
-
-  override def setModifierProperty(name: String, value: Boolean): Unit =
-    throw new UnsupportedOperationException("Operation on light element")
 
   override protected def findChildrenByClassScala[T >: Null <: ScalaPsiElement](clazz: Class[T]): Array[T] =
     throw new UnsupportedOperationException("Operation on light element")

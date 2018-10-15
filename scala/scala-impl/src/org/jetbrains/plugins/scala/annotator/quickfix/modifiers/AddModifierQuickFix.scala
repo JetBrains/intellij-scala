@@ -6,6 +6,7 @@ import com.intellij.codeInsight.intention.IntentionAction
 import com.intellij.openapi.editor.Editor
 import com.intellij.openapi.project.Project
 import com.intellij.psi.PsiFile
+import org.jetbrains.plugins.scala.extensions.PsiModifierListOwnerExt
 import org.jetbrains.plugins.scala.lang.psi.api.toplevel.ScModifierListOwner
 
 
@@ -24,7 +25,7 @@ class AddModifierQuickFix(method: ScModifierListOwner, modifier: String) extends
     method.isValid && method.getManager.isInProject(file)
 
   override def invoke(project: Project, editor: Editor, file: PsiFile): Unit =
-    method.setModifierProperty(modifier, value = true)
+    method.setModifierProperty(modifier)
 
   override def getFamilyName: String =
     ScalaBundle.message("add.modifier.fix", modifier)
