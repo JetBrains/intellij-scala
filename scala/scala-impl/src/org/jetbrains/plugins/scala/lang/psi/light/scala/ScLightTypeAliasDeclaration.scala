@@ -31,10 +31,6 @@ class ScLightTypeAliasDeclaration(s: TypeAliasSignature, val ta: ScTypeAliasDecl
 
   override def setModifierProperty(name: String, value: Boolean): Unit = ta.setModifierProperty(name, value)
 
-  override def hasFinalModifier: Boolean = ta.hasFinalModifier
-
-  override def hasAbstractModifier: Boolean = ta.hasAbstractModifier
-
   override def hasModifierPropertyScala(name: String): Boolean = ta.hasModifierPropertyScala(name)
 
   override def getModifierList: ScModifierList = ta.getModifierList

@@ -4,6 +4,7 @@ import java.util
 
 import com.intellij.ide.projectView.{TreeStructureProvider, ViewSettings}
 import com.intellij.openapi.project.DumbAware
+import org.jetbrains.plugins.scala.extensions.PsiModifierListOwnerExt
 import org.jetbrains.plugins.scala.icons.Icons
 import org.jetbrains.plugins.scala.lang.psi.api.ScalaFile
 import org.jetbrains.plugins.scala.lang.psi.api.toplevel.typedef.ScTypeDefinition

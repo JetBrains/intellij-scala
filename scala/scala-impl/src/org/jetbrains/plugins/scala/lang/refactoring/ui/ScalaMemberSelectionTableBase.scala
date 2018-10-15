@@ -1,14 +1,14 @@
 package org.jetbrains.plugins.scala
 package lang.refactoring.ui
 
-import javax.swing.Icon
-
 import com.intellij.icons.AllIcons
 import com.intellij.psi.{PsiElement, PsiModifierList, PsiModifierListOwner}
 import com.intellij.refactoring.classMembers.MemberInfoModel
 import com.intellij.refactoring.ui.AbstractMemberSelectionTable
 import com.intellij.ui.RowIcon
 import com.intellij.util.{IconUtil, VisibilityIcons}
+import javax.swing.Icon
+import org.jetbrains.plugins.scala.extensions.PsiModifierListOwnerExt
 import org.jetbrains.plugins.scala.lang.psi.api.statements.ScFunction
 import org.jetbrains.plugins.scala.lang.psi.api.toplevel.typedef.{ScMember, ScObject}
 
@@ -21,17 +21,15 @@ abstract class ScalaMemberSelectionTableBase[M <: PsiElement, I <: ScalaMemberIn
                                 abstractColumnHeader: String)
         extends AbstractMemberSelectionTable[M, I](memberInfos, memberInfoModel, abstractColumnHeader) {
 
-  def getAbstractColumnValue(memberInfo: I): AnyRef = {
-    memberInfo.getMember match {
-      case member: ScMember if member.containingClass.isInstanceOf[ScObject] => null
-      case member: ScMember if member.hasAbstractModifier && myMemberInfoModel.isFixedAbstract(memberInfo) != null =>
-        myMemberInfoModel.isFixedAbstract(memberInfo)
-      case _ if !myMemberInfoModel.isAbstractEnabled(memberInfo) =>
-        val res: java.lang.Boolean = myMemberInfoModel.isAbstractWhenDisabled(memberInfo)
-        res
-      case _ if memberInfo.isToAbstract => java.lang.Boolean.TRUE
-      case _ => java.lang.Boolean.FALSE
-    }
+  def getAbstractColumnValue(memberInfo: I): AnyRef = memberInfo.getMember match {
+    case member: ScMember if member.containingClass.isInstanceOf[ScObject] => null
+    case member: ScMember if member.hasAbstractModifier && myMemberInfoModel.isFixedAbstract(memberInfo) != null =>
+      myMemberInfoModel.isFixedAbstract(memberInfo)
+    case _ if !myMemberInfoModel.isAbstractEnabled(memberInfo) =>
+      val res: java.lang.Boolean = myMemberInfoModel.isAbstractWhenDisabled(memberInfo)
+      res
+    case _ if memberInfo.isToAbstract => java.lang.Boolean.TRUE
+    case _ => java.lang.Boolean.FALSE
   }
 
   def isAbstractColumnEditable(rowIndex: Int): Boolean = {

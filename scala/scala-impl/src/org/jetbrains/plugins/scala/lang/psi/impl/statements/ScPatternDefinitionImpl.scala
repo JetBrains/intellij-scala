@@ -6,7 +6,7 @@ package statements
 
 import com.intellij.lang.ASTNode
 import com.intellij.psi.PsiElementVisitor
-import org.jetbrains.plugins.scala.extensions.ifReadAllowed
+import org.jetbrains.plugins.scala.extensions.{PsiModifierListOwnerExt, ifReadAllowed}
 import org.jetbrains.plugins.scala.lang.parser.ScalaElementTypes
 import org.jetbrains.plugins.scala.lang.psi.api.ScalaElementVisitor
 import org.jetbrains.plugins.scala.lang.psi.api.base._
@@ -50,13 +50,17 @@ class ScPatternDefinitionImpl private (stub: ScValueStub, node: ASTNode)
 
   def declaredElements: Seq[ScBindingPattern] = bindings
 
-  def `type`(): TypeResult = {
-    typeElement match {
-      case Some(te) => te.`type`()
-      //TODO the condition looks extremely hacky
-      case None if expr.nonEmpty => expr.get.`type`().map(t => if (hasFinalModifier && t.isInstanceOf[ScLiteralType]) t else ScLiteralType.widenRecursive(t))
-      case _ => Failure("Cannot infer type without an expression")
-    }
+  def `type`(): TypeResult = typeElement match {
+    case Some(te) => te.`type`()
+    case _ =>
+      expr.toRight {
+        new Failure("Cannot infer type without an expression")
+      }.flatMap {
+        _.`type`()
+      }.map {
+        case literalType: ScLiteralType if this.hasFinalModifier => literalType
+        case t => ScLiteralType.widenRecursive(t)
+      }
   }
 
   def expr: Option[ScExpression] = byPsiOrStub(findChild(classOf[ScExpression]))(_.bodyExpression)

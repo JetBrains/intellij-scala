@@ -602,34 +602,21 @@ package object extensions {
   }
 
   implicit class PsiModifierListOwnerExt(val member: PsiModifierListOwner) extends AnyVal {
-    /**
-      * Second match branch is for Java only.
-      */
-    def hasAbstractModifier: Boolean = {
-      member match {
-        case member: ScModifierListOwner => member.hasAbstractModifier
-        case _ => member.hasModifierProperty(PsiModifier.ABSTRACT)
-      }
-    }
+
+    import PsiModifier._
+
+    def hasAbstractModifier: Boolean =
+      hasModifierPropertyScala(ABSTRACT)
+
+    def hasFinalModifier: Boolean =
+      hasModifierPropertyScala(FINAL)
 
     /**
       * Second match branch is for Java only.
       */
-    def hasFinalModifier: Boolean = {
-      member match {
-        case member: ScModifierListOwner => member.hasFinalModifier
-        case _ => member.hasModifierProperty(PsiModifier.FINAL)
-      }
-    }
-
-    /**
-      * Second match branch is for Java only.
-      */
-    def hasModifierPropertyScala(name: String): Boolean = {
-      member match {
-        case member: ScModifierListOwner => member.hasModifierPropertyScala(name)
-        case _ => member.hasModifierProperty(name)
-      }
+    def hasModifierPropertyScala(name: String): Boolean = member match {
+      case member: ScModifierListOwner => member.hasModifierPropertyScala(name)
+      case _ => member.hasModifierProperty(name)
     }
   }
 

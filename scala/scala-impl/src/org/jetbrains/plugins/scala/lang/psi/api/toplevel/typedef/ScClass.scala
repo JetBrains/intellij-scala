@@ -5,9 +5,9 @@ package api
 package toplevel
 package typedef
 
-import javax.swing.Icon
-
 import com.intellij.psi.PsiElement
+import javax.swing.Icon
+import org.jetbrains.plugins.scala.extensions.PsiModifierListOwnerExt
 import org.jetbrains.plugins.scala.icons.Icons
 import org.jetbrains.plugins.scala.lang.lexer.ScalaTokenTypes
 import org.jetbrains.plugins.scala.lang.psi.api.base.ScPrimaryConstructor
@@ -21,7 +21,8 @@ import org.jetbrains.plugins.scala.lang.psi.api.statements.{ScDecoratedIconOwner
 trait ScClass extends ScTypeDefinition with ScConstructorOwner with ScDecoratedIconOwner {
 
   override protected def getBaseIcon(flags: Int): Icon =
-    if (hasAbstractModifier) Icons.ABSTRACT_CLASS else Icons.CLASS
+    if (this.hasAbstractModifier) Icons.ABSTRACT_CLASS
+    else Icons.CLASS
 
   def typeParamString: String = typeParameters
     .map(ScalaPsiUtil.typeParamString) match {

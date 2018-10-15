@@ -4,8 +4,8 @@ package result
 
 import org.jetbrains.plugins.scala.project.ProjectContext
 
-class Failure private(private[result] val cause: String,
-                      private[result] val context: ProjectContext) {
+final class Failure(private[result] val cause: String)
+                   (private[result] implicit val context: ProjectContext) {
 
   override def toString = s"Failure($cause)"
 
@@ -24,7 +24,7 @@ object Failure {
 
   def apply(cause: String)
            (implicit context: ProjectContext): Left[Failure, ScType] =
-    Left(new Failure(cause, context))
+    Left(new Failure(cause))
 
   def unapply(result: Either[Failure, ScType]): Option[String] = result match {
     case Left(failure) => Some(failure.cause)

@@ -39,12 +39,6 @@ trait ScModifierListOwner extends ScalaPsiElement with ScAnnotationsHolder with 
       hasModifierPropertyInner(name)
   }
 
-  // TODO Should probably be unified as "isAbstract" (which doesn't always require an 'abstract' modifier'.
-  def hasAbstractModifier: Boolean = hasModifierPropertyInner("abstract")
-
-  // TODO isFinal
-  def hasFinalModifier: Boolean = hasModifierPropertyInner("final")
-
   private def hasModifierPropertyInner(name: String): Boolean =
     Option(getModifierList).exists(_.hasModifierProperty(name))
 

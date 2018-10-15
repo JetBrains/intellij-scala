@@ -34,10 +34,6 @@ class ScLightFunctionDefinition(pTypes: Seq[Seq[ScType]], tParams: Seq[TypeParam
 
   override def hasExplicitType: Boolean = true
 
-  override def hasFinalModifier: Boolean = fun.hasFinalModifier
-
-  override def hasAbstractModifier: Boolean = fun.hasAbstractModifier
-
   override def hasModifierPropertyScala(name: String): Boolean = fun.hasModifierPropertyScala(name)
 
   override def getModifierList: ScModifierList = fun.getModifierList

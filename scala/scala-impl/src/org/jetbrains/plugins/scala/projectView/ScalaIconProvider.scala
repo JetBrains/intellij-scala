@@ -1,11 +1,11 @@
 package org.jetbrains.plugins.scala.projectView
 
-import javax.swing.Icon
-
 import com.intellij.ide.IconProvider
 import com.intellij.openapi.progress.ProgressManager
 import com.intellij.psi._
+import javax.swing.Icon
 import org.jetbrains.plugins.scala.ScalaFileType
+import org.jetbrains.plugins.scala.extensions.PsiModifierListOwnerExt
 import org.jetbrains.plugins.scala.icons.Icons
 import org.jetbrains.plugins.scala.lang.psi.api.ScalaFile
 

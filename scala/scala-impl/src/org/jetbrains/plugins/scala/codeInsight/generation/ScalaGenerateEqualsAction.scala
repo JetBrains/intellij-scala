@@ -1,10 +1,10 @@
 package org.jetbrains.plugins.scala
 package codeInsight.generation
 
+import com.intellij.codeInsight.CodeInsightBundle
 import com.intellij.codeInsight.hint.HintManager
-import com.intellij.codeInsight.{CodeInsightBundle, CodeInsightUtilBase}
 import com.intellij.openapi.application.ApplicationManager
-import com.intellij.openapi.editor.{Editor, EditorModificationUtil}
+import com.intellij.openapi.editor.Editor
 import com.intellij.openapi.fileEditor.FileDocumentManager
 import com.intellij.openapi.project.Project
 import com.intellij.openapi.ui.{DialogWrapper, Messages}
@@ -13,6 +13,7 @@ import com.intellij.psi.{PsiAnonymousClass, PsiFile}
 import com.intellij.util.IncorrectOperationException
 import org.jetbrains.plugins.scala.codeInsight.generation.GenerationUtil.classAtCaret
 import org.jetbrains.plugins.scala.codeInsight.generation.ui.ScalaGenerateEqualsWizard
+import org.jetbrains.plugins.scala.extensions.PsiModifierListOwnerExt
 import org.jetbrains.plugins.scala.lang.completion.ScalaKeyword
 import org.jetbrains.plugins.scala.lang.psi.ScalaPsiUtil
 import org.jetbrains.plugins.scala.lang.psi.api.statements.ScFunction
