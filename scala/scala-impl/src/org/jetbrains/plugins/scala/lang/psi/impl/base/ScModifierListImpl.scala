@@ -61,88 +61,38 @@ class ScModifierListImpl private (stub: ScModifiersStub, node: ASTNode)
 
   override def setModifierProperty(name: String, value: Boolean): Unit = {
     checkSetModifierProperty(name, value)
-    if (hasModifierProperty(name) == value) return
-
-    def space = createNewLineNode(" ")
-    def addAfter(modifier: String): Unit = {
-      val wasEmpty = getFirstChild == null
-      if (!wasEmpty) getNode.addChild(space)
-      getNode.addChild(createModifierFromText(modifier).getNode)
-      if (wasEmpty) getNode.addChild(space)
-    }
-
-    def addBefore(modifier: String): Unit = {
-      val node = createModifierFromText(modifier).getNode
-
-      val first = getFirstChild
-      if (first == null) {
-        val buf = mutable.ArrayBuffer.empty[ASTNode]
-        var nextSibling = getNextSibling
-        while (ScalaTokenTypes.WHITES_SPACES_AND_COMMENTS_TOKEN_SET.contains(nextSibling.getNode.getElementType)) {
-          buf += nextSibling.getNode
-          nextSibling = nextSibling.getNextSibling
+    hasModifierProperty(name) match {
+      case `value` =>
+      case _ if value =>
+        val isValid = name match {
+          case PRIVATE | PROTECTED => true
+          case _ =>
+            values.exists {
+              case Val(`name`, _) => true
+              case _ => false
+            }
         }
 
-        val parent = getParent
-        for (node <- buf) {
-          parent.getNode.removeChild(node)
-          parent.getNode.addChild(node, getNode)
-        }
-        getNode.addChild(node)
-        parent.getNode.addChild(space, nextSibling.getNode)
-        return
-      }
-      getNode.addChild(node, first.getNode)
-      getNode.addChild(space, first.getNode)
-    }
-    name match {
-      case "override" => if (value) {
-        addBefore("override")
-      }
-        else getNode.removeChild(findChildByType[PsiElement](ScalaTokenTypes.kOVERRIDE).getNode)
-      case "private" => if (value) {
-        addBefore("private")
-      }
-        else {
-        for (child <- getChildren if child.isInstanceOf[ScAccessModifier] && child.asInstanceOf[ScAccessModifier].isPrivate) {
-          getNode.removeChild(child.getNode)
-          return
-        }
-      }
-      case "protected" => if (value) {
-        addBefore("protected")
-      }
-        else {
-        for (child <- getChildren if child.isInstanceOf[ScAccessModifier] && child.asInstanceOf[ScAccessModifier].isProtected) {
-          getNode.removeChild(child.getNode)
-          return
-        }
-      }
-      case "final" => if (value) {
-        addBefore("final")
-      }
-        else getNode.removeChild(findChildByType[PsiElement](ScalaTokenTypes.kFINAL).getNode)
-      case "implicit" => if (value) {
-        addBefore("implicit")
-      }
-        else getNode.removeChild(findChildByType[PsiElement](ScalaTokenTypes.kIMPLICIT).getNode)
-      case "abstract" => if (value) {
-        addBefore("abstract")
-      }
-        else getNode.removeChild(findChildByType[PsiElement](ScalaTokenTypes.kABSTRACT).getNode)
-      case "sealed" => if (value) {
-        addBefore("sealed")
-      }
-        else getNode.removeChild(findChildByType[PsiElement](ScalaTokenTypes.kSEALED).getNode)
-      case "lazy" => if (value) {
-        addBefore("lazy")
-      }
-        else getNode.removeChild(findChildByType[PsiElement](ScalaTokenTypes.kLAZY).getNode)
-      case "case" => if (value) {
-        addAfter("case")
-      }
-        else getNode.removeChild(findChildByType[PsiElement](ScalaTokenTypes.kCASE).getNode)
+        if (isValid) addModifierProperty(name)
       case _ =>
+        def withAccessModifier(predicate: ScAccessModifier => Boolean) =
+          getChildren.collectFirst {
+            case modifier: ScAccessModifier if predicate(modifier) => modifier
+          }
+
+        val maybeElement = name match {
+          case PRIVATE => withAccessModifier(_.isPrivate)
+          case PROTECTED => withAccessModifier(_.isProtected)
+          case _ =>
+            values.collectFirst {
+              case Val(`name`, prop) => findChildByType(prop)
+            }
+        }
+
+        for {
+          element <- maybeElement
+          node = element.getNode
+        } getNode.removeChild(node)
     }
   }
 
@@ -176,5 +126,39 @@ class ScModifierListImpl private (stub: ScModifiersStub, node: ASTNode)
   override def accept(visitor: PsiElementVisitor): Unit = visitor match {
     case scalaVisitor: ScalaElementVisitor => accept(scalaVisitor)
     case _ => super.accept(visitor)
+  }
+
+  private def addModifierProperty(name: String): Unit = {
+    val node = getNode
+    val modifierNode = createModifierFromText(name).getNode
+
+    val addAfter = name != Case.keyword
+    val spaceNode = createNewLineNode(" ")
+
+    getFirstChild match {
+      case null if addAfter =>
+        val parentNode = getParent.getNode
+        var nextSibling = getNextSibling
+        while (ScalaTokenTypes.WHITES_SPACES_AND_COMMENTS_TOKEN_SET.contains(nextSibling.getNode.getElementType)) {
+          val currentNode = nextSibling.getNode
+          nextSibling = nextSibling.getNextSibling
+
+          parentNode.removeChild(currentNode)
+          parentNode.addChild(currentNode, node)
+        }
+
+        node.addChild(modifierNode)
+        parentNode.addChild(spaceNode, nextSibling.getNode)
+      case null =>
+        node.addChild(modifierNode)
+        node.addChild(spaceNode)
+      case first if addAfter =>
+        val firstNode = first.getNode
+        node.addChild(modifierNode, firstNode)
+        node.addChild(spaceNode, firstNode)
+      case _ =>
+        node.addChild(spaceNode)
+        node.addChild(modifierNode)
+    }
   }
 }
