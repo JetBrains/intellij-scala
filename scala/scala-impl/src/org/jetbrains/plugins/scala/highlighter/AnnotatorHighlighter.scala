@@ -132,7 +132,7 @@ object AnnotatorHighlighter {
     resolvedElement match {
       case c: PsiClass if QualNameToType.contains(c.qualifiedName) => //this is td, it's important!
         annotation.setTextAttributes(DefaultHighlighter.PREDEF)
-      case x: ScClass if x.getModifierList.has(ScalaTokenTypes.kABSTRACT) =>
+      case x: ScClass if x.getModifierList.isAbstract =>
         annotation.setTextAttributes(DefaultHighlighter.ABSTRACT_CLASS)
       case _: ScTypeParam =>
         annotation.setTextAttributes(DefaultHighlighter.TYPEPARAM)
@@ -260,13 +260,10 @@ object AnnotatorHighlighter {
             val annotation = holder.createInfoAnnotation(element, null)
             annotation.setTextAttributes(DefaultHighlighter.TYPEPARAM)
           case clazz: ScClass =>
-            if (clazz.getModifierList.has(ScalaTokenTypes.kABSTRACT)) {
-              val annotation = holder.createInfoAnnotation(clazz.nameId, null)
-              annotation.setTextAttributes(DefaultHighlighter.ABSTRACT_CLASS)
-            } else {
-              val annotation = holder.createInfoAnnotation(clazz.nameId, null)
-              annotation.setTextAttributes(DefaultHighlighter.CLASS)
-            }
+            val annotation = holder.createInfoAnnotation(clazz.nameId, null)
+            val attributes = if (clazz.getModifierList.isAbstract) DefaultHighlighter.ABSTRACT_CLASS
+            else DefaultHighlighter.CLASS
+            annotation.setTextAttributes(attributes)
           case _: ScObject =>
             val annotation = holder.createInfoAnnotation(element, null)
             annotation.setTextAttributes(DefaultHighlighter.OBJECT)
@@ -324,16 +321,6 @@ object AnnotatorHighlighter {
   private def visitTypeAlias(typeAlias: ScTypeAlias, holder: AnnotationHolder): Unit = {
     val annotation = holder.createInfoAnnotation(typeAlias.nameId, null)
     annotation.setTextAttributes(DefaultHighlighter.TYPE_ALIAS)
-  }
-
-  private def visitClass(clazz: ScClass, holder: AnnotationHolder): Unit = {
-    if (clazz.getModifierList.has(ScalaTokenTypes.kABSTRACT)) {
-      val annotation = holder.createInfoAnnotation(clazz.nameId, null)
-      annotation.setTextAttributes(DefaultHighlighter.ABSTRACT_CLASS)
-    } else {
-      val annotation = holder.createInfoAnnotation(clazz.nameId, null)
-      annotation.setTextAttributes(DefaultHighlighter.CLASS)
-    }
   }
 
   private def visitParameter(param: ScParameter, holder: AnnotationHolder): Unit = {

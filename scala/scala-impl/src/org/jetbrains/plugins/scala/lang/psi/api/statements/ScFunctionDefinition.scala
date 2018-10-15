@@ -6,7 +6,6 @@ package statements
 
 import com.intellij.psi._
 import org.jetbrains.plugins.scala.extensions._
-import org.jetbrains.plugins.scala.lang.lexer.ScalaTokenTypes
 import org.jetbrains.plugins.scala.lang.psi.api.base.patterns.{ScConstructorPattern, ScInfixPattern}
 import org.jetbrains.plugins.scala.lang.psi.api.base.{ScConstructor, ScReferenceElement, ScStableCodeReferenceElement}
 import org.jetbrains.plugins.scala.lang.psi.api.expr.ScExpression.calculateReturns
@@ -34,12 +33,11 @@ trait ScFunctionDefinition extends ScFunction with ScControlFlowOwner {
 
   def canBeTailRecursive: Boolean = getParent match {
     case (_: ScTemplateBody) && Parent(Parent(owner: ScTypeDefinition)) =>
-      val ownerModifiers = owner.getModifierList
-      val methodModifiers = getModifierList
       owner.isInstanceOf[ScObject] ||
-        ownerModifiers.has(ScalaTokenTypes.kFINAL) ||
-        methodModifiers.has(ScalaTokenTypes.kPRIVATE) ||
-        methodModifiers.has(ScalaTokenTypes.kFINAL)
+        owner.getModifierList.isFinal || {
+        val methodModifiers = getModifierList
+        methodModifiers.isPrivate || methodModifiers.isFinal
+      }
     case _ => true
   }
 

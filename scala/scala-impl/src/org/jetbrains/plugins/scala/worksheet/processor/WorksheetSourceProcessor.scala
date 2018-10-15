@@ -530,14 +530,15 @@ object WorksheetSourceProcessor {
       objectBuilder append getPrintMethodName append "(\"" append END_TOKEN_MARKER append lineNumbers append "\")\n"
     }
 
-    @inline final def appendDeclaration(psi: ScalaPsiElement) {
-      val txt = psi match {
-        case valDef: ScPatternDefinition if !valDef.getModifierList.has(ScalaTokenTypes.kLAZY) =>
-          "lazy " + valDef.getText
-        case a => a.getText
+    @inline final def appendDeclaration(psi: ScalaPsiElement): Unit = {
+      psi match {
+        case valDef: ScPatternDefinition if !valDef.getModifierList.isLazy =>
+          classBuilder.append("lazy").append(" ")
+        case _ =>
       }
 
-      classBuilder append txt append insertNlsFromWs(psi)
+      classBuilder.append(psi.getText)
+        .append(insertNlsFromWs(psi))
     }
   }
   

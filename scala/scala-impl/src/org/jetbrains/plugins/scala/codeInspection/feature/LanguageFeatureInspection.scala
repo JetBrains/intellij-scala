@@ -37,7 +37,7 @@ class LanguageFeatureInspection extends AbstractInspection("Advanced language fe
       case e@ReferenceTarget(ClassQualifiedName("scala.Dynamic")) && Parent(Parent(Parent(_: ScTemplateParents))) => e
     },
     Feature("implicit conversion", "scala.language", "implicitConversions", _.implicitConversions, _.implicitConversions = true) {
-      case e: ScFunctionDefinition if e.getModifierList.has(ScalaTokenTypes.kIMPLICIT) &&
+      case e: ScFunctionDefinition if e.getModifierList.isImplicit &&
               e.parameters.size == 1 &&
               !e.parameterList.clauses.exists(_.isImplicit) =>
         Option(e.getModifierList.findFirstChildByType(ScalaTokenTypes.kIMPLICIT)).getOrElse(e)

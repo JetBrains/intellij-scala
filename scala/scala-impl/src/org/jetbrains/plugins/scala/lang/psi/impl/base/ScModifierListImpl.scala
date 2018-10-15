@@ -6,7 +6,6 @@ package base
 
 import com.intellij.lang.ASTNode
 import com.intellij.psi._
-import com.intellij.psi.tree.IElementType
 import org.jetbrains.plugins.scala.JavaArrayFactoryUtil.ScAnnotationsFactory
 import org.jetbrains.plugins.scala.extensions.StubBasedExt
 import org.jetbrains.plugins.scala.lang.TokenSets.TokenSetExt
@@ -18,7 +17,7 @@ import org.jetbrains.plugins.scala.lang.psi.impl.ScalaPsiElementFactory._
 import org.jetbrains.plugins.scala.lang.psi.stubs.ScModifiersStub
 import org.jetbrains.plugins.scala.macroAnnotations.{Cached, ModCount}
 
-import scala.collection.mutable.ArrayBuffer
+import scala.collection.mutable
 
 /**
 * @author Alexander Podkhalyuzin
@@ -27,7 +26,8 @@ import scala.collection.mutable.ArrayBuffer
 class ScModifierListImpl private (stub: ScModifiersStub, node: ASTNode)
   extends ScalaStubBasedElementImpl(stub, ScalaElementTypes.MODIFIERS, node) with ScModifierList {
 
-  import ScModifierListImpl._
+  import PsiModifier._
+  import ScModifierList.NonAccessModifier._
 
   def this(node: ASTNode) = this(null, node)
 
@@ -35,36 +35,35 @@ class ScModifierListImpl private (stub: ScModifiersStub, node: ASTNode)
 
   override def toString: String = "Modifiers"
 
-  def getApplicableAnnotations: Array[PsiAnnotation] = PsiAnnotation.EMPTY_ARRAY
-
-  override def hasModifierProperty(name: String): Boolean = modifiers.contains(name)
-
   @Cached(ModCount.anyScalaPsiModificationCount, this)
-  def modifiers: Seq[String] = byStubOrPsi(_.modifiers.toSeq) {
-    val maybePublicModifier = if (accessModifier.isDefined) None
-    else Some(PsiModifier.PUBLIC)
+  override def modifiers: Set[String] = byStubOrPsi(_.modifiers.toSet) {
+    val result = mutable.HashSet.empty[String]
 
-    val modifiers = AllModifiers.collect {
-      case (prop, string) if has(prop) => string
+    for {
+      Val(keyword, prop) <- values
+      if findFirstChildByType(prop) != null
+    } result += keyword
+
+    result += accessModifier.fold(PUBLIC) {
+      case modifier if modifier.isPrivate => PRIVATE
+      case _ => PROTECTED
     }
 
-    (modifiers ++ maybePublicModifier).toSeq
+    result.toSet
   }
 
   @Cached(ModCount.anyScalaPsiModificationCount, this)
-  def accessModifier: Option[ScAccessModifier] = Option(getStubOrPsiChild(ScalaElementTypes.ACCESS_MODIFIER))
+  override def accessModifier: Option[ScAccessModifier] = Option(getStubOrPsiChild(ScalaElementTypes.ACCESS_MODIFIER))
 
-  def hasExplicitModifiers: Boolean = byStubOrPsi(_.hasExplicitModifiers) {
+  override def hasExplicitModifiers: Boolean = byStubOrPsi(_.hasExplicitModifiers) {
     !findChildrenByType(TokenSets.MODIFIERS + ScalaElementTypes.ACCESS_MODIFIER).isEmpty
   }
 
-  def hasExplicitModifier(name: String) = false
-
-  def setModifierProperty(name: String, value: Boolean) {
-    def space = createNewLineNode(" ")
+  override def setModifierProperty(name: String, value: Boolean): Unit = {
     checkSetModifierProperty(name, value)
     if (hasModifierProperty(name) == value) return
 
+    def space = createNewLineNode(" ")
     def addAfter(modifier: String): Unit = {
       val wasEmpty = getFirstChild == null
       if (!wasEmpty) getNode.addChild(space)
@@ -77,7 +76,7 @@ class ScModifierListImpl private (stub: ScModifiersStub, node: ASTNode)
 
       val first = getFirstChild
       if (first == null) {
-        val buf = new ArrayBuffer[ASTNode]()
+        val buf = mutable.ArrayBuffer.empty[ASTNode]
         var nextSibling = getNextSibling
         while (ScalaTokenTypes.WHITES_SPACES_AND_COMMENTS_TOKEN_SET.contains(nextSibling.getNode.getElementType)) {
           buf += nextSibling.getNode
@@ -147,45 +146,29 @@ class ScModifierListImpl private (stub: ScModifiersStub, node: ASTNode)
     }
   }
 
-  def checkSetModifierProperty(name: String, value: Boolean) {
-    //todo implement me!
-  }
-
-  def getAnnotations: Array[PsiAnnotation] = {
-    getParent match {
-      case null => PsiAnnotation.EMPTY_ARRAY
-      case parent =>
-        val annotations = parent.stubOrPsiChildren(ScalaElementTypes.ANNOTATIONS, ScAnnotationsFactory)
-        if (annotations.length == 0) PsiAnnotation.EMPTY_ARRAY
-        else {
-          val scAnnotations = annotations(0).getAnnotations
+  override def getAnnotations: Array[PsiAnnotation] = getParent match {
+    case null => PsiAnnotation.EMPTY_ARRAY
+    case parent =>
+      parent.stubOrPsiChildren(ScalaElementTypes.ANNOTATIONS, ScAnnotationsFactory) match {
+        case Array() => PsiAnnotation.EMPTY_ARRAY
+        case Array(head, _@_*) =>
+          val scAnnotations = head.getAnnotations
           val result = PsiAnnotation.ARRAY_FACTORY.create(scAnnotations.length)
           scAnnotations.copyToArray(result)
           result
-        }
+      }
+  }
+
+  override def findAnnotation(name: String): PsiAnnotation = getAnnotations.find {
+    _.getQualifiedName == name
+  }.getOrElse {
+    name match {
+      case "java.lang.Override" =>
+        JavaPsiFacade.getInstance(getProject).getElementFactory
+          .createAnnotationFromText("@" + name, this); // hack to disable AddOverrideAnnotationAction,
+      case _ => null
     }
   }
-
-  def findAnnotation(name: String): PsiAnnotation = {
-    getAnnotations.find(_.getQualifiedName == name) match {
-      case None if name == "java.lang.Override" =>
-        val factory = JavaPsiFacade.getInstance(getProject).getElementFactory
-        factory.createAnnotationFromText("@" + name, this); // hack to disable AddOverrideAnnotationAction, 
-      case None => null
-      case Some(x) => x
-    }
-  }
-
-  def has(prop: IElementType): Boolean = prop match {
-    case ScalaTokenTypes.kPRIVATE =>
-      accessModifier.exists(_.isPrivate)
-    case ScalaTokenTypes.kPROTECTED =>
-      accessModifier.exists(_.isProtected)
-    case _ =>
-      byStubOrPsi(_.modifiers.contains(AllModifiers(prop)))(findChildByType(prop) != null)
-  }
-
-  def addAnnotation(qualifiedName: String): PsiAnnotation = null
 
   override def accept(visitor: ScalaElementVisitor): Unit =
     visitor.visitModifierList(this)
@@ -194,19 +177,4 @@ class ScModifierListImpl private (stub: ScModifiersStub, node: ASTNode)
     case scalaVisitor: ScalaElementVisitor => accept(scalaVisitor)
     case _ => super.accept(visitor)
   }
-}
-
-object ScModifierListImpl {
-
-  private val AllModifiers = Map(
-    ScalaTokenTypes.kOVERRIDE -> "override",
-    ScalaTokenTypes.kPRIVATE -> "private",
-    ScalaTokenTypes.kPROTECTED -> "protected",
-    ScalaTokenTypes.kFINAL -> "final",
-    ScalaTokenTypes.kIMPLICIT -> "implicit",
-    ScalaTokenTypes.kABSTRACT -> "abstract",
-    ScalaTokenTypes.kSEALED -> "sealed",
-    ScalaTokenTypes.kLAZY -> "lazy",
-    ScalaTokenTypes.kCASE -> "case"
-  )
 }

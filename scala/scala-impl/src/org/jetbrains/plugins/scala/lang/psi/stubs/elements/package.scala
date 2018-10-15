@@ -81,7 +81,7 @@ package object elements {
       else StringRef.EMPTY_ARRAY
   }
 
-  implicit class StringsExt(val strings: Seq[String]) extends AnyVal {
+  implicit class StringsExt(val strings: Iterable[String]) extends AnyVal {
 
     def asReferences: Array[StringRef] = {
       val result = strings.filter(_.nonEmpty)
