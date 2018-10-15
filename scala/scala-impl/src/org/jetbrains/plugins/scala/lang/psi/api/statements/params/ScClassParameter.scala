@@ -25,10 +25,8 @@ trait ScClassParameter extends ScParameter with ScMember with ScDecoratedIconOwn
   /** Is the parameter automatically a val, due to it's position in a case class parameter list */
   def isCaseClassVal: Boolean = containingClass match {
     case c: ScClass if c.isCase =>
-      val isInPrimaryConstructorFirstParamSection = c.constructor match {
-        case Some(const) => const.effectiveFirstParameterSection.contains(this)
-        case None => false
-      }
+      val isInPrimaryConstructorFirstParamSection = c.constructor
+        .exists(_.effectiveFirstParameterSection.contains(this))
       // Any modifier (including "override", "final" or "private") requires "val" or "var"
       val isValOrVar = Option(getModifierList).exists(_.hasExplicitModifiers)
       isInPrimaryConstructorFirstParamSection && !isValOrVar

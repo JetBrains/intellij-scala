@@ -4,9 +4,10 @@ package psi
 package api
 package base
 
-import com.intellij.psi.tree.IElementType
+import com.intellij.psi.tree.{IElementType, TokenSet}
 import com.intellij.psi.{PsiAnnotation, PsiModifier, PsiModifierList}
 import org.jetbrains.plugins.scala.lang.lexer.ScalaTokenTypes
+import org.jetbrains.plugins.scala.lang.parser.ScalaElementTypes
 
 /**
   * @author Alexander Podkhalyuzin
@@ -39,10 +40,25 @@ trait ScModifierList extends ScalaPsiElement with PsiModifierList {
 
 object ScModifierList {
 
+  import ScalaTokenTypes._
+
+  private[psi] val Modifiers = {
+    import NonAccessModifier._
+
+    val nonAccessModifiers = values.map {
+      case Val(_, prop) => prop
+    }.toSeq
+
+    import TokenSet._
+    orSet(
+      create(nonAccessModifiers: _*),
+      create(kPROTECTED, kPRIVATE, ScalaElementTypes.ACCESS_MODIFIER)
+    )
+  }
+
   private[psi] object NonAccessModifier extends Enumeration {
 
     import PsiModifier.{ABSTRACT, FINAL}
-    import ScalaTokenTypes._
 
     case class Val(keyword: String,
                    prop: IElementType) extends super.Val(keyword)

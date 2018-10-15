@@ -6,9 +6,7 @@ package base
 
 import com.intellij.lang.ASTNode
 import com.intellij.psi._
-import org.jetbrains.plugins.scala.JavaArrayFactoryUtil.ScAnnotationsFactory
 import org.jetbrains.plugins.scala.extensions.StubBasedExt
-import org.jetbrains.plugins.scala.lang.TokenSets.TokenSetExt
 import org.jetbrains.plugins.scala.lang.lexer.ScalaTokenTypes
 import org.jetbrains.plugins.scala.lang.parser.ScalaElementTypes
 import org.jetbrains.plugins.scala.lang.psi.api.ScalaElementVisitor
@@ -27,7 +25,8 @@ class ScModifierListImpl private (stub: ScModifiersStub, node: ASTNode)
   extends ScalaStubBasedElementImpl(stub, ScalaElementTypes.MODIFIERS, node) with ScModifierList {
 
   import PsiModifier._
-  import ScModifierList.NonAccessModifier._
+  import ScModifierList._
+  import NonAccessModifier._
 
   def this(node: ASTNode) = this(null, node)
 
@@ -53,10 +52,12 @@ class ScModifierListImpl private (stub: ScModifiersStub, node: ASTNode)
   }
 
   @Cached(ModCount.anyScalaPsiModificationCount, this)
-  override def accessModifier: Option[ScAccessModifier] = Option(getStubOrPsiChild(ScalaElementTypes.ACCESS_MODIFIER))
+  override def accessModifier: Option[ScAccessModifier] = Option {
+    getStubOrPsiChild(ScalaElementTypes.ACCESS_MODIFIER)
+  }
 
   override def hasExplicitModifiers: Boolean = byStubOrPsi(_.hasExplicitModifiers) {
-    !findChildrenByType(TokenSets.MODIFIERS + ScalaElementTypes.ACCESS_MODIFIER).isEmpty
+    findChildByType(Modifiers) != null
   }
 
   override def setModifierProperty(name: String, value: Boolean): Unit = {
@@ -99,7 +100,10 @@ class ScModifierListImpl private (stub: ScModifiersStub, node: ASTNode)
   override def getAnnotations: Array[PsiAnnotation] = getParent match {
     case null => PsiAnnotation.EMPTY_ARRAY
     case parent =>
-      parent.stubOrPsiChildren(ScalaElementTypes.ANNOTATIONS, ScAnnotationsFactory) match {
+      parent.stubOrPsiChildren(
+        ScalaElementTypes.ANNOTATIONS,
+        JavaArrayFactoryUtil.ScAnnotationsFactory
+      ) match {
         case Array() => PsiAnnotation.EMPTY_ARRAY
         case Array(head, _@_*) =>
           val scAnnotations = head.getAnnotations

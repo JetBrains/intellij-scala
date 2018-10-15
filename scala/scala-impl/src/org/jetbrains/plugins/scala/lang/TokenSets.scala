@@ -17,10 +17,6 @@ object TokenSets {
 
   val WHITESPACE_OR_COMMENT_SET: TokenSet = TokenSet.create(tWHITE_SPACE_IN_LINE, tLINE_COMMENT, tBLOCK_COMMENT, tDOC_COMMENT, SCALA_DOC_COMMENT)
 
-  val MODIFIERS: TokenSet = TokenSet.create(kCASE, kABSTRACT, kLAZY,
-    kIMPLICIT, kFINAL, kOVERRIDE, kPROTECTED,
-    kPRIVATE, kSEALED)
-
   val ID_SET: TokenSet = TokenSet.create(tIDENTIFIER, tUNDER)
 
   val SELF_TYPE_ID: TokenSet = TokenSet.create(kTHIS, tIDENTIFIER, tUNDER)
