@@ -41,7 +41,7 @@ class ScModifierListImpl private (stub: ScModifiersStub, node: ASTNode)
 
   @Cached(ModCount.anyScalaPsiModificationCount, this)
   def modifiers: Seq[String] = byStubOrPsi(_.modifiers.toSeq) {
-    val maybePublicModifier = if (access.isDefined) None
+    val maybePublicModifier = if (accessModifier.isDefined) None
     else Some(PsiModifier.PUBLIC)
 
     val modifiers = AllModifiers.collect {
@@ -176,20 +176,13 @@ class ScModifierListImpl private (stub: ScModifiersStub, node: ASTNode)
     }
   }
 
-  def has(prop: IElementType): Boolean = {
-    import ScAccessModifier.Type._
-    prop match {
-      case ScalaTokenTypes.kPRIVATE => access.exists {
-        case PRIVATE | THIS_PRIVATE => true
-        case _ => false
-      }
-      case ScalaTokenTypes.kPROTECTED => access.exists {
-        case PROTECTED | THIS_PROTECTED => true
-        case _ => false
-      }
-      case _ =>
-        byStubOrPsi(_.modifiers.contains(AllModifiers(prop)))(findChildByType(prop) != null)
-    }
+  def has(prop: IElementType): Boolean = prop match {
+    case ScalaTokenTypes.kPRIVATE =>
+      accessModifier.exists(_.isPrivate)
+    case ScalaTokenTypes.kPROTECTED =>
+      accessModifier.exists(_.isProtected)
+    case _ =>
+      byStubOrPsi(_.modifiers.contains(AllModifiers(prop)))(findChildByType(prop) != null)
   }
 
   def addAnnotation(qualifiedName: String): PsiAnnotation = null
@@ -201,8 +194,6 @@ class ScModifierListImpl private (stub: ScModifiersStub, node: ASTNode)
     case scalaVisitor: ScalaElementVisitor => accept(scalaVisitor)
     case _ => super.accept(visitor)
   }
-
-  private def access = accessModifier.map(_.access)
 }
 
 object ScModifierListImpl {

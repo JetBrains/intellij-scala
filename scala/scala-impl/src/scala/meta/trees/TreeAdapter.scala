@@ -489,7 +489,6 @@ trait TreeAdapter {
   }
 
   def convertMods(t: p.toplevel.ScModifierListOwner): Seq[m.Mod] = {
-    import p.base.ScAccessModifier.Type._
     def extractClassParameter(param: params.ScClassParameter): Seq[m.Mod] = {
       if      (param.isVar) Seq(m.Mod.VarParam())
       else if (param.isVal) Seq(m.Mod.ValParam())
@@ -507,13 +506,16 @@ trait TreeAdapter {
       case param: params.ScClassParameter => extractClassParameter(param)
       case _ => Seq.empty
     }
-    val common = t.getModifierList.accessModifier match {
-      case Some(mod) if mod.access == PRIVATE        => Seq(m.Mod.Private(name))
-      case Some(mod) if mod.access == PROTECTED      => Seq(m.Mod.Protected(name))
-      case Some(mod) if mod.access == THIS_PRIVATE   => Seq(m.Mod.Private(m.Term.This(name)))
-      case Some(mod) if mod.access == THIS_PROTECTED => Seq(m.Mod.Protected(m.Term.This(name)))
-      case None => Seq.empty
-    }
+
+    val common = for {
+      modifier <- t.getModifierList.accessModifier.toSeq
+      term = if (modifier.isThis) m.Term.This(name)
+      else name
+
+      newTerm = if (modifier.isPrivate) m.Mod.Private(term)
+      else m.Mod.Protected(term)
+    } yield newTerm
+
     val caseMod = if (t.hasModifierPropertyScala("case")) Seq(m.Mod.Case()) else Nil
     val finalMod = if (t.hasModifierPropertyScala("final")) Seq(m.Mod.Final()) else Nil
     val implicitMod = if(t.hasModifierPropertyScala("implicit")) Seq(m.Mod.Implicit()) else Nil

@@ -9,7 +9,7 @@ import com.intellij.openapi.util.Key
 import com.intellij.psi._
 import com.intellij.psi.util._
 import org.jetbrains.plugins.scala.extensions.StubBasedExt
-import org.jetbrains.plugins.scala.lang.psi.api.base.{ScAccessModifier, ScPrimaryConstructor}
+import org.jetbrains.plugins.scala.lang.psi.api.base.ScPrimaryConstructor
 import org.jetbrains.plugins.scala.lang.psi.api.statements.params.ScClassParameter
 import org.jetbrains.plugins.scala.lang.psi.api.statements.{ScFunction, ScTypeAlias, ScValueOrVariable}
 import org.jetbrains.plugins.scala.lang.psi.api.toplevel.templates.{ScExtendsBlock, ScTemplateBody}
@@ -112,18 +112,18 @@ trait ScMember extends ScalaPsiElement with ScModifierListOwner with PsiMember {
 
   // TODO Should be unified, see ScModifierListOwner
   override def hasModifierProperty(name: String): Boolean = {
+    def thisAccessModifier = getModifierList.accessModifier
+      .filter(_.isThis)
+
     import PsiModifier._
     name match {
       case STATIC => containingClass.isInstanceOf[ScObject]
       case PUBLIC =>
         !hasModifierProperty(PRIVATE) &&
           !hasModifierProperty(PROTECTED)
-      case PRIVATE =>
-        getModifierList.accessModifier.exists(_.access == ScAccessModifier.Type.THIS_PRIVATE)
-      case PROTECTED =>
-        getModifierList.accessModifier.exists(_.access == ScAccessModifier.Type.THIS_PROTECTED)
-      case _ =>
-        getModifierList.hasModifierProperty(name)
+      case PRIVATE => thisAccessModifier.exists(_.isPrivate)
+      case PROTECTED => thisAccessModifier.exists(_.isProtected)
+      case _ => getModifierList.hasModifierProperty(name)
     }
   }
 

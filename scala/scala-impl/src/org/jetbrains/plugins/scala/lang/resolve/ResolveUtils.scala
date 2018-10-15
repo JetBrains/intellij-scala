@@ -29,10 +29,8 @@ import org.jetbrains.plugins.scala.lang.psi.types.api.TypeParameterType
 import org.jetbrains.plugins.scala.lang.psi.types.api.designator.ScThisType
 import org.jetbrains.plugins.scala.lang.psi.types.recursiveUpdate.ScSubstitutor
 import org.jetbrains.plugins.scala.lang.refactoring.util.ScalaNamesUtil
-import org.jetbrains.plugins.scala.lang.refactoring.util.ScalaNamesUtil.equivalent
 import org.jetbrains.plugins.scala.lang.resolve.ResolveTargets._
 import org.jetbrains.plugins.scala.lang.resolve.processor.{BaseProcessor, ResolveProcessor}
-import org.jetbrains.plugins.scala.util.ScEquivalenceUtil
 
 import _root_.scala.collection.Set
 
@@ -158,7 +156,7 @@ object ResolveUtils {
         case None => true
         case Some(am: ScAccessModifier) =>
           if (am.isPrivate) {
-            if (am.access == ScAccessModifier.Type.THIS_PRIVATE) {
+            if (am.isThis) {
               val containingClass = scMember.containingClass
               if (containingClass == null) return true
 
@@ -247,8 +245,8 @@ object ResolveUtils {
                   }
               }
             }
-          } else if (am.isProtected) { //todo: it's wrong if reference after not appropriate class type
-            val withCompanion = am.access != ScAccessModifier.Type.THIS_PROTECTED
+          } else { //todo: it's wrong if reference after not appropriate class type
+            val withCompanion = !am.isThis
             val ref = am.getReference
             if (ref != null) {
               val bind = ref.resolve
@@ -329,7 +327,7 @@ object ResolveUtils {
                 }
                 packageContains(packageName, placePackageName)
             }
-          } else true
+          }
       }
       case _ =>
         if (member.hasModifierProperty("public")) true

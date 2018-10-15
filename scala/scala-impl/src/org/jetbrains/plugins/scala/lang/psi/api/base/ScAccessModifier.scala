@@ -14,10 +14,6 @@ import com.intellij.psi.PsiNamedElement
 trait ScAccessModifier extends ScalaPsiElement {
   def scope : PsiNamedElement /* either ScTypeDefinition or PsiPackage */
 
-  type AccessType = ScAccessModifier.Type.Value
-
-  def access : AccessType
-
   def idText: Option[String]
 
   def isPrivate: Boolean
@@ -39,11 +35,5 @@ trait ScAccessModifier extends ScalaPsiElement {
       case _ =>
     }
     builder.toString()
-  }
-}
-
-object ScAccessModifier {
-  object Type extends Enumeration {
-    val PRIVATE, PROTECTED, THIS_PRIVATE, THIS_PROTECTED = Value
   }
 }

@@ -137,13 +137,4 @@ class ScAccessModifierImpl private(stub: ScAccessModifierStub, node: ASTNode)
       }
     }
   }
-
-
-  def access: ScAccessModifier.Type.Value = {
-    assert(isPrivate || isProtected)
-    if (isPrivate && isThis) ScAccessModifier.Type.THIS_PRIVATE
-    else if (isPrivate) ScAccessModifier.Type.PRIVATE
-    else if (isThis) ScAccessModifier.Type.THIS_PROTECTED
-    else ScAccessModifier.Type.PROTECTED
-  }
 }

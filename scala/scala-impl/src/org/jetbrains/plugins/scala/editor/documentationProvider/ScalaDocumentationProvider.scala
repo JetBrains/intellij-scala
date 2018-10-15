@@ -10,7 +10,6 @@ import com.intellij.openapi.util.Pair
 import com.intellij.psi._
 import com.intellij.psi.javadoc.{PsiDocComment, PsiDocTag}
 import com.intellij.psi.search.searches.SuperMethodsSearch
-import com.intellij.psi.util.PsiTreeUtil
 import org.apache.commons.lang.StringEscapeUtils.escapeHtml
 import org.jetbrains.plugins.scala.extensions._
 import org.jetbrains.plugins.scala.lang.completion.lookups.ScalaLookupItem
@@ -18,7 +17,6 @@ import org.jetbrains.plugins.scala.lang.psi.ScalaPsiUtil.inNameContext
 import org.jetbrains.plugins.scala.lang.psi.api.ScalaFile
 import org.jetbrains.plugins.scala.lang.psi.api.base._
 import org.jetbrains.plugins.scala.lang.psi.api.base.patterns.ScBindingPattern
-import org.jetbrains.plugins.scala.lang.psi.api.base.types.ScTypeElement
 import org.jetbrains.plugins.scala.lang.psi.api.expr.ScAnnotation
 import org.jetbrains.plugins.scala.lang.psi.api.statements._
 import org.jetbrains.plugins.scala.lang.psi.api.statements.params.{ScClassParameter, ScParameter, ScParameterClause, ScTypeParam}
@@ -744,7 +742,7 @@ object ScalaDocumentationProvider {
   private def parseModifiers(elem: ScModifierListOwner): String = {
     val buffer: StringBuilder = new StringBuilder("")
 
-    def accessQualifier(x: ScAccessModifier): String = (x.getReference match {
+    def accessQualifier(x: ScAccessModifier): String = x.getReference match {
       case null => ""
       case ref => ref.resolve match {
         case clazz: PsiClass => "[<a href=\"psi_element://" +
@@ -759,17 +757,20 @@ object ScalaDocumentationProvider {
           case None => ""
         }
       }
-    }) + " "
+    }
 
-    buffer.append(elem.getModifierList.accessModifier match {
-      case Some(x: ScAccessModifier) => x.access match {
-        case ScAccessModifier.Type.PRIVATE => "private" + accessQualifier(x)
-        case ScAccessModifier.Type.PROTECTED => "protected" + accessQualifier(x)
-        case ScAccessModifier.Type.THIS_PRIVATE => "private[this] "
-        case ScAccessModifier.Type.THIS_PROTECTED => "protected[this] "
-      }
-      case None => ""
-    })
+    for {
+      modifier <- elem.getModifierList.accessModifier
+
+      prefix = if (modifier.isPrivate) PsiModifier.PRIVATE
+      else PsiModifier.PROTECTED
+
+      suffix = if (modifier.isThis) "[this]"
+      else accessQualifier(modifier)
+    } buffer.append(prefix)
+      .append(" ")
+      .append(suffix)
+
     val modifiers = Array("abstract", "final", "sealed", "implicit", "lazy", "override")
     for (modifier <- modifiers if elem.hasModifierPropertyScala(modifier)) buffer.append(modifier + " ")
     buffer.toString()
