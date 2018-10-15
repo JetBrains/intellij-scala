@@ -1,9 +1,11 @@
 package org.jetbrains.plugins.scala.codeInsight.implicits
 
-import java.awt.Point
+import java.awt.{Component, Point}
 import java.awt.event.MouseEvent
 
 import com.intellij.codeInsight.hint.{HintManager, HintManagerImpl, HintUtil}
+import com.intellij.ide.ui.customization.CustomActionsSchema
+import com.intellij.openapi.actionSystem._
 import com.intellij.openapi.command.CommandProcessor
 import com.intellij.openapi.editor.Editor
 import com.intellij.openapi.editor.colors.{CodeInsightColors, EditorColors, EditorFontType}
@@ -92,6 +94,20 @@ private class HintFactory(editor: EditorImpl) {
     }
   }
 
+  private def contextMenu(id: String, presentation: Presentation) = {
+    val handler = (e: MouseEvent) => {
+      CustomActionsSchema.getInstance.getCorrectedAction(id) match {
+        case group: ActionGroup =>
+          val popupMenu = ActionManager.getInstance.createActionPopupMenu(ActionPlaces.EDITOR_POPUP, group)
+          val point = locationAt(e, editor.getContentComponent)
+          popupMenu.getComponent.show(editor.getContentComponent, point.x, point.y)
+          e.consume()
+        case _ =>
+      }
+    }
+    onRightClick(handler, presentation)
+  }
+
   private var hint: Option[LightweightHint] = None
 
   private def tooltipHandler(tooltip: String): Option[MouseEvent] => Unit = {
@@ -118,10 +134,7 @@ private class HintFactory(editor: EditorImpl) {
 
     val constraint = HintManager.ABOVE
 
-    val pointOnEditor = {
-      val pointOnScreen = editor.getContentComponent.getLocationOnScreen
-      new Point(e.getXOnScreen - pointOnScreen.x, e.getYOnScreen - pointOnScreen.y)
-    }
+    val pointOnEditor = locationAt(e, editor.getContentComponent)
 
     val point = {
       val p = HintManagerImpl.getHintPosition(hint, editor, editor.xyToVisualPosition(pointOnEditor), constraint)
@@ -136,6 +149,11 @@ private class HintFactory(editor: EditorImpl) {
       HintManagerImpl.createHintHint(editor, point, hint, constraint).setContentActive(false))
 
     hint
+  }
+
+  private def locationAt(e: MouseEvent, component: Component): Point = {
+    val pointOnScreen = component.getLocationOnScreen
+    new Point(e.getXOnScreen - pointOnScreen.x, e.getYOnScreen - pointOnScreen.y)
   }
 
   private def problemPresentation(parameter: ScalaResolveResult): Presentation = {

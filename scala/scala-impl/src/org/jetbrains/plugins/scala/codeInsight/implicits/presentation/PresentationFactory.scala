@@ -1,7 +1,7 @@
 package org.jetbrains.plugins.scala.codeInsight.implicits.presentation
 
 import java.awt.event.MouseEvent
-import java.awt.{Color, Font, Point}
+import java.awt.{Color, Font}
 
 import com.intellij.openapi.editor.markup.TextAttributes
 
@@ -31,4 +31,6 @@ trait PresentationFactory {
   def synchronous(decorator: Presentation => Presentation, presentation1: Presentation, presentation2: Presentation): (Presentation, Presentation)
 
   def onHover(handler: Option[MouseEvent] => Unit, presentation: Presentation): Presentation
+
+  def onRightClick(handler: MouseEvent => Unit, presentation: Presentation): Presentation
 }
