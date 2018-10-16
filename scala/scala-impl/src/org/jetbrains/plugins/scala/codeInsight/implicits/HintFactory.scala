@@ -15,7 +15,7 @@ import com.intellij.pom.Navigatable
 import com.intellij.psi.PsiElement
 import com.intellij.ui.LightweightHint
 import com.intellij.util.ui.{JBUI, UIUtil}
-import org.jetbrains.plugins.scala.codeInsight.implicits.presentation.{Presentation, PresentationFactory}
+import org.jetbrains.plugins.scala.codeInsight.implicits.presentation.{Button, Presentation, PresentationFactory}
 import org.jetbrains.plugins.scala.editor.documentationProvider.ScalaDocumentationProvider
 import org.jetbrains.plugins.scala.extensions._
 import org.jetbrains.plugins.scala.lang.psi.api.ImplicitArgumentsOwner
@@ -105,7 +105,7 @@ private class HintFactory(editor: EditorImpl) {
         case _ =>
       }
     }
-    onRightClick(handler, presentation)
+    onClick(handler, Button.Right, presentation)
   }
 
   private var hint: Option[LightweightHint] = None

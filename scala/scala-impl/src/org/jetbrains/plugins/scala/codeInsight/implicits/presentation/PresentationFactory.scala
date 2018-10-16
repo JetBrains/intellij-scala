@@ -66,6 +66,6 @@ class PresentationFactory(editor: EditorImpl) {
     new OnHover(presentation, handler)
   }
 
-  def onRightClick(handler: MouseEvent => Unit, presentation: Presentation): Presentation =
-    new OnRightClick(presentation, handler)
+  def onClick(handler: MouseEvent => Unit, button: Button, presentation: Presentation): Presentation =
+    new OnClick(presentation, button, handler)
 }
