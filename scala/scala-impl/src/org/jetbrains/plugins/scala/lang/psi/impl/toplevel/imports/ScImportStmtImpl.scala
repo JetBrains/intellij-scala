@@ -100,33 +100,21 @@ class ScImportStmtImpl private (stub: ScImportStmtStub, node: ASTNode)
           case _ => ref.multiResolveScala(false)
         }
 
-        //todo: making lazy next two definitions leads to compiler failure
-        val poOpt = () => exprQual.bind() match {
-          case Some(ScalaResolveResult(p: PsiPackage, _)) =>
-            Option(ScalaShortNamesCacheManager.getInstance(getProject).getPackageObjectByName(p.getQualifiedName, this.resolveScope))
-          case _ => None
-        }
-
-        val exprQualRefType = () => ScSimpleTypeElementImpl.calculateReferenceType(exprQual, shapesOnly = false)
-
         def checkResolve(resolve: ScalaResolveResult): Boolean = {
           PsiTreeUtil.getContextOfType(resolve.element, true, classOf[ScTypeDefinition]) match {
             case obj: ScObject if obj.isPackageObject => true
             case _ => false
           }
         }
-        def calculateRefType(checkPo: => Boolean) = {
-          exprQual.bind() match {
-            case Some(ScalaResolveResult(_: PsiPackage, _)) =>
-              poOpt() match {
-                case Some(po) =>
-                  if (checkPo) {
-                    po.`type`()
-                  } else Failure("no failure")
-                case _ => Failure("no failure")
-              }
-            case _ => exprQualRefType()
-          }
+
+        def calculateRefType(checkPo: => Boolean): TypeResult = exprQual.bind() match {
+          case Some(ScalaResolveResult(p: PsiPackage, _)) =>
+            ScalaShortNamesCacheManager.getInstance(getProject)
+              .findPackageObjectByName(p.getQualifiedName, this.resolveScope)
+              .filter(_ => checkPo)
+              .toRight(new Failure("no failure"))
+              .flatMap(_.`type`())
+          case _ => ScSimpleTypeElementImpl.calculateReferenceType(exprQual)
         }
 
         val resolveIterator = resolve.iterator

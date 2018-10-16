@@ -157,33 +157,33 @@ class ScalaShortNamesCacheManager(implicit project: Project) extends ProjectComp
   def getClassesByName(name: String, scope: GlobalSearchScope): Iterable[PsiClass] =
     SHORT_NAME_KEY.elements(name, scope, classOf[PsiClass])(project)
 
-  def getPackageObjectByName(fqn: String, scope: GlobalSearchScope): ScTypeDefinition = {
-    if (DumbService.getInstance(project).isDumb) return null
+  def findPackageObjectByName(fqn: String, scope: GlobalSearchScope): Option[ScTypeDefinition] =
+    if (DumbService.getInstance(project).isDumb) None
+    else packageObjectByName(classesIterator(fqn, scope, PACKAGE_OBJECT_KEY), fqn)
 
-    val iterator = classesIterator(fqn, scope, PACKAGE_OBJECT_KEY)
+  private def packageObjectByName(iterator: Iterator[PsiClass],
+                                  fqn: String): Option[ScTypeDefinition] = {
     while (iterator.hasNext) {
       val psiClass = iterator.next()
-      var qualifiedName: String = psiClass.qualifiedName
-      if (qualifiedName != null) {
-        if (psiClass.name == "`package`") {
-          val i: Int = qualifiedName.lastIndexOf('.')
-          if (i < 0) {
-            qualifiedName = ""
-          }
-          else {
-            qualifiedName = qualifiedName.substring(0, i)
-          }
-        }
-        if (ScalaNamesUtil.equivalentFqn(fqn, qualifiedName)) {
+      psiClass.qualifiedName match {
+        case null =>
+        case qualifiedName =>
+          val newQualifiedName = if (psiClass.name == "`package`") {
+            qualifiedName.lastIndexOf('.') match {
+              case -1 => ""
+              case i => qualifiedName.substring(0, i)
+            }
+          } else qualifiedName
+
           psiClass match {
-            case typeDefinition: ScTypeDefinition =>
-              return typeDefinition
+            case typeDefinition: ScTypeDefinition if ScalaNamesUtil.equivalentFqn(fqn, newQualifiedName) =>
+              return Some(typeDefinition)
             case _ =>
           }
-        }
       }
     }
-    null
+
+    None
   }
 
   def getClasses(psiPackage: PsiPackage, scope: GlobalSearchScope): Array[PsiClass] = {

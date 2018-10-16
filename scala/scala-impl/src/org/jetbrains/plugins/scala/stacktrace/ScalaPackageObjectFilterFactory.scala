@@ -6,7 +6,7 @@ import com.intellij.execution.filters._
 import com.intellij.openapi.vfs.VirtualFile
 import com.intellij.psi.search.GlobalSearchScope
 import org.jetbrains.plugins.scala.caches.ScalaShortNamesCacheManager
-import org.jetbrains.plugins.scala.extensions.{ObjectExt, PsiElementExt, inReadAction}
+import org.jetbrains.plugins.scala.extensions.{PsiElementExt, inReadAction}
 
 import scala.collection.JavaConverters._
 
@@ -75,12 +75,11 @@ class ScalaPackageObjectFilter(scope: GlobalSearchScope) extends ExceptionFilter
       if (className.isEmpty || !className.contains("package$"))
         return None
 
-      val packageName = className.split('.').dropRight(1).mkString(".")
-      val maybeObject = ScalaShortNamesCacheManager.getInstance(project).getPackageObjectByName(packageName, scope)
       for {
-        obj   <- maybeObject.toOption
-        file  <- obj.containingFile
-        vFile <- file.getVirtualFile.toOption
+        packageObject <- ScalaShortNamesCacheManager.getInstance(project)
+          .findPackageObjectByName(className.split('.').dropRight(1).mkString("."), scope)
+
+        vFile <- packageObject.containingVirtualFile
       } yield (vFile, stackTraceElement.getLineNumber)
     }
   }

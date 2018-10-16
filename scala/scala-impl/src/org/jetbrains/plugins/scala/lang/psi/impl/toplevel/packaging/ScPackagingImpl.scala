@@ -113,9 +113,9 @@ class ScPackagingImpl private(stub: ScPackagingStub, node: ASTNode)
     true
   }
 
-  def findPackageObject(scope: GlobalSearchScope): Option[ScTypeDefinition] = {
-    Option(ScalaShortNamesCacheManager.getInstance(getProject).getPackageObjectByName(fullPackageName, scope))
-  }
+  def findPackageObject(scope: GlobalSearchScope): Option[ScTypeDefinition] =
+    ScalaShortNamesCacheManager.getInstance(getProject)
+      .findPackageObjectByName(fullPackageName, scope)
 
   def getBodyText: String = {
     if (isExplicit) {

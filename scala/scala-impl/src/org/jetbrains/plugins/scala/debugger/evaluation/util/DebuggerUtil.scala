@@ -590,7 +590,7 @@ object DebuggerUtil {
     val cacheManager = ScalaShortNamesCacheManager.getInstance(project)
     val classes =
       if (qName.endsWith(packageSuffix))
-        Option(cacheManager.getPackageObjectByName(qName.stripSuffix(packageSuffix), elementScope.scope)).toSeq
+        cacheManager.findPackageObjectByName(qName.stripSuffix(packageSuffix), elementScope.scope).toSeq
       else
         cacheManager.getClassesByFQName(qName.replace(packageSuffix, "."), elementScope.scope)
 
