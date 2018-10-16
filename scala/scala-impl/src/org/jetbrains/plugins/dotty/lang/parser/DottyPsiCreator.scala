@@ -4,7 +4,6 @@ import com.intellij.lang.ASTNode
 import com.intellij.psi.PsiElement
 import com.intellij.psi.tree.{IElementType, TokenSet}
 import org.jetbrains.plugins.dotty.lang.psi.impl.base.types._
-import org.jetbrains.plugins.dotty.lang.psi.impl.toplevel.typedef.DottyTraitImpl
 import org.jetbrains.plugins.scala.lang.lexer.ScalaTokenTypes
 import org.jetbrains.plugins.scala.lang.parser.ScalaElementTypes._
 import org.jetbrains.plugins.scala.lang.parser.ScalaPsiCreator
@@ -16,7 +15,6 @@ object DottyPsiCreator extends ScalaPsiCreator {
   private val idTokenSet = TokenSet.create(REFERENCE, ScalaTokenTypes.tAND, ScalaTokenTypes.tOR)
 
   override protected def createElement(node: ASTNode, elementType: IElementType): PsiElement = elementType match {
-    case TRAIT_DEFINITION => new DottyTraitImpl(node)
     case _ => super.createElement(node, elementType)
   }
 

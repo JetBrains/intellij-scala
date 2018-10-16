@@ -14,22 +14,21 @@ import org.jetbrains.plugins.scala.lang.psi.stubs.elements.MaybeStringRefExt
 /**
   * @author ilyas
   */
-class ScTemplateDefinitionStubImpl(parent: StubElement[_ <: PsiElement],
-                                   elementType: IStubElementType[_ <: StubElement[_ <: PsiElement], _ <: PsiElement],
-                                   nameRef: StringRef,
-                                   private val qualifiedNameRef: StringRef,
-                                   private val javaQualifiedNameRef: StringRef,
-                                   val isDotty: Boolean,
-                                   val isPackageObject: Boolean,
-                                   val isScriptFileClass: Boolean,
-                                   private val sourceFileNameRef: StringRef,
-                                   val isDeprecated: Boolean,
-                                   val isImplicitObject: Boolean,
-                                   val isImplicitClass: Boolean,
-                                   private val javaNameRef: StringRef,
-                                   private val additionalJavaNameRef: Option[StringRef],
-                                   val isLocal: Boolean,
-                                   val isVisibleInJava: Boolean)
+final class ScTemplateDefinitionStubImpl(parent: StubElement[_ <: PsiElement],
+                                         elementType: IStubElementType[_ <: StubElement[_ <: PsiElement], _ <: PsiElement],
+                                         nameRef: StringRef,
+                                         private val qualifiedNameRef: StringRef,
+                                         private val javaQualifiedNameRef: StringRef,
+                                         val isPackageObject: Boolean,
+                                         val isScriptFileClass: Boolean,
+                                         private val sourceFileNameRef: StringRef,
+                                         val isDeprecated: Boolean,
+                                         val isImplicitObject: Boolean,
+                                         val isImplicitClass: Boolean,
+                                         private val javaNameRef: StringRef,
+                                         private val additionalJavaNameRef: Option[StringRef],
+                                         val isLocal: Boolean,
+                                         val isVisibleInJava: Boolean)
   extends ScNamedStubBase[ScTemplateDefinition](parent, elementType, nameRef) with ScTemplateDefinitionStub {
 
   override def getQualifiedName: String = StringRef.toString(qualifiedNameRef)
