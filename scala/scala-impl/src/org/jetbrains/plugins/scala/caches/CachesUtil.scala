@@ -17,8 +17,8 @@ import org.jetbrains.plugins.scala.lang.psi.api.ScalaFile
 import org.jetbrains.plugins.scala.lang.psi.api.expr.ScModificationTrackerOwner
 import org.jetbrains.plugins.scala.lang.psi.api.statements.ScFunction
 import org.jetbrains.plugins.scala.lang.psi.api.toplevel.typedef.ScTypeDefinition
-import org.jetbrains.plugins.scala.lang.psi.impl.ScPackageImpl.{DoNotProcessPackageObjectException, isPackageObjectProcessing}
 import org.jetbrains.plugins.scala.lang.psi.impl.ScalaPsiManager
+import org.jetbrains.plugins.scala.lang.psi.impl.toplevel.typedef.ScObjectImpl
 import org.jetbrains.plugins.scala.lang.psi.types.ScType
 import org.jetbrains.plugins.scala.lang.resolve.ScalaResolveResult
 
@@ -160,9 +160,11 @@ object CachesUtil {
   }
 
   //used in CachedWithRecursionGuard
-  def handleRecursiveCall[Data, Result](e: PsiElement, data: Data, key: Key[_], defaultValue: => Result): Result = {
-    if (isPackageObjectProcessing)
-      throw new DoNotProcessPackageObjectException()
+  def handleRecursiveCall[Data, Result](e: PsiElement,
+                                        data: Data,
+                                        key: Key[_],
+                                        defaultValue: => Result): Result = {
+    ScObjectImpl.checkPackageObject()
 
     PsiTreeUtil.getContextOfType(e, true, classOf[ScFunction]) match {
       case null => defaultValue

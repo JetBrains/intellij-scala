@@ -31,6 +31,7 @@ import org.jetbrains.plugins.scala.lang.resolve.processor.BaseProcessor
 import org.jetbrains.plugins.scala.macroAnnotations.{Cached, ModCount}
 
 import scala.collection.mutable.ArrayBuffer
+import scala.util.control.ControlThrowable
 
 /**
  * @author Alexander Podkhalyuzin
@@ -108,19 +109,11 @@ class ScObjectImpl protected (stub: ScTemplateDefinitionStub, node: ASTNode)
 
   override def processDeclarations(processor: PsiScopeProcessor, state: ResolveState, lastParent: PsiElement,
                                    place: PsiElement): Boolean = {
-    if (isPackageObject) {
-      import org.jetbrains.plugins.scala.lang.psi.impl.ScPackageImpl._
-      startPackageObjectProcessing()
-      try {
-        super[ScTemplateDefinition].processDeclarations(processor, state, lastParent, place)
-      } catch {
-        case _: DoNotProcessPackageObjectException => true //do nothing, just let's move on
-      } finally {
-        stopPackageObjectProcessing()
-      }
-    } else {
-      super[ScTemplateDefinition].processDeclarations(processor, state, lastParent, place)
-    }
+    def processDeclarations() = super[ScTemplateDefinition].processDeclarations(processor, state, lastParent, place)
+
+    if (isPackageObject) ScObjectImpl.withFlag {
+      processDeclarations()
+    } else processDeclarations()
   }
 
   override protected def syntheticMethodsWithOverrideImpl: Seq[PsiMethod] = {
@@ -261,4 +254,28 @@ class ScObjectImpl protected (stub: ScTemplateDefinitionStub, node: ASTNode)
 
     expansion.map(cachedDesugared(_, isSynthetic))
   }
+}
+
+object ScObjectImpl {
+
+  private[this] val processing = new ThreadLocal[Long] {
+    override def initialValue(): Long = 0
+  }
+
+  private class DoNotProcessPackageObjectException extends ControlThrowable
+
+  def checkPackageObject(): Unit = processing.get match {
+    case 0 =>
+    case _ => throw new DoNotProcessPackageObjectException
+  }
+
+  private def withFlag(action: => Boolean) =
+    try {
+      processing.set(processing.get + 1)
+      action
+    } catch {
+      case _: DoNotProcessPackageObjectException => true // do nothing, just let's move on
+    } finally {
+      processing.set(processing.get - 1)
+    }
 }
