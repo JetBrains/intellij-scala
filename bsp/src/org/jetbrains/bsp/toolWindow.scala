@@ -5,10 +5,10 @@ import com.intellij.openapi.externalSystem.service.task.ui.AbstractExternalSyste
 import com.intellij.openapi.project.Project
 import com.intellij.openapi.util.registry.Registry
 
-class BspToolWindowFactory extends AbstractExternalSystemToolWindowFactory(bsp.ProjectSystemId)
+class BspToolWindowFactory extends AbstractExternalSystemToolWindowFactory(BSP.ProjectSystemId)
 
-class BspToolWindowFactoryCondition extends AbstractExternalSystemToolWindowCondition(bsp.ProjectSystemId) {
+class BspToolWindowFactoryCondition extends AbstractExternalSystemToolWindowCondition(BSP.ProjectSystemId) {
   override def value(project: Project): Boolean =
-    Registry.get(bsp.RegistryKeyFeatureEnabled).asBoolean() &&
+    Registry.get(BSP.RegistryKeyFeatureEnabled).asBoolean() &&
     super.value(project)
 }

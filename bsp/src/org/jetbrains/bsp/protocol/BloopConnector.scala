@@ -16,7 +16,9 @@ import scala.meta.jsonrpc._
 import scala.sys.process.{Process, ProcessLogger}
 import scala.util.Try
 
-class BloopConnector(bloopExecutable: File, base: File, initParams: InitializeBuildParams)(implicit scheduler: Scheduler) extends BspServerConnector(initParams) {
+class BloopConnector(bloopExecutable: File, base: File, initParams: InitializeBuildParams)
+                    (implicit scheduler: Scheduler)
+  extends BspServerConnector(initParams) {
 
   private val logger: Logger = Logger.getInstance(classOf[BloopConnector])
 
@@ -64,7 +66,7 @@ class BloopConnector(bloopExecutable: File, base: File, initParams: InitializeBu
       val sLogger = logger.toScribeLogger
       val client: LanguageClient = new LanguageClient(socket.getOutputStream, sLogger)
       val messages = BaseProtocolMessage.fromInputStream(socket.getInputStream, sLogger)
-      new BspSession(messages, client, initParams, cleanup)
+      new BspSession(messages, client, initParams, cleanup, scheduler)
     }
   }
 

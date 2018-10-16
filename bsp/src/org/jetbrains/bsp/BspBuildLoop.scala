@@ -5,13 +5,12 @@ import java.util
 import com.intellij.ide.highlighter.JavaFileType
 import com.intellij.openapi.components.ProjectComponent
 import com.intellij.openapi.externalSystem.service.project.autoimport.FileChangeListenerBase
-import com.intellij.openapi.module.Module
 import com.intellij.openapi.fileTypes.FileType
+import com.intellij.openapi.module.Module
 import com.intellij.openapi.project.Project
 import com.intellij.openapi.roots.ProjectRootManager
 import com.intellij.openapi.vfs.newvfs.events.VFileEvent
 import com.intellij.openapi.vfs.{VirtualFile, VirtualFileManager}
-import com.intellij.psi.PsiManager
 import com.intellij.task.{ProjectTaskManager, ProjectTaskNotification, ProjectTaskResult}
 import com.intellij.util.messages.MessageBusConnection
 import org.jetbrains.bsp.settings.{BspProjectSettings, BspSettings}
@@ -33,7 +32,6 @@ final class BspBuildLoop(project: Project) extends ProjectComponent {
 
   private val busConnection: MessageBusConnection = project.getMessageBus.connect(project)
   private val fileIndex = ProjectRootManager.getInstance(project).getFileIndex
-  private val psiManager: PsiManager = PsiManager.getInstance(project)
   private val taskManager = ProjectTaskManager.getInstance(project)
 
   private val failedModules = scala.collection.mutable.HashSet[Module]()
@@ -63,7 +61,6 @@ final class BspBuildLoop(project: Project) extends ProjectComponent {
         settings <- bspSettings
         if settings.buildOnSave
       } yield {
-        // TODO probably can replace by https://github.com/scalacenter/bsp/blob/master/docs/bsp.md#build-target-changed-notification
         // and let compile server handle rebuilding or not
         taskManager.build(modulesToCompile,
           new ProjectTaskNotification {

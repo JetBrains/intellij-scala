@@ -13,7 +13,7 @@ import com.intellij.openapi.module.Module
 import com.intellij.openapi.project.Project
 import com.intellij.openapi.roots.LanguageLevelModuleExtensionImpl
 import com.intellij.openapi.roots.libraries.Library
-import org.jetbrains.bsp.bsp
+import org.jetbrains.bsp.BSP
 import org.jetbrains.plugins.scala.project._
 import org.jetbrains.plugins.scala.project.external.{AbstractImporter, SdkReference, SdkUtils}
 
@@ -113,9 +113,9 @@ object ScalaSdkService {
       val notification = new NotificationData("bsp Import", message, NotificationCategory.WARNING, NotificationSource.PROJECT_SYNC)
       notification.setBalloonGroup("bsp")
       if (ApplicationManager.getApplication.isUnitTestMode) {
-        throw NotificationException(notification, bsp.ProjectSystemId)
+        throw NotificationException(notification, BSP.ProjectSystemId)
       } else {
-        ExternalSystemNotificationManager.getInstance(project).showNotification(bsp.ProjectSystemId, notification)
+        ExternalSystemNotificationManager.getInstance(project).showNotification(BSP.ProjectSystemId, notification)
       }
     }
 

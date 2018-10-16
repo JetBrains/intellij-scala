@@ -7,7 +7,7 @@ import org.jetbrains.bsp._
 import org.jetbrains.bsp.settings._
 
 class BspExternalSystemConfigurable(project: Project)
-  extends AbstractExternalSystemConfigurable[BspProjectSettings, BspProjectSettingsListener, BspSettings](project, bsp.ProjectSystemId) {
+  extends AbstractExternalSystemConfigurable[BspProjectSettings, BspProjectSettingsListener, BspSettings](project, BSP.ProjectSystemId) {
 
   override def createProjectSettingsControl(settings: BspProjectSettings): ExternalSystemSettingsControl[BspProjectSettings] =
     new BspProjectSettingsControl(settings)

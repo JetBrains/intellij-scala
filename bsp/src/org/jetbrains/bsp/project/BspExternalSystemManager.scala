@@ -16,7 +16,7 @@ import org.jetbrains.bsp.settings._
 class BspExternalSystemManager extends ExternalSystemManager[BspProjectSettings, BspProjectSettingsListener, BspSettings, BspLocalSettings, BspExecutionSettings]
   with ExternalSystemConfigurableAware {
 
-  override def getSystemId: ProjectSystemId = bsp.ProjectSystemId
+  override def getSystemId: ProjectSystemId = BSP.ProjectSystemId
 
   override def getSettingsProvider: Function[Project, BspSettings] = BspSettings.getInstance(_)
 

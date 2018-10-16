@@ -12,27 +12,29 @@ import com.intellij.openapi.externalSystem.service.project.ExternalSystemProject
 import com.intellij.openapi.module.StdModuleTypes
 import com.intellij.openapi.roots.DependencyScope
 import io.circe.Json
-import org.jetbrains.bsp.magic.monixToCats.monixToCatsMonad
 import monix.eval.Task
-import monix.execution.{Cancelable, ExecutionModel, Scheduler}
+import monix.execution.{ExecutionModel, Scheduler}
 import org.jetbrains.bsp.BspUtil._
 import org.jetbrains.bsp.data.{BspMetadata, ScalaSdkData}
+import org.jetbrains.bsp.magic.monixToCats.monixToCatsMonad
 import org.jetbrains.bsp.project.BspProjectResolver._
 import org.jetbrains.bsp.protocol.BspCommunication
+import org.jetbrains.bsp.protocol.BspCommunication.NotificationCallback
 import org.jetbrains.bsp.settings.BspExecutionSettings
-import org.jetbrains.bsp.{BspError, bsp}
+import org.jetbrains.bsp.{BSP, BspError, BspErrorMessage}
 import org.jetbrains.ide.PooledThreadExecutor
 import org.jetbrains.plugins.scala.project.Version
 import org.jetbrains.sbt.project.data.SbtBuildModuleData
 
+import scala.annotation.tailrec
 import scala.collection.JavaConverters._
-import scala.concurrent.Await
-import scala.concurrent.duration.Duration
-import scala.meta.jsonrpc.{LanguageClient, Response, Services}
+import scala.concurrent.{Await, Future, TimeoutException}
+import scala.concurrent.duration._
+import scala.meta.jsonrpc.{LanguageClient, Response}
 
 class BspProjectResolver extends ExternalSystemProjectResolver[BspExecutionSettings] {
 
-  private var activeImport: Option[ActiveImport] = None
+  private var importState: ImportState = Inactive
 
   override def resolveProjectInfo(id: ExternalSystemTaskId,
                                   projectRootPath: String,
@@ -77,12 +79,12 @@ class BspProjectResolver extends ExternalSystemProjectResolver[BspExecutionSetti
       }
       transformer.value
     }
-    
+
     def createModuleNode(moduleDescription: ScalaModuleDescription,
                          projectNode: DataNode[ProjectData]) = {
 
       val basePath = moduleDescription.basePath.getCanonicalPath
-      val contentRootData = new ContentRootData(bsp.ProjectSystemId, basePath)
+      val contentRootData = new ContentRootData(BSP.ProjectSystemId, basePath)
       moduleDescription.sourceDirs.foreach { dir =>
         contentRootData.storePath(ExternalSystemSourceType.SOURCE, dir.getCanonicalPath)
       }
@@ -93,7 +95,7 @@ class BspProjectResolver extends ExternalSystemProjectResolver[BspExecutionSetti
       val primaryTarget = moduleDescription.targets.head
       val moduleId = primaryTarget.id.uri.toString
       val moduleName = primaryTarget.displayName
-      val moduleData = new ModuleData(moduleId, bsp.ProjectSystemId, StdModuleTypes.JAVA.getId, moduleName, moduleFilesDirectoryPath, projectRootPath)
+      val moduleData = new ModuleData(moduleId, BSP.ProjectSystemId, StdModuleTypes.JAVA.getId, moduleName, moduleFilesDirectoryPath, projectRootPath)
 
       moduleDescription.output.foreach { outputPath =>
         moduleData.setCompileOutputPath(ExternalSystemSourceType.SOURCE, outputPath.getCanonicalPath)
@@ -104,14 +106,14 @@ class BspProjectResolver extends ExternalSystemProjectResolver[BspExecutionSetti
 
       moduleData.setInheritProjectCompileOutputPath(false)
 
-      val scalaSdkLibrary = new LibraryData(bsp.ProjectSystemId, ScalaSdkData.LibraryName)
+      val scalaSdkLibrary = new LibraryData(BSP.ProjectSystemId, ScalaSdkData.LibraryName)
       moduleDescription.scalaSdkData.scalacClasspath.foreach { path =>
         scalaSdkLibrary.addPath(LibraryPathType.BINARY, path.getCanonicalPath)
       }
       val scalaSdkLibraryDependencyData = new LibraryDependencyData(moduleData, scalaSdkLibrary, LibraryLevel.MODULE)
       scalaSdkLibraryDependencyData.setScope(DependencyScope.COMPILE)
 
-      val libraryData = new LibraryData(bsp.ProjectSystemId, s"$moduleName dependencies")
+      val libraryData = new LibraryData(BSP.ProjectSystemId, s"$moduleName dependencies")
       moduleDescription.classPath.foreach { path =>
         libraryData.addPath(LibraryPathType.BINARY, path.getCanonicalPath)
       }
@@ -121,7 +123,7 @@ class BspProjectResolver extends ExternalSystemProjectResolver[BspExecutionSetti
       val libraryDependencyData = new LibraryDependencyData(moduleData, libraryData, LibraryLevel.MODULE)
       libraryDependencyData.setScope(DependencyScope.COMPILE)
 
-      val libraryTestData = new LibraryData(bsp.ProjectSystemId, s"$moduleName test dependencies")
+      val libraryTestData = new LibraryData(BSP.ProjectSystemId, s"$moduleName test dependencies")
       moduleDescription.testClassPath.foreach { path =>
         libraryTestData.addPath(LibraryPathType.BINARY, path.getCanonicalPath)
       }
@@ -132,7 +134,7 @@ class BspProjectResolver extends ExternalSystemProjectResolver[BspExecutionSetti
       libraryTestDependencyData.setScope(DependencyScope.TEST)
 
       val targetIds = moduleDescription.targets.map(_.id)
-      val metadata = BspMetadata(targetIds)
+      val metadata = BspMetadata(targetIds.toList)
 
       // data node wiring
       // TODO refactor and reuse sbt module wiring api
@@ -158,32 +160,21 @@ class BspProjectResolver extends ExternalSystemProjectResolver[BspExecutionSetti
       moduleNode
     }
 
-    val logger = Logger.getInstance(classOf[BspProjectResolver])
-    val services = Services.empty(logger.toScribeLogger)
-      .notification(endpoints.Build.logMessage) { params =>
-        // TODO use params.id for tree structure
-        statusUpdate(params.message)
-      }
-
-    val projectTask: EitherT[Task, BspError, DataNode[ProjectData]] = for {
-      session <- EitherT(BspCommunication.prepareSession(projectRoot, executionSettings))
-      _ = statusUpdate("session prepared") // TODO remove in favor of build toolwindow nodes
-      moduleDescriptions <- EitherT(session.run(services, requests(_)))
-    } yield {
+    def projectNode(moduleDescriptions: Iterable[ScalaModuleDescription]) = {
 
       statusUpdate("targets fetched") // TODO remove in favor of build toolwindow nodes
 
-      val projectData = new ProjectData(bsp.ProjectSystemId, projectRoot.getName, projectRootPath, projectRootPath)
+      val projectData = new ProjectData(BSP.ProjectSystemId, projectRoot.getName, projectRootPath, projectRootPath)
       val projectNode = new DataNode[ProjectData](ProjectKeys.PROJECT, projectData, null)
 
       // synthetic root module when no natural module is at root
       val rootModule =
-        if (moduleDescriptions.exists(_.basePath == projectRoot)) None
+        if (moduleDescriptions.exists (_.basePath == projectRoot)) None
         else {
           val name = projectRoot.getName + "-root"
-          val moduleData = new ModuleData(name, bsp.ProjectSystemId, BspSyntheticModuleType.Id, name, moduleFilesDirectoryPath, projectRootPath)
+          val moduleData = new ModuleData(name, BSP.ProjectSystemId, BspSyntheticModuleType.Id, name, moduleFilesDirectoryPath, projectRootPath)
           val moduleNode = new DataNode[ModuleData](ProjectKeys.MODULE, moduleData, projectNode)
-          val contentRootData = new ContentRootData(bsp.ProjectSystemId, projectRoot.getCanonicalPath)
+          val contentRootData = new ContentRootData(BSP.ProjectSystemId, projectRoot.getCanonicalPath)
           val contentRootDataNode = new DataNode[ContentRootData](ProjectKeys.CONTENT_ROOT, contentRootData, moduleNode)
           moduleNode.addChild(contentRootDataNode)
 
@@ -208,12 +199,28 @@ class BspProjectResolver extends ExternalSystemProjectResolver[BspExecutionSetti
       projectNode
     }
 
+    val logger = Logger.getInstance(classOf[BspProjectResolver])
+
+    val communication = BspCommunication.forBaseDir(projectRootPath, executionSettings)
+
+    val bspNotifications: NotificationCallback = {
+      case BspCommunication.LogMessage(params) =>
+        // TODO use params.id for tree structure
+        statusUpdate(params.message)
+      case _ =>
+    }
+
+    val projectFuture =
+      communication.run(requests(_), bspNotifications )
+        .map{ moduleDescriptionsResult =>
+          moduleDescriptionsResult.map(projectNode)
+        }
+
     statusUpdate("starting task") // TODO remove in favor of build toolwindow nodes
 
-    val running = projectTask.value.runAsync
-    activeImport = Some(ActiveImport(running))
-    val result = Await.result(running, Duration.Inf)
-    activeImport = None
+    importState = Active(communication)
+    val result = busyAwaitProject(projectFuture)
+    importState = Inactive
 
     statusUpdate("finished task") // TODO remove in favor of build toolwindow nodes
 
@@ -223,16 +230,27 @@ class BspProjectResolver extends ExternalSystemProjectResolver[BspExecutionSetti
     }
   }
 
+  @tailrec private def busyAwaitProject(projectFuture: Future[Either[BspError, DataNode[ProjectData]]]): Either[BspError, DataNode[ProjectData]] =
+  importState match {
+    case Active(_) =>
+      try {Await.result(projectFuture, 1.second)}
+      catch {
+        case _: TimeoutException => busyAwaitProject(projectFuture)
+      }
+    case Inactive =>
+      Left(BspErrorMessage("Import canceled"))
+  }
+
   override def cancelTask(taskId: ExternalSystemTaskId,
                           listener: ExternalSystemTaskNotificationListener): Boolean =
-    activeImport match {
-      case Some(ActiveImport(running)) =>
+    importState match {
+      case Active(session) =>
         listener.beforeCancel(taskId)
-        running.cancel()
-        activeImport = None
+        Await.ready(session.closeSession(), 10.seconds)
+        importState = Inactive
         listener.onCancel(taskId)
-        true // TODO this is a lie, cancel doesn't just cancel the thread
-      case None =>
+        true
+      case Inactive =>
         false
     }
 
@@ -261,7 +279,9 @@ object BspProjectResolver {
                                           scalaModule: ScalaModuleDescription
                                          ) extends ModuleDescription
 
-  private case class ActiveImport(importCancelable: Cancelable)
+  private sealed abstract class ImportState
+  private case class Active(communication: BspCommunication) extends ImportState
+  private case object Inactive extends ImportState
 
 
   /** Find common base path of all given files */

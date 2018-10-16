@@ -17,19 +17,19 @@ import org.jetbrains.bsp._
 import org.jetbrains.bsp.settings._
 
 class BspProjectImportBuilder(projectDataManager: ProjectDataManager)
-  extends AbstractExternalProjectImportBuilder[BspImportControl](projectDataManager, new BspImportControl(), bsp.ProjectSystemId) {
+  extends AbstractExternalProjectImportBuilder[BspImportControl](projectDataManager, new BspImportControl(), BSP.ProjectSystemId) {
 
   override def doPrepare(context: WizardContext): Unit = {}
   override def beforeCommit(dataNode: DataNode[ProjectData], project: Project): Unit = {}
   override def getExternalProjectConfigToUse(file: File): File = file
   override def applyExtraSettings(context: WizardContext): Unit = {}
-  override def getName: String = bsp.Name
-  override def getIcon: Icon = bsp.Icon
+  override def getName: String = BSP.Name
+  override def getIcon: Icon = BSP.Icon
 }
 
 
 class BspImportControl extends AbstractImportFromExternalSystemControl[BspProjectSettings, BspProjectSettingsListener, BspSettings](
-  bsp.ProjectSystemId, BspSettings.getInstance(ProjectManager.getInstance.getDefaultProject), new BspProjectSettings) {
+  BSP.ProjectSystemId, BspSettings.getInstance(ProjectManager.getInstance.getDefaultProject), new BspProjectSettings) {
 
   override def onLinkedProjectPathChange(path: String): Unit = {}
 
@@ -41,10 +41,10 @@ class BspImportControl extends AbstractImportFromExternalSystemControl[BspProjec
 }
 
 class BspProjectImportProvider(builder: BspProjectImportBuilder)
-  extends AbstractExternalProjectImportProvider(builder, bsp.ProjectSystemId) {
+  extends AbstractExternalProjectImportProvider(builder, BSP.ProjectSystemId) {
 
   override def canImport(fileOrDirectory: VirtualFile, project: Project): Boolean =
-    bsp.enabled &&
+    BSP.enabled &&
     super.canImport(fileOrDirectory, project)
 }
 

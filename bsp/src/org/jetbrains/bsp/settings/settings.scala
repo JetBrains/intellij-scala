@@ -151,7 +151,7 @@ object BspSystemSettings {
   storages = Array(new Storage(StoragePathMacros.WORKSPACE_FILE))
 )
 class BspLocalSettings(project: Project)
-  extends AbstractExternalSystemLocalSettings[BspLocalSettingsState](bsp.ProjectSystemId, project)
+  extends AbstractExternalSystemLocalSettings[BspLocalSettingsState](BSP.ProjectSystemId, project)
     with PersistentStateComponent[BspLocalSettingsState] {
 
   override def loadState(state: BspLocalSettingsState): Unit =

@@ -6,13 +6,13 @@ import com.intellij.openapi.externalSystem.model.ProjectSystemId
 import com.intellij.openapi.util.registry.Registry
 import javax.swing.Icon
 
-object bsp {
+object BSP {
   val Name = "bsp"
   val Icon: Icon = AllIcons.Nodes.IdeaProject // TODO bsp icon
 
   val ProjectSystemId = new ProjectSystemId("BSP", Name)
 
-  val RegistryKeyFeatureEnabled: String = bsp.ProjectSystemId + ".experimental.feature.enabled"
+  val RegistryKeyFeatureEnabled: String = BSP.ProjectSystemId + ".experimental.feature.enabled"
 
   val balloonNotification: NotificationGroup = NotificationGroup.balloonGroup("bsp")
 

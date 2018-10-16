@@ -5,13 +5,13 @@ import java.io.File
 import ch.epfl.scala.bsp.BuildTargetIdentifier
 import com.intellij.openapi.externalSystem.model.project.AbstractExternalEntityData
 import com.intellij.openapi.externalSystem.model.{Key, ProjectKeys}
-import org.jetbrains.bsp.bsp
+import org.jetbrains.bsp.BSP
 import org.jetbrains.bsp.data.BspEntityData._
 import org.jetbrains.plugins.scala.project.Version
 import org.jetbrains.plugins.scala.project.external.SdkReference
 
 
-abstract class BspEntityData extends AbstractExternalEntityData(bsp.ProjectSystemId) with Product {
+abstract class BspEntityData extends AbstractExternalEntityData(BSP.ProjectSystemId) with Product {
 
   // need to manually specify equals/hashCode here because it is not generated for case classes inheriting from
   // AbstractExternalEntityData
@@ -33,14 +33,14 @@ object BspEntityData {
 }
 
 
-@SerialVersionUID(1)
+@SerialVersionUID(2)
 case class ScalaSdkData(
     scalaOrganization: String,
     scalaVersion: Option[Version],
-    scalacClasspath: Seq[File],
-    scalacOptions: Seq[String],
+    scalacClasspath: List[File],
+    scalacOptions: List[String],
     jdk: Option[SdkReference],
-    javacOptions: Seq[String]
+    javacOptions: List[String]
 ) extends BspEntityData
 
 object ScalaSdkData {
@@ -53,8 +53,8 @@ object ScalaSdkData {
   * Metadata to about bsp targets that have been mapped to IntelliJ modules.
   * @param targetIds target ids mapped to module
   */
-@SerialVersionUID(2)
-case class BspMetadata(targetIds: Seq[BuildTargetIdentifier])
+@SerialVersionUID(3)
+case class BspMetadata(targetIds: List[BuildTargetIdentifier])
 object BspMetadata {
   val Key: Key[BspMetadata] = datakey(classOf[BspMetadata])
 }

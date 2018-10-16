@@ -10,7 +10,7 @@ class StartupRoutine extends ApplicationInitializedListener {
 
   override def componentsInitialized(): Unit = {
 
-    val bspEnabled = Registry.get(bsp.RegistryKeyFeatureEnabled)
+    val bspEnabled = Registry.get(BSP.RegistryKeyFeatureEnabled)
 
     // bsp is experimental feature, hide it from UI by default
     val shouldSetKey =
@@ -22,7 +22,7 @@ class StartupRoutine extends ApplicationInitializedListener {
 
     // use in-process mode for external system
     Registry
-      .get(bsp.ProjectSystemId + ExternalSystemConstants.USE_IN_PROCESS_COMMUNICATION_REGISTRY_KEY_SUFFIX)
+      .get(BSP.ProjectSystemId + ExternalSystemConstants.USE_IN_PROCESS_COMMUNICATION_REGISTRY_KEY_SUFFIX)
       .setValue(true)
 
   }

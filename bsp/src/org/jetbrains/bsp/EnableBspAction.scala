@@ -7,10 +7,10 @@ import com.intellij.openapi.util.registry.Registry
 class EnableBspAction extends AnAction {
   def actionPerformed(e: AnActionEvent): Unit = {
     Registry
-      .get(bsp.RegistryKeyFeatureEnabled)
+      .get(BSP.RegistryKeyFeatureEnabled)
       .setValue(true)
 
-    bsp.balloonNotification
+    BSP.balloonNotification
       .createNotification(
         "enabled experimental bsp (build server protocol) support",
         MessageType.INFO
