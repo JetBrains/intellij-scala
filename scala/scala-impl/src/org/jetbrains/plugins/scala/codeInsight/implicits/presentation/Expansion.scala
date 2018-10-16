@@ -1,21 +1,12 @@
 package org.jetbrains.plugins.scala.codeInsight.implicits.presentation
-import java.awt.event.MouseEvent
 
-import javax.swing.SwingUtilities
+class Expansion(presentation: Presentation, expansion: => Presentation) extends DynamicForwarding(presentation) {
+  private lazy val expandedPresentation = expansion
 
-class Expansion(collapsed: Presentation, expanded: => Presentation) extends DynamicForwarding(collapsed) {
-  private lazy val expandedPresentation = expanded
+  def expanded: Boolean = delegate != presentation
 
   override def expand(level: Int): Unit = {
-    delegate = if (level > 0) expandedPresentation else collapsed
+    delegate = if (level > 0) expandedPresentation else presentation
     delegate.expand(0.max(level - 1))
-  }
-
-  override def mouseClicked(e: MouseEvent): Unit = {
-    if (delegate == collapsed && SwingUtilities.isLeftMouseButton(e)) {
-      expand(1)
-    } else {
-      delegate.mouseClicked(e)
-    }
   }
 }

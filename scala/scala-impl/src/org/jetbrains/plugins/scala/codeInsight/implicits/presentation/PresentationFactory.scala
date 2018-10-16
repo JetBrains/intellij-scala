@@ -1,10 +1,11 @@
 package org.jetbrains.plugins.scala.codeInsight.implicits.presentation
 import java.awt.event.MouseEvent
-import java.awt.{Color, Font}
+import java.awt.{Color, Cursor, Font}
 
 import com.intellij.openapi.editor.colors.EditorFontType
 import com.intellij.openapi.editor.impl.EditorImpl
 import com.intellij.openapi.editor.markup.TextAttributes
+import com.intellij.openapi.util.SystemInfo
 
 class PresentationFactory(editor: EditorImpl) {
   private def ascent = editor.getAscent
@@ -51,11 +52,31 @@ class PresentationFactory(editor: EditorImpl) {
   def insets(left: Int, right: Int, presentation: Presentation): Presentation =
     new Sequence(lineHeight, new Space(left, lineHeight), presentation, new Space(right, lineHeight))
 
-  def expansion(expanded: => Presentation, presentation: Presentation): Presentation =
-    new Expansion(presentation, expanded)
+  def expansion(expanded: => Presentation, presentation: Presentation): Presentation = {
+    val expansion = new Expansion(presentation, expanded)
 
-  def navigation(decorator: Presentation => Presentation, onHover: Option[MouseEvent] => Unit, onClick: MouseEvent => Unit, presentation: Presentation): Presentation =
-    new Target(presentation, decorator(presentation), cursor => component.setCursor(cursor), onHover, onClick)
+    new OnClick(expansion, Button.Left, e => {
+      if (!expansion.expanded) {
+        expansion.expand(1)
+        e.consume()
+      }
+    })
+  }
+
+  def navigation(decorator: Presentation => Presentation, onHover: Option[MouseEvent] => Unit, onClick: MouseEvent => Unit, presentation: Presentation): Presentation = {
+    val inner = new OnClick(presentation, Button.Middle, onClick)
+
+    val forwarding = new DynamicForwarding(inner)
+
+    new OnHover(forwarding, e => SystemInfo.isMac && e.isMetaDown || e.isControlDown, e => {
+      val cursor = if (e.isDefined) Cursor.HAND_CURSOR else Cursor.DEFAULT_CURSOR
+      component.setCursor(Cursor.getPredefinedCursor(cursor))
+
+      forwarding.delegate = if (e.isDefined) new OnClick(decorator(presentation), Button.Left, onClick) else inner
+
+      onHover(e)
+    })
+  }
 
   def synchronous(decorator: Presentation => Presentation, presentation1: Presentation, presentation2: Presentation): (Presentation, Presentation) = {
     val Seq(result1, result2) = SynchronousDecorator(decorator, presentation1, presentation2)
@@ -63,7 +84,7 @@ class PresentationFactory(editor: EditorImpl) {
   }
 
   def onHover(handler: Option[MouseEvent] => Unit, presentation: Presentation): Presentation = {
-    new OnHover(presentation, handler)
+    new OnHover(presentation, _ => true, handler)
   }
 
   def onClick(handler: MouseEvent => Unit, button: Button, presentation: Presentation): Presentation =

@@ -11,8 +11,13 @@ class OnClick(presentation: Presentation, button: Button, handler: MouseEvent =>
       case Button.Middle => SwingUtilities.isMiddleMouseButton(e)
       case Button.Right => SwingUtilities.isRightMouseButton(e)
     }
+
     if (expectedButton) {
       handler(e)
+
+      if (!e.isConsumed) {
+        super.mouseClicked(e)
+      }
     }
   }
 }

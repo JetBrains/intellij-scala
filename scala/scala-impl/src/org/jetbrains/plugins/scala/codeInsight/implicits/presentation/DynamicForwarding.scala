@@ -9,9 +9,9 @@ class DynamicForwarding(presentation: Presentation) extends Presentation {
 
   _delegate.addPresentationListener(Listener)
 
-  protected def delegate: Presentation = _delegate
+  def delegate: Presentation = _delegate
 
-  protected def delegate_=(presentation: Presentation): Unit = {
+  def delegate_=(presentation: Presentation): Unit = {
     if (_delegate != presentation) {
       val previousWidth = _delegate.width
       presentation.removePresentationListener(Listener)
