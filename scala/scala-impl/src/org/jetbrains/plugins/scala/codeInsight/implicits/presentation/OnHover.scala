@@ -1,8 +1,19 @@
 package org.jetbrains.plugins.scala.codeInsight.implicits.presentation
+
 import java.awt.event.MouseEvent
 
-class OnHover(presentation: Presentation, filter: MouseEvent => Boolean, handler: Option[MouseEvent] => Unit) extends StaticForwarding(presentation) with Hovering {
-  override protected def processHoverEvent(point: Option[MouseEvent]): Unit = handler(point)
+class OnHover(presentation: Presentation, filter: MouseEvent => Boolean, handler: Option[MouseEvent] => Unit) extends StaticForwarding(presentation) {
+  private var hovered = false
 
-  override protected def isHovering(e: MouseEvent): Boolean = filter(e)
+  override def mouseMoved(e: MouseEvent): Unit = {
+    if (!hovered && filter(e)) {
+      hovered = true
+      handler(Some(e))
+    }
+  }
+
+  override def mouseExited(): Unit = {
+    hovered = false
+    handler(None)
+  }
 }
