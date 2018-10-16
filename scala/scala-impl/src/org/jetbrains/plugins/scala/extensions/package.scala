@@ -6,7 +6,6 @@ import java.util.concurrent.{Callable, Future}
 import java.util.regex.Pattern
 
 import com.intellij.extapi.psi.StubBasedPsiElementBase
-import com.intellij.lang.ASTNode
 import com.intellij.openapi.Disposable
 import com.intellij.openapi.application.ex.ApplicationUtil
 import com.intellij.openapi.application.{ApplicationManager, TransactionGuard}
@@ -20,7 +19,7 @@ import com.intellij.psi.impl.source.tree.SharedImplUtil
 import com.intellij.psi.impl.source.{PostprocessReformattingAspect, PsiFileImpl}
 import com.intellij.psi.search.GlobalSearchScope
 import com.intellij.psi.stubs.{IStubElementType, StubElement}
-import com.intellij.psi.tree.{IElementType, TokenSet}
+import com.intellij.psi.tree.TokenSet
 import com.intellij.psi.util.PsiTreeUtil
 import com.intellij.util.text.CharArrayUtil
 import com.intellij.util.{ArrayFactory, Processor}
@@ -268,11 +267,6 @@ package object extensions {
     val Parentheses = new Val("(", ")")
     val Braces = new Val("{", "}")
     val SquareBrackets = new Val("[", "]")
-  }
-
-  implicit class ASTNodeExt(val node: ASTNode) extends AnyVal {
-    def hasChildOfType(elementType: IElementType): Boolean =
-      node.findChildByType(elementType) != null
   }
 
   implicit class PsiElementExt[E <: PsiElement](val element: E) extends AnyVal {
