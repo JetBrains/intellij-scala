@@ -49,9 +49,7 @@ import org.jetbrains.plugins.scala.lang.psi.types.api.designator.{ScDesignatorTy
 import org.jetbrains.plugins.scala.lang.psi.types.nonvalue.{Parameter, ScTypePolymorphicType}
 import org.jetbrains.plugins.scala.lang.psi.types.recursiveUpdate.ScSubstitutor
 import org.jetbrains.plugins.scala.lang.psi.types.result._
-import org.jetbrains.plugins.scala.lang.refactoring.ScalaNamesValidator
 import org.jetbrains.plugins.scala.lang.refactoring.util.ScTypeUtil.AliasType
-import org.jetbrains.plugins.scala.lang.refactoring.util.ScalaNamesUtil
 import org.jetbrains.plugins.scala.lang.resolve.ScalaResolveResult
 import org.jetbrains.plugins.scala.lang.resolve.processor._
 import org.jetbrains.plugins.scala.lang.structureView.ScalaElementPresentation
@@ -59,9 +57,7 @@ import org.jetbrains.plugins.scala.project.{ProjectContext, ProjectPsiElementExt
 import org.jetbrains.plugins.scala.util.ScEquivalenceUtil
 
 import scala.annotation.tailrec
-import scala.collection.JavaConverters._
-import scala.collection.mutable.ArrayBuffer
-import scala.collection.{Seq, Set, mutable}
+import scala.collection.{JavaConverters, Seq, Set, mutable}
 
 /**
   * User: Alexander Podkhalyuzin
@@ -482,19 +478,20 @@ object ScalaPsiUtil {
         case _ =>
           tp.extractClassType match {
             case Some((clazz, subst)) =>
-              var packObjects = new ArrayBuffer[ScTypeDefinition]()
+              parts += tp
 
               @tailrec
               def packageObjectsInImplicitScope(packOpt: Option[ScPackageLike]): Unit = packOpt match {
                 case Some(pack) =>
-                  pack.findPackageObject(scope).foreach(packObjects += _)
+                  for {
+                    packageObject <- pack.findPackageObject(scope)
+                    designator = ScDesignatorType(packageObject)
+                  } parts += designator
                   packageObjectsInImplicitScope(pack.parentScalaPackage)
                 case _ =>
               }
 
-              packageObjectsInImplicitScope(Option(ScalaPsiUtil.contextOfType(clazz, strict = false, classOf[ScPackageLike])))
-              parts += tp
-              packObjects.foreach(p => parts += ScDesignatorType(p))
+              packageObjectsInImplicitScope(clazz.parentOfType(classOf[ScPackageLike], strict = false))
 
               collectSupers(clazz, subst)
             case _ =>
@@ -659,14 +656,14 @@ object ScalaPsiUtil {
       }
       return Seq(prev)
     }
-    val buffer = new ArrayBuffer[PsiElement]
+    val buffer = mutable.ArrayBuffer.empty[PsiElement]
     var child = commonParent.getNode.getFirstChildNode
     var writeBuffer = false
     while (child != null) {
       if (child.getTextRange.getStartOffset == startOffset) {
         writeBuffer = true
       }
-      if (writeBuffer) buffer.append(child.getPsi)
+      if (writeBuffer) buffer += child.getPsi
       if (child.getTextRange.getEndOffset >= endOffset) {
         writeBuffer = false
       }
@@ -1693,6 +1690,7 @@ object ScalaPsiUtil {
       case (cl, substitutor) =>
         def isAbstract(m: PsiMethod): Boolean = m.hasAbstractModifier && m.findSuperMethods().forall(_.hasAbstractModifier)
 
+        import JavaConverters._
         val visibleMethods = cl.getVisibleSignatures.asScala.map(_.getMethod).toList
         val abstractMethods = visibleMethods.filter(isAbstract)
 

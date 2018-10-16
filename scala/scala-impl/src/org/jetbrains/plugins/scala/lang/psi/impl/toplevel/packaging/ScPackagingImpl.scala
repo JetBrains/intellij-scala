@@ -22,7 +22,7 @@ import org.jetbrains.plugins.scala.lang.parser.ScalaElementTypes.PACKAGING
 import org.jetbrains.plugins.scala.lang.psi.api.ScPackageLike
 import org.jetbrains.plugins.scala.lang.psi.api.base.ScStableCodeReferenceElement
 import org.jetbrains.plugins.scala.lang.psi.api.toplevel.ScPackaging
-import org.jetbrains.plugins.scala.lang.psi.api.toplevel.typedef.ScTypeDefinition
+import org.jetbrains.plugins.scala.lang.psi.api.toplevel.typedef.{ScObject, ScTypeDefinition}
 import org.jetbrains.plugins.scala.lang.psi.stubs.ScPackagingStub
 import org.jetbrains.plugins.scala.lang.resolve.processor.BaseProcessor
 
@@ -113,7 +113,7 @@ class ScPackagingImpl private(stub: ScPackagingStub, node: ASTNode)
     true
   }
 
-  def findPackageObject(scope: GlobalSearchScope): Option[ScTypeDefinition] =
+  def findPackageObject(scope: GlobalSearchScope): Option[ScObject] =
     ScalaShortNamesCacheManager.getInstance(getProject)
       .findPackageObjectByName(fullPackageName, scope)
 

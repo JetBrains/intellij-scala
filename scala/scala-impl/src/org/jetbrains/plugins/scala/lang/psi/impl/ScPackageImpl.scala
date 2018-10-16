@@ -11,7 +11,7 @@ import com.intellij.psi.scope.PsiScopeProcessor
 import com.intellij.psi.search.GlobalSearchScope
 import org.jetbrains.plugins.scala.caches.{CachesUtil, ScalaShortNamesCacheManager}
 import org.jetbrains.plugins.scala.extensions._
-import org.jetbrains.plugins.scala.lang.psi.api.toplevel.typedef.{ScObject, ScTypeDefinition}
+import org.jetbrains.plugins.scala.lang.psi.api.toplevel.typedef.ScObject
 import org.jetbrains.plugins.scala.lang.psi.api.{ScPackage, ScPackageLike}
 import org.jetbrains.plugins.scala.lang.psi.impl.toplevel.synthetic.SyntheticClasses
 import org.jetbrains.plugins.scala.lang.resolve.ResolveUtils
@@ -64,12 +64,8 @@ class ScPackageImpl private (val pack: PsiPackage) extends PsiPackageImpl(pack.g
       }
 
       val maybeObject = getQualifiedName match {
-        case fqn@"scala" =>
-          ElementScope(place.getProject, scope).getCachedObject(fqn)
-        case _ =>
-          findPackageObject(scope).collect {
-            case scalaObject: ScObject => scalaObject
-          }
+        case fqn@"scala" => ElementScope(place.getProject, scope).getCachedObject(fqn)
+        case _ => findPackageObject(scope)
       }
 
       maybeObject.forall { obj =>
@@ -82,7 +78,7 @@ class ScPackageImpl private (val pack: PsiPackage) extends PsiPackageImpl(pack.g
     } else true
   }
 
-  def findPackageObject(scope: GlobalSearchScope): Option[ScTypeDefinition] = {
+  def findPackageObject(scope: GlobalSearchScope): Option[ScObject] = {
     val manager = ScalaShortNamesCacheManager.getInstance(getProject)
 
     var tuple = pack.getUserData(CachesUtil.PACKAGE_OBJECT_KEY)

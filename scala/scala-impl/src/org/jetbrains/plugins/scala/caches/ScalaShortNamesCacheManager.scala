@@ -9,7 +9,7 @@ import com.intellij.psi.stubs.{StubIndex, StubIndexKey}
 import org.jetbrains.plugins.scala.extensions._
 import org.jetbrains.plugins.scala.lang.psi.api.ScalaFile
 import org.jetbrains.plugins.scala.lang.psi.api.statements.{ScFunction, ScValue, ScVariable}
-import org.jetbrains.plugins.scala.lang.psi.api.toplevel.typedef.ScTypeDefinition
+import org.jetbrains.plugins.scala.lang.psi.api.toplevel.typedef.{ScObject, ScTypeDefinition}
 import org.jetbrains.plugins.scala.lang.psi.impl.ScalaPsiManager
 import org.jetbrains.plugins.scala.lang.psi.light.PsiMethodWrapper
 import org.jetbrains.plugins.scala.lang.psi.stubs.index.ScalaIndexKeys
@@ -157,12 +157,12 @@ class ScalaShortNamesCacheManager(implicit project: Project) extends ProjectComp
   def getClassesByName(name: String, scope: GlobalSearchScope): Iterable[PsiClass] =
     SHORT_NAME_KEY.elements(name, scope, classOf[PsiClass])(project)
 
-  def findPackageObjectByName(fqn: String, scope: GlobalSearchScope): Option[ScTypeDefinition] =
+  def findPackageObjectByName(fqn: String, scope: GlobalSearchScope): Option[ScObject] =
     if (DumbService.getInstance(project).isDumb) None
     else packageObjectByName(classesIterator(fqn, scope, PACKAGE_OBJECT_KEY), fqn)
 
   private def packageObjectByName(iterator: Iterator[PsiClass],
-                                  fqn: String): Option[ScTypeDefinition] = {
+                                  fqn: String): Option[ScObject] = {
     while (iterator.hasNext) {
       val psiClass = iterator.next()
       psiClass.qualifiedName match {
@@ -176,8 +176,8 @@ class ScalaShortNamesCacheManager(implicit project: Project) extends ProjectComp
           } else qualifiedName
 
           psiClass match {
-            case typeDefinition: ScTypeDefinition if ScalaNamesUtil.equivalentFqn(fqn, newQualifiedName) =>
-              return Some(typeDefinition)
+            case scalaObject: ScObject if ScalaNamesUtil.equivalentFqn(fqn, newQualifiedName) =>
+              return Some(scalaObject)
             case _ =>
           }
       }
