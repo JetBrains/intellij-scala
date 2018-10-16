@@ -6,20 +6,23 @@ import com.intellij.lang.{ASTNode, Language}
 import com.intellij.lexer.Lexer
 import com.intellij.openapi.project.Project
 import com.intellij.psi.stubs.PsiFileStub
-import com.intellij.psi.tree.{ICompositeElementType, IElementType, IErrorCounterReparseableElementType, IStubFileElementType}
+import com.intellij.psi.tree._
 import com.intellij.psi.{PsiElement, PsiFile}
 import org.jetbrains.annotations.NotNull
 import org.jetbrains.plugins.scala.lang.lexer.{ScalaElementType, ScalaLexer, ScalaTokenTypes}
 import org.jetbrains.plugins.scala.lang.parser.ScalaPsiCreator.SelfPsiCreator
+import org.jetbrains.plugins.scala.lang.psi.api.expr.ScNewTemplateDefinition
+import org.jetbrains.plugins.scala.lang.psi.api.statements._
+import org.jetbrains.plugins.scala.lang.psi.api.toplevel.typedef.{ScClass, ScObject, ScTrait}
+import org.jetbrains.plugins.scala.lang.psi.impl.base._
 import org.jetbrains.plugins.scala.lang.psi.impl.base.patterns._
 import org.jetbrains.plugins.scala.lang.psi.impl.base.types._
-import org.jetbrains.plugins.scala.lang.psi.impl.base.{ScConstructorImpl, ScInterpolatedStringLiteralImpl, ScLiteralImpl, ScStableCodeReferenceElementImpl}
 import org.jetbrains.plugins.scala.lang.psi.impl.expr._
 import org.jetbrains.plugins.scala.lang.psi.impl.expr.xml._
 import org.jetbrains.plugins.scala.lang.psi.impl.statements.params.ScParameterTypeImpl
 import org.jetbrains.plugins.scala.lang.psi.impl.toplevel.templates.ScRequiresBlockImpl
 import org.jetbrains.plugins.scala.lang.psi.stubs.elements._
-import org.jetbrains.plugins.scala.lang.psi.stubs.elements.signatures.{ScClassParameterElementType, ScParamClauseElementType, ScParamClausesElementType, ScParameterElementType}
+import org.jetbrains.plugins.scala.lang.psi.stubs.elements.signatures._
 
 /**
   * User: Dmitry.Krasilschikov
@@ -46,13 +49,13 @@ object ScalaElementTypes {
   val IMPORT_SELECTORS = new ScImportSelectorsElementType
   val IMPORT_EXPR = new ScImportExprElementType
   val IMPORT_STMT = new ScImportStmtElementType
-  val VALUE_DECLARATION = new ScValueDeclarationElementType
-  val VARIABLE_DECLARATION = new ScVariableDeclarationElementType
+  val VALUE_DECLARATION: ScPropertyElementType[ScValueDeclaration] = ValueDeclaration
+  val PATTERN_DEFINITION: ScPropertyElementType[ScPatternDefinition] = ValueDefinition
+  val VARIABLE_DECLARATION: ScPropertyElementType[ScVariableDeclaration] = VariableDeclaration
+  val VARIABLE_DEFINITION: ScPropertyElementType[ScVariableDefinition] = VariableDefinition
   val FUNCTION_DECLARATION = new ScFunctionDeclarationElementType
   val TYPE_DECLARATION = new ScTypeAliasDeclarationElementType
-  val PATTERN_DEFINITION = new ScValueDefinitionElementType
   val PATTERN_LIST = new ScPatternListElementType
-  val VARIABLE_DEFINITION = new ScVariableDefinitionElementType
   val TYPE_DEFINITION = new ScTypeAliasDefinitionElementType
   val EARLY_DEFINITIONS = new ScEarlyDefinitionsElementType
   val FUNCTION_DEFINITION = new ScFunctionDefinitionElementType
@@ -67,7 +70,6 @@ object ScalaElementTypes {
   val EXTENDS_BLOCK = new ScExtendsBlockElementType
   val TEMPLATE_PARENTS = new ScTemplateParentsElementType
   val TEMPLATE_BODY = new ScTemplateBodyElementType
-  val NEW_TEMPLATE = new ScNewTemplateDefinitionStubElementType
   val PARAM = new ScParameterElementType
   val PARAM_CLAUSE = new ScParamClauseElementType
   val PARAM_CLAUSES = new ScParamClausesElementType
@@ -81,9 +83,10 @@ object ScalaElementTypes {
   val FILE: IStubFileElementType[_ <: PsiFileStub[_ <: PsiFile]] =
     new ScStubFileElementType
 
-  val CLASS_DEFINITION = new ScClassDefinitionElementType
-  val OBJECT_DEFINITION = new ScObjectDefinitionElementType
-  val TRAIT_DEFINITION = new ScTraitDefinitionElementType
+  val CLASS_DEFINITION: ScTemplateDefinitionElementType[ScClass] = ClassDefinition
+  val TRAIT_DEFINITION: ScTemplateDefinitionElementType[ScTrait] = TraitDefinition
+  val OBJECT_DEFINITION: ScTemplateDefinitionElementType[ScObject] = ObjectDefinition
+  val NEW_TEMPLATE: ScTemplateDefinitionElementType[ScNewTemplateDefinition] = NewTemplateDefinition
 
   val CONSTRUCTOR = new ScalaElementType("constructor", true) with SelfPsiCreator {
     override def createElement(node: ASTNode): PsiElement = new ScConstructorImpl(node)

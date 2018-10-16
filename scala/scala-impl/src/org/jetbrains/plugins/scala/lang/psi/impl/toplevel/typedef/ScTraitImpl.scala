@@ -8,28 +8,26 @@ package typedef
 import com.intellij.lang.ASTNode
 import com.intellij.psi.{PsiClass, PsiElementVisitor}
 import org.jetbrains.plugins.scala.extensions._
-import org.jetbrains.plugins.scala.lang.parser.ScalaElementTypes
 import org.jetbrains.plugins.scala.lang.psi.api.ScalaElementVisitor
 import org.jetbrains.plugins.scala.lang.psi.api.toplevel.ScTypeParametersOwner
 import org.jetbrains.plugins.scala.lang.psi.api.toplevel.typedef._
 import org.jetbrains.plugins.scala.lang.psi.impl.toplevel.typedef.TypeDefinitionMembers.SignatureNodes
 import org.jetbrains.plugins.scala.lang.psi.stubs.ScTemplateDefinitionStub
+import org.jetbrains.plugins.scala.lang.psi.stubs.elements.ScTemplateDefinitionElementType
 import org.jetbrains.plugins.scala.lang.psi.types.PhysicalSignature
 import org.jetbrains.plugins.scala.lang.psi.types.recursiveUpdate.ScSubstitutor
 
-import scala.collection.mutable.ArrayBuffer
+import scala.collection.mutable
 
 /**
 * @author Alexander Podkhalyuzin
 * @since 20.02.2008
 */
-class ScTraitImpl private (stub: ScTemplateDefinitionStub, node: ASTNode)
-  extends ScTypeDefinitionImpl(stub, ScalaElementTypes.TRAIT_DEFINITION, node) with ScTrait
-    with ScTypeParametersOwner with ScTemplateDefinition {
-
-  def this(node: ASTNode) = this(null, node)
-
-  def this(stub: ScTemplateDefinitionStub) = this(stub, null)
+final class ScTraitImpl private[psi](stub: ScTemplateDefinitionStub,
+                                     nodeType: ScTemplateDefinitionElementType[ScTrait],
+                                     node: ASTNode)
+  extends ScTypeDefinitionImpl(stub, nodeType, node)
+    with ScTrait with ScTypeParametersOwner with ScTemplateDefinition {
 
   //do not add fakeCompanionModule => will build tree from stubs everywhere
   override def additionalJavaClass: Option[PsiClass] = Some(fakeCompanionClass)
@@ -77,7 +75,7 @@ class ScTraitImpl private (stub: ScTemplateDefinitionStub, node: ASTNode)
   }
 
   override def getAllMethods: Array[PsiMethod] = {
-    val res = new ArrayBuffer[PsiMethod]()
+    val res = mutable.ArrayBuffer.empty[PsiMethod]
     res ++= getConstructors
     TypeDefinitionMembers.SignatureNodes.forAllSignatureNodes(this) { node =>
       this.processPsiMethodsForNode(node, isStatic = false, isInterface = true)(res += _)

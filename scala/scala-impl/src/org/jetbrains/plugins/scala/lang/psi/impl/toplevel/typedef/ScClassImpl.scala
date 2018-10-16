@@ -11,7 +11,7 @@ import com.intellij.openapi.project.DumbService
 import com.intellij.psi._
 import com.intellij.psi.util.PsiTreeUtil
 import org.jetbrains.plugins.scala.extensions._
-import org.jetbrains.plugins.scala.lang.parser.ScalaElementTypes.{CLASS_DEFINITION, PRIMARY_CONSTRUCTOR}
+import org.jetbrains.plugins.scala.lang.parser.ScalaElementTypes
 import org.jetbrains.plugins.scala.lang.psi.api.ScalaElementVisitor
 import org.jetbrains.plugins.scala.lang.psi.api.base.ScPrimaryConstructor
 import org.jetbrains.plugins.scala.lang.psi.api.statements._
@@ -21,6 +21,7 @@ import org.jetbrains.plugins.scala.lang.psi.api.toplevel.{ScTypeParametersOwner,
 import org.jetbrains.plugins.scala.lang.psi.impl.toplevel.typedef.TypeDefinitionMembers.SignatureNodes
 import org.jetbrains.plugins.scala.lang.psi.light.LightUtil
 import org.jetbrains.plugins.scala.lang.psi.stubs.ScTemplateDefinitionStub
+import org.jetbrains.plugins.scala.lang.psi.stubs.elements.ScTemplateDefinitionElementType
 import org.jetbrains.plugins.scala.lang.psi.types.api.TypeParameterType
 import org.jetbrains.plugins.scala.lang.psi.types.recursiveUpdate.ScSubstitutor
 import org.jetbrains.plugins.scala.lang.psi.types.{PhysicalSignature, ScTypeExt}
@@ -33,16 +34,11 @@ import scala.collection.mutable.ArrayBuffer
 /**
   * @author Alexander.Podkhalyuzin
   */
-
-class ScClassImpl protected (stub: ScTemplateDefinitionStub, node: ASTNode)
-  extends ScTypeDefinitionImpl(stub, CLASS_DEFINITION, node) with ScClass
-    with ScTypeParametersOwner with ScTemplateDefinition {
-
-  def this(node: ASTNode) =
-    this(null, node)
-
-  def this(stub: ScTemplateDefinitionStub) =
-    this(stub, null)
+class ScClassImpl(stub: ScTemplateDefinitionStub,
+                  nodeType: ScTemplateDefinitionElementType[ScClass],
+                  node: ASTNode)
+  extends ScTypeDefinitionImpl(stub, nodeType, node)
+    with ScClass with ScTypeParametersOwner with ScTemplateDefinition {
 
   override def toString: String = "ScClass: " + ifReadAllowed(name)("")
 
@@ -59,7 +55,7 @@ class ScClassImpl protected (stub: ScTemplateDefinitionStub, node: ASTNode)
 
   override def constructor: Option[ScPrimaryConstructor] = desugaredElement match {
     case Some(templateDefinition: ScConstructorOwner) => templateDefinition.constructor
-    case _ => this.stubOrPsiChild(PRIMARY_CONSTRUCTOR)
+    case _ => this.stubOrPsiChild(ScalaElementTypes.PRIMARY_CONSTRUCTOR)
   }
 
   import com.intellij.psi.scope.PsiScopeProcessor

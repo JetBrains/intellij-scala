@@ -15,7 +15,6 @@ import com.intellij.psi.scope.PsiScopeProcessor
 import com.intellij.psi.util.PsiUtil
 import org.jetbrains.plugins.scala.extensions._
 import org.jetbrains.plugins.scala.lang.lexer.ScalaTokenTypes
-import org.jetbrains.plugins.scala.lang.parser.ScalaElementTypes
 import org.jetbrains.plugins.scala.lang.psi.ScalaPsiUtil.getCompanionModule
 import org.jetbrains.plugins.scala.lang.psi.api.ScalaElementVisitor
 import org.jetbrains.plugins.scala.lang.psi.api.statements.ScAnnotationsHolder
@@ -24,6 +23,7 @@ import org.jetbrains.plugins.scala.lang.psi.api.toplevel.typedef._
 import org.jetbrains.plugins.scala.lang.psi.impl.toplevel.typedef.TypeDefinitionMembers.SignatureNodes
 import org.jetbrains.plugins.scala.lang.psi.light.{EmptyPrivateConstructor, LightUtil, PsiClassWrapper}
 import org.jetbrains.plugins.scala.lang.psi.stubs.ScTemplateDefinitionStub
+import org.jetbrains.plugins.scala.lang.psi.stubs.elements.ScTemplateDefinitionElementType
 import org.jetbrains.plugins.scala.lang.psi.types.PhysicalSignature
 import org.jetbrains.plugins.scala.lang.psi.types.recursiveUpdate.ScSubstitutor
 import org.jetbrains.plugins.scala.lang.resolve.ResolveUtils
@@ -37,12 +37,11 @@ import scala.util.control.ControlThrowable
  * @author Alexander Podkhalyuzin
  * Date: 20.02.2008
  */
-class ScObjectImpl protected (stub: ScTemplateDefinitionStub, node: ASTNode)
-  extends ScTypeDefinitionImpl(stub, ScalaElementTypes.OBJECT_DEFINITION, node) with ScObject with ScTemplateDefinition {
-
-  def this(node: ASTNode) = this(null, node)
-
-  def this(stub: ScTemplateDefinitionStub) = this(stub, null)
+class ScObjectImpl(stub: ScTemplateDefinitionStub,
+                   nodeType: ScTemplateDefinitionElementType[ScObject],
+                   node: ASTNode)
+  extends ScTypeDefinitionImpl(stub, nodeType, node)
+    with ScObject with ScTemplateDefinition {
 
   override def additionalJavaClass: Option[PsiClass] = fakeCompanionClass
 

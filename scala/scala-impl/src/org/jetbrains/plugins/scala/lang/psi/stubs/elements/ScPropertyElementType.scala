@@ -67,7 +67,7 @@ sealed abstract class ScPropertyElementType[P <: ScValueOrVariable](debugName: S
   protected def container(property: P): ScalaPsiElement
 }
 
-final class ScValueDeclarationElementType extends ScPropertyElementType[ScValueDeclaration]("value declaration") {
+object ValueDeclaration extends ScPropertyElementType[ScValueDeclaration]("value declaration") {
 
   override def createElement(node: ASTNode) =
     new ScValueDeclarationImpl(null, this, node)
@@ -79,7 +79,7 @@ final class ScValueDeclarationElementType extends ScPropertyElementType[ScValueD
     property.getIdList
 }
 
-final class ScValueDefinitionElementType extends ScPropertyElementType[ScPatternDefinition]("value definition") {
+object ValueDefinition extends ScPropertyElementType[ScPatternDefinition]("value definition") {
 
   override def createElement(node: ASTNode) =
     new ScPatternDefinitionImpl(null, this, node)
@@ -94,7 +94,7 @@ final class ScValueDefinitionElementType extends ScPropertyElementType[ScPattern
     property.pList
 }
 
-final class ScVariableDeclarationElementType extends ScPropertyElementType[ScVariableDeclaration]("variable declaration") {
+object VariableDeclaration extends ScPropertyElementType[ScVariableDeclaration]("variable declaration") {
 
   override def createElement(node: ASTNode) =
     new ScVariableDeclarationImpl(null, this, node)
@@ -106,7 +106,7 @@ final class ScVariableDeclarationElementType extends ScPropertyElementType[ScVar
     property.getIdList
 }
 
-final class ScVariableDefinitionElementType extends ScPropertyElementType[ScVariableDefinition]("variable definition") {
+object VariableDefinition extends ScPropertyElementType[ScVariableDefinition]("variable definition") {
 
   override def createElement(node: ASTNode) =
     new ScVariableDefinitionImpl(null, this, node)

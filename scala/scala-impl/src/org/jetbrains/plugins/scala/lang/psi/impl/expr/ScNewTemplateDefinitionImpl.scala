@@ -12,7 +12,6 @@ import com.intellij.util.IncorrectOperationException
 import javax.swing.Icon
 import org.jetbrains.plugins.scala.extensions._
 import org.jetbrains.plugins.scala.icons.Icons
-import org.jetbrains.plugins.scala.lang.parser.ScalaElementTypes
 import org.jetbrains.plugins.scala.lang.psi.api.ScalaElementVisitor
 import org.jetbrains.plugins.scala.lang.psi.api.base.{ScConstructor, ScPrimaryConstructor}
 import org.jetbrains.plugins.scala.lang.psi.api.expr._
@@ -23,25 +22,24 @@ import org.jetbrains.plugins.scala.lang.psi.impl.ScalaPsiElementFactory.createEx
 import org.jetbrains.plugins.scala.lang.psi.impl.toplevel.PsiClassFake
 import org.jetbrains.plugins.scala.lang.psi.impl.toplevel.typedef.TypeDefinitionMembers
 import org.jetbrains.plugins.scala.lang.psi.stubs.ScTemplateDefinitionStub
+import org.jetbrains.plugins.scala.lang.psi.stubs.elements.ScTemplateDefinitionElementType
 import org.jetbrains.plugins.scala.lang.psi.types._
 import org.jetbrains.plugins.scala.lang.psi.types.api.AnyRef
 import org.jetbrains.plugins.scala.lang.psi.types.api.designator.ScDesignatorType
 import org.jetbrains.plugins.scala.lang.psi.types.result._
 import org.jetbrains.plugins.scala.macroAnnotations.{CachedInUserData, ModCount}
 
-import scala.collection.mutable.ArrayBuffer
+import scala.collection.mutable
 
 /**
 * @author Alexander Podkhalyuzin
 * Date: 06.03.2008
 */
-
-class ScNewTemplateDefinitionImpl private (stub: ScTemplateDefinitionStub, node: ASTNode)
-  extends ScalaStubBasedElementImpl(stub, ScalaElementTypes.NEW_TEMPLATE, node) with ScNewTemplateDefinition with PsiClassFake {
-
-  def this(node: ASTNode) = this(null, node)
-
-  def this(stub: ScTemplateDefinitionStub) = this(stub, null)
+final class ScNewTemplateDefinitionImpl private[psi](stub: ScTemplateDefinitionStub,
+                                                     nodeType: ScTemplateDefinitionElementType[ScNewTemplateDefinition],
+                                                     node: ASTNode)
+  extends ScalaStubBasedElementImpl(stub, nodeType, node)
+    with ScNewTemplateDefinition with PsiClassFake {
 
   override def toString: String = "NewTemplateDefinition"
 
@@ -228,7 +226,7 @@ class ScNewTemplateDefinitionImpl private (stub: ScTemplateDefinitionStub, node:
   }
 
   override def getAllMethods: Array[PsiMethod] = {
-    val res = new ArrayBuffer[PsiMethod]()
+    val res = mutable.ArrayBuffer.empty[PsiMethod]
     TypeDefinitionMembers.SignatureNodes.forAllSignatureNodes(this) { node =>
       this.processPsiMethodsForNode(node, isStatic = false, isInterface = false)(res += _)
     }

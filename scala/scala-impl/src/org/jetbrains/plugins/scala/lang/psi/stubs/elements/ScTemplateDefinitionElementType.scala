@@ -4,14 +4,17 @@ package psi
 package stubs
 package elements
 
+import com.intellij.lang.ASTNode
 import com.intellij.psi.impl.java.stubs.index.JavaStubIndexKeys
 import com.intellij.psi.stubs.{IndexSink, StubElement, StubInputStream, StubOutputStream}
 import com.intellij.psi.util.PsiTreeUtil
 import com.intellij.psi.{PsiClass, PsiElement}
 import com.intellij.util.io.StringRef
 import org.jetbrains.plugins.scala.extensions._
-import org.jetbrains.plugins.scala.lang.psi.api.expr.ScAnnotation
-import org.jetbrains.plugins.scala.lang.psi.api.toplevel.typedef.{ScClass, ScObject, ScTemplateDefinition, ScTypeDefinition}
+import org.jetbrains.plugins.scala.lang.psi.api.expr.{ScAnnotation, ScNewTemplateDefinition}
+import org.jetbrains.plugins.scala.lang.psi.api.toplevel.typedef._
+import org.jetbrains.plugins.scala.lang.psi.impl.expr.ScNewTemplateDefinitionImpl
+import org.jetbrains.plugins.scala.lang.psi.impl.toplevel.typedef.{ScClassImpl, ScObjectImpl, ScTraitImpl}
 import org.jetbrains.plugins.scala.lang.psi.stubs.impl.ScTemplateDefinitionStubImpl
 import org.jetbrains.plugins.scala.lang.psi.stubs.index.ScalaIndexKeys
 import org.jetbrains.plugins.scala.lang.refactoring.util.ScalaNamesUtil
@@ -156,4 +159,32 @@ abstract class ScTemplateDefinitionElementType[TypeDef <: ScTemplateDefinition](
       sink.occurrence[PsiClass, String](ScalaIndexKeys.PACKAGE_OBJECT_SHORT_NAME_KEY, shortName)
     }
   }
+}
+
+object ClassDefinition extends ScTemplateDefinitionElementType[ScClass]("class definition") {
+
+  override def createElement(node: ASTNode) = new ScClassImpl(null, this, node)
+
+  override def createPsi(stub: ScTemplateDefinitionStub) = new ScClassImpl(stub, this, null)
+}
+
+object TraitDefinition extends ScTemplateDefinitionElementType[ScTrait]("trait definition") {
+
+  override def createElement(node: ASTNode) = new ScTraitImpl(null, this, node)
+
+  override def createPsi(stub: ScTemplateDefinitionStub) = new ScTraitImpl(stub, this, null)
+}
+
+object ObjectDefinition extends ScTemplateDefinitionElementType[ScObject]("object definition") {
+
+  override def createElement(node: ASTNode) = new ScObjectImpl(null, this, node)
+
+  override def createPsi(stub: ScTemplateDefinitionStub) = new ScObjectImpl(stub, this, null)
+}
+
+object NewTemplateDefinition extends ScTemplateDefinitionElementType[ScNewTemplateDefinition]("new template definition") {
+
+  override def createElement(node: ASTNode) = new ScNewTemplateDefinitionImpl(null, this, node)
+
+  override def createPsi(stub: ScTemplateDefinitionStub) = new ScNewTemplateDefinitionImpl(stub, this, null)
 }

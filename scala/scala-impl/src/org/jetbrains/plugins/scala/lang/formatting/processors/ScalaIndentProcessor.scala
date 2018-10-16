@@ -201,9 +201,7 @@ object ScalaIndentProcessor extends ScalaTokenTypes {
         if (child.getElementType == ScalaTokenTypes.kYIELD) Indent.getNormalIndent
         else valIndent
       case _ if node.getElementType == ScalaTokenTypes.kVAL || node.getElementType == ScalaTokenTypes.kVAR ||
-        Option(node.getTreeParent).exists(p =>
-          Set[IElementType](PATTERN_DEFINITION, VALUE_DECLARATION, VARIABLE_DEFINITION, VARIABLE_DECLARATION).
-            contains(p.getElementType)) && node.getElementType == MODIFIERS => valIndent
+        Option(node.getTreeParent).map(_.getElementType).exists(TokenSets.PROPERTIES.contains) && node.getElementType == MODIFIERS => valIndent
       case _: ScCaseClause =>
         child.getElementType match {
           case ScalaTokenTypes.kCASE | ScalaTokenTypes.tFUNTYPE => Indent.getNoneIndent
