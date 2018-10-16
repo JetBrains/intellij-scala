@@ -1,36 +1,71 @@
 package org.jetbrains.plugins.scala.codeInsight.implicits.presentation
-
 import java.awt.event.MouseEvent
 import java.awt.{Color, Font}
 
+import com.intellij.openapi.editor.colors.EditorFontType
+import com.intellij.openapi.editor.impl.EditorImpl
 import com.intellij.openapi.editor.markup.TextAttributes
 
-trait PresentationFactory {
-  def empty: Presentation = space(0)
+class PresentationFactory(editor: EditorImpl) {
+  private def ascent = editor.getAscent
 
-  def space(width: Int): Presentation
+  private def descent = editor.getDescent
 
-  def text(text: String, font: Font): Presentation
+  private def lineHeight = editor.getLineHeight
 
-  def sequence(presentations: Presentation*): Presentation
+  private def charHeight = editor.getCharHeight
 
-  def attributes(attributes: TextAttributes, presentation: Presentation): Presentation
+  private def fontMetrics(font: Font) = component.getFontMetrics(font)
 
-  def effects(font: Font, presentation: Presentation): Presentation
+  private def component = editor.getContentComponent
 
-  def background(color: Color, presentation: Presentation): Presentation
+  private def font = editor.getColorsScheme.getFont(EditorFontType.PLAIN)
 
-  def rounding(arcWidth: Int, arcHeight: Int, presentation: Presentation): Presentation
+  val empty: Presentation = space(0)
 
-  def insets(left: Int, right: Int, presentation: Presentation): Presentation
+  def space(width: Int): Presentation =
+    new Space(width, editor.getLineHeight)
 
-  def expansion(expanded: => Presentation, presentation: Presentation): Presentation
+  def text(text: String, font: Font): Presentation =
+    new Background(
+      new Effect(
+        new Text(fontMetrics(font).stringWidth(text), lineHeight, text, font, None, ascent),
+        font, lineHeight, ascent, descent),
+      None)
 
-  def navigation(decorator: Presentation => Presentation, onHover: Option[MouseEvent] => Unit, onClick: MouseEvent => Unit, presentation: Presentation): Presentation
+  def sequence(presentations: Presentation*): Presentation =
+    new Sequence(lineHeight, presentations: _*)
 
-  def synchronous(decorator: Presentation => Presentation, presentation1: Presentation, presentation2: Presentation): (Presentation, Presentation)
+  def attributes(attributes: TextAttributes, presentation: Presentation): Presentation =
+    new Attributes(presentation, attributes)
 
-  def onHover(handler: Option[MouseEvent] => Unit, presentation: Presentation): Presentation
+  def effects(font: Font, presentation: Presentation): Presentation =
+    new Effect(presentation, font, lineHeight, ascent, descent)
 
-  def onRightClick(handler: MouseEvent => Unit, presentation: Presentation): Presentation
+  def background(color: Color, presentation: Presentation): Presentation =
+    new Background(presentation, Some(color))
+
+  def rounding(arcWidth: Int, arcHeight: Int, presentation: Presentation): Presentation =
+    new Rounding(presentation, arcWidth, arcHeight)
+
+  def insets(left: Int, right: Int, presentation: Presentation): Presentation =
+    new Sequence(lineHeight, new Space(left, lineHeight), presentation, new Space(right, lineHeight))
+
+  def expansion(expanded: => Presentation, presentation: Presentation): Presentation =
+    new Expansion(presentation, expanded)
+
+  def navigation(decorator: Presentation => Presentation, onHover: Option[MouseEvent] => Unit, onClick: MouseEvent => Unit, presentation: Presentation): Presentation =
+    new Target(presentation, decorator(presentation), cursor => component.setCursor(cursor), onHover, onClick)
+
+  def synchronous(decorator: Presentation => Presentation, presentation1: Presentation, presentation2: Presentation): (Presentation, Presentation) = {
+    val Seq(result1, result2) = SynchronousDecorator(decorator, presentation1, presentation2)
+    (result1, result2)
+  }
+
+  def onHover(handler: Option[MouseEvent] => Unit, presentation: Presentation): Presentation = {
+    new OnHover(presentation, handler)
+  }
+
+  def onRightClick(handler: MouseEvent => Unit, presentation: Presentation): Presentation =
+    new OnRightClick(presentation, handler)
 }
