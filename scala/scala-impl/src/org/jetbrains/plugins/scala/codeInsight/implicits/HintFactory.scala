@@ -213,8 +213,9 @@ private class HintFactory(editor: EditorImpl) {
         namedBasicPresentation(argument)
 
       case ImplicitParameterNotFoundResult =>
-        sequence(namedBasicPresentation(argument) +: text("(", font) +: // TODO
-          argument.implicitParameters.map(parameter => presentationOf(parameter)).intersperse(text(", ", font)) :+ text(")", font): _*)
+        val (leftParen, rightParen) = parentheses
+        sequence(namedBasicPresentation(argument) +: leftParen +:
+          argument.implicitParameters.map(parameter => presentationOf(parameter)).intersperse(text(", ", font)) :+ rightParen: _*)
 
       case DivergedImplicitResult =>
         attributes(errorAttributes, namedBasicPresentation(argument))

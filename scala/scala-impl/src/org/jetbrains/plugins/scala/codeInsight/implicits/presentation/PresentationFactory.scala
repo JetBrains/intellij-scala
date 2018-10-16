@@ -68,7 +68,7 @@ class PresentationFactory(editor: EditorImpl) {
 
     val forwarding = new DynamicForwarding(inner)
 
-    new OnHover(forwarding, e => SystemInfo.isMac && e.isMetaDown || e.isControlDown, e => {
+    new OnHover(forwarding, isControlDown, e => {
       val cursor = if (e.isDefined) Cursor.HAND_CURSOR else Cursor.DEFAULT_CURSOR
       component.setCursor(Cursor.getPredefinedCursor(cursor))
 
@@ -78,9 +78,22 @@ class PresentationFactory(editor: EditorImpl) {
     })
   }
 
+  private def isControlDown(e: MouseEvent): Boolean =
+    SystemInfo.isMac && e.isMetaDown || e.isControlDown
+
   def synchronous(decorator: Presentation => Presentation, presentation1: Presentation, presentation2: Presentation): (Presentation, Presentation) = {
-    val Seq(result1, result2) = SynchronousDecorator(decorator, presentation1, presentation2)
-    (result1, result2)
+    val result = synchronous0(decorator, presentation1, presentation2)
+    (result(0), result(1))
+  }
+
+  private def synchronous0(decorator: Presentation => Presentation, presentations: Presentation*): Seq[Presentation] = {
+    val forwardings = presentations.map(new DynamicForwarding(_))
+
+    forwardings.map(it => new OnHover(it, isControlDown, e => {
+      forwardings.zip(presentations).foreach { case (forwarding, presentation) =>
+        forwarding.delegate = if (e.isDefined) decorator(presentation) else presentation
+      }
+    }))
   }
 
   def onHover(handler: Option[MouseEvent] => Unit, presentation: Presentation): Presentation = {
