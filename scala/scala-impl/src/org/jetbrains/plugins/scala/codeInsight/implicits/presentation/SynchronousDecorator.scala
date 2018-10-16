@@ -5,7 +5,7 @@ import java.awt.event.MouseEvent
 import com.intellij.openapi.util.SystemInfo
 
 private class SynchronousDecorator private (decorator: Presentation => Presentation, presentation: Presentation)
-  extends DynamicPresentation(presentation) with Hovering {
+  extends DynamicForwarding(presentation) with Hovering {
 
   private var others = Seq.empty[SynchronousDecorator]
 

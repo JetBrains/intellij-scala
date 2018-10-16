@@ -4,7 +4,7 @@ import java.awt.{Dimension, Graphics2D, Rectangle}
 
 import com.intellij.openapi.editor.markup.TextAttributes
 
-class DynamicPresentation(presentation: Presentation) extends Presentation {
+class DynamicForwarding(presentation: Presentation) extends Presentation {
   private var _delegate = presentation
 
   _delegate.addPresentationListener(Listener)

@@ -9,7 +9,7 @@ class Target(presentation0: Presentation,
              target: Presentation,
              setCursor: Cursor => Unit,
              onHover: Option[MouseEvent] => Unit,
-             onClick: MouseEvent => Unit) extends DynamicPresentation(presentation0) with Hovering {
+             onClick: MouseEvent => Unit) extends DynamicForwarding(presentation0) with Hovering {
 
   override protected def isHovering(e: MouseEvent): Boolean =
     SystemInfo.isMac && e.isMetaDown || e.isControlDown

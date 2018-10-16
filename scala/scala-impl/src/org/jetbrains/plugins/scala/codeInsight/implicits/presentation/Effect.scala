@@ -5,7 +5,7 @@ import java.awt.{Font, Graphics2D}
 import com.intellij.openapi.editor.markup.{EffectType, TextAttributes}
 import com.intellij.ui.paint.EffectPainter
 
-class Effect(presentation: Presentation, font: Font, lineHeight: Int, ascent: Int, descent: Int) extends DynamicPresentation(presentation) {
+class Effect(presentation: Presentation, font: Font, lineHeight: Int, ascent: Int, descent: Int) extends StaticForwarding(presentation) {
   override def paint(g: Graphics2D, attributes: TextAttributes): Unit = {
     presentation.paint(g, attributes)
 

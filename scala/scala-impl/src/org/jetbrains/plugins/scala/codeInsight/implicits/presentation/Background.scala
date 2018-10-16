@@ -4,7 +4,7 @@ import java.awt.{Color, Graphics2D}
 
 import com.intellij.openapi.editor.markup.TextAttributes
 
-class Background(presentation: Presentation, color: Option[Color]) extends DynamicPresentation(presentation)  {
+class Background(presentation: Presentation, color: Option[Color]) extends StaticForwarding(presentation)  {
   override def paint(g: Graphics2D, attributes: TextAttributes): Unit = {
     Option(attributes.getBackgroundColor).orElse(color).foreach { color =>
       g.setColor(color)

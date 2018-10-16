@@ -11,9 +11,9 @@ trait Listeners {
   def removePresentationListener(listener: PresentationListener): Unit =
     listeners = listeners.filterNot(_ == listener)
 
-  protected def fireContentChanged(area: Rectangle): Unit =
+  def fireContentChanged(area: Rectangle): Unit =
     listeners.foreach(_.contentChanged(area))
 
-  protected def fireSizeChanged(previous: Dimension, current: Dimension): Unit =
+  def fireSizeChanged(previous: Dimension, current: Dimension): Unit =
     listeners.foreach(_.sizeChanged(previous, current))
 }

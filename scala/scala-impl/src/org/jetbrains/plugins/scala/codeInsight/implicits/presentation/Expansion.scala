@@ -3,7 +3,7 @@ import java.awt.event.MouseEvent
 
 import javax.swing.SwingUtilities
 
-class Expansion(collapsed: Presentation, expanded: => Presentation) extends DynamicPresentation(collapsed) {
+class Expansion(collapsed: Presentation, expanded: => Presentation) extends DynamicForwarding(collapsed) {
   private lazy val expandedPresentation = expanded
 
   override def expand(level: Int): Unit = {
