@@ -37,8 +37,8 @@ class PresentationFactory(editor: EditorImpl) {
   def sequence(presentations: Presentation*): Presentation =
     new Sequence(lineHeight, presentations: _*)
 
-  def attributes(attributes: TextAttributes, presentation: Presentation): Presentation =
-    new Attributes(presentation, attributes)
+  def attributes(transform: TextAttributes => TextAttributes, presentation: Presentation): Presentation =
+    new Attributes(presentation, transform)
 
   def effects(font: Font, presentation: Presentation): Presentation =
     new Effect(presentation, font, lineHeight, ascent, descent)
