@@ -34,45 +34,50 @@ final class BspBuildLoop(project: Project) extends ProjectComponent {
   private val fileIndex = ProjectRootManager.getInstance(project).getFileIndex
   private val taskManager = ProjectTaskManager.getInstance(project)
 
-  private val failedModules = scala.collection.mutable.HashSet[Module]()
-
   busConnection.subscribe(VirtualFileManager.VFS_CHANGES, FileChangeListener)
 
   private final object FileChangeListener extends FileChangeListenerBase {
-    // We cannot tell if it's relevant yet at this stage
+
+    private val modulesToCompile = scala.collection.mutable.HashSet[Module]()
+    private var changesSinceCompile = false
+
     override def isRelevant(path: String): Boolean = true
-    override def apply(): Unit = ()
-    override def updateFile(file: VirtualFile, event: VFileEvent): Unit = ()
-    override def deleteFile(file: VirtualFile, event: VFileEvent): Unit = ()
 
-    override def after(fileEvents: util.List[_ <: VFileEvent]): Unit = {
-
-      val eventModules = for {
-        event <- fileEvents.asScala
-        file  <- Option(event.getFile)
-        if isSupported(file.getFileType)
-        module <- Option(fileIndex.getModuleForFile(file))
-      } yield module
-
-      val changedModules = eventModules.distinct
-      val modulesToCompile = (changedModules ++ failedModules).toArray
-
+    override def apply(): Unit = if (changesSinceCompile && modulesToCompile.nonEmpty) {
       for {
         settings <- bspSettings
         if settings.buildOnSave
       } yield {
-        // and let compile server handle rebuilding or not
-        taskManager.build(modulesToCompile,
+        changesSinceCompile = false
+        taskManager.build(modulesToCompile.toArray,
           new ProjectTaskNotification {
             override def finished(projectTaskResult: ProjectTaskResult): Unit = {
               if (projectTaskResult.isAborted || projectTaskResult.getErrors > 0) {
-                failedModules.++=(modulesToCompile)
+                // modules stay queued for recompile on next try
+                // TODO only re-queue failed modules? requires information to be available in ProjectTaskResult
               } else {
-                failedModules.clear()
+                modulesToCompile.clear()
               }
             }
           })
       }
+    }
+    override def updateFile(file: VirtualFile, event: VFileEvent): Unit =
+      fileChanged(file, event)
+    override def deleteFile(file: VirtualFile, event: VFileEvent): Unit =
+      fileChanged(file, event)
+
+    private def fileChanged(file: VirtualFile, event: VFileEvent) =
+      if (isSupported(file.getFileType)) {
+        changesSinceCompile = true
+        val module = fileIndex.getModuleForFile(file)
+        modulesToCompile.add(module)
+      }
+
+    // TODO should allow all bsp-compiled types
+    private def isSupported(path: String) = {
+      path.endsWith(".java") ||
+      path.endsWith(".scala")
     }
 
 
