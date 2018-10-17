@@ -43,7 +43,7 @@ private class HintFactory(editor: EditorImpl) {
     Seq(Hint(presentationOf(arguments), e, suffix = true, menu = Some(menu.ImplicitArguments)))
 
   def explicitImplicitArgumentsHint(args: ScArgumentExprList): Seq[Hint] =
-    Seq(Hint(text(".explicitly", font), args, suffix = false, menu = Some(menu.ExplicitArguments)))
+    Seq(Hint(text(".explicitly"), args, suffix = false, menu = Some(menu.ExplicitArguments)))
 
   private def presentationOf(arguments: Seq[ScalaResolveResult]): Presentation = {
     if (!ImplicitHints.enabled)
@@ -58,7 +58,7 @@ private class HintFactory(editor: EditorImpl) {
       val problems = arguments.filter(_.isImplicitParameterProblem)
       val textAttributes = if (problems.nonEmpty) foldedAttributes + errorAttributes else foldedAttributes
       val folding = expansion(expandedPresentationOf(arguments, parentheses = false),
-        attributes(_ + textAttributes, text(Ellipsis, font)))
+        attributes(_ + textAttributes, text(Ellipsis)))
 
       inParentheses(folding.withErrorTooltipIfEmpty(notFoundTooltip(problems)))
     }
@@ -66,7 +66,7 @@ private class HintFactory(editor: EditorImpl) {
   private def expandedPresentationOf(arguments: Seq[ScalaResolveResult], parentheses: Boolean): Presentation =
     if (arguments.isEmpty) empty
     else {
-      val presentation = sequence(arguments.map(it => presentationOf(it)).intersperse(text(", ", font)): _*)
+      val presentation = sequence(arguments.map(it => presentationOf(it)).intersperse(text(", ")): _*)
       if (parentheses) inParentheses(presentation) else presentation
     }
 
@@ -79,7 +79,7 @@ private class HintFactory(editor: EditorImpl) {
     val delegate = result.element.asOptionOf[ScFunction].flatMap(_.getSyntheticNavigationElement).getOrElse(result.element)
     val tooltip = ScalaDocumentationProvider.getQuickNavigateInfo(delegate, result.substitutor)
     val tooltipHander = tooltipHandler(tooltip)
-    navigation(asHyperlink, tooltipHander, _ => navigateTo(delegate), text(result.name, font))
+    navigation(asHyperlink, tooltipHander, _ => navigateTo(delegate), text(result.name))
   }
 
   private def asHyperlink(presentation: Presentation): Presentation = {
@@ -165,8 +165,8 @@ private class HintFactory(editor: EditorImpl) {
   }
 
   private def noApplicableExpandedPresentation(parameter: ScalaResolveResult): Presentation = {
-    val qMarkText = navigation(identity, _ => (), _ => navigateTo(parameter.element), attributes(_ + likeWrongReference, text("?", font)))
-    val paramTypeSuffix = text(typeAnnotation(parameter), font)
+    val qMarkText = navigation(identity, _ => (), _ => navigateTo(parameter.element), attributes(_ + likeWrongReference, text("?")))
+    val paramTypeSuffix = text(typeAnnotation(parameter))
 
     sequence(qMarkText, paramTypeSuffix)
       .withErrorTooltipIfEmpty(notFoundTooltip(parameter))
@@ -178,12 +178,12 @@ private class HintFactory(editor: EditorImpl) {
       else notFoundTooltip(parameter)
 
     val ellipsis = {
-      val result = text(Ellipsis, font)
+      val result = text(Ellipsis)
       if (parameter.isImplicitParameterProblem) attributes(_ + errorAttributes, result) else result
     }
 
     val presentationString =
-      if (!ImplicitHints.enabled) ellipsis else sequence(ellipsis, text(typeAnnotation(parameter), font))
+      if (!ImplicitHints.enabled) ellipsis else sequence(ellipsis, text(typeAnnotation(parameter)))
 
     // navigation?
     expansion(expandedProblemPresentation(parameter, probableArgs),
@@ -198,12 +198,8 @@ private class HintFactory(editor: EditorImpl) {
   }
 
   private def expandedAmbiguousPresentation(parameter: ScalaResolveResult, arguments: Seq[(ScalaResolveResult, FullInfoResult)]): Presentation = {
-
-    val separator = attributes(_ + likeWrongReference, text(" | ", font))
-
-    sequence(arguments
-      .map { case (argument, result) => presentationOfProbable(argument, result) }
-      .intersperse(separator): _*)
+    sequence(arguments.map { case (argument, result) => presentationOfProbable(argument, result) }
+      .intersperse(attributes(_ + likeWrongReference, text(" | "))): _*)
       .withErrorTooltipIfEmpty(ambiguousTooltip(parameter))
   }
 
@@ -215,7 +211,7 @@ private class HintFactory(editor: EditorImpl) {
       case ImplicitParameterNotFoundResult =>
         val (leftParen, rightParen) = parentheses
         sequence(namedBasicPresentation(argument) +: leftParen +:
-          argument.implicitParameters.map(parameter => presentationOf(parameter)).intersperse(text(", ", font)) :+ rightParen: _*)
+          argument.implicitParameters.map(parameter => presentationOf(parameter)).intersperse(text(", ")) :+ rightParen: _*)
 
       case DivergedImplicitResult =>
         attributes(_ + errorAttributes, namedBasicPresentation(argument))
@@ -295,8 +291,10 @@ private class HintFactory(editor: EditorImpl) {
 
   def parentheses: (Presentation, Presentation) = {
     val asMatch = (it: Presentation) => attributes(_ + scheme.getAttributes(CodeInsightColors.MATCHED_BRACE_ATTRIBUTES), it)
-    synchronous(asMatch, text("(", font), text(")", font))
+    synchronous(asMatch, text("("), text(")"))
   }
+
+  def text(s: String): Presentation = factory.text(s, scheme.getFont)
 
   // remove
   private implicit class PresentationExt(val presentation: Presentation)  {

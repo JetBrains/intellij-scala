@@ -27,11 +27,10 @@ class PresentationFactory(editor: EditorImpl) {
   def space(width: Int): Presentation =
     new Space(width, editor.getLineHeight)
 
-  def text(text: String, font: Font): Presentation =
-    new Background(
-      new Effect(
-        new Text(fontMetrics(font).stringWidth(text), lineHeight, text, font, ascent),
-        font, lineHeight, ascent, descent))
+  def text(text: String, fontProvider: EditorFontType => Font): Presentation = {
+    val width = fontMetrics(font).stringWidth(text)
+    new Background(new Effect(new Text(width, lineHeight, text, ascent, fontProvider), font, lineHeight, ascent, descent))
+  }
 
   def sequence(presentations: Presentation*): Presentation =
     new Sequence(lineHeight, presentations: _*)
