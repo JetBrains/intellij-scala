@@ -1,6 +1,6 @@
 package org.jetbrains.bsp
 
-import java.util
+import java.util.concurrent.{ScheduledFuture, TimeUnit}
 
 import com.intellij.ide.highlighter.JavaFileType
 import com.intellij.openapi.components.ProjectComponent
@@ -12,11 +12,11 @@ import com.intellij.openapi.roots.ProjectRootManager
 import com.intellij.openapi.vfs.newvfs.events.VFileEvent
 import com.intellij.openapi.vfs.{VirtualFile, VirtualFileManager}
 import com.intellij.task.{ProjectTaskManager, ProjectTaskNotification, ProjectTaskResult}
+import com.intellij.util.concurrency.AppExecutorUtil
 import com.intellij.util.messages.MessageBusConnection
+import com.intellij.util.ui.UIUtil
 import org.jetbrains.bsp.settings.{BspProjectSettings, BspSettings}
 import org.jetbrains.plugins.scala.ScalaFileType
-
-import scala.collection.JavaConverters._
 
 /**
   * Builds bsp modules on file save. We should change this to support the bsp file change notifications
@@ -38,50 +38,74 @@ final class BspBuildLoop(project: Project) extends ProjectComponent {
 
   private final object FileChangeListener extends FileChangeListenerBase {
 
+    /** Nanoseconds to wait between checking stuff to compile */
+    private val checkDelay = 30 * 1000000
+
     private val modulesToCompile = scala.collection.mutable.HashSet[Module]()
     private var changesSinceCompile = false
+    private var lastChangeTimestamp: Long = 0
+
+
+    /** Delays compilation just a little bit so that it's less likely that multiple builds are triggered for one
+      * set of changes. */
+    private var scheduledCompile: ScheduledFuture[_] =
+      AppExecutorUtil.getAppScheduledExecutorService.schedule[Unit](()=>(),0,TimeUnit.NANOSECONDS)
+
+    private def checkCompile(): Unit = {
+      val now = System.nanoTime()
+      if ((now - lastChangeTimestamp) > checkDelay
+      ) {
+        scheduledCompile.cancel(false)
+        runCompile()
+      }
+    }
+
 
     override def isRelevant(path: String): Boolean = true
 
-    override def apply(): Unit = if (changesSinceCompile && modulesToCompile.nonEmpty) {
-      for {
-        settings <- bspSettings
-        if settings.buildOnSave
-      } yield {
-        changesSinceCompile = false
-        taskManager.build(modulesToCompile.toArray,
-          new ProjectTaskNotification {
-            override def finished(projectTaskResult: ProjectTaskResult): Unit = {
-              if (projectTaskResult.isAborted || projectTaskResult.getErrors > 0) {
-                // modules stay queued for recompile on next try
-                // TODO only re-queue failed modules? requires information to be available in ProjectTaskResult
-              } else {
-                modulesToCompile.clear()
-              }
-            }
-          })
-      }
+    override def apply(): Unit = if (
+      changesSinceCompile &&
+        modulesToCompile.nonEmpty &&
+        bspSettings.exists(_.buildOnSave) &&
+        (scheduledCompile.isCancelled || scheduledCompile.isDone)
+    ) {
+      scheduledCompile = AppExecutorUtil.getAppScheduledExecutorService
+        .scheduleWithFixedDelay(() => checkCompile(), checkDelay, checkDelay, TimeUnit.NANOSECONDS)
     }
+
     override def updateFile(file: VirtualFile, event: VFileEvent): Unit =
       fileChanged(file, event)
     override def deleteFile(file: VirtualFile, event: VFileEvent): Unit =
       fileChanged(file, event)
 
     private def fileChanged(file: VirtualFile, event: VFileEvent) =
-      if (isSupported(file.getFileType)) {
-        changesSinceCompile = true
-        val module = fileIndex.getModuleForFile(file)
-        modulesToCompile.add(module)
-      }
-
-    // TODO should allow all bsp-compiled types
-    private def isSupported(path: String) = {
-      path.endsWith(".java") ||
-      path.endsWith(".scala")
+    if (isSupported(file.getFileType)) {
+      changesSinceCompile = true
+      lastChangeTimestamp = System.nanoTime()
+      val module = fileIndex.getModuleForFile(file)
+      modulesToCompile.add(module)
     }
 
+    private def runCompile(): Unit = {
+      changesSinceCompile = false
 
-    // TODO should allow all bsp-compiled types
+      val notification = new ProjectTaskNotification {
+        override def finished(projectTaskResult: ProjectTaskResult): Unit = {
+          if (projectTaskResult.isAborted || projectTaskResult.getErrors > 0) {
+            // modules stay queued for recompile on next try
+            // TODO only re-queue failed modules? requires information to be available in ProjectTaskResult
+          } else {
+            modulesToCompile.clear()
+          }
+        }
+      }
+
+      UIUtil.invokeLaterIfNeeded { () =>
+        taskManager.build(modulesToCompile.toArray, notification)
+      }
+    }
+
+    // TODO should allow all bsp-compiled types, depending on build server compatibility
     private def isSupported(fileType: FileType) = fileType match {
       case _ : ScalaFileType => true
       case _ : JavaFileType => true
