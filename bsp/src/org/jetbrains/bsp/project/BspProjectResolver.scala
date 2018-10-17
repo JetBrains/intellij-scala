@@ -1,6 +1,7 @@
 package org.jetbrains.bsp.project
 
 import java.io.File
+import java.util.Collections
 
 import cats.data.EitherT
 import ch.epfl.scala.bsp._
@@ -107,7 +108,7 @@ class BspProjectResolver extends ExternalSystemProjectResolver[BspExecutionSetti
       moduleData.setInheritProjectCompileOutputPath(false)
 
       val scalaSdkLibrary = new LibraryData(BSP.ProjectSystemId, ScalaSdkData.LibraryName)
-      moduleDescription.scalaSdkData.scalacClasspath.foreach { path =>
+      moduleDescription.scalaSdkData.scalacClasspath.forEach { path =>
         scalaSdkLibrary.addPath(LibraryPathType.BINARY, path.getCanonicalPath)
       }
       val scalaSdkLibraryDependencyData = new LibraryDependencyData(moduleData, scalaSdkLibrary, LibraryLevel.MODULE)
@@ -134,7 +135,7 @@ class BspProjectResolver extends ExternalSystemProjectResolver[BspExecutionSetti
       libraryTestDependencyData.setScope(DependencyScope.TEST)
 
       val targetIds = moduleDescription.targets.map(_.id)
-      val metadata = BspMetadata(targetIds.toList)
+      val metadata = BspMetadata(targetIds.asJava)
 
       // data node wiring
       // TODO refactor and reuse sbt module wiring api
@@ -305,10 +306,10 @@ object BspProjectResolver {
       ScalaSdkData(
         target.scalaOrganization,
         Some(Version(target.scalaVersion)),
-        scalacClasspath = target.jars.map(_.toFile),
-        Nil,
+        scalacClasspath = target.jars.map(_.toFile).asJava,
+        Collections.emptyList(),
         None,
-        Nil
+        Collections.emptyList()
       )
     }
 

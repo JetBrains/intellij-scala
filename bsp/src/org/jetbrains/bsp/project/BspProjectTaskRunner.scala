@@ -56,7 +56,7 @@ class BspProjectTaskRunner extends ProjectTaskRunner {
         moduleDataNode <- Option(ES.find(projectStructure, ProjectKeys.MODULE, predicate))
         metadata <- Option(ES.find(moduleDataNode, BspMetadata.Key))
       } yield {
-        metadata.getData.targetIds.toList
+        metadata.getData.targetIds.asScala.toList
       }
 
       targetIds.getOrElse(List.empty)

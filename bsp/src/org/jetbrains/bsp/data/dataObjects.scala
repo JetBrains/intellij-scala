@@ -9,7 +9,7 @@ import org.jetbrains.bsp.BSP
 import org.jetbrains.bsp.data.BspEntityData._
 import org.jetbrains.plugins.scala.project.Version
 import org.jetbrains.plugins.scala.project.external.SdkReference
-
+import java.util
 
 abstract class BspEntityData extends AbstractExternalEntityData(BSP.ProjectSystemId) with Product {
 
@@ -33,14 +33,14 @@ object BspEntityData {
 }
 
 
-@SerialVersionUID(2)
+@SerialVersionUID(3)
 case class ScalaSdkData(
     scalaOrganization: String,
     scalaVersion: Option[Version],
-    scalacClasspath: List[File],
-    scalacOptions: List[String],
+    scalacClasspath: util.List[File],
+    scalacOptions: util.List[String],
     jdk: Option[SdkReference],
-    javacOptions: List[String]
+    javacOptions: util.List[String]
 ) extends BspEntityData
 
 object ScalaSdkData {
@@ -53,8 +53,8 @@ object ScalaSdkData {
   * Metadata to about bsp targets that have been mapped to IntelliJ modules.
   * @param targetIds target ids mapped to module
   */
-@SerialVersionUID(3)
-case class BspMetadata(targetIds: List[BuildTargetIdentifier])
+@SerialVersionUID(4)
+case class BspMetadata(targetIds: util.List[BuildTargetIdentifier])
 object BspMetadata {
   val Key: Key[BspMetadata] = datakey(classOf[BspMetadata])
 }

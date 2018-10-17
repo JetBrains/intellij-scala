@@ -16,6 +16,7 @@ import com.intellij.openapi.roots.libraries.Library
 import org.jetbrains.bsp.BSP
 import org.jetbrains.plugins.scala.project._
 import org.jetbrains.plugins.scala.project.external.{AbstractImporter, SdkReference, SdkUtils}
+import scala.collection.JavaConverters._
 
 
 class ScalaSdkService extends AbstractProjectDataService[ScalaSdkData, Library] {
@@ -49,12 +50,12 @@ object ScalaSdkService {
         module <- getIdeModuleByNode(dataNode)
       } {
         val data = dataNode.getData
-        module.configureScalaCompilerSettingsFrom("bsp", data.scalacOptions)
+        module.configureScalaCompilerSettingsFrom("bsp", data.scalacOptions.asScala)
         data.scalaVersion.foreach(
-          version => configureScalaSdk(module, data.scalaOrganization, version, data.scalacClasspath))
+          version => configureScalaSdk(module, data.scalaOrganization, version, data.scalacClasspath.asScala))
         configureOrInheritSdk(module, data.jdk)
-        configureLanguageLevel(module, data.javacOptions)
-        configureJavacOptions(module, data.javacOptions)
+        configureLanguageLevel(module, data.javacOptions.asScala)
+        configureJavacOptions(module, data.javacOptions.asScala)
       }
     }
 
