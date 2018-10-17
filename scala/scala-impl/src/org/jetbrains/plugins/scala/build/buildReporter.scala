@@ -82,7 +82,7 @@ class BuildToolWindowReporter(project: Project, taskId: UUID, title: String) ext
 
   override def start(): Unit = {
     val buildDescriptor = new DefaultBuildDescriptor(taskId, title, project.getBasePath, System.currentTimeMillis())
-    val startEvent = new StartBuildEventImpl(buildDescriptor, "queued ...")
+    val startEvent = new StartBuildEventImpl(buildDescriptor, "running ...")
       .withContentDescriptorSupplier { () => // dummy runContentDescriptor to set autofocus of build toolwindow off
         val descriptor = new RunContentDescriptor(null, null, new JComponent {}, title)
         descriptor.setActivateToolWindowWhenAdded(false)
