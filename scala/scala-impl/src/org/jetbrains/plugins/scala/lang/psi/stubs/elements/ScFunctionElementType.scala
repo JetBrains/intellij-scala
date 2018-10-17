@@ -9,7 +9,6 @@ import com.intellij.psi.stubs.{IndexSink, StubElement, StubInputStream, StubOutp
 import com.intellij.util.io.StringRef
 import org.jetbrains.plugins.scala.lang.psi.api.statements.{ScFunction, ScFunctionDeclaration, ScFunctionDefinition}
 import org.jetbrains.plugins.scala.lang.psi.stubs.impl.ScFunctionStubImpl
-import org.jetbrains.plugins.scala.lang.psi.stubs.index.ScalaIndexKeys.METHOD_NAME_KEY
 
 /**
   * User: Alexander Podkhalyuzin
@@ -79,9 +78,7 @@ abstract class ScFunctionElementType(debugName: String) extends ScStubElementTyp
   }
 
   override def indexStub(stub: ScFunctionStub, sink: IndexSink): Unit = {
-    this.indexStub(Array(stub.getName), sink, METHOD_NAME_KEY)
-    if (stub.isImplicit) {
-      this.indexImplicit(sink)
-    }
+    sink.occurrences(index.ScalaIndexKeys.METHOD_NAME_KEY, stub.getName)
+    if (stub.isImplicit) sink.implicitOccurence()
   }
 }

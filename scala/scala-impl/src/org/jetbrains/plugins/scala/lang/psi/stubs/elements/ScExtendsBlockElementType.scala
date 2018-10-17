@@ -11,7 +11,6 @@ import org.jetbrains.plugins.scala.lang.psi.api.base.types.{ScInfixTypeElement, 
 import org.jetbrains.plugins.scala.lang.psi.api.toplevel.templates.ScExtendsBlock
 import org.jetbrains.plugins.scala.lang.psi.impl.toplevel.templates.ScExtendsBlockImpl
 import org.jetbrains.plugins.scala.lang.psi.stubs.impl.ScExtendsBlockStubImpl
-import org.jetbrains.plugins.scala.lang.psi.stubs.index.ScalaIndexKeys.SUPER_CLASS_NAME_KEY
 
 import scala.annotation.tailrec
 import scala.collection.Seq
@@ -39,8 +38,9 @@ class ScExtendsBlockElementType extends ScStubElementType[ScExtendsBlockStub, Sc
     baseClassesRefs = ScExtendsBlockElementType.directSupersNames(block).asReferences
   )
 
-  override def indexStub(stub: ScExtendsBlockStub, sink: IndexSink): Unit =
-    this.indexStub(stub.baseClasses, sink, SUPER_CLASS_NAME_KEY)
+  override def indexStub(stub: ScExtendsBlockStub, sink: IndexSink): Unit = {
+    sink.occurrences(index.ScalaIndexKeys.SUPER_CLASS_NAME_KEY, stub.baseClasses: _*)
+  }
 
   override def createElement(node: ASTNode) = new ScExtendsBlockImpl(node)
 

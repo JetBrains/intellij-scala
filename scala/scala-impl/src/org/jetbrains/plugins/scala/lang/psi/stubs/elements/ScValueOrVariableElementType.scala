@@ -21,8 +21,9 @@ abstract class ScValueOrVariableElementType[S <: ScValueOrVariableStub[V], V <: 
     dataStream.writeBoolean(stub.isLocal)
   }
 
-  override def indexStub(stub: S, sink: IndexSink): Unit =
-    this.indexStub(stub.names, sink, key)
+  override def indexStub(stub: S, sink: IndexSink): Unit = {
+    sink.occurrences(key, stub.names: _*)
+  }
 
   protected final def isDeclaration(valueOrVariable: ScValueOrVariable): Boolean =
     valueOrVariable.isInstanceOf[ScVariableDeclaration]

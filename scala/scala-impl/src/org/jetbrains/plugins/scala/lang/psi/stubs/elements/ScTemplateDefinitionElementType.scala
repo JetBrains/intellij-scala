@@ -160,9 +160,7 @@ abstract class ScTemplateDefinitionElementType[TypeDef <: ScTemplateDefinition](
       if (stub.isImplicitObject) {
         sink.occurrence(ScalaIndexKeys.IMPLICIT_OBJECT_KEY, pack)
       }
-      if (stub.isImplicitClass) {
-        this.indexImplicit(sink)
-      }
+      if (stub.isImplicitClass) sink.implicitOccurence()
     }
     if (stub.isPackageObject) {
       val packageName = fqn.stripSuffix(".package")

@@ -10,7 +10,6 @@ import com.intellij.util.io.StringRef.fromString
 import org.jetbrains.plugins.scala.lang.psi.api.statements.{ScTypeAlias, ScTypeAliasDeclaration, ScTypeAliasDefinition}
 import org.jetbrains.plugins.scala.lang.psi.api.toplevel.typedef.ScObject
 import org.jetbrains.plugins.scala.lang.psi.stubs.impl.ScTypeAliasStubImpl
-import org.jetbrains.plugins.scala.lang.psi.stubs.index.ScalaIndexKeys.{STABLE_ALIAS_NAME_KEY, TYPE_ALIAS_NAME_KEY}
 
 /**
   * User: Alexander Podkhalyuzin
@@ -82,10 +81,8 @@ abstract class ScTypeAliasElementType[Func <: ScTypeAlias](debugName: String)
   }
 
   override def indexStub(stub: ScTypeAliasStub, sink: IndexSink): Unit = {
-    val names = Array(stub.getName)
-    this.indexStub(names, sink, TYPE_ALIAS_NAME_KEY)
-    if (stub.isStableQualifier) {
-      this.indexStub(names, sink, STABLE_ALIAS_NAME_KEY)
-    }
+    val name = stub.getName
+    sink.occurrence(index.ScalaIndexKeys.TYPE_ALIAS_NAME_KEY, name)
+    if (stub.isStableQualifier) sink.occurrence(index.ScalaIndexKeys.STABLE_ALIAS_NAME_KEY, name)
   }
 }

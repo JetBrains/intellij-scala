@@ -51,8 +51,6 @@ abstract class ScValueElementType[V <: ScValue](debugName: String)
 
   override def indexStub(stub: ScValueStub, sink: IndexSink): Unit = {
     super.indexStub(stub, sink)
-    if (stub.isImplicit) {
-      this.indexImplicit(sink)
-    }
+    if (stub.isImplicit) sink.implicitOccurence()
   }
 }

@@ -7,7 +7,7 @@ import com.intellij.psi.PsiElement
 import com.intellij.psi.stubs._
 import com.intellij.util.ArrayUtil
 import com.intellij.util.io.StringRef
-import org.jetbrains.plugins.scala.lang.refactoring.util.ScalaNamesUtil._
+import org.jetbrains.plugins.scala.lang.refactoring.util.ScalaNamesUtil
 
 /**
   * @author adkozlov
@@ -91,19 +91,18 @@ package object elements {
     }
   }
 
-  implicit class SerializerExt[S <: StubElement[T], T <: PsiElement](val serializer: ScStubElementType[S, T]) extends AnyVal {
-    def indexStub(names: Array[String], sink: IndexSink, key: StubIndexKey[String, _ <: T]): Unit =
-      names.filter {
-        _ != null
-      }.map {
-        cleanFqn
-      }.filter {
-        _.nonEmpty
-      }.foreach {
-        sink.occurrence(key, _)
-      }
+  implicit class IndexSinkExt(val sink: IndexSink) extends AnyVal {
 
-    def indexImplicit(sink: IndexSink): Unit =
+    def occurrences[T <: PsiElement](key: StubIndexKey[String, T],
+                                     names: String*): Unit = for {
+      name <- names
+      if name != null
+
+      cleanName = ScalaNamesUtil.cleanFqn(name)
+      if cleanName.nonEmpty
+    } sink.occurrence(key, cleanName)
+
+    def implicitOccurence(): Unit =
       sink.occurrence(index.ScalaIndexKeys.IMPLICITS_KEY, "implicit")
   }
 

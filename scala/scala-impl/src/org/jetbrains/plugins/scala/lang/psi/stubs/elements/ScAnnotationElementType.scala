@@ -11,7 +11,6 @@ import org.jetbrains.plugins.scala.lang.psi.api.base.types.{ScParenthesisedTypeE
 import org.jetbrains.plugins.scala.lang.psi.api.expr.ScAnnotation
 import org.jetbrains.plugins.scala.lang.psi.impl.expr.ScAnnotationImpl
 import org.jetbrains.plugins.scala.lang.psi.stubs.impl.ScAnnotationStubImpl
-import org.jetbrains.plugins.scala.lang.psi.stubs.index.ScalaIndexKeys.ANNOTATED_MEMBER_KEY
 
 /**
   * User: Alexander Podkhalyuzin
@@ -54,8 +53,9 @@ class ScAnnotationElementType extends ScStubElementType[ScAnnotationStub, ScAnno
       typeTextRef = maybeTypeText.asReference)
   }
 
-  override def indexStub(stub: ScAnnotationStub, sink: IndexSink): Unit =
-    this.indexStub(stub.name.toArray, sink, ANNOTATED_MEMBER_KEY)
+  override def indexStub(stub: ScAnnotationStub, sink: IndexSink): Unit = {
+    sink.occurrences(index.ScalaIndexKeys.ANNOTATED_MEMBER_KEY, stub.name.toSeq: _*)
+  }
 
   override def createElement(node: ASTNode): ScAnnotation = new ScAnnotationImpl(node)
 
