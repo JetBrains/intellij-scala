@@ -14,12 +14,13 @@ import org.jetbrains.plugins.scala.lang.psi.impl.statements.params.ScClassParame
  * User: Alexander Podkhalyuzin
  * Date: 19.10.2008
  */
-class ScClassParameterElementType extends ScParamElementType[ScClassParameter]("class parameter") {
-  override def createPsi(stub: ScParameterStub): ScClassParameter = new ScClassParameterImpl(stub)
+final class ScClassParameterElementType extends ScParamElementType[ScClassParameter]("class parameter") {
 
-  override def createElement(node: ASTNode): ScClassParameter = new ScClassParameterImpl(node)
+  override def createPsi(stub: ScParameterStub) = new ScClassParameterImpl(stub)
+
+  override def createElement(node: ASTNode) = new ScClassParameterImpl(node)
 
   override def indexStub(stub: ScParameterStub, sink: IndexSink): Unit = {
-    sink.occurrence(index.ScalaIndexKeys.CLASS_PARAMETER_NAME_KEY, stub.getName)
+    sink.occurrences(index.ScalaIndexKeys.CLASS_PARAMETER_NAME_KEY, stub.getName)
   }
 }

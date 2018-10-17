@@ -14,20 +14,18 @@ import org.jetbrains.plugins.scala.lang.psi.api.base.patterns.ScBindingPattern
 import org.jetbrains.plugins.scala.lang.psi.api.base.types.ScTypeElement
 import org.jetbrains.plugins.scala.lang.psi.api.expr.ScExpression
 import org.jetbrains.plugins.scala.lang.psi.api.statements._
-import org.jetbrains.plugins.scala.lang.psi.stubs.ScValueStub
+import org.jetbrains.plugins.scala.lang.psi.stubs.ScPropertyStub
+import org.jetbrains.plugins.scala.lang.psi.stubs.elements.ScPropertyElementType
 import org.jetbrains.plugins.scala.lang.psi.types.ScLiteralType
 import org.jetbrains.plugins.scala.lang.psi.types.result._
 
 /**
-* @author Alexander Podkhalyuzin
-*/
-
-class ScPatternDefinitionImpl private (stub: ScValueStub, node: ASTNode)
-  extends ScalaStubBasedElementImpl(stub, ScalaElementTypes.PATTERN_DEFINITION, node) with ScPatternDefinition {
-
-  def this(node: ASTNode) = this(null, node)
-
-  def this(stub: ScValueStub) = this(stub, null)
+  * @author Alexander Podkhalyuzin
+  */
+final class ScPatternDefinitionImpl private[psi](stub: ScPropertyStub[ScPatternDefinition],
+                                                 nodeType: ScPropertyElementType[ScPatternDefinition],
+                                                 node: ASTNode)
+  extends ScalaStubBasedElementImpl(stub, nodeType, node) with ScPatternDefinition {
 
   override def accept(visitor: PsiElementVisitor): Unit = {
     visitor match {

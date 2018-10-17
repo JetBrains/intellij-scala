@@ -7,28 +7,25 @@ package statements
 import com.intellij.lang.ASTNode
 import com.intellij.psi.PsiElementVisitor
 import org.jetbrains.plugins.scala.extensions.ifReadAllowed
-import org.jetbrains.plugins.scala.lang.parser.ScalaElementTypes._
+import org.jetbrains.plugins.scala.lang.parser.ScalaElementTypes
 import org.jetbrains.plugins.scala.lang.psi.api.ScalaElementVisitor
 import org.jetbrains.plugins.scala.lang.psi.api.base._
 import org.jetbrains.plugins.scala.lang.psi.api.base.patterns._
 import org.jetbrains.plugins.scala.lang.psi.api.base.types.ScTypeElement
 import org.jetbrains.plugins.scala.lang.psi.api.expr.ScExpression
 import org.jetbrains.plugins.scala.lang.psi.api.statements._
-import org.jetbrains.plugins.scala.lang.psi.stubs.ScVariableStub
+import org.jetbrains.plugins.scala.lang.psi.stubs.ScPropertyStub
+import org.jetbrains.plugins.scala.lang.psi.stubs.elements.ScPropertyElementType
 import org.jetbrains.plugins.scala.lang.psi.types.ScLiteralType
 import org.jetbrains.plugins.scala.lang.psi.types.result._
 
-
 /**
- * @author Alexander Podkhalyuzin
- */
-
-class ScVariableDefinitionImpl private (stub: ScVariableStub, node: ASTNode)
-  extends ScalaStubBasedElementImpl(stub, VARIABLE_DEFINITION, node) with ScVariableDefinition {
-
-  def this(node: ASTNode) = this(null, node)
-
-  def this(stub: ScVariableStub) = this(stub, null)
+  * @author Alexander Podkhalyuzin
+  */
+final class ScVariableDefinitionImpl private[psi](stub: ScPropertyStub[ScVariableDefinition],
+                                                  nodeType: ScPropertyElementType[ScVariableDefinition],
+                                                  node: ASTNode)
+  extends ScalaStubBasedElementImpl(stub, nodeType, node) with ScVariableDefinition {
 
   override def accept(visitor: PsiElementVisitor) {
     visitor match {
@@ -55,5 +52,5 @@ class ScVariableDefinitionImpl private (stub: ScVariableStub, node: ASTNode)
 
   def typeElement: Option[ScTypeElement] = byPsiOrStub(findChild(classOf[ScTypeElement]))(_.typeElement)
 
-  def pList: ScPatternList = getStubOrPsiChild(PATTERN_LIST)
+  def pList: ScPatternList = getStubOrPsiChild(ScalaElementTypes.PATTERN_LIST)
 }

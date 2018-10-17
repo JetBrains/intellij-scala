@@ -450,8 +450,7 @@
         <stubIndex implementation="org.jetbrains.plugins.scala.lang.psi.stubs.index.ScShortNamePackageObjectIndex"/>
         <stubIndex implementation="org.jetbrains.plugins.scala.lang.psi.stubs.index.ScFullPackagingNameIndex"/>
         <stubIndex implementation="org.jetbrains.plugins.scala.lang.psi.stubs.index.ScFunctionNameIndex"/>
-        <stubIndex implementation="org.jetbrains.plugins.scala.lang.psi.stubs.index.ScValueNameIndex"/>
-        <stubIndex implementation="org.jetbrains.plugins.scala.lang.psi.stubs.index.ScVariableNameIndex"/>
+        <stubIndex implementation="org.jetbrains.plugins.scala.lang.psi.stubs.index.ScPropertyNameIndex"/>
         <stubIndex implementation="org.jetbrains.plugins.scala.lang.psi.stubs.index.ScClassParameterNameIndex"/>
         <stubIndex implementation="org.jetbrains.plugins.scala.lang.psi.stubs.index.ScTypeAliasNameIndex"/>
         <stubIndex implementation="org.jetbrains.plugins.scala.lang.psi.stubs.index.ScStableTypeAliasNameIndex"/>

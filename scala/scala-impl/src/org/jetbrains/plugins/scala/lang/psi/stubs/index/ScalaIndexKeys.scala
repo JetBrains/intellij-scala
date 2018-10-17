@@ -12,8 +12,8 @@ import com.intellij.util.CommonProcessors
 import org.jetbrains.plugins.scala.finder.ScalaFilterScope
 import org.jetbrains.plugins.scala.lang.psi.api.base.types.ScSelfTypeElement
 import org.jetbrains.plugins.scala.lang.psi.api.expr.ScAnnotation
+import org.jetbrains.plugins.scala.lang.psi.api.statements._
 import org.jetbrains.plugins.scala.lang.psi.api.statements.params.ScClassParameter
-import org.jetbrains.plugins.scala.lang.psi.api.statements.{ScFunction, ScTypeAlias, ScValue, ScVariable}
 import org.jetbrains.plugins.scala.lang.psi.api.toplevel.ScPackaging
 import org.jetbrains.plugins.scala.lang.psi.api.toplevel.templates.ScExtendsBlock
 import org.jetbrains.plugins.scala.lang.psi.api.toplevel.typedef.{ScMember, ScObject}
@@ -42,8 +42,7 @@ object ScalaIndexKeys {
   val JAVA_CLASS_NAME_IN_PACKAGE_KEY: StubIndexKey[String, PsiClass] = createIndexKey("sc.java.class.name.in.package")
   val IMPLICIT_OBJECT_KEY: StubIndexKey[String, ScObject] = createIndexKey("sc.implcit.object")
   val ANNOTATED_MEMBER_KEY: StubIndexKey[String, ScAnnotation] = createIndexKey("sc.annotatde.member.name")
-  val VALUE_NAME_KEY: StubIndexKey[String, ScValue] = createIndexKey("sc.value.name")
-  val VARIABLE_NAME_KEY: StubIndexKey[String, ScVariable] = createIndexKey("sc.variable.name")
+  val PROPERTY_NAME_KEY: StubIndexKey[String, ScValueOrVariable] = createIndexKey("sc.property.name")
   val CLASS_PARAMETER_NAME_KEY: StubIndexKey[String, ScClassParameter] = createIndexKey("sc.class.parameter.name")
   val TYPE_ALIAS_NAME_KEY: StubIndexKey[String, ScTypeAlias] = createIndexKey("sc.type.alias.name")
   val STABLE_ALIAS_NAME_KEY: StubIndexKey[String, ScTypeAlias] = createIndexKey("sc.stable.alias.name")

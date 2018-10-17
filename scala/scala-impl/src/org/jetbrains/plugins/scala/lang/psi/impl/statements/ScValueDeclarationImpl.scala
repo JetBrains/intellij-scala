@@ -7,12 +7,13 @@ package statements
 import com.intellij.lang.ASTNode
 import com.intellij.psi.PsiElementVisitor
 import org.jetbrains.plugins.scala.extensions.ifReadAllowed
-import org.jetbrains.plugins.scala.lang.parser.ScalaElementTypes._
+import org.jetbrains.plugins.scala.lang.parser.ScalaElementTypes
 import org.jetbrains.plugins.scala.lang.psi.api.ScalaElementVisitor
 import org.jetbrains.plugins.scala.lang.psi.api.base._
 import org.jetbrains.plugins.scala.lang.psi.api.base.types.ScTypeElement
 import org.jetbrains.plugins.scala.lang.psi.api.statements._
-import org.jetbrains.plugins.scala.lang.psi.stubs.ScValueStub
+import org.jetbrains.plugins.scala.lang.psi.stubs.ScPropertyStub
+import org.jetbrains.plugins.scala.lang.psi.stubs.elements.ScPropertyElementType
 import org.jetbrains.plugins.scala.lang.psi.types.result._
 
 /**
@@ -20,13 +21,10 @@ import org.jetbrains.plugins.scala.lang.psi.types.result._
  * Date: 22.02.2008
  * Time: 9:55:28
  */
-
-class ScValueDeclarationImpl private (stub: ScValueStub, node: ASTNode)
-  extends ScalaStubBasedElementImpl(stub, VALUE_DECLARATION, node) with ScValueDeclaration {
-
-  def this(node: ASTNode) = this(null, node)
-
-  def this(stub: ScValueStub) = this(stub, null)
+final class ScValueDeclarationImpl private[psi](stub: ScPropertyStub[ScValueDeclaration],
+                                                nodeType: ScPropertyElementType[ScValueDeclaration],
+                                                node: ASTNode)
+  extends ScalaStubBasedElementImpl(stub, nodeType, node) with ScValueDeclaration {
 
   override def toString: String = "ScValueDeclaration: " + ifReadAllowed(declaredNames.mkString(", "))("")
 
@@ -39,7 +37,7 @@ class ScValueDeclarationImpl private (stub: ScValueStub, node: ASTNode)
 
   def typeElement: Option[ScTypeElement] = byPsiOrStub(findChild(classOf[ScTypeElement]))(_.typeElement)
 
-  def getIdList: ScIdList = getStubOrPsiChild(IDENTIFIER_LIST)
+  def getIdList: ScIdList = getStubOrPsiChild(ScalaElementTypes.IDENTIFIER_LIST)
 
   override def accept(visitor: ScalaElementVisitor) {
     visitor.visitValueDeclaration(this)

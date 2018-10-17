@@ -318,7 +318,7 @@ object ScalaGlobalMembersCompletionContributor {
 
     val scalaFields = namesCache.getAllScalaFieldNames
       .filter(matcher.prefixMatches)
-      .flatMap(namesCache.getScalaFieldsByName(_, scope))
+      .flatMap(namesCache.getPropertiesByName(_, scope))
 
     (methods, javaFields, scalaFields)
   }

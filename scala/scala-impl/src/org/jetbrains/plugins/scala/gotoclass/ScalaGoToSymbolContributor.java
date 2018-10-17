@@ -13,8 +13,7 @@ import org.jetbrains.annotations.NotNull;
 import org.jetbrains.plugins.scala.finder.ScalaFilterScope;
 import org.jetbrains.plugins.scala.lang.psi.api.statements.ScFunction;
 import org.jetbrains.plugins.scala.lang.psi.api.statements.ScTypeAlias;
-import org.jetbrains.plugins.scala.lang.psi.api.statements.ScValue;
-import org.jetbrains.plugins.scala.lang.psi.api.statements.ScVariable;
+import org.jetbrains.plugins.scala.lang.psi.api.statements.ScValueOrVariable;
 import org.jetbrains.plugins.scala.lang.psi.api.statements.params.ScClassParameter;
 import org.jetbrains.plugins.scala.lang.psi.api.toplevel.ScEarlyDefinitions;
 import org.jetbrains.plugins.scala.lang.psi.api.toplevel.templates.ScTemplateBody;
@@ -37,8 +36,7 @@ public class ScalaGoToSymbolContributor implements ChooseByNameContributor {
     ArrayList<String> keys = new ArrayList<>();
 
     keys.addAll(stubIndex.getAllKeys(METHOD_NAME_KEY(), project));
-    keys.addAll(stubIndex.getAllKeys(VALUE_NAME_KEY(), project));
-    keys.addAll(stubIndex.getAllKeys(VARIABLE_NAME_KEY(), project));
+      keys.addAll(stubIndex.getAllKeys(PROPERTY_NAME_KEY(), project));
     keys.addAll(stubIndex.getAllKeys(CLASS_PARAMETER_NAME_KEY(), project));
     keys.addAll(stubIndex.getAllKeys(TYPE_ALIAS_NAME_KEY(), project));
     keys.addAll(stubIndex.getAllKeys(NOT_VISIBLE_IN_JAVA_SHORT_NAME_KEY(), project));
@@ -68,21 +66,9 @@ public class ScalaGoToSymbolContributor implements ChooseByNameContributor {
         if (isNonLocal(type)) items.add(type);
       }
     }
-    for (ScValue value : getElements(VALUE_NAME_KEY(), cleanName, project, scope, ScValue.class)) {
-      if (isNonLocal(value) || searchAll) {
-        final PsiNamedElement[] elems = value.declaredElementsArray();
-        for (PsiNamedElement elem : elems) {
-          if (elem instanceof NavigationItem) {
-            String navigationItemName = ScalaNamesUtil.scalaName(elem);
-            if (ScalaNamesUtil.equivalentFqn(name, navigationItemName)) items.add((NavigationItem) elem);
-          }
-        }
-      }
-    }
-
-    for (ScVariable var : getElements(VARIABLE_NAME_KEY(), cleanName, project, scope, ScVariable.class)) {
-      if (isNonLocal(var) || searchAll) {
-        final PsiNamedElement[] elems = var.declaredElementsArray();
+      for (ScValueOrVariable property : getElements(PROPERTY_NAME_KEY(), cleanName, project, scope, ScValueOrVariable.class)) {
+          if (isNonLocal(property) || searchAll) {
+              final PsiNamedElement[] elems = property.declaredElementsArray();
         for (PsiNamedElement elem : elems) {
           if (elem instanceof NavigationItem) {
             String navigationItemName = ScalaNamesUtil.scalaName(elem);

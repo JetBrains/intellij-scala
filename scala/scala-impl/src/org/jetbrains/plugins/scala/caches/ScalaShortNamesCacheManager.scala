@@ -8,7 +8,7 @@ import com.intellij.psi.search.{GlobalSearchScope, PsiShortNamesCache}
 import com.intellij.psi.stubs.{StubIndex, StubIndexKey}
 import org.jetbrains.plugins.scala.extensions._
 import org.jetbrains.plugins.scala.lang.psi.api.ScalaFile
-import org.jetbrains.plugins.scala.lang.psi.api.statements.{ScFunction, ScValue, ScVariable}
+import org.jetbrains.plugins.scala.lang.psi.api.statements.{ScFunction, ScValueOrVariable}
 import org.jetbrains.plugins.scala.lang.psi.api.toplevel.typedef.{ScObject, ScTypeDefinition}
 import org.jetbrains.plugins.scala.lang.psi.impl.ScalaPsiManager
 import org.jetbrains.plugins.scala.lang.psi.light.PsiMethodWrapper
@@ -76,36 +76,14 @@ class ScalaShortNamesCacheManager(implicit project: Project) extends ProjectComp
 
   def getAllScalaFieldNames: Iterable[String] = {
     import ScalaIndexKeys._
-    VALUE_NAME_KEY.allKeys ++ VARIABLE_NAME_KEY.allKeys ++ CLASS_PARAMETER_NAME_KEY.allKeys
+    PROPERTY_NAME_KEY.allKeys ++ CLASS_PARAMETER_NAME_KEY.allKeys
   }
 
-  def getScalaFieldsByName( name: String, scope: GlobalSearchScope): Seq[PsiMember] = {
+  def getPropertiesByName(name: String, scope: GlobalSearchScope): Seq[ScValueOrVariable] = {
     val cleanName = ScalaNamesUtil.cleanFqn(name)
-
-    val list = mutable.ArrayBuffer.empty[PsiMember]
-    var member: PsiMember = null
-    var count: Int = 0
-    val valuesIterator = elementsIterator(cleanName, scope, VALUE_NAME_KEY, classOf[ScValue])
-    while (valuesIterator.hasNext) {
-      val value = valuesIterator.next()
-      if (value.declaredNames.map(ScalaNamesUtil.cleanFqn).contains(cleanName)) {
-        list += value
-        member = value
-        count += 1
-      }
-    }
-    val variablesIterator = elementsIterator(cleanName, scope, VARIABLE_NAME_KEY, classOf[ScVariable])
-    while (variablesIterator.hasNext) {
-      val variable = variablesIterator.next()
-      if (variable.declaredNames.map(ScalaNamesUtil.cleanFqn).contains(cleanName)) {
-        list += variable
-        member = variable
-        count += 1
-      }
-    }
-    if (count == 0) return Seq.empty
-    if (count == 1) return Seq(member)
-    list
+    elementsIterator(cleanName, scope, PROPERTY_NAME_KEY, classOf[ScValueOrVariable])
+      .filter(_.declaredNames.map(ScalaNamesUtil.cleanFqn).contains(cleanName))
+      .toSeq
   }
 
   def getAllMethodNames: Seq[String] = {

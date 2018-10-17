@@ -105,5 +105,4 @@ package object elements {
     def implicitOccurence(): Unit =
       sink.occurrence(index.ScalaIndexKeys.IMPLICITS_KEY, "implicit")
   }
-
 }

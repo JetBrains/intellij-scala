@@ -12,20 +12,17 @@ import org.jetbrains.plugins.scala.lang.psi.api.ScalaElementVisitor
 import org.jetbrains.plugins.scala.lang.psi.api.base._
 import org.jetbrains.plugins.scala.lang.psi.api.base.types.ScTypeElement
 import org.jetbrains.plugins.scala.lang.psi.api.statements._
-import org.jetbrains.plugins.scala.lang.psi.stubs.ScVariableStub
+import org.jetbrains.plugins.scala.lang.psi.stubs.ScPropertyStub
+import org.jetbrains.plugins.scala.lang.psi.stubs.elements.ScPropertyElementType
 import org.jetbrains.plugins.scala.lang.psi.types.result.TypeResult
 
-
 /**
- * @author Alexander Podkhalyuzin
- */
-
-class ScVariableDeclarationImpl private (stub: ScVariableStub, node: ASTNode)
-  extends ScalaStubBasedElementImpl(stub, ScalaElementTypes.VARIABLE_DECLARATION, node) with ScVariableDeclaration {
-
-  def this(node: ASTNode) = this(null, node)
-
-  def this(stub: ScVariableStub) = this(stub, null)
+  * @author Alexander Podkhalyuzin
+  */
+final class ScVariableDeclarationImpl private[psi](stub: ScPropertyStub[ScVariableDeclaration],
+                                                   nodeType: ScPropertyElementType[ScVariableDeclaration],
+                                                   node: ASTNode)
+  extends ScalaStubBasedElementImpl(stub, nodeType, node) with ScVariableDeclaration {
 
   override def toString: String = "ScVariableDeclaration: " + ifReadAllowed(declaredNames.mkString(", "))("")
 
