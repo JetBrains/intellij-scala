@@ -233,7 +233,7 @@ class BspProjectResolver extends ExternalSystemProjectResolver[BspExecutionSetti
   @tailrec private def busyAwaitProject(projectFuture: Future[Either[BspError, DataNode[ProjectData]]]): Either[BspError, DataNode[ProjectData]] =
   importState match {
     case Active(_) =>
-      try {Await.result(projectFuture, 1.second)}
+      try {Await.result(projectFuture, 300.millis)}
       catch {
         case _: TimeoutException => busyAwaitProject(projectFuture)
       }
@@ -246,8 +246,8 @@ class BspProjectResolver extends ExternalSystemProjectResolver[BspExecutionSetti
     importState match {
       case Active(session) =>
         listener.beforeCancel(taskId)
-        Await.ready(session.closeSession(), 10.seconds)
         importState = Inactive
+        Await.ready(session.closeSession(), 10.seconds)
         listener.onCancel(taskId)
         true
       case Inactive =>
