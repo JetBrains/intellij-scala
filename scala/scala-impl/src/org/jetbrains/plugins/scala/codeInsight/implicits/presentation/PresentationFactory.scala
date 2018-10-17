@@ -30,9 +30,8 @@ class PresentationFactory(editor: EditorImpl) {
   def text(text: String, font: Font): Presentation =
     new Background(
       new Effect(
-        new Text(fontMetrics(font).stringWidth(text), lineHeight, text, font, None, ascent),
-        font, lineHeight, ascent, descent),
-      None)
+        new Text(fontMetrics(font).stringWidth(text), lineHeight, text, font, ascent),
+        font, lineHeight, ascent, descent))
 
   def sequence(presentations: Presentation*): Presentation =
     new Sequence(lineHeight, presentations: _*)
@@ -44,7 +43,7 @@ class PresentationFactory(editor: EditorImpl) {
     new Effect(presentation, font, lineHeight, ascent, descent)
 
   def background(color: Color, presentation: Presentation): Presentation =
-    new Background(presentation, Some(color))
+    new Background(presentation)
 
   def rounding(arcWidth: Int, arcHeight: Int, presentation: Presentation): Presentation =
     new Rounding(presentation, arcWidth, arcHeight)

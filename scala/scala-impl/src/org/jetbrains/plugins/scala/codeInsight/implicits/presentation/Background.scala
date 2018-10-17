@@ -1,16 +1,16 @@
 package org.jetbrains.plugins.scala.codeInsight.implicits.presentation
 
-import java.awt.{Color, Graphics2D}
+import java.awt.Graphics2D
 
 import com.intellij.openapi.editor.markup.TextAttributes
 
-class Background(presentation: Presentation, color: Option[Color]) extends StaticForwarding(presentation)  {
+class Background(presentation: Presentation) extends StaticForwarding(presentation)  {
   override def paint(g: Graphics2D, attributes: TextAttributes): Unit = {
-    Option(attributes.getBackgroundColor).orElse(color).foreach { color =>
+    Option(attributes.getBackgroundColor).foreach { color =>
       g.setColor(color)
       g.fillRect(0, 0, width, height)
     }
 
-    presentation.paint(g, attributes)
+    super.paint(g, attributes)
   }
 }
