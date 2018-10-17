@@ -30,7 +30,7 @@ trait ScTypeDefinition extends ScTemplateDefinition with ScMember
     with NavigationItem with PsiClassAdapter with ScTypeParametersOwner with Iconable with ScDocCommentOwner
     with ScCommentOwner {
 
-  def additionalJavaName: Option[String] = fakeCompanionModule.map(_.getName)
+  def additionalJavaClass: Option[PsiClass] = None
 
   def isCase: Boolean = false
 

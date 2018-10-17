@@ -6,7 +6,7 @@ package toplevel
 package typedef
 
 import com.intellij.lang.ASTNode
-import com.intellij.psi.PsiElementVisitor
+import com.intellij.psi.{PsiClass, PsiElementVisitor}
 import org.jetbrains.plugins.scala.extensions._
 import org.jetbrains.plugins.scala.lang.parser.ScalaElementTypes
 import org.jetbrains.plugins.scala.lang.psi.api.ScalaElementVisitor
@@ -32,7 +32,7 @@ class ScTraitImpl private (stub: ScTemplateDefinitionStub, node: ASTNode)
   def this(stub: ScTemplateDefinitionStub) = this(stub, null)
 
   //do not add fakeCompanionModule => will build tree from stubs everywhere
-  override def additionalJavaName: Option[String] = Some(fakeCompanionClass.getName)
+  override def additionalJavaClass: Option[PsiClass] = Some(fakeCompanionClass)
 
   override def accept(visitor: PsiElementVisitor) {
     visitor match {

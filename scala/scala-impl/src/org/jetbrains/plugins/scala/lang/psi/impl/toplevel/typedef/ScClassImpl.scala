@@ -54,9 +54,8 @@ class ScClassImpl protected (stub: ScTemplateDefinitionStub, node: ASTNode)
   }
 
   //do not add all cases with fakeCompanionModule, it will be used in Stubs.
-  override def additionalJavaName: Option[String] =
-    if (isCase) super.additionalJavaName
-    else None
+  override def additionalJavaClass: Option[PsiClass] =
+    if (isCase) fakeCompanionModule else None
 
   override def constructor: Option[ScPrimaryConstructor] = desugaredElement match {
     case Some(templateDefinition: ScConstructorOwner) => templateDefinition.constructor

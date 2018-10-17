@@ -223,18 +223,15 @@ class ScalaPsiManager(val project: Project) {
 
   @CachedWithoutModificationCount(synchronized = false, ValueWrapper.None, clearCacheOnTopLevelChange)
   private def getJavaPackageClassNamesCached(psiPackage: PsiPackage, scope: GlobalSearchScope): Set[String] = {
-    val classes = JAVA_CLASS_NAME_IN_PACKAGE_KEY.elements(ScalaNamesUtil.cleanFqn(psiPackage.getQualifiedName), scope, classOf[PsiClass])
+    val key = ScalaNamesUtil.cleanFqn(psiPackage.getQualifiedName)
+    val classes = JAVA_CLASS_NAME_IN_PACKAGE_KEY.elements(key, scope, classOf[PsiClass]).toSet
 
-    def names(clazz: PsiClass): Set[String] = {
-      def additionalJavaNames = clazz match {
-        case definition: ScTypeDefinition => definition.additionalJavaName
-        case _ => None
-      }
-
-      Set(clazz.getName) ++ additionalJavaNames
+    val additionalClasses = classes.flatMap {
+      case definition: ScTypeDefinition => definition.additionalJavaClass
+      case _ => None
     }
 
-    classes.flatMap(names).toSet
+    (classes ++ additionalClasses).map(_.getName)
   }
 
   def getScalaClassNames(psiPackage: PsiPackage, scope: GlobalSearchScope): Set[String] = {
