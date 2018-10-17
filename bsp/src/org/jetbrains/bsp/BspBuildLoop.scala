@@ -3,6 +3,7 @@ package org.jetbrains.bsp
 import java.util.concurrent.{ScheduledFuture, TimeUnit}
 
 import com.intellij.ide.highlighter.JavaFileType
+import com.intellij.openapi.application.{Application, ApplicationManager, ModalityState}
 import com.intellij.openapi.components.ProjectComponent
 import com.intellij.openapi.externalSystem.service.project.autoimport.FileChangeListenerBase
 import com.intellij.openapi.fileTypes.FileType
@@ -100,9 +101,10 @@ final class BspBuildLoop(project: Project) extends ProjectComponent {
         }
       }
 
-      UIUtil.invokeLaterIfNeeded { () =>
-        taskManager.build(modulesToCompile.toArray, notification)
-      }
+      ApplicationManager.getApplication.invokeLater(
+        () => taskManager.build(modulesToCompile.toArray, notification),
+        ModalityState.NON_MODAL
+      )
     }
 
     // TODO should allow all bsp-compiled types, depending on build server compatibility

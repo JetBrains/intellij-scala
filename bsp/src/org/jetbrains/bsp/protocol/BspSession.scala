@@ -40,7 +40,8 @@ class BspSession(messages: Observable[BaseProtocolMessage],
   private def nextQueuedCommand= {
     val timeout = 1.second
     try {
-      Await.ready(sessionInitialized.map(_ => currentJob.future), timeout)
+      val readyForNext = sessionInitialized.flatMap(_ => currentJob.future)
+      Await.ready(readyForNext, timeout)
       val next = jobs.poll(timeout.toMillis, TimeUnit.SECONDS)
       if (next != null) {
         currentJob = next
