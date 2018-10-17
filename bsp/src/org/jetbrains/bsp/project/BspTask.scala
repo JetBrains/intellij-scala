@@ -6,7 +6,6 @@ import ch.epfl.scala.bsp.{BuildTargetIdentifier, _}
 import com.intellij.build.FilePosition
 import com.intellij.execution.process.AnsiEscapeDecoder.ColoredTextAcceptor
 import com.intellij.execution.process.{AnsiEscapeDecoder, ProcessOutputTypes}
-import com.intellij.openapi.diagnostic.Logger
 import com.intellij.openapi.progress.{PerformInBackgroundOption, ProgressIndicator, Task}
 import com.intellij.openapi.project.Project
 import com.intellij.openapi.util.Key
@@ -22,7 +21,7 @@ import org.jetbrains.plugins.scala.build.{BuildFailureException, BuildMessages, 
 
 import scala.concurrent.Await
 import scala.concurrent.duration.Duration
-import scala.meta.jsonrpc.{LanguageClient, Response, Services}
+import scala.meta.jsonrpc.{LanguageClient, Response}
 import scala.util.control.NonFatal
 
 class BspTask[T](project: Project, executionSettings: BspExecutionSettings,
@@ -34,19 +33,6 @@ class BspTask[T](project: Project, executionSettings: BspExecutionSettings,
 
   private val taskId: UUID = UUID.randomUUID()
   private val report = new BuildToolWindowReporter(project, taskId, "bsp build")
-
-  private def compileRequest(implicit client: LanguageClient): eval.Task[Either[Response.Error, CompileResult]] =
-    endpoints.BuildTarget.compile.request(CompileParams(targets, None, List.empty)) // TODO support requestId
-
-
-  private val logger = Logger.getInstance(classOf[BspTask[_]])
-
-  // TODO services need to be attached to BspCommunication
-  private val services = Services.empty(logger.toScribeLogger)
-    .notification(endpoints.Build.logMessage) { params => report.log(params.message) }
-    .notification(endpoints.Build.showMessage)(reportShowMessage)
-    .notification(endpoints.Build.publishDiagnostics)(reportDiagnostics)
-    .notification(endpoints.BuildTarget.compileReport)(reportCompile)
 
   private val bspNotifications: NotificationCallback = {
     case BspCommunication.LogMessage(params) =>
@@ -96,6 +82,9 @@ class BspTask[T](project: Project, executionSettings: BspExecutionSettings,
 
     callbackOpt.foreach(_.finished(projectTaskResult))
   }
+
+  private def compileRequest(implicit client: LanguageClient): eval.Task[Either[Response.Error, CompileResult]] =
+    endpoints.BuildTarget.compile.request(CompileParams(targets, None, List.empty)) // TODO support requestId
 
   private def reportShowMessage(params: ShowMessageParams): Unit = {
     // TODO handle message type (warning, error etc) in output
