@@ -92,13 +92,24 @@ object CachesUtil {
 
   def enclosingModificationOwner(elem: PsiElement): ModificationTracker = {
     @tailrec
+    def modificationCount(place: PsiElement, result: Long): Long = place match {
+      case null | _: ScalaFile => result
+      case _ =>
+        val delta = place match {
+          case owner@ScModificationTrackerOwner() => owner.modificationCount
+          case _ => 0
+        }
+        modificationCount(place.getContext, result + delta)
+    }
+
+    val tracker = ScalaPsiManager.instance(elem.getProject).topLevelModificationTracker
+
+    @tailrec
     def calc(element: PsiElement): ModificationTracker = {
       PsiTreeUtil.getContextOfType(element, false, classOf[ScModificationTrackerOwner]) match {
-        case null => ScalaPsiManager.instance(elem.getProject).topLevelModificationTracker
+        case null => tracker
         case owner@ScModificationTrackerOwner() =>
-          new ModificationTracker {
-            override def getModificationCount: Long = owner.modificationCount
-          }
+          () => modificationCount(owner, tracker.getModificationCount)
         case owner => calc(owner.getContext)
       }
     }
