@@ -5,10 +5,9 @@ import java.awt.{Component, Point}
 
 import com.intellij.ide.ui.customization.CustomActionsSchema
 import com.intellij.openapi.actionSystem._
-import com.intellij.openapi.editor.colors.{CodeInsightColors, EditorColors, EditorFontType}
+import com.intellij.openapi.editor.colors.{CodeInsightColors, EditorFontType}
 import com.intellij.openapi.editor.impl.EditorImpl
 import com.intellij.openapi.editor.markup.TextAttributes
-import com.intellij.util.ui.UIUtil
 import org.jetbrains.plugins.scala.codeInsight.implicits.presentation.{Button, Presentation, PresentationFactory}
 import org.jetbrains.plugins.scala.editor.documentationProvider.ScalaDocumentationProvider
 import org.jetbrains.plugins.scala.extensions._
@@ -28,7 +27,6 @@ private class HintFactory(editor: EditorImpl) {
 
   import factory._
 
-  // TODO use single Hint?
   def implicitConversionHint(e: ScExpression, conversion: ScalaResolveResult): Seq[Hint] = {
     val (leftParen, rightParen) = parentheses
     Seq(Hint(sequence(namedBasicPresentation(conversion), leftParen), e, suffix = false, menu = Some(menu.ImplicitConversion)),
@@ -150,11 +148,10 @@ private class HintFactory(editor: EditorImpl) {
         namedBasicPresentation(argument)
 
       case ImplicitParameterNotFoundResult =>
-        val (leftParen, rightParen) = parentheses
-        sequence(namedBasicPresentation(argument) +:
-          leftParen +:
-          argument.implicitParameters.map(parameter => presentationOf(parameter)).intersperse(text(", ")) :+
-          rightParen: _*)
+        sequence(
+          namedBasicPresentation(argument),
+          inParentheses(
+            sequence(argument.implicitParameters.map(parameter => presentationOf(parameter)).intersperse(text(", ")): _*)))
 
       case DivergedImplicitResult =>
         withTooltip("Implicit is diverged", attributes(_ + errorAttributes, namedBasicPresentation(argument)))
@@ -182,8 +179,10 @@ private class HintFactory(editor: EditorImpl) {
     }
   }
 
+  // TODO asError
   private def errorAttributes = scheme.getAttributes(CodeInsightColors.ERRORS_ATTRIBUTES)
 
+  // TODO asWrongReference
   private def likeWrongReference =
     Option(scheme.getAttributes(CodeInsightColors.WRONG_REFERENCES_ATTRIBUTES)).getOrElse(new TextAttributes())
 
@@ -209,13 +208,12 @@ private class HintFactory(editor: EditorImpl) {
     "Ambiguous implicits for parameter " + paramWithType(parameter)
 
   private def inParentheses(presentation: Presentation): Presentation = {
-    val (left, right) = parentheses
-    sequence(left, presentation, right)
+    val (leftParen, rightParen) = parentheses
+    sequence(leftParen, presentation, rightParen)
   }
 
-  // TODO
   private def parentheses: (Presentation, Presentation) = {
-    val asMatch = (it: Presentation) => attributes(_ + scheme.getAttributes(CodeInsightColors.MATCHED_BRACE_ATTRIBUTES), it)
-    synchronous(asMatch, text("("), text(")"))
+    val Seq(leftParen, rightParen) = withMatching(text("("), text(")"))
+    (leftParen, rightParen)
   }
 }

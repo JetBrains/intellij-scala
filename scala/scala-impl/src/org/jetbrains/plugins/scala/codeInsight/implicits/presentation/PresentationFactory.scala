@@ -1,21 +1,21 @@
 package org.jetbrains.plugins.scala.codeInsight.implicits
 package presentation
 
-import java.awt.event.MouseEvent
 import java.awt._
+import java.awt.event.MouseEvent
 
 import com.intellij.codeInsight.hint.{HintManager, HintManagerImpl, HintUtil}
+import com.intellij.openapi.command.CommandProcessor
 import com.intellij.openapi.editor.Editor
-import com.intellij.openapi.editor.colors.{EditorColors, EditorFontType, TextAttributesKey}
+import com.intellij.openapi.editor.colors.{CodeInsightColors, EditorColors, EditorFontType, TextAttributesKey}
 import com.intellij.openapi.editor.impl.EditorImpl
 import com.intellij.openapi.editor.markup.{EffectType, TextAttributes}
 import com.intellij.openapi.util.SystemInfo
-import com.intellij.ui.LightweightHint
-import com.intellij.util.ui.{JBUI, UIUtil}
-import PresentationFactory._
-import com.intellij.openapi.command.CommandProcessor
 import com.intellij.pom.Navigatable
 import com.intellij.psi.PsiElement
+import com.intellij.ui.LightweightHint
+import com.intellij.util.ui.{JBUI, UIUtil}
+import org.jetbrains.plugins.scala.codeInsight.implicits.presentation.PresentationFactory._
 import org.jetbrains.plugins.scala.extensions._
 
 import scala.Function.const
@@ -144,12 +144,10 @@ class PresentationFactory(editor: EditorImpl) {
     })
   }
 
-  def synchronous(decorator: Presentation => Presentation, presentation1: Presentation, presentation2: Presentation): (Presentation, Presentation) = {
-    val result = synchronous0(decorator, presentation1, presentation2)
-    (result(0), result(1))
-  }
+  def withMatching(presentations: Presentation*): Seq[Presentation] =
+    synchronous(it => attributes(_ + attributesOf(CodeInsightColors.MATCHED_BRACE_ATTRIBUTES), it), presentations: _*)
 
-  private def synchronous0(decorator: Presentation => Presentation, presentations: Presentation*): Seq[Presentation] = {
+  private def synchronous(decorator: Presentation => Presentation, presentations: Presentation*): Seq[Presentation] = {
     val forwardings = presentations.map(new DynamicForwarding(_))
 
     forwardings.map(it => new OnHover(it, isControlDown, e => {
