@@ -6,12 +6,12 @@ import java.awt._
 
 import com.intellij.codeInsight.hint.{HintManager, HintManagerImpl, HintUtil}
 import com.intellij.openapi.editor.Editor
-import com.intellij.openapi.editor.colors.{EditorColors, EditorFontType}
+import com.intellij.openapi.editor.colors.{EditorColors, EditorFontType, TextAttributesKey}
 import com.intellij.openapi.editor.impl.EditorImpl
 import com.intellij.openapi.editor.markup.{EffectType, TextAttributes}
 import com.intellij.openapi.util.SystemInfo
 import com.intellij.ui.LightweightHint
-import com.intellij.util.ui.JBUI
+import com.intellij.util.ui.{JBUI, UIUtil}
 import PresentationFactory._
 import com.intellij.openapi.command.CommandProcessor
 import com.intellij.pom.Navigatable
@@ -48,6 +48,7 @@ class PresentationFactory(editor: EditorImpl) {
   def sequence(presentations: Presentation*): Presentation =
     new Sequence(lineHeight, presentations: _*)
 
+  // withAttributes
   def attributes(transform: TextAttributes => TextAttributes, presentation: Presentation): Presentation =
     new Attributes(presentation, transform)
 
@@ -63,7 +64,22 @@ class PresentationFactory(editor: EditorImpl) {
   def insets(left: Int, right: Int, presentation: Presentation): Presentation =
     new Sequence(lineHeight, new Space(left, lineHeight), presentation, new Space(right, lineHeight))
 
-  def expansion(expanded: => Presentation, presentation: Presentation): Presentation = {
+  def withFolding(folded: Presentation, expanded: => Presentation): Presentation =
+    expansion(expanded, new Attributes(folded, _ + adjusted(attributesOf(EditorColors.FOLDED_TEXT_ATTRIBUTES))))
+
+  private def attributesOf(key: TextAttributesKey) =
+    Option(editor.getColorsScheme.getAttributes(key)).getOrElse(new TextAttributes())
+
+  // Add custom colors for folding inside inlay hints (SCL-13996)?
+  private def adjusted(attributes: TextAttributes): TextAttributes = {
+    val result = attributes.clone()
+    if (UIUtil.isUnderDarcula && result.getBackgroundColor != null) {
+      result.setBackgroundColor(result.getBackgroundColor.brighter)
+    }
+    result
+  }
+
+  private def expansion(expanded: => Presentation, presentation: Presentation): Presentation = {
     val expansion = new Expansion(presentation, expanded)
 
     new OnClick(expansion, Button.Left, e => {
@@ -109,9 +125,6 @@ class PresentationFactory(editor: EditorImpl) {
     e.asOptionOf[Navigatable].filter(_.canNavigate).foreach { navigatable =>
       CommandProcessor.getInstance.executeCommand(e.getProject, navigatable.navigate(true), null, null)
     }
-  }
-
-    navigation(asHyperlink, tooltip.map(tooltipHandler).getOrElse(const(())), _ => navigateTo(target), presentation)
   }
 
   private def navigation(decorator: Presentation => Presentation, onHover: Option[MouseEvent] => Unit, onClick: MouseEvent => Unit, presentation: Presentation): Presentation = {

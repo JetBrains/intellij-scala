@@ -52,11 +52,11 @@ private class HintFactory(editor: EditorImpl) {
     if (arguments.isEmpty) empty
     else {
       val problems = arguments.filter(_.isImplicitParameterProblem)
-      val textAttributes = if (problems.nonEmpty) foldedAttributes + errorAttributes else foldedAttributes
-      val folding = expansion(expandedPresentationOf(arguments, parentheses = false),
-        attributes(_ + textAttributes, text(Ellipsis)))
-
-      inParentheses(withTooltip(notFoundTooltip(problems), folding))
+      inParentheses(
+        withTooltip(notFoundTooltip(problems),
+          withFolding(
+            if (problems.isEmpty) text(Ellipsis) else attributes(_ + errorAttributes, text(Ellipsis)),
+            expandedPresentationOf(arguments, parentheses = false))))
     }
 
   private def expandedPresentationOf(arguments: Seq[ScalaResolveResult], parentheses: Boolean): Presentation =
@@ -125,8 +125,10 @@ private class HintFactory(editor: EditorImpl) {
     val presentation =
       if (!ImplicitHints.enabled) ellipsis else sequence(ellipsis, text(typeAnnotation(parameter)))
 
-    expansion(expandedProblemPresentation(parameter, probableArgs),
-      withTooltip(errorTooltip, attributes(_ + foldedAttributes, presentation)))
+    withFolding(
+      withTooltip(errorTooltip,
+        presentation),
+      expandedProblemPresentation(parameter, probableArgs))
   }
 
   private def expandedProblemPresentation(parameter: ScalaResolveResult, arguments: Seq[(ScalaResolveResult, FullInfoResult)]): Presentation = {
@@ -205,21 +207,6 @@ private class HintFactory(editor: EditorImpl) {
 
   private def ambiguousTooltip(parameter: ScalaResolveResult): String =
     "Ambiguous implicits for parameter " + paramWithType(parameter)
-
-  // Add custom colors for folding inside inlay hints (SCL-13996)?
-  private def adjusted(attributes: TextAttributes): TextAttributes = {
-    val result = attributes.clone()
-    if (UIUtil.isUnderDarcula && result.getBackgroundColor != null) {
-      result.setBackgroundColor(result.getBackgroundColor.brighter)
-    }
-    result
-  }
-
-  // TODO
-  private def foldedAttributes: TextAttributes =
-    Option(scheme.getAttributes(EditorColors.FOLDED_TEXT_ATTRIBUTES))
-      .map(adjusted)
-      .getOrElse(new TextAttributes())
 
   private def inParentheses(presentation: Presentation): Presentation = {
     val (left, right) = parentheses
