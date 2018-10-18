@@ -218,7 +218,4 @@ private class HintFactory(editor: EditorImpl) {
     val asMatch = (it: Presentation) => attributes(_ + scheme.getAttributes(CodeInsightColors.MATCHED_BRACE_ATTRIBUTES), it)
     synchronous(asMatch, text("("), text(")"))
   }
-
-  // TODO
-  private def text(s: String): Presentation = factory.text(s, scheme.getFont)
 }

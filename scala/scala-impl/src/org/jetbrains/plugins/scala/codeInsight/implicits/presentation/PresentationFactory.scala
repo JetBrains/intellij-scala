@@ -40,9 +40,11 @@ class PresentationFactory(editor: EditorImpl) {
   def space(width: Int): Presentation =
     new Space(width, editor.getLineHeight)
 
-  def text(text: String, fontProvider: EditorFontType => Font): Presentation = {
-    val width = fontMetrics(font).stringWidth(text)
-    new Background(new Effect(new Text(width, lineHeight, text, ascent, fontProvider), font, lineHeight, ascent, descent))
+  def text(s: String): Presentation = text(s, editor.getColorsScheme.getFont)
+
+  private def text(s: String, fontProvider: EditorFontType => Font): Presentation = {
+    val width = fontMetrics(font).stringWidth(s)
+    new Background(new Effect(new Text(width, lineHeight, s, ascent, fontProvider), font, lineHeight, ascent, descent))
   }
 
   def sequence(presentations: Presentation*): Presentation =
