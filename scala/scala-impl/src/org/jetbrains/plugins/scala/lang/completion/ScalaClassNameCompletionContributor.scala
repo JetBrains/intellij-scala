@@ -35,7 +35,7 @@ class ScalaClassNameCompletionContributor extends ScalaCompletionContributor {
 
   extend(
     CompletionType.BASIC,
-    psiElement(ScalaTokenTypes.tIDENTIFIER).withParent(classOf[ScReferenceElement]),
+    identifierWithParentPattern(classOf[ScReferenceElement]),
     new CompletionProvider[CompletionParameters] {
 
       override def addCompletions(parameters: CompletionParameters,

@@ -9,7 +9,7 @@ import com.intellij.codeInsight.template._
 import com.intellij.codeInsight.template.impl.ConstantNode
 import com.intellij.openapi.application.ApplicationManager
 import com.intellij.openapi.project.Project
-import com.intellij.patterns.{ElementPattern, PlatformPatterns, StandardPatterns}
+import com.intellij.patterns.ElementPattern
 import com.intellij.psi._
 import com.intellij.psi.search.GlobalSearchScope
 import com.intellij.psi.util.PsiTreeUtil
@@ -17,7 +17,6 @@ import com.intellij.util.ProcessingContext
 import org.jetbrains.plugins.scala.extensions._
 import org.jetbrains.plugins.scala.icons.Icons
 import org.jetbrains.plugins.scala.lang.completion.lookups.{ScalaChainLookupElement, ScalaKeywordLookupItem, ScalaLookupItem}
-import org.jetbrains.plugins.scala.lang.lexer.ScalaTokenTypes
 import org.jetbrains.plugins.scala.lang.psi._
 import org.jetbrains.plugins.scala.lang.psi.api.ScalaRecursiveElementVisitor
 import org.jetbrains.plugins.scala.lang.psi.api.base.patterns.{ScCaseClause, ScTypedPattern}
@@ -83,7 +82,7 @@ final class ScalaSmartCompletionContributor extends ScalaCompletionContributor {
     var y: Type = ref
    */
   extend(
-    StandardPatterns.or[PsiElement](superParentPattern(classOf[ScPatternDefinition]), superParentPattern(classOf[ScVariableDefinition])),
+    superParentPattern(classOf[ScPatternDefinition]) || superParentPattern(classOf[ScVariableDefinition]),
     new CompletionProvider[CompletionParameters] {
       def addCompletions(parameters: CompletionParameters, context: ProcessingContext,
                          result: CompletionResultSet) {
@@ -136,7 +135,7 @@ final class ScalaSmartCompletionContributor extends ScalaCompletionContributor {
     if expected type is function, so we can suggest anonymous function creation
    */
   extend(
-    identifier.withParents(classOf[ScReferenceExpression], classOf[ScBlockExpr], classOf[ScArgumentExprList], classOf[ScMethodCall]),
+    identifierWithParentsPattern(classOf[ScReferenceExpression], classOf[ScBlockExpr], classOf[ScArgumentExprList], classOf[ScMethodCall]),
     new CompletionProvider[CompletionParameters] {
       def addCompletions(parameters: CompletionParameters, context: ProcessingContext,
                          result: CompletionResultSet) {
@@ -280,10 +279,10 @@ final class ScalaSmartCompletionContributor extends ScalaCompletionContributor {
    */
   extend(classOf[ScParameter])
 
-  private def extend[T <: PsiElement](clazz: Class[T]): Unit =
+  private def extend[T <: ScalaPsiElement](clazz: Class[T]): Unit =
     extend(clazz, new ScalaSmartCompletionProvider)
 
-  private def extend(clazz: Class[_ <: PsiElement],
+  private def extend(clazz: Class[_ <: ScalaPsiElement],
                      provider: CompletionProvider[CompletionParameters]): Unit =
     extend(superParentPattern(clazz), provider)
 
@@ -331,13 +330,9 @@ object ScalaSmartCompletionContributor {
       case Reference(r) => (r, r.getContext.asInstanceOf[T])
     }
 
-  private def superParentPattern(clazz: Class[_ <: PsiElement]) = StandardPatterns.or(
-    identifier.withParents(classOf[ScReferenceExpression], clazz),
-    identifier.withParents(classOf[ScReferenceExpression], classOf[ScReferenceExpression], clazz)
-  )
-
-  private def identifier =
-    PlatformPatterns.psiElement(ScalaTokenTypes.tIDENTIFIER)
+  private def superParentPattern(clazz: Class[_ <: ScalaPsiElement]) =
+    identifierWithParentsPattern(classOf[ScReferenceExpression], clazz) ||
+      identifierWithParentsPattern(classOf[ScReferenceExpression], classOf[ScReferenceExpression], clazz)
 
   private def acceptTypes(typez: Seq[ScType], variants: Array[Object],
                           result: CompletionResultSet,

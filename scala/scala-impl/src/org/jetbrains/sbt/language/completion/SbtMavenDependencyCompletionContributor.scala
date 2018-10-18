@@ -3,11 +3,10 @@ package org.jetbrains.sbt.language.completion
 import com.intellij.codeInsight.completion._
 import com.intellij.codeInsight.lookup.{LookupElement, LookupElementBuilder}
 import com.intellij.openapi.project.Project
-import com.intellij.patterns.PlatformPatterns._
-import com.intellij.patterns.StandardPatterns._
+import com.intellij.patterns.{PlatformPatterns, StandardPatterns}
 import com.intellij.util.ProcessingContext
 import org.jetbrains.plugins.scala.extensions.PsiElementExt
-import org.jetbrains.plugins.scala.lang.completion.positionFromParameters
+import org.jetbrains.plugins.scala.lang.completion._
 import org.jetbrains.plugins.scala.lang.psi.ScalaPsiUtil
 import org.jetbrains.plugins.scala.lang.psi.api.expr.{ScInfixExpr, ScReferenceExpression}
 import org.jetbrains.plugins.scala.lang.psi.impl.base.ScLiteralImpl
@@ -24,21 +23,17 @@ class SbtMavenDependencyCompletionContributor extends CompletionContributor {
 
   val MAX_ITEMS = 6000
 
-  private val pattern = and(
-      psiElement().inFile(psiFile().withFileType(instanceOf(SbtFileType.getClass))),
-      or(
-        and(
-          psiElement().withSuperParent(2, classOf[ScInfixExpr]),
-          psiElement().withChild(psiElement().withText(string().oneOf("%", "%%")))
-        ),
-        psiElement().inside(
-          and(
-            instanceOf(classOf[ScInfixExpr]),
-            psiElement().withChild(psiElement().withText("libraryDependencies"))
-          )
+  import PlatformPatterns.{psiElement, psiFile}
+  import StandardPatterns.{instanceOf, string}
+
+  private val pattern = psiElement.inFile(psiFile.withFileType(instanceOf(SbtFileType.getClass))) &&
+    (
+      psiElement.withSuperParent(2, classOf[ScInfixExpr]) && psiElement.withChild(psiElement.withText(string.oneOf("%", "%%"))) ||
+        psiElement.inside(
+          instanceOf(classOf[ScInfixExpr]) && psiElement.withChild(psiElement.withText("libraryDependencies"))
         )
       )
-    )
+
   extend(CompletionType.BASIC, pattern, new CompletionProvider[CompletionParameters] {
     override def addCompletions(params: CompletionParameters, context: ProcessingContext, results: CompletionResultSet): Unit = {
 

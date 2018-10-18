@@ -5,11 +5,9 @@ package aot
 
 import com.intellij.codeInsight.completion._
 import com.intellij.codeInsight.lookup._
-import com.intellij.patterns.PlatformPatterns
 import com.intellij.psi.PsiElement
 import com.intellij.util.ProcessingContext
 import org.jetbrains.plugins.scala.extensions._
-import org.jetbrains.plugins.scala.lang.lexer.ScalaTokenTypes
 import org.jetbrains.plugins.scala.lang.psi.ScalaPsiElement
 import org.jetbrains.plugins.scala.lang.psi.api.base.types.ScTypeElement
 import org.jetbrains.plugins.scala.lang.psi.api.base.{ScFieldId, ScPrimaryConstructor}
@@ -97,7 +95,7 @@ final class ScalaAotCompletionContributor extends ScalaCompletionContributor {
 
   extend(
     CompletionType.BASIC,
-    identifierPattern.withParent(classOf[ScFieldId]),
+    identifierWithParentPattern(classOf[ScFieldId]),
     new CompletionProvider[ScValueDeclaration] {
 
       override protected def addCompletions(resultSet: CompletionResultSet,
@@ -141,8 +139,6 @@ final class ScalaAotCompletionContributor extends ScalaCompletionContributor {
 }
 
 object ScalaAotCompletionContributor {
-
-  private def identifierPattern = PlatformPatterns.psiElement(ScalaTokenTypes.tIDENTIFIER)
 
   private trait ParameterCompletionProvider extends CompletionProvider[ScParameter] {
 

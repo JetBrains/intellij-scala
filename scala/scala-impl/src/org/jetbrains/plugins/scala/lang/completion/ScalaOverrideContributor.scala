@@ -3,7 +3,6 @@ package org.jetbrains.plugins.scala.lang.completion
 import com.intellij.codeInsight.completion._
 import com.intellij.codeInsight.lookup._
 import com.intellij.openapi.util.Iconable
-import com.intellij.patterns.PlatformPatterns
 import com.intellij.psi._
 import com.intellij.psi.filters._
 import com.intellij.psi.filters.position.{FilterPattern, LeftNeighbour}
@@ -11,7 +10,6 @@ import com.intellij.psi.util.PsiTreeUtil
 import com.intellij.util.ProcessingContext
 import org.jetbrains.plugins.scala.extensions.PsiModifierListOwnerExt
 import org.jetbrains.plugins.scala.lang.completion.filters.modifiers.ModifiersFilter
-import org.jetbrains.plugins.scala.lang.lexer.ScalaTokenTypes
 import org.jetbrains.plugins.scala.lang.psi.TypeAdjuster
 import org.jetbrains.plugins.scala.lang.psi.api.statements._
 import org.jetbrains.plugins.scala.lang.psi.api.statements.params.ScClassParameter
@@ -38,8 +36,7 @@ class ScalaOverrideContributor extends ScalaCompletionContributor {
   import ScalaOverrideContributor._
 
   extend(CompletionType.BASIC,
-    PlatformPatterns.psiElement(ScalaTokenTypes.tIDENTIFIER)
-      .and(new FilterPattern(new AndFilter(new NotFilter(new LeftNeighbour(new TextContainFilter("override"))), new AndFilter(new NotFilter(new LeftNeighbour(new TextFilter("."))), new ModifiersFilter)))),
+    identifierPattern.and(new FilterPattern(new AndFilter(new NotFilter(new LeftNeighbour(new TextContainFilter("override"))), new AndFilter(new NotFilter(new LeftNeighbour(new TextFilter("."))), new ModifiersFilter)))),
     new CompletionProvider[CompletionParameters] {
 
       def addCompletions(parameters: CompletionParameters, context: ProcessingContext, resultSet: CompletionResultSet): Unit = {
@@ -65,8 +62,7 @@ class ScalaOverrideContributor extends ScalaCompletionContributor {
 
   // completion inside class parameters
   extend(CompletionType.BASIC,
-    PlatformPatterns.psiElement(ScalaTokenTypes.tIDENTIFIER)
-      .withParent(classOf[ScClassParameter]),
+    identifierWithParentPattern(classOf[ScClassParameter]),
     new CompletionProvider[CompletionParameters]() {
 
       override def addCompletions(completionParameters: CompletionParameters,
@@ -94,8 +90,7 @@ class ScalaOverrideContributor extends ScalaCompletionContributor {
     * handle only declarations here
     */
   extend(CompletionType.BASIC,
-    PlatformPatterns.psiElement(ScalaTokenTypes.tIDENTIFIER)
-      .and(new FilterPattern(new AndFilter(new NotFilter(new OrFilter(new LeftNeighbour(new TextContainFilter(".")), new LeftNeighbour(new TextContainFilter(":"))))))),
+    identifierPattern.and(new FilterPattern(new AndFilter(new NotFilter(new OrFilter(new LeftNeighbour(new TextContainFilter(".")), new LeftNeighbour(new TextContainFilter(":"))))))),
     new CompletionProvider[CompletionParameters] {
 
     def addCompletions(parameters: CompletionParameters, context: ProcessingContext, resultSet: CompletionResultSet) {

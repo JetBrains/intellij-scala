@@ -5,6 +5,7 @@ import com.intellij.codeInsight.completion._
 import com.intellij.codeInsight.lookup._
 import com.intellij.openapi.editor.{Document, Editor}
 import com.intellij.openapi.project.Project
+import com.intellij.patterns.{ElementPattern, PlatformPatterns, StandardPatterns}
 import com.intellij.psi.util.PsiTreeUtil
 import com.intellij.psi.{PsiClass, PsiElement, PsiFile}
 import com.intellij.util.{Consumer, ProcessingContext}
@@ -25,7 +26,26 @@ import scala.collection.JavaConverters
 
 package object completion {
 
+  private[completion] def identifierPattern =
+    PlatformPatterns.psiElement(ScalaTokenTypes.tIDENTIFIER)
+
+  private[completion] def identifierWithParentPattern(clazz: Class[_ <: ScalaPsiElement]) =
+    identifierPattern.withParent(clazz)
+
+  private[completion] def identifierWithParentsPattern(classes: Class[_ <: ScalaPsiElement]*) =
+    identifierPattern.withParents(classes: _*)
+
+  implicit class CaptureExt(private val pattern: ElementPattern[_ <: PsiElement]) extends AnyVal {
+
+    import StandardPatterns.{and, or}
+
+    def &&(pattern: ElementPattern[_ <: PsiElement]): ElementPattern[_ <: PsiElement] = and(this.pattern, pattern)
+
+    def ||(pattern: ElementPattern[_ <: PsiElement]): ElementPattern[_ <: PsiElement] = or(this.pattern, pattern)
+  }
+
   private[completion] implicit class OffsetMapExt(private val offsetMap: OffsetMap) extends AnyVal {
+
     def apply(key: OffsetKey): Int = offsetMap.getOffset(key)
 
     def update(key: OffsetKey, offset: Int): Unit = offsetMap.addOffset(key, offset)

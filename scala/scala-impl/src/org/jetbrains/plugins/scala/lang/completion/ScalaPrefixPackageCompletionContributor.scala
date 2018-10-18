@@ -5,14 +5,12 @@ package completion
 import com.intellij.codeInsight.CodeInsightSettings
 import com.intellij.codeInsight.completion._
 import com.intellij.openapi.project.Project
-import com.intellij.patterns.PlatformPatterns.psiElement
 import com.intellij.psi.util.PsiTreeUtil
 import com.intellij.psi.{JavaPsiFacade, PsiElement, PsiPackage}
 import com.intellij.util.ProcessingContext
 import org.jetbrains.plugins.scala.extensions.{PsiNamedElementExt, ResolvesTo, inReadAction}
 import org.jetbrains.plugins.scala.lang.completion.ScalaCompletionUtil._
 import org.jetbrains.plugins.scala.lang.formatting.settings.ScalaCodeStyleSettings
-import org.jetbrains.plugins.scala.lang.lexer.ScalaTokenTypes
 import org.jetbrains.plugins.scala.lang.psi.api.base.ScReferenceElement
 import org.jetbrains.plugins.scala.lang.psi.api.toplevel.imports.ScImportStmt
 import org.jetbrains.plugins.scala.lang.psi.impl.ScalaPsiElementFactory
@@ -28,7 +26,7 @@ class ScalaPrefixPackageCompletionContributor extends ScalaCompletionContributor
 
   extend(
     CompletionType.BASIC,
-    psiElement(ScalaTokenTypes.tIDENTIFIER).withParent(classOf[ScReferenceElement]),
+    identifierWithParentPattern(classOf[ScReferenceElement]),
     new CompletionProvider[CompletionParameters]() {
       override def addCompletions(parameters: CompletionParameters,
                                   context: ProcessingContext,
