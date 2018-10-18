@@ -15,8 +15,7 @@ import scala.collection.JavaConverters._
 
 private case class Hint(presentation: Presentation,
                         element: PsiElement,
-                        suffix: Boolean,
-                        menu: Option[String] = None) { // TODO no menu
+                        suffix: Boolean) {
 
   def addTo(model: InlayModel): Option[Inlay] = {
     val offset = if (suffix) element.getTextRange.getEndOffset else element.getTextRange.getStartOffset

@@ -1,12 +1,7 @@
 package org.jetbrains.plugins.scala.codeInsight.implicits
 
-import java.awt.event.MouseEvent
-import java.awt.{Component, Point}
-
-import com.intellij.ide.ui.customization.CustomActionsSchema
-import com.intellij.openapi.actionSystem._
 import com.intellij.openapi.editor.impl.EditorImpl
-import org.jetbrains.plugins.scala.codeInsight.implicits.presentation.{Button, Presentation, PresentationFactory}
+import org.jetbrains.plugins.scala.codeInsight.implicits.presentation.{Presentation, PresentationFactory}
 import org.jetbrains.plugins.scala.editor.documentationProvider.ScalaDocumentationProvider
 import org.jetbrains.plugins.scala.extensions._
 import org.jetbrains.plugins.scala.lang.psi.api.ImplicitArgumentsOwner
@@ -24,15 +19,15 @@ private class HintFactory(editor: EditorImpl) {
 
   def implicitConversionHint(e: ScExpression, conversion: ScalaResolveResult): Seq[Hint] = {
     val (leftParen, rightParen) = parentheses
-    Seq(Hint(sequence(namedBasicPresentation(conversion), leftParen), e, suffix = false, menu = Some(menu.ImplicitConversion)),
-      Hint(sequence(rightParen, collapsedPresentationOf(conversion.implicitParameters)), e, suffix = true, menu = Some(menu.ImplicitArguments)))
+    Seq(Hint(contextMenu(menu.ImplicitConversion, sequence(namedBasicPresentation(conversion), leftParen)), e, suffix = false),
+      Hint(contextMenu(menu.ImplicitArguments, sequence(rightParen, collapsedPresentationOf(conversion.implicitParameters))), e, suffix = true))
   }
 
   def implicitArgumentsHint(e: ImplicitArgumentsOwner, arguments: Seq[ScalaResolveResult]): Seq[Hint] =
-    Seq(Hint(presentationOf(arguments), e, suffix = true, menu = Some(menu.ImplicitArguments)))
+    Seq(Hint(contextMenu(menu.ImplicitArguments, presentationOf(arguments)), e, suffix = true))
 
   def explicitImplicitArgumentsHint(args: ScArgumentExprList): Seq[Hint] =
-    Seq(Hint(text(".explicitly"), args, suffix = false, menu = Some(menu.ExplicitArguments)))
+    Seq(Hint(contextMenu(menu.ExplicitArguments, text(".explicitly")), args, suffix = false))
 
   private def presentationOf(arguments: Seq[ScalaResolveResult]): Presentation = {
     if (!ImplicitHints.enabled)
@@ -68,25 +63,6 @@ private class HintFactory(editor: EditorImpl) {
     val delegate = result.element.asOptionOf[ScFunction].flatMap(_.getSyntheticNavigationElement).getOrElse(result.element)
     val tooltip = ScalaDocumentationProvider.getQuickNavigateInfo(delegate, result.substitutor)
     withNavigation(delegate, Some(tooltip), text(result.name))
-  }
-
-  private def contextMenu(id: String, presentation: Presentation) = {
-    val handler = (e: MouseEvent) => {
-      CustomActionsSchema.getInstance.getCorrectedAction(id) match {
-        case group: ActionGroup =>
-          val popupMenu = ActionManager.getInstance.createActionPopupMenu(ActionPlaces.EDITOR_POPUP, group)
-          val point = locationAt(e, editor.getContentComponent)
-          popupMenu.getComponent.show(editor.getContentComponent, point.x, point.y)
-          e.consume()
-        case _ =>
-      }
-    }
-    onClick(handler, Button.Right, presentation)
-  }
-
-  private def locationAt(e: MouseEvent, component: Component): Point = {
-    val pointOnScreen = component.getLocationOnScreen
-    new Point(e.getXOnScreen - pointOnScreen.x, e.getYOnScreen - pointOnScreen.y)
   }
 
   private def problemPresentation(parameter: ScalaResolveResult): Presentation = {

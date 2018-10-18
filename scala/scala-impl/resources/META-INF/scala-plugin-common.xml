@@ -1724,6 +1724,8 @@
                 text="Expand Implicit Hints"/>
       </group>
 
+      <action id="DummyActionGroup"/>
+
       <group id="ImplicitArgumentsMenu">
         <action id="ExplicitArgumentMenu.ShowImplicitArgumentsPopup"
                 class="org.jetbrains.plugins.scala.codeInsight.implicits.menu.ImplicitArgumentsPopup"

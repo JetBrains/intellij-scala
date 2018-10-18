@@ -5,6 +5,8 @@ import java.awt._
 import java.awt.event.MouseEvent
 
 import com.intellij.codeInsight.hint.{HintManager, HintManagerImpl, HintUtil}
+import com.intellij.ide.ui.customization.CustomActionsSchema
+import com.intellij.openapi.actionSystem.{ActionGroup, ActionManager, ActionPlaces}
 import com.intellij.openapi.command.CommandProcessor
 import com.intellij.openapi.editor.Editor
 import com.intellij.openapi.editor.colors.{CodeInsightColors, EditorColors, EditorFontType, TextAttributesKey}
@@ -164,6 +166,21 @@ class PresentationFactory(editor: EditorImpl) {
 
   def asWrongReference(presentation: Presentation): Presentation =
     attributes(_ + attributesOf(CodeInsightColors.WRONG_REFERENCES_ATTRIBUTES), presentation)
+
+  // TODO dynamic creation
+  def contextMenu(id: String, presentation: Presentation): Presentation = {
+    val handler = (e: MouseEvent) => {
+      CustomActionsSchema.getInstance.getCorrectedAction(id) match {
+        case group: ActionGroup =>
+          val popupMenu = ActionManager.getInstance.createActionPopupMenu(ActionPlaces.EDITOR_POPUP, group)
+          val point = locationAt(e, editor.getContentComponent)
+          popupMenu.getComponent.show(editor.getContentComponent, point.x, point.y)
+          e.consume()
+        case _ =>
+      }
+    }
+    onClick(handler, Button.Right, presentation)
+  }
 }
 
 private object PresentationFactory {

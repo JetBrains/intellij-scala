@@ -18,4 +18,8 @@ class PresentationRenderer(val presentation: Presentation) extends HintRenderer(
     presentation.paint(g2d, getTextAttributes(editor)) // todo use textAttributes
     g2d.translate(-r.x, -r.y)
   }
+
+  // TODO Make it possible to avois showing a context menu in IDEA
+  // see com.intellij.openapi.editor.impl.EditorImpl.invokePopupIfNeeded
+  override def getContextMenuGroupId: String = "DummyActionGroup"
 }
