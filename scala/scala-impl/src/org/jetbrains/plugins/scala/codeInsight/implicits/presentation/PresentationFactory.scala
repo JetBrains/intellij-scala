@@ -163,6 +163,12 @@ class PresentationFactory(editor: EditorImpl) {
 
   def onClick(handler: MouseEvent => Unit, button: Button, presentation: Presentation): Presentation =
     new OnClick(presentation, button, handler)
+
+  def asError(presentation: Presentation): Presentation =
+    attributes(_ + attributesOf(CodeInsightColors.ERRORS_ATTRIBUTES), presentation)
+
+  def asWrongReference(presentation: Presentation): Presentation =
+    attributes(_ + attributesOf(CodeInsightColors.WRONG_REFERENCES_ATTRIBUTES), presentation)
 }
 
 private object PresentationFactory {

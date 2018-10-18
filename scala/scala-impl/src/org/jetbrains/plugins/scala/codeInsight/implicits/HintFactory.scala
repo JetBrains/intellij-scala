@@ -5,9 +5,8 @@ import java.awt.{Component, Point}
 
 import com.intellij.ide.ui.customization.CustomActionsSchema
 import com.intellij.openapi.actionSystem._
-import com.intellij.openapi.editor.colors.{CodeInsightColors, EditorFontType}
+import com.intellij.openapi.editor.colors.EditorFontType
 import com.intellij.openapi.editor.impl.EditorImpl
-import com.intellij.openapi.editor.markup.TextAttributes
 import org.jetbrains.plugins.scala.codeInsight.implicits.presentation.{Button, Presentation, PresentationFactory}
 import org.jetbrains.plugins.scala.editor.documentationProvider.ScalaDocumentationProvider
 import org.jetbrains.plugins.scala.extensions._
@@ -53,7 +52,7 @@ private class HintFactory(editor: EditorImpl) {
       inParentheses(
         withTooltip(notFoundTooltip(problems),
           withFolding(
-            if (problems.isEmpty) text(Ellipsis) else attributes(_ + errorAttributes, text(Ellipsis)),
+            if (problems.isEmpty) text(Ellipsis) else asError(text(Ellipsis)),
             expandedPresentationOf(arguments, parentheses = false))))
     }
 
@@ -106,26 +105,17 @@ private class HintFactory(editor: EditorImpl) {
     withTooltip(notFoundTooltip(parameter),
       sequence(
         withNavigation(parameter.element, None,
-          attributes(_ + likeWrongReference, text("?"))),
+          asWrongReference(text("?"))),
         text(typeAnnotation(parameter))))
   }
 
   private def collapsedProblemPresentation(parameter: ScalaResolveResult, probableArgs: Seq[(ScalaResolveResult, FullInfoResult)]): Presentation = {
-    val errorTooltip =
-      if (probableArgs.size > 1) ambiguousTooltip(parameter)
-      else notFoundTooltip(parameter)
-
-    val ellipsis = {
-      val result = text(Ellipsis)
-      if (parameter.isImplicitParameterProblem) attributes(_ + errorAttributes, result) else result
-    }
-
-    val presentation =
-      if (!ImplicitHints.enabled) ellipsis else sequence(ellipsis, text(typeAnnotation(parameter)))
+    val ellipsis =
+      if (parameter.isImplicitParameterProblem) asError(text(Ellipsis)) else text(Ellipsis)
 
     withFolding(
-      withTooltip(errorTooltip,
-        presentation),
+      withTooltip(if (probableArgs.size > 1) ambiguousTooltip(parameter) else notFoundTooltip(parameter),
+        if (ImplicitHints.enabled) sequence(ellipsis, text(typeAnnotation(parameter))) else ellipsis),
       expandedProblemPresentation(parameter, probableArgs))
   }
 
@@ -139,7 +129,7 @@ private class HintFactory(editor: EditorImpl) {
   private def expandedAmbiguousPresentation(parameter: ScalaResolveResult, arguments: Seq[(ScalaResolveResult, FullInfoResult)]): Presentation = {
     withTooltip(ambiguousTooltip(parameter),
       sequence(arguments.map { case (argument, result) => presentationOfProbable(argument, result) }
-      .intersperse(attributes(_ + likeWrongReference, text(" | "))): _*))
+      .intersperse(asWrongReference(text(" | "))): _*))
   }
 
   private def presentationOfProbable(argument: ScalaResolveResult, result: FullInfoResult): Presentation = {
@@ -154,10 +144,10 @@ private class HintFactory(editor: EditorImpl) {
             sequence(argument.implicitParameters.map(parameter => presentationOf(parameter)).intersperse(text(", ")): _*)))
 
       case DivergedImplicitResult =>
-        withTooltip("Implicit is diverged", attributes(_ + errorAttributes, namedBasicPresentation(argument)))
+        withTooltip("Implicit is diverged", asError(namedBasicPresentation(argument)))
 
       case CantInferTypeParameterResult =>
-        withTooltip("Can't infer proper types for type parameters", attributes(_ + errorAttributes, namedBasicPresentation(argument)))
+        withTooltip("Can't infer proper types for type parameters", asError(namedBasicPresentation(argument)))
     }
   }
 
@@ -178,13 +168,6 @@ private class HintFactory(editor: EditorImpl) {
       Seq.empty
     }
   }
-
-  // TODO asError
-  private def errorAttributes = scheme.getAttributes(CodeInsightColors.ERRORS_ATTRIBUTES)
-
-  // TODO asWrongReference
-  private def likeWrongReference =
-    Option(scheme.getAttributes(CodeInsightColors.WRONG_REFERENCES_ATTRIBUTES)).getOrElse(new TextAttributes())
 
   private def typeAnnotation(parameter: ScalaResolveResult): String = {
     val paramType = parameter.implicitSearchState.map(_.presentableTypeText).getOrElse("NotInferred")
