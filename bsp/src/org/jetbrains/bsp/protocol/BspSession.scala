@@ -11,14 +11,15 @@ import com.intellij.util.concurrency.AppExecutorUtil
 import monix.eval.Task
 import monix.execution.{CancelableFuture, Scheduler}
 import monix.reactive.Observable
-import org.jetbrains.bsp.BspUtil.{IdeaLoggerOps, _}
+import org.jetbrains.bsp.BspUtil.IdeaLoggerOps
+import org.jetbrains.bsp._
 import org.jetbrains.bsp.protocol.BspCommunication._
 import org.jetbrains.bsp.protocol.BspSession._
-import org.jetbrains.bsp.{BSP, BspError, BspErrorMessage, BspTaskCancelled}
 
 import scala.concurrent.duration._
 import scala.concurrent.{Await, Future, Promise, TimeoutException}
 import scala.meta.jsonrpc._
+import scala.util.control.NonFatal
 
 class BspSession(messages: Observable[BaseProtocolMessage],
                  private implicit val client: LanguageClient,
@@ -44,7 +45,10 @@ class BspSession(messages: Observable[BaseProtocolMessage],
   private def nextQueuedCommand= {
     val timeout = 1.second
     try {
-      val readyForNext = sessionInitialized.flatMap(_ => currentJob.future)
+      val currentIgnoringErrors = currentJob.future.recover {
+        case NonFatal(_) => ()
+      }
+      val readyForNext = sessionInitialized.flatMap(_ => currentIgnoringErrors)
       Await.result(readyForNext, timeout) // will throw on init/job error
       val next = jobs.poll(timeout.toMillis, TimeUnit.MILLISECONDS)
       if (next != null) {
@@ -53,9 +57,11 @@ class BspSession(messages: Observable[BaseProtocolMessage],
       }
     } catch {
       case _: TimeoutException => // just carry on
-      case error: BspError =>
-        logger.error("encountered error running bsp job", error)
+      case error: BspConnectionError =>
+        logger.warn("problem connecting to bsp server", error)
         shutdown(Some(error))
+      case NonFatal(error) =>
+        logger.error(error)
     }
   }
 
@@ -94,10 +100,10 @@ class BspSession(messages: Observable[BaseProtocolMessage],
 
     startup
       .flatMap {
-        case Left(error) => Task.raiseError(error.toBspError)
+        case Left(error) => Task.raiseError(BspConnectionError(error.error.message))
         case Right(result) => Task.now(result)
       }
-      .timeoutTo(5.seconds, Task.raiseError(BspErrorMessage("Connection to bsp server timed out.")))
+      .timeoutTo(5.seconds, Task.raiseError(BspConnectionError("bsp server is not responding")))
       .runAsync
   }
 
