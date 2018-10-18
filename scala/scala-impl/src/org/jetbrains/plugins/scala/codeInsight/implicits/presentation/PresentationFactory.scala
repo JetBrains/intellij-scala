@@ -21,53 +21,48 @@ import org.jetbrains.plugins.scala.extensions._
 import scala.Function.const
 
 class PresentationFactory(editor: EditorImpl) {
-  private def ascent = editor.getAscent
+  private val Empty = space(0)
 
-  private def descent = editor.getDescent
-
-  private def lineHeight = editor.getLineHeight
-
-  private def charHeight = editor.getCharHeight
-
-  private def fontMetrics(font: Font) = component.getFontMetrics(font)
-
-  private def component = editor.getContentComponent
-
-  private def font = editor.getColorsScheme.getFont(EditorFontType.PLAIN)
-
-  val empty: Presentation = space(0)
+  def empty: Presentation = Empty
 
   def space(width: Int): Presentation =
     new Space(width, editor.getLineHeight)
 
-  def text(s: String): Presentation = text(s, editor.getColorsScheme.getFont)
-
-  private def text(s: String, fontProvider: EditorFontType => Font): Presentation = {
-    val width = fontMetrics(font).stringWidth(s)
-    new Background(new Effect(new Text(width, lineHeight, s, ascent, fontProvider), font, lineHeight, ascent, descent))
+  def text(s: String): Presentation = {
+    val plainFont = editor.getColorsScheme.getFont(EditorFontType.PLAIN)
+    val width = editor.getContentComponent.getFontMetrics(plainFont).stringWidth(s)
+    new Background(
+      new Effect(
+        new Text(width, editor.getLineHeight, s, editor.getAscent, editor.getColorsScheme.getFont),
+        plainFont, editor.getLineHeight, editor.getAscent, editor.getDescent))
   }
 
   def sequence(presentations: Presentation*): Presentation =
-    new Sequence(lineHeight, presentations: _*)
+    new Sequence(editor.getLineHeight, presentations: _*)
 
-  // withAttributes
   def attributes(transform: TextAttributes => TextAttributes, presentation: Presentation): Presentation =
     new Attributes(presentation, transform)
 
-  def effects(font: Font, presentation: Presentation): Presentation =
-    new Effect(presentation, font, lineHeight, ascent, descent)
+  def effects(presentation: Presentation): Presentation = {
+    val font = editor.getColorsScheme.getFont(EditorFontType.PLAIN)
+    new Effect(presentation, font, editor.getLineHeight, editor.getAscent, editor.getDescent)
+  }
 
-  def background(color: Color, presentation: Presentation): Presentation =
+  def background(presentation: Presentation): Presentation =
     new Background(presentation)
 
   def rounding(arcWidth: Int, arcHeight: Int, presentation: Presentation): Presentation =
     new Rounding(presentation, arcWidth, arcHeight)
 
   def insets(left: Int, right: Int, presentation: Presentation): Presentation =
-    new Sequence(lineHeight, new Space(left, lineHeight), presentation, new Space(right, lineHeight))
+    new Sequence(editor.getLineHeight,
+      new Space(left, editor.getLineHeight),
+      presentation,
+      new Space(right, editor.getLineHeight))
 
   def withFolding(folded: Presentation, expanded: => Presentation): Presentation =
-    expansion(expanded, new Attributes(folded, _ + adjusted(attributesOf(EditorColors.FOLDED_TEXT_ATTRIBUTES))))
+    expansion(expanded,
+      new Attributes(folded, _ + adjusted(attributesOf(EditorColors.FOLDED_TEXT_ATTRIBUTES))))
 
   private def attributesOf(key: TextAttributesKey) =
     Option(editor.getColorsScheme.getAttributes(key)).getOrElse(new TextAttributes())
@@ -117,12 +112,6 @@ class PresentationFactory(editor: EditorImpl) {
   def withNavigation(target: PsiElement, tooltip: Option[String], presentation: Presentation): Presentation =
     navigation(asHyperlink, tooltip.map(tooltipHandler).getOrElse(const(())), _ => navigateTo(target), presentation)
 
-  private def asHyperlink(presentation: Presentation): Presentation = {
-    val as = attributesOf(EditorColors.REFERENCE_HYPERLINK_COLOR).clone()
-    as.setEffectType(EffectType.LINE_UNDERSCORE)
-    attributes(_ + as, presentation)
-  }
-
   private def navigateTo(e: PsiElement): Unit = {
     e.asOptionOf[Navigatable].filter(_.canNavigate).foreach { navigatable =>
       CommandProcessor.getInstance.executeCommand(e.getProject, navigatable.navigate(true), null, null)
@@ -136,7 +125,7 @@ class PresentationFactory(editor: EditorImpl) {
 
     new OnHover(forwarding, isControlDown, e => {
       val cursor = if (e.isDefined) Cursor.HAND_CURSOR else Cursor.TEXT_CURSOR
-      component.setCursor(Cursor.getPredefinedCursor(cursor))
+      editor.getContentComponent.setCursor(Cursor.getPredefinedCursor(cursor))
 
       forwarding.delegate = if (e.isDefined) new OnClick(decorator(presentation), Button.Left, onClick) else inner
 
@@ -163,6 +152,12 @@ class PresentationFactory(editor: EditorImpl) {
 
   def onClick(handler: MouseEvent => Unit, button: Button, presentation: Presentation): Presentation =
     new OnClick(presentation, button, handler)
+
+  private def asHyperlink(presentation: Presentation): Presentation = {
+    val as = attributesOf(EditorColors.REFERENCE_HYPERLINK_COLOR).clone()
+    as.setEffectType(EffectType.LINE_UNDERSCORE)
+    attributes(_ + as, presentation)
+  }
 
   def asError(presentation: Presentation): Presentation =
     attributes(_ + attributesOf(CodeInsightColors.ERRORS_ATTRIBUTES), presentation)

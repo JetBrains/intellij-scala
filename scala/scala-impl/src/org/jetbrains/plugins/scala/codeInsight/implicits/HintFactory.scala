@@ -5,7 +5,6 @@ import java.awt.{Component, Point}
 
 import com.intellij.ide.ui.customization.CustomActionsSchema
 import com.intellij.openapi.actionSystem._
-import com.intellij.openapi.editor.colors.EditorFontType
 import com.intellij.openapi.editor.impl.EditorImpl
 import org.jetbrains.plugins.scala.codeInsight.implicits.presentation.{Button, Presentation, PresentationFactory}
 import org.jetbrains.plugins.scala.editor.documentationProvider.ScalaDocumentationProvider
@@ -21,9 +20,6 @@ private class HintFactory(editor: EditorImpl) {
   private val Ellipsis: String = "..."
 
   private val factory = new PresentationFactory(editor)
-  private val font = editor.getColorsScheme.getFont(EditorFontType.PLAIN)
-  private val scheme = editor.getColorsScheme
-
   import factory._
 
   def implicitConversionHint(e: ScExpression, conversion: ScalaResolveResult): Seq[Hint] = {
