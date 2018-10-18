@@ -96,18 +96,20 @@ class PresentationFactory(editor: EditorImpl) {
     handler
   }
 
-  def withNavigation(target: PsiElement, tooltip: Option[String], presentation: Presentation): Presentation = {
-    def asHyperlink(presentation: Presentation): Presentation = {
-      val as = editor.getColorsScheme.getAttributes(EditorColors.REFERENCE_HYPERLINK_COLOR).clone()
-      as.setEffectType(EffectType.LINE_UNDERSCORE)
-      attributes(_ + as, presentation)
-    }
+  def withNavigation(target: PsiElement, tooltip: Option[String], presentation: Presentation): Presentation =
+    navigation(asHyperlink, tooltip.map(tooltipHandler).getOrElse(const(())), _ => navigateTo(target), presentation)
 
-    def navigateTo(e: PsiElement): Unit = {
-      e.asOptionOf[Navigatable].filter(_.canNavigate).foreach { navigatable =>
-        CommandProcessor.getInstance.executeCommand(e.getProject, navigatable.navigate(true), null, null)
-      }
+  private def asHyperlink(presentation: Presentation): Presentation = {
+    val as = attributesOf(EditorColors.REFERENCE_HYPERLINK_COLOR).clone()
+    as.setEffectType(EffectType.LINE_UNDERSCORE)
+    attributes(_ + as, presentation)
+  }
+
+  private def navigateTo(e: PsiElement): Unit = {
+    e.asOptionOf[Navigatable].filter(_.canNavigate).foreach { navigatable =>
+      CommandProcessor.getInstance.executeCommand(e.getProject, navigatable.navigate(true), null, null)
     }
+  }
 
     navigation(asHyperlink, tooltip.map(tooltipHandler).getOrElse(const(())), _ => navigateTo(target), presentation)
   }
@@ -118,7 +120,7 @@ class PresentationFactory(editor: EditorImpl) {
     val forwarding = new DynamicForwarding(inner)
 
     new OnHover(forwarding, isControlDown, e => {
-      val cursor = if (e.isDefined) Cursor.HAND_CURSOR else Cursor.DEFAULT_CURSOR
+      val cursor = if (e.isDefined) Cursor.HAND_CURSOR else Cursor.TEXT_CURSOR
       component.setCursor(Cursor.getPredefinedCursor(cursor))
 
       forwarding.delegate = if (e.isDefined) new OnClick(decorator(presentation), Button.Left, onClick) else inner
@@ -126,7 +128,6 @@ class PresentationFactory(editor: EditorImpl) {
       onHover(e)
     })
   }
-
 
   def synchronous(decorator: Presentation => Presentation, presentation1: Presentation, presentation2: Presentation): (Presentation, Presentation) = {
     val result = synchronous0(decorator, presentation1, presentation2)
