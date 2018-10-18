@@ -88,27 +88,25 @@ object CachesUtil {
 
   def enclosingModificationOwner(element: PsiElement): ModificationTracker = {
     @tailrec
-    def modificationCount(place: PsiElement, result: Long): Long = place match {
+    def modificationCount(element: PsiElement, result: Long): Long = element.getContext match {
       case null | _: ScalaFile => result
-      case _ =>
-        val delta = place match {
-          case owner: ScExpression if owner.shouldntChangeModificationCount => owner.modificationCount
-          case _ => 0
-        }
-        modificationCount(place.getContext, result + delta)
+      case owner: ScExpression if owner.shouldntChangeModificationCount =>
+        modificationCount(owner, result + owner.modificationCount)
+      case context =>
+        modificationCount(context, result)
     }
 
-    val tracker = ScalaPsiManager.instance(element.getProject).TopLevelModificationTracker
+    val topLevel = ScalaPsiManager.instance(element.getProject).TopLevelModificationTracker
 
     @tailrec
-    def calc(element: PsiElement): ModificationTracker = element match {
-      case null => tracker
+    def findTracker(element: PsiElement): ModificationTracker = element match {
+      case null => topLevel
       case owner: ScExpression if owner.shouldntChangeModificationCount =>
-        () => modificationCount(owner, tracker.getModificationCount)
-      case owner => calc(owner.getContext)
+        () => modificationCount(owner, topLevel.getModificationCount + owner.modificationCount)
+      case owner => findTracker(owner.getContext)
     }
 
-    calc(element)
+    findTracker(element)
   }
 
   case class ProbablyRecursionException[Data](elem: PsiElement,
