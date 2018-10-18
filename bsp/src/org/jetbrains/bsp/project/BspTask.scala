@@ -6,7 +6,7 @@ import ch.epfl.scala.bsp.{BuildTargetIdentifier, _}
 import com.intellij.build.FilePosition
 import com.intellij.execution.process.AnsiEscapeDecoder.ColoredTextAcceptor
 import com.intellij.execution.process.{AnsiEscapeDecoder, ProcessOutputTypes}
-import com.intellij.openapi.progress.{PerformInBackgroundOption, ProgressIndicator, Task}
+import com.intellij.openapi.progress.{PerformInBackgroundOption, ProcessCanceledException, ProgressIndicator, Task}
 import com.intellij.openapi.project.Project
 import com.intellij.openapi.util.Key
 import com.intellij.task.{ProjectTaskNotification, _}
@@ -14,13 +14,14 @@ import monix.eval
 import monix.execution.Scheduler
 import org.jetbrains.bsp.BspUtil._
 import org.jetbrains.bsp.project.BspTask.TextCollector
-import org.jetbrains.bsp.protocol.BspCommunication
 import org.jetbrains.bsp.protocol.BspCommunication.NotificationCallback
+import org.jetbrains.bsp.protocol.{BspCommunication, BspJob}
 import org.jetbrains.bsp.settings.BspExecutionSettings
 import org.jetbrains.plugins.scala.build.{BuildFailureException, BuildMessages, BuildToolWindowReporter, IndicatorReporter}
 
-import scala.concurrent.Await
-import scala.concurrent.duration.Duration
+import scala.annotation.tailrec
+import scala.concurrent.duration._
+import scala.concurrent.{Await, TimeoutException}
 import scala.meta.jsonrpc.{LanguageClient, Response}
 import scala.util.control.NonFatal
 
@@ -43,20 +44,21 @@ class BspTask[T](project: Project, executionSettings: BspExecutionSettings,
       reportDiagnostics(params)
     case BspCommunication.CompileReport(params) =>
       reportCompile(params)
-
+    case BspCommunication.TestReport(params) =>
+      // ignore in compile tasks
   }
 
   override def run(indicator: ProgressIndicator): Unit = {
     val reportIndicator = new IndicatorReporter(indicator)
 
     val communication = BspCommunication.forProject(project)
-    val buildTask = communication.run(compileRequest(_), bspNotifications)
 
     reportIndicator.start()
     report.start()
 
+    val buildJob = communication.run(compileRequest(_), bspNotifications)
     val projectTaskResult = try {
-      val result = Await.result(buildTask, Duration.Inf)
+      val result = waitForJobCancelable(buildJob, indicator)
       result match {
         case Left(error) =>
           val message = error.toBspError.getMessage
@@ -73,14 +75,32 @@ class BspTask[T](project: Project, executionSettings: BspExecutionSettings,
       }
 
     } catch {
+      case _: ProcessCanceledException =>
+        report.finishCanceled()
+        reportIndicator.finishCanceled()
+        new ProjectTaskResult(true, 1, 0)
       case NonFatal(err) =>
-        report.error(err.getMessage, None)
+        val errName = err.getClass.getName
+        val msg = Option(err.getMessage).map(m => s"$errName: $m").getOrElse(errName)
+        report.error(msg, None)
         report.finishWithFailure(err)
         reportIndicator.finishWithFailure(err)
         new ProjectTaskResult(true, 1, 0)
     }
 
     callbackOpt.foreach(_.finished(projectTaskResult))
+  }
+
+  @tailrec private def waitForJobCancelable[R](job: BspJob[R], indicator: ProgressIndicator): R = {
+    try {
+      indicator.checkCanceled()
+      Await.result(job.future, 300.millis)
+    } catch {
+      case _ : TimeoutException => waitForJobCancelable(job, indicator)
+      case cancel : ProcessCanceledException =>
+        job.cancel()
+        throw cancel
+    }
   }
 
   private def compileRequest(implicit client: LanguageClient): eval.Task[Either[Response.Error, CompileResult]] =

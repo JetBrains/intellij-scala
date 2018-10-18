@@ -19,18 +19,18 @@ import org.jetbrains.bsp.BspUtil._
 import org.jetbrains.bsp.data.{BspMetadata, ScalaSdkData}
 import org.jetbrains.bsp.magic.monixToCats.monixToCatsMonad
 import org.jetbrains.bsp.project.BspProjectResolver._
-import org.jetbrains.bsp.protocol.BspCommunication
 import org.jetbrains.bsp.protocol.BspCommunication.NotificationCallback
+import org.jetbrains.bsp.protocol.{BspCommunication, BspJob}
 import org.jetbrains.bsp.settings.BspExecutionSettings
-import org.jetbrains.bsp.{BSP, BspError, BspErrorMessage}
+import org.jetbrains.bsp.{BSP, BspError, BspTaskCancelled}
 import org.jetbrains.ide.PooledThreadExecutor
 import org.jetbrains.plugins.scala.project.Version
 import org.jetbrains.sbt.project.data.SbtBuildModuleData
 
 import scala.annotation.tailrec
 import scala.collection.JavaConverters._
-import scala.concurrent.{Await, Future, TimeoutException}
 import scala.concurrent.duration._
+import scala.concurrent.{Await, TimeoutException}
 import scala.meta.jsonrpc.{LanguageClient, Response}
 
 class BspProjectResolver extends ExternalSystemProjectResolver[BspExecutionSettings] {
@@ -65,7 +65,7 @@ class BspProjectResolver extends ExternalSystemProjectResolver[BspExecutionSetti
         Task.zip2(depSources, scalacOptions)
       }
 
-    def requests(implicit client: LanguageClient): Task[Either[BspError, Iterable[ScalaModuleDescription]]] = {
+    def requests(implicit client: LanguageClient): Task[Either[BspError, DataNode[ProjectData]]] = {
       import endpoints._
       val targetsRequest = Workspace.buildTargets.request(WorkspaceBuildTargetsRequest())
       val transformer = for {
@@ -76,7 +76,8 @@ class BspProjectResolver extends ExternalSystemProjectResolver[BspExecutionSetti
         dependencySources <- EitherT.fromEither[Task](data._1.left.map(_.toBspError)) // TODO not required for project, should be warning
         scalacOptions <- EitherT.fromEither[Task](data._2.left.map(_.toBspError)) // TODO not required for non-scala modules
       } yield {
-        calculateModuleDescription(targets, scalacOptions.items, dependencySources.items)
+        val descriptions = calculateModuleDescription(targets, scalacOptions.items, dependencySources.items)
+        projectNode(descriptions)
       }
       transformer.value
     }
@@ -211,35 +212,34 @@ class BspProjectResolver extends ExternalSystemProjectResolver[BspExecutionSetti
       case _ =>
     }
 
-    val projectFuture =
+    val projectJob =
       communication.run(requests(_), bspNotifications )
-        .map{ moduleDescriptionsResult =>
-          moduleDescriptionsResult.map(projectNode)
-        }
 
     statusUpdate("starting task") // TODO remove in favor of build toolwindow nodes
 
     importState = Active(communication)
-    val result = busyAwaitProject(projectFuture)
+    val result = waitForProjectCancelable(projectJob)
     importState = Inactive
 
     statusUpdate("finished task") // TODO remove in favor of build toolwindow nodes
 
     result match {
+      case Left(BspTaskCancelled) => null
       case Left(err) => throw err
       case Right(data) => data
     }
   }
 
-  @tailrec private def busyAwaitProject(projectFuture: Future[Either[BspError, DataNode[ProjectData]]]): Either[BspError, DataNode[ProjectData]] =
+  @tailrec private def waitForProjectCancelable[T](projectJob: BspJob[Either[BspError, DataNode[ProjectData]]]): Either[BspError, DataNode[ProjectData]] =
   importState match {
     case Active(_) =>
-      try {Await.result(projectFuture, 300.millis)}
+      try { Await.result(projectJob.future, 300.millis) }
       catch {
-        case _: TimeoutException => busyAwaitProject(projectFuture)
+        case _: TimeoutException => waitForProjectCancelable(projectJob)
       }
     case Inactive =>
-      Left(BspErrorMessage("Import canceled"))
+      projectJob.cancel()
+      Left(BspTaskCancelled)
   }
 
   override def cancelTask(taskId: ExternalSystemTaskId,

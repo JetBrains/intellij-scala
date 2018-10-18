@@ -20,7 +20,8 @@ trait BuildReporter {
   def start()
 
   def finish(messages: BuildMessages): Unit
-  def finishWithFailure(err: Throwable)
+  def finishWithFailure(err: Throwable): Unit
+  def finishCanceled(): Unit
 
   def warning(message: String, position: Option[FilePosition]): Unit
   def error(message: String, position: Option[FilePosition]): Unit
@@ -47,6 +48,11 @@ class IndicatorReporter(indicator: ProgressIndicator) extends BuildReporter {
     indicator.setText(s"errored: ${err.getMessage}")
   }
 
+  override def finishCanceled(): Unit = {
+    indicator.setText("canceled")
+  }
+
+
   override def warning(message: String, position: Option[FilePosition]): Unit = {
     indicator.setText(s"WARNING: $message")
     indicator.setText2(positionString(position))
@@ -72,7 +78,6 @@ class IndicatorReporter(indicator: ProgressIndicator) extends BuildReporter {
       s"${pos.getFile} [${pos.getStartLine}:${pos.getStartColumn}]"
     }
   }
-
 }
 
 class BuildToolWindowReporter(project: Project, taskId: UUID, title: String) extends BuildReporter {
@@ -111,6 +116,13 @@ class BuildToolWindowReporter(project: Project, taskId: UUID, title: String) ext
     val failureResult = new FailureResultImpl(err)
     val finishEvent =
       new FinishBuildEventImpl(taskId, null, System.currentTimeMillis(), "failed", failureResult)
+    viewManager.onEvent(finishEvent)
+  }
+
+  override def finishCanceled(): Unit = {
+    val canceledResult = new SkippedResultImpl
+    val finishEvent =
+      new FinishBuildEventImpl(taskId, null, System.currentTimeMillis(), "canceled", canceledResult)
     viewManager.onEvent(finishEvent)
   }
 

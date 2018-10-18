@@ -3,7 +3,7 @@ package org.jetbrains.bsp
 import java.util.concurrent.{ScheduledFuture, TimeUnit}
 
 import com.intellij.ide.highlighter.JavaFileType
-import com.intellij.openapi.application.{Application, ApplicationManager, ModalityState}
+import com.intellij.openapi.application.{ApplicationManager, ModalityState}
 import com.intellij.openapi.components.ProjectComponent
 import com.intellij.openapi.externalSystem.service.project.autoimport.FileChangeListenerBase
 import com.intellij.openapi.fileTypes.FileType
@@ -15,7 +15,6 @@ import com.intellij.openapi.vfs.{VirtualFile, VirtualFileManager}
 import com.intellij.task.{ProjectTaskManager, ProjectTaskNotification, ProjectTaskResult}
 import com.intellij.util.concurrency.AppExecutorUtil
 import com.intellij.util.messages.MessageBusConnection
-import com.intellij.util.ui.UIUtil
 import org.jetbrains.bsp.settings.{BspProjectSettings, BspSettings}
 import org.jetbrains.plugins.scala.ScalaFileType
 

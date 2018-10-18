@@ -70,17 +70,18 @@ class BspCommunication(base: File, executionSettings: BspExecutionSettings) {
     case Some(s) => s.shutdown()
   }
 
-  def run[T, A](task: BspSessionTask[T], default: A, aggregator: NotificationAggregator[A])(implicit scheduler: Scheduler): Future[(T, A)] = {
+  def run[T, A](task: BspSessionTask[T], default: A, aggregator: NotificationAggregator[A])(implicit scheduler: Scheduler): BspJob[(T, A)] = {
     acquireSession match {
-      case Left(error) => Future.failed(error)
+      case Left(error) => new FailedBspJob(error)
       case Right(currentSession) =>
         currentSession.run(task, default, aggregator)
     }
   }
 
-  def run[T](bspSessionTask: BspSessionTask[T], notifications: NotificationCallback)(implicit scheduler: Scheduler): Future[T] = {
-    val aggregator = (a: Unit, n: BspNotification) => notifications(n)
-    run(bspSessionTask, (), aggregator).map{ case (t,a) => t }
+  def run[T](bspSessionTask: BspSessionTask[T], notifications: NotificationCallback)(implicit scheduler: Scheduler): BspJob[T] = {
+    val callback = (a: Unit, n: BspNotification) => notifications(n)
+    val job = run(bspSessionTask, (), callback)
+    new NonAggregatingBspJob(job)
   }
 
 }
