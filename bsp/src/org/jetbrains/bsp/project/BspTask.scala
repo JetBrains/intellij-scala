@@ -81,7 +81,7 @@ class BspTask[T](project: Project, executionSettings: BspExecutionSettings,
         new ProjectTaskResult(true, 1, 0)
       case NonFatal(err) =>
         val errName = err.getClass.getName
-        val msg = Option(err.getMessage).map(m => s"$errName: $m").getOrElse(errName)
+        val msg = Option(err.getMessage).getOrElse(errName)
         report.error(msg, None)
         report.finishWithFailure(err)
         reportIndicator.finishWithFailure(err)

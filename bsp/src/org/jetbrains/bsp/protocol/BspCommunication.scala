@@ -43,26 +43,33 @@ class BspCommunication(base: File, executionSettings: BspExecutionSettings) {
 
   @volatile private var session: Option[BspSession] = None
 
-  // TODO should we synchronize here?
-  private def acquireSession(implicit scheduler: Scheduler): Either[BspError, BspSession] = session match {
-    case None =>
-      val sessionResult =
-        prepareSession(base, executionSettings).runSyncMaybe match {
-          case Left(futureResult) => Await.result(futureResult, 1.minute)
-          case Right(result) => result
-        }
+  private def acquireSession(implicit scheduler: Scheduler): Either[BspError, BspSession] = session.synchronized {
+    session match {
+      case Some(currentSession) if currentSession.isAlive =>
+        Right(currentSession)
 
-      sessionResult match {
-        case Left(error) =>
-          log.warn("bsp connection failed", error)
-        case Right(newSession) =>
-          session = Some(newSession)
+      case Some(deadSession) =>
+        openSession
+
+      case None => openSession
+    }
+  }
+
+  private def openSession(implicit scheduler: Scheduler): Either[BspError, BspSession] = {
+    val sessionResult =
+      prepareSession(base, executionSettings).runSyncMaybe match {
+        case Left(futureResult) => Await.result(futureResult, 1.minute)
+        case Right(result) => result
       }
 
-      sessionResult
+    sessionResult match {
+      case Left(error) =>
+        log.warn("bsp connection failed", error)
+      case Right(newSession) =>
+        session = Some(newSession)
+    }
 
-    case Some(currentSession) =>
-      Right(currentSession)
+    sessionResult
   }
 
   def closeSession(): Future[Unit] = session match {
@@ -102,7 +109,7 @@ object BspCommunication {
 
 
   // TODO since IntelliJ projects can correspond to multiple bsp modules, figure out how to have independent
-  //  BspCommunication instances per base path
+  //      BspCommunication instances per base path
   def forProject(project: Project): BspCommunication = {
     val pm = project.getComponent(classOf[BspCommunicationComponent])
     if (pm == null) throw new IllegalStateException(s"unable to get component BspCommunication for project $project")

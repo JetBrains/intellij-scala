@@ -14,7 +14,7 @@ import monix.reactive.Observable
 import org.jetbrains.bsp.BspUtil.{IdeaLoggerOps, _}
 import org.jetbrains.bsp.protocol.BspCommunication._
 import org.jetbrains.bsp.protocol.BspSession._
-import org.jetbrains.bsp.{BSP, BspError, BspTaskCancelled}
+import org.jetbrains.bsp.{BSP, BspError, BspErrorMessage, BspTaskCancelled}
 
 import scala.concurrent.duration._
 import scala.concurrent.{Await, Future, Promise, TimeoutException}
@@ -35,6 +35,7 @@ class BspSession(messages: Observable[BaseProtocolMessage],
 
   private val runningClientServer = startClientServer // this future does not complete
   private val sessionInitialized = initializeSession
+  private val sessionShutdown = Promise[Unit]
 
   private val queueProcessor = AppExecutorUtil.getAppScheduledExecutorService
       .scheduleWithFixedDelay(() => nextQueuedCommand, 10, 10, TimeUnit.MILLISECONDS)
@@ -44,7 +45,7 @@ class BspSession(messages: Observable[BaseProtocolMessage],
     val timeout = 1.second
     try {
       val readyForNext = sessionInitialized.flatMap(_ => currentJob.future)
-      Await.ready(readyForNext, timeout)
+      Await.result(readyForNext, timeout) // will throw on init/job error
       val next = jobs.poll(timeout.toMillis, TimeUnit.MILLISECONDS)
       if (next != null) {
         currentJob = next
@@ -52,6 +53,9 @@ class BspSession(messages: Observable[BaseProtocolMessage],
       }
     } catch {
       case _: TimeoutException => // just carry on
+      case error: BspError =>
+        logger.error("encountered error running bsp job", error)
+        shutdown(Some(error))
     }
   }
 
@@ -93,6 +97,7 @@ class BspSession(messages: Observable[BaseProtocolMessage],
         case Left(error) => Task.raiseError(error.toBspError)
         case Right(result) => Task.now(result)
       }
+      .timeoutTo(5.seconds, Task.raiseError(BspErrorMessage("Connection to bsp server timed out.")))
       .runAsync
   }
 
@@ -107,8 +112,9 @@ class BspSession(messages: Observable[BaseProtocolMessage],
     job
   }
 
+  def isAlive: Boolean = ! sessionShutdown.isCompleted
 
-  def shutdown(): CancelableFuture[Unit] = {
+  def shutdown(error: Option[BspError] = None): Future[Unit] = {
 
     val whenDone = {
       val shutdownRequest = for {
@@ -125,24 +131,27 @@ class BspSession(messages: Observable[BaseProtocolMessage],
       }
 
       val cleaning = Task {
-        logger.debug("closing bsp connection")
         runningClientServer.cancel()
       }
 
-      for {
-        _ <- shutdownRequest
-        _ <- cleaning
-        // TODO check process state, hard-kill bsp process if shutdown was not orderly
-      } yield ()
+      // TODO check process state, hard-kill bsp process if shutdown was not orderly
+      shutdownRequest.flatMap(_ => cleaning).timeoutTo(5.seconds, cleaning)
     }
 
+    error match {
+      case None =>
+        sessionShutdown.success()
+        currentJob.cancel()
+        jobs.forEach(_.cancel())
+      case Some(err) =>
+        sessionShutdown.failure(err)
+        currentJob.cancelWithError(err)
+        jobs.forEach(_.cancelWithError(err))
+    }
     queueProcessor.cancel(false)
     sessionInitialized.cancel()
-    currentJob.cancel()
-    jobs.forEach(_.cancel())
     whenDone.runAsync
   }
-
 }
 
 object BspSession {
@@ -150,6 +159,7 @@ object BspSession {
   private abstract class SessionBspJob[T,A] extends BspJob[(T,A)] {
     private[BspSession] def notification(bspNotification: BspNotification): Unit
     private[BspSession] def run(implicit scheduler: Scheduler): CancelableFuture[(T, A)]
+    private[BspSession] def cancelWithError(error: BspError)
   }
 
   private class MonixBspJob[T,A](task: Task[T], default: A, aggregator: NotificationAggregator[A]) extends SessionBspJob[T,A] {
@@ -190,22 +200,25 @@ object BspSession {
 
     override def future: Future[(T, A)] = promise.future
 
-    override def cancel() : Unit = runningTask.synchronized {
+    override def cancel() : Unit =
+      cancelWithError(BspTaskCancelled)
+
+    override def cancelWithError(error: BspError): Unit = runningTask.synchronized {
       runningTask match {
         case Some(toCancel) =>
           toCancel.cancel()
         case None =>
-          runningTask = Some(CancelableFuture.failed(BspTaskCancelled))
-          promise.failure(BspTaskCancelled)
+          runningTask = Some(CancelableFuture.failed(error))
+          promise.failure(error)
       }
     }
   }
-
 
   // TODO barebones handling of logMessage/showMessage?
   private object DummyJob extends SessionBspJob[Unit,Unit] {
     override private[BspSession] def notification(bspNotification: BspNotification): Unit = ()
     override private[BspSession] def run(implicit scheduler: Scheduler): CancelableFuture[(Unit, Unit)] = CancelableFuture.successful(((),()))
+    override private[BspSession] def cancelWithError(error: BspError): Unit = ()
     override def future: Future[(Unit,Unit)] = Future.successful(((),()))
     override def cancel(): Unit = ()
   }
