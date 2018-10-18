@@ -10,10 +10,14 @@ class OnHover(presentation: Presentation, filter: MouseEvent => Boolean, handler
       hovered = true
       handler(Some(e))
     }
+
+    super.mouseMoved(e)
   }
 
   override def mouseExited(): Unit = {
     hovered = false
     handler(None)
+
+    super.mouseExited()
   }
 }
