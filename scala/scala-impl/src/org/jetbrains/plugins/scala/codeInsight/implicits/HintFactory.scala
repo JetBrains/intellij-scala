@@ -1,20 +1,14 @@
 package org.jetbrains.plugins.scala.codeInsight.implicits
 
-import java.awt.{Component, Point}
 import java.awt.event.MouseEvent
+import java.awt.{Component, Point}
 
-import com.intellij.codeInsight.hint.{HintManager, HintManagerImpl, HintUtil}
 import com.intellij.ide.ui.customization.CustomActionsSchema
 import com.intellij.openapi.actionSystem._
-import com.intellij.openapi.command.CommandProcessor
-import com.intellij.openapi.editor.Editor
 import com.intellij.openapi.editor.colors.{CodeInsightColors, EditorColors, EditorFontType}
 import com.intellij.openapi.editor.impl.EditorImpl
-import com.intellij.openapi.editor.markup.{EffectType, TextAttributes}
-import com.intellij.pom.Navigatable
-import com.intellij.psi.PsiElement
-import com.intellij.ui.LightweightHint
-import com.intellij.util.ui.{JBUI, UIUtil}
+import com.intellij.openapi.editor.markup.TextAttributes
+import com.intellij.util.ui.UIUtil
 import org.jetbrains.plugins.scala.codeInsight.implicits.presentation.{Button, Presentation, PresentationFactory}
 import org.jetbrains.plugins.scala.editor.documentationProvider.ScalaDocumentationProvider
 import org.jetbrains.plugins.scala.extensions._
@@ -80,20 +74,7 @@ private class HintFactory(editor: EditorImpl) {
   private def namedBasicPresentation(result: ScalaResolveResult): Presentation = {
     val delegate = result.element.asOptionOf[ScFunction].flatMap(_.getSyntheticNavigationElement).getOrElse(result.element)
     val tooltip = ScalaDocumentationProvider.getQuickNavigateInfo(delegate, result.substitutor)
-    val tooltipHander = tooltipHandler(tooltip)
-    navigation(asHyperlink, tooltipHander, _ => navigateTo(delegate), text(result.name))
-  }
-
-  private def asHyperlink(presentation: Presentation): Presentation = {
-    val as = scheme.getAttributes(EditorColors.REFERENCE_HYPERLINK_COLOR).clone()
-    as.setEffectType(EffectType.LINE_UNDERSCORE)
-    attributes(_ + as, presentation)
-  }
-
-  private def navigateTo(e: PsiElement): Unit = {
-    e.asOptionOf[Navigatable].filter(_.canNavigate).foreach { navigatable =>
-      CommandProcessor.getInstance.executeCommand(e.getProject, navigatable.navigate(true), null, null)
-    }
+    withNavigation(delegate, Some(tooltip), text(result.name))
   }
 
   private def contextMenu(id: String, presentation: Presentation) = {
@@ -110,50 +91,6 @@ private class HintFactory(editor: EditorImpl) {
     onClick(handler, Button.Right, presentation)
   }
 
-  private var hint: Option[LightweightHint] = None
-
-  private def tooltipHandler(tooltip: String): Option[MouseEvent] => Unit = {
-    case Some(e) =>
-      if (hint.forall(!_.isVisible)) {
-        hint = Some(showTooltip(editor, e, tooltip))
-      }
-    case None => hint.foreach { it =>
-      it.hide()
-      hint = None
-    }
-  }
-
-  private def withTooltip(tooltip: String, presentation: Presentation): Presentation = {
-    if (tooltip == "") presentation
-    else factory.onHover(tooltipHandler(tooltip), presentation)
-  }
-
-  private def showTooltip(editor: Editor, e: MouseEvent, text: String): LightweightHint = {
-    val hint = {
-      val label = HintUtil.createInformationLabel(text)
-      label.setBorder(JBUI.Borders.empty(6, 6, 5, 6))
-      new LightweightHint(label)
-    }
-
-    val constraint = HintManager.ABOVE
-
-    val pointOnEditor = locationAt(e, editor.getContentComponent)
-
-    val point = {
-      val p = HintManagerImpl.getHintPosition(hint, editor, editor.xyToVisualPosition(pointOnEditor), constraint)
-      p.x = e.getXOnScreen - editor.getContentComponent.getTopLevelAncestor.getLocationOnScreen.x
-      p
-    }
-
-    val manager = HintManagerImpl.getInstanceImpl
-
-    manager.showEditorHint(hint, editor, point,
-      HintManager.HIDE_BY_ANY_KEY | HintManager.HIDE_BY_TEXT_CHANGE | HintManager.HIDE_BY_SCROLLING, 0, false,
-      HintManagerImpl.createHintHint(editor, point, hint, constraint).setContentActive(false))
-
-    hint
-  }
-
   private def locationAt(e: MouseEvent, component: Component): Point = {
     val pointOnScreen = component.getLocationOnScreen
     new Point(e.getXOnScreen - pointOnScreen.x, e.getYOnScreen - pointOnScreen.y)
@@ -168,10 +105,11 @@ private class HintFactory(editor: EditorImpl) {
   }
 
   private def noApplicableExpandedPresentation(parameter: ScalaResolveResult): Presentation = {
-    val qMarkText = navigation(identity, _ => (), _ => navigateTo(parameter.element), attributes(_ + likeWrongReference, text("?")))
-    val paramTypeSuffix = text(typeAnnotation(parameter))
-
-    withTooltip(notFoundTooltip(parameter), sequence(qMarkText, paramTypeSuffix))
+    withTooltip(notFoundTooltip(parameter),
+      sequence(
+        withNavigation(parameter.element, None,
+          attributes(_ + likeWrongReference, text("?"))),
+        text(typeAnnotation(parameter))))
   }
 
   private def collapsedProblemPresentation(parameter: ScalaResolveResult, probableArgs: Seq[(ScalaResolveResult, FullInfoResult)]): Presentation = {
@@ -277,6 +215,7 @@ private class HintFactory(editor: EditorImpl) {
     result
   }
 
+  // TODO
   private def foldedAttributes: TextAttributes =
     Option(scheme.getAttributes(EditorColors.FOLDED_TEXT_ATTRIBUTES))
       .map(adjusted)
@@ -287,10 +226,12 @@ private class HintFactory(editor: EditorImpl) {
     sequence(left, presentation, right)
   }
 
+  // TODO
   private def parentheses: (Presentation, Presentation) = {
     val asMatch = (it: Presentation) => attributes(_ + scheme.getAttributes(CodeInsightColors.MATCHED_BRACE_ATTRIBUTES), it)
     synchronous(asMatch, text("("), text(")"))
   }
 
+  // TODO
   private def text(s: String): Presentation = factory.text(s, scheme.getFont)
 }

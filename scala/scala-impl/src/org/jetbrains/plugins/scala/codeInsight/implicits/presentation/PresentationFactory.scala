@@ -1,11 +1,24 @@
-package org.jetbrains.plugins.scala.codeInsight.implicits.presentation
-import java.awt.event.MouseEvent
-import java.awt.{Color, Cursor, Font}
+package org.jetbrains.plugins.scala.codeInsight.implicits
+package presentation
 
-import com.intellij.openapi.editor.colors.EditorFontType
+import java.awt.event.MouseEvent
+import java.awt._
+
+import com.intellij.codeInsight.hint.{HintManager, HintManagerImpl, HintUtil}
+import com.intellij.openapi.editor.Editor
+import com.intellij.openapi.editor.colors.{EditorColors, EditorFontType}
 import com.intellij.openapi.editor.impl.EditorImpl
-import com.intellij.openapi.editor.markup.TextAttributes
+import com.intellij.openapi.editor.markup.{EffectType, TextAttributes}
 import com.intellij.openapi.util.SystemInfo
+import com.intellij.ui.LightweightHint
+import com.intellij.util.ui.JBUI
+import PresentationFactory._
+import com.intellij.openapi.command.CommandProcessor
+import com.intellij.pom.Navigatable
+import com.intellij.psi.PsiElement
+import org.jetbrains.plugins.scala.extensions._
+
+import scala.Function.const
 
 class PresentationFactory(editor: EditorImpl) {
   private def ascent = editor.getAscent
@@ -61,7 +74,45 @@ class PresentationFactory(editor: EditorImpl) {
     })
   }
 
-  def navigation(decorator: Presentation => Presentation, onHover: Option[MouseEvent] => Unit, onClick: MouseEvent => Unit, presentation: Presentation): Presentation = {
+  def withTooltip(tooltip: String, presentation: Presentation): Presentation = {
+    if (tooltip.isEmpty) presentation
+    else onHover(tooltipHandler(tooltip), presentation)
+  }
+
+  // TODO only withTooltip?
+  private def tooltipHandler(tooltip: String): Option[MouseEvent] => Unit = {
+    var hint: Option[LightweightHint] = None
+
+    val handler: Option[MouseEvent] => Unit = {
+      case Some(e) =>
+        if (hint.forall(!_.isVisible)) {
+          hint = Some(showTooltip(editor, e, tooltip))
+        }
+      case None =>
+        hint.foreach(_.hide())
+        hint = None
+    }
+
+    handler
+  }
+
+  def withNavigation(target: PsiElement, tooltip: Option[String], presentation: Presentation): Presentation = {
+    def asHyperlink(presentation: Presentation): Presentation = {
+      val as = editor.getColorsScheme.getAttributes(EditorColors.REFERENCE_HYPERLINK_COLOR).clone()
+      as.setEffectType(EffectType.LINE_UNDERSCORE)
+      attributes(_ + as, presentation)
+    }
+
+    def navigateTo(e: PsiElement): Unit = {
+      e.asOptionOf[Navigatable].filter(_.canNavigate).foreach { navigatable =>
+        CommandProcessor.getInstance.executeCommand(e.getProject, navigatable.navigate(true), null, null)
+      }
+    }
+
+    navigation(asHyperlink, tooltip.map(tooltipHandler).getOrElse(const(())), _ => navigateTo(target), presentation)
+  }
+
+  private def navigation(decorator: Presentation => Presentation, onHover: Option[MouseEvent] => Unit, onClick: MouseEvent => Unit, presentation: Presentation): Presentation = {
     val inner = new OnClick(presentation, Button.Middle, onClick)
 
     val forwarding = new DynamicForwarding(inner)
@@ -76,8 +127,6 @@ class PresentationFactory(editor: EditorImpl) {
     })
   }
 
-  private def isControlDown(e: MouseEvent): Boolean =
-    SystemInfo.isMac && e.isMetaDown || e.isControlDown
 
   def synchronous(decorator: Presentation => Presentation, presentation1: Presentation, presentation2: Presentation): (Presentation, Presentation) = {
     val result = synchronous0(decorator, presentation1, presentation2)
@@ -100,4 +149,37 @@ class PresentationFactory(editor: EditorImpl) {
 
   def onClick(handler: MouseEvent => Unit, button: Button, presentation: Presentation): Presentation =
     new OnClick(presentation, button, handler)
+}
+
+private object PresentationFactory {
+  private def isControlDown(e: MouseEvent): Boolean =
+    SystemInfo.isMac && e.isMetaDown || e.isControlDown
+
+  private def showTooltip(editor: Editor, e: MouseEvent, text: String): LightweightHint = {
+    val hint = {
+      val label = HintUtil.createInformationLabel(text)
+      label.setBorder(JBUI.Borders.empty(6, 6, 5, 6))
+      new LightweightHint(label)
+    }
+
+    val constraint = HintManager.ABOVE
+
+    val point = {
+      val pointOnEditor = locationAt(e, editor.getContentComponent)
+      val p = HintManagerImpl.getHintPosition(hint, editor, editor.xyToVisualPosition(pointOnEditor), constraint)
+      p.x = e.getXOnScreen - editor.getContentComponent.getTopLevelAncestor.getLocationOnScreen.x
+      p
+    }
+
+    HintManagerImpl.getInstanceImpl.showEditorHint(hint, editor, point,
+      HintManager.HIDE_BY_ANY_KEY | HintManager.HIDE_BY_TEXT_CHANGE | HintManager.HIDE_BY_SCROLLING, 0, false,
+      HintManagerImpl.createHintHint(editor, point, hint, constraint).setContentActive(false))
+
+    hint
+  }
+
+  private def locationAt(e: MouseEvent, component: Component): Point = {
+    val pointOnScreen = component.getLocationOnScreen
+    new Point(e.getXOnScreen - pointOnScreen.x, e.getYOnScreen - pointOnScreen.y)
+  }
 }
