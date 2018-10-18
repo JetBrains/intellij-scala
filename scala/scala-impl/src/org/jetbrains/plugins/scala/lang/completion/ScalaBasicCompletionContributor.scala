@@ -17,6 +17,7 @@ import org.jetbrains.plugins.scala.lang.lexer.{ScalaLexer, ScalaTokenTypes}
 import org.jetbrains.plugins.scala.lang.psi.ScalaPsiUtil
 import org.jetbrains.plugins.scala.lang.psi.api.ScalaFile
 import org.jetbrains.plugins.scala.lang.psi.api.base.patterns.{ScBindingPattern, ScCaseClause}
+import org.jetbrains.plugins.scala.lang.psi.api.base.types.ScTypeElement
 import org.jetbrains.plugins.scala.lang.psi.api.base.{ScInterpolated, ScReferenceElement, ScStableCodeReferenceElement}
 import org.jetbrains.plugins.scala.lang.psi.api.expr._
 import org.jetbrains.plugins.scala.lang.psi.api.statements.params.{ScClassParameter, ScParameter}
@@ -94,6 +95,7 @@ class ScalaBasicCompletionContributor extends ScalaCompletionContributor {
           case ref: ScReferenceElement =>
             object ValidItem {
 
+              private val isInTypeElement = PsiTreeUtil.getContextOfType(position, classOf[ScTypeElement]) != null
               private val maybeExpectedTypes = expectedTypeAfterNew(position)(context)
 
               def unapply(item: ScalaLookupItem): Option[ScalaLookupItem] = if (item.isValid) {
@@ -101,8 +103,8 @@ class ScalaBasicCompletionContributor extends ScalaCompletionContributor {
                 if (inInterpolatedString) item.isInInterpolatedString = true
 
                 item.element match {
+                  case definition: ScTypeDefinition if filterDuplications(definition, item.isInImport) => None
                   case clazz: PsiClass if isExcluded(clazz) ||
-                    importCheck(clazz, item.isInImport) ||
                     classNameCompletion ||
                     (lookingForAnnotations && !clazz.isAnnotationType) => None
                   case clazz: PsiClass =>
@@ -131,12 +133,12 @@ class ScalaBasicCompletionContributor extends ScalaCompletionContributor {
                 }
               } else None
 
-              private def importCheck(clazz: PsiClass, isInImport: Boolean) = clazz match {
-                case _: ScObject if isInImport => false
-                case obj: ScObject => obj.baseCompanionModule.isDefined
-                case _ if isInImport => !clazz.hasModifierPropertyScala(PsiModifier.STATIC)
-                case _ => false
-              }
+              private def filterDuplications(definition: ScTypeDefinition, isInImport: Boolean) =
+                definition.baseCompanionModule.isDefined &&
+                  (definition match {
+                    case _: ScObject => isInTypeElement
+                    case _ => isInImport
+                  })
 
               private def isInaccessible(member: PsiMember) = parameters.getInvocationCount < 2 &&
                 (member match {
