@@ -21,7 +21,9 @@ import com.intellij.util.containers.ContainerUtil
 import com.intellij.util.{ArrayUtil, ObjectUtils}
 import org.jetbrains.annotations.TestOnly
 import org.jetbrains.plugins.scala.caches.{CachesUtil, ScalaShortNamesCacheManager}
+import org.jetbrains.plugins.scala.debugger.evaluation.ScalaCodeFragment
 import org.jetbrains.plugins.scala.extensions._
+import org.jetbrains.plugins.scala.lang.psi.api.expr.ScExpression
 import org.jetbrains.plugins.scala.lang.psi.api.statements.ScTypeAlias
 import org.jetbrains.plugins.scala.lang.psi.api.statements.params.idToName
 import org.jetbrains.plugins.scala.lang.psi.api.toplevel.ScPackaging
@@ -44,6 +46,7 @@ import org.jetbrains.plugins.scala.macroAnnotations.{CachedInUserData, CachedWit
 import org.jetbrains.plugins.scala.project.{ProjectContext, ProjectExt}
 import org.jetbrains.plugins.scala.settings.ScalaProjectSettings
 
+import scala.annotation.tailrec
 import scala.collection.{Seq, mutable}
 
 class ScalaPsiManager(val project: Project) {
@@ -311,14 +314,14 @@ class ScalaPsiManager(val project: Project) {
     STABLE_ALIAS_NAME_KEY.allKeys
   }
 
-  private val nonScalaModificationTracker = new SimpleModificationTracker
+  private val NonScalaModificationTracker = new SimpleModificationTracker
 
-  val topLevelModificationTracker: ScalaTopLevelTracker = new ScalaTopLevelTracker(nonScalaModificationTracker)
+  val TopLevelModificationTracker: SimpleModificationTracker = new SimpleModificationTracker {
+    override def getModificationCount: Long =
+      super.getModificationCount + NonScalaModificationTracker.getModificationCount
+  }
+
   val rootManager: ModificationTracker = ProjectRootManager.getInstance(project)
-
-  def getModificationCount: Long = topLevelModificationTracker.getModificationCount
-
-  def incModificationCount(): Unit = topLevelModificationTracker.incModificationCount()
 
   sealed abstract class SignatureCaches[N <: MixinNodes](val nodes: N) {
 
@@ -335,7 +338,7 @@ class ScalaPsiManager(val project: Project) {
     def cachedMap(clazz: PsiClass): nodes.Map = {
       CachesUtil.libraryAwareModTracker(clazz) match {
         case `rootManager`                 => forLibraryClasses(clazz)
-        case `topLevelModificationTracker` => forTopLevelClasses(clazz)
+        case TopLevelModificationTracker => forTopLevelClasses(clazz)
         case tracker =>
 
           @CachedInUserData(clazz, tracker)
@@ -379,20 +382,27 @@ class ScalaPsiManager(val project: Project) {
 
       ScalaPsiManager.LOG.debug(s"Clear caches on psi change: $event")
 
-      val isScala = psiElement != null && psiElement.getLanguage.isKindOf(ScalaLanguage.INSTANCE)
+      if (psiElement != null && psiElement.getLanguage.isKindOf(ScalaLanguage.INSTANCE)) {
+        @tailrec
+        def updateModificationCount(element: PsiElement): Unit = element match {
+          case null => TopLevelModificationTracker.incModificationCount()
+          case _: ScalaCodeFragment | _: PsiComment => // do not update on changes in dummy file or comments
+          case owner: ScExpression if owner.shouldntChangeModificationCount => owner.incModificationCount()
+          case _ => updateModificationCount(element.getContext)
+        }
 
-      if (isScala) {
-        CachesUtil.updateModificationCount(psiElement)
+        updateModificationCount(psiElement)
       } else {
-        nonScalaModificationTracker.incModificationCount()
+        NonScalaModificationTracker.incModificationCount()
       }
 
-      val count = topLevelModificationTracker.getModificationCount
-      if (topLevelModCount != count) {
-        topLevelModCount = count
-        clearOnTopLevelChange()
+      TopLevelModificationTracker.getModificationCount match {
+        case count if topLevelModCount == count =>
+          clearOnChange()
+        case count =>
+          topLevelModCount = count
+          clearOnTopLevelChange()
       }
-      else clearOnChange()
     }
 
     override def childRemoved(event: PsiTreeChangeEvent): Unit = onPsiChange(event, event.getParent)
@@ -465,11 +475,5 @@ class ScalaPsiManagerComponent(project: Project) extends ProjectComponent {
 
   override def disposeComponent(): Unit = {
     manager = null
-  }
-}
-
-class ScalaTopLevelTracker(nonScalaPsiModTracker: ModificationTracker) extends SimpleModificationTracker {
-  override def getModificationCount: Long = {
-    super.getModificationCount + nonScalaPsiModTracker.getModificationCount
   }
 }

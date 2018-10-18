@@ -12,7 +12,6 @@ import com.intellij.psi.impl.compiled.ClsFileImpl
 import com.intellij.psi.util._
 import com.intellij.util.containers.{ContainerUtil, Stack}
 import org.jetbrains.plugins.scala.caches.ProjectUserDataHolder._
-import org.jetbrains.plugins.scala.debugger.evaluation.ScalaCodeFragment
 import org.jetbrains.plugins.scala.lang.psi.api.ScalaFile
 import org.jetbrains.plugins.scala.lang.psi.api.expr.ScExpression
 import org.jetbrains.plugins.scala.lang.psi.api.statements.ScFunction
@@ -79,18 +78,15 @@ object CachesUtil {
 
 
   def libraryAwareModTracker(element: PsiElement): ModificationTracker = {
+    val rootManager = ProjectRootManager.getInstance(element.getProject)
     element.getContainingFile match {
-      case file: ScalaFile if file.isCompiled =>
-        val fileIndex = ProjectRootManager.getInstance(element.getProject).getFileIndex
-
-        if (fileIndex.isInLibrary(file.getVirtualFile)) ProjectRootManager.getInstance(element.getProject)
-        else enclosingModificationOwner(element)
-      case _: ClsFileImpl => ProjectRootManager.getInstance(element.getProject)
+      case file: ScalaFile if file.isCompiled && rootManager.getFileIndex.isInLibrary(file.getVirtualFile) => rootManager
+      case _: ClsFileImpl => rootManager
       case _ => enclosingModificationOwner(element)
     }
   }
 
-  def enclosingModificationOwner(elem: PsiElement): ModificationTracker = {
+  def enclosingModificationOwner(element: PsiElement): ModificationTracker = {
     @tailrec
     def modificationCount(place: PsiElement, result: Long): Long = place match {
       case null | _: ScalaFile => result
@@ -102,29 +98,18 @@ object CachesUtil {
         modificationCount(place.getContext, result + delta)
     }
 
-    val tracker = ScalaPsiManager.instance(elem.getProject).topLevelModificationTracker
+    val tracker = ScalaPsiManager.instance(element.getProject).TopLevelModificationTracker
 
     @tailrec
-    def calc(element: PsiElement): ModificationTracker = {
-      PsiTreeUtil.getContextOfType(element, false, classOf[ScExpression]) match {
-        case null => tracker
-        case owner: ScExpression if owner.shouldntChangeModificationCount =>
-          () => modificationCount(owner, tracker.getModificationCount)
-        case owner => calc(owner.getContext)
-      }
+    def calc(element: PsiElement): ModificationTracker = element match {
+      case null => tracker
+      case owner: ScExpression if owner.shouldntChangeModificationCount =>
+        () => modificationCount(owner, tracker.getModificationCount)
+      case owner => calc(owner.getContext)
     }
 
-    calc(elem)
+    calc(element)
   }
-
-  @tailrec
-  def updateModificationCount(elem: PsiElement): Unit =
-    PsiTreeUtil.getContextOfType(elem, false, classOf[ScExpression], classOf[ScalaCodeFragment], classOf[PsiComment]) match {
-      case null => ScalaPsiManager.instance(elem.getProject).incModificationCount()
-      case _: ScalaCodeFragment | _: PsiComment => //do not update on changes in dummy file or comments
-      case owner: ScExpression if owner.shouldntChangeModificationCount => owner.incModificationCount()
-      case owner => updateModificationCount(owner.getContext)
-    }
 
   case class ProbablyRecursionException[Data](elem: PsiElement,
                                               data: Data,
