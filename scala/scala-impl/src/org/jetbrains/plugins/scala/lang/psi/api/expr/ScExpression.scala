@@ -4,15 +4,19 @@ package psi
 package api
 package expr
 
+import java.util.concurrent.atomic.AtomicLong
+
 import com.intellij.openapi.progress.ProgressManager
 import com.intellij.psi._
-import org.jetbrains.plugins.scala.extensions.{ChildOf, ObjectExt, PsiNamedElementExt, StringExt}
+import org.jetbrains.plugins.scala.extensions._
 import org.jetbrains.plugins.scala.lang.psi.ScalaPsiUtil.{MethodValue, isAnonymousExpression}
 import org.jetbrains.plugins.scala.lang.psi.api.InferUtil.{SafeCheckException, extractImplicitParameterType}
 import org.jetbrains.plugins.scala.lang.psi.api.base.{ScIntLiteral, ScLiteral}
 import org.jetbrains.plugins.scala.lang.psi.api.expr.ExpectedTypes.ParameterType
+import org.jetbrains.plugins.scala.lang.psi.api.statements.{ScFunction, ScValueOrVariable}
 import org.jetbrains.plugins.scala.lang.psi.api.toplevel.imports.usages.ImportUsed
-import org.jetbrains.plugins.scala.lang.psi.impl.ScalaPsiElementFactory.createExpressionFromText
+import org.jetbrains.plugins.scala.lang.psi.api.toplevel.templates.ScTemplateBody
+import org.jetbrains.plugins.scala.lang.psi.impl
 import org.jetbrains.plugins.scala.lang.psi.implicits.{ImplicitCollector, ScImplicitlyConvertible}
 import org.jetbrains.plugins.scala.lang.psi.types._
 import org.jetbrains.plugins.scala.lang.psi.types.api._
@@ -20,7 +24,7 @@ import org.jetbrains.plugins.scala.lang.psi.types.api.designator.ScDesignatorTyp
 import org.jetbrains.plugins.scala.lang.psi.types.nonvalue.{Parameter, ScMethodType, ScTypePolymorphicType}
 import org.jetbrains.plugins.scala.lang.psi.types.result._
 import org.jetbrains.plugins.scala.lang.resolve.ScalaResolveResult
-import org.jetbrains.plugins.scala.macroAnnotations.{CachedWithRecursionGuard, ModCount}
+import org.jetbrains.plugins.scala.macroAnnotations.{Cached, CachedWithRecursionGuard, ModCount}
 import org.jetbrains.plugins.scala.project.ProjectPsiElementExt
 import org.jetbrains.plugins.scala.project.ScalaLanguageLevel.Scala_2_11
 
@@ -30,11 +34,57 @@ import scala.collection.mutable
 /**
   * @author ilyas, Alexander Podkhalyuzin
   */
+trait ScExpression extends ScBlockStatement
+  with PsiAnnotationMemberValue
+  with PsiModifiableCodeBlock
+  with ImplicitArgumentsOwner
+  with Typeable {
 
-trait ScExpression extends ScBlockStatement with PsiAnnotationMemberValue with ImplicitArgumentsOwner
-  with ScModificationTrackerOwner with Typeable {
+  import ScExpression._
 
-  import org.jetbrains.plugins.scala.lang.psi.api.expr.ScExpression._
+  private[this] val blockModificationCount = new AtomicLong()
+
+  final def modificationCount: Long = blockModificationCount.get
+
+  final def incModificationCount(): Unit = blockModificationCount.incrementAndGet()
+
+  @Cached(ModCount.getBlockModificationCount, this)
+  final def mirrorPosition(dummyIdentifier: String, offset: Int): Option[PsiElement] = {
+    val index = offset - getTextRange.getStartOffset
+
+    val text = new StringBuilder(getText).insert(index, dummyIdentifier).toString
+
+    import impl.ScalaPsiElementFactory.{createConstructorBodyWithContextFromText, createOptionExpressionWithContextFromText}
+    val function = this match {
+      case _: ScConstrBlock | _: ScConstrExpr =>
+        createConstructorBodyWithContextFromText _
+      case _ =>
+        createOptionExpressionWithContextFromText _
+    }
+
+    for {
+      block <- function(text, getContext, this)
+      element <- Option(block.findElementAt(index))
+    } yield element
+  }
+
+  //element is always the child of this element because this function is called when going up the tree starting with elem
+  //if this is a valid modification tracker owner, no need to change modification count
+  override final def shouldChangeModificationCount(element: PsiElement): Boolean = getContext match {
+    case f: ScFunction => f.returnTypeElement.isEmpty && f.hasAssign
+    case v: ScValueOrVariable => v.typeElement.isEmpty
+    case _: ScWhileStmt |
+         _: ScFinallyBlock |
+         _: ScTemplateBody |
+         _: ScDoStmt => false
+    //expression is not last in a block and not assigned to anything, cannot affect type inference outside
+    case _: ScBlock =>
+      this.nextSiblings.forall {
+        case _: ScExpression => false
+        case _ => true
+      }
+    case _ => true
+  }
 
   override def `type`(): TypeResult =
     this.getTypeAfterImplicitConversion().tr
@@ -59,7 +109,7 @@ trait ScExpression extends ScBlockStatement with PsiAnnotationMemberValue with I
       return oldParent.asInstanceOf[ScExpression].replaceExpression(expr, removeParenthesis = true)
     }
     val newExpr = if (ScalaPsiUtil.needParentheses(this, expr)) {
-      createExpressionFromText(expr.getText.parenthesize())
+      impl.ScalaPsiElementFactory.createExpressionFromText(expr.getText.parenthesize())
     } else expr
     val parentNode = oldParent.getNode
     val newNode = newExpr.copy.getNode
@@ -105,7 +155,7 @@ trait ScExpression extends ScBlockStatement with PsiAnnotationMemberValue with I
         conversionForReference(infix.operation)
       case call: ScMethodCall => call.getImplicitFunction
       case generator: ScGenerator => inner(generator)
-      case p: ScParenthesisedExpr => None
+      case _: ScParenthesisedExpr => None
       case _ =>
         this.getTypeAfterImplicitConversion(expectedOption = expectedOption, fromUnderscore = fromUnderscore).implicitConversion
     }
@@ -115,7 +165,7 @@ trait ScExpression extends ScBlockStatement with PsiAnnotationMemberValue with I
 
   def getAllImplicitConversions(fromUnderscore: Boolean = false): Seq[PsiNamedElement] = {
     new ScImplicitlyConvertible(this, fromUnderscore)
-      .implicitMap(arguments = this.expectedTypes(fromUnderscore).toSeq)
+      .implicitMap(arguments = this.expectedTypes(fromUnderscore))
       .map(_.element)
       .sortWith {
         case (first, second) =>
@@ -212,10 +262,13 @@ object ScExpression {
     def unapply(exp: ScExpression): Option[ScType] = exp.`type`().toOption
   }
 
-  implicit class Ext(val expr: ScExpression) extends AnyVal {
+  implicit class Ext(private val expr: ScExpression) extends AnyVal {
     private implicit def elementScope: ElementScope = expr.elementScope
 
     private def project = elementScope.projectContext
+
+    def shouldntChangeModificationCount: Boolean =
+      !expr.shouldChangeModificationCount(null)
 
     def expectedType(fromUnderscore: Boolean = true): Option[ScType] =
       expectedTypeEx(fromUnderscore).map(_._1)

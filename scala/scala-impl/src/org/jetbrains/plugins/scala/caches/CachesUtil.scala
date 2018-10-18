@@ -14,7 +14,7 @@ import com.intellij.util.containers.{ContainerUtil, Stack}
 import org.jetbrains.plugins.scala.caches.ProjectUserDataHolder._
 import org.jetbrains.plugins.scala.debugger.evaluation.ScalaCodeFragment
 import org.jetbrains.plugins.scala.lang.psi.api.ScalaFile
-import org.jetbrains.plugins.scala.lang.psi.api.expr.ScModificationTrackerOwner
+import org.jetbrains.plugins.scala.lang.psi.api.expr.ScExpression
 import org.jetbrains.plugins.scala.lang.psi.api.statements.ScFunction
 import org.jetbrains.plugins.scala.lang.psi.api.toplevel.typedef.ScObject
 import org.jetbrains.plugins.scala.lang.psi.impl.ScalaPsiManager
@@ -96,7 +96,7 @@ object CachesUtil {
       case null | _: ScalaFile => result
       case _ =>
         val delta = place match {
-          case owner@ScModificationTrackerOwner() => owner.modificationCount
+          case owner: ScExpression if owner.shouldntChangeModificationCount => owner.modificationCount
           case _ => 0
         }
         modificationCount(place.getContext, result + delta)
@@ -106,9 +106,9 @@ object CachesUtil {
 
     @tailrec
     def calc(element: PsiElement): ModificationTracker = {
-      PsiTreeUtil.getContextOfType(element, false, classOf[ScModificationTrackerOwner]) match {
+      PsiTreeUtil.getContextOfType(element, false, classOf[ScExpression]) match {
         case null => tracker
-        case owner@ScModificationTrackerOwner() =>
+        case owner: ScExpression if owner.shouldntChangeModificationCount =>
           () => modificationCount(owner, tracker.getModificationCount)
         case owner => calc(owner.getContext)
       }
@@ -118,17 +118,13 @@ object CachesUtil {
   }
 
   @tailrec
-  def updateModificationCount(elem: PsiElement): Unit = {
-    val elementOrContext = PsiTreeUtil.getContextOfType(elem, false,
-      classOf[ScModificationTrackerOwner], classOf[ScalaCodeFragment], classOf[PsiComment])
-
-    elementOrContext match {
+  def updateModificationCount(elem: PsiElement): Unit =
+    PsiTreeUtil.getContextOfType(elem, false, classOf[ScExpression], classOf[ScalaCodeFragment], classOf[PsiComment]) match {
       case null => ScalaPsiManager.instance(elem.getProject).incModificationCount()
       case _: ScalaCodeFragment | _: PsiComment => //do not update on changes in dummy file or comments
-      case owner@ScModificationTrackerOwner() => owner.incModificationCount()
+      case owner: ScExpression if owner.shouldntChangeModificationCount => owner.incModificationCount()
       case owner => updateModificationCount(owner.getContext)
     }
-  }
 
   case class ProbablyRecursionException[Data](elem: PsiElement,
                                               data: Data,

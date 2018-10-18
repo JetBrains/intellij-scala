@@ -15,7 +15,7 @@ import org.jetbrains.plugins.scala.lang.completion.lookups.ScalaLookupItem
 import org.jetbrains.plugins.scala.lang.completion.weighter.ScalaByExpectedTypeWeigher
 import org.jetbrains.plugins.scala.lang.lexer.ScalaTokenTypes
 import org.jetbrains.plugins.scala.lang.psi.ScalaPsiElement
-import org.jetbrains.plugins.scala.lang.psi.api.expr.{ScBlockExpr, ScModificationTrackerOwner, ScNewTemplateDefinition}
+import org.jetbrains.plugins.scala.lang.psi.api.expr.{ScBlockExpr, ScExpression, ScNewTemplateDefinition}
 import org.jetbrains.plugins.scala.lang.psi.api.statements.ScTypeAlias
 import org.jetbrains.plugins.scala.lang.psi.api.toplevel.typedef.ScTypeDefinition
 import org.jetbrains.plugins.scala.lang.refactoring.ScalaNamesValidator
@@ -70,7 +70,7 @@ package object completion {
     @tailrec
     def position(element: PsiElement): PsiElement = element match {
       case null => parameters.getPosition // we got to the top of the tree and didn't find a modificationTrackerOwner
-      case owner@ScModificationTrackerOwner() =>
+      case owner: ScExpression if owner.shouldntChangeModificationCount =>
         val maybeMirrorPosition = parameters.getOriginalFile match {
           case file if owner.containingFile.contains(file) =>
             val offset = parameters.getOffset
