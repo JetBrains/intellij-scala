@@ -642,6 +642,33 @@ class ScalaBasicCompletionTest extends ScalaCodeInsightTestBase {
     item = "Foo"
   )
 
+  def testObjectsCompletion(): Unit = doMultipleCompletionTest(
+    s"""object Main {
+       |  case class Foo()
+       |
+       |  trait Bar
+       |  object Bar
+       |  trait Bar2
+       |
+       |  class Baz
+       |  object Baz
+       |  class Baz2
+       |
+       |  object BarBaz
+       |
+       |  Main.$CARET
+       |}
+       """.stripMargin,
+    CompletionType.BASIC,
+    time = DEFAULT_TIME,
+    count = 4
+  ) {
+    _.getLookupString match {
+      case "Foo" | "Bar" | "Baz" | "BarBaz" => true
+      case _ => false
+    }
+  }
+
   def testBasicTypeCompletionNoMethods(): Unit = checkNoCompletion(
     fileText =
       s"""
@@ -983,6 +1010,23 @@ class ScalaBasicCompletionTest extends ScalaCodeInsightTestBase {
         |}
       """.stripMargin,
     item = "ScalaClass"
+  )
+
+  def testPackageObject(): Unit = doCompletionTest(
+    fileText =
+      s"""package object foo {
+         |  class Foo
+         |}
+         |
+         |import foo.$CARET
+       """.stripMargin,
+    s"""package object foo {
+       |  class Foo
+       |}
+       |
+       |import foo.Foo$CARET
+     """.stripMargin,
+    item = "Foo"
   )
 
   def testPredefinedConversion(): Unit = doCompletionTest(
