@@ -14,7 +14,7 @@ import org.jetbrains.plugins.scala.extensions._
 import org.jetbrains.plugins.scala.lang.completion.handlers.ScalaConstructorInsertHandler
 import org.jetbrains.plugins.scala.lang.completion.lookups.ScalaLookupItem
 import org.jetbrains.plugins.scala.lang.formatting.settings.ScalaCodeStyleSettings
-import org.jetbrains.plugins.scala.lang.psi.api.base.types.ScSimpleTypeElement
+import org.jetbrains.plugins.scala.lang.psi.api.base.types.{ScSimpleTypeElement, ScTypeElement}
 import org.jetbrains.plugins.scala.lang.psi.api.base.{ScConstructor, ScReferenceElement, ScStableCodeReferenceElement}
 import org.jetbrains.plugins.scala.lang.psi.api.expr.ScNewTemplateDefinition
 import org.jetbrains.plugins.scala.lang.psi.api.toplevel.templates.{ScExtendsBlock, ScTemplateParents}
@@ -75,7 +75,7 @@ object ScalaAfterNewCompletionContributor {
   def expectedTypeAfterNew(position: PsiElement)
                           (implicit context: ProcessingContext): Option[(PsiClass, RenamesMap) => ScalaLookupItem] =
   // todo: probably we need to remove all abstracts here according to variance
-    if (afterNewPattern.accepts(position, context)) findNewTemplate(position).map { definition =>
+    if (isAfterNew(position)) findNewTemplate(position).map { definition =>
       (clazz: PsiClass, map: RenamesMap) => {
         val (actualType, hasSubstitutionProblem) = appropriateType(definition, clazz)
         LookupElementProps(actualType, hasSubstitutionProblem, clazz).createLookupElement(map)
@@ -83,13 +83,18 @@ object ScalaAfterNewCompletionContributor {
     }
     else None
 
-  def isAfterNew(position: PsiElement): Boolean =
-    afterNewPattern.accepts(position)
+  def isAfterNew(position: PsiElement)
+                (implicit context: ProcessingContext = new ProcessingContext): Boolean =
+    afterNewPattern.accepts(position, context)
 
-  def isAfterNew(position: PsiElement, location: CompletionLocation): Boolean =
-    afterNewPattern.accepts(position, location.getProcessingContext)
+  def isInTypeElement(position: PsiElement,
+                      maybeLocation: Option[CompletionLocation] = None): Boolean =
+    PsiTreeUtil.getParentOfType(position, classOf[ScTypeElement]) != null || {
+      val context = maybeLocation.fold(new ProcessingContext)(_.getProcessingContext)
+      isAfterNew(position)(context)
+    }
 
-  private def findNewTemplate(position: PsiElement) =
+  def findNewTemplate(position: PsiElement): Option[ScNewTemplateDefinition] =
     position.findContextOfType(classOf[ScNewTemplateDefinition])
 
   private def expectedTypes(definition: ScNewTemplateDefinition): Seq[ScType] =

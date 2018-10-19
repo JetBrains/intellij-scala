@@ -6,7 +6,6 @@ import com.intellij.codeInsight.completion.{CompletionParameters, CompletionUtil
 import com.intellij.openapi.application.ApplicationManager
 import com.intellij.openapi.util.{Computable, Key}
 import com.intellij.psi._
-import com.intellij.psi.util.PsiTreeUtil
 import org.jetbrains.plugins.scala.lang.lexer._
 import org.jetbrains.plugins.scala.lang.parser._
 import org.jetbrains.plugins.scala.lang.psi.api.ScalaFile
@@ -272,9 +271,6 @@ object ScalaCompletionUtil {
   private def dummyIdentifier(string: String): String =
     if (isKeyword(string)) CompletionUtil.DUMMY_IDENTIFIER
     else CompletionUtil.DUMMY_IDENTIFIER_TRIMMED
-
-  def isTypeDefiniton(position: PsiElement): Boolean =
-    Option(PsiTreeUtil.getParentOfType(position, classOf[ScTypeElement])).isDefined
 
   def isExcluded(clazz: PsiClass): Boolean = {
     ApplicationManager.getApplication.runReadAction(new Computable[Boolean] {

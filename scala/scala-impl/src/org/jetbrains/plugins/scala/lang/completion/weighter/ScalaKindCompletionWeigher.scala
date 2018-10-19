@@ -28,8 +28,7 @@ class ScalaKindCompletionWeigher extends CompletionWeigher {
     }
 
     positionFromParameters(location.getCompletionParameters) match {
-      case position if ScalaCompletionUtil.isTypeDefiniton(position) ||
-        ScalaAfterNewCompletionContributor.isAfterNew(position, location) => null
+      case position if ScalaAfterNewCompletionContributor.isInTypeElement(position, Some(location)) => null
       case _ =>
         ScalaLookupItem.original(element) match {
           case ScalaLookupItem(_: ScClassParameter) => field

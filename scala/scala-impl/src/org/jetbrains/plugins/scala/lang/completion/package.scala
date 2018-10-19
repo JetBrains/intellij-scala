@@ -15,7 +15,7 @@ import org.jetbrains.plugins.scala.lang.completion.lookups.ScalaLookupItem
 import org.jetbrains.plugins.scala.lang.completion.weighter.ScalaByExpectedTypeWeigher
 import org.jetbrains.plugins.scala.lang.lexer.ScalaTokenTypes
 import org.jetbrains.plugins.scala.lang.psi.ScalaPsiElement
-import org.jetbrains.plugins.scala.lang.psi.api.expr.{ScBlockExpr, ScExpression, ScNewTemplateDefinition}
+import org.jetbrains.plugins.scala.lang.psi.api.expr.{ScBlockExpr, ScExpression}
 import org.jetbrains.plugins.scala.lang.psi.api.statements.ScTypeAlias
 import org.jetbrains.plugins.scala.lang.psi.api.toplevel.typedef.ScTypeDefinition
 import org.jetbrains.plugins.scala.lang.refactoring.ScalaNamesValidator
@@ -99,12 +99,12 @@ package object completion {
 
           val maybeDefinition = position match {
             case ScalaSmartCompletionContributor.Reference(reference) => Some(reference)
-            case _ if isAfterNew => position.findContextOfType(classOf[ScNewTemplateDefinition])
+            case _ if isAfterNew => ScalaAfterNewCompletionContributor.findNewTemplate(position)
             case _ => None
           }
 
           defaultSorter
-            .weighBefore("liftShorter", new ScalaByTypeWeigher(position, isAfterNew))
+            .weighBefore("liftShorter", new ScalaByTypeWeigher(position))
             .weighAfter(if (isAfterNew) "scalaTypeCompletionWeigher" else "scalaKindWeigher", new ScalaByExpectedTypeWeigher(maybeDefinition)(position))
       }
 
@@ -195,10 +195,10 @@ package object completion {
     }
   }
 
-  private class ScalaByTypeWeigher(position: PsiElement, isAfterNew: Boolean) extends LookupElementWeigher("scalaTypeCompletionWeigher") {
+  private class ScalaByTypeWeigher(position: PsiElement) extends LookupElementWeigher("scalaTypeCompletionWeigher") {
 
     override def weigh(element: LookupElement, context: WeighingContext): Comparable[_] =
-      if (ScalaCompletionUtil.isTypeDefiniton(position) || isAfterNew) {
+      if (ScalaAfterNewCompletionContributor.isInTypeElement(position)) {
         ScalaLookupItem.original(element) match {
           case ScalaLookupItem(typeAlias: ScTypeAlias) if typeAlias.isLocal => 1 // localType
           case ScalaLookupItem(typeDefinition: ScTypeDefinition) if isValid(typeDefinition) => 1 // localType
