@@ -22,7 +22,7 @@ import org.jetbrains.plugins.scala.components.libinjection.LibraryInjectorLoader
 class InjectorReviewDialog(project: Project, manifest: LibraryInjectorLoader#AttributedManifest, LOG: Logger) extends DialogWrapper(project, false) {
 
   val layout = new CardLayout()
-  var editorsPanel: JPanel = null
+  var editorsPanel: JPanel = _
   val editors: Seq[Editor] = {
     val containingJar = manifest._1.jarPath
     val files = manifest._2
@@ -68,11 +68,11 @@ class InjectorReviewDialog(project: Project, manifest: LibraryInjectorLoader#Att
 
   override def createLeftSideActions(): Array[Action] = {
     val next = new DialogWrapperAction("Next") {
-      putValue(Action.SMALL_ICON, AllIcons.Actions.Right)
+      putValue(Action.SMALL_ICON, AllIcons.General.ArrowRight)
       override def doAction(e: ActionEvent): Unit = layout.next(editorsPanel)
     }
     val prev = new DialogWrapperAction("Prev") {
-      putValue(Action.SMALL_ICON, AllIcons.Actions.Left)
+      putValue(Action.SMALL_ICON, AllIcons.General.ArrowLeft)
       override def doAction(e: ActionEvent): Unit = layout.previous(editorsPanel)
     }
     Array(prev, next)

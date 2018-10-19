@@ -17,7 +17,7 @@ import com.intellij.psi.codeStyle.{CodeStyleSettings, CodeStyleSettingsProvider,
 class ScalaCodeStyleSettingsProvider extends CodeStyleSettingsProvider {
   override def getConfigurableDisplayName: String = ScalaBundle.message("title.scala.settings")
 
-  def createSettingsPage(settings: CodeStyleSettings, originalSettings: CodeStyleSettings): Configurable = {
+  override def createSettingsPage(settings: CodeStyleSettings, originalSettings: CodeStyleSettings): Configurable = {
     new CodeStyleAbstractConfigurable(settings, originalSettings, "Scala") {
       protected def createPanel(settings: CodeStyleSettings): CodeStyleAbstractPanel = {
         panel = new ScalaTabbedCodeStylePanel(getCurrentSettings, settings)

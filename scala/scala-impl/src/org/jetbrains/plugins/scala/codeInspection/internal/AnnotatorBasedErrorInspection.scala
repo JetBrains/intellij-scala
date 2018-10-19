@@ -6,7 +6,6 @@ import com.intellij.codeInspection._
 import com.intellij.lang.ASTNode
 import com.intellij.lang.annotation.{Annotation, AnnotationHolder, AnnotationSession, HighlightSeverity}
 import com.intellij.lang.injection.InjectedLanguageManager
-import com.intellij.openapi.extensions.Extensions
 import com.intellij.openapi.util.TextRange
 import com.intellij.psi.{PsiElement, PsiElementVisitor, PsiFile, PsiJavaFile}
 import org.jetbrains.plugins.scala.annotator.ScalaAnnotator
@@ -43,7 +42,7 @@ class AnnotatorBasedErrorInspection extends LocalInspectionTool {
     InjectedLanguageManager.getInstance(file.getProject).isInjectedFragment(file)
 
   private def highlightJavaElement(holder: ProblemsHolder, element: PsiElement, file: PsiFile) = {
-    val highlightVisitors = Extensions.getExtensions(HighlightVisitor.EP_HIGHLIGHT_VISITOR, element.getProject)
+    val highlightVisitors = HighlightVisitor.EP_HIGHLIGHT_VISITOR.getExtensions(element.getProject)
     val highlightInfoHolder = new HighlightInfoHolder(file)
 
     highlightVisitors.headOption.map {

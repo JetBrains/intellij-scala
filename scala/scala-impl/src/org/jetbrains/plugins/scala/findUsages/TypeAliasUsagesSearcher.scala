@@ -48,7 +48,8 @@ class TypeAliasUsagesSearcher extends QueryExecutorBase[PsiReference, References
       case Some((target, name, scope)) =>
         val collector: SearchRequestCollector = parameters.getOptimizer
         val session: SearchSession = collector.getSearchSession
-        collector.searchWord(name, scope, UsageSearchContext.IN_CODE, true, new MyProcessor(target, null, session))
+        val processor = new MyProcessor(target, null, session)
+        collector.searchWord(name, scope, UsageSearchContext.IN_CODE, true, target, processor)
       case _ =>
     }
   }

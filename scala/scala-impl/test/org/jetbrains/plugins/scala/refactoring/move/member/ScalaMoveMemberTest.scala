@@ -286,7 +286,7 @@ class ScalaMoveMemberTest extends BaseScalaMoveMemberTest {
       fail("expected 'ConflictsInTestsException'")
     } catch {
       case _:ConflictsInTestsException =>
-      case _ => fail("expected 'ConflictsInTestsException'")
+      case _: Throwable => fail("expected 'ConflictsInTestsException'")
     }
   }
 
@@ -307,7 +307,7 @@ class ScalaMoveMemberTest extends BaseScalaMoveMemberTest {
       fail("expected 'ConflictsInTestsException'")
     } catch {
       case _:ConflictsInTestsException =>
-      case _ => fail("expected 'ConflictsInTestsException'")
+      case _: Throwable => fail("expected 'ConflictsInTestsException'")
     }
   }
 

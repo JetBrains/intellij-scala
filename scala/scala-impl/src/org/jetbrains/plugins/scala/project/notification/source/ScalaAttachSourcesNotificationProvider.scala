@@ -60,7 +60,7 @@ class ScalaAttachSourcesNotificationProvider(myProject: Project, notifications: 
 
     val actions: util.List[AttachSourcesProvider.AttachSourcesAction] = new util.ArrayList[AttachSourcesProvider.AttachSourcesAction]
     var hasNonLightAction: Boolean = false
-    for (each <- Extensions.getExtensions(EXTENSION_POINT_NAME)) {
+    for (each <- EXTENSION_POINT_NAME.getExtensions) {
       each.getActions(libraries, psiFile).forEach { action =>
         if (hasNonLightAction) {
           if (!action.isInstanceOf[AttachSourcesProvider.LightAttachSourcesAction]) {

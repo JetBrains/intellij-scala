@@ -91,7 +91,7 @@ class TechHubModuleBuilder extends
         val selected = settingsComponents.getSelectedTemplate
         if (selected == null) error("Select template")
 
-        val text = settingsStep.getModuleNameField.getText
+        val text = settingsStep.getModuleNameLocationSettings.getModuleName
         if (!isIdentifier(text))
           error("sbt Project name must be valid Scala identifier")
 

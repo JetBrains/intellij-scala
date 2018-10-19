@@ -8,7 +8,7 @@ import com.intellij.execution.impl.ConsoleViewImpl.ClearAllAction
 import com.intellij.openapi.actionSystem.{AnAction, DefaultActionGroup}
 import com.intellij.openapi.editor.Editor
 import com.intellij.openapi.editor.actions.ToggleUseSoftWrapsToolbarAction
-import com.intellij.openapi.editor.event.{EditorMouseAdapter, EditorMouseEvent}
+import com.intellij.openapi.editor.event.{EditorMouseAdapter, EditorMouseEvent, EditorMouseListener}
 import com.intellij.openapi.editor.ex.FocusChangeListener
 import com.intellij.openapi.project.Project
 import com.intellij.openapi.wm.IdeFocusManager
@@ -91,7 +91,7 @@ object SbtShellConsoleView {
     new PatternBasedFileHyperlinkFilter(project, null, dataFinder)
   }
 
-  class HistoryMouseListener(cv: SbtShellConsoleView) extends EditorMouseAdapter {
+  class HistoryMouseListener(cv: SbtShellConsoleView) extends EditorMouseListener {
     override def mouseClicked(e: EditorMouseEvent): Unit = {
       val focusManager = IdeFocusManager.getInstance(cv.getProject)
       val focusComponent = cv.getConsoleEditor.getContentComponent

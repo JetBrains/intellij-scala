@@ -4,7 +4,7 @@ package console
 import com.intellij.execution._
 import com.intellij.execution.configurations.{ConfigurationType, ConfigurationTypeUtil, RunConfiguration}
 import com.intellij.execution.executors.DefaultRunExecutor
-import com.intellij.execution.runners.ExecutionEnvironmentBuilder
+import com.intellij.execution.runners.{ExecutionEnvironmentBuilder, ProgramRunner}
 import com.intellij.openapi.actionSystem._
 import com.intellij.openapi.project.Project
 import com.intellij.openapi.ui.Messages
@@ -41,7 +41,7 @@ object RunConsoleAction {
     val configuration = setting.getConfiguration
     runManagerEx.setTemporaryConfiguration(setting)
     val runExecutor = DefaultRunExecutor.getRunExecutorInstance
-    val runner = RunnerRegistry.getInstance().getRunner(runExecutor.getId, configuration)
+    val runner = ProgramRunner.getRunner(runExecutor.getId, configuration)
     if (runner != null) {
       try {
         val builder: ExecutionEnvironmentBuilder = new ExecutionEnvironmentBuilder(project, runExecutor)

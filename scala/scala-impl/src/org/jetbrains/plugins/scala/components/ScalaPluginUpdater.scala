@@ -222,7 +222,7 @@ object ScalaPluginUpdater {
       val a = ApplicationInfoEx.getInstanceEx.getUpdateUrls.getCheckingUrl
       val info = HttpRequests.request(a).connect(new HttpRequests.RequestProcessor[Option[UpdatesInfo]] {
         def process(request: HttpRequests.Request): Option[UpdatesInfo] = {
-          try { Some(new UpdatesInfo(JDOMUtil.loadDocument(request.getInputStream).detachRootElement)) }
+          try { Some(new UpdatesInfo(JDOMUtil.load(request.getInputStream))) }
           catch { case e: JDOMException => LOG.info(e); None }
         }
       })

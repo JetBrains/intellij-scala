@@ -17,7 +17,7 @@ import scala.collection.JavaConverters._
 /**
   */
 abstract class BaseRunConfiguration(val project: Project, val configurationFactory: ConfigurationFactory, val name: String)
-        extends ModuleBasedConfiguration[RunConfigurationModule](name, new RunConfigurationModule(project), configurationFactory) {
+        extends ModuleBasedConfiguration[RunConfigurationModule, Element](name, new RunConfigurationModule(project), configurationFactory) {
   def mainClass:String
   val defaultJavaOptions = "-Djline.terminal=NONE"
   val useJavaCp = "-usejavacp"

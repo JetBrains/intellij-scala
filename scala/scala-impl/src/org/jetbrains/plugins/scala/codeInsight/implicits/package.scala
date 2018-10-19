@@ -2,7 +2,7 @@ package org.jetbrains.plugins.scala.codeInsight
 
 import com.intellij.openapi.actionSystem.{KeyboardShortcut, Shortcut}
 import com.intellij.openapi.editor.markup.TextAttributes
-import com.intellij.openapi.editor.{Inlay, InlayModel}
+import com.intellij.openapi.editor.{EditorCustomElementRenderer, Inlay, InlayModel}
 import com.intellij.openapi.keymap.KeymapManager
 import com.intellij.openapi.util.{Key, TextRange}
 import javax.swing.KeyStroke
@@ -13,7 +13,7 @@ package object implicits {
   private val ScalaImplicitHintKey = Key.create[Boolean]("SCALA_IMPLICIT_HINT")
 
   implicit class Model(val model: InlayModel) extends AnyVal {
-    def inlaysIn(range: TextRange): Seq[Inlay] =
+    def inlaysIn(range: TextRange): Seq[Inlay[_ <: EditorCustomElementRenderer]] =
       model.getInlineElementsInRange(range.getStartOffset, range.getEndOffset)
         .asScala
         .filter(ScalaImplicitHintKey.isIn)

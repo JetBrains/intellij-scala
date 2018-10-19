@@ -103,7 +103,7 @@ class LibraryExtensionsManager(project: Project) extends ProjectComponent {
     val extensionsChanged = alreadyLoaded != resolved.map(_.file.getAbsolutePath).toSet
 
     if (resolved.nonEmpty && extensionsChanged)
-      popup.showEnablePopup({ () => enabledAcceptCb(resolved) }, enabledCancelledCb)
+      popup.showEnablePopup({ () => enabledAcceptCb(resolved) }, () => enabledCancelledCb())
   }
 
   private def getExtensionLibCandidates(libs: Seq[Library]): Set[DependencyDescription] = {

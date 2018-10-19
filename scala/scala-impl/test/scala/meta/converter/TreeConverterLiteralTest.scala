@@ -73,7 +73,7 @@ class TreeConverterLiteralTest extends  TreeConverterTestBaseNoLibrary {
   def testNull() {
     doTest(
       "null",
-      Lit.Null()
+      Lit.Null(null)
     )
   }
 

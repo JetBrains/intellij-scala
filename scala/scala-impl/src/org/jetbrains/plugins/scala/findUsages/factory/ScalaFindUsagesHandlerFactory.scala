@@ -88,6 +88,7 @@ class ScalaFindUsagesHandlerFactory(project: Project) extends FindUsagesHandlerF
 
 object ScalaFindUsagesHandlerFactory {
   def getInstance(project: Project): ScalaFindUsagesHandlerFactory = {
-    ContainerUtil.findInstance(Extensions.getExtensions(FindUsagesHandlerFactory.EP_NAME, project), classOf[ScalaFindUsagesHandlerFactory])
+    val extensions = FindUsagesHandlerFactory.EP_NAME.getExtensions(project)
+    ContainerUtil.findInstance(extensions, classOf[ScalaFindUsagesHandlerFactory])
   }
 }

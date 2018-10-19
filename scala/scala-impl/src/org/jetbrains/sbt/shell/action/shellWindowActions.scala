@@ -129,7 +129,6 @@ class DebugShellAction(project: Project, remoteConnection: Option[RemoteConnecti
 
   private val configType = new RemoteConfigurationType
   private val configName = "Debug sbt shell"
-  private val configFactory = configType.getFactory
 
   override def setSelected(e: AnActionEvent, toSet: Boolean): Unit = {
     val active = isSelected(e)
@@ -148,10 +147,10 @@ class DebugShellAction(project: Project, remoteConnection: Option[RemoteConnecti
     val runConfig =
       findRunConfig
         .getOrElse {
-          val rc = runManager.createConfiguration(configName, configFactory)
+          val rc = runManager.createConfiguration(configName, configType)
           rc.setTemporary(true)
           rc.setActivateToolWindowBeforeRun(false)
-          rc.setSingleton(true)
+          rc.getConfiguration.setAllowRunningInParallel(false)
           runManager.setTemporaryConfiguration(rc)
           rc
         }

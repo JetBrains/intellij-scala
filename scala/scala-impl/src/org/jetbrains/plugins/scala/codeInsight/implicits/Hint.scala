@@ -2,6 +2,7 @@ package org.jetbrains.plugins.scala.codeInsight.implicits
 
 import java.lang.reflect.{Field, Modifier}
 
+import com.intellij.codeInsight.daemon.impl.HintRenderer
 import com.intellij.openapi.application.ApplicationManager
 import com.intellij.openapi.diagnostic.Logger
 import com.intellij.openapi.editor.{Inlay, InlayModel}
@@ -17,7 +18,7 @@ private case class Hint(parts: Seq[Text],
                         suffix: Boolean,
                         menu: Option[String] = None) {
 
-  def addTo(model: InlayModel): Inlay = {
+  def addTo(model: InlayModel): Inlay[_<:HintRenderer] = {
     val offset = if (suffix) element.getTextRange.getEndOffset else element.getTextRange.getStartOffset
 
     val existingInlays = model.getInlineElementsInRange(offset, offset).asScala.filter(isImplicitHint)
@@ -52,9 +53,9 @@ private case class Hint(parts: Seq[Text],
 private object Hint {
   private val ElementKey: Key[PsiElement] = Key.create("SCALA_IMPLICIT_HINT_ELEMENT")
 
-  def elementOf(inlay: Inlay): PsiElement = ElementKey.get(inlay)
+  def elementOf(inlay: Inlay[_]): PsiElement = ElementKey.get(inlay)
 
-  def isImplicitHint(inlay: Inlay): Boolean = inlay.getUserData(Hint.ElementKey) != null
+  def isImplicitHint(inlay: Inlay[_]): Boolean = inlay.getUserData(Hint.ElementKey) != null
 
   private val myOriginalOffsetField: Option[Field] = try {
     val inlayImplClass = Class.forName("com.intellij.openapi.editor.impl.InlayImpl")

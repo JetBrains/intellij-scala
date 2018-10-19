@@ -6,7 +6,7 @@ import com.intellij.execution.process.{ProcessHandler, ProcessOutputTypes}
 import com.intellij.execution.ui.ConsoleViewContentType
 import org.jetbrains.plugins.scala.testingSupport.TestRunnerUtil
 import org.jetbrains.sbt.shell.SbtShellCommunication
-import org.jetbrains.sbt.shell.SbtShellCommunication.{ShellEvent, TaskComplete, TaskStart}
+import org.jetbrains.sbt.shell.SbtShellCommunication.{ErrorWaitForInput, ShellEvent, TaskComplete, TaskStart}
 
 /**
   * @author Roman.Shein
@@ -44,6 +44,7 @@ class SbtTestEventHandler(processHandler: ProcessHandler) extends Function1[Shel
   override def apply(se: ShellEvent): Unit = se match {
     case TaskStart =>
     case TaskComplete =>
+    case ErrorWaitForInput => throw new Exception("error running sbt")
     case SbtShellCommunication.Output(output) =>
       import SbtTestEventHandler._
       import TestRunnerUtil._

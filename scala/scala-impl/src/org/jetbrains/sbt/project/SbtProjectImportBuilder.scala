@@ -2,20 +2,21 @@ package org.jetbrains.sbt
 package project
 
 import java.io.File
-import javax.swing.Icon
 
+import javax.swing.Icon
 import com.intellij.ide.util.projectWizard.WizardContext
 import com.intellij.openapi.externalSystem.model.DataNode
 import com.intellij.openapi.externalSystem.model.project.ProjectData
 import com.intellij.openapi.externalSystem.service.project.ProjectDataManager
 import com.intellij.openapi.externalSystem.service.project.wizard.AbstractExternalProjectImportBuilder
 import com.intellij.openapi.project.Project
+import org.jetbrains.sbt.project.SbtImportControl.SbtImportControlFactory
 
 /**
  * @author Pavel Fatin
  */
 class SbtProjectImportBuilder(projectDataManager: ProjectDataManager)
-  extends AbstractExternalProjectImportBuilder[SbtImportControl](projectDataManager, new SbtImportControl(), SbtProjectSystem.Id) {
+  extends AbstractExternalProjectImportBuilder[SbtImportControl](projectDataManager, SbtImportControlFactory, SbtProjectSystem.Id) {
 
   def getName: String = Sbt.Name
 

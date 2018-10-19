@@ -6,13 +6,11 @@ import com.intellij.openapi.editor.colors.EditorColorsScheme;
 import com.intellij.openapi.editor.highlighter.EditorHighlighter;
 import com.intellij.openapi.fileTypes.FileType;
 import com.intellij.openapi.options.ConfigurationException;
-import com.intellij.openapi.ui.ComboBox;
 import com.intellij.psi.codeStyle.CodeStyleSettings;
 import com.intellij.psi.codeStyle.CommonCodeStyleSettings;
 import com.intellij.uiDesigner.core.GridConstraints;
 import com.intellij.uiDesigner.core.GridLayoutManager;
 import com.intellij.uiDesigner.core.Spacer;
-import org.fest.util.Arrays;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
 import org.jetbrains.plugins.scala.ScalaFileType;
@@ -39,7 +37,6 @@ public class OtherCodeStylePanel extends CodeStyleAbstractPanel {
   private JLabel spacesLabel;
   private JPanel myCommenterPanel;
   private JCheckBox reformatOnCompileCheckBox;
-  private JComboBox detectScalafmtCombobox;
   private CommenterForm myCommenterForm = new CommenterForm(ScalaLanguage.INSTANCE);
 
   protected OtherCodeStylePanel(@NotNull CodeStyleSettings settings) {

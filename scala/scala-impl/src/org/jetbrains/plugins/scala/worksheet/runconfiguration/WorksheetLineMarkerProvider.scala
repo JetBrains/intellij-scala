@@ -63,7 +63,7 @@ class WorksheetLineMarkerProvider extends LineMarkerProvider {
 
   private def createArrowMarker(psiElement: PsiElement) = {
     val leaf = Option(PsiTreeUtil.firstChild(psiElement)).getOrElse(psiElement)
-    new LineMarkerInfo[PsiElement](leaf, leaf.getTextRange, AllIcons.Diff.CurrentLine, Pass.LINE_MARKERS,
+    new LineMarkerInfo[PsiElement](leaf, leaf.getTextRange, AllIcons.Actions.Forward, Pass.LINE_MARKERS,
       NullableFunction.NULL.asInstanceOf[com.intellij.util.Function[PsiElement, String]], null, GutterIconRenderer.Alignment.RIGHT)
   }
 }

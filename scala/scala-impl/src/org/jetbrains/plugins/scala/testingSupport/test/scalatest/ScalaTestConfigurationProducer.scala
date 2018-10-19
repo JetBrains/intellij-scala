@@ -54,7 +54,7 @@ class ScalaTestConfigurationProducer extends {
     if (testClass == null) return None
     val testClassPath = testClass.qualifiedName
     val settings = RunManager.getInstance(location.getProject).
-      createRunConfiguration(StringUtil.getShortName(testClassPath) +
+      createConfiguration(StringUtil.getShortName(testClassPath) +
       (if (testName != null) "." + testName else ""), confFactory)
     val runConfiguration = settings.getConfiguration.asInstanceOf[ScalaTestRunConfiguration]
     runConfiguration.initWorkingDir()

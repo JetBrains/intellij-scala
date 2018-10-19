@@ -28,7 +28,7 @@ import org.jetbrains.plugins.scala.worksheet.ammonite.runconfiguration.AmmoniteR
   * Date: 12.09.17.
   */
 class AmmoniteRunConfiguration(project: Project, factory: ConfigurationFactory) extends
-  RunConfigurationBase(project, factory, AmmoniteRunConfiguration.AMMONITE_RUN_NAME) {
+  RunConfigurationBase[Element](project, factory, AmmoniteRunConfiguration.AMMONITE_RUN_NAME) {
 
   def this(project: Project, factory: ConfigurationFactory, name: String) {
     this(project, factory)

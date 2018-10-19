@@ -8,44 +8,32 @@
         <option name="modules">
           <set>
             <option value="$PROJECT_DIR$" />
+            <option value="$PROJECT_DIR$/bsp" />
+            <option value="$PROJECT_DIR$/hydra" />
             <option value="$PROJECT_DIR$/project" />
-            <option value="$PROJECT_DIR$/scala/bsp" />
-            <option value="$PROJECT_DIR$/scala/bsp/project" />
             <option value="$PROJECT_DIR$/scala/compiler-jps" />
-            <option value="$PROJECT_DIR$/scala/compiler-jps/project" />
             <option value="$PROJECT_DIR$/scala/compiler-shared" />
-            <option value="$PROJECT_DIR$/scala/compiler-shared/project" />
             <option value="$PROJECT_DIR$/scala/decompiler" />
-            <option value="$PROJECT_DIR$/scala/decompiler/project" />
             <option value="$PROJECT_DIR$/scala/integration/android" />
-            <option value="$PROJECT_DIR$/scala/integration/android/project" />
             <option value="$PROJECT_DIR$/scala/integration/copyright" />
-            <option value="$PROJECT_DIR$/scala/integration/copyright/project" />
             <option value="$PROJECT_DIR$/scala/integration/gradle" />
-            <option value="$PROJECT_DIR$/scala/integration/gradle/project" />
             <option value="$PROJECT_DIR$/scala/integration/intellilang" />
-            <option value="$PROJECT_DIR$/scala/integration/intellilang/project" />
+            <option value="$PROJECT_DIR$/scala/integration/java-decompiler" />
             <option value="$PROJECT_DIR$/scala/integration/maven" />
-            <option value="$PROJECT_DIR$/scala/integration/maven/project" />
             <option value="$PROJECT_DIR$/scala/integration/properties" />
-            <option value="$PROJECT_DIR$/scala/integration/properties/project" />
             <option value="$PROJECT_DIR$/scala/macros" />
-            <option value="$PROJECT_DIR$/scala/macros/project" />
             <option value="$PROJECT_DIR$/scala/nailgun" />
-            <option value="$PROJECT_DIR$/scala/nailgun/project" />
             <option value="$PROJECT_DIR$/scala/runners" />
-            <option value="$PROJECT_DIR$/scala/runners/project" />
             <option value="$PROJECT_DIR$/scala/scala-impl" />
-            <option value="$PROJECT_DIR$/scala/scala-impl/project" />
-            <option value="$PROJECT_DIR$/target/tools/bsp-dependencies" />
-            <option value="$PROJECT_DIR$/target/tools/bsp-dependencies/project" />
+            <option value="$PROJECT_DIR$/target/tools/bspDeps" />
             <option value="$PROJECT_DIR$/target/tools/idea-runner" />
-            <option value="$PROJECT_DIR$/target/tools/idea-runner/project" />
+            <option value="$PROJECT_DIR$/target/tools/zinc" />
           </set>
         </option>
         <option name="resolveSbtClassifiers" value="true" />
         <option name="sbtVersion" value="0.13.17" />
-        <option name="useSbtShell" value="true" />
+        <option name="useSbtShellForBuild" value="true" />
+        <option name="useSbtShellForImport" value="true" />
       </SbtProjectSettings>
     </option>
     <option name="maximumHeapSize" value="2048" />

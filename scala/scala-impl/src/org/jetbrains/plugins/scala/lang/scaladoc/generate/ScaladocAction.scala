@@ -86,7 +86,7 @@ object ScaladocAction {
   class ScaladocRunConfiguration(project: Project,
                                  dialog: ScaladocConsoleRunConfigurationForm,
                                  config: ScaladocConfiguration)
-    extends RunConfigurationBase(project, ScaladocRunConfigurationFactory, "Generate Scaladoc") {
+    extends RunConfigurationBase[Unit](project, ScaladocRunConfigurationFactory, "Generate Scaladoc") {
     override def checkConfiguration() {}
 
     override def getConfigurationEditor: SettingsEditor[_ <: ScaladocRunConfiguration] = new SettingsEditor[ScaladocRunConfiguration]() {

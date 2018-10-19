@@ -17,7 +17,6 @@ import com.intellij.execution.testframework.sm.runner.ui.SMTRunnerConsoleView
 import com.intellij.execution.testframework.ui.BaseTestsOutputConsoleView
 import com.intellij.openapi.application.ApplicationManager
 import com.intellij.openapi.components.PathMacroManager
-import com.intellij.openapi.extensions.Extensions
 import com.intellij.openapi.module.{Module, ModuleManager}
 import com.intellij.openapi.options.{SettingsEditor, SettingsEditorGroup}
 import com.intellij.openapi.project.Project
@@ -64,7 +63,7 @@ abstract class AbstractTestRunConfiguration(val project: Project,
                                             private var envs: java.util.Map[String, String] =
                                             new java.util.HashMap[String, String](),
                                             private var addIntegrationTestsClasspath: Boolean = false)
-  extends ModuleBasedConfiguration[RunConfigurationModule](name,
+  extends ModuleBasedConfiguration[RunConfigurationModule,Element](name,
     new RunConfigurationModule(project),
     configurationFactory) with ScalaTestingConfiguration {
 
@@ -313,7 +312,7 @@ abstract class AbstractTestRunConfiguration(val project: Project,
     group.addEditor(ExecutionBundle.message("run.configuration.configuration.tab.title"),
       new AbstractTestRunConfigurationEditor(project, this))
     JavaRunConfigurationExtensionManager.getInstance.appendEditors(this, group)
-    group.addEditor(ExecutionBundle.message("logs.tab.title"), new LogConfigurationPanel)
+    group.addEditor(ExecutionBundle.message("logs.tab.title"), new LogConfigurationPanel[AbstractTestRunConfiguration])
     group
   }
 
@@ -409,7 +408,7 @@ abstract class AbstractTestRunConfiguration(val project: Project,
 
         params.setMainClass(mainClass)
 
-        def addParameters(add: String => Unit, after: Unit => Unit): Unit = {
+        def addParameters(add: String => Unit, after: () => Unit): Unit = {
           addClassesAndTests(suitesToTestsMap, add)
           if (reporterClass != null) {
             add("-C")
@@ -421,7 +420,7 @@ abstract class AbstractTestRunConfiguration(val project: Project,
           after()
         }
 
-        val (myAdd, myAfter): (String => Unit, Unit => Unit) =
+        val (myAdd, myAfter): (String => Unit, () => Unit) =
           if (JdkUtil.useDynamicClasspath(getProject)) {
             try {
               val fileWithParams: File = File.createTempFile("abstracttest", ".tmp")
@@ -429,19 +428,19 @@ abstract class AbstractTestRunConfiguration(val project: Project,
               val printer: PrintStream = new PrintStream(outputStream)
               params.getProgramParametersList.add("@" + fileWithParams.getPath)
 
-              (printer.println, (_: Unit) => printer.close())
+              (printer.println(_:String), () => printer.close())
             }
             catch {
               case ioException: IOException => throw new ExecutionException("Failed to create dynamic classpath file with command-line args.", ioException)
             }
           } else {
-            (params.getProgramParametersList.add(_), (_: Unit) => ())
+            (params.getProgramParametersList.add(_), () => ())
           }
 
         addParametersString(getTestArgs, myAdd)
         addParameters(myAdd, myAfter)
 
-        for (ext <- Extensions.getExtensions(RunConfigurationExtension.EP_NAME)) {
+        for (ext <- RunConfigurationExtension.EP_NAME.getExtensionList.asScala) {
           ext.updateJavaParameters(currentConfiguration, params, getRunnerSettings)
         }
 
@@ -466,7 +465,7 @@ abstract class AbstractTestRunConfiguration(val project: Project,
           with PropertiesExtension {
           override def getTestLocator = new ScalaTestLocationProvider
 
-          def getRunConfigurationBase: RunConfigurationBase = config
+          def getRunConfigurationBase: RunConfigurationBase[_] = config
         }
 
         consoleProperties.setIdBasedTestTree(true)
@@ -606,11 +605,11 @@ object AbstractTestRunConfiguration extends SuiteValidityChecker {
     def getClasses: Seq[String]
 
     @BeanProperty
-    var configuration: RunConfigurationBase = _
+    var configuration: RunConfigurationBase[_] = _
   }
 
   private[test] trait PropertiesExtension extends SMTRunnerConsoleProperties {
-    def getRunConfigurationBase: RunConfigurationBase
+    def getRunConfigurationBase: RunConfigurationBase[_]
   }
 
   override protected[test] def lackSuitableConstructor(clazz: PsiClass): Boolean = lackSuitableConstructorWithParams(clazz)

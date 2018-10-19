@@ -158,7 +158,7 @@ class BundledCodeStoreComponent(project: Project, private val injector: LibraryI
   
   
   override def projectOpened(): Unit = {
-    inReadAction()
+    inReadAction(())
     StartupManager.getInstance(project).registerPostStartupActivity(() => {
       injector.addListener(BundledCodeStoreComponent.this)
     })

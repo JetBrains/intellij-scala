@@ -32,7 +32,7 @@ object TestConfigurationUtil {
       case pack: PsiPackage => pack
     }
     if (pack == null) return null
-    val settings = RunManager.getInstance(location.getProject).createRunConfiguration(displayName, confFactory)
+    val settings = RunManager.getInstance(location.getProject).createConfiguration(displayName, confFactory)
     val configuration = settings.getConfiguration.asInstanceOf[AbstractTestRunConfiguration]
     configuration.setTestConfigurationData(AllInPackageTestData(configuration, pack.getQualifiedName))
     configuration.setGeneratedName(displayName)

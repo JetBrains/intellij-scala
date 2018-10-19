@@ -160,7 +160,7 @@ class MultilineStringEnterHandler extends EnterHandlerDelegateAdapter {
         }
         val needInsertNLBefore = (!trimmedStartLine.startsWith(firstMLQuote) || inConcatenation.isDefined) && quotesOnNewLine
 
-        selectBySettings()(if (needAddByType(literal)) insertStripMargin(document, literal, marginChar))
+        selectBySettings(())(if (needAddByType(literal)) insertStripMargin(document, literal, marginChar))
 
         val prevIndent =
           if (inConcatenation.isDefined) inConcatenation.map { expr =>

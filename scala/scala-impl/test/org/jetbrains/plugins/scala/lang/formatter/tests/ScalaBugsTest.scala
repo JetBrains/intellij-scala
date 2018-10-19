@@ -1,6 +1,7 @@
 package org.jetbrains.plugins.scala.lang.formatter.tests
 
 import com.intellij.psi.codeStyle.CommonCodeStyleSettings
+import com.intellij.testFramework.LightPlatformTestCase
 import org.jetbrains.plugins.scala.lang.formatter.AbstractScalaFormatterTestBase
 import org.jetbrains.plugins.scala.lang.formatting.settings.ScalaCodeStyleSettings
 
@@ -693,7 +694,7 @@ bars foreach {case (x, y) => list.add(x + y)}
   }
 
   def testSCL6702() {
-    getCurrentCodeStyleSettings.FORMATTER_TAGS_ENABLED = true
+    getCurrentCodeStyleSettings(LightPlatformTestCase.getProject).FORMATTER_TAGS_ENABLED = true
     val before =
     """
       |//@formatter:off
@@ -1705,7 +1706,7 @@ bars foreach {case (x, y) => list.add(x + y)}
     doTextTest(before, after)
   }
 
-  def testSCL10477() = {
+  def testSCL10477(): Unit = {
 
     getCommonSettings.KEEP_LINE_BREAKS = false
 
@@ -1728,7 +1729,7 @@ bars foreach {case (x, y) => list.add(x + y)}
     doTextTest(before)
   }
 
-  def testSCL6913() = {
+  def testSCL6913(): Unit = {
     getScalaSettings.CALL_PARAMETERS_NEW_LINE_AFTER_LPAREN = ScalaCodeStyleSettings.NEW_LINE_ALWAYS
 
     val before =
@@ -1758,7 +1759,7 @@ bars foreach {case (x, y) => list.add(x + y)}
     doTextTest(before, after)
   }
 
-  def testSCL6913_1() = {
+  def testSCL6913_1(): Unit = {
     getScalaSettings.CALL_PARAMETERS_NEW_LINE_AFTER_LPAREN = ScalaCodeStyleSettings.NEW_LINE_FOR_MULTIPLE_ARGUMENTS
 
     val before =
@@ -1787,7 +1788,7 @@ bars foreach {case (x, y) => list.add(x + y)}
     doTextTest(before, after)
   }
 
-  def testSCL6913_2() = {
+  def testSCL6913_2(): Unit = {
     getScalaSettings.CALL_PARAMETERS_NEW_LINE_AFTER_LPAREN = ScalaCodeStyleSettings.NEW_LINE_FOR_MULTIPLE_ARGUMENTS
     getCommonSettings.CALL_PARAMETERS_WRAP = CommonCodeStyleSettings.WRAP_ALWAYS
 
@@ -1811,7 +1812,7 @@ bars foreach {case (x, y) => list.add(x + y)}
     doTextTest(before, after)
   }
 
-  def testSCL6267() = {
+  def testSCL6267(): Unit = {
 
     val before =
       """
@@ -1822,7 +1823,7 @@ bars foreach {case (x, y) => list.add(x + y)}
     doTextTest(before)
   }
 
-  def testSCL6267_1() = {
+  def testSCL6267_1(): Unit = {
     getScalaSettings.KEEP_COMMENTS_ON_SAME_LINE = false
     val before =
       """
@@ -1839,7 +1840,7 @@ bars foreach {case (x, y) => list.add(x + y)}
     doTextTest(before, after)
   }
 
-  def testSCL5032() = {
+  def testSCL5032(): Unit = {
     val before =
       """
         |collection.map { item =>
@@ -1849,7 +1850,7 @@ bars foreach {case (x, y) => list.add(x + y)}
     doTextTest(before)
   }
 
-  def testSCL4890() = {
+  def testSCL4890(): Unit = {
     getScalaSettings.ALIGN_IF_ELSE = true
     val before =
       """
@@ -1867,13 +1868,13 @@ bars foreach {case (x, y) => list.add(x + y)}
     doTextTest(before)
   }
 
-  def testSCL10520() = {
+  def testSCL10520(): Unit = {
     getCommonSettings.KEEP_LINE_BREAKS = false
     val before = "\"\"\"\n  |foo\n  |bar\n\"\"\""
     doTextTest(before)
   }
 
-  def testSCL8889() = {
+  def testSCL8889(): Unit = {
     val before =
       """
         |object MyObj {
@@ -1899,7 +1900,7 @@ bars foreach {case (x, y) => list.add(x + y)}
     doTextTest(before, after)
   }
 
-  def testSCL9990() = {
+  def testSCL9990(): Unit = {
     getScalaSettings.SPACE_BEFORE_BRACE_METHOD_CALL = false
     val before = "Seq(1, 2, 3).map { case x => x * x }"
     val after = "Seq(1, 2, 3).map{ case x => x * x }"
@@ -1907,7 +1908,7 @@ bars foreach {case (x, y) => list.add(x + y)}
     doTextTest(before, after)
   }
 
-  def testSCL4291() = {
+  def testSCL4291(): Unit = {
     getScalaSettings.DO_NOT_INDENT_TUPLES_CLOSE_BRACE = true
     val before =
       """
@@ -1926,7 +1927,7 @@ bars foreach {case (x, y) => list.add(x + y)}
     doTextTest(before, after)
   }
 
-  def testSCL4291_1() = {
+  def testSCL4291_1(): Unit = {
     getScalaSettings.ALIGN_TUPLE_ELEMENTS = true
     getScalaSettings.DO_NOT_INDENT_TUPLES_CLOSE_BRACE = false
     val before =
@@ -1946,7 +1947,7 @@ bars foreach {case (x, y) => list.add(x + y)}
     doTextTest(before, after)
   }
 
-  def testSCL4291_2() = {
+  def testSCL4291_2(): Unit = {
     getScalaSettings.ALIGN_TUPLE_ELEMENTS = true
     getScalaSettings.DO_NOT_INDENT_TUPLES_CLOSE_BRACE = true
     val before =
@@ -1966,7 +1967,7 @@ bars foreach {case (x, y) => list.add(x + y)}
     doTextTest(before, after)
   }
 
-  def testSCL4743() = {
+  def testSCL4743(): Unit = {
     val before =
       """
         |def f = if (true) 1 else {
@@ -1976,7 +1977,7 @@ bars foreach {case (x, y) => list.add(x + y)}
     doTextTest(before)
   }
 
-  def testSCL5025() = {
+  def testSCL5025(): Unit = {
     getCommonSettings.ALIGN_MULTILINE_PARAMETERS_IN_CALLS = true
     getScalaSettings.DO_NOT_ALIGN_BLOCK_EXPR_PARAMS = true
     val before =
@@ -1998,7 +1999,7 @@ bars foreach {case (x, y) => list.add(x + y)}
     doTextTest(before, after)
   }
 
-  def testSCL5025_1() = {
+  def testSCL5025_1(): Unit = {
     getCommonSettings.ALIGN_MULTILINE_PARAMETERS_IN_CALLS = true
     getScalaSettings.DO_NOT_ALIGN_BLOCK_EXPR_PARAMS = true
     val before =
@@ -2020,7 +2021,7 @@ bars foreach {case (x, y) => list.add(x + y)}
     doTextTest(before)
   }
 
-  def testSCL5585() = {
+  def testSCL5585(): Unit = {
     getCommonSettings.CLASS_BRACE_STYLE = CommonCodeStyleSettings.NEXT_LINE_IF_WRAPPED
     val before =
       """|trait Foo {}
@@ -2034,7 +2035,7 @@ bars foreach {case (x, y) => list.add(x + y)}
     doTextTest(before)
   }
 
-  def testSCL5585_1() = {
+  def testSCL5585_1(): Unit = {
     getCommonSettings.CLASS_BRACE_STYLE = CommonCodeStyleSettings.NEXT_LINE_IF_WRAPPED
     val before =
       """
@@ -2059,7 +2060,7 @@ bars foreach {case (x, y) => list.add(x + y)}
     doTextTest(before, after)
   }
 
-  def testSCL6438() = {
+  def testSCL6438(): Unit = {
     getCommonSettings.BLANK_LINES_BEFORE_IMPORTS = 0
     val before =
       """
@@ -2071,7 +2072,7 @@ bars foreach {case (x, y) => list.add(x + y)}
     doTextTest(before)
   }
 
-  def testSCL6696() = {
+  def testSCL6696(): Unit = {
     getScalaSettings.DO_NOT_INDENT_TUPLES_CLOSE_BRACE = true
     val before =
       """
@@ -2082,7 +2083,7 @@ bars foreach {case (x, y) => list.add(x + y)}
     doTextTest(before)
   }
 
-  def testSCL7001() = {
+  def testSCL7001(): Unit = {
     val before =
       """
         |type Set =
@@ -2091,7 +2092,7 @@ bars foreach {case (x, y) => list.add(x + y)}
     doTextTest(before)
   }
 
-  def testSCL6576() = {
+  def testSCL6576(): Unit = {
     getScalaSettings.INDENT_FIRST_PARAMETER_CLAUSE = true
     val before =
       """
@@ -2108,7 +2109,7 @@ bars foreach {case (x, y) => list.add(x + y)}
     doTextTest(before, after)
   }
 
-  def testSCL5032_1() = {
+  def testSCL5032_1(): Unit = {
 
     val before =
       """
@@ -2125,12 +2126,12 @@ bars foreach {case (x, y) => list.add(x + y)}
     doTextTest(before, after)
   }
 
-  def testSCL5032_2() = {
+  def testSCL5032_2(): Unit = {
     val before = "collection.map { _ => item.property }"
     doTextTest(before)
   }
 
-  def testSCL10527() = {
+  def testSCL10527(): Unit = {
     val before =
       """
         |def xyz(arg: String): String =
@@ -2165,7 +2166,7 @@ bars foreach {case (x, y) => list.add(x + y)}
     doTextTest(before)
   }
 
-  def testSCL10527_1() = {
+  def testSCL10527_1(): Unit = {
     getCommonSettings.CLASS_BRACE_STYLE = CommonCodeStyleSettings.NEXT_LINE
     val before =
       """
@@ -2177,7 +2178,7 @@ bars foreach {case (x, y) => list.add(x + y)}
     doTextTest(before)
   }
 
-  def testSCL10527_2() = {
+  def testSCL10527_2(): Unit = {
     getCommonSettings.CLASS_BRACE_STYLE = CommonCodeStyleSettings.NEXT_LINE_SHIFTED
     val before =
       """
@@ -2189,7 +2190,7 @@ bars foreach {case (x, y) => list.add(x + y)}
     doTextTest(before)
   }
 
-  def testSCL7048() = {
+  def testSCL7048(): Unit = {
     getCommonSettings.SPACE_WITHIN_METHOD_CALL_PARENTHESES = true
     val before =
       """
@@ -2199,7 +2200,7 @@ bars foreach {case (x, y) => list.add(x + y)}
     doTextTest(before)
   }
 
-  def testSCL7048_1() = {
+  def testSCL7048_1(): Unit = {
     getCommonSettings.SPACE_WITHIN_EMPTY_METHOD_CALL_PARENTHESES = true
     val before =
       """
@@ -2209,7 +2210,7 @@ bars foreach {case (x, y) => list.add(x + y)}
     doTextTest(before)
   }
 
-  def testSCL7171() = {
+  def testSCL7171(): Unit = {
     val before =
       """
         |_ fold(
@@ -2220,7 +2221,7 @@ bars foreach {case (x, y) => list.add(x + y)}
     doTextTest(before)
   }
 
-  def testSCL7453() = {
+  def testSCL7453(): Unit = {
     getCommonSettings.METHOD_PARAMETERS_WRAP = CommonCodeStyleSettings.WRAP_ALWAYS
     getScalaSettings.USE_ALTERNATE_CONTINUATION_INDENT_FOR_PARAMS = true
     getCommonSettings.METHOD_PARAMETERS_LPAREN_ON_NEXT_LINE = true
@@ -2247,21 +2248,21 @@ bars foreach {case (x, y) => list.add(x + y)}
     doTextTest(before, after)
   }
 
-  def testSCL7690() = {
+  def testSCL7690(): Unit = {
     getCommonSettings.SPACE_BEFORE_TYPE_PARAMETER_LIST = true
     val before = "bar[A, B]()"
     val after = "bar [A, B]()"
     doTextTest(before, after)
   }
 
-  def testSCL7690_1() = {
+  def testSCL7690_1(): Unit = {
     getScalaSettings.SPACE_BEFORE_TYPE_PARAMETER_IN_DEF_LIST = true
     val before = "def bar[A, B]: Int = 42"
     val after = "def bar [A, B]: Int = 42"
     doTextTest(before, after)
   }
 
-  def testSCL9066() = {
+  def testSCL9066(): Unit = {
     getScalaSettings.TRY_BRACE_FORCE = CommonCodeStyleSettings.FORCE_BRACES_ALWAYS
     val before =
       """
@@ -2274,7 +2275,7 @@ bars foreach {case (x, y) => list.add(x + y)}
     doTextTest(before)
   }
 
-  def testSCL9066_1() = {
+  def testSCL9066_1(): Unit = {
     getScalaSettings.TRY_BRACE_FORCE = CommonCodeStyleSettings.FORCE_BRACES_ALWAYS
     val before =
       """
@@ -2293,7 +2294,7 @@ bars foreach {case (x, y) => list.add(x + y)}
     doTextTest(before, after)
   }
 
-  def testSCL_10545() = {
+  def testSCL_10545(): Unit = {
     getScalaSettings.CASE_CLAUSE_BRACE_FORCE = CommonCodeStyleSettings.FORCE_BRACES_ALWAYS
     val before =
       """
@@ -2306,7 +2307,7 @@ bars foreach {case (x, y) => list.add(x + y)}
     doTextTest(before)
   }
 
-  def testSCL_10545_1() = {
+  def testSCL_10545_1(): Unit = {
     getScalaSettings.CASE_CLAUSE_BRACE_FORCE = CommonCodeStyleSettings.FORCE_BRACES_ALWAYS
     val before =
       """
@@ -2325,13 +2326,13 @@ bars foreach {case (x, y) => list.add(x + y)}
     doTextTest(before, after)
   }
 
-  def testSCL9072() = {
+  def testSCL9072(): Unit = {
     val before = "whenReady(dao.findNetworkRule(\"A12345\")) {          _ => ()          }"
     val after = "whenReady(dao.findNetworkRule(\"A12345\")) { _ => () }"
     doTextTest(before, after)
   }
 
-  def testSCL9321() = {
+  def testSCL9321(): Unit = {
     getScalaSettings.KEEP_COMMENTS_ON_SAME_LINE = true
     val before =
       """
@@ -2376,7 +2377,7 @@ bars foreach {case (x, y) => list.add(x + y)}
     doTextTest(before)
   }
 
-  def testSCL4269() = {
+  def testSCL4269(): Unit = {
     val before =
       """
         |object HelloWorld { // A sample application object
@@ -2390,7 +2391,7 @@ bars foreach {case (x, y) => list.add(x + y)}
     doTextTest(before)
   }
 
-  def testSCL4269_1() = {
+  def testSCL4269_1(): Unit = {
     getScalaSettings.KEEP_COMMENTS_ON_SAME_LINE = false
     val before =
       """
@@ -2416,7 +2417,7 @@ bars foreach {case (x, y) => list.add(x + y)}
     doTextTest(before, after)
   }
 
-  def testSCL9450() = {
+  def testSCL9450(): Unit = {
     getScalaSettings.PLACE_SELF_TYPE_ON_NEW_LINE = false
     getScalaSettings.SPACE_INSIDE_SELF_TYPE_BRACES = true
     val before =
@@ -2428,7 +2429,7 @@ bars foreach {case (x, y) => list.add(x + y)}
     doTextTest(before)
   }
 
-  def testSCL9450_1() = {
+  def testSCL9450_1(): Unit = {
     getScalaSettings.PLACE_SELF_TYPE_ON_NEW_LINE = false
     getScalaSettings.SPACE_INSIDE_SELF_TYPE_BRACES = true
     val before =
@@ -2438,7 +2439,7 @@ bars foreach {case (x, y) => list.add(x + y)}
     doTextTest(before)
   }
 
-  def testSCL9721() = {
+  def testSCL9721(): Unit = {
     getCommonSettings.KEEP_FIRST_COLUMN_COMMENT = true
     val before =
       """
@@ -2452,7 +2453,7 @@ bars foreach {case (x, y) => list.add(x + y)}
     doTextTest(before)
   }
 
-  def testSCL9786() = {
+  def testSCL9786(): Unit = {
     getCommonSettings.IF_BRACE_FORCE = CommonCodeStyleSettings.FORCE_BRACES_ALWAYS
     val before =
       """
@@ -2472,7 +2473,7 @@ bars foreach {case (x, y) => list.add(x + y)}
     doTextTest(before, after)
   }
 
-  def testSCL9786_1() = {
+  def testSCL9786_1(): Unit = {
     getCommonSettings.IF_BRACE_FORCE = CommonCodeStyleSettings.FORCE_BRACES_ALWAYS
     getCommonSettings.ELSE_ON_NEW_LINE = true
     val before = "if (true) -1 else 42"
@@ -2488,7 +2489,7 @@ bars foreach {case (x, y) => list.add(x + y)}
     doTextTest(before, after)
   }
 
-  def testSCL9869() = {
+  def testSCL9869(): Unit = {
     getScalaSettings.SD_KEEP_BLANK_LINES_BETWEEN_TAGS = true
     val before =
       """
@@ -2542,7 +2543,7 @@ bars foreach {case (x, y) => list.add(x + y)}
     doTextTest(before)
   }
 
-  def testSCL10632() = {
+  def testSCL10632(): Unit = {
     val before =
       """
         |class IndentBug {

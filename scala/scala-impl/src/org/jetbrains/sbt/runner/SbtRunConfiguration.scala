@@ -30,7 +30,7 @@ import scala.collection.JavaConverters._
  * Run configuration of sbt tasks.
  */
 class SbtRunConfiguration(val project: Project, val configurationFactory: ConfigurationFactory, val name: String)
-        extends ModuleBasedConfiguration[RunConfigurationModule](name, new RunConfigurationModule(project), configurationFactory) {
+        extends ModuleBasedConfiguration[RunConfigurationModule,Element](name, new RunConfigurationModule(project), configurationFactory) {
 
   /**
    * List of task to execute in format of sbt.

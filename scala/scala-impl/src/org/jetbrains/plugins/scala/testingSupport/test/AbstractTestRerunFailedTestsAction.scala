@@ -3,7 +3,7 @@ package org.jetbrains.plugins.scala.testingSupport.test
 import java.util
 
 import com.intellij.execution.Executor
-import com.intellij.execution.configurations.RunProfileState
+import com.intellij.execution.configurations.{RunConfigurationBase, RunProfileState}
 import com.intellij.execution.runners.ExecutionEnvironment
 import com.intellij.execution.testframework.sm.runner.SMTestProxy
 import com.intellij.execution.testframework.sm.runner.states.TestStateInfo.Magnitude
@@ -85,7 +85,9 @@ class AbstractTestRerunFailedTestsAction(consoleView: ConsoleView)
         }
         previoslyFailed = buffer
         patcher.setFailedTests(buffer)
-        patcher.setConfiguration(this)
+        // FIXME workaround cast because superclass MyRunProfile extends RunConfigurationBase without type parameters
+        val runConfigHack: RunConfigurationBase[_] = this.asInstanceOf[RunConfigurationBase[_]]
+        patcher.setConfiguration(runConfigHack)
         state
       }
     }

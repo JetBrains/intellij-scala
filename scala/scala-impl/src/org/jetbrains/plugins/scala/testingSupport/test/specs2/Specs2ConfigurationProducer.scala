@@ -48,7 +48,7 @@ class Specs2ConfigurationProducer extends {
 
     if (parent == null) return None
 
-    val settings = RunManager.getInstance(location.getProject).createRunConfiguration(parent.name, confFactory)
+    val settings = RunManager.getInstance(location.getProject).createConfiguration(parent.name, confFactory)
     val runConfiguration = settings.getConfiguration.asInstanceOf[Specs2RunConfiguration]
     val (testClass, testName) = getLocationClassAndTest(location)
     if (testClass == null) return None

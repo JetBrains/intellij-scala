@@ -1,6 +1,6 @@
 package org.jetbrains.plugins.scala.worksheet.cell
 
-import com.intellij.openapi.components.AbstractProjectComponent
+import com.intellij.openapi.components.ProjectComponent
 import com.intellij.openapi.project.Project
 import com.intellij.openapi.util.text.StringUtil
 import com.intellij.psi.{PsiComment, PsiElement, PsiFile, PsiWhiteSpace}
@@ -12,7 +12,7 @@ import scala.collection.{mutable, _}
 /**
   * User: Dmitry.Naydanov
   */
-class BasicCellManager(project: Project) extends AbstractProjectComponent(project) with CellManager {
+class BasicCellManager(project: Project) extends ProjectComponent with CellManager {
   private var cells = mutable.WeakHashMap.empty[PsiFile, mutable.TreeMap[Int, CellDescriptor]]
 
   override def canHaveCells(file: PsiFile): Boolean = file match {
