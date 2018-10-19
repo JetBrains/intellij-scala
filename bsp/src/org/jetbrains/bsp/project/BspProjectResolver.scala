@@ -20,7 +20,7 @@ import org.jetbrains.bsp.data.{BspMetadata, ScalaSdkData}
 import org.jetbrains.bsp.magic.monixToCats.monixToCatsMonad
 import org.jetbrains.bsp.project.BspProjectResolver._
 import org.jetbrains.bsp.protocol.BspCommunication.NotificationCallback
-import org.jetbrains.bsp.protocol.{BspCommunication, BspJob}
+import org.jetbrains.bsp.protocol.{Bsp4sNotifications, BspCommunication, BspJob}
 import org.jetbrains.bsp.settings.BspExecutionSettings
 import org.jetbrains.bsp.{BSP, BspError, BspTaskCancelled}
 import org.jetbrains.ide.PooledThreadExecutor
@@ -206,7 +206,7 @@ class BspProjectResolver extends ExternalSystemProjectResolver[BspExecutionSetti
     val communication = BspCommunication.forBaseDir(projectRootPath, executionSettings)
 
     val bspNotifications: NotificationCallback = {
-      case BspCommunication.LogMessage(params) =>
+      case Bsp4sNotifications.LogMessage(params) =>
         // TODO use params.id for tree structure
         statusUpdate(params.message)
       case _ =>

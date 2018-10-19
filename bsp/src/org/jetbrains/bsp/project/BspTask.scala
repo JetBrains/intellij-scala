@@ -15,7 +15,7 @@ import monix.execution.Scheduler
 import org.jetbrains.bsp.BspUtil._
 import org.jetbrains.bsp.project.BspTask.TextCollector
 import org.jetbrains.bsp.protocol.BspCommunication.NotificationCallback
-import org.jetbrains.bsp.protocol.{BspCommunication, BspJob}
+import org.jetbrains.bsp.protocol.{Bsp4sNotifications, BspCommunication, BspJob}
 import org.jetbrains.bsp.settings.BspExecutionSettings
 import org.jetbrains.plugins.scala.build.{BuildFailureException, BuildMessages, BuildToolWindowReporter, IndicatorReporter}
 
@@ -36,15 +36,15 @@ class BspTask[T](project: Project, executionSettings: BspExecutionSettings,
   private val report = new BuildToolWindowReporter(project, taskId, "bsp build")
 
   private val bspNotifications: NotificationCallback = {
-    case BspCommunication.LogMessage(params) =>
+    case Bsp4sNotifications.LogMessage(params) =>
       report.log(params.message)
-    case BspCommunication.ShowMessage(params) =>
+    case Bsp4sNotifications.ShowMessage(params) =>
       reportShowMessage(params)
-    case BspCommunication.PublishDiagnostics(params) =>
+    case Bsp4sNotifications.PublishDiagnostics(params) =>
       reportDiagnostics(params)
-    case BspCommunication.CompileReport(params) =>
+    case Bsp4sNotifications.CompileReport(params) =>
       reportCompile(params)
-    case BspCommunication.TestReport(params) =>
+    case Bsp4sNotifications.TestReport(params) =>
       // ignore in compile tasks
   }
 

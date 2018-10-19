@@ -3,9 +3,8 @@ package org.jetbrains.bsp.protocol
 import java.io.File
 import java.net.URI
 import java.nio.file._
+import java.util.concurrent.CompletableFuture
 
-import ch.epfl.scala.bsp
-import ch.epfl.scala.bsp._
 import com.intellij.openapi.components.ProjectComponent
 import com.intellij.openapi.diagnostic.Logger
 import com.intellij.openapi.project.{Project, ProjectUtil}
@@ -14,6 +13,9 @@ import com.intellij.util.net.NetUtils
 import monix.eval.Task
 import monix.execution.Scheduler
 import org.jetbrains.bsp.BspError
+import org.jetbrains.bsp.protocol.Bsp4jNotifications.Bsp4jNotification
+import org.jetbrains.bsp.protocol.Bsp4jSession.BspServer
+import org.jetbrains.bsp.protocol.Bsp4sNotifications.Bsp4sNotification
 import org.jetbrains.bsp.protocol.BspCommunication._
 import org.jetbrains.bsp.protocol.BspServerConnector._
 import org.jetbrains.bsp.settings.BspExecutionSettings
@@ -77,7 +79,7 @@ class BspCommunication(base: File, executionSettings: BspExecutionSettings) {
     case Some(s) => s.shutdown()
   }
 
-  def run[T, A](task: BspSessionTask[T], default: A, aggregator: NotificationAggregator[A])(implicit scheduler: Scheduler): BspJob[(T, A)] = {
+  def run[T, A](task: Bsp4sSessionTask[T], default: A, aggregator: NotificationAggregator[A])(implicit scheduler: Scheduler): BspJob[(T, A)] = {
     acquireSession match {
       case Left(error) => new FailedBspJob(error)
       case Right(currentSession) =>
@@ -85,8 +87,8 @@ class BspCommunication(base: File, executionSettings: BspExecutionSettings) {
     }
   }
 
-  def run[T](bspSessionTask: BspSessionTask[T], notifications: NotificationCallback)(implicit scheduler: Scheduler): BspJob[T] = {
-    val callback = (a: Unit, n: BspNotification) => notifications(n)
+  def run[T](bspSessionTask: Bsp4sSessionTask[T], notifications: NotificationCallback)(implicit scheduler: Scheduler): BspJob[T] = {
+    val callback = (a: Unit, n: Bsp4sNotification) => notifications(n)
     val job = run(bspSessionTask, (), callback)
     new NonAggregatingBspJob(job)
   }
@@ -96,16 +98,13 @@ class BspCommunication(base: File, executionSettings: BspExecutionSettings) {
 
 object BspCommunication {
 
-  type NotificationAggregator[A] = (A, BspNotification) => A
-  type NotificationCallback = BspNotification => Unit
-  type BspSessionTask[T] = LanguageClient => Task[T]
+  type NotificationAggregator[A] = (A, Bsp4sNotification) => A
+  type NotificationCallback = Bsp4sNotification => Unit
+  type Bsp4sSessionTask[T] = LanguageClient => Task[T]
 
-  sealed abstract class BspNotification
-  final case class LogMessage(params: bsp.LogMessageParams) extends BspNotification
-  final case class ShowMessage(params: bsp.ShowMessageParams) extends BspNotification
-  final case class PublishDiagnostics(params: bsp.PublishDiagnosticsParams) extends BspNotification
-  final case class CompileReport(params: bsp.CompileReport) extends BspNotification
-  final case class TestReport(params: bsp.TestReport) extends BspNotification
+  type NotificationAggregator4j[A] = (A, Bsp4jNotification) => A
+  type NotificationCallback4j = Bsp4jNotification => Unit
+  type Bsp4jSessionTask[T] = BspServer => CompletableFuture[T]
 
 
   // TODO since IntelliJ projects can correspond to multiple bsp modules, figure out how to have independent
@@ -125,10 +124,8 @@ object BspCommunication {
 
   private[protocol] def prepareSession(base: File, bspExecutionSettings: BspExecutionSettings)(implicit scheduler: Scheduler): Task[Either[BspError, BspSession]] = {
 
-    val initParams = InitializeBuildParams(
-      rootUri = Uri(base.getCanonicalFile.toURI.toString),
-      BuildClientCapabilities(List("scala","java"), providesFileWatching = false) // TODO we can provide file watching
-    )
+    val supportedLanguages = List("scala","java") // TODO somehow figure this out more generically?
+    val capabilities = BspCapabilities(supportedLanguages, providesFileWatching = false) // TODO we can provide file watching
 
     val id = java.lang.Long.toString(Random.nextLong(), Character.MAX_RADIX)
 
@@ -148,10 +145,10 @@ object BspCommunication {
     val bloopConfigDir = new File(base, ".bloop").getCanonicalFile
 
     val connector =
-      if (bloopConfigDir.exists()) new BloopConnector(bspExecutionSettings.bloopExecutable, base, initParams)
+      if (bloopConfigDir.exists()) new BloopConnector(bspExecutionSettings.bloopExecutable, base, capabilities)
       else {
         // TODO need a protocol to detect generic bsp server
-        new GenericConnector(base, initParams)
+        new GenericConnector(base, capabilities)
       }
 
     connector.connect(preferredMethod, tcpMethod)
