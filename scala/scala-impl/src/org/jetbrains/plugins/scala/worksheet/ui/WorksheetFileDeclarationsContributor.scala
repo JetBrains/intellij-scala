@@ -1,14 +1,14 @@
 package org.jetbrains.plugins.scala.worksheet.ui
 
+import com.intellij.codeInsight.completion.CompletionUtil
 import com.intellij.psi.scope.PsiScopeProcessor
 import com.intellij.psi.{PsiElement, ResolveState}
-import org.jetbrains.plugins.scala.lang.completion.ScalaCompletionUtil
 import org.jetbrains.plugins.scala.lang.lexer.ScalaTokenTypes
 import org.jetbrains.plugins.scala.lang.psi.api.expr.ScExpression
 import org.jetbrains.plugins.scala.lang.psi.api.statements.ScPatternDefinition
 import org.jetbrains.plugins.scala.lang.psi.impl.{ScalaFileImpl, ScalaPsiElementFactory}
-import org.jetbrains.plugins.scala.worksheet.{FileDeclarationsContributor, GotoOriginalHandlerUtil}
 import org.jetbrains.plugins.scala.worksheet.settings.WorksheetFileSettings
+import org.jetbrains.plugins.scala.worksheet.{FileDeclarationsContributor, GotoOriginalHandlerUtil}
 
 import scala.collection.mutable.ArrayBuffer
 
@@ -30,7 +30,7 @@ class WorksheetFileDeclarationsContributor extends FileDeclarationsContributor {
       case expr: ScExpression =>
         val text = expr.getText
 
-        if (!text.contains(ScalaCompletionUtil.DUMMY_IDENTIFIER)) {
+        if (!text.contains(CompletionUtil.DUMMY_IDENTIFIER_TRIMMED)) {
           val name = s"res$ind"
           val inds = ArrayBuffer[Int]()
           val m = name.r.pattern.matcher(text)

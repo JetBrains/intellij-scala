@@ -2,6 +2,8 @@ package org.jetbrains.plugins.scala
 package lang
 package completion
 
+import java.util.regex.{Matcher, Pattern}
+
 import com.intellij.codeInsight.completion.{CompletionParameters, CompletionUtil, JavaCompletionUtil, PrefixMatcher}
 import com.intellij.openapi.application.ApplicationManager
 import com.intellij.openapi.util.{Computable, Key}
@@ -113,11 +115,9 @@ object ScalaCompletionUtil {
           !parent.getPrevSibling.getPrevSibling.getLastChild.isInstanceOf[PsiErrorElement]))
   }
 
-  val DUMMY_IDENTIFIER = "IntellijIdeaRulezzz"
-
   def checkClassWith(clazz: ScTypeDefinition, additionText: String, manager: PsiManager): Boolean = {
     val classText: String = clazz.getText
-    val text = removeDummy(classText + " " + additionText)
+    val text = replaceDummy(classText + " " + additionText)
     val DUMMY = "dummy."
     val dummyFile = PsiFileFactory.getInstance(manager.getProject).
       createFileFromText(DUMMY + ScalaFileType.INSTANCE.getDefaultExtension,
@@ -143,29 +143,7 @@ object ScalaCompletionUtil {
 
   def checkTypeWith(typez: ScTypeElement, additionText: String, manager: PsiManager): Boolean = {
     val typeText = typez.getText
-    val text = removeDummy("class a { x:" + typeText + " " + additionText + "}")
-    val DUMMY = "dummy."
-    val dummyFile = PsiFileFactory.getInstance(manager.getProject).
-      createFileFromText(DUMMY + ScalaFileType.INSTANCE.getDefaultExtension,
-        ScalaFileType.INSTANCE, text).asInstanceOf[ScalaFile]
-    val value = !checkErrors(dummyFile)
-    value
-  }
-
-  def checkAnyTypeWith(typez: ScTypeElement, additionText: String, manager: PsiManager): Boolean = {
-    val typeText = typez.getText
-    val text = removeDummy("class a { val x:" + typeText + " " + additionText + "}")
-    val DUMMY = "dummy."
-    val dummyFile = PsiFileFactory.getInstance(manager.getProject).
-      createFileFromText(DUMMY + ScalaFileType.INSTANCE.getDefaultExtension,
-        ScalaFileType.INSTANCE, text).asInstanceOf[ScalaFile]
-    val value = !checkErrors(dummyFile)
-    value
-  }
-
-  def checkAnyWith(typez: PsiElement, additionText: String, manager: PsiManager): Boolean = {
-    val typeText = typez.getText
-    val text = removeDummy("class a { " + typeText + " " + additionText + "}")
+    val text = replaceDummy("class a { x:" + typeText + " " + additionText + "}")
     val DUMMY = "dummy."
     val dummyFile = PsiFileFactory.getInstance(manager.getProject).
       createFileFromText(DUMMY + ScalaFileType.INSTANCE.getDefaultExtension,
@@ -173,19 +151,41 @@ object ScalaCompletionUtil {
     !checkErrors(dummyFile)
   }
 
-  def removeDummy(text: String): String = {
-    replaceDummy(text, "")
+  def checkAnyTypeWith(typez: ScTypeElement, additionText: String, manager: PsiManager): Boolean = {
+    val typeText = typez.getText
+    val text = replaceDummy("class a { val x:" + typeText + " " + additionText + "}")
+    val DUMMY = "dummy."
+    val dummyFile = PsiFileFactory.getInstance(manager.getProject).
+      createFileFromText(DUMMY + ScalaFileType.INSTANCE.getDefaultExtension,
+        ScalaFileType.INSTANCE, text).asInstanceOf[ScalaFile]
+    !checkErrors(dummyFile)
   }
 
-  def replaceDummy(text: String, to: String): String = {
-    if (text.indexOf(DUMMY_IDENTIFIER) != -1) {
-      text.replaceAll("\\w*" + DUMMY_IDENTIFIER,to)
-    } else text
+  def checkAnyWith(typez: PsiElement, additionText: String, manager: PsiManager): Boolean = {
+    val typeText = typez.getText
+    val text = replaceDummy("class a { " + typeText + " " + additionText + "}")
+    val DUMMY = "dummy."
+    val dummyFile = PsiFileFactory.getInstance(manager.getProject).
+      createFileFromText(DUMMY + ScalaFileType.INSTANCE.getDefaultExtension,
+        ScalaFileType.INSTANCE, text).asInstanceOf[ScalaFile]
+    !checkErrors(dummyFile)
   }
+
+  import CompletionUtil.{DUMMY_IDENTIFIER, DUMMY_IDENTIFIER_TRIMMED}
+
+  private val LiteralPattern: Pattern = Pattern.compile(CompletionUtil.DUMMY_IDENTIFIER_TRIMMED, Pattern.LITERAL)
+
+  def replaceLiteral(text: String, replacement: String): String =
+    LiteralPattern.matcher(text)
+      .replaceAll(Matcher.quoteReplacement(replacement))
+
+  private def replaceDummy(text: String): String =
+    if (text.contains(DUMMY_IDENTIFIER_TRIMMED)) text.replaceAll("\\w*" + DUMMY_IDENTIFIER_TRIMMED, "")
+    else text
 
   def checkNewWith(news: ScNewTemplateDefinition, additionText: String, manager: PsiManager): Boolean = {
     val newsText = news.getText
-    val text = removeDummy("class a { " + newsText + " " + additionText + "}")
+    val text = replaceDummy("class a { " + newsText + " " + additionText + "}")
     val DUMMY = "dummy."
     val dummyFile = PsiFileFactory.getInstance(manager.getProject).
       createFileFromText(DUMMY + ScalaFileType.INSTANCE.getDefaultExtension,
@@ -196,8 +196,9 @@ object ScalaCompletionUtil {
   def checkReplace(elem: PsiElement, additionText: String, manager: PsiManager): Boolean = {
     val typeText = elem.getText
     var text = "class a { " + typeText + "}"
-    if (text.indexOf(DUMMY_IDENTIFIER) == -1) return false
-    text = replaceDummy(text, " "+ additionText+ " ")
+    if (!text.contains(DUMMY_IDENTIFIER_TRIMMED)) return false
+    text = text.replaceAll("\\w*" + DUMMY_IDENTIFIER_TRIMMED, " " + additionText + " ")
+
     val DUMMY = "dummy."
     val dummyFile = PsiFileFactory.getInstance(manager.getProject).
       createFileFromText(DUMMY + ScalaFileType.INSTANCE.getDefaultExtension,
@@ -258,19 +259,19 @@ object ScalaCompletionUtil {
         ref.getElement.getPrevSibling.getNode.getElementType == tSTUB) id + "`" else id
     } else {
       if (element != null && element.getNode.getElementType == tSTUB) {
-        CompletionUtil.DUMMY_IDENTIFIER_TRIMMED + "`"
+        DUMMY_IDENTIFIER_TRIMMED + "`"
       } else {
         Option(file.findElementAt(offset + 1))
           .map(_.getText)
           .map(dummyIdentifier)
-          .getOrElse(CompletionUtil.DUMMY_IDENTIFIER_TRIMMED)
+          .getOrElse(DUMMY_IDENTIFIER_TRIMMED)
       }
     }
   }
 
   private def dummyIdentifier(string: String): String =
-    if (isKeyword(string)) CompletionUtil.DUMMY_IDENTIFIER
-    else CompletionUtil.DUMMY_IDENTIFIER_TRIMMED
+    if (isKeyword(string)) DUMMY_IDENTIFIER
+    else DUMMY_IDENTIFIER_TRIMMED
 
   def isExcluded(clazz: PsiClass): Boolean = {
     ApplicationManager.getApplication.runReadAction(new Computable[Boolean] {
