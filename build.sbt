@@ -51,8 +51,8 @@ lazy val scalaImpl: sbt.Project =
         "java-i18n",
         "android",
         "smali",      // required by Android
-        "gradle",     // requierd by Android
-        "Groovy",     // requierd by Gradle
+        "gradle",     // required by Android
+        "Groovy",     // required by Gradle
         "properties", // required by Gradle
         "maven",      // TODO remove after extracting the SBT module (which depends on Maven)
         "junit"
@@ -156,15 +156,21 @@ lazy val macroAnnotations =
 
 lazy val bsp =
   newProject("bsp", file("bsp"))
-    .dependsOn(scalaImpl % "test->test;compile->compile", bspDeps)
-
-lazy val bspDeps =
-  newProject("bspDeps", file("target/tools/bspDeps"))
+    .dependsOn(scalaImpl % "test->test;compile->compile")
     .settings(
       packageAssembleLibraries := true,
       libraryDependencies ++= DependencyGroups.bsp,
-      packageMethod := PackagingMethod.DepsOnly("lib/bsp-deps.jar")
+      packageMethod := PackagingMethod.Standalone("lib/bsp.jar"),
+      ideaMainJars := Seq.empty
     )
+
+//lazy val bspDeps =
+//  newProject("bspDeps", file("target/tools/bspDeps"))
+//    .settings(
+//      packageAssembleLibraries := true,
+//      libraryDependencies ++= DependencyGroups.bsp,
+//      packageMethod := PackagingMethod.DepsOnly("lib/bsp-deps.jar")
+//    )
 
 // Integration with other IDEA plugins
 

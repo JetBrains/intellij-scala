@@ -112,6 +112,12 @@ object Dependencies {
   val compilerBridgeSources_2_11 = "org.scala-sbt" % "compiler-bridge_2.11" % zincVersion classifier "sources"
   val compilerBridgeSources_2_13 = "org.scala-sbt" % "compiler-bridge_2.13.0-M2" % zincVersion classifier "sources"
 
+  /** The filtering function returns true for jars to be removed.
+    * It's purpose is to exclude platform jars that may conflict with plugin dependencies. */
+  val excludeJarsFromPlatformDependencies: File => Boolean = { file =>
+    file.getName.contains("lsp4j") // version conflict with bsp4j in ultimate platform
+  }
+
   private def sbtPluginDependency(module: ModuleID, sbtVersion: String): ModuleID =
     sbt.Defaults.sbtPluginExtra(module, sbtVersion, Sbt.scalaVersion(sbtVersion))
 
@@ -143,7 +149,8 @@ object DependencyGroups {
 
   val bsp: Seq[ModuleID] = Seq(
     "org.scala-sbt.ipcsocket" % "ipcsocket" % "1.0.0",
-    "ch.epfl.scala" %% "bsp" % "1.0.0"
+    "ch.epfl.scala" %% "bsp" % "1.0.0",
+    "ch.epfl.scala" % "bsp4j" % "1.0.0+15-f247be2b"
   )
 
   val decompiler: Seq[ModuleID] = Seq(

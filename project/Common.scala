@@ -25,7 +25,8 @@ object Common {
       unmanagedResourceDirectories in Compile += baseDirectory.value / "resources",
       unmanagedResourceDirectories in Test += baseDirectory.value / "testResources",
       libraryDependencies ++= Seq(Dependencies.junitInterface),
-      updateOptions := updateOptions.value.withCachedResolution(true)
+      updateOptions := updateOptions.value.withCachedResolution(true),
+      ideaMainJars := ideaMainJars.value.filterNot(file => Dependencies.excludeJarsFromPlatformDependencies(file.data))
     )
 
   def newProject(projectName: String): Project =
