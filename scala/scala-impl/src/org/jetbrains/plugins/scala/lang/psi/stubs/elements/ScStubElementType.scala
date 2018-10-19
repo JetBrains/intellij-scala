@@ -5,8 +5,8 @@ package stubs
 package elements
 
 import com.intellij.lang.ASTNode
+import com.intellij.psi.PsiElement
 import com.intellij.psi.stubs._
-import com.intellij.psi.{PsiElement, PsiFile}
 import org.jetbrains.plugins.scala.lang.parser.ScalaPsiCreator.SelfPsiCreator
 
 /**
@@ -18,29 +18,35 @@ abstract class ScStubElementType[S <: StubElement[T], T <: PsiElement](val debug
   override def createElement(node: ASTNode): T
 
   override final def createStub(psi: T, parentStub: StubElement[_ <: PsiElement]): S = {
-    import ScStubElementType._isStubBuilding
-    try {
-      _isStubBuilding.set(_isStubBuilding.get + 1)
+    ScStubElementType.Processing {
       createStubImpl(psi, parentStub)
-    } finally { _isStubBuilding.set(_isStubBuilding.get - 1) }
+    }
   }
 
   protected def createStubImpl(psi: T, parentStub: StubElement[_ <: PsiElement]): S
-
-  def isCompiled(stub: S): Boolean = {
-    var parent = stub
-    while (!parent.isInstanceOf[PsiFileStub[_ <: PsiFile]]) {
-      parent = parent.getParentStub.asInstanceOf[S]
-    }
-    parent.asInstanceOf[ScFileStub].isCompiled
-  }
 
   override def isLeftBound = true
 }
 
 object ScStubElementType {
-  private val _isStubBuilding: ThreadLocal[Int] = new ThreadLocal[Int] {
-    override def initialValue(): Int = 0
+
+  object Processing {
+
+    private[this] val flag = ThreadLocal.withInitial[Long](() => 0)
+
+    def apply[R](action: => R): R =
+      try {
+        this (()) += 1
+        action
+      } finally {
+        this (()) -= 1
+      }
+
+    implicit def asBoolean(self: this.type): Boolean = apply(()) > 0
+
+    private[this] def apply(unit: Unit): Long = flag.get
+
+    private[this] def update(unit: Unit, long: Long): Unit = flag.set(long)
   }
-  def isStubBuilding: Boolean = _isStubBuilding.get() > 0
+
 }

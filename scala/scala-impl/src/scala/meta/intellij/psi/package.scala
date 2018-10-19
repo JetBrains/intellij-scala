@@ -51,7 +51,7 @@ package object psi {
   implicit class PsiFileExt(val repr: PsiFile) extends AnyVal {
 
     def isMetaEnabled(project: Project): Boolean =
-      !ScStubElementType.isStubBuilding &&
+      !ScStubElementType.Processing &&
         !DumbService.isDumb(project) &&
         (ApplicationManager.getApplication.isUnitTestMode ||
           findModule.exists(hasMetaParadiseJar))

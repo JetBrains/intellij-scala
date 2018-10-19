@@ -59,70 +59,56 @@ abstract class ScTemplateDefinitionElementType[TypeDef <: ScTemplateDefinition](
 
   override def createStubImpl(definition: ScTemplateDefinition,
                               parent: StubElement[_ <: PsiElement]): ScTemplateDefinitionStub = {
-    import ScTemplateDefinitionElementType.isStubBuilding
-    try {
-      isStubBuilding.set(true)
-      val fileName = definition.containingVirtualFile
-        .map(_.getName).orNull
+    val fileName = definition.containingVirtualFile
+      .map(_.getName).orNull
 
-      val maybeTypeDefinition = definition match {
-        case typeDefinition: ScTypeDefinition => Some(typeDefinition)
-        case _ => None
-      }
-
-      val isDeprecated = maybeTypeDefinition.toSeq
-        .flatMap { definition =>
-          Option(definition.getModifierList)
-        }.flatMap {
-        _.getAnnotations
-      }.collect {
-        case a: ScAnnotation => a.constructor.typeElement.getText
-      }.exists {
-        case "deprecated" | "scala.deprecated" => true
-        case _ => false
-      }
-
-      def isOkForJava(elem: ScalaPsiElement): Boolean = {
-        var res = true
-        var element = elem.getParent
-        while (element != null && res) {
-          element match {
-            case o: ScObject if o.isPackageObject => res = false
-            case _ =>
-          }
-          element = element.getParent
-        }
-        res
-      }
-
-      val isLocal = definition.containingClass == null &&
-        PsiTreeUtil.getParentOfType(definition, classOf[ScTemplateDefinition]) != null
-
-      val maybeAdditionalJavaName = maybeTypeDefinition
-        .flatMap(_.additionalJavaClass)
-        .map(_.getName)
-
-      import StringRef.fromString
-      new ScTemplateDefinitionStubImpl(
-        parent,
-        this,
-        nameRef = fromString(definition.name),
-        qualifiedNameRef = fromString(definition.qualifiedName),
-        javaQualifiedNameRef = fromString(definition.getQualifiedName),
-        isPackageObject = maybeTypeDefinition.exists(_.isPackageObject),
-        isScriptFileClass = definition.isScriptFileClass,
-        sourceFileNameRef = fromString(fileName),
-        isDeprecated = isDeprecated,
-        isImplicitObject = definition.isInstanceOf[ScObject] && definition.hasModifierProperty("implicit"),
-        isImplicitClass = definition.isInstanceOf[ScClass] && definition.hasModifierProperty("implicit"),
-        javaNameRef = fromString(definition.getName),
-        additionalJavaNameRef = maybeAdditionalJavaName.asReference,
-        isLocal = isLocal,
-        isVisibleInJava = isOkForJava(definition)
-      )
-    } finally {
-      isStubBuilding.set(false)
+    val maybeTypeDefinition = definition match {
+      case typeDefinition: ScTypeDefinition => Some(typeDefinition)
+      case _ => None
     }
+
+    val isDeprecated = maybeTypeDefinition.toSeq
+      .flatMap { definition =>
+        Option(definition.getModifierList)
+      }.flatMap {
+      _.getAnnotations
+    }.collect {
+      case a: ScAnnotation => a.constructor.typeElement.getText
+    }.exists {
+      case "deprecated" | "scala.deprecated" => true
+      case _ => false
+    }
+
+    val maybeAdditionalJavaName = maybeTypeDefinition
+      .flatMap(_.additionalJavaClass)
+      .map(_.getName)
+
+    val isLocal = definition.containingClass == null &&
+      PsiTreeUtil.getParentOfType(definition, classOf[ScTemplateDefinition]) != null
+
+    val isVisibleInJava = definition.parents.forall {
+      case o: ScObject => !o.isPackageObject
+      case _ => true
+    }
+
+    import StringRef.fromString
+    new ScTemplateDefinitionStubImpl(
+      parent,
+      this,
+      nameRef = fromString(definition.name),
+      qualifiedNameRef = fromString(definition.qualifiedName),
+      javaQualifiedNameRef = fromString(definition.getQualifiedName),
+      isPackageObject = maybeTypeDefinition.exists(_.isPackageObject),
+      isScriptFileClass = definition.isScriptFileClass,
+      sourceFileNameRef = fromString(fileName),
+      isDeprecated = isDeprecated,
+      isImplicitObject = definition.isInstanceOf[ScObject] && definition.hasModifierProperty("implicit"),
+      isImplicitClass = definition.isInstanceOf[ScClass] && definition.hasModifierProperty("implicit"),
+      javaNameRef = fromString(definition.getName),
+      additionalJavaNameRef = maybeAdditionalJavaName.asReference,
+      isLocal = isLocal,
+      isVisibleInJava = isVisibleInJava
+    )
   }
 
   override def indexStub(stub: ScTemplateDefinitionStub, sink: IndexSink): Unit = {
@@ -170,9 +156,4 @@ abstract class ScTemplateDefinitionElementType[TypeDef <: ScTemplateDefinition](
       sink.occurrence[PsiClass, String](ScalaIndexKeys.PACKAGE_OBJECT_SHORT_NAME_KEY, shortName)
     }
   }
-}
-
-object ScTemplateDefinitionElementType {
-
-  private val isStubBuilding = new ThreadLocal[Boolean]
 }
