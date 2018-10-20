@@ -11,6 +11,7 @@ import com.intellij.openapi.diagnostic.Logger
 import com.intellij.openapi.extensions.PluginId
 import com.intellij.openapi.progress.{ProgressIndicator, ProgressManager, Task}
 import com.intellij.openapi.project.Project
+import com.intellij.openapi.roots.OrderRootType
 import com.intellij.openapi.roots.impl.libraries.ProjectLibraryTable
 import com.intellij.openapi.roots.libraries.Library
 import com.intellij.openapi.util.ModificationTracker
@@ -111,10 +112,14 @@ class LibraryExtensionsManager(project: Project) extends ProjectComponent {
 
     def processLibrary(lib: Library): Seq[DependencyDescription] = lib.getName.split(": ?") match {
       case Array("sbt", org, module, version, "jar") =>
-        val subst = patterns.map(_.replace(PAT_ORG, org).replace(PAT_MOD, stripScalaVersion(module)).replace(PAT_VER, version))
-        subst.map(_.split(s" *$PAT_SEP *")).collect {
-          case Array(newOrg,newMod,newVer) => DependencyDescription(newOrg, newMod, newVer)
-        }.toSeq
+        if (lib.getFiles(OrderRootType.CLASSES).exists(_.findChild("intellij-extension") != null)) {
+          val subst = patterns.map(_.replace(PAT_ORG, org).replace(PAT_MOD, stripScalaVersion(module)).replace(PAT_VER, version))
+          subst.map(_.split(s" *$PAT_SEP *")).collect {
+            case Array(newOrg, newMod, newVer) => DependencyDescription(newOrg, newMod, newVer)
+          }.toSeq
+        } else {
+          Seq.empty
+        }
       case _ => Seq.empty
     }
 
