@@ -4,11 +4,10 @@ import java.io.File
 import java.net.URI
 
 import monix.eval.Task
-import org.jetbrains.bsp.protocol.BspServerConnector.BspConnectionMethod
+import org.jetbrains.bsp.protocol.BspServerConnector.{BspCapabilities, BspConnectionMethod}
 import org.jetbrains.bsp.{BspError, BspErrorMessage}
 
 
-//abstract class BspServerConnector(initParams: InitializeBuildParams) {}
 abstract class BspServerConnector(val rootUri: URI, val capabilities: BspCapabilities) {
   /**
     * Connect to a bsp server with one of the given methods.
@@ -23,6 +22,8 @@ object BspServerConnector {
   final case class UnixLocalBsp(socketFile: File) extends BspConnectionMethod
   final case class WindowsLocalBsp(pipeName: String) extends BspConnectionMethod
   final case class TcpBsp(host: URI, port: Int) extends BspConnectionMethod
+
+  case class BspCapabilities(languageIds: List[String], providesFileWatching: Boolean)
 }
 
 /** TODO Connects to a bsp server based on information in a bsp configuration directory. */
@@ -41,5 +42,3 @@ abstract class Bsp4jServerConnector(val rootUri: URI, val capabilities: BspCapab
     */
   def connect(methods: BspConnectionMethod*): Either[BspError, Bsp4jSession]
 }
-
-case class BspCapabilities(languageIds: List[String], providesFileWatching: Boolean)

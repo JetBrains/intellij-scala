@@ -5,7 +5,7 @@ import java.net.{Socket, URI}
 
 import ch.epfl.scala.bsp4j._
 import com.intellij.openapi.diagnostic.Logger
-import org.jetbrains.bsp.protocol.BspServerConnector.{BspConnectionMethod, TcpBsp, UnixLocalBsp}
+import org.jetbrains.bsp.protocol.BspServerConnector.{BspCapabilities, BspConnectionMethod, TcpBsp, UnixLocalBsp}
 import org.jetbrains.bsp.{BspError, BspErrorMessage, BspException}
 import org.scalasbt.ipcsocket.UnixDomainSocket
 

@@ -256,9 +256,7 @@ object Bsp4jSession {
     override def cancel(): Unit = Cancelable.cancelAll(toCancel)
   }
   private object Cancelable {
-    def apply(fn: () => Unit): Cancelable = new Cancelable {
-      override def cancel(): Unit = fn()
-    }
+    def apply(fn: () => Unit): Cancelable = () => fn()
     val empty: Cancelable = Cancelable(() => ())
     def cancelAll(iterable: Iterable[Cancelable]): Unit = {
       var errors = ListBuffer.empty[Throwable]

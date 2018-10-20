@@ -1,15 +1,15 @@
 package org.jetbrains.bsp.data
 
 import java.io.File
+import java.net.URI
+import java.util
 
-import ch.epfl.scala.bsp.BuildTargetIdentifier
 import com.intellij.openapi.externalSystem.model.project.AbstractExternalEntityData
 import com.intellij.openapi.externalSystem.model.{Key, ProjectKeys}
 import org.jetbrains.bsp.BSP
 import org.jetbrains.bsp.data.BspEntityData._
 import org.jetbrains.plugins.scala.project.Version
 import org.jetbrains.plugins.scala.project.external.SdkReference
-import java.util
 
 abstract class BspEntityData extends AbstractExternalEntityData(BSP.ProjectSystemId) with Product {
 
@@ -54,7 +54,7 @@ object ScalaSdkData {
   * @param targetIds target ids mapped to module
   */
 @SerialVersionUID(4)
-case class BspMetadata(targetIds: util.List[BuildTargetIdentifier])
+case class BspMetadata(targetIds: util.List[URI])
 object BspMetadata {
   val Key: Key[BspMetadata] = datakey(classOf[BspMetadata])
 }

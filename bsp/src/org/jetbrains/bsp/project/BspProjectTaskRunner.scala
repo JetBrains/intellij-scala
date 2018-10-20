@@ -60,7 +60,7 @@ class BspProjectTaskRunner extends ProjectTaskRunner {
       }
 
       targetIds.getOrElse(List.empty)
-    }.toList
+    }
 
     implicit val scheduler: Scheduler = Scheduler(PooledThreadExecutor.INSTANCE, ExecutionModel.AlwaysAsyncExecution)
 

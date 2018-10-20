@@ -1,8 +1,9 @@
 package org.jetbrains.bsp.project
 
+import java.net.URI
 import java.util.UUID
 
-import ch.epfl.scala.bsp.{BuildTargetIdentifier, _}
+import ch.epfl.scala.bsp._
 import com.intellij.build.FilePosition
 import com.intellij.execution.process.AnsiEscapeDecoder.ColoredTextAcceptor
 import com.intellij.execution.process.{AnsiEscapeDecoder, ProcessOutputTypes}
@@ -26,7 +27,7 @@ import scala.meta.jsonrpc.{LanguageClient, Response}
 import scala.util.control.NonFatal
 
 class BspTask[T](project: Project, executionSettings: BspExecutionSettings,
-                   targets: List[BuildTargetIdentifier], callbackOpt: Option[ProjectTaskNotification])
+                   targets: Iterable[URI], callbackOpt: Option[ProjectTaskNotification])
                   (implicit scheduler: Scheduler)
     extends Task.Backgroundable(project, "bsp build", true, PerformInBackgroundOption.ALWAYS_BACKGROUND) {
 
@@ -103,8 +104,10 @@ class BspTask[T](project: Project, executionSettings: BspExecutionSettings,
     }
   }
 
-  private def compileRequest(implicit client: LanguageClient): eval.Task[Either[Response.Error, CompileResult]] =
-    endpoints.BuildTarget.compile.request(CompileParams(targets, None, List.empty)) // TODO support requestId
+  private def compileRequest(implicit client: LanguageClient): eval.Task[Either[Response.Error, CompileResult]] = {
+    val targetIds = targets.map(uri => BuildTargetIdentifier(Uri(uri)))
+    endpoints.BuildTarget.compile.request(CompileParams(targetIds.toList, None, List.empty)) // TODO support requestId
+  }
 
   private def reportShowMessage(params: ShowMessageParams): Unit = {
     // TODO handle message type (warning, error etc) in output
