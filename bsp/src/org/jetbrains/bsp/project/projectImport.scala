@@ -10,6 +10,7 @@ import com.intellij.openapi.externalSystem.service.project.wizard.{AbstractExter
 import com.intellij.openapi.externalSystem.service.settings.AbstractImportFromExternalSystemControl
 import com.intellij.openapi.externalSystem.util.ExternalSystemSettingsControl
 import com.intellij.openapi.project.{Project, ProjectManager}
+import com.intellij.openapi.util.NotNullFactory
 import com.intellij.openapi.vfs.VirtualFile
 import com.intellij.projectImport.ProjectOpenProcessorBase
 import javax.swing.Icon
@@ -17,7 +18,7 @@ import org.jetbrains.bsp._
 import org.jetbrains.bsp.settings._
 
 class BspProjectImportBuilder(projectDataManager: ProjectDataManager)
-  extends AbstractExternalProjectImportBuilder[BspImportControl](projectDataManager, new BspImportControl(), BSP.ProjectSystemId) {
+  extends AbstractExternalProjectImportBuilder[BspImportControl](projectDataManager, BspImportControlFactory, BSP.ProjectSystemId) {
 
   override def doPrepare(context: WizardContext): Unit = {}
   override def beforeCommit(dataNode: DataNode[ProjectData], project: Project): Unit = {}
@@ -38,6 +39,10 @@ class BspImportControl extends AbstractImportFromExternalSystemControl[BspProjec
 
   override def createSystemSettingsControl(settings: BspSettings): ExternalSystemSettingsControl[BspSettings] =
     new BspSystemSettingsControl(settings)
+}
+
+object BspImportControlFactory extends NotNullFactory[BspImportControl] {
+  override def create(): BspImportControl = new BspImportControl
 }
 
 class BspProjectImportProvider(builder: BspProjectImportBuilder)

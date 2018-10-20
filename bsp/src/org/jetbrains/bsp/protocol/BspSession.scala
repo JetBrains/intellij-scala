@@ -146,7 +146,7 @@ class BspSession(messages: Observable[BaseProtocolMessage],
 
     error match {
       case None =>
-        sessionShutdown.success()
+        sessionShutdown.success(())
         currentJob.cancel()
         jobs.forEach(_.cancel())
       case Some(err) =>
