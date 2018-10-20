@@ -2,9 +2,10 @@ package org.jetbrains.bsp.project
 
 import java.io.File
 import java.util.Collections
+import java.util.concurrent.CompletableFuture
 
-import cats.data.EitherT
-import ch.epfl.scala.bsp._
+import ch.epfl.scala.bsp4j._
+import com.google.gson.{Gson, JsonElement}
 import com.intellij.openapi.diagnostic.Logger
 import com.intellij.openapi.externalSystem.model.project._
 import com.intellij.openapi.externalSystem.model.task.{ExternalSystemTaskId, ExternalSystemTaskNotificationEvent, ExternalSystemTaskNotificationListener}
@@ -13,14 +14,12 @@ import com.intellij.openapi.externalSystem.service.project.ExternalSystemProject
 import com.intellij.openapi.module.StdModuleTypes
 import com.intellij.openapi.roots.DependencyScope
 import io.circe.Json
-import monix.eval.Task
 import monix.execution.{ExecutionModel, Scheduler}
 import org.jetbrains.bsp.BspUtil._
 import org.jetbrains.bsp.data.{BspMetadata, ScalaSdkData}
-import org.jetbrains.bsp.magic.monixToCats.monixToCatsMonad
 import org.jetbrains.bsp.project.BspProjectResolver._
-import org.jetbrains.bsp.protocol.BspCommunication.NotificationCallback
-import org.jetbrains.bsp.protocol.{Bsp4sNotifications, BspCommunication, BspJob}
+import org.jetbrains.bsp.protocol.Bsp4jSession.{BspServer, NotificationCallback}
+import org.jetbrains.bsp.protocol.{Bsp4jNotifications, BspCommunication, BspJob}
 import org.jetbrains.bsp.settings.BspExecutionSettings
 import org.jetbrains.bsp.{BSP, BspError, BspTaskCancelled}
 import org.jetbrains.ide.PooledThreadExecutor
@@ -31,7 +30,6 @@ import scala.annotation.tailrec
 import scala.collection.JavaConverters._
 import scala.concurrent.duration._
 import scala.concurrent.{Await, TimeoutException}
-import scala.meta.jsonrpc.{LanguageClient, Response}
 
 class BspProjectResolver extends ExternalSystemProjectResolver[BspExecutionSettings] {
 
@@ -53,33 +51,40 @@ class BspProjectResolver extends ExternalSystemProjectResolver[BspExecutionSetti
       listener.onStatusChange(ev)
     }
 
-    def targetData(targetIds: List[BuildTargetIdentifier])(implicit client: LanguageClient):
-    Task[(Either[Response.Error, DependencySourcesResult],
-          Either[Response.Error, ScalacOptionsResult])] =
-      if (isPreviewMode)
-        Task.now(Right(DependencySourcesResult(List.empty)), Right(ScalacOptionsResult(List.empty)))
-      else {
-        import endpoints.BuildTarget._
-        val depSources = dependencySources.request(DependencySourcesParams(targetIds))
-        val scalacOptions = endpoints.BuildTarget.scalacOptions.request(ScalacOptionsParams(targetIds))
-        Task.zip2(depSources, scalacOptions)
+    def targetData(targetIds: List[BuildTargetIdentifier])(implicit bsp: BspServer):
+    CompletableFuture[(Either[BspError, DependencySourcesResult], Either[BspError, ScalacOptionsResult])] =
+      if (isPreviewMode) {
+        val emptyDS = Right[BspError,DependencySourcesResult](new DependencySourcesResult(Collections.emptyList()))
+        val emptySO = Right[BspError,ScalacOptionsResult](new ScalacOptionsResult(Collections.emptyList()))
+        CompletableFuture.completedFuture((emptyDS, emptySO))
+      } else {
+        val depSourcesParams = new DependencySourcesParams(targetIds.asJava)
+        val depSources = bsp.buildTargetDependencySources(depSourcesParams).catchBspErrors
+        val scalacOptionsParams = new ScalacOptionsParams(targetIds.asJava)
+        val scalacOptions = bsp.buildTargetScalacOptions(scalacOptionsParams).catchBspErrors
+        depSources.thenCombine(scalacOptions, (ds,so: Either[BspError,ScalacOptionsResult]) => (ds,so))
       }
 
-    def requests(implicit client: LanguageClient): Task[Either[BspError, DataNode[ProjectData]]] = {
-      import endpoints._
-      val targetsRequest = Workspace.buildTargets.request(WorkspaceBuildTargetsRequest())
-      val transformer = for {
-        targetsResponse <- EitherT(targetsRequest).leftMap(_.toBspError)
-        targets = targetsResponse.targets
-        targetIds = targets.map(_.id)
-        data <- EitherT.right(targetData(targetIds))
-        dependencySources <- EitherT.fromEither[Task](data._1.left.map(_.toBspError)) // TODO not required for project, should be warning
-        scalacOptions <- EitherT.fromEither[Task](data._2.left.map(_.toBspError)) // TODO not required for non-scala modules
-      } yield {
-        val descriptions = calculateModuleDescription(targets, scalacOptions.items, dependencySources.items)
-        projectNode(descriptions)
-      }
-      transformer.value
+    def requests(implicit server: BspServer): CompletableFuture[Either[BspError, DataNode[ProjectData]]] = {
+      val targetsRequest = server.workspaceBuildTargets()
+
+      val projectNodeFuture: CompletableFuture[Either[BspError,DataNode[ProjectData]]] =
+        targetsRequest.thenCompose { targetsResponse =>
+          val targets = targetsResponse.getTargets.asScala
+          val targetIds = targets.map(_.getId).toList
+          val td = targetData(targetIds)
+          td.thenApply { case (depSourcesEither: Either[BspError, DependencySourcesResult], scalacOptionsEither: Either[BspError, ScalacOptionsResult]) =>
+            for {
+              depSources <- depSourcesEither // TODO not required for project, should be warning
+              scalacOptions <- scalacOptionsEither // TODO not required for non-scala modules
+            } yield {
+              val descriptions = calculateModuleDescription(targets, scalacOptions.getItems.asScala, depSources.getItems.asScala)
+              projectNode(descriptions)
+            }
+          }
+        }
+
+      projectNodeFuture.catchBspErrors.thenApply(_.joinRight)
     }
 
     def createModuleNode(moduleDescription: ScalaModuleDescription,
@@ -95,8 +100,8 @@ class BspProjectResolver extends ExternalSystemProjectResolver[BspExecutionSetti
       }
 
       val primaryTarget = moduleDescription.targets.head
-      val moduleId = primaryTarget.id.uri.toString
-      val moduleName = primaryTarget.displayName
+      val moduleId = primaryTarget.getId.getUri
+      val moduleName = primaryTarget.getDisplayName
       val moduleData = new ModuleData(moduleId, BSP.ProjectSystemId, StdModuleTypes.JAVA.getId, moduleName, moduleFilesDirectoryPath, projectRootPath)
 
       moduleDescription.output.foreach { outputPath =>
@@ -135,7 +140,7 @@ class BspProjectResolver extends ExternalSystemProjectResolver[BspExecutionSetti
       val libraryTestDependencyData = new LibraryDependencyData(moduleData, libraryTestData, LibraryLevel.MODULE)
       libraryTestDependencyData.setScope(DependencyScope.TEST)
 
-      val targetIds = moduleDescription.targets.map(_.id)
+      val targetIds = moduleDescription.targets.map(_.getId.getUri.toURI)
       val metadata = BspMetadata(targetIds.asJava)
 
       // data node wiring
@@ -191,7 +196,7 @@ class BspProjectResolver extends ExternalSystemProjectResolver[BspExecutionSetti
         (targets,module) <- modules
         target <- targets
       } yield {
-        (target.id.uri, module)
+        (target.getId.getUri, module)
       }).toMap
 
       createModuleDependencies(moduleDescriptions, idToModule)
@@ -206,9 +211,9 @@ class BspProjectResolver extends ExternalSystemProjectResolver[BspExecutionSetti
     val communication = BspCommunication.forBaseDir(projectRootPath, executionSettings)
 
     val bspNotifications: NotificationCallback = {
-      case Bsp4sNotifications.LogMessage(params) =>
+      case Bsp4jNotifications.LogMessage(params) =>
         // TODO use params.id for tree structure
-        statusUpdate(params.message)
+        statusUpdate(params.getMessage)
       case _ =>
     }
 
@@ -284,6 +289,8 @@ object BspProjectResolver {
   private case class Active(communication: BspCommunication) extends ImportState
   private case object Inactive extends ImportState
 
+  private val gson = new Gson()
+
 
   /** Find common base path of all given files */
   private def commonBase(dirs: Seq[File]) = {
@@ -301,54 +308,54 @@ object BspProjectResolver {
     }
   }
 
-  private def extractScalaSdkData(data: Json): Option[ScalaSdkData] = {
-    val result = data.as[ScalaBuildTarget].map { target =>
+  private def extractScalaSdkData(data: JsonElement): Option[ScalaSdkData] = {
+
+    val deserialized = Option(gson.fromJson[ScalaBuildTarget](data, classOf[ScalaBuildTarget]))
+    val result = deserialized.map { target =>
       ScalaSdkData(
-        target.scalaOrganization,
-        Some(Version(target.scalaVersion)),
-        scalacClasspath = target.jars.map(_.toFile).asJava,
+        target.getScalaOrganization,
+        Some(Version(target.getScalaVersion)),
+        scalacClasspath = target.getJars.asScala.map(_.toURI.toFile).asJava,
         Collections.emptyList(),
         None,
         Collections.emptyList()
       )
     }
 
-    // TODO any need to propagate failure?
-    result.toOption
+    result
   }
 
   // TODO create SbtModuleDescription from data
   private def extractSbtData(data: Json): Option[SbtModuleDescription] = {
-    data.as[ScalaBuildTarget]
     None
   }
 
-  private def calculateModuleDescription(targets: Seq[BuildTarget], optionsItems: Seq[ScalacOptionsItem], sourcesItems: Seq[DependencySourcesItem])
+  private def calculateModuleDescription(buildTargets: Seq[BuildTarget], optionsItems: Seq[ScalacOptionsItem], sourcesItems: Seq[DependencySourcesItem])
   : Iterable[ScalaModuleDescription] = {
-    val idToTarget = targets.map(t => (t.id, t)).toMap
-    val idToScalaOptions = optionsItems.map(item => (item.target, item)).toMap
-    val idToDepSources = sourcesItems.map(item => (item.target, item)).toMap
+    val idToTarget = buildTargets.map(t => (t.getId, t)).toMap
+    val idToScalaOptions = optionsItems.map(item => (item.getTarget, item)).toMap
+    val idToDepSources = sourcesItems.map(item => (item.getTargets.get(0), item)).toMap // TODO https://github.com/scalacenter/bsp/issues/37
 
     def transitiveDependencyOutputs(start: BuildTarget) = {
-      val transitiveDeps = (start +: transitiveDependencies(start)).map(_.id)
-      transitiveDeps.flatMap(idToScalaOptions.get).map(_.classDirectory.toFile)
+      val transitiveDeps = (start +: transitiveDependencies(start)).map(_.getId)
+      transitiveDeps.flatMap(idToScalaOptions.get).map(_.getClassDirectory.toURI.toFile)
     }
 
     def transitiveDependencies(start: BuildTarget): Seq[BuildTarget] = {
-      val direct = start.dependencies.map(idToTarget)
+      val direct = start.getDependencies.asScala.map(idToTarget)
       val transitive = direct.flatMap(transitiveDependencies)
       (start +: (direct ++ transitive)).distinct
     }
 
-    val moduleDescriptions = targets.flatMap { target: BuildTarget =>
-      val id = target.id
+    val moduleDescriptions = buildTargets.flatMap { target: BuildTarget =>
+      val id = target.getId
       val scalacOptions = idToScalaOptions.get(id)
       val sourcesOpt = idToDepSources.get(id)
 
       val sourcePaths = (for {
         sources <- sourcesOpt.toSeq
-        src <- sources.uris
-      } yield src.toFile).distinct
+        src <- sources.getSources.asScala
+      } yield src.toURI.toFile).distinct
 
       // TODO dependencySources gives us both project source dirs as well as actual dependency sources currently.
       // needs to be changed in bsp to allow determining which path is which robustly
@@ -356,24 +363,23 @@ object BspProjectResolver {
       // hacky, but works for now
       val dependencySources = sourcePaths.filter(_.getName.endsWith("jar"))
 
-      val targetUri = target.id.uri
-      val moduleBase = targetUri.toFile
-      val outputPath = scalacOptions.map(_.classDirectory.toFile)
+      val moduleBase = target.getId.getUri.toURI.toFile
+      val outputPath = scalacOptions.map(_.getClassDirectory.toURI.toFile)
 
-      // classpath needs to be filtered for module dependency putput paths since they are handled by IDEA module dep mechanism
-      val classPath = scalacOptions.map(_.classpath.map(_.toFile))
+      // classpath needs to be filtered for module dependency output paths since they are handled by IDEA module dep mechanism
+      val classPath = scalacOptions.map(_.getClasspath.asScala.map(_.toURI.toFile))
       val dependencyOutputs = transitiveDependencyOutputs(target)
       val classPathWithoutDependencyOutputs = classPath.getOrElse(Seq.empty).filterNot(dependencyOutputs.contains)
 
       val description = for {
-        data <- target.data
-        scalaSdkData <- extractScalaSdkData(data)
+        data <- Option(target.getData)
+        scalaSdkData <- extractScalaSdkData(data.asInstanceOf[JsonElement])
       } yield {
 
-        if(target.kind == BuildTargetKind.Library || target.kind == BuildTargetKind.App)
+        if(target.getKind == BuildTargetKind.LIBRARY || target.getKind == BuildTargetKind.APP)
           ScalaModuleDescription(
             targets = Seq(target),
-            targetDependencies = target.dependencies,
+            targetDependencies = target.getDependencies.asScala,
             targetTestDependencies = Seq.empty,
             basePath = moduleBase,
             output = outputPath,
@@ -386,11 +392,11 @@ object BspProjectResolver {
             testClassPathSources = Seq.empty,
             scalaSdkData = scalaSdkData
           )
-        else if(target.kind == BuildTargetKind.Test)
+        else if(target.getKind == BuildTargetKind.TEST)
           ScalaModuleDescription(
             targets = Seq(target),
             targetDependencies = Seq.empty,
-            targetTestDependencies = target.dependencies,
+            targetTestDependencies = target.getDependencies.asScala,
             basePath = moduleBase,
             output = None,
             testOutput = outputPath,
@@ -425,18 +431,18 @@ object BspProjectResolver {
 
 
 
-  private def createModuleDependencies(moduleDescriptions: Iterable[ScalaModuleDescription], idToModule: Map[Uri, DataNode[ModuleData]]) = {
+  private def createModuleDependencies(moduleDescriptions: Iterable[ScalaModuleDescription], idToModule: Map[String, DataNode[ModuleData]]) = {
     for {
       moduleDescription <- moduleDescriptions
-      id = moduleDescription.targets.head.id // any id will resolve the module in idToModule
-      module <- idToModule.get(id.uri)
+      id = moduleDescription.targets.head.getId.getUri // any id will resolve the module in idToModule
+      module <- idToModule.get(id)
     } yield {
       val compileDeps = moduleDescription.targetDependencies.map((_, DependencyScope.COMPILE))
       val testDeps = moduleDescription.targetTestDependencies.map((_, DependencyScope.TEST))
 
       val moduleDeps = for {
         (moduleDepId, scope) <- compileDeps ++ testDeps
-        moduleDep <- idToModule.get(moduleDepId.uri)
+        moduleDep <- idToModule.get(moduleDepId.getUri)
       } yield {
         val data = new ModuleDependencyData(module.getData, moduleDep.getData)
         data.setScope(scope)
@@ -455,7 +461,7 @@ object BspProjectResolver {
   private def mergeModules(descriptions: Seq[ScalaModuleDescription]): ScalaModuleDescription = {
     descriptions.reduce { (combined, next) =>
       // TODO ok it's time for monoids
-      val targets = (combined.targets ++ next.targets).sortBy(_.id.uri.value)
+      val targets = (combined.targets ++ next.targets).sortBy(_.getId.getUri)
       val targetDependencies = combined.targetDependencies ++ next.targetDependencies
       val targetTestDependencies = combined.targetTestDependencies ++ next.targetTestDependencies
       val output = combined.output.orElse(next.output)

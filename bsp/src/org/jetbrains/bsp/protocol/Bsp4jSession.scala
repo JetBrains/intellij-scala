@@ -12,7 +12,6 @@ import org.eclipse.lsp4j.jsonrpc.{Launcher, ResponseErrorException}
 import org.jetbrains.bsp._
 import org.jetbrains.bsp.protocol.Bsp4jNotifications._
 import org.jetbrains.bsp.protocol.Bsp4jSession._
-import org.jetbrains.bsp.protocol.BspCommunication._
 
 import scala.collection.mutable.ListBuffer
 import scala.concurrent._
@@ -125,7 +124,7 @@ class Bsp4jSession(bspIn: InputStream,
   /** Run a task with client in this session.
     * Notifications during run of this task are passed to the aggregator. This can also be used for plain callbacks.
     */
-  def run[T, A](task: Bsp4jSessionTask[T], default: A, aggregator: NotificationAggregator4j[A]): BspJob[(T,A)] = {
+  def run[T, A](task: BspSessionTask[T], default: A, aggregator: NotificationAggregator[A]): BspJob[(T,A)] = {
     val job = new Bsp4jJob(task, default, aggregator)
     jobs.put(job)
     job
@@ -172,9 +171,13 @@ class Bsp4jSession(bspIn: InputStream,
 
 object Bsp4jSession {
 
+
+  type NotificationAggregator[A] = (A, Bsp4jNotification) => A
+  type NotificationCallback = Bsp4jNotification => Unit
+  type BspSessionTask[T] = BspServer => CompletableFuture[T]
+
   trait BspServer extends BuildServer with ScalaBuildServer
   trait BspClient extends BuildClient
-
 
   private abstract class SessionBspJob[T,A] extends BspJob[(T,A)] {
     private[Bsp4jSession] def notification(bspNotification: Bsp4jNotification): Unit
@@ -182,7 +185,7 @@ object Bsp4jSession {
     private[Bsp4jSession] def cancelWithError(error: BspError)
   }
 
-  private class Bsp4jJob[T,A](task: Bsp4jSessionTask[T], default: A, aggregator: NotificationAggregator4j[A]) extends SessionBspJob[T,A] {
+  private class Bsp4jJob[T,A](task: BspSessionTask[T], default: A, aggregator: NotificationAggregator[A]) extends SessionBspJob[T,A] {
 
     private val promise = Promise[(T,A)]
     private var a: A = default

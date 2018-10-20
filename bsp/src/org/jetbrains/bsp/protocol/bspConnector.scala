@@ -14,7 +14,7 @@ abstract class BspServerConnector(val rootUri: URI, val capabilities: BspCapabil
     * @param methods methods supported by the bsp server, in order of preference
     * @return None if no compatible method is found. TODO should be an error response
     */
-  def connect(methods: BspConnectionMethod*): Task[Either[BspError, BspSession]]
+  def connect(methods: BspConnectionMethod*): Task[Either[BspError, Bsp4sSession]]
 }
 
 object BspServerConnector {
@@ -29,16 +29,23 @@ object BspServerConnector {
 /** TODO Connects to a bsp server based on information in a bsp configuration directory. */
 class GenericConnector(base: File, capabilities: BspCapabilities) extends BspServerConnector(base.getCanonicalFile.toURI, capabilities) {
 
-  override def connect(methods: BspConnectionMethod*): Task[Either[BspError, BspSession]] =
+  override def connect(methods: BspConnectionMethod*): Task[Either[BspError, Bsp4sSession]] =
     Task.now(Left(BspErrorMessage("unknown bsp servers not supported yet")))
 }
 
 
-abstract class Bsp4jServerConnector(val rootUri: URI, val capabilities: BspCapabilities) {
+abstract class BspServerConnectorSync(val rootUri: URI, val capabilities: BspCapabilities) {
   /**
     * Connect to a bsp server with one of the given methods.
     * @param methods methods supported by the bsp server, in order of preference
     * @return None if no compatible method is found. TODO should be an error response
     */
   def connect(methods: BspConnectionMethod*): Either[BspError, Bsp4jSession]
+}
+
+/** TODO Connects to a bsp server based on information in a bsp configuration directory. */
+class GenericConnectorSync(base: File, capabilities: BspCapabilities) extends BspServerConnectorSync(base.getCanonicalFile.toURI, capabilities) {
+
+  override def connect(methods: BspConnectionMethod*): Either[BspError, Bsp4jSession] =
+    Left(BspErrorMessage("unknown bsp servers not supported yet"))
 }

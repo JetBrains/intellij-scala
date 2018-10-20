@@ -2,8 +2,10 @@ package org.jetbrains.bsp.project
 
 import java.net.URI
 import java.util.UUID
+import java.util.concurrent.CompletableFuture
 
-import ch.epfl.scala.bsp._
+import ch.epfl.scala.bsp4j
+import ch.epfl.scala.bsp4j.CompileResult
 import com.intellij.build.FilePosition
 import com.intellij.execution.process.AnsiEscapeDecoder.ColoredTextAcceptor
 import com.intellij.execution.process.{AnsiEscapeDecoder, ProcessOutputTypes}
@@ -11,24 +13,22 @@ import com.intellij.openapi.progress.{PerformInBackgroundOption, ProcessCanceled
 import com.intellij.openapi.project.Project
 import com.intellij.openapi.util.Key
 import com.intellij.task.{ProjectTaskNotification, _}
-import monix.eval
-import monix.execution.Scheduler
+import org.eclipse.lsp4j.jsonrpc.ResponseErrorException
 import org.jetbrains.bsp.BspUtil._
 import org.jetbrains.bsp.project.BspTask.TextCollector
-import org.jetbrains.bsp.protocol.BspCommunication.NotificationCallback
-import org.jetbrains.bsp.protocol.{Bsp4sNotifications, BspCommunication, BspJob}
+import org.jetbrains.bsp.protocol.Bsp4jSession.{BspServer, NotificationCallback}
+import org.jetbrains.bsp.protocol.{Bsp4jNotifications, BspCommunication, BspJob}
 import org.jetbrains.bsp.settings.BspExecutionSettings
 import org.jetbrains.plugins.scala.build.{BuildFailureException, BuildMessages, BuildToolWindowReporter, IndicatorReporter}
 
 import scala.annotation.tailrec
+import scala.collection.JavaConverters._
 import scala.concurrent.duration._
 import scala.concurrent.{Await, TimeoutException}
-import scala.meta.jsonrpc.{LanguageClient, Response}
 import scala.util.control.NonFatal
 
 class BspTask[T](project: Project, executionSettings: BspExecutionSettings,
                    targets: Iterable[URI], callbackOpt: Option[ProjectTaskNotification])
-                  (implicit scheduler: Scheduler)
     extends Task.Backgroundable(project, "bsp build", true, PerformInBackgroundOption.ALWAYS_BACKGROUND) {
 
   private var buildMessages: BuildMessages = BuildMessages.empty
@@ -37,15 +37,15 @@ class BspTask[T](project: Project, executionSettings: BspExecutionSettings,
   private val report = new BuildToolWindowReporter(project, taskId, "bsp build")
 
   private val bspNotifications: NotificationCallback = {
-    case Bsp4sNotifications.LogMessage(params) =>
-      report.log(params.message)
-    case Bsp4sNotifications.ShowMessage(params) =>
+    case Bsp4jNotifications.LogMessage(params) =>
+      report.log(params.getMessage)
+    case Bsp4jNotifications.ShowMessage(params) =>
       reportShowMessage(params)
-    case Bsp4sNotifications.PublishDiagnostics(params) =>
+    case Bsp4jNotifications.PublishDiagnostics(params) =>
       reportDiagnostics(params)
-    case Bsp4sNotifications.CompileReport(params) =>
+    case Bsp4jNotifications.CompileReport(params) =>
       reportCompile(params)
-    case Bsp4sNotifications.TestReport(params) =>
+    case Bsp4jNotifications.TestReport(params) =>
       // ignore in compile tasks
   }
 
@@ -60,26 +60,26 @@ class BspTask[T](project: Project, executionSettings: BspExecutionSettings,
     val buildJob = communication.run(compileRequest(_), bspNotifications)
     val projectTaskResult = try {
       val result = waitForJobCancelable(buildJob, indicator)
-      result match {
-        case Left(error) =>
-          val message = error.toBspError.getMessage
-          val failure = BuildFailureException(message)
-          report.error(message, None)
-          report.finishWithFailure(failure)
-          reportIndicator.finishWithFailure(failure)
-          new ProjectTaskResult(true, buildMessages.errors.size, buildMessages.warnings.size)
-        case Right(compileResult) =>
-          // TODO report language specific compile result if available
-          report.finish(buildMessages)
-          reportIndicator.finish(buildMessages)
-          new ProjectTaskResult(buildMessages.aborted, buildMessages.errors.size, buildMessages.warnings.size)
-      }
+
+      // TODO report language specific compile result if available
+      report.finish(buildMessages)
+      reportIndicator.finish(buildMessages)
+      new ProjectTaskResult(buildMessages.aborted, buildMessages.errors.size, buildMessages.warnings.size)
 
     } catch {
+      case error: ResponseErrorException =>
+        val message = error.getMessage
+        val failure = BuildFailureException(message)
+        report.error(message, None)
+        report.finishWithFailure(failure)
+        reportIndicator.finishWithFailure(failure)
+        new ProjectTaskResult(true, buildMessages.errors.size, buildMessages.warnings.size)
+
       case _: ProcessCanceledException =>
         report.finishCanceled()
         reportIndicator.finishCanceled()
         new ProjectTaskResult(true, 1, 0)
+
       case NonFatal(err) =>
         val errName = err.getClass.getName
         val msg = Option(err.getMessage).getOrElse(errName)
@@ -104,15 +104,17 @@ class BspTask[T](project: Project, executionSettings: BspExecutionSettings,
     }
   }
 
-  private def compileRequest(implicit client: LanguageClient): eval.Task[Either[Response.Error, CompileResult]] = {
-    val targetIds = targets.map(uri => BuildTargetIdentifier(Uri(uri)))
-    endpoints.BuildTarget.compile.request(CompileParams(targetIds.toList, None, List.empty)) // TODO support requestId
+  private def compileRequest(implicit server: BspServer): CompletableFuture[CompileResult] = {
+    val targetIds = targets.map(uri => new bsp4j.BuildTargetIdentifier(uri.toString))
+    val params = new bsp4j.CompileParams(targetIds.toList.asJava)
+    // TODO support originId for threading
+    server.buildTargetCompile(params)
   }
 
-  private def reportShowMessage(params: ShowMessageParams): Unit = {
+  private def reportShowMessage(params: bsp4j.ShowMessageParams): Unit = {
     // TODO handle message type (warning, error etc) in output
     // TODO use params.requestId to show tree structure
-    val text = params.message
+    val text = params.getMessage
     report.log(text)
 
     // TODO build toolwindow log supports ansi colors, but not some other stuff
@@ -122,48 +124,48 @@ class BspTask[T](project: Project, executionSettings: BspExecutionSettings,
 
     buildMessages = buildMessages.appendMessage(textNoAnsi)
 
-    import ch.epfl.scala.bsp.MessageType._
+    import bsp4j.MessageType._
     buildMessages =
-      params.`type` match {
-        case Error =>
+      params.getType match {
+        case ERROR =>
           report.error(textNoAnsi, None)
           buildMessages.addError(textNoAnsi)
-        case Warning =>
+        case WARNING =>
           report.warning(textNoAnsi, None)
           buildMessages.addWarning(textNoAnsi)
-        case Info =>
+        case INFORMATION =>
           buildMessages
-        case Log =>
+        case LOG =>
           buildMessages
       }
   }
 
-  private def reportDiagnostics(params: PublishDiagnosticsParams): Unit = {
+  private def reportDiagnostics(params: bsp4j.PublishDiagnosticsParams): Unit = {
     // TODO use params.requestId to show tree structure
 
-    val file = params.uri.toFile
-    params.diagnostics.foreach { diagnostic: Diagnostic =>
-      val start = diagnostic.range.start
-      val end = diagnostic.range.end
-      val position = Some(new FilePosition(file, start.line - 1, start.character, end.line - 1, end.character))
-      val text = s"${diagnostic.message} [${start.line}:${start.character}]"
+    val file = params.getUri.toURI.toFile
+    params.getDiagnostics.asScala.foreach { diagnostic: bsp4j.Diagnostic =>
+      val start = diagnostic.getRange.getStart
+      val end = diagnostic.getRange.getEnd
+      val position = Some(new FilePosition(file, start.getLine - 1, start.getCharacter, end.getLine - 1, end.getCharacter))
+      val text = s"${diagnostic.getMessage} [${start.getLine}:${start.getCharacter}]"
 
       report.log(text)
       buildMessages = buildMessages.appendMessage(text)
 
-      import ch.epfl.scala.bsp.DiagnosticSeverity._
+      import bsp4j.DiagnosticSeverity._
       buildMessages =
-        diagnostic.severity.map {
-          case Error =>
+        Option(diagnostic.getSeverity).map {
+          case ERROR =>
             report.error(text, position)
             buildMessages.addError(text)
-          case Warning =>
+          case WARNING =>
             report.warning(text, position)
             buildMessages.addWarning(text)
-          case Information =>
+          case INFORMATION =>
             report.info(text, position)
             buildMessages
-          case Hint =>
+          case HINT =>
             report.info(text, position)
             buildMessages
         }
@@ -174,7 +176,7 @@ class BspTask[T](project: Project, executionSettings: BspExecutionSettings,
     }
   }
 
-  private def reportCompile(compileReport: CompileReport): Unit = {
+  private def reportCompile(compileReport: bsp4j.CompileReport): Unit = {
     // TODO use CompileReport to signal individual target is completed
   }
 }

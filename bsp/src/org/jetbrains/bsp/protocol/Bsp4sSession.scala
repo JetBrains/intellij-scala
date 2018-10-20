@@ -14,19 +14,18 @@ import monix.reactive.Observable
 import org.jetbrains.bsp.BspUtil.IdeaLoggerOps
 import org.jetbrains.bsp._
 import org.jetbrains.bsp.protocol.Bsp4sNotifications._
-import org.jetbrains.bsp.protocol.BspCommunication._
-import org.jetbrains.bsp.protocol.BspSession._
+import org.jetbrains.bsp.protocol.Bsp4sSession._
 
 import scala.concurrent.duration._
 import scala.concurrent.{Await, Future, Promise, TimeoutException}
 import scala.meta.jsonrpc._
 import scala.util.control.NonFatal
 
-class BspSession(messages: Observable[BaseProtocolMessage],
-                 private implicit val client: LanguageClient,
-                 initializeBuildParams: bsp.InitializeBuildParams,
-                 cleanup: Task[Unit],
-                 private implicit val scheduler: Scheduler
+class Bsp4sSession(messages: Observable[BaseProtocolMessage],
+                   private implicit val client: LanguageClient,
+                   initializeBuildParams: bsp.InitializeBuildParams,
+                   cleanup: Task[Unit],
+                   private implicit val scheduler: Scheduler
                 ) {
 
   private val logger = Logger.getInstance(classOf[BspCommunication])
@@ -161,12 +160,16 @@ class BspSession(messages: Observable[BaseProtocolMessage],
   }
 }
 
-object BspSession {
+object Bsp4sSession {
+
+  type NotificationAggregator[A] = (A, Bsp4sNotification) => A
+  type NotificationCallback = Bsp4sNotification => Unit
+  type Bsp4sSessionTask[T] = LanguageClient => Task[T]
 
   private abstract class SessionBspJob[T,A] extends BspJob[(T,A)] {
-    private[BspSession] def notification(bspNotification: Bsp4sNotification): Unit
-    private[BspSession] def run(implicit scheduler: Scheduler): CancelableFuture[(T, A)]
-    private[BspSession] def cancelWithError(error: BspError)
+    private[Bsp4sSession] def notification(bspNotification: Bsp4sNotification): Unit
+    private[Bsp4sSession] def run(implicit scheduler: Scheduler): CancelableFuture[(T, A)]
+    private[Bsp4sSession] def cancelWithError(error: BspError)
   }
 
   private class MonixBspJob[T,A](task: Task[T], default: A, aggregator: NotificationAggregator[A]) extends SessionBspJob[T,A] {
@@ -176,7 +179,7 @@ object BspSession {
 
     private var runningTask: Option[CancelableFuture[(T,A)]] = None
 
-    override private[BspSession] def notification(bspNotification: Bsp4sNotification): Unit =
+    override private[Bsp4sSession] def notification(bspNotification: Bsp4sNotification): Unit =
       a = aggregator(a, bspNotification)
 
     private def prepare(implicit scheduler: Scheduler): Task[(T,A)] =
@@ -194,7 +197,7 @@ object BspSession {
           case None => Task.unit
         }
 
-    private[BspSession] def run(implicit scheduler: Scheduler): CancelableFuture[(T, A)] = runningTask.synchronized {
+    private[Bsp4sSession] def run(implicit scheduler: Scheduler): CancelableFuture[(T, A)] = runningTask.synchronized {
       runningTask match {
         case Some(running) =>
           running
@@ -223,9 +226,9 @@ object BspSession {
 
   // TODO barebones handling of logMessage/showMessage?
   private object DummyJob extends SessionBspJob[Unit,Unit] {
-    override private[BspSession] def notification(bspNotification: Bsp4sNotification): Unit = ()
-    override private[BspSession] def run(implicit scheduler: Scheduler): CancelableFuture[(Unit, Unit)] = CancelableFuture.successful(((),()))
-    override private[BspSession] def cancelWithError(error: BspError): Unit = ()
+    override private[Bsp4sSession] def notification(bspNotification: Bsp4sNotification): Unit = ()
+    override private[Bsp4sSession] def run(implicit scheduler: Scheduler): CancelableFuture[(Unit, Unit)] = CancelableFuture.successful(((),()))
+    override private[Bsp4sSession] def cancelWithError(error: BspError): Unit = ()
     override def future: Future[(Unit,Unit)] = Future.successful(((),()))
     override def cancel(): Unit = ()
   }

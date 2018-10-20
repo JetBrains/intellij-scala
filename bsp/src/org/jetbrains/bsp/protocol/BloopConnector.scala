@@ -22,7 +22,7 @@ class BloopConnector(bloopExecutable: File, base: File, capabilities: BspCapabil
 
   private val logger: Logger = Logger.getInstance(classOf[BloopConnector])
 
-  override def connect(methods: BspConnectionMethod*): Task[Either[BspError, BspSession]] = {
+  override def connect(methods: BspConnectionMethod*): Task[Either[BspError, Bsp4sSession]] = {
 
     val socketAndCleanupMethod = methods.collectFirst {
       case UnixLocalBsp(socketFile) =>
@@ -68,7 +68,7 @@ class BloopConnector(bloopExecutable: File, base: File, capabilities: BspCapabil
       val messages = BaseProtocolMessage.fromInputStream(socket.getInputStream, sLogger)
       val buildClientCapabilities = BuildClientCapabilities(capabilities.languageIds, capabilities.providesFileWatching)
       val initializeBuildParams = InitializeBuildParams(Uri(rootUri.toString), buildClientCapabilities)
-      new BspSession(messages, client, initializeBuildParams, cleanup, scheduler)
+      new Bsp4sSession(messages, client, initializeBuildParams, cleanup, scheduler)
     }
   }
 

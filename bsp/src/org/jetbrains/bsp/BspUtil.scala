@@ -3,9 +3,11 @@ package org.jetbrains.bsp
 import java.io.File
 import java.net.URI
 import java.nio.file.Paths
+import java.util.concurrent.CompletableFuture
 
 import ch.epfl.scala.bsp.Uri
 import com.intellij.openapi.diagnostic.Logger
+import org.eclipse.lsp4j.jsonrpc.ResponseErrorException
 import scribe.{LogRecord, LoggerSupport}
 
 import scala.meta.jsonrpc.Response
@@ -19,12 +21,36 @@ object BspUtil {
 
   implicit class JsonRpcResponseErrorOps(err: Response.Error) {
     def toBspError: BspError = {
-      BspErrorMessage(s"bsp protocol error (${err.error.code}): ${err.error.message}")
+      BspErrorMessage(s"bsp error: ${err.error.message} (${err.error.code})")
     }
   }
 
+  implicit class ResponseErrorExceptionOps(err: ResponseErrorException) {
+    def toBspError: BspError = {
+      BspErrorMessage(s"bsp error: ${err.getMessage} (${err.getResponseError.getCode})")
+    }
+  }
+
+  implicit class StringOps(str: String) {
+    def toURI: URI = new URI(str)
+  }
+
+  implicit class URIOps(uri: URI) {
+    def toFile: File = Paths.get(uri.getPath).toFile
+  }
+
   implicit class IdeaLoggerOps(ideaLogger: Logger) {
-    def toScribeLogger = new IdeaLoggerSupport(ideaLogger)
+    def toScribeLogger: IdeaLoggerSupport = new IdeaLoggerSupport(ideaLogger)
+  }
+
+  implicit class CompletableFutureOps[T](cf: CompletableFuture[T]) {
+    def catchBspErrors :CompletableFuture[Either[BspError,T]] = cf.handle { (result, error) =>
+      if (error != null) error match {
+        case responseError: ResponseErrorException =>
+          Left(responseError.toBspError)
+        case other: Throwable => throw other
+      } else Right(result)
+    }
   }
 
   class IdeaLoggerSupport(ideaLogger: Logger) extends LoggerSupport {

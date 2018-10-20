@@ -3,26 +3,20 @@ package org.jetbrains.bsp.protocol
 import java.io.File
 import java.net.URI
 import java.nio.file._
-import java.util.concurrent.CompletableFuture
 
 import com.intellij.openapi.components.ProjectComponent
 import com.intellij.openapi.diagnostic.Logger
 import com.intellij.openapi.project.{Project, ProjectUtil}
 import com.intellij.openapi.util.SystemInfo
 import com.intellij.util.net.NetUtils
-import monix.eval.Task
-import monix.execution.Scheduler
 import org.jetbrains.bsp.BspError
 import org.jetbrains.bsp.protocol.Bsp4jNotifications.Bsp4jNotification
-import org.jetbrains.bsp.protocol.Bsp4jSession.BspServer
-import org.jetbrains.bsp.protocol.Bsp4sNotifications.Bsp4sNotification
+import org.jetbrains.bsp.protocol.Bsp4jSession.{BspSessionTask, NotificationAggregator, NotificationCallback}
 import org.jetbrains.bsp.protocol.BspCommunication._
 import org.jetbrains.bsp.protocol.BspServerConnector._
 import org.jetbrains.bsp.settings.BspExecutionSettings
 
-import scala.concurrent.duration._
-import scala.concurrent.{Await, Future}
-import scala.meta.jsonrpc.LanguageClient
+import scala.concurrent.{Future, Promise}
 import scala.util.Random
 
 class BspCommunicationComponent(project: Project) extends ProjectComponent {
@@ -43,9 +37,9 @@ class BspCommunication(base: File, executionSettings: BspExecutionSettings) {
 
   private val log = Logger.getInstance(classOf[BspCommunication])
 
-  @volatile private var session: Option[BspSession] = None
+  @volatile private var session: Option[Bsp4jSession] = None
 
-  private def acquireSession(implicit scheduler: Scheduler): Either[BspError, BspSession] = session.synchronized {
+  private def acquireSession: Either[BspError, Bsp4jSession] = session.synchronized {
     session match {
       case Some(currentSession) if currentSession.isAlive =>
         Right(currentSession)
@@ -57,12 +51,8 @@ class BspCommunication(base: File, executionSettings: BspExecutionSettings) {
     }
   }
 
-  private def openSession(implicit scheduler: Scheduler): Either[BspError, BspSession] = {
-    val sessionResult =
-      prepareSession(base, executionSettings).runSyncMaybe match {
-        case Left(futureResult) => Await.result(futureResult, 1.minute)
-        case Right(result) => result
-      }
+  private def openSession: Either[BspError, Bsp4jSession] = {
+    val sessionResult = prepareSession(base, executionSettings)
 
     sessionResult match {
       case Left(error) =>
@@ -76,10 +66,17 @@ class BspCommunication(base: File, executionSettings: BspExecutionSettings) {
 
   def closeSession(): Future[Unit] = session match {
     case None => Future.successful(())
-    case Some(s) => s.shutdown()
+    case Some(s) =>
+      val promise = Promise[Unit]
+      s.shutdown()
+        .whenComplete{(success,error) =>
+          if (error != null) promise.failure(error)
+          else promise.success(())
+        }
+      promise.future
   }
 
-  def run[T, A](task: Bsp4sSessionTask[T], default: A, aggregator: NotificationAggregator[A])(implicit scheduler: Scheduler): BspJob[(T, A)] = {
+  def run[T, A](task: BspSessionTask[T], default: A, aggregator: NotificationAggregator[A]): BspJob[(T, A)] = {
     acquireSession match {
       case Left(error) => new FailedBspJob(error)
       case Right(currentSession) =>
@@ -87,8 +84,8 @@ class BspCommunication(base: File, executionSettings: BspExecutionSettings) {
     }
   }
 
-  def run[T](bspSessionTask: Bsp4sSessionTask[T], notifications: NotificationCallback)(implicit scheduler: Scheduler): BspJob[T] = {
-    val callback = (a: Unit, n: Bsp4sNotification) => notifications(n)
+  def run[T](bspSessionTask: BspSessionTask[T], notifications: NotificationCallback): BspJob[T] = {
+    val callback = (a: Unit, n: Bsp4jNotification) => notifications(n)
     val job = run(bspSessionTask, (), callback)
     new NonAggregatingBspJob(job)
   }
@@ -97,15 +94,6 @@ class BspCommunication(base: File, executionSettings: BspExecutionSettings) {
 
 
 object BspCommunication {
-
-  type NotificationAggregator[A] = (A, Bsp4sNotification) => A
-  type NotificationCallback = Bsp4sNotification => Unit
-  type Bsp4sSessionTask[T] = LanguageClient => Task[T]
-
-  type NotificationAggregator4j[A] = (A, Bsp4jNotification) => A
-  type NotificationCallback4j = Bsp4jNotification => Unit
-  type Bsp4jSessionTask[T] = BspServer => CompletableFuture[T]
-
 
   // TODO since IntelliJ projects can correspond to multiple bsp modules, figure out how to have independent
   //      BspCommunication instances per base path
@@ -122,7 +110,7 @@ object BspCommunication {
   }
 
 
-  private[protocol] def prepareSession(base: File, bspExecutionSettings: BspExecutionSettings)(implicit scheduler: Scheduler): Task[Either[BspError, BspSession]] = {
+  private[protocol] def prepareSession(base: File, bspExecutionSettings: BspExecutionSettings): Either[BspError, Bsp4jSession] = {
 
     val supportedLanguages = List("scala","java") // TODO somehow figure this out more generically?
     val capabilities = BspCapabilities(supportedLanguages, providesFileWatching = false) // TODO we can provide file watching
@@ -145,10 +133,10 @@ object BspCommunication {
     val bloopConfigDir = new File(base, ".bloop").getCanonicalFile
 
     val connector =
-      if (bloopConfigDir.exists()) new BloopConnector(bspExecutionSettings.bloopExecutable, base, capabilities)
+      if (bloopConfigDir.exists()) new BloopConnector4j(bspExecutionSettings.bloopExecutable, base, capabilities)
       else {
         // TODO need a protocol to detect generic bsp server
-        new GenericConnector(base, capabilities)
+        new GenericConnectorSync(base, capabilities)
       }
 
     connector.connect(preferredMethod, tcpMethod)

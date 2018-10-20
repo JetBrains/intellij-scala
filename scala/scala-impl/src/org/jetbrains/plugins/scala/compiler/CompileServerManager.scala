@@ -94,7 +94,7 @@ class CompileServerManager(project: Project) extends ProjectComponent {
    private object Widget extends StatusBarWidget {
      def ID = "Compile server"
 
-     def getPresentation(platformType : PlatformType) = Presentation
+     def getPresentation(platformType : PlatformType): Presentation.type = Presentation
 
      def install(statusBar: StatusBar) {}
 
@@ -103,7 +103,7 @@ class CompileServerManager(project: Project) extends ProjectComponent {
      object Presentation extends StatusBarWidget.IconPresentation {
        def getIcon: Icon = if(running) IconRunning else IconStopped
 
-       def getClickConsumer = ClickConsumer
+       def getClickConsumer: ClickConsumer.type = ClickConsumer
 
        def getTooltipText: String = title + launcher.port.map(_.formatted(" (TCP %d)")).getOrElse("")
 

@@ -14,7 +14,7 @@ import scala.sys.process.{Process, ProcessLogger}
 import scala.util.Try
 
 class BloopConnector4j(bloopExecutable: File, base: File, capabilities: BspCapabilities)
-  extends Bsp4jServerConnector(base.getCanonicalFile.toURI, capabilities) {
+  extends BspServerConnectorSync(base.getCanonicalFile.toURI, capabilities) {
 
   private val logger: Logger = Logger.getInstance(classOf[BloopConnector4j])
 
@@ -59,9 +59,9 @@ class BloopConnector4j(bloopExecutable: File, base: File, capabilities: BspCapab
   private def connectUnixSocket(socketFile: File): Either[BspErrorMessage, UnixDomainSocket] = {
 
     val bloopParams = s"bsp --protocol local --socket $socketFile"
+    runBloop(bloopParams)
 
     if (bspReady(socketFile)) {
-      runBloop(bloopParams)
       Right(new UnixDomainSocket(socketFile.getCanonicalPath))
     } else {
       // TODO kill bloop process on cancel / error
