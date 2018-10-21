@@ -98,15 +98,20 @@ class ScalaByNameWeigher extends CompletionWeigher {
       }
     }
 
-    if (ScalaAfterNewCompletionContributor.isInTypeElement(position, Some(location))) {
-      ScalaLookupItem.original(element) match {
-        case ScalaLookupItem(element@(_: ScTypeAlias |
-                                      _: ScTypeDefinition |
-                                      _: PsiClass |
-                                      _: ScParameter)) =>
-          handleByText(element.getName).orNull
-        case _ => null
+    val maybeResult = if (ScalaAfterNewCompletionContributor.isInTypeElement(position, Some(location))) {
+      element match {
+        case ScalaLookupItem(_, namedElement) =>
+          namedElement match {
+            case _: ScTypeAlias |
+                 _: ScTypeDefinition |
+                 _: PsiClass |
+                 _: ScParameter => handleByText(namedElement.getName)
+            case _ => None
+          }
+        case _ => None
       }
-    } else null
+    } else None
+
+    maybeResult.orNull
   }
 }

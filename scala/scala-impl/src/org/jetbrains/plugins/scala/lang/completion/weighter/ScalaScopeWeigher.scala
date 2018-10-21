@@ -14,30 +14,21 @@ import org.jetbrains.plugins.scala.lang.completion.lookups.ScalaLookupItem
   * on 2/17/16
   */
 class ScalaScopeWeigher extends CompletionWeigher {
-  def computeLevelsBetween(it: Iterator[PsiElement], y: PsiElement): Option[Int] = {
-    val idx = it.indexOf(y)
-    if (idx == -1) None else Some(-idx)
+
+  override def weigh(element: LookupElement, location: CompletionLocation): Comparable[_] = element match {
+    case ScalaLookupItem(_, namedElement) =>
+      val scopes = namedElement.scopes
+      if (scopes.hasNext) checkByContext(positionFromParameters(location.getCompletionParameters), scopes.next())
+      else null
+    case _ => null
   }
 
-  def checkByContext(first: PsiElement, second: PsiElement): Option[Int] = {
+  private def checkByContext(first: PsiElement, second: PsiElement): Integer = {
     if (PsiTreeUtil.isContextAncestor(second, first, true))
-      computeLevelsBetween(first.contexts, second)
-    else None
-  }
-
-  override def weigh(element: LookupElement, location: CompletionLocation): Comparable[_] = {
-    val completionPosition = positionFromParameters(location.getCompletionParameters)
-
-    ScalaLookupItem.original(element) match {
-      case sl: ScalaLookupItem =>
-        if (sl.element.scopes.hasNext) {
-          checkByContext(completionPosition, sl.element.scopes.next()) match {
-            case Some(value) => value
-            case _ => null
-          }
-        }
-        else null
-      case _ => null
-    }
+      first.contexts.indexOf(second) match {
+        case -1 => null
+        case index => -index
+      }
+    else null
   }
 }

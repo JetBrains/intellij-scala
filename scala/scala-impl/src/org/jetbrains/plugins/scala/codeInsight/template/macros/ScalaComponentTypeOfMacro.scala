@@ -34,7 +34,7 @@ class ScalaComponentTypeOfMacro extends ScalaMacro("macro.component.type.of.arra
         case null => null
         case outerItems =>
           outerItems.collect {
-            case ScalaLookupItem(typeDefinition: ScTypeDefinition) => typeDefinition
+            case ScalaLookupItem(_, typeDefinition: ScTypeDefinition) => typeDefinition
           }.flatMap(_.`type`().toOption)
             .flatMap(arrayComponent)
             .collect {

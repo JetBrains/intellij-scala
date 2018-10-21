@@ -13,14 +13,14 @@ import org.jetbrains.plugins.scala.lang.psi.api.toplevel.ScModifierListOwner
 class ScalaContainingClassWeigher extends CompletionWeigher {
   def weigh(element: LookupElement, location: CompletionLocation): Comparable[_] = {
     import KindWeights._
-    ScalaLookupItem.original(element) match {
-      case si: ScalaLookupItem if si.isLocalVariable => local
-      case si: ScalaLookupItem if si.isUnderlined => underlined
-      case si: ScalaLookupItem if si.isDeprecated => deprecated
-      case p: ScalaLookupItem if p.isNamedParameter => nparam
-      case sii: ScalaLookupItem if sii.bold => bold
-      case si: ScalaLookupItem =>
-        si.element match {
+    element match {
+      case ScalaLookupItem(item, namedElement) =>
+        namedElement match {
+          case _ if item.isLocalVariable => local
+          case _ if item.isUnderlined => underlined
+          case _ if item.isDeprecated => deprecated
+          case _ if item.isNamedParameter => nparam
+          case _ if item.bold => bold
           case func: ScFunction if func.getContainingClass == null => localFunc
           case withImplicit: ScModifierListOwner if withImplicit.hasModifierPropertyScala("implicit") => underlined
           case _ => normal

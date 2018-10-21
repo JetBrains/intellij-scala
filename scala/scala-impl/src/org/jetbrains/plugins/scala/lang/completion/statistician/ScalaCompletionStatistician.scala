@@ -18,13 +18,13 @@ import org.jetbrains.plugins.scala.lang.psi.api.toplevel.typedef.ScTypeDefinitio
 
 class ScalaCompletionStatistician extends CompletionStatistician {
   def serialize(element: LookupElement, location: CompletionLocation): StatisticsInfo = {
-    ScalaLookupItem.original(element) match {
-      case s: ScalaLookupItem if s.isLocalVariable || s.isNamedParameter || s.isDeprecated => StatisticsInfo.EMPTY
-      case s: ScalaLookupItem =>
-        s.element match {
+    ScalaLookupItem.delegate(element) match {
+      case item: ScalaLookupItem =>
+        item.element match {
+          case _ if item.isLocalVariable || item.isNamedParameter || item.isDeprecated => StatisticsInfo.EMPTY
           case withImplicit: ScModifierListOwner if withImplicit.hasModifierPropertyScala("implicit") =>
             StatisticsInfo.EMPTY
-          case _ => helper(s.element, location)
+          case namedElement => helper(namedElement, location)
         }
       // return empty statistic when using  scala completion but ScalaLookupItem didn't use.
       // otherwise will be computed java statistic that may lead to ClassCastError

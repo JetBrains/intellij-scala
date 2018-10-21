@@ -30,15 +30,14 @@ final class ScalaByExpectedTypeWeigher(maybeDefinition: Option[ScExpression])
     _.expectedTypes()
   }
 
-  override def weigh(element: LookupElement, context: WeighingContext): Integer =
-    ScalaLookupItem.original(element) match {
-      case item@ScalaLookupItem(target) if expectedTypes.nonEmpty &&
-        isAccessible(target) &&
-        !item.isNamedParameterOrAssignment =>
-        if (computeType(target, item.substitutor).exists(expectedType)) 0
-        else 1
-      case _ => 1
-    }
+  override def weigh(element: LookupElement, context: WeighingContext): Integer = element match {
+    case ScalaLookupItem(item, target) if expectedTypes.nonEmpty &&
+      isAccessible(target) &&
+      !item.isNamedParameterOrAssignment =>
+      if (computeType(target, item.substitutor).exists(expectedType)) 0
+      else 1
+    case _ => 1
+  }
 
   private def expectedType(scType: ScType): Boolean = (scType != null) &&
     (!scType.equiv(Nothing)) &&

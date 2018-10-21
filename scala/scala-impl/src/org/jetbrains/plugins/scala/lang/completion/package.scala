@@ -199,11 +199,13 @@ package object completion {
 
     override def weigh(element: LookupElement, context: WeighingContext): Comparable[_] =
       if (ScalaAfterNewCompletionContributor.isInTypeElement(position)) {
-        ScalaLookupItem.original(element) match {
-          case ScalaLookupItem(typeAlias: ScTypeAlias) if typeAlias.isLocal => 1 // localType
-          case ScalaLookupItem(typeDefinition: ScTypeDefinition) if isValid(typeDefinition) => 1 // localType
-          case ScalaLookupItem(_: ScTypeAlias | _: PsiClass) => 2 // typeDefinition
-          case ScalaLookupItem(_) => 3 // normal
+        element match {
+          case ScalaLookupItem(_, namedElement) => namedElement match {
+            case typeAlias: ScTypeAlias if typeAlias.isLocal => 1 // localType
+            case typeDefinition: ScTypeDefinition if isValid(typeDefinition) => 1 // localType
+            case _: ScTypeAlias | _: PsiClass => 2 // typeDefinition
+            case _ => 3 // normal
+          }
           case _ => null
         }
       } else null

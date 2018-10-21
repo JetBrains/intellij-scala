@@ -11,6 +11,7 @@ import com.intellij.util.IconUtil
 import org.jetbrains.plugins.scala.annotator.intention.ScalaImportTypeFix._
 import org.jetbrains.plugins.scala.codeInspection.redundantBlock.RedundantBlockInspection
 import org.jetbrains.plugins.scala.extensions._
+import org.jetbrains.plugins.scala.lang.completion.InsertionContextExt
 import org.jetbrains.plugins.scala.lang.completion.handlers.ScalaInsertHandler
 import org.jetbrains.plugins.scala.lang.lexer.ScalaTokenTypes
 import org.jetbrains.plugins.scala.lang.psi.PresentationUtil._
@@ -286,15 +287,7 @@ class ScalaLookupItem(val element: PsiNamedElement, _name: String, containingCla
           ref.getNode.getTreeParent.replaceChild(ref.getNode, newRef.getNode)
           newRef.bindToElement(element)
           if (element.isInstanceOf[ScObject] && isInStableCodeReference) {
-            context.setLaterRunnable(new Runnable {
-              def run() {
-                AutoPopupController.getInstance(context.getProject).scheduleAutoPopup(
-                  context.getEditor, CompletionType.BASIC, new Condition[PsiFile] {
-                    def value(t: PsiFile): Boolean = t == context.getFile
-                  }
-                )
-              }
-            })
+            ScalaLookupItem.scheduleAutoPopup(context)
           }
         case None =>
           element match {
@@ -348,11 +341,27 @@ class ScalaLookupItem(val element: PsiNamedElement, _name: String, containingCla
 }
 
 object ScalaLookupItem {
-  def unapply(item: ScalaLookupItem): Option[PsiNamedElement] = Some(item.element)
+
+  def scheduleAutoPopup(implicit context: InsertionContext): Unit = {
+    val InsertionContextExt(editor, _, file, project) = context
+    context.setLaterRunnable(() => {
+      AutoPopupController.getInstance(project).scheduleAutoPopup(
+        editor,
+        CompletionType.BASIC,
+        (_: PsiFile) == file
+      )
+    })
+  }
 
   @tailrec
-  def original(element: LookupElement): LookupElement = element match {
-    case decorator: LookupElementDecorator[_] => original(decorator.getDelegate)
-    case it => it
+  def delegate(element: LookupElement): LookupElement = element match {
+    case decorator: LookupElementDecorator[_] => delegate(decorator.getDelegate)
+    case _ => element
   }
+
+  def unapply(element: LookupElement): Option[(ScalaLookupItem, PsiNamedElement)] =
+    delegate(element) match {
+      case item: ScalaLookupItem => Some(item, item.element)
+      case _ => None
+    }
 }

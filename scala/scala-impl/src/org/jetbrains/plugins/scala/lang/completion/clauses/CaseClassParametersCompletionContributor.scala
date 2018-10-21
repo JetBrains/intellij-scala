@@ -77,13 +77,16 @@ class CaseClassParametersCompletionContributor extends ScalaCompletionContributo
 
       private def createWeigher(position: Int, parameters: Seq[ScParameter]) = new LookupElementWeigher("orderByPosition") {
 
-        override def weigh(item: LookupElement): Comparable[_] = ScalaLookupItem.original(item) match {
-          case scalaItem@ScalaLookupItem(parameter: ScParameter) if parameter.name == scalaItem.name /*not equals when name computed by type*/ =>
-            position - parameters.indexOf(parameter) match {
-              case 0 => -1
-              case diff => diff.abs
+        override def weigh(element: LookupElement): Comparable[_] = element match {
+          case ScalaLookupItem(item, namedElement) =>
+            namedElement match {
+              case parameter: ScParameter if parameter.name == item.name /*not equals when name computed by type*/ =>
+                position - parameters.indexOf(parameter) match {
+                  case 0 => -1
+                  case diff => diff.abs
+                }
+              case _ => 0
             }
-          case ScalaLookupItem(_) => 0
           case _ => null
         }
       }

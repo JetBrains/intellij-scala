@@ -23,17 +23,15 @@ class ScalaMethodCompletionWeigher extends CompletionWeigher {
 
 
 
-  def weigh(element: LookupElement, location: CompletionLocation): Comparable[_] = {
-    val obj = ScalaLookupItem.original(element) match {
-      case s: ScalaLookupItem => s.element
-      case _ => return null //do not compare to anything in Java
-    }
-    obj match {
-      case psi: ScFunction =>
-        MethodNameComparable(psi.name, psi.parameters.nonEmpty)
-      case psi: PsiMethod =>
-        MethodNameComparable(psi.name, psi.getParameterList.getParametersCount > 0)
-      case _ => null
-    }
+  def weigh(element: LookupElement, location: CompletionLocation): Comparable[_] = element match {
+    case ScalaLookupItem(_, namedElement) =>
+      namedElement match {
+        case psi: ScFunction =>
+          MethodNameComparable(psi.name, psi.parameters.nonEmpty)
+        case psi: PsiMethod =>
+          MethodNameComparable(psi.name, psi.getParameterList.getParametersCount > 0)
+        case _ => null
+      }
+    case _ => null //do not compare to anything in Java
   }
 }
