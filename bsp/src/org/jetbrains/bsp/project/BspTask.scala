@@ -6,6 +6,7 @@ import java.util.concurrent.CompletableFuture
 
 import ch.epfl.scala.bsp4j
 import ch.epfl.scala.bsp4j.CompileResult
+import com.google.gson.JsonArray
 import com.intellij.build.FilePosition
 import com.intellij.execution.process.AnsiEscapeDecoder.ColoredTextAcceptor
 import com.intellij.execution.process.{AnsiEscapeDecoder, ProcessOutputTypes}
@@ -107,6 +108,7 @@ class BspTask[T](project: Project, executionSettings: BspExecutionSettings,
   private def compileRequest(implicit server: BspServer): CompletableFuture[CompileResult] = {
     val targetIds = targets.map(uri => new bsp4j.BuildTargetIdentifier(uri.toString))
     val params = new bsp4j.CompileParams(targetIds.toList.asJava)
+    params.setArguments(new JsonArray)
     // TODO support originId for threading
     server.buildTargetCompile(params)
   }

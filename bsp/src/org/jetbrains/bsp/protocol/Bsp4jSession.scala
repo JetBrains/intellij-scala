@@ -4,7 +4,7 @@ import java.io.{InputStream, OutputStream}
 import java.util.concurrent.{CompletableFuture, LinkedBlockingQueue, TimeUnit, TimeoutException}
 
 import ch.epfl.scala.bsp4j
-import ch.epfl.scala.bsp4j.{CompileReport => _, _}
+import ch.epfl.scala.bsp4j.{TestReport, CompileReport => _, _}
 import com.intellij.notification.NotificationType
 import com.intellij.openapi.diagnostic.Logger
 import com.intellij.util.concurrency.AppExecutorUtil
@@ -34,20 +34,23 @@ class Bsp4jSession(bspIn: InputStream,
   private val sessionInitialized = initializeSession
   private val sessionShutdown = Promise[Unit]
 
+  private val queuePause = 10.millis
+  private val queueTimeout = 1.second
+  private val sessionTimeout = 5.seconds
+
   private val queueProcessor = AppExecutorUtil.getAppScheduledExecutorService
-      .scheduleWithFixedDelay(() => nextQueuedCommand, 10, 10, TimeUnit.MILLISECONDS)
+      .scheduleWithFixedDelay(() => nextQueuedCommand, queuePause.toMillis, queuePause.toMillis, TimeUnit.MILLISECONDS)
 
 
   private def nextQueuedCommand= {
-    val timeout = 1.second
     try {
-      waitForSessionWithTimeout
+      waitForSession(sessionTimeout)
       val currentIgnoringErrors = currentJob.future.recover {
         case NonFatal(_) => ()
       }(ExecutionContext.global)
-      Await.result(currentIgnoringErrors, timeout) // will throw on job error
+      Await.result(currentIgnoringErrors, queueTimeout) // will throw on job error
 
-      val next = jobs.poll(timeout.toMillis, TimeUnit.MILLISECONDS)
+      val next = jobs.poll(queueTimeout.toMillis, TimeUnit.MILLISECONDS)
       if (next != null) {
         currentJob = next
         currentJob.run(serverConnection.server)
@@ -70,6 +73,7 @@ class Bsp4jSession(bspIn: InputStream,
       override def onBuildPublishDiagnostics(params: PublishDiagnosticsParams): Unit = currentJob.notification(PublishDiagnostics(params))
       override def onBuildTargetDidChange(params: DidChangeBuildTarget): Unit = () // TODO https://youtrack.jetbrains.com/issue/SCL-14475
       override def onBuildTargetCompileReport(params: bsp4j.CompileReport): Unit = currentJob.notification(CompileReport(params))
+      override def onBuildTargetTest(testReport: TestReport): Unit = ()
       override def buildRegisterFileWatcher(params: RegisterFileWatcherParams): CompletableFuture[RegisterFileWatcherResult] = null // TODO
       override def buildCancelFileWatcher(params: CancelFileWatcherParams): CompletableFuture[CancelFileWatcherResult] = null // TODO
     }
@@ -113,12 +117,11 @@ class Bsp4jSession(bspIn: InputStream,
       }
   }
 
-  private def waitForSessionWithTimeout: InitializeBuildResult = try {
-    sessionInitialized.get(5, TimeUnit.SECONDS)
+  private def waitForSession(timeout: Duration): InitializeBuildResult = try {
+    sessionInitialized.get(timeout.toMillis, TimeUnit.MILLISECONDS)
   } catch {
     case to: TimeoutException => throw BspConnectionError("bsp server is not responding", to)
   }
-
 
 
   /** Run a task with client in this session.
@@ -196,13 +199,13 @@ object Bsp4jSession {
       a = aggregator(a, bspNotification)
 
     private def doRun(bspServer: BspServer): CompletableFuture[(T,A)] = {
-      task(bspServer)
-        .thenApply[(T,A)]((t: T) => (t,a))
-        .whenComplete((result: (T,A), u: Throwable) => {
-          if (u != null) u match {
-            case _: CancellationException => promise.failure(BspTaskCancelled)
-            case NonFatal(err) => promise.failure(err)
-            case fatal => throw fatal
+      task(bspServer).thenApply[(T,A)]((t:T) => (t,a))
+        .whenComplete((result: (T,A), error: Throwable) => {
+          if (error != null) error match {
+            case cancel: CancellationException =>
+              promise.failure(BspTaskCancelled)
+              throw BspTaskCancelled
+            case otherError => promise.failure(otherError)
           } else {
             promise.success(result)
           }
@@ -228,13 +231,14 @@ object Bsp4jSession {
     override def cancelWithError(error: BspError): Unit = runningTask.synchronized {
       runningTask match {
         case Some(toCancel) =>
-          toCancel.completeExceptionally(error)
+          toCancel.cancel(true)
         case None =>
           val errorFuture = new CompletableFuture[(T,A)]
           errorFuture.completeExceptionally(error)
           runningTask = Some(errorFuture)
-          promise.failure(error)
       }
+
+      promise.failure(error)
     }
   }
 

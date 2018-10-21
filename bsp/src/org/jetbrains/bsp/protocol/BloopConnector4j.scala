@@ -17,6 +17,7 @@ class BloopConnector4j(bloopExecutable: File, base: File, capabilities: BspCapab
   extends BspServerConnectorSync(base.getCanonicalFile.toURI, capabilities) {
 
   private val logger: Logger = Logger.getInstance(classOf[BloopConnector4j])
+  private val verbose = true
 
   override def connect(methods: BspConnectionMethod*): Either[BspError, Bsp4jSession] = {
 
@@ -58,7 +59,8 @@ class BloopConnector4j(bloopExecutable: File, base: File, capabilities: BspCapab
 
   private def connectUnixSocket(socketFile: File): Either[BspErrorMessage, UnixDomainSocket] = {
 
-    val bloopParams = s"bsp --protocol local --socket $socketFile"
+    val verboseParam = if (verbose) "--verbose" else ""
+    val bloopParams = s"bsp --protocol local --socket $socketFile $verboseParam"
     runBloop(bloopParams)
 
     if (bspReady(socketFile)) {
@@ -83,7 +85,8 @@ class BloopConnector4j(bloopExecutable: File, base: File, capabilities: BspCapab
   }
 
   private def connectTcp(host: URI, port: Int): Either[BspError, java.net.Socket] = {
-    val bloopParams = s"bsp --protocol tcp --host ${host.toString} --port $port"
+    val verboseParam = if (verbose) "--verbose" else ""
+    val bloopParams = s"bsp --protocol tcp --host ${host.toString} --port $port $verboseParam"
 
     runBloop(bloopParams)
     Try(new java.net.Socket(host.toString, port))

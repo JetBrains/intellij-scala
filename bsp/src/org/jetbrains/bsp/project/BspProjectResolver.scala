@@ -13,7 +13,6 @@ import com.intellij.openapi.externalSystem.model.{DataNode, ProjectKeys}
 import com.intellij.openapi.externalSystem.service.project.ExternalSystemProjectResolver
 import com.intellij.openapi.module.StdModuleTypes
 import com.intellij.openapi.roots.DependencyScope
-import io.circe.Json
 import monix.execution.{ExecutionModel, Scheduler}
 import org.jetbrains.bsp.BspUtil._
 import org.jetbrains.bsp.data.{BspMetadata, ScalaSdkData}
@@ -311,30 +310,41 @@ object BspProjectResolver {
   private def extractScalaSdkData(data: JsonElement): Option[ScalaSdkData] = {
 
     val deserialized = Option(gson.fromJson[ScalaBuildTarget](data, classOf[ScalaBuildTarget]))
-    val result = deserialized.map { target =>
-      ScalaSdkData(
-        target.getScalaOrganization,
-        Some(Version(target.getScalaVersion)),
-        scalacClasspath = target.getJars.asScala.map(_.toURI.toFile).asJava,
-        Collections.emptyList(),
-        None,
-        Collections.emptyList()
-      )
-    }
-
+    val result = deserialized.map(calculateScalaSdkData)
     result
   }
 
+  private def calculateScalaSdkData(target: ScalaBuildTarget) = {
+    ScalaSdkData(
+      target.getScalaOrganization,
+      Some(Version(target.getScalaVersion)),
+      scalacClasspath = target.getJars.asScala.map(_.toURI.toFile).asJava,
+      Collections.emptyList(),
+      None,
+      Collections.emptyList()
+    )
+  }
+
   // TODO create SbtModuleDescription from data
-  private def extractSbtData(data: Json): Option[SbtModuleDescription] = {
-    None
+  private def extractSbtData(data: JsonElement): Option[SbtModuleDescription] = {
+    val deserialized = Option(gson.fromJson[SbtBuildTarget](data, classOf[SbtBuildTarget]))
+
+    deserialized.map { data =>
+      val sbtData = SbtBuildModuleData(
+        data.getAutoImports.asScala,
+        Set.empty,
+        data.getParent.getUri.toURI
+      )
+      val sdkData = calculateScalaSdkData(data.getScalaBuildTarget)
+      ??? // TODO finish implementing sbt module description
+    }
   }
 
   private def calculateModuleDescription(buildTargets: Seq[BuildTarget], optionsItems: Seq[ScalacOptionsItem], sourcesItems: Seq[DependencySourcesItem])
   : Iterable[ScalaModuleDescription] = {
     val idToTarget = buildTargets.map(t => (t.getId, t)).toMap
     val idToScalaOptions = optionsItems.map(item => (item.getTarget, item)).toMap
-    val idToDepSources = sourcesItems.map(item => (item.getTargets.get(0), item)).toMap // TODO https://github.com/scalacenter/bsp/issues/37
+    val idToDepSources = sourcesItems.map(item => (item.getTarget, item)).toMap
 
     def transitiveDependencyOutputs(start: BuildTarget) = {
       val transitiveDeps = (start +: transitiveDependencies(start)).map(_.getId)
