@@ -10,8 +10,8 @@ import com.intellij.openapi.project.{Project, ProjectUtil}
 import com.intellij.openapi.util.SystemInfo
 import com.intellij.util.net.NetUtils
 import org.jetbrains.bsp.BspError
-import org.jetbrains.bsp.protocol.Bsp4jNotifications.Bsp4jNotification
-import org.jetbrains.bsp.protocol.Bsp4jSession.{BspSessionTask, NotificationAggregator, NotificationCallback}
+import org.jetbrains.bsp.protocol.BspNotifications.BspNotification
+import org.jetbrains.bsp.protocol.BspSession.{BspSessionTask, NotificationAggregator, NotificationCallback}
 import org.jetbrains.bsp.protocol.BspCommunication._
 import org.jetbrains.bsp.protocol.BspServerConnector._
 import org.jetbrains.bsp.settings.BspExecutionSettings
@@ -37,9 +37,9 @@ class BspCommunication(base: File, executionSettings: BspExecutionSettings) {
 
   private val log = Logger.getInstance(classOf[BspCommunication])
 
-  @volatile private var session: Option[Bsp4jSession] = None
+  @volatile private var session: Option[BspSession] = None
 
-  private def acquireSession: Either[BspError, Bsp4jSession] = session.synchronized {
+  private def acquireSession: Either[BspError, BspSession] = session.synchronized {
     session match {
       case Some(currentSession) if currentSession.isAlive =>
         Right(currentSession)
@@ -51,7 +51,7 @@ class BspCommunication(base: File, executionSettings: BspExecutionSettings) {
     }
   }
 
-  private def openSession: Either[BspError, Bsp4jSession] = {
+  private def openSession: Either[BspError, BspSession] = {
     val sessionResult = prepareSession(base, executionSettings)
 
     sessionResult match {
@@ -85,7 +85,7 @@ class BspCommunication(base: File, executionSettings: BspExecutionSettings) {
   }
 
   def run[T](bspSessionTask: BspSessionTask[T], notifications: NotificationCallback): BspJob[T] = {
-    val callback = (a: Unit, n: Bsp4jNotification) => notifications(n)
+    val callback = (a: Unit, n: BspNotification) => notifications(n)
     val job = run(bspSessionTask, (), callback)
     new NonAggregatingBspJob(job)
   }
@@ -110,7 +110,7 @@ object BspCommunication {
   }
 
 
-  private[protocol] def prepareSession(base: File, bspExecutionSettings: BspExecutionSettings): Either[BspError, Bsp4jSession] = {
+  private[protocol] def prepareSession(base: File, bspExecutionSettings: BspExecutionSettings): Either[BspError, BspSession] = {
 
     val supportedLanguages = List("scala","java") // TODO somehow figure this out more generically?
     val capabilities = BspCapabilities(supportedLanguages, providesFileWatching = false) // TODO we can provide file watching
@@ -133,7 +133,7 @@ object BspCommunication {
     val bloopConfigDir = new File(base, ".bloop").getCanonicalFile
 
     val connector =
-      if (bloopConfigDir.exists()) new BloopConnector4j(bspExecutionSettings.bloopExecutable, base, capabilities)
+      if (bloopConfigDir.exists()) new BloopConnector(bspExecutionSettings.bloopExecutable, base, capabilities)
       else {
         // TODO need a protocol to detect generic bsp server
         new GenericConnectorSync(base, capabilities)

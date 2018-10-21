@@ -16,8 +16,8 @@ import com.intellij.openapi.roots.DependencyScope
 import org.jetbrains.bsp.BspUtil._
 import org.jetbrains.bsp.data.{BspMetadata, ScalaSdkData}
 import org.jetbrains.bsp.project.BspProjectResolver._
-import org.jetbrains.bsp.protocol.Bsp4jSession.{BspServer, NotificationCallback}
-import org.jetbrains.bsp.protocol.{Bsp4jNotifications, BspCommunication, BspJob}
+import org.jetbrains.bsp.protocol.BspSession.{BspServer, NotificationCallback}
+import org.jetbrains.bsp.protocol.{BspNotifications, BspCommunication, BspJob}
 import org.jetbrains.bsp.settings.BspExecutionSettings
 import org.jetbrains.bsp.{BSP, BspError, BspTaskCancelled}
 import org.jetbrains.plugins.scala.project.Version
@@ -205,15 +205,15 @@ class BspProjectResolver extends ExternalSystemProjectResolver[BspExecutionSetti
 
     val communication = BspCommunication.forBaseDir(projectRootPath, executionSettings)
 
-    val bspNotifications: NotificationCallback = {
-      case Bsp4jNotifications.LogMessage(params) =>
+    val notifications: NotificationCallback = {
+      case BspNotifications.LogMessage(params) =>
         // TODO use params.id for tree structure
         statusUpdate(params.getMessage)
       case _ =>
     }
 
     val projectJob =
-      communication.run(requests(_), bspNotifications )
+      communication.run(requests(_), notifications )
 
     statusUpdate("starting task") // TODO remove in favor of build toolwindow nodes
 

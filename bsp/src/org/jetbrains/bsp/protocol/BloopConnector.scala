@@ -13,13 +13,13 @@ import scala.collection.JavaConverters._
 import scala.sys.process.{Process, ProcessLogger}
 import scala.util.Try
 
-class BloopConnector4j(bloopExecutable: File, base: File, capabilities: BspCapabilities)
+class BloopConnector(bloopExecutable: File, base: File, capabilities: BspCapabilities)
   extends BspServerConnectorSync(base.getCanonicalFile.toURI, capabilities) {
 
-  private val logger: Logger = Logger.getInstance(classOf[BloopConnector4j])
+  private val logger: Logger = Logger.getInstance(classOf[BloopConnector])
   private val verbose = false
 
-  override def connect(methods: BspConnectionMethod*): Either[BspError, Bsp4jSession] = {
+  override def connect(methods: BspConnectionMethod*): Either[BspError, BspSession] = {
 
     val socketAndCleanupOpt: Option[Either[BspError, (Socket, ()=>Unit)]] = methods.collectFirst {
       case UnixLocalBsp(socketFile) =>
@@ -53,7 +53,7 @@ class BloopConnector4j(bloopExecutable: File, base: File, capabilities: BspCapab
       val (socket, cleanup) = socketAndCleanup
       val buildClientCapabilities = new BuildClientCapabilities(capabilities.languageIds.asJava, capabilities.providesFileWatching)
       val initializeBuildParams = new InitializeBuildParams(rootUri.toString, buildClientCapabilities)
-      new Bsp4jSession(socket.getInputStream, socket.getOutputStream, initializeBuildParams, cleanup)
+      new BspSession(socket.getInputStream, socket.getOutputStream, initializeBuildParams, cleanup)
     }
   }
 
@@ -105,6 +105,6 @@ class BloopConnector4j(bloopExecutable: File, base: File, capabilities: BspCapab
 
 }
 
-object BloopConnector4j {
+object BloopConnector {
 
 }

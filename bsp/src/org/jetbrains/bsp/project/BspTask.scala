@@ -17,8 +17,8 @@ import com.intellij.task.{ProjectTaskNotification, _}
 import org.eclipse.lsp4j.jsonrpc.ResponseErrorException
 import org.jetbrains.bsp.BspUtil._
 import org.jetbrains.bsp.project.BspTask.TextCollector
-import org.jetbrains.bsp.protocol.Bsp4jSession.{BspServer, NotificationCallback}
-import org.jetbrains.bsp.protocol.{Bsp4jNotifications, BspCommunication, BspJob}
+import org.jetbrains.bsp.protocol.BspSession.{BspServer, NotificationCallback}
+import org.jetbrains.bsp.protocol.{BspNotifications, BspCommunication, BspJob}
 import org.jetbrains.bsp.settings.BspExecutionSettings
 import org.jetbrains.plugins.scala.build.{BuildFailureException, BuildMessages, BuildToolWindowReporter, IndicatorReporter}
 
@@ -37,16 +37,16 @@ class BspTask[T](project: Project, executionSettings: BspExecutionSettings,
   private val taskId: UUID = UUID.randomUUID()
   private val report = new BuildToolWindowReporter(project, taskId, "bsp build")
 
-  private val bspNotifications: NotificationCallback = {
-    case Bsp4jNotifications.LogMessage(params) =>
+  private val notifications: NotificationCallback = {
+    case BspNotifications.LogMessage(params) =>
       report.log(params.getMessage)
-    case Bsp4jNotifications.ShowMessage(params) =>
+    case BspNotifications.ShowMessage(params) =>
       reportShowMessage(params)
-    case Bsp4jNotifications.PublishDiagnostics(params) =>
+    case BspNotifications.PublishDiagnostics(params) =>
       reportDiagnostics(params)
-    case Bsp4jNotifications.CompileReport(params) =>
+    case BspNotifications.CompileReport(params) =>
       reportCompile(params)
-    case Bsp4jNotifications.TestReport(params) =>
+    case BspNotifications.TestReport(params) =>
       // ignore in compile tasks
   }
 
@@ -58,7 +58,7 @@ class BspTask[T](project: Project, executionSettings: BspExecutionSettings,
     reportIndicator.start()
     report.start()
 
-    val buildJob = communication.run(compileRequest(_), bspNotifications)
+    val buildJob = communication.run(compileRequest(_), notifications)
     val projectTaskResult = try {
       val result = waitForJobCancelable(buildJob, indicator)
 

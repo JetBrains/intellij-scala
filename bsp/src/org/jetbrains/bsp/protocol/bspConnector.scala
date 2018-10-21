@@ -22,12 +22,12 @@ abstract class BspServerConnectorSync(val rootUri: URI, val capabilities: BspCap
     * @param methods methods supported by the bsp server, in order of preference
     * @return None if no compatible method is found. TODO should be an error response
     */
-  def connect(methods: BspConnectionMethod*): Either[BspError, Bsp4jSession]
+  def connect(methods: BspConnectionMethod*): Either[BspError, BspSession]
 }
 
 /** TODO Connects to a bsp server based on information in a bsp configuration directory. */
 class GenericConnectorSync(base: File, capabilities: BspCapabilities) extends BspServerConnectorSync(base.getCanonicalFile.toURI, capabilities) {
 
-  override def connect(methods: BspConnectionMethod*): Either[BspError, Bsp4jSession] =
+  override def connect(methods: BspConnectionMethod*): Either[BspError, BspSession] =
     Left(BspErrorMessage("unknown bsp servers not supported yet"))
 }

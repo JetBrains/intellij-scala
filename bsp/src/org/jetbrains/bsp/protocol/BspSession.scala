@@ -10,25 +10,25 @@ import com.intellij.openapi.diagnostic.Logger
 import com.intellij.util.concurrency.AppExecutorUtil
 import org.eclipse.lsp4j.jsonrpc.{Launcher, ResponseErrorException}
 import org.jetbrains.bsp._
-import org.jetbrains.bsp.protocol.Bsp4jNotifications._
-import org.jetbrains.bsp.protocol.Bsp4jSession._
+import org.jetbrains.bsp.protocol.BspNotifications._
+import org.jetbrains.bsp.protocol.BspSession._
 
 import scala.collection.mutable.ListBuffer
 import scala.concurrent._
 import scala.concurrent.duration._
 import scala.util.control.NonFatal
 
-class Bsp4jSession(bspIn: InputStream,
-                   bspOut: OutputStream,
-                   initializeBuildParams: bsp4j.InitializeBuildParams,
-                   cleanup: ()=>Unit
+class BspSession(bspIn: InputStream,
+                 bspOut: OutputStream,
+                 initializeBuildParams: bsp4j.InitializeBuildParams,
+                 cleanup: ()=>Unit
                   ) {
 
   private val logger = Logger.getInstance(classOf[BspCommunication])
 
-  private val jobs = new LinkedBlockingQueue[SessionBspJob[_,_]]
+  private val jobs = new LinkedBlockingQueue[BspSessionJob[_,_]]
 
-  private var currentJob: SessionBspJob[_,_] = DummyJob
+  private var currentJob: BspSessionJob[_,_] = DummyJob
 
   private val serverConnection: ServerConnection = startServerConnection
   private val sessionInitialized = initializeSession
@@ -172,30 +172,30 @@ class Bsp4jSession(bspIn: InputStream,
   }
 }
 
-object Bsp4jSession {
+object BspSession {
 
 
-  type NotificationAggregator[A] = (A, Bsp4jNotification) => A
-  type NotificationCallback = Bsp4jNotification => Unit
+  type NotificationAggregator[A] = (A, BspNotification) => A
+  type NotificationCallback = BspNotification => Unit
   type BspSessionTask[T] = BspServer => CompletableFuture[T]
 
   trait BspServer extends BuildServer with ScalaBuildServer
   trait BspClient extends BuildClient
 
-  private abstract class SessionBspJob[T,A] extends BspJob[(T,A)] {
-    private[Bsp4jSession] def notification(bspNotification: Bsp4jNotification): Unit
-    private[Bsp4jSession] def run(bspServer: BspServer): CompletableFuture[(T, A)]
-    private[Bsp4jSession] def cancelWithError(error: BspError)
+  private abstract class BspSessionJob[T,A] extends BspJob[(T,A)] {
+    private[BspSession] def notification(bspNotification: BspNotification): Unit
+    private[BspSession] def run(bspServer: BspServer): CompletableFuture[(T, A)]
+    private[BspSession] def cancelWithError(error: BspError)
   }
 
-  private class Bsp4jJob[T,A](task: BspSessionTask[T], default: A, aggregator: NotificationAggregator[A]) extends SessionBspJob[T,A] {
+  private class Bsp4jJob[T,A](task: BspSessionTask[T], default: A, aggregator: NotificationAggregator[A]) extends BspSessionJob[T,A] {
 
     private val promise = Promise[(T,A)]
     private var a: A = default
 
     private var runningTask: Option[CompletableFuture[(T,A)]] = None
 
-    override private[Bsp4jSession] def notification(bspNotification: Bsp4jNotification): Unit =
+    override private[BspSession] def notification(bspNotification: BspNotification): Unit =
       a = aggregator(a, bspNotification)
 
     private def doRun(bspServer: BspServer): CompletableFuture[(T,A)] = {
@@ -212,7 +212,7 @@ object Bsp4jSession {
         })
     }
 
-    private[Bsp4jSession] def run(bspServer: BspServer): CompletableFuture[(T, A)] = runningTask.synchronized {
+    private[BspSession] def run(bspServer: BspServer): CompletableFuture[(T, A)] = runningTask.synchronized {
       runningTask match {
         case Some(running) =>
           running
@@ -243,10 +243,10 @@ object Bsp4jSession {
   }
 
   // TODO barebones handling of logMessage/showMessage?
-  private object DummyJob extends SessionBspJob[Unit,Unit] {
-    override private[Bsp4jSession] def notification(bspNotification: Bsp4jNotification): Unit = ()
-    override private[Bsp4jSession] def run(bspServer: BspServer): CompletableFuture[(Unit, Unit)] = CompletableFuture.completedFuture(((),()))
-    override private[Bsp4jSession] def cancelWithError(error: BspError): Unit = ()
+  private object DummyJob extends BspSessionJob[Unit,Unit] {
+    override private[BspSession] def notification(bspNotification: BspNotification): Unit = ()
+    override private[BspSession] def run(bspServer: BspServer): CompletableFuture[(Unit, Unit)] = CompletableFuture.completedFuture(((),()))
+    override private[BspSession] def cancelWithError(error: BspError): Unit = ()
     override def future: Future[(Unit,Unit)] = Future.successful(((),()))
     override def cancel(): Unit = ()
   }
