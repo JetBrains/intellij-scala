@@ -17,7 +17,7 @@ class BloopConnector4j(bloopExecutable: File, base: File, capabilities: BspCapab
   extends BspServerConnectorSync(base.getCanonicalFile.toURI, capabilities) {
 
   private val logger: Logger = Logger.getInstance(classOf[BloopConnector4j])
-  private val verbose = true
+  private val verbose = false
 
   override def connect(methods: BspConnectionMethod*): Either[BspError, Bsp4jSession] = {
 
@@ -95,7 +95,7 @@ class BloopConnector4j(bloopExecutable: File, base: File, capabilities: BspCapab
 
   private val proclog = ProcessLogger(
     out => logger.debug(s"bloop: $out"),
-    err => logger.error(s"bloop: $err")
+    err => logger.warn(s"bloop: $err")
   )
 
   private def runBloop(params: String) = {

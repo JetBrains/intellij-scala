@@ -11,7 +11,6 @@ import com.intellij.openapi.module.ModuleType
 import com.intellij.openapi.progress.ProgressManager
 import com.intellij.openapi.project.Project
 import com.intellij.task._
-import monix.execution.{ExecutionModel, Scheduler}
 import org.jetbrains.bsp.BSP
 import org.jetbrains.bsp.data.BspMetadata
 import org.jetbrains.bsp.settings.BspExecutionSettings
@@ -61,8 +60,6 @@ class BspProjectTaskRunner extends ProjectTaskRunner {
 
       targetIds.getOrElse(List.empty)
     }
-
-    implicit val scheduler: Scheduler = Scheduler(PooledThreadExecutor.INSTANCE, ExecutionModel.AlwaysAsyncExecution)
 
     // TODO save only documents in affected targets?
     FileDocumentManager.getInstance().saveAllDocuments()

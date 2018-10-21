@@ -13,7 +13,6 @@ import com.intellij.openapi.externalSystem.model.{DataNode, ProjectKeys}
 import com.intellij.openapi.externalSystem.service.project.ExternalSystemProjectResolver
 import com.intellij.openapi.module.StdModuleTypes
 import com.intellij.openapi.roots.DependencyScope
-import monix.execution.{ExecutionModel, Scheduler}
 import org.jetbrains.bsp.BspUtil._
 import org.jetbrains.bsp.data.{BspMetadata, ScalaSdkData}
 import org.jetbrains.bsp.project.BspProjectResolver._
@@ -21,7 +20,6 @@ import org.jetbrains.bsp.protocol.Bsp4jSession.{BspServer, NotificationCallback}
 import org.jetbrains.bsp.protocol.{Bsp4jNotifications, BspCommunication, BspJob}
 import org.jetbrains.bsp.settings.BspExecutionSettings
 import org.jetbrains.bsp.{BSP, BspError, BspTaskCancelled}
-import org.jetbrains.ide.PooledThreadExecutor
 import org.jetbrains.plugins.scala.project.Version
 import org.jetbrains.sbt.project.data.SbtBuildModuleData
 
@@ -42,8 +40,6 @@ class BspProjectResolver extends ExternalSystemProjectResolver[BspExecutionSetti
 
     val projectRoot = new File(projectRootPath)
     val moduleFilesDirectoryPath = new File(projectRootPath, ".idea/modules").getAbsolutePath
-
-    implicit val scheduler: Scheduler = Scheduler(PooledThreadExecutor.INSTANCE, ExecutionModel.AlwaysAsyncExecution)
 
     def statusUpdate(msg: String): Unit = {
       val ev = new ExternalSystemTaskNotificationEvent(id, msg)
