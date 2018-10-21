@@ -148,8 +148,10 @@ object DependencyGroups {
   ) ++ scalafmt
 
   val bsp: Seq[ModuleID] = Seq(
-    "org.scala-sbt.ipcsocket" % "ipcsocket" % "1.0.0",
-//    "ch.epfl.scala" %% "bsp" % "1.0.0",
+    ("org.scala-sbt.ipcsocket" % "ipcsocket" % "1.0.0")
+      .exclude("net.java.dev.jna","jna") // included in IDEA platform
+      .exclude("net.java.dev.jna","jna-platform") // included in IDEA platform
+    ,
     ("ch.epfl.scala" % "bsp4j" % "1.0.0+22-09230177+20181021-1221")
       .exclude("com.google.code.gson", "gson") // included in IDEA platform
       .exclude("com.google.guava", "guava") // included in IDEA platform

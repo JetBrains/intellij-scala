@@ -157,19 +157,11 @@ lazy val macroAnnotations =
 
 lazy val bsp =
   newProject("bsp", file("bsp"))
-    .dependsOn(bspDeps, scalaImpl % "test->test;compile->compile")
+    .dependsOn(scalaImpl % "test->test;compile->compile")
     .settings(
       packageAssembleLibraries := true,
       libraryDependencies ++= DependencyGroups.bsp,
       ideaMainJars := Seq.empty
-    )
-
-lazy val bspDeps =
-  newProject("bspDeps", file("target/tools/bspDeps"))
-    .settings(
-      packageAssembleLibraries := true,
-      libraryDependencies ++= DependencyGroups.bsp,
-      packageMethod := PackagingMethod.DepsOnly("lib/bsp-deps.jar")
     )
 
 // Integration with other IDEA plugins
