@@ -2,6 +2,7 @@ import Common._
 import Dependencies.sbtStructureExtractor
 import org.jetbrains.sbtidea.tasks.packaging.ShadePattern
 import sbtide.Keys.ideSkipProject
+import org.jetbrains.sbtidea.Keys._
 
 // Global build settings
 

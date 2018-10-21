@@ -26,8 +26,20 @@ object Common {
       unmanagedResourceDirectories in Test += baseDirectory.value / "testResources",
       libraryDependencies ++= Seq(Dependencies.junitInterface),
       updateOptions := updateOptions.value.withCachedResolution(true),
-      ideaMainJars := ideaMainJars.value.filterNot(file => Dependencies.excludeJarsFromPlatformDependencies(file.data))
+      ideaMainJars := ideaMainJars.value.filterNot(file => Dependencies.excludeJarsFromPlatformDependencies(file.data)),
+      pathExcludeFilter := excludePathsFromPackage
     )
+
+  def excludePathsFromPackage(path: java.nio.file.Path): Boolean = {
+    // TODO we should generally filter META-INF when merging jars
+
+    val parent = path.getParent
+    val filename = path.getFileName.toString
+
+    // exclude .../META-INF/*.RSA *.SF
+    parent != null && parent.toString == "META-INF" &&
+      (filename.endsWith(".RSA") || filename.endsWith(".SF"))
+  }
 
   def newProject(projectName: String): Project =
     newProject(projectName, file(projectName))
