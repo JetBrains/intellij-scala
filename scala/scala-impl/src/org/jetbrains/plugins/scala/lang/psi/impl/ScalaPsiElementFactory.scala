@@ -7,7 +7,6 @@ import java.util
 
 import com.intellij.lang.{ASTNode, PsiBuilderFactory}
 import com.intellij.openapi.progress.ProcessCanceledException
-import com.intellij.openapi.project.Project
 import com.intellij.openapi.util.text.StringUtil.convertLineSeparators
 import com.intellij.pom.java.LanguageLevel
 import com.intellij.psi._
@@ -276,7 +275,7 @@ object ScalaPsiElementFactory {
 
   def createBlockExpressionWithoutBracesFromText(text: String)
                                                 (implicit ctx: ProjectContext): ScBlockImpl = {
-    createElement(text, Block.parse(_, hasBrace = false, needNode = true)) match {
+    createElement(text)(Block.parse(_, hasBrace = false, needNode = true)) match {
       case b: ScBlockImpl => b
       case _ => null
     }
@@ -795,12 +794,12 @@ object ScalaPsiElementFactory {
   def createExpressionWithContextFromText(text: String, context: PsiElement, child: PsiElement): ScExpression = // TODO method should be eliminated eventually
     createOptionExpressionWithContextFromText(text, context, child).orNull
 
-  def createOptionExpressionWithContextFromText(text: String, context: PsiElement, child: PsiElement): Option[ScExpression] = {
-    val maybeMethodCall = createElementWithContext[ScMethodCall](s"foo($text)", context, child, Expr.parse)
-    val maybeFirstArgument = maybeMethodCall.flatMap(_.argumentExpressions.headOption)
+  def createOptionExpressionWithContextFromText(text: String, context: PsiElement, child: PsiElement): Option[ScExpression] = for {
+    methodCall <- createElementWithContext[ScMethodCall](s"foo($text)", context, child, Expr.parse)
+    firstArgument <- methodCall.argumentExpressions.headOption
 
-    withContext(maybeFirstArgument, context, child)
-  }
+    result = withContext(firstArgument, context, child)
+  } yield result
 
   def createMirrorElement(text: String, context: PsiElement, child: PsiElement): Option[ScExpression] = child match {
     case _: ScConstrBlock | _: ScConstrExpr =>
@@ -809,43 +808,36 @@ object ScalaPsiElementFactory {
       createOptionExpressionWithContextFromText(text, context, child)
   }
 
-  def createElement(text: String,
-                    parse: ScalaPsiBuilder => AnyVal)
+  def createElement(text: String)
+                   (parse: ScalaPsiBuilder => AnyVal)
                    (implicit ctx: ProjectContext): PsiElement =
-    createElement(text, createScalaFileFromText(""), ctx, parse)
+    createElement(text, createScalaFileFromText(""))(parse)
 
   def createElementWithContext[E <: ScalaPsiElement](text: String,
                                                      context: PsiElement,
                                                      child: PsiElement,
                                                      parse: ScalaPsiBuilder => AnyVal)
-                                                    (implicit tag: ClassTag[E]): Option[E] = {
-    val result = createElement(text, context, context.getProject, parse)(context.getManager).toOption.collect {
-      case element: E => element
+                                                    (implicit tag: ClassTag[E]): Option[E] =
+    createElement(text, context)(parse)(context.getProject) match {
+      case element: E if element.getTextLength == text.length => Some(withContext(element, context, child))
+      case _ => None
     }
-
-    withContext(result, context, child)
-  }
 
   def createEmptyModifierList(context: PsiElement): ScModifierList = {
     val parseEmptyModifier = (_: ScalaPsiBuilder).mark.done(ScalaElementTypes.MODIFIERS)
     createElementWithContext[ScModifierList]("", context, context.getFirstChild, parseEmptyModifier).orNull
   }
 
-  private def withContext[E <: ScalaPsiElement](maybeElement: Option[E],
-                                                context: PsiElement,
-                                                child: PsiElement) = {
-    maybeElement.foreach {
-      _.setContext(context, child)
-    }
-    maybeElement
+  private def withContext[E <: ScalaPsiElement](element: E, context: PsiElement, child: PsiElement) = {
+    element.setContext(context, child)
+    element
   }
 
-  private def createElement[T <: AnyVal](text: String,
-                                         context: PsiElement,
-                                         project: Project,
-                                         parse: ScalaPsiBuilder => T)
+  private def createElement[T <: AnyVal](text: String, context: PsiElement)
+                                        (parse: ScalaPsiBuilder => T)
                                         (implicit ctx: ProjectContext): PsiElement = {
-    val holder = DummyHolderFactory.createHolder(ctx, context).getTreeElement
+    val project = ctx.getProject
+    val holder = DummyHolderFactory.createHolder(PsiManager.getInstance(project), context).getTreeElement
 
     val builder = new ScalaPsiBuilderImpl(PsiBuilderFactory.getInstance
       .createBuilder(project, holder, new ScalaLexer, ScalaLanguage.INSTANCE, convertLineSeparators(text.trim)))
@@ -907,21 +899,17 @@ object ScalaPsiElementFactory {
     element.getChildren.apply(2).getFirstChild.asInstanceOf[ScWildcardPattern]
   }
 
-  def createPatterListFromText(text: String, context: PsiElement, child: PsiElement): ScPatternList = {
-    val result = createElementWithContext[ScPatternDefinition](s"val $text = 239", context, child, Def.parse(_)).map {
-      _.pList
-    }
-    withContext(result, context, child).orNull
-  }
+  def createPatterListFromText(text: String, context: PsiElement, child: PsiElement): Option[ScPatternList] =
+    createElementWithContext[ScPatternDefinition](s"val $text = 239", context, child, Def.parse(_))
+      .map(_.pList)
+      .map(withContext(_, context, child))
 
-  def createIdsListFromText(text: String, context: PsiElement, child: PsiElement): ScIdList = {
-    val result = Option(createDeclarationFromText(s"val $text : Int", context, child)).collect {
-      case valueDeclaration: ScValueDeclaration => valueDeclaration
+  def createIdsListFromText(text: String, context: PsiElement, child: PsiElement): Option[ScIdList] =
+    Option(createDeclarationFromText(s"val $text : Int", context, child)).collect {
+      case valueDeclaration: ScValueDeclaration => valueDeclaration.getIdList
     }.map {
-      _.getIdList
+      withContext(_, context, child)
     }
-    withContext(result, context, child).orNull
-  }
 
   def createTemplateDefinitionFromText(text: String, context: PsiElement, child: PsiElement): ScTemplateDefinition =
     createElementWithContext[ScTemplateDefinition](text, context, child, TmplDef.parse).orNull

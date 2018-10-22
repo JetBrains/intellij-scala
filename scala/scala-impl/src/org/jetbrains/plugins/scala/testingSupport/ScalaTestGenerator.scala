@@ -26,6 +26,7 @@ import org.jetbrains.plugins.scala.lang.psi.api.toplevel.typedef.ScTypeDefinitio
 import org.jetbrains.plugins.scala.lang.psi.impl.ScalaPsiElementFactory._
 import org.jetbrains.plugins.scala.lang.refactoring.extractTrait.ExtractSuperUtil
 import org.jetbrains.plugins.scala.testingSupport.test.{AbstractTestFramework, TestConfigurationUtil}
+
 import scala.collection.JavaConverters._
 
 class ScalaTestGenerator extends TestGenerator {
@@ -369,11 +370,11 @@ object ScalaTestGenerator {
                                   (implicit normalIndent: String): Unit = {
     import templateBody.projectContext
 
-    templateBody.addBefore(createElement("val tests = TestSuite{}", Def.parse(_)),
+    templateBody.addBefore(createElement("val tests = TestSuite{}")(Def.parse(_)),
       templateBody.getLastChild)
     if (methods.nonEmpty) {
       templateBody.addBefore(createElement(methods.map(normalIndent + "\"" +
-        _.getMember.getName + "\" - {}\n").fold("val methodsTests = TestSuite{")(_ + "\n" + _) + "}", Def.parse(_)), templateBody.getLastChild)
+        _.getMember.getName + "\" - {}\n").fold("val methodsTests = TestSuite{")(_ + "\n" + _) + "}")(Def.parse(_)), templateBody.getLastChild)
     }
   }
 

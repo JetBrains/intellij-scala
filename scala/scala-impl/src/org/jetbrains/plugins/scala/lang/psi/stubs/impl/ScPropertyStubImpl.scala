@@ -38,7 +38,7 @@ final class ScPropertyStubImpl[P <: ScValueOrVariable](parent: StubElement[_ <: 
     if (isDeclaration) return None
 
     getFromOptionalReference(patternsContainerReference) {
-      case (context, child) => Option(createPatterListFromText(bindingsContainerText, context, child))
+      case (context, child) => createPatterListFromText(bindingsContainerText, context, child)
     }(patternsContainerReference = _)
   }
 
@@ -46,7 +46,7 @@ final class ScPropertyStubImpl[P <: ScValueOrVariable](parent: StubElement[_ <: 
     if (!isDeclaration) return None
 
     getFromOptionalReference(idsContainerReference) {
-      case (context, child) => Option(createIdsListFromText(bindingsContainerText, context, child))
+      case (context, child) => createIdsListFromText(bindingsContainerText, context, child)
     }(idsContainerReference = _)
   }
 }
