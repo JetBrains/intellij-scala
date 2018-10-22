@@ -4,7 +4,7 @@ import java.util
 import java.util.UUID
 
 import com.intellij.build.events.impl._
-import com.intellij.build.events.{BuildEvent, MessageEvent, MessageEventResult, Warning}
+import com.intellij.build.events._
 import com.intellij.build.{BuildViewManager, DefaultBuildDescriptor, FilePosition, events}
 import com.intellij.execution.ui.RunContentDescriptor
 import com.intellij.openapi.components.ServiceManager
@@ -13,6 +13,7 @@ import com.intellij.openapi.project.Project
 import com.intellij.pom.Navigatable
 import com.intellij.task.ProjectTaskResult
 import javax.swing.JComponent
+import org.jetbrains.plugins.scala.build.BuildMessages._
 
 import scala.collection.JavaConverters._
 
@@ -126,6 +127,26 @@ class BuildToolWindowReporter(project: Project, taskId: UUID, title: String) ext
     viewManager.onEvent(finishEvent)
   }
 
+  def startTask(taskId: EventId, parent: Option[EventId], message: String): Unit = {
+    val time = System.currentTimeMillis() // TODO pass as parameter?
+    val startEvent = new StartEventImpl(taskId, parent.orNull, time, message)
+    viewManager.onEvent(startEvent)
+  }
+
+  def progressTask(taskId: EventId, total: Long, progress: Long, unit: String, message: String): Unit = {
+    val time = System.currentTimeMillis() // TODO pass as parameter?
+    val progressId = randomEventId
+    val event = new ProgressBuildEventImpl(progressId, taskId, time, message, total, progress, unit)
+    viewManager.onEvent(event)
+  }
+
+  def finishTask(taskId: EventId, message: String, result: EventResult): Unit = {
+    val time = System.currentTimeMillis() // TODO pass as parameter?
+    val finishId = randomEventId
+    val event = new FinishEventImpl(finishId, taskId, time, message, result)
+    viewManager.onEvent(event)
+  }
+
   override def warning(message: String, position: Option[FilePosition]): Unit =
     viewManager.onEvent(event(message, Kind.WARNING, position))
 
@@ -145,6 +166,7 @@ class BuildToolWindowReporter(project: Project, taskId: UUID, title: String) ext
     BuildMessages.message(taskId, message, kind, position)
 
 }
+
 
 class BuildEventMessage(parentId: Any, kind: MessageEvent.Kind, group: String, message: String)
   extends AbstractBuildEvent(new Object, parentId, System.currentTimeMillis(), message) with MessageEvent {
@@ -171,6 +193,13 @@ case class BuildMessages(warnings: Seq[events.Warning], errors: Seq[events.Failu
 }
 
 case object BuildMessages {
+
+  trait EventId
+  case class UUIDId(id: UUID) extends EventId
+  case class StringId(id: String) extends EventId
+
+  def randomEventId: EventId = UUIDId(UUID.randomUUID())
+
   def empty = BuildMessages(Vector.empty, Vector.empty, Vector.empty, aborted = false)
 
   def message(parentId: Any, message: String, kind: MessageEvent.Kind, position: Option[FilePosition]): AbstractBuildEvent with MessageEvent =

@@ -1,13 +1,15 @@
 package org.jetbrains.bsp.project
 
 import java.net.URI
-import java.util.UUID
-import java.util.concurrent.CompletableFuture
+import java.util.concurrent.{CompletableFuture, TimeUnit}
+import java.util.{Collections, UUID}
 
 import ch.epfl.scala.bsp4j
 import ch.epfl.scala.bsp4j.CompileResult
 import com.google.gson.JsonArray
 import com.intellij.build.FilePosition
+import com.intellij.build.events.Failure
+import com.intellij.build.events.impl.{FailureResultImpl, SuccessResultImpl}
 import com.intellij.execution.process.AnsiEscapeDecoder.ColoredTextAcceptor
 import com.intellij.execution.process.{AnsiEscapeDecoder, ProcessOutputTypes}
 import com.intellij.openapi.progress.{PerformInBackgroundOption, ProcessCanceledException, ProgressIndicator, Task}
@@ -18,8 +20,9 @@ import org.eclipse.lsp4j.jsonrpc.ResponseErrorException
 import org.jetbrains.bsp.BspUtil._
 import org.jetbrains.bsp.project.BspTask.TextCollector
 import org.jetbrains.bsp.protocol.BspSession.{BspServer, NotificationCallback}
-import org.jetbrains.bsp.protocol.{BspNotifications, BspCommunication, BspJob}
+import org.jetbrains.bsp.protocol.{BspCommunication, BspJob, BspNotifications}
 import org.jetbrains.bsp.settings.BspExecutionSettings
+import org.jetbrains.plugins.scala.build.BuildMessages.{StringId, UUIDId}
 import org.jetbrains.plugins.scala.build.{BuildFailureException, BuildMessages, BuildToolWindowReporter, IndicatorReporter}
 
 import scala.annotation.tailrec
@@ -109,7 +112,13 @@ class BspTask[T](project: Project, executionSettings: BspExecutionSettings,
     val targetIds = targets.map(uri => new bsp4j.BuildTargetIdentifier(uri.toString))
     val params = new bsp4j.CompileParams(targetIds.toList.asJava)
     params.setArguments(new JsonArray)
-    // TODO support originId for threading
+    params.setOriginId(taskId.toString)
+
+    targetIds.foreach { buildTarget =>
+      val buildTargetUri = buildTarget.getUri
+      val eventId = StringId(buildTargetUri)
+      report.startTask(eventId, Some(UUIDId(taskId)), s"build target: $buildTargetUri")
+    }
     server.buildTargetCompile(params)
   }
 
@@ -143,7 +152,7 @@ class BspTask[T](project: Project, executionSettings: BspExecutionSettings,
   }
 
   private def reportDiagnostics(params: bsp4j.PublishDiagnosticsParams): Unit = {
-    // TODO use params.requestId to show tree structure
+    // TODO use params.originId to show tree structure
 
     val file = params.getUri.toURI.toFile
     params.getDiagnostics.asScala.foreach { diagnostic: bsp4j.Diagnostic =>
@@ -180,6 +189,26 @@ class BspTask[T](project: Project, executionSettings: BspExecutionSettings,
 
   private def reportCompile(compileReport: bsp4j.CompileReport): Unit = {
     // TODO use CompileReport to signal individual target is completed
+    val targetUri = compileReport.getTarget.getUri
+    val taskId = StringId(targetUri)
+    val warnings = compileReport.getWarnings
+    val errors = compileReport.getErrors
+    val duration = Duration(compileReport.getTime, TimeUnit.MILLISECONDS)
+
+    val (message,result) = if (errors > 0) {
+      val warningsMsg = if (warnings>0) s", $warnings warnings"
+      val msg = s"failed with $errors errors$warningsMsg"
+      val result = new SuccessResultImpl(true)
+      (msg,result)
+    }
+    else {
+      val warningsMsg = if (warnings>0) s": $warnings warnings" else ""
+      val msg = s"completed$warningsMsg"
+      val result = new FailureResultImpl(Collections.emptyList[Failure]())
+      (msg,result)
+    }
+
+    report.finishTask(taskId, message, result)
   }
 }
 
