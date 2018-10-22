@@ -5,7 +5,7 @@ import org.jetbrains.plugins.scala.actions.implicitArguments.ShowImplicitArgumen
 import org.jetbrains.plugins.scala.codeInsight.implicits.{Hint, MouseHandler}
 import org.jetbrains.plugins.scala.lang.psi.api.ImplicitArgumentsOwner
 
-class ImplicitArgumentsPopup extends AnAction {
+class ImplicitArgumentsPopup extends AnAction("Implicit Arguments Popup") {
   override def actionPerformed(e: AnActionEvent): Unit = {
     val editor = e.getData(CommonDataKeys.EDITOR)
     val model = editor.getInlayModel

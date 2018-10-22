@@ -7,7 +7,7 @@ import org.jetbrains.plugins.scala.extensions.inWriteCommandAction
 import org.jetbrains.plugins.scala.lang.psi.impl.ScalaCode._
 import org.jetbrains.plugins.scala.project.ProjectContext
 
-class MakeArgumentsExplicit extends AnAction {
+class MakeArgumentsExplicit extends AnAction("Make arguments explicit") {
   override def actionPerformed(e: AnActionEvent): Unit = {
     val editor = e.getData(CommonDataKeys.EDITOR)
     val model = editor.getInlayModel

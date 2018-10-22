@@ -4,7 +4,7 @@ import com.intellij.openapi.actionSystem.{AnAction, AnActionEvent, CommonDataKey
 import org.jetbrains.plugins.scala.codeInsight.implicits.{Hint, MouseHandler}
 import org.jetbrains.plugins.scala.extensions.inWriteCommandAction
 
-class RemoveExplicitArguments extends AnAction {
+class RemoveExplicitArguments extends AnAction("Remove explicit arguments") {
   override def actionPerformed(e: AnActionEvent): Unit = {
     val editor = e.getData(CommonDataKeys.EDITOR)
     val model = editor.getInlayModel

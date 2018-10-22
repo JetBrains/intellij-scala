@@ -5,7 +5,7 @@ import com.intellij.openapi.actionSystem.{AnAction, AnActionEvent, CommonDataKey
 import org.jetbrains.plugins.scala.codeInsight.implicits.{Hint, MouseHandler}
 import org.jetbrains.plugins.scala.codeInsight.intention.expression.MakeImplicitConversionExplicit
 
-class MakeConversionExplicit extends AnAction {
+class MakeConversionExplicit extends AnAction("Make conversion explicit") {
   override def actionPerformed(e: AnActionEvent): Unit = {
     val editor = e.getData(CommonDataKeys.EDITOR)
     val model = editor.getInlayModel
