@@ -1,8 +1,8 @@
 package org.jetbrains.bsp.project
 
 import java.net.URI
-import java.util.concurrent.{CompletableFuture, TimeUnit}
-import java.util.{Collections, UUID}
+import java.util.Collections
+import java.util.concurrent.CompletableFuture
 
 import ch.epfl.scala.bsp4j
 import ch.epfl.scala.bsp4j.CompileResult
@@ -22,7 +22,7 @@ import org.jetbrains.bsp.project.BspTask.TextCollector
 import org.jetbrains.bsp.protocol.BspSession.{BspServer, NotificationCallback}
 import org.jetbrains.bsp.protocol.{BspCommunication, BspJob, BspNotifications}
 import org.jetbrains.bsp.settings.BspExecutionSettings
-import org.jetbrains.plugins.scala.build.BuildMessages.{StringId, UUIDId}
+import org.jetbrains.plugins.scala.build.BuildMessages.{EventId, StringId}
 import org.jetbrains.plugins.scala.build.{BuildFailureException, BuildMessages, BuildToolWindowReporter, IndicatorReporter}
 
 import scala.annotation.tailrec
@@ -37,7 +37,7 @@ class BspTask[T](project: Project, executionSettings: BspExecutionSettings,
 
   private var buildMessages: BuildMessages = BuildMessages.empty
 
-  private val taskId: UUID = UUID.randomUUID()
+  private val taskId: EventId = BuildMessages.randomEventId
   private val report = new BuildToolWindowReporter(project, taskId, "bsp build")
 
   private val notifications: NotificationCallback = {
@@ -114,11 +114,6 @@ class BspTask[T](project: Project, executionSettings: BspExecutionSettings,
     params.setArguments(new JsonArray)
     params.setOriginId(taskId.toString)
 
-    targetIds.foreach { buildTarget =>
-      val buildTargetUri = buildTarget.getUri
-      val eventId = StringId(buildTargetUri)
-      report.startTask(eventId, Some(UUIDId(taskId)), s"build target: $buildTargetUri")
-    }
     server.buildTargetCompile(params)
   }
 
@@ -187,13 +182,14 @@ class BspTask[T](project: Project, executionSettings: BspExecutionSettings,
     }
   }
 
+  /** Report compilation stats and success/failure of an individual target.
+    * TODO requires notifications of compile task start
+    */
   private def reportCompile(compileReport: bsp4j.CompileReport): Unit = {
-    // TODO use CompileReport to signal individual target is completed
     val targetUri = compileReport.getTarget.getUri
     val taskId = StringId(targetUri)
     val warnings = compileReport.getWarnings
     val errors = compileReport.getErrors
-    val duration = Duration(compileReport.getTime, TimeUnit.MILLISECONDS)
 
     val (message,result) = if (errors > 0) {
       val warningsMsg = if (warnings>0) s", $warnings warnings"
@@ -207,6 +203,7 @@ class BspTask[T](project: Project, executionSettings: BspExecutionSettings,
       val result = new FailureResultImpl(Collections.emptyList[Failure]())
       (msg,result)
     }
+    val fullMessage = s"$targetUri $message"
 
     report.finishTask(taskId, message, result)
   }

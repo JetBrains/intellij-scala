@@ -81,7 +81,7 @@ class IndicatorReporter(indicator: ProgressIndicator) extends BuildReporter {
   }
 }
 
-class BuildToolWindowReporter(project: Project, taskId: UUID, title: String) extends BuildReporter {
+class BuildToolWindowReporter(project: Project, taskId: EventId, title: String) extends BuildReporter {
   import MessageEvent.Kind
 
   private lazy val viewManager: BuildViewManager = ServiceManager.getService(project, classOf[BuildViewManager])
@@ -135,15 +135,13 @@ class BuildToolWindowReporter(project: Project, taskId: UUID, title: String) ext
 
   def progressTask(taskId: EventId, total: Long, progress: Long, unit: String, message: String): Unit = {
     val time = System.currentTimeMillis() // TODO pass as parameter?
-    val progressId = randomEventId
-    val event = new ProgressBuildEventImpl(progressId, taskId, time, message, total, progress, unit)
+    val event = new ProgressBuildEventImpl(taskId, null, time, message, total, progress, unit)
     viewManager.onEvent(event)
   }
 
   def finishTask(taskId: EventId, message: String, result: EventResult): Unit = {
     val time = System.currentTimeMillis() // TODO pass as parameter?
-    val finishId = randomEventId
-    val event = new FinishEventImpl(finishId, taskId, time, message, result)
+    val event = new FinishEventImpl(taskId, null, time, message, result)
     viewManager.onEvent(event)
   }
 
