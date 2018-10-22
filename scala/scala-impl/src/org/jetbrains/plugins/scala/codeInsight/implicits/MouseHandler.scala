@@ -7,7 +7,7 @@ import com.intellij.codeInsight.hint.{HintManager, HintManagerImpl, HintUtil}
 import com.intellij.openapi.command.CommandProcessor
 import com.intellij.openapi.components.ProjectComponent
 import com.intellij.openapi.editor.event._
-import com.intellij.openapi.editor.{Editor, EditorCustomElementRenderer, EditorFactory, Inlay}
+import com.intellij.openapi.editor.{Editor, EditorFactory}
 import com.intellij.openapi.project.Project
 import com.intellij.openapi.startup.StartupManager
 import com.intellij.openapi.util.{Key, SystemInfo}
@@ -21,14 +21,13 @@ import org.jetbrains.plugins.scala.extensions.ObjectExt
 import org.jetbrains.plugins.scala.settings.ScalaProjectSettings
 
 import scala.collection.JavaConverters._
-import MouseHandler.InlayT
 
 class MouseHandler(project: Project,
                    startupManager: StartupManager,
                    editorFactory: EditorFactory) extends ProjectComponent {
 
-  private var activeHyperlink = Option.empty[(Inlay[_], Text)]
-  private var highlightedMatches = Set.empty[(InlayT, Text)]
+  private var activeHyperlink = Option.empty[(Inlay, Text)]
+  private var highlightedMatches = Set.empty[(Inlay, Text)]
 
   private var hyperlinkTooltip = Option.empty[LightweightHint]
   private var errorTooltip = Option.empty[LightweightHint]
@@ -132,7 +131,7 @@ class MouseHandler(project: Project,
     (HighlightingAdvisor.getInstance(project).enabled &&
       ScalaProjectSettings.getInstance(project).isShowNotFoundImplicitArguments)
 
-  private def activateHyperlink(editor: Editor, inlay: Inlay[_], text: Text, event: MouseEvent): Unit = {
+  private def activateHyperlink(editor: Editor, inlay: Inlay, text: Text, event: MouseEvent): Unit = {
     text.hyperlink = true
     activeHyperlink = Some(inlay, text)
     inlay.repaint()
@@ -176,15 +175,15 @@ class MouseHandler(project: Project,
       () => text.navigatable.filter(_.canNavigate).foreach(_.navigate(true)), null, null)
   }
 
-  private def expandableAt(editor: Editor, point: Point): Option[(InlayT, Text)] = textAt(editor, point).filter {
+  private def expandableAt(editor: Editor, point: Point): Option[(Inlay, Text)] = textAt(editor, point).filter {
     case (_, text) => text.expansion.isDefined
   }
 
-  private def hyperlinkAt(editor: Editor, point: Point): Option[(InlayT, Text)] = textAt(editor, point).filter {
+  private def hyperlinkAt(editor: Editor, point: Point): Option[(Inlay, Text)] = textAt(editor, point).filter {
     case (_, text) => text.navigatable.isDefined
   }
 
-  private def textAt(editor: Editor, point: Point): Option[(Inlay[_ <: EditorCustomElementRenderer], Text)] =
+  private def textAt(editor: Editor, point: Point): Option[(Inlay, Text)] =
     Option(editor.getInlayModel.getElementAt(point)).flatMap { inlay =>
       inlay.getRenderer.asOptionOf[TextRenderer].flatMap { renderer =>
         val inlayPoint = editor.visualPositionToXY(inlay.getVisualPosition)
@@ -243,10 +242,10 @@ class MouseHandler(project: Project,
     hint
   }
 
-  private def highlightMatches(editor: Editor, inlay: InlayT, text: Text): Unit = {
+  private def highlightMatches(editor: Editor, inlay: Inlay, text: Text): Unit = {
     findPairFor(editor, (inlay, text)) match {
       case Some((pairInlay, pairText)) =>
-        val matches: Set[(InlayT, Text)] = Set((inlay, text), (pairInlay, pairText))
+        val matches: Set[(Inlay, Text)] = Set((inlay, text), (pairInlay, pairText))
 
         if (highlightedMatches != matches) {
           clearHighlightedMatches()
@@ -271,7 +270,7 @@ class MouseHandler(project: Project,
     }
   }
 
-  private def findPairFor(editor: Editor, element: (InlayT, Text)): Option[(InlayT, Text)] = {
+  private def findPairFor(editor: Editor, element: (Inlay, Text)): Option[(Inlay, Text)] = {
     val (lineStart, lineEnd) = {
       val line = editor.getDocument.getLineNumber(element._1.getOffset)
       (editor.getDocument.getLineStartOffset(line), editor.getDocument.getLineEndOffset(line))
@@ -281,7 +280,7 @@ class MouseHandler(project: Project,
       inlay.getRenderer.asOptionOf[TextRenderer].toSeq.flatMap(_.parts.map((inlay, _)))
     }
 
-    pairFor[(Inlay[_ <: EditorCustomElementRenderer], Text)](element, elements, _._2.string == "(", _._2.string == ")")
+    pairFor[(Inlay, Text)](element, elements, _._2.string == "(", _._2.string == ")")
   }
 
   private def clearHighlightedMatches(): Unit = {
@@ -295,7 +294,6 @@ class MouseHandler(project: Project,
 }
 
 private object MouseHandler {
-  type InlayT = Inlay[_ <: EditorCustomElementRenderer]
   private val EscKeyListenerKey: Key[KeyListener] = Key.create[KeyListener]("SCALA_IMPLICIT_HINTS_KEY_LISTENER")
 
   var mousePressLocation: Point = new Point(0, 0)
