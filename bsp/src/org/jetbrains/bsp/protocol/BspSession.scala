@@ -4,7 +4,7 @@ import java.io.{InputStream, OutputStream}
 import java.util.concurrent.{CompletableFuture, LinkedBlockingQueue, TimeUnit, TimeoutException}
 
 import ch.epfl.scala.bsp4j
-import ch.epfl.scala.bsp4j.{TestReport, CompileReport => _, _}
+import ch.epfl.scala.bsp4j.{BuildClient, BuildServer, CancelFileWatcherResult, ScalaBuildServer}
 import com.intellij.notification.NotificationType
 import com.intellij.openapi.diagnostic.Logger
 import com.intellij.util.concurrency.AppExecutorUtil
@@ -22,13 +22,14 @@ class BspSession(bspIn: InputStream,
                  bspOut: OutputStream,
                  initializeBuildParams: bsp4j.InitializeBuildParams,
                  cleanup: ()=>Unit
-                  ) {
+                ) {
 
   private val logger = Logger.getInstance(classOf[BspCommunication])
 
   private val jobs = new LinkedBlockingQueue[BspSessionJob[_,_]]
 
   private var currentJob: BspSessionJob[_,_] = DummyJob
+  private var notificationCallbacks: List[NotificationCallback] = Nil
 
   private val serverConnection: ServerConnection = startServerConnection
   private val sessionInitialized = initializeSession
@@ -41,6 +42,8 @@ class BspSession(bspIn: InputStream,
   private val queueProcessor = AppExecutorUtil.getAppScheduledExecutorService
       .scheduleWithFixedDelay(() => nextQueuedCommand, queuePause.toMillis, queuePause.toMillis, TimeUnit.MILLISECONDS)
 
+  private def notifications(notification: BspNotification): Unit =
+    notificationCallbacks.foreach(_.apply(notification))
 
   private def nextQueuedCommand= {
     try {
@@ -67,19 +70,9 @@ class BspSession(bspIn: InputStream,
 
   private def startServerConnection: ServerConnection = {
 
-    val localClient = new BspClient {
-      override def onBuildShowMessage(params: ShowMessageParams): Unit = currentJob.notification(ShowMessage(params))
-      override def onBuildLogMessage(params: LogMessageParams): Unit = currentJob.notification(LogMessage(params))
-      override def onBuildPublishDiagnostics(params: PublishDiagnosticsParams): Unit = currentJob.notification(PublishDiagnostics(params))
-      override def onBuildTargetDidChange(params: DidChangeBuildTarget): Unit = () // TODO https://youtrack.jetbrains.com/issue/SCL-14475
-      override def onBuildTargetCompileReport(params: bsp4j.CompileReport): Unit = currentJob.notification(CompileReport(params))
-      override def onBuildTargetTest(testReport: TestReport): Unit = ()
-      override def buildRegisterFileWatcher(params: RegisterFileWatcherParams): CompletableFuture[RegisterFileWatcherResult] = null // TODO
-      override def buildCancelFileWatcher(params: CancelFileWatcherParams): CompletableFuture[CancelFileWatcherResult] = null // TODO
-    }
+    val localClient = new BspSessionClient
 
     val launcher = new Launcher.Builder[BspServer]()
-      //      .traceMessages(new PrintWriter(System.out))
       .setRemoteInterface(classOf[BspServer])
       .setExecutorService(AppExecutorUtil.getAppExecutorService)
       .setInput(bspIn)
@@ -105,11 +98,11 @@ class BspSession(bspIn: InputStream,
     ServerConnection(bspServer, cancelable)
   }
 
-  private def initializeSession: CompletableFuture[InitializeBuildResult] = {
-    val bsp = serverConnection.server
-    bsp.buildInitialize(initializeBuildParams)
-      .thenApply[InitializeBuildResult] { result =>
-        bsp.onBuildInitialized()
+  private def initializeSession: CompletableFuture[bsp4j.InitializeBuildResult] = {
+    val bspServer = serverConnection.server
+    bspServer.buildInitialize(initializeBuildParams)
+      .thenApply[bsp4j.InitializeBuildResult] { result =>
+      bspServer.onBuildInitialized()
         result
       }
       .exceptionally {
@@ -117,12 +110,15 @@ class BspSession(bspIn: InputStream,
       }
   }
 
-  private def waitForSession(timeout: Duration): InitializeBuildResult = try {
+  private def waitForSession(timeout: Duration): bsp4j.InitializeBuildResult = try {
     sessionInitialized.get(timeout.toMillis, TimeUnit.MILLISECONDS)
   } catch {
     case to: TimeoutException => throw BspConnectionError("bsp server is not responding", to)
   }
 
+  def addNotificationCallback(notificationCallback: NotificationCallback): Unit = {
+    notificationCallbacks ::= notificationCallback
+  }
 
   /** Run a task with client in this session.
     * Notifications during run of this task are passed to the aggregator. This can also be used for plain callbacks.
@@ -169,6 +165,43 @@ class BspSession(bspIn: InputStream,
     queueProcessor.cancel(false)
     sessionInitialized.cancel(false)
     whenDone
+  }
+
+
+  private class BspSessionClient extends BspClient {
+    // task notifications
+    override def onBuildShowMessage(params: bsp4j.ShowMessageParams): Unit = {
+      val event = ShowMessage(params)
+      currentJob.notification(event)
+      notifications(event)
+    }
+    override def onBuildLogMessage(params: bsp4j.LogMessageParams): Unit = {
+      val event = LogMessage(params)
+      currentJob.notification(event)
+      notifications(event)
+    }
+    override def onBuildPublishDiagnostics(params: bsp4j.PublishDiagnosticsParams): Unit = {
+      val event = PublishDiagnostics(params)
+      currentJob.notification(event)
+      notifications(event)
+    }
+    override def onBuildTargetCompileReport(params: bsp4j.CompileReport): Unit = {
+      val event = CompileReport(params)
+      currentJob.notification(event)
+      notifications(event)
+    }
+    override def onBuildTargetTest(testReport: bsp4j.TestReport): Unit = ()
+
+    // build-level notifications
+    override def onConnectWithServer(server: BuildServer): Unit = super.onConnectWithServer(server)
+
+    override def onBuildTargetDidChange(didChange: bsp4j.DidChangeBuildTarget): Unit = {
+      val event = DidChangeBuildTarget(didChange)
+      notifications(event)
+    }
+
+    override def buildRegisterFileWatcher(params: bsp4j.RegisterFileWatcherParams): CompletableFuture[bsp4j.RegisterFileWatcherResult] = null // TODO
+    override def buildCancelFileWatcher(params: bsp4j.CancelFileWatcherParams): CompletableFuture[CancelFileWatcherResult] = null // TODO
   }
 }
 
@@ -242,7 +275,6 @@ object BspSession {
     }
   }
 
-  // TODO barebones handling of logMessage/showMessage?
   private object DummyJob extends BspSessionJob[Unit,Unit] {
     override private[BspSession] def notification(bspNotification: BspNotification): Unit = ()
     override private[BspSession] def run(bspServer: BspServer): CompletableFuture[(Unit, Unit)] = CompletableFuture.completedFuture(((),()))

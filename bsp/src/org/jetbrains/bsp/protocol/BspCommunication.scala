@@ -6,22 +6,25 @@ import java.nio.file._
 
 import com.intellij.openapi.components.ProjectComponent
 import com.intellij.openapi.diagnostic.Logger
+import com.intellij.openapi.externalSystem.importing.ImportSpecBuilder
+import com.intellij.openapi.externalSystem.util.ExternalSystemUtil
+import com.intellij.openapi.fileEditor.FileDocumentManager
 import com.intellij.openapi.project.{Project, ProjectUtil}
 import com.intellij.openapi.util.SystemInfo
 import com.intellij.util.net.NetUtils
-import org.jetbrains.bsp.BspError
-import org.jetbrains.bsp.protocol.BspNotifications.BspNotification
-import org.jetbrains.bsp.protocol.BspSession.{BspSessionTask, NotificationAggregator, NotificationCallback}
 import org.jetbrains.bsp.protocol.BspCommunication._
+import org.jetbrains.bsp.protocol.BspNotifications.BspNotification
 import org.jetbrains.bsp.protocol.BspServerConnector._
-import org.jetbrains.bsp.settings.BspExecutionSettings
+import org.jetbrains.bsp.protocol.BspSession.{BspSessionTask, NotificationAggregator, NotificationCallback}
+import org.jetbrains.bsp.settings.{BspExecutionSettings, BspProjectSettings, BspSettings}
+import org.jetbrains.bsp.{BSP, BspError}
 
 import scala.concurrent.{Future, Promise}
 import scala.util.Random
 
 class BspCommunicationComponent(project: Project) extends ProjectComponent {
 
-  val communication = new BspCommunication(base, executionSettings)
+  val communication = new BspCommunication(base, Some(project), executionSettings)
 
   private def base = new File(project.getBasePath)
   private def executionSettings = {
@@ -33,7 +36,7 @@ class BspCommunicationComponent(project: Project) extends ProjectComponent {
   }
 }
 
-class BspCommunication(base: File, executionSettings: BspExecutionSettings) {
+class BspCommunication(base: File, project: Option[Project], executionSettings: BspExecutionSettings) {
 
   private val log = Logger.getInstance(classOf[BspCommunication])
 
@@ -58,10 +61,31 @@ class BspCommunication(base: File, executionSettings: BspExecutionSettings) {
       case Left(error) =>
         log.warn("bsp connection failed", error)
       case Right(newSession) =>
+        newSession.addNotificationCallback(projectCallback)
         session = Some(newSession)
     }
 
     sessionResult
+  }
+
+  private val bspSettings: Option[BspProjectSettings] =
+    for {
+      p <- project
+      basePath <- Option(ProjectUtil.guessProjectDir(p))
+      settings <- Option(BspSettings.getInstance(p).getLinkedProjectSettings(basePath.getPath))
+    } yield settings
+
+  val projectCallback: NotificationCallback = {
+    case BspNotifications.DidChangeBuildTarget(didChange) =>
+      for {
+        p <- project
+        s <- bspSettings
+        if s.isUseAutoImport
+      } {
+        FileDocumentManager.getInstance.saveAllDocuments()
+        ExternalSystemUtil.refreshProjects(new ImportSpecBuilder(p, BSP.ProjectSystemId))
+      }
+    case _ => // ignore
   }
 
   def closeSession(): Future[Unit] = session match {
@@ -69,7 +93,7 @@ class BspCommunication(base: File, executionSettings: BspExecutionSettings) {
     case Some(s) =>
       val promise = Promise[Unit]
       s.shutdown()
-        .whenComplete{(success,error) =>
+        .whenComplete{(_,error) =>
           if (error != null) promise.failure(error)
           else promise.success(())
         }
@@ -106,7 +130,7 @@ object BspCommunication {
   def forBaseDir(baseDir: String, executionSettings: BspExecutionSettings): BspCommunication = {
     val baseFile = new File(baseDir)
     if (!baseFile.isDirectory) throw new IllegalArgumentException(s"Base path for BspCommunication is not a directory: $baseDir")
-    new BspCommunication(baseFile, executionSettings)
+    new BspCommunication(baseFile, None, executionSettings)
   }
 
 

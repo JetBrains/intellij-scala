@@ -11,5 +11,6 @@ object BspNotifications {
   final case class PublishDiagnostics(params: bsp4j.PublishDiagnosticsParams) extends BspNotification
   final case class CompileReport(params: bsp4j.CompileReport) extends BspNotification
   final case class TestReport(params: bsp4j.TestReport) extends BspNotification
+  final case class DidChangeBuildTarget(didChange: bsp4j.DidChangeBuildTarget) extends BspNotification
 
 }
