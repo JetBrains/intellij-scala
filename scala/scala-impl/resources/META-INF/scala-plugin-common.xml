@@ -1712,7 +1712,7 @@
         </group>
 
       <!-- see PresentationRenderer.getContextMenuGroupId -->
-      <action id="DummyActionGroup"/>
+      <action id="DummyActionGroup" class="org.jetbrains.plugins.scala.codeInsight.implicits.DummyActionGroup"/>
 
       <action id="Scala.ShowImplicits"
               class="org.jetbrains.plugins.scala.codeInsight.implicits.ShowImplicitHintsAction"
