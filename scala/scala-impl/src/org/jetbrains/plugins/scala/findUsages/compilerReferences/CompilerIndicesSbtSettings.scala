@@ -11,6 +11,7 @@ import scala.beans.BeanProperty
 )
 class CompilerIndicesSbtSettings extends PersistentStateComponent[CompilerIndicesSbtSettings] {
   //TODO: set port on sbt shell startup
+  //TODO: better instruction on how to set port in sbt
   @BeanProperty var sbtConnectionPort: Int = 65337
 
   override def getState: CompilerIndicesSbtSettings = this
