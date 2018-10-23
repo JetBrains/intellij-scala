@@ -20,10 +20,6 @@ class MouseHandler(project: Project,
   private var activeInlay = Option.empty[Inlay]
 
   private val mouseListener = new EditorMouseListener {
-    override def mousePressed(e: EditorMouseEvent): Unit = {
-      MouseHandler.mousePressLocation = e.getMouseEvent.getPoint
-    }
-
     override def mouseClicked(e: EditorMouseEvent): Unit = {
       if (!e.isConsumed && project.isInitialized && !project.isDisposed) {
         val editor = e.getEditor
@@ -128,9 +124,6 @@ class MouseHandler(project: Project,
 
 private object MouseHandler {
   private val EscKeyListenerKey: Key[KeyListener] = Key.create[KeyListener]("SCALA_IMPLICIT_HINTS_KEY_LISTENER")
-
-  // TODO custom context menus
-  var mousePressLocation: Point = new Point(0, 0)
 
   // TODO
   def removeEscKeyListeners(): Unit = {
