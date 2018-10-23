@@ -5,7 +5,7 @@ import java.awt.{Component, Point}
 
 import com.intellij.openapi.components.ProjectComponent
 import com.intellij.openapi.editor.event._
-import com.intellij.openapi.editor.{Editor, EditorFactory, Inlay}
+import com.intellij.openapi.editor.{Editor, EditorFactory}
 import com.intellij.openapi.project.Project
 import com.intellij.openapi.startup.StartupManager
 import com.intellij.openapi.util.Key
