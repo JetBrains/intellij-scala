@@ -14,10 +14,10 @@ class OnClick(presentation: Presentation, button: Button, handler: MouseEvent =>
 
     if (expectedButton) {
       handler(e)
+    }
 
-      if (!e.isConsumed) {
-        super.mouseClicked(e)
-      }
+    if (!e.isConsumed) {
+      super.mouseClicked(e)
     }
   }
 }
