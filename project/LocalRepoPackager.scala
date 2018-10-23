@@ -1,7 +1,6 @@
 import java.net.URI
 
 import sbt._
-import sbt.File
 
 /**
   * Download artifacts from jetbrains bintray to mimic a simple local ivy repo that sbt can resolve artifacts from.
@@ -17,7 +16,7 @@ object LocalRepoPackager {
     downloadPathsToLocalRepo(jetbrainsRepo, localRepo, paths)
   }
 
-  def localPluginRepoPaths(artifacts: Seq[(String,String)]): Seq[String] =
+  def localPluginRepoPaths(artifacts: Seq[(String, String)]): Seq[String] =
     artifacts.flatMap { case (artifactId, version) =>
       val artipath = relativeArtifactPath("org.jetbrains", artifactId, version) _
       val plugin_sbt1 = artipath("2.12", "1.0")
@@ -36,7 +35,7 @@ object LocalRepoPackager {
     val downloadedArtifactFiles = paths.map { path =>
       val downloadUrl = remoteRepo.resolve(path).normalize().toURL
       val localFile = (localRepo / path).getCanonicalFile
-      if (! localFile.exists)
+      if (!localFile.exists)
         IO.download(downloadUrl, localFile)
       localFile
     }
@@ -48,6 +47,7 @@ object LocalRepoPackager {
     s"$org/$id/scala_$scalaVersion/sbt_$sbtVersion/$version"
 
   def jarPath(artifactPath: String, id: String) = s"$artifactPath/jars/$id.jar"
+
   def ivyPath(artifactPath: String) = s"$artifactPath/ivys/ivy.xml"
 
 }
