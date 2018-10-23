@@ -1,9 +1,6 @@
 package org.jetbrains.plugins.scala.findUsages.factory
 
 import com.intellij.find.findUsages.{FindUsagesHandler, FindUsagesHandlerFactory}
-import com.intellij.find.impl.FindManagerImpl
-import com.intellij.openapi.application.TransactionGuard
-import com.intellij.openapi.module.Module
 import com.intellij.openapi.project.Project
 import com.intellij.openapi.ui.Messages
 import com.intellij.psi.{PsiElement, PsiNamedElement}

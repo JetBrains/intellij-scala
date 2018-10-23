@@ -16,8 +16,8 @@ private class CompilerReferenceIndexerScheduler(
 
   override def schedule(job: IndexerJob): Unit = synchronized {
     job match {
-      case InvalidateIndex => jobQueue.clear()
-      case _               => ()
+      case _: InvalidateIndex => jobQueue.clear()
+      case _                  => ()
     }
 
     val task = indexer.toTask(job)

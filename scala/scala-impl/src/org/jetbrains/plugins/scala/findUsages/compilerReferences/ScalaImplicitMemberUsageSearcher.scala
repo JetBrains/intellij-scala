@@ -105,9 +105,12 @@ object ScalaImplicitMemberUsageSearcher {
           // there is no need to do a full rebuild with sbt project as
           // we can simply fetch info about ALL classes instead of just
           // the ones built incrementally via incrementalityType setting
+
+          // TODO: perhaps this could be a command defined in sbt plugin, so that it is easier to use
+          // TODO: for people who do not use IDEA's sbt shell
           def setIncrementalityType(incremental: Boolean): String = {
             val incType = if (incremental) "Incremental" else "NonIncremental"
-            s"set incrementalityType in Global := _root_.org.jetbrains.sbt.indices.IntellijIndexer.IncrementalityType.$incType"
+            s"set incrementalityType.in(Global) := _root_.org.jetbrains.sbt.indices.IntellijIndexer.IncrementalityType.$incType"
           }
 
           val shell         = SbtShellCommunication.forProject(project)
@@ -196,13 +199,13 @@ object ScalaImplicitMemberUsageSearcher {
     else                                      invokeAndWait(body)
 
   private[this] def dirtyModulesInDependencyChain(element: PsiElement): (Set[Module], Set[Module]) = {
-    val project      = element.getProject
-    val file         = PsiTreeUtil.getContextOfType(element, classOf[PsiFile]).getVirtualFile
-    val index        = ProjectFileIndex.getInstance(project)
-    val modules      = index.getOrderEntriesForFile(file).asScala.map(_.getOwnerModule).toSet
-    val service      = ScalaCompilerReferenceService(project)
-    val dirtyModules = service.dirtyScopeHolder.getAllDirtyModules
-    modules.partition(dirtyModules.contains)
+    val project          = element.getProject
+    val file             = PsiTreeUtil.getContextOfType(element, classOf[PsiFile]).getVirtualFile
+    val index            = ProjectFileIndex.getInstance(project)
+    val modules          = index.getOrderEntriesForFile(file).asScala.map(_.getOwnerModule).toSet
+    val dirtyScopeHolder = ScalaCompilerReferenceService(project).dirtyScopeHolder
+    val dirtyScope       = dirtyScopeHolder.getDirtyScope
+    modules.partition(dirtyScope.isSearchInModuleContent)
   }
 
   private[this] def showIndexingInProgressDialog(project: Project): Unit = {

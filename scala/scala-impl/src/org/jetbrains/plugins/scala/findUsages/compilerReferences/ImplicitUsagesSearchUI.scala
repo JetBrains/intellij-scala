@@ -123,7 +123,7 @@ private object ImplicitUsagesSearchUI {
 
     private def createDescriptionLabel: JComponent = {
       // @TODO: in case of context bound usages search element.name might not be a user-friendly identifier
-      val upToDateModulesText = if (upToDateModules.isEmpty) "&lt;empty&gt;" else upToDateModules.mkString(", ")
+      val upToDateModulesText = if (upToDateModules.isEmpty) "&lt;empty&gt;" else upToDateModules.map(_.getName).mkString(", ")
 
       val message =
         if (validIndexExists) MessageFormat.format(buildDescription, element.name, upToDateModulesText)

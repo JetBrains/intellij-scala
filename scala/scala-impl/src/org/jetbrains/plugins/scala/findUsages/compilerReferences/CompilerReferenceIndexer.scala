@@ -123,10 +123,11 @@ private class CompilerReferenceIndexer(project: Project, expectedIndexVersion: I
         onFinish(maybeFailure)
       }
       case ProcessCompilationInfo(info, onFinish) => new IndexCompilationInfoTask(info, onFinish)
-      case InvalidateIndex =>
-        task(project, "Invalidating compiler indices")(
-          _ => cleanUp(shouldClearIndex = true)
-        )
+      case InvalidateIndex(index) =>
+        task(project, "Invalidating compiler indices") { _ =>
+          index.foreach(_.close())
+          cleanUp(shouldClearIndex = true)
+        }
     }
 
   private[this] def cleanUp(shouldClearIndex: Boolean): Unit =

@@ -157,14 +157,15 @@ private object ClassfileParser {
       if (name == internalName) isAnon = innerName == null
 
     private[this] def isStaticForwarder(access: Int, name: String): Boolean =
-      isSet(access, ACC_STATIC) && isSet(access, ACC_PUBLIC) && !isSet(access, ACC_SYNTHETIC) &&
+      isSet(access, ACC_STATIC) &&
         name != "<clinit>" &&
         name != "$init$"
 
-    private[this] def isSynthetic(access: Int, name: String): Boolean = {
-      val simpleClassName = className.split("\\.").last
-      synthetics.contains(s"$simpleClassName.$name")
-    }
+    private[this] def isSynthetic(access: Int, name: String): Boolean =
+      isSet(access, ACC_SYNTHETIC) || {
+        val simpleClassName = className.split("\\.").lastOption.getOrElse("")
+        synthetics.contains(s"$simpleClassName.$name")
+      }
 
     override def visitMethod(
       access:     Int,
