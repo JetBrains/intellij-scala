@@ -10,44 +10,39 @@ import org.jetbrains.plugins.scala.lang.psi.api.base._
 import org.jetbrains.plugins.scala.lang.psi.impl.ScalaPsiElementFactory.createExpressionFromText
 import org.jetbrains.plugins.scala.lang.psi.types.api.TypeParameter
 import org.jetbrains.plugins.scala.lang.psi.types.result.TypeResult
+import org.jetbrains.plugins.scala.lang.resolve.ScalaResolveResult
 import org.jetbrains.plugins.scala.lang.resolve.processor.{BaseProcessor, CompletionProcessor}
-import org.jetbrains.plugins.scala.lang.resolve.{ResolvableReferenceExpression, ScalaResolveResult}
 
 /** 
 * @author Alexander Podkhalyuzin
 * Date: 06.03.2008
 */
 
-trait ScReferenceExpression extends ScalaPsiElement with ScExpression with ScReferenceElement with ResolvableReferenceExpression {
-  def isQualified: Boolean = qualifier.isDefined
+trait ScReferenceExpression extends ScExpression
+  with ScReferenceElement {
 
-  def qualifier: Option[ScExpression] = getFirstChild match {case e: ScExpression => Some(e) case _ => None}
+  final def isQualified: Boolean = qualifier.isDefined
 
-  protected var resolveFunction: () => Array[ScalaResolveResult] = null
-
-  protected var shapeResolveFunction: () => Array[ScalaResolveResult] = null
-
-  def setupResolveFunctions(resolveFunction: () => Array[ScalaResolveResult], shapeResolveFunction: () => Array[ScalaResolveResult]) {
-    this.resolveFunction = resolveFunction
-    this.shapeResolveFunction = shapeResolveFunction
+  final def qualifier: Option[ScExpression] = getFirstChild match {
+    case e: ScExpression => Some(e)
+    case _ => None
   }
+
+  def assignment: ScAssignStmt
+
+  def assignment_=(statement: ScAssignStmt): Unit
 
   def doResolve(processor: BaseProcessor, accessibilityCheck: Boolean = true): Array[ScalaResolveResult]
 
   /**
-   * Includes qualifier for Infix, Postfix and Prefix expression
-   * @return qualifier for Infix, Postfix, Prefix or reference expression
-   */
-  def smartQualifier: Option[ScExpression] = {
-    qualifier match {
-      case Some(qual) => Some(qual)
-      case _ =>
-        getParent match {
-          case p: ScPrefixExpr if p.operation == this => Some(p.operand)
-          case p: ScPostfixExpr if p.operation == this => Some(p.getBaseExpr)
-          case p: ScInfixExpr if p.operation == this => Some(p.getBaseExpr)
-          case _ => None
-        }
+    * Includes qualifier for Infix, Postfix and Prefix expression
+    *
+    * @return qualifier for Infix, Postfix, Prefix or reference expression
+    */
+  final def smartQualifier: Option[ScExpression] = qualifier.orElse {
+    getParent match {
+      case ScSugarCallExpr(baseExpr, operation, _) if this == operation => Some(baseExpr)
+      case _ => None
     }
   }
 
@@ -70,11 +65,8 @@ trait ScReferenceExpression extends ScalaPsiElement with ScExpression with ScRef
   def shapeType: TypeResult
 
   override def createReplacingElementWithClassName(useFullQualifiedName: Boolean, clazz: TypeToImport): ScReferenceElement = {
-    if (useFullQualifiedName) {
-      super.createReplacingElementWithClassName(useFullQualifiedName, clazz)
-    } else {
-      createExpressionFromText(clazz.name)(clazz.element.getManager).asInstanceOf[ScReferenceExpression]
-    }
+    if (useFullQualifiedName) super.createReplacingElementWithClassName(useFullQualifiedName, clazz)
+    else createExpressionFromText(clazz.name)(clazz.element.getManager).asInstanceOf[ScReferenceExpression]
   }
 
   def bindToElement(element: PsiElement, containingClass: Option[PsiClass]): PsiElement
@@ -88,6 +80,7 @@ trait ScReferenceExpression extends ScalaPsiElement with ScExpression with ScRef
 }
 
 object ScReferenceExpression {
+
   def unapply(e: ScReferenceExpression): Option[PsiElement] = Option(e.resolve())
 
   object withQualifier {

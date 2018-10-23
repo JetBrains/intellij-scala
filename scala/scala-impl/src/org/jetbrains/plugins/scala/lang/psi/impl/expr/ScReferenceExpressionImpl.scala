@@ -35,6 +35,7 @@ import org.jetbrains.plugins.scala.lang.resolve.MethodTypeProvider._
 import org.jetbrains.plugins.scala.lang.resolve._
 import org.jetbrains.plugins.scala.lang.resolve.processor.DynamicResolveProcessor.ScTypeForDynamicProcessorEx
 import org.jetbrains.plugins.scala.lang.resolve.processor._
+import org.jetbrains.plugins.scala.macroAnnotations.{CachedWithRecursionGuard, ModCount}
 
 import scala.collection.mutable
 
@@ -43,30 +44,38 @@ import scala.collection.mutable
   *         Date: 06.03.2008
   */
 class ScReferenceExpressionImpl(node: ASTNode) extends ScReferenceElementImpl(node) with ScReferenceExpression {
-  override def accept(visitor: PsiElementVisitor) {
-    visitor match {
-      case visitor: ScalaElementVisitor => accept(visitor)
-      case _ => super.accept(visitor)
-    }
-  }
+
+  private[this] var maybeAssignment: Option[ScAssignStmt] = None
 
   override def toString: String = "ReferenceExpression: " + ifReadAllowed(getText)("")
 
   def nameId: PsiElement = findChildByType[PsiElement](ScalaTokenTypes.tIDENTIFIER)
 
-  override def accept(visitor: ScalaElementVisitor) {
+  override def accept(visitor: ScalaElementVisitor): Unit = {
     visitor.visitReferenceExpression(this)
   }
 
-  def multiResolveScala(incomplete: Boolean): Array[ScalaResolveResult] = {
-    if (resolveFunction != null) resolveFunction()
-    else this.multiResolveImpl(incomplete)
+  override def accept(visitor: PsiElementVisitor): Unit = visitor match {
+    case visitor: ScalaElementVisitor => accept(visitor)
+    case _ => super.accept(visitor)
   }
 
-  def shapeResolve: Array[ScalaResolveResult] = {
+  override final def assignment: ScAssignStmt = maybeAssignment.orNull
+
+  override final def assignment_=(statement: ScAssignStmt): Unit = {
+    maybeAssignment = Some(statement)
+  }
+
+  override def multiResolveScala(incomplete: Boolean): Array[ScalaResolveResult] =
+    maybeAssignment.fold(multiResolveImpl(incomplete)) {
+      _.resolveAssignment.toArray
+    }
+
+  override def shapeResolve: Array[ScalaResolveResult] = {
     ProgressManager.checkCanceled()
-    if (shapeResolveFunction != null) shapeResolveFunction()
-    else this.shapeResolveImpl
+    maybeAssignment.fold(shapeResolveImpl) {
+      _.shapeResolveAssignment.toArray
+    }
   }
 
   def doResolve(processor: BaseProcessor, accessibilityCheck: Boolean = true): Array[ScalaResolveResult] =
@@ -546,4 +555,12 @@ class ScReferenceExpressionImpl(node: ASTNode) extends ScReferenceElementImpl(no
   }
 
   private def resolveFailure = Failure("Cannot resolve expression")
+
+  @CachedWithRecursionGuard(this, ScalaResolveResult.EMPTY_ARRAY, ModCount.getBlockModificationCount)
+  private[this] def multiResolveImpl(incomplete: Boolean): Array[ScalaResolveResult] =
+    new ReferenceExpressionResolver().resolve(this, shapesOnly = false, incomplete)
+
+  @CachedWithRecursionGuard(this, ScalaResolveResult.EMPTY_ARRAY, ModCount.getBlockModificationCount)
+  private[this] def shapeResolveImpl: Array[ScalaResolveResult] =
+    new ReferenceExpressionResolver().resolve(this, shapesOnly = true, incomplete = false)
 }

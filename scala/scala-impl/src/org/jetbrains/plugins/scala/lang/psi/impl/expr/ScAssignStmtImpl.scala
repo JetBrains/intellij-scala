@@ -49,10 +49,8 @@ class ScAssignStmtImpl(node: ASTNode) extends ScExpressionImplBase(node) with Sc
         val text = s"${ref.refName}_=(${getRExpression.map(_.getText).getOrElse("")})"
         val mirrorExpr = ScalaPsiElementFactory.createExpressionWithContextFromText(text, getContext, this)
         mirrorExpr match {
-          case call: ScMethodCall =>
-            call.getInvokedExpr.asInstanceOf[ScReferenceExpression].setupResolveFunctions(
-              () => resolveAssignment.toArray, () => shapeResolveAssignment.toArray
-            )
+          case call@ScMethodCall(referenceExpression: ScReferenceExpression, _) =>
+            referenceExpression.assignment = this
             Some(call)
           case _ => None
         }

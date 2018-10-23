@@ -102,7 +102,14 @@ class ReferenceExpressionResolver(implicit projectContext: ProjectContext) {
   }
 
   def resolve(reference: ScReferenceExpression, shapesOnly: Boolean, incomplete: Boolean): Array[ScalaResolveResult] = {
-    val name = if (reference.isUnaryOperator) "unary_" + reference.refName else reference.refName
+    val refName = reference.refName
+    val context = reference.getContext
+
+    val name = (context match {
+      case ScPrefixExpr(`reference`, _) => "unary_"
+      case _ => ""
+    }) + refName
+
     val info = getContextInfo(reference, reference)
 
     //expectedOption different for cases
@@ -145,8 +152,7 @@ class ReferenceExpressionResolver(implicit projectContext: ProjectContext) {
       if (isApplySugarCall) {
         val applyRef = createRef(reference, _ + s".$applyName")
         doResolve(applyRef, processor(smartProcessor = false, applyName))
-      }
-      else {
+      } else {
         doResolve(reference, processor(smartProcessor = false), tryThisQualifier = true)
       }
     }
@@ -175,11 +181,16 @@ class ReferenceExpressionResolver(implicit projectContext: ProjectContext) {
         else fallbackResolve(smartResult)
       }
 
-    if (result.isEmpty && reference.isAssignmentOperator) {
-      assignmentResolve()
-    } else {
-      result
-    }
+    val resolveAssignment: Boolean =
+      result.isEmpty &&
+        (context.isInstanceOf[ScInfixExpr] || context.isInstanceOf[ScMethodCall]) &&
+        refName.endsWith("=") &&
+        !refName.startsWith("=") &&
+        !Seq("!=", "<=", ">=").contains(refName) &&
+        !refName.exists(_.isLetterOrDigit)
+
+    if (resolveAssignment) assignmentResolve()
+    else result
   }
 
   def doResolve(ref: ScReferenceExpression, processor: BaseProcessor, accessibilityCheck: Boolean = true,
