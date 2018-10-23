@@ -19,15 +19,15 @@ private class HintFactory(editor: EditorImpl) {
 
   def implicitConversionHint(e: ScExpression, conversion: ScalaResolveResult): Seq[Hint] = {
     val (leftParen, rightParen) = parentheses
-    Seq(Hint(contextMenu(menu.ImplicitConversion, sequence(namedBasicPresentation(conversion), leftParen)), e, suffix = false),
-      Hint(contextMenu(menu.ImplicitArguments, sequence(rightParen, collapsedPresentationOf(conversion.implicitParameters))), e, suffix = true))
+    Seq(Hint(contextMenu(menu.implicitConversion(e), sequence(namedBasicPresentation(conversion), leftParen)), e, suffix = false),
+      Hint(contextMenu(menu.implicitArguments(e), sequence(rightParen, collapsedPresentationOf(conversion.implicitParameters))), e, suffix = true))
   }
 
   def implicitArgumentsHint(e: ImplicitArgumentsOwner, arguments: Seq[ScalaResolveResult]): Seq[Hint] =
-    Seq(Hint(contextMenu(menu.ImplicitArguments, presentationOf(arguments)), e, suffix = true))
+    Seq(Hint(contextMenu(menu.implicitArguments(e), presentationOf(arguments)), e, suffix = true))
 
-  def explicitImplicitArgumentsHint(args: ScArgumentExprList): Seq[Hint] =
-    Seq(Hint(contextMenu(menu.ExplicitArguments, text(".explicitly")), args, suffix = false))
+  def explicitImplicitArgumentsHint(e: ScArgumentExprList): Seq[Hint] =
+    Seq(Hint(contextMenu(menu.explicitArguments(e), text(".explicitly")), e, suffix = false))
 
   private def presentationOf(arguments: Seq[ScalaResolveResult]): Presentation = {
     if (!ImplicitHints.enabled)

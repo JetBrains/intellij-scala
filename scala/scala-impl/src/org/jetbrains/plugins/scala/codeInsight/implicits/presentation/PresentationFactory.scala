@@ -166,6 +166,7 @@ class PresentationFactory(editor: EditorImpl) {
   def asWrongReference(presentation: Presentation): Presentation =
     attributes(_ + attributesOf(CodeInsightColors.WRONG_REFERENCES_ATTRIBUTES), presentation)
 
+  // TODO use by-name parameter?
   def contextMenu(group: ActionGroup, presentation: Presentation): Presentation = {
     val handler = (e: MouseEvent) => {
       val popupMenu = ActionManager.getInstance.createActionPopupMenu(ActionPlaces.EDITOR_POPUP, group)

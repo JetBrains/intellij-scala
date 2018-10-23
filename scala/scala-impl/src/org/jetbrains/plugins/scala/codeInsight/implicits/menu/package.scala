@@ -1,31 +1,31 @@
 package org.jetbrains.plugins.scala.codeInsight.implicits
 
-import com.intellij.openapi.actionSystem.{ActionGroup, ActionManager, AnAction, DefaultActionGroup}
-import org.jetbrains.plugins.scala.actions.implicitArguments.ShowImplicitArgumentsAction
+import com.intellij.openapi.actionSystem.{ActionGroup, ActionManager, DefaultActionGroup}
+import com.intellij.psi.PsiElement
 
 
 package object menu {
-  val ImplicitConversion: ActionGroup = {
+  def implicitConversion(e: PsiElement): ActionGroup = {
     val group = new DefaultActionGroup()
-    group.add(new MakeConversionExplicit())
+    group.add(new MakeConversionExplicit(e))
     group.addSeparator()
     group.add(ActionManager.getInstance().getAction(ShowImplicitHintsAction.Id))
     group.add(ActionManager.getInstance().getAction(ExpandImplicitHintsAction.Id))
     group
   }
 
-  val ImplicitArguments: ActionGroup = {
+  def implicitArguments(e: PsiElement): ActionGroup = {
     val group = new DefaultActionGroup()
-    group.add(new ShowImplicitArgumentsAction())
+    group.add(new ImplicitArgumentsPopup(e))
     group.addSeparator()
     group.add(ActionManager.getInstance().getAction(ShowImplicitHintsAction.Id))
     group.add(ActionManager.getInstance().getAction(ExpandImplicitHintsAction.Id))
     group
   }
 
-  val ExplicitArguments: ActionGroup = {
+  def explicitArguments(e: PsiElement): ActionGroup = {
     val group = new DefaultActionGroup()
-    group.add(new RemoveExplicitArguments())
+    group.add(new RemoveExplicitArguments(e))
     group.addSeparator()
     group.add(ActionManager.getInstance().getAction(ShowImplicitHintsAction.Id))
     group.add(ActionManager.getInstance().getAction(ExpandImplicitHintsAction.Id))
