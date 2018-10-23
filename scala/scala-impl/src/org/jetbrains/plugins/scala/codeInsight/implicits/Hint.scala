@@ -5,7 +5,6 @@ import java.lang.reflect.{Field, Modifier}
 import com.intellij.openapi.application.ApplicationManager
 import com.intellij.openapi.diagnostic.Logger
 import com.intellij.openapi.editor.InlayModel
-import com.intellij.openapi.util.Key
 import com.intellij.psi.PsiElement
 import org.jetbrains.plugins.scala.codeInsight.implicits.Hint._
 import org.jetbrains.plugins.scala.codeInsight.implicits.presentation.Presentation
@@ -42,7 +41,6 @@ private case class Hint(presentation: Presentation,
       }
     }
 
-    inlay.putUserData(Hint.ElementKey, element)
     Option(inlay)
   }
 
@@ -51,11 +49,7 @@ private case class Hint(presentation: Presentation,
 }
 
 private object Hint {
-  private val ElementKey: Key[PsiElement] = Key.create("SCALA_IMPLICIT_HINT_ELEMENT")
-
-  def elementOf(inlay: Inlay): PsiElement = ElementKey.get(inlay)
-
-  def isImplicitHint(inlay: Inlay): Boolean = inlay.getUserData(Hint.ElementKey) != null
+  def isImplicitHint(inlay: Inlay): Boolean = inlay.getRenderer.isInstanceOf[PresentationRenderer]
 
   // TODO
   private val myOriginalOffsetField: Option[Field] = try {
