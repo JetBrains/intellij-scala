@@ -720,11 +720,12 @@ class ScalaSigPrinter(builder: StringBuilder, verbosity: Verbosity) {
       case Ref(typeRef: TypeRefType) => s"scala.Predef.classOf[${classTypeText(typeRef)}]" //class literal
 
       // java numeric constants with special `toString`
-      case java.lang.Double.POSITIVE_INFINITY => "java.lang.Double.POSITIVE_INFINITY"
-      case java.lang.Double.NEGATIVE_INFINITY => "java.lang.Double.NEGATIVE_INFINITY"
+      // Double and Float infinities are equal, so we should check type first
+      case d: Double if d == java.lang.Double.POSITIVE_INFINITY => "java.lang.Double.POSITIVE_INFINITY"
+      case d: Double if d == java.lang.Double.NEGATIVE_INFINITY => "java.lang.Double.NEGATIVE_INFINITY"
 
-      case java.lang.Float.POSITIVE_INFINITY  => "java.lang.Float.POSITIVE_INFINITY"
-      case java.lang.Float.NEGATIVE_INFINITY  => "java.lang.Float.NEGATIVE_INFINITY"
+      case f: Float if f == java.lang.Float.POSITIVE_INFINITY => "java.lang.Float.POSITIVE_INFINITY"
+      case f: Float if f == java.lang.Float.NEGATIVE_INFINITY => "java.lang.Float.NEGATIVE_INFINITY"
 
       // NaNs cannot be compared directly
       case d: Double if java.lang.Double.isNaN(d) => "java.lang.Double.NaN"
