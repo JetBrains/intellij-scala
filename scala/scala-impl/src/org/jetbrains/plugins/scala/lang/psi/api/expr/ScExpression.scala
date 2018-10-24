@@ -54,17 +54,9 @@ trait ScExpression extends ScBlockStatement
 
     val text = new StringBuilder(getText).insert(index, dummyIdentifier).toString
 
-    import impl.ScalaPsiElementFactory.{createConstructorBodyWithContextFromText, createOptionExpressionWithContextFromText}
-    val function = this match {
-      case _: ScConstrBlock | _: ScConstrExpr =>
-        createConstructorBodyWithContextFromText _
-      case _ =>
-        createOptionExpressionWithContextFromText _
-    }
-
     for {
-      block <- function(text, getContext, this)
-      element <- Option(block.findElementAt(index))
+      methodCall <- impl.ScalaPsiElementFactory.createMirrorElement(text, getContext, this)
+      element <- Option(methodCall.findElementAt(index))
     } yield element
   }
 

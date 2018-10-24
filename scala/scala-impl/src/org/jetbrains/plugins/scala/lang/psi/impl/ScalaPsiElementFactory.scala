@@ -796,15 +796,18 @@ object ScalaPsiElementFactory {
     createOptionExpressionWithContextFromText(text, context, child).orNull
 
   def createOptionExpressionWithContextFromText(text: String, context: PsiElement, child: PsiElement): Option[ScExpression] = {
-    val result = createElementWithContext[ScMethodCall](s"foo($text)", context, child, Expr.parse).flatMap {
-      _.argumentExpressions.headOption
-    }
+    val maybeMethodCall = createElementWithContext[ScMethodCall](s"foo($text)", context, child, Expr.parse)
+    val maybeFirstArgument = maybeMethodCall.flatMap(_.argumentExpressions.headOption)
 
-    withContext(result, context, child)
+    withContext(maybeFirstArgument, context, child)
   }
 
-  def createConstructorBodyWithContextFromText(text: String, context: PsiElement, child: PsiElement): Option[ScExpression] =
-    createElementWithContext[ScExpression](text, context, child, ConstrExpr.parse)
+  def createMirrorElement(text: String, context: PsiElement, child: PsiElement): Option[ScExpression] = child match {
+    case _: ScConstrBlock | _: ScConstrExpr =>
+      createElementWithContext[ScExpression](text, context, child, ConstrExpr.parse)
+    case _ =>
+      createOptionExpressionWithContextFromText(text, context, child)
+  }
 
   def createElement(text: String,
                     parse: ScalaPsiBuilder => AnyVal)
