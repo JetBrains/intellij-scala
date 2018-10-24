@@ -92,12 +92,13 @@ package object completion {
   private[completion] def dummyIdentifier(offset: Int)
                                          (implicit file: PsiFile): String = {
     import CompletionUtil.{DUMMY_IDENTIFIER, DUMMY_IDENTIFIER_TRIMMED}
+    import ScalaNamesUtil.isBacktickedName.BackTick
     import ScalaNamesValidator._
 
     file.findReferenceAt(offset) match {
       case null =>
         file.findElementAt(offset) match {
-          case element if requiresSuffix(element) => DUMMY_IDENTIFIER_TRIMMED + "`"
+          case element if requiresSuffix(element) => DUMMY_IDENTIFIER_TRIMMED + BackTick
           case _ =>
             file.findElementAt(offset + 1) match {
               case psiElement: PsiElement if isKeyword(psiElement.getText) => DUMMY_IDENTIFIER
@@ -119,7 +120,7 @@ package object completion {
 
         val suffix = if (ref.getElement.nullSafe
           .map(_.getPrevSibling)
-          .exists(requiresSuffix)) "`"
+          .exists(requiresSuffix)) BackTick
         else ""
 
         id + suffix
@@ -213,28 +214,31 @@ package object completion {
         .find(_.getNode.getElementType == tIDENTIFIER)
   }
 
-  private class BacktickPrefixMatcher(other: PrefixMatcher) extends PrefixMatcher(other.getPrefix) {
+  private class BacktickPrefixMatcher(private val delegate: PrefixMatcher) extends PrefixMatcher(delegate.getPrefix) {
 
-    private val matcherWithoutBackticks = other.cloneWithPrefix(cleanHelper(myPrefix))
+    import ScalaNamesUtil._
+    import isBacktickedName._
 
-    override def prefixMatches(name: String): Boolean =
-      if (myPrefix == "`") other.prefixMatches(name)
-      else matcherWithoutBackticks.prefixMatches(ScalaNamesUtil.clean(name))
+    private val backticklessMatcher = delegate.cloneWithPrefix {
+      withoutBackticks(myPrefix)
+    }
 
-    override def cloneWithPrefix(prefix: String): PrefixMatcher = matcherWithoutBackticks.cloneWithPrefix(prefix)
+    override def prefixMatches(name: String): Boolean = {
+      val (matcher, scalaName) = findDelegate(name)
+      matcher.prefixMatches(scalaName)
+    }
 
-    override def isStartMatch(name: String): Boolean =
-      if (myPrefix == "`") other.isStartMatch(name)
-      else matcherWithoutBackticks.isStartMatch(ScalaNamesUtil.clean(name))
+    override def isStartMatch(name: String): Boolean = {
+      val (matcher, scalaName) = findDelegate(name)
+      matcher.isStartMatch(scalaName)
+    }
 
-    private def cleanHelper(prefix: String): String = {
-      if (prefix == null || prefix.isEmpty || prefix == "`") prefix
-      else prefix match {
-        case ScalaNamesUtil.isBacktickedName(s) => s
-        case p if p.head == '`' => p.substring(1)
-        case p if p.last == '`' => prefix.substring(0, prefix.length - 1)
-        case _ => prefix
-      }
+    override def cloneWithPrefix(prefix: String): PrefixMatcher =
+      backticklessMatcher.cloneWithPrefix(prefix)
+
+    private def findDelegate(name: String) = myPrefix match {
+      case BackTick => (delegate, name)
+      case _ => (backticklessMatcher, clean(name))
     }
   }
 

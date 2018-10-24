@@ -55,27 +55,26 @@ object ScalaNamesUtil {
 
   object isBacktickedName {
 
-    private[this] val BackTick = "`"
+    val BackTick = "`"
 
-    def unapply(name: String): Option[String] = name match {
-      case null | "" | BackTick => None
-      case _ if isBackticked(name) =>
-        Some(name.substring(1, name.length - 1))
-      case _ => None
-    }
+    def unapply(name: String): Option[String] =
+      withoutBackticks(name) match {
+        case scalaName: String if name.lengthCompare(scalaName.length) == 2 => Some(scalaName)
+        case _ => None
+      }
 
     def apply(name: String): Option[String] =
-      isBacktickedName.unapply(name).orElse {
+      unapply(name).orElse {
         Option(name)
       }
 
-    def isBackticked(s: String): Boolean =
-      s != null && s.length > 1 && s.startsWith(BackTick) && s.endsWith(BackTick)
-  }
+    def withoutBackticks(string: String): String =
+      if (string == null || string.length <= 1) string
+      else string.substring(toDrop(string.head), string.length - toDrop(string.last))
 
-  def withoutBackticks(name: String): String =
-    if (isBacktickedName.isBackticked(name)) name.substring(1, name.length - 1)
-    else name
+    private def toDrop(char: Char) =
+      if (char == BackTick.head) 1 else 0
+  }
 
   def splitName(name: String): Seq[String] = name match {
     case null | "" => Seq.empty
@@ -112,13 +111,11 @@ object ScalaNamesUtil {
   }
 
   private def withTransformation(name: String)
-                                (transformation: String => String) = {
-
-    val noBackticks = withoutBackticks(name)
-
-    if (noBackticks == null) null
-    else transformation(noBackticks)
-  }
+                                (transformation: String => String) =
+    isBacktickedName.withoutBackticks(name) match {
+      case null => null
+      case scalaName => transformation(scalaName)
+    }
 
 
   private def fqnWithTransformation(fqn: String)
