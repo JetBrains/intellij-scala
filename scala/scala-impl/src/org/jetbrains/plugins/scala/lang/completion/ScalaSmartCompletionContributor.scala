@@ -391,7 +391,7 @@ object ScalaSmartCompletionContributor {
           }
 
           scalaLookupItem.element match {
-            case clazz: PsiClass if ScalaCompletionUtil.isExcluded(clazz) =>
+            case clazz: PsiClass if isExcluded(clazz) =>
             case fun: ScSyntheticFunction =>
               val second = checkForSecondCompletion && fun.paramClauses.flatten.isEmpty
               checkType(fun.retType, ScSubstitutor.empty, second)

@@ -9,8 +9,7 @@ import com.intellij.patterns.{ElementPattern, PlatformPatterns, StandardPatterns
 import com.intellij.psi.util.PsiTreeUtil
 import com.intellij.psi.{PsiClass, PsiElement, PsiFile}
 import com.intellij.util.{Consumer, ProcessingContext}
-import org.jetbrains.plugins.scala.extensions.PsiElementExt
-import org.jetbrains.plugins.scala.lang.completion.ScalaCompletionUtil.getDummyIdentifier
+import org.jetbrains.plugins.scala.extensions._
 import org.jetbrains.plugins.scala.lang.completion.lookups.ScalaLookupItem
 import org.jetbrains.plugins.scala.lang.completion.weighter.ScalaByExpectedTypeWeigher
 import org.jetbrains.plugins.scala.lang.lexer.ScalaTokenTypes
@@ -26,14 +25,20 @@ import scala.collection.JavaConverters
 
 package object completion {
 
+  import ScalaTokenTypes._
+
   private[completion] def identifierPattern =
-    PlatformPatterns.psiElement(ScalaTokenTypes.tIDENTIFIER)
+    PlatformPatterns.psiElement(tIDENTIFIER)
 
   private[completion] def identifierWithParentPattern(clazz: Class[_ <: ScalaPsiElement]) =
     identifierPattern.withParent(clazz)
 
   private[completion] def identifierWithParentsPattern(classes: Class[_ <: ScalaPsiElement]*) =
     identifierPattern.withParents(classes: _*)
+
+  private[completion] def isExcluded(clazz: PsiClass) = inReadAction {
+    JavaCompletionUtil.isInExcludedPackage(clazz, false)
+  }
 
   implicit class CaptureExt(private val pattern: ElementPattern[_ <: PsiElement]) extends AnyVal {
 
@@ -66,25 +71,63 @@ package object completion {
       Some(context.getEditor, context.getDocument, context.getFile, context.getProject)
   }
 
-  def positionFromParameters(implicit parameters: CompletionParameters): PsiElement = {
-    @tailrec
-    def position(element: PsiElement): PsiElement = element match {
-      case null => parameters.getPosition // we got to the top of the tree and didn't find a modificationTrackerOwner
+  def positionFromParameters(implicit parameters: CompletionParameters): PsiElement =
+    findMirrorPosition(parameters.getOriginalPosition)(parameters.getOriginalFile, parameters.getOffset)
+      .getOrElse(parameters.getPosition)
+
+  @tailrec
+  private[this] def findMirrorPosition(element: PsiElement)
+                                      (implicit originalFile: PsiFile,
+                                       offset: Int): Option[PsiElement] =
+    element match {
+      case null => None // we got to the top of the tree and didn't find a modificationTrackerOwner
       case owner: ScExpression if owner.shouldntChangeModificationCount =>
-        val maybeMirrorPosition = parameters.getOriginalFile match {
-          case file if owner.containingFile.contains(file) =>
-            val offset = parameters.getOffset
-            val dummyId = getDummyIdentifier(offset, file)
-            owner.mirrorPosition(dummyId, offset)
+        owner.getContainingFile match {
+          case `originalFile` => owner.mirrorPosition(dummyIdentifier(offset), offset)
           case _ => None
         }
-
-        maybeMirrorPosition.getOrElse(parameters.getPosition)
-      case _ => position(element.getContext)
+      case _ => findMirrorPosition(element.getContext)
     }
 
-    position(parameters.getOriginalPosition)
+  private[completion] def dummyIdentifier(offset: Int)
+                                         (implicit file: PsiFile): String = {
+    import CompletionUtil.{DUMMY_IDENTIFIER, DUMMY_IDENTIFIER_TRIMMED}
+    import ScalaNamesValidator._
+
+    file.findReferenceAt(offset) match {
+      case null =>
+        file.findElementAt(offset) match {
+          case element if requiresSuffix(element) => DUMMY_IDENTIFIER_TRIMMED + "`"
+          case _ =>
+            file.findElementAt(offset + 1) match {
+              case psiElement: PsiElement if isKeyword(psiElement.getText) => DUMMY_IDENTIFIER
+              case _ => DUMMY_IDENTIFIER_TRIMMED
+            }
+        }
+      case ref =>
+        val e = ref match {
+          case psiElement: PsiElement => psiElement
+          case _ => ref.getElement //this case for anonymous method in ScAccessModifierImpl
+        }
+
+        val id = e.getText match {
+          case text if isIdentifier("+" + text.last) => "+++++++++++++++++++++++"
+          case text =>
+            val substring = text.drop(offset - e.getTextRange.getStartOffset + 1)
+            if (isKeyword(substring)) DUMMY_IDENTIFIER else DUMMY_IDENTIFIER_TRIMMED
+        }
+
+        val suffix = if (ref.getElement.nullSafe
+          .map(_.getPrevSibling)
+          .exists(requiresSuffix)) "`"
+        else ""
+
+        id + suffix
+    }
   }
+
+  private[this] def requiresSuffix(element: PsiElement) =
+    element != null && element.getNode.getElementType == tSTUB
 
   abstract class ScalaCompletionContributor extends CompletionContributor {
 
@@ -167,7 +210,7 @@ package object completion {
 
     protected final def findIdentifier(element: ScalaPsiElement): Option[PsiElement] =
       element.depthFirst()
-        .find(_.getNode.getElementType == ScalaTokenTypes.tIDENTIFIER)
+        .find(_.getNode.getElementType == tIDENTIFIER)
   }
 
   private class BacktickPrefixMatcher(other: PrefixMatcher) extends PrefixMatcher(other.getPrefix) {

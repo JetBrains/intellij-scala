@@ -18,7 +18,6 @@ import org.jetbrains.plugins.scala.lang.psi.api.expr._
 import org.jetbrains.plugins.scala.lang.psi.api.toplevel.ScPackaging
 import org.jetbrains.plugins.scala.lang.psi.api.toplevel.templates._
 import org.jetbrains.plugins.scala.lang.psi.api.toplevel.typedef.ScTypeDefinition
-import org.jetbrains.plugins.scala.lang.refactoring.ScalaNamesValidator.{isIdentifier, isKeyword}
 
 /**
 * User: Alexander Podkhalyuzin
@@ -171,7 +170,7 @@ object ScalaCompletionUtil {
     !checkErrors(dummyFile)
   }
 
-  import CompletionUtil.{DUMMY_IDENTIFIER, DUMMY_IDENTIFIER_TRIMMED}
+  import CompletionUtil.DUMMY_IDENTIFIER_TRIMMED
 
   private val LiteralPattern: Pattern = Pattern.compile(CompletionUtil.DUMMY_IDENTIFIER_TRIMMED, Pattern.LITERAL)
 
@@ -230,55 +229,4 @@ object ScalaCompletionUtil {
       case _ => (null, false)
     }
   } getOrElse (null, false)
-
-
-  def getDummyIdentifier(offset: Int, file: PsiFile): String = {
-    def isOpChar(c: Char): Boolean = isIdentifier(s"+$c")
-
-    val element = file.findElementAt(offset)
-    val ref = file.findReferenceAt(offset)
-    if (element != null && ref != null) {
-      val text = ref match {
-        case ref: PsiElement => ref.getText
-        case ref: PsiReference => ref.getElement.getText //this case for anonymous method in ScAccessModifierImpl
-      }
-      val id = if (isOpChar(text(text.length - 1))) {
-        "+++++++++++++++++++++++"
-      } else {
-        val rest = ref match {
-          case ref: PsiElement => text.substring(offset - ref.getTextRange.getStartOffset + 1)
-          case ref: PsiReference =>
-            val from = offset - ref.getElement.getTextRange.getStartOffset + 1
-            if (from < text.length && from >= 0) text.substring(from) else ""
-        }
-        dummyIdentifier(rest)
-      }
-
-      if (ref.getElement != null &&
-        ref.getElement.getPrevSibling != null &&
-        ref.getElement.getPrevSibling.getNode.getElementType == tSTUB) id + "`" else id
-    } else {
-      if (element != null && element.getNode.getElementType == tSTUB) {
-        DUMMY_IDENTIFIER_TRIMMED + "`"
-      } else {
-        Option(file.findElementAt(offset + 1))
-          .map(_.getText)
-          .map(dummyIdentifier)
-          .getOrElse(DUMMY_IDENTIFIER_TRIMMED)
-      }
-    }
-  }
-
-  private def dummyIdentifier(string: String): String =
-    if (isKeyword(string)) DUMMY_IDENTIFIER
-    else DUMMY_IDENTIFIER_TRIMMED
-
-  def isExcluded(clazz: PsiClass): Boolean = {
-    ApplicationManager.getApplication.runReadAction(new Computable[Boolean] {
-      def compute: Boolean = {
-        JavaCompletionUtil.isInExcludedPackage(clazz, false)
-      }
-    })
-  }
-
 }

@@ -10,8 +10,6 @@ import com.intellij.psi.util.PsiTreeUtil
 import com.intellij.util.ProcessingContext
 import org.jetbrains.plugins.scala.debugger.evaluation.ScalaRuntimeTypeEvaluator
 import org.jetbrains.plugins.scala.extensions._
-import org.jetbrains.plugins.scala.lang.completion.ScalaAfterNewCompletionContributor._
-import org.jetbrains.plugins.scala.lang.completion.ScalaCompletionUtil._
 import org.jetbrains.plugins.scala.lang.completion.lookups.ScalaLookupItem
 import org.jetbrains.plugins.scala.lang.lexer.{ScalaLexer, ScalaTokenTypes}
 import org.jetbrains.plugins.scala.lang.psi.ScalaPsiUtil
@@ -43,7 +41,9 @@ import scala.collection.{JavaConverters, mutable}
   */
 class ScalaBasicCompletionContributor extends ScalaCompletionContributor {
 
+  import ScalaAfterNewCompletionContributor._
   import ScalaBasicCompletionContributor._
+  import ScalaCompletionUtil._
 
   extend(
     CompletionType.BASIC,
@@ -205,7 +205,7 @@ class ScalaBasicCompletionContributor extends ScalaCompletionContributor {
     })
 
   override def beforeCompletion(context: CompletionInitializationContext): Unit = {
-    context.setDummyIdentifier(getDummyIdentifier(context.getStartOffset - 1, context.getFile))
+    context.setDummyIdentifier(dummyIdentifier(context.getStartOffset - 1)(context.getFile))
     super.beforeCompletion(context)
   }
 }
@@ -350,7 +350,7 @@ object ScalaBasicCompletionContributor {
     }
 
   private def prefixedThisAndSupers(reference: ScReferenceElement): List[ScalaLookupItem] = reference match {
-    case expression: ScReferenceExpression if completeThis(expression) =>
+    case expression: ScReferenceExpression if ScalaCompletionUtil.completeThis(expression) =>
       val notInsideSeveralClasses = expression.contexts.filterByType[ScTemplateDefinition].size <= 1
 
       @tailrec
