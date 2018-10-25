@@ -24,6 +24,7 @@ import org.jetbrains.plugins.scala.lang.resolve.ResolveTargets._
 import org.jetbrains.plugins.scala.lang.resolve.processor.BaseProcessor
 import org.jetbrains.plugins.scala.util.ScEquivalenceUtil
 
+import scala.annotation.tailrec
 import scala.collection.mutable
 
 object TypeAdjuster extends ApplicationAdapter {
@@ -55,12 +56,14 @@ object TypeAdjuster extends ApplicationAdapter {
       markedElements += element.createSmartPointer
     }
 
-  def adjustFor(elements: Seq[PsiElement], addImports: Boolean = true, useTypeAliases: Boolean = true): Unit = {
+  def adjustFor(elements: Seq[PsiElement],
+                addImports: Boolean = true,
+                useTypeAliases: Boolean = true): Unit = {
     val infos = for {
       element <- elements
       typeElement <- collectAdjustableTypeElements(element).distinct
 
-      info = ReplacementInfo.initial(typeElement)
+      info = SimpleInfo(typeElement)
       simplified <- simplify(info)
 
       shortened = shortenReference(simplified, useTypeAliases)
@@ -72,9 +75,8 @@ object TypeAdjuster extends ApplicationAdapter {
     } holder.addImportsForPaths(paths.toSeq, null)
   }
 
-  private def newRef(text: String, position: PsiElement): Option[ScReferenceElement] = {
+  private def newRef(text: String, position: PsiElement): Option[ScReferenceElement] =
     findRef(newTypeElem(text, position))
-  }
 
   private def newTypeElem(name: String, position: PsiElement) =
     ScalaPsiElementFactory.createTypeElementFromText(name, position.getContext, position) match {
@@ -83,6 +85,12 @@ object TypeAdjuster extends ApplicationAdapter {
         null
       case result => result
     }
+
+  private def findRef(element: PsiElement) = element match {
+    case reference: ScReferenceElement => Some(reference)
+    case simple: ScSimpleTypeElement => simple.reference
+    case _ => None
+  }
 
   private object ToReplace {
 
@@ -115,7 +123,7 @@ object TypeAdjuster extends ApplicationAdapter {
       private[this] val Target = "this."
 
       def unapply(info: SimpleInfo): Option[ReplacementInfo] = {
-        val SimpleInfo(origElement, replacement, resolve, _) = info
+        val SimpleInfo(place, replacement, resolve, _) = info
 
         replacement.indexOf(Target) match {
           case -1 => None
@@ -125,7 +133,7 @@ object TypeAdjuster extends ApplicationAdapter {
               case text =>
                 for {
                   oldRes <- resolve
-                  ResolvesTo(newRes) <- newRef(text, origElement)
+                  ResolvesTo(newRes) <- newRef(text, place)
                   if smartEquivalence(oldRes, newRes)
                 } yield info.copy(replacement = text)
             }
@@ -137,21 +145,21 @@ object TypeAdjuster extends ApplicationAdapter {
     object withExpandableTypeAlias {
 
       def unapply(info: SimpleInfo): Option[ReplacementInfo] = {
-        val SimpleInfo(origElement, replacement, _, _) = info
+        val SimpleInfo(place, replacement, _, _) = info
 
-        val replacementType = newTypeElem(replacement, origElement).calcType
+        val replacementType = newTypeElem(replacement, place).calcType
         val withoutAliases = replacementType.removeAliasDefinitions(expandableOnly = true)
 
         if (replacementType.presentableText != withoutAliases.presentableText) {
-          ToReplace(origElement)
+          ToReplace(place)
 
-          val newTypeElement = newTypeElem(withoutAliases.canonicalText, origElement)
+          val newTypeElement = newTypeElem(withoutAliases.canonicalText, place)
 
           val result = collectAdjustableTypeElements(newTypeElement).toList.collect {
-            case typeElement if typeElement != newTypeElement => ReplacementInfo.initial(typeElement)
+            case typeElement if typeElement != newTypeElement => SimpleInfo(typeElement)
           } match {
-            case Nil => ReplacementInfo.initial(newTypeElement).copy(origElement = origElement)
-            case childInfos => CompoundInfo(origElement, newTypeElement, childInfos)
+            case Nil => SimpleInfo(newTypeElement).copy(place = place)
+            case childInfos => CompoundInfo(place, newTypeElement, childInfos)
           }
 
           Some(result)
@@ -159,7 +167,7 @@ object TypeAdjuster extends ApplicationAdapter {
       }
     }
 
-    if (info.origElement.parentsInFile.exists(ToReplace.unapply)) None
+    if (info.place.parentsInFile.exists(ToReplace.unapply)) None
     else info match {
       case cmp: CompoundInfo =>
         Some(cmp.copy(childInfos = cmp.childInfos.flatMap(simplify)))
@@ -170,72 +178,68 @@ object TypeAdjuster extends ApplicationAdapter {
     }
   }
 
-  private def replaceElem(rInfo: ReplacementInfo): Unit = {
-    rInfo match {
-      case simple: SimpleInfo =>
-        val origElem = simple.origElement
-        val replacement = simple.replacement
-        if (origElem.getText != replacement) {
-          origElem match {
-            case _: ScTypeElement =>
-              origElem.replace(newTypeElem(replacement, origElem))
-            case _: ScReferenceElement =>
-              newRef(replacement, origElem).foreach(origElem.replace)
-            case _ =>
-          }
-        }
-      case cmp: CompoundInfo =>
-        val tempElem = cmp.tempTypeElem
-        cmp.childInfos.foreach(replaceElem)
-        cmp.origElement.replace(tempElem).asInstanceOf[ScTypeElement]
-    }
-  }
+  private def replaceElem(info: ReplacementInfo): Unit = info match {
+    case SimpleInfo(place, replacement, _, _) if place.getText != replacement =>
+      val maybeNewElement = place match {
+        case _: ScTypeElement => Some(newTypeElem(replacement, place))
+        case _: ScReferenceElement => newRef(replacement, place)
+        case _ => None
+      }
 
-  private def findRef(elem: PsiElement): Option[ScReferenceElement] = elem match {
-    case r: ScReferenceElement => Some(r)
-    case ScSimpleTypeElement(Some(r)) => Some(r)
-    case _ => None
+      maybeNewElement.foreach(place.replace)
+    case CompoundInfo(place, tempTypeElem, childInfos) =>
+      childInfos.foreach(replaceElem)
+      place.replace(tempTypeElem)
+    case _ =>
   }
 
   private def shortenReference(info: ReplacementInfo, useTypeAliases: Boolean = true): ReplacementInfo = {
     object hasStableReplacement {
-      def unapply(rInfo: SimpleInfo): Option[ReplacementInfo] = {
-        rInfo.resolve.flatMap { resolved =>
-          val position = findRef(rInfo.origElement).getOrElse(info.origElement  )
-          val importAlias = ScalaPsiUtil.importAliasFor(resolved, position)
-          resolved match {
-            case _ if importAlias.isDefined => Some(rInfo.copy(replacement = importAlias.get.refName))
-            case named: PsiNamedElement if ScalaPsiUtil.hasStablePath(named) =>
-              named match {
-                case clazz: PsiClass =>
-                  availableTypeAliasFor(clazz, position, useTypeAliases) match {
-                    case Some(ta) if !ta.isAncestorOf(position) =>
-                      if (ScalaPsiUtil.hasStablePath(ta)) Some(rInfo.updateTarget(ta))
-                      else Some(rInfo.copy(replacement = ta.name))
-                    case _ =>
-                      Some(rInfo.updateTarget(named))
+
+      import ScalaPsiUtil._
+
+      def unapply(info: SimpleInfo): Option[SimpleInfo] = {
+        val SimpleInfo(place, _, resolve, _) = info
+
+        resolve.flatMap { resolved =>
+          val position = findRef(place).getOrElse(place)
+
+          importAliasFor(resolved, position) match {
+            case Some(importAlias) => Some(info.copy(replacement = importAlias.refName))
+            case _ =>
+              resolved match {
+                case named: PsiNamedElement if hasStablePath(named) =>
+                  named match {
+                    case clazz: PsiClass =>
+                      availableTypeAliasFor(clazz, position, useTypeAliases) match {
+                        case Some(ta) if !ta.isAncestorOf(position) =>
+                          if (hasStablePath(ta)) Some(info.updateTarget(ta))
+                          else Some(info.copy(replacement = ta.name))
+                        case _ => Some(info.updateTarget(named))
+                      }
+                    case _: ScTypeAlias |
+                         _: ScBindingPattern => Some(info.updateTarget(named))
+                    case _ => None
                   }
-                case _: ScTypeAlias | _: ScBindingPattern => Some(rInfo.updateTarget(named))
-                case _ => None
+                case _ => checkQualifier(place)
               }
-            case _ => checkQualifier(rInfo)
           }
         }
       }
 
-      private def checkQualifier(rInfo: SimpleInfo): Option[ReplacementInfo] = {
-        qualifier(rInfo.origElement).map(ReplacementInfo.initial).collect {
-          case hasStableReplacement(s: SimpleInfo) if s.replacement != s.origElement.getText => s
-        }
-      }
+      private def checkQualifier(element: PsiElement) =
+        qualifierInfo(element)
+          .flatMap(unapply)
+          .filter { info =>
+            val SimpleInfo(place, replacement, _, _) = info
+            replacement != place.getText
+          }
 
-      @scala.annotation.tailrec
-      private def qualifier(elem: PsiElement): Option[ScReferenceElement] = {
-        elem match {
-          case ScSimpleTypeElement(Some(ref: ScReferenceElement)) => qualifier(ref)
-          case ScReferenceElement.withQualifier(qual: ScReferenceElement) => Some(qual)
-          case _ => None
-        }
+      @tailrec
+      private def qualifierInfo(element: PsiElement): Option[SimpleInfo] = element match {
+        case ScSimpleTypeElement(Some(reference: ScReferenceElement)) => qualifierInfo(reference)
+        case ScReferenceElement.withQualifier(reference: ScReferenceElement) => Some(SimpleInfo(reference))
+        case _ => None
       }
     }
 
@@ -251,7 +255,7 @@ object TypeAdjuster extends ApplicationAdapter {
 
   private def rewriteInfosAsInfix(infos: Seq[ReplacementInfo]): Seq[ReplacementInfo] = {
     def infoToMappings(info: ReplacementInfo): Seq[(String, PsiElement)] = info match {
-      case s: SimpleInfo      => findRef(s.origElement).flatMap(_.resolve.toOption).map(s.replacement -> _).toSeq
+      case s: SimpleInfo => findRef(s.place).flatMap(_.resolve.toOption).map(s.replacement -> _).toSeq
       case comp: CompoundInfo => comp.childInfos.flatMap(infoToMappings)
       case _                  => Seq.empty
     }
@@ -273,15 +277,14 @@ object TypeAdjuster extends ApplicationAdapter {
       e.parentsInFile.filterByType[ScParameterizedTypeElement].exists(_.getUserData(infixRewriteKey) == 1)
 
     def rewriteAsInfix(info: ReplacementInfo): ReplacementInfo = info match {
-      case simple: SimpleInfo if isChildOfInfixType(simple.origElement) => simple
+      case simple: SimpleInfo if isChildOfInfixType(simple.place) => simple
       case simple: SimpleInfo =>
-        val original = simple.origElement
-        original match {
+        simple.place match {
           case e @ ScParameterizedTypeElement(des, Seq(_, _)) if canBeInfix(des) =>
-            markToRewrite(original)
+            markToRewrite(e)
 
             val mappings: Map[String, PsiElement] = infos
-              .filter(_.origElement.parentsInFile.contains(original))
+              .filter(_.place.parentsInFile.contains(e))
               .flatMap(infoToMappings)(collection.breakOut)
 
             val presentationContext: TypePresentationContext = (name, target) =>
@@ -300,7 +303,7 @@ object TypeAdjuster extends ApplicationAdapter {
 
   private def collectImportHolders(rInfos: Set[ReplacementInfo]): Map[ReplacementInfo, ScImportsHolder] = {
     def findMaxHolders(infos: Set[ReplacementInfo]): Set[(ReplacementInfo, ScImportsHolder)] = {
-      val infosToHolders = infos.map(info => info -> ScalaImportTypeFix.getImportHolder(info.origElement, info.origElement.getProject))
+      val infosToHolders = infos.map(info => info -> ScalaImportTypeFix.getImportHolder(info.place, info.place.getProject))
       val holders = infosToHolders.map(_._2)
       val maxHolders = holders.filter(h => !holders.exists(_.isAncestorOf(h)))
       infosToHolders.map {
@@ -320,8 +323,9 @@ object TypeAdjuster extends ApplicationAdapter {
     withMaxHolders.flatten.toMap
   }
 
-  private def replaceAndAddImports(rInfos: Seq[ReplacementInfo], addImports: Boolean) = {
-    assert(rInfos.forall(_.origElement.isValid), "Psi shouldn't be modified before this stage!")
+  private def replaceAndAddImports(rInfos: Seq[ReplacementInfo],
+                                   addImports: Boolean) = {
+    assert(rInfos.forall(_.place.isValid), "Psi shouldn't be modified before this stage!")
 
     val replacementsWithSameResolve = rInfos.filter(_.checkReplacementResolve).toSet
     val importHolders = collectImportHolders(rInfos.toSet -- replacementsWithSameResolve)
@@ -365,24 +369,26 @@ object TypeAdjuster extends ApplicationAdapter {
     }
   }
 
-  private def collectAdjustableTypeElements(element: PsiElement): Vector[ScTypeElement] = {
+  private def collectAdjustableTypeElements(element: PsiElement) =
     element.depthFirst().collect {
-      case s: ScSimpleTypeElement => s
-      case p: ScTypeProjection => p
-      case p: ScParameterizedTypeElement => p
-    }.toVector
-  }
+      case simple: ScSimpleTypeElement => simple
+      case projection: ScTypeProjection => projection
+      case parameterized: ScParameterizedTypeElement => parameterized
+    }.toSeq
 
-  private trait ReplacementInfo {
-    def origElement: PsiElement
+  private sealed trait ReplacementInfo {
+
+    val place: PsiElement
 
     def checkReplacementResolve: Boolean
 
-    def pathsToImport: Seq[String]
+    def pathsToImport: List[String]
   }
 
-  private case class SimpleInfo(origElement: PsiElement, replacement: String,
-                                resolve: Option[PsiElement], pathsToImport: Seq[String]) extends ReplacementInfo {
+  private case class SimpleInfo(place: PsiElement,
+                                replacement: String,
+                                resolve: Option[PsiElement],
+                                pathsToImport: List[String] = Nil) extends ReplacementInfo {
 
     def updateTarget(target: PsiNamedElement): SimpleInfo = {
       import ScalaNamesUtil.{qualifiedName, splitName}
@@ -393,7 +399,7 @@ object TypeAdjuster extends ApplicationAdapter {
             val packageName = words.dropRight(prefixLength).mkString(".")
             val prefixed = words.takeRight(prefixLength + 1).mkString(".")
 
-            val suffix = origElement match {
+            val suffix = place match {
               case s: ScSimpleTypeElement if s.singleton => ScalaTypePresentation.ObjectTypeSuffix
               case _ => ""
             }
@@ -415,10 +421,9 @@ object TypeAdjuster extends ApplicationAdapter {
         case _ => qualifiedName(target).flatMap(prefixAndPathGenerator)
       }
 
-      maybePrefixAndPath.map {
-        case (typeText, maybePath) =>
-          copy(replacement = typeText, resolve = Some(target), pathsToImport = maybePath.toSeq)
-      }.getOrElse(this)
+      maybePrefixAndPath.fold(this) {
+        case (newReplacement, maybePath) => SimpleInfo(place, newReplacement, Some(target), maybePath.toList)
+      }
     }
 
     override def checkReplacementResolve: Boolean = resolvesRight(replacement)
@@ -431,7 +436,7 @@ object TypeAdjuster extends ApplicationAdapter {
         smartEquivalence(left, right) ||
           ScDesignatorType(left).equiv(ScDesignatorType(right))
 
-      val ref = newRef(refText, origElement)
+      val ref = newRef(refText, place)
         .flatMap(reference => Option(reference.resolve()))
 
       (ref, resolve) match {
@@ -443,9 +448,9 @@ object TypeAdjuster extends ApplicationAdapter {
     }
 
     private def needPrefix(c: PsiClass) = {
-      val fromSettings = ScalaCodeStyleSettings.getInstance(origElement.getProject).hasImportWithPrefix(c.qualifiedName)
+      val fromSettings = ScalaCodeStyleSettings.getInstance(place.getProject).hasImportWithPrefix(c.qualifiedName)
       def forInnerClass = {
-        val isExternalRefToInnerClass = Option(c.containingClass).exists(!_.isAncestorOf(origElement))
+        val isExternalRefToInnerClass = Option(c.containingClass).exists(!_.isAncestorOf(place))
         isExternalRefToInnerClass && !resolvesRight(c.name)
       }
 
@@ -453,27 +458,31 @@ object TypeAdjuster extends ApplicationAdapter {
     }
   }
 
-  private case class CompoundInfo(origElement: PsiElement, tempTypeElem: ScTypeElement,
-                                  childInfos: Seq[ReplacementInfo]) extends ReplacementInfo {
+  private object SimpleInfo {
 
-    if (childInfos.isEmpty || childInfos.exists(i => !tempTypeElem.isAncestorOf(i.origElement))) {
+    def apply(typeElement: ScTypeElement): SimpleInfo = applyImpl(typeElement)
+
+    def apply(reference: ScReferenceElement): SimpleInfo = applyImpl(reference)
+
+    private def applyImpl(element: PsiElement): SimpleInfo = {
+      val resolve = for {
+        ResolvesTo(target) <- findRef(element)
+      } yield target
+      SimpleInfo(element, element.getText, resolve)
+    }
+  }
+
+  private case class CompoundInfo(place: PsiElement,
+                                  tempTypeElem: ScTypeElement,
+                                  childInfos: List[ReplacementInfo]) extends ReplacementInfo {
+
+    if (childInfos.isEmpty || childInfos.exists(i => !tempTypeElem.isAncestorOf(i.place))) {
       throw new IllegalArgumentException("Wrong usage of CompoundInfo")
     }
 
     override def checkReplacementResolve: Boolean = childInfos.forall(_.checkReplacementResolve)
 
-    override def pathsToImport: Seq[String] = childInfos.flatMap(_.pathsToImport)
-  }
-
-  private object ReplacementInfo {
-    private def inner(elem: PsiElement): SimpleInfo = {
-      val text = elem.getText
-      val resolve = TypeAdjuster.findRef(elem).flatMap(_.resolve().toOption)
-      SimpleInfo(elem, text, resolve, Seq.empty)
-    }
-
-    def initial(te: ScTypeElement): SimpleInfo = inner(te)
-    def initial(ref: ScReferenceElement): SimpleInfo = inner(ref)
+    override def pathsToImport: List[String] = childInfos.flatMap(_.pathsToImport)
   }
 }
 
