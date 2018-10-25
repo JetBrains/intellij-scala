@@ -159,7 +159,7 @@ object TypeAdjuster extends ApplicationAdapter {
             case typeElement if typeElement != newTypeElement => SimpleInfo(typeElement)
           } match {
             case Nil => SimpleInfo(newTypeElement).copy(place = place)
-            case childInfos => CompoundInfo(place, newTypeElement, childInfos)
+            case childInfos => CompoundInfo(childInfos)(place, newTypeElement)
           }
 
           Some(result)
@@ -169,8 +169,7 @@ object TypeAdjuster extends ApplicationAdapter {
 
     if (info.place.parentsInFile.exists(ToReplace.unapply)) None
     else info match {
-      case cmp: CompoundInfo =>
-        Some(cmp.copy(childInfos = cmp.childInfos.flatMap(simplify)))
+      case compound: CompoundInfo => Some(compound.flatMap(simplify))
       case withExpandableTypeAlias(newInfo) => simplify(newInfo)
       case withThisRef(newInfo) => simplify(newInfo)
       case `with .type#`(newInfo) => simplify(newInfo)
@@ -187,9 +186,9 @@ object TypeAdjuster extends ApplicationAdapter {
       }
 
       maybeNewElement.foreach(place.replace)
-    case CompoundInfo(place, tempTypeElem, childInfos) =>
-      childInfos.foreach(replaceElem)
-      place.replace(tempTypeElem)
+    case compound: CompoundInfo =>
+      compound.foreach(replaceElem)
+      compound.replace()
     case _ =>
   }
 
@@ -244,8 +243,7 @@ object TypeAdjuster extends ApplicationAdapter {
     }
 
     info match {
-      case cmp: CompoundInfo =>
-        cmp.copy(childInfos = cmp.childInfos.map(shortenReference(_, useTypeAliases)))
+      case compound: CompoundInfo => compound.map(shortenReference(_, useTypeAliases))
       case hasStableReplacement(rInfo) => rInfo
       case _ => info
     }
@@ -255,20 +253,21 @@ object TypeAdjuster extends ApplicationAdapter {
 
   private def rewriteInfosAsInfix(infos: Seq[ReplacementInfo]): Seq[ReplacementInfo] = {
     def infoToMappings(info: ReplacementInfo): Seq[(String, PsiElement)] = info match {
-      case s: SimpleInfo => findRef(s.place).flatMap(_.resolve.toOption).map(s.replacement -> _).toSeq
-      case comp: CompoundInfo => comp.childInfos.flatMap(infoToMappings)
-      case _                  => Seq.empty
+      case SimpleInfo(place, replacement, _, _) => findRef(place).flatMap(_.resolve.toOption).map(replacement -> _).toSeq
+      case CompoundInfo(children) => children.flatMap(infoToMappings)
+      case _ => Seq.empty
     }
 
-    def markToRewrite(e: PsiElement): Unit     = e.putUserData(infixRewriteKey, 1)
+    def markToRewrite(e: PsiElement): Unit = e.putUserData(infixRewriteKey, 1)
+
     def annotatedAsInfix(e: PsiClass): Boolean = e.getAnnotations.exists(_.getQualifiedName == "scala.annotation.showAsInfix")
-    
+
     def canBeInfix(te: ScTypeElement): Boolean = te match {
-      case ScSimpleTypeElement(Some(ref)) => 
-        ScalaNamesUtil.isOperatorName(ref.refName) || 
+      case ScSimpleTypeElement(Some(ref)) =>
+        ScalaNamesUtil.isOperatorName(ref.refName) ||
           ref.bind().map(_.element).exists {
             case aClass: PsiClass => annotatedAsInfix(aClass)
-            case _                => false
+            case _ => false
           }
       case _ => false
     }
@@ -280,7 +279,7 @@ object TypeAdjuster extends ApplicationAdapter {
       case simple: SimpleInfo if isChildOfInfixType(simple.place) => simple
       case simple: SimpleInfo =>
         simple.place match {
-          case e @ ScParameterizedTypeElement(des, Seq(_, _)) if canBeInfix(des) =>
+          case e@ScParameterizedTypeElement(des, Seq(_, _)) if canBeInfix(des) =>
             markToRewrite(e)
 
             val mappings: Map[String, PsiElement] = infos
@@ -294,8 +293,8 @@ object TypeAdjuster extends ApplicationAdapter {
             simple.copy(replacement = newTypeText)
           case _ => info
         }
-      case comp: CompoundInfo => comp.copy(childInfos = comp.childInfos.map(rewriteAsInfix))
-      case _                  => info
+      case compound: CompoundInfo => compound.map(rewriteAsInfix)
+      case _ => info
     }
 
     infos.map(rewriteAsInfix)
@@ -385,10 +384,10 @@ object TypeAdjuster extends ApplicationAdapter {
     def pathsToImport: List[String]
   }
 
-  private case class SimpleInfo(place: PsiElement,
-                                replacement: String,
-                                resolve: Option[PsiElement],
-                                pathsToImport: List[String] = Nil) extends ReplacementInfo {
+  private final case class SimpleInfo(place: PsiElement,
+                                      replacement: String,
+                                      resolve: Option[PsiElement],
+                                      pathsToImport: List[String] = Nil) extends ReplacementInfo {
 
     def updateTarget(target: PsiNamedElement): SimpleInfo = {
       import ScalaNamesUtil.{qualifiedName, splitName}
@@ -429,6 +428,7 @@ object TypeAdjuster extends ApplicationAdapter {
     override def checkReplacementResolve: Boolean = resolvesRight(replacement)
 
     private def resolvesRight(refText: String): Boolean = alreadyResolves(refText).getOrElse(false)
+
     private def resolvesWrong(refText: String): Boolean = alreadyResolves(refText).contains(false)
 
     private def alreadyResolves(refText: String): Option[Boolean] = {
@@ -449,6 +449,7 @@ object TypeAdjuster extends ApplicationAdapter {
 
     private def needPrefix(c: PsiClass) = {
       val fromSettings = ScalaCodeStyleSettings.getInstance(place.getProject).hasImportWithPrefix(c.qualifiedName)
+
       def forInnerClass = {
         val isExternalRefToInnerClass = Option(c.containingClass).exists(!_.isAncestorOf(place))
         isExternalRefToInnerClass && !resolvesRight(c.name)
@@ -472,17 +473,30 @@ object TypeAdjuster extends ApplicationAdapter {
     }
   }
 
-  private case class CompoundInfo(place: PsiElement,
-                                  tempTypeElem: ScTypeElement,
-                                  childInfos: List[ReplacementInfo]) extends ReplacementInfo {
+  private final case class CompoundInfo(children: List[ReplacementInfo])
+                                       (val place: PsiElement,
+                                        private val typeElement: ScTypeElement) extends ReplacementInfo {
 
-    if (childInfos.isEmpty || childInfos.exists(i => !tempTypeElem.isAncestorOf(i.place))) {
+    if (!children.map(_.place).forall(typeElement.isAncestorOf)) {
       throw new IllegalArgumentException("Wrong usage of CompoundInfo")
     }
 
-    override def checkReplacementResolve: Boolean = childInfos.forall(_.checkReplacementResolve)
+    override def checkReplacementResolve: Boolean = children.forall(_.checkReplacementResolve)
 
-    override def pathsToImport: List[String] = childInfos.flatMap(_.pathsToImport)
+    override def pathsToImport: List[String] = children.flatMap(_.pathsToImport)
+
+    def replace(): Unit =
+      place.replace(typeElement)
+
+    def foreach(function: ReplacementInfo => Unit): Unit =
+      children.foreach(function)
+
+    def map(function: ReplacementInfo => ReplacementInfo): CompoundInfo =
+      CompoundInfo(children.map(function))(place, typeElement)
+
+    def flatMap(function: ReplacementInfo => Traversable[ReplacementInfo]): CompoundInfo =
+      CompoundInfo(children.flatMap(function))(place, typeElement)
   }
+
 }
 
