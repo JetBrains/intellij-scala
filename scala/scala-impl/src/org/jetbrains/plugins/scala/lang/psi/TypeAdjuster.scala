@@ -177,7 +177,7 @@ object TypeAdjuster extends ApplicationAdapter {
     }
   }
 
-  private def replaceElem(info: ReplacementInfo): Unit = info match {
+  private def replaceElem: ReplacementInfo => Unit = {
     case SimpleInfo(place, replacement, _, _) if place.getText != replacement =>
       val maybeNewElement = place match {
         case _: ScTypeElement => Some(newTypeElem(replacement, place))
@@ -300,49 +300,56 @@ object TypeAdjuster extends ApplicationAdapter {
     infos.map(rewriteAsInfix)
   }
 
-  private def collectImportHolders(rInfos: Set[ReplacementInfo]): Map[ReplacementInfo, ScImportsHolder] = {
-    def findMaxHolders(infos: Set[ReplacementInfo]): Set[(ReplacementInfo, ScImportsHolder)] = {
-      val infosToHolders = infos.map(info => info -> ScalaImportTypeFix.getImportHolder(info.place, info.place.getProject))
-      val holders = infosToHolders.map(_._2)
-      val maxHolders = holders.filter(h => !holders.exists(_.isAncestorOf(h)))
-      infosToHolders.map {
-        case (i, h) => (i, maxHolders.find(PsiTreeUtil.isAncestor(_, h, false)).get)
-      }
-    }
+  private def collectImportHolders(infos: Set[ReplacementInfo]) = {
+    val pathToInfo = mutable.Map.empty[String, Set[ReplacementInfo]]
+      .withDefaultValue(Set.empty)
 
-    val byPath = mutable.Map[String, Set[ReplacementInfo]]()
     for {
-      info <- rInfos
+      info <- infos
       path <- info.pathsToImport
-    } {
-      byPath.update(path, byPath.getOrElseUpdate(path, Set.empty) + info)
-    }
+    } pathToInfo(path) += info
 
-    val withMaxHolders = byPath.values.map(infos => findMaxHolders(infos))
-    withMaxHolders.flatten.toMap
+    pathToInfo.values
+      .flatMap { infos =>
+        val infoToHolders = for {
+          info <- infos
+          place = info.place
+        } yield info -> ScalaImportTypeFix.getImportHolder(place, place.getProject)
+
+        val holders = infoToHolders.map(_._2)
+        val maxHolders = holders.filterNot { holder =>
+          holders.exists(_.isAncestorOf(holder))
+        }
+
+        infoToHolders.map {
+          case (info, holder) => info -> maxHolders.find(PsiTreeUtil.isAncestor(_, holder, false)).get
+        }
+      }.toMap
   }
 
-  private def replaceAndAddImports(rInfos: Seq[ReplacementInfo],
+  private def replaceAndAddImports(infos: Seq[ReplacementInfo],
                                    addImports: Boolean) = {
-    assert(rInfos.forall(_.place.isValid), "Psi shouldn't be modified before this stage!")
+    assert(infos.forall(_.place.isValid), "Psi shouldn't be modified before this stage!")
 
-    val replacementsWithSameResolve = rInfos.filter(_.checkReplacementResolve).toSet
-    val importHolders = collectImportHolders(rInfos.toSet -- replacementsWithSameResolve)
-    val holderToPaths = mutable.Map[ScImportsHolder, Set[String]]()
+    val (sameResolve, otherResolve) = infos.toSet.partition(_.checkReplacementResolve)
+    val importHolders = collectImportHolders(otherResolve)
 
-    rInfos.foreach { info =>
-      if (!addImports && !replacementsWithSameResolve.contains(info)) {}
-      else {
-        replaceElem(info)
-        val holder = importHolders.get(info)
-        if (info.pathsToImport.nonEmpty && holder.isDefined) {
-          val pathsToAdd = holderToPaths.getOrElseUpdate(holder.get, Set.empty) ++ info.pathsToImport
-          holderToPaths += holder.get -> pathsToAdd
-        }
+    val result = mutable.Map.empty[ScImportsHolder, Set[String]]
+      .withDefaultValue(Set.empty)
+
+    infos.filter {
+      addImports || sameResolve(_)
+    }.foreach { info =>
+      replaceElem(info)
+
+      val pathsToImport = info.pathsToImport
+      importHolders.get(info) match {
+        case Some(holder) if pathsToImport.nonEmpty => result(holder) ++= pathsToImport
+        case _ =>
       }
     }
 
-    holderToPaths.toMap
+    result.toMap
   }
 
   private def availableTypeAliasFor(clazz: PsiClass, position: PsiElement, useTypeAliases: Boolean): Option[ScTypeAliasDefinition] = {
