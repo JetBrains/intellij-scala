@@ -4,10 +4,11 @@ import com.intellij.lang.ASTNode
 import com.intellij.openapi.project.Project
 import org.apache.commons.lang.StringEscapeUtils
 import org.jetbrains.plugins.scala.lang.lexer.ScalaTokenTypes
+import org.jetbrains.plugins.scala.lang.psi.api.statements.params.ScTypeParam
 import org.jetbrains.plugins.scala.lang.psi.api.toplevel.typedef.ScTypeDefinition
 import org.jetbrains.plugins.scala.lang.psi.impl.toplevel.synthetic.{ScSyntheticFunction, SyntheticClasses}
 import org.jetbrains.plugins.scala.lang.psi.types.api.designator.ScDesignatorType
-import org.jetbrains.plugins.scala.lang.psi.types.api.{TypeVisitor, ValueType}
+import org.jetbrains.plugins.scala.lang.psi.types.api.{Singleton, TypeVisitor, ValueType}
 import org.jetbrains.plugins.scala.lang.psi.types.recursiveUpdate.AfterUpdate.{ProcessSubtypes, ReplaceWith, Stop}
 import org.jetbrains.plugins.scala.lang.psi.{ElementScope, ScalaPsiElement}
 import org.jetbrains.plugins.scala.project.ProjectContext
@@ -115,24 +116,33 @@ object ScLiteralType {
   def isNumeric(kind: Kind) =
     isInteger(kind) || kind == Kind.Float || kind == Kind.Double
 
-  def widenRecursive(aType: ScType): ScType = aType.recursiveUpdate{
-    case lit: ScLiteralType => ReplaceWith(lit.widen)
-    case p: ScParameterizedType =>
-      p.designator match {
-        case ScDesignatorType(des) => des match {
-          case typeDef: ScTypeDefinition =>
-            import org.jetbrains.plugins.scala.lang.psi.types.api._
-            val newDes = ScParameterizedType(widenRecursive(p.designator), (typeDef.typeParameters zip p.typeArguments).map{
-              case (param, arg) if param.upperBound.exists(_.conforms(Singleton(p.projectContext))) => arg
-              case (_, arg) => widenRecursive(arg)
-            })
-            ReplaceWith(newDes)
+  def widenRecursive(aType: ScType): ScType = {
+
+    def isSingleton(param: ScTypeParam) = param.upperBound.exists(_.conforms(Singleton(param.projectContext)))
+
+    def widenRecursiveInner(aType: ScType, visited: Set[ScParameterizedType]): ScType = aType.recursiveUpdate{
+      case lit: ScLiteralType => ReplaceWith(lit.widen)
+      case p: ScParameterizedType if visited(p) => Stop
+      case p: ScParameterizedType =>
+        p.designator match {
+          case ScDesignatorType(des) => des match {
+            case typeDef: ScTypeDefinition =>
+              val newDesignator = widenRecursiveInner(p.designator, visited + p)
+              val newArgs = (typeDef.typeParameters zip p.typeArguments).map {
+                case (param, arg) if isSingleton(param) => arg
+                case (_, arg)                           => widenRecursiveInner(arg, visited + p)
+              }
+              val newDes = ScParameterizedType(newDesignator, newArgs)
+              ReplaceWith(newDes)
+            case _ => Stop
+          }
           case _ => Stop
         }
-        case _ => Stop
-      }
-    case c: ScCompoundType => Stop
-    case _ => ProcessSubtypes
+      case _: ScCompoundType => Stop
+      case _ => ProcessSubtypes
+    }
+
+    widenRecursiveInner(aType, Set.empty)
   }
 
   trait IntegralFoldOps[T] {
