@@ -9,9 +9,9 @@ import org.jetbrains.plugins.scala.settings.ScalaApplicationSettings
 import org.jetbrains.plugins.scala.util.TypeAnnotationSettings
 
 /**
- * @author Alefas
- * @since 14.05.12
- */
+  * @author Alefas
+  * @since 14.05.12
+  */
 class ScalaOverrideImplementTest extends ScalaLightPlatformCodeInsightTestCaseAdapter {
 
   private def runTest(methodName: String, fileText: String, expectedText: String, isImplement: Boolean,
@@ -892,7 +892,7 @@ class ScalaOverrideImplementTest extends ScalaLightPlatformCodeInsightTestCaseAd
     val isImplement = false
 
     val settings = TypeAnnotationSettings.alwaysAddType(ScalaCodeStyleSettings.getInstance(getProjectAdapter))
-   
+
     runTest(methodName, fileText, expectedText, isImplement, settings)
   }
 
@@ -948,7 +948,7 @@ class ScalaOverrideImplementTest extends ScalaLightPlatformCodeInsightTestCaseAd
     val isImplement = true
 
     val settings = TypeAnnotationSettings.alwaysAddType(ScalaCodeStyleSettings.getInstance(getProjectAdapter))
-    
+
     runTest(methodName, fileText, expectedText, isImplement, settings = TypeAnnotationSettings.noTypeAnnotationForProtected(settings))
   }
 
@@ -1001,7 +1001,7 @@ class ScalaOverrideImplementTest extends ScalaLightPlatformCodeInsightTestCaseAd
   }
 
 
-  def testCopyScalaDoc() = {
+  def testCopyScalaDoc(): Unit = {
     val fileText =
       """
         |abstract class A {
@@ -1096,7 +1096,7 @@ class ScalaOverrideImplementTest extends ScalaLightPlatformCodeInsightTestCaseAd
     runTest("param1", fileText, expectedText, isImplement = false)
   }
 
-  def testDoNotSaveAnnotations(): Unit ={
+  def testDoNotSaveAnnotations(): Unit = {
     val fileText =
       """
         |trait Base {
@@ -1128,49 +1128,49 @@ class ScalaOverrideImplementTest extends ScalaLightPlatformCodeInsightTestCaseAd
     runTest(methodName, fileText, expectedText, isImplement)
   }
 
-  //  def testInfixTypeAlias(): Unit = {
-  //    val fileText =
-  //      """
-  //        |import tag._
-  //        |
-  //        |object tag {
-  //        |  trait Tagged[U]
-  //        |  type @@[+T, U] = T with Tagged[U]
-  //        |}
-  //        |
-  //        |
-  //        |trait UserRepo {
-  //        |  sealed trait UserId // used for tagging
-  //        |
-  //        |  def deleteUser(userId: Int @@ UserId)
-  //        |}
-  //        |
-  //        |class UserRepoImpl extends UserRepo {
-  //        |  <caret>
-  //        |}
-  //      """
-  //    val expectedText =
-  //      """
-  //        |import tag._
-  //        |
-  //        |object tag {
-  //        |  trait Tagged[U]
-  //        |  type @@[+T, U] = T with Tagged[U]
-  //        |}
-  //        |
-  //        |
-  //        |trait UserRepo {
-  //        |  sealed trait UserId // used for tagging
-  //        |
-  //        |  def deleteUser(userId: Int @@ UserId)
-  //        |}
-  //        |
-  //        |class UserRepoImpl extends UserRepo {
-  //        |  def deleteUser(userId: Int @@ UserId): Unit = ???
-  //        |}
-  //      """
-  //    val methodName = "deleteUser"
-  //    val isImplement = true
-  //    runTest(methodName, fileText, expectedText, isImplement)
-  //  }
+  def testInfixTypeAlias(): Unit = {
+    val fileText =
+      """
+        |import tag._
+        |
+        |object tag {
+        |  trait Tagged[U]
+        |  type @@[+T, U] = T with Tagged[U]
+        |}
+        |
+        |
+        |trait UserRepo {
+        |  sealed trait UserId // used for tagging
+        |
+        |  def deleteUser(userId: Int @@ UserId)
+        |}
+        |
+        |class UserRepoImpl extends UserRepo {
+        |  <caret>
+        |}
+      """
+    val expectedText =
+      """
+        |import tag._
+        |
+        |object tag {
+        |  trait Tagged[U]
+        |  type @@[+T, U] = T with Tagged[U]
+        |}
+        |
+        |
+        |trait UserRepo {
+        |  sealed trait UserId // used for tagging
+        |
+        |  def deleteUser(userId: Int @@ UserId)
+        |}
+        |
+        |class UserRepoImpl extends UserRepo {
+        |  def deleteUser(userId: Int @@ UserId): Unit = ???
+        |}
+      """
+    val methodName = "deleteUser"
+    val isImplement = true
+    runTest(methodName, fileText, expectedText, isImplement)
+  }
 }

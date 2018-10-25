@@ -21,6 +21,7 @@ import org.jetbrains.plugins.scala.lang.psi.types.{ScalaTypePresentation, TypePr
 import org.jetbrains.plugins.scala.lang.refactoring.ScalaNamesValidator.isIdentifier
 import org.jetbrains.plugins.scala.lang.refactoring.util.ScalaNamesUtil
 import org.jetbrains.plugins.scala.lang.resolve.ResolveTargets._
+import org.jetbrains.plugins.scala.lang.resolve.ScalaResolveResult
 import org.jetbrains.plugins.scala.lang.resolve.processor.BaseProcessor
 import org.jetbrains.plugins.scala.util.ScEquivalenceUtil
 
@@ -30,6 +31,7 @@ import scala.collection.mutable
 object TypeAdjuster extends ApplicationAdapter {
 
   import ScEquivalenceUtil.smartEquivalence
+  import ScalaNamesUtil.{isOperatorName, qualifiedName, splitName}
 
   private val LOG = Logger.getInstance(getClass)
 
@@ -249,52 +251,65 @@ object TypeAdjuster extends ApplicationAdapter {
     }
   }
 
-  private val infixRewriteKey = Key.create[Int]("type.element.to.rewrite.as.infix")
+  private object ToRewrite {
 
-  private def rewriteInfosAsInfix(infos: Seq[ReplacementInfo]): Seq[ReplacementInfo] = {
-    def infoToMappings(info: ReplacementInfo): Seq[(String, PsiElement)] = info match {
-      case SimpleInfo(place, replacement, _, _) => findRef(place).flatMap(_.resolve.toOption).map(replacement -> _).toSeq
-      case CompoundInfo(children) => children.flatMap(infoToMappings)
-      case _ => Seq.empty
-    }
+    private[this] val toRewriteKey = Key.create[Int]("type.element.to.rewrite.as.infix")
 
-    def markToRewrite(e: PsiElement): Unit = e.putUserData(infixRewriteKey, 1)
+    def apply(element: PsiElement): Unit = element.putUserData(toRewriteKey, 1)
 
-    def annotatedAsInfix(e: PsiClass): Boolean = e.getAnnotations.exists(_.getQualifiedName == "scala.annotation.showAsInfix")
-
-    def canBeInfix(te: ScTypeElement): Boolean = te match {
-      case ScSimpleTypeElement(Some(ref)) =>
-        ScalaNamesUtil.isOperatorName(ref.refName) ||
-          ref.bind().map(_.element).exists {
-            case aClass: PsiClass => annotatedAsInfix(aClass)
-            case _ => false
-          }
+    def unapply(element: PsiElement): Boolean = element match {
+      case typeElement: ScParameterizedTypeElement => typeElement.getUserData(toRewriteKey) == 1
       case _ => false
     }
+  }
 
-    def isChildOfInfixType(e: PsiElement): Boolean =
-      e.parentsInFile.filterByType[ScParameterizedTypeElement].exists(_.getUserData(infixRewriteKey) == 1)
+  private def rewriteInfosAsInfix(infos: Seq[ReplacementInfo]): Seq[ReplacementInfo] = {
+    def infoToMappings(info: ReplacementInfo): List[(String, PsiElement)] = info match {
+      case SimpleInfo(place, replacement, _, _) =>
+        val maybePair = for {
+          ResolvesTo(target) <- findRef(place)
+        } yield replacement -> target
+
+        maybePair.toList
+      case CompoundInfo(children) => children.flatMap(infoToMappings)
+    }
+
+    object CanBeInfixType {
+
+      def unapply(typeElement: ScTypeElement): Boolean = typeElement match {
+        case ScParameterizedTypeElement(ScSimpleTypeElement(Some(ref)), Seq(_, _)) =>
+          isOperatorName(ref.refName) ||
+            ref.bind().collect {
+              case ScalaResolveResult(clazz: PsiClass, _) => clazz
+            }.toSeq.flatMap {
+              _.getAnnotations
+            }.exists {
+              _.getQualifiedName == "scala.annotation.showAsInfix"
+            }
+        case _ => false
+      }
+    }
 
     def rewriteAsInfix(info: ReplacementInfo): ReplacementInfo = info match {
-      case simple: SimpleInfo if isChildOfInfixType(simple.place) => simple
+      case simple: SimpleInfo if simple.place.parentsInFile.exists(ToRewrite.unapply) => simple
       case simple: SimpleInfo =>
         simple.place match {
-          case e@ScParameterizedTypeElement(des, Seq(_, _)) if canBeInfix(des) =>
-            markToRewrite(e)
+          case e@CanBeInfixType() =>
+            ToRewrite(e)
 
-            val mappings: Map[String, PsiElement] = infos
+            val mappings = infos
               .filter(_.place.parentsInFile.contains(e))
-              .flatMap(infoToMappings)(collection.breakOut)
+              .flatMap(infoToMappings)
+              .toMap
 
             val presentationContext: TypePresentationContext = (name, target) =>
               mappings.get(name).exists(smartEquivalence(_, target))
 
             val newTypeText = e.calcType.presentableText(presentationContext)
             simple.copy(replacement = newTypeText)
-          case _ => info
+          case _ => simple
         }
       case compound: CompoundInfo => compound.map(rewriteAsInfix)
-      case _ => info
     }
 
     infos.map(rewriteAsInfix)
@@ -397,8 +412,6 @@ object TypeAdjuster extends ApplicationAdapter {
                                       pathsToImport: List[String] = Nil) extends ReplacementInfo {
 
     def updateTarget(target: PsiNamedElement): SimpleInfo = {
-      import ScalaNamesUtil.{qualifiedName, splitName}
-
       def prefixAndPath(qualifiedName: String, prefixLength: Int): Option[(String, Some[String])] =
         splitName(qualifiedName) match {
           case words if words.size > prefixLength =>
