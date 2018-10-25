@@ -79,8 +79,6 @@ class ScProjectionType private(val projected: ScType,
 
   override private[types] def designatorSingletonType: Option[ScType] = super.designatorSingletonType.map(actualSubst.subst)
 
-  override def removeAbstracts = ScProjectionType(projected.removeAbstracts, element)
-
   override def updateSubtypes(updates: Array[Update], index: Int, visited: Set[ScType]): ScType =
     ScProjectionType(projected.recursiveUpdateImpl(updates, index, visited), element)
 

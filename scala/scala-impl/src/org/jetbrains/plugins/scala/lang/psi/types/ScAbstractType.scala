@@ -57,8 +57,6 @@ case class ScAbstractType(typeParameter: TypeParameter, lower: ScType, upper: Sc
     if (upper.equiv(Any)) lower else if (lower.equiv(Nothing)) upper else lower
   }
 
-  override def removeAbstracts: ScType = simplifyType
-
   override def updateSubtypes(updates: Array[Update], index: Int, visited: Set[ScType]): ScAbstractType = {
     ScAbstractType(
       typeParameter,
