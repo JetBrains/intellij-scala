@@ -21,8 +21,8 @@ package object implicits {
         .asScala
         .filter(ScalaImplicitHintKey.isIn)
 
-    def add(hint: Hint): Option[Inlay] = {
-      val inlay = hint.addTo(model)
+    def add(hint: Hint, combine: Seq[Presentation] => Presentation): Option[Inlay] = {
+      val inlay = hint.addTo(model, combine)
       inlay.foreach(_.putUserData(ScalaImplicitHintKey, true))
       inlay
     }

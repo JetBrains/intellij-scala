@@ -24,6 +24,8 @@ import org.jetbrains.plugins.scala.settings.ScalaProjectSettings
 private class ImplicitHintsPass(editor: Editor, rootElement: ScalaPsiElement)
   extends EditorBoundHighlightingPass(editor, rootElement.getContainingFile, true) {
 
+  private val presentationFactory = new PresentationFactory(editor.asInstanceOf[EditorImpl])
+
   private var hints: Seq[Hint] = Seq.empty
 
   override def doCollectInformation(indicator: ProgressIndicator): Unit = {
@@ -44,7 +46,7 @@ private class ImplicitHintsPass(editor: Editor, rootElement: ScalaPsiElement)
     if (!ImplicitHints.enabled && !showNotFoundImplicitForFile)
       return
 
-    val factory = new HintFactory(editor.asInstanceOf[EditorImpl])
+    val factory = new HintFactory(presentationFactory)
 
     def implicitArgumentsOrErrorHints(owner: ImplicitArgumentsOwner): Seq[Hint] = {
       val showNotFoundArgs = showNotFoundImplicits(owner)
@@ -111,7 +113,7 @@ private class ImplicitHintsPass(editor: Editor, rootElement: ScalaPsiElement)
     DocumentUtil.executeInBulk(myEditor.getDocument, bulkChange, () => {
       existingInlays.foreach(Disposer.dispose)
       hints.foreach { hint =>
-        inlayModel.add(hint).foreach { inlay =>
+        inlayModel.add(hint, presentationFactory.sequence).foreach { inlay =>
           hint.presentation.addPresentationListener(new PresentationListener { // TODO
             override def contentChanged(area: Rectangle): Unit = inlay.repaint()
 

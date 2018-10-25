@@ -1,6 +1,5 @@
 package org.jetbrains.plugins.scala.codeInsight.implicits
 
-import com.intellij.openapi.editor.impl.EditorImpl
 import org.jetbrains.plugins.scala.codeInsight.implicits.presentation.{Presentation, PresentationFactory}
 import org.jetbrains.plugins.scala.editor.documentationProvider.ScalaDocumentationProvider
 import org.jetbrains.plugins.scala.extensions._
@@ -11,10 +10,9 @@ import org.jetbrains.plugins.scala.lang.psi.implicits.ImplicitCollector
 import org.jetbrains.plugins.scala.lang.psi.implicits.ImplicitCollector._
 import org.jetbrains.plugins.scala.lang.resolve.ScalaResolveResult
 
-private class HintFactory(editor: EditorImpl) {
+private class HintFactory(factory: PresentationFactory) {
   private val Ellipsis: String = "..."
 
-  private val factory = new PresentationFactory(editor)
   import factory._
 
   def implicitConversionHint(e: ScExpression, conversion: ScalaResolveResult): Seq[Hint] = {
