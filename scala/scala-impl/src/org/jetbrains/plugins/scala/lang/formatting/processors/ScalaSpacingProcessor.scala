@@ -432,7 +432,7 @@ object ScalaSpacingProcessor extends ScalaTokenTypes {
           case CommonCodeStyleSettings.NEXT_LINE_IF_WRAPPED =>
             val startOffset = extendsBlock.getParent match {
               case b: ScTypeDefinition => b.nameId.getTextRange.getStartOffset
-              case b: ScTemplateDefinition => b.nameId.getTextRange.getStartOffset
+              case b: ScTemplateDefinition => extendsBlock.getTextRange.getStartOffset
               case b => b.getTextRange.getStartOffset
             }
             val range = new TextRange(startOffset, rightPsi.getTextRange.getStartOffset)
