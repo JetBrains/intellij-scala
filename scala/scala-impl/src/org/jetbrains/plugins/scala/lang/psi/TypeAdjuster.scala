@@ -1,11 +1,11 @@
-package org.jetbrains.plugins.scala.lang.psi
+package org.jetbrains.plugins.scala
+package lang
+package psi
 
-import com.intellij.diagnostic.LogMessageEx
 import com.intellij.openapi.application.{ApplicationAdapter, ApplicationManager}
 import com.intellij.openapi.diagnostic.Logger
 import com.intellij.openapi.util.Key
 import com.intellij.psi._
-import com.intellij.psi.impl.DebugUtil
 import com.intellij.psi.util.PsiTreeUtil
 import org.jetbrains.plugins.scala.annotator.intention.ScalaImportTypeFix
 import org.jetbrains.plugins.scala.extensions._
@@ -25,66 +25,62 @@ import org.jetbrains.plugins.scala.lang.resolve.processor.BaseProcessor
 import org.jetbrains.plugins.scala.util.ScEquivalenceUtil
 
 import scala.collection.mutable
-import scala.collection.mutable.ArrayBuffer
-
 
 object TypeAdjuster extends ApplicationAdapter {
+
   private val LOG = Logger.getInstance(getClass)
 
   ApplicationManager.getApplication.addApplicationListener(this)
 
-  private val markedElements = ArrayBuffer[SmartPsiElementPointer[PsiElement]]()
+  private val markedElements = mutable.ArrayBuffer.empty[SmartPsiElementPointer[PsiElement]]
 
-  override def writeActionFinished(action: scala.Any): Unit = {
+  override def writeActionFinished(action: Any): Unit = {
     if (markedElements.nonEmpty) {
-      val project = markedElements.head.getProject
-      PsiDocumentManager.getInstance(project).commitAllDocuments()
-      adjustMarkedElements()
+      val head = markedElements.head
+      PsiDocumentManager.getInstance(head.getProject).commitAllDocuments()
+
+      val elements = markedElements.collect {
+        case ValidSmartPointer(element) => element
+      }
+      markedElements.clear()
+
+      adjustFor(elements)
     }
   }
 
-  def adjustFor(elements: Seq[PsiElement], addImports: Boolean = true, useTypeAliases: Boolean = true): Unit = {
-
-    val typeElements = elements.toVector.flatMap(collectAdjustableTypeElements).distinct
-
-    val rInfos = toReplacementInfos(typeElements, useTypeAliases)
-
-    replaceAndAddImports(rInfos, addImports)
-  }
-
-  def markToAdjust(element: PsiElement): Any = {
+  def markToAdjust(element: PsiElement): Unit =
     if (element != null && element.isValid) {
       markedElements += element.createSmartPointer
     }
-  }
 
-  private def adjustMarkedElements() = {
-    val elements = markedElements.collect {
-      case ValidSmartPointer(element) => element
-    }
-    markedElements.clear()
+  def adjustFor(elements: Seq[PsiElement], addImports: Boolean = true, useTypeAliases: Boolean = true): Unit = {
+    val infos = for {
+      element <- elements
+      typeElement <- collectAdjustableTypeElements(element).distinct
 
-    adjustFor(elements)
+      info = ReplacementInfo.initial(typeElement)
+      simplified <- simplify(info)
+
+      shortened = shortenReference(simplified, useTypeAliases)
+    } yield shortened
+
+    val rewrittenInfos = rewriteInfosAsInfix(infos)
+    for {
+      (holder, paths) <- replaceAndAddImports(rewrittenInfos, addImports)
+    } holder.addImportsForPaths(paths.toSeq, null)
   }
 
   private def newRef(text: String, position: PsiElement): Option[ScReferenceElement] = {
     findRef(newTypeElem(text, position))
   }
 
-  private def newTypeElem(name: String, position: PsiElement) = {
-    val newTypeElem = ScalaPsiElementFactory.createTypeElementFromText(name, position.getContext, position)
-    if (newTypeElem == null) {
-      LOG.error(s"Cannot create type from text:\n$name", new Throwable)
+  private def newTypeElem(name: String, position: PsiElement) =
+    ScalaPsiElementFactory.createTypeElementFromText(name, position.getContext, position) match {
+      case null =>
+        LOG.error(s"Cannot create type from text:\n$name", new Throwable)
+        null
+      case result => result
     }
-    newTypeElem
-  }
-
-  private def toReplacementInfos(typeElements: Seq[ScTypeElement], useTypeAliases: Boolean): Seq[ReplacementInfo] = {
-    val infos = typeElements.map(ReplacementInfo.initial)
-    val simplified = infos.flatMap(simplify)
-                     .map(shortenReference(_, useTypeAliases))
-    rewriteInfosAsInfix(simplified)
-  }
 
   private val toReplaceKey: Key[String] = Key.create[String]("type.element.to.replace")
 
@@ -310,7 +306,7 @@ object TypeAdjuster extends ApplicationAdapter {
     withMaxHolders.flatten.toMap
   }
 
-  private def replaceAndAddImports(rInfos: Seq[ReplacementInfo], addImports: Boolean): Unit = {
+  private def replaceAndAddImports(rInfos: Seq[ReplacementInfo], addImports: Boolean) = {
     assert(rInfos.forall(_.origElement.isValid), "Psi shouldn't be modified before this stage!")
 
     val replacementsWithSameResolve = rInfos.filter(_.checkReplacementResolve).toSet
@@ -329,9 +325,7 @@ object TypeAdjuster extends ApplicationAdapter {
       }
     }
 
-    for ((holder, paths) <- holderToPaths) {
-      holder.addImportsForPaths(paths.toSeq, null)
-    }
+    holderToPaths.toMap
   }
 
   private def availableTypeAliasFor(clazz: PsiClass, position: PsiElement, useTypeAliases: Boolean): Option[ScTypeAliasDefinition] = {
