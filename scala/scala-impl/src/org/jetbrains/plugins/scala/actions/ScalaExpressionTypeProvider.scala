@@ -9,10 +9,12 @@ import com.intellij.psi.PsiElement
 import com.intellij.ui.ColorUtil
 import org.jetbrains.plugins.scala.extensions._
 import org.jetbrains.plugins.scala.lang.lexer.ScalaTokenTypes
-import org.jetbrains.plugins.scala.lang.psi.api.base.patterns.ScBindingPattern
-import org.jetbrains.plugins.scala.lang.psi.api.expr.{ScBlock, ScExpression}
+import org.jetbrains.plugins.scala.lang.psi.api.base.patterns.{ScBindingPattern, ScCaseClause}
+import org.jetbrains.plugins.scala.lang.psi.api.expr.{ScArgumentExprList, ScBlock, ScExpression}
+import org.jetbrains.plugins.scala.lang.psi.api.statements.{ScFunctionDefinition, ScMacroDefinition, ScValueOrVariable}
+import org.jetbrains.plugins.scala.lang.psi.api.toplevel.templates.ScTemplateBody
+import org.jetbrains.plugins.scala.lang.psi.types.ScType
 import org.jetbrains.plugins.scala.lang.psi.types.result.Typeable
-import org.jetbrains.plugins.scala.lang.psi.types.{ScType, TypePresentationContext}
 
 import scala.collection.JavaConverters._
 
@@ -22,7 +24,11 @@ class ScalaExpressionTypeProvider extends ExpressionTypeProvider[PsiElement] {
   override def getErrorHint: String = "No expression found"
 
   override def getExpressionsAt(elementAt: PsiElement): util.List[PsiElement] =
-    elementAt.withParentsInFile.filter {
+    elementAt.withParentsInFile.takeWhile {
+      case (_: ScBlock) childOf (_: ScArgumentExprList | _: ScCaseClause)                                         => true
+      case _: ScTemplateBody | _: ScFunctionDefinition | _: ScMacroDefinition | _: ScBlock | _: ScValueOrVariable => false
+      case _                                                                                                      => true
+    }.filter {
       case ScBlock(_: ScExpression) => false
       case _: ScBindingPattern      => true
       case _: ScExpression          => true
@@ -30,13 +36,8 @@ class ScalaExpressionTypeProvider extends ExpressionTypeProvider[PsiElement] {
     }.toList.asJava
 
   override def getInformationHint(element: PsiElement): String =
-    extractType(element).fold(unknownType)(_.presentableText(element))
-
-  override def hasAdvancedInformation: Boolean = true
-
-  override def getAdvancedInformationHint(element: PsiElement): String =
     extractType(element).fold(unknownType) { t: ScType =>
-      val original  = "Original"  -> t
+      val original  = "Type"      -> t
       val dealiased = "Dealiased" -> t.removeAliasDefinitions()
       val widened   = "Widened"   -> t.tryExtractDesignatorSingleton
 
@@ -48,8 +49,12 @@ class ScalaExpressionTypeProvider extends ExpressionTypeProvider[PsiElement] {
         case _                  => (None, None)
       }
 
-      (Seq(original, dealiased, widened) ++ expected ++ withoutImplicits)
-        .map { case (title, tpe) => makeAdvancedInformationTableRow(title, tpe)(element) }
+      val infos = (Seq(original, dealiased, widened) ++ expected ++ withoutImplicits)
+        .map { case (title, tpe) => title -> tpe.presentableText(element) }
+        .distinctBy(_._2)
+
+      infos
+        .map { case (title, tpeText) => makeAdvancedInformationTableRow(title, tpeText) }
         .mkString("<table>", "\n", "</table>")
     }
 }
@@ -58,20 +63,20 @@ object ScalaExpressionTypeProvider {
   private val unknownType = "<unknown>"
 
   private def extractType(e: PsiElement): Option[ScType] = e match {
-    case ResolvedWithSubst(target, subst) => target.ofNamedElement(subst)
+    case ResolvedWithSubst(target, subst) => target.ofNamedElement(subst, scalaScope = Option(e.elementScope))
     case Typeable(tpe)                    => Option(tpe)
     case _                                => None
   }
 
   private def makeAdvancedInformationTableRow(
-    title:        String,
-    tpe:          ScType
-  )(implicit ctx: TypePresentationContext): String = {
+    title:   String,
+    tpeText: String
+  ): String = {
     val titleCell = "<td align='left' valign='top' style='color:" +
       ColorUtil.toHtmlColor(DocumentationComponent.SECTION_COLOR) + "'>" +
       StringUtil.escapeXml(title) + ":</td>"
 
-    val contentCell = s"<td>${tpe.presentableText}</td>"
+    val contentCell = s"<td>$tpeText</td>"
     s"<tr>$titleCell$contentCell</tr>"
   }
 

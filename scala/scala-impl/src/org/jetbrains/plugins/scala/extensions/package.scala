@@ -39,6 +39,7 @@ import org.jetbrains.plugins.scala.lang.psi.impl.toplevel.synthetic.ScSyntheticC
 import org.jetbrains.plugins.scala.lang.psi.impl.toplevel.typedef.MixinNodes
 import org.jetbrains.plugins.scala.lang.psi.impl.toplevel.typedef.TypeDefinitionMembers.SignatureNodes
 import org.jetbrains.plugins.scala.lang.psi.light.{PsiClassWrapper, PsiTypedDefinitionWrapper, StaticPsiMethodWrapper}
+import org.jetbrains.plugins.scala.lang.psi.types.api.FunctionType
 import org.jetbrains.plugins.scala.lang.psi.types.recursiveUpdate.ScSubstitutor
 import org.jetbrains.plugins.scala.lang.psi.types.result._
 import org.jetbrains.plugins.scala.lang.psi.types.{ScType, ScTypeExt}
@@ -100,6 +101,13 @@ package object extensions {
 
     def isParameterless: Boolean =
       repr.getParameterList.getParametersCount == 0
+
+    def functionType(implicit scope: ElementScope): TypeResult = repr match {
+      case sf: ScFunction => sf.`type`()
+      case _ =>
+        val retTpe = repr.getReturnType.toScType()
+        Right(FunctionType((retTpe, parametersTypes)))
+    }
   }
 
   implicit class PsiFileExt(val file: PsiFile) extends AnyVal {
@@ -280,9 +288,10 @@ package object extensions {
 
     def projectContext: ProjectContext = element.getProject
 
-    def ofNamedElement(substitutor: ScSubstitutor = ScSubstitutor.empty): Option[ScType] = {
+    def ofNamedElement(substitutor: ScSubstitutor = ScSubstitutor.empty, scalaScope: Option[ElementScope] = None): Option[ScType] = {
       def lift(`type`: PsiType) = Option(`type`.toScType())
 
+      val scope = scalaScope.getOrElse(elementScope)
       (element match {
         case _: ScPrimaryConstructor          => None
         case e: ScFunction if e.isConstructor => None
@@ -291,7 +300,7 @@ package object extensions {
         case e: ScFieldId                     => e.`type`().toOption
         case e: ScParameter                   => e.getRealParameterType.toOption
         case e: PsiMethod if e.isConstructor  => None
-        case e: PsiMethod                     => lift(e.getReturnType)
+        case e: PsiMethod                     => e.functionType(scope).toOption
         case e: PsiVariable                   => lift(e.getType)
         case _                                => None
       }).map(substitutor.subst)

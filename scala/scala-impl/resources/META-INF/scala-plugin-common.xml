@@ -1639,6 +1639,14 @@
             <add-to-group group-id="EditorPopupMenu" anchor="last"/>
             <keyboard-shortcut first-keystroke="control alt D" keymap="$default"/>
         </action>
+        <action id="Scala.TypeInfo" class="org.jetbrains.plugins.scala.actions.ShowTypeInfoAction">
+          <keyboard-shortcut first-keystroke="alt EQUALS" keymap="$default"/>
+          <keyboard-shortcut first-keystroke="control shift P" keymap="Mac OS X"/>
+          <keyboard-shortcut first-keystroke="alt EQUALS" keymap="Mac OS X" remove="true"/>
+          <keyboard-shortcut first-keystroke="control shift P" keymap="Mac OS X 10.5+"/>
+          <keyboard-shortcut first-keystroke="alt EQUALS" keymap="Mac OS X 10.5+" remove="true"/>
+          <add-to-group group-id="CodeEditorViewGroup" anchor="before" relative-to-action="Scala.ShowImplicits"/>
+        </action>
         <action id="Scala.GenerateScaladoc" class="org.jetbrains.plugins.scala.lang.scaladoc.generate.ScaladocAction"
                 text="Generate Scaladoc" description="Generate Scaladoc">
             <add-to-group group-id="ToolsMenu" anchor="last"/>
