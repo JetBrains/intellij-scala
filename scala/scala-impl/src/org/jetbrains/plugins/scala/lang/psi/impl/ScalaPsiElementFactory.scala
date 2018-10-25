@@ -817,11 +817,13 @@ object ScalaPsiElementFactory {
                                                      context: PsiElement,
                                                      child: PsiElement,
                                                      parse: ScalaPsiBuilder => AnyVal)
-                                                    (implicit tag: ClassTag[E]): Option[E] =
-    createElement(text, context)(parse)(context.getProject) match {
-      case element: E if element.getTextLength == text.length => Some(withContext(element, context, child))
+                                                    (implicit tag: ClassTag[E]): Option[E] = {
+    val trimmed = text.trim
+    createElement(trimmed, context)(parse)(context.getProject) match {
+      case element: E if element.getTextLength == trimmed.length => Some(withContext(element, context, child))
       case _ => None
     }
+  }
 
   def createEmptyModifierList(context: PsiElement): ScModifierList = {
     val parseEmptyModifier = (_: ScalaPsiBuilder).mark.done(ScalaElementTypes.MODIFIERS)
