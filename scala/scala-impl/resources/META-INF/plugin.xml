@@ -43,8 +43,8 @@
     <depends optional="true" config-file="scala-gradle-integration.xml">org.jetbrains.plugins.gradle</depends>
     <depends optional="true" config-file="decompile-scala-to-java.xml">org.jetbrains.java.decompiler</depends>
 
-    <xi:include href="/META-INF/scala-plugin-common.xml" xpointer="xpointer(/idea-plugin/*)"/>
-    <xi:include href="/META-INF/SBT.xml" xpointer="xpointer(/idea-plugin/*)"/>
-    <xi:include href="/META-INF/HOCON.xml" xpointer="xpointer(/idea-plugin/*)"/>
-    <xi:include href="/META-INF/BSP.xml" xpointer="xpointer(/idea-plugin/*)"/>
+    <xi:include href="scala-plugin-common.xml" xpointer="xpointer(/idea-plugin/*)"/>
+    <xi:include href="SBT.xml" xpointer="xpointer(/idea-plugin/*)"/>
+    <xi:include href="HOCON.xml" xpointer="xpointer(/idea-plugin/*)"/>
+    <xi:include href="BSP.xml" xpointer="xpointer(/idea-plugin/*)"/>
 </idea-plugin>
