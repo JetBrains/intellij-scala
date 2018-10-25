@@ -105,10 +105,6 @@ case class ScMethodType(returnType: ScType, params: Seq[Parameter], isImplicit: 
     }))
   }
 
-  override def removeAbstracts = ScMethodType(returnType.removeAbstracts,
-    params.map(p => p.copy(paramType = p.paramType.removeAbstracts)),
-    isImplicit)
-
   override def updateSubtypes(updates: Array[Update], index: Int, visited: Set[ScType]): ScMethodType = {
     def update(tp: ScType) = tp.recursiveUpdateImpl(updates, index, visited, isLazySubtype = true)
     def updateParameter(p: Parameter): Parameter = p.copy(
@@ -239,11 +235,6 @@ case class ScTypePolymorphicType(internalType: ScType, typeParameters: Seq[TypeP
   def inferValueType: ValueType = {
     polymorphicTypeSubstitutor.subst(internalType.inferValueType).asInstanceOf[ValueType]
   }
-
-  override def removeAbstracts = ScTypePolymorphicType(
-    internalType.removeAbstracts,
-    typeParameters.update(_.removeAbstracts)
-  )
 
   override def updateSubtypes(updates: Array[Update], index: Int, visited: Set[ScType]): ScType = {
     ScTypePolymorphicType(

@@ -25,9 +25,6 @@ trait ParameterizedType extends ValueType {
 
   protected def substitutorInner: ScSubstitutor
 
-  override def removeAbstracts = ParameterizedType(designator.removeAbstracts,
-    typeArguments.map(_.removeAbstracts))
-
   override def updateSubtypes(updates: Array[Update], index: Int, visited: Set[ScType]): ValueType = {
     ParameterizedType(
       designator.recursiveUpdateImpl(updates, index, visited),

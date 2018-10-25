@@ -19,8 +19,6 @@ case class JavaArrayType(argument: ScType) extends ValueType {
       .map(ScParameterizedType(_, Seq(argument)))
   }
 
-  override def removeAbstracts = JavaArrayType(argument.removeAbstracts)
-
   override def updateSubtypes(updates: Array[Update], index: Int, visited: Set[ScType]): JavaArrayType = {
     JavaArrayType(argument.recursiveUpdateImpl(updates, index, visited))
   }

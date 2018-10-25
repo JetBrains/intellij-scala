@@ -87,6 +87,14 @@ package object types {
       case _: UndefinedType => stdTypes.Any
     }
 
+    /**
+      * This method is important for parameters expected type.
+      * There shouldn't be any abstract type in this expected type.
+      **/
+    def removeAbstracts: ScType = scType.updateRecursively {
+      case a: ScAbstractType => a.simplifyType
+    }
+
     def removeVarianceAbstracts(): ScType = {
       var index = 0
       scType.recursiveVarianceUpdate({

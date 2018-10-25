@@ -24,8 +24,6 @@ class ScExistentialType private (val quantified: ScType,
     quantified.isAliasType.map(a => a.copy(lower = a.lower.map(_.unpackedType), upper = a.upper.map(_.unpackedType)))
   }
 
-  override def removeAbstracts = ScExistentialType(quantified.removeAbstracts)
-
   override def updateSubtypes(updates: Array[Update], index: Int, visited: Set[ScType]): ScExistentialType =
     ScExistentialType(quantified.recursiveUpdateImpl(updates, index, visited))
 

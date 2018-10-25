@@ -60,24 +60,6 @@ case class ScCompoundType(components: Seq[ScType],
     else componentsDepth
   }
 
-  override def removeAbstracts = ScCompoundType(components.map(_.removeAbstracts),
-    signatureMap.map {
-      case (s: Signature, tp: ScType) =>
-        val pTypes: Seq[Seq[() => ScType]] = s.substitutedTypes.map(_.map(f => () => f().removeAbstracts))
-        val tParams = s.typeParams.update(_.removeAbstracts)
-        val rt: ScType = tp.removeAbstracts
-        (new Signature(s.name, pTypes, tParams,
-          ScSubstitutor.empty, s.namedElement match {
-            case fun: ScFunction =>
-              ScFunction.getCompoundCopy(pTypes.map(_.map(_()).toList), tParams.toList, rt, fun)
-            case b: ScBindingPattern => ScBindingPattern.getCompoundCopy(rt, b)
-            case f: ScFieldId => ScFieldId.getCompoundCopy(rt, f)
-            case named => named
-          }, s.hasRepeatedParam), rt)
-    }, typesMap.map {
-      case (s: String, sign) => (s, sign.updateTypes(_.removeAbstracts))
-    })
-
   override def updateSubtypes(updates: Array[Update], index: Int, visited: Set[ScType]): ScCompoundType = {
     new ScCompoundType(components.map(_.recursiveUpdateImpl(updates, index, visited)), signatureMap.map {
       case (s: Signature, tp) =>

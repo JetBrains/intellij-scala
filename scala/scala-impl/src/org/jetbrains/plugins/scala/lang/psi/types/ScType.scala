@@ -52,14 +52,6 @@ trait ScType extends ProjectContextOwner {
     case ex                                                                => ex
   }
 
-
-  /**
-   * This method is important for parameters expected type.
-   * There shouldn't be any abstract type in this expected type.
-   * todo rewrite with recursiveUpdate method
-   */
-  def removeAbstracts: ScType = this
-
   def equivInner(r: ScType, constraints: ConstraintSystem, falseUndef: Boolean): ConstraintsResult = {
     ConstraintsResult.Left
   }
