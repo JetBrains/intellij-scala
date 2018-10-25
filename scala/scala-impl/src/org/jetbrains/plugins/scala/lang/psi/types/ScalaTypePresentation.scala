@@ -265,6 +265,7 @@ trait ScalaTypePresentation extends api.TypePresentation {
       case FunctionType(ret, params) if t.isAliasType.isEmpty =>
         val paramsText = params match {
           case Seq(fun @ FunctionType(_, _)) => innerTypeText(fun).parenthesize()
+          case Seq(tup @ TupleType(tps)) => innerTypeText(tup).parenthesize()
           case Seq(head) => innerTypeText(head)
           case _ => typesText(params)
         }

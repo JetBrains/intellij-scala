@@ -133,4 +133,21 @@ class ToggleTypeAnnotationIntentionTest extends ScalaIntentionTestBase {
        |val b${caretTag}ar: Int Map (Int Map String) = foo()
      """.stripMargin
   )
+
+  def testTupledFunction(): Unit = doTest(
+    s"""
+       |class Test {
+       |  def g(f: (String, Int) => Unit): Unit = {
+       |    val ${caretTag}t = f.tupled // Add type annotation to value definition
+       |  }
+       |}
+     """.stripMargin,
+    s"""
+       |class Test {
+       |  def g(f: (String, Int) => Unit): Unit = {
+       |    val ${caretTag}t: ((String, Int)) => Unit = f.tupled // Add type annotation to value definition
+       |  }
+       |}
+     """
+  )
 }
