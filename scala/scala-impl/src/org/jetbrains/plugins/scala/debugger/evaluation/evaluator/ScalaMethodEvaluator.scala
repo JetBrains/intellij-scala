@@ -47,8 +47,12 @@ case class ScalaMethodEvaluator(objectEvaluator: Evaluator, _methodName: String,
     val requiresSuperObject: Boolean = objectEvaluator.isInstanceOf[ScSuperEvaluator] ||
       (objectEvaluator.isInstanceOf[DisableGC] &&
         objectEvaluator.asInstanceOf[DisableGC].getDelegate.isInstanceOf[ScSuperEvaluator])
-    val obj : AnyRef = DebuggerUtil.unwrapScalaRuntimeRef {
+    val evaluated = DebuggerUtil.unwrapScalaRuntimeRef {
       objectEvaluator.evaluate(context)
+    }
+    val obj = evaluated match {
+      case p: PrimitiveValue => ScalaBoxingEvaluator.box(p, context)
+      case _ => evaluated
     }
     if (obj == null) {
       throw EvaluationException(new NullPointerException)

@@ -5,7 +5,7 @@ import com.intellij.debugger.engine.evaluation.expression.Evaluator
 import org.jetbrains.plugins.scala.debugger.evaluation.EvaluationException
 import org.jetbrains.plugins.scala.debugger.evaluation.util.DebuggerUtil
 import org.jetbrains.plugins.scala.lang.psi.api.base.ScLiteral
-import org.jetbrains.plugins.scala.lang.psi.types.ScType
+import org.jetbrains.plugins.scala.lang.psi.types.{ScLiteralType, ScType}
 import org.jetbrains.plugins.scala.lang.psi.types.result._
 
 /**
@@ -31,7 +31,10 @@ class ScalaLiteralEvaluator(value: AnyRef, tp: ScType) extends Evaluator {
 
 object ScalaLiteralEvaluator {
   def apply(l: ScLiteral): ScalaLiteralEvaluator = {
-    val tp = l.`type`().getOrAny
+    val tp = l.`type`().getOrAny match {
+      case lit: ScLiteralType => lit.wideType
+      case x => x
+    }
     val value = l.getValue
     if (value == null && !tp.isNull) {
       throw EvaluationException(s"Literal ${l.getText} has null value")

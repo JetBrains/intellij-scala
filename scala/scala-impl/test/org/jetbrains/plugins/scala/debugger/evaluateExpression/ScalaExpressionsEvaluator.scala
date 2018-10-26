@@ -1,6 +1,6 @@
 package org.jetbrains.plugins.scala.debugger.evaluateExpression
 
-import org.jetbrains.plugins.scala.{DebuggerTests, SlowTests}
+import org.jetbrains.plugins.scala.DebuggerTests
 import org.jetbrains.plugins.scala.debugger._
 import org.junit.experimental.categories.Category
 
@@ -17,6 +17,11 @@ class ScalaExpressionsEvaluator extends ScalaExpressionsEvaluatorBase {
 @Category(Array(classOf[DebuggerTests]))
 class ScalaExpressionsEvaluator_212 extends ScalaExpressionsEvaluatorBase {
   override implicit val version: ScalaVersion = Scala_2_12
+}
+
+@Category(Array(classOf[DebuggerTests]))
+class ScalaExpressionsEvaluator_213 extends ScalaExpressionsEvaluatorBase {
+  override implicit val version: ScalaVersion = Scala_2_13
 }
 
 abstract class ScalaExpressionsEvaluatorBase extends ScalaDebuggerTestCase {
@@ -84,7 +89,7 @@ abstract class ScalaExpressionsEvaluatorBase extends ScalaDebuggerTestCase {
       evalEquals("test2((1, 2))", "2")
       evalEquals("test2(Tuple2(1, 2))", "2")
       evalEquals("foo(1)(2)", "1")
-      evalEquals("scala.collection.immutable.HashSet.empty + 1 + 2", "Set(1, 2)")
+      evalEquals("(scala.collection.immutable.HashSet.empty + 1 + 2).size", "2")
     }
   }
 
@@ -234,6 +239,7 @@ abstract class ScalaExpressionsEvaluatorBase extends ScalaDebuggerTestCase {
       evalEquals("\"a\".concat(123)", "a123123")
       evalEquals("'aaa", "'aaa")
       evalEquals("'aaa.name", "aaa")
+      evalEquals("intToString(123)", "123123")
     }
   }
 
