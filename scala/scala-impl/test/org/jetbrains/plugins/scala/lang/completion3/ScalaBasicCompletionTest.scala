@@ -1040,6 +1040,23 @@ class ScalaBasicCompletionTest extends ScalaCodeInsightTestBase {
     item = "bar"
   )
 
+  def testPackageObject(): Unit = doCompletionTest(
+    fileText =
+      s"""package object foo {
+         |  class Foo
+         |}
+         |
+         |import foo.$CARET
+       """.stripMargin,
+    s"""package object foo {
+       |  class Foo
+       |}
+       |
+       |import foo.Foo$CARET
+     """.stripMargin,
+    item = "Foo"
+  )
+
   def testPredefinedConversion(): Unit = doCompletionTest(
     fileText = s""""1".he$CARET""",
     resultText = s""""1".headOption$CARET""",
