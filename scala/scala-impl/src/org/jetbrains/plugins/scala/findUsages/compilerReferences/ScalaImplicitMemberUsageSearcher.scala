@@ -153,8 +153,8 @@ object ScalaImplicitMemberUsageSearcher {
             )
 
           TransactionGuard.getInstance().submitTransactionAndWait(runnable)
+          connection.disconnect()
         }
-        connection.disconnect()
       })
 
       val notification: ProjectTaskNotification =
@@ -169,7 +169,7 @@ object ScalaImplicitMemberUsageSearcher {
     val project = target.getProject
     val service = ScalaCompilerReferenceService(project)
 
-    if (!CompilerIndicesSettings(project).classfileIndexingEnabled) {
+    if (!CompilerIndicesSettings(project).indexingEnabled) {
       inEventDispatchThread(new EnableCompilerIndicesDialog(project, canBeParent = false).show())
       Option(CancelSearch)
     } else if (service.isIndexingInProgress) {
