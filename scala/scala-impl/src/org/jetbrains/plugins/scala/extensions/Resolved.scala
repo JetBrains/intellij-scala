@@ -10,27 +10,26 @@ import org.jetbrains.plugins.scala.lang.resolve.ScalaResolveResult
  */
 
 object ResolvedWithSubst {
-  def unapply(e: PsiReference): Option[(PsiElement, ScSubstitutor)] = {
-    e match {
-      case null => None
-      case e: ScReferenceElement => e.bind() match {
-        case Some(ScalaResolveResult(target, substitutor)) => Some(target, substitutor)
-        case _ => None
-      }
-      case _ => Option(e.resolve).map((_, ScSubstitutor.empty))
-    }
+
+  def unapply(reference: PsiReference): Option[(PsiElement, ScSubstitutor)] = reference match {
+    case Resolved(ScalaResolveResult(target, substitutor)) => Some(target, substitutor)
+    case ResolvesTo(target) => Some(target, ScSubstitutor.empty)
+    case _ => None
   }
 }
 
 object ResolvesTo {
-  def unapply(ref: PsiReference): Option[PsiElement] = {
-    ref match {
-      case null => None
-      case r => Option(r.resolve())
-    }
+
+  def unapply(reference: PsiReference): Option[PsiElement] = reference match {
+    case null => None
+    case _ => Option(reference.resolve())
   }
 }
 
 object Resolved {
-  def unapply(e: ScReferenceElement): Option[ScalaResolveResult] = e.bind()
+
+  def unapply(reference: ScReferenceElement): Option[ScalaResolveResult] = reference match {
+    case null => None
+    case _ => reference.bind()
+  }
 }

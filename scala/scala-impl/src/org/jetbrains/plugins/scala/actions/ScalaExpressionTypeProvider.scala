@@ -1,6 +1,6 @@
 package org.jetbrains.plugins.scala.actions
 
-import java.util
+import java.{util => ju}
 
 import com.intellij.codeInsight.documentation.DocumentationComponent
 import com.intellij.lang.ExpressionTypeProvider
@@ -16,24 +16,27 @@ import org.jetbrains.plugins.scala.lang.psi.api.toplevel.templates.ScTemplateBod
 import org.jetbrains.plugins.scala.lang.psi.types.ScType
 import org.jetbrains.plugins.scala.lang.psi.types.result.Typeable
 
-import scala.collection.JavaConverters._
+import scala.collection.JavaConverters
 
 class ScalaExpressionTypeProvider extends ExpressionTypeProvider[PsiElement] {
+
   import ScalaExpressionTypeProvider._
 
   override def getErrorHint: String = "No expression found"
 
-  override def getExpressionsAt(elementAt: PsiElement): util.List[PsiElement] =
+  override def getExpressionsAt(elementAt: PsiElement): ju.List[PsiElement] = {
+    import JavaConverters._
     elementAt.withParentsInFile.takeWhile {
-      case (_: ScBlock) childOf (_: ScArgumentExprList | _: ScCaseClause)                                         => true
+      case (_: ScBlock) childOf (_: ScArgumentExprList | _: ScCaseClause) => true
       case _: ScTemplateBody | _: ScFunctionDefinition | _: ScMacroDefinition | _: ScBlock | _: ScValueOrVariable => false
-      case _                                                                                                      => true
+      case _ => true
     }.filter {
       case ScBlock(_: ScExpression) => false
-      case _: ScBindingPattern      => true
-      case _: ScExpression          => true
-      case _                        => false
+      case _: ScBindingPattern => true
+      case _: ScExpression => true
+      case _ => false
     }.toList.asJava
+  }
 
   override def getInformationHint(element: PsiElement): String =
     extractType(element).fold(unknownType) { t: ScType =>
@@ -62,9 +65,9 @@ class ScalaExpressionTypeProvider extends ExpressionTypeProvider[PsiElement] {
 object ScalaExpressionTypeProvider {
   private val unknownType = "<unknown>"
 
-  private def extractType(e: PsiElement): Option[ScType] = e match {
-    case ResolvedWithSubst(target, subst) => target.ofNamedElement(subst, scalaScope = Option(e.elementScope))
-    case Typeable(tpe)                    => Option(tpe)
+  private def extractType: PsiElement => Option[ScType] = {
+    case element@ResolvedWithSubst(target, subst) => target.ofNamedElement(subst, scalaScope = Some(element.elementScope))
+    case Typeable(tpe) => Some(tpe)
     case _                                => None
   }
 
