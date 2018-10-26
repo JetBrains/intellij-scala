@@ -50,7 +50,7 @@ private object ImplicitUsagesSearchUI {
         .getPanel
 
     override def createActions(): Array[Action] = {
-      def enableCompilerIndices(): Unit = CompilerIndicesSettings(project).setClassfileIndexingEnabled(true)
+      def enableCompilerIndices(): Unit = CompilerIndicesSettings(project).indexingEnabled = true
 
       val enable = new DialogWrapperAction("Enable") {
         override def doAction(e: ActionEvent): Unit = {

@@ -204,6 +204,4 @@ private object CompilerReferenceIndexer {
   private sealed trait WriterJob
   private final case class ProcessDeletedFile(file:  File)              extends WriterJob
   private final case class ProcessCompiledFile(data: CompiledScalaFile) extends WriterJob
-
-  def async[F[_], A](k: (Either[Throwable, A] => Unit) => Unit): F[A] = ???
 }

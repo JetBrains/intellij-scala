@@ -2,7 +2,6 @@ package org.jetbrains.plugins.scala.findUsages.compilerReferences
 
 import com.intellij.openapi.components.{PersistentStateComponent, ServiceManager, State, Storage}
 import com.intellij.openapi.project.Project
-import com.intellij.util.xmlb.XmlSerializerUtil
 
 import scala.beans.BeanProperty
 
@@ -10,14 +9,25 @@ import scala.beans.BeanProperty
   name     = "CompilerIndicesSettings",
   storages = Array(new Storage("compiler_indices.xml"))
 )
-class CompilerIndicesSettings extends PersistentStateComponent[CompilerIndicesSettings] {
-  @BeanProperty var classfileIndexingEnabled: Boolean = false
+class CompilerIndicesSettings(project: Project) extends PersistentStateComponent[CompilerIndicesSettings.State] {
+  private[this] var state = new CompilerIndicesSettings.State()
 
-  override def getState: CompilerIndicesSettings               = this
-  override def loadState(state: CompilerIndicesSettings): Unit = XmlSerializerUtil.copyBean(state, this)
+  def indexingEnabled: Boolean = state.indexingEnabled
+
+  def indexingEnabled_=(enabled: Boolean): Unit = {
+    if (state.indexingEnabled != enabled) ScalaCompilerReferenceService(project).invalidateIndex()
+    state.indexingEnabled = enabled
+  }
+
+  override def getState: CompilerIndicesSettings.State               = state
+  override def loadState(state: CompilerIndicesSettings.State): Unit = this.state = state
 }
 
 object CompilerIndicesSettings {
+  class State {
+    @BeanProperty var indexingEnabled: Boolean = false
+  }
+
   def apply(project: Project): CompilerIndicesSettings =
     ServiceManager.getService(project, classOf[CompilerIndicesSettings])
 }

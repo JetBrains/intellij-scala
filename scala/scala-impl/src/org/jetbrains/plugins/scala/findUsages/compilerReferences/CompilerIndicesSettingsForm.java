@@ -35,16 +35,15 @@ public class CompilerIndicesSettingsForm {
   }
 
   boolean isModified(CompilerIndicesSettings settings) {
-    return settings.classfileIndexingEnabled() != enableIndexingCB.isSelected();
+    return settings.indexingEnabled() != enableIndexingCB.isSelected();
   }
 
   void applyTo(CompilerIndicesSettings settings) {
-    if (!enableIndexingCB.isSelected() && settings.getClassfileIndexingEnabled()) invalidateIndices();
-    settings.setClassfileIndexingEnabled(enableIndexingCB.isSelected());
+    settings.indexingEnabled_$eq(enableIndexingCB.isSelected());
   }
 
   void from(CompilerIndicesSettings settings) {
-    enableIndexingCB.setSelected(settings.getClassfileIndexingEnabled());
+    enableIndexingCB.setSelected(settings.indexingEnabled());
   }
 
   {
