@@ -9,7 +9,7 @@ import com.intellij.openapi.vfs.{StandardFileSystems, VirtualFile}
 import com.intellij.psi.{PsiFile, PsiManager}
 import com.intellij.util.containers.ContainerUtil
 import org.jetbrains.plugins.hocon.psi.HoconPsiFile
-import org.jetbrains.plugins.scala.extensions.inReadAction
+import org.jetbrains.plugins.scala.extensions.{ObjectExt, inReadAction}
 import org.jetbrains.plugins.scala.lang.formatting.processors.ScalaFmtPreFormatProcessor.reportError
 import org.jetbrains.plugins.scala.lang.formatting.settings.ScalaCodeStyleSettings
 import org.jetbrains.sbt.language.SbtFileImpl
@@ -63,14 +63,19 @@ object ScalaFmtConfigUtil {
 
   def defaultConfigurationFileName: String = ".scalafmt.conf"
 
-  private def defaultConfigurationFile(project: Project): Option[VirtualFile] = Option(project.getBaseDir.findChild(defaultConfigurationFileName))
+  private def defaultConfigurationFile(project: Project): Option[VirtualFile] =
+    project.getBaseDir.toOption
+      .flatMap(baseDir => baseDir.findChild(defaultConfigurationFileName).toOption)
 
-  def projectDefaultConfig(project: Project): Option[ScalafmtConfig] = defaultConfigurationFile(project).
-    map(getScalafmtProjectConfig(_, project))
+  def projectDefaultConfig(project: Project): Option[ScalafmtConfig] =
+    defaultConfigurationFile(project)
+      .map(getScalafmtProjectConfig(_, project))
 
   def scalaFmtConfigFile(settings: ScalaCodeStyleSettings, project: Project): Option[VirtualFile] =
     if (settings.SCALAFMT_CONFIG_PATH.isEmpty) defaultConfigurationFile(project)
-    else Option(StandardFileSystems.local.findFileByPath(absolutePathFromConfigPath(settings.SCALAFMT_CONFIG_PATH, project)))
+    else
+      absolutePathFromConfigPath(settings.SCALAFMT_CONFIG_PATH, project)
+        .flatMap(path => StandardFileSystems.local.findFileByPath(path).toOption)
 
   private val scalafmtConfigs: ConcurrentMap[VirtualFile, (ScalafmtConfig, Long)] = ContainerUtil.createConcurrentWeakMap()
 
@@ -79,10 +84,13 @@ object ScalaFmtConfigUtil {
 
   private def getScalafmtProjectConfig(vFile: VirtualFile, project: Project): ScalafmtConfig = storeOrUpdate(vFile, project)
 
-  private def absolutePathFromConfigPath(path: String, project: Project): String = {
-    if (path.startsWith(".")) {
-      project.getBaseDir.getCanonicalPath + "/" + path
-    } else path
+  private def absolutePathFromConfigPath(path: String, project: Project): Option[String] = {
+    Option(project.getBaseDir).map { baseDir =>
+      if (path.startsWith(".")) {
+        baseDir.getCanonicalPath + "/" + path
+      }
+      else path
+    }
   }
 
   private val unsupportedSettingsNotificationGroup: NotificationGroup = NotificationGroup.balloonGroup("Scalafmt unsupported features")
