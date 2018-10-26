@@ -48,7 +48,6 @@ import org.jetbrains.plugins.scala.lang.psi.api.toplevel.typedef._
 import org.jetbrains.plugins.scala.lang.psi.api.toplevel.{ScModifierListOwner, ScTypedDefinition}
 import org.jetbrains.plugins.scala.lang.psi.impl.expr.ScBlockImpl
 import org.jetbrains.plugins.scala.lang.psi.types._
-import org.jetbrains.plugins.scala.lang.psi.types.api.JavaArrayType
 import org.jetbrains.plugins.scala.lang.psi.types.api.designator.ScDesignatorType
 import org.jetbrains.plugins.scala.lang.psi.types.recursiveUpdate.ScSubstitutor
 import org.jetbrains.plugins.scala.lang.psi.types.result._
@@ -817,8 +816,10 @@ object ScalaPsiElementFactory {
                                                      child: PsiElement,
                                                      parse: ScalaPsiBuilder => AnyVal)
                                                     (implicit tag: ClassTag[E]): Option[E] = {
-    val result = createElement(text, context, context.getProject, parse)(context.getManager).toOption.collect {
-      case element: E => element
+    val trimmed = text.trim
+    val result = createElement(trimmed, context, context.getProject, parse)(context.getManager) match {
+      case element: E if element.getTextLength == trimmed.length => Some(element)
+      case _ => None
     }
 
     withContext(result, context, child)

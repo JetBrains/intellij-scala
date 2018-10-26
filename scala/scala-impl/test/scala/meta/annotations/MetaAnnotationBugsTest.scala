@@ -1,13 +1,13 @@
 package scala.meta.annotations
 
-import scala.collection.JavaConverters._
-
 import com.intellij.lang.annotation.HighlightSeverity
 import org.jetbrains.plugins.scala.ScalaBundle
 import org.jetbrains.plugins.scala.lang.psi.api.statements.ScFunction
 import org.jetbrains.plugins.scala.lang.psi.api.toplevel.typedef.{ScClass, ScObject, ScTypeDefinition}
 import org.junit.Assert
 import org.junit.Assert.{assertEquals, assertFalse, assertTrue, fail}
+
+import scala.collection.JavaConverters._
 
 class MetaAnnotationBugsTest extends MetaAnnotationTestBase {
 
@@ -293,29 +293,29 @@ class MetaAnnotationBugsTest extends MetaAnnotationTestBase {
     checkNoErrorHighlights()
   }
 
-  // Macro that generates companion object breaks case class behavior
-  def testSCL13214(): Unit = {
-    compileMetaSource(
-      s"""import scala.meta._
-         |class $annotName(fields: scala.Symbol*) extends scala.annotation.StaticAnnotation {
-         |  inline def apply(defn: Any): Any = meta {
-         |    val q"case class $$name(..$$paramss)" = defn
-         |    q$tq
-         |      case class $$name(..$$paramss)
-         |      object $${Term.Name(name.value)} { def foo = 42 }
-         |    $tq
-         |  }
-         |}""".stripMargin
-    )
-    createFile(
-      s"""
-         |@$annotName
-         |case class $testClassName(foo: Int, bar: String)
-         |
-         |$testClassName.apply<caret>(42, "foo")
-         |""".stripMargin
-    )
-
-    checkCaretResolves()
-  }
+  //  // Macro that generates companion object breaks case class behavior
+  //  def testSCL13214(): Unit = {
+  //    compileMetaSource(
+  //      s"""import scala.meta._
+  //         |class $annotName(fields: scala.Symbol*) extends scala.annotation.StaticAnnotation {
+  //         |  inline def apply(defn: Any): Any = meta {
+  //         |    val q"case class $$name(..$$paramss)" = defn
+  //         |    q$tq
+  //         |      case class $$name(..$$paramss)
+  //         |      object $${Term.Name(name.value)} { def foo = 42 }
+  //         |    $tq
+  //         |  }
+  //         |}""".stripMargin
+  //    )
+  //    createFile(
+  //      s"""
+  //         |@$annotName
+  //         |case class $testClassName(foo: Int, bar: String)
+  //         |
+  //         |$testClassName.apply<caret>(42, "foo")
+  //         |""".stripMargin
+  //    )
+  //
+  //    checkCaretResolves()
+  //  }
 }

@@ -1029,6 +1029,34 @@ class ScalaBasicCompletionTest extends ScalaCodeInsightTestBase {
     item = "Foo"
   )
 
+  def testMirror(): Unit = doCompletionTest(
+    fileText =
+      s"""object Main {
+         |
+         |  class Foo {
+         |    def bar(int: Int): Unit = {}
+         |  }
+         |
+         |  val foo = new Foo
+         |  foo.$CARET
+         |  foo.bar(42)
+         |}
+       """.stripMargin,
+    resultText =
+      s"""object Main {
+         |
+         |  class Foo {
+         |    def bar(int: Int): Unit = {}
+         |  }
+         |
+         |  val foo = new Foo
+         |  foo.bar($CARET)
+         |  foo.bar(42)
+         |}
+       """.stripMargin,
+    item = "bar"
+  )
+
   def testPredefinedConversion(): Unit = doCompletionTest(
     fileText = s""""1".he$CARET""",
     resultText = s""""1".headOption$CARET""",
