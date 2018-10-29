@@ -167,7 +167,7 @@ class SbtProcessManager(project: Project) extends ProjectComponent {
       val compilerIndicesPluginLoaded = plugins.exists(_.contains("sbt-idea-compiler-indices"))
       val ideaPort = CompilerIndicesSbtSettings().sbtConnectionPort
       val commands = compilerIndicesPluginLoaded.fold(
-        s""""; set ideaPort in Global := $ideaPort ; idea-shell"""",
+        s"; set ideaPort in Global := $ideaPort ; idea-shell",
         "idea-shell"
       )
       commandLine.addParameter(commands)
