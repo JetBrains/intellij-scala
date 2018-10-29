@@ -170,7 +170,11 @@ private object ImplicitHintsPass {
       .getOrElse(namedBasicPresentation(argument) ++ collapsedPresentationOf(argument.implicitParameters))
 
   private def namedBasicPresentation(result: ScalaResolveResult): Seq[Text] = {
-    val delegate = result.element.asOptionOf[ScFunction].flatMap(_.getSyntheticNavigationElement).getOrElse(result.element)
+    val delegate = result.element match {
+      case f: ScFunction => Option(f.syntheticNavigationElement).getOrElse(f)
+      case element => element
+    }
+
     val tooltip = ScalaDocumentationProvider.getQuickNavigateInfo(delegate, result.substitutor)
     Text(result.name, navigatable = delegate.asOptionOf[Navigatable], tooltip = Some(tooltip)).seq
   }

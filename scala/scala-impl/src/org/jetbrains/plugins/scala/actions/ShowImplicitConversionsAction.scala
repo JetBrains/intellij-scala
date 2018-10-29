@@ -2,11 +2,6 @@ package org.jetbrains.plugins.scala.actions
 
 import java.awt.event.{MouseAdapter, MouseEvent}
 import java.awt.{Color, Point}
-import javax.swing._
-import javax.swing.border.Border
-import javax.swing.event.{ListSelectionEvent, ListSelectionListener}
-
-import scala.collection.mutable.ArrayBuffer
 
 import com.intellij.codeInsight.CodeInsightBundle
 import com.intellij.openapi.actionSystem._
@@ -19,6 +14,9 @@ import com.intellij.openapi.util.IconLoader
 import com.intellij.psi._
 import com.intellij.psi.util.PsiUtilBase
 import com.intellij.util.Alarm
+import javax.swing._
+import javax.swing.border.Border
+import javax.swing.event.{ListSelectionEvent, ListSelectionListener}
 import org.jetbrains.plugins.scala.lang.psi.api.ScalaFile
 import org.jetbrains.plugins.scala.lang.psi.api.expr._
 import org.jetbrains.plugins.scala.lang.psi.api.statements.ScFunction
@@ -28,6 +26,8 @@ import org.jetbrains.plugins.scala.lang.refactoring.util.ScalaRefactoringUtil.ge
 import org.jetbrains.plugins.scala.statistics.{FeatureKey, Stats}
 import org.jetbrains.plugins.scala.util.IntentionUtils.showMakeExplicitPopup
 import org.jetbrains.plugins.scala.util.{IntentionUtils, JListCompatibility}
+
+import scala.collection.mutable.ArrayBuffer
 
 /**
  * User: Alexander Podkhalyuzin
@@ -113,8 +113,8 @@ class ShowImplicitConversionsAction extends AnAction("Show implicit conversions"
           val entity = list.getSelectedValue.asInstanceOf[Parameters]
           entity.newExpression match {
             case f: ScFunction =>
-              f.getSyntheticNavigationElement match {
-                case Some(n: NavigatablePsiElement) => n.navigate(true)
+              f.syntheticNavigationElement match {
+                case n: NavigatablePsiElement => n.navigate(true)
                 case _ => f.navigate(true)
               }
             case n: NavigatablePsiElement => n.navigate(true)

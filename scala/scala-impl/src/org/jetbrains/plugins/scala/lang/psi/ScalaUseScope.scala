@@ -143,8 +143,7 @@ object ScalaUseScope {
         Option(cp.containingClass)
           .map(_.getUseScope)
       case fun: ScFunction if fun.isSynthetic =>
-        fun.getSyntheticNavigationElement
-          .map(_.getUseScope)
+        Some(fun.syntheticNavigationElement.getUseScope)
       case _ =>
         fromQualifiedPrivate().orElse {
           fromContainingBlockOrMember(member)

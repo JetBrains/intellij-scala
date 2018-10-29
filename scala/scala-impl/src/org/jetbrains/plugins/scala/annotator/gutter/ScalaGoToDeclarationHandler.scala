@@ -19,6 +19,8 @@ import org.jetbrains.plugins.scala.lang.psi.api.toplevel.typedef.{ScMember, ScOb
 import org.jetbrains.plugins.scala.lang.resolve.ScalaResolveResult
 import org.jetbrains.plugins.scala.lang.resolve.processor.DynamicResolveProcessor
 
+import scala.annotation.tailrec
+
 /**
   * User: Alexander Podkhalyuzin
   * Date: 22.11.2008
@@ -108,8 +110,9 @@ object ScalaGoToDeclarationHandler {
       (left.nonEmpty, right.nonEmpty)
     }
 
+    @tailrec
     private def isInPackageObject(element: PsiElement): Boolean = element match {
-      case member: ScMember if member.isSynthetic => member.getSyntheticNavigationElement.exists(isInPackageObject)
+      case member: ScMember if member.isSynthetic => isInPackageObject(member.syntheticNavigationElement)
       case _ => element.parentOfType(classOf[ScObject]).exists(_.isPackageObject)
     }
   }
@@ -154,7 +157,7 @@ object ScalaGoToDeclarationHandler {
   import ScalaPsiUtil.{getCompanionModule, parameterForSyntheticParameter}
 
   private def syntheticTarget(element: PsiElement): Option[PsiElement] = element match {
-    case function: ScFunction => function.getSyntheticNavigationElement
+    case function: ScFunction => Option(function.syntheticNavigationElement)
     case definition: ScTypeDefinition if definition.isSynthetic => Option(definition.syntheticContainingClass)
     case scObject: ScObject if scObject.isSyntheticObject => getCompanionModule(scObject)
     case parameter: ScParameter => parameterForSyntheticParameter(parameter)

@@ -52,7 +52,7 @@ trait ScTemplateDefinition extends ScNamedElement with PsiClassAdapter with Type
   def setDesugared(actualElement: ScTypeDefinition): ScTemplateDefinition = {
     putUserData(originalElemKey, actualElement)
     members.foreach { member =>
-      member.setSynthetic(actualElement)
+      member.syntheticNavigationElement = actualElement
       member.syntheticContainingClass = actualElement
     }
     this

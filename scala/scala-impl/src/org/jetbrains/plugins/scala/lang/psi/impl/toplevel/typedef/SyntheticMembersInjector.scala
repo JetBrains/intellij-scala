@@ -96,7 +96,7 @@ object SyntheticMembersInjector {
       val function = ScalaPsiElementFactory.createMethodWithContext(template, context, source)
       if (function == null)
         throw new RuntimeException(s"Failed to parse method for class $source: '$template'")
-      function.setSynthetic(context)
+      function.syntheticNavigationElement = context
       function.syntheticContainingClass = source
       if (withOverride ^ !function.hasModifierProperty("override")) buffer += function
     } catch {
@@ -110,9 +110,9 @@ object SyntheticMembersInjector {
   def updateSynthetic(element: ScMember, context: PsiElement): Unit = {
     element match {
       case td: ScTypeDefinition =>
-        td.setSynthetic(context)
+        td.syntheticNavigationElement = context
         td.members.foreach(updateSynthetic(_, context))
-      case fun: ScFunction => fun.setSynthetic(context)
+      case fun: ScFunction => fun.syntheticNavigationElement = context
       case _ => //todo: ?
     }
   }
@@ -186,7 +186,7 @@ object SyntheticMembersInjector {
       }
       val member = ScalaPsiElementFactory.createDefinitionWithContext(template, context, source)
       member.setContext(context, null)
-      member.setSynthetic(context)
+      member.syntheticNavigationElement = context
       member.syntheticContainingClass = context
       context match {
         case c: ScClass if c.isCase && source != context => member.syntheticCaseClass = c

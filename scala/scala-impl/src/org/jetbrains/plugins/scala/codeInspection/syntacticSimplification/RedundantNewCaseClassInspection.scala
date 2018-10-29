@@ -43,15 +43,11 @@ class RedundantNewCaseClassInspection extends AbstractInspection("Redundant New 
     val expression = ScalaPsiElementFactory.createExpressionWithContextFromText(constructorText, constructor.getContext, constructor)
     val reference = getDeepestInvokedReference(expression).filter(_.isValid)
 
-    val syntheticNavigationElement = reference.flatMap(_.bind().map(_.element match {
-      case a: ScFunctionDefinition => a.getSyntheticNavigationElement
-      case _ => None
-    }))
-
-    syntheticNavigationElement.flatten.exists {
-      case _: ScClass => true
-      case _ => false
-    }
+    reference.flatMap(_.bind())
+      .exists {
+        case ScalaResolveResult(f: ScFunctionDefinition, _) => f.syntheticNavigationElement.isInstanceOf[ScClass]
+        case _ => false
+      }
   }
 
   private def getDeepestInvokedReference(resolved: ScExpression): Option[ScReferenceExpression] = {

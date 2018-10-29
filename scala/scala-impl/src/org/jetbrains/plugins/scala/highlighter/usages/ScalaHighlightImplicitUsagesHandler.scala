@@ -126,9 +126,9 @@ object ScalaHighlightImplicitUsagesHandler {
   private implicit class ImplicitTarget(target: PsiElement) {
 
     def isTarget(named: PsiElement): Boolean = named match {
-      case `target`                                                          => true
-      case f: ScFunction if f.getSyntheticNavigationElement.contains(target) => true
-      case _                                                                 => false
+      case `target` => true
+      case f: ScFunction if target == f.syntheticNavigationElement => true
+      case _ => false
     }
 
     private def matches(srr: ScalaResolveResult): Boolean = {

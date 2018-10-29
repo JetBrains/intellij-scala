@@ -31,11 +31,13 @@ trait ScMember extends ScalaPsiElement with ScModifierListOwner with PsiMember {
 
   def isPrivate: Boolean = hasModifierPropertyScala("private")
 
-  final def getSyntheticNavigationElement: Option[PsiElement] = Option(getUserData(synthNavElemKey))
+  final def syntheticNavigationElement: PsiElement =
+    getUserData(syntheticNavigationElementKey)
 
-  final def setSynthetic(navElement: PsiElement): Unit = putUserData(synthNavElemKey, navElement)
+  final def syntheticNavigationElement_=(navigationElement: PsiElement): Unit =
+    putUserData(syntheticNavigationElementKey, navigationElement)
 
-  final def isSynthetic: Boolean = getSyntheticNavigationElement.nonEmpty
+  final def isSynthetic: Boolean = syntheticNavigationElement != null
 
   final def syntheticCaseClass: ScClass =
     getUserData(syntheticCaseClassKey)
@@ -171,7 +173,7 @@ trait ScMember extends ScalaPsiElement with ScModifierListOwner with PsiMember {
 }
 
 object ScMember {
-  private val synthNavElemKey = Key.create[PsiElement]("ScMember.synthNavElem")
+  private val syntheticNavigationElementKey = Key.create[PsiElement]("ScMember.syntheticNavigationElement")
   private val syntheticCaseClassKey = Key.create[ScClass]("ScMember.syntheticCaseClass")
   private val syntheticContainingClassKey = Key.create[ScTypeDefinition]("ScMember.syntheticContainingClass")
 

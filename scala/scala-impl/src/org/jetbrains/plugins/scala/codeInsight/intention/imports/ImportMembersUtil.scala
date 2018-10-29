@@ -71,9 +71,8 @@ object ImportMembersUtil {
   def replaceAndBind(oldRef: ScReferenceElement, name: String, toBind: PsiNamedElement) {
     toBind match {
       case fun: ScFunction if fun.isSynthetic =>
-        fun.getSyntheticNavigationElement match {
-          case Some(named: PsiNamedElement) =>
-            replaceAndBind(oldRef, named.name, named)
+        fun.syntheticNavigationElement match {
+          case named: PsiNamedElement => replaceAndBind(oldRef, named.name, named)
           case _ =>
         }
       case _ =>

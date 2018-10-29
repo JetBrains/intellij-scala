@@ -159,7 +159,7 @@ class ScClassImpl(stub: ScTemplateDefinitionStub,
           if (addCopy) {
             try {
               val method = ScalaPsiElementFactory.createMethodWithContext(copyMethodText, this, this)
-              method.setSynthetic(this)
+              method.syntheticNavigationElement = this
               buf += method
             } catch {
               case p: ProcessCanceledException => throw p
@@ -230,7 +230,7 @@ class ScClassImpl(stub: ScTemplateDefinitionStub,
         case Some(_: ScPrimaryConstructor) =>
           try {
             val method = ScalaPsiElementFactory.createMethodWithContext(implicitMethodText, this.getContext, this)
-            method.setSynthetic(this)
+            method.syntheticNavigationElement = this
             Some(method)
           } catch {
             case p: ProcessCanceledException => throw p

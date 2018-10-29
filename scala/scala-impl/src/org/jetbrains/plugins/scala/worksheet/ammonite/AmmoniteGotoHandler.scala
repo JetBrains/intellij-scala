@@ -38,9 +38,9 @@ class AmmoniteGotoHandler extends GotoDeclarationHandler {
 
   private def findPreImage(scalaPsi: PsiElement): Option[PsiElement] = {
     val originalElement = scalaPsi match {
-      case mem: ScMember => mem.getSyntheticNavigationElement match {
-        case Some(v) => v
-        case _ => scalaPsi
+      case mem: ScMember => mem.syntheticNavigationElement match {
+        case null => scalaPsi
+        case v => v
       }
       case _ => scalaPsi
     }
