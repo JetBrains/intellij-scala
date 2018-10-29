@@ -1,7 +1,7 @@
 package org.jetbrains.plugins.scala.findUsages.compilerReferences
 
 import com.intellij.openapi.diagnostic.Logger
-import com.intellij.openapi.progress.BackgroundTaskQueue
+import com.intellij.openapi.progress.{BackgroundTaskQueue, EmptyProgressIndicator}
 import com.intellij.openapi.project.Project
 import org.jetbrains.plugins.scala.findUsages.compilerReferences.IndexerJob.InvalidateIndex
 
@@ -22,7 +22,9 @@ private class CompilerReferenceIndexerScheduler(
 
     val task = indexer.toTask(job)
     logger.debug(s"Scheduled indexer job $job.")
-    jobQueue.run(task)
+
+    if (job.shouldRunUnderProgress) jobQueue.run(task, null, new EmptyProgressIndicator())
+    else                            jobQueue.run(task)
   }
 
   def schedule(runnable: () => Unit): Unit = synchronized {
