@@ -10,7 +10,6 @@ import scala.beans.BeanProperty
   storages = Array(new Storage("compiler_indices_sbt.xml"))
 )
 class CompilerIndicesSbtSettings extends PersistentStateComponent[CompilerIndicesSbtSettings] {
-  //TODO: set port on sbt shell startup
   //TODO: better instruction on how to set port in sbt
   @BeanProperty var sbtConnectionPort: Int = 65337
 
