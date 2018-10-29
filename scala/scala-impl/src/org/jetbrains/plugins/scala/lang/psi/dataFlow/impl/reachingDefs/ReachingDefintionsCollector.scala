@@ -55,7 +55,7 @@ object ReachingDefintionsCollector {
       case _ => false
     }
     val isInstanceMethod = element match {
-      case fun: ScFunction => fun.isInstance
+      case fun: ScFunction => !fun.isLocal
       case m: PsiMethod => !m.hasModifierPropertyScala("static")
       case _ => false
     }

@@ -59,10 +59,13 @@ trait ScFunction extends ScalaPsiElement with ScMember with ScTypeParametersOwne
   with ScParameterOwner with ScDocCommentOwner with ScTypedDefinition with ScCommentOwner
   with ScDeclaredElementsHolder with ScMethodLike with ScBlockStatement with ScDecoratedIconOwner {
 
-  def isSyntheticCopy: Boolean = synthNavElement.nonEmpty && name == "copy"
-  def isSyntheticApply: Boolean = synthNavElement.nonEmpty && name == "apply"
-  def isSyntheticUnapply: Boolean = synthNavElement.nonEmpty && name == "unapply"
-  def isSyntheticUnapplySeq: Boolean = synthNavElement.nonEmpty && name == "unapplySeq"
+  def isSyntheticCopy: Boolean = isSynthetic && name == "copy"
+
+  def isSyntheticApply: Boolean = isSynthetic && name == "apply"
+
+  def isSyntheticUnapply: Boolean = isSynthetic && name == "unapply"
+
+  def isSyntheticUnapplySeq: Boolean = isSynthetic && name == "unapplySeq"
 
   def hasUnitResultType: Boolean = {
     @tailrec

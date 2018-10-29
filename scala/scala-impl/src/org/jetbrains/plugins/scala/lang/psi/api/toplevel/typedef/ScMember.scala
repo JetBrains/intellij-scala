@@ -5,6 +5,7 @@ package api
 package toplevel
 package typedef
 
+import com.intellij.extapi.psi.StubBasedPsiElementBase
 import com.intellij.openapi.util.Key
 import com.intellij.psi._
 import com.intellij.psi.util._
@@ -25,26 +26,24 @@ import scala.collection.mutable.ArrayBuffer
   * Date: 04.05.2008
   */
 trait ScMember extends ScalaPsiElement with ScModifierListOwner with PsiMember {
+
   def getContainingClass: PsiClass = containingClass
 
   def isPrivate: Boolean = hasModifierPropertyScala("private")
 
-  def isProtected: Boolean = hasModifierPropertyScala("protected")
+  final def getSyntheticNavigationElement: Option[PsiElement] = Option(getUserData(synthNavElemKey))
 
-  def isPublic: Boolean = !isPrivate && !isProtected
+  final def setSynthetic(navElement: PsiElement): Unit = putUserData(synthNavElemKey, navElement)
 
-  def isInstance: Boolean = !isLocal
+  final def isSynthetic: Boolean = getSyntheticNavigationElement.nonEmpty
 
-  protected def synthNavElement: Option[PsiElement] = Option(getUserData(synthNavElemKey))
-  def syntheticCaseClass: Option[ScClass] = Option(getUserData(synthCaseClassKey))
-  def syntheticContainingClass: Option[ScTypeDefinition] = Option(getUserData(synthContainingClassKey))
+  final def syntheticCaseClass: Option[ScClass] = Option(getUserData(synthCaseClassKey))
 
-  def setSynthetic(navElement: PsiElement): Unit = putUserData(synthNavElemKey, navElement)
-  def setSyntheticCaseClass(cl: ScClass): Unit = putUserData(synthCaseClassKey, cl)
-  def setSyntheticContainingClass(td: ScTypeDefinition): Unit = putUserData(synthContainingClassKey, td)
+  final def setSyntheticCaseClass(cl: ScClass): Unit = putUserData(synthCaseClassKey, cl)
 
-  def isSynthetic: Boolean = synthNavElement.nonEmpty
-  def getSyntheticNavigationElement: Option[PsiElement] = synthNavElement
+  final def syntheticContainingClass: Option[ScTypeDefinition] = Option(getUserData(synthContainingClassKey))
+
+  final def setSyntheticContainingClass(td: ScTypeDefinition): Unit = putUserData(synthContainingClassKey, td)
 
 
   /**
@@ -54,35 +53,31 @@ trait ScMember extends ScalaPsiElement with ScModifierListOwner with PsiMember {
     */
   @Cached(ModCount.anyScalaPsiModificationCount, this)
   def containingClass: ScTemplateDefinition = {
-    if (isLocalByStub) null
-    else containingClassInner
-  }
-
-  private def isLocalByStub = this.greenStub.exists {
-    case m: ScMemberOrLocal => m.isLocal
-    case _ => false
-  }
-
-  private def containingClassInner: ScTemplateDefinition = {
-    def isCorrectContext(found: ScTemplateDefinition): Boolean = {
-      val context = getContext
-      context == found.extendsBlock ||
-        found.extendsBlock.templateBody.contains(context) ||
-        found.extendsBlock.earlyDefinitions.contains(context) ||
-        found.physicalExtendsBlock.templateBody.contains(context) // in case a member is not present in the desugared extends block (e.g. deleted by a macro)
+    this match {
+      case stub: StubBasedPsiElementBase[_] =>
+        stub.getGreenStub match {
+          case member: ScMemberOrLocal if member.isLocal => return null
+          case _ =>
+        }
+      case _ =>
     }
-    (getContainingClassLoose, this) match {
-      case (null, _) => null
-      case (_, fun: ScFunction) if fun.syntheticContainingClass.isDefined => fun.syntheticContainingClass.get
-      case (found, fun: ScFunction) if fun.isSynthetic => found
-      case (_, ta: ScTypeAlias) if ta.syntheticContainingClass.isDefined => ta.syntheticContainingClass.get
-      case (_, td: ScTypeDefinition) if td.syntheticContainingClass.isDefined => td.syntheticContainingClass.get
-      case (_, valVar: ScValueOrVariable) if valVar.syntheticContainingClass.isDefined => valVar.syntheticContainingClass.get
-      case (found, td: ScTypeDefinition) if td.isSynthetic => found
-      case (found, _: ScClassParameter | _: ScPrimaryConstructor) => found
-      case (found, _) if isCorrectContext(found) => found
-      case (_, _) => null // See SCL-3178
-    }
+
+    val found = getContainingClassLoose
+    if (found == null) return null
+
+    val clazz = ScMember.containingClass(this, found)
+    if (clazz != null) return clazz
+
+    val context = getContext
+    val extendsBlock = found.extendsBlock
+    val isCorrect = context != null &&
+      (context == extendsBlock ||
+        extendsBlock.templateBody.contains(context) ||
+        extendsBlock.earlyDefinitions.contains(context) ||
+        found.physicalExtendsBlock.templateBody.contains(context)) // in case a member is not present in the desugared extends block (e.g. deleted by a macro)
+
+    if (isCorrect) found
+    else null // See SCL-3178
   }
 
   def getContainingClassLoose: ScTemplateDefinition = {
@@ -108,7 +103,7 @@ trait ScMember extends ScalaPsiElement with ScModifierListOwner with PsiMember {
     }
   }
 
-  def isLocal: Boolean = isLocalByStub || containingClassInner == null
+  def isLocal: Boolean = containingClass == null
 
   // TODO Should be unified, see ScModifierListOwner
   override def hasModifierProperty(name: String): Boolean = {
@@ -172,7 +167,19 @@ trait ScMember extends ScalaPsiElement with ScModifierListOwner with PsiMember {
 }
 
 object ScMember {
-  private val synthNavElemKey: Key[PsiElement] = Key.create("ScMember.synthNavElem")
-  private val synthCaseClassKey: Key[ScClass] = Key.create("ScMember.synthCaseClass")
-  private val synthContainingClassKey: Key[ScTypeDefinition] = Key.create("ScMember.synthContainingClass")
+  private val synthNavElemKey = Key.create[PsiElement]("ScMember.synthNavElem")
+  private val synthCaseClassKey = Key.create[ScClass]("ScMember.synthCaseClass")
+  private val synthContainingClassKey = Key.create[ScTypeDefinition]("ScMember.synthContainingClass")
+
+  private def containingClass(member: ScMember,
+                              found: ScTemplateDefinition) = member match {
+    case fun: ScFunction if fun.syntheticContainingClass.isDefined => fun.syntheticContainingClass.get
+    case fun: ScFunction if fun.isSynthetic => found
+    case ta: ScTypeAlias if ta.syntheticContainingClass.isDefined => ta.syntheticContainingClass.get
+    case td: ScTypeDefinition if td.syntheticContainingClass.isDefined => td.syntheticContainingClass.get
+    case td: ScTypeDefinition if td.isSynthetic => found
+    case valVar: ScValueOrVariable if valVar.syntheticContainingClass.isDefined => valVar.syntheticContainingClass.get
+    case _: ScClassParameter | _: ScPrimaryConstructor => found
+    case _ => null
+  }
 }

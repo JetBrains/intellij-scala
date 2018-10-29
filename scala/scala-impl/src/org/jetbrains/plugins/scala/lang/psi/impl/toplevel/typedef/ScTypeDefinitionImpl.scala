@@ -153,7 +153,9 @@ abstract class ScTypeDefinitionImpl protected (stub: ScTemplateDefinitionStub,
   }
 
   override def isLocal: Boolean =
-    byStubOrPsi(_.isLocal)(containingClass == null && PsiTreeUtil.getParentOfType(this, classOf[ScTemplateDefinition]) != null)
+    byStubOrPsi(_.isLocal) {
+      super.isLocal && PsiTreeUtil.getParentOfType(this, classOf[ScTemplateDefinition]) != null
+    }
 
   def nameId: PsiElement = findChildByType[PsiElement](ScalaTokenTypes.tIDENTIFIER)
 

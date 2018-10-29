@@ -22,8 +22,8 @@ import org.jetbrains.plugins.scala.annotator.gutter.GutterUtil._
 import org.jetbrains.plugins.scala.extensions._
 import org.jetbrains.plugins.scala.lang.lexer.ScalaTokenTypes
 import org.jetbrains.plugins.scala.lang.psi.ScalaPsiUtil
-import org.jetbrains.plugins.scala.lang.psi.api.base.{ScFieldId, ScReferenceElement}
 import org.jetbrains.plugins.scala.lang.psi.api.base.patterns.{ScCaseClauses, ScPattern}
+import org.jetbrains.plugins.scala.lang.psi.api.base.{ScFieldId, ScReferenceElement}
 import org.jetbrains.plugins.scala.lang.psi.api.expr.ScExpression
 import org.jetbrains.plugins.scala.lang.psi.api.statements._
 import org.jetbrains.plugins.scala.lang.psi.api.statements.params.{ScClassParameter, ScParameter}
@@ -135,7 +135,7 @@ class ScalaLineMarkerProvider(daemonSettings: DaemonCodeAnalyzerSettings, colors
       val text = element.getText
 
       namedParent(element).flatMap {
-        case method: ScFunction if method.isInstance && method.name == text =>
+        case method: ScFunction if !method.isLocal && method.name == text =>
           val signatures = method.superSignaturesIncludingSelfType
           val icon       = getOverridesOrImplementsIcon(method, signatures)
           val markerType = ScalaMarkerType.overridingMember
@@ -147,14 +147,14 @@ class ScalaLineMarkerProvider(daemonSettings: DaemonCodeAnalyzerSettings, colors
           val markerType = ScalaMarkerType.overridingMember
           if (signatures.nonEmpty) arrowUpLineMarker(element, icon, markerType).toOption
           else None
-        case v: ScValueOrVariable if v.isInstance && containsNamedElement(v) =>
+        case v: ScValueOrVariable if !v.isLocal && containsNamedElement(v) =>
           val bindings   = v.declaredElements.filter(_.name == element.getText)
           val signatures = bindings.flatMap(ScalaPsiUtil.superValsSignatures(_, withSelfType = true))
           val icon       = getOverridesOrImplementsIcon(v, signatures)
           val markerType = ScalaMarkerType.overridingMember
           if (signatures.nonEmpty) arrowUpLineMarker(element, icon, markerType).toOption
           else None
-        case ta: ScTypeAlias if ta.isInstance && ta.name == text =>
+        case ta: ScTypeAlias if !ta.isLocal && ta.name == text =>
           val elements = ScalaPsiUtil.superTypeMembers(ta, withSelfType = true)
           val icon     = IMPLEMENTING_METHOD_ICON
           val typez    = ScalaMarkerType.overridingMember
@@ -183,7 +183,7 @@ class ScalaLineMarkerProvider(daemonSettings: DaemonCodeAnalyzerSettings, colors
 
       context match {
         case Some(tDef: ScTypeDefinition)                => collectInheritingClassesMarker(tDef)
-        case Some(member: ScMember) if member.isInstance => collectOverriddenMemberMarker(member, identifier)
+        case Some(member: ScMember) if !member.isLocal => collectOverriddenMemberMarker(member, identifier)
         case _                                           => None
       }
     }.foreach(result.add)
