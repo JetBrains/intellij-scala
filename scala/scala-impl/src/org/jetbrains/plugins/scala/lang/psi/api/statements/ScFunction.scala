@@ -59,13 +59,15 @@ trait ScFunction extends ScalaPsiElement with ScMember with ScTypeParametersOwne
   with ScParameterOwner with ScDocCommentOwner with ScTypedDefinition with ScCommentOwner
   with ScDeclaredElementsHolder with ScMethodLike with ScBlockStatement with ScDecoratedIconOwner {
 
-  def isSyntheticCopy: Boolean = isSynthetic && name == "copy"
+  import ScFunction.Ext._
 
-  def isSyntheticApply: Boolean = isSynthetic && name == "apply"
+  def isSyntheticCopy: Boolean = this.isSynthetic && name == Copy
 
-  def isSyntheticUnapply: Boolean = isSynthetic && name == "unapply"
+  def isSyntheticApply: Boolean = this.isSynthetic && name == Apply
 
-  def isSyntheticUnapplySeq: Boolean = isSynthetic && name == "unapplySeq"
+  def isSyntheticUnapply: Boolean = this.isSynthetic && name == Unapply
+
+  def isSyntheticUnapplySeq: Boolean = this.isSynthetic && name == UnapplySeq
 
   def hasUnitResultType: Boolean = {
     @tailrec
@@ -583,6 +585,8 @@ object ScFunction {
   }
 
   object Ext {
+    val Copy = "copy"
+
     val Apply = "apply"
     val Update = "update"
     val GetSet = Set(Apply, Update)
@@ -603,9 +607,10 @@ object ScFunction {
 
   private val calculatingBlockKey: Key[ThreadLocal[Boolean]] = Key.create("calculating.function.returns.block")
 
-  private def isCalculatingFor(e: PsiElement) = e.getOrUpdateUserData(ScFunction.calculatingBlockKey, new ThreadLocal[Boolean] {
-    override def initialValue(): Boolean = false
-  })
+  private def isCalculatingFor(e: PsiElement) = e.getOrUpdateUserData(
+    calculatingBlockKey,
+    ThreadLocal.withInitial[Boolean](() => false)
+  )
 
   @tailrec
   def getCompoundCopy(pTypes: Seq[Seq[ScType]], tParams: List[TypeParameter], rt: ScType, fun: ScFunction): ScFunction = {

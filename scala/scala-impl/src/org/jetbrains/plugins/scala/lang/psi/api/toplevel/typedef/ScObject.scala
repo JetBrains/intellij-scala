@@ -5,9 +5,8 @@ package api
 package toplevel
 package typedef
 
-import javax.swing.Icon
-
 import com.intellij.psi.{PsiClass, PsiElement}
+import javax.swing.Icon
 import org.jetbrains.plugins.scala.icons.Icons
 import org.jetbrains.plugins.scala.lang.lexer.ScalaTokenTypes
 import org.jetbrains.plugins.scala.lang.psi.api.statements.{ScDeclaredElementsHolder, ScDecoratedIconOwner}
@@ -19,15 +18,19 @@ import org.jetbrains.plugins.scala.lang.psi.api.statements.{ScDeclaredElementsHo
 
 trait ScObject extends ScTypeDefinition with ScTypedDefinition with ScMember with ScDeclaredElementsHolder with ScDecoratedIconOwner {
 
-  override protected def getBaseIcon(flags: Int): Icon =
-    if (isPackageObject) Icons.PACKAGE_OBJECT else Icons.OBJECT
-
   //Is this object generated as case class companion module
-  private var isSyntheticCaseClassCompanion: Boolean = false
-  def isSyntheticObject: Boolean = isSyntheticCaseClassCompanion
-  def setSyntheticObject() {
-    isSyntheticCaseClassCompanion = true
+  private var flag = false
+
+  def isSyntheticObject: Boolean = flag
+
+  //noinspection AccessorLikeMethodIsUnit
+  def isSyntheticObject_=(flag: Boolean): Unit = {
+    this.flag = flag
   }
+
+  override protected def getBaseIcon(flags: Int): Icon =
+    if (isPackageObject) Icons.PACKAGE_OBJECT
+    else Icons.OBJECT
 
   def getObjectToken: PsiElement = findFirstChildByType(ScalaTokenTypes.kOBJECT)
 

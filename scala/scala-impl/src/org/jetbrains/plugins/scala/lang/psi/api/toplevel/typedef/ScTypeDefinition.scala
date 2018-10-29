@@ -178,24 +178,27 @@ trait ScTypeDefinition extends ScTemplateDefinition with ScMember
     }
 
 
-    val next = ScalaPsiUtil.getNextStubOrPsiElement(this)
-    val obj: ScObject =
-      createObjectWithContext(objText, getContext, if (next != null) next else this)
-    import org.jetbrains.plugins.scala.extensions._
-    val objOption: Option[ScObject] = obj.toOption
-    objOption.foreach { (obj: ScObject) =>
-      obj.setSyntheticObject()
-      obj.physicalExtendsBlock.members.foreach {
-        case s: ScFunctionDefinition =>
-          s.syntheticNavigationElement = this // So we find the `apply` method in ScalaPsiUtil.syntheticParamForParam
-          this match {
-            case clazz: ScClass if clazz.isCase => s.syntheticCaseClass = clazz
-            case _ =>
-          }
-        case _ =>
-      }
+    val child = ScalaPsiUtil.getNextStubOrPsiElement(this) match {
+      case null => this
+      case next => next
     }
-    objOption
+    createObjectWithContext(objText, getContext, child) match {
+      case null => None
+      case obj =>
+        val maybeCaseClass = this match {
+          case clazz: ScClass if clazz.isCase => Some(clazz)
+          case _ => None
+        }
+
+        obj.isSyntheticObject = true
+        obj.physicalExtendsBlock.members.foreach {
+          case s: ScFunctionDefinition =>
+            s.syntheticNavigationElement = this // So we find the `apply` method in ScalaPsiUtil.syntheticParamForParam
+            maybeCaseClass.foreach(s.syntheticCaseClass_=)
+          case _ =>
+        }
+        Some(obj)
+    }
   }
 
 }
