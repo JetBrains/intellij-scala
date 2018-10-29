@@ -40,7 +40,7 @@ class ScalaFindUsagesHandler(element: PsiElement, factory: ScalaFindUsagesHandle
       val companion = getCompanionModule(c)
       val applyMethods = companion.toSeq.flatMap(_.functionsByName("apply"))
       applyMethods.filter {
-        case f: ScFunctionDefinition if f.isSyntheticApply => true
+        case f: ScFunctionDefinition if f.isApplyMethod => f.isSynthetic
         case f: ScFunctionDefinition =>
           val returnType = f.returnType.toOption
           returnType.exists(_.equiv(ScDesignatorType(c)))

@@ -2,7 +2,6 @@ package org.jetbrains.plugins.scala.macroAnnotations
 
 import scala.annotation.tailrec
 import scala.language.experimental.macros
-import scala.reflect.api.Universe
 import scala.reflect.macros.whitebox
 
 /**
@@ -244,7 +243,9 @@ object CachedMacroUtil {
               try {
                 $calculation
               } finally {
-                exc.set.foreach(_.setProbablyRecursive(false))
+                exc.set.foreach { fun =>
+                  fun.isProbablyRecursive = false
+                }
               }
             }
             else {
@@ -252,7 +253,7 @@ object CachedMacroUtil {
                 classOf[org.jetbrains.plugins.scala.lang.psi.api.statements.ScFunction])
               if (fun == null || fun.isProbablyRecursive) throw exc
               else {
-                fun.setProbablyRecursive(true)
+                fun.isProbablyRecursive = true
                 throw exc.copy(set = exc.set + fun)
               }
             }

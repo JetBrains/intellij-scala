@@ -1283,9 +1283,11 @@ object ScalaPsiUtil {
     * If `param` is a synthetic parameter with a corresponding real parameter, return Some(realParameter), otherwise None
     */
   def parameterForSyntheticParameter(param: ScParameter): Option[ScParameter] =
-    param.parentOfType(classOf[ScFunction]).flatMap {
-      case fun if fun.isSyntheticCopy => Option(fun.containingClass)
-      case fun if fun.isSyntheticApply => getCompanionModule(fun.containingClass)
+    param.parentOfType(classOf[ScFunction])
+      .filter(_.isSynthetic)
+      .flatMap {
+        case fun if fun.isCopyMethod => Option(fun.containingClass)
+        case fun if fun.isApplyMethod => getCompanionModule(fun.containingClass)
       case _ => None
     }.collect {
       case td: ScClass if td.isCase => td

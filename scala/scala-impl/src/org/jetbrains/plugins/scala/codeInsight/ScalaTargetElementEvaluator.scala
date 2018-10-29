@@ -75,7 +75,7 @@ class ScalaTargetElementEvaluator extends TargetElementEvaluatorEx {
       ref.resolve() match {
         case p: ScParameter =>
           p.owner match {
-            case a: ScFunctionDefinition if a.isSyntheticApply =>
+            case a: ScFunctionDefinition if a.isApplyMethod && a.isSynthetic =>
               a.containingClass match {
                 case obj: ScObject =>
                   obj.fakeCompanionClassOrCompanionClass match {

@@ -175,7 +175,7 @@ object ScalaOIUtil {
       case _ if isProductAbstractMethod(sign.method, clazz) => true
       case f: ScFunctionDeclaration if !f.isNative => false
       case x if x.name == "$tag" || x.name == "$init$"=> false
-      case x: ScFunction if x.isSyntheticCopy => false
+      case x: ScFunction if x.isCopyMethod && x.isSynthetic => false
       case x if x.containingClass == clazz => false
       case x: PsiModifierListOwner if (x.hasModifierPropertyScala("abstract") &&
               !x.isInstanceOf[ScFunctionDefinition])

@@ -35,12 +35,6 @@ trait ScMember extends ScalaPsiElement with ScModifierListOwner with PsiMember {
   final def syntheticNavigationElement_=(navigationElement: PsiElement): Unit =
     putUserData(syntheticNavigationElementKey, navigationElement)
 
-  final def syntheticCaseClass: ScClass =
-    getUserData(syntheticCaseClassKey)
-
-  final def syntheticCaseClass_=(caseClass: ScClass): Unit =
-    putUserData(syntheticCaseClassKey, caseClass)
-
   final def syntheticContainingClass: ScTypeDefinition =
     getUserData(syntheticContainingClassKey)
 
@@ -89,8 +83,7 @@ trait ScMember extends ScalaPsiElement with ScModifierListOwner with PsiMember {
           // TODO is all of this mess still necessary?!
           case c: ScClass if c.isCase =>
             this match {
-              case fun: ScFunction if fun.isSyntheticApply || fun.isSyntheticUnapply ||
-                fun.isSyntheticUnapplySeq =>
+              case fun: ScFunction if fun.isSynthetic && (fun.isApplyMethod || fun.isUnapplyMethod) =>
                 //this is special case for synthetic apply and unapply methods
                 ScalaPsiUtil.getCompanionModule(c) match {
                   case Some(td) => return td
@@ -168,8 +161,9 @@ trait ScMember extends ScalaPsiElement with ScModifierListOwner with PsiMember {
 }
 
 object ScMember {
+
   private val syntheticNavigationElementKey = Key.create[PsiElement]("ScMember.syntheticNavigationElement")
-  private val syntheticCaseClassKey = Key.create[ScClass]("ScMember.syntheticCaseClass")
+
   private val syntheticContainingClassKey = Key.create[ScTypeDefinition]("ScMember.syntheticContainingClass")
 
   private def containingClass(member: ScMember,

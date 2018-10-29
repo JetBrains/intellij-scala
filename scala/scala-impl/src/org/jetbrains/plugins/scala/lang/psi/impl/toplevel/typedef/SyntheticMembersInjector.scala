@@ -9,7 +9,7 @@ import org.jetbrains.plugins.scala.components.libextensions.DynamicExtensionPoin
 import org.jetbrains.plugins.scala.lang.psi.ScalaPsiUtil
 import org.jetbrains.plugins.scala.lang.psi.api.base.types.ScTypeElement
 import org.jetbrains.plugins.scala.lang.psi.api.statements.ScFunction
-import org.jetbrains.plugins.scala.lang.psi.api.toplevel.typedef.{ScClass, ScMember, ScObject, ScTypeDefinition}
+import org.jetbrains.plugins.scala.lang.psi.api.toplevel.typedef.{ScMember, ScObject, ScTypeDefinition}
 import org.jetbrains.plugins.scala.lang.psi.impl.ScalaPsiElementFactory
 
 import scala.collection.mutable.ArrayBuffer
@@ -107,16 +107,6 @@ object SyntheticMembersInjector {
     buffer
   }
 
-  def updateSynthetic(element: ScMember, context: PsiElement): Unit = {
-    element match {
-      case td: ScTypeDefinition =>
-        td.syntheticNavigationElement = context
-        td.members.foreach(updateSynthetic(_, context))
-      case fun: ScFunction => fun.syntheticNavigationElement = context
-      case _ => //todo: ?
-    }
-  }
-
   def injectInners(source: ScTypeDefinition): Seq[ScTypeDefinition] = {
     val buffer = new ArrayBuffer[ScTypeDefinition]()
     implicit val ctx: Project = source.getProject
@@ -166,13 +156,6 @@ object SyntheticMembersInjector {
     buffer
   }
 
-  private def logError(message: String, t: Throwable): Unit = {
-    t match {
-      case e @ (_: ControlFlowException | _: ControlThrowable) => throw e
-      case _ => LOG.error(message, t)
-    }
-  }
-
   def injectMembers(source: ScTypeDefinition): Seq[ScMember] = {
     val buffer = new ArrayBuffer[ScMember]()
     implicit val ctx: Project = source.getProject
@@ -181,17 +164,14 @@ object SyntheticMembersInjector {
       template <- injector.injectMembers(source)
     } try {
       val context = source match {
-//        case o: ScObject if o.isSyntheticObject => ScalaPsiUtil.getCompanionModule(o).getOrElse(source)
+        //        case o: ScObject if o.isSyntheticObject => ScalaPsiUtil.getCompanionModule(o).getOrElse(source)
         case _ => source
       }
       val member = ScalaPsiElementFactory.createDefinitionWithContext(template, context, source)
       member.setContext(context, null)
       member.syntheticNavigationElement = context
       member.syntheticContainingClass = context
-      context match {
-        case c: ScClass if c.isCase && source != context => member.syntheticCaseClass = c
-        case _ =>
-      }
+
       updateSynthetic(member, context)
       if (!member.hasModifierProperty("override")) buffer += member
     } catch {
@@ -200,5 +180,20 @@ object SyntheticMembersInjector {
         logError(s"Error during parsing template from injector: ${injector.getClass.getName}", e)
     }
     buffer
+  }
+
+  private def logError(message: String, t: Throwable): Unit = {
+    t match {
+      case e@(_: ControlFlowException | _: ControlThrowable) => throw e
+      case _ => LOG.error(message, t)
+    }
+  }
+
+  private def updateSynthetic(element: ScMember, context: PsiElement): Unit = element match {
+    case td: ScTypeDefinition =>
+      td.syntheticNavigationElement = context
+      td.members.foreach(updateSynthetic(_, context))
+    case fun: ScFunction => fun.syntheticNavigationElement = context
+    case _ => //todo: ?
   }
 }

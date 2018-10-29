@@ -156,12 +156,12 @@ object CachesUtil {
                                         defaultValue: => Result): Result = {
     ScObjectImpl.checkPackageObject()
 
-    PsiTreeUtil.getContextOfType(e, true, classOf[ScFunction]) match {
-      case null => defaultValue
-      case fun if fun.isProbablyRecursive => defaultValue
-      case fun =>
-        fun.setProbablyRecursive(true)
-        throw ProbablyRecursionException(e, data, key, Set(fun))
+    val function = PsiTreeUtil.getContextOfType(e, true, classOf[ScFunction])
+    if (function == null || function.isProbablyRecursive) {
+      defaultValue
+    } else {
+      function.isProbablyRecursive = true
+      throw ProbablyRecursionException(e, data, key, Set(function))
     }
   }
 

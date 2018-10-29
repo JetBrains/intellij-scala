@@ -4,11 +4,10 @@ package psi
 package api
 package statements
 
-
 import java.util
 
 import com.intellij.openapi.progress.ProgressManager
-import com.intellij.openapi.project.DumbService
+import com.intellij.openapi.project.{DumbService, Project}
 import com.intellij.openapi.util.Key
 import com.intellij.psi.PsiReferenceList.Role
 import com.intellij.psi._
@@ -59,15 +58,20 @@ trait ScFunction extends ScalaPsiElement with ScMember with ScTypeParametersOwne
   with ScParameterOwner with ScDocCommentOwner with ScTypedDefinition with ScCommentOwner
   with ScDeclaredElementsHolder with ScMethodLike with ScBlockStatement with ScDecoratedIconOwner {
 
-  import ScFunction.Ext._
+  private[this] val probablyRecursive = ThreadLocal.withInitial[Boolean](() => false)
 
-  def isSyntheticCopy: Boolean = this.isSynthetic && name == Copy
+  final def isProbablyRecursive: Boolean = probablyRecursive.get
 
-  def isSyntheticApply: Boolean = this.isSynthetic && name == Apply
+  //noinspection AccessorLikeMethodIsUnit
+  final def isProbablyRecursive_=(value: Boolean): Unit = {
+    probablyRecursive.set(value)
+  }
 
-  def isSyntheticUnapply: Boolean = this.isSynthetic && name == Unapply
+  final def syntheticCaseClass: ScClass =
+    getUserData(ScFunction.syntheticCaseClassKey)
 
-  def isSyntheticUnapplySeq: Boolean = this.isSynthetic && name == UnapplySeq
+  final def syntheticCaseClass_=(caseClass: ScClass): Unit =
+    putUserData(ScFunction.syntheticCaseClassKey, caseClass)
 
   def hasUnitResultType: Boolean = {
     @tailrec
@@ -80,12 +84,6 @@ trait ScFunction extends ScalaPsiElement with ScMember with ScTypeParametersOwne
   }
 
   def isParameterless: Boolean = paramClauses.clauses.isEmpty
-
-  private val probablyRecursive: ThreadLocal[Boolean] = new ThreadLocal[Boolean]() {
-    override def initialValue(): Boolean = false
-  }
-  def isProbablyRecursive: Boolean = probablyRecursive.get()
-  def setProbablyRecursive(b: Boolean) {probablyRecursive.set(b)}
 
   def isEmptyParen: Boolean = paramClauses.clauses.size == 1 && paramClauses.params.isEmpty
 
@@ -524,13 +522,18 @@ trait ScFunction extends ScalaPsiElement with ScMember with ScTypeParametersOwne
 }
 
 object ScFunction {
+
+  private val syntheticCaseClassKey = Key.create[ScClass]("ScFunction.syntheticCaseClass")
+
   implicit class Ext(val function: ScFunction) extends AnyVal {
 
     import Ext._
 
-    private implicit def project = function.getProject
-    private implicit def resolveScope = function.resolveScope
-    private implicit def elementScope = function.elementScope
+    private implicit def project: Project = function.getProject
+
+    private implicit def elementScope: ElementScope = function.elementScope
+
+    def isCopyMethod: Boolean = function.name == Copy
 
     def isApplyMethod: Boolean = function.name == Apply
 
