@@ -23,6 +23,8 @@ import com.intellij.openapi.util.{Disposer, SystemInfo}
 import com.intellij.openapi.util.io.FileUtil
 import com.intellij.openapi.vfs.VfsUtil
 import org.jetbrains.plugins.scala.buildinfo.BuildInfo
+import org.jetbrains.plugins.scala.extensions._
+import org.jetbrains.plugins.scala.findUsages.compilerReferences.{CompilerIndicesSbtSettings, CompilerIndicesSettings}
 import org.jetbrains.plugins.scala.project.Version
 import org.jetbrains.plugins.scala.project.external.{JdkByName, SdkUtils}
 import org.jetbrains.sbt.SbtUtil
@@ -63,14 +65,20 @@ class SbtProcessManager(project: Project) extends ProjectComponent {
   private def sbtStructurePlugin(sbtMajorVersion: Version): Seq[String] = {
     val sbtStructureVersion           = BuildInfo.sbtStructureVersion
     val sbtIdeaShellVersion           = BuildInfo.sbtIdeaShellVersion
-    val sbtIdeaCompilerIndicesVersion = BuildInfo.sbtIdeaCompilerIndicesVersion
+
+    val compilerIndicesEnabled = CompilerIndicesSettings(project).indexingEnabled
+    val compilerIndicesPlugin  = compilerIndicesEnabled.seq {
+      val pluginVersion = BuildInfo.sbtIdeaCompilerIndicesVersion
+      s"""addSbtPlugin("org.jetbrains" % "sbt-idea-compiler-indices" % "$pluginVersion")"""
+    }
+
+
     sbtMajorVersion.presentation match {
       case "0.12" => Seq.empty // 0.12 doesn't support AutoPlugins
       case _ => Seq(
         s"""addSbtPlugin("org.jetbrains" % "sbt-structure-extractor" % "$sbtStructureVersion")""",
         s"""addSbtPlugin("org.jetbrains" % "sbt-idea-shell" % "$sbtIdeaShellVersion")""",
-        s"""addSbtPlugin("org.jetbrains" % "sbt-idea-compiler-indices" % "$sbtIdeaCompilerIndicesVersion")"""
-      ) // works for 0.13.5+, for older versions it will be ignored
+      ) ++ compilerIndicesPlugin // works for 0.13.5+, for older versions it will be ignored
     }
   }
 
@@ -149,13 +157,20 @@ class SbtProcessManager(project: Project) extends ProjectComponent {
         else globalSettingsFile
 
       // caution! writes injected plugin settings to user's global sbt config if addPlugin command is not supported
-      injectSettings(runid, ! addPluginCommandSupported, settingsFile, pluginResolverSetting +: injectedPlugins(sbtMajorVersion))
+      val plugins = injectedPlugins(sbtMajorVersion)
+      injectSettings(runid, ! addPluginCommandSupported, settingsFile, pluginResolverSetting +: plugins)
 
       if (addPluginCommandSupported)
         commandLine.addParameter(s"--addPluginSbtFile=${settingsFile.getAbsolutePath}")
 
       // we have our plugins in there, load custom shell
-      commandLine.addParameter("idea-shell")
+      val compilerIndicesPluginLoaded = plugins.exists(_.contains("sbt-idea-compiler-indices"))
+      val ideaPort = CompilerIndicesSbtSettings().sbtConnectionPort
+      val commands = compilerIndicesPluginLoaded.fold(
+        s""""; set ideaPort in Global := $ideaPort ; idea-shell"""",
+        "idea-shell"
+      )
+      commandLine.addParameter(commands)
     }
 
     if (shouldUpgradeSbtVersion)

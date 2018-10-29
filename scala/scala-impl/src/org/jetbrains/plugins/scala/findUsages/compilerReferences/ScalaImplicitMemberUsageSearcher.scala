@@ -20,9 +20,8 @@ import org.jetbrains.plugins.scala.ScalaBundle
 import org.jetbrains.plugins.scala.extensions._
 import org.jetbrains.plugins.scala.findUsages.compilerReferences.ImplicitUsagesSearchUI.{EnableCompilerIndicesDialog, ImplicitFindUsagesDialog}
 import org.jetbrains.plugins.scala.findUsages.factory.{ScalaFindUsagesHandler, ScalaFindUsagesHandlerFactory}
-import org.jetbrains.plugins.scala.project._
 import org.jetbrains.plugins.scala.util.ImplicitUtil._
-import org.jetbrains.sbt.shell.{SbtShellCommunication, moduleBuildCommand}
+import org.jetbrains.sbt.shell.SbtShellCommunication
 
 import scala.collection.JavaConverters._
 
@@ -106,23 +105,8 @@ object ScalaImplicitMemberUsageSearcher {
           // we can simply fetch info about ALL classes instead of just
           // the ones built incrementally via incrementalityType setting
 
-          // TODO: perhaps this could be a command defined in sbt plugin, so that it is easier to use
-          // TODO: for people who do not use IDEA's sbt shell
-          def setIncrementalityType(incremental: Boolean): String = {
-            val incType = if (incremental) "Incremental" else "NonIncremental"
-            s"set incrementalityType.in(Global) := _root_.org.jetbrains.sbt.indices.IntellijIndexer.IncrementalityType.$incType"
-          }
-
-          val shell         = SbtShellCommunication.forProject(project)
-          val modules       = project.sourceModules
-          val buildCommands = modules.flatMap(moduleBuildCommand)
-
-          val buildCommand  =
-            if (buildCommands.isEmpty) ""
-            else                       buildCommands.mkString("all ", " ", "")
-
-          val command = s"; ${setIncrementalityType(incremental = false)} ; $buildCommand ; ${setIncrementalityType(incremental = true)}"
-          shell.command(command)
+          val shell = SbtShellCommunication.forProject(project)
+          shell.command("rebuildIdeaIndices")
       }
 
       false
