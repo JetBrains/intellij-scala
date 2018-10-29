@@ -38,7 +38,12 @@ lazy val scalaCommunity: sbt.Project =
 
 lazy val scalaImpl: sbt.Project =
   newProject("scala-impl", file("scala/scala-impl"))
-    .dependsOn(compilerShared, decompiler % "test->test;compile->compile", runners % "test->test;compile->compile", macroAnnotations)
+    .dependsOn(
+      scalaFmtBin,
+      compilerShared,
+      macroAnnotations,
+      decompiler % "test->test;compile->compile",
+      runners    % "test->test;compile->compile")
     .enablePlugins(BuildInfoPlugin)
     .settings(
       ideExcludedDirectories := Seq(baseDirectory.value / "testdata" / "projects"),
@@ -95,6 +100,15 @@ lazy val hydraImpl: sbt.Project =
       scalacOptions in Global ++= Seq("-target:jvm-1.8", "-deprecation"),
       packageMethod := PackagingMethod.MergeIntoOther(scalaCommunity)
     )
+
+lazy val scalaFmtBin: sbt.Project =
+  newProject("scalaFmtBin", file("scalaFmtBin"))
+  .settings(
+    libraryDependencies ++= Dependencies.scalafmt,
+    packageMethod       :=  PackagingMethod.DepsOnly("lib/scalafmt-bundle.jar"),
+    shadePatterns       +=  ShadePattern("scala.meta.**", "scalafmt.scala.meta.@1"),
+    packageAssembleLibraries := true
+  )
 
 lazy val compilerJps =
   newProject("compiler-jps", file("scala/compiler-jps"))

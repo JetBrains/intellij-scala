@@ -145,7 +145,7 @@ object DependencyGroups {
     ivy2,
     scalastyle,
     scalariform
-  ) ++ scalafmt
+  )
 
   val bsp: Seq[ModuleID] = Seq(
     ("org.scala-sbt.ipcsocket" % "ipcsocket" % "1.0.0")
