@@ -126,7 +126,7 @@ class ScObjectImpl(stub: ScTemplateDefinitionStub,
           try {
             val method = ScalaPsiElementFactory.createMethodWithContext(s, c.getContext, c)
             method.setSynthetic(this)
-            method.setSyntheticCaseClass(c)
+            method.syntheticCaseClass = c
             res += method
           }
           catch {

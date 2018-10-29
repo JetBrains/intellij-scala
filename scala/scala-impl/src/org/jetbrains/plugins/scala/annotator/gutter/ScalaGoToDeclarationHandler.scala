@@ -92,7 +92,10 @@ object ScalaGoToDeclarationHandler {
     val actualElement = result.getActualElement
     result.element match {
       case function: ScFunction if function.isSynthetic =>
-        Seq(function.syntheticCaseClass.getOrElse(actualElement))
+        Seq(function.syntheticCaseClass match {
+          case null => actualElement
+          case clazz => clazz
+        })
       case method: PsiMethod if method.isConstructor && method.containingClass == actualElement => Seq(method)
       case element => Seq(actualElement, element) ++ result.innerResolveResult.map(_.getElement)
     }

@@ -189,8 +189,7 @@ trait ScTypeDefinition extends ScTemplateDefinition with ScMember
         case s: ScFunctionDefinition =>
           s.setSynthetic(this) // So we find the `apply` method in ScalaPsiUtil.syntheticParamForParam
           this match {
-            case clazz: ScClass if clazz.isCase =>
-              s.setSyntheticCaseClass(clazz)
+            case clazz: ScClass if clazz.isCase => s.syntheticCaseClass = clazz
             case _ =>
           }
         case _ =>

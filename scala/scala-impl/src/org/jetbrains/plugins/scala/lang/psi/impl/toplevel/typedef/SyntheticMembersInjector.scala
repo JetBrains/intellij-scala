@@ -189,7 +189,7 @@ object SyntheticMembersInjector {
       member.setSynthetic(context)
       member.syntheticContainingClass = context
       context match {
-        case c: ScClass if c.isCase && source != context => member.setSyntheticCaseClass(c)
+        case c: ScClass if c.isCase && source != context => member.syntheticCaseClass = c
         case _ =>
       }
       updateSynthetic(member, context)

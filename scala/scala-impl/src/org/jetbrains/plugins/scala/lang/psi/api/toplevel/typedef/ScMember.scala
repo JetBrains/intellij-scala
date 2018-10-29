@@ -37,9 +37,11 @@ trait ScMember extends ScalaPsiElement with ScModifierListOwner with PsiMember {
 
   final def isSynthetic: Boolean = getSyntheticNavigationElement.nonEmpty
 
-  final def syntheticCaseClass: Option[ScClass] = Option(getUserData(synthCaseClassKey))
+  final def syntheticCaseClass: ScClass =
+    getUserData(syntheticCaseClassKey)
 
-  final def setSyntheticCaseClass(cl: ScClass): Unit = putUserData(synthCaseClassKey, cl)
+  final def syntheticCaseClass_=(caseClass: ScClass): Unit =
+    putUserData(syntheticCaseClassKey, caseClass)
 
   final def syntheticContainingClass: ScTypeDefinition =
     getUserData(syntheticContainingClassKey)
@@ -170,7 +172,7 @@ trait ScMember extends ScalaPsiElement with ScModifierListOwner with PsiMember {
 
 object ScMember {
   private val synthNavElemKey = Key.create[PsiElement]("ScMember.synthNavElem")
-  private val synthCaseClassKey = Key.create[ScClass]("ScMember.synthCaseClass")
+  private val syntheticCaseClassKey = Key.create[ScClass]("ScMember.syntheticCaseClass")
   private val syntheticContainingClassKey = Key.create[ScTypeDefinition]("ScMember.syntheticContainingClass")
 
   private def containingClass(member: ScMember,

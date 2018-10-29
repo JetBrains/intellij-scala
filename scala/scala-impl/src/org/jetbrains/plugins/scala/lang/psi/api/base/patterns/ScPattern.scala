@@ -387,11 +387,9 @@ object ScPattern {
     }
   }
 
-  def isOneArgCaseClassMethod(fun: ScFunction): Boolean = {
-    fun.syntheticCaseClass match {
-      case Some(c: ScClass) => c.constructor.exists(_.effectiveFirstParameterSection.length == 1)
-      case _ => false
-    }
+  def isOneArgCaseClassMethod(fun: ScFunction): Boolean = fun.syntheticCaseClass match {
+    case null => false
+    case clazz => clazz.constructor.exists(_.effectiveFirstParameterSection.length == 1)
   }
 
   private def findMember(name: String, tp: ScType, place: PsiElement): Option[ScType] = {

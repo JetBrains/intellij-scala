@@ -3,8 +3,6 @@ package lang
 package refactoring
 package changeSignature
 
-import scala.annotation.tailrec
-
 import com.intellij.ide.util.SuperMethodWarningUtil
 import com.intellij.openapi.actionSystem.{CommonDataKeys, DataContext}
 import com.intellij.openapi.editor.{Editor, ScrollType}
@@ -21,6 +19,8 @@ import org.jetbrains.plugins.scala.lang.psi.api.toplevel.typedef.ScClass
 import org.jetbrains.plugins.scala.lang.psi.light.isWrapper
 import org.jetbrains.plugins.scala.lang.refactoring.util.ScalaRefactoringUtil
 import org.jetbrains.plugins.scala.statistics.{FeatureKey, Stats}
+
+import scala.annotation.tailrec
 
 /**
  * Nikolay.Tropin
@@ -62,7 +62,10 @@ class ScalaChangeSignatureHandler extends ChangeSignatureHandler with ScalaRefac
       case null => None
       case isWrapper(fun: ScFunction) => unwrapMethod(fun)
       case fun: ScFunction if fun.isSynthetic =>
-        fun.syntheticCaseClass.flatMap(_.constructor)
+        fun.syntheticCaseClass match {
+          case null => None
+          case clazz => clazz.constructor
+        }
       case m: PsiMethod => Some(m)
       case _ => None
     }
