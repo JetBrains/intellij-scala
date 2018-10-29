@@ -97,7 +97,7 @@ object SyntheticMembersInjector {
       if (function == null)
         throw new RuntimeException(s"Failed to parse method for class $source: '$template'")
       function.setSynthetic(context)
-      function.setSyntheticContainingClass(source)
+      function.syntheticContainingClass = source
       if (withOverride ^ !function.hasModifierProperty("override")) buffer += function
     } catch {
       case p: ProcessCanceledException => throw p
@@ -129,7 +129,7 @@ object SyntheticMembersInjector {
         case _ => source
       }).extendsBlock
       val td = ScalaPsiElementFactory.createTypeDefinitionWithContext(template, context, source)
-      td.setSyntheticContainingClass(source)
+      td.syntheticContainingClass = source
       updateSynthetic(td, context)
       buffer += td
     } catch {
@@ -187,7 +187,7 @@ object SyntheticMembersInjector {
       val member = ScalaPsiElementFactory.createDefinitionWithContext(template, context, source)
       member.setContext(context, null)
       member.setSynthetic(context)
-      member.setSyntheticContainingClass(context)
+      member.syntheticContainingClass = context
       context match {
         case c: ScClass if c.isCase && source != context => member.setSyntheticCaseClass(c)
         case _ =>

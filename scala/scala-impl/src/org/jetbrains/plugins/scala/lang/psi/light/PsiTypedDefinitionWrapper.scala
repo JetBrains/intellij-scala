@@ -21,7 +21,10 @@ class PsiTypedDefinitionWrapper(val delegate: ScTypedDefinition, isStatic: Boole
     val result = cClass.getOrElse {
       delegate.nameContext match {
         case s: ScMember =>
-          val res = Option(s.containingClass).orElse(s.syntheticContainingClass).orNull
+          val res = s.containingClass match {
+            case null => s.syntheticContainingClass
+            case clazz => clazz
+          }
           if (isStatic) {
             res match {
               case o: ScObject => o.fakeCompanionClassOrCompanionClass

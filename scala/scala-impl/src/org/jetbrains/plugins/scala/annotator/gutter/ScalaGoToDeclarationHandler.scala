@@ -152,7 +152,7 @@ object ScalaGoToDeclarationHandler {
 
   private def syntheticTarget(element: PsiElement): Option[PsiElement] = element match {
     case function: ScFunction => function.getSyntheticNavigationElement
-    case definition: ScTypeDefinition if definition.isSynthetic => definition.syntheticContainingClass
+    case definition: ScTypeDefinition if definition.isSynthetic => Option(definition.syntheticContainingClass)
     case scObject: ScObject if scObject.isSyntheticObject => getCompanionModule(scObject)
     case parameter: ScParameter => parameterForSyntheticParameter(parameter)
     case _ => None

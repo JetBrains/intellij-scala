@@ -41,9 +41,11 @@ trait ScMember extends ScalaPsiElement with ScModifierListOwner with PsiMember {
 
   final def setSyntheticCaseClass(cl: ScClass): Unit = putUserData(synthCaseClassKey, cl)
 
-  final def syntheticContainingClass: Option[ScTypeDefinition] = Option(getUserData(synthContainingClassKey))
+  final def syntheticContainingClass: ScTypeDefinition =
+    getUserData(syntheticContainingClassKey)
 
-  final def setSyntheticContainingClass(td: ScTypeDefinition): Unit = putUserData(synthContainingClassKey, td)
+  final def syntheticContainingClass_=(containingClass: ScTypeDefinition): Unit =
+    putUserData(syntheticContainingClassKey, containingClass)
 
 
   /**
@@ -169,16 +171,19 @@ trait ScMember extends ScalaPsiElement with ScModifierListOwner with PsiMember {
 object ScMember {
   private val synthNavElemKey = Key.create[PsiElement]("ScMember.synthNavElem")
   private val synthCaseClassKey = Key.create[ScClass]("ScMember.synthCaseClass")
-  private val synthContainingClassKey = Key.create[ScTypeDefinition]("ScMember.synthContainingClass")
+  private val syntheticContainingClassKey = Key.create[ScTypeDefinition]("ScMember.syntheticContainingClass")
 
   private def containingClass(member: ScMember,
                               found: ScTemplateDefinition) = member match {
-    case fun: ScFunction if fun.syntheticContainingClass.isDefined => fun.syntheticContainingClass.get
-    case fun: ScFunction if fun.isSynthetic => found
-    case ta: ScTypeAlias if ta.syntheticContainingClass.isDefined => ta.syntheticContainingClass.get
-    case td: ScTypeDefinition if td.syntheticContainingClass.isDefined => td.syntheticContainingClass.get
-    case td: ScTypeDefinition if td.isSynthetic => found
-    case valVar: ScValueOrVariable if valVar.syntheticContainingClass.isDefined => valVar.syntheticContainingClass.get
+    case _: ScFunction |
+         _: ScTypeDefinition =>
+      member.syntheticContainingClass match {
+        case null if member.isSynthetic => found
+        case null => null
+        case clazz => clazz
+      }
+    case _: ScTypeAlias |
+         _: ScValueOrVariable => member.syntheticContainingClass
     case _: ScClassParameter | _: ScPrimaryConstructor => found
     case _ => null
   }

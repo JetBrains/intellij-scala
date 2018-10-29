@@ -557,7 +557,10 @@ object ScalaPsiElementFactory {
                                                comment: String = "",
                                                withBody: Boolean = true)(implicit ctx: ProjectContext): ScMember = {
     val member = createOverrideImplementVariable(variable, substitutor, needsOverrideModifier, isVal, comment, withBody)
-    Option(clazz).collect { case td: ScTypeDefinition => member.setSyntheticContainingClass(td) }
+    clazz match {
+      case td: ScTypeDefinition => member.syntheticContainingClass = td
+      case _ =>
+    }
     member
   }
 

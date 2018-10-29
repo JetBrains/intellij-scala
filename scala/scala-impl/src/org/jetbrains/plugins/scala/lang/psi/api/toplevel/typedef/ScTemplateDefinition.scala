@@ -53,7 +53,7 @@ trait ScTemplateDefinition extends ScNamedElement with PsiClassAdapter with Type
     putUserData(originalElemKey, actualElement)
     members.foreach { member =>
       member.setSynthetic(actualElement)
-      member.setSyntheticContainingClass(actualElement)
+      member.syntheticContainingClass = actualElement
     }
     this
   }
