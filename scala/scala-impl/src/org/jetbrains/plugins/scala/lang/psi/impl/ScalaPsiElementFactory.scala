@@ -814,16 +814,16 @@ object ScalaPsiElementFactory {
   def createElement(text: String)
                    (parse: ScalaPsiBuilder => AnyVal)
                    (implicit ctx: ProjectContext): PsiElement =
-    createElement(text, createScalaFileFromText(""))(parse)
+    createElement(text.sanitize, createScalaFileFromText(""))(parse)
 
   def createElementWithContext[E <: ScalaPsiElement](text: String,
                                                      context: PsiElement,
                                                      child: PsiElement,
                                                      parse: ScalaPsiBuilder => AnyVal)
                                                     (implicit tag: ClassTag[E]): Option[E] = {
-    val trimmed = text.trim
-    createElement(trimmed, context)(parse)(context.getProject) match {
-      case element: E if element.getTextLength == trimmed.length => Some(withContext(element, context, child))
+    val sanitized = text.sanitize
+    createElement(sanitized, context)(parse)(context.getProject) match {
+      case element: E if element.getTextLength == sanitized.string.length => Some(withContext(element, context, child))
       case _ => None
     }
   }
@@ -838,14 +838,19 @@ object ScalaPsiElementFactory {
     element
   }
 
-  private def createElement[T <: AnyVal](text: String, context: PsiElement)
+  //platform-independent version of string, which could be created as multiline string literal
+  private implicit class SanitizedString(val string: String) extends AnyVal {
+    def sanitize: SanitizedString = new SanitizedString(convertLineSeparators(string).trim)
+  }
+
+  private def createElement[T <: AnyVal](sanitized: SanitizedString, context: PsiElement)
                                         (parse: ScalaPsiBuilder => T)
                                         (implicit ctx: ProjectContext): PsiElement = {
     val project = ctx.getProject
     val holder = DummyHolderFactory.createHolder(PsiManager.getInstance(project), context).getTreeElement
 
     val builder = new ScalaPsiBuilderImpl(PsiBuilderFactory.getInstance
-      .createBuilder(project, holder, new ScalaLexer, ScalaLanguage.INSTANCE, convertLineSeparators(text.trim)))
+      .createBuilder(project, holder, new ScalaLexer, ScalaLanguage.INSTANCE, sanitized.string))
 
     val marker = builder.mark()
     parse(builder)
