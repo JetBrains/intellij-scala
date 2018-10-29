@@ -64,7 +64,7 @@ class ReferenceExpressionResolver(implicit projectContext: ProjectContext) {
         val args = call.argumentExpressions ++ call.getContext.asInstanceOf[ScAssignStmt].getRExpression.toList
         ContextInfo(Some(args), () => None, isUnderscore = false)
       case section: ScUnderscoreSection => ContextInfo(None, () => section.expectedType(), isUnderscore = true)
-      case ScInfixExpr.withAssoc(_, `ref`, argument) =>
+      case infix @ ScInfixExpr.withAssoc(_, `ref`, argument) =>
         ContextInfo(argument match {
           case tuple: ScTuple => Some(tuple.exprs) // See SCL-2001
           case _: ScUnitExpr => Some(Nil) // See SCL-3485
@@ -73,7 +73,7 @@ class ReferenceExpressionResolver(implicit projectContext: ProjectContext) {
             case _ => Some(Nil)
           }
           case rOp => Some(Seq(rOp))
-        }, () => None, isUnderscore = false)
+        }, () => infix.expectedType(), isUnderscore = false)
       case parents: ScParenthesisedExpr => getContextInfo(ref, parents)
       case postf: ScPostfixExpr if ref == postf.operation => getContextInfo(ref, postf)
       case pref: ScPrefixExpr if ref == pref.operation => getContextInfo(ref, pref)
