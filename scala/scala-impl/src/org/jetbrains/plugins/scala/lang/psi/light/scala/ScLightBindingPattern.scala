@@ -12,8 +12,8 @@ import scala.annotation.tailrec
   * @author Alefas
   * @since 04/04/14.
   */
-final class ScLightBindingPattern(override protected val delegate: ScBindingPattern)
-                                 (implicit private val returnType: ScType)
+final class ScLightBindingPattern private(override protected val delegate: ScBindingPattern)
+                                         (implicit private val returnType: ScType)
   extends ScLightElement(delegate) with ScBindingPattern {
 
   override def getNavigationElement: PsiElement = super.getNavigationElement

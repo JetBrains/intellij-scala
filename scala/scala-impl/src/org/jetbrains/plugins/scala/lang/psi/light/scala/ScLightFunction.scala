@@ -2,10 +2,9 @@ package org.jetbrains.plugins.scala.lang
 package psi
 package light.scala
 
-import com.intellij.psi.{PsiAnnotation, PsiElement}
-import org.jetbrains.plugins.scala.lang.psi.api.base.ScModifierList
+import com.intellij.psi.PsiElement
 import org.jetbrains.plugins.scala.lang.psi.api.base.types.ScTypeElement
-import org.jetbrains.plugins.scala.lang.psi.api.expr.{ScAnnotation, ScExpression}
+import org.jetbrains.plugins.scala.lang.psi.api.expr.ScExpression
 import org.jetbrains.plugins.scala.lang.psi.api.statements.params.ScTypeParamClause
 import org.jetbrains.plugins.scala.lang.psi.api.statements.{ScFunction, ScFunctionDeclaration, ScFunctionDefinition}
 import org.jetbrains.plugins.scala.lang.psi.types.ScType
@@ -13,13 +12,13 @@ import org.jetbrains.plugins.scala.lang.psi.types.api.TypeParameter
 
 import scala.annotation.tailrec
 
-sealed abstract class ScLightFunction[F <: ScFunction](override protected val delegate: F,
-                                                       override final val paramClauses: ScLightParameters)
-                                                      (implicit private val returnType: ScType,
-                                                       private val innerTypeParameters: List[TypeParameter])
-  extends ScLightElement(delegate) with ScFunction {
+sealed abstract class ScLightFunction[F <: ScFunction] protected(override protected val delegate: F,
+                                                                 override final val paramClauses: ScLightParameters)
+                                                                (implicit private val returnType: ScType,
+                                                                 private val innerTypeParameters: List[TypeParameter])
+  extends ScLightModifierOwner(delegate) with ScFunction {
 
-  override final def getNavigationElement: PsiElement = super[ScLightElement].getNavigationElement
+  override def getNavigationElement: PsiElement = super[ScLightModifierOwner].getNavigationElement
 
   override protected final def returnTypeInner = Right(returnType)
 
@@ -35,20 +34,6 @@ sealed abstract class ScLightFunction[F <: ScFunction](override protected val de
   override final def hasExplicitType: Boolean = true
 
   override final def returnTypeElement: Option[ScTypeElement] = delegate.returnTypeElement
-
-  override final def getModifierList: ScModifierList = delegate.getModifierList
-
-  override final def psiAnnotations: Array[PsiAnnotation] = delegate.getAnnotations
-
-  override final def getApplicableAnnotations: Array[PsiAnnotation] = delegate.getApplicableAnnotations
-
-  override final def findAnnotation(qualifiedName: String): PsiAnnotation = delegate.findAnnotation(qualifiedName)
-
-  override final def addAnnotation(qualifiedName: String): PsiAnnotation = delegate.addAnnotation(qualifiedName)
-
-  override final def hasAnnotation(qualifiedName: String): Boolean = delegate.hasAnnotation(qualifiedName)
-
-  override final def annotations: Seq[ScAnnotation] = delegate.annotations
 }
 
 object ScLightFunction {
