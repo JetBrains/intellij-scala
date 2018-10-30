@@ -79,7 +79,7 @@ object ScalaExpressionTypeProvider {
       ColorUtil.toHtmlColor(DocumentationComponent.SECTION_COLOR) + "'>" +
       StringUtil.escapeXml(title) + ":</td>"
 
-    val contentCell = s"<td>$tpeText</td>"
+    val contentCell = s"<td>${StringUtil.escapeXml(tpeText)}</td>"
     s"<tr>$titleCell$contentCell</tr>"
   }
 
