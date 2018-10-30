@@ -21,7 +21,7 @@ import org.jetbrains.plugins.scala.lang.psi.api.toplevel.imports.{ScImportSelect
 import org.jetbrains.plugins.scala.lang.psi.api.toplevel.typedef._
 import org.jetbrains.plugins.scala.lang.psi.impl.ScalaPsiElementFactory.{createExpressionFromText, createIdentifier, createReferenceFromText}
 import org.jetbrains.plugins.scala.lang.psi.light.isWrapper
-import org.jetbrains.plugins.scala.lang.psi.light.scala.isLightScNamedElement
+import org.jetbrains.plugins.scala.lang.psi.light.scala.ScLightElement
 import org.jetbrains.plugins.scala.lang.refactoring.ScalaNamesValidator.{isIdentifier, isKeyword}
 import org.jetbrains.plugins.scala.lang.resolve._
 import org.jetbrains.plugins.scala.util.ScEquivalenceUtil
@@ -113,7 +113,7 @@ trait ScReferenceElement extends ScalaPsiElement with PsiPolyVariantReference {
   def isReferenceTo(element: PsiElement, resolved: PsiElement, rr: Option[ScalaResolveResult]): Boolean = {
     if (ScEquivalenceUtil.smartEquivalence(resolved, element)) return true
     resolved match {
-      case isLightScNamedElement(named) => return isReferenceTo(element, named, rr)
+      case ScLightElement(named) => return isReferenceTo(element, named, rr)
       case isWrapper(named) => return isReferenceTo(element, named, rr)
       case _ =>
     }

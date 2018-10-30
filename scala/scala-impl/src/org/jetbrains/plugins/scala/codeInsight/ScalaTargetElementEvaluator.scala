@@ -29,7 +29,7 @@ class ScalaTargetElementEvaluator extends TargetElementEvaluatorEx {
     case isCaseClassParameter(cp) => cp
     case isVarSetterFakeMethod(refPattern) => refPattern
     case isVarSetterWrapper(refPattern) => refPattern
-    case ResolvesTo(isLightScNamedElement(named)) => named
+    case ResolvesTo(ScLightElement(named)) => named
     case _ => null
   }
 

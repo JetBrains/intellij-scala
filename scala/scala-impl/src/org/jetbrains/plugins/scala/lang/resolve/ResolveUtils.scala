@@ -23,7 +23,7 @@ import org.jetbrains.plugins.scala.lang.psi.fake.FakePsiMethod
 import org.jetbrains.plugins.scala.lang.psi.impl.toplevel.synthetic.{ScSyntheticClass, ScSyntheticValue}
 import org.jetbrains.plugins.scala.lang.psi.impl.toplevel.typedef.TypeDefinitionMembers
 import org.jetbrains.plugins.scala.lang.psi.impl.{ScPackageImpl, ScalaPsiManager}
-import org.jetbrains.plugins.scala.lang.psi.light.scala.isLightScNamedElement
+import org.jetbrains.plugins.scala.lang.psi.light.scala.ScLightElement
 import org.jetbrains.plugins.scala.lang.psi.types._
 import org.jetbrains.plugins.scala.lang.psi.types.api.TypeParameterType
 import org.jetbrains.plugins.scala.lang.psi.types.api.designator.ScThisType
@@ -89,7 +89,7 @@ object ResolveUtils {
       //todo: ugly workaround, probably FakePsiMethod is better to remove?
       case FakePsiMethod(method: PsiMember) => return isAccessible(method, place)
       case _: FakePsiMethod =>
-      case isLightScNamedElement(named: ScMember) => return isAccessible(named, place)
+      case ScLightElement(named: ScMember) => return isAccessible(named, place)
       case _ =>
     }
     if (place.getLanguage == JavaLanguage.INSTANCE) {

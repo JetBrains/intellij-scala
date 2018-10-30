@@ -84,19 +84,13 @@ object LightUtil {
     elementFactory.createTypeElementFromText(tp.getCanonicalText, context)
   }
 
-  //see LightElement.setNavigationElement
-  def originalNavigationElement(elem: PsiElement): PsiElement = {
-    elem.toOption
-      .map(_.getNavigationElement)
-      .getOrElse(elem)
-  }
-
   def createLightField(fieldText: String, containingClass: ScTypeDefinition): PsiField = {
-    val factory = JavaPsiFacade.getInstance(containingClass.getProject).getElementFactory
-    val dummyField = factory.createFieldFromText(fieldText, containingClass)
+    val dummyField = JavaPsiFacade.getInstance(containingClass.getProject)
+      .getElementFactory
+      .createFieldFromText(fieldText, containingClass)
 
     new LightField(containingClass.getManager, dummyField, containingClass) {
-      override def getNavigationElement: PsiElement = originalNavigationElement(containingClass)
+      override def getNavigationElement: PsiElement = containingClass.getNavigationElement
     }
   }
 

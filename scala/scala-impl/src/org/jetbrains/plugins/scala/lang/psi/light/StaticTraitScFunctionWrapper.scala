@@ -17,7 +17,7 @@ class StaticTraitScFunctionWrapper(val function: ScFunction, containingClass: Ps
   }
 } with PsiMethodWrapper(function.getManager, method, containingClass) {
 
-  override def getNavigationElement: PsiElement = LightUtil.originalNavigationElement(function)
+  override def getNavigationElement: PsiElement = function.getNavigationElement
 
   override def canNavigate: Boolean = function.canNavigate
 
