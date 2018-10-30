@@ -13,6 +13,7 @@ import org.jetbrains.plugins.scala.lang.psi.api.statements._
 import org.jetbrains.plugins.scala.lang.psi.api.statements.params.{ScParameter, ScTypeParam}
 import org.jetbrains.plugins.scala.lang.psi.api.toplevel.ScTypedDefinition
 import org.jetbrains.plugins.scala.lang.psi.api.toplevel.typedef.{ScObject, ScTypeDefinition}
+import org.jetbrains.plugins.scala.lang.psi.light.scala.ScLightBindingPattern
 import org.jetbrains.plugins.scala.lang.psi.types.api._
 import org.jetbrains.plugins.scala.lang.psi.types.api.designator.{ScDesignatorType, ScProjectionType, ScThisType}
 import org.jetbrains.plugins.scala.lang.psi.types.nonvalue.{ScMethodType, ScTypePolymorphicType}
@@ -131,16 +132,16 @@ trait ScalaTypePresentation extends api.TypePresentation {
           val retType = if (!compType.equiv(rt)) typeText0(rt) else s"this$ObjectTypeSuffix"
 
           Seq(s"def ${s.name}${parametersText(funCopy.typeParameters)}$paramClauses: $retType")
-        case (s: Signature, rt: ScType) if s.namedElement.isInstanceOf[ScTypedDefinition] =>
+        case (s: Signature, returnType: ScType) if s.namedElement.isInstanceOf[ScTypedDefinition] =>
           if (s.paramLength.sum > 0) Seq.empty
           else {
             s.namedElement match {
-              case bp: ScBindingPattern =>
-                val b = ScBindingPattern.getCompoundCopy(rt, bp)
-                Seq((if (b.isVar) "var " else "val ") + b.name + " : " + typeText0(rt))
+              case pattern: ScBindingPattern =>
+                val b = ScLightBindingPattern(pattern)(returnType)
+                Seq((if (b.isVar) "var " else "val ") + b.name + " : " + typeText0(returnType))
               case fi: ScFieldId =>
-                val f = ScFieldId.getCompoundCopy(rt, fi)
-                Seq((if (f.isVar) "var " else "val ") + f.name + " : " + typeText0(rt))
+                val f = ScFieldId.getCompoundCopy(returnType, fi)
+                Seq((if (f.isVar) "var " else "val ") + f.name + " : " + typeText0(returnType))
               case _ => Seq.empty
             }
           }
