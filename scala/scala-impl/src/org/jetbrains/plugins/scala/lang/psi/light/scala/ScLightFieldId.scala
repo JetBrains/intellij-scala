@@ -1,40 +1,35 @@
-package org.jetbrains.plugins.scala
-package lang.psi.light.scala
+package org.jetbrains.plugins.scala.lang
+package psi
+package light.scala
 
 import com.intellij.psi.PsiElement
-import com.intellij.psi.impl.light.LightElement
-import org.jetbrains.plugins.scala.lang.psi.ScalaPsiElement
 import org.jetbrains.plugins.scala.lang.psi.api.base.ScFieldId
-import org.jetbrains.plugins.scala.lang.psi.light.LightUtil
 import org.jetbrains.plugins.scala.lang.psi.types.ScType
 import org.jetbrains.plugins.scala.lang.psi.types.result._
 
+import scala.annotation.tailrec
+
 /**
- * @author Alefas
- * @since 04/04/14.
- */
-class ScLightFieldId(rt: ScType, val f: ScFieldId)
-  extends LightElement(f.getManager, f.getLanguage) with ScFieldId {
+  * @author Alefas
+  * @since 04/04/14.
+  */
+final class ScLightFieldId private(override protected val delegate: ScFieldId)
+                                  (implicit private val returnType: ScType)
+  extends ScLightElement(delegate) with ScFieldId {
 
-  override def nameId: PsiElement = f.nameId
+  override def getNavigationElement: PsiElement = super.getNavigationElement
 
-  override def toString: String = f.toString
+  override def `type`(): TypeResult = Right(returnType)
 
-  override def getNavigationElement: PsiElement = LightUtil.originalNavigationElement(f)
+  override def getParent: PsiElement = delegate.getParent //to find right context
+}
 
-  override def navigate(requestFocus: Boolean): Unit = f.navigate(requestFocus)
+object ScLightFieldId {
 
-  override def canNavigate: Boolean = f.canNavigate
-
-  override def canNavigateToSource: Boolean = f.canNavigateToSource
-
-  override protected def findChildrenByClassScala[T >: Null <: ScalaPsiElement](clazz: Class[T]): Array[T] =
-    throw new UnsupportedOperationException("Operation on light element")
-
-  override protected def findChildByClassScala[T >: Null <: ScalaPsiElement](clazz: Class[T]): T =
-    throw new UnsupportedOperationException("Operation on light element")
-
-  override def `type`(): TypeResult = Right(rt)
-
-  override def getParent: PsiElement = f.getParent //to find right context
+  @tailrec
+  def apply(fieldId: ScFieldId)
+           (implicit returnType: ScType): ScLightFieldId = fieldId match {
+    case light: ScLightFieldId => apply(light.delegate)
+    case definition: ScFieldId => new ScLightFieldId(definition)
+  }
 }

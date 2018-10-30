@@ -10,7 +10,7 @@ import org.jetbrains.plugins.scala.extensions._
 import org.jetbrains.plugins.scala.lang.psi.api.base.ScFieldId
 import org.jetbrains.plugins.scala.lang.psi.api.base.patterns.ScBindingPattern
 import org.jetbrains.plugins.scala.lang.psi.api.statements._
-import org.jetbrains.plugins.scala.lang.psi.light.scala.{ScLightBindingPattern, ScLightFunction}
+import org.jetbrains.plugins.scala.lang.psi.light.scala.{ScLightBindingPattern, ScLightFieldId, ScLightFunction}
 import org.jetbrains.plugins.scala.lang.psi.types.api.designator.ScDesignatorType
 import org.jetbrains.plugins.scala.lang.psi.types.api.{AnyRef, TypeParametersArrayExt, TypeVisitor, ValueType, _}
 import org.jetbrains.plugins.scala.lang.psi.types.recursiveUpdate.{AfterUpdate, ScSubstitutor, Update}
@@ -74,8 +74,8 @@ case class ScCompoundType(components: Seq[ScType],
         (new Signature(
           s.name, pTypes, typeParameters, ScSubstitutor.empty, s.namedElement match {
             case function: ScFunction => ScLightFunction(function, pTypes, typeParameters)
-            case b: ScBindingPattern => ScLightBindingPattern(b)
-            case f: ScFieldId => ScFieldId.getCompoundCopy(returnType, f)
+            case pattern: ScBindingPattern => ScLightBindingPattern(pattern)
+            case fieldId: ScFieldId => ScLightFieldId(fieldId)
             case named => named
           }, s.hasRepeatedParam
         ), returnType)

@@ -11,10 +11,5 @@ import org.jetbrains.plugins.scala.lang.psi.api.toplevel.ScNamedElement
 object isLightScNamedElement {
 
   def unapply(lightElement: LightElement): Option[ScNamedElement] =
-    ScLightElement.unapply(lightElement).orElse {
-      lightElement match {
-        case light: ScLightFieldId => Some(light.f)
-        case _ => None
-      }
-    }
+    ScLightElement.unapply(lightElement)
 }

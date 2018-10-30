@@ -13,7 +13,7 @@ import org.jetbrains.plugins.scala.lang.psi.api.statements._
 import org.jetbrains.plugins.scala.lang.psi.api.statements.params.{ScParameter, ScTypeParam}
 import org.jetbrains.plugins.scala.lang.psi.api.toplevel.ScTypedDefinition
 import org.jetbrains.plugins.scala.lang.psi.api.toplevel.typedef.{ScObject, ScTypeDefinition}
-import org.jetbrains.plugins.scala.lang.psi.light.scala.{ScLightBindingPattern, ScLightFunction, ScLightTypeAlias}
+import org.jetbrains.plugins.scala.lang.psi.light.scala.{ScLightBindingPattern, ScLightFieldId, ScLightFunction, ScLightTypeAlias}
 import org.jetbrains.plugins.scala.lang.psi.types.api._
 import org.jetbrains.plugins.scala.lang.psi.types.api.designator.{ScDesignatorType, ScProjectionType, ScThisType}
 import org.jetbrains.plugins.scala.lang.psi.types.nonvalue.{ScMethodType, ScTypePolymorphicType}
@@ -130,19 +130,18 @@ trait ScalaTypePresentation extends api.TypePresentation {
           val paramClauses = ScalaDocumentationProvider.parseParameters(funCopy, -1)(typeText0)
           val retType = if (!compType.equiv(returnType)) typeText0(returnType) else s"this$ObjectTypeSuffix"
 
-          Seq(s"def ${s.name}${parametersText(funCopy.typeParameters)}$paramClauses: $retType")
+          Some(s"def ${s.name}${parametersText(funCopy.typeParameters)}$paramClauses: $retType")
         case (s: Signature, returnType: ScType) if s.namedElement.isInstanceOf[ScTypedDefinition] =>
-          if (s.paramLength.sum > 0) Seq.empty
-          else {
-            s.namedElement match {
-              case pattern: ScBindingPattern =>
-                val b = ScLightBindingPattern(pattern)(returnType)
-                Seq((if (b.isVar) "var " else "val ") + b.name + " : " + typeText0(returnType))
-              case fi: ScFieldId =>
-                val f = ScFieldId.getCompoundCopy(returnType, fi)
-                Seq((if (f.isVar) "var " else "val ") + f.name + " : " + typeText0(returnType))
-              case _ => Seq.empty
-            }
+          implicit val t: ScType = returnType
+          val maybeNewElement = s.namedElement match {
+            case _ if s.paramLength.sum > 0 => None
+            case pattern: ScBindingPattern => Some(ScLightBindingPattern(pattern))
+            case fieldId: ScFieldId => Some(ScLightFieldId(fieldId))
+            case _ => None
+          }
+
+          maybeNewElement.map { typeDefinition =>
+            (if (typeDefinition.isVar) "var" else "val") + s" ${typeDefinition.name} : ${typeText0(returnType)}"
           }
         case (_: String, TypeAliasSignature(_, parameters, lowerBound, upperBound, _, typeAlias)) =>
           val lightTypeAlias = ScLightTypeAlias(typeAlias, lowerBound, upperBound, parameters)
@@ -157,8 +156,8 @@ trait ScalaTypePresentation extends api.TypePresentation {
               lowerBoundText(lightTypeAlias.lowerBound)(typeText0) +
                 upperBoundText(lightTypeAlias.upperBound)(typeText0)
           }
-          Seq(s"type ${lightTypeAlias.name}${parametersText(lightTypeAlias.typeParameters)}$defnText")
-        case _ => Seq.empty
+          Some(s"type ${lightTypeAlias.name}${parametersText(lightTypeAlias.typeParameters)}$defnText")
+        case _ => None
       }
 
       val refinementText = if (declsTexts.isEmpty) Nil else Seq(declsTexts.mkString("{\n  ", "\n\n  ", "\n}"))
