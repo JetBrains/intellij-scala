@@ -10,7 +10,7 @@ import org.jetbrains.plugins.scala.extensions._
 import org.jetbrains.plugins.scala.lang.psi.api.base.ScFieldId
 import org.jetbrains.plugins.scala.lang.psi.api.base.patterns.ScBindingPattern
 import org.jetbrains.plugins.scala.lang.psi.api.statements._
-import org.jetbrains.plugins.scala.lang.psi.light.scala.ScLightBindingPattern
+import org.jetbrains.plugins.scala.lang.psi.light.scala.{ScLightBindingPattern, ScLightFunction}
 import org.jetbrains.plugins.scala.lang.psi.types.api.designator.ScDesignatorType
 import org.jetbrains.plugins.scala.lang.psi.types.api.{AnyRef, TypeParametersArrayExt, TypeVisitor, ValueType, _}
 import org.jetbrains.plugins.scala.lang.psi.types.recursiveUpdate.{AfterUpdate, ScSubstitutor, Update}
@@ -67,13 +67,14 @@ case class ScCompoundType(components: Seq[ScType],
 
         val pTypes: Seq[Seq[() => ScType]] =
           s.substitutedTypes.map(_.map(f => () => f().recursiveUpdateImpl(updates, index, visited, isLazySubtype = true)))
-        val tParams = s.typeParams.update(_.recursiveUpdateImpl(updates, index, visited, isLazySubtype = true))
-        val returnType: ScType = tp.recursiveUpdateImpl(updates, index, visited)
+
+        val typeParameters = s.typeParams.update(_.recursiveUpdateImpl(updates, index, visited, isLazySubtype = true))
+        implicit val returnType: ScType = tp.recursiveUpdateImpl(updates, index, visited)
+
         (new Signature(
-          s.name, pTypes, tParams, ScSubstitutor.empty, s.namedElement match {
-            case fun: ScFunction =>
-              ScFunction.getCompoundCopy(pTypes.map(_.map(_ ()).toList), tParams.toList, returnType, fun)
-            case b: ScBindingPattern => ScLightBindingPattern(b)(returnType)
+          s.name, pTypes, typeParameters, ScSubstitutor.empty, s.namedElement match {
+            case function: ScFunction => ScLightFunction(function, pTypes, typeParameters)
+            case b: ScBindingPattern => ScLightBindingPattern(b)
             case f: ScFieldId => ScFieldId.getCompoundCopy(returnType, f)
             case named => named
           }, s.hasRepeatedParam

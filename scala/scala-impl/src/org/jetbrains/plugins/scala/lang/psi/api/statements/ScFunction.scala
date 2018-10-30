@@ -32,7 +32,6 @@ import org.jetbrains.plugins.scala.lang.psi.fake.{FakePsiReferenceList, FakePsiT
 import org.jetbrains.plugins.scala.lang.psi.impl.toplevel.synthetic.{JavaIdentifier, SyntheticClasses}
 import org.jetbrains.plugins.scala.lang.psi.impl.toplevel.typedef.TypeDefinitionMembers
 import org.jetbrains.plugins.scala.lang.psi.light.ScFunctionWrapper
-import org.jetbrains.plugins.scala.lang.psi.light.scala.{ScLightFunctionDeclaration, ScLightFunctionDefinition}
 import org.jetbrains.plugins.scala.lang.psi.types._
 import org.jetbrains.plugins.scala.lang.psi.types.api._
 import org.jetbrains.plugins.scala.lang.psi.types.nonvalue._
@@ -159,8 +158,6 @@ trait ScFunction extends ScalaPsiElement with ScMember with ScTypeParametersOwne
   def parameterList: ScParameters = paramClauses // TODO merge
 
   protected def returnTypeInner: TypeResult
-
-  def declaredType: TypeResult = this.flatMapType(returnTypeElement)
 
   def clauses: Option[ScParameters] = Some(paramClauses)
 
@@ -614,14 +611,4 @@ object ScFunction {
     calculatingBlockKey,
     ThreadLocal.withInitial[Boolean](() => false)
   )
-
-  @tailrec
-  def getCompoundCopy(pTypes: Seq[Seq[ScType]], tParams: List[TypeParameter], rt: ScType, fun: ScFunction): ScFunction = {
-    fun match {
-      case light: ScLightFunctionDeclaration => getCompoundCopy(pTypes, tParams, rt, light.fun)
-      case light: ScLightFunctionDefinition  => getCompoundCopy(pTypes, tParams, rt, light.fun)
-      case decl: ScFunctionDeclaration       => new ScLightFunctionDeclaration(pTypes, tParams, rt, decl)
-      case definition: ScFunctionDefinition  => new ScLightFunctionDefinition(pTypes, tParams, rt, definition)
-    }
-  }
 }

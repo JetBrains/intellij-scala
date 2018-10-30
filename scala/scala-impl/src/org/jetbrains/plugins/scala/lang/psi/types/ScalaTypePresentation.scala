@@ -13,7 +13,7 @@ import org.jetbrains.plugins.scala.lang.psi.api.statements._
 import org.jetbrains.plugins.scala.lang.psi.api.statements.params.{ScParameter, ScTypeParam}
 import org.jetbrains.plugins.scala.lang.psi.api.toplevel.ScTypedDefinition
 import org.jetbrains.plugins.scala.lang.psi.api.toplevel.typedef.{ScObject, ScTypeDefinition}
-import org.jetbrains.plugins.scala.lang.psi.light.scala.ScLightBindingPattern
+import org.jetbrains.plugins.scala.lang.psi.light.scala.{ScLightBindingPattern, ScLightFunction}
 import org.jetbrains.plugins.scala.lang.psi.types.api._
 import org.jetbrains.plugins.scala.lang.psi.types.api.designator.{ScDesignatorType, ScProjectionType, ScThisType}
 import org.jetbrains.plugins.scala.lang.psi.types.nonvalue.{ScMethodType, ScTypePolymorphicType}
@@ -124,12 +124,11 @@ trait ScalaTypePresentation extends api.TypePresentation {
       }.mkString(" with "))
 
       val declsTexts = (signatureMap ++ typeMap).flatMap {
-        case (s: Signature, rt: ScType) if s.namedElement.isInstanceOf[ScFunction] =>
-          val fun = s.namedElement.asInstanceOf[ScFunction]
-          val funCopy =
-            ScFunction.getCompoundCopy(s.substitutedTypes.map(_.map(_()).toList), s.typeParams.toList, rt, fun)
+        case (s: Signature, returnType: ScType) if s.namedElement.isInstanceOf[ScFunction] =>
+          val function = s.namedElement.asInstanceOf[ScFunction]
+          val funCopy = ScLightFunction(function, s.substitutedTypes, s.typeParams)(returnType)
           val paramClauses = ScalaDocumentationProvider.parseParameters(funCopy, -1)(typeText0)
-          val retType = if (!compType.equiv(rt)) typeText0(rt) else s"this$ObjectTypeSuffix"
+          val retType = if (!compType.equiv(returnType)) typeText0(returnType) else s"this$ObjectTypeSuffix"
 
           Seq(s"def ${s.name}${parametersText(funCopy.typeParameters)}$paramClauses: $retType")
         case (s: Signature, returnType: ScType) if s.namedElement.isInstanceOf[ScTypedDefinition] =>
