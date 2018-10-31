@@ -148,7 +148,8 @@ trait ScalaPsiTypeBridge extends api.PsiTypeBridge {
 
   private def toPsiTypeInner(`type`: ScType,
                              noPrimitives: Boolean = false,
-                             visitedAliases: Set[ScTypeAlias] = Set.empty): PsiType = {
+                             visitedAliases: Set[ScTypeAlias] = Set.empty)
+                             (implicit visitedExistentialArgs: Set[ScExistentialArgument] = Set.empty): PsiType = {
 
     def outerClassHasTypeParameters(proj: ScProjectionType): Boolean = {
       proj.projected.extractClass match {
@@ -220,12 +221,12 @@ trait ScalaPsiTypeBridge extends api.PsiTypeBridge {
           val lower = argument.lower
           if (lower.equiv(Nothing)) PsiWildcardType.createUnbounded(manager)
           else {
-            val sup: PsiType = toPsiTypeInner(lower)
+            val sup: PsiType = toPsiTypeInner(lower)(visitedExistentialArgs + argument)
             if (sup.isInstanceOf[PsiWildcardType]) javaObject
             else PsiWildcardType.createSuper(manager, sup)
           }
         } else {
-          val psi = toPsiTypeInner(upper)
+          val psi = toPsiTypeInner(upper)(visitedExistentialArgs + argument)
           if (psi.isInstanceOf[PsiWildcardType]) javaObject
           else PsiWildcardType.createExtends(manager, psi)
         }
