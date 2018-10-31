@@ -85,12 +85,12 @@ private object ClassfileParser {
     classFiles.map(parse(_, synthetics))
   }
 
-  private[this] class ScalaSigVisitor(file: String) extends ClassVisitor(API_VERSION) {
+  private[this] class ScalaSigVisitor(file: String) extends ClassVisitor(Opcodes.ASM6) {
     var scalaSig: Option[ScalaSig] = None
 
     override def visitAnnotation(desc: String, visible: Boolean): AnnotationVisitor = desc match {
       case SCALA_SIG_ANNOTATION | SCALA_LONG_SIG_ANNOTATION =>
-        new AnnotationVisitor(API_VERSION) {
+        new AnnotationVisitor(ASM6) {
           override def visit(name: String, value: scala.Any): Unit =
             if (name == BYTES_VALUE) {
               val bytes = value.asInstanceOf[String].getBytes(StandardCharsets.UTF_8)
@@ -127,7 +127,7 @@ private object ClassfileParser {
     def handleLineNumber(line: Int): Unit
   }
 
-  private[this] class ParsingVisitor(synthetics: Set[String]) extends ClassVisitor(API_VERSION) {
+  private[this] class ParsingVisitor(synthetics: Set[String]) extends ClassVisitor(ASM6) {
     private[this] var internalName: String                             = _
     private[this] var className: String                                = _
     private[this] var isAnon: Boolean                                  = false
@@ -176,7 +176,7 @@ private object ClassfileParser {
     ): MethodVisitor =
       if (isStaticForwarder(access, name) || isSynthetic(access, name)) null
       else
-        new MethodVisitor(API_VERSION) with ReferenceInMethodCollector {
+        new MethodVisitor(ASM6) with ReferenceInMethodCollector {
           override def handleMemberRef(ref: MemberReference): Unit  = innerRefs.add(ref)
           override def handleSAMRef(ref:    FunExprInheritor): Unit = funExprs.add(ref)
 

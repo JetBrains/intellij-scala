@@ -32,7 +32,7 @@ package object compilerReferences {
     }
   }
 
-  def task(project: Project, title: String = "")(body: ProgressIndicator => Any): Task.Backgroundable =
+  def task(project: Project, title: String)(body: ProgressIndicator => Any): Task.Backgroundable =
     new Task.Backgroundable(project, title, false) {
       override def run(indicator: ProgressIndicator): Unit = body(indicator)
     }
