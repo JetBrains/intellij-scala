@@ -57,6 +57,7 @@ import org.jetbrains.plugins.scala.settings.ScalaProjectSettings
 import org.jetbrains.plugins.scala.statistics.{FeatureKey, Stats}
 import org.jetbrains.plugins.scala.util.MultilineStringUtil
 
+import scala.annotation.tailrec
 import scala.collection.mutable.ArrayBuffer
 import scala.collection.{Seq, mutable}
 import scala.meta.intellij.MetaExpansionsManager
@@ -901,96 +902,99 @@ abstract class ScalaAnnotator extends Annotator
   }
 
   private def checkExpressionType(expr: ScExpression, holder: AnnotationHolder, typeAware: Boolean): Unit = {
+
+    @tailrec
+    def isInArgumentPosition(expr: ScExpression): Boolean =
+    expr.getContext match {
+      case _: ScArgumentExprList               => true
+      case ScInfixExpr.withAssoc(_, _, `expr`) => true
+      case b: ScBlockExpr                      => isInArgumentPosition(b)
+      case p: ScParenthesisedExpr              => isInArgumentPosition(p)
+      case t: ScTuple                          => isInArgumentPosition(t)
+      case _                                   => false
+    }
+
+    def isTooBigToHighlight(expr: ScExpression): Boolean = expr match {
+      case _: ScMatchStmt                            => true
+      case bl: ScBlock if bl.lastStatement.isDefined => true
+      case i: ScIfStmt if i.elseBranch.isDefined     => true
+      case _: ScFunctionExpr                         => true
+      case _: ScTryStmt                              => true
+      case _                                         => false
+    }
+
+    def shouldNotHighlight(expr: ScExpression): Boolean = expr.getContext match {
+      case a: ScAssignStmt if a.getRExpression.contains(expr) && a.isDynamicNamedAssignment => true
+      case t: ScTypedStmt if t.isSequenceArg                                                => true
+      case param: ScParameter if !param.isDefaultParam                                      => true //performance optimization
+      case param: ScParameter                                                               =>
+        param.getRealParameterType match {
+          case Right(paramType) if paramType.extractClass.isDefined => false //do not check generic types. See SCL-3508
+          case _                                                    => true
+        }
+      case ass: ScAssignStmt if ass.isNamedParameter                                        => true //that's checked in application annotator
+      case _                                                                                => false
+    }
+
     def checkExpressionTypeInner(fromUnderscore: Boolean) {
       val ExpressionTypeResult(exprType, importUsed, implicitFunction) =
         expr.getTypeAfterImplicitConversion(expectedOption = expr.smartExpectedType(fromUnderscore), fromUnderscore = fromUnderscore)
 
       registerUsedImports(expr, importUsed)
 
-      expr match {
-        case _: ScMatchStmt =>
-        case bl: ScBlock if bl.lastStatement.isDefined =>
-        case i: ScIfStmt if i.elseBranch.isDefined =>
-        case _: ScFunctionExpr =>
-        case _: ScTryStmt =>
-        case _ =>
-          expr.getParent match {
-            case a: ScAssignStmt if a.getRExpression.contains(expr) && a.isDynamicNamedAssignment => return
-            case _: ScArgumentExprList => return
-            case (_: ScBlockExpr) childOf (_: ScArgumentExprList) => return
-            case inf: ScInfixExpr if inf.argsElement == expr => return
-            case tuple: ScTuple if tuple.getContext.isInstanceOf[ScInfixExpr] &&
-              tuple.getContext.asInstanceOf[ScInfixExpr].argsElement == tuple => return
-            case e: ScParenthesisedExpr if e.getContext.isInstanceOf[ScInfixExpr] &&
-              e.getContext.asInstanceOf[ScInfixExpr].argsElement == e => return
-            case t: ScTypedStmt if t.isSequenceArg => return
-            case parent@(_: ScTuple | _: ScParenthesisedExpr) =>
-              parent.getParent match {
-                case inf: ScInfixExpr if inf.argsElement == parent => return
+      if (isTooBigToHighlight(expr) || isInArgumentPosition(expr) || shouldNotHighlight(expr)) return
+      
+      expr.expectedTypeEx(fromUnderscore) match {
+        case Some((tp: ScType, _)) if tp equiv Unit => //do nothing
+        case Some((tp: ScType, typeElement)) =>
+          val expectedType = Right(tp)
+          implicitFunction match {
+            case Some(_) =>
+            //todo:
+            /*val typeFrom = expr.getType(TypingContext.empty).getOrElse(Any)
+            val typeTo = exprType.getOrElse(Any)
+            val exprText = expr.getText
+            val range = expr.getTextRange
+            showImplicitUsageAnnotation(exprText, typeFrom, typeTo, fun, range, holder,
+              EffectType.LINE_UNDERSCORE, Color.LIGHT_GRAY)*/
+            case None => //do nothing
+          }
+          val conformance = smartCheckConformance(expectedType, exprType)
+          if (!conformance) {
+            if (typeAware) {
+              expr.getParent match {
+                case assign: ScAssignStmt if exprType.exists(ScalaPsiUtil.isUnderscoreEq(assign, _)) => return
                 case _ =>
               }
-            case param: ScParameter =>
-              if (!param.isDefaultParam) return //performance optimization
-              param.getRealParameterType match {
-                case Right(paramType) if paramType.extractClass.isDefined =>
-                //do not check generic types. See SCL-3508
-                case _ => return
+              val markedPsi = (expr, expr.getParent) match {
+                case (b: ScBlockExpr, _) => b.getRBrace.map(_.getPsi).getOrElse(expr)
+                case (_, b: ScBlockExpr) => b.getRBrace.map(_.getPsi).getOrElse(expr)
+                case _ => expr
               }
-            case ass: ScAssignStmt if ass.isNamedParameter => return //that's checked in application annotator
-            case _ =>
-          }
 
-          expr.expectedTypeEx(fromUnderscore) match {
-            case Some((tp: ScType, _)) if tp equiv Unit => //do nothing
-            case Some((tp: ScType, typeElement)) =>
-              val expectedType = Right(tp)
-              implicitFunction match {
-                case Some(_) =>
-                  //todo:
-                  /*val typeFrom = expr.getType(TypingContext.empty).getOrElse(Any)
-                  val typeTo = exprType.getOrElse(Any)
-                  val exprText = expr.getText
-                  val range = expr.getTextRange
-                  showImplicitUsageAnnotation(exprText, typeFrom, typeTo, fun, range, holder,
-                    EffectType.LINE_UNDERSCORE, Color.LIGHT_GRAY)*/
-                case None => //do nothing
+              val (exprTypeText, expectedTypeText) = ScTypePresentation.different(exprType.getOrNothing, tp)
+              val error = ScalaBundle.message("expr.type.does.not.conform.expected.type", exprTypeText, expectedTypeText)
+              val annotation: Annotation = holder.createErrorAnnotation(markedPsi, error)
+              if (WrapInOptionQuickFix.isAvailable(expr, expectedType, exprType)) {
+                val wrapInOptionFix = new WrapInOptionQuickFix(expr, expectedType, exprType)
+                annotation.registerFix(wrapInOptionFix)
               }
-              val conformance = smartCheckConformance(expectedType, exprType)
-              if (!conformance) {
-                if (typeAware) {
-                  expr.getParent match {
-                    case assign: ScAssignStmt if exprType.exists(ScalaPsiUtil.isUnderscoreEq(assign, _)) => return
-                    case _ =>
-                  }
-                  val markedPsi = (expr, expr.getParent) match {
-                    case (b: ScBlockExpr, _) => b.getRBrace.map(_.getPsi).getOrElse(expr)
-                    case (_, b: ScBlockExpr) => b.getRBrace.map(_.getPsi).getOrElse(expr)
-                    case _ => expr
-                  }
-
-                  val (exprTypeText, expectedTypeText) = ScTypePresentation.different(exprType.getOrNothing, tp)
-                  val error = ScalaBundle.message("expr.type.does.not.conform.expected.type", exprTypeText, expectedTypeText)
-                  val annotation: Annotation = holder.createErrorAnnotation(markedPsi, error)
-                  if (WrapInOptionQuickFix.isAvailable(expr, expectedType, exprType)) {
-                    val wrapInOptionFix = new WrapInOptionQuickFix(expr, expectedType, exprType)
-                    annotation.registerFix(wrapInOptionFix)
-                  }
-                  if (AddBreakoutQuickFix.isAvailable(expr)) {
-                    annotation.registerFix(new AddBreakoutQuickFix(expr))
-                  }
-                  typeElement match {
-                    case Some(te) if te.getContainingFile == expr.getContainingFile =>
-                      val fix = new ChangeTypeFix(te, exprType.getOrNothing)
-                      annotation.registerFix(fix)
-                      val teAnnotation = annotationWithoutHighlighting(holder, te)
-                      teAnnotation.registerFix(fix)
-                    case _ =>
-                  }
-                }
+              if (AddBreakoutQuickFix.isAvailable(expr)) {
+                annotation.registerFix(new AddBreakoutQuickFix(expr))
               }
-            case _ => //do nothing
+              typeElement match {
+                case Some(te) if te.getContainingFile == expr.getContainingFile =>
+                  val fix = new ChangeTypeFix(te, exprType.getOrNothing)
+                  annotation.registerFix(fix)
+                  val teAnnotation = annotationWithoutHighlighting(holder, te)
+                  teAnnotation.registerFix(fix)
+                case _ =>
+              }
+            }
           }
+        case _ => //do nothing
       }
+
     }
     if (ScUnderScoreSectionUtil.isUnderscoreFunction(expr)) {
       checkExpressionTypeInner(fromUnderscore = true)
