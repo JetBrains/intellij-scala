@@ -43,6 +43,8 @@ private[findUsages] class ScalaCompilerReferenceService(
         connection.subscribe(
           CompilerReferenceServiceStatusListener.topic,
           new CompilerReferenceServiceStatusListener {
+            //FIXME: in case of an sbt project modules should only be marked as up-to-date
+            //FIXME: when *both* compile and test scopes are compiled
             override def modulesUpToDate(affectedModuleNames: Iterable[String]): Unit =
               affectedModules.addAll(affectedModuleNames.toSet.asJava)
           }
@@ -68,7 +70,7 @@ private[findUsages] class ScalaCompilerReferenceService(
 
     override def onCompilationStart(): Unit                  = closeReader()
     override def onError(): Unit                             = onIndexCorruption()
-    override def onCompilationFinish(): Unit                 = indexerScheduler.schedule(() => openReader())
+    override def onCompilationFinish(): Unit                 = indexerScheduler.schedule("Open compiler index reader", () => openReader())
     override def startIndexing(isCleanBuild: Boolean): Unit  = indexerScheduler.schedule(OpenWriter(isCleanBuild))
 
     override def processCompilationInfo(info: CompilationInfo, isOffline: Boolean): Unit = {
@@ -108,7 +110,7 @@ private[findUsages] class ScalaCompilerReferenceService(
   private[this] def onIndexCorruption(): Unit = transactionManager.inTransaction { _ =>
     val index = readerSafe.map(_.getIndex())
     indexerScheduler.schedule(InvalidateIndex(index))
-    indexerScheduler.schedule(() => {
+    indexerScheduler.schedule("Index invalidation callback", () => {
       logger.warn(s"Compiler indices were corrupted and invalidated.")
       resetReader()
       myActiveBuilds = 1
@@ -148,10 +150,11 @@ private[findUsages] class ScalaCompilerReferenceService(
   private[this] def processIndexingFailure(failure: IndexerFailure): Unit =
     transactionManager.inTransaction { _ =>
       failure match {
-        case FailedToParse(classes) => failedToParse ++= classes
-        case FatalFailure(causes) =>
-          logger.error(s"Fatal failure occured while trying to build compiler indices. Total failures count: ${causes.size}")
-          causes.foreach(logger.error("Indexing failure", _))
+        case FailedToParse(failures) =>
+          failures.foreach(f => logger.info(f.errorMessage, f.cause))
+          failedToParse ++= failures.flatMap(_.classfiles)
+        case FatalFailure(cause) =>
+          logger.error(s"Fatal failure occured while trying to build compiler indices", cause)
           onIndexCorruption()
       }
     }
