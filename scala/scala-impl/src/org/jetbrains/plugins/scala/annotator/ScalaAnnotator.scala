@@ -911,6 +911,8 @@ abstract class ScalaAnnotator extends Annotator
       case b: ScBlockExpr                      => isInArgumentPosition(b)
       case p: ScParenthesisedExpr              => isInArgumentPosition(p)
       case t: ScTuple                          => isInArgumentPosition(t)
+      case i: ScIfStmt                         => isInArgumentPosition(i)
+      case m: ScMatchStmt                      => isInArgumentPosition(m)
       case _                                   => false
     }
 
@@ -943,7 +945,7 @@ abstract class ScalaAnnotator extends Annotator
       registerUsedImports(expr, importUsed)
 
       if (isTooBigToHighlight(expr) || isInArgumentPosition(expr) || shouldNotHighlight(expr)) return
-      
+
       expr.expectedTypeEx(fromUnderscore) match {
         case Some((tp: ScType, _)) if tp equiv Unit => //do nothing
         case Some((tp: ScType, typeElement)) =>
