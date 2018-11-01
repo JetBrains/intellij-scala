@@ -6,6 +6,7 @@ import com.intellij.openapi.application.TransactionGuard;
 import com.intellij.openapi.diagnostic.Logger;
 import com.intellij.openapi.externalSystem.model.task.ExternalSystemTaskId;
 import com.intellij.openapi.externalSystem.model.task.ExternalSystemTaskNotificationListenerAdapter;
+import com.intellij.openapi.externalSystem.service.project.manage.ProjectDataImportListener;
 import com.intellij.openapi.progress.ProgressIndicator;
 import com.intellij.openapi.progress.Task;
 import com.intellij.openapi.project.Project;
@@ -13,8 +14,10 @@ import com.intellij.openapi.roots.*;
 import com.intellij.openapi.roots.libraries.Library;
 import com.intellij.openapi.roots.ui.configuration.JavaVfsSourceRootDetectionUtil;
 import com.intellij.openapi.util.Computable;
+import com.intellij.openapi.util.EmptyRunnable;
 import com.intellij.openapi.vfs.*;
 import com.intellij.util.Alarm;
+import com.intellij.util.messages.MessageBusConnection;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
 import org.jetbrains.plugins.scala.project.notification.source.AttachSourcesUtil;
@@ -45,64 +48,71 @@ public class IdeaSourcesAttachListener extends ExternalSystemTaskNotificationLis
 
         Runnable activity = doAttach(application, project, 0);
         application.invokeLater(activity);
+
+        final MessageBusConnection myBusConnection = project.getMessageBus().connect(project);
+        myBusConnection.subscribe(ProjectDataImportListener.TOPIC, path -> {
+            doAttach(application, project, 0).run();
+            myBusConnection.disconnect();
+        });
     }
 
     @NotNull
     private static Runnable doAttach(@NotNull Application application,
                                      @NotNull Project project,
                                      int tryNum) {
-        Set<LibraryOrderEntry> sourcesless = librariesLackSources(application, project);
 
-        if (sourcesless.isEmpty()) return () -> {
-            if (tryNum < MAX_RETRIES) {
-                // onSuccess is sometimes called before unmanagedJars has finished importing
-                LOG.info("No candidates found, rescheduling check for " + DELAY);
-                new Alarm().addRequest(doAttach(application, project, tryNum + 1), DELAY);
-            }
-        };
+        if (!PROJECT_NAME_PATTERN.matcher(project.getName()).matches()) return EmptyRunnable.INSTANCE;
 
         return () -> {
-            if (!PROJECT_NAME_PATTERN.matcher(project.getName()).matches()) return;
+            Set<LibraryOrderEntry> sourcesless = librariesLackSources(application, project);
 
-            VirtualFile libraryRoot = application.runReadAction((Computable<VirtualFile>) () -> {
-                for (LibraryOrderEntry entry : sourcesless) {
-                    VirtualFile root = findDirectory(entry, project.getBaseDir());
-                    if (root != null) return root;
+            if (sourcesless.isEmpty()) {
+                if (tryNum < MAX_RETRIES) {
+                    // onSuccess is sometimes called before unmanagedJars has finished importing
+                    LOG.info("No candidates found, rescheduling check for " + DELAY);
+                    new Alarm().addRequest(doAttach(application, project, tryNum + 1), DELAY);
                 }
-                return null;
-            });
+            } else {
 
-            if (libraryRoot == null) {
-                LOG.error("No libraries with valid class roots found");
-                return;
+                VirtualFile libraryRoot = application.runReadAction((Computable<VirtualFile>) () -> {
+                    for (LibraryOrderEntry entry : sourcesless) {
+                        VirtualFile root = findDirectory(entry, project.getBaseDir());
+                        if (root != null) return root;
+                    }
+                    return null;
+                });
+
+                if (libraryRoot == null) {
+                    LOG.error("No libraries with valid class roots found");
+                    return;
+                }
+
+                VirtualFile sourcesZip = findSourcesZip(libraryRoot);
+                if (sourcesZip == null) {
+                    LOG.error("Sources archive not found in: " + libraryRoot.getCanonicalPath());
+                    return;
+                }
+
+                new Task.Backgroundable(project, "Attaching Idea Sources", true) {
+                    @Override
+                    public void run(@NotNull ProgressIndicator indicator) {
+                        LOG.info("Sources archive found: " + sourcesZip.getCanonicalPath());
+
+                        Collection<VirtualFile> roots = JavaVfsSourceRootDetectionUtil.suggestRoots(sourcesZip, indicator);
+
+                        TransactionGuard.getInstance().submitTransactionLater(myProject, () -> {
+                            for (LibraryOrderEntry entry : sourcesless) {
+                                Library library = entry.getLibrary();
+                                if (library == null) continue;
+
+                                AttachSourcesUtil.appendSources(library, roots);
+                            }
+                            LOG.info("Finished attaching IDEA sources");
+                        });
+                    }
+                }.queue();
             }
 
-            VirtualFile sourcesZip = findSourcesZip(libraryRoot);
-            if (sourcesZip == null) {
-                LOG.error("Sources archive not found in: " + libraryRoot.getCanonicalPath());
-                return;
-            }
-
-            new Task.Backgroundable(project, "Attaching Idea Sources", true) {
-                @Override
-                public void run(@NotNull ProgressIndicator indicator) {
-                    LOG.info("Sources archive found: " + sourcesZip.getCanonicalPath());
-
-                    Collection<VirtualFile> roots = JavaVfsSourceRootDetectionUtil.suggestRoots(sourcesZip, indicator);
-
-                    TransactionGuard.getInstance().submitTransactionLater(myProject, () -> {
-                        for (LibraryOrderEntry entry : sourcesless) {
-                            Library library = entry.getLibrary();
-                            if (library == null) continue;
-
-                            AttachSourcesUtil.appendSources(library, roots);
-                        }
-                    });
-
-                    LOG.info("Finished attaching IDEA sources");
-
-                }
-            }.queue();
         };
     }
 

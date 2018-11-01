@@ -6,14 +6,13 @@ import com.intellij.openapi.application.Result;
 import com.intellij.openapi.application.WriteAction;
 import com.intellij.openapi.fileChooser.FileChooser;
 import com.intellij.openapi.fileChooser.FileChooserDescriptor;
-import com.intellij.openapi.fileTypes.FileType;
 import com.intellij.openapi.project.Project;
 import com.intellij.openapi.project.ProjectBundle;
 import com.intellij.openapi.roots.LibraryOrderEntry;
 import com.intellij.openapi.roots.OrderRootType;
+import com.intellij.openapi.roots.impl.libraries.LibraryEx;
 import com.intellij.openapi.roots.libraries.Library;
 import com.intellij.openapi.roots.libraries.ui.DescendentBasedRootFilter;
-import com.intellij.openapi.roots.libraries.ui.FileTypeBasedRootFilter;
 import com.intellij.openapi.roots.libraries.ui.OrderRoot;
 import com.intellij.openapi.roots.libraries.ui.RootDetector;
 import com.intellij.openapi.roots.libraries.ui.impl.LibraryRootsDetectorImpl;
@@ -208,11 +207,13 @@ public class AttachSourcesUtil {
 
     public static void appendSources(Library library, Collection<VirtualFile> files) {
         ApplicationManager.getApplication().runWriteAction(() -> {
-            Library.ModifiableModel model = library.getModifiableModel();
-            for (VirtualFile virtualFile : files) {
-                model.addRoot(virtualFile, OrderRootType.SOURCES);
+            if (!((LibraryEx)library).isDisposed()) {
+                Library.ModifiableModel model = library.getModifiableModel();
+                for (VirtualFile virtualFile : files) {
+                    model.addRoot(virtualFile, OrderRootType.SOURCES);
+                }
+                model.commit();
             }
-            model.commit();
         });
     }
 }
