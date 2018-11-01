@@ -1,5 +1,6 @@
 package org.jetbrains.plugins.scala.worksheet.ui
 
+import com.intellij.openapi.command.CommandProcessor
 import com.intellij.openapi.editor.impl.FoldingModelImpl
 import com.intellij.openapi.editor.{Document, Editor, VisualPosition}
 import com.intellij.openapi.project.Project
@@ -107,8 +108,12 @@ abstract class WorksheetEditorPrinterBase(protected val originalEditor: Editor,
   }
 
   protected def simpleAppend(text: String, document: Document): Unit = {
-    document.insertString(document.getTextLength, text)
-    commitDocument(document)
+    CommandProcessor.getInstance().runUndoTransparentAction {
+      () => {
+        document.insertString(document.getTextLength, text)
+        commitDocument(document)
+      }
+    }
   }
 
   protected def getOutputLimit: Int = ScalaProjectSettings.getInstance(project).getOutputLimit
