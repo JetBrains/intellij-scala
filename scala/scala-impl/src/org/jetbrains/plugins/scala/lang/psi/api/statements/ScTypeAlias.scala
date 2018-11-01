@@ -4,18 +4,13 @@ package psi
 package api
 package statements
 
-import javax.swing.Icon
 import com.intellij.psi.{PsiClass, PsiElement}
+import javax.swing.Icon
 import org.jetbrains.plugins.scala.icons.Icons
 import org.jetbrains.plugins.scala.lang.lexer.ScalaTokenTypes
 import org.jetbrains.plugins.scala.lang.psi.api.base.types.ScExistentialClause
-import org.jetbrains.plugins.scala.lang.psi.api.statements.ScTypeAlias.getCompoundCopy
 import org.jetbrains.plugins.scala.lang.psi.api.toplevel.ScPolymorphicElement
 import org.jetbrains.plugins.scala.lang.psi.api.toplevel.typedef.{ScDocCommentOwner, ScMember, ScTypeDefinition}
-import org.jetbrains.plugins.scala.lang.psi.light.scala.{ScLightTypeAliasDeclaration, ScLightTypeAliasDefinition}
-import org.jetbrains.plugins.scala.lang.psi.types.TypeAliasSignature
-
-import scala.annotation.tailrec
 
 /**
  * @author Alexander Podkhalyuzin
@@ -59,24 +54,6 @@ trait ScTypeAlias extends ScPolymorphicElement with ScMember
   }
 
   def isDefinition: Boolean
-}
 
-object ScTypeAlias {
-  @tailrec
-  def getCompoundCopy(sign: TypeAliasSignature, ta: ScTypeAlias): ScTypeAlias = {
-    ta match {
-      case light: ScLightTypeAliasDeclaration => getCompoundCopy(sign, light.ta)
-      case light: ScLightTypeAliasDefinition  => getCompoundCopy(sign, light.ta)
-      case decl: ScTypeAliasDeclaration       => new ScLightTypeAliasDeclaration(sign, decl)
-      case definition: ScTypeAliasDefinition  => new ScLightTypeAliasDefinition(sign, definition)
-    }
-  }
-
-  implicit class Ext(val ta: ScTypeAlias) extends AnyVal {
-    def physical: ScTypeAlias = ta match {
-      case light: ScLightTypeAliasDeclaration => light.ta
-      case light: ScLightTypeAliasDefinition  => light.ta
-      case _ => ta
-    }
-  }
+  def physical: ScTypeAlias = this
 }

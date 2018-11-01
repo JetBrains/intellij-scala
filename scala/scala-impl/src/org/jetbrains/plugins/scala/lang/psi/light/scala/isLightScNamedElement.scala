@@ -14,8 +14,6 @@ object isLightScNamedElement {
     ScLightElement.unapply(lightElement).orElse {
       lightElement match {
         case light: ScLightFieldId => Some(light.f)
-        case light: ScLightTypeAliasDeclaration => Some(light.ta)
-        case light: ScLightTypeAliasDefinition => Some(light.ta)
         case _ => None
       }
     }

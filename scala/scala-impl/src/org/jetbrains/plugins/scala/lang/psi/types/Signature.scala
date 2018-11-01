@@ -12,7 +12,8 @@ import org.jetbrains.plugins.scala.extensions._
 import org.jetbrains.plugins.scala.lang.psi.api.statements.params.ScParameters
 import org.jetbrains.plugins.scala.lang.psi.api.statements.{ScFunction, ScTypeAlias, ScTypeAliasDefinition}
 import org.jetbrains.plugins.scala.lang.psi.api.toplevel.ScTypedDefinition
-import org.jetbrains.plugins.scala.lang.psi.types.api.{Any, PsiTypeParamatersExt, TypeParameter, Variance}
+import org.jetbrains.plugins.scala.lang.psi.light.scala.ScLightTypeAlias
+import org.jetbrains.plugins.scala.lang.psi.types.api.{Any, PsiTypeParamatersExt, TypeParameter}
 import org.jetbrains.plugins.scala.lang.psi.types.recursiveUpdate.ScSubstitutor
 import org.jetbrains.plugins.scala.lang.psi.types.result._
 import org.jetbrains.plugins.scala.lang.refactoring.util.ScalaNamesUtil
@@ -37,15 +38,7 @@ case class TypeAliasSignature(name: String,
     ta)
     .copyWithCompoundBody
 
-  def updateTypesWithVariance(function: (ScType, Variance) => ScType, variance: Variance): TypeAliasSignature = TypeAliasSignature(name,
-    typeParams.map(_.updateWithVariance(function, variance)),
-    function(lowerBound, variance),
-    function(upperBound, -variance),
-    isDefinition,
-    ta)
-    .copyWithCompoundBody
-
-  private def copyWithCompoundBody = copy(ta = ScTypeAlias.getCompoundCopy(this, ta))
+  private def copyWithCompoundBody = copy(ta = ScLightTypeAlias(ta, lowerBound, upperBound, typeParams))
 
   def canEqual(other: Any): Boolean = other.isInstanceOf[TypeAliasSignature]
 

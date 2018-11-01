@@ -13,7 +13,7 @@ import org.jetbrains.plugins.scala.lang.psi.api.statements._
 import org.jetbrains.plugins.scala.lang.psi.api.statements.params.{ScParameter, ScTypeParam}
 import org.jetbrains.plugins.scala.lang.psi.api.toplevel.ScTypedDefinition
 import org.jetbrains.plugins.scala.lang.psi.api.toplevel.typedef.{ScObject, ScTypeDefinition}
-import org.jetbrains.plugins.scala.lang.psi.light.scala.{ScLightBindingPattern, ScLightFunction}
+import org.jetbrains.plugins.scala.lang.psi.light.scala.{ScLightBindingPattern, ScLightFunction, ScLightTypeAlias}
 import org.jetbrains.plugins.scala.lang.psi.types.api._
 import org.jetbrains.plugins.scala.lang.psi.types.api.designator.{ScDesignatorType, ScProjectionType, ScThisType}
 import org.jetbrains.plugins.scala.lang.psi.types.nonvalue.{ScMethodType, ScTypePolymorphicType}
@@ -144,20 +144,20 @@ trait ScalaTypePresentation extends api.TypePresentation {
               case _ => Seq.empty
             }
           }
-        case (_: String, sign: TypeAliasSignature) =>
-          val ta = ScTypeAlias.getCompoundCopy(sign, sign.ta)
-          val defnText: String = ta match {
+        case (_: String, TypeAliasSignature(_, parameters, lowerBound, upperBound, _, typeAlias)) =>
+          val lightTypeAlias = ScLightTypeAlias(typeAlias, lowerBound, upperBound, parameters)
+          val defnText: String = lightTypeAlias match {
             case tad: ScTypeAliasDefinition =>
               tad.aliasedType.toOption
                 .filterNot(_.isNothing)
-                .map(typeText0)
-                .map(" = " + _)
-                .getOrElse("")
+                .fold("") { tp =>
+                  " = " + typeText0(tp)
+                }
             case _ =>
-              lowerBoundText(ta.lowerBound)(typeText0) +
-                upperBoundText(ta.upperBound)(typeText0)
+              lowerBoundText(lightTypeAlias.lowerBound)(typeText0) +
+                upperBoundText(lightTypeAlias.upperBound)(typeText0)
           }
-          Seq(s"type ${ta.name}${parametersText(ta.typeParameters)}$defnText")
+          Seq(s"type ${lightTypeAlias.name}${parametersText(lightTypeAlias.typeParameters)}$defnText")
         case _ => Seq.empty
       }
 
