@@ -5,5 +5,5 @@ import com.intellij.psi.search.{GlobalSearchScope, ScopeOptimizer}
 
 class ScalaCompilerReferenceScopeOptimizer extends ScopeOptimizer {
   override def getScopeToExclude(element: PsiElement): GlobalSearchScope =
-    ScalaCompilerReferenceService(element.getProject).getScopeWithoutCodeReferences(element)
+    ScalaCompilerReferenceService(element.getProject).scopeWithoutReferences(element)
 }

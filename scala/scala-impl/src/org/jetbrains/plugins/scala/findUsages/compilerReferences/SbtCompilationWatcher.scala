@@ -57,20 +57,9 @@ private class SbtCompilationWatcher(
     publisher: CompilerIndicesEventPublisher,
     isOffline: Boolean = false
   ): Unit = {
-    val maybeModule = findIdeaModule(project, sbtInfo.projectId)
-
-    val isAppropriateVersion = (for {
-      module        <- maybeModule
-      languageLevel <- module.scalaLanguageLevel
-    } yield languageLevel.version == sbtInfo.scalaVersion).getOrElse(false)
-
-    // ignore cross compilation infos
-    if (isAppropriateVersion) {
-      publisher.startIndexing(isCleanBuild = !sbtInfo.isIncremental)
-      publisher.processCompilationInfo(sbtInfo, isOffline)
-      publisher.finishIndexing()
-    }
-
+    publisher.startIndexing(isCleanBuild = !sbtInfo.isIncremental)
+    publisher.processCompilationInfo(sbtInfo, isOffline)
+    publisher.finishIndexing()
     publisher.onCompilationFinish()
   }
 

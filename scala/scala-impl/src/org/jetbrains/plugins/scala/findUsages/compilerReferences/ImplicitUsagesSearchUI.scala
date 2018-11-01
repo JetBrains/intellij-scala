@@ -19,6 +19,7 @@ import javax.swing._
 import javax.swing.border.MatteBorder
 import org.jetbrains.plugins.scala.ScalaBundle
 import org.jetbrains.plugins.scala.extensions._
+import org.jetbrains.plugins.scala.findUsages.compilerReferences.ScalaDirtyScopeHolder.ScopedModule
 
 import scala.collection.JavaConverters._
 
@@ -74,7 +75,7 @@ private object ImplicitUsagesSearchUI {
   class ImplicitFindUsagesDialog(
     canBeParent:      Boolean,
     dirtyModules:     Set[Module],
-    upToDateModules:  Set[Module],
+    upToDateModules:  Set[ScopedModule],
     validIndexExists: Boolean,
     element:          PsiNamedElement
   ) extends DialogWrapper(element.getProject, canBeParent, DialogWrapper.IdeModalityType.PROJECT) {
@@ -87,7 +88,7 @@ private object ImplicitUsagesSearchUI {
           |<br>
           |You can:<br>
           |-&nbsp;<strong>Build</strong> some of the modules before proceeding, or<br>
-          |-&nbsp;Search for usages in current indices (results may be incomplete). Up-to-date modules: <br>
+          |-&nbsp;Search for usages using current indices (results may be incomplete). Up-to-date scopes: <br>
           | &nbsp;<code>{1}</code>
           |<br>
           |<br>
@@ -123,7 +124,7 @@ private object ImplicitUsagesSearchUI {
 
     private def createDescriptionLabel: JComponent = {
       // @TODO: in case of context bound usages search element.name might not be a user-friendly identifier
-      val upToDateModulesText = if (upToDateModules.isEmpty) "&lt;empty&gt;" else upToDateModules.map(_.getName).mkString(", ")
+      val upToDateModulesText = if (upToDateModules.isEmpty) "&lt;empty&gt;" else upToDateModules.map(_.toString).mkString(", ")
 
       val message =
         if (validIndexExists) MessageFormat.format(buildDescription, element.name, upToDateModulesText)
@@ -134,7 +135,7 @@ private object ImplicitUsagesSearchUI {
 
     private class DirtyModulesList() extends CheckBoxList[Module] {
       setSelectionMode(ListSelectionModel.MULTIPLE_INTERVAL_SELECTION)
-      setItems(dirtyModules.toList.asJava, _.getName)
+      setItems(dirtyModules.toList.asJava, _.toString)
       setItemsSelected(true)
       setBorder(JBUI.Borders.empty(3))
 

@@ -76,6 +76,7 @@ private class JpsCompilationWatcher(
         warnings:       Int,
         compileContext: CompileContext
       ): Unit = {
+        val timestamp   = System.currentTimeMillis()
         val key         = Key.findKeyByName("COMPILE_SERVER_BUILD_STATUS")
         val wasUpToDate = compileContext.getUserData(key) == ExitStatus.UP_TO_DATE
         val modules     = compileContext.getCompileScope.getAffectedModules.map(_.getName)
@@ -83,10 +84,8 @@ private class JpsCompilationWatcher(
         processEventInTransaction { publisher =>
           if (wasUpToDate) {
             publisher.onCompilationStart()
-            project
-              .getMessageBus
-              .syncPublisher(CompilerReferenceServiceStatusListener.topic)
-              .modulesUpToDate(modules)
+            val info = JpsCompilationInfo(modules.toSet, Set.empty, Set.empty, timestamp)
+            publisher.processCompilationInfo(info, offline = false)
             publisher.onCompilationFinish()
           }
         }
