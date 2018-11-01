@@ -38,9 +38,8 @@ import org.jetbrains.plugins.scala.lang.scaladoc.lexer.ScalaDocTokenType
 import org.jetbrains.plugins.scala.lang.scaladoc.parser.ScalaDocElementTypes
 import org.jetbrains.plugins.scala.lang.scaladoc.psi.api.ScDocComment
 import org.jetbrains.plugins.scala.util.MultilineStringUtil
-import scala.annotation.tailrec
 
-import com.intellij.util.text.ImmutableCharSequence
+import scala.annotation.tailrec
 
 object ScalaSpacingProcessor extends ScalaTokenTypes {
   private val LOG = Logger.getInstance("#org.jetbrains.plugins.scala.lang.formatting.processors.ScalaSpacingProcessor")
@@ -1190,8 +1189,7 @@ object ScalaSpacingProcessor extends ScalaTokenTypes {
       case (ScalaElementTypes.ANNOTATION, _, _, _) => COMMON_SPACING
       //Prefix Identifier
       case ((ScalaElementTypes.REFERENCE_EXPRESSION | ScalaTokenTypes.tIDENTIFIER), _,
-      (ScalaElementTypes.LITERAL | ScalaElementTypes.PREFIX_EXPR
-              | ScalaElementTypes.VARIANT_TYPE_PARAM), _) => NO_SPACING
+      (ScalaElementTypes.LITERAL | ScalaElementTypes.PREFIX_EXPR), _) => NO_SPACING
       //Braces
       case (ScalaTokenTypes.tLBRACE, ScalaTokenTypes.tRBRACE, _, _) => NO_SPACING
       case (ScalaTokenTypes.tLBRACE, _,

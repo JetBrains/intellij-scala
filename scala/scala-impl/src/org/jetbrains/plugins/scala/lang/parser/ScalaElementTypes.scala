@@ -20,7 +20,6 @@ import org.jetbrains.plugins.scala.lang.psi.impl.base.types._
 import org.jetbrains.plugins.scala.lang.psi.impl.expr._
 import org.jetbrains.plugins.scala.lang.psi.impl.expr.xml._
 import org.jetbrains.plugins.scala.lang.psi.impl.statements.params.ScParameterTypeImpl
-import org.jetbrains.plugins.scala.lang.psi.impl.toplevel.templates.ScRequiresBlockImpl
 import org.jetbrains.plugins.scala.lang.psi.stubs.elements._
 import org.jetbrains.plugins.scala.lang.psi.stubs.elements.signatures._
 
@@ -92,17 +91,9 @@ object ScalaElementTypes {
     override def createElement(node: ASTNode): PsiElement = new ScConstructorImpl(node)
   }
 
-  val TEMPLATE = new ScalaElementType("template", true)
-
-  val REQUIRES_BLOCK = new ScalaElementType("requires block") with SelfPsiCreator {
-    override def createElement(node: ASTNode): PsiElement = new ScRequiresBlockImpl(node)
-  }
-
   val PARAM_TYPE = new ScalaElementType("parameter type") with SelfPsiCreator {
     override def createElement(node: ASTNode): PsiElement = new ScParameterTypeImpl(node)
   }
-  val VARIANT_TYPE_PARAM = new ScalaElementType("variant parameter of type")
-  val TYPE_PARAMS = new ScalaElementType("parameters of type")
   val SIMPLE_TYPE = new ScalaElementType("simple type")
   val INFIX_TYPE = new ScalaElementType("infix type")
   val TYPE = new ScalaElementType("common type")
@@ -112,9 +103,7 @@ object ScalaElementTypes {
   val TYPE_ARGS = new ScalaElementType("type arguments")
   val ANNOT_TYPE = new ScalaElementType("annotation type")
   val WILDCARD_TYPE = new ScalaElementType("wildcard type")
-  val ASCRIPTION = new ScalaElementType("ascription") with SelfPsiCreator {
-    override def createElement(node: ASTNode): PsiElement = new ScAscriptionImpl(node)
-  }
+
   val TUPLE_TYPE = new ScalaElementType("tuple type")
   val TYPE_IN_PARENTHESIS = new ScalaElementType("type in parenthesis") with SelfPsiCreator {
     override def createElement(node: ASTNode): PsiElement = new ScParenthesisedTypeElementImpl(node)
@@ -132,18 +121,14 @@ object ScalaElementTypes {
   val REFERENCE = new ScalaElementType("reference") with SelfPsiCreator {
     override def createElement(node: ASTNode): PsiElement = new ScStableCodeReferenceElementImpl(node)
   }
-  val IMPORT = new ScalaElementType("import")
-  val STABLE_ID_LIST = new ScalaElementType("stable id list")
-  val STATEMENT_TEMPLATE = new ScalaElementType("template statement")
-  val FUN_SIG = new ScalaElementType("function signature")
+
   val CONSTR_EXPR = new ScalaElementType("constructor expression") with SelfPsiCreator {
     override def createElement(node: ASTNode): PsiElement = new ScConstrExprImpl(node)
   }
   val SELF_INVOCATION = new ScalaElementType("self invocation") with SelfPsiCreator {
     override def createElement(node: ASTNode): PsiElement = new ScSelfInvocationImpl(node)
   }
-  val LOWER_BOUND_TYPE = new ScalaElementType("lower bound type")
-  val UPPER_BOUND_TYPE = new ScalaElementType("upper bound type")
+
   val NAME_VALUE_PAIR = new ScalaElementType("name value pair") with SelfPsiCreator {
     override def createElement(node: ASTNode): PsiElement = new ScNameValuePairImpl(node)
   }
@@ -154,7 +139,6 @@ object ScalaElementTypes {
     override def createElement(node: ASTNode): PsiElement = new ScLiteralImpl(node)
   }
   //  String literals
-  val STRING_LITERAL = new ScalaElementType("String Literal")
   val INTERPOLATED_STRING_LITERAL = new ScalaElementType("Interpolated String Literal") with SelfPsiCreator {
     override def createElement(node: ASTNode): PsiElement = new ScInterpolatedStringLiteralImpl(node)
   }
@@ -165,8 +149,6 @@ object ScalaElementTypes {
   val INTERPOLATED_PREFIX_LITERAL_REFERENCE = new ScalaElementType("Interpolated Prefix Literal Reference") with SelfPsiCreator {
     override def createElement(node: ASTNode): PsiElement = new ScInterpolatedStringPartReference(node)
   }
-  // Boolean literals
-  val BOOLEAN_LITERAL = new ScalaElementType("Boolean Literal")
 
   /** ***********************************************************************************/
   /** ************************************ EXPRESSIONS **********************************/
@@ -175,7 +157,6 @@ object ScalaElementTypes {
   val PREFIX_EXPR = new ScalaElementType("prefix expression") with SelfPsiCreator {
     override def createElement(node: ASTNode): PsiElement = new ScPrefixExprImpl(node)
   }
-  val PREFIX = new ScalaElementType("prefix")
   val POSTFIX_EXPR = new ScalaElementType("postfix expression") with SelfPsiCreator {
     override def createElement(node: ASTNode): PsiElement = new ScPostfixExprImpl(node)
   }
@@ -205,11 +186,9 @@ object ScalaElementTypes {
     override def createElement(node: ASTNode): PsiElement = new ScGenericCallImpl(node)
   }
 
-  val EXPR1 = new ScalaElementType("composite expression ")
   val FUNCTION_EXPR = new ScalaElementType("expression") with SelfPsiCreator {
     override def createElement(node: ASTNode): PsiElement = new ScFunctionExprImpl(node)
   }
-  val AN_FUN = new ScalaElementType("anonymous function")
   val GENERATOR = new ScalaElementType("generator") with SelfPsiCreator {
     override def createElement(node: ASTNode): PsiElement = new ScGeneratorImpl(node)
   }
@@ -222,17 +201,11 @@ object ScalaElementTypes {
   val GUARD = new ScalaElementType("guard") with SelfPsiCreator {
     override def createElement(node: ASTNode): PsiElement = new ScGuardImpl(node)
   }
-  val EXPRS = new ScalaElementType("list of expressions") with SelfPsiCreator {
-    override def createElement(node: ASTNode): PsiElement = new ScExprsImpl(node)
-  }
   val ARG_EXPRS = new ScalaElementType("arguments of function") with SelfPsiCreator {
     override def createElement(node: ASTNode): PsiElement = new ScArgumentExprListImpl(node)
   }
   val CONSTR_BLOCK = new ScalaElementType("constructor block") with SelfPsiCreator {
     override def createElement(node: ASTNode): PsiElement = new ScConstrBlockImpl(node)
-  }
-  val ERROR_STMT = new ScalaElementType("error statement") with SelfPsiCreator {
-    override def createElement(node: ASTNode): PsiElement = new ScErrorStatImpl(node)
   }
   val BLOCK = new ScalaElementType("block") with SelfPsiCreator {
     override def createElement(node: ASTNode): PsiElement = new ScBlockImpl(node)
@@ -281,7 +254,6 @@ object ScalaElementTypes {
   val TYPED_EXPR_STMT = new ScalaElementType("typed statement") with SelfPsiCreator {
     override def createElement(node: ASTNode): PsiElement = new ScTypedStmtImpl(node)
   }
-
 
   /** ***********************************************************************************/
   /** ************************************ PATTERNS *************************************/
@@ -338,9 +310,6 @@ object ScalaElementTypes {
 
   /** ************************************ TYPE PATTERNS ********************************/
 
-  val TYPE_PATTERN_ARGS = new ScalaElementType("Type pattern arguments") with SelfPsiCreator {
-    override def createElement(node: ASTNode): PsiElement = new ScTypePatternArgsImpl(node)
-  }
   val TYPE_PATTERN = new ScalaElementType("Type pattern") with SelfPsiCreator {
     override def createElement(node: ASTNode): PsiElement = new ScTypePatternImpl(node)
   }
