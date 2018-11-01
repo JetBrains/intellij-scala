@@ -12,7 +12,7 @@ import org.jetbrains.plugins.scala.lang.psi.types.{ScType, Signature, TypeAliasS
 case class DottyRefinedType(designator: ScType,
                             signatures: Set[Signature] = Set.empty,
                             typeAliasSignatures: Set[TypeAliasSignature] = Set.empty)
-                           (override val typeArguments: Seq[ScType] = typeAliasSignatures.toSeq.flatMap(_.getType))
+                           (override val typeArguments: Seq[ScType] = Seq.empty)
   extends ParameterizedType with DottyType {
 
   override protected def substitutorInner = ScSubstitutor.empty
@@ -33,8 +33,6 @@ object DottyRefinedType {
       case value: ScValue => value.declaredElements.map(Signature(_))
     }.foldLeft(Set[Signature]())(_ ++ _)
 
-    val typeAliasSignatures = refinement.types.map(TypeAliasSignature(_)).toSet
-
-    DottyRefinedType(designator, signatures, typeAliasSignatures)()
+    DottyRefinedType(designator, signatures)()
   }
 }

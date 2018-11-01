@@ -10,7 +10,7 @@ import com.intellij.psi._
 import com.intellij.psi.util.MethodSignatureUtil
 import org.jetbrains.plugins.scala.extensions._
 import org.jetbrains.plugins.scala.lang.psi.api.statements.params.ScParameters
-import org.jetbrains.plugins.scala.lang.psi.api.statements.{ScFunction, ScTypeAlias, ScTypeAliasDefinition}
+import org.jetbrains.plugins.scala.lang.psi.api.statements.{ScFunction, ScTypeAlias}
 import org.jetbrains.plugins.scala.lang.psi.api.toplevel.ScTypedDefinition
 import org.jetbrains.plugins.scala.lang.psi.light.scala.ScLightTypeAlias
 import org.jetbrains.plugins.scala.lang.psi.types.api.{Any, PsiTypeParamatersExt, TypeParameter}
@@ -19,56 +19,51 @@ import org.jetbrains.plugins.scala.lang.psi.types.result._
 import org.jetbrains.plugins.scala.lang.refactoring.util.ScalaNamesUtil
 import org.jetbrains.plugins.scala.project.{ProjectContext, ProjectContextOwner}
 
-import scala.collection.mutable.ArrayBuffer
+import scala.collection.mutable
 
-case class TypeAliasSignature(name: String,
-                              typeParams: Seq[TypeParameter],
-                              lowerBound: ScType,
-                              upperBound: ScType,
-                              isDefinition: Boolean,
-                              ta: ScTypeAlias) extends ProjectContextOwner {
+final case class TypeAliasSignature(name: String,
+                                    typeParams: Seq[TypeParameter],
+                                    lowerBound: ScType,
+                                    upperBound: ScType,
+                                    isDefinition: Boolean,
+                                    typeAlias: ScTypeAlias) {
 
-  override implicit def projectContext: ProjectContext = ta.projectContext
+  def updateTypes(function: ScType => ScType): TypeAliasSignature = {
+    val newParameters = typeParams.map(_.update(function))
+    val newLowerBound = function(lowerBound)
+    val newUpperBound = function(upperBound)
 
-  def updateTypes(fun: ScType => ScType): TypeAliasSignature = TypeAliasSignature(name,
-    typeParams.map(_.update(fun)),
-    fun(lowerBound),
-    fun(upperBound),
-    isDefinition,
-    ta)
-    .copyWithCompoundBody
-
-  private def copyWithCompoundBody = copy(ta = ScLightTypeAlias(ta, lowerBound, upperBound, typeParams))
-
-  def canEqual(other: Any): Boolean = other.isInstanceOf[TypeAliasSignature]
+    TypeAliasSignature(
+      name,
+      newParameters,
+      newLowerBound,
+      newUpperBound,
+      isDefinition,
+      ScLightTypeAlias(typeAlias, newLowerBound, newUpperBound, newParameters)
+    )
+  }
 
   override def equals(other: Any): Boolean = other match {
-    case that: TypeAliasSignature =>
-      (that canEqual this) &&
-        name == that.name &&
-        typeParams == that.typeParams &&
-        lowerBound == that.lowerBound &&
-        upperBound == that.upperBound &&
-        isDefinition == that.isDefinition
+    case TypeAliasSignature(`name`, `typeParams`, `lowerBound`, `upperBound`, `isDefinition`, _) => true
     case _ => false
   }
 
-  override def hashCode(): Int =
-    Objects.hash(name, typeParams, lowerBound, upperBound, Boolean.box(isDefinition))
-
-  def getType: Option[ScType] = ta match {
-    case definition: ScTypeAliasDefinition => definition.aliasedType.toOption
-    case _ => None
-  }
+  override def hashCode(): Int = Objects.hash(
+    name, typeParams, lowerBound, upperBound, Boolean.box(isDefinition)
+  )
 }
 
 object TypeAliasSignature {
-  def apply(typeAlias: ScTypeAlias): TypeAliasSignature = TypeAliasSignature(typeAlias.name,
-    typeAlias.typeParameters.map(TypeParameter(_)),
-    typeAlias.lowerBound.getOrNothing,
-    typeAlias.upperBound.getOrAny,
-    typeAlias.isDefinition,
-    typeAlias)
+
+  def apply(typeAlias: ScTypeAlias): TypeAliasSignature =
+    TypeAliasSignature(
+      typeAlias.name,
+      typeAlias.typeParameters.map(TypeParameter(_)),
+      typeAlias.lowerBound.getOrNothing,
+      typeAlias.upperBound.getOrAny,
+      typeAlias.isDefinition,
+      typeAlias
+    )
 }
 
 class Signature(val name: String,
@@ -257,7 +252,7 @@ object PhysicalSignature {
     method.getParameterList match {
       case p: ScParameters =>
         val params = p.params
-        val res = new ArrayBuffer[Int]()
+        val res = mutable.ArrayBuffer.empty[Int]
         var i = 0
         while (i < params.length) {
           if (params(i).isRepeatedParameter) res += i

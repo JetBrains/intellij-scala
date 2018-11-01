@@ -155,7 +155,7 @@ class CompoundTypeCheckSignatureProcessor(s: Signature, retType: ScType,
 }
 
 class CompoundTypeCheckTypeAliasProcessor(sign: TypeAliasSignature, constraints: ConstraintSystem, substitutor: ScSubstitutor)
-  extends BaseProcessor(StdKinds.methodRef + ResolveTargets.CLASS)(sign.projectContext) {
+  extends BaseProcessor(StdKinds.methodRef + ResolveTargets.CLASS)(sign.typeAlias.projectContext) {
   private val name = sign.name
 
   private var trueResult = false
@@ -231,7 +231,7 @@ class CompoundTypeCheckTypeAliasProcessor(sign: TypeAliasSignature, constraints:
     }
 
     def checkDeclarationForTypeAlias(tp: ScTypeAlias): Boolean = {
-      sign.ta match {
+      sign.typeAlias match {
         case _: ScTypeAliasDeclaration =>
           var conformance = substitutor.subst(sign.lowerBound).conforms(subst.subst(tp.lowerBound.getOrNothing), undef)
           if (conformance.isRight) {
@@ -250,7 +250,7 @@ class CompoundTypeCheckTypeAliasProcessor(sign: TypeAliasSignature, constraints:
 
     element match {
       case tp: ScTypeAliasDefinition =>
-        sign.ta match {
+        sign.typeAlias match {
           case _: ScTypeAliasDefinition =>
             val t = subst.subst(tp.aliasedType.getOrNothing).equiv(substitutor.subst(sign.lowerBound), undef, falseUndef = false)
             if (t.isRight) {

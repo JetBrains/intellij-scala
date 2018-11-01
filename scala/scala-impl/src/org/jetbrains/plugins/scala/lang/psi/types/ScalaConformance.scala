@@ -634,7 +634,7 @@ trait ScalaConformance extends api.Conformance {
 
       def workWithTypeAlias(sign: TypeAliasSignature): Boolean = {
         val processor = new CompoundTypeCheckTypeAliasProcessor(sign, constraints, ScSubstitutor.empty)
-        processor.processType(r, sign.ta)
+        processor.processType(r, sign.typeAlias)
         constraints = processor.getConstraints
         processor.getResult
       }
