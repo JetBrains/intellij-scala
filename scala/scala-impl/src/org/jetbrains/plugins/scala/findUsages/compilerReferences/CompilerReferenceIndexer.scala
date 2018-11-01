@@ -32,20 +32,22 @@ private class CompilerReferenceIndexer(project: Project, expectedIndexVersion: I
   private[this] val failedToParse = ContainerUtil.newConcurrentSet[ClassParsingFailure]()
   private[this] val fatalFailure  = new AtomicReference[Option[Throwable]](Option.empty)
 
-  private[this] def shutdownIfNeeded(executor: ExecutorService): Unit =
-    if (executor != null && !executor.isShutdown) executor.shutdownNow()
-
   Disposer.register(project, () => shutdown())
 
-  private[this] def shutdown(): Unit = {
-    shutdownIfNeeded(parsingExecutor)
-    shutdownIfNeeded(indexWritingExecutor)
+  private[this] def shutdown(): Unit = if (!isShutdown) {
+    parsingExecutor.shutdownNow()
+    indexWritingExecutor.shutdownNow()
   }
 
-  private[this] def onException(e: Throwable): Unit = {
-    shutdown()
+  private[this] def onException(e: Throwable, shouldClearIndex: Boolean): Unit = {
     fatalFailure.updateAndGet(_.orElse(Option(e)))
+    if (shouldClearIndex) indexWriter.foreach(_.close(shouldClearIndex = true))
+    shutdown()
   }
+
+  private[this] def isShutdown: Boolean =
+    (parsingExecutor == null || parsingExecutor.isShutdown) &&
+      (indexWritingExecutor == null || indexWritingExecutor.isShutdown)
 
   private[this] def checkInterruptStatus(): Unit =
     if (Thread.interrupted()) throw new InterruptedException
@@ -65,7 +67,7 @@ private class CompilerReferenceIndexer(project: Project, expectedIndexVersion: I
           writerJobQueue.put(ProcessCompiledFile(data))
         } catch { case NonFatal(e) => failedToParse.add(ClassParsingFailure(classfiles, e)) }
       }
-    } catch { case e: Throwable => onException(e) }
+    } catch { case e: Throwable => onException(e, shouldClearIndex = false) }
 
   private def writeParsedClassfile(
     writer:          ScalaCompilerReferenceWriter,
@@ -84,7 +86,7 @@ private class CompilerReferenceIndexer(project: Project, expectedIndexVersion: I
           indicator.setFraction(processed * 1d / totalClassfiles)
         }
 
-        writer.getRebuildRequestCause.nullSafe.foreach(onException)
+        writer.getRebuildRequestCause.nullSafe.foreach(onException(_, shouldClearIndex = true))
         val job = writerJobQueue.poll(1, TimeUnit.SECONDS)
 
         job match {
@@ -93,14 +95,11 @@ private class CompilerReferenceIndexer(project: Project, expectedIndexVersion: I
           case null                      => ()
         }
       }
-    } catch { case e: Throwable => onException(e) }
+    } catch { case e: Throwable => onException(e, shouldClearIndex = true) }
 
-  private[this] def initialiseExecutorsIfNeeded(): Unit = {
-    if (parsingExecutor == null || parsingExecutor.isShutdown)
-      parsingExecutor = Executors.newFixedThreadPool(nThreads)
-
-    if (indexWritingExecutor == null || indexWritingExecutor.isShutdown)
-      indexWritingExecutor = Executors.newSingleThreadExecutor()
+  private[this] def initialiseExecutorsIfNeeded(): Unit = if (isShutdown) {
+    parsingExecutor      = Executors.newFixedThreadPool(nThreads)
+    indexWritingExecutor = Executors.newSingleThreadExecutor()
   }
 
   def toTask(job: IndexerJob): Task.Backgroundable =
@@ -144,7 +143,7 @@ private class CompilerReferenceIndexer(project: Project, expectedIndexVersion: I
       extends Task.Backgroundable(project, "Indexing classfiles ...", true) {
 
     override def run(progressIndicator: ProgressIndicator): Unit =
-      if (!parsingExecutor.isShutdown && !indexWritingExecutor.isShutdown) {
+      if (!isShutdown) {
         indexWriter match {
           case None => log.warn("Failed to index compilation info due to index writer being disposed.")
           case Some(writer) =>
@@ -185,7 +184,7 @@ private class CompilerReferenceIndexer(project: Project, expectedIndexVersion: I
               indexingTask.get()
               if (fatalFailure.get().isEmpty) callback()
             } catch {
-              case e: Throwable => onException(e)
+              case e: Throwable => onException(e, shouldClearIndex = true)
             }
         }
 

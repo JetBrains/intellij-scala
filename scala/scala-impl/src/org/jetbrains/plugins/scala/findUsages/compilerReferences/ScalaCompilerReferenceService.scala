@@ -1,19 +1,20 @@
 package org.jetbrains.plugins.scala.findUsages.compilerReferences
 
 import java.io.File
-import java.util.concurrent.ConcurrentHashMap
+import java.util.concurrent.atomic.AtomicInteger
+import java.util.concurrent.locks.ReentrantReadWriteLock
 
-import com.intellij.compiler.backwardRefs.CompilerReferenceServiceBase.{IndexCloseReason, IndexOpenReason}
-import com.intellij.compiler.backwardRefs.{CompilerReferenceServiceBase, DirtyScopeHolder}
-import com.intellij.compiler.backwardRefs.DirtyScopeHolder
+import com.intellij.compiler.backwardRefs.LanguageCompilerRefAdapter
+import com.intellij.openapi.components.ProjectComponent
 import com.intellij.openapi.diagnostic.Logger
 import com.intellij.openapi.fileEditor.FileDocumentManager
-import com.intellij.openapi.module.ModuleUtilCore
 import com.intellij.openapi.project.Project
+import com.intellij.openapi.roots.ProjectRootManager
 import com.intellij.openapi.util.Disposer
 import com.intellij.psi.search.GlobalSearchScope
+import com.intellij.psi.util.PsiUtilCore
 import com.intellij.psi.{PsiClass, PsiDocumentManager, PsiElement}
-import com.intellij.util.messages.MessageBus
+import com.intellij.util.containers.ContainerUtil
 import org.jetbrains.jps.backwardRefs.CompilerRef
 import org.jetbrains.jps.backwardRefs.index.CompilerReferenceIndex
 import org.jetbrains.plugins.scala.extensions._
@@ -23,42 +24,38 @@ import org.jetbrains.plugins.scala.findUsages.compilerReferences.IndexerJob._
 import org.jetbrains.plugins.scala.indices.protocol.CompilationInfo
 
 import scala.collection.JavaConverters._
-import scala.collection.mutable
-import scala.util.control.NonFatal
 
-/**
- *  NOTICE: all index manipulations must be done either via subclassing [[IndexerJob]] and adding custom processing logic
- *          or in callbacks of existing jobs.
- */
 private[findUsages] class ScalaCompilerReferenceService(
-  project:             Project,
-  fileDocumentManager: FileDocumentManager,
-  psiDocumentManager:  PsiDocumentManager
-) extends CompilerReferenceServiceAdapter[ScalaCompilerReferenceReader](
-      project,
-      fileDocumentManager,
-      psiDocumentManager,
-      ScalaCompilerReferenceReaderFactory,
-      (connection, affectedModules) =>
-        connection.subscribe(
-          CompilerReferenceServiceStatusListener.topic,
-          new CompilerReferenceServiceStatusListener {
-            //FIXME: in case of an sbt project modules should only be marked as up-to-date
-            //FIXME: when *both* compile and test scopes are compiled
-            override def modulesUpToDate(affectedModuleNames: Iterable[String]): Unit =
-              affectedModules.addAll(affectedModuleNames.toSet.asJava)
-          }
-      )
-    ) { self =>
+  project:        Project,
+  fileDocManager: FileDocumentManager,
+  psiDocManager:  PsiDocumentManager
+) extends ProjectComponent {
   import ScalaCompilerReferenceService._
 
-  private[this] val indexerScheduler =
-    new CompilerReferenceIndexerScheduler(project, myReaderFactory.expectedIndexVersion())
+  private[this] val projectFileIndex = ProjectRootManager.getInstance(project).getFileIndex
+  private[this] val readerFactory    = ScalaCompilerReferenceReaderFactory
+  private[this] val lock             = new ReentrantReadWriteLock()
+  private[this] val openCloseLock    = lock.writeLock()
+  private[this] val readDataLock     = lock.readLock()
 
-  private[this] val failedToParse: mutable.Set[File]                       = mutable.HashSet.empty[File]
-  private[this] val compilationTimestamps: ConcurrentHashMap[String, Long] = new ConcurrentHashMap[String, Long]
-  private[this] var currentCompilerMode: CompilerMode                      = CompilerMode.forProject(project)
-  private[this] val messageBus: MessageBus                                 = project.getMessageBus
+  private[this] val dirtyScopeHolder = new ScalaDirtyScopeHolder(
+    project,
+    LanguageCompilerRefAdapter.INSTANCES.flatMap(_.getFileTypes.asScala),
+    projectFileIndex,
+    fileDocManager,
+    psiDocManager
+  )
+
+  private[this] val activeIndexingPhases = new AtomicInteger()
+  private[this] var reader               = Option.empty[ScalaCompilerReferenceReader] /** access only in [[transactionManager.inTransaction()]] */
+
+  private[this] val indexerScheduler =
+    new CompilerReferenceIndexerScheduler(project, readerFactory.expectedIndexVersion())
+
+  private[this] val failedToParse         = ContainerUtil.newConcurrentSet[File]()
+  private[this] val compilationTimestamps = ContainerUtil.newConcurrentMap[String, Long]()
+  private[this] var currentCompilerMode   = CompilerMode.forProject(project)
+  private[this] val messageBus            = project.getMessageBus
 
   private[this] val publisher = new CompilerIndicesEventPublisher {
     override def compilerModeChanged(mode: CompilerMode): Unit = {
@@ -68,7 +65,7 @@ private[findUsages] class ScalaCompilerReferenceService(
       currentCompilerMode = mode
     }
 
-    override def onCompilationStart(): Unit                  = closeReader()
+    override def onCompilationStart(): Unit                  = closeReader(incrementBuildCount = true)
     override def onError(): Unit                             = onIndexCorruption()
     override def onCompilationFinish(): Unit                 = indexerScheduler.schedule("Open compiler index reader", () => openReader())
     override def startIndexing(isCleanBuild: Boolean): Unit  = indexerScheduler.schedule(OpenWriter(isCleanBuild))
@@ -81,17 +78,15 @@ private[findUsages] class ScalaCompilerReferenceService(
         if (!isOffline) { // do not mark modules as up-to-date when indexing 'offline' sbt compilations
           modules.foreach(compilationTimestamps.put(_, info.startTimestamp))
           logger.debug(s"Compiler indices for modules ${modules.mkString(", ")} are updated.")
-          val publisher = messageBus.syncPublisher(CompilerReferenceServiceStatusListener.topic)
-          try publisher.modulesUpToDate(modules)
-          catch { case NonFatal(e) => logger.error("Error in CompilerReferenceServiveStatus listener event.", e) }
+          dirtyScopeHolder.compilationInfoIndexed(info)
         }
 
-        if (failedToParse.nonEmpty) {
+        if (!failedToParse.isEmpty) {
           // if we failed to parse some classes during previous indexing
           // phase running concurrently with this one, check if current phase handled
           // these files and therefore restored index consitency
-          failedToParse --= info.removedSources
-          failedToParse --= info.generatedClasses.map(_.output)
+          failedToParse.removeAll(info.removedSources.asJava)
+          failedToParse.removeAll(info.generatedClasses.map(_.output).asJava)
         }
       }))
     }
@@ -102,49 +97,50 @@ private[findUsages] class ScalaCompilerReferenceService(
   private[this] val transactionManager: TransactionManager[CompilerIndicesState] =
     new TransactionManager[CompilerIndicesState] {
       override def inTransaction[T](body: CompilerIndicesState => T): T =
-        myOpenCloseLock.locked(body((currentCompilerMode, publisher)))
+        openCloseLock.locked(body((currentCompilerMode, publisher)))
     }
 
-  private[this] def readerSafe: Option[ScalaCompilerReferenceReader] = Option(myReader)
-
   private[this] def onIndexCorruption(): Unit = transactionManager.inTransaction { _ =>
-    val index = readerSafe.map(_.getIndex())
+    val index = reader.map(_.getIndex())
+    dirtyScopeHolder.reset()
     indexerScheduler.schedule(InvalidateIndex(index))
     indexerScheduler.schedule("Index invalidation callback", () => {
       logger.warn(s"Compiler indices were corrupted and invalidated.")
-      resetReader()
-      myActiveBuilds = 1
+      activeIndexingPhases.set(1)
       failedToParse.clear()
-      myDirtyScopeHolder.upToDateChecked(false)
       openReader()
     })
   }
 
-  /**
-   * Both [[closeReader]] and [[openReader]] methods serve to satisfy DirtyScopeHolder
-   * constraints (i.e. we treat any number of concurrent indexing phases as single
-   * super-phase which starts with first and ends with last one).
-   * //FIXME: rewrite DirtyScopeHolder to support our case.
-   */
-  private[this] def closeReader(): Unit = transactionManager.inTransaction { _ =>
-    if (myActiveBuilds == 0) closeReaderIfNeed(IndexCloseReason.COMPILATION_STARTED)
-    else                     myActiveBuilds += 1
+  private[this] def closeReader(incrementBuildCount: Boolean): Unit = transactionManager.inTransaction { _ =>
+    if (incrementBuildCount) {
+      activeIndexingPhases.incrementAndGet()
+      dirtyScopeHolder.indexingStarted()
+    }
+
+    reader.foreach(_.close(false))
+    reader = None
   }
 
   private[this] def openReader(): Unit = transactionManager.inTransaction { _ =>
-    if (myActiveBuilds == 1) {
-      if (false/*&& failedToParse.nonEmpty*/) { // FIXME
-        logger.error(
-          s"Fatal indexing failure, failed to parse the following " +
-            s"class files ${failedToParse.mkString("[\n", "  \n", "]")}. " +
-            s"Compiler index will be invalidated."
-        )
-        onIndexCorruption()
-      } else {
-        openReaderIfNeed(IndexOpenReason.COMPILATION_FINISHED)
-        messageBus.syncPublisher(CompilerReferenceServiceStatusListener.topic).onIndexingFinished()
+    if (activeIndexingPhases.get() != 0) {
+      dirtyScopeHolder.indexingFinished()
+      activeIndexingPhases.decrementAndGet()
+
+      if (activeIndexingPhases.get() == 0 && project.isOpen) {
+        if (false/*&& failedToParse.nonEmpty*/) { // FIXME
+          logger.error(
+            s"Fatal indexing failure, failed to parse the following " +
+              s"class files ${failedToParse.asScala.mkString("[\n", "  \n", "]")}. " +
+              s"Compiler index will be invalidated."
+          )
+          onIndexCorruption()
+        } else {
+          reader = Option(readerFactory.create(project))
+          messageBus.syncPublisher(CompilerReferenceServiceStatusListener.topic).onIndexingFinished()
+        }
       }
-    } else if (myActiveBuilds > 0) myActiveBuilds -= 1
+    }
   }
 
   private[this] def processIndexingFailure(failure: IndexerFailure): Unit =
@@ -152,7 +148,7 @@ private[findUsages] class ScalaCompilerReferenceService(
       failure match {
         case FailedToParse(failures) =>
           failures.foreach(f => logger.info(f.errorMessage, f.cause))
-          failedToParse ++= failures.flatMap(_.classfiles)
+          failedToParse.addAll(failures.flatMap(_.classfiles).asJavaCollection)
         case FatalFailure(cause) =>
           logger.error(s"Fatal failure occured while trying to build compiler indices", cause)
           onIndexCorruption()
@@ -161,23 +157,30 @@ private[findUsages] class ScalaCompilerReferenceService(
 
   override def projectOpened(): Unit = if (CompilerIndicesSettings(project).getClassfileIndexingEnabled) {
     new JpsCompilationWatcher(project, transactionManager).start()
-    new SbtCompilationWatcher(project, transactionManager, myReaderFactory.expectedIndexVersion()).start()
+    new SbtCompilationWatcher(project, transactionManager, readerFactory.expectedIndexVersion()).start()
 
-    myDirtyScopeHolder.installVFSListener()
-    markAsOutdated(false)
+    dirtyScopeHolder.markProjectAsOutdated()
+    dirtyScopeHolder.installVFSListener()
 
     Disposer.register(project, () => {
-      myOpenCloseLock.locked {
+      openCloseLock.locked {
         if (isIndexingInProgress) {
           // if the project is force-closed while indexing is in progress - invalidate index
           indexDir(project).foreach(CompilerReferenceIndex.removeIndexFiles)
         }
-        closeReaderIfNeed(IndexCloseReason.PROJECT_CLOSED)
+        closeReader(incrementBuildCount = false)
       }
     })
   }
 
-  /** Should only be called under [[myReadDataLock]] */
+  private[this] def toCompilerRef(e: PsiElement): Option[CompilerRef] = readDataLock.locked {
+    for {
+      r       <- reader
+      file    <- PsiUtilCore.getVirtualFile(e).toOption
+      adapter <- LanguageCompilerRefAdapter.findAdapter(file).toOption
+    } yield adapter.asCompilerRef(e, r.getNameEnumerator)
+  }
+
   private[this] def withReader(
     target:      PsiElement,
     filterScope: Boolean
@@ -187,60 +190,45 @@ private[findUsages] class ScalaCompilerReferenceService(
     val usages = Set.newBuilder[UsagesInFile]
 
     for {
-      info    <- asCompilerElements(target, false, false).toOption
-      reader  <- readerSafe
-      targets = info.searchElements
-    } yield targets.foreach(usages ++= builder(reader)(_))
+      ref <- toCompilerRef(target)
+      r   <- reader
+    } usages ++= builder(r)(ref)
 
-    val result = if (filterScope) {
-      val dirtyScope = dirtyScopeForDefinition(target)
-      usages.result().filterNot(usage => dirtyScope.contains(usage.file))
-    } else usages.result()
+    val result =
+      if (filterScope) usages.result().filterNot(usage => dirtyScopeHolder.contains(usage.file))
+      else             usages.result()
 
     result.map { usage =>
-      val module = myProjectFileIndex.getModuleForFile(usage.file)
+      val module = projectFileIndex.getModuleForFile(usage.file)
       val ts     = compilationTimestamps.getOrDefault(module.getName, -1)
       Timestamped(ts, usage)
     }
   }
 
   def SAMInheritorsOf(aClass: PsiClass, filterScope: Boolean = false): Set[Timestamped[UsagesInFile]] =
-    myReadDataLock.locked(withReader(aClass, filterScope)(_.SAMInheritorsOf))
+    readDataLock.locked(withReader(aClass, filterScope)(_.SAMInheritorsOf))
 
   /**
    * Returns usages only from up-to-date compiled scope.
    */
   def usagesOf(target: PsiElement, filterScope: Boolean = false): Set[Timestamped[UsagesInFile]] =
-    myReadDataLock.locked {
+    readDataLock.locked {
       val actualTarget = ScalaCompilerRefAdapter.bytecodeElement(target)
       withReader(actualTarget, filterScope)(_.usagesOf)
     }
 
-  def isIndexingInProgress: Boolean = myActiveBuilds != 0
-
-  def dirtyScopeForDefinition(e: PsiElement): GlobalSearchScope = {
-    import com.intellij.psi.search.GlobalSearchScope._
-
-    val dirtyModules = myDirtyScopeHolder.getAllDirtyModules
-
-    val dirtyModulesScopes: Array[GlobalSearchScope] =
-      dirtyModules.asScala.map(_.getModuleScope)(collection.breakOut)
-
-    val elemModule = inReadAction(ModuleUtilCore.findModuleForPsiElement(e).toOption)
-
-    val dependentsScope =
-      elemModule.collect { case m if dirtyModules.contains(m) => m.getModuleTestsWithDependentsScope }
-        .getOrElse(EMPTY_SCOPE)
-
-    union(dirtyModulesScopes :+ dependentsScope)
-  }
+  def isIndexingInProgress: Boolean = activeIndexingPhases.get() != 0
 
   // transactions MUST BE SHORT (they are used in UI thread in SbtProjectSettingsControl)
   def inTransaction[T](body: CompilerIndicesState => T): T = transactionManager.inTransaction(body)
 
-  def invalidateIndex(): Unit = onIndexCorruption()
+  def invalidateIndex(): Unit                    = onIndexCorruption()
+  def getDirtyScopeHolder: ScalaDirtyScopeHolder = dirtyScopeHolder
 
-  def dirtyScopeHolder: DirtyScopeHolder = myDirtyScopeHolder
+  def scopeWithoutReferences(target: PsiElement): GlobalSearchScope = {
+    //FIXME
+    GlobalSearchScope.EMPTY_SCOPE
+  }
 }
 
 object ScalaCompilerReferenceService {

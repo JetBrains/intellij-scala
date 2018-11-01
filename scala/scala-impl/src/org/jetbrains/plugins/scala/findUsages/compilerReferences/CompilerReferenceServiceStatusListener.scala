@@ -5,8 +5,7 @@ import java.util.EventListener
 import com.intellij.util.messages.Topic
 
 trait CompilerReferenceServiceStatusListener extends EventListener {
-  def modulesUpToDate(moduleNames: Iterable[String]): Unit = ()
-  def onIndexingFinished(): Unit                           = ()
+  def onIndexingFinished(): Unit = ()
 }
 
 object CompilerReferenceServiceStatusListener {
