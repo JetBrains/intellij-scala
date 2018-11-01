@@ -3,10 +3,10 @@ package lang
 package parser
 
 import com.intellij.lang.{ASTNode, Language}
-import com.intellij.lexer.Lexer
 import com.intellij.openapi.project.Project
 import com.intellij.psi.stubs.PsiFileStub
 import com.intellij.psi.tree._
+import com.intellij.psi.util.PsiUtilCore
 import com.intellij.psi.{PsiElement, PsiFile}
 import org.jetbrains.annotations.NotNull
 import org.jetbrains.plugins.scala.lang.lexer.{ScalaElementType, ScalaLexer, ScalaTokenTypes}
@@ -23,22 +23,14 @@ import org.jetbrains.plugins.scala.lang.psi.impl.statements.params.ScParameterTy
 import org.jetbrains.plugins.scala.lang.psi.stubs.elements._
 import org.jetbrains.plugins.scala.lang.psi.stubs.elements.signatures._
 
+import scala.annotation.tailrec
+
 /**
   * User: Dmitry.Krasilschikov
   * Date: 02.10.2006
   *
   */
 object ScalaElementTypes {
-
-  val COMPOUND_TYPE = new ScalaElementType("compound type") with SelfPsiCreator {
-    override def createElement(node: ASTNode): PsiElement = new ScCompoundTypeElementImpl(node)
-  }
-  val EXISTENTIAL_TYPE = new ScalaElementType("existential type") with SelfPsiCreator {
-    override def createElement(node: ASTNode): PsiElement = new ScExistentialTypeElementImpl(node)
-  }
-  val EXISTENTIAL_CLAUSE = new ScalaElementType("existential clause") with SelfPsiCreator {
-    override def createElement(node: ASTNode): PsiElement = new ScExistentialClauseImpl(node)
-  }
 
   val DUMMY_ELEMENT = new ScalaElementType("Dummy Element")
 
@@ -64,7 +56,6 @@ object ScalaElementTypes {
   val ANNOTATION = new ScAnnotationElementType
   val ANNOTATIONS = new ScAnnotationsElementType
   val REFERENCE_PATTERN = new ScReferencePatternElementType
-  val BLOCK_EXPR = new ScCodeBlockElementType
   val PACKAGING = new ScPackagingElementType
   val EXTENDS_BLOCK = new ScExtendsBlockElementType
   val TEMPLATE_PARENTS = new ScTemplateParentsElementType
@@ -87,34 +78,70 @@ object ScalaElementTypes {
   val OBJECT_DEFINITION: ScTemplateDefinitionElementType[ScObject] = ObjectDefinition
   val NEW_TEMPLATE: ScTemplateDefinitionElementType[ScNewTemplateDefinition] = NewTemplateDefinition
 
+  val BLOCK_EXPR = new ScCodeBlockElementType with SelfPsiCreator {
+    override def createNode(text: CharSequence): ASTNode = new ScBlockExprImpl(text)
+
+    override def createElement(node: ASTNode): PsiElement = PsiUtilCore.NULL_PSI_ELEMENT
+  }
+
   val CONSTRUCTOR = new ScalaElementType("constructor", true) with SelfPsiCreator {
     override def createElement(node: ASTNode): PsiElement = new ScConstructorImpl(node)
   }
 
+  val COMPOUND_TYPE = new ScalaElementType("compound type") with SelfPsiCreator {
+    override def createElement(node: ASTNode): PsiElement = new ScCompoundTypeElementImpl(node)
+  }
+  val EXISTENTIAL_TYPE = new ScalaElementType("existential type") with SelfPsiCreator {
+    override def createElement(node: ASTNode): PsiElement = new ScExistentialTypeElementImpl(node)
+  }
+  val EXISTENTIAL_CLAUSE = new ScalaElementType("existential clause") with SelfPsiCreator {
+    override def createElement(node: ASTNode): PsiElement = new ScExistentialClauseImpl(node)
+  }
   val PARAM_TYPE = new ScalaElementType("parameter type") with SelfPsiCreator {
     override def createElement(node: ASTNode): PsiElement = new ScParameterTypeImpl(node)
   }
-  val SIMPLE_TYPE = new ScalaElementType("simple type")
-  val INFIX_TYPE = new ScalaElementType("infix type")
-  val TYPE = new ScalaElementType("common type")
+  val SIMPLE_TYPE = new ScalaElementType("simple type") with SelfPsiCreator {
+    override def createElement(node: ASTNode): PsiElement = new ScSimpleTypeElementImpl(node)
+  }
+  val INFIX_TYPE = new ScalaElementType("infix type") with SelfPsiCreator {
+    override def createElement(node: ASTNode): PsiElement = new ScInfixTypeElementImpl(node)
+  }
+  val TYPE = new ScalaElementType("common type") with SelfPsiCreator {
+    override def createElement(node: ASTNode): PsiElement = new ScFunctionalTypeElementImpl(node)
+  }
   val TYPES = new ScalaElementType("common type") with SelfPsiCreator {
     override def createElement(node: ASTNode): PsiElement = new ScTypesImpl(node)
   }
-  val TYPE_ARGS = new ScalaElementType("type arguments")
-  val ANNOT_TYPE = new ScalaElementType("annotation type")
-  val WILDCARD_TYPE = new ScalaElementType("wildcard type")
-
-  val TUPLE_TYPE = new ScalaElementType("tuple type")
+  val TYPE_ARGS = new ScalaElementType("type arguments") with SelfPsiCreator {
+    override def createElement(node: ASTNode): PsiElement = new ScTypeArgsImpl(node)
+  }
+  val ANNOT_TYPE = new ScalaElementType("annotation type") with SelfPsiCreator {
+    override def createElement(node: ASTNode): PsiElement = new ScAnnotTypeElementImpl(node)
+  }
+  val WILDCARD_TYPE = new ScalaElementType("wildcard type") with SelfPsiCreator {
+    override def createElement(node: ASTNode): PsiElement = new ScWildcardTypeElementImpl(node)
+  }
+  val TUPLE_TYPE = new ScalaElementType("tuple type") with SelfPsiCreator {
+    override def createElement(node: ASTNode): PsiElement = new ScTupleTypeElementImpl(node)
+  }
   val TYPE_IN_PARENTHESIS = new ScalaElementType("type in parenthesis") with SelfPsiCreator {
     override def createElement(node: ASTNode): PsiElement = new ScParenthesisedTypeElementImpl(node)
   }
-  val TYPE_PROJECTION = new ScalaElementType("type projection")
-  val TYPE_GENERIC_CALL = new ScalaElementType("type generic call")
-  val LITERAL_TYPE = new ScalaElementType("Literal type")
+  val TYPE_PROJECTION = new ScalaElementType("type projection") with SelfPsiCreator {
+    override def createElement(node: ASTNode): PsiElement = new ScTypeProjectionImpl(node)
+  }
+  val TYPE_GENERIC_CALL = new ScalaElementType("type generic call") with SelfPsiCreator {
+    override def createElement(node: ASTNode): PsiElement = new ScParameterizedTypeElementImpl(node)
+  }
+  val LITERAL_TYPE = new ScalaElementType("Literal type") with SelfPsiCreator {
+    override def createElement(node: ASTNode): PsiElement = new ScLiteralTypeElementImpl(node)
+  }
   val SEQUENCE_ARG = new ScalaElementType("sequence argument type") with SelfPsiCreator {
     override def createElement(node: ASTNode): PsiElement = new ScSequenceArgImpl(node)
   }
-  val TYPE_VARIABLE = new ScalaElementType("type variable")
+  val TYPE_VARIABLE = new ScalaElementType("type variable") with SelfPsiCreator {
+    override def createElement(node: ASTNode): PsiElement = new ScTypeVariableTypeElementImpl(node)
+  }
   val UNIT_EXPR = new ScalaElementType("unit expression") with SelfPsiCreator {
     override def createElement(node: ASTNode): PsiElement = new ScUnitExprImpl(node)
   }
@@ -351,34 +378,39 @@ object ScalaElementTypes {
     override def createElement(node: ASTNode): PsiElement = new ScXmlElementImpl(node)
   }
 
-  class ScCodeBlockElementType()
-    extends IErrorCounterReparseableElementType("block of expressions", ScalaLanguage.INSTANCE)
-      with ICompositeElementType {
+  abstract class ScCodeBlockElementType extends IErrorCounterReparseableElementType(
+    "block of expressions",
+    ScalaLanguage.INSTANCE
+  ) with ICompositeElementType {
 
-    override def createNode(text: CharSequence): ASTNode = new ScBlockExprImpl(text)
+    import IErrorCounterReparseableElementType._
+    import ScalaTokenTypes.{tLBRACE => LeftBrace, tRBRACE => RightBrace}
 
-    @NotNull override def createCompositeNode: ASTNode = new ScBlockExprImpl(null)
+    @NotNull
+    override final def createCompositeNode: ASTNode = createNode(null)
 
-    override def getErrorsCount(seq: CharSequence, fileLanguage: Language, project: Project): Int = {
-      import com.intellij.psi.tree.IErrorCounterReparseableElementType._
-      val lexer: Lexer = new ScalaLexer
-      lexer.start(seq)
-      if (lexer.getTokenType != ScalaTokenTypes.tLBRACE) return FATAL_ERROR
-      lexer.advance()
-      var balance: Int = 1
-      var flag = false
-      while (!flag) {
-        val tp: IElementType = lexer.getTokenType
-        if (tp == null) flag = true
-        else if (balance == 0) return FATAL_ERROR
-        else if (tp == ScalaTokenTypes.tLBRACE) {
-          balance += 1
-        } else if (tp == ScalaTokenTypes.tRBRACE) {
-          balance -= 1
-        }
-        lexer.advance()
+    override final def getErrorsCount(buf: CharSequence,
+                                      fileLanguage: Language,
+                                      project: Project): Int = {
+      val lexer = new ScalaLexer
+      lexer.start(buf)
+      lexer.getTokenType match {
+        case LeftBrace => iterate(1)(lexer)
+        case _ => FATAL_ERROR
       }
-      balance
+    }
+
+    @tailrec
+    private def iterate(balance: Int)
+                       (implicit lexer: ScalaLexer): Int = {
+      lexer.advance()
+      lexer.getTokenType match {
+        case null => balance
+        case _ if balance == NO_ERRORS => FATAL_ERROR
+        case LeftBrace => iterate(balance + 1)
+        case RightBrace => iterate(balance - 1)
+        case _ => iterate(balance)
+      }
     }
   }
 
