@@ -111,19 +111,24 @@ object WorksheetSourceProcessor {
 
     val packStmt = packOpt map ("package " + _ + " ; ") getOrElse ""
 
-    @inline def withCompilerVersion[T](if210: =>T, if211: => T, ifDotty: => T, dflt: =>T) = moduleOpt flatMap {
+    @inline def withCompilerVersion[T](if210: =>T, if211: => T, if213: => T, ifDotty: => T, dflt: =>T) = moduleOpt flatMap {
       module => if (project.hasDotty) Option(ifDotty) else module.scalaSdk.flatMap(_.compilerVersion).collect {
         case v if v.startsWith("2.10") => if210
         case v if v.startsWith("2.11") => if211
+        case v if v.startsWith("2.13") => if213
       }
     } getOrElse dflt
 
-    val macroPrinterName = withCompilerVersion("MacroPrinter210", "MacroPrinter211", "", "MacroPrinter")
+    val macroPrinterName = withCompilerVersion("MacroPrinter210", "MacroPrinter211", 
+      "MacroPrinter213", "", "MacroPrinter")
     val classPrologue = name
     val objectPrologue = s"$packStmt ${if (project.hasDotty) "" else s" import _root_.org.jetbrains.plugins.scala.worksheet.$macroPrinterName\n\n"} object $name { \n"
 
     val classRes = new StringBuilder(s"final class $classPrologue { \n")
-    val objectRes = new StringBuilder(s"def main($runPrinterName: java.io.PrintStream) ${withCompilerVersion("", " : Unit = ", " : Unit = ", " : Unit = ")} { \n val $instanceName = new $name \n")
+    val unitReturnType = " : Unit = "
+    val objectRes = new StringBuilder(s"def main($runPrinterName: java.io.PrintStream) ${withCompilerVersion(
+      "", unitReturnType, unitReturnType,unitReturnType, unitReturnType)
+    } { \n val $instanceName = new $name \n")
     
     val mySourceBuilder = if (moduleOpt exists (_.hasDotty)) new DottySourceBuilder(classRes, objectRes, iterNumber, srcFile,
       moduleOpt, ifDoc, macroPrinterName, packOpt, objectPrologue)
