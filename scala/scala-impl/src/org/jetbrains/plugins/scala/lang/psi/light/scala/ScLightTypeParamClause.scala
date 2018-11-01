@@ -7,18 +7,22 @@ import org.jetbrains.plugins.scala.lang.psi.api.statements.params.{ScTypeParam, 
 import org.jetbrains.plugins.scala.lang.psi.types.api.TypeParameter
 
 /**
- * @author Alefas
- * @since 03/04/14.
- */
-class ScLightTypeParamClause(tParams: Seq[TypeParameter], t: ScTypeParamClause)
-  extends LightElement(t.getManager, t.getLanguage) with ScTypeParamClause {
-  override def getTextByStub: String = t.getTextByStub
+  * @author Alefas
+  * @since 03/04/14.
+  */
+final class ScLightTypeParamClause(private val delegate: ScTypeParamClause)
+                                  (implicit parameters: Seq[TypeParameter])
+  extends LightElement(delegate.getManager, delegate.getLanguage) with ScTypeParamClause {
 
-  override def typeParameters: Seq[ScTypeParam] = tParams.zip(t.typeParameters).map {
-    case (t: TypeParameter, tParam: ScTypeParam) => new ScDelegatingLightTypeParam(t, tParam)
-  }
+  override def getTextByStub: String = delegate.getTextByStub
 
-  override def toString: String = t.toString
+  override def typeParameters: Seq[ScTypeParam] = parameters
+    .zip(delegate.typeParameters)
+    .map {
+      case (typeParameter, psiTypeParameter) => new ScDelegatingLightTypeParam(typeParameter, psiTypeParameter)
+    }
+
+  override def toString: String = delegate.toString
 
   override protected def findChildrenByClassScala[T >: Null <: ScalaPsiElement](clazz: Class[T]): Array[T] =
     throw new UnsupportedOperationException("Operation on light element")

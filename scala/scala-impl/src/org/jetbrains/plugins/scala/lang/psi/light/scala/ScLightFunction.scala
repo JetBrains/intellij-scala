@@ -26,7 +26,7 @@ sealed abstract class ScLightFunction[F <: ScFunction] protected(override protec
 
   override final def typeParametersClause: Option[ScTypeParamClause] =
     delegate.typeParametersClause.map {
-      new ScLightTypeParamClause(innerTypeParameters, _)
+      new ScLightTypeParamClause(_)
     }
 
   override final def hasAssign: Boolean = delegate.hasAssign

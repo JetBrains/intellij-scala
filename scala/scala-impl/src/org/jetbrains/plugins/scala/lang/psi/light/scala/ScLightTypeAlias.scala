@@ -26,7 +26,7 @@ sealed abstract class ScLightTypeAlias[A <: ScTypeAlias](override protected val 
 
   override final def typeParametersClause: Option[ScTypeParamClause] =
     delegate.typeParametersClause.map {
-      new ScLightTypeParamClause(parameters, _)
+      new ScLightTypeParamClause(_)
     }
 }
 
