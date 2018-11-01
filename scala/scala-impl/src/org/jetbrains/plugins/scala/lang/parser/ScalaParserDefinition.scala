@@ -6,59 +6,52 @@ import com.intellij.lang.{ASTNode, ParserDefinition}
 import com.intellij.openapi.project.Project
 import com.intellij.psi.stubs.PsiFileStub
 import com.intellij.psi.tree.{IStubFileElementType, TokenSet}
+import com.intellij.psi.util.PsiTreeUtil
 import com.intellij.psi.{FileViewProvider, PsiElement, PsiFile}
-import org.jetbrains.plugins.scala.extensions.PsiElementExt
-import org.jetbrains.plugins.scala.lang.lexer.{ScalaLexer, ScalaTokenTypes}
 import org.jetbrains.plugins.scala.lang.psi.api.toplevel.imports.ScImportStmt
 import org.jetbrains.plugins.scala.lang.psi.impl.ScalaFileImpl
-import org.jetbrains.plugins.scala.settings._
+import org.jetbrains.plugins.scala.settings.ScalaProjectSettings.{getInstance => ScalaProjectSettings}
 
-/**
-  * @author ilyas
-  */
-class ScalaParserDefinition extends ScalaParserDefinitionWrapper {
+final class ScalaParserDefinition extends ParserDefinition {
 
-  protected val psiCreator: PsiCreator = ScalaPsiCreator
+  override def createLexer(project: Project) =
+    new lexer.ScalaLexer(ScalaProjectSettings(project).isTreatDocCommentAsBlockComment)
 
-  def createLexer(project: Project): ScalaLexer = {
-    val settings = ScalaProjectSettings.getInstance(project)
-    new ScalaLexer(settings.isTreatDocCommentAsBlockComment)
-  }
-
-  def createParser(project: Project): ScalaParser =
+  override def createParser(project: Project) =
     new ScalaParser
 
-  def getFileNodeType: IStubFileElementType[_ <: PsiFileStub[_ <: PsiFile]] =
+  override def getFileNodeType: IStubFileElementType[_ <: PsiFileStub[_ <: PsiFile]] =
     ScalaElementTypes.FILE
 
-  def getCommentTokens: TokenSet = ScalaTokenTypes.COMMENTS_TOKEN_SET
+  override def createElement(node: ASTNode): PsiElement =
+    ScalaPsiCreator.createElement(node)
 
-  def getStringLiteralElements: TokenSet = ScalaTokenTypes.STRING_LITERAL_TOKEN_SET
-
-  override def getWhitespaceTokens: TokenSet = ScalaTokenTypes.WHITES_SPACES_TOKEN_SET
-
-  def createElement(astNode: ASTNode): PsiElement =
-    psiCreator.createElement(astNode)
-
-  def createFile(fileViewProvider: FileViewProvider): PsiFile = {
-    ScalaFileFactory.EP_NAME.getExtensions
-      .view
+  override def createFile(fileViewProvider: FileViewProvider): PsiFile =
+    ScalaFileFactory.EP_NAME.getExtensions.view
       .flatMap(_.createFile(fileViewProvider))
       .headOption
       .getOrElse(new ScalaFileImpl(fileViewProvider))
-  }
+
+  import lexer.ScalaTokenTypes.{COMMENTS_TOKEN_SET => Comments, STRING_LITERAL_TOKEN_SET => StringLiterals, WHITES_SPACES_TOKEN_SET => WhiteSpaces, kIMPORT => Import, tWHITE_SPACE_IN_LINE => WS}
+
+  override def getCommentTokens: TokenSet = Comments
+
+  override def getStringLiteralElements: TokenSet = StringLiterals
+
+  override def getWhitespaceTokens: TokenSet = WhiteSpaces
 
   override def spaceExistenceTypeBetweenTokens(leftNode: ASTNode, rightNode: ASTNode): ParserDefinition.SpaceRequirements = {
-    val isNeighbour = leftNode.getPsi.parentOfType(classOf[ScImportStmt])
-      .map(_.getTextRange.getEndOffset)
-      .contains(rightNode.getTextRange.getStartOffset)
+    val isNeighbour = PsiTreeUtil.getParentOfType(leftNode.getPsi, classOf[ScImportStmt]) match {
+      case null => false
+      case importStatement => importStatement.getTextRange.getEndOffset == rightNode.getTextRange.getStartOffset
+    }
 
-    import com.intellij.lang.ParserDefinition.SpaceRequirements._
+    import ParserDefinition.SpaceRequirements._
     rightNode.getElementType match {
-      case ScalaTokenTypes.tWHITE_SPACE_IN_LINE if rightNode.getText.contains('\n') => MAY
+      case WS if rightNode.getText.contains('\n') => MAY
       case _ if isNeighbour => MUST_LINE_BREAK
-      case ScalaTokenTypes.kIMPORT => MUST_LINE_BREAK
-      case _ => super.spaceExistenceTypeBetweenTokens(leftNode, rightNode)
+      case Import => MUST_LINE_BREAK
+      case _ => MAY
     }
   }
 }
