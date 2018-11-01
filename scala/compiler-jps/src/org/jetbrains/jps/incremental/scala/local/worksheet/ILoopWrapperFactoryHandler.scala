@@ -27,8 +27,8 @@ class ILoopWrapperFactoryHandler {
   def loadReplWrapperAndRun(commonArguments: Arguments, out: OutputStream, client: Option[Client]) {
     val compilerJars = commonArguments.compilerData.compilerJars.orNull
     val scalaInstance = CompilerFactoryImpl.createScalaInstance(compilerJars)
-    val iLoopFile = getOrCompileReplLoopFile(commonArguments.sbtData, scalaInstance, client)
     val scalaVersion = findScalaVersionIn(scalaInstance)
+    val iLoopFile = getOrCompileReplLoopFile(commonArguments.sbtData, scalaInstance, client)
     
     replFactory match {
       case Some((_, _, oldVersion)) if oldVersion == scalaVersion =>
@@ -71,8 +71,8 @@ class ILoopWrapperFactoryHandler {
       new File(f.getParent, "repl-interface-sources.jar")
     }
 
-    val replLabel = 
-      s"repl-wrapper-${findScalaVersionIn(scalaInstance)}-${sbtData.javaClassVersion}-$WRAPPER_VERSION.jar"
+    val version = findScalaVersionIn(scalaInstance)
+    val replLabel = s"repl-wrapper-$version-${sbtData.javaClassVersion}-$WRAPPER_VERSION.jar"
     val targetFile = new File(home, replLabel)
 
     if (!targetFile.exists()) {
@@ -83,9 +83,16 @@ class ILoopWrapperFactoryHandler {
         thisJar =>
           client.foreach(_.progress("Compiling REPL runner..."))
 
+          val filter = (file: File) => if (version.startsWith("2.13")) file.getName.endsWith("213Impl.scala") 
+            else !file.getName.endsWith("213.scala")
+          
           AnalyzingCompiler.compileSources(
             Seq(sourceJar), targetFile, Seq(interfaceJar, thisJar), replLabel,
-            new RawCompiler(scalaInstance, ClasspathOptionsUtil.auto(), log), log
+            new RawCompiler(scalaInstance, ClasspathOptionsUtil.auto(), log) {
+              override def apply(sources: Seq[File], classpath: Seq[File], outputDirectory: File, options: Seq[String]): Unit = {
+                super.apply(sources.filter(filter), classpath, outputDirectory, options)
+              }
+            }, log
           )
       }
     }
@@ -97,7 +104,7 @@ class ILoopWrapperFactoryHandler {
 
 object ILoopWrapperFactoryHandler {
   private val WRAPPER_VERSION = 1
-  private val REPL_FQN = "org.jetbrains.jps.incremental.scala.local.worksheet.ILoopWrapperFactory"
+  private val REPL_FQN = "org.jetbrains.jps.incremental.scala.local.worksheet.compatibility.JavaILoopWrapperFactory"
 
   private val JAVA_USER_CP_KEY = "java.class.path"
   private val STOP_WORDS = Set("scala-library.jar", "scala-nailgun-runner.jar", "nailgun.jar", "compiler-shared.jar",

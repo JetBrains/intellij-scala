@@ -77,8 +77,10 @@ lazy val scalaImpl: sbt.Project =
         Dependencies.scalaReflect                             -> Some("lib/scala-reflect.jar"),
         Dependencies.scalaLibrary                             -> None
       ),
-      packageFileMappings += baseDirectory.in(compilerJps).value / "resources" / "ILoopWrapperImpl.scala" ->
-                            "lib/jps/repl-interface-sources.jar",
+      packageFileMappings ++= Seq(
+        baseDirectory.in(compilerJps).value / "resources" / "ILoopWrapperImpl.scala" -> "lib/jps/repl-interface-sources.jar",
+        baseDirectory.in(compilerJps).value / "resources" / "ILoopWrapper213Impl.scala" -> "lib/jps/repl-interface-sources.jar"
+      ),
       buildInfoPackage := "org.jetbrains.plugins.scala.buildinfo",
       buildInfoKeys := Seq(
         name, version, scalaVersion, sbtVersion,
