@@ -9,7 +9,8 @@
           <set>
             <option value="$PROJECT_DIR$" />
             <option value="$PROJECT_DIR$/bsp" />
-            <option value="$PROJECT_DIR$/hydra" />
+            <option value="$PROJECT_DIR$/hydra/compiler-jps" />
+            <option value="$PROJECT_DIR$/hydra/hydra-impl" />
             <option value="$PROJECT_DIR$/project" />
             <option value="$PROJECT_DIR$/scala/compiler-jps" />
             <option value="$PROJECT_DIR$/scala/compiler-shared" />
@@ -25,7 +26,7 @@
             <option value="$PROJECT_DIR$/scala/nailgun" />
             <option value="$PROJECT_DIR$/scala/runners" />
             <option value="$PROJECT_DIR$/scala/scala-impl" />
-            <option value="$PROJECT_DIR$/target/tools/bspDeps" />
+            <option value="$PROJECT_DIR$/scalaFmtBin" />
             <option value="$PROJECT_DIR$/target/tools/idea-runner" />
             <option value="$PROJECT_DIR$/target/tools/zinc" />
           </set>
