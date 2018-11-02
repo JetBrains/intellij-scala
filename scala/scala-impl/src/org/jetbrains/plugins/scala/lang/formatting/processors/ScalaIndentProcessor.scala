@@ -12,7 +12,7 @@ import com.intellij.psi.tree.IElementType
 import org.jetbrains.plugins.scala.extensions.PsiElementExt
 import org.jetbrains.plugins.scala.lang.formatting.settings.ScalaCodeStyleSettings
 import org.jetbrains.plugins.scala.lang.lexer.ScalaTokenTypes
-import org.jetbrains.plugins.scala.lang.parser.ScalaElementTypes
+import org.jetbrains.plugins.scala.lang.parser.ScalaElementType
 import org.jetbrains.plugins.scala.lang.psi.api.ScalaFile
 import org.jetbrains.plugins.scala.lang.psi.api.base.ScPrimaryConstructor
 import org.jetbrains.plugins.scala.lang.psi.api.base.patterns._
@@ -93,7 +93,7 @@ object ScalaIndentProcessor extends ScalaTokenTypes {
 
     if (node.getElementType == ScalaTokenTypes.tLBRACE &&
       Option(node.getTreeParent).map(_.getElementType).
-        exists(Set[IElementType](ScalaElementTypes.TRY_BLOCK, ScalaElementTypes.PACKAGING).contains)) {
+        exists(Set[IElementType](ScalaElementType.TRY_BLOCK, ScalaElementType.PACKAGING).contains)) {
       return if (child.getElementType == ScalaTokenTypes.tLBRACE ||
         child.getElementType == ScalaTokenTypes.tRBRACE) Indent.getNoneIndent
       else if (settings.BRACE_STYLE == CommonCodeStyleSettings.NEXT_LINE_SHIFTED) Indent.getNoneIndent
@@ -117,7 +117,7 @@ object ScalaIndentProcessor extends ScalaTokenTypes {
       case _ => Indent.getNoneIndent
     }
 
-    import ScalaElementTypes._
+    import ScalaElementType._
     import ScalaTokenTypes._
 
     node.getPsi match {

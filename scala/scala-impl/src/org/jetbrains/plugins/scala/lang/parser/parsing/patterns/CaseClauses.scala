@@ -23,7 +23,7 @@ object CaseClauses {
       return false
     }
     while (CaseClause.parse(builder)) {}
-    caseClausesMarker.done(ScalaElementTypes.CASE_CLAUSES)
+    caseClausesMarker.done(ScalaElementType.CASE_CLAUSES)
     true
   }
 }

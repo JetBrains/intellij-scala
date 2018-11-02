@@ -39,11 +39,11 @@ object ETagP {
     builder.getTokenType match {
       case ScalaXmlTokenTypes.XML_TAG_END =>
         builder.advanceLexer()
-        tagMarker.done(ScalaElementTypes.XML_END_TAG)
+        tagMarker.done(ScalaElementType.XML_END_TAG)
         true
       case _ =>
         builder error ErrMsg("xml.tag.end.expected")
-        tagMarker.done(ScalaElementTypes.XML_END_TAG)
+        tagMarker.done(ScalaElementType.XML_END_TAG)
         true
     }
   }

@@ -21,7 +21,7 @@ object ClassParamClauses {
     val classParamClausesMarker = builder.mark
     while (ClassParamClause.parse(builder)) {}
     ImplicitClassParamClause.parse(builder)
-    classParamClausesMarker.done(ScalaElementTypes.PARAM_CLAUSES)
+    classParamClausesMarker.done(ScalaElementType.PARAM_CLAUSES)
     true
   }
 }

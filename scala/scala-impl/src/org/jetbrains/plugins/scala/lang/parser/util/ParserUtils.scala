@@ -20,7 +20,7 @@ object ParserUtils {
       if (builder.getTokenType == ScalaTokenTypes.tIDENTIFIER &&
         builder.getTokenText == "*") {
         builder.advanceLexer()
-        marker.done(ScalaElementTypes.SEQ_WILDCARD)
+        marker.done(ScalaElementType.SEQ_WILDCARD)
         true
       } else {
         marker.rollbackTo()
@@ -148,7 +148,7 @@ object ParserUtils {
 
     builder.advanceLexer() // @
     if (eatSeqWildcardNext(builder)) {
-      rollbackMarker.done(ScalaElementTypes.NAMING_PATTERN)
+      rollbackMarker.done(ScalaElementType.NAMING_PATTERN)
       true
     } else {
       rollbackMarker.rollbackTo()

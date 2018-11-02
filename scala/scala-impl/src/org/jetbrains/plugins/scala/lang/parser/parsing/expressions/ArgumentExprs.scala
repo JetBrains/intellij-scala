@@ -37,7 +37,7 @@ object ArgumentExprs {
             builder error ScalaBundle.message("rparenthesis.expected")
         }
         builder.restoreNewlinesState()
-        argMarker.done(ScalaElementTypes.ARG_EXPRS)
+        argMarker.done(ScalaElementType.ARG_EXPRS)
         true
       case ScalaTokenTypes.tLBRACE =>
         if (builder.twoNewlinesBeforeCurrentToken) {
@@ -45,7 +45,7 @@ object ArgumentExprs {
           return false
         }
         BlockExpr parse builder
-        argMarker.done(ScalaElementTypes.ARG_EXPRS)
+        argMarker.done(ScalaElementType.ARG_EXPRS)
         true
       case _ =>
         argMarker.drop()

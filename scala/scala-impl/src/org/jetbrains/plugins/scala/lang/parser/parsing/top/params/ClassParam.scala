@@ -24,14 +24,14 @@ object ClassParam {
     val classParamMarker = builder.mark
     val annotationsMarker = builder.mark
     while (Annotation.parse(builder)) {}
-    annotationsMarker.done(ScalaElementTypes.ANNOTATIONS)
+    annotationsMarker.done(ScalaElementType.ANNOTATIONS)
     //parse modifiers
     val modifierMarker = builder.mark
     var isModifier = false
     while (Modifier.parse(builder)) {
       isModifier = true
     }
-    modifierMarker.done(ScalaElementTypes.MODIFIERS)
+    modifierMarker.done(ScalaElementType.MODIFIERS)
     //Look for var or val
     builder.getTokenType match {
       case ScalaTokenTypes.kVAR |
@@ -70,7 +70,7 @@ object ClassParam {
         }
       case _ =>
     }
-    classParamMarker.done(ScalaElementTypes.CLASS_PARAM)
+    classParamMarker.done(ScalaElementType.CLASS_PARAM)
     true
   }
 }

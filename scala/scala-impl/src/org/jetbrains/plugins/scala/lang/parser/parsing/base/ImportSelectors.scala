@@ -35,7 +35,7 @@ object ImportSelectors {
     def doneImportSelectors() {
       builder.advanceLexer()
       builder.restoreNewlinesState()
-      importSelectorMarker.done(ScalaElementTypes.IMPORT_SELECTORS)
+      importSelectorMarker.done(ScalaElementType.IMPORT_SELECTORS)
     }
     
     //Let's parse Import selectors while we will not see Import selector or will see '}'
@@ -45,7 +45,7 @@ object ImportSelectors {
           builder error ErrMsg("import.selector.expected")
           builder.advanceLexer() //Ate }
           builder.restoreNewlinesState()
-          importSelectorMarker.done(ScalaElementTypes.IMPORT_SELECTORS)
+          importSelectorMarker.done(ScalaElementType.IMPORT_SELECTORS)
           return true
         case ScalaTokenTypes.tUNDER =>
           builder.advanceLexer() //Ate _
@@ -53,12 +53,12 @@ object ImportSelectors {
             case ScalaTokenTypes.tRBRACE =>
               builder.advanceLexer() //Ate }
               builder.restoreNewlinesState()
-              importSelectorMarker.done(ScalaElementTypes.IMPORT_SELECTORS)
+              importSelectorMarker.done(ScalaElementType.IMPORT_SELECTORS)
               return true
             case _ =>
               ParserUtils.parseLoopUntilRBrace(builder, () => {}) //we need to find closing brace, otherwise we can miss important things
               builder.restoreNewlinesState()
-              importSelectorMarker.done(ScalaElementTypes.IMPORT_SELECTORS)
+              importSelectorMarker.done(ScalaElementType.IMPORT_SELECTORS)
               return true
           }
         case ScalaTokenTypes.tIDENTIFIER =>
@@ -76,7 +76,7 @@ object ImportSelectors {
               return true
             case null =>
               builder.restoreNewlinesState()
-              importSelectorMarker.done(ScalaElementTypes.IMPORT_SELECTORS)
+              importSelectorMarker.done(ScalaElementType.IMPORT_SELECTORS)
               return true
             case _ =>
               builder error ErrMsg("rbrace.expected")
@@ -84,7 +84,7 @@ object ImportSelectors {
           }
         case null =>
           builder.restoreNewlinesState()
-          importSelectorMarker.done(ScalaElementTypes.IMPORT_SELECTORS)
+          importSelectorMarker.done(ScalaElementType.IMPORT_SELECTORS)
           return true
         case _ =>
           builder error ErrMsg("rbrace.expected")

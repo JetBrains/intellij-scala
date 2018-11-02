@@ -8,7 +8,7 @@ package imports
 import com.intellij.lang.ASTNode
 import com.intellij.psi.PsiElement
 import org.jetbrains.plugins.scala.lang.lexer.ScalaTokenTypes
-import org.jetbrains.plugins.scala.lang.parser.ScalaElementTypes
+import org.jetbrains.plugins.scala.lang.parser.ScalaElementType
 import org.jetbrains.plugins.scala.lang.psi.api.toplevel.imports._
 import org.jetbrains.plugins.scala.lang.psi.stubs.ScImportSelectorsStub
 
@@ -18,7 +18,7 @@ import org.jetbrains.plugins.scala.lang.psi.stubs.ScImportSelectorsStub
 */
 
 class ScImportSelectorsImpl private (stub: ScImportSelectorsStub, node: ASTNode)
-  extends ScalaStubBasedElementImpl(stub, ScalaElementTypes.IMPORT_SELECTORS, node) with ScImportSelectors {
+  extends ScalaStubBasedElementImpl(stub, ScalaElementType.IMPORT_SELECTORS, node) with ScImportSelectors {
 
   def this(node: ASTNode) = this(null, node)
 
@@ -31,5 +31,5 @@ class ScImportSelectorsImpl private (stub: ScImportSelectorsStub, node: ASTNode)
   def wildcardElement: Option[PsiElement] = Option(findChildByType(ScalaTokenTypes.tUNDER))
 
   def selectors: Seq[ScImportSelector] =
-    getStubOrPsiChildren(ScalaElementTypes.IMPORT_SELECTOR, JavaArrayFactoryUtil.ScImportSelectorFactory)
+    getStubOrPsiChildren(ScalaElementType.IMPORT_SELECTOR, JavaArrayFactoryUtil.ScImportSelectorFactory)
 }

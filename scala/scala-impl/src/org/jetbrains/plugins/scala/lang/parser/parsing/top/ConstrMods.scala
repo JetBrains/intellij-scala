@@ -1,6 +1,6 @@
 package org.jetbrains.plugins.scala.lang.parser.parsing.top
 
-import org.jetbrains.plugins.scala.lang.parser.ScalaElementTypes
+import org.jetbrains.plugins.scala.lang.parser.ScalaElementType
 import org.jetbrains.plugins.scala.lang.parser.parsing.base.AccessModifier
 import org.jetbrains.plugins.scala.lang.parser.parsing.builder.ScalaPsiBuilder
 
@@ -13,7 +13,7 @@ object ConstrMods {
     if (!builder.newlineBeforeCurrentToken) {
       AccessModifier.parse(builder)
     }
-    marker.done(ScalaElementTypes.MODIFIERS)
+    marker.done(ScalaElementType.MODIFIERS)
     true
   }
 }

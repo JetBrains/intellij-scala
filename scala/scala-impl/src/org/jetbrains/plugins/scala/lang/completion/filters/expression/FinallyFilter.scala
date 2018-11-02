@@ -6,11 +6,9 @@ package filters.expression
 import com.intellij.psi.filters.ElementFilter
 import com.intellij.psi.{PsiElement, _}
 import org.jetbrains.annotations.NonNls
-import org.jetbrains.plugins.scala.extensions.PsiFileExt
 import org.jetbrains.plugins.scala.lang.completion.ScalaCompletionUtil._
-import org.jetbrains.plugins.scala.lang.parser.ScalaElementTypes
+import org.jetbrains.plugins.scala.lang.parser.ScalaElementType
 import org.jetbrains.plugins.scala.lang.psi.api.expr._
-import org.jetbrains.plugins.scala.lang.scaladoc.psi.api.ScDocComment
 
 /** 
 * @author Alexander Podkhalyuzin
@@ -26,7 +24,7 @@ class FinallyFilter extends ElementFilter{
       var leaf1 = getLeafByOffset(i, context)
       while (leaf1 != null && !leaf1.isInstanceOf[ScTryStmt]) leaf1 = leaf1.getParent
       if (leaf1 == null) return false
-      if (leaf1.getNode.getChildren(null).exists(_.getElementType == ScalaElementTypes.FINALLY_BLOCK)) return false
+      if (leaf1.getNode.getChildren(null).exists(_.getElementType == ScalaElementType.FINALLY_BLOCK)) return false
       i = getNextNotWhitespaceAndComment(context.getTextRange.getEndOffset, context)
       if (Array("catch", "finally").contains(getLeafByOffset(i, context).getText)) return false
       return true

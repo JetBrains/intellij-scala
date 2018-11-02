@@ -10,8 +10,7 @@ import com.intellij.psi.{PsiElement, PsiElementVisitor}
 import com.intellij.util.IncorrectOperationException
 import org.jetbrains.plugins.scala.extensions.{ObjectExt, StubBasedExt}
 import org.jetbrains.plugins.scala.lang.lexer.ScalaTokenTypes
-import org.jetbrains.plugins.scala.lang.parser.ScalaElementTypes
-import org.jetbrains.plugins.scala.lang.parser.ScalaElementTypes._
+import org.jetbrains.plugins.scala.lang.parser.ScalaElementType._
 import org.jetbrains.plugins.scala.lang.psi.api.ScalaElementVisitor
 import org.jetbrains.plugins.scala.lang.psi.api.base.ScStableCodeReferenceElement
 import org.jetbrains.plugins.scala.lang.psi.api.toplevel.imports._

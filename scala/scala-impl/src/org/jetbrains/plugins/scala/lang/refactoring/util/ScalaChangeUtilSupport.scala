@@ -8,7 +8,7 @@ import com.intellij.psi.PsiNamedElement
 import com.intellij.psi.impl.source.SourceTreeToPsiMap
 import com.intellij.psi.impl.source.tree.{CompositeElement, TreeCopyHandler, TreeElement}
 import com.intellij.util.IncorrectOperationException
-import org.jetbrains.plugins.scala.lang.parser.ScalaElementTypes
+import org.jetbrains.plugins.scala.lang.parser.ScalaElementType
 import org.jetbrains.plugins.scala.lang.psi.ScalaPsiElement
 import org.jetbrains.plugins.scala.lang.psi.api.base.ScReferenceElement
 import org.jetbrains.plugins.scala.lang.psi.types.recursiveUpdate.ScSubstitutor
@@ -24,7 +24,7 @@ class ScalaChangeUtilSupport extends TreeCopyHandler {
     if (!element.isInstanceOf[ScalaPsiElement]) return
     if (original.isInstanceOf[CompositeElement]) {
       original.getElementType match {
-        case ScalaElementTypes.REFERENCE | ScalaElementTypes.REFERENCE_EXPRESSION | ScalaElementTypes.TYPE_PROJECTION => {
+        case ScalaElementType.REFERENCE | ScalaElementType.REFERENCE_EXPRESSION | ScalaElementType.TYPE_PROJECTION => {
           val res = original.getPsi.asInstanceOf[ScReferenceElement].bind
           res match {
             case Some(ScalaResolveResult(elem: PsiNamedElement, _: ScSubstitutor)) => {
@@ -41,8 +41,8 @@ class ScalaChangeUtilSupport extends TreeCopyHandler {
   def decodeInformation(element: TreeElement, decodingState: Map[Object, Object]): TreeElement = {
     if (!element.isInstanceOf[ScalaPsiElement]) return null
     if (element.isInstanceOf[CompositeElement]) {
-      if (element.getElementType == ScalaElementTypes.REFERENCE || element.getElementType == ScalaElementTypes.REFERENCE_EXPRESSION  ||
-          element.getElementType == ScalaElementTypes.TYPE_PROJECTION) {
+      if (element.getElementType == ScalaElementType.REFERENCE || element.getElementType == ScalaElementType.REFERENCE_EXPRESSION ||
+        element.getElementType == ScalaElementType.TYPE_PROJECTION) {
         var ref = SourceTreeToPsiMap.treeElementToPsi(element).asInstanceOf[ScReferenceElement]
         val named: PsiNamedElement = element.getCopyableUserData(ScalaChangeUtilSupport.REFERENCED_MEMBER_KEY)
         if (named != null) {

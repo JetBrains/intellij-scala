@@ -29,7 +29,7 @@ import org.jetbrains.plugins.scala.decompiler.{CompiledFileAdjuster, DecompilerU
 import org.jetbrains.plugins.scala.extensions._
 import org.jetbrains.plugins.scala.lang.TokenSets._
 import org.jetbrains.plugins.scala.lang.lexer.ScalaTokenTypes
-import org.jetbrains.plugins.scala.lang.parser.ScalaElementTypes._
+import org.jetbrains.plugins.scala.lang.parser.ScalaElementType._
 import org.jetbrains.plugins.scala.lang.psi.api.expr.ScExpression
 import org.jetbrains.plugins.scala.lang.psi.api.statements.{ScFunction, ScTypeAlias, ScValue, ScVariable}
 import org.jetbrains.plugins.scala.lang.psi.api.toplevel.imports.ScImportStmt

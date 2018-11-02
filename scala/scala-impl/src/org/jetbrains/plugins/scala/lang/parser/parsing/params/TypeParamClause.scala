@@ -43,7 +43,7 @@ object TypeParamClause {
         builder error ScalaBundle.message("rsqbracket.expected")
     }
     builder.restoreNewlinesState()
-    typeMarker.done(ScalaElementTypes.TYPE_PARAM_CLAUSE)
+    typeMarker.done(ScalaElementType.TYPE_PARAM_CLAUSE)
     true
   }
 }

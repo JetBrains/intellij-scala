@@ -27,7 +27,7 @@ object Enumerator {
       if (!Pattern1.parse(builder)) {
         if (!f) {
           builder error ErrMsg("wrong.pattern")
-          enumMarker.done(ScalaElementTypes.ENUMERATOR)
+          enumMarker.done(ScalaElementType.ENUMERATOR)
           return true
         } else if (!Guard.parse(builder, noIf = true)) {
           enumMarker.rollbackTo()
@@ -46,7 +46,7 @@ object Enumerator {
         case _ =>
           if (!f) {
             builder error ErrMsg("choose.expected")
-            enumMarker.done(ScalaElementTypes.ENUMERATOR)
+            enumMarker.done(ScalaElementType.ENUMERATOR)
             return true
           } else {
             enumMarker.rollbackTo()
@@ -56,7 +56,7 @@ object Enumerator {
       if (!Expr.parse(builder)) {
         builder error ErrMsg("wrong.expression")
       }
-      enumMarker.done(ScalaElementTypes.ENUMERATOR)
+      enumMarker.done(ScalaElementType.ENUMERATOR)
       true
     }
 

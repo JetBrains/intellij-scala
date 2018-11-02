@@ -12,7 +12,7 @@ class ScalaParser extends PsiParser {
 
   def parse(root: IElementType, builder: PsiBuilder): ASTNode = {
     root match {
-      case ScalaElementTypes.BLOCK_EXPR =>
+      case ScalaElementType.BLOCK_EXPR =>
         BlockExpr.parse(new ScalaPsiBuilderImpl(builder))
       case _ =>
         val rootMarker = builder.mark

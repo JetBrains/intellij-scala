@@ -22,7 +22,7 @@ object AccessModifier {
       case ScalaTokenTypes.kPRIVATE | ScalaTokenTypes.kPROTECTED =>
         builder.advanceLexer() // Ate modifier
         AccessQualifier.parse(builder)
-        marker.done(ScalaElementTypes.ACCESS_MODIFIER)
+        marker.done(ScalaElementType.ACCESS_MODIFIER)
         true
       case _ =>
         marker.drop()

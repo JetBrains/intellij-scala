@@ -436,7 +436,7 @@
 
         <orderEnumerationHandlerFactory implementation="org.jetbrains.sbt.execution.SbtOrderEnumeratorHandlerFactory"/>
 
-        <stubElementTypeHolder class="org.jetbrains.plugins.scala.lang.parser.ScalaElementTypes"/>
+        <stubElementTypeHolder class="org.jetbrains.plugins.scala.lang.parser.ScalaElementType"/>
         <!--Stub indices -->
         <stubIndex implementation="org.jetbrains.plugins.scala.lang.psi.stubs.index.ScAllClassNamesIndex"/>
         <stubIndex implementation="org.jetbrains.plugins.scala.lang.psi.stubs.index.ScShortClassNameIndex"/>

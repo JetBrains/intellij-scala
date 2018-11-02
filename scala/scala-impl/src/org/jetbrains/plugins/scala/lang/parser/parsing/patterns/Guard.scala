@@ -33,7 +33,7 @@ object Guard {
       }
       builder error ErrMsg("wrong.postfix.expression")
     }
-    guardMarker.done(ScalaElementTypes.GUARD)
+    guardMarker.done(ScalaElementType.GUARD)
     true
   }
 }

@@ -92,15 +92,15 @@ object Block {
       }
       ParserUtils.parseLoopUntilRBrace(builder, () => parse(builder))
       builder.restoreNewlinesState()
-      blockMarker.done(ScalaElementTypes.BLOCK_EXPR)
+      blockMarker.done(ScalaElementType.BLOCK_EXPR)
     }
     else {
       val bm = builder.mark()
       val count = parseImpl(builder)
       if (count > 1) {
-        bm.done(ScalaElementTypes.BLOCK)
+        bm.done(ScalaElementType.BLOCK)
       } else {
-        if (!needNode) bm.drop() else bm.done(ScalaElementTypes.BLOCK)
+        if (!needNode) bm.drop() else bm.done(ScalaElementType.BLOCK)
 //        bm.done(ScalaElementTypes.BLOCK)
       }
     }

@@ -54,7 +54,7 @@ object InfixExpr {
           opStack.pop()
           backupMarker.drop()
           backupMarker = markerStack.top.precede
-          markerStack.pop().done(ScalaElementTypes.INFIX_EXPR)
+          markerStack.pop().done(ScalaElementType.INFIX_EXPR)
         }
         else {
           opStack push s
@@ -66,7 +66,7 @@ object InfixExpr {
       val setMarker = builder.mark
       val opMarker = builder.mark
       builder.advanceLexer() //Ate id
-      opMarker.done(ScalaElementTypes.REFERENCE_EXPRESSION)
+      opMarker.done(ScalaElementType.REFERENCE_EXPRESSION)
       TypeArgs.parse(builder, isPattern = false)
       if (builder.twoNewlinesBeforeCurrentToken) {
         setMarker.rollbackTo()
@@ -90,7 +90,7 @@ object InfixExpr {
     if (exitOf) backupMarker.drop()
     if (count > 0) {
       while (count > 0 && markerStack.nonEmpty) {
-        markerStack.pop().done(ScalaElementTypes.INFIX_EXPR)
+        markerStack.pop().done(ScalaElementType.INFIX_EXPR)
         count -= 1
       }
 

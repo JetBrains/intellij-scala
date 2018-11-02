@@ -2,7 +2,7 @@ package org.jetbrains.plugins.scala
 package lang.parser.parsing
 
 import org.jetbrains.plugins.scala.lang.lexer.ScalaTokenTypes
-import org.jetbrains.plugins.scala.lang.parser.ScalaElementTypes
+import org.jetbrains.plugins.scala.lang.parser.ScalaElementType
 import org.jetbrains.plugins.scala.lang.parser.parsing.builder.ScalaPsiBuilder
 import org.jetbrains.plugins.scala.lang.parser.parsing.expressions.BlockExpr
 import org.jetbrains.plugins.scala.lang.parser.parsing.patterns.Pattern
@@ -18,8 +18,8 @@ object CommonUtils {
     val prefixMarker = builder.mark()
     builder.advanceLexer()
     prefixMarker.done(
-      if (isPattern) ScalaElementTypes.INTERPOLATED_PREFIX_PATTERN_REFERENCE
-      else ScalaElementTypes.INTERPOLATED_PREFIX_LITERAL_REFERENCE)
+      if (isPattern) ScalaElementType.INTERPOLATED_PREFIX_PATTERN_REFERENCE
+      else ScalaElementType.INTERPOLATED_PREFIX_LITERAL_REFERENCE)
     val patternArgsMarker = builder.mark()
     while (!builder.eof() && builder.getTokenType != ScalaTokenTypes.tINTERPOLATED_STRING_END) {
       if (builder.getTokenType == ScalaTokenTypes.tINTERPOLATED_STRING_INJECTION) {
@@ -28,7 +28,7 @@ object CommonUtils {
           if (builder.getTokenType == ScalaTokenTypes.tIDENTIFIER) {
               val idMarker = builder.mark()
               builder.advanceLexer()
-              idMarker.done(ScalaElementTypes.REFERENCE_PATTERN)
+            idMarker.done(ScalaElementType.REFERENCE_PATTERN)
           } else if (builder.getTokenType == ScalaTokenTypes.tLBRACE) {
             builder.advanceLexer()
             if (!Pattern.parse(builder)) builder.error("Wrong pattern")
@@ -41,11 +41,11 @@ object CommonUtils {
           if (builder.getTokenType == ScalaTokenTypes.tIDENTIFIER) {
             val idMarker = builder.mark()
             builder.advanceLexer()
-            idMarker.done(ScalaElementTypes.REFERENCE_EXPRESSION)
+            idMarker.done(ScalaElementType.REFERENCE_EXPRESSION)
           } else if (builder.getTokenType == ScalaTokenTypes.kTHIS) {
             val literalMarker = builder.mark()
             builder.advanceLexer()
-            literalMarker.done(ScalaElementTypes.THIS_REFERENCE)
+            literalMarker.done(ScalaElementType.THIS_REFERENCE)
           } else if (!builder.getTokenText.startsWith("$")) builder.error("Bad interpolated string injection")
         }
       } else {
@@ -53,7 +53,7 @@ object CommonUtils {
         builder.advanceLexer()
       }
     }
-    if (isPattern) patternArgsMarker.done(ScalaElementTypes.PATTERN_ARGS)
+    if (isPattern) patternArgsMarker.done(ScalaElementType.PATTERN_ARGS)
     else patternArgsMarker.drop()
     if (!builder.eof()) builder.advanceLexer()
   }

@@ -21,7 +21,7 @@ object TypeArgs extends TypeArgs {
 
 trait TypeArgs {
   def parse(builder: ScalaPsiBuilder, isPattern: Boolean): Boolean =
-    builder.build(ScalaElementTypes.TYPE_ARGS) { builder =>
+    builder.build(ScalaElementType.TYPE_ARGS) { builder =>
       builder.getTokenType match {
         case ScalaTokenTypes.tLSQBRACKET =>
           builder.advanceLexer() //Ate [
@@ -40,7 +40,7 @@ trait TypeArgs {
                     builder.getTokenType match {
                       case ScalaTokenTypes.tCOMMA | ScalaTokenTypes.tRSQBRACKET =>
                         idMarker.drop()
-                        typeParameterMarker.done(ScalaElementTypes.TYPE_VARIABLE)
+                        typeParameterMarker.done(ScalaElementType.TYPE_VARIABLE)
                         true
                       case _ =>
                         idMarker.rollbackTo()

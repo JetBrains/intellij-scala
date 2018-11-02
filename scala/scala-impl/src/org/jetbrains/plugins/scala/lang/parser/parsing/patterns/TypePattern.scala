@@ -49,7 +49,7 @@ object TypePattern {
             if (!Type.parse(builder, isPattern = true)) {
               builder error ScalaBundle.message("wrong.type")
             }
-            typeMarker.done(ScalaElementTypes.TYPE_PATTERN)
+            typeMarker.done(ScalaElementType.TYPE_PATTERN)
             parMarker.drop()
             return true
           case _ =>
@@ -65,10 +65,10 @@ object TypePattern {
     builder.getTokenType match {
       case ScalaTokenTypes.kFOR_SOME =>
         ExistentialClause parse builder
-        typeMarker.done(ScalaElementTypes.TYPE_PATTERN)
+        typeMarker.done(ScalaElementType.TYPE_PATTERN)
         true
       case _ =>
-        typeMarker.done(ScalaElementTypes.TYPE_PATTERN)
+        typeMarker.done(ScalaElementType.TYPE_PATTERN)
         true
     }
   }

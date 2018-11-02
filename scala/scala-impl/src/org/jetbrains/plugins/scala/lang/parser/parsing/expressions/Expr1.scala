@@ -79,7 +79,7 @@ object Expr1 {
           case _ =>
             rollbackMarker.rollbackTo()
         }
-        exprMarker.done(ScalaElementTypes.IF_STMT)
+        exprMarker.done(ScalaElementType.IF_STMT)
         return true
       //--------------------while statement-----------------------//
       case ScalaTokenTypes.kWHILE =>
@@ -102,7 +102,7 @@ object Expr1 {
         if (!Expr.parse(builder)) {
           builder error ErrMsg("wrong.expression")
         }
-        exprMarker.done(ScalaElementTypes.WHILE_STMT)
+        exprMarker.done(ScalaElementType.WHILE_STMT)
         return true
       //---------------------try statement------------------------//
       case ScalaTokenTypes.kTRY =>
@@ -124,7 +124,7 @@ object Expr1 {
               builder error ErrMsg("block.expected")
             }
         }
-        tryMarker.done(ScalaElementTypes.TRY_BLOCK)
+        tryMarker.done(ScalaElementType.TRY_BLOCK)
         val catchMarker = builder.mark
         builder.getTokenType match {
           case ScalaTokenTypes.kCATCH =>
@@ -132,7 +132,7 @@ object Expr1 {
             if (!Expr.parse(builder)) {
               builder.error(ErrMsg("wrong.expression"))
             }
-            catchMarker.done(ScalaElementTypes.CATCH_BLOCK)
+            catchMarker.done(ScalaElementType.CATCH_BLOCK)
           case _ =>
             catchMarker.drop()
         }
@@ -143,11 +143,11 @@ object Expr1 {
             if (!Expr.parse(builder)) {
               builder error ErrMsg("wrong.expression")
             }
-            finallyMarker.done(ScalaElementTypes.FINALLY_BLOCK)
+            finallyMarker.done(ScalaElementType.FINALLY_BLOCK)
           case _ =>
             finallyMarker.drop()
         }
-        exprMarker.done(ScalaElementTypes.TRY_STMT)
+        exprMarker.done(ScalaElementType.TRY_STMT)
         return true
       //----------------do statement----------------//
       case ScalaTokenTypes.kDO =>
@@ -179,7 +179,7 @@ object Expr1 {
           case _ =>
             builder error ErrMsg("while.expected")
         }
-        exprMarker.done(ScalaElementTypes.DO_STMT)
+        exprMarker.done(ScalaElementType.DO_STMT)
         return true
       //----------------for statement------------------------//
       case ScalaTokenTypes.kFOR =>
@@ -211,7 +211,7 @@ object Expr1 {
         }
         if (builder.twoNewlinesBeforeCurrentToken) {
           builder.error(ErrMsg("wrong.expression"))
-          exprMarker.done(ScalaElementTypes.FOR_STMT)
+          exprMarker.done(ScalaElementType.FOR_STMT)
           return true
         }
         builder.getTokenType match {
@@ -220,7 +220,7 @@ object Expr1 {
           case _ =>
         }
         if (!Expr.parse(builder)) builder error ErrMsg("wrong.expression")
-        exprMarker.done(ScalaElementTypes.FOR_STMT)
+        exprMarker.done(ScalaElementType.FOR_STMT)
         return true
       //----------------throw statment--------------//
       case ScalaTokenTypes.kTHROW =>
@@ -228,7 +228,7 @@ object Expr1 {
         if (!Expr.parse(builder)) {
           builder error ErrMsg("wrong.expression")
         }
-        exprMarker.done(ScalaElementTypes.THROW_STMT)
+        exprMarker.done(ScalaElementType.THROW_STMT)
         return true
       //--------------implicit closure--------------//
       case ScalaTokenTypes.kIMPLICIT =>
@@ -240,13 +240,13 @@ object Expr1 {
             builder.advanceLexer() //Ate id
             builder.getTokenType match {
               case ScalaTokenTypes.tFUNTYPE =>
-                pmarker.done(ScalaElementTypes.PARAM)
-                ipmarker.done(ScalaElementTypes.PARAM_CLAUSE)
-                ipmarker.precede.done(ScalaElementTypes.PARAM_CLAUSES)
+                pmarker.done(ScalaElementType.PARAM)
+                ipmarker.done(ScalaElementType.PARAM_CLAUSE)
+                ipmarker.precede.done(ScalaElementType.PARAM_CLAUSES)
 
                 builder.advanceLexer() //Ate =>
                 if (!Expr.parse(builder)) builder error ErrMsg("wrong.expression")
-                exprMarker.done(ScalaElementTypes.FUNCTION_EXPR)
+                exprMarker.done(ScalaElementType.FUNCTION_EXPR)
                 return true
               case _ =>
                 pmarker.drop()
@@ -261,7 +261,7 @@ object Expr1 {
         builder.advanceLexer() //Ate return
         if (!builder.newlineBeforeCurrentToken)
           Expr parse builder
-        exprMarker.done(ScalaElementTypes.RETURN_STMT)
+        exprMarker.done(ScalaElementType.RETURN_STMT)
         return true
 
       //---------other cases--------------//
@@ -276,11 +276,11 @@ object Expr1 {
             if (!Expr.parse(builder)) {
               builder error ErrMsg("wrong.expression")
             }
-            exprMarker.done(ScalaElementTypes.ASSIGN_STMT)
+            exprMarker.done(ScalaElementType.ASSIGN_STMT)
             return true
           case ScalaTokenTypes.tCOLON =>
             Ascription parse builder
-            exprMarker.done(ScalaElementTypes.TYPED_EXPR_STMT)
+            exprMarker.done(ScalaElementType.TYPED_EXPR_STMT)
             return true
           case ScalaTokenTypes.kMATCH =>
             builder.advanceLexer() //Ate match
@@ -297,7 +297,7 @@ object Expr1 {
                 builder.restoreNewlinesState()
               case _ => builder error ErrMsg("case.clauses.expected")
             }
-            exprMarker.done(ScalaElementTypes.MATCH_STMT)
+            exprMarker.done(ScalaElementType.MATCH_STMT)
             return true
           case _ =>
             exprMarker.drop()

@@ -20,7 +20,7 @@ import org.jetbrains.plugins.scala.lang.formatting.ScalaWrapManager._
 import org.jetbrains.plugins.scala.lang.formatting.processors._
 import org.jetbrains.plugins.scala.lang.formatting.settings.ScalaCodeStyleSettings
 import org.jetbrains.plugins.scala.lang.lexer.ScalaTokenTypes
-import org.jetbrains.plugins.scala.lang.parser.ScalaElementTypes
+import org.jetbrains.plugins.scala.lang.parser.ScalaElementType
 import org.jetbrains.plugins.scala.lang.psi.ScalaPsiUtil
 import org.jetbrains.plugins.scala.lang.psi.api.base.patterns._
 import org.jetbrains.plugins.scala.lang.psi.api.base.types._
@@ -238,7 +238,7 @@ object getDummyBlocks {
                   }
                   alternateAlignment
                 } else null
-              case ScalaElementTypes.BLOCK_EXPR if scalaSettings.DO_NOT_ALIGN_BLOCK_EXPR_PARAMS => null
+              case ScalaElementType.BLOCK_EXPR if scalaSettings.DO_NOT_ALIGN_BLOCK_EXPR_PARAMS => null
               case _ if settings.ALIGN_MULTILINE_PARAMETERS_IN_CALLS => alignment
               case _ => null
             }
@@ -253,7 +253,7 @@ object getDummyBlocks {
                   }
                   alternateAlignment
                 } else null
-              case ScalaElementTypes.BLOCK_EXPR if scalaSettings.DO_NOT_ALIGN_BLOCK_EXPR_PARAMS => null
+              case ScalaElementType.BLOCK_EXPR if scalaSettings.DO_NOT_ALIGN_BLOCK_EXPR_PARAMS => null
               case _ if settings.ALIGN_MULTILINE_PARAMETERS_IN_CALLS => alignment
               case _ => null
             }
@@ -265,12 +265,12 @@ object getDummyBlocks {
             else alignment
           case _: ScXmlStartTag  | _: ScXmlEmptyTag =>
             child.getElementType match {
-              case ScalaElementTypes.XML_ATTRIBUTE => alignment
+              case ScalaElementType.XML_ATTRIBUTE => alignment
               case _ => null
             }
           case _: ScXmlElement =>
             child.getElementType match {
-              case ScalaElementTypes.XML_START_TAG | ScalaElementTypes.XML_END_TAG => alignment
+              case ScalaElementType.XML_START_TAG | ScalaElementType.XML_END_TAG => alignment
               case _ => null
             }
           case _: ScParameter =>
@@ -816,7 +816,7 @@ object getDummyBlocks {
     val alignment = if (mustAlignment(node, settings))
       Alignment.createAlignment
     else null
-    val elementTypes: Set[IElementType] = Set(ScalaElementTypes.METHOD_CALL, ScalaElementTypes.REFERENCE_EXPRESSION)
+    val elementTypes: Set[IElementType] = Set(ScalaElementType.METHOD_CALL, ScalaElementType.REFERENCE_EXPRESSION)
     def extractParentAlignment: Option[Alignment] =
       Option(block.myParentBlock).map(_.getNode.getElementType) match {
         case Some(elemType) if elementTypes.contains(elemType) => //chained method call, extract alignments
@@ -889,9 +889,9 @@ object getDummyBlocks {
     }
   }
 
-  private val INFIX_ELEMENTS = TokenSet.create(ScalaElementTypes.INFIX_EXPR,
-    ScalaElementTypes.INFIX_PATTERN,
-    ScalaElementTypes.INFIX_TYPE)
+  private val INFIX_ELEMENTS = TokenSet.create(ScalaElementType.INFIX_EXPR,
+    ScalaElementType.INFIX_PATTERN,
+    ScalaElementType.INFIX_TYPE)
 
 
   private class StringLineScalaBlock(myTextRange: TextRange, mainNode: ASTNode, myParentBlock: ScalaBlock,

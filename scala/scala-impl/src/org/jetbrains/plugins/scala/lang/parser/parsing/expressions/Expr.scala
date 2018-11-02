@@ -31,13 +31,13 @@ object Expr {
           case ScalaTokenTypes.tFUNTYPE =>
             val psm = pmarker.precede // 'parameter clause'
             val pssm = psm.precede // 'parameter list'
-            pmarker.done(ScalaElementTypes.PARAM)
-            psm.done(ScalaElementTypes.PARAM_CLAUSE)
-            pssm.done(ScalaElementTypes.PARAM_CLAUSES)
+            pmarker.done(ScalaElementType.PARAM)
+            psm.done(ScalaElementType.PARAM_CLAUSE)
+            pssm.done(ScalaElementType.PARAM_CLAUSES)
 
             builder.advanceLexer() //Ate =>
             if (!parse(builder)) builder error ErrMsg("wrong.expression")
-            exprMarker.done(ScalaElementTypes.FUNCTION_EXPR)
+            exprMarker.done(ScalaElementType.FUNCTION_EXPR)
             return true
           case _ =>
             pmarker.drop()
@@ -50,7 +50,7 @@ object Expr {
             case ScalaTokenTypes.tFUNTYPE =>
               builder.advanceLexer() //Ate =>
               if (!parse(builder)) builder error ErrMsg("wrong.expression")
-              exprMarker.done(ScalaElementTypes.FUNCTION_EXPR)
+              exprMarker.done(ScalaElementType.FUNCTION_EXPR)
               return true
             case _ => exprMarker.rollbackTo()
           }

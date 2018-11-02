@@ -36,7 +36,7 @@ object Literal {
             case ScalaTokenTypes.tINTEGER |
                  ScalaTokenTypes.tFLOAT => {
               builder.advanceLexer() //Ate literal
-              marker.done(ScalaElementTypes.LITERAL)
+              marker.done(ScalaElementType.LITERAL)
               true
             }
             case _ => {
@@ -51,11 +51,11 @@ object Literal {
         }
       case ScalaTokenTypes.tINTERPOLATED_STRING_ID =>
         CommonUtils.parseInterpolatedString(builder, isPattern = false)
-        marker.done(ScalaElementTypes.INTERPOLATED_STRING_LITERAL)
+        marker.done(ScalaElementType.INTERPOLATED_STRING_LITERAL)
         true
       case ScalaTokenTypes.tINTERPOLATED_MULTILINE_STRING | ScalaTokenTypes.tINTERPOLATED_STRING =>
         builder.advanceLexer()
-        marker.done(ScalaElementTypes.INTERPOLATED_STRING_LITERAL)
+        marker.done(ScalaElementType.INTERPOLATED_STRING_LITERAL)
         true
       case ScalaTokenTypes.tINTEGER | ScalaTokenTypes.tFLOAT |
            ScalaTokenTypes.kTRUE | ScalaTokenTypes.kFALSE |
@@ -63,13 +63,13 @@ object Literal {
            ScalaTokenTypes.kNULL | ScalaTokenTypes.tSTRING |
            ScalaTokenTypes.tMULTILINE_STRING =>
         builder.advanceLexer() //Ate literal
-        marker.done(ScalaElementTypes.LITERAL)
+        marker.done(ScalaElementType.LITERAL)
         true
       case ScalaTokenTypes.tWRONG_STRING =>
         //wrong string literal
         builder.advanceLexer() //Ate wrong string
         builder.error("Wrong string literal")
-        marker.done(ScalaElementTypes.LITERAL)
+        marker.done(ScalaElementType.LITERAL)
         true
       case _ =>
         marker.rollbackTo()

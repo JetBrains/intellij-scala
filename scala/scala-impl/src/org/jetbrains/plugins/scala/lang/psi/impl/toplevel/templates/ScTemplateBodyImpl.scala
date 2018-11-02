@@ -11,7 +11,7 @@ import com.intellij.psi.util.PsiTreeUtil
 import com.intellij.psi.{PsiElement, ResolveState}
 import org.jetbrains.plugins.scala.JavaArrayFactoryUtil._
 import org.jetbrains.plugins.scala.lang.TokenSets._
-import org.jetbrains.plugins.scala.lang.parser.ScalaElementTypes.{SELF_TYPE, TEMPLATE_BODY}
+import org.jetbrains.plugins.scala.lang.parser.ScalaElementType.{SELF_TYPE, TEMPLATE_BODY}
 import org.jetbrains.plugins.scala.lang.psi.api.base.types.ScSelfTypeElement
 import org.jetbrains.plugins.scala.lang.psi.api.expr.ScExpression
 import org.jetbrains.plugins.scala.lang.psi.api.statements.{ScDeclaredElementsHolder, ScFunction, ScTypeAlias}

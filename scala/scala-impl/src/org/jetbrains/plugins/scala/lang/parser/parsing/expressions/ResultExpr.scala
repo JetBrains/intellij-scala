@@ -29,7 +29,7 @@ object ResultExpr {
         builder.advanceLexer() //Ate =>
         Block.parse(builder, hasBrace = false, needNode = true)
         backupMarker.drop()
-        resultMarker.done(ScalaElementTypes.FUNCTION_EXPR)
+        resultMarker.done(ScalaElementType.FUNCTION_EXPR)
         true
       case _ =>
         resultMarker.drop()
@@ -44,14 +44,14 @@ object ResultExpr {
         builder.advanceLexer() // ate ':'
         val pt = builder.mark
         CompoundType.parse(builder)
-        pt.done(ScalaElementTypes.PARAM_TYPE)
+        pt.done(ScalaElementType.PARAM_TYPE)
       }
       builder.getTokenType match {
         case ScalaTokenTypes.tFUNTYPE =>
           val psm = paramsMarker.precede // 'parameter list'
-          paramMarker.done(ScalaElementTypes.PARAM)
-          paramsMarker.done(ScalaElementTypes.PARAM_CLAUSE)
-          psm.done(ScalaElementTypes.PARAM_CLAUSES)
+          paramMarker.done(ScalaElementType.PARAM)
+          paramsMarker.done(ScalaElementType.PARAM_CLAUSE)
+          psm.done(ScalaElementType.PARAM_CLAUSES)
 
           return parseFunctionEnd()
         case _ =>

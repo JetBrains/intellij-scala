@@ -43,7 +43,7 @@ object STag {
       case _ =>
         builder error ErrMsg("xml.tag.end.expected")
     }
-    tagMarker.done(ScalaElementTypes.XML_START_TAG)
+    tagMarker.done(ScalaElementType.XML_START_TAG)
     true
   }
 }

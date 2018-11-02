@@ -47,7 +47,7 @@ object Pattern3 {
           opStack.pop()
           backupMarker.drop()
           backupMarker = markerStack.top.precede
-          markerStack.pop().done(ScalaElementTypes.INFIX_PATTERN)
+          markerStack.pop().done(ScalaElementType.INFIX_PATTERN)
         }
         else {
           opStack push s
@@ -58,7 +58,7 @@ object Pattern3 {
       }
       val idMarker = builder.mark
       builder.advanceLexer() //Ate id
-      idMarker.done(ScalaElementTypes.REFERENCE)
+      idMarker.done(ScalaElementType.REFERENCE)
       if (builder.twoNewlinesBeforeCurrentToken) {
         builder.error(ScalaBundle.message("simple.pattern.expected"))
       }
@@ -71,7 +71,7 @@ object Pattern3 {
     backupMarker.drop()
     if (count>0) {
       while (markerStack.nonEmpty) {
-        markerStack.pop().done(ScalaElementTypes.INFIX_PATTERN)
+        markerStack.pop().done(ScalaElementType.INFIX_PATTERN)
       }
       //infixMarker.done(ScalaElementTypes.INFIX_PATTERN)
     }

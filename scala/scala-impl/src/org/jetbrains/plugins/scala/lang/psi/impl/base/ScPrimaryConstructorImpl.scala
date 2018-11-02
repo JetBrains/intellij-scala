@@ -5,15 +5,15 @@ package impl
 package base
 
 import java.util.ArrayList
-import javax.swing.Icon
 
 import com.intellij.lang.ASTNode
 import com.intellij.psi._
 import com.intellij.psi.impl.source.HierarchicalMethodSignatureImpl
 import com.intellij.psi.javadoc.PsiDocComment
 import com.intellij.psi.util.MethodSignatureBackedByPsiMethod
+import javax.swing.Icon
 import org.jetbrains.plugins.scala.icons.Icons
-import org.jetbrains.plugins.scala.lang.parser.ScalaElementTypes
+import org.jetbrains.plugins.scala.lang.parser.ScalaElementType
 import org.jetbrains.plugins.scala.lang.psi.api.base._
 import org.jetbrains.plugins.scala.lang.psi.api.expr.ScAnnotations
 import org.jetbrains.plugins.scala.lang.psi.api.statements.params._
@@ -26,7 +26,7 @@ import org.jetbrains.plugins.scala.lang.psi.stubs.ScPrimaryConstructorStub
   */
 
 class ScPrimaryConstructorImpl private(stub: ScPrimaryConstructorStub, node: ASTNode)
-  extends ScalaStubBasedElementImpl(stub, ScalaElementTypes.PRIMARY_CONSTRUCTOR, node) with ScPrimaryConstructor {
+  extends ScalaStubBasedElementImpl(stub, ScalaElementType.PRIMARY_CONSTRUCTOR, node) with ScPrimaryConstructor {
 
   def this(node: ASTNode) = this(null, node)
 
@@ -45,7 +45,7 @@ class ScPrimaryConstructorImpl private(stub: ScPrimaryConstructorStub, node: AST
 
 
   def parameterList: ScParameters = {
-    getStubOrPsiChild(ScalaElementTypes.PARAM_CLAUSES)
+    getStubOrPsiChild(ScalaElementType.PARAM_CLAUSES)
   }
 
   override def getName: String = this.containingClass.name

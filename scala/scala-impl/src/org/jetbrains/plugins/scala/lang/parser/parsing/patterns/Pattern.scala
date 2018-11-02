@@ -30,7 +30,7 @@ object Pattern {
         builder error ScalaBundle.message("wrong.pattern")
       }
     }
-    if (isComposite) patternMarker.done(ScalaElementTypes.PATTERN)
+    if (isComposite) patternMarker.done(ScalaElementType.PATTERN)
     else patternMarker.drop()
     true
   }

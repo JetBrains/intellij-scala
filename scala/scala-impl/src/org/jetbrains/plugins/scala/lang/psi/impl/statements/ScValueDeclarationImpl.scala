@@ -7,7 +7,7 @@ package statements
 import com.intellij.lang.ASTNode
 import com.intellij.psi.PsiElementVisitor
 import org.jetbrains.plugins.scala.extensions.ifReadAllowed
-import org.jetbrains.plugins.scala.lang.parser.ScalaElementTypes
+import org.jetbrains.plugins.scala.lang.parser.ScalaElementType
 import org.jetbrains.plugins.scala.lang.psi.api.ScalaElementVisitor
 import org.jetbrains.plugins.scala.lang.psi.api.base._
 import org.jetbrains.plugins.scala.lang.psi.api.base.types.ScTypeElement
@@ -37,7 +37,7 @@ final class ScValueDeclarationImpl private[psi](stub: ScPropertyStub[ScValueDecl
 
   def typeElement: Option[ScTypeElement] = byPsiOrStub(findChild(classOf[ScTypeElement]))(_.typeElement)
 
-  def getIdList: ScIdList = getStubOrPsiChild(ScalaElementTypes.IDENTIFIER_LIST)
+  def getIdList: ScIdList = getStubOrPsiChild(ScalaElementType.IDENTIFIER_LIST)
 
   override def accept(visitor: ScalaElementVisitor) {
     visitor.visitValueDeclaration(this)

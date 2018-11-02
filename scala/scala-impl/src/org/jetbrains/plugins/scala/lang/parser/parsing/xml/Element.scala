@@ -28,7 +28,7 @@ object Element {
     }
     Content parse builder
     if (!ETag.parse(builder)) builder error ErrMsg("xml.end.tag.expected")
-    elemMarker.done(ScalaElementTypes.XML_ELEMENT)
+    elemMarker.done(ScalaElementType.XML_ELEMENT)
     return true
   }
 }

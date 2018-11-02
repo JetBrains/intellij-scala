@@ -7,7 +7,7 @@ package impl
 import com.intellij.psi.stubs.{PsiFileStub, PsiFileStubImpl}
 import com.intellij.psi.tree.IStubFileElementType
 import com.intellij.psi.{PsiClass, PsiFile}
-import org.jetbrains.plugins.scala.lang.parser.ScalaElementTypes
+import org.jetbrains.plugins.scala.lang.parser.ScalaElementType
 import org.jetbrains.plugins.scala.lang.psi.api.ScalaFile
 
 /**
@@ -22,7 +22,7 @@ abstract class AbstractFileStub(file: ScalaFile)
     fileElementType.asInstanceOf[IStubFileElementType[Nothing]]
 
   protected def fileElementType: IStubFileElementType[_ <: PsiFileStub[_ <: PsiFile]] =
-    ScalaElementTypes.FILE
+    ScalaElementType.FILE
 }
 
 class ScFileStubImpl(file: ScalaFile) extends AbstractFileStub(file) {

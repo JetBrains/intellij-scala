@@ -25,7 +25,7 @@ object CompoundType extends Type {
     builder.getTokenType match {
       case ScalaTokenTypes.tLBRACE =>
         if (Refinement parse builder) {
-          compoundMarker.done(ScalaElementTypes.COMPOUND_TYPE)
+          compoundMarker.done(ScalaElementType.COMPOUND_TYPE)
           true
         } else {
           compoundMarker.drop()
@@ -46,7 +46,7 @@ object CompoundType extends Type {
           }
           val hasRefinement = Refinement parse builder
           if (isCompound || hasRefinement) {
-            compoundMarker.done(ScalaElementTypes.COMPOUND_TYPE)
+            compoundMarker.done(ScalaElementType.COMPOUND_TYPE)
           } else compoundMarker.drop()
           true
         }

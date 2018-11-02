@@ -3,8 +3,8 @@ package org.jetbrains.plugins.scala.lang.psi.impl.statements
 
 import com.intellij.lang.ASTNode
 import com.intellij.psi._
-import org.jetbrains.plugins.scala.extensions.{PsiElementExt, ifReadAllowed}
-import org.jetbrains.plugins.scala.lang.parser.ScalaElementTypes
+import org.jetbrains.plugins.scala.extensions.ifReadAllowed
+import org.jetbrains.plugins.scala.lang.parser.ScalaElementType
 import org.jetbrains.plugins.scala.lang.psi.api.ScalaElementVisitor
 import org.jetbrains.plugins.scala.lang.psi.api.base.ScStableCodeReferenceElement
 import org.jetbrains.plugins.scala.lang.psi.api.base.types.ScTypeElement
@@ -17,7 +17,7 @@ import org.jetbrains.plugins.scala.lang.psi.types.result._
  * @author Jason Zaugg
  */
 class ScMacroDefinitionImpl private (stub: ScFunctionStub, node: ASTNode)
-  extends ScFunctionImpl(stub, ScalaElementTypes.MACRO_DEFINITION, node) with ScMacroDefinition {
+  extends ScFunctionImpl(stub, ScalaElementType.MACRO_DEFINITION, node) with ScMacroDefinition {
 
   def this(node: ASTNode) = this(null, node)
 

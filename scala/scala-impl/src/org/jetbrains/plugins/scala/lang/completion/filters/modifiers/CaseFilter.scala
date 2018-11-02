@@ -78,9 +78,9 @@ class CaseFilter extends ElementFilter {
       }
       if (leaf.getPrevSibling != null &&
               leaf.getPrevSibling.getPrevSibling != null &&
-              ((leaf.getPrevSibling.getPrevSibling.getNode.getElementType == ScalaElementTypes.MATCH_STMT &&
+        ((leaf.getPrevSibling.getPrevSibling.getNode.getElementType == ScalaElementType.MATCH_STMT &&
                       leaf.getPrevSibling.getPrevSibling.getLastChild.isInstanceOf[PsiErrorElement]) ||
-               (leaf.getPrevSibling.getPrevSibling.getNode.getElementType == ScalaElementTypes.TRY_STMT &&
+          (leaf.getPrevSibling.getPrevSibling.getNode.getElementType == ScalaElementType.TRY_STMT &&
                 leaf.getPrevSibling.getPrevSibling.getLastChild.isInstanceOf[ScCatchBlock] &&
                        leaf.getPrevSibling.getPrevSibling.getLastChild.getLastChild.isInstanceOf[PsiErrorElement]))
               )
@@ -89,7 +89,7 @@ class CaseFilter extends ElementFilter {
         if (leaf.getPrevSibling != null &&
             leaf.getPrevSibling.getPrevSibling != null &&
             leaf.getPrevSibling.getPrevSibling.getLastChild != null &&
-            leaf.getPrevSibling.getPrevSibling.getLastChild.getNode.getElementType == ScalaElementTypes.MATCH_STMT &&
+          leaf.getPrevSibling.getPrevSibling.getLastChild.getNode.getElementType == ScalaElementType.MATCH_STMT &&
             leaf.getPrevSibling.getPrevSibling.getLastChild.getText.indexOf('{') != -1 &&
             leaf.getPrevSibling.getPrevSibling.getLastChild.getLastChild.isInstanceOf[PsiErrorElement])
           return true

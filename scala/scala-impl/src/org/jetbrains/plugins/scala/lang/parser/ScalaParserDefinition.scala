@@ -22,7 +22,7 @@ final class ScalaParserDefinition extends ParserDefinition {
     new ScalaParser
 
   override def getFileNodeType: IStubFileElementType[_ <: PsiFileStub[_ <: PsiFile]] =
-    ScalaElementTypes.FILE
+    ScalaElementType.FILE
 
   override def createElement(node: ASTNode): PsiElement = node.getElementType match {
     case creator: SelfPsiCreator => creator.createElement(node)

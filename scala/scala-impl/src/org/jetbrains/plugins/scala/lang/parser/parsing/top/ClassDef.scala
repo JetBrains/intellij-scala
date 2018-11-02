@@ -29,7 +29,7 @@ object ClassDef {
       parseAnnotations(builder)
       ConstrMods.parse(builder)
       ClassParamClauses.parse(builder)
-      constructorMarker.done(ScalaElementTypes.PRIMARY_CONSTRUCTOR)
+      constructorMarker.done(ScalaElementType.PRIMARY_CONSTRUCTOR)
 
       //parse extends block
       ClassTemplateOpt.parse(builder)
@@ -44,6 +44,6 @@ object ClassDef {
     if (!builder.newlineBeforeCurrentToken) {
       while (Annotation.parse(builder)) {}
     }
-    modifierMarker.done(ScalaElementTypes.ANNOTATIONS)
+    modifierMarker.done(ScalaElementType.ANNOTATIONS)
   }
 }

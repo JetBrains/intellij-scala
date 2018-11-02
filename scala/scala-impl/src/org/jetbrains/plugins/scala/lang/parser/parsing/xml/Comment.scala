@@ -33,7 +33,7 @@ object Comment {
       case ScalaXmlTokenTypes.XML_COMMENT_END => builder.advanceLexer()
       case _ => builder error ErrMsg("xml.comment.end.expected")
     }
-    commentMarker.done(ScalaElementTypes.XML_COMMENT)
+    commentMarker.done(ScalaElementType.XML_COMMENT)
     true
   }
 }

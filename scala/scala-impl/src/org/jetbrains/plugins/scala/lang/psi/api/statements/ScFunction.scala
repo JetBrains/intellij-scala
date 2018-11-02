@@ -20,7 +20,7 @@ import org.jetbrains.plugins.scala.JavaArrayFactoryUtil.ScFunctionFactory
 import org.jetbrains.plugins.scala.extensions._
 import org.jetbrains.plugins.scala.icons.Icons
 import org.jetbrains.plugins.scala.lang.lexer.ScalaTokenTypes
-import org.jetbrains.plugins.scala.lang.parser.ScalaElementTypes._
+import org.jetbrains.plugins.scala.lang.parser.ScalaElementType._
 import org.jetbrains.plugins.scala.lang.psi.api.base.ScMethodLike
 import org.jetbrains.plugins.scala.lang.psi.api.base.types._
 import org.jetbrains.plugins.scala.lang.psi.api.expr.{ScBlock, ScBlockStatement}

@@ -25,7 +25,7 @@ object XmlExpr {
       return false
     }
     while (Element.parse(builder)) {}
-    xmlMarker.done(ScalaElementTypes.XML_EXPR)
+    xmlMarker.done(ScalaElementType.XML_EXPR)
     builder.restoreNewlinesState
     return true
   }

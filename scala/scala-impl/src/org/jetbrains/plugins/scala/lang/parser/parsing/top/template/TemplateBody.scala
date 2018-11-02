@@ -67,6 +67,6 @@ object TemplateBody {
     }
     subparse()
     builder.restoreNewlinesState()
-    templateBodyMarker.done(ScalaElementTypes.TEMPLATE_BODY)
+    templateBodyMarker.done(ScalaElementType.TEMPLATE_BODY)
   }
 }

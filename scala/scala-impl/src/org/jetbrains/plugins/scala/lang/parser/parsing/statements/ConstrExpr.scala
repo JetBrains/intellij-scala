@@ -28,7 +28,7 @@ object ConstrExpr {
         return true
       case _ =>
         SelfInvocation parse builder
-        constrExprMarker.done(ScalaElementTypes.CONSTR_EXPR)
+        constrExprMarker.done(ScalaElementType.CONSTR_EXPR)
         return true
     }
     //this line for compiler

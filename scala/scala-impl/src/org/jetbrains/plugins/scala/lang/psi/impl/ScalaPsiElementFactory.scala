@@ -22,7 +22,7 @@ import org.apache.commons.lang.StringUtils
 import org.jetbrains.plugins.scala.extensions._
 import org.jetbrains.plugins.scala.lang.completion.ScalaKeyword
 import org.jetbrains.plugins.scala.lang.lexer.{ScalaLexer, ScalaTokenTypes}
-import org.jetbrains.plugins.scala.lang.parser.ScalaElementTypes
+import org.jetbrains.plugins.scala.lang.parser.ScalaElementType
 import org.jetbrains.plugins.scala.lang.parser.parsing.base.{Constructor, Import}
 import org.jetbrains.plugins.scala.lang.parser.parsing.builder.{ScalaPsiBuilder, ScalaPsiBuilderImpl}
 import org.jetbrains.plugins.scala.lang.parser.parsing.expressions.{Block, Expr}
@@ -792,7 +792,7 @@ object ScalaPsiElementFactory {
     createElementWithContext[ScTypeDefinition](text, context, child, TmplDef.parse).orNull
 
   def createReferenceFromText(text: String, context: PsiElement, child: PsiElement): ScStableCodeReferenceElement =
-    createElementWithContext[ScStableCodeReferenceElement](text, context, child, StableId.parse(_, ScalaElementTypes.REFERENCE)).orNull
+    createElementWithContext[ScStableCodeReferenceElement](text, context, child, StableId.parse(_, ScalaElementType.REFERENCE)).orNull
 
   def createExpressionWithContextFromText(text: String, context: PsiElement, child: PsiElement): ScExpression = // TODO method should be eliminated eventually
     createOptionExpressionWithContextFromText(text, context, child).orNull
@@ -829,7 +829,7 @@ object ScalaPsiElementFactory {
   }
 
   def createEmptyModifierList(context: PsiElement): ScModifierList = {
-    val parseEmptyModifier = (_: ScalaPsiBuilder).mark.done(ScalaElementTypes.MODIFIERS)
+    val parseEmptyModifier = (_: ScalaPsiBuilder).mark.done(ScalaElementType.MODIFIERS)
     createElementWithContext[ScModifierList]("", context, context.getFirstChild, parseEmptyModifier).orNull
   }
 
@@ -857,7 +857,7 @@ object ScalaPsiElementFactory {
     while (!builder.eof()) {
       builder.advanceLexer()
     }
-    marker.done(ScalaElementTypes.FILE)
+    marker.done(ScalaElementType.FILE)
 
     val fileNode = builder.getTreeBuilt
     val node = fileNode.getFirstChildNode

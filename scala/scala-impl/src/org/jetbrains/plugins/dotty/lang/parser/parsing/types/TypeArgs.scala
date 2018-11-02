@@ -1,7 +1,7 @@
 package org.jetbrains.plugins.dotty.lang.parser.parsing.types
 
-import org.jetbrains.plugins.dotty.lang.parser.DottyElementTypes.TYPE_ARGUMENT_NAME
 import org.jetbrains.plugins.scala.lang.lexer.ScalaTokenTypes
+import org.jetbrains.plugins.scala.lang.parser.ScalaElementType
 import org.jetbrains.plugins.scala.lang.parser.parsing.builder.ScalaPsiBuilder
 
 /**
@@ -19,7 +19,7 @@ object TypeArgs extends org.jetbrains.plugins.scala.lang.parser.parsing.types.Ty
         builder.advanceLexer()
         builder.getTokenType match {
           case ScalaTokenTypes.tASSIGN =>
-            marker.done(TYPE_ARGUMENT_NAME)
+            marker.done(ScalaElementType.TYPE_ARGUMENT_NAME)
             builder.advanceLexer()
           case _ => marker.rollbackTo()
         }

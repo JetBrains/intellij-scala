@@ -4,8 +4,7 @@ package parser
 package parsing
 package xml
 
-import org.jetbrains.plugins.scala.lang.lexer.ScalaXmlTokenTypes
-import org.jetbrains.plugins.scala.lang.lexer.ScalaTokenTypesEx
+import org.jetbrains.plugins.scala.lang.lexer.{ScalaTokenTypesEx, ScalaXmlTokenTypes}
 import org.jetbrains.plugins.scala.lang.parser.parsing.builder.ScalaPsiBuilder
 
 /**
@@ -31,7 +30,7 @@ object CDSect {
       case ScalaXmlTokenTypes.XML_CDATA_END => builder.advanceLexer()
       case _ => builder error ErrMsg("xml.cdata.end.expected")
     }
-    cDataMarker.done(ScalaElementTypes.XML_CD_SECT)
+    cDataMarker.done(ScalaElementType.XML_CD_SECT)
     true
   }
 }

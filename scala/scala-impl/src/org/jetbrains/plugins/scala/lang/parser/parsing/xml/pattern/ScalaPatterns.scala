@@ -45,7 +45,7 @@ object ScalaPatterns {
         builder.advanceLexer()
         if (builder.getTokenType == ScalaTokenTypes.tIDENTIFIER && "*".equals(builder.getTokenText)) {
           builder.advanceLexer()
-          wild.done(ScalaElementTypes.SEQ_WILDCARD)
+          wild.done(ScalaElementType.SEQ_WILDCARD)
           true
         } else {
           wild.rollbackTo()
@@ -72,7 +72,7 @@ object ScalaPatterns {
         Pattern.parse(builder)
       }
     }
-    args.done(ScalaElementTypes.PATTERNS)
+    args.done(ScalaElementType.PATTERNS)
     true
   }
 

@@ -9,7 +9,7 @@ import java.util
 
 import com.intellij.psi.impl.source.tree.LazyParseablePsiElement
 import com.intellij.psi.{PsiElement, PsiElementVisitor}
-import org.jetbrains.plugins.scala.lang.parser.ScalaElementTypes
+import org.jetbrains.plugins.scala.lang.parser.ScalaElementType
 import org.jetbrains.plugins.scala.lang.psi.api.ScalaElementVisitor
 import org.jetbrains.plugins.scala.lang.psi.api.expr._
 
@@ -18,7 +18,7 @@ import org.jetbrains.plugins.scala.lang.psi.api.expr._
 * Date: 06.03.2008
 */
 
-class ScBlockExprImpl(text: CharSequence) extends LazyParseablePsiElement(ScalaElementTypes.BLOCK_EXPR, text)
+class ScBlockExprImpl(text: CharSequence) extends LazyParseablePsiElement(ScalaElementType.BLOCK_EXPR, text)
   with ScBlockExpr {
 
   //todo: bad architecture to have it duplicated here, as ScBlockExprImpl is not instance of ScalaPsiElementImpl

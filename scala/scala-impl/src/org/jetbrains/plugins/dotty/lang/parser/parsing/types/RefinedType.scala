@@ -1,6 +1,6 @@
 package org.jetbrains.plugins.dotty.lang.parser.parsing.types
 
-import org.jetbrains.plugins.dotty.lang.parser.DottyElementTypes._
+import org.jetbrains.plugins.scala.lang.parser.ScalaElementType
 import org.jetbrains.plugins.scala.lang.parser.parsing.builder.ScalaPsiBuilder
 import org.jetbrains.plugins.scala.lang.parser.parsing.types.Refinement
 
@@ -27,7 +27,7 @@ object RefinedType extends org.jetbrains.plugins.scala.lang.parser.parsing.types
     }
 
     if (isDone) {
-      marker.done(REFINED_TYPE)
+      marker.done(ScalaElementType.REFINED_TYPE)
     } else {
       marker.drop()
     }

@@ -19,7 +19,7 @@ import com.intellij.psi.search.GlobalSearchScope
 import com.intellij.psi.util.{PsiTreeUtil, PsiUtil}
 import org.jetbrains.plugins.scala.caches.{CachesUtil, ScalaShortNamesCacheManager}
 import org.jetbrains.plugins.scala.extensions._
-import org.jetbrains.plugins.scala.lang.parser.ScalaElementTypes
+import org.jetbrains.plugins.scala.lang.parser.ScalaElementType
 import org.jetbrains.plugins.scala.lang.psi.ScalaPsiUtil.isLineTerminator
 import org.jetbrains.plugins.scala.lang.psi.adapters.PsiClassAdapter
 import org.jetbrains.plugins.scala.lang.psi.api.base.types.ScSelfTypeElement
@@ -64,7 +64,7 @@ trait ScTemplateDefinition extends ScNamedElement with PsiClassAdapter with Type
   def desugaredElement: Option[ScTemplateDefinition] = None
 
   @Cached(ModCount.anyScalaPsiModificationCount, this)
-  def physicalExtendsBlock: ScExtendsBlock = this.stubOrPsiChild(ScalaElementTypes.EXTENDS_BLOCK).orNull
+  def physicalExtendsBlock: ScExtendsBlock = this.stubOrPsiChild(ScalaElementType.EXTENDS_BLOCK).orNull
 
   def extendsBlock: ScExtendsBlock = desugaredElement.map(_.extendsBlock).getOrElse(physicalExtendsBlock)
 

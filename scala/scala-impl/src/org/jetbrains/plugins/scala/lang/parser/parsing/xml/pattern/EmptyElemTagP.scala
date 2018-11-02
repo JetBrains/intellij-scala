@@ -39,7 +39,7 @@ object EmptyElemTagP {
     builder.getTokenType match {
       case ScalaXmlTokenTypes.XML_EMPTY_ELEMENT_END =>
         builder.advanceLexer()
-        tagMarker.done(ScalaElementTypes.XML_EMPTY_TAG)
+        tagMarker.done(ScalaElementType.XML_EMPTY_TAG)
         true
       case _ =>
         tagMarker.rollbackTo()

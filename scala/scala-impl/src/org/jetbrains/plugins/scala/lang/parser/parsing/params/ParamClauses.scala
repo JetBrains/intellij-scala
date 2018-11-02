@@ -26,7 +26,7 @@ object ParamClauses {
     }
     while (ParamClause.parse(builder)) {}
     ImplicitParamClause parse builder
-    paramMarker.done(ScalaElementTypes.PARAM_CLAUSES)
+    paramMarker.done(ScalaElementType.PARAM_CLAUSES)
     true
   }
 }

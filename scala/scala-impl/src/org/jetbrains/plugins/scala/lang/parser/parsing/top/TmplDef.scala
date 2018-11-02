@@ -31,14 +31,14 @@ object TmplDef {
     val annotationsMarker = builder.mark()
     while (Annotation.parse(builder)) {
     }
-    annotationsMarker.done(ScalaElementTypes.ANNOTATIONS)
+    annotationsMarker.done(ScalaElementType.ANNOTATIONS)
     annotationsMarker.setCustomEdgeTokenBinders(ScalaTokenBinders.DEFAULT_LEFT_EDGE_BINDER, null)
 
     val modifierMarker = builder.mark()
     while (Modifier.parse(builder)) {
     }
     val caseState = isCaseState(builder)
-    modifierMarker.done(ScalaElementTypes.MODIFIERS)
+    modifierMarker.done(ScalaElementType.MODIFIERS)
 
     templateParser(builder.getTokenType, caseState) match {
       case Some((parse, elementType)) =>
@@ -76,15 +76,15 @@ object TmplDef {
   }
 
   private def templateParser(tokenType: IElementType, caseState: Boolean) = tokenType match {
-    case ScalaTokenTypes.kCLASS => Some(ClassDef.parse _, ScalaElementTypes.CLASS_DEFINITION)
-    case ScalaTokenTypes.kOBJECT => Some(ObjectDef.parse _, ScalaElementTypes.OBJECT_DEFINITION)
+    case ScalaTokenTypes.kCLASS => Some(ClassDef.parse _, ScalaElementType.CLASS_DEFINITION)
+    case ScalaTokenTypes.kOBJECT => Some(ObjectDef.parse _, ScalaElementType.OBJECT_DEFINITION)
     case ScalaTokenTypes.kTRAIT =>
       def parse(builder: ScalaPsiBuilder): Boolean = {
         val result = TraitDef.parse(builder)
         if (caseState) true else result
       }
 
-      Some(parse _, ScalaElementTypes.TRAIT_DEFINITION)
+      Some(parse _, ScalaElementType.TRAIT_DEFINITION)
     case _ => None
   }
 }

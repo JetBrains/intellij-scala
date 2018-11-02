@@ -27,14 +27,14 @@ object PostfixExpr {
       case ScalaTokenTypes.tIDENTIFIER if !builder.newlineBeforeCurrentToken =>
         val refMarker = builder.mark
         builder.advanceLexer() //Ate id
-        refMarker.done(ScalaElementTypes.REFERENCE_EXPRESSION)
+        refMarker.done(ScalaElementType.REFERENCE_EXPRESSION)
         /*builder.getTokenType match {
           case ScalaTokenTypes.tLINE_TERMINATOR => {
             if (LineTerminator(builder.getTokenText)) builder.advanceLexer
           }
           case _ => {}
         }*/
-        postfixMarker.done(ScalaElementTypes.POSTFIX_EXPR)
+        postfixMarker.done(ScalaElementType.POSTFIX_EXPR)
       case _ =>
         postfixMarker.drop()
     }

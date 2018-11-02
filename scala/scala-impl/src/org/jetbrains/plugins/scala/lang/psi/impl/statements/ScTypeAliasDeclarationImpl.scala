@@ -4,8 +4,6 @@ package psi
 package impl
 package statements
 
-import javax.swing.Icon
-
 import com.intellij.ide.util.EditSourceUtil
 import com.intellij.lang.ASTNode
 import com.intellij.navigation.ItemPresentation
@@ -13,10 +11,11 @@ import com.intellij.openapi.editor.colors.TextAttributesKey
 import com.intellij.psi.tree.IElementType
 import com.intellij.psi.util.PsiTreeUtil.getNextSiblingOfType
 import com.intellij.psi.{PsiElement, PsiElementVisitor}
+import javax.swing.Icon
 import org.jetbrains.plugins.scala.extensions.ifReadAllowed
 import org.jetbrains.plugins.scala.lang.lexer.ScalaTokenTypes
 import org.jetbrains.plugins.scala.lang.lexer.ScalaTokenTypes.{tLOWER_BOUND, tUPPER_BOUND}
-import org.jetbrains.plugins.scala.lang.parser.ScalaElementTypes.TYPE_DECLARATION
+import org.jetbrains.plugins.scala.lang.parser.ScalaElementType.TYPE_DECLARATION
 import org.jetbrains.plugins.scala.lang.psi.api.ScalaElementVisitor
 import org.jetbrains.plugins.scala.lang.psi.api.base.types.ScTypeElement
 import org.jetbrains.plugins.scala.lang.psi.api.statements._

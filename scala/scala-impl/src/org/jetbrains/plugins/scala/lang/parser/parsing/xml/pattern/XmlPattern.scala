@@ -21,7 +21,7 @@ object XmlPattern {
     val patternMarker = builder.mark
     builder.disableNewlines
     if (EmptyElemTagP.parse(builder)) {
-      patternMarker.done(ScalaElementTypes.XML_PATTERN)
+      patternMarker.done(ScalaElementType.XML_PATTERN)
       builder.restoreNewlinesState
       return true
     }
@@ -33,7 +33,7 @@ object XmlPattern {
     ContentP parse builder
     if (!ETagP.parse(builder)) builder error ErrMsg("xml.end.tag.expected")
     builder.restoreNewlinesState
-    patternMarker.done(ScalaElementTypes.XML_PATTERN)
+    patternMarker.done(ScalaElementType.XML_PATTERN)
     return true
   }
 }

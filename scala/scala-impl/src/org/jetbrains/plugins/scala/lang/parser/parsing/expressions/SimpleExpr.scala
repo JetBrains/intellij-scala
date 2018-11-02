@@ -50,7 +50,7 @@ object SimpleExpr extends ScalaTokenTypes {
           return false
         }
         newMarker = simpleMarker.precede
-        simpleMarker.done(ScalaElementTypes.NEW_TEMPLATE)
+        simpleMarker.done(ScalaElementType.NEW_TEMPLATE)
       case ScalaTokenTypes.tLBRACE =>
         newMarker = simpleMarker.precede
         simpleMarker.drop()
@@ -62,7 +62,7 @@ object SimpleExpr extends ScalaTokenTypes {
         state = true
         builder.advanceLexer() //Ate _
         newMarker = simpleMarker.precede
-        simpleMarker.done(ScalaElementTypes.PLACEHOLDER_EXPR)
+        simpleMarker.done(ScalaElementType.PLACEHOLDER_EXPR)
       case ScalaTokenTypes.tLPARENTHESIS =>
         state = true
         builder.advanceLexer()
@@ -72,13 +72,13 @@ object SimpleExpr extends ScalaTokenTypes {
             builder.advanceLexer()
             builder.restoreNewlinesState()
             newMarker = simpleMarker.precede
-            simpleMarker.done(ScalaElementTypes.UNIT_EXPR)
+            simpleMarker.done(ScalaElementType.UNIT_EXPR)
           case _ =>
             if (!Expr.parse(builder)) {
               builder error ErrMsg("rparenthesis.expected")
               builder.restoreNewlinesState()
               newMarker = simpleMarker.precede
-              simpleMarker.done(ScalaElementTypes.UNIT_EXPR)
+              simpleMarker.done(ScalaElementType.UNIT_EXPR)
             } else {
               var isTuple = false
               while (builder.getTokenType == ScalaTokenTypes.tCOMMA &&
@@ -100,14 +100,14 @@ object SimpleExpr extends ScalaTokenTypes {
               }
               builder.restoreNewlinesState()
               newMarker = simpleMarker.precede
-              simpleMarker.done(if (isTuple) ScalaElementTypes.TUPLE else ScalaElementTypes.PARENT_EXPR)
+              simpleMarker.done(if (isTuple) ScalaElementType.TUPLE else ScalaElementType.PARENT_EXPR)
             }
         }
       case _ =>
         state = true
         if (!Literal.parse(builder)) {
           if (!XmlExpr.parse(builder)) {
-            if (!Path.parse(builder, ScalaElementTypes.REFERENCE_EXPRESSION)) {
+            if (!Path.parse(builder, ScalaElementType.REFERENCE_EXPRESSION)) {
               simpleMarker.drop()
               return false
             }
@@ -123,7 +123,7 @@ object SimpleExpr extends ScalaTokenTypes {
           if (state) {
             builder.advanceLexer()
             val tMarker = marker.precede
-            marker.done(ScalaElementTypes.PLACEHOLDER_EXPR)
+            marker.done(ScalaElementType.PLACEHOLDER_EXPR)
             subparse(tMarker)
           }
           else {
@@ -136,7 +136,7 @@ object SimpleExpr extends ScalaTokenTypes {
             case ScalaTokenTypes.tIDENTIFIER =>
               builder.advanceLexer() //Ate id
             val tMarker = marker.precede
-              marker.done(ScalaElementTypes.REFERENCE_EXPRESSION)
+              marker.done(ScalaElementType.REFERENCE_EXPRESSION)
               subparse(tMarker)
             case _ =>
               builder error ScalaBundle.message("identifier.expected")
@@ -146,7 +146,7 @@ object SimpleExpr extends ScalaTokenTypes {
         builder.getTokenType != ScalaTokenTypes.tLPARENTHESIS || !builder.newlineBeforeCurrentToken =>
           if (state && ArgumentExprs.parse(builder)) {
             val tMarker = marker.precede
-            marker.done(ScalaElementTypes.METHOD_CALL)
+            marker.done(ScalaElementType.METHOD_CALL)
             subparse(tMarker)
           }
           else {
@@ -156,7 +156,7 @@ object SimpleExpr extends ScalaTokenTypes {
           state = true
           TypeArgs.parse(builder, isPattern = false)
           val tMarker = marker.precede
-          marker.done(ScalaElementTypes.GENERIC_CALL)
+          marker.done(ScalaElementType.GENERIC_CALL)
           subparse(tMarker)
         case ScalaTokenTypes.kDEF | ScalaTokenTypes.kPRIVATE | ScalaTokenTypes.kPROTECTED | ScalaTokenTypes.kIMPLICIT if ParserUtils.hasTextBefore(builder, "inline") =>
           //This is kinda hack for cases when we have to build stubs for sources, that use meta and contain inline keyword

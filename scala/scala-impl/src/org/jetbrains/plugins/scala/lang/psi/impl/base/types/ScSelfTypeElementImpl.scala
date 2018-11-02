@@ -9,7 +9,7 @@ import com.intellij.lang.ASTNode
 import com.intellij.psi.PsiElement
 import com.intellij.psi.util.PsiTreeUtil
 import org.jetbrains.plugins.scala.extensions.ifReadAllowed
-import org.jetbrains.plugins.scala.lang.parser.ScalaElementTypes
+import org.jetbrains.plugins.scala.lang.parser.ScalaElementType
 import org.jetbrains.plugins.scala.lang.psi.api.base.types._
 import org.jetbrains.plugins.scala.lang.psi.api.toplevel.typedef.ScTemplateDefinition
 import org.jetbrains.plugins.scala.lang.psi.stubs.ScSelfTypeElementStub
@@ -22,7 +22,7 @@ import scala.collection.mutable
   * @author Alexander Podkhalyuzin
   */
 class ScSelfTypeElementImpl private(stub: ScSelfTypeElementStub, node: ASTNode)
-  extends ScalaStubBasedElementImpl(stub, ScalaElementTypes.SELF_TYPE, node) with ScSelfTypeElement {
+  extends ScalaStubBasedElementImpl(stub, ScalaElementType.SELF_TYPE, node) with ScSelfTypeElement {
 
   def this(node: ASTNode) = this(null, node)
 

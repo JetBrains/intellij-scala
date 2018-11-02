@@ -41,13 +41,13 @@ object CaseClause {
       case _ =>
         builder.restoreNewlinesState()
         builder error ErrMsg("fun.sign.expected")
-        caseClauseMarker.done(ScalaElementTypes.CASE_CLAUSE)
+        caseClauseMarker.done(ScalaElementType.CASE_CLAUSE)
         return true
     }
     if (!Block.parse(builder, hasBrace = false, needNode = true)) {
       builder error ErrMsg("wrong.expression")
     }
-    caseClauseMarker.done(ScalaElementTypes.CASE_CLAUSE)
+    caseClauseMarker.done(ScalaElementType.CASE_CLAUSE)
     true
   }
 }

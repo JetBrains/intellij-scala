@@ -51,7 +51,7 @@ object BlockExpr {
     }
     ParserUtils.parseLoopUntilRBrace(builder, loopFunction _)
     builder.restoreNewlinesState()
-    blockExprMarker.done(ScalaElementTypes.BLOCK_EXPR)
+    blockExprMarker.done(ScalaElementType.BLOCK_EXPR)
     true
   }
 }

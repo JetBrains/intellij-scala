@@ -4,7 +4,8 @@ package parsing
 package types
 
 import org.jetbrains.plugins.scala.ScalaBundle
-import org.jetbrains.plugins.scala.lang.lexer.ScalaTokenTypes.kWITH
+import org.jetbrains.plugins.scala.lang.lexer.ScalaTokenTypes
+import org.jetbrains.plugins.scala.lang.parser.ScalaElementType
 import org.jetbrains.plugins.scala.lang.parser.parsing.builder.ScalaPsiBuilder
 
 /**
@@ -28,7 +29,7 @@ object WithType extends org.jetbrains.plugins.scala.lang.parser.parsing.types.Ty
     }
 
     var isList = false
-    while (builder.getTokenType == kWITH) {
+    while (builder.getTokenType == ScalaTokenTypes.kWITH) {
       isList = true
       builder.advanceLexer() // ate token
 
@@ -37,7 +38,7 @@ object WithType extends org.jetbrains.plugins.scala.lang.parser.parsing.types.Ty
       }
     }
 
-    if (isList) marker.done(DottyElementTypes.WITH_TYPE)
+    if (isList) marker.done(ScalaElementType.WITH_TYPE)
     else marker.drop()
 
     true

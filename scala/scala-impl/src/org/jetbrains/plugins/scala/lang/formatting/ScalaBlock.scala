@@ -12,7 +12,7 @@ import com.intellij.psi.codeStyle.{CodeStyleSettings, CommonCodeStyleSettings}
 import org.jetbrains.plugins.scala.lang.formatting.processors._
 import org.jetbrains.plugins.scala.lang.formatting.settings.ScalaCodeStyleSettings
 import org.jetbrains.plugins.scala.lang.lexer.ScalaTokenTypes
-import org.jetbrains.plugins.scala.lang.parser.ScalaElementTypes
+import org.jetbrains.plugins.scala.lang.parser.ScalaElementType
 import org.jetbrains.plugins.scala.lang.psi.api.ScalaFile
 import org.jetbrains.plugins.scala.lang.psi.api.base.patterns._
 import org.jetbrains.plugins.scala.lang.psi.api.base.{ScLiteral, ScPrimaryConstructor}
@@ -108,7 +108,7 @@ class ScalaBlock(val myParentBlock: ScalaBlock,
         new ChildAttributes(if (braceShifted) Indent.getNoneIndent
         else if (mySubBlocks != null && mySubBlocks.size >= newChildIndex &&
           mySubBlocks.get(newChildIndex - 1).isInstanceOf[ScalaBlock] &&
-          mySubBlocks.get(newChildIndex - 1).asInstanceOf[ScalaBlock].getNode.getElementType == ScalaElementTypes.CASE_CLAUSES)
+          mySubBlocks.get(newChildIndex - 1).asInstanceOf[ScalaBlock].getNode.getElementType == ScalaElementType.CASE_CLAUSES)
           Indent.getSpaceIndent(2 * indentSize)
         else
           Indent.getNormalIndent, null)

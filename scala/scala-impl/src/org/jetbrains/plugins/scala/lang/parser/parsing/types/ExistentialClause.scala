@@ -33,7 +33,7 @@ object ExistentialClause {
         builder.enableNewlines()
       case _ =>
         builder error ScalaBundle.message("existential.block.expected")
-        existMarker.done(ScalaElementTypes.EXISTENTIAL_CLAUSE)
+        existMarker.done(ScalaElementType.EXISTENTIAL_CLAUSE)
         return true
     }
     def foo() {
@@ -41,7 +41,7 @@ object ExistentialClause {
     }
     ParserUtils.parseLoopUntilRBrace(builder, foo _)
     builder.restoreNewlinesState()
-    existMarker.done(ScalaElementTypes.EXISTENTIAL_CLAUSE)
+    existMarker.done(ScalaElementType.EXISTENTIAL_CLAUSE)
     true
   }
 }

@@ -41,7 +41,7 @@ object PatDef {
       }
     }
 
-    pattern2sMarker.done(ScalaElementTypes.PATTERN_LIST)
+    pattern2sMarker.done(ScalaElementType.PATTERN_LIST)
 
     var hasTypeDcl = false
 

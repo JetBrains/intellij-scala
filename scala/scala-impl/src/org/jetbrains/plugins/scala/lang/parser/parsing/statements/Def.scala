@@ -33,7 +33,7 @@ object Def {
     if (isMod || isImplicit) {
       val annotationsMarker = builder.mark
       while (Annotation.parse(builder)) {}
-      annotationsMarker.done(ScalaElementTypes.ANNOTATIONS)
+      annotationsMarker.done(ScalaElementType.ANNOTATIONS)
       annotationsMarker.setCustomEdgeTokenBinders(ScalaTokenBinders.DEFAULT_LEFT_EDGE_BINDER, null)
       //parse modifiers
       val modifierMarker = builder.mark
@@ -52,19 +52,19 @@ object Def {
           builder.advanceLexer()
         }
       }
-      modifierMarker.done(ScalaElementTypes.MODIFIERS)
+      modifierMarker.done(ScalaElementType.MODIFIERS)
     } else {
       val annotationsMarker = builder.mark
-      annotationsMarker.done(ScalaElementTypes.ANNOTATIONS)
+      annotationsMarker.done(ScalaElementType.ANNOTATIONS)
       val modifierMarker = builder.mark
-      modifierMarker.done(ScalaElementTypes.MODIFIERS)
+      modifierMarker.done(ScalaElementType.MODIFIERS)
     }
     //Look for val,var,def or type
     builder.getTokenType match {
       case ScalaTokenTypes.kVAL =>
         builder.advanceLexer() //Ate val
         if (PatDef.parse(builder)) {
-          defMarker.done(ScalaElementTypes.PATTERN_DEFINITION)
+          defMarker.done(ScalaElementType.PATTERN_DEFINITION)
           true
         }
         else {
@@ -74,7 +74,7 @@ object Def {
       case ScalaTokenTypes.kVAR =>
         builder.advanceLexer() //Ate var
         if (VarDef.parse(builder)) {
-          defMarker.done(ScalaElementTypes.VARIABLE_DEFINITION)
+          defMarker.done(ScalaElementType.VARIABLE_DEFINITION)
           true
         }
         else {
@@ -83,10 +83,10 @@ object Def {
         }
       case ScalaTokenTypes.kDEF =>
         if (MacroDef.parse(builder)) {
-          defMarker.done(ScalaElementTypes.MACRO_DEFINITION)
+          defMarker.done(ScalaElementType.MACRO_DEFINITION)
           true
         } else if (FunDef.parse(builder)) {
-          defMarker.done(ScalaElementTypes.FUNCTION_DEFINITION)
+          defMarker.done(ScalaElementType.FUNCTION_DEFINITION)
           true
         } else {
           defMarker.rollbackTo()
@@ -94,7 +94,7 @@ object Def {
         }
       case ScalaTokenTypes.kTYPE =>
         if (TypeDef.parse(builder)) {
-          defMarker.done(ScalaElementTypes.TYPE_DEFINITION)
+          defMarker.done(ScalaElementType.TYPE_DEFINITION)
           true
         }
         else {

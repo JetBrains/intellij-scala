@@ -12,7 +12,7 @@ import com.intellij.openapi.util.IconLoader
 import com.intellij.psi.PsiElement
 import com.intellij.psi.util.PsiTreeUtil
 import org.jetbrains.plugins.scala.extensions.{PsiElementExt, PsiNamedElementExt}
-import org.jetbrains.plugins.scala.lang.parser.ScalaElementTypes
+import org.jetbrains.plugins.scala.lang.parser.ScalaElementType
 import org.jetbrains.plugins.scala.lang.psi.api.base.patterns.{ScReferencePattern, ScTuplePattern}
 import org.jetbrains.plugins.scala.lang.psi.api.base.{ScLiteral, ScPatternList}
 import org.jetbrains.plugins.scala.lang.psi.api.expr._
@@ -193,14 +193,14 @@ object TestNodeProvider {
   def getInfixExprTestName(expr: ScInfixExpr): String = expr.getNode.getFirstChildNode.getText
 
   private def checkScMethodCall(expr: ScMethodCall, funName: String, paramNames: List[String]*): Boolean = {
-    val methodExpr = expr.getEffectiveInvokedExpr.findFirstChildByType(ScalaElementTypes.REFERENCE_EXPRESSION)
+    val methodExpr = expr.getEffectiveInvokedExpr.findFirstChildByType(ScalaElementType.REFERENCE_EXPRESSION)
     methodExpr != null && checkRefExpr(methodExpr.asInstanceOf[ScReferenceExpression], funName, paramNames: _*)
   }
 
   private def checkScMethodCallApply(expr: ScMethodCall, callerName: String, paramNames: List[String]*): Boolean = {
     val methodExpr = expr.getEffectiveInvokedExpr match {
       case refExpr: ScReferenceExpression => refExpr
-      case otherExpr => otherExpr.findFirstChildByType(ScalaElementTypes.REFERENCE_EXPRESSION)
+      case otherExpr => otherExpr.findFirstChildByType(ScalaElementType.REFERENCE_EXPRESSION)
     }
     methodExpr != null && {
       methodExpr.asInstanceOf[ScReferenceExpression].bind() match {
@@ -259,7 +259,7 @@ object TestNodeProvider {
         methodCall.getEffectiveInvokedExpr match {
           case ref: ScReferenceExpression => Some(ref)
           case otherExpr =>
-            Option(otherExpr.findFirstChildByType(ScalaElementTypes.REFERENCE_EXPRESSION)).
+            Option(otherExpr.findFirstChildByType(ScalaElementType.REFERENCE_EXPRESSION)).
               map(_.asInstanceOf[ScReferenceExpression])
         }
       case _ => None
@@ -289,7 +289,7 @@ object TestNodeProvider {
   private def checkPendingExpr(expr: ScExpression): Boolean = {
     Option(expr match {
       case refExpr: ScReferenceExpression => refExpr
-      case _ => expr.findLastChildByType(ScalaElementTypes.REFERENCE_EXPRESSION)
+      case _ => expr.findLastChildByType(ScalaElementType.REFERENCE_EXPRESSION)
     }).exists(checkRefExpr(_, "pending"))
   }
 
@@ -444,7 +444,7 @@ object TestNodeProvider {
     }
     if (isUTestSuiteApplyCall(expr) || isUTestTestsCall(expr)) {
       import scala.collection.JavaConverters._
-      expr.args.findFirstChildByType(ScalaElementTypes.BLOCK_EXPR) match {
+      expr.args.findFirstChildByType(ScalaElementType.BLOCK_EXPR) match {
         case blockExpr: ScBlockExpr => (for (methodExpr <- blockExpr.children if methodExpr.isInstanceOf[ScInfixExpr] || methodExpr.isInstanceOf[ScMethodCall])
           yield extractUTestInner(methodExpr, project)).filter(_.isDefined).map(_.get).toList.asJava
         case _ => new util.ArrayList[TreeElement]

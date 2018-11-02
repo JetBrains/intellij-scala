@@ -39,7 +39,7 @@ object SimplePattern {
             return false
           case _ =>
         }
-        simplePatternMarker.done(ScalaElementTypes.WILDCARD_PATTERN)
+        simplePatternMarker.done(ScalaElementType.WILDCARD_PATTERN)
         return true
       case ScalaTokenTypes.tLPARENTHESIS =>
         builder.advanceLexer() //Ate (
@@ -48,7 +48,7 @@ object SimplePattern {
           case ScalaTokenTypes.tRPARENTHESIS =>
             builder.advanceLexer() //Ate )
             builder.restoreNewlinesState()
-            simplePatternMarker.done(ScalaElementTypes.TUPLE_PATTERN)
+            simplePatternMarker.done(ScalaElementType.TUPLE_PATTERN)
             return true
           case _ =>
         }
@@ -57,12 +57,12 @@ object SimplePattern {
             case ScalaTokenTypes.tRPARENTHESIS =>
               builder.advanceLexer() //Ate )
               builder.restoreNewlinesState()
-              simplePatternMarker.done(ScalaElementTypes.TUPLE_PATTERN)
+              simplePatternMarker.done(ScalaElementType.TUPLE_PATTERN)
               return true
             case _ =>
               builder error ScalaBundle.message("rparenthesis.expected")
               builder.restoreNewlinesState()
-              simplePatternMarker.done(ScalaElementTypes.TUPLE_PATTERN)
+              simplePatternMarker.done(ScalaElementType.TUPLE_PATTERN)
               return true
           }
         }
@@ -74,18 +74,18 @@ object SimplePattern {
               builder error ScalaBundle.message("rparenthesis.expected")
           }
           builder.restoreNewlinesState()
-          simplePatternMarker.done(ScalaElementTypes.PATTERN_IN_PARENTHESIS)
+          simplePatternMarker.done(ScalaElementType.PATTERN_IN_PARENTHESIS)
           return true
         }
       case _ =>
     }
     if (InterpolationPattern parse builder) {
-      simplePatternMarker.done(ScalaElementTypes.INTERPOLATION_PATTERN)
+      simplePatternMarker.done(ScalaElementType.INTERPOLATION_PATTERN)
       return true
     }
 
     if (Literal parse builder) {
-      simplePatternMarker.done(ScalaElementTypes.LITERAL_PATTERN)
+      simplePatternMarker.done(ScalaElementType.LITERAL_PATTERN)
       return true
     }
 
@@ -100,17 +100,17 @@ object SimplePattern {
       val rpm = builder.mark
       builder.getTokenText
       builder.advanceLexer()
-      rpm.done(ScalaElementTypes.REFERENCE_PATTERN)
+      rpm.done(ScalaElementType.REFERENCE_PATTERN)
       simplePatternMarker.drop()
       return true
     }
 
     val rb1 = builder.mark
-    if (StableId parse (builder, ScalaElementTypes.REFERENCE_EXPRESSION)) {
+    if (StableId parse(builder, ScalaElementType.REFERENCE_EXPRESSION)) {
       builder.getTokenType match {
         case ScalaTokenTypes.tLPARENTHESIS =>
           rb1.rollbackTo()
-          StableId parse (builder, ScalaElementTypes.REFERENCE)
+          StableId parse(builder, ScalaElementType.REFERENCE)
           val args = builder.mark
           builder.advanceLexer() //Ate (
           builder.disableNewlines()
@@ -125,7 +125,7 @@ object SimplePattern {
               builder.advanceLexer()
               if (builder.getTokenType == ScalaTokenTypes.tIDENTIFIER && "*".equals(builder.getTokenText)) {
                 builder.advanceLexer()
-                wild.done(ScalaElementTypes.SEQ_WILDCARD)
+                wild.done(ScalaElementType.SEQ_WILDCARD)
                 true
               } else {
                 wild.rollbackTo()
@@ -162,12 +162,12 @@ object SimplePattern {
               builder error ErrMsg("rparenthesis.expected")
           }
           builder.restoreNewlinesState()
-          args.done(ScalaElementTypes.PATTERN_ARGS)
-          simplePatternMarker.done(ScalaElementTypes.CONSTRUCTOR_PATTERN)
+          args.done(ScalaElementType.PATTERN_ARGS)
+          simplePatternMarker.done(ScalaElementType.CONSTRUCTOR_PATTERN)
           return true
         case _ =>
           rb1.drop()
-          simplePatternMarker.done(ScalaElementTypes.STABLE_REFERENCE_PATTERN)
+          simplePatternMarker.done(ScalaElementType.STABLE_REFERENCE_PATTERN)
           return true
       }
     }

@@ -13,7 +13,7 @@ import org.jetbrains.plugins.scala.editor.importOptimizer._
 import org.jetbrains.plugins.scala.extensions.{PsiElementExt, _}
 import org.jetbrains.plugins.scala.lang.formatting.settings.ScalaCodeStyleSettings
 import org.jetbrains.plugins.scala.lang.lexer.ScalaTokenTypes
-import org.jetbrains.plugins.scala.lang.parser.ScalaElementTypes
+import org.jetbrains.plugins.scala.lang.parser.ScalaElementType
 import org.jetbrains.plugins.scala.lang.psi.api.ScalaFile
 import org.jetbrains.plugins.scala.lang.psi.api.base.ScReferenceElement
 import org.jetbrains.plugins.scala.lang.psi.api.base.patterns.ScReferencePattern
@@ -39,7 +39,7 @@ trait ScImportsHolder extends ScalaPsiElement {
       case s: ScalaStubBasedElementImpl[_, _] =>
         val stub: StubElement[_] = s.getStub
         if (stub != null) {
-          return stub.getChildrenByType(ScalaElementTypes.IMPORT_STMT, JavaArrayFactoryUtil.ScImportStmtFactory).toSeq
+          return stub.getChildrenByType(ScalaElementType.IMPORT_STMT, JavaArrayFactoryUtil.ScImportStmtFactory).toSeq
         }
       case _ =>
     }

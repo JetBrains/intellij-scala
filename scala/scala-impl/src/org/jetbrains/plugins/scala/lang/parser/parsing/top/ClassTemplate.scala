@@ -35,21 +35,21 @@ object ClassTemplate {
           builder.getTokenType match {
             case ScalaTokenTypes.tLBRACE =>
               if (builder.twoNewlinesBeforeCurrentToken) {
-                extendsMarker.done(ScalaElementTypes.EXTENDS_BLOCK)
+                extendsMarker.done(ScalaElementType.EXTENDS_BLOCK)
                 return nonEmpty
               }
               TemplateBody parse builder
-              extendsMarker.done(ScalaElementTypes.EXTENDS_BLOCK)
+              extendsMarker.done(ScalaElementType.EXTENDS_BLOCK)
               nonEmpty
             case _ =>
-              extendsMarker.done(ScalaElementTypes.EXTENDS_BLOCK)
+              extendsMarker.done(ScalaElementType.EXTENDS_BLOCK)
               nonEmpty
           }
         }
         else {
           //parse template body
           TemplateBody parse builder
-          extendsMarker.done(ScalaElementTypes.EXTENDS_BLOCK)
+          extendsMarker.done(ScalaElementType.EXTENDS_BLOCK)
           nonEmpty
         }
       //if we find nl => it could be TemplateBody only, but we can't find nl after extends keyword
@@ -64,14 +64,14 @@ object ClassTemplate {
         builder.getTokenType match {
           case ScalaTokenTypes.tLBRACE =>
             if (builder.twoNewlinesBeforeCurrentToken) {
-              extendsMarker.done(ScalaElementTypes.EXTENDS_BLOCK)
+              extendsMarker.done(ScalaElementType.EXTENDS_BLOCK)
               return nonEmpty
             }
             TemplateBody parse builder
-            extendsMarker.done(ScalaElementTypes.EXTENDS_BLOCK)
+            extendsMarker.done(ScalaElementType.EXTENDS_BLOCK)
             nonEmpty
           case _ =>
-            extendsMarker.done(ScalaElementTypes.EXTENDS_BLOCK)
+            extendsMarker.done(ScalaElementType.EXTENDS_BLOCK)
             nonEmpty
         }
     }

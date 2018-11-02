@@ -5,7 +5,7 @@ import com.intellij.codeInspection.{LocalInspectionTool, LocalQuickFix, Problems
 import com.intellij.openapi.project.Project
 import com.intellij.psi.PsiElementVisitor
 import org.jetbrains.plugins.scala.codeInspection.AbstractFixOnPsiElement
-import org.jetbrains.plugins.scala.lang.parser.ScalaElementTypes
+import org.jetbrains.plugins.scala.lang.parser.ScalaElementType
 import org.jetbrains.plugins.scala.lang.psi.ScalaPsiElement
 import org.jetbrains.plugins.scala.lang.psi.api.ScalaElementVisitor
 import org.jetbrains.plugins.scala.lang.psi.api.expr.xml.{ScXmlEndTag, ScXmlStartTag}
@@ -84,7 +84,7 @@ class RenameOpeningTagQuickFix(s: ScXmlEndTag)
   override protected def doApplyFix(elem: ScXmlEndTag)
                                    (implicit project: Project): Unit = {
     val openingTag = elem.getOpeningTag
-    val attributes = openingTag.findChildrenByType(ScalaElementTypes.XML_ATTRIBUTE).map(_.getText)
+    val attributes = openingTag.findChildrenByType(ScalaElementType.XML_ATTRIBUTE).map(_.getText)
 
     elem.getOpeningTag.replace(createXmlStartTag(elem.getTagName,
       if (attributes.isEmpty) "" else attributes.mkString(" ", " ", "")))

@@ -14,7 +14,7 @@ import org.jetbrains.plugins.scala.caches.ScalaShortNamesCacheManager
 import org.jetbrains.plugins.scala.extensions._
 import org.jetbrains.plugins.scala.lang.completion.ScalaCompletionUtil
 import org.jetbrains.plugins.scala.lang.formatting.settings.ScalaCodeStyleSettings
-import org.jetbrains.plugins.scala.lang.parser.ScalaElementTypes
+import org.jetbrains.plugins.scala.lang.parser.ScalaElementType
 import org.jetbrains.plugins.scala.lang.psi.api.base.ScStableCodeReferenceElement
 import org.jetbrains.plugins.scala.lang.psi.api.toplevel.imports._
 import org.jetbrains.plugins.scala.lang.psi.api.toplevel.imports.usages._
@@ -39,7 +39,7 @@ import scala.collection.mutable
  */
 
 class ScImportStmtImpl private (stub: ScImportStmtStub, node: ASTNode)
-  extends ScalaStubBasedElementImpl(stub, ScalaElementTypes.IMPORT_STMT, node) with ScImportStmt {
+  extends ScalaStubBasedElementImpl(stub, ScalaElementType.IMPORT_STMT, node) with ScImportStmt {
 
   def this(node: ASTNode) = this(null, node)
 
@@ -50,7 +50,7 @@ class ScImportStmtImpl private (stub: ScImportStmtStub, node: ASTNode)
   import com.intellij.psi.scope._
 
   def importExprs: Seq[ScImportExpr] =
-    getStubOrPsiChildren(ScalaElementTypes.IMPORT_EXPR, JavaArrayFactoryUtil.ScImportExprFactory).toSeq
+    getStubOrPsiChildren(ScalaElementType.IMPORT_EXPR, JavaArrayFactoryUtil.ScImportExprFactory).toSeq
 
   override def processDeclarations(processor: PsiScopeProcessor,
                                   state: ResolveState,

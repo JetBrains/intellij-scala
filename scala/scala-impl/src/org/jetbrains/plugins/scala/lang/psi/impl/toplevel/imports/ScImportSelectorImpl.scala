@@ -12,7 +12,7 @@ import com.intellij.psi.util.PsiTreeUtil
 import org.jetbrains.plugins.scala.extensions.BooleanExt
 import org.jetbrains.plugins.scala.lang.TokenSets.ID_SET
 import org.jetbrains.plugins.scala.lang.lexer.ScalaTokenTypes
-import org.jetbrains.plugins.scala.lang.parser.ScalaElementTypes.IMPORT_SELECTOR
+import org.jetbrains.plugins.scala.lang.parser.ScalaElementType.IMPORT_SELECTOR
 import org.jetbrains.plugins.scala.lang.psi.api.base.ScStableCodeReferenceElement
 import org.jetbrains.plugins.scala.lang.psi.api.toplevel.imports.{ScImportExpr, ScImportSelector}
 import org.jetbrains.plugins.scala.lang.psi.impl.ScalaPsiElementFactory.createImportExprFromText

@@ -38,7 +38,7 @@ object PI {
       case ScalaXmlTokenTypes.XML_PI_END => builder.advanceLexer()
       case _ => builder error ErrMsg("xml.PI.end.expected")
     }
-    PIMarker.done(ScalaElementTypes.XML_PI)
+    PIMarker.done(ScalaElementType.XML_PI)
     true
   }
 }

@@ -8,7 +8,6 @@ import com.intellij.lang.PsiBuilder
 import com.intellij.psi.tree.IElementType
 import org.jetbrains.plugins.scala.lang.lexer.ScalaTokenTypes
 import org.jetbrains.plugins.scala.lang.parser.parsing.builder.ScalaPsiBuilder
-import org.jetbrains.plugins.scala.lang.parser.util.ParserUtils
 
 /** 
 * @author Alexander Podkhalyuzin
@@ -40,7 +39,7 @@ trait InfixType {
       case ScalaTokenTypes.tUNDER => //wildcard is possible for infix types, like for parameterized. No bounds possible
         val typeMarker = builder.mark()
         builder.advanceLexer()
-        typeMarker.done(ScalaElementTypes.WILDCARD_TYPE)
+        typeMarker.done(ScalaElementType.WILDCARD_TYPE)
         builder.getTokenText match {
           case "<:" | ">:" =>
             infixTypeMarker.rollbackTo()
@@ -87,13 +86,13 @@ trait InfixType {
         case ScalaTokenTypes.tUNDER => //wildcard is possible for infix types, like for parameterized. No bounds possible
           val typeMarker = builder.mark()
           builder.advanceLexer()
-          typeMarker.done(ScalaElementTypes.WILDCARD_TYPE)
+          typeMarker.done(ScalaElementType.WILDCARD_TYPE)
         case _ =>
           if (!componentType.parse(builder, star, isPattern)) builder error errorMessage else couldBeVarArg = false
       }
       if (assoc == 1) {
         val newMarker = infixTypeMarker.precede
-        infixTypeMarker.done(ScalaElementTypes.INFIX_TYPE)
+        infixTypeMarker.done(ScalaElementType.INFIX_TYPE)
         infixTypeMarker = newMarker
       }
     }
@@ -108,7 +107,7 @@ trait InfixType {
       }
       else {
         markerList.head.drop()
-        for (x: PsiBuilder.Marker <- markerList.tail) x.done(ScalaElementTypes.INFIX_TYPE)
+        for (x: PsiBuilder.Marker <- markerList.tail) x.done(ScalaElementType.INFIX_TYPE)
       }
     }
     else {
@@ -122,7 +121,7 @@ trait InfixType {
     true
   }
 
-  protected def parseId(builder: ScalaPsiBuilder, elementType: IElementType = ScalaElementTypes.REFERENCE) {
+  protected def parseId(builder: ScalaPsiBuilder, elementType: IElementType = ScalaElementType.REFERENCE) {
     val idMarker = builder.mark
     builder.advanceLexer() //Ate id
     idMarker.done(elementType)

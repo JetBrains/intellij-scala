@@ -24,11 +24,11 @@ object Param {
     //parse annotations
     val annotationsMarker = builder.mark
     while (Annotation.parse(builder)) {}
-    annotationsMarker.done(ScalaElementTypes.ANNOTATIONS)
+    annotationsMarker.done(ScalaElementType.ANNOTATIONS)
 
     //empty modifiers
     val modifiersMarker = builder.mark()
-    modifiersMarker.done(ScalaElementTypes.MODIFIERS)
+    modifiersMarker.done(ScalaElementType.MODIFIERS)
 
     builder.getTokenType match {
       case ScalaTokenTypes.tIDENTIFIER =>
@@ -50,7 +50,7 @@ object Param {
         if (!Expr.parse(builder)) builder error ErrMsg("wrong.expression")
       case _ =>
     }
-    paramMarker.done(ScalaElementTypes.PARAM)
+    paramMarker.done(ScalaElementType.PARAM)
     true
   }
 }

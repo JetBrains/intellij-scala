@@ -23,7 +23,7 @@ class IfFilter extends ElementFilter {
     if (leaf != null) {
       var parent = leaf.getParent
       while (parent != null) {
-        if (parent.getNode.getElementType == ScalaElementTypes.FOR_STMT) {
+        if (parent.getNode.getElementType == ScalaElementType.FOR_STMT) {
           import org.jetbrains.plugins.scala.extensions._
           if (leaf.getParent != null && //reference
               leaf.getParent.getParent != null &&  //pattern

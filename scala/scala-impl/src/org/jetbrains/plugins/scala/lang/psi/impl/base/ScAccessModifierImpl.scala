@@ -10,7 +10,7 @@ import com.intellij.psi._
 import com.intellij.util.IncorrectOperationException
 import org.jetbrains.plugins.scala.extensions.PsiNamedElementExt
 import org.jetbrains.plugins.scala.lang.lexer.ScalaTokenTypes
-import org.jetbrains.plugins.scala.lang.parser.ScalaElementTypes
+import org.jetbrains.plugins.scala.lang.parser.ScalaElementType
 import org.jetbrains.plugins.scala.lang.psi.api.ScalaFile
 import org.jetbrains.plugins.scala.lang.psi.api.base.ScAccessModifier
 import org.jetbrains.plugins.scala.lang.psi.api.toplevel.ScPackaging
@@ -24,7 +24,7 @@ import scala.collection.mutable
   *         Date: 07.03.2008
   */
 final class ScAccessModifierImpl private(stub: ScAccessModifierStub, node: ASTNode)
-  extends ScalaStubBasedElementImpl(stub, ScalaElementTypes.ACCESS_MODIFIER, node) with ScAccessModifier {
+  extends ScalaStubBasedElementImpl(stub, ScalaElementType.ACCESS_MODIFIER, node) with ScAccessModifier {
 
   import ScalaTokenTypes._
 

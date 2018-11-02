@@ -27,7 +27,7 @@ object NameValuePair {
         builder.advanceLexer() //Ate id
       case _ =>
         builder error ScalaBundle.message("identifier.expected")
-        nameMarker.done(ScalaElementTypes.NAME_VALUE_PAIR)
+        nameMarker.done(ScalaElementType.NAME_VALUE_PAIR)
         return true
     }
     builder.getTokenType match {
@@ -39,7 +39,7 @@ object NameValuePair {
     if (!PrefixExpr.parse(builder)) {
       builder error ScalaBundle.message("wrong.expression")
     }
-    nameMarker.done(ScalaElementTypes.NAME_VALUE_PAIR)
+    nameMarker.done(ScalaElementType.NAME_VALUE_PAIR)
     true
   }
 }

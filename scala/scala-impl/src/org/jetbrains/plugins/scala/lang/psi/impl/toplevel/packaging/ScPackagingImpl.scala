@@ -17,8 +17,8 @@ import org.jetbrains.plugins.scala.caches.ScalaShortNamesCacheManager
 import org.jetbrains.plugins.scala.extensions.PsiElementExt
 import org.jetbrains.plugins.scala.lang.TokenSets.TYPE_DEFINITIONS
 import org.jetbrains.plugins.scala.lang.lexer.ScalaTokenTypes
-import org.jetbrains.plugins.scala.lang.parser.ScalaElementTypes
-import org.jetbrains.plugins.scala.lang.parser.ScalaElementTypes.PACKAGING
+import org.jetbrains.plugins.scala.lang.parser.ScalaElementType
+import org.jetbrains.plugins.scala.lang.parser.ScalaElementType.PACKAGING
 import org.jetbrains.plugins.scala.lang.psi.api.ScPackageLike
 import org.jetbrains.plugins.scala.lang.psi.api.base.ScStableCodeReferenceElement
 import org.jetbrains.plugins.scala.lang.psi.api.toplevel.ScPackaging
@@ -128,7 +128,7 @@ class ScPackagingImpl private(stub: ScPackagingStub, node: ASTNode)
     } else {
       val text = getText
       val endOffset = text.length
-      var ref = findChildByType[PsiElement](ScalaElementTypes.REFERENCE)
+      var ref = findChildByType[PsiElement](ScalaElementType.REFERENCE)
       if (ref == null) ref = findChildByType[PsiElement](ScalaTokenTypes.kPACKAGE)
       if (ref == null) return getText
       val startOffset = ref.getTextRange.getEndOffset + 1 -

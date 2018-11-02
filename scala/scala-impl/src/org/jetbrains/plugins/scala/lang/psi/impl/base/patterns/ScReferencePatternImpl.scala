@@ -11,7 +11,7 @@ import com.intellij.psi.scope.PsiScopeProcessor
 import com.intellij.psi.util.PsiTreeUtil
 import org.jetbrains.plugins.scala.extensions._
 import org.jetbrains.plugins.scala.lang.lexer._
-import org.jetbrains.plugins.scala.lang.parser.ScalaElementTypes
+import org.jetbrains.plugins.scala.lang.parser.ScalaElementType
 import org.jetbrains.plugins.scala.lang.psi.api.base.ScPatternList
 import org.jetbrains.plugins.scala.lang.psi.api.base.patterns._
 import org.jetbrains.plugins.scala.lang.psi.api.statements.ScDeclaredElementsHolder
@@ -27,7 +27,7 @@ import org.jetbrains.plugins.scala.lang.psi.types.result._
   *         Date: 28.02.2008
   */
 class ScReferencePatternImpl private(stub: ScReferencePatternStub, node: ASTNode)
-  extends ScalaStubBasedElementImpl(stub, ScalaElementTypes.REFERENCE_PATTERN, node) with ScReferencePattern with ContributedReferenceHost {
+  extends ScalaStubBasedElementImpl(stub, ScalaElementType.REFERENCE_PATTERN, node) with ScReferencePattern with ContributedReferenceHost {
 
   def this(node: ASTNode) = this(null, node)
 

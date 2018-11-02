@@ -18,7 +18,7 @@ import org.jetbrains.plugins.scala.extensions.{CharSeqExt, PsiFileExt}
 import org.jetbrains.plugins.scala.lang.formatting.settings.ScalaCodeStyleSettings
 import org.jetbrains.plugins.scala.lang.lexer.ScalaXmlTokenTypes.PatchedXmlLexer
 import org.jetbrains.plugins.scala.lang.lexer.{ScalaTokenTypes, ScalaXmlTokenTypes}
-import org.jetbrains.plugins.scala.lang.parser.ScalaElementTypes
+import org.jetbrains.plugins.scala.lang.parser.ScalaElementType
 import org.jetbrains.plugins.scala.lang.psi.ScalaPsiUtil
 import org.jetbrains.plugins.scala.lang.psi.api.ScalaFile
 import org.jetbrains.plugins.scala.lang.psi.api.base.patterns.ScCaseClause
@@ -73,7 +73,7 @@ class ScalaTypedHandler extends TypedHandlerDelegate {
         match {case i: PsiElement if !ScalaNamesUtil.isOperatorName(i.getText) && i.getText != "=" =>
         c == '>' || c == '/' ; case _ => false}) {
       chooseXmlTask(withAttr = false)
-    } else if (element.getPrevSibling != null && element.getPrevSibling.getNode.getElementType == ScalaElementTypes.CASE_CLAUSES) {
+    } else if (element.getPrevSibling != null && element.getPrevSibling.getNode.getElementType == ScalaElementType.CASE_CLAUSES) {
       val ltIndex = element.getPrevSibling.getText.indexOf("<")
       if (ltIndex > "case ".length - 1 && element.getPrevSibling.getText.substring(0, ltIndex).trim() == "case") {
         chooseXmlTask(withAttr = false)

@@ -19,14 +19,14 @@ import org.jetbrains.plugins.scala.lang.parser.parsing.types.StableId
 object ImportExpr {
   def parse(builder: ScalaPsiBuilder): Boolean = {
     val importExprMarker = builder.mark
-    if (!StableId.parse(builder, forImport = true, ScalaElementTypes.REFERENCE)) {
+    if (!StableId.parse(builder, forImport = true, ScalaElementType.REFERENCE)) {
       builder error ErrMsg("identifier.expected")
       importExprMarker.drop()
       return true
     }
 
     if (builder.getTokenType != ScalaTokenTypes.tDOT) {
-      importExprMarker.done(ScalaElementTypes.IMPORT_EXPR)
+      importExprMarker.done(ScalaElementType.IMPORT_EXPR)
       return true
     }
     builder.advanceLexer()
@@ -35,7 +35,7 @@ object ImportExpr {
       case ScalaTokenTypes.tLBRACE => ImportSelectors parse builder
       case _ => builder error ErrMsg("wrong.import.statment.end")
     }
-    importExprMarker.done(ScalaElementTypes.IMPORT_EXPR)
+    importExprMarker.done(ScalaElementType.IMPORT_EXPR)
     true
   }
 }

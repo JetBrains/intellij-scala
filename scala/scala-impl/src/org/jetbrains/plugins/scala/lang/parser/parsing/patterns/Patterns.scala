@@ -23,7 +23,7 @@ object Patterns {
           builder.getTokenText match {
             case "*" =>
               builder.advanceLexer()
-              patternsMarker.done(ScalaElementTypes.SEQ_WILDCARD)
+              patternsMarker.done(ScalaElementType.SEQ_WILDCARD)
               return true
             case _ =>
           }
@@ -41,14 +41,14 @@ object Patterns {
             case ScalaTokenTypes.tCOMMA =>
               builder.advanceLexer() //Ate ,
             case _ =>
-              patternsMarker.done(ScalaElementTypes.PATTERNS)
+              patternsMarker.done(ScalaElementType.PATTERNS)
               return true
           }
         }
         if (false) {
           ParserUtils.eatSeqWildcardNext(builder)
         }
-        patternsMarker.done(ScalaElementTypes.PATTERNS)
+        patternsMarker.done(ScalaElementType.PATTERNS)
         true
       case _ =>
         patternsMarker.rollbackTo()

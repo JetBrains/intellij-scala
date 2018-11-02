@@ -6,8 +6,8 @@ package base
 
 import com.intellij.lang.ASTNode
 import org.jetbrains.plugins.scala.JavaArrayFactoryUtil.ScReferencePatternFactory
-import org.jetbrains.plugins.scala.lang.parser.ScalaElementTypes
-import org.jetbrains.plugins.scala.lang.parser.ScalaElementTypes.REFERENCE_PATTERN
+import org.jetbrains.plugins.scala.lang.parser.ScalaElementType
+import org.jetbrains.plugins.scala.lang.parser.ScalaElementType.REFERENCE_PATTERN
 import org.jetbrains.plugins.scala.lang.psi.api.base._
 import org.jetbrains.plugins.scala.lang.psi.api.base.patterns._
 import org.jetbrains.plugins.scala.lang.psi.stubs.ScPatternListStub
@@ -17,7 +17,7 @@ import org.jetbrains.plugins.scala.lang.psi.stubs.ScPatternListStub
   *         Date: 22.02.2008
   */
 class ScPatternListImpl private(stub: ScPatternListStub, node: ASTNode)
-  extends ScalaStubBasedElementImpl(stub, ScalaElementTypes.PATTERN_LIST, node) with ScPatternList {
+  extends ScalaStubBasedElementImpl(stub, ScalaElementType.PATTERN_LIST, node) with ScPatternList {
 
   def this(node: ASTNode) = this(null, node)
 

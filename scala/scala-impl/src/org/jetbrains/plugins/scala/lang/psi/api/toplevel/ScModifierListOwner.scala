@@ -6,7 +6,7 @@ package toplevel
 
 import com.intellij.psi._
 import org.jetbrains.plugins.scala.extensions.{StubBasedExt, ToNullSafe}
-import org.jetbrains.plugins.scala.lang.parser.ScalaElementTypes
+import org.jetbrains.plugins.scala.lang.parser.ScalaElementType
 import org.jetbrains.plugins.scala.lang.psi.adapters.PsiModifierListOwnerAdapter
 import org.jetbrains.plugins.scala.lang.psi.api.base._
 import org.jetbrains.plugins.scala.lang.psi.api.statements.ScAnnotationsHolder
@@ -21,7 +21,7 @@ trait ScModifierListOwner extends ScalaPsiElement with ScAnnotationsHolder with 
 
   @Cached(ModCount.anyScalaPsiModificationCount, this)
   override def getModifierList: ScModifierList = {
-    val child = this.stubOrPsiChild(ScalaElementTypes.MODIFIERS)
+    val child = this.stubOrPsiChild(ScalaElementType.MODIFIERS)
     child.getOrElse(ScalaPsiElementFactory.createEmptyModifierList(this))
   }
 

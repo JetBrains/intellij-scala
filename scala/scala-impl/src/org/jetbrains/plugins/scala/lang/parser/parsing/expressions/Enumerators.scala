@@ -36,7 +36,7 @@ object Enumerators {
       }
       if (!guard && !Enumerator.parse(builder)) exit = false
     }
-    enumsMarker.done(ScalaElementTypes.ENUMERATORS)
+    enumsMarker.done(ScalaElementType.ENUMERATORS)
     true
   }
 }

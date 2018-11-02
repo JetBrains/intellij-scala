@@ -4,11 +4,11 @@ import com.intellij.codeInsight.editorActions.CopyPastePreProcessor
 import com.intellij.openapi.editor.{Editor, RawText}
 import com.intellij.openapi.project.Project
 import com.intellij.openapi.util.TextRange
-import com.intellij.psi.{PsiElement, PsiFile}
 import com.intellij.psi.tree.TokenSet
+import com.intellij.psi.{PsiElement, PsiFile}
 import org.jetbrains.plugins.scala.lang.formatting.settings.ScalaCodeStyleSettings
 import org.jetbrains.plugins.scala.lang.lexer.ScalaTokenTypes
-import org.jetbrains.plugins.scala.lang.parser.ScalaElementTypes
+import org.jetbrains.plugins.scala.lang.parser.ScalaElementType
 import org.jetbrains.plugins.scala.lang.psi.api.ScalaFile
 import org.jetbrains.plugins.scala.util.MultilineStringUtil
 
@@ -51,7 +51,7 @@ class MultiLineStringCopyPasteProcessor extends CopyPastePreProcessor {
 
   private def findOuterString(element: PsiElement): Option[PsiElement] =
     element match {
-      case interpLiteral if interpLiteral.getNode.getElementType == ScalaElementTypes.INTERPOLATED_STRING_LITERAL =>
+      case interpLiteral if interpLiteral.getNode.getElementType == ScalaElementType.INTERPOLATED_STRING_LITERAL =>
         Some(interpLiteral)
       case string if MultiLineStringCopyPasteProcessor.SAFE_ELEMENTS.contains(string.getNode.getElementType) =>
         Some(findOuterString(element.getParent).getOrElse(string))

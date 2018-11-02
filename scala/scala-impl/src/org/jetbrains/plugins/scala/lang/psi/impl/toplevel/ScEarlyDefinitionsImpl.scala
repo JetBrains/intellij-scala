@@ -9,7 +9,7 @@ import com.intellij.psi.scope.PsiScopeProcessor
 import com.intellij.psi.{PsiElement, ResolveState}
 import org.jetbrains.plugins.scala.JavaArrayFactoryUtil.ScMemberFactory
 import org.jetbrains.plugins.scala.lang.TokenSets.MEMBERS
-import org.jetbrains.plugins.scala.lang.parser.ScalaElementTypes.EARLY_DEFINITIONS
+import org.jetbrains.plugins.scala.lang.parser.ScalaElementType.EARLY_DEFINITIONS
 import org.jetbrains.plugins.scala.lang.psi.api.statements.{ScPatternDefinition, ScVariableDefinition}
 import org.jetbrains.plugins.scala.lang.psi.api.toplevel._
 import org.jetbrains.plugins.scala.lang.psi.api.toplevel.typedef.ScMember

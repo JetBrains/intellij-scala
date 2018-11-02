@@ -9,11 +9,9 @@ import com.intellij.lexer.StringLiteralLexer
 import com.intellij.openapi.actionSystem.DataContext
 import com.intellij.openapi.editor.Editor
 import com.intellij.openapi.editor.actionSystem.EditorActionHandler
-import com.intellij.openapi.editor.ex.EditorEx
 import com.intellij.openapi.util.Ref
 import com.intellij.psi.{PsiElement, PsiFile, StringEscapesTokenTypes}
-import org.jetbrains.plugins.scala.lang.editor.ScalaQuoteHandler
-import org.jetbrains.plugins.scala.lang.parser.ScalaElementTypes
+import org.jetbrains.plugins.scala.lang.parser.ScalaElementType
 import org.jetbrains.plugins.scala.lang.psi.api.ScalaFile
 import org.jetbrains.plugins.scala.lang.psi.api.base.ScLiteral
 
@@ -50,9 +48,9 @@ class InterpolatedStringEnterHandler extends EnterHandlerDelegateAdapter {
       if (Set(tINTERPOLATED_STRING, tINTERPOLATED_STRING_ESCAPE, tINTERPOLATED_STRING_END,
         tINTERPOLATED_STRING_INJECTION).contains(a.getNode.getElementType)) {
         a.getParent.getFirstChild.getNode match {
-          case b: ASTNode if b.getElementType == tINTERPOLATED_STRING_ID || 
-              b.getElementType == ScalaElementTypes.INTERPOLATED_PREFIX_PATTERN_REFERENCE ||
-              b.getElementType == ScalaElementTypes.INTERPOLATED_PREFIX_LITERAL_REFERENCE =>
+          case b: ASTNode if b.getElementType == tINTERPOLATED_STRING_ID ||
+            b.getElementType == ScalaElementType.INTERPOLATED_PREFIX_PATTERN_REFERENCE ||
+            b.getElementType == ScalaElementType.INTERPOLATED_PREFIX_LITERAL_REFERENCE =>
             if (a.getNode.getElementType == tINTERPOLATED_STRING_ESCAPE) {
               if (caretOffset.get - a.getTextOffset == 1) modifyOffset(1)
             } else {

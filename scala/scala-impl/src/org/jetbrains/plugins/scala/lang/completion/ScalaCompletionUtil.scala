@@ -4,9 +4,8 @@ package completion
 
 import java.util.regex.{Matcher, Pattern}
 
-import com.intellij.codeInsight.completion.{CompletionParameters, CompletionUtil, JavaCompletionUtil, PrefixMatcher}
-import com.intellij.openapi.application.ApplicationManager
-import com.intellij.openapi.util.{Computable, Key}
+import com.intellij.codeInsight.completion.{CompletionParameters, CompletionUtil, PrefixMatcher}
+import com.intellij.openapi.util.Key
 import com.intellij.psi._
 import org.jetbrains.plugins.scala.lang.lexer._
 import org.jetbrains.plugins.scala.lang.parser._
@@ -110,7 +109,7 @@ object ScalaCompletionUtil {
     (leaf.getPrevSibling == null || leaf.getPrevSibling.getPrevSibling == null ||
       leaf.getPrevSibling.getPrevSibling.getNode.getElementType != kDEF) &&
       (parent.getPrevSibling == null || parent.getPrevSibling.getPrevSibling == null ||
-        (parent.getPrevSibling.getPrevSibling.getNode.getElementType != ScalaElementTypes.MATCH_STMT ||
+        (parent.getPrevSibling.getPrevSibling.getNode.getElementType != ScalaElementType.MATCH_STMT ||
           !parent.getPrevSibling.getPrevSibling.getLastChild.isInstanceOf[PsiErrorElement]))
   }
 

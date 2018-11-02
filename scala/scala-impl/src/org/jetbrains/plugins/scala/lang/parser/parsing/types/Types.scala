@@ -47,7 +47,7 @@ trait Types {
         //builder error ScalaBundle.message("wrong.type",new Array[Object](0))
       }
     }
-    if (isTuple) typesMarker.done(ScalaElementTypes.TYPES)
+    if (isTuple) typesMarker.done(ScalaElementType.TYPES)
     else typesMarker.drop()
     (true, isTuple)
   }

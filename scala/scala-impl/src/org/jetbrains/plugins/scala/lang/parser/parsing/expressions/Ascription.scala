@@ -34,7 +34,7 @@ object Ascription {
           case _ =>
             builder error ScalaBundle.message("star.expected")
         }
-        seqArgMarker.done(ScalaElementTypes.SEQUENCE_ARG)
+        seqArgMarker.done(ScalaElementType.SEQUENCE_ARG)
         return true
       case _ =>
     }
@@ -44,7 +44,7 @@ object Ascription {
       while (Annotation.parse(builder)) {
         x = x + 1
       }
-      annotationsMarker.done(ScalaElementTypes.ANNOTATIONS)
+      annotationsMarker.done(ScalaElementType.ANNOTATIONS)
       if (x == 0) builder error ScalaBundle.message("annotation.expected")
     }
     ascriptionMarker.drop()

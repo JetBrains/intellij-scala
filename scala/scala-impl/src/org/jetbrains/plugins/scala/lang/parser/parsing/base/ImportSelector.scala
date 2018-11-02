@@ -19,7 +19,7 @@ object ImportSelector {
       case ScalaTokenTypes.tIDENTIFIER =>
         val sel = builder.mark()
         builder.advanceLexer // Ate identifier
-        sel.done(ScalaElementTypes.REFERENCE)
+        sel.done(ScalaElementType.REFERENCE)
       case _ =>
         importSelectorMarker.drop
         return false
@@ -30,17 +30,17 @@ object ImportSelector {
         builder.getTokenType match {
           case ScalaTokenTypes.tUNDER | ScalaTokenTypes.tIDENTIFIER => {
             builder.advanceLexer //Ate _ | identifier
-            importSelectorMarker.done(ScalaElementTypes.IMPORT_SELECTOR)
+            importSelectorMarker.done(ScalaElementType.IMPORT_SELECTOR)
             return true
           }
           case _ => {
             builder error ErrMsg("identifier.or.wild.sign.expected")
-            importSelectorMarker.done(ScalaElementTypes.IMPORT_SELECTOR)
+            importSelectorMarker.done(ScalaElementType.IMPORT_SELECTOR)
             return true
           }
         }
       case _ =>
-        importSelectorMarker.done(ScalaElementTypes.IMPORT_SELECTOR)
+        importSelectorMarker.done(ScalaElementType.IMPORT_SELECTOR)
         return true
     }
   }

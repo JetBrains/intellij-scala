@@ -7,7 +7,7 @@ package base
 import com.intellij.psi.tree.{IElementType, TokenSet}
 import com.intellij.psi.{PsiAnnotation, PsiModifier, PsiModifierList}
 import org.jetbrains.plugins.scala.lang.lexer.ScalaTokenTypes
-import org.jetbrains.plugins.scala.lang.parser.ScalaElementTypes
+import org.jetbrains.plugins.scala.lang.parser.ScalaElementType
 
 /**
   * @author Alexander Podkhalyuzin
@@ -52,7 +52,7 @@ object ScModifierList {
     import TokenSet._
     orSet(
       create(nonAccessModifiers: _*),
-      create(kPROTECTED, kPRIVATE, ScalaElementTypes.ACCESS_MODIFIER)
+      create(kPROTECTED, kPRIVATE, ScalaElementType.ACCESS_MODIFIER)
     )
   }
 

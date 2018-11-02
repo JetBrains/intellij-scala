@@ -74,7 +74,7 @@ object CompilationUnit {
                     k
                   } else {
                     parsePackageSequence(false, {
-                      newMarker.done(ScalaElementTypes.PACKAGING)
+                      newMarker.done(ScalaElementType.PACKAGING)
                       k
                     })
                   }

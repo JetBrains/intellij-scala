@@ -29,7 +29,7 @@ object AnnotationExpr {
     builder.getTokenType match {
       case ScalaTokenTypes.tLBRACE =>
         if (builder.twoNewlinesBeforeCurrentToken) {
-          annotExprMarker.done(ScalaElementTypes.ANNOTATION_EXPR)
+          annotExprMarker.done(ScalaElementType.ANNOTATION_EXPR)
           return true
         }
         
@@ -51,11 +51,11 @@ object AnnotationExpr {
         
         ParserUtils.parseLoopUntilRBrace(builder, foo _)
         builder.restoreNewlinesState()
-        annotExprMarker.done(ScalaElementTypes.ANNOTATION_EXPR)
+        annotExprMarker.done(ScalaElementType.ANNOTATION_EXPR)
         
         true
       case _ =>
-        annotExprMarker.done(ScalaElementTypes.ANNOTATION_EXPR)
+        annotExprMarker.done(ScalaElementType.ANNOTATION_EXPR)
         true
     }
   }

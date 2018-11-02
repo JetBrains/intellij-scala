@@ -28,11 +28,11 @@ object SelfInvocation {
         return true
     }
     if (!ArgumentExprs.parse(builder)) {
-      selfMarker.done(ScalaElementTypes.SELF_INVOCATION)
+      selfMarker.done(ScalaElementType.SELF_INVOCATION)
       return true
     }
     while (!builder.newlineBeforeCurrentToken && ArgumentExprs.parse(builder)) {}
-    selfMarker.done(ScalaElementTypes.SELF_INVOCATION)
+    selfMarker.done(ScalaElementType.SELF_INVOCATION)
     true
   }
 }

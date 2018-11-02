@@ -11,7 +11,7 @@ import com.intellij.psi.util.PsiTreeUtil
 import com.intellij.psi.{PsiComment, PsiElement}
 import org.jetbrains.plugins.scala.base.{FailableTest, ScalaLightPlatformCodeInsightTestCaseAdapter}
 import org.jetbrains.plugins.scala.lang.lexer.ScalaTokenTypes
-import org.jetbrains.plugins.scala.lang.parser.ScalaElementTypes
+import org.jetbrains.plugins.scala.lang.parser.ScalaElementType
 import org.jetbrains.plugins.scala.lang.psi.api.ScalaFile
 import org.jetbrains.plugins.scala.lang.psi.api.expr.ScMethodCall
 import org.jetbrains.plugins.scala.lang.psi.api.statements.ScPatternDefinition
@@ -94,7 +94,7 @@ abstract class TypeConformanceTestBase extends ScalaLightPlatformCodeInsightTest
       if (caretIndex > 0) {
         PsiTreeUtil.findElementOfClassAtOffset(scalaFile, caretIndex, classOf[ScPatternDefinition], false)
       }
-      else scalaFile.findLastChildByType[PsiElement](ScalaElementTypes.PATTERN_DEFINITION)
+      else scalaFile.findLastChildByType[PsiElement](ScalaElementType.PATTERN_DEFINITION)
     assert(patternDef != null, "Not specified expression in range to check conformance.")
     val valueDecl = patternDef.asInstanceOf[ScPatternDefinition]
     val declaredType = valueDecl.declaredType.getOrElse(sys.error("Must provide type annotation for LHS"))
@@ -128,7 +128,7 @@ abstract class TypeConformanceTestBase extends ScalaLightPlatformCodeInsightTest
     val element = if (caretIndex > 0) {
       PsiTreeUtil.findElementOfClassAtOffset(scalaFile, caretIndex, classOf[ScMethodCall], false)
     }
-    else scalaFile.findLastChildByType[PsiElement](ScalaElementTypes.METHOD_CALL)
+    else scalaFile.findLastChildByType[PsiElement](ScalaElementType.METHOD_CALL)
     assertNotNull("Failed to locate application",element)
     val application = element.asInstanceOf[ScMethodCall]
     val errors = scala.collection.mutable.ArrayBuffer[String]()

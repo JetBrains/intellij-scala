@@ -32,7 +32,7 @@ object Refinement {
 
         ParserUtils.parseLoopUntilRBrace(builder, () => RefineStatSeq parse builder)
         builder.restoreNewlinesState()
-        refineMarker.done(ScalaElementTypes.REFINEMENT)
+        refineMarker.done(ScalaElementType.REFINEMENT)
         true
       case _ =>
         refineMarker.rollbackTo()

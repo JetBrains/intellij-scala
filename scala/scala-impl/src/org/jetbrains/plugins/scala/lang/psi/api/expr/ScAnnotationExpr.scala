@@ -5,7 +5,7 @@ package api
 package expr
 
 import com.intellij.psi.{PsiAnnotationMemberValue, PsiElement}
-import org.jetbrains.plugins.scala.lang.parser.ScalaElementTypes
+import org.jetbrains.plugins.scala.lang.parser.ScalaElementType
 import org.jetbrains.plugins.scala.lang.psi.api.base.ScConstructor
 import org.jetbrains.plugins.scala.lang.psi.impl.expr.ScNameValuePairImpl
 
@@ -16,7 +16,8 @@ import org.jetbrains.plugins.scala.lang.psi.impl.expr.ScNameValuePairImpl
 
 trait ScAnnotationExpr extends ScalaPsiElement {
   def constr: ScConstructor = findChildByClassScala(classOf[ScConstructor])
-  def getAttributes: Seq[ScNameValuePair] = findArgExprs.map(_.findChildrenByType(ScalaElementTypes.ASSIGN_STMT)).getOrElse(Seq.empty).map {
+
+  def getAttributes: Seq[ScNameValuePair] = findArgExprs.map(_.findChildrenByType(ScalaElementType.ASSIGN_STMT)).getOrElse(Seq.empty).map {
     case stmt: ScAssignStmt => new ScNameValueAssignment(stmt)
   }
   
@@ -26,7 +27,7 @@ trait ScAnnotationExpr extends ScalaPsiElement {
     val constr = findChildByClassScala(classOf[ScConstructor])
     if (constr == null) return None
 
-    val args = constr.findFirstChildByType(ScalaElementTypes.ARG_EXPRS)
+    val args = constr.findFirstChildByType(ScalaElementType.ARG_EXPRS)
     args match {
       case scArgExpr: ScArgumentExprList => Some(scArgExpr)
       case _ => None

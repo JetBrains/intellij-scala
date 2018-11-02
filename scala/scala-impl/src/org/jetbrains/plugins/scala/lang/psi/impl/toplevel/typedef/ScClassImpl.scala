@@ -11,7 +11,7 @@ import com.intellij.openapi.project.DumbService
 import com.intellij.psi._
 import com.intellij.psi.util.PsiTreeUtil
 import org.jetbrains.plugins.scala.extensions._
-import org.jetbrains.plugins.scala.lang.parser.ScalaElementTypes
+import org.jetbrains.plugins.scala.lang.parser.ScalaElementType
 import org.jetbrains.plugins.scala.lang.psi.api.ScalaElementVisitor
 import org.jetbrains.plugins.scala.lang.psi.api.base.ScPrimaryConstructor
 import org.jetbrains.plugins.scala.lang.psi.api.statements._
@@ -55,7 +55,7 @@ class ScClassImpl(stub: ScTemplateDefinitionStub,
 
   override def constructor: Option[ScPrimaryConstructor] = desugaredElement match {
     case Some(templateDefinition: ScConstructorOwner) => templateDefinition.constructor
-    case _ => this.stubOrPsiChild(ScalaElementTypes.PRIMARY_CONSTRUCTOR)
+    case _ => this.stubOrPsiChild(ScalaElementType.PRIMARY_CONSTRUCTOR)
   }
 
   import com.intellij.psi.scope.PsiScopeProcessor

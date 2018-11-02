@@ -9,7 +9,7 @@ import com.intellij.openapi.progress.ProgressManager
 import com.intellij.psi._
 import com.intellij.psi.scope.PsiScopeProcessor
 import org.jetbrains.plugins.scala.lang.lexer._
-import org.jetbrains.plugins.scala.lang.parser.ScalaElementTypes
+import org.jetbrains.plugins.scala.lang.parser.ScalaElementType
 import org.jetbrains.plugins.scala.lang.psi.api.base.types.ScTypeElement
 import org.jetbrains.plugins.scala.lang.psi.api.statements._
 import org.jetbrains.plugins.scala.lang.psi.api.statements.params._
@@ -47,7 +47,7 @@ abstract class ScFunctionImpl protected (stub: ScFunctionStub, nodeType: ScFunct
   }
 
   @Cached(ModCount.anyScalaPsiModificationCount, this)
-  def paramClauses: ScParameters = getStubOrPsiChild(ScalaElementTypes.PARAM_CLAUSES)
+  def paramClauses: ScParameters = getStubOrPsiChild(ScalaElementType.PARAM_CLAUSES)
 
   override def processDeclarations(processor: PsiScopeProcessor, state: ResolveState,
                                    lastParent: PsiElement, place: PsiElement): Boolean = {

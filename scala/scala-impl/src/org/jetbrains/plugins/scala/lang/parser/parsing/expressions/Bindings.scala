@@ -44,8 +44,8 @@ object Bindings {
         return false
     }
     val pm = bindingsMarker.precede
-    bindingsMarker.done(ScalaElementTypes.PARAM_CLAUSE)
-    pm.done(ScalaElementTypes.PARAM_CLAUSES)
+    bindingsMarker.done(ScalaElementType.PARAM_CLAUSE)
+    pm.done(ScalaElementType.PARAM_CLAUSES)
     true
   }
 }

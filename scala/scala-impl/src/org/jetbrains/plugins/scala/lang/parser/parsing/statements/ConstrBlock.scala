@@ -26,7 +26,7 @@ object ConstrBlock {
             case ScalaTokenTypes.tRBRACE => {
               builder.advanceLexer() //Ate }
               builder.restoreNewlinesState
-              constrExprMarker.done(ScalaElementTypes.CONSTR_BLOCK)
+              constrExprMarker.done(ScalaElementType.CONSTR_BLOCK)
               return true
             }
             case ScalaTokenTypes.tSEMICOLON => {
@@ -41,7 +41,7 @@ object ConstrBlock {
                   !builder.newlineBeforeCurrentToken) {
                   builder.advanceLexer()
                 }
-                constrExprMarker.done(ScalaElementTypes.CONSTR_BLOCK)
+                constrExprMarker.done(ScalaElementType.CONSTR_BLOCK)
                 return true
               }
             case _ => {
@@ -51,7 +51,7 @@ object ConstrBlock {
                 !builder.newlineBeforeCurrentToken) {
                 builder.advanceLexer()
               }
-              constrExprMarker.done(ScalaElementTypes.CONSTR_BLOCK)
+              constrExprMarker.done(ScalaElementType.CONSTR_BLOCK)
               return true
             }
           }

@@ -9,7 +9,7 @@ import com.intellij.openapi.editor.ex.EditorEx
 import com.intellij.psi.tree.IElementType
 import com.intellij.psi.{PsiDocumentManager, PsiElement, PsiFile}
 import org.jetbrains.plugins.scala.lang.lexer.{ScalaTokenTypes, ScalaXmlTokenTypes}
-import org.jetbrains.plugins.scala.lang.parser.ScalaElementTypes
+import org.jetbrains.plugins.scala.lang.parser.ScalaElementType
 import org.jetbrains.plugins.scala.lang.psi.api.ScalaFile
 import org.jetbrains.plugins.scala.lang.psi.api.expr.xml.ScXmlStartTag
 import org.jetbrains.plugins.scala.lang.scaladoc.lexer.ScalaDocTokenType
@@ -75,8 +75,8 @@ class ScalaBackspaceHandler extends BackspaceHandlerDelegate {
     }
 
     @inline def isMultilineInterpolatedStringPrefix(tpe: IElementType) =
-      Set(ScalaElementTypes.INTERPOLATED_PREFIX_LITERAL_REFERENCE,
-        ScalaElementTypes.INTERPOLATED_PREFIX_PATTERN_REFERENCE, ScalaTokenTypes.tINTERPOLATED_STRING_ID) contains tpe
+      Set(ScalaElementType.INTERPOLATED_PREFIX_LITERAL_REFERENCE,
+        ScalaElementType.INTERPOLATED_PREFIX_PATTERN_REFERENCE, ScalaTokenTypes.tINTERPOLATED_STRING_ID) contains tpe
 
     def correctMultilineString(closingQuotesOffset: Int) {
       extensions.inWriteAction {

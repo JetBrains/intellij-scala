@@ -6,7 +6,7 @@ package base
 
 import com.intellij.lang.ASTNode
 import org.jetbrains.plugins.scala.JavaArrayFactoryUtil.ScFieldIdFactory
-import org.jetbrains.plugins.scala.lang.parser.ScalaElementTypes._
+import org.jetbrains.plugins.scala.lang.parser.ScalaElementType._
 import org.jetbrains.plugins.scala.lang.psi.api.base.{ScFieldId, ScIdList}
 import org.jetbrains.plugins.scala.lang.psi.stubs.ScIdListStub
 

@@ -53,10 +53,10 @@ object ClassParamClause {
       case ScalaTokenTypes.tRPARENTHESIS =>
         builder.advanceLexer() //Ate )
         builder.restoreNewlinesState()
-        classParamMarker.done(ScalaElementTypes.PARAM_CLAUSE)
+        classParamMarker.done(ScalaElementType.PARAM_CLAUSE)
         true
       case _ =>
-        classParamMarker.done(ScalaElementTypes.PARAM_CLAUSE)
+        classParamMarker.done(ScalaElementType.PARAM_CLAUSE)
         builder error ErrMsg("rparenthesis.expected")
         builder.restoreNewlinesState()
         true

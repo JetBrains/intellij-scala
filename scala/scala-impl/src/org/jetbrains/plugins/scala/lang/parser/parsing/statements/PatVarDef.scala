@@ -24,16 +24,16 @@ object PatVarDef {
     val patVarMarker = builder.mark
     val annotationsMarker = builder.mark
     while (Annotation.parse(builder)) {}
-    annotationsMarker.done(ScalaElementTypes.ANNOTATIONS)
+    annotationsMarker.done(ScalaElementType.ANNOTATIONS)
     //parse modifiers
     val modifierMarker = builder.mark
     while (Modifier.parse(builder)) {}
-    modifierMarker.done(ScalaElementTypes.MODIFIERS)
+    modifierMarker.done(ScalaElementType.MODIFIERS)
     builder.getTokenType match {
       case ScalaTokenTypes.kVAL =>
         builder.advanceLexer() //Ate val
         if (PatDef parse builder) {
-          patVarMarker.done(ScalaElementTypes.PATTERN_DEFINITION)
+          patVarMarker.done(ScalaElementType.PATTERN_DEFINITION)
           true
         }
         else {
@@ -43,7 +43,7 @@ object PatVarDef {
       case ScalaTokenTypes.kVAR =>
         builder.advanceLexer() //Ate var
         if (VarDef parse builder) {
-          patVarMarker.done(ScalaElementTypes.VARIABLE_DEFINITION)
+          patVarMarker.done(ScalaElementType.VARIABLE_DEFINITION)
           true
         }
         else {

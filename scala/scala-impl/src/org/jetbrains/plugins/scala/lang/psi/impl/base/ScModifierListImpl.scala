@@ -8,7 +8,7 @@ import com.intellij.lang.ASTNode
 import com.intellij.psi._
 import org.jetbrains.plugins.scala.extensions.StubBasedExt
 import org.jetbrains.plugins.scala.lang.lexer.ScalaTokenTypes
-import org.jetbrains.plugins.scala.lang.parser.ScalaElementTypes
+import org.jetbrains.plugins.scala.lang.parser.ScalaElementType
 import org.jetbrains.plugins.scala.lang.psi.api.ScalaElementVisitor
 import org.jetbrains.plugins.scala.lang.psi.api.base._
 import org.jetbrains.plugins.scala.lang.psi.impl.ScalaPsiElementFactory._
@@ -22,7 +22,7 @@ import scala.collection.mutable
 * Date: 22.02.2008
 */
 class ScModifierListImpl private (stub: ScModifiersStub, node: ASTNode)
-  extends ScalaStubBasedElementImpl(stub, ScalaElementTypes.MODIFIERS, node) with ScModifierList {
+  extends ScalaStubBasedElementImpl(stub, ScalaElementType.MODIFIERS, node) with ScModifierList {
 
   import PsiModifier._
   import ScModifierList._
@@ -53,7 +53,7 @@ class ScModifierListImpl private (stub: ScModifiersStub, node: ASTNode)
 
   @Cached(ModCount.anyScalaPsiModificationCount, this)
   override def accessModifier: Option[ScAccessModifier] = Option {
-    getStubOrPsiChild(ScalaElementTypes.ACCESS_MODIFIER)
+    getStubOrPsiChild(ScalaElementType.ACCESS_MODIFIER)
   }
 
   override def hasExplicitModifiers: Boolean = byStubOrPsi(_.hasExplicitModifiers) {
@@ -101,7 +101,7 @@ class ScModifierListImpl private (stub: ScModifiersStub, node: ASTNode)
     case null => PsiAnnotation.EMPTY_ARRAY
     case parent =>
       parent.stubOrPsiChildren(
-        ScalaElementTypes.ANNOTATIONS,
+        ScalaElementType.ANNOTATIONS,
         JavaArrayFactoryUtil.ScAnnotationsFactory
       ) match {
         case Array() => PsiAnnotation.EMPTY_ARRAY

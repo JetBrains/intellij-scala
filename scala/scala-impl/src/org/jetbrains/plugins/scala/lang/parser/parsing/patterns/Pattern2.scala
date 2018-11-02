@@ -41,7 +41,7 @@ object Pattern2 {
         if (forDef && testForId) {
           backupMarker.drop()
           builder.advanceLexer()
-          pattern2Marker.done(ScalaElementTypes.REFERENCE_PATTERN)
+          pattern2Marker.done(ScalaElementType.REFERENCE_PATTERN)
           return true
         } else if (ParserUtils.isCurrentVarId(builder) && !builder.isIdBindingEnabled) {
           backupMarker.rollbackTo()
@@ -54,13 +54,13 @@ object Pattern2 {
               backupMarker.drop()
               if (!pattern3.parse(builder)) {
                 idMarker.rollbackTo()
-                pattern2Marker.done(ScalaElementTypes.REFERENCE_PATTERN)
+                pattern2Marker.done(ScalaElementType.REFERENCE_PATTERN)
                 val err = builder.mark
                 builder.advanceLexer()
                 err.error(ErrMsg("wrong.pattern"))
               } else {
                 idMarker.drop()
-                pattern2Marker.done(ScalaElementTypes.NAMING_PATTERN)
+                pattern2Marker.done(ScalaElementType.NAMING_PATTERN)
               }
               return true
             case _ =>
@@ -77,13 +77,13 @@ object Pattern2 {
             backupMarker.drop()
             if (!pattern3.parse(builder)) {
               idMarker.rollbackTo()
-              pattern2Marker.done(ScalaElementTypes.REFERENCE_PATTERN)
+              pattern2Marker.done(ScalaElementType.REFERENCE_PATTERN)
               val err = builder.mark
               builder.advanceLexer()
               err.error(ErrMsg("wrong.pattern"))
             } else {
               idMarker.drop()
-              pattern2Marker.done(ScalaElementTypes.NAMING_PATTERN)
+              pattern2Marker.done(ScalaElementType.NAMING_PATTERN)
             }
             return true
           case _ =>

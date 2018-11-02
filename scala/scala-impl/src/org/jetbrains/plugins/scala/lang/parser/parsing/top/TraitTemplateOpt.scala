@@ -37,6 +37,6 @@ object TraitTemplateOpt {
       case ScalaTokenTypes.tLBRACE if !builder.twoNewlinesBeforeCurrentToken => TemplateBody.parse(builder)
       case _ =>
     }
-    extendsMarker.done(ScalaElementTypes.EXTENDS_BLOCK)
+    extendsMarker.done(ScalaElementType.EXTENDS_BLOCK)
   }
 }

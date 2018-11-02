@@ -39,6 +39,6 @@ object ClassTemplateOpt {
       case _ =>
     }
 
-    extendsMarker.done(ScalaElementTypes.EXTENDS_BLOCK)
+    extendsMarker.done(ScalaElementType.EXTENDS_BLOCK)
   }
 }

@@ -24,7 +24,7 @@ object SelfType {
     
     def handleFunArrow() {
       builder.advanceLexer() //Ate '=>'
-      selfTypeMarker.done(ScalaElementTypes.SELF_TYPE)
+      selfTypeMarker.done(ScalaElementType.SELF_TYPE)
     }
     
     def handleColon() {
@@ -74,7 +74,7 @@ object SelfType {
     builder.getTokenType match {
       case ScalaTokenTypes.kFOR_SOME =>
         ExistentialClause parse builder
-        typeMarker.done(ScalaElementTypes.EXISTENTIAL_TYPE)
+        typeMarker.done(ScalaElementType.EXISTENTIAL_TYPE)
       case _ => typeMarker.drop()
     }
     true

@@ -26,7 +26,7 @@ object TypeParam {
     while (Annotation.parse(builder)) {
       exist = true
     }
-    if (exist) annotationMarker.done(ScalaElementTypes.ANNOTATIONS)
+    if (exist) annotationMarker.done(ScalaElementType.ANNOTATIONS)
     else annotationMarker.drop()
 
     if (mayHaveVariance) {
@@ -54,7 +54,7 @@ object TypeParam {
     while (boundParser("<%")) {}
     while (boundParser(":")) {}
 
-    paramMarker.done(ScalaElementTypes.TYPE_PARAM)
+    paramMarker.done(ScalaElementType.TYPE_PARAM)
     true
   }
 

@@ -17,10 +17,10 @@ object PackageObject {
     val marker = builder.mark
     //empty annotations
      val annotationsMarker = builder.mark
-    annotationsMarker.done(ScalaElementTypes.ANNOTATIONS)
+    annotationsMarker.done(ScalaElementType.ANNOTATIONS)
     //empty modifiers
     val modifierMarker = builder.mark
-    modifierMarker.done(ScalaElementTypes.MODIFIERS)
+    modifierMarker.done(ScalaElementType.MODIFIERS)
 
     if (builder.getTokenType != ScalaTokenTypes.kPACKAGE) {
       marker.drop()
@@ -37,7 +37,7 @@ object PackageObject {
     builder.advanceLexer()
 
     if (ObjectDef parse builder) {
-      marker.done(ScalaElementTypes.OBJECT_DEFINITION)
+      marker.done(ScalaElementType.OBJECT_DEFINITION)
     } else {
       marker.drop()
     }

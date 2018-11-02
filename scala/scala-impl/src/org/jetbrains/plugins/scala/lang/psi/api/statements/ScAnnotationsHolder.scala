@@ -6,7 +6,7 @@ package statements
 
 import com.intellij.psi._
 import org.jetbrains.plugins.scala.extensions._
-import org.jetbrains.plugins.scala.lang.parser.ScalaElementTypes
+import org.jetbrains.plugins.scala.lang.parser.ScalaElementType
 import org.jetbrains.plugins.scala.lang.psi.adapters.PsiAnnotatedAdapter
 import org.jetbrains.plugins.scala.lang.psi.api.base.types.{ScParameterizedTypeElement, ScSimpleTypeElement, ScTypeElement}
 import org.jetbrains.plugins.scala.lang.psi.api.expr.{ScAnnotation, ScAnnotations}
@@ -26,7 +26,7 @@ import org.jetbrains.plugins.scala.macroAnnotations._
 trait ScAnnotationsHolder extends ScalaPsiElement with PsiAnnotatedAdapter {
 
   @Cached(ModCount.anyScalaPsiModificationCount, this)
-  def annotations: Seq[ScAnnotation] = this.stubOrPsiChild(ScalaElementTypes.ANNOTATIONS) match {
+  def annotations: Seq[ScAnnotation] = this.stubOrPsiChild(ScalaElementType.ANNOTATIONS) match {
     case Some(ann) => ann.getAnnotations.toSeq
     case _ => Seq.empty
   }

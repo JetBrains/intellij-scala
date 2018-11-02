@@ -47,7 +47,7 @@ trait Type {
               }
             case _ => //nothing
           }
-          typeMarker.done(ScalaElementTypes.WILDCARD_TYPE)
+          typeMarker.done(ScalaElementType.WILDCARD_TYPE)
           builder.getTokenType match {
             case ScalaTokenTypes.tFUNTYPE =>
               val funMarker = typeMarker.precede()
@@ -55,7 +55,7 @@ trait Type {
               if (!parse(builder, isPattern = isPattern)) {
                 builder error ScalaBundle.message("wrong.type")
               }
-              funMarker.done(ScalaElementTypes.TYPE)
+              funMarker.done(ScalaElementType.TYPE)
             case _ =>
           }
           return true
@@ -75,10 +75,10 @@ trait Type {
         if (!parse(builder, isPattern = isPattern)) {
           builder error ScalaBundle.message("wrong.type")
         }
-        typeMarker.done(ScalaElementTypes.TYPE)
+        typeMarker.done(ScalaElementType.TYPE)
       case ScalaTokenTypes.kFOR_SOME =>
         ExistentialClause parse builder
-        typeMarker.done(ScalaElementTypes.EXISTENTIAL_TYPE)
+        typeMarker.done(ScalaElementType.EXISTENTIAL_TYPE)
       case _ => typeMarker.drop()
     }
     true

@@ -31,8 +31,8 @@ trait AnnotType {
       while (!builder.newlineBeforeCurrentToken && Annotation.parse(builder,
         countLinesAfterAnnotation = false)) {isAnnotation = true}
 
-      if (isAnnotation) annotationsMarker.done(ScalaElementTypes.ANNOTATIONS) else annotationsMarker.drop()
-      if (isAnnotation) annotMarker.done(ScalaElementTypes.ANNOT_TYPE) else annotMarker.drop()
+      if (isAnnotation) annotationsMarker.done(ScalaElementType.ANNOTATIONS) else annotationsMarker.drop()
+      if (isAnnotation) annotMarker.done(ScalaElementType.ANNOT_TYPE) else annotMarker.drop()
       true
     } else {
       annotMarker.rollbackTo()

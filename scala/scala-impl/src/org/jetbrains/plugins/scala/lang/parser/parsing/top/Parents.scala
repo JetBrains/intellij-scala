@@ -17,7 +17,7 @@ sealed abstract class Parents {
   protected def parseFirstParent(builder: ScalaPsiBuilder): Boolean
 
   def parse(implicit builder: ScalaPsiBuilder): Boolean =
-    builder.build(ScalaElementTypes.TEMPLATE_PARENTS) { builder =>
+    builder.build(ScalaElementType.TEMPLATE_PARENTS) { builder =>
       parseFirstParent(builder) && {
         var continue = true
         while (continue && builder.getTokenType == ScalaTokenTypes.kWITH) {

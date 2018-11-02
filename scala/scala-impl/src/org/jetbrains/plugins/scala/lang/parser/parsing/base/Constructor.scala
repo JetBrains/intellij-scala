@@ -23,10 +23,10 @@ object Constructor {
   def parse(builder: ScalaPsiBuilder, isAnnotation: Boolean): Boolean = {
     val constrMarker = builder.mark
     val latestDoneMarker = builder.getLatestDoneMarker
-    val annotationAllowed = latestDoneMarker == null || 
-      (latestDoneMarker.getTokenType != ScalaElementTypes.TYPE_GENERIC_CALL && 
-        latestDoneMarker.getTokenType != ScalaElementTypes.MODIFIERS && 
-        latestDoneMarker.getTokenType != ScalaElementTypes.TYPE_PARAM_CLAUSE)
+    val annotationAllowed = latestDoneMarker == null ||
+      (latestDoneMarker.getTokenType != ScalaElementType.TYPE_GENERIC_CALL &&
+        latestDoneMarker.getTokenType != ScalaElementType.MODIFIERS &&
+        latestDoneMarker.getTokenType != ScalaElementType.TYPE_PARAM_CLAUSE)
 
     if ((!isAnnotation && !AnnotType.parse(builder, isPattern = false, multipleSQBrackets = false)) ||
       (isAnnotation && !SimpleType.parse(builder, isPattern = false))) {
@@ -41,7 +41,7 @@ object Constructor {
         ArgumentExprs parse builder
       }
     }
-    constrMarker.done(ScalaElementTypes.CONSTRUCTOR)
+    constrMarker.done(ScalaElementType.CONSTRUCTOR)
     true
   }
 }

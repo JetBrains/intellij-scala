@@ -23,7 +23,7 @@ object Binding {
     val paramMarker = builder.mark
     builder.getTokenType match {
       case ScalaTokenTypes.tIDENTIFIER | ScalaTokenTypes.tUNDER =>
-        builder.mark.done(ScalaElementTypes.ANNOTATIONS)
+        builder.mark.done(ScalaElementType.ANNOTATIONS)
         builder.advanceLexer()
       case _ =>
         paramMarker.drop()
@@ -37,7 +37,7 @@ object Binding {
       case _ =>
     }
 
-    paramMarker.done(ScalaElementTypes.PARAM)
+    paramMarker.done(ScalaElementType.PARAM)
     true
   }
 }

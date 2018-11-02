@@ -8,11 +8,9 @@ package params
 import com.intellij.lang.ASTNode
 import com.intellij.psi._
 import com.intellij.psi.scope.PsiScopeProcessor
-import com.intellij.psi.util.PsiTreeUtil
-import com.intellij.psi.util.PsiTreeUtil.isContextAncestor
 import org.jetbrains.plugins.scala.JavaArrayFactoryUtil.ScTypeParamFactory
 import org.jetbrains.plugins.scala.extensions.{ObjectExt, PsiElementExt}
-import org.jetbrains.plugins.scala.lang.parser.ScalaElementTypes._
+import org.jetbrains.plugins.scala.lang.parser.ScalaElementType._
 import org.jetbrains.plugins.scala.lang.psi.api.base.ScMethodLike
 import org.jetbrains.plugins.scala.lang.psi.api.statements.params._
 import org.jetbrains.plugins.scala.lang.psi.stubs.ScTypeParamClauseStub

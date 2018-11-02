@@ -42,7 +42,7 @@ object FunTypeParamClause {
       case _ => builder error ErrMsg("wrong.parameter")
     }
     builder.restoreNewlinesState()
-    funMarker.done(ScalaElementTypes.TYPE_PARAM_CLAUSE)
+    funMarker.done(ScalaElementType.TYPE_PARAM_CLAUSE)
     true
   }
 }

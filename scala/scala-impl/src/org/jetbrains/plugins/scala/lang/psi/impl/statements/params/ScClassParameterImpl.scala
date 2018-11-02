@@ -9,7 +9,7 @@ import com.intellij.lang.ASTNode
 import com.intellij.psi.{PsiClass, PsiElement, PsiElementVisitor}
 import org.jetbrains.plugins.scala.extensions.ifReadAllowed
 import org.jetbrains.plugins.scala.lang.lexer.ScalaTokenTypes
-import org.jetbrains.plugins.scala.lang.parser.ScalaElementTypes
+import org.jetbrains.plugins.scala.lang.parser.ScalaElementType
 import org.jetbrains.plugins.scala.lang.psi.api.ScalaElementVisitor
 import org.jetbrains.plugins.scala.lang.psi.api.statements.params._
 import org.jetbrains.plugins.scala.lang.psi.api.toplevel.typedef.ScClass
@@ -21,7 +21,7 @@ import org.jetbrains.plugins.scala.lang.psi.stubs.ScParameterStub
 */
 
 class ScClassParameterImpl private (stub: ScParameterStub, node: ASTNode)
-  extends ScParameterImpl(stub, ScalaElementTypes.CLASS_PARAM, node) with ScClassParameter {
+  extends ScParameterImpl(stub, ScalaElementType.CLASS_PARAM, node) with ScClassParameter {
 
   def this(node: ASTNode) = this(null, node)
 

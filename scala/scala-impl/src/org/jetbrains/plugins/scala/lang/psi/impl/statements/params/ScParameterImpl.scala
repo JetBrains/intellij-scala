@@ -9,7 +9,7 @@ import com.intellij.lang.ASTNode
 import com.intellij.psi._
 import org.jetbrains.plugins.scala.extensions.{ObjectExt, ifReadAllowed}
 import org.jetbrains.plugins.scala.lang.lexer.ScalaTokenTypes
-import org.jetbrains.plugins.scala.lang.parser.ScalaElementTypes
+import org.jetbrains.plugins.scala.lang.parser.ScalaElementType
 import org.jetbrains.plugins.scala.lang.psi.api.ScalaElementVisitor
 import org.jetbrains.plugins.scala.lang.psi.api.base.ScMethodLike
 import org.jetbrains.plugins.scala.lang.psi.api.base.types.ScTypeElement
@@ -31,7 +31,7 @@ class ScParameterImpl protected (stub: ScParameterStub, nodeType: ScParamElement
 
   def this(node: ASTNode) = this(null, null, node)
 
-  def this(stub: ScParameterStub) = this(stub, ScalaElementTypes.PARAM, null)
+  def this(stub: ScParameterStub) = this(stub, ScalaElementType.PARAM, null)
 
   override def toString: String = "Parameter: " + ifReadAllowed(name)("")
 

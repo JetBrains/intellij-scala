@@ -6,8 +6,7 @@ package toplevel
 
 import org.jetbrains.plugins.scala.JavaArrayFactoryUtil.ScPackagingFactory
 import org.jetbrains.plugins.scala.extensions.StubBasedExt
-import org.jetbrains.plugins.scala.lang.parser.ScalaElementTypes.PACKAGING
-import org.jetbrains.plugins.scala.lang.parser._
+import org.jetbrains.plugins.scala.lang.parser.ScalaElementType.PACKAGING
 import org.jetbrains.plugins.scala.lang.psi.api.toplevel.typedef.ScTypeDefinition
 
 /**

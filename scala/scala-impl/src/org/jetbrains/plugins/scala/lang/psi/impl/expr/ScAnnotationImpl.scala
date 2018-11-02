@@ -11,7 +11,7 @@ import com.intellij.psi.impl.light.LightElement
 import com.intellij.psi.meta.PsiMetaData
 import org.jetbrains.plugins.scala.extensions._
 import org.jetbrains.plugins.scala.lang.lexer.ScalaTokenTypes
-import org.jetbrains.plugins.scala.lang.parser.ScalaElementTypes.ANNOTATION
+import org.jetbrains.plugins.scala.lang.parser.ScalaElementType.ANNOTATION
 import org.jetbrains.plugins.scala.lang.psi.api.ScalaElementVisitor
 import org.jetbrains.plugins.scala.lang.psi.api.base.types.ScTypeElement
 import org.jetbrains.plugins.scala.lang.psi.api.expr._

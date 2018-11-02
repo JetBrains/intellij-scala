@@ -6,7 +6,7 @@ package toplevel
 package templates
 
 import com.intellij.lang.ASTNode
-import org.jetbrains.plugins.scala.lang.parser.ScalaElementTypes
+import org.jetbrains.plugins.scala.lang.parser.ScalaElementType
 import org.jetbrains.plugins.scala.lang.psi.api.base.types.ScTypeElement
 import org.jetbrains.plugins.scala.lang.psi.api.toplevel.templates._
 import org.jetbrains.plugins.scala.lang.psi.api.toplevel.typedef.ScTypeDefinition
@@ -22,7 +22,7 @@ import scala.collection.mutable
   * @author Alexander Podkhalyuzin
   */
 final class ScTemplateParentsImpl private(stub: ScTemplateParentsStub, node: ASTNode)
-  extends ScalaStubBasedElementImpl(stub, ScalaElementTypes.TEMPLATE_PARENTS, node) with ScTemplateParents {
+  extends ScalaStubBasedElementImpl(stub, ScalaElementType.TEMPLATE_PARENTS, node) with ScTemplateParents {
 
   def this(node: ASTNode) = this(null, node)
 

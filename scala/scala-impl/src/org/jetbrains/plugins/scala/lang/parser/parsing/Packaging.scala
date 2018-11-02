@@ -32,7 +32,7 @@ object Packaging {
           case ScalaTokenTypes.tLBRACE =>
             if (builder.twoNewlinesBeforeCurrentToken) {
               builder error ScalaBundle.message("lbrace.expected")
-              packMarker.done(ScalaElementTypes.PACKAGING)
+              packMarker.done(ScalaElementType.PACKAGING)
               return true
             }
             builder.advanceLexer() //Ate '{'
@@ -42,11 +42,11 @@ object Packaging {
               TopStatSeq.parse(builder)
             })
             builder.restoreNewlinesState()
-            packMarker.done(ScalaElementTypes.PACKAGING)
+            packMarker.done(ScalaElementType.PACKAGING)
             true
           case _ =>
             builder error ScalaBundle.message("lbrace.expected")
-            packMarker.done(ScalaElementTypes.PACKAGING)
+            packMarker.done(ScalaElementType.PACKAGING)
             true
         }
       case _ =>

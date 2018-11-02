@@ -5,15 +5,14 @@ package impl
 package statements
 package params
 
-import javax.swing.Icon
-
 import com.intellij.lang.ASTNode
 import com.intellij.psi._
 import com.intellij.psi.search.{LocalSearchScope, SearchScope}
+import javax.swing.Icon
 import org.jetbrains.plugins.scala.extensions._
 import org.jetbrains.plugins.scala.icons.Icons
 import org.jetbrains.plugins.scala.lang.lexer.ScalaTokenTypes._
-import org.jetbrains.plugins.scala.lang.parser.ScalaElementTypes
+import org.jetbrains.plugins.scala.lang.parser.ScalaElementType
 import org.jetbrains.plugins.scala.lang.psi.api.base.types.ScTypeElement
 import org.jetbrains.plugins.scala.lang.psi.api.statements.ScTypeAliasDefinition
 import org.jetbrains.plugins.scala.lang.psi.api.statements.params._
@@ -36,7 +35,7 @@ import scala.annotation.tailrec
 */
 
 class ScTypeParamImpl private (stub: ScTypeParamStub, node: ASTNode)
-  extends ScalaStubBasedElementImpl(stub, ScalaElementTypes.TYPE_PARAM, node)
+  extends ScalaStubBasedElementImpl(stub, ScalaElementType.TYPE_PARAM, node)
     with ScTypeBoundsOwnerImpl with ScTypeParam with PsiClassFake {
 
   def this(node: ASTNode) =  this(null, node)

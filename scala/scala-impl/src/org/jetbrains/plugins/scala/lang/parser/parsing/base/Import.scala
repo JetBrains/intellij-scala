@@ -29,6 +29,6 @@ object Import {
       builder.advanceLexer() //Ate ,
       ImportExpr parse builder
     }
-    importMarker.done(ScalaElementTypes.IMPORT_STMT)
+    importMarker.done(ScalaElementType.IMPORT_STMT)
   }
 }

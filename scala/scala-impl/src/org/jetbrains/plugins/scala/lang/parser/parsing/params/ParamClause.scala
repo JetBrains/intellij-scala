@@ -46,7 +46,7 @@ object ParamClause {
         builder error ScalaBundle.message("rparenthesis.expected")
     }
     builder.restoreNewlinesState()
-    paramMarker.done(ScalaElementTypes.PARAM_CLAUSE)
+    paramMarker.done(ScalaElementType.PARAM_CLAUSE)
     true
   }
 }

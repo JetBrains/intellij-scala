@@ -6,7 +6,7 @@ package toplevel
 
 import com.intellij.openapi.progress.ProgressManager
 import com.intellij.psi._
-import org.jetbrains.plugins.scala.lang.parser.ScalaElementTypes
+import org.jetbrains.plugins.scala.lang.parser.ScalaElementType
 import org.jetbrains.plugins.scala.lang.psi.api.statements.params._
 import org.jetbrains.plugins.scala.macroAnnotations.{Cached, ModCount}
 
@@ -23,7 +23,7 @@ trait ScTypeParametersOwner extends ScalaPsiElement {
   def typeParametersClause: Option[ScTypeParamClause] = {
     this match {
       case st: ScalaStubBasedElementImpl[_, _] =>
-        Option(st.getStubOrPsiChild(ScalaElementTypes.TYPE_PARAM_CLAUSE))
+        Option(st.getStubOrPsiChild(ScalaElementType.TYPE_PARAM_CLAUSE))
       case _ =>
         findChild(classOf[ScTypeParamClause])
     }
