@@ -147,13 +147,10 @@ class ScReferenceExpressionImpl(node: ASTNode) extends ScReferenceElementImpl(no
     }
   }
 
-  override def getVariants: Array[Object] = completionVariants(implicits = true)().toArray
+  override def getVariants: Array[Object] = completionVariants(implicits = true).toArray
 
-  override def completionVariants(incomplete: Boolean,
-                                  completion: Boolean,
-                                  implicits: Boolean)
-                                 (function: ScalaResolveResult => Seq[ScalaLookupItem]): Seq[ScalaLookupItem] =
-    getSimpleVariants(incomplete, completion, implicits).flatMap(function)
+  override def completionVariants(implicits: Boolean): Seq[ScalaLookupItem] =
+    getSimpleVariants(incomplete = true, completion = false, implicits).flatMap(toLookupItems)
 
   def getSameNameVariants: Array[ScalaResolveResult] = this.doResolve(
     new CompletionProcessor(getKinds(incomplete = true), this, isImplicit = true) {

@@ -79,7 +79,7 @@ object ScalaGlobalMembersCompletionContributor {
                            (implicit prefixMatcher: PrefixMatcher,
                             originalFile: PsiFile): Iterable[ScalaLookupItem] = {
     implicit def elementsSet: Set[PsiNamedElement] =
-      reference.completionVariants()()
+      reference.completionVariants()
         .map(_.element).toSet
 
     findQualifier(reference) match {

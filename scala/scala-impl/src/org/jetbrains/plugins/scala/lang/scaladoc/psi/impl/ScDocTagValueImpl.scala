@@ -81,10 +81,7 @@ class ScDocTagValueImpl(node: ASTNode) extends ScReferenceElementImpl(node) with
     getElement
   }
 
-  override def completionVariants(incomplete: Boolean,
-                                  completion: Boolean,
-                                  implicits: Boolean)
-                                 (function: ScalaResolveResult => Seq[ScalaLookupItem]): Seq[ScalaLookupItem] =
+  override def completionVariants(implicits: Boolean): Seq[ScalaLookupItem] =
     getParametersVariants.map { element =>
       new ScalaLookupItem(element, element.name, None)
     }
