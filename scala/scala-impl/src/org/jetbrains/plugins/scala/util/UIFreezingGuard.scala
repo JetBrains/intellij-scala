@@ -11,6 +11,7 @@ import com.intellij.ide.{ApplicationInitializedListener, IdeEventQueue}
 import com.intellij.openapi.application.{ApplicationManager, ModalityState, TransactionGuard}
 import com.intellij.openapi.progress._
 import com.intellij.openapi.progress.util.AbstractProgressIndicatorBase
+import com.intellij.openapi.util.registry.Registry
 import org.jetbrains.plugins.scala.extensions._
 import org.jetbrains.plugins.scala.util.UIFreezingGuard._
 
@@ -24,7 +25,7 @@ class UIFreezingGuard extends ApplicationInitializedListener {
   private val periodMs = 10
 
   override def componentsInitialized(): Unit = {
-    if (enabled) {
+    if (pceEnabled) {
       JobScheduler.getScheduler.scheduleWithFixedDelay(cancelOnUserInput(), periodMs, periodMs, TimeUnit.MILLISECONDS)
     }
   }
@@ -39,14 +40,21 @@ class UIFreezingGuard extends ApplicationInitializedListener {
 
 object UIFreezingGuard {
 
-  private val enabled = System.getProperty("idea.ProcessCanceledException") != "disabled"
+  private val pceEnabled = System.getProperty("idea.ProcessCanceledException") != "disabled"
 
-  //used only from EDT
   private var isGuarded: Boolean = false
+  private var timeoutCount: Int = 0
+
+  val edtResolveTimeoutKey = "scala.edt.resolve.timeout"
+
+  Registry.addKey(edtResolveTimeoutKey,
+    "Maximum time in millisecond to wait for reference resolve in scala file (-1 means no timeout)", 100, false)
+
+  private def isEdt: Boolean = ApplicationManager.getApplication.isDispatchThread
 
   //used in macro!
   def withResponsibleUI[T](body: => T): T = {
-    if (!isAlreadyGuarded && enabled) {
+    if (!isAlreadyGuarded && pceEnabled) {
       val start = System.currentTimeMillis()
       try {
         isGuarded = true
@@ -71,7 +79,7 @@ object UIFreezingGuard {
 
   //body should have withResponsibleUI call inside
   def withDefaultValue[T](default: T)(body: T): T = {
-    if (ApplicationManager.getApplication.isDispatchThread && hasPendingUserInput) default
+    if (isEdt && hasPendingUserInput) default
     else {
       try body
       catch {
@@ -81,36 +89,38 @@ object UIFreezingGuard {
   }
 
   //used in macro to reduce number of `withResponsibleUI` calls in the stacktrace
-  def isAlreadyGuarded: Boolean = {
-    val edt = ApplicationManager.getApplication.isDispatchThread
-    edt && isGuarded || !edt
-  }
+  def isAlreadyGuarded: Boolean = isEdt && isGuarded || !isEdt
+
+  def isUnderTimeout: Boolean = isEdt && timeoutCount > 0
 
   //Use with care! Can cause bugs if result is cached upper in the stack.
-  def withTimeout[T](timeoutMs: Long, default: => T)(computation: => T): T = {
+  def withTimeout[T](timeoutMs: Long, computation: => T, default: => T): T = {
     val application = ApplicationManager.getApplication
-    if (!enabled || !application.isDispatchThread || application.isUnitTestMode) return computation
+    if (!pceEnabled || !isEdt || application.isUnitTestMode) return computation
 
-    val startTime = System.currentTimeMillis()
     try {
-      ProgressManager.getInstance().runProcess(computation, new AbstractProgressIndicatorBase {
-        override def isCanceled: Boolean = {
-          System.currentTimeMillis() - startTime > timeoutMs || super.isCanceled
-        }
-
-        override def checkCanceled(): Unit = if (isCanceled && isCancelable) throw new TimeoutException
-      })
+      timeoutCount += 1
+      ProgressManager.getInstance().runProcess(computation, new TimeoutProgressIndicator(timeoutMs))
     } catch {
       case _: TimeoutException => default
+    } finally {
+      timeoutCount -= 1
     }
   }
 
   //throws TimeoutException!
-  def withTimeout[T](timeoutMs: Long)(computation: => T): T = withTimeout(timeoutMs, throw new TimeoutException)(computation)
+  def withTimeout[T](timeoutMs: Long)(computation: => T): T = withTimeout(timeoutMs, computation, throw new TimeoutException)
+
+  def resolveTimeoutMs: Int =
+    if (isEdt && !isUnderTimeout) Registry.intValue(edtResolveTimeoutKey) else -1
 
   private def isWriteAction: Boolean = ApplicationManager.getApplication.isWriteAccessAllowed
   private def isTransaction: Boolean = TransactionGuard.getInstance().getContextTransaction != null
-  private def isUnderProgress: Boolean = ProgressManager.getInstance().hasProgressIndicator
+
+  private def isUnderProgress: Boolean = {
+    val indicator = ProgressManager.getInstance().getProgressIndicator
+    indicator != progress && !indicator.isInstanceOf[TimeoutProgressIndicator]
+  }
   private def hasModalityState: Boolean = ModalityState.current() != ModalityState.NON_MODAL
 
   private def canInterrupt: Boolean = !isWriteAction && !isTransaction && !isUnderProgress && !hasModalityState
@@ -128,6 +138,22 @@ object UIFreezingGuard {
 
     userEventIds.exists(queue.peekEvent(_) != null)
   }
+
+  private class TimeoutProgressIndicator(timeoutMs: Long, startTime: Long = System.currentTimeMillis())
+    extends AbstractProgressIndicatorBase {
+
+    private var timeBeforeCancel = -1L
+
+    override def isCanceled: Boolean = {
+      timeBeforeCancel = System.currentTimeMillis() - startTime
+
+      timeBeforeCancel > timeoutMs || super.isCanceled
+    }
+
+    override def checkCanceled(): Unit = if (isCanceled && isCancelable && canInterrupt)
+      throw new TimeoutException
+  }
+
 
   private object progress extends StandardProgressIndicator {
     val delegate = new EmptyProgressIndicator()
