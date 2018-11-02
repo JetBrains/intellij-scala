@@ -8,26 +8,25 @@ import com.intellij.lang.ASTNode
 import com.intellij.psi._
 import org.jetbrains.plugins.scala.extensions.ifReadAllowed
 import org.jetbrains.plugins.scala.lang.lexer.ScalaTokenTypes
-import org.jetbrains.plugins.scala.lang.parser.ScalaElementType
 import org.jetbrains.plugins.scala.lang.psi.api.ScalaElementVisitor
 import org.jetbrains.plugins.scala.lang.psi.api.base.types.ScTypeElement
 import org.jetbrains.plugins.scala.lang.psi.api.expr._
 import org.jetbrains.plugins.scala.lang.psi.api.statements._
 import org.jetbrains.plugins.scala.lang.psi.stubs.ScFunctionStub
+import org.jetbrains.plugins.scala.lang.psi.stubs.elements.ScFunctionElementType
 import org.jetbrains.plugins.scala.lang.psi.types.result._
 import org.jetbrains.plugins.scala.lang.psi.types.{ScLiteralType, api}
 
 /**
- * @author Alexander Podkhalyuzin
- * Date: 22.02.2008
- */
+  * @author Alexander Podkhalyuzin
+  *         Date: 22.02.2008
+  */
 
-class ScFunctionDefinitionImpl protected (stub: ScFunctionStub, node: ASTNode)
-  extends ScFunctionImpl(stub, ScalaElementType.FUNCTION_DEFINITION, node) with ScFunctionDefinition {
-
-  def this(node: ASTNode) = this(null, node)
-
-  def this(stub: ScFunctionStub) = this(stub, null)
+class ScFunctionDefinitionImpl(stub: ScFunctionStub,
+                               nodeType: ScFunctionElementType,
+                               node: ASTNode)
+  extends ScFunctionImpl(stub, nodeType, node)
+    with ScFunctionDefinition {
 
   override protected def shouldProcessParameters(lastParent: PsiElement): Boolean =
     super.shouldProcessParameters(lastParent) || body.contains(lastParent)
@@ -54,14 +53,11 @@ class ScFunctionDefinitionImpl protected (stub: ScFunctionStub, node: ASTNode)
     case None => null
   }
 
-  override def accept(visitor: ScalaElementVisitor) {
+  override def accept(visitor: ScalaElementVisitor): Unit =
     visitor.visitFunctionDefinition(this)
-  }
 
-  override def accept(visitor: PsiElementVisitor) {
-    visitor match {
-      case s: ScalaElementVisitor => s.visitFunctionDefinition(this)
-      case _ => super.accept(visitor)
-    }
+  override def accept(visitor: PsiElementVisitor): Unit = visitor match {
+    case scalaVisitor: ScalaElementVisitor => accept(scalaVisitor)
+    case _ => super.accept(visitor)
   }
 }

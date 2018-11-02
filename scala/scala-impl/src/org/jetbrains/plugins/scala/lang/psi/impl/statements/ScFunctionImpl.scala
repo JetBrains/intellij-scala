@@ -21,12 +21,15 @@ import org.jetbrains.plugins.scala.lang.psi.stubs.elements.ScFunctionElementType
 import org.jetbrains.plugins.scala.macroAnnotations.{Cached, ModCount}
 
 /**
- * @author ilyas
- */
-
-abstract class ScFunctionImpl protected (stub: ScFunctionStub, nodeType: ScFunctionElementType, node: ASTNode)
-  extends ScalaStubBasedElementImpl(stub, nodeType, node) with ScMember
-    with ScFunction with ScTypeParametersOwner {
+  * @author ilyas
+  */
+abstract class ScFunctionImpl protected(stub: ScFunctionStub,
+                                        nodeType: ScFunctionElementType,
+                                        node: ASTNode)
+  extends ScalaStubBasedElementImpl(stub, nodeType, node)
+    with ScMember
+    with ScFunction
+    with ScTypeParametersOwner {
 
   override def isStable = false
 
@@ -66,7 +69,7 @@ abstract class ScFunctionImpl protected (stub: ScFunctionStub, nodeType: ScFunct
     if (lastParent != null && shouldProcessParameters(lastParent)) {
       for {
         clause <- effectiveParameterClauses
-        param  <- clause.effectiveParameters
+        param <- clause.effectiveParameters
       } {
         ProgressManager.checkCanceled()
         if (!processor.execute(param, state)) return false
@@ -79,6 +82,7 @@ abstract class ScFunctionImpl protected (stub: ScFunctionStub, nodeType: ScFunct
   // references in default parameters are processed in ScParametersImpl
   protected def shouldProcessParameters(lastParent: PsiElement): Boolean = {
     def isSynthetic = lastParent.getContext != lastParent.getParent
+
     def isFromTypeParams = lastParent.isInstanceOf[ScTypeParamClause]
 
     //don't compare returnTypeElement with lastParent, they may be different instances due to caches/stubs

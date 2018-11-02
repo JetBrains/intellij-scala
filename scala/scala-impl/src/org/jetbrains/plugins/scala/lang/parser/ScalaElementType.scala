@@ -47,13 +47,13 @@ object ScalaElementType {
   val PATTERN_DEFINITION: ScPropertyElementType[ScPatternDefinition] = ValueDefinition
   val VARIABLE_DECLARATION: ScPropertyElementType[ScVariableDeclaration] = VariableDeclaration
   val VARIABLE_DEFINITION: ScPropertyElementType[ScVariableDefinition] = VariableDefinition
-  val FUNCTION_DECLARATION = new ScFunctionDeclarationElementType
+  val FUNCTION_DECLARATION: ScFunctionElementType = FunctionDeclaration
+  val FUNCTION_DEFINITION: ScFunctionElementType = FunctionDefinition
+  val MACRO_DEFINITION: ScFunctionElementType = MacroDefinition
   val TYPE_DECLARATION = new ScTypeAliasDeclarationElementType
   val PATTERN_LIST = new ScPatternListElementType
   val TYPE_DEFINITION = new ScTypeAliasDefinitionElementType
   val EARLY_DEFINITIONS = new ScEarlyDefinitionsElementType
-  val FUNCTION_DEFINITION = new ScFunctionDefinitionElementType
-  val MACRO_DEFINITION = new ScMacroDefinitionElementType
   val MODIFIERS = new ScModifiersElementType("moifiers")
   val ACCESS_MODIFIER = new ScAccessModifierElementType
   val ANNOTATION = new ScAnnotationElementType

@@ -7,29 +7,28 @@ package statements
 import com.intellij.lang.ASTNode
 import com.intellij.psi.PsiElementVisitor
 import org.jetbrains.plugins.scala.extensions.ifReadAllowed
-import org.jetbrains.plugins.scala.lang.parser.ScalaElementType
 import org.jetbrains.plugins.scala.lang.psi.api.ScalaElementVisitor
 import org.jetbrains.plugins.scala.lang.psi.api.statements._
 import org.jetbrains.plugins.scala.lang.psi.stubs.ScFunctionStub
+import org.jetbrains.plugins.scala.lang.psi.stubs.elements.ScFunctionElementType
 import org.jetbrains.plugins.scala.lang.psi.types.api.Unit
 import org.jetbrains.plugins.scala.lang.psi.types.result._
 
 /**
-* @author Alexander Podkhalyuzin
-*/
+  * @author Alexander Podkhalyuzin
+  */
+final class ScFunctionDeclarationImpl private[psi](stub: ScFunctionStub,
+                                                   nodeType: ScFunctionElementType,
+                                                   node: ASTNode)
+  extends ScFunctionImpl(stub, nodeType, node)
+    with ScFunctionDeclaration {
 
-class ScFunctionDeclarationImpl private (stub: ScFunctionStub, node: ASTNode)
-  extends ScFunctionImpl(stub, ScalaElementType.FUNCTION_DECLARATION, node) with ScFunctionDeclaration {
+  override def accept(visitor: ScalaElementVisitor): Unit =
+    visitor.visitFunctionDeclaration(this)
 
-  def this(node: ASTNode) = this(null, node)
-
-  def this(stub: ScFunctionStub) = this(stub, null)
-
-  override def accept(visitor: PsiElementVisitor) {
-    visitor match {
-      case visitor: ScalaElementVisitor => visitor.visitFunctionDeclaration(this)
-      case _ => super.accept(visitor)
-    }
+  override def accept(visitor: PsiElementVisitor): Unit = visitor match {
+    case scalaVisitor: ScalaElementVisitor => accept(scalaVisitor)
+    case _ => super.accept(visitor)
   }
 
   override def toString: String = "ScFunctionDeclaration: " + ifReadAllowed(name)("")

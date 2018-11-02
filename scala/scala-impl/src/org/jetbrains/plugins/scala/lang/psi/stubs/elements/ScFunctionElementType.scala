@@ -4,11 +4,12 @@ package psi
 package stubs
 package elements
 
-import com.intellij.lang.Language
+import com.intellij.lang.{ASTNode, Language}
 import com.intellij.psi.PsiElement
 import com.intellij.psi.stubs.{IndexSink, StubElement, StubInputStream, StubOutputStream}
 import com.intellij.util.io.StringRef
 import org.jetbrains.plugins.scala.lang.psi.api.statements.{ScFunction, ScFunctionDeclaration, ScFunctionDefinition}
+import org.jetbrains.plugins.scala.lang.psi.impl.statements.{ScFunctionDeclarationImpl, ScFunctionDefinitionImpl, ScMacroDefinitionImpl}
 import org.jetbrains.plugins.scala.lang.psi.stubs.impl.ScFunctionStubImpl
 
 /**
@@ -84,4 +85,25 @@ abstract class ScFunctionElementType(debugName: String,
     sink.occurrences(index.ScalaIndexKeys.METHOD_NAME_KEY, stub.getName)
     if (stub.isImplicit) sink.implicitOccurence()
   }
+}
+
+object FunctionDeclaration extends ScFunctionElementType("function declaration") {
+
+  override def createElement(node: ASTNode) = new ScFunctionDeclarationImpl(null, this, node)
+
+  override def createPsi(stub: ScFunctionStub) = new ScFunctionDeclarationImpl(stub, this, null)
+}
+
+object FunctionDefinition extends ScFunctionElementType("function definition") {
+
+  override def createElement(node: ASTNode) = new ScFunctionDefinitionImpl(null, this, node)
+
+  override def createPsi(stub: ScFunctionStub) = new ScFunctionDefinitionImpl(stub, this, null)
+}
+
+object MacroDefinition extends ScFunctionElementType("macro definition") {
+
+  override def createElement(node: ASTNode) = new ScMacroDefinitionImpl(null, this, node)
+
+  override def createPsi(stub: ScFunctionStub) = new ScMacroDefinitionImpl(stub, this, null)
 }
