@@ -1,8 +1,7 @@
 <idea-plugin>
-    <resource-bundle xmlns="">com.triplequote.plugins.hydra.HydraBundle</resource-bundle>
 
     <extensions defaultExtensionNs="org.intellij.scala">
-        <compileServerJvmParametersProvider implementation="org.jetbrains.plugins.hydra.compiler.HydraCompileServerVmOptionsProvider"/>
+        <compileServerVmOptionsProvider implementation="org.jetbrains.plugins.hydra.compiler.HydraCompileServerVmOptionsProvider"/>
     </extensions>
 
     <extensions defaultExtensionNs="com.intellij">
