@@ -14,10 +14,11 @@ import scala.collection.mutable
  * Date: 15.04.15.
  */
 object ScalaXmlTokenTypes {
+
   private val allTypes = mutable.HashMap.empty[String, IElementType]
   
   protected def create(name: String) = {
-    val tp = new ScalaElementType(name)
+    val tp = new ScalaTokenType(name)
     allTypes.put(name, tp)
     tp
   }
