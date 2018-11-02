@@ -2,6 +2,7 @@ package org.jetbrains.plugins.scala
 package lang
 package parser
 
+import com.intellij.extapi.psi.ASTWrapperPsiElement
 import com.intellij.lang.{ASTNode, ParserDefinition}
 import com.intellij.openapi.project.Project
 import com.intellij.psi.stubs.PsiFileStub
@@ -23,8 +24,11 @@ final class ScalaParserDefinition extends ParserDefinition {
   override def getFileNodeType: IStubFileElementType[_ <: PsiFileStub[_ <: PsiFile]] =
     ScalaElementTypes.FILE
 
-  override def createElement(node: ASTNode): PsiElement =
-    ScalaPsiCreator.createElement(node)
+  override def createElement(node: ASTNode): PsiElement = node.getElementType match {
+    case creator: SelfPsiCreator => creator.createElement(node)
+    case elementType: scaladoc.lexer.ScalaDocElementType => scaladoc.psi.ScalaDocPsiCreator.createElement(node, elementType)
+    case _ => new ASTWrapperPsiElement(node)
+  }
 
   override def createFile(fileViewProvider: FileViewProvider): PsiFile =
     ScalaFileFactory.EP_NAME.getExtensions.view
