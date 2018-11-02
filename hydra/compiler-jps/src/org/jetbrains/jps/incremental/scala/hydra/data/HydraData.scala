@@ -1,19 +1,16 @@
-package org.jetbrains.jps.incremental.scala.data
+package org.jetbrains.jps.incremental.scala.hydra.data
 
 import java.io.File
 
-import org.jetbrains.jps.incremental.scala.SettingsManager
+import org.jetbrains.jps.incremental.scala.hydra.HydraSettingsManager
 import org.jetbrains.jps.model.JpsProject
 
 import scala.collection.JavaConverters._
 
-/**
-  * @author Maris Alexandru
-  */
 class HydraData(project: JpsProject, files: List[File], scalaVersion: String) {
   private val HydraCompilerRegex = s".*scala-compiler-$scalaVersion-hydra\\d+\\.jar".r
   private val HydraReflectRegex = s".*scala-reflect-$scalaVersion-hydra\\d+\\.jar".r
-  private val HydraBridgeRegex = s".*${HydraData.HydraBridgeName}-${SettingsManager.getHydraSettings(project).getHydraVersion}-sources.jar".r
+  private val HydraBridgeRegex = s".*${HydraData.HydraBridgeName}-${HydraSettingsManager.getHydraSettings(project).getHydraVersion}-sources.jar".r
 
   def getCompilerJar: Option[File] = files.find(file => HydraCompilerRegex.findFirstIn(file.getName).nonEmpty)
 
@@ -29,8 +26,12 @@ object HydraData {
   val HydraBridgeNameRegex = s".*${HydraData.HydraBridgeName}-(\\d+\\.\\d+\\.\\d+)-sources.jar".r
 
   def apply(project: JpsProject, scalaVersion: String): HydraData = {
-    val hydraProjectSettings = SettingsManager.getHydraSettings(project)
-    val files = SettingsManager.getGlobalHydraSettings(project.getModel.getGlobal).getArtifactsFor(scalaVersion,hydraProjectSettings.getHydraVersion).asScala.map(new File(_)).toList
+    val hydraProjectSettings = HydraSettingsManager.getHydraSettings(project)
+    val files = {
+      val hydraSettings = HydraSettingsManager.getGlobalHydraSettings(project.getModel.getGlobal)
+      val hydraJars = hydraSettings.getArtifactsFor(scalaVersion,hydraProjectSettings.getHydraVersion).asScala
+      hydraJars.map(new File(_)).toList
+    }
 
     new HydraData(project, files, scalaVersion)
   }

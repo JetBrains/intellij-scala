@@ -31,7 +31,7 @@ lazy val scalaCommunity: sbt.Project =
       javaDecompilerIntegration)
     .settings(
       ideExcludedDirectories    := Seq(baseDirectory.value / "target"),
-      packageAdditionalProjects := Seq(compilerJps, repackagedZinc, decompiler, compilerShared, nailgunRunners, runners, sbtRuntimeDependencies),
+      packageAdditionalProjects := Seq(hydraCompilerJps, compilerJps, repackagedZinc, decompiler, compilerShared, nailgunRunners, runners, sbtRuntimeDependencies),
       packageLibraryMappings    := Dependencies.scalaLibrary -> Some("lib/scala-library.jar") :: Nil,
       definedTests in Test := { // all sub-project tests need to be run within main project's classpath
         definedTests.all(ScopeFilter(inDependencies(scalaCommunity, includeRoot = false), inConfigurations(Test))).value.flatten })
@@ -94,7 +94,7 @@ lazy val scalaImpl: sbt.Project =
     )
 
 lazy val hydraImpl: sbt.Project =
-  newProject("hydra-impl", file("hydra"))
+  newProject("hydra-impl", file("hydra/hydra-impl"))
     .dependsOn(scalaImpl)
     .enablePlugins(BuildInfoPlugin)
     .settings(
@@ -102,6 +102,12 @@ lazy val hydraImpl: sbt.Project =
       scalacOptions in Global ++= Seq("-target:jvm-1.8", "-deprecation"),
       packageMethod := PackagingMethod.MergeIntoOther(scalaCommunity)
     )
+
+lazy val hydraCompilerJps: sbt.Project =
+  newProject("hydra-compiler-jps", file("hydra/compiler-jps"))
+    .dependsOn(compilerJps)
+    .settings(
+      packageMethod           :=  PackagingMethod.Standalone("lib/jps/hydra-compiler-jps.jar", static = true))
 
 lazy val scalaFmtBin: sbt.Project =
   newProject("scalaFmtBin", file("scalaFmtBin"))

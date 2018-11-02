@@ -2,6 +2,7 @@ package org.jetbrains.jps.incremental.scala
 
 import _root_.java.io._
 import java.net.InetAddress
+import java.util.ServiceLoader
 
 import com.intellij.openapi.application.PathManager
 import com.intellij.openapi.diagnostic.{Logger => JpsLogger}
@@ -10,6 +11,8 @@ import org.jetbrains.jps.builders.java.JavaBuilderUtil
 import org.jetbrains.jps.incremental._
 import org.jetbrains.jps.incremental.messages.ProgressMessage
 import org.jetbrains.jps.incremental.scala.data.{CompilationData, CompilerData, SbtData}
+import org.jetbrains.jps.incremental.scala.data.DataFactoryService
+import org.jetbrains.jps.incremental.scala.data.DefaultDataFactoryService
 import org.jetbrains.jps.incremental.scala.local.LocalServer
 import org.jetbrains.jps.incremental.scala.model.{GlobalSettings, ProjectSettings}
 import org.jetbrains.jps.incremental.scala.remote.RemoteServer
@@ -35,8 +38,9 @@ object ScalaBuilder {
 
     for {
       sbtData <-  sbtData
-      compilerData <- CompilerData.from(context, chunk)
-      compilationData <- CompilationData.from(sources, allSources, context,  chunk)
+      dataFactory = dataFactoryOf(context)
+      compilerData <- dataFactory.getCompilerDataFactory.from(context, chunk)
+      compilationData <- dataFactory.getCompilationDataFactory.from(sources, allSources, context,  chunk)
     }
     yield {
       scalaLibraryWarning(modules, compilationData, client)
@@ -44,6 +48,15 @@ object ScalaBuilder {
       val server = getServer(context)
       server.compile(sbtData, compilerData, compilationData, client)
     }
+  }
+
+  private def dataFactoryOf(context: CompileContext): DataFactoryService = {
+    val df = ServiceLoader.load(classOf[DataFactoryService])
+    val registeredDataFactories = df.iterator().asScala.toList
+    Log.info(s"Registered factories of ${classOf[DataFactoryService].getName}: $registeredDataFactories")
+    val firstEnabledDataFactory = registeredDataFactories.find(_.isEnabled(context.getProjectDescriptor.getProject))
+    Log.info(s"First enabled factory (if any): $firstEnabledDataFactory")
+    firstEnabledDataFactory.getOrElse(DefaultDataFactoryService)
   }
 
   def hasBuildModules(chunk: ModuleChunk): Boolean = {

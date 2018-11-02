@@ -1,10 +1,11 @@
-package org.jetbrains.jps.incremental.scala;
+package org.jetbrains.jps.incremental.scala.hydra;
 
+import com.intellij.openapi.diagnostic.Logger;
 import com.intellij.util.xmlb.XmlSerializer;
 import org.jdom.Element;
 import org.jetbrains.annotations.NotNull;
-import org.jetbrains.jps.incremental.scala.model.GlobalHydraSettingsImpl;
-import org.jetbrains.jps.incremental.scala.model.HydraSettingsImpl;
+import org.jetbrains.jps.incremental.scala.hydra.model.GlobalHydraSettingsImpl;
+import org.jetbrains.jps.incremental.scala.hydra.model.HydraSettingsImpl;
 import org.jetbrains.jps.model.JpsGlobal;
 import org.jetbrains.jps.model.JpsProject;
 import org.jetbrains.jps.model.serialization.JpsGlobalExtensionSerializer;
@@ -14,10 +15,12 @@ import org.jetbrains.jps.model.serialization.JpsProjectExtensionSerializer;
 import java.util.Collections;
 import java.util.List;
 
-/**
- * @author Maris Alexandru
- */
 public class HydraSerializerService extends JpsModelSerializerExtension {
+  private static final Logger Log  = Logger.getInstance(HydraSerializerService.class.getName());
+
+  public HydraSerializerService() {
+    Log.info("Extension " + getClass().getName() + " was instantiated.");
+  }
 
   @NotNull
   @Override
@@ -40,7 +43,7 @@ public class HydraSerializerService extends JpsModelSerializerExtension {
     public void loadExtension(@NotNull JpsProject jpsProject, @NotNull Element componentTag) {
       HydraSettingsImpl.State state = XmlSerializer.deserialize(componentTag, HydraSettingsImpl.State.class);
       HydraSettingsImpl settings = new HydraSettingsImpl(state == null ? new HydraSettingsImpl.State() : state);
-      SettingsManager.setHydraSettings(jpsProject, settings);
+      HydraSettingsManager.setHydraSettings(jpsProject, settings);
     }
 
     @Override
@@ -56,7 +59,7 @@ public class HydraSerializerService extends JpsModelSerializerExtension {
     public void loadExtension(@NotNull JpsGlobal jpsGlobal, @NotNull Element componentTag) {
       GlobalHydraSettingsImpl.State state = XmlSerializer.deserialize(componentTag, GlobalHydraSettingsImpl.State.class);
       GlobalHydraSettingsImpl settings = new GlobalHydraSettingsImpl(state == null ? new GlobalHydraSettingsImpl.State() : state);
-      SettingsManager.setGlobalHydraSettings(jpsGlobal, settings);
+      HydraSettingsManager.setGlobalHydraSettings(jpsGlobal, settings);
     }
 
     @Override
