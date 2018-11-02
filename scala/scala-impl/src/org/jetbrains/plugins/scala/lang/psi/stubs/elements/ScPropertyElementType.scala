@@ -70,7 +70,7 @@ sealed abstract class ScPropertyElementType[P <: ScValueOrVariable](debugName: S
 object ValueDeclaration extends ScPropertyElementType[ScValueDeclaration]("value declaration") {
 
   override def createElement(node: ASTNode) =
-    new ScValueDeclarationImpl(null, this, node)
+    new ScValueDeclarationImpl(null, null, node)
 
   override def createPsi(stub: ScPropertyStub[ScValueDeclaration]) =
     new ScValueDeclarationImpl(stub, this, null)
@@ -82,7 +82,7 @@ object ValueDeclaration extends ScPropertyElementType[ScValueDeclaration]("value
 object ValueDefinition extends ScPropertyElementType[ScPatternDefinition]("value definition") {
 
   override def createElement(node: ASTNode) =
-    new ScPatternDefinitionImpl(null, this, node)
+    new ScPatternDefinitionImpl(null, null, node)
 
   override def createPsi(stub: ScPropertyStub[ScPatternDefinition]) =
     new ScPatternDefinitionImpl(stub, this, null)
@@ -97,7 +97,7 @@ object ValueDefinition extends ScPropertyElementType[ScPatternDefinition]("value
 object VariableDeclaration extends ScPropertyElementType[ScVariableDeclaration]("variable declaration") {
 
   override def createElement(node: ASTNode) =
-    new ScVariableDeclarationImpl(null, this, node)
+    new ScVariableDeclarationImpl(null, null, node)
 
   override def createPsi(stub: ScPropertyStub[ScVariableDeclaration]) =
     new ScVariableDeclarationImpl(stub, this, null)
@@ -109,7 +109,7 @@ object VariableDeclaration extends ScPropertyElementType[ScVariableDeclaration](
 object VariableDefinition extends ScPropertyElementType[ScVariableDefinition]("variable definition") {
 
   override def createElement(node: ASTNode) =
-    new ScVariableDefinitionImpl(null, this, node)
+    new ScVariableDefinitionImpl(null, null, node)
 
   override def createPsi(stub: ScPropertyStub[ScVariableDefinition]) =
     new ScVariableDefinitionImpl(stub, this, null)

@@ -89,21 +89,21 @@ abstract class ScFunctionElementType(debugName: String,
 
 object FunctionDeclaration extends ScFunctionElementType("function declaration") {
 
-  override def createElement(node: ASTNode) = new ScFunctionDeclarationImpl(null, this, node)
+  override def createElement(node: ASTNode) = new ScFunctionDeclarationImpl(null, null, node)
 
   override def createPsi(stub: ScFunctionStub) = new ScFunctionDeclarationImpl(stub, this, null)
 }
 
 object FunctionDefinition extends ScFunctionElementType("function definition") {
 
-  override def createElement(node: ASTNode) = new ScFunctionDefinitionImpl(null, this, node)
+  override def createElement(node: ASTNode) = new ScFunctionDefinitionImpl(null, null, node)
 
   override def createPsi(stub: ScFunctionStub) = new ScFunctionDefinitionImpl(stub, this, null)
 }
 
 object MacroDefinition extends ScFunctionElementType("macro definition") {
 
-  override def createElement(node: ASTNode) = new ScMacroDefinitionImpl(null, this, node)
+  override def createElement(node: ASTNode) = new ScMacroDefinitionImpl(null, null, node)
 
   override def createPsi(stub: ScFunctionStub) = new ScMacroDefinitionImpl(stub, this, null)
 }
