@@ -4,6 +4,7 @@ package psi
 package stubs
 package elements
 
+import com.intellij.lang.Language
 import com.intellij.psi.PsiElement
 import com.intellij.psi.stubs.{IndexSink, StubElement, StubInputStream, StubOutputStream}
 import com.intellij.util.io.StringRef
@@ -14,7 +15,9 @@ import org.jetbrains.plugins.scala.lang.psi.stubs.impl.ScFunctionStubImpl
   * User: Alexander Podkhalyuzin
   * Date: 14.10.2008
   */
-abstract class ScFunctionElementType(debugName: String) extends ScStubElementType[ScFunctionStub, ScFunction](debugName) {
+abstract class ScFunctionElementType(debugName: String,
+                                     language: Language = ScalaLanguage.INSTANCE)
+  extends ScStubElementType[ScFunctionStub, ScFunction](debugName, language) {
 
   override def serialize(stub: ScFunctionStub, dataStream: StubOutputStream): Unit = {
     dataStream.writeName(stub.getName)

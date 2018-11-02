@@ -4,7 +4,7 @@ package psi
 package stubs
 package elements
 
-import com.intellij.lang.ASTNode
+import com.intellij.lang.{ASTNode, Language}
 import com.intellij.psi.impl.java.stubs.index.JavaStubIndexKeys
 import com.intellij.psi.stubs.{IndexSink, StubElement, StubInputStream, StubOutputStream}
 import com.intellij.psi.util.PsiTreeUtil
@@ -22,8 +22,9 @@ import org.jetbrains.plugins.scala.lang.refactoring.util.ScalaNamesUtil
 /**
   * @author ilyas, alefas
   */
-abstract class ScTemplateDefinitionElementType[TypeDef <: ScTemplateDefinition](debugName: String)
-  extends ScStubElementType[ScTemplateDefinitionStub, ScTemplateDefinition](debugName) {
+abstract class ScTemplateDefinitionElementType[TypeDef <: ScTemplateDefinition](debugName: String,
+                                                                                language: Language = ScalaLanguage.INSTANCE)
+  extends ScStubElementType[ScTemplateDefinitionStub, ScTemplateDefinition](debugName, language) {
 
   override def serialize(stub: ScTemplateDefinitionStub, dataStream: StubOutputStream): Unit = {
     dataStream.writeName(stub.getName)

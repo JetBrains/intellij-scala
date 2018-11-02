@@ -12,7 +12,6 @@ import org.jetbrains.plugins.scala.decompiler.DecompilerUtil.decompile
 import org.jetbrains.plugins.scala.lang.parser.ScalaParserDefinition
 import org.jetbrains.plugins.scala.lang.psi.api.ScalaFile
 import org.jetbrains.plugins.scala.lang.psi.impl.ScalaPsiElementFactory.createScalaFileFromText
-import org.jetbrains.plugins.scala.lang.psi.stubs.elements.StubVersion
 import org.jetbrains.plugins.scala.project.{ProjectContext, ProjectExt}
 
 import scala.annotation.tailrec
@@ -89,8 +88,9 @@ object ScClsStubBuilder {
 
 }
 
-class ScClsStubBuilder extends ClsStubBuilder {
-  override def getStubVersion: Int = StubVersion.STUB_VERSION
+final class ScClsStubBuilder extends ClsStubBuilder {
+
+  override def getStubVersion: Int = DecompilerUtil.DECOMPILER_VERSION
 
   override def buildFileStub(content: FileContent): PsiFileStub[ScalaFile] =
     content.getFile match {

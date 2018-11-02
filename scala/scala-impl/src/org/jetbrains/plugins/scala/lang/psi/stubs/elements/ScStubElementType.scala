@@ -4,7 +4,7 @@ package psi
 package stubs
 package elements
 
-import com.intellij.lang.ASTNode
+import com.intellij.lang.{ASTNode, Language}
 import com.intellij.psi.PsiElement
 import com.intellij.psi.stubs._
 import org.jetbrains.plugins.scala.lang.parser.SelfPsiCreator
@@ -12,10 +12,10 @@ import org.jetbrains.plugins.scala.lang.parser.SelfPsiCreator
 /**
   * @author ilyas
   */
-abstract class ScStubElementType[S <: StubElement[T], T <: PsiElement](val debugName: String)
-  extends IStubElementType[S, T](debugName, ScalaLanguage.INSTANCE)
-    with SelfPsiCreator
-    with DefaultStubSerializer[S] {
+abstract class ScStubElementType[S <: StubElement[T], T <: PsiElement](debugName: String,
+                                                                       language: Language = ScalaLanguage.INSTANCE)
+  extends IStubElementType[S, T](debugName, language)
+    with SelfPsiCreator {
 
   override def createElement(node: ASTNode): T
 
@@ -27,7 +27,13 @@ abstract class ScStubElementType[S <: StubElement[T], T <: PsiElement](val debug
 
   protected def createStubImpl(psi: T, parentStub: StubElement[_ <: PsiElement]): S
 
-  override def isLeftBound = true
+  override final def getExternalId: String = getLanguage.getDisplayName.toLowerCase + "." + debugName
+
+  override def indexStub(stub: S, sink: IndexSink): Unit = {}
+
+  override def serialize(stub: S, dataStream: StubOutputStream): Unit = {}
+
+  override final def isLeftBound = true
 }
 
 object ScStubElementType {
