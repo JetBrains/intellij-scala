@@ -94,7 +94,7 @@ class ScalaTestConfigurationProducer extends {
     }
   }
 
-  def getLocationClassAndTest(location: Location[_ <: PsiElement]): (ScTypeDefinition, String) = {
+  def getLocationClassAndTestImpl(location: Location[_ <: PsiElement]): (ScTypeDefinition, String) = {
     val element = location.getPsiElement
     var clazz: ScTypeDefinition = PsiTreeUtil.getParentOfType(element, classOf[ScTypeDefinition], false)
     if (clazz == null) return (null, null)

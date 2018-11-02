@@ -2,13 +2,13 @@ package org.jetbrains.plugins.scala
 package testingSupport.test
 
 import javax.swing.ListCellRenderer
-
 import com.intellij.execution.Location
 import com.intellij.execution.actions.{ConfigurationContext, ConfigurationFromContext, RunConfigurationProducer}
 import com.intellij.execution.configurations.ConfigurationType
 import com.intellij.execution.junit.InheritorChooser
 import com.intellij.ide.util.PsiClassListCellRenderer
 import com.intellij.openapi.actionSystem.PlatformDataKeys
+import com.intellij.openapi.application.ApplicationManager
 import com.intellij.openapi.fileEditor.TextEditor
 import com.intellij.openapi.module.Module
 import com.intellij.openapi.ui.popup.JBPopupFactory
@@ -19,6 +19,8 @@ import com.intellij.psi.search.searches.ClassInheritorsSearch
 import com.intellij.ui.components.JBList
 import org.jetbrains.plugins.scala.lang.psi.ScalaPsiUtil
 import org.jetbrains.plugins.scala.lang.psi.api.toplevel.typedef.ScTypeDefinition
+import org.jetbrains.plugins.scala.util.UIFreezingGuard
+
 import scala.collection.JavaConverters._
 
 /**
@@ -33,7 +35,15 @@ abstract class TestConfigurationProducer(configurationType: ConfigurationType) e
         ScalaPsiUtil.isInheritorDeep(clazz, _)
       }
 
-  def getLocationClassAndTest(location: Location[_ <: PsiElement]): (ScTypeDefinition, String)
+  final def getLocationClassAndTest(location: Location[_ <: PsiElement]): (ScTypeDefinition, String) = {
+    val timeoutMs =
+      if (ApplicationManager.getApplication.isDispatchThread) UIFreezingGuard.resolveTimeoutMs else -1
+
+    UIFreezingGuard.withTimeout(timeoutMs, getLocationClassAndTestImpl(location), (null, null))
+  }
+
+
+  protected def getLocationClassAndTestImpl(location: Location[_ <: PsiElement]): (ScTypeDefinition, String)
 
   override def setupConfigurationFromContext(configuration: AbstractTestRunConfiguration, context: ConfigurationContext,
                                              sourceElement: Ref[PsiElement]): Boolean = {

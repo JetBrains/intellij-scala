@@ -130,7 +130,7 @@ class UTestConfigurationProducer extends {
     expr.firstChild.flatMap(TestConfigurationUtil.getStaticTestName(_, allowSymbolLiterals = true)).
       flatMap(buildTestPath(expr, _))
 
-  override def getLocationClassAndTest(location: Location[_ <: PsiElement]): (ScTypeDefinition, String) = {
+  override def getLocationClassAndTestImpl(location: Location[_ <: PsiElement]): (ScTypeDefinition, String) = {
     val element = location.getPsiElement
     val fail = (null, null)
     //first, check that containing type definition is a uTest suite

@@ -116,7 +116,7 @@ class Specs2ConfigurationProducer extends {
       flatMap(TestConfigurationUtil.getStaticTestName(_))
   }
 
-  def getLocationClassAndTest(location: Location[_ <: PsiElement]): (ScTypeDefinition, String) = {
+  def getLocationClassAndTestImpl(location: Location[_ <: PsiElement]): (ScTypeDefinition, String) = {
     val element = location.getPsiElement
     val testClassDef: ScTypeDefinition = PsiTreeUtil.getParentOfType(element, classOf[ScTypeDefinition], false)
     if (testClassDef == null) return (null, null)
