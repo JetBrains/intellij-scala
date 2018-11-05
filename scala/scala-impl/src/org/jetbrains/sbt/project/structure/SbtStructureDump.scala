@@ -75,6 +75,7 @@ class SbtStructureDump {
     val viewManager = Option(taskId.findProject()).map(ServiceManager.getService(_, classOf[SyncViewManager]))
 
     val setCommands = Seq(
+      """historyPath := None""",
       s"""shellPrompt := { _ => "" }""",
       s"""SettingKey[_root_.scala.Option[_root_.sbt.File]]("sbtStructureOutputFile") in _root_.sbt.Global := _root_.scala.Some(_root_.sbt.file("$structureFilePath"))""",
       s"""SettingKey[_root_.java.lang.String]("sbtStructureOptions") in _root_.sbt.Global := "$optString""""

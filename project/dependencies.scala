@@ -8,7 +8,7 @@ object Versions {
   val zincVersion = "1.1.1"
   val ideaVersion = "183.3795.13"
   val sbtStructureVersion: String = "2018.2.1+4-88400d3f"
-  val sbtIdeaShellVersion: String = "2017.2"
+  val sbtIdeaShellVersion: String = "2018.3"
   val aetherVersion = "1.0.0.v20140518"
   val sisuInjectVersion = "2.2.3"
   val wagonVersion = "2.6"
