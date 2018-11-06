@@ -106,9 +106,8 @@ private[findUsages] class ScalaCompilerReferenceService(
     indexerScheduler.schedule(InvalidateIndex(index))
     indexerScheduler.schedule("Index invalidation callback", () => {
       logger.warn(s"Compiler indices were corrupted and invalidated.")
-      activeIndexingPhases.set(1)
+      activeIndexingPhases.set(0)
       failedToParse.clear()
-      openReader()
     })
   }
 
