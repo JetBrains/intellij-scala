@@ -20,14 +20,10 @@ import org.jetbrains.plugins.scala.util.UIFreezingGuard
 abstract class ScReferenceElementImpl(node: ASTNode) extends ScalaPsiElementImpl(node) with ScReferenceElement {
 
   def resolve(): PsiElement = {
-    val timeoutMs =
-      if (ApplicationManager.getApplication.isDispatchThread) UIFreezingGuard.resolveTimeoutMs else -1
-
-    val result =
-      if (timeoutMs < 0) bind()
-      else UIFreezingGuard.withTimeout(timeoutMs, bind(), None)
-
-    result.map(_.element).orNull
+    bind() match {
+      case Some(result) => result.element
+      case _ => null
+    }
   }
 
   def doResolve(processor: BaseProcessor, accessibilityCheck: Boolean = true): Array[ScalaResolveResult]
@@ -43,10 +39,16 @@ abstract class ScReferenceElementImpl(node: ASTNode) extends ScalaPsiElementImpl
     result.getLookupElement(isInImport = PsiTreeUtil.getContextOfType(this, classOf[ScImportStmt]) != null)
   }
 
-  @inline
-  def bind(): Option[ScalaResolveResult] = {
+  final def bind(): Option[ScalaResolveResult] = {
     ProgressManager.checkCanceled()
-    multiResolveScala(false) match {
+    val timeoutMs =
+      if (ApplicationManager.getApplication.isDispatchThread) UIFreezingGuard.resolveTimeoutMs else -1
+
+    val result =
+      if (timeoutMs < 0) multiResolveScala(false)
+      else UIFreezingGuard.withTimeout(timeoutMs, multiResolveScala(false), ScalaResolveResult.EMPTY_ARRAY)
+
+    result match {
       case Array(r) => Some(r)
       case _ => None
     }
