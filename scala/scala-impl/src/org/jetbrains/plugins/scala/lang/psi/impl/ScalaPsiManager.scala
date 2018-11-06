@@ -15,7 +15,7 @@ import com.intellij.openapi.roots.{ModuleRootEvent, ModuleRootListener, ProjectR
 import com.intellij.openapi.util._
 import com.intellij.openapi.vfs.VirtualFile
 import com.intellij.psi._
-import com.intellij.psi.impl.{JavaPsiFacadeImpl, PsiTreeChangeEventImpl}
+import com.intellij.psi.impl.{JavaPsiFacadeImpl, PsiModificationTrackerImpl, PsiTreeChangeEventImpl}
 import com.intellij.psi.search.{DelegatingGlobalSearchScope, GlobalSearchScope, PsiShortNamesCache}
 import com.intellij.util.containers.ContainerUtil
 import com.intellij.util.{ArrayUtil, ObjectUtils}
@@ -317,8 +317,16 @@ class ScalaPsiManager(val project: Project) {
   private val NonScalaModificationTracker = new SimpleModificationTracker
 
   val TopLevelModificationTracker: SimpleModificationTracker = new SimpleModificationTracker {
+    private val psiModTracker =
+      PsiManager.getInstance(projectContext).getModificationTracker.asInstanceOf[PsiModificationTrackerImpl]
+
     override def getModificationCount: Long =
       super.getModificationCount + NonScalaModificationTracker.getModificationCount
+
+    override def incModificationCount(): Unit = {
+      psiModTracker.incCounter() //update javaStructureModCount on top-level scala change
+      super.incModificationCount()
+    }
   }
 
   val rootManager: ModificationTracker = ProjectRootManager.getInstance(project)

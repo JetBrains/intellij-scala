@@ -39,7 +39,7 @@ abstract class TestConfigurationProducer(configurationType: ConfigurationType) e
     val timeoutMs =
       if (ApplicationManager.getApplication.isDispatchThread) UIFreezingGuard.resolveTimeoutMs else -1
 
-    UIFreezingGuard.withTimeout(timeoutMs, getLocationClassAndTestImpl(location), (null, null))
+    UIFreezingGuard.withTimeout(timeoutMs, getLocationClassAndTestImpl(location), (null, null))(location.getProject)
   }
 
 

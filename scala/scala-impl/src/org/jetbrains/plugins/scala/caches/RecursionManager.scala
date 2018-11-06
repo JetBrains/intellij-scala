@@ -36,8 +36,13 @@ object RecursionManager {
     private val platformStamp = platformGuard.markStack()
 
     override def mayCacheNow: Boolean = {
-      stamp == ourStack.get.getReentrancyCount && platformStamp.mayCacheNow()
+      stamp == ourStack.get.getReentrancyCount && !ourStack.get.isDirty && platformStamp.mayCacheNow()
     }
+  }
+
+  //invalidates all current StackStamps
+  def prohibitCaching(): Unit = {
+    ourStack.get.prohibitCaching()
   }
 
   class RecursionGuard[Data >: Null <: AnyRef, Result >: Null <: AnyRef] private (id: String) {
@@ -115,6 +120,8 @@ object RecursionManager {
     private[this] var enters: Int = 0
     private[this] var exits: Int = 0
 
+    private[this] var _isDirty: Boolean = false
+
     private[RecursionManager] val progressMap = new util.LinkedHashMap[MyKey[_], Integer]
 
     private[RecursionManager] def checkReentrancy(realKey: MyKey[_]): Boolean = {
@@ -127,6 +134,14 @@ object RecursionManager {
     }
 
     private[RecursionManager] def getReentrancyCount: Int = reentrancyCount
+
+    private[RecursionManager] def isDirty: Boolean = _isDirty
+
+    private[RecursionManager] def prohibitCaching(): Unit = {
+      if (depth > 0) {
+        _isDirty = true
+      }
+    }
 
     private[RecursionManager] def beforeComputation(realKey: MyKey[_]) {
       enters += 1
@@ -156,6 +171,9 @@ object RecursionManager {
       depth -= 1
       if (sizeBefore != progressMap.size) {
         LOG.error("Map size doesn't decrease: " + progressMap.size + " " + sizeBefore + " " + realKey.userObject)
+      }
+      if (depth == 0) {
+        _isDirty = false
       }
       reentrancyCount = reentrancyCountBefore
       checkZero

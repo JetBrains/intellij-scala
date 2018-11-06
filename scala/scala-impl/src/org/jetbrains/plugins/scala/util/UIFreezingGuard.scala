@@ -2,9 +2,10 @@ package org.jetbrains.plugins.scala.util
 
 import java.awt.Event
 import java.awt.event.MouseEvent
-import java.util.concurrent.TimeUnit
 import java.util.concurrent.atomic.AtomicLong
+import java.util.concurrent.{ScheduledFuture, TimeUnit}
 
+import com.intellij.codeInsight.daemon.DaemonCodeAnalyzer
 import com.intellij.concurrency.JobScheduler
 import com.intellij.diagnostic.PerformanceWatcher
 import com.intellij.ide.{ApplicationInitializedListener, IdeEventQueue}
@@ -12,7 +13,11 @@ import com.intellij.openapi.application.{ApplicationManager, ModalityState, Tran
 import com.intellij.openapi.progress._
 import com.intellij.openapi.progress.util.AbstractProgressIndicatorBase
 import com.intellij.openapi.util.registry.Registry
+import com.intellij.psi.PsiManager
+import com.intellij.psi.impl.PsiModificationTrackerImpl
+import org.jetbrains.plugins.scala.caches.RecursionManager
 import org.jetbrains.plugins.scala.extensions._
+import org.jetbrains.plugins.scala.project.ProjectContext
 import org.jetbrains.plugins.scala.util.UIFreezingGuard._
 
 import scala.util.control.NoStackTrace
@@ -94,22 +99,49 @@ object UIFreezingGuard {
   def isUnderTimeout: Boolean = isEdt && timeoutCount > 0
 
   //Use with care! Can cause bugs if result is cached upper in the stack.
-  def withTimeout[T](timeoutMs: Long, computation: => T, default: => T): T = {
+  def withTimeout[T](timeoutMs: Long, computation: => T, default: => T)(implicit projectContext: ProjectContext): T = {
     val application = ApplicationManager.getApplication
-    if (!pceEnabled || !isEdt || application.isUnitTestMode) return computation
+    if (!pceEnabled || !isEdt || application.isUnitTestMode || timeoutMs < 0) return computation
 
     try {
       timeoutCount += 1
       ProgressManager.getInstance().runProcess(computation, new TimeoutProgressIndicator(timeoutMs))
     } catch {
-      case _: TimeoutException => default
+      case _: TimeoutException =>
+
+        RecursionManager.prohibitCaching()
+
+        scheduleRehighlighting(1000L, TimeUnit.MILLISECONDS)
+
+        default
     } finally {
       timeoutCount -= 1
     }
   }
 
-  //throws TimeoutException!
-  def withTimeout[T](timeoutMs: Long)(computation: => T): T = withTimeout(timeoutMs, computation, throw new TimeoutException)
+
+  private var modCountIncrementFuture: ScheduledFuture[Unit] = null
+
+  private def scheduleRehighlighting(delay: Long, timeUnit: TimeUnit)(implicit projectContext: ProjectContext): Unit = {
+    def doIncrementCounter(): Unit = {
+      //we don't use PsiModificationTracker anymore, but java support still rely on it
+      //for example, TestFrameworks.detectApplicableFrameworks
+      //let's increment it on timeout to invalidate wrong cached values
+      val psiModTracker = PsiManager.getInstance(projectContext).getModificationTracker
+      psiModTracker match {
+        case modTracker: PsiModificationTrackerImpl => modTracker.incCounter()
+        case _ =>
+      }
+
+      DaemonCodeAnalyzer.getInstance(projectContext).restart()
+    }
+
+    if (modCountIncrementFuture == null || modCountIncrementFuture.isDone) {
+      modCountIncrementFuture =
+        JobScheduler.getScheduler.schedule(() => invokeLater(doIncrementCounter()),
+          delay, timeUnit)
+    }
+  }
 
   def resolveTimeoutMs: Int =
     if (isEdt && !isUnderTimeout) Registry.intValue(edtResolveTimeoutKey) else -1
@@ -142,12 +174,10 @@ object UIFreezingGuard {
   private class TimeoutProgressIndicator(timeoutMs: Long, startTime: Long = System.currentTimeMillis())
     extends AbstractProgressIndicatorBase {
 
-    private var timeBeforeCancel = -1L
-
     override def isCanceled: Boolean = {
-      timeBeforeCancel = System.currentTimeMillis() - startTime
+      val timeSinceStart = System.currentTimeMillis() - startTime
 
-      timeBeforeCancel > timeoutMs || super.isCanceled
+      timeSinceStart > timeoutMs || super.isCanceled
     }
 
     override def checkCanceled(): Unit = if (isCanceled && isCancelable && canInterrupt)
