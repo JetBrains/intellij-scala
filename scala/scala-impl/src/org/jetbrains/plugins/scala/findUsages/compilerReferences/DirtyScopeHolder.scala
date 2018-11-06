@@ -35,8 +35,7 @@ abstract class DirtyScopeHolder[Scope](
   fileIndex:      ProjectFileIndex,
   fileDocManager: FileDocumentManager,
   psiDocManager:  PsiDocumentManager
-) extends UserDataHolderBase
-    with BulkFileListener {
+) extends UserDataHolderBase with BulkFileListener {
 
   protected val lock: Lock                                       = new ReentrantLock()
   protected val fileTypeRegistry: FileTypeRegistry               = FileTypeRegistry.getInstance()
@@ -45,13 +44,13 @@ abstract class DirtyScopeHolder[Scope](
   protected val compilationAffectedScopes: util.Set[Scope]       = ContainerUtil.newConcurrentSet[Scope]()
   protected var indexingPhases: Int                              = 0
 
-  protected def scopeForSourceContentFile(vfile: VirtualFile): Option[Scope]
+  protected def scopeForSourceContentFile(vfile: VirtualFile): collection.Set[Scope]
   protected def moduleScopes(m: Module): Set[Scope]
   protected def scopeToSearchScope(scope: Scope): GlobalSearchScope
 
   private[compilerReferences] def markScopeUpToDate(scope: Scope): Unit = compilationAffectedScopes.add(scope)
 
-  private[compilerReferences] def markProjectAsOutdated(): Unit = project.sourceModules.foreach(markModuleAsDirty)
+  private[compilerReferences] def markProjectAsOutdated(): Unit = lock.locked(project.sourceModules.foreach(markModuleAsDirty))
 
   private[compilerReferences] def reset(): Unit = lock.locked {
     markProjectAsOutdated()
@@ -84,23 +83,25 @@ abstract class DirtyScopeHolder[Scope](
   }
 
   private[this] def onFileChange(@Nullable vfile: VirtualFile): Unit =
-    for {
-      file  <- vfile.toOption
-      scope <- scopeForSourceContentFile(file)
-    } addToDirtyScopes(scope)
+    vfile.toOption.foreach(f => addToDirtyScopes(scopeForSourceContentFile(f)))
 
-  protected def markModuleAsDirty(m: Module): Unit = lock.locked(moduleScopes(m).foreach(addToDirtyScopes))
+  protected def markModuleAsDirty(m: Module): Unit = lock.locked(addToDirtyScopes(moduleScopes(m)))
 
-  protected def addToDirtyScopes(scope: Scope): Unit = lock.locked(
-    if (indexingPhases != 0) modifiedDuringIndexing.merge(scope, indexingPhases, Math.max(_, _))
-    else                     vfsChangedScopes.add(scope)
-  )
+  protected def addToDirtyScopes(scopes: collection.Set[Scope]): Unit = lock.locked {
+    if (indexingPhases != 0) {
+      scopes.foreach(scope =>
+        modifiedDuringIndexing.merge(scope, indexingPhases, Math.max(_, _))
+      )
+    }
+    else vfsChangedScopes.addAll(scopes.asJava)
+  }
 
   private[compilerReferences] def indexingStarted(): Unit = lock.locked(indexingPhases += 1)
 
   private[compilerReferences] def indexingFinished(): Unit = lock.locked {
     indexingPhases -= 1
     vfsChangedScopes.removeAll(compilationAffectedScopes)
+    compilationAffectedScopes.clear()
 
     val iter = modifiedDuringIndexing.entrySet().iterator()
     while (iter.hasNext) {
@@ -108,7 +109,7 @@ abstract class DirtyScopeHolder[Scope](
       entry.setValue(entry.getValue - indexingPhases)
 
       if (entry.getValue == 0) iter.remove()
-      else                     addToDirtyScopes(entry.getKey)
+      else                     addToDirtyScopes(Set(entry.getKey))
     }
   }
 

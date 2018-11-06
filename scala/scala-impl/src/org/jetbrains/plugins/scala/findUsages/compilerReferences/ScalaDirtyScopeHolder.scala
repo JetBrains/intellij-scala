@@ -2,7 +2,7 @@ package org.jetbrains.plugins.scala.findUsages.compilerReferences
 
 import com.intellij.openapi.fileEditor.FileDocumentManager
 import com.intellij.openapi.fileTypes.FileType
-import com.intellij.openapi.module.Module
+import com.intellij.openapi.module.{Module, ModuleUtilCore}
 import com.intellij.openapi.project.Project
 import com.intellij.openapi.roots.ProjectFileIndex
 import com.intellij.openapi.vfs.VirtualFile
@@ -12,6 +12,8 @@ import org.jetbrains.plugins.scala.indices.protocol.sbt.{Configuration, SbtCompi
 import org.jetbrains.plugins.scala.extensions._
 import org.jetbrains.plugins.scala.indices.protocol.CompilationInfo
 import org.jetbrains.plugins.scala.indices.protocol.jps.JpsCompilationInfo
+
+import scala.collection.mutable
 
 private[findUsages] class ScalaDirtyScopeHolder(
   project:        Project,
@@ -28,19 +30,27 @@ private[findUsages] class ScalaDirtyScopeHolder(
     ) {
   import ScalaDirtyScopeHolder._
 
-  override protected def scopeForSourceContentFile(vfile: VirtualFile): Option[ScopedModule] = {
+  override protected def scopeForSourceContentFile(vfile: VirtualFile): collection.Set[ScopedModule] = {
     val ftype = fileTypeRegistry.getFileTypeByFileName(vfile.getNameSequence)
 
     inReadAction {
       if (fileTypes.contains(ftype) && fileIndex.isInSourceContent(vfile)) {
         val module = fileIndex.getModuleForFile(vfile).toOption
 
-        module.map(
-          m =>
+        val scopeBuilder = mutable.HashSet.newBuilder[ScopedModule]
+
+        module.foreach { m =>
+          val scoped =
             if (fileIndex.isInTestSourceContent(vfile)) ScopedModule.test(m)
-            else ScopedModule.compile(m)
-        )
-      } else None
+            else                                        ScopedModule.compile(m)
+          scopeBuilder += scoped
+
+          val dependents = ModuleUtilCore.getAllDependentModules(m)
+          dependents.forEach(d => scopeBuilder ++= moduleScopes(d))
+        }
+
+        scopeBuilder.result()
+      } else Set.empty
     }
   }
 
