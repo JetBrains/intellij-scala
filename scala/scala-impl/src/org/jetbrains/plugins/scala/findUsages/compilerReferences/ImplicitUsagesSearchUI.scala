@@ -1,7 +1,6 @@
 package org.jetbrains.plugins.scala.findUsages.compilerReferences
 
 import java.awt.event.ActionEvent
-import java.awt.{BorderLayout, GridBagConstraints, GridBagLayout}
 import java.text.MessageFormat
 
 import com.intellij.icons.AllIcons
@@ -12,14 +11,13 @@ import com.intellij.openapi.options.ShowSettingsUtil
 import com.intellij.openapi.project.Project
 import com.intellij.openapi.ui.DialogWrapper
 import com.intellij.psi.PsiNamedElement
-import com.intellij.ui.components.labels.LinkLabel
 import com.intellij.ui._
-import com.intellij.util.ui.{FormBuilder, JBUI}
+import com.intellij.ui.components.labels.LinkLabel
+import com.intellij.util.ui._
 import javax.swing._
 import javax.swing.border.MatteBorder
 import org.jetbrains.plugins.scala.ScalaBundle
 import org.jetbrains.plugins.scala.extensions._
-import org.jetbrains.plugins.scala.findUsages.compilerReferences.ScalaDirtyScopeHolder.ScopedModule
 
 import scala.collection.JavaConverters._
 
@@ -75,7 +73,7 @@ private object ImplicitUsagesSearchUI {
   class ImplicitFindUsagesDialog(
     canBeParent:      Boolean,
     dirtyModules:     Set[Module],
-    upToDateModules:  Set[ScopedModule],
+    upToDateModules:  Set[Module],
     validIndexExists: Boolean,
     element:          PsiNamedElement
   ) extends DialogWrapper(element.getProject, canBeParent, DialogWrapper.IdeModalityType.PROJECT) {
@@ -88,11 +86,8 @@ private object ImplicitUsagesSearchUI {
           |<br>
           |You can:<br>
           |-&nbsp;<strong>Build</strong> some of the modules before proceeding, or<br>
-          |-&nbsp;Search for usages using current indices (results may be incomplete). Up-to-date scopes: <br>
-          | &nbsp;<code>{1}</code>
-          |<br>
-          |<br>
-          |Select modules to <strong>build</strong>:
+          |-&nbsp;Search for usages using current indices (results may be incomplete).<br>
+          |Up-to-date modules: <code>{1}</code>
           |</body>
           |</html>
           |""".stripMargin
@@ -123,19 +118,18 @@ private object ImplicitUsagesSearchUI {
     }
 
     private def createDescriptionLabel: JComponent = {
-      // @TODO: in case of context bound usages search element.name might not be a user-friendly identifier
-      val upToDateModulesText = if (upToDateModules.isEmpty) "&lt;empty&gt;" else upToDateModules.map(_.toString).mkString(", ")
-
+      val upToDateModulesText = if (upToDateModules.isEmpty) "&lt;empty&gt;" else upToDateModules.map(_.getName).mkString(", ")
+      // TODO: in case of context bound usages search element.name might not be a user-friendly identifier
       val message =
         if (validIndexExists) MessageFormat.format(buildDescription, element.name, upToDateModulesText)
-        else rebuildDescription
+        else                  rebuildDescription
 
       new JLabel(message)
     }
 
     private class DirtyModulesList() extends CheckBoxList[Module] {
       setSelectionMode(ListSelectionModel.MULTIPLE_INTERVAL_SELECTION)
-      setItems(dirtyModules.toList.asJava, _.toString)
+      setItems(dirtyModules.toList.asJava, _.getName)
       setItemsSelected(true)
       setBorder(JBUI.Borders.empty(3))
 
@@ -166,13 +160,13 @@ private object ImplicitUsagesSearchUI {
         .createDecorator(dirtyModulesList)
         .disableRemoveAction()
         .disableAddAction()
+        .setPanelBorder(new MatteBorder(0, 0, 1, 0, JBColor.border()))
         .addExtraAction(dirtyModulesList.selectAllButton)
         .addExtraAction(dirtyModulesList.unselectAllButton)
         .setToolbarPosition(ActionToolbarPosition.BOTTOM)
         .setToolbarBorder(JBUI.Borders.empty())
         .createPanel()
 
-      panel.setBorder(new MatteBorder(0, 0, 1, 0, JBColor.border()))
       panel.setMaximumSize(JBUI.size(-1, 300))
       panel
     }
@@ -180,18 +174,19 @@ private object ImplicitUsagesSearchUI {
     def moduleSelection: Set[Module] = dirtyModulesList.selectedModules
 
     override def createCenterPanel(): JComponent =
-      if (validIndexExists) {
-        val panel = new JPanel(new BorderLayout)
-        panel.add(createModulesList)
-        panel
-      } else null
+      if (validIndexExists)
+        FormBuilder
+          .createFormBuilder()
+          .addVerticalGap(5)
+          .addComponent(new JLabel("<html>Select modules to <strong>build</strong>:</html>"))
+          .addComponent(createModulesList)
+          .getPanel
+      else null
 
-    override def createNorthPanel(): JComponent = {
-      val gbConstraints = new GridBagConstraints
-      val panel         = new JPanel(new GridBagLayout)
-      gbConstraints.insets = JBUI.insets(4, 0, 10, 8)
-      panel.add(createDescriptionLabel, gbConstraints)
-      panel
-    }
+    override def createNorthPanel(): JComponent =
+      FormBuilder
+        .createFormBuilder()
+        .addComponent(createDescriptionLabel)
+        .getPanel
   }
 }

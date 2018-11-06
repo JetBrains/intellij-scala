@@ -19,7 +19,6 @@ import javax.swing._
 import org.jetbrains.plugins.scala.ScalaBundle
 import org.jetbrains.plugins.scala.extensions._
 import org.jetbrains.plugins.scala.findUsages.compilerReferences.ImplicitUsagesSearchUI.{EnableCompilerIndicesDialog, ImplicitFindUsagesDialog}
-import org.jetbrains.plugins.scala.findUsages.compilerReferences.ScalaDirtyScopeHolder.ScopedModule
 import org.jetbrains.plugins.scala.findUsages.factory.{ScalaFindUsagesHandler, ScalaFindUsagesHandlerFactory}
 import org.jetbrains.plugins.scala.util.ImplicitUtil._
 import org.jetbrains.sbt.shell.SbtShellCommunication
@@ -183,19 +182,14 @@ object ScalaImplicitMemberUsageSearcher {
     if (SwingUtilities.isEventDispatchThread) body
     else                                      invokeAndWait(body)
 
-  private[this] def dirtyModulesInDependencyChain(element: PsiElement): (Set[ScopedModule], Set[ScopedModule]) = {
+  private[this] def dirtyModulesInDependencyChain(element: PsiElement): (Set[Module], Set[Module]) = {
     val project          = element.getProject
     val file             = PsiTreeUtil.getContextOfType(element, classOf[PsiFile]).getVirtualFile
     val index            = ProjectFileIndex.getInstance(project)
     val modules          = index.getOrderEntriesForFile(file).asScala.map(_.getOwnerModule).toSet
     val dirtyScopeHolder = ScalaCompilerReferenceService(project).getDirtyScopeHolder
-    val dirtyScopes      = dirtyScopeHolder.dirtyScopes
-
-    val scopedModules = modules.flatMap(m =>
-      Seq(ScopedModule.test(m), ScopedModule.compile(m))
-    )
-
-    scopedModules.partition(dirtyScopes.contains)
+    val dirtyScopes      = dirtyScopeHolder.dirtyScope
+    modules.partition(dirtyScopes.isSearchInModuleContent)
   }
 
   private[this] def showIndexingInProgressDialog(project: Project): Unit = {
@@ -205,8 +199,8 @@ object ScalaImplicitMemberUsageSearcher {
 
   private[this] def showRebuildSuggestionDialog(
     project:          Project,
-    dirtyModules:     Set[ScopedModule],
-    upToDateModules:  Set[ScopedModule],
+    dirtyModules:     Set[Module],
+    upToDateModules:  Set[Module],
     validIndexExists: Boolean,
     element:          PsiNamedElement
   ): BeforeImplicitSearchAction = {
@@ -214,7 +208,7 @@ object ScalaImplicitMemberUsageSearcher {
 
     val dialog = new ImplicitFindUsagesDialog(
       false,
-      dirtyModules.map(_.module),
+      dirtyModules,
       upToDateModules,
       validIndexExists,
       element
