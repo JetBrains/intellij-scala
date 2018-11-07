@@ -23,9 +23,9 @@ import org.jetbrains.plugins.scala.macroAnnotations.{Cached, ModCount}
 /**
   * @author ilyas
   */
-abstract class ScFunctionImpl protected(stub: ScFunctionStub,
-                                        nodeType: ScFunctionElementType,
-                                        node: ASTNode)
+abstract class ScFunctionImpl[F <: ScFunction](stub: ScFunctionStub[F],
+                                               nodeType: ScFunctionElementType[F],
+                                               node: ASTNode)
   extends ScalaStubBasedElementImpl(stub, nodeType, node)
     with ScMember
     with ScFunction

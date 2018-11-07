@@ -35,7 +35,7 @@ import scala.collection.mutable
 * @author Alexander Podkhalyuzin
 * Date: 06.03.2008
 */
-final class ScNewTemplateDefinitionImpl private[psi](stub: ScTemplateDefinitionStub,
+final class ScNewTemplateDefinitionImpl private[psi](stub: ScTemplateDefinitionStub[ScNewTemplateDefinition],
                                                      nodeType: ScTemplateDefinitionElementType[ScNewTemplateDefinition],
                                                      node: ASTNode)
   extends ScalaStubBasedElementImpl(stub, nodeType, node)

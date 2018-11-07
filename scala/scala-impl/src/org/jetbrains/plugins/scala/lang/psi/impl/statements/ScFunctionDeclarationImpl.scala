@@ -17,8 +17,8 @@ import org.jetbrains.plugins.scala.lang.psi.types.result._
 /**
   * @author Alexander Podkhalyuzin
   */
-final class ScFunctionDeclarationImpl private[psi](stub: ScFunctionStub,
-                                                   nodeType: ScFunctionElementType,
+final class ScFunctionDeclarationImpl private[psi](stub: ScFunctionStub[ScFunctionDeclaration],
+                                                   nodeType: ScFunctionElementType[ScFunctionDeclaration],
                                                    node: ASTNode)
   extends ScFunctionImpl(stub, nodeType, node)
     with ScFunctionDeclaration {

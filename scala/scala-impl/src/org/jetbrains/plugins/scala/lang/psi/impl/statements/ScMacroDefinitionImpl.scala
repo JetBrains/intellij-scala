@@ -16,8 +16,8 @@ import org.jetbrains.plugins.scala.lang.psi.types.result._
 /**
   * @author Jason Zaugg
   */
-final class ScMacroDefinitionImpl private[psi](stub: ScFunctionStub,
-                                               nodeType: ScFunctionElementType,
+final class ScMacroDefinitionImpl private[psi](stub: ScFunctionStub[ScMacroDefinition],
+                                               nodeType: ScFunctionElementType[ScMacroDefinition],
                                                node: ASTNode)
   extends ScFunctionImpl(stub, nodeType, node)
     with ScMacroDefinition {

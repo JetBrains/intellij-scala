@@ -8,7 +8,7 @@ import com.intellij.lang.{ASTNode, Language}
 import com.intellij.psi.PsiElement
 import com.intellij.psi.stubs.{IndexSink, StubElement, StubInputStream, StubOutputStream}
 import com.intellij.util.io.StringRef
-import org.jetbrains.plugins.scala.lang.psi.api.statements.{ScFunction, ScFunctionDeclaration, ScFunctionDefinition}
+import org.jetbrains.plugins.scala.lang.psi.api.statements.{ScFunction, ScFunctionDeclaration, ScFunctionDefinition, ScMacroDefinition}
 import org.jetbrains.plugins.scala.lang.psi.impl.statements.{ScFunctionDeclarationImpl, ScFunctionDefinitionImpl, ScMacroDefinitionImpl}
 import org.jetbrains.plugins.scala.lang.psi.stubs.impl.ScFunctionStubImpl
 
@@ -16,11 +16,11 @@ import org.jetbrains.plugins.scala.lang.psi.stubs.impl.ScFunctionStubImpl
   * User: Alexander Podkhalyuzin
   * Date: 14.10.2008
   */
-abstract class ScFunctionElementType(debugName: String,
-                                     language: Language = ScalaLanguage.INSTANCE)
-  extends ScStubElementType[ScFunctionStub, ScFunction](debugName, language) {
+abstract class ScFunctionElementType[Fun <: ScFunction](debugName: String,
+                                                        language: Language = ScalaLanguage.INSTANCE)
+  extends ScStubElementType[ScFunctionStub[Fun], Fun](debugName, language) {
 
-  override def serialize(stub: ScFunctionStub, dataStream: StubOutputStream): Unit = {
+  override def serialize(stub: ScFunctionStub[Fun], dataStream: StubOutputStream): Unit = {
     dataStream.writeName(stub.getName)
     dataStream.writeBoolean(stub.isDeclaration)
     dataStream.writeNames(stub.annotations)
@@ -32,8 +32,8 @@ abstract class ScFunctionElementType(debugName: String,
   }
 
   override def deserialize(dataStream: StubInputStream,
-                           parentStub: StubElement[_ <: PsiElement]) = new ScFunctionStubImpl(
-    parentStub,
+                           parent: StubElement[_ <: PsiElement]) = new ScFunctionStubImpl(
+    parent,
     this,
     nameRef = dataStream.readName,
     isDeclaration = dataStream.readBoolean,
@@ -45,7 +45,8 @@ abstract class ScFunctionElementType(debugName: String,
     isLocal = dataStream.readBoolean
   )
 
-  override def createStubImpl(function: ScFunction, parentStub: StubElement[_ <: PsiElement]): ScFunctionStub = {
+  override def createStubImpl(function: Fun,
+                              parentStub: StubElement[_ <: PsiElement]): ScFunctionStub[Fun] = {
     val maybeFunction = Option(function)
     val returnTypeText = maybeFunction.flatMap {
       _.returnTypeElement
@@ -81,29 +82,29 @@ abstract class ScFunctionElementType(debugName: String,
       isLocal = function.containingClass == null)
   }
 
-  override def indexStub(stub: ScFunctionStub, sink: IndexSink): Unit = {
+  override def indexStub(stub: ScFunctionStub[Fun], sink: IndexSink): Unit = {
     sink.occurrences(index.ScalaIndexKeys.METHOD_NAME_KEY, stub.getName)
     if (stub.isImplicit) sink.implicitOccurence()
   }
 }
 
-object FunctionDeclaration extends ScFunctionElementType("function declaration") {
+object FunctionDeclaration extends ScFunctionElementType[ScFunctionDeclaration]("function declaration") {
 
-  override def createElement(node: ASTNode) = new ScFunctionDeclarationImpl(null, this, node)
+  override def createElement(node: ASTNode) = new ScFunctionDeclarationImpl(null, null, node)
 
-  override def createPsi(stub: ScFunctionStub) = new ScFunctionDeclarationImpl(stub, this, null)
+  override def createPsi(stub: ScFunctionStub[ScFunctionDeclaration]) = new ScFunctionDeclarationImpl(stub, this, null)
 }
 
-object FunctionDefinition extends ScFunctionElementType("function definition") {
+object FunctionDefinition extends ScFunctionElementType[ScFunctionDefinition]("function definition") {
 
-  override def createElement(node: ASTNode) = new ScFunctionDefinitionImpl(null, this, node)
+  override def createElement(node: ASTNode) = new ScFunctionDefinitionImpl(null, null, node)
 
-  override def createPsi(stub: ScFunctionStub) = new ScFunctionDefinitionImpl(stub, this, null)
+  override def createPsi(stub: ScFunctionStub[ScFunctionDefinition]) = new ScFunctionDefinitionImpl(stub, this, null)
 }
 
-object MacroDefinition extends ScFunctionElementType("macro definition") {
+object MacroDefinition extends ScFunctionElementType[ScMacroDefinition]("macro definition") {
 
-  override def createElement(node: ASTNode) = new ScMacroDefinitionImpl(null, this, node)
+  override def createElement(node: ASTNode) = new ScMacroDefinitionImpl(null, null, node)
 
-  override def createPsi(stub: ScFunctionStub) = new ScMacroDefinitionImpl(stub, this, null)
+  override def createPsi(stub: ScFunctionStub[ScMacroDefinition]) = new ScMacroDefinitionImpl(stub, this, null)
 }

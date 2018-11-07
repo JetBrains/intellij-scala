@@ -9,7 +9,10 @@ import org.jetbrains.plugins.scala.lang.psi.api.toplevel.typedef.ScTemplateDefin
 /**
  * @author ilyas
  */
-trait ScTemplateDefinitionStub extends PsiClassStub[ScTemplateDefinition] with ScMemberOrLocal {
+trait ScTemplateDefinitionStub[T <: ScTemplateDefinition]
+  extends PsiClassStub[T]
+    with ScMemberOrLocal {
+
   def javaQualifiedName: String
 
   def isPackageObject: Boolean

@@ -10,7 +10,6 @@ import com.intellij.psi.search.SearchScope
 import com.intellij.psi.stubs.{IStubElementType, StubElement}
 import com.intellij.psi.tree.{IElementType, TokenSet}
 import com.intellij.psi.{PsiElement, PsiElementVisitor, StubBasedPsiElement}
-import org.jetbrains.plugins.scala.lang.psi.ScalaStubBasedElementImpl.ifNotNull
 import org.jetbrains.plugins.scala.lang.psi.api.ScalaElementVisitor
 import org.jetbrains.plugins.scala.lang.psi.impl.ScalaPsiManager.AnyScalaPsiModificationTracker
 import org.jetbrains.plugins.scala.lang.psi.stubs.elements.ScStubElementType
@@ -95,8 +94,9 @@ abstract class ScalaPsiElementImpl(node: ASTNode) extends ASTWrapperPsiElement(n
 abstract class ScalaStubBasedElementImpl[T <: PsiElement, S <: StubElement[T]](stub: S,
                                                                                nodeType: ScStubElementType[S, T],
                                                                                node: ASTNode)
-        extends StubBasedPsiElementBase[S](stub, ifNotNull(stub, nodeType), node)
-          with StubBasedPsiElement[S] with ScalaPsiElement {
+  extends StubBasedPsiElementBase[S](stub, if (stub == null) null else nodeType, node)
+    with StubBasedPsiElement[S]
+    with ScalaPsiElement {
 
   override def getElementType: IStubElementType[_ <: StubElement[_ <: PsiElement], _ <: PsiElement] = {
     byStubOrPsi(_.getStubType) {
@@ -181,8 +181,4 @@ abstract class ScalaStubBasedElementImpl[T <: PsiElement, S <: StubElement[T]](s
 
   override def getUseScope: SearchScope =
     ScalaPsiUtil.intersectScopes(super.getUseScope, ScalaUseScope.mostNarrow(this))
-}
-
-object ScalaStubBasedElementImpl {
-  def ifNotNull[T >: Null](stub: AnyRef, node: T): T = if (stub == null) null else node
 }
