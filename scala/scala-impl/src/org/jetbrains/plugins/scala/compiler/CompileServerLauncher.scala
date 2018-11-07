@@ -186,7 +186,7 @@ object CompileServerLauncher {
     val utilJar = new File(PathUtil.getJarPathForClass(classOf[FileUtil]))
     val trove4jJar = new File(PathUtil.getJarPathForClass(classOf[TByteArrayList]))
 
-    val pluginRoot = pluginPath
+    val pluginRoot = libRoot.getCanonicalPath
     val jpsRoot = new File(pluginRoot, "jps")
 
     Seq(
@@ -204,9 +204,15 @@ object CompileServerLauncher {
     )
   }
 
-  def pluginPath: String = {
-    if (ApplicationManager.getApplication.isUnitTestMode) new File(System.getProperty("plugin.path"), "lib").getCanonicalPath
-    else new File(PathUtil.getJarPathForClass(getClass)).getParent
+  def libRoot: File = {
+    if (ApplicationManager.getApplication.isUnitTestMode) new File(System.getProperty("plugin.path"), "lib")
+    else {
+      val jarPath = new File(PathUtil.getJarPathForClass(getClass))
+
+      if (jarPath.getName == "classes") //development mode
+        new File(jarPath.getParentFile, "lib")
+      else jarPath.getParentFile
+    }
   }
 
   def bootClasspath(project: Project): Seq[File] = {

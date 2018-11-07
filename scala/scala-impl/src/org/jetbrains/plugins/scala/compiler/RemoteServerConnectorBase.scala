@@ -28,13 +28,7 @@ abstract class RemoteServerConnectorBase(protected val module: Module, filesToCo
     this(module, Seq(fileToCompile), outputDir)
   }
 
-  private val libRoot = {
-    if (ApplicationManager.getApplication.isUnitTestMode) {
-      val pluginPath = System.getProperty("plugin.path")
-      new File(pluginPath, "lib")
-    }
-    else new File(PathUtil.getJarPathForClass(getClass)).getParentFile
-  }
+  private val libRoot = CompileServerLauncher.libRoot
 
   private val libCanonicalPath = PathUtil.getCanonicalPath(libRoot.getPath)
 
