@@ -32,4 +32,24 @@ class ImplicitsTest extends TypeInferenceTestBase {
          |//Echo
       """.stripMargin)
   }
+
+  def testSCL14535(): Unit = {
+    doTest(
+      s"""
+         |object Repro {
+         |  object Builder {
+         |    class Step2[P, S]
+         |    class Step3[P, S, B] {
+         |      def run(): this.type = this
+         |    }
+         |    implicit def step2ToStep3[X, P, S](b: X)(implicit ev: X => Step2[P, S]): Step3[P, S, Unit] = new Step3[P, S, Unit]
+         |  }
+         |  val step2 = new Builder.Step2[String, Double]
+         |
+         |  ${START}step2.run()$END
+         |}
+         |//Repro.Builder.Step3[String, Double, Unit]
+       """.stripMargin
+    )
+  }
 }

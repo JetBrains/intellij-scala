@@ -317,12 +317,14 @@ private object ConstraintSystemImpl {
       var index = 0
       recursiveVarianceUpdate(rawUpper, variance)(
         {
-          index += 1
-          existentialArgument(index, _, _)
+          a =>
+            index += 1
+            existentialArgument(index, a.lower, a.upper)
           // TODO: why this is right?
         }, {
-          index += 1
-          existentialArgument(index, _, _)
+          ex =>
+            index += 1
+            existentialArgument(index, ex.lower, ex.upper)
         }
       )
   }
@@ -333,39 +335,50 @@ private object ConstraintSystemImpl {
       var index = 0
       recursiveVarianceUpdate(rawLower, variance, revertVariances = true)(
         {
-          case (lower, _) => lower
+          a => a.lower
           //          index += 1
           //          existentialArgument(index, Nil, _, _)
           // TODO: why this is right?
         }, {
-          index += 1
-          existentialArgument(index, _, _)
+          ex =>
+            index += 1
+            existentialArgument(index, ex.lower, ex.upper)
         }
       )
   }
 
   private[this] def recursiveVarianceUpdate(`type`: ScType, variance: Variance, revertVariances: Boolean = false)
-                                           (abstractCase: (ScType, ScType) => ScType,
-                                            existentialArgumentCase: (ScType, ScType) => ScType) =
+                                           (abstractCase: ScAbstractType => ScType,
+                                            existentialArgumentCase: ScExistentialArgument => ScType) =
     `type`.recursiveVarianceUpdate(
       {
-        case (ScAbstractType(_, lower, upper), newVariance) => replaceWith(newVariance, lower, upper)(abstractCase)
-        case (ScExistentialArgument(_, _, lower, upper), newVariance) => replaceWith(newVariance, lower, upper)(existentialArgumentCase)
-        case (_: ScExistentialType, _) => Stop
-        case _ => ProcessSubtypes
+        case (a: ScAbstractType, newVariance)         => replaceAbstractType(newVariance, a)(abstractCase)
+        case (ex: ScExistentialArgument, newVariance) => replaceExistentialArg(newVariance, ex)(existentialArgumentCase)
+        case (_: ScExistentialType, _)                => Stop
+        case _                                        => ProcessSubtypes
       },
       variance,
       revertVariances = revertVariances
     )
 
-  private[this] def replaceWith(variance: Variance, lower: ScType, upper: ScType)
-                               (invariantCase: (ScType, ScType) => ScType) = ReplaceWith {
+  private[this] def replaceAbstractType(variance: Variance, a: ScAbstractType)
+                                       (invariantCase: ScAbstractType => ScType) = ReplaceWith {
     variance match {
-      case Contravariant => lower
-      case Covariant => upper
-      case Invariant => invariantCase(lower, upper)
+      case Contravariant => a.lower
+      case Covariant => a.upper
+      case Invariant => invariantCase(a)
     }
   }
+
+  private[this] def replaceExistentialArg(variance: Variance, ex: ScExistentialArgument)
+                                         (invariantCase: ScExistentialArgument => ScType) = ReplaceWith {
+    variance match {
+      case Contravariant => ex.lower
+      case Covariant => ex.upper
+      case Invariant => invariantCase(ex)
+    }
+  }
+
 
   private[this] def existentialArgument(index: Int, lower: ScType, upper: ScType) =
     ScExistentialArgument(s"_$$$index", Nil, lower, upper)
