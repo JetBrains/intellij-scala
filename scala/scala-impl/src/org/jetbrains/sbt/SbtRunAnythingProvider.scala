@@ -5,11 +5,13 @@ import java.util
 import com.intellij.ide.actions.runAnything.RunAnythingUtil._
 import com.intellij.ide.actions.runAnything.activity.RunAnythingProviderBase
 import com.intellij.openapi.actionSystem.DataContext
+import com.intellij.openapi.externalSystem.util.ExternalSystemApiUtil
 import com.intellij.openapi.module.ModuleManager
 import com.intellij.openapi.util.text.StringUtil
 import javax.swing.Icon
 import org.jetbrains.plugins.scala.icons.Icons
 import org.jetbrains.sbt.SbtRunAnythingProvider._
+import org.jetbrains.sbt.project.data.SbtTaskData
 import org.jetbrains.sbt.settings.SbtSettings
 import org.jetbrains.sbt.shell.SbtShellCommunication
 import org.jetbrains.sbt.shell.action.SbtNodeAction
@@ -25,16 +27,28 @@ class SbtRunAnythingProvider extends RunAnythingProviderBase[SbtRunItem] {
       val commandString = StringUtil.substringAfter(pattern, " ")
 
       val modules = ModuleManager.getInstance(project).getModules.toList
-      val moduleData = modules.flatMap(SbtUtil.getSbtModuleData(_).toList)
+//      val moduleDatas = modules.flatMap(SbtUtil.getSbtModuleData(_).toList)
+      val moduleDataAndTasks = modules.flatMap { module =>
+        val moduleId = ExternalSystemApiUtil.getExternalProjectId(module)
+        val maybeModuleData = SbtUtil.getSbtModuleData(project, moduleId)
 
-      val defaultSuggestion = SbtShellCommandString(commandString)
+        maybeModuleData.map { moduleData =>
+          val moduleTasks = SbtUtil.getModuleData(project, moduleId, SbtTaskData.Key).toList
+          val relevantTasks = moduleTasks.filter(_.name.contains(commandString))
 
-      val scopedSuggestions = moduleData.map { md =>
-        val projectId = SbtUtil.makeSbtProjectId(md)
-        SbtShellTask(projectId, commandString)
+          (moduleData, relevantTasks)
+        }
       }
 
-      defaultSuggestion :: scopedSuggestions
+      val suggestions = moduleDataAndTasks.flatMap { case (moduleData, tasks) =>
+        val projectId = SbtUtil.makeSbtProjectId(moduleData)
+        val basicSuggestion = SbtShellTask(projectId, commandString)
+        val taskSuggestions = tasks.sortBy(_.rank).reverse.map { task => SbtShellTask(projectId, task.name) }
+        basicSuggestion :: taskSuggestions
+      }
+
+      val defaultSuggestion = SbtShellCommandString(commandString)
+      defaultSuggestion :: suggestions
     } else Nil
 
     (values: List[SbtRunItem]).asJava
