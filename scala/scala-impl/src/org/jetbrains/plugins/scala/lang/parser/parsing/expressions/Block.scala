@@ -92,7 +92,7 @@ object Block {
       }
       ParserUtils.parseLoopUntilRBrace(builder, () => parse(builder))
       builder.restoreNewlinesState()
-      blockMarker.done(ScalaElementType.BLOCK_EXPR)
+      blockMarker.done(ScCodeBlockElementType.BlockExpression)
     }
     else {
       val bm = builder.mark()

@@ -13,7 +13,7 @@ import com.intellij.psi.tree.IElementType
 import org.jetbrains.plugins.scala.extensions.PsiElementExt
 import org.jetbrains.plugins.scala.lang.formatting.settings.ScalaCodeStyleSettings
 import org.jetbrains.plugins.scala.lang.lexer.ScalaTokenTypes
-import org.jetbrains.plugins.scala.lang.parser.ScalaElementType
+import org.jetbrains.plugins.scala.lang.parser.{ScCodeBlockElementType, ScalaElementType}
 import org.jetbrains.plugins.scala.lang.psi.ScalaPsiElement
 import org.jetbrains.plugins.scala.lang.psi.api.ScalaFile
 import org.jetbrains.plugins.scala.lang.psi.api.base.ScLiteral
@@ -181,7 +181,7 @@ class ScalaFoldingBuilder extends CustomFoldingBuilder with PossiblyDumbAware {
   override def getLanguagePlaceholderText(node: ASTNode, textRange: TextRange): String = {
     if (isMultiline(node) || isMultilineImport(node) && !isWorksheetResults(node)) {
       node.getElementType match {
-        case ScalaElementType.BLOCK_EXPR => return "{...}"
+        case ScCodeBlockElementType.BlockExpression => return "{...}"
         case ScalaTokenTypes.tBLOCK_COMMENT => return "/.../"
         case ScalaDocElementTypes.SCALA_DOC_COMMENT => return "/**...*/"
         case ScalaElementType.TEMPLATE_BODY => return "{...}"
@@ -276,7 +276,7 @@ class ScalaFoldingBuilder extends CustomFoldingBuilder with PossiblyDumbAware {
           if ScalaCodeFoldingSettings.getInstance().isCollapseShellComments && !isWorksheetResults(node) => true
         case ScalaElementType.MATCH_STMT
           if ScalaCodeFoldingSettings.getInstance().isCollapseMultilineBlocks => true
-        case ScalaElementType.BLOCK_EXPR
+        case ScCodeBlockElementType.BlockExpression
           if ScalaCodeFoldingSettings.getInstance().isCollapseMultilineBlocks => true
         case ScalaElementType.SIMPLE_TYPE => true
         case _ if psi.isInstanceOf[ScBlockExpr] &&

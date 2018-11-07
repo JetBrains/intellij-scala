@@ -4,21 +4,23 @@ package parser
 
 import com.intellij.lang.{ASTNode, PsiBuilder, PsiParser}
 import com.intellij.psi.tree.IElementType
-import org.jetbrains.plugins.scala.lang.parser.parsing.Program
-import org.jetbrains.plugins.scala.lang.parser.parsing.builder.ScalaPsiBuilderImpl
-import org.jetbrains.plugins.scala.lang.parser.parsing.expressions.BlockExpr
 
-class ScalaParser extends PsiParser {
+final class ScalaParser extends PsiParser {
 
-  def parse(root: IElementType, builder: PsiBuilder): ASTNode = {
+  import parsing._
+
+  def parse(root: IElementType, delegate: PsiBuilder): ASTNode = {
+    val builderImpl = new builder.ScalaPsiBuilderImpl(delegate)
+
     root match {
-      case ScalaElementType.BLOCK_EXPR =>
-        BlockExpr.parse(new ScalaPsiBuilderImpl(builder))
+      case ScCodeBlockElementType.BlockExpression =>
+        expressions.BlockExpr.parse(builderImpl)
       case _ =>
-        val rootMarker = builder.mark
-        Program.parse(new ScalaPsiBuilderImpl(builder))
+        val rootMarker = delegate.mark
+        Program.parse(builderImpl)
         rootMarker.done(root)
     }
-    builder.getTreeBuilt
+
+    delegate.getTreeBuilt
   }
 }

@@ -18,7 +18,7 @@ import com.intellij.psi.util.PsiTreeUtil
 import org.jetbrains.plugins.scala.extensions._
 import org.jetbrains.plugins.scala.lang.formatting.settings.ScalaCodeStyleSettings
 import org.jetbrains.plugins.scala.lang.lexer.{ScalaTokenTypes, ScalaTokenTypesEx, ScalaXmlTokenTypes}
-import org.jetbrains.plugins.scala.lang.parser.ScalaElementType
+import org.jetbrains.plugins.scala.lang.parser.{ScCodeBlockElementType, ScalaElementType}
 import org.jetbrains.plugins.scala.lang.psi.ScalaPsiUtil
 import org.jetbrains.plugins.scala.lang.psi.api.ScalaFile
 import org.jetbrains.plugins.scala.lang.psi.api.base._
@@ -44,9 +44,10 @@ import scala.annotation.tailrec
 object ScalaSpacingProcessor extends ScalaTokenTypes {
   private val LOG = Logger.getInstance("#org.jetbrains.plugins.scala.lang.formatting.processors.ScalaSpacingProcessor")
 
-  val BLOCK_ELEMENT_TYPES = {
-    import org.jetbrains.plugins.scala.lang.parser.ScalaElementType._
-    TokenSet.create(BLOCK_EXPR, TEMPLATE_BODY, PACKAGING, TRY_BLOCK, MATCH_STMT, CATCH_BLOCK)
+  private val BLOCK_ELEMENT_TYPES = {
+    import ScCodeBlockElementType.BlockExpression
+    import ScalaElementType._
+    TokenSet.create(BlockExpression, TEMPLATE_BODY, PACKAGING, TRY_BLOCK, MATCH_STMT, CATCH_BLOCK)
   }
 
   private def getText(node: ASTNode, fileText: CharSequence): String = {
@@ -1192,16 +1193,21 @@ object ScalaSpacingProcessor extends ScalaTokenTypes {
       (ScalaElementType.LITERAL | ScalaElementType.PREFIX_EXPR), _) => NO_SPACING
       //Braces
       case (ScalaTokenTypes.tLBRACE, ScalaTokenTypes.tRBRACE, _, _) => NO_SPACING
-      case (ScalaTokenTypes.tLBRACE, _,
-      (ScalaElementType.TEMPLATE_BODY | ScalaElementType.MATCH_STMT | ScalaElementType.REFINEMENT |
-       ScalaElementType.EXISTENTIAL_CLAUSE | ScalaElementType.BLOCK_EXPR), _) => IMPORT_BETWEEN_SPACING
+      case (ScalaTokenTypes.tLBRACE, _, ScalaElementType.TEMPLATE_BODY |
+                                        ScalaElementType.MATCH_STMT |
+                                        ScalaElementType.REFINEMENT |
+                                        ScalaElementType.EXISTENTIAL_CLAUSE |
+                                        ScCodeBlockElementType.BlockExpression, _) => IMPORT_BETWEEN_SPACING
       case (ScalaTokenTypes.tLBRACE, _, _, _) => NO_SPACING_WITH_NEWLINE
-      case (_, ScalaTokenTypes.tRBRACE, (ScalaElementType.TEMPLATE_BODY | ScalaElementType.MATCH_STMT | ScalaElementType.REFINEMENT |
-                                         ScalaElementType.EXISTENTIAL_CLAUSE | ScalaElementType.BLOCK_EXPR), _) => IMPORT_BETWEEN_SPACING
+      case (_, ScalaTokenTypes.tRBRACE, ScalaElementType.TEMPLATE_BODY |
+                                        ScalaElementType.MATCH_STMT |
+                                        ScalaElementType.REFINEMENT |
+                                        ScalaElementType.EXISTENTIAL_CLAUSE |
+                                        ScCodeBlockElementType.BlockExpression, _) => IMPORT_BETWEEN_SPACING
       case (_, ScalaTokenTypes.tRBRACE, _, _) => NO_SPACING_WITH_NEWLINE
       //Semicolon
       case (ScalaTokenTypes.tSEMICOLON, _, parentType, _) =>
-        if ((BLOCK_ELEMENT_TYPES contains parentType) &&
+        if (BLOCK_ELEMENT_TYPES.contains(parentType) &&
           !getText(leftNode.getTreeParent, fileText).contains("\n")) COMMON_SPACING
         else IMPORT_BETWEEN_SPACING
       case (_, ScalaTokenTypes.tSEMICOLON, _, _) =>

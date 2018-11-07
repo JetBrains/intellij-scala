@@ -12,7 +12,7 @@ import com.intellij.openapi.util.IconLoader
 import com.intellij.psi.PsiElement
 import com.intellij.psi.util.PsiTreeUtil
 import org.jetbrains.plugins.scala.extensions.{PsiElementExt, PsiNamedElementExt}
-import org.jetbrains.plugins.scala.lang.parser.ScalaElementType
+import org.jetbrains.plugins.scala.lang.parser.{ScCodeBlockElementType, ScalaElementType}
 import org.jetbrains.plugins.scala.lang.psi.api.base.patterns.{ScReferencePattern, ScTuplePattern}
 import org.jetbrains.plugins.scala.lang.psi.api.base.{ScLiteral, ScPatternList}
 import org.jetbrains.plugins.scala.lang.psi.api.expr._
@@ -444,7 +444,7 @@ object TestNodeProvider {
     }
     if (isUTestSuiteApplyCall(expr) || isUTestTestsCall(expr)) {
       import scala.collection.JavaConverters._
-      expr.args.findFirstChildByType(ScalaElementType.BLOCK_EXPR) match {
+      expr.args.findFirstChildByType(ScCodeBlockElementType.BlockExpression) match {
         case blockExpr: ScBlockExpr => (for (methodExpr <- blockExpr.children if methodExpr.isInstanceOf[ScInfixExpr] || methodExpr.isInstanceOf[ScMethodCall])
           yield extractUTestInner(methodExpr, project)).filter(_.isDefined).map(_.get).toList.asJava
         case _ => new util.ArrayList[TreeElement]

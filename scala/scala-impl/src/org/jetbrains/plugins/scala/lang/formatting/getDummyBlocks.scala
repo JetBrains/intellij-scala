@@ -20,7 +20,7 @@ import org.jetbrains.plugins.scala.lang.formatting.ScalaWrapManager._
 import org.jetbrains.plugins.scala.lang.formatting.processors._
 import org.jetbrains.plugins.scala.lang.formatting.settings.ScalaCodeStyleSettings
 import org.jetbrains.plugins.scala.lang.lexer.ScalaTokenTypes
-import org.jetbrains.plugins.scala.lang.parser.ScalaElementType
+import org.jetbrains.plugins.scala.lang.parser.{ScCodeBlockElementType, ScalaElementType}
 import org.jetbrains.plugins.scala.lang.psi.ScalaPsiUtil
 import org.jetbrains.plugins.scala.lang.psi.api.base.patterns._
 import org.jetbrains.plugins.scala.lang.psi.api.base.types._
@@ -238,7 +238,7 @@ object getDummyBlocks {
                   }
                   alternateAlignment
                 } else null
-              case ScalaElementType.BLOCK_EXPR if scalaSettings.DO_NOT_ALIGN_BLOCK_EXPR_PARAMS => null
+              case ScCodeBlockElementType.BlockExpression if scalaSettings.DO_NOT_ALIGN_BLOCK_EXPR_PARAMS => null
               case _ if settings.ALIGN_MULTILINE_PARAMETERS_IN_CALLS => alignment
               case _ => null
             }
@@ -253,7 +253,7 @@ object getDummyBlocks {
                   }
                   alternateAlignment
                 } else null
-              case ScalaElementType.BLOCK_EXPR if scalaSettings.DO_NOT_ALIGN_BLOCK_EXPR_PARAMS => null
+              case ScCodeBlockElementType.BlockExpression if scalaSettings.DO_NOT_ALIGN_BLOCK_EXPR_PARAMS => null
               case _ if settings.ALIGN_MULTILINE_PARAMETERS_IN_CALLS => alignment
               case _ => null
             }
