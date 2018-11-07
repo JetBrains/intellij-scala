@@ -227,4 +227,17 @@ class ParameterizedTypeTest extends ScalaLightCodeInsightFixtureTestAdapter {
         |  }""".stripMargin
     )
   }
+
+  def testSCL14538(): Unit = checkTextHasNoErrors(
+    """
+      |final case class Foo[F[_], A](run: F[(A, F[Unit])])
+      |
+      |trait Lift[F[_]] {
+      |  def lift[A](a: A): F[A]
+      |}
+      |
+      |def pure[F[_], A](a: A)(implicit F: Lift[F]): Foo[F, A] =
+      |  Foo(F.lift((a, F.lift(()))))
+    """.stripMargin
+  )
 }

@@ -1571,6 +1571,7 @@ trait ScalaConformance extends api.Conformance {
     des match {
       case undef: UndefinedType =>
         Option(undef.typeParameter.psiTypeParameter).map(_.getTypeParameters.iterator)
+      case tpt: TypeParameterType => Option(tpt.typeParameters.map(_.psiTypeParameter).iterator)
       case _ =>
         des.extractClass.map {
           case td: ScTypeDefinition => td.typeParameters.iterator
