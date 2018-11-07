@@ -8,7 +8,7 @@ import java.util.jar.JarFile
 import com.intellij.execution.configurations.ParametersList
 import com.intellij.openapi.application.ApplicationManager
 import com.intellij.openapi.externalSystem.model.project.ModuleData
-import com.intellij.openapi.externalSystem.model.{DataNode, ProjectKeys}
+import com.intellij.openapi.externalSystem.model.{DataNode, Key, ProjectKeys}
 import com.intellij.openapi.externalSystem.service.project.ProjectDataManager
 import com.intellij.openapi.externalSystem.util.ExternalSystemApiUtil
 import com.intellij.openapi.module.Module
@@ -17,7 +17,7 @@ import com.intellij.util.BooleanFunction
 import org.jetbrains.plugins.scala.project.Version
 import org.jetbrains.sbt.project.SbtProjectSystem
 import org.jetbrains.sbt.project.data.SbtModuleData
-
+import scala.collection.JavaConverters._
 /**
   * Created by jast on 2017-02-20.
   */
@@ -158,31 +158,34 @@ object SbtUtil {
   }
 
   def getSbtModuleData(project: Project, moduleId: String): Option[SbtModuleData] = {
+    val emptyURI = new URI("")
 
-    // seems hacky. but it seems there isn't yet any better way to get the data for selected module?
+    getModuleData(project, moduleId, SbtModuleData.Key)
+      .find(_.buildURI != emptyURI)
+  }
+
+  def getModuleData[K](project: Project, moduleId: String, key: Key[K]): Iterable[K] = {
+    // seems hacky. but apparently there isn't yet any better way to get the data for selected module?
     val predicate = new BooleanFunction[DataNode[ModuleData]] {
       override def fun(s: DataNode[ModuleData]): Boolean = s.getData.getId == moduleId
     }
 
-    val emptyURI = new URI("")
     val dataManager = ProjectDataManager.getInstance()
 
     // TODO instead of silently not running a task, collect failures, report to user
-    for {
+    val maybeNodes = for {
       projectInfo <- Option(dataManager.getExternalProjectData(project, SbtProjectSystem.Id, project.getBasePath))
       projectStructure <- Option(projectInfo.getExternalProjectStructure)
       moduleDataNode <- Option(ExternalSystemApiUtil.find(projectStructure, ProjectKeys.MODULE, predicate))
-      moduleSbtDataNode <- Option(ExternalSystemApiUtil.find(moduleDataNode, SbtModuleData.Key))
-      data = {
-        dataManager.ensureTheDataIsReadyToUse(moduleSbtDataNode)
-        moduleSbtDataNode.getData
-      }
-      // buildURI should never be empty for true sbt projects, but filtering here handles synthetic projects
-      // created from AAR files. Should implement a more elegant solution for AARs.
-      if data.buildURI != emptyURI
+      dataNodes <- Option(ExternalSystemApiUtil.findAll(moduleDataNode, key))
     } yield {
-      data
+      dataNodes.asScala.map { node =>
+        dataManager.ensureTheDataIsReadyToUse(node)
+        node.getData
+      }
     }
+
+    maybeNodes.getOrElse(Nil)
   }
 
 

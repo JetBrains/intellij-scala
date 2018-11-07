@@ -73,16 +73,20 @@ sealed trait SbtNamedKey {
   val name: String
 }
 
+sealed trait SbtRankedKey {
+  val rank: Int
+}
+
 @SerialVersionUID(1)
 case class SbtSettingData(name: String, description: String, rank: Int, value: String)
-  extends SbtEntityData with SbtNamedKey
+  extends SbtEntityData with SbtNamedKey with SbtRankedKey
 object SbtSettingData {
   val Key: Key[SbtSettingData] = datakey(classOf[SbtSettingData])
 }
 
 @SerialVersionUID(1)
 case class SbtTaskData(name: String, description: String, rank: Int)
-  extends SbtEntityData with SbtNamedKey
+  extends SbtEntityData with SbtNamedKey with SbtRankedKey
 object SbtTaskData {
   val Key: Key[SbtTaskData] = datakey(classOf[SbtTaskData])
 }
