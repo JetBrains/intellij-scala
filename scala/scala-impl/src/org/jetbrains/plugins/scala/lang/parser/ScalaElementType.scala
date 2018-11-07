@@ -2,15 +2,11 @@ package org.jetbrains.plugins.scala
 package lang
 package parser
 
-import com.intellij.lang.{ASTNode, Language}
-import com.intellij.openapi.project.Project
+import com.intellij.lang.ASTNode
+import com.intellij.psi.PsiFile
 import com.intellij.psi.stubs.PsiFileStub
 import com.intellij.psi.tree._
-import com.intellij.psi.util.PsiUtilCore
-import com.intellij.psi.{PsiElement, PsiFile}
-import org.jetbrains.annotations.NotNull
 import org.jetbrains.plugins.dotty.lang.psi.impl.base.types._
-import org.jetbrains.plugins.scala.lang.lexer.{ScalaLexer, ScalaTokenTypes}
 import org.jetbrains.plugins.scala.lang.psi.ScalaPsiElement
 import org.jetbrains.plugins.scala.lang.psi.api.expr.ScNewTemplateDefinition
 import org.jetbrains.plugins.scala.lang.psi.api.statements._
@@ -22,8 +18,6 @@ import org.jetbrains.plugins.scala.lang.psi.impl.expr._
 import org.jetbrains.plugins.scala.lang.psi.impl.expr.xml._
 import org.jetbrains.plugins.scala.lang.psi.impl.statements.params.ScParameterTypeImpl
 import org.jetbrains.plugins.scala.lang.psi.stubs.elements._
-
-import scala.annotation.tailrec
 
 sealed abstract class ScalaElementType(debugName: String,
                                        override val isLeftBound: Boolean = true)
@@ -80,12 +74,6 @@ object ScalaElementType {
   val TRAIT_DEFINITION: ScTemplateDefinitionElementType[ScTrait] = TraitDefinition
   val OBJECT_DEFINITION: ScTemplateDefinitionElementType[ScObject] = ObjectDefinition
   val NEW_TEMPLATE: ScTemplateDefinitionElementType[ScNewTemplateDefinition] = NewTemplateDefinition
-
-  val BLOCK_EXPR = new ScCodeBlockElementType with SelfPsiCreator {
-    override def createNode(text: CharSequence): ASTNode = new ScBlockExprImpl(text)
-
-    override def createElement(node: ASTNode): PsiElement = PsiUtilCore.NULL_PSI_ELEMENT
-  }
 
   val CONSTRUCTOR = new ScalaElementType("constructor") {
     override def createElement(node: ASTNode) = new ScConstructorImpl(node)
@@ -392,41 +380,4 @@ object ScalaElementType {
   val TYPE_ARGUMENT_NAME: ScalaElementType = new ScalaElementType("Dotty type argument name") {
     override def createElement(node: ASTNode) = new DottyTypeArgumentNameElementImpl(node)
   }
-
-  abstract class ScCodeBlockElementType extends IErrorCounterReparseableElementType(
-    "block of expressions",
-    ScalaLanguage.INSTANCE
-  ) with ICompositeElementType {
-
-    import IErrorCounterReparseableElementType._
-    import ScalaTokenTypes.{tLBRACE => LeftBrace, tRBRACE => RightBrace}
-
-    @NotNull
-    override final def createCompositeNode: ASTNode = createNode(null)
-
-    override final def getErrorsCount(buf: CharSequence,
-                                      fileLanguage: Language,
-                                      project: Project): Int = {
-      val lexer = new ScalaLexer
-      lexer.start(buf)
-      lexer.getTokenType match {
-        case LeftBrace => iterate(1)(lexer)
-        case _ => FATAL_ERROR
-      }
-    }
-
-    @tailrec
-    private def iterate(balance: Int)
-                       (implicit lexer: ScalaLexer): Int = {
-      lexer.advance()
-      lexer.getTokenType match {
-        case null => balance
-        case _ if balance == NO_ERRORS => FATAL_ERROR
-        case LeftBrace => iterate(balance + 1)
-        case RightBrace => iterate(balance - 1)
-        case _ => iterate(balance)
-      }
-    }
-  }
-
 }
