@@ -43,10 +43,12 @@ import org.jetbrains.plugins.scala.projectView.{ClassAndCompanionObject, Singula
 
 import scala.annotation.tailrec
 
-abstract class ScTypeDefinitionImpl protected (stub: ScTemplateDefinitionStub,
-                                               nodeType: ScTemplateDefinitionElementType[_ <: ScTypeDefinition],
-                                               node: ASTNode)
-  extends ScalaStubBasedElementImpl(stub, nodeType, node) with ScTypeDefinition with PsiClassFake {
+abstract class ScTypeDefinitionImpl[T <: ScTemplateDefinition](stub: ScTemplateDefinitionStub[T],
+                                                               nodeType: ScTemplateDefinitionElementType[T],
+                                                               node: ASTNode)
+  extends ScalaStubBasedElementImpl(stub, nodeType, node)
+    with ScTypeDefinition
+    with PsiClassFake {
 
   override def hasTypeParameters: Boolean = typeParameters.nonEmpty
 
@@ -142,9 +144,9 @@ abstract class ScTypeDefinitionImpl protected (stub: ScTemplateDefinitionStub,
         if (name == c.name && hasSameScalaKind(c)) return c
       }
     } else {
-      val parentSourceMirror = classParent.asInstanceOf[ScTypeDefinitionImpl].getSourceMirrorClass
+      val parentSourceMirror = classParent.asInstanceOf[ScTypeDefinitionImpl[_]].getSourceMirrorClass
       parentSourceMirror match {
-        case td: ScTypeDefinitionImpl => for (i <- td.typeDefinitions if name == i.name && hasSameScalaKind(i))
+        case td: ScTypeDefinitionImpl[_] => for (i <- td.typeDefinitions if name == i.name && hasSameScalaKind(i))
           return i
         case _ => this
       }

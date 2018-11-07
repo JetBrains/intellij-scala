@@ -34,7 +34,7 @@ import scala.collection.mutable.ArrayBuffer
 /**
   * @author Alexander.Podkhalyuzin
   */
-class ScClassImpl(stub: ScTemplateDefinitionStub,
+class ScClassImpl(stub: ScTemplateDefinitionStub[ScClass],
                   nodeType: ScTemplateDefinitionElementType[ScClass],
                   node: ASTNode)
   extends ScTypeDefinitionImpl(stub, nodeType, node)

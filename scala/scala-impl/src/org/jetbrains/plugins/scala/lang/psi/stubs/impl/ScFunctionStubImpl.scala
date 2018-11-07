@@ -14,17 +14,17 @@ import org.jetbrains.plugins.scala.lang.psi.stubs.elements.StringRefArrayExt
   * User: Alexander Podkhalyuzin
   * Date: 14.10.2008
   */
-class ScFunctionStubImpl(parent: StubElement[_ <: PsiElement],
-                         elementType: IStubElementType[_ <: StubElement[_ <: PsiElement], _ <: PsiElement],
-                         nameRef: StringRef,
-                         val isDeclaration: Boolean,
-                         private val annotationsRefs: Array[StringRef],
-                         protected[impl] val typeTextRef: Option[StringRef],
-                         protected[impl] val bodyTextRef: Option[StringRef],
-                         val hasAssign: Boolean,
-                         val isImplicit: Boolean,
-                         val isLocal: Boolean)
-  extends ScNamedStubBase[ScFunction](parent, elementType, nameRef) with ScFunctionStub {
+final class ScFunctionStubImpl[F <: ScFunction](parent: StubElement[_ <: PsiElement],
+                                                elementType: IStubElementType[_ <: StubElement[_ <: PsiElement], _ <: PsiElement],
+                                                nameRef: StringRef,
+                                                val isDeclaration: Boolean,
+                                                private val annotationsRefs: Array[StringRef],
+                                                protected[impl] val typeTextRef: Option[StringRef],
+                                                protected[impl] val bodyTextRef: Option[StringRef],
+                                                val hasAssign: Boolean,
+                                                val isImplicit: Boolean,
+                                                val isLocal: Boolean)
+  extends ScNamedStubBase[F](parent, elementType, nameRef) with ScFunctionStub[F] {
 
   def annotations: Array[String] = annotationsRefs.asStrings
 }

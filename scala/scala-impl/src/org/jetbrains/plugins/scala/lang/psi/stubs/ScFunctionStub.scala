@@ -11,10 +11,10 @@ import org.jetbrains.plugins.scala.lang.psi.stubs.impl.{ScExpressionOwnerStub, S
   * User: Alexander Podkhalyuzin
   * Date: 14.10.2008
   */
-trait ScFunctionStub extends NamedStub[ScFunction]
+trait ScFunctionStub[F <: ScFunction] extends NamedStub[F]
   with ScMemberOrLocal
-  with ScTypeElementOwnerStub[ScFunction]
-  with ScExpressionOwnerStub[ScFunction] {
+  with ScTypeElementOwnerStub[F]
+  with ScExpressionOwnerStub[F] {
 
   def isImplicit: Boolean
 

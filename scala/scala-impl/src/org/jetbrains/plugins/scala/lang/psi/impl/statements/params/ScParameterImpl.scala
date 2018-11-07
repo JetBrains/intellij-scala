@@ -84,7 +84,7 @@ class ScParameterImpl protected (stub: ScParameterStub, nodeType: ScParamElement
       case paramStub =>
         paramStub.typeText match {
           case None if paramStub.getParentStub != null && paramStub.getParentStub.getParentStub != null &&
-            paramStub.getParentStub.getParentStub.getParentStub.isInstanceOf[ScFunctionStub] =>
+            paramStub.getParentStub.getParentStub.getParentStub.isInstanceOf[ScFunctionStub[_]] =>
             Failure("Cannot infer type")
           case None => Failure("Wrong Stub problem") //shouldn't be
           case Some(_: String) => paramStub.typeElement match {

@@ -37,7 +37,7 @@ import scala.util.control.ControlThrowable
  * @author Alexander Podkhalyuzin
  * Date: 20.02.2008
  */
-class ScObjectImpl(stub: ScTemplateDefinitionStub,
+class ScObjectImpl(stub: ScTemplateDefinitionStub[ScObject],
                    nodeType: ScTemplateDefinitionElementType[ScObject],
                    node: ASTNode)
   extends ScTypeDefinitionImpl(stub, nodeType, node)

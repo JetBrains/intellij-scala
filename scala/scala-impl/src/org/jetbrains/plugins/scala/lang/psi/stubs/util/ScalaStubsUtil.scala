@@ -44,7 +44,7 @@ object ScalaStubsUtil {
     while (extendsBlocks.hasNext) {
       val extendsBlock = extendsBlocks.next
       extendsBlock.greenStub match {
-        case Some(stub: ScTemplateDefinitionStub) => inheritors += stub.getPsi
+        case Some(stub: ScTemplateDefinitionStub[_]) => inheritors += stub.getPsi
         case _ =>
           extendsBlock.getParent match {
             case tp: ScTemplateDefinition => inheritors += tp
