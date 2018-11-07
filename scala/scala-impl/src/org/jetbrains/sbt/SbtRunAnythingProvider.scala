@@ -11,7 +11,7 @@ import com.intellij.openapi.util.text.StringUtil
 import javax.swing.Icon
 import org.jetbrains.plugins.scala.icons.Icons
 import org.jetbrains.sbt.SbtRunAnythingProvider._
-import org.jetbrains.sbt.project.data.SbtTaskData
+import org.jetbrains.sbt.project.data.{SbtSettingData, SbtTaskData}
 import org.jetbrains.sbt.settings.SbtSettings
 import org.jetbrains.sbt.shell.SbtShellCommunication
 import org.jetbrains.sbt.shell.action.SbtNodeAction
@@ -24,26 +24,40 @@ class SbtRunAnythingProvider extends RunAnythingProviderBase[SbtRunItem] {
 
     val values = if (canRunSbt(dataContext, pattern)) {
       val project = fetchProject(dataContext)
-      val commandString = StringUtil.substringAfter(pattern, " ")
+      val queryString = Option(StringUtil.substringAfter(pattern, " ")).getOrElse("")
+      val projectCommandString = StringUtil.split(queryString, "/").asScala.toList.map(_.trim)
+
+      // when entering command in form project/command, suggest commands in scope of project
+      val (projectString, commandString) = projectCommandString match {
+        case Nil => ("", "")
+        case command :: Nil => ("", command)
+        case projectId :: command :: _ => (projectId, command)
+      }
 
       val modules = ModuleManager.getInstance(project).getModules.toList
-//      val moduleDatas = modules.flatMap(SbtUtil.getSbtModuleData(_).toList)
-      val moduleDataAndTasks = modules.flatMap { module =>
+      val moduleDataAndKeys = modules.flatMap { module =>
         val moduleId = ExternalSystemApiUtil.getExternalProjectId(module)
         val maybeModuleData = SbtUtil.getSbtModuleData(project, moduleId)
 
-        maybeModuleData.map { moduleData =>
+        // suggest settings and tasks scoped to project
+        maybeModuleData.flatMap { moduleData =>
           val moduleTasks = SbtUtil.getModuleData(project, moduleId, SbtTaskData.Key).toList
-          val relevantTasks = moduleTasks.filter(_.name.contains(commandString))
+          val moduleSettings = SbtUtil.getModuleData(project, moduleId, SbtSettingData.Key).toList
+          val moduleKeys = moduleSettings ++ moduleTasks
+          val relevantEntries = moduleKeys.filter { td => td.name.contains(commandString) }
 
-          (moduleData, relevantTasks)
+          if (moduleData.id.contains(projectString))
+            Some((moduleData, relevantEntries))
+          else None
         }
       }
 
-      val suggestions = moduleDataAndTasks.flatMap { case (moduleData, tasks) =>
+      // TODO suggest command completions, but only for root project (assumption is that is where the shell is usually)
+
+      val suggestions = moduleDataAndKeys.flatMap { case (moduleData, keys) =>
         val projectId = SbtUtil.makeSbtProjectId(moduleData)
         val basicSuggestion = SbtShellTask(projectId, commandString)
-        val taskSuggestions = tasks.sortBy(_.rank).reverse.map { task => SbtShellTask(projectId, task.name) }
+        val taskSuggestions = keys.sortBy(_.rank).map { key => SbtShellTask(projectId, key.name) }
         basicSuggestion :: taskSuggestions
       }
 
