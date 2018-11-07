@@ -200,7 +200,8 @@ object CompileServerLauncher {
       new File(jpsRoot, "nailgun.jar"),
       new File(jpsRoot, "sbt-interface.jar"),
       new File(jpsRoot, "incremental-compiler.jar"),
-      new File(jpsRoot, "compiler-jps.jar")
+      new File(jpsRoot, "compiler-jps.jar"),
+      new File(jpsRoot, "hydra-compiler-jps.jar")
     )
   }
 

@@ -1,4 +1,4 @@
-package org.jetbrains.jps.incremental.scala.model;
+package org.jetbrains.jps.incremental.scala.hydra.model;
 
 import org.jetbrains.jps.model.JpsElement;
 

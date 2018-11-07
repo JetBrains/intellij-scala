@@ -3,15 +3,13 @@ package data
 
 import java.io.File
 
+import com.intellij.openapi.diagnostic.{Logger => JpsLogger}
 import org.jetbrains.jps.ModuleChunk
-import org.jetbrains.jps.builders.java.JavaBuilderUtil
 import org.jetbrains.jps.incremental.CompileContext
 import org.jetbrains.jps.incremental.scala._
 import org.jetbrains.jps.incremental.scala.model.{IncrementalityType, LibrarySettings}
 import org.jetbrains.jps.model.java.JpsJavaSdkType
 import org.jetbrains.jps.model.module.JpsModule
-import com.intellij.openapi.diagnostic.{Logger => JpsLogger}
-import org.jetbrains.jps.cmdline.ProjectDescriptor
 
 import scala.collection.JavaConverters._
 
@@ -20,24 +18,19 @@ import scala.collection.JavaConverters._
  */
 case class CompilerData(compilerJars: Option[CompilerJars], javaHome: Option[File], incrementalType: IncrementalityType)
 
-object CompilerData {
+object CompilerData extends CompilerDataFactory {
   private val Log: JpsLogger = JpsLogger.getInstance(CompilerData.getClass.getName)
 
-  def from(context: CompileContext, chunk: ModuleChunk): Either[String, CompilerData] = {
+  override def from(context: CompileContext, chunk: ModuleChunk): Either[String, CompilerData] = {
     val project = context.getProjectDescriptor
     val target = chunk.representativeTarget
     val module = target.getModule
 
     val compilerJars = if (SettingsManager.hasScalaSdk(module)) {
       compilerJarsIn(module).flatMap { case jars: CompilerJars =>
-        val compileJars =
-          if (useHydraCompiler(project, module, jars)) {
-            getHydraCompilerJars(project, module, jars)
-          } else jars
-        Log.info("Compiler jars: " + compileJars.files.map(_.getName))
-        val absentJars = compileJars.files.filter(!_.exists)
+        val absentJars = jars.files.filter(!_.exists)
         Either.cond(absentJars.isEmpty,
-          Some(compileJars),
+          Some(jars),
           "Scala compiler JARs not found (module '" + chunk.representativeTarget().getModule.getName + "'): "
                   + absentJars.map(_.getPath).mkString(", "))
       }
@@ -106,7 +99,7 @@ object CompilerData {
     }
   }
 
-  private def compilerJarsIn(module: JpsModule): Either[String, CompilerJars] = {
+  def compilerJarsIn(module: JpsModule): Either[String, CompilerJars] = {
     val sdk = SettingsManager.getScalaSdk(module)
 
     if (sdk == null) return Left(s"Scala SDK not found in module ${module.getName}")
@@ -141,7 +134,7 @@ object CompilerData {
     }
   }
 
-  private def find(files: Seq[File], prefix: String, suffix: String): Either[String, File] = {
+  def find(files: Seq[File], prefix: String, suffix: String): Either[String, File] = {
     files.filter(it => it.getName.startsWith(prefix) && it.getName.endsWith(suffix)) match {
       case Seq() =>
         Left("No '%s*%s'".format(prefix, suffix))
@@ -152,32 +145,5 @@ object CompilerData {
     }
   }
 
-  private def version(compiler: File): Option[String] = readProperty(compiler, "compiler.properties", "version.number")
-
-  private def useHydraCompiler(project: ProjectDescriptor, module: JpsModule, jars: CompilerJars): Boolean = {
-    val hydraGlobalSettings = SettingsManager.getGlobalHydraSettings(project.getModel.getGlobal)
-    val hydraProjectSettings = SettingsManager.getHydraSettings(project.getProject)
-
-    val enabled = hydraProjectSettings.isHydraEnabled
-    val compilerVer = compilerVersion(module)
-    val hydraArtifactsExist = compilerVer.map(v => hydraGlobalSettings.containsArtifactsFor(v, hydraProjectSettings.getHydraVersion)).getOrElse(false)
-    val res = enabled && hydraArtifactsExist
-
-    if (enabled && !res) {
-      val reason =
-        if (compilerVer.isEmpty) s"could not extract compiler version from module $module, ${compilerJarsIn(module)}"
-        else s"Hydra artifacts not found for ${compilerVer.get} and ${hydraProjectSettings.getHydraVersion}."
-
-      Log.error(s"Not using Hydra compiler for ${module.getName} because $reason")
-    }
-    res
-  }
-
-  private def getHydraCompilerJars(project: ProjectDescriptor, module: JpsModule, jars: CompilerJars) = {
-    val scalaVersion = compilerVersion(module).get
-    val hydraData = HydraData(project.getProject, scalaVersion)
-    val hydraOtherJars = hydraData.otherJars
-    val extraJars = if(hydraOtherJars.nonEmpty) hydraOtherJars else jars.extra
-    CompilerJars(jars.library, hydraData.getCompilerJar.getOrElse(jars.compiler), extraJars)
-  }
+  def version(compiler: File): Option[String] = readProperty(compiler, "compiler.properties", "version.number")
 }
