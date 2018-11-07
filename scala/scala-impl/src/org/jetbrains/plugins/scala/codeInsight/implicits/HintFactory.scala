@@ -58,7 +58,10 @@ private class HintFactory(factory: PresentationFactory) {
       .getOrElse(sequence(namedBasicPresentation(argument), collapsedPresentationOf(argument.implicitParameters)))
 
   private def namedBasicPresentation(result: ScalaResolveResult): Presentation = {
-    val delegate = result.element.asOptionOf[ScFunction].flatMap(_.getSyntheticNavigationElement).getOrElse(result.element)
+    val delegate = result.element match {
+      case f: ScFunction => Option(f.syntheticNavigationElement).getOrElse(f)
+      case element => element
+    }
     val tooltip = ScalaDocumentationProvider.getQuickNavigateInfo(delegate, result.substitutor)
     withNavigation(delegate, Some(tooltip), text(result.name))
   }
