@@ -1,13 +1,13 @@
 package org.jetbrains.plugins.scala
 package testingSupport.test
 
-import javax.swing.Icon
-
 import com.intellij.ide.fileTemplates.FileTemplateDescriptor
 import com.intellij.lang.Language
 import com.intellij.openapi.module.Module
 import com.intellij.psi.{PsiClass, PsiElement, PsiMethod}
 import com.intellij.testIntegration.JavaTestFramework
+import javax.swing.Icon
+import org.jetbrains.concurrency.Promise
 import org.jetbrains.plugins.scala.extensions.PsiElementExt
 import org.jetbrains.plugins.scala.icons.Icons
 import org.jetbrains.plugins.scala.lang.psi.ElementScope
@@ -66,7 +66,7 @@ abstract class AbstractTestFramework extends JavaTestFramework {
 
   protected def getAdditionalBuildCommands(scalaVersion: Option[String]): Seq[String]
 
-  override def setupLibrary(module: Module) {
+  override def setupLibrary(module: Module): Promise[Void] = {
     import org.jetbrains.plugins.scala.project._
     val (libraries, resolvers, options) = module.scalaSdk match {
       case Some(scalaSdk) =>
@@ -76,6 +76,7 @@ abstract class AbstractTestFramework extends JavaTestFramework {
     }
     val modifier = new SimpleBuildFileModifier(libraries, resolvers, options)
     modifier.modify(module, needPreviewChanges = true)
+    Promise.resolve(null)
   }
 
   def getSuitePaths: Seq[String]
