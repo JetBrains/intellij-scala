@@ -7,7 +7,7 @@ import java.awt.event.MouseEvent
 import com.intellij.codeInsight.hint.{HintManager, HintManagerImpl, HintUtil}
 import com.intellij.openapi.actionSystem._
 import com.intellij.openapi.command.CommandProcessor
-import com.intellij.openapi.editor.Editor
+import com.intellij.openapi.editor.{DefaultLanguageHighlighterColors, Editor}
 import com.intellij.openapi.editor.colors.{CodeInsightColors, EditorColors, EditorFontType, TextAttributesKey}
 import com.intellij.openapi.editor.impl.EditorImpl
 import com.intellij.openapi.editor.markup.{EffectType, TextAttributes}
@@ -32,10 +32,12 @@ class PresentationFactory(editor: EditorImpl) {
   def text(s: String): Presentation = {
     val plainFont = editor.getColorsScheme.getFont(EditorFontType.PLAIN)
     val width = editor.getContentComponent.getFontMetrics(plainFont).stringWidth(s)
-    new Background(
-      new Effect(
-        new Text(width, editor.getLineHeight, s, editor.getAscent, editor.getColorsScheme.getFont),
-        plainFont, editor.getLineHeight, editor.getAscent, editor.getDescent))
+    new Attributes(
+      new Background(
+        new Effect(
+          new Text(width, editor.getLineHeight, s, editor.getAscent, editor.getColorsScheme.getFont),
+          plainFont, editor.getLineHeight, editor.getAscent, editor.getDescent)),
+      editor.getColorsScheme.getAttributes(DefaultLanguageHighlighterColors.INLINE_PARAMETER_HINT) + _) // todo
   }
 
   def sequence(presentations: Presentation*): Presentation =
