@@ -1,6 +1,5 @@
 package org.jetbrains.plugins.scala.findUsages.factory
 
-import com.intellij.find.FindManager
 import com.intellij.find.findUsages.{FindUsagesHandler, FindUsagesHandlerFactory}
 import com.intellij.find.impl.FindManagerImpl
 import com.intellij.openapi.application.TransactionGuard
@@ -8,11 +7,9 @@ import com.intellij.openapi.module.Module
 import com.intellij.openapi.project.Project
 import com.intellij.openapi.ui.Messages
 import com.intellij.psi.{PsiElement, PsiNamedElement}
-import com.intellij.task.{ProjectTaskManager, ProjectTaskNotification}
 import com.intellij.util.containers.ContainerUtil
 import org.jetbrains.plugins.scala.ScalaBundle
 import org.jetbrains.plugins.scala.findUsages.compilerReferences.ScalaImplicitMemberUsageSearcher._
-import org.jetbrains.plugins.scala.findUsages.compilerReferences.{CompilerReferenceServiceStatusListener, IndexerFailure}
 import org.jetbrains.plugins.scala.lang.psi.api.base.ScPrimaryConstructor
 import org.jetbrains.plugins.scala.lang.psi.api.statements.ScFunction
 import org.jetbrains.plugins.scala.lang.psi.api.statements.params.ScTypeParam
@@ -68,51 +65,8 @@ class ScalaFindUsagesHandlerFactory(project: Project) extends FindUsagesHandlerF
     }
   }
 
-  private[this] def buildScopeBeforeImplicitSearch(
-    target:  PsiElement,
-    modules: Seq[Module]
-  ): Unit = {
-    val manager    = ProjectTaskManager.getInstance(project)
-    val connection = project.getMessageBus().connect(project)
-
-    connection.subscribe(CompilerReferenceServiceStatusListener.topic, new CompilerReferenceServiceStatusListener {
-      override def onIndexingFinished(failure: Option[IndexerFailure]): Unit = {
-        if (failure.isEmpty) {
-          val findManager = FindManager.getInstance(project).asInstanceOf[FindManagerImpl]
-          val handler = new ScalaFindUsagesHandler(target, self)
-
-          val runnable: Runnable = () =>
-            findManager.getFindUsagesManager.findUsages(
-              handler.getPrimaryElements,
-              handler.getSecondaryElements,
-              handler,
-              handler.getFindUsagesOptions(),
-              false
-            )
-
-          TransactionGuard.getInstance().submitTransactionAndWait(runnable)
-        }
-        connection.disconnect()
-      }
-    })
-
-    val notification: ProjectTaskNotification =
-      result  => if (result.isAborted || result.getErrors != 0) connection.disconnect()
-    manager.build(modules.toArray, notification)
-  }
-
   private[this] def doBeforeImplicitSearchAction(target: PsiNamedElement): Boolean =
-    assertSearchScopeIsSufficient(target) match {
-      case Some(BuildModules(modules)) =>
-        buildScopeBeforeImplicitSearch(target, modules)
-        false
-      case Some(RebuildProject) =>
-        val manager = ProjectTaskManager.getInstance(project)
-        manager.rebuildAllModules()
-        false
-      case Some(CancelSearch) => false
-      case None               => true
-    }
+    assertSearchScopeIsSufficient(target).forall(_.runAction())
 
   private[this] def suggestChooseSuper(e: PsiElement): Option[PsiNamedElement] = {
     def needToAsk(named: PsiNamedElement): Boolean = named match {

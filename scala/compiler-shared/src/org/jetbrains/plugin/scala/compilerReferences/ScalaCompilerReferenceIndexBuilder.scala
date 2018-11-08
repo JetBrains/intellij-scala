@@ -4,7 +4,7 @@ import java.io.File
 import java.util
 
 import org.jetbrains.jps.ModuleChunk
-import org.jetbrains.jps.builders.DirtyFilesHolder
+import org.jetbrains.jps.builders.{BuildTarget, DirtyFilesHolder}
 import org.jetbrains.jps.builders.java.{JavaModuleBuildTargetType, JavaSourceRootDescriptor}
 import org.jetbrains.jps.incremental.ModuleLevelBuilder.ExitCode
 import org.jetbrains.jps.incremental.messages.CustomBuilderMessage
@@ -25,20 +25,15 @@ class ScalaCompilerReferenceIndexBuilder extends ModuleLevelBuilder(BuilderCateg
   override def buildStarted(context: CompileContext): Unit =
     context.processMessage(CompilationStarted(isRebuildInAllModules(context)))
 
-  override def buildFinished(context: CompileContext): Unit = {
-    val pd = context.getProjectDescriptor
+  override def buildFinished(context: CompileContext): Unit = context.processMessage(CompilationFinished)
 
-    val timestamp = allJavaTargetTypes
-      .flatMap(pd.getBuildTargetIndex.getAllTargets(_).asScala)
-      .map { target =>
-        val stamp = context.getCompilationStartStamp(target)
-        if (stamp == 0) Long.MaxValue
-        else stamp
-      }
-      .min
+  private[this] def getTargetTimestamps(targets: Traversable[BuildTarget[_]], context: CompileContext): Long =
+    targets.collect { case target: ModuleBuildTarget =>
+      val stamp = context.getCompilationStartStamp(target)
 
-    context.processMessage(CompilationFinished(timestamp))
-  }
+      if (stamp == 0) Long.MaxValue
+      else            stamp
+    }.min
 
   override def build(
     context:          CompileContext,
@@ -56,6 +51,8 @@ class ScalaCompilerReferenceIndexBuilder extends ModuleLevelBuilder(BuilderCateg
         .map(cc => CompiledClass(cc.getSourceFile, cc.getOutputFile))
         .toSet
 
+    val timestamp = getTargetTimestamps(chunk.getTargets.asScala, context)
+
     val removedSources = for {
       target      <- chunk.getTargets.asScala.toSet if target != null
       removedFile <- dirtyFilesHolder.getRemovedFiles(target).asScala
@@ -64,7 +61,8 @@ class ScalaCompilerReferenceIndexBuilder extends ModuleLevelBuilder(BuilderCateg
     val data = JpsCompilationInfo(
       affectedModules,
       removedSources,
-      compiledClasses
+      compiledClasses,
+      timestamp
     )
 
     if (removedSources.nonEmpty || compiledClasses.nonEmpty) context.processMessage(ChunkCompilationInfo(data))
@@ -92,8 +90,8 @@ object ScalaCompilerReferenceIndexBuilder {
   final case class ChunkCompilationInfo(data: JpsCompilationInfo)
       extends CustomBuilderMessage(id, compilationDataType, data.toJson.compactPrint)
 
-  final case class CompilationFinished(timestamp: Long)
-      extends CustomBuilderMessage(id, compilationFinishedType, timestamp.toJson.compactPrint)
+  final case object CompilationFinished
+      extends CustomBuilderMessage(id, compilationFinishedType, "")
 
   final case class CompilationStarted(isCleanBuild: Boolean)
       extends CustomBuilderMessage(id, compilationStartedType, isCleanBuild.toJson.compactPrint)

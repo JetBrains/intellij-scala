@@ -61,13 +61,15 @@ class SbtProcessManager(project: Project) extends ProjectComponent {
   // this *might* get messy if multiple IDEA projects start messing with the global settings.
   // but we should be fine since it is written before every sbt boot
   private def sbtStructurePlugin(sbtMajorVersion: Version): Seq[String] = {
-    val sbtStructureVersion = BuildInfo.sbtStructureVersion
-    val sbtIdeaShellVersion = BuildInfo.sbtIdeaShellVersion
+    val sbtStructureVersion           = BuildInfo.sbtStructureVersion
+    val sbtIdeaShellVersion           = BuildInfo.sbtIdeaShellVersion
+    val sbtIdeaCompilerIndicesVersion = BuildInfo.sbtIdeaCompilerIndicesVersion
     sbtMajorVersion.presentation match {
       case "0.12" => Seq.empty // 0.12 doesn't support AutoPlugins
       case _ => Seq(
         s"""addSbtPlugin("org.jetbrains" % "sbt-structure-extractor" % "$sbtStructureVersion")""",
-        s"""addSbtPlugin("org.jetbrains" % "sbt-idea-shell" % "$sbtIdeaShellVersion")"""
+        s"""addSbtPlugin("org.jetbrains" % "sbt-idea-shell" % "$sbtIdeaShellVersion")""",
+        s"""addSbtPlugin("org.jetbrains" % "sbt-idea-compiler-indices" % "$sbtIdeaCompilerIndicesVersion")"""
       ) // works for 0.13.5+, for older versions it will be ignored
     }
   }

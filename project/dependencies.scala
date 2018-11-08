@@ -9,6 +9,7 @@ object Versions {
   val ideaVersion = "191.5701.16"
   val sbtStructureVersion: String = "2018.2.1+4-88400d3f"
   val sbtIdeaShellVersion: String = "2018.3"
+  val sbtIdeaCompilerIndicesVersion = "0.1.0"
   val scalaMetaVersion = "1.8.0"
   val paradiseVersion = "3.0.0-M11"
   val scalazVersion = "7.1.0"
@@ -97,6 +98,7 @@ object Dependencies {
 
   val bcel: ModuleID = "org.apache.bcel" % "bcel" % "6.0"
 
+  // has to be in the compiler process classpath along with spray-json
   val compilerIndicesProtocol: ModuleID = "org.jetbrains" %% "scala-compiler-indices-protocol" % "0.1.0"
 
   val nailgun: ModuleID = "org.jetbrains" % "nailgun-patched" % "1.0.0"

@@ -1,36 +1,39 @@
 package org.jetbrains.plugins.scala.findUsages.compilerReferences
 
-import java.io.{BufferedReader, File, FileInputStream, InputStreamReader}
+import java.io._
 import java.nio.charset.StandardCharsets
+import java.nio.file.{Files, Path, Paths}
 import java.util.UUID
 
-import com.intellij.openapi.compiler.CompilerPaths
+import com.intellij.ProjectTopics
 import com.intellij.openapi.diagnostic.Logger
-import com.intellij.openapi.module.ModuleManager
-import com.intellij.openapi.project.Project
+import com.intellij.openapi.module.Module
+import com.intellij.openapi.project.{ModuleListener, Project}
 import org.jetbrains.plugins.scala.extensions._
+import org.jetbrains.plugins.scala.findUsages.compilerReferences.CompilationWatcher.CompilerIndicesState
 import org.jetbrains.plugins.scala.findUsages.compilerReferences.SbtCompilationListener.ProjectIdentifier
 import org.jetbrains.plugins.scala.findUsages.compilerReferences.SbtCompilationListener.ProjectIdentifier._
 import org.jetbrains.plugins.scala.indices.protocol.IdeaIndicesJsonProtocol._
-import org.jetbrains.plugins.scala.indices.protocol.sbt._
 import org.jetbrains.plugins.scala.indices.protocol.sbt.Locking.FileLockingExt
+import org.jetbrains.plugins.scala.indices.protocol.sbt._
 import org.jetbrains.plugins.scala.project._
 import spray.json._
 
 import scala.util.Try
+import scala.util.control.NonFatal
 
 private class SbtCompilationWatcher(
-  override val project:                       Project,
-  protected override val currentCompilerMode: () => CompilerMode,
+  override val project:            Project,
+  override val transactionManager: TransactionManager[CompilerIndicesState],
+  val indexVersion:                Int
 ) extends CompilationWatcher[CompilerMode.SBT.type] {
   import SbtCompilationWatcher._
 
-  private[this] val projectBase: String = project.getBasePath
-  private[this] val moduleManager       = ModuleManager.getInstance(project)
+  private[this] val projectBase: Path = Paths.get(project.getBasePath)
 
   private[this] def parseCompilationInfo(infoFile: File): Try[SbtCompilationInfo] = {
     val result = Try {
-      val br      = new BufferedReader(new InputStreamReader(new FileInputStream(infoFile), StandardCharsets.UTF_8))
+      val br      = Files.newBufferedReader(infoFile.toPath, StandardCharsets.UTF_8)
       val builder = StringBuilder.newBuilder
 
       using(br) { in =>
@@ -49,16 +52,26 @@ private class SbtCompilationWatcher(
     result
   }
 
-  private[this] def processCompilationInfo(sbtInfo: SbtCompilationInfo, isOffline: Boolean = false): Unit = {
-    val module               = moduleManager.findModuleByName(sbtInfo.project)
-    val isAppropriateVersion = module.scalaLanguageLevel.forall(_.version == sbtInfo.scalaVersion)
+  private[this] def processCompilationInfo(
+    sbtInfo:   SbtCompilationInfo,
+    publisher: CompilerIndicesEventPublisher,
+    isOffline: Boolean = false
+  ): Unit = {
+    val maybeModule = findIdeaModule(project, sbtInfo.projectId)
+
+    val isAppropriateVersion = (for {
+      module        <- maybeModule
+      languageLevel <- module.scalaLanguageLevel
+    } yield languageLevel.version == sbtInfo.scalaVersion).getOrElse(false)
 
     // ignore cross compilation infos
     if (isAppropriateVersion) {
-      eventPublisher.startIndexing(isCleanBuild = !sbtInfo.isIncremental)
-      eventPublisher.processCompilationInfo(sbtInfo, isOffline)
-      eventPublisher.finishIndexing(sbtInfo.startTimestamp)
+      publisher.startIndexing(isCleanBuild = !sbtInfo.isIncremental)
+      publisher.processCompilationInfo(sbtInfo, isOffline)
+      publisher.finishIndexing()
     }
+
+    publisher.onCompilationFinish()
   }
 
   private[this] def processOfflineInfos(infoFiles: Seq[File]): Unit = {
@@ -66,8 +79,11 @@ private class SbtCompilationWatcher(
 
     if (parsedInfos.size != infoFiles.size) {
       logger.error(new RuntimeException("Failed to parse some compilation analysis files."))
-      eventPublisher.onError()
-    } else parsedInfos.sortBy(_.startTimestamp).foreach(processCompilationInfo(_, isOffline = true))
+      processEventInTransaction(_.onError())
+    } else {
+      val infos = parsedInfos.sortBy(_.startTimestamp)
+      processEventInTransaction { publisher => infos.foreach(processCompilationInfo(_, publisher, isOffline = true)) }
+    }
   }
 
   override def compilerMode: CompilerMode.SBT.type = CompilerMode.SBT
@@ -76,65 +92,77 @@ private class SbtCompilationWatcher(
     val messageBus = project.getMessageBus
     val connection = messageBus.connect(project)
 
+    connection.subscribe(ProjectTopics.MODULES, new ModuleListener {
+      // if an sbt project is added to the IDEA model, just nuke the indices
+      // since it may possess a compiler state we are unaware of
+      // (this is fine since reindexing is relatively cheap with sbt (no rebuild)).
+      override def moduleAdded(project: Project, module: Module): Unit =
+        processEventInTransaction(_.onError())
+    })
+
     // can be called from multiple threads in case of a parallel compilation of
     // independent sbt subprojects
     connection.subscribe(SbtCompilationListener.topic, new SbtCompilationListener {
-      private def shouldProcess(identifier: ProjectIdentifier): Boolean =
-        isEnabled && (identifier match {
-          case ProjectBase(`projectBase`) | Unidentified => true
-          case _                                         => false
-        })
+      private def thisBuild(identifier: ProjectIdentifier): Boolean = identifier match {
+        case ProjectBase(`projectBase`) | Unidentified => true
+        case _                                         => false
+      }
 
-      override def beforeCompilationStart(base: ProjectBase): Unit =
-        if (shouldProcess(base)) eventPublisher.onCompilationStart()
+      override def beforeCompilationStart(base: ProjectBase, compilationId: UUID): Unit =
+        if (thisBuild(base)) processEventInTransaction(_.onCompilationStart())
 
-      override def connectionFailure(identifier: ProjectIdentifier): Unit =
-        if (shouldProcess(identifier)) eventPublisher.onError()
+      override def connectionFailure(identifier: ProjectIdentifier, compilationId: Option[UUID]): Unit =
+        if (thisBuild(identifier)) processEventInTransaction(_.onError())
 
       override def onCompilationFailure(
         identifier:    ProjectBase,
         compilationId: UUID
-      ): Unit = if (shouldProcess(identifier)) eventPublisher.finishIndexing(-1L) // todo
+      ): Unit = if (thisBuild(identifier)) processEventInTransaction(_.onCompilationFinish())
 
       override def onCompilationSuccess(
         base:                ProjectBase,
         compilationId:       UUID,
         compilationInfoFile: String
-      ): Unit = if (shouldProcess(base)) {
+      ): Unit = if (thisBuild(base)) {
         val infoFile = new File(compilationInfoFile)
+        // here we parse compilation info files unconditionally (even if compilerMode == JPS)
+        // to avoid doing it in transaction, this is relatively small overhead and allows
+        // us to keep transactions short and avoid blocking UI thread.
         parseCompilationInfo(infoFile).fold(
-          error => {
-            logger.error(s"Failed to parse compilation info file ${compilationId.toString}", error)
-            eventPublisher.onError()
+          error => processEventInTransaction { publisher =>
+            logger.error(s"Failed to parse compilation info file $compilationId", error)
+            publisher.onError()
           },
-          sbtInfo => processCompilationInfo(sbtInfo)
+          sbtInfo => processEventInTransaction(processCompilationInfo(sbtInfo, _))
         )
       }
     })
   }
 
-  override def start(): Unit = if (isEnabled) {
-    executeOnPooledThread {
-      val modules = project.sourceModules
-      val baseDir = new File(projectBase)
+  override def start(): Unit = executeOnPooledThread {
+    try {
+      val baseInfoDir            = compilationInfoBaseDir(projectBase.toFile).toFile
+      val moduleInfoDirs         = baseInfoDir.listFiles().toOption.getOrElse(Array.empty)
+      val fileFilter: FileFilter = _.getName.startsWith(compilationInfoFilePrefix)
+      val offlineInfos           = moduleInfoDirs.flatMap(_.listFiles(fileFilter).toOption.getOrElse(Array.empty))
 
-      val offlineInfos = modules.flatMap { module =>
-        val outputDir          = CompilerPaths.getModuleOutputDirectory(module, false)
-        val target             = outputDir.getParent.getParent
-        val compilationInfoDir = new File(s"$target/$compilationInfoDirName")
-        compilationInfoDir.listFiles(_.getName.startsWith(compilationInfoFilePrefix))
-      }
+      moduleInfoDirs.foreach(_.lock(log = logger.info))
 
-      if (offlineInfos.nonEmpty) {
-        logger.info(
-          s"Processing ${offlineInfos.length} compilation analysis files, " +
-            s"from unsupervised sbt compilations: ${offlineInfos.map(_.getPath).mkString("[\n\t", ",\n\t", "\n]")}"
-        )
-      }
+      try {
+        if (offlineInfos.nonEmpty && upToDateCompilerIndexExists(project, indexVersion)) {
+          logger.info(
+            s"Processing ${offlineInfos.length} compilation analysis files, " +
+              s"from unsupervised sbt compilations: ${offlineInfos.map(_.getPath).mkString("[\n\t", ",\n\t", "\n]")}"
+          )
+          processOfflineInfos(offlineInfos)
+        } else offlineInfos.foreach(_.delete())
 
-      baseDir.withLockInDir {
-        processOfflineInfos(offlineInfos)
         subscribeToSbtNotifications()
+      } finally moduleInfoDirs.foreach(_.unlock(log = logger.info))
+    } catch {
+      case NonFatal(e) => processEventInTransaction { publisher =>
+        logger.error(s"An error occured while trying to read sbt compilation info files.", e)
+        publisher.onError()
       }
     }
   }
