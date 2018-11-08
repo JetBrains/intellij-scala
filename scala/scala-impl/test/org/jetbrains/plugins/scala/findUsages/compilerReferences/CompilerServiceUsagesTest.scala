@@ -63,46 +63,38 @@ class CompilerServiceUsagesTest extends ScalaCompilerReferenceServiceFixture {
     assertEquals(expected, usages)
   }
 
-//  def testTyping(): Unit = {
-//    val fileA =
-//      myFixture.configureByText(
-//        "Target.scala",
-//        s"object Target { trait Foo; implicit val fo${CARET}o: Ordering[Foo] = null }"
-//      )
-//
-//    val fileB =
-//      myFixture.addFileToProject(
-//        "Typing.scala",
-//        """
-//          |import Target._
-//          |
-//          |object Usage {
-//          |  List.empty[Foo].sorted
-//          |}
-//        """.stripMargin
-//      )
-//
-//    val fileC =
-//      myFixture.addFileToProject(
-//        "UpToDate.scala",
-//        """
-//          |object
-//        """.stripMargin
-//      )
-//    rebuildProjectAndIndex()
-//    val target = implicitSearchTargetAtCaret
-//    val scope = service.dirtyScopeForDefinition(target)
-//    Seq(fileA, fileB, fileC).foreach(f => assertFalse(scope.contains(f.getVirtualFile)))
-//    val usages = service.usagesOf(target)
-//    assertTrue("Unexpected empty usages.", usages.nonEmpty)
-//    myFixture.openFileInEditor(fileB.getVirtualFile)
-//    myFixture.`type`("/* bla-bla-bla */")
-//    val scope2 = service.dirtyScopeForDefinition(target)
-//    Seq(fileA, fileB).foreach(f => assertTrue(scope2.contains(f.getVirtualFile)))
-//    assertFalse(scope2.contains(fileC.getVirtualFile))
-//    val usages2 = service.usagesOf(target)
-//    assertTrue("Should not return usages from dirty scope.", usages2.isEmpty)
-//  }
+  def testTyping(): Unit = {
+    val fileA =
+      myFixture.configureByText(
+        "TypingA.scala",
+        s"object TypingA { trait Foo; implicit val fo${CARET}o: Ordering[Foo] = null }"
+      )
+
+    val fileB =
+      myFixture.addFileToProject(
+        "TypingB.scala",
+        """
+          |import TypingA._
+          |
+          |object TypingB {
+          |  List.empty[Foo].sorted
+          |}
+        """.stripMargin
+      )
+
+    buildProject()
+    val target = implicitSearchTargetAtCaret
+    val scope = service.dirtyScopeForDefinition(target)
+    Seq(fileA, fileB).foreach(f => assertFalse(scope.contains(f.getVirtualFile)))
+    val usages = service.usagesOf(target)
+    assertTrue("Unexpected empty usages.", usages.nonEmpty)
+    myFixture.openFileInEditor(fileB.getVirtualFile)
+    myFixture.`type`("/* bla-bla-bla */")
+    val scope2 = service.dirtyScopeForDefinition(target)
+    Seq(fileA, fileB).foreach(f => assertTrue(scope2.contains(f.getVirtualFile)))
+    val usages2 = service.usagesOf(target)
+    assertTrue("Should not return usages from dirty scope.", usages2.isEmpty)
+  }
 
   def testSimple(): Unit =
     runSearchTest(
@@ -219,28 +211,32 @@ class CompilerServiceUsagesTest extends ScalaCompilerReferenceServiceFixture {
        """.stripMargin
     )("ImplicitClassB.scala" -> Set(4, 5, 6))()
 
-//  def testUsageFromLibrary(): Unit = 
-//    runSearchTest(
-//      "UsageFromLibrary.scala" ->
-//      s"""
-//         |object UsageFromLibrary {
-//         |  42.formatted("the answer is %d")
-//         |} 
-//       """.stripMargin
-//    )("UsageFromLibrary.scala" -> Set(3))(findClass[StringFormat[_]])
+  def testUsageFromLibrary(): Unit = 
+    runSearchTest(
+      "UsageFromLibrary.scala" ->
+      s"""
+         |import scala.collection.JavaConverters._
+         |object UsageFromLibrary {
+         |  Set(1, 2, 3).asJava
+         |} 
+       """.stripMargin
+    )("UsageFromLibrary.scala" -> Set(4)) {
+      val aClass = myFixture.findClass("scala.collection.convert.Decorators.AsJava")
+      aClass.getMethods.find(_.getName == "asJava").get
+    }
 
-//  def testPrivateThis(): Unit = 
-//    runSearchTest(
-//      "PrivateThis.scala" ->
-//      s"""
-//         |object PrivateThis {
-//         |  trait Foo[T]
-//         |  private[this] implicit val ${CARET}x: Foo[Int] = ???
-//         |  
-//         |  implicitly[Foo[Int]]
-//         |}
-//       """.stripMargin
-//    )("PrivateThis.scala" -> Set(6))()
+  def testPrivateThis(): Unit = 
+    runSearchTest(
+      "PrivateThis.scala" ->
+      s"""
+         |object PrivateThis {
+         |  trait Foo[T]
+         |  private[this] implicit val ${CARET}x: Foo[Int] = null
+         |  
+         |  implicitly[Foo[Int]]
+         |}
+       """.stripMargin
+    )("PrivateThis.scala" -> Set(4, 6))()
 
   def testApplyMethod(): Unit = 
     runSearchTest(

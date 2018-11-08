@@ -107,10 +107,11 @@ private[findUsages] class ScalaCompilerReferenceService(
    * Returns usages only from up-to-date compiled scope.
    */
   def usagesOf(target: PsiElement): Set[LinesWithUsagesInFile] = withLock(myReadDataLock) {
-    val usages = Set.newBuilder[LinesWithUsagesInFile]
+    val usages       = Set.newBuilder[LinesWithUsagesInFile]
+    val actualTarget = ScalaCompilerRefAdapter.bytecodeElement(target)
 
     for {
-      elementInfo <- asCompilerElements(target, false, false).toOption
+      elementInfo <- asCompilerElements(actualTarget, false, false).toOption
       reader      <- myReader.toOption
       targets     = elementInfo.searchElements
     } yield targets.foreach(target => usages ++= reader.usagesOf(target))

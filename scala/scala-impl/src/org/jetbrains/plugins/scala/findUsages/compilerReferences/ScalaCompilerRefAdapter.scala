@@ -14,12 +14,12 @@ import org.jetbrains.plugins.scala.lang.psi.api.toplevel.ScTypedDefinition
 import org.jetbrains.plugins.scala.lang.psi.fake.FakePsiMethod
 import org.jetbrains.plugins.scala.extensions._
 import org.jetbrains.plugins.scala.lang.psi.ScalaPsiUtil
+import org.jetbrains.plugins.scala.lang.psi.ScalaPsiUtil.inNameContext
 import org.jetbrains.plugins.scala.lang.psi.api.base.patterns.ScBindingPattern
-import org.jetbrains.plugins.scala.lang.psi.api.statements.ScValueOrVariable
+import org.jetbrains.plugins.scala.lang.psi.api.statements.{ScFunction, ScValueOrVariable}
+import org.jetbrains.plugins.scala.lang.psi.light.{PsiMethodWrapper, ScFunctionWrapper}
 
 private class ScalaCompilerRefAdapter extends JavaCompilerRefAdapterCompat {
-  import ScalaCompilerRefAdapter._
-
   override def getFileTypes: util.Set[FileType] =
     new util.HashSet[FileType](
       util.Arrays.asList(ScalaFileType.INSTANCE)
@@ -36,12 +36,16 @@ private class ScalaCompilerRefAdapter extends JavaCompilerRefAdapterCompat {
         id        <- tryEnumerate(enumerator, ownerName)
       } yield id
 
-    referencingBytecodeElement(element) match {
-      case field: PsiField =>
-        for {
-          owner <- ownerId(field)
-          name  <- tryEnumerate(enumerator, field.name)
-        } yield new CompilerRef.JavaCompilerFieldRef(owner, name)
+    def fieldLikeRef(member: PsiMember): Option[CompilerRef] =
+      for {
+        owner <- ownerId(member)
+        name  <- tryEnumerate(enumerator, member.getName)
+      } yield new CompilerRef.JavaCompilerFieldRef(owner, name)
+
+    element match {
+      case cParam: ScClassParameter                                                     => fieldLikeRef(cParam)
+      case (pat: ScBindingPattern) && inNameContext(v: ScValueOrVariable) if !v.isLocal => fieldLikeRef(pat)
+      case field: PsiField                                                              => fieldLikeRef(field)
       case method: PsiMethod =>
         for {
           owner <- ownerId(method)
@@ -52,6 +56,7 @@ private class ScalaCompilerRefAdapter extends JavaCompilerRefAdapterCompat {
           name <- ClassUtil.getJVMClassName(aClass).toOption
           id   <- tryEnumerate(enumerator, name)
         } yield new CompilerRef.JavaCompilerClassRef(id)
+      case _ => None
     }
   }
 
@@ -70,10 +75,11 @@ private class ScalaCompilerRefAdapter extends JavaCompilerRefAdapterCompat {
 }
 
 object ScalaCompilerRefAdapter {
-  private[findUsages] def referencingBytecodeElement(element: PsiElement): PsiElement =
+  private[findUsages] def bytecodeElement(element: PsiElement): PsiElement =
     inReadAction(element match {
-      case hasSyntheticGetter(getter) => getter
-      case _                          => element
+      case SyntheticImplicitMethod(member) => member
+      case HasSyntheticGetter(getter)      => getter
+      case _                               => element
     })
 
   private[this] class BytecodeMethod(e: ScTypedDefinition, name: String)
@@ -85,17 +91,26 @@ object ScalaCompilerRefAdapter {
         Function.const(false)
       )
 
-  object hasSyntheticGetter {
-    private[this] def syntheticGetterMethod(e: ScTypedDefinition): FakePsiMethod =
+  object SyntheticImplicitMethod {
+    def unapply(e: PsiElement): Option[PsiMethodWrapper] = e match {
+      case f: ScFunction if f.isSynthetic =>
+        new ScFunctionWrapper(f, isStatic = false, isInterface = false, None) {
+          override def getContainingFile: PsiFile = ScalaPsiUtil.fileContext(f)
+        }.toOption
+      case _ => None
+    }
+  }
+
+  object HasSyntheticGetter {
+    private[this] def syntheticGetter(e: ScTypedDefinition): FakePsiMethod =
       new BytecodeMethod(e, e.name) {
         override def getContainingFile: PsiFile = e.getContainingFile
       }
 
     def unapply(e: PsiElement): Option[FakePsiMethod] = e match {
-      case c: ScClassParameter if !c.isPrivateThis => Option(syntheticGetterMethod(c))
-      case (bp: ScBindingPattern) && ScalaPsiUtil.inNameContext(v: ScValueOrVariable)
-          if !v.isLocal && !v.isPrivateThis =>
-        Option(syntheticGetterMethod(bp))
+      case c: ScClassParameter if !c.isPrivateThis => Option(syntheticGetter(c))
+      case (bp: ScBindingPattern) && inNameContext(v: ScValueOrVariable) if !v.isLocal && !v.isPrivateThis =>
+        Option(syntheticGetter(bp))
       case _ => None
     }
   }
