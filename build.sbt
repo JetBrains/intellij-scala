@@ -21,7 +21,6 @@ lazy val scalaCommunity: sbt.Project =
     .dependsOn(
       bsp % "test->test;compile->compile",
       scalaImpl % "test->test;compile->compile",
-      hydraImpl % "test->test;compile->compile",
       androidIntegration % "test->test;compile->compile",
       copyrightIntegration % "test->test;compile->compile",
       gradleIntegration % "test->test;compile->compile",
@@ -31,7 +30,7 @@ lazy val scalaCommunity: sbt.Project =
       javaDecompilerIntegration)
     .settings(
       ideExcludedDirectories    := Seq(baseDirectory.value / "target"),
-      packageAdditionalProjects := Seq(hydraCompilerJps, compilerJps, repackagedZinc, decompiler, compilerShared, nailgunRunners, runners, sbtRuntimeDependencies),
+      packageAdditionalProjects := Seq(compilerJps, repackagedZinc, decompiler, compilerShared, nailgunRunners, runners, sbtRuntimeDependencies),
       packageLibraryMappings    := Dependencies.scalaLibrary -> Some("lib/scala-library.jar") :: Nil,
       definedTests in Test := { // all sub-project tests need to be run within main project's classpath
         definedTests.all(ScopeFilter(inDependencies(scalaCommunity, includeRoot = false), inConfigurations(Test))).value.flatten })
@@ -92,22 +91,6 @@ lazy val scalaImpl: sbt.Project =
         BuildInfoKey.constant("sbtLatestVersion", Versions.sbtVersion)
       )
     )
-
-lazy val hydraImpl: sbt.Project =
-  newProject("hydra-impl", file("hydra/hydra-impl"))
-    .dependsOn(scalaImpl)
-    .enablePlugins(BuildInfoPlugin)
-    .settings(
-      javacOptions in Global ++= Seq("-source", "1.8", "-target", "1.8"),
-      scalacOptions in Global ++= Seq("-target:jvm-1.8", "-deprecation"),
-      packageMethod := PackagingMethod.MergeIntoOther(scalaCommunity)
-    )
-
-lazy val hydraCompilerJps: sbt.Project =
-  newProject("hydra-compiler-jps", file("hydra/compiler-jps"))
-    .dependsOn(compilerJps)
-    .settings(
-      packageMethod           :=  PackagingMethod.Standalone("lib/jps/hydra-compiler-jps.jar", static = true))
 
 lazy val scalaFmtBin: sbt.Project =
   newProject("scalaFmtBin", file("scalaFmtBin"))
