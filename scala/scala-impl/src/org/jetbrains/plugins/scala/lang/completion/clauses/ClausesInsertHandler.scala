@@ -81,20 +81,18 @@ private[clauses] object ClausesInsertHandler {
       case ScParameterizedTypeElement(SimpleTypeReferenceReference(reference), _) => reference
     }).getText
 
-    (typeElement, components) match {
-      case (simpleTypeElement: ScSimpleTypeElement, _) if simpleTypeElement.singleton =>
-        referenceText
-      case (_, extractorComponents: SyntheticExtractorPatternComponents) =>
-        extractorComponents.extractorText(referenceText) { parameter =>
-          parameter.name + (if (parameter.isVarArgs) "@_*" else "")
-        }
-      case (_, extractorComponents: PhysicalExtractorPatternComponents) =>
-        extractorComponents.defaultExtractorText(referenceText)
+    typeElement match {
+      case simpleTypeElement: ScSimpleTypeElement if simpleTypeElement.singleton => referenceText
       case _ =>
-        val name = typeElement.`type`().toOption
-          .flatMap(NameSuggester.suggestNamesByType(_).headOption)
-          .getOrElse(extensions.Placeholder)
-        s"$name: ${typeElement.getText}"
+        components match {
+          case extractorComponents: ExtractorPatternComponents[_] =>
+            extractorComponents.extractorText(referenceText)
+          case _ =>
+            val name = typeElement.`type`().toOption
+              .flatMap(NameSuggester.suggestNamesByType(_).headOption)
+              .getOrElse(extensions.Placeholder)
+            s"$name: ${typeElement.getText}"
+        }
     }
   }
 

@@ -7,6 +7,7 @@ import com.intellij.psi.{PsiClass, PsiElement}
 import org.jetbrains.plugins.scala.extensions._
 import org.jetbrains.plugins.scala.lang.psi.api.base.ScPrimaryConstructor
 import org.jetbrains.plugins.scala.lang.psi.api.base.patterns.ScPattern
+import org.jetbrains.plugins.scala.lang.psi.api.statements.params.ScClassParameter
 import org.jetbrains.plugins.scala.lang.psi.api.toplevel.typedef.{ScClass, ScTypeDefinition}
 import org.jetbrains.plugins.scala.lang.psi.types.{ScType, ScalaTypePresentation}
 
@@ -35,21 +36,21 @@ private[clauses] sealed abstract class ExtractorPatternComponents[T](clazz: ScTy
                                                                      components: Seq[T])
   extends TypedPatternComponents(clazz) {
 
-  final def defaultExtractorText(referenceText: String = clazz.name): String =
-    extractorText(referenceText) {
-      Function.const(Placeholder)
-    }
-
-  final def extractorText(referenceText: String)
-                         (componentText: T => String): String =
+  final def extractorText(referenceText: String = clazz.name): String =
     referenceText + components
       .map(componentText)
       .commaSeparated(Model.Parentheses)
+
+  protected def componentText(component: T): String
 }
 
 private[clauses] class SyntheticExtractorPatternComponents private(clazz: ScClass,
                                                                    method: ScPrimaryConstructor)
-  extends ExtractorPatternComponents(clazz, method.effectiveFirstParameterSection)
+  extends ExtractorPatternComponents(clazz, method.effectiveFirstParameterSection) {
+
+  override protected def componentText(parameter: ScClassParameter): String =
+    parameter.name + (if (parameter.isVarArgs) "@_*" else "")
+}
 
 private[clauses] object SyntheticExtractorPatternComponents {
 
@@ -61,7 +62,10 @@ private[clauses] object SyntheticExtractorPatternComponents {
 
 private[clauses] class PhysicalExtractorPatternComponents private(clazz: ScTypeDefinition,
                                                                   components: Seq[ScType])
-  extends ExtractorPatternComponents(clazz, components)
+  extends ExtractorPatternComponents(clazz, components) {
+
+  override protected def componentText(`type`: ScType): String = Placeholder
+}
 
 private[clauses] object PhysicalExtractorPatternComponents {
 

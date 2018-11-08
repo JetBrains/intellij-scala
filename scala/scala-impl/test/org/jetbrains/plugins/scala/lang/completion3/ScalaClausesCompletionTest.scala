@@ -31,7 +31,34 @@ class ScalaClausesCompletionTest extends ScalaCodeInsightTestBase {
          |Foo()() match {
          |  case Foo(foo)$CARET
          |}
-       """.stripMargin
+       """.stripMargin,
+    itemText = "Foo(foo)"
+  )
+
+  def testInnerSyntheticUnapply(): Unit = doPatternCompletionTest(
+    fileText =
+      s"""sealed trait Foo
+         |
+         |object Foo {
+         |  case class Bar(foo: Int = 42) extends Foo
+         |}
+         |
+         |(_: Foo) match {
+         |  case Foo.B$CARET
+         |}
+       """.stripMargin,
+    resultText =
+      s"""sealed trait Foo
+         |
+         |object Foo {
+         |  case class Bar(foo: Int = 42) extends Foo
+         |}
+         |
+         |(_: Foo) match {
+         |  case Foo.Bar(foo)$CARET
+         |}
+       """.stripMargin,
+    itemText = "Bar(foo)"
   )
 
   def testSyntheticUnapplyVararg(): Unit = doPatternCompletionTest(
@@ -48,7 +75,8 @@ class ScalaClausesCompletionTest extends ScalaCodeInsightTestBase {
          |Foo() match {
          |  case Foo(foos@_*)$CARET
          |}
-       """.stripMargin
+       """.stripMargin,
+    itemText = "Foo(foos@_*)"
   )
 
   def testUnapply(): Unit = doPatternCompletionTest(
@@ -73,7 +101,8 @@ class ScalaClausesCompletionTest extends ScalaCodeInsightTestBase {
          |(_: Foo) match {
          |  case Foo(_)$CARET
          |}
-         """.stripMargin
+         """.stripMargin,
+    itemText = "Foo(_)"
   )
 
   def testBeforeCase(): Unit = checkNoCompletion(
@@ -127,7 +156,7 @@ class ScalaClausesCompletionTest extends ScalaCodeInsightTestBase {
          |  case Baz(null | Baz(foo)$CARET)
          |}
        """.stripMargin,
-    itemText = "Baz(_)"
+    itemText = "Baz(foo)"
   )
 
   def testCollectPatternCompletion(): Unit = doPatternCompletionTest(
@@ -144,7 +173,8 @@ class ScalaClausesCompletionTest extends ScalaCodeInsightTestBase {
          |Some(Foo()()).collect {
          |  case Foo(foo)$CARET
          |}
-       """.stripMargin
+       """.stripMargin,
+    itemText = "Foo(foo)"
   )
 
   def testNamedPatternCompletion(): Unit = doPatternCompletionTest(
@@ -161,7 +191,8 @@ class ScalaClausesCompletionTest extends ScalaCodeInsightTestBase {
          |Foo() match {
          |  case foo@Foo(foo)$CARET
          |}
-       """.stripMargin
+       """.stripMargin,
+    itemText = "Foo(foo)"
   )
 
   def testSealedTrait(): Unit = doMatchCompletionTest(
@@ -549,8 +580,7 @@ class ScalaClausesCompletionTest extends ScalaCodeInsightTestBase {
        """.stripMargin
   )
 
-  private def doPatternCompletionTest(fileText: String, resultText: String,
-                                      itemText: String = "Foo(_)"): Unit =
+  private def doPatternCompletionTest(fileText: String, resultText: String, itemText: String): Unit =
     super.doCompletionTest(fileText, resultText, REPLACE_SELECT_CHAR, DEFAULT_TIME, BASIC) {
       hasItemText(_, itemText, itemText, itemTextItalic = true)
     }

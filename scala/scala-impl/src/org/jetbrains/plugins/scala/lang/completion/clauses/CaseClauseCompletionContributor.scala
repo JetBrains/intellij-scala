@@ -35,9 +35,9 @@ class CaseClauseCompletionContributor extends ScalaCompletionContributor {
         inheritors <- maybeInheritors.toSeq
         components <- inheritors.inexhaustivePatterns(position)
 
-        lookupString = components.defaultExtractorText()
+        lookupString = components.extractorText()
         lookupElement = createLookupElement(lookupString)(itemTextItalic = true) {
-          createInsertHandler(components)
+          createInsertHandler(lookupString, components)
         }
       } result.addElement(lookupElement)
     }
@@ -79,12 +79,13 @@ object CaseClauseCompletionContributor {
       createPatternFromTextWithContext(text, context, child).asInstanceOf[ScTypedPattern]
   }
 
-  private def createInsertHandler(components: ExtractorPatternComponents[_]) = new ClausesInsertHandler(classOf[ScParenthesisedPattern]) {
+  private def createInsertHandler(lookupString: String,
+                                  components: ExtractorPatternComponents[_]) = new ClausesInsertHandler(classOf[ScConstructorPattern]) {
 
     import ClausesInsertHandler._
 
     override def handleInsert(implicit insertionContext: InsertionContext): Unit = {
-      replaceTextPhase(components.text.parenthesize())
+      replaceTextPhase(lookupString)
 
       onTargetElement { pattern =>
         adjustTypesPhase(false, (pattern, components)) {
