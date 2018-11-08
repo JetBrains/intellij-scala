@@ -22,11 +22,9 @@ class SAMInheritorsSearcher
   ): Unit = params.getElement match {
     case aClass: PsiClass =>
       val project = aClass.getProject
-      val service = ScalaCompilerReferenceService.getInstance(project)
-      if (service.isCompilerIndexReady) {
+      val service = ScalaCompilerReferenceService(project)
         val usages = service.SAMInheritorsOf(aClass)
-        getSAMInheritors(usages.unwrap, aClass, project).foreach(processor.process)
-      }
+//        getSAMInheritors(usages.unwrap, aClass, project).foreach(processor.process)
     case _ => ()
   }
 

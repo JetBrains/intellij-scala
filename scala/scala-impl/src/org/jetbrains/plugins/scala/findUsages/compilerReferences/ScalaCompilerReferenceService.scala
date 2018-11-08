@@ -1,27 +1,26 @@
 package org.jetbrains.plugins.scala.findUsages.compilerReferences
 
 import java.io.File
+import java.util.concurrent.ConcurrentHashMap
 
 import com.intellij.compiler.CompilerReferenceService
 import com.intellij.compiler.backwardRefs.CompilerReferenceServiceBase
 import com.intellij.compiler.backwardRefs.CompilerReferenceServiceBase.{IndexCloseReason, IndexOpenReason}
-import com.intellij.openapi.application.ApplicationBundle
-import com.intellij.openapi.compiler.CompilerManager
 import com.intellij.openapi.diagnostic.Logger
 import com.intellij.openapi.fileEditor.FileDocumentManager
 import com.intellij.openapi.module.ModuleUtilCore
 import com.intellij.openapi.project.{Project, ProjectManager}
-import com.intellij.openapi.ui.Messages
 import com.intellij.openapi.util.Disposer
 import com.intellij.psi.search.GlobalSearchScope
 import com.intellij.psi.{PsiClass, PsiDocumentManager, PsiElement}
+import com.intellij.util.messages.MessageBus
 import org.jetbrains.jps.backwardRefs.CompilerRef
+import org.jetbrains.jps.backwardRefs.index.CompilerReferenceIndex
 import org.jetbrains.plugins.scala.extensions._
+import org.jetbrains.plugins.scala.findUsages.compilerReferences.CompilationWatcher.CompilerIndicesState
 import org.jetbrains.plugins.scala.findUsages.compilerReferences.IndexerFailure.{FailedToParse, FatalFailure}
-import org.jetbrains.plugins.scala.findUsages.compilerReferences.IndexerJob.{CloseWriter, InvalidateIndex, OpenWriter, ProcessChunkData}
+import org.jetbrains.plugins.scala.findUsages.compilerReferences.IndexerJob._
 import org.jetbrains.plugins.scala.indices.protocol.CompilationInfo
-import org.jetbrains.plugins.scala.project._
-import org.jetbrains.sbt.project.settings.SbtShellSettingsListener
 
 import scala.collection.JavaConverters._
 import scala.collection.mutable
@@ -54,165 +53,130 @@ private[findUsages] class ScalaCompilerReferenceService(
   private[this] val indexerScheduler =
     new CompilerReferenceIndexerScheduler(project, myReaderFactory.expectedIndexVersion())
 
-  // to be accessed only from job callbacks
-  private[this] val failedToParse = mutable.HashSet.empty[File]
+  private[this] val failedToParse: mutable.Set[File]                       = mutable.HashSet.empty[File]
+  private[this] val compilationTimestamps: ConcurrentHashMap[String, Long] = new ConcurrentHashMap[String, Long]
+  private[this] var currentCompilerMode: CompilerMode                      = CompilerMode.forProject(project)
+  private[this] val messageBus: MessageBus                                 = project.getMessageBus
 
-  @volatile private[this] var isUpToDateChecked = false
-  //@TODO: separate timestamps for each module
-  @volatile private[this] var lastCompilationTimestamp: Long = -1
-
-  private[this] var currentCompilerMode: CompilerMode = CompilerMode.forProject(project)
-
-  private[this] def isJPSMode: Boolean = currentCompilerMode == CompilerMode.JPS
-
-  private[this] def onIndexCorruption(): Unit = {
-    failedToParse.clear()
-    indexerScheduler.schedule(InvalidateIndex)
-  }
-
-  private[this] def onCompilationStart(): Unit = {
-    try project.getMessageBus.syncPublisher(CompilerReferenceServiceStatusListener.topic).beforeIndexingStarted()
-    catch { case NonFatal(e) => logger.error(e) }
-
-    closeReaderIfNeed(IndexCloseReason.COMPILATION_STARTED)
-  }
-
-  // to be called only from job callbacks
-  private[this] def openReader(
-    failure: Option[IndexerFailure]
-  ): Unit = withLock(myOpenCloseLock) {
-    failure.foreach {
-      case FailedToParse(classes) => failedToParse ++= classes
-      case FatalFailure(causes) =>
-        logger.error("Fatal failure occured while trying to build compiler indices.")
-        causes.foreach(logger.error)
-        onIndexCorruption()
-    }
-
-    if (myActiveBuilds == 1 /*&& failedToParse.nonEmpty*/) { // FIXME
-      logger.error(
-        s"Fatal indexing failure, failed to parse the following " +
-          s"class files ${failedToParse.mkString("[\n", "  \n", "]")}. " +
-          s"Compiler index will be invalidated."
-      )
+  private[this] val publisher = new CompilerIndicesEventPublisher {
+    override def compilerModeChanged(mode: CompilerMode): Unit = {
+      // IDEA JPS compiler <-> sbt shell change happened
+      // current index must be invalidated
       onIndexCorruption()
+      currentCompilerMode = mode
     }
-    openReaderIfNeed(IndexOpenReason.COMPILATION_FINISHED)
+
+    override def onCompilationStart(): Unit                  = closeReader()
+    override def onError(): Unit                             = onIndexCorruption()
+    override def onCompilationFinish(): Unit                 = indexerScheduler.schedule(() => openReader())
+    override def startIndexing(isCleanBuild: Boolean): Unit  = indexerScheduler.schedule(OpenWriter(isCleanBuild))
+
+    override def processCompilationInfo(info: CompilationInfo, isOffline: Boolean): Unit = {
+      val modules = info.affectedModules(project).map(_.getName)
+      logger.debug(s"Scheduled building index for modules ${modules.mkString("[", ", ", "]")}")
+
+      indexerScheduler.schedule(ProcessCompilationInfo(info, () => {
+        if (!isOffline) { // do not mark modules as up-to-date when indexing 'offline' sbt compilations
+          modules.foreach(compilationTimestamps.put(_, info.startTimestamp))
+          logger.debug(s"Compiler indices for modules ${modules.mkString(", ")} are updated.")
+          val publisher = messageBus.syncPublisher(CompilerReferenceServiceStatusListener.topic)
+          try publisher.modulesUpToDate(modules)
+          catch { case NonFatal(e) => logger.error("Error in CompilerReferenceServiveStatus listener event.", e) }
+        }
+
+        if (failedToParse.nonEmpty) {
+          // if we failed to parse some classes during previous indexing
+          // phase running concurrently with this one, check if current phase handled
+          // these files and therefore restored index consitency
+          failedToParse --= info.removedSources
+          failedToParse --= info.generatedClasses.map(_.output)
+        }
+      }))
+    }
+
+    override def finishIndexing(): Unit = indexerScheduler.schedule(CloseWriter(_.foreach(processIndexingFailure)))
   }
+
+  private[this] val transactionManager: TransactionManager[CompilerIndicesState] =
+    new TransactionManager[CompilerIndicesState] {
+      override def inTransaction[T](body: CompilerIndicesState => T): T =
+        myOpenCloseLock.locked(body((currentCompilerMode, publisher)))
+    }
+
+  private[this] def onIndexCorruption(): Unit = transactionManager.inTransaction { _ =>
+    indexerScheduler.schedule(InvalidateIndex)
+    indexerScheduler.schedule(() => {
+      logger.warn(s"Compiler indices were corrupted and invalidated.")
+      myActiveBuilds = 1
+      failedToParse.clear()
+      myDirtyScopeHolder.upToDateChecked(false)
+      openReader()
+    })
+  }
+
+  /**
+   * Both [[closeReader]] and [[openReader]] methods serve to satisfy DirtyScopeHolder
+   * constraints (i.e. we treat any number of concurrent indexing phases as single
+   * super-phase which starts with first and ends with last one).
+   * //FIXME: rewrite DirtyScopeHolder to support our case.
+   */
+  private[this] def closeReader(): Unit = transactionManager.inTransaction { _ =>
+    if (myActiveBuilds == 0) closeReaderIfNeed(IndexCloseReason.COMPILATION_STARTED)
+    else                     myActiveBuilds += 1
+  }
+
+  private[this] def openReader(): Unit = transactionManager.inTransaction { _ =>
+    if (myActiveBuilds == 1) {
+      if (false/*&& failedToParse.nonEmpty*/) { // FIXME
+        logger.error(
+          s"Fatal indexing failure, failed to parse the following " +
+            s"class files ${failedToParse.mkString("[\n", "  \n", "]")}. " +
+            s"Compiler index will be invalidated."
+        )
+        onIndexCorruption()
+      } else {
+        openReaderIfNeed(IndexOpenReason.COMPILATION_FINISHED)
+        messageBus.syncPublisher(CompilerReferenceServiceStatusListener.topic).onIndexingFinished()
+      }
+    } else if (myActiveBuilds > 0) myActiveBuilds -= 1
+  }
+
+  private[this] def processIndexingFailure(failure: IndexerFailure): Unit =
+    transactionManager.inTransaction { _ =>
+      failure match {
+        case FailedToParse(classes) => failedToParse ++= classes
+        case FatalFailure(causes) =>
+          logger.error("Fatal failure occured while trying to build compiler indices.")
+          causes.foreach(logger.error("Indexing failure", _))
+          onIndexCorruption()
+      }
+    }
 
   override def projectOpened(): Unit = if (CompilerReferenceService.isEnabled) {
-    val messageBus = project.getMessageBus
-    val connection = messageBus.connect(project)
-
-    ProjectManager
-      .getInstance()
-      .addProjectManagerListener(project => {
-        if (project != self.project) true
-        else if (isIndexingInProgress) {
-          val message =
-            """
-              |Background bytecode indexing is active. Are you sure you want to stop it and exit?
-              |Exiting right now will lead to index invalidation.
-          """.stripMargin
-
-          val title    = ApplicationBundle.message("exit.confirm.title")
-          val exitCode = Messages.showYesNoDialog(project, message, title, Messages.getQuestionIcon)
-          exitCode == Messages.YES
-        } else true
-      })
-
-    connection.subscribe(SbtShellSettingsListener.topic, new SbtShellSettingsListener {
-      override def buildWithSbtShellSettingChanged(useSbtShell: Boolean): Unit = {
-        // IDEA JPS compiler <-> sbt shell change happened
-        // current index must be invalidated
-        onIndexCorruption()
-
-        currentCompilerMode =
-          if (useSbtShell) CompilerMode.SBT
-          else             CompilerMode.JPS
-      }
-    })
-
-    connection.subscribe(CompilerIndicesCompilationWatcher.topic, new CompilerIndicesCompilationWatcher {
-      override def onCompilationStart(): Unit = self.onCompilationStart()
-      override def onError(): Unit            = onIndexCorruption()
-
-      override def startIndexing(isCleanBuild: Boolean): Unit = indexerScheduler.schedule(OpenWriter(isCleanBuild))
-
-      override def processCompilationInfo(info: CompilationInfo, isOffline: Boolean = false): Unit = {
-        val modules = info.affectedModules
-        logger.debug(s"Scheduled building index for modules ${modules.mkString("[", ", ", "]")}")
-
-        indexerScheduler.schedule(ProcessChunkData(info, () => {
-          if (!isOffline) { // do not mark modules as up-to-date when indexing 'offline' sbt compilations
-            val publisher = messageBus.syncPublisher(CompilerReferenceServiceStatusListener.topic)
-            try publisher.modulesUpToDate(modules)
-            catch { case NonFatal(e) => logger.error(e) }
-          }
-
-          if (failedToParse.nonEmpty) {
-            // if we failed to parse some classes during previous indexing
-            // phase running concurrently with this one, check if current phase handled
-            // these files and therefore restored index consitency
-            failedToParse --= info.removedSources
-            failedToParse --= info.generatedClasses.map(_.output)
-          }
-        }))
-      }
-
-      override def finishIndexing(timestamp: Long): Unit = {
-        lastCompilationTimestamp = timestamp
-
-        indexerScheduler.schedule(CloseWriter { maybeFailure =>
-          openReader(maybeFailure)
-          val publisher = messageBus.syncPublisher(CompilerReferenceServiceStatusListener.topic)
-
-          try publisher.onIndexingFinished(maybeFailure)
-          catch { case NonFatal(e) => logger.error(e) }
-        })
-      }
-    })
-
-    new JpsCompilationWatcher(project, () => currentCompilerMode).start()
-    new SbtCompilationWatcher(project, () => currentCompilerMode).start()
+    new JpsCompilationWatcher(project, transactionManager).start()
+    new SbtCompilationWatcher(project, transactionManager, myReaderFactory.expectedIndexVersion()).start()
 
     myDirtyScopeHolder.installVFSListener()
     markAsOutdated(false)
 
-    executeOnPooledThread {
-      if (isJPSMode) { // up to date checks are not supported for sbt-compiled projects
-        val validIndexExists = upToDateCompilerIndexExists(project, myReaderFactory.expectedIndexVersion())
-        val compilerManager  = CompilerManager.getInstance(project)
-
-        if (validIndexExists) {
-          val publisher = messageBus.syncPublisher(CompilerReferenceServiceStatusListener.topic)
-
-          closeReaderIfNeed(IndexCloseReason.COMPILATION_STARTED)
-
-          project.sourceModules.foreach { m =>
-            val scope = compilerManager.createModuleCompileScope(m, false)
-
-            if (compilerManager.isUpToDate(scope))
-              try publisher.modulesUpToDate(Set(m.getName))
-              catch { case NonFatal(e) => logger.error(e) }
-          }
-
-          openReaderIfNeed(IndexOpenReason.COMPILATION_FINISHED)
+    Disposer.register(project, () => {
+      myOpenCloseLock.locked {
+        if (isIndexingInProgress) {
+          // if the project is force-closed while indexing is in progress - invalidate index
+          indexDir(project).foreach(CompilerReferenceIndex.removeIndexFiles)
         }
+        closeReaderIfNeed(IndexCloseReason.PROJECT_CLOSED)
       }
-      isUpToDateChecked = true
-    }
-
-    Disposer.register(project, () => closeReaderIfNeed(IndexCloseReason.PROJECT_CLOSED))
+    })
   }
 
   /** Should only be called under [[myReadDataLock]] */
   private[this] def withReader(
     target:      PsiElement,
-    filterScope: Boolean = false
+    filterScope: Boolean
   )(
     builder: ScalaCompilerReferenceReader => CompilerRef => Set[UsagesInFile]
-  ): Timestamped[Set[UsagesInFile]] = {
+  ): Set[Timestamped[UsagesInFile]] = {
     val usages = Set.newBuilder[UsagesInFile]
 
     for {
@@ -226,21 +190,24 @@ private[findUsages] class ScalaCompilerReferenceService(
       usages.result().filterNot(usage => dirtyScope.contains(usage.file))
     } else usages.result()
 
-    Timestamped(lastCompilationTimestamp, result)
+    result.map { usage =>
+      val module = myProjectFileIndex.getModuleForFile(usage.file)
+      val ts     = compilationTimestamps.getOrDefault(module.getName, -1)
+      Timestamped(ts, usage)
+    }
   }
 
-  def SAMInheritorsOf(aClass: PsiClass): Timestamped[Set[UsagesInFile]] =
-    withLock(myReadDataLock)(withReader(aClass)(_.SAMInheritorsOf))
+  def SAMInheritorsOf(aClass: PsiClass, filterScope: Boolean = false): Set[Timestamped[UsagesInFile]] =
+    myReadDataLock.locked(withReader(aClass, filterScope)(_.SAMInheritorsOf))
 
   /**
    * Returns usages only from up-to-date compiled scope.
    */
-  def usagesOf(target: PsiElement): Timestamped[Set[UsagesInFile]] = withLock(myReadDataLock) {
-    val actualTarget = ScalaCompilerRefAdapter.bytecodeElement(target)
-    withReader(actualTarget)(_.usagesOf)
-  }
-
-  def isCompilerIndexReady: Boolean = isUpToDateChecked
+  def usagesOf(target: PsiElement, filterScope: Boolean = false): Set[Timestamped[UsagesInFile]] =
+    myReadDataLock.locked {
+      val actualTarget = ScalaCompilerRefAdapter.bytecodeElement(target)
+      withReader(actualTarget, filterScope)(_.usagesOf)
+    }
 
   def isIndexingInProgress: Boolean = myActiveBuilds != 0
 
@@ -260,11 +227,14 @@ private[findUsages] class ScalaCompilerReferenceService(
 
     union(dirtyModulesScopes :+ dependentsScope)
   }
+
+  // transactions MUST BE SHORT (they are used in UI thread in SbtProjectSettingsControl)
+  def inTransaction[T](body: CompilerIndicesState => T): T = transactionManager.inTransaction(body)
 }
 
-private[findUsages] object ScalaCompilerReferenceService {
+object ScalaCompilerReferenceService {
   private val logger = Logger.getInstance(classOf[ScalaCompilerReferenceService])
 
-  def getInstance(project: Project): ScalaCompilerReferenceService =
+  def apply(project: Project): ScalaCompilerReferenceService =
     project.getComponent(classOf[ScalaCompilerReferenceService])
 }

@@ -128,25 +128,35 @@ class SbtProjectSettingsControl(context: Context, initialSettings: SbtProjectSet
   }
 
   protected def applyExtraSettings(settings: SbtProjectSettings) {
-    val useSbtShellForBuildSettingChanged =
-      settings.useSbtShellForBuild != useSbtShellForBuildCheckBox.isSelected
-
     settings.jdk = selectedJdkName.orNull
     settings.resolveClassifiers = resolveClassifiersCheckBox.isSelected
     settings.resolveSbtClassifiers = resolveSbtClassifiersCheckBox.isSelected
-    settings.useSbtShellForBuild = useSbtShellForBuildCheckBox.isSelected
     settings.useSbtShellForImport = useSbtShellForImportCheckBox.isSelected
     settings.enableDebugSbtShell = remoteDebugSbtShell.isSelected
     settings.allowSbtVersionOverride = allowSbtVersionOverride.isSelected
     settings.useSbtShell = false
 
+    val useSbtShellForBuildSettingChanged =
+      settings.useSbtShellForBuild != useSbtShellForBuildCheckBox.isSelected
+
     if (useSbtShellForBuildSettingChanged) {
-      import scala.util.control.NonFatal
+      import org.jetbrains.plugins.scala.findUsages.compilerReferences.ScalaCompilerReferenceService
+      import org.jetbrains.plugins.scala.findUsages.compilerReferences.CompilerMode
 
-      val publisher = getProject.getMessageBus.syncPublisher(SbtShellSettingsListener.topic)
+      settings.useSbtShellForBuild = useSbtShellForBuildCheckBox.isSelected
+      val project = getProject
 
-      try publisher.buildWithSbtShellSettingChanged(settings.useSbtShellForBuild)
-      catch { case NonFatal(e) => logger.error(e) }
+      // locking here is hardly ideal, but we assume that transactions are very short
+      // and hope for the best
+      if (project != null) {
+        ScalaCompilerReferenceService(project).inTransaction { case (_, publisher) =>
+          val newMode =
+            if (settings.useSbtShellForBuild) CompilerMode.SBT
+            else                              CompilerMode.JPS
+
+          publisher.compilerModeChanged(newMode)
+        }
+      }
     }
   }
 
@@ -156,8 +166,6 @@ class SbtProjectSettingsControl(context: Context, initialSettings: SbtProjectSet
 }
 
 object SbtProjectSettingsControl {
-  private val logger = Logger.getInstance(classOf[SbtProjectSettingsControl])
-
   def customizer = new ExternalSystemSettingsControlCustomizer(false, true, true)
   def customizerInWizard = new ExternalSystemSettingsControlCustomizer(true, true, true)
 }

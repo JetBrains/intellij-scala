@@ -1,5 +1,6 @@
 package org.jetbrains.plugins.scala.findUsages.compilerReferences
 
+import java.nio.file.Path
 import java.util.{EventListener, UUID}
 
 import com.intellij.util.messages.Topic
@@ -12,8 +13,8 @@ import org.jetbrains.plugins.scala.findUsages.compilerReferences.SbtCompilationL
 trait SbtCompilationListener extends EventListener {
   import SbtCompilationListener._
 
-  def beforeCompilationStart(project: ProjectBase): Unit  = ()
-  def connectionFailure(project: ProjectIdentifier): Unit = ()
+  def beforeCompilationStart(project: ProjectBase, compilationId: UUID): Unit          = ()
+  def connectionFailure(project: ProjectIdentifier, compilationId: Option[UUID]): Unit = ()
 
   def onCompilationSuccess(
     project:             ProjectBase,
@@ -27,8 +28,8 @@ trait SbtCompilationListener extends EventListener {
 object SbtCompilationListener {
   trait ProjectIdentifier
   object ProjectIdentifier {
-    final case class ProjectBase(path: String) extends ProjectIdentifier
-    final object Unidentified                  extends ProjectIdentifier
+    final case class ProjectBase(path: Path) extends ProjectIdentifier
+    final object Unidentified                extends ProjectIdentifier
   }
 
   val topic: Topic[SbtCompilationListener] =

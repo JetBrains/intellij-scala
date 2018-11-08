@@ -106,6 +106,7 @@ lazy val scalaImpl: sbt.Project =
         name, version, scalaVersion, sbtVersion,
         BuildInfoKey.constant("sbtStructureVersion", Versions.sbtStructureVersion),
         BuildInfoKey.constant("sbtIdeaShellVersion", Versions.sbtIdeaShellVersion),
+        BuildInfoKey.constant("sbtIdeaCompilerIndicesVersion", Versions.sbtIdeaCompilerIndicesVersion),
         BuildInfoKey.constant("sbtLatest_0_12", Versions.Sbt.latest_0_12),
         BuildInfoKey.constant("sbtLatest_0_13", Versions.Sbt.latest_0_13),
         BuildInfoKey.constant("sbtLatest_1_0", Versions.Sbt.latest_1_0),

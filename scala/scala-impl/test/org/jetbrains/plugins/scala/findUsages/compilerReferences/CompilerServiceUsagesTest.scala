@@ -31,7 +31,7 @@ class CompilerServiceUsagesTest extends ScalaCompilerReferenceServiceFixture {
 //    BuildManager.getInstance().setBuildProcessDebuggingEnabled(true)
 //    com.intellij.openapi.util.registry.Registry.get("compiler.process.debug.port").setValue(5006)
     buildProject()
-    val usages = service.usagesOf(target).unwrap
+    val usages = service.usagesOf(target).map(_.unwrap)
 
     expected.foreach {
       case (filename, lines) =>
@@ -56,9 +56,9 @@ class CompilerServiceUsagesTest extends ScalaCompilerReferenceServiceFixture {
        """.stripMargin
       )
     val dirtyUsages = service.usagesOf(implicitSearchTargetAtCaret)
-    assertTrue("Should not find any usages if index does not exist", dirtyUsages.unwrap.isEmpty)
+    assertTrue("Should not find any usages if index does not exist", dirtyUsages.isEmpty)
     buildProject()
-    val usages   = service.usagesOf(implicitSearchTargetAtCaret)
+    val usages   = service.usagesOf(implicitSearchTargetAtCaret).map(_.unwrap)
     val expected = Set(UsagesInFile(file.getVirtualFile, Seq(5)))
     assertEquals(expected, usages)
   }
@@ -86,14 +86,14 @@ class CompilerServiceUsagesTest extends ScalaCompilerReferenceServiceFixture {
     val target = implicitSearchTargetAtCaret
     val scope = service.dirtyScopeForDefinition(target)
     Seq(fileA, fileB).foreach(f => assertFalse(scope.contains(f.getVirtualFile)))
-    val usages = service.usagesOf(target)
-    assertTrue("Unexpected empty usages.", usages.unwrap.nonEmpty)
+    val usages = service.usagesOf(target, filterScope = true)
+    assertTrue("Unexpected empty usages.", usages.nonEmpty)
     myFixture.openFileInEditor(fileB.getVirtualFile)
     myFixture.`type`("/* bla-bla-bla */")
     val scope2 = service.dirtyScopeForDefinition(target)
     Seq(fileA, fileB).foreach(f => assertTrue(scope2.contains(f.getVirtualFile)))
-    val usages2 = service.usagesOf(target)
-    assertTrue("Should not return usages from dirty scope.", usages2.unwrap.isEmpty)
+    val usages2 = service.usagesOf(target, filterScope = true)
+    assertTrue("Should not return usages from dirty scope.", usages2.isEmpty)
   }
 
   def testSimple(): Unit =
@@ -267,6 +267,6 @@ class CompilerServiceUsagesTest extends ScalaCompilerReferenceServiceFixture {
     )
     buildProject()
     val usages   = service.usagesOf(implicitSearchTargetAtCaret)
-    assertTrue(s"Should not find any usages in synthetic methods: $usages.", usages.unwrap.isEmpty)
+    assertTrue(s"Should not find any usages in synthetic methods: $usages.", usages.isEmpty)
   }
 }

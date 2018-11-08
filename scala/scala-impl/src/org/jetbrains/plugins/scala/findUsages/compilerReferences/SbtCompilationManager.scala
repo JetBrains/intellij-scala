@@ -2,11 +2,13 @@ package org.jetbrains.plugins.scala.findUsages.compilerReferences
 
 import java.io._
 import java.net.{ServerSocket, Socket}
+import java.nio.file.Paths
 import java.util.UUID
 
 import com.intellij.openapi.application.ApplicationManager
 import com.intellij.openapi.components.ApplicationComponent
 import com.intellij.openapi.diagnostic.Logger
+import com.intellij.openapi.util.Disposer
 import com.intellij.util.messages.MessageBus
 import org.jetbrains.plugins.scala.extensions._
 import org.jetbrains.plugins.scala.findUsages.compilerReferences.SbtCompilationListener.ProjectIdentifier
@@ -36,9 +38,12 @@ class SbtCompilationManager extends ApplicationComponent {
   private[this] var server: ServerSocket = _
   private[this] val bus: MessageBus      = ApplicationManager.getApplication.getMessageBus
 
+  Disposer.register(ApplicationManager.getApplication, () => if (server != null) server.close())
+
   override def initComponent(): Unit =
     try {
       server = new ServerSocket(port)
+      logger.debug(s"Listening to incoming sbt compilation events on port $port.")
       executeOnPooledThread {
         while (true) {
           try {
@@ -47,7 +52,7 @@ class SbtCompilationManager extends ApplicationComponent {
           } catch {
             case e: IOException =>
               logger.error(e)
-              onConnectionFailure(Unidentified)
+              onConnectionFailure(Unidentified, None)
           }
         }
       }
@@ -57,24 +62,25 @@ class SbtCompilationManager extends ApplicationComponent {
         if (server != null) server.close()
     }
 
-  override def disposeComponent(): Unit = if (server != null) server.close()
-
   private[this] def handleConnection(client: Socket): Unit = {
-    var base: String = null
-    try {
-      val in = new DataInputStream(client.getInputStream())
-      base = in.readUTF()
-      val projectBase = ProjectBase(base)
+    var base: ProjectIdentifier     = Unidentified
+    var id: Option[UUID]            = None
 
-      try bus.syncPublisher(SbtCompilationListener.topic).beforeCompilationStart(projectBase)
+    try {
+      val in            = new DataInputStream(client.getInputStream())
+      val projectBase   = ProjectBase(Paths.get(in.readUTF()))
+      val compilationId = UUID.fromString(in.readUTF())
+      base = projectBase
+      id   = Option(compilationId)
+
+      try bus.syncPublisher(SbtCompilationListener.topic).beforeCompilationStart(projectBase, compilationId)
       catch { case NonFatal(e) => logger.error(e) }
 
       val out = new DataOutputStream(client.getOutputStream())
       out.writeUTF(ideaACK)
 
-      val isSuccessful    = in.readBoolean()
-      val compilationId   = UUID.fromString(in.readUTF())
-      val publisher       = bus.syncPublisher(SbtCompilationListener.topic)
+      val isSuccessful = in.readBoolean()
+      val publisher    = bus.syncPublisher(SbtCompilationListener.topic)
 
       if (isSuccessful) {
         val infoFile = in.readUTF()
@@ -90,13 +96,12 @@ class SbtCompilationManager extends ApplicationComponent {
       case NonFatal(e) =>
         e.printStackTrace()
         logger.error(e)
-        val identifier = if (base != null) ProjectBase(base) else Unidentified
-        onConnectionFailure(identifier)
+        onConnectionFailure(base, id)
     } finally if (client != null) client.close()
   }
 
-  private[this] def onConnectionFailure(identifier: ProjectIdentifier): Unit =
-    try bus.syncPublisher(SbtCompilationListener.topic).connectionFailure(identifier)
+  private[this] def onConnectionFailure(identifier: ProjectIdentifier, compilationId: Option[UUID]): Unit =
+    try bus.syncPublisher(SbtCompilationListener.topic).connectionFailure(identifier, compilationId)
     catch { case NonFatal(e) => logger.error(e) }
 }
 

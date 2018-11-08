@@ -32,7 +32,7 @@ abstract class ScalaCompilerReferenceServiceFixture extends JavaCodeInsightFixtu
   private[this] val indexReady: Condition                  = compilerIndexLock.newCondition()
   @volatile private[this] var indexReadyPredicate: Boolean = false
 
-  protected lazy val service = ScalaCompilerReferenceService.getInstance(getProject)
+  protected lazy val service = ScalaCompilerReferenceService(getProject)
 
   override def setUp(): Unit = {
     super.setUp()
@@ -59,18 +59,18 @@ abstract class ScalaCompilerReferenceServiceFixture extends JavaCodeInsightFixtu
     getProject.getMessageBus
       .connect(getProject)
       .subscribe(CompilerReferenceServiceStatusListener.topic, new CompilerReferenceServiceStatusListener {
-        override def onIndexingFinished(failure: Option[IndexerFailure]): Unit = withLock(compilerIndexLock) {
+        override def onIndexingFinished(): Unit = compilerIndexLock.locked {
           indexReadyPredicate = true
           indexReady.signal()
         }
       })
 
     compiler
-      .make
+      .rebuild
       .asScala
       .foreach(m => assertNotSame(m.getMessage, CompilerMessageCategory.ERROR, m.getCategory))
 
-    withLock(compilerIndexLock) {
+    compilerIndexLock.locked {
       while (!indexReadyPredicate) indexReady.await(10, TimeUnit.SECONDS)
       indexReadyPredicate = false
     }

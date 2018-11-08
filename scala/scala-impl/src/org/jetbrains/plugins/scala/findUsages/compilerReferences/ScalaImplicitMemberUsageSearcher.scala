@@ -4,10 +4,12 @@ import java.awt.event.ActionEvent
 import java.awt.{List => _, _}
 import java.text.MessageFormat
 
+import com.intellij.find.FindManager
+import com.intellij.find.impl.FindManagerImpl
 import com.intellij.icons.AllIcons
 import com.intellij.notification.{Notification, NotificationType, Notifications}
 import com.intellij.openapi.actionSystem.{ActionToolbarPosition, AnActionEvent}
-import com.intellij.openapi.application.QueryExecutorBase
+import com.intellij.openapi.application.{QueryExecutorBase, TransactionGuard}
 import com.intellij.openapi.fileEditor.FileDocumentManager
 import com.intellij.openapi.module.Module
 import com.intellij.openapi.project.Project
@@ -15,6 +17,7 @@ import com.intellij.openapi.roots.ProjectFileIndex
 import com.intellij.openapi.ui.{DialogWrapper, Messages}
 import com.intellij.psi._
 import com.intellij.psi.util.PsiTreeUtil
+import com.intellij.task.{ProjectTaskManager, ProjectTaskNotification}
 import com.intellij.ui._
 import com.intellij.util.Processor
 import com.intellij.util.ui.JBUI
@@ -22,7 +25,11 @@ import javax.swing._
 import javax.swing.border.MatteBorder
 import org.jetbrains.plugins.scala.ScalaBundle
 import org.jetbrains.plugins.scala.extensions._
+import org.jetbrains.plugins.scala.findUsages.factory.{ScalaFindUsagesHandler, ScalaFindUsagesHandlerFactory}
+import org.jetbrains.plugins.scala.project._
 import org.jetbrains.plugins.scala.util.ImplicitUtil._
+import org.jetbrains.sbt.shell.SbtShellCommunication
+import org.jetbrains.sbt.shell.moduleBuildCommand
 
 import scala.collection.JavaConverters._
 
@@ -36,28 +43,28 @@ private class ScalaImplicitMemberUsageSearcher
   ): Unit = {
     val target  = parameters.element
     val project = target.getProject
-    val service = ScalaCompilerReferenceService.getInstance(project)
+    val service = ScalaCompilerReferenceService(project)
     val usages  = service.usagesOf(target)
     val refs    = extractUsages(target, usages)
     refs.foreach(consumer.process)
   }
 
-  private[this] def extractUsages(target: PsiElement, usages: Timestamped[Set[UsagesInFile]]): Seq[PsiReference] = {
+  private[this] def extractUsages(target: PsiElement, usages: Set[Timestamped[UsagesInFile]]): Seq[PsiReference] = {
     val project        = target.getProject
     val fileDocManager = FileDocumentManager.getInstance()
     val outdated       = Set.newBuilder[String]
 
-    def extractReferences(usage: UsagesInFile): Seq[PsiReference] =
+    def extractReferences(usage: Timestamped[UsagesInFile]): Seq[PsiReference] =
       (for {
-        ElementsInContext(elements, file, doc) <- extractCandidatesFromUsage(project, usage)
+        ElementsInContext(elements, file, doc) <- extractCandidatesFromUsage(project, usage.unwrap)
       } yield {
         val isOutdated = fileDocManager.isDocumentUnsaved(doc) ||
-          file.getVirtualFile.getTimeStamp > usages.timestamp
+          file.getVirtualFile.getTimeStamp > usage.timestamp
 
         val lineNumber = (e: PsiElement) => doc.getLineNumber(e.getTextOffset) + 1
 
         val refs       = elements.flatMap(target.refOrImplicitRefIn).toList
-        val extraLines = usage.lines.diff(refs.map(r => lineNumber(r.getElement)))
+        val extraLines = usage.unwrap.lines.diff(refs.map(r => lineNumber(r.getElement)))
 
         val unresolvedRefs = extraLines.flatMap { line =>
           val offset = doc.getLineStartOffset(line - 1)
@@ -71,7 +78,7 @@ private class ScalaImplicitMemberUsageSearcher
         refs ++ unresolvedRefs
       }).getOrElse(Seq.empty)
 
-    val result        = usages.unwrap.flatMap(extractReferences)(collection.breakOut)
+    val result        = usages.flatMap(extractReferences)(collection.breakOut)
     val filesToNotify = outdated.result()
 
     if (filesToNotify.nonEmpty) {
@@ -79,7 +86,7 @@ private class ScalaImplicitMemberUsageSearcher
         new Notification(
           ScalaBundle.message("find.usages.implicit.dialog.title"),
           "Implicit Usages Invalidated",
-          s"Some usages in the following files were invalidated, due to external changes: ${filesToNotify.mkString(",")}.",
+          s"Some usages in the following files may have been invalidated, due to external changes: ${filesToNotify.mkString(",")}.",
           NotificationType.WARNING
         )
       )
@@ -89,20 +96,85 @@ private class ScalaImplicitMemberUsageSearcher
 }
 
 object ScalaImplicitMemberUsageSearcher {
-  private[findUsages] sealed trait BeforeImplicitSearchAction
+  private[findUsages] sealed trait BeforeImplicitSearchAction {
+    def runAction(): Boolean
+  }
 
-  private[findUsages] case object CancelSearch                            extends BeforeImplicitSearchAction
-  private[findUsages] case object RebuildProject                          extends BeforeImplicitSearchAction
-  private[findUsages] final case class BuildModules(modules: Seq[Module]) extends BeforeImplicitSearchAction
+  private[findUsages] case object CancelSearch extends BeforeImplicitSearchAction {
+    override def runAction(): Boolean = false
+  }
+
+  private[findUsages] final case class RebuildProject(project: Project) extends BeforeImplicitSearchAction {
+    override def runAction(): Boolean = {
+      ScalaCompilerReferenceService(project).inTransaction {
+        case (CompilerMode.JPS, _) => ProjectTaskManager.getInstance(project).rebuildAllModules()
+        case (CompilerMode.SBT, _) =>
+          // there is no need to do a full rebuild with sbt project as
+          // we can simply fetch info about ALL classes instead of just
+          // the ones built incrementally via incrementalityType setting
+          def setIncrementalityType(incremental: Boolean): String = {
+            val incType = if (incremental) "Incremental" else "NonIncremental"
+            s"set incrementalityType in Global := _root_.org.jetbrains.sbt.indices.IntellijIndexer.IncrementalityType.$incType"
+          }
+
+          val shell         = SbtShellCommunication.forProject(project)
+          val modules       = project.sourceModules
+          val buildCommands = modules.flatMap(moduleBuildCommand)
+
+          val buildCommand  =
+            if (buildCommands.isEmpty) ""
+            else                       buildCommands.mkString("all ", " ", "")
+
+          val command = s"; ${setIncrementalityType(incremental = false)} ; $buildCommand ; ${setIncrementalityType(incremental = true)}"
+          shell.command(command)
+      }
+
+      false
+    }
+  }
+
+  private[findUsages] final case class BuildModules(
+    target:  PsiElement,
+    project: Project,
+    modules: Seq[Module]
+  ) extends BeforeImplicitSearchAction {
+    override def runAction(): Boolean = {
+      val manager    = ProjectTaskManager.getInstance(project)
+      val connection = project.getMessageBus.connect(project)
+
+      //FIXME: sbt compilation consists of multiple
+      connection.subscribe(CompilerReferenceServiceStatusListener.topic, new CompilerReferenceServiceStatusListener {
+        override def onIndexingFinished(): Unit = {
+          val findManager = FindManager.getInstance(project).asInstanceOf[FindManagerImpl]
+          val handler     = new ScalaFindUsagesHandler(target, ScalaFindUsagesHandlerFactory.getInstance(project))
+
+          val runnable: Runnable = () =>
+            findManager.getFindUsagesManager.findUsages(
+              handler.getPrimaryElements,
+              handler.getSecondaryElements,
+              handler,
+              handler.getFindUsagesOptions(),
+              false
+            )
+
+          TransactionGuard.getInstance().submitTransactionAndWait(runnable)
+        }
+        connection.disconnect()
+      })
+
+      val notification: ProjectTaskNotification =
+        result => if (result.isAborted || result.getErrors != 0) connection.disconnect()
+
+      manager.build(modules.toArray, notification)
+      false
+    }
+  }
 
   private[findUsages] def assertSearchScopeIsSufficient(target: PsiNamedElement): Option[BeforeImplicitSearchAction] = {
     val project = target.getProject
-    val service = ScalaCompilerReferenceService.getInstance(project)
+    val service = ScalaCompilerReferenceService(project)
 
-    if (!service.isCompilerIndexReady) {
-      inEventDispatchThread(showIndicesNotReadyDialog(project))
-      Option(CancelSearch)
-    } else if (service.isIndexingInProgress) {
+    if (service.isIndexingInProgress) {
       inEventDispatchThread(showIndexingInProgressDialog(project))
       Option(CancelSearch)
     } else {
@@ -113,7 +185,10 @@ object ScalaImplicitMemberUsageSearcher {
         var action: Option[BeforeImplicitSearchAction] = None
 
         val dialogAction =
-          () => action = Option(showRebuildSuggestionDialog(dirtyModules, upToDateModules, validIndexExists, target))
+          () =>
+            action = Option(
+              showRebuildSuggestionDialog(project, dirtyModules, upToDateModules, validIndexExists, target)
+          )
 
         inEventDispatchThread(dialogAction())
         action
@@ -130,9 +205,9 @@ object ScalaImplicitMemberUsageSearcher {
     val file         = PsiTreeUtil.getContextOfType(element, classOf[PsiFile]).getVirtualFile
     val index        = ProjectFileIndex.getInstance(project)
     val modules      = index.getOrderEntriesForFile(file).asScala.map(_.getOwnerModule)
-    val service      = ScalaCompilerReferenceService.getInstance(project)
+    val service      = ScalaCompilerReferenceService(project)
     val dirtyModules = service.getDirtyScopeHolder.getAllDirtyModules
-    modules.span(dirtyModules.contains)
+    modules.partition(dirtyModules.contains)
   }
 
   private[this] def showIndexingInProgressDialog(project: Project): Unit = {
@@ -140,17 +215,8 @@ object ScalaImplicitMemberUsageSearcher {
     Messages.showInfoMessage(project, message, "Indexing In Progress")
   }
 
-  private[this] def showIndicesNotReadyDialog(project: Project): Unit = {
-    val message =
-      """
-        |Bytecode indices are currently undergoing an up-to-date check,
-        |please wait until it's completed to search for implicit usages.
-      """.stripMargin
-
-    Messages.showInfoMessage(project, message, "Bytecode Indices Status")
-  }
-
-  private def showRebuildSuggestionDialog[T](
+  private def showRebuildSuggestionDialog(
+    project:          Project,
     dirtyModules:     Seq[Module],
     upToDateModules:  Seq[Module],
     validIndexExists: Boolean,
@@ -168,8 +234,8 @@ object ScalaImplicitMemberUsageSearcher {
     dialog.show()
 
     dialog.getExitCode match {
-      case OK_EXIT_CODE if !validIndexExists => RebuildProject
-      case OK_EXIT_CODE                      => BuildModules(dirtyModules)
+      case OK_EXIT_CODE if !validIndexExists => RebuildProject(project)
+      case OK_EXIT_CODE                      => BuildModules(element, project, dirtyModules)
       case CANCEL_EXIT_CODE                  => CancelSearch
     }
   }
@@ -228,7 +294,7 @@ object ScalaImplicitMemberUsageSearcher {
 
       val message =
         if (validIndexExists) MessageFormat.format(buildDescription, element.name, upToDateModulesText)
-        else rebuildDescription
+        else                  rebuildDescription
 
       new JLabel(message)
     }

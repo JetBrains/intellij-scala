@@ -35,9 +35,6 @@ private object ScalaCompilerReferenceWriter {
 
       if (isRebuild) Some(new ScalaCompilerReferenceWriter(new ScalaCompilerReferenceIndex(indexDir, readOnly = false)))
       else           None
-    } else {
-      if (isRebuild) CompilerReferenceIndex.removeIndexFiles(indexDir)
-      Some(new ScalaCompilerReferenceWriter(new ScalaCompilerReferenceIndex(indexDir, readOnly = false)))
-    }
+    } else Some(new ScalaCompilerReferenceWriter(new ScalaCompilerReferenceIndex(indexDir, readOnly = false)))
   }
 }
