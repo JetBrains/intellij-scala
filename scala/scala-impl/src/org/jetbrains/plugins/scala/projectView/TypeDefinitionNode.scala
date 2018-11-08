@@ -7,7 +7,7 @@ import com.intellij.ide.projectView.{PresentationData, ViewSettings}
 import com.intellij.psi.PsiClass
 import org.jetbrains.plugins.scala.lang.psi.api.statements.{ScValue, ScVariable}
 import org.jetbrains.plugins.scala.lang.psi.api.toplevel.ScNamedElement
-import org.jetbrains.plugins.scala.lang.psi.api.toplevel.typedef.ScTypeDefinition
+import org.jetbrains.plugins.scala.lang.psi.api.toplevel.typedef.{ScObject, ScTypeDefinition}
 import org.jetbrains.plugins.scala.lang.psi.light.PsiClassWrapper
 import org.jetbrains.plugins.scala.project.ProjectContext
 
@@ -27,6 +27,11 @@ private class TypeDefinitionNode(definition: ScTypeDefinition)(implicit project:
   override def updateImpl(data: PresentationData): Unit = value match {
     case Some(it) => data.setPresentableText(it.name)
     case None => super.updateImpl(data)
+  }
+
+  override def getTypeSortWeight(sortByType: Boolean): Int = definition match {
+    case it: ScObject if it.isPackageObject => 2 // PsiDirectoryNode.getTypeSortWeight == 3
+    case _ => super.getTypeSortWeight(sortByType)
   }
 
   override def getChildrenImpl: util.Collection[Node] =
