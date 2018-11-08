@@ -2,7 +2,6 @@ package org.jetbrains.plugins.scala.codeInsight.implicits
 
 import java.awt._
 
-import com.intellij.codeInsight.daemon.impl.HintRenderer
 import com.intellij.ide.ui.AntialiasingType
 import com.intellij.openapi.editor.Editor
 import com.intellij.openapi.editor.colors.EditorFontType
@@ -14,7 +13,7 @@ import com.intellij.util.ui.GraphicsUtil
 import org.jetbrains.plugins.scala.codeInsight.implicits.TextRenderer._
 
 private class TextRenderer(var parts: Seq[Text], menu: Option[String])
-  extends HintRenderer(parts.map(_.string).mkString) {
+  extends HintRendererProxy(parts.map(_.string).mkString) {
 
   private val originalParts = parts
 
