@@ -5,6 +5,7 @@ import junit.framework.TestCase.fail
 import org.jetbrains.plugins.scala.util.ImplicitUtil.ImplicitSearchTarget
 import org.junit.Assert._
 
+
 class CompilerServiceUsagesTest extends ScalaCompilerReferenceServiceFixture {
   import com.intellij.testFramework.fixtures.CodeInsightTestFixture.{CARET_MARKER => CARET}
 
@@ -61,39 +62,6 @@ class CompilerServiceUsagesTest extends ScalaCompilerReferenceServiceFixture {
     val usages   = service.usagesOf(implicitSearchTargetAtCaret).map(_.unwrap)
     val expected = Set(UsagesInFile(file.getVirtualFile, Seq(5)))
     assertEquals(expected, usages)
-  }
-
-  def testTyping(): Unit = {
-    val fileA =
-      myFixture.configureByText(
-        "TypingA.scala",
-        s"object TypingA { trait Foo; implicit val fo${CARET}o: Ordering[Foo] = null }"
-      )
-
-    val fileB =
-      myFixture.addFileToProject(
-        "TypingB.scala",
-        """
-          |import TypingA._
-          |
-          |object TypingB {
-          |  List.empty[Foo].sorted
-          |}
-        """.stripMargin
-      )
-
-    buildProject()
-    val target = implicitSearchTargetAtCaret
-    val scope = service.dirtyScopeForDefinition(target)
-    Seq(fileA, fileB).foreach(f => assertFalse(scope.contains(f.getVirtualFile)))
-    val usages = service.usagesOf(target, filterScope = true)
-    assertTrue("Unexpected empty usages.", usages.nonEmpty)
-    myFixture.openFileInEditor(fileB.getVirtualFile)
-    myFixture.`type`("/* bla-bla-bla */")
-    val scope2 = service.dirtyScopeForDefinition(target)
-    Seq(fileA, fileB).foreach(f => assertTrue(scope2.contains(f.getVirtualFile)))
-    val usages2 = service.usagesOf(target, filterScope = true)
-    assertTrue("Should not return usages from dirty scope.", usages2.isEmpty)
   }
 
   def testSimple(): Unit =

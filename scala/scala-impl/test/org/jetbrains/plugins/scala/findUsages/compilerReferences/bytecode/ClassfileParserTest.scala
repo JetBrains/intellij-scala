@@ -1,4 +1,5 @@
 package org.jetbrains.plugins.scala.findUsages.compilerReferences
+package bytecode
 
 import java.io.InputStream
 

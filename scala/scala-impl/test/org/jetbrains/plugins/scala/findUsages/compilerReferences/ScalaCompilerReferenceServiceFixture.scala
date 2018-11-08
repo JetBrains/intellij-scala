@@ -1,6 +1,5 @@
 package org.jetbrains.plugins.scala.findUsages.compilerReferences
 
-import java.util
 import java.util.concurrent.TimeUnit
 import java.util.concurrent.locks.{Condition, Lock, ReentrantLock}
 
@@ -10,13 +9,15 @@ import com.intellij.psi.PsiClass
 import com.intellij.testFramework.fixtures.JavaCodeInsightFixtureTestCase
 import com.intellij.testFramework.{CompilerTester, PsiTestUtil}
 import junit.framework.TestCase._
+import org.jetbrains.plugins.scala.project._
 import org.jetbrains.plugins.scala.SlowTests
-import org.jetbrains.plugins.scala.base.libraryLoaders.{LibraryLoader, ScalaSDKLoader}
+import org.jetbrains.plugins.scala.base.libraryLoaders.{HeavyJDKLoader, LibraryLoader, MockJDKLoader, ScalaSDKLoader}
 import org.jetbrains.plugins.scala.debugger.{ScalaSdkOwner, ScalaVersion, Scala_2_12}
 import org.jetbrains.plugins.scala.util.CompileServerUtil
 import org.junit.experimental.categories.Category
 
 import scala.collection.JavaConverters._
+import scala.collection.mutable
 import scala.concurrent.duration.DurationInt
 import scala.reflect.ClassTag
 import scala.util.control.NonFatal
@@ -25,21 +26,24 @@ import scala.util.control.NonFatal
 abstract class ScalaCompilerReferenceServiceFixture extends JavaCodeInsightFixtureTestCase with ScalaSdkOwner {
   override implicit val version: ScalaVersion                 = Scala_2_12
   override implicit protected def module: Module              = myModule
-  override protected def librariesLoaders: Seq[LibraryLoader] = Seq(ScalaSDKLoader(includeScalaReflect = true))
+  override protected def librariesLoaders: Seq[LibraryLoader] = Seq(HeavyJDKLoader(), ScalaSDKLoader(includeScalaReflect = true))
 
-  private[this] var compiler: CompilerTester               = _
   private[this] val compilerIndexLock: Lock                = new ReentrantLock()
   private[this] val indexReady: Condition                  = compilerIndexLock.newCondition()
   @volatile private[this] var indexReadyPredicate: Boolean = false
 
+  protected var compiler: CompilerTester = _
   protected lazy val service = ScalaCompilerReferenceService(getProject)
+
+  private[this] val myLoaders = mutable.Set.empty[LibraryLoader]
 
   override def setUp(): Unit = {
     super.setUp()
     try {
-      setUpLibraries()
+      setUpLibrariesFor(myModule)
       PsiTestUtil.addSourceRoot(myModule, myFixture.getTempDirFixture.findOrCreateDir("src"), true)
-      compiler = new CompilerTester(getProject, util.Collections.singletonList(myModule))
+      val project = getProject
+      compiler = new CompilerTester(project, project.modules.asJava, project)
     } catch {
       case NonFatal(e) => fail(e.getMessage)
     }
@@ -49,12 +53,27 @@ abstract class ScalaCompilerReferenceServiceFixture extends JavaCodeInsightFixtu
     try {
       disposeLibraries()
       CompileServerUtil.stopAndWait(10.seconds)
-      compiler.tearDown()
     } finally {
-      compiler = null
       super.tearDown()
     }
 
+  def setUpLibrariesFor(modules: Module*): Unit =
+    for {
+      module <- modules
+      loader <- librariesLoaders
+    } {
+      loader.init(module, version)
+      myLoaders += loader
+    }
+
+  override protected def disposeLibraries(): Unit = {
+    for {
+      module <- project.modules
+      loader <- myLoaders
+    } loader.clean(module)
+
+    myLoaders.clear()
+  }
   protected def buildProject(): Unit = {
     getProject.getMessageBus
       .connect(getProject)
@@ -71,7 +90,8 @@ abstract class ScalaCompilerReferenceServiceFixture extends JavaCodeInsightFixtu
       .foreach(m => assertNotSame(m.getMessage, CompilerMessageCategory.ERROR, m.getCategory))
 
     compilerIndexLock.locked {
-      while (!indexReadyPredicate) indexReady.await(10, TimeUnit.SECONDS)
+      indexReady.await(30, TimeUnit.SECONDS)
+      if (!indexReadyPredicate) fail("Failed to updated compiler index.")
       indexReadyPredicate = false
     }
   }
