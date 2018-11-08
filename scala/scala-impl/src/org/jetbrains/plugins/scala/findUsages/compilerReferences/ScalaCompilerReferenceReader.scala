@@ -129,4 +129,6 @@ private[findUsages] class ScalaCompilerReferenceReader private[compilerReference
     fileType: FileType,
     compilerHierarchySearchType: CompilerHierarchySearchType
   ): util.Map[VirtualFile, Array[SearchId]] = null
+
+  override def findFileIdsWithImplicitToString(compilerRef: CompilerRef): TIntHashSet = null
 }
