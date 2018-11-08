@@ -99,7 +99,7 @@ object Dependencies {
   val bcel: ModuleID = "org.apache.bcel" % "bcel" % "6.0"
 
   // has to be in the compiler process classpath along with spray-json
-  val compilerIndicesProtocol: ModuleID = "org.jetbrains" %% "scala-compiler-indices-protocol" % "0.1.0"
+  val compilerIndicesProtocol: ModuleID = "io.github.sugakandrey" %% "scala-compiler-indices-protocol" % "0.1.0"
 
   val nailgun: ModuleID = "org.jetbrains" % "nailgun-patched" % "1.0.0"
   val zinc = "org.scala-sbt" %% "zinc" % zincVersion
