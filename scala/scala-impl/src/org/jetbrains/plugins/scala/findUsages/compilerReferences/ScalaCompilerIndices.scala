@@ -27,7 +27,7 @@ private object ScalaCompilerIndices {
     override def save(out:  DataOutput, t:   CompilerRef): Unit    = t.save(out)
 
     override def read(in: DataInput): CompilerRef = in.readByte() match {
-        case 0                                    => new JavaCompilerClassRef(ioutil.readINT(in));
+        case 0                                    => new JavaCompilerClassRef(ioutil.readINT(in))
         case 1                                    => new JavaCompilerMethodRef(ioutil.readINT(in), ioutil.readINT(in), ioutil.readINT(in))
         case 2                                    => new JavaCompilerFieldRef(ioutil.readINT(in), ioutil.readINT(in))
         case 3                                    => new JavaCompilerFunExprDef(ioutil.readINT(in))

@@ -87,6 +87,8 @@ object ScalaCompilerReferenceIndexBuilder {
 
   private val allJavaTargetTypes = JavaModuleBuildTargetType.ALL_TYPES.asScala
 
+  import spray.json.DefaultJsonProtocol._
+
   final case class ChunkCompilationInfo(data: JpsCompilationInfo)
       extends CustomBuilderMessage(id, compilationDataType, data.toJson.compactPrint)
 

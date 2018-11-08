@@ -61,7 +61,6 @@ private class ScalaImplicitMemberUsageSearcher
 
         val unresolvedRefs = extraLines.flatMap { line =>
           val offset = doc.getLineStartOffset(line - 1)
-          //@TODO: perhaps it makes sense to somehow show the number of unresolved implicits in this line
           if (!isOutdated) UnresolvedImplicitReference(target, file, offset).toOption
           else {
             outdated += file.getVirtualFile.getPresentableName
@@ -70,7 +69,6 @@ private class ScalaImplicitMemberUsageSearcher
         }
 
         refs ++ unresolvedRefs
-        //@TODO: invoked slow search for outdated files scope
       }).getOrElse(Seq.empty)
 
     val result        = usages.unwrap.flatMap(extractReferences)(collection.breakOut)
@@ -93,8 +91,8 @@ private class ScalaImplicitMemberUsageSearcher
 object ScalaImplicitMemberUsageSearcher {
   private[findUsages] sealed trait BeforeImplicitSearchAction
 
-  private[findUsages] case object CancelSearch   extends BeforeImplicitSearchAction
-  private[findUsages] case object RebuildProject extends BeforeImplicitSearchAction
+  private[findUsages] case object CancelSearch                            extends BeforeImplicitSearchAction
+  private[findUsages] case object RebuildProject                          extends BeforeImplicitSearchAction
   private[findUsages] final case class BuildModules(modules: Seq[Module]) extends BeforeImplicitSearchAction
 
   private[findUsages] def assertSearchScopeIsSufficient(target: PsiNamedElement): Option[BeforeImplicitSearchAction] = {

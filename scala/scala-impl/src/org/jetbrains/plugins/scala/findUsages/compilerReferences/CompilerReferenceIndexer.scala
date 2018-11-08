@@ -128,22 +128,25 @@ private class CompilerReferenceIndexer(project: Project, expectedIndexVersion: I
         writer = indexDir(project).flatMap(ScalaCompilerReferenceWriter(_, expectedIndexVersion, isCleanBuild))
       case CloseWriter(onFinish) =>
         val maybeFailure =
-          if (!fatalFailures.isEmpty) FatalFailure(fatalFailures.asScala).toOption
+          if (!fatalFailures.isEmpty)      FatalFailure(fatalFailures.asScala).toOption
           else if (!failedToParse.isEmpty) FailedToParse(failedToParse.asScala).toOption
-          else None
+          else                             None
 
-        writer.foreach(_.close(!fatalFailures.isEmpty))
-        writer = None
-        fatalFailures.clear()
-        failedToParse.clear()
+        cleanUp(!fatalFailures.isEmpty)
         onFinish(maybeFailure)
       case ProcessChunkData(data, onFinish) =>
         indexBuildData(data, onFinish)
-      case InvalidateIndex =>
-        writer.foreach(_.close(shouldClearIndex = true))
-        writer = None
+      case InvalidateIndex => cleanUp(shouldClearIndex = true)
     }
   }
+
+  private[this] def cleanUp(shouldClearIndex: Boolean): Unit = {
+    writer.foreach(_.close(shouldClearIndex))
+    writer = None
+    failedToParse.clear()
+    fatalFailures.clear()
+  }
+
 
   def indexBuildData(buildData: CompilationInfo, onSuccess: () => Unit): Unit =
     //@FIXME: progress not showing

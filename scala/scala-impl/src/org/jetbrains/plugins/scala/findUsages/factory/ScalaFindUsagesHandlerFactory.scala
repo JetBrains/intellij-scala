@@ -4,16 +4,15 @@ import com.intellij.find.FindManager
 import com.intellij.find.findUsages.{FindUsagesHandler, FindUsagesHandlerFactory}
 import com.intellij.find.impl.FindManagerImpl
 import com.intellij.openapi.application.TransactionGuard
-import com.intellij.openapi.compiler.{CompileStatusNotification, CompilerManager}
 import com.intellij.openapi.module.Module
 import com.intellij.openapi.project.Project
 import com.intellij.openapi.ui.Messages
 import com.intellij.psi.{PsiElement, PsiNamedElement}
+import com.intellij.task.{ProjectTaskManager, ProjectTaskNotification}
 import com.intellij.util.containers.ContainerUtil
 import org.jetbrains.plugins.scala.ScalaBundle
 import org.jetbrains.plugins.scala.findUsages.compilerReferences.ScalaImplicitMemberUsageSearcher._
-import org.jetbrains.plugins.scala.findUsages.compilerReferences.{
-  CompilerReferenceServiceStatusListener, IndexerFailure}
+import org.jetbrains.plugins.scala.findUsages.compilerReferences.{CompilerReferenceServiceStatusListener, IndexerFailure}
 import org.jetbrains.plugins.scala.lang.psi.api.base.ScPrimaryConstructor
 import org.jetbrains.plugins.scala.lang.psi.api.statements.ScFunction
 import org.jetbrains.plugins.scala.lang.psi.api.statements.params.ScTypeParam
@@ -73,8 +72,8 @@ class ScalaFindUsagesHandlerFactory(project: Project) extends FindUsagesHandlerF
     target:  PsiElement,
     modules: Seq[Module]
   ): Unit = {
-    val manager    = CompilerManager.getInstance(project)
-    val connection = project.getMessageBus.connect(project)
+    val manager    = ProjectTaskManager.getInstance(project)
+    val connection = project.getMessageBus().connect(project)
 
     connection.subscribe(CompilerReferenceServiceStatusListener.topic, new CompilerReferenceServiceStatusListener {
       override def onIndexingFinished(failure: Option[IndexerFailure]): Unit = {
@@ -97,10 +96,9 @@ class ScalaFindUsagesHandlerFactory(project: Project) extends FindUsagesHandlerF
       }
     })
 
-    val scope = manager.createModulesCompileScope(modules.toArray, true)
-    val notification: CompileStatusNotification =
-      (aborted, errors, _, _)  => if (aborted || errors != 0) connection.disconnect()
-    manager.make(scope, notification)
+    val notification: ProjectTaskNotification =
+      result  => if (result.isAborted || result.getErrors != 0) connection.disconnect()
+    manager.build(modules.toArray, notification)
   }
 
   private[this] def doBeforeImplicitSearchAction(target: PsiNamedElement): Boolean =
@@ -109,8 +107,8 @@ class ScalaFindUsagesHandlerFactory(project: Project) extends FindUsagesHandlerF
         buildScopeBeforeImplicitSearch(target, modules)
         false
       case Some(RebuildProject) =>
-        val manager = CompilerManager.getInstance(project)
-        manager.rebuild(null)
+        val manager = ProjectTaskManager.getInstance(project)
+        manager.rebuildAllModules()
         false
       case Some(CancelSearch) => false
       case None               => true
