@@ -1,16 +1,27 @@
 package org.jetbrains.plugins.scala.findUsages.compilerReferences
 
-import java.util.EventListener
+import java.util.{EventListener, UUID}
 
 import com.intellij.util.messages.Topic
 import org.jetbrains.plugins.scala.findUsages.compilerReferences.SbtCompilationListener.ProjectIdentifier.ProjectBase
 
+/**
+ * Low level listener component providing access to raw TCP socket events from sbt compilations
+ * see also [[SbtCompilationWatcher]]
+ */
 trait SbtCompilationListener extends EventListener {
   import SbtCompilationListener._
 
-  def beforeCompilationStart(project: ProjectBase): Unit                                                     = ()
-  def connectionFailure(project: ProjectIdentifier): Unit                                                    = ()
-  def compilationFinished(project: ProjectBase, success: Boolean, compilationInfoFile: Option[String]): Unit = ()
+  def beforeCompilationStart(project: ProjectBase): Unit  = ()
+  def connectionFailure(project: ProjectIdentifier): Unit = ()
+
+  def onCompilationSuccess(
+    project:             ProjectBase,
+    compilationId:       UUID,
+    compilationInfoFile: String
+  ): Unit = ()
+
+  def onCompilationFailure(project: ProjectBase, compilationId: UUID): Unit = ()
 }
 
 object SbtCompilationListener {

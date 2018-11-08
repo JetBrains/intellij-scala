@@ -4,6 +4,7 @@ package project.settings
 import java.awt.{Component, FlowLayout}
 import javax.swing._
 
+import com.intellij.openapi.diagnostic.Logger
 import com.intellij.openapi.externalSystem.service.settings.{AbstractExternalProjectSettingsControl, ExternalSystemSettingsControlCustomizer}
 import com.intellij.openapi.externalSystem.util.ExternalSystemUiUtil._
 import com.intellij.openapi.externalSystem.util.PaintAwarePanel
@@ -127,6 +128,9 @@ class SbtProjectSettingsControl(context: Context, initialSettings: SbtProjectSet
   }
 
   protected def applyExtraSettings(settings: SbtProjectSettings) {
+    val useSbtShellForBuildSettingChanged =
+      settings.useSbtShellForBuild != useSbtShellForBuildCheckBox.isSelected
+
     settings.jdk = selectedJdkName.orNull
     settings.resolveClassifiers = resolveClassifiersCheckBox.isSelected
     settings.resolveSbtClassifiers = resolveSbtClassifiersCheckBox.isSelected
@@ -135,6 +139,15 @@ class SbtProjectSettingsControl(context: Context, initialSettings: SbtProjectSet
     settings.enableDebugSbtShell = remoteDebugSbtShell.isSelected
     settings.allowSbtVersionOverride = allowSbtVersionOverride.isSelected
     settings.useSbtShell = false
+
+    if (useSbtShellForBuildSettingChanged) {
+      import scala.util.control.NonFatal
+
+      val publisher = getProject.getMessageBus.syncPublisher(SbtShellSettingsListener.topic)
+
+      try publisher.buildWithSbtShellSettingChanged(settings.useSbtShellForBuild)
+      catch { case NonFatal(e) => logger.error(e) }
+    }
   }
 
   private def selectedJdkName = Option(jdkComboBox.getSelectedJdk).map(_.getName)
@@ -143,8 +156,8 @@ class SbtProjectSettingsControl(context: Context, initialSettings: SbtProjectSet
 }
 
 object SbtProjectSettingsControl {
+  private val logger = Logger.getInstance(classOf[SbtProjectSettingsControl])
 
   def customizer = new ExternalSystemSettingsControlCustomizer(false, true, true)
   def customizerInWizard = new ExternalSystemSettingsControlCustomizer(true, true, true)
-
 }
