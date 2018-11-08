@@ -5,6 +5,7 @@ import java.util.concurrent.atomic.AtomicInteger
 import java.util.concurrent.locks.ReentrantReadWriteLock
 
 import com.intellij.compiler.backwardRefs.LanguageCompilerRefAdapter
+import com.intellij.openapi.application.ApplicationManager
 import com.intellij.openapi.components.ProjectComponent
 import com.intellij.openapi.diagnostic.Logger
 import com.intellij.openapi.fileEditor.FileDocumentManager
@@ -154,23 +155,24 @@ private[findUsages] class ScalaCompilerReferenceService(
       }
     }
 
-  override def projectOpened(): Unit = if (CompilerIndicesSettings(project).indexingEnabled) {
-    new JpsCompilationWatcher(project, transactionManager).start()
-    new SbtCompilationWatcher(project, transactionManager, readerFactory.expectedIndexVersion()).start()
+  override def projectOpened(): Unit =
+    if (CompilerIndicesSettings(project).indexingEnabled || ApplicationManager.getApplication.isUnitTestMode) {
+      new JpsCompilationWatcher(project, transactionManager).start()
+      new SbtCompilationWatcher(project, transactionManager, readerFactory.expectedIndexVersion()).start()
 
-    dirtyScopeHolder.markProjectAsOutdated()
-    dirtyScopeHolder.installVFSListener()
+      dirtyScopeHolder.markProjectAsOutdated()
+      dirtyScopeHolder.installVFSListener()
 
-    Disposer.register(project, () => {
-      openCloseLock.locked {
-        if (isIndexingInProgress) {
-          // if the project is force-closed while indexing is in progress - invalidate index
-          indexDir(project).foreach(CompilerReferenceIndex.removeIndexFiles)
+      Disposer.register(project, () => {
+        openCloseLock.locked {
+          if (isIndexingInProgress) {
+            // if the project is force-closed while indexing is in progress - invalidate index
+            indexDir(project).foreach(CompilerReferenceIndex.removeIndexFiles)
+          }
+          closeReader(incrementBuildCount = false)
         }
-        closeReader(incrementBuildCount = false)
-      }
-    })
-  }
+      })
+    }
 
   private[this] def toCompilerRef(e: PsiElement): Option[CompilerRef] = readDataLock.locked {
     for {
