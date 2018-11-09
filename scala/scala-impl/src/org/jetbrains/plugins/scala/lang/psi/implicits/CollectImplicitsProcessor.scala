@@ -1,31 +1,30 @@
-package org.jetbrains.plugins.scala.lang.psi.implicits
+package org.jetbrains.plugins.scala
+package lang
+package psi
+package implicits
 
 import com.intellij.psi._
-import com.intellij.psi.tree.TokenSet
 import com.intellij.psi.util.PsiTreeUtil
-import org.jetbrains.plugins.scala.extensions.{PsiElementExt, StubBasedExt}
+import org.jetbrains.plugins.scala.extensions.PsiElementExt
 import org.jetbrains.plugins.scala.lang.psi.api.base.patterns.ScBindingPattern
 import org.jetbrains.plugins.scala.lang.psi.api.expr.ScExpression
 import org.jetbrains.plugins.scala.lang.psi.api.statements.params.{ScClassParameter, ScParameter}
 import org.jetbrains.plugins.scala.lang.psi.api.statements.{ScDeclaredElementsHolder, ScFunction, ScValue, ScVariable}
 import org.jetbrains.plugins.scala.lang.psi.api.toplevel.ScModifierListOwner
 import org.jetbrains.plugins.scala.lang.psi.api.toplevel.typedef.{ScMember, ScObject}
-import org.jetbrains.plugins.scala.lang.psi.types.api.TypeParameterType
 import org.jetbrains.plugins.scala.lang.psi.types.recursiveUpdate.ScSubstitutor
-import org.jetbrains.plugins.scala.lang.psi.{ScalaPsiElement, ScalaPsiUtil}
 import org.jetbrains.plugins.scala.lang.resolve.processor.{BaseProcessor, ImplicitProcessor}
-import org.jetbrains.plugins.scala.lang.resolve.{ResolveUtils, ScalaResolveResult, StdKinds}
+import org.jetbrains.plugins.scala.lang.resolve.{ResolveUtils, ScalaResolveResult}
 
 /**
   * @author adkozlov
   */
-class CollectImplicitsProcessor(expression: ScExpression, withoutPrecedence: Boolean)
-  extends ImplicitProcessor(StdKinds.refExprLastRef, withoutPrecedence)(expression) {
-
-  def getPlace: PsiElement = expression
+final class CollectImplicitsProcessor(override val getPlace: ScExpression,
+                                      override protected val withoutPrecedence: Boolean)
+  extends ImplicitProcessor(getPlace, withoutPrecedence) {
 
   def execute(element: PsiElement, state: ResolveState): Boolean = {
-    val functionType = expression.elementScope.function1Type(level = 0)
+    val functionType = getPlace.elementScope.function1Type(level = 0)
 
     lazy val subst: ScSubstitutor = state.get(BaseProcessor.FROM_TYPE_KEY) match {
       case null => getSubst(state)

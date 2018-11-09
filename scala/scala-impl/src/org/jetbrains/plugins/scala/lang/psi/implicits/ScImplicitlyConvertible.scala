@@ -65,10 +65,12 @@ class ScImplicitlyConvertible(val expression: ScExpression,
     buffer
   }
 
-  private def adaptResults[IR <: ImplicitResolveResult](processor: CollectImplicitsProcessor, `type`: ScType)
-                                                       (f: (ScalaResolveResult, ScType, ScSubstitutor) => IR)
-                                                       (implicit context: ProjectContext = `type`.projectContext): Set[IR] =
-    processor.candidatesS.flatMap {
+  private def adaptResults[IR <: ImplicitResolveResult](candidates: Set[ScalaResolveResult],
+                                                        `type`: ScType)
+                                                       (f: (ScalaResolveResult, ScType, ScSubstitutor) => IR): Set[IR] = {
+    implicit val projectContext: ProjectContext = `type`.projectContext
+
+    candidates.flatMap {
       forMap(expression, _, `type`)
     }.collect {
       case result: SimpleImplicitMapResult => (result, None)
@@ -82,6 +84,7 @@ class ScImplicitlyConvertible(val expression: ScExpression,
 
         f(result.resolveResult, `type`, result.implicitDependentSubstitutor)
     }
+  }
 
   @CachedWithRecursionGuard(expression, Set.empty, ModCount.getBlockModificationCount)
   private def collectRegulars: Set[RegularImplicitResolveResult] = {
@@ -108,7 +111,7 @@ class ScImplicitlyConvertible(val expression: ScExpression,
 
       treeWalkUp(expression, null)
 
-      adaptResults(processor, scType) {
+      adaptResults(processor.candidatesS, scType) {
         RegularImplicitResolveResult(_, _, _)
       }
     }
@@ -119,18 +122,17 @@ class ScImplicitlyConvertible(val expression: ScExpression,
     ScalaPsiUtil.debug(s"Companions implicit map", LOG)
 
     placeType.fold(Set.empty[CompanionImplicitResolveResult]) { scType =>
-      implicit val elementScope: ElementScope = expression.elementScope
-        val expandedType = arguments match {
-          case Seq() => scType
-          case seq => TupleType(Seq(scType) ++ seq)
-        }
+      val expandedType = arguments match {
+        case Seq() => scType
+        case seq => TupleType(Seq(scType) ++ seq)(expression.elementScope)
+      }
 
-        val processor = new CollectImplicitsProcessor(expression, true)
-        ScalaPsiUtil.collectImplicitObjects(expandedType).foreach {
-          processor.processType(_, expression, ResolveState.initial())
-        }
+      val candidates = new CollectImplicitsProcessor(expression, true)
+        .typeCandidates(expandedType)
 
-      adaptResults(processor, scType)(CompanionImplicitResolveResult)
+      adaptResults(candidates, scType) {
+        CompanionImplicitResolveResult
+      }
     }
   }
 }

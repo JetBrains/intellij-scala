@@ -169,7 +169,7 @@ class ImplicitCollector(place: PsiElement,
   }
 
   private def visibleNamesCandidates(): Set[ScalaResolveResult] = {
-    val processor = new ImplicitParametersProcessor(withoutPrecedence = false)
+    val processor = new ImplicitParametersProcessor(place, withoutPrecedence = false)
     var placeForTreeWalkUp = place
     var lastParent: PsiElement = null
     var stop = false
@@ -189,13 +189,9 @@ class ImplicitCollector(place: PsiElement,
     processor.candidatesS
   }
 
-  private def fromTypeCandidates(): Set[ScalaResolveResult] = {
-    val processor = new ImplicitParametersProcessor(withoutPrecedence = true)
-    ScalaPsiUtil.collectImplicitObjects(expandedTp)(place.elementScope).foreach {
-      processor.processType(_, place, ResolveState.initial())
-    }
-    processor.candidatesS
-  }
+  private def fromTypeCandidates() =
+    new ImplicitParametersProcessor(place, withoutPrecedence = true)
+      .typeCandidates(expandedTp)
 
   private def compatible(candidates: Set[ScalaResolveResult]): Seq[ScalaResolveResult] = {
     //implicits found without local type inference have higher priority
@@ -223,10 +219,9 @@ class ImplicitCollector(place: PsiElement,
       .map(_._1).toSeq
   }
 
-  private class ImplicitParametersProcessor(withoutPrecedence: Boolean)
-    extends ImplicitProcessor(StdKinds.refExprLastRef, withoutPrecedence) {
-
-    def getPlace: PsiElement = place
+  private final class ImplicitParametersProcessor(override val getPlace: PsiElement,
+                                                  override protected val withoutPrecedence: Boolean)
+    extends ImplicitProcessor(getPlace, withoutPrecedence) {
 
     def execute(element: PsiElement, state: ResolveState): Boolean = {
       if (!kindMatches(element)) return true

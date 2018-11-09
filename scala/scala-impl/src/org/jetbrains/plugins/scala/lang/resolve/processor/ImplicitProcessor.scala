@@ -3,14 +3,33 @@ package lang
 package resolve
 package processor
 
-import java.util.{Map => JMap, Set => JSet}
+import java.{util => ju}
 
+import com.intellij.openapi.progress.ProgressManager
+import com.intellij.psi.search.GlobalSearchScope
+import com.intellij.psi.{PsiClass, PsiElement, ResolveState}
 import gnu.trove.{THashMap, THashSet}
-import org.jetbrains.plugins.scala.lang.resolve.ResolveTargets._
+import org.jetbrains.plugins.scala.extensions._
+import org.jetbrains.plugins.scala.lang.psi.ElementScope
+import org.jetbrains.plugins.scala.lang.psi.ScalaPsiUtil.getCompanionModule
+import org.jetbrains.plugins.scala.lang.psi.api.ScPackageLike
+import org.jetbrains.plugins.scala.lang.psi.api.base.ScFieldId
+import org.jetbrains.plugins.scala.lang.psi.api.base.patterns.ScBindingPattern
+import org.jetbrains.plugins.scala.lang.psi.api.statements.ScTypeAliasDefinition
+import org.jetbrains.plugins.scala.lang.psi.api.statements.params.ScParameter
+import org.jetbrains.plugins.scala.lang.psi.api.toplevel.typedef.{ScObject, ScTemplateDefinition}
+import org.jetbrains.plugins.scala.lang.psi.impl.ScalaPsiManager
+import org.jetbrains.plugins.scala.lang.psi.types.api.designator.{ScDesignatorType, ScProjectionType}
+import org.jetbrains.plugins.scala.lang.psi.types.api.{JavaArrayType, ParameterizedType, StdType, TypeParameterType}
+import org.jetbrains.plugins.scala.lang.psi.types.recursiveUpdate.ScSubstitutor
+import org.jetbrains.plugins.scala.lang.psi.types.result.TypeResult
+import org.jetbrains.plugins.scala.lang.psi.types.{ScAbstractType, ScCompoundType, ScExistentialType, ScType}
+import org.jetbrains.plugins.scala.lang.refactoring.util.ScTypeUtil.AliasType
 import org.jetbrains.plugins.scala.lang.resolve.processor.precedence._
 import org.jetbrains.plugins.scala.project.ProjectContext
 
-import scala.collection.Set
+import scala.annotation.tailrec
+import scala.collection.{Set, mutable}
 
 /**
   * @author Alexander Podkhalyuzin
@@ -19,21 +38,23 @@ import scala.collection.Set
 /**
   * This class mark processor that only implicit object important among all PsiClasses
   */
-abstract class ImplicitProcessor(kinds: Set[Value], withoutPrecedence: Boolean)
-                                (implicit projectContext: ProjectContext) extends BaseProcessor(kinds) with SubstitutablePrecedenceHelper {
+abstract class ImplicitProcessor(override val getPlace: PsiElement,
+                                 protected val withoutPrecedence: Boolean)
+  extends BaseProcessor(StdKinds.refExprLastRef)(getPlace.projectContext)
+    with SubstitutablePrecedenceHelper {
 
   override protected def nameUniquenessStrategy: NameUniquenessStrategy = NameUniquenessStrategy.Implicits
 
   override protected val holder: TopPrecedenceHolder = new MappedTopPrecedenceHolder(nameUniquenessStrategy)
 
-  private[this] val levelMap: JMap[ScalaResolveResult, JSet[ScalaResolveResult]] =
-    new THashMap[ScalaResolveResult, JSet[ScalaResolveResult]](nameUniquenessStrategy)
+  private[this] val levelMap: ju.Map[ScalaResolveResult, ju.Set[ScalaResolveResult]] =
+    new THashMap[ScalaResolveResult, ju.Set[ScalaResolveResult]](nameUniquenessStrategy)
 
   override protected def clearLevelQualifiedSet(result: ScalaResolveResult) {
     //optimisation, do nothing
   }
 
-  override protected def getLevelSet(result: ScalaResolveResult): JSet[ScalaResolveResult] = {
+  override protected def getLevelSet(result: ScalaResolveResult): ju.Set[ScalaResolveResult] = {
     var levelSet = levelMap.get(result)
     if (levelSet == null) {
       levelSet = new THashSet[ScalaResolveResult]()
@@ -79,4 +100,191 @@ abstract class ImplicitProcessor(kinds: Set[Value], withoutPrecedence: Boolean)
   override protected def isCheckForEqualPrecedence = false
 
   override def isImplicitProcessor: Boolean = true
+
+  final def typeCandidates(expandedType: ScType): Set[ScalaResolveResult] = {
+    val place = getPlace
+    ImplicitProcessor.findImplicitObjects(expandedType.removeAliasDefinitions(), place.resolveScope).foreach {
+      processType(_, place, ResolveState.initial())
+    }
+    candidatesS
+  }
+}
+
+object ImplicitProcessor {
+
+  private def findImplicitObjects(`type`: ScType, scope: GlobalSearchScope)
+                                 (implicit context: ProjectContext): Seq[ScType] = {
+    val implicitObjectsCache = ScalaPsiManager.instance.collectImplicitObjectsCache
+    val cacheKey = (`type`, scope)
+
+    implicitObjectsCache.get(cacheKey) match {
+      case null =>
+        val implicitObjects = findImplicitObjectsImpl(`type`)(ElementScope(context.project, scope))
+        implicitObjectsCache.put(cacheKey, implicitObjects)
+        implicitObjects
+      case cached => cached
+    }
+  }
+
+  private[this] def findImplicitObjectsImpl(`type`: ScType)
+                                           (implicit elementScope: ElementScope): Seq[ScType] = {
+    val visited = mutable.HashSet.empty[ScType]
+    val parts = mutable.Queue.empty[ScType]
+
+    def collectPartsIter(iterable: TraversableOnce[ScType]): Unit = {
+      val iterator = iterable.toIterator
+      while (iterator.hasNext) {
+        collectParts(iterator.next())
+      }
+    }
+
+    def collectPartsTr(option: TypeResult): Unit = {
+      option match {
+        case Right(t) => collectParts(t)
+        case _ =>
+      }
+    }
+
+    def collectParts(tp: ScType) {
+      ProgressManager.checkCanceled()
+      if (visited.contains(tp)) return
+      visited += tp
+      tp.isAliasType match {
+        case Some(AliasType(_, _, Right(t))) => collectParts(t)
+        case _ =>
+      }
+
+      def collectSupers(clazz: PsiClass, subst: ScSubstitutor) {
+        clazz match {
+          case td: ScTemplateDefinition =>
+            collectPartsIter(td.superTypes.map(subst.subst))
+          case clazz: PsiClass =>
+            collectPartsIter(clazz.getSuperTypes.map(t => subst.subst(t.toScType())))
+        }
+      }
+
+      tp match {
+        case ScDesignatorType(v: ScBindingPattern) => collectPartsTr(v.`type`())
+        case ScDesignatorType(v: ScFieldId) => collectPartsTr(v.`type`())
+        case ScDesignatorType(p: ScParameter) => collectPartsTr(p.`type`())
+        case ScCompoundType(comps, _, _) => collectPartsIter(comps)
+        case ParameterizedType(a: ScAbstractType, args) =>
+          collectParts(a)
+          collectPartsIter(args)
+        case p@ParameterizedType(des, args) =>
+          p.extractClassType match {
+            case Some((clazz, subst)) =>
+              parts += des
+              collectParts(des)
+              collectPartsIter(args)
+              collectSupers(clazz, subst)
+            case _ =>
+              collectParts(des)
+              collectPartsIter(args)
+          }
+        case j: JavaArrayType =>
+          val parameterizedType = j.getParameterizedType
+          collectParts(parameterizedType.getOrElse(return))
+        case proj@ScProjectionType(projected, _) =>
+          collectParts(projected)
+          proj.actualElement match {
+            case v: ScBindingPattern => collectPartsTr(v.`type`().map(proj.actualSubst.subst))
+            case v: ScFieldId => collectPartsTr(v.`type`().map(proj.actualSubst.subst))
+            case v: ScParameter => collectPartsTr(v.`type`().map(proj.actualSubst.subst))
+            case _ =>
+          }
+          tp.extractClassType match {
+            case Some((clazz, subst)) =>
+              parts += tp
+              collectSupers(clazz, subst)
+            case _ =>
+          }
+        case ScAbstractType(_, _, upper) =>
+          collectParts(upper)
+        case ScExistentialType(quant, _) => collectParts(quant)
+        case tpt: TypeParameterType => collectParts(tpt.upperType)
+        case _ =>
+          tp.extractClassType match {
+            case Some((clazz, subst)) =>
+              parts += tp
+
+              @tailrec
+              def packageObjectsInImplicitScope(packOpt: Option[ScPackageLike]): Unit = packOpt match {
+                case Some(pack) =>
+                  for {
+                    packageObject <- pack.findPackageObject(elementScope.scope)
+                    designator = ScDesignatorType(packageObject)
+                  } parts += designator
+                  packageObjectsInImplicitScope(pack.parentScalaPackage)
+                case _ =>
+              }
+
+              packageObjectsInImplicitScope(clazz.parentOfType(classOf[ScPackageLike], strict = false))
+
+              collectSupers(clazz, subst)
+            case _ =>
+          }
+      }
+    }
+
+    collectParts(`type`)
+    val res = mutable.HashMap.empty[String, Seq[ScType]]
+
+    def addResult(fqn: String, tp: ScType): Unit = {
+      res.get(fqn) match {
+        case Some(s) =>
+          if (s.forall(!_.equiv(tp))) {
+            res.remove(fqn)
+            res += ((fqn, s :+ tp))
+          }
+        case None => res += ((fqn, Seq(tp)))
+      }
+    }
+
+    @tailrec
+    def collectObjects(tp: ScType) {
+      tp match {
+        case _ if tp.isAny =>
+        case tp: StdType if Seq("Int", "Float", "Double", "Boolean", "Byte", "Short", "Long", "Char").contains(tp.name) =>
+          elementScope.getCachedObject("scala." + tp.name)
+            .foreach { o =>
+              addResult(o.qualifiedName, ScDesignatorType(o))
+            }
+        case ScDesignatorType(ta: ScTypeAliasDefinition) => collectObjects(ta.aliasedType.getOrAny)
+        case ScProjectionType.withActual(actualElem: ScTypeAliasDefinition, actualSubst) =>
+          collectObjects(actualSubst.subst(actualElem.aliasedType.getOrAny))
+        case ParameterizedType(ScDesignatorType(ta: ScTypeAliasDefinition), args) =>
+          val genericSubst = ScSubstitutor.bind(ta.typeParameters, args)
+          collectObjects(genericSubst.subst(ta.aliasedType.getOrAny))
+        case ParameterizedType(ScProjectionType.withActual(actualElem: ScTypeAliasDefinition, actualSubst), args) =>
+          val genericSubst = ScSubstitutor.bind(actualElem.typeParameters, args)
+          val s = actualSubst.followed(genericSubst)
+          collectObjects(s.subst(actualElem.aliasedType.getOrAny))
+        case _ =>
+          tp.extractClass match {
+            case Some(obj: ScObject) => addResult(obj.qualifiedName, tp)
+            case Some(clazz) =>
+              getCompanionModule(clazz) match {
+                case Some(obj: ScObject) =>
+                  tp match {
+                    case ScProjectionType(proj, _) =>
+                      addResult(obj.qualifiedName, ScProjectionType(proj, obj))
+                    case ParameterizedType(ScProjectionType(proj, _), _) =>
+                      addResult(obj.qualifiedName, ScProjectionType(proj, obj))
+                    case _ =>
+                      addResult(obj.qualifiedName, ScDesignatorType(obj))
+                  }
+                case _ =>
+              }
+            case _ =>
+          }
+      }
+    }
+
+    while (parts.nonEmpty) {
+      collectObjects(parts.dequeue())
+    }
+
+    res.values.flatten.toSeq
+  }
 }
