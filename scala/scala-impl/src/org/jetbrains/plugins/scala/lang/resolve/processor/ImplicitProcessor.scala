@@ -17,6 +17,7 @@ import org.jetbrains.plugins.scala.lang.psi.api.base.ScFieldId
 import org.jetbrains.plugins.scala.lang.psi.api.base.patterns.ScBindingPattern
 import org.jetbrains.plugins.scala.lang.psi.api.statements.ScTypeAliasDefinition
 import org.jetbrains.plugins.scala.lang.psi.api.statements.params.ScParameter
+import org.jetbrains.plugins.scala.lang.psi.api.toplevel.templates.{ScExtendsBlock, ScTemplateBody}
 import org.jetbrains.plugins.scala.lang.psi.api.toplevel.typedef.{ScObject, ScTemplateDefinition}
 import org.jetbrains.plugins.scala.lang.psi.impl.ScalaPsiManager
 import org.jetbrains.plugins.scala.lang.psi.types.api.designator.{ScDesignatorType, ScProjectionType}
@@ -101,10 +102,29 @@ abstract class ImplicitProcessor(override val getPlace: PsiElement,
 
   override def isImplicitProcessor: Boolean = true
 
-  final def typeCandidates(expandedType: ScType): Set[ScalaResolveResult] = {
-    val place = getPlace
-    ImplicitProcessor.findImplicitObjects(expandedType.removeAliasDefinitions(), place.resolveScope).foreach {
-      processType(_, place, ResolveState.initial())
+  final def candidatesByPlace: Set[ScalaResolveResult] = {
+    // Collect implicit conversions from bottom to up
+    @tailrec
+    def treeWalkUp(element: PsiElement, lastParent: PsiElement): Unit =
+      if (element != null &&
+        element.processDeclarations(this, ResolveState.initial, lastParent, getPlace)) {
+        val isNewLevel = element match {
+          case _: ScTemplateBody | _: ScExtendsBlock => true // template body and inherited members are at the same level
+          case _ => changedLevel
+        }
+
+        if (isNewLevel) {
+          treeWalkUp(element.getContext, element)
+        }
+      }
+
+    treeWalkUp(getPlace, null)
+    candidatesS
+  }
+
+  final def candidatesByType(expandedType: ScType): Set[ScalaResolveResult] = {
+    ImplicitProcessor.findImplicitObjects(expandedType.removeAliasDefinitions(), getPlace.resolveScope).foreach {
+      processType(_, getPlace, ResolveState.initial)
     }
     candidatesS
   }

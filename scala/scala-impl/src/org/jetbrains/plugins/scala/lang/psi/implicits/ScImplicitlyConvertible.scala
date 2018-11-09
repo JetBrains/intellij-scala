@@ -12,7 +12,6 @@ import org.jetbrains.plugins.scala.lang.psi.api.base.patterns.ScBindingPattern
 import org.jetbrains.plugins.scala.lang.psi.api.expr.ScExpression
 import org.jetbrains.plugins.scala.lang.psi.api.statements._
 import org.jetbrains.plugins.scala.lang.psi.api.statements.params.{ScParameter, ScParameterClause}
-import org.jetbrains.plugins.scala.lang.psi.api.toplevel.templates.{ScExtendsBlock, ScTemplateBody}
 import org.jetbrains.plugins.scala.lang.psi.api.toplevel.typedef._
 import org.jetbrains.plugins.scala.lang.psi.implicits.ScImplicitlyConvertible._
 import org.jetbrains.plugins.scala.lang.psi.types._
@@ -94,24 +93,10 @@ class ScImplicitlyConvertible(val expression: ScExpression,
       case _: UndefinedType => true
       case scType => scType.isNothing
     }.fold(Set.empty[RegularImplicitResolveResult]) { scType =>
-      val processor = new CollectImplicitsProcessor(expression, false)
+      val candidates = new CollectImplicitsProcessor(expression, false)
+        .candidatesByPlace
 
-      // Collect implicit conversions from bottom to up
-      def treeWalkUp(p: PsiElement, lastParent: PsiElement) {
-        if (p == null) return
-        if (!p.processDeclarations(processor,
-          ResolveState.initial,
-          lastParent, expression)) return
-        p match {
-          case (_: ScTemplateBody | _: ScExtendsBlock) => //template body and inherited members are at the same level
-          case _ => if (!processor.changedLevel) return
-        }
-        treeWalkUp(p.getContext, p)
-      }
-
-      treeWalkUp(expression, null)
-
-      adaptResults(processor.candidatesS, scType) {
+      adaptResults(candidates, scType) {
         RegularImplicitResolveResult(_, _, _)
       }
     }
@@ -128,7 +113,7 @@ class ScImplicitlyConvertible(val expression: ScExpression,
       }
 
       val candidates = new CollectImplicitsProcessor(expression, true)
-        .typeCandidates(expandedType)
+        .candidatesByType(expandedType)
 
       adaptResults(candidates, scType) {
         CompanionImplicitResolveResult
