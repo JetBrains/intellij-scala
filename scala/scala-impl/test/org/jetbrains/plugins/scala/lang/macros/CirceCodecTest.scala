@@ -6,6 +6,7 @@ import org.jetbrains.plugins.scala.DependencyManagerBase._
 import org.jetbrains.plugins.scala.base.ScalaLightCodeInsightFixtureTestAdapter
 import org.jetbrains.plugins.scala.base.libraryLoaders.{IvyManagedLoader, LibraryLoader}
 import org.jetbrains.plugins.scala.debugger.{ScalaVersion, Scala_2_11}
+import org.jetbrains.plugins.scala.lang.psi.ScalaPsiUtil
 import org.jetbrains.plugins.scala.lang.psi.api.statements.ScFunctionDefinition
 import org.jetbrains.plugins.scala.lang.psi.api.toplevel.typedef._
 import org.jetbrains.plugins.scala.lang.psi.types.PhysicalSignature
@@ -38,8 +39,7 @@ class CirceCodecTest extends ScalaLightCodeInsightFixtureTestAdapter {
       false
     )
 
-    val implicitDefs0: Set[TypeResult] = clazz
-      .fakeCompanionModule
+    val implicitDefs0: Set[TypeResult] = ScalaPsiUtil.getCompanionModule(clazz)
       .getOrElse(clazz.asInstanceOf[ScObject])
       .allMethods
       .collect {
@@ -141,7 +141,7 @@ package foo
 
 import io.circe.generic.JsonCodec
 
-@JsonCodec case class Boom(i: Int)
+@JsonCodec case class <caret>Boom(i: Int)
 object Boom {
   val something: String = ""
 }
