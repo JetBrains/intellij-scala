@@ -14,7 +14,7 @@ import org.jetbrains.plugins.scala.lang.psi.api.toplevel.imports.usages.ImportUs
 import org.jetbrains.plugins.scala.lang.psi.api.toplevel.typedef.ScTypeDefinition
 import org.jetbrains.plugins.scala.lang.psi.types.recursiveUpdate.ScSubstitutor
 import org.jetbrains.plugins.scala.lang.psi.types.{PhysicalSignature, Signature}
-import org.jetbrains.plugins.scala.lang.resolve.processor.precedence.{MappedTopPrecedenceHolder, NameUniquenessStrategy, PrecedenceHelper, TopPrecedenceHolder}
+import org.jetbrains.plugins.scala.lang.resolve.processor.precedence.{MappedTopPrecedenceHolder, PrecedenceHelper, TopPrecedenceHolder}
 
 import scala.collection.{Set, mutable}
 
@@ -54,7 +54,16 @@ class CompletionProcessor(override val kinds: Set[ResolveTargets.Value],
                           val isImplicit: Boolean = false)
   extends BaseProcessor(kinds)(getPlace) with PrecedenceHelper {
 
-  override def nameUniquenessStrategy: NameUniquenessStrategy = NameUniquenessStrategy.Completion
+  private object CompletionStrategy extends NameUniquenessStrategy {
+
+    override def computeHashCode(result: ScalaResolveResult): Int =
+      31 * result.isNamedParameter.hashCode() + super.computeHashCode(result)
+
+    override def equals(left: ScalaResolveResult, right: ScalaResolveResult): Boolean =
+      left.isNamedParameter == right.isNamedParameter && super.equals(left, right)
+  }
+
+  override def nameUniquenessStrategy: NameUniquenessStrategy = CompletionStrategy
 
   override protected val holder: TopPrecedenceHolder = new MappedTopPrecedenceHolder(nameUniquenessStrategy)
 

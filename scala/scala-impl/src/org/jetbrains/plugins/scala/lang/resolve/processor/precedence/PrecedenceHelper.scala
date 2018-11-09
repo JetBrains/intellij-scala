@@ -8,6 +8,7 @@ import java.util
 import com.intellij.psi.util.PsiTreeUtil.getContextOfType
 import com.intellij.psi.{PsiElement, PsiPackage}
 import com.intellij.util.containers.SmartHashSet
+import gnu.trove.TObjectHashingStrategy
 import org.jetbrains.plugins.scala.lang.psi.api.base.ScStableCodeReferenceElement
 import org.jetbrains.plugins.scala.lang.psi.api.toplevel.ScPackaging
 import org.jetbrains.plugins.scala.lang.psi.api.toplevel.imports.ScImportExpr
@@ -27,15 +28,37 @@ trait PrecedenceHelper {
 
   def getPlace: PsiElement
 
+  protected abstract class NameUniquenessStrategy extends TObjectHashingStrategy[ScalaResolveResult] {
+
+    def isValid(result: ScalaResolveResult): Boolean = true
+
+    override def computeHashCode(result: ScalaResolveResult): Int = result.nameInScope.hashCode
+
+    override def equals(left: ScalaResolveResult, right: ScalaResolveResult): Boolean =
+      left.nameInScope == right.nameInScope
+  }
+
   protected lazy val placePackageName: String = ResolveUtils.getPlacePackage(getPlace)
 
   protected val holder: TopPrecedenceHolder
 
   protected def nameUniquenessStrategy: NameUniquenessStrategy
 
+  private class UniqueNamesSet extends SmartHashSet[ScalaResolveResult](nameUniquenessStrategy) {
+
+    override def add(result: ScalaResolveResult): Boolean =
+      if (nameUniquenessStrategy.isValid(result)) super.add(result)
+      else false
+
+    override def contains(obj: scala.Any): Boolean = obj match {
+      case result: ScalaResolveResult if nameUniquenessStrategy.isValid(result) => super.contains(result)
+      case _ => false
+    }
+  }
+
   protected val levelSet           : util.Set[ScalaResolveResult] = new SmartHashSet()
-  protected val uniqueNamesSet     : util.Set[ScalaResolveResult] = new UniqueNamesSet(nameUniquenessStrategy)
-  protected val levelUniqueNamesSet: util.Set[ScalaResolveResult] = new UniqueNamesSet(nameUniquenessStrategy)
+  protected val uniqueNamesSet: util.Set[ScalaResolveResult] = new UniqueNamesSet
+  protected val levelUniqueNamesSet: util.Set[ScalaResolveResult] = new UniqueNamesSet
 
   protected def clear(): Unit = {
     levelUniqueNamesSet.clear()

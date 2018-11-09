@@ -25,7 +25,7 @@ import org.jetbrains.plugins.scala.lang.psi.types.api._
 import org.jetbrains.plugins.scala.lang.psi.types.api.designator.ScDesignatorType
 import org.jetbrains.plugins.scala.lang.psi.types.nonvalue.Parameter
 import org.jetbrains.plugins.scala.lang.refactoring.util.ScalaNamesUtil
-import org.jetbrains.plugins.scala.lang.resolve.processor.{BaseProcessor, ImplicitProcessor, ResolveProcessor, ResolverEnv}
+import org.jetbrains.plugins.scala.lang.resolve.processor.{BaseProcessor, ResolveProcessor, ResolverEnv}
 import org.jetbrains.plugins.scala.project.ProjectContext
 
 import scala.collection.mutable.ArrayBuffer
@@ -126,7 +126,7 @@ sealed class ScSyntheticClass(val className: String, val stdType: StdType)
           }
           case None =>
         }
-      case _: ImplicitProcessor => //do nothing, there is no implicit synthetic methods
+      case _: implicits.ImplicitProcessor => //do nothing, there is no implicit synthetic methods
       case _: BaseProcessor =>
         //method toString and hashCode exists in java.lang.Object
         for (p <- methods; method <- p._2) {
