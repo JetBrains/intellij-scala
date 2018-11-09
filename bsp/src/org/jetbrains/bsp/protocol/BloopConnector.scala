@@ -51,7 +51,7 @@ class BloopConnector(bloopExecutable: File, base: File, capabilities: BspCapabil
 
     socketAndCleanupEither.map { socketAndCleanup =>
       val (socket, cleanup) = socketAndCleanup
-      val buildClientCapabilities = new BuildClientCapabilities(capabilities.languageIds.asJava, capabilities.providesFileWatching)
+      val buildClientCapabilities = new BuildClientCapabilities(capabilities.languageIds.asJava)
       val initializeBuildParams = new InitializeBuildParams(rootUri.toString, buildClientCapabilities)
       new BspSession(socket.getInputStream, socket.getOutputStream, initializeBuildParams, cleanup)
     }

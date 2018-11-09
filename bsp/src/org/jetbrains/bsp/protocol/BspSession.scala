@@ -4,7 +4,7 @@ import java.io.{InputStream, OutputStream}
 import java.util.concurrent.{CompletableFuture, LinkedBlockingQueue, TimeUnit, TimeoutException}
 
 import ch.epfl.scala.bsp4j
-import ch.epfl.scala.bsp4j.{BuildClient, BuildServer, CancelFileWatcherResult, ScalaBuildServer}
+import ch.epfl.scala.bsp4j.{BuildClient, BuildServer, ScalaBuildServer}
 import com.intellij.notification.NotificationType
 import com.intellij.openapi.diagnostic.Logger
 import com.intellij.util.concurrency.AppExecutorUtil
@@ -190,7 +190,7 @@ class BspSession(bspIn: InputStream,
       currentJob.notification(event)
       notifications(event)
     }
-    override def onBuildTargetTest(testReport: bsp4j.TestReport): Unit = ()
+    override def onBuildTargetTestReport(params: bsp4j.TestReport): Unit = () // TODO
 
     // build-level notifications
     override def onConnectWithServer(server: BuildServer): Unit = super.onConnectWithServer(server)
@@ -200,8 +200,6 @@ class BspSession(bspIn: InputStream,
       notifications(event)
     }
 
-    override def buildRegisterFileWatcher(params: bsp4j.RegisterFileWatcherParams): CompletableFuture[bsp4j.RegisterFileWatcherResult] = null // TODO
-    override def buildCancelFileWatcher(params: bsp4j.CancelFileWatcherParams): CompletableFuture[CancelFileWatcherResult] = null // TODO
   }
 }
 

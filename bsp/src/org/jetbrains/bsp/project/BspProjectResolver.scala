@@ -377,12 +377,15 @@ object BspProjectResolver {
       val dependencyOutputs = transitiveDependencyOutputs(target)
       val classPathWithoutDependencyOutputs = classPath.getOrElse(Seq.empty).filterNot(dependencyOutputs.contains)
 
+      val tags = target.getTags.asScala
+
+      import BuildTargetTag._
       val description = for {
         data <- Option(target.getData)
         scalaSdkData <- extractScalaSdkData(data.asInstanceOf[JsonElement])
+        if ! tags.contains(NO_IDE)
       } yield {
-
-        if(target.getKind == BuildTargetKind.LIBRARY || target.getKind == BuildTargetKind.APP)
+        if (tags.contains(LIBRARY) || tags.contains(APPLICATION))
           ScalaModuleDescription(
             targets = Seq(target),
             targetDependencies = target.getDependencies.asScala,
@@ -398,7 +401,7 @@ object BspProjectResolver {
             testClassPathSources = Seq.empty,
             scalaSdkData = scalaSdkData
           )
-        else if(target.getKind == BuildTargetKind.TEST)
+        else if(tags.contains(TEST))
           ScalaModuleDescription(
             targets = Seq(target),
             targetDependencies = Seq.empty,
@@ -414,7 +417,7 @@ object BspProjectResolver {
             testClassPathSources = dependencySources,
             scalaSdkData = scalaSdkData
           )
-        else
+        else // create a module, but with empty classpath
           ScalaModuleDescription(
             Seq(target),
             Seq.empty, Seq.empty,
