@@ -16,7 +16,6 @@ import org.jetbrains.plugins.scala.lang.psi.api.base.patterns.ScBindingPattern
 import org.jetbrains.plugins.scala.lang.psi.api.expr.ScExpression
 import org.jetbrains.plugins.scala.lang.psi.api.statements._
 import org.jetbrains.plugins.scala.lang.psi.api.statements.params.{ScClassParameter, ScParameter}
-import org.jetbrains.plugins.scala.lang.psi.api.toplevel.templates.{ScExtendsBlock, ScTemplateBody}
 import org.jetbrains.plugins.scala.lang.psi.api.toplevel.typedef.{ScMember, ScObject}
 import org.jetbrains.plugins.scala.lang.psi.api.toplevel.{ScNamedElement, ScTypedDefinition}
 import org.jetbrains.plugins.scala.lang.psi.impl.ScalaPsiManager
@@ -120,13 +119,13 @@ class ImplicitCollector(place: PsiElement,
       ProgressManager.checkCanceled()
 
       if (fullInfo) {
-        val visible = visibleNamesCandidates()
+        val visible = visibleNamesCandidates
         val fromNameCandidates = collectFullInfo(visible)
 
         val allCandidates =
           if (fromNameCandidates.exists(_.implicitReason == OkResult)) fromNameCandidates
           else {
-            fromNameCandidates ++ collectFullInfo(fromTypeCandidates().diff(visible))
+            fromNameCandidates ++ collectFullInfo(fromTypeCandidates.diff(visible))
           }
 
         //todo: should we also compare types like in MostSpecificUtil.isAsSpecificAs ?
@@ -140,11 +139,11 @@ class ImplicitCollector(place: PsiElement,
         }
         val stackStamp = RecursionManager.markStack()
 
-        val firstCandidates = compatible(visibleNamesCandidates())
+        val firstCandidates = compatible(visibleNamesCandidates)
         val result =
           if (firstCandidates.exists(_.isApplicable())) firstCandidates
           else {
-            val secondCandidates = compatible(fromTypeCandidates())
+            val secondCandidates = compatible(fromTypeCandidates)
             if (secondCandidates.nonEmpty) secondCandidates else firstCandidates
           }
 
@@ -168,34 +167,13 @@ class ImplicitCollector(place: PsiElement,
     }
   }
 
-  private def visibleNamesCandidates(): Set[ScalaResolveResult] = {
-    val processor = new ImplicitParametersProcessor(withoutPrecedence = false)
-    var placeForTreeWalkUp = place
-    var lastParent: PsiElement = null
-    var stop = false
-    while (!stop) {
-      if (placeForTreeWalkUp == null || !placeForTreeWalkUp.processDeclarations(processor,
-        ResolveState.initial(), lastParent, place)) stop = true
-      placeForTreeWalkUp match {
-        case (_: ScTemplateBody | _: ScExtendsBlock) => //template body and inherited members are at the same level
-        case _ => if (!processor.changedLevel) stop = true
-      }
-      if (!stop) {
-        lastParent = placeForTreeWalkUp
-        placeForTreeWalkUp = placeForTreeWalkUp.getContext
-      }
-    }
+  private def visibleNamesCandidates: Set[ScalaResolveResult] =
+    new ImplicitParametersProcessor(place, withoutPrecedence = false)
+      .candidatesByPlace
 
-    processor.candidatesS
-  }
-
-  private def fromTypeCandidates(): Set[ScalaResolveResult] = {
-    val processor = new ImplicitParametersProcessor(withoutPrecedence = true)
-    ScalaPsiUtil.collectImplicitObjects(expandedTp)(place.elementScope).foreach {
-      processor.processType(_, place, ResolveState.initial())
-    }
-    processor.candidatesS
-  }
+  private def fromTypeCandidates =
+    new ImplicitParametersProcessor(place, withoutPrecedence = true)
+      .candidatesByType(expandedTp)
 
   private def compatible(candidates: Set[ScalaResolveResult]): Seq[ScalaResolveResult] = {
     //implicits found without local type inference have higher priority
@@ -223,10 +201,9 @@ class ImplicitCollector(place: PsiElement,
       .map(_._1).toSeq
   }
 
-  private class ImplicitParametersProcessor(withoutPrecedence: Boolean)
-    extends ImplicitProcessor(StdKinds.refExprLastRef, withoutPrecedence) {
-
-    def getPlace: PsiElement = place
+  private final class ImplicitParametersProcessor(override val getPlace: PsiElement,
+                                                  override protected val withoutPrecedence: Boolean)
+    extends ImplicitProcessor(getPlace, withoutPrecedence) {
 
     def execute(element: PsiElement, state: ResolveState): Boolean = {
       if (!kindMatches(element)) return true

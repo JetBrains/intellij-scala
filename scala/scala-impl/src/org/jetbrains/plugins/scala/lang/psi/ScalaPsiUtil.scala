@@ -7,7 +7,6 @@ import com.intellij.codeInsight.AnnotationUtil
 import com.intellij.lang.java.JavaLanguage
 import com.intellij.openapi.diagnostic.Logger
 import com.intellij.openapi.module.Module
-import com.intellij.openapi.progress.ProgressManager
 import com.intellij.openapi.project.Project
 import com.intellij.openapi.roots.{ProjectFileIndex, ProjectRootManager}
 import com.intellij.openapi.util.text.StringUtil
@@ -45,11 +44,9 @@ import org.jetbrains.plugins.scala.lang.psi.implicits._
 import org.jetbrains.plugins.scala.lang.psi.types.Compatibility.Expression
 import org.jetbrains.plugins.scala.lang.psi.types._
 import org.jetbrains.plugins.scala.lang.psi.types.api._
-import org.jetbrains.plugins.scala.lang.psi.types.api.designator.{ScDesignatorType, ScProjectionType}
 import org.jetbrains.plugins.scala.lang.psi.types.nonvalue.{Parameter, ScTypePolymorphicType}
 import org.jetbrains.plugins.scala.lang.psi.types.recursiveUpdate.ScSubstitutor
 import org.jetbrains.plugins.scala.lang.psi.types.result._
-import org.jetbrains.plugins.scala.lang.refactoring.util.ScTypeUtil.AliasType
 import org.jetbrains.plugins.scala.lang.resolve.ScalaResolveResult
 import org.jetbrains.plugins.scala.lang.resolve.processor._
 import org.jetbrains.plugins.scala.lang.structureView.ScalaElementPresentation
@@ -388,177 +385,6 @@ object ScalaPsiUtil {
     if (element.getContainingFile.getVirtualFile != null)
       index.getModuleForFile(element.getContainingFile.getVirtualFile)
     else null
-  }
-
-  def collectImplicitObjects(_tp: ScType)
-                            (implicit elementScope: ElementScope): Seq[ScType] = {
-    val ElementScope(project, scope) = elementScope
-
-    val tp = _tp.removeAliasDefinitions()
-    val implicitObjectsCache = ScalaPsiManager.instance(project).collectImplicitObjectsCache
-    val cacheKey = (tp, scope)
-    val cachedResult = implicitObjectsCache.get(cacheKey)
-    if (cachedResult != null) return cachedResult
-
-    val visited: mutable.HashSet[ScType] = new mutable.HashSet[ScType]()
-    val parts: mutable.Queue[ScType] = new mutable.Queue[ScType]
-
-    def collectPartsIter(iterable: TraversableOnce[ScType]): Unit = {
-      val iterator = iterable.toIterator
-      while(iterator.hasNext) {
-        collectParts(iterator.next())
-      }
-    }
-
-    def collectPartsTr(option: TypeResult): Unit = {
-      option match {
-        case Right(t) => collectParts(t)
-        case _ =>
-      }
-    }
-
-    def collectParts(tp: ScType) {
-      ProgressManager.checkCanceled()
-      if (visited.contains(tp)) return
-      visited += tp
-      tp.isAliasType match {
-        case Some(AliasType(_, _, Right(t))) => collectParts(t)
-        case _ =>
-      }
-
-      def collectSupers(clazz: PsiClass, subst: ScSubstitutor) {
-        clazz match {
-          case td: ScTemplateDefinition =>
-            collectPartsIter(td.superTypes.map(subst.subst))
-          case clazz: PsiClass =>
-            collectPartsIter(clazz.getSuperTypes.map(t => subst.subst(t.toScType())))
-        }
-      }
-
-      tp match {
-        case ScDesignatorType(v: ScBindingPattern) => collectPartsTr(v.`type`())
-        case ScDesignatorType(v: ScFieldId) => collectPartsTr(v.`type`())
-        case ScDesignatorType(p: ScParameter) => collectPartsTr(p.`type`())
-        case ScCompoundType(comps, _, _) => collectPartsIter(comps)
-        case ParameterizedType(a: ScAbstractType, args) =>
-          collectParts(a)
-          collectPartsIter(args)
-        case p@ParameterizedType(des, args) =>
-          p.extractClassType match {
-            case Some((clazz, subst)) =>
-              parts += des
-              collectParts(des)
-              collectPartsIter(args)
-              collectSupers(clazz, subst)
-            case _ =>
-              collectParts(des)
-              collectPartsIter(args)
-          }
-        case j: JavaArrayType =>
-          val parameterizedType = j.getParameterizedType
-          collectParts(parameterizedType.getOrElse(return))
-        case proj@ScProjectionType(projected, _) =>
-          collectParts(projected)
-          proj.actualElement match {
-            case v: ScBindingPattern => collectPartsTr(v.`type`().map(proj.actualSubst.subst))
-            case v: ScFieldId => collectPartsTr(v.`type`().map(proj.actualSubst.subst))
-            case v: ScParameter => collectPartsTr(v.`type`().map(proj.actualSubst.subst))
-            case _ =>
-          }
-          tp.extractClassType match {
-            case Some((clazz, subst)) =>
-              parts += tp
-              collectSupers(clazz, subst)
-            case _ =>
-          }
-        case ScAbstractType(_, _, upper) =>
-          collectParts(upper)
-        case ScExistentialType(quant, _) => collectParts(quant)
-        case tpt: TypeParameterType => collectParts(tpt.upperType)
-        case _ =>
-          tp.extractClassType match {
-            case Some((clazz, subst)) =>
-              parts += tp
-
-              @tailrec
-              def packageObjectsInImplicitScope(packOpt: Option[ScPackageLike]): Unit = packOpt match {
-                case Some(pack) =>
-                  for {
-                    packageObject <- pack.findPackageObject(scope)
-                    designator = ScDesignatorType(packageObject)
-                  } parts += designator
-                  packageObjectsInImplicitScope(pack.parentScalaPackage)
-                case _ =>
-              }
-
-              packageObjectsInImplicitScope(clazz.parentOfType(classOf[ScPackageLike], strict = false))
-
-              collectSupers(clazz, subst)
-            case _ =>
-          }
-      }
-    }
-
-    collectParts(tp)
-    val res: mutable.HashMap[String, Seq[ScType]] = new mutable.HashMap
-
-    def addResult(fqn: String, tp: ScType): Unit = {
-      res.get(fqn) match {
-        case Some(s) =>
-          if (s.forall(!_.equiv(tp))) {
-            res.remove(fqn)
-            res += ((fqn, s :+ tp))
-          }
-        case None => res += ((fqn, Seq(tp)))
-      }
-    }
-
-    @tailrec
-    def collectObjects(tp: ScType) {
-      tp match {
-        case _ if tp.isAny =>
-        case tp: StdType if Seq("Int", "Float", "Double", "Boolean", "Byte", "Short", "Long", "Char").contains(tp.name) =>
-          elementScope.getCachedObject("scala." + tp.name)
-            .foreach { o =>
-              addResult(o.qualifiedName, ScDesignatorType(o))
-            }
-        case ScDesignatorType(ta: ScTypeAliasDefinition) => collectObjects(ta.aliasedType.getOrAny)
-        case ScProjectionType.withActual(actualElem: ScTypeAliasDefinition, actualSubst) =>
-          collectObjects(actualSubst.subst(actualElem.aliasedType.getOrAny))
-        case ParameterizedType(ScDesignatorType(ta: ScTypeAliasDefinition), args) =>
-          val genericSubst = ScSubstitutor.bind(ta.typeParameters, args)
-          collectObjects(genericSubst.subst(ta.aliasedType.getOrAny))
-        case ParameterizedType(ScProjectionType.withActual(actualElem: ScTypeAliasDefinition, actualSubst), args) =>
-          val genericSubst = ScSubstitutor.bind(actualElem.typeParameters, args)
-          val s = actualSubst.followed(genericSubst)
-          collectObjects(s.subst(actualElem.aliasedType.getOrAny))
-        case _ =>
-          tp.extractClass match {
-            case Some(obj: ScObject) => addResult(obj.qualifiedName, tp)
-            case Some(clazz) =>
-              getCompanionModule(clazz) match {
-                case Some(obj: ScObject) =>
-                  tp match {
-                    case ScProjectionType(proj, _) =>
-                      addResult(obj.qualifiedName, ScProjectionType(proj, obj))
-                    case ParameterizedType(ScProjectionType(proj, _), _) =>
-                      addResult(obj.qualifiedName, ScProjectionType(proj, obj))
-                    case _ =>
-                      addResult(obj.qualifiedName, ScDesignatorType(obj))
-                  }
-                case _ =>
-              }
-            case _ =>
-          }
-      }
-    }
-
-    while (parts.nonEmpty) {
-      collectObjects(parts.dequeue())
-    }
-    val result = res.values.flatten.toSeq
-    implicitObjectsCache.put(cacheKey, result)
-    result
   }
 
   def parentPackage(packageFqn: String, project: Project): Option[ScPackageImpl] = {
