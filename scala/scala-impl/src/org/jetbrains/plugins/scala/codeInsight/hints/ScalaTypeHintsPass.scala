@@ -9,9 +9,10 @@ import com.intellij.codeInsight.hints.{ElementProcessingHintPass, InlayInfo, Mod
 import com.intellij.openapi.editor.Editor
 import com.intellij.openapi.util.Key
 import com.intellij.openapi.vfs.VirtualFile
-import com.intellij.psi.PsiElement
+import com.intellij.psi.{PsiClass, PsiElement}
 import org.jetbrains.plugins.scala.extensions._
 import org.jetbrains.plugins.scala.lang.psi.api.ScalaFile
+import org.jetbrains.plugins.scala.lang.psi.api.expr.ScExpression
 import org.jetbrains.plugins.scala.lang.psi.api.statements.{ScFunction, ScValueOrVariable}
 import org.jetbrains.plugins.scala.lang.psi.types.api.{JavaArrayType, ParameterizedType}
 import org.jetbrains.plugins.scala.lang.psi.types.{ScCompoundType, ScType}
@@ -35,8 +36,8 @@ class ScalaTypeHintsPass(rootElement: ScalaFile,
     val definition = Definition(element)
 
     for {
-      ReturnType(returnType) <- Some(definition)
-      if settings.showObviousType || !isObviousFor(returnType, definition)
+      ReturnTypeAndBody(returnType, body) <- Some(definition)
+      if settings.showObviousType || !isObviousFor(body, returnType.extractClass)
 
       info <- createInlayInfo(definition, returnType)
     } collector.invoke(info.getOffset, info.getText)
@@ -55,20 +56,24 @@ object ScalaTypeHintsPass {
 
   private val ScalaTypeInlayKey = Key.create[JBoolean]("SCALA_TYPE_INLAY_KEY")
 
-  private object ReturnType {
+  private object ReturnTypeAndBody {
 
     def unapply(definition: Definition)
-               (implicit settings: ScalaCodeInsightSettings): Option[ScType] =
-      definition match {
+               (implicit settings: ScalaCodeInsightSettings): Option[(ScType, ScExpression)] = for {
+      body <- definition.bodyCandidate
+      returnType <- definition match {
         case ValueDefinition(value) => unapply(value)
         case VariableDefinition(variable) => unapply(variable)
         case FunctionDefinition(function) => unapply(function)
         case _ => None
       }
+    } yield (returnType, body)
 
     private def unapply(member: ScValueOrVariable)
                        (implicit settings: ScalaCodeInsightSettings) = {
-      val flag = if (member.isLocal) settings.showLocalVariableType else settings.showPropertyType
+      val flag = if (member.isLocal) settings.showLocalVariableType
+      else settings.showPropertyType
+
       if (flag) member.`type`().toOption else None
     }
 
@@ -78,14 +83,14 @@ object ScalaTypeHintsPass {
       else None
   }
 
-  private def isObviousFor(returnType: ScType, definition: Definition): Boolean =
-      definition.bodyCandidate
-        .zip(returnType.extractClass)
-        .exists {
-          case (ReferenceName(name, _), clazz) =>
-            !name.mismatchesCamelCase(clazz.name)
-          case _ => false
-        }
+  private def isObviousFor(body: ScExpression, maybeClass: Option[PsiClass]) =
+    maybeClass.map {
+      _.name -> body
+    }.exists {
+      case (className, ReferenceName(name, _)) =>
+        !name.mismatchesCamelCase(className)
+      case _ => false
+    }
 
   private def createInlayInfo(definition: Definition, returnType: ScType)
                              (implicit settings: ScalaCodeInsightSettings) = for {

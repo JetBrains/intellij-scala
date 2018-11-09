@@ -62,10 +62,10 @@ object Definition {
 
     override def bodyCandidate: Option[ScExpression] =
       if (value.isSimple) value.expr
-      else super.bodyCandidate
+      else None
 
     override def parameterList: Option[ScalaPsiElement] =
-      if (value.hasExplicitType) super.parameterList
+      if (value.hasExplicitType) None
       else Some(value.pList)
   }
 
@@ -73,10 +73,10 @@ object Definition {
 
     override def bodyCandidate: Option[ScExpression] =
       if (variable.isSimple) variable.expr
-      else super.bodyCandidate
+      else None
 
     override def parameterList: Option[ScalaPsiElement] =
-      if (variable.hasExplicitType) super.parameterList
+      if (variable.hasExplicitType) None
       else Some(variable.pList)
   }
 
@@ -88,7 +88,7 @@ object Definition {
 
     override def bodyCandidate: Option[ScExpression] =
       if (function.hasAssign && !function.isConstructor) function.body
-      else super.bodyCandidate
+      else None
 
     override protected def returnCandidates: Iterator[PsiElement] =
       function.returnUsages.iterator
