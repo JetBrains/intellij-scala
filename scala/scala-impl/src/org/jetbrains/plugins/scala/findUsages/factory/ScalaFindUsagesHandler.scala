@@ -163,7 +163,7 @@ class ScalaFindUsagesHandler(element: PsiElement, factory: ScalaFindUsagesHandle
     if (!addElementUsages(element)) return false
     inReadAction {
       options match {
-        case s: ScalaTypeDefinitionFindUsagesOptions =>
+        case s: ScalaTypeDefinitionFindUsagesOptions if element.isInstanceOf[ScTypeDefinition] =>
           val definition = element.asInstanceOf[ScTypeDefinition]
 
           if (s.isMembersUsages) {
