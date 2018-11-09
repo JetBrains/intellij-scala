@@ -557,6 +557,11 @@ object InferUtil {
                     if (typeParams.isEmpty) return true
                     if (tp.isAny) return true
                     tp match {
+                      case ScTypePolymorphicType(_, parameters) => // partial unification case
+                        val sameKind = parameters.length == typeParams.length
+                        sameKind && parameters.zip(typeParams).forall {
+                          case (tp: TypeParameter, typeParam: ScTypeParam) => checkTypeParam(typeParam, TypeParameterType(tp))
+                        }
                       case ParameterizedType(_, typeArgs) =>
                         if (typeArgs.length != typeParams.length) return false
                         typeArgs.zip(typeParams).forall {
@@ -585,7 +590,8 @@ object InferUtil {
 
                   tp.psiTypeParameter match {
                     case typeParam: ScTypeParam =>
-                      if (!checkTypeParam(typeParam, sub.subst(TypeParameterType(tp.psiTypeParameter))))
+                      val substituted = sub.subst(TypeParameterType(typeParam))
+                      if (!checkTypeParam(typeParam, substituted))
                         throw new SafeCheckException
                     case _ =>
                   }
