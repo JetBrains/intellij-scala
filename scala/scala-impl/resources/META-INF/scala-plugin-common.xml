@@ -1458,6 +1458,7 @@
       <applicationInitializedListener implementation="org.jetbrains.plugins.scala.ScalaLoader"/>
       <applicationInitializedListener implementation="org.jetbrains.plugins.scala.components.ScalaPluginVersionVerifierListener"/>
       <applicationInitializedListener implementation="org.jetbrains.plugins.scala.util.UIFreezingGuard"/>
+      <applicationInitializedListener implementation="org.jetbrains.plugins.scala.components.ImplicitHintsAdviser"/>
     </extensions>
 
     <project-components>

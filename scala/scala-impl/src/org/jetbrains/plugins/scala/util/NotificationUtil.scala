@@ -64,7 +64,7 @@ object NotificationUtil  {
 
   protected[NotificationUtil] object Link {
     def unapply(event: HyperlinkEvent): Option[URL] = Option(event.getURL) map (_.getProtocol) collect {
-      case "http" => event.getURL
+      case "http" | "https" => event.getURL
     }
   }
 
