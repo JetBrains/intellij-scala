@@ -49,7 +49,7 @@ private object ImplicitHintsAdviser {
     """<html>
       | <body>
       | <p><strong>Implicit Conversions</strong> and <strong>Implicit Arguments</strong> are deprecated in favor of <strong>View / Show Implicit Hints</strong>.</p>
-      | <p>Shortcut for <strong>Implicit Arguments</strong> now shows <strong>Type Info</strong> (as for other languages).</p>
+      | <p>Shortcut for <strong>Implicit Arguments</strong> now shows <strong>Expression Type</strong> (as for other languages).</p>
       | <p><a href="https://www.youtube.com/watch?v=dRiQIo9moSw">Learn more</a></p>
       | </body>
       |</html>""".stripMargin
