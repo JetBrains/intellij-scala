@@ -111,7 +111,6 @@ class BspTask[T](project: Project, executionSettings: BspExecutionSettings,
   private def compileRequest(implicit server: BspServer): CompletableFuture[CompileResult] = {
     val targetIds = targets.map(uri => new bsp4j.BuildTargetIdentifier(uri.toString))
     val params = new bsp4j.CompileParams(targetIds.toList.asJava)
-    params.setArguments(new JsonArray)
     params.setOriginId(taskId.toString)
 
     server.buildTargetCompile(params)
@@ -149,7 +148,7 @@ class BspTask[T](project: Project, executionSettings: BspExecutionSettings,
   private def reportDiagnostics(params: bsp4j.PublishDiagnosticsParams): Unit = {
     // TODO use params.originId to show tree structure
 
-    val file = params.getUri.toURI.toFile
+    val file = params.getTextDocument.getUri.toURI.toFile
     params.getDiagnostics.asScala.foreach { diagnostic: bsp4j.Diagnostic =>
       val start = diagnostic.getRange.getStart
       val end = diagnostic.getRange.getEnd
