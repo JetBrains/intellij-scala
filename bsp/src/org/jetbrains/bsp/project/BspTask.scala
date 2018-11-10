@@ -1,15 +1,12 @@
 package org.jetbrains.bsp.project
 
 import java.net.URI
-import java.util.Collections
 import java.util.concurrent.CompletableFuture
 
 import ch.epfl.scala.bsp4j
-import ch.epfl.scala.bsp4j.CompileResult
-import com.google.gson.JsonArray
+import ch.epfl.scala.bsp4j._
 import com.intellij.build.FilePosition
-import com.intellij.build.events.Failure
-import com.intellij.build.events.impl.{FailureResultImpl, SuccessResultImpl}
+import com.intellij.build.events.impl.{FailureResultImpl, SkippedResultImpl, SuccessResultImpl}
 import com.intellij.execution.process.AnsiEscapeDecoder.ColoredTextAcceptor
 import com.intellij.execution.process.{AnsiEscapeDecoder, ProcessOutputTypes}
 import com.intellij.openapi.progress.{PerformInBackgroundOption, ProcessCanceledException, ProgressIndicator, Task}
@@ -40,17 +37,22 @@ class BspTask[T](project: Project, executionSettings: BspExecutionSettings,
   private val taskId: EventId = BuildMessages.randomEventId
   private val report = new BuildToolWindowReporter(project, taskId, "bsp build")
 
+  import BspNotifications._
   private val notifications: NotificationCallback = {
-    case BspNotifications.LogMessage(params) =>
+    case LogMessage(params) =>
       report.log(params.getMessage)
-    case BspNotifications.ShowMessage(params) =>
+    case ShowMessage(params) =>
       reportShowMessage(params)
-    case BspNotifications.PublishDiagnostics(params) =>
+    case PublishDiagnostics(params) =>
       reportDiagnostics(params)
-    case BspNotifications.CompileReport(params) =>
-      reportCompile(params)
-    case BspNotifications.TestReport(params) =>
-      // ignore in compile tasks
+    case TaskStart(params) =>
+      reportTaskStart(params)
+    case TaskProgress(params) =>
+      reportTaskProgress(params)
+    case TaskFinish(params) =>
+      reportTaskFinish(params)
+    case DidChangeBuildTarget(_) =>
+      // ignore
   }
 
   override def run(indicator: ProgressIndicator): Unit = {
@@ -181,30 +183,35 @@ class BspTask[T](project: Project, executionSettings: BspExecutionSettings,
     }
   }
 
-  /** Report compilation stats and success/failure of an individual target.
-    * TODO requires notifications of compile task start
-    */
-  private def reportCompile(compileReport: bsp4j.CompileReport): Unit = {
-    val targetUri = compileReport.getTarget.getUri
-    val taskId = StringId(targetUri)
-    val warnings = compileReport.getWarnings
-    val errors = compileReport.getErrors
+  private def reportTaskStart(params: TaskStartParams): Unit = {
+    val taskId = params.getTaskId
+    val id = StringId(taskId.getId)
+    val parent = Option(taskId.getParent).map(StringId)
+    val time = Option(params.getEventTime.longValue()).getOrElse(System.currentTimeMillis())
+    report.startTask(id, parent, params.getMessage, time)
+  }
 
-    val (message,result) = if (errors > 0) {
-      val warningsMsg = if (warnings>0) s", $warnings warnings"
-      val msg = s"failed with $errors errors$warningsMsg"
-      val result = new SuccessResultImpl(true)
-      (msg,result)
-    }
-    else {
-      val warningsMsg = if (warnings>0) s": $warnings warnings" else ""
-      val msg = s"completed$warningsMsg"
-      val result = new FailureResultImpl(Collections.emptyList[Failure]())
-      (msg,result)
-    }
-    val fullMessage = s"$targetUri $message"
+  private def reportTaskProgress(params: TaskProgressParams): Unit = {
+    val taskId = params.getTaskId
+    val id = StringId(taskId.getId)
+    val time = Option(params.getEventTime.longValue()).getOrElse(System.currentTimeMillis())
+    report.progressTask(id, params.getTotal, params.getProgress, params.getUnit, params.getMessage, time)
+  }
 
-    report.finishTask(taskId, message, result)
+  private def reportTaskFinish(params: TaskFinishParams): Unit = {
+    val taskId = params.getTaskId
+    val id = StringId(taskId.getId)
+    val time = Option(params.getEventTime.longValue()).getOrElse(System.currentTimeMillis())
+    val result = params.getStatusCode match {
+      case StatusCode.OK =>
+        new SuccessResultImpl()
+      case StatusCode.ERROR =>
+        new FailureResultImpl(params.getMessage, null)
+      case StatusCode.CANCELLED =>
+        new SkippedResultImpl
+    }
+
+    report.finishTask(id, params.getMessage, result, time)
   }
 }
 

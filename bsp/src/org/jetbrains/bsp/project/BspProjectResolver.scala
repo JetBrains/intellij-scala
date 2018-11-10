@@ -310,7 +310,7 @@ object BspProjectResolver {
     result
   }
 
-  private def calculateScalaSdkData(target: ScalaBuildTarget) = {
+  private def calculateScalaSdkData(target: ScalaBuildTarget): ScalaSdkData = {
     ScalaSdkData(
       target.getScalaOrganization,
       Some(Version(target.getScalaVersion)),
