@@ -7,6 +7,7 @@ import ch.epfl.scala.bsp4j._
 import com.intellij.openapi.diagnostic.Logger
 import org.jetbrains.bsp.protocol.BspServerConnector.{BspCapabilities, BspConnectionMethod, TcpBsp, UnixLocalBsp}
 import org.jetbrains.bsp.{BspError, BspErrorMessage, BspException}
+import org.jetbrains.plugins.scala.components.ScalaPluginVersionVerifier
 import org.scalasbt.ipcsocket.UnixDomainSocket
 
 import scala.collection.JavaConverters._
@@ -52,7 +53,8 @@ class BloopConnector(bloopExecutable: File, base: File, capabilities: BspCapabil
     socketAndCleanupEither.map { socketAndCleanup =>
       val (socket, cleanup) = socketAndCleanup
       val buildClientCapabilities = new BuildClientCapabilities(capabilities.languageIds.asJava)
-      val initializeBuildParams = new InitializeBuildParams(rootUri.toString, buildClientCapabilities)
+      val pluginVersion = ScalaPluginVersionVerifier.getPluginVersion.map(_.presentation).getOrElse("N/A")
+      val initializeBuildParams = new InitializeBuildParams("IntelliJ-BSP", pluginVersion, "2.0", rootUri.toString, buildClientCapabilities)
       new BspSession(socket.getInputStream, socket.getOutputStream, initializeBuildParams, cleanup)
     }
   }

@@ -4,7 +4,6 @@ import java.io.{InputStream, OutputStream}
 import java.util.concurrent.{CompletableFuture, LinkedBlockingQueue, TimeUnit, TimeoutException}
 
 import ch.epfl.scala.bsp4j
-import ch.epfl.scala.bsp4j.{BuildClient, BuildServer, ScalaBuildServer}
 import com.intellij.notification.NotificationType
 import com.intellij.openapi.diagnostic.Logger
 import com.intellij.util.concurrency.AppExecutorUtil
@@ -185,15 +184,24 @@ class BspSession(bspIn: InputStream,
       currentJob.notification(event)
       notifications(event)
     }
-    override def onBuildTargetCompileReport(params: bsp4j.CompileReport): Unit = {
-      val event = CompileReport(params)
+
+    override def onBuildTaskStart(params: bsp4j.TaskStartParams): Unit = {
+      val event = TaskStart(params)
       currentJob.notification(event)
-      notifications(event)
     }
-    override def onBuildTargetTestReport(params: bsp4j.TestReport): Unit = () // TODO
+
+    override def onBuildTaskProgress(params: bsp4j.TaskProgressParams): Unit = {
+      val event = TaskProgress(params)
+      currentJob.notification(event)
+    }
+
+    override def onBuildTaskFinish(params: bsp4j.TaskFinishParams): Unit = {
+      val event = TaskFinish(params)
+      currentJob.notification(event)
+    }
 
     // build-level notifications
-    override def onConnectWithServer(server: BuildServer): Unit = super.onConnectWithServer(server)
+    override def onConnectWithServer(server: bsp4j.BuildServer): Unit = super.onConnectWithServer(server)
 
     override def onBuildTargetDidChange(didChange: bsp4j.DidChangeBuildTarget): Unit = {
       val event = DidChangeBuildTarget(didChange)
@@ -210,8 +218,8 @@ object BspSession {
   type NotificationCallback = BspNotification => Unit
   type BspSessionTask[T] = BspServer => CompletableFuture[T]
 
-  trait BspServer extends BuildServer with ScalaBuildServer
-  trait BspClient extends BuildClient
+  trait BspServer extends bsp4j.BuildServer with bsp4j.ScalaBuildServer
+  trait BspClient extends bsp4j.BuildClient
 
   private abstract class BspSessionJob[T,A] extends BspJob[(T,A)] {
     private[BspSession] def notification(bspNotification: BspNotification): Unit

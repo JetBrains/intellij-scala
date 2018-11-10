@@ -152,7 +152,7 @@ object DependencyGroups {
       .exclude("net.java.dev.jna","jna") // included in IDEA platform
       .exclude("net.java.dev.jna","jna-platform") // included in IDEA platform
     ,
-    ("ch.epfl.scala" % "bsp4j" % "1.0.0+69-fdbc91c1")
+    ("ch.epfl.scala" % "bsp4j" % "1.0.0+93-857f16fb")
       .exclude("com.google.code.gson", "gson") // included in IDEA platform
       .exclude("com.google.guava", "guava") // included in IDEA platform
   )
