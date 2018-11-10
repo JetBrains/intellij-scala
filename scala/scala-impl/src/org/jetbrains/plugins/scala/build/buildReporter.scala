@@ -127,19 +127,18 @@ class BuildToolWindowReporter(project: Project, taskId: EventId, title: String) 
     viewManager.onEvent(finishEvent)
   }
 
-  def startTask(taskId: EventId, parent: Option[EventId], message: String): Unit = {
-    val time = System.currentTimeMillis() // TODO pass as parameter?
+  def startTask(taskId: EventId, parent: Option[EventId], message: String, time: Long = System.currentTimeMillis()): Unit = {
     val startEvent = new StartEventImpl(taskId, parent.orNull, time, message)
     viewManager.onEvent(startEvent)
   }
 
-  def progressTask(taskId: EventId, total: Long, progress: Long, unit: String, message: String): Unit = {
+  def progressTask(taskId: EventId, total: Long, progress: Long, unit: String, message: String, time: Long = System.currentTimeMillis()): Unit = {
     val time = System.currentTimeMillis() // TODO pass as parameter?
     val event = new ProgressBuildEventImpl(taskId, null, time, message, total, progress, unit)
     viewManager.onEvent(event)
   }
 
-  def finishTask(taskId: EventId, message: String, result: EventResult): Unit = {
+  def finishTask(taskId: EventId, message: String, result: EventResult, time: Long = System.currentTimeMillis()): Unit = {
     val time = System.currentTimeMillis() // TODO pass as parameter?
     val event = new FinishEventImpl(taskId, null, time, message, result)
     viewManager.onEvent(event)
