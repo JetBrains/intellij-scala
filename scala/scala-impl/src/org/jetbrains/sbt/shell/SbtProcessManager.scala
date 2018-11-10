@@ -24,7 +24,7 @@ import com.intellij.openapi.util.io.FileUtil
 import com.intellij.openapi.vfs.VfsUtil
 import org.jetbrains.plugins.scala.buildinfo.BuildInfo
 import org.jetbrains.plugins.scala.extensions._
-import org.jetbrains.plugins.scala.findUsages.compilerReferences.{CompilerIndicesSbtSettings, CompilerIndicesSettings}
+import org.jetbrains.plugins.scala.findUsages.compilerReferences.settings._
 import org.jetbrains.plugins.scala.project.Version
 import org.jetbrains.plugins.scala.project.external.{JdkByName, SdkUtils}
 import org.jetbrains.sbt.SbtUtil

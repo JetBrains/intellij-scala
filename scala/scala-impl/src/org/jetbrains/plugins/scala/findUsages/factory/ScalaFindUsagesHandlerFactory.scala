@@ -6,7 +6,7 @@ import com.intellij.openapi.ui.Messages
 import com.intellij.psi.{PsiElement, PsiNamedElement}
 import com.intellij.util.containers.ContainerUtil
 import org.jetbrains.plugins.scala.ScalaBundle
-import org.jetbrains.plugins.scala.findUsages.compilerReferences.ScalaImplicitMemberUsageSearcher._
+import org.jetbrains.plugins.scala.findUsages.compilerReferences.search.ImplicitMemberUsageSearcher._
 import org.jetbrains.plugins.scala.lang.psi.api.base.ScPrimaryConstructor
 import org.jetbrains.plugins.scala.lang.psi.api.statements.ScFunction
 import org.jetbrains.plugins.scala.lang.psi.api.statements.params.ScTypeParam
