@@ -141,8 +141,7 @@ class SbtProjectSettingsControl(context: Context, initialSettings: SbtProjectSet
 
     if (useSbtShellForBuildSettingChanged) {
       import org.jetbrains.plugins.scala.findUsages.compilerReferences.ScalaCompilerReferenceService
-      import org.jetbrains.plugins.scala.findUsages.compilerReferences.CompilerMode
-
+      import org.jetbrains.plugins.scala.findUsages.compilerReferences.compilation.CompilerMode
       settings.useSbtShellForBuild = useSbtShellForBuildCheckBox.isSelected
       val project = getProject
 

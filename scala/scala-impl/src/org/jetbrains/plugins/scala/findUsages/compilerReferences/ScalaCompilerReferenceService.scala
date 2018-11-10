@@ -19,9 +19,11 @@ import com.intellij.util.containers.ContainerUtil
 import org.jetbrains.jps.backwardRefs.CompilerRef
 import org.jetbrains.jps.backwardRefs.index.CompilerReferenceIndex
 import org.jetbrains.plugins.scala.extensions._
-import org.jetbrains.plugins.scala.findUsages.compilerReferences.CompilationWatcher.CompilerIndicesState
-import org.jetbrains.plugins.scala.findUsages.compilerReferences.IndexerFailure.{FailedToParse, FatalFailure}
-import org.jetbrains.plugins.scala.findUsages.compilerReferences.IndexerJob._
+import org.jetbrains.plugins.scala.findUsages.compilerReferences.compilation._
+import org.jetbrains.plugins.scala.findUsages.compilerReferences.indices.IndexerFailure._
+import org.jetbrains.plugins.scala.findUsages.compilerReferences.indices.IndexerJob._
+import org.jetbrains.plugins.scala.findUsages.compilerReferences.indices._
+import org.jetbrains.plugins.scala.findUsages.compilerReferences.settings.CompilerIndicesSettings
 import org.jetbrains.plugins.scala.indices.protocol.CompilationInfo
 
 import scala.collection.JavaConverters._
@@ -34,7 +36,6 @@ private[findUsages] class ScalaCompilerReferenceService(
   import ScalaCompilerReferenceService._
 
   private[this] val projectFileIndex = ProjectRootManager.getInstance(project).getFileIndex
-  private[this] val readerFactory    = ScalaCompilerReferenceReaderFactory
   private[this] val lock             = new ReentrantReadWriteLock()
   private[this] val openCloseLock    = lock.writeLock()
   private[this] val readDataLock     = lock.readLock()
@@ -51,7 +52,7 @@ private[findUsages] class ScalaCompilerReferenceService(
   private[this] var reader               = Option.empty[ScalaCompilerReferenceReader] /** access only in [[transactionManager.inTransaction()]] */
 
   private[this] val indexerScheduler =
-    new CompilerReferenceIndexerScheduler(project, readerFactory.expectedIndexVersion())
+    new CompilerReferenceIndexerScheduler(project, ScalaCompilerReferenceReaderFactory.expectedIndexVersion)
 
   private[this] val failedToParse         = ContainerUtil.newConcurrentSet[File]()
   private[this] val compilationTimestamps = ContainerUtil.newConcurrentMap[String, Long]()
@@ -136,7 +137,7 @@ private[findUsages] class ScalaCompilerReferenceService(
           )
           onIndexCorruption()
         } else {
-          reader = Option(readerFactory.create(project))
+          reader = ScalaCompilerReferenceReaderFactory(project)
           messageBus.syncPublisher(CompilerReferenceServiceStatusListener.topic).onIndexingFinished()
         }
       }
@@ -158,7 +159,7 @@ private[findUsages] class ScalaCompilerReferenceService(
   override def projectOpened(): Unit =
     if (CompilerIndicesSettings(project).indexingEnabled || ApplicationManager.getApplication.isUnitTestMode) {
       new JpsCompilationWatcher(project, transactionManager).start()
-      new SbtCompilationWatcher(project, transactionManager, readerFactory.expectedIndexVersion()).start()
+      new SbtCompilationWatcher(project, transactionManager, ScalaCompilerReferenceReaderFactory.expectedIndexVersion).start()
 
       dirtyScopeHolder.markProjectAsOutdated()
       dirtyScopeHolder.installVFSListener()
@@ -234,6 +235,8 @@ private[findUsages] class ScalaCompilerReferenceService(
 
 object ScalaCompilerReferenceService {
   private val logger = Logger.getInstance(classOf[ScalaCompilerReferenceService])
+
+  private[compilerReferences] type CompilerIndicesState = (CompilerMode, CompilerIndicesEventPublisher)
 
   def apply(project: Project): ScalaCompilerReferenceService =
     project.getComponent(classOf[ScalaCompilerReferenceService])

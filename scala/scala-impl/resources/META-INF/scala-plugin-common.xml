@@ -111,11 +111,11 @@
         <projectConfigurable groupId="language" displayName="Scala" instance="org.jetbrains.plugins.scala.settings.ScalaProjectSettingsConfigurable"/>
         <applicationConfigurable displayName="Scala Compile Server" parentId="Scala Compiler"
                                  instance="org.jetbrains.plugins.scala.compiler.ScalaCompileServerForm"/>
-        <projectService serviceImplementation="org.jetbrains.plugins.scala.findUsages.compilerReferences.CompilerIndicesSettings"/>
+        <projectService serviceImplementation="org.jetbrains.plugins.scala.findUsages.compilerReferences.settings.CompilerIndicesSettings"/>
         <projectConfigurable id="Compiler Indices" parentId="Scala Compiler"
-                             instance="org.jetbrains.plugins.scala.findUsages.compilerReferences.CompilerIndicesConfigurable"/>
-        <applicationService serviceImplementation="org.jetbrains.plugins.scala.findUsages.compilerReferences.CompilerIndicesSbtSettings"/>
-        <applicationConfigurable parentId="Compiler Indices" instance="org.jetbrains.plugins.scala.findUsages.compilerReferences.CompilerIndicesSbtConfigurable"/>
+                             instance="org.jetbrains.plugins.scala.findUsages.compilerReferences.settings.CompilerIndicesConfigurable"/>
+        <applicationService serviceImplementation="org.jetbrains.plugins.scala.findUsages.compilerReferences.settings.CompilerIndicesSbtSettings"/>
+        <applicationConfigurable parentId="Compiler Indices" instance="org.jetbrains.plugins.scala.findUsages.compilerReferences.settings.CompilerIndicesSbtConfigurable"/>
         <applicationService serviceImplementation="org.jetbrains.plugins.scala.settings.ScalaApplicationSettings"/>
         <applicationService serviceInterface="org.jetbrains.plugins.scala.settings.ScalaCodeFoldingSettings"
                             serviceImplementation="org.jetbrains.plugins.scala.settings.ScalaCodeFoldingSettings"/>
@@ -337,7 +337,7 @@
         <methodReferencesSearch implementation="org.jetbrains.plugins.scala.findUsages.NonMemberMethodUsagesSearcher"/>
         <findUsagesHandlerFactory implementation="org.jetbrains.plugins.scala.findUsages.factory.ScalaFindUsagesHandlerFactory" order="first"/>
         <customUsageSearcher implementation="org.jetbrains.plugins.scala.findUsages.parameters.ConstructorParamsInConstructorPatternSearcher"/>
-        <languageCompilerRefAdapter implementation="org.jetbrains.plugins.scala.findUsages.compilerReferences.ScalaCompilerRefAdapter"/>
+        <languageCompilerRefAdapter implementation="org.jetbrains.plugins.scala.findUsages.compilerReferences.indices.ScalaCompilerRefAdapter"/>
         <codeUsageScopeOptimizer implementation="org.jetbrains.plugins.scala.findUsages.compilerReferences.ScalaCompilerReferenceScopeOptimizer"/>
         <qualifiedNameProvider implementation="org.jetbrains.plugins.scala.actions.ScalaQualifiedNameProvider" order="first"/>
         <targetElementEvaluator language="Scala" implementationClass="org.jetbrains.plugins.scala.codeInsight.ScalaTargetElementEvaluator"/>
@@ -1430,7 +1430,7 @@
 
     <application-components>
       <component>
-        <implementation-class>org.jetbrains.plugins.scala.findUsages.compilerReferences.SbtCompilationManager</implementation-class>
+        <implementation-class>org.jetbrains.plugins.scala.findUsages.compilerReferences.compilation.SbtCompilationManager</implementation-class>
       </component>
     </application-components>
 
