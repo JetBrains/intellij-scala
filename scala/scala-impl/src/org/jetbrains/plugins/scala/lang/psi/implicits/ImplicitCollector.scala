@@ -205,19 +205,17 @@ class ImplicitCollector(place: PsiElement,
                                                   override protected val withoutPrecedence: Boolean)
     extends ImplicitProcessor(getPlace, withoutPrecedence) {
 
-    def execute(element: PsiElement, state: ResolveState): Boolean = {
-      if (!kindMatches(element)) return true
-
+    override protected def execute(namedElement: PsiNamedElement)
+                                  (implicit state: ResolveState): Boolean = {
       def addResultForElement(): Boolean = {
-        val named = element.asInstanceOf[PsiNamedElement]
         val subst = state.get(BaseProcessor.FROM_TYPE_KEY) match {
           case null => getSubst(state)
           case t => getSubst(state).followUpdateThisType(t)
         }
-        addResult(new ScalaResolveResult(named, subst, getImports(state), implicitSearchState = Some(collectorState)))
+        addResult(new ScalaResolveResult(namedElement, subst, getImports(state), implicitSearchState = Some(collectorState)))
       }
 
-      element match {
+      namedElement match {
         case p: ScParameter if p.isImplicitParameter =>
           p match {
             case c: ScClassParameter if !isAccessible(c) => return true
@@ -227,7 +225,7 @@ class ImplicitCollector(place: PsiElement,
         case member: ScMember if member.hasModifierProperty("implicit") =>
           if (isAccessible(member)) addResultForElement()
         case _: ScBindingPattern | _: ScFieldId =>
-          val member = ScalaPsiUtil.getContextOfType(element, true, classOf[ScValue], classOf[ScVariable]) match {
+          val member = ScalaPsiUtil.getContextOfType(namedElement, true, classOf[ScValue], classOf[ScVariable]) match {
             case m: ScMember if m.hasModifierProperty("implicit") => m
             case _ => return true
           }
@@ -243,8 +241,7 @@ class ImplicitCollector(place: PsiElement,
 
     private def isAccessible(member: ScMember): Boolean = {
       isPredefPriority || (member match {
-        case fun: ScFunction =>
-          CollectImplicitsProcessor.checkFucntionIsEligible(fun, getPlace) && ResolveUtils.isAccessible(member, getPlace)
+        case fun: ScFunction => checkFucntionIsEligible(fun) && ResolveUtils.isAccessible(member, getPlace)
         case _ => ResolveUtils.isAccessible(member, getPlace)
       })
     }

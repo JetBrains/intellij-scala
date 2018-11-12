@@ -7,15 +7,16 @@ import java.{util => ju}
 
 import com.intellij.openapi.progress.ProgressManager
 import com.intellij.psi.search.GlobalSearchScope
-import com.intellij.psi.{PsiClass, PsiElement, ResolveState}
+import com.intellij.psi.util.PsiTreeUtil
+import com.intellij.psi.{PsiClass, PsiElement, PsiNamedElement, ResolveState}
 import gnu.trove.{THashMap, THashSet}
 import org.jetbrains.plugins.scala.extensions._
 import org.jetbrains.plugins.scala.lang.psi.ScalaPsiUtil.getCompanionModule
 import org.jetbrains.plugins.scala.lang.psi.api.ScPackageLike
 import org.jetbrains.plugins.scala.lang.psi.api.base.ScFieldId
 import org.jetbrains.plugins.scala.lang.psi.api.base.patterns.ScBindingPattern
-import org.jetbrains.plugins.scala.lang.psi.api.statements.ScTypeAliasDefinition
 import org.jetbrains.plugins.scala.lang.psi.api.statements.params.ScParameter
+import org.jetbrains.plugins.scala.lang.psi.api.statements.{ScFunction, ScTypeAliasDefinition}
 import org.jetbrains.plugins.scala.lang.psi.api.toplevel.templates.{ScExtendsBlock, ScTemplateBody}
 import org.jetbrains.plugins.scala.lang.psi.api.toplevel.typedef.{ScObject, ScTemplateDefinition}
 import org.jetbrains.plugins.scala.lang.psi.impl.ScalaPsiManager
@@ -57,6 +58,14 @@ abstract class ImplicitProcessor(override val getPlace: PsiElement,
   override protected def clearLevelQualifiedSet(result: ScalaResolveResult) {
     //optimisation, do nothing
   }
+
+  override final def execute(element: PsiElement, state: ResolveState): Boolean = element match {
+    case namedElement: PsiNamedElement if kindMatches(namedElement) => execute(namedElement)(state)
+    case _ => true
+  }
+
+  protected def execute(namedElement: PsiNamedElement)
+                       (implicit state: ResolveState): Boolean
 
   override protected def getLevelSet(result: ScalaResolveResult): ju.Set[ScalaResolveResult] = {
     var levelSet = levelMap.get(result)
@@ -104,6 +113,32 @@ abstract class ImplicitProcessor(override val getPlace: PsiElement,
   override protected def isCheckForEqualPrecedence = false
 
   override def isImplicitProcessor: Boolean = true
+
+  protected final def checkFucntionIsEligible(function: ScFunction): Boolean = {
+    if (!function.hasExplicitType) {
+      if (PsiTreeUtil.isContextAncestor(function.getContainingFile, getPlace, false)) {
+        val commonContext = PsiTreeUtil.findCommonContext(function, getPlace)
+        if (getPlace == commonContext) return true //weird case, it covers situation, when function comes from object, not treeWalkUp
+        if (function == commonContext) return false
+        else {
+          var functionContext: PsiElement = function
+          while (functionContext.getContext != commonContext) functionContext = functionContext.getContext
+          var placeContext: PsiElement = getPlace
+          while (placeContext.getContext != commonContext) placeContext = placeContext.getContext
+          (functionContext, placeContext) match {
+            case (functionContext: ScalaPsiElement, placeContext: ScalaPsiElement) =>
+              val funElem = functionContext.getDeepSameElementInContext
+              val conElem = placeContext.getDeepSameElementInContext
+              val functionIsNotBefore = conElem.withNextSiblings.contains(funElem)
+
+              if (functionIsNotBefore) return false
+            case _ =>
+          }
+        }
+      }
+    }
+    true
+  }
 
   final def candidatesByPlace: Set[ScalaResolveResult] = {
     // Collect implicit conversions from bottom to up
