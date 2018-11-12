@@ -115,8 +115,9 @@ class ScForStatementImpl(node: ASTNode) extends ScExpressionImplBase(node) with 
           val tp = gen.rvalue.`type`().getOrAny
           val processor = new CompletionProcessor(StdKinds.methodRef, this, isImplicit = true) {
 
-            override def execute(element: PsiElement, state: ResolveState): Boolean = {
-              super.execute(element, state)
+            override protected def execute(namedElement: PsiNamedElement)
+                                          (implicit state: ResolveState): Boolean = {
+              super.execute(namedElement)
               if (!levelSet.isEmpty) {
                 filterFound = true
                 false

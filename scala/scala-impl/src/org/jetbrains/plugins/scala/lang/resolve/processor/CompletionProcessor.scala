@@ -80,22 +80,12 @@ class CompletionProcessor(override val kinds: Set[ResolveTargets.Value],
 
   import CompletionProcessor._
 
-  def execute(element: PsiElement, state: ResolveState): Boolean =
-    element match {
-      case namedElement: PsiNamedElement =>
-        forName match {
-          case Some(name) if namedElement.name != name =>
-          case _ => execute(namedElement)(state)
-        }
+  override protected def execute(namedElement: PsiNamedElement)
+                                (implicit state: ResolveState): Boolean = {
+    if (forName.exists(_ != namedElement.name)) return true
 
-        true
-      case _ => false
-    }
-
-  private def execute(namedElement: PsiNamedElement)
-                     (implicit state: ResolveState): Unit = {
     val candidates = findCandidates(namedElement)
-    if (candidates.isEmpty) return
+    if (candidates.isEmpty) return true
 
     val substitutor = findByKey(ScSubstitutor.key).getOrElse(ScSubstitutor.empty)
     val implicitFunction = findByKey(CachesUtil.IMPLICIT_FUNCTION)
@@ -107,6 +97,8 @@ class CompletionProcessor(override val kinds: Set[ResolveTargets.Value],
       case _ if implicitFunction.isDefined && maybeSignature.isDefined => implicitCase(maybeSignature.get)
       case result => regularCase(result, maybeSignature)
     }.foreach(addResult)
+
+    true
   }
 
   private def findCandidates(namedElement: PsiNamedElement)
@@ -122,7 +114,7 @@ class CompletionProcessor(override val kinds: Set[ResolveTargets.Value],
     }
 
     results.filter {
-      case (e, _) => kindMatches(e)
+      case (e, _) => ResolveUtils.kindMatches(e, kinds)
     }
   }
 

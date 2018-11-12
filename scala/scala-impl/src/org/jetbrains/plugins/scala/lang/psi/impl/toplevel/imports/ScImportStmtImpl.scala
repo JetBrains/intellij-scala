@@ -159,12 +159,11 @@ class ScImportStmtImpl private (stub: ScImportStmtStub, node: ASTNode)
               val newState = state.put(ScalaCompletionUtil.PREFIX_COMPLETION_KEY, true).put(ImportUsed.key, newImportsUsed)
 
               val importsProcessor = new BaseProcessor(StdKinds.stableImportSelector) {
-                def execute(element: PsiElement, state: ResolveState): Boolean = {
-                  element match {
-                    case elem: PsiNamedElement if isOK(elem.name) => completionProcessor.execute(element, state)
-                    case _ => true
-                  }
-                }
+
+                override protected def execute(namedElement: PsiNamedElement)
+                                              (implicit state: ResolveState): Boolean =
+                  if (isOK(namedElement.name)) completionProcessor.execute(namedElement, state)
+                  else true
 
                 override def getHint[T](hintKey: Key[T]): T = completionProcessor.getHint(hintKey)
               }
@@ -253,13 +252,14 @@ class ScImportStmtImpl private (stub: ScImportStmtStub, node: ASTNode)
                         bp.setClassKind(b)
                       }
 
-                      override def execute(element: PsiElement, state: ResolveState): Boolean = {
-                        if (shadowed.exists(p => ScEquivalenceUtil.smartEquivalence(element, p._2))) return true
+                      override protected def execute(namedElement: PsiNamedElement)
+                                                    (implicit state: ResolveState): Boolean = {
+                        if (shadowed.exists(p => ScEquivalenceUtil.smartEquivalence(namedElement, p._2))) return true
 
                         var newState = state.put(ScSubstitutor.key, subst)
 
                         def isElementInPo: Boolean = {
-                          PsiTreeUtil.getContextOfType(element, true, classOf[ScTypeDefinition]) match {
+                          PsiTreeUtil.getContextOfType(namedElement, true, classOf[ScTypeDefinition]) match {
                             case obj: ScObject if obj.isPackageObject => true
                             case _ => false
                           }
@@ -268,7 +268,7 @@ class ScImportStmtImpl private (stub: ScImportStmtStub, node: ASTNode)
                           newState = newState.put(BaseProcessor.FROM_TYPE_KEY, tp)
                         }
 
-                        processor.execute(element, newState)
+                        processor.execute(namedElement, newState)
                       }
                     }
 

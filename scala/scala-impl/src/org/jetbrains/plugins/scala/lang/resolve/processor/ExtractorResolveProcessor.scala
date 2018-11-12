@@ -23,10 +23,10 @@ class ExtractorResolveProcessor(ref: ScReferenceElement,
                                 expected: Option[ScType])
         extends ResolveProcessor(kinds, ref, refName) {
 
-  override def execute(element: PsiElement, state: ResolveState): Boolean = {
-    val named = element.asInstanceOf[PsiNamedElement]
-    if (nameAndKindMatch(named, state)) {
-      val accessible = isAccessible(named, ref)
+  override protected def execute(namedElement: PsiNamedElement)
+                                (implicit state: ResolveState): Boolean = {
+    if (nameMatches(namedElement)) {
+      val accessible = isAccessible(namedElement, ref)
       if (accessibility && !accessible) return true
 
       def resultsForTypedDef(obj: ScTypedDefinition) {
@@ -45,7 +45,7 @@ class ExtractorResolveProcessor(ref: ScReferenceElement,
             case (m, subst, parent) =>
               val resolveToMethod = new ScalaResolveResult(m, subst, getImports(state),
                 fromType = getFromType(state), parentElement = parent, isAccessible = accessible)
-              val resolveToNamed = new ScalaResolveResult(named, subst, getImports(state),
+              val resolveToNamed = new ScalaResolveResult(namedElement, subst, getImports(state),
                 fromType = getFromType(state), parentElement = parent, isAccessible = accessible)
 
               resolveToMethod.copy(innerResolveResult = Option(resolveToNamed))
@@ -60,14 +60,14 @@ class ExtractorResolveProcessor(ref: ScReferenceElement,
           obj match {
             case FakeCompanionClassOrCompanionClass(cl: ScClass)
               if cl.tooBigForUnapply && cl.scalaLanguageLevel.exists(_ >= Scala_2_11) =>
-                addResult(new ScalaResolveResult(named, ScSubstitutor.empty, getImports(state),
+              addResult(new ScalaResolveResult(namedElement, ScSubstitutor.empty, getImports(state),
                   fromType = getFromType(state), parentElement = Option(obj), isAccessible = accessible))
             case _ =>
           }
         }
       }
 
-      named match {
+      namedElement match {
         case o: ScObject if o.isPackageObject =>
         case td: ScTypedDefinition => resultsForTypedDef(td)
         case _ =>

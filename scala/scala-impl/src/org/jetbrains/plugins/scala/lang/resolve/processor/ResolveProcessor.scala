@@ -119,44 +119,46 @@ class ResolveProcessor(override val kinds: Set[ResolveTargets.Value],
     ResolveUtils.isAccessible(memb, place)
   }
 
-  def execute(element: PsiElement, state: ResolveState): Boolean = {
-    val named = element.asInstanceOf[PsiNamedElement]
-
+  override protected def execute(namedElement: PsiNamedElement)
+                                (implicit state: ResolveState): Boolean = {
     def nameShadow: Option[String] = Option(state.get(ResolverEnv.nameKey))
 
-    if (nameAndKindMatch(named, state)) {
-      val accessible = isAccessible(named, ref)
+    if (nameMatches(namedElement)) {
+      val accessible = isAccessible(namedElement, ref)
       if (accessibility && !accessible) return true
-      named match {
-        case o: ScObject if o.isPackageObject && JavaPsiFacade.getInstance(element.getProject).
+      namedElement match {
+        case o: ScObject if o.isPackageObject && JavaPsiFacade.getInstance(namedElement.getProject).
           findPackage(o.qualifiedName) != null =>
         case pack: PsiPackage =>
           val resolveResult: ScalaResolveResult =
             new ScalaResolveResult(ScPackageImpl(pack), getSubst(state), getImports(state), nameShadow, isAccessible = accessible)
           addResult(resolveResult)
         case clazz: PsiClass if !isThisOrSuperResolve || PsiTreeUtil.isContextAncestor(clazz, ref, true) =>
-          addResult(new ScalaResolveResult(named, getSubst(state),
+          addResult(new ScalaResolveResult(namedElement, getSubst(state),
             getImports(state), nameShadow, boundClass = getBoundClass(state), fromType = getFromType(state), isAccessible = accessible))
         case _: PsiClass => //do nothing, it's wrong class or object
         case _ if isThisOrSuperResolve => //do nothing for type alias
         case _ =>
-          addResult(new ScalaResolveResult(named, getSubst(state),
+          addResult(new ScalaResolveResult(namedElement, getSubst(state),
             getImports(state), nameShadow, boundClass = getBoundClass(state), fromType = getFromType(state), isAccessible = accessible))
       }
     }
+
     true
   }
 
-  protected def nameAndKindMatch(named: PsiNamedElement, state: ResolveState): Boolean = {
-    val nameSet = state.get(ResolverEnv.nameKey)
-    val elName = if (nameSet == null) {
-      val name = named.name
-      if (name == null) return false
-      if (name == "") return false
-      name
-    } else nameSet
-    val nameMatches = ScalaNamesUtil.equivalent(elName, name)
-    nameMatches && kindMatches(named)
+  protected final def nameMatches(namedElement: PsiNamedElement)
+                                 (implicit state: ResolveState): Boolean = {
+    val elementName = state.get(ResolverEnv.nameKey) match {
+      case null =>
+        namedElement.name match {
+          case null | "" => return false
+          case byElementName => byElementName
+        }
+
+      case byStateName => byStateName
+    }
+    ScalaNamesUtil.equivalent(elementName, name)
   }
 
   override def getHint[T](hintKey: Key[T]): T = {

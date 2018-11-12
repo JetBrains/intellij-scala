@@ -10,13 +10,14 @@ import org.jetbrains.plugins.scala.lang.resolve.{ScalaResolveResult, StdKinds}
 
 class CollectMethodsProcessor(place: PsiElement, name: String)
         extends ResolveProcessor(StdKinds.methodsOnly, place, name) {
-  override def execute(element: PsiElement, state: ResolveState): Boolean = {
-    val named = element.asInstanceOf[PsiNamedElement]
-    if (nameAndKindMatch(named, state)) {
-      val accessible = isAccessible(named, ref)
+
+  override protected def execute(namedElement: PsiNamedElement)
+                                (implicit state: ResolveState): Boolean = {
+    if (nameMatches(namedElement)) {
+      val accessible = isAccessible(namedElement, ref)
       if (accessibility && !accessible) return true
 
-      element match {
+      namedElement match {
         case m: PsiMethod =>
           addResult(new ScalaResolveResult(m,
             substitutor = getSubst(state),
@@ -28,6 +29,7 @@ class CollectMethodsProcessor(place: PsiElement, name: String)
         case _ =>
       }
     }
+
     true
   }
 }

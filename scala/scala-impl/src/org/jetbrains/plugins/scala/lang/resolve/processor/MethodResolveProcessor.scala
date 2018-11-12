@@ -55,12 +55,8 @@ class MethodResolveProcessor(override val ref: PsiElement,
 
   def isDynamic: Boolean = nameArgForDynamic.nonEmpty
 
-  override def execute(element : PsiElement, state: ResolveState): Boolean = {
-    val named = element match {
-      case named: PsiNamedElement => named
-      case _ => return true //do not process
-    }
-
+  override protected def execute(namedElement: PsiNamedElement)
+                                (implicit state: ResolveState): Boolean = {
     def implicitConversionClass: Option[PsiClass] = state.get(IMPLICIT_RESOLUTION).toOption
 
     def implFunction: Option[ScalaResolveResult] = state.get(IMPLICIT_FUNCTION).toOption
@@ -73,15 +69,15 @@ class MethodResolveProcessor(override val ref: PsiElement,
     def nameShadow: Option[String] = Option(state.get(ResolverEnv.nameKey))
     def forwardReference: Boolean = isForwardReference(state)
 
-    if (nameAndKindMatch(named, state) || constructorResolve) {
-      val accessible = isNamedParameter || isAccessible(named, ref)
+    if (nameMatches(namedElement) || constructorResolve) {
+      val accessible = isNamedParameter || isAccessible(namedElement, ref)
       if (accessibility && !accessible) return true
 
       val s = fromType match {
         case Some(tp) => getSubst(state).followUpdateThisType(tp)
         case _ => getSubst(state)
       }
-      element match {
+      namedElement match {
         case m: PsiMethod =>
           addResult(new ScalaResolveResult(m, s, getImports(state), nameShadow, implicitConversionClass,
             implicitConversion = implFunction, implicitType = implType, fromType = fromType, isAccessible = accessible,
@@ -113,7 +109,7 @@ class MethodResolveProcessor(override val ref: PsiElement,
                 unresolvedTypeParameters = unresolvedTypeParameters)
           }.filter { r => !accessibility || r.isAccessible }
           if (seq.nonEmpty) addResults(seq)
-          else addResult(new ScalaResolveResult(named, s, getImports(state), nameShadow, implicitConversionClass,
+          else addResult(new ScalaResolveResult(namedElement, s, getImports(state), nameShadow, implicitConversionClass,
             implicitConversion = implFunction, implicitType = implType, isNamedParameter = isNamedParameter,
             fromType = fromType, isAccessible = accessible, isForwardReference = forwardReference,
             unresolvedTypeParameters = unresolvedTypeParameters))
@@ -126,7 +122,7 @@ class MethodResolveProcessor(override val ref: PsiElement,
             implicitConversion = implFunction, implicitType = implType, fromType = fromType, isAccessible = accessible,
             isForwardReference = forwardReference, unresolvedTypeParameters = unresolvedTypeParameters))
         case _ =>
-          addResult(new ScalaResolveResult(named, s, getImports(state), nameShadow, implicitConversionClass,
+          addResult(new ScalaResolveResult(namedElement, s, getImports(state), nameShadow, implicitConversionClass,
             implicitConversion = implFunction, implicitType = implType, isNamedParameter = isNamedParameter,
             fromType = fromType, isAccessible = accessible, isForwardReference = forwardReference,
             unresolvedTypeParameters = unresolvedTypeParameters))

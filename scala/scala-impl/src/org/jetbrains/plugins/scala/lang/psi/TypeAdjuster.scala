@@ -373,15 +373,14 @@ object TypeAdjuster extends ApplicationAdapter {
       class FindTypeAliasProcessor extends BaseProcessor(ValueSet(CLASS))(clazz) {
         var collected: Option[ScTypeAliasDefinition] = None
 
-        override def execute(element: PsiElement, state: ResolveState): Boolean = {
-          element match {
-            case ta: ScTypeAliasDefinition if ta.isAliasFor(clazz) &&
-              !ScTypePresentation.shouldExpand(ta) && !ta.isDeprecated =>
+        override protected def execute(namedElement: PsiNamedElement)
+                                      (implicit state: ResolveState): Boolean = namedElement match {
+          case ta: ScTypeAliasDefinition if ta.isAliasFor(clazz) &&
+            !ScTypePresentation.shouldExpand(ta) && !ta.isDeprecated =>
 
-              collected = Some(ta)
-              false
-            case _ => true
-          }
+            collected = Some(ta)
+            false
+          case _ => true
         }
       }
       val processor = new FindTypeAliasProcessor

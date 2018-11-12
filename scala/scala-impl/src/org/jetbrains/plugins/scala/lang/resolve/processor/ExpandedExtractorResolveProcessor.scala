@@ -29,12 +29,13 @@ class ExpandedExtractorResolveProcessor(ref: ScReferenceElement,
                                         kinds: Set[ResolveTargets.Value],
                                         expected: Option[ScType])
         extends ExtractorResolveProcessor(ref, refName, kinds, expected) {
-  override def execute(element: PsiElement, state: ResolveState): Boolean = {
-    val named = element.asInstanceOf[PsiNamedElement]
-    if (nameAndKindMatch(named, state)) {
-      val accessible = isAccessible(named, ref)
+
+  override protected def execute(namedElement: PsiNamedElement)
+                                (implicit state: ResolveState): Boolean = {
+    if (nameMatches(namedElement)) {
+      val accessible = isAccessible(namedElement, ref)
       if (accessibility && !accessible) return true
-      named match {
+      namedElement match {
         case bind: ScTypedDefinition => {
           val parentSubst = getSubst(state)
           val parentImports = getImports(state)
@@ -45,12 +46,13 @@ class ExpandedExtractorResolveProcessor(ref: ScReferenceElement,
           var seq = false
           val buffer = new ArrayBuffer[ScalaResolveResult]
           val proc = new BaseProcessor(StdKinds.methodRef) {
-            def execute(element: PsiElement, state: ResolveState): Boolean = {
-              val subst = getSubst(state)
-              element match {
+
+            override protected def execute(namedElement: PsiNamedElement)
+                                          (implicit state: ResolveState): Boolean = {
+              namedElement match {
                 case fun: ScFunction if fun.name == "unapply" || (seq && fun.name == "unapplySeq") =>
                   buffer += new ScalaResolveResult(fun,
-                    parentSubst.followed(subst), parentImports, parentElement = Some(bind),
+                    parentSubst.followed(getSubst(state)), parentImports, parentElement = Some(bind),
                     isAccessible = accessible)
                 case _ =>
               }
@@ -58,15 +60,15 @@ class ExpandedExtractorResolveProcessor(ref: ScReferenceElement,
             }
           }
           proc.processType(parentSubst.subst(typez), ref, ResolveState.initial)
-          addResults(buffer.toSeq)
+          addResults(buffer)
           if (candidatesSet.isEmpty && levelSet.isEmpty) {
             buffer.clear()
             seq = true
             proc.processType(parentSubst.subst(typez), ref, ResolveState.initial)
-            addResults(buffer.toSeq)
+            addResults(buffer)
           }
         }
-        case _ => return super.execute(element, state)
+        case _ => return super.execute(namedElement)
       }
     }
     true

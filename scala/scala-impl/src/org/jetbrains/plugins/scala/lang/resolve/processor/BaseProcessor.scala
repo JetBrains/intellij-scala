@@ -26,7 +26,7 @@ import org.jetbrains.plugins.scala.lang.psi.types.result._
 import org.jetbrains.plugins.scala.lang.resolve.processor.BaseProcessor.RecursionState
 import org.jetbrains.plugins.scala.project.ProjectContext
 
-import scala.collection.{Set, mutable}
+import scala.collection.Set
 
 object BaseProcessor {
   def unapply(p: BaseProcessor) = Some(p.kinds)
@@ -75,6 +75,14 @@ abstract class BaseProcessor(val kinds: Set[ResolveTargets.Value])
 
   protected var accessibility = true
   def doNotCheckAccessibility() {accessibility = false}
+
+  override final def execute(element: PsiElement, state: ResolveState): Boolean = element match {
+    case namedElement: PsiNamedElement if ResolveUtils.kindMatches(namedElement, kinds) => execute(namedElement)(state)
+    case _ => true
+  }
+
+  protected def execute(namedElement: PsiNamedElement)
+                       (implicit state: ResolveState): Boolean
 
   def candidates: Array[ScalaResolveResult] = {
     val set = candidatesS
@@ -132,8 +140,6 @@ abstract class BaseProcessor(val kinds: Set[ResolveTargets.Value])
       case _ => null.asInstanceOf[T]
     }
   }
-
-  protected def kindMatches(element: PsiElement): Boolean = ResolveUtils.kindMatches(element, kinds)
 
   def processType(t: ScType, place: PsiElement, state: ResolveState = ResolveState.initial()): Boolean =
     processTypeImpl(t, place, state)(RecursionState.empty)

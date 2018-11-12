@@ -37,9 +37,8 @@ class CompoundTypeCheckSignatureProcessor(s: Signature, retType: ScType,
 
   def getConstraints: ConstraintSystem = innerConstraints
 
-  def execute(element: PsiElement, state: ResolveState): Boolean = {
-    if (!element.isInstanceOf[PsiNamedElement]) return true
-    val namedElement = element.asInstanceOf[PsiNamedElement]
+  override protected def execute(namedElement: PsiNamedElement)
+                                (implicit state: ResolveState): Boolean = {
     val subst = getSubst(state)
     if (namedElement.name != s.name) return true
 
@@ -83,7 +82,7 @@ class CompoundTypeCheckSignatureProcessor(s: Signature, retType: ScType,
     }
 
     //let's check type parameters
-    element match {
+    namedElement match {
       case o: ScTypeParametersOwner =>
         if (o.typeParameters.length != s.typeParams.length) return true
         val iter = o.typeParameters.zip(s.typeParams).iterator
@@ -129,14 +128,14 @@ class CompoundTypeCheckSignatureProcessor(s: Signature, retType: ScType,
       true
     }
 
-    element match {
+    namedElement match {
       case _: ScBindingPattern | _: ScFieldId | _: ScParameter =>
-        val rt = subst.subst(element match {
+        val rt = subst.subst(namedElement match {
           case b: ScBindingPattern => b.`type`().getOrNothing
           case f: ScFieldId => f.`type`().getOrNothing
           case param: ScParameter => param.`type`().getOrNothing
         })
-        val dcl: ScTypedDefinition = element.asInstanceOf[ScTypedDefinition]
+        val dcl: ScTypedDefinition = namedElement.asInstanceOf[ScTypedDefinition]
         val isVar = dcl.isVar
         if (!checkSignature(Signature(dcl, subst), Array.empty, rt))
           return false
@@ -166,9 +165,9 @@ class CompoundTypeCheckTypeAliasProcessor(sign: TypeAliasSignature, constraints:
 
   def getConstraints: ConstraintSystem = innerConstraints
 
-  def execute(element: PsiElement, state: ResolveState): Boolean = {
-    if (!element.isInstanceOf[PsiNamedElement]) return true
-    val namedElement = element.asInstanceOf[PsiNamedElement]
+
+  override protected def execute(namedElement: PsiNamedElement)
+                                (implicit state: ResolveState): Boolean = {
     val subst = getSubst(state)
     if (namedElement.name != name) return true
 
@@ -212,7 +211,7 @@ class CompoundTypeCheckTypeAliasProcessor(sign: TypeAliasSignature, constraints:
     }
 
     //let's check type parameters
-    element match {
+    namedElement match {
       case o: ScTypeParametersOwner =>
         if (o.typeParameters.length != sign.typeParams.length) return true
         val iter = o.typeParameters.zip(sign.typeParams).iterator
@@ -248,7 +247,7 @@ class CompoundTypeCheckTypeAliasProcessor(sign: TypeAliasSignature, constraints:
       false
     }
 
-    element match {
+    namedElement match {
       case tp: ScTypeAliasDefinition =>
         sign.typeAlias match {
           case _: ScTypeAliasDefinition =>

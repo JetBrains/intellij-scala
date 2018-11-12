@@ -8,7 +8,7 @@ import java.{util => ju}
 import com.intellij.openapi.progress.ProgressManager
 import com.intellij.psi.search.GlobalSearchScope
 import com.intellij.psi.util.PsiTreeUtil
-import com.intellij.psi.{PsiClass, PsiElement, PsiNamedElement, ResolveState}
+import com.intellij.psi.{PsiClass, PsiElement, ResolveState}
 import gnu.trove.{THashMap, THashSet}
 import org.jetbrains.plugins.scala.extensions._
 import org.jetbrains.plugins.scala.lang.psi.ScalaPsiUtil.getCompanionModule
@@ -58,14 +58,6 @@ abstract class ImplicitProcessor(override val getPlace: PsiElement,
   override protected def clearLevelQualifiedSet(result: ScalaResolveResult) {
     //optimisation, do nothing
   }
-
-  override final def execute(element: PsiElement, state: ResolveState): Boolean = element match {
-    case namedElement: PsiNamedElement if kindMatches(namedElement) => execute(namedElement)(state)
-    case _ => true
-  }
-
-  protected def execute(namedElement: PsiNamedElement)
-                       (implicit state: ResolveState): Boolean
 
   override protected def getLevelSet(result: ScalaResolveResult): ju.Set[ScalaResolveResult] = {
     var levelSet = levelMap.get(result)

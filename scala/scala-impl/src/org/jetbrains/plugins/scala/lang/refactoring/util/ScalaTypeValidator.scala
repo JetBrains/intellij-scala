@@ -41,8 +41,13 @@ class ScalaTypeValidator(val selectedElement: PsiElement, override val noOccurre
     val result = mutable.ArrayBuffer.empty[(PsiNamedElement, String)]
 
     val processor = new BaseProcessor(ValueSet(ResolveTargets.CLASS)) {
-      override def execute(element: PsiElement, state: ResolveState): Boolean = {
-        result ++= zipWithMessage(element, name)
+
+      override protected def execute(namedElement: PsiNamedElement)
+                                    (implicit state: ResolveState): Boolean = {
+        for {
+          msg <- message(namedElement, name)
+        } result += namedElement -> msg
+
         true
       }
     }
@@ -54,9 +59,12 @@ class ScalaTypeValidator(val selectedElement: PsiElement, override val noOccurre
   protected def forbiddenNamesInBlock(commonParent: PsiElement, name: String): Seq[(PsiNamedElement, String)] = {
     val result = mutable.ArrayBuffer.empty[(PsiNamedElement, String)]
 
-    commonParent.depthFirst().foreach {
-      result ++= zipWithMessage(_, name)
-    }
+    for {
+      namedElement <- commonParent.depthFirst().collect {
+        case named: PsiNamedElement => named
+      }
+      msg <- message(namedElement, name)
+    } result += namedElement -> msg
 
     result
   }
@@ -75,17 +83,15 @@ object ScalaTypeValidator {
   def apply(element: PsiElement, container: PsiElement, noOccurrences: Boolean) =
     new ScalaTypeValidator(element, noOccurrences, container, container)
 
-  private def zipWithMessage(element: PsiElement, name: String): Option[(PsiNamedElement, String)] =
-    Option(element).collect {
-      case named: PsiNamedElement if named.getName == name => named
-    }.collect {
-      case named@(_: ScTypeAlias | _: ScTypeParam) => (named, "type")
-      case typeDefinition: ScTypeDefinition if getParentOfType(typeDefinition, classOf[ScFunctionDefinition]) == null =>
-        (typeDefinition, "class")
-    }.map {
-      case (named, kind) => (named, message(kind, name))
-    }
+  private def message(namedElement: PsiNamedElement,
+                      name: String): Option[String] =
+    for {
+      kind <- namedElement match {
+        case _: ScTypeAlias | _: ScTypeParam => Some("type")
+        case typeDefinition: ScTypeDefinition if getParentOfType(typeDefinition, classOf[ScFunctionDefinition]) == null => Some("class")
+        case _ => None
+      }
 
-  private[this] def message(kind: String, name: String) =
-    ScalaBundle.message(s"introduced.typeAlias.will.conflict.with.$kind.name", name)
+      if namedElement.getName == name
+    } yield ScalaBundle.message(s"introduced.typeAlias.will.conflict.with.$kind.name", name)
 }

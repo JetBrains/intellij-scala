@@ -22,8 +22,8 @@ class ConstructorResolveProcessor(constr: PsiElement, refName: String, args: Lis
   extends MethodResolveProcessor(constr, refName, args, typeArgs, Seq.empty, kinds,
     isShapeResolve = shapeResolve, enableTupling = true) {
 
-  override def execute(element: PsiElement, state: ResolveState): Boolean = {
-    val named = element.asInstanceOf[PsiNamedElement]
+  override protected def execute(namedElement: PsiNamedElement)
+                                (implicit state: ResolveState): Boolean = {
     val fromType = getFromType(state)
 
     val initialSubstitutor = getSubst(state)
@@ -31,8 +31,8 @@ class ConstructorResolveProcessor(constr: PsiElement, refName: String, args: Lis
       initialSubstitutor.followUpdateThisType
     } getOrElse initialSubstitutor
 
-    if (nameAndKindMatch(named, state)) {
-      val accessible = isAccessible(named, ref)
+    if (nameMatches(namedElement)) {
+      val accessible = isAccessible(namedElement, ref)
       if (accessibility && !accessible) return true
 
       def constructorIsAccessible(constructor: PsiMethod) =
@@ -43,16 +43,16 @@ class ConstructorResolveProcessor(constr: PsiElement, refName: String, args: Lis
           constructorIsAccessible(constructor)
         case _ => true
       } map {
-        (_, substitutor, Some(named))
+        (_, substitutor, Some(namedElement))
       }
 
       def orDefault(tuples: Seq[(PsiNamedElement, ScSubstitutor, Option[PsiNamedElement])] = Seq.empty) =
         tuples match {
-        case Seq() => Seq((named, defaultSubstitutor, None))
+          case Seq() => Seq((namedElement, defaultSubstitutor, None))
         case seq => seq
       }
 
-      val tuples: Seq[(PsiNamedElement, ScSubstitutor, Option[PsiNamedElement])] = named match {
+      val tuples: Seq[(PsiNamedElement, ScSubstitutor, Option[PsiNamedElement])] = namedElement match {
         case clazz: PsiClass =>
           orDefault(constructors(clazz, defaultSubstitutor))
         case _: ScTypeAliasDeclaration =>
