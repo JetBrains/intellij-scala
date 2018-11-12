@@ -37,7 +37,7 @@ import org.jetbrains.plugins.scala.lang.psi.types.result.Typeable
 import org.jetbrains.plugins.scala.lang.resolve.processor.DynamicResolveProcessor._
 import org.jetbrains.plugins.scala.lang.resolve.processor.{BaseProcessor, CompletionProcessor, ExtractorResolveProcessor}
 import org.jetbrains.plugins.scala.lang.resolve.{StableCodeReferenceElementResolver, _}
-import org.jetbrains.plugins.scala.lang.scaladoc.psi.api.ScDocResolvableCodeReference
+import org.jetbrains.plugins.scala.lang.scaladoc.psi.api.{ScDocResolvableCodeReference, ScDocSyntaxElement}
 import org.jetbrains.plugins.scala.macroAnnotations.{CachedWithRecursionGuard, ModCount}
 import org.jetbrains.plugins.scala.worksheet.ammonite.AmmoniteUtil
 
@@ -94,6 +94,7 @@ class ScStableCodeReferenceElementImpl(node: ASTNode) extends ScReferenceElement
       case _: ScImportSelector => stableImportSelector
       case _: ScInfixTypeElement => stableClass
       case _: ScMacroDefinition => methodsOnly //reference in macro definition may be to method only
+      case _: ScDocSyntaxElement => stableImportSelector
       case _ => stableQualRef
     }
     if (completion) result + ResolveTargets.PACKAGE + ResolveTargets.OBJECT + ResolveTargets.VAL else result
