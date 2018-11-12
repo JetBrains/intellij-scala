@@ -8,6 +8,7 @@ import com.intellij.openapi.actionSystem._
 import com.intellij.openapi.command.CommandProcessor
 import com.intellij.openapi.editor.Editor
 import com.intellij.openapi.fileEditor.ex.IdeDocumentHistory
+import com.intellij.openapi.keymap.KeymapManager
 import com.intellij.openapi.project.Project
 import com.intellij.openapi.ui.popup.{JBPopup, JBPopupFactory, JBPopupListener, LightweightWindowEvent}
 import com.intellij.openapi.util.{Disposer, Ref}
@@ -17,9 +18,8 @@ import com.intellij.ui.treeStructure.Tree
 import com.intellij.ui.{ClickListener, ScrollPaneFactory}
 import com.intellij.util.ArrayUtil
 import javax.swing.tree.{DefaultMutableTreeNode, DefaultTreeModel, TreePath}
-import javax.swing.{JPanel, JTree}
+import javax.swing.{JPanel, JTree, KeyStroke}
 import org.jetbrains.plugins.scala.actions.ScalaActionUtil
-import org.jetbrains.plugins.scala.actions.implicitArguments.ShowImplicitArgumentsAction.showPopup
 import org.jetbrains.plugins.scala.extensions._
 import org.jetbrains.plugins.scala.lang.psi.api.expr.ScExpression
 import org.jetbrains.plugins.scala.lang.psi.api.{ImplicitArgumentsOwner, ScalaFile}
@@ -34,11 +34,22 @@ import org.jetbrains.plugins.scala.statistics.{FeatureKey, Stats}
   */
 
 class ShowImplicitArgumentsAction extends AnAction("Show implicit arguments action") {
-  override def update(e: AnActionEvent) {
-    ScalaActionUtil.enableAndShowIfInScalaFile(e)
+  import ShowImplicitArgumentsAction._
+
+  restoreShortcut()
+
+  private def restoreShortcut(): Unit = {
+    val keymap    = KeymapManager.getInstance().getActiveKeymap
+    val shortcuts = keymap.getShortcuts(showExpressionTypeId)
+    if (shortcuts.contains(defaultShortcut)) keymap.removeShortcut(showExpressionTypeId, defaultShortcut)
   }
 
-  def actionPerformed(e: AnActionEvent) {
+  override def update(e: AnActionEvent): Unit = {
+    ScalaActionUtil.enableAndShowIfInScalaFile(e)
+    if (e.getPresentation.isEnabledAndVisible) restoreShortcut()
+  }
+
+  def actionPerformed(e: AnActionEvent): Unit = {
     val context = e.getDataContext
     implicit val project: Project = CommonDataKeys.PROJECT.getData(context)
     implicit val editor: Editor = CommonDataKeys.EDITOR.getData(context)
@@ -117,6 +128,8 @@ class ShowImplicitArgumentsAction extends AnAction("Show implicit arguments acti
 }
 
 object ShowImplicitArgumentsAction {
+  private val showExpressionTypeId = "ExpressionTypeInfo"
+  private val defaultShortcut      = new KeyboardShortcut(KeyStroke.getKeyStroke("control shift P"), null)
 
   private def getSelectedNode(jTree: JTree): AbstractTreeNode[_] = {
     val path: TreePath = jTree.getSelectionPath
