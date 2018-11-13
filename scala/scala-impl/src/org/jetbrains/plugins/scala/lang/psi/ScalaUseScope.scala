@@ -1,6 +1,6 @@
 package org.jetbrains.plugins.scala.lang.psi
 
-import com.intellij.psi.search.{GlobalSearchScope, LocalSearchScope, PackageScope, SearchScope}
+import com.intellij.psi.search._
 import com.intellij.psi.util.PsiTreeUtil
 import com.intellij.psi.{PsiElement, PsiNamedElement, PsiPackage, PsiReference}
 import org.jetbrains.plugins.scala.extensions.{PsiElementExt, ResolvesTo}
@@ -17,21 +17,26 @@ import scala.annotation.tailrec
 object ScalaUseScope {
 
   def mostNarrow(element: ScalaPsiElement): Option[SearchScope] = {
-    val maybeNarrowScope = element match {
-      case p: ScParameter    => Some(parameterScope(p))
-      case n: ScNamedElement => namedScope(n)
-      case m: ScMember       => memberScope(m)
-      case _                 => None
+
+    val EverythingGlobalScope = new EverythingGlobalScope()
+
+    val narrowScope = element match {
+      case p: ScParameter    => parameterScope(p)
+      case n: ScNamedElement => namedScope(n).getOrElse(EverythingGlobalScope)
+      case m: ScMember       => memberScope(m).getOrElse(EverythingGlobalScope)
+      case _                 => EverythingGlobalScope
     }
 
-    for {
-      narrowScope <- maybeNarrowScope
+    val scriptScope =
+      element.containingScalaFile
+        .filter(f => f.isWorksheetFile || f.isScriptFile)
+        .map(new LocalSearchScope(_))
+        .getOrElse(EverythingGlobalScope)
 
-      file <- element.containingScalaFile
-      if file.isWorksheetFile || file.isScriptFile
-
-      scriptScope = new LocalSearchScope(file)
-    } yield narrowScope.intersectWith(scriptScope)
+    narrowScope.intersectWith(scriptScope) match {
+      case EverythingGlobalScope => None
+      case scope                 => Option(scope)
+    }
   }
 
   private def parameterScope(parameter: ScParameter): SearchScope = parameter.getDeclarationScope match {
@@ -43,16 +48,16 @@ object ScalaUseScope {
   }
 
   private def namedScope(named: ScNamedElement): Option[SearchScope] = named.nameContext match {
-    case member: ScMember if member != named => Some(member.getUseScope)
-    case caseClause: ScCaseClause => Some(new LocalSearchScope(caseClause))
-    case elem @ (_: ScEnumerator | _: ScGenerator) =>
-      elem.parentOfType(classOf[ScForStatement]).orElse {
-        elem.parentOfType(Seq(classOf[ScBlock], classOf[ScMember]))
-      }.map {
-        new LocalSearchScope(_)
-      }
-    case _ => None
+    case member: ScMember if member.isLocal      => localDefinitionScope(member)
+    case member: ScMember if member != named     => Some(member.getUseScope)
+    case caseClause: ScCaseClause                => Some(new LocalSearchScope(caseClause))
+    case elem@(_: ScEnumerator | _: ScGenerator) => localDefinitionScope(elem)
+    case _                                       => None
   }
+
+  private def localDefinitionScope(elem: PsiElement): Option[LocalSearchScope] =
+    elem.parentOfType(Seq(classOf[ScForStatement], classOf[ScBlock], classOf[ScMember]))
+      .map(new LocalSearchScope(_))
 
   private def memberScope(member: ScMember): Option[SearchScope] = {
 
