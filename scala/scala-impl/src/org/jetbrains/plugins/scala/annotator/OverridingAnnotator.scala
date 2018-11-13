@@ -1,7 +1,7 @@
 package org.jetbrains.plugins.scala.annotator
 
 import com.intellij.lang.annotation.{Annotation, AnnotationHolder}
-import com.intellij.psi.{PsiElement, PsiMethod, PsiModifier, PsiModifierListOwner}
+import com.intellij.psi._
 import org.jetbrains.plugins.scala.ScalaBundle
 import org.jetbrains.plugins.scala.annotator.quickfix.modifiers.{AddModifierQuickFix, AddModifierWithValOrVarQuickFix, RemoveModifierQuickFix}
 import org.jetbrains.plugins.scala.extensions._
@@ -11,11 +11,11 @@ import org.jetbrains.plugins.scala.lang.psi.api.base.patterns.ScBindingPattern
 import org.jetbrains.plugins.scala.lang.psi.api.base.types.ScRefinement
 import org.jetbrains.plugins.scala.lang.psi.api.statements._
 import org.jetbrains.plugins.scala.lang.psi.api.statements.params.{ScClassParameter, ScParameter}
-import org.jetbrains.plugins.scala.lang.psi.api.toplevel.typedef.ScTypeDefinition
+import org.jetbrains.plugins.scala.lang.psi.api.toplevel.typedef.{ScMember, ScTypeDefinition}
 import org.jetbrains.plugins.scala.lang.psi.api.toplevel.{ScModifierListOwner, ScNamedElement}
 import org.jetbrains.plugins.scala.lang.psi.types.api.{ParameterizedType, TypeParameterType}
 import org.jetbrains.plugins.scala.lang.psi.types.recursiveUpdate.ScSubstitutor
-import org.jetbrains.plugins.scala.lang.psi.types.result.Typeable
+import org.jetbrains.plugins.scala.lang.psi.types.result.{TypeResult, Typeable}
 import org.jetbrains.plugins.scala.lang.psi.types.{ScType, Signature}
 import org.jetbrains.plugins.scala.statistics.{FeatureKey, Stats}
 
@@ -255,26 +255,21 @@ trait OverridingAnnotator {
       })
     }
 
-    def compareWithSignatures(overType: ScType): Unit = {
-      superSignatures.foreach {
-        case s: Signature =>
-          s.namedElement match {
-            case tp: Typeable =>
-              tp.`type`().foreach { baseType =>
-                if (!overrideTypeMatchesBase(baseType, overType, s, tp.name))
-                  holder.createErrorAnnotation(member.nameId,
-                    ScalaBundle.message("override.types.not.conforming", overType.presentableText, baseType.presentableText))
-              }
-            case _ =>
-          }
-        case _ =>
-      }
+    def comparableType(named: PsiNamedElement): Option[ScType] = named match {
+      case cp: ScClassParameter                                       => cp.getRealParameterType.toOption
+      case fun: ScFunction if fun.isEmptyParen || fun.isParameterless => fun.returnType.toOption
+      case t: Typeable                                                => t.`type`().toOption
+      case _                                                          => None
     }
 
-    if (superSignatures.nonEmpty) member match {
-      case param: ScParameter => param.getRealParameterType.map(compareWithSignatures)
-      case tMember: Typeable  => tMember.`type`().map(compareWithSignatures)
-      case _                  =>
+    for {
+      overridingType <- comparableType(member)
+      superSig       <- superSignatures.filterBy[Signature]
+      baseType       <- comparableType(superSig.namedElement)
+      if !overrideTypeMatchesBase(baseType, overridingType, superSig, superSig.namedElement.name)
+    } {
+      holder.createErrorAnnotation(member.nameId,
+        ScalaBundle.message("override.types.not.conforming", overridingType.presentableText, baseType.presentableText))
     }
   }
 }

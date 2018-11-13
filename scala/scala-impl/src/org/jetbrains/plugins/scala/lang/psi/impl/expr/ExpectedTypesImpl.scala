@@ -3,6 +3,7 @@ package org.jetbrains.plugins.scala.lang.psi.impl.expr
 import com.intellij.psi._
 import com.intellij.psi.util.PsiTreeUtil
 import org.jetbrains.plugins.scala.extensions.{ObjectExt, PsiElementExt, PsiTypeExt, SeqExt}
+import org.jetbrains.plugins.scala.lang.psi.ScalaPsiUtil.inNameContext
 import org.jetbrains.plugins.scala.lang.psi.api.InferUtil
 import org.jetbrains.plugins.scala.lang.psi.api.base.ScConstructor
 import org.jetbrains.plugins.scala.lang.psi.api.base.patterns.ScCaseClause
@@ -513,11 +514,21 @@ class ExpectedTypesImpl extends ExpectedTypes {
   }
 
   private def valSuperSignature(m: ScMember): Option[Signature] = {
+
+    //expected type for values is not inherited from empty-parens functions
+    def isParameterless(s: Signature) = s.namedElement match {
+      case f: ScFunction                       => f.isParameterless
+      case m: PsiMethod                        => !m.hasParameters
+      case _: ScClassParameter                 => true
+      case inNameContext(_: ScValueOrVariable) => true
+      case _                                   => false
+    }
+
     def superSignature(name: String, containingClass: PsiClass) = {
       val sigs = TypeDefinitionMembers.getSignatures(containingClass).forName(name)._1
       sigs.iterator.collectFirst {
         case (sig, node) if sig.paramLength.sum == 0 =>
-          node.primarySuper.map(_.info)
+          node.primarySuper.map(_.info).filter(isParameterless)
       }.flatten
     }
 
