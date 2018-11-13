@@ -41,7 +41,7 @@ class ScalaDirectClassInheritorsSearcher extends QueryExecutor[PsiClass, DirectC
         case global: GlobalSearchScope => Some(global)
         case _ => None
       }
-      ScalaPsiUtil.intersectScopes(queryParameters.getScope, useScope) match {
+      ScalaUseScope.intersect(queryParameters.getScope, useScope) match {
         case x: GlobalSearchScope => x
         case _ => return true
       }

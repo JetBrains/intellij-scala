@@ -18,32 +18,34 @@ object ScalaUseScope {
 
   def mostNarrow(element: ScalaPsiElement): Option[SearchScope] = {
 
-    val EverythingGlobalScope = new EverythingGlobalScope()
-
     val narrowScope = element match {
-      case p: ScParameter    => parameterScope(p)
-      case n: ScNamedElement => namedScope(n).getOrElse(EverythingGlobalScope)
-      case m: ScMember       => memberScope(m).getOrElse(EverythingGlobalScope)
-      case _                 => EverythingGlobalScope
+      case p: ScParameter    => Option(parameterScope(p))
+      case n: ScNamedElement => namedScope(n)
+      case m: ScMember       => memberScope(m)
+      case _                 => None
     }
 
     val scriptScope =
       element.containingScalaFile
         .filter(f => f.isWorksheetFile || f.isScriptFile)
-        .map(new LocalSearchScope(_))
-        .getOrElse(EverythingGlobalScope)
+        .map(safeLocalScope(_))
 
-    narrowScope.intersectWith(scriptScope) match {
-      case EverythingGlobalScope => None
-      case scope                 => Option(scope)
-    }
+    intersect(narrowScope, scriptScope)
+  }
+
+  def intersect(scope: SearchScope, scopeOption: Option[SearchScope]): SearchScope = {
+    scopeOption.map(_.intersectWith(scope))
+      .getOrElse(scope)
+  }
+
+  private def intersect(scope1: Option[SearchScope], scope2: Option[SearchScope]): Option[SearchScope] = {
+    scope1.map(intersect(_, scope2))
+      .orElse(scope2)
   }
 
   private def parameterScope(parameter: ScParameter): SearchScope = parameter.getDeclarationScope match {
     case null => GlobalSearchScope.EMPTY_SCOPE
-    case expr: ScFunctionExpr =>
-      if (expr.isValid && expr.getContainingFile != null) new LocalSearchScope(expr)
-      else LocalSearchScope.EMPTY
+    case expr: ScFunctionExpr => safeLocalScope(expr)
     case d => d.getUseScope //named parameters or usages of class parameters
   }
 
@@ -51,22 +53,27 @@ object ScalaUseScope {
     case member: ScMember if member.isLocal      => localDefinitionScope(member)
     case member: ScMember if member != named     => Some(member.getUseScope)
     case member: ScMember                        => memberScope(member)
-    case caseClause: ScCaseClause                => Some(new LocalSearchScope(caseClause))
+    case caseClause: ScCaseClause                => Some(safeLocalScope(caseClause))
     case elem@(_: ScEnumerator | _: ScGenerator) => localDefinitionScope(elem)
     case _                                       => None
   }
 
+
   private def localDefinitionScope(elem: PsiElement): Option[LocalSearchScope] =
     elem.parentOfType(Seq(classOf[ScForStatement], classOf[ScBlock], classOf[ScMember]))
-      .map(new LocalSearchScope(_))
+      .map(safeLocalScope)
+  
+  private def safeLocalScope(elem: PsiElement): LocalSearchScope =
+    if (elem.isValid && elem.getContainingFile != null) new LocalSearchScope(elem)
+    else LocalSearchScope.EMPTY
 
   private def memberScope(member: ScMember): Option[SearchScope] = {
 
     def localSearchScope(typeDefinition: ScTypeDefinition, withCompanion: Boolean = true): SearchScope = {
-      val scope = new LocalSearchScope(typeDefinition)
+      val scope = safeLocalScope(typeDefinition)
       if (withCompanion) {
         typeDefinition.baseCompanionModule match {
-          case Some(td) => scope.union(new LocalSearchScope(td))
+          case Some(td) => scope.union(safeLocalScope(td))
           case _ => scope
         }
       }
@@ -88,7 +95,7 @@ object ScalaUseScope {
       val blockOrMember = PsiTreeUtil.getContextOfType(elem, true, classOf[ScBlock], classOf[ScMember])
       blockOrMember match {
         case null => None
-        case b: ScBlock => Some(new LocalSearchScope(b))
+        case b: ScBlock => Some(safeLocalScope(b))
         case o: ScObject => Some(o.getUseScope)
         case td: ScTypeDefinition => //can't use td.getUseScope because of inheritance
           fromUnqualifiedOrThisPrivate(td) match {
@@ -139,7 +146,7 @@ object ScalaUseScope {
       scope <- forTopLevelPrivate(owner).orElse {
         member.containingClass match {
           case definition: ScTypeDefinition => Some(localSearchScope(definition, withCompanion = !modifier.isThis))
-          case _ => member.containingFile.map(new LocalSearchScope(_))
+          case _ => member.containingFile.map(safeLocalScope(_))
         }
       }
     } yield scope
