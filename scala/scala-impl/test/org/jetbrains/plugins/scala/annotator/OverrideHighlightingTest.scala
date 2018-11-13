@@ -101,7 +101,7 @@ class OverrideHighlightingTest extends ScalaHighlightingTestBase {
     split(0) + ": Int =" + split(1)
   }
 
-  private def inherit(base: String, over: String) =
+  private def inheritWithStringToIntConversion(base: String, over: String) =
     s"""
         |class Test {
         |  implicit def s2i(s: String): Int = s.length
@@ -112,40 +112,40 @@ class OverrideHighlightingTest extends ScalaHighlightingTestBase {
       """.stripMargin
 
   def testValInheritReturnType(): Unit = {
-    assertNothing(errorsFromScalaCode(inherit("def foo: Int", "val foo = \"\"")))
+    assertNothing(errorsFromScalaCode(inheritWithStringToIntConversion("def foo: Int", "val foo = \"\"")))
   }
 
   def testValInheritReturnTypeParens(): Unit = {
     //TODO: this, for some reason, does not work in compiler
-    assertMatches(errorsFromScalaCode(inherit("def foo(): Int", "val foo = \"\""))) {
-      case Error(_, "Overriding type Int does not conform to base type () => Int") :: Nil =>
+    assertMatches(errorsFromScalaCode(inheritWithStringToIntConversion("def foo(): Int", "val foo = \"\""))) {
+      case Error(_, "Overriding type String does not conform to base type Int") :: Nil =>
     }
   }
 
   def testFunInheritReturnTypeParens(): Unit = {
-    assertNothing(errorsFromScalaCode(inherit("def foo(): Int", "def foo = \"\"")))
+    assertNothing(errorsFromScalaCode(inheritWithStringToIntConversion("def foo(): Int", "def foo = \"\"")))
   }
 
   def testFunInheritReturnType(): Unit = {
-    assertNothing(errorsFromScalaCode(inherit("def foo: Int", "def foo = \"\"")))
+    assertNothing(errorsFromScalaCode(inheritWithStringToIntConversion("def foo: Int", "def foo = \"\"")))
   }
 
   def testParensFunInheritReturnType(): Unit = {
-    assertNothing(errorsFromScalaCode(inherit("def foo: Int", "def foo() = \"\"")))
+    assertNothing(errorsFromScalaCode(inheritWithStringToIntConversion("def foo: Int", "def foo() = \"\"")))
   }
 
   def testParensFunInheritReturnTypeParens(): Unit = {
-    assertNothing(errorsFromScalaCode(inherit("def foo(): Int", "def foo() = \"\"")))
+    assertNothing(errorsFromScalaCode(inheritWithStringToIntConversion("def foo(): Int", "def foo() = \"\"")))
   }
 
   def testVarInheritReturnType(): Unit = {
-    assertNothing(errorsFromScalaCode(inherit("def foo: Int", "var foo = \"\"")))
+    assertNothing(errorsFromScalaCode(inheritWithStringToIntConversion("def foo: Int", "var foo = \"\"")))
   }
 
   def testVarInheritReturnTypeParens(): Unit = {
     //TODO: this, for some reason, does not work in compiler
-    assertMatches(errorsFromScalaCode(inherit("def foo(): Int", "var foo = \"\""))) {
-      case Error(_, "Overriding type Int does not conform to base type () => Int") :: Nil =>
+    assertMatches(errorsFromScalaCode(inheritWithStringToIntConversion("def foo(): Int", "var foo = \"\""))) {
+      case Error(_, "Overriding type String does not conform to base type Int") :: Nil =>
     }
   }
 

@@ -411,4 +411,26 @@ class OverridingAnnotatorTest extends OverridingAnnotatorTestBase {
           |}
         """.stripMargin))
   }
+
+  def testSCL14570(): Unit = {
+    assertNothing(messages(
+      """trait WeaveResource {
+        |  def url(): String
+        |}
+        |
+        |case class DefaultWeaveResource(url: String) extends WeaveResource
+      """.stripMargin
+    ))
+  }
+
+  def testSCL14570_2(): Unit = {
+    assertNothing(messages(
+      """trait WeaveResource {
+        |  def url(): Seq[String]
+        |}
+        |
+        |case class DefaultWeaveResource(url: String*) extends WeaveResource
+      """.stripMargin
+    ))
+  }
 }
