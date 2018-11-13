@@ -50,6 +50,7 @@ object ScalaUseScope {
   private def namedScope(named: ScNamedElement): Option[SearchScope] = named.nameContext match {
     case member: ScMember if member.isLocal      => localDefinitionScope(member)
     case member: ScMember if member != named     => Some(member.getUseScope)
+    case member: ScMember                        => memberScope(member)
     case caseClause: ScCaseClause                => Some(new LocalSearchScope(caseClause))
     case elem@(_: ScEnumerator | _: ScGenerator) => localDefinitionScope(elem)
     case _                                       => None
