@@ -152,7 +152,8 @@
         <highlightVisitor implementation="org.jetbrains.plugins.scala.codeInsight.daemon.ScalaRainbowVisitor"/>
       <externalSystemTaskNotificationListener
               implementation="org.jetbrains.plugins.scaladev.IdeaSourcesAttachListener"/>
-        <externalSystemTaskNotificationListener implementation="org.jetbrains.plugins.scala.components.libextensions.LibraryExtensionsSBTListener"/>
+      <externalSystemTaskNotificationListener implementation="org.jetbrains.plugins.scala.components.libextensions.LibraryExtensionsSBTListener"/>
+      <externalSystemTaskNotificationListener implementation="org.jetbrains.sbt.project.ExternalAnnotationSearchDisabler"/>
 
       <toolWindow id="WorksheetResultsToolWindow" anchor="bottom" canCloseContents="false"
                   factoryClass="org.jetbrains.plugins.scala.worksheet.ui.WorksheetToolWindowFactory"
