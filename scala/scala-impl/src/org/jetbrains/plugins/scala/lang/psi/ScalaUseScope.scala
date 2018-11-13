@@ -44,9 +44,10 @@ object ScalaUseScope {
   }
 
   private def parameterScope(parameter: ScParameter): SearchScope = parameter.getDeclarationScope match {
-    case null => GlobalSearchScope.EMPTY_SCOPE
+    case null                 => GlobalSearchScope.EMPTY_SCOPE
     case expr: ScFunctionExpr => safeLocalScope(expr)
-    case d => d.getUseScope //named parameters or usages of class parameters
+    case td: ScTypeDefinition => intersect(td.getUseScope, namedScope(parameter)) //class parameters
+    case d                    => d.getUseScope //named parameters
   }
 
   private def namedScope(named: ScNamedElement): Option[SearchScope] = named.nameContext match {
