@@ -88,7 +88,7 @@ abstract class ScalaPsiElementImpl(node: ASTNode) extends ASTWrapperPsiElement(n
   }
 
   override def getUseScope: SearchScope =
-    ScalaPsiUtil.intersectScopes(super.getUseScope, ScalaUseScope.mostNarrow(this))
+    ScalaUseScope.intersect(super.getUseScope, ScalaUseScope.mostNarrow(this))
 }
 
 abstract class ScalaStubBasedElementImpl[T <: PsiElement, S <: StubElement[T]](stub: S,
@@ -180,5 +180,5 @@ abstract class ScalaStubBasedElementImpl[T <: PsiElement, S <: StubElement[T]](s
   }
 
   override def getUseScope: SearchScope =
-    ScalaPsiUtil.intersectScopes(super.getUseScope, ScalaUseScope.mostNarrow(this))
+    ScalaUseScope.intersect(super.getUseScope, ScalaUseScope.mostNarrow(this))
 }

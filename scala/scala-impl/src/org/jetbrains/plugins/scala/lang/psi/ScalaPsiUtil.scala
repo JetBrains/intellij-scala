@@ -1558,13 +1558,6 @@ object ScalaPsiUtil {
     }
   }
 
-  def intersectScopes(scope: SearchScope, scopeOption: Option[SearchScope]): SearchScope = {
-    scopeOption match {
-      case Some(s) => s.intersectWith(scope)
-      case None => scope
-    }
-  }
-
   private def addBefore[T <: PsiElement](element: T, parent: PsiElement, anchorOpt: Option[PsiElement]): T = {
     val anchor = anchorOpt match {
       case Some(a) => a
