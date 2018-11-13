@@ -16,7 +16,7 @@ import org.jetbrains.plugins.scala.lang.psi.api.toplevel.templates.ScTemplateBod
 import org.jetbrains.plugins.scala.lang.psi.types.ScType
 import org.jetbrains.plugins.scala.lang.psi.types.result.Typeable
 
-import scala.collection.JavaConverters
+import scala.collection.JavaConverters._
 
 class ScalaExpressionTypeProvider extends ExpressionTypeProvider[PsiElement] {
 
@@ -25,17 +25,23 @@ class ScalaExpressionTypeProvider extends ExpressionTypeProvider[PsiElement] {
   override def getErrorHint: String = "No expression found"
 
   override def getExpressionsAt(elementAt: PsiElement): ju.List[PsiElement] = {
-    import JavaConverters._
-    elementAt.withParentsInFile.takeWhile {
-      case (_: ScBlock) childOf (_: ScArgumentExprList | _: ScCaseClause) => true
-      case _: ScTemplateBody | _: ScFunctionDefinition | _: ScMacroDefinition | _: ScBlock | _: ScValueOrVariable => false
-      case _ => true
-    }.filter {
-      case ScBlock(_: ScExpression) => false
-      case _: ScBindingPattern => true
-      case _: ScExpression => true
-      case _ => false
-    }.toList.asJava
+    @scala.annotation.tailrec
+    def collectCandidates(parents: Iterator[PsiElement], acc: List[PsiElement] = Nil): List[PsiElement] = {
+      if (parents.hasNext) {
+        val current = parents.next()
+        current match {
+          case (block: ScBlock) childOf (_: ScArgumentExprList | _: ScCaseClause) =>
+            if (block.statements.size == 1) collectCandidates(parents, acc)
+            else                            collectCandidates(parents, current :: acc)
+          case _: ScFunctionDefinition | _: ScMacroDefinition                        => current :: acc
+          case _: ScTemplateBody | _: ScBlock | _: ScValueOrVariable                 => acc
+          case _: ScExpression | _: ScBindingPattern                                 => collectCandidates(parents,  current :: acc)
+          case _                                                                     => collectCandidates(parents, acc)
+        }
+      } else acc
+    }
+
+    collectCandidates(elementAt.withParentsInFile).reverse.asJava
   }
 
   override def getInformationHint(element: PsiElement): String =
@@ -66,9 +72,10 @@ object ScalaExpressionTypeProvider {
   private val unknownType = "<unknown>"
 
   private def extractType: PsiElement => Option[ScType] = {
-    case element@ResolvedWithSubst(target, subst) => target.ofNamedElement(subst, scalaScope = Some(element.elementScope))
-    case Typeable(tpe) => Some(tpe)
-    case _                                => None
+    case element @ ResolvedWithSubst(target, subst) =>
+      target.ofNamedElement(subst, scalaScope = Some(element.elementScope))
+    case Typeable(tpe)              => Option(tpe)
+    case _                          => None
   }
 
   private def makeAdvancedInformationTableRow(
