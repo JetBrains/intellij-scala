@@ -30,7 +30,7 @@ private class TypeDefinitionNode(definition: ScTypeDefinition)(implicit project:
   }
 
   override def getTypeSortWeight(sortByType: Boolean): Int = definition match {
-    case it: ScObject if it.isPackageObject => 2 // PsiDirectoryNode.getTypeSortWeight == 3
+    case it: ScObject if it.isPackageObject => 4 // PsiDirectoryNode.getTypeSortWeight == 3
     case _ => super.getTypeSortWeight(sortByType)
   }
 
