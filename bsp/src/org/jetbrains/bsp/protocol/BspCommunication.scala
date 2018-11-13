@@ -148,7 +148,7 @@ object BspCommunication {
 
     val tcpMethod = TcpBsp(new URI("localhost"), findFreePort(5001))
 
-    val preferredMethod =
+    val platformMethod =
       if (SystemInfo.isWindows) WindowsLocalBsp(id)
       else if (SystemInfo.isUnix) {
         val tempDir = Files.createTempDirectory("bsp-")
@@ -160,6 +160,9 @@ object BspCommunication {
       else tcpMethod
 
     val connectionDetails = findBspConfigs(base)
+
+    val configuredMethods = connectionDetails.map(ProcessBsp)
+
     val bloopConfigDir = new File(base, ".bloop").getCanonicalFile
 
     val connector =
@@ -170,10 +173,11 @@ object BspCommunication {
         new GenericConnectorSync(base, capabilities)
       }
 
-    connector.connect(preferredMethod, tcpMethod)
+    val methodsInPreferenceOrder = platformMethod :: tcpMethod :: configuredMethods
+    connector.connect(methodsInPreferenceOrder : _*)
   }
 
-  private def findBspConfigs(projectBase: File): Seq[BspConnectionDetails] = {
+  private def findBspConfigs(projectBase: File): List[BspConnectionDetails] = {
 
     val workspaceConfigDir = new File(projectBase, ".bsp")
     val workspaceConfigs = listFiles(List(workspaceConfigDir))
@@ -181,10 +185,10 @@ object BspCommunication {
 
     val potentialConfigs = tryReadingConnectionFiles(workspaceConfigs ++ systemConfigs)
 
-    potentialConfigs.flatMap(_.toOption)
+    potentialConfigs.flatMap(_.toOption).toList
   }
 
-  private def systemDependentConnectionFiles = {
+  private def systemDependentConnectionFiles: List[File] = {
     val basePaths =
       if (SystemInfo.isWindows) windowsBspFiles()
       else if (SystemInfo.isMac) macBspFiles()
