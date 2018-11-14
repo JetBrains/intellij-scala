@@ -20,7 +20,6 @@ import org.jetbrains.plugins.scala.lang.psi.api.toplevel.typedef.{ScClass, ScTem
 import org.jetbrains.plugins.scala.lang.psi.fake.FakePsiMethod
 import org.jetbrains.plugins.scala.lang.psi.impl.ScalaPsiElementFactory
 import org.jetbrains.plugins.scala.lang.psi.impl.ScalaPsiElementFactory.createParameterFromText
-import org.jetbrains.plugins.scala.lang.psi.implicits.ImplicitResolveResult.ResolverStateBuilder
 import org.jetbrains.plugins.scala.lang.psi.implicits.{ImplicitResolveResult, ScImplicitlyConvertible}
 import org.jetbrains.plugins.scala.lang.psi.types.Compatibility.Expression
 import org.jetbrains.plugins.scala.lang.psi.types.Compatibility.Expression._
@@ -550,6 +549,7 @@ class ReferenceExpressionResolver(implicit projectContext: ProjectContext) {
     }
 
     def collectImplicits(e: ScExpression, processor: BaseProcessor, noImplicitsForArgs: Boolean) {
+      import ImplicitResolveResult._
       def builder(result: ImplicitResolveResult): ResolverStateBuilder = {
         ProgressManager.checkCanceled()
         new ImplicitResolveResult.ResolverStateBuilder(result).withImports
@@ -573,7 +573,7 @@ class ReferenceExpressionResolver(implicit projectContext: ProjectContext) {
         case _ => ref.refName
       }
 
-      ScalaPsiUtil.findImplicitConversion(e, name, ref, processor, noImplicitsForArgs).foreach { result =>
+      findImplicitConversion(e, name, ref, processor, noImplicitsForArgs).foreach { result =>
         val state = builder(result).withType.state
         processor.processType(result.typeWithDependentSubstitutor, e, state)
       }

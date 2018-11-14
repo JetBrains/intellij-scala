@@ -571,8 +571,10 @@ private object ExpectedTypesImpl {
       var cand = applyProc.candidates
       if (cand.length == 0 && call.isDefined) {
         val expr = call.get.getEffectiveInvokedExpr
-        ScalaPsiUtil.findImplicitConversion(expr, "apply", expr, applyProc, noImplicitsForArgs = false, Some(tp)).foreach { result =>
-          val builder = new ImplicitResolveResult.ResolverStateBuilder(result).withImplicitFunction
+
+        import ImplicitResolveResult._
+        findImplicitConversion(expr, "apply", expr, applyProc, noImplicitsForArgs = false, Some(tp)).foreach { result =>
+          val builder = new ResolverStateBuilder(result).withImplicitFunction
           applyProc.processType(result.typeWithDependentSubstitutor, expr, builder.state)
           cand = applyProc.candidates
         }

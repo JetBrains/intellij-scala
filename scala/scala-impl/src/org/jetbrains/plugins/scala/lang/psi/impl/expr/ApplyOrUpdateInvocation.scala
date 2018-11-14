@@ -1,11 +1,8 @@
 package org.jetbrains.plugins.scala.lang.psi.impl.expr
 
-import scala.collection.{Seq, Set}
-
 import com.intellij.openapi.progress.ProgressManager
 import com.intellij.psi.ResolveState
 import org.jetbrains.plugins.scala.extensions.PsiElementExt
-import org.jetbrains.plugins.scala.lang.psi.ScalaPsiUtil.findImplicitConversion
 import org.jetbrains.plugins.scala.lang.psi.api.base.types.ScTypeElement
 import org.jetbrains.plugins.scala.lang.psi.api.expr.{MethodInvocation, ScAssignStmt, ScExpression, ScGenericCall}
 import org.jetbrains.plugins.scala.lang.psi.impl.ScalaPsiElementFactory.createExpressionFromText
@@ -17,6 +14,8 @@ import org.jetbrains.plugins.scala.lang.psi.types.nonvalue.{ScMethodType, ScType
 import org.jetbrains.plugins.scala.lang.resolve.ScalaResolveResult
 import org.jetbrains.plugins.scala.lang.resolve.processor.DynamicResolveProcessor.{conformsToDynamic, getDynamicNameForMethodInvocation}
 import org.jetbrains.plugins.scala.lang.resolve.processor.{BaseProcessor, MethodResolveProcessor}
+
+import scala.collection.{Seq, Set}
 
 /**
   * Nikolay.Tropin
@@ -71,10 +70,19 @@ case class ApplyOrUpdateInvocation(call: MethodInvocation,
   }
 
   private def candidatesWithConversion(processor: MethodResolveProcessor, noImplicitsForArgs: Boolean) = {
+    import ImplicitResolveResult._
+
     processor.resetPrecedence()
     findImplicitConversion(baseExpr, processor.refName, call, processor, noImplicitsForArgs).foreach { result =>
       ProgressManager.checkCanceled()
-      processor.processType(result.typeWithDependentSubstitutor, baseExpr, implicitResolveState(result))
+
+      val state = new ResolverStateBuilder(result)
+        .withImports
+        .withImplicitFunction
+        .withType
+        .state
+
+      processor.processType(result.typeWithDependentSubstitutor, baseExpr, state)
     }
     processor.candidatesS
   }
@@ -94,13 +102,6 @@ case class ApplyOrUpdateInvocation(call: MethodInvocation,
     processor.processType(fromType, call.getEffectiveInvokedExpr, initialState(fromType))
     processor.candidatesS
   }
-
-  private def implicitResolveState(result: ImplicitResolveResult) =
-    new ImplicitResolveResult.ResolverStateBuilder(result)
-      .withImports
-      .withImplicitFunction
-      .withType
-      .state
 }
 
 object ApplyOrUpdateInvocation {

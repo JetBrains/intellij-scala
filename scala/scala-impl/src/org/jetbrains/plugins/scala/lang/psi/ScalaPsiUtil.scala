@@ -40,7 +40,6 @@ import org.jetbrains.plugins.scala.lang.psi.impl.ScalaPsiElementFactory._
 import org.jetbrains.plugins.scala.lang.psi.impl.expr.ApplyOrUpdateInvocation
 import org.jetbrains.plugins.scala.lang.psi.impl.toplevel.typedef.TypeDefinitionMembers
 import org.jetbrains.plugins.scala.lang.psi.impl.{ScPackageImpl, ScalaPsiManager}
-import org.jetbrains.plugins.scala.lang.psi.implicits._
 import org.jetbrains.plugins.scala.lang.psi.types.Compatibility.Expression
 import org.jetbrains.plugins.scala.lang.psi.types._
 import org.jetbrains.plugins.scala.lang.psi.types.api._
@@ -244,60 +243,6 @@ object ScalaPsiUtil {
       case fun: PsiMethod => fun.getTypeParameters.toSeq
     }
     ScSubstitutor.bind(typeParameters.map(TypeParameter(_)))(UndefinedType(_, level = 1))
-  }
-
-  def findImplicitConversion(baseExpr: ScExpression, refName: String, ref: ScExpression, processor: BaseProcessor,
-                             noImplicitsForArgs: Boolean, precalcType: Option[ScType] = None): Option[ImplicitResolveResult] = {
-    implicit val ctx: ProjectContext = baseExpr
-
-    val exprType: ScType = precalcType match {
-      case None => ImplicitCollector.exprType(baseExpr, fromUnder = false) match {
-        case None => return None
-        case Some(x) if x.equiv(Nothing) => return None //do not proceed with nothing type, due to performance problems.
-        case Some(x) => x
-      }
-      case Some(x) if x.equiv(Nothing) => return None
-      case Some(x) => x
-    }
-    val args = processor match {
-      case _ if !noImplicitsForArgs => Seq.empty
-      case m: MethodResolveProcessor => m.argumentClauses.flatMap { expressions =>
-        expressions.map {
-          _.getTypeAfterImplicitConversion(checkImplicits = false, isShape = m.isShapeResolve, None)._1.getOrAny
-        }
-      }
-      case _ => Seq.empty
-    }
-
-    def checkImplicits(noApplicability: Boolean = false, withoutImplicitsForArgs: Boolean = noImplicitsForArgs): Seq[ScalaResolveResult] = {
-      val data = ExtensionConversionData(baseExpr, ref, refName, processor, noApplicability, withoutImplicitsForArgs)
-
-      implicit val elementScope: ElementScope = baseExpr.elementScope
-      new ImplicitCollector(
-        baseExpr,
-        FunctionType(Any, Seq(exprType)),
-        FunctionType(exprType, args),
-        coreElement = None,
-        isImplicitConversion = true,
-        extensionData = Some(data)).collect()
-    }
-
-    //This logic is important to have to navigate to problematic method, in case of failed resolve.
-    //That's why we need to have noApplicability parameter
-    val foundImplicits = checkImplicits() match {
-      case Seq() => checkImplicits(noApplicability = true)
-      case seq@Seq(_) => seq
-      case _ => checkImplicits(withoutImplicitsForArgs = true)
-    }
-
-    foundImplicits match {
-      case Seq(resolveResult) =>
-        ExtensionConversionHelper.specialExtractParameterType(resolveResult).map {
-          case (tp, typeParams) =>
-            RegularImplicitResolveResult(resolveResult, tp, unresolvedTypeParameters = typeParams) //todo: from companion parameter
-        }
-      case _ => None
-    }
   }
 
   def isLocalOrPrivate(elem: PsiElement): Boolean = {
