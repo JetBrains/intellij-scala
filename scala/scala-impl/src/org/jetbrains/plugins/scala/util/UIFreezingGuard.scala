@@ -51,9 +51,10 @@ object UIFreezingGuard {
   private var timeoutCount: Int = 0
 
   val edtResolveTimeoutKey = "scala.edt.resolve.timeout"
+  private val defaultTimeout = -1
 
   Registry.addKey(edtResolveTimeoutKey,
-    "Maximum time in millisecond to wait for reference resolve in scala file (-1 means no timeout)", 100, false)
+    "Maximum time in millisecond to wait for reference resolve in scala file (-1 means no timeout)", defaultTimeout, false)
 
   private def isEdt: Boolean = ApplicationManager.getApplication.isDispatchThread
 
