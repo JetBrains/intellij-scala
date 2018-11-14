@@ -38,7 +38,9 @@ private object ScalaTreeStructureProvider {
 
     case ScalaDialectFile() => new FileNode(file)
 
-    case SingularDefinition(definition) => new TypeDefinitionNode(definition)
+    case SingularDefinition(definition) =>
+      if (definition.isPackageObject) new PackageObjectNode(definition)
+      else new TypeDefinitionNode(definition)
 
     case ClassAndCompanionObject(classDefinition, _) if !settings.isShowMembers =>
       val icon = if (classDefinition.hasAbstractModifier) Icons.ABSTRACT_CLASS_AND_OBJECT else Icons.CLASS_AND_OBJECT

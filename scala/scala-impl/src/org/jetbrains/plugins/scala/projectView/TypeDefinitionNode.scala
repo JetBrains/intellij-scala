@@ -29,11 +29,6 @@ private class TypeDefinitionNode(definition: ScTypeDefinition)(implicit project:
     case None => super.updateImpl(data)
   }
 
-  override def getTypeSortWeight(sortByType: Boolean): Int = definition match {
-    case it: ScObject if it.isPackageObject => 4 // PsiDirectoryNode.getTypeSortWeight == 3
-    case _ => super.getTypeSortWeight(sortByType)
-  }
-
   override def getChildrenImpl: util.Collection[Node] =
     if (getSettings.isShowMembers) value.map(childrenOf).getOrElse(Seq.empty).asJava
     else super.getChildrenImpl
