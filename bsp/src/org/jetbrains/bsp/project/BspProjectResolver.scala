@@ -248,7 +248,7 @@ class BspProjectResolver extends ExternalSystemProjectResolver[BspExecutionSetti
       case Active(session) =>
         listener.beforeCancel(taskId)
         importState = Inactive
-        Await.ready(session.closeSession(), 10.seconds)
+        session.closeSession()
         listener.onCancel(taskId)
         true
       case Inactive =>
