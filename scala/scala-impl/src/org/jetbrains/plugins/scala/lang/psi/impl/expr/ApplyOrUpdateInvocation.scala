@@ -78,7 +78,6 @@ case class ApplyOrUpdateInvocation(call: MethodInvocation,
 
       val state = new ResolverStateBuilder(result)
         .withImports
-        .withImplicitFunction
         .withType
         .state
 

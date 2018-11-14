@@ -1,5 +1,6 @@
 package org.jetbrains.plugins.scala.lang.psi.implicits
 
+import com.intellij.openapi.progress.ProgressManager
 import com.intellij.psi.util.PsiTreeUtil
 import com.intellij.psi.{PsiClass, PsiNamedElement, ResolveState}
 import org.jetbrains.plugins.scala.caches.CachesUtil._
@@ -50,7 +51,19 @@ case class RegularImplicitResolveResult(resolveResult: ScalaResolveResult,
 object ImplicitResolveResult {
 
   class ResolverStateBuilder(result: ImplicitResolveResult) {
-    private[this] var innerState: ResolveState = ResolveState.initial
+
+    ProgressManager.checkCanceled()
+
+    private[this] var innerState: ResolveState = {
+      val state = ResolveState.initial.put(IMPLICIT_FUNCTION, result.resolveResult)
+
+      result.element.getParent match {
+        case body: ScTemplateBody =>
+          val parent = PsiTreeUtil.getParentOfType(body, classOf[PsiClass])
+          state.put(IMPLICIT_RESOLUTION, parent)
+        case _ => state
+      }
+    }
 
     def state: ResolveState = innerState
 
@@ -69,30 +82,13 @@ object ImplicitResolveResult {
       innerState = innerState.put(IMPLICIT_TYPE, result.`type`)
       this
     }
-
-    def withImplicitFunction: ResolverStateBuilder = {
-      innerState = innerState.put(IMPLICIT_FUNCTION, result.resolveResult)
-      elementParent.foreach { parent =>
-        innerState = innerState.put(IMPLICIT_RESOLUTION, parent)
-      }
-      this
-    }
-
-    private def elementParent =
-      Option(result.element).map {
-        _.getParent
-      }.collect {
-        case body: ScTemplateBody => body
-      }.map {
-        PsiTreeUtil.getParentOfType(_, classOf[PsiClass])
-      }
   }
 
   def findImplicitConversion(baseExpr: ScExpression,
                              refName: String,
                              ref: ScExpression,
                              processor: BaseProcessor,
-                             noImplicitsForArgs: Boolean,
+                             noImplicitsForArgs: Boolean = false,
                              precalcType: Option[ScType] = None): Option[ImplicitResolveResult] = {
     implicit val ctx: ProjectContext = baseExpr
 

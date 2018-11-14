@@ -550,12 +550,10 @@ class ReferenceExpressionResolver(implicit projectContext: ProjectContext) {
 
     def collectImplicits(e: ScExpression, processor: BaseProcessor, noImplicitsForArgs: Boolean) {
       import ImplicitResolveResult._
-      def builder(result: ImplicitResolveResult): ResolverStateBuilder = {
-        ProgressManager.checkCanceled()
-        new ImplicitResolveResult.ResolverStateBuilder(result).withImports
+      def builder(result: ImplicitResolveResult): ResolverStateBuilder =
+        new ResolverStateBuilder(result)
+          .withImports
           .withImplicitType
-          .withImplicitFunction
-      }
 
       processor match {
         case _: CompletionProcessor =>
