@@ -51,6 +51,7 @@ public class ScalaProjectSettings  implements PersistentStateComponent<ScalaProj
   private boolean DONT_CACHE_COMPOUND_TYPES = false;
   private boolean AOT_COMPLETION = true;
   private boolean PROJECT_VIEW_HIGHLIGHTING = false;
+  private boolean GROUP_PACKAGE_OBJECT_WITH_PACKAGE = false;
   private boolean SCALA_CLASSES_PRIORITY = true;
   private boolean GENERATE_TOSTRING_WITH_FIELD_NAMES = false;
 
@@ -279,6 +280,14 @@ public class ScalaProjectSettings  implements PersistentStateComponent<ScalaProj
 
   public void setProjectViewHighlighting(boolean value) {
     PROJECT_VIEW_HIGHLIGHTING = value;
+  }
+
+  public boolean isGroupPackageObjectWithPackage() {
+    return GROUP_PACKAGE_OBJECT_WITH_PACKAGE;
+  }
+
+  public void setGroupPackageObjectWithPackage(boolean value) {
+    GROUP_PACKAGE_OBJECT_WITH_PACKAGE = value;
   }
 
   public boolean isScalaPriority() {
