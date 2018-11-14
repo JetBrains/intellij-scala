@@ -3,16 +3,16 @@ package org.jetbrains.plugins.scala.components
 import java.awt.event.KeyEvent
 
 import com.intellij.ide.ApplicationInitializedListener
-import com.intellij.notification.{NotificationDisplayType, NotificationType}
+import com.intellij.notification._
 import com.intellij.openapi.actionSystem._
 import com.intellij.openapi.actionSystem.ex.AnActionListener
 import com.intellij.openapi.application.ApplicationManager
 import com.intellij.util.messages.MessageBusConnection
 import javax.swing.KeyStroke
+import org.jetbrains.plugins.scala.DesktopUtils
 import org.jetbrains.plugins.scala.components.ImplicitHintsAdviser._
 import org.jetbrains.plugins.scala.lang.psi.api.ScalaFile
 import org.jetbrains.plugins.scala.settings.ScalaApplicationSettings
-import org.jetbrains.plugins.scala.util.NotificationUtil
 
 // TODO Remove in IDEA 2019.x
 class ImplicitHintsAdviser extends ApplicationInitializedListener {
@@ -46,21 +46,22 @@ class ImplicitHintsAdviser extends ApplicationInitializedListener {
 
 private object ImplicitHintsAdviser {
   private final val Message =
-    """<html>
-      | <body>
-      | <p><strong>Implicit Conversions</strong> and <strong>Implicit Arguments</strong> are deprecated in favor of <strong>View / Show Implicit Hints</strong>.</p>
-      | <p>Shortcut for <strong>Implicit Arguments</strong> now shows <strong>Expression Type</strong> (as for other languages).</p>
-      | <p><a href="https://www.youtube.com/watch?v=dRiQIo9moSw">Learn more</a></p>
-      | </body>
-      |</html>""".stripMargin
+    "Did you know: Implicit Conversions and Implicit Arguments actions are deprecated in favor of View / Show Implicit Hints. " +
+      "The shortcut for Implicit Arguments now shows Expression Type (as for other languages)."
 
   private def suggestImplicitHints(): Unit = {
-    NotificationUtil
-      .builder(project = null, Message)
-      .setNotificationType(NotificationType.INFORMATION)
-      .setDisplayType(NotificationDisplayType.STICKY_BALLOON)
-      .setTitle("Did you know?")
-      .show()
+    val notification = {
+      val group = new NotificationGroup("Implicit Hints tip", NotificationDisplayType.STICKY_BALLOON, false)
+      group.createNotification(Message, NotificationType.INFORMATION)
+    }
+
+    notification.addAction(new AnAction("Learn more") {
+      override def actionPerformed(event: AnActionEvent): Unit = {
+        DesktopUtils.browse("https://www.youtube.com/watch?v=dRiQIo9moSw")
+      }
+    })
+
+    Notifications.Bus.notify(notification)
   }
 
   private def isAction(actionId: String, action: AnAction): Boolean =
