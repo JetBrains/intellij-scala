@@ -3,7 +3,7 @@ package org.jetbrains.plugins.scala.components
 import java.awt.event.KeyEvent
 
 import com.intellij.ide.ApplicationInitializedListener
-import com.intellij.notification.NotificationType
+import com.intellij.notification.{NotificationDisplayType, NotificationType}
 import com.intellij.openapi.actionSystem._
 import com.intellij.openapi.actionSystem.ex.AnActionListener
 import com.intellij.openapi.application.ApplicationManager
@@ -18,7 +18,7 @@ import org.jetbrains.plugins.scala.util.NotificationUtil
 class ImplicitHintsAdviser extends ApplicationInitializedListener {
   private var messageBusConnection: MessageBusConnection = _
 
-  private val actionListener = new AnActionListener() {
+  private def actionListener = new AnActionListener() {
     override def afterActionPerformed(action: AnAction, dataContext: DataContext, event: AnActionEvent): Unit = {
       val settings = ScalaApplicationSettings.getInstance
 
@@ -58,6 +58,7 @@ private object ImplicitHintsAdviser {
     NotificationUtil
       .builder(project = null, Message)
       .setNotificationType(NotificationType.INFORMATION)
+      .setDisplayType(NotificationDisplayType.STICKY_BALLOON)
       .setTitle("Did you know?")
       .show()
   }
