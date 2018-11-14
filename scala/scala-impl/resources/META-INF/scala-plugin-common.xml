@@ -424,6 +424,7 @@
         <configurationType implementation="org.jetbrains.plugins.scala.console.ScalaConsoleConfigurationType"/>
         <actionPromoter implementation="org.jetbrains.plugins.scala.console.ExecuteInConsoleActionPromoter"/>
         <actionPromoter implementation="org.jetbrains.plugins.scala.worksheet.actions.ReplRunActionPromoter"/>
+        <actionPromoter implementation="org.jetbrains.plugins.scala.actions.implicitArguments.ShowImplicitArgumentsActionPromoter"/>
 
         <configurationType implementation="org.jetbrains.plugins.scala.testingSupport.test.specs2.Specs2ConfigurationType"/>
         <configurationType implementation="org.jetbrains.plugins.scala.testingSupport.test.scalatest.ScalaTestConfigurationType"/>
