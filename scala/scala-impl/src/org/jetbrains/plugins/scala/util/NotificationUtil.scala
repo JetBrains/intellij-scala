@@ -11,6 +11,7 @@ import com.intellij.openapi.project.Project
  * User: Dmitry Naydanov
  * Date: 11/27/13
  */
+// TODO Why do we need a mutable builder when we have named / default arguments?
 object NotificationUtil  {
   def builder(project: Project, message: String) = new NotificationBuilder(project, message)
   
@@ -30,7 +31,7 @@ object NotificationUtil  {
     def notification = new Notification(group, title, message, notificationType, new HyperlinkListener(handler))
     def show(): Unit = Notifications.Bus.notify(notification, project)
   }
-  
+
   def showMessage(project: Project, message: String, 
              group: String = "scala", 
              title: String = "Warning", 
