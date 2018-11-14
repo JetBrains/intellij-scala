@@ -17,14 +17,15 @@ object NotificationUtil  {
   
   class NotificationBuilder protected[NotificationUtil] (project: Project, message: String) {
     private var group: String = "scala"
-    private var title: String = "Warning"
+    private var title: String = "Warning" // TODO Should be "null"
     private var notificationType: NotificationType = NotificationType.WARNING
-    private var displayType: NotificationDisplayType = NotificationDisplayType.BALLOON
+    private var displayType: NotificationDisplayType = NotificationDisplayType.BALLOON // TODO Why it's present but not applied?
     private var handler: Handler = IdHandler
     
     def setGroup(group: String): NotificationBuilder = {this.group = group; this}
     def setTitle(title: String): NotificationBuilder = {this.title = title; this}
     def setNotificationType(notificationType: NotificationType): NotificationBuilder = {this.notificationType = notificationType; this}
+    @deprecated
     def setDisplayType(displayType: NotificationDisplayType): NotificationBuilder = {this.displayType = displayType; this}
     def setHandler(handler: Handler): NotificationBuilder = {this.handler = handler; this}
     
