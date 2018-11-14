@@ -18,13 +18,12 @@ class CollectAllForImportProcessor(override val kinds: Set[ResolveTargets.Value]
     if (nameMatches(namedElement)) {
       val accessible = isAccessible(namedElement, ref)
       if (accessibility && !accessible) return true
-      namedElement match {
-        case pack: PsiPackage =>
-          candidatesSet += new ScalaResolveResult(ScPackageImpl(pack), getSubst(state), getImports(state),
-            isAccessible = true)
-        case _ => candidatesSet += new ScalaResolveResult(namedElement, getSubst(state), getImports(state),
-          boundClass = getBoundClass(state), fromType = getFromType(state), isAccessible = true)
+      val (target, fromType) = namedElement match {
+        case pack: PsiPackage => (ScPackageImpl(pack), None)
+        case _ => (namedElement, getFromType(state))
       }
+
+      candidatesSet += new ScalaResolveResult(target, getSubst(state), getImports(state), fromType = fromType, isAccessible = true)
     }
 
     true

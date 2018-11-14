@@ -135,12 +135,12 @@ class ResolveProcessor(override val kinds: Set[ResolveTargets.Value],
           addResult(resolveResult)
         case clazz: PsiClass if !isThisOrSuperResolve || PsiTreeUtil.isContextAncestor(clazz, ref, true) =>
           addResult(new ScalaResolveResult(namedElement, getSubst(state),
-            getImports(state), nameShadow, boundClass = getBoundClass(state), fromType = getFromType(state), isAccessible = accessible))
+            getImports(state), nameShadow, fromType = getFromType(state), isAccessible = accessible))
         case _: PsiClass => //do nothing, it's wrong class or object
         case _ if isThisOrSuperResolve => //do nothing for type alias
         case _ =>
           addResult(new ScalaResolveResult(namedElement, getSubst(state),
-            getImports(state), nameShadow, boundClass = getBoundClass(state), fromType = getFromType(state), isAccessible = accessible))
+            getImports(state), nameShadow, fromType = getFromType(state), isAccessible = accessible))
       }
     }
 

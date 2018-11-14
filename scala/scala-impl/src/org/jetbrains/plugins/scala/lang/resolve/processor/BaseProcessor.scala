@@ -31,8 +31,6 @@ import scala.collection.Set
 object BaseProcessor {
   def unapply(p: BaseProcessor) = Some(p.kinds)
 
-  val boundClassKey: Key[PsiClass] = Key.create("bound.class.key")
-
   val FROM_TYPE_KEY: Key[ScType] = Key.create("from.type.key")
 
   val UNRESOLVED_TYPE_PARAMETERS_KEY: Key[Seq[TypeParameter]] = Key.create("unresolved.type.parameters.key")
@@ -323,10 +321,6 @@ abstract class BaseProcessor(val kinds: Set[ResolveTargets.Value])
   protected def getImports(state: ResolveState): Set[ImportUsed] = {
     val used = state.get(ImportUsed.key)
     if (used == null) Set[ImportUsed]() else used
-  }
-
-  protected def getBoundClass(state: ResolveState): PsiClass = {
-    state.get(BaseProcessor.boundClassKey)
   }
 
   protected def getFromType(state: ResolveState): Option[ScType] = {

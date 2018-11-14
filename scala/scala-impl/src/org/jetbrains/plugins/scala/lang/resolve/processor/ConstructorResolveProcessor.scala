@@ -83,7 +83,6 @@ class ConstructorResolveProcessor(constr: PsiElement, refName: String, args: Lis
             getImports(state),
             Option(state.get(ResolverEnv.nameKey)),
             parentElement = parentElement,
-            boundClass = getBoundClass(state),
             fromType = fromType,
             isAccessible = elementIsAccessible)
       })
@@ -93,13 +92,13 @@ class ConstructorResolveProcessor(constr: PsiElement, refName: String, args: Lis
   }
 
   override def candidatesS: Set[ScalaResolveResult] = {
-    def updateResult(result: ScalaResolveResult) =
-      new ScalaResolveResult(result.getActualElement,
+    def updateResult(result: ScalaResolveResult) = new ScalaResolveResult(
+      result.getActualElement,
         result.substitutor,
         result.importsUsed,
-        boundClass = result.boundClass,
         fromType = result.fromType,
-        isAccessible = result.isAccessible)
+      isAccessible = result.isAccessible
+    )
 
     val candidates = super.candidatesS
     candidates.toSeq match {
