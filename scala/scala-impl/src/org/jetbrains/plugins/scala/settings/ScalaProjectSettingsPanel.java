@@ -80,6 +80,7 @@ public class ScalaProjectSettingsPanel {
   private JComboBox trailingCommasComboBox;
   private JCheckBox collapseWorksheetFoldByCheckBox;
   private JCheckBox showNotFoundImplicitArgumentsCheckBox;
+  private JCheckBox myGroupPackageObjectWithPackage;
   private ScalaUiWithDependency.ComponentWithSettings injectionPrefixTable;
   private Project myProject;
 
@@ -194,6 +195,7 @@ public class ScalaProjectSettingsPanel {
       ProblemSolverUtils.clearProblemsIn(myProject);
     }
     scalaProjectSettings.setProjectViewHighlighting(myProjectViewHighlighting.isSelected());
+    scalaProjectSettings.setGroupPackageObjectWithPackage(myGroupPackageObjectWithPackage.isSelected());
 
     scalaProjectSettings.setBundledMigratorsSearchEnabled(migratorsEnabledCheckBox.isSelected());
     scalaProjectSettings.setBundledInspectionsSearchEnabled(jarBundledInspectionsEnabledCheckBox.isSelected());
@@ -293,6 +295,9 @@ public class ScalaProjectSettingsPanel {
     if (scalaProjectSettings.isProjectViewHighlighting() != myProjectViewHighlighting.isSelected())
       return true;
 
+    if (scalaProjectSettings.isGroupPackageObjectWithPackage() != myGroupPackageObjectWithPackage.isSelected())
+      return true;
+
     if (scalaProjectSettings.isScalaPriority() != useScalaClassesPriorityCheckBox.isSelected())
       return true;
 
@@ -372,6 +377,7 @@ public class ScalaProjectSettingsPanel {
     setWorksheetDelay(scalaProjectSettings.getAutoRunDelay());
 
     setValue(myProjectViewHighlighting, scalaProjectSettings.isProjectViewHighlighting());
+    setValue(myGroupPackageObjectWithPackage, scalaProjectSettings.isGroupPackageObjectWithPackage());
 
     setValue(migratorsEnabledCheckBox, scalaProjectSettings.isBundledMigratorsSearchEnabled());
     setValue(jarBundledInspectionsEnabledCheckBox, scalaProjectSettings.isBundledInspectionsSearchEnabled());
@@ -509,15 +515,20 @@ public class ScalaProjectSettingsPanel {
     showNotFoundImplicitArgumentsCheckBox.setText("Show hints if no implicit arguments found");
     panel1.add(showNotFoundImplicitArgumentsCheckBox, new GridConstraints(3, 0, 1, 2, GridConstraints.ANCHOR_WEST, GridConstraints.FILL_NONE, GridConstraints.SIZEPOLICY_CAN_SHRINK | GridConstraints.SIZEPOLICY_CAN_GROW, GridConstraints.SIZEPOLICY_FIXED, null, null, null, 0, false));
     final JPanel panel3 = new JPanel();
-    panel3.setLayout(new GridLayoutManager(2, 1, new Insets(9, 9, 0, 0), -1, -1));
+    panel3.setLayout(new GridLayoutManager(3, 1, new Insets(9, 9, 0, 0), -1, -1));
     tabbedPane1.addTab("Project View", panel3);
     myProjectViewHighlighting = new JCheckBox();
     myProjectViewHighlighting.setText("Highlight nodes with errors");
     myProjectViewHighlighting.setMnemonic('H');
     myProjectViewHighlighting.setDisplayedMnemonicIndex(0);
-    panel3.add(myProjectViewHighlighting, new GridConstraints(0, 0, 1, 1, GridConstraints.ANCHOR_WEST, GridConstraints.FILL_NONE, GridConstraints.SIZEPOLICY_CAN_SHRINK | GridConstraints.SIZEPOLICY_CAN_GROW, GridConstraints.SIZEPOLICY_FIXED, null, null, null, 0, false));
+    panel3.add(myProjectViewHighlighting, new GridConstraints(1, 0, 1, 1, GridConstraints.ANCHOR_WEST, GridConstraints.FILL_NONE, GridConstraints.SIZEPOLICY_CAN_SHRINK | GridConstraints.SIZEPOLICY_CAN_GROW, GridConstraints.SIZEPOLICY_FIXED, null, null, null, 0, false));
     final Spacer spacer2 = new Spacer();
-    panel3.add(spacer2, new GridConstraints(1, 0, 1, 1, GridConstraints.ANCHOR_CENTER, GridConstraints.FILL_VERTICAL, 1, GridConstraints.SIZEPOLICY_WANT_GROW, null, null, null, 0, false));
+    panel3.add(spacer2, new GridConstraints(2, 0, 1, 1, GridConstraints.ANCHOR_CENTER, GridConstraints.FILL_VERTICAL, 1, GridConstraints.SIZEPOLICY_WANT_GROW, null, null, null, 0, false));
+    myGroupPackageObjectWithPackage = new JCheckBox();
+    myGroupPackageObjectWithPackage.setText("Group package object with package");
+    myGroupPackageObjectWithPackage.setMnemonic('G');
+    myGroupPackageObjectWithPackage.setDisplayedMnemonicIndex(0);
+    panel3.add(myGroupPackageObjectWithPackage, new GridConstraints(0, 0, 1, 1, GridConstraints.ANCHOR_WEST, GridConstraints.FILL_NONE, GridConstraints.SIZEPOLICY_CAN_SHRINK | GridConstraints.SIZEPOLICY_CAN_GROW, GridConstraints.SIZEPOLICY_FIXED, null, null, null, 0, false));
     final JPanel panel4 = new JPanel();
     panel4.setLayout(new GridLayoutManager(9, 2, new Insets(9, 9, 0, 0), -1, -1));
     tabbedPane1.addTab("Performance", panel4);
