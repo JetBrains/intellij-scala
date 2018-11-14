@@ -15,6 +15,7 @@ import org.jetbrains.bsp.protocol.BspSession._
 import scala.collection.mutable.ListBuffer
 import scala.concurrent._
 import scala.concurrent.duration._
+import scala.util.Try
 import scala.util.control.NonFatal
 
 class BspSession(bspIn: InputStream,
@@ -85,11 +86,10 @@ class BspSession(bspIn: InputStream,
     val cancelable = Cancelable { () =>
       Cancelable.cancelAll(
         List(
-          Cancelable(() => cleanup()),
           Cancelable(() => bspIn.close()),
           Cancelable(() => bspOut.close()),
-          Cancelable(() => listening.cancel(true))
-          // TODO stop bsp server process
+          Cancelable(() => listening.cancel(true)),
+          Cancelable(() => cleanup())
         )
       )
     }
@@ -130,7 +130,7 @@ class BspSession(bspIn: InputStream,
 
   def isAlive: Boolean = ! sessionShutdown.isCompleted
 
-  def shutdown(error: Option[BspError] = None): CompletableFuture[Unit] = {
+  def shutdown(error: Option[BspError] = None): Try[Unit] = {
     def whenDone: CompletableFuture[Unit] = {
       serverConnection.server.buildShutdown()
         .thenApply[Unit](_=>())
@@ -143,12 +143,7 @@ class BspSession(bspIn: InputStream,
               val fullMessage = s"$msg (code ${errorObject.getCode}). Data: ${errorObject.getData}"
               logger.error(fullMessage)
           }
-
-          serverConnection.cancelable.cancel()
         }
-
-      // TODO timeout shutdown
-      // TODO check process state, hard-kill bsp process if shutdown was not orderly
     }
 
     error match {
@@ -163,7 +158,9 @@ class BspSession(bspIn: InputStream,
     }
     queueProcessor.cancel(false)
     sessionInitialized.cancel(false)
-    whenDone
+    val result = Try(whenDone.get(sessionTimeout.toMillis, TimeUnit.MILLISECONDS))
+    serverConnection.cancelable.cancel()
+    result
   }
 
 
