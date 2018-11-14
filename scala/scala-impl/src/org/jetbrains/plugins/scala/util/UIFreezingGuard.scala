@@ -2,6 +2,11 @@ package org.jetbrains.plugins.scala.util
 
 import java.awt.Event
 import java.awt.event.MouseEvent
+import java.io.{File, IOException}
+import java.lang.management.ManagementFactory
+import java.text.SimpleDateFormat
+import java.util
+import java.util.Date
 import java.util.concurrent.atomic.AtomicLong
 import java.util.concurrent.{ScheduledFuture, TimeUnit}
 
@@ -9,9 +14,10 @@ import com.intellij.codeInsight.daemon.DaemonCodeAnalyzer
 import com.intellij.concurrency.JobScheduler
 import com.intellij.diagnostic.PerformanceWatcher
 import com.intellij.ide.{ApplicationInitializedListener, IdeEventQueue}
-import com.intellij.openapi.application.{ApplicationManager, ModalityState, TransactionGuard}
+import com.intellij.openapi.application.{ApplicationManager, ModalityState, PathManager, TransactionGuard}
 import com.intellij.openapi.progress._
 import com.intellij.openapi.progress.util.AbstractProgressIndicatorBase
+import com.intellij.openapi.util.io.FileUtil
 import com.intellij.openapi.util.registry.Registry
 import com.intellij.psi.PsiManager
 import com.intellij.psi.impl.PsiModificationTrackerImpl
@@ -20,6 +26,7 @@ import org.jetbrains.plugins.scala.extensions._
 import org.jetbrains.plugins.scala.project.ProjectContext
 import org.jetbrains.plugins.scala.util.UIFreezingGuard._
 
+import scala.collection.mutable
 import scala.util.control.NoStackTrace
 
 /**
@@ -109,6 +116,7 @@ object UIFreezingGuard {
       ProgressManager.getInstance().runProcess(computation, new TimeoutProgressIndicator(timeoutMs))
     } catch {
       case _: TimeoutException =>
+        dumpUniqueStackTrace()
 
         RecursionManager.prohibitCaching()
 
@@ -120,6 +128,39 @@ object UIFreezingGuard {
     }
   }
 
+  private val seenStackTraces = mutable.Set.empty[Int]
+
+  private def dumpUniqueStackTrace(): Unit = {
+    val stackTrace = new Exception().getStackTrace
+    val hash = util.Arrays.hashCode(stackTrace.asInstanceOf[Array[AnyRef]])
+    if (!seenStackTraces(hash)) {
+      seenStackTraces.add(hash)
+      dump(stackTrace)
+    }
+  }
+
+  private def dump(stacktrace: Array[StackTraceElement]): Unit = {
+    def formatDateTime(time: Long) = new SimpleDateFormat("yyyyMMdd-HHmmss").format(new Date(time))
+
+    val myLogDir: File = new File(PathManager.getLogPath)
+    val scalaTimeoutDir = new File(myLogDir, "scalaEdtTimeouts")
+    if (!scalaTimeoutDir.exists())
+      FileUtil.createDirectory(scalaTimeoutDir)
+
+    val startTime = ManagementFactory.getRuntimeMXBean.getStartTime
+    val formatted = formatDateTime(startTime)
+
+    val fileName = s"stacktraces-$formatted.txt"
+
+    val file = new File(scalaTimeoutDir, fileName)
+    val string = stacktrace.mkString("\n") + "\n\n\n"
+
+    try {
+      FileUtil.writeToFile(file, string, true)
+    } catch {
+      case _: IOException =>
+    }
+  }
 
   private var modCountIncrementFuture: ScheduledFuture[Unit] = null
 
