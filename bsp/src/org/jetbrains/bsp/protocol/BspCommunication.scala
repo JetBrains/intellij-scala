@@ -23,9 +23,8 @@ import org.jetbrains.bsp.protocol.BspSession.{BspSessionTask, NotificationAggreg
 import org.jetbrains.bsp.settings.{BspExecutionSettings, BspProjectSettings, BspSettings}
 import org.jetbrains.bsp.{BSP, BspError, BspErrorMessage}
 
-import scala.concurrent.{Future, Promise}
 import scala.io.Source
-import scala.util.{Failure, Random, Try}
+import scala.util.{Failure, Random, Success, Try}
 
 class BspCommunicationComponent(project: Project) extends ProjectComponent {
 
@@ -93,16 +92,11 @@ class BspCommunication(base: File, project: Option[Project], executionSettings: 
     case _ => // ignore
   }
 
-  def closeSession(): Future[Unit] = session match {
-    case None => Future.successful(())
+  def closeSession(): Try[Unit] = session match {
+    case None => Success(())
     case Some(s) =>
-      val promise = Promise[Unit]
+      session = None
       s.shutdown()
-        .whenComplete{(_,error) =>
-          if (error != null) promise.failure(error)
-          else promise.success(())
-        }
-      promise.future
   }
 
   def run[T, A](task: BspSessionTask[T], default: A, aggregator: NotificationAggregator[A]): BspJob[(T, A)] = {
