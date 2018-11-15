@@ -12,6 +12,7 @@ import org.jetbrains.plugins.scala.lang.psi.api.toplevel.ScTypedDefinition
 import org.jetbrains.plugins.scala.lang.psi.api.toplevel.typedef.{ScObject, ScTemplateDefinition}
 import org.jetbrains.plugins.scala.lang.psi.types.api._
 import org.jetbrains.plugins.scala.lang.psi.types.api.designator.{ScDesignatorType, ScProjectionType}
+import org.jetbrains.plugins.scala.lang.psi.types.nonvalue.ScTypePolymorphicType
 import org.jetbrains.plugins.scala.lang.psi.types.recursiveUpdate.ScSubstitutor
 import org.jetbrains.plugins.scala.lang.psi.types.result._
 import org.jetbrains.plugins.scala.lang.refactoring.util.ScTypeUtil.AliasType
@@ -37,6 +38,11 @@ trait ScalaBounds extends api.Bounds {
           arg.copyWithBounds(lub(lower, t1, checkWeak), glb(upper, t1))
         case (ex: ScExistentialType, _) => glb(ex.quantified, t2, checkWeak).unpackedType
         case (_, ex: ScExistentialType) => glb(t1, ex.quantified, checkWeak).unpackedType
+        case (ScTypePolymorphicType(lhsInt, lhsParams), ScTypePolymorphicType(rhsInt, rhsParams)) =>
+          val newParams  = lub(lhsParams, rhsParams, checkWeak)
+          val paramSubst = ScSubstitutor.bind(lhsParams, newParams)(TypeParameterType(_))
+          val intTpe     = glb(paramSubst.subst(lhsInt), paramSubst.subst(rhsInt), checkWeak)
+          ScTypePolymorphicType(intTpe, newParams)
         case _ => ScCompoundType(Seq(t1, t2), Map.empty, Map.empty)
       }
     }
@@ -51,6 +57,18 @@ trait ScalaBounds extends api.Bounds {
     res
   }
 
+  def glb(
+    lhsParams: Seq[TypeParameter],
+    rhsParams: Seq[TypeParameter],
+    checkWeak: Boolean
+  ): Seq[TypeParameter] =
+    lhsParams.zip(rhsParams).map {
+      case (p1, p2) =>
+        val lower = lub(p1.lowerType, p2.lowerType, checkWeak)
+        val upper = glb(p1.upperType, p2.upperType, checkWeak)
+        TypeParameter.light(p1.name, Seq.empty, lower, upper)
+    }
+
   def lub(t1: ScType, t2: ScType, checkWeak: Boolean): ScType = {
     lubInner(t1, t2, lubDepth(Seq(t1, t2)), checkWeak)(stopAddingUpperBound = false)
   }
@@ -58,6 +76,18 @@ trait ScalaBounds extends api.Bounds {
   def lub(seq: Seq[ScType], checkWeak: Boolean): ScType = {
     seq.reduce((l: ScType, r: ScType) => lub(l, r, checkWeak))
   }
+
+  def lub(
+    lhsParams: Seq[TypeParameter],
+    rhsParams: Seq[TypeParameter],
+    checkWeak: Boolean
+  ): Seq[TypeParameter] =
+    lhsParams.zip(rhsParams).map {
+      case (p1, p2) =>
+        val lower = glb(p1.lowerType, p2.lowerType, checkWeak)
+        val upper = lub(p1.upperType, p2.upperType, checkWeak)
+        TypeParameter.light(p1.name, Seq.empty, lower, upper)
+    }
 
   //similar to Scala code, this code is duplicated and optimized to avoid closures.
   def typeDepth(ts: Seq[ScType]): Int = {
@@ -297,6 +327,11 @@ trait ScalaBounds extends api.Bounds {
           case (tp, JavaArrayType(_)) =>
             if (tp.conforms(AnyRef)) AnyRef
             else Any
+          case (ScTypePolymorphicType(lhsInt, lhsParams), ScTypePolymorphicType(rhsInt, rhsParams)) =>
+            val newParams  = glb(lhsParams, rhsParams, checkWeak)
+            val paramSubst = ScSubstitutor.bind(lhsParams, newParams)(TypeParameterType(_))
+            val intTpe     = lub(paramSubst.subst(lhsInt), paramSubst.subst(rhsInt), checkWeak)
+            ScTypePolymorphicType(intTpe, newParams)
           case _ =>
             val leftClasses: Seq[ClassLike] = {
               t1 match {
