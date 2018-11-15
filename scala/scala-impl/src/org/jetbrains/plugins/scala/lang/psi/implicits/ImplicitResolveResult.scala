@@ -90,7 +90,11 @@ object ImplicitResolveResult {
     expressionType <- precalculatedType.orElse(this.expressionType)
     if !expressionType.equiv(Nothing) // do not proceed with nothing type, due to performance problems.
 
-    result <- findImplicitConversion(expressionType, refName, ref, processor, noImplicitsForArgs)
+    resolveResult <- findImplicitConversion(expressionType, refName, ref, processor, noImplicitsForArgs)
+    resultType <- ExtensionConversionHelper.specialExtractParameterType(resolveResult)
+
+    result = RegularImplicitResolveResult(resolveResult, resultType, unresolvedTypeParameters = resolveResult.unresolvedTypeParameters.getOrElse(Seq.empty)) //todo: from companion parameter
+
     builder = build(new ResolverStateBuilder(result))
   } processor.processType(result.typeWithDependentSubstitutor, place, builder.state)
 
@@ -98,7 +102,7 @@ object ImplicitResolveResult {
                                            refName: String, ref: ScExpression,
                                            processor: BaseProcessor,
                                            noImplicitsForArgs: Boolean)
-                                          (implicit place: ScExpression): Option[ImplicitResolveResult] = {
+                                          (implicit place: ScExpression) = {
     import place.elementScope
     val functionType = FunctionType(Any(place.projectContext), Seq(expressionType))
     val expandedFunctionType = FunctionType(expressionType, arguments(processor, noImplicitsForArgs))
@@ -125,11 +129,7 @@ object ImplicitResolveResult {
     }
 
     foundImplicits match {
-      case Seq(resolveResult) =>
-        ExtensionConversionHelper.specialExtractParameterType(resolveResult).map {
-          case (tp, typeParams) =>
-            RegularImplicitResolveResult(resolveResult, tp, unresolvedTypeParameters = typeParams) //todo: from companion parameter
-        }
+      case Seq(resolveResult) => Some(resolveResult)
       case _ => None
     }
   }

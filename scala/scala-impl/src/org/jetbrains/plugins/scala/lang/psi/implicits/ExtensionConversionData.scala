@@ -4,7 +4,7 @@ import com.intellij.openapi.progress.ProgressManager
 import com.intellij.openapi.project.Project
 import com.intellij.psi.ResolveState
 import org.jetbrains.plugins.scala.lang.psi.ElementScope
-import org.jetbrains.plugins.scala.lang.psi.api.InferUtil.extractImplicitParameterType
+import org.jetbrains.plugins.scala.lang.psi.api.InferUtil
 import org.jetbrains.plugins.scala.lang.psi.api.expr.ScExpression
 import org.jetbrains.plugins.scala.lang.psi.api.statements.ScFunction
 import org.jetbrains.plugins.scala.lang.psi.types.api.{FunctionType, TypeParameter, ValType}
@@ -34,34 +34,29 @@ case class ExtensionConversionData(place: ScExpression,
 }
 
 object ExtensionConversionHelper {
-  def specialExtractParameterType(resolveResult: ScalaResolveResult): Option[(ScType, Seq[TypeParameter])] = {
-    val result = extractImplicitParameterType(resolveResult).flatMap {
-      case functionType@FunctionType(_, _) => Some(functionType)
+
+  def specialExtractParameterType(resolveResult: ScalaResolveResult): Option[ScType] =
+    InferUtil.extractImplicitParameterType(resolveResult).flatMap {
+      case FunctionType(resultType, _) => Some(resultType)
       case implicitParameterType =>
         implicit val project: Project = resolveResult.element.getProject
-        ElementScope(project).cachedFunction1Type.flatMap { functionType =>
-          implicitParameterType.conforms(functionType, ConstraintSystem.empty) match {
+        for {
+          functionType <- ElementScope(project).cachedFunction1Type
+          substituted <- implicitParameterType.conforms(functionType, ConstraintSystem.empty) match {
             case ConstraintSystem(substitutor) => Some(substitutor.subst(functionType))
             case _ => None
           }
-        }.map {
-          _.removeUndefines()
-        }
-    }
 
-    result.collect {
-      case FunctionType(tp, _) => (tp, resolveResult.unresolvedTypeParameters.toSeq.flatten)
+          (resultType, _) <- FunctionType.unapply(substituted.removeAbstracts)
+        } yield resultType
     }
-  }
 
   def extensionConversionCheck(data: ExtensionConversionData, candidate: Candidate): Option[Candidate] = {
     ProgressManager.checkCanceled()
     import data._
 
     val resolveResult = candidate._1
-    specialExtractParameterType(resolveResult).map {
-      _._1
-    }.filter {
+    specialExtractParameterType(resolveResult).filter {
       case _: ValType if isHardCoded => false
       case _ => true
     }.filter {
