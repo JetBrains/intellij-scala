@@ -8,7 +8,7 @@ import org.jetbrains.plugins.scala.lang.psi.api.InferUtil.extractImplicitParamet
 import org.jetbrains.plugins.scala.lang.psi.api.expr.ScExpression
 import org.jetbrains.plugins.scala.lang.psi.api.statements.ScFunction
 import org.jetbrains.plugins.scala.lang.psi.types.api.{FunctionType, TypeParameter, ValType}
-import org.jetbrains.plugins.scala.lang.psi.types.{ScType, ConstraintSystem}
+import org.jetbrains.plugins.scala.lang.psi.types.{ConstraintSystem, ScType}
 import org.jetbrains.plugins.scala.lang.resolve.processor.{BaseProcessor, MethodResolveProcessor, ResolveProcessor}
 import org.jetbrains.plugins.scala.lang.resolve.{ResolveTargets, ScalaResolveResult}
 import org.jetbrains.plugins.scala.project.ProjectContext
@@ -18,7 +18,7 @@ import scala.collection.{Seq, Set}
 /**
   * @author Nikolay.Tropin
   */
-case class ExtensionConversionData(baseExpr: ScExpression,
+case class ExtensionConversionData(place: ScExpression,
                                    ref: ScExpression,
                                    refName: String,
                                    processor: BaseProcessor,
@@ -27,7 +27,7 @@ case class ExtensionConversionData(baseExpr: ScExpression,
 
   //TODO! remove this after find a way to improve implicits according to compiler.
   val isHardCoded: Boolean = refName == "+" &&
-    baseExpr.getTypeWithoutImplicits().exists {
+    place.getTypeWithoutImplicits().exists {
       _.isInstanceOf[ValType]
     }
   val kinds: Set[ResolveTargets.Value] = processor.kinds
@@ -115,7 +115,7 @@ object ExtensionConversionHelper {
         processor.expectedOption, processor.isUnderscore, processor.isShapeResolve, processor.constructorResolve,
         noImplicitsForArgs = withoutImplicitsForArgs)
     }.flatMap { processor =>
-      processor.processType(tp, baseExpr, ResolveState.initial)
+      processor.processType(tp, place, ResolveState.initial)
       processor.candidatesS.find(_.isApplicable())
     }
   }
@@ -124,7 +124,7 @@ object ExtensionConversionHelper {
     import data._
 
     val newProc = new ResolveProcessor(kinds, ref, refName)
-    newProc.processType(tp, baseExpr, ResolveState.initial)
+    newProc.processType(tp, place, ResolveState.initial)
     newProc.candidatesS.nonEmpty
   }
 }

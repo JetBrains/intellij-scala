@@ -573,7 +573,7 @@ private object ExpectedTypesImpl {
         val expr = call.get.getEffectiveInvokedExpr
 
         import ImplicitResolveResult._
-        findImplicitConversion(expr, "apply", expr, applyProc, precalcType = Some(tp)).foreach { result =>
+        findImplicitConversion("apply", expr, applyProc, precalculatedType = Some(tp))(expr).foreach { result =>
           val state = new ResolverStateBuilder(result).state
           applyProc.processType(result.typeWithDependentSubstitutor, expr, state)
           cand = applyProc.candidates

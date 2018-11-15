@@ -4,7 +4,6 @@ import com.intellij.openapi.progress.ProgressManager
 import com.intellij.psi.util.PsiTreeUtil
 import com.intellij.psi.{PsiClass, PsiNamedElement, ResolveState}
 import org.jetbrains.plugins.scala.caches.CachesUtil._
-import org.jetbrains.plugins.scala.lang.psi.ElementScope
 import org.jetbrains.plugins.scala.lang.psi.api.expr.ScExpression
 import org.jetbrains.plugins.scala.lang.psi.api.toplevel.imports.usages.ImportUsed
 import org.jetbrains.plugins.scala.lang.psi.api.toplevel.templates.ScTemplateBody
@@ -13,9 +12,6 @@ import org.jetbrains.plugins.scala.lang.psi.types.api.{Any, FunctionType, Nothin
 import org.jetbrains.plugins.scala.lang.psi.types.recursiveUpdate.ScSubstitutor
 import org.jetbrains.plugins.scala.lang.resolve.ScalaResolveResult
 import org.jetbrains.plugins.scala.lang.resolve.processor.{BaseProcessor, MethodResolveProcessor}
-import org.jetbrains.plugins.scala.project.ProjectContext
-
-import scala.collection.Seq
 
 /**
   * @author adkozlov
@@ -84,44 +80,33 @@ object ImplicitResolveResult {
     }
   }
 
-  def findImplicitConversion(baseExpr: ScExpression,
-                             refName: String,
+  def findImplicitConversion(refName: String,
                              ref: ScExpression,
                              processor: BaseProcessor,
                              noImplicitsForArgs: Boolean = false,
-                             precalcType: Option[ScType] = None): Option[ImplicitResolveResult] = {
-    implicit val ctx: ProjectContext = baseExpr
+                             precalculatedType: Option[ScType] = None)
+                            (implicit place: ScExpression): Option[ImplicitResolveResult] = {
+    import place.projectContext
+    val expressionType = precalculatedType
+      .orElse(this.expressionType)
+      .filterNot(_.equiv(Nothing)) // do not proceed with nothing type, due to performance problems.
+      .getOrElse(return None)
 
-    val exprType: ScType = precalcType match {
-      case None => ImplicitCollector.exprType(baseExpr, fromUnder = false) match {
-        case None => return None
-        case Some(x) if x.equiv(Nothing) => return None //do not proceed with nothing type, due to performance problems.
-        case Some(x) => x
-      }
-      case Some(x) if x.equiv(Nothing) => return None
-      case Some(x) => x
-    }
-    val args = processor match {
-      case _ if !noImplicitsForArgs => Seq.empty
-      case m: MethodResolveProcessor => m.argumentClauses.flatMap { expressions =>
-        expressions.map {
-          _.getTypeAfterImplicitConversion(checkImplicits = false, isShape = m.isShapeResolve, None)._1.getOrAny
-        }
-      }
-      case _ => Seq.empty
-    }
+    import place.elementScope
+    val functionType = FunctionType(Any, Seq(expressionType))
+    val expandedFunctionType = FunctionType(expressionType, arguments(processor, noImplicitsForArgs))
 
     def checkImplicits(noApplicability: Boolean = false, withoutImplicitsForArgs: Boolean = noImplicitsForArgs): Seq[ScalaResolveResult] = {
-      val data = ExtensionConversionData(baseExpr, ref, refName, processor, noApplicability, withoutImplicitsForArgs)
+      val data = ExtensionConversionData(place, ref, refName, processor, noApplicability, withoutImplicitsForArgs)
 
-      implicit val elementScope: ElementScope = baseExpr.elementScope
       new ImplicitCollector(
-        baseExpr,
-        FunctionType(Any, Seq(exprType)),
-        FunctionType(exprType, args),
+        place,
+        functionType,
+        expandedFunctionType,
         coreElement = None,
         isImplicitConversion = true,
-        extensionData = Some(data)).collect()
+        extensionData = Some(data)
+      ).collect()
     }
 
     //This logic is important to have to navigate to problematic method, in case of failed resolve.
@@ -140,6 +125,22 @@ object ImplicitResolveResult {
         }
       case _ => None
     }
+  }
+
+  private[this] def expressionType(implicit place: ScExpression) =
+    place.getTypeWithoutImplicits()
+      .map(_.tryExtractDesignatorSingleton)
+      .toOption
+
+  private[this] def arguments(processor: BaseProcessor,
+                              noImplicitsForArgs: Boolean) = processor match {
+    case methodProcessor: MethodResolveProcessor if noImplicitsForArgs =>
+      for {
+        expressions <- methodProcessor.argumentClauses
+        expression <- expressions
+        (typeResult, _) = expression.getTypeAfterImplicitConversion(checkImplicits = false, isShape = methodProcessor.isShapeResolve, None)
+      } yield typeResult.getOrAny
+    case _ => Seq.empty
   }
 
 }

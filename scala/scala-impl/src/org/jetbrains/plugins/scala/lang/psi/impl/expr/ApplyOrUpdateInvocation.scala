@@ -1,6 +1,5 @@
 package org.jetbrains.plugins.scala.lang.psi.impl.expr
 
-import com.intellij.openapi.progress.ProgressManager
 import com.intellij.psi.ResolveState
 import org.jetbrains.plugins.scala.extensions.PsiElementExt
 import org.jetbrains.plugins.scala.lang.psi.api.base.types.ScTypeElement
@@ -73,9 +72,7 @@ case class ApplyOrUpdateInvocation(call: MethodInvocation,
     import ImplicitResolveResult._
 
     processor.resetPrecedence()
-    findImplicitConversion(baseExpr, processor.refName, call, processor, noImplicitsForArgs).foreach { result =>
-      ProgressManager.checkCanceled()
-
+    findImplicitConversion(processor.refName, call, processor, noImplicitsForArgs)(baseExpr).foreach { result =>
       val state = new ResolverStateBuilder(result)
         .withImports
         .withType

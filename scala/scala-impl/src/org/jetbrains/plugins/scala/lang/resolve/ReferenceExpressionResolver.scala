@@ -571,7 +571,7 @@ class ReferenceExpressionResolver(implicit projectContext: ProjectContext) {
         case _ => ref.refName
       }
 
-      findImplicitConversion(e, name, ref, processor, noImplicitsForArgs).foreach { result =>
+      findImplicitConversion(name, ref, processor, noImplicitsForArgs)(e).foreach { result =>
         val state = builder(result).withType.state
         processor.processType(result.typeWithDependentSubstitutor, e, state)
       }
