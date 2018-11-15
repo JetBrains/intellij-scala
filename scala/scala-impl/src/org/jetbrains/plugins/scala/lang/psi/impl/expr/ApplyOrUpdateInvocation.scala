@@ -69,17 +69,10 @@ case class ApplyOrUpdateInvocation(call: MethodInvocation,
   }
 
   private def candidatesWithConversion(processor: MethodResolveProcessor, noImplicitsForArgs: Boolean) = {
-    import ImplicitResolveResult._
-
     processor.resetPrecedence()
-    findImplicitConversion(processor.refName, call, processor, noImplicitsForArgs)(baseExpr).foreach { result =>
-      val state = new ResolverStateBuilder(result)
-        .withImports
-        .withType
-        .state
-
-      processor.processType(result.typeWithDependentSubstitutor, baseExpr, state)
-    }
+    ImplicitResolveResult.processImplicitConversions(processor.refName, call, processor, noImplicitsForArgs) {
+      _.withImports.withType
+    }(baseExpr)
     processor.candidatesS
   }
 

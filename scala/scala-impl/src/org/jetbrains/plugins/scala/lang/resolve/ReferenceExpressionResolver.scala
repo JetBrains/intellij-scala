@@ -550,17 +550,15 @@ class ReferenceExpressionResolver(implicit projectContext: ProjectContext) {
 
     def collectImplicits(e: ScExpression, processor: BaseProcessor, noImplicitsForArgs: Boolean) {
       import ImplicitResolveResult._
-      def builder(result: ImplicitResolveResult): ResolverStateBuilder =
-        new ResolverStateBuilder(result)
-          .withImports
-          .withImplicitType
 
       processor match {
         case _: CompletionProcessor =>
           new ScImplicitlyConvertible(e).implicitMap().foreach { result =>
             //todo: args?
-            val state = builder(result).state
-            processor.processType(result.`type`, e, state)
+            val builder = new ResolverStateBuilder(result)
+              .withImports
+              .withImplicitType
+            processor.processType(result.`type`, e, builder.state)
           }
           return
         case m: MethodResolveProcessor => m.noImplicitsForArgs = true
@@ -571,10 +569,9 @@ class ReferenceExpressionResolver(implicit projectContext: ProjectContext) {
         case _ => ref.refName
       }
 
-      findImplicitConversion(name, ref, processor, noImplicitsForArgs)(e).foreach { result =>
-        val state = builder(result).withType.state
-        processor.processType(result.typeWithDependentSubstitutor, e, state)
-      }
+      processImplicitConversions(name, ref, processor, noImplicitsForArgs) {
+        _.withImports.withImplicitType.withType
+      }(e)
     }
 
     if (!accessibilityCheck) processor.doNotCheckAccessibility()

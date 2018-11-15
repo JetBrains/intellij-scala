@@ -80,20 +80,27 @@ object ImplicitResolveResult {
     }
   }
 
-  def findImplicitConversion(refName: String,
-                             ref: ScExpression,
-                             processor: BaseProcessor,
-                             noImplicitsForArgs: Boolean = false,
-                             precalculatedType: Option[ScType] = None)
-                            (implicit place: ScExpression): Option[ImplicitResolveResult] = {
-    import place.projectContext
-    val expressionType = precalculatedType
-      .orElse(this.expressionType)
-      .filterNot(_.equiv(Nothing)) // do not proceed with nothing type, due to performance problems.
-      .getOrElse(return None)
+  def processImplicitConversions(refName: String,
+                                 ref: ScExpression,
+                                 processor: BaseProcessor,
+                                 noImplicitsForArgs: Boolean = false,
+                                 precalculatedType: Option[ScType] = None)
+                                (build: ResolverStateBuilder => ResolverStateBuilder)
+                                (implicit place: ScExpression): Unit = for {
+    expressionType <- precalculatedType.orElse(this.expressionType)
+    if !expressionType.equiv(Nothing) // do not proceed with nothing type, due to performance problems.
 
+    result <- findImplicitConversion(expressionType, refName, ref, processor, noImplicitsForArgs)
+    builder = build(new ResolverStateBuilder(result))
+  } processor.processType(result.typeWithDependentSubstitutor, place, builder.state)
+
+  private[this] def findImplicitConversion(expressionType: ScType,
+                                           refName: String, ref: ScExpression,
+                                           processor: BaseProcessor,
+                                           noImplicitsForArgs: Boolean)
+                                          (implicit place: ScExpression): Option[ImplicitResolveResult] = {
     import place.elementScope
-    val functionType = FunctionType(Any, Seq(expressionType))
+    val functionType = FunctionType(Any(place.projectContext), Seq(expressionType))
     val expandedFunctionType = FunctionType(expressionType, arguments(processor, noImplicitsForArgs))
 
     def checkImplicits(noApplicability: Boolean = false, withoutImplicitsForArgs: Boolean = noImplicitsForArgs): Seq[ScalaResolveResult] = {

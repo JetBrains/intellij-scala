@@ -572,12 +572,10 @@ private object ExpectedTypesImpl {
       if (cand.length == 0 && call.isDefined) {
         val expr = call.get.getEffectiveInvokedExpr
 
-        import ImplicitResolveResult._
-        findImplicitConversion("apply", expr, applyProc, precalculatedType = Some(tp))(expr).foreach { result =>
-          val state = new ResolverStateBuilder(result).state
-          applyProc.processType(result.typeWithDependentSubstitutor, expr, state)
-          cand = applyProc.candidates
-        }
+        ImplicitResolveResult.processImplicitConversions("apply", expr, applyProc, precalculatedType = Some(tp)) {
+          identity
+        }(expr)
+        cand = applyProc.candidates
       }
       if (cand.length == 0 && conformsToDynamic(tp, expr.resolveScope) && call.isDefined) {
         cand = ScalaPsiUtil.processTypeForUpdateOrApplyCandidates(call.get, tp, isShape = true, isDynamic = true)
