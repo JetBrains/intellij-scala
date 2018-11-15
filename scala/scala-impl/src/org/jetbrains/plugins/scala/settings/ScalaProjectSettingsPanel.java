@@ -1,5 +1,7 @@
 package org.jetbrains.plugins.scala.settings;
 
+import com.intellij.ide.projectView.ProjectView;
+import com.intellij.ide.projectView.impl.AbstractProjectViewPane;
 import com.intellij.openapi.fileTypes.FileType;
 import com.intellij.openapi.options.ConfigurationException;
 import com.intellij.openapi.project.Project;
@@ -195,6 +197,12 @@ public class ScalaProjectSettingsPanel {
       ProblemSolverUtils.clearProblemsIn(myProject);
     }
     scalaProjectSettings.setProjectViewHighlighting(myProjectViewHighlighting.isSelected());
+    if (scalaProjectSettings.isGroupPackageObjectWithPackage() != myGroupPackageObjectWithPackage.isSelected()) {
+      AbstractProjectViewPane pane = ProjectView.getInstance(myProject).getCurrentProjectViewPane();
+      if (pane != null) {
+        pane.updateFromRoot(true);
+      }
+    }
     scalaProjectSettings.setGroupPackageObjectWithPackage(myGroupPackageObjectWithPackage.isSelected());
 
     scalaProjectSettings.setBundledMigratorsSearchEnabled(migratorsEnabledCheckBox.isSelected());
