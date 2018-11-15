@@ -10,7 +10,7 @@ import org.apache.ivy.core.report.ResolveReport
 import org.apache.ivy.core.resolve.ResolveOptions
 import org.apache.ivy.core.settings.IvySettings
 import org.apache.ivy.plugins.resolver.{ChainResolver, IBiblioResolver, RepositoryResolver, URLResolver}
-import org.apache.ivy.util.DefaultMessageLogger
+import org.apache.ivy.util.{DefaultMessageLogger, MessageLogger}
 import org.jetbrains.plugins.scala.debugger.ScalaVersion
 import org.jetbrains.plugins.scala.project.template._
 
@@ -63,6 +63,8 @@ abstract class DependencyManagerBase {
 
   protected def customizeIvySettings(settings: IvySettings): Unit = ()
 
+  protected def createLogger: MessageLogger = new DefaultMessageLogger(logLevel)
+
   private def resolveIvy(deps: Seq[DependencyDescription]): Seq[ResolvedDependency] = {
 
     def mkResolver(resolver: Resolver): RepositoryResolver = resolver match {
@@ -101,7 +103,7 @@ abstract class DependencyManagerBase {
     if (deps.isEmpty) return Seq.empty
 
     val ivy = Ivy.newInstance(mkIvySettings())
-    ivy.getLoggerEngine.pushLogger(new DefaultMessageLogger(logLevel))
+    ivy.getLoggerEngine.pushLogger(createLogger)
 
     val report = usingTempFile("ivy", Some(".xml")) { ivyFile =>
       Files.write(Paths.get(ivyFile.toURI), mkIvyXml(deps).getBytes)
