@@ -35,32 +35,8 @@ class LibExtensionsSettingsPanelWrapper(private val rootPanel: JPanel,
     override def getElementAt(i: Int): ExtensionDescriptor = myExtensions(i)
   }
 
-  class EditPatternsPanel(data: util.List[String]) extends AddEditDeleteListPanel[String]("Library extension search patterns", data) {
-    override protected def editSelectedItem(item: String): String = showEditDialog(item)
-    override def findItemToAdd(): String = showEditDialog("")
-    private def showEditDialog(initialValue: String) =
-      Messages.showInputDialog(this, "", "Enter search pattern", Messages.getQuestionIcon, initialValue, new InputValidatorEx {
-        override def getErrorText(inputString: String): String = if (!checkInput(inputString)) "org, module and version must be separated with %" else null
-        override def checkInput(inputString: String): Boolean = inputString.matches("^.*%.*%.*$")
-        override def canClose(inputString: String) = true
-      })
-    def getPatterns: util.Enumeration[String] = myListModel.elements()
-  }
-
   def build(): Unit = {
     import com.intellij.util.ui.UI
-
-    def showPatternManageDialog(e: ActionEvent): Unit = {
-      val builder = new DialogBuilder(project)
-      val settings = ScalaProjectSettings.getInstance(project)
-      val listView = new EditPatternsPanel(settings.getLextSearchPatterns)
-      listView.setPreferredSize(JBUI.size(350, 135))
-      builder.setCenterPanel(UI.PanelFactory.panel(listView)
-        .withComment("Use SBT dependency format to define the pattern")
-        .createPanel())
-      builder.show()
-      settings.setLextSearchPatterns(Collections.list(listView.getPatterns))
-    }
 
     rootPanel.setLayout(new BorderLayout())
     UIUtil.addBorder(rootPanel, JBUI.Borders.empty(10))
@@ -73,9 +49,6 @@ class LibExtensionsSettingsPanelWrapper(private val rootPanel: JPanel,
 
     val settingsPanel = new JPanel(new BorderLayout())
     settingsPanel.add(checkBoxes, BorderLayout.CENTER)
-    val button = new JButton("Manage Search Patterns")
-    button.addActionListener(showPatternManageDialog)
-    settingsPanel.add(button, BorderLayout.LINE_END)
     rootPanel.add(settingsPanel, BorderLayout.PAGE_START)
 
 

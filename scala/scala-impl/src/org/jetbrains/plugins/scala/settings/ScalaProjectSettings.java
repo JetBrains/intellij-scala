@@ -91,11 +91,6 @@ public class ScalaProjectSettings  implements PersistentStateComponent<ScalaProj
   private boolean ENABLE_LIBRARY_EXTENSIONS = false;
   private boolean LEXT_SHOW_ALL_PROJECTS = false;
   private Set<Integer> DISABLED_EXTENSIONS = new HashSet<>();
-  private List<String> LEXT_SEARCH_PATTERNS = new ArrayList<>();
-
-  {
-    Collections.addAll(LEXT_SEARCH_PATTERNS, LibraryExtensionsManager$.MODULE$.DEFAULT_PATTERNS());
-  }
 
   //INDEXING
   private boolean ENABLE_LOCAL_DEPENDENCY_INDEXING = true;
@@ -498,14 +493,6 @@ public class ScalaProjectSettings  implements PersistentStateComponent<ScalaProj
 
   public void setDisabledExtensions(Set<Integer> DISABLED_EXTENSIONS) {
     this.DISABLED_EXTENSIONS = DISABLED_EXTENSIONS;
-  }
-
-  public List<String> getLextSearchPatterns() {
-      return LEXT_SEARCH_PATTERNS;
-  }
-
-  public void setLextSearchPatterns(List<String> LEXT_SEARCH_PATTERNS) {
-      this.LEXT_SEARCH_PATTERNS = LEXT_SEARCH_PATTERNS;
   }
 
     public ScalaMetaMode getScalaMetaMode() {
