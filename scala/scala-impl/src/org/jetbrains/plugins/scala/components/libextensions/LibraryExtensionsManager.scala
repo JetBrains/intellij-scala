@@ -1,7 +1,8 @@
 package org.jetbrains.plugins.scala.components.libextensions
 
-import java.io.File
+import java.io.{File, InputStreamReader}
 
+import com.google.gson.stream.JsonReader
 import com.intellij.ide.plugins.PluginManager
 import com.intellij.ide.util.PropertiesComponent
 import com.intellij.notification._
@@ -14,6 +15,8 @@ import com.intellij.openapi.project.Project
 import com.intellij.openapi.roots.impl.libraries.ProjectLibraryTable
 import com.intellij.openapi.roots.libraries.Library
 import com.intellij.openapi.util.ModificationTracker
+import com.intellij.openapi.vfs.{JarFileSystem, VirtualFile}
+import com.intellij.psi.search.{FilenameIndex, GlobalSearchScope}
 import com.intellij.util.lang.UrlClassLoader
 import org.jetbrains.plugins.scala.DependencyManagerBase._
 import org.jetbrains.plugins.scala.components.ScalaPluginVersionVerifier
@@ -77,33 +80,42 @@ class LibraryExtensionsManager(project: Project) extends ProjectComponent {
     myClassLoaders.clear()
     ProgressManager.getInstance().run(
       new Task.Backgroundable(project, "Searching for library extensions", false) {
-        override def run(indicator: ProgressIndicator): Unit = doSearchExtensions(sbtResolvers)
+        override def run(indicator: ProgressIndicator): Unit = {
+          implicit val project: Project = myProject
+          val resolved   = new ExtensionDownloader(indicator, sbtResolvers).getExtensionJars
+          val alreadyLoaded     = Option(properties.getValues(EXT_JARS_KEY)).map(_.toSet).getOrElse(Set.empty)
+          val extensionsChanged = alreadyLoaded != resolved.map(_.getAbsolutePath).toSet
+          if (resolved.nonEmpty && extensionsChanged)
+            popup.showEnablePopup({ () => enabledAcceptCb(resolved) }, () => enabledCancelledCb())
+        }
     })
   }
 
-  private def enabledAcceptCb(resolved: Seq[ResolvedDependency]): Unit = {
+  private def enabledAcceptCb(resolved: Seq[File]): Unit = {
     resolved.foreach(processResolvedExtension)
-    properties.setValues(EXT_JARS_KEY, resolved.map(_.file.getAbsolutePath).toArray)
+    properties.setValues(EXT_JARS_KEY, resolved.map(_.getAbsolutePath).toArray)
   }
 
   private def enabledCancelledCb(): Unit = {
     ScalaProjectSettings.getInstance(project).setEnableLibraryExtensions(false)
   }
 
+
+
   private def doSearchExtensions(sbtResolvers: Set[SbtResolver]): Unit = {
-    val allLibraries = ProjectLibraryTable.getInstance(project).getLibraries
-    val ivyResolvers = sbtResolvers.toSeq.collect {
-      case r: SbtMavenResolver => MavenResolver(r.name, r.root)
-      case r: SbtIvyResolver if r.name != "Local cache" => IvyResolver(r.name, r.root)
-    }
-
-    val candidates = getExtensionLibCandidates(allLibraries)
-    val resolved   = new IvyExtensionsResolver(ivyResolvers.reverse).resolve(candidates.toSeq:_*)
-    val alreadyLoaded     = Option(properties.getValues(EXT_JARS_KEY)).map(_.toSet).getOrElse(Set.empty)
-    val extensionsChanged = alreadyLoaded != resolved.map(_.file.getAbsolutePath).toSet
-
-    if (resolved.nonEmpty && extensionsChanged)
-      popup.showEnablePopup({ () => enabledAcceptCb(resolved) }, () => enabledCancelledCb())
+//    val allLibraries = ProjectLibraryTable.getInstance(project).getLibraries
+//    val ivyResolvers = sbtResolvers.toSeq.collect {
+//      case r: SbtMavenResolver => MavenResolver(r.name, r.root)
+//      case r: SbtIvyResolver if r.name != "Local cache" => IvyResolver(r.name, r.root)
+//    }
+//
+//    val candidates = getExtensionLibCandidates(allLibraries)
+//    val resolved   = new ExtensionDownloader()
+//    val alreadyLoaded     = Option(properties.getValues(EXT_JARS_KEY)).map(_.toSet).getOrElse(Set.empty)
+//    val extensionsChanged = alreadyLoaded != resolved.map(_.file.getAbsolutePath).toSet
+//
+//    if (resolved.nonEmpty && extensionsChanged)
+//      popup.showEnablePopup({ () => enabledAcceptCb(resolved) }, () => enabledCancelledCb())
   }
 
   private def getExtensionLibCandidates(libs: Seq[Library]): Set[DependencyDescription] = {
@@ -123,15 +135,15 @@ class LibraryExtensionsManager(project: Project) extends ProjectComponent {
     resultSet
   }
 
-  private[libextensions] def processResolvedExtension(resolved: ResolvedDependency): Unit = {
-    val file = resolved.toJarVFile
-    val manifest = Option(file.findFileByRelativePath(manifestPath))
+  private[libextensions] def processResolvedExtension(resolved: File): Unit = {
+    val vFile = JarFileSystem.getInstance().findLocalVirtualFileByPath(resolved.getAbsolutePath)
+    val manifest = Option(vFile.findFileByRelativePath(MANIFEST_PATH))
       .map(vFile => Try(using(vFile.getInputStream)(XMLNoDTD.load)))
 
     manifest match {
-      case Some(Success(xml))       => loadJarWithManifest(xml, resolved.file)
+      case Some(Success(xml))       => loadJarWithManifest(xml, resolved)
       case Some(Failure(exception)) => LOG.error("Error parsing extensions manifest", exception)
-      case None                     => LOG.error(s"No manifest in extensions jar ${resolved.file}")
+      case None                     => LOG.error(s"No manifest in extensions jar $resolved")
     }
     MOD_TRACKER.incModCount()
   }
@@ -172,8 +184,7 @@ class LibraryExtensionsManager(project: Project) extends ProjectComponent {
     if (jarPaths != null) {
       val existingFiles = jarPaths.map(new File(_)).filter(_.exists())
       properties.setValues(EXT_JARS_KEY, existingFiles.map(_.getAbsolutePath))
-      val fakeDependencies = existingFiles.map(file => ResolvedDependency(null, file))
-      fakeDependencies.foreach(processResolvedExtension)
+      existingFiles.foreach(processResolvedExtension)
     }
   }
 
@@ -197,14 +208,16 @@ object LibraryExtensionsManager {
     s"org.jetbrains $PAT_SEP $PAT_MOD-ijext $PAT_SEP $PAT_VER+"
   )
 
-  val manifestPath  = "META-INF/intellij-compat.xml"
+  val MANIFEST_PATH  = "META-INF/intellij-compat.xml"
+  val PROPS_NAME     = "intellij-compat.json"
 
   def getInstance(project: Project): LibraryExtensionsManager = project.getComponent(classOf[LibraryExtensionsManager])
 
+  //noinspection TypeAnnotation
   val MOD_TRACKER = new ModificationTracker {
-    private var modcount = 0l
-    def incModCount(): Unit = modcount += 1
-    override def getModificationCount: Long = modcount
+    private var modCount = 0l
+    def incModCount(): Unit = modCount += 1
+    override def getModificationCount: Long = modCount
   }
 
   implicit class LibraryDescriptorExt(val ld: LibraryDescriptor) extends AnyVal {
@@ -220,6 +233,15 @@ object LibraryExtensionsManager {
 
   implicit class ExtensionDescriptorEx(val ed: ExtensionDescriptor) extends AnyVal {
     def isAvailable: Boolean = ed.pluginId.isEmpty || PluginManager.isPluginInstalled(PluginId.getId(ed.pluginId))
+  }
+
+  implicit class StringEx(val str: String) extends AnyVal {
+    def toDepDescription: DependencyDescription = {
+      val parts = str.replaceAll("\\s+", "").split('%')
+      if (parts.length != 3)
+        throw new RuntimeException(s"Couldn't parse dependency from string: $str")
+      DependencyDescription(org = parts(0), artId = parts(1), version = parts(2))
+    }
   }
 
 }

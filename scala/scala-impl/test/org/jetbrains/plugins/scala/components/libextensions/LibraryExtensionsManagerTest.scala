@@ -16,7 +16,7 @@ class LibraryExtensionsManagerTest extends SimpleTestCase {
   private lazy val manager = LibraryExtensionsManager.getInstance(fixture.getProject)
 
   private def loadExtensions(): Unit = {
-    manager.processResolvedExtension(ResolvedDependency(null, new File(jarPath)))
+    manager.processResolvedExtension(new File(jarPath))
   }
 
   def testLoadFromJar(): Unit = {
