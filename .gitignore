@@ -11,6 +11,7 @@
 /*.bat
 *.class
 !scala/scala-impl/testdata/decompiler/**/*.class
+!scala/runners/resources/org/jetbrains/plugins/scala/worksheet/*.class
 .DS_Store
 *~
 target/
