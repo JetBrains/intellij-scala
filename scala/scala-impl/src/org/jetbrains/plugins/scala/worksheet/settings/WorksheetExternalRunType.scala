@@ -40,7 +40,7 @@ abstract class WorksheetExternalRunType {
 }
 
 object RunTypes {
-  private val PREDEFINED_TYPES = Array(PlainRunType, ReplRunType, ReplCellRunType)
+  private val PREDEFINED_TYPES = Array(PlainRunType, ReplRunType/*, ReplCellRunType*/)
   private val PREDEFINED_TYPES_MAP = PREDEFINED_TYPES.map(rt => (rt.getName, rt)).toMap
 
   val EP_NAME: ExtensionPointName[WorksheetExternalRunType] =
