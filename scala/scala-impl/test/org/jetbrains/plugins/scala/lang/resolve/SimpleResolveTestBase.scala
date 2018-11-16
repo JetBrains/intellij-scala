@@ -16,7 +16,7 @@ import org.junit.Assert
 
 
 /**
-  * @author mucianm 
+  * @author mucianm
   * @since 05.04.16.
   */
 trait SimpleResolveTestBase {
@@ -35,9 +35,9 @@ trait SimpleResolveTestBase {
       val srcOffset = trimmed.replaceAll(REFTGT, "").indexOf(REFSRC)
       val tgtOffset = trimmed.replaceAll(REFSRC, "").indexOf(REFTGT)
       val psiFile = configureFun(fileName, trimmed.replaceAll(REFSRC, "").replaceAll(REFTGT,""))
-      if (src == null)
+      if (src == null && srcOffset != -1)
         src = PsiTreeUtil.getParentOfType(psiFile.findElementAt(srcOffset), classOf[ScReferenceElement])
-      if (tgt == null)
+      if (tgt == null && tgtOffset != -1)
         tgt = PsiTreeUtil.getParentOfType(psiFile.findElementAt(tgtOffset), classOf[PsiElement])
     }
     sources.dropRight(1).foreach(configureFile(_, getFixture.addFileToProject)) // add additional files first
