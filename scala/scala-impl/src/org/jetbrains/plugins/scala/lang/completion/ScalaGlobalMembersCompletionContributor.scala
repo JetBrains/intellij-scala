@@ -3,13 +3,12 @@ package lang
 package completion
 
 import com.intellij.codeInsight.CodeInsightSettings
-import com.intellij.codeInsight.completion.{JavaCompletionFeatures, _}
+import com.intellij.codeInsight.completion._
 import com.intellij.featureStatistics.FeatureUsageTracker
 import com.intellij.openapi.actionSystem.{ActionManager, IdeActions}
 import com.intellij.openapi.keymap.KeymapUtil
 import com.intellij.patterns.PlatformPatterns
-import com.intellij.psi.ResolveState.initial
-import com.intellij.psi.{PsiClass, _}
+import com.intellij.psi._
 import com.intellij.psi.search.searches.ClassInheritorsSearch
 import com.intellij.psi.util.PsiTreeUtil
 import com.intellij.util.ProcessingContext
@@ -23,7 +22,7 @@ import org.jetbrains.plugins.scala.lang.psi.api.expr._
 import org.jetbrains.plugins.scala.lang.psi.api.statements.{ScFunction, ScValue, ScValueOrVariable}
 import org.jetbrains.plugins.scala.lang.psi.api.toplevel.typedef._
 import org.jetbrains.plugins.scala.lang.psi.implicits.CollectImplicitsProcessor
-import org.jetbrains.plugins.scala.lang.psi.implicits.ScImplicitlyConvertible.{ImplicitMapResult, forMap}
+import org.jetbrains.plugins.scala.lang.psi.implicits.ScImplicitlyConvertible.forMap
 import org.jetbrains.plugins.scala.lang.psi.stubs.index.ScalaIndexKeys
 import org.jetbrains.plugins.scala.lang.psi.stubs.util.ScalaStubsUtil.getClassInheritors
 import org.jetbrains.plugins.scala.lang.psi.types.ScType
@@ -89,10 +88,11 @@ object ScalaGlobalMembersCompletionContributor {
             triggerFeature()
             for {
               candidate <- implicitCandidates
-              ImplicitMapResult(ScalaResolveResult(element, substitutor), resultType) <- forMap(place, candidate, originalType).toSeq
+              mapResult <- forMap(place, candidate, originalType).toSeq
 
+              ScalaResolveResult(element, substitutor) = mapResult.resolveResult
               elementObject = adaptResolveResult(element, substitutor)
-              item <- completeImplicits(element, elementObject, resultType)
+              item <- completeImplicits(element, elementObject, mapResult.resultType)
             } yield item
           case _ => Iterable.empty
         }
@@ -138,47 +138,43 @@ object ScalaGlobalMembersCompletionContributor {
     }
   }
 
-  private def implicitElements(implicit place: ScReferenceExpression): Iterable[ScMember] = {
+  private[this] def implicitElements(implicit place: ScReferenceExpression) = {
     import ScalaIndexKeys._
     import place.projectContext
+
     IMPLICITS_KEY.elements("implicit",
       place.resolveScope,
       classOf[ScMember]
-    )
-  }
-
-  private def implicitCandidates(implicit place: ScReferenceExpression): Iterable[ScalaResolveResult] = {
-    val processor = new CollectImplicitsProcessor(place, true)
-    val processedObjects = mutable.HashSet.empty[String]
-
-    def processElements(elements: Seq[PsiNamedElement]): Unit = elements
-      .filter(isStatic)
-      .foreach(processor.execute(_, initial()))
-
-    def processType(`type`: ScType): Unit =
-      processor.processType(`type`, processor.getPlace)
-
-    def findInheritor(definition: ScTemplateDefinition): Option[ScObject] =
-      getClassInheritors(definition, definition.resolveScope).collect {
-        case o: ScObject if o.isStatic => o
-      }.find { o =>
-        processedObjects.add(o.qualifiedName)
-      }
-
-    implicitElements.collect {
+    ).collect {
       case v: ScValue => (v, () => v.declaredElements)
       case f: ScFunction => (f, () => Seq(f))
       case c: ScClass => (c, () => c.getSyntheticImplicitMethod.toSeq)
-    }.flatMap {
-      case (member, elements) => Option(member.containingClass).map((_, elements))
-    }.foreach {
-      case (_: ScObject, elements) =>
-        processElements(elements())
-      case (definition, _) =>
-        val maybeObject = findInheritor(definition)
-        maybeObject
-          .flatMap(_.`type`().toOption)
-          .foreach(processType)
+    }
+  }
+
+  private[this] def implicitCandidates(implicit place: ScReferenceExpression) = {
+    val processor = new CollectImplicitsProcessor(place, true)
+
+    implicitElements.foreach {
+      case (member, elements) =>
+        member.containingClass match {
+          case _: ScObject =>
+            elements().filter {
+              isStatic
+            }.foreach {
+              processor.execute(_, ResolveState.initial)
+            }
+          case definition: ScTemplateDefinition =>
+            val processedObjects = mutable.HashSet.empty[String]
+            getClassInheritors(definition, definition.resolveScope).collectFirst {
+              case o: ScObject if o.isStatic && processedObjects.add(o.qualifiedName) => o
+            }.flatMap {
+              _.`type`().toOption
+            }.foreach {
+              processor.processType(_, place)
+            }
+          case _ =>
+        }
     }
 
     processor.candidates.toSeq
@@ -200,7 +196,7 @@ object ScalaGlobalMembersCompletionContributor {
       ).head
 
       lookup.usedImportStaticQuickfix = true
-      lookup.elementToImport = Option(element)
+      lookup.elementToImport = Some(element)
       lookup.objectOfElementToImport = elementObject
 
       lookup
