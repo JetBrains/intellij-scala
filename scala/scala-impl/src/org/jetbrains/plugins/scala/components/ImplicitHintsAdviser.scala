@@ -12,31 +12,31 @@ import org.jetbrains.plugins.scala.settings.ScalaApplicationSettings
 // TODO Remove in IDEA 2019.x
 class ImplicitHintsAdviser extends ApplicationInitializedListener {
 
-  private var messageBusConnection: MessageBusConnection = _
+  private var messageBusConnection: Option[MessageBusConnection] = None
 
   override def componentsInitialized(): Unit = {
     if (isEnabled) {
-      messageBusConnection = ApplicationManager.getApplication.getMessageBus.connect()
-      messageBusConnection.subscribe(AnActionListener.TOPIC, actionListener)
+      messageBusConnection = Some {
+        ApplicationManager.getApplication.getMessageBus.connect()
+      }
+      messageBusConnection.foreach(_.subscribe(AnActionListener.TOPIC, actionListener))
     }
-  }
-
-  private def dispose(): Unit = {
-    messageBusConnection.disconnect()
-    messageBusConnection = null
   }
 
   private def actionListener: AnActionListener = {
     new AnActionListener() {
+
+      def isAction(actionId: String, action: AnAction): Boolean =
+        action == ActionManager.getInstance.getAction(actionId).ensuring(_ != null, actionId)
+
       override def afterActionPerformed(action: AnAction, dataContext: DataContext, event: AnActionEvent): Unit = {
         if (isEnabled) {
           if (isAction("Scala.ShowImplicits", action)) {
             disable()
-            dispose()
           }
           else if (isAction("Scala.ShowImplicitConversions", action) || isAction("Scala.ShowImplicitArguments", action)) {
             suggestImplicitHints()
-            dispose()
+            disable()
           }
         }
       }
@@ -47,25 +47,20 @@ class ImplicitHintsAdviser extends ApplicationInitializedListener {
 
   private def disable(): Unit = {
     ScalaApplicationSettings.getInstance.SUGGEST_IMPLICIT_HINTS = false
+    messageBusConnection.foreach(_.disconnect())
+    messageBusConnection = None
   }
 
   private def suggestImplicitHints(): Unit = {
 
     val message =
-      "Did you know about Implicit Hints?<br>" +
-        "Try with <strong>Ctrl + Alt + Shift + “+”</strong>"
+      "Did you know about <strong>View | Show Implicit Hints?</strong><br>" +
+        "Use <strong>Ctrl + Alt + Shift + “+”/“-”</strong> to toggle the mode."
 
     val notification = {
-      val group = new NotificationGroup("Implicit Hints tip", NotificationDisplayType.BALLOON, false)
+      val group = new NotificationGroup("Implicit Hints tip", NotificationDisplayType.STICKY_BALLOON, false)
       group.createNotification(message, NotificationType.INFORMATION)
     }
-
-    notification.addAction(new AnAction("Got it!") {
-      override def actionPerformed(event: AnActionEvent): Unit = {
-        disable()
-        notification.hideBalloon()
-      }
-    })
 
     notification.addAction(new AnAction("Learn more") {
       override def actionPerformed(event: AnActionEvent): Unit = {
@@ -81,8 +76,4 @@ class ImplicitHintsAdviser extends ApplicationInitializedListener {
 
     Notifications.Bus.notify(notification)
   }
-
-  private def isAction(actionId: String, action: AnAction): Boolean =
-    action == ActionManager.getInstance.getAction(actionId).ensuring(_ != null, actionId)
-
 }
