@@ -24,7 +24,6 @@ private class PackageObjectNode(definition: ScTypeDefinition)(implicit project: 
       Option(definition.getContainingFile).foreach { file =>
         data.addText(getNameWithoutExtension(file.getName) + " ", SimpleTextAttributes.REGULAR_ATTRIBUTES)
       }
-      data.addText(definition.name, SimpleTextAttributes.GRAYED_ATTRIBUTES)
     }
   }
 }
