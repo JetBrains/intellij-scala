@@ -18,6 +18,7 @@ import org.jetbrains.plugins.scala.lang.psi.api.toplevel.ScPackaging
 import org.jetbrains.plugins.scala.lang.psi.api.toplevel.templates.ScExtendsBlock
 import org.jetbrains.plugins.scala.lang.psi.api.toplevel.typedef.{ScMember, ScObject}
 import org.jetbrains.plugins.scala.lang.refactoring.util.ScalaNamesUtil
+import org.jetbrains.plugins.scala.project.ProjectContext
 
 import scala.collection.JavaConverters
 
@@ -58,11 +59,11 @@ object ScalaIndexKeys {
 
     def elements(key: Key, scope: GlobalSearchScope,
                  requiredClass: Class[Psi])
-                (implicit project: Project): Iterable[Psi] =
+                (implicit context: ProjectContext): Iterable[Psi] =
       getElements(indexKey,
         key,
-        project,
-        ScalaFilterScope(project, scope),
+        context,
+        ScalaFilterScope(context, scope),
         requiredClass
       ).asScala
 
