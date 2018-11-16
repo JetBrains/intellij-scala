@@ -72,7 +72,9 @@ class ILoopWrapperFactoryHandler {
     }
 
     val version = findScalaVersionIn(scalaInstance)
-    val replLabel = s"repl-wrapper-$version-${sbtData.javaClassVersion}-$WRAPPER_VERSION.jar"
+    val is213 = version.startsWith("2.13")
+    val replLabel = s"repl-wrapper-$version-${sbtData.javaClassVersion}-$WRAPPER_VERSION-${
+      if (is213) "ILoopWrapper213Impl" else "ILoopWrapperImpl"}.jar"
     val targetFile = new File(home, replLabel)
 
     if (!targetFile.exists()) {
@@ -83,8 +85,7 @@ class ILoopWrapperFactoryHandler {
         thisJar =>
           client.foreach(_.progress("Compiling REPL runner..."))
 
-          val filter = (file: File) => if (version.startsWith("2.13")) file.getName.endsWith("213Impl.scala") 
-            else !file.getName.endsWith("213.scala")
+          val filter = (file: File) => is213 ^ !file.getName.endsWith("213Impl.scala") 
           
           AnalyzingCompiler.compileSources(
             Seq(sourceJar), targetFile, Seq(interfaceJar, thisJar), replLabel,

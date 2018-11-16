@@ -3,7 +3,7 @@ package org.jetbrains.jps.incremental.scala.local.worksheet
 
 import java.io.{File, PrintWriter}
 
-import org.jetbrains.jps.incremental.scala.local.worksheet.ILoopWrapperImpl.DummyConfig
+import org.jetbrains.jps.incremental.scala.local.worksheet.ILoopWrapper213Impl.DummyConfig
 
 import scala.reflect.classTag
 import scala.tools.nsc.Settings
@@ -16,7 +16,7 @@ import scala.collection.JavaConverters._
 /**
   * User: Dmitry.Naydanov
   */
-class ILoopWrapperImpl(myOut: PrintWriter, projectFullCp: java.util.List[String]) extends ILoop(new DummyConfig, out = myOut) with ILoopWrapper {
+class ILoopWrapper213Impl(myOut: PrintWriter, projectFullCp: java.util.List[String]) extends ILoop(new DummyConfig, out = myOut) with ILoopWrapper {
   override def init(): Unit = {
     val mySettings = new Settings
     mySettings.classpath.append(projectFullCp.asScala.mkString(File.pathSeparator))
@@ -48,7 +48,7 @@ class ILoopWrapperImpl(myOut: PrintWriter, projectFullCp: java.util.List[String]
   override def getOutputWriter: PrintWriter = myOut
 }
 
-object ILoopWrapperImpl {
+object ILoopWrapper213Impl {
   class DummyConfig extends ShellConfig {
     override def filesToPaste: List[String] = List.empty
 

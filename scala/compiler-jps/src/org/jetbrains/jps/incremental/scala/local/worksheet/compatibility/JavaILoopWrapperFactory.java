@@ -27,6 +27,8 @@ public class JavaILoopWrapperFactory {
   private static final String REPL_START = "$$worksheet$$repl$$start$$";
   private static final String REPL_CHUNK_END = "$$worksheet$$repl$$chunk$$end$$";
   private static final String REPL_LAST_CHUNK_PROCESSED = "$$worksheet$$repl$$last$$chunk$$processed$$";
+  
+  private static final String FALLBACK_CLASSNAME = "ILoopWrapperImpl";
 
   //maximum count of repl sessions handled at any time 
   private final static int REPL_SESSION_LIMIT = 5;
@@ -103,7 +105,13 @@ public class JavaILoopWrapperFactory {
     
     try {
       loader = new URLClassLoader(new URL[]{iLoopFile.toURI().toURL()}, getClass().getClassLoader());
-      clazz = loader.loadClass("org.jetbrains.jps.incremental.scala.local.worksheet.ILoopWrapperImpl");
+      
+      int idxDot = iLoopFile.getName().lastIndexOf('.');
+      int idxDash = iLoopFile.getName().lastIndexOf('-');
+      String name = idxDot == -1 || idxDash == -1 || idxDash >= idxDot ? 
+          FALLBACK_CLASSNAME : iLoopFile.getName().substring(idxDash + 1, idxDot);
+      
+      clazz = loader.loadClass("org.jetbrains.jps.incremental.scala.local.worksheet." + name);
     } catch (MalformedURLException | ClassNotFoundException ignored) {
       return null;
     }
