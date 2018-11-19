@@ -67,6 +67,17 @@ class LibExtensionsSettingsPanelWrapper(private val rootPanel: JPanel,
 
     val libraryListModel = new LibraryListModel(detailsModel)
     val librariesList = new JBList[LibraryDescriptor](libraryListModel)
+    val toolbarDecorator = ToolbarDecorator.createDecorator(librariesList)
+
+    toolbarDecorator.disableUpDownActions()
+    toolbarDecorator.setRemoveAction { _ =>
+      val descriptor = librariesList.getSelectedValue
+      if (descriptor != null) {
+        libraryExtensionsManager.removeExtension(descriptor)
+        extensionsList.setModel(detailsModel)
+      }
+    }
+
     librariesList.setEmptyText("No known extension libraries")
     librariesList.addListSelectionListener { event =>
       val libraries = libraryExtensionsManager.getAvailableLibraries
@@ -85,7 +96,7 @@ class LibExtensionsSettingsPanelWrapper(private val rootPanel: JPanel,
       new JBLabel(builder.mkString)
     }
     val librariesPane = new JPanel(new BorderLayout())
-    librariesPane.add(ScrollPaneFactory.createScrollPane(librariesList))
+    librariesPane.add(toolbarDecorator.createPanel())
 
     val listsPane = new JBSplitter(true, 0.6f)
     listsPane.setFirstComponent(librariesPane)
