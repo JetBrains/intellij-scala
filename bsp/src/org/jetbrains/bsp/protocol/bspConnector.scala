@@ -30,6 +30,11 @@ abstract class BspServerConnectorSync(val rootUri: URI, val capabilities: BspCap
   def connect(methods: BspConnectionMethod*): Either[BspError, BspSession]
 }
 
+class DummyConnector(rootUri: URI) extends BspServerConnectorSync(rootUri, BspCapabilities(Nil, providesFileWatching = false)) {
+  override def connect(methods: BspConnectionMethod*): Either[BspError, BspSession] =
+    Left(BspErrorMessage(s"No way found to connect to a BSP server for workspace $rootUri"))
+}
+
 /** TODO Connects to a bsp server based on information in a bsp configuration directory. */
 class GenericConnectorSync(base: File, capabilities: BspCapabilities) extends BspServerConnectorSync(base.getCanonicalFile.toURI, capabilities) {
 
