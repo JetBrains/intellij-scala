@@ -27,7 +27,6 @@ import org.jetbrains.plugins.scala.lang.psi.stubs.index.ScalaIndexKeys
 import org.jetbrains.plugins.scala.lang.psi.stubs.util.ScalaStubsUtil.getClassInheritors
 import org.jetbrains.plugins.scala.lang.psi.types.ScType
 import org.jetbrains.plugins.scala.lang.psi.types.api.designator.ScThisType
-import org.jetbrains.plugins.scala.lang.psi.types.recursiveUpdate.ScSubstitutor
 import org.jetbrains.plugins.scala.lang.resolve.processor.CompletionProcessor
 import org.jetbrains.plugins.scala.lang.resolve.{ResolveUtils, ScalaResolveResult, StdKinds}
 
@@ -36,7 +35,7 @@ import scala.collection.{JavaConverters, mutable}
 /**
   * @author Alexander Podkhalyuzin
   */
-class ScalaGlobalMembersCompletionContributor extends ScalaCompletionContributor {
+final class ScalaGlobalMembersCompletionContributor extends ScalaCompletionContributor {
 
   import ScalaGlobalMembersCompletionContributor._
 
@@ -88,10 +87,7 @@ object ScalaGlobalMembersCompletionContributor {
             for {
               candidate <- implicitCandidates
               mapResult <- forMap(place, candidate, originalType).toSeq
-
-              ScalaResolveResult(element, substitutor) = mapResult.resolveResult
-              elementObject = adaptResolveResult(element, substitutor)
-              item <- completeImplicits(element, elementObject, mapResult.resultType)
+              item <- completeImplicits(mapResult.resolveResult, mapResult.resultType)
             } yield item
           case _ => Iterable.empty
         }
@@ -188,14 +184,23 @@ object ScalaGlobalMembersCompletionContributor {
     processor.candidates.toSeq
   }
 
-  private def completeImplicits(element: PsiNamedElement,
-                                elementObject: Option[ScObject],
+  private def completeImplicits(resolveResult: ScalaResolveResult,
                                 resultType: ScType)
                                (implicit place: ScReferenceExpression,
                                 elements: Set[PsiNamedElement],
                                 originalFile: PsiFile): Iterable[ScalaLookupItem] = {
     val processor = new CompletionProcessor(StdKinds.methodRef, place)
     processor.processType(resultType, place)
+
+    val ScalaResolveResult(element, substitutor) = resolveResult
+    val elementObject = contextContainingClass(element).collect {
+      case definition@(_: ScClass |
+                       _: ScTrait) =>
+        val thisType = ScThisType(definition.asInstanceOf[ScTypeDefinition])
+        substitutor.subst(thisType)
+    }.flatMap(_.extractClass).collect {
+      case o: ScObject => o
+    }
 
     processor.candidates.map { candidate =>
       val lookup = candidate.getLookupElement(
@@ -280,45 +285,31 @@ object ScalaGlobalMembersCompletionContributor {
     methodsLookups ++ fieldsLookups ++ propertiesLookups
   }
 
-  private[this] def adaptResolveResult(element: PsiNamedElement, substitutor: ScSubstitutor) =
-    contextContainingClass(element).collect {
-      case c: ScClass => c
-      case t: ScTrait => t
-    }.map(ScThisType)
-      .map(substitutor.subst)
-      .flatMap(_.extractClass)
-      .collect {
-        case o: ScObject => o
-      }
-
   private[this] def shouldImport(element: PsiNamedElement)
-                                (implicit place: ScReferenceExpression,
-                                 elements: Set[PsiNamedElement],
-                                 originalFile: PsiFile): Boolean = {
-    val contains = if (element.getContainingFile == originalFile) {
+                                (implicit elements: Set[PsiNamedElement],
+                                 originalFile: PsiFile): Boolean = element.getContainingFile match {
+    case `originalFile` =>
+      def contextContainingClassName(element: PsiNamedElement): Option[String] =
+        contextContainingClass(element).flatMap { clazz =>
+          Option(clazz.qualifiedName)
+        }
+
       //complex logic to detect static methods in same file, which we shouldn't import
-      val filtered = elements
-        .filter(_.getContainingFile == place.getContainingFile)
-        .filter(_.name == element.name)
-      val objectNames = filtered.flatMap(contextContainingClassName)
+      val name = element.name
+      val objectNames = for {
+        e <- elements
+        if e.getContainingFile == originalFile && e.name == name
+        className <- contextContainingClassName(e)
+      } yield className
 
-      contextContainingClassName(element).exists(objectNames.contains)
-    } else {
-      elements.contains(element)
-    }
-
-    !contains
+      contextContainingClassName(element).forall(!objectNames.contains(_))
+    case _ => !elements.contains(element)
   }
 
-  private[this] def contextContainingClass(element: PsiNamedElement): Option[PsiClass] =
-    Option(element.nameContext).collect {
-      case member: PsiMember => member
-    }.flatMap { member =>
-      Option(member.containingClass)
+  private[this] def contextContainingClass(element: PsiNamedElement) =
+    element.nameContext match {
+      case member: PsiMember => Option(member.containingClass)
+      case _ => None
     }
 
-  private[this] def contextContainingClassName(element: PsiNamedElement): Option[String] =
-    contextContainingClass(element).flatMap { clazz =>
-      Option(clazz.qualifiedName)
-    }
 }
