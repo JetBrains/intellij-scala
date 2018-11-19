@@ -33,15 +33,16 @@ class LibraryExtensionsManager(project: Project) extends ProjectComponent {
   class ExtensionNotRegisteredException(iface: Class[_]) extends Exception(s"No extensions registered for class $iface")
   class InvalidExtensionException(iface: Class[_], impl: Class[_]) extends Exception(s"Extension $impl doesn't inherit $iface")
 
+  case class ExtensionData(descriptor: LibraryDescriptor, file: File, loadedExtensions: Map[Class[_], ArrayBuffer[Any]])
+
   private val EXT_JARS_KEY = "extensionJars"
 
   private val LOG         = Logger.getInstance(classOf[LibraryExtensionsManager])
   private val properties  = PropertiesComponent.getInstance(project)
   private val popup       = new PopupHelper
 
-  private val myAvailableLibraries  = ArrayBuffer[LibraryDescriptor]()
   private val myExtensionInstances  = mutable.HashMap[Class[_], ArrayBuffer[Any]]()
-  private val myClassLoaders        = mutable.HashMap[IdeaVersionDescriptor, UrlClassLoader]()
+  private val myLoadedLibraries     = mutable.ArrayBuffer[ExtensionData]()
 
   private object XMLNoDTD extends XMLLoader[Elem] {
     override def parser: SAXParser = {
@@ -61,18 +62,16 @@ class LibraryExtensionsManager(project: Project) extends ProjectComponent {
   }
 
   def setEnabled(value: Boolean): Unit = {
-    myAvailableLibraries.clear()
     myExtensionInstances.clear()
-    myClassLoaders.clear()
+    myLoadedLibraries.clear()
     MOD_TRACKER.incModCount()
     try   { if (value) loadCachedExtensions() }
     catch { case e: Exception => LOG.error(s"Failed to load cached extensions", e) }
   }
 
   def searchExtensions(sbtResolvers: Set[SbtResolver]): Unit = {
-    myAvailableLibraries.clear()
     myExtensionInstances.clear()
-    myClassLoaders.clear()
+    myLoadedLibraries.clear()
     ProgressManager.getInstance().run(
       new Task.Backgroundable(project, "Searching for library extensions", false) {
         override def run(indicator: ProgressIndicator): Unit = {
@@ -88,7 +87,7 @@ class LibraryExtensionsManager(project: Project) extends ProjectComponent {
 
   private def enabledAcceptCb(resolved: Seq[File]): Unit = {
     resolved.foreach(processResolvedExtension)
-    properties.setValues(EXT_JARS_KEY, resolved.map(_.getAbsolutePath).toArray)
+    saveCachedExtensions()
   }
 
   private def enabledCancelledCb(): Unit = {
@@ -116,27 +115,32 @@ class LibraryExtensionsManager(project: Project) extends ProjectComponent {
   }
 
   private def loadDescriptor(descriptor: LibraryDescriptor, jarFile: File): Unit = {
-    myAvailableLibraries += descriptor
+    var classBuffer = mutable.HashMap[Class[_], ArrayBuffer[Any]]()
     descriptor.getCurrentPluginDescriptor.foreach { currentVersion =>
-      val d@IdeaVersionDescriptor(_, _, pluginId, defaultPackage, extensions) = currentVersion
+      val IdeaVersionDescriptor(_, _, _, defaultPackage, extensions) = currentVersion
       val classLoader = UrlClassLoader.build()
         .urls(jarFile.toURI.toURL)
         .parent(getClass.getClassLoader)
         .useCache()
         .get()
-      myClassLoaders += d -> classLoader
       extensions.filter(_.isAvailable).foreach { e =>
         val ExtensionDescriptor(interface, impl, _, _, _) = e
         try {
           val myInterface = classLoader.loadClass(interface)
           val myImpl = classLoader.loadClass(defaultPackage + impl)
           val myInstance = myImpl.newInstance()
-          myExtensionInstances.getOrElseUpdate(myInterface, ArrayBuffer.empty) += myInstance
+          classBuffer.getOrElseUpdate(myInterface, ArrayBuffer.empty) += myInstance
         } catch {
           case e: Exception => LOG.error(s"Failed to load injector '$impl'", e)
         }
       }
     }
+    myExtensionInstances ++= classBuffer
+    myLoadedLibraries     += ExtensionData(descriptor, jarFile, classBuffer.toMap)
+  }
+
+  private def saveCachedExtensions(): Unit = {
+    properties.setValues(EXT_JARS_KEY, myLoadedLibraries.map(_.file.getAbsolutePath).toArray)
   }
 
   private def loadCachedExtensions(): Unit = {
@@ -152,7 +156,23 @@ class LibraryExtensionsManager(project: Project) extends ProjectComponent {
     myExtensionInstances.getOrElse(iface, Seq.empty).asInstanceOf[Seq[T]]
   }
 
-  def getAvailableLibraries: Seq[LibraryDescriptor] = myAvailableLibraries
+  def removeExtension(descriptor: LibraryDescriptor): Unit = {
+    val extensionData = myLoadedLibraries.find(_.descriptor == descriptor)
+    extensionData match {
+      case Some(data) =>
+        for {
+          key <- data.loadedExtensions.keys
+          instances = data.loadedExtensions.getOrElse(key, ArrayBuffer.empty)
+        } { myExtensionInstances.getOrElse(key, ArrayBuffer.empty) --= instances }
+        myLoadedLibraries -= data
+      case None =>
+        LOG.error(s"Remove failed: requested extension library is not loaded\n$descriptor")
+    }
+  }
+
+  def getAvailableLibraries: Seq[LibraryDescriptor] = myLoadedLibraries.map(_.descriptor)
+
+  def addExtension(file: File): Unit = processResolvedExtension(file)
 
 }
 
