@@ -99,7 +99,7 @@ object ScalaGlobalMembersCompletionContributor {
       case _ if prefixMatcher.getPrefix == "" => Iterable.empty
       case _ =>
         triggerFeature()
-        complete(accessAll)
+        complete(accessAll)(prefixMatcher.prefixMatches)
     }
   }
 
@@ -204,9 +204,9 @@ object ScalaGlobalMembersCompletionContributor {
   }
 
   private[this] def complete(accessAll: Boolean)
+                            (nameMatches: String => Boolean)
                             (implicit place: ScReferenceExpression,
                              elements: Set[PsiNamedElement],
-                             matcher: PrefixMatcher,
                              originalFile: PsiFile): Iterable[ScalaLookupItem] = {
     import place.elementScope
 
@@ -242,9 +242,9 @@ object ScalaGlobalMembersCompletionContributor {
         containingClass = Some(containingClass)
       ).head
 
-    val (methods, javaFields, scalaFields) = findAllMembers
+    import ScalaShortNamesCacheManager._
 
-    val methodsLookups = methods.flatMap { method =>
+    val methodsLookups = allMethods(nameMatches).flatMap { method =>
       val processedClasses = mutable.HashSet.empty[PsiClass]
       inheritedIn(method, method)
         .filter(processedClasses.add)
@@ -271,44 +271,31 @@ object ScalaGlobalMembersCompletionContributor {
         }
     }
 
-    val fieldsLookups = javaFields.filter(isStatic)
-      .flatMap { field =>
-        Option(field.containingClass)
-          .filter(areAccessible(field, _))
-          .map(createLookups(field, _)())
-      }
+    val fieldsLookups = for {
+      field <- allFields(nameMatches)
+      if isStatic(field)
 
-    val membersLookups = scalaFields.collect {
-      case v: ScValueOrVariable => v
-    }.flatMap { field =>
-      val namedElement = field.declaredElements.head
-      inheritedIn(field, namedElement)
-        .map(createLookups(namedElement, _)())
-    }
+      containingClass = field.containingClass
+      if containingClass != null && areAccessible(field, containingClass)
+    } yield createLookups(field, containingClass)()
 
-    methodsLookups ++ fieldsLookups ++ membersLookups
+    val propertiesLookups = for {
+      property <- allProperties(nameMatches)
+      namedElement = property.declaredElements.head
+
+      containingClass <- inheritedIn(property, namedElement)
+    } yield createLookups(namedElement, containingClass)()
+
+    methodsLookups ++ fieldsLookups ++ propertiesLookups
   }
 
-  private[this] def findAllMembers(implicit elementScope: ElementScope,
-                                   matcher: PrefixMatcher) = {
-    def prefixMatches: String => Boolean = matcher.prefixMatches
+  private[this] def allMethods(predicate: String => Boolean)
+                              (implicit elementScope: ElementScope) = {
+    val namesCache = ScalaShortNamesCacheManager.getInstance(elementScope.project)
 
-    val ElementScope(project, scope) = elementScope
-    val namesCache = ScalaShortNamesCacheManager.getInstance(project)
-
-    val methods = (namesCache.getAllMethodNames ++ namesCache.getAllJavaMethodNames)
-      .filter(prefixMatches)
-      .flatMap(namesCache.getMethodsByName(_, scope))
-
-    val javaFields = namesCache.getAllFieldNames.toSeq
-      .filter(prefixMatches)
-      .flatMap(namesCache.getFieldsByName(_, scope))
-
-    val scalaFields = namesCache.getAllScalaFieldNames
-      .filter(matcher.prefixMatches)
-      .flatMap(namesCache.getPropertiesByName(_, scope))
-
-    (methods, javaFields, scalaFields)
+    (namesCache.getAllMethodNames ++ namesCache.getAllJavaMethodNames)
+      .filter(predicate)
+      .flatMap(namesCache.getMethodsByName(_, elementScope.scope))
   }
 
   private[this] def adaptResolveResult(element: PsiNamedElement, substitutor: ScSubstitutor) =

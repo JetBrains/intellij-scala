@@ -7,6 +7,7 @@ import com.intellij.psi._
 import com.intellij.psi.search.{GlobalSearchScope, PsiShortNamesCache}
 import com.intellij.psi.stubs.{StubIndex, StubIndexKey}
 import org.jetbrains.plugins.scala.extensions._
+import org.jetbrains.plugins.scala.lang.psi.ElementScope
 import org.jetbrains.plugins.scala.lang.psi.api.ScalaFile
 import org.jetbrains.plugins.scala.lang.psi.api.statements.{ScFunction, ScValueOrVariable}
 import org.jetbrains.plugins.scala.lang.psi.api.toplevel.typedef.{ScObject, ScTypeDefinition}
@@ -74,18 +75,6 @@ class ScalaShortNamesCacheManager(implicit project: Project) extends ProjectComp
     buffer
   }
 
-  def getAllScalaFieldNames: Iterable[String] = {
-    import ScalaIndexKeys._
-    PROPERTY_NAME_KEY.allKeys ++ CLASS_PARAMETER_NAME_KEY.allKeys
-  }
-
-  def getPropertiesByName(name: String, scope: GlobalSearchScope): Seq[ScValueOrVariable] = {
-    val cleanName = ScalaNamesUtil.cleanFqn(name)
-    elementsIterator(cleanName, scope, PROPERTY_NAME_KEY, classOf[ScValueOrVariable])
-      .filter(_.declaredNames.map(ScalaNamesUtil.cleanFqn).contains(cleanName))
-      .toSeq
-  }
-
   def getAllMethodNames: Seq[String] = {
     import JavaConverters._
     StubIndex.getInstance.getAllKeys(ScalaIndexKeys.METHOD_NAME_KEY, project).asScala.toSeq
@@ -97,7 +86,7 @@ class ScalaShortNamesCacheManager(implicit project: Project) extends ProjectComp
       val list = mutable.ArrayBuffer.empty[PsiMethod]
       var method: PsiMethod = null
       var count: Int = 0
-      val methodsIterator = elementsIterator(cleanName, scope, METHOD_NAME_KEY, classOf[ScFunction])
+      val methodsIterator = METHOD_NAME_KEY.elements(cleanName, scope, classOf[ScFunction]).iterator
       while (methodsIterator.hasNext) {
         val m = methodsIterator.next()
         if (ScalaNamesUtil.equivalentFqn(cleanName, m.name)) {
@@ -120,16 +109,8 @@ class ScalaShortNamesCacheManager(implicit project: Project) extends ProjectComp
     scalaMethods ++ javaMethods
   }
 
-  def getFieldsByName(name: String, scope: GlobalSearchScope): Array[PsiField] = {
-    PsiShortNamesCache.getInstance(project).getFieldsByName(name, scope)
-  }
-
   def getAllJavaMethodNames: Array[String] = {
     PsiShortNamesCache.getInstance(project).getAllMethodNames
-  }
-
-  def getAllFieldNames: Array[String] = {
-    PsiShortNamesCache.getInstance(project).getAllFieldNames
   }
 
   def getClassesByName(name: String, scope: GlobalSearchScope): Iterable[PsiClass] =
@@ -187,15 +168,40 @@ class ScalaShortNamesCacheManager(implicit project: Project) extends ProjectComp
   private def classesIterator(name: String, scope: GlobalSearchScope,
                               indexKey: StubIndexKey[java.lang.Integer, PsiClass] = FQN_KEY) =
     indexKey.integerElements(name, scope, classOf[PsiClass]).iterator
-
-  private def elementsIterator[Psi <: PsiElement](cleanName: String, scope: GlobalSearchScope,
-                                                  indexKey: StubIndexKey[String, Psi],
-                                                  requiredClass: Class[Psi]) =
-    indexKey.elements(cleanName, scope, requiredClass).iterator
 }
 
 object ScalaShortNamesCacheManager {
-  def getInstance(project: Project): ScalaShortNamesCacheManager = {
+
+  def getInstance(project: Project): ScalaShortNamesCacheManager =
     project.getComponent(classOf[ScalaShortNamesCacheManager])
+
+  def allProperties(predicate: String => Boolean)
+                   (implicit elementScope: ElementScope): Iterable[ScValueOrVariable] = {
+    import ScalaIndexKeys._
+    import ScalaNamesUtil.cleanFqn
+
+    implicit val project: Project = elementScope.project
+
+    for {
+      propertyName <- PROPERTY_NAME_KEY.allKeys ++ CLASS_PARAMETER_NAME_KEY.allKeys
+      if predicate(propertyName)
+
+      cleanName = cleanFqn(propertyName)
+
+      property <- PROPERTY_NAME_KEY.elements(cleanName, elementScope.scope, classOf[ScValueOrVariable])
+      if property.declaredNames.map(cleanFqn).contains(cleanName)
+    } yield property
+  }
+
+  def allFields(predicate: String => Boolean)
+               (implicit elementScope: ElementScope): Iterable[PsiField] = {
+    val namesCache = PsiShortNamesCache.getInstance(elementScope.project)
+
+    for {
+      fieldName <- namesCache.getAllFieldNames
+      if predicate(fieldName)
+
+      field <- namesCache.getFieldsByName(fieldName, elementScope.scope)
+    } yield field
   }
 }
