@@ -1,6 +1,7 @@
 package org.jetbrains.jps.incremental.scala
 
 import java.io._
+import java.util
 
 import com.intellij.openapi.util.Key
 import com.intellij.openapi.util.io.FileUtil
@@ -37,6 +38,8 @@ class InitialScalaBuilder extends ModuleLevelBuilder(buildCategory) {
                      dirtyFilesHolder: DirtyFilesHolder[JavaSourceRootDescriptor, ModuleBuildTarget],
                      outputConsumer: ModuleLevelBuilder.OutputConsumer): ModuleLevelBuilder.ExitCode =
     ModuleLevelBuilder.ExitCode.NOTHING_DONE
+
+  override def getCompilableFileExtensions: util.List[String] = util.Arrays.asList("scala", "java")
 }
 
 object InitialScalaBuilder {
