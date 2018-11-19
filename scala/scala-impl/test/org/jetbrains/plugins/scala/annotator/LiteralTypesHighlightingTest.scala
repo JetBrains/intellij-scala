@@ -162,4 +162,6 @@ class LiteralTypesHighlightingTest extends LiteralTypesHighlightingTestBase {
   def testSome(): Unit = doTest()
 
   def testSip23NamedDefault(): Unit = doTest()
+
+  def testLiteralTypesLubs(): Unit = doTest()
 }
