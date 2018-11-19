@@ -164,4 +164,14 @@ class LiteralTypesHighlightingTest extends LiteralTypesHighlightingTestBase {
   def testSip23NamedDefault(): Unit = doTest()
 
   def testLiteralTypesLubs(): Unit = doTest()
+
+  def testNoWidenExplicitLiteralType(): Unit = doTest(fileText = Some(
+    """trait Foo[T]
+      |object Bug {
+      |  def foo() : Foo[32] = ???
+      |  def bar(f : Foo[32]) : Unit = {}
+      |  val f = foo()
+      |  bar(f) //type mismatch, expected: Foo[32], actual: Foo[Int]
+      |}
+    """.stripMargin))
 }
