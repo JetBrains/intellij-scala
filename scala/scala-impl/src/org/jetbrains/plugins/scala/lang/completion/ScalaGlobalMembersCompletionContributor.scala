@@ -52,7 +52,7 @@ class ScalaGlobalMembersCompletionContributor extends ScalaCompletionContributor
 
         positionFromParameters(parameters).getContext match {
           case place: ScReferenceExpression if PsiTreeUtil.getContextOfType(place, classOf[ScalaFile]) != null =>
-            val lookups = createLookups(accessAll = invocationCount >= 3)(place, resultSet.getPrefixMatcher, parameters.getOriginalFile)
+            val lookups = createLookups(resultSet.getPrefixMatcher, accessAll = invocationCount >= 3)(place, parameters.getOriginalFile)
 
             if (CompletionService.getCompletionService.getAdvertisementText != null &&
               lookups.exists(!_.shouldImport)) {
@@ -70,9 +70,8 @@ class ScalaGlobalMembersCompletionContributor extends ScalaCompletionContributor
 
 object ScalaGlobalMembersCompletionContributor {
 
-  private def createLookups(accessAll: Boolean)
+  private def createLookups(prefixMatcher: PrefixMatcher, accessAll: Boolean)
                            (implicit place: ScReferenceExpression,
-                            prefixMatcher: PrefixMatcher,
                             originalFile: PsiFile): Iterable[ScalaLookupItem] = {
     implicit def elementsSet: Set[PsiNamedElement] =
       place.completionVariants()
@@ -99,7 +98,16 @@ object ScalaGlobalMembersCompletionContributor {
       case _ if prefixMatcher.getPrefix == "" => Iterable.empty
       case _ =>
         triggerFeature()
-        complete(accessAll)(prefixMatcher.prefixMatches)
+        complete(accessAll)(prefixMatcher.prefixMatches).map {
+          case (namedElement, containingClass, isOverloadedForClassName) =>
+            new ScalaResolveResult(namedElement)
+              .getLookupElement(
+                isClassName = true,
+                isOverloadedForClassName = isOverloadedForClassName,
+                shouldImport = shouldImport(namedElement),
+                containingClass = Some(containingClass)
+              ).head
+        }
     }
   }
 
@@ -207,95 +215,69 @@ object ScalaGlobalMembersCompletionContributor {
                             (nameMatches: String => Boolean)
                             (implicit place: ScReferenceExpression,
                              elements: Set[PsiNamedElement],
-                             originalFile: PsiFile): Iterable[ScalaLookupItem] = {
-    import place.elementScope
+                             originalFile: PsiFile): Iterable[(PsiNamedElement, PsiClass, Boolean)] = {
+    implicit val ElementScope(project, scope) = place.elementScope
 
-    val isAccessible = ResolveUtils.isAccessible(_: PsiMember, place, forCompletion = true)
+    val isAccessible = accessAll || ResolveUtils.isAccessible(_: PsiMember, place, forCompletion = true)
 
-    def areAccessible(member: PsiMember, containingClass: PsiClass): Boolean = accessAll ||
-      (isAccessible(member) && isAccessible(containingClass))
+    def inheritedIn(member: PsiMember, element: PsiNamedElement): Seq[PsiClass] = member.containingClass match {
+      case null => Seq.empty
+      case clazz =>
+        import PsiClass.EMPTY_ARRAY
+        val inheritors = member match {
+          case _: ScValueOrVariable |
+               _: ScFunction =>
+            ClassInheritorsSearch.search(clazz, scope, true).toArray(EMPTY_ARRAY)
+          case _ => EMPTY_ARRAY
+        }
 
-    def inheritedIn(member: PsiMember, element: PsiNamedElement): Seq[PsiClass] =
-      member.containingClass match {
-        case null => Seq.empty
-        case clazz =>
-          import PsiClass.EMPTY_ARRAY
-          val inheritors = member match {
-            case _: ScValueOrVariable | _: ScFunction =>
-              ClassInheritorsSearch.search(clazz, elementScope.scope, true).toArray(EMPTY_ARRAY)
-            case _ => EMPTY_ARRAY
-          }
-
-          (Seq(clazz) ++ inheritors).filter { containingClass =>
-            isStatic(element, containingClass) && areAccessible(member, containingClass)
-          }
-      }
-
-    def createLookups(namedElement: PsiNamedElement,
-                      containingClass: PsiClass,
-                      overloaded: Boolean = false)
-                     (shouldImport: Boolean = this.shouldImport(namedElement)) =
-      new ScalaResolveResult(namedElement).getLookupElement(
-        isClassName = true,
-        isOverloadedForClassName = overloaded,
-        shouldImport = shouldImport,
-        containingClass = Some(containingClass)
-      ).head
-
-    import ScalaShortNamesCacheManager._
-
-    val methodsLookups = allMethods(nameMatches).flatMap { method =>
-      val processedClasses = mutable.HashSet.empty[PsiClass]
-      inheritedIn(method, method)
-        .filter(processedClasses.add)
-        .flatMap { containingClass =>
-          val methodName = method.name
-
-          val overloads = containingClass match {
-            case o: ScObject => o.functionsByName(methodName)
-            case _ => containingClass.getAllMethods.toSeq
-              .filter(_.name == methodName)
-          }
-
-          val overload = overloads match {
-            case Seq() => None
-            case Seq(_) => Some(method, false)
-            case Seq(first, second, _*) =>
-              Some(if (first.isParameterless) second else first, true)
-          }
-
-          overload.map {
-            case (m, overloaded) =>
-              createLookups(m, containingClass, overloaded = overloaded)(shouldImport(method))
-          }
+        (Seq(clazz) ++ inheritors).filter { containingClass =>
+          isStatic(element, containingClass) && isAccessible(containingClass)
         }
     }
 
+    val cacheManager = ScalaShortNamesCacheManager.getInstance(project)
+
+    val methodsLookups = (cacheManager.allFunctions(nameMatches) ++ cacheManager.allMethods(nameMatches))
+      .filter(isAccessible)
+      .flatMap { method =>
+        val processedClasses = mutable.HashSet.empty[PsiClass]
+        inheritedIn(method, method)
+          .filter(processedClasses.add)
+          .flatMap { containingClass =>
+            val methodName = method.name
+
+            val overloads = containingClass match {
+              case o: ScObject => o.functionsByName(methodName)
+              case _ => containingClass.getAllMethods.toSeq.filter(_.name == methodName)
+            }
+
+            overloads match {
+              case Seq() => None
+              case Seq(_) => Some(method, containingClass, false)
+              case Seq(first, second, _*) => Some(if (first.isParameterless) second else first, containingClass, true)
+            }
+          }
+      }
+
     val fieldsLookups = for {
-      field <- allFields(nameMatches)
-      if isStatic(field)
+      field <- cacheManager.allFields(nameMatches)
+      if isAccessible(field) && isStatic(field)
 
       containingClass = field.containingClass
-      if containingClass != null && areAccessible(field, containingClass)
-    } yield createLookups(field, containingClass)()
+      if containingClass != null && isAccessible(containingClass)
+    } yield (field, containingClass, false)
 
     val propertiesLookups = for {
-      property <- allProperties(nameMatches)
+      property <- cacheManager.allProperties(nameMatches)
+      if isAccessible(property)
+
       namedElement = property.declaredElements.head
 
       containingClass <- inheritedIn(property, namedElement)
-    } yield createLookups(namedElement, containingClass)()
+    } yield (namedElement, containingClass, false)
 
     methodsLookups ++ fieldsLookups ++ propertiesLookups
-  }
-
-  private[this] def allMethods(predicate: String => Boolean)
-                              (implicit elementScope: ElementScope) = {
-    val namesCache = ScalaShortNamesCacheManager.getInstance(elementScope.project)
-
-    (namesCache.getAllMethodNames ++ namesCache.getAllJavaMethodNames)
-      .filter(predicate)
-      .flatMap(namesCache.getMethodsByName(_, elementScope.scope))
   }
 
   private[this] def adaptResolveResult(element: PsiNamedElement, substitutor: ScSubstitutor) =

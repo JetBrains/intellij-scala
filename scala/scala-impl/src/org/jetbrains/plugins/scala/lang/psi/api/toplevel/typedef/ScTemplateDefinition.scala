@@ -103,7 +103,7 @@ trait ScTemplateDefinition extends ScNamedElement with PsiClassAdapter with Type
       val files = this.allSupers.flatMap(_.containingVirtualFile).asJava
       val scope = GlobalSearchScope.filesScope(getProject, files)
       val manager = ScalaShortNamesCacheManager.getInstance(getProject)
-      val candidates = manager.getMethodsByName(name, scope)
+      val candidates = manager.methodsByName(name)(scope)
       val inBaseClasses = candidates.filter(m => this.isInheritor(m.containingClass, deep = true))
 
       (inThisClass ++ inBaseClasses).toArray
