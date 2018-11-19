@@ -19,7 +19,7 @@ import org.jetbrains.bsp.project.BspTask.TextCollector
 import org.jetbrains.bsp.protocol.BspSession.{BspServer, NotificationCallback}
 import org.jetbrains.bsp.protocol.{BspCommunication, BspJob, BspNotifications}
 import org.jetbrains.bsp.settings.BspExecutionSettings
-import org.jetbrains.plugins.scala.build.BuildMessages.{EventId, StringId}
+import org.jetbrains.plugins.scala.build.BuildMessages.EventId
 import org.jetbrains.plugins.scala.build.{BuildFailureException, BuildMessages, BuildToolWindowReporter, IndicatorReporter}
 
 import scala.annotation.tailrec
@@ -185,30 +185,32 @@ class BspTask[T](project: Project, executionSettings: BspExecutionSettings,
 
   private def reportTaskStart(params: TaskStartParams): Unit = {
     val taskId = params.getTaskId
-    val id = StringId(taskId.getId)
-    val parent = Option(taskId.getParent).map(StringId)
+    val id = EventId(taskId.getId)
+    val parent = Option(taskId.getParents).flatMap(_.asScala.headOption).map(EventId)
     val time = Option(params.getEventTime.longValue()).getOrElse(System.currentTimeMillis())
     report.startTask(id, parent, params.getMessage, time)
   }
 
   private def reportTaskProgress(params: TaskProgressParams): Unit = {
     val taskId = params.getTaskId
-    val id = StringId(taskId.getId)
+    val id = EventId(taskId.getId)
     val time = Option(params.getEventTime.longValue()).getOrElse(System.currentTimeMillis())
     report.progressTask(id, params.getTotal, params.getProgress, params.getUnit, params.getMessage, time)
   }
 
   private def reportTaskFinish(params: TaskFinishParams): Unit = {
     val taskId = params.getTaskId
-    val id = StringId(taskId.getId)
+    val id = EventId(taskId.getId)
     val time = Option(params.getEventTime.longValue()).getOrElse(System.currentTimeMillis())
     val result = params.getStatusCode match {
       case StatusCode.OK =>
         new SuccessResultImpl()
-      case StatusCode.ERROR =>
-        new FailureResultImpl(params.getMessage, null)
       case StatusCode.CANCELLED =>
         new SkippedResultImpl
+      case StatusCode.ERROR =>
+        new FailureResultImpl(params.getMessage, null)
+      case otherCode =>
+        new FailureResultImpl(s"unknown status code $otherCode", null)
     }
 
     report.finishTask(id, params.getMessage, result, time)

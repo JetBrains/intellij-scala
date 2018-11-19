@@ -162,10 +162,7 @@ object BspCommunication {
     val connector =
       if (connectionDetails.nonEmpty) new GenericConnectorSync(base, capabilities)
       else if (bloopConfigDir.exists()) new BloopConnector(bspExecutionSettings.bloopExecutable, base, capabilities)
-      else {
-        // TODO need a protocol to detect generic bsp server
-        new GenericConnectorSync(base, capabilities)
-      }
+      else new DummyConnector(base.toURI)
 
     val methodsInPreferenceOrder = platformMethod :: tcpMethod :: configuredMethods
     connector.connect(methodsInPreferenceOrder : _*)

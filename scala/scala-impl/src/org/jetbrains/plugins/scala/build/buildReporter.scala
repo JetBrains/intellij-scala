@@ -191,11 +191,9 @@ case class BuildMessages(warnings: Seq[events.Warning], errors: Seq[events.Failu
 
 case object BuildMessages {
 
-  trait EventId
-  case class UUIDId(id: UUID) extends EventId
-  case class StringId(id: String) extends EventId
+  case class EventId(id: String)
 
-  def randomEventId: EventId = UUIDId(UUID.randomUUID())
+  def randomEventId: EventId = EventId(UUID.randomUUID().toString)
 
   def empty = BuildMessages(Vector.empty, Vector.empty, Vector.empty, aborted = false)
 
