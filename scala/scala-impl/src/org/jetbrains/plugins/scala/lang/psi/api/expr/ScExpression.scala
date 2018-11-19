@@ -480,15 +480,17 @@ object ScExpression {
       }
     }
 
+    @tailrec
     private def getStdType(t: ScType): Option[StdType] = {
       val stdTypes = project.stdTypes
       import stdTypes._
 
       t match {
-        case AnyVal => Some(AnyVal)
-        case valType: ValType => Some(valType)
+        case AnyVal                           => Some(AnyVal)
+        case valType: ValType                 => Some(valType)
         case designatorType: ScDesignatorType => designatorType.getValType
-        case _ => None
+        case lt: ScLiteralType                => getStdType(lt.wideType)
+        case _                                => None
       }
     }
 

@@ -296,6 +296,7 @@ trait ScalaBounds extends api.Bounds {
           case (r, arg @ ScExistentialArgument(name, args, lower, upper)) if !stopAddingUpperBound =>
             arg.copyWithBounds(glb(lower, r, checkWeak), lub(upper, t2, checkWeak))
           case (_: ValType, _: ValType) => AnyVal
+          case (lit1: ScLiteralType, lit2: ScLiteralType) => lub(lit1.wideType, lit2.wideType)
           case (JavaArrayType(arg1), JavaArrayType(arg2)) =>
             val (v, ex) = calcForTypeParamWithoutVariance(arg1, arg2, depth, checkWeak)
             ex match {
