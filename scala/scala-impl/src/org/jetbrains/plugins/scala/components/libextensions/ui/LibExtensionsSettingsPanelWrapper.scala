@@ -1,19 +1,16 @@
 package org.jetbrains.plugins.scala.components.libextensions.ui
 
 import java.awt.BorderLayout
-import java.awt.event.ActionEvent
-import java.util
-import java.util.Collections
+import java.io.File
 
+import com.intellij.openapi.fileChooser.{FileChooser, FileChooserDescriptor}
 import com.intellij.openapi.project.Project
-import com.intellij.openapi.ui.{DialogBuilder, InputValidatorEx, Messages}
 import com.intellij.ui._
 import com.intellij.ui.components.{JBLabel, JBList}
 import com.intellij.util.ui.{JBUI, UIUtil}
 import javax.swing._
 import org.jetbrains.plugins.scala.components.libextensions.LibraryExtensionsManager._
 import org.jetbrains.plugins.scala.components.libextensions.{ExtensionDescriptor, LibraryDescriptor, LibraryExtensionsManager}
-import org.jetbrains.plugins.scala.settings.ScalaProjectSettings
 
 class LibExtensionsSettingsPanelWrapper(private val rootPanel: JPanel,
                                         private val project: Project) {
@@ -26,7 +23,7 @@ class LibExtensionsSettingsPanelWrapper(private val rootPanel: JPanel,
   class LibraryListModel(val extensionsModel: LibraryDetailsModel) extends AbstractListModel[LibraryDescriptor] {
     private val extensionsManager: LibraryExtensionsManager = libraryExtensionsManager
     override def getSize: Int = extensionsManager.getAvailableLibraries.length
-    override def getElementAt(i: Int) = extensionsManager.getAvailableLibraries(i)
+    override def getElementAt(i: Int): LibraryDescriptor = extensionsManager.getAvailableLibraries(i)
   }
 
   class LibraryDetailsModel(selectedDescriptor: Option[LibraryDescriptor]) extends AbstractListModel[ExtensionDescriptor] {
@@ -74,8 +71,17 @@ class LibExtensionsSettingsPanelWrapper(private val rootPanel: JPanel,
       val descriptor = librariesList.getSelectedValue
       if (descriptor != null) {
         libraryExtensionsManager.removeExtension(descriptor)
+        librariesList.setModel(new LibraryListModel(detailsModel))
         extensionsList.setModel(detailsModel)
       }
+    }
+
+    toolbarDecorator.setAddAction { _ =>
+      val jar = FileChooser.chooseFile(
+        new FileChooserDescriptor(false, false, true, true, false, false),
+        project, null)
+      libraryExtensionsManager.processResolvedExtension(new File(jar.getCanonicalPath))
+      librariesList.setModel(new LibraryListModel(detailsModel))
     }
 
     librariesList.setEmptyText("No known extension libraries")
