@@ -165,6 +165,7 @@ class LibraryExtensionsManager(project: Project) extends ProjectComponent {
           instances = data.loadedExtensions.getOrElse(key, ArrayBuffer.empty)
         } { myExtensionInstances.getOrElse(key, ArrayBuffer.empty) --= instances }
         myLoadedLibraries -= data
+        saveCachedExtensions()
       case None =>
         LOG.error(s"Remove failed: requested extension library is not loaded\n$descriptor")
     }
