@@ -219,6 +219,7 @@ class BspProjectResolver extends ExternalSystemProjectResolver[BspExecutionSetti
 
     importState = Active(communication)
     val result = waitForProjectCancelable(projectJob)
+    communication.closeSession()
     importState = Inactive
 
     statusUpdate("finished task") // TODO remove in favor of build toolwindow nodes
