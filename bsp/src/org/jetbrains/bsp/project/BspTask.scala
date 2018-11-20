@@ -113,7 +113,7 @@ class BspTask[T](project: Project, executionSettings: BspExecutionSettings,
   private def compileRequest(implicit server: BspServer): CompletableFuture[CompileResult] = {
     val targetIds = targets.map(uri => new bsp4j.BuildTargetIdentifier(uri.toString))
     val params = new bsp4j.CompileParams(targetIds.toList.asJava)
-    params.setOriginId(taskId.toString)
+    params.setOriginId(taskId.id)
 
     server.buildTargetCompile(params)
   }
