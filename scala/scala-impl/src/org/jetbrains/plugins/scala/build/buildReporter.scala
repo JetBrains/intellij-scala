@@ -33,7 +33,7 @@ trait BuildReporter {
 
 class IndicatorReporter(indicator: ProgressIndicator) extends BuildReporter {
   override def start(): Unit = {
-    indicator.setText("build queued ...")
+    indicator.setText("build running ...")
   }
 
   override def finish(messages: BuildMessages): Unit = {
