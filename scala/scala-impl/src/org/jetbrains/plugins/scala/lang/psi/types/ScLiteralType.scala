@@ -10,13 +10,14 @@ import org.jetbrains.plugins.scala.lang.psi.impl.toplevel.synthetic.{ScSynthetic
 import org.jetbrains.plugins.scala.lang.psi.types.api.designator.ScDesignatorType
 import org.jetbrains.plugins.scala.lang.psi.types.api.{Singleton, TypeVisitor, ValueType}
 import org.jetbrains.plugins.scala.lang.psi.types.recursiveUpdate.AfterUpdate.{ProcessSubtypes, ReplaceWith, Stop}
+import org.jetbrains.plugins.scala.lang.psi.util.LiteralEvaluationUtil
 import org.jetbrains.plugins.scala.lang.psi.{ElementScope, ScalaPsiElement}
 import org.jetbrains.plugins.scala.project.ProjectContext
 
 import scala.reflect.ClassTag
 
-class ScLiteralType private (val literalValue: Any, val kind: ScLiteralType.Kind, val allowWiden: Boolean = true)
-                            (implicit val projectContext: ProjectContext) extends ValueType {
+class ScLiteralType private(val literalValue: Any, val kind: ScLiteralType.Kind, val allowWiden: Boolean = true)
+                           (implicit val projectContext: ProjectContext) extends ValueType {
 
   override def visitType(visitor: TypeVisitor): Unit = visitor.visitLiteralType(this)
 
@@ -34,20 +35,58 @@ class ScLiteralType private (val literalValue: Any, val kind: ScLiteralType.Kind
   override def hashCode(): Int = 31 * kind.hashCode() + literalValue.hashCode()
 
   private def valueAs[T: ClassTag]: T = literalValue.asInstanceOf[T]
+
+  private def valueFromKind: Any = {
+    import ScLiteralType.Kind._
+    kind match {
+      case String => valueAs[String]
+      case Symbol => valueAs[Symbol]
+      case Boolean => valueAs[Boolean]
+      case Int => valueAs[Int]
+      case Long => valueAs[Long]
+      case Float => valueAs[Float]
+      case Double => valueAs[Double]
+      case Char => valueAs[Char]
+    }
+  }
 }
 
 object ScLiteralType {
 
+  import LiteralEvaluationUtil._
+
   sealed class Kind
+
   object Kind {
+
     case object Boolean extends Kind
-    case object String  extends Kind
-    case object Symbol  extends Kind
-    case object Int     extends Kind
-    case object Long    extends Kind
-    case object Float   extends Kind
-    case object Double  extends Kind
-    case object Char    extends Kind
+
+    case object String extends Kind
+
+    case object Symbol extends Kind
+
+    case object Int extends Kind
+
+    case object Long extends Kind
+
+    case object Float extends Kind
+
+    case object Double extends Kind
+
+    case object Char extends Kind
+
+  }
+
+  private def fromValue(literalValue: Any)(implicit projectContext: ProjectContext): Option[ScLiteralType] = literalValue match {
+    case _: Boolean => Some(apply(literalValue, Kind.Boolean))
+    case _: String => Some(apply(literalValue, Kind.String))
+    case _: Symbol => Some(apply(literalValue, Kind.Symbol))
+    case _: Int => Some(apply(literalValue, Kind.Int))
+    case _: Long => Some(apply(literalValue, Kind.Long))
+    case _: Float => Some(apply(literalValue, Kind.Float))
+    case _: Double => Some(apply(literalValue, Kind.Double))
+    case _: Char => Some(apply(literalValue, Kind.Char))
+    case _ => None
   }
 
   def apply(literalValue: Any, kind: Kind)(implicit projectContext: ProjectContext): ScLiteralType =
@@ -64,16 +103,16 @@ object ScLiteralType {
     }
 
     val inner = node.getElementType match {
-      case ScalaTokenTypes.tINTEGER                           => if (endsWith('l', 'L')) Long else Int //but a conversion exists to narrower types in case range fits
-      case ScalaTokenTypes.tFLOAT                             => if (endsWith('f', 'F')) Float else Double
-      case ScalaTokenTypes.tCHAR                              => Char
-      case ScalaTokenTypes.tSYMBOL                            => Symbol
+      case ScalaTokenTypes.tINTEGER => if (endsWith('l', 'L')) Long else Int //but a conversion exists to narrower types in case range fits
+      case ScalaTokenTypes.tFLOAT => if (endsWith('f', 'F')) Float else Double
+      case ScalaTokenTypes.tCHAR => Char
+      case ScalaTokenTypes.tSYMBOL => Symbol
       case ScalaTokenTypes.tSTRING |
            ScalaTokenTypes.tWRONG_STRING |
-           ScalaTokenTypes.tMULTILINE_STRING                  => String
-      case ScalaTokenTypes.kTRUE | ScalaTokenTypes.kFALSE     => Boolean
+           ScalaTokenTypes.tMULTILINE_STRING => String
+      case ScalaTokenTypes.kTRUE | ScalaTokenTypes.kFALSE => Boolean
       case ScalaTokenTypes.tIDENTIFIER if node.getText == "-" => return kind(node.getTreeNext, element)
-      case _                                                  => return None
+      case _ => return None
     }
     Some(inner)
   }
@@ -85,24 +124,24 @@ object ScLiteralType {
 
     kind match {
       case Kind.Boolean => api.Boolean
-      case Kind.String  => getCachedClass("java.lang.String")
-      case Kind.Symbol  => getCachedClass("scala.Symbol")
-      case Kind.Int     => api.Int
-      case Kind.Long    => api.Long
-      case Kind.Float   => api.Float
-      case Kind.Double  => api.Double
-      case Kind.Char    => api.Char
+      case Kind.String => getCachedClass("java.lang.String")
+      case Kind.Symbol => getCachedClass("scala.Symbol")
+      case Kind.Int => api.Int
+      case Kind.Long => api.Long
+      case Kind.Float => api.Float
+      case Kind.Double => api.Double
+      case Kind.Char => api.Char
     }
   }
 
   def printValue(lt: ScLiteralType): String = lt.kind match {
     case Kind.String => quoted(lt.valueAs[String])
-    case Kind.Char   => s"\'${lt.literalValue}\'"
-    case Kind.Long   => lt.literalValue.toString + "L"
-    case Kind.Float  => lt.literalValue.toString + "f"
+    case Kind.Char => s"\'${lt.literalValue}\'"
+    case Kind.Long => lt.literalValue.toString + "L"
+    case Kind.Float => lt.literalValue.toString + "f"
     case Kind.Boolean |
-         Kind.Int     |
-         Kind.Symbol  |
+         Kind.Int |
+         Kind.Symbol |
          Kind.Double => lt.literalValue.toString
   }
 
@@ -110,7 +149,7 @@ object ScLiteralType {
 
   private def isInteger(kind: Kind) = kind match {
     case Kind.Int | Kind.Long | Kind.Char => true
-    case _                                => false
+    case _ => false
   }
 
   def isNumeric(kind: Kind) =
@@ -120,7 +159,7 @@ object ScLiteralType {
 
     def isSingleton(param: ScTypeParam) = param.upperBound.exists(_.conforms(Singleton(param.projectContext)))
 
-    def widenRecursiveInner(aType: ScType, visited: Set[ScParameterizedType]): ScType = aType.recursiveUpdate{
+    def widenRecursiveInner(aType: ScType, visited: Set[ScParameterizedType]): ScType = aType.recursiveUpdate {
       case lit: ScLiteralType => ReplaceWith(lit.widen)
       case p: ScParameterizedType if visited(p) => Stop
       case p: ScParameterizedType =>
@@ -130,7 +169,7 @@ object ScLiteralType {
               val newDesignator = widenRecursiveInner(p.designator, visited + p)
               val newArgs = (typeDef.typeParameters zip p.typeArguments).map {
                 case (param, arg) if isSingleton(param) => arg
-                case (_, arg)                           => widenRecursiveInner(arg, visited + p)
+                case (_, arg) => widenRecursiveInner(arg, visited + p)
               }
               val newDes = ScParameterizedType(newDesignator, newArgs)
               ReplaceWith(newDes)
@@ -145,24 +184,6 @@ object ScLiteralType {
     widenRecursiveInner(aType, Set.empty)
   }
 
-  trait IntegralFoldOps[T] {
-    def and(a: T, b: T): T
-    def or(a: T, b: T): T
-    def xor(a: T, b: T): T
-  }
-
-  implicit object IntFoldOps extends IntegralFoldOps[Int] {
-    override def and(a: Int, b: Int): Int = a & b
-    override def or(a: Int, b: Int): Int = a | b
-    override def xor(a: Int, b: Int): Int = a ^ b
-  }
-
-  implicit object LongFoldOps extends IntegralFoldOps[Long] {
-    override def and(a: Long, b: Long): Long = a & b
-    override def or(a: Long, b: Long): Long = a | b
-    override def xor(a: Long, b: Long): Long = a ^ b
-  }
-
   //TODO we have also support for Byte and Short, but that's not a big deal since literal types for them currently can't be parsed
   def foldUnOpTypes(arg: ScLiteralType, fun: ScSyntheticFunction): Option[ScLiteralType] = {
     implicit val projectContext: ProjectContext = arg.projectContext
@@ -173,12 +194,12 @@ object ScLiteralType {
       if (name == "unary_+") Some(arg)
       else if (name == "unary_-") {
         kind match {
-          case Kind.Int    => Some(ScLiteralType(-arg.valueAs[Int],    kind))
-          case Kind.Long   => Some(ScLiteralType(-arg.valueAs[Long],   kind))
-          case Kind.Float  => Some(ScLiteralType(-arg.valueAs[Float],  kind))
+          case Kind.Int => Some(ScLiteralType(-arg.valueAs[Int], kind))
+          case Kind.Long => Some(ScLiteralType(-arg.valueAs[Long], kind))
+          case Kind.Float => Some(ScLiteralType(-arg.valueAs[Float], kind))
           case Kind.Double => Some(ScLiteralType(-arg.valueAs[Double], kind))
-          case Kind.Char   => Some(ScLiteralType(-arg.valueAs[Char],   kind))
-          case _           => None
+          case Kind.Char => Some(ScLiteralType(-arg.valueAs[Char], kind))
+          case _ => None
         }
       } else None
     } else None
@@ -186,82 +207,8 @@ object ScLiteralType {
 
   def foldBinOpTypes(left: ScLiteralType, right: ScLiteralType, fun: ScSyntheticFunction): Option[ScLiteralType] = {
     val name = fun.name
-    val synth = SyntheticClasses.get(fun.getProject)
-    try {
-      implicit val project: Project = fun.getProject
-
-      def fracOp[T](lv: T, rv: T, name: String)(implicit n: Fractional[T]): T = {
-        name match {
-          case "+" => n.plus(lv, rv)
-          case "-" => n.minus(lv, rv)
-          case "*" => n.times(lv, rv)
-          case "/" => n.div(lv, rv)
-          case _ => throw new RuntimeException(s"Unexpected fractional operator $name while folding literal types")
-        }
-      }
-
-      def intOp[T](lv: T, rv: T, name: String)(implicit n: Integral[T], d: IntegralFoldOps[T]): T = {
-        name match {
-          case "+" => n.plus(lv, rv)
-          case "-" => n.minus(lv, rv)
-          case "*" => n.times(lv, rv)
-          case "/" => n.quot(lv, rv)
-          case "%" => n.rem(lv, rv)
-          case "&" => d.and(lv, rv)
-          case "|" => d.or(lv, rv)
-          case "^" => d.xor(lv, rv)
-          case _ => throw new RuntimeException(s"Unexpected integral operator $name while folding literal types")
-        }
-      }
-
-      def boolBoolOp(lv: Boolean, rv: Boolean): Boolean = {
-        name match {
-          case "&&" => lv && rv
-          case "||" => lv || rv
-          case "&" => lv & rv
-          case "|" => lv | rv
-          case "^" => lv ^ rv
-          case _ => throw new RuntimeException(s"Unexpected boolean operator $name while folding literal types")
-        }
-      }
-
-      def boolAnyOp(lv: Any, rv: Any): Boolean = {
-        name match {
-          case "==" => lv == rv
-          case "!=" => lv != rv
-          case _ => throw new RuntimeException(s"Unexpected boolean operator $name while folding literal types")
-        }
-      }
-
-      val l: Kind = left.kind
-      val r: Kind = right.kind
-      val isBooleanOp = synth.bool_bin_ops.contains(name)
-      val isArithOp = synth.numeric_arith_ops.contains(name) && isNumeric(l) && isNumeric(r)
-      val isBitwiseOp = synth.bitwise_bin_ops.contains(name) && isInteger(l) && isInteger(r)
-
-      import Kind._
-
-      (l, r) match {
-        case (String, String) if name == "+" =>
-          Some(ScLiteralType(left.valueAs[String] + right.valueAs[String], String))
-        case (_, _) if name == "==" || name == "!=" =>
-          Some(ScLiteralType(boolAnyOp(left.literalValue, right.literalValue), Boolean))
-        case (Boolean, Boolean) if isBooleanOp =>
-          Some(ScLiteralType(boolBoolOp(left.valueAs[Boolean], right.valueAs[Boolean]), Boolean))
-        case (Double, _) | (_, Double) if isArithOp =>
-          Some(ScLiteralType(fracOp(left.valueAs[Double], right.valueAs[Double], name), Double))
-        case (Float, _) | (_, Float) if isArithOp =>
-          Some(ScLiteralType(fracOp(left.valueAs[Float], right.valueAs[Float], name): Float, Float))
-        case (Long, _) | (_, Long) if isArithOp || isBitwiseOp =>
-          Some(ScLiteralType(intOp(left.valueAs[Long], right.valueAs[Long], name): Long, Long))
-        case _ if isArithOp || isBitwiseOp =>
-          Some(ScLiteralType(intOp(left.valueAs[Int], right.valueAs[Int], name): Int, Int))
-        case _ => None
-      }
-    } catch {
-      case e: Exception =>
-        println("Some exception: " + e)
-        None
-    }
+    implicit val project: Project = fun.getProject
+    val res = evaluateConstInfix[ScLiteralType](left.valueFromKind, right.valueFromKind, allowToStringConversion = false, name, value => fromValue(value))
+    res
   }
 }

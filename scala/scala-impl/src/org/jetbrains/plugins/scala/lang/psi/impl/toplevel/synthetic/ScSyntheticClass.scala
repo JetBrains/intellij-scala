@@ -277,6 +277,8 @@ class SyntheticClasses(project: Project) extends PsiElementFinder with ProjectCo
     registerClass(Singleton, "Singleton")
     registerClass(Unit, "Unit")
 
+    import SyntheticClasses._
+
     val boolc = registerClass(Boolean, "Boolean")
     for (op <- bool_bin_ops)
       boolc.addMethod(new ScSyntheticFunction(op, Boolean, Seq(Seq(Boolean))))
@@ -502,13 +504,6 @@ object Unit
 
   def byName(name: String) = all.get(name)
 
-  val numeric_comp_ops = "==" :: "!=" :: "<" :: ">" :: "<=" :: ">=" :: Nil
-  val numeric_arith_ops = "+" :: "-" :: "*" :: "/" :: "%" :: Nil
-  val numeric_arith_unary_ops = "+" :: "-" :: Nil
-  val bool_bin_ops = "&&" :: "||" :: "&" :: "|" :: "==" :: "!=" :: "^" :: Nil
-  val bitwise_bin_ops = "&" :: "|" :: "^" :: Nil
-  val bitwise_shift_ops = "<<" :: ">>" :: ">>>" :: Nil
-
   val prefix = "scala."
   def findClass(qName: String, scope: GlobalSearchScope): PsiClass = {
     if (qName.startsWith(prefix)) {
@@ -542,5 +537,13 @@ object SyntheticClasses {
   def get(project: Project): SyntheticClasses = project.getComponent(classOf[SyntheticClasses])
 
   val TypeParameter = "TypeParameterForSyntheticFunction"
+
+  val numeric_comp_ops = "==" :: "!=" :: "<" :: ">" :: "<=" :: ">=" :: Nil
+  val numeric_arith_ops = "+" :: "-" :: "*" :: "/" :: "%" :: Nil
+  val numeric_arith_unary_ops = "+" :: "-" :: Nil
+  val bool_bin_ops = "&&" :: "||" :: "&" :: "|" :: "==" :: "!=" :: "^" :: Nil
+  val bitwise_bin_ops = "&" :: "|" :: "^" :: Nil
+  val bitwise_shift_ops = "<<" :: ">>" :: ">>>" :: Nil
+
 }
 
