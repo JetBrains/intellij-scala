@@ -202,7 +202,7 @@ class BspTask[T](project: Project, executionSettings: BspExecutionSettings,
     val taskId = params.getTaskId
     val id = EventId(taskId.getId)
     val time = Option(params.getEventTime.longValue()).getOrElse(System.currentTimeMillis())
-    val result = params.getStatusCode match {
+    val result = params.getStatus match {
       case StatusCode.OK =>
         new SuccessResultImpl()
       case StatusCode.CANCELLED =>
