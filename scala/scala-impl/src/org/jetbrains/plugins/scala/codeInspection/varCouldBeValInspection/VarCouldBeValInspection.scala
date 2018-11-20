@@ -74,9 +74,9 @@ object VarCouldBeValInspection {
   }
 
   private def couldBeVal(elements: Seq[ScBindingPattern], isOnTheFly: Boolean): Boolean =
-    elements.exists {
+    elements.forall {
       case pattern if isOnTheFly => hasNoWriteUsagesOnTheFly(pattern)
-      case pattern => hasNoWriteUsages(pattern)
+      case pattern               => hasNoWriteUsages(pattern)
     }
 
   private[this] def hasNoWriteUsagesOnTheFly(pattern: ScBindingPattern): Boolean = {
