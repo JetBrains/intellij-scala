@@ -270,8 +270,8 @@ object ScalaGlobalMembersCompletionContributor {
 
     val isAccessible = accessAll || ResolveUtils.isAccessible(_: PsiMember, place, forCompletion = true)
 
-    def inheritedIn(member: PsiMember, element: PsiNamedElement): Seq[PsiClass] = member.containingClass match {
-      case null => Seq.empty
+    def inheritedIn(member: PsiMember, element: PsiNamedElement): Set[PsiClass] = member.containingClass match {
+      case null => Set.empty
       case clazz =>
         import PsiClass.EMPTY_ARRAY
         val inheritors = member match {
@@ -281,36 +281,30 @@ object ScalaGlobalMembersCompletionContributor {
           case _ => EMPTY_ARRAY
         }
 
-        (Seq(clazz) ++ inheritors).filter { containingClass =>
+        (Set(clazz) ++ inheritors).filter { containingClass =>
           isStatic(element, containingClass) && isAccessible(containingClass)
         }
     }
 
-    val cacheManager = ScalaShortNamesCacheManager.getInstance(project)
+    val cacheManager = ScalaShortNamesCacheManager.getInstance
 
-    val methodsLookups = (cacheManager.allFunctions(nameMatches) ++ cacheManager.allMethods(nameMatches))
-      .filter(isAccessible)
-      .flatMap { method =>
-        val processedClasses = mutable.HashSet.empty[PsiClass]
-        inheritedIn(method, method)
-          .filter(processedClasses.add)
-          .flatMap { containingClass =>
-            val methodName = method.name
+    val methodsLookups = for {
+      method <- cacheManager.allFunctions(nameMatches) ++ cacheManager.allMethods(nameMatches)
+      if isAccessible(method)
 
-            val overloads = containingClass match {
-              case o: ScObject => o.functionsByName(methodName)
-              case _ => containingClass.getAllMethods.toSeq.filter(_.name == methodName)
-            }
+      containingClass <- inheritedIn(method, method)
 
-            val result = overloads match {
-              case Seq() => null
-              case Seq(_) => StaticMemberResult(method, containingClass)
-              case Seq(first, second, _*) => StaticMemberResult(if (first.isParameterless) second else first, containingClass, isOverloadedForClassName = true)
-            }
-
-            Option(result)
-          }
+      methodName = method.name
+      overloads: Seq[PsiMethod] = containingClass match {
+        case o: ScObject => o.functionsByName(methodName)
+        case _ => containingClass.getAllMethods.filter(_.name == methodName)
       }
+
+      first <- overloads.headOption
+      (namedElement, isOverloadedForClassName) = overloads.lift(1).fold((first, false)) { second =>
+        (if (first.isParameterless) second else first, true)
+      }
+    } yield StaticMemberResult(namedElement, containingClass, isOverloadedForClassName)
 
     val fieldsLookups = for {
       field <- cacheManager.allFields(nameMatches)

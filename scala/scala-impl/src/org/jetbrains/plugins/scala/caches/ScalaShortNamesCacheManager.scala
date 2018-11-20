@@ -201,6 +201,6 @@ final class ScalaShortNamesCacheManager(implicit project: Project) extends Proje
 
 object ScalaShortNamesCacheManager {
 
-  def getInstance(project: Project): ScalaShortNamesCacheManager =
+  def getInstance(implicit project: Project): ScalaShortNamesCacheManager =
     project.getComponent(classOf[ScalaShortNamesCacheManager])
 }
