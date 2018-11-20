@@ -1141,5 +1141,27 @@ class JavaHighlightingTest extends JavaHighlightingTestBase {
         Nil =>
     }
   }
+
+  def testTypeAliasDeclaration(): Unit = {
+    val scalaText =
+      """class ManualProbe[I] extends  {
+        |  type Self <: ManualProbe[I]
+        |
+        |  def expectEvent(event: Int): Self = ???
+        |}
+      """.stripMargin
+
+    val javaText =
+      """
+        |public class JavaTest {
+        |  public static void main(String[] args) {
+        |    ManualProbe<String> probe = null;
+        |    probe.expectEvent(1).expectEvent(2);
+        |  }
+        |}
+      """.stripMargin
+
+    assertNothing(errorsFromJavaCode(scalaText, javaText, "JavaTest"))
+  }
 }
 

@@ -190,10 +190,10 @@ trait ScalaPsiTypeBridge extends api.PsiTypeBridge {
             }
             createType(c, subst, raw = outerClassHasTypeParameters(proj))
           }
-        case a: ScTypeAliasDefinition if !visitedAliases.contains(a) =>
-          a.aliasedType match {
+        case typeAlias: ScTypeAlias if !visitedAliases.contains(typeAlias.physical) =>
+          typeAlias.upperBound match {
             case Right(c: ScParameterizedType) =>
-              toPsiTypeInner(ScParameterizedType(c.designator, args), noPrimitives, visitedAliases + a.physical)
+              toPsiTypeInner(ScParameterizedType(c.designator, args), noPrimitives, visitedAliases + typeAlias.physical)
             case _ => javaObject
           }
         case _ => javaObject
@@ -205,9 +205,9 @@ trait ScalaPsiTypeBridge extends api.PsiTypeBridge {
             case syn: ScSyntheticClass => toPsiTypeInner(syn.stdType)
             case _ => createType(clazz, raw = outerClassHasTypeParameters(proj))
           }
-        case elem: ScTypeAliasDefinition if !visitedAliases.contains(elem) =>
-          elem.aliasedType.toOption
-            .map(toPsiTypeInner(_, noPrimitives, visitedAliases + elem.physical))
+        case typeAlias: ScTypeAlias if !visitedAliases.contains(typeAlias.physical) =>
+          typeAlias.upperBound.toOption
+            .map(toPsiTypeInner(_, noPrimitives, visitedAliases + typeAlias.physical))
             .getOrElse(javaObject)
         case _ => javaObject
       }
