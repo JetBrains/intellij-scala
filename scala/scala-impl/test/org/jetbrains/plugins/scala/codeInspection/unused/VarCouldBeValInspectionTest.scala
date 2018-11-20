@@ -141,6 +141,26 @@ class VarCouldBeValInspectionTest extends ScalaQuickFixTestBase {
       """.stripMargin
   )
 
+  def testTupled(): Unit = checkTextHasNoErrors(
+    """object X {
+      |  def foo(): Unit = {
+      |    var (a, b) = (1, 2)
+      |    b = 3
+      |    assert(a == 3)
+      |  }
+      |}
+    """.stripMargin)
+
+  def testSeveralPatterns(): Unit = checkTextHasNoErrors(
+    """object X {
+      |  def foo(): Unit = {
+      |    var a, b = 0
+      |    b = 1
+      |    assert(a == 0)
+      |  }
+      |}
+    """.stripMargin)
+
   private def testQuickFix(text: String, expected: String): Unit =
     testQuickFix(text, expected, VarToValFix.HINT)
 }
