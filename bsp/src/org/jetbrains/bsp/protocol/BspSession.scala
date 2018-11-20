@@ -15,7 +15,7 @@ import org.jetbrains.bsp.protocol.BspSession._
 import scala.collection.mutable.ListBuffer
 import scala.concurrent._
 import scala.concurrent.duration._
-import scala.util.Try
+import scala.util.{Failure, Success, Try}
 import scala.util.control.NonFatal
 
 class BspSession(bspIn: InputStream,
@@ -123,12 +123,32 @@ class BspSession(bspIn: InputStream,
     * Notifications during run of this task are passed to the aggregator. This can also be used for plain callbacks.
     */
   def run[T, A](task: BspSessionTask[T], default: A, aggregator: NotificationAggregator[A]): BspJob[(T,A)] = {
-    val job = new Bsp4jJob(task, default, aggregator)
+    val job = if (isAlive) {
+      new Bsp4jJob(task, default, aggregator)
+    } else {
+      new FailedBspSessionJob[T, A](BspException("BSP session is not available", deathReason.orNull))
+    }
     jobs.put(job)
     job
   }
 
-  def isAlive: Boolean = ! sessionShutdown.isCompleted
+  def isAlive: Boolean = {
+    ! sessionShutdown.isCompleted &&
+      ! queueProcessor.isDone
+  }
+
+  private def deathReason = {
+    val sessionError = sessionShutdown.future.value.flatMap {
+      case Success(_) => None
+      case Failure(exception) => Some(exception)
+    }
+    val queueError = Try(queueProcessor.get()) match {
+      case Success(_) => None
+      case Failure(exception) => Some(exception)
+    }
+
+    sessionError.orElse(queueError)
+  }
 
   def shutdown(error: Option[BspError] = None): Try[Unit] = {
     def whenDone: CompletableFuture[Unit] = {
@@ -224,6 +244,18 @@ object BspSession {
     private[BspSession] def cancelWithError(error: BspError)
   }
 
+  private class FailedBspSessionJob[T,A](problem: BspError) extends BspSessionJob[T,A] {
+    override private[BspSession] def notification(bspNotification: BspNotification): Unit = ()
+    override private[BspSession] def run(bspServer: BspServer): CompletableFuture[(T, A)] = {
+      val cf = new CompletableFuture[(T, A)]()
+      cf.completeExceptionally(problem)
+      cf
+    }
+    override private[BspSession] def cancelWithError(error: BspError): Unit = ()
+    override def future: Future[(T, A)] = Future.failed(problem)
+    override def cancel(): Unit = ()
+  }
+
   private class Bsp4jJob[T,A](task: BspSessionTask[T], default: A, aggregator: NotificationAggregator[A]) extends BspSessionJob[T,A] {
 
     private val promise = Promise[(T,A)]
@@ -262,7 +294,8 @@ object BspSession {
     override def future: Future[(T, A)] = promise.future
 
     override def cancel() : Unit =
-      cancelWithError(BspTaskCancelled)
+      if (! promise.isCompleted)
+        cancelWithError(BspTaskCancelled)
 
     override def cancelWithError(error: BspError): Unit = runningTask.synchronized {
       runningTask match {
