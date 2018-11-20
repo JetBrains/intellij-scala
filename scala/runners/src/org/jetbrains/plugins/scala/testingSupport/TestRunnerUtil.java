@@ -42,7 +42,7 @@ public class TestRunnerUtil {
   private static final SimpleDateFormat TIMESTAMP_FORMAT = new SimpleDateFormat(FORMAT_WITHOUT_TZ);
 
   public static String escapeString(String s) {
-    return s.replaceAll("[|]", "||").replaceAll("[']", "|'").replaceAll("[\n]", "|n").replaceAll("[\r]", "|r").replaceAll("]","|]");
+    return s.replaceAll("[|]", "||").replaceAll("[']", "|'").replaceAll("[\n]", "|n").replaceAll("[\r]", "|r").replaceAll("]","|]").replaceAll("\\[","|[");
   }
 
   public static String formatCurrentTimestamp() {
