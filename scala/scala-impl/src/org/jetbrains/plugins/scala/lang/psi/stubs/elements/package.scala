@@ -101,8 +101,5 @@ package object elements {
       cleanName = ScalaNamesUtil.cleanFqn(name)
       if cleanName.nonEmpty
     } sink.occurrence(key, cleanName)
-
-    def implicitOccurence(): Unit =
-      sink.occurrence(index.ScalaIndexKeys.IMPLICITS_KEY, "implicit")
   }
 }

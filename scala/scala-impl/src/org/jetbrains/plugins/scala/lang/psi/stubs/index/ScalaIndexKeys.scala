@@ -6,7 +6,7 @@ package index
 
 import com.intellij.openapi.project.Project
 import com.intellij.psi.search.GlobalSearchScope
-import com.intellij.psi.stubs.{StubIndex, StubIndexKey}
+import com.intellij.psi.stubs.{IndexSink, StubIndex, StubIndexKey}
 import com.intellij.psi.{PsiClass, PsiElement}
 import com.intellij.util.CommonProcessors
 import org.jetbrains.plugins.scala.finder.ScalaFilterScope
@@ -78,6 +78,16 @@ object ScalaIndexKeys {
 
       !getInstance().processElements(indexKey, key, project, scope, requiredClass, noElementsExistsProcessor)
     }
+  }
+
+  implicit class ImplicitKeyExt(private val indexKey: IMPLICITS_KEY.type) extends AnyVal {
+
+    def implicitElements(scope: GlobalSearchScope)
+                        (implicit context: ProjectContext): Iterable[ScMember] =
+      indexKey.elements("implicit", scope, classOf[ScMember])
+
+    def occurence(sink: IndexSink): Unit =
+      sink.occurrence(indexKey, "implicit")
   }
 
   implicit class StubIndexIntegerKeyExt[Psi <: PsiElement](private val indexKey: StubIndexKey[JInteger, Psi]) extends AnyVal {
