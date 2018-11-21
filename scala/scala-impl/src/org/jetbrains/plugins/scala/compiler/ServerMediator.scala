@@ -22,6 +22,12 @@ class ServerMediator(project: Project) extends ProjectComponent {
   private def isScalaProject = project.hasScala
   private val settings = ScalaCompileServerSettings.getInstance
 
+  override def projectOpened(): Unit = {
+    addBeforeTask(_ => checkSettings())
+    addBeforeTask(_ => checkCompileServerDotty())
+    addBeforeTask(_ => startCompileServer())
+  }
+
   private def checkSettings(): Boolean =
     if (isScalaProject) {
       if (!checkCompilationSettings()) false
@@ -60,10 +66,6 @@ class ServerMediator(project: Project) extends ProjectComponent {
 
   private def addBeforeTask(compileTask: CompileTask): Unit =
     CompilerManager.getInstance(project).addBeforeTask(compileTask)
-
-  addBeforeTask(_ => checkSettings())
-  addBeforeTask(_ => checkCompileServerDotty())
-  addBeforeTask(_ => startCompileServer())
 
   private def checkCompilationSettings(): Boolean = {
     def hasClashes(module: Module) = module.hasScala && {
