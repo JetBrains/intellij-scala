@@ -12,6 +12,7 @@ import com.intellij.debugger.ui.HotSwapUI
 import com.intellij.execution.Executor
 import com.intellij.execution.executors.DefaultRunExecutor
 import com.intellij.execution.runners.ExecutionEnvironment
+import com.intellij.openapi.application.WriteAction
 import com.intellij.openapi.compiler.ex.CompilerPathsEx
 import com.intellij.openapi.externalSystem.model.ProjectKeys
 import com.intellij.openapi.externalSystem.model.execution.ExternalSystemTaskExecutionSettings
@@ -23,6 +24,7 @@ import com.intellij.openapi.module.{Module, ModuleType}
 import com.intellij.openapi.progress.{PerformInBackgroundOption, ProgressIndicator, ProgressManager, Task}
 import com.intellij.openapi.project.Project
 import com.intellij.openapi.vfs.LocalFileSystem
+import com.intellij.openapi.vfs.VfsUtil.createDirectoryIfMissing
 import com.intellij.task._
 import org.jetbrains.annotations.Nullable
 import org.jetbrains.plugins.scala.build.{BuildMessages, BuildWarning, IndicatorReporter}
@@ -138,6 +140,9 @@ private class CommandTask(project: Project, modules: Array[Module], command: Str
   override def run(indicator: ProgressIndicator): Unit = {
     import org.jetbrains.plugins.scala.lang.macros.expansion.ReflectExpansionsCollector
 
+    val outputRoots = CompilerPathsEx.getOutputPaths(modules)
+    createMissingOutputRoots(outputRoots)
+
     val report = new IndicatorReporter(indicator)
     val shell = SbtShellCommunication.forProject(project)
     val collector = ReflectExpansionsCollector.getInstance(project)
@@ -197,7 +202,7 @@ private class CommandTask(project: Project, modules: Array[Module], command: Str
     val buildMessages = Await.ready(commandFuture, Duration.Inf).value.get
 
     // build effects
-    refreshRoots(modules, indicator)
+    refreshRoots(outputRoots, indicator)
 
     // handle callback
     buildMessages match {
@@ -231,7 +236,7 @@ private class CommandTask(project: Project, modules: Array[Module], command: Str
 
 
   // remove this if/when external system handles this refresh on its own
-  private def refreshRoots(modules: Array[Module], indicator: ProgressIndicator): Unit = {
+  private def refreshRoots(outputRoots: Array[String], indicator: ProgressIndicator): Unit = {
     indicator.setText("Synchronizing output directories...")
 
     // simply refresh all the source roots to catch any generated files -- this MAY have a performance impact
@@ -246,7 +251,6 @@ private class CommandTask(project: Project, modules: Array[Module], command: Str
       generated ++ regular
     }.map(_.getPath).toSeq.distinct
 
-    val outputRoots = CompilerPathsEx.getOutputPaths(modules)
     val toRefresh = generatedSourceRoots ++ outputRoots
 
     CompilerUtil.refreshOutputRoots(toRefresh.asJavaCollection)
@@ -254,6 +258,10 @@ private class CommandTask(project: Project, modules: Array[Module], command: Str
     LocalFileSystem.getInstance().refreshIoFiles(toRefreshFiles, true, true, null)
 
     indicator.setText("")
+  }
+
+  private def createMissingOutputRoots(outputRoots: Array[String]): Unit = {
+    WriteAction.computeAndWait(() => outputRoots.foreach(createDirectoryIfMissing))
   }
 }
 
