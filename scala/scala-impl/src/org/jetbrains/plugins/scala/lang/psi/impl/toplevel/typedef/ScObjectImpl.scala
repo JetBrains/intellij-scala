@@ -17,9 +17,11 @@ import org.jetbrains.plugins.scala.extensions._
 import org.jetbrains.plugins.scala.lang.lexer.ScalaTokenTypes
 import org.jetbrains.plugins.scala.lang.psi.ScalaPsiUtil.getCompanionModule
 import org.jetbrains.plugins.scala.lang.psi.api.ScalaElementVisitor
+import org.jetbrains.plugins.scala.lang.psi.api.base.ScPrimaryConstructor
 import org.jetbrains.plugins.scala.lang.psi.api.statements.ScAnnotationsHolder
 import org.jetbrains.plugins.scala.lang.psi.api.toplevel.ScTypedDefinition
 import org.jetbrains.plugins.scala.lang.psi.api.toplevel.typedef._
+import org.jetbrains.plugins.scala.lang.psi.impl.toplevel.typedef.ScObjectImpl.getSyntheticMethodsText
 import org.jetbrains.plugins.scala.lang.psi.impl.toplevel.typedef.TypeDefinitionMembers.SignatureNodes
 import org.jetbrains.plugins.scala.lang.psi.light.{EmptyPrivateConstructor, LightUtil, PsiClassWrapper}
 import org.jetbrains.plugins.scala.lang.psi.stubs.ScTemplateDefinitionStub
@@ -122,7 +124,7 @@ class ScObjectImpl(stub: ScTemplateDefinitionStub[ScObject],
     else getCompanionModule(this) match {
       case Some(c: ScClass) if c.isCase =>
         val res = new ArrayBuffer[PsiMethod]
-        c.getSyntheticMethodsText.foreach(s => {
+        getSyntheticMethodsText(c).foreach(s => {
           try {
             val method = ScalaPsiElementFactory.createMethodWithContext(s, c.getContext, c)
             method.syntheticNavigationElement = this
@@ -221,7 +223,7 @@ class ScObjectImpl(stub: ScTemplateDefinitionStub[ScObject],
   private def cachedDesugared(tree: scala.meta.Defn.Object, isSynthetic: Boolean): ScTemplateDefinition = {
     val text = if (isSynthetic) {
       val syntheticText = getCompanionModule(this) match {
-        case Some(c: ScClass) if c.isCase => c.getSyntheticMethodsText.mkString("\n")
+        case Some(c: ScClass) if c.isCase => getSyntheticMethodsText(c).mkString("\n")
         case _ => ""
       }
       val str = tree.toString()
@@ -279,4 +281,64 @@ object ScObjectImpl {
     } finally {
       processing.set(processing.get - 1)
     }
+
+  def getSyntheticMethodsText(caseClass: ScClass): List[String] = {
+    import caseClass._
+
+    val typeParamStringRes =
+      if (typeParameters.nonEmpty)
+        typeParameters.map(_.name).mkString("[", ", ", "]")
+      else ""
+
+    val unapply: Option[String] = if (tooBigForUnapply) None else {
+      val paramStringRes = constructor match {
+        case Some(x: ScPrimaryConstructor) =>
+          val clauses = x.parameterList.clauses
+          if (clauses.isEmpty) "scala.Boolean"
+          else {
+            val params = clauses.head.parameters
+            if (params.isEmpty) "scala.Boolean"
+            else {
+              val strings = params.map(p =>
+                (if (p.isRepeatedParameter) "scala.Seq[" else "") +
+                  p.typeElement.fold("scala.Any")(_.getText) +
+                  (if (p.isRepeatedParameter) "]" else ""))
+              strings.mkString("scala.Option[" + (if (strings.length > 1) "(" else ""), ", ",
+                (if (strings.length > 1) ")" else "") + "]")
+            }
+          }
+        case None => "scala.Boolean"
+      }
+      val unapplyName = constructor match {
+        case Some(x: ScPrimaryConstructor) =>
+          (for {
+            c1 <- x.parameterList.clauses.headOption
+            plast <- c1.parameters.lastOption
+            if plast.isRepeatedParameter
+          } yield "unapplySeq").getOrElse("unapply")
+        case None => "unapply"
+      }
+      Option(s"def $unapplyName$typeParamString(x$$0: $name$typeParamStringRes): $paramStringRes = throw new Error()")
+    }
+
+    val apply: Option[String] = if (hasModifierProperty("abstract")) None else {
+      val paramString = constructor match {
+        case Some(x: ScPrimaryConstructor) =>
+          (if (x.parameterList.clauses.length == 1 &&
+            x.parameterList.clauses.head.isImplicit) "()" else "") + x.parameterList.clauses.map(c =>
+            c.parameters.map(p =>
+              p.name + " : " +
+                p.typeElement.fold("Any")(_.getText) +
+                (if (p.isDefaultParam) " = " + p.getDefaultExpression.fold("{}")(_.getText)
+                else if (p.isRepeatedParameter) "*" else "")).
+              mkString(if (c.isImplicit) "(implicit " else "(", ", ", ")")).mkString("")
+        case None => ""
+      }
+
+      Option(s"def apply$typeParamString$paramString: $name$typeParamStringRes = throw new Error()")
+    }
+
+    List(apply, unapply).flatten
+  }
+
 }
