@@ -11,7 +11,7 @@ import org.jetbrains.plugins.scala.extensions._
 import org.jetbrains.plugins.scala.lang.lexer.ScalaTokenTypes
 import org.jetbrains.plugins.scala.lang.psi.api.base.{ScConstructor, ScLiteral}
 import org.jetbrains.plugins.scala.lang.psi.api.expr._
-import org.jetbrains.plugins.scala.lang.psi.api.statements.ScFunction.Ext
+import org.jetbrains.plugins.scala.lang.psi.api.statements.ScFunction.CommonNames
 import org.jetbrains.plugins.scala.lang.psi.types.nonvalue.Parameter
 import org.jetbrains.plugins.scala.lang.resolve.ScalaResolveResult
 
@@ -20,7 +20,7 @@ import scala.collection.JavaConverters
 
 class ScalaInlayParameterHintsProvider extends hints.InlayParameterHintsProvider {
 
-  import Ext.GetSet
+  import CommonNames.GetSet
   import ScalaInlayParameterHintsProvider._
 
   override def getParameterHints(element: PsiElement): ju.List[hints.InlayInfo] = {
@@ -61,7 +61,7 @@ class ScalaInlayParameterHintsProvider extends hints.InlayParameterHintsProvider
 
 object ScalaInlayParameterHintsProvider {
 
-  import Ext.{Apply, Update}
+  import CommonNames.{Apply, Update}
 
   private[hints] val applyUpdateParameterNames = HintOption(s"<code>$Apply</code>, <code>$Update</code> methods", Apply, Update)
   private[hints] val referenceParameterNames = HintOption(s"non-literal expressions", "references", "names")

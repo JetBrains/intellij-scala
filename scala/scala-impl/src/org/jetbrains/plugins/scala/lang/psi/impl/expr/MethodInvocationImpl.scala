@@ -9,6 +9,7 @@ import org.jetbrains.plugins.scala.lang.psi.ScalaPsiUtil._
 import org.jetbrains.plugins.scala.lang.psi.api.InferUtil._
 import org.jetbrains.plugins.scala.lang.psi.api.expr._
 import org.jetbrains.plugins.scala.lang.psi.api.statements.ScFunction
+import org.jetbrains.plugins.scala.lang.psi.api.statements.ScFunction.CommonNames.Update
 import org.jetbrains.plugins.scala.lang.psi.api.toplevel.imports.usages.ImportUsed
 import org.jetbrains.plugins.scala.lang.psi.types.Compatibility._
 import org.jetbrains.plugins.scala.lang.psi.types._
@@ -164,7 +165,7 @@ abstract class MethodInvocationImpl(node: ASTNode) extends ScExpressionImplBase(
   private def arguments(maybeResolveResult: Option[ScalaResolveResult])
                        (implicit elementScope: ElementScope): Seq[Expression] = {
     val updateArgument = maybeResolveResult
-      .find(_.name == ScFunction.Ext.Update)
+      .find(_.name == Update)
       .map(_ => getContext)
       .collect {
         case ScAssignStmt(call: ScMethodCall, Some(right)) if call == this => right

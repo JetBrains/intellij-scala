@@ -522,9 +522,9 @@ object ScFunction {
 
   private val syntheticCaseClassKey = Key.create[ScClass]("ScFunction.syntheticCaseClass")
 
-  implicit class Ext(val function: ScFunction) extends AnyVal {
+  implicit class CommonNames(val function: ScFunction) extends AnyVal {
 
-    import Ext._
+    import CommonNames._
 
     private implicit def project: Project = function.getProject
 
@@ -584,7 +584,7 @@ object ScFunction {
     }
   }
 
-  object Ext {
+  object CommonNames {
     val Copy = "copy"
 
     val Apply = "apply"
