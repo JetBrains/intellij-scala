@@ -9,6 +9,7 @@ import com.intellij.openapi.editor.ex.util.CaretVisualPositionKeeper
 import com.intellij.openapi.editor.markup.TextAttributes
 import com.intellij.openapi.progress.ProgressIndicator
 import com.intellij.openapi.util.Disposer
+import com.intellij.openapi.util.text.StringUtil
 import com.intellij.pom.Navigatable
 import com.intellij.psi.PsiElement
 import com.intellij.util.DocumentUtil
@@ -289,7 +290,8 @@ private object ImplicitHintsPass {
     s": $paramType"
   }
 
-  private def paramWithType(parameter: ScalaResolveResult): String = parameter.name + typeSuffix(parameter)
+  private def paramWithType(parameter: ScalaResolveResult): String =
+    StringUtil.escapeXml(parameter.name + typeSuffix(parameter))
 
   private def notFoundTooltip(parameter: ScalaResolveResult): String =
     "No implicits found for parameter " + paramWithType(parameter)
