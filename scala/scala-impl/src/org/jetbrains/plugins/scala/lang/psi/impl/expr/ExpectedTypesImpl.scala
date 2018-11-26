@@ -383,7 +383,7 @@ class ExpectedTypesImpl extends ExpectedTypes {
       case Right(ScMethodType(_, params, _)) =>
         fromMethodTypeParams(params)
       case Right(t@ScTypePolymorphicType(ScMethodType(_, params, _), _)) =>
-        fromMethodTypeParams(params, t.abstractTypeSubstitutor)
+        fromMethodTypeParams(params, t.argsProtoTypeSubst)
       case Right(anotherType) if !forApply =>
         val (internalType, typeParams) = anotherType match {
           case ScTypePolymorphicType(internal, tps) => (internal, tps)
@@ -554,7 +554,7 @@ private object ExpectedTypesImpl {
   implicit class ScMethodCallEx(private val invocation: MethodInvocation) extends AnyVal {
 
     def updateAccordingToExpectedType(`type`: ScType): ScType =
-      InferUtil.updateAccordingToExpectedType(`type`, filterTypeParams = true, invocation.expectedType(), invocation, canThrowSCE = false)
+      InferUtil.updateAccordingToExpectedType(`type`, filterTypeParams = false, invocation.expectedType(), invocation, canThrowSCE = false)
   }
 
   implicit class ScExpressionForExpectedTypesEx(val expr: ScExpression) extends AnyVal {

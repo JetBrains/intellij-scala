@@ -202,6 +202,29 @@ case class ScTypePolymorphicType(internalType: ScType, typeParameters: Seq[TypeP
     }
   }
 
+  /**
+    * See [[scala.tools.nsc.typechecker.Infer.Inferencer#protoTypeArgs]]
+    */
+  def argsProtoTypeSubst: ScSubstitutor = internalType match {
+    case ScMethodType(_, params, _) =>
+      ScSubstitutor.bind(typeParameters) { tp =>
+        val varianceInParams = params.map(_.paramType).foldLeft(Variance.Bivariant) {
+          case (acc, tpe) => acc & tp.varianceInType(tpe)
+        }
+        val loBound      = if (hasRecursiveTypeParameters(tp.lowerType)) Nothing else tp.lowerType
+        val hiBound      = if (hasRecursiveTypeParameters(tp.upperType)) Any     else tp.upperType
+        val emptyLoBound = loBound.equiv(Nothing)
+        val emptyHiBound = hiBound.equiv(Any)
+
+        if (!emptyLoBound && varianceInParams.isContravariant)
+          tp.lowerType
+        else if (!emptyHiBound && (varianceInParams.isPositive || !emptyLoBound && hiBound.conforms(loBound)))
+          tp.upperType
+        else ScAbstractType(tp, loBound, hiBound)
+      }
+    case _ => throw new IllegalArgumentException("argProtoTypeSubst call on non-poly-method type")
+  }
+
   def abstractOrLowerTypeSubstitutor: ScSubstitutor = {
     //approximation of logic from scala.tools.nsc.typechecker.Infer.Inferencer#exprTypeArgs#variance
     val forVarianceCheck = internalType match {
