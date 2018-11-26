@@ -17,36 +17,36 @@ import org.jetbrains.plugins.scala.lang.resolve.processor.{BaseProcessor, Method
   * @author adkozlov
   */
 sealed trait ImplicitResolveResult {
-  def element: PsiNamedElement = resolveResult.element
 
   val `type`: ScType
 
-  def typeWithDependentSubstitutor: ScType = implicitDependentSubstitutor.subst(`type`)
-
-  def substitutor: ScSubstitutor =
-    implicitDependentSubstitutor.followed(resolveResult.substitutor)
+  val implicitDependentSubstitutor: ScSubstitutor
 
   protected val resolveResult: ScalaResolveResult
 
   protected val unresolvedTypeParameters: Seq[TypeParameter]
-
-  protected val implicitDependentSubstitutor: ScSubstitutor
 }
 
-case class CompanionImplicitResolveResult(resolveResult: ScalaResolveResult,
-                                          `type`: ScType,
-                                          implicitDependentSubstitutor: ScSubstitutor) extends ImplicitResolveResult {
+final case class CompanionImplicitResolveResult(resolveResult: ScalaResolveResult,
+                                                `type`: ScType,
+                                                implicitDependentSubstitutor: ScSubstitutor) extends ImplicitResolveResult {
   override val unresolvedTypeParameters: Seq[TypeParameter] = Seq.empty
 }
 
-case class RegularImplicitResolveResult(resolveResult: ScalaResolveResult,
-                                        `type`: ScType,
-                                        implicitDependentSubstitutor: ScSubstitutor = ScSubstitutor.empty,
-                                        unresolvedTypeParameters: Seq[TypeParameter] = Seq.empty) extends ImplicitResolveResult
+final case class RegularImplicitResolveResult(resolveResult: ScalaResolveResult,
+                                              `type`: ScType,
+                                              implicitDependentSubstitutor: ScSubstitutor = ScSubstitutor.empty,
+                                              unresolvedTypeParameters: Seq[TypeParameter] = Seq.empty) extends ImplicitResolveResult
 
 object ImplicitResolveResult {
 
-  class ResolverStateBuilder(result: ImplicitResolveResult) {
+  implicit class Ext(private val result: ImplicitResolveResult) extends AnyVal {
+    def element: PsiNamedElement = result.resolveResult.element
+
+    def builder: ResolverStateBuilder = new ResolverStateBuilder(result)
+  }
+
+  final class ResolverStateBuilder private[ImplicitResolveResult](result: ImplicitResolveResult) {
 
     ProgressManager.checkCanceled()
 
@@ -95,8 +95,10 @@ object ImplicitResolveResult {
 
     result = RegularImplicitResolveResult(resolveResult, resultType, unresolvedTypeParameters = resolveResult.unresolvedTypeParameters.getOrElse(Seq.empty)) //todo: from companion parameter
 
-    builder = build(new ResolverStateBuilder(result))
-  } processor.processType(result.typeWithDependentSubstitutor, place, builder.state)
+    builder = build(result.builder)
+
+    substituted = result.implicitDependentSubstitutor.subst(result.`type`)
+  } processor.processType(substituted, place, builder.state)
 
   private[this] def findImplicitConversion(expressionType: ScType,
                                            refName: String, ref: ScExpression,

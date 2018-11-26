@@ -11,11 +11,10 @@ import org.jetbrains.plugins.scala.lang.psi.ScalaPsiUtil
 import org.jetbrains.plugins.scala.lang.psi.api.base.ScPrimaryConstructor
 import org.jetbrains.plugins.scala.lang.psi.api.base.patterns.ScReferencePattern
 import org.jetbrains.plugins.scala.lang.psi.api.statements._
-import org.jetbrains.plugins.scala.lang.psi.api.statements.params.{ScParameterClause, TypeParamIdOwner}
+import org.jetbrains.plugins.scala.lang.psi.api.statements.params.TypeParamIdOwner
 import org.jetbrains.plugins.scala.lang.psi.api.toplevel.ScTypedDefinition
 import org.jetbrains.plugins.scala.lang.psi.api.toplevel.typedef.ScObject
 import org.jetbrains.plugins.scala.lang.psi.impl.ScalaPsiManager
-import org.jetbrains.plugins.scala.lang.psi.implicits.ImplicitResolveResult
 import org.jetbrains.plugins.scala.lang.psi.types.Compatibility.Expression
 import org.jetbrains.plugins.scala.lang.psi.types._
 import org.jetbrains.plugins.scala.lang.psi.types.api.designator.ScDesignatorType
@@ -71,7 +70,7 @@ case class MostSpecificUtil(elem: PsiElement, length: Int) {
     nextMostSpecificGeneric(rest.map(toInnerSRR)).map(_.repr)
   }
 
-  def notMoreSpecificThan(result: ScalaResolveResult): (ScalaResolveResult) => Boolean = {
+  def notMoreSpecificThan(result: ScalaResolveResult): ScalaResolveResult => Boolean = {
     val inner = toInnerSRR(result)
 
     cand => !isMoreSpecific(inner, toInnerSRR(cand), checkImplicits = false)
@@ -81,23 +80,6 @@ case class MostSpecificUtil(elem: PsiElement, length: Int) {
     val inners = rest.map(toInnerSRR)
     val innerResult = toInnerSRR(result)
     inners.filter(!isMoreSpecific(innerResult, _, checkImplicits = false)).map(_.repr)
-  }
-
-  def mostSpecificForImplicit(applicable: Set[ImplicitResolveResult]): Option[ImplicitResolveResult] = {
-    mostSpecificGeneric(applicable.map(r => {
-      var callByName = false
-      def checkCallByName(clauses: Seq[ScParameterClause]): Unit = {
-        if (clauses.nonEmpty && clauses.head.parameters.length == 1 && clauses.head.parameters.head.isCallByNameParameter) {
-          callByName = true
-        }
-      }
-      r.element match {
-        case f: ScFunction => checkCallByName(f.paramClauses.clauses)
-        case f: ScPrimaryConstructor => checkCallByName(f.effectiveParameterClauses)
-        case _ =>
-      }
-      new InnerScalaResolveResult(r.element, None, r, r.substitutor, callByName, implicitCase = true)
-    }), noImplicit = true).map(_.repr)
   }
 
   private class InnerScalaResolveResult[T](val element: PsiNamedElement, val implicitConversionClass: Option[PsiClass],

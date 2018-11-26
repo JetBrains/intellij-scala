@@ -553,13 +553,11 @@ class ReferenceExpressionResolver(implicit projectContext: ProjectContext) {
 
       processor match {
         case _: CompletionProcessor =>
-          new ScImplicitlyConvertible(e).implicitMap.foreach { result =>
-            //todo: args?
-            val builder = new ResolverStateBuilder(result)
-              .withImports
-              .withImplicitType
-            processor.processType(result.`type`, e, builder.state)
-          }
+          for {
+            result <- new ScImplicitlyConvertible(e).implicitMap // todo: args?
+            builder = result.builder.withImports.withImplicitType
+          } processor.processType(result.`type`, e, builder.state)
+
           return
         case m: MethodResolveProcessor => m.noImplicitsForArgs = true
         case _ =>
