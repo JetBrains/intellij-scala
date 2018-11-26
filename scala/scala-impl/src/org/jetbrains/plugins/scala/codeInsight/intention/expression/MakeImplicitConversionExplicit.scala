@@ -34,7 +34,7 @@ class MakeImplicitConversionExplicit extends PsiElementBaseIntentionAction {
       expression.implicitElement(fromUnderscore = true).collect {
         case function: ScFunction => function
       }.foreach { function =>
-        val conversions = expression.getAllImplicitConversions(fromUnderscore = true)
+        val conversions = expression.implicitConversions(fromUnderscore = true)
         replaceWithExplicit(expression, function, project, editor, conversions)
       }
     }

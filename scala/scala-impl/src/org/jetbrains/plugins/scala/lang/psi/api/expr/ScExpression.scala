@@ -154,25 +154,6 @@ trait ScExpression extends ScBlockStatement
 
     inner(this)
   }
-
-  def getAllImplicitConversions(fromUnderscore: Boolean = false): Seq[PsiNamedElement] = {
-    new ScImplicitlyConvertible(this, fromUnderscore)
-      .implicitMap(arguments = this.expectedTypes(fromUnderscore))
-      .map(_.element)
-      .sortWith {
-        case (first, second) =>
-          val firstName = first.name
-          val secondName = second.name
-
-          def isAnyTo(string: String): Boolean =
-            string.matches("^[a|A]ny(2|To|to).+$")
-
-          val isSecondAnyTo = isAnyTo(secondName)
-
-          if (isAnyTo(firstName) ^ isSecondAnyTo) isSecondAnyTo
-          else firstName.compareTo(secondName) < 0
-      }
-  }
 }
 
 object ScExpression {
@@ -448,6 +429,24 @@ object ScExpression {
         case Short if isShort(intLiteralValue) => success(Short)
         case _ => None
       }
+    }
+
+    def implicitConversions(fromUnderscore: Boolean = false): Seq[PsiNamedElement] = {
+      new ScImplicitlyConvertible(expr, fromUnderscore).implicits
+        .toSeq
+        .sortWith {
+          case (first, second) =>
+            val firstName = first.name
+            val secondName = second.name
+
+            def isAnyTo(string: String): Boolean =
+              string.matches("^[a|A]ny(2|To|to).+$")
+
+            isAnyTo(secondName) match {
+              case isSecondAnyTo if isAnyTo(firstName) ^ isSecondAnyTo => isSecondAnyTo
+              case _ => firstName.compareTo(secondName) < 0
+            }
+        }
     }
 
     //numeric widening

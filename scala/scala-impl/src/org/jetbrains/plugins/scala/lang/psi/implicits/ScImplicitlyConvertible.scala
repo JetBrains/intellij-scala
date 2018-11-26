@@ -25,7 +25,6 @@ import org.jetbrains.plugins.scala.lang.resolve.ScalaResolveResult
 import org.jetbrains.plugins.scala.macroAnnotations.{CachedWithRecursionGuard, ModCount}
 import org.jetbrains.plugins.scala.project.ProjectContext
 
-import scala.collection.mutable.ArrayBuffer
 import scala.collection.{Set, mutable}
 
 /**
@@ -34,8 +33,8 @@ import scala.collection.{Set, mutable}
   * @author alefas, ilyas
   */
 //todo: refactor this terrible code
-class ScImplicitlyConvertible(val expression: ScExpression,
-                              val fromUnderscore: Boolean = false) {
+class ScImplicitlyConvertible(private[this] val expression: ScExpression,
+                              private[this] val fromUnderscore: Boolean = false) {
 
   private lazy val placeType =
     expression.getTypeWithoutImplicits(fromUnderscore = fromUnderscore).map {
@@ -44,25 +43,26 @@ class ScImplicitlyConvertible(val expression: ScExpression,
 
   import ScImplicitlyConvertible.LOG
 
-  def implicitMap(arguments: Seq[ScType] = Seq.empty): Seq[ImplicitResolveResult] = {
-    val seen = new mutable.HashSet[PsiNamedElement]
-    val buffer = new ArrayBuffer[ImplicitResolveResult]
-    for (elem <- collectRegulars) {
-      if (!seen.contains(elem.element)) {
-        seen += elem.element
-        buffer += elem
-      }
-    }
+  def implicitMap: Seq[ImplicitResolveResult] = {
+    val seen = mutable.HashSet.empty[PsiNamedElement]
+    val buffer = mutable.ArrayBuffer.empty[ImplicitResolveResult]
 
-    for (elem <- collectCompanions(arguments = arguments)) {
-      if (!seen.contains(elem.element)) {
-        seen += elem.element
-        buffer += elem
-      }
-    }
+    for {
+      elem <- collectRegulars
+      if seen.add(elem.element)
+    } buffer += elem
+
+    for {
+      elem <- collectCompanions(Seq.empty)
+      if seen.add(elem.element)
+    } buffer += elem
 
     buffer
   }
+
+  def implicits: Set[PsiNamedElement] =
+    collectRegulars.map(_.element) ++
+      collectCompanions(arguments = expression.expectedTypes(fromUnderscore)).map(_.element)
 
   private def adaptResults[IR <: ImplicitResolveResult](candidates: Set[ScalaResolveResult],
                                                         `type`: ScType)

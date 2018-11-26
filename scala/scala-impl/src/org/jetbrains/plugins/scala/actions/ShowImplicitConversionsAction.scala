@@ -75,7 +75,7 @@ class ShowImplicitConversionsAction extends AnAction("Show implicit conversions"
         } else (additionalImplicitElement.orElse(expr.implicitElement()), false)
       }
 
-      val conversions = expr.getAllImplicitConversions(fromUnderscore = fromUnderscore)
+      val conversions = expr.implicitConversions(fromUnderscore = fromUnderscore)
       if (conversions.isEmpty) return true
 
       val conversionFun = implicitElement.orNull

@@ -553,7 +553,7 @@ class ReferenceExpressionResolver(implicit projectContext: ProjectContext) {
 
       processor match {
         case _: CompletionProcessor =>
-          new ScImplicitlyConvertible(e).implicitMap().foreach { result =>
+          new ScImplicitlyConvertible(e).implicitMap.foreach { result =>
             //todo: args?
             val builder = new ResolverStateBuilder(result)
               .withImports
