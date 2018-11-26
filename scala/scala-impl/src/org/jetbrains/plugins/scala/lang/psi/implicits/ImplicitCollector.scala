@@ -519,7 +519,8 @@ class ImplicitCollector(place: PsiElement,
         }.map {
           subst.subst
         }.getOrElse(ret)
-        val polymorphicTypeParameters = typeParameters.map(TypeParameter(_))
+
+        val polymorphicTypeParameters = typeParameters.map(TypeParameter(_).update(subst.subst))
 
         val nonValueType0: ScType =
           if (polymorphicTypeParameters.isEmpty) methodType
