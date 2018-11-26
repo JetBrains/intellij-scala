@@ -22,8 +22,7 @@ import org.jetbrains.plugins.scala.lang.psi.api.expr._
 import org.jetbrains.plugins.scala.lang.psi.api.statements.{ScFunction, ScValue, ScValueOrVariable}
 import org.jetbrains.plugins.scala.lang.psi.api.toplevel.ScTypedDefinition
 import org.jetbrains.plugins.scala.lang.psi.api.toplevel.typedef._
-import org.jetbrains.plugins.scala.lang.psi.implicits.CollectImplicitsProcessor
-import org.jetbrains.plugins.scala.lang.psi.implicits.ScImplicitlyConvertible.forMap
+import org.jetbrains.plugins.scala.lang.psi.implicits.{CollectImplicitsProcessor, ScImplicitlyConvertible}
 import org.jetbrains.plugins.scala.lang.psi.stubs.index.ScalaIndexKeys
 import org.jetbrains.plugins.scala.lang.psi.stubs.util.ScalaStubsUtil.getClassInheritors
 import org.jetbrains.plugins.scala.lang.psi.types.ScType
@@ -220,8 +219,8 @@ object ScalaGlobalMembersCompletionContributor {
 
     override protected def candidates: Iterable[GlobalMemberResult] = for {
       candidate <- implicitCandidates.toSeq
-      mapResult <- forMap(place, candidate, originalType).toSeq
-      item <- completeImplicits(mapResult.resolveResult, mapResult.resultType)
+      (resultType, _) <- ScImplicitlyConvertible.forMap(candidate, originalType)(place).toSeq
+      item <- completeImplicits(candidate, resultType)
     } yield item
 
     private def implicitCandidates = {

@@ -23,7 +23,6 @@ import org.jetbrains.plugins.scala.lang.psi.types.recursiveUpdate.ScSubstitutor
 import org.jetbrains.plugins.scala.lang.psi.types.result._
 import org.jetbrains.plugins.scala.lang.resolve.ScalaResolveResult
 import org.jetbrains.plugins.scala.macroAnnotations.{CachedWithRecursionGuard, ModCount}
-import org.jetbrains.plugins.scala.project.ProjectContext
 
 import scala.collection.{Set, mutable}
 
@@ -33,11 +32,11 @@ import scala.collection.{Set, mutable}
   * @author alefas, ilyas
   */
 //todo: refactor this terrible code
-class ScImplicitlyConvertible(private[this] val expression: ScExpression,
-                              private[this] val fromUnderscore: Boolean = false) {
+class ScImplicitlyConvertible(private[this] val fromUnderscore: Boolean = false)
+                             (implicit private[this] val place: ScExpression) {
 
   private lazy val placeType =
-    expression.getTypeWithoutImplicits(fromUnderscore = fromUnderscore).map {
+    place.getTypeWithoutImplicits(fromUnderscore = fromUnderscore).map {
       _.tryExtractDesignatorSingleton
     }.toOption
 
@@ -62,30 +61,16 @@ class ScImplicitlyConvertible(private[this] val expression: ScExpression,
 
   def implicits: Set[PsiNamedElement] =
     collectRegulars.map(_.element) ++
-      collectCompanions(arguments = expression.expectedTypes(fromUnderscore)).map(_.element)
+      collectCompanions(arguments = place.expectedTypes(fromUnderscore)).map(_.element)
 
-  private def adaptResults[IR <: ImplicitResolveResult](candidates: Set[ScalaResolveResult],
-                                                        `type`: ScType)
-                                                       (f: (ScalaResolveResult, ScType, ScSubstitutor) => IR): Set[IR] = {
-    implicit val projectContext: ProjectContext = `type`.projectContext
+  private def adaptResults[IR <: ImplicitResolveResult](candidates: Set[ScalaResolveResult], `type`: ScType)
+                                                       (f: (ScalaResolveResult, ScType, ScSubstitutor) => IR): Set[IR] =
+    for {
+      resolveResult <- candidates
+      (resultType, substitutor) <- forMap(resolveResult, `type`)
+    } yield f(resolveResult, resultType, substitutor)
 
-    candidates.flatMap {
-      forMap(expression, _, `type`)
-    }.collect {
-      case result: SimpleImplicitMapResult => (result, None)
-      case result@DependentImplicitMapResult(_, _, ConstraintSystem(substitutor), _) => (result, Some(substitutor))
-    }.map {
-      case (result, maybeSubstitutor) =>
-        val resultType = result.resultType
-        val `type` = maybeSubstitutor.fold(resultType) {
-          _.subst(resultType)
-        }
-
-        f(result.resolveResult, `type`, result.implicitDependentSubstitutor)
-    }
-  }
-
-  @CachedWithRecursionGuard(expression, Set.empty, ModCount.getBlockModificationCount)
+  @CachedWithRecursionGuard(place, Set.empty, ModCount.getBlockModificationCount)
   private def collectRegulars: Set[RegularImplicitResolveResult] = {
     ScalaPsiUtil.debug(s"Regular implicit map", LOG)
 
@@ -93,7 +78,7 @@ class ScImplicitlyConvertible(private[this] val expression: ScExpression,
       case _: UndefinedType => true
       case scType => scType.isNothing
     }.fold(Set.empty[RegularImplicitResolveResult]) { scType =>
-      val candidates = new CollectImplicitsProcessor(expression, false)
+      val candidates = new CollectImplicitsProcessor(place, false)
         .candidatesByPlace
 
       adaptResults(candidates, scType) {
@@ -102,17 +87,17 @@ class ScImplicitlyConvertible(private[this] val expression: ScExpression,
     }
   }
 
-  @CachedWithRecursionGuard(expression, Set.empty, ModCount.getBlockModificationCount)
+  @CachedWithRecursionGuard(place, Set.empty, ModCount.getBlockModificationCount)
   private def collectCompanions(arguments: Seq[ScType]): Set[CompanionImplicitResolveResult] = {
     ScalaPsiUtil.debug(s"Companions implicit map", LOG)
 
     placeType.fold(Set.empty[CompanionImplicitResolveResult]) { scType =>
       val expandedType = arguments match {
         case Seq() => scType
-        case seq => TupleType(Seq(scType) ++ seq)(expression.elementScope)
+        case seq => TupleType(Seq(scType) ++ seq)(place.elementScope)
       }
 
-      val candidates = new CollectImplicitsProcessor(expression, true)
+      val candidates = new CollectImplicitsProcessor(place, true)
         .candidatesByType(expandedType)
 
       adaptResults(candidates, scType) {
@@ -123,25 +108,25 @@ class ScImplicitlyConvertible(private[this] val expression: ScExpression,
 }
 
 object ScImplicitlyConvertible {
-  private implicit val LOG = Logger.getInstance("#org.jetbrains.plugins.scala.lang.psi.implicits.ScImplicitlyConvertible")
+  private implicit val LOG: Logger = Logger.getInstance("#org.jetbrains.plugins.scala.lang.psi.implicits.ScImplicitlyConvertible")
 
-  def forMap(expression: ScExpression, result: ScalaResolveResult, `type`: ScType): Option[ImplicitMapResult] = {
-    import expression.projectContext
-
+  def forMap(result: ScalaResolveResult, `type`: ScType)
+            (implicit expression: ScExpression): Option[(ScType, ScSubstitutor)] = {
     ScalaPsiUtil.debug(s"Check implicit: $result for type: ${`type`}", LOG)
 
-    if (PsiTreeUtil.isContextAncestor(ScalaPsiUtil.nameContext(result.element), expression, false)) return None
+    val ScalaResolveResult(element, substitutor) = result
+
+    if (PsiTreeUtil.isContextAncestor(ScalaPsiUtil.nameContext(element), expression, false)) return None
 
     //to prevent infinite recursion
     ProgressManager.checkCanceled()
 
-    val substitutor = result.substitutor
-    val (tp: ScType, retTp: ScType) = result.element match {
+    val (tp: ScType, resultType: ScType) = element match {
       case f: ScFunction if f.paramClauses.clauses.nonEmpty => getTypes(substitutor, f)
-      case element => getTypes(expression, substitutor, element).getOrElse(return None)
+      case _ => getTypes(substitutor, element).getOrElse(return None)
     }
 
-    val newSubstitutor = result.element match {
+    val newSubstitutor = element match {
       case f: ScFunction => ScalaPsiUtil.inferMethodTypesArgs(f, substitutor)
       case _ => ScSubstitutor.empty
     }
@@ -152,15 +137,11 @@ object ScImplicitlyConvertible {
       return None
     }
 
-    val mapResult = result.element match {
+    val mapResult = element match {
       case function: ScFunction if function.hasTypeParameters =>
         val constraints = `type`.conforms(substituted, ConstraintSystem.empty).constraints
-        createSubstitutors(expression, function, `type`, substitutor, constraints).map {
-          case (dependentSubst, uSubst, implicitDependentSubst) =>
-            DependentImplicitMapResult(result, dependentSubst.subst(retTp), uSubst, implicitDependentSubst)
-        }
-      case _ =>
-        Some(SimpleImplicitMapResult(result, retTp))
+        createSubstitutors(function, `type`, substitutor, constraints, resultType)
+      case _ => Some(resultType, ScSubstitutor.empty)
     }
 
     val message = mapResult match {
@@ -186,9 +167,8 @@ object ScImplicitlyConvertible {
     (substitute(argumentType), substitute(function.returnType))
   }
 
-  private def getTypes(expression: ScExpression, substitutor: ScSubstitutor, element: PsiNamedElement): Option[(ScType, ScType)] = {
-    import expression.projectContext
-
+  private def getTypes(substitutor: ScSubstitutor, element: PsiNamedElement)
+                      (implicit place: ScExpression): Option[(ScType, ScType)] = {
     val maybeElementType = (element match {
       case f: ScFunction => f.returnType
       case _: ScBindingPattern | _: ScParameter | _: ScObject =>
@@ -197,7 +177,7 @@ object ScImplicitlyConvertible {
     }).toOption
 
     for {
-      funType <- expression.elementScope.cachedFunction1Type
+      funType <- place.elementScope.cachedFunction1Type
       elementType <- maybeElementType
 
       substitution = substitutor.subst(elementType).conforms(funType, ConstraintSystem.empty) match {
@@ -210,12 +190,12 @@ object ScImplicitlyConvertible {
     } yield (argumentType, resultType)
   }
 
-  private def createSubstitutors(expression: ScExpression,
-                                 function: ScFunction,
+  private def createSubstitutors(function: ScFunction,
                                  `type`: ScType,
                                  substitutor: ScSubstitutor,
-                                 constraints: ConstraintSystem)
-                                (implicit context: ProjectContext = `type`.projectContext) = constraints match {
+                                 constraints: ConstraintSystem,
+                                 resultType: ScType)
+                                (implicit place: ScExpression) = constraints match {
     case ConstraintSystem(unSubst) =>
       val typeParamIds = function.typeParameters.map(_.typeParamId).toSet
 
@@ -242,7 +222,7 @@ object ScImplicitlyConvertible {
       }
 
       lastConstraints match {
-        case ConstraintSystem(newSubstitutor) =>
+        case ConstraintSystem(_) =>
           val clauses = function.paramClauses.clauses
 
           val parameters = clauses.headOption.toSeq.flatMap(_.parameters).map(Parameter(_))
@@ -274,28 +254,19 @@ object ScImplicitlyConvertible {
             .flatMap(_.effectiveParameters)
             .map(Parameter(_))
 
-          val (inferredParameters, expressions, _) = findImplicits(effectiveParameters, None, expression, canThrowSCE = false,
+          val (inferredParameters, expressions, _) = findImplicits(effectiveParameters, None, place, canThrowSCE = false,
             abstractSubstitutor = substitutor.followed(dependentSubstitutor).followed(unSubst))
 
-          val implicitDependentSubstitutor =
-            ScSubstitutor.paramToExprType(inferredParameters, expressions, useExpected = false)
-
-          Some(dependentSubstitutor, lastConstraints, implicitDependentSubstitutor)
+          lastConstraints match {
+            case ConstraintSystem(lastSubstitutor) =>
+              Some(
+                lastSubstitutor.subst(dependentSubstitutor.subst(resultType)),
+                ScSubstitutor.paramToExprType(inferredParameters, expressions, useExpected = false)
+              )
+            case _ => None
+          }
         case _ => None
       }
-      case _ => None
+    case _ => None
   }
-
-  sealed trait ImplicitMapResult {
-    val resolveResult: ScalaResolveResult
-    val resultType: ScType
-    val implicitDependentSubstitutor: ScSubstitutor = ScSubstitutor.empty
-  }
-
-  private case class SimpleImplicitMapResult(resolveResult: ScalaResolveResult, resultType: ScType) extends ImplicitMapResult
-
-  private case class DependentImplicitMapResult(resolveResult: ScalaResolveResult, resultType: ScType,
-                                                constraints: ConstraintSystem,
-                                                override val implicitDependentSubstitutor: ScSubstitutor) extends ImplicitMapResult
-
 }
