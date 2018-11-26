@@ -99,7 +99,7 @@ class ScalaSmartAnonymousFunctionCompletionTest extends ScalaCodeInsightTestBase
     resultText =
       s"""
          |def foo[T >: Int](x: (T, String) => String) = 1
-         |foo((value: Int, str: String) => $CARET)
+         |foo((i: Int, str: String) => $CARET)
        """.stripMargin
   )
 
