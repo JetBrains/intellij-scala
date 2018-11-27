@@ -9,7 +9,7 @@ import com.intellij.openapi.application.ApplicationManager
 import com.intellij.openapi.components.ProjectComponent
 import com.intellij.openapi.diagnostic.Logger
 import com.intellij.openapi.extensions.PluginId
-import com.intellij.openapi.progress.{ProgressIndicator, ProgressManager, Task}
+import com.intellij.openapi.progress.{ProcessCanceledException, ProgressIndicator, ProgressManager, Task}
 import com.intellij.openapi.project.Project
 import com.intellij.openapi.util.ModificationTracker
 import com.intellij.openapi.vfs.JarFileSystem
@@ -29,11 +29,6 @@ import scala.xml.{Elem, SAXParser}
 
 class LibraryExtensionsManager(project: Project) extends ProjectComponent {
   import LibraryExtensionsManager._
-
-  class ExtensionNotRegisteredException(iface: Class[_]) extends Exception(s"No extensions registered for class $iface")
-  class InvalidExtensionException(iface: Class[_], impl: Class[_]) extends Exception(s"Extension $impl doesn't inherit $iface")
-
-  case class ExtensionData(descriptor: LibraryDescriptor, file: File, loadedExtensions: Map[Class[_], ArrayBuffer[Any]])
 
   private val EXT_JARS_KEY = "extensionJars"
 
