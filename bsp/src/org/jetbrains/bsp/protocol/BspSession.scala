@@ -65,6 +65,8 @@ class BspSession(bspIn: InputStream,
         shutdown(Some(error))
       case NonFatal(error) =>
         logger.error(error)
+        val bspError = BspException("problem connecting to bsp server", error)
+        shutdown(Some(bspError))
     }
   }
 
