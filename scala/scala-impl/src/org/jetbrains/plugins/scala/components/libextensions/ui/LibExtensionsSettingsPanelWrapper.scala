@@ -5,12 +5,13 @@ import java.io.File
 
 import com.intellij.openapi.fileChooser.{FileChooser, FileChooserDescriptor}
 import com.intellij.openapi.project.Project
+import com.intellij.openapi.ui.Messages
 import com.intellij.ui._
 import com.intellij.ui.components.{JBLabel, JBList}
 import com.intellij.util.ui.{JBUI, UIUtil}
 import javax.swing._
 import org.jetbrains.plugins.scala.components.libextensions.LibraryExtensionsManager._
-import org.jetbrains.plugins.scala.components.libextensions.{ExtensionDescriptor, LibraryDescriptor, LibraryExtensionsManager}
+import org.jetbrains.plugins.scala.components.libextensions._
 
 class LibExtensionsSettingsPanelWrapper(private val rootPanel: JPanel,
                                         private val project: Project) {
@@ -20,14 +21,14 @@ class LibExtensionsSettingsPanelWrapper(private val rootPanel: JPanel,
   // Exported components
   val enabledCB: JCheckBox = new JCheckBox("Enable loading external extensions", true)
 
-  class LibraryListModel(val extensionsModel: LibraryDetailsModel) extends AbstractListModel[LibraryDescriptor] {
+  class LibraryListModel(val extensionsModel: LibraryDetailsModel) extends AbstractListModel[ExtensionJarData] {
     private val extensionsManager: LibraryExtensionsManager = libraryExtensionsManager
     override def getSize: Int = extensionsManager.getAvailableLibraries.length
-    override def getElementAt(i: Int): LibraryDescriptor = extensionsManager.getAvailableLibraries(i)
+    override def getElementAt(i: Int): ExtensionJarData = extensionsManager.getAvailableLibraries(i)
   }
 
-  class LibraryDetailsModel(selectedDescriptor: Option[LibraryDescriptor]) extends AbstractListModel[ExtensionDescriptor] {
-    private val myExtensions = selectedDescriptor.flatMap(_.getCurrentPluginDescriptor.map(_.extensions)).getOrElse(Nil).filter(_.isAvailable)
+  class LibraryDetailsModel(selectedDescriptor: Option[ExtensionJarData]) extends AbstractListModel[ExtensionDescriptor] {
+    private val myExtensions = selectedDescriptor.flatMap(_.descriptor.getCurrentPluginDescriptor.map(_.extensions)).getOrElse(Nil).filter(_.isAvailable)
     override def getSize: Int = myExtensions.length
     override def getElementAt(i: Int): ExtensionDescriptor = myExtensions(i)
   }
@@ -63,7 +64,7 @@ class LibExtensionsSettingsPanelWrapper(private val rootPanel: JPanel,
     }
 
     val libraryListModel = new LibraryListModel(detailsModel)
-    val librariesList = new JBList[LibraryDescriptor](libraryListModel)
+    val librariesList = new JBList[ExtensionJarData](libraryListModel)
     val toolbarDecorator = ToolbarDecorator.createDecorator(librariesList)
 
     toolbarDecorator.disableUpDownActions()
@@ -80,8 +81,15 @@ class LibExtensionsSettingsPanelWrapper(private val rootPanel: JPanel,
       val jar = FileChooser.chooseFile(
         new FileChooserDescriptor(false, false, true, true, false, false),
         project, null)
-      libraryExtensionsManager.processResolvedExtension(new File(jar.getCanonicalPath))
-      librariesList.setModel(new LibraryListModel(detailsModel))
+      try {
+        libraryExtensionsManager.processResolvedExtension(new File(jar.getCanonicalPath))
+        librariesList.setModel(new LibraryListModel(detailsModel))
+      } catch {
+        case ex: ExtensionException =>
+          Messages.showErrorDialog(ex.getMessage, "Failed to load extension JAR")
+        case ex: Exception =>
+          Messages.showErrorDialog(ex.toString, "Failed to load extension JAR")
+      }
     }
 
     librariesList.setEmptyText("No known extension libraries")
@@ -93,13 +101,15 @@ class LibExtensionsSettingsPanelWrapper(private val rootPanel: JPanel,
       } else None
       extensionsList.setModel(new LibraryDetailsModel(newData))
     }
-    librariesList.installCellRenderer{ ld: LibraryDescriptor =>
-      val LibraryDescriptor(name, _, description, vendor, version, _) = ld
+    librariesList.installCellRenderer{ ld: ExtensionJarData =>
+      val ExtensionJarData(LibraryDescriptor(name, _, description, vendor, version, _), file, _) = ld
       val builder = new StringBuilder
       if (vendor.nonEmpty) builder.append(s"($vendor) ")
       builder.append(s"$name $version")
       if (description.nonEmpty) builder.append(s" - $description")
-      new JBLabel(builder.mkString)
+      val label = new JBLabel(builder.mkString)
+      label.setToolTipText(file.getAbsolutePath)
+      label
     }
     val librariesPane = new JPanel(new BorderLayout())
     librariesPane.add(toolbarDecorator.createPanel())
