@@ -4,7 +4,6 @@ import java.io.{InputStream, OutputStream}
 import java.util.concurrent.{CompletableFuture, LinkedBlockingQueue, TimeUnit, TimeoutException}
 
 import ch.epfl.scala.bsp4j
-import ch.epfl.scala.bsp4j.{BuildClient, BuildServer, CancelFileWatcherResult, ScalaBuildServer}
 import com.intellij.notification.NotificationType
 import com.intellij.openapi.diagnostic.Logger
 import com.intellij.util.concurrency.AppExecutorUtil
@@ -16,6 +15,7 @@ import org.jetbrains.bsp.protocol.BspSession._
 import scala.collection.mutable.ListBuffer
 import scala.concurrent._
 import scala.concurrent.duration._
+import scala.util.{Failure, Success, Try}
 import scala.util.control.NonFatal
 
 class BspSession(bspIn: InputStream,
@@ -48,6 +48,19 @@ class BspSession(bspIn: InputStream,
   private def nextQueuedCommand= {
     try {
       waitForSession(sessionTimeout)
+    } catch {
+      case to : TimeoutException =>
+        val error = BspConnectionError("bsp server is not responding", to)
+        logger.warn(error)
+        shutdown(Some(error))
+      case NonFatal(error) =>
+        val msg = "problem connecting to bsp server"
+        val bspError = BspException(msg, error)
+        logger.warn(bspError)
+        shutdown(Some(bspError))
+    }
+
+    try {
       val currentIgnoringErrors = currentJob.future.recover {
         case NonFatal(_) => ()
       }(ExecutionContext.global)
@@ -60,11 +73,10 @@ class BspSession(bspIn: InputStream,
       }
     } catch {
       case _: TimeoutException => // just carry on
-      case error: BspConnectionError =>
-        logger.warn("problem connecting to bsp server", error)
-        shutdown(Some(error))
       case NonFatal(error) =>
-        logger.error(error)
+        val bspError = BspException("problem executing bsp job", error)
+        logger.error(bspError)
+        currentJob.cancelWithError(bspError)
     }
   }
 
@@ -86,11 +98,10 @@ class BspSession(bspIn: InputStream,
     val cancelable = Cancelable { () =>
       Cancelable.cancelAll(
         List(
-          Cancelable(() => cleanup()),
           Cancelable(() => bspIn.close()),
           Cancelable(() => bspOut.close()),
-          Cancelable(() => listening.cancel(true))
-          // TODO stop bsp server process
+          Cancelable(() => listening.cancel(true)),
+          Cancelable(() => cleanup())
         )
       )
     }
@@ -106,7 +117,7 @@ class BspSession(bspIn: InputStream,
         result
       }
       .exceptionally {
-        case responseError: ResponseErrorException => throw BspConnectionError(responseError.getMessage, responseError)
+        case NonFatal(error) => throw BspConnectionError(error.getMessage, error)
       }
   }
 
@@ -124,14 +135,34 @@ class BspSession(bspIn: InputStream,
     * Notifications during run of this task are passed to the aggregator. This can also be used for plain callbacks.
     */
   def run[T, A](task: BspSessionTask[T], default: A, aggregator: NotificationAggregator[A]): BspJob[(T,A)] = {
-    val job = new Bsp4jJob(task, default, aggregator)
+    val job = if (isAlive) {
+      new Bsp4jJob(task, default, aggregator)
+    } else {
+      new FailedBspSessionJob[T, A](BspException("BSP session is not available", deathReason.orNull))
+    }
     jobs.put(job)
     job
   }
 
-  def isAlive: Boolean = ! sessionShutdown.isCompleted
+  def isAlive: Boolean = {
+    ! sessionShutdown.isCompleted &&
+      ! queueProcessor.isDone
+  }
 
-  def shutdown(error: Option[BspError] = None): CompletableFuture[Unit] = {
+  private def deathReason = {
+    val sessionError = sessionShutdown.future.value.flatMap {
+      case Success(_) => None
+      case Failure(exception) => Some(exception)
+    }
+    val queueError = Try(queueProcessor.get()) match {
+      case Success(_) => None
+      case Failure(exception) => Some(exception)
+    }
+
+    sessionError.orElse(queueError)
+  }
+
+  def shutdown(error: Option[BspError] = None): Try[Unit] = {
     def whenDone: CompletableFuture[Unit] = {
       serverConnection.server.buildShutdown()
         .thenApply[Unit](_=>())
@@ -144,12 +175,7 @@ class BspSession(bspIn: InputStream,
               val fullMessage = s"$msg (code ${errorObject.getCode}). Data: ${errorObject.getData}"
               logger.error(fullMessage)
           }
-
-          serverConnection.cancelable.cancel()
         }
-
-      // TODO timeout shutdown
-      // TODO check process state, hard-kill bsp process if shutdown was not orderly
     }
 
     error match {
@@ -164,7 +190,9 @@ class BspSession(bspIn: InputStream,
     }
     queueProcessor.cancel(false)
     sessionInitialized.cancel(false)
-    whenDone
+    val result = Try(whenDone.get(sessionTimeout.toMillis, TimeUnit.MILLISECONDS))
+    serverConnection.cancelable.cancel()
+    result
   }
 
 
@@ -185,23 +213,30 @@ class BspSession(bspIn: InputStream,
       currentJob.notification(event)
       notifications(event)
     }
-    override def onBuildTargetCompileReport(params: bsp4j.CompileReport): Unit = {
-      val event = CompileReport(params)
+
+    override def onBuildTaskStart(params: bsp4j.TaskStartParams): Unit = {
+      val event = TaskStart(params)
       currentJob.notification(event)
-      notifications(event)
     }
-    override def onBuildTargetTest(testReport: bsp4j.TestReport): Unit = ()
+
+    override def onBuildTaskProgress(params: bsp4j.TaskProgressParams): Unit = {
+      val event = TaskProgress(params)
+      currentJob.notification(event)
+    }
+
+    override def onBuildTaskFinish(params: bsp4j.TaskFinishParams): Unit = {
+      val event = TaskFinish(params)
+      currentJob.notification(event)
+    }
 
     // build-level notifications
-    override def onConnectWithServer(server: BuildServer): Unit = super.onConnectWithServer(server)
+    override def onConnectWithServer(server: bsp4j.BuildServer): Unit = super.onConnectWithServer(server)
 
     override def onBuildTargetDidChange(didChange: bsp4j.DidChangeBuildTarget): Unit = {
       val event = DidChangeBuildTarget(didChange)
       notifications(event)
     }
 
-    override def buildRegisterFileWatcher(params: bsp4j.RegisterFileWatcherParams): CompletableFuture[bsp4j.RegisterFileWatcherResult] = null // TODO
-    override def buildCancelFileWatcher(params: bsp4j.CancelFileWatcherParams): CompletableFuture[CancelFileWatcherResult] = null // TODO
   }
 }
 
@@ -212,13 +247,25 @@ object BspSession {
   type NotificationCallback = BspNotification => Unit
   type BspSessionTask[T] = BspServer => CompletableFuture[T]
 
-  trait BspServer extends BuildServer with ScalaBuildServer
-  trait BspClient extends BuildClient
+  trait BspServer extends bsp4j.BuildServer with bsp4j.ScalaBuildServer
+  trait BspClient extends bsp4j.BuildClient
 
   private abstract class BspSessionJob[T,A] extends BspJob[(T,A)] {
     private[BspSession] def notification(bspNotification: BspNotification): Unit
     private[BspSession] def run(bspServer: BspServer): CompletableFuture[(T, A)]
     private[BspSession] def cancelWithError(error: BspError)
+  }
+
+  private class FailedBspSessionJob[T,A](problem: BspError) extends BspSessionJob[T,A] {
+    override private[BspSession] def notification(bspNotification: BspNotification): Unit = ()
+    override private[BspSession] def run(bspServer: BspServer): CompletableFuture[(T, A)] = {
+      val cf = new CompletableFuture[(T, A)]()
+      cf.completeExceptionally(problem)
+      cf
+    }
+    override private[BspSession] def cancelWithError(error: BspError): Unit = ()
+    override def future: Future[(T, A)] = Future.failed(problem)
+    override def cancel(): Unit = ()
   }
 
   private class Bsp4jJob[T,A](task: BspSessionTask[T], default: A, aggregator: NotificationAggregator[A]) extends BspSessionJob[T,A] {
@@ -259,7 +306,8 @@ object BspSession {
     override def future: Future[(T, A)] = promise.future
 
     override def cancel() : Unit =
-      cancelWithError(BspTaskCancelled)
+      if (! promise.isCompleted)
+        cancelWithError(BspTaskCancelled)
 
     override def cancelWithError(error: BspError): Unit = runningTask.synchronized {
       runningTask match {

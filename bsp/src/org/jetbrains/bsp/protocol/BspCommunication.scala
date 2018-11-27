@@ -4,6 +4,8 @@ import java.io.File
 import java.net.URI
 import java.nio.file._
 
+import ch.epfl.scala.bsp4j.BspConnectionDetails
+import com.google.gson.Gson
 import com.intellij.openapi.components.ProjectComponent
 import com.intellij.openapi.diagnostic.Logger
 import com.intellij.openapi.externalSystem.importing.ImportSpecBuilder
@@ -11,16 +13,18 @@ import com.intellij.openapi.externalSystem.util.ExternalSystemUtil
 import com.intellij.openapi.fileEditor.FileDocumentManager
 import com.intellij.openapi.project.{Project, ProjectUtil}
 import com.intellij.openapi.util.SystemInfo
+import com.intellij.openapi.util.text.StringUtil.defaultIfEmpty
+import com.intellij.util.SystemProperties
 import com.intellij.util.net.NetUtils
 import org.jetbrains.bsp.protocol.BspCommunication._
 import org.jetbrains.bsp.protocol.BspNotifications.BspNotification
 import org.jetbrains.bsp.protocol.BspServerConnector._
 import org.jetbrains.bsp.protocol.BspSession.{BspSessionTask, NotificationAggregator, NotificationCallback}
 import org.jetbrains.bsp.settings.{BspExecutionSettings, BspProjectSettings, BspSettings}
-import org.jetbrains.bsp.{BSP, BspError}
+import org.jetbrains.bsp.{BSP, BspError, BspErrorMessage}
 
-import scala.concurrent.{Future, Promise}
-import scala.util.Random
+import scala.io.Source
+import scala.util.{Failure, Random, Success, Try}
 
 class BspCommunicationComponent(project: Project) extends ProjectComponent {
 
@@ -88,16 +92,11 @@ class BspCommunication(base: File, project: Option[Project], executionSettings: 
     case _ => // ignore
   }
 
-  def closeSession(): Future[Unit] = session match {
-    case None => Future.successful(())
+  def closeSession(): Try[Unit] = session match {
+    case None => Success(())
     case Some(s) =>
-      val promise = Promise[Unit]
+      session = None
       s.shutdown()
-        .whenComplete{(_,error) =>
-          if (error != null) promise.failure(error)
-          else promise.success(())
-        }
-      promise.future
   }
 
   def run[T, A](task: BspSessionTask[T], default: A, aggregator: NotificationAggregator[A]): BspJob[(T, A)] = {
@@ -137,13 +136,13 @@ object BspCommunication {
   private[protocol] def prepareSession(base: File, bspExecutionSettings: BspExecutionSettings): Either[BspError, BspSession] = {
 
     val supportedLanguages = List("scala","java") // TODO somehow figure this out more generically?
-    val capabilities = BspCapabilities(supportedLanguages, providesFileWatching = false) // TODO we can provide file watching
+    val capabilities = BspCapabilities(supportedLanguages)
 
     val id = java.lang.Long.toString(Random.nextLong(), Character.MAX_RADIX)
 
     val tcpMethod = TcpBsp(new URI("localhost"), findFreePort(5001))
 
-    val preferredMethod =
+    val platformMethod =
       if (SystemInfo.isWindows) WindowsLocalBsp(id)
       else if (SystemInfo.isUnix) {
         val tempDir = Files.createTempDirectory("bsp-")
@@ -154,16 +153,80 @@ object BspCommunication {
       }
       else tcpMethod
 
+    val connectionDetails = findBspConfigs(base)
+
+    val configuredMethods = connectionDetails.map(ProcessBsp)
+
     val bloopConfigDir = new File(base, ".bloop").getCanonicalFile
 
     val connector =
-      if (bloopConfigDir.exists()) new BloopConnector(bspExecutionSettings.bloopExecutable, base, capabilities)
-      else {
-        // TODO need a protocol to detect generic bsp server
-        new GenericConnectorSync(base, capabilities)
-      }
+      if (connectionDetails.nonEmpty) new GenericConnectorSync(base, capabilities)
+      else if (bloopConfigDir.exists()) new BloopConnector(bspExecutionSettings.bloopExecutable, base, capabilities)
+      else new DummyConnector(base.toURI)
 
-    connector.connect(preferredMethod, tcpMethod)
+    val methodsInPreferenceOrder = platformMethod :: tcpMethod :: configuredMethods
+    connector.connect(methodsInPreferenceOrder : _*)
+  }
+
+  private def findBspConfigs(projectBase: File): List[BspConnectionDetails] = {
+
+    val workspaceConfigDir = new File(projectBase, ".bsp")
+    val workspaceConfigs = listFiles(List(workspaceConfigDir))
+    val systemConfigs = systemDependentConnectionFiles
+
+    val potentialConfigs = tryReadingConnectionFiles(workspaceConfigs ++ systemConfigs)
+
+    potentialConfigs.flatMap(_.toOption).toList
+  }
+
+  private def systemDependentConnectionFiles: List[File] = {
+    val basePaths =
+      if (SystemInfo.isWindows) windowsBspFiles()
+      else if (SystemInfo.isMac) macBspFiles()
+      else if (SystemInfo.isUnix) unixBspFiles()
+      else Nil
+
+    listFiles(bspDirs(basePaths))
+  }
+
+  private def tryReadingConnectionFiles(files: Seq[File]): Seq[Try[BspConnectionDetails]] = {
+    val gson = new Gson()
+    files.map { file =>
+      if (file.canRead) {
+        val reader = Source.fromFile(file).bufferedReader()
+        Try(gson.fromJson(reader, classOf[BspConnectionDetails]))
+      } else Failure(BspErrorMessage(s"file not readable: $file"))
+    }
+  }
+
+  private val BspDirName = "bsp"
+
+  private def windowsBspFiles() = {
+    val localAppData = System.getenv("LOCALAPPDATA")
+    val programData = System.getenv("PROGRAMDATA")
+    List(localAppData, programData)
+  }
+
+  private def unixBspFiles() = {
+    val xdgDataHome = System.getenv("XDG_DATA_HOME")
+    val xdgDataDirs = System.getenv("XDG_DATA_DIRS")
+    val dataHome = defaultIfEmpty(xdgDataHome, SystemProperties.getUserHome + "/.local/share")
+    val dataDirs = defaultIfEmpty(xdgDataDirs, "/usr/local/share:/usr/share").split(":").toList
+    dataHome :: dataDirs
+  }
+
+  private def macBspFiles() = {
+    val userHome = SystemProperties.getUserHome
+    val userData = userHome + "/Library/Application Support"
+    val systemData = "/Library/Application Support"
+    List(userData, systemData)
+  }
+
+  private def bspDirs(basePaths: List[String]): List[File] = basePaths.map(new File(_, BspDirName))
+
+  private def listFiles(dirs: List[File]): List[File] = dirs.flatMap { dir =>
+    if (dir.isDirectory) dir.listFiles()
+    else Array.empty[File]
   }
 
 
