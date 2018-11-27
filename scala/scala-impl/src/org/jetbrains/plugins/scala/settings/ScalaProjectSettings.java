@@ -5,7 +5,6 @@ import com.intellij.openapi.components.*;
 import com.intellij.openapi.project.Project;
 import com.intellij.util.xmlb.XmlSerializerUtil;
 import org.jetbrains.annotations.NotNull;
-import org.jetbrains.plugins.scala.components.libextensions.LibraryExtensionsManager$;
 import org.jetbrains.plugins.scala.statistics.FeatureKey;
 import org.jetbrains.plugins.scala.statistics.Stats;
 
@@ -90,7 +89,6 @@ public class ScalaProjectSettings  implements PersistentStateComponent<ScalaProj
   // LIBRARY EXTENSIONS
   private boolean ENABLE_LIBRARY_EXTENSIONS = true;
   private boolean LEXT_SHOW_ALL_PROJECTS = false;
-  private Set<Integer> DISABLED_EXTENSIONS = new HashSet<>();
 
   //INDEXING
   private boolean ENABLE_LOCAL_DEPENDENCY_INDEXING = true;
@@ -485,14 +483,6 @@ public class ScalaProjectSettings  implements PersistentStateComponent<ScalaProj
 
   public void setLextShowAllProjects(boolean LEXT_SHOW_ALL_PROJECTS) {
     this.LEXT_SHOW_ALL_PROJECTS = LEXT_SHOW_ALL_PROJECTS;
-  }
-
-  public Set<Integer> getDisabledExtensions() {
-    return DISABLED_EXTENSIONS;
-  }
-
-  public void setDisabledExtensions(Set<Integer> DISABLED_EXTENSIONS) {
-    this.DISABLED_EXTENSIONS = DISABLED_EXTENSIONS;
   }
 
     public ScalaMetaMode getScalaMetaMode() {
