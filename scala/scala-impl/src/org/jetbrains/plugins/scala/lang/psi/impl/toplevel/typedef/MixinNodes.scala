@@ -55,19 +55,34 @@ abstract class MixinNodes {
     private[Map] val implicitNames: SmartHashSet[String] = new SmartHashSet[String]
     private val publicsMap: mutable.HashMap[String, NodesMap] = mutable.HashMap.empty
     private val privatesMap: mutable.HashMap[String, ArrayBuffer[SigToSuper]] = mutable.HashMap.empty
-    def addToMap(key: T, node: Node) {
+
+    def addToMap(key: T, node: Node, isSynthetic: Boolean = false) {
       val name = ScalaNamesUtil.clean(elemName(key))
       if (isPrivate(key)) {
         privatesMap.getOrElseUpdate(name, ArrayBuffer.empty) += ((key, node))
       }
       else {
         val nodesMap = publicsMap.getOrElseUpdate(name, new NodesMap)
-        nodesMap.update(key, node)
+
+        if (nodesMap.contains(key) && isSynthetic) () //don't override existing signatures with synthetic ones
+        else nodesMap.update(key, node)
       }
       if (isImplicit(key)) implicitNames.add(name)
     }
 
     def publicNames: collection.Set[String] = publicsMap.keySet
+
+    def contains(key: T): Boolean = {
+      val name = ScalaNamesUtil.clean(elemName(key))
+      if (isPrivate(key)) {
+        if (privatesMap.contains(name)) privatesMap(name).contains(key)
+        else false
+      }
+      else {
+        if (publicsMap.contains(name)) publicsMap(name).contains(key)
+        else false
+      }
+    }
 
     def addPublicsFrom(map: Map): Unit = publicsMap ++= map.publicsMap
 

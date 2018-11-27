@@ -116,6 +116,10 @@ object TypeDefinitionMembers {
         map addToMap (s, new Node(s, subst))
       }
 
+      def addSynthetic(s: Signature): Unit ={
+        map.addToMap(s, new Node(s, subst), isSynthetic = true)
+      }
+
       if (template.qualifiedName == "scala.AnyVal") {
         //we need to add Object members
         val obj = ScalaPsiManager.instance(template.getProject).getCachedClass(template.resolveScope, "java.lang.Object")
@@ -132,7 +136,7 @@ object TypeDefinitionMembers {
 
       for (method <- template.syntheticMethodsWithOverride if method.getParameterList.getParametersCount == 0) {
         val sig = new PhysicalSignature(method, subst)
-        addSignature(sig)
+        addSynthetic(sig)
       }
 
       for (member <- template.members) {
@@ -192,10 +196,10 @@ object TypeDefinitionMembers {
 
       for (td <- template.syntheticTypeDefinitions) {
         td match {
-          case obj: ScObject => addSignature(Signature(obj, subst))
+          case obj: ScObject => addSynthetic(Signature(obj, subst))
           case td: ScTypeDefinition =>
             td.fakeCompanionModule match {
-              case Some(obj) => addSignature(Signature(obj, subst))
+              case Some(obj) => addSynthetic(Signature(obj, subst))
               case _ =>
             }
           case _ =>
@@ -205,7 +209,7 @@ object TypeDefinitionMembers {
       if (!base) {
         for (method <- template.syntheticMethodsNoOverride if method.getParameterList.getParametersCount == 0) {
           val sig = new PhysicalSignature(method, subst)
-          addSignature(sig)
+          addSynthetic(sig)
         }
       }
     }
@@ -357,6 +361,10 @@ object TypeDefinitionMembers {
         map addToMap (s, new Node(s, subst))
       }
 
+      def addSynthetic(s: Signature): Unit = {
+        map.addToMap(s, new Node(s, subst), isSynthetic = true)
+      }
+
       if (template.qualifiedName == "scala.AnyVal") {
         //we need to add Object members
         val obj = ScalaPsiManager.instance.getCachedClass(template.resolveScope, "java.lang.Object")
@@ -373,7 +381,7 @@ object TypeDefinitionMembers {
 
       for (method <- template.syntheticMethodsWithOverride) {
         val sig = new PhysicalSignature(method, subst)
-        addSignature(sig)
+        addSynthetic(sig)
       }
 
       for (member <- template.members) {
@@ -457,10 +465,10 @@ object TypeDefinitionMembers {
 
       for (td <- template.syntheticTypeDefinitions) {
         td match {
-          case obj: ScObject => addSignature(Signature(obj, subst))
+          case obj: ScObject => addSynthetic(Signature(obj, subst))
           case td: ScTypeDefinition =>
             td.fakeCompanionModule match {
-              case Some(obj) => addSignature(Signature(obj, subst))
+              case Some(obj) => addSynthetic(Signature(obj, subst))
               case _ =>
             }
           case _ =>
@@ -470,7 +478,7 @@ object TypeDefinitionMembers {
       if (!base) {
         for (member <- template.syntheticMethodsNoOverride) {
           val sig = new PhysicalSignature(member, subst)
-          addSignature(sig)
+          addSynthetic(sig)
         }
       }
     }
@@ -867,20 +875,23 @@ object TypeDefinitionMembers {
           }
         }
 
-        def runIterator(iterator: Iterator[(SignatureNodes.T, SignatureNodes.Node)]): Option[Boolean] = {
+        def processAll(iterator: Iterator[(Signature, SignatureNodes.Node)], isSynthetic: Boolean): Boolean = {
           while (iterator.hasNext) {
-            val (_, n) = iterator.next()
+            val (key, n) = iterator.next()
             ProgressManager.checkCanceled()
             val method = n.info match {
               case phys: PhysicalSignature => phys.method
               case _ => null
             }
-            if (method != null && checkName(method.name)) {
-              val substitutor = n.substitutor followed subst
-              if (!processor.execute(method, state.put(ScSubstitutor.key, substitutor))) return Some(false)
+            if (method != null && checkName(method.name) && signatures.isInstanceOf[SignatureNodes.Map]) {
+              if (isSynthetic && signatures.asInstanceOf[SignatureNodes.Map].contains(key)) ()
+              else {
+                val substitutor = n.substitutor followed subst
+                if (!processor.execute(method, state.put(ScSubstitutor.key, substitutor))) return false
+              }
             }
           }
-          None
+          true
         }
 
         if (processMethods) {
@@ -888,17 +899,11 @@ object TypeDefinitionMembers {
           val valuesIterator = maps.iterator
           while (valuesIterator.hasNext) {
             val iterator = valuesIterator.next().iterator
-            runIterator(iterator) match {
-              case Some(x) => return x
-              case None =>
-            }
+            if (!processAll(iterator, isSynthetic = false)) return false
           }
 
           //todo: this is hack, better to split imports resolve into import for types and for expressions.
-          runIterator(syntheticMethods().iterator) match {
-            case Some(x) => return x
-            case None =>
-          }
+          if (!processAll(syntheticMethods().iterator, isSynthetic = true)) return false
         }
       }
       true
