@@ -1173,4 +1173,30 @@ class ScalaOverrideImplementTest extends ScalaLightPlatformCodeInsightTestCaseAd
     val isImplement = true
     runTest(methodName, fileText, expectedText, isImplement)
   }
+
+  def testAbstractMethodModifier(): Unit = {
+    val fileText =
+      """
+        |abstract class ClassToOverride {
+        |  abstract def methodToOverride(): Unit
+        |}
+        |
+        |class OverridingClass extends ClassToOverride {
+        |  <caret>
+        |}
+        |
+    """.stripMargin
+    val expectedResult =
+      """
+        |abstract class ClassToOverride {
+        |  abstract def methodToOverride(): Unit
+        |}
+        |
+        |class OverridingClass extends ClassToOverride {
+        |  def methodToOverride(): Unit = ???
+        |}
+      """.stripMargin
+    val methodName = "methodToOverride"
+    runTest(methodName, fileText, expectedResult, isImplement = true)
+  }
 }
