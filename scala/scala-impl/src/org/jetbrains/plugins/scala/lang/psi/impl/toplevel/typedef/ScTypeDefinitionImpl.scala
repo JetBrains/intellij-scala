@@ -286,16 +286,11 @@ abstract class ScTypeDefinitionImpl[T <: ScTemplateDefinition](stub: ScTemplateD
     createObjectWithContext(objText, getContext, child) match {
       case null => None
       case obj =>
-        val maybeCaseClass = this match {
-          case clazz: ScClass if clazz.isCase => Some(clazz)
-          case _ => None
-        }
-
         obj.isSyntheticObject = true
+        obj.syntheticNavigationElement = this
         obj.physicalExtendsBlock.members.foreach {
           case s: ScFunctionDefinition =>
             s.syntheticNavigationElement = this // So we find the `apply` method in ScalaPsiUtil.syntheticParamForParam
-            maybeCaseClass.foreach(s.syntheticCaseClass_=)
           case _ =>
         }
         Some(obj)

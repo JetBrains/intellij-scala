@@ -24,13 +24,15 @@ import org.jetbrains.plugins.scala.lang.parser.ScalaElementType._
 import org.jetbrains.plugins.scala.lang.psi.api.base.ScMethodLike
 import org.jetbrains.plugins.scala.lang.psi.api.base.types._
 import org.jetbrains.plugins.scala.lang.psi.api.expr.{ScBlock, ScBlockStatement}
+import org.jetbrains.plugins.scala.lang.psi.api.statements.ScFunction.CommonNames
+import org.jetbrains.plugins.scala.lang.psi.api.statements.ScFunction.CommonNames.{Apply, Unapply, UnapplySeq}
 import org.jetbrains.plugins.scala.lang.psi.api.statements.params._
 import org.jetbrains.plugins.scala.lang.psi.api.toplevel._
 import org.jetbrains.plugins.scala.lang.psi.api.toplevel.templates.ScExtendsBlock
 import org.jetbrains.plugins.scala.lang.psi.api.toplevel.typedef._
 import org.jetbrains.plugins.scala.lang.psi.fake.{FakePsiReferenceList, FakePsiTypeParameterList}
 import org.jetbrains.plugins.scala.lang.psi.impl.toplevel.synthetic.{JavaIdentifier, SyntheticClasses}
-import org.jetbrains.plugins.scala.lang.psi.impl.toplevel.typedef.TypeDefinitionMembers
+import org.jetbrains.plugins.scala.lang.psi.impl.toplevel.typedef.{ObjectWithCompanion, TypeDefinitionMembers}
 import org.jetbrains.plugins.scala.lang.psi.light.ScFunctionWrapper
 import org.jetbrains.plugins.scala.lang.psi.types._
 import org.jetbrains.plugins.scala.lang.psi.types.api._
@@ -66,11 +68,16 @@ trait ScFunction extends ScalaPsiElement with ScMember with ScTypeParametersOwne
     probablyRecursive.set(value)
   }
 
-  final def syntheticCaseClass: ScClass =
-    getUserData(ScFunction.syntheticCaseClassKey)
-
-  final def syntheticCaseClass_=(caseClass: ScClass): Unit =
-    putUserData(ScFunction.syntheticCaseClassKey, caseClass)
+  final def syntheticCaseClass: ScClass = {
+    val functionName = name
+    if (functionName == Apply || functionName == Unapply || functionName == UnapplySeq) {
+      syntheticContainingClass match {
+        case ObjectWithCompanion(_, cl) if cl.isCase => cl
+        case _                                       => null
+      }
+    }
+    else null
+  }
 
   def hasUnitResultType: Boolean = {
     @tailrec
@@ -519,8 +526,6 @@ trait ScFunction extends ScalaPsiElement with ScMember with ScTypeParametersOwne
 }
 
 object ScFunction {
-
-  private val syntheticCaseClassKey = Key.create[ScClass]("ScFunction.syntheticCaseClass")
 
   implicit class CommonNames(val function: ScFunction) extends AnyVal {
 

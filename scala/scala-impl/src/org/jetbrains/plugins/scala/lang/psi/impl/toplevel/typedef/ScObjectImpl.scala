@@ -128,7 +128,6 @@ class ScObjectImpl(stub: ScTemplateDefinitionStub[ScObject],
           try {
             val method = ScalaPsiElementFactory.createMethodWithContext(s, c.getContext, c)
             method.syntheticNavigationElement = this
-            method.syntheticCaseClass = c
             res += method
           }
           catch {
