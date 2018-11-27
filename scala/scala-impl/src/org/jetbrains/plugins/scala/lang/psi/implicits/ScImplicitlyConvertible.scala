@@ -8,11 +8,9 @@ import com.intellij.openapi.progress.ProgressManager
 import com.intellij.psi._
 import com.intellij.psi.util.PsiTreeUtil
 import org.jetbrains.plugins.scala.lang.psi.api.InferUtil.findImplicits
-import org.jetbrains.plugins.scala.lang.psi.api.base.patterns.ScBindingPattern
 import org.jetbrains.plugins.scala.lang.psi.api.expr.ScExpression
 import org.jetbrains.plugins.scala.lang.psi.api.statements._
 import org.jetbrains.plugins.scala.lang.psi.api.statements.params.{ScParameter, ScParameterClause}
-import org.jetbrains.plugins.scala.lang.psi.api.toplevel.typedef._
 import org.jetbrains.plugins.scala.lang.psi.types._
 import org.jetbrains.plugins.scala.lang.psi.types.api._
 import org.jetbrains.plugins.scala.lang.psi.types.api.designator.ScDesignatorType
@@ -120,80 +118,65 @@ object ScImplicitlyConvertible {
     ScalaPsiUtil.debug(s"Check implicit: $result for type: ${`type`}", LOG)
 
     val ScalaResolveResult(element, substitutor) = result
-
     if (PsiTreeUtil.isContextAncestor(ScalaPsiUtil.nameContext(element), expression, false)) return None
 
-    //to prevent infinite recursion
-    ProgressManager.checkCanceled()
+    ProgressManager.checkCanceled() // to prevent infinite recursion
+    val (mapResult, message) = forMapImpl(element, `type`, substitutor)
 
-    val (tp: ScType, resultType: ScType) = element match {
-      case f: ScFunction if f.paramClauses.clauses.nonEmpty => getTypes(substitutor, f)
-      case _ => getTypes(substitutor, element).getOrElse(return None)
-    }
-
-    val newSubstitutor = element match {
-      case f: ScFunction => ScalaPsiUtil.inferMethodTypesArgs(f, substitutor)
-      case _ => ScSubstitutor.empty
-    }
-
-    val substituted = newSubstitutor(tp)
-    if (!`type`.weakConforms(substituted)) {
-      ScalaPsiUtil.debug(s"Implicit $result doesn't conform to ${`type`}", LOG)
-      return None
-    }
-
-    val mapResult = element match {
-      case function: ScFunction if function.hasTypeParameters =>
-        val constraints = `type`.conforms(substituted, ConstraintSystem.empty).constraints
-        createSubstitutors(function, `type`, substitutor, constraints, resultType)
-      case _ => Some(resultType, ScSubstitutor.empty)
-    }
-
-    val message = mapResult match {
-      case Some(_) => "is ok"
-      case _ => "has problems with type parameters bounds"
-    }
-
-    ScalaPsiUtil.debug(s"Implicit $result $message for type ${`type`}", LOG)
-
+    ScalaPsiUtil.debug(s"Implicit $result $message ${`type`}", LOG)
     mapResult
   }
 
-  private def getTypes(substitutor: ScSubstitutor, function: ScFunction) = {
-    val clause = function.paramClauses.clauses.head
-    val firstParameter = clause.parameters.head
+  private def forMapImpl(element: PsiNamedElement, `type`: ScType, substitutor: ScSubstitutor)
+                        (implicit expression: ScExpression) = {
+    val maybeTypes = element match {
+      case function: ScFunction =>
+        val returnType = function.returnType.map(substitutor)
+        val argumentSubstitutor = ScalaPsiUtil.inferMethodTypesArgs(function, substitutor)
 
-    val argumentType = firstParameter.`type`()
+        function.paramClauses.clauses.headOption match {
+          case Some(clause) =>
+            val argumentType = clause.parameters.head.`type`()
+              .map(substitutor)
+              .getOrNothing
 
-    def substitute(maybeType: TypeResult) =
-      maybeType.map(substitutor)
-        .getOrNothing
+            Some(argumentSubstitutor(argumentType), returnType.getOrNothing)
+          case _ =>
+            argumentAndReturnTypes(returnType, argumentSubstitutor)
+        }
+      case typeable: Typeable =>
+        val substituted = typeable.`type`().map(substitutor)
+        argumentAndReturnTypes(substituted)
+    }
 
-    (substitute(argumentType), substitute(function.returnType))
+    maybeTypes match {
+      case Some((argumentType, resultType)) if `type`.weakConforms(argumentType) =>
+        val mapResult = element match {
+          case function: ScFunction if function.hasTypeParameters =>
+            val constraints = `type`.conforms(argumentType, ConstraintSystem.empty).constraints
+            createSubstitutors(function, `type`, substitutor, constraints, resultType)
+          case _ => Some(resultType, ScSubstitutor.empty)
+        }
+
+        (mapResult, (if (mapResult.isDefined) "is ok" else "has problems with type parameters bounds") + " for type")
+      case _ => (None, "does not conform to")
+    }
   }
 
-  private def getTypes(substitutor: ScSubstitutor, element: PsiNamedElement)
-                      (implicit place: ScExpression): Option[(ScType, ScType)] = {
-    val maybeElementType = (element match {
-      case f: ScFunction => f.returnType
-      case _: ScBindingPattern | _: ScParameter | _: ScObject =>
-        // View Bounds and Context Bounds are processed as parameters.
-        element.asInstanceOf[Typeable].`type`()
-    }).toOption
-
+  private def argumentAndReturnTypes(typeResult: TypeResult,
+                                     argumentSubstitutor: ScSubstitutor = ScSubstitutor.empty)
+                                    (implicit place: ScExpression): Option[(ScType, ScType)] =
     for {
-      funType <- place.elementScope.cachedFunction1Type
-      elementType <- maybeElementType
+      functionType <- place.elementScope.cachedFunction1Type
+      elementType <- typeResult.toOption
 
-      substitution = substitutor(elementType).conforms(funType, ConstraintSystem.empty) match {
+      substitution = elementType.conforms(functionType, ConstraintSystem.empty) match {
         case ConstraintSystem(newSubstitutor) => newSubstitutor
         case _ => Function.const(Nothing) _
       }
 
-      argumentType :: resultType :: Nil = funType.typeArguments.toList
-        .map(substitution)
+      Seq(argumentType, resultType) = functionType.typeArguments.map(substitution)
     } yield (argumentType, resultType)
-  }
 
   private def createSubstitutors(function: ScFunction,
                                  `type`: ScType,
@@ -202,32 +185,35 @@ object ScImplicitlyConvertible {
                                  resultType: ScType)
                                 (implicit place: ScExpression) = constraints match {
     case ConstraintSystem(unSubst) =>
-      val typeParamIds = function.typeParameters.map(_.typeParamId).toSet
-
-      def hasRecursiveTypeParameters(`type`: ScType): Boolean = `type`.hasRecursiveTypeParameters(typeParamIds)
+      val typeParameters = function.typeParameters.map { typeParameter =>
+        typeParameter -> typeParameter.typeParamId
+      }
+      val typeParamIds = typeParameters.map(_._2).toSet
 
       var lastConstraints = constraints
+      val boundsSubstitutor = substitutor.andThen(unSubst)
 
-      def substitute(maybeType: TypeResult) = maybeType
-        .toOption
-        .map(substitutor)
-        .map(unSubst)
-        .withFilter(!hasRecursiveTypeParameters(_))
+      def substitute(maybeBound: TypeResult) =
+        for {
+          bound <- maybeBound.toOption
+          substituted = boundsSubstitutor(bound)
+          if !substituted.hasRecursiveTypeParameters(typeParamIds)
+        } yield substituted
 
-      function.typeParameters.foreach { typeParameter =>
-        val typeParamId = typeParameter.typeParamId
-
-        substitute(typeParameter.lowerBound).foreach { lower =>
-          lastConstraints = lastConstraints.withLower(typeParamId, lower)
+      for {
+        (typeParameter, typeParamId) <- typeParameters
+      } {
+        lastConstraints = substitute(typeParameter.lowerBound).fold(lastConstraints) {
+          lastConstraints.withLower(typeParamId, _)
         }
 
-        substitute(typeParameter.upperBound).foreach { upper =>
-          lastConstraints = lastConstraints.withUpper(typeParamId, upper)
+        lastConstraints = substitute(typeParameter.upperBound).fold(lastConstraints) {
+          lastConstraints.withUpper(typeParamId, _)
         }
       }
 
       lastConstraints match {
-        case ConstraintSystem(_) =>
+        case ConstraintSystem(lastSubstitutor) =>
           val clauses = function.paramClauses.clauses
 
           val parameters = clauses.headOption.toSeq.flatMap(_.parameters).map(Parameter(_))
@@ -262,14 +248,10 @@ object ScImplicitlyConvertible {
           val (inferredParameters, expressions, _) = findImplicits(effectiveParameters, None, place, canThrowSCE = false,
             abstractSubstitutor = substitutor.followed(dependentSubstitutor).followed(unSubst))
 
-          lastConstraints match {
-            case ConstraintSystem(lastSubstitutor) =>
-              Some(
-                lastSubstitutor(dependentSubstitutor(resultType)),
-                ScSubstitutor.paramToExprType(inferredParameters, expressions, useExpected = false)
-              )
-            case _ => None
-          }
+          Some(
+            lastSubstitutor(dependentSubstitutor(resultType)),
+            ScSubstitutor.paramToExprType(inferredParameters, expressions, useExpected = false)
+          )
         case _ => None
       }
     case _ => None
