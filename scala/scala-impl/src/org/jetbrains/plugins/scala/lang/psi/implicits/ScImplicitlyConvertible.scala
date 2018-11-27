@@ -13,7 +13,6 @@ import org.jetbrains.plugins.scala.lang.psi.api.expr.ScExpression
 import org.jetbrains.plugins.scala.lang.psi.api.statements._
 import org.jetbrains.plugins.scala.lang.psi.api.statements.params.{ScParameter, ScParameterClause}
 import org.jetbrains.plugins.scala.lang.psi.api.toplevel.typedef._
-import org.jetbrains.plugins.scala.lang.psi.implicits.ScImplicitlyConvertible._
 import org.jetbrains.plugins.scala.lang.psi.types._
 import org.jetbrains.plugins.scala.lang.psi.types.api._
 import org.jetbrains.plugins.scala.lang.psi.types.api.designator.ScDesignatorType
@@ -32,83 +31,89 @@ import scala.collection.{Set, mutable}
   * @author alefas, ilyas
   */
 //todo: refactor this terrible code
-class ScImplicitlyConvertible(private[this] val fromUnderscore: Boolean = false)
-                             (implicit private[this] val place: ScExpression) {
+object ScImplicitlyConvertible {
 
-  private lazy val placeType =
-    place.getTypeWithoutImplicits(fromUnderscore = fromUnderscore).map {
-      _.tryExtractDesignatorSingleton
-    }.toOption
+  private val LOG = Logger.getInstance("#org.jetbrains.plugins.scala.lang.psi.implicits.ScImplicitlyConvertible")
 
-  import ScImplicitlyConvertible.LOG
+  def implicitMap(implicit place: ScExpression): Seq[ImplicitResolveResult] =
+    findPlaceType(fromUnderscore = false) { placeType =>
+      val seen = mutable.HashSet.empty[PsiNamedElement]
+      val buffer = mutable.ArrayBuffer.empty[ImplicitResolveResult]
 
-  def implicitMap: Seq[ImplicitResolveResult] = {
-    val seen = mutable.HashSet.empty[PsiNamedElement]
-    val buffer = mutable.ArrayBuffer.empty[ImplicitResolveResult]
+      for {
+        elem <- collectRegulars(placeType)
+        if seen.add(elem.element)
+      } buffer += elem
 
-    for {
-      elem <- collectRegulars
-      if seen.add(elem.element)
-    } buffer += elem
+      for {
+        elem <- collectCompanions(placeType, Seq.empty)
+        if seen.add(elem.element)
+      } buffer += elem
 
-    for {
-      elem <- collectCompanions(Seq.empty)
-      if seen.add(elem.element)
-    } buffer += elem
+      buffer
+    }
 
-    buffer
-  }
+  def implicits(fromUnderscore: Boolean)
+               (implicit place: ScExpression): Seq[PsiNamedElement] =
+    findPlaceType(fromUnderscore) { placeType =>
+      val result = collectRegulars(placeType).map(_.element) ++
+        collectCompanions(placeType, arguments = place.expectedTypes(fromUnderscore)).map(_.element)
+      result.toSeq
+    }
 
-  def implicits: Set[PsiNamedElement] =
-    collectRegulars.map(_.element) ++
-      collectCompanions(arguments = place.expectedTypes(fromUnderscore)).map(_.element)
+  private def findPlaceType[T](fromUnderscore: Boolean)
+                              (collector: ScType => Seq[T])
+                              (implicit place: ScExpression) =
+    place.getTypeWithoutImplicits(fromUnderscore = fromUnderscore)
+      .map(_.tryExtractDesignatorSingleton)
+      .fold(
+        Function.const(Seq.empty[T]),
+        collector
+      )
 
   private def adaptResults[IR <: ImplicitResolveResult](candidates: Set[ScalaResolveResult], `type`: ScType)
-                                                       (f: (ScalaResolveResult, ScType, ScSubstitutor) => IR): Set[IR] =
+                                                       (f: (ScalaResolveResult, ScType, ScSubstitutor) => IR)
+                                                       (implicit place: ScExpression): Set[IR] =
     for {
       resolveResult <- candidates
       (resultType, substitutor) <- forMap(resolveResult, `type`)
     } yield f(resolveResult, resultType, substitutor)
 
   @CachedWithRecursionGuard(place, Set.empty, ModCount.getBlockModificationCount)
-  private def collectRegulars: Set[RegularImplicitResolveResult] = {
+  private def collectRegulars(placeType: ScType)
+                             (implicit place: ScExpression): Set[RegularImplicitResolveResult] = {
     ScalaPsiUtil.debug(s"Regular implicit map", LOG)
 
-    placeType.filterNot {
-      case _: UndefinedType => true
-      case scType => scType.isNothing
-    }.fold(Set.empty[RegularImplicitResolveResult]) { scType =>
-      val candidates = new CollectImplicitsProcessor(place, false)
-        .candidatesByPlace
+    placeType match {
+      case _: UndefinedType => Set.empty
+      case _ if placeType.isNothing => Set.empty
+      case _ =>
+        val candidates = new CollectImplicitsProcessor(place, false)
+          .candidatesByPlace
 
-      adaptResults(candidates, scType) {
-        RegularImplicitResolveResult(_, _, _)
-      }
+        adaptResults(candidates, placeType) {
+          RegularImplicitResolveResult(_, _, _)
+        }
     }
   }
 
   @CachedWithRecursionGuard(place, Set.empty, ModCount.getBlockModificationCount)
-  private def collectCompanions(arguments: Seq[ScType]): Set[CompanionImplicitResolveResult] = {
+  private def collectCompanions(placeType: ScType, arguments: Seq[ScType])
+                               (implicit place: ScExpression): Set[CompanionImplicitResolveResult] = {
     ScalaPsiUtil.debug(s"Companions implicit map", LOG)
 
-    placeType.fold(Set.empty[CompanionImplicitResolveResult]) { scType =>
-      val expandedType = arguments match {
-        case Seq() => scType
-        case seq => TupleType(Seq(scType) ++ seq)(place.elementScope)
-      }
+    val expandedType = arguments match {
+      case Seq() => placeType
+      case seq => TupleType(Seq(placeType) ++ seq)(place.elementScope)
+    }
 
-      val candidates = new CollectImplicitsProcessor(place, true)
-        .candidatesByType(expandedType)
+    val candidates = new CollectImplicitsProcessor(place, true)
+      .candidatesByType(expandedType)
 
-      adaptResults(candidates, scType) {
-        CompanionImplicitResolveResult
-      }
+    adaptResults(candidates, placeType) {
+      CompanionImplicitResolveResult
     }
   }
-}
-
-object ScImplicitlyConvertible {
-  private implicit val LOG: Logger = Logger.getInstance("#org.jetbrains.plugins.scala.lang.psi.implicits.ScImplicitlyConvertible")
 
   def forMap(result: ScalaResolveResult, `type`: ScType)
             (implicit expression: ScExpression): Option[(ScType, ScSubstitutor)] = {

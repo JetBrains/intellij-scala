@@ -554,7 +554,7 @@ class ReferenceExpressionResolver(implicit projectContext: ProjectContext) {
       processor match {
         case _: CompletionProcessor =>
           for {
-            result <- new ScImplicitlyConvertible()(e).implicitMap // todo: args?
+            result <- ScImplicitlyConvertible.implicitMap(e) // todo: args?
             builder = result.builder.withImports.withImplicitType
           } processor.processType(result.`type`, e, builder.state)
 
