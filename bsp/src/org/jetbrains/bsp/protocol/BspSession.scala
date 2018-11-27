@@ -117,7 +117,7 @@ class BspSession(bspIn: InputStream,
         result
       }
       .exceptionally {
-        case responseError: ResponseErrorException => throw BspConnectionError(responseError.getMessage, responseError)
+        case NonFatal(error) => throw BspConnectionError(error.getMessage, error)
       }
   }
 
