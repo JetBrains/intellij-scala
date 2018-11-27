@@ -91,6 +91,8 @@ class LibraryExtensionsManager(project: Project) extends ProjectComponent {
   }
 
   private[libextensions] def processResolvedExtension(resolved: File): Unit = {
+    if (myLoadedLibraries.exists(_.file.getAbsolutePath == resolved.getAbsolutePath))
+      throw new ExtensionAlreadyLoadedException(resolved)
     val vFile = JarFileSystem.getInstance().findLocalVirtualFileByPath(resolved.getAbsolutePath)
     val manifest = Option(vFile.findFileByRelativePath(MANIFEST_PATH))
       .map(vFile => Try(using(vFile.getInputStream)(XMLNoDTD.load)))
