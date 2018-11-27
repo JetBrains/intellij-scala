@@ -136,7 +136,7 @@ object BspCommunication {
   private[protocol] def prepareSession(base: File, bspExecutionSettings: BspExecutionSettings): Either[BspError, BspSession] = {
 
     val supportedLanguages = List("scala","java") // TODO somehow figure this out more generically?
-    val capabilities = BspCapabilities(supportedLanguages, providesFileWatching = false) // TODO we can provide file watching
+    val capabilities = BspCapabilities(supportedLanguages)
 
     val id = java.lang.Long.toString(Random.nextLong(), Character.MAX_RADIX)
 

@@ -18,7 +18,7 @@ object BspServerConnector {
   final case class WindowsLocalBsp(pipeName: String) extends BspConnectionMethod
   final case class TcpBsp(host: URI, port: Int) extends BspConnectionMethod
 
-  case class BspCapabilities(languageIds: List[String], providesFileWatching: Boolean)
+  case class BspCapabilities(languageIds: List[String])
 }
 
 abstract class BspServerConnectorSync(val rootUri: URI, val capabilities: BspCapabilities) {
@@ -30,7 +30,7 @@ abstract class BspServerConnectorSync(val rootUri: URI, val capabilities: BspCap
   def connect(methods: BspConnectionMethod*): Either[BspError, BspSession]
 }
 
-class DummyConnector(rootUri: URI) extends BspServerConnectorSync(rootUri, BspCapabilities(Nil, providesFileWatching = false)) {
+class DummyConnector(rootUri: URI) extends BspServerConnectorSync(rootUri, BspCapabilities(Nil)) {
   override def connect(methods: BspConnectionMethod*): Either[BspError, BspSession] =
     Left(BspErrorMessage(s"No way found to connect to a BSP server for workspace $rootUri"))
 }
