@@ -5,12 +5,15 @@ import com.intellij.openapi.extensions.ExtensionPointName
 import com.intellij.openapi.progress.ProcessCanceledException
 import com.intellij.openapi.project.{DumbService, Project}
 import com.intellij.psi.PsiElement
+import org.jetbrains.plugins.scala.caches.CachesUtil
 import org.jetbrains.plugins.scala.components.libextensions.DynamicExtensionPoint
 import org.jetbrains.plugins.scala.lang.psi.ScalaPsiUtil
 import org.jetbrains.plugins.scala.lang.psi.api.base.types.ScTypeElement
 import org.jetbrains.plugins.scala.lang.psi.api.statements.ScFunction
+import org.jetbrains.plugins.scala.lang.psi.api.toplevel.templates.ScTemplateBody
 import org.jetbrains.plugins.scala.lang.psi.api.toplevel.typedef.{ScMember, ScObject, ScTypeDefinition}
 import org.jetbrains.plugins.scala.lang.psi.impl.ScalaPsiElementFactory
+import org.jetbrains.plugins.scala.macroAnnotations.{CachedInUserData, ModCount}
 
 import scala.collection.mutable.ArrayBuffer
 import scala.util.control.ControlThrowable
@@ -114,10 +117,11 @@ object SyntheticMembersInjector {
       injector <- EP_NAME.getExtensions.toSet ++ DYN_EP.getExtensions
       template <- injector.injectInners(source)
     } try {
-      val context = (source match {
+      val contextClass = source match {
         case o: ScObject if o.isSyntheticObject => ScalaPsiUtil.getCompanionModule(o).getOrElse(source)
         case _ => source
-      }).extendsBlock
+      }
+      val context = templateBodyOrSynthetic(contextClass)
       val td = ScalaPsiElementFactory.createTypeDefinitionWithContext(template, context, source)
       td.syntheticContainingClass = source
       updateSynthetic(td, context)
@@ -195,5 +199,18 @@ object SyntheticMembersInjector {
       td.members.foreach(updateSynthetic(_, context))
     case fun: ScFunction => fun.syntheticNavigationElement = context
     case _ => //todo: ?
+  }
+
+  private def templateBodyOrSynthetic(td: ScTypeDefinition): ScTemplateBody = {
+    val extendsBlock = td.extendsBlock
+
+    @CachedInUserData(td, CachesUtil.libraryAwareModTracker(td))
+    def syntheticTemplateBody: ScTemplateBody = {
+      val body = ScalaPsiElementFactory.createTemplateBody(td.getProject)
+      body.setContext(extendsBlock, extendsBlock.getLastChild)
+      body
+    }
+
+    extendsBlock.templateBody.getOrElse(syntheticTemplateBody)
   }
 }
