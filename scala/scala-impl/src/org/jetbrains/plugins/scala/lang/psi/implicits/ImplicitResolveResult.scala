@@ -97,7 +97,7 @@ object ImplicitResolveResult {
 
     builder = build(result.builder)
 
-    substituted = result.implicitDependentSubstitutor.subst(result.`type`)
+    substituted = result.implicitDependentSubstitutor(result.`type`)
   } processor.processType(substituted, place, builder.state)
 
   private[this] def findImplicitConversion(expressionType: ScType,

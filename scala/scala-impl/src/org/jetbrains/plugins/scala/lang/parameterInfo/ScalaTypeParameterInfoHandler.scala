@@ -11,7 +11,6 @@ import com.intellij.lang.parameterInfo._
 import com.intellij.psi._
 import com.intellij.psi.tree.IElementType
 import com.intellij.psi.util.PsiTreeUtil
-import com.intellij.util.ArrayUtil
 import org.jetbrains.plugins.scala.extensions._
 import org.jetbrains.plugins.scala.lang.lexer.ScalaTokenTypes
 import org.jetbrains.plugins.scala.lang.psi.api.base.ScReferenceElement
@@ -113,7 +112,7 @@ class ScalaTypeParameterInfoHandler extends ParameterInfoHandlerWithTabActionSup
         val refTypes = param.getExtendsList.getReferencedTypes
         if (refTypes.nonEmpty) {
           paramText = paramText + refTypes.map((typez: PsiType) => {
-            substitutor.subst(typez.toScType()(param.projectContext)).presentableText
+            substitutor(typez.toScType()(param.projectContext)).presentableText
           }).mkString(" <: ", " with ", "")
         }
         if (isBold) "<b>" + paramText + "</b>" else paramText
@@ -133,7 +132,7 @@ class ScalaTypeParameterInfoHandler extends ParameterInfoHandlerWithTabActionSup
         val paramText = StringBuilder.newBuilder ++= param.name
 
         def appendPresentableText(prefix: String, tp: ScType): Unit =
-          paramText.append(prefix).append(substitutor.subst(tp).presentableText)
+          paramText.append(prefix).append(substitutor(tp).presentableText)
 
         def makeBold(): Unit = paramText.insert(0, "<b>").append("</b>")
 

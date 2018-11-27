@@ -440,14 +440,14 @@ private[evaluation] trait ScalaEvaluatorBuilderUtil {
 
         val exprText = resolveResults(i) match {
           case ScalaResolveResult(clazz: ScTrait, substitutor) if clazz.qualifiedName == "scala.reflect.ClassManifest" =>
-            val argType = substitutor.subst(clazz.`type`().get)
+            val argType = substitutor(clazz.`type`().get)
             argType match {
               case ParameterizedType(_, Seq(paramType)) => classManifestText(paramType)
               case _ =>
                 throw EvaluationException(cannotFindMessage)
             }
           case ScalaResolveResult(clazz: ScTrait, substitutor) if clazz.qualifiedName == "scala.reflect.ClassTag" =>
-            val argType = substitutor.subst(clazz.`type`().get)
+            val argType = substitutor(clazz.`type`().get)
             argType match {
               case ParameterizedType(_, Seq(arg)) => classTagText(arg)
               case _ =>

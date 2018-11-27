@@ -41,7 +41,7 @@ sealed trait MethodTypeProvider[+T <: PsiElement] {
     val tpe =
       if (typeParams.isEmpty) methodType(returnType)
       else ScTypePolymorphicType(methodType(returnType), typeParams.map(TypeParameter(_)))
-    s.subst(tpe)
+    s(tpe)
   }
 }
 
@@ -49,7 +49,7 @@ trait ScalaMethodTypeProvider[+T <: ScalaPsiElement] extends MethodTypeProvider[
 
   def nestedMethodType(n: Int, `type`: Option[ScType] = None, substitutor: ScSubstitutor = ScSubstitutor.empty): Option[ScType] =
     nested(methodType(`type`), n)
-      .map(substitutor.subst)
+      .map(substitutor)
 
   /**
     * Unwraps the method type corresponding to the parameter secion at index `n`.

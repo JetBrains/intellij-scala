@@ -78,8 +78,8 @@ class ScalaPatternParameterInfoHandler extends ParameterInfoHandlerWithTabAction
 
             val subst = sign.substitutor
             val returnType = sign.method match {
-              case function: ScFunction => subst.subst(function.returnType.getOrAny)
-              case method: PsiMethod => subst.subst(method.getReturnType.toScType())
+              case function: ScFunction => subst(function.returnType.getOrAny)
+              case method: PsiMethod => subst(method.getReturnType.toScType())
             }
 
             val oneArgCaseClassMethod: Boolean = sign.method match {
@@ -219,7 +219,7 @@ class ScalaPatternParameterInfoHandler extends ParameterInfoHandlerWithTabAction
 
                         val maybeSubstitutor = for {
                           Typeable(parameterType) <- fun.parameters.headOption
-                          substituted = undefSubst.subst(parameterType)
+                          substituted = undefSubst(parameterType)
                           expectedType <- constr.expectedType
 
                           substitutor <- substituted.conformanceSubstitutor(expectedType)

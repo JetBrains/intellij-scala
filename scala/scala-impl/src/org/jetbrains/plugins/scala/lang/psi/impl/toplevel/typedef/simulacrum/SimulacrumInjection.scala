@@ -103,7 +103,7 @@ class SimulacrumInjection extends SyntheticMembersInjector {
                         def paramText(p: ScParameter): String = {
                           substOpt match {
                             case Some(subst) =>
-                              p.name + " : " + subst.subst(p.`type`().getOrAny).canonicalText
+                              p.name + " : " + subst(p.`type`().getOrAny).canonicalText
                             case _ => p.getText
                           }
                         }
@@ -115,7 +115,7 @@ class SimulacrumInjection extends SyntheticMembersInjector {
                         val restHeadClause = if (headParams.isEmpty) "" else headParams.mkString("(", ", ", ")")
                         val restClauses = f.paramClauses.clauses.tail.map(clauseText).mkString("")
                         val rt = substOpt match {
-                          case Some(subst) => subst.subst(f.returnType.getOrAny).canonicalText
+                          case Some(subst) => subst(f.returnType.getOrAny).canonicalText
                           case None => f.returnType.getOrAny.canonicalText
                         }
                         s"def $name$typeParamClasue$restHeadClause$restClauses: $rt = ???"

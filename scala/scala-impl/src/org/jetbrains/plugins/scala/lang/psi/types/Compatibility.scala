@@ -64,7 +64,7 @@ object Compatibility {
               case paramType =>
                 elementScope.cachedFunction1Type.flatMap { functionType =>
                   paramType.conforms(functionType, ConstraintSystem.empty) match {
-                    case ConstraintSystem(substitutor) => Some(substitutor.subst(functionType.typeArguments(1)))
+                    case ConstraintSystem(substitutor) => Some(substitutor(functionType.typeArguments(1)))
                     case _ => None
                   }
                 }.filterNot {
@@ -373,8 +373,8 @@ object Compatibility {
   }
 
   def toParameter(p: ScParameter, substitutor: ScSubstitutor): Parameter = {
-    val t = substitutor.subst(p.`type`().getOrNothing)
-    val default = p.getDefaultExpression.flatMap(_.`type`().toOption.map(substitutor.subst))
+    val t = substitutor(p.`type`().getOrNothing)
+    val default = p.getDefaultExpression.flatMap(_.`type`().toOption.map(substitutor))
     Parameter(p.name, p.deprecatedName, t, t, p.isDefaultParam, p.isRepeatedParameter, p.isCallByNameParameter,
       p.index, Some(p), default)
   }
@@ -404,7 +404,7 @@ object Compatibility {
           return ConformanceExtResult(Seq(new DoesNotTakeParameters))
 
         checkConformanceExt(checkNames = false, parameters = synthetic.paramClauses.head.map { p =>
-          p.copy(paramType = substitutor.subst(p.paramType))
+          p.copy(paramType = substitutor(p.paramType))
         }, exprs = exprs, checkWithImplicits = checkWithImplicits, isShapesResolve = isShapesResolve)
       case fun: ScFunction =>
         if(!fun.hasParameterClause && argClauses.nonEmpty)
@@ -501,7 +501,7 @@ object Compatibility {
           return ConformanceExtResult(obligatory.takeRight(shortage).map(p => MissedValueParameter(toParameter(p))))
 
         checkConformanceExt(checkNames = false, parameters = parameters.map { param =>
-          Parameter(substitutor.subst(param.paramType()), isRepeated = param.isVarArgs, index = -1)
+          Parameter(substitutor(param.paramType()), isRepeated = param.isVarArgs, index = -1)
         }, exprs = exprs, checkWithImplicits = checkWithImplicits, isShapesResolve = isShapesResolve)
 
       case _ => ConformanceExtResult(Seq(new ApplicabilityProblem("22")))

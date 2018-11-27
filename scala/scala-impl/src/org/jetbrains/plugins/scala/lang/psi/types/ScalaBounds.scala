@@ -41,7 +41,7 @@ trait ScalaBounds extends api.Bounds {
         case (ScTypePolymorphicType(lhsInt, lhsParams), ScTypePolymorphicType(rhsInt, rhsParams)) =>
           val newParams  = lub(lhsParams, rhsParams, checkWeak)
           val paramSubst = ScSubstitutor.bind(lhsParams, newParams)(TypeParameterType(_))
-          val intTpe     = glb(paramSubst.subst(lhsInt), paramSubst.subst(rhsInt), checkWeak)
+          val intTpe = glb(paramSubst(lhsInt), paramSubst(rhsInt), checkWeak)
           ScTypePolymorphicType(intTpe, newParams)
         case _ => ScCompoundType(Seq(t1, t2), Map.empty, Map.empty)
       }
@@ -152,7 +152,7 @@ trait ScalaBounds extends api.Bounds {
         case t: ScTypeAliasDefinition =>
           t.aliasedType.toOption match {
             case None => None
-            case Some(aliased) => projectionOptionImpl(proj.actualSubst.subst(aliased))
+            case Some(aliased) => projectionOptionImpl(proj.actualSubst(aliased))
           }
         case _: ScTypeAliasDeclaration => Some(p)
         case _ => None
@@ -173,7 +173,7 @@ trait ScalaBounds extends api.Bounds {
         case None => ScSubstitutor.empty
       }
       getNamedElement match {
-        case t: ScTemplateDefinition => t.superTypes.map(tp => new ClassLike(subst.subst(tp))).filter(!_.isEmpty)
+        case t: ScTemplateDefinition => t.superTypes.map(tp => new ClassLike(subst(tp))).filter(!_.isEmpty)
         case p: PsiClass => p.getSupers.toSeq.map(cl => new ClassLike(ScalaType.designator(cl))).filter(!_.isEmpty)
         case _: ScTypeAlias =>
           val upperType: ScType = tp.isAliasType.get.upper.getOrAny
@@ -330,7 +330,7 @@ trait ScalaBounds extends api.Bounds {
           case (ScTypePolymorphicType(lhsInt, lhsParams), ScTypePolymorphicType(rhsInt, rhsParams)) =>
             val newParams  = glb(lhsParams, rhsParams, checkWeak)
             val paramSubst = ScSubstitutor.bind(lhsParams, newParams)(TypeParameterType(_))
-            val intTpe     = lub(paramSubst.subst(lhsInt), paramSubst.subst(rhsInt), checkWeak)
+            val intTpe = lub(paramSubst(lhsInt), paramSubst(rhsInt), checkWeak)
             ScTypePolymorphicType(intTpe, newParams)
           case _ =>
             val leftClasses: Seq[ClassLike] = {
@@ -412,8 +412,8 @@ trait ScalaBounds extends api.Bounds {
       case (Some(superSubst1), Some(superSubst2)) =>
         val tp = ScParameterizedType(baseClassDesignator,
           baseClass.getTypeParameters.map(TypeParameterType(_)))
-        val tp1 = superSubst1.subst(tp).asInstanceOf[ScParameterizedType]
-        val tp2 = superSubst2.subst(tp).asInstanceOf[ScParameterizedType]
+        val tp1 = superSubst1(tp).asInstanceOf[ScParameterizedType]
+        val tp2 = superSubst2(tp).asInstanceOf[ScParameterizedType]
         val resTypeArgs = new ArrayBuffer[ScType]
         val wildcards = new ArrayBuffer[ScExistentialArgument]()
         for (i <- baseClass.getTypeParameters.indices) {

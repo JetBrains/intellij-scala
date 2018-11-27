@@ -349,7 +349,7 @@ class ImplicitCollector(place: PsiElement,
         val subst = c.substitutor
         typeable.`type`() match {
           case Right(t) =>
-            if (!subst.subst(t).conforms(tp))
+            if (!subst(t).conforms(tp))
               reportWrong(c, subst, TypeDoesntConformResult)
             else
               Some(c.copy(implicitReason = OkResult), subst)
@@ -485,11 +485,9 @@ class ImplicitCollector(place: PsiElement,
       else {
         val methodType = implicitClause.map {
           li => ScMethodType(ret, li.getSmartParameters, isImplicit = true)(place.elementScope)
-        }.map {
-          subst.subst
-        }.getOrElse(ret)
+        }.fold(ret)(subst)
 
-        val polymorphicTypeParameters = typeParameters.map(TypeParameter(_).update(subst.subst))
+        val polymorphicTypeParameters = typeParameters.map(TypeParameter(_).update(subst))
 
         val nonValueType0: ScType =
           if (polymorphicTypeParameters.isEmpty) methodType
@@ -544,18 +542,18 @@ class ImplicitCollector(place: PsiElement,
   }
 
   private def substedFunType(fun: ScFunction, funType: ScType, subst: ScSubstitutor, withLocalTypeInference: Boolean, noReturnType: Boolean): Option[ScType] = {
-    if (!fun.hasTypeParameters) Some(subst.subst(funType))
+    if (!fun.hasTypeParameters) Some(subst(funType))
     else if (noReturnType) {
       val inferredSubst = subst.followed(ScalaPsiUtil.inferMethodTypesArgs(fun, subst))
-      Some(inferredSubst.subst(funType))
+      Some(inferredSubst(funType))
     }
     else {
       val hasTypeParametersInType: Boolean = hasTypeParamsInType(fun, funType)
       if (withLocalTypeInference && hasTypeParametersInType) {
         val inferredSubst = subst.followed(ScalaPsiUtil.inferMethodTypesArgs(fun, subst))
-        Some(inferredSubst.subst(funType))
+        Some(inferredSubst(funType))
       } else if (!withLocalTypeInference && !hasTypeParametersInType) {
-        Some(subst.subst(funType))
+        Some(subst(funType))
       } else None
     }
   }

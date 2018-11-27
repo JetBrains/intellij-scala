@@ -60,8 +60,8 @@ object ScalaByExpectedTypeWeigher {
                          (implicit place: PsiElement): Option[ScType] = {
     def substitution(scType: ScType,
                      substitutor: ScSubstitutor = ScSubstitutor.empty) = {
-      val substituted = substitutor.subst(scType)
-      itemSubstitutor.subst(substituted)
+      val substituted = substitutor(scType)
+      itemSubstitutor(substituted)
     }
 
     element match {

@@ -305,7 +305,7 @@ class ScReferenceExpressionImpl(node: ASTNode) extends ScReferenceElementImpl(no
             } else {
               val result = refPatt.`type`()
               result match {
-                case Right(tp) => s.subst(tp)
+                case Right(tp) => s(tp)
                 case _ => return result
               }
             }
@@ -355,7 +355,7 @@ class ScReferenceExpressionImpl(node: ASTNode) extends ScReferenceElementImpl(no
                 isMethodDependent(function) => ScalaType.designator(param)
               case _ =>
                 val result = param.getRealParameterType
-                s.subst(result match {
+                s(result match {
                   case Right(tp) => tp
                   case _ => return result
                 })
@@ -369,7 +369,7 @@ class ScReferenceExpressionImpl(node: ASTNode) extends ScReferenceElementImpl(no
         fun.polymorphicType(s).updateTypeOfDynamicCall(result.isDynamic)
       case ScalaResolveResult(param: ScParameter, s) if param.isRepeatedParameter =>
         val result = param.`type`()
-        val computeType = s.subst(result match {
+        val computeType = s(result match {
           case Right(tp) => tp
           case _ => return result
         })
@@ -410,14 +410,14 @@ class ScReferenceExpressionImpl(node: ASTNode) extends ScReferenceElementImpl(no
         } else {
           val result = f.`type`()
           result match {
-            case Right(tp) => s.subst(tp)
+            case Right(tp) => s(tp)
             case _ => return result
           }
         }
       case ScalaResolveResult(typed: ScTypedDefinition, s) =>
         val result = typed.`type`()
         result match {
-          case Right(tp) => s.subst(tp)
+          case Right(tp) => s(tp)
           case _ => return result
         }
       case ScalaResolveResult(pack: PsiPackage, _) => ScalaType.designator(pack)
@@ -427,11 +427,11 @@ class ScReferenceExpressionImpl(node: ASTNode) extends ScReferenceElementImpl(no
             .getOrElse(return Failure("Case Class hasn't primary constructor"))
         constructor.polymorphicType(s)
       case ScalaResolveResult(clazz: ScTypeDefinition, s) if clazz.typeParameters.nonEmpty =>
-        s.subst(ScParameterizedType(ScalaType.designator(clazz),
+        s(ScParameterizedType(ScalaType.designator(clazz),
           clazz.typeParameters.map(TypeParameterType(_))))
       case ScalaResolveResult(clazz: PsiClass, _) => ScDesignatorType.static(clazz) //static Java class
       case ScalaResolveResult(field: PsiField, s) =>
-        s.subst(field.getType.toScType())
+        s(field.getType.toScType())
       case ScalaResolveResult(method: PsiMethod, s) =>
         val returnType = Option(method.containingClass).filter {
           method.getName == "getClass" && _.getQualifiedName == "java.lang.Object"
@@ -458,9 +458,7 @@ class ScReferenceExpressionImpl(node: ASTNode) extends ScReferenceElementImpl(no
               case ScDesignatorType(element) =>
                 getType(element)
               case projectionType: ScProjectionType =>
-                getType(projectionType.actualElement).map {
-                  projectionType.actualSubst.subst
-                }
+                getType(projectionType.actualElement).map(projectionType.actualSubst)
               case _ => None
             }
             maybeType.map(removeTypeDesignator).getOrElse(`type`)

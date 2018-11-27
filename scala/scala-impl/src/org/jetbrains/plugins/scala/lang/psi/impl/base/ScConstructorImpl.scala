@@ -104,7 +104,7 @@ class ScConstructorImpl(node: ASTNode) extends ScalaPsiElementImpl(node) with Sc
                               ref: ScStableCodeReferenceElement): TypeResult = {
       val clazz = constr.containingClass
       val tp = r.getActualElement match {
-        case ta: ScTypeAliasDefinition => subst.subst(ta.aliasedType.getOrElse(return FAILURE))
+        case ta: ScTypeAliasDefinition => subst(ta.aliasedType.getOrElse(return FAILURE))
         case _ =>
           parameterize(ScSimpleTypeElementImpl.calculateReferenceType(ref, shapesOnly = true).
             getOrElse(return FAILURE), clazz, subst)
@@ -115,7 +115,7 @@ class ScConstructorImpl(node: ASTNode) extends ScalaPsiElementImpl(node) with Sc
         case method: PsiMethod =>
           if (i > 0) return Failure("Java constructors only have one parameter section")
           val methodType = method.methodTypeProvider(elementScope).methodType(Some(tp))
-          subst.subst(methodType)
+          subst(methodType)
       }
       val typeParameters: Seq[TypeParameter] = r.getActualElement match {
         case tp: ScTypeParametersOwner if tp.typeParameters.nonEmpty =>
@@ -127,7 +127,7 @@ class ScConstructorImpl(node: ASTNode) extends ScalaPsiElementImpl(node) with Sc
       s.getParent match {
         case p: ScParameterizedTypeElement =>
           val appSubst = ScSubstitutor.bind(typeParameters, p.typeArgList.typeArgs)(_.calcType)
-          Right(appSubst.subst(res))
+          Right(appSubst(res))
         case _ =>
           var nonValueType = ScTypePolymorphicType(res, typeParameters)
           expectedType match {
@@ -136,7 +136,7 @@ class ScConstructorImpl(node: ASTNode) extends ScalaPsiElementImpl(node) with Sc
                 nonValueType = InferUtil.localTypeInference(nonValueType.internalType,
                   Seq(Parameter(expected, isRepeated = false, index = 0)),
                   Seq(new Expression(ScSubstitutor.bind(nonValueType.typeParameters)(UndefinedType(_)).
-                    subst(subst.subst(tp).inferValueType))),
+                    apply(subst(tp).inferValueType))),
                   nonValueType.typeParameters, shouldUndefineParameters = false, filterTypeParams = false)
               } catch {
                 case _: SafeCheckException => //ignore
@@ -145,7 +145,7 @@ class ScConstructorImpl(node: ASTNode) extends ScalaPsiElementImpl(node) with Sc
               val paramsByClauses = matchedParametersByClauses.toArray.apply(i - 1)
               val mySubst = ScSubstitutor.bind(constr.containingClass.getTypeParameters)(UndefinedType(_))
               val undefParams = paramsByClauses.map(_._2).map(
-                param => Parameter(mySubst.subst(param.paramType), param.isRepeated, param.index)
+                param => Parameter(mySubst(param.paramType), param.isRepeated, param.index)
               )
 
               val extRes = Compatibility.checkConformanceExt(false, undefParams, paramsByClauses.map(_._1), false, false)
@@ -154,7 +154,7 @@ class ScConstructorImpl(node: ASTNode) extends ScalaPsiElementImpl(node) with Sc
                 case _ => None
               }
               val result = maybeSubstitutor.fold(nonValueType: ScType) {
-                _.subst(nonValueType)
+                _.apply(nonValueType)
               }
               return Right(result)
             case _ =>
@@ -174,7 +174,7 @@ class ScConstructorImpl(node: ASTNode) extends ScalaPsiElementImpl(node) with Sc
             case ScalaResolveResult(clazz: PsiClass, subst) if !clazz.isInstanceOf[ScTemplateDefinition] && clazz.isAnnotationType =>
               val params = clazz.getMethods.flatMap {
                 case p: PsiAnnotationMethod =>
-                  val paramType = subst.subst(p.getReturnType.toScType())
+                  val paramType = subst(p.getReturnType.toScType())
                   Seq(Parameter(p.getName, None, paramType, paramType, p.getDefaultValue != null, isRepeated = false, isByName = false))
                 case _ => Seq.empty
               }

@@ -18,7 +18,6 @@ import org.jetbrains.plugins.scala.lang.refactoring.util.ScTypeUtil.AliasType
 import scala.collection.immutable.Seq
 import scala.language.postfixOps
 import scala.meta.collections._
-import scala.meta.internal.{semantic => h}
 import scala.meta.trees.error._
 import scala.{meta => m, Seq => _}
 
@@ -42,7 +41,7 @@ trait TypeAdapter {
           }
         case t: ScSimpleTypeElement =>
           val s = ScSubstitutor(ScSubstitutor.cache)
-          toType(s.subst(t.calcType))
+          toType(s(t.calcType))
 //        case t: ScReferenceElement if dumbMode =>
 //          t.qualifier.map(qual=>m.Type.Select(getTypeQualifier(qual.asInstanceOf[ScReferenceElement]), toTypeName(t)))
 //            .getOrElse(toTypeName(t))
@@ -110,7 +109,7 @@ trait TypeAdapter {
           m.Type.Name(t.name)
         case t: typedef.ScTemplateDefinition =>
           val s = ScSubstitutor(ScSubstitutor.cache)
-          toType(s.subst(t.`type`().get)) // FIXME: what about typing context?
+          toType(s(t.`type`().get)) // FIXME: what about typing context?
         case t: ScPackaging =>
           m.Type.Singleton(toTermName(t.reference.get))//.setTypechecked
         case t: ScConstructor => ???
@@ -125,7 +124,7 @@ trait TypeAdapter {
           m.Type.Name(t.getText)
         case t: ScParameter =>
           val s = ScSubstitutor(ScSubstitutor.cache)
-          toType(s.subst(t.typeElement.get.`type`().get))
+          toType(s(t.typeElement.get.`type`().get))
         case t: ScTypedDefinition if dumbMode =>
           m.Type.Name(t.name)
         case t: ScTypedDefinition =>

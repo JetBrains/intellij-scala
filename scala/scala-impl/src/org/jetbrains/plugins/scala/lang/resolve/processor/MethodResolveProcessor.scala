@@ -222,14 +222,14 @@ object MethodResolveProcessor {
       val expected = eOption.get
       val retType: ScType = element match {
         case f: ScFunction if f.paramClauses.clauses.length > 1 &&
-          !f.paramClauses.clauses.apply(1).isImplicit =>
+          !f.paramClauses.clauses(1).isImplicit =>
           problems += ExpectedTypeMismatch //do not check expected types for more than one param clauses
           Nothing
-        case f: ScFunction => substitutor.subst(f.returnType.getOrNothing)
-        case f: ScFun => substitutor.subst(f.retType)
+        case f: ScFunction => substitutor(f.returnType.getOrNothing)
+        case f: ScFun => substitutor(f.retType)
         case m: PsiMethod =>
           Option(m.getReturnType).map { rt =>
-            substitutor.subst(rt.toScType())
+            substitutor(rt.toScType())
           }.getOrElse(Nothing)
         case _ => Nothing
       }
@@ -298,7 +298,7 @@ object MethodResolveProcessor {
       val unsubstitutedTypeParams =
         classTypeParameters.filter { p =>
           val tpt         = TypeParameterType(p)
-          val substituted = substitutor.subst(tpt)
+          val substituted = substitutor(tpt)
           substituted == tpt
         }
 
@@ -437,7 +437,7 @@ object MethodResolveProcessor {
             val typeParamId = tParam.typeParamId
 
             if (!lowerType.isNothing) {
-              s.subst(newSubstitutor.subst(lowerType)) match {
+              s(newSubstitutor(lowerType)) match {
                 case lower if !lower.hasRecursiveTypeParameters(typeParamIds) =>
                   uSubst = uSubst.withLower(typeParamId, lower)
                     .withTypeParamId(typeParamId)
@@ -446,7 +446,7 @@ object MethodResolveProcessor {
             }
 
             if (!upperType.isAny) {
-              s.subst(newSubstitutor.subst(upperType)) match {
+              s(newSubstitutor(upperType)) match {
                 case upper if !upper.hasRecursiveTypeParameters(typeParamIds) =>
                   uSubst = uSubst.withUpper(typeParamId, upper)
                     .withTypeParamId(typeParamId)
@@ -541,7 +541,7 @@ object MethodResolveProcessor {
         }
 
         val processor = new CollectMethodsProcessor(ref, "apply")
-        processor.processType(substitutor.subst(tp), ref.asInstanceOf[ScalaPsiElement])
+        processor.processType(substitutor(tp), ref.asInstanceOf[ScalaPsiElement])
         val cands = processor.candidatesS.map(rr => (r.copy(innerResolveResult = Some(rr)), cleanTypeArguments))
         if (cands.isEmpty) Set((r, false)) else cands
       }

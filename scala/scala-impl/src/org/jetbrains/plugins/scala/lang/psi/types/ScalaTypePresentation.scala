@@ -42,7 +42,7 @@ trait ScalaTypePresentation extends api.TypePresentation {
         def typeParamText(param: ScTypeParam): String = {
           val substitutor = ScSubstitutor.empty
 
-          def typeText0(tp: ScType) = typeText(substitutor.subst(tp), nameFun, nameWithPointFun)
+          def typeText0(tp: ScType) = typeText(substitutor(tp), nameFun, nameWithPointFun)
 
           val buffer = new StringBuilder(if (param.isContravariant) "-" else if (param.isCovariant) "+" else "")
           buffer ++= param.name
@@ -56,7 +56,7 @@ trait ScalaTypePresentation extends api.TypePresentation {
           }
           param.contextBound.foreach { tp =>
             buffer ++= " : "
-            buffer ++= typeText0(ScTypeUtil.stripTypeArgs(substitutor.subst(tp)))
+            buffer ++= typeText0(ScTypeUtil.stripTypeArgs(substitutor(tp)))
           }
 
           buffer.toString()

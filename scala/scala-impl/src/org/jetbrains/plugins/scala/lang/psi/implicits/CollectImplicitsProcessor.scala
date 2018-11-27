@@ -42,7 +42,7 @@ final class CollectImplicitsProcessor(override val getPlace: ScExpression,
         if (clauses.length == 2 && !clauses(1).isImplicit) return true
 
         if (clauses.isEmpty) {
-          val rt = subst.subst(f.returnType.getOrElse(return true))
+          val rt = subst(f.returnType.getOrElse(return true))
           if (functionType.exists(!rt.conforms(_))) return true
         } else if (clauses.head.parameters.length != 1 || clauses.head.isImplicit) return true
         addResult(new ScalaResolveResult(f, subst, getImports(state)))
@@ -51,7 +51,7 @@ final class CollectImplicitsProcessor(override val getPlace: ScExpression,
           case d: ScDeclaredElementsHolder if (d.isInstanceOf[ScValue] || d.isInstanceOf[ScVariable]) &&
             d.asInstanceOf[ScModifierListOwner].hasModifierProperty("implicit") =>
             if (!ResolveUtils.isAccessible(d.asInstanceOf[ScMember], getPlace)) return true
-            val tp = subst.subst(b.`type`().getOrElse(return true))
+            val tp = subst(b.`type`().getOrElse(return true))
             if (functionType.exists(!tp.conforms(_))) return true
             addResult(new ScalaResolveResult(b, subst, getImports(state)))
           case _ => return true
@@ -62,12 +62,12 @@ final class CollectImplicitsProcessor(override val getPlace: ScExpression,
             if (!ResolveUtils.isAccessible(c, getPlace)) return true
           case _ =>
         }
-        val tp = subst.subst(param.`type`().getOrElse(return true))
+        val tp = subst(param.`type`().getOrElse(return true))
         if (functionType.exists(!tp.conforms(_))) return true
         addResult(new ScalaResolveResult(param, subst, getImports(state)))
       case obj: ScObject if obj.hasModifierProperty("implicit") =>
         if (!ResolveUtils.isAccessible(obj, getPlace)) return true
-        val tp = subst.subst(obj.`type`().getOrElse(return true))
+        val tp = subst(obj.`type`().getOrElse(return true))
         if (functionType.exists(!tp.conforms(_))) return true
         addResult(new ScalaResolveResult(obj, subst, getImports(state)))
       case _ =>

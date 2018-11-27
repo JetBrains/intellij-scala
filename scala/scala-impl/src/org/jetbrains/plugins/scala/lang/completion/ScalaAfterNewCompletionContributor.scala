@@ -175,7 +175,7 @@ object ScalaAfterNewCompletionContributor {
           }
           val parametersText = typeParameters match {
             case Seq() => ""
-            case seq => seq.map(substitutor.subst)
+            case seq => seq.map(substitutor)
               .map(_.presentableText)
               .mkString("[", ", ", "]")
 
@@ -281,7 +281,7 @@ object ScalaAfterNewCompletionContributor {
       predefinedType.conformanceSubstitutor(t) match {
         case Some(substitutor) =>
           val valueType = fromParameters(designatorType, parameters)
-          return Some(substitutor.subst(valueType), undefinedTypes.map(substitutor.subst).exists(_.isInstanceOf[UndefinedType]))
+          return Some(substitutor(valueType), undefinedTypes.map(substitutor).exists(_.isInstanceOf[UndefinedType]))
         case _ =>
       }
     }

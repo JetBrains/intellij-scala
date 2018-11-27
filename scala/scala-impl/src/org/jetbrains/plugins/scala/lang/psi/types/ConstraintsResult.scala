@@ -187,7 +187,7 @@ private final case class ConstraintSystemImpl(upperMap: LongMap[Set[ScType]],
               case _ => ScSubstitutor.empty
             }
 
-            val lower = set.map(substitutor.subst).reduce {
+            val lower = set.map(substitutor).reduce {
               _ lub _
             }
 
@@ -206,7 +206,7 @@ private final case class ConstraintSystemImpl(upperMap: LongMap[Set[ScType]],
               case _ => ScSubstitutor.empty
             }
 
-            val upper = set.map(substitutor.subst).reduce {
+            val upper = set.map(substitutor).reduce {
               _ glb _
             }
             uMap += ((id, upper))

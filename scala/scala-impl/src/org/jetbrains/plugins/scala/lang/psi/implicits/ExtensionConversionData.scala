@@ -43,7 +43,7 @@ object ExtensionConversionHelper {
         for {
           functionType <- ElementScope(project).cachedFunction1Type
           substituted <- implicitParameterType.conforms(functionType, ConstraintSystem.empty) match {
-            case ConstraintSystem(substitutor) => Some(substitutor.subst(functionType))
+            case ConstraintSystem(substitutor) => Some(substitutor(functionType))
             case _ => None
           }
 
@@ -92,7 +92,7 @@ object ExtensionConversionHelper {
       val parameterType = candidateResult.implicitParameterType
       val result = candidateResult.copy(
         subst = foundInType.substitutor.followed(substitutor),
-        implicitParameterType = parameterType.map(substitutor.subst)
+        implicitParameterType = parameterType.map(substitutor)
       )
 
       (result, candidateSubstitutor.followed(substitutor))

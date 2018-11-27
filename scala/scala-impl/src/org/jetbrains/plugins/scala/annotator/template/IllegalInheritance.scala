@@ -26,7 +26,7 @@ object IllegalInheritance extends TemplateDefinitionAnnotatorPart {
         }.foreach {
           case (range, (clazz: ScTemplateDefinition, substitutor)) =>
             clazz.selfType.filterNot { selfType =>
-              ownType.conforms(substitutor.subst(selfType))
+              ownType.conforms(substitutor(selfType))
             }.foreach { selfType =>
               holder.createErrorAnnotation(range, ScalaBundle.message("illegal.inheritance.self.type", ownType.presentableText, selfType.presentableText))
             }

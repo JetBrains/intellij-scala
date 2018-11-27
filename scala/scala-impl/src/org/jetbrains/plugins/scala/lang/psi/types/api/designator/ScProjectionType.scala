@@ -39,13 +39,13 @@ class ScProjectionType private(val projected: ScType,
     actualElement match {
       case ta: ScTypeAlias if ta.typeParameters.isEmpty =>
         val subst: ScSubstitutor = actualSubst
-        Some(AliasType(ta, ta.lowerBound.map(subst.subst), ta.upperBound.map(subst.subst)))
+        Some(AliasType(ta, ta.lowerBound.map(subst), ta.upperBound.map(subst)))
       case ta: ScTypeAlias => //higher kind case
         ta match {
           case ta: ScTypeAliasDefinition => //hack for simple cases, it doesn't cover more complicated examples
             ta.aliasedType match {
               case Right(tp) =>
-                actualSubst.subst(tp) match {
+                actualSubst.apply(tp) match {
                   case ParameterizedType(des, typeArgs) =>
                     val taArgs = ta.typeParameters
                     if (taArgs.length == typeArgs.length && taArgs.zip(typeArgs).forall {
@@ -66,8 +66,8 @@ class ScProjectionType private(val projected: ScType,
 
         val s = actualSubst.followed(genericSubst)
         Some(AliasType(ta,
-          ta.lowerBound.map(scType => ScExistentialType(s.subst(scType))),
-          ta.upperBound.map(scType => ScExistentialType(s.subst(scType)))))
+          ta.lowerBound.map(scType => ScExistentialType(s(scType))),
+          ta.upperBound.map(scType => ScExistentialType(s(scType)))))
       case _ => None
     }
   }
@@ -77,7 +77,7 @@ class ScProjectionType private(val projected: ScType,
     case _ => false
   }) && super.isStable
 
-  override private[types] def designatorSingletonType: Option[ScType] = super.designatorSingletonType.map(actualSubst.subst)
+  override private[types] def designatorSingletonType: Option[ScType] = super.designatorSingletonType.map(actualSubst)
 
   override def updateSubtypes(updates: Array[Update], index: Int, visited: Set[ScType]): ScType =
     ScProjectionType(projected.recursiveUpdateImpl(updates, index, visited), element)
@@ -199,7 +199,7 @@ class ScProjectionType private(val projected: ScType,
     actualElement match {
       case a: ScTypedDefinition if isSingletonOk(a) =>
         val subst = actualSubst
-        val tp = subst.subst(a.`type`().getOrAny)
+        val tp = subst(a.`type`().getOrAny)
         tp match {
           case designatorOwner: DesignatorOwner if designatorOwner.isSingleton =>
             val resInner = tp.equiv(r, constraints, falseUndef)
@@ -238,7 +238,7 @@ class ScProjectionType private(val projected: ScType,
         proj2.actualElement match {
           case a: ScTypedDefinition if isSingletonOk(a) =>
             val subst = actualSubst
-            val tp = subst.subst(a.`type`().getOrAny)
+            val tp = subst(a.`type`().getOrAny)
             tp match {
               case designatorOwner: DesignatorOwner if designatorOwner.isSingleton =>
                 val resInner = tp.equiv(this, constraints, falseUndef)
@@ -262,7 +262,7 @@ class ScProjectionType private(val projected: ScType,
               val s: ScSubstitutor = ScSubstitutor(projected) followed actualSubst
               t.`type`() match {
                 case Right(tp: DesignatorOwner) if tp.isSingleton =>
-                  return s.subst(tp).equiv(r, constraints, falseUndef)
+                  return s(tp).equiv(r, constraints, falseUndef)
                 case _ =>
               }
             case _ =>
@@ -274,7 +274,7 @@ class ScProjectionType private(val projected: ScType,
                 ScSubstitutor(p1) followed proj2.actualSubst
               t.`type`() match {
                 case Right(tp: DesignatorOwner) if tp.isSingleton =>
-                  return s.subst(tp).equiv(this, constraints, falseUndef)
+                  return s(tp).equiv(this, constraints, falseUndef)
                 case _ =>
               }
             case _ =>
@@ -289,7 +289,7 @@ class ScProjectionType private(val projected: ScType,
             t.`type`() match {
               case Right(singleton: DesignatorOwner) if singleton.isSingleton =>
                 val newSubst = actualSubst.followed(ScSubstitutor(projected))
-                r.equiv(newSubst.subst(singleton), constraints, falseUndef)
+                r.equiv(newSubst(singleton), constraints, falseUndef)
               case _ => ConstraintsResult.Left
             }
           case _ => ConstraintsResult.Left
@@ -338,7 +338,7 @@ object ScProjectionType {
 
     p.actual match {
       case (td: ScTypeAliasDefinition, subst) if td.typeParameters.isEmpty =>
-        val upper = guard.doPreventingRecursion(p, td.upperBound.map(subst.subst).toOption)
+        val upper = guard.doPreventingRecursion(p, td.upperBound.map(subst).toOption)
         upper
           .filter(_.typeDepth < p.typeDepth)
           .getOrElse(p)

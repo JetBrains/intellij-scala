@@ -351,9 +351,9 @@ object ScalaSmartCompletionContributor {
         val elemToAdd = variant.asInstanceOf[LookupElement]
         if (isAccessible(scalaLookupItem) && !scalaLookupItem.isNamedParameterOrAssignment) {
           def checkType(_tp: ScType, _subst: ScSubstitutor, chainCompletion: Boolean, etaExpanded: Boolean = false): Boolean = {
-            val tp = _subst.subst(_tp)
+            val tp = _subst(_tp)
             var elementAdded = false
-            val scType = scalaLookupItem.substitutor.subst(tp)
+            val scType = scalaLookupItem.substitutor(tp)
             if (!scType.equiv(Nothing) && typez.exists(scType conforms _)) {
               elementAdded = true
               if (etaExpanded) scalaLookupItem.etaExpanded = true
@@ -384,7 +384,7 @@ object ScalaSmartCompletionContributor {
                   }
                 }
               }
-              processor.processType(scalaLookupItem.substitutor.subst(_tp), place)
+              processor.processType(scalaLookupItem.substitutor(_tp), place)
               processor.candidatesS
             }
             elementAdded

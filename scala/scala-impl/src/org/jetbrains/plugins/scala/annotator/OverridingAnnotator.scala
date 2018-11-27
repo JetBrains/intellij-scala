@@ -10,12 +10,12 @@ import org.jetbrains.plugins.scala.lang.psi.api.base.ScFieldId
 import org.jetbrains.plugins.scala.lang.psi.api.base.patterns.ScBindingPattern
 import org.jetbrains.plugins.scala.lang.psi.api.base.types.ScRefinement
 import org.jetbrains.plugins.scala.lang.psi.api.statements._
-import org.jetbrains.plugins.scala.lang.psi.api.statements.params.{ScClassParameter, ScParameter}
-import org.jetbrains.plugins.scala.lang.psi.api.toplevel.typedef.{ScMember, ScTypeDefinition}
+import org.jetbrains.plugins.scala.lang.psi.api.statements.params.ScClassParameter
+import org.jetbrains.plugins.scala.lang.psi.api.toplevel.typedef.ScTypeDefinition
 import org.jetbrains.plugins.scala.lang.psi.api.toplevel.{ScModifierListOwner, ScNamedElement}
 import org.jetbrains.plugins.scala.lang.psi.types.api.{ParameterizedType, TypeParameterType}
 import org.jetbrains.plugins.scala.lang.psi.types.recursiveUpdate.ScSubstitutor
-import org.jetbrains.plugins.scala.lang.psi.types.result.{TypeResult, Typeable}
+import org.jetbrains.plugins.scala.lang.psi.types.result.Typeable
 import org.jetbrains.plugins.scala.lang.psi.types.{ScType, Signature}
 import org.jetbrains.plugins.scala.statistics.{FeatureKey, Stats}
 
@@ -237,8 +237,8 @@ trait OverridingAnnotator {
               val paramTypesSubst = ScSubstitutor.paramToParam(sParams, mParams)
               s.substitutor.followed(typeParamSubst).followed(paramTypesSubst)
             }
-          subst.subst(baseType)
-        case _ => s.substitutor.subst(baseType)
+          subst(baseType)
+        case _ => s.substitutor(baseType)
       }
       def allowEmptyParens(pat: ScBindingPattern): Boolean = pat.nameContext match {
         case v: ScValueOrVariable => v.typeElement.isDefined || ScalaPsiUtil.isBeanProperty(v)

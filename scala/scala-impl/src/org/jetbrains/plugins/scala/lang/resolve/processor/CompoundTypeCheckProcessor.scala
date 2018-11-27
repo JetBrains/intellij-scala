@@ -55,7 +55,7 @@ class CompoundTypeCheckSignatureProcessor(s: Signature, retType: ScType,
           }
           //lower type
           val lower1 = tp1.lowerBound.getOrNothing
-          val lower2 = substitutor.subst(tp2.lowerType)
+          val lower2 = substitutor(tp2.lowerType)
           val lowerConformance =
             if (v == Covariant) lower1.conforms(lower2, undef)
             else lower2.conforms(lower1, undef)
@@ -64,7 +64,7 @@ class CompoundTypeCheckSignatureProcessor(s: Signature, retType: ScType,
           undef = lowerConformance.constraints
 
           val upper1 = tp1.upperBound.getOrAny
-          val upper2 = substitutor.subst(tp2.upperType)
+          val upper2 = substitutor(tp2.upperType)
           val upperConformance =
             if (v == Covariant) upper2.conforms(upper1, undef)
             else upper1.conforms(upper2, undef)
@@ -116,8 +116,8 @@ class CompoundTypeCheckSignatureProcessor(s: Signature, retType: ScType,
       val unified1 = subst.withBindings(typeParams, typeParams)
       val unified2 = substitutor.withBindings(otherTypeParams, typeParams)
 
-      val bType = unified1.subst(subst.subst(returnType))
-      val gType = unified2.subst(substitutor.subst(retType))
+      val bType = unified1(subst(returnType))
+      val gType = unified2(substitutor(retType))
       t = bType.conforms(gType, undef)
       if (t.isRight) {
         trueResult = true
@@ -130,7 +130,7 @@ class CompoundTypeCheckSignatureProcessor(s: Signature, retType: ScType,
 
     namedElement match {
       case _: ScBindingPattern | _: ScFieldId | _: ScParameter =>
-        val rt = subst.subst(namedElement match {
+        val rt = subst(namedElement match {
           case b: ScBindingPattern => b.`type`().getOrNothing
           case f: ScFieldId => f.`type`().getOrNothing
           case param: ScParameter => param.`type`().getOrNothing
@@ -184,7 +184,7 @@ class CompoundTypeCheckTypeAliasProcessor(sign: TypeAliasSignature, constraints:
           }
           //lower type
           val lower1 = tp1.lowerBound.getOrNothing
-          val lower2 = substitutor.subst(tp2.lowerType)
+          val lower2 = substitutor(tp2.lowerType)
           val lowerConformance =
             if (v == Covariant) lower1.conforms(lower2, undef)
             else lower2.conforms(lower1, undef)
@@ -193,7 +193,7 @@ class CompoundTypeCheckTypeAliasProcessor(sign: TypeAliasSignature, constraints:
           undef = lowerConformance.constraints
 
           val upper1 = tp1.upperBound.getOrAny
-          val upper2 = substitutor.subst(tp2.upperType)
+          val upper2 = substitutor(tp2.upperType)
           val upperConformance =
             if (v == Covariant) upper2.conforms(upper1, undef)
             else upper1.conforms(upper2, undef)
@@ -232,9 +232,9 @@ class CompoundTypeCheckTypeAliasProcessor(sign: TypeAliasSignature, constraints:
     def checkDeclarationForTypeAlias(tp: ScTypeAlias): Boolean = {
       sign.typeAlias match {
         case _: ScTypeAliasDeclaration =>
-          var conformance = substitutor.subst(sign.lowerBound).conforms(subst.subst(tp.lowerBound.getOrNothing), undef)
+          var conformance = substitutor(sign.lowerBound).conforms(subst(tp.lowerBound.getOrNothing), undef)
           if (conformance.isRight) {
-            conformance = subst.subst(tp.upperBound.getOrAny).conforms(substitutor.subst(sign.upperBound), conformance.constraints)
+            conformance = subst(tp.upperBound.getOrAny).conforms(substitutor(sign.upperBound), conformance.constraints)
             if (conformance.isRight) {
               trueResult = true
               undef = conformance.constraints
@@ -251,7 +251,7 @@ class CompoundTypeCheckTypeAliasProcessor(sign: TypeAliasSignature, constraints:
       case tp: ScTypeAliasDefinition =>
         sign.typeAlias match {
           case _: ScTypeAliasDefinition =>
-            val t = subst.subst(tp.aliasedType.getOrNothing).equiv(substitutor.subst(sign.lowerBound), undef, falseUndef = false)
+            val t = subst(tp.aliasedType.getOrNothing).equiv(substitutor(sign.lowerBound), undef, falseUndef = false)
             if (t.isRight) {
               undef = t.constraints
               trueResult = true

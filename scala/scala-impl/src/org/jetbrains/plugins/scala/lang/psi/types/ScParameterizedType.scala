@@ -37,10 +37,10 @@ class ScParameterizedType private(val designator: ScType, val typeArguments: Seq
     val genericSubst = ScSubstitutor.bind(ta.typeParameters, typeArguments)
 
     val s = subst.followed(genericSubst)
-    val lowerBound = ta.lowerBound.map(s.subst)
+    val lowerBound = ta.lowerBound.map(s)
     val upperBound =
       if (ta.isDefinition) lowerBound
-      else ta.upperBound.map(s.subst)
+      else ta.upperBound.map(s)
     Some(AliasType(ta, lowerBound, upperBound))
   }
 
@@ -79,10 +79,10 @@ class ScParameterizedType private(val designator: ScType, val typeArguments: Seq
         if (falseUndef) return ConstraintsResult.Left
 
         val subst = ScSubstitutor.bind(tp.typeParameters, args)
-        var conformance = r.conforms(subst.subst(upper), constraints)
+        var conformance = r.conforms(subst(upper), constraints)
         if (conformance.isLeft) return ConstraintsResult.Left
 
-        conformance = subst.subst(lower).conforms(r, conformance.constraints)
+        conformance = subst(lower).conforms(r, conformance.constraints)
         if (conformance.isLeft) return ConstraintsResult.Left
 
         conformance

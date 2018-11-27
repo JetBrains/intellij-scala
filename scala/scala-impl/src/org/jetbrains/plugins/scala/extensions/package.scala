@@ -303,7 +303,7 @@ package object extensions {
         case e: PsiMethod                     => e.functionType(scope).toOption
         case e: PsiVariable                   => lift(e.getType)
         case _                                => None
-      }).map(substitutor.subst)
+      }).map(substitutor)
     }
 
     def firstChild: Option[PsiElement] = Option(element.getFirstChild)

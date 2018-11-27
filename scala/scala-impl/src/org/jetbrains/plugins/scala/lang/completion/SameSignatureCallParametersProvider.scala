@@ -130,12 +130,12 @@ class SameSignatureCallParametersProvider extends ScalaCompletionContributor {
       case fun: ScMethodLike =>
         val clauses = fun.effectiveParameterClauses
         if (clauses.length > clauseIndex) clauses(clauseIndex).effectiveParameters.map(p =>
-          (p.name, subst.subst(p.`type`().getOrAny)))
+          (p.name, subst(p.`type`().getOrAny)))
         else Seq.empty
       case _ =>
         if (clauseIndex != 0) Seq.empty
         else m.parameters.map { p =>
-          (p.name, subst.subst(p.getType.toScType()))
+          (p.name, subst(p.getType.toScType()))
         }
     }
   }

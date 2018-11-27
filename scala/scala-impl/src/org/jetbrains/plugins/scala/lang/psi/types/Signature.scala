@@ -77,9 +77,9 @@ class Signature(val name: String,
 
   val paramLength: Seq[Int] = typesEval.map(_.length)
 
-  def substitutedTypes: Seq[Seq[() => ScType]] = typesEval.map(_.map(f => () => substitutor.subst(f()).unpackedType))
+  def substitutedTypes: Seq[Seq[() => ScType]] = typesEval.map(_.map(f => () => substitutor(f()).unpackedType))
 
-  def typeParams: Seq[TypeParameter] = tParams.map(_.update(substitutor.subst))
+  def typeParams: Seq[TypeParameter] = tParams.map(_.update(substitutor))
 
   def equiv(other: Signature): Boolean = {
     def fieldCheck(other: Signature): Boolean = {
@@ -129,8 +129,8 @@ class Signature(val name: String,
       while (typesIterator.hasNext && otherTypesIterator.hasNext) {
         val t1 = typesIterator.next()
         val t2 = otherTypesIterator.next()
-        val tp1 = unified.followed(depParamTypeSubst).subst(t1())
-        val tp2 = unified.subst(t2())
+        val tp1 = unified.followed(depParamTypeSubst)(t1())
+        val tp2 = unified(t2())
         var t = tp2.equiv(tp1, lastConstraints, falseUndef)
         if (t.isLeft && tp1.equiv(api.AnyRef) && this.isJava) {
           t = tp2.equiv(Any, lastConstraints, falseUndef)

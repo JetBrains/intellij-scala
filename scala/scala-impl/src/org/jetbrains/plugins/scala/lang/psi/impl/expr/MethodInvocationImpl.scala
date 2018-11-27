@@ -284,7 +284,7 @@ object MethodInvocationImpl {
       case (Seq(), Seq()) => Some(this)
       case (Seq(), matchedParams) =>
         val paramSubstitutor = ScSubstitutor.paramToType(matchedParams.map(_._1), matchedParams.map(_._3))
-        val `type` = paramSubstitutor.subst(inferredType)
+        val `type` = paramSubstitutor(inferredType)
         Some(RegularCase(`type`, Seq.empty, matched))
       case _ => None
     }

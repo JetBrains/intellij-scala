@@ -7,7 +7,7 @@ import java.util
 
 import com.intellij.psi.PsiClass
 import org.jetbrains.plugins.scala.extensions.PsiTypeExt
-import org.jetbrains.plugins.scala.lang.psi.api.statements.{ScTypeAlias, ScTypeAliasDeclaration, ScTypeAliasDefinition}
+import org.jetbrains.plugins.scala.lang.psi.api.statements.{ScTypeAlias, ScTypeAliasDefinition}
 import org.jetbrains.plugins.scala.lang.psi.api.toplevel.typedef.ScTemplateDefinition
 import org.jetbrains.plugins.scala.lang.psi.types.api._
 import org.jetbrains.plugins.scala.lang.psi.types.api.designator.{ScDesignatorType, ScProjectionType, ScThisType}
@@ -74,7 +74,7 @@ private class BaseTypesIterator(tp: ScType) extends Iterator[ScType] {
       case _ => c.getSuperTypes.toSeq.map(_.toScType())
     }
     superTypes.foreach { st =>
-      val substed = substitutor.subst(st)
+      val substed = substitutor(st)
       enqueue(substed)
     }
   }
@@ -129,7 +129,7 @@ private class BaseTypesIterator(tp: ScType) extends Iterator[ScType] {
           if (!visitedAliases.contains(ta)) {
             visitedAliases += ta.physical
             ta.aliasedType match {
-              case Right(aliased) => Some(s.subst(aliased))
+              case Right(aliased) => Some(s(aliased))
               case _ => None
             }
           }

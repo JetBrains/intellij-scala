@@ -4,25 +4,24 @@ package parameterInfo
 
 import java.awt.Color
 
-import com.intellij.codeInsight.{CodeInsightBundle, TargetElementUtil}
 import com.intellij.codeInsight.completion.JavaCompletionUtil
 import com.intellij.codeInsight.hint.ShowParameterInfoHandler
 import com.intellij.codeInsight.lookup.{LookupElement, LookupItem}
+import com.intellij.codeInsight.{CodeInsightBundle, TargetElementUtil}
 import com.intellij.lang.parameterInfo._
 import com.intellij.psi._
 import com.intellij.psi.tree.IElementType
 import com.intellij.psi.util.PsiTreeUtil
-import com.intellij.util.ArrayUtil
 import com.intellij.util.containers.hash.HashSet
 import org.jetbrains.plugins.scala.editor.documentationProvider.ScalaDocumentationProvider
 import org.jetbrains.plugins.scala.extensions._
 import org.jetbrains.plugins.scala.lang.lexer.ScalaTokenTypes
 import org.jetbrains.plugins.scala.lang.parameterInfo.ScalaFunctionParameterInfoHandler.AnnotationParameters
-import org.jetbrains.plugins.scala.lang.psi.api.base.types.{ScParameterizedTypeElement, ScTypeArgs, ScTypeElementExt}
+import org.jetbrains.plugins.scala.lang.psi.api.base.types.{ScParameterizedTypeElement, ScTypeElementExt}
 import org.jetbrains.plugins.scala.lang.psi.api.base.{ScConstructor, ScPrimaryConstructor}
 import org.jetbrains.plugins.scala.lang.psi.api.expr._
-import org.jetbrains.plugins.scala.lang.psi.api.statements.{ScFunction, ScFunctionDefinition}
 import org.jetbrains.plugins.scala.lang.psi.api.statements.params.{ScParameter, ScParameterClause}
+import org.jetbrains.plugins.scala.lang.psi.api.statements.{ScFunction, ScFunctionDefinition}
 import org.jetbrains.plugins.scala.lang.psi.api.toplevel.typedef.{ScClass, ScTypeDefinition}
 import org.jetbrains.plugins.scala.lang.psi.api.toplevel.{ScTypeParametersOwner, ScTypedDefinition}
 import org.jetbrains.plugins.scala.lang.psi.fake.FakePsiMethod
@@ -126,7 +125,7 @@ class ScalaFunctionParameterInfoHandler extends ParameterInfoHandlerWithTabActio
         val buffer: StringBuilder = new StringBuilder("")
         var isGrey = false
         def paramText(param: ScParameter, subst: ScSubstitutor) = {
-          ScalaDocumentationProvider.parseParameter(param, escape = false, memberModifiers = false)(subst.subst(_).presentableText)
+          ScalaDocumentationProvider.parseParameter(param, escape = false, memberModifiers = false)(subst(_).presentableText)
         }
         p match {
           case x: String if x == "" =>
@@ -240,7 +239,7 @@ class ScalaFunctionParameterInfoHandler extends ParameterInfoHandlerWithTabActio
                       buffer.append(name)
                     }
                     buffer.append(": ")
-                            buffer.append(subst.subst(param.paramType()).presentableText)
+                            buffer.append(subst(param.paramType()).presentableText)
                     if (param.isVarArgs) buffer.append("*")
 
                     val isBold = if (p.getParameters.indexOf(param) == index || (param.isVarArgs && p.getParameters.indexOf(param) <= index)) true
@@ -341,7 +340,7 @@ class ScalaFunctionParameterInfoHandler extends ParameterInfoHandlerWithTabActio
             val getIt = used.indexOf(false)
             used(getIt) = true
             val param: (Parameter, String) = parameters(getIt)
-            val paramType = subst.subst(param._1.paramType)
+            val paramType = subst(param._1.paramType)
             if (!exprType.conforms(paramType)) isGrey = true
             buffer.append(param._2)
           }
@@ -371,7 +370,7 @@ class ScalaFunctionParameterInfoHandler extends ParameterInfoHandlerWithTabActio
                   assign.getRExpression match {
                     case Some(expr: ScExpression) =>
                       for (exprType <- expr.`type`()) {
-                        val paramType = subst.subst(param._1.paramType)
+                        val paramType = subst(param._1.paramType)
                         if (!exprType.conforms(paramType)) isGrey = true
                       }
                     case _ => isGrey = true
@@ -411,7 +410,7 @@ class ScalaFunctionParameterInfoHandler extends ParameterInfoHandlerWithTabActio
       }
       if (!isGrey && exprs.length > parameters.length && index >= parameters.length) {
         if (!namedMode && parameters.last._1.isRepeated) {
-          val paramType = subst.subst(parameters.last._1.paramType)
+          val paramType = subst(parameters.last._1.paramType)
           while (!isGrey && k < exprs.length.min(index)) {
             if (k < index) {
               for (exprType <- exprs(k).`type`()) {
@@ -596,7 +595,7 @@ class ScalaFunctionParameterInfoHandler extends ParameterInfoHandlerWithTabActio
                       res += ((signature, 0))
                       res ++= ScalaParameterInfoEnhancer.enhance(signature, args.arguments).map { (_, 0) }
                     case ScalaResolveResult(typed: ScTypedDefinition, subst: ScSubstitutor) =>
-                      val typez = subst.subst(typed.`type`().getOrNothing) //todo: implicit conversions
+                      val typez = subst(typed.`type`().getOrNothing) //todo: implicit conversions
                       collectForType(typez)
                     case _ =>
                   }

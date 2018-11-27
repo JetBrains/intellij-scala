@@ -260,9 +260,9 @@ package object types {
             case definition: ScTypeAliasDefinition if needExpand(definition) =>
               definition.aliasedType.toOption match {
                 case Some(ParameterizedType(des, _)) if !needSubstitutor =>
-                  extractFrom(actualSubst.subst(des), visitedAliases + definition.physical)
+                  extractFrom(actualSubst(des), visitedAliases + definition.physical)
                 case Some(tp) =>
-                  extractFrom(actualSubst.subst(tp), visitedAliases + definition.physical)
+                  extractFrom(actualSubst(tp), visitedAliases + definition.physical)
                 case _ => None
               }
             case _ => filter(actualElement, actualSubst)

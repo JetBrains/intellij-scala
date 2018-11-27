@@ -422,13 +422,13 @@ private[changeSignature] trait ScalaChangeSignatureUsageHandler {
       val method = change.getMethod
       paramInfo match {
         case sInfo: ScalaParameterInfo =>
-          val text = UsageUtil.substitutor(usage).subst(sInfo.scType).canonicalCodeText
+          val text = UsageUtil.substitutor(usage)(sInfo.scType).canonicalCodeText
           val `=> ` = if (sInfo.isByName) ScalaPsiUtil.functionArrow(method.getProject) + " " else ""
           val `*` = if (sInfo.isRepeatedParameter) "*" else ""
           `=> ` + text + `*`
         case jInfo: JavaParameterInfo =>
           val javaType = jInfo.createType(method, method.getManager)
-          val scType = UsageUtil.substitutor(usage).subst(javaType.toScType())
+          val scType = UsageUtil.substitutor(usage)(javaType.toScType())
           (scType, javaType) match {
             case (JavaArrayType(argument), _: PsiEllipsisType) => argument.canonicalCodeText + "*"
             case _ => scType.canonicalCodeText

@@ -134,7 +134,7 @@ trait ScalaPsiTypeBridge extends api.PsiTypeBridge {
         ScProjectionType(_, clazz)
       } getOrElse ScDesignatorType(clazz)
 
-      subst.subst(if (withTypeParameters) {
+      subst(if (withTypeParameters) {
         clazz.getTypeParameters.toSeq map {
           TypeParameterType(_)
         } match {

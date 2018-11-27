@@ -14,7 +14,6 @@ import com.intellij.openapi.util.{Pair, TextRange}
 import com.intellij.psi._
 import com.intellij.psi.impl.light.LightModifierList
 import com.intellij.psi.scope.PsiScopeProcessor
-import com.intellij.psi.search.SearchScope
 import com.intellij.psi.stubs.StubElement
 import com.intellij.psi.tree.TokenSet
 import com.intellij.psi.util._
@@ -224,7 +223,7 @@ object ScalaPsiUtil {
         typeResult match {
           case Right(t) =>
             (processor, place) match {
-              case (b: BaseProcessor, p: ScalaPsiElement) => b.processType(subst subst t, p, state)
+              case (b: BaseProcessor, p: ScalaPsiElement) => b.processType(subst(t), p, state)
               case _ => true
             }
           case _ => true
@@ -801,11 +800,11 @@ object ScalaPsiUtil {
       def getSubstitutionMap: java.util.Map[PsiTypeParameter, PsiType] = new java.util.HashMap[PsiTypeParameter, PsiType]()
 
       def substitute(`type`: PsiType): PsiType = {
-        substitutor.subst(`type`.toScType()).toPsiType
+        substitutor(`type`.toScType()).toPsiType
       }
 
       def substitute(typeParameter: PsiTypeParameter): PsiType = {
-        substitutor.subst(TypeParameterType(typeParameter)).toPsiType
+        substitutor(TypeParameterType(typeParameter)).toPsiType
       }
 
       def putAll(another: PsiSubstitutor): PsiSubstitutor = PsiSubstitutor.EMPTY
@@ -1447,7 +1446,7 @@ object ScalaPsiUtil {
             if fun.paramClauses.clauses.length == 1 && !fun.hasTypeParameters
             tp <- fun.`type`().toOption
           } yield {
-            val substituted = methodSubst.followed(typeSubst).subst(tp)
+            val substituted = methodSubst.followed(typeSubst)(tp)
             extrapolateWildcardBounds(substituted, expected, languageLevel).getOrElse {
               substituted
             }
@@ -1487,7 +1486,7 @@ object ScalaPsiUtil {
           }
 
           val functionType = FunctionType(returnType.toScType(), parametersTypes.map(_.toScType()))
-          val substituted = substitutor.subst(functionType)
+          val substituted = substitutor(functionType)
 
           extrapolateWildcardBounds(substituted, expected, languageLevel).getOrElse {
             substituted

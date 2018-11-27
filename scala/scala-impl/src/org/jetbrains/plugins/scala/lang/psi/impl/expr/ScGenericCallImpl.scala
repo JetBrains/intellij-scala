@@ -69,7 +69,7 @@ class ScGenericCallImpl(node: ASTNode) extends ScExpressionImplBase(node) with S
     case ScTypePolymorphicType(internal, tps) =>
       //type parameters of a method are appended to the right of ScTypePolymorphicType parameters
       ScSubstitutor.bind(tps.takeRight(arguments.length), arguments)(_.calcType)
-        .subst(internal)
+        .apply(internal)
     case t => t
   }
 

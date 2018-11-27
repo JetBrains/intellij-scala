@@ -136,7 +136,7 @@ object ScImplicitlyConvertible {
       case _ => ScSubstitutor.empty
     }
 
-    val substituted = newSubstitutor.subst(tp)
+    val substituted = newSubstitutor(tp)
     if (!`type`.weakConforms(substituted)) {
       ScalaPsiUtil.debug(s"Implicit $result doesn't conform to ${`type`}", LOG)
       return None
@@ -166,7 +166,7 @@ object ScImplicitlyConvertible {
     val argumentType = firstParameter.`type`()
 
     def substitute(maybeType: TypeResult) =
-      maybeType.map(substitutor.subst)
+      maybeType.map(substitutor)
         .getOrNothing
 
     (substitute(argumentType), substitute(function.returnType))
@@ -185,8 +185,8 @@ object ScImplicitlyConvertible {
       funType <- place.elementScope.cachedFunction1Type
       elementType <- maybeElementType
 
-      substitution = substitutor.subst(elementType).conforms(funType, ConstraintSystem.empty) match {
-        case ConstraintSystem(newSubstitutor) => newSubstitutor.subst _
+      substitution = substitutor(elementType).conforms(funType, ConstraintSystem.empty) match {
+        case ConstraintSystem(newSubstitutor) => newSubstitutor
         case _ => Function.const(Nothing) _
       }
 
@@ -210,8 +210,8 @@ object ScImplicitlyConvertible {
 
       def substitute(maybeType: TypeResult) = maybeType
         .toOption
-        .map(substitutor.subst)
-        .map(unSubst.subst)
+        .map(substitutor)
+        .map(unSubst)
         .withFilter(!hasRecursiveTypeParameters(_))
 
       function.typeParameters.foreach { typeParameter =>
@@ -265,7 +265,7 @@ object ScImplicitlyConvertible {
           lastConstraints match {
             case ConstraintSystem(lastSubstitutor) =>
               Some(
-                lastSubstitutor.subst(dependentSubstitutor.subst(resultType)),
+                lastSubstitutor(dependentSubstitutor(resultType)),
                 ScSubstitutor.paramToExprType(inferredParameters, expressions, useExpected = false)
               )
             case _ => None

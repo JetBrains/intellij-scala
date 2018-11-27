@@ -53,7 +53,7 @@ class ScConstructorPatternImpl(node: ASTNode) extends ScalaPsiElementImpl (node)
                   var i = 0
                   while (i < subpatterns.length) {
                     val tp = {
-                      substitutor.subst(params(i).`type`()
+                      substitutor(params(i).`type`()
                         .getOrElse(return false))
                     }
                     if (!subpatterns.apply(i).isIrrefutableFor(Some(tp))) {
@@ -90,7 +90,7 @@ class ScConstructorPatternImpl(node: ASTNode) extends ScalaPsiElementImpl (node)
                 _.followed(toAnySubst)
               }
             }
-            Right(ScParameterizedType(refType, td.getTypeParameters.map(tp => newSubst.subst(TypeParameterType(tp)))))
+            Right(ScParameterizedType(refType, td.getTypeParameters.map(tp => newSubst(TypeParameterType(tp)))))
           case td: ScClass => Right(ScalaType.designator(td))
           case obj: ScObject => Right(ScalaType.designator(obj))
           case fun: ScFunction /*It's unapply method*/ if (fun.name == "unapply" || fun.name == "unapplySeq") &&
@@ -102,7 +102,7 @@ class ScConstructorPatternImpl(node: ASTNode) extends ScalaPsiElementImpl (node)
               else {
                 val maybeSubstitutor = for {
                   Typeable(parameterType) <- fun.parameters.headOption
-                  functionType = bind(typeParams)(UndefinedType(_)).subst(parameterType)
+                  functionType = bind(typeParams)(UndefinedType(_)).apply(parameterType)
 
                   expectedType <- this.expectedType
                   newSubstitutor <- functionType.conformanceSubstitutor(expectedType)
@@ -114,7 +114,7 @@ class ScConstructorPatternImpl(node: ASTNode) extends ScalaPsiElementImpl (node)
                   bind(typeParams)(_.upperBound.getOrAny)
                 }
               }
-            fun.paramClauses.clauses.head.parameters.head.`type`().map(subst.subst)
+            fun.paramClauses.clauses.head.parameters.head.`type`().map(subst)
           case _ => Right(Nothing)
         }
       case _ => Failure("Cannot resolve symbol")

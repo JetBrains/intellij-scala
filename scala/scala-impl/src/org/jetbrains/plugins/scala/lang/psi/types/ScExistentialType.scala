@@ -43,7 +43,7 @@ class ScExistentialType private (val quantified: ScType,
       case (ParameterizedType(ScAbstractType(typeParameter, lowerBound, upperBound), args), _) if !falseUndef =>
         val subst = ScSubstitutor.bind(typeParameter.typeParameters, args)
         val upper: ScType =
-          subst.subst(upperBound) match {
+          subst(upperBound) match {
             case ParameterizedType(u, _) => ScExistentialType(ScParameterizedType(u, args))
             case u => ScExistentialType(ScParameterizedType(u, args))
           }
@@ -51,7 +51,7 @@ class ScExistentialType private (val quantified: ScType,
         if (conformance.isLeft) return conformance
 
         val lower: ScType =
-          subst.subst(lowerBound) match {
+          subst(lowerBound) match {
             case ParameterizedType(l, _) => ScExistentialType(ScParameterizedType(l, args))
             case l => ScExistentialType(ScParameterizedType(l, args))
           }
@@ -83,7 +83,7 @@ class ScExistentialType private (val quantified: ScType,
                   if rParam.isContravariant && wildcards.contains(arg) => (arg.name, arg.lower)
               }.unzip
             val subst = ScSubstitutor.bind(names, existArgsBounds)(TypeParamId.nameBased)
-            return subst.subst(quantified).equiv(r, constraints, falseUndef)
+            return subst(quantified).equiv(r, constraints, falseUndef)
           case _ =>
         }
       case _ =>
@@ -117,7 +117,7 @@ class ScExistentialType private (val quantified: ScType,
           if (t.isLeft) return ConstraintsResult.Left
         }
         val polySubst = ScSubstitutor.bind(poly.typeParameters, wildcards)
-        quantified.equiv(polySubst.subst(poly.internalType), t.constraints, falseUndef)
+        quantified.equiv(polySubst(poly.internalType), t.constraints, falseUndef)
       case _ => ConstraintsResult.Left
     }
   }

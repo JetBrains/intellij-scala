@@ -37,9 +37,9 @@ object ScalaType {
     tp match {
       case proj@ScProjectionType(_, _) => proj.actualElement match {
         case t: ScTypeAliasDefinition if t.typeParameters.isEmpty =>
-          t.aliasedType.flatMap(t => expandAliases(proj.actualSubst.subst(t), visited + tp))
+          t.aliasedType.flatMap(t => expandAliases(proj.actualSubst(t), visited + tp))
         case t: ScTypeAliasDeclaration if t.typeParameters.isEmpty =>
-          t.upperBound.flatMap(upper => expandAliases(proj.actualSubst.subst(upper), visited + tp))
+          t.upperBound.flatMap(upper => expandAliases(proj.actualSubst(upper), visited + tp))
         case _ => Right(tp)
       }
       case at: ScAbstractType => expandAliases(at.upper, visited + tp) // ugly hack for SCL-3592

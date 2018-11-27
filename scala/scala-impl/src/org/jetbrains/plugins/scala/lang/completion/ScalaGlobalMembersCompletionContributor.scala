@@ -262,7 +262,7 @@ object ScalaGlobalMembersCompletionContributor {
         case definition@(_: ScClass |
                          _: ScTrait) =>
           val thisType = ScThisType(definition.asInstanceOf[ScTypeDefinition])
-          substitutor.subst(thisType)
+          substitutor(thisType)
       }.flatMap(_.extractClass).collect {
         case o: ScObject => o
       }

@@ -11,10 +11,9 @@ import org.jetbrains.plugins.scala.lang.psi.impl.toplevel.synthetic.ScSyntheticF
 import org.jetbrains.plugins.scala.lang.psi.types.ScType
 import org.jetbrains.plugins.scala.lang.psi.types.recursiveUpdate.ScSubstitutor
 import org.jetbrains.plugins.scala.lang.psi.types.result._
-import org.jetbrains.plugins.scala.lang.psi.{api => p, types => ptype}
+import org.jetbrains.plugins.scala.lang.psi.{types => ptype}
 
 import scala.collection.immutable.LongMap
-import scala.meta.internal.{semantic => h}
 import scala.meta.trees.error._
 import scala.{meta => m, Seq => _}
 
@@ -139,7 +138,7 @@ trait Utils {
         expr.definedReturnType.getOrElse(ptype.api.Any)
       } else {
         val substitutor = ScSubstitutor(ScSubstitutor.cache)
-        substitutor.subst(expr.`type`().get)
+        substitutor(expr.`type`().get)
       }
     }
   }
@@ -155,7 +154,7 @@ trait Utils {
         }
       } else {
         val substitutor = ScSubstitutor(ScSubstitutor.cache)
-        expr.`type`().map(substitutor.subst)
+        expr.`type`().map(substitutor)
       }
     }
   }

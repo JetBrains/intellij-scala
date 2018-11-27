@@ -249,7 +249,7 @@ object ScPattern {
           case _ => `type`
         }
 
-        val substitutedFunctionType = substitutor.subst(functionType)
+        val substitutedFunctionType = substitutor(functionType)
 
         tp.conformanceSubstitutor(substitutedFunctionType).orElse {
           substitutedFunctionType.conformanceSubstitutor(tp)
@@ -303,7 +303,7 @@ object ScPattern {
                 case Right(tp) => tp
                 case _ => return None
               }
-              val funType = withThisType.subst(firstParameterType)
+              val funType = withThisType(firstParameterType)
               expected match {
                 case Some(tp) => calculateSubstitutor(tp, funType, substitutor)
                 case _ => substitutor
@@ -315,19 +315,20 @@ object ScPattern {
                 tp.recursiveVarianceUpdate {
                   case (tp: TypeParameterType, variance) if funTypeParams.contains(tp.psiTypeParameter) =>
                     val result =
-                      if (variance == Contravariant) substitutor.subst(tp.lowerType)
-                      else substitutor.subst(tp.upperType)
+                      if (variance == Contravariant) substitutor(tp.lowerType)
+                      else substitutor(tp.upperType)
                     ReplaceWith(result)
                   case (typez, _) =>
                     ProcessSubtypes
                 }
               }
-              val subbedRetTp: ScType = subst.subst(rt)
+
+              val subbedRetTp: ScType = subst(rt)
               if (subbedRetTp.equiv(api.Boolean)) None
               else {
                 val args = ScPattern.extractorParameters(subbedRetTp, pattern, ScPattern.isOneArgCaseClassMethod(fun))
                 if (totalNumberOfPatterns == 1 && args.length > 1) Some(TupleType(args))
-                else if (argIndex < args.length) Some(updateRes(subst.subst(args(argIndex)).unpackedType))
+                else if (argIndex < args.length) Some(updateRes(subst(args(argIndex)).unpackedType))
                 else None
               }
             case _ => None
@@ -343,7 +344,7 @@ object ScPattern {
                 case Right(tp) => tp
                 case _ => return None
               }
-              val funType = undefSubst.subst(firstParameterRetTp)
+              val funType = undefSubst(firstParameterRetTp)
               expected match {
                 case Some(tp) => calculateSubstitutor(tp, funType, substitutor)
                 case _ => substitutor
@@ -351,9 +352,9 @@ object ScPattern {
             }
           fun.returnType match {
             case Right(rt) =>
-              val args = ScPattern.extractorParameters(subst.subst(rt), pattern, ScPattern.isOneArgCaseClassMethod(fun))
+              val args = ScPattern.extractorParameters(subst(rt), pattern, ScPattern.isOneArgCaseClassMethod(fun))
               if (args.isEmpty) return None
-              if (argIndex < args.length - 1) return Some(subst.subst(args(argIndex)))
+              if (argIndex < args.length - 1) return Some(subst(args(argIndex)))
               val lastArg = args.last
               val baseTypesIterator = Iterator(lastArg) ++ BaseTypes.iterator(lastArg)
               val seqType = baseTypesIterator.collectFirst {
@@ -363,8 +364,8 @@ object ScPattern {
               seqType match {
                 case Some(seq@ParameterizedType(_, seqArgs)) =>
                   pattern match {
-                    case n: ScNamingPattern if n.getLastChild.isInstanceOf[ScSeqWildcard] => Some(subst.subst(seq))
-                    case _ => Some(subst.subst(seqArgs.head))
+                    case n: ScNamingPattern if n.getLastChild.isInstanceOf[ScSeqWildcard] => Some(subst(seq))
+                    case _ => Some(subst(seqArgs.head))
                   }
                 case _ => None
               }
@@ -374,7 +375,7 @@ object ScPattern {
           if cl.isCase && cl.tooBigForUnapply =>
           val undefSubst = subst.followed(ScSubstitutor(ScThisType(cl)))
           val params: Seq[ScParameter] = cl.parameters
-          val types = params.map(_.`type`().getOrAny).map(undefSubst.subst)
+          val types = params.map(_.`type`().getOrAny).map(undefSubst)
           val args = if (types.nonEmpty && params.last.isVarArgs) {
             val lastType = types.last
             val tp = ScalaPsiElementFactory.createTypeFromText(s"scala.collection.Seq[${lastType.canonicalText}]", cl, cl)
@@ -400,11 +401,11 @@ object ScPattern {
     cp.processType(tp, place)
     cp.candidatesS.flatMap {
       case ScalaResolveResult(fun: ScFunction, subst) if fun.parameters.isEmpty && fun.name == name =>
-        Seq(subst.subst(fun.returnType.getOrAny))
+        Seq(subst(fun.returnType.getOrAny))
       case ScalaResolveResult(b: ScBindingPattern, subst) if b.name == name =>
-        Seq(subst.subst(b.`type`().getOrAny))
+        Seq(subst(b.`type`().getOrAny))
       case ScalaResolveResult(param: ScClassParameter, subst) if param.name == name =>
-        Seq(subst.subst(param.`type`().getOrAny))
+        Seq(subst(param.`type`().getOrAny))
       case _ => Seq.empty
     }.headOption
   }

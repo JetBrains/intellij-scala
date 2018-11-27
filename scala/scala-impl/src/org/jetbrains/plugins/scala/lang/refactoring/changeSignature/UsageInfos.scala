@@ -194,7 +194,7 @@ private[changeSignature] object UsageUtil {
       case _ => return None
     }
 
-    val substType = substitutor(usage).subst(newType)
+    val substType = substitutor(usage)(newType)
     Some(substType)
   }
 

@@ -194,7 +194,7 @@ object DebuggerUtil {
     val paramTypes = parameters.map(parameterForJVMSignature(_, subst)).mkString("(", "", ")")
     val resultType = function match {
       case fun: ScFunction if !fun.isConstructor =>
-        getJVMStringForType(subst.subst(fun.returnType.getOrAny), isParam = false)
+        getJVMStringForType(subst(fun.returnType.getOrAny), isParam = false)
       case _: ScFunction | _: ScPrimaryConstructor => "V"
     }
     JVMNameUtil.getJVMRawText(paramTypes + resultType)
@@ -238,7 +238,7 @@ object DebuggerUtil {
   private def parameterForJVMSignature(param: ScTypedDefinition, subst: ScSubstitutor) = param match {
       case p: ScParameter if p.isRepeatedParameter => "Lscala/collection/Seq;"
       case p: ScParameter if p.isCallByNameParameter => "Lscala/Function0;"
-      case _ => getJVMStringForType(subst.subst(param.`type`().getOrAny))
+      case _ => getJVMStringForType(subst(param.`type`().getOrAny))
     }
   
   def createValue(vm: VirtualMachineProxyImpl, tp: ScType, b: Boolean): Value = {

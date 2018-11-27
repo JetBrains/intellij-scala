@@ -86,7 +86,7 @@ class ExtractorResolveProcessor(ref: ScReferenceElement,
               val clauses = fun.paramClauses.clauses
               if (clauses.nonEmpty && clauses.head.parameters.length == 1) {
                 for (paramType <- clauses.head.parameters.head.`type`().toOption
-                     if tp conforms r.substitutor.subst(paramType)) return true
+                     if tp conforms r.substitutor(paramType)) return true
               }
               false
             case _ => true

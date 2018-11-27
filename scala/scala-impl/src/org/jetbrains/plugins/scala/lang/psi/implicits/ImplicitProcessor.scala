@@ -207,9 +207,9 @@ object ImplicitProcessor {
       def collectSupers(clazz: PsiClass, subst: ScSubstitutor) {
         clazz match {
           case td: ScTemplateDefinition =>
-            collectPartsIter(td.superTypes.map(subst.subst))
+            collectPartsIter(td.superTypes.map(subst))
           case clazz: PsiClass =>
-            collectPartsIter(clazz.getSuperTypes.map(t => subst.subst(t.toScType())))
+            collectPartsIter(clazz.getSuperTypes.map(t => subst(t.toScType())))
         }
       }
 
@@ -238,9 +238,9 @@ object ImplicitProcessor {
         case proj@ScProjectionType(projected, _) =>
           collectParts(projected)
           proj.actualElement match {
-            case v: ScBindingPattern => collectPartsTr(v.`type`().map(proj.actualSubst.subst))
-            case v: ScFieldId => collectPartsTr(v.`type`().map(proj.actualSubst.subst))
-            case v: ScParameter => collectPartsTr(v.`type`().map(proj.actualSubst.subst))
+            case v: ScBindingPattern => collectPartsTr(v.`type`().map(proj.actualSubst))
+            case v: ScFieldId => collectPartsTr(v.`type`().map(proj.actualSubst))
+            case v: ScParameter => collectPartsTr(v.`type`().map(proj.actualSubst))
             case _ =>
           }
           tp.extractClassType match {
@@ -302,14 +302,14 @@ object ImplicitProcessor {
             }
         case ScDesignatorType(ta: ScTypeAliasDefinition) => collectObjects(ta.aliasedType.getOrAny)
         case ScProjectionType.withActual(actualElem: ScTypeAliasDefinition, actualSubst) =>
-          collectObjects(actualSubst.subst(actualElem.aliasedType.getOrAny))
+          collectObjects(actualSubst(actualElem.aliasedType.getOrAny))
         case ParameterizedType(ScDesignatorType(ta: ScTypeAliasDefinition), args) =>
           val genericSubst = ScSubstitutor.bind(ta.typeParameters, args)
-          collectObjects(genericSubst.subst(ta.aliasedType.getOrAny))
+          collectObjects(genericSubst(ta.aliasedType.getOrAny))
         case ParameterizedType(ScProjectionType.withActual(actualElem: ScTypeAliasDefinition, actualSubst), args) =>
           val genericSubst = ScSubstitutor.bind(actualElem.typeParameters, args)
           val s = actualSubst.followed(genericSubst)
-          collectObjects(s.subst(actualElem.aliasedType.getOrAny))
+          collectObjects(s(actualElem.aliasedType.getOrAny))
         case _ =>
           tp.extractClass match {
             case Some(obj: ScObject) => addResult(obj.qualifiedName, tp)

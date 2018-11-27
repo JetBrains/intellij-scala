@@ -64,7 +64,7 @@ class ScSimpleTypeElementImpl(node: ASTNode) extends ScalaPsiElementImpl(node) w
         case fun: ScFunction =>
           val clauses = fun.effectiveParameterClauses
           (clauses.map(_.effectiveParameters.map { p =>
-            val paramType: ScType = subst.subst(p.`type`().getOrAny)
+            val paramType: ScType = subst(p.`type`().getOrAny)
             new Parameter(p.name, p.deprecatedName, paramType, paramType, p.isDefaultParam,p.isRepeatedParameter,
               p.isCallByNameParameter, p.index, Some(p), p.getDefaultExpression.flatMap(_.`type`().toOption))
           }),
@@ -72,7 +72,7 @@ class ScSimpleTypeElementImpl(node: ASTNode) extends ScalaPsiElementImpl(node) w
         case f: ScPrimaryConstructor =>
           val clauses = f.effectiveParameterClauses
           (clauses.map(_.effectiveParameters.map { p =>
-            val paramType: ScType = subst.subst(p.`type`().getOrAny)
+            val paramType: ScType = subst(p.`type`().getOrAny)
             new Parameter(p.name, p.deprecatedName, paramType, paramType, p.isDefaultParam, p.isRepeatedParameter,
               p.isCallByNameParameter, p.index, Some(p), p.getDefaultExpression.flatMap(_.`type`().toOption))
           }),
@@ -121,7 +121,7 @@ class ScSimpleTypeElementImpl(node: ASTNode) extends ScalaPsiElementImpl(node) w
           parametrise(calculateReferenceType(ref).
             getOrElse(return Nothing), clazz, subst)
       }
-      val res = subst.subst(tp)
+      val res = subst(tp)
 
       val (params: Seq[Seq[Parameter]], lastImplicit: Boolean) = getConstructorParams(constr, subst)
 
@@ -140,7 +140,7 @@ class ScSimpleTypeElementImpl(node: ASTNode) extends ScalaPsiElementImpl(node) w
       getContext match {
         case p: ScParameterizedTypeElement =>
           val appSubst = ScSubstitutor.bind(typeParameters, p.typeArgList.typeArgs)(_.calcType)
-          val newRes = appSubst.subst(res)
+          val newRes = appSubst(res)
           updateImplicits(newRes, withExpected = false, params = params, lastImplicit = lastImplicit)
           return newRes
         case _ =>
@@ -174,7 +174,7 @@ class ScSimpleTypeElementImpl(node: ASTNode) extends ScalaPsiElementImpl(node) w
                 def updateRes(expected: ScType): ScTypePolymorphicType = {
                   InferUtil.localTypeInference(previous.internalType,
                     Seq(Parameter(expected, isRepeated = false, index = 0)),
-                      Seq(new Expression(ScSubstitutor.bind(previous.typeParameters)(UndefinedType(_)).subst(res.inferValueType))),
+                    Seq(new Expression(ScSubstitutor.bind(previous.typeParameters)(UndefinedType(_)).apply(res.inferValueType))),
                     previous.typeParameters, shouldUndefineParameters = false, filterTypeParams = false) //here should work in different way:
                 }
                 val fromUnderscore = c.newTemplate match {
@@ -232,7 +232,7 @@ class ScSimpleTypeElementImpl(node: ASTNode) extends ScalaPsiElementImpl(node) w
               case t: ScTypePolymorphicType => t.polymorphicTypeSubstitutor
               case _ => ScSubstitutor.empty
             }
-            pts.subst(nonValueType.internalType)
+            pts(nonValueType.internalType)
           } else nonValueType
         case None => res
       }
@@ -249,7 +249,7 @@ class ScSimpleTypeElementImpl(node: ASTNode) extends ScalaPsiElementImpl(node) w
               parametrise(calculateReferenceType(ref).
                 getOrElse(return (Nothing, ScSubstitutor.empty)), clazz, subst)
           }
-          val res = subst.subst(tp)
+          val res = subst(tp)
           val typeParameters: Seq[TypeParameter] = elem match {
             case tp: ScTypeParametersOwner if tp.typeParameters.nonEmpty =>
               tp.typeParameters.map(TypeParameter(_))
@@ -259,7 +259,7 @@ class ScSimpleTypeElementImpl(node: ASTNode) extends ScalaPsiElementImpl(node) w
           }
 
           val appSubst = ScSubstitutor.bind(typeParameters, p.typeArgList.typeArgs)(_.calcType)
-          (appSubst.subst(res), appSubst)
+          (appSubst(res), appSubst)
         }
         val constrRef = ref.isConstructorReference && !noConstructor
 

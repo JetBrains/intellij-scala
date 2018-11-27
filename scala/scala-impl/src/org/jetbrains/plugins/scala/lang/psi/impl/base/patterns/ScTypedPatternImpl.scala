@@ -63,10 +63,10 @@ class ScTypedPatternImpl(node: ASTNode) extends ScalaPsiElementImpl(node) with S
                       ScParameterizedType(des, typeArgs.zip(typeParams).map {
                         case (arg: ScExistentialArgument, param: ScTypeParam) =>
                           val lowerBound =
-                            if (arg.lower.equiv(Nothing)) subst subst param.lowerBound.getOrNothing
+                            if (arg.lower.equiv(Nothing)) subst(param.lowerBound.getOrNothing)
                             else arg.lower //todo: lub?
                           val upperBound =
-                          if (arg.upper.equiv(Any)) subst subst param.upperBound.getOrAny
+                            if (arg.upper.equiv(Any)) subst(param.upperBound.getOrAny)
                             else arg.upper //todo: glb?
                           ScExistentialArgument(arg.name, arg.typeParameters, lowerBound, upperBound)
                         case (tp: ScType, _: ScTypeParam) => tp
@@ -84,7 +84,7 @@ class ScTypedPatternImpl(node: ASTNode) extends ScalaPsiElementImpl(node) with S
                             if (arg.upper.equiv(api.Any)) {
                               val listTypes: Array[PsiClassType] = param.getExtendsListTypes
                               if (listTypes.isEmpty) api.Any
-                              else subst.subst(listTypes.toSeq.map(_.toScType()).glb(checkWeak = true))
+                              else subst(listTypes.toSeq.map(_.toScType()).glb(checkWeak = true))
                             } else arg.upper //todo: glb?
                           ScExistentialArgument(arg.name, arg.typeParameters, lowerBound, upperBound)
                         case (tp: ScType, _) => tp

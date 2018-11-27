@@ -221,7 +221,7 @@ abstract class BaseProcessor(val kinds: Set[ResolveTargets.Value])
           case tpt: TypeParameterType =>
             if (recState.visitedTypeParameter.contains(tpt)) return true
             val newState = state.put(ScSubstitutor.key, ScSubstitutor(p))
-            val substedType = p.substitutor.subst(ParameterizedType(tpt.upperType, typeArgs))
+            val substedType = p.substitutor(ParameterizedType(tpt.upperType, typeArgs))
             processTypeImpl(substedType, place, newState)(recState.add(tpt))
           case _ => p.extractDesignatedType(expandAliases = false) match {
             case Some((des, subst)) =>
@@ -233,7 +233,7 @@ abstract class BaseProcessor(val kinds: Set[ResolveTargets.Value])
         val ta = proj.actualElement.asInstanceOf[ScTypeAlias]
         val subst = proj.actualSubst
         val upper = ta.upperBound.getOrElse(return true)
-        processTypeImpl(subst.subst(upper), place, state.put(ScSubstitutor.key, ScSubstitutor.empty))(recState.add(ta))
+        processTypeImpl(subst(upper), place, state.put(ScSubstitutor.key, ScSubstitutor.empty))(recState.add(ta))
       case proj@ScProjectionType(_, _) =>
         val s: ScSubstitutor =
           if (updateWithProjectionSubst)
@@ -290,7 +290,7 @@ abstract class BaseProcessor(val kinds: Set[ResolveTargets.Value])
       case ta: ScTypeAlias =>
         if (recState.visitedProjections.contains(ta)) return true
         val newState = state.put(ScSubstitutor.key, ScSubstitutor.empty)
-        processTypeImpl(s.subst(ta.upperBound.getOrAny), place, newState)(recState.add(ta))
+        processTypeImpl(s(ta.upperBound.getOrAny), place, newState)(recState.add(ta))
       //need to process scala way
       case clazz: PsiClass =>
         TypeDefinitionMembers.processDeclarations(clazz, BaseProcessor.this, state.put(ScSubstitutor.key, newSubst), null, place)
@@ -303,7 +303,7 @@ abstract class BaseProcessor(val kinds: Set[ResolveTargets.Value])
         typeResult match {
           case Right(tp) =>
             val newState = state.put(ScSubstitutor.key, ScSubstitutor.empty)
-            processTypeImpl(newSubst subst tp, place, newState, updateWithProjectionSubst = false)
+            processTypeImpl(newSubst(tp), place, newState, updateWithProjectionSubst = false)
           case _ => true
         }
       case pack: ScPackage =>

@@ -91,14 +91,14 @@ object InferUtil {
             //don't lose information from type parameters of res, updated type may some of type parameters removed
             val abstractSubst = t.abstractOrLowerTypeSubstitutor
             val mtWithoutImplicits = mt.copy(returnType = tpt.internalType)
-            resInner = t.copy(internalType = abstractSubst.subst(mtWithoutImplicits),
+            resInner = t.copy(internalType = abstractSubst(mtWithoutImplicits),
               typeParameters = tpt.typeParameters)
           case _ => //shouldn't be there
             resInner = t.copy(internalType = mt.copy(returnType = updatedType))
         }
       case t@ScTypePolymorphicType(mt@ScMethodType(retType, params, impl), typeParams) if impl =>
         val fullAbstractSubstitutor = t.abstractOrLowerTypeSubstitutor
-        val coreTypes = params.map(p => fullAbstractSubstitutor.subst(p.paramType))
+        val coreTypes = params.map(p => fullAbstractSubstitutor(p.paramType))
         implicit val elementScope = mt.elementScope
 
         val splitMethodType = params.reverse.foldLeft(retType) {
@@ -129,7 +129,7 @@ object InferUtil {
         implicitParameters = Some(resolveResultsBuffer)
 
         val dependentSubst = ScSubstitutor.paramToExprType(paramsForInferBuffer, exprsBuffer)
-        resInner = dependentSubst.subst(resInner)
+        resInner = dependentSubst(resInner)
       case mt@ScMethodType(retType, _, isImplicit) if !isImplicit =>
         // See SCL-3516
         val (updatedType, ps) = updateTypeWithImplicitParameters(retType, element, coreElement, canThrowSCE, fullInfo = fullInfo)
@@ -144,7 +144,7 @@ object InferUtil {
         implicitParameters = Some(resolveResults)
         resInner = retType
         val dependentSubst = ScSubstitutor.paramToExprType(paramsForInfer, exprs)
-        resInner = dependentSubst.subst(resInner)
+        resInner = dependentSubst(resInner)
       case _ =>
     }
     (resInner, implicitParameters)
@@ -164,7 +164,7 @@ object InferUtil {
     val iterator = params.iterator
     while (iterator.hasNext) {
       val param = iterator.next()
-      val paramType = abstractSubstitutor.subst(param.paramType) //we should do all of this with information known before
+      val paramType = abstractSubstitutor(param.paramType) //we should do all of this with information known before
       val implicitState = ImplicitState(place, paramType, paramType, coreElement, isImplicitConversion = false,
           searchImplicitsRecursively, None, fullInfo = false, Some(ImplicitsRecursionGuard.currentMap))
       val collector = new ImplicitCollector(implicitState)
@@ -302,7 +302,7 @@ object InferUtil {
       val valueType = sameDepth.inferValueType
 
       val expectedParam = Parameter("", None, expected, expected)
-      val expressionToUpdate = new Expression(ScSubstitutor.bind(typeParams)(UndefinedType(_)).subst(valueType))
+      val expressionToUpdate = new Expression(ScSubstitutor.bind(typeParams)(UndefinedType(_)).apply(valueType))
 
       val inferredWithExpected =
         localTypeInference(internal, Seq(expectedParam), Seq(expressionToUpdate), typeParams,
@@ -429,7 +429,7 @@ object InferUtil {
         case function: ScFunction => function.functionTypeNoImplicits()
       }
 
-      maybeType.map(substitutor.subst)
+      maybeType.map(substitutor)
     }
 
   def localTypeInference(retType: ScType, params: Seq[Parameter], exprs: Seq[Expression],
@@ -457,8 +457,8 @@ object InferUtil {
     // This corresponds to use of `isCompatible` in `Infer#methTypeArgs` in scalac, where `isCompatible` uses `weak_<:<`
     val s: ScSubstitutor = if (shouldUndefineParameters) ScSubstitutor.bind(typeParams)(UndefinedType(_)) else ScSubstitutor.empty
     val abstractSubst = ScTypePolymorphicType(retType, typeParams).abstractTypeSubstitutor
-    val paramsWithUndefTypes = params.map(p => p.copy(paramType = s.subst(p.paramType),
-      expectedType = abstractSubst.subst(p.paramType), defaultType = p.defaultType.map(s.subst)))
+    val paramsWithUndefTypes = params.map(p => p.copy(paramType = s(p.paramType),
+      expectedType = abstractSubst(p.paramType), defaultType = p.defaultType.map(s)))
     val conformanceResult@ConformanceExtResult(problems, constraints, _, matched) =
       Compatibility.checkConformanceExt(checkNames = true, paramsWithUndefTypes, exprs, checkWithImplicits = true,
       isShapesResolve = false)
@@ -471,7 +471,7 @@ object InferUtil {
 
             def combineBounds(tp: TypeParameter, isLower: Boolean): ScType = {
               val bound = if (isLower) tp.lowerType else tp.upperType
-              val substedBound = unSubst.subst(bound)
+              val substedBound = unSubst(bound)
               val boundsMap = if (isLower) lowerMap else upperMap
               val combine: (ScType, ScType) => ScType = if (isLower) _ lub _ else _ glb _
 
@@ -492,7 +492,7 @@ object InferUtil {
               val lower = combineBounds(tp, isLower = true)
               val upper = combineBounds(tp, isLower = false)
 
-              if (canThrowSCE && !undefiningSubstitutor.subst(lower).weakConforms(undefiningSubstitutor.subst(upper)))
+              if (canThrowSCE && !undefiningSubstitutor(lower).weakConforms(undefiningSubstitutor.apply(upper)))
                 throw new SafeCheckException
 
               TypeParameter(tp.psiTypeParameter, /* doesn't important here */
@@ -504,8 +504,8 @@ object InferUtil {
 
             def addConstraints(un: ConstraintSystem, tp: TypeParameter): ConstraintSystem = {
               val typeParamId = tp.typeParamId
-              val substedLower = unSubst.subst(tp.lowerType)
-              val substedUpper = unSubst.subst(tp.upperType)
+              val substedLower = unSubst(tp.lowerType)
+              val substedUpper = unSubst(tp.upperType)
 
               var result = un
 
@@ -525,7 +525,7 @@ object InferUtil {
                 val lowerTpId = substedLower.asOptionOf[TypeParameterType].map(_.typeParamId).filter(typeParamIds.contains)
                 val upperTpId = substedUpper.asOptionOf[TypeParameterType].map(_.typeParamId).filter(typeParamIds.contains)
 
-                val substedTp = unSubst.subst(TypeParameterType(tp))
+                val substedTp = unSubst(TypeParameterType(tp))
 
                 //add constraints for tp bounds from tp substitution
                 if (!hasRecursiveTypeParams(substedTp)) {
@@ -546,7 +546,7 @@ object InferUtil {
             val newConstraints = typeParams.foldLeft(constraints)(addConstraints)
 
             def updateWithSubst(sub: ScSubstitutor) = ScTypePolymorphicType(
-              sub.subst(retType),
+              sub(retType),
               typeParams.filter { tp =>
                 val removeMe = newConstraints.isApplicable(tp.typeParamId)
 
@@ -589,7 +589,7 @@ object InferUtil {
 
                   tp.psiTypeParameter match {
                     case typeParam: ScTypeParam =>
-                      val substituted = sub.subst(TypeParameterType(typeParam))
+                      val substituted = sub(TypeParameterType(typeParam))
                       if (!checkTypeParam(typeParam, substituted))
                         throw new SafeCheckException
                     case _ =>
@@ -597,7 +597,7 @@ object InferUtil {
                 }
                 !removeMe
               }.map {
-                _.update(sub.subst)
+                _.update(sub)
               }
             )
 

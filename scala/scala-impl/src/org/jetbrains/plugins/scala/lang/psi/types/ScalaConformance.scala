@@ -202,7 +202,7 @@ trait ScalaConformance extends api.Conformance {
           case ScAbstractType(typeParameter, lowerBound, _) =>
             val subst = ScSubstitutor.bind(typeParameter.typeParameters, p.typeArguments)
             val lower: ScType =
-              subst.subst(lowerBound) match {
+              subst(lowerBound) match {
                 case ParameterizedType(lower, _) => ScParameterizedType(lower, p.typeArguments)
                 case lower => ScParameterizedType(lower, p.typeArguments)
               }
@@ -463,7 +463,7 @@ trait ScalaConformance extends api.Conformance {
               }
 
               result = res match {
-                case Right(value) => conformsInner(l, proj2.actualSubst.subst(value), visited, constraints)
+                case Right(value) => conformsInner(l, proj2.actualSubst(value), visited, constraints)
                 case _ => ConstraintsResult.Left
               }
           }
@@ -863,7 +863,7 @@ trait ScalaConformance extends api.Conformance {
         case a: ScAbstractType =>
           val subst = ScSubstitutor.bind(a.typeParameter.typeParameters, p.typeArguments)
           val upper: ScType =
-            subst.subst(a.upper) match {
+            subst(a.upper) match {
               case ParameterizedType(up, _) => ScParameterizedType(up, p.typeArguments)
               case up => ScParameterizedType(up, p.typeArguments)
             }
@@ -874,7 +874,7 @@ trait ScalaConformance extends api.Conformance {
           }
           if (result.isRight) {
             val lower: ScType =
-              subst.subst(a.lower) match {
+              subst(a.lower) match {
                 case ParameterizedType(low, _) => ScParameterizedType(low, p.typeArguments)
                 case low => ScParameterizedType(low, p.typeArguments)
               }
@@ -1032,7 +1032,7 @@ trait ScalaConformance extends api.Conformance {
                 }
             case (_, t: TypeParameterType) if t.typeParameters.length == p2.typeArguments.length =>
               val subst = ScSubstitutor.bind(t.typeParameters, p.typeArguments)
-              result = conformsInner(des1, subst.subst(t.upperType), visited, constraints, checkWeak)
+              result = conformsInner(des1, subst(t.upperType), visited, constraints, checkWeak)
             case (proj1: ScProjectionType, proj2: ScProjectionType)
               if smartEquivalence(proj1.actualElement, proj2.actualElement) =>
               val t = conformsInner(proj1, proj2, visited, constraints)
@@ -1137,7 +1137,7 @@ trait ScalaConformance extends api.Conformance {
       p.designator match {
         case t: TypeParameterType if t.typeParameters.length == p.typeArguments.length =>
           val subst = ScSubstitutor.bind(t.typeParameters, p.typeArguments)
-          result = conformsInner(subst.subst(t.lowerType), r, visited, constraints, checkWeak)
+          result = conformsInner(subst(t.lowerType), r, visited, constraints, checkWeak)
           return
         case _ =>
       }
@@ -1190,7 +1190,7 @@ trait ScalaConformance extends api.Conformance {
       conformsInner(updatedWithUndefinedTypes, r, HashSet.empty, constraints) match {
         case unSubst@ConstraintSystem(solvingSubstitutor) =>
           for (un <- undefines if result == null) {
-            val solvedType = solvingSubstitutor.subst(un)
+            val solvedType = solvingSubstitutor(un)
 
             var t = conformsInner(solvedType, un.typeParameter.lowerType.unpackedType, constraints = constraints)
             if (solvedType != un && t.isLeft) {
@@ -1500,7 +1500,7 @@ trait ScalaConformance extends api.Conformance {
             i = i + 1
           }
           val subst = ScSubstitutor.bind(typeParameters1, typeParameters2)(TypeParameterType(_))
-          val t = conformsInner(subst.subst(internalType1), internalType2, HashSet.empty, constraints)
+          val t = conformsInner(subst(internalType1), internalType2, HashSet.empty, constraints)
           if (t.isLeft) {
             result = ConstraintsResult.Left
             return
@@ -1535,9 +1535,9 @@ trait ScalaConformance extends api.Conformance {
     var res: ScType = null
     while (iterator.hasNext) {
       val tp: ScType = iterator.next() match {
-        case tp: ScType => substitutor.subst(tp)
+        case tp: ScType => substitutor(tp)
         case pct: PsiClassType =>
-          substitutor.subst(pct.toScType()) match {
+          substitutor(pct.toScType()) match {
             case ex: ScExistentialType => ex.quantified //it's required for the raw types
             case r => r
           }

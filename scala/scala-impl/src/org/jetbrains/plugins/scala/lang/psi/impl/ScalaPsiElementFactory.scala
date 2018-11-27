@@ -607,19 +607,19 @@ object ScalaPsiElementFactory {
           }
 
           val lowerBoundText = typeParam.lowerBound.toOption.collect {
-            case x if !x.isNothing => " >: " + substitutor.subst(x).canonicalText
+            case x if !x.isNothing => " >: " + substitutor(x).canonicalText
           }
 
           val upperBoundText = typeParam.upperBound.toOption.collect {
-            case x if !x.isAny => " <: " + substitutor.subst(x).canonicalText
+            case x if !x.isAny => " <: " + substitutor(x).canonicalText
           }
 
           val viewBoundText = typeParam.viewBound.map { x =>
-            " <% " + substitutor.subst(x).canonicalText
+            " <% " + substitutor(x).canonicalText
           }
 
           val contextBoundText = typeParam.contextBound.map { tp =>
-            " : " + ScTypeUtil.stripTypeArgs(substitutor.subst(tp)).canonicalText
+            " : " + ScTypeUtil.stripTypeArgs(substitutor(tp)).canonicalText
           }
 
           val boundsText = (lowerBoundText.toSeq ++ upperBoundText.toSeq ++ viewBoundText ++ contextBoundText).mkString
@@ -633,7 +633,7 @@ object ScalaPsiElementFactory {
           extendsTypes = param.getExtendsListTypes
           extendsTypesText = if (extendsTypes.nonEmpty) {
             extendsTypes.map { classType =>
-              substitutor.subst(classType.toScType()).canonicalText
+              substitutor(classType.toScType()).canonicalText
             }.mkString(" <: ", " with ", "")
           } else ""
         } yield param.name + extendsTypesText
@@ -654,7 +654,7 @@ object ScalaPsiElementFactory {
             val asterisk = if (param.isRepeatedParameter) tSTAR.toString else ""
 
             val name = param.name
-            val tpe = param.`type`().map(substitutor.subst).getOrAny
+            val tpe = param.`type`().map(substitutor).getOrAny
 
             s"$name${colon(name)} $arrow${tpe.canonicalText}$asterisk"
           }
@@ -675,7 +675,7 @@ object ScalaPsiElementFactory {
           val colon = if (pName.endsWith("_")) " " else ""
           val paramType = {
             val tpe = param.paramType()
-            substitutor.subst(tpe)
+            substitutor(tpe)
           }
 
           val asterisk = if (param.isVarArgs) "*" else ""
@@ -705,7 +705,7 @@ object ScalaPsiElementFactory {
 
     maybeReturnType match {
       case Some((returnType, flag)) =>
-        val typeText = substitutor.subst(returnType).canonicalText match {
+        val typeText = substitutor(returnType).canonicalText match {
           case "_root_.java.lang.Object" => "AnyRef"
           case text => text
         }
@@ -724,7 +724,7 @@ object ScalaPsiElementFactory {
         case alias: ScTypeAliasDefinition =>
           val overrideText = if (needsOverride && !alias.hasModifierProperty("override")) "override " else ""
           val modifiersText = alias.getModifierList.getText
-          val typeText = substitutor.subst(alias.aliasedType.getOrAny).canonicalText
+          val typeText = substitutor(alias.aliasedType.getOrAny).canonicalText
           s"$overrideText$modifiersText type ${alias.name} = $typeText"
         case alias: ScTypeAliasDeclaration =>
           val overrideText = if (needsOverride) "override " else ""
@@ -753,7 +753,7 @@ object ScalaPsiElementFactory {
     val name = variable.name
     val colon = this.colon(name)
     val typeText = if (needsInferType)
-      substitutor.subst(variable.`type`().getOrAny).canonicalText else ""
+      substitutor(variable.`type`().getOrAny).canonicalText else ""
     s"$overrideText$modifiersText$keyword$name$colon$typeText${body.map(x => " = " + x).getOrElse("")}"
   }
 

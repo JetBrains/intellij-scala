@@ -1,11 +1,12 @@
-package org.jetbrains.plugins.scala.lang.psi.types.recursiveUpdate
+package org.jetbrains.plugins.scala.lang.psi
+package types
+package recursiveUpdate
 
 import com.intellij.openapi.util.Key
 import org.jetbrains.plugins.scala.extensions.PsiElementExt
 import org.jetbrains.plugins.scala.lang.psi.api.statements.params.{ScParameter, TypeParamId}
 import org.jetbrains.plugins.scala.lang.psi.api.toplevel.typedef.ScTemplateDefinition
 import org.jetbrains.plugins.scala.lang.psi.types.Compatibility.Expression
-import org.jetbrains.plugins.scala.lang.psi.types.ScType
 import org.jetbrains.plugins.scala.lang.psi.types.api.designator.ScThisType
 import org.jetbrains.plugins.scala.lang.psi.types.api.{TypeParameter, TypeParameterType}
 import org.jetbrains.plugins.scala.lang.psi.types.nonvalue.Parameter
@@ -19,15 +20,17 @@ import scala.util.hashing.MurmurHash3
   * Nikolay.Tropin
   * 01-Feb-18
   */
-final class ScSubstitutor private(private val substitutions: Array[Update]) {
+final class ScSubstitutor private(private val substitutions: Array[Update]) extends (ScType => ScType) {
   //Array is used for the best concatenation performance, it is effectively immutable
   //todo: replace with ImmutableArray wrapper after migrating to scala 2.13
 
-  def subst(t: ScType): ScType = {
-    if (ScSubstitutor.cacheSubstitutions)
-      ScSubstitutor.cache ++= this.allTypeParamsMap
+  import ScSubstitutor._
 
-    t.recursiveUpdateImpl(substitutions)
+  override def apply(`type`: ScType): ScType = {
+    if (cacheSubstitutions)
+      cache ++= this.allTypeParamsMap
+
+    `type`.recursiveUpdateImpl(substitutions)
   }
 
   def followed(other: ScSubstitutor): ScSubstitutor = {
@@ -35,7 +38,7 @@ final class ScSubstitutor private(private val substitutions: Array[Update]) {
     else if (other.isEmpty) this
     else {
       val newLength = substitutions.length + other.substitutions.length
-      if (newLength > ScSubstitutor.followLimit)
+      if (newLength > followLimit)
         throw new RuntimeException("Too much followers for substitutor: " + this.toString)
 
       new ScSubstitutor(substitutions ++ other.substitutions)
@@ -58,7 +61,7 @@ final class ScSubstitutor private(private val substitutions: Array[Update]) {
   }
 
   def withBindings(from: Seq[TypeParameter], target: Seq[TypeParameter]): ScSubstitutor = {
-    def simple: ScSubstitutor = ScSubstitutor.bind(from, target)(TypeParameterType(_))
+    def simple: ScSubstitutor = bind(from, target)(TypeParameterType(_))
 
     def mergeHead(old: TypeParamSubstitution): ScSubstitutor = {
       val newMap = TypeParamSubstitution.buildMap(from, target, old.tvMap)(TypeParameterType(_))

@@ -116,11 +116,11 @@ class ScFunctionWrapper(val delegate: ScFunction, isStatic: Boolean, isInterface
       val scalaType = forDefault match {
         case Some(i) =>
           val param = delegate.parameters(i - 1)
-          val paramType = substitutor.subst(param.`type`().getOrAny)
-          generifySubst.subst(paramType)
+          val paramType = substitutor(param.`type`().getOrAny)
+          generifySubst(paramType)
         case None =>
-          val retType = substitutor.subst(delegate.returnType.getOrAny)
-          generifySubst.subst(retType)
+          val retType = substitutor(delegate.returnType.getOrAny)
+          generifySubst(retType)
       }
       scalaType
     }
@@ -190,7 +190,7 @@ object ScFunctionWrapper {
             case Some(_) =>
               val classes = new ArrayBuffer[String]()
               val project = fun.getProject
-              tp.upperBound.map(subst.subst) match {
+              tp.upperBound.map(subst) match {
                 case Right(tp: ScCompoundType) =>
                   tp.components.foreach { tp: ScType =>
                     tp.extractClass match {
@@ -241,7 +241,7 @@ object ScFunctionWrapper {
       if (varargs) param.`type`()
       else param.getRealParameterType
 
-    val typeText = paramType.map(subst.subst) match {
+    val typeText = paramType.map(subst) match {
       case Right(tp) if param.isCallByNameParameter =>
         val psiType = tp match {
           case std: StdType => tp.typeSystem.stdToPsiType(std, noPrimitives = true)

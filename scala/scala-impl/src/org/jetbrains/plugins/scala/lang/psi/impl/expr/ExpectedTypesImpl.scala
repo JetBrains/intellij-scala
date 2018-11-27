@@ -195,10 +195,10 @@ class ExpectedTypesImpl extends ExpectedTypes {
               case Some(ScalaResolveResult(named: PsiNamedElement, subst: ScSubstitutor)) =>
                 ScalaPsiUtil.nameContext(named) match {
                   case v: ScValue =>
-                    Array((subst.subst(named.asInstanceOf[ScTypedDefinition].
+                    Array((subst(named.asInstanceOf[ScTypedDefinition].
                       `type`().getOrAny), v.typeElement))
                   case v: ScVariable =>
-                    Array((subst.subst(named.asInstanceOf[ScTypedDefinition].
+                    Array((subst(named.asInstanceOf[ScTypedDefinition].
                       `type`().getOrAny), v.typeElement))
                   case f: ScFunction if f.paramClauses.clauses.isEmpty =>
                     a.mirrorMethodCall match {
@@ -208,9 +208,9 @@ class ExpectedTypesImpl extends ExpectedTypes {
                     }
                   case p: ScParameter =>
                     //for named parameters
-                    Array((subst.subst(p.`type`().getOrAny), p.typeElement))
+                    Array((subst(p.`type`().getOrAny), p.typeElement))
                   case f: PsiField =>
-                    Array((subst.subst(f.getType.toScType()), None))
+                    Array((subst(f.getType.toScType()), None))
                   case _ => Array.empty
                 }
               case _ => Array.empty
@@ -342,7 +342,7 @@ class ExpectedTypesImpl extends ExpectedTypes {
     def fromMethodTypeParams(params: Seq[Parameter], subst: ScSubstitutor = ScSubstitutor.empty): Option[ParameterType] = {
       val newParams =
         if (subst.isEmpty) params
-        else params.map(p => p.copy(paramType = subst.subst(p.paramType)))
+        else params.map(p => p.copy(paramType = subst(p.paramType)))
 
       val autoTupling = newParams.length == 1 && !newParams.head.isRepeated && argExprs.length > 1
 
@@ -496,19 +496,19 @@ class ExpectedTypesImpl extends ExpectedTypes {
         val typeParamSubst =
           ScSubstitutor.bind(fun.typeParameters, typeParameters)(TypeParameterType(_))
 
-        fun.returnType.toOption.map(typeParamSubst.followed(subst).subst)
+        fun.returnType.toOption.map(typeParamSubst.followed(subst))
       case Some((fun: ScSyntheticFunction, subst)) =>
         val typeParamSubst =
           ScSubstitutor.bind(fun.typeParameters, typeParameters)(TypeParameterType(_))
 
-        Some(typeParamSubst.subst(fun.retType))
+        Some(typeParamSubst(fun.retType))
       case Some((fun: PsiMethod, subst)) =>
         val typeParamSubst =
           ScSubstitutor.bind(fun.getTypeParameters, typeParameters)(TypeParameterType(_))
 
-        Some(typeParamSubst.followed(subst).subst(fun.getReturnType.toScType()))
+        Some(typeParamSubst.followed(subst)(fun.getReturnType.toScType()))
       case Some((t: Typeable, s: ScSubstitutor)) =>
-        t.`type`().map(s.subst).toOption
+        t.`type`().map(s).toOption
       case _ => None
     }
   }

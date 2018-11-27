@@ -48,7 +48,7 @@ object PresentationUtil {
         if (param.isRepeated) builder.append("*")
         if (param.isDefault) builder.append(" = _")
         builder.toString()
-      case tp: ScType => substitutor.subst(tp).presentableText
+      case tp: ScType => substitutor(tp).presentableText
       case tp: PsiEllipsisType =>
         presentationString(tp.getComponentType, substitutor) + "*"
       case tp: PsiType =>
@@ -72,7 +72,7 @@ object PresentationUtil {
           (tp: ScType) => paramText = paramText + " <% " + presentationString(tp, substitutor)
         }
         param.contextBound foreach {
-          (tp: ScType) => paramText = paramText + " : " + presentationString(ScTypeUtil.stripTypeArgs(substitutor.subst(tp)), substitutor)
+          (tp: ScType) => paramText = paramText + " : " + presentationString(ScTypeUtil.stripTypeArgs(substitutor(tp)), substitutor)
         }
         paramText
       case param: PsiTypeParameter =>

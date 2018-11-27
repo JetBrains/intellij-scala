@@ -59,12 +59,12 @@ class ExpandedExtractorResolveProcessor(ref: ScReferenceElement,
               true
             }
           }
-          proc.processType(parentSubst.subst(typez), ref, ResolveState.initial)
+          proc.processType(parentSubst(typez), ref, ResolveState.initial)
           addResults(buffer)
           if (candidatesSet.isEmpty && levelSet.isEmpty) {
             buffer.clear()
             seq = true
-            proc.processType(parentSubst.subst(typez), ref, ResolveState.initial)
+            proc.processType(parentSubst(typez), ref, ResolveState.initial)
             addResults(buffer)
           }
         }

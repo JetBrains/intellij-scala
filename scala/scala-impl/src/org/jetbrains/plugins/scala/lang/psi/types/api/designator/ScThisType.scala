@@ -4,7 +4,7 @@ import org.jetbrains.plugins.scala.lang.psi.api.toplevel.ScTypedDefinition
 import org.jetbrains.plugins.scala.lang.psi.api.toplevel.typedef.{ScObject, ScTemplateDefinition}
 import org.jetbrains.plugins.scala.lang.psi.types.api.TypeVisitor
 import org.jetbrains.plugins.scala.lang.psi.types.recursiveUpdate.ScSubstitutor
-import org.jetbrains.plugins.scala.lang.psi.types.{ConstraintsResult, ScType, ScTypeExt, ConstraintSystem}
+import org.jetbrains.plugins.scala.lang.psi.types.{ConstraintSystem, ConstraintsResult, ScType, ScTypeExt}
 import org.jetbrains.plugins.scala.util.ScEquivalenceUtil
 
 /**
@@ -55,7 +55,7 @@ case class ScThisType(element: ScTemplateDefinition) extends DesignatorOwner {
         elem.`type`() match {
           case Right(singleton: DesignatorOwner) if singleton.isSingleton =>
             val newSubst = p.actualSubst.followed(ScSubstitutor(tp))
-            this.equiv(newSubst.subst(singleton), constraints, falseUndef)
+            this.equiv(newSubst(singleton), constraints, falseUndef)
           case _ => ConstraintsResult.Left
         }
       case _ => ConstraintsResult.Left

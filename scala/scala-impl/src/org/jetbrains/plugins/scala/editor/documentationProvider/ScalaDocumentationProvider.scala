@@ -1052,7 +1052,7 @@ object ScalaDocumentationProvider {
       for (i <- types.indices) {
         buffer.append(if (i == 1) "\n  " else " ")
         if (i != 0) buffer.append("with ")
-        buffer.append(subst.subst(types(i)).presentableText)
+        buffer.append(subst(types(i)).presentableText)
       }
     }
     buffer.toString()
@@ -1084,7 +1084,7 @@ object ScalaDocumentationProvider {
         buffer.append(field.name)
         field match {
           case typed: ScTypedDefinition =>
-            val typez = subst.subst(typed.`type`().getOrAny)
+            val typez = subst(typed.`type`().getOrAny)
             if (typez != null) buffer.append(": " + typez.presentableText)
           case _ =>
         }
@@ -1099,7 +1099,7 @@ object ScalaDocumentationProvider {
         buffer.append(field.name)
         field match {
           case typed: ScTypedDefinition =>
-            val typez = subst.subst(typed.`type`().getOrAny)
+            val typez = subst(typed.`type`().getOrAny)
             if (typez != null) buffer.append(": " + typez.presentableText)
           case _ =>
         }
@@ -1117,7 +1117,7 @@ object ScalaDocumentationProvider {
     val buffer = new StringBuilder
     buffer.append("Pattern: ")
     buffer.append(binding.name)
-    val typez = subst.subst(subst.subst(binding.`type`().getOrAny))
+    val typez = subst(subst(binding.`type`().getOrAny))
     if (typez != null) buffer.append(": " + typez.presentableText)
 
     buffer.toString()
@@ -1133,7 +1133,7 @@ object ScalaDocumentationProvider {
     alias match {
       case d: ScTypeAliasDefinition =>
         buffer.append(" = ")
-        val ttype = subst.subst(d.aliasedType.getOrAny)
+        val ttype = subst(d.aliasedType.getOrAny)
         buffer.append(ttype.presentableText)
       case _ =>
     }
@@ -1148,7 +1148,7 @@ object ScalaDocumentationProvider {
 
   private def simpleParameterInfo(parameter: ScParameter, subst: ScSubstitutor): String = {
     val name = parameter.name
-    val typeAnnot = typeAnnotation(parameter)(subst.subst(_).presentableText)
+    val typeAnnot = typeAnnotation(parameter)(subst.andThen(_.presentableText))
 
     val defaultText = s"$name$typeAnnot"
 

@@ -19,7 +19,7 @@ import org.jetbrains.plugins.scala.lang.macros.MacroDef
 import org.jetbrains.plugins.scala.lang.macros.evaluator.{MacroContext, ScalaMacroEvaluator}
 import org.jetbrains.plugins.scala.lang.psi.api.base._
 import org.jetbrains.plugins.scala.lang.psi.api.base.patterns.{ScBindingPattern, ScConstructorPattern, ScInfixPattern, ScInterpolationPattern}
-import org.jetbrains.plugins.scala.lang.psi.api.base.types.{ScInfixTypeElement, ScParameterizedTypeElement, ScSimpleTypeElement, ScTypeElement}
+import org.jetbrains.plugins.scala.lang.psi.api.base.types.{ScInfixTypeElement, ScSimpleTypeElement, ScTypeElement}
 import org.jetbrains.plugins.scala.lang.psi.api.expr.{ScReferenceExpression, ScSuperReference, ScThisReference}
 import org.jetbrains.plugins.scala.lang.psi.api.statements.ScMacroDefinition._
 import org.jetbrains.plugins.scala.lang.psi.api.statements.{ScAnnotationsHolder, ScFunction, ScMacroDefinition, ScTypeAlias}
@@ -328,7 +328,7 @@ class ScStableCodeReferenceElementImpl(node: ASTNode) extends ScReferenceElement
           case obj: ScObject =>
             val fromType = r.fromType match {
               case Some(fType) => Right(ScProjectionType(fType, obj))
-              case _ => td.`type`().map(substitutor.subst)
+              case _ => td.`type`().map(substitutor)
             }
             fromType match {
               case Right(qualType) =>
@@ -347,7 +347,7 @@ class ScStableCodeReferenceElementImpl(node: ASTNode) extends ScReferenceElement
         val typeFromMacro = macroEvaluator.checkMacro(fun, MacroContext(qualifier, None))
         typeFromMacro.foreach(processor.processType(_, qualifier))
       case ScalaResolveResult((_: ScTypedDefinition) && Typeable(tp), s) =>
-        val fromType = s.subst(tp)
+        val fromType = s(tp)
         val state = ResolveState.initial().put(BaseProcessor.FROM_TYPE_KEY, fromType)
         processor.processType(fromType, this, state)
         withDynamicResult = withDynamic(fromType, state, processor)
@@ -367,7 +367,7 @@ class ScStableCodeReferenceElementImpl(node: ASTNode) extends ScReferenceElement
           case _ => //do nothing
         }
       case ScalaResolveResult(field: PsiField, s) =>
-        processor.processType(s.subst(field.getType.toScType()), this)
+        processor.processType(s(field.getType.toScType()), this)
       case ScalaResolveResult(clazz: PsiClass, _) =>
         processor.processType(ScDesignatorType.static(clazz), this) //static Java import
       case ScalaResolveResult(pack: ScPackage, s) =>

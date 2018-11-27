@@ -256,7 +256,7 @@ case class ScTypePolymorphicType(internalType: ScType, typeParameters: Seq[TypeP
   private def hasRecursiveTypeParameters(typez: ScType): Boolean = typez.hasRecursiveTypeParameters(typeParamIds)
 
   def inferValueType: ValueType = {
-    polymorphicTypeSubstitutor.subst(internalType.inferValueType).asInstanceOf[ValueType]
+    polymorphicTypeSubstitutor(internalType.inferValueType).asInstanceOf[ValueType]
   }
 
   override def updateSubtypes(updates: Array[Update], index: Int, visited: Set[ScType]): ScType = {
@@ -292,7 +292,7 @@ case class ScTypePolymorphicType(internalType: ScType, typeParameters: Seq[TypeP
           i = i + 1
         }
         val subst = ScSubstitutor.bind(typeParameters, p.typeParameters)(TypeParameterType(_))
-        subst.subst(internalType).equiv(p.internalType, lastConstraints, falseUndef)
+        subst(internalType).equiv(p.internalType, lastConstraints, falseUndef)
       case _ => ConstraintsResult.Left
     }
   }

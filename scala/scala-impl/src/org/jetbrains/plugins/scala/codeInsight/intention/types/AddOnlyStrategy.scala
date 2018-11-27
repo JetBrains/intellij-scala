@@ -143,12 +143,12 @@ class AddOnlyStrategy(editor: Option[Editor] = None) extends Strategy {
       val substitutor = sign.substitutor
       sign.namedElement match {
         case f: ScFunction =>
-          f.returnType.toOption.map(substitutor.subst)
+          f.returnType.toOption.map(substitutor)
         case m: PsiMethod =>
           implicit val ctx: Project = m.getProject
-          Option(m.getReturnType).map(psiType => substitutor.subst(psiType.toScType()))
+          Option(m.getReturnType).map(psiType => substitutor(psiType.toScType()))
         case t: ScTypedDefinition =>
-          t.`type`().toOption.map(substitutor.subst)
+          t.`type`().toOption.map(substitutor)
         case _ => None
       }
     }

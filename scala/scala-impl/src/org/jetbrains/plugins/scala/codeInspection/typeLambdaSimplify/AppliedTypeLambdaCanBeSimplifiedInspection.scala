@@ -5,13 +5,13 @@ package typeLambdaSimplify
 import com.intellij.codeInspection._
 import com.intellij.openapi.project.Project
 import com.intellij.psi.PsiElementVisitor
+import org.jetbrains.plugins.scala.lang.psi.ScalaPsiElement
 import org.jetbrains.plugins.scala.lang.psi.api.base.types._
 import org.jetbrains.plugins.scala.lang.psi.api.statements.ScTypeAliasDefinition
 import org.jetbrains.plugins.scala.lang.psi.api.{ScalaElementVisitor, ScalaFile}
 import org.jetbrains.plugins.scala.lang.psi.impl.ScalaPsiElementFactory.createTypeElementFromText
 import org.jetbrains.plugins.scala.lang.psi.types.recursiveUpdate.ScSubstitutor
 import org.jetbrains.plugins.scala.lang.psi.types.result._
-import org.jetbrains.plugins.scala.lang.psi.{ScalaPsiElement, ScalaPsiUtil}
 
 /**
  * Inspection to simplify a type like:
@@ -67,7 +67,7 @@ class AppliedTypeLambdaCanBeSimplifiedInspection extends LocalInspectionTool {
                         def simplified(): String = {
                           val aliased = typeAliasDefinition.aliasedType.getOrAny
                           val subst = ScSubstitutor.bind(params, typeArgs)(_.calcType)
-                          val substituted = subst.subst(aliased)
+                          val substituted = subst(aliased)
                           substituted.presentableText
                         }
                         addInfo(paramType, simplified())

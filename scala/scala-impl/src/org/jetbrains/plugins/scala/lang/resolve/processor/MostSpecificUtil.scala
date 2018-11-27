@@ -97,7 +97,7 @@ case class MostSpecificUtil(elem: PsiElement, length: Int) {
     }
     (r1.element, r2.element) match {
       case (m1@(_: PsiMethod | _: ScFun), m2@(_: PsiMethod | _: ScFun)) =>
-        val (t1, t2) = (r1.substitutor.subst(getType(m1, r1.implicitCase)), r2.substitutor.subst(getType(m2, r2.implicitCase)))
+        val (t1, t2) = (r1.substitutor(getType(m1, r1.implicitCase)), r2.substitutor(getType(m2, r2.implicitCase)))
         def calcParams(tp: ScType, existential: Boolean): Either[Seq[Parameter], ScType] = {
 
           def toExistentialArg(tp: TypeParameter) =
@@ -108,14 +108,14 @@ case class MostSpecificUtil(elem: PsiElement, length: Int) {
             case ScTypePolymorphicType(ScMethodType(_, params, _), typeParams) =>
               if (!existential) {
                 val s: ScSubstitutor = ScSubstitutor.bind(typeParams)(UndefinedType(_))
-                Left(params.map(p => p.copy(paramType = s.subst(p.paramType))))
+                Left(params.map(p => p.copy(paramType = s(p.paramType))))
               } else {
                 val s = ScSubstitutor.bind(typeParams)(toExistentialArg)
-                Left(params.map(p => p.copy(paramType = ScExistentialType(s.subst(p.paramType)))))
+                Left(params.map(p => p.copy(paramType = ScExistentialType(s(p.paramType)))))
               }
             case ScTypePolymorphicType(internal, typeParams) =>
               val s = ScSubstitutor.bind(typeParams)(toExistentialArg)
-              Right(ScExistentialType(s.subst(internal)))
+              Right(ScExistentialType(s(internal)))
             case _ => Right(tp)
           }
         }
@@ -172,14 +172,14 @@ case class MostSpecificUtil(elem: PsiElement, length: Int) {
                   tp.lowerType match {
                     case lower if lower.isNothing || lower.hasRecursiveTypeParameters(typeParamIds) =>
                     case lower =>
-                      u = u.withLower(typeParamId, uSubst.subst(lower))
+                      u = u.withLower(typeParamId, uSubst(lower))
                         .withTypeParamId(typeParamId)
                   }
 
                   tp.upperType match {
                     case upper if upper.isAny || upper.hasRecursiveTypeParameters(typeParamIds) =>
                     case upper =>
-                      u = u.withUpper(typeParamId, uSubst.subst(upper))
+                      u = u.withUpper(typeParamId, uSubst(upper))
                         .withTypeParamId(typeParamId)
                   }
                 }

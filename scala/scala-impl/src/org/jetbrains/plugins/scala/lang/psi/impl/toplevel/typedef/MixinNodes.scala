@@ -447,7 +447,7 @@ abstract class MixinNodes {
 
   def combine(superSubst: ScSubstitutor, superClass : PsiClass): ScSubstitutor = {
     val typeParameters = superClass.getTypeParameters
-    val substedTpts = typeParameters.map(tp => superSubst.subst(TypeParameterType(tp)))
+    val substedTpts = typeParameters.map(tp => superSubst(TypeParameterType(tp)))
     ScSubstitutor.bind(typeParameters, substedTpts)
   }
 
@@ -572,7 +572,7 @@ object MixinNodes {
           val newIterator = lin.reverseIterator
           while (newIterator.hasNext) {
             val tp = newIterator.next()
-            add(subst.subst(tp))
+            add(subst(tp))
           }
         case _ =>
           (tp.isAliasType match {

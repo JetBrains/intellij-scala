@@ -492,7 +492,7 @@ abstract class ScalaAnnotator extends Annotator
             annotation.setHighlightType(ProblemHighlightType.GENERIC_ERROR)
           } else if (checkReturnTypeIsBoolean) {
             val maybeType = candidates(0) match {
-              case ScalaResolveResult(fun: ScFunction, subst) => fun.returnType.map(subst.subst).toOption
+              case ScalaResolveResult(fun: ScFunction, subst) => fun.returnType.map(subst).toOption
               case _ => None
             }
 
@@ -508,7 +508,7 @@ abstract class ScalaAnnotator extends Annotator
                   case Some((tp: ScType, _)) if tp equiv Unit => //do nothing
                   case Some((tp: ScType, typeElement)) =>
                     val returnType = candidates(0) match {
-                      case ScalaResolveResult(fun: ScFunction, subst) => fun.returnType.map(subst.subst)
+                      case ScalaResolveResult(fun: ScFunction, subst) => fun.returnType.map(subst)
                       case _ => return
                     }
                     val conformance = smartCheckConformance(Right(tp), returnType)

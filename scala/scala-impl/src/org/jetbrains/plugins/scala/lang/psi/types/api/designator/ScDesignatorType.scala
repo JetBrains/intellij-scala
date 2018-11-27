@@ -7,7 +7,7 @@ import org.jetbrains.plugins.scala.lang.psi.api.statements.{ScTypeAlias, ScTypeA
 import org.jetbrains.plugins.scala.lang.psi.api.toplevel.typedef.ScObject
 import org.jetbrains.plugins.scala.lang.psi.types.api._
 import org.jetbrains.plugins.scala.lang.psi.types.recursiveUpdate.ScSubstitutor
-import org.jetbrains.plugins.scala.lang.psi.types.{ConstraintsResult, ScExistentialArgument, ScExistentialType, ScType, ScTypeExt, ConstraintSystem}
+import org.jetbrains.plugins.scala.lang.psi.types.{ConstraintSystem, ConstraintsResult, ScExistentialArgument, ScExistentialType, ScType, ScTypeExt}
 import org.jetbrains.plugins.scala.lang.refactoring.util.ScTypeUtil.AliasType
 import org.jetbrains.plugins.scala.util.ScEquivalenceUtil.smartEquivalence
 
@@ -51,8 +51,8 @@ case class ScDesignatorType(element: PsiNamedElement) extends DesignatorOwner {
 
         val genericSubst = ScSubstitutor.bind(ta.typeParameters, existentialArgs)
         Some(AliasType(ta,
-          ta.lowerBound.map(scType => ScExistentialType(genericSubst.subst(scType))),
-          ta.upperBound.map(scType => ScExistentialType(genericSubst.subst(scType))))
+          ta.lowerBound.map(scType => ScExistentialType(genericSubst(scType))),
+          ta.upperBound.map(scType => ScExistentialType(genericSubst(scType))))
         )
       case _ => None
     }
