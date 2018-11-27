@@ -733,9 +733,10 @@ object ScalaPsiUtil {
   }
 
   def getCompanionModule(clazz: PsiClass): Option[ScTypeDefinition] = clazz match {
-      case definition: ScTypeDefinition =>
-        definition.baseCompanionModule.orElse(definition.fakeCompanionModule)
-      case _ => None
+    case obj: ScObject if obj.isSyntheticObject => obj.syntheticNavigationElement.asOptionOf[ScTypeDefinition]
+    case obj: ScObject                          => obj.baseCompanionModule
+    case definition: ScTypeDefinition           => definition.baseCompanionModule.orElse(definition.fakeCompanionModule)
+    case _                                      => None
   }
 
   // determines if an element can access other elements in a synthetic subtree that shadows
