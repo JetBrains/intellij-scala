@@ -88,7 +88,7 @@ public class ScalaProjectSettings  implements PersistentStateComponent<ScalaProj
   private Map<String, ArrayList<String>> BUNDLED_LIB_JAR_PATHS_TO_INSPECTIONS = new HashMap<String, ArrayList<String>>();
 
   // LIBRARY EXTENSIONS
-  private boolean ENABLE_LIBRARY_EXTENSIONS = false;
+  private boolean ENABLE_LIBRARY_EXTENSIONS = true;
   private boolean LEXT_SHOW_ALL_PROJECTS = false;
   private Set<Integer> DISABLED_EXTENSIONS = new HashSet<>();
 
