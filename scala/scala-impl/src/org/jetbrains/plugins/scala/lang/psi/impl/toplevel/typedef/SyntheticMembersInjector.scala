@@ -13,7 +13,7 @@ import org.jetbrains.plugins.scala.lang.psi.api.statements.ScFunction
 import org.jetbrains.plugins.scala.lang.psi.api.toplevel.templates.ScTemplateBody
 import org.jetbrains.plugins.scala.lang.psi.api.toplevel.typedef.{ScMember, ScObject, ScTypeDefinition}
 import org.jetbrains.plugins.scala.lang.psi.impl.ScalaPsiElementFactory
-import org.jetbrains.plugins.scala.macroAnnotations.{CachedInUserData, ModCount}
+import org.jetbrains.plugins.scala.macroAnnotations.CachedInUserData
 
 import scala.collection.mutable.ArrayBuffer
 import scala.util.control.ControlThrowable
@@ -29,9 +29,6 @@ class SyntheticMembersInjector {
     *
     * Context for this method will be class. So inner types and imports of this class
     * will not be available. But you can use anything outside of it.
-    *
-    * Injected method will not participate in class overriding hierarchy unless this method
-    * is marked with override modifier. Use it carefully, only when this behaviour is intended.
     *
     * @param source class to inject functions
     * @return sequence of functions text
@@ -85,7 +82,7 @@ object SyntheticMembersInjector {
   private val LOG: Logger = Logger.getInstance(getClass)
 
 
-  def inject(source: ScTypeDefinition, withOverride: Boolean): Seq[ScFunction] = {
+  def inject(source: ScTypeDefinition): Seq[ScFunction] = {
     implicit val ctx: Project = source.getProject
     val buffer = new ArrayBuffer[ScFunction]()
     for {
@@ -101,7 +98,7 @@ object SyntheticMembersInjector {
         throw new RuntimeException(s"Failed to parse method for class $source: '$template'")
       function.syntheticNavigationElement = context
       function.syntheticContainingClass = source
-      if (withOverride ^ !function.hasModifierProperty("override")) buffer += function
+      buffer += function
     } catch {
       case p: ProcessCanceledException => throw p
       case e: Throwable =>

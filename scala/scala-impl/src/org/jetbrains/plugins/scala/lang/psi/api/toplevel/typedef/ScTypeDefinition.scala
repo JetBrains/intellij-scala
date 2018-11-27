@@ -72,7 +72,7 @@ trait ScTypeDefinition extends ScTemplateDefinition with ScMember
 
   override def syntheticMembersImpl: Seq[ScMember] = SyntheticMembersInjector.injectMembers(this)
 
-  override protected def syntheticMethodsWithOverrideImpl: scala.Seq[PsiMethod] = SyntheticMembersInjector.inject(this, withOverride = true)
+  override protected def syntheticMethodsImpl: scala.Seq[PsiMethod] = SyntheticMembersInjector.inject(this)
 
   def fakeCompanionModule: Option[ScObject]
 

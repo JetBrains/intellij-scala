@@ -81,7 +81,7 @@ final class ScTraitImpl private[psi](stub: ScTemplateDefinitionStub[ScTrait],
       this.processPsiMethodsForNode(node, isStatic = false, isInterface = true)(res += _)
     }
 
-    for (synthetic <- syntheticMethodsNoOverride) {
+    for (synthetic <- syntheticMethods) {
       this.processPsiMethodsForNode(new SignatureNodes.Node(new PhysicalSignature(synthetic, ScSubstitutor.empty),
         ScSubstitutor.empty),
         isStatic = false, isInterface = isInterface)(res += _)
@@ -93,9 +93,5 @@ final class ScTraitImpl private[psi](stub: ScTemplateDefinitionStub[ScTrait],
 
   override def getInterfaces: Array[PsiClass] = {
     getSupers.filter(_.isInterface)
-  }
-
-  override protected def syntheticMethodsNoOverrideImpl: Seq[PsiMethod] = {
-    SyntheticMembersInjector.inject(this, withOverride = false)
   }
 }

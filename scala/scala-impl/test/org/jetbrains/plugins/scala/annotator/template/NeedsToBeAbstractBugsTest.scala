@@ -4,7 +4,7 @@ package template
 
 import com.intellij.openapi.extensions.Extensions
 import org.jetbrains.plugins.scala.lang.psi.impl.toplevel.typedef.SyntheticMembersInjector
-import org.jetbrains.plugins.scala.lang.typeInference.testInjectors.SCL9446Injector
+import org.jetbrains.plugins.scala.lang.typeInference.testInjectors.{SCL9446Injector, SCL9446InjectorNoOverride}
 
 
 class NeedsToBeAbstractBugsTest extends AnnotatorTestBase(NeedsToBeAbstract) {
@@ -55,25 +55,50 @@ class B extends A {
   }
 
   def testSCL9446(): Unit = {
-    val extensionPoint = Extensions.getRootArea.getExtensionPoint(SyntheticMembersInjector.EP_NAME)
-    val injector = new SCL9446Injector
-    extensionPoint.registerExtension(injector)
-    try {
+    doInjectorTest(new SCL9446Injector) {
       val code =
         """
           |object ppp {
-          |trait A {
-          |  def foo(): Int
-          |}
+          |  trait A {
+          |    def foo(): Int
+          |  }
           |
-          |class B extends A {
-          |}
+          |  class B extends A {
+          |  }
           |}
         """.stripMargin
       assertMatches(messages(code)) {
         case Nil =>
       }
-    } finally {
+    }
+  }
+
+  def testSCL9446NoOverride(): Unit = {
+    doInjectorTest(new SCL9446InjectorNoOverride) {
+      val code =
+        """
+          |object ppp {
+          |  trait A {
+          |    def foo(): Int
+          |  }
+          |
+          |  class B extends A {
+          |  }
+          |}
+        """.stripMargin
+      assertMatches(messages(code)) {
+        case Nil =>
+      }
+    }
+  }
+
+  private def doInjectorTest(injector: SyntheticMembersInjector)(body: => Unit): Unit = {
+    val extensionPoint = Extensions.getRootArea.getExtensionPoint(SyntheticMembersInjector.EP_NAME)
+    extensionPoint.registerExtension(injector)
+    try {
+      body
+    }
+    finally {
       extensionPoint.unregisterExtension(injector)
     }
   }

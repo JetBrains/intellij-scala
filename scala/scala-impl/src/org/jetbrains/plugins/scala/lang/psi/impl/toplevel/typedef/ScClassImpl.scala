@@ -114,7 +114,7 @@ class ScClassImpl(stub: ScTemplateDefinitionStub[ScClass],
       this.processPsiMethodsForNode(node, isStatic = false, isInterface = isInterface)(res += _, names += _)
     }
 
-    for (synthetic <- syntheticMethodsNoOverride) {
+    for (synthetic <- syntheticMethods) {
       this.processPsiMethodsForNode(new SignatureNodes.Node(new PhysicalSignature(synthetic, ScSubstitutor.empty),
         ScSubstitutor.empty),
         isStatic = false, isInterface = isInterface)(res += _, names += _)
@@ -133,7 +133,7 @@ class ScClassImpl(stub: ScTemplateDefinitionStub[ScClass],
           this.processPsiMethodsForNode(node, isStatic = true, isInterface = false)(add)
         }
 
-        for (synthetic <- o.syntheticMethodsNoOverride) {
+        for (synthetic <- o.syntheticMethods) {
           this.processPsiMethodsForNode(new SignatureNodes.Node(new PhysicalSignature(synthetic, ScSubstitutor.empty),
             ScSubstitutor.empty),
             isStatic = true, isInterface = false)(res += _, names += _)

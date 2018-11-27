@@ -116,8 +116,6 @@ class ScObjectImpl(stub: ScTemplateDefinitionStub[ScObject],
     } else processDeclarations()
   }
 
-  override protected def syntheticMethodsNoOverrideImpl: Seq[PsiMethod] = SyntheticMembersInjector.inject(this, withOverride = false)
-
   @Cached(ModCount.getBlockModificationCount, this)
   def fakeCompanionClass: Option[PsiClass] = getCompanionModule(this) match {
     case Some(_) => None
@@ -168,7 +166,7 @@ class ScObjectImpl(stub: ScTemplateDefinitionStub[ScObject],
       this.processPsiMethodsForNode(node, isStatic = false, isInterface = isInterface)(res += _)
     }
 
-    for (synthetic <- syntheticMethodsNoOverride) {
+    for (synthetic <- syntheticMethods) {
       this.processPsiMethodsForNode(new SignatureNodes.Node(new PhysicalSignature(synthetic, ScSubstitutor.empty),
         ScSubstitutor.empty),
         isStatic = false, isInterface = isInterface)(res += _)

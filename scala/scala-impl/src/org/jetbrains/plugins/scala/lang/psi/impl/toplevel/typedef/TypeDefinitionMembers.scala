@@ -108,8 +108,7 @@ object TypeDefinitionMembers {
       }
     }
 
-    def processScala(template: ScTemplateDefinition, subst: ScSubstitutor, map: Map,
-                     place: Option[PsiElement], base: Boolean) {
+    def processScala(template: ScTemplateDefinition, subst: ScSubstitutor, map: Map, place: Option[PsiElement]) {
       implicit val ctx: ProjectContext = template
 
       def addSignature(s: Signature) {
@@ -134,7 +133,7 @@ object TypeDefinitionMembers {
         }
       }
 
-      for (method <- template.syntheticMethodsWithOverride if method.getParameterList.getParametersCount == 0) {
+      for (method <- template.syntheticMethods if method.getParameterList.getParametersCount == 0) {
         val sig = new PhysicalSignature(method, subst)
         addSynthetic(sig)
       }
@@ -205,13 +204,6 @@ object TypeDefinitionMembers {
           case _ =>
         }
       }
-
-      if (!base) {
-        for (method <- template.syntheticMethodsNoOverride if method.getParameterList.getParametersCount == 0) {
-          val sig = new PhysicalSignature(method, subst)
-          addSynthetic(sig)
-        }
-      }
     }
 
     def processRefinement(cp: ScCompoundType, map: Map, place: Option[PsiElement])
@@ -269,8 +261,7 @@ object TypeDefinitionMembers {
       }
     }
 
-    def processScala(template: ScTemplateDefinition, subst: ScSubstitutor, map: Map,
-                     place: Option[PsiElement], base: Boolean) {
+    def processScala(template: ScTemplateDefinition, subst: ScSubstitutor, map: Map, place: Option[PsiElement]) {
       implicit val ctx: ProjectContext = template
 
       for (member <- template.members) {
@@ -353,8 +344,7 @@ object TypeDefinitionMembers {
       }
     }
 
-    def processScala(template: ScTemplateDefinition, subst: ScSubstitutor, map: Map,
-                     place: Option[PsiElement], base: Boolean) {
+    def processScala(template: ScTemplateDefinition, subst: ScSubstitutor, map: Map, place: Option[PsiElement]) {
       implicit val ctx: ProjectContext = template
 
       def addSignature(s: Signature) {
@@ -379,7 +369,7 @@ object TypeDefinitionMembers {
         }
       }
 
-      for (method <- template.syntheticMethodsWithOverride) {
+      for (method <- template.syntheticMethods) {
         val sig = new PhysicalSignature(method, subst)
         addSynthetic(sig)
       }
@@ -472,13 +462,6 @@ object TypeDefinitionMembers {
               case _ =>
             }
           case _ =>
-        }
-      }
-
-      if (!base) {
-        for (member <- template.syntheticMethodsNoOverride) {
-          val sig = new PhysicalSignature(member, subst)
-          addSynthetic(sig)
         }
       }
     }
@@ -625,7 +608,7 @@ object TypeDefinitionMembers {
 
     def syntheticMethods: Seq[(Signature, SignatureNodes.Node)] = {
       clazz match {
-        case td: ScTemplateDefinition => td.syntheticMethodsNoOverride.map(fun => {
+        case td: ScTemplateDefinition => td.syntheticMethods.map(fun => {
           val f = new PhysicalSignature(fun, ScSubstitutor.empty)
           (f, new SignatureNodes.Node(f, ScSubstitutor.empty))
         })

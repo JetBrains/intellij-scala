@@ -377,7 +377,7 @@ abstract class MixinNodes {
             case template: ScTypeDefinition =>
               if (template.qualifiedName == "scala.Predef") isPredef = true
               place = Option(template.extendsBlock)
-              processScala(template, ScSubstitutor.empty, map, place, base = true)
+              processScala(template, ScSubstitutor.empty, map, place)
               val lin = MixinNodes.linearization(template)
               var zSubst = ScSubstitutor(ScThisType(template))
               var placer = template.getContext
@@ -393,7 +393,7 @@ abstract class MixinNodes {
               (if (lin.nonEmpty) lin.tail else lin, zSubst)
             case template: ScTemplateDefinition =>
               place = template.lastChildStub
-              processScala(template, ScSubstitutor.empty, map, place, base = true)
+              processScala(template, ScSubstitutor.empty, map, place)
               var zSubst = ScSubstitutor(ScThisType(template))
               var placer = template.getContext
               while (placer != null) {
@@ -432,14 +432,14 @@ abstract class MixinNodes {
             val newSubst = combine(s, superClass).followed(thisTypeSubst).followed(dependentSubst)
             val newMap = new Map
             superClass match {
-              case template: ScTemplateDefinition => processScala(template, newSubst, newMap, place, base = false)
+              case template: ScTemplateDefinition => processScala(template, newSubst, newMap, place)
               case syn: ScSyntheticClass =>
                 //it's required to do like this to have possibility mix Synthetic types
                 syn.elementScope.getCachedClass(syn.getQualifiedName)
                   .collect {
                     case template: ScTemplateDefinition => template
                   }.foreach {
-                  processScala(_, newSubst, newMap, place, base = false)
+                  processScala(_, newSubst, newMap, place)
                 }
               case _ => processJava(superClass, newSubst, newMap, place)
             }
@@ -468,8 +468,7 @@ abstract class MixinNodes {
 
   def processJava(clazz: PsiClass, subst: ScSubstitutor, map: Map, place: Option[PsiElement])
 
-  def processScala(template: ScTemplateDefinition, subst: ScSubstitutor, map: Map,
-                   place: Option[PsiElement], base: Boolean)
+  def processScala(template: ScTemplateDefinition, subst: ScSubstitutor, map: Map, place: Option[PsiElement])
 
   def processRefinement(cp: ScCompoundType, map: Map, place: Option[PsiElement])(implicit ctx: ProjectContext)
 }

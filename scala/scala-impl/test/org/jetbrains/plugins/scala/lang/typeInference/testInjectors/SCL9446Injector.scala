@@ -13,3 +13,10 @@ class SCL9446Injector extends SyntheticMembersInjector {
     else Seq.empty
   }
 }
+
+class SCL9446InjectorNoOverride extends SyntheticMembersInjector {
+  override def injectFunctions(source: ScTypeDefinition): Seq[String] = {
+    if (source.name == "B") Seq("def foo(): Int = 1")
+    else Seq.empty
+  }
+}

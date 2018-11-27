@@ -345,7 +345,7 @@ class ScalaPsiManager(val project: Project) {
 
     def cachedMap(clazz: PsiClass): nodes.Map = {
       CachesUtil.libraryAwareModTracker(clazz) match {
-        case `rootManager`                 => forLibraryClasses(clazz)
+        case `rootManager`               => forLibraryClasses(clazz)
         case TopLevelModificationTracker => forTopLevelClasses(clazz)
         case tracker =>
 
