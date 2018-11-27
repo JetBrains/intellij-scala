@@ -48,6 +48,19 @@ class BspSession(bspIn: InputStream,
   private def nextQueuedCommand= {
     try {
       waitForSession(sessionTimeout)
+    } catch {
+      case to : TimeoutException =>
+        val error = BspConnectionError("bsp server is not responding", to)
+        logger.warn(error)
+        shutdown(Some(error))
+      case NonFatal(error) =>
+        val msg = "problem connecting to bsp server"
+        val bspError = BspException(msg, error)
+        logger.warn(bspError)
+        shutdown(Some(bspError))
+    }
+
+    try {
       val currentIgnoringErrors = currentJob.future.recover {
         case NonFatal(_) => ()
       }(ExecutionContext.global)
@@ -60,13 +73,10 @@ class BspSession(bspIn: InputStream,
       }
     } catch {
       case _: TimeoutException => // just carry on
-      case error: BspConnectionError =>
-        logger.warn("problem connecting to bsp server", error)
-        shutdown(Some(error))
       case NonFatal(error) =>
-        logger.error(error)
-        val bspError = BspException("problem connecting to bsp server", error)
-        shutdown(Some(bspError))
+        val bspError = BspException("problem executing bsp job", error)
+        logger.error(bspError)
+        currentJob.cancelWithError(bspError)
     }
   }
 
