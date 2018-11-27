@@ -83,7 +83,9 @@ object ScalaGenerationInfo {
 
   def positionCaret(editor: Editor, element: PsiMember) {
     //hack for postformatting IDEA bug.
-    val member = CodeStyleManager.getInstance(element.getProject).reformat(element)
+    val member =
+      try CodeStyleManager.getInstance(element.getProject).reformat(element)
+      catch { case _: AssertionError => /*¯\_(ツ)_/¯*/  element }
     //Setting selection
     val body: PsiElement = member match {
       case ta: ScTypeAliasDefinition => ta.aliasedTypeElement match {

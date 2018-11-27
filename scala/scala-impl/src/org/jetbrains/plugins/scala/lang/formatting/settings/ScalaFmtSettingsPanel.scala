@@ -140,7 +140,7 @@ class ScalaFmtSettingsPanel(val settings: CodeStyleSettings) extends CodeStyleAb
   }
 
   private def updateConfigText(scalaCodeStyleSettings: ScalaCodeStyleSettings): Unit = {
-    configText = getConfigVfile(scalaCodeStyleSettings).map { FileDocumentManager.getInstance().getDocument(_).getText }
+    configText = getConfigVfile(scalaCodeStyleSettings).flatMap(FileDocumentManager.getInstance().getDocument(_).toOption).map(_.getText)
     configText.foreach(text => inWriteAction(getEditor.getDocument.setText(text)))
   }
 

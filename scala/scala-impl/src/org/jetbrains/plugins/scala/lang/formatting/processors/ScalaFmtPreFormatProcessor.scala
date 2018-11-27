@@ -20,7 +20,7 @@ import org.jetbrains.plugins.scala.ScalaFileType
 import org.jetbrains.plugins.scala.extensions.PsiElementExt
 import org.jetbrains.plugins.scala.lang.formatting.settings.ScalaCodeStyleSettings
 import org.jetbrains.plugins.scala.lang.lexer.ScalaTokenTypes
-import org.jetbrains.plugins.scala.lang.psi.ScalaPsiUtil
+import org.jetbrains.plugins.scala.lang.psi.{ScalaPsiUtil, TypeAdjuster}
 import org.jetbrains.plugins.scala.lang.psi.api.{ScalaFile, ScalaRecursiveElementVisitor}
 import org.jetbrains.plugins.scala.lang.psi.api.expr.{ScBlockStatement, ScExpression}
 import org.jetbrains.plugins.scala.lang.psi.api.toplevel.templates.ScTemplateBody
@@ -53,6 +53,7 @@ class ScalaFmtPreFormatProcessor extends PreFormatProcessor {
 
   override def changesWhitespacesOnly(): Boolean = false
 }
+
 object ScalaFmtPreFormatProcessor {
 
   private def shiftRange(file: PsiFile, range: TextRange): TextRange = {
@@ -360,13 +361,22 @@ object ScalaFmtPreFormatProcessor {
       if (!formatted.isValid) {
         return 0
       }
+
+      val originalMarkedForAdjustment = TypeAdjuster.isMarkedForAdjustment(before)
       val parent = before.getParent
       val offset = before.getTextRange.getStartOffset
       formatted.accept(generatedVisitor)
-      if (parent != null) {
-        inWriteAction(parent.addBefore(formatted, before))
-      }
+
+      val inserted =
+        if (parent != null) {
+          Option(inWriteAction(parent.addBefore(formatted, before)))
+        } else None
+
       setNotGenerated(formatted.getText, offset, parent)
+
+      if (originalMarkedForAdjustment)
+        inserted.foreach(TypeAdjuster.markToAdjust)
+
       addDelta(formatted, formatted.getTextLength)
     }
     override def isInRange(range: TextRange): Boolean = range.contains(before.getTextRange.getStartOffset)

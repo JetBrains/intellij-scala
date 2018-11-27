@@ -58,6 +58,10 @@ object TypeAdjuster extends ApplicationAdapter {
       markedElements += element.createSmartPointer
     }
 
+  def isMarkedForAdjustment(element: PsiElement): Boolean =
+    if (element != null) markedElements.contains(element.createSmartPointer)
+    else                 false
+
   def adjustFor(elements: Seq[PsiElement],
                 addImports: Boolean = true,
                 useTypeAliases: Boolean = true): Unit = {

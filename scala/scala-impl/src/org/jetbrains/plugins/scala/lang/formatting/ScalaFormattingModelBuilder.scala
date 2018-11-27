@@ -21,15 +21,15 @@ sealed class ScalaFormattingModelBuilder extends FormattingModelBuilder {
   override def createModel(element: PsiElement, settings: CodeStyleSettings): FormattingModel = {
     val node: ASTNode = element.getNode
     assert(node != null)
+    if (settings.getCustomSettings(classOf[ScalaCodeStyleSettings]).USE_SCALAFMT_FORMATTER) {
+      //preprocessing is done by this point, use this little side-effect to clean-up rnages synchronization
+      ScalaFmtPreFormatProcessor.clearRangesCache()
+    }
     val containingFile: PsiFile = element.getContainingFile.getViewProvider.getPsi(ScalaLanguage.INSTANCE)
     assert(containingFile != null, element.getContainingFile)
     val astNode: ASTNode = containingFile.getNode
     assert(astNode != null)
     val block: ScalaBlock = new ScalaBlock(null, astNode, null, null, Indent.getAbsoluteNoneIndent, null, settings)
-    if (settings.getCustomSettings(classOf[ScalaCodeStyleSettings]).USE_SCALAFMT_FORMATTER) {
-      //preprocessing is done by this point, use this little side-effect to clean-up rnages synchronization
-      ScalaFmtPreFormatProcessor.clearRangesCache()
-    }
     new ScalaFormattingModel(containingFile, block, FormattingDocumentModelImpl.createOn(containingFile))
   }
 
