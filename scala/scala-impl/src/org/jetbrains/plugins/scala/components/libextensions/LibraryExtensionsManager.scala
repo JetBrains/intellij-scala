@@ -23,6 +23,7 @@ import org.jetbrains.sbt.resolvers.SbtResolver
 
 import scala.collection.mutable
 import scala.collection.mutable.ArrayBuffer
+import scala.util.control.NonFatal
 import scala.util.{Failure, Success, Try}
 import scala.xml.factory.XMLLoader
 import scala.xml.{Elem, SAXParser}
@@ -37,7 +38,7 @@ class LibraryExtensionsManager(project: Project) extends ProjectComponent {
   private val popup       = new PopupHelper
 
   private val myExtensionInstances  = mutable.HashMap[Class[_], ArrayBuffer[Any]]()
-  private val myLoadedLibraries     = mutable.ArrayBuffer[ExtensionData]()
+  private val myLoadedLibraries     = mutable.ArrayBuffer[ExtensionJarData]()
 
   private object XMLNoDTD extends XMLLoader[Elem] {
     override def parser: SAXParser = {
@@ -81,7 +82,7 @@ class LibraryExtensionsManager(project: Project) extends ProjectComponent {
   }
 
   private def enabledAcceptCb(resolved: Seq[File]): Unit = {
-    resolved.foreach(processResolvedExtension)
+    resolved.foreach(processResolvedExtensionWithLogging)
     saveCachedExtensions()
   }
 
@@ -96,15 +97,22 @@ class LibraryExtensionsManager(project: Project) extends ProjectComponent {
 
     manifest match {
       case Some(Success(xml))       => loadJarWithManifest(xml, resolved)
-      case Some(Failure(exception)) => LOG.error("Error parsing extensions manifest", exception)
-      case None                     => LOG.error(s"No manifest in extensions jar $resolved")
+      case Some(Failure(exception)) => throw new BadManifestException(resolved, exception)
+      case None                     => throw new NoManifestInExtensionJarException(resolved)
     }
     MOD_TRACKER.incModCount()
   }
 
+  private def processResolvedExtensionWithLogging(resolved: File): Unit = try {
+    processResolvedExtension(resolved)
+  } catch {
+    case _: ProcessCanceledException  =>
+    case NonFatal(t)                  => LOG.error(t)
+  }
+
   private def loadJarWithManifest(manifest: Elem, jarFile: File): Unit = {
     LibraryDescriptor.parse(manifest) match {
-      case Left(error)        => LOG.error(s"Failed to parse descriptor: $error")
+      case Left(error)        => throw new BadExtensionDescriptor(jarFile, error)
       case Right(descriptor)  => loadDescriptor(descriptor, jarFile)
     }
   }
@@ -120,18 +128,14 @@ class LibraryExtensionsManager(project: Project) extends ProjectComponent {
         .get()
       extensions.filter(_.isAvailable).foreach { e =>
         val ExtensionDescriptor(interface, impl, _, _, _) = e
-        try {
-          val myInterface = classLoader.loadClass(interface)
-          val myImpl = classLoader.loadClass(defaultPackage + impl)
-          val myInstance = myImpl.newInstance()
-          classBuffer.getOrElseUpdate(myInterface, ArrayBuffer.empty) += myInstance
-        } catch {
-          case e: Exception => LOG.error(s"Failed to load injector '$impl'", e)
-        }
+        val myInterface = classLoader.loadClass(interface)
+        val myImpl = classLoader.loadClass(defaultPackage + impl)
+        val myInstance = myImpl.newInstance()
+        classBuffer.getOrElseUpdate(myInterface, ArrayBuffer.empty) += myInstance
       }
     }
     myExtensionInstances ++= classBuffer
-    myLoadedLibraries     += ExtensionData(descriptor, jarFile, classBuffer.toMap)
+    myLoadedLibraries    +=  ExtensionJarData(descriptor, jarFile, classBuffer.toMap)
   }
 
   private def saveCachedExtensions(): Unit = {
@@ -143,7 +147,7 @@ class LibraryExtensionsManager(project: Project) extends ProjectComponent {
     if (jarPaths != null) {
       val existingFiles = jarPaths.map(new File(_)).filter(_.exists())
       properties.setValues(EXT_JARS_KEY, existingFiles.map(_.getAbsolutePath))
-      existingFiles.foreach(processResolvedExtension)
+      existingFiles.foreach(processResolvedExtensionWithLogging)
     }
   }
 
@@ -151,8 +155,8 @@ class LibraryExtensionsManager(project: Project) extends ProjectComponent {
     myExtensionInstances.getOrElse(iface, Seq.empty).asInstanceOf[Seq[T]]
   }
 
-  def removeExtension(descriptor: LibraryDescriptor): Unit = {
-    val extensionData = myLoadedLibraries.find(_.descriptor == descriptor)
+  def removeExtension(jarData: ExtensionJarData): Unit = {
+    val extensionData = myLoadedLibraries.find(_ == jarData)
     extensionData match {
       case Some(data) =>
         for {
@@ -162,11 +166,11 @@ class LibraryExtensionsManager(project: Project) extends ProjectComponent {
         myLoadedLibraries -= data
         saveCachedExtensions()
       case None =>
-        LOG.error(s"Remove failed: requested extension library is not loaded\n$descriptor")
+        LOG.error(s"Remove failed: requested extension library is not loaded\n$jarData")
     }
   }
 
-  def getAvailableLibraries: Seq[LibraryDescriptor] = myLoadedLibraries.map(_.descriptor)
+  def getAvailableLibraries: Seq[ExtensionJarData] = myLoadedLibraries
 
   def addExtension(file: File): Unit = processResolvedExtension(file)
 
