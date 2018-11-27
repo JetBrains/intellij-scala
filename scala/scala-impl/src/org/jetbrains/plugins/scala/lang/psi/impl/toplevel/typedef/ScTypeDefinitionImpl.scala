@@ -14,7 +14,6 @@ import java.{util => ju}
 import com.intellij.lang.ASTNode
 import com.intellij.lang.java.JavaLanguage
 import com.intellij.navigation._
-import com.intellij.openapi.progress.ProcessCanceledException
 import com.intellij.psi._
 import com.intellij.psi.impl._
 import com.intellij.psi.javadoc.PsiDocComment
@@ -32,9 +31,8 @@ import org.jetbrains.plugins.scala.lang.psi.api.statements.params.ScTypeParam
 import org.jetbrains.plugins.scala.lang.psi.api.toplevel.ScPackaging
 import org.jetbrains.plugins.scala.lang.psi.api.toplevel.templates.{ScExtendsBlock, ScTemplateBody, ScTemplateParents}
 import org.jetbrains.plugins.scala.lang.psi.api.toplevel.typedef._
-import org.jetbrains.plugins.scala.lang.psi.impl.ScalaPsiElementFactory.{createObjectWithContext, createTypeElementFromText}
+import org.jetbrains.plugins.scala.lang.psi.impl.ScalaPsiElementFactory.createObjectWithContext
 import org.jetbrains.plugins.scala.lang.psi.impl.toplevel.synthetic.JavaIdentifier
-import org.jetbrains.plugins.scala.lang.psi.impl.toplevel.typedef.ScObjectImpl.getSyntheticMethodsText
 import org.jetbrains.plugins.scala.lang.psi.stubs.ScTemplateDefinitionStub
 import org.jetbrains.plugins.scala.lang.psi.stubs.elements.ScTemplateDefinitionElementType
 import org.jetbrains.plugins.scala.lang.psi.types._
@@ -189,7 +187,7 @@ abstract class ScTypeDefinitionImpl[T <: ScTemplateDefinition](stub: ScTemplateD
 
     def isCompanion(td: ScTypeDefinition): Boolean = td match {
       case td @ (_: ScClass | _: ScTrait)
-        if isObject && td.asInstanceOf[ScTypeDefinition].name == thisName => true
+        if isObject && td.name == thisName => true
       case o: ScObject if !isObject && thisName == o.name => true
       case _ => false
     }
@@ -229,55 +227,23 @@ abstract class ScTypeDefinitionImpl[T <: ScTemplateDefinition](stub: ScTemplateD
 
 
   override def fakeCompanionModule: Option[ScObject] = {
-    if (this.isInstanceOf[ScObject]) return None
-    baseCompanionModule match {
-      case Some(_: ScObject) => return None
-      case _ if !isCase && !SyntheticMembersInjector.needsCompanion(this) => return None
-      case _ =>
+    if (this.isInstanceOf[ScObject]) None
+    else {
+      baseCompanionModule match {
+        case Some(_: ScObject) => None
+        case _ if !isCase && !SyntheticMembersInjector.needsCompanion(this) => None
+        case _ => calcFakeCompanionModule()
+      }
     }
-
-    calcFakeCompanionModule()
   }
 
   @Cached(CachesUtil.libraryAwareModTracker(this), this)
   private def calcFakeCompanionModule(): Option[ScObject] = {
     val accessModifier = getModifierList.accessModifier.fold("")(_.modifierFormattedText + " ")
-    val objText = this match {
-      case clazz: ScClass if clazz.isCase =>
-        val texts = getSyntheticMethodsText(clazz)
-
-        val extendsText = {
-          try {
-            if (typeParameters.isEmpty && clazz.constructor.get.effectiveParameterClauses.length == 1) {
-              val typeElementText =
-                clazz.constructor.get.effectiveParameterClauses.map {
-                  clause =>
-                    clause.effectiveParameters.map(parameter => {
-                      val parameterText = parameter.typeElement.fold("_root_.scala.Nothing")(_.getText)
-                      if (parameter.isRepeatedParameter) s"_root_.scala.Seq[$parameterText]"
-                      else parameterText
-                    }).mkString("(", ", ", ")")
-                }.mkString("(", " => ", s" => $name)")
-              val typeElement = createTypeElementFromText(typeElementText)
-              s" extends ${typeElement.getText}"
-            } else {
-              ""
-            }
-          } catch {
-            case p: ProcessCanceledException => throw p
-            case _: Exception => ""
-          }
-        }
-
-        s"""${accessModifier}object ${clazz.name}$extendsText{
-           |  ${texts.mkString("\n  ")}
-           |}""".stripMargin
-      case _ =>
-        s"""${accessModifier}object $name {
-           |  //Generated synthetic object
-           |}""".stripMargin
-    }
-
+    val objText =
+      s"""${accessModifier}object $name {
+         |  //Generated synthetic object
+         |}""".stripMargin
 
     val child = ScalaPsiUtil.getNextStubOrPsiElement(this) match {
       case null => this
@@ -288,11 +254,6 @@ abstract class ScTypeDefinitionImpl[T <: ScTemplateDefinition](stub: ScTemplateD
       case obj =>
         obj.isSyntheticObject = true
         obj.syntheticNavigationElement = this
-        obj.physicalExtendsBlock.members.foreach {
-          case s: ScFunctionDefinition =>
-            s.syntheticNavigationElement = this // So we find the `apply` method in ScalaPsiUtil.syntheticParamForParam
-          case _ =>
-        }
         Some(obj)
     }
   }

@@ -149,49 +149,6 @@ class ScClassImpl(stub: ScTemplateDefinitionStub[ScClass],
       secondaryConstructors
         .flatMap(_.getFunctionWrappers(isStatic = false, isInterface = false, Some(this)))
 
-  override protected def syntheticMethodsNoOverrideImpl: Seq[PsiMethod] = {
-    val buf = new ArrayBuffer[PsiMethod]
-    if (isCase && !hasModifierProperty("abstract") && parameters.nonEmpty) {
-      constructor match {
-        case Some(x: ScPrimaryConstructor) =>
-          val hasCopy = !TypeDefinitionMembers.getSignatures(this).forName("copy")._1.isEmpty
-          val addCopy = !hasCopy && !x.parameterList.clauses.exists(_.hasRepeatedParam)
-          if (addCopy) {
-            try {
-              val method = ScalaPsiElementFactory.createMethodWithContext(copyMethodText, this, this)
-              method.syntheticNavigationElement = this
-              buf += method
-            } catch {
-              case p: ProcessCanceledException => throw p
-              case _: Exception =>
-              //do not add methods if class has wrong signature.
-            }
-          }
-        case None =>
-      }
-    }
-    SyntheticMembersInjector.inject(this, withOverride = false) ++: buf
-  }
-
-  private def copyMethodText: String = {
-    val x = constructor.getOrElse(return "")
-    val className = name
-    val paramString = (if (x.parameterList.clauses.length == 1 &&
-      x.parameterList.clauses.head.isImplicit) "()" else "") + x.parameterList.clauses.map { c =>
-      val start = if (c.isImplicit) "(implicit " else "("
-      c.parameters.map { p =>
-        val paramType = p.typeElement match {
-          case Some(te) => te.getText
-          case None => "Any"
-        }
-        s"${p.name} : $paramType = $className.this.${p.name}"
-      }.mkString(start, ", ", ")")
-    }.mkString("")
-
-    val returnType = name + typeParameters.map(_.name).mkString("[", ",", "]")
-    "def copy" + typeParamString + paramString + " : " + returnType + " = throw new Error(\"\")"
-  }
-
   private def implicitMethodText: String = {
     val constr = constructor.getOrElse(return "")
     val returnType = name + typeParametersClause.map(_ => typeParameters.map(_.name).

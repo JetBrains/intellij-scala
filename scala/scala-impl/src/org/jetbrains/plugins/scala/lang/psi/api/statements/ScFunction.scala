@@ -32,7 +32,7 @@ import org.jetbrains.plugins.scala.lang.psi.api.toplevel.templates.ScExtendsBloc
 import org.jetbrains.plugins.scala.lang.psi.api.toplevel.typedef._
 import org.jetbrains.plugins.scala.lang.psi.fake.{FakePsiReferenceList, FakePsiTypeParameterList}
 import org.jetbrains.plugins.scala.lang.psi.impl.toplevel.synthetic.{JavaIdentifier, SyntheticClasses}
-import org.jetbrains.plugins.scala.lang.psi.impl.toplevel.typedef.{ObjectWithCompanion, TypeDefinitionMembers}
+import org.jetbrains.plugins.scala.lang.psi.impl.toplevel.typedef.{ObjectWithCaseClassCompanion, TypeDefinitionMembers}
 import org.jetbrains.plugins.scala.lang.psi.light.ScFunctionWrapper
 import org.jetbrains.plugins.scala.lang.psi.types._
 import org.jetbrains.plugins.scala.lang.psi.types.api._
@@ -72,8 +72,8 @@ trait ScFunction extends ScalaPsiElement with ScMember with ScTypeParametersOwne
     val functionName = name
     if (functionName == Apply || functionName == Unapply || functionName == UnapplySeq) {
       syntheticContainingClass match {
-        case ObjectWithCompanion(_, cl) if cl.isCase => cl
-        case _                                       => null
+        case ObjectWithCaseClassCompanion(_, cl) => cl
+        case _                                   => null
       }
     }
     else null
