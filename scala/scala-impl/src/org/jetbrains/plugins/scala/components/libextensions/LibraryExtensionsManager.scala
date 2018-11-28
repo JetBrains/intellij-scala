@@ -69,7 +69,7 @@ class LibraryExtensionsManager(project: Project) extends ProjectComponent {
     myExtensionInstances.clear()
     myLoadedLibraries.clear()
     ProgressManager.getInstance().run(
-      new Task.Backgroundable(project, "Searching for library extensions", false) {
+      new Task.Backgroundable(project, "Searching for library extensions", true) {
         override def run(indicator: ProgressIndicator): Unit = {
           implicit val project: Project = myProject
           val resolved   = new ExtensionDownloader(indicator, sbtResolvers).getExtensionJars
