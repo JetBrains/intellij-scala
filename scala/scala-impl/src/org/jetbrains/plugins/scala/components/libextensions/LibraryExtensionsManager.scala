@@ -14,6 +14,7 @@ import com.intellij.openapi.project.Project
 import com.intellij.openapi.util.ModificationTracker
 import com.intellij.openapi.vfs.JarFileSystem
 import com.intellij.util.lang.UrlClassLoader
+import com.intellij.util.messages.Topic
 import org.jetbrains.plugins.scala.DependencyManagerBase._
 import org.jetbrains.plugins.scala.components.ScalaPluginVersionVerifier
 import org.jetbrains.plugins.scala.components.libextensions.ui._
@@ -36,6 +37,7 @@ class LibraryExtensionsManager(project: Project) extends ProjectComponent {
   private val LOG         = Logger.getInstance(classOf[LibraryExtensionsManager])
   private val properties  = PropertiesComponent.getInstance(project)
   private val popup       = new PopupHelper
+  private val publisher   = project.getMessageBus.syncPublisher(EXTENSIONS_TOPIC)
 
   private val myExtensionInstances  = mutable.HashMap[Class[_], ArrayBuffer[Any]]()
   private val myLoadedLibraries     = mutable.ArrayBuffer[ExtensionJarData]()
@@ -72,7 +74,7 @@ class LibraryExtensionsManager(project: Project) extends ProjectComponent {
       new Task.Backgroundable(project, "Searching for library extensions", true) {
         override def run(indicator: ProgressIndicator): Unit = {
           implicit val project: Project = myProject
-          val resolved   = new ExtensionDownloader(indicator, sbtResolvers).getExtensionJars
+          val resolved          = new ExtensionDownloader(indicator, sbtResolvers).getExtensionJars
           val alreadyLoaded     = Option(properties.getValues(EXT_JARS_KEY)).map(_.toSet).getOrElse(Set.empty)
           val extensionsChanged = alreadyLoaded != resolved.map(_.getAbsolutePath).toSet
           if (resolved.nonEmpty && extensionsChanged)
@@ -84,6 +86,7 @@ class LibraryExtensionsManager(project: Project) extends ProjectComponent {
   private def enabledAcceptCb(resolved: Seq[File]): Unit = {
     resolved.foreach(processResolvedExtensionWithLogging)
     saveCachedExtensions()
+    publisher.newExtensionsAdded()
   }
 
   private def enabledCancelledCb(): Unit = {
@@ -183,6 +186,8 @@ class LibraryExtensionsManager(project: Project) extends ProjectComponent {
 }
 
 object LibraryExtensionsManager {
+
+  val EXTENSIONS_TOPIC = new Topic[LibraryExtensionsListener]("EXTENSIONS_TOPIC", classOf[LibraryExtensionsListener])
 
   val MANIFEST_PATH  = "META-INF/intellij-compat.xml"
   val PROPS_NAME     = "intellij-compat.json"
