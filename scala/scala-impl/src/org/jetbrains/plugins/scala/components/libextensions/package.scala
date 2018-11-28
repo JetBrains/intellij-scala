@@ -13,6 +13,8 @@ package object libextensions {
   class NoManifestInExtensionJarException(file: File) extends ExtensionException(s"Extensions jar $file has no manifest")
   class BadManifestException(file: File, cause: Throwable) extends ExtensionException(s"Failed to parse extension manifest from jar $file:\n$cause")
   class BadExtensionDescriptor(file: File, error: String) extends ExtensionException(s"Failed to extract extensions descriptors from xml in file $file: $error")
+  class BadPropsException(file: File, error: String) extends
 
   case class ExtensionJarData(descriptor: LibraryDescriptor, file: File, loadedExtensions: Map[Class[_], ArrayBuffer[Any]])
+  case class ExtensionProps(artifact: String, urlOverride: String)
 }
