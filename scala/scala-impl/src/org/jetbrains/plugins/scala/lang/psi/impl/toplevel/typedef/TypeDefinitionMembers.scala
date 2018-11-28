@@ -718,6 +718,9 @@ object TypeDefinitionMembers {
     val processValsForScala = isScalaProcessor && processVals
     val processOnlyStable = shouldProcessOnlyStable(processor)
 
+    def addElement(named: PsiNamedElement, nodeSubstitutor: ScSubstitutor): Boolean =
+      processor.execute(named, state.put(ScSubstitutor.key, nodeSubstitutor.followed(subst)))
+
     def process[T <: MixinNodes](signatures: T#Map): Boolean = {
       if (processValsForScala || processMethods) {
         def runForValInfo(n: T#Node): Boolean = {
@@ -731,38 +734,36 @@ object TypeDefinitionMembers {
                 //this is member only for class scope
                 if (PsiTreeUtil.isContextAncestor(clazz, place, false) && checkName(p.name)) {
                   //we can accept this member
-                  if (!processor.execute(elem, state.put(ScSubstitutor.key, n.substitutor followed subst)))
+                  if (!addElement(elem, n.substitutor))
                     return false
                 } else {
-                  if (n.supers.nonEmpty &&
-                    !processor.execute(n.supers.apply(0).info.asInstanceOf[Signature].namedElement,
-                      state.put(ScSubstitutor.key, n.supers.apply(0).substitutor followed subst))) return false
+                  if (n.supers.nonEmpty) {
+                    val head = n.supers.head
+                    val named = head.info.asInstanceOf[Signature].namedElement
+                    val substitutor = head.substitutor
+                    if (!addElement(named, substitutor)) return false
+                  }
                 }
               } else if (!tail) return false
             case _ => if (!tail) return false
           }
           def tail: Boolean = {
             if (processValsForScala && checkName(elem.name) &&
-              !processor.execute(elem, state.put(ScSubstitutor.key, n.substitutor followed subst))) return false
+              !addElement(elem, n.substitutor)) return false
 
             if (name == null || name.isEmpty || checkName(s"${elem.name}_=")) {
               elem match {
                 case t: ScTypedDefinition if t.isVar && signature.name.endsWith("_=") =>
-                  if (processValsForScala && !processor.execute(t.getUnderEqualsMethod,
-                    state.put(ScSubstitutor.key, n.substitutor followed subst))) return false
+                  if (processValsForScala && !addElement(t.getUnderEqualsMethod, n.substitutor)) return false
                 case _ =>
               }
             }
 
             if (checkNameGetSetIs(elem.name)) {
               elem match {
-                case t: ScTypedDefinition =>
-                  def process(method: PsiMethod): Boolean = {
-                    if (processValsForScala &&
-                      !processor.execute(method,
-                        state.put(ScSubstitutor.key, n.substitutor followed subst))) return false
-                    true
-                  }
+                case t: ScTypedDefinition if processValsForScala =>
+                  def process(method: PsiMethod): Boolean = addElement(method, n.substitutor)
+
                   if (decodedName.startsWith("set") && !process(t.getSetBeanMethod)) return false
                   if (decodedName.startsWith("get") && !process(t.getGetBeanMethod)) return false
                   if (decodedName.startsWith("is") && !process(t.getIsBeanMethod)) return false
@@ -786,10 +787,7 @@ object TypeDefinitionMembers {
 
           ProgressManager.checkCanceled()
           def addMethod(method: PsiNamedElement): Boolean = {
-            if (checkName(method.name)) {
-              val substitutor = n.substitutor followed subst
-              if (!processor.execute(method, state.put(ScSubstitutor.key, substitutor))) return false
-            }
+            if (checkName(method.name) && !addElement(method, n.substitutor)) return false
             true
           }
           sig match {
@@ -811,10 +809,7 @@ object TypeDefinitionMembers {
               val iterator: Iterator[(T#T, T#Node)] = l.iterator
               while (iterator.hasNext) {
                 val (_, n) = iterator.next()
-                def addMethod(method: PsiNamedElement): Boolean = {
-                  val substitutor = n.substitutor followed subst
-                  processor.execute(method, state.put(ScSubstitutor.key, substitutor))
-                }
+                def addMethod(method: PsiNamedElement): Boolean = addElement(method, n.substitutor)
 
                 n.info match {
                   case phys: PhysicalSignature if processMethods => if (!addMethod(phys.method)) return false
@@ -858,10 +853,8 @@ object TypeDefinitionMembers {
               case phys: PhysicalSignature => phys.method
               case _ => null
             }
-            if (method != null && checkName(method.name)) {
-              val substitutor = n.substitutor followed subst
-              if (!processor.execute(method, state.put(ScSubstitutor.key, substitutor))) return false
-            }
+            if (method != null && checkName(method.name) && !addElement(method, n.substitutor))
+              return false
           }
           true
         }
@@ -887,7 +880,7 @@ object TypeDefinitionMembers {
         val iterator = l.iterator
         while (iterator.hasNext) {
           val (_, n) = iterator.next()
-          if (!processor.execute(n.info, state.put(ScSubstitutor.key, n.substitutor followed subst))) return false
+          if (!addElement(n.info, n.substitutor)) return false
         }
       } else {
         val map = if (!isSupers) types().allFirstSeq() else types().allSecondSeq()
@@ -898,7 +891,7 @@ object TypeDefinitionMembers {
             val (_, n) = iterator.next()
             if (checkName(n.info.name)) {
               ProgressManager.checkCanceled()
-              if (!processor.execute(n.info, state.put(ScSubstitutor.key, n.substitutor followed subst))) return false
+              if (!addElement(n.info, n.substitutor)) return false
             }
           }
         }
@@ -920,8 +913,7 @@ object TypeDefinitionMembers {
         val iterator = l.iterator
         while (iterator.hasNext) {
           val (_, n) = iterator.next()
-          if (n.info.isInstanceOf[ScTypeDefinition] &&
-            !processor.execute(n.info, state.put(ScSubstitutor.key, n.substitutor followed subst))) return false
+          if (n.info.isInstanceOf[ScTypeDefinition] && !addElement(n.info, n.substitutor)) return false
         }
       } else {
         val map = if (!isSupers) types().allFirstSeq() else types().allSecondSeq()
@@ -932,8 +924,7 @@ object TypeDefinitionMembers {
             val (_, n) = iterator.next()
             if (checkName(n.info.name)) {
               ProgressManager.checkCanceled()
-              if (n.info.isInstanceOf[ScTypeDefinition] &&
-                !processor.execute(n.info, state.put(ScSubstitutor.key, n.substitutor followed subst))) return false
+              if (n.info.isInstanceOf[ScTypeDefinition] && !addElement(n.info, n.substitutor)) return false
             }
           }
         }
