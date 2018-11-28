@@ -4,10 +4,9 @@ import java.io.File
 
 import com.intellij.openapi.components.ProjectComponent
 import com.intellij.openapi.diagnostic.Logger
-import com.intellij.openapi.progress.{ProgressIndicator, ProgressManager, Task}
+import com.intellij.openapi.progress.{ProcessCanceledException, ProgressIndicator, ProgressManager, Task}
 import com.intellij.openapi.project.Project
 import com.intellij.openapi.util.io.FileUtil
-import org.jetbrains.annotations.Nullable
 import org.jetbrains.plugins.scala.extensions
 import org.jetbrains.plugins.scala.settings.ScalaProjectSettings
 import org.jetbrains.plugins.scala.util.NotificationUtil
@@ -46,6 +45,7 @@ class SbtIndexesManager(val project: Project) extends ProjectComponent {
               try {
                 index.close()
               } catch {
+                case pce: ProcessCanceledException => throw pce
                 case e:Exception =>
                   e.addSuppressed(original)
                   LOG.error("Error while closing index while recovering from another error", e)
@@ -55,6 +55,7 @@ class SbtIndexesManager(val project: Project) extends ProjectComponent {
                 FileUtil.delete(ResolverIndex.indexesDir)
                 index.doUpdate(Some(indicator))
               } catch {
+                case pce: ProcessCanceledException => throw pce
                 case e: Exception =>
                   ScalaProjectSettings.getInstance(project).setEnableLocalDependencyIndexing(false)
                   e.addSuppressed(original)
@@ -80,6 +81,7 @@ class SbtIndexesManager(val project: Project) extends ProjectComponent {
     try {
       new IvyIndex(root, name, project)
     } catch {
+      case pce: ProcessCanceledException => throw pce
       case e: Throwable =>  // workaround for severe persistent storage corruption
         val cccc = e.getMessage
         val zzz = e.getStackTrace
@@ -113,6 +115,7 @@ object SbtIndexesManager {
       FileUtil.delete(indexDir)
 //      notifyWarning(SbtBundle("sbt.resolverIndexer.indexDirIsCorruptedAndRemoved", indexDir.getAbsolutePath))
     } catch {
+      case pce: ProcessCanceledException => throw pce
       case _ : Throwable =>
         notifyWarning(SbtBundle("sbt.resolverIndexer.indexDirIsCorruptedCantBeRemoved", indexDir.getAbsolutePath))
     }
