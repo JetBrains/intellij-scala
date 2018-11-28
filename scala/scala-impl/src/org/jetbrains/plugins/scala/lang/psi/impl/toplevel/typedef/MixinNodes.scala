@@ -47,6 +47,11 @@ abstract class MixinNodes {
   def isPrivate(t: T): Boolean
   def isSynthetic(t: T): Boolean
 
+  def shouldSkip(t: T): Boolean
+
+  final def addToMap(t: T, node: Node, m: Map): Unit =
+    if (!shouldSkip(t)) m.addToMap(t, node)
+
   class Node(val info: T, val substitutor: ScSubstitutor) {
     var supers: Seq[Node] = Seq.empty
     var primarySuper: Option[Node] = None
@@ -56,7 +61,8 @@ abstract class MixinNodes {
     private[Map] val implicitNames: SmartHashSet[String] = new SmartHashSet[String]
     private val publicsMap: mutable.HashMap[String, NodesMap] = mutable.HashMap.empty
     private val privatesMap: mutable.HashMap[String, ArrayBuffer[SigToSuper]] = mutable.HashMap.empty
-    def addToMap(key: T, node: Node) {
+
+    private[MixinNodes] def addToMap(key: T, node: Node) {
       val name = ScalaNamesUtil.clean(elemName(key))
       if (isPrivate(key)) {
         privatesMap.getOrElseUpdate(name, ArrayBuffer.empty) += ((key, node))
@@ -470,7 +476,7 @@ abstract class MixinNodes {
 
   def processScala(template: ScTemplateDefinition, subst: ScSubstitutor, map: Map, place: Option[PsiElement])
 
-  def processRefinement(cp: ScCompoundType, map: Map, place: Option[PsiElement])(implicit ctx: ProjectContext)
+  def processRefinement(cp: ScCompoundType, map: Map, place: Option[PsiElement])
 }
 
 object MixinNodes {
