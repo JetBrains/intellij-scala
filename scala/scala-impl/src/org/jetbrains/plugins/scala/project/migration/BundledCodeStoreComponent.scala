@@ -4,10 +4,8 @@ import com.intellij.openapi.components.ProjectComponent
 import com.intellij.openapi.externalSystem.model.project.LibraryData
 import com.intellij.openapi.project.Project
 import com.intellij.openapi.roots.libraries.Library
-import com.intellij.openapi.startup.StartupManager
 import org.jetbrains.plugins.scala.codeInspection.bundled.BundledInspectionBase
-import org.jetbrains.plugins.scala.components.libinjection.LibraryInjectorLoader
-import org.jetbrains.plugins.scala.extensions._
+import org.jetbrains.plugins.scala.components.libextensions.{LibraryExtensionsListener, LibraryExtensionsManager}
 import org.jetbrains.plugins.scala.project.ProjectExt
 import org.jetbrains.plugins.scala.project.migration.BundledCodeStoreComponent._
 import org.jetbrains.plugins.scala.project.migration.api.{MigrationApiService, MigrationReport, SettingsDescriptor}
@@ -21,14 +19,15 @@ import scala.collection.mutable
   * User: Dmitry.Naydanov
   * Date: 14.11.16.
   */
-class BundledCodeStoreComponent(project: Project, private val injector: LibraryInjectorLoader)
-  extends ProjectComponent with LibraryInjectorLoader.InjectorsLoadedListener {
+class BundledCodeStoreComponent(project: Project)
+  extends ProjectComponent {
 
   private var oldLibrariesCopy: Option[Seq[Library]] = None
   private var newLibrariesCopy: Option[Seq[LibraryData]] = None
   private var isImportFinished = false
   private var areInjectorsLoaded = false
 
+  private val extensionManager = LibraryExtensionsManager.getInstance(project)
   private def getMigrationApi: MigrationApiService = MigrationApiImpl.getApiInstance(project)
   
   private def copyOldLibraries(): Unit = {
@@ -72,7 +71,7 @@ class BundledCodeStoreComponent(project: Project, private val injector: LibraryI
   }
   
   
-  def getLoadedInspections: Iterable[BundledInspectionBase] = injector.getInjectorInstances(classOf[BundledInspectionBase])
+  def getLoadedInspections: Iterable[BundledInspectionBase] = extensionManager.getExtensions(classOf[BundledInspectionBase])
 
   def getFilteredInspections: Iterable[BundledInspectionBase] = {
     if (!isInspectionsEnabled(project)) return Seq.empty
@@ -89,15 +88,13 @@ class BundledCodeStoreComponent(project: Project, private val injector: LibraryI
   }
   
   def notifyImportFinished() {
-    injector.conditionalInit()
-    
     synchronized {
       isImportFinished = true
       if (newLibrariesCopy.isDefined && areInjectorsLoaded) onImportFinished()
     }
   }
 
-  override def onLoadingCompleted(): Unit = {
+  def onExtensionsAdded(): Unit = {
     synchronized {
       areInjectorsLoaded = true
       if (isImportFinished && newLibrariesCopy.isDefined) onImportFinished()
@@ -115,7 +112,7 @@ class BundledCodeStoreComponent(project: Project, private val injector: LibraryI
   def onImportFinished() {
     if (!isEnabled(project)) return 
     
-    val bundledHandlers = injector.getInjectorInstances(classOf[ScalaLibraryMigrationHandler])
+    val bundledHandlers = extensionManager.getExtensions(classOf[ScalaLibraryMigrationHandler])
     val handlerComponent = ArtifactHandlerComponent.getInstance(project)
     
     
@@ -158,9 +155,8 @@ class BundledCodeStoreComponent(project: Project, private val injector: LibraryI
   
   
   override def projectOpened(): Unit = {
-    inReadAction(())
-    StartupManager.getInstance(project).registerPostStartupActivity(() => {
-      injector.addListener(BundledCodeStoreComponent.this)
+    project.getMessageBus.connect(project).subscribe(LibraryExtensionsManager.EXTENSIONS_TOPIC, new LibraryExtensionsListener {
+      override def newExtensionsAdded(): Unit = onExtensionsAdded()
     })
   }
 
