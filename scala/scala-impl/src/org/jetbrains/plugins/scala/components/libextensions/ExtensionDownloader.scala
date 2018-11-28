@@ -1,12 +1,15 @@
 package org.jetbrains.plugins.scala.components.libextensions
 
 import java.io.{File, InputStreamReader}
+import java.util.Collections
 
+import com.intellij.openapi.application.PathManager
 import com.intellij.openapi.diagnostic.Logger
 import com.intellij.openapi.progress.ProgressIndicator
 import com.intellij.openapi.project.Project
 import com.intellij.openapi.vfs.{JarFileSystem, VirtualFile}
 import com.intellij.psi.search.{FilenameIndex, GlobalSearchScope}
+import com.intellij.util.download.DownloadableFileService
 import org.jetbrains.plugins.scala.DependencyManagerBase.{IvyResolver, MavenResolver}
 import org.jetbrains.plugins.scala.components.libextensions.LibraryExtensionsManager._
 import org.jetbrains.plugins.scala.extensions
@@ -33,7 +36,26 @@ class ExtensionDownloader(private val progress: ProgressIndicator, private val s
   }
 
   private def downloadDirect(props: ExtensionProps): Option[File] = {
-    None
+    import scala.collection.convert.ImplicitConversionsToScala._
+
+    val downloadRoot = new File(PathManager.getSystemPath, "scala/extensionsCache")
+    val fileName     = s"${Math.abs(props.hashCode())}.jar"
+    val targetFile   = new File(downloadRoot, fileName)
+    if (targetFile.exists() && targetFile.length() > 0)
+      return Some(targetFile)
+
+    val fileService = DownloadableFileService.getInstance()
+    val description = fileService.createFileDescription(props.urlOverride, fileName)
+    val downloader  = fileService.createDownloader(Collections.singletonList(description), props.urlOverride)
+
+    progress.setText(s"Downloading ${props.urlOverride}")
+    val files = downloader.download(downloadRoot)
+    if (files == null || files.isEmpty) {
+      LOG.error(s"Failed to download extension from ${props.urlOverride}")
+      None
+    } else {
+      files.headOption.map(vf => new File(vf.first.getPath))
+    }
   }
 
   private def downloadViaIvy(props: Seq[ExtensionProps]): Seq[File] = {
@@ -77,9 +99,9 @@ class ExtensionDownloader(private val progress: ProgressIndicator, private val s
   }
 
   private def validateProps(props: ExtensionProps): Either[String, ExtensionProps] = {
-    if (props.artifact.isEmpty)
-      return Left("Extension artifact is not defined")
-    if (props.artifact.count(_ == '%') < 2)
+    if ((props.artifact == null || props.artifact.isEmpty) && (props.urlOverride == null || props.urlOverride.isEmpty))
+      return Left("Extension artifact and extension jar URL are not defined")
+    if (props.artifact != null && props.artifact.count(_ == '%') < 2)
       return Left(s"Extension props is malformed: ${props.artifact}")
     Right(props)
   }
