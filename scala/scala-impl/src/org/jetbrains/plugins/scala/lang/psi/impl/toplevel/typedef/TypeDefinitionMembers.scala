@@ -115,10 +115,6 @@ object TypeDefinitionMembers {
         map addToMap (s, new Node(s, subst))
       }
 
-      def addSynthetic(s: Signature): Unit ={
-        map.addToMap(s, new Node(s, subst), isSynthetic = true)
-      }
-
       if (template.qualifiedName == "scala.AnyVal") {
         //we need to add Object members
         val obj = ScalaPsiManager.instance(template.getProject).getCachedClass(template.resolveScope, "java.lang.Object")
@@ -135,7 +131,7 @@ object TypeDefinitionMembers {
 
       for (method <- template.syntheticMethods if method.getParameterList.getParametersCount == 0) {
         val sig = new PhysicalSignature(method, subst)
-        addSynthetic(sig)
+        addSignature(sig)
       }
 
       for (member <- template.members) {
@@ -195,10 +191,10 @@ object TypeDefinitionMembers {
 
       for (td <- template.syntheticTypeDefinitions) {
         td match {
-          case obj: ScObject => addSynthetic(Signature(obj, subst))
+          case obj: ScObject => addSignature(Signature(obj, subst))
           case td: ScTypeDefinition =>
             td.fakeCompanionModule match {
-              case Some(obj) => addSynthetic(Signature(obj, subst))
+              case Some(obj) => addSignature(Signature(obj, subst))
               case _ =>
             }
           case _ =>
@@ -351,10 +347,6 @@ object TypeDefinitionMembers {
         map addToMap (s, new Node(s, subst))
       }
 
-      def addSynthetic(s: Signature): Unit = {
-        map.addToMap(s, new Node(s, subst), isSynthetic = true)
-      }
-
       if (template.qualifiedName == "scala.AnyVal") {
         //we need to add Object members
         val obj = ScalaPsiManager.instance.getCachedClass(template.resolveScope, "java.lang.Object")
@@ -371,7 +363,7 @@ object TypeDefinitionMembers {
 
       for (method <- template.syntheticMethods) {
         val sig = new PhysicalSignature(method, subst)
-        addSynthetic(sig)
+        addSignature(sig)
       }
 
       for (member <- template.members) {
@@ -455,10 +447,10 @@ object TypeDefinitionMembers {
 
       for (td <- template.syntheticTypeDefinitions) {
         td match {
-          case obj: ScObject => addSynthetic(Signature(obj, subst))
+          case obj: ScObject => addSignature(Signature(obj, subst))
           case td: ScTypeDefinition =>
             td.fakeCompanionModule match {
-              case Some(obj) => addSynthetic(Signature(obj, subst))
+              case Some(obj) => addSignature(Signature(obj, subst))
               case _ =>
             }
           case _ =>
@@ -858,20 +850,17 @@ object TypeDefinitionMembers {
           }
         }
 
-        def processAll(iterator: Iterator[(Signature, SignatureNodes.Node)], isSynthetic: Boolean): Boolean = {
+        def processAll(iterator: Iterator[(Signature, SignatureNodes.Node)]): Boolean = {
           while (iterator.hasNext) {
-            val (key, n) = iterator.next()
+            val (_, n) = iterator.next()
             ProgressManager.checkCanceled()
             val method = n.info match {
               case phys: PhysicalSignature => phys.method
               case _ => null
             }
-            if (method != null && checkName(method.name) && signatures.isInstanceOf[SignatureNodes.Map]) {
-              if (isSynthetic && signatures.asInstanceOf[SignatureNodes.Map].contains(key)) ()
-              else {
-                val substitutor = n.substitutor followed subst
-                if (!processor.execute(method, state.put(ScSubstitutor.key, substitutor))) return false
-              }
+            if (method != null && checkName(method.name)) {
+              val substitutor = n.substitutor followed subst
+              if (!processor.execute(method, state.put(ScSubstitutor.key, substitutor))) return false
             }
           }
           true
@@ -882,11 +871,11 @@ object TypeDefinitionMembers {
           val valuesIterator = maps.iterator
           while (valuesIterator.hasNext) {
             val iterator = valuesIterator.next().iterator
-            if (!processAll(iterator, isSynthetic = false)) return false
+            if (!processAll(iterator)) return false
           }
 
           //todo: this is hack, better to split imports resolve into import for types and for expressions.
-          if (!processAll(syntheticMethods().iterator, isSynthetic = true)) return false
+          if (!processAll(syntheticMethods().iterator)) return false
         }
       }
       true
