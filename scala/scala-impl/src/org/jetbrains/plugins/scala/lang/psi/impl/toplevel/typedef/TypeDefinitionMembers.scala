@@ -11,6 +11,7 @@ import com.intellij.psi.impl.light.LightMethod
 import com.intellij.psi.scope.{ElementClassHint, NameHint, PsiScopeProcessor}
 import com.intellij.psi.util._
 import org.jetbrains.plugins.scala.extensions._
+import org.jetbrains.plugins.scala.lang.psi.ScalaPsiUtil.inNameContext
 import org.jetbrains.plugins.scala.lang.psi.api.base.{ScAccessModifier, ScFieldId, ScPrimaryConstructor}
 import org.jetbrains.plugins.scala.lang.psi.api.statements._
 import org.jetbrains.plugins.scala.lang.psi.api.statements.params.ScClassParameter
@@ -80,6 +81,12 @@ object TypeDefinitionMembers {
       }
     }
 
+    def isSynthetic(s: Signature): Boolean = s.namedElement match {
+      case m: ScMember                => m.isSynthetic
+      case inNameContext(m: ScMember) => m.isSynthetic
+      case _                          => false
+    }
+
     def isAbstract(s: Signature): Boolean = s match {
       case phys: PhysicalSignature => TypeDefinitionMembers.this.isAbstract(phys)
       case s: Signature => s.namedElement match {
@@ -127,11 +134,6 @@ object TypeDefinitionMembers {
             }
           }
         }
-      }
-
-      for (method <- template.syntheticMethods if method.getParameterList.getParametersCount == 0) {
-        val sig = new PhysicalSignature(method, subst)
-        addSignature(sig)
       }
 
       for (member <- template.members) {
@@ -187,6 +189,11 @@ object TypeDefinitionMembers {
             addSignature(Signature(o, subst))
           case _ =>
         }
+      }
+
+      for (method <- template.syntheticMethods if method.getParameterList.getParametersCount == 0) {
+        val sig = new PhysicalSignature(method, subst)
+        addSignature(sig)
       }
 
       for (td <- template.syntheticTypeDefinitions) {
@@ -247,6 +254,8 @@ object TypeDefinitionMembers {
         case _ => false
       }
     }
+
+    def isSynthetic(t: PsiNamedElement): Boolean = false
 
     def processJava(clazz: PsiClass, subst: ScSubstitutor, map: Map, place: Option[PsiElement]) {
       implicit val ctx: ProjectContext = clazz
@@ -313,6 +322,12 @@ object TypeDefinitionMembers {
       }
     }
 
+    def isSynthetic(s: Signature): Boolean = s.namedElement match {
+      case m: ScMember                => m.isSynthetic
+      case inNameContext(m: ScMember) => m.isSynthetic
+      case _                          => false
+    }
+
     def isAbstract(s: Signature): Boolean = s match {
       case phys: PhysicalSignature => TypeDefinitionMembers.this.isAbstract(phys)
       case s: Signature => s.namedElement match {
@@ -359,11 +374,6 @@ object TypeDefinitionMembers {
             }
           }
         }
-      }
-
-      for (method <- template.syntheticMethods) {
-        val sig = new PhysicalSignature(method, subst)
-        addSignature(sig)
       }
 
       for (member <- template.members) {
@@ -443,6 +453,11 @@ object TypeDefinitionMembers {
             }
           case _ =>
         }
+      }
+
+      for (method <- template.syntheticMethods) {
+        val sig = new PhysicalSignature(method, subst)
+        addSignature(sig)
       }
 
       for (td <- template.syntheticTypeDefinitions) {
@@ -598,23 +613,12 @@ object TypeDefinitionMembers {
       map
     }
 
-    def syntheticMethods: Seq[(Signature, SignatureNodes.Node)] = {
-      clazz match {
-        case td: ScTemplateDefinition => td.syntheticMethods.map(fun => {
-          val f = new PhysicalSignature(fun, ScSubstitutor.empty)
-          (f, new SignatureNodes.Node(f, ScSubstitutor.empty))
-        })
-        case _ => Seq.empty
-      }
-    }
-
     if (BaseProcessor.isImplicitProcessor(processor) && !clazz.isInstanceOf[ScTemplateDefinition]) return true
 
 
     if (!privateProcessDeclarations(processor, state, lastParent, place, () => getSignatures(clazz, Option(place)),
       () => getParameterlessSignatures(clazz), () => getTypes(clazz), isSupers = false,
-      isObject = clazz.isInstanceOf[ScObject], signaturesForJava = () => signaturesForJava,
-      syntheticMethods = () => syntheticMethods)) return false
+      signaturesForJava = () => signaturesForJava)) return false
 
     if (!(AnyRef.syntheticClass.getOrElse(return true).processDeclarations(processor, state, lastParent, place) &&
       Any.syntheticClass.getOrElse(return true).processDeclarations(processor, state, lastParent, place))) return false
@@ -631,7 +635,7 @@ object TypeDefinitionMembers {
     import td.projectContext
 
     if (!privateProcessDeclarations(processor, state, lastParent, place, () => getSignatures(td),
-      () => getParameterlessSignatures(td), () => getTypes(td), isSupers = true, isObject = td.isInstanceOf[ScObject])) return false
+      () => getParameterlessSignatures(td), () => getTypes(td), isSupers = true)) return false
 
     if (!(api.AnyRef.syntheticClass.getOrElse(return true).
       processDeclarations(processor, state, lastParent, place) &&
@@ -650,12 +654,8 @@ object TypeDefinitionMembers {
     val compoundTypeThisType = Option(state.get(BaseProcessor.COMPOUND_TYPE_THIS_TYPE_KEY)).getOrElse(None)
     if (!privateProcessDeclarations(processor, state, lastParent, place,
       () => getSignatures(comp, compoundTypeThisType, place), () => getParameterlessSignatures(comp, compoundTypeThisType, place),
-      () => getTypes(comp, compoundTypeThisType, place), isSupers = false, isObject = false)) return false
+      () => getTypes(comp, compoundTypeThisType, place), isSupers = false)) return false
 
-    val project =
-      if (lastParent != null) lastParent.getProject
-      else if (place != null) place.getProject
-      else return true
     if (!(api.AnyRef.syntheticClass.getOrElse(return true).processDeclarations(processor, state, lastParent, place) &&
       api.Any.syntheticClass.getOrElse(return true).processDeclarations(processor, state, lastParent, place)))
       return false
@@ -689,9 +689,7 @@ object TypeDefinitionMembers {
                                          parameterlessSignatures:  Lazy[ParameterlessNodes.Map],
                                          types: Lazy[TypeNodes.Map],
                                          isSupers: Boolean,
-                                         isObject: Boolean,
-                                         signaturesForJava: Lazy[SignatureNodes.Map] = () => new SignatureNodes.Map,
-                                         syntheticMethods: Lazy[Seq[(Signature, SignatureNodes.Node)]] = () => Seq.empty
+                                         signaturesForJava: Lazy[SignatureNodes.Map] = () => new SignatureNodes.Map
                                          ): Boolean = {
     val subst = Option(state.get(ScSubstitutor.key)).getOrElse(ScSubstitutor.empty)
     val nameHint = processor.getHint(NameHint.KEY)
@@ -866,9 +864,6 @@ object TypeDefinitionMembers {
             val iterator = valuesIterator.next().iterator
             if (!processAll(iterator)) return false
           }
-
-          //todo: this is hack, better to split imports resolve into import for types and for expressions.
-          if (!processAll(syntheticMethods().iterator)) return false
         }
       }
       true

@@ -45,6 +45,7 @@ abstract class MixinNodes {
   def isAbstract(t: T): Boolean
   def isImplicit(t: T): Boolean
   def isPrivate(t: T): Boolean
+  def isSynthetic(t: T): Boolean
 
   class Node(val info: T, val substitutor: ScSubstitutor) {
     var supers: Seq[Node] = Seq.empty
@@ -62,7 +63,11 @@ abstract class MixinNodes {
       }
       else {
         val nodesMap = publicsMap.getOrElseUpdate(name, new NodesMap)
-        nodesMap.update(key, node)
+
+        nodesMap.get(key) match {
+          case Some(oldNode) if isSyntheticShadedBy(node, oldNode) => //don't add synthetic if real member was already found
+          case _ => nodesMap.update(key, node)
+        }
       }
       if (isImplicit(key)) implicitNames.add(name)
     }
@@ -189,19 +194,29 @@ abstract class MixinNodes {
           case Some(concrete) => concrete
         }
         primarySupers += ((key, primarySuper))
+
+        def updateThisMap(): Unit = {
+          nodes -= primarySuper
+          primarySuper.supers = nodes.toSeq
+          thisMap.update(key, primarySuper)
+        }
+
+        def updateSupersOf(node: Node): Unit = {
+          node.primarySuper = Some(primarySuper)
+          node.supers = nodes.toSeq
+        }
+
         thisMap.get(key) match {
-          case Some(node) =>
-            node.primarySuper = Some(primarySuper)
-            node.supers = nodes.toSeq
-          case None =>
-            nodes -= primarySuper
-            primarySuper.supers = nodes.toSeq
-            thisMap += ((key, primarySuper))
+          case Some(node) if isSyntheticShadedBy(node, primarySuper) => updateThisMap()
+          case Some(node)                                            => updateSupersOf(node)
+          case None                                                  => updateThisMap()
         }
       }
       primarySupers
     }
   }
+
+  def isSyntheticShadedBy(synth: Node, realNode: Node): Boolean = isSynthetic(synth.info) && !isAbstract(realNode.info)
 
   class AllNodes(publics: NodesMap, privates: NodesSeq) {
     def get(s: T): Option[Node] = {
