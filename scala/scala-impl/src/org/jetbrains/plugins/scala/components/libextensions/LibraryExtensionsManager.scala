@@ -168,7 +168,7 @@ class LibraryExtensionsManager(project: Project) extends ProjectComponent {
         myLoadedLibraries -= data
         saveCachedExtensions()
       case None =>
-        LOG.error(s"Remove failed: requested extension library is not loaded\n$jarData")
+        throw new ExtensionException(s"Remove failed: requested extension library is not loaded\n$jarData")
     }
   }
 
