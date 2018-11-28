@@ -20,7 +20,7 @@ import org.jetbrains.plugins.scala.lang.psi.api.toplevel.typedef._
 import org.jetbrains.plugins.scala.lang.psi.api.toplevel.{ScModifierListOwner, ScNamedElement, ScTypedDefinition}
 import org.jetbrains.plugins.scala.lang.psi.impl.expr.ScInterpolatedPrefixReference
 import org.jetbrains.plugins.scala.lang.psi.types._
-import org.jetbrains.plugins.scala.lang.psi.types.api.{Any, AnyRef}
+import org.jetbrains.plugins.scala.lang.psi.types.api.StdType
 import org.jetbrains.plugins.scala.lang.psi.types.recursiveUpdate.ScSubstitutor
 import org.jetbrains.plugins.scala.lang.psi.types.result._
 import org.jetbrains.plugins.scala.lang.refactoring.util.ScalaNamesUtil
@@ -35,19 +35,44 @@ import scala.reflect.NameTransformer
  * @author alefas
  */
 object TypeDefinitionMembers {
-  def nonBridge(place: Option[PsiElement], memb: PsiMember): Boolean = {
+
+  private def nonBridge(place: Option[PsiElement], memb: PsiMember): Boolean = {
     memb match {
       case f: ScFunction if f.isBridge => false
       case _ => true
     }
   }
 
-  def isAbstract(s: PhysicalSignature): Boolean = s.method match {
+  private def isAbstractImpl(s: Signature): Boolean = s.namedElement match {
     case _: ScFunctionDeclaration => true
     case _: ScFunctionDefinition => false
-    case m if m.hasModifierProperty(PsiModifier.ABSTRACT) => true
+    case _: ScFieldId => true
+    case m: PsiModifierListOwner if m.hasModifierPropertyScala(PsiModifier.ABSTRACT) => true
     case _ => false
   }
+
+  private def isPrivateImpl(named: PsiNamedElement): Boolean = {
+    named match {
+      case param: ScClassParameter if !param.isEffectiveVal => true
+      case inNameContext(s: ScModifierListOwner) =>
+        s.getModifierList.accessModifier match {
+          case Some(a: ScAccessModifier) => a.isUnqualifiedPrivateOrThis
+          case _ => false
+        }
+      case s: ScNamedElement => false
+      case n: PsiModifierListOwner => n.hasModifierPropertyScala("private")
+      case _ => false
+    }
+  }
+
+  private def isSyntheticImpl(s: Signature) = s.namedElement match {
+    case m: ScMember                => m.isSynthetic
+    case inNameContext(m: ScMember) => m.isSynthetic
+    case _                          => false
+  }
+
+  //noinspection ScalaWrongMethodsUsage
+  private def isStaticJava(m: PsiMember): Boolean = m.hasModifierProperty("static")
 
   object ParameterlessNodes extends MixinNodes {
     type T = Signature
@@ -58,58 +83,34 @@ object TypeDefinitionMembers {
 
     def elemName(t: Signature): String = t.name
 
+    override def isAbstract(t: Signature): Boolean = isAbstractImpl(t)
 
     def same(t1: Signature, t2: Signature): Boolean = {
       t1.namedElement eq t2.namedElement
     }
 
-    def isPrivate(t: Signature): Boolean = {
-      t.namedElement match {
-        case param: ScClassParameter if !param.isEffectiveVal => true
-        case named: ScNamedElement =>
-          ScalaPsiUtil.nameContext(named) match {
-            case s: ScModifierListOwner =>
-              s.getModifierList.accessModifier match {
-                case Some(a: ScAccessModifier) => a.isUnqualifiedPrivateOrThis
-                case _ => false
-              }
-            case _ => false
-          }
-        case n: PsiModifierListOwner =>
-          n.hasModifierProperty("private")
-        case _ => false
-      }
-    }
+    def isPrivate(t: Signature): Boolean = isPrivateImpl(t.namedElement)
 
-    def isSynthetic(s: Signature): Boolean = s.namedElement match {
-      case m: ScMember                => m.isSynthetic
-      case inNameContext(m: ScMember) => m.isSynthetic
-      case _                          => false
-    }
-
-    def isAbstract(s: Signature): Boolean = s match {
-      case phys: PhysicalSignature => TypeDefinitionMembers.this.isAbstract(phys)
-      case s: Signature => s.namedElement match {
-        case _: ScFieldId => true
-        case f: PsiField if f.hasModifierProperty(PsiModifier.ABSTRACT) => true
-        case _ => false
-      }
-      case _ => false
-    }
+    def isSynthetic(s: Signature): Boolean = isSyntheticImpl(s)
 
     def isImplicit(t: Signature): Boolean = ScalaPsiUtil.isImplicit(t.namedElement)
 
     def processJava(clazz: PsiClass, subst: ScSubstitutor, map: Map, place: Option[PsiElement]) {
       implicit val ctx: ProjectContext = clazz
 
-      for (method <- clazz.getMethods if nonBridge(place, method) &&
-        !method.isConstructor && !method.hasModifierProperty("static") &&
-        method.getParameterList.getParametersCount == 0) {
+      for {
+        method <- clazz.getMethods
+        if nonBridge(place, method) && !method.isConstructor &&
+          !isStaticJava(method) && method.getParameterList.getParametersCount == 0
+      } {
         val phys = new PhysicalSignature(method, subst)
         map addToMap (phys, new Node(phys, subst))
       }
 
-      for (field <- clazz.getFields if nonBridge(place, field) && !field.hasModifierProperty("static")) {
+      for {
+        field <- clazz.getFields
+        if nonBridge(place, field) && !isStaticJava(field)
+      } {
         val sig = Signature(field.getName, Seq.empty, subst, field)
         map addToMap (sig, new Node(sig, subst))
       }
@@ -124,14 +125,12 @@ object TypeDefinitionMembers {
 
       if (template.qualifiedName == "scala.AnyVal") {
         //we need to add Object members
-        val obj = ScalaPsiManager.instance(template.getProject).getCachedClass(template.resolveScope, "java.lang.Object")
-        obj.map { obj =>
-          for (method <- obj.getMethods) {
-            method.getName match {
-              case "hashCode" | "toString" =>
-                addSignature(new PhysicalSignature(method, ScSubstitutor.empty))
-              case _ =>
-            }
+        val javaObject = ScalaPsiManager.instance(template.getProject).getCachedClass(template.resolveScope, "java.lang.Object")
+        for (obj <- javaObject; method <- obj.getMethods) {
+          method.getName match {
+            case "hashCode" | "toString" =>
+              addSignature(new PhysicalSignature(method, ScSubstitutor.empty))
+            case _ =>
           }
         }
       }
@@ -191,7 +190,10 @@ object TypeDefinitionMembers {
         }
       }
 
-      for (method <- template.syntheticMethods if method.getParameterList.getParametersCount == 0) {
+      for {
+        method <- template.syntheticMethods
+        if method.getParameterList.getParametersCount == 0
+      } {
         val sig = new PhysicalSignature(method, subst)
         addSignature(sig)
       }
@@ -243,25 +245,14 @@ object TypeDefinitionMembers {
       t1 eq t2
     }
 
-    def isPrivate(t: PsiNamedElement): Boolean = {
-      t match {
-        case n: ScModifierListOwner =>
-          n.getModifierList.accessModifier match {
-            case Some(a: ScAccessModifier) => a.isUnqualifiedPrivateOrThis
-            case _ => false
-          }
-        case n: PsiModifierListOwner => n.hasModifierProperty("private")
-        case _ => false
-      }
-    }
+    def isPrivate(t: PsiNamedElement): Boolean = isPrivateImpl(t)
 
     def isSynthetic(t: PsiNamedElement): Boolean = false
 
     def processJava(clazz: PsiClass, subst: ScSubstitutor, map: Map, place: Option[PsiElement]) {
       implicit val ctx: ProjectContext = clazz
 
-      for (inner <- clazz.getInnerClasses if nonBridge(place, inner) &&
-        !inner.hasModifierProperty("static")) {
+      for (inner <- clazz.getInnerClasses if nonBridge(place, inner) && !isStaticJava(inner)) {
         map addToMap (inner, new Node(inner, subst))
       }
     }
@@ -304,52 +295,29 @@ object TypeDefinitionMembers {
       t1.namedElement eq t2.namedElement
     }
 
-    def isPrivate(t: Signature): Boolean = {
-      t.namedElement match {
-        case c: ScClassParameter if !c.isEffectiveVal => true
-        case named: ScNamedElement =>
-          ScalaPsiUtil.nameContext(named) match {
-            case s: ScModifierListOwner =>
-              s.getModifierList.accessModifier match {
-                case Some(a: ScAccessModifier) => a.isUnqualifiedPrivateOrThis
-                case _ => false
-              }
-            case _ => false
-          }
-        case n: PsiModifierListOwner =>
-          n.hasModifierProperty("private")
-        case _ => false
-      }
-    }
+    def isAbstract(t: Signature): Boolean = isAbstractImpl(t)
 
-    def isSynthetic(s: Signature): Boolean = s.namedElement match {
-      case m: ScMember                => m.isSynthetic
-      case inNameContext(m: ScMember) => m.isSynthetic
-      case _                          => false
-    }
+    def isPrivate(t: Signature): Boolean = isPrivateImpl(t.namedElement)
 
-    def isAbstract(s: Signature): Boolean = s match {
-      case phys: PhysicalSignature => TypeDefinitionMembers.this.isAbstract(phys)
-      case s: Signature => s.namedElement match {
-        case _: ScFieldId => true
-        case f: PsiField if f.hasModifierProperty(PsiModifier.ABSTRACT) => true
-        case _ => false
-      }
-      case _ => false
-    }
+    def isSynthetic(s: Signature): Boolean = isSyntheticImpl(s)
 
     def isImplicit(t: Signature): Boolean = ScalaPsiUtil.isImplicit(t.namedElement)
 
     def processJava(clazz: PsiClass, subst: ScSubstitutor, map: Map, place: Option[PsiElement]) {
       implicit val ctx: ProjectContext = clazz
 
-      for (method <- clazz.getMethods if nonBridge(place, method) &&
-        !method.isConstructor && !method.hasModifierProperty("static")) {
+      for {
+        method <- clazz.getMethods
+        if nonBridge(place, method) && !method.isConstructor && !isStaticJava(method)
+      } {
         val phys = new PhysicalSignature(method, subst)
         map addToMap (phys, new Node(phys, subst))
       }
 
-      for (field <- clazz.getFields if nonBridge(place, field) && !field.hasModifierProperty("static")) {
+      for {
+        field <- clazz.getFields
+        if nonBridge(place, field) && !isStaticJava(field)
+      } {
         val sig = Signature.withoutParams(field.getName, subst, field)
         map addToMap (sig, new Node(sig, subst))
       }
@@ -364,14 +332,13 @@ object TypeDefinitionMembers {
 
       if (template.qualifiedName == "scala.AnyVal") {
         //we need to add Object members
-        val obj = ScalaPsiManager.instance.getCachedClass(template.resolveScope, "java.lang.Object")
-        obj.map { obj =>
-          for (method <- obj.getMethods) {
-            method.getName match {
-              case "equals" | "hashCode" | "toString" =>
-                addSignature(new PhysicalSignature(method, ScSubstitutor.empty))
-              case _ =>
-            }
+        val javaObject = ScalaPsiManager.instance.getCachedClass(template.resolveScope, "java.lang.Object")
+
+        for (obj <- javaObject; method <- obj.getMethods) {
+          method.getName match {
+            case "equals" | "hashCode" | "toString" =>
+              addSignature(new PhysicalSignature(method, ScSubstitutor.empty))
+            case _ =>
           }
         }
       }
@@ -596,32 +563,18 @@ object TypeDefinitionMembers {
                           state: ResolveState,
                           lastParent: PsiElement,
                           place: PsiElement): Boolean = {
-    implicit val projectContext = clazz.projectContext
-
-    def signaturesForJava: SignatureNodes.Map = {
-      val map = new SignatureNodes.Map
-      if (!processor.isInstanceOf[BaseProcessor]) {
-        clazz match {
-          case td: ScTypeDefinition =>
-            ScalaPsiUtil.getCompanionModule(td) match {
-              case Some(companionClass) => return getSignatures(companionClass)
-              case None =>
-            }
-          case _ =>
-        }
-      }
-      map
-    }
+    implicit val projectContext: ProjectContext = clazz.projectContext
 
     if (BaseProcessor.isImplicitProcessor(processor) && !clazz.isInstanceOf[ScTemplateDefinition]) return true
 
+    if (!privateProcessDeclarations(processor, state, lastParent, place,
+      () => getSignatures(clazz, Option(place)),
+      () => getParameterlessSignatures(clazz),
+      () => getTypes(clazz),
+      isSupers = false,
+      signaturesForJava = () => signaturesForJava(clazz, processor))) return false
 
-    if (!privateProcessDeclarations(processor, state, lastParent, place, () => getSignatures(clazz, Option(place)),
-      () => getParameterlessSignatures(clazz), () => getTypes(clazz), isSupers = false,
-      signaturesForJava = () => signaturesForJava)) return false
-
-    if (!(AnyRef.syntheticClass.getOrElse(return true).processDeclarations(processor, state, lastParent, place) &&
-      Any.syntheticClass.getOrElse(return true).processDeclarations(processor, state, lastParent, place))) return false
+    if (!processSyntheticAnyRefAndAny(processor, state, lastParent, place)) return false
 
     if (shouldProcessMethods(processor) && !processEnum(clazz, processor.execute(_, state))) return false
     true
@@ -634,13 +587,14 @@ object TypeDefinitionMembers {
                                place: PsiElement): Boolean = {
     import td.projectContext
 
-    if (!privateProcessDeclarations(processor, state, lastParent, place, () => getSignatures(td),
-      () => getParameterlessSignatures(td), () => getTypes(td), isSupers = true)) return false
+    if (!privateProcessDeclarations(processor, state, lastParent, place,
+      () => getSignatures(td),
+      () => getParameterlessSignatures(td),
+      () => getTypes(td),
+      isSupers = true)) return false
 
-    if (!(api.AnyRef.syntheticClass.getOrElse(return true).
-      processDeclarations(processor, state, lastParent, place) &&
-      api.Any.syntheticClass.getOrElse(return true).
-              processDeclarations(processor, state, lastParent, place))) return false
+    if (!processSyntheticAnyRefAndAny(processor, state, lastParent, place)) return false
+
     true
   }
 
@@ -651,14 +605,15 @@ object TypeDefinitionMembers {
                           place: PsiElement): Boolean = {
     import comp.projectContext
 
-    val compoundTypeThisType = Option(state.get(BaseProcessor.COMPOUND_TYPE_THIS_TYPE_KEY)).getOrElse(None)
-    if (!privateProcessDeclarations(processor, state, lastParent, place,
-      () => getSignatures(comp, compoundTypeThisType, place), () => getParameterlessSignatures(comp, compoundTypeThisType, place),
-      () => getTypes(comp, compoundTypeThisType, place), isSupers = false)) return false
+    val compoundTypeThisType = Option(state.get(BaseProcessor.COMPOUND_TYPE_THIS_TYPE_KEY)).flatten
 
-    if (!(api.AnyRef.syntheticClass.getOrElse(return true).processDeclarations(processor, state, lastParent, place) &&
-      api.Any.syntheticClass.getOrElse(return true).processDeclarations(processor, state, lastParent, place)))
-      return false
+    if (!privateProcessDeclarations(processor, state, lastParent, place,
+      () => getSignatures(comp, compoundTypeThisType, place),
+      () => getParameterlessSignatures(comp, compoundTypeThisType, place),
+      () => getTypes(comp, compoundTypeThisType, place),
+      isSupers = false)) return false
+
+    if (!processSyntheticAnyRefAndAny(processor, state, lastParent, place)) return false
 
     true
   }
@@ -974,9 +929,8 @@ object TypeDefinitionMembers {
     var containsValues = false
     if (clazz.isEnum && !clazz.isInstanceOf[ScTemplateDefinition]) {
       containsValues = clazz.getMethods.exists {
-        case method =>
-          method.getName == "values" && method.getParameterList.getParametersCount == 0 &&
-            method.hasModifierProperty("static")
+        method =>
+          method.getName == "values" && method.getParameterList.getParametersCount == 0 && isStaticJava(method)
       }
     }
 
@@ -994,4 +948,38 @@ object TypeDefinitionMembers {
     }
     true
   }
+
+  private def signaturesForJava(clazz: PsiClass, processor: PsiScopeProcessor): SignatureNodes.Map = {
+    val map = new SignatureNodes.Map
+    if (!processor.isInstanceOf[BaseProcessor]) {
+      clazz match {
+        case td: ScTypeDefinition =>
+          ScalaPsiUtil.getCompanionModule(td) match {
+            case Some(companionClass) => return getSignatures(companionClass)
+            case None =>
+          }
+        case _ =>
+      }
+    }
+    map
+  }
+
+  private def processSyntheticAnyRefAndAny(processor: PsiScopeProcessor,
+                                           state: ResolveState,
+                                           lastParent: PsiElement,
+                                           place: PsiElement): Boolean = {
+    implicit val context: ProjectContext = place
+
+    processSyntheticClass(api.AnyRef, processor, state, lastParent, place) &&
+      processSyntheticClass(api.Any, processor, state, lastParent, place)
+  }
+
+  private def processSyntheticClass(stdType: StdType,
+                                    processor: PsiScopeProcessor,
+                                    state: ResolveState,
+                                    lastParent: PsiElement,
+                                    place: PsiElement): Boolean = {
+    stdType.syntheticClass.forall(_.processDeclarations(processor, state, lastParent, place))
+  }
+
 }
