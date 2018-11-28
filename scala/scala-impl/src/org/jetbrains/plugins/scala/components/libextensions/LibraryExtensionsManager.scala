@@ -170,11 +170,15 @@ class LibraryExtensionsManager(project: Project) extends ProjectComponent {
       case None =>
         throw new ExtensionException(s"Remove failed: requested extension library is not loaded\n$jarData")
     }
+    saveCachedExtensions()
   }
 
   def getAvailableLibraries: Seq[ExtensionJarData] = myLoadedLibraries
 
-  def addExtension(file: File): Unit = processResolvedExtension(file)
+  def addExtension(file: File): Unit = {
+    processResolvedExtension(file)
+    saveCachedExtensions()
+  }
 
 }
 

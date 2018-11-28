@@ -82,7 +82,7 @@ class LibExtensionsSettingsPanelWrapper(private val rootPanel: JPanel,
         new FileChooserDescriptor(false, false, true, true, false, false),
         project, null)
       try {
-        libraryExtensionsManager.processResolvedExtension(new File(jar.getCanonicalPath))
+        libraryExtensionsManager.addExtension(new File(jar.getCanonicalPath))
         librariesList.setModel(new LibraryListModel(detailsModel))
       } catch {
         case ex: ExtensionException =>
