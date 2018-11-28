@@ -5,6 +5,7 @@ package parsing
 package expressions
 
 import org.jetbrains.plugins.scala.lang.parser.parsing.builder.ScalaPsiBuilder
+import org.jetbrains.plugins.scala.lang.parser.parsing.types.Path
 
 /** 
 * @author Alexander Podkhalyuzin
@@ -24,7 +25,8 @@ object PrefixExpr {
         builder.advanceLexer()
         refExpr.done(ScalaElementType.REFERENCE_EXPRESSION)
         if (!SimpleExpr.parse(builder)) {
-          prefixMarker.rollbackTo(); false
+          prefixMarker.rollbackTo()
+          Path.parse(builder, ScalaElementType.REFERENCE_EXPRESSION)
         } else {
           prefixMarker.done(ScalaElementType.PREFIX_EXPR);
           true

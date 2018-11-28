@@ -50,7 +50,7 @@ object Enumerator {
             return true
           } else {
             enumMarker.rollbackTo()
-            return Guard.parse(builder, noIf = true)
+            return false
           }
       }
       if (!Expr.parse(builder)) {
