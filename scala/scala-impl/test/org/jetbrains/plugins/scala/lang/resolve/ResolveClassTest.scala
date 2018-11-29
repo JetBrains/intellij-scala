@@ -1,6 +1,6 @@
 package org.jetbrains.plugins.scala.lang.resolve
 
-import junit.framework.TestCase._
+import org.junit.Assert._
 import org.jetbrains.plugins.scala.lang.psi.api.statements.ScFunction
 import org.jetbrains.plugins.scala.lang.psi.api.toplevel.typedef.ScObject
 
