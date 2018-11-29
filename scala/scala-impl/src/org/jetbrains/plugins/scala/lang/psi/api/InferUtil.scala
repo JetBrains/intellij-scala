@@ -555,6 +555,7 @@ object InferUtil {
                   def checkTypeParam(typeParam: ScTypeParam, tp: => ScType): Boolean = {
                     val typeParams: Seq[ScTypeParam] = typeParam.typeParameters
                     if (typeParams.isEmpty) return true
+                    if (tp.isAny) return true
                     tp match {
                       case ScTypePolymorphicType(_, parameters) => // partial unification case
                         val sameKind = parameters.length == typeParams.length

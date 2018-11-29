@@ -15,6 +15,7 @@ import org.jetbrains.plugins.scala.lang.psi.impl.ScalaPsiManager
 import org.jetbrains.plugins.scala.lang.psi.impl.toplevel.synthetic.ScSyntheticClass
 import org.jetbrains.plugins.scala.lang.psi.types._
 import org.jetbrains.plugins.scala.lang.psi.types.api._
+import org.jetbrains.plugins.scala.lang.psi.types.nonvalue.ScTypePolymorphicType
 import org.jetbrains.plugins.scala.lang.psi.types.recursiveUpdate.{AfterUpdate, ScSubstitutor, Update}
 import org.jetbrains.plugins.scala.lang.psi.types.result._
 import org.jetbrains.plugins.scala.lang.refactoring.util.ScTypeUtil.AliasType
@@ -46,12 +47,18 @@ class ScProjectionType private(val projected: ScType,
             ta.aliasedType match {
               case Right(tp) =>
                 actualSubst.apply(tp) match {
-                  case ParameterizedType(des, typeArgs) =>
-                    val taArgs = ta.typeParameters
-                    if (taArgs.length == typeArgs.length && taArgs.zip(typeArgs).forall {
+                  case target @ ParameterizedType(des, typeArgs) =>
+                    val tParams = ta.typeParameters
+                    val sameParams = tParams.length == typeArgs.length && tParams.zip(typeArgs).forall {
                       case (tParam: ScTypeParam, TypeParameterType.ofPsi(param)) if tParam == param => true
-                      case _ => false
-                    }) return Some(AliasType(ta, Right(des), Right(des)))
+                      case _                                                                        => false
+                    }
+
+                    if (sameParams) return Some(AliasType(ta, Right(des), Right(des)))
+                    else {
+                      val typeConsuctor = ScTypePolymorphicType(target, tParams.map(TypeParameter.apply))
+                      return Option(AliasType(ta, Right(typeConsuctor), Right(typeConsuctor)))
+                    }
                   case _ =>
                 }
               case _ =>
