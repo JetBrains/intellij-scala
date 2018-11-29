@@ -555,6 +555,7 @@ object InferUtil {
                   def checkTypeParam(typeParam: ScTypeParam, tp: => ScType): Boolean = {
                     val typeParams: Seq[ScTypeParam] = typeParam.typeParameters
                     if (typeParams.isEmpty) return true
+                    if (tp.isAny) return true
                     tp match {
                       case ParameterizedType(_, typeArgs) =>
                         if (typeArgs.length != typeParams.length) return false
