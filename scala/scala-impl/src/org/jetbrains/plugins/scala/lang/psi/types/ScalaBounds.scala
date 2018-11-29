@@ -39,9 +39,10 @@ trait ScalaBounds extends api.Bounds {
         case (ex: ScExistentialType, _) => glb(ex.quantified, t2, checkWeak).unpackedType
         case (_, ex: ScExistentialType) => glb(t1, ex.quantified, checkWeak).unpackedType
         case (ScTypePolymorphicType(lhsInt, lhsParams), ScTypePolymorphicType(rhsInt, rhsParams)) =>
-          val newParams  = lub(lhsParams, rhsParams, checkWeak)
-          val paramSubst = ScSubstitutor.bind(lhsParams, newParams)(TypeParameterType(_))
-          val intTpe = glb(paramSubst(lhsInt), paramSubst(rhsInt), checkWeak)
+          val newParams = lub(lhsParams, rhsParams, checkWeak)
+          val lhsSubst  = ScSubstitutor.bind(lhsParams, newParams)(TypeParameterType(_))
+          val rhsSubst  = ScSubstitutor.bind(rhsParams, newParams)(TypeParameterType(_))
+          val intTpe    = glb(lhsSubst(lhsInt), rhsSubst(rhsInt), checkWeak)
           ScTypePolymorphicType(intTpe, newParams)
         case _ => ScCompoundType(Seq(t1, t2), Map.empty, Map.empty)
       }
@@ -329,8 +330,9 @@ trait ScalaBounds extends api.Bounds {
             else Any
           case (ScTypePolymorphicType(lhsInt, lhsParams), ScTypePolymorphicType(rhsInt, rhsParams)) =>
             val newParams  = glb(lhsParams, rhsParams, checkWeak)
-            val paramSubst = ScSubstitutor.bind(lhsParams, newParams)(TypeParameterType(_))
-            val intTpe = lub(paramSubst(lhsInt), paramSubst(rhsInt), checkWeak)
+            val lhsSubst   = ScSubstitutor.bind(lhsParams, newParams)(TypeParameterType(_))
+            val rhsSubst   = ScSubstitutor.bind(rhsParams, newParams)(TypeParameterType(_))
+            val intTpe     = lub(lhsSubst(lhsInt), rhsSubst(rhsInt), checkWeak)
             ScTypePolymorphicType(intTpe, newParams)
           case _ =>
             val leftClasses: Seq[ClassLike] = {
