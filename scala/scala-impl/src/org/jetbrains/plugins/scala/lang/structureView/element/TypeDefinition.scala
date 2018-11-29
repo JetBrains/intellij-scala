@@ -44,7 +44,7 @@ object TypeDefinition {
          case c: ScClass if c.isCase => constructor.effectiveFirstParameterSection
          case _ => constructor.valueParameters
        }
-       case element @ (_: ScFunction | _: ScVariable | _: ScValue | _: ScTypeAlias) => Seq(element)
+       case element @ (_: ScFunction | _: ScVariable | _: ScValue | _: ScTypeAlias) if !element.isSynthetic => Seq(element)
        case _ => Seq.empty
      }
 
