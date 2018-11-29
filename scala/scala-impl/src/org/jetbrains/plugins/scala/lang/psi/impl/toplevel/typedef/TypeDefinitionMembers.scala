@@ -176,23 +176,6 @@ object TypeDefinitionMembers {
           case _ =>
         }
       }
-
-      for (method <- template.syntheticMethods) {
-        val sig = new PhysicalSignature(method, subst)
-        addSignature(sig)
-      }
-
-      for (td <- template.syntheticTypeDefinitions) {
-        td match {
-          case obj: ScObject => addSignature(Signature(obj, subst))
-          case td: ScTypeDefinition =>
-            td.fakeCompanionModule match {
-              case Some(obj) => addSignature(Signature(obj, subst))
-              case _ =>
-            }
-          case _ =>
-        }
-      }
     }
 
     def processRefinement(cp: ScCompoundType, map: Map, place: Option[PsiElement]) {
@@ -241,10 +224,6 @@ object TypeDefinitionMembers {
     def processScala(template: ScTemplateDefinition, subst: ScSubstitutor, map: Map, place: Option[PsiElement]) {
       for (member <- template.members.filterBy[ScNamedElement]) {
         addToMap(member, new Node(member, subst), map)
-      }
-
-      for (td <- template.syntheticTypeDefinitions) {
-        addToMap(td, new Node(td, subst), map)
       }
     }
 
@@ -388,23 +367,6 @@ object TypeDefinitionMembers {
                     addSignature(new PhysicalSignature(impl, subst))
                   case _ =>
                 }
-              case _ =>
-            }
-          case _ =>
-        }
-      }
-
-      for (method <- template.syntheticMethods) {
-        val sig = new PhysicalSignature(method, subst)
-        addSignature(sig)
-      }
-
-      for (td <- template.syntheticTypeDefinitions) {
-        td match {
-          case obj: ScObject => addSignature(Signature(obj, subst))
-          case td: ScTypeDefinition =>
-            td.fakeCompanionModule match {
-              case Some(obj) => addSignature(Signature(obj, subst))
               case _ =>
             }
           case _ =>

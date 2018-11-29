@@ -114,13 +114,6 @@ class ScClassImpl(stub: ScTemplateDefinitionStub[ScClass],
       this.processPsiMethodsForNode(node, isStatic = false, isInterface = isInterface)(res += _, names += _)
     }
 
-    for (synthetic <- syntheticMethods) {
-      this.processPsiMethodsForNode(new SignatureNodes.Node(new PhysicalSignature(synthetic, ScSubstitutor.empty),
-        ScSubstitutor.empty),
-        isStatic = false, isInterface = isInterface)(res += _, names += _)
-    }
-
-
     ScalaPsiUtil.getCompanionModule(this) match {
       case Some(o: ScObject) =>
         def add(method: PsiMethod) {
@@ -131,12 +124,6 @@ class ScClassImpl(stub: ScTemplateDefinitionStub[ScClass],
 
         TypeDefinitionMembers.SignatureNodes.forAllSignatureNodes(o) { node =>
           this.processPsiMethodsForNode(node, isStatic = true, isInterface = false)(add)
-        }
-
-        for (synthetic <- o.syntheticMethods) {
-          this.processPsiMethodsForNode(new SignatureNodes.Node(new PhysicalSignature(synthetic, ScSubstitutor.empty),
-            ScSubstitutor.empty),
-            isStatic = true, isInterface = false)(res += _, names += _)
         }
       case _ =>
     }

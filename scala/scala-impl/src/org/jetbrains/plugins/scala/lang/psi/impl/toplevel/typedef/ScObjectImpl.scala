@@ -165,12 +165,6 @@ class ScObjectImpl(stub: ScTemplateDefinitionStub[ScObject],
       }
       this.processPsiMethodsForNode(node, isStatic = false, isInterface = isInterface)(res += _)
     }
-
-    for (synthetic <- syntheticMethods) {
-      this.processPsiMethodsForNode(new SignatureNodes.Node(new PhysicalSignature(synthetic, ScSubstitutor.empty),
-        ScSubstitutor.empty),
-        isStatic = false, isInterface = isInterface)(res += _)
-    }
     res.toArray
   }
 

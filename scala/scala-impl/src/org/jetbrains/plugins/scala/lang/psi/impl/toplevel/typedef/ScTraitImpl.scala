@@ -80,12 +80,6 @@ final class ScTraitImpl private[psi](stub: ScTemplateDefinitionStub[ScTrait],
     TypeDefinitionMembers.SignatureNodes.forAllSignatureNodes(this) { node =>
       this.processPsiMethodsForNode(node, isStatic = false, isInterface = true)(res += _)
     }
-
-    for (synthetic <- syntheticMethods) {
-      this.processPsiMethodsForNode(new SignatureNodes.Node(new PhysicalSignature(synthetic, ScSubstitutor.empty),
-        ScSubstitutor.empty),
-        isStatic = false, isInterface = isInterface)(res += _)
-    }
     res.toArray
   }
 
