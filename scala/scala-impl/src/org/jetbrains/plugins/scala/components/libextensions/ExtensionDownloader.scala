@@ -60,16 +60,24 @@ class ExtensionDownloader(private val progress: ProgressIndicator, private val s
       return Some(targetFile)
 
     val fileService = DownloadableFileService.getInstance()
-    val description = fileService.createFileDescription(props.urlOverride, fileName)
+    val description = fileService.createFileDescription(props.urlOverride, s"$fileName.part")
     val downloader  = fileService.createDownloader(Collections.singletonList(description), props.urlOverride)
 
     progress.setText(s"Downloading ${props.urlOverride}")
     val files = downloader.download(downloadRoot)
     if (files == null || files.isEmpty) {
       LOG.error(s"Failed to download extension from ${props.urlOverride}")
+      targetFile.delete()
       None
     } else {
-      files.headOption.map(vf => new File(vf.first.getPath))
+      files
+        .headOption
+        .map { result =>
+          val partFile = result.first
+          if  (partFile.exists())
+            partFile.renameTo(targetFile)
+          partFile
+        }
     }
   }
 
