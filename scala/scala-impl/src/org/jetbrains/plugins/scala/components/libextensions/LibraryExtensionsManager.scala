@@ -189,8 +189,9 @@ object LibraryExtensionsManager {
 
   val EXTENSIONS_TOPIC = new Topic[LibraryExtensionsListener]("EXTENSIONS_TOPIC", classOf[LibraryExtensionsListener])
 
-  val MANIFEST_PATH  = "META-INF/intellij-compat.xml"
-  val PROPS_NAME     = "intellij-compat.json"
+  private[libextensions] val BUNDLED_INDEX_PATH = "META-INF/extension-registry.json"
+  private[libextensions] val MANIFEST_PATH      = "META-INF/intellij-compat.xml"
+  private[libextensions] val PROPS_NAME         = "intellij-compat.json"
 
   def getInstance(project: Project): LibraryExtensionsManager = project.getComponent(classOf[LibraryExtensionsManager])
 
