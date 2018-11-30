@@ -7,10 +7,11 @@ import com.intellij.openapi.application.PathManager
 import com.intellij.openapi.diagnostic.Logger
 import com.intellij.openapi.progress.ProgressIndicator
 import com.intellij.openapi.project.Project
+import com.intellij.openapi.roots.impl.libraries.ProjectLibraryTable
 import com.intellij.openapi.vfs.{JarFileSystem, VirtualFile}
 import com.intellij.psi.search.{FilenameIndex, GlobalSearchScope}
 import com.intellij.util.download.DownloadableFileService
-import org.jetbrains.plugins.scala.DependencyManagerBase.{IvyResolver, MavenResolver}
+import org.jetbrains.plugins.scala.DependencyManagerBase.{DependencyDescription, IvyResolver, MavenResolver}
 import org.jetbrains.plugins.scala.components.libextensions.LibraryExtensionsManager._
 import org.jetbrains.plugins.scala.extensions
 import org.jetbrains.plugins.scala.extensions.using
@@ -25,9 +26,23 @@ class ExtensionDownloader(private val progress: ProgressIndicator, private val s
     for {(jar, prop) <- jarsWithProps} {
       LOG.info(s"${jar.getPath} -> ${prop.artifact}")
     }
-    val props = jarsWithProps.map(_._2).toSet
-    val jars  = getRemoteExtensions(props.toSeq)
+    val libraryProps = jarsWithProps.map(_._2).toSet
+    val bundledProps = getPropsFromLocalIndex
+    val jars  = getRemoteExtensions((libraryProps ++ bundledProps).toSeq)
     jars
+  }
+
+  private def getPropsFromLocalIndex: Seq[ExtensionProps] = {
+    val table = ProjectLibraryTable.getInstance(project)
+    val descriptions = table.getLibraries.flatMap { lib =>
+      lib.getName.split(": ?") match {
+        case Array("sbt", org, module, version, "jar") =>
+          Some(DependencyDescription(org, module, version))
+        case _ =>
+          None
+      }
+    }
+    descriptions.flatMap(BundledExtensionIndex.INDEX.get)
   }
 
   private def getRemoteExtensions(props: Seq[ExtensionProps]): Seq[File] = {
