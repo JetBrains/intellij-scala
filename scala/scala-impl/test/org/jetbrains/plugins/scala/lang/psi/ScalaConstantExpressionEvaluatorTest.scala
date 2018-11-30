@@ -108,4 +108,54 @@ class ScalaConstantExpressionEvaluatorTest extends ScalaLightPlatformCodeInsight
          |$pattern+(7.0 - 3)
        """.stripMargin, 4.0)
   }
+
+  def testValInClass(): Unit = {
+    check(
+      s"""
+         |class C {
+         |  val a = 42
+         |  val b = $pattern(a + 3)
+         |}
+       """.stripMargin, null)
+  }
+
+  def testVarInClass(): Unit = {
+    check(
+      s"""
+         |class C {
+         |  var a = 42
+         |  val b = $pattern(a - 4)
+         |}
+       """.stripMargin, null)
+  }
+
+  def testDefInClass(): Unit = {
+    check(
+      s"""
+         |class C {
+         |  def foo = 42
+         |  val b = $pattern(foo + foo)
+         |}
+       """.stripMargin, null)
+  }
+
+  def testVarInObject(): Unit = {
+    check(
+      s"""
+         |object O {
+         |  var a = 42
+         |  val b = $pattern(a + 4)
+         |}
+       """.stripMargin, null)
+  }
+
+  def testDefInObject(): Unit = {
+    check(
+      s"""
+         |object O {
+         |  def foo = 42
+         |  val b = $pattern(foo + foo)
+         |}
+       """.stripMargin, 84)
+  }
 }

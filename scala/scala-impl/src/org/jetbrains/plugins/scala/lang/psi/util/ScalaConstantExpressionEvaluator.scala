@@ -6,10 +6,11 @@ import com.intellij.psi.impl.ConstantExpressionEvaluator
 import org.jetbrains.plugins.scala.lang.psi.api.base.{ScInterpolatedStringLiteral, ScLiteral}
 import org.jetbrains.plugins.scala.lang.psi.api.base.patterns.ScReferencePattern
 import org.jetbrains.plugins.scala.lang.psi.api.expr._
-import org.jetbrains.plugins.scala.lang.psi.api.statements.ScPatternDefinition
+import org.jetbrains.plugins.scala.lang.psi.api.statements.{ScFunctionDefinition, ScPatternDefinition}
 import org.jetbrains.plugins.scala.extensions.PsiElementExt
 import org.jetbrains.plugins.scala.lang.lexer.ScalaTokenTypes
 import org.jetbrains.plugins.scala.lang.parser.ScalaElementType
+import org.jetbrains.plugins.scala.lang.psi.api.toplevel.typedef.ScObject
 
 /**
  * @author Alexander Podkhalyuzin
@@ -22,7 +23,8 @@ class ScalaConstantExpressionEvaluator extends ConstantExpressionEvaluator {
   def computeConstantExpression(expression: PsiElement, throwExceptionOnOverflow: Boolean = false): AnyRef = {
     expression match {
       case patternDef: ScPatternDefinition => patternDef.expr.map(computeConstantExpression(_)).orNull
-      case pattern: ScReferencePattern => computeConstantExpression(pattern.nameContext)
+      case fun: ScFunctionDefinition if fun.containingClass.isInstanceOf[ScObject] => fun.body.map(computeConstantExpression(_)).orNull
+      case pattern: ScReferencePattern if pattern.isVal && (pattern.getModifierList.hasModifierProperty("final") || pattern.containingClass.isInstanceOf[ScObject]) => computeConstantExpression(pattern.nameContext)
       case ref: ScReferenceExpression => computeConstantExpression(ref.resolve())
       case interpolated: ScInterpolatedStringLiteral =>
         val children = interpolated.children.toList
@@ -50,10 +52,12 @@ class ScalaConstantExpressionEvaluator extends ConstantExpressionEvaluator {
       case infix: ScInfixExpr =>
         val left = computeConstantExpression(infix.left)
         val right = computeConstantExpression(infix.right)
-        LiteralEvaluationUtil.evaluateConstInfix(left, right, true, infix.operation.refName, value => Some(value)).orNull.asInstanceOf[AnyRef]
+        if (left == null || right == null) null
+        else LiteralEvaluationUtil.evaluateConstInfix(left, right, true, infix.operation.refName, value => Some(value)).orNull.asInstanceOf[AnyRef]
       case prefix: ScPrefixExpr =>
         val expr = computeConstantExpression(prefix.operand)
-        LiteralEvaluationUtil.evaluateConstPrefix(expr, prefix.operation.refName).orNull.asInstanceOf[AnyRef]
+        if (expr == null) null
+        else LiteralEvaluationUtil.evaluateConstPrefix(expr, prefix.operation.refName).orNull.asInstanceOf[AnyRef]
       case _ => null
     }
   }
