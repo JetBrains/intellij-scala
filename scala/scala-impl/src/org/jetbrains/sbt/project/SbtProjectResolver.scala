@@ -492,13 +492,28 @@ class SbtProjectResolver extends ExternalSystemProjectResolver[SbtExecutionSetti
 
   private def createBuildModule(build: sbtStructure.BuildData, projects: Seq[ProjectData], moduleFilesDirectory: File, localCachePath: Option[String]): ModuleNode = {
 
-    val buildId =
+    val buildBaseProject =
       projects
-        .find(p => p.base == new File(build.uri))
-        .map(_.name +  Sbt.BuildModuleSuffix)
-        .getOrElse(build.uri.toString)
+        .filter(p => p.buildURI == build.uri)
+        .foldLeft(None: Option[ProjectData]) {
+          case (None, p) => Some(p)
+          case (Some(p), p1) =>
+            val parent = if (p.base.isAncestorOf(p1.base)) p else p1
+            Some(parent)
+        }
 
-    val buildRoot = new File(build.uri) / Sbt.ProjectDirectory
+    val buildId = buildBaseProject
+      .map(_.name +  Sbt.BuildModuleSuffix)
+      .getOrElse(build.uri.toString)
+
+    val buildBaseDir = buildBaseProject
+      .map(_.base)
+      .getOrElse {
+        if (build.uri.getScheme == "file") new File(build.uri.getPath)
+        else projects.head.base // this really shouldn't happen
+      }
+
+    val buildRoot = buildBaseDir / Sbt.ProjectDirectory
 
     // TODO explicit canonical path is needed until IDEA-126011 is fixed
     val result = new ModuleNode(SbtModuleType.instance.getId, buildId, build.uri, buildId, moduleFilesDirectory.path, buildRoot.canonicalPath)
