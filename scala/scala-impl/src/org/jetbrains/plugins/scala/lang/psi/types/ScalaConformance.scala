@@ -15,10 +15,10 @@ import org.jetbrains.plugins.scala.lang.psi.api.statements.params._
 import org.jetbrains.plugins.scala.lang.psi.api.toplevel.ScTypeParametersOwner
 import org.jetbrains.plugins.scala.lang.psi.api.toplevel.typedef.ScTypeDefinition
 import org.jetbrains.plugins.scala.lang.psi.impl.toplevel.synthetic.ScSyntheticClass
-import org.jetbrains.plugins.scala.lang.psi.types.ScalaConformance.SmartInheritanceResult
+import org.jetbrains.plugins.scala.lang.psi.types.ScalaConformance.{SmartInheritanceResult, UndefinedOrWildcard}
 import org.jetbrains.plugins.scala.lang.psi.types.api._
 import org.jetbrains.plugins.scala.lang.psi.types.api.designator.{ScDesignatorType, ScProjectionType, ScThisType}
-import org.jetbrains.plugins.scala.lang.psi.types.nonvalue.{ScMethodType, ScTypePolymorphicType}
+import org.jetbrains.plugins.scala.lang.psi.types.nonvalue.{NonValueType, ScMethodType, ScTypePolymorphicType}
 import org.jetbrains.plugins.scala.lang.psi.types.recursiveUpdate.AfterUpdate.{ProcessSubtypes, ReplaceWith, Stop}
 import org.jetbrains.plugins.scala.lang.psi.types.recursiveUpdate.ScSubstitutor
 import org.jetbrains.plugins.scala.lang.psi.types.result._
@@ -177,8 +177,13 @@ trait ScalaConformance extends api.Conformance {
     }
 
     trait UndefinedSubstVisitor extends ScalaTypeVisitor {
-      override def visitUndefinedType(u: UndefinedType) {
-        result = constraints.withUpper(u.typeParameter.typeParamId, l)
+      override def visitUndefinedType(u: UndefinedType): Unit = l match {
+        case ParameterizedType(abs: ScAbstractType, tArgs)
+          if abs.upper.equiv(Any) && tArgs.forall {
+            case ScAbstractType(_, lower, upper) => lower.equiv(Nothing) && upper.equiv(Any)
+            case _                               => false
+          } => result = constraints
+        case _ => result = constraints.withUpper(u.typeParameter.typeParamId, l)
       }
     }
 
@@ -864,8 +869,9 @@ trait ScalaConformance extends api.Conformance {
           val subst = ScSubstitutor.bind(a.typeParameter.typeParameters, p.typeArguments)
           val upper: ScType =
             subst(a.upper) match {
+              case up if up.equiv(Any)      => ScParameterizedType(WildcardType(a.typeParameter), p.typeArguments)
               case ParameterizedType(up, _) => ScParameterizedType(up, p.typeArguments)
-              case up => ScParameterizedType(up, p.typeArguments)
+              case up                       => ScParameterizedType(up, p.typeArguments)
             }
           if (!upper.equiv(Any)) {
             result = conformsInner(upper, r, visited, constraints, checkWeak)
@@ -875,8 +881,9 @@ trait ScalaConformance extends api.Conformance {
           if (result.isRight) {
             val lower: ScType =
               subst(a.lower) match {
+                case low if low.equiv(Nothing) => ScParameterizedType(WildcardType(a.typeParameter), p.typeArguments)
                 case ParameterizedType(low, _) => ScParameterizedType(low, p.typeArguments)
-                case low => ScParameterizedType(low, p.typeArguments)
+                case low                       => ScParameterizedType(low, p.typeArguments)
               }
             if (!lower.equiv(Nothing)) {
               val t = conformsInner(r, lower, visited, result.constraints, checkWeak)
@@ -977,19 +984,19 @@ trait ScalaConformance extends api.Conformance {
               } else {
                 result = ConstraintsResult.Left
               }
-            case (_: UndefinedType, UndefinedType(typeParameter, _)) =>
+            case (UndefinedOrWildcard(_, _), UndefinedOrWildcard(typeParameter, addBound)) =>
               (if (args1.length != args2.length) findDiffLengthArgs(l, args2.length) else Some((args1, des1))) match {
                 case Some((aArgs, aType)) =>
-                  constraints = constraints.withUpper(typeParameter.typeParamId, aType)
+                  if (addBound) constraints = constraints.withUpper(typeParameter.typeParamId, aType)
                   result = checkParameterizedType(typeParameter.typeParameters.map(_.psiTypeParameter).iterator, aArgs,
                     args2, constraints, visited, checkWeak)
                 case _ =>
                   result = ConstraintsResult.Left
               }
-            case (UndefinedType(typeParameter, _), _) =>
+            case (UndefinedOrWildcard(typeParameter, addBound), _) =>
               (if (args1.length != args2.length) findDiffLengthArgs(r, args1.length) else Some((args2, des2))) match {
                 case Some((aArgs, aType)) =>
-                  constraints = constraints.withLower(typeParameter.typeParamId, aType)
+                  if (addBound) constraints = constraints.withLower(typeParameter.typeParamId, aType)
                   result = checkParameterizedType(typeParameter.typeParameters.map(_.psiTypeParameter).iterator, args1,
                     aArgs, constraints, visited, checkWeak)
                 case _ =>
@@ -1004,7 +1011,7 @@ trait ScalaConformance extends api.Conformance {
                   constraints, visited, checkWeak)
                 //TODO actually remember to what designator we are mapping and what captured parameters are
                 //TODO right now, anything compiles, fix once it's fixed in the compiler
-                result = if (t.isRight) {
+                result = if (t.isRight && addBound) {
                   val abstractedTypeParams = abstracted.zipWithIndex.map {
                     case (_, i) => TypeParameter.light("p" + i + "$$", Seq(), Nothing, Any)
                   }
@@ -1014,10 +1021,10 @@ trait ScalaConformance extends api.Conformance {
                   t
                 }
               }
-            case (_, UndefinedType(typeParameter, _)) =>
+            case (_, UndefinedOrWildcard(typeParameter, addBound)) =>
               (if (args1.length != args2.length) findDiffLengthArgs(l, args2.length) else Some((args1, des1))) match {
                 case Some((aArgs, aType)) =>
-                  constraints = constraints.withUpper(typeParameter.typeParamId, aType)
+                  if (addBound) constraints = constraints.withUpper(typeParameter.typeParamId, aType)
                   result = checkParameterizedType(typeParameter.typeParameters.map(_.psiTypeParameter).iterator, aArgs,
                     args2, constraints, visited, checkWeak)
                 case _ =>
@@ -1676,6 +1683,14 @@ trait ScalaConformance extends api.Conformance {
 }
 
 private object ScalaConformance {
+  private object UndefinedOrWildcard {
+    def unapply(tpe: NonValueType): Option[(TypeParameter, Boolean)] = tpe match {
+      case UndefinedType(tparam, _) => Option((tparam, true))
+      case WildcardType(tparam)     => Option((tparam, false))
+      case _                        => None
+    }
+  }
+
   //avoid unnecessary Tuple2(Boolean, ScType), it generates a lot of garbage
   private class SmartInheritanceResult(val result: ScType) extends AnyVal {
     def isFailure: Boolean = result == null
