@@ -260,6 +260,7 @@ trait ScalaTypePresentation extends api.TypePresentation {
                       needDotType: Boolean = true,
                       checkWildcard: Boolean = false): String = t match {
       case namedType: NamedType => namedType.name
+      case _: WildcardType => "?"
       case ScAbstractType(tpt, _, _) => tpt.name.capitalize + api.ScTypePresentation.ABSTRACT_TYPE_POSTFIX
       case FunctionType(ret, params) if t.isAliasType.isEmpty =>
         val paramsText = params match {
