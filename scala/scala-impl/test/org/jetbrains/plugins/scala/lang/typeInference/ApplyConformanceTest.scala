@@ -24,4 +24,14 @@ class ApplyConformanceTest extends ScalaLightCodeInsightFixtureTestAdapter {
          |  id { "1" }
       """.stripMargin)
   }
+
+  def testSCL11912(): Unit = {
+    checkTextHasNoErrors(
+      s"""
+         |object test {
+         |  final case class Kleisli[F[_], A, B](run: A => F[B])
+         |  val f = Kleisli { (x: Int) => Some(x + 1) }
+         |}
+      """.stripMargin)
+  }
 }
