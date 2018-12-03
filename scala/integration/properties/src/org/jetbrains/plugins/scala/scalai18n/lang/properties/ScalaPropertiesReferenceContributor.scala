@@ -1,7 +1,6 @@
 package org.jetbrains.plugins.scala.scalai18n.lang.properties
 
 import com.intellij.codeInsight.AnnotationUtil
-import com.intellij.lang.properties.ResourceBundleReferenceProvider
 import com.intellij.lang.properties.psi.impl.PropertyValueImpl
 import com.intellij.patterns.PsiJavaPatterns
 import com.intellij.patterns.PsiJavaPatterns._
