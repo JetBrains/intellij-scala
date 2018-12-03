@@ -389,7 +389,12 @@ class ImplicitCollector(place: PsiElement,
     )
   }
 
-  private def updateImplicitParameters(c: ScalaResolveResult, nonValueType0: ScType, hasImplicitClause: Boolean): Option[Candidate] = {
+  private def updateImplicitParameters(
+    c:                 ScalaResolveResult,
+    nonValueType0:     ScType,
+    hasImplicitClause: Boolean,
+    depTypeReverter:   ScType => ScType
+  ): Option[Candidate] = {
     val fun = c.element.asInstanceOf[ScFunction]
     val subst = c.substitutor
 
@@ -411,7 +416,11 @@ class ImplicitCollector(place: PsiElement,
       Some(result, subst)
     }
 
-    def fullResult(resType: ScType, implicitParams: Seq[ScalaResolveResult]): Some[Candidate] = {
+    def fullResult(
+      resType:          ScType,
+      implicitParams:   Seq[ScalaResolveResult],
+      checkConformance: Boolean = false
+    ): Option[Candidate] = {
       val (valueType, typeParams) = inferValueType(resType)
 
       val allImportsUsed = implicitParams.map(_.importsUsed).foldLeft(c.importsUsed)(_ ++ _)
@@ -423,7 +432,10 @@ class ImplicitCollector(place: PsiElement,
         unresolvedTypeParameters = Some(typeParams),
         importsUsed = allImportsUsed
       )
-      Some(result, subst)
+
+      if (checkConformance && !valueType.conforms(tp))
+        reportWrong(result, subst, TypeDoesntConformResult, Seq(WrongTypeParameterInferred))
+      else Option(result, subst)
     }
 
     def wrongExtensionConversion(nonValueType: ScType): Option[Candidate] = {
@@ -441,8 +453,13 @@ class ImplicitCollector(place: PsiElement,
       }
     }
 
-    val nonValueType: ScType =
-      try updateNonValueType(nonValueType0)
+    val (hadDependents, nonValueType) =
+      try {
+        val updated        = updateNonValueType(nonValueType0)
+        val withDependents = depTypeReverter(updated)
+        val hadDependents  = withDependents ne updated
+        (hadDependents, withDependents)
+      }
       catch {
         case _: SafeCheckException => return wrongTypeParam(CantInferTypeParameterResult)
       }
@@ -465,7 +482,7 @@ class ImplicitCollector(place: PsiElement,
         if (implicitParams.exists(_.isImplicitParameterProblem))
           reportParamNotFoundResult(implicitParams)
         else
-          fullResult(resType, implicitParams)
+          fullResult(resType, implicitParams, hadDependents)
       }
       catch {
         case _: SafeCheckException => wrongTypeParam(CantInferTypeParameterResult)
@@ -475,7 +492,12 @@ class ImplicitCollector(place: PsiElement,
     }
   }
 
-  def checkFunctionType(fun: ScFunction, ret: ScType, c: ScalaResolveResult): Option[Candidate] = {
+  def checkFunctionType(
+    c:               ScalaResolveResult,
+    fun:             ScFunction,
+    ret:             ScType,
+    depTypeReverter: ScType => ScType = identity
+  ): Option[Candidate] = {
     val subst = c.substitutor
 
     def compute(): Option[Candidate] = {
@@ -493,7 +515,7 @@ class ImplicitCollector(place: PsiElement,
           if (polymorphicTypeParameters.isEmpty) methodType
           else ScTypePolymorphicType(methodType, polymorphicTypeParameters)
 
-        try updateImplicitParameters(c, nonValueType0, implicitClause.isDefined)
+        try updateImplicitParameters(c, nonValueType0, implicitClause.isDefined, depTypeReverter)
         catch {
           case _: SafeCheckException =>
             Some(c.copy(problems = Seq(WrongTypeParameterInferred), implicitReason = UnhandledResult), subst)
@@ -558,10 +580,12 @@ class ImplicitCollector(place: PsiElement,
     }
   }
 
-  private def checkFunctionByType(c: ScalaResolveResult,
-                          withLocalTypeInference: Boolean,
-                          checkFast: Boolean,
-                          noReturnType: Boolean): Option[Candidate] = {
+  private def checkFunctionByType(
+    c:                      ScalaResolveResult,
+    withLocalTypeInference: Boolean,
+    checkFast:              Boolean,
+    noReturnType:           Boolean
+  ): Option[Candidate] = {
     val fun = c.element.asInstanceOf[ScFunction]
     val subst = c.substitutor
 
@@ -576,12 +600,14 @@ class ImplicitCollector(place: PsiElement,
 
         val substedFunTp = substedFunType(fun, funType, subst, withLocalTypeInference, noReturnType) match {
           case Some(t) => t
-          case None => return None
+          case None    => return None
         }
 
-        if (isExtensionConversion && argsConformWeakly(substedFunTp, tp) || (substedFunTp conforms tp)) {
+        val (withoutDependents, reverter) = approximateDependent(substedFunTp, fun.parameters.toSet)
+
+        if (isExtensionConversion && argsConformWeakly(substedFunTp, tp) || (withoutDependents conforms tp)) {
           if (checkFast || noReturnType) Some(c, ScSubstitutor.empty)
-          else checkFunctionType(fun, substedFunTp, c)
+          else checkFunctionType(c, fun, withoutDependents, reverter)
         }
         else if (noReturnType) Some(c, ScSubstitutor.empty)
         else {
@@ -589,7 +615,7 @@ class ImplicitCollector(place: PsiElement,
             case FunctionType(ret, params) if params.isEmpty =>
               if (!ret.conforms(tp)) None
               else if (checkFast) Some(c, ScSubstitutor.empty)
-              else checkFunctionType(fun, ret, c)
+              else checkFunctionType(c, fun, ret)
             case _ =>
               reportWrong(c, subst, TypeDoesntConformResult)
           }
@@ -598,6 +624,45 @@ class ImplicitCollector(place: PsiElement,
         if (!withLocalTypeInference) reportWrong(c, subst, BadTypeResult)
         else None
     }
+  }
+
+  /**
+    * Dependency on an implicit argument is like a dependency on type parameter, thus
+    * before checking implicit return type conformance we have to substitute parameter-dependent
+    * types with `UndefinedType`, otherwise compatibility check is bound to fail.
+    * We also have to verify (after we succesfully found some implicit to be compatible)
+    * that result type with argument-dependent types restored does indeed conform to `tp`.
+    *
+    * @param tpe Return type of an implicit currently undergoing a compatibility check
+    * @return `tpe` with parameter-dependent types replaced with `UndefinedType`s,
+    *         and a mean of reverting this process (useful once type parameters have been inferred
+    *         and dependents need to actually be updated according to argument types)
+    */
+  private[this] def approximateDependent(
+    tpe:    ScType,
+    params: Set[ScParameter]
+  ): (ScType, ScType => ScType) = {
+    import org.jetbrains.plugins.scala.lang.psi.api.statements.params._
+    import scala.collection.mutable
+
+    val updates = mutable.Map.empty[UndefinedType, ScDesignatorType]
+
+    val updatedType = tpe.updateRecursively {
+      case original @ ScDesignatorType(p: ScParameter) if params.contains(p) =>
+        val typeParam = TypeParameter.light(p.name ++ "$$dep", Seq.empty, Nothing, Any)
+        val undef     = UndefinedType(typeParam)
+        updates += (undef -> original)
+        undef
+    }
+
+    val reverter: ScType => ScType =
+      if (updates.nonEmpty)
+        (tpe: ScType) => tpe.updateRecursively {
+          case undef: UndefinedType if updates.contains(undef) => updates(undef)
+        }
+      else identity
+
+    (updatedType, reverter)
   }
 
   private def applyExtensionPredicate(cand: Candidate): Option[Candidate] = {

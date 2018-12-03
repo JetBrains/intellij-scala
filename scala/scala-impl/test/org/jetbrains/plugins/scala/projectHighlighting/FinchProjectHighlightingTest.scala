@@ -13,7 +13,6 @@ class FinchProjectHighlightingTest extends GithubSbtAllProjectHighlightingTest {
   override def revision = "af94e61104f8e6cd15332227cf184cfe46a37666"
 
   override def filesWithProblems: Map[String, Set[TextRange]] = Map(
-    "EndpointSpec.scala" -> Set((2346, 2354), (2337, 2345)),
     "GenericSpec.scala" -> Set((225, 255))
   )
 }
