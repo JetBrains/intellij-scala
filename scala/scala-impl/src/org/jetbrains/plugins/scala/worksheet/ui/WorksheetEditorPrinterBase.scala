@@ -8,7 +8,7 @@ import com.intellij.openapi.util.text.StringUtil
 import com.intellij.psi.PsiDocumentManager
 import org.jetbrains.plugins.scala.extensions._
 import org.jetbrains.plugins.scala.settings.ScalaProjectSettings
-import org.jetbrains.plugins.scala.worksheet.ui.WorksheetDiffSplitters.SimpleWorksheetSplitter
+//import org.jetbrains.plugins.scala.worksheet.ui.WorksheetDiffSplitters.SimpleWorksheetSplitter
 
 /**
   * User: Dmitry.Naydanov
@@ -21,7 +21,7 @@ abstract class WorksheetEditorPrinterBase(protected val originalEditor: Editor,
   protected val originalDocument: Document = originalEditor.getDocument
   protected val viewerDocument: Document = worksheetViewer.getDocument
 
-  protected lazy val group = new WorksheetFoldGroup(worksheetViewer, originalEditor, project, getWorksheetSplitter.orNull)
+  protected lazy val group = new WorksheetFoldGroup(worksheetViewer, originalEditor, project/*, getWorksheetSplitter.orNull*/)
 
   private var inited = false
 
@@ -34,6 +34,7 @@ abstract class WorksheetEditorPrinterBase(protected val originalEditor: Editor,
       }
     }
   }
+/*
 
   protected def getWorksheetSplitter: Option[SimpleWorksheetSplitter] =
     Option(worksheetViewer.getUserData(WorksheetEditorPrinterFactory.DIFF_SPLITTER_KEY))
@@ -45,11 +46,12 @@ abstract class WorksheetEditorPrinterBase(protected val originalEditor: Editor,
     getWorksheetSplitter.foreach(_.redrawDiffs())
   }
 
+
   protected def saveEvaluationResult(result: String): Unit = {
     WorksheetEditorPrinterFactory.saveWorksheetEvaluation(getScalaFile, result, getWorksheetViewersRation)
     redrawViewerDiffs()
   }
-
+*/
   protected def cleanFoldings(): Unit = {
     invokeLater {
       viewerFolding.runBatchFoldingOperation(() => {
@@ -85,12 +87,14 @@ abstract class WorksheetEditorPrinterBase(protected val originalEditor: Editor,
 
   protected def init(): Unit = {
     inited = true
+/*
 
     val oldSync = originalEditor getUserData WorksheetEditorPrinterFactory.DIFF_SYNC_SUPPORT
     if (oldSync != null) oldSync.dispose()
 
     group.installOn(viewerFolding)
     WorksheetEditorPrinterFactory.synch(originalEditor, worksheetViewer, getWorksheetSplitter, Some(group))
+*/
 
     cleanFoldings()
   }

@@ -143,11 +143,12 @@ class WorksheetFileHook(private val project: Project) extends ProjectComponent  
       if (!isPluggable(file)) return
 
       WorksheetFileHook.this.initWorksheetComponents(file, run = true)
+      /*
       loadEvaluationResult(source, file)
-
+      */
       WorksheetFileHook.getDocumentFrom(source, file) foreach (WorksheetAutoRunner.getInstance(source.getProject).addListener(_))
     }
-    
+    /*
     private def loadEvaluationResult(source: FileEditorManager, file: VirtualFile) {
       source getSelectedEditor file match {
         case txt: TextEditor => txt.getEditor match {
@@ -183,6 +184,7 @@ class WorksheetFileHook(private val project: Project) extends ProjectComponent  
         case _ =>
       }
     }
+    */
     
   }
 }

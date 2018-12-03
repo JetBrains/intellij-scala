@@ -110,10 +110,11 @@ class WorksheetDefaultEditorPrinter(originalEditor1: Editor, worksheetViewer1: E
     extensions.invokeLater {
       worksheetViewer.getMarkupModel.removeAllHighlighters()
     }
-
+/*
     scala.extensions.inReadAction {
       saveEvaluationResult(str)
     }
+*/
   }
 
   def midFlush() {

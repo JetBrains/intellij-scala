@@ -21,8 +21,8 @@ import scala.collection.mutable.ArrayBuffer
  * User: Dmitry.Naydanov
  * Date: 10.04.14.
  */
-class WorksheetFoldGroup(private val viewerEditor: Editor, private val originalEditor: Editor, project: Project,
-                         private val splitter: WorksheetDiffSplitters.SimpleWorksheetSplitter) {
+class WorksheetFoldGroup(private val viewerEditor: Editor, private val originalEditor: Editor, project: Project/*,
+                         private val splitter: WorksheetDiffSplitters.SimpleWorksheetSplitter*/) {
   private val originalDocument = originalEditor.getDocument
   private val viewerDocument: Document = viewerEditor.getDocument
   
@@ -83,7 +83,7 @@ class WorksheetFoldGroup(private val viewerEditor: Editor, private val originalE
 
     if (targetInfo == null || targetInfo.expanded == expand) return false
 
-    if (splitter != null) splitter.update(fromTo, offsetsSpaces)
+//    if (splitter != null) splitter.update(fromTo, offsetsSpaces)
 
     targetInfo.expanded = expand
 
@@ -239,10 +239,10 @@ object WorksheetFoldGroup {
   }
 
   def load(viewerEditor: Editor, originalEditor: Editor, project: Project,
-           splitter: WorksheetDiffSplitters.SimpleWorksheetSplitter, file: PsiFile) {
+           /*splitter: WorksheetDiffSplitters.SimpleWorksheetSplitter,*/ file: PsiFile) {
     val bytes = FileAttributeUtilCache.readAttribute(WORKSHEET_PERSISTENT_FOLD_KEY, file)
 
-    lazy val group = new WorksheetFoldGroup(viewerEditor, originalEditor, project, splitter)
+    lazy val group = new WorksheetFoldGroup(viewerEditor, originalEditor, project/*, splitter*/)
     bytes foreach {
       case nonEmpty if nonEmpty.length > 0 =>
         group.deserialize(parseFoldRegions(nonEmpty))

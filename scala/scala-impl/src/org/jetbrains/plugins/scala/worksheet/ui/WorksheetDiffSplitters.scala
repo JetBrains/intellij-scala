@@ -1,6 +1,7 @@
 package org.jetbrains.plugins.scala
 package worksheet.ui
 
+/*
 import java.awt._
 import java.awt.event.{MouseAdapter, MouseEvent}
 import java.lang.ref.WeakReference
@@ -161,3 +162,4 @@ object WorksheetDiffSplitters {
     }
   }
 }
+*/
