@@ -44,8 +44,8 @@ private object ScalaGradleDataService {
         val moduleName = moduleData.getInternalName
 
         (findIdeModule(moduleName),
-          findIdeModule(s"${moduleName}_main"),
-          findIdeModule(s"${moduleName}_test")) match {
+          findIdeModule(s"${moduleName}_main").orElse(findIdeModule(s"$moduleName.main")),
+          findIdeModule(s"${moduleName}_test").orElse(findIdeModule(s"$moduleName.test"))) match {
 
           case (_, Some(productionModule), Some(testModule)) =>
             configureModules(productionModule, testModule)(scalaNode.getData)
