@@ -37,7 +37,7 @@ import org.jetbrains.plugins.scala.lang.psi.api.toplevel.{ScPackaging, _}
 import org.jetbrains.plugins.scala.lang.psi.api.{ScPackageLike, ScalaFile, ScalaRecursiveElementVisitor}
 import org.jetbrains.plugins.scala.lang.psi.impl.ScalaPsiElementFactory._
 import org.jetbrains.plugins.scala.lang.psi.impl.expr.ApplyOrUpdateInvocation
-import org.jetbrains.plugins.scala.lang.psi.impl.toplevel.typedef.TypeDefinitionMembers
+import org.jetbrains.plugins.scala.lang.psi.impl.toplevel.typedef.{SignatureStrategy, TypeDefinitionMembers}
 import org.jetbrains.plugins.scala.lang.psi.impl.{ScPackageImpl, ScalaPsiManager}
 import org.jetbrains.plugins.scala.lang.psi.types.Compatibility.Expression
 import org.jetbrains.plugins.scala.lang.psi.types._
@@ -1431,7 +1431,7 @@ object ScalaPsiUtil {
       case (templDef: ScTemplateDefinition, typeSubst) =>
         if (!isSAMable(templDef)) None
         else {
-          val abstractMembers = templDef.allSignatures.filter(TypeDefinitionMembers.ParameterlessNodes.isAbstract)
+          val abstractMembers = templDef.allSignatures.filter(SignatureStrategy.signature.isAbstract)
           val singleAbstractMethod = abstractMembers match {
             case Seq(PhysicalSignature(fun: ScFunction, subst)) => Some((fun, subst))
             case _ => None

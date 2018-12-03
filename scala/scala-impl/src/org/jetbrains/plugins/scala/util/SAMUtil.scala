@@ -7,8 +7,8 @@ import org.jetbrains.plugins.scala.lang.psi.ScalaPsiUtil.MethodValue
 import org.jetbrains.plugins.scala.lang.psi.api.expr.{ScBlock, ScExpression, ScFunctionExpr, ScUnderScoreSectionUtil}
 import org.jetbrains.plugins.scala.lang.psi.api.statements.ScFunction
 import org.jetbrains.plugins.scala.lang.psi.api.toplevel.typedef.ScTemplateDefinition
-import org.jetbrains.plugins.scala.lang.psi.impl.toplevel.typedef.TypeDefinitionMembers
-import org.jetbrains.plugins.scala.lang.psi.types.{PhysicalSignature, ScType}
+import org.jetbrains.plugins.scala.lang.psi.impl.toplevel.typedef.{SignatureStrategy, TypeDefinitionMembers}
+import org.jetbrains.plugins.scala.lang.psi.types.{PhysicalSignature, ScType, Signature}
 import org.jetbrains.plugins.scala.macroAnnotations.{CachedInUserData, ModCount}
 
 object SAMUtil {
@@ -45,7 +45,7 @@ object SAMUtil {
 
   def singleAbstractMethodOf(cls: PsiClass): Option[PsiMethod] = cls match {
     case tDef: ScTemplateDefinition =>
-      val abstractMembers = tDef.allSignatures.filter(TypeDefinitionMembers.ParameterlessNodes.isAbstract)
+      val abstractMembers = tDef.allSignatures.filter(SignatureStrategy.signature.isAbstract)
 
       abstractMembers match {
         case Seq(PhysicalSignature(fun: ScFunction, _)) => Some(fun).filterNot(_.hasTypeParameters)

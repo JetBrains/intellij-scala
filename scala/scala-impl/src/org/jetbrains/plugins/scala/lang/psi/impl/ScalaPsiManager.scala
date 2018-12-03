@@ -331,7 +331,7 @@ class ScalaPsiManager(val project: Project) {
 
   val rootManager: ModificationTracker = ProjectRootManager.getInstance(project)
 
-  sealed abstract class SignatureCaches[N <: MixinNodes](val nodes: N) {
+  sealed abstract class SignatureCaches[N <: MixinNodes[_]](val nodes: N) {
 
     private val forLibraryMap: ConcurrentMap[PsiClass, nodes.Map] = ContainerUtil.createConcurrentWeakMap()
     private val forTopLevelMap: ConcurrentMap[PsiClass, nodes.Map] = ContainerUtil.createConcurrentWeakMap()
@@ -350,7 +350,7 @@ class ScalaPsiManager(val project: Project) {
         case tracker =>
 
           @CachedInUserData(clazz, tracker)
-          def cachedInUserData(clazz: PsiClass, n: MixinNodes): nodes.Map = nodes.build(clazz)
+          def cachedInUserData(clazz: PsiClass, n: MixinNodes[_]): nodes.Map = nodes.build(clazz)
 
           //@CachedInUserData creates a single map for all 3 cases, so we need to pass `nodes` as a parameter to have different keys
           cachedInUserData(clazz, nodes)

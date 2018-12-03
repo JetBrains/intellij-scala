@@ -11,15 +11,14 @@ import com.intellij.psi.impl.light.LightMethod
 import com.intellij.psi.scope.{ElementClassHint, NameHint, PsiScopeProcessor}
 import com.intellij.psi.util._
 import org.jetbrains.plugins.scala.extensions._
-import org.jetbrains.plugins.scala.lang.psi.ScalaPsiUtil.inNameContext
-import org.jetbrains.plugins.scala.lang.psi.api.base.{ScAccessModifier, ScFieldId, ScPrimaryConstructor}
+import org.jetbrains.plugins.scala.lang.psi.api.base.ScPrimaryConstructor
 import org.jetbrains.plugins.scala.lang.psi.api.statements._
 import org.jetbrains.plugins.scala.lang.psi.api.statements.params.ScClassParameter
 import org.jetbrains.plugins.scala.lang.psi.api.toplevel.templates.ScExtendsBlock
 import org.jetbrains.plugins.scala.lang.psi.api.toplevel.typedef._
-import org.jetbrains.plugins.scala.lang.psi.api.toplevel.{ScModifierListOwner, ScNamedElement, ScTypedDefinition}
+import org.jetbrains.plugins.scala.lang.psi.api.toplevel.{ScNamedElement, ScTypedDefinition}
 import org.jetbrains.plugins.scala.lang.psi.impl.expr.ScInterpolatedPrefixReference
-import org.jetbrains.plugins.scala.lang.psi.impl.toplevel.typedef.TypeDefinitionMembers.ParameterlessNodes
+import org.jetbrains.plugins.scala.lang.psi.impl.toplevel.typedef.MixinNodes.AllNodes
 import org.jetbrains.plugins.scala.lang.psi.types._
 import org.jetbrains.plugins.scala.lang.psi.types.api.StdType
 import org.jetbrains.plugins.scala.lang.psi.types.recursiveUpdate.ScSubstitutor
@@ -37,183 +36,17 @@ import scala.reflect.NameTransformer
  */
 object TypeDefinitionMembers {
 
-  private def isAbstractImpl(s: Signature): Boolean = s.namedElement match {
-    case _: ScFunctionDeclaration => true
-    case _: ScFunctionDefinition => false
-    case _: ScFieldId => true
-    case m: PsiModifierListOwner if m.hasModifierPropertyScala(PsiModifier.ABSTRACT) => true
-    case _ => false
-  }
-
-  private def isPrivateImpl(named: PsiNamedElement): Boolean = {
-    named match {
-      case param: ScClassParameter if !param.isEffectiveVal => true
-      case inNameContext(s: ScModifierListOwner) =>
-        s.getModifierList.accessModifier match {
-          case Some(a: ScAccessModifier) => a.isUnqualifiedPrivateOrThis
-          case _ => false
-        }
-      case s: ScNamedElement => false
-      case n: PsiModifierListOwner => n.hasModifierPropertyScala("private")
-      case _ => false
-    }
-  }
-
-  private def isSyntheticImpl(s: Signature) = s.namedElement match {
-    case m: ScMember                => m.isSynthetic
-    case inNameContext(m: ScMember) => m.isSynthetic
-    case _                          => false
-  }
-
   //noinspection ScalaWrongMethodsUsage
   private def isStaticJava(m: PsiMember): Boolean = !m.isInstanceOf[ScalaPsiElement] && m.hasModifierProperty("static")
 
-  object ParameterlessNodes extends MixinNodes {
-    type T = Signature
-
-    def equiv(s1: Signature, s2: Signature): Boolean = s1 equiv s2
-
-    def computeHashCode(s: Signature): Int = s.simpleHashCode
-
-    def elemName(t: Signature): String = t.name
-
-    override def isAbstract(t: Signature): Boolean = isAbstractImpl(t)
-
-    def same(t1: Signature, t2: Signature): Boolean = {
-      t1.namedElement eq t2.namedElement
-    }
-
-    def isPrivate(t: Signature): Boolean = isPrivateImpl(t.namedElement)
-
-    def isSynthetic(s: Signature): Boolean = isSyntheticImpl(s)
-
-    def isImplicit(t: Signature): Boolean = ScalaPsiUtil.isImplicit(t.namedElement)
-
-    def shouldSkip(t: Signature): Boolean = t.paramLength.sum != 0 || SignatureNodes.shouldSkip(t)
-
-    def processJava(clazz: PsiClass, subst: ScSubstitutor, map: Map, place: Option[PsiElement]) {
-      for (method <- clazz.getMethods) {
-        val phys = new PhysicalSignature(method, subst)
-        addToMap(phys, new Node(phys, subst), map)
-      }
-
-      for (field <- clazz.getFields) {
-        val sig = Signature(field.getName, Seq.empty, subst, field)
-        addToMap(sig, new Node(sig, subst), map)
-      }
-    }
-
-    def processScala(template: ScTemplateDefinition, subst: ScSubstitutor, map: Map, place: Option[PsiElement]) {
-      implicit val ctx: ProjectContext = template
-
-      def addSignature(s: Signature) {
-        addToMap(s, new Node(s, subst), map)
-      }
-
-      if (template.qualifiedName == "scala.AnyVal") {
-        //we need to add Object members
-        val javaObject = ScalaPsiManager.instance(template.getProject).getCachedClass(template.resolveScope, "java.lang.Object")
-        for (obj <- javaObject; method <- obj.getMethods) {
-          method.getName match {
-            case "hashCode" | "toString" =>
-              addSignature(new PhysicalSignature(method, ScSubstitutor.empty))
-            case _ =>
-          }
-        }
-      }
-
-      for (member <- template.members) {
-        member match {
-          case _var: ScVariable =>
-            for (dcl <- _var.declaredElements) {
-              addSignature(Signature(dcl, subst))
-              dcl.nameContext match {
-                case s: ScAnnotationsHolder =>
-                  val beanProperty = ScalaPsiUtil.isBeanProperty(s, noResolve = true)
-                  val booleanBeanProperty = ScalaPsiUtil.isBooleanBeanProperty(s, noResolve = true)
-                  if (beanProperty) {
-                    addSignature(Signature.withoutParams("get" + dcl.name.capitalize, subst, dcl))
-                  } else if (booleanBeanProperty) {
-                    addSignature(Signature.withoutParams("is" + dcl.name.capitalize, subst, dcl))
-                  }
-                case _ =>
-              }
-            }
-          case _val: ScValue =>
-            for (dcl <- _val.declaredElements) {
-              addSignature(Signature(dcl, subst))
-              dcl.nameContext match {
-                case s: ScAnnotationsHolder =>
-                  val beanProperty = ScalaPsiUtil.isBeanProperty(s, noResolve = true)
-                  val booleanBeanProperty = ScalaPsiUtil.isBooleanBeanProperty(s, noResolve = true)
-                  if (beanProperty) {
-                    addSignature(Signature.withoutParams("get" + dcl.name.capitalize, subst, dcl))
-                  } else if (booleanBeanProperty) {
-                    addSignature(Signature.withoutParams("is" + dcl.name.capitalize, subst, dcl))
-                  }
-                case _ =>
-              }
-            }
-          case constr: ScPrimaryConstructor =>
-            val parameters = constr.parameters
-            for (param <- parameters) {
-               addSignature(Signature(param, subst))
-              val beanProperty = ScalaPsiUtil.isBeanProperty(param, noResolve = true)
-              val booleanBeanProperty = ScalaPsiUtil.isBooleanBeanProperty(param, noResolve = true)
-              if (beanProperty) {
-                addSignature(Signature.withoutParams("get" + param.name.capitalize, subst, param))
-              } else if (booleanBeanProperty) {
-                addSignature(Signature.withoutParams("is" + param.name.capitalize, subst, param))
-              }
-            }
-          case f: ScFunction =>
-            addSignature(new PhysicalSignature(f, subst))
-          case o: ScObject =>
-            addSignature(Signature(o, subst))
-          case c: ScTypeDefinition if c.fakeCompanionModule.isDefined =>
-            val o = c.fakeCompanionModule.get
-            addSignature(Signature(o, subst))
-          case _ =>
-        }
-      }
-    }
-
-    def processRefinement(cp: ScCompoundType, map: Map, place: Option[PsiElement]) {
-      for ((sign, _) <- cp.signatureMap) {
-        addToMap(sign, new Node(sign, sign.substitutor), map)
-      }
-    }
-  }
-
-  object TypeNodes extends MixinNodes {
-    type T = PsiNamedElement //class or type alias
-    def equiv(t1: PsiNamedElement, t2: PsiNamedElement): Boolean = t1.name == t2.name
-
-    def computeHashCode(t: PsiNamedElement): Int = t.name.hashCode
-
-    def elemName(t: PsiNamedElement): String = t.name
-
-    def isAbstract(t: PsiNamedElement): Boolean = t match {
-      case _: ScTypeAliasDeclaration => true
-      case _ => false
-    }
-
-    def isImplicit(t: PsiNamedElement) = false
-
-    def same(t1: PsiNamedElement, t2: PsiNamedElement): Boolean = {
-      t1 eq t2
-    }
-
-    def isPrivate(t: PsiNamedElement): Boolean = isPrivateImpl(t)
-
-    def isSynthetic(t: PsiNamedElement): Boolean = false
-
+  object TypeNodes extends MixinNodes[PsiNamedElement] {
     def shouldSkip(t: PsiNamedElement): Boolean = t match {
-      case _: ScObject                          => true
+      case _: ScObject => true
       case _: ScTypeDefinition | _: ScTypeAlias => false
-      case c: PsiClass                          => isStaticJava(c)
-      case _                                    => true
+      case c: PsiClass => isStaticJava(c)
+      case _ => true
     }
+
 
     def processJava(clazz: PsiClass, subst: ScSubstitutor, map: Map, place: Option[PsiElement]) {
       for (inner <- clazz.getInnerClasses) {
@@ -234,27 +67,21 @@ object TypeDefinitionMembers {
     }
   }
 
-  object SignatureNodes extends MixinNodes {
-    type T = Signature
+  object SignatureNodes extends SignatureNodes
 
-    def equiv(s1: Signature, s2: Signature): Boolean = s1 equiv s2
+  //we need to have separate map for stable elements to avoid recursion when resolving references in imports
+  object ParameterlessNodes extends SignatureNodes {
 
-    def computeHashCode(s: Signature): Int = s.simpleHashCode
+    override def shouldSkip(t: Signature): Boolean = !isStable(t.namedElement) || super.shouldSkip(t)
 
-    def elemName(t: Signature): String = t.name
-
-    def same(t1: Signature, t2: Signature): Boolean = {
-      t1.namedElement eq t2.namedElement
+    private def isStable(named: PsiNamedElement): Boolean = named match {
+      case _: ScObject => true
+      case t: ScTypedDefinition => t.isStable
+      case _ => false
     }
+  }
 
-    def isAbstract(t: Signature): Boolean = isAbstractImpl(t)
-
-    def isPrivate(t: Signature): Boolean = isPrivateImpl(t.namedElement)
-
-    def isSynthetic(s: Signature): Boolean = isSyntheticImpl(s)
-
-    def isImplicit(t: Signature): Boolean = ScalaPsiUtil.isImplicit(t.namedElement)
-
+  abstract class SignatureNodes extends MixinNodes[Signature] {
     def shouldSkip(t: Signature): Boolean = t.namedElement match {
       case f: ScFunction => f.isBridge || f.isConstructor
       case m: PsiMethod  => m.isConstructor || isStaticJava(m)
@@ -594,9 +421,9 @@ object TypeDefinitionMembers {
     def addElement(named: PsiNamedElement, nodeSubstitutor: ScSubstitutor): Boolean =
       processor.execute(named, state.put(ScSubstitutor.key, nodeSubstitutor.followed(subst)))
 
-    def process[T <: MixinNodes](signatures: T#Map): Boolean = {
+    def process[T: SignatureStrategy](signatures: MixinNodes.Map[T]): Boolean = {
       if (processValsForScala || processMethods) {
-        def runForValInfo(n: T#Node): Boolean = {
+        def runForValInfo(n: MixinNodes.Node[T]): Boolean = {
           val signature = n.info.asInstanceOf[Signature]
           val elem = signature.namedElement
           elem match {
@@ -655,7 +482,7 @@ object TypeDefinitionMembers {
           true
         }
 
-        def addSignature(sig: T#T, n: T#Node): Boolean = {
+        def addSignature(sig: T, n: MixinNodes.Node[T]): Boolean = {
           import scala.language.existentials
 
           ProgressManager.checkCanceled()
@@ -679,7 +506,7 @@ object TypeDefinitionMembers {
           def checkList(s: String): Boolean = {
             val l = if (!isSupers) signatures.forName(s)._1 else signatures.forName(s)._2
             if (l != null) {
-              val iterator: Iterator[(T#T, T#Node)] = l.iterator
+              val iterator: Iterator[(T, MixinNodes.Node[T])] = l.iterator
               while (iterator.hasNext) {
                 val (_, n) = iterator.next()
                 def addMethod(method: PsiNamedElement): Boolean = addElement(method, n.substitutor)
@@ -701,7 +528,7 @@ object TypeDefinitionMembers {
           if (!checkList(decodedName)) return false
         } else if (BaseProcessor.isImplicitProcessor(processor)) {
           val implicits = signatures.forImplicits()
-          val iterator: Iterator[(T#T, T#Node)] = implicits.iterator
+          val iterator: Iterator[(T, MixinNodes.Node[T])] = implicits.iterator
           while (iterator.hasNext) {
             val (sig, n) = iterator.next()
             if (!addSignature(sig, n)) return false
@@ -710,7 +537,7 @@ object TypeDefinitionMembers {
           val map = if (!isSupers) signatures.allFirstSeq() else signatures.allSecondSeq()
           val valuesIterator = map.iterator
           while (valuesIterator.hasNext) {
-            val iterator: Iterator[(T#T, T#Node)] = valuesIterator.next().iterator
+            val iterator: Iterator[(T, MixinNodes.Node[T])] = valuesIterator.next().iterator
             while (iterator.hasNext) {
               val (sig, n) = iterator.next()
               if (!addSignature(sig, n)) return false
@@ -746,7 +573,7 @@ object TypeDefinitionMembers {
 
     if (shouldProcessTypes(processor)) {
       if (decodedName != "") {
-        val l: TypeNodes.AllNodes = if (!isSupers) types().forName(decodedName)._1 else types().forName(decodedName)._2
+        val l: AllNodes[PsiNamedElement] = if (!isSupers) types().forName(decodedName)._1 else types().forName(decodedName)._2
         val iterator = l.iterator
         while (iterator.hasNext) {
           val (_, n) = iterator.next()
@@ -779,7 +606,7 @@ object TypeDefinitionMembers {
     //inner classes
     if (shouldProcessJavaInnerClasses(processor)) {
       if (decodedName != "") {
-        val l: TypeNodes.AllNodes = if (!isSupers) types().forName(decodedName)._1 else types().forName(decodedName)._2
+        val l: AllNodes[PsiNamedElement] = if (!isSupers) types().forName(decodedName)._1 else types().forName(decodedName)._2
         val iterator = l.iterator
         while (iterator.hasNext) {
           val (_, n) = iterator.next()
