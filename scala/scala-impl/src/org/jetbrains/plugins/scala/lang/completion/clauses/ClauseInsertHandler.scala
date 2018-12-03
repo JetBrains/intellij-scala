@@ -14,14 +14,14 @@ import org.jetbrains.plugins.scala.lang.psi.impl.ScalaPsiElementFactory
 import org.jetbrains.plugins.scala.lang.psi.{ScalaPsiElement, TypeAdjuster}
 import org.jetbrains.plugins.scala.lang.refactoring.namesSuggester.NameSuggester
 
-private[clauses] abstract class ClausesInsertHandler[E <: ScalaPsiElement](clazz: Class[E])
+private[clauses] abstract class ClauseInsertHandler[E <: ScalaPsiElement](clazz: Class[E])
   extends InsertHandler[LookupElement] {
+
+  protected def handleInsert(implicit insertionContext: InsertionContext): Unit
 
   override final def handleInsert(insertionContext: InsertionContext,
                                   lookupElement: LookupElement): Unit =
     handleInsert(insertionContext)
-
-  protected def handleInsert(implicit insertionContext: InsertionContext): Unit
 
   protected final def onTargetElement[U >: Null](onElement: E => U)
                                                 (implicit insertionContext: InsertionContext): U = {
@@ -33,29 +33,24 @@ private[clauses] abstract class ClausesInsertHandler[E <: ScalaPsiElement](clazz
   }
 }
 
-private[clauses] object ClausesInsertHandler {
+private[clauses] object ClauseInsertHandler {
 
-  def replaceTextPhase(replacement: String)
-                      (implicit insertionContext: InsertionContext): Unit = {
-    val startOffset = insertionContext.getStartOffset
+  def replaceText(text: String)
+                 (implicit insertionContext: InsertionContext): Unit = {
     val InsertionContextExt(_, document, file, project) = insertionContext
 
-    document.replaceString(
-      startOffset,
-      insertionContext.getSelectionEndOffset,
-      replacement
-    )
-    CodeStyleManager.getInstance(project).reformatText(
-      file,
-      startOffset,
-      startOffset + replacement.length
-    )
+    val startOffset = insertionContext.getStartOffset
+    val endOffset = insertionContext.getSelectionEndOffset
+    document.replaceString(startOffset, endOffset, text)
+
+    CodeStyleManager.getInstance(project)
+      .reformatText(file, startOffset, startOffset + text.length)
     insertionContext.commitDocument()
   }
 
-  def adjustTypesPhase(addImports: Boolean,
-                       pairs: (ScPattern, PatternComponents)*)
-                      (collector: PartialFunction[ScPattern, ScTypeElement]): Unit = {
+  def adjustTypes(addImports: Boolean,
+                  pairs: (ScPattern, PatternComponents)*)
+                 (collector: PartialFunction[ScPattern, ScTypeElement]): Unit = {
     val findTypeElement = collector.lift
     TypeAdjuster.adjustFor(
       pairs.flatMap {

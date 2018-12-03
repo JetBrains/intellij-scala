@@ -13,6 +13,7 @@ class ScalaClausesCompletionTest extends ScalaCodeInsightTestBase {
   import EditorTestUtil.{CARET_TAG => CARET}
   import Lookup.REPLACE_SELECT_CHAR
   import ScalaCodeInsightTestBase._
+  import completion.ScalaKeyword.{CASE, MATCH}
 
   override implicit val version: ScalaVersion = Scala_2_12
 
@@ -579,8 +580,43 @@ class ScalaClausesCompletionTest extends ScalaCodeInsightTestBase {
        """.stripMargin
   )
 
+  def testCase(): Unit = doCompletionTest(
+    fileText =
+      s"""sealed trait Foo
+         |
+         |case class Bar() extends Foo
+         |
+         |(_: Option[Foo]).map {
+         |  ca$CARET
+         |}
+       """.stripMargin,
+    resultText =
+      s"""sealed trait Foo
+         |
+         |case class Bar() extends Foo
+         |
+         |(_: Option[Foo]).map {
+         |  case Bar() => $CARET
+         |}
+       """.stripMargin
+  )(isExhaustiveCase)
+
+  def testMatchCase(): Unit = checkNoCompletion(
+    fileText =
+      s"""sealed trait Foo
+         |
+         |case class Bar() extends Foo
+         |
+         |(_: Option[Foo]) match {
+         |  ca$CARET
+         |}
+       """.stripMargin,
+    time = DEFAULT_TIME,
+    completionType = BASIC
+  )(isExhaustiveCase)
+
   private def doPatternCompletionTest(fileText: String, resultText: String, itemText: String): Unit =
-    super.doCompletionTest(fileText, resultText, REPLACE_SELECT_CHAR, DEFAULT_TIME, BASIC) {
+    doCompletionTest(fileText, resultText) {
       hasItemText(_, itemText, itemText, itemTextItalic = true)
     }
 
@@ -591,12 +627,21 @@ class ScalaClausesCompletionTest extends ScalaCodeInsightTestBase {
   //    }
 
   private def doMatchCompletionTest(fileText: String, resultText: String): Unit =
-    super.doCompletionTest(fileText, resultText, REPLACE_SELECT_CHAR, DEFAULT_TIME, BASIC)(isExhaustiveMatch)
+    doCompletionTest(fileText, resultText)(isExhaustiveMatch)
 
-  private def isExhaustiveMatch(lookup: LookupElement) = {
-    import completion.ScalaKeyword.MATCH
-    import completion.clauses.ExhaustiveMatchCompletionContributor.rendererTailText
+  private def isExhaustiveMatch(lookup: LookupElement) =
+    isExhaustive(lookup, MATCH)
 
-    hasItemText(lookup, MATCH, MATCH, tailText = rendererTailText)
-  }
+  private def isExhaustive(lookup: LookupElement, lookupString: String) = hasItemText(
+    lookup,
+    lookupString,
+    lookupString,
+    tailText = completion.clauses.ExhaustiveMatchCompletionContributor.rendererTailText
+  )
+
+  private def isExhaustiveCase(lookup: LookupElement) =
+    isExhaustive(lookup, CASE)
+
+  private def doCompletionTest(fileText: String, resultText: String) =
+    super.doCompletionTest(fileText, resultText, REPLACE_SELECT_CHAR, DEFAULT_TIME, BASIC) _
 }

@@ -17,9 +17,9 @@ class CaseClauseCompletionContributor extends ScalaCompletionContributor {
 
   import CaseClauseCompletionContributor._
 
-  extend(new ClausesCompletionProvider(classOf[ScStableReferenceElementPattern]) {
+  extend(new ClauseCompletionProvider(classOf[ScStableReferenceElementPattern]) {
 
-    import ClausesCompletionProvider._
+    import ClauseCompletionProvider._
 
     override protected def addCompletions(pattern: ScStableReferenceElementPattern,
                                           position: PsiElement,
@@ -36,7 +36,7 @@ class CaseClauseCompletionContributor extends ScalaCompletionContributor {
         components <- inheritors.inexhaustivePatterns(position)
 
         lookupString = components.extractorText()
-      } result.addElement(lookupString, new PatternInsertionHandler(lookupString, components))(itemTextItalic = true)
+      } result.addElement(lookupString, new PatternInsertHandler(lookupString, components))(itemTextItalic = true)
     }
   })
 
@@ -76,17 +76,17 @@ object CaseClauseCompletionContributor {
       createPatternFromTextWithContext(text, context, child).asInstanceOf[ScTypedPattern]
   }
 
-  private class PatternInsertionHandler(lookupString: String,
-                                        components: ExtractorPatternComponents[_])
-    extends ClausesInsertHandler(classOf[ScConstructorPattern]) {
+  private class PatternInsertHandler(lookupString: String,
+                                     components: ExtractorPatternComponents[_])
+    extends ClauseInsertHandler(classOf[ScConstructorPattern]) {
 
-    import ClausesInsertHandler._
+    import ClauseInsertHandler._
 
     override def handleInsert(implicit insertionContext: InsertionContext): Unit = {
-      replaceTextPhase(lookupString)
+      replaceText(lookupString)
 
       onTargetElement { pattern =>
-        adjustTypesPhase(false, (pattern, components)) {
+        adjustTypes(false, (pattern, components)) {
           case ScParenthesisedPattern(ScTypedPattern(typeElement)) => typeElement
         }
       }
