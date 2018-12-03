@@ -13,11 +13,12 @@ import com.intellij.openapi.externalSystem.model.{DataNode, ProjectKeys}
 import com.intellij.openapi.externalSystem.service.project.ExternalSystemProjectResolver
 import com.intellij.openapi.module.StdModuleTypes
 import com.intellij.openapi.roots.DependencyScope
+import com.intellij.openapi.util.io.FileUtil
 import org.jetbrains.bsp.BspUtil._
 import org.jetbrains.bsp.data.{BspMetadata, ScalaSdkData}
 import org.jetbrains.bsp.project.BspProjectResolver._
 import org.jetbrains.bsp.protocol.BspSession.{BspServer, NotificationCallback}
-import org.jetbrains.bsp.protocol.{BspNotifications, BspCommunication, BspJob}
+import org.jetbrains.bsp.protocol.{BspCommunication, BspJob, BspNotifications}
 import org.jetbrains.bsp.settings.BspExecutionSettings
 import org.jetbrains.bsp.{BSP, BspError, BspTaskCancelled}
 import org.jetbrains.plugins.scala.project.Version
@@ -47,17 +48,29 @@ class BspProjectResolver extends ExternalSystemProjectResolver[BspExecutionSetti
     }
 
     def targetData(targetIds: List[BuildTargetIdentifier])(implicit bsp: BspServer):
-    CompletableFuture[(Either[BspError, DependencySourcesResult], Either[BspError, ScalacOptionsResult])] =
+    CompletableFuture[TargetData] =
       if (isPreviewMode) {
+        val emptySources = Right[BspError,SourcesResult](new SourcesResult(Collections.emptyList()))
         val emptyDS = Right[BspError,DependencySourcesResult](new DependencySourcesResult(Collections.emptyList()))
         val emptySO = Right[BspError,ScalacOptionsResult](new ScalacOptionsResult(Collections.emptyList()))
-        CompletableFuture.completedFuture((emptyDS, emptySO))
+        CompletableFuture.completedFuture(TargetData(emptySources, emptyDS, emptySO))
       } else {
-        val depSourcesParams = new DependencySourcesParams(targetIds.asJava)
+        val targets = targetIds.asJava
+        val sourcesParams = new SourcesParams(targets)
+        val sources = bsp.buildTargetSources(sourcesParams).catchBspErrors
+        val depSourcesParams = new DependencySourcesParams(targets)
         val depSources = bsp.buildTargetDependencySources(depSourcesParams).catchBspErrors
-        val scalacOptionsParams = new ScalacOptionsParams(targetIds.asJava)
+        val scalacOptionsParams = new ScalacOptionsParams(targets)
         val scalacOptions = bsp.buildTargetScalacOptions(scalacOptionsParams).catchBspErrors
-        depSources.thenCombine(scalacOptions, (ds,so: Either[BspError,ScalacOptionsResult]) => (ds,so))
+
+        sources
+          .thenCompose { src =>
+            depSources.thenCompose { ds =>
+              scalacOptions.thenApply { so =>
+                TargetData(src,ds,so)
+              }
+            }
+          }
       }
 
     def requests(implicit server: BspServer): CompletableFuture[Either[BspError, DataNode[ProjectData]]] = {
@@ -68,30 +81,40 @@ class BspProjectResolver extends ExternalSystemProjectResolver[BspExecutionSetti
           val targets = targetsResponse.getTargets.asScala
           val targetIds = targets.map(_.getId).toList
           val td = targetData(targetIds)
-          td.thenApply { case (depSourcesEither: Either[BspError, DependencySourcesResult], scalacOptionsEither: Either[BspError, ScalacOptionsResult]) =>
+          td.thenApply { data =>
             for {
-              depSources <- depSourcesEither // TODO not required for project, should be warning
-              scalacOptions <- scalacOptionsEither // TODO not required for non-scala modules
+              sources <- data.sources
+              depSources <- data.dependencySources // TODO not required for project, should be warning
+              scalacOptions <- data.scalacOptions // TODO not required for non-scala modules
             } yield {
-              val descriptions = calculateModuleDescription(targets, scalacOptions.getItems.asScala, depSources.getItems.asScala)
+              val descriptions = calculateModuleDescription(
+                targets,
+                scalacOptions.getItems.asScala,
+                sources.getItems.asScala,
+                depSources.getItems.asScala
+              )
               projectNode(descriptions)
             }
           }
         }
 
-      projectNodeFuture.catchBspErrors.thenApply(_.joinRight)
+      projectNodeFuture
     }
 
     def createModuleNode(moduleDescription: ScalaModuleDescription,
                          projectNode: DataNode[ProjectData]) = {
 
+      import ExternalSystemSourceType._
+
       val basePath = moduleDescription.basePath.getCanonicalPath
       val contentRootData = new ContentRootData(BSP.ProjectSystemId, basePath)
       moduleDescription.sourceDirs.foreach { dir =>
-        contentRootData.storePath(ExternalSystemSourceType.SOURCE, dir.getCanonicalPath)
+        val sourceType = if (dir.generated) SOURCE_GENERATED else SOURCE
+        contentRootData.storePath(sourceType, dir.directory.getCanonicalPath)
       }
       moduleDescription.testSourceDirs.foreach { dir =>
-        contentRootData.storePath(ExternalSystemSourceType.TEST, dir.getCanonicalPath)
+        val sourceType = if (dir.generated) TEST_GENERATED else TEST
+        contentRootData.storePath(sourceType, dir.directory.getCanonicalPath)
       }
 
       val primaryTarget = moduleDescription.targets.head
@@ -100,10 +123,10 @@ class BspProjectResolver extends ExternalSystemProjectResolver[BspExecutionSetti
       val moduleData = new ModuleData(moduleId, BSP.ProjectSystemId, StdModuleTypes.JAVA.getId, moduleName, moduleFilesDirectoryPath, projectRootPath)
 
       moduleDescription.output.foreach { outputPath =>
-        moduleData.setCompileOutputPath(ExternalSystemSourceType.SOURCE, outputPath.getCanonicalPath)
+        moduleData.setCompileOutputPath(SOURCE, outputPath.getCanonicalPath)
       }
       moduleDescription.testOutput.foreach { outputPath =>
-        moduleData.setCompileOutputPath(ExternalSystemSourceType.TEST, outputPath.getCanonicalPath)
+        moduleData.setCompileOutputPath(TEST, outputPath.getCanonicalPath)
       }
 
       moduleData.setInheritProjectCompileOutputPath(false)
@@ -213,7 +236,7 @@ class BspProjectResolver extends ExternalSystemProjectResolver[BspExecutionSetti
     }
 
     val projectJob =
-      communication.run(requests(_), notifications )
+      communication.run(requests(_), notifications)
 
     statusUpdate("starting task") // TODO remove in favor of build toolwindow nodes
 
@@ -268,8 +291,8 @@ object BspProjectResolver {
                                             basePath: File,
                                             output: Option[File],
                                             testOutput: Option[File],
-                                            sourceDirs: Seq[File],
-                                            testSourceDirs: Seq[File],
+                                            sourceDirs: Seq[SourceDirectory],
+                                            testSourceDirs: Seq[SourceDirectory],
                                             classPath: Seq[File],
                                             classPathSources: Seq[File],
                                             testClassPath: Seq[File],
@@ -280,6 +303,13 @@ object BspProjectResolver {
   private case class SbtModuleDescription(sbtData: SbtBuildModuleData,
                                           scalaModule: ScalaModuleDescription
                                          ) extends ModuleDescription
+
+  private case class TargetData(sources: Either[BspError, SourcesResult],
+                                dependencySources: Either[BspError, DependencySourcesResult],
+                                scalacOptions: Either[BspError, ScalacOptionsResult] // TODO should be optional
+                               )
+
+  private case class SourceDirectory(directory: File, generated: Boolean)
 
   private sealed abstract class ImportState
   private case class Active(communication: BspCommunication) extends ImportState
@@ -337,13 +367,19 @@ object BspProjectResolver {
     }
   }
 
-  private def calculateModuleDescription(buildTargets: Seq[BuildTarget], optionsItems: Seq[ScalacOptionsItem], sourcesItems: Seq[DependencySourcesItem])
-  : Iterable[ScalaModuleDescription] = {
+  private def calculateModuleDescription(
+    buildTargets: Seq[BuildTarget],
+    optionsItems: Seq[ScalacOptionsItem],
+    sourcesItems: Seq[SourcesItem],
+    dependencySourcesItems: Seq[DependencySourcesItem]
+  ): Iterable[ScalaModuleDescription] = {
+
     val idToTarget = buildTargets.map(t => (t.getId, t)).toMap
     val idToScalaOptions = optionsItems.map(item => (item.getTarget, item)).toMap
-    val idToDepSources = sourcesItems.map(item => (item.getTarget, item)).toMap
+    val idToDepSources = dependencySourcesItems.map(item => (item.getTarget, item)).toMap
+    val idToSources = sourcesItems.map(item => (item.getTarget, item)).toMap
 
-    def transitiveDependencyOutputs(start: BuildTarget) = {
+    def transitiveDependencyOutputs(start: BuildTarget): Seq[File] = {
       val transitiveDeps = (start +: transitiveDependencies(start)).map(_.getId)
       transitiveDeps.flatMap(idToScalaOptions.get).map(_.getClassDirectory.toURI.toFile)
     }
@@ -357,18 +393,39 @@ object BspProjectResolver {
     val moduleDescriptions = buildTargets.flatMap { target: BuildTarget =>
       val id = target.getId
       val scalacOptions = idToScalaOptions.get(id)
-      val sourcesOpt = idToDepSources.get(id)
+      val depSourcesOpt = idToDepSources.get(id)
+      val sourcesOpt = idToSources.get(id)
 
-      val sourcePaths = (for {
+      val sourceItems = (for {
         sources <- sourcesOpt.toSeq
         src <- sources.getSources.asScala
-      } yield src.toURI.toFile).distinct
+      } yield src).distinct
 
-      // TODO dependencySources gives us both project source dirs as well as actual dependency sources currently.
-      // needs to be changed in bsp to allow determining which path is which robustly
-      val sourceDirs = sourcePaths.filter(_.isDirectory)
-      // hacky, but works for now
-      val dependencySources = sourcePaths.filter(_.getName.endsWith("jar"))
+      val depSourcePaths = for {
+        depSources <- depSourcesOpt.toSeq
+        depSrc <- depSources.getSources.asScala
+      } yield depSrc.toURI.toFile
+
+      // TODO bsp spec depends on uri ending in `/` to determine directory
+      // https://github.com/scalacenter/bsp/issues/76
+      val sourceDirs = sourceItems
+        .map { item =>
+          val file = item.getUri.toURI.toFile
+          if (item.getUri.endsWith("/"))
+            SourceDirectory(file, item.getGenerated)
+          else
+            // just use the file's immediate parent as best guess of source dir
+            // IntelliJ project model doesn't have a concept of individual source files
+            SourceDirectory(file.getParentFile, item.getGenerated)
+          }
+        .distinct
+
+      // all subdirectories of a source dir are automatically source dirs
+      val sourceRoots = sourceDirs.filter {dir =>
+        ! sourceDirs.exists(a => FileUtil.isAncestor(a.directory, dir.directory, true))
+      }
+
+      val dependencySources = dependencySourcesItems.flatMap(_.getSources.asScala).map(_.toURI.toFile)
 
       val moduleBase = target.getId.getUri.toURI.toFile
       val outputPath = scalacOptions.map(_.getClassDirectory.toURI.toFile)
@@ -394,7 +451,7 @@ object BspProjectResolver {
             basePath = moduleBase,
             output = outputPath,
             testOutput = None,
-            sourceDirs = sourceDirs,
+            sourceDirs = sourceRoots,
             testSourceDirs = Seq.empty,
             classPath = classPathWithoutDependencyOutputs,
             classPathSources = dependencySources,
