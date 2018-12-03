@@ -11,7 +11,7 @@ import com.intellij.util.ProcessingContext
 import org.jetbrains.plugins.scala.lang.psi.ScalaPsiElement
 import org.jetbrains.plugins.scala.lang.psi.types.result.Typeable
 
-private[clauses] abstract class ClausesCompletionProvider[T <: ScalaPsiElement with Typeable](clazz: Class[T])
+private[clauses] abstract class ClauseCompletionProvider[T <: ScalaPsiElement with Typeable](clazz: Class[T])
   extends CompletionProvider[CompletionParameters] {
 
   override final def addCompletions(parameters: CompletionParameters,
@@ -29,12 +29,12 @@ private[clauses] abstract class ClausesCompletionProvider[T <: ScalaPsiElement w
                                result: CompletionResultSet): Unit
 }
 
-private[clauses] object ClausesCompletionProvider {
+private[clauses] object ClauseCompletionProvider {
 
   implicit class CompletionResultSetExt(private val result: CompletionResultSet) extends AnyVal {
 
     def addElement(lookupString: String,
-                   insertHandler: ClausesInsertHandler[_])
+                   insertHandler: ClauseInsertHandler[_])
                   (itemTextItalic: Boolean = false,
                    tailText: String = null): Unit = {
       val lookupElement = LookupElementBuilder.create(lookupString)
