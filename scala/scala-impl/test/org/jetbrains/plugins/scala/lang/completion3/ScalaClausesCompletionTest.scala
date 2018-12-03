@@ -6,7 +6,6 @@ import com.intellij.codeInsight.completion.CompletionType
 import com.intellij.codeInsight.lookup.{Lookup, LookupElement}
 import com.intellij.testFramework.EditorTestUtil
 import org.jetbrains.plugins.scala.debugger.{ScalaVersion, Scala_2_12}
-import org.jetbrains.plugins.scala.lang.completion.clauses.ExhaustiveMatchCompletionContributor
 
 class ScalaClausesCompletionTest extends ScalaCodeInsightTestBase {
 
@@ -595,7 +594,9 @@ class ScalaClausesCompletionTest extends ScalaCodeInsightTestBase {
     super.doCompletionTest(fileText, resultText, REPLACE_SELECT_CHAR, DEFAULT_TIME, BASIC)(isExhaustiveMatch)
 
   private def isExhaustiveMatch(lookup: LookupElement) = {
-    import ExhaustiveMatchCompletionContributor.{itemText, rendererTailText}
-    hasItemText(lookup, itemText, itemText, tailText = rendererTailText)
+    import completion.ScalaKeyword.MATCH
+    import completion.clauses.ExhaustiveMatchCompletionContributor.rendererTailText
+
+    hasItemText(lookup, MATCH, MATCH, tailText = rendererTailText)
   }
 }
