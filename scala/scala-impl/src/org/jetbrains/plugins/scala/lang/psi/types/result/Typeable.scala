@@ -8,6 +8,8 @@ trait Typeable {
 
 object Typeable {
 
-  def unapply(typeable: Typeable): Option[ScType] = Option(typeable)
-    .flatMap(_.`type`().toOption)
+  def unapply(typeable: Typeable): Option[ScType] = typeable match {
+    case null => None
+    case _ => typeable.`type`().toOption
+  }
 }

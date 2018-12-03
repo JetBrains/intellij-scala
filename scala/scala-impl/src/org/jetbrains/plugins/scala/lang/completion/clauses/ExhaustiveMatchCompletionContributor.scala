@@ -8,7 +8,7 @@ import com.intellij.patterns.PlatformPatterns
 import com.intellij.psi._
 import com.intellij.psi.impl.source.tree.PsiWhiteSpaceImpl
 import org.jetbrains.plugins.scala.extensions._
-import org.jetbrains.plugins.scala.lang.psi.ScalaPsiUtil
+import org.jetbrains.plugins.scala.lang.psi.ScalaPsiUtil.functionArrow
 import org.jetbrains.plugins.scala.lang.psi.api.base.patterns.{ScCaseClause, ScCaseClauses, ScTypedPattern}
 import org.jetbrains.plugins.scala.lang.psi.api.expr._
 import org.jetbrains.plugins.scala.lang.psi.api.statements.ScValue
@@ -18,7 +18,7 @@ import org.jetbrains.plugins.scala.lang.psi.types.api.ExtractClass
 import org.jetbrains.plugins.scala.lang.psi.types.api.designator._
 import org.jetbrains.plugins.scala.lang.resolve.ResolveUtils
 
-class ExhaustiveMatchCompletionContributor extends ScalaCompletionContributor {
+final class ExhaustiveMatchCompletionContributor extends ScalaCompletionContributor {
 
   import ExhaustiveMatchCompletionContributor._
 
@@ -31,19 +31,13 @@ class ExhaustiveMatchCompletionContributor extends ScalaCompletionContributor {
 
       override protected def addCompletions(sugarCall: ScSugarCallExpr,
                                             position: PsiElement,
-                                            result: CompletionResultSet): Unit = sugarCall match {
-        case _: ScPrefixExpr =>
-        case ScSugarCallExpr(operand, operation, _) if operation.isAncestorOf(position) =>
-          operand match {
-            case PatternGenerationStrategy(strategy) =>
-              val lookupElement = createLookupElement(itemText)(tailText = rendererTailText) {
-                createInsertHandler(strategy)(sugarCall)
-              }
-              result.addElement(lookupElement)
-            case _ =>
-          }
-        case _ =>
-      }
+                                            result: CompletionResultSet): Unit =
+        for {
+          ScSugarCallExpr(operand, operation, _) <- Some(sugarCall)
+          if !sugarCall.isInstanceOf[ScPrefixExpr] && operation.isAncestorOf(position)
+
+          PatternGenerationStrategy(strategy) <- operand.`type`().toOption
+        } result.addElement(ScalaKeyword.MATCH, new MatchInsertHandler(strategy)(sugarCall))(tailText = rendererTailText)
     }
   )
 }
@@ -51,10 +45,6 @@ class ExhaustiveMatchCompletionContributor extends ScalaCompletionContributor {
 object ExhaustiveMatchCompletionContributor {
 
   import ScalaKeyword._
-
-  private[lang] val Match = MATCH
-
-  private[lang] def itemText = Match
 
   private[lang] val Exhaustive = "exhaustive"
 
@@ -67,9 +57,9 @@ object ExhaustiveMatchCompletionContributor {
 
   private[lang] object PatternGenerationStrategy {
 
-    def unapply(expression: ScExpression): Option[PatternGenerationStrategy] =
-      expression.`type`().toOption.map { `type` =>
-        `type`.extractDesignatorSingleton.getOrElse(`type`)
+    def unapply(`type`: ScType): Option[PatternGenerationStrategy] =
+      `type`.extractDesignatorSingleton.orElse {
+        Some(`type`)
       }.collect {
         case valueType@ScProjectionType(DesignatorOwner(enumeration@ScalaEnumeration()), _) =>
           new ScalaEnumGenerationStrategy(valueType, enumeration)
@@ -91,11 +81,15 @@ object ExhaustiveMatchCompletionContributor {
 
   }
 
-  private[lang] def statementText(patterns: Seq[PatternComponents])
-                                 (implicit place: PsiElement): String =
-    patterns.map(_.text).map { patternText =>
-      s"$CASE $patternText ${ScalaPsiUtil.functionArrow}"
+  private[lang] def statementComponents(strategy: PatternGenerationStrategy)
+                                       (implicit place: PsiElement): (Seq[PatternComponents], String) = {
+    val components = strategy.patterns
+    val replacement = components.map { component =>
+      s"$CASE ${component.text} $functionArrow"
     }.mkString(s"$MATCH {\n", "\n", "\n}")
+
+    (components, replacement)
+  }
 
   private[lang] def adjustTypesPhase(strategy: PatternGenerationStrategy,
                                      components: Seq[PatternComponents],
@@ -144,15 +138,15 @@ object ExhaustiveMatchCompletionContributor {
       value.`type`().exists(_.conforms(valueType))
   }
 
-  private def createInsertHandler(strategy: PatternGenerationStrategy)
-                                 (implicit sugarCall: ScSugarCallExpr) = new ClausesInsertHandler(classOf[ScMatchStmt]) {
+  private class MatchInsertHandler(strategy: PatternGenerationStrategy)
+                                  (implicit place: PsiElement) extends ClausesInsertHandler(classOf[ScMatchStmt]) {
 
     override protected def handleInsert(implicit insertionContext: InsertionContext): Unit = {
-      val patterns = strategy.patterns
-      ClausesInsertHandler.replaceTextPhase(statementText(patterns))
+      val (components, replacement) = statementComponents(strategy)
+      ClausesInsertHandler.replaceTextPhase(replacement)
 
       val whiteSpace = onTargetElement { statement =>
-        replacePsiPhase(patterns, statement.getCaseClauses)
+        replacePsiPhase(components, statement.getCaseClauses)
       }
 
       moveCaretPhase(whiteSpace.getStartOffset + 1)
@@ -178,4 +172,5 @@ object ExhaustiveMatchCompletionContributor {
       editor.getCaretModel.moveToOffset(offset)
     }
   }
+
 }
