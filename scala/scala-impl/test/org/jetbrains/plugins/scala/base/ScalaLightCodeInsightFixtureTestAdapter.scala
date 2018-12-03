@@ -1,9 +1,12 @@
 package org.jetbrains.plugins.scala
 package base
 
+import com.intellij.application.options.CodeStyle
 import com.intellij.codeInsight.folding.CodeFoldingManager
+import com.intellij.openapi.project.Project
 import com.intellij.openapi.vfs.VfsUtil.saveText
 import com.intellij.psi.PsiFile
+import com.intellij.psi.codeStyle.{CodeStyleSettings, CommonCodeStyleSettings}
 import com.intellij.testFramework.LightPlatformTestCase.getSourceRoot
 import com.intellij.testFramework.fixtures.CodeInsightTestFixture.CARET_MARKER
 import com.intellij.testFramework.fixtures.{CodeInsightTestFixture, LightCodeInsightFixtureTestCase}
@@ -81,6 +84,10 @@ abstract class ScalaLightCodeInsightFixtureTestAdapter
   }
 
   protected def failingTestPassed(): Unit = throw new RuntimeException(failingPassed)
+
+  protected def getCurrentCodeStyleSettings: CodeStyleSettings = CodeStyle.getSettings(getProject)
+
+  protected def getCommonSettings = getCurrentCodeStyleSettings.getCommonSettings(ScalaLanguage.INSTANCE)
 }
 
 object ScalaLightCodeInsightFixtureTestAdapter {

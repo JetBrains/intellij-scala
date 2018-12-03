@@ -16,7 +16,7 @@ import org.junit.Assert
 abstract class ScalaDocEnterActionTestBase extends ScalaLightPlatformCodeInsightTestCaseAdapter {
   override protected def setUp(): Unit = {
     super.setUp()
-    getCurrentCodeStyleSettings(project).getCustomSettings(classOf[ScalaCodeStyleSettings]).USE_SCALADOC2_FORMATTING = false
+    getCurrentCodeStyleSettings.getCustomSettings(classOf[ScalaCodeStyleSettings]).USE_SCALADOC2_FORMATTING = false
   }
 
   protected def checkGeneratedTextFromString(header: String,  footer: String,  assumedStub: String) {

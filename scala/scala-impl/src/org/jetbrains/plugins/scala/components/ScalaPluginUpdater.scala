@@ -236,9 +236,9 @@ object ScalaPluginUpdater {
       } else None
     }
     def isUpToDatePlatform(result: CheckForUpdateResult) = result.getNewBuild.getNumber.compareTo(infoImpl.getBuild) <= 0
-    def isBetaOrEAPPlatform = infoImpl.isEAP || infoImpl.isBetaOrRC
+    def isEAPPlatform = infoImpl.isEAP
     val notification = getPlatformUpdateResult match {
-      case Some(result) if isUpToDatePlatform(result) && !isBetaOrEAPPlatform && appSettings.ASK_PLATFORM_UPDATE => // platform is up to date - suggest eap
+      case Some(result) if isUpToDatePlatform(result) && !isEAPPlatform && appSettings.ASK_PLATFORM_UPDATE => // platform is up to date - suggest eap
         val message = s"Your IDEA is outdated to use with $branch branch.<br/>Would you like to switch IDEA channel to EAP?" +
           s"""<p/><a href="Yes">Yes</a>\n""" +
           s"""<p/><a href="No">Not now</a>""" +
@@ -343,7 +343,7 @@ object ScalaPluginUpdater {
   def askUpdatePluginBranch(): Unit = {
     val infoImpl = ApplicationInfo.getInstance().asInstanceOf[ApplicationInfoImpl]
     val applicationSettings = ScalaApplicationSettings.getInstance()
-    if ((infoImpl.isEAP || infoImpl.isBetaOrRC)
+    if (infoImpl.isEAP
       && applicationSettings.ASK_USE_LATEST_PLUGIN_BUILDS
       && ScalaPluginUpdater.pluginIsRelease) {
       val message =

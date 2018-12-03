@@ -2,6 +2,7 @@ package org.jetbrains.plugins.scala.lang.refactoring.mock
 
 import java.util
 
+import com.intellij.openapi.Disposable
 import com.intellij.openapi.editor._
 import com.intellij.openapi.editor.event.CaretListener
 import com.intellij.openapi.editor.markup.TextAttributes
@@ -70,4 +71,6 @@ class CaretModelStub extends CaretModel {
   override def runForEachCaret(action: CaretAction, reverseOrder: Boolean): Unit = ???
 
   override def addCaret(visualPosition: VisualPosition, b: Boolean): Caret = ???
+
+  override def addCaretActionListener(listener: CaretActionListener, disposable: Disposable): Unit = ???
 }

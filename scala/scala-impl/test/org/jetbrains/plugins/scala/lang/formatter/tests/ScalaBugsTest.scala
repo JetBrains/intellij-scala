@@ -694,7 +694,7 @@ bars foreach {case (x, y) => list.add(x + y)}
   }
 
   def testSCL6702() {
-    getCurrentCodeStyleSettings(LightPlatformTestCase.getProject).FORMATTER_TAGS_ENABLED = true
+    getCurrentCodeStyleSettings.FORMATTER_TAGS_ENABLED = true
     val before =
     """
       |//@formatter:off

@@ -29,11 +29,11 @@ abstract class ScalaCompleteStatementTestBase extends ScalaLightCodeInsightFixtu
 
     //We should change this setting in order to be sure EnterProcessor works without 'swap-settings-hack'
     //it was in org.jetbrains.plugins.scala.editor.smartEnter.ScalaSmartEnterProcessor#moveCaretInsideBracesIfAny
-    getCurrentCodeStyleSettings(project).KEEP_SIMPLE_BLOCKS_IN_ONE_LINE = true
+    getCommonSettings.KEEP_SIMPLE_BLOCKS_IN_ONE_LINE = true
   }
 
   override def tearDown(): Unit = {
-    getCurrentCodeStyleSettings(project).KEEP_SIMPLE_BLOCKS_IN_ONE_LINE = false
+    getCommonSettings.KEEP_SIMPLE_BLOCKS_IN_ONE_LINE = false
 
     super.tearDown()
   }
