@@ -103,7 +103,6 @@ class FailedScalacTests extends FailedScalacTestsBase {
   def test_t1279a(): Unit = doTest()
   def test_t1803(): Unit = doTest()
   def test_t1957(): Unit = doTest()
-  def `test_t2712-5`(): Unit = doTest()
   def test_t3177(): Unit = doTest()
   def test_t3866(): Unit = doTest()
   def test_t3880(): Unit = doTest()
