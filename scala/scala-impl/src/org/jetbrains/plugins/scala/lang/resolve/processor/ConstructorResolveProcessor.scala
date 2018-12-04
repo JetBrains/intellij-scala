@@ -62,7 +62,7 @@ class ConstructorResolveProcessor(constr: PsiElement, refName: String, args: Lis
             _.extractClassType
           } flatMap {
             case (clazz, substitutor) =>
-              constructors(clazz, defaultSubstitutor.followed(substitutor))
+              constructors(clazz, substitutor.followed(defaultSubstitutor))
           }
 
           orDefault(result)
