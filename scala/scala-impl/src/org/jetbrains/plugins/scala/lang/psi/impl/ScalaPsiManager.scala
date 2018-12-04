@@ -30,10 +30,10 @@ import org.jetbrains.plugins.scala.lang.psi.api.toplevel.ScPackaging
 import org.jetbrains.plugins.scala.lang.psi.api.toplevel.typedef.{ScObject, ScTemplateDefinition, ScTypeDefinition}
 import org.jetbrains.plugins.scala.lang.psi.impl.toplevel.synthetic.ScSyntheticPackage
 import org.jetbrains.plugins.scala.lang.psi.impl.toplevel.typedef.MixinNodes
-import org.jetbrains.plugins.scala.lang.psi.impl.toplevel.typedef.TypeDefinitionMembers.ParameterlessNodes.{Map => PMap}
+import org.jetbrains.plugins.scala.lang.psi.impl.toplevel.typedef.TypeDefinitionMembers.StableNodes.{Map => PMap}
 import org.jetbrains.plugins.scala.lang.psi.impl.toplevel.typedef.TypeDefinitionMembers.SignatureNodes.{Map => SMap}
 import org.jetbrains.plugins.scala.lang.psi.impl.toplevel.typedef.TypeDefinitionMembers.TypeNodes.{Map => TMap}
-import org.jetbrains.plugins.scala.lang.psi.impl.toplevel.typedef.TypeDefinitionMembers.{ParameterlessNodes, SignatureNodes, TypeNodes}
+import org.jetbrains.plugins.scala.lang.psi.impl.toplevel.typedef.TypeDefinitionMembers.{StableNodes, SignatureNodes, TypeNodes}
 import org.jetbrains.plugins.scala.lang.psi.implicits.ImplicitCollectorCache
 import org.jetbrains.plugins.scala.lang.psi.light.PsiClassWrapper
 import org.jetbrains.plugins.scala.lang.psi.stubs.index.ScalaIndexKeys
@@ -70,14 +70,14 @@ class ScalaPsiManager(val project: Project) {
 
   private def dontCacheCompound = ScalaProjectSettings.getInstance(project).isDontCacheCompoundTypes
 
-  def getParameterlessSignatures(tp: ScCompoundType, compoundTypeThisType: Option[ScType]): PMap = {
-    if (dontCacheCompound) ParameterlessNodes.build(tp, compoundTypeThisType)
-    else getParameterlessSignaturesCached(tp, compoundTypeThisType)
+  def getStableSignatures(tp: ScCompoundType, compoundTypeThisType: Option[ScType]): PMap = {
+    if (dontCacheCompound) StableNodes.build(tp, compoundTypeThisType)
+    else getStableSignaturesCached(tp, compoundTypeThisType)
   }
 
   @CachedWithoutModificationCount(synchronized = false, valueWrapper = ValueWrapper.SofterReference, clearCacheOnChange)
-  private def getParameterlessSignaturesCached(tp: ScCompoundType, compoundTypeThisType: Option[ScType]): PMap = {
-    ParameterlessNodes.build(tp, compoundTypeThisType)
+  private def getStableSignaturesCached(tp: ScCompoundType, compoundTypeThisType: Option[ScType]): PMap = {
+    StableNodes.build(tp, compoundTypeThisType)
   }
 
   def getTypes(tp: ScCompoundType, compoundTypeThisType: Option[ScType]): TMap = {
@@ -359,7 +359,7 @@ class ScalaPsiManager(val project: Project) {
   }
 
   object SignatureNodesCache     extends SignatureCaches(SignatureNodes)
-  object ParameterlessNodesCache extends SignatureCaches(ParameterlessNodes)
+  object StableNodesCache        extends SignatureCaches(StableNodes)
   object TypeNodesCache          extends SignatureCaches(TypeNodes)
 
   object CacheInvalidator extends PsiTreeChangeAdapter {

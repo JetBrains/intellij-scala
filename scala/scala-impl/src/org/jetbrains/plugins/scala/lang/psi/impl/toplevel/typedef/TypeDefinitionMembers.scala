@@ -67,8 +67,8 @@ object TypeDefinitionMembers {
 
   object SignatureNodes extends SignatureNodes
 
-  //we need to have separate map for stable elements to avoid recursion when resolving references in imports
-  object ParameterlessNodes extends SignatureNodes {
+  //we need to have separate map for stable elements to avoid recursion processing declarations from imports
+  object StableNodes extends SignatureNodes {
 
     override def shouldSkip(t: Signature): Boolean = !isStable(t.namedElement) || super.shouldSkip(t)
 
@@ -215,16 +215,16 @@ object TypeDefinitionMembers {
     }
   }
 
-  import org.jetbrains.plugins.scala.lang.psi.impl.toplevel.typedef.TypeDefinitionMembers.ParameterlessNodes.{Map => PMap}
+  import org.jetbrains.plugins.scala.lang.psi.impl.toplevel.typedef.TypeDefinitionMembers.StableNodes.{Map => PMap}
   import org.jetbrains.plugins.scala.lang.psi.impl.toplevel.typedef.TypeDefinitionMembers.SignatureNodes.{Map => SMap}
   import org.jetbrains.plugins.scala.lang.psi.impl.toplevel.typedef.TypeDefinitionMembers.TypeNodes.{Map => TMap}
 
   def getSignatures(clazz: PsiClass): SMap              = ScalaPsiManager.instance(clazz).SignatureNodesCache.cachedMap(clazz)
-  def getParameterlessSignatures(clazz: PsiClass): PMap = ScalaPsiManager.instance(clazz).ParameterlessNodesCache.cachedMap(clazz)
+  def getStableSignatures(clazz: PsiClass): PMap = ScalaPsiManager.instance(clazz).StableNodesCache.cachedMap(clazz)
   def getTypes(clazz: PsiClass): TMap                   = ScalaPsiManager.instance(clazz).TypeNodesCache.cachedMap(clazz)
 
   def getStableSignatures(tp: ScCompoundType, compoundTypeThisType: Option[ScType]): PMap = {
-    ScalaPsiManager.instance(tp.projectContext).getParameterlessSignatures(tp, compoundTypeThisType)
+    ScalaPsiManager.instance(tp.projectContext).getStableSignatures(tp, compoundTypeThisType)
   }
 
   def getTypes(tp: ScCompoundType, compoundTypeThisType: Option[ScType]): TMap = {
@@ -338,7 +338,7 @@ object TypeDefinitionMembers {
 
       override def signatures: MixinNodes.Map[Signature] = getSignatures(c)
 
-      override def stable: MixinNodes.Map[Signature] = getParameterlessSignatures(c)
+      override def stable: MixinNodes.Map[Signature] = getStableSignatures(c)
 
       override def types: MixinNodes.Map[PsiNamedElement] = getTypes(c)
 
