@@ -107,93 +107,24 @@ object TypeDefinitionMembers {
       }
 
       if (template.qualifiedName == "scala.AnyVal") {
-        //we need to add Object members
-        val javaObject = ScalaPsiManager.instance.getCachedClass(template.resolveScope, "java.lang.Object")
-
-        for (obj <- javaObject; method <- obj.getMethods) {
-          method.getName match {
-            case "equals" | "hashCode" | "toString" =>
-              addSignature(new PhysicalSignature(method, ScSubstitutor.empty))
-            case _ =>
-          }
-        }
+        addAnyValObjectMethods(template, addSignature)
       }
 
       for (member <- template.members) {
         member match {
-          case _var: ScVariable =>
-            for (dcl <- _var.declaredElements) {
-              lazy val t = dcl.`type`().getOrAny
-              addSignature(Signature(dcl, subst))
-              addSignature(Signature.setter(dcl, subst))
-              dcl.nameContext match {
-                case s: ScAnnotationsHolder =>
-                  val beanProperty = ScalaPsiUtil.isBeanProperty(s, noResolve = true)
-                  val booleanBeanProperty = ScalaPsiUtil.isBooleanBeanProperty(s, noResolve = true)
-                  if (beanProperty) {
-                    addSignature(Signature.withoutParams("get" + dcl.name.capitalize, subst, dcl))
-                  } else if (booleanBeanProperty) {
-                    addSignature(Signature.withoutParams("is" + dcl.name.capitalize, subst, dcl))
-                  }
-                  if (beanProperty || booleanBeanProperty) {
-                    addSignature(Signature("set" + dcl.name.capitalize, Seq(() => t), subst, dcl))
-                  }
-                case _ =>
-              }
-            }
-          case _val: ScValue =>
-            for (dcl <- _val.declaredElements) {
-              addSignature(Signature(dcl, subst))
-              dcl.nameContext match {
-                case s: ScAnnotationsHolder =>
-                  val beanProperty = ScalaPsiUtil.isBeanProperty(s, noResolve = true)
-                  val booleanBeanProperty = ScalaPsiUtil.isBooleanBeanProperty(s, noResolve = true)
-                  if (beanProperty) {
-                    addSignature(Signature.withoutParams("get" + dcl.name.capitalize, subst, dcl))
-                  } else if (booleanBeanProperty) {
-                    addSignature(Signature.withoutParams("is" + dcl.name.capitalize, subst, dcl))
-                  }
-                case _ =>
-              }
-            }
+          case v: ScValueOrVariable =>
+            v.declaredElements
+              .foreach(addPropertySignatures(_, subst, addSignature))
           case constr: ScPrimaryConstructor =>
-            val parameters = constr.parameters
-            for (param <- parameters) {
-              lazy val t = param.`type`().getOrAny
-              addSignature(Signature(param, subst))
-              if (!param.isStable) addSignature(Signature(param.name + "_=", Seq(() => t), subst, param))
-              val beanProperty = ScalaPsiUtil.isBeanProperty(param, noResolve = true)
-              val booleanBeanProperty = ScalaPsiUtil.isBooleanBeanProperty(param, noResolve = true)
-              if (beanProperty) {
-                addSignature(Signature.withoutParams("get" + param.name.capitalize, subst, param))
-                if (!param.isStable) {
-                  addSignature(Signature("set" + param.name.capitalize, Seq(() => t), subst, param))
-                }
-              } else if (booleanBeanProperty) {
-                addSignature(Signature.withoutParams("is" + param.name.capitalize, subst, param))
-                if (!param.isStable) {
-                  addSignature(Signature("set" + param.name.capitalize, Seq(() => t), subst, param))
-                }
-              }
-            }
+            constr.parameters
+              .foreach(addPropertySignatures(_, subst, addSignature))
           case f: ScFunction =>
             addSignature(new PhysicalSignature(f, subst))
           case o: ScObject =>
             addSignature(Signature(o, subst))
           case c: ScTypeDefinition =>
-            if (c.fakeCompanionModule.isDefined) {
-              val o = c.fakeCompanionModule.get
-              addSignature(Signature(o, subst))
-            }
-            c match {
-              case c: ScClass if c.hasModifierProperty("implicit") =>
-                c.getSyntheticImplicitMethod match {
-                  case Some(impl) =>
-                    addSignature(new PhysicalSignature(impl, subst))
-                  case _ =>
-                }
-              case _ =>
-            }
+            syntheticSignaturesFromInnerClass(c, subst)
+              .foreach(addSignature)
           case _ =>
         }
       }
@@ -203,6 +134,59 @@ object TypeDefinitionMembers {
       for ((sign, _) <- cp.signatureMap) {
         addToMap(sign, new Node(sign, sign.substitutor), map)
       }
+    }
+
+    private def addAnyValObjectMethods(template: ScTemplateDefinition, addSignature: Signature => Unit): Unit = {
+      //some methods of java.lang.Object are available for value classes
+      val javaObject = ScalaPsiManager.instance(template.projectContext)
+        .getCachedClass(template.resolveScope, "java.lang.Object")
+
+      for (obj <- javaObject; method <- obj.getMethods) {
+        method.getName match {
+          case "equals" | "hashCode" | "toString" =>
+            addSignature(new PhysicalSignature(method, ScSubstitutor.empty))
+          case _ =>
+        }
+      }
+    }
+
+    /**
+      * @param named is class parameter, or part of ScValue or ScVariable
+      * */
+    private def addPropertySignatures(named: ScTypedDefinition, subst: ScSubstitutor, addSignature: Signature => Unit): Unit = {
+      addSignature(Signature(named, subst))
+      if (named.isVar) {
+        addSignature(Signature.setter(named, subst))
+      }
+      named.nameContext match {
+        case s: ScAnnotationsHolder =>
+          val beanProperty = ScalaPsiUtil.isBeanProperty(s, noResolve = true)
+          val booleanBeanProperty = ScalaPsiUtil.isBooleanBeanProperty(s, noResolve = true)
+          if (beanProperty || booleanBeanProperty) {
+            val capitalizedName = named.name.capitalize
+            if (beanProperty) {
+              addSignature(Signature.withoutParams("get" + capitalizedName, subst, named))
+            } else {
+              addSignature(Signature.withoutParams("is" + capitalizedName, subst, named))
+            }
+            if (named.isVar) {
+              addSignature(Signature("set" + capitalizedName, Seq(() => named.`type`().getOrAny), subst, named))
+            }
+          }
+        case _ =>
+      }
+    }
+
+    private def syntheticSignaturesFromInnerClass(td: ScTypeDefinition, subst: ScSubstitutor): Seq[Signature] = {
+      val companionSig = td.fakeCompanionModule.map(Signature(_, subst))
+
+      val implicitClassFun = td match {
+        case c: ScClass if c.hasModifierProperty("implicit") =>
+          c.getSyntheticImplicitMethod.map(new PhysicalSignature(_, subst))
+        case _ => None
+      }
+
+      companionSig.toList ::: implicitClassFun.toList
     }
 
     def forAllSignatureNodes(c: PsiClass)(action: Node => Unit): Unit = {
