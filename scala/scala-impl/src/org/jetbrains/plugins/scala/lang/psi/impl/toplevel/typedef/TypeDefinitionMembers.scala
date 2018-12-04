@@ -225,38 +225,6 @@ object TypeDefinitionMembers {
   def getParameterlessSignatures(clazz: PsiClass): PMap = ScalaPsiManager.instance(clazz).ParameterlessNodesCache.cachedMap(clazz)
   def getTypes(clazz: PsiClass): TMap                   = ScalaPsiManager.instance(clazz).TypeNodesCache.cachedMap(clazz)
 
-  def getSignatures(clazz: PsiClass, place: Option[PsiElement] = None): SMap = {
-    val ans = getSignatures(clazz)
-    place.foreach {
-      case _: ScInterpolatedPrefixReference =>
-        val allowedNames = ans.publicNames
-        val eb = clazz match {
-          case td: ScTemplateDefinition => Some(td.extendsBlock)
-          case _ => clazz.getChildren.collectFirst({case e: ScExtendsBlock => e})
-        }
-        eb.foreach { n =>
-          val children = n.getFirstChild.getChildren
-          for (c <- children) {
-            c match {
-              case o: ScObject =>
-                if (allowedNames.contains(o.name)) {
-                  val add = getSignatures(o)
-                  ans.addPublicsFrom(add)
-                }
-              case c: ScClass =>
-                if (allowedNames.contains(c.name)) {
-                  val add = getSignatures(c)
-                  ans.addPublicsFrom(add)
-                }
-              case _ =>
-            }
-          }
-        }
-      case _ =>
-    }
-    ans
-  }
-
   def getParameterlessSignatures(tp: ScCompoundType, compoundTypeThisType: Option[ScType], place: PsiElement): PMap = {
     ScalaPsiManager.instance(place.getProject).getParameterlessSignatures(tp, compoundTypeThisType)
   }
@@ -319,7 +287,7 @@ object TypeDefinitionMembers {
     if (BaseProcessor.isImplicitProcessor(processor) && !clazz.isInstanceOf[ScTemplateDefinition]) return true
 
     if (!privateProcessDeclarations(processor, state, lastParent, place,
-      () => getSignatures(clazz, Option(place)),
+      () => getSignatures(clazz),
       () => getParameterlessSignatures(clazz),
       () => getTypes(clazz),
       isSupers = false,
