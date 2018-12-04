@@ -6,7 +6,7 @@ import java.lang.{Boolean => JBoolean}
 
 import com.intellij.codeInsight.daemon.impl.HintRenderer
 import com.intellij.codeInsight.hints.{ElementProcessingHintPass, InlayInfo, ModificationStampHolder}
-import com.intellij.openapi.editor.Editor
+import com.intellij.openapi.editor.{Editor, EditorCustomElementRenderer, Inlay}
 import com.intellij.openapi.util.Key
 import com.intellij.openapi.vfs.VirtualFile
 import com.intellij.psi.{PsiClass, PsiElement}
@@ -46,7 +46,7 @@ class ScalaTypeHintsPass(rootElement: ScalaFile,
   override def getHintKey: Key[JBoolean] = ScalaTypeInlayKey
 
   override def createRenderer(text: String): HintRenderer = new HintRenderer(text) {
-    override def getContextMenuGroupId: String = "TypeHintsMenu"
+    override def getContextMenuGroupId(inlay: Inlay[_ <: EditorCustomElementRenderer]): String = "TypeHintsMenu"
   }
 }
 

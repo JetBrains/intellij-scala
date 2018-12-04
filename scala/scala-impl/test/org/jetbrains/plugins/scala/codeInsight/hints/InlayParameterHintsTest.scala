@@ -233,6 +233,20 @@ class InlayParameterHintsTest extends InlayHintsTestBase {
     option = referenceParameterNames
   )
 
-  private def doTest(text: String, option: Option): Unit =
-    super.doTest(text, option.set)
+  private def doTest(text: String, option: Option = null): Unit = {
+    def setOption(default: Boolean): Unit = option match {
+      case null =>
+      case _ =>
+        val defaultValue = option.getDefaultValue
+        option.set(if (default) defaultValue else !defaultValue)
+    }
+
+    try {
+      setOption(false)
+      configureFromFileText(text)
+      getFixture.testInlays()
+    } finally {
+      setOption(true)
+    }
+  }
 }
