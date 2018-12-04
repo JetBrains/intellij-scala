@@ -2,28 +2,19 @@ package org.jetbrains.plugins.scala
 package codeInsight
 package hints
 
-import org.jetbrains.plugins.scala.base.ScalaLightCodeInsightFixtureTestAdapter
+abstract class InlayHintsTestBase extends base.ScalaLightCodeInsightFixtureTestAdapter {
 
-abstract class InlayHintsTestBase extends ScalaLightCodeInsightFixtureTestAdapter {
-
-  protected def doTest(text: String, setOption: Boolean => Unit = _ => ()): Unit = {
-    setOption(true)
-    try {
-      configureFromFileText(
-        s"""class Foo {
-           |$text
-           |}
-           |
-           |new Foo""".stripMargin
-      )
-      getFixture.testInlays()
-    } finally {
-      setOption(false)
-    }
-  }
+  override protected final def configureFromFileText(fileText: String) =
+    super.configureFromFileText(
+      s"""class Foo {
+         |$fileText
+         |}
+         |
+         |new Foo""".stripMargin
+    )
 }
 
-object InlayHintsTestBase {
+private[hints] object InlayHintsTestBase {
 
   val HintStart = "<hint text=\""
   val HintEnd = "\"/>"
