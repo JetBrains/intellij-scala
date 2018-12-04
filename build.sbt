@@ -88,7 +88,11 @@ lazy val scalaImpl: sbt.Project =
         BuildInfoKey.constant("sbtLatest_0_12", Versions.Sbt.latest_0_12),
         BuildInfoKey.constant("sbtLatest_0_13", Versions.Sbt.latest_0_13),
         BuildInfoKey.constant("sbtLatest_1_0", Versions.Sbt.latest_1_0),
-        BuildInfoKey.constant("sbtLatestVersion", Versions.sbtVersion)
+        BuildInfoKey.constant("sbtLatestVersion", Versions.sbtVersion),
+        BuildInfoKey.constant("sbtStructurePath_0_13",
+          LocalRepoPackager.relativeJarPath013("sbt-structure-extractor", Versions.sbtStructureVersion)),
+        BuildInfoKey.constant("sbtStructurePath_1_0",
+          LocalRepoPackager.relativeJarPath1("sbt-structure-extractor", Versions.sbtStructureVersion))
       )
     )
 
@@ -252,9 +256,7 @@ lazy val sbtRuntimeDependencies =
         Dependencies.zincInterface -> Some("lib/jps/compiler-interface.jar"),
         Dependencies.compilerBridgeSources_2_13 -> Some("lib/jps/compiler-interface-sources-2.13.jar"),
         Dependencies.compilerBridgeSources_2_11 -> Some("lib/jps/compiler-interface-sources-2.11.jar"),
-        Dependencies.compilerBridgeSources_2_10 -> Some("lib/jps/compiler-interface-sources-2.10.jar"),
-        Dependencies.sbtStructureExtractor_100 -> Some("launcher/sbt-structure-1.0.jar"),
-        Dependencies.sbtStructureExtractor_013 -> Some("launcher/sbt-structure-0.13.jar")
+        Dependencies.compilerBridgeSources_2_10 -> Some("lib/jps/compiler-interface-sources-2.10.jar")
       ),
       update := {
         LocalRepoPackager.localPluginRepo(target.value / "repo", localRepoPaths)

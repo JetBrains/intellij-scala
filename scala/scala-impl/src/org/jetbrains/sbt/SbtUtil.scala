@@ -14,9 +14,11 @@ import com.intellij.openapi.externalSystem.util.ExternalSystemApiUtil
 import com.intellij.openapi.module.Module
 import com.intellij.openapi.project.Project
 import com.intellij.util.BooleanFunction
+import org.jetbrains.plugins.scala.buildinfo.BuildInfo
 import org.jetbrains.plugins.scala.project.Version
 import org.jetbrains.sbt.project.SbtProjectSystem
 import org.jetbrains.sbt.project.data.SbtModuleData
+
 import scala.collection.JavaConverters._
 /**
   * Created by jast on 2017-02-20.
@@ -201,14 +203,21 @@ object SbtUtil {
     s"{$uri}$id"
   }
 
-  def getSbtLauncherDir: File = {
-    val res = pluginBase / "launcher"
-    if (!res.exists() && isInTest) {
-      val start = jarWith[this.type].parent
-      start.flatMap(findLauncherDir)
-        .getOrElse(throw new RuntimeException(s"could not find sbt launcher dir at or above ${start.get}"))
+  def getSbtLauncherDir: File =
+    getDirInPlugin("launcher")
+
+  def getSbtStructureJar(sbtVersion: Version): Option[File] = {
+    val binVersion = binaryVersion(sbtVersion)
+    val structurePath =
+      if (binVersion ~= Version("0.13"))
+        Some(BuildInfo.sbtStructurePath_0_13)
+      else if (binVersion ~= Version("1.0"))
+        Some(BuildInfo.sbtStructurePath_1_0)
+      else None
+
+    structurePath.map { relativePath =>
+      getDirInPlugin("repo") / relativePath
     }
-    else res
   }
 
   /** The bundled ivy repo for plugins used by sbt shell.
@@ -239,10 +248,20 @@ object SbtUtil {
     file << deep
   }
 
-  private def findLauncherDir(from: File): Option[File] = {
-    val launcherDir = from / "target" / "plugin" / "Scala" / "launcher"
-    if (launcherDir.exists) Option(launcherDir)
-    else from.parent.flatMap(findLauncherDir)
+  private def getDirInPlugin(dirName: String): File = {
+    val res = pluginBase / dirName
+    if (!res.exists() && isInTest) {
+      val start = jarWith[this.type].parent
+      start.flatMap(findDirInPlugin(_, dirName))
+        .getOrElse(throw new RuntimeException(s"could not find dir $dirName at or above ${start.get}"))
+    }
+    else res
+  }
+
+  private def findDirInPlugin(from: File, dirName: String): Option[File] = {
+    val dir = from / "target" / "plugin" / "Scala" / dirName
+    if (dir.isDirectory) Option(dir)
+    else from.parent.flatMap(findDirInPlugin(_, dirName))
   }
 
   private def isInTest: Boolean = ApplicationManager.getApplication.isUnitTestMode
