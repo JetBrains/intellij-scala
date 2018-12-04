@@ -81,15 +81,16 @@ class LibExtensionsSettingsPanelWrapper(private val rootPanel: JPanel,
       val jar = FileChooser.chooseFile(
         new FileChooserDescriptor(false, false, true, true, false, false),
         project, null)
-      try {
-        libraryExtensionsManager.addExtension(new File(jar.getCanonicalPath))
-        librariesList.setModel(new LibraryListModel(detailsModel))
-      } catch {
-        case ex: ExtensionException =>
-          Messages.showErrorDialog(ex.getMessage, "Failed to load extension JAR")
-        case ex: Exception =>
-          Messages.showErrorDialog(ex.toString, "Failed to load extension JAR")
-      }
+      if (jar != null)
+        try {
+          libraryExtensionsManager.addExtension(new File(jar.getCanonicalPath))
+          librariesList.setModel(new LibraryListModel(detailsModel))
+        } catch {
+          case ex: ExtensionException =>
+            Messages.showErrorDialog(ex.getMessage, "Failed to load extension JAR")
+          case ex: Exception =>
+            Messages.showErrorDialog(ex.toString, "Failed to load extension JAR")
+        }
     }
 
     librariesList.setEmptyText("No known extension libraries")
