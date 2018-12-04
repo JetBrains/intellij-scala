@@ -201,7 +201,7 @@ trait ScTemplateDefinition extends ScNamedElement with PsiClassAdapter with Type
         val clazzType = getTypeWithProjections().getOrAny
         selfType.glb(clazzType) match {
           case c: ScCompoundType =>
-            TypeDefinitionMembers.getTypes(c, Some(clazzType), this).allFirstSeq().
+            TypeDefinitionMembers.getTypes(c, Some(clazzType)).allFirstSeq().
               flatMap(_.map { case (_, n) => (n.info, n.substitutor) })
           case _ =>
             allTypeAliases
@@ -233,7 +233,7 @@ trait ScTemplateDefinition extends ScNamedElement with PsiClassAdapter with Type
         val clazzType = getTypeWithProjections().getOrAny
         selfType.glb(clazzType) match {
           case c: ScCompoundType =>
-            TypeDefinitionMembers.getSignatures(c, Some(clazzType), this).allFirstSeq().flatMap(n => n.filter{
+            TypeDefinitionMembers.getSignatures(c, Some(clazzType)).allFirstSeq().flatMap(n => n.filter{
               case (_, x) => !x.info.isInstanceOf[PhysicalSignature] &&
                 (x.info.namedElement match {
                   case v =>
@@ -262,7 +262,7 @@ trait ScTemplateDefinition extends ScNamedElement with PsiClassAdapter with Type
         val clazzType = getTypeWithProjections().getOrAny
         selfType.glb(clazzType) match {
           case c: ScCompoundType =>
-            TypeDefinitionMembers.getSignatures(c, Some(clazzType), this).allFirstSeq().flatMap(_.filter {
+            TypeDefinitionMembers.getSignatures(c, Some(clazzType)).allFirstSeq().flatMap(_.filter {
               case (_, n) => n.info.isInstanceOf[PhysicalSignature]}).
               map { case (_, n) => n.info.asInstanceOf[PhysicalSignature] }
           case _ =>
@@ -282,7 +282,7 @@ trait ScTemplateDefinition extends ScNamedElement with PsiClassAdapter with Type
         val clazzType = getTypeWithProjections().getOrAny
         selfType.glb(clazzType) match {
           case c: ScCompoundType =>
-            TypeDefinitionMembers.getSignatures(c, Some(clazzType), this).allFirstSeq().
+            TypeDefinitionMembers.getSignatures(c, Some(clazzType)).allFirstSeq().
               flatMap(_.map { case (_, n) => n.info })
           case _ =>
             allSignatures

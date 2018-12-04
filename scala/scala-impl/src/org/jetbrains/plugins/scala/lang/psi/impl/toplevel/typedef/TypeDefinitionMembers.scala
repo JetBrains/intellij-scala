@@ -14,10 +14,8 @@ import org.jetbrains.plugins.scala.extensions._
 import org.jetbrains.plugins.scala.lang.psi.api.base.ScPrimaryConstructor
 import org.jetbrains.plugins.scala.lang.psi.api.statements._
 import org.jetbrains.plugins.scala.lang.psi.api.statements.params.ScClassParameter
-import org.jetbrains.plugins.scala.lang.psi.api.toplevel.templates.ScExtendsBlock
 import org.jetbrains.plugins.scala.lang.psi.api.toplevel.typedef._
 import org.jetbrains.plugins.scala.lang.psi.api.toplevel.{ScNamedElement, ScTypedDefinition}
-import org.jetbrains.plugins.scala.lang.psi.impl.expr.ScInterpolatedPrefixReference
 import org.jetbrains.plugins.scala.lang.psi.impl.toplevel.typedef.MixinNodes.AllNodes
 import org.jetbrains.plugins.scala.lang.psi.types._
 import org.jetbrains.plugins.scala.lang.psi.types.api.StdType
@@ -225,16 +223,16 @@ object TypeDefinitionMembers {
   def getParameterlessSignatures(clazz: PsiClass): PMap = ScalaPsiManager.instance(clazz).ParameterlessNodesCache.cachedMap(clazz)
   def getTypes(clazz: PsiClass): TMap                   = ScalaPsiManager.instance(clazz).TypeNodesCache.cachedMap(clazz)
 
-  def getParameterlessSignatures(tp: ScCompoundType, compoundTypeThisType: Option[ScType], place: PsiElement): PMap = {
-    ScalaPsiManager.instance(place.getProject).getParameterlessSignatures(tp, compoundTypeThisType)
+  def getStableSignatures(tp: ScCompoundType, compoundTypeThisType: Option[ScType]): PMap = {
+    ScalaPsiManager.instance(tp.projectContext).getParameterlessSignatures(tp, compoundTypeThisType)
   }
 
-  def getTypes(tp: ScCompoundType, compoundTypeThisType: Option[ScType], place: PsiElement): TMap = {
-    ScalaPsiManager.instance(place.getProject).getTypes(tp, compoundTypeThisType)
+  def getTypes(tp: ScCompoundType, compoundTypeThisType: Option[ScType]): TMap = {
+    ScalaPsiManager.instance(tp.projectContext).getTypes(tp, compoundTypeThisType)
   }
 
-  def getSignatures(tp: ScCompoundType, compoundTypeThisType: Option[ScType], place: PsiElement): SMap = {
-    ScalaPsiManager.instance(place.getProject).getSignatures(tp, compoundTypeThisType)
+  def getSignatures(tp: ScCompoundType, compoundTypeThisType: Option[ScType]): SMap = {
+    ScalaPsiManager.instance(tp.projectContext).getSignatures(tp, compoundTypeThisType)
   }
 
   def getSelfTypeSignatures(clazz: PsiClass): SMap = {
@@ -246,7 +244,7 @@ object TypeDefinitionMembers {
             val clazzType = td.getTypeWithProjections().getOrAny
             selfType.glb(clazzType) match {
               case c: ScCompoundType =>
-                getSignatures(c, Some(clazzType), clazz)
+                getSignatures(c, Some(clazzType))
               case tp =>
                 val cl = tp.extractClass.getOrElse(clazz)
                 getSignatures(cl)
@@ -266,7 +264,7 @@ object TypeDefinitionMembers {
             val clazzType = td.getTypeWithProjections().getOrAny
             selfType.glb(clazzType) match {
               case c: ScCompoundType =>
-                getTypes(c, Some(clazzType), clazz)
+                getTypes(c, Some(clazzType))
               case tp =>
                 val cl = tp.extractClass.getOrElse(clazz)
                 getTypes(cl)
@@ -286,12 +284,7 @@ object TypeDefinitionMembers {
                           place: PsiElement): Boolean = {
     if (BaseProcessor.isImplicitProcessor(processor) && !clazz.isInstanceOf[ScTemplateDefinition]) return true
 
-    if (!privateProcessDeclarations(processor, state, lastParent, place,
-      () => getSignatures(clazz),
-      () => getParameterlessSignatures(clazz),
-      () => getTypes(clazz),
-      isSupers = false,
-      signaturesForJava = () => signaturesForJava(clazz, processor))) return false
+    if (!privateProcessDeclarations(processor, state, lastParent, place, AllSignatures(clazz))) return false
 
     if (!processSyntheticAnyRefAndAny(processor, state, lastParent, place)) return false
 
@@ -304,11 +297,8 @@ object TypeDefinitionMembers {
                                state: ResolveState,
                                lastParent: PsiElement,
                                place: PsiElement): Boolean = {
-    if (!privateProcessDeclarations(processor, state, lastParent, place,
-      () => getSignatures(td),
-      () => getParameterlessSignatures(td),
-      () => getTypes(td),
-      isSupers = true)) return false
+
+    if (!privateProcessDeclarations(processor, state, lastParent, place, AllSignatures(td), isSupers = true)) return false
 
     if (!processSyntheticAnyRefAndAny(processor, state, lastParent, place)) return false
 
@@ -320,47 +310,62 @@ object TypeDefinitionMembers {
                           state: ResolveState,
                           lastParent: PsiElement,
                           place: PsiElement): Boolean = {
-    val compoundTypeThisType = Option(state.get(BaseProcessor.COMPOUND_TYPE_THIS_TYPE_KEY)).flatten
+    val compThisType = Option(state.get(BaseProcessor.COMPOUND_TYPE_THIS_TYPE_KEY)).flatten
 
-    if (!privateProcessDeclarations(processor, state, lastParent, place,
-      () => getSignatures(comp, compoundTypeThisType, place),
-      () => getParameterlessSignatures(comp, compoundTypeThisType, place),
-      () => getTypes(comp, compoundTypeThisType, place),
-      isSupers = false)) return false
+    if (!privateProcessDeclarations(processor, state, lastParent, place, AllSignatures(comp, compThisType))) return false
 
     if (!processSyntheticAnyRefAndAny(processor, state, lastParent, place)) return false
 
     true
   }
 
-  class Lazy[T](private var thunk: () => T) {
-    private var value: T = _
-    def apply(): T = {
-      if (value == null) {
-        value = thunk()
-        require(value != null)
-        thunk = null // release memory captured by the thunk
-      }
-      value
-    }
+  private trait AllSignatures {
+    def signatures    : MixinNodes.Map[Signature]
+    def stable        : MixinNodes.Map[Signature]
+    def types         : MixinNodes.Map[PsiNamedElement]
+    def forJava       : MixinNodes.Map[Signature]
   }
 
-  object Lazy {
-    import scala.language.implicitConversions
+  private object AllSignatures {
 
-    implicit def any2lazy[T](t: () => T): Lazy[T] = new Lazy(t)
+    def apply(c: PsiClass): AllSignatures =
+      new ClassSignatures(c)
+
+    def apply(comp: ScCompoundType, compoundTypeThisType: Option[ScType]): AllSignatures =
+      new CompoundTypeSignatures(comp, compoundTypeThisType)
+
+    private class ClassSignatures(c: PsiClass) extends AllSignatures {
+
+      override def signatures: MixinNodes.Map[Signature] = getSignatures(c)
+
+      override def stable: MixinNodes.Map[Signature] = getParameterlessSignatures(c)
+
+      override def types: MixinNodes.Map[PsiNamedElement] = getTypes(c)
+
+      override def forJava: MixinNodes.Map[Signature] = signaturesForJava(c)
+    }
+
+
+    private class CompoundTypeSignatures(ct: ScCompoundType, compoundTypeThisType: Option[ScType]) extends AllSignatures {
+      override def signatures: MixinNodes.Map[Signature] = getSignatures(ct, compoundTypeThisType)
+
+      override def stable: MixinNodes.Map[Signature] = getStableSignatures(ct, compoundTypeThisType)
+
+      override def types: MixinNodes.Map[PsiNamedElement] = getTypes(ct, compoundTypeThisType)
+
+      override def forJava: MixinNodes.Map[Signature] = MixinNodes.emptyMap[Signature]
+    }
   }
 
   private def privateProcessDeclarations(processor: PsiScopeProcessor,
                                          state: ResolveState,
                                          lastParent: PsiElement,
                                          place: PsiElement,
-                                         signatures: Lazy[SignatureNodes.Map],
-                                         parameterlessSignatures:  Lazy[ParameterlessNodes.Map],
-                                         types: Lazy[TypeNodes.Map],
-                                         isSupers: Boolean,
-                                         signaturesForJava: Lazy[SignatureNodes.Map] = () => new SignatureNodes.Map
+                                         allSignatures: AllSignatures,
+                                         isSupers: Boolean = false,
                                          ): Boolean = {
+    import allSignatures._
+
     val subst = Option(state.get(ScSubstitutor.key)).getOrElse(ScSubstitutor.empty)
     val nameHint = processor.getHint(NameHint.KEY)
     val name = if (nameHint == null) "" else nameHint.getName(state)
@@ -527,8 +532,8 @@ object TypeDefinitionMembers {
           true
         }
 
-        if (processMethods) {
-          val maps = signaturesForJava().allFirstSeq()
+        if (processMethods && !processor.isInstanceOf[BaseProcessor]) {
+          val maps = allSignatures.forJava.allFirstSeq()
           val valuesIterator = maps.iterator
           while (valuesIterator.hasNext) {
             val iterator = valuesIterator.next().iterator
@@ -541,14 +546,14 @@ object TypeDefinitionMembers {
 
     if (shouldProcessTypes(processor)) {
       if (decodedName != "") {
-        val l: AllNodes[PsiNamedElement] = if (!isSupers) types().forName(decodedName)._1 else types().forName(decodedName)._2
+        val l: AllNodes[PsiNamedElement] = if (!isSupers) types.forName(decodedName)._1 else types.forName(decodedName)._2
         val iterator = l.iterator
         while (iterator.hasNext) {
           val (_, n) = iterator.next()
           if (!addElement(n.info, n.substitutor)) return false
         }
       } else {
-        val map = if (!isSupers) types().allFirstSeq() else types().allSecondSeq()
+        val map = if (!isSupers) types.allFirstSeq() else types.allSecondSeq()
         val valuesIterator = map.iterator
         while (valuesIterator.hasNext) {
           val iterator = valuesIterator.next().iterator
@@ -565,23 +570,23 @@ object TypeDefinitionMembers {
 
     if (processMethodRefs) {
       if (processOnlyStable) {
-        if (!process(parameterlessSignatures())) return false
+        if (!process(stable)) return false
       } else {
-        if (!process(signatures())) return false
+        if (!process(signatures)) return false
       }
     }
 
     //inner classes
     if (shouldProcessJavaInnerClasses(processor)) {
       if (decodedName != "") {
-        val l: AllNodes[PsiNamedElement] = if (!isSupers) types().forName(decodedName)._1 else types().forName(decodedName)._2
+        val l: AllNodes[PsiNamedElement] = if (!isSupers) types.forName(decodedName)._1 else types.forName(decodedName)._2
         val iterator = l.iterator
         while (iterator.hasNext) {
           val (_, n) = iterator.next()
           if (n.info.isInstanceOf[ScTypeDefinition] && !addElement(n.info, n.substitutor)) return false
         }
       } else {
-        val map = if (!isSupers) types().allFirstSeq() else types().allSecondSeq()
+        val map = if (!isSupers) types.allFirstSeq() else types.allSecondSeq()
         val valuesIterator = map.iterator
         while (valuesIterator.hasNext) {
           val iterator = valuesIterator.next().iterator
@@ -664,19 +669,15 @@ object TypeDefinitionMembers {
     true
   }
 
-  private def signaturesForJava(clazz: PsiClass, processor: PsiScopeProcessor): SignatureNodes.Map = {
-    val map = new SignatureNodes.Map
-    if (!processor.isInstanceOf[BaseProcessor]) {
-      clazz match {
-        case td: ScTypeDefinition =>
-          ScalaPsiUtil.getCompanionModule(td) match {
-            case Some(companionClass) => return getSignatures(companionClass)
-            case None =>
-          }
-        case _ =>
-      }
+  private def signaturesForJava(clazz: PsiClass): SignatureNodes.Map = {
+    clazz match {
+      case td: ScTypeDefinition =>
+        ScalaPsiUtil.getCompanionModule(td) match {
+          case Some(companionClass) => getSignatures(companionClass)
+          case None => MixinNodes.emptyMap
+        }
+      case _ => MixinNodes.emptyMap
     }
-    map
   }
 
   private def processSyntheticAnyRefAndAny(processor: PsiScopeProcessor,
