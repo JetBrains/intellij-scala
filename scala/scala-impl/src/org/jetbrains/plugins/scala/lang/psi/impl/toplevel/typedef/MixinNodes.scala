@@ -206,6 +206,22 @@ object MixinNodes {
 
     def addPublicsFrom(map: Map[T]): Unit = publicsMap ++= map.publicsMap
 
+    def nodesIterator(decodedName: String,
+                      isSupers: Boolean,
+                      onlyImplicit: Boolean = false): Iterator[Node[T]] = {
+
+      if (decodedName != "") {
+        val allForName =
+          if (!isSupers) forName(decodedName)._1 else forName(decodedName)._2
+        allForName.nodesIterator
+      } else if (onlyImplicit) {
+        forImplicits().iterator.map(_._2)
+      } else {
+        val allNodesSeq = if (!isSupers) allFirstSeq() else allSecondSeq()
+        allNodesSeq.iterator.flatMap(_.nodesIterator)
+      }
+    }
+
     @volatile
     private var supersList: List[Map[T]] = List.empty
     def setSupersMap(list: List[Map[T]]) {
@@ -395,6 +411,15 @@ object MixinNodes {
 
         def next(): SigToSuper[T] = if (iter1.hasNext) iter1.next() else iter2.next()
       }
+    }
+
+    def nodesIterator: Iterator[Node[T]] = new Iterator[Node[T]] {
+      private val iter1 = publics.valuesIterator
+      private val iter2 = privates.map.flattenValues.iterator.map(_._2)
+
+      def hasNext: Boolean = iter1.hasNext || iter2.hasNext
+
+      def next(): Node[T] = if (iter1.hasNext) iter1.next() else iter2.next()
     }
 
     def fastPhysicalSignatureGet(key: T): Option[Node[T]] = {

@@ -154,6 +154,17 @@ object ScalaPsiUtil {
   }
 
 
+  def scalaSetterName(name: String)  : String = name + "_="
+
+  def beanSetterName(name: String)   : String = "set" + name.capitalize
+
+  def beanGetterName(name: String)   : String = "get" + name.capitalize
+
+  def booleanGetterName(name: String): String = "is" + name.capitalize
+
+  def propertyMethodNames(name: String): Seq[String] =
+    scalaSetterName(name) :: beanSetterName(name) :: beanGetterName(name) :: booleanGetterName(name) :: Nil
+
   @tailrec
   def withEtaExpansion(expr: ScExpression): Boolean = {
     expr.getContext match {
