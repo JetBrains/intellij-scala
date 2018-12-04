@@ -38,4 +38,22 @@ class TypeAliasInstantiationTest extends ScalaHighlightingTestBase {
     """.stripMargin
     assertNothing(errorsFromScalaCode(code))
   }
+
+  def testSCL14663(): Unit = {
+    val code =
+      """
+        |abstract class Test[T] {
+        |  type Node = Test.Node[T]
+        |}
+        |
+        |class Test2 extends Test[Int] {
+        |  new Node(1)
+        |}
+        |
+        |object Test {
+        |  class Node[T](val t: T)
+        |}
+      """.stripMargin
+    assertNothing(errorsFromScalaCode(code))
+  }
 }
