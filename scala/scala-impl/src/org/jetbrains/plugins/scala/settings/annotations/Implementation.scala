@@ -14,7 +14,7 @@ import org.jetbrains.plugins.scala.lang.psi.api.toplevel.typedef.ScObject
 /**
   * @author Pavel Fatin
   */
-sealed trait Implementation {
+sealed abstract class Implementation {
 
   import Implementation._
 
@@ -25,13 +25,13 @@ sealed trait Implementation {
 
   final def hasStableType: Boolean = bodyCandidate.exists {
     case literal: ScLiteral => literal.getFirstChild.getNode.getElementType != ScalaTokenTypes.kNULL
-    case _: ScUnitExpr => true
-    case _: ScThrowStmt => true
-    case definition: ScNewTemplateDefinition if definition.extendsBlock.templateBody.isEmpty => true
-    case StableApplyCall() => true
-    case ScReferenceExpression(_: PsiEnumConstant) => true
-    case EmptyCollectionFactoryCall(_) => true
-    case ScMethodCall(StableApplyCall(), _) => true
+    case definition: ScNewTemplateDefinition => definition.extendsBlock.templateBody.isEmpty
+    case _: ScUnitExpr |
+         _: ScThrowStmt |
+         ScReferenceExpression(_: PsiEnumConstant) |
+         StableApplyCall() |
+         ScMethodCall(StableApplyCall(), _) |
+         EmptyCollectionFactoryCall(_) => true
     case _ => false
   }
 
@@ -40,7 +40,7 @@ sealed trait Implementation {
   protected def bodyCandidate: Option[ScExpression]
 }
 
-sealed trait Definition extends Implementation {
+sealed abstract class Definition extends Implementation {
 
   def parameterList: Option[ScalaPsiElement] = None
 

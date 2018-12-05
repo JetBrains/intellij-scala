@@ -12,7 +12,8 @@ class InlayTypeHintsTest extends InlayHintsTestBase {
   import ScalaCodeInsightSettings.{getInstance => settings}
 
   def testFunctionReturnTypeHint(): Unit = doTest(
-    s"""  def foo()$S: List[String]$E = List.empty[String]"""
+    s"""  def foo()$S: List[String]$E = List.empty[String]""",
+    options = settings.showObviousTypeSetter()
   )
 
   def testNoFunctionReturnTypeHint(): Unit = doTest(
@@ -25,26 +26,48 @@ class InlayTypeHintsTest extends InlayHintsTestBase {
 
   def testPropertyTypeHint(): Unit = doTest(
     s"""  val list$S: List[String]$E = List.empty[String]""",
-    options = settings.showPropertyTypeSetter()
+    options = settings.showPropertyTypeSetter(), settings.showObviousTypeSetter()
   )
 
   def testNoPropertyTypeHint(): Unit = doTest(
     """  val list: List[String] = List.empty[String]""",
-    options = settings.showPropertyTypeSetter()
+    options = settings.showPropertyTypeSetter(), settings.showObviousTypeSetter()
   )
 
   def testLocalVariableTypeHint(): Unit = doTest(
     s"""  def foo(): Unit = {
        |    val list$S: List[String]$E = List.empty[String]
        |  }""".stripMargin,
-    options = settings.showLocalVariableTypeSetter()
+    options = settings.showLocalVariableTypeSetter(), settings.showObviousTypeSetter()
   )
 
   def testNoLocalVariableTypeHint(): Unit = doTest(
     s"""  def foo(): Unit = {
        |    val list: List[String] = List.empty[String]
        |  }""".stripMargin,
-    options = settings.showLocalVariableTypeSetter()
+    options = settings.showLocalVariableTypeSetter(), settings.showObviousTypeSetter()
+  )
+
+  def testConstructorObviousTypeHint(): Unit = doTest(
+    s"  def text$S: String$E = new String",
+    options = settings.showObviousTypeSetter()
+  )
+
+  def testConstructorNoTypeHint(): Unit = doTest(
+    s"  def text = new String"
+  )
+
+  def testLiteralObviousTypeHint(): Unit = doTest(
+    s"  def int$S: Int$E = 0",
+    options = settings.showObviousTypeSetter()
+  )
+
+  def testLiteralNoTypeHint(): Unit = doTest(
+    s"  def int = 0"
+  )
+
+  def testEmptyCollectionNoTypeHint(): Unit = doTest(
+    s"""  def foo() = List.empty[String]"""
   )
 
   private def doTest(text: String, options: Setter[java.lang.Boolean]*): Unit = {

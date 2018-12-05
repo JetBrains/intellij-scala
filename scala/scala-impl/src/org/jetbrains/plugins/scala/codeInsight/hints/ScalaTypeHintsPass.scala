@@ -17,7 +17,7 @@ import org.jetbrains.plugins.scala.lang.psi.api.statements.{ScFunction, ScValueO
 import org.jetbrains.plugins.scala.lang.psi.types.api.{JavaArrayType, ParameterizedType}
 import org.jetbrains.plugins.scala.lang.psi.types.{ScCompoundType, ScType}
 import org.jetbrains.plugins.scala.lang.refactoring.ScTypePresentationExt
-import org.jetbrains.plugins.scala.settings.annotations.Definition
+import org.jetbrains.plugins.scala.settings.annotations._
 
 class ScalaTypeHintsPass(rootElement: ScalaFile,
                          editor: Editor,
@@ -37,7 +37,8 @@ class ScalaTypeHintsPass(rootElement: ScalaFile,
 
     for {
       ReturnTypeAndBody(returnType, body) <- Some(definition)
-      if settings.showObviousType || !isObviousFor(body, returnType.extractClass)
+      if settings.showObviousType ||
+        !(definition.hasStableType || isObviousFor(body, returnType.extractClass))
 
       info <- createInlayInfo(definition, returnType)
     } collector.invoke(info.getOffset, info.getText)
