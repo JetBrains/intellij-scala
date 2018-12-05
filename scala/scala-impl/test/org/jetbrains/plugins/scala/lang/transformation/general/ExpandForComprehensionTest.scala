@@ -48,5 +48,10 @@ class ExpandForComprehensionTest extends TransformerTest(new ExpandForComprehens
     after = "Seq(A).foreach { case (v1, v2) => ??? }"
   )()
 
+  def testStringInterpolationConsistency(): Unit = check(
+    before = "for(v <- Seq(A)) yield s\"${3 + v}\"",
+    after = "Seq(A).map(v => s\"${3 + v}\")"
+  )()
+
   // TODO add more tests
 }
