@@ -14,6 +14,7 @@ import java.{util => ju}
 import com.intellij.lang.ASTNode
 import com.intellij.lang.java.JavaLanguage
 import com.intellij.navigation._
+import com.intellij.openapi.project.DumbService
 import com.intellij.psi._
 import com.intellij.psi.impl._
 import com.intellij.psi.javadoc.PsiDocComment
@@ -35,7 +36,6 @@ import org.jetbrains.plugins.scala.lang.psi.stubs.elements.ScTemplateDefinitionE
 import org.jetbrains.plugins.scala.lang.psi.types._
 import org.jetbrains.plugins.scala.lang.psi.types.api.TypeParameterType
 import org.jetbrains.plugins.scala.lang.psi.types.api.designator.{ScProjectionType, ScThisType}
-import org.jetbrains.plugins.scala.lang.psi.types.recursiveUpdate.ScSubstitutor
 import org.jetbrains.plugins.scala.lang.psi.types.result._
 import org.jetbrains.plugins.scala.lang.refactoring.util.ScalaNamesUtil
 import org.jetbrains.plugins.scala.macroAnnotations.{Cached, ModCount}
@@ -328,6 +328,8 @@ abstract class ScTypeDefinitionImpl[T <: ScTemplateDefinition](stub: ScTemplateD
   override def desugaredElement: Option[ScTemplateDefinition] = {
     import scala.meta.intellij.psi._
     import scala.meta.{Defn, Term}
+
+    if (DumbService.isDumb(getProject)) return None
 
     val defn = this.metaExpand match {
       case Right(templ: Defn.Class) => Some(templ)
