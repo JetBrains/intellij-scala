@@ -5,6 +5,7 @@ package stubs
 package elements
 
 import com.intellij.lang.Language
+import com.intellij.openapi.vfs.{StandardFileSystems, VirtualFile}
 import com.intellij.psi.stubs.{IndexSink, StubElement, StubInputStream, StubOutputStream}
 import com.intellij.psi.tree.IStubFileElementType
 import com.intellij.psi.{PsiElement, StubBuilder}
@@ -38,6 +39,11 @@ class ScStubFileElementType(language: Language = ScalaLanguage.INSTANCE)
       sourceName = StringRef.toString(dataStream.readName))
 
   override final def indexStub(stub: ScFileStub, sink: IndexSink): Unit = {}
+
+  override def shouldBuildStubFor(file: VirtualFile): Boolean = !isInSourceJar(file)
+
+  private def isInSourceJar(file: VirtualFile): Boolean =
+    file.getFileSystem.getProtocol == StandardFileSystems.JAR_PROTOCOL
 
   private class FileStubImpl(val isScript: Boolean,
                              val isCompiled: Boolean,
