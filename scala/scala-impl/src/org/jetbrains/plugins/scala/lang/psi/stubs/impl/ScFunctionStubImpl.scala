@@ -6,9 +6,7 @@ package impl
 
 import com.intellij.psi.PsiElement
 import com.intellij.psi.stubs.{IStubElementType, StubElement}
-import com.intellij.util.io.StringRef
 import org.jetbrains.plugins.scala.lang.psi.api.statements.ScFunction
-import org.jetbrains.plugins.scala.lang.psi.stubs.elements.StringRefArrayExt
 
 /**
   * User: Alexander Podkhalyuzin
@@ -16,15 +14,12 @@ import org.jetbrains.plugins.scala.lang.psi.stubs.elements.StringRefArrayExt
   */
 final class ScFunctionStubImpl[F <: ScFunction](parent: StubElement[_ <: PsiElement],
                                                 elementType: IStubElementType[_ <: StubElement[_ <: PsiElement], _ <: PsiElement],
-                                                nameRef: StringRef,
+                                                name: String,
                                                 val isDeclaration: Boolean,
-                                                private val annotationsRefs: Array[StringRef],
-                                                protected[impl] val typeTextRef: Option[StringRef],
-                                                protected[impl] val bodyTextRef: Option[StringRef],
+                                                val annotations: Array[String],
+                                                val typeText: Option[String],
+                                                val bodyText: Option[String],
                                                 val hasAssign: Boolean,
                                                 val isImplicit: Boolean,
                                                 val isLocal: Boolean)
-  extends ScNamedStubBase[F](parent, elementType, nameRef) with ScFunctionStub[F] {
-
-  def annotations: Array[String] = annotationsRefs.asStrings
-}
+  extends ScNamedStubBase[F](parent, elementType, name) with ScFunctionStub[F]

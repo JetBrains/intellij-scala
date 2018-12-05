@@ -28,14 +28,14 @@ class ScExtendsBlockElementType extends ScStubElementType[ScExtendsBlockStub, Sc
                            parentStub: StubElement[_ <: PsiElement]) = new ScExtendsBlockStubImpl(
     parentStub,
     this,
-    baseClassesRefs = dataStream.readNames
+    baseClasses = dataStream.readNames
   )
 
   override def createStubImpl(block: ScExtendsBlock,
                               parentStub: StubElement[_ <: PsiElement]) = new ScExtendsBlockStubImpl(
     parentStub,
     this,
-    baseClassesRefs = ScExtendsBlockElementType.directSupersNames(block).asReferences
+    baseClasses = ScExtendsBlockElementType.directSupersNames(block)
   )
 
   override def indexStub(stub: ScExtendsBlockStub, sink: IndexSink): Unit = {
@@ -49,7 +49,7 @@ class ScExtendsBlockElementType extends ScStubElementType[ScExtendsBlockStub, Sc
 
 private object ScExtendsBlockElementType {
 
-  private def directSupersNames(extBlock: ScExtendsBlock): Seq[String] = {
+  private def directSupersNames(extBlock: ScExtendsBlock): Array[String] = {
     @tailrec
     def refName(te: ScTypeElement): Option[String] = {
       te match {
@@ -65,17 +65,17 @@ private object ScExtendsBlockElementType {
       }
     }
 
-    def default: Seq[String] = if (extBlock.isUnderCaseClass) caseClassDefaults else defaultParents
+    def default = if (extBlock.isUnderCaseClass) caseClassDefaults else defaultParents
 
     extBlock.templateParents match {
-      case None => Seq.empty
+      case None => Array.empty
       case Some(parents) =>
-        val parentElements: Seq[ScTypeElement] = parents.typeElements
-        parentElements.flatMap(refName) ++ default
+        val parentElements = parents.typeElements
+        parentElements.flatMap(refName).toArray ++ default
     }
   }
 
-  private val defaultParents = "Object" :: "ScalaObject" :: Nil
-  private val caseClassDefaults = defaultParents ::: "Product" :: "Serializable" :: Nil
+  private val defaultParents   : Array[String] = Array("Object", "ScalaObject")
+  private val caseClassDefaults: Array[String] = defaultParents :+ "Product" :+ "Serializable"
 
 }

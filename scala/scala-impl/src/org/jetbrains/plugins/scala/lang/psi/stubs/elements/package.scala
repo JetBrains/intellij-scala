@@ -6,7 +6,6 @@ package stubs
 import com.intellij.psi.PsiElement
 import com.intellij.psi.stubs._
 import com.intellij.util.ArrayUtil
-import com.intellij.util.io.StringRef
 import org.jetbrains.plugins.scala.lang.refactoring.util.ScalaNamesUtil
 
 /**
@@ -15,15 +14,15 @@ import org.jetbrains.plugins.scala.lang.refactoring.util.ScalaNamesUtil
 package object elements {
 
   implicit class StubInputStreamExt(val dataStream: StubInputStream) extends AnyVal {
-    def readOptionName: Option[StringRef] = {
+    def readOptionName: Option[String] = {
       val isDefined = dataStream.readBoolean
-      if (isDefined) Some(dataStream.readName) else None
+      if (isDefined) Some(dataStream.readNameString) else None
     }
 
-    def readNames: Array[StringRef] = {
+    def readNames: Array[String] = {
       val length = dataStream.readInt
       (0 until length).map { _ =>
-        dataStream.readName
+        dataStream.readNameString()
       }.toArray
     }
   }
@@ -44,51 +43,14 @@ package object elements {
     }
   }
 
-  implicit class MaybeStringRefExt(val maybeStringRef: Option[StringRef]) extends AnyVal {
-    def asString: Option[String] = maybeStringRef.map {
-      StringRef.toString
-    }.filter {
-      _.nonEmpty
-    }
-  }
-
-  implicit class MaybeStringExt(val maybeString: Option[String]) extends AnyVal {
-    def asReference: Option[StringRef] = maybeString.filter {
-      _.nonEmpty
-    }.map {
-      StringRef.fromString
-    }
-  }
-
-  implicit class StringRefArrayExt(val stringRefs: Array[StringRef]) extends AnyVal {
-    def asStrings: Array[String] = stringRefs.map {
-      StringRef.toString
-    }.filter {
-      _.nonEmpty
-    } match {
-      case Array() => ArrayUtil.EMPTY_STRING_ARRAY
-      case array => array
-    }
-  }
-
   implicit class PsiElementsExt(val elements: Seq[PsiElement]) extends AnyVal {
 
-    def asReferences(transformText: String => String = identity): Array[StringRef] =
+    def asStrings(transformText: String => String = identity): Array[String] =
       if (elements.nonEmpty) elements
         .map(_.getText)
         .map(transformText)
-        .map(StringRef.fromString).toArray
-      else StringRef.EMPTY_ARRAY
-  }
-
-  implicit class StringsExt(val strings: Iterable[String]) extends AnyVal {
-
-    def asReferences: Array[StringRef] = {
-      val result = strings.filter(_.nonEmpty)
-
-      if (result.nonEmpty) result.map(StringRef.fromString).toArray
-      else StringRef.EMPTY_ARRAY
-    }
+        .toArray
+      else ArrayUtil.EMPTY_STRING_ARRAY
   }
 
   implicit class IndexSinkExt(val sink: IndexSink) extends AnyVal {

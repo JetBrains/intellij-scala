@@ -24,8 +24,8 @@ class ScImportSelectorElementType extends ScStubElementType[ScImportSelectorStub
 
   override def deserialize(dataStream: StubInputStream, parentStub: StubElement[_ <: PsiElement]): ScImportSelectorStub =
     new ScImportSelectorStubImpl(parentStub, this,
-      referenceTextRef = dataStream.readOptionName,
-      importedNameRef = dataStream.readOptionName,
+      referenceText = dataStream.readOptionName,
+      importedName = dataStream.readOptionName,
       isAliasedImport = dataStream.readBoolean)
 
   override def createStubImpl(selector: ScImportSelector, parentStub: StubElement[_ <: PsiElement]): ScImportSelectorStub = {
@@ -34,8 +34,8 @@ class ScImportSelectorElementType extends ScStubElementType[ScImportSelectorStub
     }
 
     new ScImportSelectorStubImpl(parentStub, this,
-      referenceTextRef = referenceText.asReference,
-      importedNameRef = selector.importedName.asReference,
+      referenceText = referenceText,
+      importedName = selector.importedName,
       isAliasedImport = selector.isAliasedImport)
   }
 

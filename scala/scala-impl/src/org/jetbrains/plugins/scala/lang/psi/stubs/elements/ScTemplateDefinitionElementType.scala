@@ -9,7 +9,6 @@ import com.intellij.psi.impl.java.stubs.index.JavaStubIndexKeys
 import com.intellij.psi.stubs.{IndexSink, StubElement, StubInputStream, StubOutputStream}
 import com.intellij.psi.util.PsiTreeUtil
 import com.intellij.psi.{PsiClass, PsiElement}
-import com.intellij.util.io.StringRef
 import org.jetbrains.plugins.scala.extensions._
 import org.jetbrains.plugins.scala.lang.psi.api.expr.{ScAnnotation, ScNewTemplateDefinition}
 import org.jetbrains.plugins.scala.lang.psi.api.toplevel.typedef._
@@ -46,17 +45,17 @@ abstract class ScTemplateDefinitionElementType[TypeDef <: ScTemplateDefinition](
                            parentStub: StubElement[_ <: PsiElement]) = new ScTemplateDefinitionStubImpl(
     parentStub,
     this,
-    nameRef = dataStream.readName,
-    qualifiedNameRef = dataStream.readName,
-    javaQualifiedNameRef = dataStream.readName,
+    nameRef = dataStream.readNameString,
+    qualifiedName = dataStream.readNameString,
+    javaQualifiedName = dataStream.readNameString,
     isPackageObject = dataStream.readBoolean,
     isScriptFileClass = dataStream.readBoolean,
-    sourceFileNameRef = dataStream.readName,
+    sourceFileName = dataStream.readNameString,
     isDeprecated = dataStream.readBoolean,
     isImplicitObject = dataStream.readBoolean,
     isImplicitClass = dataStream.readBoolean,
-    javaNameRef = dataStream.readName,
-    additionalJavaNameRef = dataStream.readOptionName,
+    javaName = dataStream.readNameString,
+    additionalJavaName = dataStream.readOptionName,
     isLocal = dataStream.readBoolean,
     isVisibleInJava = dataStream.readBoolean
   )
@@ -95,21 +94,20 @@ abstract class ScTemplateDefinitionElementType[TypeDef <: ScTemplateDefinition](
       case _ => true
     }
 
-    import StringRef.fromString
     new ScTemplateDefinitionStubImpl(
       parent,
       this,
-      nameRef = fromString(definition.name),
-      qualifiedNameRef = fromString(definition.qualifiedName),
-      javaQualifiedNameRef = fromString(definition.getQualifiedName),
+      nameRef = definition.name,
+      qualifiedName = definition.qualifiedName,
+      javaQualifiedName = definition.getQualifiedName,
       isPackageObject = maybeTypeDefinition.exists(_.isPackageObject),
       isScriptFileClass = definition.isScriptFileClass,
-      sourceFileNameRef = fromString(fileName),
+      sourceFileName = fileName,
       isDeprecated = isDeprecated,
       isImplicitObject = definition.isInstanceOf[ScObject] && definition.hasModifierProperty("implicit"),
       isImplicitClass = definition.isInstanceOf[ScClass] && definition.hasModifierProperty("implicit"),
-      javaNameRef = fromString(definition.getName),
-      additionalJavaNameRef = maybeAdditionalJavaName.asReference,
+      javaName = definition.getName,
+      additionalJavaName = maybeAdditionalJavaName,
       isLocal = isLocal,
       isVisibleInJava = isVisibleInJava
     )

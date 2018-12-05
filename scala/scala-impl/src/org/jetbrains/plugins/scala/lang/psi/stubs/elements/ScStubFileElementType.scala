@@ -9,7 +9,6 @@ import com.intellij.openapi.vfs.{StandardFileSystems, VirtualFile}
 import com.intellij.psi.stubs.{IndexSink, StubElement, StubInputStream, StubOutputStream}
 import com.intellij.psi.tree.IStubFileElementType
 import com.intellij.psi.{PsiElement, StubBuilder}
-import com.intellij.util.io.StringRef
 import org.jetbrains.plugins.scala.decompiler.DecompilerUtil
 import org.jetbrains.plugins.scala.lang.psi.stubs.impl.AbstractFileStub
 
@@ -35,8 +34,8 @@ class ScStubFileElementType(language: Language = ScalaLanguage.INSTANCE)
   override final def deserialize(dataStream: StubInputStream, parentStub: StubElement[_ <: PsiElement]): ScFileStub =
     new FileStubImpl(isScript = dataStream.readBoolean,
       isCompiled = dataStream.readBoolean,
-      packageName = StringRef.toString(dataStream.readName),
-      sourceName = StringRef.toString(dataStream.readName))
+      packageName = dataStream.readNameString,
+      sourceName = dataStream.readNameString)
 
   override final def indexStub(stub: ScFileStub, sink: IndexSink): Unit = {}
 

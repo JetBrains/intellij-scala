@@ -7,7 +7,6 @@ package elements
 import com.intellij.lang.ASTNode
 import com.intellij.psi.PsiElement
 import com.intellij.psi.stubs.{IndexSink, StubElement, StubInputStream, StubOutputStream}
-import com.intellij.util.io.StringRef._
 import org.jetbrains.plugins.scala.lang.psi.api.toplevel.ScPackaging
 import org.jetbrains.plugins.scala.lang.psi.impl.toplevel.packaging.ScPackagingImpl
 import org.jetbrains.plugins.scala.lang.psi.stubs.impl.ScPackagingStubImpl
@@ -27,14 +26,14 @@ class ScPackagingElementType extends ScStubElementType[ScPackagingStub, ScPackag
 
   override def deserialize(dataStream: StubInputStream, parentStub: StubElement[_ <: PsiElement]): ScPackagingStub =
     new ScPackagingStubImpl(parentStub.asInstanceOf[StubElement[PsiElement]], this,
-      parentPackageNameRef = dataStream.readName,
-      packageNameRef = dataStream.readName,
+      parentPackageName = dataStream.readNameString,
+      packageName = dataStream.readNameString,
       isExplicit = dataStream.readBoolean)
 
   override def createStubImpl(packaging: ScPackaging, parentStub: StubElement[_ <: PsiElement]): ScPackagingStub =
     new ScPackagingStubImpl(parentStub, this,
-      parentPackageNameRef = fromString(packaging.parentPackageName),
-      packageNameRef = fromString(packaging.packageName),
+      parentPackageName = packaging.parentPackageName,
+      packageName = packaging.packageName,
       isExplicit = packaging.isExplicit)
 
   override def indexStub(stub: ScPackagingStub, sink: IndexSink): Unit = {

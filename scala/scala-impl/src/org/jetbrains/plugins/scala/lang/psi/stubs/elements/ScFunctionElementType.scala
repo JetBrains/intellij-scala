@@ -7,7 +7,6 @@ package elements
 import com.intellij.lang.{ASTNode, Language}
 import com.intellij.psi.PsiElement
 import com.intellij.psi.stubs.{IndexSink, StubElement, StubInputStream, StubOutputStream}
-import com.intellij.util.io.StringRef
 import org.jetbrains.plugins.scala.lang.psi.api.statements.{ScFunction, ScFunctionDeclaration, ScFunctionDefinition, ScMacroDefinition}
 import org.jetbrains.plugins.scala.lang.psi.impl.statements.{ScFunctionDeclarationImpl, ScFunctionDefinitionImpl, ScMacroDefinitionImpl}
 import org.jetbrains.plugins.scala.lang.psi.stubs.impl.ScFunctionStubImpl
@@ -35,11 +34,11 @@ abstract class ScFunctionElementType[Fun <: ScFunction](debugName: String,
                            parent: StubElement[_ <: PsiElement]) = new ScFunctionStubImpl(
     parent,
     this,
-    nameRef = dataStream.readName,
+    name = dataStream.readNameString,
     isDeclaration = dataStream.readBoolean,
-    annotationsRefs = dataStream.readNames,
-    typeTextRef = dataStream.readOptionName,
-    bodyTextRef = dataStream.readOptionName,
+    annotations = dataStream.readNames,
+    typeText = dataStream.readOptionName,
+    bodyText = dataStream.readOptionName,
     hasAssign = dataStream.readBoolean,
     isImplicit = dataStream.readBoolean,
     isLocal = dataStream.readBoolean
@@ -67,16 +66,16 @@ abstract class ScFunctionElementType[Fun <: ScFunction](debugName: String,
 
     val annotations = function.annotations
       .map(_.annotationExpr.constr.typeElement)
-      .asReferences { text =>
+      .asStrings { text =>
         text.substring(text.lastIndexOf('.') + 1)
       }
 
     new ScFunctionStubImpl(parentStub, this,
-      nameRef = StringRef.fromString(function.name),
+      name = function.name,
       isDeclaration = function.isInstanceOf[ScFunctionDeclaration],
-      annotationsRefs = annotations,
-      typeTextRef = returnTypeText.asReference,
-      bodyTextRef = bodyText.asReference,
+      annotations = annotations,
+      typeText = returnTypeText,
+      bodyText = bodyText,
       hasAssign = maybeDefinition.exists(_.hasAssign),
       isImplicit = function.hasModifierProperty("implicit"),
       isLocal = function.containingClass == null)

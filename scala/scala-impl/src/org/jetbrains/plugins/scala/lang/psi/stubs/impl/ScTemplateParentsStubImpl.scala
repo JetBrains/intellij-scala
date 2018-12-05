@@ -7,12 +7,10 @@ package impl
 import com.intellij.psi.PsiElement
 import com.intellij.psi.stubs.{IStubElementType, StubBase, StubElement}
 import com.intellij.util.SofterReference
-import com.intellij.util.io.StringRef
 import org.jetbrains.plugins.scala.lang.psi.api.base.ScConstructor
 import org.jetbrains.plugins.scala.lang.psi.api.base.types.ScTypeElement
 import org.jetbrains.plugins.scala.lang.psi.api.toplevel.templates.ScTemplateParents
 import org.jetbrains.plugins.scala.lang.psi.impl.ScalaPsiElementFactory.{createConstructorFromText, createTypeElementFromText}
-import org.jetbrains.plugins.scala.lang.psi.stubs.elements.{MaybeStringRefExt, StringRefArrayExt}
 import org.jetbrains.plugins.scala.lang.psi.stubs.impl.ScTemplateParentsStubImpl._
 
 /**
@@ -20,8 +18,8 @@ import org.jetbrains.plugins.scala.lang.psi.stubs.impl.ScTemplateParentsStubImpl
   */
 final class ScTemplateParentsStubImpl(parent: StubElement[_ <: PsiElement],
                                       elementType: IStubElementType[_ <: StubElement[_ <: PsiElement], _ <: PsiElement],
-                                      private val parentTypeTextRefs: Array[StringRef],
-                                      private val constructorRef: Option[StringRef])
+                                      val parentTypesTexts: Array[String],
+                                      val constructorText: Option[String])
   extends StubBase[ScTemplateParents](parent, elementType) with ScTemplateParentsStub with PsiOwner[ScTemplateParents] {
 
   private var constructorAndParentTypeElementsReference: SofterReference[Data] = null
@@ -39,16 +37,12 @@ final class ScTemplateParentsStubImpl(parent: StubElement[_ <: PsiElement],
     }, constructorAndParentTypeElementsReference = _)
   }
 
-  def parentTypesTexts: Array[String] = parentTypeTextRefs.asStrings
-
   def parentTypeElements: Seq[ScTypeElement] = {
     constructorAndParentTypeElements match {
       case (Some(constr), typeElems) => constr.typeElement +: typeElems
       case (_, typeElems) => typeElems
     }
   }
-
-  def constructorText: Option[String] = constructorRef.asString
 }
 
 private object ScTemplateParentsStubImpl {

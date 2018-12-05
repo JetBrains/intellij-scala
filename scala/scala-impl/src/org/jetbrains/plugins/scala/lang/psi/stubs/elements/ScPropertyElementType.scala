@@ -7,7 +7,6 @@ package elements
 import com.intellij.lang.ASTNode
 import com.intellij.psi.PsiElement
 import com.intellij.psi.stubs.{IndexSink, StubElement, StubInputStream, StubOutputStream}
-import com.intellij.util.io.StringRef
 import org.jetbrains.plugins.scala.lang.psi.api.base.{ScIdList, ScPatternList}
 import org.jetbrains.plugins.scala.lang.psi.api.expr.ScExpression
 import org.jetbrains.plugins.scala.lang.psi.api.statements._
@@ -37,10 +36,10 @@ sealed abstract class ScPropertyElementType[P <: ScValueOrVariable](debugName: S
     this,
     isDeclaration = dataStream.readBoolean,
     isImplicit = dataStream.readBoolean,
-    namesRefs = dataStream.readNames,
-    typeTextRef = dataStream.readOptionName,
-    bodyTextRef = dataStream.readOptionName,
-    containerTextRef = dataStream.readName,
+    names = dataStream.readNames,
+    typeText = dataStream.readOptionName,
+    bodyText = dataStream.readOptionName,
+    containerText = dataStream.readNameString,
     isLocal = dataStream.readBoolean
   )
 
@@ -50,10 +49,10 @@ sealed abstract class ScPropertyElementType[P <: ScValueOrVariable](debugName: S
     this,
     isDeclaration = property.isInstanceOf[ScVariableDeclaration],
     isImplicit = property.hasModifierProperty("implicit"),
-    namesRefs = property.declaredNames.asReferences,
-    typeTextRef = property.typeElement.map(_.getText).asReference,
-    bodyTextRef = body(property).map(_.getText).asReference,
-    containerTextRef = StringRef.fromString(container(property).getText),
+    names = property.declaredNames.toArray,
+    typeText = property.typeElement.map(_.getText),
+    bodyText = body(property).map(_.getText),
+    containerText = container(property).getText,
     isLocal = property.containingClass == null
   )
 

@@ -7,7 +7,6 @@ package elements
 import com.intellij.lang.ASTNode
 import com.intellij.psi.PsiElement
 import com.intellij.psi.stubs.{IndexSink, StubElement, StubInputStream, StubOutputStream}
-import com.intellij.util.io.StringRef
 import org.jetbrains.plugins.scala.lang.psi.api.base.types.ScSelfTypeElement
 import org.jetbrains.plugins.scala.lang.psi.impl.base.types.ScSelfTypeElementImpl
 import org.jetbrains.plugins.scala.lang.psi.stubs.impl.ScSelfTypeElementStubImpl
@@ -28,22 +27,21 @@ class ScSelfTypeElementElementType extends ScStubElementType[ScSelfTypeElementSt
                            parentStub: StubElement[_ <: PsiElement]) = new ScSelfTypeElementStubImpl(
     parentStub,
     this,
-    nameRef = dataStream.readName,
-    typeTextRef = dataStream.readOptionName,
-    typeNamesRefs = dataStream.readNames
+    name = dataStream.readNameString,
+    typeText = dataStream.readOptionName,
+    classNames = dataStream.readNames
   )
 
   override def createStubImpl(typeElement: ScSelfTypeElement,
                               parentStub: StubElement[_ <: PsiElement]): ScSelfTypeElementStub = {
-    val typeElementText = typeElement.typeElement
-      .map(_.getText)
+    val typeElementText = typeElement.typeElement.map(_.getText)
 
     new ScSelfTypeElementStubImpl(
       parentStub,
       this,
-      nameRef = StringRef.fromString(typeElement.name),
-      typeTextRef = typeElementText.asReference,
-      typeNamesRefs = typeElement.classNames.asReferences
+      name = typeElement.name,
+      typeText = typeElementText,
+      classNames = typeElement.classNames
     )
   }
 

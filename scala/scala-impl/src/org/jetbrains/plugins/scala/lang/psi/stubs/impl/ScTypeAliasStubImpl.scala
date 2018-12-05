@@ -6,7 +6,6 @@ package impl
 
 import com.intellij.psi.PsiElement
 import com.intellij.psi.stubs.{IStubElementType, StubElement}
-import com.intellij.util.io.StringRef
 import org.jetbrains.plugins.scala.lang.psi.api.statements.ScTypeAlias
 
 /**
@@ -15,11 +14,11 @@ import org.jetbrains.plugins.scala.lang.psi.api.statements.ScTypeAlias
   */
 class ScTypeAliasStubImpl(parent: StubElement[_ <: PsiElement],
                           elementType: IStubElementType[_ <: StubElement[_ <: PsiElement], _ <: PsiElement],
-                          nameRef: StringRef,
-                          protected[impl] val typeTextRef: Option[StringRef],
-                          protected[impl] val lowerBoundTextRef: Option[StringRef],
-                          protected[impl] val upperBoundTextRef: Option[StringRef],
+                          name: String,
+                          val typeText: Option[String],
+                          val lowerBoundText: Option[String],
+                          val upperBoundText: Option[String],
                           val isLocal: Boolean,
                           val isDeclaration: Boolean,
                           val isStableQualifier: Boolean)
-  extends ScNamedStubBase[ScTypeAlias](parent, elementType, nameRef) with ScTypeAliasStub
+  extends ScNamedStubBase[ScTypeAlias](parent, elementType, name) with ScTypeAliasStub
