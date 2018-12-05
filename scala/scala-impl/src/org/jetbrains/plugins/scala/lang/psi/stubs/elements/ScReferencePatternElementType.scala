@@ -7,7 +7,6 @@ package elements
 import com.intellij.lang.ASTNode
 import com.intellij.psi.PsiElement
 import com.intellij.psi.stubs._
-import com.intellij.util.io.StringRef
 import org.jetbrains.plugins.scala.lang.psi.api.base.patterns.ScReferencePattern
 import org.jetbrains.plugins.scala.lang.psi.impl.base.patterns.ScReferencePatternImpl
 import org.jetbrains.plugins.scala.lang.psi.stubs.impl.ScReferencePatternStubImpl
@@ -22,12 +21,10 @@ class ScReferencePatternElementType extends ScStubElementType[ScReferencePattern
   }
 
   override def deserialize(dataStream: StubInputStream, parentStub: StubElement[_ <: PsiElement]): ScReferencePatternStub =
-    new ScReferencePatternStubImpl(parentStub, this,
-      nameRef = dataStream.readName)
+    new ScReferencePatternStubImpl(parentStub, this, name = dataStream.readNameString)
 
   override def createStubImpl(pattern: ScReferencePattern, parentStub: StubElement[_ <: PsiElement]): ScReferencePatternStub =
-    new ScReferencePatternStubImpl(parentStub, this,
-      nameRef = StringRef.fromString(pattern.name))
+    new ScReferencePatternStubImpl(parentStub, this, name = pattern.name)
 
   override def createElement(node: ASTNode): ScReferencePattern = new ScReferencePatternImpl(node)
 

@@ -23,7 +23,7 @@ class ScImportExprElementType extends ScStubElementType[ScImportExprStub, ScImpo
 
   override def deserialize(dataStream: StubInputStream, parentStub: StubElement[_ <: PsiElement]): ScImportExprStub =
     new ScImportExprStubImpl(parentStub, this,
-      referenceTextRef = dataStream.readOptionName,
+      referenceText = dataStream.readOptionName,
       isSingleWildcard = dataStream.readBoolean)
 
   override def createStubImpl(expr: ScImportExpr, parentStub: StubElement[_ <: PsiElement]): ScImportExprStub = {
@@ -32,7 +32,7 @@ class ScImportExprElementType extends ScStubElementType[ScImportExprStub, ScImpo
     }
 
     new ScImportExprStubImpl(parentStub, this,
-      referenceTextRef = referenceText.asReference,
+      referenceText = referenceText,
       isSingleWildcard = expr.isSingleWildcard)
   }
 

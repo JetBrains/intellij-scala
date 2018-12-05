@@ -28,7 +28,7 @@ class ScModifiersElementType(debugName: String)
     parentStub,
     this,
       hasExplicitModifiers = dataStream.readBoolean,
-    modifiersRefs = dataStream.readNames
+    modifiers = dataStream.readNames
   )
 
   override def createStubImpl(list: ScModifierList,
@@ -36,7 +36,7 @@ class ScModifiersElementType(debugName: String)
     parentStub,
     this,
       hasExplicitModifiers = list.hasExplicitModifiers,
-    modifiersRefs = list.modifiers.asReferences
+    modifiers = list.modifiers
   )
 
   override def createElement(node: ASTNode) = new ScModifierListImpl(node)

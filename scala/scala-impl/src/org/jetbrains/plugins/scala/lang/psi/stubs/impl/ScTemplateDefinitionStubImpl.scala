@@ -7,40 +7,32 @@ package impl
 import com.intellij.pom.java.LanguageLevel
 import com.intellij.psi.PsiElement
 import com.intellij.psi.stubs.{IStubElementType, StubElement}
-import com.intellij.util.io.StringRef
 import org.jetbrains.plugins.scala.lang.psi.api.toplevel.typedef.ScTemplateDefinition
-import org.jetbrains.plugins.scala.lang.psi.stubs.elements.MaybeStringRefExt
 
 /**
   * @author ilyas
   */
 final class ScTemplateDefinitionStubImpl[TypeDef <: ScTemplateDefinition](parent: StubElement[_ <: PsiElement],
                                                                           elementType: IStubElementType[_ <: StubElement[_ <: PsiElement], _ <: PsiElement],
-                                                                          nameRef: StringRef,
-                                                                          private val qualifiedNameRef: StringRef,
-                                                                          private val javaQualifiedNameRef: StringRef,
+                                                                          nameRef: String,
+                                                                          val qualifiedName: String,
+                                                                          val javaQualifiedName: String,
                                                                           val isPackageObject: Boolean,
                                                                           val isScriptFileClass: Boolean,
-                                                                          private val sourceFileNameRef: StringRef,
+                                                                          val sourceFileName: String,
                                                                           val isDeprecated: Boolean,
                                                                           val isImplicitObject: Boolean,
                                                                           val isImplicitClass: Boolean,
-                                                                          private val javaNameRef: StringRef,
-                                                                          private val additionalJavaNameRef: Option[StringRef],
+                                                                          val javaName: String,
+                                                                          val additionalJavaName: Option[String],
                                                                           val isLocal: Boolean,
                                                                           val isVisibleInJava: Boolean)
   extends ScNamedStubBase[TypeDef](parent, elementType, nameRef)
     with ScTemplateDefinitionStub[TypeDef] {
 
-  override def getQualifiedName: String = StringRef.toString(qualifiedNameRef)
+  override def getQualifiedName: String = qualifiedName
 
-  override def javaQualifiedName: String = StringRef.toString(javaQualifiedNameRef)
-
-  override def getSourceFileName: String = StringRef.toString(sourceFileNameRef)
-
-  override def javaName: String = StringRef.toString(javaNameRef)
-
-  override def additionalJavaName: Option[String] = additionalJavaNameRef.asString
+  override def getSourceFileName: String = sourceFileName
 
   //todo PsiClassStub methods
   override def getLanguageLevel: LanguageLevel = LanguageLevel.JDK_1_5

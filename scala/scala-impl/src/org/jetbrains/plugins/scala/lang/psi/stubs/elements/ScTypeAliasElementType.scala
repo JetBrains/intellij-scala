@@ -6,7 +6,6 @@ package elements
 
 import com.intellij.psi.PsiElement
 import com.intellij.psi.stubs.{IndexSink, StubElement, StubInputStream, StubOutputStream}
-import com.intellij.util.io.StringRef.fromString
 import org.jetbrains.plugins.scala.lang.psi.api.statements.{ScTypeAlias, ScTypeAliasDeclaration, ScTypeAliasDefinition}
 import org.jetbrains.plugins.scala.lang.psi.api.toplevel.typedef.ScObject
 import org.jetbrains.plugins.scala.lang.psi.stubs.impl.ScTypeAliasStubImpl
@@ -29,10 +28,10 @@ abstract class ScTypeAliasElementType[Func <: ScTypeAlias](debugName: String)
 
   override def deserialize(dataStream: StubInputStream, parentStub: StubElement[_ <: PsiElement]): ScTypeAliasStub = {
     new ScTypeAliasStubImpl(parentStub.asInstanceOf[StubElement[PsiElement]], this,
-      nameRef = dataStream.readName,
-      typeTextRef = dataStream.readOptionName,
-      lowerBoundTextRef = dataStream.readOptionName,
-      upperBoundTextRef = dataStream.readOptionName,
+      name = dataStream.readNameString,
+      typeText = dataStream.readOptionName,
+      lowerBoundText = dataStream.readOptionName,
+      upperBoundText = dataStream.readOptionName,
       isLocal = dataStream.readBoolean,
       isDeclaration = dataStream.readBoolean,
       isStableQualifier = dataStream.readBoolean)
@@ -71,10 +70,10 @@ abstract class ScTypeAliasElementType[Func <: ScTypeAlias](debugName: String)
     }.isDefined
 
     new ScTypeAliasStubImpl(parentStub, this,
-      nameRef = fromString(alias.name),
-      typeTextRef = aliasedTypeText.asReference,
-      lowerBoundTextRef = lowerBoundText.asReference,
-      upperBoundTextRef = upperBoundText.asReference,
+      name = alias.name,
+      typeText = aliasedTypeText,
+      lowerBoundText = lowerBoundText,
+      upperBoundText = upperBoundText,
       isLocal = maybeContainingClass.isEmpty,
       isDeclaration = maybeDeclaration.isDefined,
       isStableQualifier = isStableQualifier)

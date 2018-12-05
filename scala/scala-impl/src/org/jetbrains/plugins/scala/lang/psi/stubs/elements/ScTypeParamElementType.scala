@@ -7,7 +7,6 @@ package elements
 import com.intellij.lang.ASTNode
 import com.intellij.psi.PsiElement
 import com.intellij.psi.stubs.{StubElement, StubInputStream, StubOutputStream}
-import com.intellij.util.io.StringRef.fromString
 import org.jetbrains.plugins.scala.lang.psi.api.statements.params.ScTypeParam
 import org.jetbrains.plugins.scala.lang.psi.impl.statements.params.ScTypeParamImpl
 import org.jetbrains.plugins.scala.lang.psi.stubs.impl.ScTypeParamStubImpl
@@ -35,15 +34,15 @@ class ScTypeParamElementType extends ScStubElementType[ScTypeParamStub, ScTypePa
                            parentStub: StubElement[_ <: PsiElement]) = new ScTypeParamStubImpl(
     parentStub,
     this,
-    nameRef = dataStream.readName,
-    textRef = dataStream.readName,
-    lowerBoundTextRef = dataStream.readOptionName,
-    upperBoundTextRef = dataStream.readOptionName,
-    viewBoundsTextRefs = dataStream.readNames,
-    contextBoundsTextRefs = dataStream.readNames,
+    name = dataStream.readNameString,
+    text = dataStream.readNameString,
+    lowerBoundText = dataStream.readOptionName,
+    upperBoundText = dataStream.readOptionName,
+    viewBoundsTexts = dataStream.readNames,
+    contextBoundsTexts = dataStream.readNames,
     isCovariant = dataStream.readBoolean,
     isContravariant = dataStream.readBoolean,
-    containingFileNameRef = dataStream.readName(),
+    containingFileName = dataStream.readNameString(),
     positionInFile = dataStream.readInt
   )
 
@@ -56,15 +55,15 @@ class ScTypeParamElementType extends ScStubElementType[ScTypeParamStub, ScTypePa
     new ScTypeParamStubImpl(
       parentStub,
       this,
-      nameRef = fromString(typeParam.name),
-      textRef = fromString(typeParam.getText),
-      lowerBoundTextRef = lowerBoundText.asReference,
-      upperBoundTextRef = upperBoundText.asReference,
-      viewBoundsTextRefs = typeParam.viewTypeElement.asReferences(),
-      contextBoundsTextRefs = typeParam.contextBoundTypeElement.asReferences(),
+      name = typeParam.name,
+      text = typeParam.getText,
+      lowerBoundText = lowerBoundText,
+      upperBoundText = upperBoundText,
+      viewBoundsTexts = typeParam.viewTypeElement.asStrings(),
+      contextBoundsTexts = typeParam.contextBoundTypeElement.asStrings(),
       isCovariant = typeParam.isCovariant,
       isContravariant = typeParam.isContravariant,
-      containingFileNameRef = fromString(typeParam.getContainingFileName),
+      containingFileName = typeParam.getContainingFileName,
       positionInFile = typeParam.getTextRange.getStartOffset
     )
   }

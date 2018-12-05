@@ -47,7 +47,7 @@ class ScSelfTypeElementImpl private(stub: ScSelfTypeElementStub, node: ASTNode)
 
   def typeElement: Option[ScTypeElement] = byPsiOrStub(findChild(classOf[ScTypeElement]))(_.typeElement)
 
-  def classNames: Seq[String] = byStubOrPsi(_.classNames.toSeq) {
+  def classNames: Array[String] = byStubOrPsi(_.classNames) {
     val names = mutable.ArrayBuffer.empty[String]
 
     def fillNames(typeElement: ScTypeElement) {
@@ -64,6 +64,6 @@ class ScSelfTypeElementImpl private(stub: ScSelfTypeElementStub, node: ASTNode)
     }
 
     typeElement.foreach(fillNames)
-    names
+    names.toArray
   }
 }

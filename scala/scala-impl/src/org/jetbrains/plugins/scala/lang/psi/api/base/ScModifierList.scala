@@ -18,7 +18,7 @@ trait ScModifierList extends ScalaPsiElement with PsiModifierList {
   //only one access modifier can occur in a particular modifier list
   def accessModifier: Option[ScAccessModifier]
 
-  def modifiers: Set[String]
+  def modifiers: Array[String]
 
   def hasExplicitModifiers: Boolean
 
@@ -31,7 +31,7 @@ trait ScModifierList extends ScalaPsiElement with PsiModifierList {
 
   override final def addAnnotation(qualifiedName: String): PsiAnnotation = null
 
-  override final def hasModifierProperty(name: String): Boolean = modifiers(name)
+  override final def hasModifierProperty(name: String): Boolean = modifiers.contains(name)
 
   override final def hasExplicitModifier(name: String): Boolean = false
 

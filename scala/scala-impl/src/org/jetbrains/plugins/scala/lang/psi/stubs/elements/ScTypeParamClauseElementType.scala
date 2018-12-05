@@ -8,7 +8,6 @@ package elements
 import com.intellij.lang.ASTNode
 import com.intellij.psi.PsiElement
 import com.intellij.psi.stubs.{StubElement, StubInputStream, StubOutputStream}
-import com.intellij.util.io.StringRef.fromString
 import org.jetbrains.plugins.scala.lang.psi.api.statements.params.ScTypeParamClause
 import org.jetbrains.plugins.scala.lang.psi.impl.statements.params.ScTypeParamClauseImpl
 import org.jetbrains.plugins.scala.lang.psi.stubs.impl.ScTypeParamClauseStubImpl
@@ -25,12 +24,10 @@ class ScTypeParamClauseElementType
   }
 
   override def deserialize(dataStream: StubInputStream, parentStub: StubElement[_ <: PsiElement]): ScTypeParamClauseStub =
-    new ScTypeParamClauseStubImpl(parentStub, this,
-      typeParameterClauseTextRef = dataStream.readName)
+    new ScTypeParamClauseStubImpl(parentStub, this, dataStream.readNameString)
 
   override def createStubImpl(typeParamClause: ScTypeParamClause, parentStub: StubElement[_ <: PsiElement]): ScTypeParamClauseStub =
-    new ScTypeParamClauseStubImpl(parentStub, this,
-      typeParameterClauseTextRef = fromString(typeParamClause.getText))
+    new ScTypeParamClauseStubImpl(parentStub, this, typeParamClause.getText)
 
   override def createElement(node: ASTNode): ScTypeParamClause = new ScTypeParamClauseImpl(node)
 

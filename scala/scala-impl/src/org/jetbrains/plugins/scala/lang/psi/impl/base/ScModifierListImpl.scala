@@ -35,8 +35,8 @@ class ScModifierListImpl private (stub: ScModifiersStub, node: ASTNode)
   override def toString: String = "Modifiers"
 
   @Cached(ModCount.anyScalaPsiModificationCount, this)
-  override def modifiers: Set[String] = byStubOrPsi(_.modifiers.toSet) {
-    val result = mutable.HashSet.empty[String]
+  override def modifiers: Array[String] = byStubOrPsi(_.modifiers) {
+    val result = mutable.ArrayBuffer.empty[String]
 
     for {
       Val(keyword, prop) <- values
@@ -48,7 +48,7 @@ class ScModifierListImpl private (stub: ScModifiersStub, node: ASTNode)
       case _ => PROTECTED
     }
 
-    result.toSet
+    result.toArray
   }
 
   @Cached(ModCount.anyScalaPsiModificationCount, this)

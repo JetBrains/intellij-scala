@@ -31,15 +31,15 @@ final class ScTemplateParentsElementType extends ScStubElementType[ScTemplatePar
                            parentStub: StubElement[_ <: PsiElement]) = new ScTemplateParentsStubImpl(
     parentStub,
     this,
-    parentTypeTextRefs = dataStream.readNames,
-    constructorRef = dataStream.readOptionName
+    parentTypesTexts = dataStream.readNames,
+    constructorText = dataStream.readOptionName
   )
 
   override def createStubImpl(templateParents: ScTemplateParents,
                               parentStub: StubElement[_ <: PsiElement]) = new ScTemplateParentsStubImpl(
     parentStub,
     this,
-    parentTypeTextRefs = templateParents.typeElementsWithoutConstructor.asReferences(),
-    constructorRef = templateParents.constructor.map(_.getText).asReference
+    parentTypesTexts = templateParents.typeElementsWithoutConstructor.asStrings(),
+    constructorText = templateParents.constructor.map(_.getText)
   )
 }

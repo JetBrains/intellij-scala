@@ -7,7 +7,6 @@ package signatures
 
 import com.intellij.psi.PsiElement
 import com.intellij.psi.stubs.{StubElement, StubInputStream, StubOutputStream}
-import com.intellij.util.io.StringRef
 import org.jetbrains.plugins.scala.lang.psi.api.statements.params.{ScClassParameter, ScParameter}
 import org.jetbrains.plugins.scala.lang.psi.stubs.impl.ScParameterStubImpl
 
@@ -32,16 +31,16 @@ abstract class ScParamElementType[P <: ScParameter](debugName: String) extends S
 
   override def deserialize(dataStream: StubInputStream, parentStub: StubElement[_ <: PsiElement]): ScParameterStub =
     new ScParameterStubImpl(parentStub, this,
-      nameRef = dataStream.readName,
-      typeTextRef = dataStream.readOptionName,
+      name = dataStream.readNameString,
+      typeText = dataStream.readOptionName,
       isStable = dataStream.readBoolean,
       isDefaultParameter = dataStream.readBoolean,
       isRepeated = dataStream.readBoolean,
       isVal = dataStream.readBoolean,
       isVar = dataStream.readBoolean,
       isCallByNameParameter = dataStream.readBoolean,
-      bodyTextRef = dataStream.readOptionName,
-      deprecatedNameRef = dataStream.readOptionName)
+      bodyText = dataStream.readOptionName,
+      deprecatedName = dataStream.readOptionName)
 
   override def createStubImpl(parameter: ScParameter, parentStub: StubElement[_ <: PsiElement]): ScParameterStub = {
     val typeText = parameter.typeElement.map {
@@ -56,15 +55,15 @@ abstract class ScParamElementType[P <: ScParameter](debugName: String) extends S
     }
 
     new ScParameterStubImpl(parentStub, this,
-      nameRef = StringRef.fromString(parameter.name),
-      typeTextRef = typeText.asReference,
+      name = parameter.name,
+      typeText = typeText,
       isStable = parameter.isStable,
       isDefaultParameter = parameter.baseDefaultParam,
       isRepeated = parameter.isRepeatedParameter,
       isVal = isVal,
       isVar = isVar,
       isCallByNameParameter = parameter.isCallByNameParameter,
-      bodyTextRef = defaultExprText.asReference,
-      deprecatedNameRef = parameter.deprecatedName.asReference)
+      bodyText = defaultExprText,
+      deprecatedName = parameter.deprecatedName)
   }
 }

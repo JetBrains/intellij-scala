@@ -24,8 +24,8 @@ final class ScAnnotationElementType extends ScStubElementType[ScAnnotationStub, 
 
   override def deserialize(dataStream: StubInputStream, parentStub: StubElement[_ <: PsiElement]): ScAnnotationStub =
     new ScAnnotationStubImpl(parentStub, this,
-      nameRef = dataStream.readOptionName,
-      typeTextRef = dataStream.readOptionName)
+      name = dataStream.readOptionName,
+      typeText = dataStream.readOptionName)
 
   override def createStubImpl(annotation: ScAnnotation, parentStub: StubElement[_ <: PsiElement]): ScAnnotationStub = {
     val maybeTypeElement = Option(annotation).map {
@@ -49,8 +49,8 @@ final class ScAnnotationElementType extends ScStubElementType[ScAnnotationStub, 
     }
 
     new ScAnnotationStubImpl(parentStub, this,
-      nameRef = maybeName.asReference,
-      typeTextRef = maybeTypeText.asReference)
+      name = maybeName,
+      typeText = maybeTypeText)
   }
 
   override def indexStub(stub: ScAnnotationStub, sink: IndexSink): Unit = {
