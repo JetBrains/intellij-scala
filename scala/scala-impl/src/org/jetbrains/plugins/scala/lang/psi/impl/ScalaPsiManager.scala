@@ -230,11 +230,11 @@ class ScalaPsiManager(val project: Project) {
     val classes = JAVA_CLASS_NAME_IN_PACKAGE_KEY.elements(key, scope, classOf[PsiClass]).toSet
 
     val additionalClasses = classes.flatMap {
-      case definition: ScTypeDefinition => definition.additionalJavaClass
+      case definition: ScTypeDefinition => definition.additionalClassJavaName
       case _ => None
     }
 
-    (classes ++ additionalClasses).map(_.getName)
+    classes.map(_.getName) ++ additionalClasses
   }
 
   def getScalaClassNames(psiPackage: PsiPackage, scope: GlobalSearchScope): Set[String] = {

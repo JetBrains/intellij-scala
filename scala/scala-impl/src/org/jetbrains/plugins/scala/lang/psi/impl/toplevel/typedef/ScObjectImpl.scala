@@ -39,7 +39,8 @@ class ScObjectImpl(stub: ScTemplateDefinitionStub[ScObject],
   extends ScTypeDefinitionImpl(stub, nodeType, node)
     with ScObject with ScTemplateDefinition {
 
-  override def additionalJavaClass: Option[PsiClass] = fakeCompanionClass
+  override def additionalClassJavaName: Option[String] =
+    if (baseCompanionModule.isEmpty) Option(getName).map(_.stripSuffix("$")) else None
 
   override def getNavigationElement: PsiElement = {
     if (isSyntheticObject) {
