@@ -26,8 +26,5 @@ trait ScTrait extends ScTypeDefinition with ScDecoratedIconOwner {
 
   def getObjectClassOrTraitToken: PsiElement = getTraitToken
 
-  def fakeCompanionClass: PsiClass = {
-    def withSuffix(name: String) = s"$name$$class"
-    new PsiClassWrapper(this, withSuffix(getQualifiedName), withSuffix(getName))
-  }
+  def fakeCompanionClass: PsiClass
 }

@@ -83,8 +83,7 @@ abstract class ScTemplateDefinitionElementType[TypeDef <: ScTemplateDefinition](
     }
 
     val maybeAdditionalJavaName = maybeTypeDefinition
-      .flatMap(_.additionalJavaClass)
-      .map(_.getName)
+      .flatMap(_.additionalClassJavaName)
 
     val isLocal = definition.containingClass == null &&
       PsiTreeUtil.getParentOfType(definition, classOf[ScTemplateDefinition]) != null

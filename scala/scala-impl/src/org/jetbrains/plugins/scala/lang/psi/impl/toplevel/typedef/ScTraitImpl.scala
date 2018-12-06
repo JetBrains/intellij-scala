@@ -11,6 +11,7 @@ import org.jetbrains.plugins.scala.extensions._
 import org.jetbrains.plugins.scala.lang.psi.api.ScalaElementVisitor
 import org.jetbrains.plugins.scala.lang.psi.api.toplevel.ScTypeParametersOwner
 import org.jetbrains.plugins.scala.lang.psi.api.toplevel.typedef._
+import org.jetbrains.plugins.scala.lang.psi.light.PsiClassWrapper
 import org.jetbrains.plugins.scala.lang.psi.impl.toplevel.typedef.TypeDefinitionMembers.SignatureNodes
 import org.jetbrains.plugins.scala.lang.psi.stubs.ScTemplateDefinitionStub
 import org.jetbrains.plugins.scala.lang.psi.stubs.elements.ScTemplateDefinitionElementType
@@ -29,8 +30,7 @@ final class ScTraitImpl private[psi](stub: ScTemplateDefinitionStub[ScTrait],
   extends ScTypeDefinitionImpl(stub, nodeType, node)
     with ScTrait with ScTypeParametersOwner with ScTemplateDefinition {
 
-  //do not add fakeCompanionModule => will build tree from stubs everywhere
-  override def additionalJavaClass: Option[PsiClass] = Some(fakeCompanionClass)
+  override def additionalClassJavaName: Option[String] = Option(getName).map(withSuffix)
 
   override def accept(visitor: PsiElementVisitor) {
     visitor match {
@@ -98,4 +98,11 @@ final class ScTraitImpl private[psi](stub: ScTemplateDefinitionStub[ScTrait],
   override protected def syntheticMethodsNoOverrideImpl: Seq[PsiMethod] = {
     SyntheticMembersInjector.inject(this, withOverride = false)
   }
+
+  def fakeCompanionClass: PsiClass = {
+    new PsiClassWrapper(this, withSuffix(getQualifiedName), withSuffix(getName))
+  }
+
+  private def withSuffix(name: String) = s"$name$$class"
+
 }
