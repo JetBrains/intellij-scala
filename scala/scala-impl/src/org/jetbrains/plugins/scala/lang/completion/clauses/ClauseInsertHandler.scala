@@ -5,7 +5,6 @@ package clauses
 
 import com.intellij.codeInsight.completion.{InsertHandler, InsertionContext}
 import com.intellij.codeInsight.lookup.LookupElement
-import com.intellij.psi.codeStyle.CodeStyleManager
 import com.intellij.psi.util.PsiTreeUtil
 import org.jetbrains.plugins.scala.lang.psi.api.base.ScStableCodeReferenceElement
 import org.jetbrains.plugins.scala.lang.psi.api.base.patterns._
@@ -37,14 +36,11 @@ private[clauses] object ClauseInsertHandler {
 
   def replaceText(text: String)
                  (implicit insertionContext: InsertionContext): Unit = {
-    val InsertionContextExt(_, document, file, project) = insertionContext
-
-    val startOffset = insertionContext.getStartOffset
-    val endOffset = insertionContext.getSelectionEndOffset
-    document.replaceString(startOffset, endOffset, text)
-
-    CodeStyleManager.getInstance(project)
-      .reformatText(file, startOffset, startOffset + text.length)
+    insertionContext.getDocument.replaceString(
+      insertionContext.getStartOffset,
+      insertionContext.getSelectionEndOffset,
+      text
+    )
     insertionContext.commitDocument()
   }
 

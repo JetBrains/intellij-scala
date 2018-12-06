@@ -3,11 +3,15 @@ package lang
 package completion
 package clauses
 
+import java.{util => ju}
+
 import com.intellij.codeInsight.completion._
 import com.intellij.patterns.PlatformPatterns
 import com.intellij.psi._
+import com.intellij.psi.codeStyle.CodeStyleManager
 import com.intellij.psi.impl.source.tree.PsiWhiteSpaceImpl
 import org.jetbrains.plugins.scala.extensions._
+import org.jetbrains.plugins.scala.lang.formatting.settings.ScalaCodeStyleSettings
 import org.jetbrains.plugins.scala.lang.parser.ScalaElementType
 import org.jetbrains.plugins.scala.lang.psi.ScalaPsiUtil.functionArrow
 import org.jetbrains.plugins.scala.lang.psi.api.base.patterns.{ScCaseClause, ScCaseClauses, ScTypedPattern}
@@ -188,15 +192,25 @@ object ExhaustiveMatchCompletionContributor {
       val (components, clausesText) = strategy.createClauses(prefix, suffix)
       ClauseInsertHandler.replaceText(clausesText)
 
-      val whiteSpace = onTargetElement { target =>
-        val clauses = findCaseClauses(target)
-        val caseClauses = clauses.caseClauses
+      val InsertionContextExt(editor, document, file, project) = insertionContext
+      onTargetElement { statement =>
+        val clauses = findCaseClauses(statement)
+        strategy.adjustTypes(components, clauses.caseClauses)
+        if (!ScalaCodeStyleSettings.getInstance(project).USE_SCALAFMT_FORMATTER) {
+          CodeStyleManager.getInstance(project).reformatText(file, ju.Collections.singleton(statement.getTextRange))
+        }
+      }
 
-        strategy.adjustTypes(components, caseClauses)
+      val whiteSpace = onTargetElement { statement =>
+        val clauses = findCaseClauses(statement)
+        val caseClauses = clauses.caseClauses
         replaceWhiteSpace(caseClauses.head)(clauses.getNextSibling)
       }
 
-      moveCaretPhase(whiteSpace.getStartOffset + 1)
+      val offset = whiteSpace.getStartOffset + 1
+      PsiDocumentManager.getInstance(project)
+        .doPostponedOperationsAndUnblockDocument(document)
+      editor.getCaretModel.moveToOffset(offset)
     }
 
     protected def findCaseClauses(target: E): ScCaseClauses
@@ -209,15 +223,6 @@ object ExhaustiveMatchCompletionContributor {
       }).asInstanceOf[PsiWhiteSpaceImpl]
 
       whiteSpace.replaceWithText(" " + whiteSpace.getText)
-    }
-
-    private def moveCaretPhase(offset: Int)
-                              (implicit insertionContext: InsertionContext): Unit = {
-      val InsertionContextExt(editor, document, _, project) = insertionContext
-
-      PsiDocumentManager.getInstance(project)
-        .doPostponedOperationsAndUnblockDocument(document)
-      editor.getCaretModel.moveToOffset(offset)
     }
   }
 
