@@ -233,7 +233,7 @@ public class ScalaLexer extends Lexer {
           type == XmlTokenType.TAG_WHITE_SPACE) &&
           tokenText.toString().matches("\\s*\n(\n|\\s)*")) {
         type = ScalaTokenTypes.tWHITE_SPACE_IN_LINE;
-      } else if (type == null || !(type instanceof IXmlLeafElementType) && !ScalaXmlTokenTypes.isSubstituted(type.toString())) {
+      } else if (type == null || !(type instanceof IXmlLeafElementType) && !ScalaXmlTokenTypes.isSubstituted(type)) {
         ++xmlSteps;
       }
       if (myTokenType == null) {

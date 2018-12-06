@@ -1,13 +1,14 @@
 package org.jetbrains.plugins.scala.lang.lexer
 
 import java.io.Reader
+import java.util.{Map => JMap}
 
 import com.intellij.lexer.{MergingLexerAdapter, _XmlLexer, __XmlLexer}
 import com.intellij.psi.tree.{IElementType, TokenSet}
 import com.intellij.psi.xml.XmlTokenType
 import org.jetbrains.plugins.scala.lang.parser.ScalaElementType
 
-import scala.collection.mutable
+import com.intellij.util.containers.ContainerUtil
 
 /**
  * User: Dmitry.Naydanov
@@ -15,19 +16,30 @@ import scala.collection.mutable
  */
 object ScalaXmlTokenTypes {
 
-  private val allTypes = mutable.HashMap.empty[String, IElementType]
+  private val allTypes: JMap[String, ScalaTokenType] = ContainerUtil.newHashMap()
   
-  protected def create(name: String) = {
+  private def create(name: String): ScalaTokenType = {
     val tp = new ScalaTokenType(name)
     allTypes.put(name, tp)
     tp
   }
-  
-  def getByName(name: String): Option[IElementType] = allTypes.get(name)
 
-  def substitute(tpe: IElementType): IElementType = if (tpe == null) null else getByName(tpe.toString) getOrElse tpe
+  //let's not allocate Options in lexer
+  private def getByName(elemType: IElementType): IElementType = {
+    if (elemType == null || elemType.toString == null) return elemType
 
-  def isSubstituted(name: String): Boolean = allTypes.get(name).isDefined
+    val name = elemType.toString
+    if (name == null) return elemType
+
+    allTypes.get(name) match {
+      case null  => elemType
+      case subst => subst
+    }
+  }
+
+  def substitute(elemType: IElementType): IElementType = getByName(elemType)
+
+  def isSubstituted(elemType: IElementType): Boolean = allTypes.containsKey(elemType.toString)
   
   val XML_EQ = create("XML_EQ")
 
