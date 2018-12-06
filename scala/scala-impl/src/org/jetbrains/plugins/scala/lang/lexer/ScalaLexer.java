@@ -22,6 +22,7 @@ import com.intellij.psi.tree.IElementType;
 import com.intellij.psi.tree.xml.IXmlLeafElementType;
 import com.intellij.psi.xml.XmlTokenType;
 import com.intellij.util.containers.Stack;
+import com.intellij.util.text.CharArrayUtil;
 import gnu.trove.TIntStack;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
@@ -114,7 +115,7 @@ public class ScalaLexer extends Lexer {
     if (myTokenType == null) {
       IElementType type = myCurrentLexer.getTokenType();
       int start = myCurrentLexer.getTokenStart();
-      String tokenText = myCurrentLexer.getBufferSequence().subSequence(start, myCurrentLexer.getTokenEnd()).toString();
+      CharSequence tokenText = myCurrentLexer.getBufferSequence().subSequence(start, myCurrentLexer.getTokenEnd());
       if (myCurrentLexer == myXmlLexer && xmlSteps == 0) {
         myCurrentLexer = myScalaPlainLexer;
         myCurrentLexer.start(getBufferSequence(), start, myXmlLexer.getBufferEnd(), 0);
@@ -135,7 +136,7 @@ public class ScalaLexer extends Lexer {
         myTokenType = myCurrentLexer.getTokenType();
         locateTextRange();
       } else if ((/*type == XML_ATTRIBUTE_VALUE_TOKEN || */type == ScalaXmlTokenTypes.XML_DATA_CHARACTERS()) && //todo: Dafuq???
-          tokenText.startsWith("{") && !tokenText.startsWith("{{") && !inCdata) {
+          startsWith(tokenText, "{") && !startsWith(tokenText, "{{") && !inCdata) {
         myXmlState = myCurrentLexer.getState();
         (myCurrentLexer = myScalaPlainLexer).start(getBufferSequence(), start, myBufferEnd, 0);
         locateTextRange();
@@ -217,10 +218,10 @@ public class ScalaLexer extends Lexer {
           myTokenType = ScalaXmlTokenTypes.XML_CDATA_END();
           return;
         }
-      } else if (type == ScalaXmlTokenTypes.XML_DATA_CHARACTERS() && tokenText.indexOf('{') != -1 && !inCdata) {
-        int scalaToken = tokenText.indexOf('{');
+      } else if (type == ScalaXmlTokenTypes.XML_DATA_CHARACTERS() && CharArrayUtil.indexOf(tokenText, "{", 0) != -1 && !inCdata) {
+        int scalaToken = CharArrayUtil.indexOf(tokenText, "{", 0);
         while (scalaToken != -1 && scalaToken + 1 < tokenText.length() && tokenText.charAt(scalaToken + 1) == '{')
-          scalaToken = tokenText.indexOf('{', scalaToken + 2);
+          scalaToken = CharArrayUtil.indexOf(tokenText, "{", scalaToken + 2);
         if (scalaToken != -1) {
           myTokenType = ScalaXmlTokenTypes.XML_DATA_CHARACTERS();
           myTokenStart = myCurrentLexer.getTokenStart();
@@ -230,7 +231,7 @@ public class ScalaLexer extends Lexer {
       } else if ((type == XmlTokenType.XML_REAL_WHITE_SPACE ||
           type == XmlTokenType.XML_WHITE_SPACE ||
           type == XmlTokenType.TAG_WHITE_SPACE) &&
-          tokenText.matches("\\s*\n(\n|\\s)*")) {
+          tokenText.toString().matches("\\s*\n(\n|\\s)*")) {
         type = ScalaTokenTypes.tWHITE_SPACE_IN_LINE;
       } else if (type == null || !(type instanceof IXmlLeafElementType) && !ScalaXmlTokenTypes.isSubstituted(type.toString())) {
         ++xmlSteps;
@@ -244,6 +245,22 @@ public class ScalaLexer extends Lexer {
       //because of wrong behaviour of the latter ScalaPlainLexer
       myCurrentLexer.advance();
     }
+  }
+
+  private boolean startsWith(CharSequence chars, String prefix) {
+    int i = 0;
+    int charsLength = chars.length();
+    int prefixLength = prefix.length();
+
+    if (prefixLength > charsLength)
+      return false;
+
+    while (i < prefixLength) {
+      if (chars.charAt(i) != prefix.charAt(i))
+        return false;
+      i++;
+    }
+    return true;
   }
 
   private void startScalaPlainLexer(int start) {
