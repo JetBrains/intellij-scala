@@ -81,7 +81,7 @@ object SignatureStrategy {
 
   private def isPrivateImpl(named: PsiNamedElement): Boolean = {
     named match {
-      case param: ScClassParameter if !param.isEffectiveVal => true
+      case param: ScClassParameter if !param.isClassMember => true
       case inNameContext(s: ScModifierListOwner) =>
         s.getModifierList.accessModifier match {
           case Some(a: ScAccessModifier) => a.isUnqualifiedPrivateOrThis

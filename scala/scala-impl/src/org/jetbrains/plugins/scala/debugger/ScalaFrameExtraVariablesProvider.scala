@@ -83,7 +83,7 @@ class ScalaFrameExtraVariablesProvider extends FrameExtraVariablesProvider {
     srr.getElement match {
       case _: ScWildcardPattern => false
       case tp: ScTypedPattern if tp.name == "_" => false
-      case cp: ScClassParameter if !cp.isEffectiveVal =>
+      case cp: ScClassParameter if !cp.isClassMember =>
         def notInThisClass(elem: PsiElement) = {
           elem != null && !PsiTreeUtil.isAncestor(cp.containingClass, elem, true)
         }

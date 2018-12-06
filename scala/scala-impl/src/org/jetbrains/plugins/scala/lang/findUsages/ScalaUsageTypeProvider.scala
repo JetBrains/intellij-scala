@@ -156,7 +156,7 @@ object ScalaUsageTypeProvider {
         CLASS_METHOD_RETURN_TYPE
       case valueOrVariable: ScValueOrVariable if isAppropriate(valueOrVariable.typeElement) =>
         if (valueOrVariable.isLocal) CLASS_LOCAL_VAR_DECLARATION else CLASS_FIELD_DECLARATION
-      case classParameter: ScClassParameter if isAppropriate(classParameter.typeElement) && classParameter.isEffectiveVal =>
+      case classParameter: ScClassParameter if isAppropriate(classParameter.typeElement) && classParameter.isClassMember =>
         CLASS_FIELD_DECLARATION
       case typedStmt: ScTypedStmt if isAppropriate(typedStmt.typeElement) =>
         TypedStatement

@@ -377,7 +377,7 @@ object TypeDefinitionMembers {
           if (!process(m, node.substitutor))
             return false
 
-        case p: ScClassParameter if processValsForScala && !p.isEffectiveVal =>
+        case p: ScClassParameter if processValsForScala && !p.isClassMember =>
           //this is member only for class scope
           val clazz = p.containingClass
           if (clazz != null && isContextAncestor(clazz, place, false)) {

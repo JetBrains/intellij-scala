@@ -76,7 +76,7 @@ trait ScTypedDefinition extends ScNamedElement with Typeable {
     val (member, needSetter) = nameContext match {
       case v: ScValue => (v, false)
       case v: ScVariable => (v, true)
-      case cp: ScClassParameter if cp.isEffectiveVal => (cp, cp.isVar)
+      case cp: ScClassParameter if cp.isClassMember => (cp, cp.isVar)
       case _ => return Nil
     }
     val beanProperty = ScalaPsiUtil.isBeanProperty(member)

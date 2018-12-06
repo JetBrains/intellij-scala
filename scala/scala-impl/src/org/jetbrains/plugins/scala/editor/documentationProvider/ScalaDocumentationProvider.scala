@@ -686,7 +686,7 @@ object ScalaDocumentationProvider {
   def parseParameter(param: ScParameter, escape: Boolean = true, memberModifiers: Boolean = true)
                     (implicit typeToString: ScType => String): String = {
     val member = param match {
-      case c: ScClassParameter => c.isEffectiveVal
+      case c: ScClassParameter => c.isClassMember
       case _ => false
     }
     val buffer: StringBuilder = new StringBuilder("")

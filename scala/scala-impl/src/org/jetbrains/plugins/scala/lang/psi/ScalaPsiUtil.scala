@@ -555,7 +555,7 @@ object ScalaPsiUtil {
       case e@(_: ScValue | _: ScVariable | _: ScObject) if e.getParent.isInstanceOf[ScTemplateBody] ||
         e.getParent.isInstanceOf[ScEarlyDefinitions] =>
         e.asInstanceOf[ScMember].containingClass
-      case e: ScClassParameter if e.isEffectiveVal => e.containingClass
+      case e: ScClassParameter if e.isClassMember => e.containingClass
       case _ => return empty
     }
     if (clazz == null) return empty

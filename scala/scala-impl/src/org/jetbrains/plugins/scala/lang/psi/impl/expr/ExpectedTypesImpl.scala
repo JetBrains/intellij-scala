@@ -534,7 +534,7 @@ class ExpectedTypesImpl extends ExpectedTypes {
 
     val maybeName = m match {
       case v: ScValueOrVariable => v.declaredNames.headOption
-      case cp: ScClassParameter if cp.isEffectiveVal => Some(cp.name)
+      case cp: ScClassParameter if cp.isClassMember => Some(cp.name)
       case _ => None
     }
 

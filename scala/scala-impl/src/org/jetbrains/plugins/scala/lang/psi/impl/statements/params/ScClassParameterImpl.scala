@@ -6,8 +6,11 @@ package statements
 package params
 
 import com.intellij.lang.ASTNode
+import com.intellij.lang.jvm.JvmElementVisitor
 import com.intellij.psi.{PsiClass, PsiElement, PsiElementVisitor}
+import javax.swing.Icon
 import org.jetbrains.plugins.scala.extensions.ifReadAllowed
+import org.jetbrains.plugins.scala.icons.Icons
 import org.jetbrains.plugins.scala.lang.lexer.ScalaTokenTypes
 import org.jetbrains.plugins.scala.lang.parser.ScalaElementType
 import org.jetbrains.plugins.scala.lang.psi.api.ScalaElementVisitor
@@ -34,12 +37,21 @@ class ScClassParameterImpl private (stub: ScParameterStub, node: ASTNode)
   override def isVar: Boolean = byStubOrPsi(_.isVar)(findChildByType(ScalaTokenTypes.kVAR) != null)
 
   def isPrivateThis: Boolean = {
-    if (!isEffectiveVal) return true
+    if (!isClassMember) return true
     getModifierList.accessModifier match {
       case Some(am) =>
         am.isThis && am.isPrivate
       case _ => false
     }
+  }
+
+  override def isCaseClassVal: Boolean = containingClass match {
+    case c: ScClass if c.isCase =>
+      val isInPrimaryConstructorFirstParamSection = c.constructor
+        .exists(_.effectiveFirstParameterSection.contains(this))
+
+      isInPrimaryConstructorFirstParamSection
+    case _ => false
   }
 
   override def isStable: Boolean = byStubOrPsi(_.isStable)(findChildByType(ScalaTokenTypes.kVAR) == null)
@@ -69,4 +81,10 @@ class ScClassParameterImpl private (stub: ScParameterStub, node: ASTNode)
       case _ => super.accept(visitor)
     }
   }
+
+  override protected def getBaseIcon(flags: Int): Icon =
+    if (isVar) Icons.FIELD_VAR
+    else if (isVal || isCaseClassVal) Icons.FIELD_VAL
+    else Icons.PARAMETER
+
 }

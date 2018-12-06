@@ -5,6 +5,7 @@ package caseClassParamInspection
 import com.intellij.codeInspection._
 import com.intellij.psi.PsiElement
 import org.jetbrains.plugins.scala.lang.psi.api.statements.params.ScClassParameter
+import org.jetbrains.plugins.scala.lang.psi.api.toplevel.ScModifierListOwner
 import org.jetbrains.plugins.scala.lang.psi.api.toplevel.typedef.ScClass
 
 
@@ -15,10 +16,13 @@ class CaseClassParamInspection extends AbstractInspection("Case Class Parameter"
       for{
         paramClause <- c.allClauses.take(1)
         classParam@(__ : ScClassParameter) <- paramClause.parameters
-        if classParam.isVal && classParam.isCaseClassVal
+        if classParam.isVal && classParam.isCaseClassVal && !hasExplicitModifier(classParam)
       } {
         holder.registerProblem(classParam, ScalaBundle.message("val.on.case.class.param.redundant"),
           ProblemHighlightType.GENERIC_ERROR_OR_WARNING, new RemoveValQuickFix(classParam))
       }
   }
+
+  private def hasExplicitModifier(owner: ScModifierListOwner): Boolean =
+    owner.getModifierList.hasExplicitModifiers
 }

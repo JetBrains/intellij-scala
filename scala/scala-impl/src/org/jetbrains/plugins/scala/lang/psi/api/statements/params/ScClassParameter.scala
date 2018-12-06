@@ -18,25 +18,10 @@ trait ScClassParameter extends ScParameter with ScMember with ScDecoratedIconOwn
 
   def isPrivateThis: Boolean
 
-  // TODO isEffectiveValOrVar? (or isClassMember?)
-  /** Is the parmameter is explicitly marked as a val or a var; or a case class parameter that is automatically a val. */
-  def isEffectiveVal: Boolean = isVal || isVar || isCaseClassVal
+  def isClassMember: Boolean = isVal || isVar || isCaseClassVal
 
   /** Is the parameter automatically a val, due to it's position in a case class parameter list */
-  def isCaseClassVal: Boolean = containingClass match {
-    case c: ScClass if c.isCase =>
-      val isInPrimaryConstructorFirstParamSection = c.constructor
-        .exists(_.effectiveFirstParameterSection.contains(this))
-      // Any modifier (including "override", "final" or "private") requires "val" or "var"
-      val isValOrVar = Option(getModifierList).exists(_.hasExplicitModifiers)
-      isInPrimaryConstructorFirstParamSection && !isValOrVar
-    case _ => false
-  }
-
-  override protected def getBaseIcon(flags: Int): Icon =
-    if (isVar) Icons.FIELD_VAR
-    else if (isVal || isCaseClassVal) Icons.FIELD_VAL
-    else Icons.PARAMETER
+  def isCaseClassVal: Boolean
 
   override def accept[T](visitor: JvmElementVisitor[T]): T = super[ScMember].accept(visitor)
 }
