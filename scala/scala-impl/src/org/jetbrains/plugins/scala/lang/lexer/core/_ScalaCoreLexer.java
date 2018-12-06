@@ -3,14 +3,11 @@
 package org.jetbrains.plugins.scala.lang.lexer.core;
 
 import com.intellij.lexer.FlexLexer;
-import com.intellij.psi.tree.IElementType;
-import java.util.*;
-import java.lang.reflect.Field;
-import org.jetbrains.annotations.NotNull;
-import org.jetbrains.plugins.scala.lang.lexer.ScalaTokenTypesEx;
-import org.jetbrains.plugins.scala.lang.lexer.ScalaTokenTypes;
-import org.jetbrains.plugins.scala.lang.scaladoc.parser.ScalaDocElementTypes;
 import com.intellij.openapi.util.text.StringUtil;
+import com.intellij.psi.tree.IElementType;
+import com.intellij.util.containers.Stack;
+import org.jetbrains.plugins.scala.lang.lexer.ScalaTokenTypesEx;
+import org.jetbrains.plugins.scala.lang.scaladoc.parser.ScalaDocElementTypes;
 
 
 /**
@@ -1197,7 +1194,7 @@ public class _ScalaCoreLexer implements FlexLexer, ScalaTokenTypesEx {
     //bracers count inside injection
     private int structuralBracers = 0;
     // Currently opened interpolated Strings. Each int represents the number of the opened left structural braces in the String 
-    private Stack<InterpolatedStringLevel> nestedString = new Stack<InterpolatedStringLevel>();
+    private Stack<InterpolatedStringLevel> nestedString = new Stack<>();
     
     public boolean isInterpolatedStringState() {
         return shouldProcessBracesForInterpolated()    || haveIdInString || haveIdInMultilineString || 
@@ -1205,7 +1202,7 @@ public class _ScalaCoreLexer implements FlexLexer, ScalaTokenTypesEx {
     }
     
     private boolean shouldProcessBracesForInterpolated() {
-      return !nestedString.empty();      
+      return !nestedString.isEmpty();
     }
     
     private void changeStringLevel() {
