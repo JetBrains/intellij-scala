@@ -5,7 +5,7 @@ package stubs
 
 import com.intellij.psi.stubs.NamedStub
 import org.jetbrains.plugins.scala.lang.psi.api.statements.ScFunction
-import org.jetbrains.plugins.scala.lang.psi.stubs.impl.{ScExpressionOwnerStub, ScTypeElementOwnerStub}
+import org.jetbrains.plugins.scala.lang.psi.stubs.impl.ScTypeElementOwnerStub
 
 /**
   * User: Alexander Podkhalyuzin
@@ -13,14 +13,11 @@ import org.jetbrains.plugins.scala.lang.psi.stubs.impl.{ScExpressionOwnerStub, S
   */
 trait ScFunctionStub[F <: ScFunction] extends NamedStub[F]
   with ScMemberOrLocal
-  with ScTypeElementOwnerStub[F]
-  with ScExpressionOwnerStub[F] {
+  with ScTypeElementOwnerStub[F] {
 
   def isImplicit: Boolean
 
   def isDeclaration: Boolean
 
   def annotations: Array[String]
-
-  def hasAssign: Boolean
 }

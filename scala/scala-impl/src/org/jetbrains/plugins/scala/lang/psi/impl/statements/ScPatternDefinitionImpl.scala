@@ -61,7 +61,9 @@ final class ScPatternDefinitionImpl private[psi](stub: ScPropertyStub[ScPatternD
       }
   }
 
-  def expr: Option[ScExpression] = byPsiOrStub(findChild(classOf[ScExpression]))(_.bodyExpression)
+  def expr: Option[ScExpression] =
+    if (isInCompiledFile) byStubOrPsi(_.bodyExpression)(findChild(classOf[ScExpression]))
+    else findChild(classOf[ScExpression])
 
   def typeElement: Option[ScTypeElement] = byPsiOrStub(findChild(classOf[ScTypeElement]))(_.typeElement)
 

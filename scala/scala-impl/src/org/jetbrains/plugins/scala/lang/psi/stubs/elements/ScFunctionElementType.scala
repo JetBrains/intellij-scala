@@ -24,8 +24,6 @@ abstract class ScFunctionElementType[Fun <: ScFunction](debugName: String,
     dataStream.writeBoolean(stub.isDeclaration)
     dataStream.writeNames(stub.annotations)
     dataStream.writeOptionName(stub.typeText)
-    dataStream.writeOptionName(stub.bodyText)
-    dataStream.writeBoolean(stub.hasAssign)
     dataStream.writeBoolean(stub.isImplicit)
     dataStream.writeBoolean(stub.isLocal)
   }
@@ -38,30 +36,21 @@ abstract class ScFunctionElementType[Fun <: ScFunction](debugName: String,
     isDeclaration = dataStream.readBoolean,
     annotations = dataStream.readNames,
     typeText = dataStream.readOptionName,
-    bodyText = dataStream.readOptionName,
-    hasAssign = dataStream.readBoolean,
     isImplicit = dataStream.readBoolean,
     isLocal = dataStream.readBoolean
   )
 
   override def createStubImpl(function: Fun,
                               parentStub: StubElement[_ <: PsiElement]): ScFunctionStub[Fun] = {
-    val maybeFunction = Option(function)
-    val returnTypeText = maybeFunction.flatMap {
-      _.returnTypeElement
-    }.map {
-      _.getText
-    }
 
-    val maybeDefinition = maybeFunction.collect {
+    val funDef = function match {
       case definition: ScFunctionDefinition => definition
+      case _ => null
     }
 
-    val bodyText = returnTypeText match {
-      case Some(_) => None
-      case None =>
-        maybeDefinition.flatMap(_.body)
-          .map(_.getText)
+    val returnTypeText = function match {
+      case definition: ScFunctionDefinition if !definition.hasAssign => Some("_root_.scala.Unit")
+      case _ => function.returnTypeElement.map(_.getText)
     }
 
     val annotations = function.annotations
@@ -75,8 +64,6 @@ abstract class ScFunctionElementType[Fun <: ScFunction](debugName: String,
       isDeclaration = function.isInstanceOf[ScFunctionDeclaration],
       annotations = annotations,
       typeText = returnTypeText,
-      bodyText = bodyText,
-      hasAssign = maybeDefinition.exists(_.hasAssign),
       isImplicit = function.hasModifierProperty("implicit"),
       isLocal = function.containingClass == null)
   }

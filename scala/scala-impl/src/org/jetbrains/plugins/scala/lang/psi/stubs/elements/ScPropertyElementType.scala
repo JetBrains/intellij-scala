@@ -26,7 +26,6 @@ sealed abstract class ScPropertyElementType[P <: ScValueOrVariable](debugName: S
     dataStream.writeNames(stub.names)
     dataStream.writeOptionName(stub.typeText)
     dataStream.writeOptionName(stub.bodyText)
-    dataStream.writeName(stub.bindingsContainerText)
     dataStream.writeBoolean(stub.isLocal)
   }
 
@@ -39,7 +38,6 @@ sealed abstract class ScPropertyElementType[P <: ScValueOrVariable](debugName: S
     names = dataStream.readNames,
     typeText = dataStream.readOptionName,
     bodyText = dataStream.readOptionName,
-    containerText = dataStream.readNameString,
     isLocal = dataStream.readBoolean
   )
 
@@ -52,7 +50,6 @@ sealed abstract class ScPropertyElementType[P <: ScValueOrVariable](debugName: S
     names = property.declaredNames.toArray,
     typeText = property.typeElement.map(_.getText),
     bodyText = body(property).map(_.getText),
-    containerText = container(property).getText,
     isLocal = property.containingClass == null
   )
 
@@ -63,8 +60,6 @@ sealed abstract class ScPropertyElementType[P <: ScValueOrVariable](debugName: S
   }
 
   protected def body(property: P): Option[ScExpression] = None
-
-  protected def container(property: P): ScalaPsiElement
 }
 
 object ValueDeclaration extends ScPropertyElementType[ScValueDeclaration]("value declaration") {
@@ -74,9 +69,6 @@ object ValueDeclaration extends ScPropertyElementType[ScValueDeclaration]("value
 
   override def createPsi(stub: ScPropertyStub[ScValueDeclaration]) =
     new ScValueDeclarationImpl(stub, this, null)
-
-  override protected def container(property: ScValueDeclaration): ScIdList =
-    property.getIdList
 }
 
 object ValueDefinition extends ScPropertyElementType[ScPatternDefinition]("value definition") {
@@ -88,10 +80,7 @@ object ValueDefinition extends ScPropertyElementType[ScPatternDefinition]("value
     new ScPatternDefinitionImpl(stub, this, null)
 
   override protected def body(property: ScPatternDefinition): Option[ScExpression] =
-    property.expr
-
-  override protected def container(property: ScPatternDefinition): ScPatternList =
-    property.pList
+    if (property.isInCompiledFile) property.expr else None
 }
 
 object VariableDeclaration extends ScPropertyElementType[ScVariableDeclaration]("variable declaration") {
@@ -101,9 +90,6 @@ object VariableDeclaration extends ScPropertyElementType[ScVariableDeclaration](
 
   override def createPsi(stub: ScPropertyStub[ScVariableDeclaration]) =
     new ScVariableDeclarationImpl(stub, this, null)
-
-  override protected def container(property: ScVariableDeclaration): ScIdList =
-    property.getIdList
 }
 
 object VariableDefinition extends ScPropertyElementType[ScVariableDefinition]("variable definition") {
@@ -113,10 +99,4 @@ object VariableDefinition extends ScPropertyElementType[ScVariableDefinition]("v
 
   override def createPsi(stub: ScPropertyStub[ScVariableDefinition]) =
     new ScVariableDefinitionImpl(stub, this, null)
-
-  override protected def body(property: ScVariableDefinition): Option[ScExpression] =
-    property.expr
-
-  override protected def container(property: ScVariableDefinition): ScPatternList =
-    property.pList
 }

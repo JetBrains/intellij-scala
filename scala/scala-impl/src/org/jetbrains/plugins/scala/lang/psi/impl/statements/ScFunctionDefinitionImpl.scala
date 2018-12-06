@@ -42,9 +42,10 @@ class ScFunctionDefinitionImpl(stub: ScFunctionStub[ScFunctionDefinition],
     case Some(rte: ScTypeElement) => rte.`type`()
   }
 
-  def body: Option[ScExpression] = byPsiOrStub(findChild(classOf[ScExpression]))(_.bodyExpression)
+  def body: Option[ScExpression] =
+    if (isInCompiledFile) None else findChild(classOf[ScExpression])
 
-  override def hasAssign: Boolean = byStubOrPsi(_.hasAssign)(assignment.isDefined)
+  override def hasAssign: Boolean = assignment.isDefined
 
   def assignment = Option(findChildByType[PsiElement](ScalaTokenTypes.tASSIGN))
 
