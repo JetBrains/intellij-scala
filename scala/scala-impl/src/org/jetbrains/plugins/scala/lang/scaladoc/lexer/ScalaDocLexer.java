@@ -143,7 +143,7 @@ public class ScalaDocLexer extends MergingLexerAdapter {
         if (myBufferIndex < myTokenEndOffset) {
           myTokenType = lf || state == _ScalaDocLexer.PARAM_TAG_SPACE || state == _ScalaDocLexer.TAG_DOC_SPACE || 
               state == _ScalaDocLexer.INLINE_TAG_NAME || state == _ScalaDocLexer.DOC_TAG_VALUE_IN_PAREN ||
-              myBuffer.toString().substring(myBufferIndex, myTokenEndOffset - 1).trim().length() == 0
+              hasWhitespacesOnly(myBuffer, myBufferIndex, myTokenEndOffset - 1)
                         ? ScalaDocTokenType.DOC_WHITESPACE
                         : ScalaDocTokenType.DOC_COMMENT_DATA;
 
@@ -193,6 +193,17 @@ public class ScalaDocLexer extends MergingLexerAdapter {
       catch (IOException e) {
         // Can't be
       }
+    }
+
+    private boolean hasWhitespacesOnly(CharSequence buffer, int start, int end) {
+      int i = start;
+      while (i < end) {
+        if (buffer.charAt(i) > ' ') //see String#trim method
+          return false;
+
+        i += 1;
+      }
+      return true;
     }
   }
 }
