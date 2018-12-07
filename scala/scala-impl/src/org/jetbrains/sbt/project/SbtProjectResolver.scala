@@ -149,6 +149,8 @@ class SbtProjectResolver extends ExternalSystemProjectResolver[SbtExecutionSetti
     }
     else usingTempFile("sbt-structure", Some(".xml")) { structureFile =>
       val structureFilePath = normalizePath(structureFile)
+      val launcherDir = getSbtLauncherDir
+      val sbtStructureVersion = binaryVersion(sbtVersion).major(2).presentation
 
       val dumper = new SbtStructureDump()
       activeProcessDumper = Option(dumper)
@@ -159,11 +161,7 @@ class SbtProjectResolver extends ExternalSystemProjectResolver[SbtExecutionSetti
           Try(Await.result(messagesF, Duration.Inf)) // TODO some kind of timeout / cancel mechanism
         }
         else {
-          val sbtStructureJar = settings
-            .customSbtStructureFile
-            .orElse(SbtUtil.getSbtStructureJar(sbtVersion))
-            .getOrElse(throw new ExternalSystemException(s"Could not find sbt-structure-extractor for sbt version $sbtVersion"))
-
+          val sbtStructureJar = settings.customSbtStructureFile.getOrElse(launcherDir / s"sbt-structure-$sbtStructureVersion.jar")
           val structureFilePath = normalizePath(structureFile)
 
           // TODO add error/warning messages during dump, report directly
