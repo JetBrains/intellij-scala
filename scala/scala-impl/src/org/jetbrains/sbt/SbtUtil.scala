@@ -216,13 +216,11 @@ object SbtUtil {
       else None
 
     structurePath.map { relativePath =>
-      getDirInPlugin("repo") / relativePath
+      getRepoDir / relativePath
     }
   }
 
-  /** The bundled ivy repo for plugins used by sbt shell.
-    * Don't need to bother finding it in tests. */
-  def getRepoDir: File = pluginBase / "repo"
+  def getRepoDir: File = getDirInPlugin("repo")
 
   def getDefaultLauncher: File = getSbtLauncherDir / "sbt-launch.jar"
 

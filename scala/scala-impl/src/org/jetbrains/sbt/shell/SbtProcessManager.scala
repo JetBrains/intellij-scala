@@ -46,7 +46,7 @@ class SbtProcessManager(project: Project) extends ProjectComponent {
 
   @volatile private var processData: Option[ProcessData] = None
 
-  private val repoPath = normalizePath(getRepoDir)
+  private def repoPath = normalizePath(getRepoDir)
 
   private def pluginResolverSetting: String =
     raw"""resolvers += Resolver.file("intellij-scala-plugin", file(raw"$repoPath"))(Resolver.ivyStylePatterns)"""
