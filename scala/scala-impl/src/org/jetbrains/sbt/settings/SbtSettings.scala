@@ -31,13 +31,13 @@ class SbtSettings(project: Project)
   with PersistentStateComponent[SbtSettings.State] {
 
 
-  var customLauncherEnabled: Boolean = false
-  var customLauncherPath: String = ""
-  var maximumHeapSize: String = defaultMaxHeapSize
-  var vmParameters: String = ""
-  var customVMEnabled: Boolean = false
-  var customVMPath: String = ""
-  var customSbtStructurePath: String = ""
+  @BeanProperty var customLauncherEnabled: Boolean = false
+  @BeanProperty var customLauncherPath: String = ""
+  @BeanProperty var maximumHeapSize: String = defaultMaxHeapSize
+  @BeanProperty var vmParameters: String = ""
+  @BeanProperty var customVMEnabled: Boolean = false
+  @BeanProperty var customVMPath: String = ""
+  @BeanProperty var customSbtStructurePath: String = ""
 
   override def getState: SbtSettings.State = {
     val state = new SbtSettings.State
