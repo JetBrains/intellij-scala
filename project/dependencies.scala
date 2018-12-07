@@ -174,8 +174,6 @@ object DependencyGroups {
 
   val sbtRuntime: Seq[ModuleID] = Seq(
     sbtLaunch,
-    sbtStructureExtractor_013,
-    sbtStructureExtractor_100,
     compilerBridgeSources_2_10,
     compilerBridgeSources_2_11,
     compilerBridgeSources_2_13
