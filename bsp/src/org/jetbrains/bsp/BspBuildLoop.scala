@@ -6,7 +6,7 @@ import com.intellij.ide.highlighter.JavaFileType
 import com.intellij.openapi.application.{ApplicationManager, ModalityState}
 import com.intellij.openapi.components.ProjectComponent
 import com.intellij.openapi.externalSystem.service.project.autoimport.FileChangeListenerBase
-import com.intellij.openapi.fileTypes.FileType
+import com.intellij.openapi.fileTypes.{FileType, FileTypeManager}
 import com.intellij.openapi.module.Module
 import com.intellij.openapi.project.Project
 import com.intellij.openapi.roots.ProjectRootManager
@@ -33,6 +33,7 @@ final class BspBuildLoop(project: Project) extends ProjectComponent {
   private val busConnection: MessageBusConnection = project.getMessageBus.connect(project)
   private val fileIndex = ProjectRootManager.getInstance(project).getFileIndex
   private val taskManager = ProjectTaskManager.getInstance(project)
+  private val fileTypes = FileTypeManager.getInstance()
 
   busConnection.subscribe(VirtualFileManager.VFS_CHANGES, FileChangeListener)
 
@@ -78,12 +79,14 @@ final class BspBuildLoop(project: Project) extends ProjectComponent {
     override def deleteFile(file: VirtualFile, event: VFileEvent): Unit =
       fileChanged(file, event)
 
-    private def fileChanged(file: VirtualFile, event: VFileEvent) =
-    if (isSupported(file.getFileType)) {
-      changesSinceCompile = true
-      lastChangeTimestamp = System.nanoTime()
-      val module = fileIndex.getModuleForFile(file)
-      modulesToCompile.add(module)
+    private def fileChanged(file: VirtualFile, event: VFileEvent) = {
+      val fileType = fileTypes.getFileTypeByExtension(file.getExtension)
+      if (isSupported(fileType)) {
+        changesSinceCompile = true
+        lastChangeTimestamp = System.nanoTime()
+        val module = fileIndex.getModuleForFile(file)
+        modulesToCompile.add(module)
+      }
     }
 
     private def runCompile(): Unit = {
