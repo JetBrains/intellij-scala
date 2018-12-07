@@ -39,6 +39,7 @@ object MonocleInjector {
   }
 
   private[this] def mkLens(clazz: ScClass, prefix: String): Seq[String] = {
+    import org.jetbrains.plugins.scala.lang.psi.types.result._
     val typeParametersText = clazz.typeParameters.map(_.getText) match {
       case Seq() => ""
       case seq => seq.mkString("[", ",", "]")
@@ -53,7 +54,7 @@ object MonocleInjector {
         parameter.typeElement.get.calcType.toString
       }
 
-      s"def $prefix${parameter.name}$typeParametersText: _root_.monocle.Lens[${clazz.qualifiedName}$typeParametersText, $typeText] = ???"
+      s"def $prefix${parameter.name}$typeParametersText: _root_.monocle.Lens[${clazz.`type`().getOrAny}, $typeText] = ???"
     }
   }
 }
