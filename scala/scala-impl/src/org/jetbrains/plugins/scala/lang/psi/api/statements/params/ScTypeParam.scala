@@ -24,8 +24,6 @@ trait ScTypeParam extends ScalaPsiElement with ScPolymorphicElement with PsiType
 
   def owner: ScTypeParametersOwner
 
-  def getOffsetInFile: Int
-
   def getContainingFileName: String
 
   def typeParameterText: String

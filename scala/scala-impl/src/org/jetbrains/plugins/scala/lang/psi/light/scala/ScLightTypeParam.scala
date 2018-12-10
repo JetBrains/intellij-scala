@@ -47,8 +47,6 @@ class ScDelegatingLightTypeParam(t: TypeParameter, val tParam: ScTypeParam)
 
   override def getContainingFileName: String = tParam.getContainingFileName
 
-  override def getOffsetInFile: Int = tParam.getOffsetInFile
-
   override def owner: ScTypeParametersOwner = tParam.owner
 
   override def isContravariant: Boolean = tParam.isContravariant
@@ -78,8 +76,6 @@ class DummyLightTypeParam(override val name: String)(implicit pc: ProjectContext
   override def isCovariant: Boolean = false
 
   override def isContravariant: Boolean = false
-
-  override def getOffsetInFile: Int = -1
 
   override def typeParameters: Seq[ScTypeParam] = Seq.empty
 

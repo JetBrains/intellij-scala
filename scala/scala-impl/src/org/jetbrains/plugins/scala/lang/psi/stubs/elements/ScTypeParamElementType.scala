@@ -27,7 +27,6 @@ class ScTypeParamElementType extends ScStubElementType[ScTypeParamStub, ScTypePa
     dataStream.writeBoolean(stub.isCovariant)
     dataStream.writeBoolean(stub.isContravariant)
     dataStream.writeName(stub.containingFileName)
-    dataStream.writeInt(stub.positionInFile)
   }
 
   override def deserialize(dataStream: StubInputStream,
@@ -43,7 +42,6 @@ class ScTypeParamElementType extends ScStubElementType[ScTypeParamStub, ScTypePa
     isCovariant = dataStream.readBoolean,
     isContravariant = dataStream.readBoolean,
     containingFileName = dataStream.readNameString(),
-    positionInFile = dataStream.readInt
   )
 
   override def createStubImpl(typeParam: ScTypeParam, parentStub: StubElement[_ <: PsiElement]): ScTypeParamStub = {
@@ -64,7 +62,6 @@ class ScTypeParamElementType extends ScStubElementType[ScTypeParamStub, ScTypePa
       isCovariant = typeParam.isCovariant,
       isContravariant = typeParam.isContravariant,
       containingFileName = typeParam.getContainingFileName,
-      positionInFile = typeParam.getTextRange.getStartOffset
     )
   }
 

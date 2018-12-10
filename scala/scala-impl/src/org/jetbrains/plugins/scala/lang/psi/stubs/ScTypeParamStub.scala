@@ -24,8 +24,6 @@ trait ScTypeParamStub extends ScBoundsOwnerStub[ScTypeParam] {
 
   def isContravariant: Boolean
 
-  def positionInFile: Int
-
   def containingFileName: String
 
   def text: String

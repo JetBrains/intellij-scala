@@ -310,13 +310,14 @@ class ScalaExtractTraitHandler extends ScalaRefactoringActionHandler {
     }
 
     def typeParameters: String = {
-      val paramTexts = typeParams.toSeq.sortBy(_.getOffsetInFile).map(_.getText)
+      val paramTexts = typeParams.toSeq.sortBy(_.getTextRange.getStartOffset).map(_.getText)
       if (paramTexts.isEmpty) "" else paramTexts.mkString("[", ", ", "]")
     }
 
     def typeArgs: String = {
-      val names = typeParams.toSeq.sortBy(_.getOffsetInFile).map(_.name)
-      if (names.isEmpty) "" else names.mkString("[", ", ", "]")    }
+      val names = typeParams.toSeq.sortBy(_.getTextRange.getStartOffset).map(_.name)
+      if (names.isEmpty) "" else names.mkString("[", ", ", "]")
+    }
   }
 
 }

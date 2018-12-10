@@ -16,33 +16,10 @@ import org.jetbrains.plugins.scala.lang.psi.impl.ScalaPsiElementFactory._
   */
 final class ScPropertyStubImpl[P <: ScValueOrVariable](parent: StubElement[_ <: PsiElement],
                                                        elementType: IStubElementType[_ <: StubElement[_ <: PsiElement], _ <: PsiElement],
-                                                       override val isDeclaration: Boolean,
-                                                       override val isImplicit: Boolean,
+                                                       val isDeclaration: Boolean,
+                                                       val isImplicit: Boolean,
                                                        val names: Array[String],
                                                        val typeText: Option[String],
                                                        val bodyText: Option[String],
-                                                       val containerText: String,
-                                                       override val isLocal: Boolean)
-  extends StubBase[P](parent, elementType) with ScPropertyStub[P] {
-
-  private var idsContainerReference: SofterReference[Option[ScIdList]] = null
-  private var patternsContainerReference: SofterReference[Option[ScPatternList]] = null
-
-  def bindingsContainerText: String = containerText
-
-  def patternsContainer: Option[ScPatternList] = {
-    if (isDeclaration) return None
-
-    getFromOptionalReference(patternsContainerReference) {
-      case (context, child) => createPatterListFromText(bindingsContainerText, context, child)
-    }(patternsContainerReference = _)
-  }
-
-  def idsContainer: Option[ScIdList] = {
-    if (!isDeclaration) return None
-
-    getFromOptionalReference(idsContainerReference) {
-      case (context, child) => createIdsListFromText(bindingsContainerText, context, child)
-    }(idsContainerReference = _)
-  }
-}
+                                                       val isLocal: Boolean)
+  extends StubBase[P](parent, elementType) with ScPropertyStub[P]

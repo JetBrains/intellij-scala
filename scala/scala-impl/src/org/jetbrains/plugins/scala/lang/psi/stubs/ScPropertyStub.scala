@@ -20,10 +20,4 @@ trait ScPropertyStub[P <: ScValueOrVariable] extends StubElement[P]
   def isImplicit: Boolean
 
   def names: Array[String]
-
-  def bindingsContainerText: String
-
-  def idsContainer: Option[ScIdList]
-
-  def patternsContainer: Option[ScPatternList]
 }

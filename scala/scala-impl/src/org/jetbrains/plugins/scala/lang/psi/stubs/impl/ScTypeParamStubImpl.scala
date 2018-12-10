@@ -26,8 +26,7 @@ class ScTypeParamStubImpl(parent: StubElement[_ <: PsiElement],
                           val contextBoundsTexts: Array[String],
                           val isCovariant: Boolean,
                           val isContravariant: Boolean,
-                          val containingFileName: String,
-                          val positionInFile: Int)
+                          val containingFileName: String)
   extends ScNamedStubBase[ScTypeParam](parent, elementType, name)
     with ScTypeParamStub with ScBoundsOwnerStub[ScTypeParam] {
 
