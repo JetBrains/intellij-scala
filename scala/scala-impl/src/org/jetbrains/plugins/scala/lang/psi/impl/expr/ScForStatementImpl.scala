@@ -333,7 +333,10 @@ class ScForStatementImpl(node: ASTNode) extends ScExpressionImplBase(node) with 
   }
 
   override protected def innerType: TypeResult = {
-    getDesugarizedExpr match {
+    getDesugarizedExpr flatMap {
+      case f: ScFunctionExpr => f.result
+      case e => Some(e)
+    } match {
       case Some(newExpr) => newExpr.getNonValueType()
       case None => Failure("Cannot create expression")
     }
