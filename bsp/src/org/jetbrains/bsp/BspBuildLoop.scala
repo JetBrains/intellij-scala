@@ -80,8 +80,7 @@ final class BspBuildLoop(project: Project) extends ProjectComponent {
       fileChanged(file, event)
 
     private def fileChanged(file: VirtualFile, event: VFileEvent) = {
-      val fileType = fileTypes.getFileTypeByExtension(file.getExtension)
-      if (isSupported(fileType)) {
+      if (isSupported(file)) {
         changesSinceCompile = true
         lastChangeTimestamp = System.nanoTime()
         val module = fileIndex.getModuleForFile(file)
@@ -110,9 +109,9 @@ final class BspBuildLoop(project: Project) extends ProjectComponent {
     }
 
     // TODO should allow all bsp-compiled types, depending on build server compatibility
-    private def isSupported(fileType: FileType) = fileType match {
-      case _ : ScalaFileType => true
-      case _ : JavaFileType => true
+    private def isSupported(file: VirtualFile) = file.getExtension match {
+      case "scala" => true
+      case "java" => true
       case _ => false
     }
   }
