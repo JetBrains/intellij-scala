@@ -36,7 +36,7 @@
         <syntheticMemberInjector implementation="org.jetbrains.plugins.scala.lang.psi.impl.toplevel.typedef.CirceCodecInjector"/>
         <syntheticMemberInjector implementation="scala.meta.intellij.MetaSupportInjector"/>
         <syntheticMemberInjector implementation="org.jetbrains.plugins.scala.lang.psi.impl.toplevel.typedef.QuasiQuotesInjector"/>
-        <syntheticMemberInjector implementation="org.jetbrains.plugins.scala.lang.psi.impl.toplevel.typedef.simulacrum.SimulacrumInjection"/>
+        <syntheticMemberInjector implementation="org.jetbrains.plugins.scala.lang.psi.impl.toplevel.typedef.simulacrum.SimulacrumInjector"/>
 
         <genericTypeNamesProvider
                 implementation="org.jetbrains.plugins.scala.lang.refactoring.namesSuggester.genericTypes.TypePluralNamesProvider"/>

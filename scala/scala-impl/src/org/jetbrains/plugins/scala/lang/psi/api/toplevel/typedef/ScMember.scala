@@ -186,5 +186,7 @@ object ScMember {
     def isSynthetic: Boolean = member.syntheticNavigationElement != null
 
     def isPrivate: Boolean = member.hasModifierPropertyScala(PsiModifier.PRIVATE)
+
+    def isProtected: Boolean = member.hasModifierPropertyScala(PsiModifier.PROTECTED)
   }
 }
