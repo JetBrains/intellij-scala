@@ -24,6 +24,7 @@ import org.jetbrains.plugins.scala.caches.CachesUtil
 import org.jetbrains.plugins.scala.conversion.JavaToScala
 import org.jetbrains.plugins.scala.extensions._
 import org.jetbrains.plugins.scala.lang.lexer._
+import org.jetbrains.plugins.scala.lang.psi.PresentationUtil.accessModifierText
 import org.jetbrains.plugins.scala.lang.psi.api.ScalaFile
 import org.jetbrains.plugins.scala.lang.psi.api.base.ScModifierList
 import org.jetbrains.plugins.scala.lang.psi.api.expr.ScBlock
@@ -238,7 +239,10 @@ abstract class ScTypeDefinitionImpl[T <: ScTemplateDefinition](stub: ScTemplateD
 
   @Cached(CachesUtil.libraryAwareModTracker(this), this)
   private def calcFakeCompanionModule(): Option[ScObject] = {
-    val accessModifier = getModifierList.accessModifier.fold("")(_.modifierFormattedText + " ")
+    val accessModifier = getModifierList.accessModifier match {
+      case None => ""
+      case Some(am) => accessModifierText(am) + " "
+    }
     val objText =
       s"""${accessModifier}object $name {
          |  //Generated synthetic object

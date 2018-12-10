@@ -4,6 +4,7 @@ package psi
 import com.intellij.psi._
 import org.jetbrains.plugins.scala.editor.documentationProvider.ScalaDocumentationProvider
 import org.jetbrains.plugins.scala.extensions._
+import org.jetbrains.plugins.scala.lang.psi.api.base.ScAccessModifier
 import org.jetbrains.plugins.scala.lang.psi.api.statements.ScFunction
 import org.jetbrains.plugins.scala.lang.psi.api.statements.params._
 import org.jetbrains.plugins.scala.lang.psi.api.toplevel.templates.ScTemplateBody
@@ -119,5 +120,21 @@ object PresentationUtil {
       case _ => obj.toString
     }
     res.replace(SyntheticClasses.TypeParameter, "T")
+  }
+
+  def accessModifierText(am: ScAccessModifier): String = {
+    val builder = new StringBuilder
+    if (am.isPrivate) builder.append("private")
+    else if (am.isProtected) builder.append("protected")
+    else return ""
+    if (am.isThis) {
+      builder.append("[this]")
+      return builder.toString()
+    }
+    am.idText match {
+      case Some(id) => builder.append(s"[$id]")
+      case _ =>
+    }
+    builder.toString()
   }
 }

@@ -8,7 +8,8 @@ import com.intellij.openapi.util.text.StringUtil
 import com.intellij.psi._
 import com.intellij.util.Base64
 import org.jetbrains.plugins.scala.lang.lexer.ScalaTokenTypes
-import org.jetbrains.plugins.scala.lang.psi.ScalaPsiElement
+import org.jetbrains.plugins.scala.lang.psi.PresentationUtil.accessModifierText
+import org.jetbrains.plugins.scala.lang.psi.{PresentationUtil, ScalaPsiElement}
 import org.jetbrains.plugins.scala.lang.psi.api.ScalaFile
 import org.jetbrains.plugins.scala.lang.psi.api.base.ScStableCodeReferenceElement
 import org.jetbrains.plugins.scala.lang.psi.api.base.patterns.ScTypedPattern
@@ -221,7 +222,8 @@ object WorksheetSourceProcessor {
     }
 
     protected def getFunDefInfoString(fun: ScFunction): String = {
-      val hadMods = fun.getModifierList.accessModifier map (_.modifierFormattedText) getOrElse ""
+      val accessModifier = fun.getModifierList.accessModifier
+      val hadMods = accessModifier.map(accessModifierText).getOrElse("")
       getTypePrinterName + s".printGeneric({import $instanceName._ ;" + fun.getText.stripPrefix(hadMods) + " })" + eraseClassName
     }
 
