@@ -6,7 +6,9 @@ package impl
 
 import com.intellij.psi.PsiElement
 import com.intellij.psi.stubs.{IStubElementType, StubBase, StubElement}
+import org.jetbrains.plugins.scala.lang.lexer.ScalaModifier
 import org.jetbrains.plugins.scala.lang.psi.api.base.ScModifierList
+import org.jetbrains.plugins.scala.util.EnumSet.EnumSet
 
 /**
   * User: Alexander Podkhalyuzin
@@ -14,6 +16,5 @@ import org.jetbrains.plugins.scala.lang.psi.api.base.ScModifierList
   */
 class ScModifiersStubImpl(parent: StubElement[_ <: PsiElement],
                           elemType: IStubElementType[_ <: StubElement[_ <: PsiElement], _ <: PsiElement],
-                          val hasExplicitModifiers: Boolean,
-                          val modifiers: Array[String])
+                          val modifiers: EnumSet[ScalaModifier])
   extends StubBase[ScModifierList](parent, elemType) with ScModifiersStub

@@ -7,6 +7,7 @@ import com.intellij.psi.PsiElement
 import org.jetbrains.plugins.scala.lang.psi.api.statements.params.ScClassParameter
 import org.jetbrains.plugins.scala.lang.psi.api.toplevel.ScModifierListOwner
 import org.jetbrains.plugins.scala.lang.psi.api.toplevel.typedef.ScClass
+import org.jetbrains.plugins.scala.util.EnumSet._
 
 
 class CaseClassParamInspection extends AbstractInspection("Case Class Parameter") {
@@ -23,6 +24,5 @@ class CaseClassParamInspection extends AbstractInspection("Case Class Parameter"
       }
   }
 
-  private def hasExplicitModifier(owner: ScModifierListOwner): Boolean =
-    owner.getModifierList.hasExplicitModifiers
+  private def hasExplicitModifier(owner: ScModifierListOwner): Boolean = !owner.getModifierList.modifiers.isEmpty
 }

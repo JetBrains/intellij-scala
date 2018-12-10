@@ -13,6 +13,7 @@ import com.intellij.psi.search.searches.SuperMethodsSearch
 import org.apache.commons.lang.StringEscapeUtils.escapeHtml
 import org.jetbrains.plugins.scala.extensions._
 import org.jetbrains.plugins.scala.lang.completion.lookups.ScalaLookupItem
+import org.jetbrains.plugins.scala.lang.lexer.ScalaModifier
 import org.jetbrains.plugins.scala.lang.psi.ScalaPsiUtil.inNameContext
 import org.jetbrains.plugins.scala.lang.psi.api.ScalaFile
 import org.jetbrains.plugins.scala.lang.psi.api.base._
@@ -1178,12 +1179,10 @@ object ScalaDocumentationProvider {
     }
   }
 
-  private def getModifiersPresentableText(modifiers: ScModifierList): String = {
-    val explicitModifiers =
-      Option(modifiers).toSeq
-        .flatMap(_.modifiers)
-        .filterNot(_ == "public")
-    explicitModifiers.map(_ + " ").mkString
+  private def getModifiersPresentableText(modList: ScModifierList): String = {
+    import org.jetbrains.plugins.scala.util.EnumSet._
+
+    modList.modifiers.toArray.map(_.text() + " ").mkString
   }
 
   private def getKeyword(element: PsiElement) = element match {

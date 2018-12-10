@@ -102,8 +102,16 @@ public interface ScalaTokenTypes {
   ////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
   ///////////////////////// keywords /////////////////////////////////////////////////////////////////////////////////////
   ////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
-  IElementType kABSTRACT = new ScalaTokenType("abstract");
-  IElementType kCASE = new ScalaTokenType("case");
+  ScalaModifierTokenType kABSTRACT = new ScalaModifierTokenType(ScalaModifier.Abstract);
+  ScalaModifierTokenType kCASE = new ScalaModifierTokenType(ScalaModifier.Case);
+  ScalaModifierTokenType kIMPLICIT = new ScalaModifierTokenType(ScalaModifier.Implicit);
+  ScalaModifierTokenType kFINAL = new ScalaModifierTokenType(ScalaModifier.Final);
+  ScalaModifierTokenType kLAZY = new ScalaModifierTokenType(ScalaModifier.Lazy);
+  ScalaModifierTokenType kOVERRIDE = new ScalaModifierTokenType(ScalaModifier.Override);
+  ScalaModifierTokenType kPRIVATE = new ScalaModifierTokenType(ScalaModifier.Private);
+  ScalaModifierTokenType kPROTECTED = new ScalaModifierTokenType(ScalaModifier.Protected);
+  ScalaModifierTokenType kSEALED = new ScalaModifierTokenType(ScalaModifier.Sealed);
+
   IElementType kCATCH = new ScalaTokenType("catch");
   IElementType kCLASS = new ScalaTokenType("class");
   IElementType kDEF = new ScalaTokenType("def");
@@ -111,24 +119,18 @@ public interface ScalaTokenTypes {
   IElementType kELSE = new ScalaTokenType("else");
   IElementType kEXTENDS = new ScalaTokenType("extends");
   IElementType kFALSE = new ScalaTokenType("false");
-  IElementType kFINAL = new ScalaTokenType("final");
   IElementType kFINALLY = new ScalaTokenType("finally");
   IElementType kFOR = new ScalaTokenType("for");
   IElementType kFOR_SOME = new ScalaTokenType("forSome");
   IElementType kIF = new ScalaTokenType("if");
-  IElementType kIMPLICIT = new ScalaTokenType("implicit");
   IElementType kIMPORT = new ScalaTokenType("import");
-  IElementType kLAZY = new ScalaTokenType("lazy");
   IElementType kMATCH = new ScalaTokenType("match");
   IElementType kNEW = new ScalaTokenType("new");
   IElementType kNULL = new ScalaTokenType("null");
   IElementType kOBJECT = new ScalaTokenType("object");
-  IElementType kOVERRIDE = new ScalaTokenType("override");
   IElementType kPACKAGE = new ScalaTokenType("package");
-  IElementType kPRIVATE = new ScalaTokenType("private");
-  IElementType kPROTECTED = new ScalaTokenType("protected");
+
   IElementType kRETURN = new ScalaTokenType("return");
-  IElementType kSEALED = new ScalaTokenType("sealed");
   IElementType kSUPER = new ScalaTokenType("super");
   IElementType kTHIS = new ScalaTokenType("this");
   IElementType kTHROW = new ScalaTokenType("throw");

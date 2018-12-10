@@ -7,3 +7,7 @@ class ScalaTokenType(debugName: String) extends IElementType(debugName, ScalaLan
 
   override def isLeftBound: Boolean = true
 }
+
+case class ScalaModifierTokenType(modifier: ScalaModifier) extends ScalaTokenType(modifier.text()) {
+  ScalaModifier.registerModifierTokenType(modifier, this)
+}

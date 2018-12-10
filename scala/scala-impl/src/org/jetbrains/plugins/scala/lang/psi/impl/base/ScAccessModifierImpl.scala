@@ -40,11 +40,11 @@ final class ScAccessModifierImpl private(stub: ScAccessModifierStub, node: ASTNo
 
   //return ref only for {private|protected}[Id], not for private[this]
   override def isProtected: Boolean = byStubOrPsi(_.isProtected) {
-    findChildByType(kPROTECTED) != null
+    getFirstChild.getNode.getElementType == kPROTECTED
   }
 
   override def isPrivate: Boolean = byStubOrPsi(_.isPrivate) {
-    findChildByType(kPRIVATE) != null
+    getFirstChild.getNode.getElementType == kPRIVATE
   }
 
   override def isThis: Boolean = byStubOrPsi(_.isThis) {

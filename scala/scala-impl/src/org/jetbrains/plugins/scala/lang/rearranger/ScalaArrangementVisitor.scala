@@ -162,9 +162,11 @@ class ScalaArrangementVisitor(parseInfo: ScalaArrangementParseInfo, document: Do
   }
 
   private def parseModifiers(modifiers: ScModifierList, entry: ScalaArrangementEntry) {
+    import org.jetbrains.plugins.scala.util.EnumSet._
+
     if (modifiers != null) {
       for (modName <- modifiers.modifiers) {
-        getModifierByName(modName).flatMap((mod: ArrangementSettingsToken) => {
+        getModifierByName(modName.text()).flatMap((mod: ArrangementSettingsToken) => {
           entry.addModifier(mod); None
         })
       }

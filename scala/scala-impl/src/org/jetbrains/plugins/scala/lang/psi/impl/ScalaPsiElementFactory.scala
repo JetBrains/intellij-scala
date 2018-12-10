@@ -21,7 +21,7 @@ import com.intellij.util.IncorrectOperationException
 import org.apache.commons.lang.StringUtils
 import org.jetbrains.plugins.scala.extensions._
 import org.jetbrains.plugins.scala.lang.completion.ScalaKeyword
-import org.jetbrains.plugins.scala.lang.lexer.{ScalaLexer, ScalaTokenTypes}
+import org.jetbrains.plugins.scala.lang.lexer.{ScalaLexer, ScalaModifier, ScalaTokenTypes}
 import org.jetbrains.plugins.scala.lang.parser.ScalaElementType
 import org.jetbrains.plugins.scala.lang.parser.parsing.base.{Constructor, Import}
 import org.jetbrains.plugins.scala.lang.parser.parsing.builder.{ScalaPsiBuilder, ScalaPsiBuilderImpl}
@@ -54,6 +54,7 @@ import org.jetbrains.plugins.scala.lang.refactoring.ScalaNamesValidator.isIdenti
 import org.jetbrains.plugins.scala.lang.refactoring.util.{ScTypeUtil, ScalaNamesUtil}
 import org.jetbrains.plugins.scala.lang.scaladoc.psi.api.{ScDocComment, ScDocResolvableCodeReference, ScDocSyntaxElement}
 import org.jetbrains.plugins.scala.project.ProjectContext
+import org.jetbrains.plugins.scala.util.EnumSet._
 
 import scala.reflect.ClassTag
 
@@ -571,8 +572,8 @@ object ScalaPsiElementFactory {
     sign.method match {
       case fun: ScFunction =>
         fun.getModifierList.modifiers.foreach {
-          case "abstract" => ()
-          case prop       => function.setModifierProperty(prop)
+          case ScalaModifier.Abstract => ()
+          case prop                   => function.setModifierProperty(prop.text())
         }
         val modifierList = function.getModifierList
         if (modifierList.getText.nonEmpty) function.addAfter(createWhitespace(fun.getManager), modifierList)

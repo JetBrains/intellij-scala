@@ -4,10 +4,9 @@ package psi
 package api
 package base
 
-import com.intellij.psi.tree.{IElementType, TokenSet}
-import com.intellij.psi.{PsiAnnotation, PsiModifier, PsiModifierList}
-import org.jetbrains.plugins.scala.lang.lexer.ScalaTokenTypes
-import org.jetbrains.plugins.scala.lang.parser.ScalaElementType
+import com.intellij.psi.{PsiAnnotation, PsiModifierList}
+import org.jetbrains.plugins.scala.lang.lexer.ScalaModifier
+import org.jetbrains.plugins.scala.util.EnumSet._
 
 /**
   * @author Alexander Podkhalyuzin
@@ -18,69 +17,14 @@ trait ScModifierList extends ScalaPsiElement with PsiModifierList {
   //only one access modifier can occur in a particular modifier list
   def accessModifier: Option[ScAccessModifier]
 
-  def modifiers: Array[String]
-
-  def hasExplicitModifiers: Boolean
-
-  final def isPrivate: Boolean = accessModifier.exists(_.isPrivate)
-
-  final def isProtected: Boolean = accessModifier.exists(_.isProtected)
-
-  override final def getApplicableAnnotations: Array[PsiAnnotation] =
-    PsiAnnotation.EMPTY_ARRAY
-
-  override final def addAnnotation(qualifiedName: String): PsiAnnotation = null
-
-  override final def hasModifierProperty(name: String): Boolean = modifiers.contains(name)
-
-  override final def hasExplicitModifier(name: String): Boolean = false
-
-  override final def checkSetModifierProperty(name: String, value: Boolean): Unit = {}
+  def modifiers: EnumSet[ScalaModifier]
 }
 
 object ScModifierList {
 
-  import ScalaTokenTypes._
-
-  private[psi] val Modifiers = {
-    import NonAccessModifier._
-
-    val nonAccessModifiers = values.map {
-      case Val(_, prop) => prop
-    }.toSeq
-
-    import TokenSet._
-    orSet(
-      create(nonAccessModifiers: _*),
-      create(kPROTECTED, kPRIVATE, ScalaElementType.ACCESS_MODIFIER)
-    )
-  }
-
-  private[psi] object NonAccessModifier extends Enumeration {
-
-    import PsiModifier.{ABSTRACT, FINAL}
-
-    case class Val(keyword: String,
-                   prop: IElementType) extends super.Val(keyword)
-
-    val Final = Val(FINAL, kFINAL)
-
-    val Abstract = Val(ABSTRACT, kABSTRACT)
-
-    val Override = Val("override", kOVERRIDE)
-
-    val Implicit = Val("implicit", kIMPLICIT)
-
-    val Sealed = Val("sealed", kSEALED)
-
-    val Lazy = Val("lazy", kLAZY)
-
-    val Case = Val("case", kCASE)
-  }
-
   implicit class ScModifierListExt(val list: ScModifierList) extends AnyVal {
 
-    import NonAccessModifier._
+    import ScalaModifier._
 
     def isFinal: Boolean = hasModifier(Final)
 
@@ -96,8 +40,12 @@ object ScModifierList {
 
     def isCase: Boolean = hasModifier(Case)
 
-    private def hasModifier(value: Val) =
-      list.hasModifierProperty(value.keyword)
+    def isPrivate: Boolean = hasModifier(Private)
+
+    def isProtected: Boolean = hasModifier(Protected)
+
+    private def hasModifier(value: ScalaModifier) =
+      list.modifiers.contains(value)
   }
 
 }

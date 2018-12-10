@@ -6,16 +6,15 @@ package base
 
 import com.intellij.lang.ASTNode
 import com.intellij.psi._
-import org.jetbrains.plugins.scala.extensions.StubBasedExt
-import org.jetbrains.plugins.scala.lang.lexer.ScalaTokenTypes
+import org.jetbrains.plugins.scala.extensions.{ElementType, StubBasedExt}
+import org.jetbrains.plugins.scala.lang.lexer.{ScalaModifier, ScalaModifierTokenType, ScalaTokenTypes}
 import org.jetbrains.plugins.scala.lang.parser.ScalaElementType
 import org.jetbrains.plugins.scala.lang.psi.api.ScalaElementVisitor
 import org.jetbrains.plugins.scala.lang.psi.api.base._
 import org.jetbrains.plugins.scala.lang.psi.impl.ScalaPsiElementFactory._
 import org.jetbrains.plugins.scala.lang.psi.stubs.ScModifiersStub
-import org.jetbrains.plugins.scala.macroAnnotations.{Cached, ModCount}
-
-import scala.collection.mutable
+import org.jetbrains.plugins.scala.util.EnumSet
+import org.jetbrains.plugins.scala.util.EnumSet._
 
 /**
 * @author Alexander Podkhalyuzin
@@ -24,76 +23,74 @@ import scala.collection.mutable
 class ScModifierListImpl private (stub: ScModifiersStub, node: ASTNode)
   extends ScalaStubBasedElementImpl(stub, ScalaElementType.MODIFIERS, node) with ScModifierList {
 
-  import PsiModifier._
-  import ScModifierList._
-  import NonAccessModifier._
-
   def this(node: ASTNode) = this(null, node)
 
   def this(stub: ScModifiersStub) = this(stub, null)
 
   override def toString: String = "Modifiers"
 
-  @Cached(ModCount.anyScalaPsiModificationCount, this)
-  override def modifiers: Array[String] = byStubOrPsi(_.modifiers) {
-    val result = mutable.ArrayBuffer.empty[String]
+  override def modifiers: EnumSet[ScalaModifier] = byStubOrPsi(_.modifiers) {
+    var result = EnumSet.empty[ScalaModifier]
 
-    for {
-      Val(keyword, prop) <- values
-      if findFirstChildByType(prop) != null
-    } result += keyword
+    //this method is optimized to avoid creation of unnecessary arrays
 
-    result += accessModifier.fold(PUBLIC) {
-      case modifier if modifier.isPrivate => PRIVATE
-      case _ => PROTECTED
+    var currentChild = getFirstChild
+
+    while (currentChild != null) {
+      currentChild match {
+        case a: ScAccessModifier =>
+          result ++= (if (a.isPrivate) ScalaModifier.Private else ScalaModifier.Protected)
+        case ElementType(ScalaModifierTokenType(mod)) =>
+          result ++= mod
+        case _ =>
+      }
+      currentChild = currentChild.getNextSibling
     }
 
-    result.toArray
+    result
   }
 
-  @Cached(ModCount.anyScalaPsiModificationCount, this)
+  def hasModifierProperty(name: String): Boolean = {
+    if (name == PsiModifier.PUBLIC)
+      !modifiers.contains(ScalaModifier.Private) && !modifiers.contains(ScalaModifier.Protected)
+    else
+      hasExplicitModifier(name)
+  }
+
   override def accessModifier: Option[ScAccessModifier] = Option {
     getStubOrPsiChild(ScalaElementType.ACCESS_MODIFIER)
   }
 
-  override def hasExplicitModifiers: Boolean = byStubOrPsi(_.hasExplicitModifiers) {
-    findChildByType(Modifiers) != null
-  }
-
   override def setModifierProperty(name: String, value: Boolean): Unit = {
     checkSetModifierProperty(name, value)
-    hasModifierProperty(name) match {
-      case `value` =>
-      case _ if value =>
-        val isValid = name match {
-          case PRIVATE | PROTECTED => true
-          case _ =>
-            values.exists {
-              case Val(`name`, _) => true
-              case _ => false
-            }
-        }
 
-        if (isValid) addModifierProperty(name)
-      case _ =>
-        def withAccessModifier(predicate: ScAccessModifier => Boolean) =
-          getChildren.collectFirst {
-            case modifier: ScAccessModifier if predicate(modifier) => modifier
-          }
+    if (name == PsiModifier.PUBLIC) {
+      if (value) {
+        setModifierProperty(PsiModifier.PRIVATE, value = false)
+        setModifierProperty(PsiModifier.PROTECTED, value = false)
+      }
+      else {
+        //not supported
+      }
+    }
 
-        val maybeElement = name match {
-          case PRIVATE => withAccessModifier(_.isPrivate)
-          case PROTECTED => withAccessModifier(_.isProtected)
-          case _ =>
-            values.collectFirst {
-              case Val(`name`, prop) => findChildByType(prop)
-            }
-        }
+    val mod = ScalaModifier.byText(name)
 
-        for {
-          element <- maybeElement
-          node = element.getNode
-        } getNode.removeChild(node)
+    if (mod == null || value == modifiers.contains(mod)) {
+      return
+    }
+
+    if (value) {
+      addModifierProperty(name)
+    }
+
+    if (!value) {
+      val elemToRemove = mod match {
+        case ScalaModifier.Private   if accessModifier.exists(_.isPrivate)   => accessModifier
+        case ScalaModifier.Protected if accessModifier.exists(_.isProtected) => accessModifier
+        case _ => Option(findChildByType(mod.getTokenType))
+      }
+      elemToRemove.foreach(e => getNode.removeChild(e.getNode))
     }
   }
 
@@ -132,11 +129,22 @@ class ScModifierListImpl private (stub: ScModifiersStub, node: ASTNode)
     case _ => super.accept(visitor)
   }
 
+  def hasExplicitModifier(name: String): Boolean = {
+    val mod = ScalaModifier.byText(name)
+    mod != null && modifiers.contains(mod)
+  }
+
+  def checkSetModifierProperty(name: String, value: Boolean): Unit = {}
+
+  def getApplicableAnnotations: Array[PsiAnnotation] = PsiAnnotation.EMPTY_ARRAY
+
+  def addAnnotation(qualifiedName: String): PsiAnnotation = null
+
   private def addModifierProperty(name: String): Unit = {
     val node = getNode
     val modifierNode = createModifierFromText(name).getNode
 
-    val addAfter = name != Case.keyword
+    val addAfter = name != ScalaModifier.CASE
     val spaceNode = createNewLineNode(" ")
 
     getFirstChild match {
