@@ -93,25 +93,13 @@ trait ScPattern extends ScalaPsiElement with Typeable {
     case _ => findChildrenByClassScala[ScPattern](classOf[ScPattern])
   }
 
-  def getAnalog: ScPattern = {
-    getContext match {
-      case gen: ScGenerator =>
-        val f: ScForStatement = gen.getContext.getContext match {
-          case fr: ScForStatement => fr
-          case _ => return this
-        }
-        f.getDesugarizedExpr match {
-          case Some(_) =>
-            if (analog != null) return analog
-          case _ =>
-        }
-        this
-      case _ => this
-    }
+  def getAnalogInDesugaredForExpr: Option[ScPattern] = {
+    Some(getContext)
+      .collect { case gen: ScGenerator => gen.getContext.getContext }
+      .collect { case fr: ScForStatement => fr }
+      .flatMap { _.getDesugarizedExprWithPatternMapping }
+      .flatMap { case (_, mapping) => mapping.get(this) }
   }
-
-  var desugarizedPatternIndex: Int = -1
-  var analog: ScPattern = null
 }
 
 object ScPattern {
@@ -210,9 +198,7 @@ object ScPattern {
         }
         case named: ScNamingPattern => named.expectedType
         case _: ScGenerator =>
-          val analog = pattern.getAnalog
-          if (analog != pattern) analog.expectedType
-          else None
+          pattern.getAnalogInDesugaredForExpr flatMap { _.expectedType }
         case enum: ScEnumerator =>
           Option(enum.rvalue).flatMap { rvalue =>
             rvalue.`type`().toOption
