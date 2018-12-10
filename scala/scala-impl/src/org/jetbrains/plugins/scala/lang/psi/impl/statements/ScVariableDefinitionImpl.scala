@@ -34,7 +34,7 @@ final class ScVariableDefinitionImpl private[psi](stub: ScPropertyStub[ScVariabl
     }
   }
 
-  def expr: Option[ScExpression] = if (isInCompiledFile) None else findChild(classOf[ScExpression])
+  def expr: Option[ScExpression] = byPsiOrStub(findChild(classOf[ScExpression]))(_.bodyExpression)
 
   override def toString: String = "ScVariableDefinition: " + ifReadAllowed(declaredNames.mkString(", "))("")
 

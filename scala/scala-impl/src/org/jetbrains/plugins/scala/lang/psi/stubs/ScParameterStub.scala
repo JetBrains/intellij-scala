@@ -5,7 +5,7 @@ package stubs
 
 import com.intellij.psi.stubs.NamedStub
 import org.jetbrains.plugins.scala.lang.psi.api.statements.params.ScParameter
-import org.jetbrains.plugins.scala.lang.psi.stubs.impl.ScTypeElementOwnerStub
+import org.jetbrains.plugins.scala.lang.psi.stubs.impl.{ScExpressionOwnerStub, ScTypeElementOwnerStub}
 
 /**
  * User: Alexander Podkhalyuzin
@@ -13,7 +13,8 @@ import org.jetbrains.plugins.scala.lang.psi.stubs.impl.ScTypeElementOwnerStub
  */
 
 trait ScParameterStub extends NamedStub[ScParameter]
-  with ScTypeElementOwnerStub[ScParameter] {
+  with ScTypeElementOwnerStub[ScParameter]
+  with ScExpressionOwnerStub[ScParameter] {
 
   def isStable: Boolean
 

@@ -99,8 +99,7 @@ class ScParameterImpl protected (stub: ScParameterStub, nodeType: ScParamElement
 
   def isRepeatedParameter: Boolean = byStubOrPsi(_.isRepeated)(paramType.exists(_.isRepeatedParameter))
 
-  def getActualDefaultExpression: Option[ScExpression] =
-    if (isInCompiledFile) None else findChild(classOf[ScExpression])
+  def getActualDefaultExpression: Option[ScExpression] = byPsiOrStub(findChild(classOf[ScExpression]))(_.bodyExpression)
 
   override def getNavigationElement: PsiElement = {
     def boundOrThis =

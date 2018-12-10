@@ -4,15 +4,16 @@ package psi
 package stubs
 
 import com.intellij.psi.stubs.StubElement
-import org.jetbrains.plugins.scala.lang.psi.api.expr.ScExpression
+import org.jetbrains.plugins.scala.lang.psi.api.base.{ScIdList, ScPatternList}
 import org.jetbrains.plugins.scala.lang.psi.api.statements.ScValueOrVariable
-import org.jetbrains.plugins.scala.lang.psi.stubs.impl.ScTypeElementOwnerStub
+import org.jetbrains.plugins.scala.lang.psi.stubs.impl.{ScExpressionOwnerStub, ScTypeElementOwnerStub}
 
 /**
   * @author adkozlov
   */
 trait ScPropertyStub[P <: ScValueOrVariable] extends StubElement[P]
-  with ScTypeElementOwnerStub[P] with ScMemberOrLocal {
+  with ScTypeElementOwnerStub[P]
+  with ScExpressionOwnerStub[P] with ScMemberOrLocal {
 
   def isDeclaration: Boolean
 
@@ -20,7 +21,9 @@ trait ScPropertyStub[P <: ScValueOrVariable] extends StubElement[P]
 
   def names: Array[String]
 
-  def bodyText: Option[String]
+  def bindingsContainerText: String
 
-  def bodyExpression: Option[ScExpression]
+  def idsContainer: Option[ScIdList]
+
+  def patternsContainer: Option[ScPatternList]
 }
