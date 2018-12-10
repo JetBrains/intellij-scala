@@ -62,7 +62,7 @@ class ScForStatementImpl(node: ASTNode) extends ScExpressionImplBase(node) with 
     generateDesugarizedExprTextWithPatternMapping(forDisplay) flatMap {
       case (desugaredText, mapping) =>
         try {
-          Option(ScalaPsiElementFactory.createExpressionWithContextFromText(desugaredText, this.getContext, this)) map {
+          ScalaPsiElementFactory.createOptionExpressionWithContextFromText(desugaredText, this.getContext, this) map {
             expr =>
               lazy val patternMapping = mapping.flatMap {
                 case (originalPattern, idx) =>
@@ -106,7 +106,11 @@ class ScForStatementImpl(node: ASTNode) extends ScExpressionImplBase(node) with 
       return copyOf.generateDesugarizedExprTextWithPatternMapping(forDisplay) map {
         case (desugarizedExprText, patternMapping) =>
 
-          val lambdaPrefix = (0 until length).map(name).mkString("(", ", ", ") " + `=>` + " ")
+          val lambdaPrefix = (0 until length).map(name) match {
+            case Seq(arg) => arg + " " + `=>` + " "
+            case args => args.mkString("(", ", ", ") ") + `=>` + " "
+          }
+
 
           (lambdaPrefix + desugarizedExprText,
             patternMapping.map { case (p, idx) => (p, idx + lambdaPrefix.length) })

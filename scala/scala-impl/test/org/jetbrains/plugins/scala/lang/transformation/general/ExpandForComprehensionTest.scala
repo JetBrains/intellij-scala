@@ -93,7 +93,7 @@ class ExpandForComprehensionTest extends TransformerTest(new ExpandForComprehens
 
   def testForWithUnderscoreGenerator(): Unit = check(
     before = "for (a <- _) yield a",
-    after = "(forAnonParam$0) => forAnonParam$0.map(a => a)"
+    after = "forAnonParam$0 => forAnonParam$0.map(a => a)"
   )()
 
   def testWithoutFilterWith(): Unit = check(
