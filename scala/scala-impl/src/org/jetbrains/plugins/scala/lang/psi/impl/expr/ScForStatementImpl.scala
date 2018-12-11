@@ -82,39 +82,52 @@ class ScForStatementImpl(node: ASTNode) extends ScExpressionImplBase(node) with 
 
   private def generateDesugarizedExprTextWithPatternMapping(forDisplay: Boolean): Option[(String, Seq[(ScPattern, Int)])] = {
     var _nextNameIdx = 0
-    def newNameIdx(): Int = {
+    def newNameIdx(): String = {
       _nextNameIdx += 1
-      _nextNameIdx
+      if (forDisplay) _nextNameIdx.toString else "forIntellij" + _nextNameIdx
     }
     val `=>` = ScalaPsiUtil.functionArrow(getProject)
 
-    case class PatternText(text: String, needsDeconstruction: Boolean)
+    val underscores = ScUnderScoreSectionUtil.underscores(this).zipWithIndex.toMap
+    def underscoreName(i: Int): String = s"forAnonParam$$$i"
 
-    if (ScUnderScoreSectionUtil.underscores(this).nonEmpty) {
-      val copyOf = this.copy().asInstanceOf[ScForStatementImpl]
-      val underscores = ScUnderScoreSectionUtil.underscores(copyOf)
-      val length = underscores.length
-
-      def name(i: Int): String = s"forAnonParam$$$i"
-
-      underscores.zipWithIndex.foreach {
-        case (underscore, index) =>
-          val referenceExpression = ScalaPsiElementFactory.createReferenceExpressionFromText(name(index))
-          underscore.replaceExpression(referenceExpression, removeParenthesis = false)
+    def allUnderscores(expr: PsiElement): Seq[ScUnderscoreSection] = {
+      expr match {
+        case underscore: ScUnderscoreSection => Seq(underscore)
+        case _ => expr.getChildren.flatMap(allUnderscores)
       }
+    }
 
-      return copyOf.generateDesugarizedExprTextWithPatternMapping(forDisplay) map {
-        case (desugarizedExprText, patternMapping) =>
-
-          val lambdaPrefix = (0 until length).map(name) match {
-            case Seq(arg) => arg + " " + `=>` + " "
-            case args => args.mkString("(", ", ", ") ") + `=>` + " "
+    def normalizeUnderscores(expr: ScExpression): ScExpression = {
+      expr match {
+        case underscore: ScUnderscoreSection =>
+          underscores.
+            get(underscore).
+            map(underscoreName).
+            map(ScalaPsiElementFactory.createReferenceExpressionFromText).
+            getOrElse(underscore)
+        case _ =>
+          allUnderscores(expr) map {
+            underscores.get
+          } match {
+            case underscoreIndices if !underscoreIndices.exists(_.isDefined) =>
+              expr
+            case underscoreIndices =>
+              val copyOfExpr = expr.copy().asInstanceOf[ScExpression]
+              val indices = underscoreIndices
+              for {
+                (underscore, Some(index)) <- allUnderscores(copyOfExpr) zip underscoreIndices
+                name = underscoreName(index)
+                referenceExpression = ScalaPsiElementFactory.createReferenceExpressionFromText(name)
+              } {
+                underscore.replaceExpression(referenceExpression, removeParenthesis = false)
+              }
+              copyOfExpr
           }
-
-
-          (lambdaPrefix + desugarizedExprText,
-            patternMapping.map { case (p, idx) => (p, idx + lambdaPrefix.length) })
       }
+    }
+    def toTextWithNormalizedUnderscores(expr: ScExpression): String = {
+      normalizeUnderscores(expr).getText
     }
 
     def hasMethod(ty: ScType, methodName: String): Boolean = {
@@ -135,6 +148,7 @@ class ScForStatementImpl(node: ASTNode) extends ScExpressionImplBase(node) with 
 
     def needsDeconstruction(pattern: ScPattern): Boolean = {
       pattern match {
+        case null => false
         case _: ScWildcardPattern => false
         case _: ScReferencePattern => false
         case _: ScTypedPattern => false
@@ -144,6 +158,7 @@ class ScForStatementImpl(node: ASTNode) extends ScExpressionImplBase(node) with 
 
     def needsParenthesisAsLambdaArgument(pattern: ScPattern): Boolean = {
       pattern match {
+        case null => false
         case _: ScWildcardPattern => false
         case _: ScReferencePattern => false
         case _ => true
@@ -161,11 +176,11 @@ class ScForStatementImpl(node: ASTNode) extends ScExpressionImplBase(node) with 
     }
 
     val resultText: StringBuilder = new StringBuilder
-    val patternMappings = mutable.Buffer.empty[(ScPattern, Int)]
-    var deconstruct = false
+    val patternMappings = mutable.Map.empty[ScPattern, Int]
 
     def markPatternHere(pattern: ScPattern): Unit = {
-      patternMappings += pattern -> resultText.length
+      if (pattern != null && !patternMappings.contains(pattern))
+        patternMappings += pattern -> resultText.length
     }
 
     val firstGen = enumerators.flatMap(_.generators.headOption) getOrElse {
@@ -177,30 +192,29 @@ class ScForStatementImpl(node: ASTNode) extends ScExpressionImplBase(node) with 
       enumStream takeWhile { _ != null }
     }
 
-    def appendFunc(funcName: String, args: Seq[String], newPattern: Option[ScPattern] = None, newPatternNeedsPatternMatching: => Boolean = false)
+    def appendFunc(funcName: String, args: Seq[(ScPattern, String)])
                   (appendBody: => Unit): Unit = {
-      val argTupleSize = newPattern.size + args.size
-      deconstruct = deconstruct || newPattern.exists(needsDeconstruction)
-      val needsCase = !forDisplay || deconstruct || newPatternNeedsPatternMatching
-      val needsParenthesis = argTupleSize > 1 || !needsCase && newPattern.exists(needsParenthesisAsLambdaArgument)
+      val argPatterns = args.map(_._1)
+      val needsCase = !forDisplay || args.size > 1  || argPatterns.exists(needsDeconstruction)
+      val needsParenthesis = args.size > 1 || !needsCase && argPatterns.exists(needsParenthesisAsLambdaArgument)
 
       resultText ++= "."
       resultText ++= funcName
 
       resultText ++= (if (needsCase) " { case " else "(")
 
-      if (argTupleSize == 0)
-        resultText ++= "_"
       if (needsParenthesis)
         resultText ++= "("
-      newPattern.foreach {
-        p =>
-          markPatternHere(p)
-          resultText ++= p.getText
-          if (args.nonEmpty)
-            resultText ++= ", "
+      if (args.isEmpty) {
+        resultText ++= "_"
       }
-      resultText ++= args.mkString(", ")
+      for (((p, text), idx) <- args.zipWithIndex) {
+        if (idx != 0) {
+          resultText ++= ", "
+        }
+        markPatternHere(p)
+        resultText ++= text
+      }
       if (needsParenthesis)
         resultText ++= ")"
       resultText ++= " "
@@ -214,13 +228,13 @@ class ScForStatementImpl(node: ASTNode) extends ScExpressionImplBase(node) with 
     }
 
 
-    def appendGen(gen: ScGenerator, restEnums: Seq[PsiElement], incomingArgs: Seq[String]): Unit = {
-      val rvalue = Option(gen.rvalue)
+    def appendGen(gen: ScGenerator, restEnums: Seq[PsiElement], incomingArgs: Seq[(ScPattern, String)]): Unit = {
+      val rvalue = Option(gen.rvalue).map(normalizeUnderscores)
       val rvalueType = rvalue map { _.`type`().getOrAny }
       val isLastGen = !restEnums.exists(_.isInstanceOf[ScGenerator])
 
       val pattern = gen.pattern
-      var args = incomingArgs
+      var args = (pattern, pattern.getText) +: incomingArgs
 
       // start with the generator expression
       val generatorNeedsParenthesis = rvalue.exists {
@@ -235,17 +249,26 @@ class ScForStatementImpl(node: ASTNode) extends ScExpressionImplBase(node) with 
         resultText ++= ")"
 
       // add guards and assignment enumerators
-      val hasWithFilter = rvalue.exists(rvalue => hasMethod(rvalue.`type`().getOrAny, "withFilter"))
+      val hasWithFilter = rvalue.exists(rvalue => {
+        val rvalueTy = rvalue.`type`().getOrAny
+        // try to use withFilter
+        // if the type does not have a withFilter method use filter
+        // in the case that we want to desugar for the user,
+        // check if the type has a filter function,
+        // Because if it doesn't have neither, use withFilter as fallback
+        hasMethod(rvalueTy, "withFilter") ||
+          (forDisplay && !hasMethod(rvalueTy, "filter"))
+      })
       val filterFunc = if (hasWithFilter) "withFilter" else "filter"
 
       val (nextNonGens, nextEnums) = restEnums span { !_.isInstanceOf[ScGenerator] }
 
-      def nonGenArgs = pattern.getText +: args
+      lazy val curGenName = s"g$${newNameIdx()}"
 
       nextNonGens foreach {
         case guard: ScGuard =>
-          appendFunc(filterFunc, nonGenArgs) {
-            resultText ++= guard.expr.map(_.getText).getOrElse("???")
+          appendFunc(filterFunc, args) {
+            resultText ++= guard.expr.map(toTextWithNormalizedUnderscores).getOrElse("???")
             if (!forDisplay) {
               // make sure the result type is Boolean to support type checking
               resultText ++= "; true"
@@ -253,40 +276,23 @@ class ScForStatementImpl(node: ASTNode) extends ScExpressionImplBase(node) with 
           }
 
         case assign: ScEnumerator =>
-          appendFunc("map", nonGenArgs) {
-            if (!forDisplay)
-              resultText ++= "{ "
-            for {
-              pattern <- Option(assign.pattern)
-              rvalue <- Option(assign.rvalue)
-              if !forDisplay
-            } {
-              // build this value definition to mark the pattern
-              // this is important for the patternMapping
-              resultText ++= " val "
-              markPatternHere(pattern)
-              resultText ++= pattern.getText
-              resultText ++= " = "
-              resultText ++= rvalue.getText
-              resultText ++= "; "
-            }
-            resultText ++= "("
-            if (nonGenArgs.nonEmpty) {
-              resultText ++= nonGenArgs.mkString(", ")
-              resultText ++= ", "
-            }
-            resultText ++= Option(assign.rvalue).map(_.getText).getOrElse("???")
-            resultText ++= ")"
-            deconstruct = true
-            args :+= Option(assign.pattern).map(_.getText).getOrElse(s"v${newNameIdx()}")
+          appendFunc("map", args) {
+            // remove wildcard args
+            args = args.filterNot(_._2 == "_")
+
+            if (args.nonEmpty)
+              resultText ++= "("
+            resultText ++= (args.map(_._2) :+ Option(assign.rvalue).map(toTextWithNormalizedUnderscores).getOrElse("???")).mkString(", ")
+            if (args.nonEmpty)
+              resultText ++= ")"
+
+            args :+= Option(assign.pattern).map(p => p -> p.getText).getOrElse((null, s"v$${newNameIdx()}"))
           }
-          if (!forDisplay)
-            resultText ++= " }"
       }
 
-      // todo: fully implement pattern.isIrrefutableFor to handle pattern matching correctly
+      // todo: fully implement pattern.isIrrefutableFor to handle pattern matching correctly (use collect)
       // for now, just assume that pattern matching is not needed, so we don't generate so many case clauses
-      val patternMatchMightFail = false//!forDisplay || !pattern.isIrrefutableFor(pattern.expectedType)
+      /*val patternMatchMightFail = false//!forDisplay || !pattern.isIrrefutableFor(pattern.expectedType)
       val (funcText, needsWildcardCase) = if (isLastGen) {
         if (isYield)
           (if (patternMatchMightFail) "collect" else "map", false)
@@ -294,9 +300,14 @@ class ScForStatementImpl(node: ASTNode) extends ScExpressionImplBase(node) with 
           ("foreach", patternMatchMightFail)
       } else {
         ("flatMap", patternMatchMightFail)
-      }
+      }*/
 
-      appendFunc(funcText, args, newPattern = Some(pattern), newPatternNeedsPatternMatching = patternMatchMightFail) {
+      val funcText = if (isLastGen)
+        if (isYield) "map" else "foreach"
+      else
+        "flatMap"
+
+      appendFunc(funcText, args) {
         nextEnums.headOption match {
           case Some(nextGen: ScGenerator) =>
             appendGen(nextGen, nextEnums.tail, List.empty)
@@ -310,26 +321,24 @@ class ScForStatementImpl(node: ASTNode) extends ScExpressionImplBase(node) with 
               case _ => e
             }
 
-            resultText ++= body.map(withoutBodyBrackets).map(bodyToText).getOrElse("{}")
-        }
-
-        if (needsWildcardCase) {
-          resultText ++= "; case _ "
-          resultText ++= `=>`
-
-          if (!isLastGen) {
-            // In the case that flatMap needs a wildcard case we have to return
-            // an empty collection of the generator's type.
-            // TODO: Find the method that represents an empty collection like Seq.empty
-            resultText ++= " ???"
-          }
+            resultText ++= body.map(normalizeUnderscores).map(withoutBodyBrackets).map(bodyToText).getOrElse("{}")
         }
       }
     }
 
 
     appendGen(firstGen, enums.tail, List.empty)
-    Some(resultText.toString, patternMappings)
+    val desugarizedExprText = resultText.toString
+    if (underscores.nonEmpty) {
+      val lambdaPrefix = underscores.values.map(underscoreName) match {
+        case Seq(arg) => arg + " " + `=>` + " "
+        case args => args.mkString("(", ", ", ") ") + `=>` + " "
+      }
+
+      Some(lambdaPrefix + desugarizedExprText -> patternMappings.toSeq.map { case (p, idx) => (p, idx + lambdaPrefix.length) })
+    } else {
+      Some(desugarizedExprText, patternMappings.toSeq)
+    }
   }
 
   override protected def innerType: TypeResult = {

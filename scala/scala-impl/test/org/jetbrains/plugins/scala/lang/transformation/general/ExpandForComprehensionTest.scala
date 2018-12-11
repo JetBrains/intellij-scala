@@ -91,9 +91,24 @@ class ExpandForComprehensionTest extends TransformerTest(new ExpandForComprehens
     after = "List(A).map(a => (a, a)).withFilter { case (a, b) => p(b) }.map { case (a, b) => (a, b, b) }.foreach { case (a, b, c) => c.v() }"
   )()
 
-  def testForWithUnderscoreGenerator(): Unit = check(
-    before = "for (a <- _) yield a",
-    after = "forAnonParam$0 => forAnonParam$0.map(a => a)"
+  def testForWithMuiltipleUnderscores(): Unit = check(
+    before = "for (_ <- _; _ = _ if _) yield _",
+    after = "(forAnonParam$0, forAnonParam$1, forAnonParam$2, forAnonParam$3) => forAnonParam$0.map(_ => forAnonParam$1).withFilter(_ => forAnonParam$2).map(_ => forAnonParam$3)"
+  )()
+
+  def testSimpleWildcardPattern(): Unit = check(
+    before = "for (_ <- Seq(A)) yield 1",
+    after = "Seq(A).map(_ => 1)"
+  )()
+
+  def testWildcardPatternWithEnumerator(): Unit = check(
+    before = "for (_ <- Seq(A); a = 1; _ = 2; if true; _ = 3) yield 4",
+    after = "Seq(A).map(_ => 1).map(a => (a, 2)).withFilter { case (a, _) => true }.map { case (a, _) => (a, 3) }.map { case (a, _) => 4 }"
+  )()
+
+  def testForWithUnrelatedUnderscores(): Unit = check(
+    before = "for (a <- Seq(A)) yield a + _",
+    after = "Seq(A).map(a => a + _)"
   )()
 
   def testWithoutFilterWith(): Unit = check(
