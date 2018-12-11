@@ -68,15 +68,13 @@ trait ScFunction extends ScalaPsiElement with ScMember with ScTypeParametersOwne
     probablyRecursive.set(value)
   }
 
-  final def syntheticCaseClass: ScClass = {
-    val functionName = name
-    if (functionName == Apply || functionName == Unapply || functionName == UnapplySeq) {
+  final def syntheticCaseClass: ScClass = name match {
+    case Apply | Unapply | UnapplySeq =>
       syntheticContainingClass match {
         case ObjectWithCaseClassCompanion(_, cl) => cl
         case _                                   => null
       }
-    }
-    else null
+    case _ => null
   }
 
   def hasUnitResultType: Boolean = {
@@ -527,7 +525,7 @@ trait ScFunction extends ScalaPsiElement with ScMember with ScTypeParametersOwne
 
 object ScFunction {
 
-  implicit class CommonNames(val function: ScFunction) extends AnyVal {
+  implicit class Ext(val function: ScFunction) extends AnyVal {
 
     import CommonNames._
 
@@ -607,7 +605,7 @@ object ScFunction {
     val WithFilter = "withFilter"
     val ForComprehensions: Set[String] = Set(Foreach, Map, FlatMap, Filter, WithFilter)
 
-    private val Special: Set[String] = GetSet ++ Unapplies ++ ForComprehensions
+    val Special: Set[String] = GetSet ++ Unapplies ++ ForComprehensions
   }
 
   private val calculatingBlockKey: Key[ThreadLocal[Boolean]] = Key.create("calculating.function.returns.block")

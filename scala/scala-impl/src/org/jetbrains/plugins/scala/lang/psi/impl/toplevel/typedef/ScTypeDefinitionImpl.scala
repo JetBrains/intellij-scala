@@ -176,7 +176,7 @@ abstract class ScTypeDefinitionImpl[T <: ScTemplateDefinition](stub: ScTemplateD
 
   //Performance critical method
   //And it is REALLY SO!
-  override def baseCompanionModule: Option[ScTypeDefinition] = {
+  final override def baseCompanionModule: Option[ScTypeDefinition] = {
     val isObject = this match {
       case _: ScObject => true
       case _: ScTrait | _: ScClass => false
