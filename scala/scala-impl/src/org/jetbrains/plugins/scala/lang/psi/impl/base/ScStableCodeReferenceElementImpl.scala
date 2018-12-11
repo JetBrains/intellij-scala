@@ -104,16 +104,45 @@ class ScStableCodeReferenceElementImpl(node: ASTNode) extends ScReferenceElement
 
   //  @throws(IncorrectOperationException)
   def bindToElement(element: PsiElement): PsiElement = {
-    object CheckedAndReplaced {
-      def unapply(text: String): Option[PsiElement] = {
-        val ref = createReferenceFromText(text, getContext, ScStableCodeReferenceElementImpl.this)
-        if (ref.isReferenceTo(element)) {
-          val ref = createReferenceFromText(text)
-          Some(ScStableCodeReferenceElementImpl.this.replace(ref))
-        }
-        else None
-      }
+    def isCorrectReference(text: String): Option[ScStableCodeReferenceElement] = {
+      val ref = createReferenceFromText(text, getContext, ScStableCodeReferenceElementImpl.this)
+
+      if (ref.isReferenceTo(element)) Some(ref)
+      else None
     }
+
+    def replaceThisBy(ref: ScStableCodeReferenceElement): PsiElement =
+      ScStableCodeReferenceElementImpl.this.replace(ref)
+
+    //this method may remove unnecessary imports
+    def bindImportReference(c: ScalaImportTypeFix.TypeToImport): Boolean = {
+      val selector: ScImportSelector = PsiTreeUtil.getParentOfType(this, classOf[ScImportSelector])
+      val importExpr = PsiTreeUtil.getParentOfType(this, classOf[ScImportExpr])
+
+      if (selector == null && importExpr == null)
+        return false
+
+      if (selector != null) {
+        selector.deleteSelector()
+      }
+      else if (importExpr != null) {
+        if (importExpr == getParent && !importExpr.isSingleWildcard && importExpr.selectorSet.isEmpty) {
+          val holder = PsiTreeUtil.getParentOfType(this, classOf[ScImportsHolder])
+          importExpr.deleteExpr()
+          c match {
+            case ClassTypeToImport(clazz) => holder.addImportForClass(clazz)
+            case ta => holder.addImportForPath(ta.qualifiedName)
+          }
+        } else {
+          //qualifier reference in import expression
+          isCorrectReference(c.name)
+            .orElse(isCorrectReference(c.qualifiedName))
+            .map(replaceThisBy)
+        }
+      }
+      true
+    }
+
 
     if (isReferenceTo(element)) this
     else {
@@ -133,38 +162,21 @@ class ScStableCodeReferenceElementImpl(node: ASTNode) extends ScReferenceElement
           }
           val qname = c.qualifiedName
           val isPredefined = ScalaCodeStyleSettings.getInstance(getProject).hasImportWithPrefix(qname)
-          if (qualifier.isDefined && !isPredefined) {
-            c.name match {
-              case CheckedAndReplaced(newRef) => return newRef
-              case _ =>
-            }
+
+          if (bindImportReference(c)) {
+            //so we may return invalidated reference when current reference was part of import expression
+            //probably it's better than null if import statement or selector was removed completely
+            this
           }
-          if (qname != null) {
-            val selector: ScImportSelector = PsiTreeUtil.getParentOfType(this, classOf[ScImportSelector])
-            val importExpr = PsiTreeUtil.getParentOfType(this, classOf[ScImportExpr])
-            if (selector != null) {
-              selector.deleteSelector() //we can't do anything here, so just simply delete it
-              return importExpr.reference.get //todo: what we should return exactly?
-              //              }
-            } else if (importExpr != null) {
-              if (importExpr == getParent && !importExpr.isSingleWildcard && importExpr.selectorSet.isEmpty) {
-                val holder = PsiTreeUtil.getParentOfType(this, classOf[ScImportsHolder])
-                importExpr.deleteExpr()
-                c match {
-                  case ClassTypeToImport(clazz) => holder.addImportForClass(clazz)
-                  case ta => holder.addImportForPath(ta.qualifiedName)
-                }
-                //todo: so what to return? probable PIEAE after such code invocation
-              } else {
-                //qualifier reference in import expression
-                qname match {
-                  case CheckedAndReplaced(newRef) => return newRef
-                  case _ =>
-                }
+          else {
+            if (qualifier.isDefined && !isPredefined) {
+              isCorrectReference(c.name) match {
+                case Some(newRef) => return replaceThisBy(newRef)
+                case _ =>
               }
             }
-            else {
-              return safeBindToElement(qname, {
+            if (qname != null) {
+              safeBindToElement(qname, {
                 case (qual, true) => createReferenceFromText(qual, getContext, this)
                 case (qual, false) => createReferenceFromText(qual)
               }) {
@@ -184,8 +196,8 @@ class ScStableCodeReferenceElementImpl(node: ASTNode) extends ScReferenceElement
                 this
               }
             }
+            else this
           }
-          this
         }
         element match {
           case c: PsiClass =>

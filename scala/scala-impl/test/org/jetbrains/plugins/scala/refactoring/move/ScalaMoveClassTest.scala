@@ -85,6 +85,10 @@ class ScalaMoveClassTest extends ScalaLightPlatformCodeInsightTestCaseAdapter {
     doTest(Array("org.A", "org.J"), "com")
   }
 
+  def testRemoveImport(): Unit = {
+    doTest(Array("my.pkg.two.OtherThing"), "my.pkg.one")
+  }
+
 
 //  wait for fix Scl-6316
 //  def testWithoutCompanion() {
