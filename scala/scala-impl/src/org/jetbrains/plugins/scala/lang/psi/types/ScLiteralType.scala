@@ -6,7 +6,7 @@ import org.apache.commons.lang.StringEscapeUtils
 import org.jetbrains.plugins.scala.lang.lexer.ScalaTokenTypes
 import org.jetbrains.plugins.scala.lang.psi.api.statements.params.ScTypeParam
 import org.jetbrains.plugins.scala.lang.psi.api.toplevel.typedef.ScTypeDefinition
-import org.jetbrains.plugins.scala.lang.psi.impl.toplevel.synthetic.{ScSyntheticFunction, SyntheticClasses}
+import org.jetbrains.plugins.scala.lang.psi.impl.toplevel.synthetic.ScSyntheticFunction
 import org.jetbrains.plugins.scala.lang.psi.types.api.designator.ScDesignatorType
 import org.jetbrains.plugins.scala.lang.psi.types.api.{Singleton, TypeVisitor, ValueType}
 import org.jetbrains.plugins.scala.lang.psi.types.recursiveUpdate.AfterUpdate.{ProcessSubtypes, ReplaceWith, Stop}
@@ -31,7 +31,7 @@ class ScLiteralType private (val literalValue: Any, val kind: ScLiteralType.Kind
     }
   }
 
-  override def hashCode(): Int = 31 * kind.hashCode() + literalValue.hashCode()
+  override def hashCode(): Int = 31 * kind.hashCode() + literalValue.##
 
   private def valueAs[T: ClassTag]: T = literalValue.asInstanceOf[T]
 }
