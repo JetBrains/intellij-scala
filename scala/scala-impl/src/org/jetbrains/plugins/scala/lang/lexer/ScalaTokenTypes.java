@@ -102,15 +102,15 @@ public interface ScalaTokenTypes {
   ////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
   ///////////////////////// keywords /////////////////////////////////////////////////////////////////////////////////////
   ////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
-  ScalaModifierTokenType kABSTRACT = new ScalaModifierTokenType(ScalaModifier.Abstract);
-  ScalaModifierTokenType kCASE = new ScalaModifierTokenType(ScalaModifier.Case);
-  ScalaModifierTokenType kIMPLICIT = new ScalaModifierTokenType(ScalaModifier.Implicit);
-  ScalaModifierTokenType kFINAL = new ScalaModifierTokenType(ScalaModifier.Final);
-  ScalaModifierTokenType kLAZY = new ScalaModifierTokenType(ScalaModifier.Lazy);
-  ScalaModifierTokenType kOVERRIDE = new ScalaModifierTokenType(ScalaModifier.Override);
-  ScalaModifierTokenType kPRIVATE = new ScalaModifierTokenType(ScalaModifier.Private);
-  ScalaModifierTokenType kPROTECTED = new ScalaModifierTokenType(ScalaModifier.Protected);
-  ScalaModifierTokenType kSEALED = new ScalaModifierTokenType(ScalaModifier.Sealed);
+  ScalaModifierTokenType kABSTRACT = ScalaModifierTokenType.of(ScalaModifier.Abstract);
+  ScalaModifierTokenType kCASE = ScalaModifierTokenType.of(ScalaModifier.Case);
+  ScalaModifierTokenType kIMPLICIT = ScalaModifierTokenType.of(ScalaModifier.Implicit);
+  ScalaModifierTokenType kFINAL = ScalaModifierTokenType.of(ScalaModifier.Final);
+  ScalaModifierTokenType kLAZY = ScalaModifierTokenType.of(ScalaModifier.Lazy);
+  ScalaModifierTokenType kOVERRIDE = ScalaModifierTokenType.of(ScalaModifier.Override);
+  ScalaModifierTokenType kPRIVATE = ScalaModifierTokenType.of(ScalaModifier.Private);
+  ScalaModifierTokenType kPROTECTED = ScalaModifierTokenType.of(ScalaModifier.Protected);
+  ScalaModifierTokenType kSEALED = ScalaModifierTokenType.of(ScalaModifier.Sealed);
 
   IElementType kCATCH = new ScalaTokenType("catch");
   IElementType kCLASS = new ScalaTokenType("class");

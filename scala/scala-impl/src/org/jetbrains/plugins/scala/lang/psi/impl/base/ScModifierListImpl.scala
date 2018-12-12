@@ -88,7 +88,7 @@ class ScModifierListImpl private (stub: ScModifiersStub, node: ASTNode)
       val elemToRemove = mod match {
         case ScalaModifier.Private   if accessModifier.exists(_.isPrivate)   => accessModifier
         case ScalaModifier.Protected if accessModifier.exists(_.isProtected) => accessModifier
-        case _ => Option(findChildByType(mod.getTokenType))
+        case _ => Option(findChildByType(ScalaModifierTokenType(mod)))
       }
       elemToRemove.foreach(e => getNode.removeChild(e.getNode))
     }

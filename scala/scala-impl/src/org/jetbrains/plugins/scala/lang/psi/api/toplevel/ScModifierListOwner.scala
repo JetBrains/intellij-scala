@@ -30,16 +30,8 @@ trait ScModifierListOwner extends ScalaPsiElement with ScAnnotationsHolder with 
   def hasModifierProperty(name: String): Boolean = hasModifierPropertyInner(name)
 
   // TODO This method is, in fact, ...Java, as it interprets the absence of 'private' / 'protected' as the presence of 'public'
-  // TODO We need to implement this in the hasModifierProperty itself.
-  // TODO Also, we should probably do that at the level of ScModifierList.
   final def hasModifierPropertyScala(name: String): Boolean = {
-    import PsiModifier._
-    name match {
-      case PUBLIC =>
-        !hasModifierPropertyInner(PRIVATE) &&
-          !hasModifierPropertyInner(PROTECTED)
-      case _ => hasModifierPropertyInner(name)
-    }
+    name != PsiModifier.PUBLIC && hasModifierPropertyInner(name)
   }
 
   private def hasModifierPropertyInner(name: String): Boolean =
