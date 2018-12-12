@@ -365,8 +365,11 @@ object TypeDefinitionMembers {
     val processOnlyStable = shouldProcessOnlyStable(processor)
     val isImplicitProcessor = BaseProcessor.isImplicitProcessor(processor)
 
-    def process(named: PsiNamedElement, nodeSubstitutor: ScSubstitutor): Boolean =
-      processor.execute(named, state.put(ScSubstitutor.key, nodeSubstitutor.followed(subst)))
+    def process(named: PsiNamedElement, nodeSubstitutor: ScSubstitutor): Boolean = {
+      if (named.isValid) {
+        processor.execute(named, state.put(ScSubstitutor.key, nodeSubstitutor.followed(subst)))
+      } else true
+    }
 
     def processSignatureNode(node: MixinNodes.Node[Signature]): Boolean = {
 

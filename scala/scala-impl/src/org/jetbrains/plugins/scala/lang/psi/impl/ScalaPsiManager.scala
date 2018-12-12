@@ -29,11 +29,11 @@ import org.jetbrains.plugins.scala.lang.psi.api.statements.params.idToName
 import org.jetbrains.plugins.scala.lang.psi.api.toplevel.ScPackaging
 import org.jetbrains.plugins.scala.lang.psi.api.toplevel.typedef.{ScObject, ScTemplateDefinition, ScTypeDefinition}
 import org.jetbrains.plugins.scala.lang.psi.impl.toplevel.synthetic.ScSyntheticPackage
-import org.jetbrains.plugins.scala.lang.psi.impl.toplevel.typedef.MixinNodes
+import org.jetbrains.plugins.scala.lang.psi.impl.toplevel.typedef.{MixinNodes, SignatureStrategy}
 import org.jetbrains.plugins.scala.lang.psi.impl.toplevel.typedef.TypeDefinitionMembers.StableNodes.{Map => PMap}
 import org.jetbrains.plugins.scala.lang.psi.impl.toplevel.typedef.TypeDefinitionMembers.SignatureNodes.{Map => SMap}
 import org.jetbrains.plugins.scala.lang.psi.impl.toplevel.typedef.TypeDefinitionMembers.TypeNodes.{Map => TMap}
-import org.jetbrains.plugins.scala.lang.psi.impl.toplevel.typedef.TypeDefinitionMembers.{StableNodes, SignatureNodes, TypeNodes}
+import org.jetbrains.plugins.scala.lang.psi.impl.toplevel.typedef.TypeDefinitionMembers.{SignatureNodes, StableNodes, TypeNodes}
 import org.jetbrains.plugins.scala.lang.psi.implicits.ImplicitCollectorCache
 import org.jetbrains.plugins.scala.lang.psi.light.PsiClassWrapper
 import org.jetbrains.plugins.scala.lang.psi.stubs.index.ScalaIndexKeys
@@ -331,7 +331,7 @@ class ScalaPsiManager(val project: Project) {
 
   val rootManager: ModificationTracker = ProjectRootManager.getInstance(project)
 
-  sealed abstract class SignatureCaches[N <: MixinNodes[_]](val nodes: N) {
+  sealed abstract class SignatureCaches[T : SignatureStrategy](val nodes: MixinNodes[T]) {
 
     private val forLibraryMap: ConcurrentMap[PsiClass, nodes.Map] = ContainerUtil.createConcurrentWeakMap()
     private val forTopLevelMap: ConcurrentMap[PsiClass, nodes.Map] = ContainerUtil.createConcurrentWeakMap()
@@ -344,13 +344,19 @@ class ScalaPsiManager(val project: Project) {
     private def forTopLevelClasses(clazz: PsiClass): nodes.Map = forTopLevelMap.computeIfAbsent(clazz, nodes.build)
 
     def cachedMap(clazz: PsiClass): nodes.Map = {
+      if (!clazz.isValid) {
+        forLibraryMap.remove(clazz)
+        forTopLevelMap.remove(clazz)
+        return MixinNodes.emptyMap[T]
+      }
+
       CachesUtil.libraryAwareModTracker(clazz) match {
         case `rootManager`               => forLibraryClasses(clazz)
         case TopLevelModificationTracker => forTopLevelClasses(clazz)
         case tracker =>
 
           @CachedInUserData(clazz, tracker)
-          def cachedInUserData(clazz: PsiClass, n: MixinNodes[_]): nodes.Map = nodes.build(clazz)
+          def cachedInUserData(clazz: PsiClass, n: MixinNodes[T]): nodes.Map = nodes.build(clazz)
 
           //@CachedInUserData creates a single map for all 3 cases, so we need to pass `nodes` as a parameter to have different keys
           cachedInUserData(clazz, nodes)

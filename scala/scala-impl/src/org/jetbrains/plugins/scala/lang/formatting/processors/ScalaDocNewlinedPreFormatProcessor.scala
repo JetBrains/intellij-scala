@@ -8,6 +8,7 @@ import com.intellij.psi.codeStyle.CodeStyleSettingsManager
 import com.intellij.psi.impl.source.codeStyle.PreFormatProcessor
 import com.intellij.psi.util.PsiTreeUtil
 import org.jetbrains.plugins.scala
+import org.jetbrains.plugins.scala.ScalaLanguage
 import org.jetbrains.plugins.scala.extensions.PsiElementExt
 import org.jetbrains.plugins.scala.lang.formatting.settings.ScalaCodeStyleSettings
 import org.jetbrains.plugins.scala.lang.psi.api.ScalaElementVisitor
@@ -34,20 +35,27 @@ class ScalaDocNewlinedPreFormatProcessor extends PreFormatProcessor {
   }
 
   override def process(element: ASTNode, range: TextRange): TextRange =
-    Option(element.getPsi).map { psiElem =>
-      val oldRange = psiElem.getTextRange
-      val settings = CodeStyle.getSettings(psiElem.getProject).getCustomSettings(classOf[ScalaCodeStyleSettings])
-      val visitor = new ScalaDocNewlinedPreFormatVisitor(settings)
+    Option(element.getPsi)
+      .filter(_.isValid)
+      .filter(_.getLanguage.isKindOf(ScalaLanguage.INSTANCE))
+      .map(processScalaElement(_, range))
+      .map(range.grown)
+      .getOrElse(range)
 
-      for {
-        elem <- elementsToProcess(psiElem, range)
-        if elem.isValid
-      } elem.accept(visitor)
+  private def processScalaElement(psiElement: PsiElement, range: TextRange) = {
+    val oldRange = psiElement.getTextRange
+    val settings = CodeStyle.getSettings(psiElement.getProject).getCustomSettings(classOf[ScalaCodeStyleSettings])
+    val visitor = new ScalaDocNewlinedPreFormatVisitor(settings)
 
-      val diff = psiElem.getTextRange.getEndOffset - oldRange.getEndOffset
-      //range can be overshrinked only for small elements that can't be formatted on their own, so it's ok to return whole range
-      if (range.getLength + diff <= 0) 0 else diff
-    }.map(range.grown).getOrElse(range)
+    for {
+      elem <- elementsToProcess(psiElement, range)
+      if elem.isValid
+    } elem.accept(visitor)
+
+    val diff = psiElement.getTextRange.getEndOffset - oldRange.getEndOffset
+    //range can be overshrinked only for small elements that can't be formatted on their own, so it's ok to return whole range
+    if (range.getLength + diff <= 0) 0 else diff
+  }
 
   private def elementsToProcess(psiElement: PsiElement, range: TextRange): Seq[PsiElement] = {
     psiElement.depthFirst().filter(_.getTextRange.intersects(range)).toVector.collect {
