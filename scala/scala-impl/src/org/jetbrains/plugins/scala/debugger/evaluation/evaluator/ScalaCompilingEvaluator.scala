@@ -48,7 +48,7 @@ class ScalaCompilingEvaluator(psiContext: PsiElement, fragment: ScalaCodeFragmen
 
   import org.jetbrains.plugins.scala.debugger.evaluation.evaluator.ScalaCompilingEvaluator._
 
-  private val project = inReadAction(psiContext.getProject)
+  private val project = inReadAction(fragment.getProject)
   private val generatedClass = GeneratedClass(fragment, psiContext)
   private var classLoader: ClassLoaderReference = null
 
@@ -276,7 +276,7 @@ private object GeneratedClass {
     val constructorInvocation =
       createExpressionWithContextFromText(s"new $generatedClassName()", anchor.getContext, anchor)
 
-    implicit val ctx: ProjectContext = context.getProject
+    implicit val ctx: ProjectContext = fragment.getProject
 
     val classText = localClassText(fragment, generatedClassName)
     val classToInsert = createTemplateDefinitionFromText(classText, context.getContext, context).asInstanceOf[ScClass]

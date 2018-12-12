@@ -541,6 +541,9 @@ package object extensions {
         }
       }
 
+      if (!node.info.namedElement.isValid)
+        return
+
       node.info.namedElement match {
         case fun: ScFunction if !fun.isConstructor =>
           val wrappers = fun.getFunctionWrappers(isStatic, isInterface = fun.isAbstractMember, concreteClassFor(fun))

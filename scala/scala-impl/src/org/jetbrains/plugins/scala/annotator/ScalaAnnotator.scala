@@ -656,7 +656,7 @@ abstract class ScalaAnnotator extends Annotator
               ScalaPsiUtil.nameContext(r.getActualElement) match {
                 case v: ScValue if !v.hasModifierProperty("lazy") => showError()
                 case _: ScVariable => showError()
-                case nameContext =>
+                case nameContext if nameContext.isValid =>
                   //if it has not lazy val or var between reference and statement then it's forward reference
                   val context = PsiTreeUtil.findCommonContext(refElement, nameContext)
                   if (context != null) {

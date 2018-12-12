@@ -96,6 +96,10 @@ object CachesUtil {
         modificationCount(context, result)
     }
 
+    if (!element.isValid) {
+      return ModificationTracker.NEVER_CHANGED
+    }
+
     val topLevel = ScalaPsiManager.instance(element.getProject).TopLevelModificationTracker
 
     @tailrec
