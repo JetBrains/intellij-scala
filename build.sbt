@@ -168,7 +168,6 @@ lazy val bsp =
   newProject("bsp", file("bsp"))
     .dependsOn(scalaImpl % "test->test;compile->compile")
     .settings(
-      packageAssembleLibraries := true,
       libraryDependencies ++= DependencyGroups.bsp,
       ideaMainJars := Seq.empty
     )
