@@ -15,9 +15,10 @@ import org.jetbrains.plugins.scala.lang.psi.ScalaPsiUtil.inNameContext
 import org.jetbrains.plugins.scala.lang.psi.api.base.patterns.ScBindingPattern
 import org.jetbrains.plugins.scala.lang.psi.api.statements.params.ScClassParameter
 import org.jetbrains.plugins.scala.lang.psi.api.statements.{ScFunction, ScValueOrVariable}
-import org.jetbrains.plugins.scala.lang.psi.api.toplevel.ScTypedDefinition
+import org.jetbrains.plugins.scala.lang.psi.api.toplevel.{ScModifierListOwner, ScTypedDefinition}
 import org.jetbrains.plugins.scala.lang.psi.fake.FakePsiMethod
-import org.jetbrains.plugins.scala.lang.psi.light.{PsiMethodWrapper, ScFunctionWrapper}
+import org.jetbrains.plugins.scala.lang.psi.types.ScType
+import org.jetbrains.plugins.scala.lang.psi.types.nonvalue.Parameter
 
 private class ScalaCompilerRefAdapter extends JavaCompilerRefAdapterCompat {
   override def getFileTypes: util.Set[FileType] =
@@ -87,35 +88,30 @@ object ScalaCompilerRefAdapter {
       case _                               => element
     })
 
-  private[this] class BytecodeMethod(e: ScTypedDefinition, name: String)
-      extends FakePsiMethod(
-        e,
-        name,
-        Array.empty,
-        e.`type`().getOrAny,
-        Function.const(false)
-      )
+  private[this] class BytecodeMethod(e: ScTypedDefinition, name: String) extends FakePsiMethod(e, None, name) {
+    override def params: Array[Parameter]   = Array.empty
+    override def retType: ScType            = e.`type`().getOrAny
+    override def getContainingFile: PsiFile = ScalaPsiUtil.fileContext(e)
+  }
 
   object SyntheticImplicitMethod {
-    def unapply(e: PsiElement): Option[PsiMethodWrapper] = e match {
-      case f: ScFunction if f.isSynthetic =>
-        new ScFunctionWrapper(f, isStatic = false, isInterface = false, None) {
-          override def getContainingFile: PsiFile = ScalaPsiUtil.fileContext(f)
-        }.toOption
-      case _ => None
+    def unapply(e: PsiElement): Option[FakePsiMethod] = e match {
+      case f: ScFunction if f.isSynthetic => new BytecodeMethod(f, f.name).toOption
+      case _                              => None
     }
   }
 
   object HasSyntheticGetter {
     private[this] def syntheticGetter(e: ScTypedDefinition): FakePsiMethod =
-      new BytecodeMethod(e, e.name) {
-        override def getContainingFile: PsiFile = e.getContainingFile
-      }
+      new BytecodeMethod(e, e.name)
+
+    private[this] def isPrivateThis(mod: ScModifierListOwner): Boolean =
+      mod.getModifierList.accessModifier.exists(m => m.isPrivate && m.isThis)
 
     def unapply(e: PsiElement): Option[FakePsiMethod] = e match {
-      case c: ScClassParameter if !c.isPrivateThis => Option(syntheticGetter(c))
-      case (bp: ScBindingPattern) && inNameContext(v: ScValueOrVariable) if !v.isLocal && !v.isPrivateThis =>
-        Option(syntheticGetter(bp))
+      case c: ScClassParameter if !c.isPrivateThis => syntheticGetter(c).toOption
+      case (bp: ScBindingPattern) && inNameContext(v: ScValueOrVariable) if !v.isLocal && !isPrivateThis(v) =>
+        syntheticGetter(bp).toOption
       case _ => None
     }
   }

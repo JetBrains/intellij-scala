@@ -4,13 +4,13 @@ import java.io._
 import java.net.{ServerSocket, Socket}
 import java.nio.file.Paths
 import java.util.UUID
+import java.util.concurrent.{ExecutorService, Executors, Future => JFuture}
 
 import com.intellij.openapi.application.ApplicationManager
 import com.intellij.openapi.components.BaseComponent
 import com.intellij.openapi.diagnostic.Logger
 import com.intellij.openapi.util.Disposer
 import com.intellij.util.messages.MessageBus
-import org.jetbrains.plugins.scala.extensions._
 import org.jetbrains.plugins.scala.findUsages.compilerReferences.compilation.SbtCompilationListener.ProjectIdentifier
 import org.jetbrains.plugins.scala.findUsages.compilerReferences.compilation.SbtCompilationListener.ProjectIdentifier._
 import org.jetbrains.plugins.scala.findUsages.compilerReferences.compilation
@@ -37,11 +37,18 @@ import scala.util.control.NonFatal
 class SbtCompilationManager() extends BaseComponent {
   import SbtCompilationManager._
 
-  private[this] var server: ServerSocket = _
-  private[this] val bus: MessageBus      = ApplicationManager.getApplication.getMessageBus
-  private[this] val port                 = CompilerIndicesSbtSettings().sbtConnectionPort
+  private[this] val executor: ExecutorService = Executors.newCachedThreadPool()
+  private[this] var server: ServerSocket      = _
+  private[this] val bus: MessageBus           = ApplicationManager.getApplication.getMessageBus
+  private[this] val port                      = CompilerIndicesSbtSettings().sbtConnectionPort
 
-  Disposer.register(ApplicationManager.getApplication, () => if (server != null) server.close())
+  Disposer.register(ApplicationManager.getApplication, () => {
+    executor.shutdown()
+    if (server != null) server.close()
+  })
+
+  private[this] def executeOnPooledThread[T](body: =>T): JFuture[T] =
+    executor.submit[T](() => body)
 
   override def initComponent(): Unit =
     try {
@@ -66,8 +73,8 @@ class SbtCompilationManager() extends BaseComponent {
     }
 
   private[this] def handleConnection(client: Socket): Unit = {
-    var base: ProjectIdentifier     = Unidentified
-    var id: Option[UUID]            = None
+    var base: ProjectIdentifier = Unidentified
+    var id: Option[UUID]        = None
 
     try {
       val in            = new DataInputStream(client.getInputStream())
@@ -98,7 +105,7 @@ class SbtCompilationManager() extends BaseComponent {
     } catch {
       case NonFatal(e) =>
         e.printStackTrace()
-        logger.error(e)
+        logger.info(e)
         onConnectionFailure(base, id)
     } finally if (client != null) client.close()
   }

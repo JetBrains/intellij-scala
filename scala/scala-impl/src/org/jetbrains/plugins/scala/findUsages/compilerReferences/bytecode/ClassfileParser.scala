@@ -2,14 +2,15 @@ package org.jetbrains.plugins.scala.findUsages.compilerReferences
 package bytecode
 
 import java.{util => ju}
-import java.io.{ByteArrayInputStream, File, FileInputStream, InputStream}
+import java.io._
 import java.nio.charset.StandardCharsets
+import java.util.regex.Pattern
 
 import com.intellij.openapi.vfs.VirtualFile
 import com.intellij.util.BitUtil.isSet
 import org.jetbrains.org.objectweb.asm.Opcodes.{ACC_STATIC, ACC_SYNTHETIC, ASM6}
 import org.jetbrains.org.objectweb.asm._
-import org.jetbrains.plugins.scala.decompiler.Decompiler.{SCALA_LONG_SIG_ANNOTATION, SCALA_SIG_ANNOTATION, BYTES_VALUE}
+import org.jetbrains.plugins.scala.decompiler.Decompiler.{BYTES_VALUE, SCALA_LONG_SIG_ANNOTATION, SCALA_SIG_ANNOTATION}
 import org.jetbrains.plugins.scala.decompiler.scalasig._
 import org.jetbrains.plugins.scala.extensions.using
 
@@ -113,12 +114,13 @@ private[compilerReferences] object ClassfileParser {
     parse(new ByteArrayInputStream(bytes), synthetics)
 
   def parse(file: File, synthetics: Set[String]): ParsedClass =
-    parse(new FileInputStream(file), synthetics)
+    parse(new BufferedInputStream(new FileInputStream(file)), synthetics)
 
   def parse(vfile: VirtualFile, synthetics: Set[String]): ParsedClass =
     parse(vfile.getInputStream, synthetics)
 
-  private[this] def fqnFromInternalName(internal: String): String  = internal.replaceAll("/", ".")
+  private[this] val pattern = Pattern.compile("/")
+  private[this] def fqnFromInternalName(internal: String): String  = pattern.matcher(internal).replaceAll(".")
   private[this] def isFunExprClassname(name:      String): Boolean = name.contains("$anonfun$")
 
   private[this] trait ReferenceCollector {
@@ -135,6 +137,15 @@ private[compilerReferences] object ClassfileParser {
     private[this] val innerRefs: ju.List[MemberReference]              = new ju.ArrayList[MemberReference]()
     private[this] val funExprs: ju.List[FunExprInheritor]              = new ju.ArrayList[FunExprInheritor]()
     private[this] var earliestSeen: Option[Int]                        = None
+
+    private[this] val methodVisitor = new MethodVisitor(ASM6) with ReferenceInMethodCollector {
+      override def handleMemberRef(ref: MemberReference): Unit  = innerRefs.add(ref)
+      override def handleSAMRef(ref:    FunExprInheritor): Unit = funExprs.add(ref)
+
+      override def handleLineNumber(line: Int): Unit =
+        if (isFunExprClassname(className) && earliestSeen.forall(_ > line))
+          earliestSeen = Option(line)
+    }
 
     override def visit(
       version:    Int,
@@ -175,15 +186,8 @@ private[compilerReferences] object ClassfileParser {
       exceptions: Array[String]
     ): MethodVisitor =
       if (isStaticForwarder(access, name) || isSynthetic(access, name)) null
-      else
-        new MethodVisitor(ASM6) with ReferenceInMethodCollector {
-          override def handleMemberRef(ref: MemberReference): Unit  = innerRefs.add(ref)
-          override def handleSAMRef(ref:    FunExprInheritor): Unit = funExprs.add(ref)
+      else                                                              methodVisitor
 
-          override def handleLineNumber(line: Int): Unit =
-            if (isFunExprClassname(className) && earliestSeen.forall(_ > line))
-              earliestSeen = Option(line)
-        }
 
     def result: ParsedClass = {
       val classInfo = ClassInfo(isAnon, className, superNames.result())

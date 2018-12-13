@@ -3,8 +3,7 @@ package findUsages.factory
 
 import java.util
 
-import com.intellij.find.findUsages.{AbstractFindUsagesDialog, FindUsagesHandler, FindUsagesOptions}
-import com.intellij.openapi.actionSystem.DataContext
+import com.intellij.find.findUsages.FindUsagesOptions
 import com.intellij.openapi.util.text.StringUtil
 import com.intellij.psi._
 import com.intellij.psi.search.GlobalSearchScope
@@ -15,15 +14,11 @@ import org.jetbrains.plugins.scala.extensions._
 import org.jetbrains.plugins.scala.findUsages.compilerReferences.search.ImplicitReferencesSearch
 import org.jetbrains.plugins.scala.lang.psi.ScalaPsiUtil._
 import org.jetbrains.plugins.scala.lang.psi.api.PropertyMethods._
-import org.jetbrains.plugins.scala.lang.psi.api.base.patterns.ScCaseClause
-import org.jetbrains.plugins.scala.lang.psi.api.expr.{ScForBinding, ScGenerator}
 import org.jetbrains.plugins.scala.lang.psi.api.statements._
-import org.jetbrains.plugins.scala.lang.psi.api.statements.params.{ScParameter, ScTypeParam}
 import org.jetbrains.plugins.scala.lang.psi.api.toplevel.typedef._
 import org.jetbrains.plugins.scala.lang.psi.api.toplevel.{ScNamedElement, ScTypedDefinition}
 import org.jetbrains.plugins.scala.lang.psi.impl.search.ScalaOverridingMemberSearcher
 import org.jetbrains.plugins.scala.lang.psi.light._
-import org.jetbrains.plugins.scala.lang.psi.types.api.designator.ScDesignatorType
 import org.jetbrains.plugins.scala.util.ImplicitUtil.ImplicitSearchTarget
 
 /**
@@ -32,28 +27,7 @@ import org.jetbrains.plugins.scala.util.ImplicitUtil.ImplicitSearchTarget
  */
 
 class ScalaFindUsagesHandler(element: PsiElement, factory: ScalaFindUsagesHandlerFactory)
-        extends FindUsagesHandler(element) {
-
-  override def getPrimaryElements: Array[PsiElement] = {
-    def applyFactoryMethods(c: ScClass) = {
-      val companion = getCompanionModule(c)
-      val applyMethods = companion.toSeq.flatMap(_.functionsByName("apply"))
-      applyMethods.filter {
-        case f: ScFunctionDefinition if f.isApplyMethod => f.isSynthetic
-        case f: ScFunctionDefinition =>
-          val returnType = f.returnType.toOption
-          returnType.exists(_.equiv(ScDesignatorType(c)))
-        case _ => false
-      }
-    }
-
-    element match {
-      case c: ScClass if factory.typeDefinitionOptions.isOnlyNewInstances =>
-        val constructors = c.constructors
-        (constructors ++ applyFactoryMethods(c)).toArray
-      case _ => Array(element)
-    }
-  }
+        extends ScalaFindUsagesHandlerBase(element, factory) {
 
   override def getStringsToSearch(element: PsiElement): util.Collection[String] = {
     val result: util.Set[String] = new util.HashSet[String]()
@@ -96,16 +70,6 @@ class ScalaFindUsagesHandler(element: PsiElement, factory: ScalaFindUsagesHandle
     result
   }
 
-  override def getFindUsagesOptions(dataContext: DataContext): FindUsagesOptions = {
-    element match {
-      case _: ScTypeDefinition => factory.typeDefinitionOptions
-      case inNameContext(m: ScMember) if !m.isLocal => factory.memberOptions
-      case _: ScParameter | _: ScTypeParam |
-           inNameContext(_: ScMember | _: ScCaseClause | _: ScGenerator | _: ScForBinding ) => factory.localOptions
-      case _ => super.getFindUsagesOptions(dataContext)
-    }
-  }
-
   override def getSecondaryElements: Array[PsiElement] = {
     element match {
       case t: ScObject =>
@@ -131,14 +95,6 @@ class ScalaFindUsagesHandler(element: PsiElement, factory: ScalaFindUsagesHandle
           a.map(role => t.getTypedDefinitionWrapper(isStatic = false, isInterface = false, role = role, cClass = None))
         }
       case _ => Array.empty
-    }
-  }
-
-  override def getFindUsagesDialog(isSingleFile: Boolean, toShowInNewTab: Boolean, mustOpenInNewTab: Boolean): AbstractFindUsagesDialog = {
-    element match {
-      case t: ScTypeDefinition => new ScalaTypeDefinitionUsagesDialog(t, getProject, getFindUsagesOptions,
-        toShowInNewTab, mustOpenInNewTab, isSingleFile, this)
-      case _ => super.getFindUsagesDialog(isSingleFile, toShowInNewTab, mustOpenInNewTab)
     }
   }
 

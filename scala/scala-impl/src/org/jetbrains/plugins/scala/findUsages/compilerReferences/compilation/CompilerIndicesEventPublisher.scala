@@ -11,7 +11,7 @@ private[compilerReferences] trait CompilerIndicesEventPublisher {
   def compilerModeChanged(mode: CompilerMode): Unit                         = ()
   def onError(): Unit                                                       = ()
   def onCompilationStart(): Unit                                            = ()
-  def onCompilationFinish(): Unit                                           = ()
+  def onCompilationFinish(success: Boolean): Unit                           = ()
   def startIndexing(isCleanBuild: Boolean): Unit                            = ()
   def processCompilationInfo(info: CompilationInfo, offline: Boolean): Unit = ()
   def finishIndexing(): Unit                                                = ()

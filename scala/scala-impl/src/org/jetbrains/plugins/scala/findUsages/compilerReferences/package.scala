@@ -67,7 +67,6 @@ package object compilerReferences {
 
     ModuleManager.getInstance(project).getModules.find(module =>
       ExternalSystemApiUtil.getExternalProjectId(module) == moduleId
-
     )
   }
 

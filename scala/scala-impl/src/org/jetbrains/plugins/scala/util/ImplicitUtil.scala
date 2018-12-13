@@ -10,7 +10,7 @@ import org.jetbrains.plugins.scala.ScalaLanguage
 import org.jetbrains.plugins.scala.codeInspection.collections.MethodRepr
 import org.jetbrains.plugins.scala.lang.psi.api.ImplicitArgumentsOwner
 import org.jetbrains.plugins.scala.lang.psi.api.base.types.{ScSimpleTypeElement, ScTypeElement}
-import org.jetbrains.plugins.scala.lang.psi.api.base.{ScConstructor, ScReferenceElement}
+import org.jetbrains.plugins.scala.lang.psi.api.base.{ScConstructor, ScReference}
 import org.jetbrains.plugins.scala.lang.psi.api.expr._
 import org.jetbrains.plugins.scala.lang.psi.api.statements.ScFunction
 import org.jetbrains.plugins.scala.lang.psi.api.toplevel.ScNamedElement
@@ -44,7 +44,7 @@ object ImplicitUtil {
         .exists(matches)
 
     def refOrImplicitRefIn(usage: PsiElement): Option[PsiReference] = usage match {
-      case ref: ScReferenceElement if isTarget(ref.resolve())    => Option(ref)
+      case ref: ScReference if isTarget(ref.resolve())           => Option(ref)
       case e: ScExpression if isImplicitConversionOrParameter(e) => Option(ImplicitReference(e, targetImplicit))
       case c: ScConstructor if isImplicitParameterOf(c)          => Option(ImplicitReference(c, targetImplicit))
       case _                                                     => None
@@ -54,7 +54,7 @@ object ImplicitUtil {
   object ImplicitSearchTarget {
     def unapply(e: PsiElement): Option[PsiNamedElement] = e match {
       case named: ScNamedElement       => namedKind.target(named)
-      case ref: ScReferenceElement     => refKind.target(ref)
+      case ref: ScReference            => refKind.target(ref)
       case contextBoundElement(tp, te) => contextBoundKind.target(tp, te)
       case _                           => None
     }
@@ -90,7 +90,7 @@ object ImplicitUtil {
       case MethodRepr(_: ScMethodCall, Some(base), None, _) => range(base)
       case MethodRepr(_, _, Some(ref), _)                   => startingFrom(ref.nameId)
       case simpleTypeElem: ScSimpleTypeElement              => forTypeElem(simpleTypeElem)
-      case ref: ScReferenceElement                          => startingFrom(ref.nameId)
+      case ref: ScReference                                 => startingFrom(ref.nameId)
       case _                                                => simpleRange
     }
   }

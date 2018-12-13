@@ -10,13 +10,13 @@ import com.intellij.ProjectTopics
 import com.intellij.openapi.diagnostic.Logger
 import com.intellij.openapi.module.Module
 import com.intellij.openapi.project.{ModuleListener, Project}
-import org.jetbrains.plugins.scala.extensions._
 import org.jetbrains.plugins.scala.findUsages.compilerReferences.compilation.SbtCompilationListener.ProjectIdentifier
 import org.jetbrains.plugins.scala.findUsages.compilerReferences.compilation.SbtCompilationListener.ProjectIdentifier._
 import org.jetbrains.plugins.scala.findUsages.compilerReferences.ScalaCompilerReferenceService.CompilerIndicesState
 import org.jetbrains.plugins.scala.indices.protocol.IdeaIndicesJsonProtocol._
 import org.jetbrains.plugins.scala.indices.protocol.sbt.Locking.FileLockingExt
 import org.jetbrains.plugins.scala.indices.protocol.sbt._
+import org.jetbrains.plugins.scala.extensions._
 import spray.json._
 
 import scala.util.Try
@@ -56,12 +56,13 @@ private[compilerReferences] class SbtCompilationWatcher(
     sbtInfo:   SbtCompilationInfo,
     publisher: CompilerIndicesEventPublisher,
     isOffline: Boolean = false
-  ): Unit = {
-    publisher.startIndexing(isCleanBuild = !sbtInfo.isIncremental)
-    publisher.processCompilationInfo(sbtInfo, isOffline)
-    publisher.finishIndexing()
-    publisher.onCompilationFinish()
-  }
+  ): Unit =
+    applyTo(publisher)(
+      _.startIndexing(isCleanBuild = !sbtInfo.isIncremental),
+      _.processCompilationInfo(sbtInfo, isOffline),
+      _.finishIndexing(),
+      _.onCompilationFinish(success = true)
+    )
 
   private[this] def processOfflineInfos(infoFiles: Seq[File]): Unit = {
     val parsedInfos = infoFiles.flatMap(parseCompilationInfo(_).toOption)
@@ -106,7 +107,7 @@ private[compilerReferences] class SbtCompilationWatcher(
       override def onCompilationFailure(
         identifier:    ProjectBase,
         compilationId: UUID
-      ): Unit = if (thisBuild(identifier)) processEventInTransaction(_.onCompilationFinish())
+      ): Unit = if (thisBuild(identifier)) processEventInTransaction(_.onCompilationFinish(success = false))
 
       override def onCompilationSuccess(
         base:                ProjectBase,

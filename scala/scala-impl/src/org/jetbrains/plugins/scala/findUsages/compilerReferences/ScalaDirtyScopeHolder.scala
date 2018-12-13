@@ -1,10 +1,12 @@
 package org.jetbrains.plugins.scala.findUsages.compilerReferences
 
+import com.intellij.openapi.diagnostic.Logger
 import com.intellij.openapi.fileEditor.FileDocumentManager
 import com.intellij.openapi.fileTypes.FileType
 import com.intellij.openapi.module.{Module, ModuleUtilCore}
 import com.intellij.openapi.project.Project
 import com.intellij.openapi.roots.ProjectFileIndex
+import com.intellij.openapi.util.ModificationTracker
 import com.intellij.openapi.vfs.VirtualFile
 import com.intellij.psi.PsiDocumentManager
 import com.intellij.psi.search.GlobalSearchScope
@@ -16,17 +18,19 @@ import org.jetbrains.plugins.scala.indices.protocol.jps.JpsCompilationInfo
 import scala.collection.mutable
 
 private[findUsages] class ScalaDirtyScopeHolder(
-  project:        Project,
-  fileTypes:      Array[FileType],
-  fileIndex:      ProjectFileIndex,
-  fileDocManager: FileDocumentManager,
-  psiDocManager:  PsiDocumentManager
+  project:             Project,
+  fileTypes:           Array[FileType],
+  fileIndex:           ProjectFileIndex,
+  fileDocManager:      FileDocumentManager,
+  psiDocManager:       PsiDocumentManager,
+  modificationTracker: ModificationTracker,
 ) extends DirtyScopeHolder[ScalaDirtyScopeHolder.ScopedModule](
       project,
       fileTypes,
       fileIndex,
       fileDocManager,
-      psiDocManager
+      psiDocManager,
+      modificationTracker
     ) {
   import ScalaDirtyScopeHolder._
 
@@ -70,11 +74,14 @@ private[findUsages] class ScalaDirtyScopeHolder(
       case _: JpsCompilationInfo    => modules.flatMap(moduleScopes)
     }
 
+    log.debug(s"Finished indexing compilation info for ${scopes.map(_.module)}.")
     scopes.foreach(markScopeUpToDate)
   }
 }
 
 object ScalaDirtyScopeHolder {
+  private val log = Logger.getInstance(classOf[ScalaDirtyScopeHolder])
+
   final case class ScopedModule(module: Module, configuration: Configuration) {
     override def toString: String = s"${module.getName} / $configuration"
   }

@@ -17,6 +17,7 @@ import org.jetbrains.plugins.scala.lang.psi.light._
 import org.jetbrains.plugins.scala.lang.psi.types.api.FunctionType
 import org.jetbrains.plugins.scala.lang.refactoring.rename.RenameSuperMembersUtil
 import org.jetbrains.plugins.scala.util.ImplicitUtil._
+import org.jetbrains.plugins.scala.extensions._
 
 /**
  * User: Alexander Podkhalyuzin
@@ -50,14 +51,18 @@ class ScalaFindUsagesHandlerFactory(project: Project) extends FindUsagesHandlerF
     val replaced =
       if (!forHighlightUsages) {
         val maybeSuper = suggestChooseSuper(unwrapped)
-        maybeSuper.filter {
-          case ImplicitSearchTarget(target) => doBeforeImplicitSearchAction(target)
-          case _                            => true
+        maybeSuper.flatMap {
+          case ImplicitSearchTarget(target) =>
+            val shouldProceed = doBeforeImplicitSearchAction(target)
+            shouldProceed.option((target, true))
+          case other => (other, false).toOption
         }
-      } else Option(unwrapped)
+      } else Option((unwrapped, false))
 
     replaced match {
-      case Some(e) => new ScalaFindUsagesHandler(e, this)
+      case Some((e, isImplicit)) =>
+        if (isImplicit) new CompilerIndicesFindUsageHandler(e, this)
+        else            new ScalaFindUsagesHandler(e, this)
       case None    => FindUsagesHandler.NULL_HANDLER
     }
   }
