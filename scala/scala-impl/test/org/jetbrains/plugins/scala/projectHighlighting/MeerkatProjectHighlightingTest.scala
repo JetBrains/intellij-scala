@@ -6,11 +6,11 @@ import org.junit.experimental.categories.Category
 
 @Category(Array(classOf[HighlightingTests]))
 class MeerkatProjectHighlightingTest extends GithubSbtAllProjectHighlightingTest {
-  override def githubUsername = "meerkat-parser"
+  override def githubUsername = "niktrop"
 
   override def githubRepoName = "Meerkat"
 
-  override def revision = "3e59173f1efcefff6b9e8a120f1fee30bd3d7403"
+  override def revision = "5013864a9cbcdb43f92d1d57200352743d412235"
 
   override def filesWithProblems: Map[String, Set[TextRange]] = Map(
     "Example12.scala" -> Set(),
