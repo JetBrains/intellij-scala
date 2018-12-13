@@ -87,8 +87,8 @@ private[compilerReferences] class JpsCompilationWatcher(
             publisher.onCompilationStart()
             val info = JpsCompilationInfo(modules.toSet, Set.empty, Set.empty, timestamp)
             publisher.processCompilationInfo(info, offline = false)
-            publisher.onCompilationFinish()
-          }
+            publisher.onCompilationFinish(success = true)
+          } else processEventInTransaction(_.onCompilationFinish(success = !aborted && errors == 0))
         }
       }
     })
@@ -100,12 +100,6 @@ private[compilerReferences] class JpsCompilationWatcher(
         sessionId:  UUID,
         isAutomake: Boolean
       ): Unit = if (project == self.project) processEventInTransaction(_.onCompilationStart())
-
-      override def buildFinished(
-        project:    Project,
-        sessionId:  UUID,
-        isAutomake: Boolean
-      ): Unit = if (project == self.project) processEventInTransaction(_.onCompilationFinish())
     })
   }
 }

@@ -8,7 +8,7 @@ import com.intellij.openapi.fileTypes.{FileType, FileTypeRegistry}
 import com.intellij.openapi.module.Module
 import com.intellij.openapi.project.Project
 import com.intellij.openapi.roots.ProjectFileIndex
-import com.intellij.openapi.util.UserDataHolderBase
+import com.intellij.openapi.util.{ModificationTracker, UserDataHolderBase}
 import com.intellij.openapi.util.io.FileUtil
 import com.intellij.openapi.vfs.newvfs.BulkFileListener
 import com.intellij.openapi.vfs.newvfs.events._
@@ -30,13 +30,13 @@ import scala.collection.JavaConverters._
  * See also [[ScalaDirtyScopeHolder]].
  */
 abstract class DirtyScopeHolder[Scope](
-  project:        Project,
-  fileTypes:      Array[FileType],
-  fileIndex:      ProjectFileIndex,
-  fileDocManager: FileDocumentManager,
-  psiDocManager:  PsiDocumentManager
+  project:             Project,
+  fileTypes:           Array[FileType],
+  fileIndex:           ProjectFileIndex,
+  fileDocManager:      FileDocumentManager,
+  psiDocManager:       PsiDocumentManager,
+  modificationTracker: ModificationTracker
 ) extends UserDataHolderBase with BulkFileListener {
-
   protected val lock: Lock                                       = new ReentrantLock()
   protected val fileTypeRegistry: FileTypeRegistry               = FileTypeRegistry.getInstance()
   protected val vfsChangedScopes: util.Set[Scope]                = ContainerUtil.set[Scope]()
@@ -126,7 +126,7 @@ abstract class DirtyScopeHolder[Scope](
             this,
             () =>
               CachedValueProvider.Result
-                .create(calcDirtyScope(), PsiModificationTracker.MODIFICATION_COUNT, VirtualFileManager.getInstance())
+                .create(calcDirtyScope(), PsiModificationTracker.MODIFICATION_COUNT, VirtualFileManager.getInstance(), modificationTracker)
           )
       } else GlobalSearchScope.EMPTY_SCOPE
     }

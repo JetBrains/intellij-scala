@@ -143,7 +143,8 @@ object DependencyGroups {
     ivy2,
     typesafeConfig,
     scalastyle,
-    scalariform
+    scalariform,
+    compilerIndicesProtocol
   )
 
   val bsp: Seq[ModuleID] = Seq(

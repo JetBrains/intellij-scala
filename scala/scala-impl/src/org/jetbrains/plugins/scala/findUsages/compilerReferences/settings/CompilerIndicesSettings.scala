@@ -26,7 +26,7 @@ class CompilerIndicesSettings(project: Project) extends PersistentStateComponent
 
 object CompilerIndicesSettings {
   class State {
-    @BeanProperty var indexingEnabled: Boolean = false
+    @BeanProperty var indexingEnabled: Boolean = true
   }
 
   def apply(project: Project): CompilerIndicesSettings =
