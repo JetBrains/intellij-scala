@@ -393,10 +393,12 @@ object TypeDefinitionMembers {
           if (!process(t, node.substitutor))
             return false
 
-          val iterator = syntheticPropertyMethods(nameHint, node.info).iterator
-          while (iterator.hasNext) {
-            if (!process(iterator.next(), node.substitutor))
-              return false
+          if (!isImplicitProcessor) {
+            val iterator = syntheticPropertyMethods(nameHint, node.info).iterator
+            while (iterator.hasNext) {
+              if (!process(iterator.next(), node.substitutor))
+                return false
+            }
           }
         case e =>
           if (!process(e, node.substitutor))
@@ -550,8 +552,8 @@ object TypeDefinitionMembers {
 
     signature.namedElement match {
       case _: PsiMethod | _: ScObject                                   => Seq.empty
-      case t: ScTypedDefinition if nameHint.isEmpty                     => t.getUnderEqualsMethod +: t.getBeanMethods
-      case t: ScTypedDefinition if sigName == scalaSetterName(t.name)   => Seq(t.getUnderEqualsMethod)
+      case t: ScTypedDefinition if nameHint.isEmpty                     => t.getUnderEqualsMethod.toSeq ++: t.getBeanMethods
+      case t: ScTypedDefinition if sigName == scalaSetterName(t.name)   => t.getUnderEqualsMethod.toSeq
       case t: ScTypedDefinition if sigName == beanSetterName(t.name)    => Seq(t.getSetBeanMethod)
       case t: ScTypedDefinition if sigName == beanGetterName(t.name)    => Seq(t.getGetBeanMethod)
       case t: ScTypedDefinition if sigName == booleanGetterName(t.name) => Seq(t.getIsBeanMethod)

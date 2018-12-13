@@ -32,13 +32,15 @@ trait ScTypedDefinition extends ScNamedElement with Typeable {
   }.toArray
 
   @CachedInUserData(this, ModCount.getBlockModificationCount)
-  def getUnderEqualsMethod: PsiMethod = {
+  def getUnderEqualsMethod: Option[PsiMethod] = {
+    if (!isVar) return None
+
     val hasModifierProperty: String => Boolean = nameContext match {
       case v: ScModifierListOwner => v.hasModifierProperty
       case _ => _ => false
     }
     val tType = `type`().getOrAny
-    new FakePsiMethod(this, name + "_=", typeArr2paramArr(Array[ScType](tType)), Unit, hasModifierProperty)
+    Some(new FakePsiMethod(this, name + "_=", typeArr2paramArr(Array[ScType](tType)), Unit, hasModifierProperty))
   }
 
   @CachedInUserData(this, ModCount.getBlockModificationCount)
@@ -73,10 +75,10 @@ trait ScTypedDefinition extends ScNamedElement with Typeable {
 
   @CachedInUserData(this, ModCount.getBlockModificationCount)
   def getBeanMethods: Seq[PsiMethod] = {
-    val (member, needSetter) = nameContext match {
-      case v: ScValue => (v, false)
-      case v: ScVariable => (v, true)
-      case cp: ScClassParameter if cp.isClassMember => (cp, cp.isVar)
+    val member = nameContext match {
+      case v: ScValue => v
+      case v: ScVariable => v
+      case cp: ScClassParameter if cp.isClassMember => cp
       case _ => return Nil
     }
     val beanProperty = ScalaPsiUtil.isBeanProperty(member)
@@ -86,7 +88,7 @@ trait ScTypedDefinition extends ScNamedElement with Typeable {
       else if (booleanBeanProperty) List(getIsBeanMethod)
       else Nil
     val setter =
-      if ((beanProperty || booleanBeanProperty) && needSetter) List(getSetBeanMethod)
+      if ((beanProperty || booleanBeanProperty) && isVar) List(getSetBeanMethod)
       else Nil
     getter ::: setter
   }
