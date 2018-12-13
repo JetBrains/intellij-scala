@@ -367,8 +367,7 @@ trait ScalaBounds extends api.Bounds {
               buf.toArray match {
                 case a: Array[ScType] if a.length == 0 => Any
                 case a: Array[ScType] if a.length == 1 => a(0)
-                case many =>
-                  new ScCompoundType(many.toSeq, Map.empty, Map.empty)
+                case many                              => ScCompoundType(many.toSeq, Map.empty, Map.empty)
               }
             }
           //todo: refinement for compound types

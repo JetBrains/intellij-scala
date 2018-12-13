@@ -21,7 +21,7 @@ class ScCompoundTypeElementImpl(node: ASTNode) extends ScalaPsiElementImpl(node)
     val componentsTypes = components.map(_.`type`().getOrAny)
     val compoundType = refinement.map { r =>
       ScCompoundType.fromPsi(componentsTypes, r.holders, r.types)
-    }.getOrElse(new ScCompoundType(componentsTypes))
+    }.getOrElse(ScCompoundType(componentsTypes))
 
     Right(compoundType)
   }

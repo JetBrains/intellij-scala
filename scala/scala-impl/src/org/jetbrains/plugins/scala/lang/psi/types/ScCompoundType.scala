@@ -22,12 +22,11 @@ import scala.collection.mutable
 /**
  * Substitutor should be meaningful only for decls and typeDecls. Components shouldn't be applied by substitutor.
  */
-case class ScCompoundType(components: Seq[ScType],
-                          signatureMap: Map[Signature, ScType] = Map.empty,
-                          typesMap: Map[String, TypeAliasSignature] = Map.empty)
-                         (implicit override val projectContext: ProjectContext)
-
-  extends ScalaType with ValueType {
+case class ScCompoundType private (
+  components:   Seq[ScType],
+  signatureMap: Map[Signature, ScType]          = Map.empty,
+  typesMap:     Map[String, TypeAliasSignature] = Map.empty
+)(implicit override val projectContext: ProjectContext) extends ScalaType with ValueType {
 
   private var hash: Int = -1
 
@@ -62,7 +61,7 @@ case class ScCompoundType(components: Seq[ScType],
   }
 
   override def updateSubtypes(updates: Array[Update], index: Int, visited: Set[ScType]): ScCompoundType = {
-    new ScCompoundType(components.map(_.recursiveUpdateImpl(updates, index, visited)), signatureMap.map {
+    ScCompoundType(components.map(_.recursiveUpdateImpl(updates, index, visited)), signatureMap.map {
       case (s: Signature, tp) =>
 
         val pTypes: Seq[Seq[() => ScType]] =
@@ -95,7 +94,7 @@ case class ScCompoundType(components: Seq[ScType],
         val updSignature = new Signature(s.name, paramTypes, tParams, ScSubstitutor.empty, s.namedElement, s.hasRepeatedParam)
         (updSignature, tp.recursiveVarianceUpdate(update, Covariant))
     }
-    new ScCompoundType(components.map(_.recursiveVarianceUpdate(update, variance)), updSignatureMap, typesMap.map {
+    ScCompoundType(components.map(_.recursiveVarianceUpdate(update, variance)), updSignatureMap, typesMap.map {
       case (s, sign) => (s, sign.updateTypes(_.recursiveVarianceUpdate(update, Covariant, isLazySubtype = true)))
     })
   }
@@ -175,6 +174,22 @@ case class ScCompoundType(components: Seq[ScType],
 }
 
 object ScCompoundType {
+  def apply(
+    components:   Seq[ScType],
+    signatureMap: Map[Signature, ScType]          = Map.empty,
+    typesMap:     Map[String, TypeAliasSignature] = Map.empty
+  )(implicit projectContext: ProjectContext): ScCompoundType = {
+    val (comps, sigs, types) =
+      components.foldLeft((Seq.empty[ScType], signatureMap, typesMap)) {
+        case (acc, compound: ScCompoundType) =>
+          (acc._1 ++ compound.components, acc._2 ++ compound.signatureMap, acc._3 ++ compound.typesMap)
+        case (acc, otherTpe) => (acc._1 :+ otherTpe, acc._2, acc._3)
+      }
+
+    new ScCompoundType(comps.distinct, sigs, types)
+  }
+
+
   def fromPsi(components: Seq[ScType], decls: Seq[ScDeclaredElementsHolder], typeDecls: Seq[ScTypeAlias])
              (implicit projectContext: ProjectContext): ScCompoundType = {
     val signatureMapVal: mutable.HashMap[Signature, ScType] = new mutable.HashMap[Signature, ScType] {
