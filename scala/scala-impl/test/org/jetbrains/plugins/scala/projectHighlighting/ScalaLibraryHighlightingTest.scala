@@ -5,7 +5,7 @@ import com.intellij.openapi.vfs.{VfsUtilCore, VirtualFile}
 import com.intellij.psi.PsiManager
 import org.jetbrains.plugins.scala.DependencyManagerBase._
 import org.jetbrains.plugins.scala.base.ScalaLightCodeInsightFixtureTestAdapter
-import org.jetbrains.plugins.scala.debugger.{ScalaVersion, Scala_2_12}
+import org.jetbrains.plugins.scala.debugger.{CustomVersion, ScalaVersion, Scala_2_12}
 import org.jetbrains.plugins.scala.util.reporter.ProgressReporter
 import org.jetbrains.plugins.scala.{DependencyManager, HighlightingTests, ScalaFileType}
 import org.junit.experimental.categories.Category
@@ -44,5 +44,5 @@ class ScalaLibraryHighlightingTest_2_12 extends ScalaLibraryHighlightingTest {
     "scala/Responder.scala" -> Set((2258, 2259),(2404, 2405),(2549, 2550)),
   )
 
-  override implicit val version: ScalaVersion = Scala_2_12
+  override implicit val version: ScalaVersion = CustomVersion("2.12", "2.12.8")
 }
