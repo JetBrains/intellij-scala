@@ -3,6 +3,7 @@ package org.jetbrains.plugins.scala.lang.psi.light
 import com.intellij.psi.util.PsiTreeUtil
 import com.intellij.psi.{PsiElement, PsiMethod}
 import org.jetbrains.plugins.scala.lang.psi.ScalaPsiUtil
+import org.jetbrains.plugins.scala.lang.psi.api.PropertyMethods._
 import org.jetbrains.plugins.scala.lang.psi.api.statements.ScAnnotationsHolder
 import org.jetbrains.plugins.scala.lang.psi.api.toplevel.{ScModifierListOwner, ScTypedDefinition}
 import org.jetbrains.plugins.scala.lang.psi.types.ScType
@@ -12,7 +13,7 @@ import org.jetbrains.plugins.scala.lang.psi.types.ScType
   * @since 28.02.12
   */
 class StaticPsiTypedDefinitionWrapper(val delegate: ScTypedDefinition,
-                                      role: PsiTypedDefinitionWrapper.DefinitionRole.DefinitionRole,
+                                      role: DefinitionRole,
                                       containingClass: PsiClassWrapper) extends {
   val method: PsiMethod = {
     val methodText = StaticPsiTypedDefinitionWrapper.methodText(delegate, role, containingClass)
@@ -39,8 +40,6 @@ object StaticPsiTypedDefinitionWrapper {
 
   def unapply(wrapper: StaticPsiTypedDefinitionWrapper): Option[ScTypedDefinition] = Some(wrapper.delegate)
 
-  import org.jetbrains.plugins.scala.lang.psi.light.PsiTypedDefinitionWrapper.DefinitionRole._
-
   def methodText(b: ScTypedDefinition, role: DefinitionRole, containingClass: PsiClassWrapper): String = {
     val builder = new StringBuilder
 
@@ -53,13 +52,7 @@ object StaticPsiTypedDefinitionWrapper {
     builder.append("java.lang.Object")
 
     builder.append(" ")
-    val name = role match {
-      case SIMPLE_ROLE => b.getName
-      case GETTER => "get" + b.getName.capitalize
-      case IS_GETTER => "is" + b.getName.capitalize
-      case SETTER => "set" + b.getName.capitalize
-      case EQ => b.getName + "_$eq"
-    }
+    val name = javaMethodName(b.name, role)
     builder.append(name)
     builder.append("()")
 

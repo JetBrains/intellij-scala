@@ -12,6 +12,7 @@ import com.intellij.psi.scope.{ElementClassHint, NameHint, PsiScopeProcessor}
 import com.intellij.psi.util.PsiTreeUtil.isContextAncestor
 import org.jetbrains.plugins.scala.extensions._
 import org.jetbrains.plugins.scala.lang.psi.ScalaPsiUtil._
+import org.jetbrains.plugins.scala.lang.psi.api.PropertyMethods._
 import org.jetbrains.plugins.scala.lang.psi.api.base.ScPrimaryConstructor
 import org.jetbrains.plugins.scala.lang.psi.api.statements._
 import org.jetbrains.plugins.scala.lang.psi.api.statements.params.ScClassParameter
@@ -551,13 +552,10 @@ object TypeDefinitionMembers {
     val sigName = signature.name
 
     signature.namedElement match {
-      case _: PsiMethod | _: ScObject                                   => Seq.empty
-      case t: ScTypedDefinition if nameHint.isEmpty                     => t.getUnderEqualsMethod.toSeq ++: t.getBeanMethods
-      case t: ScTypedDefinition if sigName == scalaSetterName(t.name)   => t.getUnderEqualsMethod.toSeq
-      case t: ScTypedDefinition if sigName == beanSetterName(t.name)    => Seq(t.getSetBeanMethod)
-      case t: ScTypedDefinition if sigName == beanGetterName(t.name)    => Seq(t.getGetBeanMethod)
-      case t: ScTypedDefinition if sigName == booleanGetterName(t.name) => Seq(t.getIsBeanMethod)
-      case _                                                            => Seq.empty
+      case t: ScTypedDefinition if isProperty(t) =>
+         if (nameHint.isEmpty) getPropertyMethod(t, EQ) ++: getBeanMethods(t)
+         else methodRole(sigName, t.name).flatMap(getPropertyMethod(t, _)).toSeq
+      case _ => Seq.empty
     }
   }
 

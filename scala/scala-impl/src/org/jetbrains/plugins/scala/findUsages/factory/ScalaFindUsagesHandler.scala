@@ -13,6 +13,7 @@ import com.intellij.usageView.UsageInfo
 import com.intellij.util.Processor
 import org.jetbrains.plugins.scala.extensions._
 import org.jetbrains.plugins.scala.lang.psi.ScalaPsiUtil._
+import org.jetbrains.plugins.scala.lang.psi.api.PropertyMethods._
 import org.jetbrains.plugins.scala.lang.psi.api.base.ScPrimaryConstructor
 import org.jetbrains.plugins.scala.lang.psi.api.base.patterns.ScCaseClause
 import org.jetbrains.plugins.scala.lang.psi.api.expr.{ScEnumerator, ScGenerator}
@@ -21,7 +22,6 @@ import org.jetbrains.plugins.scala.lang.psi.api.statements.params.{ScParameter, 
 import org.jetbrains.plugins.scala.lang.psi.api.toplevel.typedef._
 import org.jetbrains.plugins.scala.lang.psi.api.toplevel.{ScNamedElement, ScTypedDefinition}
 import org.jetbrains.plugins.scala.lang.psi.impl.search.ScalaOverridingMemberSearcher
-import org.jetbrains.plugins.scala.lang.psi.light.PsiTypedDefinitionWrapper.DefinitionRole._
 import org.jetbrains.plugins.scala.lang.psi.light._
 import org.jetbrains.plugins.scala.lang.psi.types.api.designator.ScDesignatorType
 
@@ -121,13 +121,13 @@ class ScalaFindUsagesHandler(element: PsiElement, factory: ScalaFindUsagesHandle
           case _ => Array.empty
         }
       case t: ScTypedDefinition =>
-        t.getBeanMethods.toArray ++ {
-          val a: Array[DefinitionRole] = t.nameContext match {
+        getBeanMethods(t).toArray ++ {
+          val a = t.nameContext match {
             case v: ScValue if isBeanProperty(v) => Array(GETTER)
             case v: ScVariable if isBeanProperty(v) => Array(GETTER, SETTER)
             case v: ScValue if isBooleanBeanProperty(v) => Array(IS_GETTER)
             case v: ScVariable if isBooleanBeanProperty(v) => Array(IS_GETTER, SETTER)
-            case _ => Array.empty
+            case _ => Array.empty[DefinitionRole]
           }
           a.map(role => t.getTypedDefinitionWrapper(isStatic = false, isInterface = false, role = role, cClass = None))
         }

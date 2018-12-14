@@ -6,6 +6,7 @@ import org.jetbrains.plugins.scala.ScalaBundle
 import org.jetbrains.plugins.scala.annotator.quickfix.modifiers.{AddModifierQuickFix, AddModifierWithValOrVarQuickFix, RemoveModifierQuickFix}
 import org.jetbrains.plugins.scala.extensions._
 import org.jetbrains.plugins.scala.lang.psi.ScalaPsiUtil
+import org.jetbrains.plugins.scala.lang.psi.api.PropertyMethods
 import org.jetbrains.plugins.scala.lang.psi.api.base.ScFieldId
 import org.jetbrains.plugins.scala.lang.psi.api.base.patterns.ScBindingPattern
 import org.jetbrains.plugins.scala.lang.psi.api.base.types.ScRefinement
@@ -241,7 +242,7 @@ trait OverridingAnnotator {
         case _ => s.substitutor(baseType)
       }
       def allowEmptyParens(pat: ScBindingPattern): Boolean = pat.nameContext match {
-        case v: ScValueOrVariable => v.typeElement.isDefined || ScalaPsiUtil.isBeanProperty(v)
+        case v: ScValueOrVariable => v.typeElement.isDefined || PropertyMethods.isBeanProperty(v)
         case _ => false
       }
       actualType.conforms(actualBase) || ((actualBase, actualType, member) match {

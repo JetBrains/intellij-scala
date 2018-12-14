@@ -31,7 +31,7 @@ trait ScBindingPattern extends ScPattern with ScNamedElement with ScTypedDefinit
   }
 
   def isBeanProperty: Boolean = nameContext match {
-    case a: ScAnnotationsHolder => ScalaPsiUtil.isBeanProperty(a)
+    case a: ScAnnotationsHolder => PropertyMethods.isBeanProperty(a)
     case _ => false
   }
 

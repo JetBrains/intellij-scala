@@ -23,8 +23,8 @@ import org.jetbrains.plugins.scala.lang.psi.api.toplevel.typedef.ScMember
 import org.jetbrains.plugins.scala.lang.psi.api.toplevel.{ScNamedElement, ScTypedDefinition}
 import org.jetbrains.plugins.scala.lang.psi.fake.FakePsiMethod
 import org.jetbrains.plugins.scala.lang.psi.impl.search.ScalaOverridingMemberSearcher
-import org.jetbrains.plugins.scala.lang.psi.light.PsiTypedDefinitionWrapper.DefinitionRole._
 import org.jetbrains.plugins.scala.lang.refactoring.util.ScalaNamesUtil
+import org.jetbrains.plugins.scala.lang.psi.api.PropertyMethods._
 
 /**
  * User: Alexander Podkhalyuzin
@@ -48,7 +48,7 @@ class RenameScalaVariableProcessor extends RenameJavaMemberProcessor with ScalaR
     def addBeanMethods(element: PsiElement, newName: String) {
       element match {
         case t: ScTypedDefinition =>
-          for (method <- t.getBeanMethods) {
+          for (method <- getBeanMethods(t)) {
             val name = method.name
             val is = name.startsWith("is")
             val prefix = if (is) "is" else name.substring(0, 3)

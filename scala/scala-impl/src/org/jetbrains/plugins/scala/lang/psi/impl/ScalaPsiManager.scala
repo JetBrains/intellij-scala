@@ -23,6 +23,7 @@ import org.jetbrains.annotations.TestOnly
 import org.jetbrains.plugins.scala.caches.{CachesUtil, ScalaShortNamesCacheManager}
 import org.jetbrains.plugins.scala.debugger.evaluation.ScalaCodeFragment
 import org.jetbrains.plugins.scala.extensions._
+import org.jetbrains.plugins.scala.lang.psi.api.PropertyMethods
 import org.jetbrains.plugins.scala.lang.psi.api.expr.ScExpression
 import org.jetbrains.plugins.scala.lang.psi.api.statements.ScTypeAlias
 import org.jetbrains.plugins.scala.lang.psi.api.statements.params.idToName
@@ -254,6 +255,7 @@ class ScalaPsiManager(val project: Project) {
     typeSystem.clearCache()
     ParameterizedType.substitutorCache.clear()
     ScParameterizedType.cache.clear()
+    PropertyMethods.clearCache()
     collectImplicitObjectsCache.clear()
     implicitCollectorCache.clear()
     idToName.clear()

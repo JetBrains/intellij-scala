@@ -35,6 +35,7 @@ import org.jetbrains.plugins.scala.lang.psi.api.toplevel.templates.ScTemplateBod
 import org.jetbrains.plugins.scala.lang.psi.api.toplevel.typedef._
 import org.jetbrains.plugins.scala.lang.psi.api.toplevel.{ScPackaging, _}
 import org.jetbrains.plugins.scala.lang.psi.api.{ScPackageLike, ScalaFile, ScalaRecursiveElementVisitor}
+import org.jetbrains.plugins.scala.lang.psi.api.PropertyMethods._
 import org.jetbrains.plugins.scala.lang.psi.impl.ScalaPsiElementFactory._
 import org.jetbrains.plugins.scala.lang.psi.impl.expr.ApplyOrUpdateInvocation
 import org.jetbrains.plugins.scala.lang.psi.impl.toplevel.typedef.{SignatureStrategy, TypeDefinitionMembers}
@@ -122,48 +123,6 @@ object ScalaPsiUtil {
     if (firstChild == null) return elem
     firstLeaf(firstChild)
   }
-
-  def isBooleanBeanProperty(s: ScAnnotationsHolder, noResolve: Boolean = false): Boolean = {
-    if (noResolve) {
-      s.annotations.map {
-        _.typeElement.getText
-      }.exists { text =>
-        Set("scala.reflect.BooleanBeanProperty", "reflect.BooleanBeanProperty",
-          "BooleanBeanProperty", "scala.beans.BooleanBeanProperty", "beans.BooleanBeanProperty").
-          contains(text.replace(" ", ""))
-      }
-    } else {
-      s.hasAnnotation("scala.reflect.BooleanBeanProperty") ||
-        s.hasAnnotation("scala.beans.BooleanBeanProperty")
-    }
-  }
-
-  def isBeanProperty(s: ScAnnotationsHolder, noResolve: Boolean = false): Boolean = {
-    if (noResolve) {
-      s.annotations.map {
-        _.typeElement.getText
-      }.exists { text =>
-        Set("scala.reflect.BeanProperty", "reflect.BeanProperty",
-          "BeanProperty", "scala.beans.BeanProperty", "beans.BeanProperty").
-          contains(text.replace(" ", ""))
-      }
-    } else {
-      s.hasAnnotation("scala.reflect.BeanProperty") ||
-        s.hasAnnotation("scala.beans.BeanProperty")
-    }
-  }
-
-
-  def scalaSetterName(name: String)  : String = name + "_="
-
-  def beanSetterName(name: String)   : String = "set" + name.capitalize
-
-  def beanGetterName(name: String)   : String = "get" + name.capitalize
-
-  def booleanGetterName(name: String): String = "is" + name.capitalize
-
-  def propertyMethodNames(name: String): Seq[String] =
-    scalaSetterName(name) :: beanSetterName(name) :: beanGetterName(name) :: booleanGetterName(name) :: Nil
 
   @tailrec
   def withEtaExpansion(expr: ScExpression): Boolean = {
@@ -582,7 +541,7 @@ object ScalaPsiUtil {
     }
 
 
-    val beanMethods = typed.getBeanMethods
+    val beanMethods = getBeanMethods(typed)
     beanMethods.foreach {
       method =>
         val sigs = TypeDefinitionMembers.getSignatures(clazz).forName(method.name)._1

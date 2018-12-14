@@ -3,10 +3,11 @@ package org.jetbrains.plugins.scala.lang.psi.light
 import com.intellij.psi._
 import com.intellij.psi.util.PsiTreeUtil
 import org.jetbrains.plugins.scala.lang.psi.ScalaPsiUtil
+import org.jetbrains.plugins.scala.lang.psi.api.PropertyMethods
+import org.jetbrains.plugins.scala.lang.psi.api.PropertyMethods._
 import org.jetbrains.plugins.scala.lang.psi.api.statements.ScAnnotationsHolder
 import org.jetbrains.plugins.scala.lang.psi.api.toplevel.typedef.{ScMember, ScObject}
 import org.jetbrains.plugins.scala.lang.psi.api.toplevel.{ScModifierListOwner, ScTypedDefinition}
-import org.jetbrains.plugins.scala.lang.psi.light.PsiTypedDefinitionWrapper.DefinitionRole
 import org.jetbrains.plugins.scala.lang.psi.types.ScType
 import org.jetbrains.plugins.scala.lang.psi.types.api.{AnyRef, Unit}
 
@@ -15,7 +16,7 @@ import org.jetbrains.plugins.scala.lang.psi.types.api.{AnyRef, Unit}
  * Date: 18.02.12
  */
 class PsiTypedDefinitionWrapper(val delegate: ScTypedDefinition, isStatic: Boolean, isInterface: Boolean,
-                                role: DefinitionRole.DefinitionRole,
+                                role: DefinitionRole,
                                 cClass: Option[PsiClass] = None) extends {
   val containingClass: PsiClass = {
     val result = cClass.getOrElse {
@@ -63,7 +64,7 @@ class PsiTypedDefinitionWrapper(val delegate: ScTypedDefinition, isStatic: Boole
   override def isWritable: Boolean = getContainingFile.isWritable
 
   override def setName(name: String): PsiElement = {
-    if (role == DefinitionRole.SIMPLE_ROLE) delegate.setName(name)
+    if (role == SIMPLE_ROLE) delegate.setName(name)
     else this
   }
 
@@ -75,14 +76,6 @@ class PsiTypedDefinitionWrapper(val delegate: ScTypedDefinition, isStatic: Boole
 object PsiTypedDefinitionWrapper {
 
   def unapply(wrapper: PsiTypedDefinitionWrapper): Option[ScTypedDefinition] = Some(wrapper.delegate)
-
-  object DefinitionRole extends Enumeration {
-    type DefinitionRole = Value
-    val SIMPLE_ROLE, GETTER, IS_GETTER, SETTER, EQ = Value
-
-    def isSetter(role: DefinitionRole): Boolean = role == SETTER || role == EQ
-  }
-  import org.jetbrains.plugins.scala.lang.psi.light.PsiTypedDefinitionWrapper.DefinitionRole._
 
   def methodText(b: ScTypedDefinition, isStatic: Boolean, isInterface: Boolean, role: DefinitionRole): String = {
     val builder = new StringBuilder
@@ -96,13 +89,7 @@ object PsiTypedDefinitionWrapper {
     builder.append("java.lang.Object")
 
     builder.append(" ")
-    val name = role match {
-      case SIMPLE_ROLE => b.getName
-      case GETTER => "get" + b.getName.capitalize
-      case IS_GETTER => "is" + b.getName.capitalize
-      case SETTER => "set" + b.getName.capitalize
-      case EQ => b.getName + "_$eq"
-    }
+    val name = javaMethodName(b.name, role)
     builder.append(name)
     builder.append("()")
 
@@ -126,13 +113,16 @@ object PsiTypedDefinitionWrapper {
       processName(t.name)
       if (t.isVar) {
         processMethod(t.getTypedDefinitionWrapper(isStatic, isInterface, role = EQ, cClass))
-        processName(t.name + "_eq")
+        processName(javaMethodName(t.name, role = EQ))
       }
     }
     t.nameContext match {
       case s: ScAnnotationsHolder =>
-        val beanProperty = ScalaPsiUtil.isBeanProperty(s)
-        val booleanBeanProperty = ScalaPsiUtil.isBooleanBeanProperty(s)
+        val role = methodRole(nodeName, t.name)
+
+
+        val beanProperty = PropertyMethods.isBeanProperty(s)
+        val booleanBeanProperty = PropertyMethods.isBooleanBeanProperty(s)
         if (beanProperty) {
           if (nodeName == "get" + t.name.capitalize) {
             processMethod(t.getTypedDefinitionWrapper(isStatic, isInterface, role = GETTER, cClass))
@@ -163,9 +153,9 @@ object PsiTypedDefinitionWrapper {
     }
 
     val params =
-      if (!DefinitionRole.isSetter(role)) Nil
+      if (!isSetter(role)) Nil
       else {
-        val paramType = typeFor(td, DefinitionRole.SIMPLE_ROLE)
+        val paramType = typeFor(td, SIMPLE_ROLE)
         val typeText = JavaConversionUtil.typeText(paramType)
         val name = td.getName
         Seq(s"$typeText $name")
