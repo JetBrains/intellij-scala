@@ -192,9 +192,10 @@ class ScalaFunctionParameterInfoHandler extends ParameterInfoHandlerWithTabActio
                   }
                 }
               case method: FakePsiMethod =>
-                if (method.params.length == 0) buffer.append(CodeInsightBundle.message("parameter.info.no.parameters"))
+                val params = method.params
+                if (params.length == 0) buffer.append(CodeInsightBundle.message("parameter.info.no.parameters"))
                 else {
-                  buffer.append(method.params.
+                  buffer.append(params.
                           map((param: Parameter) => {
                     val buffer: StringBuilder = new StringBuilder("")
                     val paramType = param.paramType
@@ -208,7 +209,7 @@ class ScalaFunctionParameterInfoHandler extends ParameterInfoHandlerWithTabActio
 
                     if (param.isDefault) buffer.append(" = _")
 
-                    val isBold = if (method.params.indexOf(param) == index || (param.isRepeated && method.params.indexOf(param) <= index)) true
+                    val isBold = if (params.indexOf(param) == index || (param.isRepeated && params.indexOf(param) <= index)) true
                     else {
                       //todo: check type
                       false

@@ -10,6 +10,7 @@ import org.jetbrains.plugins.scala.lang.psi.api.statements.{ScAnnotationsHolder,
 import org.jetbrains.plugins.scala.lang.psi.api.toplevel.ScTypedDefinition
 import org.jetbrains.plugins.scala.lang.psi.api.toplevel.typedef.ScMember
 import org.jetbrains.plugins.scala.lang.psi.fake.FakePsiMethod
+import org.jetbrains.plugins.scala.lang.psi.fake.FakePsiMethod.{getter, setter}
 import org.jetbrains.plugins.scala.lang.psi.types.ScType
 import org.jetbrains.plugins.scala.lang.psi.types.api.Unit
 import org.jetbrains.plugins.scala.lang.psi.types.nonvalue.Parameter
@@ -108,23 +109,16 @@ object PropertyMethods extends Enumeration {
   private def getPropertyMethodImpl(property: ScTypedDefinition,
                                     propertyType: ScType,
                                     role: DefinitionRole): Option[PsiMethod] = {
-    import property.projectContext
-
     val member = property.nameContext.asInstanceOf[ScMember]
     val isVar = property.isVar
     val mName = methodName(property.name, role)
 
-    def setterParam = Parameter(propertyType, isRepeated = false, index = 0)
-
-    def setter() = new FakePsiMethod(property, mName, Array(setterParam), Unit, member.hasModifierProperty)
-    def getter() = new FakePsiMethod(property, mName, Array.empty, propertyType, member.hasModifierProperty)
-
     role match {
       case SIMPLE_ROLE                                => None
-      case GETTER if isBeanProperty(member)           => Some(getter())
-      case IS_GETTER if isBooleanBeanProperty(member) => Some(getter())
-      case SETTER if isBeanProperty(member) && isVar  => Some(setter())
-      case EQ if isVar                                => Some(setter())
+      case GETTER if isBeanProperty(member)           => Some(getter(property, mName))
+      case IS_GETTER if isBooleanBeanProperty(member) => Some(getter(property, mName))
+      case SETTER if isBeanProperty(member) && isVar  => Some(setter(property, mName))
+      case EQ if isVar                                => Some(setter(property, mName))
       case _                                          => None
     }
   }

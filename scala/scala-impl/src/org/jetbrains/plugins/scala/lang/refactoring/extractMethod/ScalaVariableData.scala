@@ -26,10 +26,10 @@ class ScalaVariableData(val element: ScTypedDefinition,
 }
 
 object ScalaVariableData {
-  private def createFakeParameter(element: ScTypedDefinition, scType: ScType): FakePsiParameter = {
-    val parameter = Parameter(scType, isRepeated = false, index = -1)
-    new FakePsiParameter(element.getManager, ScalaLanguage.INSTANCE, parameter, element.name)
-  }
+  private def createFakeParameter(element: ScTypedDefinition, scType: ScType): FakePsiParameter =
+    new FakePsiParameter(element.getManager, ScalaLanguage.INSTANCE, element.name) {
+      def parameter: Parameter = Parameter(scType, isRepeated = false, index = -1)
+    }
 
   private class FakePsiType(val tp: ScType) extends PsiType(PsiAnnotation.EMPTY_ARRAY) {
 
