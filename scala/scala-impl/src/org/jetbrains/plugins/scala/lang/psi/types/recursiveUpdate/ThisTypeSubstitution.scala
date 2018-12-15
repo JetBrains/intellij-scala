@@ -4,6 +4,7 @@ import com.intellij.psi.{PsiClass, PsiTypeParameter}
 import org.jetbrains.plugins.scala.extensions.PsiMemberExt
 import org.jetbrains.plugins.scala.lang.psi.ScalaPsiUtil.isInheritorDeep
 import org.jetbrains.plugins.scala.lang.psi.api.statements.ScTypeAliasDeclaration
+import org.jetbrains.plugins.scala.lang.psi.api.statements.params.{ScParameter, ScTypeParam}
 import org.jetbrains.plugins.scala.lang.psi.api.toplevel.ScTypedDefinition
 import org.jetbrains.plugins.scala.lang.psi.api.toplevel.typedef.{ScTemplateDefinition, ScTypeDefinition}
 import org.jetbrains.plugins.scala.lang.psi.types.api.designator.{ScProjectionType, ScThisType}
@@ -58,14 +59,26 @@ private case class ThisTypeSubstitution(target: ScType) extends Substitution {
   private def hasSameOrInheritor(compound: ScCompoundType, thisTp: ScThisType) = {
     compound.components
       .exists {
-        _.extractClass
-          .exists(isSameOrInheritor(_, thisTp))
+        _.extractDesignated(expandAliases = true)
+          .exists {
+            case tp: ScTypeParam =>
+              (for {
+                upper <- tp.upperBound.toOption
+                cls   <- upper.extractClass
+              } yield isSameOrInheritor(cls, thisTp)).getOrElse(false)
+            case cls: PsiClass => isSameOrInheritor(cls, thisTp)
+            case _             => false
+          }
       }
   }
 
   @tailrec
   private def isMoreNarrow(target: ScType, thisTp: ScThisType, visited: Set[PsiClass]): Boolean = {
     target.extractDesignated(expandAliases = true) match {
+      case Some(param: ScParameter) => param.`type`() match {
+        case Right(tpe) => isMoreNarrow(tpe, thisTp, visited)
+        case Left(_)    => false
+      }
       case Some(typeParam: PsiTypeParameter) =>
         if (visited.contains(typeParam)) false
         else target match {

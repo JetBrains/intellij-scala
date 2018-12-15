@@ -23,6 +23,7 @@ import org.jetbrains.plugins.scala.lang.resolve.processor.ResolveProcessor
 import org.jetbrains.plugins.scala.lang.resolve.{ResolveTargets, ScalaResolveResult}
 import org.jetbrains.plugins.scala.macroAnnotations.{CachedWithRecursionGuard, ModCount}
 import org.jetbrains.plugins.scala.util.ScEquivalenceUtil
+import org.jetbrains.plugins.scala.lang.psi.api.statements.params.TypeParamIdOwner
 
 /**
  * @author ilyas
@@ -46,12 +47,12 @@ class ScProjectionType private(val projected: ScType,
           case ta: ScTypeAliasDefinition => //hack for simple cases, it doesn't cover more complicated examples
             ta.aliasedType match {
               case Right(tp) =>
-                actualSubst.apply(tp) match {
+                actualSubst(tp) match {
                   case target @ ParameterizedType(des, typeArgs) =>
                     val tParams = ta.typeParameters
                     val sameParams = tParams.length == typeArgs.length && tParams.zip(typeArgs).forall {
-                      case (tParam: ScTypeParam, TypeParameterType.ofPsi(param)) if tParam == param => true
-                      case _                                                                        => false
+                      case (tParam: ScTypeParam, TypeParameterType.ofPsi(param)) if tParam.typeParamId == param.typeParamId => true
+                      case _                                                                                                => false
                     }
 
                     if (sameParams) return Some(AliasType(ta, Right(des), Right(des)))

@@ -22,4 +22,22 @@ class RandomConformanceBugsTest extends ScalaLightCodeInsightFixtureTestAdapter 
          |}
       """.stripMargin)
   }
+
+  def testSCL14533(): Unit =
+    checkTextHasNoErrors(
+      """
+        |trait Implicit[F[_]]
+        |trait Context {
+        |  type IO[T]
+        |  implicit val impl: Implicit[IO] = new Implicit[IO] {}
+        |}
+        |class Component[C <: Context](val c: C { type IO[T] = C#IO[T] }) {
+        |  import c._
+        |  def x(): Unit = {
+        |    val a: Implicit[c.IO] = c.impl
+        |    val b: Implicit[C#IO] = c.impl
+        |  }
+        |}
+        |
+      """.stripMargin)
 }
