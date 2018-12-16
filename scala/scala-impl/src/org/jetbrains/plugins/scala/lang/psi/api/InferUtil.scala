@@ -5,7 +5,7 @@ import com.intellij.openapi.diagnostic.Logger
 import com.intellij.psi.{PsiElement, PsiNamedElement, PsiTypeParameterListOwner}
 import org.jetbrains.plugins.scala.extensions._
 import org.jetbrains.plugins.scala.lang.macros.evaluator.{MacroContext, ScalaMacroEvaluator}
-import org.jetbrains.plugins.scala.lang.psi.ScalaPsiUtil
+import org.jetbrains.plugins.scala.lang.psi.{ElementScope, ScalaPsiUtil}
 import org.jetbrains.plugins.scala.lang.psi.api.base.patterns.ScBindingPattern
 import org.jetbrains.plugins.scala.lang.psi.api.base.{ScFieldId, ScLiteral}
 import org.jetbrains.plugins.scala.lang.psi.api.expr.{MethodInvocation, ScExpression}
@@ -79,12 +79,12 @@ object InferUtil {
     var resInner = res
     var implicitParameters: Option[Seq[ScalaResolveResult]] = None
     res match {
-      case t@ScTypePolymorphicType(mt@ScMethodType(retType, _, impl), _) if !impl =>
+      case t@ScTypePolymorphicType(mt@ScMethodType(retType, _, isImplicit), _) if !isImplicit =>
         // See SCL-3516
         val (updatedType, ps) =
           updateTypeWithImplicitParameters(t.copy(internalType = retType), element, coreElement, canThrowSCE, fullInfo = fullInfo)
         implicitParameters = ps
-        implicit val elementScope = mt.elementScope
+        implicit val elementScope: ElementScope = mt.elementScope
 
         updatedType match {
           case tpt: ScTypePolymorphicType =>
@@ -96,32 +96,34 @@ object InferUtil {
           case _ => //shouldn't be there
             resInner = t.copy(internalType = mt.copy(returnType = updatedType))
         }
-      case t@ScTypePolymorphicType(mt@ScMethodType(retType, params, impl), typeParams) if impl =>
-        val fullAbstractSubstitutor = t.abstractOrLowerTypeSubstitutor
-        val coreTypes = params.map(p => fullAbstractSubstitutor(p.paramType))
-        implicit val elementScope = mt.elementScope
+      case ScTypePolymorphicType(mt@ScMethodType(retType, params, isImplicit), typeParams) if isImplicit =>
+        implicit val elementScope: ElementScope = mt.elementScope
 
         val splitMethodType = params.reverse.foldLeft(retType) {
           case (tp: ScType, param: Parameter) => ScMethodType(tp, Seq(param), isImplicit = true)
         }
+
         resInner = ScTypePolymorphicType(splitMethodType, typeParams)
         val paramsForInferBuffer = new ArrayBuffer[Parameter]()
-        val exprsBuffer = new ArrayBuffer[Compatibility.Expression]()
+        val exprsBuffer          = new ArrayBuffer[Compatibility.Expression]()
         val resolveResultsBuffer = new ArrayBuffer[ScalaResolveResult]()
 
         //todo: do we need to execute this loop several times?
         var i = 0
-        while (i < coreTypes.size) {
+        while (i < params.size) {
           i += 1
           resInner match {
             case t@ScTypePolymorphicType(ScMethodType(retTypeSingle, paramsSingle, _), typeParamsSingle) =>
-              val abstractSubstitutor: ScSubstitutor = t.abstractOrLowerTypeSubstitutor
+              val abstractSubstitutor = t.abstractOrLowerTypeSubstitutor
+
               val (paramsForInfer, exprs, resolveResults) =
                 findImplicits(paramsSingle, coreElement, element, canThrowSCE, searchImplicitsRecursively, abstractSubstitutor)
+
               resInner = localTypeInference(retTypeSingle, paramsForInfer, exprs, typeParamsSingle,
                 canThrowSCE = canThrowSCE || fullInfo)
+
               paramsForInferBuffer ++= paramsForInfer
-              exprsBuffer ++= exprs
+              exprsBuffer          ++= exprs
               resolveResultsBuffer ++= resolveResults
           }
         }
@@ -459,7 +461,7 @@ object InferUtil {
     val abstractSubst = ScTypePolymorphicType(retType, typeParams).abstractTypeSubstitutor
     val paramsWithUndefTypes = params.map(p => p.copy(paramType = s(p.paramType),
       expectedType = abstractSubst(p.paramType), defaultType = p.defaultType.map(s)))
-    val conformanceResult@ConformanceExtResult(problems, constraints, _, matched) =
+    val conformanceResult@ConformanceExtResult(problems, constraints, _, _) =
       Compatibility.checkConformanceExt(checkNames = true, paramsWithUndefTypes, exprs, checkWithImplicits = true,
       isShapesResolve = false)
 

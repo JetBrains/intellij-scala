@@ -65,7 +65,7 @@ object ImplicitResolveResult {
 
     def withType: ResolverStateBuilder = {
       innerState = innerState.put(BaseProcessor.FROM_TYPE_KEY, result.`type`)
-      innerState.put(BaseProcessor.UNRESOLVED_TYPE_PARAMETERS_KEY, result.unresolvedTypeParameters)
+      innerState = innerState.put(BaseProcessor.UNRESOLVED_TYPE_PARAMETERS_KEY, result.unresolvedTypeParameters)
       this
     }
 

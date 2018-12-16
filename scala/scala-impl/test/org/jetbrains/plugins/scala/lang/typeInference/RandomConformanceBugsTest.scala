@@ -40,4 +40,35 @@ class RandomConformanceBugsTest extends ScalaLightCodeInsightFixtureTestAdapter 
         |}
         |
       """.stripMargin)
+
+  def testSCL14486(): Unit =
+    checkTextHasNoErrors(
+      """
+        |trait CovariantBifunctorMonad[F[+_, +_]] {
+        |  def pure[A](a: A): F[Nothing ,A]
+        |  def fail[E](e: E): F[E, Nothing]
+        |  def flatMap[E, E1 >: E, A, B](fa: F[E, A], fb: A => F[E1, B]): F[E1, B]
+        |}
+        |object CovariantBifunctorMonad {
+        |  def apply[F[+_, +_]: CovariantBifunctorMonad]: CovariantBifunctorMonad[F] = implicitly
+        |  implicit final class Syntax[F[+_, +_]: CovariantBifunctorMonad, E, A](fa: F[E, A]) {
+        |    def flatMap[E1 >: E, B](fb: A => F[E1, B]): F[E1, B] = apply[F].flatMap(fa, fb)
+        |    def map[B](f: A => B): F[E, B] = flatMap(f(_).pure)
+        |  }
+        |  implicit final class AnySyntax[A](a: A) {
+        |    def pure[F[+_, +_]: CovariantBifunctorMonad]: F[Nothing, A] = apply[F].pure(a)
+        |    def fail[F[+_, +_]: CovariantBifunctorMonad]: F[A, Nothing] = apply[F].fail(a)
+        |  }
+        |}
+        |object App {
+        |  import CovariantBifunctorMonad._
+        |  def error[F[+_, +_] : CovariantBifunctorMonad]: F[Throwable, Unit] = new Throwable{}.fail
+        |  def generic[F[+_, +_] : CovariantBifunctorMonad]: F[Throwable, Int] =
+        |    for {
+        |      i <- 5.pure[F]
+        |      _ <- error[F]
+        |    } yield i
+        |}
+      """.stripMargin
+    )
 }
