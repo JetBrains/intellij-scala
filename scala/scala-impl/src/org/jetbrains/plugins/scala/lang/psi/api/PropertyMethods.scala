@@ -9,11 +9,8 @@ import org.jetbrains.plugins.scala.lang.psi.api.statements.params.ScClassParamet
 import org.jetbrains.plugins.scala.lang.psi.api.statements.{ScAnnotationsHolder, ScValueOrVariable}
 import org.jetbrains.plugins.scala.lang.psi.api.toplevel.ScTypedDefinition
 import org.jetbrains.plugins.scala.lang.psi.api.toplevel.typedef.ScMember
-import org.jetbrains.plugins.scala.lang.psi.fake.FakePsiMethod
 import org.jetbrains.plugins.scala.lang.psi.fake.FakePsiMethod.{getter, setter}
 import org.jetbrains.plugins.scala.lang.psi.types.ScType
-import org.jetbrains.plugins.scala.lang.psi.types.api.Unit
-import org.jetbrains.plugins.scala.lang.psi.types.nonvalue.Parameter
 import org.jetbrains.plugins.scala.lang.refactoring.util.ScalaNamesUtil
 
 import scala.collection.Seq
@@ -102,7 +99,7 @@ object PropertyMethods extends Enumeration {
 
   def mayHavePropertyMethod(t: ScTypedDefinition, role: DefinitionRole): Boolean = {
     isProperty(t) &&
-      isSetter(role) == t.isVar &&
+      (!isSetter(role) || t.isVar) &&
       (role == EQ || t.nameContext.asInstanceOf[ScMember].annotations.nonEmpty)
   }
 
@@ -112,12 +109,13 @@ object PropertyMethods extends Enumeration {
     val member = property.nameContext.asInstanceOf[ScMember]
     val isVar = property.isVar
     val mName = methodName(property.name, role)
+    def shouldHaveBeanSetter(member: ScMember) = isVar && (isBeanProperty(member) || isBooleanBeanProperty(member))
 
     role match {
       case SIMPLE_ROLE                                => None
       case GETTER if isBeanProperty(member)           => Some(getter(property, mName))
       case IS_GETTER if isBooleanBeanProperty(member) => Some(getter(property, mName))
-      case SETTER if isBeanProperty(member) && isVar  => Some(setter(property, mName))
+      case SETTER if shouldHaveBeanSetter(member)     => Some(setter(property, mName))
       case EQ if isVar                                => Some(setter(property, mName))
       case _                                          => None
     }
