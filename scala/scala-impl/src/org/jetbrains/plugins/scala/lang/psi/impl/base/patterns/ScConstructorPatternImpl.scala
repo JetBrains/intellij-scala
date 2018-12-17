@@ -36,40 +36,27 @@ class ScConstructorPatternImpl(node: ASTNode) extends ScalaPsiElementImpl (node)
 
   override def subpatterns: Seq[ScPattern] = if (args != null) args.patterns else Seq.empty
 
-  override def isIrrefutableFor(t: Option[ScType]): Boolean = {
-    if (t.isEmpty) return false
-    ref.bind() match {
-      case Some(ScalaResolveResult(clazz: ScClass, _)) if clazz.isCase =>
-        t.get.extractClassType match {
-          case Some((clazz2: ScClass, substitutor: ScSubstitutor)) if clazz2 == clazz =>
-            clazz.constructor match {
-              case Some(constr: ScPrimaryConstructor) =>
-                val clauses = constr.parameterList.clauses
-                if (clauses.isEmpty) subpatterns.isEmpty
-                else {
-                  val params = clauses.head.parameters
-                  if (params.isEmpty) return subpatterns.isEmpty
-                  if (params.length != subpatterns.length) return false  //todo: repeated parameters?
-                  var i = 0
-                  while (i < subpatterns.length) {
-                    val tp = {
-                      substitutor(params(i).`type`()
-                        .getOrElse(return false))
-                    }
-                    if (!subpatterns.apply(i).isIrrefutableFor(Some(tp))) {
-                      return false
-                    }
-                    i = i + 1
-                  }
-                  true
-                }
-              case _ => subpatterns.isEmpty
-            }
-          case _ => false
-        }
-      case _ => false
+  override def isIrrefutableFor(t: ScType): Boolean = {
+    for {
+      resolveResult <- ref.bind()
+      if resolveResult.name == "unapply"
+      unapply@(_x: ScFunction) <- Option(resolveResult.getElement)
+      caseClass <- Option(unapply.syntheticCaseClass)
+      (clazz: ScClass, substitutor) <- t.extractClassType
+      if clazz.isCase && clazz == caseClass
+      constr <- clazz.constructor
+      params = constr.parameterList.clauses.headOption.map(_.parameters).getOrElse(Seq.empty)
+      if params.length == subpatterns.length
+    } yield {
+      subpatterns zip params forall {
+        case (pattern, param) =>
+          val paramType = param.`type`().getOrElse {
+            return false
+          }
+          pattern.isIrrefutableFor(substitutor(paramType))
+      }
     }
-  }
+  }.getOrElse(false)
 
   override def `type`(): TypeResult = {
     import ScSubstitutor.bind

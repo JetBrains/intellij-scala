@@ -7,6 +7,7 @@ package patterns
 
 import com.intellij.lang.ASTNode
 import org.jetbrains.plugins.scala.lang.psi.api.base.patterns._
+import org.jetbrains.plugins.scala.lang.psi.types.ScType
 
 
 /** 
@@ -14,6 +15,7 @@ import org.jetbrains.plugins.scala.lang.psi.api.base.patterns._
  */
 
 class ScSeqWildcardImpl (node: ASTNode) extends ScalaPsiElementImpl(node) with ScSeqWildcard {
+  override def isIrrefutableFor(t: ScType): Boolean = true
 
   override def toString: String = "Sequence Wildcard"
 

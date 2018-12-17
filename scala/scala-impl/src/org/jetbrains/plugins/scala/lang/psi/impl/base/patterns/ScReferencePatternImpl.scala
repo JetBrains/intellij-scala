@@ -40,7 +40,7 @@ class ScReferencePatternImpl private(stub: ScReferencePatternStub, node: ASTNode
     }
   }
 
-  override def isIrrefutableFor(t: Option[ScType]): Boolean = true
+  override def isIrrefutableFor(t: ScType): Boolean = true
 
   def nameId: PsiElement = findChildByType[PsiElement](TokenSets.ID_SET)
 

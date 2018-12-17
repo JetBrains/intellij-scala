@@ -16,6 +16,8 @@ final class ScLightBindingPattern private(override protected val delegate: ScBin
                                          (implicit private val returnType: ScType)
   extends ScLightElement(delegate) with ScBindingPattern {
 
+  override def isIrrefutableFor(t: ScType): Boolean = delegate.isIrrefutableFor(t)
+
   override def getNavigationElement: PsiElement = super.getNavigationElement
 
   override def getOriginalElement: PsiElement = super.getOriginalElement

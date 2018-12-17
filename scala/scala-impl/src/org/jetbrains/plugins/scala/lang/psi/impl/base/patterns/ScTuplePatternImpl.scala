@@ -9,6 +9,8 @@ import com.intellij.lang.ASTNode
 import com.intellij.psi._
 import org.jetbrains.plugins.scala.lang.psi.api.ScalaElementVisitor
 import org.jetbrains.plugins.scala.lang.psi.api.base.patterns._
+import org.jetbrains.plugins.scala.lang.psi.types.ScType
+import org.jetbrains.plugins.scala.lang.psi.types.api.ParameterizedType
 
 /** 
 * @author Alexander Podkhalyuzin
@@ -16,6 +18,14 @@ import org.jetbrains.plugins.scala.lang.psi.api.base.patterns._
 */
 
 class ScTuplePatternImpl(node: ASTNode) extends ScalaPsiElementImpl (node) with ScTuplePattern {
+  override def isIrrefutableFor(t: ScType): Boolean = t match {
+    case parameterizedType: ParameterizedType if parameterizedType.designator.toString == s"Tuple${subpatterns.length}" =>
+      subpatterns.corresponds(parameterizedType.typeArguments) {
+        case (pattern, ty) => pattern.isIrrefutableFor(ty)
+      }
+    case _ => false
+  }
+
   override def accept(visitor: PsiElementVisitor): Unit = {
     visitor match {
       case visitor: ScalaElementVisitor => super.accept(visitor)

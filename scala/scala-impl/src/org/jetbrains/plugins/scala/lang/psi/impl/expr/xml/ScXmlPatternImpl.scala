@@ -10,6 +10,7 @@ import com.intellij.psi._
 import org.jetbrains.plugins.scala.lang.psi.api.ScalaElementVisitor
 import org.jetbrains.plugins.scala.lang.psi.api.base.patterns.{ScPattern, ScPatterns}
 import org.jetbrains.plugins.scala.lang.psi.api.expr.xml._
+import org.jetbrains.plugins.scala.lang.psi.types.ScType
 import org.jetbrains.plugins.scala.lang.psi.types.api.designator.ScDesignatorType
 import org.jetbrains.plugins.scala.lang.psi.types.result._
 
@@ -21,6 +22,8 @@ import scala.collection.mutable.ArrayBuffer
 */
 
 class ScXmlPatternImpl(node: ASTNode) extends ScalaPsiElementImpl (node) with ScXmlPattern {
+  override def isIrrefutableFor(t: ScType): Boolean = false
+
   override def accept(visitor: PsiElementVisitor) {
     visitor match {
       case visitor: ScalaElementVisitor => super.accept(visitor)

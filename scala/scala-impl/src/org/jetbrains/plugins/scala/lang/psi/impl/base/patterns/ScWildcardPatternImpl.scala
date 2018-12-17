@@ -25,7 +25,7 @@ class ScWildcardPatternImpl(node: ASTNode) extends ScalaPsiElementImpl (node) wi
     }
   }
 
-  override def isIrrefutableFor(t: Option[ScType]): Boolean = true
+  override def isIrrefutableFor(t: ScType): Boolean = true
 
   override def toString: String = "WildcardPattern"
 
