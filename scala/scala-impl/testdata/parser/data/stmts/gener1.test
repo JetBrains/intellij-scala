@@ -42,7 +42,7 @@ ScalaFile
                 PsiElement(identifier)('toList')
             PsiElement(;)(';')
             PsiWhiteSpace('\n       ')
-            Enumerator
+            ForBinding
               TuplePattern
                 PsiElement(()('(')
                 ArgumentPatterns

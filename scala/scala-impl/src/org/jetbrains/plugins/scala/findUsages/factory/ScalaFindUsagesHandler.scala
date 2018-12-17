@@ -16,7 +16,7 @@ import org.jetbrains.plugins.scala.lang.psi.ScalaPsiUtil._
 import org.jetbrains.plugins.scala.lang.psi.api.PropertyMethods._
 import org.jetbrains.plugins.scala.lang.psi.api.base.ScPrimaryConstructor
 import org.jetbrains.plugins.scala.lang.psi.api.base.patterns.ScCaseClause
-import org.jetbrains.plugins.scala.lang.psi.api.expr.{ScEnumerator, ScGenerator}
+import org.jetbrains.plugins.scala.lang.psi.api.expr.{ScForBinding, ScGenerator}
 import org.jetbrains.plugins.scala.lang.psi.api.statements._
 import org.jetbrains.plugins.scala.lang.psi.api.statements.params.{ScParameter, ScTypeParam}
 import org.jetbrains.plugins.scala.lang.psi.api.toplevel.typedef._
@@ -102,7 +102,7 @@ class ScalaFindUsagesHandler(element: PsiElement, factory: ScalaFindUsagesHandle
       case _: ScTypeDefinition => factory.typeDefinitionOptions
       case inNameContext(m: ScMember) if !m.isLocal => factory.memberOptions
       case _: ScParameter | _: ScTypeParam |
-           inNameContext(_: ScMember | _: ScCaseClause | _: ScGenerator | _: ScEnumerator ) => factory.localOptions
+           inNameContext(_: ScMember | _: ScCaseClause | _: ScGenerator | _: ScForBinding ) => factory.localOptions
       case _ => super.getFindUsagesOptions(dataContext)
     }
   }

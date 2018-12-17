@@ -30,7 +30,7 @@ import javax.swing.event.HyperlinkEvent
 import org.jetbrains.plugins.scala.extensions.PsiElementExt
 import org.jetbrains.plugins.scala.lang.lexer.ScalaTokenTypes
 import org.jetbrains.plugins.scala.lang.psi.api.base.patterns.ScTypedPattern
-import org.jetbrains.plugins.scala.lang.psi.api.expr.{ScEnumerator, ScExpression}
+import org.jetbrains.plugins.scala.lang.psi.api.expr.{ScForBinding, ScExpression}
 import org.jetbrains.plugins.scala.lang.psi.api.statements._
 import org.jetbrains.plugins.scala.lang.psi.api.toplevel.ScNamedElement
 import org.jetbrains.plugins.scala.lang.psi.impl.ScalaPsiElementFactory._
@@ -69,7 +69,7 @@ class ScalaInplaceVariableIntroducer(expr: ScExpression,
   private val myFile: PsiFile = namedElement.getContainingFile
   private val myBalloonPanel: JPanel = new JPanel()
   private var nameIsValid: Boolean = true
-  private val isEnumerator: Boolean = newDeclaration.exists(_.isInstanceOf[ScEnumerator])
+  private val isForBinding: Boolean = newDeclaration.exists(_.isInstanceOf[ScForBinding])
   private val initialName = ScalaNamesUtil.scalaName(namedElement)
 
   private val myLabel = new JLabel()
@@ -110,7 +110,7 @@ class ScalaInplaceVariableIntroducer(expr: ScExpression,
   private def namedElement(maybeDeclaration: Option[PsiElement]): Option[ScNamedElement] = maybeDeclaration.flatMap {
     case value: ScValue => value.declaredElements.headOption
     case variable: ScVariable => variable.declaredElements.headOption
-    case enumerator: ScEnumerator => enumerator.pattern.bindings.headOption
+    case forBinding: ScForBinding => forBinding.pattern.bindings.headOption
     case _ => None
   }
 
@@ -134,7 +134,7 @@ class ScalaInplaceVariableIntroducer(expr: ScExpression,
   override def getInitialName: String = initialName
 
   protected override def getComponent: JComponent = {
-    if (!isEnumerator) {
+    if (!isForBinding) {
       myVarCheckbox = new NonFocusableCheckBox(ScalaBundle.message("introduce.variable.declare.as.var"))
       myVarCheckbox.setMnemonic('v')
       myVarCheckbox.addActionListener((e: ActionEvent) => {
@@ -186,7 +186,7 @@ class ScalaInplaceVariableIntroducer(expr: ScExpression,
 
           def addTypeAnnotation(selectedType: ScType): Unit = {
             getDeclaration.foreach {
-              case declaration@(_: ScDeclaredElementsHolder | _: ScEnumerator) =>
+              case declaration@(_: ScDeclaredElementsHolder | _: ScForBinding) =>
                 val declarationCopy = declaration.copy.asInstanceOf[ScalaPsiElement]
                 val fakeDeclaration = createDeclaration(selectedType, "x", isVariable = false, "", isPresentableText = false)
                 val first = fakeDeclaration.findFirstChildByType(ScalaTokenTypes.tCOLON)
@@ -214,10 +214,10 @@ class ScalaInplaceVariableIntroducer(expr: ScExpression,
                 holder.getNode.removeRange(colon.getNode, newWhiteSpace.getNode)
                 setDeclaration(holder)
                 commitDocument()
-              case enum: ScEnumerator if enum.pattern.isInstanceOf[ScTypedPattern] =>
-                val colon = enum.pattern.findFirstChildByType(ScalaTokenTypes.tCOLON)
-                enum.pattern.getNode.removeRange(colon.getNode, null)
-                setDeclaration(enum)
+              case forBinding: ScForBinding if forBinding.pattern.isInstanceOf[ScTypedPattern] =>
+                val colon = forBinding.pattern.findFirstChildByType(ScalaTokenTypes.tCOLON)
+                forBinding.pattern.getNode.removeRange(colon.getNode, null)
+                setDeclaration(forBinding)
                 commitDocument()
               case _ =>
             }
@@ -369,7 +369,7 @@ class ScalaInplaceVariableIntroducer(expr: ScExpression,
       myEditor.getDocument.removeDocumentListener
     }
 
-    if (mySpecifyTypeChb != null && !isEnumerator)
+    if (mySpecifyTypeChb != null && !isForBinding)
       ScalaApplicationSettings.getInstance.INTRODUCE_VARIABLE_EXPLICIT_TYPE = mySpecifyTypeChb.isSelected
 
     try {
@@ -409,5 +409,5 @@ object ScalaInplaceVariableIntroducer {
     } else true
 
   private def findDeclaration(element: PsiElement) =
-    element.nonStrictParentOfType(Seq(classOf[ScEnumerator], classOf[ScDeclaredElementsHolder]))
+    element.nonStrictParentOfType(Seq(classOf[ScForBinding], classOf[ScDeclaredElementsHolder]))
 }

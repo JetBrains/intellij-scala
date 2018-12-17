@@ -376,7 +376,7 @@ trait TreeAdapter {
           m.Enumerator.Generator(pattern(e.pattern), expression(e.rvalue))
         case e: ScGuard =>
           m.Enumerator.Guard(e.expr.map(expression).getOrElse(unreachable("guard has no condition")))
-        case e: ScEnumerator =>
+        case e: ScForBinding =>
           m.Enumerator.Val(pattern(e.pattern), expression(e.rvalue))
         case _ => unreachable
       }

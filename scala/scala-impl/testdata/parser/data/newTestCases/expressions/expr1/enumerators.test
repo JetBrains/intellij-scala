@@ -47,7 +47,7 @@ ScalaFile
                 ReferenceExpression: n
                   PsiElement(identifier)('n')
             PsiWhiteSpace('\n      ')
-            Enumerator
+            ForBinding
               PsiElement(val)('val')
               PsiWhiteSpace(' ')
               ReferencePattern: x

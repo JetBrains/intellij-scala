@@ -1072,7 +1072,7 @@ object ScalaRefactoringUtil {
       case ifSt: ScIfStmt if Seq(ifSt.thenBranch, ifSt.elseBranch) contains Option(parExpr) => true
       case forSt: ScForStatement if forSt.body.orNull == parExpr => true
       case _: ScForStatement => false
-      case _: ScEnumerator | _: ScGenerator => false
+      case _: ScForBinding | _: ScGenerator => false
       case guard: ScGuard if guard.getParent.isInstanceOf[ScEnumerators] => false
       case whSt: ScWhileStmt if whSt.body.orNull == parExpr => true
       case doSt: ScDoStmt if doSt.getExprBody.orNull == parExpr => true

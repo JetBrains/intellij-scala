@@ -14,26 +14,26 @@ import org.jetbrains.plugins.scala.lang.parser.parsing.patterns.{Guard, Pattern1
 */
 
 /*
- * Enumerator ::= Generator
+ * ForBinding ::= Generator
  *              | Guard
  *              | 'val' Pattern1 '=' Expr
  */
-object Enumerator {
+object ForBinding {
 
   def parse(builder: ScalaPsiBuilder): Boolean = {
-    val enumMarker = builder.mark
+    val forBindingMarker = builder.mark
 
     def parseNonGuard(f: Boolean): Boolean = {
       if (!Pattern1.parse(builder)) {
         if (!f) {
           builder error ErrMsg("wrong.pattern")
-          enumMarker.done(ScalaElementType.ENUMERATOR)
+          forBindingMarker.done(ScalaElementType.FOR_BINDING)
           return true
         } else if (!Guard.parse(builder, noIf = true)) {
-          enumMarker.rollbackTo()
+          forBindingMarker.rollbackTo()
           return false
         } else {
-          enumMarker.drop()
+          forBindingMarker.drop()
           return true
         }
       }
@@ -41,29 +41,29 @@ object Enumerator {
         case ScalaTokenTypes.tASSIGN =>
           builder.advanceLexer() //Ate =
         case ScalaTokenTypes.tCHOOSE =>
-          enumMarker.rollbackTo()
+          forBindingMarker.rollbackTo()
           return Generator parse builder
         case _ =>
           if (!f) {
             builder error ErrMsg("choose.expected")
-            enumMarker.done(ScalaElementType.ENUMERATOR)
+            forBindingMarker.done(ScalaElementType.FOR_BINDING)
             return true
           } else {
-            enumMarker.rollbackTo()
+            forBindingMarker.rollbackTo()
             return false
           }
       }
       if (!Expr.parse(builder)) {
         builder error ErrMsg("wrong.expression")
       }
-      enumMarker.done(ScalaElementType.ENUMERATOR)
+      forBindingMarker.done(ScalaElementType.FOR_BINDING)
       true
     }
 
     builder.getTokenType match {
       case ScalaTokenTypes.kIF =>
         Guard parse builder
-        enumMarker.drop()
+        forBindingMarker.drop()
         true
       case ScalaTokenTypes.kVAL =>
         builder.advanceLexer() //Ate val

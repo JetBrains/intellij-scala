@@ -15,8 +15,8 @@ import org.jetbrains.plugins.scala.lang.psi.api.expr._
 * Date: 06.03.2008
 */
 
-class ScEnumeratorImpl(node: ASTNode) extends ScalaPsiElementImpl(node) with ScEnumerator {
-  override def toString: String = "Enumerator"
+class ScForBindingImpl(node: ASTNode) extends ScalaPsiElementImpl(node) with ScForBinding {
+  override def toString: String = "ForBinding"
   def pattern: ScPattern = findChildByClass(classOf[ScPattern])
   def rvalue: ScExpression = findChildByClass(classOf[ScExpression])
 

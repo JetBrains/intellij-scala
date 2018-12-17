@@ -18,7 +18,7 @@ import org.jetbrains.plugins.scala.annotator.quickfix._
 import org.jetbrains.plugins.scala.annotator.template._
 import org.jetbrains.plugins.scala.annotator.usageTracker.UsageTracker
 import org.jetbrains.plugins.scala.annotator.usageTracker.UsageTracker._
-import org.jetbrains.plugins.scala.codeInspection.caseClassParamInspection.{RemoveValFromEnumeratorIntentionAction, RemoveValFromGeneratorIntentionAction}
+import org.jetbrains.plugins.scala.codeInspection.caseClassParamInspection.{RemoveValFromForBindingIntentionAction, RemoveValFromGeneratorIntentionAction}
 import org.jetbrains.plugins.scala.components.HighlightingAdvisor
 import org.jetbrains.plugins.scala.extensions._
 import org.jetbrains.plugins.scala.highlighter.DefaultHighlighter
@@ -155,15 +155,15 @@ abstract class ScalaAnnotator extends Annotator
         visitExpression(ref)
       }
 
-      override def visitEnumerator(enum: ScEnumerator) {
-        enum.valKeyword match {
+      override def visitForBinding(forBinding: ScForBinding) {
+        forBinding.valKeyword match {
           case Some(valKeyword) =>
             val annotation = holder.createWarningAnnotation(valKeyword, ScalaBundle.message("enumerator.val.keyword.deprecated"))
             annotation.setHighlightType(ProblemHighlightType.LIKE_DEPRECATED)
-            annotation.registerFix(new RemoveValFromEnumeratorIntentionAction(enum))
+            annotation.registerFix(new RemoveValFromForBindingIntentionAction(forBinding))
           case _ =>
         }
-        super.visitEnumerator(enum)
+        super.visitForBinding(forBinding)
       }
 
       override def visitGenerator(gen: ScGenerator) {

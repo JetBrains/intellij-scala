@@ -97,7 +97,7 @@ class ScalaElementVisitor extends PsiElementVisitor {
   def visitValue(v: ScValue) {visitElement(v)}
   def visitCaseClause(cc: ScCaseClause) { visitElement(cc) }
   def visitPattern(pat: ScPattern) { visitElement(pat) }
-  def visitEnumerator(enum: ScEnumerator) { visitElement(enum) }
+  def visitForBinding(forBinding: ScForBinding) { visitElement(forBinding) }
   def visitGenerator(gen: ScGenerator) { visitElement(gen) }
   def visitGuard(guard: ScGuard) { visitElement(guard) }
   def visitFunction(fun: ScFunction) { visitElement(fun) }

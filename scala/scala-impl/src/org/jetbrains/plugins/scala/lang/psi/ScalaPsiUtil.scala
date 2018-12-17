@@ -1045,7 +1045,7 @@ object ScalaPsiUtil {
     val parent = e.getParent
 
     if (parent.isInstanceOf[ScGenerator] ||
-      parent.isInstanceOf[ScEnumerator] ||
+      parent.isInstanceOf[ScForBinding] ||
       parent.isInstanceOf[ScCaseClause]) {
       return true
     }

@@ -84,7 +84,7 @@ trait TreeConverterBuilder {
 
       override def visitPattern(pat: ScPattern) = super.visitPattern(pat)
 
-      override def visitEnumerator(enum: ScEnumerator) = super.visitEnumerator(enum)
+      override def visitForBinding(forBinding: ScForBinding) = super.visitForBinding(forBinding)
 
       override def visitGenerator(gen: ScGenerator) = super.visitGenerator(gen)
 

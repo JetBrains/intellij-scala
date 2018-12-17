@@ -189,7 +189,7 @@ object AnnotatorHighlighter {
             }
           case _: ScCaseClause =>
             annotation.setTextAttributes(DefaultHighlighter.PATTERN)
-          case _: ScGenerator | _: ScEnumerator =>
+          case _: ScGenerator | _: ScForBinding =>
             annotation.setTextAttributes(DefaultHighlighter.GENERATOR)
           case _ =>
         }
@@ -246,7 +246,7 @@ object AnnotatorHighlighter {
       case x: ScParameter => visitParameter(x, holder)
       case x: ScCaseClause => visitCaseClause(x, holder)
       case x: ScGenerator => visitGenerator(x, holder)
-      case x: ScEnumerator => visitEnumerator(x, holder)
+      case x: ScForBinding => visitForBinding(x, holder)
       case x: ScTypeAlias => visitTypeAlias(x, holder)
       case _ if element.getNode.getElementType == ScalaTokenTypes.kINLINE =>
         val annotation = holder.createInfoAnnotation(element, null)
@@ -296,7 +296,7 @@ object AnnotatorHighlighter {
               case _: ScCaseClause =>
                 val annotation = holder.createInfoAnnotation(element, null)
                 annotation.setTextAttributes(DefaultHighlighter.PATTERN)
-              case _: ScGenerator | _: ScEnumerator =>
+              case _: ScGenerator | _: ScForBinding =>
                 val annotation = holder.createInfoAnnotation(element, null)
                 annotation.setTextAttributes(DefaultHighlighter.GENERATOR)
               case _ =>
@@ -349,8 +349,8 @@ object AnnotatorHighlighter {
     visitPattern(generator.pattern, holder, DefaultHighlighter.GENERATOR)
   }
 
-  private def visitEnumerator(enumerator: ScEnumerator, holder: AnnotationHolder): Unit = {
-    visitPattern(enumerator.pattern, holder, DefaultHighlighter.GENERATOR)
+  private def visitForBinding(forBinding: ScForBinding, holder: AnnotationHolder): Unit = {
+    visitPattern(forBinding.pattern, holder, DefaultHighlighter.GENERATOR)
   }
 
   private def referenceIsToCompanionObjectOfClass(r: ScReferenceElement): Boolean = {

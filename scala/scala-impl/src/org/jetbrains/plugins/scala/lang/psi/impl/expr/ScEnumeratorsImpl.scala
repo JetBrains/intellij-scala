@@ -23,14 +23,14 @@ class ScEnumeratorsImpl(node: ASTNode) extends ScalaPsiElementImpl(node) with Sc
 
   override def toString: String = "Enumerators"
 
-  def enumerators: mutable.WrappedArray[ScEnumerator] = findChildrenByClass[ScEnumerator](classOf[ScEnumerator])
+  def forBindings: mutable.WrappedArray[ScForBinding] = findChildrenByClass[ScForBinding](classOf[ScForBinding])
 
   def generators: mutable.WrappedArray[ScGenerator] = findChildrenByClass[ScGenerator](classOf[ScGenerator])
 
   def guards: mutable.WrappedArray[ScGuard] = findChildrenByClass[ScGuard](classOf[ScGuard])
 
   def namings: Seq[ScPatterned] =
-    for (c <- getChildren if c.isInstanceOf[ScGenerator] || c.isInstanceOf[ScEnumerator])
+    for (c <- getChildren if c.isInstanceOf[ScGenerator] || c.isInstanceOf[ScForBinding])
           yield c.asInstanceOf[ScPatterned]
 
   override def processDeclarations(processor: PsiScopeProcessor,
@@ -54,7 +54,7 @@ class ScEnumeratorsImpl(node: ASTNode) extends ScalaPsiElementImpl(node) with Sc
             case b: BaseProcessor => b.changedLevel
             case _ =>
           }
-        case c: ScEnumerator =>
+        case c: ScForBinding =>
           for (p <- Option(c.pattern); b <- p.bindings) if (!processor.execute(b, state)) return false
         case _ =>
       }

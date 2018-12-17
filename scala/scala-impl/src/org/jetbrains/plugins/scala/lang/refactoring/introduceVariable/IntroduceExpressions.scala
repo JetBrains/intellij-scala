@@ -157,14 +157,14 @@ object IntroduceExpressions {
                                        (implicit project: Project, editor: Editor): Unit = {
     val maybeNamedElement = newDeclaration match {
       case holder: ScDeclaredElementsHolder => holder.declaredElements.headOption
-      case enum: ScEnumerator => enum.pattern.bindings.headOption
+      case forBinding: ScForBinding => forBinding.pattern.bindings.headOption
       case _ => None
     }
 
     val newExpr = newDeclaration match {
       case ScVariableDefinition.expr(x) => x
       case ScPatternDefinition.expr(x) => x
-      case enum: ScEnumerator => enum.rvalue
+      case forBinding: ScForBinding => forBinding.rvalue
       case _ => null
     }
 
@@ -187,7 +187,7 @@ object IntroduceExpressions {
 
   private def forceInferType(expression: ScExpression) = expression.isInstanceOf[ScFunctionExpr]
 
-  //returns smart pointer to ScDeclaredElementsHolder or ScEnumerator
+  //returns smart pointer to ScDeclaredElementsHolder or ScForBinding
   private def runRefactoringInside(occurrencesInFile: OccurrencesInFile,
                                    expression: ScExpression,
                                    varName: String,
@@ -298,12 +298,12 @@ object IntroduceExpressions {
 
     editor.getCaretModel.moveToOffset(replacedOccurences(mainOccurence).getEndOffset)
 
-    def createEnumeratorIn(forStmt: ScForStatement): ScEnumerator = {
+    def createForBindingIn(forStmt: ScForStatement): ScForBinding = {
       val parent: ScEnumerators = forStmt.enumerators.orNull
       val inParentheses = parent.prevSiblings.toList.exists(_.getNode.getElementType == ScalaTokenTypes.tLPARENTHESIS)
-      val created = createEnumerator(varName, expression, typeTextIfNeeded(parent))
+      val created = createForBinding(varName, expression, typeTextIfNeeded(parent))
       val elem = parent.getChildren.filter(_.getTextRange.contains(firstRange)).head
-      var result: ScEnumerator = null
+      var result: ScForBinding = null
       if (elem != null) {
         var needSemicolon = true
         var sibling = elem.getPrevSibling
@@ -311,13 +311,13 @@ object IntroduceExpressions {
           while (sibling != null && sibling.getText.trim == "") sibling = sibling.getPrevSibling
           if (sibling != null && sibling.getText.endsWith(";")) needSemicolon = false
           val semicolon = parent.addBefore(createSemicolon, elem)
-          result = parent.addBefore(created, semicolon).asInstanceOf[ScEnumerator]
+          result = parent.addBefore(created, semicolon).asInstanceOf[ScForBinding]
           if (needSemicolon) {
             parent.addBefore(createSemicolon, result)
           }
         } else {
           if (sibling.getText.indexOf('\n') != -1) needSemicolon = false
-          result = parent.addBefore(created, elem).asInstanceOf[ScEnumerator]
+          result = parent.addBefore(created, elem).asInstanceOf[ScForBinding]
           parent.addBefore(createNewLine()(elem.getManager), elem)
           if (needSemicolon) {
             parent.addBefore(createNewLine(), result)
@@ -334,7 +334,7 @@ object IntroduceExpressions {
 
         val start = firstRange.getStartOffset
         Option(findElementOfClassAtOffset(file, start, classOf[ScMember], /*strictStart =*/ false))
-          .getOrElse(findElementOfClassAtOffset(file, start, classOf[ScEnumerator], /*strictStart =*/ false))
+          .getOrElse(findElementOfClassAtOffset(file, start, classOf[ScForBinding], /*strictStart =*/ false))
       } else {
         var needFormatting = false
         val parent = commonParent match {
@@ -364,7 +364,7 @@ object IntroduceExpressions {
     }
 
     val createdDeclaration: PsiElement = isIntroduceEnumerator(commonParent, nextParentInFile, firstRange) match {
-      case Some(forStmt) => createEnumeratorIn(forStmt)
+      case Some(forStmt) => createForBindingIn(forStmt)
       case _ => createVariableDefinition()
     }
 
@@ -388,7 +388,7 @@ object IntroduceExpressions {
     val maybeParent = element match {
       case statement: ScForStatement if statement.body.contains(parent) => None
       case statement: ScForStatement => Some(statement)
-      case _: ScEnumerator | _: ScGenerator => Option(element.getParent.getParent)
+      case _: ScForBinding | _: ScGenerator => Option(element.getParent.getParent)
       case guard: ScGuard if guard.getParent.isInstanceOf[ScEnumerators] => Option(element.getParent.getParent)
       case _ => Some(parent)
     }

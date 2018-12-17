@@ -713,7 +713,7 @@ private[evaluation] trait ScalaEvaluatorBuilderUtil {
           case _ => throw EvaluationException(ScalaBundle.message("cannot.evaluate.parameter", param.name))
         }
       case caseCl: ScCaseClause => patternEvaluator(caseCl, named)
-      case _: ScGenerator | _: ScEnumerator if position != null && isNotUsedEnumerator(named, position.getElementAt) =>
+      case _: ScGenerator | _: ScForBinding if position != null && isNotUsedEnumerator(named, position.getElementAt) =>
         throw EvaluationException(ScalaBundle.message("not.used.from.for.statement", name))
       case LazyVal(_) => localLazyValEvaluator(named)
       case InsideAsync(_) =>
@@ -724,7 +724,7 @@ private[evaluation] trait ScalaEvaluatorBuilderUtil {
     }
 
     containingClass match {
-      case `contextClass` | _: ScGenerator | _: ScEnumerator => localVariableEvaluator
+      case `contextClass` | _: ScGenerator | _: ScForBinding => localVariableEvaluator
       case _ if contextClass == null => localVariableEvaluator
       case _ =>
         val fieldEval = withOuterFieldEvaluator(containingClass, name, ScalaBundle.message("cannot.evaluate.local.variable", name))
@@ -1513,7 +1513,7 @@ object ScalaEvaluatorBuilderUtil {
         case (_: ScCaseClauses) childOf (b: ScBlockExpr) if b.isAnonymousFunction => true
         case (_: ScGuard) childOf (_: ScEnumerators) => true
         case (g: ScGenerator) childOf (enums: ScEnumerators) if !enums.generators.headOption.contains(g) => true
-        case _: ScEnumerator => true
+        case _: ScForBinding => true
         case _ => false
       }
     }
@@ -1525,7 +1525,7 @@ object ScalaEvaluatorBuilderUtil {
     elem match {
       case (_: ScExpression) childOf (f: ScForStatement) =>
         f.enumerators.fold(1)(e => e.generators.length)
-      case (e @ (_: ScEnumerator | _: ScGenerator | _: ScGuard)) childOf (enums: ScEnumerators) =>
+      case (e @ (_: ScForBinding | _: ScGenerator | _: ScGuard)) childOf (enums: ScEnumerators) =>
         enums.children.takeWhile(_ != e).count(_.isInstanceOf[ScGenerator])
       case _ => 1
     }
@@ -1583,7 +1583,7 @@ object ScalaEvaluatorBuilderUtil {
 
   def isNotUsedEnumerator(named: PsiNamedElement, place: PsiElement): Boolean = {
     named match {
-      case ScalaPsiUtil.inNameContext(enum @ (_: ScEnumerator | _: ScGenerator)) =>
+      case ScalaPsiUtil.inNameContext(enum @ (_: ScForBinding | _: ScGenerator)) =>
         enum.getParent.getParent match {
           case ScForStatement(enums, body) =>
             enums.namings.map(_.pattern) match {

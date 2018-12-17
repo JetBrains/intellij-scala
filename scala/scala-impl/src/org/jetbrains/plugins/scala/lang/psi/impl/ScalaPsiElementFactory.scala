@@ -414,8 +414,8 @@ object ScalaPsiElementFactory {
       memberText.substring(offset + fromToken.toString.length)
   }
 
-  def createEnumerator(name: String, expr: ScExpression, typeName: String)
-                      (implicit ctx: ProjectContext): ScEnumerator = {
+  def createForBinding(name: String, expr: ScExpression, typeName: String)
+                      (implicit ctx: ProjectContext): ScForBinding = {
     val typeText = Option(typeName).filter {
       _.nonEmpty
     }.map { name =>
@@ -430,9 +430,9 @@ object ScalaPsiElementFactory {
           |}""".stripMargin
     val forStmt = createElementFromText(text, classOf[ScForStatement])
     forStmt.enumerators.flatMap {
-      _.enumerators.headOption
+      _.forBindings.headOption
     }.getOrElse {
-      throw new IllegalArgumentException(s"Could not create enumerator from text: $enumText")
+      throw new IllegalArgumentException(s"Could not create forBinding enumerator from text: $enumText")
     }
   }
 

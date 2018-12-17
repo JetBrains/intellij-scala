@@ -122,7 +122,7 @@ class ScalaBasicCompletionContributor extends ScalaCompletionContributor {
                       case valueOrVariable: ScValueOrVariable if valueOrVariable.isLocal =>
                         item.isLocalVariable = true
                         Some(item)
-                      case _: ScCaseClause | _: ScEnumerator | _: ScGenerator =>
+                      case _: ScCaseClause | _: ScForBinding | _: ScGenerator =>
                         item.isLocalVariable = true
                         Some(item)
                       case member: PsiMember if isInaccessible(member) => None

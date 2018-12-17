@@ -199,8 +199,8 @@ object ScPattern {
         case named: ScNamingPattern => named.expectedType
         case _: ScGenerator =>
           pattern.getAnalogInDesugaredForExpr flatMap { _.expectedType }
-        case enum: ScEnumerator =>
-          Option(enum.rvalue).flatMap { rvalue =>
+        case forBinding: ScForBinding =>
+          Option(forBinding.rvalue).flatMap { rvalue =>
             rvalue.`type`().toOption
           }
         case _ => None

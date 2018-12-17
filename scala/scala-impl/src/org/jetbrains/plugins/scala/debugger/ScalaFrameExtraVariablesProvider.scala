@@ -175,7 +175,7 @@ class ScalaFrameExtraVariablesProvider extends FrameExtraVariablesProvider {
   private def generatorNotFromBody(named: PsiNamedElement, place: PsiElement): Boolean = {
     inReadAction {
       val forStmt = ScalaPsiUtil.nameContext(named) match {
-        case nc@(_: ScEnumerator | _: ScGenerator) =>
+        case nc@(_: ScForBinding | _: ScGenerator) =>
           Option(PsiTreeUtil.getParentOfType(nc, classOf[ScForStatement]))
         case _ => None
       }

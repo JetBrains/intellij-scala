@@ -210,10 +210,10 @@ object ScalaElementType {
   val GENERATOR = new ScalaElementType("generator") {
     override def createElement(node: ASTNode) = new ScGeneratorImpl(node)
   }
-  val ENUMERATOR = new ScalaElementType("enumerator") {
-    override def createElement(node: ASTNode) = new ScEnumeratorImpl(node)
+  val FOR_BINDING = new ScalaElementType("for binding") {
+    override def createElement(node: ASTNode) = new ScForBindingImpl(node)
   }
-  val ENUMERATORS = new ScalaElementType("enumerator") {
+  val ENUMERATORS = new ScalaElementType("enumerators") {
     override def createElement(node: ASTNode) = new ScEnumeratorsImpl(node)
   }
   val GUARD = new ScalaElementType("guard") {

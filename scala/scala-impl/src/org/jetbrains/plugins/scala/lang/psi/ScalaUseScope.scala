@@ -55,7 +55,7 @@ object ScalaUseScope {
     case member: ScMember if member != named     => Some(member.getUseScope)
     case member: ScMember                        => memberScope(member)
     case caseClause: ScCaseClause                => Some(safeLocalScope(caseClause))
-    case elem@(_: ScEnumerator | _: ScGenerator) => localDefinitionScope(elem)
+    case elem@(_: ScForBinding | _: ScGenerator) => localDefinitionScope(elem)
     case _                                       => None
   }
 

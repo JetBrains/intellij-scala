@@ -171,7 +171,7 @@ class ScForStatementImpl(node: ASTNode) extends ScExpressionImplBase(node) with 
     def nextEnumerator(gen: PsiElement): PsiElement = {
       gen.getNextSibling match {
         case guard: ScGuard => guard
-        case enum: ScEnumerator => enum
+        case forBinding: ScForBinding => forBinding
         case gen: ScGenerator => gen
         case null => null
         case elem => nextEnumerator(elem)
@@ -284,18 +284,18 @@ class ScForStatementImpl(node: ASTNode) extends ScExpressionImplBase(node) with 
             }
           }
 
-        case assign: ScEnumerator =>
+        case forBinding: ScForBinding =>
           appendFunc("map", args) {
             // remove wildcard args
             args = args.filterNot(_._2 == "_")
 
             if (args.nonEmpty)
               resultText ++= "("
-            resultText ++= (args.map(_._2) :+ Option(assign.rvalue).map(toTextWithNormalizedUnderscores).getOrElse("???")).mkString(", ")
+            resultText ++= (args.map(_._2) :+ Option(forBinding.rvalue).map(toTextWithNormalizedUnderscores).getOrElse("???")).mkString(", ")
             if (args.nonEmpty)
               resultText ++= ")"
 
-            args :+= Option(assign.pattern).map(p => p -> p.getText).getOrElse((null, s"v$${newNameIdx()}"))
+            args :+= Option(forBinding.pattern).map(p => p -> p.getText).getOrElse((null, s"v$${newNameIdx()}"))
           }
       }
 

@@ -25,7 +25,7 @@ class ValueDefinitionFilter extends ElementFilter {
       val parent = leaf.getParent
       
       parent.getParent match {
-        case _: ScGenerator | _: ScEnumerator | _: ScExistentialClause =>
+        case _: ScGenerator | _: ScForBinding | _: ScExistentialClause =>
           if ((leaf.getPrevSibling == null || leaf.getPrevSibling.getPrevSibling == null ||
             leaf.getPrevSibling.getPrevSibling.getNode.getElementType != ScalaTokenTypes.kDEF) &&
             (parent.getPrevSibling == null || parent.getPrevSibling.getPrevSibling == null ||

@@ -106,7 +106,7 @@ class AssignmentAnnotatorTest extends SimpleTestCase {
     }
   }
   
-  def testForComprehensionEnumerator() {
+  def testForComprehensionBinding() {
     assertMatches(messages("for(x <- null; v = A) { v = A }")) {
       case Error("v = A", ReassignmentToVal()) :: Nil =>
     }

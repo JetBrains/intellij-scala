@@ -299,10 +299,10 @@ class ScalaControlFlowBuilder(startInScope: ScalaPsiElement,
     }
   }
 
-  override def visitEnumerator(enum: ScEnumerator) {
-    val rv = enum.rvalue
+  override def visitForBinding(forBinding: ScForBinding) {
+    val rv = forBinding.rvalue
     if (rv != null) rv.accept(this)
-    val pat = enum.pattern
+    val pat = forBinding.pattern
     if (pat != null) pat.accept(this)
   }
 

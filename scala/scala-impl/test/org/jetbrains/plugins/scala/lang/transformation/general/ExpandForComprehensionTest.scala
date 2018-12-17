@@ -98,7 +98,7 @@ class ExpandForComprehensionTest extends TransformerTest(new ExpandForComprehens
     after = "Seq(A).map(_ => 1)"
   )()
 
-  def testWildcardPatternWithEnumerator(): Unit = check(
+  def testWildcardPatternWithForBindings(): Unit = check(
     before = "for (_ <- Seq(A); a = 1; _ = 2; if true; _ = 3) yield 4",
     after = "Seq(A).map(_ => 1).map(a => (a, 2)).withFilter { case (a, _) => true }.map { case (a, _) => (a, 3) }.map { case (a, _) => 4 }"
   )()

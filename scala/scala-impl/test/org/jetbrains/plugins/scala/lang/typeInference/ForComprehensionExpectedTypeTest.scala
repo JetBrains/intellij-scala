@@ -26,7 +26,7 @@ class ForComprehensionExpectedTypeTest extends ScalaLightCodeInsightFixtureTestA
     checkTextHasNoErrors(code)
   }
   
-  def testSCL12832_enumerator(): Unit = doTest(
+  def testSCL12832_forBinding(): Unit = doTest(
     """
       |for {
       |  a <- x

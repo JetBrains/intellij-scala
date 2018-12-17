@@ -14,7 +14,7 @@ import org.jetbrains.plugins.scala.lang.parser.parsing.patterns.Guard
 */
 
 /*
- * Enumerators ::= Generator {semi Enumerator}
+ * Enumerators ::= Generator {semi ForBinding}
  */
 object Enumerators {
 
@@ -34,7 +34,7 @@ object Enumerators {
         case _ if Guard.parse(builder) => true
         case _ => exit = false; true
       }
-      if (!guard && !Enumerator.parse(builder)) exit = false
+      if (!guard && !ForBinding.parse(builder)) exit = false
     }
     enumsMarker.done(ScalaElementType.ENUMERATORS)
     true

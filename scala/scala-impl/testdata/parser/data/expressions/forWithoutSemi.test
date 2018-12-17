@@ -47,7 +47,7 @@ ScalaFile
                   PsiElement(integer)('5')
             PsiElement(;)(';')
             PsiWhiteSpace(' ')
-            Enumerator
+            ForBinding
               ReferencePattern: j
                 PsiElement(identifier)('j')
               PsiWhiteSpace(' ')
