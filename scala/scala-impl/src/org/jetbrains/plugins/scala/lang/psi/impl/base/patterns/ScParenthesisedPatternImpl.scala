@@ -17,7 +17,7 @@ import org.jetbrains.plugins.scala.lang.psi.types.result.TypeResult
 */
 
 class ScParenthesisedPatternImpl(node: ASTNode) extends ScalaPsiElementImpl (node) with ScParenthesisedPattern {
-  override def isIrrefutableFor(t: ScType): Boolean = innerElement.exists(_.isIrrefutableFor(t))
+  override def isIrrefutableFor(t: Option[ScType]): Boolean = innerElement.exists(_.isIrrefutableFor(t))
 
   override def accept(visitor: PsiElementVisitor): Unit = {
     visitor match {

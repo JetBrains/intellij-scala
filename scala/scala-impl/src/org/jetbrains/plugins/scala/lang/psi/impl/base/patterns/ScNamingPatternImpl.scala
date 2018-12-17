@@ -20,7 +20,7 @@ import org.jetbrains.plugins.scala.lang.psi.types.result._
  */
 
 class ScNamingPatternImpl(node: ASTNode) extends ScalaPsiElementImpl(node) with ScNamingPattern {
-  override def isIrrefutableFor(t: ScType): Boolean = named.isIrrefutableFor(t)
+  override def isIrrefutableFor(t: Option[ScType]): Boolean = named.isIrrefutableFor(t)
 
   override def accept(visitor: PsiElementVisitor) {
     visitor match {

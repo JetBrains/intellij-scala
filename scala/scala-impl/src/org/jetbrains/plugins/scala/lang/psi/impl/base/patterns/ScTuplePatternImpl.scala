@@ -18,10 +18,10 @@ import org.jetbrains.plugins.scala.lang.psi.types.api.ParameterizedType
 */
 
 class ScTuplePatternImpl(node: ASTNode) extends ScalaPsiElementImpl (node) with ScTuplePattern {
-  override def isIrrefutableFor(t: ScType): Boolean = t match {
-    case parameterizedType: ParameterizedType if parameterizedType.designator.toString == s"Tuple${subpatterns.length}" =>
+  override def isIrrefutableFor(t: Option[ScType]): Boolean = t match {
+    case Some(parameterizedType: ParameterizedType) if parameterizedType.designator.toString == s"Tuple${subpatterns.length}" =>
       subpatterns.corresponds(parameterizedType.typeArguments) {
-        case (pattern, ty) => pattern.isIrrefutableFor(ty)
+        case (pattern, ty) => pattern.isIrrefutableFor(Some(ty))
       }
     case _ => false
   }

@@ -165,6 +165,9 @@ class ScForStatementImpl(node: ASTNode) extends ScExpressionImplBase(node) with 
       }
     }
 
+    def needsPatternMatchFilter(pattern: ScPattern): Boolean =
+      !pattern.isIrrefutableFor(if (forDisplay) pattern.expectedType else None)
+
     def nextEnumerator(gen: PsiElement): PsiElement = {
       gen.getNextSibling match {
         case guard: ScGuard => guard
@@ -192,7 +195,7 @@ class ScForStatementImpl(node: ASTNode) extends ScExpressionImplBase(node) with 
       enumStream takeWhile { _ != null }
     }
 
-    def appendFunc(funcName: String, args: Seq[(ScPattern, String)])
+    def appendFunc(funcName: String, args: Seq[(ScPattern, String)], forceCases: Boolean = false)
                   (appendBody: => Unit): Unit = {
       val argPatterns = args.map(_._1)
       val needsCase = !forDisplay || args.size > 1  || argPatterns.exists(needsDeconstruction)
@@ -265,6 +268,12 @@ class ScForStatementImpl(node: ASTNode) extends ScExpressionImplBase(node) with 
 
       lazy val curGenName = s"g$${newNameIdx()}"
 
+      if (needsPatternMatchFilter(pattern)) {
+        appendFunc(filterFunc, args, forceCases = true) {
+          resultText ++= "true; case _ => false"
+        }
+      }
+
       nextNonGens foreach {
         case guard: ScGuard =>
           appendFunc(filterFunc, args) {
@@ -289,18 +298,6 @@ class ScForStatementImpl(node: ASTNode) extends ScExpressionImplBase(node) with 
             args :+= Option(assign.pattern).map(p => p -> p.getText).getOrElse((null, s"v$${newNameIdx()}"))
           }
       }
-
-      // todo: fully implement pattern.isIrrefutableFor to handle pattern matching correctly (use collect)
-      // for now, just assume that pattern matching is not needed, so we don't generate so many case clauses
-      /*val patternMatchMightFail = false//!forDisplay || !pattern.isIrrefutableFor(pattern.expectedType)
-      val (funcText, needsWildcardCase) = if (isLastGen) {
-        if (isYield)
-          (if (patternMatchMightFail) "collect" else "map", false)
-        else
-          ("foreach", patternMatchMightFail)
-      } else {
-        ("flatMap", patternMatchMightFail)
-      }*/
 
       val funcText = if (isLastGen)
         if (isYield) "map" else "foreach"

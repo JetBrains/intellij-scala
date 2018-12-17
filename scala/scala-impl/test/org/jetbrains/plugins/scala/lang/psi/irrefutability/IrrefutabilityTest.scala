@@ -41,7 +41,7 @@ class IrrefutabilityTest extends ScalaLightCodeInsightFixtureTestAdapter {
     }
 
     val exprType = expr.`type`().get
-    pattern.isIrrefutableFor(exprType)
+    pattern.isIrrefutableFor(Some(exprType))
   }
 
   def assertIsIrrefutable(@Language("Scala") code: String): Unit = {

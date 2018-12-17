@@ -45,7 +45,7 @@ class ExpandForComprehensionTest extends TransformerTest(new ExpandForComprehens
 
   def testTuplePattern(): Unit = check(
     before = "for((v1, v2) <- Seq(A)) { ??? }",
-    after = "Seq(A).foreach { case (v1, v2) => ??? }"
+    after = "Seq(A).withFilter { case (v1, v2) => true; case _ => false }.foreach { case (v1, v2) => ??? }"
   )()
 
   def testStringInterpolationConsistency(): Unit = check(
@@ -53,27 +53,24 @@ class ExpandForComprehensionTest extends TransformerTest(new ExpandForComprehens
     after = "Seq(A).map(v => s\"${3 + v}\")"
   )()
 
-  /*
-    // not working, see irrefutable comment
-    def testPatternMatching(): Unit = check(
-      before = "for(v: A <- Seq(A, 4)) v.a()",
-      after = "Seq(A, 4).foreach { case v: A => v.a(); case _ => }"
-    )()
+  def testPatternMatching(): Unit = check(
+    before = "for((a: A, b) <- Seq((A, B), 4)) a.a()",
+    after = "Seq((A, B), 4).withFilter { case (a: A, b) => true; case _ => false }.foreach { case (a: A, b) => a.a() }"
+  )()
 
-    def testPatternMatchingWithYield(): Unit = check(
-      before = "for(v: A <- Seq(A, 4)) yield v.a()",
-      after = "Seq(A, 4).collect { case v: A => v.a() }"
-    )()
-  */
+  def testPatternMatchingWithYield(): Unit = check(
+    before = "for((a: A, b) <- Seq((A, B), 4)) yield a.a()",
+    after = "Seq((A, B), 4).withFilter { case (a: A, b) => true; case _ => false }.map { case (a: A, b) => a.a() }"
+  )()
 
   def testPatternMatchingWithCorrectType(): Unit = check(
-    before = "for((v1, v2) <- Seq((A, A))) yield v1.a()",
-    after = "Seq((A, A)).map { case (v1, v2) => v1.a() }"
+    before = "for((v1, v2) <- Seq((A, B))) yield v1.a()",
+    after = "Seq((A, B)).map { case (v1, v2) => v1.a() }"
   )()
 
   def testNotDesugaringInnerForComprehensionInEnumerators(): Unit = check(
-    before = "for (a <- for (b <- List(A)) b) yield a",
-    after = "(for (b <- List(A)) b).map(a => a)"
+    before = "for (a <- for (b <- List(A)) yield b) yield a",
+    after = "(for (b <- List(A)) yield b).map(a => a)"
   )()
 
   def testNotDesugaringInnerForComprehensionsInBody(): Unit = check(

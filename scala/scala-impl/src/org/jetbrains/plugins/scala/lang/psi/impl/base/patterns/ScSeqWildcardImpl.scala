@@ -15,7 +15,7 @@ import org.jetbrains.plugins.scala.lang.psi.types.ScType
  */
 
 class ScSeqWildcardImpl (node: ASTNode) extends ScalaPsiElementImpl(node) with ScSeqWildcard {
-  override def isIrrefutableFor(t: ScType): Boolean = true
+  override def isIrrefutableFor(t: Option[ScType]): Boolean = true
 
   override def toString: String = "Sequence Wildcard"
 

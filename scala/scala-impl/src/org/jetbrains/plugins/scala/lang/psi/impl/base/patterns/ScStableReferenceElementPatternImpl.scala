@@ -17,7 +17,7 @@ import org.jetbrains.plugins.scala.lang.psi.types.result.TypeResult
  */
 
 class ScStableReferenceElementPatternImpl(node : ASTNode) extends ScalaPsiElementImpl(node) with ScStableReferenceElementPattern {
-  override def isIrrefutableFor(t: ScType): Boolean = false
+  override def isIrrefutableFor(t: Option[ScType]): Boolean = false
 
   override def accept(visitor: PsiElementVisitor): Unit = {
     visitor match {

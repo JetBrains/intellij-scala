@@ -35,12 +35,14 @@ class ScTypedPatternImpl(node: ASTNode) extends ScalaPsiElementImpl(node) with S
 
   def isWildcard: Boolean = findChildByType[PsiElement](ScalaTokenTypes.tUNDER) != null
 
-  override def isIrrefutableFor(t: ScType): Boolean = {
-    `type`() match {
-      case Right(tp) if t conforms tp => true
-      case _ => false
+  override def isIrrefutableFor(t: Option[ScType]): Boolean = {
+    for {
+      ty <- t
+      Right(tp) <- Some(`type`())
+    } yield {
+      ty conforms tp
     }
-  }
+  }.getOrElse(false)
 
   override def toString: String = "TypedPattern: " + ifReadAllowed(name)("")
 
