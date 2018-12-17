@@ -403,7 +403,7 @@ public class ScalaIntroduceFieldDialog extends DialogWrapper implements NamedDia
 
 
   protected void doHelpAction() {
-    HelpManager.getInstance().invokeHelp(HelpID.INTRODUCE_VARIABLE);
+    HelpManager.getInstance().invokeHelp(HelpID.INTRODUCE_FIELD);
   }
 
   {
