@@ -2,11 +2,14 @@ package org.jetbrains.plugins.scala.lang.formatting.settings
 
 import java.awt.{Insets, Point}
 import java.io.File
+import java.util.Collections.emptyList
 
 import com.intellij.application.options.CodeStyleAbstractPanel
 import com.intellij.openapi.application.{ApplicationManager, ModalityState}
 import com.intellij.openapi.editor.colors.EditorColorsScheme
+import com.intellij.openapi.editor.ex.EditorEx
 import com.intellij.openapi.editor.highlighter.EditorHighlighter
+import com.intellij.openapi.editor.{Editor, EditorFactory, EditorSettings}
 import com.intellij.openapi.fileChooser.FileChooserDescriptorFactory
 import com.intellij.openapi.fileEditor.FileDocumentManager
 import com.intellij.openapi.fileTypes.FileType
@@ -21,14 +24,17 @@ import com.intellij.uiDesigner.core.{GridConstraints, GridLayoutManager, Spacer}
 import javax.swing.{JComponent, JLabel, JPanel}
 import metaconfig.Configured
 import org.jetbrains.plugins.scala.ScalaFileType
-import org.jetbrains.plugins.scala.lang.formatting.processors.ScalaFmtConfigUtil
 import org.jetbrains.plugins.scala.extensions._
+import org.jetbrains.plugins.scala.lang.formatting.processors.ScalaFmtConfigUtil
 import org.scalafmt.config.Config
 
 import scala.collection.mutable
 
 class ScalaFmtSettingsPanel(val settings: CodeStyleSettings) extends CodeStyleAbstractPanel(settings) {
-  override def getRightMargin: Int = 0
+
+  override val getEditor: Editor = createConfigEditor
+
+  override def getRightMargin = 0
 
   protected override def getTabTitle: String = "Scalafmt"
 
@@ -36,7 +42,7 @@ class ScalaFmtSettingsPanel(val settings: CodeStyleSettings) extends CodeStyleAb
 
   override def getFileType: FileType = ScalaFileType.INSTANCE
 
-  override def getPreviewText: String = ""
+  override def getPreviewText: String = null
 
   private val notifiedPaths = mutable.Set[String]()
 
@@ -155,6 +161,28 @@ class ScalaFmtSettingsPanel(val settings: CodeStyleSettings) extends CodeStyleAb
         balloon.show(new RelativePoint(previewPanel, new Point(previewPanel.getWidth - 10, previewPanel.getHeight)), Balloon.Position.above)
       case _ =>
     }}
+  }
+
+  //copied from CodeStyleAbstractPanel
+  //using non-null getPreviewText breaks setting saving (!!!)
+  private def createConfigEditor: Editor = {
+    val editorFactory = EditorFactory.getInstance
+    val editorDocument = editorFactory.createDocument("")
+    val editor = editorFactory.createEditor(editorDocument).asInstanceOf[EditorEx]
+    fillEditorSettings(editor.getSettings)
+    editor
+  }
+
+  private def fillEditorSettings(editorSettings: EditorSettings): Unit = {
+    editorSettings.setWhitespacesShown(true)
+    editorSettings.setLineMarkerAreaShown(false)
+    editorSettings.setIndentGuidesShown(false)
+    editorSettings.setLineNumbersShown(false)
+    editorSettings.setFoldingOutlineShown(false)
+    editorSettings.setAdditionalColumnsCount(0)
+    editorSettings.setAdditionalLinesCount(1)
+    editorSettings.setUseSoftWraps(false)
+    editorSettings.setSoftMargins(emptyList[Integer])
   }
 
   private var project: Option[Project] = None

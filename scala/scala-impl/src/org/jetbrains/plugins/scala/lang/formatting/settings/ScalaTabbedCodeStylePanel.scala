@@ -40,18 +40,27 @@ class ScalaTabbedCodeStylePanel(currentSettings: CodeStyleSettings, settings: Co
   }
 
   override def apply(settings: CodeStyleSettings): Unit = {
-    super.apply(settings)
-    val scalaCodeStyleSettings = settings.getCustomSettings(classOf[ScalaCodeStyleSettings])
-    scalaCodeStyleSettings.FORMATTER = formatters(useExternalFormatterCheckbox.getSelectedItem.toString)
-    if (scalaCodeStyleSettings.USE_SCALAFMT_FORMATTER) shortenedPanel.exposeApply(settings)
+    val scalaSettings = settings.getCustomSettings(classOf[ScalaCodeStyleSettings])
+    scalaSettings.FORMATTER = formatters(useExternalFormatterCheckbox.getSelectedItem.toString)
+
+    if (scalaSettings.USE_SCALAFMT_FORMATTER)
+      shortenedPanel.exposeApply(settings)
+    else super.apply(settings)
+
+    syncPanels(scalaSettings)
   }
 
   override def resetImpl(settings: CodeStyleSettings): Unit = {
-    super.resetImpl(settings)
-    val scalaCodeStyleSettings = settings.getCustomSettings(classOf[ScalaCodeStyleSettings])
-    useExternalFormatterCheckbox.setSelectedItem(formatters.find(_._2 == scalaCodeStyleSettings.FORMATTER).map(_._1).get)
-    shortenedPanel.exposeResetImpl(settings)
-    if (scalaCodeStyleSettings.USE_SCALAFMT_FORMATTER) toggleSettingsVisibility(scalaCodeStyleSettings.USE_SCALAFMT_FORMATTER)
+    val scalaSettings = settings.getCustomSettings(classOf[ScalaCodeStyleSettings])
+    useExternalFormatterCheckbox.setSelectedItem(formatters.find(_._2 == scalaSettings.FORMATTER).map(_._1).get)
+
+    toggleSettingsVisibility(scalaSettings.USE_SCALAFMT_FORMATTER)
+
+    if (scalaSettings.USE_SCALAFMT_FORMATTER)
+      shortenedPanel.exposeResetImpl(settings)
+    else super.resetImpl(settings)
+
+    syncPanels(scalaSettings)
   }
 
   private def initOuterFormatterPanel(): Unit = {
@@ -86,7 +95,10 @@ class ScalaTabbedCodeStylePanel(currentSettings: CodeStyleSettings, settings: Co
       val scalaSettings = settings.getCustomSettings(classOf[ScalaCodeStyleSettings])
       val oldFormatter = scalaSettings.FORMATTER
       scalaSettings.FORMATTER = formatters(useExternalFormatterCheckbox.getSelectedItem.toString)
-      if (scalaSettings.FORMATTER != oldFormatter) toggleSettingsVisibility(scalaSettings.USE_SCALAFMT_FORMATTER)
+      if (scalaSettings.FORMATTER != oldFormatter) {
+        toggleSettingsVisibility(scalaSettings.USE_SCALAFMT_FORMATTER)
+        syncPanels(scalaSettings)
+      }
     })
     toggleSettingsVisibility(false)
   }
@@ -95,17 +107,20 @@ class ScalaTabbedCodeStylePanel(currentSettings: CodeStyleSettings, settings: Co
     scalaFmtSettingsPanel.onProjectSet(project)
   }
 
+  private def syncPanels(scalaSettings: ScalaCodeStyleSettings): Unit = {
+    val tempSettings = settings.clone()
+    if (scalaSettings.USE_SCALAFMT_FORMATTER) {
+      shortenedPanel.exposeApply(tempSettings)
+      super.resetImpl(tempSettings)
+    } else {
+      super.apply(tempSettings)
+      shortenedPanel.exposeResetImpl(tempSettings)
+    }
+  }
+
   private def toggleSettingsVisibility(useExternalFormatter: Boolean): Unit = {
     innerPanel.setVisible(!useExternalFormatter)
     shortenedPanel.getPanel.setVisible(useExternalFormatter)
-    val tempSettings = settings.clone()
-    if (useExternalFormatter) {
-      apply(tempSettings)
-      shortenedPanel.exposeResetImpl(tempSettings)
-    } else {
-      shortenedPanel.exposeApply(tempSettings)
-      resetImpl(tempSettings)
-    }
   }
 
   private var useExternalFormatterCheckbox: JComboBox[String] = _

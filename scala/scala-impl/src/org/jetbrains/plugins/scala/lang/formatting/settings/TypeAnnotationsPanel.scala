@@ -94,7 +94,7 @@ class TypeAnnotationsPanel(settings: CodeStyleSettings) extends TypeAnnotationsP
 
   override protected def getFileType: FileType = ScalaFileType.INSTANCE
 
-  override protected def getPreviewText: String = ""
+  override protected def getPreviewText: String = null
 
   override protected def getPanel: JComponent = myContent
 
