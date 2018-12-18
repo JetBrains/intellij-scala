@@ -1,11 +1,11 @@
 import sbt._
 
 object Versions {
-  val scalaVersion: String = Scala.latest_2_12
+  val scalaVersion: String = Scala.project
   val scalaBinaryVersion: String = Scala.binary_2_12
   // ATTENTION: when updating sbtVersion also update versions in MockSbt_1_0
   val sbtVersion: String = Sbt.latest
-  val zincVersion = "1.1.1"
+  val zincVersion = "1.2.5"
   val ideaVersion = "183.4284.118"
   val sbtStructureVersion: String = "2018.2.1+4-88400d3f"
   val sbtIdeaShellVersion: String = "2018.3"
@@ -24,20 +24,25 @@ object Versions {
     val binary_2_10 = "2.10"
     val binary_2_11 = "2.11"
     val binary_2_12 = "2.12"
+    val binary_2_13 = "2.13"
 
     // ATTENTION: When changing any of these versions,
     // they currently need to be updated in org.jetbrains.plugins.scala.debugger.ScalaVersion
     val latest_2_9 = "2.9.3"
     val latest_2_10 = "2.10.7"
     val latest_2_11 = "2.11.12"
-    val latest_2_12 = "2.12.6"
+    val latest_2_12 = "2.12.8"
+    val latest_2_13 = "2.13.0-M5"
     val latest: String = latest_2_12
+    /** Version used to build this project. Prefer latest_2_12 unless it causes problems. */
+    val project = "2.12.7"
 
     def binaryVersion(v: String): String =
       if (v.startsWith("2.9")) binary_2_9
       else if (v.startsWith(binary_2_10)) binary_2_10
       else if (v.startsWith(binary_2_11)) binary_2_11
       else if (v.startsWith(binary_2_12)) binary_2_12
+      else if (v.startsWith(binary_2_13)) binary_2_13
       else throw new RuntimeException(s"Unknown Scala binary version: $v -- need to update dependencies.scala?")
   }
 
@@ -47,8 +52,8 @@ object Versions {
     val binary_1_0 = "1.0" // 1.0 is the binary version of sbt 1.x series
 
     val latest_0_12 = "0.12.4"
-    val latest_0_13 = "0.13.17"
-    val latest_1_0 = "1.2.1"
+    val latest_0_13 = "0.13.18"
+    val latest_1_0 = "1.2.7"
     val latest: String = latest_1_0
     // ATTENTION: after adding sbt major version, also update:
     // buildInfoKeys, Sbt.scala and SbtUtil.latestCompatibleVersion
