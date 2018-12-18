@@ -14,14 +14,14 @@ import org.jetbrains.plugins.scala.lang.psi.api.toplevel.ScPackaging
 import org.jetbrains.plugins.scala.lang.psi.api.toplevel.typedef.ScTypeDefinition
 import org.jetbrains.plugins.scala.lang.psi.impl._
 import org.jetbrains.plugins.scala.lang.psi.impl.expr.ScReferenceExpressionImpl
-import org.jetbrains.plugins.scala.lang.psi.impl.toplevel.synthetic.{ScSyntheticClass, SyntheticClasses}
+import org.jetbrains.plugins.scala.lang.psi.impl.toplevel.synthetic.SyntheticClasses
 import org.jetbrains.plugins.scala.lang.psi.types.ScType
-import org.jetbrains.plugins.scala.lang.psi.types.api.Any
 import org.jetbrains.plugins.scala.lang.psi.{ScDeclarationSequenceHolder, ScImportsHolder}
 import org.jetbrains.plugins.scala.lang.resolve.ResolveUtils
 import org.jetbrains.plugins.scala.lang.resolve.processor.precedence.{PrecedenceTypes, SubstitutablePrecedenceHelper}
 import org.jetbrains.plugins.scala.lang.resolve.processor.{BaseProcessor, ResolveProcessor, ResolverEnv}
 import org.jetbrains.plugins.scala.project.ProjectPsiElementExt
+import org.jetbrains.plugins.scala.util.KindProjectorUtil
 import org.jetbrains.plugins.scala.worksheet.FileDeclarationsContributor
 
 import scala.collection.mutable
@@ -37,7 +37,7 @@ trait FileDeclarationsHolder extends PsiElement with ScDeclarationSequenceHolder
                                    lastParent: PsiElement,
                                    place: PsiElement): Boolean = {
     val isScriptProcessed = isScriptFile && !isWorksheetFile
-    
+
     if (isScriptProcessed && !super[ScDeclarationSequenceHolder].processDeclarations(processor,
       state, lastParent, place)) return false
 
@@ -49,11 +49,9 @@ trait FileDeclarationsHolder extends PsiElement with ScDeclarationSequenceHolder
     }
 
     if (place.kindProjectorPluginEnabled) {
-      processor.execute(new ScSyntheticClass("Lambda", Any), state)
-      processor.execute(new ScSyntheticClass("λ", Any), state)
-      processor.execute(new ScSyntheticClass("?", Any), state)
-      processor.execute(new ScSyntheticClass("+?", Any), state)
-      processor.execute(new ScSyntheticClass("-?", Any), state)
+      KindProjectorUtil
+        .syntheticDeclarations(place)
+        .foreach(processor.execute(_, state))
     }
 
     val scope = place.resolveScope
@@ -224,12 +222,12 @@ trait FileDeclarationsHolder extends PsiElement with ScDeclarationSequenceHolder
   protected def implicitlyImportedPackages: Seq[String] = Seq.empty
 
   protected def implicitlyImportedObjects: Seq[String] = Seq.empty
-  
+
   private def predefObjects: Seq[String] = ScalaFileImpl.DefaultImplicitlyImportedObjects
 
   private def predefPackages: Seq[String] = ScalaFileImpl.DefaultImplicitlyImportedPackages
-  
+
   def isScriptFile: Boolean = false
-  
+
   def isWorksheetFile: Boolean = false
 }
