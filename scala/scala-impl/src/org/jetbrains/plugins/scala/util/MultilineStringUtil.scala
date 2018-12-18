@@ -101,8 +101,9 @@ object MultilineStringUtil {
 
   def getMarginChar(element: PsiElement): Char = {
     val calls = findAllMethodCallsOnMLString(element, "stripMargin")
-    val defaultMargin = CodeStyle.getSettings(element.getProject).
-            getCustomSettings(classOf[ScalaCodeStyleSettings]).MARGIN_CHAR
+    val defaultMargin =
+      CodeStyle.getSettings(element.getProject).
+        getCustomSettings(classOf[ScalaCodeStyleSettings]).getMarginChar
 
     if (calls.isEmpty) return defaultMargin
 
@@ -277,7 +278,7 @@ class MultilineStringSettings(project: Project) {
   private val settings = CodeStyle.getSettings(project)
   private val scalaSettings: ScalaCodeStyleSettings = ScalaCodeStyleSettings.getInstance(project)
 
-  val defaultMarginChar = settings.getCustomSettings(classOf[ScalaCodeStyleSettings]).MARGIN_CHAR
+  val defaultMarginChar = settings.getCustomSettings(classOf[ScalaCodeStyleSettings]).getMarginChar
   val useTabs = settings.useTabCharacter(ScalaFileType.INSTANCE)
   val tabSize = settings.getTabSize(ScalaFileType.INSTANCE)
   val regularIndent = settings.getIndentOptions(ScalaFileType.INSTANCE).INDENT_SIZE

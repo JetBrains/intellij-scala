@@ -113,7 +113,7 @@ public class ScalaCodeStyleSettings extends CustomCodeStyleSettings {
 
   //multiline strings support
   public int MULTILINE_STRING_SUPORT = MULTILINE_STRING_ALL;
-  public char MARGIN_CHAR = '|';
+  public String MARGIN_CHAR = "|";
   public boolean MULTI_LINE_QUOTES_ON_NEW_LINE = true;
   public boolean KEEP_MULTI_LINE_QUOTES = true;
   public int MULTI_LINE_STRING_MARGIN_INDENT = 2;
@@ -389,5 +389,9 @@ public class ScalaCodeStyleSettings extends CustomCodeStyleSettings {
 
   public void setDoNotChangeLocalImportsOnOptimize(boolean value) {
     this.DO_NOT_CHANGE_LOCAL_IMPORTS_ON_OPTIMIZE = value;
+  }
+
+  public char getMarginChar() {
+    return MARGIN_CHAR.charAt(0);
   }
 }
