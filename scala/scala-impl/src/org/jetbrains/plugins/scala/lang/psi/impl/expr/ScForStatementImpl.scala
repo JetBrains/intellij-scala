@@ -16,6 +16,7 @@ import org.jetbrains.plugins.scala.lang.psi.types.ScType
 import org.jetbrains.plugins.scala.lang.psi.types.result._
 import org.jetbrains.plugins.scala.lang.resolve.StdKinds
 import org.jetbrains.plugins.scala.lang.resolve.processor.CompletionProcessor
+import org.jetbrains.plugins.scala.project.{ProjectPsiElementExt, ScalaLanguageLevel}
 
 import scala.collection.mutable
 
@@ -158,9 +159,20 @@ class ScForStatementImpl(node: ASTNode) extends ScExpressionImplBase(node) with 
 
     def needsParenthesisAsLambdaArgument(pattern: ScPattern): Boolean = {
       pattern match {
-        case null => false
         case _: ScWildcardPattern => false
         case _: ScReferencePattern => false
+        case _ => true
+      }
+    }
+
+    def needsParenthesisAsNamedPattern(pattern: ScPattern): Boolean = {
+      pattern match {
+        case _: ScWildcardPattern => false
+        case _: ScReferencePattern => false
+        case _: ScTuplePattern => false
+        case _: ScConstructorPattern => false
+        case _: ScParenthesisedPattern => false
+        case _: ScStableReferenceElementPattern => false
         case _ => true
       }
     }
@@ -195,16 +207,16 @@ class ScForStatementImpl(node: ASTNode) extends ScExpressionImplBase(node) with 
       enumStream takeWhile { _ != null }
     }
 
-    def appendFunc(funcName: String, args: Seq[(ScPattern, String)], forceCases: Boolean = false)
+    def appendFunc(funcName: String, args: Seq[(Option[ScPattern], String)], forceCases: Boolean = false, forceBlock: Boolean = false)
                   (appendBody: => Unit): Unit = {
-      val argPatterns = args.map(_._1)
-      val needsCase = !forDisplay || args.size > 1  || argPatterns.exists(needsDeconstruction)
+      val argPatterns = args.flatMap(_._1)
+      val needsCase = !forDisplay || forceCases || args.size > 1  || argPatterns.exists(needsDeconstruction)
       val needsParenthesis = args.size > 1 || !needsCase && argPatterns.exists(needsParenthesisAsLambdaArgument)
 
       resultText ++= "."
       resultText ++= funcName
 
-      resultText ++= (if (needsCase) " { case " else "(")
+      resultText ++= (if (needsCase) " { case " else if (forceBlock) " { " else "(")
 
       if (needsParenthesis)
         resultText ++= "("
@@ -215,7 +227,7 @@ class ScForStatementImpl(node: ASTNode) extends ScExpressionImplBase(node) with 
         if (idx != 0) {
           resultText ++= ", "
         }
-        markPatternHere(p)
+        p.foreach(markPatternHere)
         resultText ++= text
       }
       if (needsParenthesis)
@@ -227,17 +239,16 @@ class ScForStatementImpl(node: ASTNode) extends ScExpressionImplBase(node) with 
       // append the body part
       appendBody
 
-      resultText ++= (if (needsCase) " }" else ")")
+      resultText ++= (if (needsCase || forceBlock) " }" else ")")
     }
 
-
-    def appendGen(gen: ScGenerator, restEnums: Seq[PsiElement], incomingArgs: Seq[(ScPattern, String)]): Unit = {
+    def appendGen(gen: ScGenerator, restEnums: Seq[PsiElement], incomingArgs: Seq[(Option[ScPattern], String)]): Unit = {
       val rvalue = Option(gen.rvalue).map(normalizeUnderscores)
       val rvalueType = rvalue map { _.`type`().getOrAny }
       val isLastGen = !restEnums.exists(_.isInstanceOf[ScGenerator])
 
       val pattern = gen.pattern
-      var args = (pattern, pattern.getText) +: incomingArgs
+      var args = (Some(pattern), pattern.getText) +: incomingArgs
 
       // start with the generator expression
       val generatorNeedsParenthesis = rvalue.exists {
@@ -252,7 +263,7 @@ class ScForStatementImpl(node: ASTNode) extends ScExpressionImplBase(node) with 
         resultText ++= ")"
 
       // add guards and assignment enumerators
-      val hasWithFilter = rvalue.exists(rvalue => {
+      lazy val hasWithFilter = rvalue.exists(rvalue => {
         val rvalueTy = rvalue.`type`().getOrAny
         // try to use withFilter
         // if the type does not have a withFilter method use filter
@@ -262,7 +273,10 @@ class ScForStatementImpl(node: ASTNode) extends ScExpressionImplBase(node) with 
         hasMethod(rvalueTy, "withFilter") ||
           (forDisplay && !hasMethod(rvalueTy, "filter"))
       })
-      val filterFunc = if (hasWithFilter) "withFilter" else "filter"
+
+      // since 2.12 the compiler doesn't rewrite withFilter to filter
+      val filterFunc = if (this.scalaLanguageLevel.exists(_ >= ScalaLanguageLevel.Scala_2_12) || hasWithFilter) "withFilter" else "filter"
+      this.scalaLanguageLevel
 
       val (nextNonGens, nextEnums) = restEnums span { !_.isInstanceOf[ScGenerator] }
 
@@ -274,8 +288,85 @@ class ScForStatementImpl(node: ASTNode) extends ScExpressionImplBase(node) with 
         }
       }
 
+      case class ForBinding(forBinding: ScForBinding) {
+        def rvalue: Option[ScExpression] = Option(forBinding.rvalue)
+
+        def pattern: Option[ScPattern] = Option(forBinding.pattern)
+
+        def isWildCard: Boolean = pattern.exists(_.isInstanceOf[ScWildcardPattern])
+
+        val ownName: Option[String] = pattern collect {
+          case p: ScNamingPattern => p.name
+          case p: ScReferencePattern => p.name
+          case p: ScTypedPattern => p.name
+        }
+
+        val name: String = ownName.getOrElse("v$" + newNameIdx())
+
+        def patternText: String =
+          pattern map { pattern => pattern.getText } getOrElse name
+
+        def rvalueText: String =
+          rvalue map {
+            toTextWithNormalizedUnderscores
+          } getOrElse "???"
+      }
+
+      var forBindings = Seq.empty[ForBinding]
+
+      def printForBindings(): Unit = {
+        forBindings foreach {
+          binding =>
+            val pattern = binding.pattern
+            val patternText = binding.patternText
+
+            resultText ++= "val "
+            if (binding.ownName.isDefined || (forDisplay && binding.isWildCard)) {
+              pattern.foreach(markPatternHere)
+              resultText ++= patternText
+            } else {
+              val needsParenthesis = forDisplay && pattern.exists(needsParenthesisAsNamedPattern)
+              resultText ++= binding.name
+              resultText ++= "@"
+              if (needsParenthesis)
+                resultText ++= "("
+              pattern.foreach(markPatternHere)
+              resultText ++= patternText
+              if (needsParenthesis)
+                resultText ++= ")"
+            }
+            resultText ++= " = "
+            resultText ++= binding.rvalueText
+            resultText ++= "; "
+        }
+      }
+
       nextNonGens foreach {
         case guard: ScGuard =>
+          // flush forBindings
+          if (forBindings.nonEmpty) {
+            appendFunc("map", args, forceBlock = true) {
+              printForBindings()
+
+              // remove wildcards
+              if (forDisplay)
+                args = args.filterNot(_._2 == "_")
+
+              val usedBindings = if (forDisplay) forBindings.filter(!_.isWildCard) else forBindings
+              val needsArgParenthesis = args.length + usedBindings.size != 1
+
+              // if args is empty we return ()
+              if (needsArgParenthesis)
+                resultText ++= "("
+              resultText ++= (args.map(_._2) ++ usedBindings.map(_.name)).mkString(", ")
+              if (needsArgParenthesis)
+                resultText ++= ")"
+
+              args ++= usedBindings map { b => b.pattern -> b.patternText }
+              forBindings = Seq.empty
+            }
+          }
+
           appendFunc(filterFunc, args) {
             resultText ++= guard.expr.map(toTextWithNormalizedUnderscores).getOrElse("???")
             if (!forDisplay) {
@@ -285,7 +376,11 @@ class ScForStatementImpl(node: ASTNode) extends ScExpressionImplBase(node) with 
           }
 
         case forBinding: ScForBinding =>
-          appendFunc("map", args) {
+          // collect all forBindings
+          forBindings :+= ForBinding(forBinding)
+
+          //forBindings ::= forBinding
+          /*appendFunc("map", args) {
             // remove wildcard args
             args = args.filterNot(_._2 == "_")
 
@@ -296,7 +391,7 @@ class ScForStatementImpl(node: ASTNode) extends ScExpressionImplBase(node) with 
               resultText ++= ")"
 
             args :+= Option(forBinding.pattern).map(p => p -> p.getText).getOrElse((null, s"v$${newNameIdx()}"))
-          }
+          }*/
       }
 
       val funcText = if (isLastGen)
@@ -304,7 +399,9 @@ class ScForStatementImpl(node: ASTNode) extends ScExpressionImplBase(node) with 
       else
         "flatMap"
 
-      appendFunc(funcText, args) {
+      appendFunc(funcText, args, forceBlock = forBindings.nonEmpty) {
+        printForBindings()
+
         nextEnums.headOption match {
           case Some(nextGen: ScGenerator) =>
             appendGen(nextGen, nextEnums.tail, List.empty)

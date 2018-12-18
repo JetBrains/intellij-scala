@@ -42,4 +42,21 @@ class ForComprehensionExpectedTypeTest extends ScalaLightCodeInsightFixtureTestA
       |} yield new B
     """.stripMargin
   )
+
+  def test_multiple_enumerators(): Unit = doTest(
+    """
+      |{
+      |  for {
+      |    a <- x
+      |    b = a
+      |    c = x
+      |    d <- c
+      |    if b != null
+      |    if c != null
+      |    e <- c
+      |    f = d
+      |  } yield (a, b, c, d, e, f)
+      |} map { _._6 }
+    """.stripMargin
+  )
 }

@@ -78,19 +78,20 @@ class ExpandForComprehensionTest extends TransformerTest(new ExpandForComprehens
     after = "List(A).map(a => for (b <- List(a)) yield b)"
   )()
 
-  def testMultipleEnumerators(): Unit = check(
+  def testMultipleForBindings(): Unit = check(
     before = "for (a <- List(A); (b, c) = a; d = c) yield d",
-    after = "List(A).map(a => (a, a)).map { case (a, (b, c)) => (a, (b, c), c) }.map { case (a, (b, c), d) => d }",
+    //after = "List(A).map(a => (a, a)).map { case (a, (b, c)) => (a, (b, c), c) }.map { case (a, (b, c), d) => d }",
+    after = "List(A).map { a => val v$1@(b, c) = a; val d = c; d }"
   )()
 
   def testMultipleGuards(): Unit = check(
-    before = "for (a <- List(A); b = a if p(b); c = b) c.v()",
-    after = "List(A).map(a => (a, a)).withFilter { case (a, b) => p(b) }.map { case (a, b) => (a, b, b) }.foreach { case (a, b, c) => c.v() }"
+    before = "for (a <- List(A); b = a if p(b); if p(a); c = b) c.v()",
+    after = "List(A).map { a => val b = a; (a, b) }.withFilter { case (a, b) => p(b) }.withFilter { case (a, b) => p(a) }.foreach { case (a, b) => val c = b; c.v() }"
   )()
 
-  def testForWithMuiltipleUnderscores(): Unit = check(
+  def testForWithMultipleUnderscores(): Unit = check(
     before = "for (_ <- _; _ = _ if _) yield _",
-    after = "(forAnonParam$0, forAnonParam$1, forAnonParam$2, forAnonParam$3) => forAnonParam$0.map(_ => forAnonParam$1).withFilter(_ => forAnonParam$2).map(_ => forAnonParam$3)"
+    after = "(forAnonParam$0, forAnonParam$1, forAnonParam$2, forAnonParam$3) => forAnonParam$0.map { _ => val _ = forAnonParam$1; () }.withFilter(_ => forAnonParam$2).map(_ => forAnonParam$3)"
   )()
 
   def testSimpleWildcardPattern(): Unit = check(
@@ -100,7 +101,8 @@ class ExpandForComprehensionTest extends TransformerTest(new ExpandForComprehens
 
   def testWildcardPatternWithForBindings(): Unit = check(
     before = "for (_ <- Seq(A); a = 1; _ = 2; if true; _ = 3) yield 4",
-    after = "Seq(A).map(_ => 1).map(a => (a, 2)).withFilter { case (a, _) => true }.map { case (a, _) => (a, 3) }.map { case (a, _) => 4 }"
+    //after = "Seq(A).map(_ => 1).map(a => (a, 2)).withFilter { case (a, _) => true }.map { case (a, _) => (a, 3) }.map { case (a, _) => 4 }",
+    after = "Seq(A).map { _ => val a = 1; val _ = 2; a }.withFilter(a => true).map { a => val _ = 3; 4 }"
   )()
 
   def testForWithUnrelatedUnderscores(): Unit = check(
