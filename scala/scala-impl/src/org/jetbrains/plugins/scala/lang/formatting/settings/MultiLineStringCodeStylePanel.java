@@ -92,7 +92,7 @@ public class MultiLineStringCodeStylePanel extends CodeStyleAbstractPanel {
 
   @Override
   protected String getPreviewText() {
-    return "";
+    return null;
   }
 
   @Override
@@ -101,7 +101,8 @@ public class MultiLineStringCodeStylePanel extends CodeStyleAbstractPanel {
     ScalaCodeStyleSettings scalaSettings = settings.getCustomSettings(ScalaCodeStyleSettings.class);
 
     scalaSettings.MULTILINE_STRING_SUPORT = supportLevelChooser.getSelectedIndex();
-    scalaSettings.MARGIN_CHAR = marginCharTextField.getText().charAt(0);
+    String marginCharString = marginCharTextField.getText();
+    scalaSettings.MARGIN_CHAR = marginCharString;
     scalaSettings.MULTI_LINE_QUOTES_ON_NEW_LINE = openingQuotesOnNewCheckBox.isSelected();
     scalaSettings.KEEP_MULTI_LINE_QUOTES = keepOpeningQuotesCheckBox.isSelected();
     scalaSettings.MULTI_LINE_STRING_MARGIN_INDENT = (Integer) marginIndentSpinner.getValue();
@@ -113,7 +114,7 @@ public class MultiLineStringCodeStylePanel extends CodeStyleAbstractPanel {
     ScalaCodeStyleSettings scalaSettings = settings.getCustomSettings(ScalaCodeStyleSettings.class);
 
     if (scalaSettings.MULTILINE_STRING_SUPORT != supportLevelChooser.getSelectedIndex()) return true;
-    if (!(scalaSettings.MARGIN_CHAR + "").equals(marginCharTextField.getText())) return true;
+    if (!scalaSettings.MARGIN_CHAR.equals(marginCharTextField.getText())) return true;
     if (scalaSettings.MULTI_LINE_QUOTES_ON_NEW_LINE != openingQuotesOnNewCheckBox.isSelected()) return true;
     if (scalaSettings.KEEP_MULTI_LINE_QUOTES != keepOpeningQuotesCheckBox.isSelected()) return true;
     if (scalaSettings.MULTI_LINE_STRING_MARGIN_INDENT != (Integer) marginIndentSpinner.getValue()) return true;
@@ -135,7 +136,7 @@ public class MultiLineStringCodeStylePanel extends CodeStyleAbstractPanel {
 
   private void setSettings(ScalaCodeStyleSettings scalaSettings) {
     supportLevelChooser.setSelectedIndex(scalaSettings.MULTILINE_STRING_SUPORT);
-    marginCharTextField.setText(scalaSettings.MARGIN_CHAR + "");
+    marginCharTextField.setText(scalaSettings.MARGIN_CHAR);
     openingQuotesOnNewCheckBox.setSelected(scalaSettings.MULTI_LINE_QUOTES_ON_NEW_LINE);
     keepOpeningQuotesCheckBox.setSelected(scalaSettings.KEEP_MULTI_LINE_QUOTES);
     marginIndentSpinner.setValue(scalaSettings.MULTI_LINE_STRING_MARGIN_INDENT);
