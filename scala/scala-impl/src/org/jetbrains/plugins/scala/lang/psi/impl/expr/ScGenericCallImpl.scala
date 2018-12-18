@@ -17,6 +17,7 @@ import org.jetbrains.plugins.scala.lang.psi.types.result._
 import org.jetbrains.plugins.scala.lang.resolve.MethodTypeProvider._
 import org.jetbrains.plugins.scala.lang.resolve.ScalaResolveResult
 import org.jetbrains.plugins.scala.lang.resolve.processor._
+import org.jetbrains.plugins.scala.macroAnnotations.{Cached, ModCount}
 import org.jetbrains.plugins.scala.util.KindProjectorUtil.PolymorphicLambda
 
 import scala.collection.Seq
@@ -85,31 +86,36 @@ class ScGenericCallImpl(node: ASTNode) extends ScExpressionImplBase(node) with S
       .map(substPolymorphicType)
   }
 
-  protected override def innerType: TypeResult = this match {
+  @Cached(ModCount.getModificationCount, this)
+  private def polymorphicLambdaType: TypeResult = this match {
     case PolymorphicLambda(resTpe) => Right(resTpe)
-    case _ =>
-      val typeResult = referencedExpr.getNonValueType()
-      convertReferencedType(typeResult, isShape = false)
+    case _                         => Failure("Not a polymorphic lambda.")
   }
 
-  def shapeType: TypeResult = this match {
-    case PolymorphicLambda(resTpe) => Right(resTpe)
-    case _ =>
+  protected override def innerType: TypeResult =
+    polymorphicLambdaType.left.flatMap { _ =>
+      val typeResult = referencedExpr.getNonValueType()
+      convertReferencedType(typeResult, isShape = false)
+    }
+
+  def shapeType: TypeResult =
+    polymorphicLambdaType.left.flatMap { _ =>
       val typeResult: TypeResult = referencedExpr match {
         case ref: ScReferenceExpression => ref.shapeType
         case expr => expr.getNonValueType()
       }
       convertReferencedType(typeResult, isShape = true)
-  }
+    }
 
-  def shapeMultiType: Array[TypeResult] = this match {
-    case PolymorphicLambda(resTpe) => Array(Right(resTpe))
-    case _ =>
+  def shapeMultiType: Array[TypeResult] = {
+    val polyLambdaType = polymorphicLambdaType
+    if (polyLambdaType.isLeft) {
       val typeResult: Array[TypeResult] = referencedExpr match {
         case ref: ScReferenceExpression => ref.shapeMultiType
-        case expr => Array(expr.getNonValueType())
+        case expr                       => Array(expr.getNonValueType())
       }
       typeResult.map(convertReferencedType(_, isShape = true))
+    } else Array(polyLambdaType)
   }
 
   override def shapeMultiResolve: Option[Array[ScalaResolveResult]] = {
@@ -119,14 +125,15 @@ class ScGenericCallImpl(node: ASTNode) extends ScExpressionImplBase(node) with S
     }
   }
 
-  def multiType: Array[TypeResult] = this match {
-    case PolymorphicLambda(resTpe) => Array(Right(resTpe))
-    case _ =>
+  def multiType: Array[TypeResult] = {
+    val polyLambdaType = polymorphicLambdaType
+    if (polyLambdaType.isLeft) {
       val typeResult: Array[TypeResult] = referencedExpr match {
         case ref: ScReferenceExpression => ref.multiType
         case expr => Array(expr.getNonValueType())
       }
       typeResult.map(convertReferencedType(_, isShape = false))
+    } else Array(polyLambdaType)
   }
 
   override def multiResolve: Option[Array[ScalaResolveResult]] = {

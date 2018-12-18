@@ -9,8 +9,8 @@ import org.jetbrains.plugins.scala.lang.psi.api.statements.params.ScTypeParam
 import org.jetbrains.plugins.scala.lang.psi.api.toplevel.typedef.{ScObject, ScTypeDefinition}
 import org.jetbrains.plugins.scala.lang.psi.impl.ScalaPsiElementFactory
 import org.jetbrains.plugins.scala.lang.psi.impl.toplevel.synthetic.ScSyntheticClass
-import org.jetbrains.plugins.scala.lang.psi.types.{ScType, ScalaType}
 import org.jetbrains.plugins.scala.lang.psi.types.api.Any
+import org.jetbrains.plugins.scala.lang.psi.types.{ScType, ScalaType}
 import org.jetbrains.plugins.scala.project.ProjectContext
 
 /**
@@ -152,8 +152,7 @@ object KindProjectorUtil {
            |}
          """.stripMargin
 
-      val topLevel     = place.getContainingFile
-      val builderTrait = ScalaPsiElementFactory.createTypeDefinitionWithContext(text, topLevel, topLevel.getFirstChild)
+      val builderTrait = ScalaPsiElementFactory.createTypeDefinitionWithContext(text, place, null)
       ScalaType.designator(builderTrait)
     }
 
