@@ -25,13 +25,15 @@ import com.intellij.openapi.vfs.VfsUtil
 import org.jetbrains.plugins.scala.buildinfo.BuildInfo
 import org.jetbrains.plugins.scala.project.Version
 import org.jetbrains.plugins.scala.project.external.{JdkByName, SdkUtils}
-import org.jetbrains.sbt.{Sbt, SbtUtil}
+import org.jetbrains.sbt.SbtUtil
 import org.jetbrains.sbt.SbtUtil._
 import org.jetbrains.sbt.project.settings.{SbtExecutionSettings, SbtProjectSettings}
 import org.jetbrains.sbt.project.structure.{JvmOpts, SbtOpts}
 import org.jetbrains.sbt.project.{SbtExternalSystemManager, SbtProjectResolver, SbtProjectSystem}
 
 import scala.collection.JavaConverters._
+
+import SbtProcessManager._
 /**
   * Manages the sbt shell process instance for the project.
   * Instantiates an sbt instance when initially requested.
@@ -97,19 +99,22 @@ class SbtProcessManager(project: Project) extends ProjectComponent {
     val debugConnection = if (sbtSettings.shellDebugMode) Option(addDebugParameters(javaParameters)) else None
 
     val projectSbtVersion = detectSbtVersion(workingDir, launcher)
+    val latestCompatibleSbtVersion = SbtUtil.latestCompatibleVersion(projectSbtVersion)
 
     // to use the plugin injection command, we may have to override older sbt versions where possible
     val shouldUpgradeSbtVersion =
       sbtSettings.allowSbtVersionOverride &&
-        projectSbtVersion >= Version("1.0.0") &&
-        projectSbtVersion < Sbt.LatestVersion
+        projectSbtVersion >= mayUpgradeSbtVersion &&
+        projectSbtVersion < latestCompatibleSbtVersion
 
     val upgradedSbtVersion =
-      if (shouldUpgradeSbtVersion) SbtUtil.latestCompatibleVersion(projectSbtVersion)
+      if (shouldUpgradeSbtVersion) latestCompatibleSbtVersion
       else projectSbtVersion
 
     val autoPluginsSupported = upgradedSbtVersion >= SbtProjectResolver.sinceSbtVersionShell
-    val addPluginCommandSupported = upgradedSbtVersion >= SbtProcessManager.addPluginCommandVersion
+    val addPluginCommandSupported =
+      upgradedSbtVersion >= addPluginCommandVersion_1 ||
+      upgradedSbtVersion.inRange(addPluginCommandVersion_013, Version("1.0.0"))
 
     val vmParams = javaParameters.getVMParametersList
     vmParams.add("-server")
@@ -392,5 +397,9 @@ object SbtProcessManager {
     * This allows injecting plugins without messing with the user's global directory.
     * https://github.com/sbt/sbt/pull/4211
     */
-  val addPluginCommandVersion = Version("1.2.0")
+  val addPluginCommandVersion_1 = Version("1.2.0")
+  val addPluginCommandVersion_013 = Version("0.13.18")
+
+  /** Minimum project sbt version that is allowed version override. */
+  val mayUpgradeSbtVersion = Version("0.13.0")
 }
