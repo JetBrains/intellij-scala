@@ -67,7 +67,7 @@ object TypeAliasSignature {
     )
 }
 
-class Signature(val name: String,
+class Signature(_name: String,
                 private val typesEval: Seq[Seq[() => ScType]],
                 private val tParams: Seq[TypeParameter],
                 val substitutor: ScSubstitutor,
@@ -75,6 +75,8 @@ class Signature(val name: String,
                 val hasRepeatedParam: Array[Int] = Array.empty) extends ProjectContextOwner {
 
   override implicit def projectContext: ProjectContext = namedElement
+
+  val name: String = ScalaNamesUtil.clean(_name)
 
   val paramClauseSizes: Array[Int] = typesEval.map(_.length).toArray
   val paramLength: Int = paramClauseSizes.arraySum
@@ -93,7 +95,7 @@ class Signature(val name: String,
 
     paramLength == other.paramLength &&
       isField == other.isField &&
-      ScalaNamesUtil.equivalent(name, other.name) &&
+      name == other.name &&
       typeParamsLength == other.typeParamsLength &&
       (javaErasedEquiv(other) || paramTypesEquiv(other))
   }
@@ -186,9 +188,7 @@ class Signature(val name: String,
    * Use it, while building class hierarchy.
    * Because for class hierarch def foo(): Int is the same thing as def foo: Int and val foo: Int.
    */
-  def simpleHashCode: Int = {
-    ScalaNamesUtil.clean(name).hashCode
-  }
+  def simpleHashCode: Int = name.hashCode
 
   def isJava: Boolean = false
 

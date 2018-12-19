@@ -563,7 +563,7 @@ object TypeDefinitionMembers {
     with NodesIteratorFilteredOps[Signature] {
 
     protected def checkName(s: Signature, nameHint: String): Boolean =
-      nameHint.isEmpty || ScalaNamesUtil.clean(s.name) == nameHint || syntheticPropertyMethods(nameHint, s).nonEmpty
+      nameHint.isEmpty || s.name == nameHint || syntheticPropertyMethods(nameHint, s).nonEmpty
   }
 
   private implicit class TypeNodeIteratorOps(override val iterator: Iterator[MixinNodes.Node[PsiNamedElement]]) extends AnyVal
