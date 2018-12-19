@@ -36,28 +36,8 @@ class ScConstructorPatternImpl(node: ASTNode) extends ScalaPsiElementImpl (node)
 
   override def subpatterns: Seq[ScPattern] = if (args != null) args.patterns else Seq.empty
 
-  override def isIrrefutableFor(t: Option[ScType]): Boolean = {
-    for {
-      ty <- t
-      resolveResult <- ref.bind()
-      if resolveResult.name == "unapply"
-      unapply@(_x: ScFunction) <- Option(resolveResult.getElement)
-      caseClass <- Option(unapply.syntheticCaseClass)
-      (clazz: ScClass, substitutor) <- ty.extractClassType
-      if clazz.isCase && clazz == caseClass
-      constr <- clazz.constructor
-      params = constr.parameterList.clauses.headOption.map(_.parameters).getOrElse(Seq.empty)
-      if params.length == subpatterns.length
-    } yield {
-      subpatterns zip params forall {
-        case (pattern, param) =>
-          val paramType = param.`type`().getOrElse {
-            return false
-          }
-          pattern.isIrrefutableFor(Some(substitutor(paramType)))
-      }
-    }
-  }.getOrElse(false)
+  override def isIrrefutableFor(t: Option[ScType]): Boolean =
+    ScConstructorPattern.isIrrefutable(t, ref, subpatterns)
 
   override def `type`(): TypeResult = {
     import ScSubstitutor.bind

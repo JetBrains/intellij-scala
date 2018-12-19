@@ -20,7 +20,6 @@ class IrrefutabilityTest extends ScalaLightCodeInsightFixtureTestAdapter {
   }
 
   private def isIrrefutable(@Language("Scala") code: String): Boolean = {
-    Some
     val testCode =
       s"""
         |{
@@ -127,6 +126,8 @@ class IrrefutabilityTest extends ScalaLightCodeInsightFixtureTestAdapter {
   }
 
   def testInfixPattern(): Unit = {
+    assertIsIrrefutable("::(A, Nil) match { case a :: rest => }")
+
     assertIsNotIrrefutable("List(A, A) match { case a +: b => }")
   }
 
