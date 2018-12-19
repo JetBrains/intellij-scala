@@ -8,10 +8,12 @@ import com.intellij.lang.ASTNode
 import com.intellij.openapi.progress.ProcessCanceledException
 import com.intellij.psi._
 import com.intellij.psi.scope._
+import org.jetbrains.plugins.scala.extensions.PsiElementExt
 import org.jetbrains.plugins.scala.lang.lexer.ScalaTokenTypes
 import org.jetbrains.plugins.scala.lang.psi.api.base.patterns._
 import org.jetbrains.plugins.scala.lang.psi.api.expr._
 import org.jetbrains.plugins.scala.lang.psi.impl.ScalaCode._
+import org.jetbrains.plugins.scala.lang.psi.impl.expr.ScForStatementImpl._
 import org.jetbrains.plugins.scala.lang.psi.types.ScType
 import org.jetbrains.plugins.scala.lang.psi.types.result._
 import org.jetbrains.plugins.scala.lang.resolve.StdKinds
@@ -76,8 +78,6 @@ class ScForStatementImpl(node: ASTNode) extends ScExpressionImplBase(node) with 
           Some(pattern)
         case _ if e.getTextLength <= org.getTextLength =>
           findPatternElement(e.getParent, org)
-        case p =>
-          None
       }
     }
 
@@ -136,7 +136,6 @@ class ScForStatementImpl(node: ASTNode) extends ScExpressionImplBase(node) with 
               expr
             case underscoreIndices =>
               val copyOfExpr = expr.copy().asInstanceOf[ScExpression]
-              val indices = underscoreIndices
               for {
                 (underscore, Some(index)) <- allUnderscores(copyOfExpr) zip underscoreIndices
                 name = underscoreName(index)
@@ -148,68 +147,13 @@ class ScForStatementImpl(node: ASTNode) extends ScExpressionImplBase(node) with 
           }
       }
     }
+
     def toTextWithNormalizedUnderscores(expr: ScExpression): String = {
       normalizeUnderscores(expr).getText
     }
 
-    def hasMethod(ty: ScType, methodName: String): Boolean = {
-      val processor = new CompletionProcessor(StdKinds.methodRef, this, isImplicit = true) {
-        var found = false
-        override protected def execute(namedElement: PsiNamedElement)
-                                      (implicit state: ResolveState): Boolean = {
-          super.execute(namedElement)
-          found = !levelSet.isEmpty
-          !found
-        }
-
-        override protected val forName = Some(methodName)
-      }
-      processor.processType(ty, this)
-      processor.found
-    }
-
-    def needsDeconstruction(pattern: ScPattern): Boolean = {
-      pattern match {
-        case null => false
-        case _: ScWildcardPattern => false
-        case _: ScReferencePattern => false
-        case _: ScTypedPattern => false
-        case _ => true
-      }
-    }
-
-    def needsParenthesisAsLambdaArgument(pattern: ScPattern): Boolean = {
-      pattern match {
-        case _: ScWildcardPattern => false
-        case _: ScReferencePattern => false
-        case _ => true
-      }
-    }
-
-    def needsParenthesisAsNamedPattern(pattern: ScPattern): Boolean = {
-      pattern match {
-        case _: ScWildcardPattern => false
-        case _: ScReferencePattern => false
-        case _: ScTuplePattern => false
-        case _: ScConstructorPattern => false
-        case _: ScParenthesisedPattern => false
-        case _: ScStableReferenceElementPattern => false
-        case _ => true
-      }
-    }
-
     def needsPatternMatchFilter(pattern: ScPattern): Boolean =
       !pattern.isIrrefutableFor(if (forDisplay) pattern.expectedType else None)
-
-    def nextEnumerator(gen: PsiElement): PsiElement = {
-      gen.getNextSibling match {
-        case guard: ScGuard => guard
-        case forBinding: ScForBinding => forBinding
-        case gen: ScGenerator => gen
-        case null => null
-        case elem => nextEnumerator(elem)
-      }
-    }
 
     val resultText: StringBuilder = new StringBuilder
     val patternMappings = mutable.Map.empty[ScPattern, Int]
@@ -219,17 +163,8 @@ class ScForStatementImpl(node: ASTNode) extends ScExpressionImplBase(node) with 
         patternMappings += pattern -> resultText.length
     }
 
-    val firstGen = enumerators.flatMap(_.generators.headOption) getOrElse {
-      return None
-    }
-
-    val enums = {
-      lazy val enumStream: Stream[PsiElement] = firstGen #:: enumStream.map(nextEnumerator)
-      enumStream takeWhile { _ != null }
-    }
-
-    def appendFunc(funcName: String, args: Seq[(Option[ScPattern], String)], forceCases: Boolean = false, forceBlock: Boolean = false)
-                  (appendBody: => Unit): Unit = {
+    def appendFunc[R](funcName: String, args: Seq[(Option[ScPattern], String)], forceCases: Boolean = false, forceBlock: Boolean = false)
+                  (appendBody: => R): R = {
       val argPatterns = args.flatMap(_._1)
       val needsCase = !forDisplay || forceCases || args.size > 1  || argPatterns.exists(needsDeconstruction)
       val needsParenthesis = args.size > 1 || !needsCase && argPatterns.exists(needsParenthesisAsLambdaArgument)
@@ -258,18 +193,19 @@ class ScForStatementImpl(node: ASTNode) extends ScExpressionImplBase(node) with 
       resultText ++= " "
 
       // append the body part
-      appendBody
+      val ret = appendBody
 
       resultText ++= (if (needsCase || forceBlock) " }" else ")")
+      ret
     }
 
-    def appendGen(gen: ScGenerator, restEnums: Seq[PsiElement], incomingArgs: Seq[(Option[ScPattern], String)]): Unit = {
+    def appendGen(gen: ScGenerator, restEnums: Seq[PsiElement]): Unit = {
       val rvalue = Option(gen.rvalue).map(normalizeUnderscores)
-      val rvalueType = rvalue map { _.`type`().getOrAny }
       val isLastGen = !restEnums.exists(_.isInstanceOf[ScGenerator])
 
       val pattern = gen.pattern
-      var args = (Some(pattern), pattern.getText) +: incomingArgs
+      type Arg = (Option[ScPattern], String)
+      var initialArg = Seq(Some(pattern) -> pattern.getText)
 
       // start with the generator expression
       val generatorNeedsParenthesis = rvalue.exists {
@@ -277,6 +213,7 @@ class ScForStatementImpl(node: ASTNode) extends ScExpressionImplBase(node) with 
           val inParenthesis = code"($rvalue).foo".getFirstChild.asInstanceOf[ScParenthesisedExpr]
           ScalaPsiUtil.needParentheses(inParenthesis, inParenthesis.innerElement.get)
       }
+
       if (generatorNeedsParenthesis)
         resultText ++= "("
       resultText ++= rvalue.map(_.getText).getOrElse("???")
@@ -297,14 +234,9 @@ class ScForStatementImpl(node: ASTNode) extends ScExpressionImplBase(node) with 
 
       // since 2.12 the compiler doesn't rewrite withFilter to filter
       val filterFunc = if (this.scalaLanguageLevel.exists(_ >= ScalaLanguageLevel.Scala_2_12) || hasWithFilter) "withFilter" else "filter"
-      this.scalaLanguageLevel
-
-      val (nextNonGens, nextEnums) = restEnums span { !_.isInstanceOf[ScGenerator] }
-
-      lazy val curGenName = s"g$${newNameIdx()}"
 
       if (needsPatternMatchFilter(pattern)) {
-        appendFunc(filterFunc, args, forceCases = true) {
+        appendFunc(filterFunc, initialArg, forceCases = true) {
           resultText ++= "true; case _ => false"
         }
       }
@@ -333,9 +265,7 @@ class ScForStatementImpl(node: ASTNode) extends ScExpressionImplBase(node) with 
           } getOrElse "???"
       }
 
-      var forBindings = Seq.empty[ForBinding]
-
-      def printForBindings(): Unit = {
+      def printForBindings(forBindings: Seq[ForBinding]): Unit = {
         forBindings foreach {
           binding =>
             val pattern = binding.pattern
@@ -362,57 +292,51 @@ class ScForStatementImpl(node: ASTNode) extends ScExpressionImplBase(node) with 
         }
       }
 
-      nextNonGens foreach {
-        case guard: ScGuard =>
-          // flush forBindings
-          if (forBindings.nonEmpty) {
-            appendFunc("map", args, forceBlock = true) {
-              printForBindings()
+      // before a guard can be printed, all forBindings have to be mapped into the argument tuple
+      def printForBindingMap(forBindings: Seq[ForBinding], args: Seq[Arg]): Seq[Arg] = {
+        if (forBindings.nonEmpty) {
+          appendFunc("map", args, forceBlock = true) {
+            printForBindings(forBindings)
 
-              // remove wildcards
-              if (forDisplay)
-                args = args.filterNot(_._2 == "_")
+            // remove wildcards
+            val argsWithoutWildcards = args.filterNot(_._2 == "_")
 
-              val usedBindings = if (forDisplay) forBindings.filter(!_.isWildCard) else forBindings
-              val needsArgParenthesis = args.length + usedBindings.size != 1
+            val usedBindings = if (forDisplay) forBindings.filter(!_.isWildCard) else forBindings
+            val needsArgParenthesis = argsWithoutWildcards.length + usedBindings.size != 1
 
-              // if args is empty we return ()
-              if (needsArgParenthesis)
-                resultText ++= "("
-              resultText ++= (args.map(_._2) ++ usedBindings.map(_.name)).mkString(", ")
-              if (needsArgParenthesis)
-                resultText ++= ")"
-
-              args ++= usedBindings map { b => b.pattern -> b.patternText }
-              forBindings = Seq.empty
-            }
-          }
-
-          appendFunc(filterFunc, args) {
-            resultText ++= guard.expr.map(toTextWithNormalizedUnderscores).getOrElse("???")
-            if (!forDisplay) {
-              // make sure the result type is Boolean to support type checking
-              resultText ++= "; true"
-            }
-          }
-
-        case forBinding: ScForBinding =>
-          // collect all forBindings
-          forBindings :+= ForBinding(forBinding)
-
-          //forBindings ::= forBinding
-          /*appendFunc("map", args) {
-            // remove wildcard args
-            args = args.filterNot(_._2 == "_")
-
-            if (args.nonEmpty)
+            // if args is empty we return ()
+            if (needsArgParenthesis)
               resultText ++= "("
-            resultText ++= (args.map(_._2) :+ Option(forBinding.rvalue).map(toTextWithNormalizedUnderscores).getOrElse("???")).mkString(", ")
-            if (args.nonEmpty)
+            resultText ++= (argsWithoutWildcards.map(_._2) ++ usedBindings.map(_.name)).mkString(", ")
+            if (needsArgParenthesis)
               resultText ++= ")"
 
-            args :+= Option(forBinding.pattern).map(p => p -> p.getText).getOrElse((null, s"v$${newNameIdx()}"))
-          }*/
+            argsWithoutWildcards ++ usedBindings.map(b => b.pattern -> b.patternText)
+          }
+        } else args
+      }
+
+      val (forBindingsAndGuards, nextEnums) = restEnums span { !_.isInstanceOf[ScGenerator] }
+
+      val (forBindingsInGenBody, generatorArgs) = {
+        // accumulate all ForBindings for the next guard or
+        forBindingsAndGuards.foldLeft[(Seq[ForBinding], Seq[Arg])]((Seq.empty, initialArg)) {
+          case ((forBindings, args), forBinding: ScForBinding) =>
+            (forBindings :+ ForBinding(forBinding), args)
+
+          case ((forBindings, args), guard: ScGuard) =>
+            val argsWithBindings = printForBindingMap(forBindings, args)
+
+            appendFunc(filterFunc, argsWithBindings) {
+              resultText ++= guard.expr.map(toTextWithNormalizedUnderscores).getOrElse("???")
+              if (!forDisplay) {
+                // make sure the result type is Boolean to support type checking
+                resultText ++= "; true"
+              }
+            }
+
+            (Seq.empty, argsWithBindings)
+        }
       }
 
       val funcText = if (isLastGen)
@@ -420,12 +344,12 @@ class ScForStatementImpl(node: ASTNode) extends ScExpressionImplBase(node) with 
       else
         "flatMap"
 
-      appendFunc(funcText, args, forceBlock = forBindings.nonEmpty) {
-        printForBindings()
+      appendFunc(funcText, generatorArgs, forceBlock = forBindingsInGenBody.nonEmpty) {
+        printForBindings(forBindingsInGenBody)
 
         nextEnums.headOption match {
           case Some(nextGen: ScGenerator) =>
-            appendGen(nextGen, nextEnums.tail, List.empty)
+            appendGen(nextGen, nextEnums.tail)
           case _ =>
             assert(nextEnums.isEmpty)
 
@@ -441,19 +365,43 @@ class ScForStatementImpl(node: ASTNode) extends ScExpressionImplBase(node) with 
       }
     }
 
+    val firstGen = enumerators.flatMap(_.generators.headOption) getOrElse {
+      return None
+    }
 
-    appendGen(firstGen, enums.tail, List.empty)
-    val desugarizedExprText = resultText.toString
+    val enums = firstGen.withNextSiblings.filter { //that is from PsiElementExt
+      case _: ScGuard | _: ScForBinding | _: ScGenerator => true
+      case _ => false
+    }.toList
+
+    appendGen(firstGen, enums.tail)
+    val desugaredExprText = resultText.toString
     if (underscores.nonEmpty) {
       val lambdaPrefix = underscores.values.map(underscoreName) match {
         case Seq(arg) => arg + " " + `=>` + " "
         case args => args.mkString("(", ", ", ") ") + `=>` + " "
       }
 
-      Some(lambdaPrefix + desugarizedExprText -> patternMappings.toSeq.map { case (p, idx) => (p, idx + lambdaPrefix.length) })
+      Some(lambdaPrefix + desugaredExprText -> patternMappings.toSeq.map { case (p, idx) => (p, idx + lambdaPrefix.length) })
     } else {
-      Some(desugarizedExprText, patternMappings.toSeq)
+      Some(desugaredExprText, patternMappings.toSeq)
     }
+  }
+
+  private def hasMethod(ty: ScType, methodName: String): Boolean = {
+    var found = false
+    val processor: CompletionProcessor= new CompletionProcessor(StdKinds.methodRef, this, isImplicit = true) {
+      override protected def execute(namedElement: PsiNamedElement)
+                                    (implicit state: ResolveState): Boolean = {
+        super.execute(namedElement)
+        found = !levelSet.isEmpty
+        !found
+      }
+
+      override protected val forName = Some(methodName)
+    }
+    processor.processType(ty, this)
+    found
   }
 
   override protected def innerType: TypeResult = {
@@ -471,4 +419,36 @@ class ScForStatementImpl(node: ASTNode) extends ScExpressionImplBase(node) with 
   def getRightParenthesis = Option(findChildByType[PsiElement](ScalaTokenTypes.tRPARENTHESIS))
 
   override def toString: String = "ForStatement"
+}
+
+object ScForStatementImpl {
+  private def needsDeconstruction(pattern: ScPattern): Boolean = {
+    pattern match {
+      case null => false
+      case _: ScWildcardPattern => false
+      case _: ScReferencePattern => false
+      case _: ScTypedPattern => false
+      case _ => true
+    }
+  }
+
+  private def needsParenthesisAsLambdaArgument(pattern: ScPattern): Boolean = {
+    pattern match {
+      case _: ScWildcardPattern => false
+      case _: ScReferencePattern => false
+      case _ => true
+    }
+  }
+
+  private def needsParenthesisAsNamedPattern(pattern: ScPattern): Boolean = {
+    pattern match {
+      case _: ScWildcardPattern => false
+      case _: ScReferencePattern => false
+      case _: ScTuplePattern => false
+      case _: ScConstructorPattern => false
+      case _: ScParenthesisedPattern => false
+      case _: ScStableReferenceElementPattern => false
+      case _ => true
+    }
+  }
 }
