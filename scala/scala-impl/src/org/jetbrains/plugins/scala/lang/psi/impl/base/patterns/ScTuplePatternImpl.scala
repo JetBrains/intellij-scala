@@ -7,10 +7,12 @@ package patterns
 
 import com.intellij.lang.ASTNode
 import com.intellij.psi._
+import org.jetbrains.plugins.scala.extensions.ClassQualifiedName
 import org.jetbrains.plugins.scala.lang.psi.api.ScalaElementVisitor
 import org.jetbrains.plugins.scala.lang.psi.api.base.patterns._
 import org.jetbrains.plugins.scala.lang.psi.types.ScType
 import org.jetbrains.plugins.scala.lang.psi.types.api.ParameterizedType
+import org.jetbrains.plugins.scala.lang.psi.types.api.designator.ScDesignatorType
 
 /** 
 * @author Alexander Podkhalyuzin
@@ -19,7 +21,7 @@ import org.jetbrains.plugins.scala.lang.psi.types.api.ParameterizedType
 
 class ScTuplePatternImpl(node: ASTNode) extends ScalaPsiElementImpl (node) with ScTuplePattern {
   override def isIrrefutableFor(t: Option[ScType]): Boolean = t match {
-    case Some(parameterizedType: ParameterizedType) if parameterizedType.designator.toString == s"Tuple${subpatterns.length}" =>
+    case Some(parameterizedType@ParameterizedType(ScDesignatorType(ClassQualifiedName(qName)), args)) if qName == s"scala.Tuple${subpatterns.length}" =>
       subpatterns.corresponds(parameterizedType.typeArguments) {
         case (pattern, ty) => pattern.isIrrefutableFor(Some(ty))
       }
