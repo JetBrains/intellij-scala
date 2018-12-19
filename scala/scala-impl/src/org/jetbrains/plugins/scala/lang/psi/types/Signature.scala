@@ -90,6 +90,8 @@ class Signature(val name: String,
       !isField(this) ^ isField(other)
     }
 
+    ProgressManager.checkCanceled()
+
     ScalaNamesUtil.equivalent(name, other.name) &&
             ((typeParamsLength == other.typeParamsLength && paramTypesEquiv(other)) ||
               (paramLength == other.paramLength && javaErasedEquiv(other))) && fieldCheck(other)
