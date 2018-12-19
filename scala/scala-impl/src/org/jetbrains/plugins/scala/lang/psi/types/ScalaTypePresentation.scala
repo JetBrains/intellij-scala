@@ -134,7 +134,7 @@ trait ScalaTypePresentation extends api.TypePresentation {
         case (s: Signature, returnType: ScType) if s.namedElement.isInstanceOf[ScTypedDefinition] =>
           implicit val t: ScType = returnType
           val maybeNewElement = s.namedElement match {
-            case _ if s.paramLength.sum > 0 => None
+            case _ if s.paramLength > 0 => None
             case pattern: ScBindingPattern => Some(ScLightBindingPattern(pattern))
             case fieldId: ScFieldId => Some(ScLightFieldId(fieldId))
             case _ => None

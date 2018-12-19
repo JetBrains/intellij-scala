@@ -1557,7 +1557,7 @@ object ScalaPsiUtil {
           case pat: ScBindingPattern =>
             Option(pat.containingClass).exists(_.allSignatures.find(_.name == pat.name + "_=").exists {
               sig =>
-                sig.paramLength.length == 1 && sig.paramLength.head == 1 &&
+                sig.paramClauseSizes === Array(1) &&
                   actualType.conforms(sig.substitutedTypes.head.head.apply())
             })
           case _ => false

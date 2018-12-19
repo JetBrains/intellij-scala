@@ -5,7 +5,7 @@ package types
 
 import java.util.Objects
 
-import com.intellij.ide.highlighter.JavaFileType
+import com.intellij.lang.java.JavaLanguage
 import com.intellij.openapi.progress.ProgressManager
 import com.intellij.psi._
 import com.intellij.psi.util.MethodSignatureUtil
@@ -72,11 +72,12 @@ class Signature(val name: String,
                 private val tParams: Seq[TypeParameter],
                 val substitutor: ScSubstitutor,
                 val namedElement: PsiNamedElement,
-                val hasRepeatedParam: Seq[Int] = Seq.empty) extends ProjectContextOwner {
+                val hasRepeatedParam: Array[Int] = Array.empty) extends ProjectContextOwner {
 
   override implicit def projectContext: ProjectContext = namedElement
 
-  val paramLength: Seq[Int] = typesEval.map(_.length)
+  val paramClauseSizes: Array[Int] = typesEval.map(_.length).toArray
+  val paramLength: Int = paramClauseSizes.arraySum
 
   def substitutedTypes: Seq[Seq[() => ScType]] = typesEval.map(_.map(f => () => substitutor(f()).unpackedType))
 
@@ -84,18 +85,17 @@ class Signature(val name: String,
 
   def typeParamsLength: Int = tParams.length
 
+  private def isField = namedElement.isInstanceOf[PsiField]
+  
   def equiv(other: Signature): Boolean = {
-    def fieldCheck(other: Signature): Boolean = {
-      def isField(s: Signature) = s.namedElement.isInstanceOf[PsiField]
-      !isField(this) ^ isField(other)
-    }
 
     ProgressManager.checkCanceled()
 
-    ScalaNamesUtil.equivalent(name, other.name) &&
-            ((typeParamsLength == other.typeParamsLength && paramTypesEquiv(other)) ||
-              (paramLength == other.paramLength && javaErasedEquiv(other))) && fieldCheck(other)
-
+    paramLength == other.paramLength &&
+      isField == other.isField &&
+      ScalaNamesUtil.equivalent(name, other.name) &&
+      typeParamsLength == other.typeParamsLength &&
+      (javaErasedEquiv(other) || paramTypesEquiv(other))
   }
 
   def javaErasedEquiv(other: Signature): Boolean = {
@@ -119,8 +119,11 @@ class Signature(val name: String,
   def paramTypesEquivExtended(other: Signature, constraints: ConstraintSystem,
                               falseUndef: Boolean): ConstraintsResult = {
 
-    if (paramLength != other.paramLength && !(paramLength.sum == 0 && other.paramLength.sum == 0)) return ConstraintsResult.Left
-    if (hasRepeatedParam != other.hasRepeatedParam) return ConstraintsResult.Left
+    if (paramLength != other.paramLength ||
+        paramLength > 0 && paramClauseSizes =!= other.paramClauseSizes ||
+        hasRepeatedParam =!= other.hasRepeatedParam)
+      return ConstraintsResult.Left
+
     val depParamTypeSubst = depParamTypeSubstitutor(other)
     val unified = other.substitutor.withBindings(typeParams, other.typeParams)
     val clauseIterator = substitutedTypes.iterator
@@ -253,7 +256,7 @@ object PhysicalSignature {
     }))
   }
 
-  def hasRepeatedParam(method: PsiMethod): Seq[Int] = {
+  def hasRepeatedParam(method: PsiMethod): Array[Int] = {
     method.getParameterList match {
       case p: ScParameters =>
         val params = p.params
@@ -263,12 +266,13 @@ object PhysicalSignature {
           if (params(i).isRepeatedParameter) res += i
           i += 1
         }
-        res
+        res.toArray
       case p =>
         val parameters = p.getParameters
-        if (parameters.isEmpty) return Seq.empty
-        if (parameters(parameters.length - 1).isVarArgs) return Seq(parameters.length - 1)
-        Seq.empty
+
+        if (parameters.isEmpty) Array.emptyIntArray
+        else if (parameters(parameters.length - 1).isVarArgs) Array(parameters.length - 1)
+        else Array.emptyIntArray
     }
   }
 
@@ -286,5 +290,5 @@ class PhysicalSignature(val method: PsiMethod, override val substitutor: ScSubst
           method,
           PhysicalSignature.hasRepeatedParam(method)) {
 
-  override def isJava: Boolean = method.getLanguage == JavaFileType.INSTANCE.getLanguage
+  override def isJava: Boolean = method.getLanguage == JavaLanguage.INSTANCE
 }
