@@ -13,6 +13,7 @@ object DebuggerTestUtil {
 
   def enableCompileServer(enable: Boolean): Unit = {
     val compileServerSettings = ScalaCompileServerSettings.getInstance()
+    assert(compileServerSettings != null, "could not get instance of compileServerSettings. Was plugin artifact built before running test? ")
     compileServerSettings.COMPILE_SERVER_ENABLED = enable
     compileServerSettings.COMPILE_SERVER_SHUTDOWN_IDLE = true
     compileServerSettings.COMPILE_SERVER_SHUTDOWN_DELAY = 30
@@ -28,4 +29,4 @@ object DebuggerTestUtil {
     Registry.get("compiler.process.jdk").setValue(jdkHome)
   }
 
-}
+ }
