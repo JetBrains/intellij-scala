@@ -82,6 +82,22 @@ trait ScalaConformance extends api.Conformance {
       }
     }
 
+  private def retryTypeParamsConformance(
+    lhs:         TypeParameterType,
+    rhs:         TypeParameterType,
+    l:           ScType,
+    r:           ScType,
+    constraints: ConstraintSystem
+  ): ConstraintsResult = {
+    val lo = lhs.lowerType
+
+    if (!lhs.lowerType.equiv(lhs)) {
+      val updated = l.updateRecursively { case `lhs` => lo }
+      r.conforms(updated, constraints)
+    }
+    else ConstraintsResult.Left
+  }
+
   private def checkParameterizedType(parametersIterator: Iterator[PsiTypeParameter], args1: scala.Seq[ScType],
                                      args2: scala.Seq[ScType], _constraints: ConstraintSystem,
                                      visited: Set[PsiClass], checkWeak: Boolean): ConstraintsResult = {
@@ -973,17 +989,15 @@ trait ScalaConformance extends api.Conformance {
           val args1 = p.typeArguments
           val args2 = p2.typeArguments
           (des1, des2) match {
-            case (owner1: TypeParameterType, _: TypeParameterType) =>
-              if (des1 equiv des2) {
+            case (lhs: TypeParameterType, rhs: TypeParameterType) =>
+              if (des1.equiv(des2)) {
                 if (args1.length != args2.length) {
                   result = ConstraintsResult.Left
                 } else {
-                  result = checkParameterizedType(owner1.typeParameters.map(_.psiTypeParameter).iterator, args1, args2,
+                  result = checkParameterizedType(lhs.typeParameters.map(_.psiTypeParameter).iterator, args1, args2,
                     constraints, visited, checkWeak)
                 }
-              } else {
-                result = ConstraintsResult.Left
-              }
+              } else result = retryTypeParamsConformance(lhs, rhs, l, r, constraints)
             case (UndefinedOrWildcard(_, _), UndefinedOrWildcard(typeParameter, addBound)) =>
               (if (args1.length != args2.length) findDiffLengthArgs(l, args2.length) else Some((args1, des1))) match {
                 case Some((aArgs, aType)) =>

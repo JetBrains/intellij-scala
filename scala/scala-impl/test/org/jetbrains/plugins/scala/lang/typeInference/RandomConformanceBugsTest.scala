@@ -71,4 +71,20 @@ class RandomConformanceBugsTest extends ScalaLightCodeInsightFixtureTestAdapter 
         |}
       """.stripMargin
     )
+
+  def testSCL14745(): Unit =
+    checkTextHasNoErrors(
+      """
+        |trait Category[F[_, _]] {
+        |  def compose[A, B, C](f: F[B, C], g: F[A, B]): F[A, C]
+        |}
+        |
+        |object test {
+        |  implicit class OpticOps[T[_, _], A, B](val tab: T[A, B]) extends AnyVal{
+        |    def >>>[Q[x, y] >: T[x, y], C](qbc: Q[B, C])(implicit cat: Category[Q]): Q[A, C] =
+        |      cat.compose(qbc, tab)
+        |  }
+        |}
+      """.stripMargin
+    )
 }
