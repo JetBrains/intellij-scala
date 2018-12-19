@@ -224,6 +224,25 @@ package object extensions {
     def toInt: Int = if (b) 1 else 0
   }
 
+  implicit class IntArrayExt(val array: Array[Int]) extends AnyVal {
+    import java.util.Arrays
+
+    def ===(other: Array[Int]): Boolean = Arrays.equals(array, other)
+
+    def =!=(other: Array[Int]): Boolean = !Arrays.equals(array, other)
+
+    def arraySum: Int = {
+      var idx, res = 0
+      while (idx < array.length) {
+        res += array(idx)
+        idx += 1
+      }
+      res
+    }
+
+    def hash: Int = Arrays.hashCode(array)
+  }
+
   implicit class StringExt(val string: String) extends AnyVal {
 
     def parenthesize(needParenthesis: Boolean = true): String =
