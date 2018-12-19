@@ -353,7 +353,7 @@ object ScalaPsiUtil {
 
         expr match {
           case f: ScForStatement =>
-            f.getDesugarizedExpr match {
+            f.getDesugaredExpr() match {
               case Some(e) => res = res ++ getExprImports(e)
               case _ =>
             }

@@ -97,8 +97,7 @@ trait ScPattern extends ScalaPsiElement with Typeable {
     Some(getContext)
       .collect { case gen: ScGenerator => gen.getContext.getContext }
       .collect { case fr: ScForStatement => fr }
-      .flatMap { _.getDesugarizedExprWithPatternMapping }
-      .flatMap { case (_, mapping) => mapping.get(this) }
+      .flatMap { _.getDesugaredPatternAnalog(this) }
   }
 }
 

@@ -16,6 +16,7 @@ import org.jetbrains.plugins.scala.lang.psi.types.ScType
 import org.jetbrains.plugins.scala.lang.psi.types.result._
 import org.jetbrains.plugins.scala.lang.resolve.StdKinds
 import org.jetbrains.plugins.scala.lang.resolve.processor.CompletionProcessor
+import org.jetbrains.plugins.scala.macroAnnotations.{Cached, ModCount}
 import org.jetbrains.plugins.scala.project.{ProjectPsiElementExt, ScalaLanguageLevel}
 
 import scala.collection.mutable
@@ -25,13 +26,33 @@ import scala.collection.mutable
   *         Date: 06.03.2008
   */
 class ScForStatementImpl(node: ASTNode) extends ScExpressionImplBase(node) with ScForStatement {
-
   def isYield: Boolean = findChildByType[PsiElement](ScalaTokenTypes.kYIELD) != null
 
   def enumerators: Option[ScEnumerators] = findChild(classOf[ScEnumerators])
 
   // Binding patterns in reverse order
   def patterns: Seq[ScPattern] = enumerators.toSeq.flatMap(_.patterns)
+
+  override def getDesugaredExpr(forDisplay: Boolean): Option[ScExpression] = {
+    val result =
+      if (forDisplay) generateDesugaredExprWithPatternMapping(forDisplay = true)
+      else getDesugarizedExprWithPatternMapping
+
+    result map { case (expr, _) => expr }
+  }
+
+
+  override def getDesugaredPatternAnalog(pattern: ScPattern): Option[ScPattern] = {
+    getDesugarizedExprWithPatternMapping flatMap {
+      case (_, mapping) =>
+        mapping.get(pattern)
+    }
+  }
+
+  // we only really need to cache the version that is used by type inference
+  @Cached(ModCount.getBlockModificationCount, this)
+  private def getDesugarizedExprWithPatternMapping: Option[(ScExpression, Map[ScPattern, ScPattern])] =
+    generateDesugaredExprWithPatternMapping(forDisplay = false)
 
   override def processDeclarations(processor: PsiScopeProcessor,
                                    state: ResolveState,
@@ -48,7 +69,7 @@ class ScForStatementImpl(node: ASTNode) extends ScExpressionImplBase(node) with 
 
   protected def bodyToText(expr: ScExpression): String = expr.getText
 
-  def generateDesugarizedExprWithPatternMapping(forDisplay: Boolean): Option[(ScExpression, Map[ScPattern, ScPattern])] = {
+  private def generateDesugaredExprWithPatternMapping(forDisplay: Boolean): Option[(ScExpression, Map[ScPattern, ScPattern])] = {
     def findPatternElement(e: PsiElement, org: ScPattern): Option[ScPattern] = {
       Some(e) flatMap {
         case pattern: ScPattern if pattern.getTextLength == org.getTextLength =>
@@ -60,7 +81,7 @@ class ScForStatementImpl(node: ASTNode) extends ScExpressionImplBase(node) with 
       }
     }
 
-    generateDesugarizedExprTextWithPatternMapping(forDisplay) flatMap {
+    generateDesugaredExprTextWithPatternMapping(forDisplay) flatMap {
       case (desugaredText, mapping) =>
         try {
           ScalaPsiElementFactory.createOptionExpressionWithContextFromText(desugaredText, this.getContext, this) map {
@@ -81,7 +102,7 @@ class ScForStatementImpl(node: ASTNode) extends ScExpressionImplBase(node) with 
     }
   }
 
-  private def generateDesugarizedExprTextWithPatternMapping(forDisplay: Boolean): Option[(String, Seq[(ScPattern, Int)])] = {
+  private def generateDesugaredExprTextWithPatternMapping(forDisplay: Boolean): Option[(String, Seq[(ScPattern, Int)])] = {
     var _nextNameIdx = 0
     def newNameIdx(): String = {
       _nextNameIdx += 1
@@ -436,7 +457,7 @@ class ScForStatementImpl(node: ASTNode) extends ScExpressionImplBase(node) with 
   }
 
   override protected def innerType: TypeResult = {
-    getDesugarizedExpr flatMap {
+    getDesugaredExpr() flatMap {
       case f: ScFunctionExpr => f.result
       case e => Some(e)
     } match {

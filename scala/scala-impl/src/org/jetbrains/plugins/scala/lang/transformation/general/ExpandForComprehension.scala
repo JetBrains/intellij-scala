@@ -21,11 +21,6 @@ class ExpandForComprehension extends AbstractTransformer {
       desugared(e).foreach(e.replace)
   }
 
-  private def desugared(e: ScForStatement)(implicit project: ProjectContext): Option[PsiElement] = {
-    e.generateDesugarizedExprWithPatternMapping(forDisplay = true) map {
-      case (desugaredExpr, _) =>
-        //clean(desugaredExpr)
-        desugaredExpr
-    }
-  }
+  private def desugared(e: ScForStatement)(implicit project: ProjectContext): Option[PsiElement] =
+    e.getDesugaredExpr(forDisplay = true)
 }

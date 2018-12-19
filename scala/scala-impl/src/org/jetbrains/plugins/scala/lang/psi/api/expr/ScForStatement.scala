@@ -13,21 +13,13 @@ import org.jetbrains.plugins.scala.macroAnnotations.{Cached, ModCount}
   *         Date: 06.03.2008
   */
 trait ScForStatement extends ScExpression {
-  def getDesugarizedExpr : Option[ScExpression] = {
-    getDesugarizedExprWithPatternMapping map {
-      case (desugaredExpr, _) => desugaredExpr
-    }
-  }
-
-  @Cached(ModCount.getBlockModificationCount, this)
-  def getDesugarizedExprWithPatternMapping: Option[(ScExpression, Map[ScPattern, ScPattern])] =
-    generateDesugarizedExprWithPatternMapping(forDisplay = false)
-
   /**
-    * @param forDisplay true if the desugaring is intended for DesugarForIntention,
+    * @param forDisplay true if the desugaring is intended for being shown to the user,
     *                   false if it is intented for the type system.
     */
-  def generateDesugarizedExprWithPatternMapping(forDisplay: Boolean): Option[(ScExpression, Map[ScPattern, ScPattern])]
+  def getDesugaredExpr(forDisplay: Boolean = false) : Option[ScExpression]
+
+  def getDesugaredPatternAnalog(pattern: ScPattern): Option[ScPattern]
 
   def isYield: Boolean
 
