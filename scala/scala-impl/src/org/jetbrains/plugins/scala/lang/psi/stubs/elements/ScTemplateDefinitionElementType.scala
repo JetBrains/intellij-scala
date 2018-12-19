@@ -10,11 +10,14 @@ import com.intellij.psi.stubs.{IndexSink, StubElement, StubInputStream, StubOutp
 import com.intellij.psi.util.PsiTreeUtil
 import com.intellij.psi.{PsiClass, PsiElement}
 import org.jetbrains.plugins.scala.extensions._
+import org.jetbrains.plugins.scala.lang.lexer.ScalaModifier
+import org.jetbrains.plugins.scala.lang.lexer.ScalaModifier.IMPLICIT
 import org.jetbrains.plugins.scala.lang.psi.api.expr.{ScAnnotation, ScNewTemplateDefinition}
 import org.jetbrains.plugins.scala.lang.psi.api.toplevel.typedef._
 import org.jetbrains.plugins.scala.lang.psi.impl.expr.ScNewTemplateDefinitionImpl
 import org.jetbrains.plugins.scala.lang.psi.impl.toplevel.typedef.{ScClassImpl, ScObjectImpl, ScTraitImpl}
-import org.jetbrains.plugins.scala.lang.psi.stubs.impl.ScTemplateDefinitionStubImpl
+import org.jetbrains.plugins.scala.lang.psi.stubs.impl.ScCompiledClass.sourceOrCompiled
+import org.jetbrains.plugins.scala.lang.psi.stubs.impl.{ScCompiledClass, ScTemplateDefinitionStubImpl}
 import org.jetbrains.plugins.scala.lang.refactoring.util.ScalaNamesUtil
 
 /**
@@ -161,25 +164,44 @@ abstract class ScTemplateDefinitionElementType[TypeDef <: ScTemplateDefinition](
   }
 }
 
+//todo: (2019.1) remove ScCompiledClass mixin after `instanceOf PsiCompiledElement` check will be removed in CompilerPathsEx.findClassFileInOutput
 object ClassDefinition extends ScTemplateDefinitionElementType[ScClass]("class definition") {
 
-  override def createElement(node: ASTNode) = new ScClassImpl(null, null, node)
+  override def createElement(node: ASTNode): ScClass = sourceOrCompiled(node)(
+    new ScClassImpl(null, null, node),
+    new ScClassImpl(null, null, node) with ScCompiledClass
+  )
 
-  override def createPsi(stub: ScTemplateDefinitionStub[ScClass]) = new ScClassImpl(stub, this, null)
+  override def createPsi(stub: ScTemplateDefinitionStub[ScClass]): ScClass = sourceOrCompiled(stub)(
+    new ScClassImpl(stub, this, null),
+    new ScClassImpl(stub, this, null) with ScCompiledClass
+  )
 }
 
 object TraitDefinition extends ScTemplateDefinitionElementType[ScTrait]("trait definition") {
 
-  override def createElement(node: ASTNode) = new ScTraitImpl(null, null, node)
+  override def createElement(node: ASTNode): ScTrait = sourceOrCompiled(node)(
+    new ScTraitImpl(null, null, node),
+    new ScTraitImpl(null, null, node) with ScCompiledClass
+  )
 
-  override def createPsi(stub: ScTemplateDefinitionStub[ScTrait]) = new ScTraitImpl(stub, this, null)
+  override def createPsi(stub: ScTemplateDefinitionStub[ScTrait]): ScTrait = sourceOrCompiled(stub)(
+    new ScTraitImpl(stub, this, null),
+    new ScTraitImpl(stub, this, null) with ScCompiledClass
+  )
 }
 
 object ObjectDefinition extends ScTemplateDefinitionElementType[ScObject]("object definition") {
 
-  override def createElement(node: ASTNode) = new ScObjectImpl(null, null, node)
+  override def createElement(node: ASTNode): ScObject = sourceOrCompiled(node)(
+    new ScObjectImpl(null, null, node),
+    new ScObjectImpl(null, null, node) with ScCompiledClass
+  )
 
-  override def createPsi(stub: ScTemplateDefinitionStub[ScObject]) = new ScObjectImpl(stub, this, null)
+  override def createPsi(stub: ScTemplateDefinitionStub[ScObject]): ScObject = sourceOrCompiled(stub)(
+    new ScObjectImpl(stub, this, null),
+    new ScObjectImpl(stub, this, null) with ScCompiledClass
+  )
 }
 
 object NewTemplateDefinition extends ScTemplateDefinitionElementType[ScNewTemplateDefinition]("new template definition") {

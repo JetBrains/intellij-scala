@@ -21,9 +21,9 @@ import scala.collection.mutable
 * @author Alexander Podkhalyuzin
 * @since 20.02.2008
 */
-final class ScTraitImpl private[psi](stub: ScTemplateDefinitionStub[ScTrait],
-                                     nodeType: ScTemplateDefinitionElementType[ScTrait],
-                                     node: ASTNode)
+class ScTraitImpl private[psi](stub: ScTemplateDefinitionStub[ScTrait],
+                               nodeType: ScTemplateDefinitionElementType[ScTrait],
+                               node: ASTNode)
   extends ScTypeDefinitionImpl(stub, nodeType, node)
     with ScTrait with ScTypeParametersOwner with ScTemplateDefinition {
 
