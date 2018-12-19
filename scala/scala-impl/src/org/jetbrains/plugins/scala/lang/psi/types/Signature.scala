@@ -6,6 +6,7 @@ package types
 import java.util.Objects
 
 import com.intellij.ide.highlighter.JavaFileType
+import com.intellij.openapi.progress.ProgressManager
 import com.intellij.psi._
 import com.intellij.psi.util.MethodSignatureUtil
 import org.jetbrains.plugins.scala.extensions._
@@ -81,6 +82,8 @@ class Signature(val name: String,
 
   def typeParams: Seq[TypeParameter] = tParams.map(_.update(substitutor))
 
+  def typeParamsLength: Int = tParams.length
+
   def equiv(other: Signature): Boolean = {
     def fieldCheck(other: Signature): Boolean = {
       def isField(s: Signature) = s.namedElement.isInstanceOf[PsiField]
@@ -88,7 +91,7 @@ class Signature(val name: String,
     }
 
     ScalaNamesUtil.equivalent(name, other.name) &&
-            ((typeParams.length == other.typeParams.length && paramTypesEquiv(other)) ||
+            ((typeParamsLength == other.typeParamsLength && paramTypesEquiv(other)) ||
               (paramLength == other.paramLength && javaErasedEquiv(other))) && fieldCheck(other)
 
   }

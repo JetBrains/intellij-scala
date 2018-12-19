@@ -84,7 +84,7 @@ class CompoundTypeCheckSignatureProcessor(s: Signature, retType: ScType,
     //let's check type parameters
     namedElement match {
       case o: ScTypeParametersOwner =>
-        if (o.typeParameters.length != s.typeParams.length) return true
+        if (o.typeParameters.length != s.typeParamsLength) return true
         val iter = o.typeParameters.zip(s.typeParams).iterator
         while (iter.hasNext) {
           val (tp1, tp2) = iter.next()
@@ -97,7 +97,7 @@ class CompoundTypeCheckSignatureProcessor(s: Signature, retType: ScType,
           val (tp1, tp2) = iter.next()
           if (!checkTypeParameters(tp1, tp2)) return true
         }
-      case _ => if (s.typeParams.length > 0) return true
+      case _ => if (s.typeParamsLength > 0) return true
     }
 
     def checkSignature(sign1: Signature, typeParams: Array[PsiTypeParameter], returnType: ScType): Boolean = {

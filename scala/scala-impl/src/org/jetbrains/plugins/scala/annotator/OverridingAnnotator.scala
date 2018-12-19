@@ -224,7 +224,7 @@ trait OverridingAnnotator {
       } else overType
       val actualBase = (s.namedElement, member) match {
         case (sFun: ScFunction, mFun: ScFunction) if effectiveParams(sFun).length == effectiveParams(mFun).length &&
-          s.typeParams.length == mFun.typeParameters.length =>
+          s.typeParamsLength == mFun.typeParameters.length =>
           val sParams = effectiveParams(sFun)
           val mParams = effectiveParams(mFun)
           val sTypeParams = s.typeParams
