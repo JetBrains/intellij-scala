@@ -28,6 +28,7 @@ class IrrefutabilityTest extends ScalaLightCodeInsightFixtureTestAdapter {
         |  class B extends Base
         |  object A extends A
         |  object B extends B
+        |  case class Fun[A, B](a: A, rest: B*)
         |
         |  $code
          }
@@ -74,7 +75,7 @@ class IrrefutabilityTest extends ScalaLightCodeInsightFixtureTestAdapter {
     assertIsNotIrrefutable("(A, A, A) match { case a: (A, A) => }")
   }
 
-  def testNamedPattern(): Unit = {
+  def testNamingPattern(): Unit = {
     assertIsIrrefutable("A match { case a@_ => }")
     assertIsIrrefutable("(A, B) match { case x@(_, _) => }")
     assertIsIrrefutable("Some(A) match { case x@Some(a: A) => }")
@@ -143,5 +144,20 @@ class IrrefutabilityTest extends ScalaLightCodeInsightFixtureTestAdapter {
   def testXmlPattern(): Unit = {
     assertIsNotIrrefutable("<b>0</b> match { case <a>x</a> => }")
     assertIsNotIrrefutable("<a>0</a> match { case <a>x</a> => }")
+  }
+
+  def testWildcardSeqPattern(): Unit = {
+    assertIsIrrefutable("Fun(A, B) match { case Fun(a, _*) => }")
+    assertIsIrrefutable("Fun(A, B) match { case Fun(a, b@_*) => }")
+    assertIsIrrefutable("Fun(A, B, C) match { case Fun(a, _*) => }")
+    assertIsIrrefutable("Fun(A, B, C) match { case Fun(a, b@_*) => }")
+
+    assertIsNotIrrefutable("A match { case (_*) => }")
+    assertIsNotIrrefutable("Some(A) match { case Some(_*) => }")
+    assertIsNotIrrefutable("Some(A) match { case Some(a@_*) => }")
+    assertIsNotIrrefutable("Fun(A, B) match { case Fun(a, b) => }")
+    assertIsNotIrrefutable("Fun(A, B) match { case Fun(a) => }")
+    assertIsNotIrrefutable("Fun(A, B) match { case Fun(a, b, _*) => }")
+    assertIsNotIrrefutable("Fun(A, B) match { case Fun(a, b, c@_*) => }")
   }
 }

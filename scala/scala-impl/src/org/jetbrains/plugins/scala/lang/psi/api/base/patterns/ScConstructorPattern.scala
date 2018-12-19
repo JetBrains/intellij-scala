@@ -28,24 +28,33 @@ object ScConstructorPattern {
       for {
         ty <- t
         resolveResult <- ref.bind()
-        if resolveResult.name == "unapply"
         unapply@(_x: ScFunction) <- Option(resolveResult.getElement)
+        if unapply.isUnapplyMethod
         caseClass <- Option(unapply.syntheticCaseClass)
         (clazz: ScClass, substitutor) <- ty.extractClassType
         if clazz.isCase && clazz == caseClass
         constr <- clazz.constructor
         params = constr.parameterList.clauses.headOption.map(_.parameters).getOrElse(Seq.empty)
-        if params.length == subpatterns.length
       } yield (params, substitutor)
     } exists {
       case (params, substitutor) =>
-        subpatterns zip params forall {
-          case (pattern, param) =>
+        subpatterns.corresponds(params) {
+          (pattern, param) =>
             val paramType = param.`type`().getOrElse {
               return false
             }
-            pattern.isIrrefutableFor(Some(substitutor(paramType)))
+            if (param.isRepeatedParameter) extractsRepeatedParameterIrrefutably(pattern)
+            else pattern.isIrrefutableFor(Some(substitutor(paramType)))
         }
+    }
+  }
+
+  private def extractsRepeatedParameterIrrefutably(pattern: ScPattern): Boolean = {
+    pattern match {
+      case _: ScSeqWildcard => true
+      case p: ScNamingPattern => extractsRepeatedParameterIrrefutably(p.named)
+      case p: ScParenthesisedPattern => p.innerElement.exists(extractsRepeatedParameterIrrefutably)
+      case _ => false
     }
   }
 }
