@@ -1,51 +1,38 @@
 package org.jetbrains.plugins.scala.util
 
+import com.intellij.openapi.components.ServiceManager
+import com.intellij.openapi.project.Project
+import com.intellij.openapi.roots.ProjectRootManager
+import com.intellij.openapi.util.ModificationTracker
 import com.intellij.psi.PsiElement
 import org.jetbrains.plugins.scala.extensions._
+import org.jetbrains.plugins.scala.lang.parser.parsing.top.TmplDef
+import org.jetbrains.plugins.scala.lang.psi.api.ScalaFile
 import org.jetbrains.plugins.scala.lang.psi.api.base.types._
 import org.jetbrains.plugins.scala.lang.psi.api.expr.{ScGenericCall, ScReferenceExpression}
 import org.jetbrains.plugins.scala.lang.psi.api.statements.ScFunction
 import org.jetbrains.plugins.scala.lang.psi.api.statements.params.ScTypeParam
-import org.jetbrains.plugins.scala.lang.psi.api.toplevel.typedef.{ScObject, ScTypeDefinition}
+import org.jetbrains.plugins.scala.lang.psi.api.toplevel.typedef.ScTypeDefinition
 import org.jetbrains.plugins.scala.lang.psi.impl.ScalaPsiElementFactory
 import org.jetbrains.plugins.scala.lang.psi.impl.toplevel.synthetic.ScSyntheticClass
 import org.jetbrains.plugins.scala.lang.psi.types.api.Any
-import org.jetbrains.plugins.scala.lang.psi.types.{ScType, ScalaType}
+import org.jetbrains.plugins.scala.lang.psi.types.{ScParameterizedType, ScType, ScalaType}
+import org.jetbrains.plugins.scala.macroAnnotations.CachedInUserData
 import org.jetbrains.plugins.scala.project.ProjectContext
 
 /**
   * Partially based on and inspired by contribution from @vovapolu
   * (https://github.com/JetBrains/intellij-scala/pull/435).
   */
-object KindProjectorUtil {
-  val Lambda: String               = "Lambda"
-  val LambdaSymbolic: String       = "λ"
-  val inlineSyntaxIds: Seq[String] = Seq("?", "+?", "-?")
-
-
-  /**
-    * Creates synhtetic companion object used in value-level polymorphic lambdas
-    * (e.g. `val a: PF[List, Option] = λ[PF[List, Option]].run(_.headOption)`).
-    * Apply method return type is computed in an ad-hoc manner in [[org.jetbrains.plugins.scala.lang.psi.impl.expr.ScGenericCallImpl]]
-    * See usages of [[PolymorphicLambda]] extractor.
-    */
-  private[this] def createPolyLambdaSyntheticObject(objectName: String, place: PsiElement): ScObject = {
-    val text =
-      s"""
-         |object $objectName {
-         |  def apply[T[_[_], _[_]]]: Any = ???
-         |}
-       """.stripMargin
-
-    ScalaPsiElementFactory.createObjectWithContext(text, place, place.getFirstChild)
-  }
+class KindProjectorUtil(project: Project) {
+  import KindProjectorUtil._
 
   /**
     * Synthetic top level declarations required to make kind-projector
     * specific syntax (e.g. `Lambda`, `λ`, `?`) resolvable.
     */
-  def syntheticDeclarations(place: PsiElement): Seq[PsiElement] = {
-    implicit val pc: ProjectContext = ProjectContext.fromPsi(place)
+  val syntheticDeclarations: Seq[PsiElement] = {
+    implicit val projectContext: Project = project
 
     // used in type-level lambdas
     val syntheticClasses =
@@ -55,9 +42,34 @@ object KindProjectorUtil {
     // used in value-level lambdas
     val syntheticObjects =
       Seq(Lambda, LambdaSymbolic)
-        .map(createPolyLambdaSyntheticObject(_, place))
+        .map(createPolyLambdaSyntheticObject)
 
     syntheticClasses ++ syntheticObjects
+  }
+}
+
+object KindProjectorUtil {
+  val Lambda: String               = "Lambda"
+  val LambdaSymbolic: String       = "λ"
+  val inlineSyntaxIds: Seq[String] = Seq("?", "+?", "-?")
+
+  def apply(project: Project): KindProjectorUtil = ServiceManager.getService(project, classOf[KindProjectorUtil])
+
+  /**
+    * Creates synhtetic companion object used in value-level polymorphic lambdas
+    * (e.g. `val a: PF[List, Option] = λ[PF[List, Option]].run(_.headOption)`).
+    * Apply method return type is computed in an ad-hoc manner in [[org.jetbrains.plugins.scala.lang.psi.impl.expr.ScGenericCallImpl]]
+    * See usages of [[PolymorphicLambda]] extractor.
+    */
+  private def createPolyLambdaSyntheticObject(objectName: String)(implicit cxt: ProjectContext) = {
+    val text =
+      s"""
+         |object $objectName {
+         |  def apply[T[_[_], _[_]]]: Any = ???
+         |}
+       """.stripMargin
+
+    ScalaPsiElementFactory.createElement(text)(TmplDef.parse)
   }
 
   /**
@@ -101,28 +113,69 @@ object KindProjectorUtil {
     }
   }
 
-  /**
-    * Returns an intermidiate "Builder" trait which represents the type of an
+  private[this] def containingFileModTracker(tdef: ScTypeDefinition): ModificationTracker = {
+    val rootManager = ProjectRootManager.getInstance(tdef.getProject)
+
+    def isInLibrary(file: ScalaFile): Boolean =
+      file.isCompiled && rootManager.getFileIndex.isInLibrary(file.getVirtualFile)
+
+    tdef.getContainingFile match {
+      case file: ScalaFile if isInLibrary(file) => rootManager
+      case null                                 => ModificationTracker.NEVER_CHANGED
+      case file                                 => Option(file.getVirtualFile).getOrElse(ModificationTracker.NEVER_CHANGED)
+    }
+  }
+
+  implicit class `synthetic poly-lambda builder ext`(private val tdef: ScTypeDefinition) extends AnyVal {
+    /**
+    * Creates an intermidiate "Builder" trait which represents the type of an
     * expression of shape `Lambda[Op[F, G]]`, i.e. suppose we have the following definitions
     * {{{
     * trait Op[M[_], N[_]] {
     *   def someMethod[A](x: M[A]): N[A]
     *   def anotherMethod[B](x: M[A]): N[A]
     * }
-    *
-    * val a = Lambda[Op[List, Option]].someMethod(_.headOption)
     * }}}
     * A synthetic trait with the following definitions will be generated.
     * {{{
-    * trait OpListOptionPolyLambdBuilder {
+    * trait OpPolyLambdaBuilder[F[_], G[_]] {
     *   type A
-    *   def someMethod(f: List[A] => Option[A]): Op[List, Option] = ???
-    *   def anotherMethod(f: List[A] => Option[A]): Op[List, Option] = ???
+    *   def someMethod(f: F[A] => G[A]): Op[F, G] = ???
+    *   def anotherMethod(f: F[A] => G[A]): Op[F, G] = ???
     * }
     * }}}
     *
-    * Returns type designated to generated trait.
+    * Returns parameterized type designated to generated trait, with `f` and `g` as it's type arguments.
     */
+    @CachedInUserData(tdef, containingFileModTracker(tdef))
+    def synhteticPolyLambdaBuilder(f: ScTypeElement, g: ScTypeElement): Option[ScType] = {
+      val tparams = tdef.typeParameters
+      val methods = tdef.functions.filter(canBeRewritten(_, tparams))
+
+      methods.nonEmpty.option {
+        val methodsText = methods.map { m =>
+          s"def ${m.name}(f: F[A] => G[A]): ${tdef.name}[F, G] = ???"
+        }.mkString("\n  ")
+
+        val text =
+          s"""
+             |trait `${tdef.getName}PolyLambdaBuilder`[F[_], G[_]] {
+             |  type A
+             |  $methodsText
+             |}
+         """.stripMargin
+
+        val buiderTrait = ScalaPsiElementFactory.createTypeDefinitionWithContext(text, tdef, null)
+
+        ScParameterizedType(
+          ScalaType.designator(buiderTrait),
+          Seq(f.`type`().getOrAny, g.`type`().getOrAny)
+        )
+      }
+    }
+  }
+
+
   private[this] def kindProjectorPolymorphicLambdaType(
     target: ScTypeElement,
     lhs:    ScTypeElement,
@@ -133,28 +186,8 @@ object KindProjectorUtil {
       targetTpe   <- target.`type`().toOption
       targetClass <- targetTpe.extractClass
       tdef        <- targetClass.asOptionOf[ScTypeDefinition]
-      tparams     = tdef.typeParameters
-      methods     = tdef.functions.filter(canBeRewritten(_, tparams))
-      if methods.nonEmpty
-    } yield {
-      val methodsText = methods.map { m =>
-        val fa = s"${lhs.getText}[A]"
-        val ga = s"${rhs.getText}[A]"
-
-        s"def ${m.name}(f: $fa => $ga): ${target.getText} = ???"
-      }.mkString("\n  ")
-
-      val text =
-        s"""
-           |trait `${targetClass.getName}${lhs.getText}${rhs.getText}PolyLambdaBuilder` {
-           |  type A
-           |  $methodsText
-           |}
-         """.stripMargin
-
-      val builderTrait = ScalaPsiElementFactory.createTypeDefinitionWithContext(text, place, null)
-      ScalaType.designator(builderTrait)
-    }
+      tpe         <- tdef.synhteticPolyLambdaBuilder(lhs, rhs)
+    } yield tpe
 
   object PolymorphicLambda {
     private[this] val polyLambdaIds = Seq(Lambda, LambdaSymbolic)

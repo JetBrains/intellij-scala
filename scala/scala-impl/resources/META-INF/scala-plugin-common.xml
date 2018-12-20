@@ -476,6 +476,8 @@
 
         <projectService serviceImplementation="org.jetbrains.plugins.scala.worksheet.settings.WorksheetDefaultSettings"/>
 
+        <projectService serviceImplementation="org.jetbrains.plugins.scala.util.KindProjectorUtil"/>
+
         <applicationService serviceImplementation="org.jetbrains.plugins.scala.lang.psi.impl.expr.ExpectedTypesImpl"
                             serviceInterface="org.jetbrains.plugins.scala.lang.psi.api.expr.ExpectedTypes"/>
 

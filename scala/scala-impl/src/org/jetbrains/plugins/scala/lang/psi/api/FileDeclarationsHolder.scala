@@ -49,8 +49,8 @@ trait FileDeclarationsHolder extends PsiElement with ScDeclarationSequenceHolder
     }
 
     if (place.kindProjectorPluginEnabled) {
-      KindProjectorUtil
-        .syntheticDeclarations(place)
+      KindProjectorUtil(place.getProject)
+        .syntheticDeclarations
         .foreach(processor.execute(_, state))
     }
 
