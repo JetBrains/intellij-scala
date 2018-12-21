@@ -3,4 +3,4 @@ class ScalaConstructorD[T: Manifest]() {
 }
 
 new ScalaConstructorD[Int](0)(<caret>)
-// ()(implicit manifest$T: Manifest[Int])
+// ()(implicit `manifest$T`: Manifest[Int])

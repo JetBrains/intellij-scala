@@ -1169,7 +1169,7 @@ object ScalaPsiUtil {
       val parameterName = typeParameter.name
       typeParameter.contextBoundTypeElement.map { typeElement =>
         val syntheticName = contextBoundParameterName(typeParameter, typeElement)
-        s"$syntheticName : ${typeElement.getText}[$parameterName]"
+        s"`$syntheticName` : ${typeElement.getText}[$parameterName]"
       }
     }
 
