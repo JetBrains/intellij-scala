@@ -1525,7 +1525,7 @@ object ScalaEvaluatorBuilderUtil {
     elem match {
       case (_: ScExpression) childOf (f: ScForStatement) =>
         f.enumerators.fold(1)(e => e.generators.length)
-      case (e @ (_: ScForBinding | _: ScGenerator | _: ScGuard)) childOf (enums: ScEnumerators) =>
+      case (e: ScEnumerator) childOf (enums: ScEnumerators) =>
         enums.children.takeWhile(_ != e).count(_.isInstanceOf[ScGenerator])
       case _ => 1
     }

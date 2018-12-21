@@ -11,7 +11,7 @@ import org.jetbrains.plugins.scala.lang.lexer.ScalaTokenTypes
   * @author Alexander Podkhalyuzin
   *         Date: 07.03.2008
   */
-trait ScGenerator extends ScPatterned {
+trait ScGenerator extends ScEnumerator with ScPatterned {
   def guard: ScGuard
 
   def rvalue: ScExpression

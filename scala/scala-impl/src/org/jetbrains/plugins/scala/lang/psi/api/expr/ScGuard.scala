@@ -8,7 +8,7 @@ package expr
   * @author Alexander Podkhalyuzin
   */
 
-trait ScGuard extends ScalaPsiElement {
+trait ScGuard extends ScEnumerator {
   def expr: Option[ScExpression]
 
   override def accept(visitor: ScalaElementVisitor): Unit = visitor.visitGuard(this)

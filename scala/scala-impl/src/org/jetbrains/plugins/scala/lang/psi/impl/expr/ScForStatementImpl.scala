@@ -199,7 +199,7 @@ class ScForStatementImpl(node: ASTNode) extends ScExpressionImplBase(node) with 
       ret
     }
 
-    def appendGen(gen: ScGenerator, restEnums: Seq[PsiElement]): Unit = {
+    def appendGen(gen: ScGenerator, restEnums: Seq[ScEnumerator]): Unit = {
       val rvalue = Option(gen.rvalue).map(normalizeUnderscores)
       val isLastGen = !restEnums.exists(_.isInstanceOf[ScGenerator])
 
@@ -369,10 +369,7 @@ class ScForStatementImpl(node: ASTNode) extends ScExpressionImplBase(node) with 
       return None
     }
 
-    val enums = firstGen.withNextSiblings.filter { //that is from PsiElementExt
-      case _: ScGuard | _: ScForBinding | _: ScGenerator => true
-      case _ => false
-    }.toList
+    val enums = firstGen.withNextSiblings.collect { case e: ScEnumerator => e }.toList
 
     appendGen(firstGen, enums.tail)
     val desugaredExprText = resultText.toString
