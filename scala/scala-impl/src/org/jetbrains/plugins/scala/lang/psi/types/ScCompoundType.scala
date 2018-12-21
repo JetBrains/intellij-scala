@@ -192,10 +192,7 @@ object ScCompoundType {
 
   def fromPsi(components: Seq[ScType], decls: Seq[ScDeclaredElementsHolder], typeDecls: Seq[ScTypeAlias])
              (implicit projectContext: ProjectContext): ScCompoundType = {
-    val signatureMapVal: mutable.HashMap[Signature, ScType] = new mutable.HashMap[Signature, ScType] {
-      override def elemHashCode(s : Signature): Int =
-        s.name.hashCode * 31 + s.paramClauseSizes.hash
-    }
+    val signatureMapVal = mutable.HashMap.empty[Signature, ScType]
 
     for (decl <- decls) {
       decl match {

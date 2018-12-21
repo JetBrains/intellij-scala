@@ -12,8 +12,9 @@ import com.intellij.psi.util.MethodSignatureUtil
 import org.jetbrains.plugins.scala.extensions._
 import org.jetbrains.plugins.scala.lang.psi.api.statements.params.ScParameters
 import org.jetbrains.plugins.scala.lang.psi.api.statements.{ScFunction, ScTypeAlias}
-import org.jetbrains.plugins.scala.lang.psi.api.toplevel.ScTypedDefinition
+import org.jetbrains.plugins.scala.lang.psi.api.toplevel.{ScNamedElement, ScTypedDefinition}
 import org.jetbrains.plugins.scala.lang.psi.light.scala.ScLightTypeAlias
+import org.jetbrains.plugins.scala.lang.psi.types.Signature._
 import org.jetbrains.plugins.scala.lang.psi.types.api.{Any, PsiTypeParamatersExt, TypeParameter}
 import org.jetbrains.plugins.scala.lang.psi.types.recursiveUpdate.ScSubstitutor
 import org.jetbrains.plugins.scala.lang.psi.types.result._
@@ -158,16 +159,18 @@ class Signature(_name: String,
   }
 
   override def equals(that: Any): Boolean = that match {
-    case s: Signature => equiv(s) && parameterlessKind == s.parameterlessKind
+    case s: Signature => isCompatibleParameterSizes(s) && parameterlessKind == s.parameterlessKind && equiv(s)
     case _ => false
   }
 
-  def parameterlessKind: Int = {
-    namedElement match {
-      case f: ScFunction if !f.hasParameterClause => 1
-      case _: PsiMethod => 2
-      case _ => 3
-    }
+  private def isCompatibleParameterSizes(other: Signature): Boolean = {
+    if (paramLength == 0) other.paramLength == 0
+    else paramClauseSizes === other.paramClauseSizes
+  }
+
+  private def parameterSizeHash: Int = {
+    if (paramLength == 0) 0
+    else paramClauseSizes.hash
   }
 
   private def depParamTypeSubstitutor(target: Signature): ScSubstitutor = {
@@ -185,25 +188,31 @@ class Signature(_name: String,
 
 
   /**
-   * Use it, while building class hierarchy.
-   * Because for class hierarch def foo(): Int is the same thing as def foo: Int and val foo: Int.
-   */
-  def simpleHashCode: Int = name.hashCode
+    * Use it, while building class hierarchy.
+    * Because for class hierarchy def foo(): Int is the same thing as def foo: Int and val foo: Int.
+    */
+  def simpleHashCode: Int = name.hashCode * 31 + parameterSizeHash
 
   def isJava: Boolean = false
 
-  def parameterlessCompatible(other: Signature): Boolean = {
-    (namedElement, other.namedElement) match {
-      case (f1: ScFunction, f2: ScFunction) =>
-        !f1.hasParameterClause ^ f2.hasParameterClause
-      case (f1: ScFunction, _: PsiMethod) => f1.hasParameterClause
-      case (_: PsiMethod, f2: ScFunction) => f2.hasParameterClause
-      case (_: PsiMethod, _: PsiMethod) => true
-      case (_: PsiMethod, _) => false
-      case (_, f: ScFunction)  => !f.hasParameterClause
-      case (_, _: PsiMethod) => false
-      case _ => true
+  def parameterlessKind: Int = {
+    if (paramLength > 0) HasParameters
+    else namedElement match {
+      case f: ScFunction     => if (!f.hasParameterClause) Parameterless else EmptyParentheses
+      case _: PsiMethod      => EmptyParentheses
+      case _: ScNamedElement => ScalaVal
+      case _                 => JavaField
     }
+  }
+
+  //this method is used in conformance and is not symmetric:
+  //   val x: {  def foo: Int } = new { val foo = 1 } is valid, but
+  //   val x: {  val foo: Int } = new { def foo = 1 } is not
+  def parameterlessCompatible(other: Signature): Boolean = {
+    val thisKind = parameterlessKind
+    val otherKind = other.parameterlessKind
+
+    thisKind == otherKind || (thisKind == ScalaVal && otherKind == Parameterless)
   }
 }
 
@@ -241,6 +250,12 @@ object Signature {
     subst,
     definition
   )
+
+  private val Parameterless = 1
+  private val EmptyParentheses = 2
+  private val ScalaVal = 3
+  private val JavaField = 4
+  private val HasParameters = 5
 }
 
 
