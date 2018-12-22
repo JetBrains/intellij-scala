@@ -12,6 +12,7 @@ import com.intellij.psi.scope.{ElementClassHint, NameHint, PsiScopeProcessor}
 import com.intellij.psi.util.PsiTreeUtil.isContextAncestor
 import org.jetbrains.plugins.scala.extensions._
 import org.jetbrains.plugins.scala.lang.psi.ScalaPsiUtil._
+import org.jetbrains.plugins.scala.lang.psi.api.PropertyMethods
 import org.jetbrains.plugins.scala.lang.psi.api.PropertyMethods._
 import org.jetbrains.plugins.scala.lang.psi.api.base.ScPrimaryConstructor
 import org.jetbrains.plugins.scala.lang.psi.api.statements._
@@ -153,27 +154,15 @@ object TypeDefinitionMembers {
       * @param named is class parameter, or part of ScValue or ScVariable
       * */
     private def addPropertySignatures(named: ScTypedDefinition, subst: ScSubstitutor, addSignature: Signature => Unit): Unit = {
-      addSignature(Signature(named, subst))
-      if (named.isVar) {
-        addSignature(Signature.setter(named, subst))
-      }
-      named.nameContext match {
-        case s: ScAnnotationsHolder =>
-          val beanProperty = isBeanProperty(s, noResolve = true)
-          val booleanBeanProperty = isBooleanBeanProperty(s, noResolve = true)
-          if (beanProperty || booleanBeanProperty) {
-            val name = named.name
-            if (beanProperty) {
-              addSignature(Signature.withoutParams(beanGetterName(name), subst, named))
-            } else {
-              addSignature(Signature.withoutParams(booleanGetterName(name), subst, named))
-            }
-            if (named.isVar) {
-              addSignature(Signature(beanSetterName(name), Seq(() => named.`type`().getOrAny), subst, named))
-            }
-          }
-        case _ =>
-      }
+      PropertyMethods.allRoles
+        .filter(isApplicable(_, named, noResolve = true))
+        .map(signature(named, subst, _))
+        .foreach(addSignature)
+    }
+    
+    private def signature(named: ScTypedDefinition, subst: ScSubstitutor, role: DefinitionRole): Signature = role match {
+      case SETTER | EQ => Signature.setter(methodName(named.name, role), named, subst)
+      case _           => Signature.withoutParams(methodName(named.name, role), subst, named)
     }
 
     private def syntheticSignaturesFromInnerClass(td: ScTypeDefinition, subst: ScSubstitutor): Seq[Signature] = {

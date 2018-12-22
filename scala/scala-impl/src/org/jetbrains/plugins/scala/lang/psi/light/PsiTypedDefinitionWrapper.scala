@@ -3,7 +3,6 @@ package org.jetbrains.plugins.scala.lang.psi.light
 import com.intellij.psi._
 import com.intellij.psi.util.PsiTreeUtil
 import org.jetbrains.plugins.scala.lang.psi.ScalaPsiUtil
-import org.jetbrains.plugins.scala.lang.psi.api.PropertyMethods
 import org.jetbrains.plugins.scala.lang.psi.api.PropertyMethods._
 import org.jetbrains.plugins.scala.lang.psi.api.statements.ScAnnotationsHolder
 import org.jetbrains.plugins.scala.lang.psi.api.toplevel.typedef.{ScMember, ScObject}
@@ -108,42 +107,15 @@ object PsiTypedDefinitionWrapper {
 
   def processWrappersFor(t: ScTypedDefinition, cClass: Option[PsiClass], nodeName: String, isStatic: Boolean, isInterface: Boolean,
                  processMethod: PsiMethod => Unit, processName: String => Unit = _ => ()): Unit  = {
-    if (nodeName == t.name) {
-      processMethod(t.getTypedDefinitionWrapper(isStatic, isInterface, role = SIMPLE_ROLE, cClass))
-      processName(t.name)
-      if (t.isVar) {
-        processMethod(t.getTypedDefinitionWrapper(isStatic, isInterface, role = EQ, cClass))
-        processName(javaMethodName(t.name, role = EQ))
+    val scalaName = t.name
+    val roleByName = methodRole(nodeName, scalaName)
+
+    roleByName
+      .filter(isApplicable(_, t, noResolve = false))
+      .foreach { role =>
+        processMethod(t.getTypedDefinitionWrapper(isStatic, isInterface, role, cClass))
+        processName(javaMethodName(scalaName, role))
       }
-    }
-    t.nameContext match {
-      case s: ScAnnotationsHolder =>
-        val role = methodRole(nodeName, t.name)
-
-
-        val beanProperty = PropertyMethods.isBeanProperty(s)
-        val booleanBeanProperty = PropertyMethods.isBooleanBeanProperty(s)
-        if (beanProperty) {
-          if (nodeName == "get" + t.name.capitalize) {
-            processMethod(t.getTypedDefinitionWrapper(isStatic, isInterface, role = GETTER, cClass))
-            processName("get" + t.getName.capitalize)
-          }
-          if (t.isVar && nodeName == "set" + t.name.capitalize) {
-            processMethod(t.getTypedDefinitionWrapper(isStatic, isInterface, role = SETTER, cClass))
-            processName("set" + t.getName.capitalize)
-          }
-        } else if (booleanBeanProperty) {
-          if (nodeName == "is" + t.name.capitalize) {
-            processMethod(t.getTypedDefinitionWrapper(isStatic, isInterface, role = IS_GETTER, cClass))
-            processName("is" + t.getName.capitalize)
-          }
-          if (t.isVar && nodeName == "set" + t.name.capitalize) {
-            processMethod(t.getTypedDefinitionWrapper(isStatic, isInterface, role = SETTER, cClass))
-            processName("set" + t.getName.capitalize)
-          }
-        }
-      case _ =>
-    }
   }
 
   private[light] def parameterListText(td: ScTypedDefinition, role: DefinitionRole, staticTrait: Option[PsiClassWrapper]): String = {

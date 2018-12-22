@@ -10,6 +10,8 @@ import com.intellij.openapi.progress.ProgressManager
 import com.intellij.psi._
 import com.intellij.psi.util.MethodSignatureUtil
 import org.jetbrains.plugins.scala.extensions._
+import org.jetbrains.plugins.scala.lang.psi.api.PropertyMethods
+import org.jetbrains.plugins.scala.lang.psi.api.PropertyMethods.{SETTER, methodName}
 import org.jetbrains.plugins.scala.lang.psi.api.statements.params.ScParameters
 import org.jetbrains.plugins.scala.lang.psi.api.statements.{ScFunction, ScTypeAlias}
 import org.jetbrains.plugins.scala.lang.psi.api.toplevel.{ScNamedElement, ScTypedDefinition}
@@ -244,12 +246,15 @@ object Signature {
   def withoutParams(name: String, subst: ScSubstitutor, namedElement: PsiNamedElement): Signature =
     Signature(name, Seq.empty, subst, namedElement)
 
-  def setter(definition: ScTypedDefinition, subst: ScSubstitutor = ScSubstitutor.empty) = Signature(
-    s"${definition.name}_=",
+  def setter(name: String, definition: ScTypedDefinition, subst: ScSubstitutor = ScSubstitutor.empty) = Signature(
+    name,
     Seq(() => definition.`type`().getOrAny),
     subst,
     definition
   )
+
+  def scalaSetter(definition: ScTypedDefinition, subst: ScSubstitutor = ScSubstitutor.empty) =
+    setter(methodName(definition.name, PropertyMethods.EQ), definition, subst)
 
   private val Parameterless = 1
   private val EmptyParentheses = 2

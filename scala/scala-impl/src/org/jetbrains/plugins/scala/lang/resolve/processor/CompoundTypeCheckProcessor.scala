@@ -140,7 +140,7 @@ class CompoundTypeCheckSignatureProcessor(s: Signature, retType: ScType,
         val isVar = dcl.isVar
         if (!checkSignature(Signature(dcl, subst), Array.empty, rt))
           return false
-        if (isVar && !checkSignature(Signature.setter(dcl, subst), Array.empty, Unit))
+        if (isVar && !checkSignature(Signature.scalaSetter(dcl, subst), Array.empty, Unit))
           return false
       case method: PsiMethod =>
         val sign1 = new PhysicalSignature(method, subst)
