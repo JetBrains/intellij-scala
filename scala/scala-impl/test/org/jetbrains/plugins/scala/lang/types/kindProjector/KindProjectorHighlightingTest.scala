@@ -3,7 +3,7 @@ package org.jetbrains.plugins.scala.lang.types.kindProjector
 import org.jetbrains.plugins.scala.base.ScalaLightCodeInsightFixtureTestAdapter
 import org.jetbrains.plugins.scala.project.settings.ScalaCompilerConfiguration
 
-class PolymorphicLambdasHighlightingTest extends ScalaLightCodeInsightFixtureTestAdapter {
+class KindProjectorHighlightingTest extends ScalaLightCodeInsightFixtureTestAdapter {
   override protected def setUp(): Unit = {
     super.setUp()
 
@@ -109,6 +109,16 @@ class PolymorphicLambdasHighlightingTest extends ScalaLightCodeInsightFixtureTes
         |    _.mapK(λ[Coyoneda[F, ?] ~> Coyoneda[G, ?]](_.mapK(fk)))
         |  )
         |
+      """.stripMargin
+    )
+
+  def testSCL14759(): Unit =
+    checkTextHasNoErrors(
+      """
+        |trait <:!<[A, B]
+        |trait Monoid[A]
+        |
+        |def repeat[A: Monoid : Lambda[a => a <:!< Int]](a: A): Int = 42
       """.stripMargin
     )
 }

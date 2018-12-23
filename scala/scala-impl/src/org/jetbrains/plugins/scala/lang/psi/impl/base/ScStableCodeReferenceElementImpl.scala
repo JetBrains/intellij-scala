@@ -19,7 +19,7 @@ import org.jetbrains.plugins.scala.lang.macros.MacroDef
 import org.jetbrains.plugins.scala.lang.macros.evaluator.{MacroContext, ScalaMacroEvaluator}
 import org.jetbrains.plugins.scala.lang.psi.api.base._
 import org.jetbrains.plugins.scala.lang.psi.api.base.patterns.{ScBindingPattern, ScConstructorPattern, ScInfixPattern, ScInterpolationPattern}
-import org.jetbrains.plugins.scala.lang.psi.api.base.types.{ScInfixTypeElement, ScSimpleTypeElement, ScTypeElement}
+import org.jetbrains.plugins.scala.lang.psi.api.base.types.{ScFunctionalTypeElement, ScInfixTypeElement, ScParameterizedTypeElement, ScSimpleTypeElement, ScTypeElement}
 import org.jetbrains.plugins.scala.lang.psi.api.expr.{ScReferenceExpression, ScSuperReference, ScThisReference}
 import org.jetbrains.plugins.scala.lang.psi.api.statements.ScMacroDefinition._
 import org.jetbrains.plugins.scala.lang.psi.api.statements.{ScAnnotationsHolder, ScFunction, ScMacroDefinition, ScTypeAlias}
@@ -281,6 +281,7 @@ class ScStableCodeReferenceElementImpl(node: ASTNode) extends ScReferenceElement
             case p: ScTypeElement if p.analog.isDefined =>
               // this allows the type elements in a context or view bound to be path-dependent types, based on parameters.
               // See ScalaPsiUtil.syntheticParamClause and StableCodeReferenceElementResolver#computeEffectiveParameterClauses
+              if (!p.processDeclarations(processor, ResolveState.initial(), lastParent, this)) return
               treeWalkUp(p.analog.get, lastParent)
                 // annotation should not walk through it's own annotee while resolving
             case p: ScAnnotationsHolder
@@ -438,23 +439,23 @@ class ScStableCodeReferenceElementImpl(node: ASTNode) extends ScReferenceElement
     getContainingFile match {
       case ammoniteScript: ScalaFile if AmmoniteUtil.isAmmoniteFile(ammoniteScript) =>
         def psi2result(psiElement: PsiNamedElement) = Array(new ScalaResolveResult(psiElement))
-        
+
         val fsi = AmmoniteUtil.scriptResolveQualifier(this)
 
         (fsi, fsi.flatMap(AmmoniteUtil.file2Object)) match {
-          case (_, Some(obj)) => 
+          case (_, Some(obj)) =>
             return psi2result(obj)
-          case (Some(dir), _) => 
+          case (Some(dir), _) =>
             return psi2result(dir)
-          case _ => 
+          case _ =>
             AmmoniteUtil.scriptResolveSbtDependency(this) match {
               case Some(dir) => return psi2result(dir)
-              case _ => 
+              case _ =>
             }
         }
       case _ =>
     }
-    
+
     val importStmt = PsiTreeUtil.getContextOfType(this, true, classOf[ScImportStmt])
 
     if (importStmt != null) {
