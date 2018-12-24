@@ -14,7 +14,7 @@ import org.jetbrains.plugins.scala.project.ProjectContext
  * to resolve generics. It's important if two local type
  * inferences work together.
  */
-class ScAbstractType(val typeParameter: TypeParameter) extends ScalaType with NonValueType {
+class ScAbstractType(val typeParameter: TypeParameter) extends ScalaType with NonValueType with LeafType {
 
   override implicit def projectContext: ProjectContext = typeParameter.psiTypeParameter
 

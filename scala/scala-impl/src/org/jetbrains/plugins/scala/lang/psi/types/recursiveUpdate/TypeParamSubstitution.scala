@@ -3,7 +3,7 @@ package org.jetbrains.plugins.scala.lang.psi.types.recursiveUpdate
 import org.jetbrains.plugins.scala.lang.psi.api.statements.params
 import org.jetbrains.plugins.scala.lang.psi.api.statements.params.{TypeParamId, TypeParamIdOwner}
 import org.jetbrains.plugins.scala.lang.psi.types.api.{ParameterizedType, TypeParameter, TypeParameterType, UndefinedType}
-import org.jetbrains.plugins.scala.lang.psi.types.{ScAbstractType, ScLiteralType, ScType}
+import org.jetbrains.plugins.scala.lang.psi.types.{LeafType, ScAbstractType, ScLiteralType, ScType}
 
 import scala.collection.Seq
 import scala.collection.immutable.LongMap
@@ -12,13 +12,13 @@ import scala.collection.immutable.LongMap
   * Nikolay.Tropin
   * 01-Feb-18
   */
-private case class TypeParamSubstitution(tvMap: LongMap[ScType]) extends Substitution {
+private case class TypeParamSubstitution(tvMap: LongMap[ScType]) extends LeafSubstitution {
 
   override def toString: String = tvMap.map {
     case (id, tp) => params.typeParamName(id) + " -> " + tp.toString
   }.mkString("Map(", ", ", ")")
 
-  override protected val subst: PartialFunction[ScType, ScType] = {
+  override protected val subst: PartialFunction[LeafType, ScType] = {
     case a: ScAbstractType     => updatedAbstract(a)
     case u: UndefinedType      => updatedUndefined(u)
     case t: TypeParameterType  => updatedTypeParameter(t)

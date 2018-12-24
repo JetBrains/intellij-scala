@@ -1,7 +1,8 @@
 package org.jetbrains.plugins.dotty.lang.psi.types
 
-import org.jetbrains.plugins.scala.lang.psi.types.ScType
-import org.jetbrains.plugins.scala.lang.psi.types.api.{TypeVisitor, ValueType}
+import org.jetbrains.plugins.scala.lang.psi.types.{ScType, recursiveUpdate}
+import org.jetbrains.plugins.scala.lang.psi.types.api.{TypeVisitor, ValueType, Variance}
+import org.jetbrains.plugins.scala.lang.psi.types.recursiveUpdate.ScSubstitutor
 import org.jetbrains.plugins.scala.project.ProjectContext
 
 /**
@@ -19,6 +20,19 @@ case class DottyAndType(override val left: ScType, override val right: ScType) e
     case dottyVisitor: DottyTypeVisitor => dottyVisitor.visitAndType(this)
     case _ =>
   }
+
+  def updateSubtypes(substitutor: ScSubstitutor, visited: Set[ScType]): ScType =
+    DottyAndType(substitutor(left), substitutor(right))
+
+  def updateSubtypesVariance(update: (ScType, Variance) => recursiveUpdate.AfterUpdate,
+                             variance: Variance,
+                             revertVariances: Boolean)
+                            (implicit visited: Set[ScType]): ScType = {
+    DottyAndType(
+      left.recursiveVarianceUpdate(update, variance),
+      right.recursiveVarianceUpdate(update, variance)
+    )
+  }
 }
 
 object DottyAndType {
@@ -29,6 +43,19 @@ case class DottyOrType(override val left: ScType, override val right: ScType) ex
   override def visitType(visitor: TypeVisitor): Unit = visitor match {
     case dottyVisitor: DottyTypeVisitor => dottyVisitor.visitOrType(this)
     case _ =>
+  }
+
+  def updateSubtypes(substitutor: ScSubstitutor, visited: Set[ScType]): ScType =
+    DottyOrType(substitutor(left), substitutor(right))
+
+  def updateSubtypesVariance(update: (ScType, Variance) => recursiveUpdate.AfterUpdate,
+                             variance: Variance,
+                             revertVariances: Boolean)
+                            (implicit visited: Set[ScType]): ScType = {
+    DottyOrType(
+      left.recursiveVarianceUpdate(update, variance),
+      right.recursiveVarianceUpdate(update, variance)
+    )
   }
 }
 

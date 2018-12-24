@@ -3,11 +3,11 @@ package org.jetbrains.plugins.scala.lang.psi.types.api
 import com.intellij.psi.PsiTypeParameter
 import org.jetbrains.plugins.scala.lang.psi.api.statements.params.ScTypeParam
 import org.jetbrains.plugins.scala.lang.psi.types.result._
-import org.jetbrains.plugins.scala.lang.psi.types.{ConstraintsResult, NamedType, ScType, ConstraintSystem}
+import org.jetbrains.plugins.scala.lang.psi.types.{ConstraintSystem, ConstraintsResult, LeafType, NamedType, ScType}
 import org.jetbrains.plugins.scala.project.ProjectContext
 
 class TypeParameterType private (val typeParameter: TypeParameter)
-  extends ValueType with NamedType {
+  extends ValueType with NamedType with LeafType {
 
   override implicit def projectContext: ProjectContext = psiTypeParameter
 

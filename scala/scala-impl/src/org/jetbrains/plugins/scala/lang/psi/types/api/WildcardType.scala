@@ -11,7 +11,7 @@ import org.jetbrains.plugins.scala.project.ProjectContext
   *
   * DO NOT USE THIS, UNLESS YOU KNOW WHAT YOU ARE DOING
   */
-final case class WildcardType(tparam: TypeParameter) extends NonValueType {
+final case class WildcardType(tparam: TypeParameter) extends NonValueType with LeafType {
   override def inferValueType: ValueType               = TypeParameterType(tparam)
   override def visitType(visitor: TypeVisitor): Unit   = ()
   override implicit def projectContext: ProjectContext = tparam.psiTypeParameter

@@ -1,6 +1,6 @@
 package org.jetbrains.plugins.scala.lang.psi.types.recursiveUpdate
 
-import org.jetbrains.plugins.scala.lang.psi.types.ScType
+import org.jetbrains.plugins.scala.lang.psi.types.{LeafType, ScType}
 import org.jetbrains.plugins.scala.lang.psi.types.api.{Covariant, Variance}
 import org.jetbrains.plugins.scala.lang.psi.types.recursiveUpdate.AfterUpdate.{ProcessSubtypes, ReplaceWith, Stop}
 
@@ -16,15 +16,31 @@ class Extensions(val tp: ScType) extends AnyVal {
   //WARNING: If several updates are used, they should be applicable only for leaf types, e.g. which return themselves
   //from `updateSubtypes` method
   @tailrec
-  final def recursiveUpdateImpl(updates: Array[Update], index: Int = 0,
-                                visited: Set[ScType] = Set.empty, isLazySubtype: Boolean = false): ScType = {
+  final def recursiveUpdateImpl(substitutor: ScSubstitutor,
+                                visited: Set[ScType] = Set.empty,
+                                isLazySubtype: Boolean = false): ScType = {
+    val updates = substitutor.substitutions
+    val index = substitutor.fromIndex
+
     if (index >= updates.length || visited(tp)) tp
-    else updates(index)(tp) match {
-      case ReplaceWith(res) => res.recursiveUpdateImpl(updates, index + 1, visited, isLazySubtype)
-      case Stop => tp
-      case ProcessSubtypes =>
-        val newVisited = if (isLazySubtype) visited + tp else visited
-        tp.updateSubtypes(updates, index, newVisited)
+    else {
+      val currentUpdate = updates(index)
+
+      currentUpdate(tp) match {
+        case ReplaceWith(res) =>
+          res.recursiveUpdateImpl(substitutor.next, Set.empty, isLazySubtype)
+        case Stop => tp
+        case ProcessSubtypes =>
+          val newVisited = if (isLazySubtype) visited + tp else visited
+
+          if (substitutor.hasNonLeafSubstitutions) {
+            tp.updateSubtypes(ScSubstitutor(currentUpdate), newVisited)
+              .recursiveUpdateImpl(substitutor.next, Set.empty)
+          }
+          else {
+            tp.updateSubtypes(substitutor, newVisited)
+          }
+      }
     }
   }
 
@@ -49,12 +65,15 @@ class Extensions(val tp: ScType) extends AnyVal {
   def recursiveUpdate(update: Update): ScType = update(tp) match {
     case ReplaceWith(res) => res
     case Stop => tp
-    case ProcessSubtypes => tp.updateSubtypes(Array(update), 0, Set.empty)
+    case ProcessSubtypes => tp.updateSubtypes(ScSubstitutor(update), Set.empty)
   }
 
   //updates all matching subtypes recursively
   def updateRecursively(pf: PartialFunction[ScType, ScType]): ScType =
     recursiveUpdate(Update(pf))
+
+  def updateLeaves(pf: PartialFunction[LeafType, ScType]): ScType =
+    recursiveUpdate(LeafSubstitution(pf))
 
   //invokes a function with a side-effect recursively, doesn't create any new types
   def visitRecursively(fun: ScType => Unit): ScType =

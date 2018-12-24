@@ -7,7 +7,7 @@ import org.jetbrains.plugins.scala.extensions.TraversableExt
 import org.jetbrains.plugins.scala.lang.psi.api.toplevel.ScTypeParametersOwner
 import org.jetbrains.plugins.scala.lang.psi.types.ScType
 import org.jetbrains.plugins.scala.lang.psi.types.api.ParameterizedType.substitutorCache
-import org.jetbrains.plugins.scala.lang.psi.types.recursiveUpdate.{AfterUpdate, ScSubstitutor, Update}
+import org.jetbrains.plugins.scala.lang.psi.types.recursiveUpdate.{AfterUpdate, ScSubstitutor}
 import org.jetbrains.plugins.scala.project.ProjectContext
 
 /**
@@ -25,10 +25,10 @@ trait ParameterizedType extends ValueType {
 
   protected def substitutorInner: ScSubstitutor
 
-  override def updateSubtypes(updates: Array[Update], index: Int, visited: Set[ScType]): ValueType = {
+  override def updateSubtypes(substitutor: ScSubstitutor, visited: Set[ScType]): ValueType = {
     ParameterizedType(
-      designator.recursiveUpdateImpl(updates, index, visited),
-      typeArguments.map(_.recursiveUpdateImpl(updates, index, visited))
+      designator.recursiveUpdateImpl(substitutor, visited),
+      typeArguments.map(_.recursiveUpdateImpl(substitutor, visited))
     )
   }
 

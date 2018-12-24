@@ -83,7 +83,7 @@ package object types {
       case _ => false
     }
 
-    def removeUndefines(): ScType = scType.updateRecursively {
+    def removeUndefines(): ScType = scType.updateLeaves {
       case _: UndefinedType => stdTypes.Any
     }
 
@@ -91,7 +91,7 @@ package object types {
       * This method is important for parameters expected type.
       * There shouldn't be any abstract type in this expected type.
       **/
-    def removeAbstracts: ScType = scType.updateRecursively {
+    def removeAbstracts: ScType = scType.updateLeaves {
       case a: ScAbstractType => a.simplifyType
     }
 

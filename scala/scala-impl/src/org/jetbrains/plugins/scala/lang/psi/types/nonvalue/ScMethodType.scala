@@ -8,7 +8,7 @@ import org.jetbrains.plugins.scala.lang.psi.api.statements.params.{ScParameter, 
 import org.jetbrains.plugins.scala.lang.psi.types._
 import org.jetbrains.plugins.scala.lang.psi.types.api._
 import org.jetbrains.plugins.scala.lang.psi.types.recursiveUpdate.AfterUpdate.ProcessSubtypes
-import org.jetbrains.plugins.scala.lang.psi.types.recursiveUpdate.{AfterUpdate, ScSubstitutor, Update}
+import org.jetbrains.plugins.scala.lang.psi.types.recursiveUpdate.{AfterUpdate, ScSubstitutor}
 import org.jetbrains.plugins.scala.lang.psi.types.result._
 import org.jetbrains.plugins.scala.project.ProjectContext
 
@@ -89,7 +89,7 @@ object Parameter {
   }
 }
 
-case class ScMethodType(returnType: ScType, params: Seq[Parameter], isImplicit: Boolean)
+final case class ScMethodType(returnType: ScType, params: Seq[Parameter], isImplicit: Boolean)
                        (implicit val elementScope: ElementScope) extends NonValueType {
   implicit def projectContext: ProjectContext = elementScope.projectContext
 
@@ -105,8 +105,8 @@ case class ScMethodType(returnType: ScType, params: Seq[Parameter], isImplicit: 
     }))
   }
 
-  override def updateSubtypes(updates: Array[Update], index: Int, visited: Set[ScType]): ScMethodType = {
-    def update(tp: ScType) = tp.recursiveUpdateImpl(updates, index, visited, isLazySubtype = true)
+  override def updateSubtypes(substitutor: ScSubstitutor, visited: Set[ScType]): ScMethodType = {
+    def update(tp: ScType) = tp.recursiveUpdateImpl(substitutor, visited, isLazySubtype = true)
     def updateParameter(p: Parameter): Parameter = p.copy(
       paramType = update(p.paramType),
       expectedType = update(p.expectedType),
@@ -114,7 +114,7 @@ case class ScMethodType(returnType: ScType, params: Seq[Parameter], isImplicit: 
     )
 
     ScMethodType(
-      returnType.recursiveUpdateImpl(updates, index, visited),
+      returnType.recursiveUpdateImpl(substitutor, visited),
       params.map(updateParameter),
       isImplicit
     )
@@ -160,7 +160,7 @@ case class ScMethodType(returnType: ScType, params: Seq[Parameter], isImplicit: 
   }
 }
 
-case class ScTypePolymorphicType(internalType: ScType, typeParameters: Seq[TypeParameter]) extends NonValueType {
+final case class ScTypePolymorphicType(internalType: ScType, typeParameters: Seq[TypeParameter]) extends NonValueType {
 
   if (internalType.isInstanceOf[ScTypePolymorphicType]) {
     throw new IllegalArgumentException("Polymorphic type can't have wrong internal type")
@@ -259,10 +259,10 @@ case class ScTypePolymorphicType(internalType: ScType, typeParameters: Seq[TypeP
     polymorphicTypeSubstitutor(internalType.inferValueType).asInstanceOf[ValueType]
   }
 
-  override def updateSubtypes(updates: Array[Update], index: Int, visited: Set[ScType]): ScType = {
+  override def updateSubtypes(substitutor: ScSubstitutor, visited: Set[ScType]): ScType = {
     ScTypePolymorphicType(
-      internalType.recursiveUpdateImpl(updates, index, visited),
-      typeParameters.update(_.recursiveUpdateImpl(updates, index, visited, isLazySubtype = true))
+      internalType.recursiveUpdateImpl(substitutor, visited),
+      typeParameters.update(_.recursiveUpdateImpl(substitutor, visited, isLazySubtype = true))
     )
   }
 

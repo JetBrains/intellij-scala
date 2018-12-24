@@ -9,7 +9,7 @@ import org.jetbrains.plugins.scala.lang.psi.api.toplevel.ScTypedDefinition
 import org.jetbrains.plugins.scala.lang.psi.api.toplevel.typedef.{ScTemplateDefinition, ScTypeDefinition}
 import org.jetbrains.plugins.scala.lang.psi.types.api.designator.{ScProjectionType, ScThisType}
 import org.jetbrains.plugins.scala.lang.psi.types.api.{ParameterizedType, TypeParameterType}
-import org.jetbrains.plugins.scala.lang.psi.types.{ScCompoundType, ScType}
+import org.jetbrains.plugins.scala.lang.psi.types.{LeafType, ScCompoundType, ScType}
 
 import scala.annotation.tailrec
 
@@ -17,11 +17,11 @@ import scala.annotation.tailrec
   * Nikolay.Tropin
   * 01-Feb-18
   */
-private case class ThisTypeSubstitution(target: ScType) extends Substitution {
+private case class ThisTypeSubstitution(target: ScType) extends LeafSubstitution {
 
   override def toString: String = s"`this` -> $target"
 
-  override protected val subst: PartialFunction[ScType, ScType] = {
+  override protected val subst: PartialFunction[LeafType, ScType] = {
     case th: ScThisType if !hasRecursiveThisType(target, th.element) => doUpdateThisType(th, target)
   }
 

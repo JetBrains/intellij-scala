@@ -367,7 +367,7 @@ class ImplicitCollector(place: PsiElement,
           val filteredTypeParams =
             typeParams.filter(tp => !tp.lowerType.equiv(Nothing) || !tp.upperType.equiv(Any))
           val newPolymorphicType = ScTypePolymorphicType(internalType, filteredTypeParams)
-          val updated = newPolymorphicType.inferValueType.updateRecursively {
+          val updated = newPolymorphicType.inferValueType.updateLeaves {
             case u: UndefinedType => u.inferValueType
           }
           (updated, typeParams)
@@ -647,7 +647,7 @@ class ImplicitCollector(place: PsiElement,
 
     val updates = mutable.Map.empty[UndefinedType, ScDesignatorType]
 
-    val updatedType = tpe.updateRecursively {
+    val updatedType = tpe.updateLeaves {
       case original @ ScDesignatorType(p: ScParameter) if params.contains(p) =>
         val typeParam = TypeParameter.light(p.name ++ "$$dep", Seq.empty, Nothing, Any)
         val undef     = UndefinedType(typeParam)
@@ -657,7 +657,7 @@ class ImplicitCollector(place: PsiElement,
 
     val reverter: ScType => ScType =
       if (updates.nonEmpty)
-        (tpe: ScType) => tpe.updateRecursively {
+        (tpe: ScType) => tpe.updateLeaves {
           case undef: UndefinedType if updates.contains(undef) => updates(undef)
         }
       else identity
@@ -677,7 +677,7 @@ class ImplicitCollector(place: PsiElement,
   }
 
   private def abstractsToUpper(tp: ScType): ScType = {
-    val noAbstracts = tp.updateRecursively {
+    val noAbstracts = tp.updateLeaves {
       case ScAbstractType(_, _, upper) => upper
     }
 

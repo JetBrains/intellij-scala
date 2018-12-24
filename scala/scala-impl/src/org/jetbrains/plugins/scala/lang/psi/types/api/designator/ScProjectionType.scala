@@ -34,8 +34,8 @@ import org.jetbrains.plugins.scala.lang.psi.api.statements.params.TypeParamIdOwn
  * SomeType#member
  * member can be class or type alias
  */
-class ScProjectionType private(val projected: ScType,
-                               val element: PsiNamedElement) extends DesignatorOwner {
+final class ScProjectionType private(val projected: ScType,
+                                     val element: PsiNamedElement) extends DesignatorOwner {
 
   override protected def isAliasTypeInner: Option[AliasType] = {
     actualElement match {
@@ -87,8 +87,8 @@ class ScProjectionType private(val projected: ScType,
 
   override private[types] def designatorSingletonType: Option[ScType] = super.designatorSingletonType.map(actualSubst)
 
-  override def updateSubtypes(updates: Array[Update], index: Int, visited: Set[ScType]): ScType =
-    ScProjectionType(projected.recursiveUpdateImpl(updates, index, visited), element)
+  override def updateSubtypes(substitutor: ScSubstitutor, visited: Set[ScType]): ScType =
+    ScProjectionType(projected.recursiveUpdateImpl(substitutor, visited), element)
 
   override def updateSubtypesVariance(update: (ScType, Variance) => AfterUpdate,
                                       variance: Variance = Covariant,

@@ -14,7 +14,7 @@ import org.jetbrains.plugins.scala.project.ProjectContext
 /**
   * @author ilyas
   */
-class ScExistentialType private (val quantified: ScType,
+final class ScExistentialType private (val quantified: ScType,
                                  val wildcards: List[ScExistentialArgument],
                                  private val simplified: Option[ScType]) extends ScalaType with ValueType {
 
@@ -24,8 +24,8 @@ class ScExistentialType private (val quantified: ScType,
     quantified.isAliasType.map(a => a.copy(lower = a.lower.map(_.unpackedType), upper = a.upper.map(_.unpackedType)))
   }
 
-  override def updateSubtypes(updates: Array[Update], index: Int, visited: Set[ScType]): ScExistentialType =
-    ScExistentialType(quantified.recursiveUpdateImpl(updates, index, visited))
+  override def updateSubtypes(substitutor: ScSubstitutor, visited: Set[ScType]): ScExistentialType =
+    ScExistentialType(quantified.recursiveUpdateImpl(substitutor, visited))
 
   override def updateSubtypesVariance(update: (ScType, Variance) => AfterUpdate,
                                        variance: Variance = Covariant,

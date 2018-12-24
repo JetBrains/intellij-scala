@@ -7,7 +7,7 @@ import org.jetbrains.plugins.scala.lang.psi.api.statements.{ScTypeAlias, ScTypeA
 import org.jetbrains.plugins.scala.lang.psi.api.toplevel.typedef.ScObject
 import org.jetbrains.plugins.scala.lang.psi.types.api._
 import org.jetbrains.plugins.scala.lang.psi.types.recursiveUpdate.ScSubstitutor
-import org.jetbrains.plugins.scala.lang.psi.types.{ConstraintSystem, ConstraintsResult, ScExistentialArgument, ScExistentialType, ScType, ScTypeExt}
+import org.jetbrains.plugins.scala.lang.psi.types.{ConstraintSystem, ConstraintsResult, LeafType, ScExistentialArgument, ScExistentialType, ScType, ScTypeExt}
 import org.jetbrains.plugins.scala.lang.refactoring.util.ScTypeUtil.AliasType
 import org.jetbrains.plugins.scala.util.ScEquivalenceUtil.smartEquivalence
 
@@ -16,7 +16,7 @@ import org.jetbrains.plugins.scala.util.ScEquivalenceUtil.smartEquivalence
   * It can be whether singleton type (v.type) or simple type (java.lang.String).
   * element can be any stable element, class, value or type alias
   */
-case class ScDesignatorType(element: PsiNamedElement) extends DesignatorOwner {
+case class ScDesignatorType(element: PsiNamedElement) extends DesignatorOwner with LeafType {
 
   private var static = false
 

@@ -2,7 +2,7 @@ package org.jetbrains.plugins.scala.lang.psi.types.recursiveUpdate
 
 import org.jetbrains.plugins.scala.lang.psi.api.statements.params.ScParameter
 import org.jetbrains.plugins.scala.lang.psi.types.Compatibility.Expression
-import org.jetbrains.plugins.scala.lang.psi.types.ScType
+import org.jetbrains.plugins.scala.lang.psi.types.{LeafType, ScCompoundType, ScType}
 import org.jetbrains.plugins.scala.lang.psi.types.api.designator.ScDesignatorType
 import org.jetbrains.plugins.scala.lang.psi.types.nonvalue.Parameter
 
@@ -12,11 +12,11 @@ import scala.language.implicitConversions
   * Nikolay.Tropin
   * 01-Feb-18
   */
-private abstract class DepMethodParamSubstitution extends Substitution {
+private abstract class DepMethodParamSubstitution extends LeafSubstitution {
 
   def substitutedType(parameter: ScParameter): Option[ScType]
 
-  override protected val subst: PartialFunction[ScType, ScType] = {
+  override protected val subst: PartialFunction[LeafType, ScType] = {
     case d @ ScDesignatorType(p: ScParameter) => substitutedType(p).getOrElse(d)
   }
 }

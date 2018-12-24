@@ -7,12 +7,12 @@ import com.intellij.psi.CommonClassNames._
 import org.jetbrains.plugins.scala.extensions.PsiClassExt
 import org.jetbrains.plugins.scala.lang.psi.api.toplevel.typedef.ScObject
 import org.jetbrains.plugins.scala.lang.psi.impl.toplevel.synthetic.{ScSyntheticClass, SyntheticClasses}
-import org.jetbrains.plugins.scala.lang.psi.types.{ConstraintSystem, ConstraintsResult, NamedType, ScType, ScTypeExt}
+import org.jetbrains.plugins.scala.lang.psi.types.{ConstraintSystem, ConstraintsResult, LeafType, NamedType, ScType, ScTypeExt}
 import org.jetbrains.plugins.scala.project.ProjectContext
 
 sealed class StdType(val name: String, val tSuper: Option[StdType])
                     (implicit val projectContext: ProjectContext)
-  extends ValueType with NamedType {
+  extends ValueType with NamedType with LeafType {
 
   val fullName = s"scala.$name"
 
@@ -53,7 +53,7 @@ object StdType {
 }
 
 sealed class ValType(override val name: String)(implicit projectContext: ProjectContext)
-  extends StdType(name, Some(StdTypes.instance.AnyVal)) {
+  extends StdType(name, Some(StdTypes.instance.AnyVal)) with LeafType {
 
   override def isFinalType = true
 }

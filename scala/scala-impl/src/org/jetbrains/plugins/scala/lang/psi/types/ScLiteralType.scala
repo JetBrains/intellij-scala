@@ -17,7 +17,7 @@ import org.jetbrains.plugins.scala.project.ProjectContext
 import scala.reflect.ClassTag
 
 class ScLiteralType private(val literalValue: Any, val kind: ScLiteralType.Kind, val allowWiden: Boolean = true)
-                           (implicit val projectContext: ProjectContext) extends ValueType {
+                           (implicit val projectContext: ProjectContext) extends ValueType with LeafType {
 
   override def visitType(visitor: TypeVisitor): Unit = visitor.visitLiteralType(this)
 

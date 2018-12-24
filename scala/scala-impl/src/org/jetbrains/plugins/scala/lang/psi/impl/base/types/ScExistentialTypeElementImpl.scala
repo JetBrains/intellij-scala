@@ -39,7 +39,7 @@ class ScExistentialTypeElementImpl(node: ASTNode) extends ScalaPsiElementImpl(no
       val valDeclarations = clause.declarations.filterBy[ScValueDeclaration]
 
       if (valDeclarations.isEmpty) quantified
-      else quantified.updateRecursively {
+      else quantified.updateLeaves {
         case des @ ScDesignatorType(named: ScTypedDefinition) =>
           val valueDeclaration = valDeclarations.find(_.declaredElements.contains(named))
           val valType = valueDeclaration.flatMap(_.typeElement).map(_.`type`().getOrAny)

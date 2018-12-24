@@ -22,7 +22,7 @@ import scala.collection.mutable
 /**
  * Substitutor should be meaningful only for decls and typeDecls. Components shouldn't be applied by substitutor.
  */
-case class ScCompoundType private (
+final case class ScCompoundType private (
   components:   Seq[ScType],
   signatureMap: Map[Signature, ScType]          = Map.empty,
   typesMap:     Map[String, TypeAliasSignature] = Map.empty
@@ -60,15 +60,15 @@ case class ScCompoundType private (
     else componentsDepth
   }
 
-  override def updateSubtypes(updates: Array[Update], index: Int, visited: Set[ScType]): ScCompoundType = {
-    ScCompoundType(components.map(_.recursiveUpdateImpl(updates, index, visited)), signatureMap.map {
+  override def updateSubtypes(substitutor: ScSubstitutor, visited: Set[ScType]): ScCompoundType = {
+    ScCompoundType(components.map(_.recursiveUpdateImpl(substitutor, visited)), signatureMap.map {
       case (s: Signature, tp) =>
 
         val pTypes: Seq[Seq[() => ScType]] =
-          s.substitutedTypes.map(_.map(f => () => f().recursiveUpdateImpl(updates, index, visited, isLazySubtype = true)))
+          s.substitutedTypes.map(_.map(f => () => f().recursiveUpdateImpl(substitutor, visited, isLazySubtype = true)))
 
-        val typeParameters = s.typeParams.update(_.recursiveUpdateImpl(updates, index, visited, isLazySubtype = true))
-        implicit val returnType: ScType = tp.recursiveUpdateImpl(updates, index, visited)
+        val typeParameters = s.typeParams.update(_.recursiveUpdateImpl(substitutor, visited, isLazySubtype = true))
+        implicit val returnType: ScType = tp.recursiveUpdateImpl(substitutor, visited)
 
         (new Signature(
           s.name, pTypes, typeParameters, ScSubstitutor.empty, s.namedElement match {
@@ -79,7 +79,7 @@ case class ScCompoundType private (
           }, s.hasRepeatedParam
         ), returnType)
     }, typesMap.map {
-      case (s, sign) => (s, sign.updateTypes(_.recursiveUpdateImpl(updates, index, visited, isLazySubtype = true)))
+      case (s, sign) => (s, sign.updateTypes(_.recursiveUpdateImpl(substitutor, visited, isLazySubtype = true)))
     })
   }
 

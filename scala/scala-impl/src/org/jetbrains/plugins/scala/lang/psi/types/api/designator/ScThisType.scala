@@ -4,7 +4,7 @@ import org.jetbrains.plugins.scala.lang.psi.api.toplevel.ScTypedDefinition
 import org.jetbrains.plugins.scala.lang.psi.api.toplevel.typedef.{ScObject, ScTemplateDefinition}
 import org.jetbrains.plugins.scala.lang.psi.types.api.TypeVisitor
 import org.jetbrains.plugins.scala.lang.psi.types.recursiveUpdate.ScSubstitutor
-import org.jetbrains.plugins.scala.lang.psi.types.{ConstraintSystem, ConstraintsResult, ScType, ScTypeExt}
+import org.jetbrains.plugins.scala.lang.psi.types.{ConstraintSystem, ConstraintsResult, LeafType, ScType, ScTypeExt}
 import org.jetbrains.plugins.scala.util.ScEquivalenceUtil
 
 /**
@@ -25,7 +25,7 @@ import org.jetbrains.plugins.scala.util.ScEquivalenceUtil
   *
   * So when expression is typed, we should replace all such types be return value.
   */
-case class ScThisType(element: ScTemplateDefinition) extends DesignatorOwner {
+case class ScThisType(element: ScTemplateDefinition) extends DesignatorOwner with LeafType {
   element.getClass
   //throw NPE if clazz is null...
 

@@ -161,7 +161,7 @@ object PatternAnnotator {
     case designatorOwner: DesignatorOwner if designatorOwner.isSingleton =>
       scType.tryExtractDesignatorSingleton
     case _ =>
-      scType.updateRecursively {
+      scType.updateLeaves {
         case ScAbstractType(_, _, upper) => upper
         case tpt: TypeParameterType => tpt.upperType
       }
@@ -179,7 +179,7 @@ object PatternAnnotator {
   @tailrec
   def matchesPattern(matching: ScType, matched: ScType): Boolean = {
     def abstraction(scType: ScType, visited: Set[TypeParameterType] = Set.empty): ScType = {
-      scType.updateRecursively {
+      scType.updateLeaves {
         case tp: TypeParameterType =>
           if (visited.contains(tp)) tp
           else ScAbstractType(tp.typeParameter,

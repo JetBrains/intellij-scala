@@ -229,7 +229,6 @@ object ScImplicitlyConvertible {
                     t match {
                       case ScDesignatorType(p: ScParameter) if last.parameters.contains(p) =>
                         result = Some(last)
-                        Stop
                       case _ =>
                     }
                     if (result.isDefined) Stop

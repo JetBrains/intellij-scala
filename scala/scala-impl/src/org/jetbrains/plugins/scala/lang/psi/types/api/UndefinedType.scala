@@ -3,7 +3,7 @@ package org.jetbrains.plugins.scala.lang.psi.types.api
 import com.intellij.psi.PsiTypeParameter
 import org.jetbrains.plugins.scala.lang.psi.api.statements.params.TypeParamIdOwner
 import org.jetbrains.plugins.scala.lang.psi.types.nonvalue.NonValueType
-import org.jetbrains.plugins.scala.lang.psi.types.{ConstraintsResult, ScType, ConstraintSystem}
+import org.jetbrains.plugins.scala.lang.psi.types.{ConstraintSystem, ConstraintsResult, LeafType, ScType}
 import org.jetbrains.plugins.scala.project.ProjectContext
 
 /**
@@ -11,7 +11,7 @@ import org.jetbrains.plugins.scala.project.ProjectContext
   * In conformance using ConstraintSystem you can accumulate information
   * about possible generic type.
   */
-case class UndefinedType(typeParameter: TypeParameter, level: Int = 0) extends NonValueType {
+case class UndefinedType(typeParameter: TypeParameter, level: Int = 0) extends NonValueType with LeafType {
 
   override implicit def projectContext: ProjectContext = typeParameter.psiTypeParameter
 

@@ -3,11 +3,11 @@ package org.jetbrains.plugins.scala.lang.psi.types.api
 import org.jetbrains.plugins.scala.extensions.PsiClassExt
 import org.jetbrains.plugins.scala.lang.psi.ElementScope
 import org.jetbrains.plugins.scala.lang.psi.api.toplevel.typedef.ScClass
-import org.jetbrains.plugins.scala.lang.psi.types.recursiveUpdate.{AfterUpdate, Update}
-import org.jetbrains.plugins.scala.lang.psi.types.{ConstraintsResult, ScParameterizedType, ScType, ScTypeExt, ConstraintSystem, ScalaType}
+import org.jetbrains.plugins.scala.lang.psi.types.recursiveUpdate.{AfterUpdate, ScSubstitutor, Update}
+import org.jetbrains.plugins.scala.lang.psi.types.{ConstraintSystem, ConstraintsResult, ScParameterizedType, ScType, ScTypeExt, ScalaType}
 import org.jetbrains.plugins.scala.project.ProjectContext
 
-case class JavaArrayType(argument: ScType) extends ValueType {
+final case class JavaArrayType(argument: ScType) extends ValueType {
 
   override implicit def projectContext: ProjectContext = argument.projectContext
 
@@ -19,8 +19,8 @@ case class JavaArrayType(argument: ScType) extends ValueType {
       .map(ScParameterizedType(_, Seq(argument)))
   }
 
-  override def updateSubtypes(updates: Array[Update], index: Int, visited: Set[ScType]): JavaArrayType = {
-    JavaArrayType(argument.recursiveUpdateImpl(updates, index, visited))
+  override def updateSubtypes(substitutor: ScSubstitutor, visited: Set[ScType]): JavaArrayType = {
+    JavaArrayType(argument.recursiveUpdateImpl(substitutor, visited))
   }
 
   override def updateSubtypesVariance(update: (ScType, Variance) => AfterUpdate,

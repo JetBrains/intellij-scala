@@ -1,6 +1,6 @@
 package org.jetbrains.plugins.dotty.lang.psi.types
 
-import org.jetbrains.plugins.scala.lang.psi.types.ScType
+import org.jetbrains.plugins.scala.lang.psi.types.{LeafType, ScType}
 import org.jetbrains.plugins.scala.lang.psi.types.api.{TypeVisitor, ValueType}
 import org.jetbrains.plugins.scala.project.ProjectContext
 
@@ -12,7 +12,7 @@ trait DottyType extends ScType {
 }
 
 // is value type?
-class DottyNoType(implicit val projectContext: ProjectContext) extends DottyType with ValueType {
+class DottyNoType(implicit val projectContext: ProjectContext) extends DottyType with ValueType with LeafType {
   override def visitType(visitor: TypeVisitor): Unit = visitor match {
     case dottyVisitor: DottyTypeVisitor => dottyVisitor.visitNoType(this)
     case _ =>

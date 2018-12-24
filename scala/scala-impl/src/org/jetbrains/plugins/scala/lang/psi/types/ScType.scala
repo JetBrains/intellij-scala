@@ -6,7 +6,7 @@ package types
 import com.intellij.openapi.progress.ProgressManager
 import org.jetbrains.plugins.scala.extensions.ifReadAllowed
 import org.jetbrains.plugins.scala.lang.psi.types.api.{TypeSystem, TypeVisitor, ValueType, Variance}
-import org.jetbrains.plugins.scala.lang.psi.types.recursiveUpdate.{AfterUpdate, Update}
+import org.jetbrains.plugins.scala.lang.psi.types.recursiveUpdate.{AfterUpdate, ScSubstitutor, Update}
 import org.jetbrains.plugins.scala.lang.refactoring.util.ScTypeUtil.AliasType
 import org.jetbrains.plugins.scala.project.ProjectContextOwner
 
@@ -56,12 +56,12 @@ trait ScType extends ProjectContextOwner {
     ConstraintsResult.Left
   }
 
-  def updateSubtypes(updates: Array[Update], index: Int, visited: Set[ScType]): ScType = this
+  def updateSubtypes(substitutor: ScSubstitutor, visited: Set[ScType]): ScType
 
   def updateSubtypesVariance(update: (ScType, Variance) => AfterUpdate,
                              variance: Variance,
                              revertVariances: Boolean)
-                            (implicit visited: Set[ScType]): ScType = this
+                            (implicit visited: Set[ScType]): ScType
 
   def visitType(visitor: TypeVisitor)
 
