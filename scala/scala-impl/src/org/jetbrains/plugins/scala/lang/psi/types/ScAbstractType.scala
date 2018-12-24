@@ -3,11 +3,8 @@ package lang
 package psi
 package types
 
-import java.util.Objects
-
 import org.jetbrains.plugins.scala.lang.psi.types.api._
 import org.jetbrains.plugins.scala.lang.psi.types.nonvalue.NonValueType
-import org.jetbrains.plugins.scala.lang.psi.types.recursiveUpdate.{AfterUpdate, Update}
 import org.jetbrains.plugins.scala.project.ProjectContext
 
 
@@ -17,26 +14,19 @@ import org.jetbrains.plugins.scala.project.ProjectContext
  * to resolve generics. It's important if two local type
  * inferences work together.
  */
-case class ScAbstractType(typeParameter: TypeParameter, lower: ScType, upper: ScType) extends ScalaType with NonValueType {
+class ScAbstractType(val typeParameter: TypeParameter) extends ScalaType with NonValueType {
 
   override implicit def projectContext: ProjectContext = typeParameter.psiTypeParameter
 
-  private var hash: Int = -1
+  def lower: ScType = typeParameter.lowerType
 
-  override def hashCode: Int = {
-    if (hash == -1)
-      hash = Objects.hash(typeParameter, upper, lower)
+  def upper: ScType = typeParameter.upperType
 
-    hash
-  }
+  override def hashCode: Int = typeParameter.hashCode()
 
-  override def equals(obj: scala.Any): Boolean = {
-    obj match {
-      case ScAbstractType(oTypeParameter, oLower, oUpper) =>
-        lower.equals(oLower) && upper.equals(oUpper) &&
-          typeParameter.equals(oTypeParameter)
-      case _ => false
-    }
+  override def equals(obj: scala.Any): Boolean = obj match {
+    case other: ScAbstractType => typeParameter == other.typeParameter
+    case _ => false
   }
 
   override def equivInner(r: ScType, constraints: ConstraintSystem, falseUndef: Boolean): ConstraintsResult = {
@@ -56,27 +46,24 @@ case class ScAbstractType(typeParameter: TypeParameter, lower: ScType, upper: Sc
     if (upper.equiv(Any)) lower else if (lower.equiv(Nothing)) upper else lower
   }
 
-  override def updateSubtypes(updates: Array[Update], index: Int, visited: Set[ScType]): ScAbstractType = {
-    ScAbstractType(
-      typeParameter,
-      lower.recursiveUpdateImpl(updates, index, visited),
-      upper.recursiveUpdateImpl(updates, index, visited)
-    )
-  }
-
-  override def updateSubtypesVariance(update: (ScType, Variance) => AfterUpdate,
-                                      variance: Variance = Covariant,
-                                      revertVariances: Boolean = false)
-                                     (implicit visited: Set[ScType]): ScType = {
-    ScAbstractType(
-      typeParameter,
-      lower.recursiveVarianceUpdate(update, -variance),
-      upper.recursiveVarianceUpdate(update, variance)
-    )
-  }
-
   override def visitType(visitor: TypeVisitor): Unit = visitor match {
     case scalaVisitor: ScalaTypeVisitor => scalaVisitor.visitAbstractType(this)
     case _ =>
+  }
+
+  //for allocation-free extractor
+  def isEmpty: Boolean = false
+  def get: ScAbstractType = this
+  def _1: TypeParameter = typeParameter
+  def _2: ScType = lower
+  def _3: ScType = upper
+}
+
+object ScAbstractType {
+  def unapply(arg: ScAbstractType): ScAbstractType = arg
+
+  def apply(tp: TypeParameter, lower: ScType, upper: ScType): ScAbstractType = {
+    val abstractTp = TypeParameter(tp.psiTypeParameter, tp.typeParameters, lower, upper)
+    new ScAbstractType(abstractTp)
   }
 }
