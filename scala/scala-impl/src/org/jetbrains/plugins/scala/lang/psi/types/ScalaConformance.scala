@@ -13,9 +13,9 @@ import org.jetbrains.plugins.scala.lang.psi.api.base.patterns.ScBindingPattern
 import org.jetbrains.plugins.scala.lang.psi.api.statements._
 import org.jetbrains.plugins.scala.lang.psi.api.statements.params._
 import org.jetbrains.plugins.scala.lang.psi.api.toplevel.ScTypeParametersOwner
-import org.jetbrains.plugins.scala.lang.psi.api.toplevel.typedef.ScTypeDefinition
+import org.jetbrains.plugins.scala.lang.psi.api.toplevel.typedef.{ScClass, ScTypeDefinition}
 import org.jetbrains.plugins.scala.lang.psi.impl.toplevel.synthetic.ScSyntheticClass
-import org.jetbrains.plugins.scala.lang.psi.types.ScalaConformance.{SmartInheritanceResult, UndefinedOrWildcard}
+import org.jetbrains.plugins.scala.lang.psi.types.ScalaConformance.{ScalaArray, SmartInheritanceResult, UndefinedOrWildcard}
 import org.jetbrains.plugins.scala.lang.psi.types.api._
 import org.jetbrains.plugins.scala.lang.psi.types.api.designator.{ScDesignatorType, ScProjectionType, ScThisType}
 import org.jetbrains.plugins.scala.lang.psi.types.nonvalue.{NonValueType, ScMethodType, ScTypePolymorphicType}
@@ -171,6 +171,53 @@ trait ScalaConformance extends api.Conformance {
         .withLower(name, `type`, variance = Invariant)
         .withUpper(name, `type`, variance = Invariant)
     }
+
+    def checkArrayArgs(leftArg: ScType, rightArg: ScType): ConstraintsResult = {
+
+      (leftArg, rightArg) match {
+        case (ScAbstractType(_, lower, upper), right) =>
+          if (!upper.equiv(Any)) {
+            val t = conformsInner(upper, right, visited, constraints, checkWeak)
+            if (t.isLeft) {
+              return ConstraintsResult.Left
+            }
+            constraints = t.constraints
+          }
+          if (!lower.equiv(Nothing)) {
+            val t = conformsInner(right, lower, visited, constraints, checkWeak)
+            if (t.isLeft) {
+              return ConstraintsResult.Left
+            }
+            constraints = t.constraints
+          }
+        case (left, ScAbstractType(_, lower, upper)) =>
+          if (!upper.equiv(Any)) {
+            val t = conformsInner(upper, left, visited, constraints, checkWeak)
+            if (t.isLeft) {
+              return ConstraintsResult.Left
+            }
+            constraints = t.constraints
+          }
+          if (!lower.equiv(Nothing)) {
+            val t = conformsInner(left, lower, visited, constraints, checkWeak)
+            if (t.isLeft) {
+              return ConstraintsResult.Left
+            }
+            constraints = t.constraints
+          }
+        case (UndefinedType(typeParameter, _), rt) => addBounds(typeParameter, rt)
+        case (lt, UndefinedType(typeParameter, _)) => addBounds(typeParameter, lt)
+        case _ =>
+          val t = leftArg.equiv(rightArg, constraints, falseUndef = false)
+          if (t.isLeft) {
+            return ConstraintsResult.Left
+
+          }
+          constraints = t.constraints
+      }
+      constraints
+    }
+
 
     /*
       Different checks from right type in order of appearence.
@@ -760,111 +807,11 @@ trait ScalaConformance extends api.Conformance {
 
       r match {
         case JavaArrayType(arg2) =>
-          val argsPair = (arg1, arg2)
-          argsPair match {
-            case (ScAbstractType(_, lower, upper), right) =>
-              if (!upper.equiv(Any)) {
-                val t = conformsInner(upper, right, visited, constraints, checkWeak)
-                if (t.isLeft) {
-                  result = ConstraintsResult.Left
-                  return
-                }
-                constraints = t.constraints
-              }
-              if (!lower.equiv(Nothing)) {
-                val t = conformsInner(right, lower, visited, constraints, checkWeak)
-                if (t.isLeft) {
-                  result = ConstraintsResult.Left
-                  return
-                }
-                constraints = t.constraints
-              }
-            case (left, ScAbstractType(_, lower, upper)) =>
-              if (!upper.equiv(Any)) {
-                val t = conformsInner(upper, left, visited, constraints, checkWeak)
-                if (t.isLeft) {
-                  result = ConstraintsResult.Left
-                  return
-                }
-                constraints = t.constraints
-              }
-              if (!lower.equiv(Nothing)) {
-                val t = conformsInner(left, lower, visited, constraints, checkWeak)
-                if (t.isLeft) {
-                  result = ConstraintsResult.Left
-                  return
-                }
-                constraints = t.constraints
-              }
-            case (UndefinedType(typeParameter, _), rt) => addBounds(typeParameter, rt)
-            case (lt, UndefinedType(typeParameter, _)) => addBounds(typeParameter, lt)
-            case _ =>
-              val t = argsPair._1.equiv(argsPair._2, constraints, falseUndef = false)
-              if (t.isLeft) {
-                result = ConstraintsResult.Left
-                return
-              }
-              constraints = t.constraints
-          }
-          result = constraints
+          result = checkArrayArgs(arg1, arg2)
           return
-        case p2: ScParameterizedType =>
-          val args = p2.typeArguments
-          val des = p2.designator
-          if (args.length == 1 && (des.extractClass match {
-            case Some(q) => q.qualifiedName == "scala.Array"
-            case _ => false
-          })) {
-            val arg = a1.argument
-            val argsPair = (arg, args.head)
-            argsPair match {
-              case (ScAbstractType(_, lower, upper), right) =>
-                if (!upper.equiv(Any)) {
-                  val t = conformsInner(upper, right, visited, constraints, checkWeak)
-                  if (t.isLeft) {
-                    result = ConstraintsResult.Left
-                    return
-                  }
-                  constraints = t.constraints
-                }
-                if (!lower.equiv(Nothing)) {
-                  val t = conformsInner(right, lower, visited, constraints, checkWeak)
-                  if (t.isLeft) {
-                    result = ConstraintsResult.Left
-                    return
-                  }
-                  constraints = t.constraints
-                }
-              case (left, ScAbstractType(_, lower, upper)) =>
-                if (!upper.equiv(Any)) {
-                  val t = conformsInner(upper, left, visited, constraints, checkWeak)
-                  if (t.isLeft) {
-                    result = ConstraintsResult.Left
-                    return
-                  }
-                  constraints = t.constraints
-                }
-                if (!lower.equiv(Nothing)) {
-                  val t = conformsInner(left, lower, visited, constraints, checkWeak)
-                  if (t.isLeft) {
-                    result = ConstraintsResult.Left
-                    return
-                  }
-                  constraints = t.constraints
-                }
-              case (UndefinedType(typeParameter, _), rt) => addBounds(typeParameter, rt)
-              case (lt, UndefinedType(typeParameter, _)) => addBounds(typeParameter, lt)
-              case _ =>
-                val t = argsPair._1.equiv(argsPair._2, constraints, falseUndef = false)
-                if (t.isLeft) {
-                  result = ConstraintsResult.Left
-                  return
-                }
-                constraints = t.constraints
-            }
-            result = constraints
-            return
-          }
+        case ScalaArray(arg2) =>
+          result = checkArrayArgs(arg1, arg2)
+          return
         case _ =>
       }
 
@@ -1044,6 +991,8 @@ trait ScalaConformance extends api.Conformance {
                 case _ =>
                   result = ConstraintsResult.Left
               }
+            case (ScalaArray(leftArg), ScalaArray(rightArg)) =>
+              result = checkArrayArgs(leftArg, rightArg)
             case _ if des1 equiv des2 =>
               result =
                 if (args1.length != args2.length) ConstraintsResult.Left
@@ -1095,65 +1044,16 @@ trait ScalaConformance extends api.Conformance {
       if (result != null) return
 
       r match {
-        case _: JavaArrayType =>
-          val args = p.typeArguments
-          val des = p.designator
-          if (args.length == 1 && (des.extractClass match {
-            case Some(q) => q.qualifiedName == "scala.Array"
-            case _ => false
-          })) {
-            val arg = r.asInstanceOf[JavaArrayType].argument
-            val argsPair = (arg, args.head)
-            argsPair match {
-              case (ScAbstractType(_, lower, upper), right) =>
-                if (!upper.equiv(Any)) {
-                  val t = conformsInner(upper, right, visited, constraints, checkWeak)
-                  if (t.isLeft) {
-                    result = ConstraintsResult.Left
-                    return
-                  }
-                  constraints = t.constraints
-                }
-                if (!lower.equiv(Nothing)) {
-                  val t = conformsInner(right, lower, visited, constraints, checkWeak)
-                  if (t.isLeft) {
-                    result = ConstraintsResult.Left
-                    return
-                  }
-                  constraints = t.constraints
-                }
-              case (left, ScAbstractType(_, lower, upper)) =>
-                if (!upper.equiv(Any)) {
-                  val t = conformsInner(upper, left, visited, constraints, checkWeak)
-                  if (t.isLeft) {
-                    result = ConstraintsResult.Left
-                    return
-                  }
-                  constraints = t.constraints
-                }
-                if (!lower.equiv(Nothing)) {
-                  val t = conformsInner(left, lower, visited, constraints, checkWeak)
-                  if (t.isLeft) {
-                    result = ConstraintsResult.Left
-                    return
-                  }
-                  constraints = t.constraints
-                }
-              case (UndefinedType(typeParameter, _), rt) => addBounds(typeParameter, rt)
-              case (lt, UndefinedType(typeParameter, _)) => addBounds(typeParameter, lt)
-              case _ =>
-                val t = argsPair._1.equiv(argsPair._2, constraints, falseUndef = false)
-                if (t.isLeft) {
-                  result = ConstraintsResult.Left
-                  return
-                }
-                constraints = t.constraints
-            }
-            result = constraints
-            return
+        case JavaArrayType(rightArg) =>
+          p match {
+            case ScalaArray(leftArg) =>
+              result = checkArrayArgs(leftArg, rightArg)
+            case _ =>
           }
         case _ =>
       }
+
+      if (result != null) return
 
       p.designator match {
         case t: TypeParameterType if t.typeParameters.length == p.typeArguments.length =>
@@ -1166,7 +1066,6 @@ trait ScalaConformance extends api.Conformance {
       rightVisitor = new AliasDesignatorVisitor with CompoundTypeVisitor with ExistentialVisitor
         with ProjectionVisitor {}
       r.visitType(rightVisitor)
-      if (result != null) return
     }
 
     override def visitExistentialType(e: ScExistentialType) {
@@ -1714,6 +1613,13 @@ private object ScalaConformance {
     val failure: SmartInheritanceResult = new SmartInheritanceResult(null)
 
     def apply(res: ScType): SmartInheritanceResult = new SmartInheritanceResult(res)
+  }
+
+  private object ScalaArray {
+    def unapply(p: ParameterizedType): Option[ScType] = p match {
+      case ParameterizedType(ExtractClass(ClassQualifiedName("scala.Array")), Seq(arg)) => Some(arg)
+      case _ => None
+    }
   }
 
 }
