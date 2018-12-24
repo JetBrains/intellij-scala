@@ -4,7 +4,7 @@ package psi
 package types
 
 import com.intellij.psi._
-import org.jetbrains.plugins.scala.editor.documentationProvider.ScalaDocumentationProvider
+import org.jetbrains.plugins.scala.editor.documentationProvider.ScalaDocumentationProvider.parseParameters
 import org.jetbrains.plugins.scala.extensions._
 import org.jetbrains.plugins.scala.lang.parser.parsing.expressions.InfixExpr
 import org.jetbrains.plugins.scala.lang.psi.api.base.ScFieldId
@@ -13,7 +13,6 @@ import org.jetbrains.plugins.scala.lang.psi.api.statements._
 import org.jetbrains.plugins.scala.lang.psi.api.statements.params.{ScParameter, ScTypeParam}
 import org.jetbrains.plugins.scala.lang.psi.api.toplevel.ScTypedDefinition
 import org.jetbrains.plugins.scala.lang.psi.api.toplevel.typedef.{ScObject, ScTypeDefinition}
-import org.jetbrains.plugins.scala.lang.psi.light.scala.{ScLightBindingPattern, ScLightFieldId, ScLightFunction, ScLightTypeAlias}
 import org.jetbrains.plugins.scala.lang.psi.types.api._
 import org.jetbrains.plugins.scala.lang.psi.types.api.designator.{ScDesignatorType, ScProjectionType, ScThisType}
 import org.jetbrains.plugins.scala.lang.psi.types.nonvalue.{ScMethodType, ScTypePolymorphicType}
@@ -36,11 +35,10 @@ trait ScalaTypePresentation extends api.TypePresentation {
 
     def typeTail(need: Boolean) = if (need) ObjectTypeSuffix else ""
 
-    def parametersText(parameters: Seq[ScTypeParam]): String = parameters match {
+    def typeParametersText(typeParams: Seq[ScTypeParam], substitutor: ScSubstitutor): String = typeParams match {
       case Seq() => ""
       case _ =>
         def typeParamText(param: ScTypeParam): String = {
-          val substitutor = ScSubstitutor.empty
 
           def typeText0(tp: ScType) = typeText(substitutor(tp), nameFun, nameWithPointFun)
 
@@ -62,7 +60,7 @@ trait ScalaTypePresentation extends api.TypePresentation {
           buffer.toString()
         }
 
-        parameters.map(typeParamText).commaSeparated(model = Model.SquareBrackets)
+        typeParams.map(typeParamText).commaSeparated(model = Model.SquareBrackets)
     }
 
     def projectionTypeText(projType: ScProjectionType, needDotType: Boolean): String = {
@@ -126,37 +124,34 @@ trait ScalaTypePresentation extends api.TypePresentation {
       val declsTexts = (signatureMap ++ typeMap).flatMap {
         case (s: Signature, returnType: ScType) if s.namedElement.isInstanceOf[ScFunction] =>
           val function = s.namedElement.asInstanceOf[ScFunction]
-          val funCopy = ScLightFunction(function, s.substitutedTypes, s.typeParams)(returnType)
-          val paramClauses = ScalaDocumentationProvider.parseParameters(funCopy, -1)(typeText0)
-          val retType = if (!compType.equiv(returnType)) typeText0(returnType) else s"this$ObjectTypeSuffix"
+          val substitutor = s.substitutor
+          val paramClauses = parseParameters(function, -1)(scType => typeText0(substitutor(scType)))
+          val retType = if (!compType.equiv(returnType)) typeText0(substitutor(returnType)) else s"this$ObjectTypeSuffix"
 
-          Some(s"def ${s.name}${parametersText(funCopy.typeParameters)}$paramClauses: $retType")
+          val typeParameters = typeParametersText(function.typeParameters, substitutor)
+
+          Some(s"def ${s.name}$typeParameters$paramClauses: $retType")
         case (s: Signature, returnType: ScType) if s.namedElement.isInstanceOf[ScTypedDefinition] =>
-          implicit val t: ScType = returnType
-          val maybeNewElement = s.namedElement match {
+          val substitutor = s.substitutor
+          val named: Option[ScTypedDefinition] = s.namedElement match {
             case _ if s.paramLength > 0 => None
-            case pattern: ScBindingPattern => Some(ScLightBindingPattern(pattern))
-            case fieldId: ScFieldId => Some(ScLightFieldId(fieldId))
+            case pattern: ScBindingPattern => Some(pattern)
+            case fieldId: ScFieldId => Some(fieldId)
             case _ => None
           }
 
-          maybeNewElement.map { typeDefinition =>
-            (if (typeDefinition.isVar) "var" else "val") + s" ${typeDefinition.name} : ${typeText0(returnType)}"
+          named.map { typedDefinition =>
+            (if (typedDefinition.isVar) "var" else "val") + s" ${typedDefinition.name} : ${typeText0(substitutor(returnType))}"
           }
-        case (_: String, TypeAliasSignature(_, parameters, lowerBound, upperBound, _, typeAlias)) =>
-          val lightTypeAlias = ScLightTypeAlias(typeAlias, lowerBound, upperBound, parameters)
-          val defnText: String = lightTypeAlias match {
+        case (_: String, TypeAliasSignature(_, typeParams, lowerBound, upperBound, _, typeAlias)) =>
+          val defnText: String = typeAlias match {
             case tad: ScTypeAliasDefinition =>
-              tad.aliasedType.toOption
-                .filterNot(_.isNothing)
-                .fold("") { tp =>
-                  " = " + typeText0(tp)
-                }
+              s" = ${typeText0(upperBound)}"
             case _ =>
-              lowerBoundText(lightTypeAlias.lowerBound)(typeText0) +
-                upperBoundText(lightTypeAlias.upperBound)(typeText0)
+              lowerBoundText(lowerBound)(typeText0) + upperBoundText(upperBound)(typeText0)
           }
-          Some(s"type ${lightTypeAlias.name}${parametersText(lightTypeAlias.typeParameters)}$defnText")
+          val typeParameters = typeParametersText(typeAlias.typeParameters, ScSubstitutor.empty)
+          Some(s"type ${typeAlias.name}$typeParameters$defnText")
         case _ => None
       }
 
