@@ -930,6 +930,12 @@ trait ScalaConformance extends api.Conformance {
       }
 
       r match {
+        case ScalaArray(rightArg) =>
+          p match {
+            case ScalaArray(leftArg) =>
+              result = checkArrayArgs(leftArg, rightArg)
+            case _ =>
+          }
         case p2: ScParameterizedType =>
           val des1 = p.designator
           val des2 = p2.designator
@@ -991,8 +997,6 @@ trait ScalaConformance extends api.Conformance {
                 case _ =>
                   result = ConstraintsResult.Left
               }
-            case (ScalaArray(leftArg), ScalaArray(rightArg)) =>
-              result = checkArrayArgs(leftArg, rightArg)
             case _ if des1 equiv des2 =>
               result =
                 if (args1.length != args2.length) ConstraintsResult.Left
