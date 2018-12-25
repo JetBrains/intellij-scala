@@ -23,8 +23,8 @@ class ScalaConstantExpressionEvaluator extends ConstantExpressionEvaluator {
   def computeConstantExpression(expression: PsiElement, throwExceptionOnOverflow: Boolean = false): AnyRef = {
     expression match {
       case patternDef: ScPatternDefinition => patternDef.expr.map(computeConstantExpression(_)).orNull
-      case fun: ScFunctionDefinition if fun.containingClass.isInstanceOf[ScObject] => fun.body.map(computeConstantExpression(_)).orNull
-      case pattern: ScReferencePattern if pattern.isVal && (pattern.getModifierList.hasModifierProperty("final") || pattern.containingClass.isInstanceOf[ScObject]) => computeConstantExpression(pattern.nameContext)
+      case fun: ScFunctionDefinition if fun.containingClass.isInstanceOf[ScObject] || fun.containingClass == null => fun.body.map(computeConstantExpression(_)).orNull
+      case pattern: ScReferencePattern if pattern.isVal && (pattern.getModifierList.hasModifierProperty("final") || pattern.containingClass.isInstanceOf[ScObject] || pattern.containingClass == null) => computeConstantExpression(pattern.nameContext)
       case ref: ScReferenceExpression => computeConstantExpression(ref.resolve())
       case interpolated: ScInterpolatedStringLiteral =>
         val children = interpolated.children.toList
