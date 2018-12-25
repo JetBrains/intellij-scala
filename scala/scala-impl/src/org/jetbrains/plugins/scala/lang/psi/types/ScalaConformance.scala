@@ -1500,16 +1500,10 @@ trait ScalaConformance extends api.Conformance {
     }
   }
 
-  def addParam(typeParameter: TypeParameter, bound: ScType, constraints: ConstraintSystem): ConstraintsResult =
-    addArgedBound(typeParameter, bound, constraints, variance = Invariant, addUpper = true, addLower = true)
-
-  def addArgedBound(typeParameter: TypeParameter, bound: ScType, constraints: ConstraintSystem,
-                    variance: Variance = Covariant, addUpper: Boolean = false, addLower: Boolean = false): ConstraintsResult = {
-    if (!addUpper && !addLower) return ConstraintsResult.Left
-    var res = constraints
-    if (addUpper) res = res.withUpper(typeParameter.typeParamId, bound, variance = variance)
-    if (addLower) res = res.withLower(typeParameter.typeParamId, bound, variance = variance)
-    res
+  def addParam(typeParameter: TypeParameter, bound: ScType, constraints: ConstraintSystem): ConstraintsResult = {
+    constraints
+      .withUpper(typeParameter.typeParamId, bound, variance = Invariant)
+      .withLower(typeParameter.typeParamId, bound, variance = Invariant)
   }
 
   def processHigherKindedTypeParams(undefType: ParameterizedType, defType: ParameterizedType, constraints: ConstraintSystem,
