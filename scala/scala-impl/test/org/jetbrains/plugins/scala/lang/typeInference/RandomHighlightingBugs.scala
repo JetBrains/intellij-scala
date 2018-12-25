@@ -2,7 +2,7 @@ package org.jetbrains.plugins.scala.lang.typeInference
 
 import org.jetbrains.plugins.scala.base.ScalaLightCodeInsightFixtureTestAdapter
 
-class RandomConformanceBugsTest extends ScalaLightCodeInsightFixtureTestAdapter {
+class RandomHighlightingBugs extends ScalaLightCodeInsightFixtureTestAdapter {
   def testSCL9738(): Unit = {
     checkTextHasNoErrors(
       s"""
@@ -40,6 +40,17 @@ class RandomConformanceBugsTest extends ScalaLightCodeInsightFixtureTestAdapter 
         |}
         |
       """.stripMargin)
+
+  def testSCL14700(): Unit =
+    checkTextHasNoErrors(
+      """
+        |type Id[A] = A
+        |val opt1: Id[Option[String]] = Some("Foo")
+        |opt1.withFilter(one => true).map(one => takesString(one))
+        |opt1.filter(one => true).map(one => takesString(one))
+        |def takesString(foo: String): Unit = println(foo)
+      """.stripMargin
+    )
 
   def testSCL14486(): Unit =
     checkTextHasNoErrors(
