@@ -205,6 +205,9 @@ package object extensions {
       if (classTag[E].runtimeClass.isInstance(v)) Some(v.asInstanceOf[E])
       else None
     }
+
+    def ifNot(predicate: T => Boolean): Option[T] =
+      if (predicate(v)) None else Some(v)
   }
 
   implicit class OptionExt[T](val option: Option[T]) extends AnyVal {

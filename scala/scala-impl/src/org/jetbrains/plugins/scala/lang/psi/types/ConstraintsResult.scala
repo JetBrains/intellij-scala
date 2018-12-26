@@ -9,6 +9,7 @@ import org.jetbrains.plugins.scala.lang.psi.types.api._
 import org.jetbrains.plugins.scala.lang.psi.types.recursiveUpdate.AfterUpdate.{ProcessSubtypes, ReplaceWith, Stop}
 import org.jetbrains.plugins.scala.lang.psi.types.recursiveUpdate.ScSubstitutor
 import org.jetbrains.plugins.scala.project.ProjectContext
+import org.jetbrains.plugins.scala.extensions.ObjectExt
 
 import scala.collection.immutable.LongMap
 
@@ -125,17 +126,15 @@ private final case class ConstraintSystemImpl(upperMap: LongMap[Set[ScType]],
   )
 
   override def withLower(id: Long, rawLower: ScType, variance: Variance): ConstraintSystem =
-    computeLower(variance)(rawLower).fold(this: ConstraintSystem) { lower =>
-      copy(
-        lowerMap = lowerMap.update(id, lower)
-      )
+    computeLower(variance, rawLower) match {
+      case None => this
+      case Some(lower) => copy(lowerMap = lowerMap.update(id, lower))
     }
 
   override def withUpper(id: Long, rawUpper: ScType, variance: Variance): ConstraintSystem =
-    computeUpper(variance)(rawUpper).fold(this: ConstraintSystem) { upper =>
-      copy(
-        upperMap = upperMap.update(id, upper)
-      )
+    computeUpper(variance, rawUpper) match {
+      case None => this
+      case Some(upper) => copy(upperMap = upperMap.update(id, upper))
     }
 
   override def substitutionBounds(canThrowSCE: Boolean)
@@ -288,15 +287,15 @@ private object ConstraintSystemImpl {
     }
   }
 
-  private def computeUpper(variance: Variance) =
-    updateUpper(variance).andThen {
-      unpackedType(isAny)
-    }
+  private def computeUpper(variance: Variance, rawUpper: ScType): Option[ScType]  =
+    updateUpper(variance, rawUpper)
+      .unpackedType
+      .ifNot(isAny)
 
-  private def computeLower(variance: Variance) =
-    updateLower(variance).andThen {
-      unpackedType(isNothing)
-    }
+  private def computeLower(variance: Variance, rawLower: ScType): Option[ScType] =
+    updateLower(variance, rawLower)
+      .unpackedType
+      .ifNot(isNothing)
 
   private def isAny(`type`: ScType) = {
     import `type`.projectContext
@@ -308,52 +307,38 @@ private object ConstraintSystemImpl {
     `type`.equiv(Nothing)
   }
 
-  private[this] def updateUpper(variance: Variance): ScType => ScType = {
-    case ScAbstractType(_, _, upper) if variance == Invariant => upper // lower will be added separately
-    case ScAbstractType(_, _, upper) if variance == Covariant && isAny(upper) =>
-      import upper.projectContext
-      Any
-    case rawUpper =>
-      var index = 0
-      recursiveVarianceUpdate(rawUpper, variance)(
-        {
-          a =>
-            index += 1
-            existentialArgument(index, a.lower, a.upper)
-          // TODO: why this is right?
-        }, {
-          ex =>
-            index += 1
-            existentialArgument(index, ex.lower, ex.upper)
-        }
-      )
-  }
+  private[this] def updateUpper(variance: Variance, rawUpper: ScType)
+                               (implicit freshExArg: FreshExistentialArg): ScType =
+    rawUpper match {
+      case ScAbstractType(_, _, upper) if variance == Invariant => upper // lower will be added separately
+      case ScAbstractType(_, _, upper) if variance == Covariant && isAny(upper) =>
+        import upper.projectContext
+        Any
+      case _ =>
+        recursiveVarianceUpdate(rawUpper, variance)(
+          invariantAbstract = freshExArg(_),                                       // TODO: why this is right?
+          invariantExistentialArg = freshExArg(_)
+        )
+    }
 
-  private[this] def updateLower(variance: Variance): ScType => ScType = {
-    case ScAbstractType(_, lower, _) => lower // upper will be added separately
-    case rawLower =>
-      var index = 0
-      recursiveVarianceUpdate(rawLower, variance, revertVariances = true)(
-        {
-          a => a.lower
-          //          index += 1
-          //          existentialArgument(index, Nil, _, _)
-          // TODO: why this is right?
-        }, {
-          ex =>
-            index += 1
-            existentialArgument(index, ex.lower, ex.upper)
-        }
-      )
-  }
+  private[this] def updateLower(variance: Variance, rawLower: ScType)
+                               (implicit freshExArg: FreshExistentialArg): ScType =
+    rawLower match {
+      case ScAbstractType(_, lower, _) => lower // upper will be added separately
+      case _ =>
+        recursiveVarianceUpdate(rawLower, variance, revertVariances = true)(
+          invariantAbstract = _.lower,                                             // TODO: why this is right?
+          invariantExistentialArg = freshExArg(_)
+        )
+    }
 
   private[this] def recursiveVarianceUpdate(`type`: ScType, variance: Variance, revertVariances: Boolean = false)
-                                           (abstractCase: ScAbstractType => ScType,
-                                            existentialArgumentCase: ScExistentialArgument => ScType) =
+                                           (invariantAbstract: ScAbstractType => ScType,
+                                            invariantExistentialArg: ScExistentialArgument => ScType) =
     `type`.recursiveVarianceUpdate(
       {
-        case (a: ScAbstractType, newVariance)         => replaceAbstractType(newVariance, a)(abstractCase)
-        case (ex: ScExistentialArgument, newVariance) => replaceExistentialArg(newVariance, ex)(existentialArgumentCase)
+        case (a: ScAbstractType, newVariance)         => replaceAbstractType(newVariance, a)(invariantAbstract)
+        case (ex: ScExistentialArgument, newVariance) => replaceExistentialArg(newVariance, ex)(invariantExistentialArg)
         case (_: ScExistentialType, _)                => Stop
         case _                                        => ProcessSubtypes
       },
@@ -379,13 +364,21 @@ private object ConstraintSystemImpl {
     }
   }
 
+  private implicit def freshExistentialArg: FreshExistentialArg = new FreshExistentialArg
 
-  private[this] def existentialArgument(index: Int, lower: ScType, upper: ScType) =
-    ScExistentialArgument(s"_$$$index", Nil, lower, upper)
+  private class FreshExistentialArg {
+    private[this] var index = 0
 
-  private[this] def unpackedType(predicate: ScType => Boolean)
-                                (`type`: ScType) =
-    Some(`type`.unpackedType).filterNot(predicate)
+    def apply(a: ScAbstractType): ScExistentialArgument = {
+      index += 1
+      ScExistentialArgument(s"_$$$index", Nil, a.lower, a.upper)
+    }
+
+    def apply(e: ScExistentialArgument): ScExistentialArgument = {
+      index += 1
+      ScExistentialArgument(s"_$$$index", Nil, e.lower, e.upper)
+    }
+  }
 }
 
 private final case class MultiConstraintSystem(impls: Set[ConstraintSystemImpl])
