@@ -10,21 +10,38 @@ import org.jetbrains.plugins.scala.lang.psi.api.statements.{ScFunctionDefinition
 import org.jetbrains.plugins.scala.extensions.PsiElementExt
 import org.jetbrains.plugins.scala.lang.lexer.ScalaTokenTypes
 import org.jetbrains.plugins.scala.lang.parser.ScalaElementType
-import org.jetbrains.plugins.scala.lang.psi.api.toplevel.typedef.ScObject
+import org.jetbrains.plugins.scala.lang.psi.api.toplevel.typedef.{ScClass, ScMember, ScObject}
 
 /**
- * @author Alexander Podkhalyuzin
- */
+  * @author Alexander Podkhalyuzin
+  */
 
 class ScalaConstantExpressionEvaluator extends ConstantExpressionEvaluator {
   def computeExpression(expression: PsiElement, throwExceptionOnOverflow: Boolean,
                         auxEvaluator: AuxEvaluator): AnyRef = computeConstantExpression(expression, throwExceptionOnOverflow)
 
+  private def isInFinalClass(member: ScMember): Boolean = {
+    val containing = member.containingClass
+    containing.isInstanceOf[ScClass] && containing.hasModifierProperty("final")
+  }
+
+  private def isInFinalClass(member: ScReferencePattern): Boolean = {
+    val containing = member.containingClass
+    containing.isInstanceOf[ScClass] && containing.hasModifierProperty("final")
+  }
+
   def computeConstantExpression(expression: PsiElement, throwExceptionOnOverflow: Boolean = false): AnyRef = {
     expression match {
       case patternDef: ScPatternDefinition => patternDef.expr.map(computeConstantExpression(_)).orNull
-      case fun: ScFunctionDefinition if fun.containingClass.isInstanceOf[ScObject] || fun.containingClass == null => fun.body.map(computeConstantExpression(_)).orNull
-      case pattern: ScReferencePattern if pattern.isVal && (pattern.getModifierList.hasModifierProperty("final") || pattern.containingClass.isInstanceOf[ScObject] || pattern.containingClass == null) => computeConstantExpression(pattern.nameContext)
+      case fun: ScFunctionDefinition
+        if isInFinalClass(fun) || fun.hasModifierProperty("final") ||
+          fun.containingClass.isInstanceOf[ScObject] || fun.containingClass == null =>
+        fun.body.map(computeConstantExpression(_)).orNull
+      case pattern: ScReferencePattern
+        if pattern.isVal && (isInFinalClass(pattern) ||
+          pattern.getModifierList.hasModifierProperty("final") || pattern.containingClass.isInstanceOf[ScObject] ||
+          pattern.containingClass == null) =>
+        computeConstantExpression(pattern.nameContext)
       case ref: ScReferenceExpression => computeConstantExpression(ref.resolve())
       case interpolated: ScInterpolatedStringLiteral =>
         val children = interpolated.children.toList
@@ -34,7 +51,8 @@ class ScalaConstantExpressionEvaluator extends ConstantExpressionEvaluator {
           val quotes = children(1).getText
           children.foldLeft(("", false)) {
             case ((acc, expectingRef), child) =>
-              def evaluateHelper(expr: ScExpression): Option[(String, Boolean)] = Option(computeConstantExpression(expr)).map{it => (acc + it, false)}
+              def evaluateHelper(expr: ScExpression): Option[(String, Boolean)] = Option(computeConstantExpression(expr)).map { it => (acc + it, false) }
+
               child match {
                 case block: ScBlockExpr => block.lastExpr.flatMap(evaluateHelper).getOrElse(return null)
                 case ref: ScReferenceExpression if expectingRef => evaluateHelper(ref).getOrElse(return null)

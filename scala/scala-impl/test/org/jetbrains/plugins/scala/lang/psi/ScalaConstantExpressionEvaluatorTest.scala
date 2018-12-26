@@ -181,4 +181,25 @@ class ScalaConstantExpressionEvaluatorTest extends ScalaLightPlatformCodeInsight
          |}
        """.stripMargin, 8)
   }
+
+  def testFinalDefInObject(): Unit = {
+    check(
+      s"""
+         |class C {
+         |  final def foo = 4
+         |  val b = $pattern(foo - 1)
+         |}
+       """.stripMargin, 3)
+  }
+
+  def testValInFinalClass(): Unit = {
+    check(
+      s"""
+         |final class C {
+         |  val foo = 4
+         |  def bar = 5
+         |  val b = $pattern(foo + bar)
+         |}
+       """.stripMargin, 9)
+  }
 }
