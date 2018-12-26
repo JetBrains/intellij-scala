@@ -33,23 +33,19 @@ trait ParameterizedType extends ValueType {
   }
 
   override def updateSubtypesVariance(update: (ScType, Variance) => AfterUpdate,
-                                      variance: Variance = Covariant,
-                                      revertVariances: Boolean = false)
+                                      variance: Variance = Covariant)
                                      (implicit visited: Set[ScType]): ScType = {
 
-    val argUpdateSign: Variance = variance match {
-      case Invariant | Covariant => Covariant.inverse(revertVariances)
-      case Contravariant         => Contravariant.inverse(revertVariances)
-    }
+    val argUpdateSign: Variance = variance.sign
 
-    val des = designator.extractDesignated(expandAliases = false) match {
+    val typeParameterVariances = designator.extractDesignated(expandAliases = false) match {
       case Some(n: ScTypeParametersOwner) => n.typeParameters.map(_.variance)
       case _                              => Seq.empty
     }
     ParameterizedType(designator.recursiveVarianceUpdate(update, variance),
       typeArguments.zipWithIndex.map {
         case (ta, i) =>
-          val v = if (i < des.length) des(i) else Invariant
+          val v = if (i < typeParameterVariances.length) typeParameterVariances(i) else Invariant
           ta.recursiveVarianceUpdate(update, v * argUpdateSign)
       })
   }

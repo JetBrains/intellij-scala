@@ -28,8 +28,7 @@ final class ScExistentialType private (val quantified: ScType,
     ScExistentialType(quantified.recursiveUpdateImpl(substitutor, visited))
 
   override def updateSubtypesVariance(update: (ScType, Variance) => AfterUpdate,
-                                       variance: Variance = Covariant,
-                                       revertVariances: Boolean = false)
+                                       variance: Variance = Covariant)
                                      (implicit visited: Set[ScType]): ScType = {
     ScExistentialType(quantified.recursiveVarianceUpdate(update, variance))
   }

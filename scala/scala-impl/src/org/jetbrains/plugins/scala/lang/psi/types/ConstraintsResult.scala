@@ -310,7 +310,7 @@ private object ConstraintSystemImpl {
   private[this] def updateUpper(variance: Variance, rawUpper: ScType)
                                (implicit freshExArg: FreshExistentialArg): ScType =
     rawUpper match {
-      case ScAbstractType(_, _, upper) if variance == Invariant => upper // lower will be added separately
+      case ScAbstractType(_, _, upper) if variance == Invariant => upper
       case ScAbstractType(_, _, upper) if variance == Covariant && isAny(upper) =>
         import upper.projectContext
         Any
@@ -324,9 +324,10 @@ private object ConstraintSystemImpl {
   private[this] def updateLower(variance: Variance, rawLower: ScType)
                                (implicit freshExArg: FreshExistentialArg): ScType =
     rawLower match {
-      case ScAbstractType(_, lower, _) => lower // upper will be added separately
+      case ScAbstractType(_, lower, _) => lower
+      case ex: ScExistentialArgument if variance.isInvariant => freshExArg(ex)
       case _ =>
-        recursiveVarianceUpdate(rawLower, variance, revertVariances = true)(
+        recursiveVarianceUpdate(rawLower, -variance.sign)(
           invariantAbstract = _.lower,                                             // TODO: why this is right?
           invariantExistentialArg = freshExArg(_)
         )
@@ -342,9 +343,7 @@ private object ConstraintSystemImpl {
         case (_: ScExistentialType, _)                => Stop
         case _                                        => ProcessSubtypes
       },
-      variance,
-      revertVariances = revertVariances
-    )
+      variance)
 
   private[this] def replaceAbstractType(variance: Variance, a: ScAbstractType)
                                        (invariantCase: ScAbstractType => ScType) = ReplaceWith {

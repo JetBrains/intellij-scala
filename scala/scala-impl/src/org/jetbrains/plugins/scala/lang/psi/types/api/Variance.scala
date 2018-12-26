@@ -53,6 +53,8 @@ final class Variance private (val flags: Int) extends AnyVal {
 
   def inverse(b: Boolean): Variance = if (b) flip else this
 
+  def sign: Variance = if (isContravariant) Contravariant else Covariant
+
   /** Map everything below bivariant to invariant. */
   def cut: Variance = if (isBivariant) this else Invariant
 

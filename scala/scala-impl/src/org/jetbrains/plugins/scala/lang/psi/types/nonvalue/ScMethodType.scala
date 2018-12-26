@@ -121,8 +121,7 @@ final case class ScMethodType(returnType: ScType, params: Seq[Parameter], isImpl
   }
 
   override def updateSubtypesVariance(update: (ScType, Variance) => AfterUpdate,
-                                      variance: Variance = Covariant,
-                                      revertVariances: Boolean = false)
+                                      variance: Variance = Covariant)
                                      (implicit visited: Set[ScType]): ScType = {
 
     def updateParameterType(tp: ScType) = tp.recursiveVarianceUpdate(update, -variance, isLazySubtype = true)
@@ -267,8 +266,7 @@ final case class ScTypePolymorphicType(internalType: ScType, typeParameters: Seq
   }
 
   override def updateSubtypesVariance(update: (ScType, Variance) => AfterUpdate,
-                                      variance: Variance = Covariant,
-                                      revertVariances: Boolean = false)
+                                      variance: Variance = Covariant)
                                      (implicit visited: Set[ScType]): ScType = {
     ScTypePolymorphicType(
       internalType.recursiveVarianceUpdate(update, variance),

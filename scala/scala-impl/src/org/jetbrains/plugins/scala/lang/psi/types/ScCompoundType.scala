@@ -84,8 +84,7 @@ final case class ScCompoundType private (
   }
 
   override def updateSubtypesVariance(update: (ScType, Variance) => AfterUpdate,
-                                      variance: Variance = Covariant,
-                                      revertVariances: Boolean = false)
+                                      variance: Variance = Covariant)
                                      (implicit visited: Set[ScType]): ScType = {
     val updSignatureMap = signatureMap.map {
       case (s: Signature, tp) =>

@@ -62,8 +62,7 @@ object ScExistentialArgument {
       )
 
     override def updateSubtypesVariance(update: (ScType, Variance) => AfterUpdate,
-                                        variance: Variance = Covariant,
-                                        revertVariances: Boolean = false)
+                                        variance: Variance = Covariant)
                                        (implicit visited: Set[ScType]): ScType = {
       copyWithBounds(
         lower.recursiveVarianceUpdate(update, Contravariant, isLazySubtype = true),
@@ -85,8 +84,7 @@ object ScExistentialArgument {
       )
 
     override def updateSubtypesVariance(update: (ScType, Variance) => AfterUpdate,
-                                        variance: Variance = Covariant,
-                                        revertVariances: Boolean = false)
+                                        variance: Variance = Covariant)
                                        (implicit visited: Set[ScType]): ScType = {
       copyWithBounds(
         lower.recursiveVarianceUpdate(update, Contravariant),

@@ -59,8 +59,7 @@ trait ScType extends ProjectContextOwner {
   def updateSubtypes(substitutor: ScSubstitutor, visited: Set[ScType]): ScType
 
   def updateSubtypesVariance(update: (ScType, Variance) => AfterUpdate,
-                             variance: Variance,
-                             revertVariances: Boolean)
+                             variance: Variance)
                             (implicit visited: Set[ScType]): ScType
 
   def visitType(visitor: TypeVisitor)

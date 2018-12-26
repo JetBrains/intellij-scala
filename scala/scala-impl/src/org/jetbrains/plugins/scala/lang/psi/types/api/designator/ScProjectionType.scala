@@ -91,8 +91,7 @@ final class ScProjectionType private(val projected: ScType,
     ScProjectionType(projected.recursiveUpdateImpl(substitutor, visited), element)
 
   override def updateSubtypesVariance(update: (ScType, Variance) => AfterUpdate,
-                                      variance: Variance = Covariant,
-                                      revertVariances: Boolean = false)
+                                      variance: Variance = Covariant)
                                      (implicit visited: Set[ScType]): ScType =
     ScProjectionType(projected.recursiveVarianceUpdate(update, Invariant), element)
 

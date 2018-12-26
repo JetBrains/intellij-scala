@@ -24,8 +24,7 @@ final case class JavaArrayType(argument: ScType) extends ValueType {
   }
 
   override def updateSubtypesVariance(update: (ScType, Variance) => AfterUpdate,
-                                      variance: Variance = Covariant,
-                                      revertVariances: Boolean = false)
+                                      variance: Variance = Covariant)
                                      (implicit visited: Set[ScType]): ScType =
     JavaArrayType(argument.recursiveVarianceUpdate(update, Invariant))
 

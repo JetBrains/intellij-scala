@@ -10,7 +10,6 @@ trait LeafType {
   override final def updateSubtypes(substitutor: ScSubstitutor, visited: Set[ScType]): ScType = this
 
   override final def updateSubtypesVariance(update: (ScType, Variance) => recursiveUpdate.AfterUpdate,
-                                            variance: Variance,
-                                            revertVariances: Boolean)
+                                            variance: Variance)
                                            (implicit visited: Set[ScType]): ScType = this
 }

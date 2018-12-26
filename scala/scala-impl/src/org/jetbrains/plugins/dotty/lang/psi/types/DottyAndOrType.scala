@@ -25,8 +25,7 @@ case class DottyAndType(override val left: ScType, override val right: ScType) e
     DottyAndType(substitutor(left), substitutor(right))
 
   def updateSubtypesVariance(update: (ScType, Variance) => recursiveUpdate.AfterUpdate,
-                             variance: Variance,
-                             revertVariances: Boolean)
+                             variance: Variance)
                             (implicit visited: Set[ScType]): ScType = {
     DottyAndType(
       left.recursiveVarianceUpdate(update, variance),
@@ -49,8 +48,7 @@ case class DottyOrType(override val left: ScType, override val right: ScType) ex
     DottyOrType(substitutor(left), substitutor(right))
 
   def updateSubtypesVariance(update: (ScType, Variance) => recursiveUpdate.AfterUpdate,
-                             variance: Variance,
-                             revertVariances: Boolean)
+                             variance: Variance)
                             (implicit visited: Set[ScType]): ScType = {
     DottyOrType(
       left.recursiveVarianceUpdate(update, variance),

@@ -44,12 +44,10 @@ class Extensions(val tp: ScType) extends AnyVal {
     }
   }
 
-  //todo: revertVariances parameter looks really strange and used only in one place, can we get rid of it?
   //todo: should we unify recursiveUpdateImpl and recursiveVarianceUpdate together?
   final def recursiveVarianceUpdate(update: (ScType, Variance) => AfterUpdate,
                                     variance: Variance = Covariant,
-                                    isLazySubtype: Boolean = false,
-                                    revertVariances: Boolean = false)
+                                    isLazySubtype: Boolean = false)
                                    (implicit visited: Set[ScType] = Set.empty): ScType = {
     if (visited(tp)) tp
     else update(tp, variance) match {
@@ -57,7 +55,7 @@ class Extensions(val tp: ScType) extends AnyVal {
       case Stop => tp
       case ProcessSubtypes =>
         val newVisited = if (isLazySubtype) visited + tp else visited
-        tp.updateSubtypesVariance(update, variance, revertVariances)(newVisited)
+        tp.updateSubtypesVariance(update, variance)(newVisited)
     }
   }
 
