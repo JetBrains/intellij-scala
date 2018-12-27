@@ -8,8 +8,10 @@ import org.jetbrains.plugins.scala.lang.psi.api.base.ScFieldId
 import org.jetbrains.plugins.scala.lang.psi.api.base.patterns.ScBindingPattern
 import org.jetbrains.plugins.scala.lang.psi.api.statements.params.{ScParameter, ScTypeParam}
 import org.jetbrains.plugins.scala.lang.psi.api.statements.{ScFunction, ScTypeAlias, ScTypeAliasDeclaration, ScTypeAliasDefinition}
+import org.jetbrains.plugins.scala.lang.psi.api.toplevel.typedef.ScTemplateDefinition
 import org.jetbrains.plugins.scala.lang.psi.api.toplevel.{ScTypeParametersOwner, ScTypedDefinition}
 import org.jetbrains.plugins.scala.lang.psi.types._
+import org.jetbrains.plugins.scala.lang.psi.types.api.designator.{ScProjectionType, ScThisType}
 import org.jetbrains.plugins.scala.lang.psi.types.api.{Covariant, TypeParameter, Unit, Variance}
 import org.jetbrains.plugins.scala.lang.psi.types.recursiveUpdate.ScSubstitutor
 import org.jetbrains.plugins.scala.lang.psi.types.result._
@@ -242,6 +244,18 @@ class CompoundTypeCheckTypeAliasProcessor(sign: TypeAliasSignature, constraints:
               innerConstraints = undef
               return true
             }
+          }
+        case tdef: ScTypeAliasDefinition =>
+          val enclosingClass = namedElement.parentOfType(classOf[ScTemplateDefinition])
+          val thisType       = enclosingClass.map(ScThisType).getOrElse(tdef.projectContext.stdTypes.Any)
+          val asSeenFrom     = substitutor(ScProjectionType(thisType, namedElement))
+          val conforms       = tdef.aliasedType.getOrAny.equiv(asSeenFrom, constraints)
+
+          if (conforms.isRight) {
+            trueResult       = true
+            undef            = conforms.constraints
+            innerConstraints = undef
+            return true
           }
         case _ =>
       }

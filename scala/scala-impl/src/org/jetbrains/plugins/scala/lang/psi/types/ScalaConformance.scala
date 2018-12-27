@@ -61,7 +61,7 @@ trait ScalaConformance extends api.Conformance {
                 val tp = inh.result
                 //Special case for higher kind types passed to generics.
                 if (lClass.hasTypeParameters) {
-                  left match {
+                  left.removeAliasDefinitions() match {
                     case _: ScParameterizedType =>
                     case _ => return ConstraintSystem.empty
                   }
@@ -384,14 +384,14 @@ trait ScalaConformance extends api.Conformance {
       override def visitDesignatorType(d: ScDesignatorType): Unit = {
         val maybeType = d.element match {
           case v: ScBindingPattern => v.`type`()
-          case v: ScParameter => v.`type`()
-          case v: ScFieldId => v.`type`()
-          case _ => return
+          case v: ScParameter      => v.`type`()
+          case v: ScFieldId        => v.`type`()
+          case _                   => return
         }
 
         result = maybeType match {
           case Right(value) => conformsInner(l, value, visited, constraints)
-          case _ => ConstraintsResult.Left
+          case _            => ConstraintsResult.Left
         }
       }
     }
@@ -678,7 +678,7 @@ trait ScalaConformance extends api.Conformance {
 
       rightVisitor = new ExistentialSimplification with ExistentialArgumentVisitor
         with ParameterizedExistentialArgumentVisitor with OtherNonvalueTypesVisitor with NothingNullVisitor
-        with TypeParameterTypeVisitor with ThisVisitor with DesignatorVisitor {}
+        with TypeParameterTypeVisitor with ThisVisitor {}
       r.visitType(rightVisitor)
       if (result != null) return
 
@@ -701,7 +701,12 @@ trait ScalaConformance extends api.Conformance {
       }
 
       def workWithTypeAlias(sign: TypeAliasSignature): Boolean = {
-        val processor = new CompoundTypeCheckTypeAliasProcessor(sign, constraints, ScSubstitutor.empty)
+        val singletonSubst = r match {
+          case ScDesignatorType(_: ScParameter | _: ScFieldId | _: ScBindingPattern) => ScSubstitutor(r)
+          case _                                                                     => ScSubstitutor.empty
+        }
+
+        val processor = new CompoundTypeCheckTypeAliasProcessor(sign, constraints, singletonSubst)
         processor.processType(r, sign.typeAlias)
         constraints = processor.getConstraints
         processor.getResult
@@ -732,7 +737,7 @@ trait ScalaConformance extends api.Conformance {
 
       rightVisitor = new ExistentialSimplification with ExistentialArgumentVisitor
         with ParameterizedExistentialArgumentVisitor with OtherNonvalueTypesVisitor with NothingNullVisitor
-        with TypeParameterTypeVisitor with ThisVisitor with DesignatorVisitor with ParameterizedAliasVisitor {}
+        with TypeParameterTypeVisitor with ThisVisitor with ParameterizedAliasVisitor {}
       r.visitType(rightVisitor)
       if (result != null) return
 
@@ -762,16 +767,18 @@ trait ScalaConformance extends api.Conformance {
       if (result != null) return
 
       proj.isAliasType match {
-        case Some(AliasType(_, lower, _)) =>
-          result = lower match {
-            case Right(value) => conformsInner(value, r, visited, constraints)
-            case _ => ConstraintsResult.Left
-          }
+        case Some(AliasType(_, Right(lower), _)) =>
+          val conforms = conformsInner(lower, r, visited, constraints)
+          if (conforms.isRight) result = conforms
         case _ =>
           rightVisitor = new ExistentialVisitor {}
           r.visitType(rightVisitor)
           if (result != null) return
       }
+
+      if (result != null) return
+      rightVisitor = new DesignatorVisitor {}
+      r.visitType(rightVisitor)
     }
 
     override def visitLiteralType(l: ScLiteralType): Unit = {
@@ -797,7 +804,7 @@ trait ScalaConformance extends api.Conformance {
 
       rightVisitor = new ExistentialSimplification with ExistentialArgumentVisitor
         with ParameterizedExistentialArgumentVisitor with OtherNonvalueTypesVisitor with NothingNullVisitor
-        with TypeParameterTypeVisitor with ThisVisitor with DesignatorVisitor {}
+        with TypeParameterTypeVisitor with ThisVisitor {}
       r.visitType(rightVisitor)
       if (result != null) return
 
@@ -819,6 +826,9 @@ trait ScalaConformance extends api.Conformance {
         with ProjectionVisitor {}
       r.visitType(rightVisitor)
       if (result != null) return
+
+      rightVisitor = new DesignatorVisitor {}
+      r.visitType(rightVisitor)
     }
 
     override def visitParameterizedType(p: ParameterizedType) {
@@ -882,7 +892,7 @@ trait ScalaConformance extends api.Conformance {
       }
 
       rightVisitor = new ParameterizedExistentialArgumentVisitor with OtherNonvalueTypesVisitor with NothingNullVisitor
-         with ThisVisitor with DesignatorVisitor {}
+         with ThisVisitor {}
       r.visitType(rightVisitor)
       if (result != null) return
 
@@ -1059,16 +1069,12 @@ trait ScalaConformance extends api.Conformance {
 
       if (result != null) return
 
-      p.designator match {
-        case t: TypeParameterType if t.typeParameters.length == p.typeArguments.length =>
-          val subst = ScSubstitutor.bind(t.typeParameters, p.typeArguments)
-          result = conformsInner(subst(t.lowerType), r, visited, constraints, checkWeak)
-          return
-        case _ =>
-      }
-
       rightVisitor = new AliasDesignatorVisitor with CompoundTypeVisitor with ExistentialVisitor
         with ProjectionVisitor {}
+      r.visitType(rightVisitor)
+      if (result != null) return
+
+      rightVisitor = new DesignatorVisitor {}
       r.visitType(rightVisitor)
     }
 
@@ -1091,7 +1097,7 @@ trait ScalaConformance extends api.Conformance {
 
       rightVisitor = new ExistentialSimplification with ExistentialArgumentVisitor
         with ParameterizedExistentialArgumentVisitor with OtherNonvalueTypesVisitor with NothingNullVisitor
-         with TypeParameterTypeVisitor with ThisVisitor with DesignatorVisitor {}
+         with TypeParameterTypeVisitor with ThisVisitor {}
       r.visitType(rightVisitor)
       if (result != null) return
 
@@ -1141,6 +1147,10 @@ trait ScalaConformance extends api.Conformance {
           }
         case _ => result = ConstraintsResult.Left
       }
+      if (result != null) return
+
+      rightVisitor = new DesignatorVisitor {}
+      r.visitType(rightVisitor)
     }
 
     override def visitThisType(t: ScThisType): Unit = {
@@ -1189,7 +1199,7 @@ trait ScalaConformance extends api.Conformance {
       if (result != null) return
 
       rightVisitor = new TypeParameterTypeVisitor
-        with ThisVisitor with DesignatorVisitor with ParameterizedAliasVisitor {}
+        with ThisVisitor with ParameterizedAliasVisitor {}
       r.visitType(rightVisitor)
       if (result != null) return
 
@@ -1208,6 +1218,11 @@ trait ScalaConformance extends api.Conformance {
           r.visitType(rightVisitor)
           if (result != null) return
       }
+      if (result != null) return
+
+      rightVisitor = new DesignatorVisitor {}
+      r.visitType(rightVisitor)
+      if (result != null) return
 
       rightVisitor = new LiteralTypeWideningVisitor {}
       r.visitType(rightVisitor)
@@ -1233,8 +1248,7 @@ trait ScalaConformance extends api.Conformance {
       }
 
       rightVisitor = new ExistentialSimplification with ExistentialArgumentVisitor
-        with ParameterizedExistentialArgumentVisitor with OtherNonvalueTypesVisitor with TypeParameterTypeNothingNullVisitor
-        with DesignatorVisitor {}
+        with ParameterizedExistentialArgumentVisitor with OtherNonvalueTypesVisitor with TypeParameterTypeNothingNullVisitor {}
       r.visitType(rightVisitor)
       if (result != null) return
 
@@ -1261,6 +1275,10 @@ trait ScalaConformance extends api.Conformance {
       r.visitType(rightVisitor)
       if (result != null) return
 
+      rightVisitor = new DesignatorVisitor {}
+      r.visitType(rightVisitor)
+      if (result != null) return
+
       result = ConstraintsResult.Left
     }
 
@@ -1283,12 +1301,16 @@ trait ScalaConformance extends api.Conformance {
       }
 
       rightVisitor = new OtherNonvalueTypesVisitor with NothingNullVisitor
-        with TypeParameterTypeVisitor with ThisVisitor with DesignatorVisitor {}
+        with TypeParameterTypeVisitor with ThisVisitor {}
       r.visitType(rightVisitor)
       if (result != null) return
 
       rightVisitor = new ParameterizedAliasVisitor with AliasDesignatorVisitor with CompoundTypeVisitor
         with ExistentialVisitor with ProjectionVisitor {}
+      r.visitType(rightVisitor)
+      if (result != null) return
+
+      rightVisitor = new DesignatorVisitor {}
       r.visitType(rightVisitor)
       if (result != null) return
     }

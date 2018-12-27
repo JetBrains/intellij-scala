@@ -209,72 +209,70 @@ class ScReferenceExpressionImpl(node: ASTNode) extends ScReferenceElementImpl(no
     }
   }
 
+  /**
+    * SLS 6.4
+    *
+    * 1. The expected type `pt` is stable
+    * 2. Type `tpe` of the entity reffered to by `p` does not conform to `pt` AND either:
+    *      * `pt` is an abstract type with a stable type as lower bound OR
+    *      *  (not in the spec, but in the impl) `pt` denotes type refinement
+    */
+  private[this] def isStableContext(t: ScType): Boolean = {
+    val expectedStable = this.expectedType() match {
+      case Some(downer: DesignatorOwner)     => downer.isStable
+      case Some(other) if !t.conforms(other) =>
+        other match {
+          case Aliased(AliasType(_, Right(lower: DesignatorOwner), _))                   => lower.isStable
+          case Aliased(AliasType(_: ScTypeAliasDefinition, Right(c: ScCompoundType), _)) => isRefinement(c)
+          case c: ScCompoundType                                                         => isRefinement(c)
+          case _                                                                         => false
+        }
+      case _ => false
+    }
+
+    val isParamToDepMethod = this.expectedTypeEx().collect {
+      case (_, Some(te)) =>
+        (for {
+          paramType <- te.getContext.asOptionOf[ScParameterType]
+          param     <- paramType.getContext.asOptionOf[ScParameter]
+          if !param.getDefaultExpression.contains(this)
+          method     <- param.owner.asOptionOf[ScFunction]
+        } yield isReferencedInReturnType(method, param)).getOrElse(false)
+    }.getOrElse(false)
+
+    //The path p occurs as the prefix of a selection and it does not designate a constant
+    //todo: It seems that designating constant is not a problem, while we haven't type like Int(1)
+    expectedStable || (getContext match {
+      case i: ScSugarCallExpr         if this == i.getBaseExpr        => true
+      case m: ScMethodCall            if this == m.getInvokedExpr     => true
+      case ref: ScReferenceExpression if ref.qualifier.contains(this) => true
+      case _                                                          => false
+    }) || isParamToDepMethod
+  }
+
+  private[this] def isRefinement(compound: ScCompoundType): Boolean =
+    compound.signatureMap.nonEmpty || compound.typesMap.nonEmpty
+
+  private[this] def isReferencedInReturnType(f: ScFunction, p: ScParameter): Boolean = {
+    var found = false
+    val visitor = new ScalaRecursiveElementVisitor {
+      override def visitSimpleTypeElement(simple: ScSimpleTypeElement): Unit = {
+        if (simple.singleton) {
+          simple.reference match {
+            case Some(ref) if ref.refName == p.name && ref.resolve() == p => found = true
+            case _                                                        => ()
+          }
+        }
+        super.visitSimpleTypeElement(simple)
+      }
+    }
+    f.returnTypeElement.foreach(_.accept(visitor))
+    found
+  }
+
   protected def convertBindToType(bind: ScalaResolveResult): TypeResult = {
     val fromType: Option[ScType] = bind.fromType
     val unresolvedTypeParameters: Seq[TypeParameter] = bind.unresolvedTypeParameters.getOrElse(Seq.empty)
-
-    def stableTypeRequired: Boolean = {
-      //SLS 6.4
-
-      //The expected type pt is a stable type or
-      //The expected type pt is an abstract type with a stable type as lower bound,
-      // and the type T of the entity referred to by p does not conforms to pt,
-      this.expectedTypeEx() match {
-        case Some((tp, typeElementOpt)) =>
-          (tp match {
-            case ScAbstractType(_, lower, _) => lower
-            case _ => tp
-          }).isAliasType match {
-            case Some(AliasType(_, Right(lower: DesignatorOwner), _)) if lower.isStable =>
-              return true
-            case _ =>
-              tp match {
-                case designatorOwner: DesignatorOwner if designatorOwner.isStable =>
-                  return true
-                case _ =>
-              }
-              typeElementOpt match {
-                case Some(te) =>
-                  te.getContext match {
-                    case pt: ScParameterType =>
-                      pt.getContext match {
-                        case p: ScParameter if !p.getDefaultExpression.contains(this) =>
-                          p.owner match {
-                            case f: ScFunction =>
-                              var found = false
-                              val visitor = new ScalaRecursiveElementVisitor {
-                                override def visitSimpleTypeElement(simple: ScSimpleTypeElement): Unit = {
-                                  if (simple.singleton) {
-                                    simple.reference match {
-                                      case Some(ref) if ref.refName == p.name && ref.resolve() == p => found = true
-                                      case _ =>
-                                    }
-                                  }
-                                  super.visitSimpleTypeElement(simple)
-                                }
-                              }
-                              f.returnTypeElement.foreach(_.accept(visitor))
-                              if (found) return true
-                            case _ => //looks like it's not working for classes, so do nothing here.
-                          }
-                        case _ =>
-                      }
-                    case _ =>
-                  }
-                case _ =>
-              }
-          }
-        case _ =>
-      }
-      //The path p occurs as the prefix of a selection and it does not designate a constant
-      //todo: It seems that designating constant is not a problem, while we haven't type like Int(1)
-      getContext match {
-        case i: ScSugarCallExpr if this == i.getBaseExpr => true
-        case m: ScMethodCall if this == m.getInvokedExpr => true
-        case ref: ScReferenceExpression if ref.qualifier.contains(this) => true
-        case _ => false
-      }
-    }
 
     val inner: ScType = bind match {
       case ScalaResolveResult(fun: ScFun, s) =>
@@ -297,26 +295,24 @@ class ScReferenceExpressionImpl(node: ASTNode) extends ScReferenceElementImpl(no
             case None => return Failure("No declared type found")
           }
           case _ =>
-            if (stableTypeRequired && refPatt.isStable) {
-              r.fromType match {
-                case Some(fT) => ScProjectionType(fT, refPatt)
-                case None => ScalaType.designator(refPatt)
-              }
-            } else {
-              val result = refPatt.`type`()
-              result match {
-                case Right(tp) => s(tp)
-                case _ => return result
-              }
-            }
+            val result = refPatt.`type`()
+
+            refPatt.`type`().map { tp =>
+              if (isStableContext(tp) && refPatt.isStable) {
+                r.fromType match {
+                  case Some(fT) => ScProjectionType(fT, refPatt)
+                  case None     => ScalaType.designator(refPatt)
+                }
+              } else s(tp)
+            }.getOrElse(return result)
         }
       case ScalaResolveResult(param: ScParameter, _) if isMetaInlineDefn(param) =>
         ScalaPsiElementFactory.createTypeFromText("scala.meta.Stat", param.getContext, null).get
-      case r@ScalaResolveResult(param: ScParameter, s) =>
+      case r @ ScalaResolveResult(param: ScParameter, s) =>
         val owner = param.owner match {
           case f: ScPrimaryConstructor => f.containingClass
-          case _: ScFunctionExpr => null
-          case f => f
+          case _: ScFunctionExpr       => null
+          case f                       => f
         }
 
         def isMethodDependent(function: ScFunction): Boolean = {
@@ -335,13 +331,15 @@ class ScReferenceExpressionImpl(node: ASTNode) extends ScReferenceElementImpl(no
             case Some(te) if checkte(te) => return true
             case _ =>
           }
-          !function.parameters.forall { case param =>
+          !function.parameters.forall { param =>
             param.typeElement match {
               case Some(te) => !checkte(te)
-              case _ => true
+              case _        => true
             }
           }
         }
+
+        val stableTypeRequired = param.getRealParameterType.exists(isStableContext)
 
         r.fromType match {
           case Some(fT) if param.isVal && stableTypeRequired => ScProjectionType(fT, param)
@@ -402,18 +400,16 @@ class ScReferenceExpressionImpl(node: ASTNode) extends ScReferenceElementImpl(no
           }
         } else tail
       case r@ScalaResolveResult(f: ScFieldId, s) =>
-        if (stableTypeRequired && f.isStable) {
-          r.fromType match {
-            case Some(fT) => ScProjectionType(fT, f)
-            case None => ScalaType.designator(f)
-          }
-        } else {
-          val result = f.`type`()
-          result match {
-            case Right(tp) => s(tp)
-            case _ => return result
-          }
-        }
+        val result = f.`type`()
+
+        result.map { tp =>
+          if (isStableContext(tp) && f.isStable) {
+            r.fromType match {
+              case Some(fT) => ScProjectionType(fT, f)
+              case None     => ScalaType.designator(f)
+            }
+          } else s(tp)
+        }.getOrElse(return result)
       case ScalaResolveResult(typed: ScTypedDefinition, s) =>
         val result = typed.`type`()
         result match {

@@ -19,7 +19,7 @@ trait DesignatorOwner extends ValueType {
 
   val isSingleton: Boolean = element match {
     case typedDefinition: ScTypedDefinition => typedDefinition.isStable
-    case _ => false
+    case _                                  => false
   }
 
   def isStable: Boolean = isSingleton || element.isInstanceOf[ScObject]

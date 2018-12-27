@@ -213,14 +213,14 @@ package object types {
       case lit: ScLiteralType if lit.allowWiden => lit.wideType
       case other => other
     }
-    
+
     def tryWrapIntoSeqType(implicit scope: ElementScope): ScType =
       scope
         .getCachedClass("scala.collection.Seq")
         .map(ScalaType.designator)
         .map(ScParameterizedType(_, Seq(scType)))
         .getOrElse(scType)
-    
+
     def tryUnwrapSeqType: ScType = scType match {
       case ParameterizedType(ScDesignatorType(des: PsiClass), Seq(targ))
         if des.qualifiedName == "scala.collection.Seq" =>
@@ -311,4 +311,8 @@ package object types {
   }
 
   private object RecursionException extends NoStackTrace
+
+  object Aliased {
+    def unapply(tpe: ScType): Option[AliasType] = tpe.isAliasType
+  }
 }
