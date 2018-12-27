@@ -38,8 +38,8 @@ final class ScSubstitutor private(_substitutions: Array[Update],   //Array is us
 
   import ScSubstitutor._
 
-  private[recursiveUpdate] def substitutions = _substitutions
-  private[recursiveUpdate] def fromIndex = _fromIndex
+  private[recursiveUpdate] val substitutions = _substitutions
+  private[recursiveUpdate] val fromIndex = _fromIndex
   private[recursiveUpdate] def next: ScSubstitutor = new ScSubstitutor(substitutions, fromIndex + 1)
 
   private[recursiveUpdate] lazy val hasNonLeafSubstitutions: Boolean = hasNonLeafSubstitutionsImpl
@@ -68,10 +68,14 @@ final class ScSubstitutor private(_substitutions: Array[Update],   //Array is us
   def followed(other: ScSubstitutor): ScSubstitutor = {
     assertFullSubstitutor()
 
-    if (this.isEmpty) other
+    if (this.isEmpty)
+      if (other.fromIndex > 0) new ScSubstitutor(other.substitutions)
+      else other
     else if (other.isEmpty) this
     else {
-      val newLength = substitutions.length + other.substitutions.length
+      val thisLength = substitutions.length
+      val newLength = thisLength + other.substitutions.length
+
       if (newLength > followLimit)
         LOG.error("Too much followers for substitutor: " + this.toString)
 
@@ -155,8 +159,10 @@ object ScSubstitutor {
 
   var cache: LongMap[ScType] = LongMap.empty
 
-  def apply(tvMap: LongMap[ScType]): ScSubstitutor =
-    ScSubstitutor(TypeParamSubstitution(tvMap))
+  def apply(tvMap: LongMap[ScType]): ScSubstitutor = {
+    if (tvMap.isEmpty) ScSubstitutor.empty
+    else ScSubstitutor(TypeParamSubstitution(tvMap))
+  }
 
   def apply(updateThisType: ScType): ScSubstitutor =
     ScSubstitutor(ThisTypeSubstitution(updateThisType))

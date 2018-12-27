@@ -1,18 +1,33 @@
 package org.jetbrains.plugins.scala.lang.psi.types
 
+import org.jetbrains.plugins.scala.lang.psi.types.api.Variance
+import org.jetbrains.plugins.scala.lang.psi.types.recursiveUpdate.AfterUpdate.{ProcessSubtypes, ReplaceWith}
+
 /**
   * Nikolay.Tropin
   * 01-Feb-18
   */
 package object recursiveUpdate {
-  trait Update extends (ScType => AfterUpdate)
+  trait Update extends ((ScType, Variance) => AfterUpdate)
 
   object Update {
     import AfterUpdate._
-    import Function.const
 
-    def apply(pf: PartialFunction[ScType, ScType]): Update = tpe =>
-      pf.andThen(ReplaceWith).applyOrElse(tpe, const(ProcessSubtypes))
+    def apply(pf: PartialFunction[(ScType, Variance), ScType]): Update = (v1: ScType, v2: Variance) => {
+      if (pf.isDefinedAt(v1, v2)) ReplaceWith(pf(v1, v2))
+      else ProcessSubtypes
+    }
+  }
+
+  trait SimpleUpdate extends (ScType => AfterUpdate) with Update {
+    def apply(v1: ScType, v2: Variance): AfterUpdate = apply(v1)
+  }
+
+  object SimpleUpdate {
+    def apply(pf: PartialFunction[ScType, ScType]): SimpleUpdate = (tp: ScType) => {
+      if (pf.isDefinedAt(tp)) ReplaceWith(pf(tp))
+      else ProcessSubtypes
+    }
   }
 
   sealed trait AfterUpdate

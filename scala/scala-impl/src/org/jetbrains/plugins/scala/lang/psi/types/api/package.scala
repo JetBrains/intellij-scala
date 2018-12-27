@@ -1,6 +1,7 @@
 package org.jetbrains.plugins.scala.lang.psi.types
 
 import com.intellij.psi.PsiTypeParameter
+import org.jetbrains.plugins.scala.lang.psi.types.recursiveUpdate.ScSubstitutor
 import org.jetbrains.plugins.scala.project.ProjectContext
 
 /**
@@ -13,11 +14,9 @@ package object api {
   }
 
   implicit class TypeParametersSeqExt(val typeParameters: Seq[TypeParameter]) extends AnyVal {
-    def update(fun: ScType => ScType): Seq[TypeParameter] =
-      typeParameters.map(_.update(fun))
 
-    def updateWithVariance(fun: (ScType, Variance) => ScType, variance: Variance): Seq[TypeParameter] =
-      typeParameters.map(_.updateWithVariance(fun, variance))
+    def update(substitutor: ScSubstitutor, variance: Variance): Seq[TypeParameter] =
+      typeParameters.map(_.update(substitutor, variance))
 
     def depth: Int = {
       def depth(tp: TypeParameter): Int = Seq(tp.lowerType.typeDepth, tp.upperType.typeDepth, tp.typeParameters.depth).max

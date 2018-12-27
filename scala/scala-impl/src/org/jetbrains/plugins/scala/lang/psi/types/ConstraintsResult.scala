@@ -4,12 +4,12 @@ package psi
 package types
 
 import com.intellij.openapi.util.Ref
+import org.jetbrains.plugins.scala.extensions.ObjectExt
 import org.jetbrains.plugins.scala.lang.psi.api.statements.params.TypeParamId
 import org.jetbrains.plugins.scala.lang.psi.types.api._
 import org.jetbrains.plugins.scala.lang.psi.types.recursiveUpdate.AfterUpdate.{ProcessSubtypes, ReplaceWith, Stop}
 import org.jetbrains.plugins.scala.lang.psi.types.recursiveUpdate.ScSubstitutor
 import org.jetbrains.plugins.scala.project.ProjectContext
-import org.jetbrains.plugins.scala.extensions.ObjectExt
 
 import scala.collection.immutable.LongMap
 
@@ -336,14 +336,12 @@ private object ConstraintSystemImpl {
   private[this] def recursiveVarianceUpdate(`type`: ScType, variance: Variance, revertVariances: Boolean = false)
                                            (invariantAbstract: ScAbstractType => ScType,
                                             invariantExistentialArg: ScExistentialArgument => ScType) =
-    `type`.recursiveVarianceUpdate(
-      {
+    `type`.recursiveVarianceUpdate(variance) {
         case (a: ScAbstractType, newVariance)         => replaceAbstractType(newVariance, a)(invariantAbstract)
         case (ex: ScExistentialArgument, newVariance) => replaceExistentialArg(newVariance, ex)(invariantExistentialArg)
         case (_: ScExistentialType, _)                => Stop
         case _                                        => ProcessSubtypes
-      },
-      variance)
+    }
 
   private[this] def replaceAbstractType(variance: Variance, a: ScAbstractType)
                                        (invariantCase: ScAbstractType => ScType) = ReplaceWith {

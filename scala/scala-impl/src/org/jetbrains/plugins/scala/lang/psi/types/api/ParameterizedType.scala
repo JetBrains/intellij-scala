@@ -7,7 +7,7 @@ import org.jetbrains.plugins.scala.extensions.TraversableExt
 import org.jetbrains.plugins.scala.lang.psi.api.toplevel.ScTypeParametersOwner
 import org.jetbrains.plugins.scala.lang.psi.types.ScType
 import org.jetbrains.plugins.scala.lang.psi.types.api.ParameterizedType.substitutorCache
-import org.jetbrains.plugins.scala.lang.psi.types.recursiveUpdate.{AfterUpdate, ScSubstitutor}
+import org.jetbrains.plugins.scala.lang.psi.types.recursiveUpdate.ScSubstitutor
 import org.jetbrains.plugins.scala.project.ProjectContext
 
 /**
@@ -25,28 +25,18 @@ trait ParameterizedType extends ValueType {
 
   protected def substitutorInner: ScSubstitutor
 
-  override def updateSubtypes(substitutor: ScSubstitutor, visited: Set[ScType]): ValueType = {
-    ParameterizedType(
-      designator.recursiveUpdateImpl(substitutor, visited),
-      typeArguments.map(_.recursiveUpdateImpl(substitutor, visited))
-    )
-  }
-
-  override def updateSubtypesVariance(update: (ScType, Variance) => AfterUpdate,
-                                      variance: Variance = Covariant)
-                                     (implicit visited: Set[ScType]): ScType = {
-
-    val argUpdateSign: Variance = variance.sign
+  override def updateSubtypes(substitutor: ScSubstitutor, variance: Variance)
+                             (implicit visited: Set[ScType]): ScType = {
 
     val typeParameterVariances = designator.extractDesignated(expandAliases = false) match {
       case Some(n: ScTypeParametersOwner) => n.typeParameters.map(_.variance)
       case _                              => Seq.empty
     }
-    ParameterizedType(designator.recursiveVarianceUpdate(update, variance),
+    ParameterizedType(designator.recursiveUpdateImpl(substitutor, variance),
       typeArguments.zipWithIndex.map {
         case (ta, i) =>
           val v = if (i < typeParameterVariances.length) typeParameterVariances(i) else Invariant
-          ta.recursiveVarianceUpdate(update, v * argUpdateSign)
+          ta.recursiveUpdateImpl(substitutor, v * variance)
       })
   }
 

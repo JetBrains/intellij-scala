@@ -1331,7 +1331,7 @@ abstract class ScalaAnnotator extends Annotator
       }
       ProcessSubtypes
     }
-    typeParam.recursiveVarianceUpdate(functionToSendIn, variance)
+    typeParam.recursiveVarianceUpdate(variance)(functionToSendIn)
   }
 
   //fix for SCL-7176

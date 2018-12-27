@@ -7,7 +7,7 @@ import org.jetbrains.plugins.scala.lang.psi.api.statements.params.{ScTypeParam, 
 import org.jetbrains.plugins.scala.lang.psi.types.api._
 import org.jetbrains.plugins.scala.lang.psi.types.nonvalue._
 import org.jetbrains.plugins.scala.lang.psi.types.recursiveUpdate.AfterUpdate.{ProcessSubtypes, ReplaceWith, Stop}
-import org.jetbrains.plugins.scala.lang.psi.types.recursiveUpdate.{AfterUpdate, ScSubstitutor, Update}
+import org.jetbrains.plugins.scala.lang.psi.types.recursiveUpdate.ScSubstitutor
 import org.jetbrains.plugins.scala.lang.refactoring.util.ScTypeUtil.AliasType
 import org.jetbrains.plugins.scala.project.ProjectContext
 
@@ -15,8 +15,8 @@ import org.jetbrains.plugins.scala.project.ProjectContext
   * @author ilyas
   */
 final class ScExistentialType private (val quantified: ScType,
-                                 val wildcards: List[ScExistentialArgument],
-                                 private val simplified: Option[ScType]) extends ScalaType with ValueType {
+                                       val wildcards: List[ScExistentialArgument],
+                                       private val simplified: Option[ScType]) extends ScalaType with ValueType {
 
   override implicit def projectContext: ProjectContext = quantified.projectContext
 
@@ -24,13 +24,9 @@ final class ScExistentialType private (val quantified: ScType,
     quantified.isAliasType.map(a => a.copy(lower = a.lower.map(_.unpackedType), upper = a.upper.map(_.unpackedType)))
   }
 
-  override def updateSubtypes(substitutor: ScSubstitutor, visited: Set[ScType]): ScExistentialType =
-    ScExistentialType(quantified.recursiveUpdateImpl(substitutor, visited))
-
-  override def updateSubtypesVariance(update: (ScType, Variance) => AfterUpdate,
-                                       variance: Variance = Covariant)
-                                     (implicit visited: Set[ScType]): ScType = {
-    ScExistentialType(quantified.recursiveVarianceUpdate(update, variance))
+  override def updateSubtypes(substitutor: ScSubstitutor, variance: Variance)
+                             (implicit visited: Set[ScType]): ScType = {
+    ScExistentialType(quantified.recursiveUpdateImpl(substitutor, variance))
   }
 
   override def equivInner(r: ScType, constraints: ConstraintSystem, falseUndef: Boolean): ConstraintsResult = {
@@ -175,14 +171,9 @@ object ScExistentialType {
   }
 
   private def simplify(quantified: ScType, wildcards: List[ScExistentialArgument], visitedQ: Set[ScType] = Set.empty): Option[ScType] = {
-    quantified match {
-      case arg: ScExistentialArgument =>
-        //shortcut for the fourth rule, toplevel position is covariant
-        val upper = arg.upper
-        val simplified =
-          if (notBoundArgs(upper).isEmpty) Some(upper) else None
-        return simplified
-      case _ =>
+    val startVariance = quantified match {
+      case _: ScExistentialArgument | _: ScParameterizedType => Covariant //why?
+      case _                                                 => Invariant
     }
 
     //third rule
@@ -190,7 +181,7 @@ object ScExistentialType {
 
     var updated = false
     //fourth rule
-    val argsToBounds: (ScType, Variance) => AfterUpdate = {
+    val simplifiedQ = quantified.recursiveVarianceUpdate(startVariance) {
       case (ex: ScExistentialType, _) =>
         if (ex.simplified.nonEmpty) {
           updated = true
@@ -211,8 +202,6 @@ object ScExistentialType {
         ReplaceWith(argOrBound)
       case _ => ProcessSubtypes
     }
-
-    val simplifiedQ = quantified.recursiveVarianceUpdate(argsToBounds, Invariant)
 
     if (!updated) None
     else {

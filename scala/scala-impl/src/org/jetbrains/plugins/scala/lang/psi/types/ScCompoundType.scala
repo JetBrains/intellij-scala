@@ -7,21 +7,15 @@ import java.util.Objects
 
 import com.intellij.psi.PsiClass
 import org.jetbrains.plugins.scala.extensions._
-import org.jetbrains.plugins.scala.lang.psi.api.base.ScFieldId
-import org.jetbrains.plugins.scala.lang.psi.api.base.patterns.ScBindingPattern
 import org.jetbrains.plugins.scala.lang.psi.api.statements._
-import org.jetbrains.plugins.scala.lang.psi.light.scala.{ScLightBindingPattern, ScLightFieldId, ScLightFunction}
 import org.jetbrains.plugins.scala.lang.psi.types.api.designator.ScDesignatorType
 import org.jetbrains.plugins.scala.lang.psi.types.api.{AnyRef, TypeParametersArrayExt, TypeVisitor, ValueType, _}
-import org.jetbrains.plugins.scala.lang.psi.types.recursiveUpdate.{AfterUpdate, ScSubstitutor, Update}
+import org.jetbrains.plugins.scala.lang.psi.types.recursiveUpdate.ScSubstitutor
 import org.jetbrains.plugins.scala.lang.psi.types.result._
 import org.jetbrains.plugins.scala.project.ProjectContext
 
 import scala.collection.mutable
 
-/**
- * Substitutor should be meaningful only for decls and typeDecls. Components shouldn't be applied by substitutor.
- */
 final case class ScCompoundType private (
   components:   Seq[ScType],
   signatureMap: Map[Signature, ScType]          = Map.empty,
@@ -60,41 +54,17 @@ final case class ScCompoundType private (
     else componentsDepth
   }
 
-  override def updateSubtypes(substitutor: ScSubstitutor, visited: Set[ScType]): ScCompoundType = {
-    ScCompoundType(components.map(_.recursiveUpdateImpl(substitutor, visited)), signatureMap.map {
-      case (s: Signature, tp) =>
-
-        val pTypes: Seq[Seq[() => ScType]] =
-          s.substitutedTypes.map(_.map(f => () => f().recursiveUpdateImpl(substitutor, visited, isLazySubtype = true)))
-
-        val typeParameters = s.typeParams.update(_.recursiveUpdateImpl(substitutor, visited, isLazySubtype = true))
-        implicit val returnType: ScType = tp.recursiveUpdateImpl(substitutor, visited)
-
-        (new Signature(
-          s.name, pTypes, typeParameters, ScSubstitutor.empty, s.namedElement match {
-            case function: ScFunction => ScLightFunction(function, pTypes, typeParameters)
-            case pattern: ScBindingPattern => ScLightBindingPattern(pattern)
-            case fieldId: ScFieldId => ScLightFieldId(fieldId)
-            case named => named
-          }, s.hasRepeatedParam
-        ), returnType)
-    }, typesMap.map {
-      case (s, sign) => (s, sign.updateTypes(_.recursiveUpdateImpl(substitutor, visited, isLazySubtype = true)))
-    })
-  }
-
-  override def updateSubtypesVariance(update: (ScType, Variance) => AfterUpdate,
-                                      variance: Variance = Covariant)
-                                     (implicit visited: Set[ScType]): ScType = {
+  override def updateSubtypes(substitutor: ScSubstitutor, variance: Variance)
+                             (implicit visited: Set[ScType]): ScType = {
     val updSignatureMap = signatureMap.map {
       case (s: Signature, tp) =>
-        val tParams = s.typeParams.updateWithVariance(_.recursiveVarianceUpdate(update, _, isLazySubtype = true), Covariant)
-        val paramTypes = s.substitutedTypes.map(_.map(f => () => f().recursiveVarianceUpdate(update, Covariant, isLazySubtype = true)))
-        val updSignature = new Signature(s.name, paramTypes, tParams, ScSubstitutor.empty, s.namedElement, s.hasRepeatedParam)
-        (updSignature, tp.recursiveVarianceUpdate(update, Covariant))
+        val tParams = s.typeParams.update(substitutor, variance)
+        val paramTypes = s.substitutedTypes.map(_.map(f => () => f().recursiveUpdateImpl(substitutor, variance, isLazySubtype = true)))
+        val updSignature = new Signature(s.name, paramTypes, tParams, s.substitutor.followed(substitutor), s.namedElement, s.hasRepeatedParam)
+        (updSignature, tp.recursiveUpdateImpl(substitutor, Covariant))
     }
-    ScCompoundType(components.map(_.recursiveVarianceUpdate(update, variance)), updSignatureMap, typesMap.map {
-      case (s, sign) => (s, sign.updateTypes(_.recursiveVarianceUpdate(update, Covariant, isLazySubtype = true)))
+    ScCompoundType(components.map(_.recursiveUpdateImpl(substitutor, variance)), updSignatureMap, typesMap.map {
+      case (s, sign) => (s, sign.updateTypes(substitutor))
     })
   }
 

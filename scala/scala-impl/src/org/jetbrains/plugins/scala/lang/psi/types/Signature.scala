@@ -11,7 +11,7 @@ import com.intellij.psi._
 import com.intellij.psi.util.MethodSignatureUtil
 import org.jetbrains.plugins.scala.extensions._
 import org.jetbrains.plugins.scala.lang.psi.api.PropertyMethods
-import org.jetbrains.plugins.scala.lang.psi.api.PropertyMethods.{SETTER, methodName}
+import org.jetbrains.plugins.scala.lang.psi.api.PropertyMethods.methodName
 import org.jetbrains.plugins.scala.lang.psi.api.statements.params.ScParameters
 import org.jetbrains.plugins.scala.lang.psi.api.statements.{ScFunction, ScTypeAlias}
 import org.jetbrains.plugins.scala.lang.psi.api.toplevel.{ScNamedElement, ScTypedDefinition}
@@ -32,10 +32,10 @@ final case class TypeAliasSignature(name: String,
                                     isDefinition: Boolean,
                                     typeAlias: ScTypeAlias) {
 
-  def updateTypes(function: ScType => ScType): TypeAliasSignature = {
-    val newParameters = typeParams.map(_.update(function))
-    val newLowerBound = function(lowerBound)
-    val newUpperBound = function(upperBound)
+  def updateTypes(substitutor: ScSubstitutor): TypeAliasSignature = {
+    val newParameters = typeParams.map(_.update(substitutor))
+    val newLowerBound = substitutor(lowerBound)
+    val newUpperBound = substitutor(upperBound)
 
     TypeAliasSignature(
       name,

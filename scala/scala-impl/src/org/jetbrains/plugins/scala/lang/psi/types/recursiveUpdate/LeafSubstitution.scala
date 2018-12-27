@@ -7,7 +7,7 @@ import org.jetbrains.plugins.scala.lang.psi.types.{LeafType, ScType}
   * Nikolay.Tropin
   * 01-Feb-18
   */
-private abstract class LeafSubstitution extends Update {
+private abstract class LeafSubstitution extends SimpleUpdate {
 
   protected val subst: PartialFunction[LeafType, ScType]
 
@@ -21,7 +21,7 @@ private abstract class LeafSubstitution extends Update {
 }
 
 object LeafSubstitution {
-  def apply(pf: PartialFunction[LeafType, ScType]): Update = new LeafSubstitution {
+  def apply(pf: PartialFunction[LeafType, ScType]): SimpleUpdate = new LeafSubstitution {
     override protected val subst: PartialFunction[LeafType, ScType] = pf
   }
 }

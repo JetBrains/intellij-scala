@@ -297,7 +297,7 @@ object ScPattern {
           fun.returnType match {
             case Right(rt) =>
               def updateRes(tp: ScType): ScType = {
-                tp.recursiveVarianceUpdate {
+                tp.recursiveVarianceUpdate() {
                   case (tp: TypeParameterType, variance) if funTypeParams.contains(tp.psiTypeParameter) =>
                     val result =
                       if (variance == Contravariant) substitutor(tp.lowerType)

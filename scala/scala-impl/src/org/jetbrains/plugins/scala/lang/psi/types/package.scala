@@ -97,7 +97,7 @@ package object types {
 
     def removeVarianceAbstracts(): ScType = {
       var index = 0
-      scType.recursiveVarianceUpdate({
+      scType.recursiveVarianceUpdate() {
         case (ScAbstractType(_, lower, upper), v) =>
           v match {
             case Contravariant => ReplaceWith(lower)
@@ -107,7 +107,7 @@ package object types {
               ReplaceWith(ScExistentialArgument(s"_$$$index", Nil, lower, upper))
           }
         case _ => ProcessSubtypes
-      }, Covariant).unpackedType
+      }.unpackedType
     }
 
     def toPsiType: PsiType = typeSystem.toPsiType(scType)

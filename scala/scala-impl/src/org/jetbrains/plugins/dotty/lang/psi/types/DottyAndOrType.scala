@@ -1,6 +1,6 @@
 package org.jetbrains.plugins.dotty.lang.psi.types
 
-import org.jetbrains.plugins.scala.lang.psi.types.{ScType, recursiveUpdate}
+import org.jetbrains.plugins.scala.lang.psi.types.ScType
 import org.jetbrains.plugins.scala.lang.psi.types.api.{TypeVisitor, ValueType, Variance}
 import org.jetbrains.plugins.scala.lang.psi.types.recursiveUpdate.ScSubstitutor
 import org.jetbrains.plugins.scala.project.ProjectContext
@@ -21,15 +21,11 @@ case class DottyAndType(override val left: ScType, override val right: ScType) e
     case _ =>
   }
 
-  def updateSubtypes(substitutor: ScSubstitutor, visited: Set[ScType]): ScType =
-    DottyAndType(substitutor(left), substitutor(right))
-
-  def updateSubtypesVariance(update: (ScType, Variance) => recursiveUpdate.AfterUpdate,
-                             variance: Variance)
-                            (implicit visited: Set[ScType]): ScType = {
+  def updateSubtypes(substitutor: ScSubstitutor, variance: Variance)
+                    (implicit visited: Set[ScType]): ScType = {
     DottyAndType(
-      left.recursiveVarianceUpdate(update, variance),
-      right.recursiveVarianceUpdate(update, variance)
+      left.recursiveUpdateImpl(substitutor, variance),
+      right.recursiveUpdateImpl(substitutor, variance)
     )
   }
 }
@@ -44,15 +40,11 @@ case class DottyOrType(override val left: ScType, override val right: ScType) ex
     case _ =>
   }
 
-  def updateSubtypes(substitutor: ScSubstitutor, visited: Set[ScType]): ScType =
-    DottyOrType(substitutor(left), substitutor(right))
-
-  def updateSubtypesVariance(update: (ScType, Variance) => recursiveUpdate.AfterUpdate,
-                             variance: Variance)
-                            (implicit visited: Set[ScType]): ScType = {
+  def updateSubtypes(substitutor: ScSubstitutor, variance: Variance)
+                    (implicit visited: Set[ScType]): ScType = {
     DottyOrType(
-      left.recursiveVarianceUpdate(update, variance),
-      right.recursiveVarianceUpdate(update, variance)
+      left.recursiveUpdateImpl(substitutor, variance),
+      right.recursiveUpdateImpl(substitutor, variance)
     )
   }
 }

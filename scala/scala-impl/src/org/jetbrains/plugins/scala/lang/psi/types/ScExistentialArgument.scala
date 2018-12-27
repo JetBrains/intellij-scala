@@ -3,7 +3,7 @@ package org.jetbrains.plugins.scala.lang.psi.types
 import org.jetbrains.plugins.scala.lang.psi.api.statements.ScTypeAlias
 import org.jetbrains.plugins.scala.lang.psi.types.api.{Contravariant, Covariant, TypeParameter, TypeParameterType, TypeVisitor, ValueType, Variance}
 import org.jetbrains.plugins.scala.lang.psi.types.recursiveUpdate.AfterUpdate.{ProcessSubtypes, Stop}
-import org.jetbrains.plugins.scala.lang.psi.types.recursiveUpdate.{AfterUpdate, ScSubstitutor, Update}
+import org.jetbrains.plugins.scala.lang.psi.types.recursiveUpdate.ScSubstitutor
 import org.jetbrains.plugins.scala.project.ProjectContext
 
 /**
@@ -55,18 +55,11 @@ object ScExistentialArgument {
       else this //we shouldn't create `Complete` instance, because it'll break equals/hashcode
     }
 
-    override def updateSubtypes(substitutor: ScSubstitutor, visited: Set[ScType]): ScExistentialArgument =
+    override def updateSubtypes(substitutor: ScSubstitutor, variance: Variance)
+                               (implicit visited: Set[ScType]): ScType = {
       copyWithBounds(
-        lower.recursiveUpdateImpl(substitutor, visited, isLazySubtype = true),
-        upper.recursiveUpdateImpl(substitutor, visited, isLazySubtype = true),
-      )
-
-    override def updateSubtypesVariance(update: (ScType, Variance) => AfterUpdate,
-                                        variance: Variance = Covariant)
-                                       (implicit visited: Set[ScType]): ScType = {
-      copyWithBounds(
-        lower.recursiveVarianceUpdate(update, Contravariant, isLazySubtype = true),
-        upper.recursiveVarianceUpdate(update, Covariant    , isLazySubtype = true))
+        lower.recursiveUpdateImpl(substitutor, Contravariant, isLazySubtype = true),
+        upper.recursiveUpdateImpl(substitutor, Covariant    , isLazySubtype = true))
     }
   }
 
@@ -77,18 +70,11 @@ object ScExistentialArgument {
 
     extends ScExistentialArgument {
 
-    override def updateSubtypes(substitutor: ScSubstitutor, visited: Set[ScType]): ScExistentialArgument =
+    override def updateSubtypes(substitutor: ScSubstitutor, variance: Variance)
+                               (implicit visited: Set[ScType]): ScType = {
       copyWithBounds(
-        lower.recursiveUpdateImpl(substitutor, visited),
-        upper.recursiveUpdateImpl(substitutor, visited)
-      )
-
-    override def updateSubtypesVariance(update: (ScType, Variance) => AfterUpdate,
-                                        variance: Variance = Covariant)
-                                       (implicit visited: Set[ScType]): ScType = {
-      copyWithBounds(
-        lower.recursiveVarianceUpdate(update, Contravariant),
-        upper.recursiveVarianceUpdate(update, Covariant))
+        lower.recursiveUpdateImpl(substitutor, Contravariant),
+        upper.recursiveUpdateImpl(substitutor, Covariant))
     }
 
     def copyWithBounds(newLower: ScType, newUpper: ScType): ScExistentialArgument =
