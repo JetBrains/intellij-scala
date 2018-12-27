@@ -297,6 +297,11 @@ class ExpectedTypesImpl extends ExpectedTypes {
           case _ =>
             Array.empty
         }
+      case guard: ScGuard =>
+        guard.analog flatMap { _.content } match {
+          case Some(content) => content.expectedTypesEx(fromUnderscore = fromUnderscore)
+          case _ => Array.empty
+        }
       case b: ScBlock if b.getContext.isInstanceOf[ScTryBlock]
               || b.getContext.getContext.getContext.isInstanceOf[ScCatchBlock]
               || b.getContext.isInstanceOf[ScCaseClause]

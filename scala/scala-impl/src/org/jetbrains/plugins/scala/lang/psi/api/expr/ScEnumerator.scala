@@ -1,7 +1,9 @@
 package org.jetbrains.plugins.scala.lang.psi.api.expr
 
 import org.jetbrains.plugins.scala.extensions._
+import org.jetbrains.plugins.scala.lang.parser.ScalaElementType
 import org.jetbrains.plugins.scala.lang.psi.ScalaPsiElement
+import org.jetbrains.plugins.scala.lang.psi.api.base.patterns.ScCaseClauses
 
 trait ScEnumerator extends ScalaPsiElement {
   def analog: Option[ScEnumerator.Analog] = this.parentOfType(classOf[ScForStatement]) flatMap {
@@ -19,12 +21,32 @@ object ScEnumerator {
 
       List(1).map { i => val i2 = i; (i, i2) }.withFilter { case (i, i2) => i2 > 0 }.flatMap { case (i, i2) => val i3 = i2; List(i3).map(i4 => i4) }
       |-----------------------------------g1:analogMethodCall--------------------------------------------------------------------------------------|
+      |-----------------------g1:callExpr--------------------------------------------------|                   |-----g1:content------------------|
+
       |---------d2:analogMethodCall----------|
+      |---------|        |----d2:content---|
+      d2:callExpr
+
       |----------------------------if3:analogMethodCall----------------------------|
+      |---------if3:callExpr----------------------------|                   |----|
+                                                                          if3:content
                                                                                                                             |-----g5:analogMC----|
 
     Note that d4 does not have an analogMethodCall
    */
 
-  case class Analog(analogMethodCall: ScMethodCall)
+  case class Analog(analogMethodCall: ScMethodCall) {
+    def callExpr: Option[ScReferenceExpression] =
+      Option(analogMethodCall.getInvokedExpr).collect { case refExpr: ScReferenceExpression => refExpr }
+
+    def content: Option[ScExpression] = {
+      analogMethodCall
+        .getLastChild
+        .getLastChild
+        .asInstanceOf[ScBlockExpr]
+        .findLastChildByType[ScCaseClauses](ScalaElementType.CASE_CLAUSES)
+        .getLastChild
+        .lastChild collect { case block: ScBlock => block}
+    }
+  }
 }
