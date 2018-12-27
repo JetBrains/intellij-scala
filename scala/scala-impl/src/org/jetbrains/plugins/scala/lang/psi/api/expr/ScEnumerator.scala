@@ -1,5 +1,6 @@
 package org.jetbrains.plugins.scala.lang.psi.api.expr
 
+import com.intellij.psi.PsiElement
 import org.jetbrains.plugins.scala.extensions._
 import org.jetbrains.plugins.scala.lang.parser.ScalaElementType
 import org.jetbrains.plugins.scala.lang.psi.ScalaPsiElement
@@ -9,6 +10,8 @@ trait ScEnumerator extends ScalaPsiElement {
   def analog: Option[ScEnumerator.Analog] = this.parentOfType(classOf[ScForStatement]) flatMap {
     _.getDesugaredEnumeratorAnalog(this)
   }
+  // the token that marks the enumerator (<-, =, if)
+  def enumeratorToken: PsiElement
 }
 
 object ScEnumerator {

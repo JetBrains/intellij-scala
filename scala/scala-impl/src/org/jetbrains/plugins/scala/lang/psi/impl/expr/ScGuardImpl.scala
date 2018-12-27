@@ -5,7 +5,7 @@ package impl
 package expr
 
 import com.intellij.lang.ASTNode
-import com.intellij.psi.PsiElementVisitor
+import com.intellij.psi.{PsiElement, PsiElementVisitor}
 import org.jetbrains.plugins.scala.lang.psi.api.ScalaElementVisitor
 import org.jetbrains.plugins.scala.lang.psi.api.expr._
 
@@ -24,4 +24,6 @@ class ScGuardImpl(node: ASTNode) extends ScalaPsiElementImpl(node) with ScGuard 
   override def toString: String = "Guard"
 
   def expr: Option[ScExpression] = findChild(classOf[ScExpression])
+
+  override def enumeratorToken: PsiElement = ifKeyword
 }

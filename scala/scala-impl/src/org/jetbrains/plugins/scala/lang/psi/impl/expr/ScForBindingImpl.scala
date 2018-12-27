@@ -5,7 +5,7 @@ package impl
 package expr
 
 import com.intellij.lang.ASTNode
-import com.intellij.psi.PsiElementVisitor
+import com.intellij.psi.{PsiElement, PsiElementVisitor}
 import org.jetbrains.plugins.scala.lang.psi.api.ScalaElementVisitor
 import org.jetbrains.plugins.scala.lang.psi.api.base.patterns.ScPattern
 import org.jetbrains.plugins.scala.lang.psi.api.expr._
@@ -17,8 +17,10 @@ import org.jetbrains.plugins.scala.lang.psi.api.expr._
 
 class ScForBindingImpl(node: ASTNode) extends ScalaPsiElementImpl(node) with ScForBinding {
   override def toString: String = "ForBinding"
-  def pattern: ScPattern = findChildByClass(classOf[ScPattern])
-  def rvalue: ScExpression = findChildByClass(classOf[ScExpression])
+  override def pattern: ScPattern = findChildByClass(classOf[ScPattern])
+  override def rvalue: ScExpression = findChildByClass(classOf[ScExpression])
+
+  override def enumeratorToken: PsiElement = bindingToken
 
   override def accept(visitor: PsiElementVisitor): Unit = {
     visitor match {
