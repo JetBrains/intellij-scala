@@ -4,12 +4,14 @@ package annotator
 import com.intellij.codeInsight.daemon.impl.AnnotationHolderImpl
 import com.intellij.codeInsight.intention.IntentionAction
 import com.intellij.codeInspection._
+import com.intellij.lang.ASTNode
 import com.intellij.lang.annotation._
 import com.intellij.openapi.editor.markup.TextAttributes
 import com.intellij.openapi.project.DumbAware
 import com.intellij.openapi.roots.{ProjectFileIndex, ProjectRootManager}
 import com.intellij.openapi.util.{Condition, Key, TextRange}
 import com.intellij.psi._
+import com.intellij.psi.impl.source.JavaDummyHolder
 import com.intellij.psi.util.PsiTreeUtil
 import org.jetbrains.plugins.scala.annotator.createFromUsage._
 import org.jetbrains.plugins.scala.annotator.intention._
@@ -212,7 +214,88 @@ abstract class ScalaAnnotator extends Annotator
         super.visitAnnotation(annotation)
       }
 
+      class DesugaredForAnnotatorAdapter(realRange: TextRange) extends AnnotationHolderImpl(holder.getCurrentAnnotationSession) {
+        def this(elem: PsiElement) = this(elem.getTextRange)
+        def this(from: PsiElement, to: PsiElement) = this(from.getTextRange union to.getTextRange)
+
+        var errors: Int = 0
+
+        override def createErrorAnnotation(node: PsiElement, message: String): Annotation = super.createErrorAnnotation(realRange, message)
+        override def createErrorAnnotation(node: ASTNode, message: String): Annotation = super.createErrorAnnotation(realRange, message)
+        override def createWarningAnnotation(elt: PsiElement, message: String): Annotation = super.createWarningAnnotation(realRange, message)
+        override def createWarningAnnotation(node: ASTNode, message: String): Annotation = super.createWarningAnnotation(realRange, message)
+        override def createWeakWarningAnnotation(elt: PsiElement, message: String): Annotation = super.createWeakWarningAnnotation(realRange, message)
+        override def createWeakWarningAnnotation(node: ASTNode, message: String): Annotation = super.createWeakWarningAnnotation(realRange, message)
+        override def createInfoAnnotation(elt: PsiElement, message: String): Annotation = super.createInfoAnnotation(realRange, message)
+        override def createInfoAnnotation(node: ASTNode, message: String): Annotation = super.createInfoAnnotation(realRange, message)
+
+        override def createAnnotation(severity: HighlightSeverity, range: TextRange, message: String, tooltip: String): Annotation = {
+          if (severity == HighlightSeverity.ERROR)
+            errors += 1
+          holder.createAnnotation(severity, realRange, message, tooltip)
+        }
+      }
+
       override def visitForExpression(expr: ScForStatement) {
+        val yieldToken = expr.yieldToken
+        val isYield = yieldToken.isDefined
+        for {
+          enumerators <- expr.enumerators
+          generators = enumerators.generators
+          if generators.nonEmpty
+          nextGenerators = generators.iterator.drop(1).map(Some.apply)
+          (gen, nextGenOpt) <- generators.iterator.zipAll(nextGenerators, null, None)
+          genAnalog <- gen.analog
+        } {
+          var foundUnresolvedSymbol = false
+          var last = Option.empty[ScEnumerator]
+          for {
+            enum@(_x: ScEnumerator) <- gen.nextSiblings.takeWhile(!_.isInstanceOf[ScGenerator])
+            enumAnalog <- enum.analog
+            if !foundUnresolvedSymbol
+          } {
+            val adapter = new DesugaredForAnnotatorAdapter(enum.enumeratorToken)
+            enumAnalog.callExpr.foreach(qualifierPart(_, adapter))
+            foundUnresolvedSymbol ||= adapter.errors > 0
+            last = Some(enum)
+          }
+
+          // It doesn't make sense to look for errors down the function chain
+          // if we were not able to resolve a previous call
+          if (!foundUnresolvedSymbol) {
+            var foundMonadicError = false
+            if (isYield)
+              for {
+                nextGen <- nextGenOpt
+              } {
+                for (nextGenAnalog <- nextGen.analog) {
+                  val adapter = new DesugaredForAnnotatorAdapter(nextGen)
+                  checkExpressionType(nextGenAnalog.analogMethodCall, adapter, typeAware)
+                  foundMonadicError ||= adapter.errors > 0
+                }
+
+                if (!foundMonadicError) {
+                  val adapter = new DesugaredForAnnotatorAdapter(nextGen)
+                  genAnalog.callExpr.foreach(annotateReference(_, adapter))
+                  foundMonadicError ||= adapter.errors > 0
+                }
+              }
+
+            if (!foundMonadicError) {
+              // if there is a yield and it is the last generator, highlight the yield
+              // if not, but there are guards or forBindings highlight all of these
+              // otherwise highlight the enumeratorToken
+              val highlightRange = yieldToken
+                .filter(_ => gen == generators.last)
+                .map(_.getTextRange)
+                .orElse(last.map(gen.getTextRange union _.getTextRange))
+                .getOrElse(gen.enumeratorToken.getTextRange)
+
+              genAnalog.callExpr.foreach(qualifierPart(_, new DesugaredForAnnotatorAdapter(highlightRange)))
+            }
+          }
+        }
+
         registerUsedImports(expr, ScalaPsiUtil.getExprImports(expr))
         super.visitForExpression(expr)
       }
@@ -308,11 +391,15 @@ abstract class ScalaAnnotator extends Annotator
         checkUnboundUnderscore(under, holder)
       }
 
-      private def referencePart(ref: ScReferenceElement) {
-        if (typeAware) annotateReference(ref, holder)
+      private def referencePart(ref: ScReferenceElement, innerHolder: AnnotationHolder = holder) {
+        if (typeAware) annotateReference(ref, innerHolder)
+        qualifierPart(ref, innerHolder)
+      }
+
+      private def qualifierPart(ref: ScReferenceElement, innerHolder: AnnotationHolder): Unit = {
         ref.qualifier match {
-          case None => checkNotQualifiedReferenceElement(ref, holder)
-          case Some(_) => checkQualifiedReferenceElement(ref, holder)
+          case None => checkNotQualifiedReferenceElement(ref, innerHolder)
+          case Some(_) => checkQualifiedReferenceElement(ref, innerHolder)
         }
       }
 
@@ -1419,6 +1506,8 @@ object ScalaAnnotator {
   def isAdvancedHighlightingEnabled(file: PsiFile): Boolean = file match {
     case scalaFile: ScalaFile =>
       HighlightingAdvisor.getInstance(file.getProject).enabled && !isLibrarySource(scalaFile) && !scalaFile.isInDottyModule
+    case _: JavaDummyHolder =>
+      HighlightingAdvisor.getInstance(file.getProject).enabled
     case _ => false
   }
 
