@@ -21,6 +21,8 @@ trait ScForStatement extends ScExpression {
 
   def getDesugaredPatternAnalog(pattern: ScPattern): Option[ScPattern]
 
+  def getDesugaredEnumeratorAnalog(enumerator: ScEnumerator): Option[ScEnumerator.Analog]
+
   def isYield: Boolean
 
   def enumerators: Option[ScEnumerators]
