@@ -18,10 +18,15 @@ public abstract class ParserPatcher {
   public boolean parse(PsiBuilder builder) {
     return false;
   }
-  
+
+  private static ParserPatcher[] allPatchers = null;
+
   @NotNull 
   public static ParserPatcher[] getAllPatchers() {
-    return EP_NAME.getExtensions();
+    if (allPatchers == null) {
+      allPatchers = EP_NAME.getExtensions();
+    }
+    return allPatchers;
   }
 
   @NotNull

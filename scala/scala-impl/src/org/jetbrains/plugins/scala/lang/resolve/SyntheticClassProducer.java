@@ -24,12 +24,21 @@ public abstract class SyntheticClassProducer {
     }
   };
 
+  private static SyntheticClassProducer[] allProducers = null;
+
+  private static SyntheticClassProducer[] getAllProducers() {
+    if (allProducers == null) {
+      allProducers = EP_NAME.getExtensions();
+    }
+    return allProducers;
+  }
+
   public abstract PsiClass[] findClasses(String fqn, GlobalSearchScope scope);
 
   public static PsiClass[] getAllClasses(String fqn, GlobalSearchScope scope) {
     List<PsiClass> all = new ArrayList<PsiClass>();
 
-    for (SyntheticClassProducer ex : EP_NAME.getExtensions()) {
+    for (SyntheticClassProducer ex : getAllProducers()) {
       all.addAll(Arrays.asList(ex.findClasses(fqn, scope)));
     }
 
