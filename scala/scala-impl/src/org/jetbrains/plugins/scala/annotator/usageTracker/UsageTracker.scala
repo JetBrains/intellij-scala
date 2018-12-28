@@ -6,7 +6,6 @@ import org.jetbrains.plugins.scala.lang.psi.ScalaPsiUtil
 import org.jetbrains.plugins.scala.lang.psi.api.ScalaFile
 import org.jetbrains.plugins.scala.lang.psi.api.expr.ScReferenceExpression
 import org.jetbrains.plugins.scala.lang.psi.api.toplevel.imports.usages._
-import org.jetbrains.plugins.scala.lang.psi.light.scala.ScLightElement
 import org.jetbrains.plugins.scala.lang.resolve.ScalaResolveResult
 import org.jetbrains.plugins.scala.worksheet.ScalaScriptImportsUtil
 
@@ -64,10 +63,7 @@ object UsageTracker {
   private def registerUsedElement(element: PsiElement,
                                   resolveResult: ScalaResolveResult,
                                   checkWrite: Boolean) {
-    val named = resolveResult.getActualElement match {
-      case ScLightElement(e) => e
-      case e => e
-    }
+    val named = resolveResult.getActualElement
     val file = element.getContainingFile
     if (named.isValid && named.getContainingFile == file &&
       !PsiTreeUtil.isAncestor(named, element, true)) { //to filter recursive usages
