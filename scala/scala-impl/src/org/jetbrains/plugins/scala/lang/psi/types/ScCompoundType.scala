@@ -43,10 +43,10 @@ final case class ScCompoundType private (
         tp.typeDepth
           .max(sign.typeParams.depth)
     } ++ typesMap.map {
-      case (_: String, TypeAliasSignature(_, params, lowerBound, upperBound, _, _)) =>
-        lowerBound.typeDepth
-          .max(upperBound.typeDepth)
-          .max(params.toArray.depth)
+      case (_: String, signature: TypeAliasSignature) =>
+        signature.lowerBound.typeDepth
+          .max(signature.upperBound.typeDepth)
+          .max(signature.typeParams.toArray.depth)
     }
     val ints = components.map(_.typeDepth)
     val componentsDepth = if (ints.isEmpty) 0 else ints.max

@@ -59,8 +59,8 @@ object TypeDefinitionMembers {
     }
 
     def processRefinement(cp: ScCompoundType, map: Map, place: Option[PsiElement]) {
-      for ((_, TypeAliasSignature(_, _, _, _, _, alias)) <- cp.typesMap) {
-        addToMap(alias, new Node(alias, ScSubstitutor.empty), map)
+      for ((_, aliasSig) <- cp.typesMap) {
+        addToMap(aliasSig.typeAlias, new Node(aliasSig.typeAlias, aliasSig.substitutor), map)
       }
     }
   }

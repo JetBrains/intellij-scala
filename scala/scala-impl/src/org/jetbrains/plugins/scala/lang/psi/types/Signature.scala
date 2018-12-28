@@ -3,8 +3,6 @@ package lang
 package psi
 package types
 
-import java.util.Objects
-
 import com.intellij.lang.java.JavaLanguage
 import com.intellij.openapi.progress.ProgressManager
 import com.intellij.psi._
@@ -12,10 +10,9 @@ import com.intellij.psi.util.MethodSignatureUtil
 import org.jetbrains.plugins.scala.extensions._
 import org.jetbrains.plugins.scala.lang.psi.api.PropertyMethods
 import org.jetbrains.plugins.scala.lang.psi.api.PropertyMethods.methodName
+import org.jetbrains.plugins.scala.lang.psi.api.statements.ScFunction
 import org.jetbrains.plugins.scala.lang.psi.api.statements.params.ScParameters
-import org.jetbrains.plugins.scala.lang.psi.api.statements.{ScFunction, ScTypeAlias}
 import org.jetbrains.plugins.scala.lang.psi.api.toplevel.{ScNamedElement, ScTypedDefinition}
-import org.jetbrains.plugins.scala.lang.psi.light.scala.ScLightTypeAlias
 import org.jetbrains.plugins.scala.lang.psi.types.Signature._
 import org.jetbrains.plugins.scala.lang.psi.types.api.{Any, PsiTypeParamatersExt, TypeParameter}
 import org.jetbrains.plugins.scala.lang.psi.types.recursiveUpdate.ScSubstitutor
@@ -24,51 +21,6 @@ import org.jetbrains.plugins.scala.lang.refactoring.util.ScalaNamesUtil
 import org.jetbrains.plugins.scala.project.{ProjectContext, ProjectContextOwner}
 
 import scala.collection.mutable
-
-final case class TypeAliasSignature(name: String,
-                                    typeParams: Seq[TypeParameter],
-                                    lowerBound: ScType,
-                                    upperBound: ScType,
-                                    isDefinition: Boolean,
-                                    typeAlias: ScTypeAlias) {
-
-  def updateTypes(substitutor: ScSubstitutor): TypeAliasSignature = {
-    val newParameters = typeParams.map(_.update(substitutor))
-    val newLowerBound = substitutor(lowerBound)
-    val newUpperBound = substitutor(upperBound)
-
-    TypeAliasSignature(
-      name,
-      newParameters,
-      newLowerBound,
-      newUpperBound,
-      isDefinition,
-      ScLightTypeAlias(typeAlias, newLowerBound, newUpperBound, newParameters)
-    )
-  }
-
-  override def equals(other: Any): Boolean = other match {
-    case TypeAliasSignature(`name`, `typeParams`, `lowerBound`, `upperBound`, `isDefinition`, _) => true
-    case _ => false
-  }
-
-  override def hashCode(): Int = Objects.hash(
-    name, typeParams, lowerBound, upperBound, Boolean.box(isDefinition)
-  )
-}
-
-object TypeAliasSignature {
-
-  def apply(typeAlias: ScTypeAlias): TypeAliasSignature =
-    TypeAliasSignature(
-      typeAlias.name,
-      typeAlias.typeParameters.map(TypeParameter(_)),
-      typeAlias.lowerBound.getOrNothing,
-      typeAlias.upperBound.getOrAny,
-      typeAlias.isDefinition,
-      typeAlias
-    )
-}
 
 class Signature(_name: String,
                 private val typesEval: Seq[Seq[() => ScType]],

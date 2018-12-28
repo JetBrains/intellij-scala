@@ -143,15 +143,14 @@ trait ScalaTypePresentation extends api.TypePresentation {
           named.map { typedDefinition =>
             (if (typedDefinition.isVar) "var" else "val") + s" ${typedDefinition.name} : ${typeText0(substitutor(returnType))}"
           }
-        case (_: String, TypeAliasSignature(_, typeParams, lowerBound, upperBound, _, typeAlias)) =>
-          val defnText: String = typeAlias match {
-            case tad: ScTypeAliasDefinition =>
-              s" = ${typeText0(upperBound)}"
-            case _ =>
-              lowerBoundText(lowerBound)(typeText0) + upperBoundText(upperBound)(typeText0)
-          }
-          val typeParameters = typeParametersText(typeAlias.typeParameters, ScSubstitutor.empty)
-          Some(s"type ${typeAlias.name}$typeParameters$defnText")
+        case (_: String, signature: TypeAliasSignature) =>
+          val alias = signature.typeAlias
+          val defnText: String =
+            if (signature.isDefinition) s" = ${typeText0(signature.upperBound)}"
+            else lowerBoundText(signature.lowerBound)(typeText0) + upperBoundText(signature.upperBound)(typeText0)
+
+          val typeParameters = typeParametersText(alias.typeParameters, signature.substitutor)
+          Some(s"type ${signature.name}$typeParameters$defnText")
         case _ => None
       }
 
