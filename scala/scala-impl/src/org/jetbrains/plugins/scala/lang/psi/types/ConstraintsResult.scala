@@ -4,7 +4,7 @@ package psi
 package types
 
 import com.intellij.openapi.util.Ref
-import org.jetbrains.plugins.scala.extensions.ObjectExt
+import org.jetbrains.plugins.scala.extensions.{ObjectExt, IteratorExt}
 import org.jetbrains.plugins.scala.lang.psi.api.statements.params.TypeParamId
 import org.jetbrains.plugins.scala.lang.psi.types.api._
 import org.jetbrains.plugins.scala.lang.psi.types.recursiveUpdate.AfterUpdate.{ProcessSubtypes, ReplaceWith, Stop}
@@ -403,11 +403,9 @@ private final case class MultiConstraintSystem(impls: Set[ConstraintSystemImpl])
 
   override def substitutionBounds(canThrowSCE: Boolean)
                                  (implicit context: ProjectContext): Option[ConstraintSystem.SubstitutionBounds] =
-    impls.iterator.map {
+    impls.iterator.flatMap {
       _.substitutionBounds(canThrowSCE)
-    }.collectFirst {
-      case Some(bounds) => bounds
-    }
+    }.headOption
 
   override def removeTypeParamIds(ids: Set[Long]): ConstraintSystem = map {
     _.removeTypeParamIds(ids)

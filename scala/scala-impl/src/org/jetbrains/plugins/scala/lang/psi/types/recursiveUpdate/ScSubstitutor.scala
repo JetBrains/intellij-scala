@@ -4,7 +4,7 @@ package recursiveUpdate
 
 import com.intellij.openapi.diagnostic.Logger
 import com.intellij.openapi.util.Key
-import org.jetbrains.plugins.scala.extensions.PsiElementExt
+import org.jetbrains.plugins.scala.extensions.{PsiElementExt, ArrayExt}
 import org.jetbrains.plugins.scala.lang.psi.api.statements.params.{ScParameter, TypeParamId}
 import org.jetbrains.plugins.scala.lang.psi.api.toplevel.typedef.ScTemplateDefinition
 import org.jetbrains.plugins.scala.lang.psi.types.Compatibility.Expression
@@ -192,8 +192,6 @@ object ScSubstitutor {
   }
 
   def updateThisTypeDeep(subst: ScSubstitutor): Option[ScType] = {
-    subst.substitutions.collectFirst {
-      case ThisTypeSubstitution(target) => target
-    }
+    subst.substitutions.collectFirstByType[ThisTypeSubstitution, ScType](_.target)
   }
 }

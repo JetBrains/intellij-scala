@@ -19,7 +19,7 @@ package evaluator
 package impl
 
 import com.intellij.psi.PsiElement
-import org.jetbrains.plugins.scala.extensions.PsiElementExt
+import org.jetbrains.plugins.scala.extensions.{PsiElementExt, OptionExt, TraversableExt}
 import org.jetbrains.plugins.scala.lang.psi.api.base.patterns.ScPattern
 import org.jetbrains.plugins.scala.lang.psi.api.statements.{ScFunction, ScTypeAlias}
 import org.jetbrains.plugins.scala.lang.psi.api.toplevel.typedef.{ScObject, ScTypeDefinition}
@@ -56,12 +56,9 @@ object ShapelessForProduct extends ScalaMacroTypeable {
       consClass <- findShapelessClass("::")
       consType = ScDesignatorType(consClass)
 
-      genericObject <- ScalaPsiUtil.getCompanionModule(genericClass).collect {
-        case scalaObject: ScObject => scalaObject
-      }
-      auxAlias <- genericObject.members.collectFirst {
-        case alias: ScTypeAlias if alias.name == "Aux" => alias
-      }
+      genericObject <- ScalaPsiUtil.getCompanionModule(genericClass).filterByType[ScObject]
+
+      auxAlias <- genericObject.members.findFirstBy[ScTypeAlias](_.name == "Aux")
 
       productLikeType <- productLikeType(genericClass, expectedType)
 

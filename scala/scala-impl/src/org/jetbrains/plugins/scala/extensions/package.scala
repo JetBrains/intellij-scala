@@ -128,11 +128,24 @@ package object extensions {
     def foreachDefined(pf: PartialFunction[A, Unit]): Unit =
       value.foreach(pf.applyOrElse(_, (_: A) => Unit))
 
-    def filterBy[T: ClassTag](implicit cbf: CanBuildTo[T, CC]): CC[T] =
-      value.filter(implicitly[ClassTag[T]].runtimeClass.isInstance).map[T, CC[T]](_.asInstanceOf[T])(collection.breakOut)
+    def filterBy[T: ClassTag](implicit cbf: CanBuildTo[T, CC]): CC[T] = {
+      val clazz = implicitly[ClassTag[T]].runtimeClass
+      value.filter(clazz.isInstance).map[T, CC[T]](_.asInstanceOf[T])(collection.breakOut)
+    }
 
-    def findBy[T: ClassTag]: Option[T] =
-      value.find(implicitly[ClassTag[T]].runtimeClass.isInstance).map(_.asInstanceOf[T])
+    def findBy[T: ClassTag]: Option[T] = {
+      val clazz = implicitly[ClassTag[T]].runtimeClass
+      value.find(clazz.isInstance).asInstanceOf[Option[T]]
+    }
+
+    def findFirstBy[T: ClassTag](predicate: T => Boolean): Option[T] = {
+      val clazz = implicitly[ClassTag[T]].runtimeClass
+      val result = value.find {
+        case elem if clazz.isInstance(elem) && predicate(elem.asInstanceOf[T]) => true
+        case _ => false
+      }
+      result.asInstanceOf[Option[T]]
+    }
 
     def mkParenString(implicit ev: A <:< String): String = value.mkString("(", ", ", ")")
   }
@@ -188,6 +201,24 @@ package object extensions {
     }
   }
 
+  implicit class ArrayExt[V](val array: Array[V]) extends AnyVal {
+    def findByType[T: ClassTag]: Option[T] = collectFirstByType(identity[T])
+
+    def collectFirstByType[T: ClassTag, R](f: T => R): Option[R] = {
+      var idx = 0
+      val clazz = implicitly[ClassTag[T]].runtimeClass
+      while (idx < array.length) {
+        val element = array(idx)
+        if (clazz.isInstance(element)) {
+          return Some(f(element.asInstanceOf[T]))
+        }
+        idx += 1
+      }
+      None
+    }
+
+  }
+
   implicit class ToNullSafe[+A >: Null](val a: A) extends AnyVal {
     def nullSafe = NullSafe(a)
   }
@@ -212,6 +243,14 @@ package object extensions {
 
   implicit class OptionExt[T](val option: Option[T]) extends AnyVal {
     def getOrThrow(exception: => Exception): T = option.getOrElse(throw exception)
+
+    def filterByType[S: ClassTag]: Option[S] = {
+      option match {
+        case Some(element) if implicitly[ClassTag[S]].runtimeClass.isInstance(element) =>
+          option.asInstanceOf[Option[S]]
+        case _ => None
+      }
+    }
   }
 
   implicit class BooleanExt(val b: Boolean) extends AnyVal {
