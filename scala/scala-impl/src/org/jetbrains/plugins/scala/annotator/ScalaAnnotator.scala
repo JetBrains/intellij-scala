@@ -157,28 +157,6 @@ abstract class ScalaAnnotator extends Annotator
         visitExpression(ref)
       }
 
-      override def visitForBinding(forBinding: ScForBinding) {
-        forBinding.valKeyword match {
-          case Some(valKeyword) =>
-            val annotation = holder.createWarningAnnotation(valKeyword, ScalaBundle.message("enumerator.val.keyword.deprecated"))
-            annotation.setHighlightType(ProblemHighlightType.LIKE_DEPRECATED)
-            annotation.registerFix(new RemoveValFromForBindingIntentionAction(forBinding))
-          case _ =>
-        }
-        super.visitForBinding(forBinding)
-      }
-
-      override def visitGenerator(gen: ScGenerator) {
-        gen.valKeyword match {
-          case Some(valKeyword) =>
-            val annotation = holder.createWarningAnnotation(valKeyword, ScalaBundle.message("generator.val.keyword.removed"))
-            annotation.setHighlightType(ProblemHighlightType.LIKE_UNKNOWN_SYMBOL)
-            annotation.registerFix(new RemoveValFromGeneratorIntentionAction(gen))
-          case _ =>
-        }
-        super.visitGenerator(gen)
-      }
-
       override def visitGenericCallExpression(call: ScGenericCall) {
         //todo: if (typeAware) checkGenericCallExpression(call, holder)
         super.visitGenericCallExpression(call)
@@ -214,9 +192,19 @@ abstract class ScalaAnnotator extends Annotator
         super.visitAnnotation(annotation)
       }
 
-      class DesugaredForAnnotatorAdapter(realRange: TextRange) extends AnnotationHolderImpl(holder.getCurrentAnnotationSession) {
+      override def visitForBinding(forBinding: ScForBinding) {
+        forBinding.valKeyword match {
+          case Some(valKeyword) =>
+            val annotation = holder.createWarningAnnotation(valKeyword, ScalaBundle.message("enumerator.val.keyword.deprecated"))
+            annotation.setHighlightType(ProblemHighlightType.LIKE_DEPRECATED)
+            annotation.registerFix(new RemoveValFromForBindingIntentionAction(forBinding))
+          case _ =>
+        }
+        super.visitForBinding(forBinding)
+      }
+
+      class DesugaredForAnnotationHolder(realRange: TextRange) extends AnnotationHolderImpl(holder.getCurrentAnnotationSession) {
         def this(elem: PsiElement) = this(elem.getTextRange)
-        def this(from: PsiElement, to: PsiElement) = this(from.getTextRange union to.getTextRange)
 
         var errors: Int = 0
 
@@ -236,27 +224,22 @@ abstract class ScalaAnnotator extends Annotator
         }
       }
 
-      override def visitForExpression(expr: ScForStatement) {
-        val yieldToken = expr.yieldToken
-        val isYield = yieldToken.isDefined
+      private def checkGenerator(gen: ScGenerator): Unit = {
         for {
-          enumerators <- expr.enumerators
-          generators = enumerators.generators
-          if generators.nonEmpty
-          nextGenerators = generators.iterator.drop(1).map(Some.apply)
-          (gen, nextGenOpt) <- generators.iterator.zipAll(nextGenerators, null, None)
+          forExpression <- gen.forStatement
           genAnalog <- gen.analog
         } {
           var foundUnresolvedSymbol = false
           var last = Option.empty[ScEnumerator]
+
           for {
             enum@(_x: ScEnumerator) <- gen.nextSiblings.takeWhile(!_.isInstanceOf[ScGenerator])
-            enumAnalog <- enum.analog
             if !foundUnresolvedSymbol
+            enumAnalog <- enum.analog
           } {
-            val adapter = new DesugaredForAnnotatorAdapter(enum.enumeratorToken)
-            enumAnalog.callExpr.foreach(qualifierPart(_, adapter))
-            foundUnresolvedSymbol ||= adapter.errors > 0
+            val holder = new DesugaredForAnnotationHolder(enum.enumeratorToken)
+            enumAnalog.callExpr.foreach(qualifierPart(_, holder))
+            foundUnresolvedSymbol ||= holder.errors > 0
             last = Some(enum)
           }
 
@@ -264,38 +247,46 @@ abstract class ScalaAnnotator extends Annotator
           // if we were not able to resolve a previous call
           if (!foundUnresolvedSymbol) {
             var foundMonadicError = false
-            if (isYield)
-              for {
-                nextGen <- nextGenOpt
-              } {
+
+            // check the return type of the next generator
+            // we check the next generator here with it's predecessor,
+            // because we don't want to do the check if foundUnresolvedSymbol is true
+            if (forExpression.isYield) {
+              for (nextGen <- gen.nextSiblings.collectFirst { case gen: ScGenerator => gen }) {
                 for (nextGenAnalog <- nextGen.analog) {
-                  val adapter = new DesugaredForAnnotatorAdapter(nextGen)
-                  checkExpressionType(nextGenAnalog.analogMethodCall, adapter, typeAware)
-                  foundMonadicError ||= adapter.errors > 0
+                  val holder = new DesugaredForAnnotationHolder(nextGen)
+                  checkExpressionType(nextGenAnalog.analogMethodCall, holder, typeAware)
+                  foundMonadicError ||= holder.errors > 0
                 }
 
                 if (!foundMonadicError) {
-                  val adapter = new DesugaredForAnnotatorAdapter(nextGen)
-                  genAnalog.callExpr.foreach(annotateReference(_, adapter))
-                  foundMonadicError ||= adapter.errors > 0
+                  val holder = new DesugaredForAnnotationHolder(nextGen)
+                  genAnalog.callExpr.foreach(annotateReference(_, holder))
+                  foundMonadicError ||= holder.errors > 0
                 }
               }
+            }
 
             if (!foundMonadicError) {
-              // if there is a yield and it is the last generator, highlight the yield
-              // if not, but there are guards or forBindings highlight all of these
-              // otherwise highlight the enumeratorToken
-              val highlightRange = yieldToken
-                .filter(_ => gen == generators.last)
-                .map(_.getTextRange)
-                .orElse(last.map(gen.getTextRange union _.getTextRange))
-                .getOrElse(gen.enumeratorToken.getTextRange)
-
-              genAnalog.callExpr.foreach(qualifierPart(_, new DesugaredForAnnotatorAdapter(highlightRange)))
+              genAnalog.callExpr.foreach(qualifierPart(_, new DesugaredForAnnotationHolder(gen.enumeratorToken)))
             }
           }
         }
+      }
 
+      override def visitGenerator(gen: ScGenerator) {
+        checkGenerator(gen)
+        gen.valKeyword match {
+          case Some(valKeyword) =>
+            val annotation = holder.createWarningAnnotation(valKeyword, ScalaBundle.message("generator.val.keyword.removed"))
+            annotation.setHighlightType(ProblemHighlightType.LIKE_UNKNOWN_SYMBOL)
+            annotation.registerFix(new RemoveValFromGeneratorIntentionAction(gen))
+          case _ =>
+        }
+        super.visitGenerator(gen)
+      }
+
+      override def visitForExpression(expr: ScForStatement) {
         registerUsedImports(expr, ScalaPsiUtil.getExprImports(expr))
         super.visitForExpression(expr)
       }

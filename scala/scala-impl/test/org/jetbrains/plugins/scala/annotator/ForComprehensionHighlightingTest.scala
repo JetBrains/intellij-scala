@@ -102,9 +102,9 @@ class ForComprehensionHighlightingTest extends ScalaHighlightingTestBase {
 
     assertMatches(errorsFromScalaCode(code)){
       case Error("<-", "Cannot resolve symbol foreach") ::
-            Error("yield", "Cannot resolve symbol map") ::
+            Error("<-", "Cannot resolve symbol map") ::
             Error("<-", "Cannot resolve symbol flatMap") ::
-            Error("yield", "Cannot resolve symbol map") ::
+            Error("<-", "Cannot resolve symbol map") ::
             Nil =>
     }
   }
@@ -203,7 +203,7 @@ class ForComprehensionHighlightingTest extends ScalaHighlightingTestBase {
       """.stripMargin
 
     assertMatches(errorsFromScalaCode(code)){
-      case Error("x <- new Fun[Int] if true", "Cannot resolve symbol flatMap") :: Nil =>
+      case Error("<-", "Cannot resolve symbol flatMap") :: Nil =>
     }
   }
 }
