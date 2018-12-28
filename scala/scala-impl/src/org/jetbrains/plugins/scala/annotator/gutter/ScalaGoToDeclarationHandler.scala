@@ -6,12 +6,13 @@ import com.intellij.codeInsight.navigation.actions.GotoDeclarationHandler
 import com.intellij.openapi.actionSystem.DataContext
 import com.intellij.openapi.editor.Editor
 import com.intellij.psi._
+import org.jetbrains.plugins.scala.annotator.gutter.ScalaGoToDeclarationHandler._
 import org.jetbrains.plugins.scala.extensions._
 import org.jetbrains.plugins.scala.lang.lexer.ScalaTokenTypes
 import org.jetbrains.plugins.scala.lang.psi.ScalaPsiUtil
 import org.jetbrains.plugins.scala.lang.psi.api.ScPackage
 import org.jetbrains.plugins.scala.lang.psi.api.base.ScReferenceElement
-import org.jetbrains.plugins.scala.lang.psi.api.expr.{ScAssignStmt, ScSelfInvocation}
+import org.jetbrains.plugins.scala.lang.psi.api.expr.{ScAssignStmt, ScEnumerator, ScSelfInvocation}
 import org.jetbrains.plugins.scala.lang.psi.api.statements.ScFunction
 import org.jetbrains.plugins.scala.lang.psi.api.statements.params.ScParameter
 import org.jetbrains.plugins.scala.lang.psi.api.toplevel.imports.ScImportSelectors
@@ -39,15 +40,12 @@ class ScalaGoToDeclarationHandler extends GotoDeclarationHandler {
     val maybeParent = sourceElement.parent
     sourceElement.getNode.getElementType match {
       case ScalaTokenTypes.tASSIGN =>
-        val maybeResult = maybeParent.flatMap {
-          case assign: ScAssignStmt => Option(assign.assignNavigationElement)
-          case _ => None
-        }
+        maybeParent
+          .collect { case assign: ScAssignStmt => assign }
+          .flatMap { assign => Option(assign.assignNavigationElement) }
+          .map { Array(_) }
+          .getOrElse { getGotoDeclarationTargetsForEnumerator(maybeParent) }
 
-        maybeResult match {
-          case Some(result) => Array(result)
-          case _ => null
-        }
       case ScalaTokenTypes.kTHIS =>
         val maybeResult = maybeParent.flatMap {
           case self: ScSelfInvocation => self.bind
@@ -58,29 +56,15 @@ class ScalaGoToDeclarationHandler extends GotoDeclarationHandler {
           case Some(result) => Array(result)
           case _ => null
         }
+
+      case ScalaTokenTypes.kIF =>
+        getGotoDeclarationTargetsForEnumerator(maybeParent)
+
+      case ScalaTokenTypes.tCHOOSE =>
+        getGotoDeclarationTargetsForEnumerator(maybeParent)
+
       case ScalaTokenTypes.tIDENTIFIER =>
-        val reference = containingFile.findReferenceAt(sourceElement.getTextRange.getStartOffset)
-
-        import ScalaGoToDeclarationHandler._
-        val targets = reference match {
-          case DynamicResolveProcessor.DynamicReference(results) =>
-            results.toSet[ResolveResult]
-              .map(_.getElement)
-              .filterNot(_ == null)
-          case referenceElement: ScReferenceElement =>
-            referenceElement.multiResolveScala(incomplete = false)
-              .toSet[ScalaResolveResult]
-              .flatMap {
-                case ScalaResolveResult(pkg: ScPackage, _) => packageCase(pkg, maybeParent)
-                case result => regularCase(result)
-              }
-          case ResolvesTo(resolved) => Set(resolved)
-          case _ => return null
-        }
-
-        targets.map { element =>
-          syntheticTarget(element).getOrElse(element)
-        }.toArray
+        getGotoDeclarationTargetsForElement(sourceElement, maybeParent, containingFile)
       case _ => null
     }
   }
@@ -89,6 +73,40 @@ class ScalaGoToDeclarationHandler extends GotoDeclarationHandler {
 }
 
 object ScalaGoToDeclarationHandler {
+  private def getGotoDeclarationTargetsForEnumerator(maybeParent: Option[PsiElement]): Array[PsiElement] = {
+    maybeParent
+      .collect { case enum: ScEnumerator => enum }
+      .flatMap { _.analog }
+      .flatMap { _.callExpr }
+      .map { expr => getGotoDeclarationTargetsForElement(expr.nameId, Some(expr), expr.getContainingFile)}
+      .orNull
+  }
+
+  private def getGotoDeclarationTargetsForElement(sourceElement: PsiElement,
+                                                   maybeParent: Option[PsiElement],
+                                                   containingFile: PsiFile): Array[PsiElement] = {
+    val reference = containingFile.findReferenceAt(sourceElement.getTextRange.getStartOffset)
+
+    val targets = reference match {
+      case DynamicResolveProcessor.DynamicReference(results) =>
+        results.toSet[ResolveResult]
+          .map(_.getElement)
+          .filterNot(_ == null)
+      case referenceElement: ScReferenceElement =>
+        referenceElement.multiResolveScala(incomplete = false)
+          .toSet[ScalaResolveResult]
+          .flatMap {
+            case ScalaResolveResult(pkg: ScPackage, _) => packageCase(pkg, maybeParent)
+            case result => regularCase(result)
+          }
+      case ResolvesTo(resolved) => Set(resolved)
+      case _ => return null
+    }
+
+    targets.map { element =>
+      syntheticTarget(element).getOrElse(element)
+    }.toArray
+  }
 
   private def regularCase(result: ScalaResolveResult): Seq[PsiElement] = {
     val actualElement = result.getActualElement

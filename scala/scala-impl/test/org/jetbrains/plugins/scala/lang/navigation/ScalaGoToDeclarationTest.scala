@@ -122,6 +122,64 @@ class ScalaGoToDeclarationTest extends ScalaLightPlatformCodeInsightTestCaseAdap
     expected = "ScPackageObject: bar"
   )
 
+  def testGenerator_map(): Unit = doTest(
+    s"""
+       |object Test {
+       |  for {
+       |    x <$CARET- Option(1)
+       |  } yield x
+       |}
+     """.stripMargin,
+    expected = "ScFunctionDefinition: map"
+  )
+
+  def testGenerator_foreach(): Unit = doTest(
+    s"""
+       |object Test {
+       |  for {
+       |    x <$CARET- Option(1)
+       |  } x
+       |}
+     """.stripMargin,
+    expected = "ScFunctionDefinition: foreach"
+  )
+
+  def testGuard(): Unit = doTest(
+    s"""
+       |object Test {
+       |  for {
+       |    x <- Option(1)
+       |    i${CARET}f x > 9
+       |  } x
+       |}
+     """.stripMargin,
+    expected = "ScFunctionDefinition: withFilter"
+  )
+
+  def testForBinding_none(): Unit = doTest(
+    s"""
+       |object Test {
+       |  for {
+       |    x <- Option(1)
+       |    y = x
+       |  } yield y
+       |}
+     """.stripMargin
+  )
+
+  def testForBinding_map(): Unit = doTest(
+    s"""
+       |object Test {
+       |  for {
+       |    x <- Option(1)
+       |    y $CARET= x
+       |    if y > 0
+       |  } yield y
+       |}
+     """.stripMargin,
+    expected = "ScFunctionDefinition: map"
+  )
+
   private def doTest(fileText: String, expected: String*): Unit = {
     val text = ScalaLightCodeInsightFixtureTestAdapter.normalize(fileText)
     configureFromFileTextAdapter("dummy.scala", text)
