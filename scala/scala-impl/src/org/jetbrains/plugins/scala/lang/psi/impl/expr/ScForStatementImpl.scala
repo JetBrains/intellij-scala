@@ -98,7 +98,7 @@ class ScForStatementImpl(node: ASTNode) extends ScExpressionImplBase(node) with 
     enumerators.processDeclarations(processor, state, null, place)
   }
 
-  protected def bodyToText(expr: ScExpression): String = expr.getText
+  protected def bodyToText(expr: ScalaPsiElement): String = expr.getText
 
   private def generateDesugaredExprWithMappings(forDisplay: Boolean): Option[(ScExpression, Map[ScPattern, ScPattern], Map[ScEnumerator, ScEnumerator.Analog])] = {
     generateDesugaredExprTextWithMappings(forDisplay) flatMap {
@@ -391,8 +391,8 @@ class ScForStatementImpl(node: ASTNode) extends ScExpressionImplBase(node) with 
 
             // sometimes the body of a for loop is enclosed in {}
             // we can remove these brackets
-            def withoutBodyBrackets(e: ScExpression): ScExpression = e match {
-              case ScBlockExpr.Expressions(inner) => inner
+            def withoutBodyBrackets(e: ScExpression): ScalaPsiElement = e match {
+              case ScBlockExpr.Statements(inner) => inner
               case _ => e
             }
 

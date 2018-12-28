@@ -35,4 +35,8 @@ object ScBlockExpr {
   object Expressions {
     def unapplySeq(e: ScBlockExpr): Some[Seq[ScExpression]] = Some(e.exprs)
   }
+
+  object Statements {
+    def unapplySeq(e: ScBlockExpr): Some[Seq[ScBlockStatement]] = Some(e.statements)
+  }
 }

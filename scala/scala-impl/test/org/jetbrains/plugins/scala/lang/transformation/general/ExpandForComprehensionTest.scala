@@ -114,4 +114,9 @@ class ExpandForComprehensionTest extends TransformerTest(new ExpandForComprehens
     before = "for (v <- new W if p(v)) v.p()",
     after = "(new W).filter(v => p(v)).foreach(v => v.p())"
   )(header = "class W { def filter(f: (A) => Boolean): W\n def foreach(f: (A) => Unit }")
+
+  def test_SCL14584(): Unit = check(
+    before = "for { x <- Option(1) } yield { val y = 2; val z = 3; x + y + z }",
+    after = "Option(1).map(x => { val y = 2; val z = 3; x + y + z })"
+  )()
 }
