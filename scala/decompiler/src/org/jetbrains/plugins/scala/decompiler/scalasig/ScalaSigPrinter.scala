@@ -155,9 +155,9 @@ class ScalaSigPrinter(builder: StringBuilder, verbosity: Verbosity) {
     var firstConsFiltered = !filterFirstCons
     for {
       child <- symbol.children
-      if !(child.isParam && child.isType)
     } {
-      if (!firstConsFiltered)
+      if (child.isParam && child.isType) {} // do nothing
+      else if (!firstConsFiltered)
         child match {
           case m: MethodSymbol if m.name == CONSTRUCTOR_NAME => firstConsFiltered = true
           case _ => printSymbol(level + 1, child)
@@ -758,7 +758,12 @@ object ScalaSigPrinter {
   //name may be qualified here
   def processName(name: String): String = {
     val parts = name.stripPrivatePrefix.split('.')
-    parts.map(processSimpleName).mkString(".")
+    var idx = 0
+    while (idx < parts.length) {
+      parts(idx) = processSimpleName(parts(idx)) //no need to create intermediate array here
+      idx += 1
+    }
+    parts.mkString(".")
   }
 
   private def processSimpleName(name: String): String = {
@@ -844,14 +849,26 @@ object ScalaSigPrinter {
 
     def hasCommentStart(s: String) = s.contains("//") || s.contains("/*")
 
+    def lastIdentifierCharIdx(s: String): Int = {
+      var idx = -1
+      while (idx + 1 < s.length && isIdentifierPart(s.charAt(idx + 1))) {
+        idx += 1
+      }
+      idx
+    }
+
     if (id.isEmpty || hasCommentStart(id)) return false
 
     if (isIdentifierStart(id(0))) {
-      if (id.indexWhere(c => !isIdentifierPart(c) && !isOperatorPart(c) && c != '_') >= 0) return false
-      val index = id.indexWhere(isOperatorPart)
-      if (index < 0) return true
-      if (id(index - 1) != '_') return false
-      id.drop(index).forall(isOperatorPart)
+      val lastIdCharIdx = lastIdentifierCharIdx(id)
+
+      if (lastIdCharIdx < 0 || lastIdCharIdx == id.length - 1) //simple id
+        true
+      else if (id.charAt(lastIdCharIdx) != '_')
+        false
+      else
+        id.drop(lastIdCharIdx + 1).forall(isOperatorPart)
+
     } else if (isOperatorPart(id(0))) {
       id.forall(isOperatorPart)
     } else false
