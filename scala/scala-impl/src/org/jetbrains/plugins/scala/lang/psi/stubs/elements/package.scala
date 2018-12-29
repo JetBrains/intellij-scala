@@ -5,7 +5,8 @@ package stubs
 
 import com.intellij.psi.PsiElement
 import com.intellij.psi.stubs._
-import com.intellij.util.ArrayUtil
+import com.intellij.util.{ArrayFactory, ArrayUtil}
+import org.jetbrains.plugins.scala.extensions.{ArrayExt, IterableExt}
 import org.jetbrains.plugins.scala.lang.refactoring.util.ScalaNamesUtil
 
 /**
@@ -21,9 +22,9 @@ package object elements {
 
     def readNames: Array[String] = {
       val length = dataStream.readInt
-      (0 until length).map { _ =>
-        dataStream.readNameString()
-      }.toArray
+
+      new Array[String](length)
+        .updateContent(_ => dataStream.readNameString())
     }
   }
 
@@ -44,24 +45,23 @@ package object elements {
   }
 
   implicit class PsiElementsExt(val elements: Seq[PsiElement]) extends AnyVal {
+    implicit def stringFactory: ArrayFactory[String] = ArrayUtil.STRING_ARRAY_FACTORY
 
     def asStrings(transformText: String => String = identity): Array[String] =
-      if (elements.nonEmpty) elements
-        .map(_.getText)
-        .map(transformText)
-        .toArray
-      else ArrayUtil.EMPTY_STRING_ARRAY
+      elements.mapToArray(e => transformText(e.getText))
   }
 
   implicit class IndexSinkExt(val sink: IndexSink) extends AnyVal {
 
     def occurrences[T <: PsiElement](key: StubIndexKey[String, T],
-                                     names: String*): Unit = for {
-      name <- names
-      if name != null
-
-      cleanName = ScalaNamesUtil.cleanFqn(name)
-      if cleanName.nonEmpty
-    } sink.occurrence(key, cleanName)
+                                     names: String*): Unit =
+      names.foreach { name =>
+        if (name != null) {
+          val cleanName = ScalaNamesUtil.cleanFqn(name)
+          if (cleanName.nonEmpty) {
+            sink.occurrence(key, cleanName)
+          }
+        }
+      }
   }
 }

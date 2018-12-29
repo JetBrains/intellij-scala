@@ -58,7 +58,7 @@ final case class ScCompoundType private (
                              (implicit visited: Set[ScType]): ScType = {
     val updSignatureMap = signatureMap.map {
       case (s: Signature, tp) =>
-        val tParams = s.typeParams.update(substitutor, variance)
+        val tParams = s.typeParams.update(substitutor, Invariant)
         val paramTypes = s.substitutedTypes.map(_.map(f => () => f().recursiveUpdateImpl(substitutor, variance, isLazySubtype = true)))
         val updSignature = new Signature(s.name, paramTypes, tParams, s.substitutor.followed(substitutor), s.namedElement, s.hasRepeatedParam)
         (updSignature, tp.recursiveUpdateImpl(substitutor, Covariant))

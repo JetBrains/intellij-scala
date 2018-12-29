@@ -199,9 +199,21 @@ package object extensions {
       }
       b.result()
     }
+
+    def mapToArray[B <: AnyRef](f: A => B)(implicit factory: ArrayFactory[B]): Array[B] = {
+      val size = value.size
+      val array = factory.create(size)
+      val iterator = value.iterator
+      var idx = 0
+      while (iterator.hasNext) {
+        array(idx) = f(iterator.next)
+        idx += 1
+      }
+      array
+    }
   }
 
-  implicit class ArrayExt[V](val array: Array[V]) extends AnyVal {
+  implicit class ArrayExt[A](val array: Array[A]) extends AnyVal {
     def findByType[T: ClassTag]: Option[T] = collectFirstByType(identity[T])
 
     def collectFirstByType[T: ClassTag, R](f: T => R): Option[R] = {
@@ -217,6 +229,15 @@ package object extensions {
       None
     }
 
+    //changes content of a current array!
+    def updateContent(f: Int => A): array.type = {
+      var idx = 0
+      while (idx < array.length) {
+        array(idx) = f(idx)
+        idx += 1
+      }
+      array
+    }
   }
 
   implicit class ToNullSafe[+A >: Null](val a: A) extends AnyVal {

@@ -6,6 +6,7 @@ import java.util.Objects
 
 import com.intellij.psi._
 import com.intellij.psi.util.PsiTreeUtil
+import com.intellij.util.ArrayFactory
 import org.jetbrains.plugins.scala.extensions._
 import org.jetbrains.plugins.scala.lang.completion.lookups.ScalaLookupItem
 import org.jetbrains.plugins.scala.lang.psi.ScalaPsiUtil
@@ -288,6 +289,9 @@ object ScalaResolveResult {
   }
 
   val EMPTY_ARRAY = Array.empty[ScalaResolveResult]
+
+  implicit val arrayFactory: ArrayFactory[ScalaResolveResult] = (count: Int) =>
+    if (count == 0) EMPTY_ARRAY else new Array[ScalaResolveResult](count)
 
   implicit class ScalaResolveResultExt(val resolveResult: ScalaResolveResult) extends AnyVal {
 

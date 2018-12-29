@@ -16,7 +16,5 @@ trait ScTypeParamClause extends ScalaPsiElement with PsiTypeParameterList {
 
   def getTextByStub: String
 
-  def getTypeParameters: Array[PsiTypeParameter] = typeParameters.toArray
-
   def getTypeParameterIndex(typeParameter: PsiTypeParameter): Int = typeParameters.indexOf(typeParameter)
 }
