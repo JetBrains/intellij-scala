@@ -469,9 +469,11 @@ class ImplicitCollector(place: PsiElement,
 
     if (hasImplicitClause && notTooDeepSearch) {
 
-      wrongExtensionConversion(nonValueType) match {
-        case Some(errorResult) => return Some(errorResult)
-        case None =>
+      if (!hadDependents) {
+        wrongExtensionConversion(nonValueType) match {
+          case Some(errorResult) => return Some(errorResult)
+          case None              => ()
+        }
       }
 
       try {
