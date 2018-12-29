@@ -26,7 +26,10 @@ final class ScExistentialType private (val quantified: ScType,
 
   override def updateSubtypes(substitutor: ScSubstitutor, variance: Variance)
                              (implicit visited: Set[ScType]): ScType = {
-    ScExistentialType(quantified.recursiveUpdateImpl(substitutor, variance))
+    val updatedQ = quantified.recursiveUpdateImpl(substitutor, variance)
+
+    if (updatedQ eq quantified) this
+    else ScExistentialType(updatedQ)
   }
 
   override def equivInner(r: ScType, constraints: ConstraintSystem, falseUndef: Boolean): ConstraintsResult = {

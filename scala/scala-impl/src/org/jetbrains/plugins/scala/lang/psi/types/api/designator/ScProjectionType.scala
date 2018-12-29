@@ -87,8 +87,13 @@ final class ScProjectionType private(val projected: ScType,
   override private[types] def designatorSingletonType: Option[ScType] = super.designatorSingletonType.map(actualSubst)
 
   override def updateSubtypes(substitutor: ScSubstitutor, variance: Variance)
-                             (implicit visited: Set[ScType]): ScType =
-    ScProjectionType(projected.recursiveUpdateImpl(substitutor, Covariant), element)
+                             (implicit visited: Set[ScType]): ScType = {
+
+    val updatedType = projected.recursiveUpdateImpl(substitutor, Covariant)
+
+    if (updatedType eq projected) this
+    else ScProjectionType(updatedType, element)
+  }
 
   @CachedWithRecursionGuard(element, None, ModCount.getBlockModificationCount)
   private def actualImpl(projected: ScType): Option[(PsiNamedElement, ScSubstitutor)] = {

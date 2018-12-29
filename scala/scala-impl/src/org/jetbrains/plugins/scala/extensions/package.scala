@@ -150,7 +150,7 @@ package object extensions {
     def mkParenString(implicit ev: A <:< String): String = value.mkString("(", ", ", ")")
   }
 
-  implicit class SeqExt[CC[X] <: Seq[X], A](val value: CC[A]) extends AnyVal {
+  implicit class SeqExt[CC[X] <: Seq[X], A <: AnyRef](val value: CC[A]) extends AnyVal {
     private type CanBuildTo[Elem, C[X]] = CanBuildFrom[Nothing, Elem, C[Elem]]
 
     def distinctBy[K](f: A => K)(implicit cbf: CanBuildTo[A, CC]): CC[A] = {
@@ -176,6 +176,26 @@ package object extensions {
       b.result()
     }
 
+    //may return same instance if no element was changed
+    def smartMapWithIndex(f: (A, Int) => A)(implicit cbf: CanBuildTo[A, CC]): CC[A] = {
+      val b = cbf()
+      val iterator = value.iterator
+      var i = 0
+      var updated = false
+      while (iterator.hasNext) {
+        val next = iterator.next()
+        val fNext = f(next, i)
+        if (next ne fNext) {
+          updated = true
+        }
+        b += fNext
+        i += 1
+      }
+      if (updated) b.result()
+      else value
+    }
+
+
     def foreachWithIndex[B](f: (A, Int) => B) {
       var i = 0
       for (x <- value) {
@@ -187,7 +207,7 @@ package object extensions {
     def intersperse[B >: A](sep: B): Seq[B] = value.iterator.intersperse(sep).toSeq
   }
 
-  implicit class IterableExt[CC[X] <: Iterable[X], A](val value: CC[A]) extends AnyVal {
+  implicit class IterableExt[CC[X] <: Iterable[X], A <: AnyRef](val value: CC[A]) extends AnyVal {
     private type CanBuildTo[Elem, C[X]] = CanBuildFrom[Nothing, Elem, C[Elem]]
 
     def zipMapped[B](f: A => B)(implicit cbf: CanBuildTo[(A, B), CC]): CC[(A, B)] = {
@@ -211,6 +231,24 @@ package object extensions {
       }
       array
     }
+
+    //may return same instance if no element was changed
+    def smartMap(f: A => A)(implicit cbf: CanBuildTo[A, CC]): CC[A] = {
+      val b = cbf()
+      val iterator = value.iterator
+      var updated = false
+      while (iterator.hasNext) {
+        val next = iterator.next()
+        val fNext = f(next)
+        if (next ne fNext) {
+          updated = true
+        }
+        b += fNext
+      }
+      if (updated) b.result()
+      else value
+    }
+
   }
 
   implicit class ArrayExt[A](val array: Array[A]) extends AnyVal {

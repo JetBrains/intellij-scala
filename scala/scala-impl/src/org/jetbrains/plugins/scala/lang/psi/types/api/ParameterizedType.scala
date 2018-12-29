@@ -3,7 +3,7 @@ package org.jetbrains.plugins.scala.lang.psi.types.api
 import java.util.concurrent.ConcurrentMap
 
 import com.intellij.util.containers.ContainerUtil
-import org.jetbrains.plugins.scala.extensions.TraversableExt
+import org.jetbrains.plugins.scala.extensions.{TraversableExt, SeqExt}
 import org.jetbrains.plugins.scala.lang.psi.api.toplevel.ScTypeParametersOwner
 import org.jetbrains.plugins.scala.lang.psi.types.ScType
 import org.jetbrains.plugins.scala.lang.psi.types.api.ParameterizedType.substitutorCache
@@ -32,12 +32,15 @@ trait ParameterizedType extends ValueType {
       case Some(n: ScTypeParametersOwner) => n.typeParameters.map(_.variance)
       case _                              => Seq.empty
     }
-    ParameterizedType(designator.recursiveUpdateImpl(substitutor, variance),
-      typeArguments.zipWithIndex.map {
-        case (ta, i) =>
-          val v = if (i < typeParameterVariances.length) typeParameterVariances(i) else Invariant
-          ta.recursiveUpdateImpl(substitutor, v * variance)
-      })
+    val newDesignator = designator.recursiveUpdateImpl(substitutor, variance)
+    val newTypeArgs = typeArguments.smartMapWithIndex {
+      case (ta, i) =>
+        val v = if (i < typeParameterVariances.length) typeParameterVariances(i) else Invariant
+        ta.recursiveUpdateImpl(substitutor, v * variance)
+    }
+
+    if ((newDesignator eq designator) && (newTypeArgs eq typeArguments)) this
+    else ParameterizedType(newDesignator, newTypeArgs)
   }
 
   override def typeDepth: Int = {
