@@ -42,9 +42,10 @@ class ScalaPsiBuilderImpl(delegate: PsiBuilder)
     checkedFindPreviousNewLine.isDefined
 
   override def twoNewlinesBeforeCurrentToken: Boolean =
-    checkedFindPreviousNewLine.toSeq.flatMap { text =>
-      s"start $text end".split('\n')
-    }.exists(ScalaPsiBuilderImpl.isBlank)
+    checkedFindPreviousNewLine match {
+      case Some(text) => s"start $text end".split('\n').exists(ScalaPsiBuilderImpl.isBlank)
+      case _ => false
+    }
 
   override final def disableNewlines(): Unit = {
     newlinesEnabled.push(false)
