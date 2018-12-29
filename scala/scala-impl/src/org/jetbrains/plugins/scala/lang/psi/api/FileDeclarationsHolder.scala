@@ -188,7 +188,7 @@ trait FileDeclarationsHolder extends PsiElement with ScDeclarationSequenceHolder
         if (!alreadyContains(synth.getName) && !processor.execute(synth, state)) return false
       }
 
-      val synthObjectsIterator = classes.syntheticObjects.iterator
+      val synthObjectsIterator = classes.syntheticObjects.valuesIterator
       while (synthObjectsIterator.hasNext) {
         val synth = synthObjectsIterator.next()
         ProgressManager.checkCanceled()

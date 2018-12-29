@@ -28,7 +28,6 @@ import org.jetbrains.plugins.scala.lang.refactoring.util.ScalaNamesUtil
 import org.jetbrains.plugins.scala.lang.resolve.processor.{BaseProcessor, ImplicitProcessor, ResolveProcessor, ResolverEnv}
 import org.jetbrains.plugins.scala.project.ProjectContext
 
-import scala.collection.mutable.ArrayBuffer
 import scala.collection.{Seq, mutable}
 
 abstract class SyntheticNamedElement(name: String)
@@ -227,7 +226,6 @@ class SyntheticClasses(project: Project) extends PsiElementFinder with ProjectCo
     all = null
     numeric = null
     integer = null
-    syntheticObjects = null
     file = null
   }
 
@@ -241,7 +239,7 @@ class SyntheticClasses(project: Project) extends PsiElementFinder with ProjectCo
   var all: mutable.Map[String, ScSyntheticClass] = new mutable.HashMap[String, ScSyntheticClass]
   var numeric: mutable.Set[ScSyntheticClass] = new mutable.HashSet[ScSyntheticClass]
   var integer : mutable.Set[ScSyntheticClass] = new mutable.HashSet[ScSyntheticClass]
-  var syntheticObjects: mutable.Set[ScObject] = new mutable.HashSet[ScObject]
+  val syntheticObjects: mutable.Map[String, ScObject] = new mutable.HashMap[String, ScObject]
   var file : PsiFile = _
 
   def registerClasses() {
@@ -333,13 +331,12 @@ class SyntheticClasses(project: Project) extends PsiElementFinder with ProjectCo
     stringPlusMethod = new ScSyntheticFunction("+", _, Seq(Seq(Any)))
 
     //register synthetic objects
-    syntheticObjects = new mutable.HashSet[ScObject]
     def registerObject(fileText: String) {
       val dummyFile = PsiFileFactory.getInstance(project).
         createFileFromText("dummy." + ScalaFileType.INSTANCE.getDefaultExtension,
           ScalaFileType.INSTANCE, fileText).asInstanceOf[ScalaFile]
       val obj = dummyFile.typeDefinitions.head.asInstanceOf[ScObject]
-      syntheticObjects += obj
+      syntheticObjects.put(obj.qualifiedName, obj)
     }
 
     registerObject(
@@ -517,20 +514,19 @@ object Unit
         case _ =>
       }
     }
-    for (obj <- syntheticObjects) {
-      if (obj.qualifiedName == qName) return obj
-    }
-    null
+    syntheticObjects.get(qName).orNull
   }
 
   def findClasses(qName: String, scope: GlobalSearchScope): Array[PsiClass] = {
-    val res: ArrayBuffer[PsiClass] = new ArrayBuffer[PsiClass]
     val c = findClass(qName, scope)
-    if (c != null) res += c
-    for (obj <- syntheticObjects) {
-      if (obj.qualifiedName == qName) res += obj
-    }
-    res.toArray
+    val obj = syntheticObjects.get(qName).orNull
+
+    if (c != null && obj != null && c != obj)
+      Array(c, obj)
+    else if (c != null)
+      Array(c)
+    else
+      Array.empty
   }
 
   override def getClasses(p : PsiPackage, scope : GlobalSearchScope) = findClasses(p.getQualifiedName, scope)

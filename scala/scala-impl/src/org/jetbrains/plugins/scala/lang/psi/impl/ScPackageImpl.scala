@@ -45,7 +45,7 @@ class ScPackageImpl private (val pack: PsiPackage) extends PsiPackageImpl(pack.g
         for (synth <- SyntheticClasses.get(getProject).getAll) {
           if (!alreadyContains(synth.name)) processor.execute(synth, ResolveState.initial)
         }
-        for (synthObj <- SyntheticClasses.get(getProject).syntheticObjects) {
+        for (synthObj <- SyntheticClasses.get(getProject).syntheticObjects.valuesIterator) {
 
           // Assume that is the scala package contained a class with the same names as the synthetic object,
           // then it must also contain the object.
