@@ -375,10 +375,10 @@ class ScForStatementImpl(node: ASTNode) extends ScExpressionImplBase(node) with 
         }
       }
 
-      val funcText = if (isLastGen)
-        if (isYield) "map" else "foreach"
+      val funcText = if (isYield)
+        if (isLastGen) "map" else "flatMap"
       else
-        "flatMap"
+        "foreach"
 
       appendFunc(funcText, Some(gen), generatorArgs, forceBlock = forBindingsInGenBody.nonEmpty) {
         printForBindings(forBindingsInGenBody)

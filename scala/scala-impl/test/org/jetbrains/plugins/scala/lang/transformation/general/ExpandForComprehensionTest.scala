@@ -119,4 +119,9 @@ class ExpandForComprehensionTest extends TransformerTest(new ExpandForComprehens
     before = "for { x <- Option(1) } yield { val y = 2; val z = 3; x + y + z }",
     after = "Option(1).map(x => { val y = 2; val z = 3; x + y + z })"
   )()
+
+  def test_SCL14779(): Unit = check(
+    before = "for { a <- Some(1); b <- Some(1) } println(a)",
+    after = "Some(1).foreach(a => Some(1).foreach(b => println(a)))"
+  )()
 }

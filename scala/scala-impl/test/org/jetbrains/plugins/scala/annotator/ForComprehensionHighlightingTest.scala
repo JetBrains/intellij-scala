@@ -199,7 +199,7 @@ class ForComprehensionHighlightingTest extends ScalaHighlightingTestBase {
         |for {
         |  x <- new Fun[Int] if true
         |  y <- List(3, 3)
-        |} {}
+        |} yield {}
       """.stripMargin
 
     assertMatches(errorsFromScalaCode(code)){
