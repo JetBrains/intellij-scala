@@ -1,9 +1,9 @@
 package org.jetbrains.plugins.scala.lang.psi.api.expr
 
-import com.intellij.psi.PsiElement
+import com.intellij.psi.{PsiElement, PsiPolyVariantReference}
 import org.jetbrains.plugins.scala.lang.psi.api.ScalaPsiElement
 
-trait ScEnumerator extends ScalaPsiElement {
+trait ScEnumerator extends ScalaPsiElement with PsiPolyVariantReference {
   def forStatement: Option[ScFor]
 
   def desugared: Option[ScEnumerator.DesugaredEnumerator]
