@@ -98,4 +98,23 @@ class RandomHighlightingBugs extends ScalaLightCodeInsightFixtureTestAdapter {
         |}
       """.stripMargin
     )
+
+  def testSCL14586(): Unit =
+    checkTextHasNoErrors(
+      """
+        |import scala.language.higherKinds
+        |import scala.concurrent.Future
+        |
+        |case class EitherT[F[_], L, R](var value: F[Either[L, R]])
+        |
+        |sealed trait Parent
+        |class Child extends Parent
+        |class AnotherChild extends Parent
+        |
+        |object VarianceTests extends App {
+        |  val future: Future[Either[Child, String]] = ???
+        |  val eitherT2: EitherT[Future, Parent, String] = EitherT.apply(future)
+        |}
+      """.stripMargin
+    )
 }

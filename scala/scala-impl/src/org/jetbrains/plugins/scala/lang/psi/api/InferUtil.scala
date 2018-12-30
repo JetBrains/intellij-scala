@@ -312,16 +312,26 @@ object InferUtil {
           canThrowSCE = canThrowSCE,
           filterTypeParams = filterTypeParams)
 
+      val subst =
+        if (!filterTypeParams) {
+          val fullyInferedTypeParameters =
+            inferredWithExpected
+              .typeParameters
+              .filter(p => p.lowerType.equiv(p.upperType))
+
+          ScSubstitutor.bind(fullyInferedTypeParameters)(_.lowerType)
+        } else ScSubstitutor.empty
+
+      val result = subst(inferredWithExpected)
+
       /** See
         * [[scala.tools.nsc.typechecker.Typers.Typer.adapt#adaptToImplicitMethod]]
         *
         * If there is not found implicit for type parameters inferred using expected type,
         * rollback type inference, it may be fixed later with implicit conversion
         */
-      if (cantFindImplicitsFor(inferredWithExpected))
-        _nonValueType
-      else
-        inferredWithExpected
+      if (cantFindImplicitsFor(result)) _nonValueType
+      else                              result
     }
 
     val nonValueType = (_nonValueType, expectedType) match {
