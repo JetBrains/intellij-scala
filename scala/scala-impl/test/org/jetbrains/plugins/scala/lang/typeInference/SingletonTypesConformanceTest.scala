@@ -17,4 +17,55 @@ class SingletonTypesConformanceTest extends ScalaLightCodeInsightFixtureTestAdap
       |}
     """.stripMargin
   )
+
+  def testSCL11285(): Unit = {
+    checkTextHasNoErrors(
+      """trait Input {
+        |  type Value
+        |}
+        |
+        |def requestInput[Res](req: Input {type Value = Res}): Res = ???
+        |
+        |def test(req: Input): Unit =
+        |  requestInput[req.Value](req)
+      """.stripMargin)
+  }
+
+  def testSCL13607(): Unit = {
+    checkTextHasNoErrors(
+      """
+        |trait Foo {
+        |    type Bar
+        |}
+        |
+        |def apply[A](foo: Foo { type Bar = A }): Unit = ()
+        |
+        |def test(f: Foo): Unit = apply[f.Bar](f)
+      """.stripMargin)
+  }
+
+  def testSCL13797(): Unit = {
+    checkTextHasNoErrors(
+      """
+        |trait Test {
+        |  type X
+        |  def self: Test { type X = Test.this.X } = this
+        |}
+      """.stripMargin)
+  }
+
+   def testSCL7017(): Unit =
+    checkTextHasNoErrors(
+      """
+        |class SCL7017 {
+        |  abstract class A
+        |  case object B extends A
+        |  case object C extends A
+        |  case class X[T <: A](o: T, n: Int) {
+        |    def +(that: X[o.type]): Int = 1
+        |  }
+        |  val i: Int = X(B, 1) + X(B, 2)
+        |}
+      """.stripMargin.trim
+    )
 }

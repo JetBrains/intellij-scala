@@ -117,4 +117,31 @@ class RandomHighlightingBugs extends ScalaLightCodeInsightFixtureTestAdapter {
         |}
       """.stripMargin
     )
+
+  def testSCL4652(): Unit = checkTextHasNoErrors(
+    s"""import scala.language.higherKinds
+      |
+      |  trait Binding[A]
+      |
+      |  trait ValueKey[BindingRoot] {
+      |    def update(value: Any): Binding[BindingRoot]
+      |  }
+      |
+      |  class Foo[A] {
+      |    type ObjectType[B[_]] = B[A]
+      |    val bar: ObjectType[Bar] = ???
+      |  }
+      |
+      |  class Bar[A] {
+      |    type ValueType = ValueKey[A]
+      |    val qux: ValueType = ???
+      |  }
+      |
+      |  object Test {
+      |    def foo123(): Unit = {
+      |      val g: Foo[String] => Binding[String] = _.bar.qux.update(1)
+      |    }
+      |  }
+      |""".stripMargin
+  )
 }

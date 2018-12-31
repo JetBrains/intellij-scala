@@ -127,7 +127,6 @@ class FailedScalacTests extends FailedScalacTestsBase {
   def test_t7944(): Unit = doTest()
   def `test_t8002-nested-scope`(): Unit = doTest()
   def test_t8079b(): Unit = doTest()
-  def test_t8177h(): Unit = doTest()
   def test_t8237(): Unit = doTest()
   def test_t9008(): Unit = doTest()
   def test_t9498(): Unit = doTest()

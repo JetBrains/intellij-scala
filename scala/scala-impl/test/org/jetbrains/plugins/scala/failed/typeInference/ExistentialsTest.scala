@@ -89,28 +89,6 @@ class ExistentialsTest extends TypeInferenceTestBase {
     """.stripMargin
   )
 
-  def testSCL4943(): Unit = doTest {
-    """
-      |object SCL4943 {
-      |  class Bar {
-      |    class Baz
-      |  }
-      |  class Foo {
-      |    def foo = {
-      |      val bar = new Bar
-      |      object Temp {
-      |        def foo(x: (b#Baz forSome { type b >: Bar <: Bar })): Int = 1
-      |        def foo(s: String): String = s
-      |      }
-      |      /*start*/Temp.foo(new bar.Baz())/*end*/
-      |      new bar.Baz()
-      |    }
-      |  }
-      |}
-      |//Int
-    """.stripMargin.trim
-  }
-
   def testSCL5725(): Unit = doTest {
     """
       |class Zoo {
