@@ -706,7 +706,8 @@ trait ScalaConformance extends api.Conformance {
           case _                                                                     => ScSubstitutor.empty
         }
 
-        val processor = new CompoundTypeCheckTypeAliasProcessor(sign, constraints, singletonSubst)
+        val subst = sign.substitutor.followed(singletonSubst)
+        val processor = new CompoundTypeCheckTypeAliasProcessor(sign, constraints, subst)
         processor.processType(r, sign.typeAlias)
         constraints = processor.getConstraints
         processor.getResult

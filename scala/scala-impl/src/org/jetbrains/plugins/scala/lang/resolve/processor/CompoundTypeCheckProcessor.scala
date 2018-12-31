@@ -249,7 +249,8 @@ class CompoundTypeCheckTypeAliasProcessor(sign: TypeAliasSignature, constraints:
           val enclosingClass = namedElement.parentOfType(classOf[ScTemplateDefinition])
           val thisType       = enclosingClass.map(ScThisType).getOrElse(tdef.projectContext.stdTypes.Any)
           val asSeenFrom     = substitutor(ScProjectionType(thisType, namedElement))
-          val conforms       = tdef.aliasedType.getOrAny.equiv(asSeenFrom, constraints)
+          val aliased        = substitutor(tdef.aliasedType.getOrAny)
+          val conforms       = aliased.equiv(asSeenFrom, constraints)
 
           if (conforms.isRight) {
             trueResult       = true
