@@ -65,4 +65,24 @@ class PartialUnificationCatsResolveTest extends ScalaLightCodeInsightFixtureTest
        |ior.fol${REFSRC}dMap(_.toString)
      """.stripMargin
   )
+
+  def testSCL14782(): Unit = doResolveTest(
+    s"""
+       |import cats.data._
+       |import cats.implicits._
+       |object test {
+       |  trait BaseError
+       |  trait SubError extends BaseError
+       |  def fn(o: Double, oli: List[Double]): ValidatedNel[BaseError, String] = {
+       |    val va: ValidatedNel[BaseError, String] = ???
+       |    val vb: ValidatedNel[SubError, String] = ???
+       |    (va, vb).m${REFSRC}apN(
+       |      (va: String, vb: String) => {
+       |        ???
+       |      }
+       |    )
+       |  }
+       |}
+     """.stripMargin
+  )
 }

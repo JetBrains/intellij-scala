@@ -992,8 +992,17 @@ trait ScalaConformance extends api.Conformance {
                   val abstractedTypeParams = abstracted.zipWithIndex.map {
                     case (_, i) => TypeParameter.light("p" + i + "$$", Seq(), Nothing, Any)
                   }
-                  addParam(typeParameter, ScTypePolymorphicType(ScParameterizedType(des2,
-                    captured ++ abstractedTypeParams.map(TypeParameterType(_))), abstractedTypeParams), t.constraints)
+
+                  val typeConstructor =
+                    ScTypePolymorphicType(
+                      ScParameterizedType(
+                        des2,
+                        captured ++ abstractedTypeParams.map(TypeParameterType(_))
+                      ),
+                      abstractedTypeParams
+                    )
+
+                  t.constraints.withLower(typeParameter.typeParamId, typeConstructor)
                 } else {
                   t
                 }
@@ -1437,7 +1446,7 @@ trait ScalaConformance extends api.Conformance {
               return
             }
             constraints = t.constraints
-            t = conformsInner(typeParameters2(i).upperType, typeParameters1(i).lowerType, HashSet.empty, constraints)
+            t = conformsInner(typeParameters2(i).upperType, typeParameters1(i).upperType, HashSet.empty, constraints)
             if (t.isLeft) {
               result = ConstraintsResult.Left
               return
