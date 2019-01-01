@@ -159,4 +159,41 @@ class RandomHighlightingBugs extends ScalaLightCodeInsightFixtureTestAdapter {
         |}
       """.stripMargin
     )
+
+  def testSCL14468(): Unit =
+    checkTextHasNoErrors(
+      """
+        |object Tag {
+        |  type @@[+T, U] = T with Tagged[U]
+        |  def tag[U] = new Tagger[U] {}
+        |
+        |  trait Tagged[U]
+        |  trait Tagger[U] {
+        |    def apply[T](t: T): T @@ U = ???
+        |  }
+        |}
+        |
+        |
+        |import Tag._
+        |trait TypedId[T] {
+        |  type Id = String @@ T
+        |}
+        |
+        |case class Test1(id: Test1.Id)
+        |case class Test2(id: Test2.Id)
+        |object Test1 extends TypedId[Test1]
+        |object Test2 extends TypedId[Test2]
+        |
+        |
+        |
+        |object test {
+        |  def newId[T](): String @@ T = tag[T][String]("something")
+        |
+        |  def testFn1(id: Test1.Id = newId()): Unit = { }
+        |  def testFn2(id: Test1.Id = newId[Test1]()): Unit = { }
+        |  testFn1()
+        |  testFn2()
+        |}
+      """.stripMargin
+    )
 }

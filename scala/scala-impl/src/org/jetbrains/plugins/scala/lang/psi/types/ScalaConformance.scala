@@ -450,8 +450,8 @@ trait ScalaConformance extends api.Conformance {
         }
 
         result = l.isAliasType match {
-          case Some(AliasType(_: ScTypeAliasDefinition, Right(comp: ScCompoundType), _)) =>
-            conformsInner(comp, c, HashSet.empty, constraints)
+          case Some(AliasType(_: ScTypeAliasDefinition, Right(lower), _)) =>
+            conformsInner(lower, c, HashSet.empty, constraints)
           case _ => ConstraintsResult.Left
         }
       }
