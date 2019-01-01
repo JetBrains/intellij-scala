@@ -144,4 +144,19 @@ class RandomHighlightingBugs extends ScalaLightCodeInsightFixtureTestAdapter {
       |  }
       |""".stripMargin
   )
+
+  def testSCL14680(): Unit =
+    checkTextHasNoErrors(
+      """
+        |object IntellijPartialUnification extends App {
+        |  import scala.collection.generic.CanBuildFrom
+        |  import scala.language.higherKinds
+        |  trait X[M[_]]
+        |  object X {
+        |    implicit def toX[M[_], T](implicit cbf: CanBuildFrom[M[T], T, M[T]]): X[M] = new X[M] {}
+        |  }
+        |  implicitly[X[List]]
+        |}
+      """.stripMargin
+    )
 }
