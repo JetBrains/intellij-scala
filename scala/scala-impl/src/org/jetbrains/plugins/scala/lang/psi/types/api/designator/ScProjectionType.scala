@@ -103,7 +103,7 @@ final class ScProjectionType private(val projected: ScType,
           .flatMap(_.lastChildStub)
           .getOrElse(definition.extendsBlock)
 
-      projected.extractClass match {
+      projected.tryExtractDesignatorSingleton.extractClass match {
         case Some(definition: ScTypeDefinition) => fromClazz(definition)
         case _ => projected match {
           case ScThisType(definition: ScTypeDefinition) => fromClazz(definition)
