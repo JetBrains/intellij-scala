@@ -6,6 +6,7 @@ package expr
 
 import com.intellij.lang.ASTNode
 import com.intellij.psi.{PsiElement, PsiElementVisitor}
+import org.jetbrains.plugins.scala.lang.lexer.ScalaTokenTypes
 import org.jetbrains.plugins.scala.lang.psi.api.ScalaElementVisitor
 import org.jetbrains.plugins.scala.lang.psi.api.expr._
 
@@ -25,5 +26,5 @@ class ScGuardImpl(node: ASTNode) extends ScalaPsiElementImpl(node) with ScGuard 
 
   def expr: Option[ScExpression] = findChild(classOf[ScExpression])
 
-  override def enumeratorToken: PsiElement = ifKeyword
+  override def enumeratorToken: PsiElement = findFirstChildByType(ScalaTokenTypes.kIF)
 }

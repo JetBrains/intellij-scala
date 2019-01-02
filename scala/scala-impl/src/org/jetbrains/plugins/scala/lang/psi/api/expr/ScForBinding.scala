@@ -15,8 +15,6 @@ import org.jetbrains.plugins.scala.lang.lexer.ScalaTokenTypes
 trait ScForBinding extends ScEnumerator with ScPatterned {
   def rvalue: ScExpression
 
-  def bindingToken: PsiElement = findFirstChildByType(ScalaTokenTypes.tASSIGN)
-
   def valKeyword: Option[PsiElement] = {
     Option(getNode.findChildByType(ScalaTokenTypes.kVAL)).map(_.getPsi)
   }

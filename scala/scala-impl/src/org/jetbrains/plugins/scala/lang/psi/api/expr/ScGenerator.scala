@@ -16,10 +16,6 @@ trait ScGenerator extends ScEnumerator with ScPatterned {
 
   def rvalue: ScExpression
 
-
-  def chooseToken: PsiElement
-    = findFirstChildByType(ScalaTokenTypes.tCHOOSE)
-
   def valKeyword: Option[PsiElement] =
     Option(getNode.findChildByType(ScalaTokenTypes.kVAL)).map(_.getPsi)
 

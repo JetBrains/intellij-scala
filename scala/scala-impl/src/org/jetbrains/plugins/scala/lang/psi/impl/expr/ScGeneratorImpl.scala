@@ -6,6 +6,7 @@ package expr
 
 import com.intellij.lang.ASTNode
 import com.intellij.psi.PsiElement
+import org.jetbrains.plugins.scala.lang.lexer.ScalaTokenTypes
 import org.jetbrains.plugins.scala.lang.psi.api.base.patterns.ScPattern
 import org.jetbrains.plugins.scala.lang.psi.api.expr._
 
@@ -20,7 +21,7 @@ class ScGeneratorImpl(node: ASTNode) extends ScExpressionImplBase(node) with ScG
 
   def rvalue: ScExpression = findChildByClass(classOf[ScExpression])
 
-  override def enumeratorToken: PsiElement = chooseToken
+  override def enumeratorToken: PsiElement = findFirstChildByType(ScalaTokenTypes.tCHOOSE)
 
   override def toString: String = "Generator"
 }
