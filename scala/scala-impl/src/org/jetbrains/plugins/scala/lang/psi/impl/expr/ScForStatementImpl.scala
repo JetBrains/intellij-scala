@@ -103,31 +103,26 @@ class ScForStatementImpl(node: ASTNode) extends ScExpressionImplBase(node) with 
   private def generateDesugaredExprWithMappings(forDisplay: Boolean): Option[(ScExpression, Map[ScPattern, ScPattern], Map[ScEnumerator, ScEnumerator.Analog])] = {
     generateDesugaredExprTextWithMappings(forDisplay) flatMap {
       case (desugaredText, patternToPosition, enumToPosition) =>
-        try {
-          ScalaPsiElementFactory.createOptionExpressionWithContextFromText(desugaredText, this.getContext, this) map {
-            expr =>
-              lazy val patternMapping = {
-                for {
-                  (originalPattern, idx) <- patternToPosition
-                  elem <- Option(expr.findElementAt(idx))
-                  mc <- findPatternElement(elem, originalPattern)
-                } yield originalPattern -> mc
-              }.toMap
+        ScalaPsiElementFactory.createOptionExpressionWithContextFromText(desugaredText, this.getContext, this) map {
+          expr =>
+            lazy val patternMapping = {
+              for {
+                (originalPattern, idx) <- patternToPosition
+                elem <- Option(expr.findElementAt(idx))
+                mc <- findPatternElement(elem, originalPattern)
+              } yield originalPattern -> mc
+            }.toMap
 
-              lazy val enumMapping = {
-                for {
-                  (enum, idx) <- enumToPosition
-                  elem <- Option(expr.findElementAt(idx))
-                  mc <- elem.parentOfType(classOf[ScMethodCall])
-                } yield enum -> ScEnumerator.Analog(mc)
-              }.toMap
+            lazy val enumMapping = {
+              for {
+                (enum, idx) <- enumToPosition
+                elem <- Option(expr.findElementAt(idx))
+                mc <- elem.parentOfType(classOf[ScMethodCall])
+              } yield enum -> ScEnumerator.Analog(mc)
+            }.toMap
 
-              if (forDisplay) (expr, Map.empty, Map.empty)
-              else (expr, patternMapping, enumMapping)
-          }
-        } catch {
-          case p: ProcessCanceledException => throw p
-          case _: Throwable => None
+            if (forDisplay) (expr, Map.empty, Map.empty)
+            else (expr, patternMapping, enumMapping)
         }
     }
   }
