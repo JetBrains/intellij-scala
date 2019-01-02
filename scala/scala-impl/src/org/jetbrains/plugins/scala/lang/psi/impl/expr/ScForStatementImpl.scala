@@ -184,14 +184,9 @@ class ScForStatementImpl(node: ASTNode) extends ScExpressionImplBase(node) with 
     val patternMappings = mutable.Map.empty[ScPattern, Int]
     val enumMappings = mutable.Map.empty[ScEnumerator, Int]
 
-    def markPatternHere(pattern: ScPattern): Unit = {
-      if (!patternMappings.contains(pattern))
-        patternMappings += pattern -> resultText.length
-    }
-
-    def markEnumeratorHere(enumerator: ScEnumerator): Unit = {
-      if (!enumMappings.contains(enumerator))
-        enumMappings += enumerator -> resultText.length
+    def markMappingHere[K](whatOpt: Option[K], mappings: mutable.Map[K, Int]): Unit = {
+      for (what <- whatOpt if !mappings.contains(what))
+        mappings += what -> resultText.length
     }
 
     def appendFunc[R](funcName: String, enum: Option[ScEnumerator], args: Seq[(Option[ScPattern], String)], forceCases: Boolean = false, forceBlock: Boolean = false)
@@ -201,7 +196,7 @@ class ScForStatementImpl(node: ASTNode) extends ScExpressionImplBase(node) with 
       val needsParenthesis = args.size > 1 || !needsCase && argPatterns.exists(needsParenthesisAsLambdaArgument)
 
       resultText ++= "."
-      enum.foreach(markEnumeratorHere)
+      markMappingHere(enum, enumMappings)
       resultText ++= funcName
 
       resultText ++= (if (needsCase) " { case " else if (forceBlock) " { " else "(")
@@ -215,7 +210,7 @@ class ScForStatementImpl(node: ASTNode) extends ScExpressionImplBase(node) with 
         if (idx != 0) {
           resultText ++= ", "
         }
-        p.foreach(markPatternHere)
+        markMappingHere(p, patternMappings)
         resultText ++= text
       }
       if (needsParenthesis)
@@ -305,7 +300,7 @@ class ScForStatementImpl(node: ASTNode) extends ScExpressionImplBase(node) with 
 
             resultText ++= "val "
             if (binding.ownName.isDefined || (forDisplay && binding.isWildCard)) {
-              pattern.foreach(markPatternHere)
+              markMappingHere(pattern, patternMappings)
               resultText ++= patternText
             } else {
               val needsParenthesis = forDisplay && pattern.exists(needsParenthesisAsNamedPattern)
@@ -313,7 +308,7 @@ class ScForStatementImpl(node: ASTNode) extends ScExpressionImplBase(node) with 
               resultText ++= "@"
               if (needsParenthesis)
                 resultText ++= "("
-              pattern.foreach(markPatternHere)
+              markMappingHere(pattern, patternMappings)
               resultText ++= patternText
               if (needsParenthesis)
                 resultText ++= ")"
