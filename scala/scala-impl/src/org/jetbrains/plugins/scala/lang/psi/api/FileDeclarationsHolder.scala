@@ -21,7 +21,7 @@ import org.jetbrains.plugins.scala.lang.resolve.ResolveUtils
 import org.jetbrains.plugins.scala.lang.resolve.processor.precedence.{PrecedenceTypes, SubstitutablePrecedenceHelper}
 import org.jetbrains.plugins.scala.lang.resolve.processor.{BaseProcessor, ResolveProcessor, ResolverEnv}
 import org.jetbrains.plugins.scala.project.ProjectPsiElementExt
-import org.jetbrains.plugins.scala.util.KindProjectorUtil
+import org.jetbrains.plugins.scala.util.{BetterMonadicForSupport, KindProjectorUtil}
 import org.jetbrains.plugins.scala.worksheet.FileDeclarationsContributor
 
 import scala.collection.mutable
@@ -50,6 +50,12 @@ trait FileDeclarationsHolder extends PsiElement with ScDeclarationSequenceHolder
 
     if (place.kindProjectorPluginEnabled) {
       KindProjectorUtil(place.getProject)
+        .syntheticDeclarations
+        .foreach(processor.execute(_, state))
+    }
+
+    if (place.betterMonadicForEnabled) {
+      BetterMonadicForSupport(place.getProject)
         .syntheticDeclarations
         .foreach(processor.execute(_, state))
     }

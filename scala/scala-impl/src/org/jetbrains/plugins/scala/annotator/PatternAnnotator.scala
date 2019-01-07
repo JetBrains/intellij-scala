@@ -2,6 +2,7 @@ package org.jetbrains.plugins.scala
 package annotator
 
 import com.intellij.lang.annotation.AnnotationHolder
+import org.jetbrains.plugins.scala.annotator.AnnotatorUtils.proccessError
 import org.jetbrains.plugins.scala.extensions.{PsiMethodExt, ResolvesTo}
 import org.jetbrains.plugins.scala.lang.psi.ScalaPsiUtil
 import org.jetbrains.plugins.scala.lang.psi.api.base.ScStableCodeReferenceElement
@@ -15,6 +16,7 @@ import org.jetbrains.plugins.scala.lang.psi.types.api.{ScTypePresentation, _}
 import org.jetbrains.plugins.scala.lang.psi.types.{ScAbstractType, ScParameterizedType, ScType, ScTypeExt, ScalaType}
 import org.jetbrains.plugins.scala.lang.resolve.ScalaResolveResult
 import org.jetbrains.plugins.scala.project.ProjectContext
+import org.jetbrains.plugins.scala.util.BetterMonadicForSupport.Implicit0Pattern
 
 import scala.annotation.tailrec
 import scala.collection.mutable.ArrayBuffer
@@ -111,6 +113,11 @@ object PatternAnnotator {
       case StableIdResolvesToVar() =>
         val message = ScalaBundle.message("stable.identifier.required", pattern.getText)
         holder.createErrorAnnotation(pattern, message)
+      case Implicit0Pattern(arg) =>
+        arg match {
+          case ScTypedPattern(_) => () // valid according to better-monadic-for rewriting rules
+          case other             => proccessError(ScalaBundle.message("better.monadic.for.invalid.pattern"), other, holder)
+      }
       case _: ScInterpolationPattern => //do not check interpolated patterns for number of arguments
       case (_: ScConstructorPattern|_: ScInfixPattern) => //check number of arguments
         val (reference, numPatterns) = pattern match {

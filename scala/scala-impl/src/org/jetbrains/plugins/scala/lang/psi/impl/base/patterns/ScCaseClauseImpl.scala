@@ -12,7 +12,7 @@ import org.jetbrains.plugins.scala.extensions.PsiElementExt
 import org.jetbrains.plugins.scala.lang.psi.api.ScalaElementVisitor
 import org.jetbrains.plugins.scala.lang.psi.api.base.patterns._
 
-/** 
+/**
 * @author Alexander Podkhalyuzin
 * Date: 28.02.2008
 */
@@ -26,7 +26,7 @@ class ScCaseClauseImpl(node: ASTNode) extends ScalaPsiElementImpl (node) with Sc
   }
 
   override def toString: String = "CaseClause"
-  
+
   override def processDeclarations(processor: PsiScopeProcessor,
       state : ResolveState,
       lastParent: PsiElement,

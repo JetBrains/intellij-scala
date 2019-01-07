@@ -117,6 +117,10 @@ package object project {
     def kindProjectorPluginEnabled: Boolean =
       compilerConfiguration.hasSettingForHighlighting(module, _.plugins.exists(_.contains("kind-projector")))
 
+    @CachedInUserData(module, ScalaCompilerConfiguration.modTracker(module.getProject))
+    def betterMonadicForPluginEnabled: Boolean =
+      compilerConfiguration.hasSettingForHighlighting(module, _.plugins.exists(_.contains("better-monadic-for")))
+
     /**
       * Should we check if it's a Single Abstract Method?
       * In 2.11 works with -Xexperimental
@@ -272,6 +276,7 @@ package object project {
     def scalaLanguageLevelOrDefault: ScalaLanguageLevel = scalaLanguageLevel.getOrElse(ScalaLanguageLevel.Default)
 
     def kindProjectorPluginEnabled: Boolean = inThisModuleOrProject(_.kindProjectorPluginEnabled)
+    def betterMonadicForEnabled   : Boolean = inThisModuleOrProject(_.betterMonadicForPluginEnabled)
     def isSAMEnabled              : Boolean = inThisModuleOrProject(_.isSAMEnabled)
     def literalTypesEnabled       : Boolean = inThisModuleOrProject(_.literalTypesEnabled)
     def partialUnificationEnabled : Boolean = inThisModuleOrProject(_.isPartialUnificationEnabled)

@@ -12,7 +12,7 @@ import org.jetbrains.plugins.scala.lang.psi.ScalaPsiUtil
 import org.jetbrains.plugins.scala.lang.psi.api.InferUtil
 import org.jetbrains.plugins.scala.lang.psi.api.InferUtil.SafeCheckException
 import org.jetbrains.plugins.scala.lang.psi.api.base.ScFieldId
-import org.jetbrains.plugins.scala.lang.psi.api.base.patterns.ScBindingPattern
+import org.jetbrains.plugins.scala.lang.psi.api.base.patterns.{ScBindingPattern, ScCaseClause}
 import org.jetbrains.plugins.scala.lang.psi.api.statements._
 import org.jetbrains.plugins.scala.lang.psi.api.statements.params.{ScClassParameter, ScParameter}
 import org.jetbrains.plugins.scala.lang.psi.api.toplevel.typedef.{ScMember, ScObject}
@@ -31,6 +31,8 @@ import org.jetbrains.plugins.scala.lang.resolve._
 import org.jetbrains.plugins.scala.lang.resolve.processor.{BaseProcessor, MostSpecificUtil}
 import org.jetbrains.plugins.scala.project.ProjectContext
 import org.jetbrains.plugins.scala.settings.ScalaProjectSettings
+import org.jetbrains.plugins.scala.util.BetterMonadicForSupport.Implicit0Binding
+import org.jetbrains.plugins.scala.project._
 
 import scala.collection.Set
 
@@ -219,6 +221,7 @@ class ImplicitCollector(place: PsiElement,
           addResultForElement()
         case member: ScMember if member.hasModifierProperty("implicit") =>
           if (isAccessible(member)) addResultForElement()
+        case Implicit0Binding() => addResultForElement() /** See [[org.jetbrains.plugins.scala.util.BetterMonadicForSupport]] */
         case _: ScBindingPattern | _: ScFieldId =>
           val member = ScalaPsiUtil.getContextOfType(namedElement, true, classOf[ScValue], classOf[ScVariable]) match {
             case m: ScMember if m.hasModifierProperty("implicit") => m
@@ -258,9 +261,12 @@ class ImplicitCollector(place: PsiElement,
       }
     }
 
-    private def isContextAncestor(c: ScalaResolveResult) = {
+    private def isContextAncestor(c: ScalaResolveResult): Boolean = {
       val nameContext = ScalaPsiUtil.nameContext(c.element)
-      PsiTreeUtil.isContextAncestor(nameContext, getPlace, false)
+      nameContext match {
+        case _: ScCaseClause if getPlace.betterMonadicForEnabled => false
+        case _                                                   => PsiTreeUtil.isContextAncestor(nameContext, getPlace, false)
+      }
     }
   }
 

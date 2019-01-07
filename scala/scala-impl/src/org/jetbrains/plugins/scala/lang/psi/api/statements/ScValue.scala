@@ -4,8 +4,8 @@ package psi
 package api
 package statements
 
+import com.intellij.psi.PsiElement
 import javax.swing.Icon
-
 import com.intellij.psi.tree.IElementType
 import org.jetbrains.plugins.scala.icons.Icons
 import org.jetbrains.plugins.scala.lang.lexer.ScalaTokenTypes.kVAL
@@ -26,15 +26,14 @@ trait ScValue extends ScValueOrVariable with ScDecoratedIconOwner {
 
   // TODO unify with ScFunction and ScVariable
   override protected def getBaseIcon(flags: Int): Icon = {
-    var parent = getParent
-    while (parent != null) {
-      parent match {
-        case _: ScExtendsBlock => return if (isAbstract) Icons.ABSTRACT_FIELD_VAL else Icons.FIELD_VAL
-        case (_: ScBlock | _: ScalaFile) => return Icons.VAL
-        case _ => parent = parent.getParent
-      }
+    @scala.annotation.tailrec
+    def basedOnParent(current: PsiElement): Icon = current match {
+      case _: ScExtendsBlock         => if (isAbstract) Icons.ABSTRACT_FIELD_VAL else Icons.FIELD_VAL
+      case _: ScBlock | _: ScalaFile => Icons.VAL
+      case other if other != null    => basedOnParent(current.getParent)
+      case _                         => Icons.VAL
     }
-    null
+    basedOnParent(getParent)
   }
 
   def isAbstract: Boolean

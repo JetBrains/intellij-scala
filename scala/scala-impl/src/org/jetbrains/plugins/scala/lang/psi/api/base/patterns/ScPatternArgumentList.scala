@@ -24,8 +24,12 @@ trait ScPatternArgumentList extends ScArguments {
       if (child.isInstanceOf[ScPattern] || child.isInstanceOf[ScSequenceArg]) return false
       child = child.getPrevSibling
     }
-    return child != null && child.getNode.getElementType == ScalaTokenTypes.tCOMMA
+    child != null && child.getNode.getElementType == ScalaTokenTypes.tCOMMA
   }
 
   override def getArgsCount: Int = patterns.length
+}
+
+object ScPatternArgumentList {
+  def unapplySeq(spl: ScPatternArgumentList): Option[Seq[ScPattern]] = Option(spl.patterns)
 }
