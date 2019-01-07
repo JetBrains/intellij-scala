@@ -146,7 +146,8 @@ trait ScExpression extends ScBlockStatement
       case infix: ScInfixExpr if this == infix.getBaseExpr =>
         conversionForReference(infix.operation)
       case call: ScMethodCall => call.getImplicitFunction
-      case generator: ScGenerator => inner(generator)
+      case generator: ScGenerator =>
+        generator.desugared.flatMap { _.generatorExpr }.flatMap { _.implicitConversion(expectedOption = expectedOption) }
       case _: ScParenthesisedExpr => None
       case _ =>
         this.getTypeAfterImplicitConversion(expectedOption = expectedOption, fromUnderscore = fromUnderscore).implicitConversion

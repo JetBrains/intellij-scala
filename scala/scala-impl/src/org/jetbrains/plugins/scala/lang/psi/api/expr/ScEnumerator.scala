@@ -41,5 +41,11 @@ object ScEnumerator {
     def callExpr: Option[ScReferenceExpression]
 
     def content: Option[ScExpression]
+
+    def generatorExpr: Option[ScExpression]
+  }
+
+  object withDesugared {
+    def unapply(enum: ScEnumerator): Option[DesugaredEnumerator] = enum.desugared
   }
 }

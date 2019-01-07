@@ -116,7 +116,7 @@ class ScForStatementImpl(node: ASTNode) extends ScExpressionImplBase(node) with 
                 (enum, idx) <- enumToPosition
                 elem <- Option(expr.findElementAt(idx))
                 mc <- elem.parentOfType(classOf[ScMethodCall])
-              } yield enum -> new ScEnumeratorImpl.DesugaredEnumeratorImpl(mc)
+              } yield enum -> new ScEnumeratorImpl.DesugaredEnumeratorImpl(mc, enum)
             }.toMap
 
             if (forDisplay) (expr, Map.empty, Map.empty)
