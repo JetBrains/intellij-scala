@@ -4,14 +4,14 @@ import com.intellij.ide.util.projectWizard.EmptyModuleBuilder
 import com.intellij.openapi.module.{Module, ModuleConfigurationEditor, ModuleType}
 import com.intellij.openapi.roots.ui.configuration._
 import javax.swing.Icon
+import org.jetbrains.bsp.Icons
 import org.jetbrains.bsp.project.BspSyntheticModuleType._
-import org.jetbrains.sbt.Sbt
 
 class BspSyntheticModuleType extends ModuleType[EmptyModuleBuilder](Id) {
   override def createModuleBuilder(): EmptyModuleBuilder = new EmptyModuleBuilder
   override def getName: String = Name
   override def getDescription: String = Description
-  override def getNodeIcon(isOpened: Boolean): Icon = Sbt.FolderIcon
+  override def getNodeIcon(isOpened: Boolean): Icon = Icons.BSP_TARGET
 }
 
 object BspSyntheticModuleType {

@@ -1,6 +1,5 @@
 package org.jetbrains.bsp
 
-import com.intellij.icons.AllIcons
 import com.intellij.notification.NotificationGroup
 import com.intellij.openapi.externalSystem.model.ProjectSystemId
 import com.intellij.openapi.util.registry.Registry
@@ -8,7 +7,7 @@ import javax.swing.Icon
 
 object BSP {
   val Name = "bsp"
-  val Icon: Icon = AllIcons.Nodes.IdeaProject // TODO bsp icon
+  val Icon: Icon = Icons.BSP
 
   val ProjectSystemId = new ProjectSystemId("BSP", Name)
 
