@@ -12,8 +12,6 @@ import org.jetbrains.plugins.scala.lang.lexer.ScalaTokenTypes
   *         Date: 07.03.2008
   */
 trait ScGenerator extends ScEnumerator with ScPatterned {
-  def guard: ScGuard
-
   def expr: Option[ScExpression]
 
   def valKeyword: Option[PsiElement] =
