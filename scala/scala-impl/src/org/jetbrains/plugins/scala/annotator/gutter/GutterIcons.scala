@@ -2,6 +2,7 @@ package org.jetbrains.plugins.scala
 package annotator
 package gutter
 
+import com.intellij.icons.AllIcons
 import com.intellij.openapi.util.IconLoader
 
 /**
@@ -10,14 +11,14 @@ import com.intellij.openapi.util.IconLoader
  */
 
 object GutterIcons {
-  val RECURSION_ICON = IconLoader.getIcon("/org/jetbrains/plugins/scala/gator/recursion.png")
-  val TAIL_RECURSION_ICON = IconLoader.getIcon("/org/jetbrains/plugins/scala/gator/tail-recursion.png")
+  val RECURSION_ICON = IconLoader.getIcon("/org/jetbrains/plugins/scala/gutter/recursion.svg")
+  val TAIL_RECURSION_ICON = IconLoader.getIcon("/org/jetbrains/plugins/scala/gutter/tail-recursion.svg")
 
-  val OVERRIDING_METHOD_ICON = IconLoader.getIcon("/gutter/overridingMethod.png")
-  val IMPLEMENTING_METHOD_ICON = IconLoader.getIcon("/gutter/implementingMethod.png")
+  val OVERRIDING_METHOD_ICON = AllIcons.Gutter.OverridingMethod
+  val IMPLEMENTING_METHOD_ICON = AllIcons.Gutter.ImplementingMethod
 
-  val OVERRIDDEN_METHOD_MARKER_RENDERER = IconLoader.getIcon("/gutter/overridenMethod.png")
-  val IMPLEMENTED_METHOD_MARKER_RENDERER = IconLoader.getIcon("/gutter/implementedMethod.png")
+  val OVERRIDDEN_METHOD_MARKER_RENDERER = AllIcons.Gutter.OverridenMethod
+  val IMPLEMENTED_METHOD_MARKER_RENDERER = AllIcons.Gutter.ImplementedMethod
   val IMPLEMENTED_INTERFACE_MARKER_RENDERER = IMPLEMENTED_METHOD_MARKER_RENDERER
   val SUBCLASSED_CLASS_MARKER_RENDERER = OVERRIDDEN_METHOD_MARKER_RENDERER
 }

@@ -38,7 +38,7 @@
         <projectConfigurable groupId="build.tools" displayName="bsp" instance="org.jetbrains.bsp.project.BspExternalSystemConfigurable" />
 
         <toolWindow id="bsp" anchor="right"
-                    icon="/org/jetbrains/plugins/scala/images/sbt_toolwin.png"
+                    icon="/org/jetbrains/plugins/scala/bsp/images/toolWindowBuildServerProtocol.svg"
                     factoryClass="org.jetbrains.bsp.BspToolWindowFactory"
                     conditionClass="org.jetbrains.bsp.BspToolWindowFactoryCondition"/>
 
