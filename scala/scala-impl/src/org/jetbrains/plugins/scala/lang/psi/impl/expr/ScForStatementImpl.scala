@@ -225,7 +225,7 @@ class ScForStatementImpl(node: ASTNode) extends ScExpressionImplBase(node) with 
     }
 
     def appendGen(gen: ScGenerator, restEnums: Seq[ScEnumerator]): Unit = {
-      val rvalue = Option(gen.rvalue).map(normalizeUnderscores)
+      val rvalue = gen.expr.map(normalizeUnderscores)
       val isLastGen = !restEnums.exists(_.isInstanceOf[ScGenerator])
 
       val pattern = gen.pattern

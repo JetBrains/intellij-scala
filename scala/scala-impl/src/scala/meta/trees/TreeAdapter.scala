@@ -370,10 +370,10 @@ trait TreeAdapter {
   }
 
   def enumerators(en: ScEnumerators): Seq[m.Enumerator] = {
-    def toEnumerator(nm: PsiElement): m.Enumerator = {
+    def toEnumerator(nm: ScEnumerator): m.Enumerator = {
       nm match {
         case e: ScGenerator =>
-          m.Enumerator.Generator(pattern(e.pattern), expression(e.rvalue))
+          m.Enumerator.Generator(pattern(e.pattern), expression(e.expr.getOrElse(unreachable("generator has no expression"))))
         case e: ScGuard =>
           m.Enumerator.Guard(e.expr.map(expression).getOrElse(unreachable("guard has no condition")))
         case e: ScForBinding =>
@@ -381,7 +381,7 @@ trait TreeAdapter {
         case _ => unreachable
       }
     }
-    Seq(en.children.filter(elem => elem.isInstanceOf[ScGuard] || elem.isInstanceOf[ScPatterned]).map(toEnumerator).toSeq:_*)
+    Seq(en.children.collect { case enum: ScEnumerator => enum }.map(toEnumerator).toSeq:_*)
   }
 
   def toParams(argss: Seq[ScArgumentExprList]): Seq[Seq[m.Term.Param]] = {

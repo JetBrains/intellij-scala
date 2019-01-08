@@ -19,7 +19,7 @@ class ScGeneratorImpl(node: ASTNode) extends ScExpressionImplBase(node) with ScG
 
   def guard: ScGuard = findChildByClass(classOf[ScGuard])
 
-  def rvalue: ScExpression = findChildByClass(classOf[ScExpression])
+  def expr: Option[ScExpression] = Option(findChildByClass(classOf[ScExpression]))
 
   override def enumeratorToken: PsiElement = findFirstChildByType(ScalaTokenTypes.tCHOOSE)
 

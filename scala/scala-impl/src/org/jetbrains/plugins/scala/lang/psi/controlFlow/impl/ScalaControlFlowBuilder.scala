@@ -276,10 +276,8 @@ class ScalaControlFlowBuilder(startInScope: ScalaPsiElement,
   }
 
   override def visitGenerator(gen: ScGenerator) {
-    val rv = gen.rvalue
-    if (rv != null) rv.accept(this)
-    val pat = gen.pattern
-    if (pat != null) pat.accept(this)
+    gen.expr.foreach(_.accept(this))
+    gen.pattern.accept(this)
   }
 
   override def visitGuard(guard: ScGuard) {
