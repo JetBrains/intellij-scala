@@ -223,6 +223,10 @@ public class ScalaSyntaxHighlighter extends SyntaxHighlighterBase {
           ScalaTokenTypes.tASSIGN
   );
 
+  static final TokenSet tARROW = TokenSet.create(
+          ScalaTokenTypes.tFUNTYPE
+  );
+
   static final TokenSet tSEMICOLON = TokenSet.create(
           ScalaTokenTypes.tSEMICOLON
   );
@@ -270,6 +274,7 @@ public class ScalaSyntaxHighlighter extends SyntaxHighlighterBase {
     SyntaxHighlighterBase.fillMap(ATTRIBUTES, tCOMMA, DefaultHighlighter.COMMA);
 
     SyntaxHighlighterBase.fillMap(ATTRIBUTES, tOPS, DefaultHighlighter.ASSIGN);
+    SyntaxHighlighterBase.fillMap(ATTRIBUTES, tARROW, DefaultHighlighter.ARROW);
     SyntaxHighlighterBase.fillMap(ATTRIBUTES, tCOMMENT_TAGS, DefaultHighlighter.SCALA_DOC_TAG);
     SyntaxHighlighterBase.fillMap(ATTRIBUTES, TokenSet.orSet(TokenSet.andNot(ScalaDocTokenType.ALL_SCALADOC_TOKENS, tCOMMENT_TAGS),
         TokenSet.create(ScalaDocTokenType.DOC_COMMENT_BAD_CHARACTER,

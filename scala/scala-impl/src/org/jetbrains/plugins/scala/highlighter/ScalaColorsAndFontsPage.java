@@ -49,6 +49,7 @@ public class ScalaColorsAndFontsPage implements RainbowColorSettingsPage {
             new AttributesDescriptor(VALID_STRING_ESCAPE_NAME, VALID_STRING_ESCAPE),
             new AttributesDescriptor(INVALID_STRING_ESCAPE_NAME, INVALID_STRING_ESCAPE),
             new AttributesDescriptor(ASSIGN_NAME, ASSIGN),
+            new AttributesDescriptor(ARROW_NAME, ARROW),
             new AttributesDescriptor(PARENTHESES_NAME, PARENTHESES),
             new AttributesDescriptor(BRACES_NAME, BRACES),
             new AttributesDescriptor(BRACKETS_NAME, BRACKETS),
@@ -129,7 +130,7 @@ public class ScalaColorsAndFontsPage implements RainbowColorSettingsPage {
         " <keyword>extends</keyword>" +
         " <class>ScalaObject</class> <brace>{</brace>\n" +
         "  <number>1</number> <implicit>to</implicit> <number>5</number>\n" +
-        "  <par>(</par><anon_param>x</anon_param><colon>:</colon> <predef>Int</predef><par>)</par> => <anon_param>x</anon_param>\n" +
+        "  <par>(</par><anon_param>x</anon_param><colon>:</colon> <predef>Int</predef><par>)</par> <arrow>=></arrow> <anon_param>x</anon_param>\n" +
         "  <keyword>val</keyword> <val>field</val> <assign>=</assign> <string>\"Some<validescape>\\n</validescape>Strin<invalidescape>\\g</invalidescape>\"</string>\n" +
         "  <keyword>def</keyword> <methoddecl>foo</methoddecl><par>(</par><param>x</param><colon>:</colon> <predef>Float</predef><comma>," +
         "</comma> <param>y</param><colon>:</colon> <predef>Float</predef><par>)</par> <assign>=</assign> <brace>{</brace>\n" +
@@ -142,7 +143,7 @@ public class ScalaColorsAndFontsPage implements RainbowColorSettingsPage {
         "<typeparam>T</typeparam> <assign>=</assign> <keyword>null</keyword>\n" +
         "  <method>foo</method><par>(</par><number>0</number><comma>,</comma> <number>-1</number><par>)</par> " +
         "<keyword>match</keyword> <brace>{</brace>\n" +
-        "    <keyword>case</keyword> <pattern>x</pattern> => <pattern>x</pattern>\n" +
+        "    <keyword>case</keyword> <pattern>x</pattern> <arrow>=></arrow> <pattern>x</pattern>\n" +
         "  <brace>}<brace>\n" +
         "  <keyword>type</keyword> <typeAlias>G</typeAlias> <assign>=</assign> <predef>Int</predef>\n" +
         "  val xml = <xmltag><<xmltagname>element</xmltagname> <xmlattributename>attibute=</xmlattributename><xmlattributevalue>\"value\"</xmlattributevalue>></xmltag><xmltagdata>data</xmltagdata><xmltag></element></xmltag>\n" +
@@ -198,6 +199,7 @@ public class ScalaColorsAndFontsPage implements RainbowColorSettingsPage {
     map.put("invalidescape", INVALID_STRING_ESCAPE);
     map.put("typeparam", TYPEPARAM);
     map.put("assign", ASSIGN);
+    map.put("arrow", ARROW);
     map.put("bracket", BRACKETS);
     map.put("dot", DOT);
     map.put("semicolon", SEMICOLON);

@@ -52,6 +52,8 @@ public class DefaultHighlighter {
   @NonNls
   static final String ASSIGN_NAME = "Assign";
   @NonNls
+  static final String ARROW_NAME = "Arrow";
+  @NonNls
   static final String SEMICOLON_NAME = "Semicolon";
   @NonNls
   static final String DOT_NAME = "Dot";
@@ -157,6 +159,8 @@ public class DefaultHighlighter {
   static final String PARENTHESES_ID = "Scala Parentheses";
   @NonNls
   static final String ASSIGN_ID = "Scala Assign";
+  @NonNls
+  static final String ARROW_ID = "Scala Arrow";
   @NonNls
   static final String SEMICOLON_ID = "Scala Semicolon";
   @NonNls
@@ -303,6 +307,8 @@ public class DefaultHighlighter {
   public static TextAttributesKey ANNOTATION_ATTRIBUTE = createKey(ANNOTATION_ATTRIBUTE_ID, JavaHighlightInfoTypes.ANNOTATION_ATTRIBUTE_NAME.getAttributesKey());
   public static TextAttributesKey TYPE_ALIAS = createKey(TYPE_ALIAS_ID, JavaHighlightInfoTypes.TYPE_PARAMETER_NAME.getAttributesKey());
   public static TextAttributesKey ASSIGN = createKey(ASSIGN_ID, DefaultLanguageHighlighterColors.OPERATION_SIGN);
+  // TODO Inherit Java's arrow attributes when Java will support them
+  public static TextAttributesKey ARROW = createKey(ARROW_ID, DefaultLanguageHighlighterColors.OPERATION_SIGN);
   public static TextAttributesKey BAD_CHARACTER = createKey(BAD_CHARACTER_ID, HighlighterColors.BAD_CHARACTER);
   public static TextAttributesKey DOC_COMMENT = createKey(DOC_COMMENT_ID, DefaultLanguageHighlighterColors.DOC_COMMENT);
 
