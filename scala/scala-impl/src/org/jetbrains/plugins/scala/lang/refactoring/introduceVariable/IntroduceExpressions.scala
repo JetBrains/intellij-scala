@@ -164,7 +164,7 @@ object IntroduceExpressions {
     val newExpr = newDeclaration match {
       case ScVariableDefinition.expr(x) => x
       case ScPatternDefinition.expr(x) => x
-      case forBinding: ScForBinding => forBinding.rvalue
+      case ScForBinding.expr(x) => x
       case _ => null
     }
 

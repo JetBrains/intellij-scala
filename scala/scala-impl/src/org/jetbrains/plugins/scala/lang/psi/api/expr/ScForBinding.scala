@@ -13,9 +13,15 @@ import org.jetbrains.plugins.scala.lang.lexer.ScalaTokenTypes
 */
 
 trait ScForBinding extends ScEnumerator with ScPatterned {
-  def rvalue: ScExpression
+  def expr: Option[ScExpression]
 
   def valKeyword: Option[PsiElement]
 
   override def accept(visitor: ScalaElementVisitor): Unit = visitor.visitForBinding(this)
+}
+
+object ScForBinding {
+  object expr {
+    def unapply(forBinding: ScForBinding): Option[ScExpression] = forBinding.expr
+  }
 }

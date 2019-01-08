@@ -267,7 +267,7 @@ class ScForStatementImpl(node: ASTNode) extends ScExpressionImplBase(node) with 
       }
 
       case class ForBinding(forBinding: ScForBinding) {
-        def rvalue: Option[ScExpression] = Option(forBinding.rvalue)
+        def expr: Option[ScExpression] = forBinding.expr
 
         def pattern: Option[ScPattern] = Option(forBinding.pattern)
 
@@ -284,8 +284,8 @@ class ScForStatementImpl(node: ASTNode) extends ScExpressionImplBase(node) with 
         def patternText: String =
           pattern map { pattern => pattern.getText } getOrElse name
 
-        def rvalueText: String =
-          rvalue map {
+        def exprText: String =
+          expr map {
             toTextWithNormalizedUnderscores
           } getOrElse "???"
       }
@@ -312,7 +312,7 @@ class ScForStatementImpl(node: ASTNode) extends ScExpressionImplBase(node) with 
                 resultText ++= ")"
             }
             resultText ++= " = "
-            resultText ++= binding.rvalueText
+            resultText ++= binding.exprText
             resultText ++= "; "
         }
       }

@@ -373,11 +373,14 @@ trait TreeAdapter {
     def toEnumerator(nm: ScEnumerator): m.Enumerator = {
       nm match {
         case e: ScGenerator =>
-          m.Enumerator.Generator(pattern(e.pattern), expression(e.expr.getOrElse(unreachable("generator has no expression"))))
+          val expr = e.expr.getOrElse(unreachable("generator has no expression"))
+          m.Enumerator.Generator(pattern(e.pattern), expression(expr))
         case e: ScGuard =>
-          m.Enumerator.Guard(e.expr.map(expression).getOrElse(unreachable("guard has no condition")))
+          val expr = e.expr.getOrElse(unreachable("guard has no condition"))
+          m.Enumerator.Guard(expression(expr))
         case e: ScForBinding =>
-          m.Enumerator.Val(pattern(e.pattern), expression(e.rvalue))
+          val expr = e.expr.getOrElse(unreachable("forBinding has no expression"))
+          m.Enumerator.Val(pattern(e.pattern), expression(expr))
         case _ => unreachable
       }
     }

@@ -199,9 +199,7 @@ object ScPattern {
         case _: ScGenerator =>
           pattern.getAnalogInDesugaredForExpr flatMap { _.expectedType }
         case forBinding: ScForBinding =>
-          Option(forBinding.rvalue).flatMap { rvalue =>
-            rvalue.`type`().toOption
-          }
+          forBinding.expr.flatMap { _.`type`().toOption }
         case _ => None
       }
     }

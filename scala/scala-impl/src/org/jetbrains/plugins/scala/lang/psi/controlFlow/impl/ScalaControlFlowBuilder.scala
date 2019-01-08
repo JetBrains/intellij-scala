@@ -298,8 +298,7 @@ class ScalaControlFlowBuilder(startInScope: ScalaPsiElement,
   }
 
   override def visitForBinding(forBinding: ScForBinding) {
-    val rv = forBinding.rvalue
-    if (rv != null) rv.accept(this)
+    forBinding.expr.foreach(_.accept(this))
     val pat = forBinding.pattern
     if (pat != null) pat.accept(this)
   }
