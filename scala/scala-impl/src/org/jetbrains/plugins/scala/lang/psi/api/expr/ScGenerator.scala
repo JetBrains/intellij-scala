@@ -14,8 +14,7 @@ import org.jetbrains.plugins.scala.lang.lexer.ScalaTokenTypes
 trait ScGenerator extends ScEnumerator with ScPatterned {
   def expr: Option[ScExpression]
 
-  def valKeyword: Option[PsiElement] =
-    Option(getNode.findChildByType(ScalaTokenTypes.kVAL)).map(_.getPsi)
+  def valKeyword: Option[PsiElement]
 
   override def accept(visitor: ScalaElementVisitor): Unit = {
     visitor.visitGenerator(this)

@@ -17,9 +17,11 @@ import org.jetbrains.plugins.scala.lang.psi.api.expr._
 */
 
 class ScForBindingImpl(node: ASTNode) extends ScalaPsiElementImpl(node) with ScForBinding {
-  override def toString: String = "ForBinding"
   override def pattern: ScPattern = findChildByClass(classOf[ScPattern])
   override def rvalue: ScExpression = findChildByClass(classOf[ScExpression])
+
+  override def valKeyword: Option[PsiElement] =
+    Option(getNode.findChildByType(ScalaTokenTypes.kVAL)).map(_.getPsi)
 
   override def enumeratorToken: PsiElement = findFirstChildByType(ScalaTokenTypes.tASSIGN)
 
@@ -29,4 +31,6 @@ class ScForBindingImpl(node: ASTNode) extends ScalaPsiElementImpl(node) with ScF
       case _ => super.accept(visitor)
     }
   }
+
+  override def toString: String = "ForBinding"
 }

@@ -15,9 +15,12 @@ import org.jetbrains.plugins.scala.lang.psi.api.expr._
   *         Date: 07.03.2008
   */
 class ScGeneratorImpl(node: ASTNode) extends ScExpressionImplBase(node) with ScGenerator {
-  def pattern: ScPattern = findChildByClass(classOf[ScPattern])
+  override def pattern: ScPattern = findChildByClass(classOf[ScPattern])
 
-  def expr: Option[ScExpression] = Option(findChildByClass(classOf[ScExpression]))
+  override def expr: Option[ScExpression] = Option(findChildByClass(classOf[ScExpression]))
+
+  override def valKeyword: Option[PsiElement] =
+    Option(getNode.findChildByType(ScalaTokenTypes.kVAL)).map(_.getPsi)
 
   override def enumeratorToken: PsiElement = findFirstChildByType(ScalaTokenTypes.tCHOOSE)
 
