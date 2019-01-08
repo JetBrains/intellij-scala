@@ -25,8 +25,6 @@ trait ScForStatement extends ScExpression {
 
   def isYield: Boolean
 
-  def yieldToken: Option[PsiElement]
-
   def enumerators: Option[ScEnumerators]
 
   def patterns: Seq[ScPattern]

@@ -28,9 +28,7 @@ import scala.collection.mutable
   *         Date: 06.03.2008
   */
 class ScForStatementImpl(node: ASTNode) extends ScExpressionImplBase(node) with ScForStatement {
-  def isYield: Boolean = yieldToken.isDefined
-
-  def yieldToken: Option[PsiElement] = Option(findChildByType[PsiElement](ScalaTokenTypes.kYIELD))
+  def isYield: Boolean = findChildByType[PsiElement](ScalaTokenTypes.kYIELD) != null
 
   def enumerators: Option[ScEnumerators] = findChild(classOf[ScEnumerators])
 
