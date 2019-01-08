@@ -80,7 +80,6 @@ class ExpandForComprehensionTest extends TransformerTest(new ExpandForComprehens
 
   def testMultipleForBindings(): Unit = check(
     before = "for (a <- List(A); (b, c) = a; d = c) yield d",
-    //after = "List(A).map(a => (a, a)).map { case (a, (b, c)) => (a, (b, c), c) }.map { case (a, (b, c), d) => d }",
     after = "List(A).map { a => val v$1@(b, c) = a; val d = c; d }"
   )()
 
@@ -101,7 +100,6 @@ class ExpandForComprehensionTest extends TransformerTest(new ExpandForComprehens
 
   def testWildcardPatternWithForBindings(): Unit = check(
     before = "for (_ <- Seq(A); a = 1; _ = 2; if true; _ = 3) yield 4",
-    //after = "Seq(A).map(_ => 1).map(a => (a, 2)).withFilter { case (a, _) => true }.map { case (a, _) => (a, 3) }.map { case (a, _) => 4 }",
     after = "Seq(A).map { _ => val a = 1; val _ = 2; a }.withFilter(a => true).map { a => val _ = 3; 4 }"
   )()
 
