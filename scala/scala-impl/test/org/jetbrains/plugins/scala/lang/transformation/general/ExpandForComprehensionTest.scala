@@ -3,10 +3,11 @@ package lang
 package transformation
 package general
 
-/**
-  * @author Pavel Fatin
-  */
-class ExpandForComprehensionTest extends TransformerTest(new ExpandForComprehension()) {
+import org.jetbrains.plugins.scala.project.settings.ScalaCompilerConfiguration
+
+abstract class ExpandForComprehensionTestBase extends TransformerTest(new ExpandForComprehension())
+
+class ExpandForComprehensionTest extends ExpandForComprehensionTestBase {
 
   def testForeach(): Unit = check(
     before = "for(v <- Seq(A)) { v.a() }",
@@ -121,5 +122,32 @@ class ExpandForComprehensionTest extends TransformerTest(new ExpandForComprehens
   def test_SCL14779(): Unit = check(
     before = "for { a <- Some(1); b <- Some(1) } println(a)",
     after = "Some(1).foreach(a => Some(1).foreach(b => println(a)))"
+  )()
+}
+
+class ExpandForComprehensionTest_WithBetterMonadicFor extends ExpandForComprehensionTestBase {
+  override protected def setUp(): Unit = {
+    super.setUp()
+
+    val defaultProfile = ScalaCompilerConfiguration.instanceIn(getProject).defaultProfile
+    val newSettings = defaultProfile.getSettings
+    newSettings.plugins = newSettings.plugins :+ "better-monadic-for"
+    defaultProfile.setSettings(newSettings)
+  }
+
+
+  def testTuplePattern(): Unit = check(
+    before = "for((v1, v2) <- Seq(A)) { ??? }",
+    after = "Seq(A).foreach { case (v1, v2) => ??? }"
+  )()
+
+  def testPatternMatching(): Unit = check(
+    before = "for((a: A, b) <- Seq((A, B), 4)) a.a()",
+    after = "Seq((A, B), 4).foreach { case (a: A, b) => a.a() }"
+  )()
+
+  def testPatternMatchingWithYield(): Unit = check(
+    before = "for((a: A, b) <- Seq((A, B), 4)) yield a.a()",
+    after = "Seq((A, B), 4).map { case (a: A, b) => a.a() }"
   )()
 }

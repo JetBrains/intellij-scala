@@ -1,6 +1,16 @@
 package org.jetbrains.plugins.scala.annotator
 
-class ForComprehensionHighlightingTest extends ScalaHighlightingTestBase {
+import org.jetbrains.plugins.scala.DependencyManagerBase._
+import org.jetbrains.plugins.scala.base.libraryLoaders.{IvyManagedLoader, LibraryLoader}
+import org.jetbrains.plugins.scala.project.settings.ScalaCompilerConfiguration
+
+abstract class ForComprehensionHighlightingTestBase extends ScalaHighlightingTestBase {
+  override def librariesLoaders: Seq[LibraryLoader] =
+    super.librariesLoaders :+
+      IvyManagedLoader("org.typelevel" %% "cats-core" % "1.5.0", "org.typelevel" %% "cats-effect" % "1.1.0")
+}
+
+class ForComprehensionHighlightingTest extends ForComprehensionHighlightingTestBase {
 
   def test_guard_type(): Unit = {
     val code =
@@ -205,5 +215,51 @@ class ForComprehensionHighlightingTest extends ScalaHighlightingTestBase {
     assertMatches(errorsFromScalaCode(code)){
       case Error("<-", "Cannot resolve symbol flatMap") :: Nil =>
     }
+  }
+
+  def test_SCL14801(): Unit = {
+    val code =
+      """
+        |import cats.implicits._
+        |import cats.effect.IO
+        |def getCounts: IO[(Int, Int)] = ???
+        |for {
+        |  (x, y) <- getCounts
+        |} yield x + y
+      """.stripMargin
+
+    assertMatches(errorsFromScalaCode(code)){
+      case Error("<-", "Cannot resolve symbol map") :: Error("+", "Cannot resolve symbol +") :: Nil =>
+    }
+  }
+}
+
+class ForComprehensionHighlightingTest_WithBetterMonadicFor extends ForComprehensionHighlightingTestBase {
+
+  override protected def setUp(): Unit = {
+    super.setUp()
+
+    val defaultProfile = ScalaCompilerConfiguration.instanceIn(getProject).defaultProfile
+    val newSettings = defaultProfile.getSettings
+    newSettings.plugins = newSettings.plugins :+ "better-monadic-for"
+    defaultProfile.setSettings(newSettings)
+  }
+
+  override def librariesLoaders: Seq[LibraryLoader] =
+    super.librariesLoaders :+
+      IvyManagedLoader("org.typelevel" %% "cats-core" % "1.5.0", "org.typelevel" %% "cats-effect" % "1.1.0")
+
+  def test_SCL14801(): Unit = {
+    val code =
+      """
+        |import cats.implicits._
+        |import cats.effect.IO
+        |def getCounts: IO[(Int, Int)] = ???
+        |for {
+        |  (x, y) <- getCounts
+        |} yield x + y
+      """.stripMargin
+
+    assertNothing(errorsFromScalaCode(code))
   }
 }

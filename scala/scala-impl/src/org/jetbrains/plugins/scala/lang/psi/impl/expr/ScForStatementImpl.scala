@@ -259,7 +259,7 @@ class ScForStatementImpl(node: ASTNode) extends ScExpressionImplBase(node) with 
       // since 2.12 the compiler doesn't rewrite withFilter to filter
       val filterFunc = if (this.scalaLanguageLevel.exists(_ >= ScalaLanguageLevel.Scala_2_12) || hasWithFilter) "withFilter" else "filter"
 
-      if (needsPatternMatchFilter(pattern)) {
+      if (!this.betterMonadicForEnabled && needsPatternMatchFilter(pattern)) {
         appendFunc(filterFunc, None, initialArg, forceCases = true) {
           resultText ++= "true; case _ => false"
         }
