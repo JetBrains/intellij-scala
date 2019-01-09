@@ -14,7 +14,7 @@ import org.jetbrains.plugins.scala.lang.psi.api.expr._
   * @author Alexander Podkhalyuzin
   */
 
-class ScGuardImpl(node: ASTNode) extends ScalaPsiElementImpl(node) with ScGuard {
+class ScGuardImpl(node: ASTNode) extends ScalaPsiElementImpl(node) with ScGuard with ScEnumeratorImpl {
   override def accept(visitor: PsiElementVisitor): Unit = {
     visitor match {
       case visitor: ScalaElementVisitor => super.accept(visitor)

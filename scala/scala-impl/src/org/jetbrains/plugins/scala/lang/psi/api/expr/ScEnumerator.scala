@@ -7,11 +7,10 @@ import org.jetbrains.plugins.scala.lang.psi.ScalaPsiElement
 import org.jetbrains.plugins.scala.lang.psi.api.base.patterns.ScCaseClauses
 
 trait ScEnumerator extends ScalaPsiElement {
-  def forStatement: Option[ScForStatement] = this.parentOfType(classOf[ScForStatement])
+  def forStatement: Option[ScForStatement]
 
-  def analog: Option[ScEnumerator.Analog] = forStatement flatMap {
-    _.getDesugaredEnumeratorAnalog(this)
-  }
+  def analog: Option[ScEnumerator.Analog]
+
   // the token that marks the enumerator (<-, =, if)
   def enumeratorToken: PsiElement
 }

@@ -5,13 +5,13 @@ package api
 package expr
 
 import com.intellij.psi.PsiElement
-import org.jetbrains.plugins.scala.lang.lexer.ScalaTokenTypes
+import org.jetbrains.plugins.scala.lang.psi.impl.expr.ScEnumeratorImpl
 
 /**
   * @author Alexander Podkhalyuzin
   *         Date: 07.03.2008
   */
-trait ScGenerator extends ScEnumerator with ScPatterned {
+trait ScGenerator extends ScEnumerator with ScPatterned with ScEnumeratorImpl {
   def expr: Option[ScExpression]
 
   def valKeyword: Option[PsiElement]
