@@ -1,10 +1,8 @@
 package org.jetbrains.plugins.scala
 package annotator
 
-import com.intellij.codeInsight.daemon.impl.AnnotationHolderImpl
 import com.intellij.codeInsight.intention.IntentionAction
 import com.intellij.codeInspection._
-import com.intellij.lang.ASTNode
 import com.intellij.lang.annotation._
 import com.intellij.openapi.editor.markup.TextAttributes
 import com.intellij.openapi.project.DumbAware
@@ -13,6 +11,7 @@ import com.intellij.openapi.util.{Condition, Key, TextRange}
 import com.intellij.psi._
 import com.intellij.psi.impl.source.JavaDummyHolder
 import com.intellij.psi.util.PsiTreeUtil
+import org.jetbrains.plugins.scala.annotator.annotationHolder.{DelegateAnnotationHolder, ErrorIndication}
 import org.jetbrains.plugins.scala.annotator.createFromUsage._
 import org.jetbrains.plugins.scala.annotator.intention._
 import org.jetbrains.plugins.scala.annotator.modifiers.ModifierChecker
@@ -203,32 +202,14 @@ abstract class ScalaAnnotator extends Annotator
         super.visitForBinding(forBinding)
       }
 
-      class DesugaredForAnnotationHolder(realRange: TextRange) extends AnnotationHolderImpl(holder.getCurrentAnnotationSession) {
-        def this(elem: PsiElement) = this(elem.getTextRange)
-
-        var errors: Int = 0
-
-        override def createErrorAnnotation(node: PsiElement, message: String): Annotation = super.createErrorAnnotation(realRange, message)
-        override def createErrorAnnotation(node: ASTNode, message: String): Annotation = super.createErrorAnnotation(realRange, message)
-        override def createWarningAnnotation(elt: PsiElement, message: String): Annotation = super.createWarningAnnotation(realRange, message)
-        override def createWarningAnnotation(node: ASTNode, message: String): Annotation = super.createWarningAnnotation(realRange, message)
-        override def createWeakWarningAnnotation(elt: PsiElement, message: String): Annotation = super.createWeakWarningAnnotation(realRange, message)
-        override def createWeakWarningAnnotation(node: ASTNode, message: String): Annotation = super.createWeakWarningAnnotation(realRange, message)
-        override def createInfoAnnotation(elt: PsiElement, message: String): Annotation = super.createInfoAnnotation(realRange, message)
-        override def createInfoAnnotation(node: ASTNode, message: String): Annotation = super.createInfoAnnotation(realRange, message)
-
-        override def createAnnotation(severity: HighlightSeverity, range: TextRange, message: String, tooltip: String): Annotation = {
-          if (severity == HighlightSeverity.ERROR)
-            errors += 1
-          holder.createAnnotation(severity, realRange, message, tooltip)
-        }
-      }
-
       private def checkGenerator(gen: ScGenerator): Unit = {
+
         for {
           forExpression <- gen.forStatement
           genAnalog <- gen.desugared
         } {
+          val sessionForDesugaredCode = new AnnotationSession(genAnalog.analogMethodCall.getContainingFile)
+          def delegateHolderFor(element: PsiElement) = new DelegateAnnotationHolder(element, holder, sessionForDesugaredCode) with ErrorIndication
           var foundUnresolvedSymbol = false
           var last = Option.empty[ScEnumerator]
 
@@ -237,9 +218,9 @@ abstract class ScalaAnnotator extends Annotator
             if !foundUnresolvedSymbol
             enumAnalog <- enum.desugared
           } {
-            val holder = new DesugaredForAnnotationHolder(enum.enumeratorToken)
+            val holder = delegateHolderFor(enum.enumeratorToken)
             enumAnalog.callExpr.foreach(qualifierPart(_, holder))
-            foundUnresolvedSymbol ||= holder.errors > 0
+            foundUnresolvedSymbol ||= holder.hadError
             last = Some(enum)
           }
 
@@ -254,21 +235,21 @@ abstract class ScalaAnnotator extends Annotator
             if (forExpression.isYield) {
               for (nextGen <- gen.nextSiblings.collectFirst { case gen: ScGenerator => gen }) {
                 for (nextGenAnalog <- nextGen.desugared) {
-                  val holder = new DesugaredForAnnotationHolder(nextGen)
+                  val holder = delegateHolderFor(nextGen)
                   checkExpressionType(nextGenAnalog.analogMethodCall, holder, typeAware)
-                  foundMonadicError ||= holder.errors > 0
+                  foundMonadicError ||= holder.hadError
                 }
 
                 if (!foundMonadicError) {
-                  val holder = new DesugaredForAnnotationHolder(nextGen)
+                  val holder = delegateHolderFor(nextGen)
                   genAnalog.callExpr.foreach(annotateReference(_, holder))
-                  foundMonadicError ||= holder.errors > 0
+                  foundMonadicError ||= holder.hadError
                 }
               }
             }
 
             if (!foundMonadicError) {
-              genAnalog.callExpr.foreach(qualifierPart(_, new DesugaredForAnnotationHolder(gen.enumeratorToken)))
+              genAnalog.callExpr.foreach(qualifierPart(_, delegateHolderFor(gen.enumeratorToken)))
             }
           }
         }
@@ -952,14 +933,9 @@ abstract class ScalaAnnotator extends Annotator
         case _ => return
       }
 
-      val fakeAnnotator = new AnnotationHolderImpl(new AnnotationSession(expr.getContainingFile)) {
-        override def createErrorAnnotation(elt: PsiElement, message: String): Annotation =
-          createErrorAnnotation(elt.getTextRange, message)
-
-        override def createErrorAnnotation(range: TextRange, message: String): Annotation = {
-          holder.createErrorAnnotation(elementsMap.getOrElse(range.getStartOffset - shift, prefix), message)
-        }
-      }
+      val sessionForExpr = new AnnotationSession(expr.getContainingFile)
+      def mapPosInExprToElement(range: TextRange) = elementsMap.getOrElse(range.getStartOffset - shift, prefix)
+      val fakeAnnotator = new DelegateAnnotationHolder(mapPosInExprToElement(_).getTextRange, holder, sessionForExpr)
 
       annotateReference(ref, fakeAnnotator)
     }
