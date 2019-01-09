@@ -11,6 +11,7 @@ import com.intellij.openapi.util.{Condition, Key, TextRange}
 import com.intellij.psi._
 import com.intellij.psi.impl.source.JavaDummyHolder
 import com.intellij.psi.util.PsiTreeUtil
+import org.jetbrains.plugins.scala.annotator.AnnotatorUtils._
 import org.jetbrains.plugins.scala.annotator.annotationHolder.{DelegateAnnotationHolder, ErrorIndication}
 import org.jetbrains.plugins.scala.annotator.createFromUsage._
 import org.jetbrains.plugins.scala.annotator.intention._
@@ -606,13 +607,6 @@ abstract class ScalaAnnotator extends Annotator
     }
   }
 
-  private def annotationWithoutHighlighting(holder: AnnotationHolder, te: PsiElement): Annotation = {
-    val teAnnotation = holder.createErrorAnnotation(te, null)
-    teAnnotation.setHighlightType(ProblemHighlightType.INFORMATION)
-    val emptyAttr = new TextAttributes()
-    teAnnotation.setEnforcedTextAttributes(emptyAttr)
-    teAnnotation
-  }
 
   private def checkTypeParamBounds(sTypeParam: ScTypeBoundsOwner, holder: AnnotationHolder) {
     for {
@@ -1426,24 +1420,6 @@ abstract class ScalaAnnotator extends Annotator
         }
       }
     }
-  }
-
-
-  /**
-    * This method will return checked conformance if it's possible to check it.
-    * In other way it will return true to avoid red code.
-    * Check conformance in case l = r.
-    */
-  def smartCheckConformance(l: TypeResult, r: TypeResult): Boolean = {
-    val leftType = l match {
-      case Right(res) => res
-      case _ => return true
-    }
-    val rightType = r match {
-      case Right(res) => res
-      case _ => return true
-    }
-    rightType.conforms(leftType)
   }
 }
 
