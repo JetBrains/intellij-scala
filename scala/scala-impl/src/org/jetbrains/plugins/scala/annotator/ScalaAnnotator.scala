@@ -124,26 +124,6 @@ abstract class ScalaAnnotator extends Annotator
       }
 
       override def visitParameterizedTypeElement(parameterized: ScParameterizedTypeElement) {
-        val typeParamOwner = parameterized.typeElement.getTypeNoConstructor.toOption
-          .flatMap(_.extractDesignated(expandAliases = false))
-          .collect {case t: ScTypeParametersOwner => t}
-        typeParamOwner.foreach { t =>
-          val typeParametersLength = t.typeParameters.length
-          val argsLength = parameterized.typeArgList.typeArgs.length
-          if (typeParametersLength != argsLength) {
-            val error = "Wrong number of type parameters. Expected: " + typeParametersLength + ", actual: " + argsLength
-            val leftBracket = parameterized.typeArgList.getNode.findChildByType(ScalaTokenTypes.tLSQBRACKET)
-            if (leftBracket != null) {
-              val annotation = holder.createErrorAnnotation(leftBracket, error)
-              annotation.setHighlightType(ProblemHighlightType.ERROR)
-            }
-            val rightBracket = parameterized.typeArgList.getNode.findChildByType(ScalaTokenTypes.tRSQBRACKET)
-            if (rightBracket != null) {
-              val annotation = holder.createErrorAnnotation(rightBracket, error)
-              annotation.setHighlightType(ProblemHighlightType.ERROR)
-            }
-          }
-        }
         super.visitParameterizedTypeElement(parameterized)
       }
 

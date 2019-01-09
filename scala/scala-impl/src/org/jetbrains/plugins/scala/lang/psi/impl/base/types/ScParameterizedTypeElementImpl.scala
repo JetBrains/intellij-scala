@@ -8,6 +8,7 @@ package types
 import com.intellij.lang.ASTNode
 import com.intellij.psi._
 import com.intellij.psi.scope.PsiScopeProcessor
+import org.jetbrains.plugins.scala.lang.psi.annotator.ScParameterizedTypeElementAnnotator
 import org.jetbrains.plugins.scala.lang.psi.api.ScalaElementVisitor
 import org.jetbrains.plugins.scala.lang.psi.api.base.types._
 import org.jetbrains.plugins.scala.lang.psi.api.statements.ScTypeAliasDefinition
@@ -27,7 +28,7 @@ import scala.annotation.tailrec
  * @author Alexander Podkhalyuzin, ilyas
  */
 
-class ScParameterizedTypeElementImpl(node: ASTNode) extends ScalaPsiElementImpl(node) with ScParameterizedTypeElement {
+class ScParameterizedTypeElementImpl(node: ASTNode) extends ScalaPsiElementImpl(node) with ScParameterizedTypeElement with ScParameterizedTypeElementAnnotator {
   override def desugarizedText: String = {
     val inlineSyntaxIds = Set("?", "+?", "-?")
 
