@@ -19,7 +19,7 @@ import org.jetbrains.plugins.scala.lang.psi.types.{ScType, ScTypeExt}
  * @author Alexander Podkhalyuzin
  */
 
-class ScNamingPatternImpl(node: ASTNode) extends ScalaPsiElementImpl(node) with ScNamingPattern with ScPatternImpl {
+class ScNamingPatternImpl(node: ASTNode) extends ScalaPsiElementImpl(node) with ScPatternImpl with ScNamingPattern {
   override def isIrrefutableFor(t: Option[ScType]): Boolean = named.isIrrefutableFor(t)
 
   override def accept(visitor: PsiElementVisitor) {

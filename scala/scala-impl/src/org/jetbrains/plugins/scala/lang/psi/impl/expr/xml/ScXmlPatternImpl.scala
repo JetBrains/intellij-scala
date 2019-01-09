@@ -22,7 +22,7 @@ import scala.collection.mutable.ArrayBuffer
 * Date: 21.04.2008
 */
 
-class ScXmlPatternImpl(node: ASTNode) extends ScalaPsiElementImpl (node) with ScXmlPattern with ScPatternImpl {
+class ScXmlPatternImpl(node: ASTNode) extends ScalaPsiElementImpl (node) with ScPatternImpl with ScXmlPattern {
   override def isIrrefutableFor(t: Option[ScType]): Boolean = false
 
   override def accept(visitor: PsiElementVisitor) {

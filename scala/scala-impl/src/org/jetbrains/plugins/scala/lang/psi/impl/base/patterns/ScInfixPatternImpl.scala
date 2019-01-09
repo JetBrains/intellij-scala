@@ -17,7 +17,7 @@ import org.jetbrains.plugins.scala.lang.psi.types.result._
 * Date: 28.02.2008
 */
 
-class ScInfixPatternImpl(node: ASTNode) extends ScalaPsiElementImpl (node) with ScInfixPattern with ScPatternImpl {
+class ScInfixPatternImpl(node: ASTNode) extends ScalaPsiElementImpl (node) with ScPatternImpl with ScInfixPattern {
   override def isIrrefutableFor(t: Option[ScType]): Boolean =
     ScConstructorPatternImpl.isIrrefutable(t, operation, left :: rightOption.toList)
 

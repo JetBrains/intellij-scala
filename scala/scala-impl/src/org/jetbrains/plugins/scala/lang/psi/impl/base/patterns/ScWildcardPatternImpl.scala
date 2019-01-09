@@ -17,7 +17,7 @@ import org.jetbrains.plugins.scala.lang.psi.types.result._
 * Date: 28.02.2008
 */
 
-class ScWildcardPatternImpl(node: ASTNode) extends ScalaPsiElementImpl (node) with ScWildcardPattern with ScPatternImpl {
+class ScWildcardPatternImpl(node: ASTNode) extends ScalaPsiElementImpl (node) with ScPatternImpl with ScWildcardPattern {
   override def accept(visitor: PsiElementVisitor): Unit = {
     visitor match {
       case visitor: ScalaElementVisitor => super.accept(visitor)
