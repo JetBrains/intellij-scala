@@ -19,7 +19,7 @@ import org.jetbrains.plugins.scala.lang.psi.types.result._
 
 class ScInfixPatternImpl(node: ASTNode) extends ScalaPsiElementImpl (node) with ScInfixPattern with ScPatternImpl {
   override def isIrrefutableFor(t: Option[ScType]): Boolean =
-    ScConstructorPattern.isIrrefutable(t, operation, left :: rightOption.toList)
+    ScConstructorPatternImpl.isIrrefutable(t, operation, left :: rightOption.toList)
 
   override def accept(visitor: PsiElementVisitor) {
     visitor match {

@@ -10,7 +10,9 @@ import com.intellij.lang.ASTNode
 import com.intellij.psi._
 import org.jetbrains.plugins.scala.lang.psi.api.ScalaElementVisitor
 import org.jetbrains.plugins.scala.lang.psi.api.base.patterns._
+import org.jetbrains.plugins.scala.lang.psi.api.base.{ScPrimaryConstructor, ScStableCodeReferenceElement}
 import org.jetbrains.plugins.scala.lang.psi.api.statements.ScFunction
+import org.jetbrains.plugins.scala.lang.psi.api.statements.params.ScParameter
 import org.jetbrains.plugins.scala.lang.psi.api.toplevel.typedef.{ScClass, ScObject}
 import org.jetbrains.plugins.scala.lang.psi.impl.base.types.ScSimpleTypeElementImpl
 import org.jetbrains.plugins.scala.lang.psi.types.api.{Any, Nothing, TypeParameterType, UndefinedType}
@@ -35,7 +37,7 @@ class ScConstructorPatternImpl(node: ASTNode) extends ScalaPsiElementImpl (node)
   override def subpatterns: Seq[ScPattern] = if (args != null) args.patterns else Seq.empty
 
   override def isIrrefutableFor(t: Option[ScType]): Boolean =
-    ScConstructorPattern.isIrrefutable(t, ref, subpatterns)
+    ScConstructorPatternImpl.isIrrefutable(t, ref, subpatterns)
 
   override def `type`(): TypeResult = {
     import ScSubstitutor.bind
@@ -87,4 +89,50 @@ class ScConstructorPatternImpl(node: ASTNode) extends ScalaPsiElementImpl (node)
     }
   }
 
+}
+
+object ScConstructorPatternImpl {
+  def isIrrefutable(typeOpt: Option[ScType], ref: ScStableCodeReferenceElement, subpatterns: Seq[ScPattern]): Boolean = {
+    val typedParamsOpt = for {
+      matchedType <- typeOpt
+      unapplyMethod <- resolveUnapplyMethodFromReference(ref)
+      caseClass <- Option(unapplyMethod.syntheticCaseClass)
+      (clazz: ScClass, substitutor) <- matchedType.extractClassType
+      if clazz.isCase && clazz == caseClass
+      constr <- clazz.constructor
+    } yield getTypedParametersOfPrimaryConstructor(constr, substitutor)
+
+    typedParamsOpt exists {
+      // check if the patterns are irrefutable for the parameter types
+      typedParams =>
+        subpatterns.corresponds(typedParams) {
+          case (pattern, (param, paramType)) =>
+            if (param.isRepeatedParameter) extractsRepeatedParameterIrrefutably(pattern)
+            else pattern.isIrrefutableFor(paramType)
+        }
+    }
+  }
+
+  private def resolveUnapplyMethodFromReference(ref: ScStableCodeReferenceElement): Option[ScFunction] = for {
+    resolveResult <- ref.bind()
+    maybeUnapplyMethod = Option(resolveResult.getElement)
+    unapplyMethod <- maybeUnapplyMethod.collect { case method: ScFunction if method.isUnapplyMethod => method }
+  } yield unapplyMethod
+
+  private def getTypedParametersOfPrimaryConstructor(constr: ScPrimaryConstructor, substitutor: ScSubstitutor): Seq[(ScParameter, Option[ScType])] = {
+    val params = constr.parameterList.clauses.headOption.map(_.parameters).getOrElse(Seq.empty)
+    for {
+      param <- params
+      paramType = param.`type`().toOption.map(substitutor)
+    } yield param -> paramType
+  }
+
+  private def extractsRepeatedParameterIrrefutably(pattern: ScPattern): Boolean = {
+    pattern match {
+      case _: ScSeqWildcard => true
+      case p: ScNamingPattern => extractsRepeatedParameterIrrefutably(p.named)
+      case p: ScParenthesisedPattern => p.innerElement.exists(extractsRepeatedParameterIrrefutably)
+      case _ => false
+    }
+  }
 }
