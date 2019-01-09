@@ -227,7 +227,7 @@ abstract class ScalaAnnotator extends Annotator
       private def checkGenerator(gen: ScGenerator): Unit = {
         for {
           forExpression <- gen.forStatement
-          genAnalog <- gen.analog
+          genAnalog <- gen.desugared
         } {
           var foundUnresolvedSymbol = false
           var last = Option.empty[ScEnumerator]
@@ -235,7 +235,7 @@ abstract class ScalaAnnotator extends Annotator
           for {
             enum@(_x: ScEnumerator) <- gen.nextSiblings.takeWhile(!_.isInstanceOf[ScGenerator])
             if !foundUnresolvedSymbol
-            enumAnalog <- enum.analog
+            enumAnalog <- enum.desugared
           } {
             val holder = new DesugaredForAnnotationHolder(enum.enumeratorToken)
             enumAnalog.callExpr.foreach(qualifierPart(_, holder))
@@ -253,7 +253,7 @@ abstract class ScalaAnnotator extends Annotator
             // because we don't want to do the check if foundUnresolvedSymbol is true
             if (forExpression.isYield) {
               for (nextGen <- gen.nextSiblings.collectFirst { case gen: ScGenerator => gen }) {
-                for (nextGenAnalog <- nextGen.analog) {
+                for (nextGenAnalog <- nextGen.desugared) {
                   val holder = new DesugaredForAnnotationHolder(nextGen)
                   checkExpressionType(nextGenAnalog.analogMethodCall, holder, typeAware)
                   foundMonadicError ||= holder.errors > 0

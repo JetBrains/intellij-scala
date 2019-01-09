@@ -47,7 +47,7 @@ trait ScPattern extends ScalaPsiElement with Typeable {
 
   def subpatterns: Seq[ScPattern]
 
-  def getAnalogInDesugaredForExpr: Option[ScPattern]
+  def analogInDesugaredForExpr: Option[ScPattern]
 
   override def accept(visitor: ScalaElementVisitor) {
     visitor.visitPattern(this)
@@ -150,7 +150,7 @@ object ScPattern {
         }
         case named: ScNamingPattern => named.expectedType
         case _: ScGenerator =>
-          pattern.getAnalogInDesugaredForExpr flatMap { _.expectedType }
+          pattern.analogInDesugaredForExpr flatMap { _.expectedType }
         case forBinding: ScForBinding =>
           forBinding.expr.flatMap { _.`type`().toOption }
         case _ => None

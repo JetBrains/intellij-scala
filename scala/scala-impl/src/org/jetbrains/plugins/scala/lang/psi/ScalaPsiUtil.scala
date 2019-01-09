@@ -22,6 +22,7 @@ import org.jetbrains.plugins.scala.extensions.{PsiElementExt, PsiNamedElementExt
 import org.jetbrains.plugins.scala.lang.formatting.settings.ScalaCodeStyleSettings
 import org.jetbrains.plugins.scala.lang.lexer.ScalaTokenTypes
 import org.jetbrains.plugins.scala.lang.parser.util.ParserUtils
+import org.jetbrains.plugins.scala.lang.psi.api.PropertyMethods._
 import org.jetbrains.plugins.scala.lang.psi.api.base._
 import org.jetbrains.plugins.scala.lang.psi.api.base.patterns.{ScBindingPattern, ScCaseClause, ScPatternArgumentList}
 import org.jetbrains.plugins.scala.lang.psi.api.base.types._
@@ -35,7 +36,6 @@ import org.jetbrains.plugins.scala.lang.psi.api.toplevel.templates.ScTemplateBod
 import org.jetbrains.plugins.scala.lang.psi.api.toplevel.typedef._
 import org.jetbrains.plugins.scala.lang.psi.api.toplevel.{ScPackaging, _}
 import org.jetbrains.plugins.scala.lang.psi.api.{ScPackageLike, ScalaFile, ScalaRecursiveElementVisitor}
-import org.jetbrains.plugins.scala.lang.psi.api.PropertyMethods._
 import org.jetbrains.plugins.scala.lang.psi.impl.ScalaPsiElementFactory._
 import org.jetbrains.plugins.scala.lang.psi.impl.expr.ApplyOrUpdateInvocation
 import org.jetbrains.plugins.scala.lang.psi.impl.toplevel.typedef.{SignatureStrategy, TypeDefinitionMembers}
@@ -353,7 +353,7 @@ object ScalaPsiUtil {
 
         expr match {
           case f: ScForStatement =>
-            f.getDesugaredExpr() match {
+            f.desugared() match {
               case Some(e) => res = res ++ getExprImports(e)
               case _ =>
             }

@@ -54,7 +54,7 @@ object AddBreakoutQuickFix {
           case _ => false
         }
       case forStmt: ScForStatement =>
-        forStmt.getDesugaredExpr().exists(isAvailable)
+        forStmt.desugared().exists(isAvailable)
       case _ => false
     }
   }

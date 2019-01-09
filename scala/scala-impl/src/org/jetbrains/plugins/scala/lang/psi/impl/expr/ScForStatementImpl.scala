@@ -5,7 +5,6 @@ package impl
 package expr
 
 import com.intellij.lang.ASTNode
-import com.intellij.openapi.progress.ProcessCanceledException
 import com.intellij.psi._
 import com.intellij.psi.scope._
 import org.jetbrains.plugins.scala.extensions.PsiElementExt
@@ -35,7 +34,7 @@ class ScForStatementImpl(node: ASTNode) extends ScExpressionImplBase(node) with 
   // Binding patterns in reverse order
   def patterns: Seq[ScPattern] = enumerators.toSeq.flatMap(_.patterns)
 
-  override def getDesugaredExpr(forDisplay: Boolean): Option[ScExpression] = {
+  override def desugared(forDisplay: Boolean): Option[ScExpression] = {
     val result =
       if (forDisplay) generateDesugaredExprWithMappings(forDisplay = true)
       else getDesugaredExprWithMappings
@@ -44,14 +43,14 @@ class ScForStatementImpl(node: ASTNode) extends ScExpressionImplBase(node) with 
   }
 
 
-  override def getDesugaredPatternAnalog(pattern: ScPattern): Option[ScPattern] = {
+  def desugarePattern(pattern: ScPattern): Option[ScPattern] = {
     getDesugaredExprWithMappings flatMap {
       case (_, patternMapping, _) =>
         patternMapping.get(pattern)
     }
   }
 
-  override def getDesugaredEnumeratorAnalog(enumerator: ScEnumerator): Option[ScEnumerator.Analog] = {
+  def desugareEnumerator(enumerator: ScEnumerator): Option[ScEnumerator.DesugaredEnumerator] = {
     getDesugaredExprWithMappings flatMap {
       case (_, _, enumMapping) =>
         enumMapping.get(enumerator)
@@ -60,7 +59,7 @@ class ScForStatementImpl(node: ASTNode) extends ScExpressionImplBase(node) with 
 
 
   override protected def innerType: TypeResult = {
-    getDesugaredExpr() flatMap {
+    desugared() flatMap {
       case f: ScFunctionExpr => f.result
       case e => Some(e)
     } match {
@@ -80,7 +79,7 @@ class ScForStatementImpl(node: ASTNode) extends ScExpressionImplBase(node) with 
 
   // we only really need to cache the version that is used by type inference
   @Cached(ModCount.getBlockModificationCount, this)
-  private def getDesugaredExprWithMappings: Option[(ScExpression, Map[ScPattern, ScPattern], Map[ScEnumerator, ScEnumerator.Analog])] =
+  private def getDesugaredExprWithMappings: Option[(ScExpression, Map[ScPattern, ScPattern], Map[ScEnumerator, ScEnumerator.DesugaredEnumerator])] =
     generateDesugaredExprWithMappings(forDisplay = false)
 
   override def processDeclarations(processor: PsiScopeProcessor,
@@ -98,7 +97,7 @@ class ScForStatementImpl(node: ASTNode) extends ScExpressionImplBase(node) with 
 
   protected def bodyToText(expr: ScalaPsiElement): String = expr.getText
 
-  private def generateDesugaredExprWithMappings(forDisplay: Boolean): Option[(ScExpression, Map[ScPattern, ScPattern], Map[ScEnumerator, ScEnumerator.Analog])] = {
+  private def generateDesugaredExprWithMappings(forDisplay: Boolean): Option[(ScExpression, Map[ScPattern, ScPattern], Map[ScEnumerator, ScEnumerator.DesugaredEnumerator])] = {
     generateDesugaredExprTextWithMappings(forDisplay) flatMap {
       case (desugaredText, patternToPosition, enumToPosition) =>
         ScalaPsiElementFactory.createOptionExpressionWithContextFromText(desugaredText, this.getContext, this) map {
@@ -116,7 +115,7 @@ class ScForStatementImpl(node: ASTNode) extends ScExpressionImplBase(node) with 
                 (enum, idx) <- enumToPosition
                 elem <- Option(expr.findElementAt(idx))
                 mc <- elem.parentOfType(classOf[ScMethodCall])
-              } yield enum -> ScEnumerator.Analog(mc)
+              } yield enum -> new ScEnumeratorImpl.DesugaredEnumeratorImpl(mc)
             }.toMap
 
             if (forDisplay) (expr, Map.empty, Map.empty)

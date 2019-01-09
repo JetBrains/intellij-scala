@@ -298,7 +298,7 @@ class ExpectedTypesImpl extends ExpectedTypes {
             Array.empty
         }
       case guard: ScGuard =>
-        guard.analog flatMap { _.content } match {
+        guard.desugared flatMap { _.content } match {
           case Some(content) => content.expectedTypesEx(fromUnderscore = fromUnderscore)
           case _ => Array.empty
         }

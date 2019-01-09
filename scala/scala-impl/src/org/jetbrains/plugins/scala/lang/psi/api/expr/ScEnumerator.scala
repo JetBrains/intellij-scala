@@ -1,15 +1,12 @@
 package org.jetbrains.plugins.scala.lang.psi.api.expr
 
 import com.intellij.psi.PsiElement
-import org.jetbrains.plugins.scala.extensions._
-import org.jetbrains.plugins.scala.lang.parser.ScalaElementType
 import org.jetbrains.plugins.scala.lang.psi.ScalaPsiElement
-import org.jetbrains.plugins.scala.lang.psi.api.base.patterns.ScCaseClauses
 
 trait ScEnumerator extends ScalaPsiElement {
   def forStatement: Option[ScForStatement]
 
-  def analog: Option[ScEnumerator.Analog]
+  def desugared: Option[ScEnumerator.DesugaredEnumerator]
 
   // the token that marks the enumerator (<-, =, if)
   def enumeratorToken: PsiElement
@@ -38,19 +35,11 @@ object ScEnumerator {
 
     Note that d4 does not have an analogMethodCall
    */
+  trait DesugaredEnumerator {
+    def analogMethodCall: ScMethodCall
 
-  case class Analog(analogMethodCall: ScMethodCall) {
-    def callExpr: Option[ScReferenceExpression] =
-      Option(analogMethodCall.getInvokedExpr).collect { case refExpr: ScReferenceExpression => refExpr }
+    def callExpr: Option[ScReferenceExpression]
 
-    def content: Option[ScExpression] = {
-      analogMethodCall
-        .getLastChild
-        .getLastChild
-        .asInstanceOf[ScBlockExpr]
-        .findLastChildByType[ScCaseClauses](ScalaElementType.CASE_CLAUSES)
-        .getLastChild
-        .lastChild collect { case block: ScBlock => block}
-    }
+    def content: Option[ScExpression]
   }
 }

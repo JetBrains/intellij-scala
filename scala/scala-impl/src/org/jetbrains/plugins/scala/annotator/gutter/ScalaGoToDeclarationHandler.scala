@@ -76,7 +76,7 @@ object ScalaGoToDeclarationHandler {
   private def getGotoDeclarationTargetsForEnumerator(maybeParent: Option[PsiElement]): Array[PsiElement] = {
     maybeParent
       .collect { case enum: ScEnumerator => enum }
-      .flatMap { _.analog }
+      .flatMap { _.desugared }
       .flatMap { _.callExpr }
       .map { expr => getGotoDeclarationTargetsForElement(expr.nameId, Some(expr), expr.getContainingFile)}
       .orNull

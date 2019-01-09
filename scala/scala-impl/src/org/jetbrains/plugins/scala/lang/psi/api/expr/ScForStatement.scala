@@ -6,7 +6,6 @@ package expr
 
 import com.intellij.psi.PsiElement
 import org.jetbrains.plugins.scala.lang.psi.api.base.patterns._
-import org.jetbrains.plugins.scala.macroAnnotations.{Cached, ModCount}
 
 /**
   * @author Alexander Podkhalyuzin
@@ -17,11 +16,7 @@ trait ScForStatement extends ScExpression {
     * @param forDisplay true if the desugaring is intended for being shown to the user,
     *                   false if it is intented for the type system.
     */
-  def getDesugaredExpr(forDisplay: Boolean = false) : Option[ScExpression]
-
-  def getDesugaredPatternAnalog(pattern: ScPattern): Option[ScPattern]
-
-  def getDesugaredEnumeratorAnalog(enumerator: ScEnumerator): Option[ScEnumerator.Analog]
+  def desugared(forDisplay: Boolean = false) : Option[ScExpression]
 
   def isYield: Boolean
 
