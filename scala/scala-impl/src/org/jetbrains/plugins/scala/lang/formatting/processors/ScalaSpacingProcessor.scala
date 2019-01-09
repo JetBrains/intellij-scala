@@ -1008,9 +1008,6 @@ object ScalaSpacingProcessor extends ScalaTokenTypes {
           WITHOUT_SPACING //todo: add setting
         case _: ScTuple =>
           WITHOUT_SPACING //todo: add setting
-        case _: ScBindings =>
-          if (settings.SPACE_WITHIN_METHOD_PARENTHESES) return WITH_SPACING
-          else return WITHOUT_SPACING
         case _: ScFunctionalTypeElement =>
           if (settings.SPACE_WITHIN_METHOD_PARENTHESES) return WITH_SPACING
           else return WITHOUT_SPACING
@@ -1058,9 +1055,6 @@ object ScalaSpacingProcessor extends ScalaTokenTypes {
           WITHOUT_SPACING //todo: add setting
         case _: ScTuple =>
           WITHOUT_SPACING //todo: add setting
-        case _: ScBindings =>
-          if (settings.SPACE_WITHIN_METHOD_PARENTHESES) return WITH_SPACING
-          else return WITHOUT_SPACING
         case _: ScFunctionalTypeElement =>
           if (settings.SPACE_WITHIN_METHOD_PARENTHESES) return WITH_SPACING
           else return WITHOUT_SPACING
