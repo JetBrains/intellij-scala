@@ -1,6 +1,6 @@
 package org.jetbrains.plugins.scala.lang.psi.api.base
 
-import org.jetbrains.plugins.scala.lang.psi.ScalaPsiElement
+import org.jetbrains.plugins.scala.lang.psi.api.ScalaPsiElement
 
 /** Generic type for parenthesised nodes.
   *

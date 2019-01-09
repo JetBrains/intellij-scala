@@ -2,7 +2,7 @@ package org.jetbrains.plugins.scala
 package annotator
 
 import com.intellij.lang.annotation.AnnotationHolder
-import org.jetbrains.plugins.scala.lang.psi.ScalaPsiElement
+import org.jetbrains.plugins.scala.lang.psi.api.ScalaPsiElement
 import org.jetbrains.plugins.scala.lang.psi.api.toplevel.typedef.ScTemplateDefinition
 
 import scala.reflect.ClassTag

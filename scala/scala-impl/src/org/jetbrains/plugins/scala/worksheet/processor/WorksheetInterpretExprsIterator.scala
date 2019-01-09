@@ -3,7 +3,7 @@ package org.jetbrains.plugins.scala.worksheet.processor
 import com.intellij.openapi.editor.Editor
 import com.intellij.psi._
 import org.jetbrains.plugins.scala.extensions._
-import org.jetbrains.plugins.scala.lang.psi.ScalaPsiElement
+import org.jetbrains.plugins.scala.lang.psi.api.ScalaPsiElement
 import org.jetbrains.plugins.scala.lang.psi.api.ScalaFile
 
 /**

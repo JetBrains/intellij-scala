@@ -1,6 +1,6 @@
 package org.jetbrains.plugins.scala.lang.psi.api.base
 
-import org.jetbrains.plugins.scala.lang.psi.ScalaPsiElement
+import org.jetbrains.plugins.scala.lang.psi.api.ScalaPsiElement
 import org.jetbrains.plugins.scala.lang.refactoring.util.ScalaNamesUtil
 
 /** Generic infix operation, covers infix types, patterns, and expressions.

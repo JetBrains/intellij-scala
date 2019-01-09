@@ -9,9 +9,9 @@ import org.jetbrains.plugins.scala.extensions._
 import org.jetbrains.plugins.scala.lang.psi.api.base.ScConstructor
 import org.jetbrains.plugins.scala.lang.psi.api.base.types.{ScFunctionalTypeElement, ScInfixTypeElement, ScParameterizedTypeElement, ScSimpleTypeElement}
 import org.jetbrains.plugins.scala.lang.psi.api.toplevel.templates.ScTemplateParents
-import org.jetbrains.plugins.scala.lang.psi.api.{ScalaElementVisitor, ScalaFile}
+import org.jetbrains.plugins.scala.lang.psi.api.{ScalaElementVisitor, ScalaFile, ScalaPsiElement}
 import org.jetbrains.plugins.scala.lang.psi.types.api.{FunctionType, TupleType}
-import org.jetbrains.plugins.scala.lang.psi.{ScalaPsiElement, ScalaPsiUtil}
+import org.jetbrains.plugins.scala.lang.psi.ScalaPsiUtil
 
 class FunctionTupleSyntacticSugarInspection extends LocalInspectionTool {
   override def isEnabledByDefault: Boolean = true

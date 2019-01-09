@@ -1,22 +1,18 @@
-package org.jetbrains.plugins.scala
-package lang
-package psi
+package org.jetbrains.plugins.scala.lang.psi.impl
 
 import com.intellij.extapi.psi.{ASTWrapperPsiElement, StubBasedPsiElementBase}
 import com.intellij.lang.ASTNode
+import com.intellij.psi.{PsiElement, PsiElementVisitor, StubBasedPsiElement}
 import com.intellij.psi.impl.CheckUtil
 import com.intellij.psi.impl.source.tree.LazyParseablePsiElement
 import com.intellij.psi.search.SearchScope
 import com.intellij.psi.stubs.{IStubElementType, StubElement}
 import com.intellij.psi.tree.{IElementType, TokenSet}
-import com.intellij.psi.{PsiElement, PsiElementVisitor, StubBasedPsiElement}
-import org.jetbrains.plugins.scala.lang.psi.api.ScalaElementVisitor
+import org.jetbrains.plugins.scala.lang.psi.{ScalaPsiUtil, ScalaUseScope}
+import org.jetbrains.plugins.scala.lang.psi.api.{ScalaElementVisitor, ScalaPsiElement}
 import org.jetbrains.plugins.scala.lang.psi.impl.ScalaPsiManager.AnyScalaPsiModificationTracker
 import org.jetbrains.plugins.scala.lang.psi.stubs.elements.ScStubElementType
 
-/**
-@author ven
- */
 abstract class ScalaPsiElementImpl(node: ASTNode) extends ASTWrapperPsiElement(node) with ScalaPsiElement {
   override def accept(visitor: PsiElementVisitor) {
     visitor match {

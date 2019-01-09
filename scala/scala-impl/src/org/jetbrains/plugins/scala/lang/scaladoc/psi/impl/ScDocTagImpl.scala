@@ -9,7 +9,7 @@ import com.intellij.lang.ASTNode
 import com.intellij.psi.javadoc.{PsiDocComment, PsiDocTagValue}
 import com.intellij.psi.tree.TokenSet
 import com.intellij.psi.{PsiElement, PsiElementVisitor}
-import org.jetbrains.plugins.scala.lang.psi.ScalaPsiElementImpl
+import org.jetbrains.plugins.scala.lang.psi.impl.ScalaPsiElementImpl
 import org.jetbrains.plugins.scala.lang.psi.api.ScalaElementVisitor
 import org.jetbrains.plugins.scala.lang.psi.impl.ScalaPsiElementFactory.createDocTagName
 import org.jetbrains.plugins.scala.lang.scaladoc.lexer.ScalaDocTokenType

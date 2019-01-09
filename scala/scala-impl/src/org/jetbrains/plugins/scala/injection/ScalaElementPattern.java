@@ -9,7 +9,7 @@ import com.intellij.psi.PsiMethod;
 import com.intellij.psi.ResolveResult;
 import com.intellij.util.ProcessingContext;
 import org.jetbrains.annotations.NotNull;
-import org.jetbrains.plugins.scala.lang.psi.ScalaPsiElement;
+import org.jetbrains.plugins.scala.lang.psi.api.ScalaPsiElement;
 import org.jetbrains.plugins.scala.lang.psi.api.base.ScLiteral;
 import org.jetbrains.plugins.scala.lang.psi.api.base.ScReferenceElement;
 import org.jetbrains.plugins.scala.lang.psi.api.expr.*;

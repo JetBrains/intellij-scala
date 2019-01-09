@@ -1,7 +1,7 @@
 package org.jetbrains.plugins.scala.lang.psi.api.expr
 
 import com.intellij.psi.PsiElement
-import org.jetbrains.plugins.scala.lang.psi.ScalaPsiElement
+import org.jetbrains.plugins.scala.lang.psi.api.ScalaPsiElement
 
 trait ScEnumerator extends ScalaPsiElement {
   def forStatement: Option[ScForStatement]

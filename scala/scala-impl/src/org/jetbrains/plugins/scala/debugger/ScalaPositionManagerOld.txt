@@ -33,7 +33,7 @@ import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
 import org.jetbrains.plugins.scala.ScalaLoader;
 import org.jetbrains.plugins.scala.caches.ScalaShortNamesCacheManager;
-import org.jetbrains.plugins.scala.lang.psi.ScalaPsiElement;
+import org.jetbrains.plugins.scala.lang.psi.api.ScalaPsiElement;
 import org.jetbrains.plugins.scala.lang.psi.ScalaPsiUtil;
 import org.jetbrains.plugins.scala.lang.psi.api.ScalaFile;
 import org.jetbrains.plugins.scala.lang.psi.api.base.patterns.ScCaseClauses;

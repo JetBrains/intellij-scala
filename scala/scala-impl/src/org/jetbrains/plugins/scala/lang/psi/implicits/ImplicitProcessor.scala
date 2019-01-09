@@ -12,7 +12,7 @@ import com.intellij.psi.{PsiClass, PsiElement, ResolveState}
 import gnu.trove.{THashMap, THashSet}
 import org.jetbrains.plugins.scala.extensions._
 import org.jetbrains.plugins.scala.lang.psi.ScalaPsiUtil.getCompanionModule
-import org.jetbrains.plugins.scala.lang.psi.api.ScPackageLike
+import org.jetbrains.plugins.scala.lang.psi.api.{ScPackageLike, ScalaPsiElement}
 import org.jetbrains.plugins.scala.lang.psi.api.base.ScFieldId
 import org.jetbrains.plugins.scala.lang.psi.api.base.patterns.ScBindingPattern
 import org.jetbrains.plugins.scala.lang.psi.api.statements.params.ScParameter

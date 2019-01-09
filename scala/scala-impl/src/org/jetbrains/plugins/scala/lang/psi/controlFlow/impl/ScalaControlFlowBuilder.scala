@@ -1,7 +1,7 @@
 package org.jetbrains.plugins.scala
 package lang.psi.controlFlow.impl
 
-import _root_.org.jetbrains.plugins.scala.lang.psi.api.ScalaRecursiveElementVisitor
+import _root_.org.jetbrains.plugins.scala.lang.psi.api.{ScalaPsiElement, ScalaRecursiveElementVisitor}
 import com.intellij.psi.PsiNamedElement
 import com.intellij.psi.util.PsiTreeUtil
 import org.jetbrains.plugins.scala.lang.psi.api.base.ScReferenceElement
@@ -12,7 +12,7 @@ import org.jetbrains.plugins.scala.lang.psi.api.statements.{ScFunction, ScParame
 import org.jetbrains.plugins.scala.lang.psi.api.toplevel.typedef.ScTypeDefinition
 import org.jetbrains.plugins.scala.lang.psi.controlFlow.Instruction
 import org.jetbrains.plugins.scala.lang.psi.types.api.FunctionType
-import org.jetbrains.plugins.scala.lang.psi.{ScalaPsiElement, ScalaPsiUtil}
+import org.jetbrains.plugins.scala.lang.psi.ScalaPsiUtil
 
 import scala.collection.mutable
 import scala.collection.mutable.ArrayBuffer

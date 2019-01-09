@@ -13,7 +13,7 @@ import com.intellij.util.containers.ContainerUtilRt
 import org.jetbrains.jps.model.java.JavaSourceRootType
 import org.jetbrains.plugins.scala.editor.importOptimizer.ImportInfo
 import org.jetbrains.plugins.scala.extensions.implementation.iterator.ParentsIterator
-import org.jetbrains.plugins.scala.lang.psi.ScalaPsiElement
+import org.jetbrains.plugins.scala.lang.psi.api.ScalaPsiElement
 import org.jetbrains.plugins.scala.lang.psi.api.base.{ScReferenceElement, ScStableCodeReferenceElement}
 import org.jetbrains.plugins.scala.lang.psi.api.toplevel.imports.usages.{ImportExprUsed, ImportUsed}
 import org.jetbrains.plugins.scala.lang.psi.api.toplevel.imports.{ScImportExpr, ScImportSelector, ScImportSelectors, ScImportStmt}

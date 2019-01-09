@@ -3,7 +3,7 @@ package lang.psi.api.expr.xml
 
 import com.intellij.psi.PsiElement
 import org.jetbrains.plugins.scala.lang.lexer.ScalaXmlTokenTypes
-import org.jetbrains.plugins.scala.lang.psi.ScalaPsiElement
+import org.jetbrains.plugins.scala.lang.psi.api.ScalaPsiElement
 
 /**
  * User: Dmitry Naydanov

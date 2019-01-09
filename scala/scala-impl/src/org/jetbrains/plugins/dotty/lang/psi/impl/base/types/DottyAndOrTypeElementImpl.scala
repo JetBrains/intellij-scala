@@ -2,7 +2,7 @@ package org.jetbrains.plugins.dotty.lang.psi.impl.base.types
 
 import com.intellij.lang.ASTNode
 import org.jetbrains.plugins.dotty.lang.psi.types._
-import org.jetbrains.plugins.scala.lang.psi.ScalaPsiElementImpl
+import org.jetbrains.plugins.scala.lang.psi.impl.ScalaPsiElementImpl
 import org.jetbrains.plugins.scala.lang.psi.api.base.types.ScInfixLikeTypeElement
 import org.jetbrains.plugins.scala.lang.psi.types.result._
 import org.jetbrains.plugins.scala.lang.psi.types.{ScType, api}

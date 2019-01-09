@@ -1,6 +1,5 @@
 package org.jetbrains.plugins.scala.lang.psi.api
 
-import org.jetbrains.plugins.scala.lang.psi.ScalaPsiElement
 import org.jetbrains.plugins.scala.lang.psi.controlFlow.Instruction
 import org.jetbrains.plugins.scala.lang.psi.controlFlow.impl.ScalaControlFlowBuilder
 import org.jetbrains.plugins.scala.macroAnnotations.{Cached, ModCount}

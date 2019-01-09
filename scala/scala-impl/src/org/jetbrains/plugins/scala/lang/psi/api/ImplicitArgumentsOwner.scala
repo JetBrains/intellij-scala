@@ -4,7 +4,7 @@ package lang.psi.api
 import com.intellij.openapi.progress.ProgressManager
 import com.intellij.openapi.util.Key
 import org.jetbrains.plugins.scala.extensions.{ObjectExt, PsiElementExt, TraversableExt}
-import org.jetbrains.plugins.scala.lang.psi.ScalaPsiElement
+import org.jetbrains.plugins.scala.lang.psi.api.ScalaPsiElement
 import org.jetbrains.plugins.scala.lang.psi.api.ImplicitArgumentsOwner.IMPLICIT_ARGS_KEY
 import org.jetbrains.plugins.scala.lang.psi.api.expr.{ScArgumentExprList, ScExpression}
 import org.jetbrains.plugins.scala.lang.psi.types.nonvalue.Parameter

@@ -4,7 +4,7 @@ package scaladoc
 package psi
 package api
 
-import org.jetbrains.plugins.scala.lang.psi.ScalaPsiElement
+import org.jetbrains.plugins.scala.lang.psi.api.ScalaPsiElement
 
 /**
  * User: Dmitry Naidanov

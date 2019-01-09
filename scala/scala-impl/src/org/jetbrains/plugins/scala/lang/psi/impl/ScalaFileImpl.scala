@@ -35,7 +35,7 @@ import org.jetbrains.plugins.scala.lang.psi.api.statements.{ScFunction, ScTypeAl
 import org.jetbrains.plugins.scala.lang.psi.api.toplevel.imports.ScImportStmt
 import org.jetbrains.plugins.scala.lang.psi.api.toplevel.typedef.{ScClass, ScObject, ScTrait, ScTypeDefinition}
 import org.jetbrains.plugins.scala.lang.psi.api.toplevel.{ScPackaging, ScToplevelElement}
-import org.jetbrains.plugins.scala.lang.psi.api.{FileDeclarationsHolder, ScControlFlowOwner, ScalaFile}
+import org.jetbrains.plugins.scala.lang.psi.api.{FileDeclarationsHolder, ScControlFlowOwner, ScalaFile, ScalaPsiElement}
 import org.jetbrains.plugins.scala.lang.psi.impl.ScalaPsiManager.AnyScalaPsiModificationTracker
 import org.jetbrains.plugins.scala.lang.psi.stubs.ScFileStub
 import org.jetbrains.plugins.scala.lang.refactoring.util.ScalaNamesUtil

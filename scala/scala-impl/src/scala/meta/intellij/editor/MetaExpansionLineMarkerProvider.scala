@@ -10,7 +10,7 @@ import com.intellij.psi.impl.source.tree.LeafPsiElement
 import org.jetbrains.plugin.scala.util.MacroExpansion
 import org.jetbrains.plugins.scala.extensions._
 import org.jetbrains.plugins.scala.lang.macros.expansion.MacroExpansionLineMarkerProvider
-import org.jetbrains.plugins.scala.lang.psi.ScalaPsiElement
+import org.jetbrains.plugins.scala.lang.psi.api.ScalaPsiElement
 import org.jetbrains.plugins.scala.lang.psi.api.expr.{ScAnnotation, ScBlock}
 import org.jetbrains.plugins.scala.lang.psi.api.statements.ScAnnotationsHolder
 import org.jetbrains.plugins.scala.lang.psi.api.toplevel.typedef.ScTypeDefinition

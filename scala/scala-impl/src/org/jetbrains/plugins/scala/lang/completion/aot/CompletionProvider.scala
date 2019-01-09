@@ -6,7 +6,7 @@ import com.intellij.codeInsight.completion.{CompletionParameters, CompletionResu
 import com.intellij.openapi.util.text.StringUtil
 import com.intellij.psi.PsiElement
 import com.intellij.util.ProcessingContext
-import org.jetbrains.plugins.scala.lang.psi.ScalaPsiElement
+import org.jetbrains.plugins.scala.lang.psi.api.ScalaPsiElement
 import org.jetbrains.plugins.scala.settings.ScalaProjectSettings
 
 private[completion] trait CompletionProvider[E <: ScalaPsiElement] extends DelegatingCompletionProvider[E] {

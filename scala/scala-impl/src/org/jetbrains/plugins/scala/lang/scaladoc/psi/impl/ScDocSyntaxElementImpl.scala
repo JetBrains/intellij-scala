@@ -6,7 +6,7 @@ package impl
 
 import com.intellij.lang.ASTNode
 import com.intellij.psi.PsiElementVisitor
-import org.jetbrains.plugins.scala.lang.psi.ScalaPsiElementImpl
+import org.jetbrains.plugins.scala.lang.psi.impl.ScalaPsiElementImpl
 import org.jetbrains.plugins.scala.lang.psi.api.ScalaElementVisitor
 import org.jetbrains.plugins.scala.lang.scaladoc.psi.api.ScDocSyntaxElement
 

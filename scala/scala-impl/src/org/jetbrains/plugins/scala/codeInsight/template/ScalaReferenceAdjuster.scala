@@ -5,8 +5,8 @@ import com.intellij.application.options.CodeStyle
 import com.intellij.lang.ASTNode
 import com.intellij.openapi.project.Project
 import com.intellij.psi.codeStyle.{CodeStyleSettingsManager, JavaCodeStyleSettings, ReferenceAdjuster}
-import org.jetbrains.plugins.scala.lang.psi.api.ScalaRecursiveElementVisitor
-import org.jetbrains.plugins.scala.lang.psi.{ScalaPsiElement, TypeAdjuster}
+import org.jetbrains.plugins.scala.lang.psi.api.{ScalaPsiElement, ScalaRecursiveElementVisitor}
+import org.jetbrains.plugins.scala.lang.psi.TypeAdjuster
 
 import scala.collection.mutable.ArrayBuffer
 

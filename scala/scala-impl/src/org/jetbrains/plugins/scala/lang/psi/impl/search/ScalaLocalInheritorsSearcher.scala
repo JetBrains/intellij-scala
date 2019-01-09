@@ -8,7 +8,7 @@ import com.intellij.psi.search.searches.ClassInheritorsSearch.SearchParameters
 import com.intellij.psi.search.{LocalSearchScope, PsiSearchScopeUtil, SearchScope}
 import com.intellij.util.Processor
 import org.jetbrains.plugins.scala.extensions.{PsiElementExt, inReadAction}
-import org.jetbrains.plugins.scala.lang.psi.ScalaPsiElement
+import org.jetbrains.plugins.scala.lang.psi.api.ScalaPsiElement
 import org.jetbrains.plugins.scala.lang.psi.api.expr.ScNewTemplateDefinition
 import org.jetbrains.plugins.scala.lang.psi.api.toplevel.typedef.{ScTemplateDefinition, ScTypeDefinition}
 

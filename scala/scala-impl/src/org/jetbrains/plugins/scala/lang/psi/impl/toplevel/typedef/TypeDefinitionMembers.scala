@@ -12,7 +12,7 @@ import com.intellij.psi.scope.{ElementClassHint, NameHint, PsiScopeProcessor}
 import com.intellij.psi.util.PsiTreeUtil.isContextAncestor
 import org.jetbrains.plugins.scala.extensions._
 import org.jetbrains.plugins.scala.lang.psi.ScalaPsiUtil._
-import org.jetbrains.plugins.scala.lang.psi.api.PropertyMethods
+import org.jetbrains.plugins.scala.lang.psi.api.{PropertyMethods, ScalaPsiElement}
 import org.jetbrains.plugins.scala.lang.psi.api.PropertyMethods._
 import org.jetbrains.plugins.scala.lang.psi.api.base.ScPrimaryConstructor
 import org.jetbrains.plugins.scala.lang.psi.api.statements._

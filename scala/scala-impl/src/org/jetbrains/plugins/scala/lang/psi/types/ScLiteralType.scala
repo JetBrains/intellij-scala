@@ -11,7 +11,8 @@ import org.jetbrains.plugins.scala.lang.psi.types.api.designator.ScDesignatorTyp
 import org.jetbrains.plugins.scala.lang.psi.types.api.{Singleton, TypeVisitor, ValueType}
 import org.jetbrains.plugins.scala.lang.psi.types.recursiveUpdate.AfterUpdate.{ProcessSubtypes, ReplaceWith, Stop}
 import org.jetbrains.plugins.scala.lang.psi.util.LiteralEvaluationUtil
-import org.jetbrains.plugins.scala.lang.psi.{ElementScope, ScalaPsiElement}
+import org.jetbrains.plugins.scala.lang.psi.ElementScope
+import org.jetbrains.plugins.scala.lang.psi.api.ScalaPsiElement
 import org.jetbrains.plugins.scala.project.ProjectContext
 
 import scala.reflect.ClassTag

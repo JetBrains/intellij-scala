@@ -3,7 +3,7 @@ package lang.psi.light.scala
 
 import com.intellij.psi.impl.light.LightElement
 import com.intellij.psi.{PsiAnnotation, PsiElement, PsiTypeParameterListOwner}
-import org.jetbrains.plugins.scala.lang.psi.ScalaPsiElement
+import org.jetbrains.plugins.scala.lang.psi.api.ScalaPsiElement
 import org.jetbrains.plugins.scala.lang.psi.api.statements.params
 import org.jetbrains.plugins.scala.lang.psi.api.statements.params.ScTypeParam
 import org.jetbrains.plugins.scala.lang.psi.api.toplevel.ScTypeParametersOwner

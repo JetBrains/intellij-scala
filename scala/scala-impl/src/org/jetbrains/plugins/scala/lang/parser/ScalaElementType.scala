@@ -7,7 +7,7 @@ import com.intellij.psi.PsiFile
 import com.intellij.psi.stubs.PsiFileStub
 import com.intellij.psi.tree._
 import org.jetbrains.plugins.dotty.lang.psi.impl.base.types._
-import org.jetbrains.plugins.scala.lang.psi.ScalaPsiElement
+import org.jetbrains.plugins.scala.lang.psi.api.ScalaPsiElement
 import org.jetbrains.plugins.scala.lang.psi.api.expr.ScNewTemplateDefinition
 import org.jetbrains.plugins.scala.lang.psi.api.statements._
 import org.jetbrains.plugins.scala.lang.psi.api.toplevel.typedef._

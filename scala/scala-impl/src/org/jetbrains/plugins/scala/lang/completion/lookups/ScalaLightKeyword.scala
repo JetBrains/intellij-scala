@@ -7,7 +7,7 @@ import com.intellij.psi.tree.IElementType
 import com.intellij.psi.{PsiElement, PsiManager}
 import org.jetbrains.plugins.scala.ScalaLanguage
 import org.jetbrains.plugins.scala.lang.lexer.ScalaLexer
-import org.jetbrains.plugins.scala.lang.psi.ScalaPsiElement
+import org.jetbrains.plugins.scala.lang.psi.api.ScalaPsiElement
 import org.jetbrains.plugins.scala.project.UserDataHolderExt
 
 import scala.collection.mutable

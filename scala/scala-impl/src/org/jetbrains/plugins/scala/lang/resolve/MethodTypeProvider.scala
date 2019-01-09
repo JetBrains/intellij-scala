@@ -2,6 +2,7 @@ package org.jetbrains.plugins.scala.lang.resolve
 
 import com.intellij.psi._
 import org.jetbrains.plugins.scala.extensions.{PsiMethodExt, PsiParameterExt, PsiTypeExt}
+import org.jetbrains.plugins.scala.lang.psi.api.ScalaPsiElement
 import org.jetbrains.plugins.scala.lang.psi.api.base.{ScMethodLike, ScPrimaryConstructor}
 import org.jetbrains.plugins.scala.lang.psi.api.statements.params.{ScParameterClause, ScParameters}
 import org.jetbrains.plugins.scala.lang.psi.api.statements.{ScFun, ScFunction}
@@ -12,7 +13,7 @@ import org.jetbrains.plugins.scala.lang.psi.types.api.{TypeParameter, TypeParame
 import org.jetbrains.plugins.scala.lang.psi.types.nonvalue.{Parameter, ScMethodType, ScTypePolymorphicType}
 import org.jetbrains.plugins.scala.lang.psi.types.recursiveUpdate.ScSubstitutor
 import org.jetbrains.plugins.scala.lang.psi.types.{ScParameterizedType, ScType}
-import org.jetbrains.plugins.scala.lang.psi.{ElementScope, ScalaPsiElement, ScalaPsiUtil}
+import org.jetbrains.plugins.scala.lang.psi.{ElementScope, ScalaPsiUtil}
 
 import scala.annotation.tailrec
 import scala.collection.Seq

@@ -5,7 +5,7 @@ package psi
 package impl
 
 
-import _root_.org.jetbrains.plugins.scala.lang.psi.ScalaPsiElementImpl
+import _root_.org.jetbrains.plugins.scala.lang.psi.impl.ScalaPsiElementImpl
 import com.intellij.lang.ASTNode
 import com.intellij.psi.PsiElementVisitor
 import com.intellij.psi.javadoc.PsiDocTagValue

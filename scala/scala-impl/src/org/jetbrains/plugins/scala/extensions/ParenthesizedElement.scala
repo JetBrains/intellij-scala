@@ -8,7 +8,8 @@ import org.jetbrains.plugins.scala.lang.psi.api.base.types._
 import org.jetbrains.plugins.scala.lang.psi.api.base.{ScConstructor, ScInfixElement, ScParenthesizedElement}
 import org.jetbrains.plugins.scala.lang.psi.api.expr.{ScExpression, ScParenthesisedExpr, ScSugarCallExpr}
 import org.jetbrains.plugins.scala.lang.psi.api.toplevel.templates.ScTemplateParents
-import org.jetbrains.plugins.scala.lang.psi.{ScalaPsiElement, ScalaPsiUtil}
+import org.jetbrains.plugins.scala.lang.psi.ScalaPsiUtil
+import org.jetbrains.plugins.scala.lang.psi.api.ScalaPsiElement
 
 import scala.annotation.tailrec
 

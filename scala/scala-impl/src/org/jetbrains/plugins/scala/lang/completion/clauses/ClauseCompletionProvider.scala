@@ -8,7 +8,7 @@ import com.intellij.codeInsight.lookup.{LookupElement, LookupElementBuilder, Loo
 import com.intellij.psi.PsiElement
 import com.intellij.psi.util.PsiTreeUtil
 import com.intellij.util.ProcessingContext
-import org.jetbrains.plugins.scala.lang.psi.ScalaPsiElement
+import org.jetbrains.plugins.scala.lang.psi.api.ScalaPsiElement
 import org.jetbrains.plugins.scala.lang.psi.types.result.Typeable
 
 private[clauses] abstract class ClauseCompletionProvider[T <: ScalaPsiElement with Typeable](clazz: Class[T])

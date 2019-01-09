@@ -1,10 +1,8 @@
-package org.jetbrains.plugins.scala
-package lang
-package psi
+package org.jetbrains.plugins.scala.lang.psi.api
 
 import com.intellij.psi.PsiElement
 import com.intellij.psi.tree.{IElementType, TokenSet}
-import org.jetbrains.plugins.scala.lang.psi.api.{ScalaElementVisitor, ScalaFile}
+import org.jetbrains.plugins.scala.lang.psi.ElementScope
 import org.jetbrains.plugins.scala.project.{ProjectContext, ProjectContextOwner}
 
 trait ScalaPsiElement extends PsiElement with ProjectContextOwner {

@@ -4,6 +4,7 @@ import com.intellij.psi.search._
 import com.intellij.psi.util.PsiTreeUtil
 import com.intellij.psi.{PsiElement, PsiNamedElement, PsiPackage, PsiReference}
 import org.jetbrains.plugins.scala.extensions.{PsiElementExt, ResolvesTo}
+import org.jetbrains.plugins.scala.lang.psi.api.ScalaPsiElement
 import org.jetbrains.plugins.scala.lang.psi.api.base.patterns.ScCaseClause
 import org.jetbrains.plugins.scala.lang.psi.api.expr._
 import org.jetbrains.plugins.scala.lang.psi.api.statements.ScFunction

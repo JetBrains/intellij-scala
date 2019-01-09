@@ -1,7 +1,7 @@
 package org.jetbrains.plugins.scala.lang.psi.controlFlow
 
 import org.jetbrains.annotations.Nullable
-import org.jetbrains.plugins.scala.lang.psi.ScalaPsiElement
+import org.jetbrains.plugins.scala.lang.psi.api.ScalaPsiElement
 
 
 /**

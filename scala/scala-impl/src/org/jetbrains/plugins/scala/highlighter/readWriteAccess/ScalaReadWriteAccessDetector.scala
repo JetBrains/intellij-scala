@@ -6,7 +6,8 @@ import com.intellij.codeInsight.highlighting.ReadWriteAccessDetector.Access
 import com.intellij.psi.{PsiElement, PsiNamedElement, PsiReference}
 import org.jetbrains.plugins.scala.lang.psi.api.expr.{ScAssignStmt, ScExpression}
 import org.jetbrains.plugins.scala.lang.psi.api.statements.{ScPatternDefinition, ScVariableDefinition}
-import org.jetbrains.plugins.scala.lang.psi.{ScalaPsiElement, ScalaPsiUtil}
+import org.jetbrains.plugins.scala.lang.psi.ScalaPsiUtil
+import org.jetbrains.plugins.scala.lang.psi.api.ScalaPsiElement
 
 /**
  * User: Alexander Podkhalyuzin

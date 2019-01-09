@@ -2,7 +2,7 @@ package org.jetbrains.plugins.scala
 package lang.psi.api
 
 import com.intellij.psi.{PsiElementVisitor, PsiFile}
-import org.jetbrains.plugins.scala.lang.psi.ScalaPsiElement
+import org.jetbrains.plugins.scala.lang.psi.api.ScalaPsiElement
 import org.jetbrains.plugins.scala.lang.psi.api.base.patterns.{ScCaseClause, ScPattern}
 import org.jetbrains.plugins.scala.lang.psi.api.base.types._
 import org.jetbrains.plugins.scala.lang.psi.api.base.{ScConstructor, ScLiteral, ScModifierList, ScReferenceElement}
