@@ -3,6 +3,7 @@ package lang.scaladoc
 
 import com.intellij.openapi.actionSystem.{DataContext, IdeActions}
 import com.intellij.openapi.editor.actionSystem.EditorActionManager
+import com.intellij.testFramework.LightPlatformTestCase.getCurrentCodeStyleSettings
 import org.jetbrains.plugins.scala.base.ScalaLightPlatformCodeInsightTestCaseAdapter
 import org.jetbrains.plugins.scala.editor.DocumentExt
 import org.jetbrains.plugins.scala.lang.formatting.settings.ScalaCodeStyleSettings
@@ -12,7 +13,6 @@ import org.junit.Assert
  * User: Dmitry Naydanov
  * Date: 2/6/12
  */
-
 abstract class ScalaDocEnterActionTestBase extends ScalaLightPlatformCodeInsightTestCaseAdapter {
   override protected def setUp(): Unit = {
     super.setUp()

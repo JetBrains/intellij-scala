@@ -322,7 +322,7 @@ object ScalaPluginUpdater {
     val document = new RuleTransformer(versionPatcher).transform(XML.withSAXParser(factory.newSAXParser).load(stream))
     val tempFile = File.createTempFile("plugin", "xml")
     XML.save(tempFile.getAbsolutePath, document.head, enc = "UTF-8")
-    pluginDescriptor.readExternal(tempFile.toURI.toURL)
+    pluginDescriptor.loadFromFile(tempFile, null)
     tempFile.delete()
   }
 

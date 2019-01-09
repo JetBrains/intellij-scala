@@ -34,8 +34,6 @@ class ScAnnotationImpl private(stub: ScAnnotationStub, node: ASTNode)
 
   override def toString: String = "Annotation"
 
-  def getMetaData: PsiMetaData = null
-
   def getParameterList: PsiAnnotationParameterList = new ScAnnotationParameterList(annotationExpr)
 
   private def getClazz: Option[PsiClass] =
