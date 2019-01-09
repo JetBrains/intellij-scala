@@ -17,7 +17,7 @@ import org.jetbrains.plugins.scala.lang.psi.types.result._
 * Date: 28.02.2008
 */
 
-class ScCompositePatternImpl(node: ASTNode) extends ScalaPsiElementImpl (node) with ScCompositePattern {
+class ScCompositePatternImpl(node: ASTNode) extends ScalaPsiElementImpl (node) with ScCompositePattern with ScPatternImpl {
   override def isIrrefutableFor(t: Option[ScType]): Boolean = subpatterns.exists(_.isIrrefutableFor(t))
 
   override def accept(visitor: PsiElementVisitor): Unit = {

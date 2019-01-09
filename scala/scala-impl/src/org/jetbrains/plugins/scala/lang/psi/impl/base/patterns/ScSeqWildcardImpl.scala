@@ -14,7 +14,7 @@ import org.jetbrains.plugins.scala.lang.psi.types.ScType
  * @author ilyas
  */
 
-class ScSeqWildcardImpl (node: ASTNode) extends ScalaPsiElementImpl(node) with ScSeqWildcard {
+class ScSeqWildcardImpl (node: ASTNode) extends ScalaPsiElementImpl(node) with ScSeqWildcard with ScPatternImpl {
   // The SeqWildCard pattern is never irrefutable, with the exception that it occurs
   // in the exact position of an Constructor pattern.
   // See

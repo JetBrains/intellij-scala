@@ -41,63 +41,16 @@ import scala.meta.intellij.QuasiquoteInferUtil
 trait ScPattern extends ScalaPsiElement with Typeable {
   def isIrrefutableFor(t: Option[ScType]): Boolean
 
-  override def `type`(): TypeResult = Failure("Cannot type pattern")
+  def bindings: Seq[ScBindingPattern]
 
-  def bindings: Seq[ScBindingPattern] = {
-    val b = mutable.ArrayBuffer.empty[ScBindingPattern]
+  def typeVariables: Seq[ScTypeVariableTypeElement]
 
-    def inner(p: ScPattern) {
-      p match {
-        case binding: ScBindingPattern => b += binding
-        case _ =>
-      }
+  def subpatterns: Seq[ScPattern]
 
-      for (sub <- p.subpatterns) {
-        inner(sub)
-      }
-    }
-
-    inner(this)
-    b
-  }
-
-  def typeVariables: Seq[ScTypeVariableTypeElement] = {
-    val b = mutable.ArrayBuffer.empty[ScTypeVariableTypeElement]
-
-    def inner(p: ScPattern) {
-      p match {
-        case ScTypedPattern(te) =>
-          te.accept(new ScalaRecursiveElementVisitor {
-            override def visitTypeVariableTypeElement(tvar: ScTypeVariableTypeElement): Unit = {
-              b += tvar
-            }
-          })
-        case _ =>
-      }
-
-      for (sub <- p.subpatterns) {
-        inner(sub)
-      }
-    }
-
-    inner(this)
-    b
-  }
+  def getAnalogInDesugaredForExpr: Option[ScPattern]
 
   override def accept(visitor: ScalaElementVisitor) {
     visitor.visitPattern(this)
-  }
-
-  def subpatterns: Seq[ScPattern] = this match {
-    case _: ScReferencePattern => Seq.empty
-    case _ => findChildrenByClassScala[ScPattern](classOf[ScPattern])
-  }
-
-  def getAnalogInDesugaredForExpr: Option[ScPattern] = {
-    Some(getContext)
-      .collect { case gen: ScGenerator => gen.getContext.getContext }
-      .collect { case fr: ScForStatement => fr }
-      .flatMap { _.getDesugaredPatternAnalog(this) }
   }
 }
 

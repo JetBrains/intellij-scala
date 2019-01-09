@@ -23,7 +23,7 @@ import org.jetbrains.plugins.scala.lang.psi.types.{ScExistentialType, api, _}
 * Date: 28.02.2008
 */
 
-class ScTypedPatternImpl(node: ASTNode) extends ScalaPsiElementImpl(node) with ScTypedPattern {
+class ScTypedPatternImpl(node: ASTNode) extends ScalaPsiElementImpl(node) with ScTypedPattern with ScPatternImpl {
   override def accept(visitor: PsiElementVisitor) {
     visitor match {
       case visitor: ScalaElementVisitor => super.accept(visitor)

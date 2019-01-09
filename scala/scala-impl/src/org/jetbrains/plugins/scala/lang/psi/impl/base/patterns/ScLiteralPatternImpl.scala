@@ -17,7 +17,7 @@ import org.jetbrains.plugins.scala.lang.psi.types.result.TypeResult
 * Date: 28.02.2008
 */
 
-class ScLiteralPatternImpl(node: ASTNode) extends ScalaPsiElementImpl(node) with ScLiteralPattern {
+class ScLiteralPatternImpl(node: ASTNode) extends ScalaPsiElementImpl(node) with ScLiteralPattern with ScPatternImpl {
   override def isIrrefutableFor(t: Option[ScType]): Boolean = false
 
   override def accept(visitor: PsiElementVisitor) {

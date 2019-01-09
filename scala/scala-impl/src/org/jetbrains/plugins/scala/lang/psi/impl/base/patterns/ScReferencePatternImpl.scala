@@ -27,7 +27,7 @@ import org.jetbrains.plugins.scala.lang.psi.types.result._
   *         Date: 28.02.2008
   */
 class ScReferencePatternImpl private(stub: ScReferencePatternStub, node: ASTNode)
-  extends ScalaStubBasedElementImpl(stub, ScalaElementType.REFERENCE_PATTERN, node) with ScReferencePattern with ContributedReferenceHost {
+  extends ScalaStubBasedElementImpl(stub, ScalaElementType.REFERENCE_PATTERN, node) with ScReferencePattern with ContributedReferenceHost with ScPatternImpl {
 
   def this(node: ASTNode) = this(null, node)
 
