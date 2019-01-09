@@ -202,27 +202,27 @@ abstract class ScalaAnnotator extends Annotator
         super.visitForBinding(forBinding)
       }
 
-      private def checkGenerator(gen: ScGenerator): Unit = {
+      private def checkGenerator(generator: ScGenerator): Unit = {
 
         for {
-          forExpression <- gen.forStatement
-          genAnalog <- gen.desugared
+          forExpression <- generator.forStatement
+          desugaredGenerator <- generator.desugared
         } {
-          val sessionForDesugaredCode = new AnnotationSession(genAnalog.analogMethodCall.getContainingFile)
+          val sessionForDesugaredCode = new AnnotationSession(desugaredGenerator.analogMethodCall.getContainingFile)
           def delegateHolderFor(element: PsiElement) = new DelegateAnnotationHolder(element, holder, sessionForDesugaredCode) with ErrorIndication
-          var foundUnresolvedSymbol = false
-          var last = Option.empty[ScEnumerator]
 
-          for {
-            enum@(_x: ScEnumerator) <- gen.nextSiblings.takeWhile(!_.isInstanceOf[ScGenerator])
-            if !foundUnresolvedSymbol
-            enumAnalog <- enum.desugared
-          } {
-            val holder = delegateHolderFor(enum.enumeratorToken)
-            enumAnalog.callExpr.foreach(qualifierPart(_, holder))
-            foundUnresolvedSymbol ||= holder.hadError
-            last = Some(enum)
-          }
+          val followingEnumerators = generator.nextSiblings
+            .takeWhile(!_.isInstanceOf[ScGenerator])
+            .collect { case enum: ScEnumerator => enum}
+
+          val foundUnresolvedSymbol = followingEnumerators
+            .flatMap { enum => enum.desugared.map(enum -> _)}
+            .exists {
+              case (enum, desugaredEnum) =>
+                val holder = delegateHolderFor(enum.enumeratorToken)
+                desugaredEnum.callExpr.foreach(qualifierPart(_, holder))
+                holder.hadError
+            }
 
           // It doesn't make sense to look for errors down the function chain
           // if we were not able to resolve a previous call
@@ -233,23 +233,25 @@ abstract class ScalaAnnotator extends Annotator
             // we check the next generator here with it's predecessor,
             // because we don't want to do the check if foundUnresolvedSymbol is true
             if (forExpression.isYield) {
-              for (nextGen <- gen.nextSiblings.collectFirst { case gen: ScGenerator => gen }) {
-                for (nextGenAnalog <- nextGen.desugared) {
-                  val holder = delegateHolderFor(nextGen)
-                  checkExpressionType(nextGenAnalog.analogMethodCall, holder, typeAware)
-                  foundMonadicError ||= holder.hadError
+              val nextGenOpt = generator.nextSiblings.collectFirst { case gen: ScGenerator => gen }
+              for (nextGen <- nextGenOpt) {
+                foundMonadicError = nextGen.desugared.exists {
+                  nextDesugaredGen =>
+                    val holder = delegateHolderFor(nextGen)
+                    checkExpressionType(nextDesugaredGen.analogMethodCall, holder, typeAware)
+                    holder.hadError
                 }
 
                 if (!foundMonadicError) {
                   val holder = delegateHolderFor(nextGen)
-                  genAnalog.callExpr.foreach(annotateReference(_, holder))
-                  foundMonadicError ||= holder.hadError
+                  desugaredGenerator.callExpr.foreach(annotateReference(_, holder))
+                  foundMonadicError = holder.hadError
                 }
               }
             }
 
             if (!foundMonadicError) {
-              genAnalog.callExpr.foreach(qualifierPart(_, delegateHolderFor(gen.enumeratorToken)))
+              desugaredGenerator.callExpr.foreach(qualifierPart(_, delegateHolderFor(generator.enumeratorToken)))
             }
           }
         }
