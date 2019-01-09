@@ -334,7 +334,6 @@ abstract class ScalaAnnotator extends Annotator
       }
 
       override def visitCatchBlock(c: ScCatchBlock) {
-        checkCatchBlockGeneralizedRule(c, holder, typeAware)
         super.visitCatchBlock(c)
       }
 
@@ -540,73 +539,6 @@ abstract class ScalaAnnotator extends Annotator
 
   def isAdvancedHighlightingEnabled(element: PsiElement): Boolean =
     ScalaAnnotator.isAdvancedHighlightingEnabled(element)
-
-  def checkCatchBlockGeneralizedRule(block: ScCatchBlock, holder: AnnotationHolder, typeAware: Boolean) {
-    block.expression match {
-      case Some(expr) =>
-        val tp = expr.`type`().getOrAny
-        val throwable = ScalaPsiManager.instance(expr.getProject).getCachedClass(expr.resolveScope, "java.lang.Throwable").orNull
-        if (throwable == null) return
-        val throwableType = ScDesignatorType(throwable)
-        def checkMember(memberName: String, checkReturnTypeIsBoolean: Boolean) {
-          val processor = new MethodResolveProcessor(expr, memberName, List(Seq(new Compatibility.Expression(throwableType))),
-            Seq.empty, Seq.empty)
-          processor.processType(tp, expr)
-          val candidates = processor.candidates
-          if (candidates.length != 1) {
-            val error = ScalaBundle.message("method.is.not.member", memberName, tp.presentableText)
-            val annotation = holder.createErrorAnnotation(expr, error)
-            annotation.setHighlightType(ProblemHighlightType.GENERIC_ERROR)
-          } else if (checkReturnTypeIsBoolean) {
-            val maybeType = candidates(0) match {
-              case ScalaResolveResult(fun: ScFunction, subst) => fun.returnType.map(subst).toOption
-              case _ => None
-            }
-
-            if (!maybeType.exists(_.equiv(Boolean))) {
-              val error = ScalaBundle.message("expected.type.boolean", memberName)
-              val annotation = holder.createErrorAnnotation(expr, error)
-              annotation.setHighlightType(ProblemHighlightType.GENERIC_ERROR)
-            }
-          } else {
-            block.getContext match {
-              case t: ScTryStmt =>
-                t.expectedTypeEx(fromUnderscore = false) match {
-                  case Some((tp: ScType, _)) if tp equiv Unit => //do nothing
-                  case Some((tp: ScType, typeElement)) =>
-                    val returnType = candidates(0) match {
-                      case ScalaResolveResult(fun: ScFunction, subst) => fun.returnType.map(subst)
-                      case _ => return
-                    }
-                    val conformance = smartCheckConformance(Right(tp), returnType)
-                    if (!conformance) {
-                      if (typeAware) {
-                        val (retTypeText, expectedTypeText) = ScTypePresentation.different(returnType.getOrNothing, tp)
-                        val error = ScalaBundle.message("expr.type.does.not.conform.expected.type", retTypeText, expectedTypeText)
-                        val annotation = holder.createErrorAnnotation(expr, error)
-                        typeElement match {
-                          //Don't highlight te if it's outside of original file.
-                          case Some(te) if te.containingFile == t.containingFile =>
-                            val fix = new ChangeTypeFix(te, returnType.getOrNothing)
-                            annotation.registerFix(fix)
-                            val teAnnotation = annotationWithoutHighlighting(holder, te)
-                            teAnnotation.registerFix(fix)
-                          case _ =>
-                        }
-                      }
-                    }
-                  case _ => //do nothing
-                }
-              case _ =>
-            }
-          }
-        }
-        checkMember("isDefinedAt", checkReturnTypeIsBoolean = true)
-        checkMember("apply", checkReturnTypeIsBoolean = false)
-      case _ =>
-    }
-  }
-
 
   private def checkTypeParamBounds(sTypeParam: ScTypeBoundsOwner, holder: AnnotationHolder) {
     for {
