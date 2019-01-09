@@ -96,6 +96,11 @@ abstract class ScalaAnnotator extends Annotator
       }
     }
 
+    element match {
+      case e: ScalaPsiElement => e.annotate(holder, typeAware)
+      case _ =>
+    }
+
     val visitor = new ScalaElementVisitor {
       private def expressionPart(expr: ScExpression) {
         if (!compiled) {

@@ -5,7 +5,7 @@ import com.intellij.psi.tree.{IElementType, TokenSet}
 import org.jetbrains.plugins.scala.lang.psi.ElementScope
 import org.jetbrains.plugins.scala.project.{ProjectContext, ProjectContextOwner}
 
-trait ScalaPsiElement extends PsiElement with ProjectContextOwner {
+trait ScalaPsiElement extends PsiElement with ProjectContextOwner with Annotatable {
   protected var context: PsiElement = null
   protected var child: PsiElement = null
 
