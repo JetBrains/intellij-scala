@@ -156,8 +156,6 @@ abstract class ScalaAnnotator extends Annotator
 
       override def visitLiteral(l: ScLiteral) {
         l match {
-          case interpolated: ScInterpolatedStringLiteral if l.getFirstChild != null =>
-            highlightWrongInterpolatedString(interpolated, holder)
           case _ if l.getFirstChild.getNode.getElementType == ScalaTokenTypes.tINTEGER => // the literal is a tINTEGER
             checkIntegerLiteral(l, holder)
           case _ =>
@@ -797,53 +795,6 @@ abstract class ScalaAnnotator extends Annotator
         holder.createErrorAnnotation(refElement.nameId, error)
       //todo: add fixes
       case _ =>
-    }
-  }
-
-  private def highlightWrongInterpolatedString(l: ScInterpolatedStringLiteral, holder: AnnotationHolder) {
-    val ref = l.findReferenceAt(0) match {
-      case r: ScInterpolatedStringPartReference => r
-      case _ => return
-    }
-    val prefix = l.getFirstChild
-    val injections = l.getInjections
-
-    def annotateBadPrefix(key: String) {
-      val annotation = holder.createErrorAnnotation(prefix.getTextRange,
-        ScalaBundle.message(key, prefix.getText))
-      annotation.setHighlightType(ProblemHighlightType.LIKE_UNKNOWN_SYMBOL)
-    }
-
-    def annotateDesugared(): Unit = {
-      val elementsMap = mutable.HashMap[Int, PsiElement]()
-      val params = new mutable.StringBuilder("(")
-
-      injections.foreach { i =>
-        elementsMap += params.length -> i
-        params.append(i.getText).append(",")
-      }
-      if (injections.length > 0) params.setCharAt(params.length - 1, ')') else params.append(')')
-
-      val (expr, ref, shift) = l.getStringContextExpression match {
-        case Some(mc @ ScMethodCall(invoked: ScReferenceExpression, _)) =>
-          val shift = invoked.getTextRange.getEndOffset
-          (mc, invoked, shift)
-        case _ => return
-      }
-
-      val sessionForExpr = new AnnotationSession(expr.getContainingFile)
-      def mapPosInExprToElement(range: TextRange) = elementsMap.getOrElse(range.getStartOffset - shift, prefix)
-      val fakeAnnotator = new DelegateAnnotationHolder(mapPosInExprToElement(_).getTextRange, holder, sessionForExpr)
-
-      annotateReference(ref, fakeAnnotator)
-    }
-
-    ref.bind() match {
-      case Some(srr) =>
-        registerUsedImports(ref, srr)
-        annotateDesugared()
-      case None =>
-        annotateBadPrefix("cannot.resolve.in.StringContext")
     }
   }
 

@@ -275,3 +275,5 @@ trait ApplicationAnnotator {
     elem != null && elem.getContainingFile == holder.getCurrentAnnotationSession.getFile
   }
 }
+
+object ApplicationAnnotator extends ApplicationAnnotator
