@@ -12,20 +12,19 @@ import com.intellij.psi.{PsiClass, PsiElement, ResolveState}
 import gnu.trove.{THashMap, THashSet}
 import org.jetbrains.plugins.scala.extensions._
 import org.jetbrains.plugins.scala.lang.psi.ScalaPsiUtil.getCompanionModule
-import org.jetbrains.plugins.scala.lang.psi.api.{ScPackageLike, ScalaPsiElement}
 import org.jetbrains.plugins.scala.lang.psi.api.base.ScFieldId
 import org.jetbrains.plugins.scala.lang.psi.api.base.patterns.ScBindingPattern
 import org.jetbrains.plugins.scala.lang.psi.api.statements.params.ScParameter
 import org.jetbrains.plugins.scala.lang.psi.api.statements.{ScFunction, ScTypeAliasDefinition}
 import org.jetbrains.plugins.scala.lang.psi.api.toplevel.templates.{ScExtendsBlock, ScTemplateBody}
 import org.jetbrains.plugins.scala.lang.psi.api.toplevel.typedef.{ScObject, ScTemplateDefinition}
+import org.jetbrains.plugins.scala.lang.psi.api.{ScPackageLike, ScalaPsiElement}
 import org.jetbrains.plugins.scala.lang.psi.impl.ScalaPsiManager
 import org.jetbrains.plugins.scala.lang.psi.types.api.designator.{ScDesignatorType, ScProjectionType}
 import org.jetbrains.plugins.scala.lang.psi.types.api.{JavaArrayType, ParameterizedType, StdType, TypeParameterType}
 import org.jetbrains.plugins.scala.lang.psi.types.recursiveUpdate.ScSubstitutor
 import org.jetbrains.plugins.scala.lang.psi.types.result.TypeResult
-import org.jetbrains.plugins.scala.lang.psi.types.{ScAbstractType, ScCompoundType, ScExistentialType, ScType}
-import org.jetbrains.plugins.scala.lang.refactoring.util.ScTypeUtil.AliasType
+import org.jetbrains.plugins.scala.lang.psi.types.{AliasType, ScAbstractType, ScCompoundType, ScExistentialType, ScType}
 import org.jetbrains.plugins.scala.lang.resolve.processor.BaseProcessor
 import org.jetbrains.plugins.scala.lang.resolve.processor.precedence._
 import org.jetbrains.plugins.scala.lang.resolve.{ScalaResolveResult, StdKinds}

@@ -3,8 +3,7 @@ package org.jetbrains.plugins.scala.lang.psi.types.api
 import org.jetbrains.plugins.scala.lang.psi.ElementScope
 import org.jetbrains.plugins.scala.lang.psi.api.statements.ScTypeAliasDefinition
 import org.jetbrains.plugins.scala.lang.psi.api.toplevel.typedef.{ScClass, ScTrait, ScTypeDefinition}
-import org.jetbrains.plugins.scala.lang.psi.types.{ScParameterizedType, ScType, ScalaType, api}
-import org.jetbrains.plugins.scala.lang.refactoring.util.ScTypeUtil.AliasType
+import org.jetbrains.plugins.scala.lang.psi.types.{AliasType, ScParameterizedType, ScType, ScalaType, api}
 
 import scala.annotation.tailrec
 import scala.reflect.ClassTag
