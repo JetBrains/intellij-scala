@@ -10,6 +10,7 @@ import com.intellij.psi._
 import org.jetbrains.plugins.scala.extensions.{ObjectExt, ifReadAllowed}
 import org.jetbrains.plugins.scala.lang.lexer.ScalaTokenTypes
 import org.jetbrains.plugins.scala.lang.parser.ScalaElementType
+import org.jetbrains.plugins.scala.lang.psi.annotator.ScParameterAnnotator
 import org.jetbrains.plugins.scala.lang.psi.api.ScalaElementVisitor
 import org.jetbrains.plugins.scala.lang.psi.api.base.ScMethodLike
 import org.jetbrains.plugins.scala.lang.psi.api.base.types.ScTypeElement
@@ -27,7 +28,7 @@ import org.jetbrains.plugins.scala.lang.psi.types.result._
  */
 
 class ScParameterImpl protected (stub: ScParameterStub, nodeType: ScParamElementType[_ <: ScParameter], node: ASTNode)
-  extends ScalaStubBasedElementImpl(stub, nodeType, node) with ScParameter {
+  extends ScalaStubBasedElementImpl(stub, nodeType, node) with ScParameter with ScParameterAnnotator {
 
   def this(node: ASTNode) = this(null, null, node)
 

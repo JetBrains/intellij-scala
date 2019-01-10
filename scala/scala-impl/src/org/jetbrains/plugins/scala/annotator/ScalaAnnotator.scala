@@ -309,7 +309,6 @@ abstract class ScalaAnnotator extends Annotator
       }
 
       override def visitParameter(parameter: ScParameter) {
-        annotateParameter(parameter, holder)
         super.visitParameter(parameter)
       }
 

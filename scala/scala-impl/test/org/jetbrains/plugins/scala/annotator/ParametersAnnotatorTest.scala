@@ -90,7 +90,7 @@ class ParametersAnnotatorTest extends SimpleTestCase {
 
     annotator.annotateParameters(owner.clauses.get, mock)
     for (p <- owner.parameters) {
-      annotator.annotateParameter(p, mock)
+      p.annotate(mock, typeAware = true)
     }
     mock.annotations
   }
