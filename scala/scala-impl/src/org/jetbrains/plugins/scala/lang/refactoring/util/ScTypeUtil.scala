@@ -3,10 +3,8 @@ package lang
 package refactoring
 package util
 
-import org.jetbrains.plugins.scala.lang.psi.api.statements.ScTypeAlias
 import org.jetbrains.plugins.scala.lang.psi.types.ScType
 import org.jetbrains.plugins.scala.lang.psi.types.api.ParameterizedType
-import org.jetbrains.plugins.scala.lang.psi.types.result.TypeResult
 
 
 /**
@@ -20,7 +18,4 @@ object ScTypeUtil {
     case ParameterizedType(designator, _) => designator
     case t => t
   }
-
-  case class AliasType(ta: ScTypeAlias, lower: TypeResult, upper: TypeResult)
-
 }
