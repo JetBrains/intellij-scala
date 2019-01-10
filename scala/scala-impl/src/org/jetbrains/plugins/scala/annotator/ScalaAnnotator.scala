@@ -299,7 +299,6 @@ abstract class ScalaAnnotator extends Annotator
       }
 
       override def visitSelfInvocation(self: ScSelfInvocation) {
-        checkSelfInvocation(self, holder)
         super.visitSelfInvocation(self)
       }
 
@@ -745,18 +744,6 @@ abstract class ScalaAnnotator extends Annotator
       val annotation: Annotation = holder.createInfoAnnotation(range, null)
       annotation.setTextAttributes(DefaultHighlighter.IMPLICIT_CONVERSIONS)
       annotation.setAfterEndOfLine(false)
-    }
-  }
-
-  private def checkSelfInvocation(self: ScSelfInvocation, holder: AnnotationHolder) {
-    self.bind match {
-      case Some(_) =>
-      case None =>
-        if (isAdvancedHighlightingEnabled(self)) {
-          val annotation: Annotation = holder.createErrorAnnotation(self.thisElement,
-            "Cannot find constructor for this call")
-          annotation.setHighlightType(ProblemHighlightType.LIKE_UNKNOWN_SYMBOL)
-        }
     }
   }
 

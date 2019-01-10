@@ -5,11 +5,11 @@ package impl
 package expr
 
 import scala.collection.Seq
-
 import com.intellij.lang.ASTNode
 import com.intellij.openapi.util.TextRange
 import com.intellij.psi._
 import com.intellij.psi.util.PsiTreeUtil
+import org.jetbrains.plugins.scala.lang.psi.annotator.ScSelfInvocationAnnotator
 import org.jetbrains.plugins.scala.lang.psi.api.base.ScMethodLike
 import org.jetbrains.plugins.scala.lang.psi.api.expr._
 import org.jetbrains.plugins.scala.lang.psi.api.statements.ScFunction
@@ -28,7 +28,8 @@ import org.jetbrains.plugins.scala.lang.resolve.processor.MethodResolveProcessor
   * @author Alexander Podkhalyuzin
   *         Date: 22.02.2008
   */
-class ScSelfInvocationImpl(node: ASTNode) extends ScExpressionImplBase(node) with ScSelfInvocation {
+class ScSelfInvocationImpl(node: ASTNode) extends ScExpressionImplBase(node)
+  with ScSelfInvocation with ScSelfInvocationAnnotator{
 
   def bind: Option[PsiElement] = bindInternal(shapeResolve = false)
 
