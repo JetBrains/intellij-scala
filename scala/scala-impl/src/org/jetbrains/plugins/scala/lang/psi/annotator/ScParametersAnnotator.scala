@@ -1,16 +1,14 @@
-package org.jetbrains.plugins.scala.annotator
+package org.jetbrains.plugins.scala.lang.psi.annotator
 
 import com.intellij.lang.annotation.AnnotationHolder
-import org.jetbrains.plugins.scala.lang.psi.api.statements.params.ScParameters
+import org.jetbrains.plugins.scala.lang.psi.api.Annotatable
+import org.jetbrains.plugins.scala.lang.psi.impl.statements.params.ScParametersImpl
 
-/**
- * Pavel.Fatin, 15.06.2010
- */
-trait ParametersAnnotator {
+trait ScParametersAnnotator extends Annotatable { self: ScParametersImpl =>
 
-  def annotateParameters(parameters: ScParameters, holder: AnnotationHolder): Unit = {
+  override def annotate(holder: AnnotationHolder, typeAware: Boolean): Unit = {
     def checkRepeatedParams() {
-      parameters.clauses.foreach { cl =>
+      clauses.foreach { cl =>
         cl.parameters.dropRight(1).foreach {
           case p if p.isRepeatedParameter => holder.createErrorAnnotation(p, "*-parameter must come last")
           case _ =>

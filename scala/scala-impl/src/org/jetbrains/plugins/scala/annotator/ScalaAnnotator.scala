@@ -70,7 +70,7 @@ import scala.meta.intellij.MetaExpansionsManager
  */
 abstract class ScalaAnnotator extends Annotator
   with FunctionAnnotator with ScopeAnnotator
-  with ParametersAnnotator with ApplicationAnnotator
+  with ApplicationAnnotator
   with AssignmentAnnotator with VariableDefinitionAnnotator
   with TypedStatementAnnotator with PatternDefinitionAnnotator
   with PatternAnnotator with ConstructorAnnotator
@@ -391,7 +391,6 @@ abstract class ScalaAnnotator extends Annotator
       }
 
       override def visitParameters(parameters: ScParameters) {
-        annotateParameters(parameters, holder)
         super.visitParameters(parameters)
       }
 

@@ -9,6 +9,7 @@ import com.intellij.lang.ASTNode
 import com.intellij.psi._
 import com.intellij.psi.scope.PsiScopeProcessor
 import org.jetbrains.plugins.scala.lang.parser.ScalaElementType
+import org.jetbrains.plugins.scala.lang.psi.annotator.ScParametersAnnotator
 import org.jetbrains.plugins.scala.lang.psi.api.ScalaElementVisitor
 import org.jetbrains.plugins.scala.lang.psi.api.statements.params._
 import org.jetbrains.plugins.scala.lang.psi.impl.ScalaPsiElementFactory.createClauseFromText
@@ -21,7 +22,8 @@ import org.jetbrains.plugins.scala.macroAnnotations.{Cached, ModCount}
 */
 
 class ScParametersImpl private (stub: ScParamClausesStub, node: ASTNode)
-  extends ScalaStubBasedElementImpl(stub, ScalaElementType.PARAM_CLAUSES, node) with ScParameters {
+  extends ScalaStubBasedElementImpl(stub, ScalaElementType.PARAM_CLAUSES, node)
+    with ScParameters with ScParametersAnnotator {
 
   def this(node: ASTNode) = this(null, node)
   def this(stub: ScParamClausesStub) = this(stub, null)
