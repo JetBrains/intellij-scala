@@ -246,19 +246,18 @@ class ScForStatementImpl(node: ASTNode) extends ScExpressionImplBase(node) with 
         resultText ++= ")"
 
       // add guards and assignment enumerators
-      lazy val hasWithFilter = rvalue.exists(rvalue => {
-        val rvalueTy = rvalue.`type`().getOrAny
-        // try to use withFilter
-        // if the type does not have a withFilter method use filter
-        // in the case that we want to desugar for the user,
-        // check if the type has a filter function,
-        // Because if it doesn't have neither, use withFilter as fallback
-        hasMethod(rvalueTy, "withFilter") ||
-          (forDisplay && !hasMethod(rvalueTy, "filter"))
-      })
+      val filterFunc = {
+        lazy val rvalueType = rvalue.flatMap(_.`type`().toOption)
+        def hasWithFilter = rvalueType.exists(hasMethod(_, "withFilter"))
+        def hasFilter = rvalueType.exists(hasMethod(_, "filter"))
 
-      // since 2.12 the compiler doesn't rewrite withFilter to filter
-      val filterFunc = if (this.scalaLanguageLevel.exists(_ >= ScalaLanguageLevel.Scala_2_12) || hasWithFilter) "withFilter" else "filter"
+        // try to use withFilter
+        // if the type does not have a withFilter method use filter except if filter doesn't exist either
+        // since 2.12 the compiler doesn't rewrite withFilter to filter, so don't fall back at all!
+        val compilerFallsBackToFilter = this.scalaLanguageLevel.exists(_ < ScalaLanguageLevel.Scala_2_12)
+        if (!compilerFallsBackToFilter || hasWithFilter || !hasFilter) "withFilter"
+        else "filter"
+      }
 
       if (!this.betterMonadicForEnabled && needsPatternMatchFilter(pattern)) {
         appendFunc(filterFunc, None, initialArg, forceCases = true) {

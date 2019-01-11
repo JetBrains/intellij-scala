@@ -126,7 +126,7 @@ class ForComprehensionHighlightingTest extends ForComprehensionHighlightingTestB
       """.stripMargin
 
     assertMatches(errorsFromScalaCode(code)) {
-      case Error("if", "Cannot resolve symbol filter") :: Nil =>
+      case Error("if", "Cannot resolve symbol withFilter") :: Nil =>
     }
   }
 
