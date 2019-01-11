@@ -109,10 +109,12 @@ class ExpandForComprehensionTest extends ExpandForComprehensionTestBase {
     after = "Seq(A).map(a => a + _)"
   )()
 
-  def testWithoutFilterWith(): Unit = check(
+  // TODO: scalaLanguageLevel is not set for the test file, so the desugaring can not check the language lvl
+  //       and will always assume the newest version, in which filter will not be generated
+  /*def testWithoutFilterWith(): Unit = check(
     before = "for (v <- new W if p(v)) v.p()",
     after = "(new W).filter(v => p(v)).foreach(v => v.p())"
-  )(header = "class W { def filter(f: (A) => Boolean): W\n def foreach(f: (A) => Unit }")
+  )(header = "class W { def filter(f: (A) => Boolean): W = ???\n def foreach(f: (A) => Unit) = ??? }")*/
 
   def test_SCL14584(): Unit = check(
     before = "for { x <- Option(1) } yield { val y = 2; val z = 3; x + y + z }",
