@@ -48,6 +48,13 @@ class TypeParameterType private (val typeParameter: TypeParameter)
   }
 
   override def visitType(visitor: TypeVisitor): Unit = visitor.visitTypeParameterType(this)
+
+  override def equals(other: Any): Boolean = other match {
+    case that: TypeParameterType => typeParameter == that.typeParameter
+    case _ => false
+  }
+
+  override def hashCode(): Int = typeParameter.hashCode()
 }
 
 object TypeParameterType {
