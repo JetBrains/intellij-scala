@@ -4,8 +4,11 @@ package resolve
 package processor
 
 import com.intellij.psi._
+import com.intellij.psi.util.PsiTreeUtil.isContextAncestor
 import org.jetbrains.plugins.scala.caches.CachesUtil._
 import org.jetbrains.plugins.scala.extensions._
+import org.jetbrains.plugins.scala.lang.psi.ScalaPsiUtil
+import org.jetbrains.plugins.scala.lang.psi.api.ScalaPsiElement
 import org.jetbrains.plugins.scala.lang.psi.api.base.patterns.ScReferencePattern
 import org.jetbrains.plugins.scala.lang.psi.api.base.types.ScTypeElement
 import org.jetbrains.plugins.scala.lang.psi.api.base.{ScMethodLike, ScPrimaryConstructor}
@@ -22,8 +25,6 @@ import org.jetbrains.plugins.scala.lang.psi.types.api._
 import org.jetbrains.plugins.scala.lang.psi.types.api.designator.ScProjectionType
 import org.jetbrains.plugins.scala.lang.psi.types.recursiveUpdate.ScSubstitutor
 import org.jetbrains.plugins.scala.lang.psi.types.result._
-import org.jetbrains.plugins.scala.lang.psi.ScalaPsiUtil
-import org.jetbrains.plugins.scala.lang.psi.api.ScalaPsiElement
 import org.jetbrains.plugins.scala.project.{ProjectContext, ProjectPsiElementExt}
 
 import scala.collection.Set
@@ -296,14 +297,17 @@ object MethodResolveProcessor {
     }
 
     def constructorCompatibility(constr: PsiMethod, classTypeParameters: Seq[PsiTypeParameter]): ConformanceExtResult = {
-      val unsubstitutedTypeParams =
-        classTypeParameters.filter { p =>
-          val tpt         = TypeParameterType(p)
-          val substituted = substitutor(tpt)
-          substituted == tpt
+      def isSubstituted(p: PsiTypeParameter): Boolean = {
+        val tpt = TypeParameterType(p)
+        substitutor(tpt) != tpt
+      }
+
+      val allTypeParametersDefined =
+        classTypeParameters.forall { p =>
+          isContextAncestor(p.getOwner, ref, true) || isSubstituted(p)
         }
 
-      if (typeArgElements.isEmpty || unsubstitutedTypeParams.isEmpty) {
+      if (typeArgElements.isEmpty || allTypeParametersDefined) {
         val result =
           Compatibility.compatible(constr, substitutor, argumentClauses, checkWithImplicits,
             ref.resolveScope, isShapeResolve)
