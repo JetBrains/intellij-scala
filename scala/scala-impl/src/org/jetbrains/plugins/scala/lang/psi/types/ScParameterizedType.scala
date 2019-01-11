@@ -167,11 +167,26 @@ object ScParameterizedType {
   val cache: ConcurrentMap[(ScType, Seq[ScType]), ValueType] =
     ContainerUtil.newConcurrentMap[(ScType, Seq[ScType]), ValueType]()
 
+  //isAliasType uses substitution and it may create new ScParameterizedType in turn
+  //todo: can we avoid this?
+  private val currentComputations: ThreadLocal[Set[ScParameterizedType]] = ThreadLocal.withInitial(() => Set.empty)
+
   def apply(designator: ScType, typeArgs: Seq[ScType]): ValueType = {
     def createCompoundProjectionParameterized(pt: ScParameterizedType): ValueType = {
-      pt.isAliasType match {
-        case Some(AliasType(_: ScTypeAliasDefinition, _, Right(upper: ValueType))) => upper
-        case _ => pt
+      val current = currentComputations.get
+
+      if (current.contains(pt))
+        pt
+      else {
+        currentComputations.set(current + pt)
+        try
+          pt.isAliasType match {
+            case Some(AliasType(_: ScTypeAliasDefinition, _, Right(upper: ValueType))) => upper
+            case _ => pt
+          }
+        finally {
+          currentComputations.set(current)
+        }
       }
     }
 
