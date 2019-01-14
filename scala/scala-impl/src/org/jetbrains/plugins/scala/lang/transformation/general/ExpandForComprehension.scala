@@ -10,11 +10,11 @@ import org.jetbrains.plugins.scala.project.ProjectContext
   */
 class ExpandForComprehension extends AbstractTransformer {
   def transformation(implicit project: ProjectContext): PartialFunction[PsiElement, Unit] = {
-    case e: ScForStatement =>
+    case e: ScFor =>
       //desugarRecursively(e)
       desugared(e).foreach(e.replace)
   }
 
-  private def desugared(e: ScForStatement)(implicit project: ProjectContext): Option[PsiElement] =
+  private def desugared(e: ScFor)(implicit project: ProjectContext): Option[PsiElement] =
     e.desugared(forDisplay = true)
 }

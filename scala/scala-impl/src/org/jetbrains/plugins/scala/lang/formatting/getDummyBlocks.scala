@@ -94,7 +94,7 @@ object getDummyBlocks {
       case _: ScExtendsBlock =>
         subBlocks.addAll(getExtendsSubBlocks(node, block))
         return subBlocks
-      case _: ScForStatement =>
+      case _: ScFor =>
         subBlocks.addAll(getForSubBlocks(node, block, children))
         return subBlocks
       case _: ScReferenceExpression =>

@@ -253,7 +253,7 @@ abstract class ScalaAnnotator extends Annotator
         super.visitGenerator(gen)
       }
 
-      override def visitForExpression(expr: ScForStatement) {
+      override def visitForExpression(expr: ScFor) {
         registerUsedImports(expr, ScalaPsiUtil.getExprImports(expr))
         super.visitForExpression(expr)
       }

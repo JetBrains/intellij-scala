@@ -474,7 +474,7 @@ object DebuggerUtil {
       if (PsiTreeUtil.isContextAncestor(excludeContext, elem, false)) return false
 
       contextClass match {
-        case (_: ScExpression) childOf ScForStatement(enumerators, _) if PsiTreeUtil.isContextAncestor(enumerators, elem, true) =>
+        case (_: ScExpression) childOf ScFor(enumerators, _) if PsiTreeUtil.isContextAncestor(enumerators, elem, true) =>
           val generators = enumerators.generators
           if (generators.size <= 1) true
           else {

@@ -3,7 +3,7 @@ package codeInsight.unwrap
 
 import com.intellij.codeInsight.CodeInsightBundle
 import com.intellij.psi.PsiElement
-import org.jetbrains.plugins.scala.lang.psi.api.expr.ScForStatement
+import org.jetbrains.plugins.scala.lang.psi.api.expr.ScFor
 
 /**
  * Nikolay.Tropin
@@ -11,12 +11,12 @@ import org.jetbrains.plugins.scala.lang.psi.api.expr.ScForStatement
  */
 class ScalaForStmtUnwrapper extends ScalaUnwrapper {
   override def isApplicableTo(e: PsiElement): Boolean = e match {
-    case fSt: ScForStatement => fSt.body.isDefined
+    case fSt: ScFor => fSt.body.isDefined
     case _ => false
   }
 
   override def doUnwrap(element: PsiElement, context: ScalaUnwrapContext): Unit = element match {
-    case fSt: ScForStatement if fSt.body.isDefined =>
+    case fSt: ScFor if fSt.body.isDefined =>
       context.extractBlockOrSingleStatement(fSt.body.get, fSt)
       context.delete(fSt)
     case _ =>

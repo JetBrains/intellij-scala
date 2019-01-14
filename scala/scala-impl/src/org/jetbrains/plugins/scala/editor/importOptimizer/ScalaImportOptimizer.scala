@@ -20,7 +20,7 @@ import org.jetbrains.plugins.scala.extensions._
 import org.jetbrains.plugins.scala.lang.formatting.settings.ScalaCodeStyleSettings._
 import org.jetbrains.plugins.scala.lang.lexer.ScalaTokenTypes
 import org.jetbrains.plugins.scala.lang.psi.api.base.{ScConstructor, ScReferenceElement, ScStableCodeReferenceElement}
-import org.jetbrains.plugins.scala.lang.psi.api.expr.{ScExpression, ScForStatement, ScMethodCall}
+import org.jetbrains.plugins.scala.lang.psi.api.expr.{ScExpression, ScFor, ScMethodCall}
 import org.jetbrains.plugins.scala.lang.psi.api.toplevel.imports.ScImportStmt
 import org.jetbrains.plugins.scala.lang.psi.api.toplevel.imports.usages.ImportUsed
 import org.jetbrains.plugins.scala.lang.psi.api.toplevel.typedef.{ScObject, ScTypeDefinition}
@@ -803,7 +803,7 @@ object ScalaImportOptimizer {
     def addFromExpression(expr: ScExpression): Unit = {
       expr match {
         case call: ScMethodCall => imports.addAll(call.getImportsUsed.asJava)
-        case f: ScForStatement => imports.addAll(ScalaPsiUtil.getExprImports(f).asJava)
+        case f: ScFor => imports.addAll(ScalaPsiUtil.getExprImports(f).asJava)
         case _ =>
       }
 

@@ -307,7 +307,7 @@ trait TreeAdapter {
       case t: ScWhile =>
         m.Term.While(t.condition.map(expression).getOrElse(throw new AbortException(Some(t), "Empty while condition")),
             t.expression.map(expression).getOrElse(m.Term.Block(Seq.empty)))
-      case t: ScForStatement =>
+      case t: ScFor =>
         m.Term.For(t.enumerators.map(enumerators).getOrElse(Seq.empty),
           t.body.map(expression).getOrElse(m.Term.Block(Seq.empty)))
       case t: ScMatch =>

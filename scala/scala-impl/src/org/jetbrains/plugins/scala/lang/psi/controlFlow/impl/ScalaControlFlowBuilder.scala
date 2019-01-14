@@ -303,7 +303,7 @@ class ScalaControlFlowBuilder(startInScope: ScalaPsiElement,
     if (pat != null) pat.accept(this)
   }
 
-  override def visitForExpression(forStmt: ScForStatement) {
+  override def visitForExpression(forStmt: ScFor) {
     startNode(Some(forStmt)) {instr =>
       checkPendingEdges(instr)
       addPendingEdge(forStmt, myHead)

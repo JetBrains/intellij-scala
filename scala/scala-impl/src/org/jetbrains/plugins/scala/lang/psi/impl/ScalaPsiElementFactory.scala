@@ -428,7 +428,7 @@ object ScalaPsiElementFactory {
           |  i <- 1 to 239
           |  $enumText
           |}""".stripMargin
-    val forStmt = createElementFromText(text, classOf[ScForStatement])
+    val forStmt = createElementFromText(text, classOf[ScFor])
     forStmt.enumerators.flatMap {
       _.forBindings.headOption
     }.getOrElse {

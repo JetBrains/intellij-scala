@@ -75,7 +75,7 @@ class ScalaHighlightUsagesHandlerFactory extends HighlightUsagesHandlerFactory {
           return new ScalaHighlightExprResultHandler(tryStmt, editor, file, element)
         }
       case ScalaTokenTypes.kFOR =>
-        val forStmt = PsiTreeUtil.getParentOfType(element, classOf[ScForStatement])
+        val forStmt = PsiTreeUtil.getParentOfType(element, classOf[ScFor])
         if (forStmt != null && forStmt.isYield) {
           forStmt.body match {
             case Some(body) =>

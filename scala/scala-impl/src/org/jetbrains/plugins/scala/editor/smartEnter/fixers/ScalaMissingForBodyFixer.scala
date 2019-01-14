@@ -5,7 +5,7 @@ import com.intellij.openapi.editor.Editor
 import com.intellij.psi._
 import com.intellij.psi.util.PsiTreeUtil
 import org.jetbrains.plugins.scala.editor.smartEnter.ScalaSmartEnterProcessor
-import org.jetbrains.plugins.scala.lang.psi.api.expr.ScForStatement
+import org.jetbrains.plugins.scala.lang.psi.api.expr.ScFor
 
 /**
  * @author Dmitry.Naydanov
@@ -14,7 +14,7 @@ import org.jetbrains.plugins.scala.lang.psi.api.expr.ScForStatement
  */
 class ScalaMissingForBodyFixer  extends ScalaFixer {
   def apply(editor: Editor, processor: ScalaSmartEnterProcessor, psiElement: PsiElement): OperationPerformed = {
-    val forStatement = PsiTreeUtil.getParentOfType(psiElement, classOf[ScForStatement], false)
+    val forStatement = PsiTreeUtil.getParentOfType(psiElement, classOf[ScFor], false)
     if (forStatement == null) return NoOperation
 
     val doc = editor.getDocument

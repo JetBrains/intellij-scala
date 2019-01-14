@@ -176,7 +176,7 @@ class ScalaFrameExtraVariablesProvider extends FrameExtraVariablesProvider {
     inReadAction {
       val forStmt = ScalaPsiUtil.nameContext(named) match {
         case nc@(_: ScForBinding | _: ScGenerator) =>
-          Option(PsiTreeUtil.getParentOfType(nc, classOf[ScForStatement]))
+          Option(PsiTreeUtil.getParentOfType(nc, classOf[ScFor]))
         case _ => None
       }
       forStmt.flatMap(_.enumerators).exists(_.isAncestorOf(named)) && forStmt.flatMap(_.body).exists(!_.isAncestorOf(place))

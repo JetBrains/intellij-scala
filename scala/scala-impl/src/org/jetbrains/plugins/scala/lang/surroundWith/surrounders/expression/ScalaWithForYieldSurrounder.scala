@@ -32,7 +32,7 @@ class ScalaWithForYieldSurrounder extends ScalaExpressionSurrounder {
       case x => x
     }
 
-    val forStmt = element.asInstanceOf[ScForStatement]
+    val forStmt = element.asInstanceOf[ScFor]
 
     val enums = (forStmt.enumerators: @unchecked) match {
       case Some(x) => x.getNode

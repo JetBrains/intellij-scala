@@ -237,7 +237,7 @@ object ScalaElementType {
     override def createElement(node: ASTNode) = new ScIfImpl(node)
   }
   val FOR_STMT = new ScalaElementType("for statement") {
-    override def createElement(node: ASTNode) = new ScForStatementImpl(node)
+    override def createElement(node: ASTNode) = new ScForImpl(node)
   }
   val DO_STMT = new ScalaElementType("do-while statement") {
     override def createElement(node: ASTNode) = new ScDoImpl(node)

@@ -6,7 +6,7 @@ import com.intellij.openapi.project.Project
 import com.intellij.psi.PsiFile
 import org.jetbrains.plugins.scala.codeInspection.collections.MethodRepr
 import org.jetbrains.plugins.scala.extensions.ResolvesTo
-import org.jetbrains.plugins.scala.lang.psi.api.expr.{ScExpression, ScForStatement, ScInfixExpr, ScMethodCall}
+import org.jetbrains.plugins.scala.lang.psi.api.expr.{ScExpression, ScFor, ScInfixExpr, ScMethodCall}
 import org.jetbrains.plugins.scala.lang.psi.api.statements.ScFunctionDefinition
 import org.jetbrains.plugins.scala.lang.psi.api.statements.params.ScParameter
 import org.jetbrains.plugins.scala.lang.psi.impl.ScalaPsiElementFactory
@@ -30,7 +30,7 @@ class AddBreakoutQuickFix(expr: ScExpression) extends IntentionAction {
       case inf: ScInfixExpr =>
         val equivCall = ScalaPsiElementFactory.createEquivMethodCall(inf)
         inf.replaceExpression(createWithClauses(equivCall.getText), removeParenthesis = true)
-      case forStmt: ScForStatement =>
+      case forStmt: ScFor =>
         val withClauses = createWithClauses(s"(${forStmt.getText})")
         forStmt.replaceExpression(withClauses, removeParenthesis = true)
       case _ =>
@@ -53,7 +53,7 @@ object AddBreakoutQuickFix {
           case Some(Seq(p: ScParameter)) if isImplicitCanBuildFromParam(p) => true
           case _ => false
         }
-      case forStmt: ScForStatement =>
+      case forStmt: ScFor =>
         forStmt.desugared().exists(isAvailable)
       case _ => false
     }

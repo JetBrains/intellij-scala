@@ -28,7 +28,7 @@ class YieldFilter extends ElementFilter {
     val leaf = getLeafByOffset(context.getTextRange.getStartOffset, context)
     if (leaf != null) {
       val parent = leaf.getParent
-      if (parent.isInstanceOf[ScExpression] && parent.getParent.isInstanceOf[ScForStatement]) {
+      if (parent.isInstanceOf[ScExpression] && parent.getParent.isInstanceOf[ScFor]) {
         val file = context.getContainingFile
         val fileText = file.charSequence
         var i = context.getTextRange.getStartOffset - 1

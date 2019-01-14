@@ -66,7 +66,7 @@ class ScalaBlock(val myParentBlock: ScalaBlock,
     def isBlockOnlyScope(scope: PsiElement) = !isLeaf &&
       Set(ScalaTokenTypes.tLBRACE, ScalaTokenTypes.tLPARENTHESIS).contains(scope.getNode.getElementType) &&
       (scope.getParent match {
-        case _: ScTryBlock | _: ScForStatement | _: ScPackaging => true
+        case _: ScTryBlock | _: ScFor | _: ScPackaging => true
         case _ => false
       })
     if (scalaSettings.USE_SCALAFMT_FORMATTER) {
@@ -103,7 +103,7 @@ class ScalaBlock(val myParentBlock: ScalaBlock,
         if (elem.getElementType != TokenType.WHITE_SPACE || !elem.getText.contains("\n")) i = 0
         val indent = i + (if (!braceShifted) 1 else 0)
         new ChildAttributes(Indent.getSpaceIndent(indent * indentSize), null)
-      case _: ScBlockExpr | _: ScEarlyDefinitions | _: ScTemplateBody | _: ScForStatement | _: ScWhile |
+      case _: ScBlockExpr | _: ScEarlyDefinitions | _: ScTemplateBody | _: ScFor | _: ScWhile |
            _: ScTryBlock | _: ScCatchBlock =>
         new ChildAttributes(if (braceShifted) Indent.getNoneIndent
         else if (mySubBlocks != null && mySubBlocks.size >= newChildIndex &&

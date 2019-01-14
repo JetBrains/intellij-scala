@@ -615,7 +615,7 @@ object ScalaRefactoringUtil {
         builder.append("{...}")
       case _: ScDo =>
         builder.append("do {...} while (...)")
-      case f: ScForStatement =>
+      case f: ScFor =>
         builder.append("for (...) ")
         if (f.isYield) builder.append("yield ")
         builder.append("{...}")
@@ -1036,8 +1036,8 @@ object ScalaRefactoringUtil {
       if (parExpr.isInstanceOf[ScBlock]) return true
       val result: Boolean = nextParent match {
         case _: ScBlock => true
-        case forSt: ScForStatement if forSt.body.orNull == parExpr => false //in this case needBraces == true
-        case _: ScForStatement => true
+        case forSt: ScFor if forSt.body.orNull == parExpr => false //in this case needBraces == true
+        case _: ScFor => true
         case _ => false
       }
       result || needBraces(parExpr, nextParent)
@@ -1070,8 +1070,8 @@ object ScalaRefactoringUtil {
       case _: ScFunction => true
       case (_: ScFunction) && (_ childOf (_: ScTemplateBody | _: ScEarlyDefinitions)) => true
       case ifSt: ScIf if Seq(ifSt.thenExpression, ifSt.elseExpression) contains Option(parExpr) => true
-      case forSt: ScForStatement if forSt.body.orNull == parExpr => true
-      case _: ScForStatement => false
+      case forSt: ScFor if forSt.body.orNull == parExpr => true
+      case _: ScFor => false
       case _: ScForBinding | _: ScGenerator => false
       case guard: ScGuard if guard.getParent.isInstanceOf[ScEnumerators] => false
       case whSt: ScWhile if whSt.expression.orNull == parExpr => true

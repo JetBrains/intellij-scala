@@ -5,7 +5,7 @@ import com.intellij.lang.annotation.AnnotationHolder
 import com.intellij.psi.PsiElement
 import org.jetbrains.plugins.scala.extensions._
 import org.jetbrains.plugins.scala.lang.psi.ScalaPsiUtil.isScope
-import org.jetbrains.plugins.scala.lang.psi.api.expr.{ScBlockExpr, ScForStatement, ScGenerator}
+import org.jetbrains.plugins.scala.lang.psi.api.expr.{ScBlockExpr, ScFor, ScGenerator}
 import org.jetbrains.plugins.scala.lang.psi.api.statements._
 import org.jetbrains.plugins.scala.lang.psi.api.statements.params.{ScParameter, ScTypeParam}
 import org.jetbrains.plugins.scala.lang.psi.api.toplevel.templates.ScTemplateBody
@@ -47,7 +47,7 @@ trait ScopeAnnotator {
       }
     }
     element match {
-      case f: ScForStatement =>
+      case f: ScFor =>
         f.enumerators.foreach {
           case enumerator =>
             val elements = new ArrayBuffer[PsiElement]()

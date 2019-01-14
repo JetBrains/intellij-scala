@@ -85,7 +85,7 @@ private object ScalaRainbowVisitor {
 
     def unapply(element: PsiElement): Option[ScalaPsiElement] = element match {
       case clause: ScCaseClause => Some(clause)
-      case patterned: ScPatterned => Option(getContextOfType(patterned, classOf[ScForStatement]))
+      case patterned: ScPatterned => Option(getContextOfType(patterned, classOf[ScFor]))
       case _ =>
         Option(getContextOfType(element, false, classOf[ScFunction], classOf[ScFunctionExpr])).filterNot {
           case function: ScFunction => function.isSynthetic

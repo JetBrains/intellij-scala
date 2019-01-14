@@ -1510,7 +1510,7 @@ object ScalaEvaluatorBuilderUtil {
     def isGenerateAnonfunSimple: Boolean = {
       elem match {
         case _: ScFunctionExpr => true
-        case (_: ScExpression) childOf (_: ScForStatement) => true
+        case (_: ScExpression) childOf (_: ScFor) => true
         case (_: ScCaseClauses) childOf (b: ScBlockExpr) if b.isAnonymousFunction => true
         case (_: ScGuard) childOf (_: ScEnumerators) => true
         case (g: ScGenerator) childOf (enums: ScEnumerators) if !enums.generators.headOption.contains(g) => true
@@ -1524,7 +1524,7 @@ object ScalaEvaluatorBuilderUtil {
 
   def anonClassCount(elem: PsiElement): Int = { //todo: non irrefutable patterns?
     elem match {
-      case (_: ScExpression) childOf (f: ScForStatement) =>
+      case (_: ScExpression) childOf (f: ScFor) =>
         f.enumerators.fold(1)(e => e.generators.length)
       case (e: ScEnumerator) childOf (enums: ScEnumerators) =>
         enums.children.takeWhile(_ != e).count(_.isInstanceOf[ScGenerator])
@@ -1586,7 +1586,7 @@ object ScalaEvaluatorBuilderUtil {
     named match {
       case ScalaPsiUtil.inNameContext(enum @ (_: ScForBinding | _: ScGenerator)) =>
         enum.getParent.getParent match {
-          case ScForStatement(enums, body) =>
+          case ScFor(enums, body) =>
             enums.namings.map(_.pattern) match {
               case Seq(_: ScReferencePattern) => return false //can always evaluate from single simple generator
               case _ =>

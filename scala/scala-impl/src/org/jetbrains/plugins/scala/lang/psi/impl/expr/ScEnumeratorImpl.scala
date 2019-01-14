@@ -8,7 +8,7 @@ import org.jetbrains.plugins.scala.lang.psi.api.expr._
 
 trait ScEnumeratorImpl extends ScEnumerator {
 
-  override def forStatement: Option[ScForStatementImpl] = this.parentOfType(classOf[ScForStatementImpl])
+  override def forStatement: Option[ScForImpl] = this.parentOfType(classOf[ScForImpl])
 
   override def desugared: Option[ScEnumerator.DesugaredEnumerator] = forStatement flatMap {
     _.desugareEnumerator(this)

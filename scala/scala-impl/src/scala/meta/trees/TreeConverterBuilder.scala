@@ -129,7 +129,7 @@ trait TreeConverterBuilder {
 
       override def visitMatchStatement(ms: ScMatch) = super.visitMatchStatement(ms)
 
-      override def visitForExpression(expr: ScForStatement) = super.visitForExpression(expr)
+      override def visitForExpression(expr: ScFor) = super.visitForExpression(expr)
 
       override def visitDoStatement(stmt: ScDo) = super.visitDoStatement(stmt)
 

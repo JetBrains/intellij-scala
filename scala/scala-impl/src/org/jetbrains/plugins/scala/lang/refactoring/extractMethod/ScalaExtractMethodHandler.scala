@@ -282,7 +282,7 @@ class ScalaExtractMethodHandler extends ScalaRefactoringActionHandler {
           case ifStmt: ScIf =>
             if (ifStmt.thenExpression.contains(b)) local("if block")
             else "Extract local method in else block"
-          case forStmt: ScForStatement if forStmt.body.contains(b) => local("for statement")
+          case forStmt: ScFor if forStmt.body.contains(b) => local("for statement")
           case whileStmt: ScWhile if whileStmt.expression.contains(b) => local("while statement")
           case doSttm: ScDo if doSttm.body.contains(b) => local("do statement")
           case funExpr: ScFunctionExpr if funExpr.result.contains(b) => local("function expression")

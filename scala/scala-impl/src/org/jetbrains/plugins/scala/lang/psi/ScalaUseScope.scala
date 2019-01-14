@@ -62,7 +62,7 @@ object ScalaUseScope {
 
 
   private def localDefinitionScope(elem: PsiElement): Option[LocalSearchScope] =
-    elem.parentOfType(Seq(classOf[ScForStatement], classOf[ScBlock], classOf[ScMember]))
+    elem.parentOfType(Seq(classOf[ScFor], classOf[ScBlock], classOf[ScMember]))
       .map(safeLocalScope)
   
   private def safeLocalScope(elem: PsiElement): LocalSearchScope =

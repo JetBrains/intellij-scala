@@ -352,7 +352,7 @@ object ScalaPsiUtil {
         addConversions(fromUnderscore = false)
 
         expr match {
-          case f: ScForStatement =>
+          case f: ScFor =>
             f.desugared() match {
               case Some(e) => res = res ++ getExprImports(e)
               case _ =>
@@ -945,7 +945,7 @@ object ScalaPsiUtil {
 
   def isScope(element: PsiElement): Boolean = element match {
     case _: ScalaFile | _: ScBlock | _: ScTemplateBody | _: ScPackaging | _: ScParameters |
-         _: ScTypeParamClause | _: ScCaseClause | _: ScForStatement | _: ScExistentialClause |
+         _: ScTypeParamClause | _: ScCaseClause | _: ScFor | _: ScExistentialClause |
          _: ScEarlyDefinitions | _: ScRefinement => true
     case e: ScPatternDefinition if e.getContext.isInstanceOf[ScCaseClause] => true // {case a => val a = 1}
     case _ => false

@@ -849,9 +849,9 @@ object ScalaSpacingProcessor extends ScalaTokenTypes {
     }
     if (rightString.length > 0 && rightString(0) == ';') {
       if (settings.SPACE_BEFORE_SEMICOLON && !rightNode.getTreeParent.getPsi.isInstanceOf[ScalaFile] &&
-              rightNode.getPsi.getParent.getParent.isInstanceOf[ScForStatement]) return WITH_SPACING
+              rightNode.getPsi.getParent.getParent.isInstanceOf[ScFor]) return WITH_SPACING
       else if (!rightNode.getTreeParent.getPsi.isInstanceOf[ScalaFile] &&
-              rightNode.getPsi.getParent.getParent.isInstanceOf[ScForStatement]) return WITHOUT_SPACING
+              rightNode.getPsi.getParent.getParent.isInstanceOf[ScFor]) return WITHOUT_SPACING
     }
     if (leftString.length > 0 && leftString(leftString.length - 1) == '.') {
       return if (leftElementType == ScalaElementType.LITERAL) WITH_SPACING else WITHOUT_SPACING
@@ -866,9 +866,9 @@ object ScalaSpacingProcessor extends ScalaTokenTypes {
     }
     if (leftString.length > 0 && leftString(leftString.length - 1) == ';') {
       if (settings.SPACE_AFTER_SEMICOLON && !rightNode.getTreeParent.getPsi.isInstanceOf[ScalaFile] &&
-              rightNode.getPsi.getParent.getParent.isInstanceOf[ScForStatement]) return WITH_SPACING
+              rightNode.getPsi.getParent.getParent.isInstanceOf[ScFor]) return WITH_SPACING
       else if (!rightNode.getTreeParent.getPsi.isInstanceOf[ScalaFile] &&
-              rightNode.getPsi.getParent.getParent.isInstanceOf[ScForStatement]) return WITHOUT_SPACING
+              rightNode.getPsi.getParent.getParent.isInstanceOf[ScFor]) return WITHOUT_SPACING
     }
 
     if (leftNode.getElementType == ScalaTokenTypes.tSEMICOLON) {
@@ -972,7 +972,7 @@ object ScalaSpacingProcessor extends ScalaTokenTypes {
       if (rightNode.getElementType == ScalaTokenTypes.tRPARENTHESIS)
         return WITHOUT_SPACING
       leftNode.getTreeParent.getPsi match {
-        case _: ScForStatement if left.isLeaf =>
+        case _: ScFor if left.isLeaf =>
           if (settings.SPACE_WITHIN_FOR_PARENTHESES) return WITH_SPACING
           else return WITHOUT_SPACING
         case _: ScIf =>
@@ -1019,7 +1019,7 @@ object ScalaSpacingProcessor extends ScalaTokenTypes {
       if (leftNode.getElementType == ScalaTokenTypes.tLPARENTHESIS)
         return WITHOUT_SPACING
       rightNode.getTreeParent.getPsi match {
-        case _: ScForStatement =>
+        case _: ScFor =>
           if (settings.SPACE_WITHIN_FOR_PARENTHESES) return WITH_SPACING
           else return WITHOUT_SPACING
         case _: ScIf =>
@@ -1099,7 +1099,7 @@ object ScalaSpacingProcessor extends ScalaTokenTypes {
         case _: ScWhile =>
           if (settings.SPACE_BEFORE_WHILE_LBRACE) return WITH_SPACING
           else return WITHOUT_SPACING
-        case _: ScForStatement =>
+        case _: ScFor =>
           if (settings.SPACE_BEFORE_FOR_LBRACE && leftNode.getElementType != ScalaTokenTypes.kFOR) return WITH_SPACING
           else if (leftNode.getElementType == ScalaTokenTypes.kFOR) return WITHOUT_SPACING
           else return WITHOUT_SPACING

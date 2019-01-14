@@ -39,7 +39,7 @@ object ScalaWithMatchSurrounder extends ScalaExpressionSurrounder {
       case Array(_: ScDo |
                  _: ScIf |
                  _: ScTry |
-                 _: ScForStatement |
+                 _: ScFor |
                  _: ScWhile |
                  _: ScThrow |
                  _: ScReturn) => true

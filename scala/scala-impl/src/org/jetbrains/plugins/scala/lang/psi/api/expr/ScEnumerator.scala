@@ -4,7 +4,7 @@ import com.intellij.psi.PsiElement
 import org.jetbrains.plugins.scala.lang.psi.api.ScalaPsiElement
 
 trait ScEnumerator extends ScalaPsiElement {
-  def forStatement: Option[ScForStatement]
+  def forStatement: Option[ScFor]
 
   def desugared: Option[ScEnumerator.DesugaredEnumerator]
 

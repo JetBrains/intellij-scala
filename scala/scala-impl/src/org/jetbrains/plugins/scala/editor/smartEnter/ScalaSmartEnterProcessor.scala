@@ -95,7 +95,7 @@ class ScalaSmartEnterProcessor extends SmartEnterProcessor {
 
     parent match {
       case block: ScBlockExpr if block.exprs.headOption contains atCaret => atCaret = block
-      case forStmt: ScForStatement => atCaret = forStmt
+      case forStmt: ScFor => atCaret = forStmt
       case _ =>
     }
 
@@ -147,18 +147,18 @@ class ScalaSmartEnterProcessor extends SmartEnterProcessor {
 
     var statementAtCaret: PsiElement =
       PsiTreeUtil.getParentOfType(atCaret, classOf[ScPatternDefinition], classOf[ScIf], classOf[ScWhile],
-        classOf[ScForStatement], classOf[ScCatchBlock], classOf[ScMethodCall])
+        classOf[ScFor], classOf[ScCatchBlock], classOf[ScMethodCall])
 
     if (statementAtCaret.isInstanceOf[PsiBlockStatement]) return null
 
-    if (statementAtCaret != null && statementAtCaret.getParent.isInstanceOf[ScForStatement]) {
+    if (statementAtCaret != null && statementAtCaret.getParent.isInstanceOf[ScFor]) {
       if (!PsiTreeUtil.hasErrorElements(statementAtCaret)) {
         statementAtCaret = statementAtCaret.getParent
       }
     }
 
     statementAtCaret match {
-      case _: ScPatternDefinition | _: ScIf | _: ScWhile | _: ScForStatement | _: ScCatchBlock | _: ScMethodCall => statementAtCaret
+      case _: ScPatternDefinition | _: ScIf | _: ScWhile | _: ScFor | _: ScCatchBlock | _: ScMethodCall => statementAtCaret
       case _ => null
     }
   }

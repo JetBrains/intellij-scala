@@ -298,7 +298,7 @@ object IntroduceExpressions {
 
     editor.getCaretModel.moveToOffset(replacedOccurences(mainOccurence).getEndOffset)
 
-    def createForBindingIn(forStmt: ScForStatement): ScForBinding = {
+    def createForBindingIn(forStmt: ScFor): ScForBinding = {
       val parent: ScEnumerators = forStmt.enumerators.orNull
       val inParentheses = parent.prevSiblings.toList.exists(_.getNode.getElementType == ScalaTokenTypes.tLPARENTHESIS)
       val created = createForBinding(varName, expression, typeTextIfNeeded(parent))
@@ -384,17 +384,17 @@ object IntroduceExpressions {
     editor.getCaretModel.moveToOffset(startOffset + text.length)
   }
 
-  private[this] def isIntroduceEnumerator(parent: PsiElement, element: PsiElement, range: TextRange): Option[ScForStatement] = {
+  private[this] def isIntroduceEnumerator(parent: PsiElement, element: PsiElement, range: TextRange): Option[ScFor] = {
     val maybeParent = element match {
-      case statement: ScForStatement if statement.body.contains(parent) => None
-      case statement: ScForStatement => Some(statement)
+      case statement: ScFor if statement.body.contains(parent) => None
+      case statement: ScFor => Some(statement)
       case _: ScForBinding | _: ScGenerator => Option(element.getParent.getParent)
       case guard: ScGuard if guard.getParent.isInstanceOf[ScEnumerators] => Option(element.getParent.getParent)
       case _ => Some(parent)
     }
 
     maybeParent.collect {
-      case statement: ScForStatement => statement
+      case statement: ScFor => statement
     }.filter(_.enumerators.exists(isAfterFirstGenerator(_, range)))
   }
 

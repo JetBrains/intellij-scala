@@ -13,7 +13,7 @@ import org.jetbrains.plugins.scala.lang.psi.api.ScalaPsiElement
 import org.jetbrains.plugins.scala.lang.psi.api.base.patterns._
 import org.jetbrains.plugins.scala.lang.psi.api.expr._
 import org.jetbrains.plugins.scala.lang.psi.impl.ScalaCode._
-import org.jetbrains.plugins.scala.lang.psi.impl.expr.ScForStatementImpl._
+import org.jetbrains.plugins.scala.lang.psi.impl.expr.ScForImpl._
 import org.jetbrains.plugins.scala.lang.psi.types.ScType
 import org.jetbrains.plugins.scala.lang.psi.types.result._
 import org.jetbrains.plugins.scala.lang.resolve.StdKinds
@@ -27,7 +27,7 @@ import scala.collection.mutable
   * @author Alexander Podkhalyuzin
   *         Date: 06.03.2008
   */
-class ScForStatementImpl(node: ASTNode) extends ScExpressionImplBase(node) with ScForStatement {
+class ScForImpl(node: ASTNode) extends ScExpressionImplBase(node) with ScFor {
   def isYield: Boolean = findChildByType[PsiElement](ScalaTokenTypes.kYIELD) != null
 
   def enumerators: Option[ScEnumerators] = findChild(classOf[ScEnumerators])
@@ -434,7 +434,7 @@ class ScForStatementImpl(node: ASTNode) extends ScExpressionImplBase(node) with 
   }
 }
 
-object ScForStatementImpl {
+object ScForImpl {
   private def needsDeconstruction(pattern: ScPattern): Boolean = {
     pattern match {
       case null => false

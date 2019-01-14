@@ -7,7 +7,7 @@ import com.intellij.psi.{PsiElement, TokenType}
 import org.jetbrains.plugins.scala.extensions._
 import org.jetbrains.plugins.scala.lang.lexer.ScalaTokenTypes
 import org.jetbrains.plugins.scala.lang.psi.ScalaPsiUtil
-import org.jetbrains.plugins.scala.lang.psi.api.expr.ScForStatement
+import org.jetbrains.plugins.scala.lang.psi.api.expr.ScFor
 import org.jetbrains.plugins.scala.lang.psi.impl.ScalaPsiElementFactory
 import org.jetbrains.plugins.scala.util.IntentionAvailabilityChecker
 import ConvertToParenthesesIntention._
@@ -28,7 +28,7 @@ class ConvertToParenthesesIntention extends PsiElementBaseIntentionAction {
 
   def isAvailable(project: Project, editor: Editor, element: PsiElement): Boolean = {
     element match {
-      case e @ Parent(_: ScForStatement) =>
+      case e @ Parent(_: ScFor) =>
         List(ScalaTokenTypes.tLBRACE, ScalaTokenTypes.tRBRACE).contains(e.getNode.getElementType) && 
           IntentionAvailabilityChecker.checkIntention(this, element)
       case _ => false
@@ -36,7 +36,7 @@ class ConvertToParenthesesIntention extends PsiElementBaseIntentionAction {
   }
 
   override def invoke(project: Project, editor: Editor, element: PsiElement) {
-    val statement = element.getParent.asInstanceOf[ScForStatement]
+    val statement = element.getParent.asInstanceOf[ScFor]
     ScalaPsiUtil.replaceBracesWithParentheses(statement)
 
     val manager = statement.getManager
