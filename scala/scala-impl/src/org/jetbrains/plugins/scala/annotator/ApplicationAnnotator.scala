@@ -99,7 +99,7 @@ trait ApplicationAnnotator {
                   case PositionalAfterNamedArgument(argument) if inSameFile(argument, holder) =>
                     holder.createErrorAnnotation(argument, "Positional after named argument")
                   case ParameterSpecifiedMultipleTimes(assignment) if inSameFile(assignment, holder) =>
-                    holder.createErrorAnnotation(assignment.getLExpression, "Parameter specified multiple times")
+                    holder.createErrorAnnotation(assignment.leftExpression, "Parameter specified multiple times")
                   case WrongTypeParameterInferred => //todo: ?
                   case ExpectedTypeMismatch => //will be reported later
                   case ElementApplicabilityProblem(element, actual, expected) if inSameFile(element, holder) =>
@@ -196,7 +196,7 @@ trait ApplicationAnnotator {
       case PositionalAfterNamedArgument(argument) =>
         holder.createErrorAnnotation(argument, "Positional after named argument")
       case ParameterSpecifiedMultipleTimes(assignment) =>
-        holder.createErrorAnnotation(assignment.getLExpression, "Parameter specified multiple times")
+        holder.createErrorAnnotation(assignment.leftExpression, "Parameter specified multiple times")
       case ExpectedTypeMismatch => // it will be reported later
       case DefaultTypeParameterMismatch(_, _) => //it will be reported later
       case _ => holder.createErrorAnnotation(call.argsElement, "Not applicable")

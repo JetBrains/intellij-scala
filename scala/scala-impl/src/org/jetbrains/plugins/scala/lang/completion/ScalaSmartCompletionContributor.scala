@@ -60,8 +60,8 @@ final class ScalaSmartCompletionContributor extends ScalaCompletionContributor {
         val element = positionFromParameters(parameters)
 
         extractReference[ScAssignment](element).foreach { case (ref, assign) =>
-          if (assign.getRExpression.contains(ref)) {
-            assign.getLExpression match {
+          if (assign.rightExpression.contains(ref)) {
+            assign.leftExpression match {
               case _: ScMethodCall => //todo: it's update method
               case _: ScExpression =>
                 //we can expect that the type is same for left and right parts.

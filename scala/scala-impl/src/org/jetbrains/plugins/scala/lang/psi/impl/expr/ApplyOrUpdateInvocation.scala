@@ -123,7 +123,7 @@ object ApplyOrUpdateInvocation {
 
     val newValueForUpdate = call.getContext match {
       case assign: ScAssignment if call.isUpdateCall =>
-        val rightExpr = assign.getRExpression
+        val rightExpr = assign.rightExpression
           .getOrElse(createExpressionFromText("scala.Predef.???")) //we can't to not add something => add Nothing expression
         Seq(rightExpr)
       case _ =>

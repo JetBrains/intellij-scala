@@ -862,22 +862,22 @@ private[evaluation] trait ScalaEvaluatorBuilderUtil {
   def assignmentEvaluator(stmt: ScAssignment): Evaluator = {
     val message = ScalaBundle.message("assignent.without.expression")
     if (stmt.isNamedParameter) {
-      stmt.getRExpression match {
+      stmt.rightExpression match {
         case Some(expr) => evaluatorFor(expr)
         case _ => throw EvaluationException(message)
       }
     } else {
-      stmt.getLExpression match {
+      stmt.leftExpression match {
         case call: ScMethodCall =>
           val invokedText = call.getInvokedExpr.getText
-          val rExprText = stmt.getRExpression.fold("null")(_.getText)
+          val rExprText = stmt.rightExpression.fold("null")(_.getText)
           val args = (call.args.exprs.map(_.getText) :+ rExprText).mkString("(", ", ", ")")
           val exprText = s"($invokedText).update$args"
           val expr = createExpressionWithContextFromText(exprText, stmt.getContext, stmt)
           evaluatorFor(expr)
         case _ =>
-          val leftEvaluator = evaluatorFor(stmt.getLExpression)
-          val rightEvaluator = stmt.getRExpression match {
+          val leftEvaluator = evaluatorFor(stmt.leftExpression)
+          val rightEvaluator = stmt.rightExpression match {
             case Some(expr) => evaluatorFor(expr)
             case _ => throw EvaluationException(message)
           }

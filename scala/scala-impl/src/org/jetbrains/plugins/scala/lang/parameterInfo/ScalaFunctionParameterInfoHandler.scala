@@ -357,7 +357,7 @@ class ScalaFunctionParameterInfoHandler extends ParameterInfoHandlerWithTabActio
             isGrey = true
           } else {
             exprs(k) match {
-              case assign@NamedAssignStmt(name) =>
+              case assign@ScAssignment.Named(name) =>
                 val ind = parameters.indexWhere(param => ScalaNamesUtil.equivalent(param._1.name, name))
                 if (ind == -1 || used(ind)) {
                   doNoNamed(assign)
@@ -368,7 +368,7 @@ class ScalaFunctionParameterInfoHandler extends ParameterInfoHandlerWithTabActio
                   if (namedMode) buffer.append(namedPrefix)
                   buffer.append(param._2)
                   if (namedMode) buffer.append(namedPostfix)
-                  assign.getRExpression match {
+                  assign.rightExpression match {
                     case Some(expr: ScExpression) =>
                       for (exprType <- expr.`type`()) {
                         val paramType = subst(param._1.paramType)
@@ -387,7 +387,7 @@ class ScalaFunctionParameterInfoHandler extends ParameterInfoHandlerWithTabActio
             appendFirst()
           } else {
             exprs(k) match {
-              case NamedAssignStmt(name) =>
+              case ScAssignment.Named(name) =>
                 val ind = parameters.indexWhere(param => ScalaNamesUtil.equivalent(param._1.name, name))
                 if (ind == -1 || used(ind)) {
                   appendFirst()
@@ -519,7 +519,7 @@ class ScalaFunctionParameterInfoHandler extends ParameterInfoHandlerWithTabActio
         val res: ArrayBuffer[Object] = new ArrayBuffer[Object]
         def collectResult() {
           val canBeUpdate = call.getParent match {
-            case assignStmt: ScAssignment if call == assignStmt.getLExpression => true
+            case assignStmt: ScAssignment if call == assignStmt.leftExpression => true
             case notExpr if !notExpr.isInstanceOf[ScExpression] || notExpr.isInstanceOf[ScBlockExpr] => true
             case _ => false
           }

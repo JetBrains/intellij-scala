@@ -22,10 +22,10 @@ trait AssignmentAnnotator {
   def annotateAssignment(assignment: ScAssignment, holder: AnnotationHolder, advancedHighlighting: Boolean) {
     implicit val ctx: ProjectContext = assignment
 
-    val left = assignment.getLExpression
-    val right = assignment.getRExpression
+    val left = assignment.leftExpression
+    val right = assignment.rightExpression
 
-    assignment.getLExpression match {
+    assignment.leftExpression match {
       case _: ScMethodCall =>
       case ref: ScReferenceExpression =>
         ref.bind() match {

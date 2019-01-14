@@ -590,7 +590,7 @@ object MethodResolveProcessor {
     // filter to check for wrong parameter names
     if (argumentClauses.nonEmpty && filtered.nonEmpty) {
       argumentClauses.head.map(assignmemt => assignmemt.expr).
-        collect { case assignment: ScAssignment => assignment.assignName }.foreach { listOfNames =>
+        collect { case assignment: ScAssignment => assignment.referenceName }.foreach { listOfNames =>
         filtered = filtered.filter { r =>
           r.element match {
             case func: ScFunction if func.hasParameterClause =>

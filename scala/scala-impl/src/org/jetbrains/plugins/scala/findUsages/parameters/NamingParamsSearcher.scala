@@ -42,7 +42,7 @@ class NamingParamsSearcher extends QueryExecutor[PsiReference, ReferencesSearch.
                 case refElement: ScReferenceElement =>
                   inReadAction {
                     refElement.getParent match {
-                      case assign: ScAssignment if assign.getLExpression == refElement &&
+                      case assign: ScAssignment if assign.leftExpression == refElement &&
                         assign.getParent.isInstanceOf[ScArgumentExprList] =>
                         Option(refElement.resolve()) match {
                           case Some(`parameter`) => if (!consumer.process(ref)) return false

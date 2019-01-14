@@ -50,8 +50,8 @@ class ScAnnotationImpl private(stub: ScAnnotationStub, node: ASTNode)
   def findDeclaredAttributeValue(attributeName: String): PsiAnnotationMemberValue = {
     constructor.args match {
       case Some(args) => args.exprs.map {
-        case expr@(ass: ScAssignment) => ass.getLExpression match {
-          case ref: ScReferenceExpression if ref.refName == attributeName => ass.getRExpression match {
+        case expr@(ass: ScAssignment) => ass.leftExpression match {
+          case ref: ScReferenceExpression if ref.refName == attributeName => ass.rightExpression match {
             case Some(expr) => (true, expr)
             case _ => (false, expr)
           }

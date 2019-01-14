@@ -209,7 +209,7 @@ class ScalaInsertHandler extends InsertHandler[LookupElement] {
         val shouldAddEqualsSign = element.getParent match {
           case ref: ScReferenceExpression =>
             ref.getParent match {
-              case ass: ScAssignment if ass.getLExpression == ref =>
+              case ass: ScAssignment if ass.leftExpression == ref =>
                 ass.getParent match {
                   case _: ScArgumentExprList => false
                   case _ => true

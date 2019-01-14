@@ -14,22 +14,22 @@ import org.jetbrains.plugins.scala.lang.resolve.processor.DynamicResolveProcesso
   * @author Alexander Podkhalyuzin
   */
 trait ScAssignment extends ScExpression {
-  def getLExpression: ScExpression = findChildByClassScala(classOf[ScExpression])
+  def leftExpression: ScExpression = findChildByClassScala(classOf[ScExpression])
 
-  def getRExpression: Option[ScExpression] = findLastChild(classOf[ScExpression]) match {
-    case Some(expr: ScExpression) if expr != getLExpression => Some(expr)
+  def rightExpression: Option[ScExpression] = findLastChild(classOf[ScExpression]) match {
+    case Some(expr: ScExpression) if expr != leftExpression => Some(expr)
     case _ => None
   }
 
-  def assignName: Option[String] = {
-    getLExpression match {
+  def referenceName: Option[String] = {
+    leftExpression match {
       case ref: ScReferenceExpression if ref.qualifier.isEmpty => Some(ref.getText)
       case _ => None
     }
   }
 
   def isNamedParameter: Boolean = {
-    getLExpression match {
+    leftExpression match {
       case expr: ScReferenceExpression =>
         expr.bind() match {
           case Some(r) => r.isNamedParameter
@@ -54,7 +54,7 @@ trait ScAssignment extends ScExpression {
     * @return element to which equals sign should navigate
     */
   def assignNavigationElement: PsiElement = {
-    getLExpression match {
+    leftExpression match {
       case methodCall: ScMethodCall =>
         methodCall.applyOrUpdateElement match {
           case Some(r) => r.getActualElement
@@ -104,11 +104,11 @@ trait ScAssignment extends ScExpression {
   }
 }
 
-object NamedAssignStmt {
-  def unapply(st: ScAssignment): Option[String] = st.assignName
-}
-
 object ScAssignment {
   def unapply(st: ScAssignment): Option[(ScExpression, Option[ScExpression])] =
-    Some(st.getLExpression, st.getRExpression)
+    Some(st.leftExpression, st.rightExpression)
+
+  object Named {
+    def unapply(st: ScAssignment): Option[String] = st.referenceName
+  }
 }

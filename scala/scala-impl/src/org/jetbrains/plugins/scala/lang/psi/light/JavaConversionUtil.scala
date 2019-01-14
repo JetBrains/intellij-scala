@@ -73,8 +73,8 @@ object JavaConversionUtil {
     def problem = "CannotConvertExpression"
     e match {
       case a: ScAssignment =>
-        val res = a.getLExpression.getText + " = "
-        a.getRExpression match {
+        val res = a.leftExpression.getText + " = "
+        a.rightExpression match {
           case Some(expr) => res + convertExpression(expr)
           case _ => res
         }

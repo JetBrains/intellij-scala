@@ -591,7 +591,7 @@ abstract class ScalaAnnotator extends Annotator
         refElement match {
           case e: ScReferenceExpression =>
             e.getContext match {
-              case a: ScAssignment if a.getLExpression == e && a.isDynamicNamedAssignment => return
+              case a: ScAssignment if a.leftExpression == e && a.isDynamicNamedAssignment => return
               case _ =>
             }
           case _ =>
@@ -829,7 +829,7 @@ abstract class ScalaAnnotator extends Annotator
     }
 
     def shouldNotHighlight(expr: ScExpression): Boolean = expr.getContext match {
-      case a: ScAssignment if a.getRExpression.contains(expr) && a.isDynamicNamedAssignment => true
+      case a: ScAssignment if a.rightExpression.contains(expr) && a.isDynamicNamedAssignment => true
       case t: ScTypedExpression if t.isSequenceArg                                                => true
       case param: ScParameter if !param.isDefaultParam                                      => true //performance optimization
       case param: ScParameter                                                               =>

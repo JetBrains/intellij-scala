@@ -605,9 +605,9 @@ object ScalaRefactoringUtil {
     val builder = new StringBuilder
     expr match {
       case ass: ScAssignment =>
-        builder.append(getShortText(ass.getLExpression))
+        builder.append(getShortText(ass.leftExpression))
         builder.append(" = ")
-        ass.getRExpression match {
+        ass.rightExpression match {
           case Some(r) => builder.append(getShortText(r))
           case _ =>
         }

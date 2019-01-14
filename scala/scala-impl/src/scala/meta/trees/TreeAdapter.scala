@@ -348,7 +348,7 @@ trait TreeAdapter {
       case t: ScParenthesisedExpr =>
         t.innerElement.map(expression).getOrElse(unreachable)
       case t: ScAssignment =>
-        m.Term.Assign(expression(t.getLExpression).asInstanceOf[m.Term.Ref], expression(t.getRExpression.get))
+        m.Term.Assign(expression(t.leftExpression).asInstanceOf[m.Term.Ref], expression(t.rightExpression.get))
       case _: ScUnderscoreSection =>
         m.Term.Placeholder()
       case t: ScTypedExpression =>
@@ -363,7 +363,7 @@ trait TreeAdapter {
 
   def callArgs(e: ScExpression): m.Term.Arg = {
     e match {
-      case t: ScAssignment => m.Term.Arg.Named(toTermName(t.getLExpression), expression(t.getRExpression).get)
+      case t: ScAssignment => m.Term.Arg.Named(toTermName(t.leftExpression), expression(t.rightExpression).get)
       case _: ScUnderscoreSection => m.Term.Placeholder()
       case t: ScTypedExpression if t.isSequenceArg=> m.Term.Arg.Repeated(expression(t.expr))
       case other => expression(e)

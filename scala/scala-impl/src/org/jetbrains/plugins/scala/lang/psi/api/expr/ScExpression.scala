@@ -593,8 +593,8 @@ object ScExpression {
     }
 
     expression match {
-      case assign: ScAssignment if !ignoreAssign && assign.assignName.isDefined =>
-        shapeIgnoringAssign(assign.getRExpression)
+      case assign: ScAssignment if !ignoreAssign && assign.referenceName.isDefined =>
+        shapeIgnoringAssign(assign.rightExpression)
       case _ =>
         val arityAndResultType = Option(isAnonymousExpression(expression)).filter {
           case (-1, _) => false

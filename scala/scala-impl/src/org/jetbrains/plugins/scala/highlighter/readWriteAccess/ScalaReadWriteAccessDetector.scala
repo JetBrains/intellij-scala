@@ -49,7 +49,7 @@ private object ScalaReadWriteAccessDetector {
   //Now it's just inverse prev method
   def isAccessedForWriting(expression: ScExpression): Boolean = {
     expression.getParent match {
-      case assign : ScAssignment if expression == assign.getLExpression => true
+      case assign : ScAssignment if expression == assign.leftExpression => true
       case _ => false
     }
   }

@@ -219,7 +219,7 @@ class ScalaLanguageInjector(myInjectionConfiguration: Configuration) extends Mul
   }
 
   private def assignmentTarget(assignment: ScAssignment): Option[PsiAnnotationOwner with PsiElement] = {
-    val l = assignment.getLExpression
+    val l = assignment.leftExpression
     // map(x) = y check
     if (l.isInstanceOf[ScMethodCall]) None else l.asOptionOf[ScReferenceElement]
             .flatMap(_.resolve().toOption)

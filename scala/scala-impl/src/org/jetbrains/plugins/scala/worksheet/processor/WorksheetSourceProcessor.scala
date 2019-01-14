@@ -319,7 +319,7 @@ object WorksheetSourceProcessor {
     }
 
     protected def processAssign(assign: ScAssignment){
-      val pName = assign.getLExpression.getText
+      val pName = assign.leftExpression.getText
       val lineNums = psiToLineNumbers(assign)
       val defName = s"`get$$$$instance_$assignCount$$$$$pName`"
 

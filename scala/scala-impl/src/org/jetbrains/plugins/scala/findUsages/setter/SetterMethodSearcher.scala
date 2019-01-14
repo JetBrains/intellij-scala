@@ -55,7 +55,7 @@ class SetterMethodSearcher extends QueryExecutor[PsiReference, ReferencesSearch.
           elem match {
             case Parent(Parent(assign: ScAssignment)) => assign.resolveAssignment match {
               case Some(res) if res.element.getNavigationElement == element =>
-                Option(assign.getLExpression).foreach {
+                Option(assign.leftExpression).foreach {
                   case ref: ScReferenceElement => if (!consumer.process(ref)) return false
                 }
               case _ =>

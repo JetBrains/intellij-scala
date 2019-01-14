@@ -127,7 +127,7 @@ object Compatibility {
   }
 
   def clashedAssignmentsIn(exprs: Seq[Expression]): Seq[ScAssignment] = {
-    val pairs = for(Expression(assignment @ NamedAssignStmt(name)) <- exprs) yield (name, assignment)
+    val pairs = for(Expression(assignment @ ScAssignment.Named(name)) <- exprs) yield (name, assignment)
     val names = pairs.unzip._1
     val clashedNames = names.diff(names.distinct)
     pairs.filter(p => clashedNames.contains(p._1)).map(_._2)
@@ -148,8 +148,8 @@ object Compatibility {
     exprs.foldLeft(parameters) { (parameters, expression) =>
       if (expression.expr == null) parameters.tail
       else expression.expr match {
-        case a: ScAssignment if a.assignName.nonEmpty =>
-          parameters.find(_.name == a.assignName.get) match {
+        case a: ScAssignment if a.referenceName.nonEmpty =>
+          parameters.find(_.name == a.referenceName.get) match {
             case Some(parameter) =>
               parameters.filter(_ ne parameter)
             case None => parameters.tail
@@ -258,7 +258,7 @@ object Compatibility {
             case _ =>
               problems :::= doNoNamed(Expression(expr)).reverse
           }
-        case Expression(assign@NamedAssignStmt(name)) =>
+        case Expression(assign@ScAssignment.Named(name)) =>
           val index = parameters.indexWhere { p =>
             ScalaNamesUtil.equivalent(p.name, name) ||
               p.deprecatedName.exists(ScalaNamesUtil.equivalent(_, name))
@@ -266,7 +266,7 @@ object Compatibility {
           if (index == -1 || used(index)) {
             def extractExpression(assign: ScAssignment): ScExpression = {
               if (ScUnderScoreSectionUtil.isUnderscoreFunction(assign)) assign
-              else assign.getRExpression.getOrElse(assign)
+              else assign.rightExpression.getOrElse(assign)
             }
             problems :::= doNoNamed(Expression(extractExpression(assign))).reverse
           } else {
@@ -278,7 +278,7 @@ object Compatibility {
               namedMode = true
             }
 
-            assign.getRExpression match {
+            assign.rightExpression match {
               case rightExpression@Some(expr: ScExpression) =>
                 val maybeSeqType = rightExpression.collect {
                   case typedStmt: ScTypedExpression if typedStmt.isSequenceArg => typedStmt

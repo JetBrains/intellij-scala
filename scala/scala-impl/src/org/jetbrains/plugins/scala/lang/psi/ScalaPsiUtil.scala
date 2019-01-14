@@ -474,7 +474,7 @@ object ScalaPsiUtil {
 
   def isLValue(elem: PsiElement): Boolean = elem match {
     case e: ScExpression => e.getParent match {
-      case as: ScAssignment => as.getLExpression eq e
+      case as: ScAssignment => as.leftExpression eq e
       case _ => false
     }
     case _ => false
@@ -1193,7 +1193,7 @@ object ScalaPsiUtil {
   // This is a conservative approximation, we should really resolve the operation
   // to differentiate self assignment from calling a method whose name happens to be an assignment operator.
   def isPossiblyAssignment(elem: PsiElement): Boolean = elem.getContext match {
-    case assign: ScAssignment if assign.getLExpression == elem => true
+    case assign: ScAssignment if assign.leftExpression == elem => true
     case infix: ScInfixExpr if infix.isAssignmentOperator => true
     case ref1@ScReferenceExpression.withQualifier(`elem`) => ParserUtils.isAssignmentOperator(ref1.refName)
     case _ => false
@@ -1551,7 +1551,7 @@ object ScalaPsiUtil {
   }
 
   def isUnderscoreEq(assign: ScAssignment, actualType: ScType): Boolean = {
-    assign.getLExpression match {
+    assign.leftExpression match {
       case ref: ScReferenceExpression =>
         ref.bind().map(_.element).exists {
           case pat: ScBindingPattern =>

@@ -122,7 +122,7 @@ object ScalaUsageTypeProvider {
       case reference: ScSuperReference if existsAppropriate(reference.reference) => DELEGATE_TO_SUPER
       case _: ScAccessModifier => AccessModifier
       case packaging: ScPackaging if existsAppropriate(packaging.reference) => PackageClause
-      case assignment: ScAssignment if isAppropriate(assignment.getLExpression) =>
+      case assignment: ScAssignment if isAppropriate(assignment.leftExpression) =>
         if (assignment.isNamedParameter) NamedParameter else WRITE
       case MethodValue(_) => FunctionExpression
       case _: ScBlock | _: ScTemplateBody | _: ScEarlyDefinitions => READ

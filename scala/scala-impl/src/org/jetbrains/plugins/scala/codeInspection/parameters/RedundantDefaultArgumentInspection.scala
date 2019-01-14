@@ -44,7 +44,7 @@ object RedundantDefaultArgumentUtil {
     case expression: ScExpression if isAllArgumentsNamedAfterIndex(arguments, index) => expression match {
       case _: ScInterpolatedStringLiteral => false
       case literal: ScLiteral => parameters.isDefinedAt(index) && hasDefaultValue(parameters(index), literal)
-      case namedArg@ScAssignment(_, Some(value: ScLiteral)) if namedArg.isNamedParameter => namedArg.assignName match {
+      case namedArg@ScAssignment(_, Some(value: ScLiteral)) if namedArg.isNamedParameter => namedArg.referenceName match {
         case Some(argumentName: String) => parameters.exists(param => param.name == argumentName && hasDefaultValue(param, value))
         case _ => false
       }

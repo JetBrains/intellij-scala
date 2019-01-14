@@ -74,7 +74,7 @@ object IntentionUtils {
     else {
       val doIt = () => {
         argsAndMatchedParams.foreach {
-          case (_ childOf (a: ScAssignment), param) if a.getLExpression.getText == param.name =>
+          case (_ childOf (a: ScAssignment), param) if a.leftExpression.getText == param.name =>
           case (argExpr, param) =>
             if (!onlyBoolean || (onlyBoolean && param.paramType.isBoolean)) {
               inWriteAction {

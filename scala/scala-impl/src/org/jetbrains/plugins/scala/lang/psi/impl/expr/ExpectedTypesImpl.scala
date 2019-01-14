@@ -185,8 +185,8 @@ class ExpectedTypesImpl extends ExpectedTypes {
           case _ => Array.empty
         }
       //SLS[6.15]
-      case a: ScAssignment if a.getRExpression.getOrElse(null: ScExpression) == sameInContext =>
-        a.getLExpression match {
+      case a: ScAssignment if a.rightExpression.getOrElse(null: ScExpression) == sameInContext =>
+        a.leftExpression match {
           case ref: ScReferenceExpression if (!a.getContext.isInstanceOf[ScArgumentExprList] && !(
             a.getContext.isInstanceOf[ScInfixArgumentExpression] && a.getContext.asInstanceOf[ScInfixArgumentExpression].isCall)) ||
                   ref.qualifier.isDefined ||
@@ -444,7 +444,7 @@ class ExpectedTypesImpl extends ExpectedTypes {
   }
 
   private def paramTypeForNamed(assign: ScAssignment, params: Seq[Parameter]): Option[ParameterType] = {
-    val lE = assign.getLExpression
+    val lE = assign.leftExpression
     lE match {
       case ref: ScReferenceExpression if ref.qualifier.isEmpty =>
         params

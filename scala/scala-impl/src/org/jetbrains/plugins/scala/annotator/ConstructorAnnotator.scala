@@ -53,7 +53,7 @@ trait ConstructorAnnotator {
           case PositionalAfterNamedArgument(argument) =>
             holder.createErrorAnnotation(argument, "Positional after named argument")
           case ParameterSpecifiedMultipleTimes(assignment) =>
-            holder.createErrorAnnotation(assignment.getLExpression, "Parameter specified multiple times")
+            holder.createErrorAnnotation(assignment.leftExpression, "Parameter specified multiple times")
           case WrongTypeParameterInferred => //todo: ?
           case ExpectedTypeMismatch => //will be reported later
           case DefaultTypeParameterMismatch(expected, actual) => constructor.typeArgList match {

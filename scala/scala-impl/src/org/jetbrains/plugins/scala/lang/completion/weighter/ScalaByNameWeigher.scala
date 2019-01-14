@@ -61,7 +61,7 @@ class ScalaByNameWeigher extends CompletionWeigher {
           case patterDef: ScPatternDefinition =>
             patterDef.bindings.headOption.map(_.name)
           case assignement: ScAssignment =>
-            assignement.assignName
+            assignement.referenceName
           case _ => None
         }
 

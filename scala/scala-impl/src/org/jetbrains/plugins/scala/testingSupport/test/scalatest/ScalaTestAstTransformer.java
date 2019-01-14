@@ -115,9 +115,9 @@ public class ScalaTestAstTransformer {
 
     @Nullable
     protected String getNameFromAnnotAssign(@NotNull ScAssignment assignStmt) {
-        if (assignStmt.getLExpression() instanceof ScReferenceExpression &&
-                ((ScReferenceExpression) assignStmt.getLExpression()).refName().equals("value")) {
-            ScExpression expr = assignStmt.getRExpression().get();
+        if (assignStmt.leftExpression() instanceof ScReferenceExpression &&
+                ((ScReferenceExpression) assignStmt.leftExpression()).refName().equals("value")) {
+            ScExpression expr = assignStmt.rightExpression().get();
             if (expr != null) {
                 if (expr instanceof ScMethodCall) {
                     ScMethodCall methodCall = (ScMethodCall) expr;
