@@ -18,13 +18,6 @@ trait ScDo extends ScExpression {
     */
   def body: Option[ScExpression]
 
-  /**
-    * return does do statement has loop expression
-    *
-    * @return has loop expression
-    */
-  def hasExprBody: Boolean = body.isDefined
-
   override def accept(visitor: ScalaElementVisitor): Unit = {
     visitor.visitDoStatement(this)
   }

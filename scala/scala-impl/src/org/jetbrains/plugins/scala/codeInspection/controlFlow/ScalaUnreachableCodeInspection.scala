@@ -156,7 +156,7 @@ object ScalaUnreachableCodeInspection {
   ) {
     override protected def doApplyFix(doStatement: ScDo)
                                      (implicit project: Project): Unit =
-      if (doStatement.hasExprBody) {
+      if (doStatement.body.isDefined) {
         val unwrapContext = new ScalaUnwrapContext
         unwrapContext.setIsEffective(true)
         new ScalaWhileUnwrapper().doUnwrap(doStatement, unwrapContext)

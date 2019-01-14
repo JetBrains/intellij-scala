@@ -124,7 +124,7 @@ class ScalaBlock(val myParentBlock: ScalaBlock,
         else Indent.getNoneIndent, null)
       case _: ScIfStmt => new ChildAttributes(Indent.getNormalIndent(scalaSettings.ALIGN_IF_ELSE), this.getAlignment)
       case x: ScDo =>
-        if (x.hasExprBody)
+        if (x.body.isDefined)
           new ChildAttributes(Indent.getNoneIndent, null)
         else new ChildAttributes(if (mySettings.BRACE_STYLE == CommonCodeStyleSettings.NEXT_LINE_SHIFTED)
           Indent.getNoneIndent
