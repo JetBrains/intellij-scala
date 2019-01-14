@@ -76,7 +76,7 @@ class RemoveBracesIntention extends PsiElementBaseIntentionAction {
       case whileStmt: ScWhileStmt =>
         whileStmt.body.filter(isAncestorOfElement)
       case doStmt: ScDo =>
-        doStmt.getExprBody.filter(isAncestorOfElement)
+        doStmt.body.filter(isAncestorOfElement)
       case caseClause: ScCaseClause =>
         caseClause.expr match {
           case Some(x: ScBlockExpr) if isAncestorOfElement(x) =>

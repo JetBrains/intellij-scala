@@ -1075,7 +1075,7 @@ object ScalaRefactoringUtil {
       case _: ScForBinding | _: ScGenerator => false
       case guard: ScGuard if guard.getParent.isInstanceOf[ScEnumerators] => false
       case whSt: ScWhileStmt if whSt.body.orNull == parExpr => true
-      case doSt: ScDo if doSt.getExprBody.orNull == parExpr => true
+      case doSt: ScDo if doSt.body.orNull == parExpr => true
       case finBl: ScFinallyBlock if finBl.expression.orNull == parExpr => true
       case fE: ScFunctionExpr =>
         fE.getContext match {

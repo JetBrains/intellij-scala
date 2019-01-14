@@ -38,7 +38,7 @@ class ReplaceDoWhileWithWhileIntention extends PsiElementBaseIntentionAction {
     for {
       doStmt <- Option(PsiTreeUtil.getParentOfType(element, classOf[ScDo], false))
       condition <- doStmt.condition
-      body <- doStmt.getExprBody
+      body <- doStmt.body
     } {
       val offset = editor.getCaretModel.getOffset
       //offset is on the word "do" or "while"
@@ -55,7 +55,7 @@ class ReplaceDoWhileWithWhileIntention extends PsiElementBaseIntentionAction {
     //check for name conflicts
     for {
       doStmt <- Option(PsiTreeUtil.getParentOfType(element, classOf[ScDo]))
-      body <- doStmt.getExprBody
+      body <- doStmt.body
       doStmtParent <- doStmt.parent
     } {
       val nameConflict = (declaredNames(body) intersect declaredNames(doStmtParent)).nonEmpty
@@ -87,7 +87,7 @@ class ReplaceDoWhileWithWhileIntention extends PsiElementBaseIntentionAction {
       for {
         doStmt <- Option(PsiTreeUtil.getParentOfType(element, classOf[ScDo]))
         condition <- doStmt.condition
-        body <- doStmt.getExprBody
+        body <- doStmt.body
         doStmtParent <- doStmt.parent
       } {
         val bodyText = body.getText

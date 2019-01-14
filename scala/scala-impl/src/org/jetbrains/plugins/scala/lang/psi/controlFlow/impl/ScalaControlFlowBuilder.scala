@@ -185,7 +185,7 @@ class ScalaControlFlowBuilder(startInScope: ScalaPsiElement,
   override def visitDoStatement(stmt: ScDo) {
     startNode(Some(stmt)) {doStmtInstr =>
       checkPendingEdges(doStmtInstr)
-      stmt.getExprBody foreach { e =>
+      stmt.body foreach { e =>
         e.accept(this)
       }
       stmt.condition foreach { c =>

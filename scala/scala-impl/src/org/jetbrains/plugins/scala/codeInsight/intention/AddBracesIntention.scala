@@ -54,7 +54,7 @@ class AddBracesIntention extends PsiElementBaseIntentionAction {
       case whileStmt: ScWhileStmt =>
         whileStmt.body.filter(isAncestorOfElement)
       case doStmt: ScDo =>
-        doStmt.getExprBody.filter(isAncestorOfElement)
+        doStmt.body.filter(isAncestorOfElement)
       case _ => None
     }
     val oneLinerExpr: Option[ScExpression] = expr.filter {

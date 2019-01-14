@@ -302,7 +302,7 @@ trait TreeAdapter {
         m.Term.If(expression(t.condition.get),
             t.thenBranch.map(expression).getOrElse(unit), t.elseBranch.map(expression).getOrElse(unit))
       case t: ScDo =>
-        m.Term.Do(t.getExprBody.map(expression).getOrElse(m.Term.Placeholder()),
+        m.Term.Do(t.body.map(expression).getOrElse(m.Term.Placeholder()),
             t.condition.map(expression).getOrElse(m.Term.Placeholder()))
       case t: ScWhileStmt =>
         m.Term.While(t.condition.map(expression).getOrElse(throw new AbortException(Some(t), "Empty while condition")),

@@ -16,14 +16,14 @@ trait ScDo extends ScExpression {
     *
     * @return body of do statement
     */
-  def getExprBody: Option[ScExpression]
+  def body: Option[ScExpression]
 
   /**
     * return does do statement has loop expression
     *
     * @return has loop expression
     */
-  def hasExprBody: Boolean = getExprBody.isDefined
+  def hasExprBody: Boolean = body.isDefined
 
   override def accept(visitor: ScalaElementVisitor): Unit = {
     visitor.visitDoStatement(this)
@@ -32,5 +32,5 @@ trait ScDo extends ScExpression {
 
 object ScDo {
   def unapply(doStmt: ScDo): Option[(Option[ScExpression], Option[ScExpression])] =
-    Some(doStmt.getExprBody, doStmt.condition)
+    Some(doStmt.body, doStmt.condition)
 }
