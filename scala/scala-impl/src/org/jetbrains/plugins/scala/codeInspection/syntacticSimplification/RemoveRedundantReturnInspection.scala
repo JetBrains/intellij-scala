@@ -21,7 +21,7 @@ class RemoveRedundantReturnInspection extends AbstractInspection("Redundant Retu
       }.foreach {
           case r: ScReturn =>
             if (returns(r)) {
-              holder.registerProblem(r.returnKeyword, "Return keyword is redundant",
+              holder.registerProblem(r.keyword, "Return keyword is redundant",
                 ProblemHighlightType.GENERIC_ERROR_OR_WARNING, new RemoveReturnKeywordQuickFix(r))
             }
           case _ =>

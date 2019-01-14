@@ -93,7 +93,7 @@ trait FunctionAnnotator {
           case retStmt: ScReturn => retStmt.expr.flatMap(_.`type`().toOption).getOrElse(Any)
           case expr: ScExpression => expr.`type`().getOrAny
         }
-        val annotation = holder.createErrorAnnotation(usage.asInstanceOf[ScReturn].returnKeyword, message)
+        val annotation = holder.createErrorAnnotation(usage.asInstanceOf[ScReturn].keyword, message)
         annotation.registerFix(new AddReturnTypeFix(function, returnTypes.toSeq.lub()))
       }
 

@@ -15,7 +15,7 @@ import org.jetbrains.plugins.scala.lang.psi.api.statements.ScFunctionDefinition
 trait ScReturn extends ScExpression {
   def expr: Option[ScExpression] = findChild(classOf[ScExpression])
 
-  def returnKeyword: PsiElement
+  def keyword: PsiElement
 
   def returnFunction: Option[ScFunctionDefinition] =
     this.parentOfType(classOf[ScFunctionDefinition])
