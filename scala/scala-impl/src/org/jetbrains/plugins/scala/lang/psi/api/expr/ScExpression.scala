@@ -65,7 +65,7 @@ trait ScExpression extends ScBlockStatement
   override final def shouldChangeModificationCount(element: PsiElement): Boolean = getContext match {
     case f: ScFunction => f.returnTypeElement.isEmpty && f.hasAssign
     case v: ScValueOrVariable => v.typeElement.isEmpty
-    case _: ScWhileStmt |
+    case _: ScWhile |
          _: ScFinallyBlock |
          _: ScTemplateBody |
          _: ScDo => false

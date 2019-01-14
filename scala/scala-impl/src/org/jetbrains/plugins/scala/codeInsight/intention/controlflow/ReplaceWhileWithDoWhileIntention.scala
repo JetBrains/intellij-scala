@@ -7,7 +7,7 @@ import com.intellij.openapi.project.Project
 import com.intellij.psi.util.PsiTreeUtil
 import com.intellij.psi.{PsiDocumentManager, PsiElement}
 import org.jetbrains.plugins.scala.extensions._
-import org.jetbrains.plugins.scala.lang.psi.api.expr.ScWhileStmt
+import org.jetbrains.plugins.scala.lang.psi.api.expr.ScWhile
 import org.jetbrains.plugins.scala.lang.psi.impl.ScalaPsiElementFactory.createExpressionFromText
 
 /**
@@ -26,7 +26,7 @@ class ReplaceWhileWithDoWhileIntention extends PsiElementBaseIntentionAction {
 
   def isAvailable(project: Project, editor: Editor, element: PsiElement): Boolean = {
     for {
-      whileStmt <- Option(PsiTreeUtil.getParentOfType(element, classOf[ScWhileStmt], false))
+      whileStmt <- Option(PsiTreeUtil.getParentOfType(element, classOf[ScWhile], false))
       condition <- whileStmt.condition
       body <- whileStmt.body
     } {
@@ -39,7 +39,7 @@ class ReplaceWhileWithDoWhileIntention extends PsiElementBaseIntentionAction {
   }
 
   override def invoke(project: Project, editor: Editor, element: PsiElement) {
-    val whileStmt: ScWhileStmt = PsiTreeUtil.getParentOfType(element, classOf[ScWhileStmt])
+    val whileStmt: ScWhile = PsiTreeUtil.getParentOfType(element, classOf[ScWhile])
     if (whileStmt == null || !whileStmt.isValid) return
 
     for {

@@ -40,7 +40,7 @@ final class ScalaCastPostfixTemplate extends PostfixTemplateWithExpressionSelect
 
     template.addVariable("expr", new TextExpression(expression match {
       case _: ScSugarCallExpr | _: ScDo | _: ScIf | _: ScTry | _: ScForStatement
-           | _: ScWhileStmt | _: ScThrow | _: ScReturn => "(" + expression.getText + ")"
+           | _: ScWhile | _: ScThrow | _: ScReturn => "(" + expression.getText + ")"
       case _ => expression.getText
     }), false)
 

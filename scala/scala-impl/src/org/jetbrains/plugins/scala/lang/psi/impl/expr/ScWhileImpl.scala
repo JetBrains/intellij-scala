@@ -14,7 +14,7 @@ import org.jetbrains.plugins.scala.lang.psi.types.api
 /**
   * @author Alexander.Podkhalyuzin
   */
-class ScWhileStmtImpl(node: ASTNode) extends ScExpressionImplBase(node) with ScWhileStmt {
+class ScWhileImpl(node: ASTNode) extends ScExpressionImplBase(node) with ScWhile {
 
   protected override def innerType = Right(api.Unit)
 

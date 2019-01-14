@@ -103,7 +103,7 @@ class ScalaBlock(val myParentBlock: ScalaBlock,
         if (elem.getElementType != TokenType.WHITE_SPACE || !elem.getText.contains("\n")) i = 0
         val indent = i + (if (!braceShifted) 1 else 0)
         new ChildAttributes(Indent.getSpaceIndent(indent * indentSize), null)
-      case _: ScBlockExpr | _: ScEarlyDefinitions | _: ScTemplateBody | _: ScForStatement | _: ScWhileStmt |
+      case _: ScBlockExpr | _: ScEarlyDefinitions | _: ScTemplateBody | _: ScForStatement | _: ScWhile |
            _: ScTryBlock | _: ScCatchBlock =>
         new ChildAttributes(if (braceShifted) Indent.getNoneIndent
         else if (mySubBlocks != null && mySubBlocks.size >= newChildIndex &&

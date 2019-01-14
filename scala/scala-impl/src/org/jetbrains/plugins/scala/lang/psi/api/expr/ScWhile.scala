@@ -9,7 +9,7 @@ import com.intellij.psi.PsiElement
 /**
   * @author Alexander Podkhalyuzin
   */
-trait ScWhileStmt extends ScExpression {
+trait ScWhile extends ScExpression {
   def condition: Option[ScExpression]
 
   def body: Option[ScExpression]
@@ -23,7 +23,7 @@ trait ScWhileStmt extends ScExpression {
   }
 }
 
-object ScWhileStmt {
-  def unapply(statement: ScWhileStmt): Option[(Option[ScExpression], Option[ScExpression])] =
+object ScWhile {
+  def unapply(statement: ScWhile): Option[(Option[ScExpression], Option[ScExpression])] =
     Some((statement.condition, statement.body))
 }

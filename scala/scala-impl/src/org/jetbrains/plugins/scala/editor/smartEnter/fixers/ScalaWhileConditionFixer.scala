@@ -6,7 +6,7 @@ import com.intellij.psi._
 import com.intellij.psi.util.PsiTreeUtil
 import org.jetbrains.plugins.scala.editor.smartEnter.ScalaSmartEnterProcessor
 import org.jetbrains.plugins.scala.extensions.PsiElementExt
-import org.jetbrains.plugins.scala.lang.psi.api.expr.{ScBlockExpr, ScWhileStmt}
+import org.jetbrains.plugins.scala.lang.psi.api.expr.{ScBlockExpr, ScWhile}
 
 /**
  * @author Dmitry.Naydanov
@@ -16,7 +16,7 @@ import org.jetbrains.plugins.scala.lang.psi.api.expr.{ScBlockExpr, ScWhileStmt}
 @SuppressWarnings(Array("HardCodedStringLiteral"))
 class ScalaWhileConditionFixer extends ScalaFixer {
   def apply(editor: Editor, processor: ScalaSmartEnterProcessor, psiElement: PsiElement): OperationPerformed = {
-    val whileStatement = PsiTreeUtil.getParentOfType(psiElement, classOf[ScWhileStmt], false)
+    val whileStatement = PsiTreeUtil.getParentOfType(psiElement, classOf[ScWhile], false)
     if (whileStatement == null) return NoOperation
 
     val doc = editor.getDocument

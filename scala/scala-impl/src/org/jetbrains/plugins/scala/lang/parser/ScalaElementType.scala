@@ -255,7 +255,7 @@ object ScalaElementType {
     override def createElement(node: ASTNode) = new ScFinallyBlockImpl(node)
   }
   val WHILE_STMT = new ScalaElementType("while statement") {
-    override def createElement(node: ASTNode) = new ScWhileStmtImpl(node)
+    override def createElement(node: ASTNode) = new ScWhileImpl(node)
   }
   val RETURN_STMT = new ScalaElementType("return statement") {
     override def createElement(node: ASTNode) = new ScReturnImpl(node)

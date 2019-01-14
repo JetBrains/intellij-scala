@@ -123,7 +123,7 @@ trait TreeConverterBuilder {
 
       override def visitInfixExpression(infix: ScInfixExpr) = super.visitInfixExpression(infix)
 
-      override def visitWhileStatement(ws: ScWhileStmt) = super.visitWhileStatement(ws)
+      override def visitWhileStatement(ws: ScWhile) = super.visitWhileStatement(ws)
 
       override def visitReturnStatement(ret: ScReturn) = super.visitReturnStatement(ret)
 

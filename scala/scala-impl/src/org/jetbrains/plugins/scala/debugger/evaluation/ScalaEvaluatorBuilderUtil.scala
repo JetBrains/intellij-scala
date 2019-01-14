@@ -1091,7 +1091,7 @@ private[evaluation] trait ScalaEvaluatorBuilderUtil {
     }
   }
 
-  def whileStmtEvaluator(ws: ScWhileStmt): Evaluator = {
+  def whileStmtEvaluator(ws: ScWhile): Evaluator = {
     val condEvaluator = ws.condition match {
       case Some(cond) => evaluatorFor(cond)
       case None => throw EvaluationException(ScalaBundle.message("while.statement.without.condition"))

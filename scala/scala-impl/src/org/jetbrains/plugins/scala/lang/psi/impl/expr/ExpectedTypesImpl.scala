@@ -154,8 +154,8 @@ class ExpectedTypesImpl extends ExpectedTypes {
         case Some(e) if e == expr => tb.getContext.asInstanceOf[ScTry].expectedTypesEx(fromUnderscore = true)
         case _ => Array.empty
       }
-      case wh: ScWhileStmt if wh.condition.getOrElse(null: ScExpression) == sameInContext => Array((api.Boolean, None))
-      case _: ScWhileStmt => Array((Unit, None))
+      case wh: ScWhile if wh.condition.getOrElse(null: ScExpression) == sameInContext => Array((api.Boolean, None))
+      case _: ScWhile => Array((Unit, None))
       case d: ScDo if d.condition.getOrElse(null: ScExpression) == sameInContext => Array((api.Boolean, None))
       case _: ScDo => Array((api.Unit, None))
       case _: ScFinallyBlock => Array((api.Unit, None))

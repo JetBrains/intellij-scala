@@ -236,7 +236,7 @@ class ScalaControlFlowBuilder(startInScope: ScalaPsiElement,
     }
   }
 
-  override def visitWhileStatement(ws: ScWhileStmt) {
+  override def visitWhileStatement(ws: ScWhile) {
     startNode(Some(ws)) {instr =>
       checkPendingEdges(instr)
       // for breaks

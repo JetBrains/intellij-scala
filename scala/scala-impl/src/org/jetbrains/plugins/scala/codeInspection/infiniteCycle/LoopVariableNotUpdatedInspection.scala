@@ -17,7 +17,7 @@ class LoopVariableNotUpdatedInspection extends AbstractInspection("Loop variable
   private val ComparisonOperators = Set("==", "!=", ">", "<", ">=", "<=")
 
   override def actionFor(implicit holder: ProblemsHolder): PartialFunction[PsiElement, Unit] = {
-    case ScWhileStmt(
+    case ScWhile(
       Some(ScInfixExpr((ref: ScReferenceExpression) && (ResolvesTo(target@Parent(Parent(_: ScVariable)))), ElementText(operator), _)),
       Some(body)) if !ref.isQualified && ComparisonOperators.contains(operator) && !isMutatedWithing(body, target) =>
         holder.registerProblem(ref.asInstanceOf[PsiReference],

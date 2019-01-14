@@ -731,7 +731,7 @@ object ScalaRefactoringUtil {
           builder.append(" _")
         }
       case _: ScUnitExpr => builder.append("()")
-      case _: ScWhileStmt => builder.append("while (...) {...}")
+      case _: ScWhile => builder.append("while (...) {...}")
       case x: ScXmlExpr => builder.append(x.getText)
       case _ => builder.append(expr.getText)
     }
@@ -1074,7 +1074,7 @@ object ScalaRefactoringUtil {
       case _: ScForStatement => false
       case _: ScForBinding | _: ScGenerator => false
       case guard: ScGuard if guard.getParent.isInstanceOf[ScEnumerators] => false
-      case whSt: ScWhileStmt if whSt.body.orNull == parExpr => true
+      case whSt: ScWhile if whSt.body.orNull == parExpr => true
       case doSt: ScDo if doSt.body.orNull == parExpr => true
       case finBl: ScFinallyBlock if finBl.expression.orNull == parExpr => true
       case fE: ScFunctionExpr =>

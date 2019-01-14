@@ -116,7 +116,7 @@ private[evaluation] class ScalaEvaluatorBuilder(val codeFragment: ScalaCodeFragm
           case p: ScPrefixExpr => prefixExprEvaluator(p)
           case p: ScPostfixExpr => postfixExprEvaluator(p)
           case stmt: ScIf => ifStmtEvaluator(stmt)
-          case ws: ScWhileStmt => whileStmtEvaluator(ws)
+          case ws: ScWhile => whileStmtEvaluator(ws)
           case doSt: ScDo => doStmtEvaluator(doSt)
           case block: ScBlock => blockExprEvaluator(block)
           case call: ScGenericCall => methodCallEvaluator(call, Nil, Map.empty)
