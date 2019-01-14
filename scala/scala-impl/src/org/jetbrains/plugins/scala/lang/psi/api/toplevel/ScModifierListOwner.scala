@@ -8,8 +8,7 @@ import com.intellij.psi._
 import org.jetbrains.plugins.scala.extensions.{StubBasedExt, ToNullSafe}
 import org.jetbrains.plugins.scala.lang.parser.ScalaElementType
 import org.jetbrains.plugins.scala.lang.psi.adapters.PsiModifierListOwnerAdapter
-import org.jetbrains.plugins.scala.lang.psi.api.base._
-import org.jetbrains.plugins.scala.lang.psi.api.statements.ScAnnotationsHolder
+import org.jetbrains.plugins.scala.lang.psi.api.base.{ScAnnotationsHolder, _}
 import org.jetbrains.plugins.scala.lang.psi.impl.ScalaPsiElementFactory
 import org.jetbrains.plugins.scala.macroAnnotations.{Cached, ModCount}
 

@@ -5,8 +5,8 @@ import com.intellij.openapi.project.Project
 import com.intellij.psi.PsiElement
 import org.jetbrains.plugin.scala.util.MacroExpansion
 import org.jetbrains.plugins.scala.extensions
-import org.jetbrains.plugins.scala.lang.psi.api.expr.{ScAnnotation, ScGenericCall, ScMethodCall}
-import org.jetbrains.plugins.scala.lang.psi.api.statements.ScAnnotationsHolder
+import org.jetbrains.plugins.scala.lang.psi.api.base.{ScAnnotation, ScAnnotationsHolder}
+import org.jetbrains.plugins.scala.lang.psi.api.expr.{ScGenericCall, ScMethodCall}
 import org.jetbrains.plugins.scala.lang.psi.impl.ScalaPsiElementFactory
 
 import scala.annotation.tailrec

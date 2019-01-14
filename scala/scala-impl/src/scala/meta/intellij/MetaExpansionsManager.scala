@@ -14,9 +14,8 @@ import com.intellij.openapi.roots.{ModuleRootManager, OrderEnumerator}
 import com.intellij.openapi.vfs.VirtualFile
 import org.jetbrains.plugins.scala.extensions
 import org.jetbrains.plugins.scala.extensions.PsiElementExt
+import org.jetbrains.plugins.scala.lang.psi.api.base.{ScAnnotation, ScAnnotationsHolder}
 import org.jetbrains.plugins.scala.lang.psi.api.base.types.ScParameterizedTypeElement
-import org.jetbrains.plugins.scala.lang.psi.api.expr.ScAnnotation
-import org.jetbrains.plugins.scala.lang.psi.api.statements.ScAnnotationsHolder
 import org.jetbrains.plugins.scala.lang.psi.api.toplevel.typedef.{ScClass, ScTypeDefinition}
 import org.jetbrains.plugins.scala.macroAnnotations.{CachedInUserData, ModCount}
 import org.jetbrains.plugins.scala.project.ScalaLanguageLevel.Scala_2_12

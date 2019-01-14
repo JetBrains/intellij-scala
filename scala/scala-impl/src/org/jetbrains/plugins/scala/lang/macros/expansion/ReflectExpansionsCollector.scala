@@ -11,11 +11,11 @@ import com.intellij.psi.{PsiElement, PsiManager}
 import com.intellij.psi.util.PsiTreeUtil
 import org.jetbrains.plugin.scala.util.{MacroExpansion, Place}
 import org.jetbrains.plugins.scala.extensions
-import org.jetbrains.plugins.scala.lang.psi.api.expr.ScAnnotation
 
 import scala.collection.mutable
 import org.jetbrains.plugins.scala
 import org.jetbrains.plugins.scala.extensions.invokeLater
+import org.jetbrains.plugins.scala.lang.psi.api.base.ScAnnotation
 
 /**
   * @author Mikhail Mutcianko

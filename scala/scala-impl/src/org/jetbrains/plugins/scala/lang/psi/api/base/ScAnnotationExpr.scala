@@ -1,15 +1,12 @@
-package org.jetbrains.plugins.scala
-package lang
-package psi
-package api
-package expr
+package org.jetbrains.plugins.scala.lang.psi.api.base
 
 import com.intellij.psi.{PsiAnnotationMemberValue, PsiElement}
 import org.jetbrains.plugins.scala.lang.parser.ScalaElementType
-import org.jetbrains.plugins.scala.lang.psi.api.base.ScConstructor
+import org.jetbrains.plugins.scala.lang.psi.api.ScalaPsiElement
+import org.jetbrains.plugins.scala.lang.psi.api.expr.{ScArgumentExprList, ScAssignStmt, ScExpression, ScNameValuePair}
 import org.jetbrains.plugins.scala.lang.psi.impl.expr.ScNameValuePairImpl
 
-/** 
+/**
 * @author Alexander Podkhalyuzin
 * Date: 07.03.2008
 */
@@ -20,7 +17,7 @@ trait ScAnnotationExpr extends ScalaPsiElement {
   def getAttributes: Seq[ScNameValuePair] = findArgExprs.map(_.findChildrenByType(ScalaElementType.ASSIGN_STMT)).getOrElse(Seq.empty).map {
     case stmt: ScAssignStmt => new ScNameValueAssignment(stmt)
   }
-  
+
   def getAnnotationParameters: Seq[ScExpression] = findArgExprs.map(_.exprs).getOrElse(Seq.empty)
 
   private def findArgExprs: Option[ScArgumentExprList] = {
@@ -33,7 +30,7 @@ trait ScAnnotationExpr extends ScalaPsiElement {
       case _ => None
     }
   }
-  
+
   private class ScNameValueAssignment(assign: ScAssignStmt) extends ScNameValuePairImpl(assign.getNode) {
     override def nameId: PsiElement = assign.getLExpression
 

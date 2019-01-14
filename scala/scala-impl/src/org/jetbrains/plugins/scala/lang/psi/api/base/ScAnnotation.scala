@@ -1,11 +1,7 @@
-package org.jetbrains.plugins.scala
-package lang
-package psi
-package api
-package expr
+package org.jetbrains.plugins.scala.lang.psi.api.base
 
 import com.intellij.psi.PsiAnnotation
-import org.jetbrains.plugins.scala.lang.psi.api.base.ScConstructor
+import org.jetbrains.plugins.scala.lang.psi.api.ScalaPsiElement
 import org.jetbrains.plugins.scala.lang.psi.api.base.types.ScTypeElement
 
 /**

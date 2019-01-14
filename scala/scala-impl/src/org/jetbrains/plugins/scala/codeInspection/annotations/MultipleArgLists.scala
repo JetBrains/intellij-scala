@@ -3,7 +3,7 @@ package org.jetbrains.plugins.scala.codeInspection.annotations
 import com.intellij.codeInspection.ProblemsHolder
 import com.intellij.psi.PsiElement
 import org.jetbrains.plugins.scala.codeInspection.AbstractInspection
-import org.jetbrains.plugins.scala.lang.psi.api.expr.ScAnnotation
+import org.jetbrains.plugins.scala.lang.psi.api.base.ScAnnotation
 
 /**
  * User: Dmitry.Naydanov

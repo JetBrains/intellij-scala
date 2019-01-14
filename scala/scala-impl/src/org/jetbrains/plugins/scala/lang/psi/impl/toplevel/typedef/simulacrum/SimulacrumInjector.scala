@@ -2,8 +2,8 @@ package org.jetbrains.plugins.scala.lang.psi.impl.toplevel.typedef.simulacrum
 
 import org.jetbrains.plugins.scala.extensions._
 import org.jetbrains.plugins.scala.lang.psi.ScalaPsiUtil
-import org.jetbrains.plugins.scala.lang.psi.api.base.{ScBooleanLiteral, ScStringLiteral}
-import org.jetbrains.plugins.scala.lang.psi.api.expr.{ScAnnotation, ScArgumentExprList, ScAssignStmt}
+import org.jetbrains.plugins.scala.lang.psi.api.base.{ScAnnotation, ScBooleanLiteral, ScStringLiteral}
+import org.jetbrains.plugins.scala.lang.psi.api.expr.{ScArgumentExprList, ScAssignStmt}
 import org.jetbrains.plugins.scala.lang.psi.api.statements.ScFunction
 import org.jetbrains.plugins.scala.lang.psi.api.statements.params.{ScParameter, ScParameterClause, ScTypeParam}
 import org.jetbrains.plugins.scala.lang.psi.api.toplevel.typedef.{ScObject, ScTypeDefinition}

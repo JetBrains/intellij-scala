@@ -1,16 +1,11 @@
-package org.jetbrains.plugins.scala
-package lang
-package psi
-package api
-package expr
+package org.jetbrains.plugins.scala.lang.psi.api.base
 
-import _root_.org.jetbrains.plugins.scala.lang.resolve.ScalaResolveResult
 import com.intellij.psi._
 import com.intellij.psi.search.GlobalSearchScope
-import org.jetbrains.plugins.scala.extensions._
+import org.jetbrains.plugins.scala.lang.psi.api.ScalaPsiElement
 import org.jetbrains.plugins.scala.lang.psi.api.base.types.ScSimpleTypeElement
-import org.jetbrains.plugins.scala.lang.psi.types.ScTypeExt
 import org.jetbrains.plugins.scala.lang.psi.types.api.ParameterizedType
+import org.jetbrains.plugins.scala.extensions._
 
 /**
  * @author Alexander Podkhalyuzin

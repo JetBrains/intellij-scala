@@ -3,7 +3,7 @@ package stubs
 package index
 
 import com.intellij.psi.stubs.StubIndexKey
-import org.jetbrains.plugins.scala.lang.psi.api.expr.ScAnnotation
+import org.jetbrains.plugins.scala.lang.psi.api.base.ScAnnotation
 
 /**
   * @author ilyas

@@ -4,7 +4,7 @@ package psi
 package stubs
 
 import com.intellij.psi.stubs.StubElement
-import org.jetbrains.plugins.scala.lang.psi.api.expr.ScAnnotation
+import org.jetbrains.plugins.scala.lang.psi.api.base.ScAnnotation
 import org.jetbrains.plugins.scala.lang.psi.stubs.impl.ScTypeElementOwnerStub
 
 /**

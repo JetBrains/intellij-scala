@@ -13,6 +13,8 @@ import com.intellij.psi.util.PsiTreeUtil;
 import com.intellij.util.Processor;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
+import org.jetbrains.plugins.scala.lang.psi.api.base.ScAnnotation;
+import org.jetbrains.plugins.scala.lang.psi.api.base.ScAnnotationExpr;
 import org.jetbrains.plugins.scala.lang.psi.api.base.ScConstructor;
 import org.jetbrains.plugins.scala.lang.psi.api.base.ScLiteral;
 import org.jetbrains.plugins.scala.lang.psi.api.base.patterns.ScBindingPattern;

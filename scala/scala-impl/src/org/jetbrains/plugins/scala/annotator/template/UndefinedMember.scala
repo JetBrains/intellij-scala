@@ -3,8 +3,9 @@ package annotator
 package template
 
 import com.intellij.lang.annotation.AnnotationHolder
+import org.jetbrains.plugins.scala.lang.psi.api.base.ScAnnotationsHolder
 import org.jetbrains.plugins.scala.lang.psi.api.expr.ScNewTemplateDefinition
-import org.jetbrains.plugins.scala.lang.psi.api.statements.{ScAnnotationsHolder, ScDeclaration, ScTypeAliasDeclaration}
+import org.jetbrains.plugins.scala.lang.psi.api.statements.{ScDeclaration, ScTypeAliasDeclaration}
 import org.jetbrains.plugins.scala.lang.psi.api.toplevel.typedef.{ScObject, ScTemplateDefinition}
 
 /**

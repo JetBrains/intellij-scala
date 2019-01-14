@@ -10,8 +10,8 @@ import com.intellij.psi.stubs.{IndexSink, StubIndex, StubIndexKey}
 import com.intellij.psi.{PsiClass, PsiElement}
 import com.intellij.util.CommonProcessors
 import org.jetbrains.plugins.scala.finder.ScalaFilterScope
+import org.jetbrains.plugins.scala.lang.psi.api.base.ScAnnotation
 import org.jetbrains.plugins.scala.lang.psi.api.base.types.ScSelfTypeElement
-import org.jetbrains.plugins.scala.lang.psi.api.expr.ScAnnotation
 import org.jetbrains.plugins.scala.lang.psi.api.statements._
 import org.jetbrains.plugins.scala.lang.psi.api.statements.params.ScClassParameter
 import org.jetbrains.plugins.scala.lang.psi.api.toplevel.ScPackaging

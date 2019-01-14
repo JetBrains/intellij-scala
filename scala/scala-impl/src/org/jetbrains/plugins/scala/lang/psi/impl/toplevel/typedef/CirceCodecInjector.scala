@@ -1,7 +1,8 @@
 package org.jetbrains.plugins.scala.lang.psi.impl.toplevel.typedef
 
+import org.jetbrains.plugins.scala.lang.psi.api.base.ScAnnotation
+
 import scala.util.Random
-import org.jetbrains.plugins.scala.lang.psi.api.expr.ScAnnotation
 import org.jetbrains.plugins.scala.lang.psi.api.statements.params.ScTypeParam
 import org.jetbrains.plugins.scala.lang.psi.api.toplevel.typedef._
 import org.jetbrains.plugins.scala.lang.psi.types.ScalaTypePresentation

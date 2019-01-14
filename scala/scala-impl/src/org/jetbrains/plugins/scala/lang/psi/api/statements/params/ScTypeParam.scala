@@ -6,6 +6,7 @@ package statements
 package params
 
 import org.jetbrains.plugins.scala.lang.psi.adapters.PsiTypeParameterAdapter
+import org.jetbrains.plugins.scala.lang.psi.api.base.ScAnnotationsHolder
 import org.jetbrains.plugins.scala.lang.psi.api.toplevel.{ScPolymorphicElement, ScTypeParametersOwner}
 import org.jetbrains.plugins.scala.lang.psi.types.api._
 

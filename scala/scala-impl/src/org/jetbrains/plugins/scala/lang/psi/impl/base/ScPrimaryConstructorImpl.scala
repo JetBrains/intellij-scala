@@ -14,8 +14,7 @@ import com.intellij.psi.util.MethodSignatureBackedByPsiMethod
 import javax.swing.Icon
 import org.jetbrains.plugins.scala.icons.Icons
 import org.jetbrains.plugins.scala.lang.parser.ScalaElementType
-import org.jetbrains.plugins.scala.lang.psi.api.base._
-import org.jetbrains.plugins.scala.lang.psi.api.expr.ScAnnotations
+import org.jetbrains.plugins.scala.lang.psi.api.base.{ScAnnotations, _}
 import org.jetbrains.plugins.scala.lang.psi.api.statements.params._
 import org.jetbrains.plugins.scala.lang.psi.api.toplevel.typedef._
 import org.jetbrains.plugins.scala.lang.psi.stubs.ScPrimaryConstructorStub

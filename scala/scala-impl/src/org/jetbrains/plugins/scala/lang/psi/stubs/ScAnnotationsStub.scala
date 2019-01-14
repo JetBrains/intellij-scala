@@ -4,7 +4,7 @@ package psi
 package stubs
 
 import com.intellij.psi.stubs.StubElement
-import org.jetbrains.plugins.scala.lang.psi.api.expr.ScAnnotations
+import org.jetbrains.plugins.scala.lang.psi.api.base.ScAnnotations
 
 /**
   * User: Alexander Podkhalyuzin

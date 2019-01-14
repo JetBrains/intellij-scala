@@ -7,7 +7,7 @@ package elements
 import com.intellij.lang.ASTNode
 import com.intellij.psi.PsiElement
 import com.intellij.psi.stubs.{StubElement, StubInputStream}
-import org.jetbrains.plugins.scala.lang.psi.api.expr.ScAnnotations
+import org.jetbrains.plugins.scala.lang.psi.api.base.ScAnnotations
 import org.jetbrains.plugins.scala.lang.psi.impl.expr.ScAnnotationsImpl
 import org.jetbrains.plugins.scala.lang.psi.stubs.impl.ScAnnotationsStubImpl
 

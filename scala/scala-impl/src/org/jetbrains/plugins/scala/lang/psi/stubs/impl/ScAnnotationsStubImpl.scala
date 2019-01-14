@@ -6,7 +6,7 @@ package impl
 
 import com.intellij.psi.PsiElement
 import com.intellij.psi.stubs.{IStubElementType, StubBase, StubElement}
-import org.jetbrains.plugins.scala.lang.psi.api.expr.ScAnnotations
+import org.jetbrains.plugins.scala.lang.psi.api.base.ScAnnotations
 
 /**
   * User: Alexander Podkhalyuzin

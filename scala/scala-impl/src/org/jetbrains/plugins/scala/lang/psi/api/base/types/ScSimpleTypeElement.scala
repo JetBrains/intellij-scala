@@ -6,7 +6,7 @@ package base
 package types
 
 import org.jetbrains.plugins.scala.lang.lexer.ScalaTokenTypes
-import org.jetbrains.plugins.scala.lang.psi.api.expr.ScAnnotationExpr
+import org.jetbrains.plugins.scala.lang.psi.api.base.ScAnnotationExpr
 import org.jetbrains.plugins.scala.lang.resolve.ScalaResolveResult
 
 /**

@@ -5,8 +5,9 @@ import java.util.concurrent.ConcurrentMap
 import com.intellij.psi.PsiMethod
 import com.intellij.util.containers.ContainerUtil
 import org.jetbrains.plugins.scala.extensions.{ConcurrentMapExt, ObjectExt}
+import org.jetbrains.plugins.scala.lang.psi.api.base.ScAnnotationsHolder
 import org.jetbrains.plugins.scala.lang.psi.api.statements.params.ScClassParameter
-import org.jetbrains.plugins.scala.lang.psi.api.statements.{ScAnnotationsHolder, ScValueOrVariable}
+import org.jetbrains.plugins.scala.lang.psi.api.statements.ScValueOrVariable
 import org.jetbrains.plugins.scala.lang.psi.api.toplevel.ScTypedDefinition
 import org.jetbrains.plugins.scala.lang.psi.api.toplevel.typedef.ScMember
 import org.jetbrains.plugins.scala.lang.psi.fake.FakePsiMethod.{getter, setter}

@@ -1,7 +1,7 @@
 package scala.meta.intellij
 
 import com.intellij.openapi.project.Project
-import org.jetbrains.plugins.scala.lang.psi.api.expr.ScAnnotation
+import org.jetbrains.plugins.scala.lang.psi.api.base.ScAnnotation
 
 import scala.meta.trees.TreeConverter
 
