@@ -409,11 +409,12 @@
         <annotationSupport language="Scala" implementationClass="org.jetbrains.plugins.scala.lang.psi.ScalaAnnotationSupport"/>
         <!--<classNameInsertHandler implementationClass="org.jetbrains.plugins.scala.lang.completion.ScalaClassNameInsertHandler" language="Scala"/>-->
 
-        <gotoClassContributor implementation="org.jetbrains.plugins.scala.gotoclass.ScalaGoToClassContributor"/>
+        <gotoClassContributor implementation="org.jetbrains.plugins.scala.gotoclass.ScalaGoToClassContributor"
+                              order="first"/>
         <gotoSymbolContributor implementation="org.jetbrains.plugins.scala.gotoclass.ScalaGoToSymbolContributor"/>
         <lang.importOptimizer language="Scala" implementationClass="org.jetbrains.plugins.scala.editor.importOptimizer.ScalaImportOptimizer"/>
-      <lang.namesValidator language="Scala"
-                           implementationClass="org.jetbrains.plugins.scala.lang.refactoring.ScalaNamesValidator"/>
+        <lang.namesValidator language="Scala"
+                             implementationClass="org.jetbrains.plugins.scala.lang.refactoring.ScalaNamesValidator"/>
         <editorNotificationProvider implementation="org.jetbrains.plugins.scala.project.notification.source.ScalaAttachSourcesNotificationProvider"/>
         <editorFileSwapper implementation="org.jetbrains.plugins.scala.project.notification.source.ScalaEditorFileSwapper"/>
         <projectStructureDetector implementation="org.jetbrains.plugins.scala.project.notification.source.ScalaSourceRootFinder"/>

@@ -1,10 +1,11 @@
 package org.jetbrains.plugins.scala
 package gotoclass
 
-import com.intellij.navigation.{ChooseByNameContributor, NavigationItem}
+import com.intellij.navigation.{GotoClassContributor, NavigationItem}
 import com.intellij.openapi.project.Project
 import com.intellij.psi.PsiClass
 import com.intellij.psi.search.GlobalSearchScope
+import org.jetbrains.plugins.scala.lang.psi.api.toplevel.typedef.ScTypeDefinition
 import org.jetbrains.plugins.scala.lang.psi.stubs.index.ScalaIndexKeys
 import org.jetbrains.plugins.scala.lang.refactoring.util.ScalaNamesUtil
 
@@ -12,7 +13,7 @@ import org.jetbrains.plugins.scala.lang.refactoring.util.ScalaNamesUtil
  * Nikolay.Tropin
  * 12/19/13
  */
-class ScalaGoToClassContributor extends ChooseByNameContributor {
+class ScalaGoToClassContributor extends GotoClassContributor {
 
   import ScalaIndexKeys._
 
@@ -31,4 +32,11 @@ class ScalaGoToClassContributor extends ChooseByNameContributor {
     val packageObjects = PACKAGE_OBJECT_SHORT_NAME_KEY.elements(cleanName, scope, classOf[PsiClass])
     (classes ++ packageObjects).toArray
   }
+
+  def getQualifiedName(item: NavigationItem): String = item match {
+    case t: ScTypeDefinition => t.qualifiedName
+    case _ => null
+  }
+
+  def getQualifiedNameSeparator: String = "."
 }
