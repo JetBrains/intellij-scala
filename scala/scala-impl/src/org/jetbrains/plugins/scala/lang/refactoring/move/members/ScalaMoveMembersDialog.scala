@@ -11,10 +11,10 @@ import com.intellij.refactoring.move.moveMembers.{MoveMembersOptions, MoveMember
 import com.intellij.refactoring.ui.RefactoringDialog
 import com.intellij.ui.EditorComboBox
 import javax.swing._
-import org.jetbrains.plugins.scala.debugger.evaluation.ScalaCodeFragment
 import org.jetbrains.plugins.scala.extensions.ObjectExt
 import org.jetbrains.plugins.scala.lang.psi.api.base.ScReferenceElement
 import org.jetbrains.plugins.scala.lang.psi.api.toplevel.typedef.{ScMember, ScObject}
+import org.jetbrains.plugins.scala.lang.psi.impl.source.ScalaCodeFragment
 import org.jetbrains.plugins.scala.{ScalaBundle, ScalaFileType}
 
 class ScalaMoveMembersDialog(project: Project, canBeParent: Boolean, sourceObject: ScObject, memberToMove: ScMember) extends RefactoringDialog(project, canBeParent) {

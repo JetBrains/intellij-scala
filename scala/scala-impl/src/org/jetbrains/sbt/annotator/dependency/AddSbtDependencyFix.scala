@@ -13,9 +13,6 @@ import com.intellij.openapi.project.Project
 import com.intellij.openapi.vfs.VirtualFile
 import com.intellij.psi.util.PsiTreeUtil
 import com.intellij.psi.{PsiElement, PsiFile, PsiManager, SmartPsiElementPointer}
-import org.jetbrains.sbt.annotator.dependency.AddSbtDependencyUtils._
-import org.jetbrains.sbt.annotator.dependency.ui.SbtArtifactSearchWizard
-import org.jetbrains.plugins.scala.debugger.evaluation.ScalaCodeFragment
 import org.jetbrains.plugins.scala.extensions
 import org.jetbrains.plugins.scala.extensions.ValidSmartPointer
 import org.jetbrains.plugins.scala.lang.psi.api.ScalaFile
@@ -23,8 +20,11 @@ import org.jetbrains.plugins.scala.lang.psi.api.base.ScReferenceElement
 import org.jetbrains.plugins.scala.lang.psi.api.expr.ScInfixExpr
 import org.jetbrains.plugins.scala.lang.psi.api.statements.ScPatternDefinition
 import org.jetbrains.plugins.scala.lang.psi.api.toplevel.imports.ScImportExpr
+import org.jetbrains.plugins.scala.lang.psi.impl.source.ScalaCodeFragment
 import org.jetbrains.plugins.scala.project.ModuleExt
 import org.jetbrains.sbt.Sbt
+import org.jetbrains.sbt.annotator.dependency.AddSbtDependencyUtils._
+import org.jetbrains.sbt.annotator.dependency.ui.SbtArtifactSearchWizard
 import org.jetbrains.sbt.project.SbtProjectSystem
 import org.jetbrains.sbt.resolvers.{ArtifactInfo, SbtResolver}
 import org.jetbrains.sbt.settings.SbtSettings
