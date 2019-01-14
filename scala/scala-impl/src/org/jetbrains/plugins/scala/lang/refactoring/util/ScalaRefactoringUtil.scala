@@ -701,7 +701,7 @@ object ScalaRefactoringUtil {
       case t: ScThisReference => builder.append(t.getText)
       case t: ScThrow =>
         builder.append("throw ")
-        t.body match {
+        t.expression match {
           case Some(expression) => builder.append(getShortText(expression))
           case _ => builder.append("...")
         }

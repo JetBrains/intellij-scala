@@ -8,7 +8,7 @@ package expr
 * @author Alexander Podkhalyuzin
 */
 trait ScThrow extends ScExpression {
-  def body: Option[ScExpression] = findChild(classOf[ScExpression])
+  def expression: Option[ScExpression] = findChild(classOf[ScExpression])
 
   override def accept(visitor: ScalaElementVisitor): Unit = {
     visitor.visitThrowExpression(this)

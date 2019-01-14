@@ -444,7 +444,7 @@ class ScalaControlFlowBuilder(startInScope: ScalaPsiElement,
       case Some(e) => e != throwStmt
       case None => false
     })
-    throwStmt.body.foreach(_.accept(this))
+    throwStmt.expression.foreach(_.accept(this))
     if (isNodeNeeded) startNode(Some(throwStmt)) { _ =>
       addPendingEdge(null, myHead)
     }
