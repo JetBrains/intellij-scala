@@ -74,8 +74,8 @@ trait FunctionAnnotator {
       val hasAssign = function.hasAssign
       val unitFunction = !hasAssign || unitType
 
-      val explicitReturn = usage.isInstanceOf[ScReturnStmt]
-      val emptyReturn = explicitReturn && usage.asInstanceOf[ScReturnStmt].expr.isEmpty
+      val explicitReturn = usage.isInstanceOf[ScReturn]
+      val emptyReturn = explicitReturn && usage.asInstanceOf[ScReturn].expr.isEmpty
       val anyReturn = usageType.isAny
       val underCatchBlock = usage.getContext.isInstanceOf[ScCatchBlock]
 
@@ -90,23 +90,23 @@ trait FunctionAnnotator {
       def needsTypeAnnotation(): Unit = {
         val message = ScalaBundle.message("function.must.define.type.explicitly", function.name)
         val returnTypes = function.returnUsages.collect {
-          case retStmt: ScReturnStmt => retStmt.expr.flatMap(_.`type`().toOption).getOrElse(Any)
+          case retStmt: ScReturn => retStmt.expr.flatMap(_.`type`().toOption).getOrElse(Any)
           case expr: ScExpression => expr.`type`().getOrAny
         }
-        val annotation = holder.createErrorAnnotation(usage.asInstanceOf[ScReturnStmt].returnKeyword, message)
+        val annotation = holder.createErrorAnnotation(usage.asInstanceOf[ScReturn].returnKeyword, message)
         annotation.registerFix(new AddReturnTypeFix(function, returnTypes.toSeq.lub()))
       }
 
       def redundantReturnExpression() = {
         val message = ScalaBundle.message("return.expression.is.redundant", usageType.presentableText)
-        holder.createWarningAnnotation(usage.asInstanceOf[ScReturnStmt].expr.get, message)
+        holder.createWarningAnnotation(usage.asInstanceOf[ScReturn].expr.get, message)
       }
 
       def typeMismatch() {
         if (typeAware) {
           val (usageTypeText, functionTypeText) = ScTypePresentation.different(usageType, functionType)
           val message = ScalaBundle.message("type.mismatch.found.required", usageTypeText, functionTypeText)
-          val returnExpression = if (explicitReturn) usage.asInstanceOf[ScReturnStmt].expr else None
+          val returnExpression = if (explicitReturn) usage.asInstanceOf[ScReturn].expr else None
           val expr = returnExpression.getOrElse(usage) match {
             case b: ScBlockExpr => b.getRBrace.map(_.getPsi).getOrElse(b)
             case b: ScBlock =>
@@ -128,7 +128,7 @@ trait FunctionAnnotator {
   }
 
   private def typeOf(element: PsiElement) = (element match {
-    case returnStmt: ScReturnStmt => (returnStmt.expr, Unit)
+    case returnStmt: ScReturn => (returnStmt.expr, Unit)
     case _ => (Some(element), Any)
   }) match {
     case (Some(expression: ScExpression), _) => expression.getTypeAfterImplicitConversion().tr

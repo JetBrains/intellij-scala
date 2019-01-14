@@ -109,7 +109,7 @@ trait ScFunctionDefinition extends ScFunction with ScControlFlowOwner {
       case call@(_: ScMethodCall |
                  _: ScGenericCall) => possiblyTailRecursiveCallFor(call)
       case infix: ScInfixExpr if infix.operation == element => possiblyTailRecursiveCallFor(infix)
-      case statement: ScReturnStmt => statement
+      case statement: ScReturn => statement
       case _ => element
     }
 
@@ -134,7 +134,7 @@ trait ScFunctionDefinition extends ScFunction with ScControlFlowOwner {
   private def innerReturnUsages(calculateReturns: ScExpression => Set[ScExpression]): Set[ScExpression] = {
     def returnsIn(expression: ScExpression) =
       expression.depthFirst(!_.isInstanceOf[ScFunction]).collect {
-        case statement: ScReturnStmt => statement
+        case statement: ScReturn => statement
       } ++ calculateReturns(expression)
 
     body.toSet

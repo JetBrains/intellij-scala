@@ -356,7 +356,7 @@ class ScalaControlFlowBuilder(startInScope: ScalaPsiElement,
     }
   }
 
-  override def visitReturnStatement(ret: ScReturnStmt) {
+  override def visitReturnStatement(ret: ScReturn) {
     val isNodeNeeded = myHead == null || (myHead.element match {
       case Some(e) => e != ret
       case None => false

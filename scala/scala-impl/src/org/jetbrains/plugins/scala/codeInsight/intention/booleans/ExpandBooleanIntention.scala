@@ -5,7 +5,7 @@ import com.intellij.openapi.editor.Editor
 import com.intellij.openapi.project.Project
 import com.intellij.psi.{PsiDocumentManager, PsiElement}
 import org.jetbrains.plugins.scala.extensions._
-import org.jetbrains.plugins.scala.lang.psi.api.expr.{ScParenthesisedExpr, ScReturnStmt}
+import org.jetbrains.plugins.scala.lang.psi.api.expr.{ScParenthesisedExpr, ScReturn}
 import org.jetbrains.plugins.scala.lang.psi.impl.ScalaPsiElementFactory.createExpressionFromText
 import org.jetbrains.plugins.scala.lang.psi.types.result.Typeable
 import org.jetbrains.plugins.scala.project.ProjectContext
@@ -24,7 +24,7 @@ class ExpandBooleanIntention extends PsiElementBaseIntentionAction {
       val offset = editor.getCaretModel.getOffset
       range.getStartOffset <= offset && offset <= range.getEndOffset
     }.collect {
-      case ScReturnStmt(Typeable(scType)) => scType.canonicalText
+      case ScReturn(Typeable(scType)) => scType.canonicalText
     }.contains("Boolean")
 
   override def invoke(project: Project, editor: Editor, element: PsiElement): Unit = {
@@ -32,8 +32,8 @@ class ExpandBooleanIntention extends PsiElementBaseIntentionAction {
       .getOrElse(return)
 
     val expressionText = statement match {
-      case ScReturnStmt(ScParenthesisedExpr(ElementText(text))) => text
-      case ScReturnStmt(ElementText(text)) => text
+      case ScReturn(ScParenthesisedExpr(ElementText(text))) => text
+      case ScReturn(ElementText(text)) => text
       case _ => return
     }
 
@@ -58,6 +58,6 @@ object ExpandBooleanIntention {
 
   val FamilyName = "Expand Boolean"
 
-  private def findReturnParent(element: PsiElement): Option[ScReturnStmt] =
-    element.parentOfType(classOf[ScReturnStmt], strict = false)
+  private def findReturnParent(element: PsiElement): Option[ScReturn] =
+    element.parentOfType(classOf[ScReturn], strict = false)
 }

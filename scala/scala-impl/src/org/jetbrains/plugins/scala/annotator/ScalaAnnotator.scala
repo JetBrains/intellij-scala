@@ -368,7 +368,7 @@ abstract class ScalaAnnotator extends Annotator
         super.visitImportExpr(expr)
       }
 
-      override def visitReturnStatement(ret: ScReturnStmt) {
+      override def visitReturnStatement(ret: ScReturn) {
         checkExplicitTypeForReturnStatement(ret, holder)
         super.visitReturnStatement(ret)
       }
@@ -930,7 +930,7 @@ abstract class ScalaAnnotator extends Annotator
     }
   }
 
-  private def checkExplicitTypeForReturnStatement(statement: ScReturnStmt, holder: AnnotationHolder): Unit = {
+  private def checkExplicitTypeForReturnStatement(statement: ScReturn, holder: AnnotationHolder): Unit = {
     val function = statement.returnFunction.getOrElse {
       val error = ScalaBundle.message("return.outside.method.definition")
       val annotation: Annotation = holder.createErrorAnnotation(statement.returnKeyword, error)

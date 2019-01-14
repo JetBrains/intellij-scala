@@ -124,7 +124,7 @@ class ScalaElementVisitor extends PsiElementVisitor {
   def visitGenericCallExpression(call: ScGenericCall) { visitExpression(call) }
   def visitInfixExpression(infix: ScInfixExpr) {visitExpression(infix)}
   def visitWhileStatement(ws: ScWhileStmt) { visitExpression(ws) }
-  def visitReturnStatement(ret: ScReturnStmt) { visitExpression(ret) }
+  def visitReturnStatement(ret: ScReturn) { visitExpression(ret) }
   def visitMatchStatement(ms: ScMatchStmt) { visitExpression(ms) }
   def visitForExpression(expr: ScForStatement) { visitExpression(expr) }
   def visitDoStatement(stmt: ScDoStmt) { visitExpression(stmt) }

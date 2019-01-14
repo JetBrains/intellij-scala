@@ -693,7 +693,7 @@ object ScalaRefactoringUtil {
           case _ =>
         }
         builder.append(r.refName)
-      case r: ScReturnStmt =>
+      case r: ScReturn =>
         builder.append("return ")
         r.expr.map(getShortText)
           .foreach(builder.append)

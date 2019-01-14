@@ -279,7 +279,7 @@ trait TreeAdapter {
         literal(t)
       case _: ScUnitExpr =>
         m.Lit.Unit(())
-      case t: ScReturnStmt =>
+      case t: ScReturn =>
         m.Term.Return(expression(t.expr).getOrElse(m.Lit.Unit(())))
       case t: ScBlockExpr if t.hasCaseClauses =>
         m.Term.PartialFunction(Seq(t.caseClauses.get.caseClauses.map(caseClause):_*))

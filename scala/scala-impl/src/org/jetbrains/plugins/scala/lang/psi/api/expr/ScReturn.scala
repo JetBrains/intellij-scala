@@ -12,7 +12,7 @@ import org.jetbrains.plugins.scala.lang.psi.api.statements.ScFunctionDefinition
   * @author Alexander Podkhalyuzin
   *         Date: 06.03.2008
   */
-trait ScReturnStmt extends ScExpression {
+trait ScReturn extends ScExpression {
   def expr: Option[ScExpression] = findChild(classOf[ScExpression])
 
   def returnKeyword: PsiElement
@@ -25,7 +25,7 @@ trait ScReturnStmt extends ScExpression {
   }
 }
 
-object ScReturnStmt {
+object ScReturn {
 
-  def unapply(statement: ScReturnStmt): Option[ScExpression] = statement.expr
+  def unapply(statement: ScReturn): Option[ScExpression] = statement.expr
 }

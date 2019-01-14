@@ -260,7 +260,7 @@ class ExpectedTypesImpl extends ExpectedTypes {
           case Some(_) => Array((param.`type`().getOrAny, param.typeElement))
           case _ => Array.empty
         }
-      case ret: ScReturnStmt =>
+      case ret: ScReturn =>
         val fun: ScFunction = PsiTreeUtil.getContextOfType(ret, true, classOf[ScFunction])
         if (fun == null) return Array.empty
         fun.returnTypeElement match {

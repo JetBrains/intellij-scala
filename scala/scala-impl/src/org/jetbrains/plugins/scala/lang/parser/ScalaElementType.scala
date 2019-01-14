@@ -258,7 +258,7 @@ object ScalaElementType {
     override def createElement(node: ASTNode) = new ScWhileStmtImpl(node)
   }
   val RETURN_STMT = new ScalaElementType("return statement") {
-    override def createElement(node: ASTNode) = new ScReturnStmtImpl(node)
+    override def createElement(node: ASTNode) = new ScReturnImpl(node)
   }
   val THROW_STMT = new ScalaElementType("throw statement") {
     override def createElement(node: ASTNode) = new ScThrowStmtImpl(node)

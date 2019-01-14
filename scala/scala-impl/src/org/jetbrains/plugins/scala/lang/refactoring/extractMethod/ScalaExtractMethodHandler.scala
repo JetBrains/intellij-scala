@@ -67,7 +67,7 @@ class ScalaExtractMethodHandler extends ScalaRefactoringActionHandler {
 
     def checkLastReturn(elem: PsiElement): Boolean = {
       elem match {
-        case _: ScReturnStmt => true
+        case _: ScReturn => true
         case m: ScMatchStmt =>
           m.getBranches.forall(checkLastReturn(_))
         case f: ScIfStmt if f.elseBranch.isDefined && f.thenBranch.isDefined =>
@@ -82,7 +82,7 @@ class ScalaExtractMethodHandler extends ScalaRefactoringActionHandler {
       if (fun == null) return None
       var result: Option[ScType] = None
       val visitor = new ScalaRecursiveElementVisitor {
-        override def visitReturnStatement(ret: ScReturnStmt) {
+        override def visitReturnStatement(ret: ScReturn) {
           val newFun = PsiTreeUtil.getParentOfType(ret, classOf[ScFunctionDefinition])
           if (newFun == fun) {
             result = Some(fun.returnType.getOrElse(Unit))

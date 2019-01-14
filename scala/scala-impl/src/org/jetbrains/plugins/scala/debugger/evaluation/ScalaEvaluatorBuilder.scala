@@ -183,7 +183,7 @@ private object needsCompilation {
     case expr if ScalaEvaluatorBuilderUtil.isGenerateAnonfun(expr) => message("anonymous function")
     case _: ScForStatement => message("for expression")
     case _: ScTryStmt => message("try statement")
-    case _: ScReturnStmt => message("return statement")
+    case _: ScReturn => message("return statement")
     case _: ScMatchStmt => message("match statement")
     case _: ScThrowStmt => message("throw statement")
     case _: ScXmlExpr => message("xml expression")

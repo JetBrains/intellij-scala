@@ -19,7 +19,7 @@ sealed abstract class Implementation {
   import Implementation._
 
   final def containsReturn: Boolean = returnCandidates.exists {
-    case _: ScReturnStmt => true
+    case _: ScReturn => true
     case _ => false
   }
 

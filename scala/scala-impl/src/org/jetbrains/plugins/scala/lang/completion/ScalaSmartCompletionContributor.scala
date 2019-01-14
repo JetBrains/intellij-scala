@@ -98,11 +98,11 @@ final class ScalaSmartCompletionContributor extends ScalaCompletionContributor {
     return ref
    */
   extend(
-    classOf[ScReturnStmt],
+    classOf[ScReturn],
     new CompletionProvider[CompletionParameters] {
       def addCompletions(parameters: CompletionParameters, context: ProcessingContext, result: CompletionResultSet) {
         val element = positionFromParameters(parameters)
-        extractReference[ScReturnStmt](element).foreach { case (ref, _) =>
+        extractReference[ScReturn](element).foreach { case (ref, _) =>
           val fun: ScFunction = PsiTreeUtil.getContextOfType(ref, classOf[ScFunction])
           if (fun == null) return
           acceptTypes(Seq[ScType](fun.returnType.getOrAny), ref.getVariants, result,

@@ -7,7 +7,7 @@ import com.intellij.openapi.project.Project
 import com.intellij.psi.PsiElement
 import org.jetbrains.plugins.scala.extensions.PsiElementExt
 import org.jetbrains.plugins.scala.lang.psi.api.expr.ScExpression.calculateReturns
-import org.jetbrains.plugins.scala.lang.psi.api.expr.ScReturnStmt
+import org.jetbrains.plugins.scala.lang.psi.api.expr.ScReturn
 import org.jetbrains.plugins.scala.lang.psi.api.statements.{ScFunction, ScFunctionDefinition}
 
 class RemoveRedundantReturnInspection extends AbstractInspection("Redundant Return") {
@@ -19,7 +19,7 @@ class RemoveRedundantReturnInspection extends AbstractInspection("Redundant Retu
       body.depthFirst {
         !_.isInstanceOf[ScFunction]
       }.foreach {
-          case r: ScReturnStmt =>
+          case r: ScReturn =>
             if (returns(r)) {
               holder.registerProblem(r.returnKeyword, "Return keyword is redundant",
                 ProblemHighlightType.GENERIC_ERROR_OR_WARNING, new RemoveReturnKeywordQuickFix(r))
@@ -30,11 +30,11 @@ class RemoveRedundantReturnInspection extends AbstractInspection("Redundant Retu
   }
 }
 
-class RemoveReturnKeywordQuickFix(r: ScReturnStmt)
+class RemoveReturnKeywordQuickFix(r: ScReturn)
         extends AbstractFixOnPsiElement(ScalaBundle.message("remove.return.keyword"), r) {
 
 
-  override protected def doApplyFix(ret: ScReturnStmt)
+  override protected def doApplyFix(ret: ScReturn)
                                    (implicit project: Project): Unit = {
     ret.expr match {
       case Some(e) => ret.replace(e.copy())

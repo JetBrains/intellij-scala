@@ -116,7 +116,7 @@ object ScalaExtractMethodUtils {
 
     if (!settings.lastReturn) {
       val returnVisitor = new ScalaRecursiveElementVisitor {
-        override def visitReturnStatement(ret: ScReturnStmt) {
+        override def visitReturnStatement(ret: ScReturn) {
           if (!ret.returnFunction.contains(method)) return
           val retExprText = ret.expr.map(_.getText).mkString
           val newText = settings.returnType match {

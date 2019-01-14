@@ -125,7 +125,7 @@ trait TreeConverterBuilder {
 
       override def visitWhileStatement(ws: ScWhileStmt) = super.visitWhileStatement(ws)
 
-      override def visitReturnStatement(ret: ScReturnStmt) = super.visitReturnStatement(ret)
+      override def visitReturnStatement(ret: ScReturn) = super.visitReturnStatement(ret)
 
       override def visitMatchStatement(ms: ScMatchStmt) = super.visitMatchStatement(ms)
 
