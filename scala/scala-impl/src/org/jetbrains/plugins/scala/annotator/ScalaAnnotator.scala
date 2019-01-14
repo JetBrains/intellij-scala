@@ -332,7 +332,7 @@ abstract class ScalaAnnotator extends Annotator
         super.visitFunction(fun)
       }
 
-      override def visitAssignmentStatement(stmt: ScAssignStmt) {
+      override def visitAssignmentStatement(stmt: ScAssignment) {
         annotateAssignment(stmt, holder, typeAware)
         super.visitAssignmentStatement(stmt)
       }
@@ -591,7 +591,7 @@ abstract class ScalaAnnotator extends Annotator
         refElement match {
           case e: ScReferenceExpression =>
             e.getContext match {
-              case a: ScAssignStmt if a.getLExpression == e && a.isDynamicNamedAssignment => return
+              case a: ScAssignment if a.getLExpression == e && a.isDynamicNamedAssignment => return
               case _ =>
             }
           case _ =>
@@ -829,7 +829,7 @@ abstract class ScalaAnnotator extends Annotator
     }
 
     def shouldNotHighlight(expr: ScExpression): Boolean = expr.getContext match {
-      case a: ScAssignStmt if a.getRExpression.contains(expr) && a.isDynamicNamedAssignment => true
+      case a: ScAssignment if a.getRExpression.contains(expr) && a.isDynamicNamedAssignment => true
       case t: ScTypedExpression if t.isSequenceArg                                                => true
       case param: ScParameter if !param.isDefaultParam                                      => true //performance optimization
       case param: ScParameter                                                               =>
@@ -837,7 +837,7 @@ abstract class ScalaAnnotator extends Annotator
           case Right(paramType) if paramType.extractClass.isDefined => false //do not check generic types. See SCL-3508
           case _                                                    => true
         }
-      case ass: ScAssignStmt if ass.isNamedParameter                                        => true //that's checked in application annotator
+      case ass: ScAssignment if ass.isNamedParameter                                        => true //that's checked in application annotator
       case _                                                                                => false
     }
 
@@ -868,7 +868,7 @@ abstract class ScalaAnnotator extends Annotator
           if (!conformance) {
             if (typeAware) {
               expr.getParent match {
-                case assign: ScAssignStmt if exprType.exists(ScalaPsiUtil.isUnderscoreEq(assign, _)) => return
+                case assign: ScAssignment if exprType.exists(ScalaPsiUtil.isUnderscoreEq(assign, _)) => return
                 case _ =>
               }
               val markedPsi = (expr, expr.getParent) match {

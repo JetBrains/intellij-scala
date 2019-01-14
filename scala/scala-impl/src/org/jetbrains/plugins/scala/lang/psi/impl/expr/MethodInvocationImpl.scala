@@ -168,13 +168,13 @@ abstract class MethodInvocationImpl(node: ASTNode) extends ScExpressionImplBase(
       .find(_.name == Update)
       .map(_ => getContext)
       .collect {
-        case ScAssignStmt(call: ScMethodCall, Some(right)) if call == this => right
+        case ScAssignment(call: ScMethodCall, Some(right)) if call == this => right
       }
 
     argumentExpressions ++ updateArgument match {
       case arguments if maybeResolveResult.exists(isApplyDynamicNamed) =>
         arguments.collect {
-          case ScAssignStmt(left: ScReferenceExpression, Some(right)) if left.qualifier.isEmpty => right
+          case ScAssignment(left: ScReferenceExpression, Some(right)) if left.qualifier.isEmpty => right
           case argument => argument
         }.map {
           new Expression(_) {

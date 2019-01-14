@@ -20,7 +20,7 @@ import org.jetbrains.plugins.scala.macroAnnotations.{Cached, ModCount}
 /**
   * @author Alexander Podkhalyuzin
   */
-class ScAssignStmtImpl(node: ASTNode) extends ScExpressionImplBase(node) with ScAssignStmt {
+class ScAssignmentImpl(node: ASTNode) extends ScExpressionImplBase(node) with ScAssignment {
   protected override def innerType: TypeResult = {
     getLExpression match {
       case call: ScMethodCall => call.`type`()

@@ -486,7 +486,7 @@ object DebuggerUtil {
     }
 
     def isArgName(ref: ScReferenceElement): Boolean = ref match {
-      case ChildOf(a @ ScAssignStmt(`ref`, _)) => a.isNamedParameter
+      case ChildOf(a @ ScAssignment(`ref`, _)) => a.isNamedParameter
       case _ => false
     }
 

@@ -604,7 +604,7 @@ object ScalaRefactoringUtil {
   def getShortText(expr: ScalaPsiElement): String = {
     val builder = new StringBuilder
     expr match {
-      case ass: ScAssignStmt =>
+      case ass: ScAssignment =>
         builder.append(getShortText(ass.getLExpression))
         builder.append(" = ")
         ass.getRExpression match {
@@ -934,7 +934,7 @@ object ScalaRefactoringUtil {
       case ScPostfixExpr(_, operation) if operation == expr => ScalaBundle.message("cannot.refactor.not.expression")
       case _: ScGenericCall => ScalaBundle.message("cannot.refactor.under.generic.call")
       case _ if expr.isInstanceOf[ScConstrExpr] => ScalaBundle.message("cannot.refactor.constr.expression")
-      case _: ScArgumentExprList if expr.isInstanceOf[ScAssignStmt] => ScalaBundle.message("cannot.refactor.named.arg")
+      case _: ScArgumentExprList if expr.isInstanceOf[ScAssignment] => ScalaBundle.message("cannot.refactor.named.arg")
       case _: ScLiteralPattern => ScalaBundle.message("cannot.refactor.literal.pattern")
       case par: ScClassParameter =>
         par.containingClass match {

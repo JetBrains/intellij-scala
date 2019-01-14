@@ -126,7 +126,7 @@ object Compatibility {
     else r.constraints
   }
 
-  def clashedAssignmentsIn(exprs: Seq[Expression]): Seq[ScAssignStmt] = {
+  def clashedAssignmentsIn(exprs: Seq[Expression]): Seq[ScAssignment] = {
     val pairs = for(Expression(assignment @ NamedAssignStmt(name)) <- exprs) yield (name, assignment)
     val names = pairs.unzip._1
     val clashedNames = names.diff(names.distinct)
@@ -148,7 +148,7 @@ object Compatibility {
     exprs.foldLeft(parameters) { (parameters, expression) =>
       if (expression.expr == null) parameters.tail
       else expression.expr match {
-        case a: ScAssignStmt if a.assignName.nonEmpty =>
+        case a: ScAssignment if a.assignName.nonEmpty =>
           parameters.find(_.name == a.assignName.get) match {
             case Some(parameter) =>
               parameters.filter(_ ne parameter)
@@ -264,7 +264,7 @@ object Compatibility {
               p.deprecatedName.exists(ScalaNamesUtil.equivalent(_, name))
           }
           if (index == -1 || used(index)) {
-            def extractExpression(assign: ScAssignStmt): ScExpression = {
+            def extractExpression(assign: ScAssignment): ScExpression = {
               if (ScUnderScoreSectionUtil.isUnderscoreFunction(assign)) assign
               else assign.getRExpression.getOrElse(assign)
             }

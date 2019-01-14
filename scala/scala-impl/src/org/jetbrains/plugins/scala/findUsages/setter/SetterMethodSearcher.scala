@@ -11,7 +11,7 @@ import org.jetbrains.plugins.scala.extensions.{&&, Parent, inReadAction}
 import org.jetbrains.plugins.scala.lang.psi.ScalaPsiUtil._
 import org.jetbrains.plugins.scala.lang.psi.api.base.ScReferenceElement
 import org.jetbrains.plugins.scala.lang.psi.api.base.patterns.ScReferencePattern
-import org.jetbrains.plugins.scala.lang.psi.api.expr.ScAssignStmt
+import org.jetbrains.plugins.scala.lang.psi.api.expr.ScAssignment
 import org.jetbrains.plugins.scala.lang.psi.api.statements.{ScFunction, ScVariable}
 import org.jetbrains.plugins.scala.lang.psi.api.toplevel.ScNamedElement
 import org.jetbrains.plugins.scala.lang.psi.fake.FakePsiMethod
@@ -53,7 +53,7 @@ class SetterMethodSearcher extends QueryExecutor[PsiReference, ReferencesSearch.
       def execute(elem: PsiElement, offsetInElement: Int): Boolean = {
         inReadAction {
           elem match {
-            case Parent(Parent(assign: ScAssignStmt)) => assign.resolveAssignment match {
+            case Parent(Parent(assign: ScAssignment)) => assign.resolveAssignment match {
               case Some(res) if res.element.getNavigationElement == element =>
                 Option(assign.getLExpression).foreach {
                   case ref: ScReferenceElement => if (!consumer.process(ref)) return false

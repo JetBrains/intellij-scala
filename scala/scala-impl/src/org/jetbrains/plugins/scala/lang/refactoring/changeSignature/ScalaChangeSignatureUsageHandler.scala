@@ -330,7 +330,7 @@ private[changeSignature] trait ScalaChangeSignatureUsageHandler {
           }
           else {
             val (argExprs, wasNamed) = oldArgsInfo.byOldParameterIndex.get(oldIndex) match {
-              case Some(Seq(ScAssignStmt(_, Some(expr)))) => (Seq(expr), true)
+              case Some(Seq(ScAssignment(_, Some(expr)))) => (Seq(expr), true)
               case Some(seq) => (seq, false)
               case _ => return Seq.empty
             }
@@ -388,7 +388,7 @@ private[changeSignature] trait ScalaChangeSignatureUsageHandler {
         argsInfo.byOldParameterIndex.get(oldIdx) match {
           case None => return None
           case Some(seq) if seq.size > 1 => return None
-          case Some(Seq(assignStmt: ScAssignStmt)) => return Some(assignStmt.getText)
+          case Some(Seq(assignStmt: ScAssignment)) => return Some(assignStmt.getText)
           case Some(Seq(expr)) => expr.getText
         }
       }

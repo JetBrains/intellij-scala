@@ -19,7 +19,7 @@ import org.jetbrains.plugins.scala.project.ProjectContext
  */
 
 trait AssignmentAnnotator {
-  def annotateAssignment(assignment: ScAssignStmt, holder: AnnotationHolder, advancedHighlighting: Boolean) {
+  def annotateAssignment(assignment: ScAssignment, holder: AnnotationHolder, advancedHighlighting: Boolean) {
     implicit val ctx: ProjectContext = assignment
 
     val left = assignment.getLExpression

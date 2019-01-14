@@ -114,7 +114,7 @@ public class ScalaTestAstTransformer {
     }
 
     @Nullable
-    protected String getNameFromAnnotAssign(@NotNull ScAssignStmt assignStmt) {
+    protected String getNameFromAnnotAssign(@NotNull ScAssignment assignStmt) {
         if (assignStmt.getLExpression() instanceof ScReferenceExpression &&
                 ((ScReferenceExpression) assignStmt.getLExpression()).refName().equals("value")) {
             ScExpression expr = assignStmt.getRExpression().get();
@@ -156,8 +156,8 @@ public class ScalaTestAstTransformer {
                             List<ScExpression> exprs = JavaConverters.seqAsJavaList(args.exprs());
                             if (exprs.size() > 0) {
                                 ScExpression expr = exprs.get(0);
-                                if (expr instanceof ScAssignStmt) {
-                                    finderClassName = getNameFromAnnotAssign((ScAssignStmt) expr);
+                                if (expr instanceof ScAssignment) {
+                                    finderClassName = getNameFromAnnotAssign((ScAssignment) expr);
                                 } else {
                                     finderClassName = getNameFromAnnotLiteral(expr);
                                 }

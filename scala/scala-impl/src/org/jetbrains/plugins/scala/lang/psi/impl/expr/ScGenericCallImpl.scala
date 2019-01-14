@@ -37,8 +37,8 @@ class ScGenericCallImpl(node: ASTNode) extends ScExpressionImplBase(node) with S
       case call: ScMethodCall => call
       case _ => this
     }
-    val isUpdate = curr.getContext.isInstanceOf[ScAssignStmt] &&
-      curr.getContext.asInstanceOf[ScAssignStmt].getLExpression == curr
+    val isUpdate = curr.getContext.isInstanceOf[ScAssignment] &&
+      curr.getContext.asInstanceOf[ScAssignment].getLExpression == curr
     val methodName = if (isUpdate) "update" else "apply"
     val args: List[Seq[ScExpression]] =
       if (curr == this && !isUpdate) List.empty
@@ -47,7 +47,7 @@ class ScGenericCallImpl(node: ASTNode) extends ScExpressionImplBase(node) with S
           case call: ScMethodCall => call.args.exprs
           case _ => Seq.empty[ScExpression]
         }) ++ (
-          if (isUpdate) curr.getContext.asInstanceOf[ScAssignStmt].getRExpression match {
+          if (isUpdate) curr.getContext.asInstanceOf[ScAssignment].getRExpression match {
             case Some(x) => Seq[ScExpression](x)
             case None =>
               Seq[ScExpression](createExpressionFromText("{val x: Nothing = null; x}"))

@@ -264,7 +264,7 @@ object ScalaElementType {
     override def createElement(node: ASTNode) = new ScThrowImpl(node)
   }
   val ASSIGN_STMT = new ScalaElementType("assign statement") {
-    override def createElement(node: ASTNode) = new ScAssignStmtImpl(node)
+    override def createElement(node: ASTNode) = new ScAssignmentImpl(node)
   }
   val MATCH_STMT = new ScalaElementType("match statement") {
     override def createElement(node: ASTNode) = new ScMatchImpl(node)

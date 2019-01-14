@@ -450,9 +450,9 @@ package object collections {
       val sameLevelIterator = expr.depthFirst(predicate).filter(predicate)
 
       sameLevelIterator.collect {
-        case assign @ ScAssignStmt(definedOutside(ScalaPsiUtil.inNameContext(_: ScVariable)), _) =>
+        case assign @ ScAssignment(definedOutside(ScalaPsiUtil.inNameContext(_: ScVariable)), _) =>
           assign
-        case assign @ ScAssignStmt(mc @ ScMethodCall(definedOutside(_), _), _) if mc.isUpdateCall =>
+        case assign @ ScAssignment(mc @ ScMethodCall(definedOutside(_), _), _) if mc.isUpdateCall =>
           assign
         case infix @ ScInfixExpr(definedOutside(ScalaPsiUtil.inNameContext(_: ScVariable)), _, _) if infix.isAssignmentOperator =>
           infix

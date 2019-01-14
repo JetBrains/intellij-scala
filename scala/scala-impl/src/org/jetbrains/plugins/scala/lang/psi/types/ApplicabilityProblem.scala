@@ -2,7 +2,7 @@ package org.jetbrains.plugins.scala.lang.psi.types
 
 import com.intellij.psi.PsiElement
 import org.jetbrains.plugins.scala.lang.psi.api.base.types.ScTypeElement
-import org.jetbrains.plugins.scala.lang.psi.api.expr.{ScAssignStmt, ScExpression}
+import org.jetbrains.plugins.scala.lang.psi.api.expr.{ScAssignment, ScExpression}
 import org.jetbrains.plugins.scala.lang.psi.api.statements.params.ScParameterClause
 import org.jetbrains.plugins.scala.lang.psi.types.api.TypeParameter
 import org.jetbrains.plugins.scala.lang.psi.types.nonvalue.Parameter
@@ -25,8 +25,8 @@ case class MalformedDefinition() extends ApplicabilityProblem
 // application syntax problems
 case class PositionalAfterNamedArgument(argument: ScExpression) extends ApplicabilityProblem
 //TODO , parameter
-case class ParameterSpecifiedMultipleTimes(assignment: ScAssignStmt) extends ApplicabilityProblem
-case class UnresolvedParameter(assignment: ScAssignStmt) extends ApplicabilityProblem
+case class ParameterSpecifiedMultipleTimes(assignment: ScAssignment) extends ApplicabilityProblem
+case class UnresolvedParameter(assignment: ScAssignment) extends ApplicabilityProblem
 //TODO , parameter
 case class ExpansionForNonRepeatedParameter(argument: ScExpression) extends ApplicabilityProblem
 case class ElementApplicabilityProblem(element: PsiElement, actual: ScType, found: ScType) extends ApplicabilityProblem("42") //todo 

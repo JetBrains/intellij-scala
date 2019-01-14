@@ -3,7 +3,7 @@ package org.jetbrains.plugins.scala.lang.psi.impl.expr
 import com.intellij.psi.ResolveState
 import org.jetbrains.plugins.scala.extensions.PsiElementExt
 import org.jetbrains.plugins.scala.lang.psi.api.base.types.ScTypeElement
-import org.jetbrains.plugins.scala.lang.psi.api.expr.{MethodInvocation, ScAssignStmt, ScExpression, ScGenericCall}
+import org.jetbrains.plugins.scala.lang.psi.api.expr.{MethodInvocation, ScAssignment, ScExpression, ScGenericCall}
 import org.jetbrains.plugins.scala.lang.psi.impl.ScalaPsiElementFactory.createExpressionFromText
 import org.jetbrains.plugins.scala.lang.psi.implicits.ImplicitResolveResult
 import org.jetbrains.plugins.scala.lang.psi.types.Compatibility.Expression
@@ -122,7 +122,7 @@ object ApplyOrUpdateInvocation {
     import call.projectContext
 
     val newValueForUpdate = call.getContext match {
-      case assign: ScAssignStmt if call.isUpdateCall =>
+      case assign: ScAssignment if call.isUpdateCall =>
         val rightExpr = assign.getRExpression
           .getOrElse(createExpressionFromText("scala.Predef.???")) //we can't to not add something => add Nothing expression
         Seq(rightExpr)

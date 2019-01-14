@@ -21,7 +21,7 @@ class PostfixMethodCallInspection extends AbstractInspection("Use of postfix met
     pexpr.getContext match {
       case _: ScParenthesisedExpr => true
       case _: ScArgumentExprList => true
-      case (_: ScAssignStmt) childOf (_: ScArgumentExprList) => true //named arguments
+      case (_: ScAssignment) childOf (_: ScArgumentExprList) => true //named arguments
       case _ =>
         val next = pexpr.getNextSiblingNotWhitespace
         if (next == null) return false

@@ -42,7 +42,7 @@ object IntentionUtils {
     }
     currentArg match {
       case None => return None
-      case Some(assign: ScAssignStmt) if assign.isNamedParameter => return None
+      case Some(assign: ScAssignment) if assign.isNamedParameter => return None
       case _ =>
     }
 
@@ -74,7 +74,7 @@ object IntentionUtils {
     else {
       val doIt = () => {
         argsAndMatchedParams.foreach {
-          case (_ childOf (a: ScAssignStmt), param) if a.getLExpression.getText == param.name =>
+          case (_ childOf (a: ScAssignment), param) if a.getLExpression.getText == param.name =>
           case (argExpr, param) =>
             if (!onlyBoolean || (onlyBoolean && param.paramType.isBoolean)) {
               inWriteAction {

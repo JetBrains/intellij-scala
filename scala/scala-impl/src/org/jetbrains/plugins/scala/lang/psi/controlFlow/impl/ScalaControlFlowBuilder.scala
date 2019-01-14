@@ -168,7 +168,7 @@ class ScalaControlFlowBuilder(startInScope: ScalaPsiElement,
     }
   }
 
-  override def visitAssignmentStatement(stmt: ScAssignStmt) {
+  override def visitAssignmentStatement(stmt: ScAssignment) {
     stmt.getRExpression match {
       case Some(rv) =>
         rv.accept(this)

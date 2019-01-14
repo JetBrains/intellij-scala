@@ -60,7 +60,7 @@ class ReferenceExpressionResolver(implicit projectContext: ProjectContext) {
       case call: ScMethodCall if !call.isUpdateCall =>
         ContextInfo(Some(call.argumentExpressions), () => call.expectedType(), isUnderscore = false)
       case call: ScMethodCall =>
-        val args = call.argumentExpressions ++ call.getContext.asInstanceOf[ScAssignStmt].getRExpression.toList
+        val args = call.argumentExpressions ++ call.getContext.asInstanceOf[ScAssignment].getRExpression.toList
         ContextInfo(Some(args), () => None, isUnderscore = false)
       case section: ScUnderscoreSection => ContextInfo(None, () => section.expectedType(), isUnderscore = true)
       case infix @ ScInfixExpr.withAssoc(_, `ref`, argument) =>
@@ -218,7 +218,7 @@ class ReferenceExpressionResolver(implicit projectContext: ProjectContext) {
 
       val context = ref.getContext
       val contextElement = (context, processor) match {
-        case (x: ScAssignStmt, _) if x.getLExpression == ref => Some(context)
+        case (x: ScAssignment, _) if x.getLExpression == ref => Some(context)
         case (_, _: DependencyProcessor) => None
         case (_, _: CompletionProcessor) => Some(ref)
         case _ => None
@@ -342,7 +342,7 @@ class ReferenceExpressionResolver(implicit projectContext: ProjectContext) {
 
                 while (exprs(i) != assign) {
                   exprs(i) match {
-                    case assignStmt: ScAssignStmt =>
+                    case assignStmt: ScAssignment =>
                       assignStmt.getLExpression match {
                         case ref: ScReferenceExpression =>
                           val ind = methods.indexWhere(p => ScalaNamesUtil.equivalent(p.name, ref.refName))
@@ -454,7 +454,7 @@ class ReferenceExpressionResolver(implicit projectContext: ProjectContext) {
 
         while (exprs(i) != assign) {
           exprs(i) match {
-            case assignStmt: ScAssignStmt =>
+            case assignStmt: ScAssignment =>
               assignStmt.getLExpression match {
                 case ref: ScReferenceExpression =>
                   val ind = params.indexWhere(p => ScalaNamesUtil.equivalent(p.name, ref.refName))

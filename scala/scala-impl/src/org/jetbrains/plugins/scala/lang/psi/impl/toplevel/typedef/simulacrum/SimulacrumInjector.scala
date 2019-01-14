@@ -3,7 +3,7 @@ package org.jetbrains.plugins.scala.lang.psi.impl.toplevel.typedef.simulacrum
 import org.jetbrains.plugins.scala.extensions._
 import org.jetbrains.plugins.scala.lang.psi.ScalaPsiUtil
 import org.jetbrains.plugins.scala.lang.psi.api.base.{ScAnnotation, ScBooleanLiteral, ScStringLiteral}
-import org.jetbrains.plugins.scala.lang.psi.api.expr.{ScArgumentExprList, ScAssignStmt}
+import org.jetbrains.plugins.scala.lang.psi.api.expr.{ScArgumentExprList, ScAssignment}
 import org.jetbrains.plugins.scala.lang.psi.api.statements.ScFunction
 import org.jetbrains.plugins.scala.lang.psi.api.statements.params.{ScParameter, ScParameterClause, ScTypeParam}
 import org.jetbrains.plugins.scala.lang.psi.api.toplevel.typedef.{ScObject, ScTypeDefinition}
@@ -67,13 +67,13 @@ object SimulacrumInjector {
 
       val alias = exprs.exists {
         case ScBooleanLiteral(isAlias)                        => isAlias
-        case ScAssignStmt(_, Some(ScBooleanLiteral(isAlias))) => isAlias
+        case ScAssignment(_, Some(ScBooleanLiteral(isAlias))) => isAlias
         case _                                                => false
       }
 
       val name = exprs.collectFirst {
         case ScStringLiteral(opName)                        => opName
-        case ScAssignStmt(_, Some(ScStringLiteral(opName))) => opName
+        case ScAssignment(_, Some(ScStringLiteral(opName))) => opName
       }
 
       if (alias) Seq(sourceMethod.name) ++ name

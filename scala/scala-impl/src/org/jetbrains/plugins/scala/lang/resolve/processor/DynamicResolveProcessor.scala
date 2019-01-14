@@ -22,7 +22,7 @@ object DynamicResolveProcessor {
 
   def getDynamicNameForMethodInvocation(expressions: Seq[ScExpression]): String = {
     val qualifiers = expressions.collect {
-      case ScAssignStmt(reference: ScReferenceExpression, _) => reference.qualifier
+      case ScAssignment(reference: ScReferenceExpression, _) => reference.qualifier
     }
 
     if (qualifiers.exists(_.isEmpty)) APPLY_DYNAMIC_NAMED
@@ -70,7 +70,7 @@ object DynamicResolveProcessor {
       case Right(expressions) => getDynamicNameForMethodInvocation(expressions)
       case Left(reference) =>
         reference.getContext match {
-          case ScAssignStmt(`reference`, _) => UPDATE_DYNAMIC
+          case ScAssignment(`reference`, _) => UPDATE_DYNAMIC
           case _ => SELECT_DYNAMIC
         }
     }

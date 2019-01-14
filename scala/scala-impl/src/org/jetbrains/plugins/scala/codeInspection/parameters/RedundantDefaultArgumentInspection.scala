@@ -7,7 +7,7 @@ import org.jetbrains.plugins.scala.codeInspection.{AbstractFixOnPsiElement, Abst
 import org.jetbrains.plugins.scala.extensions.PsiElementExt
 import org.jetbrains.plugins.scala.lang.psi.api.ScalaPsiElement
 import org.jetbrains.plugins.scala.lang.psi.api.base.{ScInterpolatedStringLiteral, ScLiteral}
-import org.jetbrains.plugins.scala.lang.psi.api.expr.{ScAssignStmt, ScExpression, ScMethodCall, ScReferenceExpression}
+import org.jetbrains.plugins.scala.lang.psi.api.expr.{ScAssignment, ScExpression, ScMethodCall, ScReferenceExpression}
 import org.jetbrains.plugins.scala.lang.psi.api.statements.ScFunction
 import org.jetbrains.plugins.scala.lang.psi.api.statements.params.ScParameter
 
@@ -44,7 +44,7 @@ object RedundantDefaultArgumentUtil {
     case expression: ScExpression if isAllArgumentsNamedAfterIndex(arguments, index) => expression match {
       case _: ScInterpolatedStringLiteral => false
       case literal: ScLiteral => parameters.isDefinedAt(index) && hasDefaultValue(parameters(index), literal)
-      case namedArg@ScAssignStmt(_, Some(value: ScLiteral)) if namedArg.isNamedParameter => namedArg.assignName match {
+      case namedArg@ScAssignment(_, Some(value: ScLiteral)) if namedArg.isNamedParameter => namedArg.assignName match {
         case Some(argumentName: String) => parameters.exists(param => param.name == argumentName && hasDefaultValue(param, value))
         case _ => false
       }
@@ -61,7 +61,7 @@ object RedundantDefaultArgumentUtil {
   }
 
   def isAllArgumentsNamedAfterIndex(expressions: Seq[ScExpression], index: Int): Boolean = expressions.drop(index + 1).forall {
-    case assign: ScAssignStmt if assign.isNamedParameter => true
+    case assign: ScAssignment if assign.isNamedParameter => true
     case _ => false
   }
 

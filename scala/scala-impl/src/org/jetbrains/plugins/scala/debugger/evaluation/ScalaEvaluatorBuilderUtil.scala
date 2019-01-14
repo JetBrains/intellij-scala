@@ -859,7 +859,7 @@ private[evaluation] trait ScalaEvaluatorBuilderUtil {
     } else throw EvaluationException(ScalaBundle.message("invalid.case.clause"))
   }
 
-  def assignmentEvaluator(stmt: ScAssignStmt): Evaluator = {
+  def assignmentEvaluator(stmt: ScAssignment): Evaluator = {
     val message = ScalaBundle.message("assignent.without.expression")
     if (stmt.isNamedParameter) {
       stmt.getRExpression match {

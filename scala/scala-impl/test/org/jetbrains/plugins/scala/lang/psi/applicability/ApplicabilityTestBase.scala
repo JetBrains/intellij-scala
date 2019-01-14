@@ -5,7 +5,7 @@ import org.jetbrains.plugins.scala.base.SimpleTestCase
 import org.jetbrains.plugins.scala.extensions._
 import org.jetbrains.plugins.scala.lang.psi.api.ScalaFile
 import org.jetbrains.plugins.scala.lang.psi.api.base.ScReferenceElement
-import org.jetbrains.plugins.scala.lang.psi.api.expr.{ScAssignStmt, ScExpression}
+import org.jetbrains.plugins.scala.lang.psi.api.expr.{ScAssignment, ScExpression}
 import org.jetbrains.plugins.scala.lang.psi.api.toplevel.typedef.ScClass
 import org.jetbrains.plugins.scala.lang.psi.types._
 import org.jetbrains.plugins.scala.lang.psi.types.nonvalue.Parameter
@@ -155,7 +155,7 @@ abstract class ApplicabilityTestBase extends SimpleTestCase {
   }
 
   object Assignment {
-    def unapply(e: ScAssignStmt) = e.toOption.map(_.getText)
+    def unapply(e: ScAssignment) = e.toOption.map(_.getText)
   }
     
   object Type {

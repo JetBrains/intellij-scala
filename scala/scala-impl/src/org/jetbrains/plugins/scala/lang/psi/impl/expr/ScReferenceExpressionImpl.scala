@@ -45,7 +45,7 @@ import scala.collection.mutable
   */
 class ScReferenceExpressionImpl(node: ASTNode) extends ScReferenceElementImpl(node) with ScReferenceExpression {
 
-  private[this] var maybeAssignment: Option[ScAssignStmt] = None
+  private[this] var maybeAssignment: Option[ScAssignment] = None
 
   override def toString: String = "ReferenceExpression: " + ifReadAllowed(getText)("")
 
@@ -60,9 +60,9 @@ class ScReferenceExpressionImpl(node: ASTNode) extends ScReferenceElementImpl(no
     case _ => super.accept(visitor)
   }
 
-  override final def assignment: ScAssignStmt = maybeAssignment.orNull
+  override final def assignment: ScAssignment = maybeAssignment.orNull
 
-  override final def assignment_=(statement: ScAssignStmt): Unit = {
+  override final def assignment_=(statement: ScAssignment): Unit = {
     maybeAssignment = Some(statement)
   }
 

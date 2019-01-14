@@ -72,7 +72,7 @@ object JavaConversionUtil {
   def convertExpression(e: ScExpression): String = {
     def problem = "CannotConvertExpression"
     e match {
-      case a: ScAssignStmt =>
+      case a: ScAssignment =>
         val res = a.getLExpression.getText + " = "
         a.getRExpression match {
           case Some(expr) => res + convertExpression(expr)

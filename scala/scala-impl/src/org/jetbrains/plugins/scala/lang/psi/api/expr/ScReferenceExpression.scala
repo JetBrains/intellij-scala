@@ -28,9 +28,9 @@ trait ScReferenceExpression extends ScExpression
     case _ => None
   }
 
-  def assignment: ScAssignStmt
+  def assignment: ScAssignment
 
-  def assignment_=(statement: ScAssignStmt): Unit
+  def assignment_=(statement: ScAssignment): Unit
 
   def doResolve(processor: BaseProcessor, accessibilityCheck: Boolean = true): Array[ScalaResolveResult]
 

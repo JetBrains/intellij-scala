@@ -12,7 +12,7 @@ import org.jetbrains.plugins.scala.lang.lexer.ScalaTokenTypes
 import org.jetbrains.plugins.scala.lang.psi.ScalaPsiUtil
 import org.jetbrains.plugins.scala.lang.psi.api.ScPackage
 import org.jetbrains.plugins.scala.lang.psi.api.base.ScReferenceElement
-import org.jetbrains.plugins.scala.lang.psi.api.expr.{ScAssignStmt, ScEnumerator, ScSelfInvocation}
+import org.jetbrains.plugins.scala.lang.psi.api.expr.{ScAssignment, ScEnumerator, ScSelfInvocation}
 import org.jetbrains.plugins.scala.lang.psi.api.statements.ScFunction
 import org.jetbrains.plugins.scala.lang.psi.api.statements.params.ScParameter
 import org.jetbrains.plugins.scala.lang.psi.api.toplevel.imports.ScImportSelectors
@@ -41,7 +41,7 @@ class ScalaGoToDeclarationHandler extends GotoDeclarationHandler {
     sourceElement.getNode.getElementType match {
       case ScalaTokenTypes.tASSIGN =>
         maybeParent
-          .collect { case assign: ScAssignStmt => assign }
+          .collect { case assign: ScAssignment => assign }
           .flatMap { assign => Option(assign.assignNavigationElement) }
           .map { Array(_) }
           .getOrElse { getGotoDeclarationTargetsForEnumerator(maybeParent) }

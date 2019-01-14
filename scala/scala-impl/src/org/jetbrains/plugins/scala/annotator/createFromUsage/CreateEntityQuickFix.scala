@@ -45,7 +45,7 @@ abstract class CreateEntityQuickFix(ref: ScReferenceExpression, entity: String, 
     }
 
     ref match {
-      case Parent((_: ScAssignStmt) && Parent(_: ScArgumentExprList)) =>
+      case Parent((_: ScAssignment) && Parent(_: ScArgumentExprList)) =>
         false
       case exp@Parent(infix: ScInfixExpr) if infix.operation == exp => checkBlock(infix.getBaseExpr)
       case it =>

@@ -529,7 +529,7 @@ object ScExpression {
       case _: ScPostfixExpr                   => true
       case ChildOf(ScInfixExpr(_, `expr`, _)) => false //implicit parameters are in infix expression
       case ChildOf(_: ScGenericCall)          => false //implicit parameters are in generic call
-      case ChildOf(ScAssignStmt(`expr`, _))   => false //simple var cannot have implicit parameters, otherwise it's for assignment
+      case ChildOf(ScAssignment(`expr`, _))   => false //simple var cannot have implicit parameters, otherwise it's for assignment
       case _: MethodInvocation                => false
       case ScParenthesisedExpr(inner)         => shouldUpdateImplicitParams(inner)
       case _                                  => true
@@ -593,7 +593,7 @@ object ScExpression {
     }
 
     expression match {
-      case assign: ScAssignStmt if !ignoreAssign && assign.assignName.isDefined =>
+      case assign: ScAssignment if !ignoreAssign && assign.assignName.isDefined =>
         shapeIgnoringAssign(assign.getRExpression)
       case _ =>
         val arityAndResultType = Option(isAnonymousExpression(expression)).filter {

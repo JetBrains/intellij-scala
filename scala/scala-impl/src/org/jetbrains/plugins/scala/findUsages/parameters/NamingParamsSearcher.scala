@@ -10,7 +10,7 @@ import org.jetbrains.plugins.scala.extensions.inReadAction
 import org.jetbrains.plugins.scala.finder.ScalaFilterScope
 import org.jetbrains.plugins.scala.lang.psi.ScalaPsiUtil
 import org.jetbrains.plugins.scala.lang.psi.api.base.ScReferenceElement
-import org.jetbrains.plugins.scala.lang.psi.api.expr.{ScArgumentExprList, ScAssignStmt}
+import org.jetbrains.plugins.scala.lang.psi.api.expr.{ScArgumentExprList, ScAssignment}
 import org.jetbrains.plugins.scala.lang.psi.api.statements.params.ScParameter
 
 import scala.collection.mutable
@@ -42,7 +42,7 @@ class NamingParamsSearcher extends QueryExecutor[PsiReference, ReferencesSearch.
                 case refElement: ScReferenceElement =>
                   inReadAction {
                     refElement.getParent match {
-                      case assign: ScAssignStmt if assign.getLExpression == refElement &&
+                      case assign: ScAssignment if assign.getLExpression == refElement &&
                         assign.getParent.isInstanceOf[ScArgumentExprList] =>
                         Option(refElement.resolve()) match {
                           case Some(`parameter`) => if (!consumer.process(ref)) return false

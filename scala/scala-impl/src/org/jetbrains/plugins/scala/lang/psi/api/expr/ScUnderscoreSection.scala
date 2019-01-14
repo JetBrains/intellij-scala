@@ -51,8 +51,8 @@ trait ScUnderscoreSection extends ScExpression {
         case ref: ScReferenceExpression => go(ref, calcArguments = false)
         case call: ScMethodCall => go(call, calcArguments = false)
         case gen: ScGenericCall => go(gen, calcArguments = false)
-        case assign: ScAssignStmt if assign.getLExpression == expr => go(assign, calcArguments = false)
-        case assign: ScAssignStmt if assign.getRExpression.contains(expr) && isUnderscore(expr) =>
+        case assign: ScAssignment if assign.getLExpression == expr => go(assign, calcArguments = false)
+        case assign: ScAssignment if assign.getRExpression.contains(expr) && isUnderscore(expr) =>
           go(assign, calcArguments = false)
         case _: ScForBinding | _: ScGenerator if calcArguments =>
           go(ScalaPsiUtil.contextOfType(expr, strict = true, classOf[ScFor]), calcArguments = false)

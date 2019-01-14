@@ -50,7 +50,7 @@ class ScAnnotationImpl private(stub: ScAnnotationStub, node: ASTNode)
   def findDeclaredAttributeValue(attributeName: String): PsiAnnotationMemberValue = {
     constructor.args match {
       case Some(args) => args.exprs.map {
-        case expr@(ass: ScAssignStmt) => ass.getLExpression match {
+        case expr@(ass: ScAssignment) => ass.getLExpression match {
           case ref: ScReferenceExpression if ref.refName == attributeName => ass.getRExpression match {
             case Some(expr) => (true, expr)
             case _ => (false, expr)
@@ -134,7 +134,7 @@ class ScAnnotationImpl private(stub: ScAnnotationStub, node: ASTNode)
           return null.asInstanceOf[T] //todo: ?
         }
         val params: Seq[ScExpression] = args.flatMap(arg => arg.exprs)
-        if (params.length == 1 && !params.head.isInstanceOf[ScAssignStmt]) {
+        if (params.length == 1 && !params.head.isInstanceOf[ScAssignment]) {
           params.head.replace(
             createExpressionFromText
               (PsiAnnotation.DEFAULT_REFERENCED_METHOD_NAME + " = " + params.head.getText)

@@ -163,7 +163,7 @@ class ScalaLanguageInjector(myInjectionConfiguration: Configuration) extends Mul
     case pattern: ScPatternDefinition => Some(pattern)
     case variable: ScVariableDefinition => Some(variable)
     case _: ScArgumentExprList => parameterOf(child)
-    case assignment: ScAssignStmt => assignmentTarget(assignment)
+    case assignment: ScAssignment => assignmentTarget(assignment)
     case infix: ScInfixExpr if child == infix.getFirstChild =>
       if (ScalaLanguageInjector isSafeCall infix) annotationOwnerFor(infix) else None
     case _: ScInfixExpr => parameterOf(child)
@@ -218,7 +218,7 @@ class ScalaLanguageInjector(myInjectionConfiguration: Configuration) extends Mul
     }
   }
 
-  private def assignmentTarget(assignment: ScAssignStmt): Option[PsiAnnotationOwner with PsiElement] = {
+  private def assignmentTarget(assignment: ScAssignment): Option[PsiAnnotationOwner with PsiElement] = {
     val l = assignment.getLExpression
     // map(x) = y check
     if (l.isInstanceOf[ScMethodCall]) None else l.asOptionOf[ScReferenceElement]

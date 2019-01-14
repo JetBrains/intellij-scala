@@ -23,7 +23,7 @@ class ExpandDynamicCall extends AbstractTransformer {
       e.replace(code"${r.qualifier.get}.applyDynamicNamed(${quote(id)})(${@@(assignments.map(asTuple))})")
 
     case e @ ScInfixExpr(l, RenamedReference(id, "applyDynamicNamed"), r) =>
-      val assignments = r.breadthFirst().filter(_.isInstanceOf[ScAssignStmt]).toVector
+      val assignments = r.breadthFirst().filter(_.isInstanceOf[ScAssignment]).toVector
       e.replace(code"$l.applyDynamicNamed(${quote(id)})(${@@(assignments.map(asTuple))})")
 
     case (e: ScReferenceExpression) && (r @ RenamedReference(id, "selectDynamic")) if r.qualifier.isDefined =>
@@ -32,14 +32,14 @@ class ExpandDynamicCall extends AbstractTransformer {
     case e @ ScPostfixExpr(l, RenamedReference(id, "selectDynamic")) =>
       e.replace(code"$l.selectDynamic(${quote(id)})")
 
-    case e @ ScAssignStmt(l @ RenamedReference(id, "updateDynamic"), Some(r)) =>
+    case e @ ScAssignment(l @ RenamedReference(id, "updateDynamic"), Some(r)) =>
       e.replace(code"${l.qualifier.get}.updateDynamic(${quote(id)})($r)")
 
-    case e @ ScAssignStmt(ScPostfixExpr(l, RenamedReference(id, "updateDynamic")), Some(r)) =>
+    case e @ ScAssignment(ScPostfixExpr(l, RenamedReference(id, "updateDynamic")), Some(r)) =>
       e.replace(code"$l.updateDynamic(${quote(id)})($r)")
   }
 
   private def asTuple(assignment: PsiElement)(implicit project: ProjectContext): ScalaPsiElement = assignment match {
-    case ScAssignStmt(l, Some(r)) => code"(${quote(l.getText)}, $r)"
+    case ScAssignment(l, Some(r)) => code"(${quote(l.getText)}, $r)"
   }
 }

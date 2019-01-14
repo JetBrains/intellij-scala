@@ -14,7 +14,7 @@ import org.jetbrains.plugins.scala.lang.psi.api.{ScalaFile, ScalaPsiElement}
 import org.jetbrains.plugins.scala.lang.psi.api.base.ScStableCodeReferenceElement
 import org.jetbrains.plugins.scala.lang.psi.api.base.patterns.ScTypedPattern
 import org.jetbrains.plugins.scala.lang.psi.api.base.types.{ScTupleTypeElement, ScTypeElement}
-import org.jetbrains.plugins.scala.lang.psi.api.expr.{ScAssignStmt, ScExpression}
+import org.jetbrains.plugins.scala.lang.psi.api.expr.{ScAssignment, ScExpression}
 import org.jetbrains.plugins.scala.lang.psi.api.statements._
 import org.jetbrains.plugins.scala.lang.psi.api.toplevel.ScPackaging
 import org.jetbrains.plugins.scala.lang.psi.api.toplevel.imports.ScImportStmt
@@ -318,7 +318,7 @@ object WorksheetSourceProcessor {
       appendPsiLineInfo(varDef, lineNum)
     }
 
-    protected def processAssign(assign: ScAssignStmt){
+    protected def processAssign(assign: ScAssignment){
       val pName = assign.getLExpression.getText
       val lineNums = psiToLineNumbers(assign)
       val defName = s"`get$$$$instance_$assignCount$$$$$pName`"
@@ -445,7 +445,7 @@ object WorksheetSourceProcessor {
         case tpeDef: ScTypeDefinition => processTypeDef(tpeDef)
         case valDef: ScPatternDefinition => processValDef(valDef)
         case varDef: ScVariableDefinition => processVarDef(varDef)
-        case assign: ScAssignStmt => processAssign(assign)
+        case assign: ScAssignment => processAssign(assign)
         case imp: ScImportStmt => if (!processLocalImport(imp)) processImport(imp)
         case comment: PsiComment => 
           processComment(comment)

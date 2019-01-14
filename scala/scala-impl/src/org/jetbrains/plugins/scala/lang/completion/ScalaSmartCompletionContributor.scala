@@ -53,13 +53,13 @@ final class ScalaSmartCompletionContributor extends ScalaCompletionContributor {
     expr = ref
    */
   extend(
-    classOf[ScAssignStmt],
+    classOf[ScAssignment],
     new CompletionProvider[CompletionParameters] {
       def addCompletions(parameters: CompletionParameters, context: ProcessingContext,
                          result: CompletionResultSet) {
         val element = positionFromParameters(parameters)
 
-        extractReference[ScAssignStmt](element).foreach { case (ref, assign) =>
+        extractReference[ScAssignment](element).foreach { case (ref, assign) =>
           if (assign.getRExpression.contains(ref)) {
             assign.getLExpression match {
               case _: ScMethodCall => //todo: it's update method

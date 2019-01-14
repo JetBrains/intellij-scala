@@ -28,7 +28,7 @@ class LoopVariableNotUpdatedInspection extends AbstractInspection("Loop variable
     val Target = target
 
     scope.breadthFirst().exists {
-      case ScAssignStmt(_, _) => true
+      case ScAssignment(_, _) => true
       case e@ScInfixExpr(ResolvesTo(Target), _, _) if e.isAssignmentOperator => true
       case _ => false
     }

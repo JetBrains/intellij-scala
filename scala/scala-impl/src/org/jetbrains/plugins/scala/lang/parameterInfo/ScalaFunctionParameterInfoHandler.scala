@@ -519,7 +519,7 @@ class ScalaFunctionParameterInfoHandler extends ParameterInfoHandlerWithTabActio
         val res: ArrayBuffer[Object] = new ArrayBuffer[Object]
         def collectResult() {
           val canBeUpdate = call.getParent match {
-            case assignStmt: ScAssignStmt if call == assignStmt.getLExpression => true
+            case assignStmt: ScAssignment if call == assignStmt.getLExpression => true
             case notExpr if !notExpr.isInstanceOf[ScExpression] || notExpr.isInstanceOf[ScBlockExpr] => true
             case _ => false
           }

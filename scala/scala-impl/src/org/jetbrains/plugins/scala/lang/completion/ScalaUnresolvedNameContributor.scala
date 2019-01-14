@@ -132,7 +132,7 @@ object ScalaUnresolvedNameContributor {
       (highlightInfo: HighlightInfo) => {
         val startOffset = highlightInfo.getStartOffset
         val maybeReference = originalFile.findReferenceAt(startOffset) match {
-          case (_: ScReferenceElement) childOf ((_: ScAssignStmt) childOf (_: ScArgumentExprList)) => None
+          case (_: ScReferenceElement) childOf ((_: ScAssignment) childOf (_: ScArgumentExprList)) => None
           case reference: ScReferenceElement if reference.getTextRange.containsRange(startOffset, highlightInfo.getEndOffset) => Some(reference)
           case _ => None
         }
@@ -176,7 +176,7 @@ sealed abstract class ScalaTextLookupItem(protected val reference: ScReferenceEl
     val suggester = new UniqueNameSuggester()
 
     def createParameter: ScExpression => (String, ScType) = {
-      case assign@ScAssignStmt(_, Some(assignment)) =>
+      case assign@ScAssignment(_, Some(assignment)) =>
         suggester(assign.assignName) -> assignment.`type`().getOrAny
       case expression =>
         val `type` = expression.`type`().getOrAny

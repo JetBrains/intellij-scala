@@ -13,7 +13,7 @@ import org.jetbrains.plugins.scala.lang.resolve.processor.DynamicResolveProcesso
 /**
   * @author Alexander Podkhalyuzin
   */
-trait ScAssignStmt extends ScExpression {
+trait ScAssignment extends ScExpression {
   def getLExpression: ScExpression = findChildByClassScala(classOf[ScExpression])
 
   def getRExpression: Option[ScExpression] = findLastChild(classOf[ScExpression]) match {
@@ -105,10 +105,10 @@ trait ScAssignStmt extends ScExpression {
 }
 
 object NamedAssignStmt {
-  def unapply(st: ScAssignStmt): Option[String] = st.assignName
+  def unapply(st: ScAssignment): Option[String] = st.assignName
 }
 
-object ScAssignStmt {
-  def unapply(st: ScAssignStmt): Option[(ScExpression, Option[ScExpression])] =
+object ScAssignment {
+  def unapply(st: ScAssignment): Option[(ScExpression, Option[ScExpression])] =
     Some(st.getLExpression, st.getRExpression)
 }

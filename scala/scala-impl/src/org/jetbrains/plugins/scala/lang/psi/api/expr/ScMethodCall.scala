@@ -21,12 +21,12 @@ trait ScMethodCall extends ScExpression with MethodInvocation {
 
   def args: ScArgumentExprList = findChildByClassScala(classOf[ScArgumentExprList])
 
-  override def isUpdateCall: Boolean = getContext.isInstanceOf[ScAssignStmt] &&
-    getContext.asInstanceOf[ScAssignStmt].getLExpression == this
+  override def isUpdateCall: Boolean = getContext.isInstanceOf[ScAssignment] &&
+    getContext.asInstanceOf[ScAssignment].getLExpression == this
 
   def updateExpression(): Option[ScExpression] = {
     getContext match {
-      case a: ScAssignStmt if a.getLExpression == this => a.getRExpression
+      case a: ScAssignment if a.getLExpression == this => a.getRExpression
       case _ => None
     }
   }

@@ -145,7 +145,7 @@ object NameSuggester {
       }.flatMap(string => camelCaseNames(string).headOption).toSeq
     case expression =>
       val maybeName = expression.getContext match {
-        case x: ScAssignStmt => x.assignName
+        case x: ScAssignment => x.assignName
         case x: ScArgumentExprList => x.matchedParameters.collectFirst {
           case (matchedExpression, parameter) if matchedExpression == expression => parameter
         }.map(_.name)

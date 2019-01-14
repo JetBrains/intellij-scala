@@ -13,7 +13,7 @@ import org.jetbrains.plugins.scala.extensions._
 import org.jetbrains.plugins.scala.lang.completion.lookups.ScalaLookupItem
 import org.jetbrains.plugins.scala.lang.formatting.settings.ScalaCodeStyleSettings
 import org.jetbrains.plugins.scala.lang.psi.api.base.patterns.ScStableReferenceElementPattern
-import org.jetbrains.plugins.scala.lang.psi.api.expr.{ScAssignStmt, ScReferenceExpression}
+import org.jetbrains.plugins.scala.lang.psi.api.expr.{ScAssignment, ScReferenceExpression}
 import org.jetbrains.plugins.scala.lang.psi.api.statements.params.{ScClassParameter, ScParameter}
 import org.jetbrains.plugins.scala.lang.psi.api.statements.{ScFunction, ScTypeAliasDefinition}
 import org.jetbrains.plugins.scala.lang.psi.api.toplevel.imports.usages.ImportExprUsed
@@ -93,7 +93,7 @@ trait ScReferenceElement extends ScalaPsiElement with PsiPolyVariantReference {
       case _: ScClassParameter =>
       case param: ScParameter if !PsiTreeUtil.isContextAncestor(param.owner, this, true) =>
         getParent match {
-          case ScAssignStmt(left, _) if left == this =>
+          case ScAssignment(left, _) if left == this =>
           case _ => return false
         }
       case _ =>

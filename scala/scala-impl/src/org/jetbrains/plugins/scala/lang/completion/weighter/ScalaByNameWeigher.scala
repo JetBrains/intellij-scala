@@ -11,7 +11,7 @@ import com.intellij.util.text.EditDistance
 import org.jetbrains.plugins.scala.extensions.ObjectExt
 import org.jetbrains.plugins.scala.lang.completion.lookups.ScalaLookupItem
 import org.jetbrains.plugins.scala.lang.psi.api.base.patterns.ScBindingPattern
-import org.jetbrains.plugins.scala.lang.psi.api.expr.{ScAssignStmt, ScNewTemplateDefinition}
+import org.jetbrains.plugins.scala.lang.psi.api.expr.{ScAssignment, ScNewTemplateDefinition}
 import org.jetbrains.plugins.scala.lang.psi.api.statements.params.ScParameter
 import org.jetbrains.plugins.scala.lang.psi.api.statements.{ScPatternDefinition, ScTypeAlias, ScTypedDeclaration}
 import org.jetbrains.plugins.scala.lang.psi.api.toplevel.typedef.ScTypeDefinition
@@ -60,7 +60,7 @@ class ScalaByNameWeigher extends CompletionWeigher {
         val result = newTemplateDefinition.map(_.getContext).flatMap {
           case patterDef: ScPatternDefinition =>
             patterDef.bindings.headOption.map(_.name)
-          case assignement: ScAssignStmt =>
+          case assignement: ScAssignment =>
             assignement.assignName
           case _ => None
         }

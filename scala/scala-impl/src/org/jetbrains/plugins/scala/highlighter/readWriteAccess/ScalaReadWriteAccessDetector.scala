@@ -4,7 +4,7 @@ package highlighter.readWriteAccess
 import com.intellij.codeInsight.highlighting.ReadWriteAccessDetector
 import com.intellij.codeInsight.highlighting.ReadWriteAccessDetector.Access
 import com.intellij.psi.{PsiElement, PsiNamedElement, PsiReference}
-import org.jetbrains.plugins.scala.lang.psi.api.expr.{ScAssignStmt, ScExpression}
+import org.jetbrains.plugins.scala.lang.psi.api.expr.{ScAssignment, ScExpression}
 import org.jetbrains.plugins.scala.lang.psi.api.statements.{ScPatternDefinition, ScVariableDefinition}
 import org.jetbrains.plugins.scala.lang.psi.ScalaPsiUtil
 import org.jetbrains.plugins.scala.lang.psi.api.ScalaPsiElement
@@ -49,7 +49,7 @@ private object ScalaReadWriteAccessDetector {
   //Now it's just inverse prev method
   def isAccessedForWriting(expression: ScExpression): Boolean = {
     expression.getParent match {
-      case assign : ScAssignStmt if expression == assign.getLExpression => true
+      case assign : ScAssignment if expression == assign.getLExpression => true
       case _ => false
     }
   }

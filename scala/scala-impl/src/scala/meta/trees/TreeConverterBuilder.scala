@@ -115,7 +115,7 @@ trait TreeConverterBuilder {
 
       override def visitLiteral(l: ScLiteral) = super.visitLiteral(l)
 
-      override def visitAssignmentStatement(stmt: ScAssignStmt) = super.visitAssignmentStatement(stmt)
+      override def visitAssignmentStatement(stmt: ScAssignment) = super.visitAssignmentStatement(stmt)
 
       override def visitMethodCallExpression(call: ScMethodCall) = super.visitMethodCallExpression(call)
 
