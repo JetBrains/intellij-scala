@@ -17,7 +17,7 @@ trait ScReturn extends ScExpression {
 
   def keyword: PsiElement
 
-  def returnFunction: Option[ScFunctionDefinition] =
+  def method: Option[ScFunctionDefinition] =
     this.parentOfType(classOf[ScFunctionDefinition])
 
   override def accept(visitor: ScalaElementVisitor): Unit = {

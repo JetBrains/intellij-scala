@@ -289,7 +289,7 @@ class ScalaIntroduceParameterHandler extends ScalaRefactoringActionHandler with 
       elem <- elems
       ret@(r: ScReturn) <- elem.depthFirst()
     } {
-      if (ret.returnFunction.isEmpty || !elem.isAncestorOf(ret.returnFunction.get))
+      if (ret.method.isEmpty || !elem.isAncestorOf(ret.method.get))
         return true
     }
     false

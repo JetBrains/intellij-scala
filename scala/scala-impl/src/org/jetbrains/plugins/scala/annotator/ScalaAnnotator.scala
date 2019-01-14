@@ -931,7 +931,7 @@ abstract class ScalaAnnotator extends Annotator
   }
 
   private def checkExplicitTypeForReturnStatement(statement: ScReturn, holder: AnnotationHolder): Unit = {
-    val function = statement.returnFunction.getOrElse {
+    val function = statement.method.getOrElse {
       val error = ScalaBundle.message("return.outside.method.definition")
       val annotation: Annotation = holder.createErrorAnnotation(statement.keyword, error)
       annotation.setHighlightType(ProblemHighlightType.LIKE_UNKNOWN_SYMBOL)
