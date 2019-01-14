@@ -24,18 +24,18 @@ class ScWhileImpl(node: ASTNode) extends ScExpressionImplBase(node) with ScWhile
     Option(c)
   }
 
-  def body: Option[ScExpression] = {
+  def expression: Option[ScExpression] = {
     val rpar = findChildByType[PsiElement](ScalaTokenTypes.tRPARENTHESIS)
     val c = if (rpar != null) PsiTreeUtil.getNextSiblingOfType(rpar, classOf[ScExpression]) else null
     Option(c)
   }
 
-  def getLeftParenthesis: Option[PsiElement] = {
+  def leftParen: Option[PsiElement] = {
     val leftParenthesis = findChildByType[PsiElement](ScalaTokenTypes.tLPARENTHESIS)
     Option(leftParenthesis)
   }
 
-  def getRightParenthesis: Option[PsiElement] = {
+  def rightParen: Option[PsiElement] = {
     val rightParenthesis = findChildByType[PsiElement](ScalaTokenTypes.tRPARENTHESIS)
     Option(rightParenthesis)
   }

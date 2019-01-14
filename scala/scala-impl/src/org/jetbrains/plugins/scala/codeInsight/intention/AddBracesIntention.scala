@@ -52,7 +52,7 @@ class AddBracesIntention extends PsiElementBaseIntentionAction {
       case finallyBlock: ScFinallyBlock =>
         finallyBlock.expression.filter(isAncestorOfElement)
       case whileStmt: ScWhile =>
-        whileStmt.body.filter(isAncestorOfElement)
+        whileStmt.expression.filter(isAncestorOfElement)
       case doStmt: ScDo =>
         doStmt.body.filter(isAncestorOfElement)
       case _ => None

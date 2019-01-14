@@ -12,11 +12,11 @@ import com.intellij.psi.PsiElement
 trait ScWhile extends ScExpression {
   def condition: Option[ScExpression]
 
-  def body: Option[ScExpression]
+  def expression: Option[ScExpression]
 
-  def getLeftParenthesis: Option[PsiElement]
+  def leftParen: Option[PsiElement]
 
-  def getRightParenthesis: Option[PsiElement]
+  def rightParen: Option[PsiElement]
 
   override def accept(visitor: ScalaElementVisitor): Unit = {
     visitor.visitWhileStatement(this)
@@ -25,5 +25,5 @@ trait ScWhile extends ScExpression {
 
 object ScWhile {
   def unapply(statement: ScWhile): Option[(Option[ScExpression], Option[ScExpression])] =
-    Some((statement.condition, statement.body))
+    Some((statement.condition, statement.expression))
 }

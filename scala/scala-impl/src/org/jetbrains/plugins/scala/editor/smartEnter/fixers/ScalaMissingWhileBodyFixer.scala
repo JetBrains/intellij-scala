@@ -18,13 +18,13 @@ class ScalaMissingWhileBodyFixer extends ScalaFixer {
     if (whileStatement == null) return NoOperation
 
     val doc = editor.getDocument
-    val body = whileStatement.body.orNull
+    val body = whileStatement.expression.orNull
 
-    whileStatement.body match {
+    whileStatement.expression match {
       case Some(_: ScBlockExpr) => NoOperation
       case Some(_) if startLine(doc, body) == startLine(doc, whileStatement) && whileStatement.condition.isDefined => NoOperation
       case _ =>
-        whileStatement.getRightParenthesis map {
+        whileStatement.rightParen map {
           case rParenth =>
             moveToEnd(editor, rParenth)
 

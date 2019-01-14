@@ -28,7 +28,7 @@ class ReplaceWhileWithDoWhileIntention extends PsiElementBaseIntentionAction {
     for {
       whileStmt <- Option(PsiTreeUtil.getParentOfType(element, classOf[ScWhile], false))
       condition <- whileStmt.condition
-      body <- whileStmt.body
+      body <- whileStmt.expression
     } {
       val offset = editor.getCaretModel.getOffset
       if (offset >= whileStmt.getTextRange.getStartOffset && offset <= condition.getTextRange.getStartOffset - 1)
@@ -44,7 +44,7 @@ class ReplaceWhileWithDoWhileIntention extends PsiElementBaseIntentionAction {
 
     for {
       condition <- whileStmt.condition
-      body <- whileStmt.body
+      body <- whileStmt.expression
     } {
       val condText = condition.getText
       val bodyText = body.getText

@@ -20,8 +20,8 @@ class ScalaWhileConditionFixer extends ScalaFixer {
     if (whileStatement == null) return NoOperation
 
     val doc = editor.getDocument
-    val leftParenthesis = whileStatement.getLeftParenthesis.orNull
-    val rightParenthesis = whileStatement.getRightParenthesis.orNull
+    val leftParenthesis = whileStatement.leftParen.orNull
+    val rightParenthesis = whileStatement.rightParen.orNull
 
     whileStatement.condition match {
       case None if leftParenthesis != null && !leftParenthesis.getNextSibling.isInstanceOf[PsiErrorElement] &&
@@ -33,7 +33,7 @@ class ScalaWhileConditionFixer extends ScalaFixer {
         var stopOffset = doc.getLineEndOffset(doc getLineNumber whileStartOffset)
         val whLength = "while (".length
 
-        whileStatement.body.foreach(bl => stopOffset = Math.min(stopOffset, bl.getTextRange.getStartOffset))
+        whileStatement.expression.foreach(bl => stopOffset = Math.min(stopOffset, bl.getTextRange.getStartOffset))
 
         doc.replaceString(whileStartOffset, stopOffset, "while () {\n\n}")
         moveToStart(editor, whileStatement)
@@ -43,8 +43,8 @@ class ScalaWhileConditionFixer extends ScalaFixer {
         moveToStart(editor, leftParenthesis)
         doc.insertString(rightParenthesis.getTextRange.getEndOffset, " {\n\n}")
         WithReformat(1)
-      case Some(_) if rightParenthesis != null && whileStatement.body.isDefined =>
-        whileStatement.body match {
+      case Some(_) if rightParenthesis != null && whileStatement.expression.isDefined =>
+        whileStatement.expression match {
           case Some(block: ScBlockExpr) =>
             return placeInWholeBlock(block, editor)
           case Some(expr) => moveToEnd(editor, expr)

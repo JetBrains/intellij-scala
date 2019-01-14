@@ -45,7 +45,7 @@ class ScalaBraceEnforcer(settings: CodeStyleSettings) extends ScalaRecursiveElem
   override def visitWhileStatement(ws: ScWhile) {
     if (checkElementContainsRange(ws)) {
       super.visitWhileStatement(ws)
-      ws.body match {
+      ws.expression match {
         case Some(b) =>
           processExpression(b, ws, commonSetttings.WHILE_BRACE_FORCE)
         case _ =>

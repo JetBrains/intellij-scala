@@ -1096,7 +1096,7 @@ private[evaluation] trait ScalaEvaluatorBuilderUtil {
       case Some(cond) => evaluatorFor(cond)
       case None => throw EvaluationException(ScalaBundle.message("while.statement.without.condition"))
     }
-    val iterationEvaluator = ws.body match {
+    val iterationEvaluator = ws.expression match {
       case Some(body) => evaluatorFor(body)
       case None => throw EvaluationException(ScalaBundle.message("while.statement.without.body"))
     }

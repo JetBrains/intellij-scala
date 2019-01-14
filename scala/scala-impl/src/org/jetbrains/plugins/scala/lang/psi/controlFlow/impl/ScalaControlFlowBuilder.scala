@@ -242,7 +242,7 @@ class ScalaControlFlowBuilder(startInScope: ScalaPsiElement,
       // for breaks
       //addPendingEdge(ws, myHead)
       ws.condition.foreach(_.accept(this))
-      ws.body.foreach {b =>
+      ws.expression.foreach { b =>
         b.accept(this)
       }
       checkPendingEdges(instr)
