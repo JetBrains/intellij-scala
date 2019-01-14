@@ -17,9 +17,9 @@ import org.jetbrains.plugins.scala.project.ProjectContext
 /**
   * @author Alexander Podkhalyuzin
   */
-class ScTryStmtImpl(node: ASTNode) extends ScExpressionImplBase(node) with ScTryStmt {
+class ScTryImpl(node: ASTNode) extends ScExpressionImplBase(node) with ScTry {
 
-  import ScTryStmtImpl._
+  import ScTryImpl._
 
   protected override def innerType: TypeResult =
     tryBlock.`type`().flatMap { tryBlockType =>
@@ -45,7 +45,7 @@ class ScTryStmtImpl(node: ASTNode) extends ScExpressionImplBase(node) with ScTry
   override def toString: String = "TryStatement"
 }
 
-object ScTryStmtImpl {
+object ScTryImpl {
 
   private def createProcessor(expression: ScExpression)
                              (implicit projectContext: ProjectContext): Option[MethodResolveProcessor] =

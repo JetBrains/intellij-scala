@@ -88,7 +88,7 @@ class ScalaBraceEnforcer(settings: CodeStyleSettings) extends ScalaRecursiveElem
   }
 
 
-  override def visitTryExpression(tryStmt: ScTryStmt) {
+  override def visitTryExpression(tryStmt: ScTry) {
     if (checkElementContainsRange(tryStmt)) {
       super.visitTryExpression(tryStmt)
       tryStmt.tryBlock.children.toList.filter(!_.isInstanceOf[PsiWhiteSpace]).tail match {

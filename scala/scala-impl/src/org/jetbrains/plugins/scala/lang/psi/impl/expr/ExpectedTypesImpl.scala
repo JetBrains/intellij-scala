@@ -151,7 +151,7 @@ class ExpectedTypesImpl extends ExpectedTypes {
       case cond: ScIfStmt if cond.elseBranch.isDefined => cond.expectedTypesEx(fromUnderscore = true)
       //see SLA[6.22]
       case tb: ScTryBlock => tb.lastExpr match {
-        case Some(e) if e == expr => tb.getContext.asInstanceOf[ScTryStmt].expectedTypesEx(fromUnderscore = true)
+        case Some(e) if e == expr => tb.getContext.asInstanceOf[ScTry].expectedTypesEx(fromUnderscore = true)
         case _ => Array.empty
       }
       case wh: ScWhileStmt if wh.condition.getOrElse(null: ScExpression) == sameInContext => Array((api.Boolean, None))
@@ -169,7 +169,7 @@ class ExpectedTypesImpl extends ExpectedTypes {
       case c: ScCaseClause => c.getContext.getContext match {
         case m: ScMatchStmt => m.expectedTypesEx(fromUnderscore = true)
         case b: ScBlockExpr if b.isInCatchBlock =>
-          b.getContext.getContext.asInstanceOf[ScTryStmt].expectedTypesEx(fromUnderscore = true)
+          b.getContext.getContext.asInstanceOf[ScTry].expectedTypesEx(fromUnderscore = true)
         case b: ScBlockExpr if b.isAnonymousFunction =>
           b.expectedTypesEx(fromUnderscore = true).flatMap(tp => fromFunction(tp))
         case _ => Array.empty

@@ -7,7 +7,7 @@ package expr
 /**
   * @author Alexander Podkhalyuzin
   */
-trait ScTryStmt extends ScExpression {
+trait ScTry extends ScExpression {
   def tryBlock: ScTryBlock = findChildByClassScala(classOf[ScTryBlock])
 
   def catchBlock: Option[ScCatchBlock] = findChild(classOf[ScCatchBlock])
@@ -19,7 +19,7 @@ trait ScTryStmt extends ScExpression {
   }
 }
 
-object ScTryStmt {
-  def unapply(tryStmt: ScTryStmt): Option[(ScTryBlock, Option[ScCatchBlock], Option[ScFinallyBlock])] =
+object ScTry {
+  def unapply(tryStmt: ScTry): Option[(ScTryBlock, Option[ScCatchBlock], Option[ScFinallyBlock])] =
     Some((tryStmt.tryBlock, tryStmt.catchBlock, tryStmt.finallyBlock))
 }

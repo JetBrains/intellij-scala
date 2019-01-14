@@ -31,7 +31,7 @@ object ScalaWithTryCatchSurrounder extends ScalaExpressionSurrounder {
       case x => x
     }
 
-    val tryCatchStmt = element.asInstanceOf[ScTryStmt]
+    val tryCatchStmt = element.asInstanceOf[ScTry]
 
     val catchBlockPsiElement: ScCatchBlock = tryCatchStmt.catchBlock.get
     val caseClause =

@@ -705,7 +705,7 @@ object ScalaRefactoringUtil {
           case Some(expression) => builder.append(getShortText(expression))
           case _ => builder.append("...")
         }
-      case t: ScTryStmt =>
+      case t: ScTry =>
         builder.append("try {...}")
         if (t.catchBlock.isDefined) builder.append(" catch {...}")
         if (t.finallyBlock.isDefined) builder.append(" finally {...}")

@@ -4,7 +4,7 @@ package codeInsight.unwrap
 import java.util
 
 import com.intellij.psi.PsiElement
-import org.jetbrains.plugins.scala.lang.psi.api.expr.ScTryStmt
+import org.jetbrains.plugins.scala.lang.psi.api.expr.ScTry
 
 /**
  * Nikolay.Tropin
@@ -12,12 +12,12 @@ import org.jetbrains.plugins.scala.lang.psi.api.expr.ScTryStmt
  */
 class ScalaTryWithFinallyUnwrapper extends ScalaUnwrapper {
   override def isApplicableTo(e: PsiElement): Boolean = e.getParent match {
-    case ScTryStmt(tryBl, _, Some(finBl)) if finBl.expression.isDefined && (tryBl == e || finBl == e)  => true
+    case ScTry(tryBl, _, Some(finBl)) if finBl.expression.isDefined && (tryBl == e || finBl == e)  => true
     case _ => false
   }
 
   override def doUnwrap(element: PsiElement, context: ScalaUnwrapContext): Unit = element.getParent match {
-    case stmt @ ScTryStmt(tryBl, _, Some(finBl)) if finBl.expression.isDefined =>
+    case stmt @ ScTry(tryBl, _, Some(finBl)) if finBl.expression.isDefined =>
       context.extractBlockOrSingleStatement(tryBl, stmt)
       context.insertNewLine()
       context.extractBlockOrSingleStatement(finBl.expression.get, stmt)
@@ -28,7 +28,7 @@ class ScalaTryWithFinallyUnwrapper extends ScalaUnwrapper {
   override def getDescription(e: PsiElement): String = ScalaBundle.message("unwrap.try.with.finally")
 
   override def collectAffectedElements(e: PsiElement, toExtract: util.List[PsiElement]): PsiElement = e.getParent match {
-    case stmt: ScTryStmt =>
+    case stmt: ScTry =>
       super.collectAffectedElements(e, toExtract)
       stmt
     case _ => e

@@ -458,7 +458,7 @@ class ScalaControlFlowBuilder(startInScope: ScalaPsiElement,
   case class CatchInfo(cc: ScCaseClause) extends HandleInfo(cc)
   case class FinallyInfo(fb: ScFinallyBlock) extends HandleInfo(fb)
 
-  override def visitTryExpression(tryStmt: ScTryStmt) {
+  override def visitTryExpression(tryStmt: ScTry) {
     val handledExnTypes = tryStmt.catchBlock match {
       case None => Nil
       case Some(cb) => cb.expression match {

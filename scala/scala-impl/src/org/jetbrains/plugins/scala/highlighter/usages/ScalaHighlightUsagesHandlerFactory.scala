@@ -70,7 +70,7 @@ class ScalaHighlightUsagesHandlerFactory extends HighlightUsagesHandlerFactory {
           return new ScalaHighlightExprResultHandler(matchStmt, editor, file, element)
         }
       case ScalaTokenTypes.kTRY =>
-        val tryStmt = PsiTreeUtil.getParentOfType(element, classOf[ScTryStmt])
+        val tryStmt = PsiTreeUtil.getParentOfType(element, classOf[ScTry])
         if (tryStmt != null) {
           return new ScalaHighlightExprResultHandler(tryStmt, editor, file, element)
         }

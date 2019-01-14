@@ -328,7 +328,7 @@ trait TreeAdapter {
         m.Term.Tuple(Seq(t.exprs.map(expression): _*))
       case t: ScThrow =>
         m.Term.Throw(expression(t.expression).getOrElse(throw new AbortException(t, "Empty throw expression")))
-      case t@ScTryStmt(tryBlock, catchBlock, finallyBlock) =>
+      case t@ScTry(tryBlock, catchBlock, finallyBlock) =>
         val fblk = finallyBlock match {
           case Some(b:ScFinallyBlock) => b.expression.map(expression)
           case _ => None

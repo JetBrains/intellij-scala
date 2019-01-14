@@ -60,7 +60,7 @@ class ScalaStatementMover extends LineMover {
             .orElse(aim(classOf[ScIfStmt], _ => false))
             .orElse(aim(classOf[ScForStatement], _ => false))
             .orElse(aim(classOf[ScMatchStmt], _ => false))
-            .orElse(aim(classOf[ScTryStmt], _ => false))
+            .orElse(aim(classOf[ScTry], _ => false))
             .orElse(aim(classOf[ScMethodCall], isControlStructureLikeCall).filter(p => isControlStructureLikeCall(p._1)))
 
     pair.foreach { it =>

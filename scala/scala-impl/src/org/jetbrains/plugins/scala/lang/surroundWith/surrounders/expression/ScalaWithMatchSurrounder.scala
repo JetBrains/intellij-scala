@@ -38,7 +38,7 @@ object ScalaWithMatchSurrounder extends ScalaExpressionSurrounder {
     val needParenthesis = elements match {
       case Array(_: ScDoStmt |
                  _: ScIfStmt |
-                 _: ScTryStmt |
+                 _: ScTry |
                  _: ScForStatement |
                  _: ScWhileStmt |
                  _: ScThrow |

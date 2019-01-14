@@ -5,7 +5,7 @@ import com.intellij.lang.annotation.AnnotationHolder
 import org.jetbrains.plugins.scala.ScalaBundle
 import org.jetbrains.plugins.scala.annotator.quickfix.ChangeTypeFix
 import org.jetbrains.plugins.scala.lang.psi.api.Annotatable
-import org.jetbrains.plugins.scala.lang.psi.api.expr.{ScCatchBlock, ScTryStmt}
+import org.jetbrains.plugins.scala.lang.psi.api.expr.{ScCatchBlock, ScTry}
 import org.jetbrains.plugins.scala.lang.psi.api.statements.ScFunction
 import org.jetbrains.plugins.scala.lang.psi.impl.ScalaPsiManager
 import org.jetbrains.plugins.scala.lang.psi.types.{Compatibility, ScType, api}
@@ -49,7 +49,7 @@ trait ScCatchBlockAnnotator extends Annotatable { self: ScCatchBlock =>
             }
           } else {
             getContext match {
-              case t: ScTryStmt =>
+              case t: ScTry =>
                 t.expectedTypeEx(fromUnderscore = false) match {
                   case Some((tp: ScType, _)) if tp equiv api.Unit => //do nothing
                   case Some((tp: ScType, typeElement)) =>

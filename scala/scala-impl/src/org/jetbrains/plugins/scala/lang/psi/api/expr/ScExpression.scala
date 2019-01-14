@@ -171,7 +171,7 @@ object ScExpression {
 
     def result: Set[ScExpression] = result_.toSet
 
-    override def visitTryExpression(statement: ScTryStmt): Unit = {
+    override def visitTryExpression(statement: ScTry): Unit = {
       acceptVisitor(statement.tryBlock)
 
       statement.catchBlock.collect {

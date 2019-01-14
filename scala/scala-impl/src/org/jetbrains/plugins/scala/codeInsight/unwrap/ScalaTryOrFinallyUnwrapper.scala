@@ -5,7 +5,7 @@ import java.util
 
 import com.intellij.codeInsight.CodeInsightBundle
 import com.intellij.psi.PsiElement
-import org.jetbrains.plugins.scala.lang.psi.api.expr.{ScFinallyBlock, ScTryBlock, ScTryStmt}
+import org.jetbrains.plugins.scala.lang.psi.api.expr.{ScFinallyBlock, ScTryBlock, ScTry}
 
 /**
  * Nikolay.Tropin
@@ -19,10 +19,10 @@ class ScalaTryOrFinallyUnwrapper extends ScalaUnwrapper {
   }
 
   override def doUnwrap(element: PsiElement, context: ScalaUnwrapContext): Unit = element.getParent match {
-    case stmt @ ScTryStmt(tryBlock, _, _) if tryBlock == element =>
+    case stmt @ ScTry(tryBlock, _, _) if tryBlock == element =>
       context.extractBlockOrSingleStatement(tryBlock, stmt)
       context.delete(stmt)
-    case stmt @ ScTryStmt(_, _, Some(fBl)) if fBl == element && fBl.expression.isDefined =>
+    case stmt @ ScTry(_, _, Some(fBl)) if fBl == element && fBl.expression.isDefined =>
       context.extractBlockOrSingleStatement(fBl.expression.get, stmt)
       context.delete(stmt)
     case _ =>
@@ -35,7 +35,7 @@ class ScalaTryOrFinallyUnwrapper extends ScalaUnwrapper {
   }
 
   override def collectAffectedElements(e: PsiElement, toExtract: util.List[PsiElement]): PsiElement = e.getParent match {
-    case _: ScTryStmt =>
+    case _: ScTry =>
       super.collectAffectedElements(e, toExtract)
       e
     case _ => e

@@ -243,7 +243,7 @@ object ScalaElementType {
     override def createElement(node: ASTNode) = new ScDoStmtImpl(node)
   }
   val TRY_STMT = new ScalaElementType("try statement") {
-    override def createElement(node: ASTNode) = new ScTryStmtImpl(node)
+    override def createElement(node: ASTNode) = new ScTryImpl(node)
   }
   val TRY_BLOCK = new ScalaElementType("try block") {
     override def createElement(node: ASTNode) = new ScTryBlockImpl(node)

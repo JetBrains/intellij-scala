@@ -22,7 +22,7 @@ class FinallyFilter extends ElementFilter{
     if (leaf != null) {
       var i = getPrevNotWhitespaceAndComment(context.getTextRange.getStartOffset - 1, context)
       var leaf1 = getLeafByOffset(i, context)
-      while (leaf1 != null && !leaf1.isInstanceOf[ScTryStmt]) leaf1 = leaf1.getParent
+      while (leaf1 != null && !leaf1.isInstanceOf[ScTry]) leaf1 = leaf1.getParent
       if (leaf1 == null) return false
       if (leaf1.getNode.getChildren(null).exists(_.getElementType == ScalaElementType.FINALLY_BLOCK)) return false
       i = getNextNotWhitespaceAndComment(context.getTextRange.getEndOffset, context)

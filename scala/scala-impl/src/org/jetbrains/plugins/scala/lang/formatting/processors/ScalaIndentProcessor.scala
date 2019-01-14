@@ -184,7 +184,7 @@ object ScalaIndentProcessor extends ScalaTokenTypes {
           case _ if settings.BRACE_STYLE == CommonCodeStyleSettings.NEXT_LINE_SHIFTED => Indent.getNoneIndent
           case _ => Indent.getNormalIndent
         }
-      case _: ScTryStmt => Indent.getNoneIndent
+      case _: ScTry => Indent.getNoneIndent
       case _: ScFunction => funIndent
       case _ if node.getElementType == ScalaTokenTypes.kDEF ||
         Option(node.getTreeParent).exists(p => Set[IElementType](FUNCTION_DECLARATION, FUNCTION_DEFINITION).

@@ -824,7 +824,7 @@ abstract class ScalaAnnotator extends Annotator
       case bl: ScBlock if bl.lastStatement.isDefined => true
       case i: ScIfStmt if i.elseBranch.isDefined     => true
       case _: ScFunctionExpr                         => true
-      case _: ScTryStmt                              => true
+      case _: ScTry                              => true
       case _                                         => false
     }
 

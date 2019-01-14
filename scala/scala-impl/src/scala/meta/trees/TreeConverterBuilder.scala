@@ -137,7 +137,7 @@ trait TreeConverterBuilder {
 
       override def visitThrowExpression(throwStmt: ScThrow) = super.visitThrowExpression(throwStmt)
 
-      override def visitTryExpression(tryStmt: ScTryStmt) = super.visitTryExpression(tryStmt)
+      override def visitTryExpression(tryStmt: ScTry) = super.visitTryExpression(tryStmt)
 
       override def visitExprInParent(expr: ScParenthesisedExpr) = super.visitExprInParent(expr)
 
