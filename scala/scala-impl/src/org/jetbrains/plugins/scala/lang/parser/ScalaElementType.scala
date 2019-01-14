@@ -240,7 +240,7 @@ object ScalaElementType {
     override def createElement(node: ASTNode) = new ScForStatementImpl(node)
   }
   val DO_STMT = new ScalaElementType("do-while statement") {
-    override def createElement(node: ASTNode) = new ScDoStmtImpl(node)
+    override def createElement(node: ASTNode) = new ScDoImpl(node)
   }
   val TRY_STMT = new ScalaElementType("try statement") {
     override def createElement(node: ASTNode) = new ScTryImpl(node)

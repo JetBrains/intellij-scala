@@ -6,7 +6,7 @@ import com.intellij.codeInspection._
 import com.intellij.openapi.project.Project
 import com.intellij.psi.{PsiElement, PsiElementVisitor}
 import org.jetbrains.plugins.scala.codeInsight.unwrap.{ScalaUnwrapContext, ScalaWhileUnwrapper}
-import org.jetbrains.plugins.scala.lang.psi.api.expr.{ScBlock, ScDoStmt}
+import org.jetbrains.plugins.scala.lang.psi.api.expr.{ScBlock, ScDo}
 import org.jetbrains.plugins.scala.lang.psi.api.statements.ScFunctionDefinition
 import org.jetbrains.plugins.scala.lang.psi.controlFlow.Instruction
 
@@ -69,7 +69,7 @@ object ScalaUnreachableCodeInspection {
     def parentStatement(element: PsiElement): Option[PsiElement] = element.getParent match {
       case _: ScBlock |
            _: ScFunctionDefinition |
-           ScDoStmt(_, `element`) => Some(element)
+           ScDo(_, `element`) => Some(element)
       case null => None
       case parent => parentStatement(parent)
     }
@@ -124,7 +124,7 @@ object ScalaUnreachableCodeInspection {
   }
 
   private def createQuickFix(head: PsiElement, last: PsiElement) = head.getParent match {
-    case doStatement@ScDoStmt(_, Some(`head`)) => new UnwrapDoStmtFix(doStatement)
+    case doStatement@ScDo(_, Some(`head`)) => new UnwrapDoStmtFix(doStatement)
     case _ if head eq last => new RemoveFragmentQuickFix(head)
     case _ => new RemoveRangeQuickFix(head, last)
   }
@@ -150,11 +150,11 @@ object ScalaUnreachableCodeInspection {
     }
   }
 
-  private[this] class UnwrapDoStmtFix(doStatement: ScDoStmt) extends AbstractFixOnPsiElement(
+  private[this] class UnwrapDoStmtFix(doStatement: ScDo) extends AbstractFixOnPsiElement(
     "Unwrap do-statement",
     doStatement
   ) {
-    override protected def doApplyFix(doStatement: ScDoStmt)
+    override protected def doApplyFix(doStatement: ScDo)
                                      (implicit project: Project): Unit =
       if (doStatement.hasExprBody) {
         val unwrapContext = new ScalaUnwrapContext

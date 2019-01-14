@@ -301,7 +301,7 @@ trait TreeAdapter {
         val unit = m.Lit.Unit(())
         m.Term.If(expression(t.condition.get),
             t.thenBranch.map(expression).getOrElse(unit), t.elseBranch.map(expression).getOrElse(unit))
-      case t: ScDoStmt =>
+      case t: ScDo =>
         m.Term.Do(t.getExprBody.map(expression).getOrElse(m.Term.Placeholder()),
             t.condition.map(expression).getOrElse(m.Term.Placeholder()))
       case t: ScWhileStmt =>

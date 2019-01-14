@@ -68,7 +68,7 @@ trait ScExpression extends ScBlockStatement
     case _: ScWhileStmt |
          _: ScFinallyBlock |
          _: ScTemplateBody |
-         _: ScDoStmt => false
+         _: ScDo => false
     //expression is not last in a block and not assigned to anything, cannot affect type inference outside
     case _: ScBlock =>
       this.nextSiblings.forall {

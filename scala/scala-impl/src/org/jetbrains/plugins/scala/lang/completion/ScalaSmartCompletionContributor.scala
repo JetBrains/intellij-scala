@@ -203,12 +203,12 @@ final class ScalaSmartCompletionContributor extends ScalaCompletionContributor {
    do ref while (expr)
   */
   extend(
-    classOf[ScDoStmt],
+    classOf[ScDo],
     new CompletionProvider[CompletionParameters] {
       def addCompletions(parameters: CompletionParameters, context: ProcessingContext,
                          result: CompletionResultSet) {
         val element = positionFromParameters(parameters)
-        extractReference[ScDoStmt](element).foreach { case (ref, doStmt) =>
+        extractReference[ScDo](element).foreach { case (ref, doStmt) =>
           if (doStmt.condition.getOrElse(null: ScExpression) == ref)
             acceptTypes(ref.expectedTypes(), ref.getVariants, result,
               ref.resolveScope, parameters.getInvocationCount > 1, ScalaCompletionUtil.completeThis(ref), parameters.getOriginalPosition)(element)

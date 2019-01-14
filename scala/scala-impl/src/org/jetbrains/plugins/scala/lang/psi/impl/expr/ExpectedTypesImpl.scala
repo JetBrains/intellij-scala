@@ -156,8 +156,8 @@ class ExpectedTypesImpl extends ExpectedTypes {
       }
       case wh: ScWhileStmt if wh.condition.getOrElse(null: ScExpression) == sameInContext => Array((api.Boolean, None))
       case _: ScWhileStmt => Array((Unit, None))
-      case d: ScDoStmt if d.condition.getOrElse(null: ScExpression) == sameInContext => Array((api.Boolean, None))
-      case _: ScDoStmt => Array((api.Unit, None))
+      case d: ScDo if d.condition.getOrElse(null: ScExpression) == sameInContext => Array((api.Boolean, None))
+      case _: ScDo => Array((api.Unit, None))
       case _: ScFinallyBlock => Array((api.Unit, None))
       case _: ScCatchBlock => Array.empty
       case te: ScThrow =>

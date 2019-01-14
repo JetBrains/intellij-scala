@@ -613,7 +613,7 @@ object ScalaRefactoringUtil {
         }
       case _: ScBlock =>
         builder.append("{...}")
-      case _: ScDoStmt =>
+      case _: ScDo =>
         builder.append("do {...} while (...)")
       case f: ScForStatement =>
         builder.append("for (...) ")
@@ -1075,7 +1075,7 @@ object ScalaRefactoringUtil {
       case _: ScForBinding | _: ScGenerator => false
       case guard: ScGuard if guard.getParent.isInstanceOf[ScEnumerators] => false
       case whSt: ScWhileStmt if whSt.body.orNull == parExpr => true
-      case doSt: ScDoStmt if doSt.getExprBody.orNull == parExpr => true
+      case doSt: ScDo if doSt.getExprBody.orNull == parExpr => true
       case finBl: ScFinallyBlock if finBl.expression.orNull == parExpr => true
       case fE: ScFunctionExpr =>
         fE.getContext match {

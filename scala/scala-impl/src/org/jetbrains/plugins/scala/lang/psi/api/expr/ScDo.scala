@@ -8,7 +8,7 @@ package expr
   * @author Alexander Podkhalyuzin
   *         Date: 06.03.2008
   */
-trait ScDoStmt extends ScExpression {
+trait ScDo extends ScExpression {
   def condition: Option[ScExpression]
 
   /**
@@ -30,7 +30,7 @@ trait ScDoStmt extends ScExpression {
   }
 }
 
-object ScDoStmt {
-  def unapply(doStmt: ScDoStmt): Option[(Option[ScExpression], Option[ScExpression])] =
+object ScDo {
+  def unapply(doStmt: ScDo): Option[(Option[ScExpression], Option[ScExpression])] =
     Some(doStmt.getExprBody, doStmt.condition)
 }

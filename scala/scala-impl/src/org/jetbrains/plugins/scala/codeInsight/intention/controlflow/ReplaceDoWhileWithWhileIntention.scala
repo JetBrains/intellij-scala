@@ -36,7 +36,7 @@ class ReplaceDoWhileWithWhileIntention extends PsiElementBaseIntentionAction {
 
   def isAvailable(project: Project, editor: Editor, element: PsiElement): Boolean = {
     for {
-      doStmt <- Option(PsiTreeUtil.getParentOfType(element, classOf[ScDoStmt], false))
+      doStmt <- Option(PsiTreeUtil.getParentOfType(element, classOf[ScDo], false))
       condition <- doStmt.condition
       body <- doStmt.getExprBody
     } {
@@ -54,7 +54,7 @@ class ReplaceDoWhileWithWhileIntention extends PsiElementBaseIntentionAction {
     implicit val ctx: ProjectContext = project
     //check for name conflicts
     for {
-      doStmt <- Option(PsiTreeUtil.getParentOfType(element, classOf[ScDoStmt]))
+      doStmt <- Option(PsiTreeUtil.getParentOfType(element, classOf[ScDo]))
       body <- doStmt.getExprBody
       doStmtParent <- doStmt.parent
     } {
@@ -85,7 +85,7 @@ class ReplaceDoWhileWithWhileIntention extends PsiElementBaseIntentionAction {
 
     def doReplacement() {
       for {
-        doStmt <- Option(PsiTreeUtil.getParentOfType(element, classOf[ScDoStmt]))
+        doStmt <- Option(PsiTreeUtil.getParentOfType(element, classOf[ScDo]))
         condition <- doStmt.condition
         body <- doStmt.getExprBody
         doStmtParent <- doStmt.parent
@@ -111,7 +111,7 @@ class ReplaceDoWhileWithWhileIntention extends PsiElementBaseIntentionAction {
             if (!parentBlockHasBraces && parentBlockNeedBraces) {
               val doStmtInBraces =
                 doStmt.replaceExpression(createBlockFromExpr(doStmt), removeParenthesis = true)
-              PsiTreeUtil.findChildOfType(doStmtInBraces, classOf[ScDoStmt], true)
+              PsiTreeUtil.findChildOfType(doStmtInBraces, classOf[ScDo], true)
             } else doStmt
           val newExpression: ScExpression = newDoStmt.replaceExpression(newWhileStmt, removeParenthesis = true)
           val parent = newExpression.getParent

@@ -36,7 +36,7 @@ object ScalaWithMatchSurrounder extends ScalaExpressionSurrounder {
 
   override def getTemplateAsString(elements: Array[PsiElement]): String = {
     val needParenthesis = elements match {
-      case Array(_: ScDoStmt |
+      case Array(_: ScDo |
                  _: ScIfStmt |
                  _: ScTry |
                  _: ScForStatement |

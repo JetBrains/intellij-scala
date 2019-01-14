@@ -127,7 +127,7 @@ class ScalaElementVisitor extends PsiElementVisitor {
   def visitReturnStatement(ret: ScReturn) { visitExpression(ret) }
   def visitMatchStatement(ms: ScMatchStmt) { visitExpression(ms) }
   def visitForExpression(expr: ScForStatement) { visitExpression(expr) }
-  def visitDoStatement(stmt: ScDoStmt) { visitExpression(stmt) }
+  def visitDoStatement(stmt: ScDo) { visitExpression(stmt) }
   def visitFunctionExpression(stmt: ScFunctionExpr) { visitExpression(stmt) }
   def visitThrowExpression(throwStmt: ScThrow) { visitExpression(throwStmt) }
   def visitTryExpression(tryStmt: ScTry) { visitExpression(tryStmt) }

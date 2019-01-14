@@ -14,7 +14,7 @@ import org.jetbrains.plugins.scala.lang.psi.api.expr._
   * @author Alexander Podkhalyuzin
   *         Date: 06.03.2008
   */
-class ScDoStmtImpl(node: ASTNode) extends ScExpressionImplBase(node) with ScDoStmt {
+class ScDoImpl(node: ASTNode) extends ScExpressionImplBase(node) with ScDo {
 
   def getExprBody: Option[ScExpression] = findChild(classOf[ScExpression])
 

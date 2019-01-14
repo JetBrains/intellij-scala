@@ -53,7 +53,7 @@ class ScalaBraceEnforcer(settings: CodeStyleSettings) extends ScalaRecursiveElem
     }
   }
 
-  override def visitDoStatement(stmt: ScDoStmt) {
+  override def visitDoStatement(stmt: ScDo) {
     if (checkElementContainsRange(stmt)) {
       super.visitDoStatement(stmt)
       stmt.getExprBody match {

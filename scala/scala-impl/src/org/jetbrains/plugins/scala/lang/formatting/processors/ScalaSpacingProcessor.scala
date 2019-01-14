@@ -978,7 +978,7 @@ object ScalaSpacingProcessor extends ScalaTokenTypes {
         case _: ScIfStmt =>
           if (settings.SPACE_WITHIN_IF_PARENTHESES) return WITH_SPACING
           else return WITHOUT_SPACING
-        case _: ScWhileStmt | _: ScDoStmt =>
+        case _: ScWhileStmt | _: ScDo =>
           if (settings.SPACE_WITHIN_WHILE_PARENTHESES) return WITH_SPACING
           else return WITHOUT_SPACING
         case _: ScParenthesisedExpr =>
@@ -1025,7 +1025,7 @@ object ScalaSpacingProcessor extends ScalaTokenTypes {
         case _: ScIfStmt =>
           if (settings.SPACE_WITHIN_IF_PARENTHESES) return WITH_SPACING
           else return WITHOUT_SPACING
-        case _: ScWhileStmt | _: ScDoStmt =>
+        case _: ScWhileStmt | _: ScDo =>
           if (settings.SPACE_WITHIN_WHILE_PARENTHESES) return WITH_SPACING
           else return WITHOUT_SPACING
         case _: ScParenthesisedExpr =>
@@ -1103,7 +1103,7 @@ object ScalaSpacingProcessor extends ScalaTokenTypes {
           if (settings.SPACE_BEFORE_FOR_LBRACE && leftNode.getElementType != ScalaTokenTypes.kFOR) return WITH_SPACING
           else if (leftNode.getElementType == ScalaTokenTypes.kFOR) return WITHOUT_SPACING
           else return WITHOUT_SPACING
-        case _: ScDoStmt =>
+        case _: ScDo =>
           if (settings.SPACE_BEFORE_DO_LBRACE) return WITH_SPACING
           else return WITHOUT_SPACING
         case _: ScMatchStmt =>

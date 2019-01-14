@@ -7,7 +7,7 @@ import com.intellij.psi.filters.ElementFilter
 import com.intellij.psi.{PsiComment, PsiElement, PsiWhiteSpace}
 import org.jetbrains.annotations.NonNls
 import org.jetbrains.plugins.scala.lang.lexer.ScalaTokenTypes
-import org.jetbrains.plugins.scala.lang.psi.api.expr.{ScDoStmt, ScExpression}
+import org.jetbrains.plugins.scala.lang.psi.api.expr.{ScDo, ScExpression}
 
 /**
  * @author Alefas
@@ -25,17 +25,17 @@ class WhileFilter extends ElementFilter {
       if (parent.isInstanceOf[ScExpression] && parent.getPrevSibling != null &&
         parent.getPrevSibling.getPrevSibling != null) {
         val doStmt = parent.getPrevSibling match {
-          case x: ScDoStmt => x
+          case x: ScDo => x
           case x if x.isInstanceOf[PsiWhiteSpace] || x.getNode.getElementType == ScalaTokenTypes.tWHITE_SPACE_IN_LINE =>
             x.getPrevSibling match {
-              case x: ScDoStmt => x
+              case x: ScDo => x
               case _ => null
             }
           case _ => null
         }
         var text = ""
         if (doStmt == null) {
-          while (parent != null && !parent.isInstanceOf[ScDoStmt]) parent = parent.getParent
+          while (parent != null && !parent.isInstanceOf[ScDo]) parent = parent.getParent
           if (parent == null) return false
           text = parent.getText
           text = replaceLiteral(text, " while (true)")

@@ -1104,7 +1104,7 @@ private[evaluation] trait ScalaEvaluatorBuilderUtil {
     new WhileStatementEvaluator(condEvaluator, iterationEvaluator, null)
   }
 
-  def doStmtEvaluator(doSt: ScDoStmt): Evaluator = {
+  def doStmtEvaluator(doSt: ScDo): Evaluator = {
     val condEvaluator = doSt.condition match {
       case Some(cond) => evaluatorFor(cond)
       case None =>

@@ -30,7 +30,7 @@ class ScalaWithDoWhileSurrounder extends ScalaExpressionSurrounder {
       }
       case x => x
     }
-    val doWhileStmt = element.asInstanceOf[ScDoStmt]
+    val doWhileStmt = element.asInstanceOf[ScDo]
 
     val conditionNode: ASTNode = doWhileStmt.getNode.getLastChildNode.getTreePrev
 

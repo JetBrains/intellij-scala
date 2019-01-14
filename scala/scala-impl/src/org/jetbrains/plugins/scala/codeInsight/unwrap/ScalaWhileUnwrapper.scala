@@ -5,7 +5,7 @@ import java.util
 
 import com.intellij.codeInsight.CodeInsightBundle
 import com.intellij.psi.PsiElement
-import org.jetbrains.plugins.scala.lang.psi.api.expr.{ScDoStmt, ScWhileStmt}
+import org.jetbrains.plugins.scala.lang.psi.api.expr.{ScDo, ScWhileStmt}
 
 /**
  * Nikolay.Tropin
@@ -15,14 +15,14 @@ class ScalaWhileUnwrapper extends ScalaUnwrapper {
   override def getDescription(e: PsiElement): String = CodeInsightBundle.message("unwrap.while")
 
   override def collectAffectedElements(e: PsiElement, toExtract: util.List[PsiElement]): PsiElement = e match {
-    case _: ScWhileStmt | _: ScDoStmt =>
+    case _: ScWhileStmt | _: ScDo =>
       super.collectAffectedElements(e, toExtract)
       e
     case _ => e
   }
 
   override def isApplicableTo(e: PsiElement): Boolean = e match {
-    case _: ScWhileStmt | _: ScDoStmt => true
+    case _: ScWhileStmt | _: ScDo => true
     case _ => false
   }
 
@@ -30,7 +30,7 @@ class ScalaWhileUnwrapper extends ScalaUnwrapper {
     case ScWhileStmt(_, Some(body)) =>
       context.extractBlockOrSingleStatement(body, element)
       context.delete(element)
-    case ScDoStmt(Some(body), _) =>
+    case ScDo(Some(body), _) =>
       context.extractBlockOrSingleStatement(body, element)
       context.delete(element)
     case _ =>

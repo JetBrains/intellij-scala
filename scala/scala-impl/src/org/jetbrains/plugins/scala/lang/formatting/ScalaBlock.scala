@@ -123,7 +123,7 @@ class ScalaBlock(val myParentBlock: ScalaBlock,
         new ChildAttributes(if (grandParent != null && (grandParent.isInstanceOf[ScCaseClause] || grandParent.isInstanceOf[ScFunctionExpr])) Indent.getNormalIndent
         else Indent.getNoneIndent, null)
       case _: ScIfStmt => new ChildAttributes(Indent.getNormalIndent(scalaSettings.ALIGN_IF_ELSE), this.getAlignment)
-      case x: ScDoStmt =>
+      case x: ScDo =>
         if (x.hasExprBody)
           new ChildAttributes(Indent.getNoneIndent, null)
         else new ChildAttributes(if (mySettings.BRACE_STYLE == CommonCodeStyleSettings.NEXT_LINE_SHIFTED)
