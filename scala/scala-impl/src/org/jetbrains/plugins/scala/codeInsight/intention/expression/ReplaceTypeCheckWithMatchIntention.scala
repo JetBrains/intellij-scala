@@ -9,7 +9,7 @@ import com.intellij.psi.PsiElement
 import org.jetbrains.plugins.scala.codeInspection.typeChecking.IsInstanceOfCall
 import org.jetbrains.plugins.scala.codeInspection.typeChecking.TypeCheckToMatchUtil._
 import org.jetbrains.plugins.scala.extensions.{PsiElementExt, inWriteAction}
-import org.jetbrains.plugins.scala.lang.psi.api.expr.{ScGenericCall, ScIf, ScMatchStmt}
+import org.jetbrains.plugins.scala.lang.psi.api.expr.{ScGenericCall, ScIf, ScMatch}
 import org.jetbrains.plugins.scala.lang.refactoring.util.InplaceRenameHelper
 
 
@@ -51,7 +51,7 @@ class ReplaceTypeCheckWithMatchIntention extends PsiElementBaseIntentionAction {
       val (matchStmtOption, renameData) = buildMatchStmt(ifStmt, iioCall, onlyFirst = false)(project)
       for (matchStmt <- matchStmtOption) {
         val newMatch = inWriteAction {
-          ifStmt.replaceExpression(matchStmt, removeParenthesis = true).asInstanceOf[ScMatchStmt]
+          ifStmt.replaceExpression(matchStmt, removeParenthesis = true).asInstanceOf[ScMatch]
         }
         if (!ApplicationManager.getApplication.isUnitTestMode) {
           val renameHelper = new InplaceRenameHelper(newMatch)

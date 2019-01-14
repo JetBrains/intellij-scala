@@ -789,7 +789,7 @@ object ScalaPsiUtil {
     else {
       element.getParent match {
         case block: ScBlock if block.hasRBrace => true
-        case _: ScMatchStmt | _: ScalaFile | null => true
+        case _: ScMatch | _: ScalaFile | null => true
         case argList: ScArgumentExprList if argList.isBraceArgs => true
 
         case argList: ScArgumentExprList if !argList.isBraceArgs => false
@@ -911,7 +911,7 @@ object ScalaPsiUtil {
       val parent = from.getParent
       (parent, expr) match {
         //order of these case clauses is important!
-        case (_: ScGuard, _: ScMatchStmt) => true
+        case (_: ScGuard, _: ScMatch) => true
         case _ if !parent.isInstanceOf[ScExpression] => false
         case _ if expr.getText == "_" => false
         case (_: ScTuple | _: ScBlock | _: ScXmlExpr, _) => false
@@ -937,7 +937,7 @@ object ScalaPsiUtil {
         case (_, _: ScInfixExpr) => false
         case (_: ScPostfixExpr | _: ScInfixExpr, _) => true
         case (_, _: ScPostfixExpr) => false
-        case (_: ScTypedStmt | _: ScMatchStmt, _) => true
+        case (_: ScTypedStmt | _: ScMatch, _) => true
         case _ => false
       }
     }

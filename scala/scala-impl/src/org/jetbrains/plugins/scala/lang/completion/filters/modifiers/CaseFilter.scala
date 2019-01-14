@@ -38,7 +38,7 @@ class CaseFilter extends ElementFilter {
         case _: ScCaseClause =>
           if (parent.getNode.findChildByType(ScalaTokenTypes.tFUNTYPE) != null) return true
           else return false
-        case _: ScMatchStmt => return true
+        case _: ScMatch => return true
         case _: ScalaFile | _: ScPackaging =>
           var node = leaf.getPrevSibling
           if (node.isInstanceOf[PsiWhiteSpace]) node = node.getPrevSibling

@@ -30,13 +30,13 @@ class MatchToPartialFunctionInspection extends AbstractInspection(MatchToPartial
   import MatchToPartialFunctionInspection._
 
   override def actionFor(implicit holder: ProblemsHolder): PartialFunction[PsiElement, Any] = {
-    case function@ScFunctionExpr(Seq(param), Some(statement@ScMatchStmt(ScReferenceExpression(resolved), _)))
+    case function@ScFunctionExpr(Seq(param), Some(statement@ScMatch(ScReferenceExpression(resolved), _)))
       if resolved == param && isValid(function) =>
       registerProblem(statement, function)
-    case function@ScFunctionExpr(Seq(param), Some(ScBlock(statement@ScMatchStmt(ScReferenceExpression(resolved), _))))
+    case function@ScFunctionExpr(Seq(param), Some(ScBlock(statement@ScMatch(ScReferenceExpression(resolved), _))))
       if resolved == param && isValid(function) =>
       registerProblem(statement, function) //if fun is last statement in block, result can be block without braces
-    case statement@ScMatchStmt(_: ScUnderscoreSection, _) if checkSameResolve(statement) =>
+    case statement@ScMatch(_: ScUnderscoreSection, _) if checkSameResolve(statement) =>
       registerProblem(statement, statement)
   }
 }
@@ -73,7 +73,7 @@ object MatchToPartialFunctionInspection {
     }
   }
 
-  private def registerProblem(statement: ScMatchStmt, expression: ScExpression)
+  private def registerProblem(statement: ScMatch, expression: ScExpression)
                              (implicit holder: ProblemsHolder): Unit = {
     findLeftBrace(statement).map { token =>
       token.getTextRange.getStartOffset - expression.getTextRange.getStartOffset
@@ -85,28 +85,28 @@ object MatchToPartialFunctionInspection {
     }
   }
 
-  private[this] def findLeftBrace(statement: ScMatchStmt): Option[PsiElement] =
+  private[this] def findLeftBrace(statement: ScMatch): Option[PsiElement] =
     Option(statement.findFirstChildByType(ScalaTokenTypes.tLBRACE))
 
   object MatchToPartialFunctionQuickFix {
 
-    def apply(statement: ScMatchStmt, expression: ScExpression): LocalQuickFixOnPsiElement =
+    def apply(statement: ScMatch, expression: ScExpression): LocalQuickFixOnPsiElement =
       if (expression == statement) new AbstractFixOnPsiElement(DESCRIPTION, statement) {
 
-        override protected def doApplyFix(statement: ScMatchStmt)
+        override protected def doApplyFix(statement: ScMatch)
                                          (implicit project: Project): Unit =
           MatchToPartialFunctionQuickFix.doApplyFix(statement, statement)
       }
       else new AbstractFixOnTwoPsiElements(DESCRIPTION, statement, expression) {
 
-        override protected def doApplyFix(statement: ScMatchStmt, expression: ScExpression)
+        override protected def doApplyFix(statement: ScMatch, expression: ScExpression)
                                          (implicit project: Project): Unit =
           MatchToPartialFunctionQuickFix.doApplyFix(statement, expression)
       }
 
-    private def doApplyFix(statement: ScMatchStmt, expression: ScExpression)
+    private def doApplyFix(statement: ScMatch, expression: ScExpression)
                           (implicit project: Project): Unit = {
-      val matchStmtCopy = statement.copy.asInstanceOf[ScMatchStmt]
+      val matchStmtCopy = statement.copy.asInstanceOf[ScMatch]
       val leftBrace = findLeftBrace(matchStmtCopy).getOrElse(return)
 
       addNamingPatterns(matchStmtCopy, needNamingPattern(statement))
@@ -128,8 +128,8 @@ object MatchToPartialFunctionInspection {
       }
     }
 
-    private[this] def needNamingPattern(statement: ScMatchStmt): Seq[Int] = statement match {
-      case ScMatchStmt(ScReferenceExpression(argument), _) =>
+    private[this] def needNamingPattern(statement: ScMatch): Seq[Int] = statement match {
+      case ScMatch(ScReferenceExpression(argument), _) =>
         val references = findReferences(argument)(new LocalSearchScope(statement))
 
         statement.caseClauses.zipWithIndex.collect {
@@ -138,7 +138,7 @@ object MatchToPartialFunctionInspection {
       case _ => Seq.empty
     }
 
-    private[this] def addNamingPatterns(statement: ScMatchStmt, indices: Seq[Int])
+    private[this] def addNamingPatterns(statement: ScMatch, indices: Seq[Int])
                                        (implicit projectContext: ProjectContext = statement.projectContext): Unit = {
       val expression = statement.expr.getOrElse(return)
       val name = expression.getText

@@ -310,7 +310,7 @@ trait TreeAdapter {
       case t: ScForStatement =>
         m.Term.For(t.enumerators.map(enumerators).getOrElse(Seq.empty),
           t.body.map(expression).getOrElse(m.Term.Block(Seq.empty)))
-      case t: ScMatchStmt =>
+      case t: ScMatch =>
         m.Term.Match(expression(t.expr.get), Seq(t.caseClauses.map(caseClause):_*))
       case t: ScReferenceExpression if t.qualifier.isDefined =>
         m.Term.Select(expression(t.qualifier.get), toTermName(t))

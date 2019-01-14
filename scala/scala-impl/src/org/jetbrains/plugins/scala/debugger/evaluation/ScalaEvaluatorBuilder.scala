@@ -184,7 +184,7 @@ private object needsCompilation {
     case _: ScForStatement => message("for expression")
     case _: ScTry => message("try statement")
     case _: ScReturn => message("return statement")
-    case _: ScMatchStmt => message("match statement")
+    case _: ScMatch => message("match statement")
     case _: ScThrow => message("throw statement")
     case _: ScXmlExpr => message("xml expression")
     case interpolated: ScInterpolatedStringLiteral if interpolated.getType != InterpolatedStringType.STANDART =>

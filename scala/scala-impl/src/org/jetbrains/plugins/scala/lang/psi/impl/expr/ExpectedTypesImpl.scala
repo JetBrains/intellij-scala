@@ -167,7 +167,7 @@ class ExpectedTypesImpl extends ExpectedTypes {
         Array((throwableType, None))
       //see SLS[8.4]
       case c: ScCaseClause => c.getContext.getContext match {
-        case m: ScMatchStmt => m.expectedTypesEx(fromUnderscore = true)
+        case m: ScMatch => m.expectedTypesEx(fromUnderscore = true)
         case b: ScBlockExpr if b.isInCatchBlock =>
           b.getContext.getContext.asInstanceOf[ScTry].expectedTypesEx(fromUnderscore = true)
         case b: ScBlockExpr if b.isAnonymousFunction =>

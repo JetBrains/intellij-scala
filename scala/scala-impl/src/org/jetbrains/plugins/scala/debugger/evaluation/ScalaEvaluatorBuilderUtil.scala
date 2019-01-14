@@ -832,7 +832,7 @@ private[evaluation] trait ScalaEvaluatorBuilderUtil {
       val pattern = caseCl.pattern
       if (pattern.isEmpty) throw EvaluationException(ScalaBundle.message("cannot.find.pattern"))
       caseCl.getParent.getParent match {
-        case matchStmt: ScMatchStmt if namedElement.isInstanceOf[ScPattern] =>
+        case matchStmt: ScMatch if namedElement.isInstanceOf[ScPattern] =>
           val expr = matchStmt.expr match {
             case None => throw EvaluationException(ScalaBundle.message("cannot.find.expression.of.match"))
             case Some(e) => e

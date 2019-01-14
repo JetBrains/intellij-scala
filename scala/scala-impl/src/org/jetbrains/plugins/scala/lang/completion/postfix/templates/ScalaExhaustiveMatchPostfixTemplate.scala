@@ -11,7 +11,7 @@ import com.intellij.openapi.util.TextRange
 import com.intellij.psi.util.PsiTreeUtil
 import com.intellij.psi.{PsiElement, PsiFile}
 import org.jetbrains.plugins.scala.lang.completion.clauses.ExhaustiveMatchCompletionContributor
-import org.jetbrains.plugins.scala.lang.psi.api.expr.{ScExpression, ScMatchStmt}
+import org.jetbrains.plugins.scala.lang.psi.api.expr.{ScExpression, ScMatch}
 import org.jetbrains.plugins.scala.lang.psi.types.result.Typeable
 
 final class ScalaExhaustiveMatchPostfixTemplate(alias: String = ScalaExhaustiveMatchPostfixTemplate.alias) extends PostfixTemplate(
@@ -84,6 +84,6 @@ object ScalaExhaustiveMatchPostfixTemplate {
                                              (implicit editor: Editor) =
     file.findElementAt(editor.getCaretModel.getOffset - 1) match {
       case null => None
-      case element => Option(PsiTreeUtil.getContextOfType(element, classOf[ScMatchStmt]))
+      case element => Option(PsiTreeUtil.getContextOfType(element, classOf[ScMatch]))
     }
 }

@@ -76,9 +76,9 @@ class ScalaBlock(val myParentBlock: ScalaBlock,
           new ChildAttributes(Indent.getSpaceIndent(scalafmtConfig.continuationIndent.defnSite), null)
         case _: ScArguments if newChildIndex != 0 =>
           new ChildAttributes(Indent.getSpaceIndent(scalafmtConfig.continuationIndent.callSite), null)
-        case m: ScMatchStmt if m.caseClauses.nonEmpty =>
+        case m: ScMatch if m.caseClauses.nonEmpty =>
           new ChildAttributes(Indent.getSpaceIndent(4), null)
-        case _: ScBlock | _: ScTemplateBody| _: ScMatchStmt | _: ScCaseClauses | _: ScCaseClause =>
+        case _: ScBlock | _: ScTemplateBody | _: ScMatch | _: ScCaseClauses | _: ScCaseClause =>
           new ChildAttributes(Indent.getSpaceIndent(2), null)
         case _ if parent.getNode.getElementType == ScalaTokenTypes.kIF =>
           new ChildAttributes(Indent.getSpaceIndent(2), null)
@@ -86,7 +86,7 @@ class ScalaBlock(val myParentBlock: ScalaBlock,
           new ChildAttributes(Indent.getNoneIndent, null)
       }
     } else parent match {
-      case m: ScMatchStmt =>
+      case m: ScMatch =>
         if (m.caseClauses.isEmpty) {
           new ChildAttributes(if (braceShifted) Indent.getNoneIndent else Indent.getNormalIndent, null)
         } else {

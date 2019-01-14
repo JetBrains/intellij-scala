@@ -12,7 +12,7 @@ import com.sun.jdi.{AbsentInformationException, Location, Method, ReferenceType}
 import org.jetbrains.plugins.scala.debugger.evaluation.util.DebuggerUtil
 import org.jetbrains.plugins.scala.extensions._
 import org.jetbrains.plugins.scala.lang.psi.api.base.patterns.ScCaseClauses
-import org.jetbrains.plugins.scala.lang.psi.api.expr.{ScBlock, ScBlockStatement, ScMatchStmt, ScTry}
+import org.jetbrains.plugins.scala.lang.psi.api.expr.{ScBlock, ScBlockStatement, ScMatch, ScTry}
 import org.jetbrains.plugins.scala.lang.psi.api.toplevel.ScEarlyDefinitions
 
 import scala.collection.JavaConverters._
@@ -239,7 +239,7 @@ trait LocationLineManager {
         }
 
         val baseLine = caseClauses.getParent match {
-          case ms: ScMatchStmt => ms.expr.map(elementStartLine)
+          case ms: ScMatch => ms.expr.map(elementStartLine)
           case (_: ScBlock) childOf (_: ScTry) => return //todo: handle try statements
           case b: ScBlock => Some(elementStartLine(b))
           case _ => None

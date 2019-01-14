@@ -68,7 +68,7 @@ class ScalaExtractMethodHandler extends ScalaRefactoringActionHandler {
     def checkLastReturn(elem: PsiElement): Boolean = {
       elem match {
         case _: ScReturn => true
-        case m: ScMatchStmt =>
+        case m: ScMatch =>
           m.getBranches.forall(checkLastReturn(_))
         case f: ScIf if f.elseExpression.isDefined && f.thenExpression.isDefined =>
           checkLastReturn(f.thenExpression.get) && checkLastReturn(f.elseExpression.get)

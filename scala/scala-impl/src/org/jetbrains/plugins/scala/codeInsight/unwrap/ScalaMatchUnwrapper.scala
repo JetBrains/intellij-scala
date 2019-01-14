@@ -6,7 +6,7 @@ import java.util
 import com.intellij.psi.PsiElement
 import org.jetbrains.plugins.scala.extensions.childOf
 import org.jetbrains.plugins.scala.lang.psi.api.base.patterns.{ScCaseClause, ScCaseClauses}
-import org.jetbrains.plugins.scala.lang.psi.api.expr.ScMatchStmt
+import org.jetbrains.plugins.scala.lang.psi.api.expr.ScMatch
 
 /**
  * Nikolay.Tropin
@@ -28,9 +28,9 @@ class ScalaMatchUnwrapper extends ScalaUnwrapper {
 
   override def getDescription(e: PsiElement): String = ScalaBundle.message("unwrap.case.clause")
 
-  private def forCaseClauseInMatch[T](e: PsiElement)(ifInClause: (ScCaseClause, ScMatchStmt) => T)(ifNot: => T): T = {
+  private def forCaseClauseInMatch[T](e: PsiElement)(ifInClause: (ScCaseClause, ScMatch) => T)(ifNot: => T): T = {
     e match {
-      case (cl: ScCaseClause) childOf ((_: ScCaseClauses) childOf (matchStmt: ScMatchStmt)) if cl.expr.nonEmpty =>
+      case (cl: ScCaseClause) childOf ((_: ScCaseClauses) childOf (matchStmt: ScMatch)) if cl.expr.nonEmpty =>
         ifInClause(cl, matchStmt)
       case _ =>
         ifNot

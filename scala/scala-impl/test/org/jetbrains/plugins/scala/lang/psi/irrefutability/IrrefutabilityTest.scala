@@ -6,12 +6,12 @@ import org.jetbrains.plugins.scala.lang.parser.ScalaElementType
 import org.jetbrains.plugins.scala.lang.psi.api.ScalaPsiElement
 import org.jetbrains.plugins.scala.lang.psi.api.ScalaFile
 import org.jetbrains.plugins.scala.lang.psi.api.base.patterns.ScPattern
-import org.jetbrains.plugins.scala.lang.psi.api.expr.{ScExpression, ScMatchStmt}
+import org.jetbrains.plugins.scala.lang.psi.api.expr.{ScExpression, ScMatch}
 
 class IrrefutabilityTest extends ScalaLightCodeInsightFixtureTestAdapter {
 
   private object MatchWithOneCasePatternMatch {
-    def unapply(arg: ScMatchStmt): Option[(ScPattern, ScExpression)] =
+    def unapply(arg: ScMatch): Option[(ScPattern, ScExpression)] =
       for {
         expr <- arg.expr
         Seq(clause) <- Some(arg.caseClauses)

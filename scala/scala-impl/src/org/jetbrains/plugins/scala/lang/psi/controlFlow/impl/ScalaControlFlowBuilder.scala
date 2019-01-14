@@ -220,7 +220,7 @@ class ScalaControlFlowBuilder(startInScope: ScalaPsiElement,
     }
   }
 
-  override def visitMatchStatement(ms: ScMatchStmt) {
+  override def visitMatchStatement(ms: ScMatch) {
     startNode(Some(ms)) {msInstr =>
       checkPendingEdges(msInstr)
       ms.expr match {

@@ -304,7 +304,7 @@ class ScalaFoldingBuilder extends CustomFoldingBuilder with PossiblyDumbAware {
   }
 
   private def isMultilineBodyInMatchStmt(node: ASTNode): Boolean = {
-    val children = node.getPsi.asInstanceOf[ScMatchStmt].children
+    val children = node.getPsi.asInstanceOf[ScMatch].children
     var index = 0
     for (ch <- children) {
       if (ch.isInstanceOf[PsiElement] && ch.getNode.getElementType == ScalaTokenTypes.kMATCH) {
@@ -318,7 +318,7 @@ class ScalaFoldingBuilder extends CustomFoldingBuilder with PossiblyDumbAware {
   }
 
   private def startOffsetForMatchStmt(node: ASTNode): Int = {
-    val children = node.getPsi.asInstanceOf[ScMatchStmt].children
+    val children = node.getPsi.asInstanceOf[ScMatch].children
     var offset = 0
     var passedMatch = false
     for (ch <- children) {

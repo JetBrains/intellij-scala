@@ -10,7 +10,7 @@ import org.jetbrains.plugins.scala.lang.psi.impl.ScalaPsiElementFactory.createEx
 /**
   * @author Alexander Podkhalyuzin, ilyas
   */
-trait ScMatchStmt extends ScExpression {
+trait ScMatch extends ScExpression {
   def expr: Option[ScExpression] = findChild(classOf[ScExpression])
 
   def getBranches: Seq[ScExpression] = caseClauses.map { clause =>
@@ -29,9 +29,9 @@ trait ScMatchStmt extends ScExpression {
   }
 }
 
-object ScMatchStmt {
+object ScMatch {
 
-  def unapply(ms: ScMatchStmt): Option[(ScExpression, Seq[ScCaseClause])] = ms.expr.map { expression =>
+  def unapply(ms: ScMatch): Option[(ScExpression, Seq[ScCaseClause])] = ms.expr.map { expression =>
     (expression, ms.caseClauses)
   }
 }

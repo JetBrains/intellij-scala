@@ -16,16 +16,16 @@ import scala.language.implicitConversions
 class SimplifyBooleanMatchInspection extends AbstractInspection("Trivial match can be simplified") {
 
   override protected def actionFor(implicit holder: ProblemsHolder): PartialFunction[PsiElement, Any] = {
-    case stmt: ScMatchStmt if stmt.isValid && SimpleBooleanMatchUtil.isSimpleBooleanMatchStmt(stmt) =>
+    case stmt: ScMatch if stmt.isValid && SimpleBooleanMatchUtil.isSimpleBooleanMatchStmt(stmt) =>
       val toHighlight = Option(stmt.findFirstChildByType(ScalaTokenTypes.kMATCH)).getOrElse(stmt)
       holder.registerProblem(toHighlight, getDisplayName, ProblemHighlightType.GENERIC_ERROR_OR_WARNING, new SimplifyBooleanMatchToIfStmtQuickFix(stmt))
     case _ =>
   }
 }
 
-class SimplifyBooleanMatchToIfStmtQuickFix(stmt: ScMatchStmt) extends AbstractFixOnPsiElement("Simplify match to if statement", stmt) {
+class SimplifyBooleanMatchToIfStmtQuickFix(stmt: ScMatch) extends AbstractFixOnPsiElement("Simplify match to if statement", stmt) {
 
-  override protected def doApplyFix(scStmt: ScMatchStmt)
+  override protected def doApplyFix(scStmt: ScMatch)
                                    (implicit project: Project): Unit = {
     if (SimpleBooleanMatchUtil.isSimpleBooleanMatchStmt(scStmt)) {
       scStmt.replaceExpression(SimpleBooleanMatchUtil.simplifyMatchStmt(scStmt), removeParenthesis = false)
@@ -35,7 +35,7 @@ class SimplifyBooleanMatchToIfStmtQuickFix(stmt: ScMatchStmt) extends AbstractFi
 
 object SimpleBooleanMatchUtil {
 
-  def isSimpleBooleanMatchStmt(stmt: ScMatchStmt): Boolean = {
+  def isSimpleBooleanMatchStmt(stmt: ScMatch): Boolean = {
     if (stmt.expr.isEmpty || !isOfBooleanType(stmt.expr.get)) return false
 
     if (!stmt.caseClauses.forall(_.expr.isDefined)) return false
@@ -46,7 +46,7 @@ object SimpleBooleanMatchUtil {
     }
   }
 
-  def simplifyMatchStmt(stmt: ScMatchStmt): ScExpression = {
+  def simplifyMatchStmt(stmt: ScMatch): ScExpression = {
     if (!isSimpleBooleanMatchStmt(stmt) || stmt.expr.isEmpty) return stmt
     stmt.caseClauses.size match {
       case 1 => simplifySingleBranchedStmt(stmt)
@@ -55,7 +55,7 @@ object SimpleBooleanMatchUtil {
     }
   }
 
-  private def simplifySingleBranchedStmt(stmt: ScMatchStmt): ScExpression = {
+  private def simplifySingleBranchedStmt(stmt: ScMatch): ScExpression = {
     getFirstBooleanClauseAndValue(stmt) match {
       case None => stmt
       case Some((clause, value)) =>
@@ -64,7 +64,7 @@ object SimpleBooleanMatchUtil {
     }
   }
 
-  def simplifyDualBranchedStmt(stmt: ScMatchStmt): ScExpression = {
+  def simplifyDualBranchedStmt(stmt: ScMatch): ScExpression = {
     getPartitionedClauses(stmt) match {
       case Some((trueClause, falseClause)) if trueClause.expr.nonEmpty && falseClause.expr.nonEmpty =>
         val exprText = stmt.expr.get.getText
@@ -80,7 +80,7 @@ object SimpleBooleanMatchUtil {
     }
   }
 
-  private def getPartitionedClauses(stmt: ScMatchStmt): Option[(ScCaseClause, ScCaseClause)] = {
+  private def getPartitionedClauses(stmt: ScMatch): Option[(ScCaseClause, ScCaseClause)] = {
     if (isSimpleClauses(stmt)) {
       val parts = stmt.caseClauses.partition {
         case ScCaseClause((Some(p: ScPattern), _, _)) => booleanConst(p).get
@@ -99,15 +99,15 @@ object SimpleBooleanMatchUtil {
     }
   }
 
-  private def getFirstBooleanClauseAndValue(stmt: ScMatchStmt): Option[(ScCaseClause, Boolean)] = stmt.caseClauses.collectFirst {
+  private def getFirstBooleanClauseAndValue(stmt: ScMatch): Option[(ScCaseClause, Boolean)] = stmt.caseClauses.collectFirst {
     case clause@ScCaseClause(Some(p: ScPattern), _, _) if booleanConst(p).isDefined => (clause, booleanConst(p).get)
   }
 
-  private def getFirstWildcardClause(stmt: ScMatchStmt): Option[ScCaseClause] = stmt.caseClauses.collectFirst {
+  private def getFirstWildcardClause(stmt: ScMatch): Option[ScCaseClause] = stmt.caseClauses.collectFirst {
     case clause@ScCaseClause(Some(_: ScWildcardPattern), _, _) => clause
   }
 
-  private def isSimpleClauses(stmt: ScMatchStmt): Boolean = stmt.caseClauses.forall {
+  private def isSimpleClauses(stmt: ScMatch): Boolean = stmt.caseClauses.forall {
     case ScCaseClause(Some(p: ScPattern), None, _) => booleanConst(p).isDefined
     case _ => false
   }
@@ -134,7 +134,7 @@ object SimpleBooleanMatchUtil {
     }
   }
 
-  private def isValidClauses(stmt: ScMatchStmt): Boolean = getPartitionedClauses(stmt).nonEmpty
+  private def isValidClauses(stmt: ScMatch): Boolean = getPartitionedClauses(stmt).nonEmpty
 
   private def booleanConst(expr: ScPattern): Option[Boolean] = expr match {
     case pattern: ScLiteralPattern => pattern.getLiteral match {

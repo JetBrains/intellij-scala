@@ -58,7 +58,7 @@ trait ScUnderscoreSection extends ScExpression {
           go(ScalaPsiUtil.contextOfType(expr, strict = true, classOf[ScForStatement]), calcArguments = false)
         case guard: ScGuard => go(ScalaPsiUtil.contextOfType(guard, strict = true, classOf[ScExpression]), calcArguments = false)
         case x: ScExpression if calcArguments => Some(x)
-        case x: ScMatchStmt if !calcArguments => Some(x)
+        case x: ScMatch if !calcArguments => Some(x)
         case x: ScTypedStmt if !calcArguments => Some(x)
         case _: ScExpression if !calcArguments =>
           expr match {

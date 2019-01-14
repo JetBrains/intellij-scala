@@ -579,8 +579,8 @@ object ScalaSpacingProcessor extends ScalaTokenTypes {
 
     if (rightNode.getElementType == ScalaTokenTypes.tRBRACE) {
       rightNode.getTreeParent.getPsi match {
-        case block@(_: ScEarlyDefinitions | _: ScTemplateBody | _: ScPackaging | _: ScBlockExpr | _: ScMatchStmt |
-                _: ScTryBlock | _: ScCatchBlock) =>
+        case block@(_: ScEarlyDefinitions | _: ScTemplateBody | _: ScPackaging | _: ScBlockExpr | _: ScMatch |
+                    _: ScTryBlock | _: ScCatchBlock) =>
 
           val oneLineNonEmpty = leftString != "{" && !getText(block.getNode, fileText).contains('\n')
           lazy val spaceInsideOneLineMethod = scalaSettings.SPACES_IN_ONE_LINE_BLOCKS &&
@@ -653,7 +653,7 @@ object ScalaSpacingProcessor extends ScalaTokenTypes {
         case b: ScBlockExpr if scalaSettings.SPACE_INSIDE_CLOSURE_BRACES && !getText(b.getNode, fileText).contains('\n') &&
           scalaSettings.KEEP_ONE_LINE_LAMBDAS_IN_ARG_LIST &&
           (b.getParent.isInstanceOf[ScArgumentExprList] || b.getParent.isInstanceOf[ScInfixExpr]) => return WITH_SPACING
-        case block@(_: ScPackaging | _: ScBlockExpr | _: ScMatchStmt |
+        case block@(_: ScPackaging | _: ScBlockExpr | _: ScMatch |
                     _: ScTryBlock | _: ScCatchBlock) =>
           val prev = block.getPrevSibling
           if (settings.KEEP_SIMPLE_BLOCKS_IN_ONE_LINE || prev != null &&
@@ -1106,7 +1106,7 @@ object ScalaSpacingProcessor extends ScalaTokenTypes {
         case _: ScDo =>
           if (settings.SPACE_BEFORE_DO_LBRACE) return WITH_SPACING
           else return WITHOUT_SPACING
-        case _: ScMatchStmt =>
+        case _: ScMatch =>
           if (scalaSettings.SPACE_BEFORE_MATCH_LBRACE) return WITH_SPACING
           else return WITHOUT_SPACING
         case _: ScTryBlock =>

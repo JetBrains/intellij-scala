@@ -73,7 +73,7 @@ class TypeCheckCanBeMatchQuickFix(isInstOfUnderFix: ScGenericCall, ifStmt: ScIf)
     val (matchStmtOption, renameData) = buildMatchStmt(ifSt, isInstOf, onlyFirst = true)
     for (matchStmt <- matchStmtOption) {
       val newMatch = inWriteAction {
-        ifSt.replaceExpression(matchStmt, removeParenthesis = true).asInstanceOf[ScMatchStmt]
+        ifSt.replaceExpression(matchStmt, removeParenthesis = true).asInstanceOf[ScMatch]
       }
       if (!ApplicationManager.getApplication.isUnitTestMode) {
         val renameHelper = new InplaceRenameHelper(newMatch)
@@ -88,13 +88,13 @@ object TypeCheckToMatchUtil {
   type RenameData = collection.mutable.ArrayBuffer[(Int, Seq[String])]
 
   def buildMatchStmt(ifStmt: ScIf, isInstOfUnderFix: ScGenericCall, onlyFirst: Boolean)
-                    (implicit project: Project): (Option[ScMatchStmt], RenameData) =
+                    (implicit project: Project): (Option[ScMatch], RenameData) =
     baseExpr(isInstOfUnderFix) match {
       case Some(expr: ScExpression) =>
         val matchedExprText = expr.getText
         val (caseClausesText, renameData) = buildCaseClausesText(ifStmt, isInstOfUnderFix, onlyFirst)
         val matchStmtText = s"$matchedExprText match { \n " + caseClausesText + "}"
-        val matchStmt = createExpressionFromText(matchStmtText).asInstanceOf[ScMatchStmt]
+        val matchStmt = createExpressionFromText(matchStmtText).asInstanceOf[ScMatch]
         (Some(matchStmt), renameData)
       case _ => (None, null)
     }
@@ -312,7 +312,7 @@ object TypeCheckToMatchUtil {
     result
   }
 
-  def setElementsForRename(matchStmt: ScMatchStmt, renameHelper: InplaceRenameHelper, renameData: RenameData) {
+  def setElementsForRename(matchStmt: ScMatch, renameHelper: InplaceRenameHelper, renameData: RenameData) {
     val caseClauses = matchStmt.caseClauses.toList
 
     for {

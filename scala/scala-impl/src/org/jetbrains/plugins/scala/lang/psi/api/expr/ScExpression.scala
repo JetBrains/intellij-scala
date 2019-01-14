@@ -189,7 +189,7 @@ object ScExpression {
       }
     }
 
-    override def visitMatchStatement(statement: ScMatchStmt): Unit = {
+    override def visitMatchStatement(statement: ScMatch): Unit = {
       statement.getBranches.foreach(acceptVisitor)
     }
 

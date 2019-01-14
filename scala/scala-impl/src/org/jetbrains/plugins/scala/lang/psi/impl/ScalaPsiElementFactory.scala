@@ -202,7 +202,7 @@ object ScalaPsiElementFactory {
 
   def createPatternFromText(patternText: String)
                            (implicit ctx: ProjectContext): ScPattern = {
-    val matchStatement = createElementFromText(s"x match { case $patternText => }", classOf[ScMatchStmt])
+    val matchStatement = createElementFromText(s"x match { case $patternText => }", classOf[ScMatch])
     matchStatement.caseClauses.head.pattern.get
   }
 
@@ -213,9 +213,9 @@ object ScalaPsiElementFactory {
   }
 
   def createMatch(element: String, caseClauses: Seq[String])
-                 (implicit ctx: ProjectContext): ScMatchStmt = {
+                 (implicit ctx: ProjectContext): ScMatch = {
     val clausesText = caseClauses.mkString("{ ", "\n", " }")
-    createElementFromText(s"$element match $clausesText", classOf[ScMatchStmt])
+    createElementFromText(s"$element match $clausesText", classOf[ScMatch])
   }
 
   def createMethodFromText(text: String)

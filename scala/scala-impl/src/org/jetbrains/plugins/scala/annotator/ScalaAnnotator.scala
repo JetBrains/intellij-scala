@@ -815,12 +815,12 @@ abstract class ScalaAnnotator extends Annotator
       case p: ScParenthesisedExpr              => isInArgumentPosition(p)
       case t: ScTuple                          => isInArgumentPosition(t)
       case i: ScIf                         => isInArgumentPosition(i)
-      case m: ScMatchStmt                      => isInArgumentPosition(m)
+      case m: ScMatch                      => isInArgumentPosition(m)
       case _                                   => false
     }
 
     def isTooBigToHighlight(expr: ScExpression): Boolean = expr match {
-      case _: ScMatchStmt                            => true
+      case _: ScMatch                            => true
       case bl: ScBlock if bl.lastStatement.isDefined => true
       case i: ScIf if i.elseExpression.isDefined     => true
       case _: ScFunctionExpr                         => true

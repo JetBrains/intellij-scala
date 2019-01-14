@@ -46,12 +46,12 @@ final class ExhaustiveMatchCompletionContributor extends ScalaCompletionContribu
           PatternGenerationStrategy(strategy) <- operand.`type`().toOption
           handler = new ClausesInsertHandler(
             strategy,
-            classOf[ScMatchStmt],
+            classOf[ScMatch],
             prefix = DefaultPrefix,
             suffix = DefaultSuffix
           )(sugarCall) {
 
-            override protected def findCaseClauses(target: ScMatchStmt): ScCaseClauses =
+            override protected def findCaseClauses(target: ScMatch): ScCaseClauses =
               target.getCaseClauses
           }
         } result.addElement(MATCH, handler)(tailText = rendererTailText)
