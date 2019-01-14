@@ -13,6 +13,7 @@ import org.jetbrains.plugins.scala.lang.psi.api.base.{ScConstructor, ScMethodLik
 import org.jetbrains.plugins.scala.lang.psi.api.expr._
 import org.jetbrains.plugins.scala.lang.psi.api.statements.ScVariable
 import org.jetbrains.plugins.scala.lang.psi.api.statements.params.ScClassParameter
+import org.jetbrains.plugins.scala.lang.psi.api.toplevel.ScTypeBoundsOwner
 import org.jetbrains.plugins.scala.lang.psi.api.toplevel.imports.ScImportStmt
 import org.jetbrains.plugins.scala.lang.psi.api.toplevel.typedef.ScObject
 import org.jetbrains.plugins.scala.lang.psi.impl.ScalaPsiElementFactory.{createExpressionFromText, createExpressionWithContextFromText}
@@ -20,6 +21,7 @@ import org.jetbrains.plugins.scala.lang.psi.types._
 import org.jetbrains.plugins.scala.lang.psi.types.api.FunctionType
 import org.jetbrains.plugins.scala.lang.psi.types.result._
 import org.jetbrains.plugins.scala.lang.refactoring.util.ScalaNamesUtil
+import org.jetbrains.plugins.scala.lang.resolve.ScalaResolveResult
 
 /**
  * Nikolay.Tropin
@@ -34,8 +36,7 @@ class ConvertibleToMethodValueInspection extends AbstractInspection(inspectionNa
 
   override def actionFor(implicit holder: ProblemsHolder): PartialFunction[PsiElement, Any] = {
     case MethodRepr(_, _, Some(ref), _)
-      if ref.bind().exists(srr => srr.implicitType.nonEmpty || srr.implicitFunction.nonEmpty || hasByNameOrImplicitParam(srr.getElement)) =>
-      //do nothing if implicits or by-name params are involved
+      if ref.bind().exists(involvesImplicitsOrByNameParams) => //do nothing
     case MethodRepr(expr, qualOpt, Some(_), args) =>
       if (allArgsUnderscores(args) && qualOpt.forall(onlyStableValuesUsed))
         registerProblem(holder, expr, InspectionBundle.message("convertible.to.method.value.anonymous.hint"))
@@ -50,6 +51,13 @@ class ConvertibleToMethodValueInspection extends AbstractInspection(inspectionNa
 
       if (!isInParameterOfParameterizedClass && mayReplace())
         registerProblem(holder, und, InspectionBundle.message("convertible.to.method.value.eta.hint"))
+  }
+
+  private def involvesImplicitsOrByNameParams(srr: ScalaResolveResult): Boolean = {
+    srr.implicitType.nonEmpty ||
+      srr.implicitFunction.nonEmpty ||
+      hasByNameOrImplicitParam(srr.getElement) ||
+      hasContextOrViewBoundTypeParam(srr.getElement)
   }
 
   private def allArgsUnderscores(args: Seq[ScExpression]): Boolean = {
@@ -119,6 +127,13 @@ class ConvertibleToMethodValueInspection extends AbstractInspection(inspectionNa
   private def hasByNameOrImplicitParam(elem: PsiElement): Boolean = {
     elem match {
       case fun: ScMethodLike => fun.parameterList.params.exists(p => p.isCallByNameParameter || p.isImplicitParameter)
+      case _ => false
+    }
+  }
+
+  private def hasContextOrViewBoundTypeParam(elem: PsiElement): Boolean = {
+    elem match {
+      case fun: ScMethodLike => fun.getTypeParameters.exists { case bounds: ScTypeBoundsOwner => bounds.hasImplicitBounds }
       case _ => false
     }
   }

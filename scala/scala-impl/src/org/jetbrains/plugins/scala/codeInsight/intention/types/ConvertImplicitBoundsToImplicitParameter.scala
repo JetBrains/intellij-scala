@@ -39,7 +39,7 @@ object ConvertImplicitBoundsToImplicitParameter {
 
   def canBeConverted(element: PsiElement): Boolean =
     element.parentOfType(classOf[ScTypeBoundsOwner], strict = false)
-      .filter(_.hasImplicitBound)
+      .filter(_.hasImplicitBounds)
       .flatMap(_.parentOfType(classOf[ScTypeParametersOwner]))
       .exists {
         case _: ScTrait => false
