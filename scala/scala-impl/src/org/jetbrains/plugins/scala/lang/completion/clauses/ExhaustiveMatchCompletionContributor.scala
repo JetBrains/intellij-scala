@@ -52,7 +52,7 @@ final class ExhaustiveMatchCompletionContributor extends ScalaCompletionContribu
           )(sugarCall) {
 
             override protected def findCaseClauses(target: ScMatch): ScCaseClauses =
-              target.getCaseClauses
+              target.caseClauses
           }
         } result.addElement(MATCH, handler)(tailText = rendererTailText)
     }

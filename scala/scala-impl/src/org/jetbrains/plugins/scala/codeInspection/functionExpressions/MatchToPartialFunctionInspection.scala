@@ -132,7 +132,7 @@ object MatchToPartialFunctionInspection {
       case ScMatch(ScReferenceExpression(argument), _) =>
         val references = findReferences(argument)(new LocalSearchScope(statement))
 
-        statement.caseClauses.zipWithIndex.collect {
+        statement.clauses.zipWithIndex.collect {
           case (clause, index) if references.exists(isAncestor(clause, _, false)) => index
         }
       case _ => Seq.empty
@@ -140,10 +140,10 @@ object MatchToPartialFunctionInspection {
 
     private[this] def addNamingPatterns(statement: ScMatch, indices: Seq[Int])
                                        (implicit projectContext: ProjectContext = statement.projectContext): Unit = {
-      val expression = statement.expr.getOrElse(return)
+      val expression = statement.expression.getOrElse(return)
       val name = expression.getText
 
-      val clauses = statement.caseClauses
+      val clauses = statement.clauses
       val patterns = indices.flatMap(i => clauses(i).pattern)
 
       patterns.collect {

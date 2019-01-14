@@ -313,7 +313,7 @@ object TypeCheckToMatchUtil {
   }
 
   def setElementsForRename(matchStmt: ScMatch, renameHelper: InplaceRenameHelper, renameData: RenameData) {
-    val caseClauses = matchStmt.caseClauses.toList
+    val caseClauses = matchStmt.clauses.toList
 
     for {
       (index, suggestedNames) <- renameData

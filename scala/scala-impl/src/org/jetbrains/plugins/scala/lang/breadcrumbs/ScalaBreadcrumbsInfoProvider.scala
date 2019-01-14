@@ -127,7 +127,7 @@ object ScalaBreadcrumbsInfoProvider {
       case ifSt: ScIf => s"if (${limitString(ifSt.condition.map(_.getText).getOrElse(""))}) {...}"
       case whileSt: ScWhileStmt => s"while(${limitString(whileSt.condition.map(_.getText).getOrElse(""), "...")})"
       case doWhileSt: ScDo => s"do ... while(${limitString(doWhileSt.condition.map(_.getText).getOrElse(""), "...")})"
-      case matchSt: ScMatch => limitString(matchSt.expr.map(_.getText).getOrElse(PAR_HOLDER)) + " match {...}"
+      case matchSt: ScMatch => limitString(matchSt.expression.map(_.getText).getOrElse(PAR_HOLDER)) + " match {...}"
       case _ => "Expr"
     }
     

@@ -223,11 +223,11 @@ class ScalaControlFlowBuilder(startInScope: ScalaPsiElement,
   override def visitMatchStatement(ms: ScMatch) {
     startNode(Some(ms)) {msInstr =>
       checkPendingEdges(msInstr)
-      ms.expr match {
+      ms.expression match {
         case Some(e) => e.accept(this)
         case _ =>
       }
-      for (cc <- ms.caseClauses) {
+      for (cc <- ms.clauses) {
         cc.accept(this)
         advancePendingEdges(cc, ms)
         addPendingEdge(ms, myHead)

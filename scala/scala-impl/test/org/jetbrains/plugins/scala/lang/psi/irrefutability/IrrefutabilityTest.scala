@@ -13,8 +13,8 @@ class IrrefutabilityTest extends ScalaLightCodeInsightFixtureTestAdapter {
   private object MatchWithOneCasePatternMatch {
     def unapply(arg: ScMatch): Option[(ScPattern, ScExpression)] =
       for {
-        expr <- arg.expr
-        Seq(clause) <- Some(arg.caseClauses)
+        expr <- arg.expression
+        Seq(clause) <- Some(arg.clauses)
         pattern <- clause.pattern
       } yield pattern -> expr
   }

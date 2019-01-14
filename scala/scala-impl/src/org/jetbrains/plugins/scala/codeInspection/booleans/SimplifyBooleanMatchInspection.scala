@@ -36,10 +36,10 @@ class SimplifyBooleanMatchToIfStmtQuickFix(stmt: ScMatch) extends AbstractFixOnP
 object SimpleBooleanMatchUtil {
 
   def isSimpleBooleanMatchStmt(stmt: ScMatch): Boolean = {
-    if (stmt.expr.isEmpty || !isOfBooleanType(stmt.expr.get)) return false
+    if (stmt.expression.isEmpty || !isOfBooleanType(stmt.expression.get)) return false
 
-    if (!stmt.caseClauses.forall(_.expr.isDefined)) return false
-    stmt.caseClauses.size match {
+    if (!stmt.clauses.forall(_.expr.isDefined)) return false
+    stmt.clauses.size match {
       case 1 => getFirstBooleanClauseAndValue(stmt).isDefined
       case 2 => isValidClauses(stmt)
       case _ => false
@@ -47,8 +47,8 @@ object SimpleBooleanMatchUtil {
   }
 
   def simplifyMatchStmt(stmt: ScMatch): ScExpression = {
-    if (!isSimpleBooleanMatchStmt(stmt) || stmt.expr.isEmpty) return stmt
-    stmt.caseClauses.size match {
+    if (!isSimpleBooleanMatchStmt(stmt) || stmt.expression.isEmpty) return stmt
+    stmt.clauses.size match {
       case 1 => simplifySingleBranchedStmt(stmt)
       case 2 => simplifyDualBranchedStmt(stmt)
       case _ => stmt
@@ -59,7 +59,7 @@ object SimpleBooleanMatchUtil {
     getFirstBooleanClauseAndValue(stmt) match {
       case None => stmt
       case Some((clause, value)) =>
-        val exprText = if (value) stmt.expr.get.getText else "!" + getParenthesisedText(stmt.expr.get)
+        val exprText = if (value) stmt.expression.get.getText else "!" + getParenthesisedText(stmt.expression.get)
         createExpressionFromText(s"if ($exprText){ ${getTextWithoutBraces(clause)} }")(stmt.projectContext)
     }
   }
@@ -67,7 +67,7 @@ object SimpleBooleanMatchUtil {
   def simplifyDualBranchedStmt(stmt: ScMatch): ScExpression = {
     getPartitionedClauses(stmt) match {
       case Some((trueClause, falseClause)) if trueClause.expr.nonEmpty && falseClause.expr.nonEmpty =>
-        val exprText = stmt.expr.get.getText
+        val exprText = stmt.expression.get.getText
         createExpressionFromText(
           s"""
              |if ($exprText) {
@@ -82,7 +82,7 @@ object SimpleBooleanMatchUtil {
 
   private def getPartitionedClauses(stmt: ScMatch): Option[(ScCaseClause, ScCaseClause)] = {
     if (isSimpleClauses(stmt)) {
-      val parts = stmt.caseClauses.partition {
+      val parts = stmt.clauses.partition {
         case ScCaseClause((Some(p: ScPattern), _, _)) => booleanConst(p).get
       }
       parts match {
@@ -99,15 +99,15 @@ object SimpleBooleanMatchUtil {
     }
   }
 
-  private def getFirstBooleanClauseAndValue(stmt: ScMatch): Option[(ScCaseClause, Boolean)] = stmt.caseClauses.collectFirst {
+  private def getFirstBooleanClauseAndValue(stmt: ScMatch): Option[(ScCaseClause, Boolean)] = stmt.clauses.collectFirst {
     case clause@ScCaseClause(Some(p: ScPattern), _, _) if booleanConst(p).isDefined => (clause, booleanConst(p).get)
   }
 
-  private def getFirstWildcardClause(stmt: ScMatch): Option[ScCaseClause] = stmt.caseClauses.collectFirst {
+  private def getFirstWildcardClause(stmt: ScMatch): Option[ScCaseClause] = stmt.clauses.collectFirst {
     case clause@ScCaseClause(Some(_: ScWildcardPattern), _, _) => clause
   }
 
-  private def isSimpleClauses(stmt: ScMatch): Boolean = stmt.caseClauses.forall {
+  private def isSimpleClauses(stmt: ScMatch): Boolean = stmt.clauses.forall {
     case ScCaseClause(Some(p: ScPattern), None, _) => booleanConst(p).isDefined
     case _ => false
   }

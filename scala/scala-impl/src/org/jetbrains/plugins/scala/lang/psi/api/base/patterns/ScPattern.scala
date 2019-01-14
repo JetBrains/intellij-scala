@@ -127,7 +127,7 @@ object ScPattern {
           case _ => None
         }
         case clause: ScCaseClause => clause.getContext /*clauses*/ .getContext match {
-          case matchStat: ScMatch => matchStat.expr match {
+          case matchStat: ScMatch => matchStat.expression match {
             case Some(e) => Some(e.`type`().getOrAny)
             case _ => None
           }

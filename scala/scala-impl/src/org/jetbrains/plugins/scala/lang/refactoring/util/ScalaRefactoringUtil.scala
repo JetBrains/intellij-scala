@@ -650,7 +650,7 @@ object ScalaRefactoringUtil {
         builder.append(f.returnTypeElement.map(getShortText(_)).getOrElse("..."))
       case l: ScLiteral => builder.append(l.getText)
       case m: ScMatch =>
-        m.expr match {
+        m.expression match {
           case Some(expression) => builder.append(getShortText(expression))
           case _ => builder.append("...")
         }

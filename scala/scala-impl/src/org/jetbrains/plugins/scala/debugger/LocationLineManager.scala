@@ -239,7 +239,7 @@ trait LocationLineManager {
         }
 
         val baseLine = caseClauses.getParent match {
-          case ms: ScMatch => ms.expr.map(elementStartLine)
+          case ms: ScMatch => ms.expression.map(elementStartLine)
           case (_: ScBlock) childOf (_: ScTry) => return //todo: handle try statements
           case b: ScBlock => Some(elementStartLine(b))
           case _ => None

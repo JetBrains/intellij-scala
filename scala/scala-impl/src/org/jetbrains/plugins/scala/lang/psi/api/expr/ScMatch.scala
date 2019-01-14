@@ -4,6 +4,7 @@ package psi
 package api
 package expr
 
+import org.jetbrains.annotations.Nullable
 import org.jetbrains.plugins.scala.lang.psi.api.base.patterns.{ScCaseClause, ScCaseClauses}
 import org.jetbrains.plugins.scala.lang.psi.impl.ScalaPsiElementFactory.createExpressionFromText
 
@@ -11,16 +12,15 @@ import org.jetbrains.plugins.scala.lang.psi.impl.ScalaPsiElementFactory.createEx
   * @author Alexander Podkhalyuzin, ilyas
   */
 trait ScMatch extends ScExpression {
-  def expr: Option[ScExpression] = findChild(classOf[ScExpression])
+  def expression: Option[ScExpression] = findChild(classOf[ScExpression])
 
-  def getBranches: Seq[ScExpression] = caseClauses.map { clause =>
-    clause.expr.getOrElse(createExpressionFromText("{}"))
-  }
+  def expressions: Seq[ScExpression] = clauses.map(_.expr.getOrElse(createExpressionFromText("{}")))
 
-  def getCaseClauses: ScCaseClauses = findChildByClassScala(classOf[ScCaseClauses])
+  @Nullable
+  def caseClauses: ScCaseClauses = findChildByClassScala(classOf[ScCaseClauses])
 
-  def caseClauses: Seq[ScCaseClause] = getCaseClauses match {
-    case null => Nil
+  def clauses: Seq[ScCaseClause] = caseClauses match {
+    case null => Seq.empty
     case clauses => clauses.caseClauses
   }
 
@@ -31,7 +31,7 @@ trait ScMatch extends ScExpression {
 
 object ScMatch {
 
-  def unapply(ms: ScMatch): Option[(ScExpression, Seq[ScCaseClause])] = ms.expr.map { expression =>
-    (expression, ms.caseClauses)
+  def unapply(ms: ScMatch): Option[(ScExpression, Seq[ScCaseClause])] = ms.expression.map { expression =>
+    (expression, ms.clauses)
   }
 }

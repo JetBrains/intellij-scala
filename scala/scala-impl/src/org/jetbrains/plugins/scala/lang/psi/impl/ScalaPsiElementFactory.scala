@@ -203,7 +203,7 @@ object ScalaPsiElementFactory {
   def createPatternFromText(patternText: String)
                            (implicit ctx: ProjectContext): ScPattern = {
     val matchStatement = createElementFromText(s"x match { case $patternText => }", classOf[ScMatch])
-    matchStatement.caseClauses.head.pattern.get
+    matchStatement.clauses.head.pattern.get
   }
 
   def createTypeParameterFromText(name: String)

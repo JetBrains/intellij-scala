@@ -17,7 +17,7 @@ import org.jetbrains.plugins.scala.lang.psi.types.{ScType, ScTypeExt}
 class ScMatchImpl(node: ASTNode) extends ScExpressionImplBase(node) with ScMatch {
 
   protected override def innerType: TypeResult = {
-    val branchesTypes = getBranches.map(_.`type`().getOrNothing)
+    val branchesTypes = expressions.map(_.`type`().getOrNothing)
     val branchesLub = branchesTypes.foldLeft(Nothing: ScType)(_.lub(_))
     Right(branchesLub)
   }

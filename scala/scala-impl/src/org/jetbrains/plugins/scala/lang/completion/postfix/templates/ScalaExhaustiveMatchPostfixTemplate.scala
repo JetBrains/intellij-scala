@@ -61,7 +61,7 @@ object ScalaExhaustiveMatchPostfixTemplate {
 
     for {
       statement <- findMatchStatementAtCaret(file)
-      caseClauses = statement.caseClauses
+      caseClauses = statement.clauses
     } strategy.adjustTypes(components, caseClauses)
   }
 
