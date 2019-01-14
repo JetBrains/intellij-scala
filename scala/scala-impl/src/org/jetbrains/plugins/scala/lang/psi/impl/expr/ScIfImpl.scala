@@ -25,7 +25,7 @@ class ScIfImpl(node: ASTNode) extends ScExpressionImplBase(node) with ScIf {
     Option(c)
   }
 
-  def thenBranch: Option[ScExpression] = {
+  def thenExpression: Option[ScExpression] = {
     val kElse = findChildByType[PsiElement](ScalaTokenTypes.kELSE)
     val t =
       if (kElse != null) PsiTreeUtil.getPrevSiblingOfType(kElse, classOf[ScExpression])
@@ -40,24 +40,24 @@ class ScIfImpl(node: ASTNode) extends ScExpressionImplBase(node) with ScIf {
     }
   }
 
-  def elseBranch: Option[ScExpression] = {
+  def elseExpression: Option[ScExpression] = {
     val kElse = findChildByType[PsiElement](ScalaTokenTypes.kELSE)
     val e = if (kElse != null) PsiTreeUtil.getNextSiblingOfType(kElse, classOf[ScExpression]) else null
     Option(e)
   }
 
-  def getLeftParenthesis: Option[PsiElement] = {
+  def leftParen: Option[PsiElement] = {
     val leftParenthesis = findChildByType[PsiElement](ScalaTokenTypes.tLPARENTHESIS)
     Option(leftParenthesis)
   }
 
-  def getRightParenthesis: Option[PsiElement] = {
+  def rightParen: Option[PsiElement] = {
     val rightParenthesis = findChildByType[PsiElement](ScalaTokenTypes.tRPARENTHESIS)
     Option(rightParenthesis)
   }
 
   protected override def innerType: TypeResult = {
-    (thenBranch, elseBranch) match {
+    (thenExpression, elseExpression) match {
       case (Some(t), Some(e)) => for (tt <- t.`type`();
                                       et <- e.`type`()) yield {
         tt.lub(et)

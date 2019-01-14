@@ -39,7 +39,7 @@ class ScalaWithIfElseConditionSurrounder extends ScalaExpressionSurrounder {
       case x => x
     }
     val ifStmt: ScIf = element.asInstanceOf[ScIf]
-    val body = (ifStmt.thenBranch: @unchecked) match {
+    val body = (ifStmt.thenExpression: @unchecked) match {
       case Some(x) => x
     }
     val offset = body.getTextRange.getStartOffset + 1

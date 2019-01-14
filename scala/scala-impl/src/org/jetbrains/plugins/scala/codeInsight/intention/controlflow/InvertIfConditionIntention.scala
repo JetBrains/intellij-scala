@@ -26,7 +26,7 @@ class InvertIfConditionIntention extends PsiElementBaseIntentionAction {
     val ifStmt: ScIf = PsiTreeUtil.getParentOfType(element, classOf[ScIf], false)
     if (ifStmt == null) return false
 
-    val thenBranch = ifStmt.thenBranch.orNull
+    val thenBranch = ifStmt.thenExpression.orNull
     if (thenBranch == null) return false
 
     val condition = ifStmt.condition.orNull
@@ -36,7 +36,7 @@ class InvertIfConditionIntention extends PsiElementBaseIntentionAction {
     if (!(ifStmt.getTextRange.getStartOffset <= offset && offset <= condition.getTextRange.getStartOffset - 1))
       return false
 
-    val elseBranch = ifStmt.elseBranch.orNull
+    val elseBranch = ifStmt.elseExpression.orNull
     if (elseBranch != null) return elseBranch.isInstanceOf[ScBlockExpr]
 
     true
@@ -62,12 +62,12 @@ class InvertIfConditionIntention extends PsiElementBaseIntentionAction {
       case condition => negate(condition)
     }
 
-    val elseBranch = ifStmt.elseBranch.orNull
+    val elseBranch = ifStmt.elseExpression.orNull
     val newThenBranch = if (elseBranch != null) elseBranch.asInstanceOf[ScBlockExpr].getText else "{\n\n}"
     expr.append("if (").append(newCond).append(")").append(newThenBranch).append(" else ")
-    val res = ifStmt.thenBranch.get match {
+    val res = ifStmt.thenExpression.get match {
       case e: ScBlockExpr => e.getText
-      case _ => "{\n" + ifStmt.thenBranch.get.getText + "\n}"
+      case _ => "{\n" + ifStmt.thenExpression.get.getText + "\n}"
     }
     expr.append(res)
 

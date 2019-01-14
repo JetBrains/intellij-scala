@@ -148,7 +148,7 @@ class ExpectedTypesImpl extends ExpectedTypes {
       }
       //see SLS[6.16]
       case cond: ScIf if cond.condition.getOrElse(null: ScExpression) == sameInContext => Array((api.Boolean, None))
-      case cond: ScIf if cond.elseBranch.isDefined => cond.expectedTypesEx(fromUnderscore = true)
+      case cond: ScIf if cond.elseExpression.isDefined => cond.expectedTypesEx(fromUnderscore = true)
       //see SLA[6.22]
       case tb: ScTryBlock => tb.lastExpr match {
         case Some(e) if e == expr => tb.getContext.asInstanceOf[ScTry].expectedTypesEx(fromUnderscore = true)

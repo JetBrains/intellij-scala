@@ -19,9 +19,9 @@ class ScalaMissingIfBranchesFixer extends ScalaFixer {
 
     val doc = editor.getDocument
     var transformingOneLiner = false
-    val thenBranch = ifStatement.thenBranch
+    val thenBranch = ifStatement.thenExpression
 
-    ifStatement.thenBranch match {
+    ifStatement.thenExpression match {
       case Some(block: ScBlockExpr) =>
         ifStatement.condition.foreach {
           case cond =>
@@ -34,12 +34,12 @@ class ScalaMissingIfBranchesFixer extends ScalaFixer {
       case _ =>
     }
 
-    val rParenth = ifStatement.getRightParenthesis.orNull
+    val rParenth = ifStatement.rightParen.orNull
     assert(rParenth != null)
 
     val rParenthOffset = rParenth.getTextRange.getEndOffset
 
-    if (ifStatement.elseBranch.isEmpty && !transformingOneLiner || ifStatement.thenBranch.isEmpty) {
+    if (ifStatement.elseExpression.isEmpty && !transformingOneLiner || ifStatement.thenExpression.isEmpty) {
       doc.insertString(rParenthOffset, " {}")
     } else {
       doc.insertString(rParenthOffset, " {")

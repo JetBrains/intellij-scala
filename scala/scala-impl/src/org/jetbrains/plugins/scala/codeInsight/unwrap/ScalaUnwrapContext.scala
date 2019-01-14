@@ -30,7 +30,7 @@ class ScalaUnwrapContext extends AbstractUnwrapper.AbstractContext {
 
   def setElseBranch(ifStmt: ScIf, expr: ScExpression) {
     if (myIsEffective) {
-      ifStmt.elseBranch match {
+      ifStmt.elseExpression match {
         case Some(oldExpr) =>
           val replaced = oldExpr.replace(expr.copy())
           addElementToExtract(replaced)

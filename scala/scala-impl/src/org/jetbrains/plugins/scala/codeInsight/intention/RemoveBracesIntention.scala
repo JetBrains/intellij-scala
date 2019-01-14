@@ -46,7 +46,7 @@ class RemoveBracesIntention extends PsiElementBaseIntentionAction {
     val expr: Option[ScExpression] = element.parentOfType(classes).flatMap {
       case ScPatternDefinition.expr(e) if isAncestorOfElement(e) => Some(e)
       case ifStmt: ScIf =>
-        ifStmt.thenBranch.filter(isAncestorOfElement).orElse(ifStmt.elseBranch.filter(isAncestorOfElement))
+        ifStmt.thenExpression.filter(isAncestorOfElement).orElse(ifStmt.elseExpression.filter(isAncestorOfElement))
       case funDef: ScFunctionDefinition if !funDef.hasUnitResultType =>
         funDef.body.filter(isAncestorOfElement)
       case tryBlock: ScTryBlock if tryBlock.hasRBrace =>

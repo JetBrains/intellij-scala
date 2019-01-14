@@ -333,12 +333,12 @@ class ScalaControlFlowBuilder(startInScope: ScalaPsiElement,
       val head = Option(myHead).getOrElse(ifStmtInstr)
 
       // reduced if-then expression (without `else`)
-      stmt.elseBranch match {
+      stmt.elseExpression match {
         case None => addPendingEdge(stmt, head)
         case _ =>
       }
 
-      stmt.thenBranch match {
+      stmt.thenExpression match {
         case Some(tb) =>
           tb.accept(this)
           advancePendingEdges(tb, stmt)
@@ -346,7 +346,7 @@ class ScalaControlFlowBuilder(startInScope: ScalaPsiElement,
           myHead = head
         case None =>
       }
-      stmt.elseBranch match {
+      stmt.elseExpression match {
         case Some(eb) =>
           eb.accept(this)
           advancePendingEdges(eb, stmt)

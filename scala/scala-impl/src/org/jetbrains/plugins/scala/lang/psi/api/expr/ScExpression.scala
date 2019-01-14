@@ -194,10 +194,10 @@ object ScExpression {
     }
 
     override def visitIfStatement(statement: ScIf): Unit = {
-      statement.elseBranch match {
+      statement.elseExpression match {
         case Some(elseBranch) =>
           acceptVisitor(elseBranch)
-          statement.thenBranch.foreach(acceptVisitor)
+          statement.thenExpression.foreach(acceptVisitor)
         case _ => super.visitIfStatement(statement)
       }
     }

@@ -70,8 +70,8 @@ class ScalaExtractMethodHandler extends ScalaRefactoringActionHandler {
         case _: ScReturn => true
         case m: ScMatchStmt =>
           m.getBranches.forall(checkLastReturn(_))
-        case f: ScIf if f.elseBranch.isDefined && f.thenBranch.isDefined =>
-          checkLastReturn(f.thenBranch.get) && checkLastReturn(f.elseBranch.get)
+        case f: ScIf if f.elseExpression.isDefined && f.thenExpression.isDefined =>
+          checkLastReturn(f.thenExpression.get) && checkLastReturn(f.elseExpression.get)
         case block: ScBlock if block.lastExpr.isDefined => checkLastReturn(block.lastExpr.get)
         case _ => false
       }
@@ -280,7 +280,7 @@ class ScalaExtractMethodHandler extends ScalaRefactoringActionHandler {
           case v: ScVariableDefinition if v.bindings.nonEmpty => local(s"var ${v.bindings.head.name}")
           case _: ScCaseClause => local("case clause")
           case ifStmt: ScIf =>
-            if (ifStmt.thenBranch.contains(b)) local("if block")
+            if (ifStmt.thenExpression.contains(b)) local("if block")
             else "Extract local method in else block"
           case forStmt: ScForStatement if forStmt.body.contains(b) => local("for statement")
           case whileStmt: ScWhileStmt if whileStmt.body.contains(b) => local("while statement")

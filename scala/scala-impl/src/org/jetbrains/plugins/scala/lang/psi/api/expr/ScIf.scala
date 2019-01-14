@@ -13,13 +13,13 @@ import com.intellij.psi.PsiElement
 trait ScIf extends ScExpression {
   def condition: Option[ScExpression]
 
-  def thenBranch: Option[ScExpression]
+  def thenExpression: Option[ScExpression]
 
-  def elseBranch: Option[ScExpression]
+  def elseExpression: Option[ScExpression]
 
-  def getLeftParenthesis: Option[PsiElement]
+  def leftParen: Option[PsiElement]
 
-  def getRightParenthesis: Option[PsiElement]
+  def rightParen: Option[PsiElement]
 
   override def accept(visitor: ScalaElementVisitor): Unit = {
     visitor.visitIfStatement(this)
@@ -27,5 +27,5 @@ trait ScIf extends ScExpression {
 }
 
 object ScIf {
-  def unapply(ifStmt: ScIf) = Some(ifStmt.condition, ifStmt.thenBranch, ifStmt.elseBranch)
+  def unapply(ifStmt: ScIf) = Some(ifStmt.condition, ifStmt.thenExpression, ifStmt.elseExpression)
 }

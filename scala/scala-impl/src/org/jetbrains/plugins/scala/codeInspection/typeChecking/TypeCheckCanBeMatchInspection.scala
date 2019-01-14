@@ -59,7 +59,7 @@ class TypeCheckCanBeMatchInspection extends AbstractInspection(inspectionName) {
 
   private def typeCheckIsUsedEnough(ifStmt: ScIf, isInstOf: ScGenericCall): Boolean = {
     val chainSize = listOfIfAndIsInstOf(ifStmt, isInstOf, onlyFirst = true).size
-    val typeCastsNumber = findAsInstOfCalls(ifStmt.condition, isInstOf).size + findAsInstOfCalls(ifStmt.thenBranch, isInstOf).size
+    val typeCastsNumber = findAsInstOfCalls(ifStmt.condition, isInstOf).size + findAsInstOfCalls(ifStmt.thenExpression, isInstOf).size
     chainSize > 1 || typeCastsNumber > 0
   }
 }
@@ -137,7 +137,7 @@ object TypeCheckToMatchUtil {
       val typeName =
         if (typeNeedParentheses(typeElem)) s"($typeName0)"
         else typeName0
-      val asInstOfInBody = findAsInstOfCalls(ifStmt.thenBranch, isInstOf)
+      val asInstOfInBody = findAsInstOfCalls(ifStmt.thenExpression, isInstOf)
       val guardCond = guardCondition(condition, isInstOf)
       val asInstOfInGuard = findAsInstOfCalls(guardCond, isInstOf)
       val asInstOfEverywhere = asInstOfInBody ++ asInstOfInGuard
@@ -146,7 +146,7 @@ object TypeCheckToMatchUtil {
       if (asInstOfInBody.count(checkAndStoreNameAndDef) == 0) {
         //no usage of asInstanceOf
         if (asInstOfEverywhere.isEmpty) {
-          buildCaseClauseText("_ : " + typeName, guardCond, ifStmt.thenBranch, ifStmt.getProject)
+          buildCaseClauseText("_ : " + typeName, guardCond, ifStmt.thenExpression, ifStmt.getProject)
         }
         //no named usage
         else {
@@ -162,7 +162,7 @@ object TypeCheckToMatchUtil {
           }
 
           renameData += ((caseClauseIndex, suggestedNames.toSeq))
-          buildCaseClauseText(s"$name : $typeName", guardCond, ifStmt.thenBranch, ifStmt.getProject)
+          buildCaseClauseText(s"$name : $typeName", guardCond, ifStmt.thenExpression, ifStmt.getProject)
         }
       }
       //have named usage, use this name in case clause pattern definition
@@ -177,7 +177,7 @@ object TypeCheckToMatchUtil {
         inWriteAction {
           asInstOfEverywhere.foreach(_.replaceExpression(newExpr, removeParenthesis = true))
         }
-        buildCaseClauseText(s"$name : $typeName", guardCond, ifStmt.thenBranch, ifStmt.getProject)
+        buildCaseClauseText(s"$name : $typeName", guardCond, ifStmt.thenExpression, ifStmt.getProject)
       }
     }
   }
@@ -209,7 +209,7 @@ object TypeCheckToMatchUtil {
 
   def listOfIfAndIsInstOf(currentIfStmt: ScIf, currentCall: ScGenericCall, onlyFirst: Boolean): List[(ScIf, ScGenericCall)] = {
     for (currentBase <- baseExpr(currentCall)) {
-      currentIfStmt.elseBranch match {
+      currentIfStmt.elseExpression match {
         case Some(nextIfStmt: ScIf) =>
           for {
             nextCond <- nextIfStmt.condition
@@ -241,7 +241,7 @@ object TypeCheckToMatchUtil {
     }
 
     if (ifStmts != Nil) {
-      val lastElse = ifStmts.last.elseBranch
+      val lastElse = ifStmts.last.elseExpression
       val defaultText: Option[String] = buildDefaultCaseClauseText(lastElse, project)
       defaultText.foreach(builder.append)
     }

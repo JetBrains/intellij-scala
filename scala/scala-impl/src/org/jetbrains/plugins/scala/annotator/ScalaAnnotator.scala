@@ -822,7 +822,7 @@ abstract class ScalaAnnotator extends Annotator
     def isTooBigToHighlight(expr: ScExpression): Boolean = expr match {
       case _: ScMatchStmt                            => true
       case bl: ScBlock if bl.lastStatement.isDefined => true
-      case i: ScIf if i.elseBranch.isDefined     => true
+      case i: ScIf if i.elseExpression.isDefined     => true
       case _: ScFunctionExpr                         => true
       case _: ScTry                              => true
       case _                                         => false

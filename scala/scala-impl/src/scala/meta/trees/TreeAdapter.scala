@@ -300,7 +300,7 @@ trait TreeAdapter {
       case t: ScIf =>
         val unit = m.Lit.Unit(())
         m.Term.If(expression(t.condition.get),
-            t.thenBranch.map(expression).getOrElse(unit), t.elseBranch.map(expression).getOrElse(unit))
+            t.thenExpression.map(expression).getOrElse(unit), t.elseExpression.map(expression).getOrElse(unit))
       case t: ScDo =>
         m.Term.Do(t.body.map(expression).getOrElse(m.Term.Placeholder()),
             t.condition.map(expression).getOrElse(m.Term.Placeholder()))

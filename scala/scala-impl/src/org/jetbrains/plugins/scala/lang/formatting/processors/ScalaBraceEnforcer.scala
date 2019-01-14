@@ -28,12 +28,12 @@ class ScalaBraceEnforcer(settings: CodeStyleSettings) extends ScalaRecursiveElem
   override def visitIfStatement(stmt: ScIf) {
     if (checkElementContainsRange(stmt)) {
       super.visitIfStatement(stmt)
-      stmt.thenBranch match {
+      stmt.thenExpression match {
         case Some(thenBranch) =>
           processExpression(thenBranch, stmt, commonSetttings.IF_BRACE_FORCE)
         case _ =>
       }
-      stmt.elseBranch match {
+      stmt.elseExpression match {
         case Some(_: ScIf) if commonSetttings.SPECIAL_ELSE_IF_TREATMENT =>
         case Some(el) =>
           processExpression(el, stmt, commonSetttings.IF_BRACE_FORCE)

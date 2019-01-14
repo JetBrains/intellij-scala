@@ -32,8 +32,8 @@ class MergeIfToOrIntention extends PsiElementBaseIntentionAction {
     if (ifStmt == null) return false
 
     val offset = editor.getCaretModel.getOffset
-    val thenBranch =  ifStmt.thenBranch.orNull
-    val elseBranch =  ifStmt.elseBranch.orNull
+    val thenBranch =  ifStmt.thenExpression.orNull
+    val elseBranch =  ifStmt.elseExpression.orNull
     if (thenBranch == null || elseBranch == null) return false
 
     if (!elseBranch.isInstanceOf[ScIf]) return false
@@ -43,7 +43,7 @@ class MergeIfToOrIntention extends PsiElementBaseIntentionAction {
     !(ifStmt.getTextRange.getStartOffset <= offset && offset <= ifStmt.condition.get.getTextRange.getStartOffset))
     return false
 
-    val innerThenBranch = elseBranch.asInstanceOf[ScIf].thenBranch.orNull
+    val innerThenBranch = elseBranch.asInstanceOf[ScIf].thenExpression.orNull
     if (innerThenBranch == null) return false
 
     val comparator = new util.Comparator[PsiElement]() {
@@ -68,14 +68,14 @@ class MergeIfToOrIntention extends PsiElementBaseIntentionAction {
     val start = ifStmt.getTextRange.getStartOffset
     val expr = new StringBuilder
     val outerCondition = ifStmt.condition.get.getText
-    val innerIfStmt = ifStmt.elseBranch.get.asInstanceOf[ScIf]
+    val innerIfStmt = ifStmt.elseExpression.get.asInstanceOf[ScIf]
     val innerCondition = innerIfStmt.condition.get.getText
-    val innerElseBranch = innerIfStmt.elseBranch.orNull
+    val innerElseBranch = innerIfStmt.elseExpression.orNull
     val newlineBeforeElse = ifStmt.children.find(_.getNode.getElementType == ScalaTokenTypes.kELSE).
       exists(_.getPrevSibling.getText.contains("\n"))
 
     expr.append("if (").append(outerCondition).append(" || ").append(innerCondition).append(") ").
-      append(ifStmt.thenBranch.get.getText)
+      append(ifStmt.thenExpression.get.getText)
     if (innerElseBranch != null) expr.append(if (newlineBeforeElse) "\n" else " ").append("else ").
       append(innerElseBranch.getText)
 

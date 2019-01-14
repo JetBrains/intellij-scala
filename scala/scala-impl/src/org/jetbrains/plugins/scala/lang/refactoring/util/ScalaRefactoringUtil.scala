@@ -627,7 +627,7 @@ object ScalaRefactoringUtil {
         builder.append("[...]")
       case i: ScIf =>
         builder.append("if (...) {...}")
-        if (i.elseBranch.isDefined) builder.append(" else {...}")
+        if (i.elseExpression.isDefined) builder.append(" else {...}")
       case ScInfixElement(left, op, Some(right)) =>
         builder.append(getShortText(left))
         builder.append(" ")
@@ -1069,7 +1069,7 @@ object ScalaRefactoringUtil {
       case _: ScBlock | _: ScTemplateBody | _: ScEarlyDefinitions | _: ScalaFile | _: ScCaseClause => false
       case _: ScFunction => true
       case (_: ScFunction) && (_ childOf (_: ScTemplateBody | _: ScEarlyDefinitions)) => true
-      case ifSt: ScIf if Seq(ifSt.thenBranch, ifSt.elseBranch) contains Option(parExpr) => true
+      case ifSt: ScIf if Seq(ifSt.thenExpression, ifSt.elseExpression) contains Option(parExpr) => true
       case forSt: ScForStatement if forSt.body.orNull == parExpr => true
       case _: ScForStatement => false
       case _: ScForBinding | _: ScGenerator => false

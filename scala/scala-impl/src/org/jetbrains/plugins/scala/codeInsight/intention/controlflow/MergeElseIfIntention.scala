@@ -30,14 +30,14 @@ class MergeElseIfIntention extends PsiElementBaseIntentionAction {
     if (ifStmt == null) return false
 
     val offset = editor.getCaretModel.getOffset
-    val thenBranch = ifStmt.thenBranch.orNull
-    val elseBranch = ifStmt.elseBranch.orNull
+    val thenBranch = ifStmt.thenExpression.orNull
+    val elseBranch = ifStmt.elseExpression.orNull
     if (thenBranch == null || elseBranch == null) return false
 
     if (!(thenBranch.getTextRange.getEndOffset <= offset && offset <= elseBranch.getTextRange.getStartOffset))
       return false
 
-    val blockExpr = ifStmt.elseBranch.orNull
+    val blockExpr = ifStmt.elseExpression.orNull
     if (blockExpr != null && blockExpr.isInstanceOf[ScBlockExpr]) {
       val exprs = blockExpr.asInstanceOf[ScBlockExpr].exprs
       if (exprs.size == 1 && exprs.head.isInstanceOf[ScIf]) {
@@ -53,19 +53,19 @@ class MergeElseIfIntention extends PsiElementBaseIntentionAction {
     if (ifStmt == null || !ifStmt.isValid) return
 
     val start = ifStmt.getTextRange.getStartOffset
-    val startIndex = ifStmt.thenBranch.get.getTextRange.getEndOffset - ifStmt.getTextRange.getStartOffset
-    val endIndex = ifStmt.elseBranch.get.getTextRange.getStartOffset - ifStmt.getTextRange.getStartOffset
+    val startIndex = ifStmt.thenExpression.get.getTextRange.getEndOffset - ifStmt.getTextRange.getStartOffset
+    val endIndex = ifStmt.elseExpression.get.getTextRange.getStartOffset - ifStmt.getTextRange.getStartOffset
     val elseIndex = ifStmt.getText.substring(startIndex, endIndex).indexOf("else") - 1
-    val diff = editor.getCaretModel.getOffset - ifStmt.thenBranch.get.getTextRange.getEndOffset - elseIndex
+    val diff = editor.getCaretModel.getOffset - ifStmt.thenExpression.get.getTextRange.getEndOffset - elseIndex
     val newlineBeforeElse = ifStmt.children.find(_.getNode.getElementType == ScalaTokenTypes.kELSE).
       exists(_.getPrevSibling.getText.contains("\n"))
     val expr = new StringBuilder
     expr.append("if (").append(ifStmt.condition.get.getText).append(") ").
-    append(ifStmt.thenBranch.get.getText).append(if (newlineBeforeElse) "\n" else " ").append("else ").
-    append(ifStmt.elseBranch.get.getText.trim.drop(1).dropRight(1))
+    append(ifStmt.thenExpression.get.getText).append(if (newlineBeforeElse) "\n" else " ").append("else ").
+    append(ifStmt.elseExpression.get.getText.trim.drop(1).dropRight(1))
 
     val newIfStmt = createExpressionFromText(expr.toString())(element.getManager)
-    val size = newIfStmt.asInstanceOf[ScIf].thenBranch.get.getTextRange.getEndOffset -
+    val size = newIfStmt.asInstanceOf[ScIf].thenExpression.get.getTextRange.getEndOffset -
     newIfStmt.asInstanceOf[ScIf].getTextRange.getStartOffset
 
     inWriteAction {

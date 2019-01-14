@@ -1070,11 +1070,11 @@ private[evaluation] trait ScalaEvaluatorBuilderUtil {
       case Some(cond) => evaluatorFor(cond)
       case None => throw EvaluationException(ScalaBundle.message("if.statement.without.condition"))
     }
-    val ifBranch = stmt.thenBranch match {
+    val ifBranch = stmt.thenExpression match {
       case Some(th) => evaluatorFor(th)
       case None => throw EvaluationException(ScalaBundle.message("if.statement.without.if.branch"))
     }
-    val elseBranch = stmt.elseBranch.map(evaluatorFor(_))
+    val elseBranch = stmt.elseExpression.map(evaluatorFor(_))
     new ScalaIfEvaluator(condEvaluator, ifBranch, elseBranch)
   }
 
