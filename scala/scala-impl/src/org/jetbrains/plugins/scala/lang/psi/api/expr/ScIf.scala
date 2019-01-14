@@ -10,7 +10,7 @@ import com.intellij.psi.PsiElement
   * @author Alexander Podkhalyuzin
   *         Date: 06.03.2008
   */
-trait ScIfStmt extends ScExpression {
+trait ScIf extends ScExpression {
   def condition: Option[ScExpression]
 
   def thenBranch: Option[ScExpression]
@@ -26,6 +26,6 @@ trait ScIfStmt extends ScExpression {
   }
 }
 
-object ScIfStmt {
-  def unapply(ifStmt: ScIfStmt) = Some(ifStmt.condition, ifStmt.thenBranch, ifStmt.elseBranch)
+object ScIf {
+  def unapply(ifStmt: ScIf) = Some(ifStmt.condition, ifStmt.thenBranch, ifStmt.elseBranch)
 }

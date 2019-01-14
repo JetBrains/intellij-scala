@@ -26,7 +26,7 @@ class MergeElseIfIntention extends PsiElementBaseIntentionAction {
   override def getText: String = "Merge 'else if'"
 
   def isAvailable(project: Project, editor: Editor, element: PsiElement): Boolean = {
-    val ifStmt: ScIfStmt = PsiTreeUtil.getParentOfType(element, classOf[ScIfStmt], false)
+    val ifStmt: ScIf = PsiTreeUtil.getParentOfType(element, classOf[ScIf], false)
     if (ifStmt == null) return false
 
     val offset = editor.getCaretModel.getOffset
@@ -40,7 +40,7 @@ class MergeElseIfIntention extends PsiElementBaseIntentionAction {
     val blockExpr = ifStmt.elseBranch.orNull
     if (blockExpr != null && blockExpr.isInstanceOf[ScBlockExpr]) {
       val exprs = blockExpr.asInstanceOf[ScBlockExpr].exprs
-      if (exprs.size == 1 && exprs.head.isInstanceOf[ScIfStmt]) {
+      if (exprs.size == 1 && exprs.head.isInstanceOf[ScIf]) {
         return true
       }
     }
@@ -49,7 +49,7 @@ class MergeElseIfIntention extends PsiElementBaseIntentionAction {
   }
 
   override def invoke(project: Project, editor: Editor, element: PsiElement) {
-    val ifStmt: ScIfStmt = PsiTreeUtil.getParentOfType(element, classOf[ScIfStmt], false)
+    val ifStmt: ScIf = PsiTreeUtil.getParentOfType(element, classOf[ScIf], false)
     if (ifStmt == null || !ifStmt.isValid) return
 
     val start = ifStmt.getTextRange.getStartOffset
@@ -65,8 +65,8 @@ class MergeElseIfIntention extends PsiElementBaseIntentionAction {
     append(ifStmt.elseBranch.get.getText.trim.drop(1).dropRight(1))
 
     val newIfStmt = createExpressionFromText(expr.toString())(element.getManager)
-    val size = newIfStmt.asInstanceOf[ScIfStmt].thenBranch.get.getTextRange.getEndOffset -
-    newIfStmt.asInstanceOf[ScIfStmt].getTextRange.getStartOffset
+    val size = newIfStmt.asInstanceOf[ScIf].thenBranch.get.getTextRange.getEndOffset -
+    newIfStmt.asInstanceOf[ScIf].getTextRange.getStartOffset
 
     inWriteAction {
       ifStmt.replaceExpression(newIfStmt, removeParenthesis = true)

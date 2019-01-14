@@ -761,7 +761,7 @@ object ScalaSpacingProcessor extends ScalaTokenTypes {
     }
 
     //special else if treatment
-    if (leftNode.getElementType == ScalaTokenTypes.kELSE && (rightNode.getPsi.isInstanceOf[ScIfStmt] ||
+    if (leftNode.getElementType == ScalaTokenTypes.kELSE && (rightNode.getPsi.isInstanceOf[ScIf] ||
       rightNode.getElementType == ScalaTokenTypes.kIF)) {
       if (settings.SPECIAL_ELSE_IF_TREATMENT) return WITH_SPACING_NO_KEEP
       else return ON_NEW_LINE
@@ -975,7 +975,7 @@ object ScalaSpacingProcessor extends ScalaTokenTypes {
         case _: ScForStatement if left.isLeaf =>
           if (settings.SPACE_WITHIN_FOR_PARENTHESES) return WITH_SPACING
           else return WITHOUT_SPACING
-        case _: ScIfStmt =>
+        case _: ScIf =>
           if (settings.SPACE_WITHIN_IF_PARENTHESES) return WITH_SPACING
           else return WITHOUT_SPACING
         case _: ScWhileStmt | _: ScDo =>
@@ -1022,7 +1022,7 @@ object ScalaSpacingProcessor extends ScalaTokenTypes {
         case _: ScForStatement =>
           if (settings.SPACE_WITHIN_FOR_PARENTHESES) return WITH_SPACING
           else return WITHOUT_SPACING
-        case _: ScIfStmt =>
+        case _: ScIf =>
           if (settings.SPACE_WITHIN_IF_PARENTHESES) return WITH_SPACING
           else return WITHOUT_SPACING
         case _: ScWhileStmt | _: ScDo =>
@@ -1092,7 +1092,7 @@ object ScalaSpacingProcessor extends ScalaTokenTypes {
         case _: ScFunction =>
           if (settings.SPACE_BEFORE_METHOD_LBRACE) return WITH_SPACING
           else return WITHOUT_SPACING
-        case _: ScIfStmt =>
+        case _: ScIf =>
           if (settings.SPACE_BEFORE_IF_LBRACE && !(leftNode.getElementType == ScalaTokenTypes.kELSE)) return WITH_SPACING
           else if (settings.SPACE_BEFORE_ELSE_LBRACE && leftNode.getElementType == ScalaTokenTypes.kELSE) return WITH_SPACING
           else return WITHOUT_SPACING

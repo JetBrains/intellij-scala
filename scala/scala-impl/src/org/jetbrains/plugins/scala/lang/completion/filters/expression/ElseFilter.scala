@@ -26,17 +26,17 @@ class ElseFilter extends ElementFilter {
       if (parent.isInstanceOf[ScExpression] && parent.getPrevSibling != null &&
           parent.getPrevSibling.getPrevSibling != null) {
         val ifStmt = parent.getPrevSibling match {
-          case x: ScIfStmt => x
+          case x: ScIf => x
           case x if x.isInstanceOf[PsiWhiteSpace] || x.getNode.getElementType == ScalaTokenTypes.tWHITE_SPACE_IN_LINE =>
             x.getPrevSibling match {
-              case x: ScIfStmt => x
+              case x: ScIf => x
               case _ => null
             }
           case _ => null
         }
         var text = ""
         if (ifStmt == null) {
-          while (parent != null && !parent.isInstanceOf[ScIfStmt]) parent = parent.getParent
+          while (parent != null && !parent.isInstanceOf[ScIf]) parent = parent.getParent
           if (parent == null) return false
           text = parent.getText
           text = replaceLiteral(text, " else true")

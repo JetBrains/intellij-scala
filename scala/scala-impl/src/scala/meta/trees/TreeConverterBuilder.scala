@@ -111,7 +111,7 @@ trait TreeConverterBuilder {
 
       override def visitPrefixExpression(p: ScPrefixExpr) = super.visitPrefixExpression(p)
 
-      override def visitIfStatement(stmt: ScIfStmt) = super.visitIfStatement(stmt)
+      override def visitIfStatement(stmt: ScIf) = super.visitIfStatement(stmt)
 
       override def visitLiteral(l: ScLiteral) = super.visitLiteral(l)
 

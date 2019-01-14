@@ -234,7 +234,7 @@ object ScalaElementType {
 
   /** ****************************** COMPOSITE EXPRESSIONS *****************************/
   val IF_STMT = new ScalaElementType("if statement") {
-    override def createElement(node: ASTNode) = new ScIfStmtImpl(node)
+    override def createElement(node: ASTNode) = new ScIfImpl(node)
   }
   val FOR_STMT = new ScalaElementType("for statement") {
     override def createElement(node: ASTNode) = new ScForStatementImpl(node)

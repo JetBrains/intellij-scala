@@ -122,7 +122,7 @@ class ScalaBlock(val myParentBlock: ScalaBlock,
         val grandParent = parent.getParent
         new ChildAttributes(if (grandParent != null && (grandParent.isInstanceOf[ScCaseClause] || grandParent.isInstanceOf[ScFunctionExpr])) Indent.getNormalIndent
         else Indent.getNoneIndent, null)
-      case _: ScIfStmt => new ChildAttributes(Indent.getNormalIndent(scalaSettings.ALIGN_IF_ELSE), this.getAlignment)
+      case _: ScIf => new ChildAttributes(Indent.getNormalIndent(scalaSettings.ALIGN_IF_ELSE), this.getAlignment)
       case x: ScDo =>
         if (x.body.isDefined)
           new ChildAttributes(Indent.getNoneIndent, null)

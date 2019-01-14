@@ -6,7 +6,7 @@ import com.intellij.openapi.project.Project
 import com.intellij.psi.util.PsiTreeUtil
 import com.intellij.psi.{PsiDocumentManager, PsiElement}
 import org.jetbrains.plugins.scala.extensions._
-import org.jetbrains.plugins.scala.lang.psi.api.expr.{ScExpression, ScIfStmt, ScInfixExpr, ScParenthesisedExpr}
+import org.jetbrains.plugins.scala.lang.psi.api.expr.{ScExpression, ScIf, ScInfixExpr, ScParenthesisedExpr}
 import org.jetbrains.plugins.scala.lang.psi.impl.ScalaPsiElementFactory.createExpressionFromText
 import org.jetbrains.plugins.scala.util.IntentionUtils
 
@@ -24,17 +24,17 @@ class SplitIfIntention extends PsiElementBaseIntentionAction {
   override def getText: String = "Split into 2 'if's"
 
   def isAvailable(project: Project, editor: Editor, element: PsiElement): Boolean =
-    element.parentOfType(classOf[ScIfStmt], strict = false).exists {
-      case ScIfStmt(Some(ScInfixExpr(_, operation, _)), _, _) if caretIsInRange(operation)(editor) =>
+    element.parentOfType(classOf[ScIf], strict = false).exists {
+      case ScIf(Some(ScInfixExpr(_, operation, _)), _, _) if caretIsInRange(operation)(editor) =>
         operation.refName == "&&"
       case _ => false
     }
 
   override def invoke(project: Project, editor: Editor, element: PsiElement) {
-    val ifStmt = PsiTreeUtil.getParentOfType(element, classOf[ScIfStmt], false)
+    val ifStmt = PsiTreeUtil.getParentOfType(element, classOf[ScIf], false)
     if (ifStmt == null || !ifStmt.isValid) return
 
-    val ScIfStmt(Some(infix: ScInfixExpr), Some(ElementText(thenBranchText)), maybeElseBranch) = ifStmt
+    val ScIf(Some(infix: ScInfixExpr), Some(ElementText(thenBranchText)), maybeElseBranch) = ifStmt
     val ScInfixExpr.withAssoc(base, _, argument) = infix
 
     def conditionText(e: ScExpression): String = (e match {
@@ -56,7 +56,7 @@ class SplitIfIntention extends PsiElementBaseIntentionAction {
 
     import ifStmt.projectContext
     val start = ifStmt.getTextRange.getStartOffset
-    val newIfStmt = createExpressionFromText(prefix + suffix).asInstanceOf[ScIfStmt]
+    val newIfStmt = createExpressionFromText(prefix + suffix).asInstanceOf[ScIf]
     val diff = newIfStmt.condition.get.getTextRange.getStartOffset - newIfStmt.getTextRange.getStartOffset
 
     inWriteAction {

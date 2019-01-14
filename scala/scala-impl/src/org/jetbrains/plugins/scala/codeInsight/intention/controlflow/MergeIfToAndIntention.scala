@@ -24,7 +24,7 @@ class MergeIfToAndIntention extends PsiElementBaseIntentionAction {
   override def getText: String = "Merge nested 'if's"
 
   def isAvailable(project: Project, editor: Editor, element: PsiElement): Boolean = {
-    val ifStmt: ScIfStmt = PsiTreeUtil.getParentOfType(element, classOf[ScIfStmt], false)
+    val ifStmt: ScIf = PsiTreeUtil.getParentOfType(element, classOf[ScIf], false)
     if (ifStmt == null) return false
 
     val offset = editor.getCaretModel.getOffset
@@ -41,14 +41,14 @@ class MergeIfToAndIntention extends PsiElementBaseIntentionAction {
     thenBranch match {
       case branch: ScBlockExpr =>
         val exprs = branch.exprs
-        if (exprs.size != 1 || !exprs(0).isInstanceOf[ScIfStmt]) return false
+        if (exprs.size != 1 || !exprs(0).isInstanceOf[ScIf]) return false
 
-        val innerIfStmt = exprs(0).asInstanceOf[ScIfStmt]
+        val innerIfStmt = exprs(0).asInstanceOf[ScIf]
         val innerElseBranch = innerIfStmt.elseBranch.orNull
         if (innerElseBranch != null) return false
         true
 
-      case branch: ScIfStmt =>
+      case branch: ScIf =>
         val innerElseBranch = branch.elseBranch.orNull
         if (innerElseBranch != null) return false
         true
@@ -58,14 +58,14 @@ class MergeIfToAndIntention extends PsiElementBaseIntentionAction {
   }
 
   override def invoke(project: Project, editor: Editor, element: PsiElement) {
-    val ifStmt : ScIfStmt = PsiTreeUtil.getParentOfType(element, classOf[ScIfStmt], false)
+    val ifStmt : ScIf = PsiTreeUtil.getParentOfType(element, classOf[ScIf], false)
     if (ifStmt == null || !ifStmt.isValid) return
 
     val expr = new StringBuilder
     val outerCondition = ifStmt.condition.get.getText
     val innerIfStmt = ifStmt.thenBranch.get match {
-      case c: ScBlockExpr => c.exprs(0).asInstanceOf[ScIfStmt]
-      case c: ScIfStmt => c
+      case c: ScBlockExpr => c.exprs(0).asInstanceOf[ScIf]
+      case c: ScIf => c
     }
     val innerThenBranch = innerIfStmt.thenBranch.get
     val innerCondition = innerIfStmt.condition.get.getText

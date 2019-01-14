@@ -25,7 +25,7 @@ class ScalaBraceEnforcer(settings: CodeStyleSettings) extends ScalaRecursiveElem
   private val myPostProcessor: PostFormatProcessorHelper = new PostFormatProcessorHelper(commonSetttings)
   private val scalaSettings = settings.getCustomSettings(classOf[ScalaCodeStyleSettings])
 
-  override def visitIfStatement(stmt: ScIfStmt) {
+  override def visitIfStatement(stmt: ScIf) {
     if (checkElementContainsRange(stmt)) {
       super.visitIfStatement(stmt)
       stmt.thenBranch match {
@@ -34,7 +34,7 @@ class ScalaBraceEnforcer(settings: CodeStyleSettings) extends ScalaRecursiveElem
         case _ =>
       }
       stmt.elseBranch match {
-        case Some(_: ScIfStmt) if commonSetttings.SPECIAL_ELSE_IF_TREATMENT =>
+        case Some(_: ScIf) if commonSetttings.SPECIAL_ELSE_IF_TREATMENT =>
         case Some(el) =>
           processExpression(el, stmt, commonSetttings.IF_BRACE_FORCE)
         case _ =>

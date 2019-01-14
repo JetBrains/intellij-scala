@@ -57,7 +57,7 @@ class ScalaStatementMover extends LineMover {
 
     val pair = aim(classOf[ScCaseClause], _.isInstanceOf[ScCaseClause], canUseLineAsTarget = false)
             .orElse(aim(classOf[ScMember], it => it.isInstanceOf[ScMember] || it.isInstanceOf[ScImportStmt]))
-            .orElse(aim(classOf[ScIfStmt], _ => false))
+            .orElse(aim(classOf[ScIf], _ => false))
             .orElse(aim(classOf[ScForStatement], _ => false))
             .orElse(aim(classOf[ScMatchStmt], _ => false))
             .orElse(aim(classOf[ScTry], _ => false))

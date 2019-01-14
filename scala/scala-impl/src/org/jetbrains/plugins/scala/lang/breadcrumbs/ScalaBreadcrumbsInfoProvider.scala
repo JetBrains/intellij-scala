@@ -60,7 +60,7 @@ class ScalaBreadcrumbsInfoProvider extends BreadcrumbsProvider {
       case _: ScFunction => settings.isBreadcrumbsFunctionEnabled
       case _: ScCaseClause | _: ScMatchStmt => settings.isBreadcrumbsMatchEnabled
       case _: ScMember => settings.isBreadcrumbsValDefEnabled
-      case _: ScIfStmt | _: ScWhileStmt | _: ScDo => settings.isBreadcrumbsIfDoWhileEnabled
+      case _: ScIf | _: ScWhileStmt | _: ScDo => settings.isBreadcrumbsIfDoWhileEnabled
       case _ => false
     }
   }
@@ -124,7 +124,7 @@ object ScalaBreadcrumbsInfoProvider {
     }
     
     def describeExpression(expr: ScExpression): String = expr match {
-      case ifSt: ScIfStmt => s"if (${limitString(ifSt.condition.map(_.getText).getOrElse(""))}) {...}"
+      case ifSt: ScIf => s"if (${limitString(ifSt.condition.map(_.getText).getOrElse(""))}) {...}"
       case whileSt: ScWhileStmt => s"while(${limitString(whileSt.condition.map(_.getText).getOrElse(""), "...")})"
       case doWhileSt: ScDo => s"do ... while(${limitString(doWhileSt.condition.map(_.getText).getOrElse(""), "...")})"
       case matchSt: ScMatchStmt => limitString(matchSt.expr.map(_.getText).getOrElse(PAR_HOLDER)) + " match {...}"

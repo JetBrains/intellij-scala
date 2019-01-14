@@ -28,7 +28,7 @@ class ScalaUnwrapContext extends AbstractUnwrapper.AbstractContext {
     }
   }
 
-  def setElseBranch(ifStmt: ScIfStmt, expr: ScExpression) {
+  def setElseBranch(ifStmt: ScIf, expr: ScExpression) {
     if (myIsEffective) {
       ifStmt.elseBranch match {
         case Some(oldExpr) =>

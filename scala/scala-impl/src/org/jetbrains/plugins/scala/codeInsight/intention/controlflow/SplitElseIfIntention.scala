@@ -7,7 +7,7 @@ import com.intellij.psi.util.PsiTreeUtil
 import com.intellij.psi.{PsiDocumentManager, PsiElement}
 import org.jetbrains.plugins.scala.extensions._
 import org.jetbrains.plugins.scala.lang.lexer.ScalaTokenTypes
-import org.jetbrains.plugins.scala.lang.psi.api.expr.{ScExpression, ScIfStmt}
+import org.jetbrains.plugins.scala.lang.psi.api.expr.{ScExpression, ScIf}
 import org.jetbrains.plugins.scala.lang.psi.impl.ScalaPsiElementFactory.createExpressionFromText
 
 /**
@@ -25,7 +25,7 @@ class SplitElseIfIntention extends PsiElementBaseIntentionAction {
   override def getText: String = "Split 'else if'"
 
   def isAvailable(project: Project, editor: Editor, element: PsiElement): Boolean = {
-    val ifStmt: ScIfStmt = PsiTreeUtil.getParentOfType(element, classOf[ScIfStmt], false)
+    val ifStmt: ScIf = PsiTreeUtil.getParentOfType(element, classOf[ScIf], false)
     if (ifStmt == null) return false
 
     val offset = editor.getCaretModel.getOffset
@@ -37,7 +37,7 @@ class SplitElseIfIntention extends PsiElementBaseIntentionAction {
       return false
 
     val elseIfExpr = ifStmt.elseBranch.orNull
-    if (elseIfExpr != null && elseIfExpr.isInstanceOf[ScIfStmt]) {
+    if (elseIfExpr != null && elseIfExpr.isInstanceOf[ScIf]) {
       return true
     }
 
@@ -45,7 +45,7 @@ class SplitElseIfIntention extends PsiElementBaseIntentionAction {
   }
 
   override def invoke(project: Project, editor: Editor, element: PsiElement) {
-    val ifStmt: ScIfStmt = PsiTreeUtil.getParentOfType(element, classOf[ScIfStmt], false)
+    val ifStmt: ScIf = PsiTreeUtil.getParentOfType(element, classOf[ScIf], false)
     if (ifStmt == null || !ifStmt.isValid) return
 
     val start = ifStmt.getTextRange.getStartOffset
@@ -62,8 +62,8 @@ class SplitElseIfIntention extends PsiElementBaseIntentionAction {
       append(ifStmt.elseBranch.get.getText).append("\n}")
 
     val newIfStmt: ScExpression = createExpressionFromText(expr.toString())(element.getManager)
-    val size = newIfStmt.asInstanceOf[ScIfStmt].thenBranch.get.getTextRange.getEndOffset -
-      newIfStmt.asInstanceOf[ScIfStmt].getTextRange.getStartOffset
+    val size = newIfStmt.asInstanceOf[ScIf].thenBranch.get.getTextRange.getEndOffset -
+      newIfStmt.asInstanceOf[ScIf].getTextRange.getStartOffset
 
     inWriteAction {
       ifStmt.replaceExpression(newIfStmt, removeParenthesis = true)

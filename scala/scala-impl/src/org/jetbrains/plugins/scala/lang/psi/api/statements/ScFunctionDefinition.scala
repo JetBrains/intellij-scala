@@ -97,7 +97,7 @@ trait ScFunctionDefinition extends ScFunction with ScControlFlowOwner {
         }
 
         def expandIf(expression: ScExpression): Set[ScExpression] = (expression match {
-          case ScIfStmt(_, Some(thenBranch), None) => calculateReturns(thenBranch).flatMap(expandIf)
+          case ScIf(_, Some(thenBranch), None) => calculateReturns(thenBranch).flatMap(expandIf)
           case _ => Set.empty
         }) ++ Set(expression)
 

@@ -3,7 +3,7 @@ package annotator.gutter
 
 import com.intellij.psi.PsiElement
 import org.jetbrains.plugins.scala.lang.psi.api.ScalaFile
-import org.jetbrains.plugins.scala.lang.psi.api.expr.{ScBlock, ScIfStmt, ScNewTemplateDefinition}
+import org.jetbrains.plugins.scala.lang.psi.api.expr.{ScBlock, ScIf, ScNewTemplateDefinition}
 import org.jetbrains.plugins.scala.lang.psi.api.statements._
 import org.jetbrains.plugins.scala.lang.psi.api.toplevel.ScPackaging
 import org.jetbrains.plugins.scala.lang.psi.api.toplevel.imports.ScImportStmt
@@ -82,7 +82,7 @@ trait ScalaSeparatorProvider {
 
   def isSeparationBlocker(element: PsiElement): Boolean = {
     element match {
-      case _: ScBlock | _: ScIfStmt => true
+      case _: ScBlock | _: ScIf => true
       case it: ScNewTemplateDefinition if it.extendsBlock != null => true
       case _ => false
     }

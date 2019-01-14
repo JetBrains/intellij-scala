@@ -297,7 +297,7 @@ trait TreeAdapter {
         t.withSubstitutionCaching { tp =>
           m.Term.Apply(m.Term.Select(expression(t.operand), toTermName(t.operation)), Nil)
         }
-      case t: ScIfStmt =>
+      case t: ScIf =>
         val unit = m.Lit.Unit(())
         m.Term.If(expression(t.condition.get),
             t.thenBranch.map(expression).getOrElse(unit), t.elseBranch.map(expression).getOrElse(unit))

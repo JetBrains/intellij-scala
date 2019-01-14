@@ -84,7 +84,7 @@ class ScalaHighlightUsagesHandlerFactory extends HighlightUsagesHandlerFactory {
           }
         }
       case ScalaTokenTypes.kIF =>
-        val ifStmt = PsiTreeUtil.getParentOfType(element, classOf[ScIfStmt])
+        val ifStmt = PsiTreeUtil.getParentOfType(element, classOf[ScIf])
         if (ifStmt != null) {
           return new ScalaHighlightExprResultHandler(ifStmt, editor, file, element)
         }

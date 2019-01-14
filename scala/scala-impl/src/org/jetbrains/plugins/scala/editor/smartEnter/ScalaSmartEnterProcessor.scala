@@ -146,7 +146,7 @@ class ScalaSmartEnterProcessor extends SmartEnterProcessor {
     if (("}" == atCaret.getText) && !atCaret.getParent.isInstanceOf[PsiArrayInitializerExpression]) return null
 
     var statementAtCaret: PsiElement =
-      PsiTreeUtil.getParentOfType(atCaret, classOf[ScPatternDefinition], classOf[ScIfStmt], classOf[ScWhileStmt],
+      PsiTreeUtil.getParentOfType(atCaret, classOf[ScPatternDefinition], classOf[ScIf], classOf[ScWhileStmt],
         classOf[ScForStatement], classOf[ScCatchBlock], classOf[ScMethodCall])
 
     if (statementAtCaret.isInstanceOf[PsiBlockStatement]) return null
@@ -158,7 +158,7 @@ class ScalaSmartEnterProcessor extends SmartEnterProcessor {
     }
 
     statementAtCaret match {
-      case _: ScPatternDefinition | _: ScIfStmt | _: ScWhileStmt | _: ScForStatement | _: ScCatchBlock | _: ScMethodCall => statementAtCaret
+      case _: ScPatternDefinition | _: ScIf | _: ScWhileStmt | _: ScForStatement | _: ScCatchBlock | _: ScMethodCall => statementAtCaret
       case _ => null
     }
   }

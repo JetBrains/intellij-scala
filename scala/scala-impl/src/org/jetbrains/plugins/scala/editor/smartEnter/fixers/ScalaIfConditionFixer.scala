@@ -5,7 +5,7 @@ import com.intellij.openapi.editor.Editor
 import com.intellij.psi._
 import com.intellij.psi.util.PsiTreeUtil
 import org.jetbrains.plugins.scala.editor.smartEnter.ScalaSmartEnterProcessor
-import org.jetbrains.plugins.scala.lang.psi.api.expr.ScIfStmt
+import org.jetbrains.plugins.scala.lang.psi.api.expr.ScIf
 
 /**
  * @author Dmitry.Naydanov
@@ -15,7 +15,7 @@ import org.jetbrains.plugins.scala.lang.psi.api.expr.ScIfStmt
 @SuppressWarnings(Array("HardCodedStringLiteral"))
 class ScalaIfConditionFixer extends ScalaFixer {
   def apply(editor: Editor, processor: ScalaSmartEnterProcessor, psiElement: PsiElement): OperationPerformed = {
-    val ifStatement = PsiTreeUtil.getParentOfType(psiElement, classOf[ScIfStmt], false)
+    val ifStatement = PsiTreeUtil.getParentOfType(psiElement, classOf[ScIf], false)
     if (ifStatement == null) return NoOperation
 
     val doc = editor.getDocument

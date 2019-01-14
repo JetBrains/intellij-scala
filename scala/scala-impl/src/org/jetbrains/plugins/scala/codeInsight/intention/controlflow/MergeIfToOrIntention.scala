@@ -28,7 +28,7 @@ class MergeIfToOrIntention extends PsiElementBaseIntentionAction {
   override def getText: String = "Merge sequential 'if's"
 
   def isAvailable(project: Project, editor: Editor, element: PsiElement): Boolean = {
-    val ifStmt: ScIfStmt = PsiTreeUtil.getParentOfType(element, classOf[ScIfStmt], false)
+    val ifStmt: ScIf = PsiTreeUtil.getParentOfType(element, classOf[ScIf], false)
     if (ifStmt == null) return false
 
     val offset = editor.getCaretModel.getOffset
@@ -36,14 +36,14 @@ class MergeIfToOrIntention extends PsiElementBaseIntentionAction {
     val elseBranch =  ifStmt.elseBranch.orNull
     if (thenBranch == null || elseBranch == null) return false
 
-    if (!elseBranch.isInstanceOf[ScIfStmt]) return false
+    if (!elseBranch.isInstanceOf[ScIf]) return false
     if (ifStmt.condition.orNull == null) return false
 
     if (!(thenBranch.getTextRange.getEndOffset <= offset && offset <= elseBranch.getTextRange.getStartOffset) &&
     !(ifStmt.getTextRange.getStartOffset <= offset && offset <= ifStmt.condition.get.getTextRange.getStartOffset))
     return false
 
-    val innerThenBranch = elseBranch.asInstanceOf[ScIfStmt].thenBranch.orNull
+    val innerThenBranch = elseBranch.asInstanceOf[ScIf].thenBranch.orNull
     if (innerThenBranch == null) return false
 
     val comparator = new util.Comparator[PsiElement]() {
@@ -62,13 +62,13 @@ class MergeIfToOrIntention extends PsiElementBaseIntentionAction {
   }
 
   override def invoke(project: Project, editor: Editor, element: PsiElement) {
-    val ifStmt : ScIfStmt = PsiTreeUtil.getParentOfType(element, classOf[ScIfStmt], false)
+    val ifStmt : ScIf = PsiTreeUtil.getParentOfType(element, classOf[ScIf], false)
     if (ifStmt == null || !ifStmt.isValid) return
 
     val start = ifStmt.getTextRange.getStartOffset
     val expr = new StringBuilder
     val outerCondition = ifStmt.condition.get.getText
-    val innerIfStmt = ifStmt.elseBranch.get.asInstanceOf[ScIfStmt]
+    val innerIfStmt = ifStmt.elseBranch.get.asInstanceOf[ScIf]
     val innerCondition = innerIfStmt.condition.get.getText
     val innerElseBranch = innerIfStmt.elseBranch.orNull
     val newlineBeforeElse = ifStmt.children.find(_.getNode.getElementType == ScalaTokenTypes.kELSE).

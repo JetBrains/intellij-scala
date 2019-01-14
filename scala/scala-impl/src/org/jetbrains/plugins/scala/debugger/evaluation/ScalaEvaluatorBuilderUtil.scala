@@ -1065,7 +1065,7 @@ private[evaluation] trait ScalaEvaluatorBuilderUtil {
     ScalaMethodEvaluator(new ScalaThisEvaluator(), methodName, null, Seq(localRefEval, bitmapEval))
   }
 
-  def ifStmtEvaluator(stmt: ScIfStmt): Evaluator = {
+  def ifStmtEvaluator(stmt: ScIf): Evaluator = {
     val condEvaluator = stmt.condition match {
       case Some(cond) => evaluatorFor(cond)
       case None => throw EvaluationException(ScalaBundle.message("if.statement.without.condition"))

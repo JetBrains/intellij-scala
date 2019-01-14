@@ -17,7 +17,7 @@ import org.jetbrains.plugins.scala.lang.psi.types.result._
   * @author Alexander Podkhalyuzin
   *         Date: 06.03.2008
   */
-class ScIfStmtImpl(node: ASTNode) extends ScExpressionImplBase(node) with ScIfStmt {
+class ScIfImpl(node: ASTNode) extends ScExpressionImplBase(node) with ScIf {
 
   def condition: Option[ScExpression] = {
     val rpar = findChildByType[PsiElement](ScalaTokenTypes.tRPARENTHESIS)

@@ -46,7 +46,7 @@ class TypeCheckCanBeMatchInspection extends AbstractInspection(inspectionName) {
   override def actionFor(implicit holder: ProblemsHolder): PartialFunction[PsiElement, Any] = {
     case IsInstanceOfCall(call) =>
       for {
-        ifStmt <- Option(PsiTreeUtil.getParentOfType(call, classOf[ScIfStmt]))
+        ifStmt <- Option(PsiTreeUtil.getParentOfType(call, classOf[ScIf]))
         condition <- ifStmt.condition
         iioCall <- findIsInstanceOfCalls(condition, onlyFirst = true)
         if iioCall == call
@@ -57,18 +57,18 @@ class TypeCheckCanBeMatchInspection extends AbstractInspection(inspectionName) {
       }
   }
 
-  private def typeCheckIsUsedEnough(ifStmt: ScIfStmt, isInstOf: ScGenericCall): Boolean = {
+  private def typeCheckIsUsedEnough(ifStmt: ScIf, isInstOf: ScGenericCall): Boolean = {
     val chainSize = listOfIfAndIsInstOf(ifStmt, isInstOf, onlyFirst = true).size
     val typeCastsNumber = findAsInstOfCalls(ifStmt.condition, isInstOf).size + findAsInstOfCalls(ifStmt.thenBranch, isInstOf).size
     chainSize > 1 || typeCastsNumber > 0
   }
 }
 
-class TypeCheckCanBeMatchQuickFix(isInstOfUnderFix: ScGenericCall, ifStmt: ScIfStmt)
+class TypeCheckCanBeMatchQuickFix(isInstOfUnderFix: ScGenericCall, ifStmt: ScIf)
         extends AbstractFixOnTwoPsiElements(inspectionName, isInstOfUnderFix, ifStmt) {
 
 
-  override protected def doApplyFix(isInstOf: ScGenericCall, ifSt: ScIfStmt)
+  override protected def doApplyFix(isInstOf: ScGenericCall, ifSt: ScIf)
                                    (implicit project: Project): Unit = {
     val (matchStmtOption, renameData) = buildMatchStmt(ifSt, isInstOf, onlyFirst = true)
     for (matchStmt <- matchStmtOption) {
@@ -87,7 +87,7 @@ class TypeCheckCanBeMatchQuickFix(isInstOfUnderFix: ScGenericCall, ifStmt: ScIfS
 object TypeCheckToMatchUtil {
   type RenameData = collection.mutable.ArrayBuffer[(Int, Seq[String])]
 
-  def buildMatchStmt(ifStmt: ScIfStmt, isInstOfUnderFix: ScGenericCall, onlyFirst: Boolean)
+  def buildMatchStmt(ifStmt: ScIf, isInstOfUnderFix: ScGenericCall, onlyFirst: Boolean)
                     (implicit project: Project): (Option[ScMatchStmt], RenameData) =
     baseExpr(isInstOfUnderFix) match {
       case Some(expr: ScExpression) =>
@@ -99,7 +99,7 @@ object TypeCheckToMatchUtil {
       case _ => (None, null)
     }
 
-  private def buildCaseClauseText(ifStmt: ScIfStmt, isInstOf: ScGenericCall, caseClauseIndex: Int, renameData: RenameData): Option[String] = {
+  private def buildCaseClauseText(ifStmt: ScIf, isInstOf: ScGenericCall, caseClauseIndex: Int, renameData: RenameData): Option[String] = {
     var definedName: Option[String] = None
     var definition: Option[ScPatternDefinition] = None
 
@@ -207,10 +207,10 @@ object TypeCheckToMatchUtil {
     builder.toString()
   }
 
-  def listOfIfAndIsInstOf(currentIfStmt: ScIfStmt, currentCall: ScGenericCall, onlyFirst: Boolean): List[(ScIfStmt, ScGenericCall)] = {
+  def listOfIfAndIsInstOf(currentIfStmt: ScIf, currentCall: ScGenericCall, onlyFirst: Boolean): List[(ScIf, ScGenericCall)] = {
     for (currentBase <- baseExpr(currentCall)) {
       currentIfStmt.elseBranch match {
-        case Some(nextIfStmt: ScIfStmt) =>
+        case Some(nextIfStmt: ScIf) =>
           for {
             nextCond <- nextIfStmt.condition
             nextCall <- findIsInstanceOfCalls(nextCond, onlyFirst)
@@ -226,7 +226,7 @@ object TypeCheckToMatchUtil {
     Nil
   }
 
-  private def buildCaseClausesText(ifStmt: ScIfStmt, isInstOfUnderFix: ScGenericCall, onlyFirst: Boolean): (String, RenameData) = {
+  private def buildCaseClausesText(ifStmt: ScIf, isInstOfUnderFix: ScGenericCall, onlyFirst: Boolean): (String, RenameData) = {
     implicit val project = ifStmt.getProject
 
     val builder = new StringBuilder

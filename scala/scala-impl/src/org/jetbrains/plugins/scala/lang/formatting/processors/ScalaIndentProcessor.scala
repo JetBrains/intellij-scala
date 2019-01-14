@@ -196,7 +196,7 @@ object ScalaIndentProcessor extends ScalaTokenTypes {
           child.getElementType != ScalaTokenTypes.tRPARENTHESIS &&
           child.getElementType != ScalaTokenTypes.tLPARENTHESIS) Indent.getNormalIndent
         else Indent.getNoneIndent
-      case _: ScIfStmt | _: ScWhileStmt | _: ScDo | _: ScForStatement | _: ScFinallyBlock | _: ScCatchBlock |
+      case _: ScIf | _: ScWhileStmt | _: ScDo | _: ScForStatement | _: ScFinallyBlock | _: ScCatchBlock |
            _: ScValue | _: ScVariable | _: ScTypeAlias =>
         if (child.getElementType == ScalaTokenTypes.kYIELD) Indent.getNormalIndent
         else valIndent

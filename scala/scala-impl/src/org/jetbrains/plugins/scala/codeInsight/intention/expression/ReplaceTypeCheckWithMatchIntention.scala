@@ -9,7 +9,7 @@ import com.intellij.psi.PsiElement
 import org.jetbrains.plugins.scala.codeInspection.typeChecking.IsInstanceOfCall
 import org.jetbrains.plugins.scala.codeInspection.typeChecking.TypeCheckToMatchUtil._
 import org.jetbrains.plugins.scala.extensions.{PsiElementExt, inWriteAction}
-import org.jetbrains.plugins.scala.lang.psi.api.expr.{ScGenericCall, ScIfStmt, ScMatchStmt}
+import org.jetbrains.plugins.scala.lang.psi.api.expr.{ScGenericCall, ScIf, ScMatchStmt}
 import org.jetbrains.plugins.scala.lang.refactoring.util.InplaceRenameHelper
 
 
@@ -30,7 +30,7 @@ class ReplaceTypeCheckWithMatchIntention extends PsiElementBaseIntentionAction {
   def isAvailable(project: Project, editor: Editor, element: PsiElement): Boolean = {
     for {
       IsInstanceOfCall(iioCall) <- element.parentOfType(classOf[ScGenericCall], strict = false)
-      ifStmt <- iioCall.parentOfType(classOf[ScIfStmt])
+      ifStmt <- iioCall.parentOfType(classOf[ScIf])
       condition <- ifStmt.condition
       if findIsInstanceOfCalls(condition, onlyFirst = false) contains iioCall
     } {
@@ -44,7 +44,7 @@ class ReplaceTypeCheckWithMatchIntention extends PsiElementBaseIntentionAction {
   def invoke(project: Project, editor: Editor, element: PsiElement) {
     for {
       IsInstanceOfCall(iioCall) <- element.parentOfType(classOf[ScGenericCall], strict = false)
-      ifStmt <- iioCall.parentOfType(classOf[ScIfStmt])
+      ifStmt <- iioCall.parentOfType(classOf[ScIf])
       condition <- ifStmt.condition
       if findIsInstanceOfCalls(condition, onlyFirst = false) contains iioCall
     } {

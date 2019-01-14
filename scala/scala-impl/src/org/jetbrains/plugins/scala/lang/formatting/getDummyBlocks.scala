@@ -83,7 +83,7 @@ object getDummyBlocks {
       case _: ScCaseClause if scalaSettings.ALIGN_IN_COLUMNS_CASE_BRANCH =>
         subBlocks.addAll(getCaseClauseGroupSubBlocks(node, block))
         return subBlocks
-      case _: ScIfStmt =>
+      case _: ScIf =>
         val alignment = if (scalaSettings.ALIGN_IF_ELSE) Alignment.createAlignment
                         else null
         subBlocks.addAll(getIfSubBlocks(node, block, alignment))
@@ -677,7 +677,7 @@ object getDummyBlocks {
       child = firstChild
       while (child.getTreeNext != null) {
         child.getTreeNext.getPsi match {
-          case _: ScIfStmt if settings.SPECIAL_ELSE_IF_TREATMENT =>
+          case _: ScIf if settings.SPECIAL_ELSE_IF_TREATMENT =>
             val childWrap = arrangeSuggestedWrapForChild(block, firstChild, scalaSettings, block.suggestedWrap)
             subBlocks.add(new ScalaBlock(block, firstChild, child, alignment, indent, childWrap, block.getSettings))
             subBlocks.addAll(getIfSubBlocks(child.getTreeNext, block, alignment))

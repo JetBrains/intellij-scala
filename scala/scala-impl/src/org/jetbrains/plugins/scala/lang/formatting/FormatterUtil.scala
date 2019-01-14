@@ -8,7 +8,7 @@ import com.intellij.psi.PsiElement
 import org.jetbrains.plugins.scala.extensions.PsiFileExt
 import org.jetbrains.plugins.scala.lang.formatting.settings.ScalaCodeStyleSettings
 import org.jetbrains.plugins.scala.lang.psi.api.ScalaFile
-import org.jetbrains.plugins.scala.lang.psi.api.expr.ScIfStmt
+import org.jetbrains.plugins.scala.lang.psi.api.expr.ScIf
 import org.jetbrains.plugins.scala.lang.psi.api.statements.{ScFunction, ScTypeAlias, ScValue, ScVariable}
 import org.jetbrains.plugins.scala.lang.psi.api.toplevel.typedef.ScTypeDefinition
 
@@ -20,9 +20,9 @@ import org.jetbrains.plugins.scala.lang.psi.api.toplevel.typedef.ScTypeDefinitio
 object FormatterUtil {
   def calcIndent(node: ASTNode): Int = {
     node.getTreeParent.getPsi match {
-      case ifStmt: ScIfStmt =>
+      case ifStmt: ScIf =>
         ifStmt.getParent match {
-          case parent: ScIfStmt if parent.getLastChild == ifStmt && parent.elseBranch != None => calcIndent(node.getTreeParent)
+          case parent: ScIf if parent.getLastChild == ifStmt && parent.elseBranch != None => calcIndent(node.getTreeParent)
           case parent => calcAbsolutePosition(node) - calcAbsolutePosition(parent.getNode) match {
             case i if i >= 0 => i + calcIndent(parent.getNode)
             case _ => calcIndent(parent.getNode)

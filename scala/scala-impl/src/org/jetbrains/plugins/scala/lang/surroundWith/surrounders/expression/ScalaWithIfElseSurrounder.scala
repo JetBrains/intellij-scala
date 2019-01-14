@@ -32,7 +32,7 @@ class ScalaWithIfElseSurrounder extends ScalaExpressionSurrounder {
       case x => x
     }
 
-    val stmt = element.asInstanceOf[ScIfStmtImpl]
+    val stmt = element.asInstanceOf[ScIfImpl]
 
     val conditionNode: ASTNode = (stmt.condition: @unchecked) match {
       case Some(c) => c.getNode

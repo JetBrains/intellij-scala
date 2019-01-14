@@ -321,7 +321,7 @@ class ScalaControlFlowBuilder(startInScope: ScalaPsiElement,
     }
   }
 
-  override def visitIfStatement(stmt: ScIfStmt) {
+  override def visitIfStatement(stmt: ScIf) {
     startNode(Some(stmt)) {ifStmtInstr =>
       checkPendingEdges(ifStmtInstr)
       stmt.condition match {

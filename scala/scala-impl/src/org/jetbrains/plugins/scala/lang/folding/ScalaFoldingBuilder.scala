@@ -94,7 +94,7 @@ class ScalaFoldingBuilder extends CustomFoldingBuilder with PossiblyDumbAware {
         treeParent.getPsi.isInstanceOf[ScPatternDefinition] ||
         treeParent.getPsi.isInstanceOf[ScVariableDefinition] ||
         treeParent.getPsi.isInstanceOf[ScForStatement] ||
-        treeParent.getPsi.isInstanceOf[ScIfStmt])) {
+        treeParent.getPsi.isInstanceOf[ScIf])) {
         psi match {
           case _: ScBlockExpr => descriptors add new FoldingDescriptor(node, nodeTextRange)
           case _ =>
