@@ -7,7 +7,7 @@ package expr
 /**
 * @author Alexander Podkhalyuzin
 */
-trait ScThrowStmt extends ScExpression {
+trait ScThrow extends ScExpression {
   def body: Option[ScExpression] = findChild(classOf[ScExpression])
 
   override def accept(visitor: ScalaElementVisitor): Unit = {

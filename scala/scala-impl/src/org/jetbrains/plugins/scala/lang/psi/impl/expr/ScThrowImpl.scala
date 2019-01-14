@@ -12,7 +12,7 @@ import org.jetbrains.plugins.scala.lang.psi.types.result._
 /**
   * @author Alexander Podkhalyuzin, ilyas
   */
-class ScThrowStmtImpl(node: ASTNode) extends ScExpressionImplBase(node) with ScThrowStmt {
+class ScThrowImpl(node: ASTNode) extends ScExpressionImplBase(node) with ScThrow {
   protected override def innerType: TypeResult = Right(Nothing)
 
   override def toString: String = "ThrowStatement"

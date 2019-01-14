@@ -27,7 +27,7 @@ sealed abstract class Implementation {
     case literal: ScLiteral => literal.getFirstChild.getNode.getElementType != ScalaTokenTypes.kNULL
     case definition: ScNewTemplateDefinition => definition.extendsBlock.templateBody.isEmpty
     case _: ScUnitExpr |
-         _: ScThrowStmt |
+         _: ScThrow |
          ScReferenceExpression(_: PsiEnumConstant) |
          StableApplyCall() |
          ScMethodCall(StableApplyCall(), _) |

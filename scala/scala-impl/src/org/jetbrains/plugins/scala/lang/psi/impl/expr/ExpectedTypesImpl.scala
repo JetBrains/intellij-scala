@@ -160,7 +160,7 @@ class ExpectedTypesImpl extends ExpectedTypes {
       case _: ScDoStmt => Array((api.Unit, None))
       case _: ScFinallyBlock => Array((api.Unit, None))
       case _: ScCatchBlock => Array.empty
-      case te: ScThrowStmt =>
+      case te: ScThrow =>
         // Not in the SLS, but in the implementation.
         val throwableClass = ScalaPsiManager.instance(te.getProject).getCachedClass(te.resolveScope, "java.lang.Throwable")
         val throwableType = throwableClass.map(new ScDesignatorType(_)).getOrElse(Any)

@@ -135,7 +135,7 @@ trait TreeConverterBuilder {
 
       override def visitFunctionExpression(stmt: ScFunctionExpr) = super.visitFunctionExpression(stmt)
 
-      override def visitThrowExpression(throwStmt: ScThrowStmt) = super.visitThrowExpression(throwStmt)
+      override def visitThrowExpression(throwStmt: ScThrow) = super.visitThrowExpression(throwStmt)
 
       override def visitTryExpression(tryStmt: ScTryStmt) = super.visitTryExpression(tryStmt)
 

@@ -439,7 +439,7 @@ class ScalaControlFlowBuilder(startInScope: ScalaPsiElement,
     }
   }
 
-  override def visitThrowExpression(throwStmt: ScThrowStmt) {
+  override def visitThrowExpression(throwStmt: ScThrow) {
     val isNodeNeeded = myHead == null || (myHead.element match {
       case Some(e) => e != throwStmt
       case None => false

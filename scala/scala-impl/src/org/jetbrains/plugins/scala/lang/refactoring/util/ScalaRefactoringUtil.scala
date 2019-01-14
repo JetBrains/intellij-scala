@@ -699,7 +699,7 @@ object ScalaRefactoringUtil {
           .foreach(builder.append)
       case s: ScSuperReference => builder.append(s.getText)
       case t: ScThisReference => builder.append(t.getText)
-      case t: ScThrowStmt =>
+      case t: ScThrow =>
         builder.append("throw ")
         t.body match {
           case Some(expression) => builder.append(getShortText(expression))

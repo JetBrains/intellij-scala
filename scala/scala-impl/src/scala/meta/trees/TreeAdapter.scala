@@ -326,7 +326,7 @@ trait TreeAdapter {
         m.Term.Function(Seq(t.parameters.map(convertParam):_*), expression(t.result).get)
       case t: ScTuple =>
         m.Term.Tuple(Seq(t.exprs.map(expression): _*))
-      case t: ScThrowStmt =>
+      case t: ScThrow =>
         m.Term.Throw(expression(t.body).getOrElse(throw new AbortException(t, "Empty throw expression")))
       case t@ScTryStmt(tryBlock, catchBlock, finallyBlock) =>
         val fblk = finallyBlock match {

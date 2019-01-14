@@ -41,7 +41,7 @@ object ScalaWithMatchSurrounder extends ScalaExpressionSurrounder {
                  _: ScTryStmt |
                  _: ScForStatement |
                  _: ScWhileStmt |
-                 _: ScThrowStmt |
+                 _: ScThrow |
                  _: ScReturn) => true
       case Array(_) => false
       case _ => true
