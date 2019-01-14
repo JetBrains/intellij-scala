@@ -270,7 +270,7 @@ object ScalaElementType {
     override def createElement(node: ASTNode) = new ScMatchImpl(node)
   }
   val TYPED_EXPR_STMT = new ScalaElementType("typed statement") {
-    override def createElement(node: ASTNode) = new ScTypedStmtImpl(node)
+    override def createElement(node: ASTNode) = new ScTypedExpressionImpl(node)
   }
 
   /** ***********************************************************************************/

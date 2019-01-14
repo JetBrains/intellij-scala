@@ -121,7 +121,7 @@ private[evaluation] class ScalaEvaluatorBuilder(val codeFragment: ScalaCodeFragm
           case block: ScBlock => blockExprEvaluator(block)
           case call: ScGenericCall => methodCallEvaluator(call, Nil, Map.empty)
           case stmt: ScAssignStmt => assignmentEvaluator(stmt)
-          case stmt: ScTypedStmt => evaluatorFor(stmt.expr)
+          case stmt: ScTypedExpression => evaluatorFor(stmt.expr)
           case e => throw EvaluationException(s"This type of expression is not supported: ${e.getText}")
         }
         postProcessExpressionEvaluator(expr, innerEval)

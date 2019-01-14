@@ -717,7 +717,7 @@ object ScalaRefactoringUtil {
           if (expr != exprs.last) builder.append(", ")
         }
         builder.append(")")
-      case t: ScTypedStmt =>
+      case t: ScTypedExpression =>
         builder.append(getShortText(t.expr))
         builder.append(" : ")
         builder.append(t.typeElement match {

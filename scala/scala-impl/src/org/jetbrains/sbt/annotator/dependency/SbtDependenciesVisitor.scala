@@ -27,7 +27,7 @@ private object SbtDependenciesVisitor {
 
     def processSettings(settings: ScMethodCall): Unit = {
       settings.args.exprsArray.foreach({
-        case typedStmt: ScTypedStmt => processTypedStmt(typedStmt)(f)
+        case typedStmt: ScTypedExpression => processTypedStmt(typedStmt)(f)
         case infix: ScInfixExpr if infix.left.getText == LIBRARY_DEPENDENCIES => processInfix(infix)(f)
         case call: ScMethodCall => processMethodCall(call)(f)
         case ref: ScReferenceExpression => processReferenceExpr(ref)(f)
@@ -110,7 +110,7 @@ private object SbtDependenciesVisitor {
     }
   }
 
-  def processTypedStmt(typedStmt: ScTypedStmt)(f: PsiElement => Unit): Unit = {
+  def processTypedStmt(typedStmt: ScTypedExpression)(f: PsiElement => Unit): Unit = {
     f(typedStmt)
 
     typedStmt.expr match {

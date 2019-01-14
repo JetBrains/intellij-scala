@@ -13,7 +13,7 @@ import org.jetbrains.plugins.scala.lang.psi.types.result._
  * Date: 06.03.2008
  */
 
-class ScTypedStmtImpl(node: ASTNode) extends ScExpressionImplBase(node) with ScTypedStmt {
+class ScTypedExpressionImpl(node: ASTNode) extends ScExpressionImplBase(node) with ScTypedExpression {
 
   protected override def innerType: TypeResult = {
     typeElement match {

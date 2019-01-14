@@ -176,10 +176,10 @@ class ExpectedTypesImpl extends ExpectedTypes {
       }
       //see SLS[6.23]
       case f: ScFunctionExpr => f.expectedTypesEx(fromUnderscore = true).flatMap(tp => fromFunction(tp))
-      case t: ScTypedStmt if t.getLastChild.isInstanceOf[ScSequenceArg] =>
+      case t: ScTypedExpression if t.getLastChild.isInstanceOf[ScSequenceArg] =>
         t.expectedTypesEx(fromUnderscore = true)
       //SLS[6.13]
-      case t: ScTypedStmt =>
+      case t: ScTypedExpression =>
         t.typeElement match {
           case Some(te) => Array((te.`type`().getOrAny, Some(te)))
           case _ => Array.empty
@@ -421,7 +421,7 @@ class ExpectedTypesImpl extends ExpectedTypes {
         if (isDynamicNamed) paramTypeForDynamicNamed(findByIdx(params))
         else paramTypeForNamed(assign, params).getOrElse(findByIdx(params))
       }
-      case typedStmt: ScTypedStmt if typedStmt.isSequenceArg && params.nonEmpty =>
+      case typedStmt: ScTypedExpression if typedStmt.isSequenceArg && params.nonEmpty =>
         paramTypeForRepeated(params)
       case _ =>
         Some(findByIdx(params))

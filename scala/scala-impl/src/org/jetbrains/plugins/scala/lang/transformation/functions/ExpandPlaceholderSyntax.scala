@@ -17,8 +17,8 @@ class ExpandPlaceholderSyntax extends AbstractTransformer {
       val enclosure = e.parents.toStream.takeWhile(e => e.isInstanceOf[ScExpression] || e.isInstanceOf[ScArgumentExprList]).last
 
       val (placeholders, typeElements) = enclosure.depthFirst().collect {
-        case (_: ScUnderscoreSection) && Parent((typed: ScTypedStmt) && Parent(it: ScParenthesisedExpr)) => (it, typed.typeElement)
-        case (_: ScUnderscoreSection) && Parent(typed: ScTypedStmt) => (typed, typed.typeElement)
+        case (_: ScUnderscoreSection) && Parent((typed: ScTypedExpression) && Parent(it: ScParenthesisedExpr)) => (it, typed.typeElement)
+        case (_: ScUnderscoreSection) && Parent(typed: ScTypedExpression) => (typed, typed.typeElement)
         case it: ScUnderscoreSection => (it, None)
       }.toVector.unzip
 

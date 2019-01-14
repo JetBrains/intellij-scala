@@ -105,7 +105,7 @@ object Compatibility {
     }
   }
 
-  def seqTypeFor(expr: ScTypedStmt): Option[ScType] =
+  def seqTypeFor(expr: ScTypedExpression): Option[ScType] =
     seqClass.map { clazz =>
       if (ApplicationManager.getApplication.isUnitTestMode) clazz
       else throw new RuntimeException("Illegal state for seqClass variable")
@@ -234,7 +234,7 @@ object Compatibility {
 
     while (k < parameters.length.min(exprs.length)) {
       exprs(k) match {
-        case Expression(expr: ScTypedStmt) if expr.isSequenceArg =>
+        case Expression(expr: ScTypedExpression) if expr.isSequenceArg =>
           seqTypeFor(expr) match {
             case Some(seqType) =>
               val getIt = used.indexOf(false)
@@ -281,7 +281,7 @@ object Compatibility {
             assign.getRExpression match {
               case rightExpression@Some(expr: ScExpression) =>
                 val maybeSeqType = rightExpression.collect {
-                  case typedStmt: ScTypedStmt if typedStmt.isSequenceArg => typedStmt
+                  case typedStmt: ScTypedExpression if typedStmt.isSequenceArg => typedStmt
                 }.flatMap {
                   seqTypeFor
                 }

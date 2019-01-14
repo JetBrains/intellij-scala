@@ -268,8 +268,8 @@ abstract class ScalaAnnotator extends Annotator
         super.visitVariableDeclaration(varr)
       }
 
-      override def visitTypedStmt(stmt: ScTypedStmt) {
-        annotateTypedStatement(stmt, holder, typeAware)
+      override def visitTypedStmt(stmt: ScTypedExpression) {
+        annotateTypedExpression(stmt, holder, typeAware)
         super.visitTypedStmt(stmt)
       }
 
@@ -830,7 +830,7 @@ abstract class ScalaAnnotator extends Annotator
 
     def shouldNotHighlight(expr: ScExpression): Boolean = expr.getContext match {
       case a: ScAssignStmt if a.getRExpression.contains(expr) && a.isDynamicNamedAssignment => true
-      case t: ScTypedStmt if t.isSequenceArg                                                => true
+      case t: ScTypedExpression if t.isSequenceArg                                                => true
       case param: ScParameter if !param.isDefaultParam                                      => true //performance optimization
       case param: ScParameter                                                               =>
         param.getRealParameterType match {

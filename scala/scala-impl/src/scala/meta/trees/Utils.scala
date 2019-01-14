@@ -2,7 +2,7 @@ package scala.meta.trees
 
 import com.intellij.openapi.diagnostic.Logger
 import com.intellij.psi.{PsiElement, PsiPackage}
-import org.jetbrains.plugins.scala.lang.psi.api.expr.{ScExpression, ScSugarCallExpr, ScTypedStmt}
+import org.jetbrains.plugins.scala.lang.psi.api.expr.{ScExpression, ScSugarCallExpr, ScTypedExpression}
 import org.jetbrains.plugins.scala.lang.psi.api.statements.ScFunctionDefinition
 import org.jetbrains.plugins.scala.lang.psi.api.toplevel.ScTypedDefinition
 import org.jetbrains.plugins.scala.lang.psi.api.toplevel.typedef.ScObject
@@ -111,7 +111,7 @@ trait Utils {
     def withSubstitutionCaching[T](fun: TypeResult => T): T = {
       if (dumbMode) {
         val maybeType = expr match {
-          case ts: ScTypedStmt => createTypeFromText(ts.getText, expr, null)
+          case ts: ScTypedExpression => createTypeFromText(ts.getText, expr, null)
           case _ => None
         }
 
@@ -149,7 +149,7 @@ trait Utils {
     def getTypeWithCachedSubst: TypeResult = {
       if (dumbMode) {
         expr match {
-          case ts: ScTypedStmt => createTypeFromText(ts.getText, expr, null).asTypeResult
+          case ts: ScTypedExpression => createTypeFromText(ts.getText, expr, null).asTypeResult
           case _ => Right(ptype.api.Any)
         }
       } else {

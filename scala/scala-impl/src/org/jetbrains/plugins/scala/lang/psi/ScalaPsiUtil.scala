@@ -937,7 +937,7 @@ object ScalaPsiUtil {
         case (_, _: ScInfixExpr) => false
         case (_: ScPostfixExpr | _: ScInfixExpr, _) => true
         case (_, _: ScPostfixExpr) => false
-        case (_: ScTypedStmt | _: ScMatch, _) => true
+        case (_: ScTypedExpression | _: ScMatch, _) => true
         case _ => false
       }
     }
@@ -1107,7 +1107,7 @@ object ScalaPsiUtil {
 
     private def isSimpleUnderscore(expr: ScExpression) = expr match {
       case _: ScUnderscoreSection => expr.getText == "_"
-      case typed: ScTypedStmt => Option(typed.expr).map(_.getText).contains("_")
+      case typed: ScTypedExpression => Option(typed.expr).map(_.getText).contains("_")
       case _ => false
     }
 

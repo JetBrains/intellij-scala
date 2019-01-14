@@ -421,7 +421,7 @@ private[evaluation] trait ScalaEvaluatorBuilderUtil {
     }
     if (exprsForP.length == 1) {
       exprsForP.head match {
-        case t: ScTypedStmt if t.isSequenceArg => evaluatorFor(t.expr)
+        case t: ScTypedExpression if t.isSequenceArg => evaluatorFor(t.expr)
         case _ => seqEvaluator
       }
     } else seqEvaluator

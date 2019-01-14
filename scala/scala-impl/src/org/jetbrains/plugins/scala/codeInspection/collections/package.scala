@@ -257,7 +257,7 @@ package object collections {
     def unapply(expr: ScExpression): Boolean = {
       stripped(expr) match {
         case ScParenthesisedExpr(underscore()) => true
-        case typed: ScTypedStmt if typed.expr.isInstanceOf[ScUnderscoreSection] => true
+        case typed: ScTypedExpression if typed.expr.isInstanceOf[ScUnderscoreSection] => true
         case und: ScUnderscoreSection if und.bindingExpr.isEmpty => true
         case _ => false
       }

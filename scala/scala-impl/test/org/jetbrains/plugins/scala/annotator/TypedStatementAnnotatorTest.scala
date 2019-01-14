@@ -4,7 +4,7 @@ package annotator
 import org.intellij.lang.annotations.Language
 import org.jetbrains.plugins.scala.base.SimpleTestCase
 import org.jetbrains.plugins.scala.extensions._
-import org.jetbrains.plugins.scala.lang.psi.api.expr.ScTypedStmt
+import org.jetbrains.plugins.scala.lang.psi.api.expr.ScTypedExpression
 
 class TypedStatementAnnotatorTest extends SimpleTestCase {
   final val Header = "class A; class B; object A extends A; object B extends B\n"
@@ -37,11 +37,11 @@ class TypedStatementAnnotatorTest extends SimpleTestCase {
 
   def messages(@Language(value = "Scala", prefix = Header) code: String): List[Message] = {
     val file = (Header + code).parse
-    val definition = file.depthFirst().findByType[ScTypedStmt].get
+    val definition = file.depthFirst().findByType[ScTypedExpression].get
     
     val annotator = new TypedStatementAnnotator() {}
     val mock = new AnnotatorHolderMock(file)
-    annotator.annotateTypedStatement(definition, mock, highlightErrors = true)
+    annotator.annotateTypedExpression(definition, mock, highlightErrors = true)
     mock.annotations
   }
   

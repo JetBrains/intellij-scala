@@ -158,7 +158,7 @@ object ScalaUsageTypeProvider {
         if (valueOrVariable.isLocal) CLASS_LOCAL_VAR_DECLARATION else CLASS_FIELD_DECLARATION
       case classParameter: ScClassParameter if isAppropriate(classParameter.typeElement) && classParameter.isClassMember =>
         CLASS_FIELD_DECLARATION
-      case typedStmt: ScTypedStmt if isAppropriate(typedStmt.typeElement) =>
+      case typedStmt: ScTypedExpression if isAppropriate(typedStmt.typeElement) =>
         TypedStatement
       case _: ScSelfTypeElement => SelfType
       case _: ScTypeAliasDeclaration | _: ScTypeParam => TypeBound

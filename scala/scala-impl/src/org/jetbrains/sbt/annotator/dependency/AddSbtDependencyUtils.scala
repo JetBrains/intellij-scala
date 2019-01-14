@@ -36,7 +36,7 @@ object AddSbtDependencyUtils {
       psiElement match {
         case e: ScInfixExpr if e.left.getText == LIBRARY_DEPENDENCIES && isAddableLibraryDependencies(e) => res ++= Seq(e)
         case call: ScMethodCall if call.deepestInvokedExpr.getText == SEQ => res ++= Seq(call)
-        case typedSeq: ScTypedStmt if typedSeq.isSequenceArg =>
+        case typedSeq: ScTypedExpression if typedSeq.isSequenceArg =>
           typedSeq.expr match {
             case call: ScMethodCall if call.deepestInvokedExpr.getText == SEQ => res ++= Seq(typedSeq)
             case _ =>
@@ -99,7 +99,7 @@ object AddSbtDependencyUtils {
     expr match {
       case e: ScInfixExpr if e.left.getText == LIBRARY_DEPENDENCIES => addDependencyToLibraryDependencies(e, info)
       case call: ScMethodCall if call.deepestInvokedExpr.getText == SEQ => addDependencyToSeq(call, info)
-      case typedSeq: ScTypedStmt if typedSeq.isSequenceArg => addDependencyToTypedSeq(typedSeq, info)
+      case typedSeq: ScTypedExpression if typedSeq.isSequenceArg => addDependencyToTypedSeq(typedSeq, info)
       case settings: ScMethodCall if isAddableSettings(settings) =>
         settings.getEffectiveInvokedExpr match {
           case expr: ScReferenceExpression if expr.refName == SETTINGS =>
@@ -156,7 +156,7 @@ object AddSbtDependencyUtils {
     Some(addedExpr)
   }
 
-  def addDependencyToTypedSeq(typedSeq: ScTypedStmt, info: ArtifactInfo)(implicit project: Project): Option[PsiElement] =
+  def addDependencyToTypedSeq(typedSeq: ScTypedExpression, info: ArtifactInfo)(implicit project: Project): Option[PsiElement] =
     typedSeq.expr match {
       case seqCall: ScMethodCall =>
         val addedExpr = generateLibraryDependency(info)(project)
@@ -189,7 +189,7 @@ object AddSbtDependencyUtils {
 
     if (args.length == 1) {
       args(0) match {
-        case typedStmt: ScTypedStmt if typedStmt.isSequenceArg =>
+        case typedStmt: ScTypedExpression if typedStmt.isSequenceArg =>
           typedStmt.expr match {
             case _: ScMethodCall => false
             case _: ScReferenceExpression => false

@@ -133,7 +133,7 @@ class ScalaElementVisitor extends PsiElementVisitor {
   def visitTryExpression(tryStmt: ScTry) { visitExpression(tryStmt) }
   def visitExprInParent(expr: ScParenthesisedExpr) {visitExpression(expr)}
   def visitNewTemplateDefinition(templ: ScNewTemplateDefinition) {visitExpression(templ)}
-  def visitTypedStmt(stmt: ScTypedStmt) {visitExpression(stmt)}
+  def visitTypedStmt(stmt: ScTypedExpression) {visitExpression(stmt)}
   def visitTupleExpr(tuple: ScTuple) {visitExpression(tuple)}
   def visitBlockExpression(block: ScBlockExpr) {visitExpression(block)}
   def visitUnderscoreExpression(under: ScUnderscoreSection) {visitExpression(under)}

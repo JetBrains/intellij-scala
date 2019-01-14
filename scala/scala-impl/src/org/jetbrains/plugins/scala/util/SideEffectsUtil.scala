@@ -55,7 +55,7 @@ object SideEffectsUtil {
       case _: ScThisReference => true
       case und: ScUnderscoreSection if und.bindingExpr.isEmpty => true
       case ScParenthesisedExpr(inner) => hasNoSideEffectsInner(inner)
-      case typed: ScTypedStmt => hasNoSideEffectsInner(typed.expr)
+      case typed: ScTypedExpression => hasNoSideEffectsInner(typed.expr)
       case ref: ScReferenceExpression =>
         if (hasImplicitConversion(ref)) false
         else {

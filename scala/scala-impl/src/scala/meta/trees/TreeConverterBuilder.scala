@@ -143,7 +143,7 @@ trait TreeConverterBuilder {
 
       override def visitNewTemplateDefinition(templ: ScNewTemplateDefinition) = super.visitNewTemplateDefinition(templ)
 
-      override def visitTypedStmt(stmt: ScTypedStmt) = super.visitTypedStmt(stmt)
+      override def visitTypedStmt(stmt: ScTypedExpression) = super.visitTypedStmt(stmt)
 
       override def visitTupleExpr(tuple: ScTuple) = super.visitTupleExpr(tuple)
 

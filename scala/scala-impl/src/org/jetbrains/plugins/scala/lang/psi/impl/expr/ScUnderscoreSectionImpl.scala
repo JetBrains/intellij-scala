@@ -47,7 +47,7 @@ class ScUnderscoreSectionImpl(node: ASTNode) extends ScExpressionImplBase(node) 
       case Some(expr) => expr.getNonValueType()
       case None =>
         getContext match {
-          case typed: ScTypedStmt =>
+          case typed: ScTypedExpression =>
             overExpr match {
               case Some(`typed`) =>
                 typed.typeElement match {

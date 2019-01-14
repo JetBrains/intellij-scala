@@ -351,7 +351,7 @@ trait TreeAdapter {
         m.Term.Assign(expression(t.getLExpression).asInstanceOf[m.Term.Ref], expression(t.getRExpression.get))
       case _: ScUnderscoreSection =>
         m.Term.Placeholder()
-      case t: ScTypedStmt =>
+      case t: ScTypedExpression =>
         m.Term.Ascribe(expression(t.expr), t.typeElement.map(toType).getOrElse(unreachable))
       case t: ScConstrExpr =>
         t ???
@@ -365,7 +365,7 @@ trait TreeAdapter {
     e match {
       case t: ScAssignStmt => m.Term.Arg.Named(toTermName(t.getLExpression), expression(t.getRExpression).get)
       case _: ScUnderscoreSection => m.Term.Placeholder()
-      case t: ScTypedStmt if t.isSequenceArg=> m.Term.Arg.Repeated(expression(t.expr))
+      case t: ScTypedExpression if t.isSequenceArg=> m.Term.Arg.Repeated(expression(t.expr))
       case other => expression(e)
     }
   }

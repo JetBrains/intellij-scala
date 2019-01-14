@@ -59,7 +59,7 @@ trait ScUnderscoreSection extends ScExpression {
         case guard: ScGuard => go(ScalaPsiUtil.contextOfType(guard, strict = true, classOf[ScExpression]), calcArguments = false)
         case x: ScExpression if calcArguments => Some(x)
         case x: ScMatch if !calcArguments => Some(x)
-        case x: ScTypedStmt if !calcArguments => Some(x)
+        case x: ScTypedExpression if !calcArguments => Some(x)
         case _: ScExpression if !calcArguments =>
           expr match {
             case _: ScUnderscoreSection => None
@@ -83,7 +83,7 @@ trait ScUnderscoreSection extends ScExpression {
     }
 
     getContext match {
-      case t: ScTypedStmt => go(removeParentheses(t))
+      case t: ScTypedExpression => go(removeParentheses(t))
       case _ => go(removeParentheses(this))
     }
   }
@@ -98,7 +98,7 @@ object ScUnderScoreSectionUtil {
   def isUnderscore(expr: ScExpression): Boolean = {
     expr match {
       case _: ScUnderscoreSection => true
-      case t: ScTypedStmt => t.expr.isInstanceOf[ScUnderscoreSection]
+      case t: ScTypedExpression => t.expr.isInstanceOf[ScUnderscoreSection]
       case p: ScParenthesisedExpr =>
         p.innerElement match {
           case Some(expression) => isUnderscore(expression)
