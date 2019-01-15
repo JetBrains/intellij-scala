@@ -189,18 +189,22 @@ class ScalaBlock(val myParentBlock: ScalaBlock,
   private def isIncomplete(node: ASTNode): Boolean = {
     if (node.getPsi.isInstanceOf[PsiErrorElement])
       return true
+
+    val lastChild = findLastNonBlankChild(node)
+    if (lastChild == null) {
+      false
+    } else {
+      isIncomplete(lastChild)
+    }
+  }
+
+  private def findLastNonBlankChild(node: ASTNode): ASTNode = {
     var lastChild = node.getLastChildNode
     while (lastChild != null &&
       (lastChild.getPsi.isInstanceOf[PsiWhiteSpace] || lastChild.getPsi.isInstanceOf[PsiComment])) {
       lastChild = lastChild.getTreePrev
     }
-    if (lastChild == null) {
-      return false
-    }
-    if (lastChild.getPsi.isInstanceOf[PsiErrorElement]) {
-      return true
-    }
-    isIncomplete(lastChild)
+    lastChild
   }
 
   private var _suggestedWrap: Wrap = _
