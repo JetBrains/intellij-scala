@@ -13,6 +13,4 @@ trait ScalaCodeInsightActionHandler extends LanguageCodeInsightActionHandler {
       case (null, null) => false
       case _ => file.getFileType == ScalaFileType.INSTANCE
     }
-
-  override def startInWriteAction: Boolean = true
 }
