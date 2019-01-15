@@ -17,11 +17,14 @@ import com.intellij.util.ProcessingContext
 import com.intellij.util.containers.ContainerUtil
 import org.jetbrains.annotations.NotNull
 import org.jetbrains.plugins.scala.extensions._
+import org.jetbrains.plugins.scala.lang.lexer.ScalaTokenTypes
 import org.jetbrains.plugins.scala.lang.psi.api.base.patterns.ScInterpolationPattern
-import org.jetbrains.plugins.scala.lang.psi.api.base.{ScInterpolatedStringLiteral, ScLiteral}
+import org.jetbrains.plugins.scala.lang.psi.api.base.{ScInterpolated, ScInterpolatedStringLiteral, ScLiteral}
 import org.jetbrains.plugins.scala.lang.psi.api.expr.ScReferenceExpression
 import org.jetbrains.plugins.scala.lang.psi.impl.ScalaPsiElementFactory
 import org.jetbrains.plugins.scala.lang.psi.impl.expr.ScInterpolatedStringPartReference
+
+import scala.collection.mutable.ListBuffer
 
 class ScalaReferenceContributor extends PsiReferenceContributor {
   def registerReferenceProviders(registrar: PsiReferenceRegistrar) {
@@ -139,11 +142,8 @@ class FilePathReferenceProvider extends PsiReferenceProvider {
         FilePathReferenceProvider.this.createFileReference(this, range, index, text)
       }
 
-      protected override def getReferenceCompletionFilter: Condition[PsiFileSystemItem] = {
-        (element: PsiFileSystemItem) => {
-          isPsiElementAccepted(element)
-        }
-      }
+      protected override def getReferenceCompletionFilter: Condition[PsiFileSystemItem] = isPsiElementAccepted(_)
+
     }.getAllReferences.map(identity)
   }
 
@@ -162,28 +162,39 @@ class FilePathReferenceProvider extends PsiReferenceProvider {
   def getReferencesByElement(element: PsiElement, context: ProcessingContext): Array[PsiReference] = {
     element match {
       case interpolated: ScInterpolationPattern =>
-        val refs = interpolated.getReferencesToStringParts
+        val parts = getStringParts(interpolated)
         val start: Int = interpolated.getTextRange.getStartOffset
-        return refs.flatMap{ r =>
-          val offset = r.getElement.getTextRange.getStartOffset - start
-          getReferencesByElement(r.getElement, r.getElement.getText, offset, soft = true)}
+        parts.flatMap{ element =>
+          val offset = element.getTextRange.getStartOffset - start
+          getReferencesByElement(interpolated, element.getText, offset, soft = true)}
       case interpolatedString: ScInterpolatedStringLiteral =>
-        val refs = interpolatedString.getReferencesToStringParts
+        val parts = getStringParts(interpolatedString)
         val start: Int = interpolatedString.getTextRange.getStartOffset
-        return refs.flatMap{ r =>
-          val offset = r.getElement.getTextRange.getStartOffset - start
-          getReferencesByElement(r.getElement, r.getElement.getText, offset, soft = true)
+        parts.flatMap { element =>
+          val offset = element.getTextRange.getStartOffset - start
+          getReferencesByElement(interpolatedString, element.getText, offset, soft = true)
         }
       case literal: ScLiteral =>
         literal.getValue match {
-          case text: String =>
-            if (text == null) return PsiReference.EMPTY_ARRAY
-            return getReferencesByElement(element, text, 1, soft = true)
-          case _ =>
+          case text: String => getReferencesByElement(element, text, 1, soft = true)
+          case _ => PsiReference.EMPTY_ARRAY
         }
-      case _ =>
+      case _ => PsiReference.EMPTY_ARRAY
     }
-    PsiReference.EMPTY_ARRAY
+  }
+
+  private def getStringParts(interpolated: ScInterpolated): Array[PsiElement] = {
+    val accepted = List(ScalaTokenTypes.tINTERPOLATED_STRING, ScalaTokenTypes.tINTERPOLATED_MULTILINE_STRING)
+    val res = ListBuffer[PsiElement]()
+    val children: Array[PsiElement] = interpolated match {
+      case ip: ScInterpolationPattern => ip.args.children.toArray
+      case sl: ScInterpolatedStringLiteral => Option(sl.getFirstChild.getNextSibling).toArray
+    }
+    for (child <- children) {
+      if (accepted.contains(child.getNode.getElementType))
+        res += child
+    }
+    res.toArray
   }
 
   private final val myEndingSlashNotAllowed: Boolean = false

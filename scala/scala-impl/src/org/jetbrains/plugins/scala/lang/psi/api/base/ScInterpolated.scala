@@ -1,11 +1,9 @@
 package org.jetbrains.plugins.scala
 package lang.psi.api.base
 
-import com.intellij.psi.{PsiElement, PsiReference}
 import org.jetbrains.plugins.scala.extensions.PsiElementExt
 import org.jetbrains.plugins.scala.lang.lexer.ScalaTokenTypes
 import org.jetbrains.plugins.scala.lang.psi.api.ScalaPsiElement
-import org.jetbrains.plugins.scala.lang.psi.api.base.patterns.ScInterpolationPattern
 import org.jetbrains.plugins.scala.lang.psi.api.expr.{ScBlockExpr, ScExpression, ScReferenceExpression}
 import org.jetbrains.plugins.scala.lang.psi.impl.ScalaPsiElementFactory
 import org.jetbrains.plugins.scala.lang.psi.impl.expr.{ScInterpolatedPrefixReference, ScInterpolatedStringPartReference}
@@ -19,20 +17,6 @@ import scala.collection.mutable.ListBuffer
  */
 trait ScInterpolated extends ScalaPsiElement {
   def isMultiLineString: Boolean
-
-  def getReferencesToStringParts: Array[PsiReference] = {
-    val accepted = List(ScalaTokenTypes.tINTERPOLATED_STRING, ScalaTokenTypes.tINTERPOLATED_MULTILINE_STRING)
-    val res = ListBuffer[PsiReference]()
-    val children: Array[PsiElement] = this match {
-      case ip: ScInterpolationPattern => ip.args.children.toArray
-      case sl: ScInterpolatedStringLiteral => Option(sl.getFirstChild.getNextSibling).toArray
-    }
-    for (child <- children) {
-      if (accepted.contains(child.getNode.getElementType))
-        res += new ScInterpolatedStringPartReference(child.getNode)
-    }
-    res.toArray
-  }
 
   @CachedInUserData(this, ModCount.getBlockModificationCount)
   def getStringContextExpression: Option[ScExpression] = {
