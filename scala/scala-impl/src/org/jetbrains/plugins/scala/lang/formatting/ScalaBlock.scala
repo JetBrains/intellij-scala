@@ -34,31 +34,31 @@ class ScalaBlock(val myParentBlock: ScalaBlock,
                  protected var myWrap: Wrap,
                  protected val mySettings: CodeStyleSettings,
                  val subBlocksContext: Option[SubBlocksContext] = None)
-  extends Object with ScalaTokenTypes with ASTBlock {
+  extends ASTBlock with ScalaTokenTypes {
 
   protected var mySubBlocks: util.List[Block] = _
-
-  override def getNode: ASTNode = myNode
 
   def getSettings: CodeStyleSettings = mySettings
 
   def getCommonSettings: CommonCodeStyleSettings = mySettings.getCommonSettings(ScalaLanguage.INSTANCE)
 
-  def getTextRange: TextRange =
+  override def getNode: ASTNode = myNode
+
+  override def getTextRange: TextRange =
     if (myLastNode == null) myNode.getTextRange
     else new TextRange(myNode.getTextRange.getStartOffset, myLastNode.getTextRange.getEndOffset)
 
-  def getIndent: Indent = myIndent
+  override def getIndent: Indent = myIndent
 
-  def getWrap: Wrap = myWrap
+  override def getWrap: Wrap = myWrap
 
-  def getAlignment: Alignment = myAlignment
+  override def getAlignment: Alignment = myAlignment
 
-  def isLeaf: Boolean = isLeaf(myNode)
+  override def isLeaf: Boolean = isLeaf(myNode)
 
-  def isIncomplete: Boolean = isIncomplete(myNode)
+  override def isIncomplete: Boolean = isIncomplete(myNode)
 
-  def getChildAttributes(newChildIndex: Int): ChildAttributes = {
+  override def getChildAttributes(newChildIndex: Int): ChildAttributes = {
     val scalaSettings = mySettings.getCustomSettings(classOf[ScalaCodeStyleSettings])
     val indentSize = mySettings.getIndentSize(ScalaFileType.INSTANCE)
     val parent = getNode.getPsi
@@ -93,7 +93,8 @@ class ScalaBlock(val myParentBlock: ScalaBlock,
           val indent = Indent.getSpaceIndent(2 * indentSize)
           new ChildAttributes(indent, null)
         }
-      case _: ScCaseClauses => new ChildAttributes(Indent.getNormalIndent, null)
+      case _: ScCaseClauses =>
+        new ChildAttributes(Indent.getNormalIndent, null)
       case l: ScLiteral
         if l.isMultiLineString && scalaSettings.MULTILINE_STRING_SUPORT != ScalaCodeStyleSettings.MULTILINE_STRING_NONE =>
         new ChildAttributes(Indent.getSpaceIndent(3, true), null)
@@ -117,21 +118,26 @@ class ScalaBlock(val myParentBlock: ScalaBlock,
           if (scope.getNode.getElementType == ScalaTokenTypes.tLBRACE && braceShifted) Indent.getNoneIndent
           else Indent.getNormalIndent,
           null)
-      case p: ScPackaging if p.isExplicit => new ChildAttributes(Indent.getNormalIndent, null)
+      case p: ScPackaging if p.isExplicit =>
+        new ChildAttributes(Indent.getNormalIndent, null)
       case _: ScBlock =>
         val grandParent = parent.getParent
         new ChildAttributes(if (grandParent != null && (grandParent.isInstanceOf[ScCaseClause] || grandParent.isInstanceOf[ScFunctionExpr])) Indent.getNormalIndent
         else Indent.getNoneIndent, null)
-      case _: ScIf => new ChildAttributes(Indent.getNormalIndent(scalaSettings.ALIGN_IF_ELSE), this.getAlignment)
+      case _: ScIf =>
+        new ChildAttributes(Indent.getNormalIndent(scalaSettings.ALIGN_IF_ELSE), this.getAlignment)
       case x: ScDo =>
         if (x.body.isDefined)
           new ChildAttributes(Indent.getNoneIndent, null)
         else new ChildAttributes(if (mySettings.BRACE_STYLE == CommonCodeStyleSettings.NEXT_LINE_SHIFTED)
           Indent.getNoneIndent
         else Indent.getNormalIndent, null)
-      case _: ScXmlElement => new ChildAttributes(Indent.getNormalIndent, null)
-      case _: ScalaFile => new ChildAttributes(Indent.getNoneIndent, null)
-      case _: ScCaseClause => new ChildAttributes(Indent.getNormalIndent, null)
+      case _: ScXmlElement =>
+        new ChildAttributes(Indent.getNormalIndent, null)
+      case _: ScalaFile =>
+        new ChildAttributes(Indent.getNoneIndent, null)
+      case _: ScCaseClause =>
+        new ChildAttributes(Indent.getNormalIndent, null)
       case _: ScExpression | _: ScPattern | _: ScParameters =>
         new ChildAttributes(Indent.getContinuationWithoutFirstIndent, this.getAlignment)
       case _: ScDocComment =>
@@ -149,7 +155,8 @@ class ScalaBlock(val myParentBlock: ScalaBlock,
         new ChildAttributes(Indent.getNormalIndent, this.getAlignment) //by default suppose there will be simple expr
       case _: ScArgumentExprList =>
         new ChildAttributes(Indent.getNormalIndent, this.getAlignment)
-      case _ => new ChildAttributes(Indent.getNoneIndent, null)
+      case _ =>
+        new ChildAttributes(Indent.getNoneIndent, null)
     }
   }
 
@@ -158,11 +165,11 @@ class ScalaBlock(val myParentBlock: ScalaBlock,
     owner != null && (owner.isInstanceOf[ScPrimaryConstructor] || owner.isInstanceOf[ScFunction])
   }
 
-  def getSpacing(child1: Block, child2: Block): Spacing = {
+  override def getSpacing(child1: Block, child2: Block): Spacing = {
     ScalaSpacingProcessor.getSpacing(child1.asInstanceOf[ScalaBlock], child2.asInstanceOf[ScalaBlock])
   }
 
-  def getSubBlocks: util.List[Block] = {
+  override def getSubBlocks: util.List[Block] = {
     if (mySubBlocks == null) {
       mySubBlocks = getDummyBlocks(myNode, myLastNode, this)
         .asScala
@@ -179,7 +186,7 @@ class ScalaBlock(val myParentBlock: ScalaBlock,
     else false
   }
 
-  def isIncomplete(node: ASTNode): Boolean = {
+  private def isIncomplete(node: ASTNode): Boolean = {
     if (node.getPsi.isInstanceOf[PsiErrorElement])
       return true
     var lastChild = node.getLastChildNode
@@ -213,9 +220,12 @@ class ScalaBlock(val myParentBlock: ScalaBlock,
     .flatMap(_.childrenAdditionalContexts.get(childNode)).flatMap(_.alignment)
 }
 
-class SubBlocksContext(val additionalNodes: Seq[ASTNode] = Seq(), val alignment: Option[Alignment] = None,
+private[formatting]
+class SubBlocksContext(val additionalNodes: Seq[ASTNode] = Seq(),
+                       val alignment: Option[Alignment] = None,
                        val childrenAdditionalContexts: Map[ASTNode, SubBlocksContext] = Map()) {
-  def getLastNode(firstNode: ASTNode): ASTNode = getLastNode.filter(_ != firstNode).orNull
+  def getLastNode(firstNode: ASTNode): ASTNode =
+    getLastNode.filter(_ != firstNode).orNull
 
   private def getLastNode: Option[ASTNode] =
     childrenAdditionalContexts.map { case (_, context) => context.getLastNode }.filter(_.isDefined).map(_.get) ++
@@ -225,12 +235,13 @@ class SubBlocksContext(val additionalNodes: Seq[ASTNode] = Seq(), val alignment:
     }
 }
 
+private[formatting]
 object SubBlocksContext {
   def apply(childNodes: Seq[ASTNode], alignment: Option[Alignment]): SubBlocksContext =
     new SubBlocksContext(childNodes, alignment)
 
-  def apply(node: ASTNode, alignment: Alignment, childNodes: Seq[ASTNode]): SubBlocksContext =
-    new SubBlocksContext(Seq(), None, Map({
-      node -> SubBlocksContext(childNodes, Some(alignment))
-    }))
+  def apply(node: ASTNode, alignment: Alignment, childNodes: Seq[ASTNode]): SubBlocksContext = {
+    val children = Map(node -> new SubBlocksContext(childNodes, Some(alignment)))
+    new SubBlocksContext(Seq(), None, children)
+  }
 }
