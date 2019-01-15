@@ -1448,8 +1448,13 @@
 
         <!-- resource leak inspections -->
         <localInspection implementationClass="org.jetbrains.plugins.scala.codeInspection.resourceLeaks.SourceNotClosedInspection"
-                            displayName="Source not closed" groupPath="Scala" shortName="SourceNotClosed"
-                            level="WARNING" enabledByDefault="true" language="Scala" groupName="Resource leaks"/>
+                         bundle="org.jetbrains.plugins.scala.codeInspection.InspectionBundle"
+                         key="source.not.closed"
+                         groupPath="Scala"
+                         groupName="Resource leaks"
+                         shortName="SourceNotClosed"
+                         language="Scala" level="WARNING"
+                         enabledByDefault="true" />
         <!-- end of resource leak inspections -->
         
         <!-- Util ammonite inspection -->

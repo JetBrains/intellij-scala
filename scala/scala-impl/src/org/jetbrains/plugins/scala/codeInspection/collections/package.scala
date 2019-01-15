@@ -38,6 +38,7 @@ package object collections {
   def invocation(methodNames: Set[String]) = new Qualified(methodNames.contains)
 
   def unqualifed(methodName: String) = new Unqualified(methodName == _)
+  def unqualifed(methodName: Set[String]) = new Unqualified(methodName.contains)
 
   private[collections] val `.exists` = invocation("exists").from(likeCollectionClasses)
   private[collections] val `.forall` = invocation("forall").from(likeCollectionClasses)

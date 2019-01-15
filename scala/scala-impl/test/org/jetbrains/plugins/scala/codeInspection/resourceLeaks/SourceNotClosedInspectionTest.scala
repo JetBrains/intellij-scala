@@ -2,68 +2,215 @@ package org.jetbrains.plugins.scala.codeInspection.resourceLeaks
 
 import com.intellij.codeInspection.LocalInspectionTool
 import com.intellij.testFramework.EditorTestUtil
-import org.jetbrains.plugins.scala.ScalaBundle
-import org.jetbrains.plugins.scala.codeInspection.ScalaQuickFixTestBase
+import org.jetbrains.plugins.scala.codeInspection.{InspectionBundle, ScalaQuickFixTestBase}
 
 class SourceNotClosedInspectionTest extends ScalaQuickFixTestBase {
-
   import EditorTestUtil.{SELECTION_END_TAG => END, SELECTION_START_TAG => START}
 
   override protected val classOfInspection: Class[_ <: LocalInspectionTool] = classOf[SourceNotClosedInspection]
 
-  override protected val description: String = ScalaBundle.message("source.not.closed")
+  override protected val description: String = InspectionBundle.message("source.not.closed")
 
-  def testFullyQualifiedFromFileMkString(): Unit =
-    checkTextHasError(s"""${START}scala.io.Source.fromFile(new java.io.File("test")).mkString$END""")
-  def testFullyQualifiedFromURIMkString(): Unit =
-    checkTextHasError(s"""${START}scala.io.Source.fromURI(new java.net.URI("test")).mkString$END""")
-  def testFullyQualifiedFromURLMkString(): Unit =
-    checkTextHasError(s"""${START}scala.io.Source.fromURL(new java.net.URL("test")).mkString$END""")
-
-  def testFullyQualifiedFromFileMkStringSep(): Unit =
-    checkTextHasError(s"""${START}scala.io.Source.fromFile(new java.io.File("test")).mkString(",")$END""")
-  def testFullyQualifiedFromURIMkStringSep(): Unit =
-    checkTextHasError(s"""${START}scala.io.Source.fromURI(new java.net.URI("test")).mkString(",")$END""")
-  def testFullyQualifiedFromURLMkStringSep(): Unit =
-    checkTextHasError(s"""${START}scala.io.Source.fromURL(new java.net.URL("test")).mkString(",")$END""")
-
-  def testFullyQualifiedFromFileGetLines(): Unit =
-    checkTextHasError(s"""${START}scala.io.Source.fromFile(new java.io.File("test")).getLines()$END""")
-  def testFullyQualifiedFromURIGetLines(): Unit =
-    checkTextHasError(s"""${START}scala.io.Source.fromURI(new java.net.URI("test")).getLines()$END""")
-  def testFullyQualifiedFromURLGetLines(): Unit =
-    checkTextHasError(s"""${START}scala.io.Source.fromURL(new java.net.URL("test")).getLines()$END""")
-
-  def testSourceFromFileMkString(): Unit =
+  def checkHasError(text: String): Unit = {
     checkTextHasError(
-      s"""import scala.io.Source
+      s"""
+         |import scala.io.Source
          |import java.io.File
+         |import java.net.{URI, URL}
          |
-         |val file = new File("test")
-         |
-         |${START}Source.fromFile(file).mkString$END
-         |""".stripMargin)
+         |object TestMain {
+         |  def consume(something: Any): Any = ???
+         |  def test() {
+         |    $text
+         |  }
+         |}
+      """.stripMargin)
+  }
 
-  def testUnqualifiedFromFileMkString(): Unit =
-    checkTextHasError(
-      s"""import scala.io.Source.fromFile
-         |import java.io.File
-         |
-         |val file = new File("test")
-         |
-         |${START}fromFile(file).mkString$END
-         |""".stripMargin)
+  def testFromFileMkString(): Unit =
+    checkHasError(s"""${START}Source.fromFile(new File("test")).mkString$END""")
 
-  def testQualifiedRenamedFromFileMkString(): Unit =
-    checkTextHasError(
-      s"""import scala.io.{Source => S}
-         |${START}S.fromFile(new java.io.File("test")).mkString$END
-         |""".stripMargin)
+  def testFromURIMkString(): Unit =
+    checkHasError(s"""${START}Source.fromURI(new URI("test")).mkString$END""")
+
+  def testFromURLMkString(): Unit =
+    checkHasError(s"""${START}Source.fromURL(new URL("test")).mkString$END""")
+
+  def testFromFileMkStringSep(): Unit =
+    checkHasError(s"""${START}Source.fromFile(new File("test")).mkString(",")$END""")
+
+  def testFromURIMkStringSep(): Unit =
+    checkHasError(s"""${START}Source.fromURI(new URI("test")).mkString(",")$END""")
+
+  def testFromURLMkStringSep(): Unit =
+    checkHasError(s"""${START}Source.fromURL(new URL("test")).mkString(",")$END""")
+
+  def testFromFileGetLines(): Unit =
+    checkHasError(s"""${START}Source.fromFile(new File("test")).getLines()$END""")
+
+  def testFromURIGetLines(): Unit =
+    checkHasError(s"""${START}Source.fromURI(new URI("test")).getLines()$END""")
+
+  def testFromURLGetLines(): Unit =
+    checkHasError(s"""${START}Source.fromURL(new URL("test")).getLines()$END""")
+
+  def testSourceFromFileMkString(): Unit = checkHasError(
+    s"""
+       |val file = new File("test")
+       |
+       |${START}Source.fromFile(file).mkString$END
+       |
+     """.stripMargin
+  )
+
+  def testUnqualifiedFromFileMkString(): Unit = checkHasError(
+    s"""
+       |import Source.fromFile
+       |val file = new File("test")
+       |
+       |${START}fromFile(file).mkString$END
+       |
+       """.stripMargin
+  )
+
+  def testQualifiedRenamedFromFileMkString(): Unit = checkHasError(
+    s"""
+       |import scala.io.{Source => S}
+       |
+       |${START}S.fromFile(new java.io.File("test")).mkString$END
+       |
+     """.stripMargin
+  )
+
+  def testCompletelyUnusedFromFile(): Unit = checkHasError(
+    s"""
+       |${START}Source.fromFile(new File("test"))$END
+     """.stripMargin
+  )
+
+  def testAssignedSource(): Unit = checkTextHasNoErrors(
+    """
+      |val x = Source.fromFile(new File("test")))
+    """.stripMargin
+  )
+
+
+  def testConsumingExtensionMethod(): Unit = checkTextHasNoErrors(
+    """
+      |implicit class SourceExt(val source: Source) extends AnyVal {
+      |  def useIn[T](body: => T): T = ???
+      |}
+      |
+      |Source.fromFile(new File("test")).useIn { file =>
+      |  file.mkString
+      |}
+    """.stripMargin
+  )
+
+  def testInfixMkString(): Unit = checkHasError(
+    s"""
+      |${START}Source.fromFile(new File("test")) mkString ","$END
+    """.stripMargin
+  )
+
+  def testInfixFold(): Unit = checkHasError(
+    s"""
+       |($START"Begin: " /: Source.fromFile(new File("test"))$END) { _ + _ }
+     """.stripMargin
+  )
+
+  def testLength(): Unit = checkHasError(
+    s"""
+       |${START}Source.fromFile(new File("test"))$END
+     """.stripMargin
+  )
+
+  def testConsumed(): Unit = checkTextHasNoErrors(
+    s"""
+       |consume(Source.fromURL(new URL("test")))
+     """.stripMargin
+  )
+
+  def testInfixConsumed(): Unit = checkTextHasNoErrors(
+    s"""
+       |Source.fromURL(new URL("test")) :: Nil
+     """.stripMargin
+  )
+
+  def testImmedeatelyClosed(): Unit = checkTextHasNoErrors(
+    """
+      |Source.fromURL(new URL("test")).closed()
+    """.stripMargin
+  )
+
+  // tests by mattfowler
+  def testFromFileShouldShowErrors(): Unit = {
+    checkHasError(
+      s"""
+         |${START}Source.fromFile("filename").getLines()$END
+       """.stripMargin
+    )
+
+    checkHasError(
+      s"""
+         |${START}Source.fromFile("filename").mkString$END
+       """.stripMargin
+    )
+
+    checkHasError(
+      s"""
+         |${START}Source.fromFile("filename", "encoding").getLines()$END
+       """.stripMargin
+    )
+
+    checkHasError(
+      s"""
+         |${START}Source.fromFile("filename", "encoding").mkString$END
+       """.stripMargin
+    )
+
+    checkHasError(
+      s"""
+         |${START}Source.fromFile(new File("filename"), "encoding").getLines()$END
+       """.stripMargin
+    )
+    checkHasError(
+      s"""
+         |${START}Source.fromFile(new File("filename"), "encoding").mkString$END
+       """.stripMargin
+    )
+  }
+
+  def testFromURLShouldShowErrors(): Unit = {
+    checkHasError(
+      s"""
+         |${START}Source.fromURL(new URL("url"), "encoding").getLines()$END
+       """.stripMargin
+    )
+    checkHasError(
+      s"""
+         |${START}Source.fromURL(new URL("url"), "encoding").mkString$END
+       """.stripMargin
+    )
+  }
+
+  def testFromURIShouldShowErrors(): Unit = {
+    checkHasError(
+      s"""
+         |${START}Source.fromURI(new URI("uri")).getLines()$END
+       """.stripMargin
+    )
+    checkHasError(
+      s"""
+         |${START}Source.fromURI(new URI("uri")).mkString$END
+       """.stripMargin
+    )
+  }
 
   // TODO: this is currently pending because the InvocationTemplate tests do not check for renames
-  def pendingUnqualifiedRenamedFromFileMkString(): Unit =
-    checkTextHasError(
+  /*def testdRenamedFromFileMkString(): Unit =
+    checkHasError(
       s"""import scala.io.Source.{fromFile => gotcha}
          |${START}gotcha(new java.io.File("test")).mkString$END
-         |""".stripMargin)
+         |""".stripMargin)*/
 }
