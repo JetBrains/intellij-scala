@@ -50,9 +50,10 @@ import scala.collection.mutable.ArrayBuffer
 class ScalaFileImpl(viewProvider: FileViewProvider,
                     override val getFileType: LanguageFileType = ScalaFileType.INSTANCE)
   extends PsiFileBase(viewProvider, getFileType.getLanguage)
-                with ScalaFile with FileDeclarationsHolder
+    with ScalaFile
+    with FileDeclarationsHolder
     with ScControlFlowOwner
-                with FileResolveScopeProvider {
+    with FileResolveScopeProvider {
 
   private[this] var _compiled = false
   private[this] var _virtualFile: VirtualFile = _
@@ -65,10 +66,8 @@ class ScalaFileImpl(viewProvider: FileViewProvider,
   protected def findChildByClassScala[T >: Null <: ScalaPsiElement](clazz: Class[T]): T = findChildByClass[T](clazz)
 
   def sourceName: String = {
-    def decompile = {
-      val virtualFile = getVirtualFile
-      DecompilerUtil.decompile(virtualFile, virtualFile.contentsToByteArray)
-    }
+    def decompile =
+      DecompilerUtil.decompile(getVirtualFile)
 
     if (isCompiled) byStubOrPsi(_.sourceName)(decompile.sourceName)
     else ""

@@ -1,8 +1,6 @@
 package org.jetbrains.plugins.scala
 package decompiler
 
-import java.io.IOException
-
 import com.intellij.openapi.vfs.VirtualFile
 import com.intellij.psi.PsiManager
 import com.intellij.psi.compiled.ClassFileDecompilers
@@ -14,12 +12,8 @@ final class ScClassFileDecompiler extends ClassFileDecompilers.Full {
   import DecompilerUtil.isScalaFile
   import ScClassFileDecompiler._
 
-  override def accepts(file: VirtualFile): Boolean = try {
-    isScalaFile(file, file.contentsToByteArray) || canBeProcessed(file)
-  } catch {
-    case _: UnsupportedOperationException | // why do we need to handle this?
-         _: IOException => false
-  }
+  override def accepts(file: VirtualFile): Boolean =
+    isScalaFile(file) || canBeProcessed(file)
 
   override def getStubBuilder: ScClsStubBuilder.type = ScClsStubBuilder
 

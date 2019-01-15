@@ -15,9 +15,7 @@ class ScClassFileViewProvider(manager: PsiManager, file: VirtualFile, physical: 
 
   override def getContents: CharSequence =
     if (!isScalaFile) ""
-    else DecompilerUtil.decompile(getVirtualFile, getVirtualFile.contentsToByteArray)
-      .sourceText
-      .replace("\r", "")
+    else DecompilerUtil.decompile(getVirtualFile).sourceText
 
   override def createFile(project: Project, virtualFile: VirtualFile, fileType: FileType): PsiFile = {
     if (!isScalaFile) null

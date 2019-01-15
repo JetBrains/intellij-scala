@@ -31,9 +31,7 @@ object ScClsStubBuilder extends ClsStubBuilder {
 
   private def createScalaFile(file: VirtualFile, content: Array[Byte])
                              (implicit project: Project) = {
-    val sourceText = decompile(file, content)
-      .sourceText
-      .replace("\r", "")
+    val sourceText = decompile(file, content).sourceText
 
     val result = ScalaPsiElementFactory.createScalaFileFromText(sourceText)
       .asInstanceOf[ScalaFileImpl]
