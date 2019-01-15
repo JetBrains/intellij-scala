@@ -6,10 +6,9 @@ import com.intellij.debugger.engine.SyntheticTypeComponentProvider
 import com.intellij.util.containers.ContainerUtil
 import com.sun.jdi._
 import org.jetbrains.plugins.scala.debugger.evaluation.util.DebuggerUtil
-import org.jetbrains.plugins.scala.decompiler.DecompilerUtil
 
-import scala.util.Try
 import scala.collection.JavaConverters._
+import scala.util.Try
 
 /**
  * Nikolay.Tropin
@@ -114,6 +113,8 @@ object ScalaSyntheticProvider {
   }
 
   private def onlyInvokesStatic(m: Method): Boolean = {
+    import LocationLineManager._
+
     val bytecodes: Array[Byte] =
       try m.bytecodes()
       catch {case _: Throwable => return false}
@@ -121,12 +122,12 @@ object ScalaSyntheticProvider {
     var i = 0
     while (i < bytecodes.length) {
       val instr = bytecodes(i)
-      if (BytecodeUtil.twoBytesLoadCodes.contains(instr)) i += 2
-      else if (BytecodeUtil.oneByteLoadCodes.contains(instr)) i += 1
-      else if (instr == DecompilerUtil.Opcodes.invokeStatic) {
+      if (twoBytesLoadCodes.contains(instr)) i += 2
+      else if (oneByteLoadCodes.contains(instr)) i += 1
+      else if (instr == invokeStatic) {
         val nextIdx = i + 3
         val nextInstr = bytecodes(nextIdx)
-        return nextIdx == (bytecodes.length - 1) && BytecodeUtil.returnCodes.contains(nextInstr)
+        return nextIdx == (bytecodes.length - 1) && returnCodes.contains(nextInstr)
       }
       else return false
     }
