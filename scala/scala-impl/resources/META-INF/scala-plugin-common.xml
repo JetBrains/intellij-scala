@@ -1402,7 +1402,7 @@
         <localInspection implementationClass="org.jetbrains.plugins.scala.codeInspection.collections.SomeToOptionInspection"
                          displayName="Some to Option" groupPath="Scala,Collections" groupName="Options"
                          shortName="SomeToOption" level="WARNING"
-                         enabledByDefault="true" language="Scala"/>
+                         enabledByDefault="false" language="Scala"/>
 
         <!--other-->
         <localInspection implementationClass="org.jetbrains.plugins.scala.codeInspection.collections.SortFilterInspection"
