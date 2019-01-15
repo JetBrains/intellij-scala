@@ -25,7 +25,7 @@ import com.intellij.util.Processor
 import com.intellij.util.indexing.FileBasedIndex
 import org.jetbrains.annotations.Nullable
 import org.jetbrains.plugins.scala.JavaArrayFactoryUtil._
-import org.jetbrains.plugins.scala.decompiler.{CompiledFileAdjuster, DecompilerUtil}
+import org.jetbrains.plugins.scala.decompiler.DecompilerUtil
 import org.jetbrains.plugins.scala.extensions._
 import org.jetbrains.plugins.scala.lang.TokenSets._
 import org.jetbrains.plugins.scala.lang.lexer.ScalaTokenTypes
@@ -47,14 +47,15 @@ import org.jetbrains.plugins.scala.worksheet.ammonite.AmmoniteUtil
 import scala.collection.JavaConverters._
 import scala.collection.mutable.ArrayBuffer
 
-class ScalaFileImpl(viewProvider: FileViewProvider, fileType: LanguageFileType = ScalaFileType.INSTANCE)
-        extends PsiFileBase(viewProvider, fileType.getLanguage)
+class ScalaFileImpl(viewProvider: FileViewProvider,
+                    override val getFileType: LanguageFileType = ScalaFileType.INSTANCE)
+  extends PsiFileBase(viewProvider, getFileType.getLanguage)
                 with ScalaFile with FileDeclarationsHolder
-                with CompiledFileAdjuster with ScControlFlowOwner
+    with ScControlFlowOwner
                 with FileResolveScopeProvider {
-  override def getViewProvider: FileViewProvider = viewProvider
 
-  override def getFileType: LanguageFileType = fileType
+  private[this] var _compiled = false
+  private[this] var _virtualFile: VirtualFile = _
 
   override def toString: String = "ScalaFile:" + getName
 
@@ -62,8 +63,6 @@ class ScalaFileImpl(viewProvider: FileViewProvider, fileType: LanguageFileType =
     findChildrenByClass[T](clazz)
 
   protected def findChildByClassScala[T >: Null <: ScalaPsiElement](clazz: Class[T]): T = findChildByClass[T](clazz)
-
-  def isCompiled: Boolean = compiled
 
   def sourceName: String = {
     def decompile = {
@@ -75,14 +74,27 @@ class ScalaFileImpl(viewProvider: FileViewProvider, fileType: LanguageFileType =
     else ""
   }
 
-  override def getName: String = {
-    if (virtualFile != null) virtualFile.getName
-    else super.getName
+  override final def getName: String = virtualFile match {
+    case null => super.getName
+    case file => file.getName
   }
 
-  override def getVirtualFile: VirtualFile = {
-    if (virtualFile != null) virtualFile
-    else super.getVirtualFile
+  override final def getVirtualFile: VirtualFile = virtualFile match {
+    case null => super.getVirtualFile
+    case file => file
+  }
+
+  private[scala] final def virtualFile: VirtualFile = _virtualFile
+
+  private[scala] final def virtualFile_=(virtualFile: VirtualFile): Unit = {
+    _virtualFile = virtualFile
+  }
+
+  final def isCompiled: Boolean = _compiled
+
+  //noinspection AccessorLikeMethodIsUnit
+  private[scala] final def isCompiled_=(compiled: Boolean): Unit = {
+    _compiled = compiled
   }
 
   override def getNavigationElement: PsiElement = {

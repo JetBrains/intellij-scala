@@ -11,19 +11,20 @@ import org.jetbrains.plugins.scala.lang.psi.impl.ScalaFileImpl
  * @author ilyas
  */
 class ScClassFileViewProvider(manager: PsiManager, file: VirtualFile, physical: Boolean, isScalaFile: Boolean)
-  extends SingleRootFileViewProvider(manager, file, physical, ScalaFileType.INSTANCE.getLanguage) {
+  extends SingleRootFileViewProvider(manager, file, physical, ScalaLanguage.INSTANCE) {
 
   override def getContents: CharSequence =
     if (!isScalaFile) ""
-    else DecompilerUtil.decompile(getVirtualFile, getVirtualFile.contentsToByteArray).sourceText.replace("\r", "")
+    else DecompilerUtil.decompile(getVirtualFile, getVirtualFile.contentsToByteArray)
+      .sourceText
+      .replace("\r", "")
 
-  override def createFile(project: Project, vFile: VirtualFile, fileType: FileType): PsiFile = {
+  override def createFile(project: Project, virtualFile: VirtualFile, fileType: FileType): PsiFile = {
     if (!isScalaFile) null
     else {
       val file = new ScalaFileImpl(this)
-      val adj = file.asInstanceOf[CompiledFileAdjuster]
-      adj.setCompiled(c = true)
-      adj.setVirtualFile(vFile)
+      file.isCompiled = true
+      file.virtualFile = virtualFile
       file
     }
   }
