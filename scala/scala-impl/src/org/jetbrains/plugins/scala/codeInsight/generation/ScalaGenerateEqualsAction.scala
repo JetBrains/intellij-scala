@@ -174,6 +174,8 @@ class ScalaGenerateEqualsHandler extends ScalaCodeInsightActionHandler {
     }
   }
 
+  override def startInWriteAction: Boolean = false
+
   override def isValidFor(editor: Editor, file: PsiFile): Boolean =
     super.isValidFor(editor, file) &&
       classAtCaret(editor, file).exists(!_.isCase)
