@@ -19,7 +19,7 @@ import com.intellij.util.net.NetUtils
 import org.jetbrains.bsp.protocol.BspCommunication._
 import org.jetbrains.bsp.protocol.BspNotifications.BspNotification
 import org.jetbrains.bsp.protocol.BspServerConnector._
-import org.jetbrains.bsp.protocol.BspSession.{BspSessionTask, NotificationAggregator, NotificationCallback}
+import org.jetbrains.bsp.protocol.BspSession._
 import org.jetbrains.bsp.settings.{BspExecutionSettings, BspProjectSettings, BspSettings}
 import org.jetbrains.bsp.{BSP, BspError, BspErrorMessage}
 
@@ -46,30 +46,35 @@ class BspCommunication(base: File, project: Option[Project], executionSettings: 
 
   @volatile private var session: Option[BspSession] = None
 
-  private def acquireSession: Either[BspError, BspSession] = session.synchronized {
+  private def acquireSessionAndRun(job: BspSessionJob[_,_]): Either[BspError, BspSession] = session.synchronized {
     session match {
       case Some(currentSession) if currentSession.isAlive =>
         Right(currentSession)
 
-      case Some(deadSession) =>
-        openSession
+      case Some(_) => // dead session
+        openSession(job)
 
-      case None => openSession
+      case None =>
+        openSession(job)
     }
   }
 
-  private def openSession: Either[BspError, BspSession] = {
-    val sessionResult = prepareSession(base, executionSettings)
+  private def openSession(job: BspSessionJob[_,_]): Either[BspError, BspSession] = {
+    val sessionBuilder = prepareSession(base, executionSettings)
 
-    sessionResult match {
+    sessionBuilder match {
       case Left(error) =>
+        val procLogMsg = s"bsp connection failed: ${error.getMessage}"
+        job.log(procLogMsg)
         log.warn("bsp connection failed", error)
-      case Right(newSession) =>
-        newSession.addNotificationCallback(projectCallback)
+        Left(error)
+      case Right(newSessionBuilder) =>
+        newSessionBuilder.withInitialJob(job)
+        newSessionBuilder.addNotificationCallback(projectCallback)
+        val newSession = newSessionBuilder.create
         session = Some(newSession)
+        Right(newSession)
     }
-
-    sessionResult
   }
 
   private val bspSettings: Option[BspProjectSettings] =
@@ -99,17 +104,25 @@ class BspCommunication(base: File, project: Option[Project], executionSettings: 
       s.shutdown()
   }
 
-  def run[T, A](task: BspSessionTask[T], default: A, aggregator: NotificationAggregator[A]): BspJob[(T, A)] = {
-    acquireSession match {
+  def run[T, A](task: BspSessionTask[T],
+                default: A,
+                aggregator: NotificationAggregator[A],
+                processLogger: ProcessLogger
+               ): BspJob[(T, A)] = {
+    val job = BspSession.createJob(task, default, aggregator, processLogger)
+
+    acquireSessionAndRun(job) match {
       case Left(error) => new FailedBspJob(error)
       case Right(currentSession) =>
-        currentSession.run(task, default, aggregator)
+        currentSession.run(job)
     }
   }
 
-  def run[T](bspSessionTask: BspSessionTask[T], notifications: NotificationCallback): BspJob[T] = {
+  def run[T](bspSessionTask: BspSessionTask[T],
+             notifications: NotificationCallback,
+             processLogger: ProcessLogger): BspJob[T] = {
     val callback = (a: Unit, n: BspNotification) => notifications(n)
-    val job = run(bspSessionTask, (), callback)
+    val job = run(bspSessionTask, (), callback, processLogger)
     new NonAggregatingBspJob(job)
   }
 
@@ -133,7 +146,7 @@ object BspCommunication {
   }
 
 
-  private[protocol] def prepareSession(base: File, bspExecutionSettings: BspExecutionSettings): Either[BspError, BspSession] = {
+  private[protocol] def prepareSession(base: File, bspExecutionSettings: BspExecutionSettings): Either[BspError, BspSessionBuilder] = {
 
     val supportedLanguages = List("scala","java") // TODO somehow figure this out more generically?
     val capabilities = BspCapabilities(supportedLanguages)
