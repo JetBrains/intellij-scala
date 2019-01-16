@@ -161,7 +161,6 @@ class BspTask[T](project: Project, executionSettings: BspExecutionSettings,
       val position = Some(new FilePosition(file, start.getLine - 1, start.getCharacter, end.getLine - 1, end.getCharacter))
       val text = s"${diagnostic.getMessage} [${start.getLine}:${start.getCharacter}]"
 
-      report.log(text)
       buildMessages = buildMessages.appendMessage(text)
 
       import bsp4j.DiagnosticSeverity._
