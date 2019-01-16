@@ -17,7 +17,7 @@ import com.intellij.openapi.util.io.FileUtil
 import org.jetbrains.bsp.BspUtil._
 import org.jetbrains.bsp.data.{BspMetadata, ScalaSdkData}
 import org.jetbrains.bsp.project.BspProjectResolver._
-import org.jetbrains.bsp.protocol.BspSession.{BspServer, NotificationCallback}
+import org.jetbrains.bsp.protocol.BspSession.{BspServer, NotificationCallback, ProcessLogger}
 import org.jetbrains.bsp.protocol.{BspCommunication, BspJob, BspNotifications}
 import org.jetbrains.bsp.settings.BspExecutionSettings
 import org.jetbrains.bsp.{BSP, BspError, BspTaskCancelled}
@@ -224,8 +224,6 @@ class BspProjectResolver extends ExternalSystemProjectResolver[BspExecutionSetti
       projectNode
     }
 
-    val logger = Logger.getInstance(classOf[BspProjectResolver])
-
     val communication = BspCommunication.forBaseDir(projectRootPath, executionSettings)
 
     val notifications: NotificationCallback = {
@@ -235,8 +233,12 @@ class BspProjectResolver extends ExternalSystemProjectResolver[BspExecutionSetti
       case _ =>
     }
 
+    val processLogger: ProcessLogger = { msg =>
+      listener.onTaskOutput(id, msg, true)
+    }
+
     val projectJob =
-      communication.run(requests(_), notifications)
+      communication.run(requests(_), notifications, processLogger)
 
     statusUpdate("starting task") // TODO remove in favor of build toolwindow nodes
 

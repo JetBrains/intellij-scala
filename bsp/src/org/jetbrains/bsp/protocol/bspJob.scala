@@ -19,5 +19,3 @@ class FailedBspJob[T](error: BspError) extends BspJob[T] {
   override def future: Future[T] = Future.failed(error)
   override def cancel(): Unit = ()
 }
-
-

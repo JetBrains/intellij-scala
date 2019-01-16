@@ -16,7 +16,7 @@ import com.intellij.task.{ProjectTaskNotification, _}
 import org.eclipse.lsp4j.jsonrpc.ResponseErrorException
 import org.jetbrains.bsp.BspUtil._
 import org.jetbrains.bsp.project.BspTask.TextCollector
-import org.jetbrains.bsp.protocol.BspSession.{BspServer, NotificationCallback}
+import org.jetbrains.bsp.protocol.BspSession.{BspServer, NotificationCallback, ProcessLogger}
 import org.jetbrains.bsp.protocol.{BspCommunication, BspJob, BspNotifications}
 import org.jetbrains.bsp.settings.BspExecutionSettings
 import org.jetbrains.plugins.scala.build.BuildMessages.EventId
@@ -55,6 +55,10 @@ class BspTask[T](project: Project, executionSettings: BspExecutionSettings,
       // ignore
   }
 
+  private val processLog: ProcessLogger = { message =>
+    report.log(message)
+  }
+
   override def run(indicator: ProgressIndicator): Unit = {
     val reportIndicator = new IndicatorReporter(indicator)
 
@@ -63,7 +67,7 @@ class BspTask[T](project: Project, executionSettings: BspExecutionSettings,
     reportIndicator.start()
     report.start()
 
-    val buildJob = communication.run(compileRequest(_), notifications)
+    val buildJob = communication.run(compileRequest(_), notifications, processLog)
     val projectTaskResult = try {
       val result = waitForJobCancelable(buildJob, indicator)
 

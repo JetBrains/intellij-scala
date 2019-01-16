@@ -2,11 +2,10 @@ package org.jetbrains.bsp
 
 import java.util.concurrent.{ScheduledFuture, TimeUnit}
 
-import com.intellij.ide.highlighter.JavaFileType
 import com.intellij.openapi.application.{ApplicationManager, ModalityState}
 import com.intellij.openapi.components.ProjectComponent
 import com.intellij.openapi.externalSystem.service.project.autoimport.FileChangeListenerBase
-import com.intellij.openapi.fileTypes.FileType
+import com.intellij.openapi.fileTypes.FileTypeManager
 import com.intellij.openapi.module.Module
 import com.intellij.openapi.project.Project
 import com.intellij.openapi.roots.ProjectRootManager
@@ -16,7 +15,6 @@ import com.intellij.task.{ProjectTaskManager, ProjectTaskNotification, ProjectTa
 import com.intellij.util.concurrency.AppExecutorUtil
 import com.intellij.util.messages.MessageBusConnection
 import org.jetbrains.bsp.settings.{BspProjectSettings, BspSettings}
-import org.jetbrains.plugins.scala.ScalaFileType
 
 /**
   * Builds bsp modules on file save. We should change this to support the bsp file change notifications
@@ -78,12 +76,13 @@ final class BspBuildLoop(project: Project) extends ProjectComponent {
     override def deleteFile(file: VirtualFile, event: VFileEvent): Unit =
       fileChanged(file, event)
 
-    private def fileChanged(file: VirtualFile, event: VFileEvent) =
-    if (isSupported(file.getFileType)) {
-      changesSinceCompile = true
-      lastChangeTimestamp = System.nanoTime()
-      val module = fileIndex.getModuleForFile(file)
-      modulesToCompile.add(module)
+    private def fileChanged(file: VirtualFile, event: VFileEvent) = {
+      if (isSupported(file)) {
+        changesSinceCompile = true
+        lastChangeTimestamp = System.nanoTime()
+        val module = fileIndex.getModuleForFile(file)
+        modulesToCompile.add(module)
+      }
     }
 
     private def runCompile(): Unit = {
@@ -107,9 +106,9 @@ final class BspBuildLoop(project: Project) extends ProjectComponent {
     }
 
     // TODO should allow all bsp-compiled types, depending on build server compatibility
-    private def isSupported(fileType: FileType) = fileType match {
-      case _ : ScalaFileType => true
-      case _ : JavaFileType => true
+    private def isSupported(file: VirtualFile) = file.getExtension match {
+      case "scala" => true
+      case "java" => true
       case _ => false
     }
   }
