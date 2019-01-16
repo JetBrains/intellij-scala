@@ -24,6 +24,14 @@ class FilterSetContainsTest extends OperationsOnCollectionInspectionTest {
     )
   }
 
+  def testSetValContains(): Unit = {
+    doTest(
+      s"val s = Set(1, 3); Seq(1, 2, 3).filter(s.${START}contains$END)",
+      "val s = Set(1, 3); Seq(1, 2, 3).filter(s.contains)",
+      "val s = Set(1, 3); Seq(1, 2, 3).filter(s)"
+    )
+  }
+
   def testNotSetContains(): Unit = {
     checkTextHasNoErrors("Seq(1, 2, 3).filter(List(1, 3).contains)")
   }
