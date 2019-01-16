@@ -5,6 +5,7 @@ import java.net.URI
 
 import ch.epfl.scala.bsp4j.{BspConnectionDetails, BuildClientCapabilities, InitializeBuildParams}
 import org.jetbrains.bsp.protocol.BspServerConnector.{BspCapabilities, BspConnectionMethod, ProcessBsp}
+import org.jetbrains.bsp.protocol.BspSession.BspSessionBuilder
 import org.jetbrains.bsp.{BspError, BspErrorMessage}
 import org.jetbrains.plugins.scala.components.ScalaPluginVersionVerifier
 
@@ -27,27 +28,27 @@ abstract class BspServerConnectorSync(val rootUri: URI, val capabilities: BspCap
     * @param methods methods supported by the bsp server, in order of preference
     * @return None if no compatible method is found. TODO should be an error response
     */
-  def connect(methods: BspConnectionMethod*): Either[BspError, BspSession]
+  def connect(methods: BspConnectionMethod*): Either[BspError, BspSessionBuilder]
 }
 
 class DummyConnector(rootUri: URI) extends BspServerConnectorSync(rootUri, BspCapabilities(Nil)) {
-  override def connect(methods: BspConnectionMethod*): Either[BspError, BspSession] =
+  override def connect(methods: BspConnectionMethod*): Either[BspError, BspSessionBuilder] =
     Left(BspErrorMessage(s"No way found to connect to a BSP server for workspace $rootUri"))
 }
 
 /** TODO Connects to a bsp server based on information in a bsp configuration directory. */
 class GenericConnectorSync(base: File, capabilities: BspCapabilities) extends BspServerConnectorSync(base.getCanonicalFile.toURI, capabilities) {
 
-  override def connect(methods: BspConnectionMethod*): Either[BspError, BspSession] = {
+  override def connect(methods: BspConnectionMethod*): Either[BspError, BspSessionBuilder] = {
     methods.collectFirst {
       case ProcessBsp(details: BspConnectionDetails) =>
         // TODO check bsp version compatibility
         // TODO check languages compatibility
-        Right(spawnBspSession(details))
+        Right(prepareBspSession(details))
     }.getOrElse(Left(BspErrorMessage("no supported connection method for this server")))
   }
 
-  private def spawnBspSession(details: BspConnectionDetails): BspSession = {
+  private def prepareBspSession(details: BspConnectionDetails): BspSessionBuilder = {
     details.getArgv
 
     val process =
@@ -63,6 +64,6 @@ class GenericConnectorSync(base: File, capabilities: BspCapabilities) extends Bs
     val pluginVersion = ScalaPluginVersionVerifier.getPluginVersion.map(_.presentation).getOrElse("N/A")
     val initializeBuildParams = new InitializeBuildParams("IntelliJ-BSP", pluginVersion, "2.0", rootUri.toString, buildClientCapabilities)
 
-    new BspSession(process.getInputStream, process.getOutputStream, initializeBuildParams, cleanup)
+    BspSession.builder(process.getInputStream, process.getErrorStream, process.getOutputStream, initializeBuildParams, cleanup)
   }
 }
