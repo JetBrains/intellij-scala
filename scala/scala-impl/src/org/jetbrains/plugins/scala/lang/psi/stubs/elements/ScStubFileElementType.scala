@@ -9,7 +9,6 @@ import com.intellij.openapi.vfs.{StandardFileSystems, VirtualFile}
 import com.intellij.psi.stubs.{IndexSink, StubElement, StubInputStream, StubOutputStream}
 import com.intellij.psi.tree.IStubFileElementType
 import com.intellij.psi.{PsiElement, StubBuilder}
-import org.jetbrains.plugins.scala.decompiler.DecompilerUtil
 import org.jetbrains.plugins.scala.lang.psi.stubs.impl.AbstractFileStub
 
 /**
@@ -18,7 +17,7 @@ import org.jetbrains.plugins.scala.lang.psi.stubs.impl.AbstractFileStub
 class ScStubFileElementType(language: Language = ScalaLanguage.INSTANCE)
   extends IStubFileElementType[ScFileStub]("file", language) {
 
-  override final def getStubVersion: Int = super.getStubVersion + DecompilerUtil.DECOMPILER_VERSION
+  override final def getStubVersion: Int = super.getStubVersion + decompiler.DECOMPILER_VERSION
 
   override def getBuilder: StubBuilder = new ScalaFileStubBuilder
 

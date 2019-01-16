@@ -1,7 +1,6 @@
 package org.jetbrains.plugins.scala
-package decompiler
 
-import java.io._
+import java.io.{DataInputStream, DataOutputStream, IOException}
 
 import com.intellij.openapi.diagnostic.Logger
 import com.intellij.openapi.util.Key
@@ -9,12 +8,9 @@ import com.intellij.openapi.vfs.newvfs.FileAttribute
 import com.intellij.openapi.vfs.{VirtualFile, VirtualFileWithId}
 import com.intellij.reference.SoftReference
 
-/**
-  * @author ilyas
-  */
-object DecompilerUtil {
+package object decompiler {
 
-  protected val LOG: Logger = Logger.getInstance("#org.jetbrains.plugins.scala.decompiler.DecompilerUtil")
+  private val LOG: Logger = Logger.getInstance("#org.jetbrains.plugins.scala.decompiler.DecompilerUtil")
 
   val DECOMPILER_VERSION = 306
   private val SCALA_DECOMPILER_FILE_ATTRIBUTE = new FileAttribute("_is_scala_compiled_new_key_", DECOMPILER_VERSION, true)
@@ -24,8 +20,8 @@ object DecompilerUtil {
     if (ScalaLoader.isUnderUpsource) None
     else Some(SCALA_DECOMPILER_FILE_ATTRIBUTE)
 
-  class DecompilationResult(val isScala: Boolean, val sourceName: String)
-                           (implicit val timeStamp: Long) {
+  private[decompiler] class DecompilationResult(val isScala: Boolean, val sourceName: String)
+                                               (implicit val timeStamp: Long) {
     def sourceText: String = rawSourceText.replace("\r", "")
 
     def rawSourceText: String = ""
@@ -41,7 +37,7 @@ object DecompilerUtil {
 
   }
 
-  object DecompilationResult {
+  private[decompiler] object DecompilationResult {
 
     private[this] val Key = new Key[SoftReference[DecompilationResult]]("Is Scala File Key")
 
@@ -55,31 +51,36 @@ object DecompilerUtil {
       virtualFile.putUserData(Key, new SoftReference(result))
     }
 
-    def readFrom(inputStream: DataInputStream): Option[DecompilationResult] = try {
-      val isScala = inputStream.readBoolean()
-      val sourceName = inputStream.readUTF()
-      val timeStamp = inputStream.readLong()
+    def readFrom(inputStream: DataInputStream): Option[DecompilationResult] = inputStream match {
+      case null => None
+      case _ =>
+        try {
+          val isScala = inputStream.readBoolean()
+          val sourceName = inputStream.readUTF()
+          val timeStamp = inputStream.readLong()
 
-      Some(new DecompilationResult(isScala, sourceName)(timeStamp))
-    } catch {
-      case _: IOException => None
+          Some(new DecompilationResult(isScala, sourceName)(timeStamp))
+        } catch {
+          case _: IOException => None
+        }
     }
 
     def empty(implicit timeStamp: Long = 0L): DecompilationResult =
       new DecompilationResult(isScala = false, sourceName = "")
   }
 
-  def isScalaFile(file: VirtualFile): Boolean =
+  def sourceName(file: VirtualFile): String =
+    decompile(file)().sourceName
+
+  private[decompiler] def isScalaFile(file: VirtualFile): Boolean =
     try {
-      decompile(file).isScala
+      decompile(file)().isScala
     } catch {
       case _: IOException => false
     }
 
-  def decompile(file: VirtualFile): DecompilationResult =
-    decompile(file, file.contentsToByteArray)
-
-  def decompile(file: VirtualFile, bytes: => Array[Byte]): DecompilationResult = file match {
+  private[decompiler] def decompile(file: VirtualFile)
+                                   (bytes: => Array[Byte] = file.contentsToByteArray): DecompilationResult = file match {
     case _: VirtualFileWithId =>
       implicit val timeStamp: Long = file.getTimeStamp
       var cached = DecompilationResult(file)
@@ -121,7 +122,7 @@ object DecompilerUtil {
     case _ => DecompilationResult.empty()
   }
 
-  private def decompileInner(fileName: String, bytes: Array[Byte]) =
+  private[this] def decompileInner(fileName: String, bytes: Array[Byte]) =
     try {
       Decompiler.decompile(fileName, bytes)
     } catch {

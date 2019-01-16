@@ -25,7 +25,6 @@ import com.intellij.util.Processor
 import com.intellij.util.indexing.FileBasedIndex
 import org.jetbrains.annotations.Nullable
 import org.jetbrains.plugins.scala.JavaArrayFactoryUtil._
-import org.jetbrains.plugins.scala.decompiler.DecompilerUtil
 import org.jetbrains.plugins.scala.extensions._
 import org.jetbrains.plugins.scala.lang.TokenSets._
 import org.jetbrains.plugins.scala.lang.lexer.ScalaTokenTypes
@@ -65,13 +64,9 @@ class ScalaFileImpl(viewProvider: FileViewProvider,
 
   protected def findChildByClassScala[T >: Null <: ScalaPsiElement](clazz: Class[T]): T = findChildByClass[T](clazz)
 
-  def sourceName: String = {
-    def decompile =
-      DecompilerUtil.decompile(getVirtualFile)
-
-    if (isCompiled) byStubOrPsi(_.sourceName)(decompile.sourceName)
+  def sourceName: String =
+    if (isCompiled) byStubOrPsi(_.sourceName)(decompiler.sourceName(getVirtualFile))
     else ""
-  }
 
   override final def getName: String = virtualFile match {
     case null => super.getName

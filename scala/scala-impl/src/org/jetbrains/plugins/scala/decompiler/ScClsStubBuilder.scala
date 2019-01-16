@@ -13,8 +13,6 @@ import org.jetbrains.plugins.scala.lang.psi.impl.{ScalaFileImpl, ScalaPsiElement
 
 object ScClsStubBuilder extends ClsStubBuilder {
 
-  import DecompilerUtil._
-
   override def getStubVersion: Int = DECOMPILER_VERSION
 
   override def buildFileStub(content: FileContent): PsiFileStub[ScalaFile] =
@@ -31,7 +29,7 @@ object ScClsStubBuilder extends ClsStubBuilder {
 
   private def createScalaFile(file: VirtualFile, content: Array[Byte])
                              (implicit project: Project) = {
-    val sourceText = decompile(file, content).sourceText
+    val sourceText = decompile(file)(content).sourceText
 
     val result = ScalaPsiElementFactory.createScalaFileFromText(sourceText)
       .asInstanceOf[ScalaFileImpl]

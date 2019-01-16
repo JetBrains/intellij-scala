@@ -14,7 +14,6 @@ import scala.annotation.tailrec
 
 final class ScClassFileDecompiler extends ClassFileDecompilers.Full {
 
-  import DecompilerUtil._
   import ScClassFileDecompiler._
 
   override def accepts(file: VirtualFile): Boolean =
@@ -24,7 +23,7 @@ final class ScClassFileDecompiler extends ClassFileDecompilers.Full {
 
   override def createFileViewProvider(file: VirtualFile, manager: PsiManager, physical: Boolean): ScSingleRootFileViewProvider = {
     val maybeContents = try {
-      val decompilationResult = decompile(file)
+      val decompilationResult = decompile(file)()
       if (decompilationResult.isScala) Some(decompilationResult.sourceText)
       else None
     } catch {
@@ -61,7 +60,7 @@ object ScClassFileDecompiler {
       }
 
       override def getContents: CharSequence = contents match {
-        case null => DecompilerUtil.decompile(getVirtualFile).sourceText
+        case null => decompile(getVirtualFile)().sourceText
         case _ => contents
       }
 
@@ -90,7 +89,7 @@ object ScClassFileDecompiler {
     def go(prefix: String, suffix: String): Boolean = {
       if (!prefix.endsWith("$")) {
         val maybeChild = maybeParent.map(_.findChild(prefix + ".class"))
-        if (maybeChild.exists(DecompilerUtil.isScalaFile)) return true
+        if (maybeChild.exists(isScalaFile)) return true
       }
 
       split(suffix) match {
