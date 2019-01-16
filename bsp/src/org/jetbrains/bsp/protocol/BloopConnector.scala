@@ -1,11 +1,12 @@
 package org.jetbrains.bsp.protocol
 
-import java.io.File
+import java.io.{ByteArrayInputStream, File}
 import java.net.{Socket, URI}
 
 import ch.epfl.scala.bsp4j._
 import com.intellij.openapi.diagnostic.Logger
 import org.jetbrains.bsp.protocol.BspServerConnector.{BspCapabilities, BspConnectionMethod, TcpBsp, UnixLocalBsp}
+import org.jetbrains.bsp.protocol.BspSession.BspSessionBuilder
 import org.jetbrains.bsp.{BspError, BspErrorMessage, BspException}
 import org.jetbrains.plugins.scala.components.ScalaPluginVersionVerifier
 import org.scalasbt.ipcsocket.UnixDomainSocket
@@ -20,7 +21,7 @@ class BloopConnector(bloopExecutable: File, base: File, capabilities: BspCapabil
   private val logger: Logger = Logger.getInstance(classOf[BloopConnector])
   private val verbose = false
 
-  override def connect(methods: BspConnectionMethod*): Either[BspError, BspSession] = {
+  override def connect(methods: BspConnectionMethod*): Either[BspError, BspSessionBuilder] = {
 
     val socketAndCleanupOpt: Option[Either[BspError, (Socket, ()=>Unit)]] = methods.collectFirst {
       case UnixLocalBsp(socketFile) =>
@@ -55,7 +56,8 @@ class BloopConnector(bloopExecutable: File, base: File, capabilities: BspCapabil
       val buildClientCapabilities = new BuildClientCapabilities(capabilities.languageIds.asJava)
       val pluginVersion = ScalaPluginVersionVerifier.getPluginVersion.map(_.presentation).getOrElse("N/A")
       val initializeBuildParams = new InitializeBuildParams("IntelliJ-BSP", pluginVersion, "2.0", rootUri.toString, buildClientCapabilities)
-      new BspSession(socket.getInputStream, socket.getOutputStream, initializeBuildParams, cleanup)
+      val dummyInputStream = new ByteArrayInputStream(Array.emptyByteArray)
+      BspSession.builder(socket.getInputStream, dummyInputStream, socket.getOutputStream, initializeBuildParams, cleanup)
     }
   }
 

@@ -2,11 +2,10 @@ package org.jetbrains.bsp
 
 import java.util.concurrent.{ScheduledFuture, TimeUnit}
 
-import com.intellij.ide.highlighter.JavaFileType
 import com.intellij.openapi.application.{ApplicationManager, ModalityState}
 import com.intellij.openapi.components.ProjectComponent
 import com.intellij.openapi.externalSystem.service.project.autoimport.FileChangeListenerBase
-import com.intellij.openapi.fileTypes.{FileType, FileTypeManager}
+import com.intellij.openapi.fileTypes.FileTypeManager
 import com.intellij.openapi.module.Module
 import com.intellij.openapi.project.Project
 import com.intellij.openapi.roots.ProjectRootManager
@@ -16,7 +15,6 @@ import com.intellij.task.{ProjectTaskManager, ProjectTaskNotification, ProjectTa
 import com.intellij.util.concurrency.AppExecutorUtil
 import com.intellij.util.messages.MessageBusConnection
 import org.jetbrains.bsp.settings.{BspProjectSettings, BspSettings}
-import org.jetbrains.plugins.scala.ScalaFileType
 
 /**
   * Builds bsp modules on file save. We should change this to support the bsp file change notifications

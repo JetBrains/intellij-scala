@@ -1,7 +1,7 @@
 package org.jetbrains.bsp.protocol
 
 import java.io.{InputStream, OutputStream}
-import java.util.concurrent.{CompletableFuture, LinkedBlockingQueue, TimeUnit, TimeoutException}
+import java.util.concurrent.{Callable, CompletableFuture, LinkedBlockingQueue, TimeUnit}
 
 import ch.epfl.scala.bsp4j
 import com.intellij.notification.NotificationType
@@ -15,21 +15,24 @@ import org.jetbrains.bsp.protocol.BspSession._
 import scala.collection.mutable.ListBuffer
 import scala.concurrent._
 import scala.concurrent.duration._
-import scala.util.{Failure, Success, Try}
+import scala.io.Source
 import scala.util.control.NonFatal
+import scala.util.{Failure, Success, Try}
 
-class BspSession(bspIn: InputStream,
-                 bspOut: OutputStream,
-                 initializeBuildParams: bsp4j.InitializeBuildParams,
-                 cleanup: ()=>Unit
-                ) {
+class BspSession private(bspIn: InputStream,
+                         bspErr: InputStream,
+                         bspOut: OutputStream,
+                         initializeBuildParams: bsp4j.InitializeBuildParams,
+                         cleanup: ()=>Unit,
+                         notificationCallbacks: List[NotificationCallback],
+                         initialJob: BspSessionJob[_,_]
+                        ) {
 
   private val logger = Logger.getInstance(classOf[BspCommunication])
 
   private val jobs = new LinkedBlockingQueue[BspSessionJob[_,_]]
 
-  private var currentJob: BspSessionJob[_,_] = DummyJob
-  private var notificationCallbacks: List[NotificationCallback] = Nil
+  private var currentJob: BspSessionJob[_,_] = initialJob
 
   private val serverConnection: ServerConnection = startServerConnection
   private val sessionInitialized = initializeSession
@@ -37,7 +40,7 @@ class BspSession(bspIn: InputStream,
 
   private val queuePause = 10.millis
   private val queueTimeout = 1.second
-  private val sessionTimeout = 5.seconds
+  private val sessionTimeout = 20.seconds
 
   private val queueProcessor = AppExecutorUtil.getAppScheduledExecutorService
       .scheduleWithFixedDelay(() => nextQueuedCommand, queuePause.toMillis, queuePause.toMillis, TimeUnit.MILLISECONDS)
@@ -54,13 +57,14 @@ class BspSession(bspIn: InputStream,
         logger.warn(error)
         shutdown(Some(error))
       case NonFatal(error) =>
-        val msg = "problem connecting to bsp server"
+        val msg = s"problem connecting to bsp server: ${error.getMessage}. See IDE log for details."
         val bspError = BspException(msg, error)
         logger.warn(bspError)
         shutdown(Some(bspError))
     }
 
     try {
+      currentJob.run(serverConnection.server) // in case not yet running
       val currentIgnoringErrors = currentJob.future.recover {
         case NonFatal(_) => ()
       }(ExecutionContext.global)
@@ -95,12 +99,16 @@ class BspSession(bspIn: InputStream,
     val bspServer = launcher.getRemoteProxy
     localClient.onConnectWithServer(bspServer)
 
+    val messageHandler = new BspProcessMessageHandler(bspErr)
+    val messageHandlerRunning = AppExecutorUtil.getAppExecutorService.submit(messageHandler)
+
     val cancelable = Cancelable { () =>
       Cancelable.cancelAll(
         List(
           Cancelable(() => bspIn.close()),
           Cancelable(() => bspOut.close()),
           Cancelable(() => listening.cancel(true)),
+          Cancelable(() => messageHandlerRunning.cancel(true)),
           Cancelable(() => cleanup())
         )
       )
@@ -113,7 +121,7 @@ class BspSession(bspIn: InputStream,
     val bspServer = serverConnection.server
     bspServer.buildInitialize(initializeBuildParams)
       .thenApply[bsp4j.InitializeBuildResult] { result =>
-      bspServer.onBuildInitialized()
+        bspServer.onBuildInitialized()
         result
       }
       .exceptionally {
@@ -127,24 +135,20 @@ class BspSession(bspIn: InputStream,
     case to: TimeoutException => throw BspConnectionError("bsp server is not responding", to)
   }
 
-  def addNotificationCallback(notificationCallback: NotificationCallback): Unit = {
-    notificationCallbacks ::= notificationCallback
-  }
-
   /** Run a task with client in this session.
     * Notifications during run of this task are passed to the aggregator. This can also be used for plain callbacks.
     */
-  def run[T, A](task: BspSessionTask[T], default: A, aggregator: NotificationAggregator[A]): BspJob[(T,A)] = {
-    val job = if (isAlive) {
-      new Bsp4jJob(task, default, aggregator)
+  private[protocol] def run[T, A](job: BspSessionJob[T,A]): BspJob[(T,A)] = {
+    val resultJob = if (isAlive) {
+      job
     } else {
       new FailedBspSessionJob[T, A](BspException("BSP session is not available", deathReason.orNull))
     }
-    jobs.put(job)
-    job
+    jobs.put(resultJob)
+    resultJob
   }
 
-  def isAlive: Boolean = {
+  private[protocol] def isAlive: Boolean = {
     ! sessionShutdown.isCompleted &&
       ! queueProcessor.isDone
   }
@@ -238,11 +242,21 @@ class BspSession(bspIn: InputStream,
     }
 
   }
+
+  private class BspProcessMessageHandler(input: InputStream) extends Callable[Unit] {
+
+    override def call(): Unit = {
+      val lines = Source.fromInputStream(input).getLines()
+      lines.foreach { message =>
+        currentJob.log(message + '\n')
+      }
+    }
+  }
 }
 
 object BspSession {
 
-
+  type ProcessLogger = String => Unit
   type NotificationAggregator[A] = (A, BspNotification) => A
   type NotificationCallback = BspNotification => Unit
   type BspSessionTask[T] = BspServer => CompletableFuture[T]
@@ -250,13 +264,77 @@ object BspSession {
   trait BspServer extends bsp4j.BuildServer with bsp4j.ScalaBuildServer
   trait BspClient extends bsp4j.BuildClient
 
-  private abstract class BspSessionJob[T,A] extends BspJob[(T,A)] {
+  private[protocol] def createJob[T,A](
+    task: BspSessionTask[T],
+    default: A,
+    aggregator: NotificationAggregator[A],
+    processLogger: ProcessLogger): BspSessionJob[T,A] = {
+
+    new Bsp4jJob(task, default, aggregator, processLogger)
+  }
+
+  private[protocol] def builder(
+    bspIn: InputStream,
+    bspErr: InputStream,
+    bspOut: OutputStream,
+    initializeBuildParams: bsp4j.InitializeBuildParams,
+    cleanup: ()=>Unit): BspSessionBuilder = {
+
+    new BspSessionBuilder(bspIn, bspErr, bspOut, initializeBuildParams, cleanup)
+  }
+
+  class BspSessionBuilder private[BspSession](
+     bspIn: InputStream,
+     bspErr: InputStream,
+     bspOut: OutputStream,
+     initializeBuildParams: bsp4j.InitializeBuildParams,
+     cleanup: ()=>Unit) {
+
+    private var notificationCallbacks: List[NotificationCallback] = Nil
+    private var initialJob: BspSessionJob[_,_] = DummyJob
+
+    def addNotificationCallback(callback: NotificationCallback): BspSessionBuilder = {
+      notificationCallbacks ::= callback
+      this
+    }
+
+    def withInitialJob(job: BspSessionJob[_,_]): BspSessionBuilder = {
+      initialJob = job
+      this
+    }
+
+    def create = new BspSession(
+      bspIn,
+      bspErr,
+      bspOut,
+      initializeBuildParams,
+      cleanup,
+      notificationCallbacks,
+      initialJob
+    )
+  }
+
+  private[protocol] abstract class BspSessionJob[T,A] extends BspJob[(T,A)] {
+
+    /** Log message to job--specific logging function. */
+    private[protocol] def log(message: String): Unit
+
+    /** Invoke absp notification aggregator or callback with given notification.
+      * The result of aggregated notifications is the result value of the future returned by `run`.
+      */
     private[BspSession] def notification(bspNotification: BspNotification): Unit
+
+    /** Starts the job with given bspServer instance.
+      * Idempotent: returns the same CompletableFuture if invoked more than once.
+      */
     private[BspSession] def run(bspServer: BspServer): CompletableFuture[(T, A)]
+
+    /** Cancel and abort this job with given error. */
     private[BspSession] def cancelWithError(error: BspError)
   }
 
   private class FailedBspSessionJob[T,A](problem: BspError) extends BspSessionJob[T,A] {
+    override private[protocol] def log(message: String): Unit = ()
     override private[BspSession] def notification(bspNotification: BspNotification): Unit = ()
     override private[BspSession] def run(bspServer: BspServer): CompletableFuture[(T, A)] = {
       val cf = new CompletableFuture[(T, A)]()
@@ -266,17 +344,28 @@ object BspSession {
     override private[BspSession] def cancelWithError(error: BspError): Unit = ()
     override def future: Future[(T, A)] = Future.failed(problem)
     override def cancel(): Unit = ()
+
   }
 
-  private class Bsp4jJob[T,A](task: BspSessionTask[T], default: A, aggregator: NotificationAggregator[A]) extends BspSessionJob[T,A] {
+  private class Bsp4jJob[T,A](task: BspSessionTask[T],
+                              default: A,
+                              aggregator: NotificationAggregator[A],
+                              processLogger: ProcessLogger)
+    extends BspSessionJob[T,A] {
 
     private val promise = Promise[(T,A)]
     private var a: A = default
 
     private var runningTask: Option[CompletableFuture[(T,A)]] = None
 
-    override private[BspSession] def notification(bspNotification: BspNotification): Unit =
+    override private[BspSession] def notification(bspNotification: BspNotification): Unit = {
       a = aggregator(a, bspNotification)
+    }
+
+    override private[protocol] def log(message: String): Unit = {
+      processLogger(message)
+    }
+
 
     private def doRun(bspServer: BspServer): CompletableFuture[(T,A)] = {
       task(bspServer).thenApply[(T,A)]((t:T) => (t,a))
@@ -324,6 +413,7 @@ object BspSession {
   }
 
   private object DummyJob extends BspSessionJob[Unit,Unit] {
+    override private[protocol] def log(message: String): Unit = ()
     override private[BspSession] def notification(bspNotification: BspNotification): Unit = ()
     override private[BspSession] def run(bspServer: BspServer): CompletableFuture[(Unit, Unit)] = CompletableFuture.completedFuture(((),()))
     override private[BspSession] def cancelWithError(error: BspError): Unit = ()
@@ -342,6 +432,7 @@ object BspSession {
     def add(cancelable: Cancelable): Unit = toCancel += cancelable
     override def cancel(): Unit = Cancelable.cancelAll(toCancel)
   }
+
   private object Cancelable {
     def apply(fn: () => Unit): Cancelable = () => fn()
     val empty: Cancelable = Cancelable(() => ())
