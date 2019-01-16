@@ -411,7 +411,8 @@
 
         <gotoClassContributor implementation="org.jetbrains.plugins.scala.gotoclass.ScalaGoToClassContributor"
                               order="first"/>
-        <gotoSymbolContributor implementation="org.jetbrains.plugins.scala.gotoclass.ScalaGoToSymbolContributor"/>
+        <gotoSymbolContributor implementation="org.jetbrains.plugins.scala.gotoclass.ScalaGoToSymbolContributor"
+                               order="first"/>
         <lang.importOptimizer language="Scala" implementationClass="org.jetbrains.plugins.scala.editor.importOptimizer.ScalaImportOptimizer"/>
         <lang.namesValidator language="Scala"
                              implementationClass="org.jetbrains.plugins.scala.lang.refactoring.ScalaNamesValidator"/>
