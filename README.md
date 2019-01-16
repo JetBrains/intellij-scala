@@ -45,10 +45,9 @@ go to the Scala plugin repo directory and run
   ```
 
 
-5. Open the sbt options (`Preferences -> Build, Execution, Deployment -> sbt`)
+5. Open "sbt shell" tool window
 
-  - select `Use sbt shell for build and import`
-  - in `Global sbt settings -> JVM Options -> Maximum heap size`, enter at least `2048`
+  - run `createIDEAArtifactXml` task
 
 6. Select the IDEA run configuration and select the `Run` or `Debug` button to build and start a development version
 of IDEA with the Scala plugin.
