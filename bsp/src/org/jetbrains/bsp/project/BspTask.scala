@@ -34,8 +34,8 @@ class BspTask[T](project: Project, executionSettings: BspExecutionSettings,
 
   private var buildMessages: BuildMessages = BuildMessages.empty
 
-  private val taskId: EventId = BuildMessages.randomEventId
-  private val report = new BuildToolWindowReporter(project, taskId, "bsp build")
+  private val bspTaskId: EventId = BuildMessages.randomEventId
+  private val report = new BuildToolWindowReporter(project, bspTaskId, "bsp build")
 
   import BspNotifications._
   private val notifications: NotificationCallback = {
@@ -117,7 +117,7 @@ class BspTask[T](project: Project, executionSettings: BspExecutionSettings,
   private def compileRequest(implicit server: BspServer): CompletableFuture[CompileResult] = {
     val targetIds = targets.map(uri => new bsp4j.BuildTargetIdentifier(uri.toString))
     val params = new bsp4j.CompileParams(targetIds.toList.asJava)
-    params.setOriginId(taskId.id)
+    params.setOriginId(bspTaskId.id)
 
     server.buildTargetCompile(params)
   }
@@ -189,7 +189,7 @@ class BspTask[T](project: Project, executionSettings: BspExecutionSettings,
   private def reportTaskStart(params: TaskStartParams): Unit = {
     val taskId = params.getTaskId
     val id = EventId(taskId.getId)
-    val parent = Option(taskId.getParents).flatMap(_.asScala.headOption).map(EventId)
+    val parent = Option(taskId.getParents).flatMap(_.asScala.headOption).map(EventId).orElse(Option(bspTaskId))
     val time = Option(params.getEventTime.longValue()).getOrElse(System.currentTimeMillis())
     report.startTask(id, parent, params.getMessage, time)
   }
