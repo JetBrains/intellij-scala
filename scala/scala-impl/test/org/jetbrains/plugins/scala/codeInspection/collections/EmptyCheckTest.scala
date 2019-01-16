@@ -92,6 +92,23 @@ class ReplaceWithIsDefinedTest extends CheckEmptinessTest {
     val result = "Option(1).isDefined"
     testQuickFix(text, result, hint)
   }
+
+  def testExistTrue(): Unit = {
+    val selected = s"Option(1)$START.exists(_ => true)$END"
+    checkTextHasError(selected)
+    val text = "Option(1).exists(_ => true)"
+    val result = "Option(1).isDefined"
+    testQuickFix(text, result, hint)
+  }
+
+  def testExistConstTrue2(): Unit = {
+    val selected = s"Option()$START.exists(scala.Function.const(true))$END"
+    checkTextHasError(selected)
+    val text = "Option(1).exists(scala.Function.const(true))"
+    val result = "Option(1).isDefined"
+    testQuickFix(text, result, hint)
+  }
+
 }
 
 class ReplaceWithNonEmptyTest extends CheckEmptinessTest {
@@ -140,18 +157,18 @@ class ReplaceWithNonEmptyTest extends CheckEmptinessTest {
   }
 
   def testExistConstTrue(): Unit = {
-    val selected = s"import scala.Function.const; Seq()$START.exists(const(true))$END"
+    val selected = s"import scala.Function.const; List()$START.exists(const(true))$END"
     checkTextHasError(selected)
-    val text = "import scala.Function.const; Seq().exists(const(true))"
-    val result = "import scala.Function.const; Seq().nonEmpty"
+    val text = "import scala.Function.const; List().exists(const(true))"
+    val result = "import scala.Function.const; List().nonEmpty"
     testQuickFix(text, result, hint)
   }
 
   def testExistConstTrue2(): Unit = {
-    val selected = s"Seq()$START.exists(scala.Function.const(true))$END"
+    val selected = s"Stream(1)$START.exists(scala.Function.const(true))$END"
     checkTextHasError(selected)
-    val text = "Seq().exists(scala.Function.const(true))"
-    val result = "Seq().nonEmpty"
+    val text = "Stream(1).exists(scala.Function.const(true))"
+    val result = "Stream(1).nonEmpty"
     testQuickFix(text, result, hint)
   }
 
