@@ -134,7 +134,8 @@ class BuildToolWindowReporter(project: Project, taskId: EventId, title: String) 
 
   def progressTask(taskId: EventId, total: Long, progress: Long, unit: String, message: String, time: Long = System.currentTimeMillis()): Unit = {
     val time = System.currentTimeMillis() // TODO pass as parameter?
-    val event = new ProgressBuildEventImpl(taskId, null, time, message, total, progress, unit)
+    val unitOrDefault = if (unit == null) "items" else unit
+    val event = new ProgressBuildEventImpl(taskId, null, time, message, total, progress, unitOrDefault)
     viewManager.onEvent(event)
   }
 
