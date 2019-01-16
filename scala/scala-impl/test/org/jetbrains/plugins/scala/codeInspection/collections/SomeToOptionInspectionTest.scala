@@ -7,7 +7,7 @@ import com.intellij.testFramework.EditorTestUtil
 /**
   * @author t-kameyama
   */
-class SomeToOptionTest extends OperationsOnCollectionInspectionTest {
+class SomeToOptionInspectionTest extends OperationsOnCollectionInspectionTest {
 
   import EditorTestUtil.{SELECTION_END_TAG => END, SELECTION_START_TAG => START}
 

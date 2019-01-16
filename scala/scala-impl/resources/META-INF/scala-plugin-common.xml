@@ -814,6 +814,11 @@
             <className>org.jetbrains.plugins.scala.codeInsight.intention.collections.ComparingLengthIntention</className>
         </intentionAction>
 
+        <intentionAction>
+            <category>Scala/Collections</category>
+            <className>org.jetbrains.plugins.scala.codeInsight.intention.collections.SomeToOptionIntention</className>
+        </intentionAction>
+
         <lang.elementManipulator forClass="org.jetbrains.plugins.scala.lang.psi.api.base.ScLiteral"
                                  implementationClass="org.jetbrains.plugins.scala.injection.ScalaInjectedStringLiteralManipulator"/>
 
