@@ -31,13 +31,13 @@ package object codeInspection {
       maybeExpression.forall(!PsiTreeUtil.isAncestor(_, expression, false))
 
     expression.parentsInFile.takeWhile {
-      case statement: ScMatchStmt => isNotAncestor(statement.expr)
-      case statement: ScIfStmt => isNotAncestor(statement.condition)
+      case statement: ScMatch => isNotAncestor(statement.expression)
+      case statement: ScIf => isNotAncestor(statement.condition)
       case _: ScBlock |
            _: ScParenthesisedExpr |
            _: ScCaseClause |
            _: ScCaseClauses |
-           _: ScTryStmt |
+           _: ScTry |
            _: ScCatchBlock => true
       case _ => false
     }
