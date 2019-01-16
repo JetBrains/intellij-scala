@@ -7,10 +7,10 @@ import org.jetbrains.plugins.scala.lang.psi.api.expr.ScExpression
   * @author t-kameyama
   */
 class FilterSetContainsInspection extends OperationOnCollectionInspection {
-  override def possibleSimplificationTypes: Array[SimplificationType] = Array(FilterSetContains)
+  override def possibleSimplificationTypes: Array[SimplificationType] = Array(FilterSetContainsInspection)
 }
 
-object FilterSetContains extends SimplificationType {
+object FilterSetContainsInspection extends SimplificationType {
 
   override def hint: String = InspectionBundle.message("remove.redundant.contains")
 
