@@ -34,6 +34,8 @@ class BspSession private(bspIn: InputStream,
 
   private var currentJob: BspSessionJob[_,_] = initialJob
 
+  private var lastProcessOutput: Long = 0
+
   private val serverConnection: ServerConnection = startServerConnection
   private val sessionInitialized = initializeSession
   private val sessionShutdown = Promise[Unit]
@@ -132,7 +134,13 @@ class BspSession private(bspIn: InputStream,
   private def waitForSession(timeout: Duration): bsp4j.InitializeBuildResult = try {
     sessionInitialized.get(timeout.toMillis, TimeUnit.MILLISECONDS)
   } catch {
-    case to: TimeoutException => throw BspConnectionError("bsp server is not responding", to)
+    case to: TimeoutException =>
+      val now = System.currentTimeMillis()
+      val waited = now - lastProcessOutput
+      if (waited > timeout.toMillis)
+        throw BspConnectionError("bsp server is not responding", to)
+      else
+        waitForSession(timeout)
   }
 
   /** Run a task with client in this session.
@@ -248,6 +256,7 @@ class BspSession private(bspIn: InputStream,
     override def call(): Unit = {
       val lines = Source.fromInputStream(input).getLines()
       lines.foreach { message =>
+        lastProcessOutput = System.currentTimeMillis()
         currentJob.log(message + '\n')
       }
     }
