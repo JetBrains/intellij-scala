@@ -6,7 +6,7 @@ import org.jetbrains.plugins.scala.codeInspection.InspectionBundle
 /**
   * @author t-kameyama
   */
-class FilterSetContainsTest extends OperationsOnCollectionInspectionTest {
+class FilterSetContainsInspectionTest extends OperationsOnCollectionInspectionTest {
 
   import EditorTestUtil.{SELECTION_END_TAG => END, SELECTION_START_TAG => START}
 
