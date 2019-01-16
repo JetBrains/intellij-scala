@@ -158,8 +158,8 @@ class BspTask[T](project: Project, executionSettings: BspExecutionSettings,
     params.getDiagnostics.asScala.foreach { diagnostic: bsp4j.Diagnostic =>
       val start = diagnostic.getRange.getStart
       val end = diagnostic.getRange.getEnd
-      val position = Some(new FilePosition(file, start.getLine - 1, start.getCharacter, end.getLine - 1, end.getCharacter))
-      val text = s"${diagnostic.getMessage} [${start.getLine}:${start.getCharacter}]"
+      val position = Some(new FilePosition(file, start.getLine, start.getCharacter, end.getLine, end.getCharacter))
+      val text = s"${diagnostic.getMessage} [${start.getLine + 1}:${start.getCharacter + 1}]"
 
       buildMessages = buildMessages.appendMessage(text)
 
