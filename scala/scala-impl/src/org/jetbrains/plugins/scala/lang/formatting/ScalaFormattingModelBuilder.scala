@@ -21,10 +21,13 @@ sealed class ScalaFormattingModelBuilder extends FormattingModelBuilder {
   override def createModel(element: PsiElement, settings: CodeStyleSettings): FormattingModel = {
     val node: ASTNode = element.getNode
     assert(node != null)
-    if (settings.getCustomSettings(classOf[ScalaCodeStyleSettings]).USE_SCALAFMT_FORMATTER) {
-      //preprocessing is done by this point, use this little side-effect to clean-up rnages synchronization
+
+    val useScalaFmt = settings.getCustomSettings(classOf[ScalaCodeStyleSettings]).USE_SCALAFMT_FORMATTER
+    if (useScalaFmt) {
+      //preprocessing is done by this point, use this little side-effect to clean-up ranges synchronization
       ScalaFmtPreFormatProcessor.clearRangesCache()
     }
+
     val containingFile: PsiFile = element.getContainingFile.getViewProvider.getPsi(ScalaLanguage.INSTANCE)
     assert(containingFile != null, element.getContainingFile)
     val astNode: ASTNode = containingFile.getNode
