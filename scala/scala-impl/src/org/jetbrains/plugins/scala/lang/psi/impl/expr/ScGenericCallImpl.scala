@@ -18,7 +18,7 @@ import org.jetbrains.plugins.scala.lang.resolve.MethodTypeProvider._
 import org.jetbrains.plugins.scala.lang.resolve.ScalaResolveResult
 import org.jetbrains.plugins.scala.lang.resolve.processor._
 import org.jetbrains.plugins.scala.macroAnnotations.{Cached, ModCount}
-import org.jetbrains.plugins.scala.util.KindProjectorUtil.PolymorphicLambda
+import org.jetbrains.plugins.scala.util.KindProjectorUtil.{PolymorphicLambda, kindProjectorPolymorphicLambdaType}
 
 import scala.collection.Seq
 
@@ -88,8 +88,8 @@ class ScGenericCallImpl(node: ASTNode) extends ScExpressionImplBase(node) with S
 
   @Cached(ModCount.getModificationCount, this)
   private def polymorphicLambdaType: TypeResult = this match {
-    case PolymorphicLambda(resTpe) => Right(resTpe)
-    case _                         => Failure("Not a polymorphic lambda.")
+    case PolymorphicLambda(des, lhs, rhs) => kindProjectorPolymorphicLambdaType(des, lhs, rhs, this).asTypeResult
+    case _                                => Failure("Not a polymorphic lambda.")
   }
 
   protected override def innerType: TypeResult =
