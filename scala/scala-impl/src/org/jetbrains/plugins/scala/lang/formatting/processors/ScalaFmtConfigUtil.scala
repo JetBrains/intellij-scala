@@ -11,25 +11,26 @@ import com.intellij.psi.{PsiFile, PsiManager}
 import com.intellij.util.containers.ContainerUtil
 import metaconfig.{ConfError, Configured}
 import org.jetbrains.plugins.hocon.psi.HoconPsiFile
+import org.jetbrains.plugins.scala.extensions._
 import org.jetbrains.plugins.scala.lang.formatting.processors.ScalaFmtPreFormatProcessor.reportError
 import org.jetbrains.plugins.scala.lang.formatting.settings.ScalaCodeStyleSettings
 import org.jetbrains.sbt.language.SbtFileImpl
-import org.scalafmt.config.{Config, RewriteSettings, ScalafmtConfig, ScalafmtRunner}
-import org.jetbrains.plugins.scala.extensions._
+import org.scalafmt.config.{Config, ScalafmtConfig, ScalafmtRunner}
 
 object ScalaFmtConfigUtil {
 
-  def loadConfig(configFile: VirtualFile, project: Project): Configured[ScalafmtConfig] = {
-    inReadAction{PsiManager.getInstance(project).findFile(configFile) match {
-      case hoconFile: HoconPsiFile =>
-        Config.fromHoconString(hoconFile.getText)
-      case _ => Configured.NotOk(ConfError.fileDoesNotExist(configFile.getCanonicalPath))
-    }}
+  private def loadConfig(configFile: VirtualFile, project: Project): Configured[ScalafmtConfig] = {
+    inReadAction {
+      PsiManager.getInstance(project).findFile(configFile) match {
+        case hoconFile: HoconPsiFile =>
+          Config.fromHoconString(hoconFile.getText)
+        case _ =>
+          Configured.NotOk(ConfError.fileDoesNotExist(configFile.getCanonicalPath))
+      }
+    }
   }
 
-  def disableRewriteRules(config: ScalafmtConfig): ScalafmtConfig = config.copy(rewrite = RewriteSettings())
-
-  def storeOrUpdate(vFile: VirtualFile, project: Project): ScalafmtConfig = {
+  private def storeOrUpdate(vFile: VirtualFile, project: Project): ScalafmtConfig = {
     //TODO use of asynchronous updates is a trade-off performance vs accuracy, can this be performance-heavy?
     inWriteAction(ApplicationManager.getApplication.invokeAndWait(vFile.refresh(false, false), ModalityState.current()))
     Option(scalafmtConfigs.get(vFile)) match {
@@ -56,7 +57,7 @@ object ScalaFmtConfigUtil {
     }
   }
 
-  private def configFor(project: Project, settings: ScalaCodeStyleSettings) =
+  private def configFor(project: Project, settings: ScalaCodeStyleSettings): ScalafmtConfig =
     scalaFmtConfigFile(settings, project) match {
     case Some(custom) =>
       storeOrUpdate(custom, project)
@@ -79,10 +80,13 @@ object ScalaFmtConfigUtil {
       .map(getScalafmtProjectConfig(_, project))
 
   def scalaFmtConfigFile(settings: ScalaCodeStyleSettings, project: Project): Option[VirtualFile] =
-    if (settings.SCALAFMT_CONFIG_PATH.isEmpty) defaultConfigurationFile(project)
-    else
+    if (settings.SCALAFMT_CONFIG_PATH.isEmpty) {
+      defaultConfigurationFile(project)
+    } else {
       absolutePathFromConfigPath(settings.SCALAFMT_CONFIG_PATH, project)
         .flatMap(path => StandardFileSystems.local.findFileByPath(path).toOption)
+    }
+
 
   private val scalafmtConfigs: ConcurrentMap[VirtualFile, (ScalafmtConfig, Long)] = ContainerUtil.createConcurrentWeakMap()
 
