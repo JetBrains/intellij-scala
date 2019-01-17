@@ -7,7 +7,7 @@ import com.intellij.psi._
 import org.jetbrains.plugins.scala.codeInspection.collections.MethodRepr
 import org.jetbrains.plugins.scala.codeInspection.syntacticSimplification.ConvertibleToMethodValueInspection._
 import org.jetbrains.plugins.scala.codeInspection.{AbstractFixOnPsiElement, AbstractInspection, InspectionBundle}
-import org.jetbrains.plugins.scala.extensions.{&&, PsiElementExt, PsiModifierListOwnerExt, ResolvesTo}
+import org.jetbrains.plugins.scala.extensions.{&&, PsiElementExt, PsiModifierListOwnerExt, ResolvesTo, childOf}
 import org.jetbrains.plugins.scala.lang.psi.ScalaPsiUtil
 import org.jetbrains.plugins.scala.lang.psi.api.base.{ScConstructor, ScMethodLike}
 import org.jetbrains.plugins.scala.lang.psi.api.expr._
@@ -20,6 +20,8 @@ import org.jetbrains.plugins.scala.lang.psi.types._
 import org.jetbrains.plugins.scala.lang.psi.types.api.FunctionType
 import org.jetbrains.plugins.scala.lang.psi.types.result._
 import org.jetbrains.plugins.scala.lang.refactoring.util.ScalaNamesUtil
+import org.jetbrains.plugins.scala.project.ProjectPsiElementExt
+import org.jetbrains.plugins.scala.util.KindProjectorUtil.PolymorphicLambda
 
 /**
  * Nikolay.Tropin
@@ -28,11 +30,28 @@ import org.jetbrains.plugins.scala.lang.refactoring.util.ScalaNamesUtil
 object ConvertibleToMethodValueInspection {
   val inspectionName = InspectionBundle.message("convertible.to.method.value.name")
   val inspectionId = "ConvertibleToMethodValue"
+
+  /**
+    * Since kind-projector operates *before* typer, it can't analyse types of the
+    * expressions used in rewrites and therefore requires arguments to value-level
+    * lambdas to be identifiale as functions solely by shape (i.e. explicit match-cases
+    * or anonymous functions, not method references).
+    */
+  private object ArgumentToPolymorphicLambda {
+    def unapply(expr: ScExpression): Boolean =
+      if (!expr.kindProjectorPluginEnabled) false
+      else
+        expr match {
+          case childOf(_, childOf(_, ScMethodCall(PolymorphicLambda(_, _, _), _))) => true
+          case _                                                                   => false
+        }
+  }
 }
 
 class ConvertibleToMethodValueInspection extends AbstractInspection(inspectionName) {
 
   override def actionFor(implicit holder: ProblemsHolder): PartialFunction[PsiElement, Any] = {
+    case ArgumentToPolymorphicLambda() => () // disallowed by kind projector rules
     case MethodRepr(_, _, Some(ref), _)
       if ref.bind().exists(srr => srr.implicitType.nonEmpty || srr.implicitFunction.nonEmpty || hasByNameOrImplicitParam(srr.getElement)) =>
       //do nothing if implicits or by-name params are involved
