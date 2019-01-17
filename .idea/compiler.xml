@@ -4,6 +4,6 @@
     <bytecodeTargetLevel target="1.8" />
   </component>
   <component name="JavacSettings">
-    <option name="ADDITIONAL_OPTIONS_STRING" value="-source 1.8 -Xlint:unchecked" />
+    <option name="ADDITIONAL_OPTIONS_STRING" value="-Xlint:unchecked -source 1.8" />
   </component>
 </project>
