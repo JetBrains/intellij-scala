@@ -2,15 +2,12 @@ package org.jetbrains.plugins.scala
 
 import java.io.{DataInputStream, DataOutputStream, IOException}
 
-import com.intellij.openapi.diagnostic.Logger
 import com.intellij.openapi.util.Key
 import com.intellij.openapi.vfs.newvfs.FileAttribute
 import com.intellij.openapi.vfs.{VirtualFile, VirtualFileWithId}
 import com.intellij.reference.SoftReference
 
 package object decompiler {
-
-  private[this] val LOG: Logger = Logger.getInstance("#org.jetbrains.plugins.scala.decompiler.DecompilerUtil")
 
   val DECOMPILER_VERSION = 306
   private[this] val DecompilerFileAttribute = new FileAttribute("_is_scala_compiled_new_key_", DECOMPILER_VERSION, true)
@@ -90,15 +87,17 @@ package object decompiler {
         cached = maybeResult match {
           case Some(result) =>
             new DecompilationResult(result.isScala, result.sourceName) {
-              override lazy val rawSourceText: String = decompileInner(fileName, bytes).fold("")(_._2)
+              override lazy val rawSourceText: String =
+                Decompiler(fileName, bytes).fold("")(_._2)
             }
           case _ =>
-            val result = decompileInner(fileName, bytes).fold(DecompilationResult.empty) {
-              case (sourceFileName, decompiledSourceText) =>
-                new DecompilationResult(isScala = true, sourceFileName) {
-                  override def rawSourceText: String = decompiledSourceText
-                }
-            }
+            val result = Decompiler(fileName, bytes)
+              .fold(DecompilationResult.empty) {
+                case (sourceFileName, decompiledSourceText) =>
+                  new DecompilationResult(isScala = true, sourceFileName) {
+                    override def rawSourceText: String = decompiledSourceText
+                  }
+              }
 
             for {
               attribute <- decompilerFileAttribute
@@ -114,15 +113,6 @@ package object decompiler {
       cached
     case _ => DecompilationResult.empty()
   }
-
-  private[this] def decompileInner(fileName: String, bytes: Array[Byte]) =
-    try {
-      Decompiler.decompile(fileName, bytes)
-    } catch {
-      case e: Exception =>
-        LOG.warn(e.getMessage)
-        None
-    }
 
   // Underlying VFS implementation may not support attributes (e.g. Upsource's file system).
   private[this] def decompilerFileAttribute =

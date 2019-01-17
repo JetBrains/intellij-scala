@@ -1,128 +1,130 @@
-package org.jetbrains.plugins.scala.decompiler
+package org.jetbrains.plugins.scala
+package decompiler
 
 import java.io.ByteArrayInputStream
 import java.lang.StringBuilder
-import java.nio.charset.StandardCharsets
+import java.nio.charset.StandardCharsets.UTF_8
 
+import com.intellij.openapi.diagnostic.Logger
 import org.apache.bcel.classfile._
-import org.jetbrains.plugins.scala.decompiler.scalasig.{Parser, ScalaDecompilerException, ScalaSig, ScalaSigPrinter}
 
 import scala.reflect.internal.pickling.ByteCodecs
 
 object Decompiler {
-  private val SCALA_SIG = "ScalaSig"
-  private val SCALA_SIG_ANNOTATION = "Lscala/reflect/ScalaSignature;"
-  private val SCALA_LONG_SIG_ANNOTATION = "Lscala/reflect/ScalaLongSignature;"
-  private val BYTES_VALUE = "bytes"
 
-  private val scalaSigBytes = SCALA_SIG.getBytes(StandardCharsets.UTF_8)
+  import scalasig._
 
-  private def hasScalaSigBytes(content: Array[Byte]): Boolean = containsSubArray(content, scalaSigBytes)
+  private[this] val Log: Logger = Logger.getInstance("#org.jetbrains.plugins.scala.decompiler.DecompilerUtil")
 
-  private def isScalaSignatureAnnotation(entry: AnnotationEntry) = {
-    val annType = entry.getAnnotationType
-    annType == SCALA_SIG_ANNOTATION || annType == SCALA_LONG_SIG_ANNOTATION
-  }
+  private val ScalaSigBytes = "ScalaSig".getBytes(UTF_8)
 
-  private def toBytes(elemValue: ElementValue): Array[Byte] = {
-    def simpleToBytes(sv: SimpleElementValue) = sv.getValueString.getBytes(StandardCharsets.UTF_8)
-
-    elemValue match {
-      case sv: SimpleElementValue => simpleToBytes(sv)
-      case arr: ArrayElementValue =>
-        val fromSimpleValues = arr.getElementValuesArray.collect {
-          case sv: SimpleElementValue => simpleToBytes(sv)
-        }
-        Array.concat(fromSimpleValues: _*)
-    }
-  }
-
-  private def parseScalaSig(entry: AnnotationEntry, fileName: String) = {
-    val bytesValue = entry.getElementValuePairs.find(_.getNameString == BYTES_VALUE)
-    bytesValue match {
-      case Some(v) =>
-        val bytes = toBytes(v.getValue)
-        ByteCodecs.decode(bytes)
-
-        val scalaSig = Parser.parseScalaSig(bytes, fileName)
-        Some(scalaSig)
-      case _ => None
-    }
-  }
-
-  def decompile(fileName: String, bytes: Array[Byte]): Option[(String, String)] = {
-    if (!hasScalaSigBytes(bytes)) return None
+  def apply(fileName: String, bytes: Array[Byte]): Option[(String, String)] = {
+    if (!containsMarker(bytes)) return None
 
     val parsed = new ClassParser(new ByteArrayInputStream(bytes), fileName).parse()
+    for {
+      annotation <- parsed.getAnnotationEntries.find(isScalaSignatureAnnotation)
+      pair <- annotation.getElementValuePairs.find(_.getNameString == "bytes")
 
-    val scalaSig =
-      parsed.getAnnotationEntries
-        .find(isScalaSignatureAnnotation)
-        .flatMap(parseScalaSig(_, fileName))
+      simpleValues = collectSimple(pair.getValue)
+      strings = simpleValues.map(valueBytes)
 
-    try {
-      scalaSig.map { sig =>
-        val decompiledSourceText = decompiledText(fileName, sig)
-        val sourceFileName = parsed.getSourceFileName
-        (sourceFileName, decompiledSourceText)
-      }
-    } catch {
-      case sde: ScalaDecompilerException =>
-        throw new RuntimeException(s"Error decompiling class ${parsed.getClassName}, ${sde.getMessage}")
-    }
+      bytes = decode(strings)
+      signature = Parser.parseScalaSig(bytes, fileName)
+
+      text <- decompiledText(signature, parsed.getClassName, fileName == "package.class")
+    } yield (parsed.getSourceFileName, text)
   }
 
-  private def decompiledText(fileName: String, scalaSig: ScalaSig) = {
-    val printer = new ScalaSigPrinter(new StringBuilder, false)
+  private def isScalaSignatureAnnotation(entry: AnnotationEntry) =
+    entry.getAnnotationType match {
+      case "Lscala/reflect/ScalaSignature;" |
+           "Lscala/reflect/ScalaLongSignature;" => true
+      case _ => false
+    }
 
-    val syms = scalaSig.topLevelClasses ++ scalaSig.topLevelObjects
-    // Print package with special treatment for package objects
-    syms.head.parent match {
-      //Partial match
-      case Some(p) if p.name != "<empty>" =>
-        val path = p.path
-        val isPackageObject = fileName == "package.class"
+  private def collectSimple(value: ElementValue) = value match {
+    case simpleValue: SimpleElementValue => simpleValue :: Nil
+    case arrayValue: ArrayElementValue =>
+      arrayValue.getElementValuesArray.collect {
+        case simpleValue: SimpleElementValue => simpleValue
+      }.toList
+  }
 
-        if (!isPackageObject) {
-          printer.print("package ")
-          printer.print(ScalaSigPrinter.processName(path))
-          printer.print("\n")
-        } else {
-          val i = path.lastIndexOf(".")
-          if (i > 0) {
-            printer.print("package ")
-            printer.print(ScalaSigPrinter.processName(path.substring(0, i)))
-            printer.print("\n")
+  private def valueBytes(value: SimpleElementValue) =
+    value.getValueString.getBytes(UTF_8)
+
+  private def decode(strings: List[Array[Byte]]) = {
+    val bytes = Array.concat(strings: _*)
+    ByteCodecs.decode(bytes)
+    bytes
+  }
+
+  private def decompiledText(scalaSig: ScalaSig,
+                             className: String,
+                             isPackageObject: Boolean) =
+    try {
+      val printer = new ScalaSigPrinter(new StringBuilder, false)
+
+      def findPath(symbol: Symbol) = symbol.name match {
+        case "<empty>" => None
+        case _ =>
+          val path = symbol.path
+          if (isPackageObject) {
+            path.lastIndexOf(".") match {
+              case -1 | 0 => None
+              case index => Some(path.substring(0, index))
+            }
+          } else Some(path)
+      }
+
+      val symbols = scalaSig.topLevelClasses ++ scalaSig.topLevelObjects
+      // Print package with special treatment for package objects
+
+      for {
+        symbol <- symbols.headOption
+        parent <- symbol.parent
+        path <- findPath(parent)
+        packageName = ScalaSigPrinter.processName(path)
+      } {
+        printer.print("package ")
+        printer.print(packageName)
+        printer.print("\n")
+      }
+
+      // Print classes
+      for (symbol <- symbols) {
+        printer.printSymbol(symbol)
+      }
+
+      Some(printer.result)
+    } catch {
+      case e: ScalaDecompilerException =>
+        Log.warn(s"Error decompiling class $className, ${e.getMessage}")
+        None
+    }
+
+  private def containsMarker(text: Array[Byte]): Boolean = {
+    val arrayLength = ScalaSigBytes.length
+    text.length - arrayLength match {
+      case delta if delta >= 1 =>
+        var wordStartIdx = 0
+        var innerIdx = 0
+
+        while (wordStartIdx <= delta) {
+          while (innerIdx < arrayLength && text(wordStartIdx + innerIdx) == ScalaSigBytes(innerIdx)) {
+            innerIdx += 1
+          }
+          if (innerIdx == arrayLength) return true
+          else {
+            wordStartIdx += 1
+            innerIdx = 0
           }
         }
-      case _ =>
+
+        false
+      case _ => false
     }
-
-    // Print classes
-    for (c <- syms) {
-      printer.printSymbol(c)
-    }
-
-    printer.result
-  }
-
-  private def containsSubArray(text: Array[Byte], word: Array[Byte]): Boolean = {
-    if (text.length < word.length || word.length == 0) return false
-
-    var wordStartIdx = 0
-    var innerIdx = 0
-
-    while (wordStartIdx <= text.length - word.length) {
-      while(innerIdx < word.length && text(wordStartIdx + innerIdx) == word(innerIdx)) {
-        innerIdx += 1
-      }
-      if (innerIdx == word.length) return true
-      else {
-        wordStartIdx += 1
-        innerIdx = 0
-      }
-    }
-    false
   }
 
 }
