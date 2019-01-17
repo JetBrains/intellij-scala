@@ -27,6 +27,7 @@ class ScalaCodeStyleSettingsProvider extends CodeStyleSettingsProvider {
       override def setModel(model: CodeStyleSchemesModel): Unit = {
         super.setModel(model)
         panel.onProjectSet(model.getProject)
+        panel.onModelSet(model)
       }
 
       private var panel: ScalaTabbedCodeStylePanel = _

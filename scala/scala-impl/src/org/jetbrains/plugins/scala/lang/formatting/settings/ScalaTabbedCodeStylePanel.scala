@@ -113,10 +113,18 @@ class ScalaTabbedCodeStylePanel(currentSettings: CodeStyleSettings, settings: Co
     scalaFmtSettingsPanel.onProjectSet(project)
   }
 
+  // scalaFmtSettingsPanel.setModel should be called in order that its settings are saved properly
+  // setModel in TabbedLanguageCodeStylePanel is final so we can't override and have to use workaround method
+  def onModelSet(model: CodeStyleSchemesModel): Unit = {
+    scalaFmtSettingsPanel.setModel(model)
+  }
+
   private def syncPanels(scalaSettings: ScalaCodeStyleSettings): Unit = {
     val tempSettings = settings.clone()
     if (scalaSettings.USE_SCALAFMT_FORMATTER) {
       shortenedPanel.exposeApply(tempSettings)
+      // we need to invoke applySettingsToModel, which is done inside onSomethingChanged
+      shortenedPanel.onSomethingChanged()
       super.resetImpl(tempSettings)
     } else {
       super.apply(tempSettings)
