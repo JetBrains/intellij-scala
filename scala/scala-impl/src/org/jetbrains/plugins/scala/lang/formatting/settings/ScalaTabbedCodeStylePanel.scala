@@ -4,6 +4,7 @@ import java.awt._
 import java.awt.event.ItemEvent
 
 import com.intellij.application.options._
+import com.intellij.application.options.codeStyle.CodeStyleSchemesModel
 import com.intellij.openapi.project.Project
 import com.intellij.openapi.ui.ComboBox
 import com.intellij.psi.codeStyle.CodeStyleSettings
@@ -34,72 +35,77 @@ class ScalaTabbedCodeStylePanel(currentSettings: CodeStyleSettings, settings: Co
   }
 
   override def isModified(settings: CodeStyleSettings): Boolean = {
-    val scalaCodeStyleSettings = settings.getCustomSettings(classOf[ScalaCodeStyleSettings])
-    super.isModified(settings) || scalaCodeStyleSettings.FORMATTER != formatters(useExternalFormatterCheckbox.getSelectedItem.toString) ||
+    val scalaSettings = settings.getCustomSettings(classOf[ScalaCodeStyleSettings])
+
+    val formatterTypeChanged = scalaSettings.FORMATTER != getSelectedFormatterId
+    formatterTypeChanged ||
+      super.isModified(settings) ||
       shortenedPanel.exposeIsModified(settings)
   }
 
+  private def getSelectedFormatterId: Int =
+    formatters(formatterSelectorComboBox.getSelectedItem.toString)
+
   override def apply(settings: CodeStyleSettings): Unit = {
     val scalaSettings = settings.getCustomSettings(classOf[ScalaCodeStyleSettings])
-    scalaSettings.FORMATTER = formatters(useExternalFormatterCheckbox.getSelectedItem.toString)
 
-    if (scalaSettings.USE_SCALAFMT_FORMATTER)
+    scalaSettings.FORMATTER = getSelectedFormatterId
+
+    if (scalaSettings.USE_SCALAFMT_FORMATTER){
       shortenedPanel.exposeApply(settings)
-    else super.apply(settings)
+    } else {
+      super.apply(settings)
+    }
 
     syncPanels(scalaSettings)
   }
 
   override def resetImpl(settings: CodeStyleSettings): Unit = {
     val scalaSettings = settings.getCustomSettings(classOf[ScalaCodeStyleSettings])
-    useExternalFormatterCheckbox.setSelectedItem(formatters.find(_._2 == scalaSettings.FORMATTER).map(_._1).get)
+
+    val formatterKey = formatters.find(_._2 == scalaSettings.FORMATTER).map(_._1).get
+    formatterSelectorComboBox.setSelectedItem(formatterKey)
 
     toggleSettingsVisibility(scalaSettings.USE_SCALAFMT_FORMATTER)
 
-    if (scalaSettings.USE_SCALAFMT_FORMATTER)
+    if (scalaSettings.USE_SCALAFMT_FORMATTER) {
       shortenedPanel.exposeResetImpl(settings)
-    else super.resetImpl(settings)
+    } else {
+      super.resetImpl(settings)
+    }
 
     syncPanels(scalaSettings)
   }
 
   private def initOuterFormatterPanel(): Unit = {
-    outerPanel = new JPanel(new GridLayoutManager(7, 2, new Insets(0, 0, 0, 0), -1, -1))
-    useExternalFormatterCheckbox = new ComboBox(formatters.keys.toArray)
-    val formatterSelectorPanel = new JPanel(new GridLayoutManager(1, 3, new Insets(0, 10, 0, 0), -1, -1))
-    outerPanel.add(formatterSelectorPanel, new GridConstraints(0, 0, 1, 1, GridConstraints.ANCHOR_CENTER, GridConstraints.FILL_BOTH,
-      GridConstraints.SIZEPOLICY_FIXED, GridConstraints.SIZEPOLICY_FIXED, null, null,
-      null, 0, false))
-    formatterSelectorPanel.add(new JBLabel("Formatter:"), new GridConstraints(0, 0, 1, 1, GridConstraints.ANCHOR_CENTER, GridConstraints.FILL_BOTH,
-      GridConstraints.SIZEPOLICY_FIXED, GridConstraints.SIZEPOLICY_FIXED, null, null,
-      null, 0, false))
-    formatterSelectorPanel.add(useExternalFormatterCheckbox, new GridConstraints(0, 1, 1, 1, GridConstraints.ANCHOR_CENTER, GridConstraints.FILL_HORIZONTAL,
-      GridConstraints.SIZEPOLICY_CAN_SHRINK | GridConstraints.SIZEPOLICY_CAN_GROW,
-      GridConstraints.SIZEPOLICY_FIXED, null, null,
-      null, 0, false))
-    formatterSelectorPanel.add(new Spacer, new GridConstraints(0, 2, 1, 1,
-      GridConstraints.ANCHOR_CENTER, GridConstraints.FILL_HORIZONTAL, GridConstraints.SIZEPOLICY_WANT_GROW,
-      GridConstraints.SIZEPOLICY_CAN_SHRINK, null, null, null, 0, false))
-    outerPanel.add(innerPanel,
-      new GridConstraints(1, 0, 1, 1, GridConstraints.ANCHOR_CENTER, GridConstraints.FILL_BOTH,
-        GridConstraints.SIZEPOLICY_CAN_SHRINK | GridConstraints.SIZEPOLICY_CAN_GROW,
-        GridConstraints.SIZEPOLICY_CAN_SHRINK | GridConstraints.SIZEPOLICY_CAN_GROW, null, null,
-        null, 0, false))
-    outerPanel.add(shortenedPanel.getPanel,
-      new GridConstraints(2, 0, 1, 1, GridConstraints.ANCHOR_CENTER, GridConstraints.FILL_BOTH,
-        GridConstraints.SIZEPOLICY_CAN_SHRINK | GridConstraints.SIZEPOLICY_CAN_GROW,
-        GridConstraints.SIZEPOLICY_CAN_SHRINK | GridConstraints.SIZEPOLICY_CAN_GROW, null, null,
-        null, 0, false))
-    useExternalFormatterCheckbox.addItemListener((_: ItemEvent) => {
+    formatterSelectorComboBox = new ComboBox(formatters.keys.toArray)
+    formatterSelectorComboBox.addItemListener((_: ItemEvent) => {
       //USE_SCALAFMT_FORMATTER setting is immediately set to allow proper formatting for core formatter examples
       val scalaSettings = settings.getCustomSettings(classOf[ScalaCodeStyleSettings])
       val oldFormatter = scalaSettings.FORMATTER
-      scalaSettings.FORMATTER = formatters(useExternalFormatterCheckbox.getSelectedItem.toString)
+      scalaSettings.FORMATTER = getSelectedFormatterId
       if (scalaSettings.FORMATTER != oldFormatter) {
         toggleSettingsVisibility(scalaSettings.USE_SCALAFMT_FORMATTER)
         syncPanels(scalaSettings)
       }
     })
+
+    import GridConstraints._
+    val CAN_SHRINK_AND_GROW = SIZEPOLICY_CAN_SHRINK | SIZEPOLICY_CAN_GROW
+
+    def constraint(row: Int, col: Int, fill: Int, HSizePolicy: Int, VSizePolicy: Int) =
+      new GridConstraints(row, col, 1, 1, ANCHOR_CENTER, fill, HSizePolicy, VSizePolicy, null, null, null, 0, false)
+
+    val formatterSelectorPanel = new JPanel(new GridLayoutManager(1, 3, new Insets(0, 10, 0, 0), -1, -1))
+    formatterSelectorPanel.add(new JBLabel("Formatter:"), constraint(0, 0, FILL_BOTH, SIZEPOLICY_FIXED, SIZEPOLICY_FIXED))
+    formatterSelectorPanel.add(formatterSelectorComboBox, constraint(0, 1, FILL_HORIZONTAL, CAN_SHRINK_AND_GROW, SIZEPOLICY_FIXED))
+    formatterSelectorPanel.add(new Spacer, constraint(0, 2, FILL_HORIZONTAL, SIZEPOLICY_WANT_GROW, SIZEPOLICY_CAN_SHRINK))
+
+    outerPanel = new JPanel(new GridLayoutManager(7, 2, new Insets(0, 0, 0, 0), -1, -1))
+    outerPanel.add(formatterSelectorPanel, constraint(0, 0, FILL_BOTH, SIZEPOLICY_FIXED, SIZEPOLICY_FIXED))
+    outerPanel.add(innerPanel, constraint(1, 0, FILL_BOTH, CAN_SHRINK_AND_GROW, CAN_SHRINK_AND_GROW))
+    outerPanel.add(shortenedPanel.getPanel, constraint(2, 0, FILL_BOTH, CAN_SHRINK_AND_GROW, CAN_SHRINK_AND_GROW))
+
     toggleSettingsVisibility(false)
   }
 
@@ -123,10 +129,10 @@ class ScalaTabbedCodeStylePanel(currentSettings: CodeStyleSettings, settings: Co
     shortenedPanel.getPanel.setVisible(useExternalFormatter)
   }
 
-  private var useExternalFormatterCheckbox: JComboBox[String] = _
+  private var formatterSelectorComboBox: JComboBox[String] = _
   private var outerPanel: JPanel = _
   private var scalaFmtSettingsPanel: ScalaFmtSettingsPanel = _
-  private def innerPanel = super.getPanel
+  private def innerPanel: JComponent = super.getPanel
 
   override def getPanel: JComponent = outerPanel
 
@@ -143,9 +149,9 @@ class ScalaTabbedCodeStylePanel(currentSettings: CodeStyleSettings, settings: Co
       otherCodeStylePanel.toggleExternalFormatter(true)
     }
 
-    def exposeIsModified(settings: CodeStyleSettings) = super.isModified(settings)
-    def exposeApply(settings: CodeStyleSettings) = super.apply(settings)
-    def exposeResetImpl(settings: CodeStyleSettings) = super.resetImpl(settings)
+    def exposeIsModified(settings: CodeStyleSettings): Boolean = super.isModified(settings)
+    def exposeApply(settings: CodeStyleSettings): Unit = super.apply(settings)
+    def exposeResetImpl(settings: CodeStyleSettings): Unit = super.resetImpl(settings)
   }
 
   override def dispose(): Unit = {
@@ -155,5 +161,8 @@ class ScalaTabbedCodeStylePanel(currentSettings: CodeStyleSettings, settings: Co
 }
 
 object ScalaTabbedCodeStylePanel {
-  private val formatters: Map[String, Int] = Map(("IntelliJ", ScalaCodeStyleSettings.INTELLIJ_FORMATTER), ("scalafmt", ScalaCodeStyleSettings.SCALAFMT_FORMATTER))
+  private val formatters: Map[String, Int] = Map(
+    "IntelliJ" -> ScalaCodeStyleSettings.INTELLIJ_FORMATTER,
+    "scalafmt" -> ScalaCodeStyleSettings.SCALAFMT_FORMATTER
+  )
 }
