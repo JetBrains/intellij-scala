@@ -176,7 +176,7 @@ object KindProjectorUtil {
   }
 
 
-  private[this] def kindProjectorPolymorphicLambdaType(
+  def kindProjectorPolymorphicLambdaType(
     target: ScTypeElement,
     lhs:    ScTypeElement,
     rhs:    ScTypeElement,
@@ -192,15 +192,13 @@ object KindProjectorUtil {
   object PolymorphicLambda {
     private[this] val polyLambdaIds = Seq(Lambda, LambdaSymbolic)
 
-    def unapply(gc: ScGenericCall): Option[ScType] =
+    def unapply(gc: ScGenericCall): Option[(ScTypeElement, ScTypeElement, ScTypeElement)] =
       if (gc.kindProjectorPluginEnabled) {
-        implicit val pc: ProjectContext = ProjectContext.fromPsi(gc)
-
         gc.referencedExpr match {
           case ref: ScReferenceExpression if !ref.isQualified && polyLambdaIds.contains(ref.getText) =>
             gc.arguments match {
-              case Seq(infix @ ScInfixTypeElement(lhs, _, Some(rhs)))      => kindProjectorPolymorphicLambdaType(infix, lhs, rhs, gc)
-              case Seq(tpe @ ScParameterizedTypeElement(_, Seq(lhs, rhs))) => kindProjectorPolymorphicLambdaType(tpe, lhs, rhs, gc)
+              case Seq(infix @ ScInfixTypeElement(lhs, _, Some(rhs)))      => Option((infix, lhs, rhs))
+              case Seq(tpe @ ScParameterizedTypeElement(_, Seq(lhs, rhs))) => Option((tpe, lhs, rhs))
               case _                                                       => None
             }
           case _ => None
