@@ -2,11 +2,11 @@ package org.jetbrains.plugins.scala.decompiler
 
 import java.io.{File => jFile}
 
-import scala.tools.nsc.io.File
-
 import junit.framework.TestCase
 import org.jetbrains.plugins.scala.util.TestUtils
 import org.junit.Assert
+
+import scala.tools.nsc.io.File
 
 /**
  * @author Alefas
@@ -33,10 +33,9 @@ trait DecompilerTestBase extends TestCase {
     s"$dirPath/$fileName"
   }
 
-  protected def decompile(classFilePath: String): String = {
+  protected final def decompile(classFilePath: String): String = {
     val file = new File(new jFile(classFilePath))
-    val bytes = file.toByteArray()
-    Decompiler.decompile(file.name, bytes).map(_._2).get
+    Decompiler(file.name, file.toByteArray).get._2
   }
 }
 

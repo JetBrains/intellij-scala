@@ -2,7 +2,6 @@ package org.jetbrains.plugins.scala
 
 import java.io.{DataInputStream, DataOutputStream, IOException}
 
-import com.intellij.openapi.diagnostic.Logger
 import com.intellij.openapi.util.Key
 import com.intellij.openapi.vfs.newvfs.FileAttribute
 import com.intellij.openapi.vfs.{VirtualFile, VirtualFileWithId}
@@ -10,15 +9,8 @@ import com.intellij.reference.SoftReference
 
 package object decompiler {
 
-  private val LOG: Logger = Logger.getInstance("#org.jetbrains.plugins.scala.decompiler.DecompilerUtil")
-
   val DECOMPILER_VERSION = 306
-  private val SCALA_DECOMPILER_FILE_ATTRIBUTE = new FileAttribute("_is_scala_compiled_new_key_", DECOMPILER_VERSION, true)
-
-  // Underlying VFS implementation may not support attributes (e.g. Upsource's file system).
-  private def findAttributes =
-    if (ScalaLoader.isUnderUpsource) None
-    else Some(SCALA_DECOMPILER_FILE_ATTRIBUTE)
+  private[this] val DecompilerFileAttribute = new FileAttribute("_is_scala_compiled_new_key_", DECOMPILER_VERSION, true)
 
   private[decompiler] class DecompilationResult(val isScala: Boolean, val sourceName: String)
                                                (implicit val timeStamp: Long) {
@@ -41,32 +33,29 @@ package object decompiler {
 
     private[this] val Key = new Key[SoftReference[DecompilationResult]]("Is Scala File Key")
 
-    def apply(virtualFile: VirtualFile): DecompilationResult =
-      virtualFile.getUserData(Key) match {
+    def empty(implicit timeStamp: Long = 0L): DecompilationResult =
+      new DecompilationResult(isScala = false, sourceName = "")
+
+    def apply(file: VirtualFile): DecompilationResult =
+      file.getUserData(Key) match {
         case null => null
         case data => data.get()
       }
 
-    def update(virtualFile: VirtualFile, result: DecompilationResult): Unit = {
-      virtualFile.putUserData(Key, new SoftReference(result))
+    def update(file: VirtualFile, result: DecompilationResult): Unit = {
+      file.putUserData(Key, new SoftReference(result))
     }
 
-    def readFrom(inputStream: DataInputStream): Option[DecompilationResult] = inputStream match {
-      case null => None
-      case _ =>
-        try {
-          val isScala = inputStream.readBoolean()
-          val sourceName = inputStream.readUTF()
-          val timeStamp = inputStream.readLong()
+    def readFrom(inputStream: DataInputStream): Option[DecompilationResult] =
+      try {
+        val isScala = inputStream.readBoolean()
+        val sourceName = inputStream.readUTF()
+        val timeStamp = inputStream.readLong()
 
-          Some(new DecompilationResult(isScala, sourceName)(timeStamp))
-        } catch {
-          case _: IOException => None
-        }
-    }
-
-    def empty(implicit timeStamp: Long = 0L): DecompilationResult =
-      new DecompilationResult(isScala = false, sourceName = "")
+        Some(new DecompilationResult(isScala, sourceName)(timeStamp))
+      } catch {
+        case _: IOException => None
+      }
   }
 
   def sourceName(file: VirtualFile): String =
@@ -87,29 +76,32 @@ package object decompiler {
 
       if (cached == null || cached.timeStamp != timeStamp) {
         val maybeResult = for {
-          attributes <- findAttributes
-          readAttribute = attributes.readAttribute(file)
-          result <- DecompilationResult.readFrom(readAttribute)
+          attribute <- decompilerFileAttribute
+          readAttribute <- Option(attribute.readAttribute(file))
 
+          result <- DecompilationResult.readFrom(readAttribute)
           if result.timeStamp == timeStamp
         } yield result
 
         val fileName = file.getName
         cached = maybeResult match {
           case Some(result) =>
-            new DecompilationResult(result.isScala, result.sourceText) {
-              override lazy val rawSourceText: String = decompileInner(fileName, bytes).fold("")(_._2)
+            new DecompilationResult(result.isScala, result.sourceName) {
+              override lazy val rawSourceText: String =
+                Decompiler(fileName, bytes).fold("")(_._2)
             }
           case _ =>
-            val result = decompileInner(fileName, bytes).fold(DecompilationResult.empty()) {
-              case (sourceFileName, decompiledSourceText) =>
-                new DecompilationResult(isScala = true, sourceFileName) {
-                  override def rawSourceText: String = decompiledSourceText
-                }
-            }
+            val result = Decompiler(fileName, bytes)
+              .fold(DecompilationResult.empty) {
+                case (sourceFileName, decompiledSourceText) =>
+                  new DecompilationResult(isScala = true, sourceFileName) {
+                    override def rawSourceText: String = decompiledSourceText
+                  }
+              }
+
             for {
-              attributes <- findAttributes
-              outputStream = attributes.writeAttribute(file)
+              attribute <- decompilerFileAttribute
+              outputStream = attribute.writeAttribute(file)
             } result.writeTo(outputStream)
 
             result
@@ -122,12 +114,8 @@ package object decompiler {
     case _ => DecompilationResult.empty()
   }
 
-  private[this] def decompileInner(fileName: String, bytes: Array[Byte]) =
-    try {
-      Decompiler.decompile(fileName, bytes)
-    } catch {
-      case e: Exception =>
-        LOG.warn(e.getMessage)
-        None
-    }
+  // Underlying VFS implementation may not support attributes (e.g. Upsource's file system).
+  private[this] def decompilerFileAttribute =
+    if (ScalaLoader.isUnderUpsource) None
+    else Some(DecompilerFileAttribute)
 }
