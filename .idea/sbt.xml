@@ -1,9 +1,9 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <project version="4">
   <component name="ScalaSbtSettings">
-    <option name="customVMPath" />
     <option name="linkedExternalProjectsSettings">
       <SbtProjectSettings>
+        <option name="enableDebugSbtShell" value="false" />
         <option name="externalProjectPath" value="$PROJECT_DIR$" />
         <option name="modules">
           <set>
@@ -32,6 +32,7 @@
           </set>
         </option>
         <option name="sbtVersion" value="0.13.17" />
+        <option name="resolveClassifiers" value="false" />
         <option name="useSbtShellForImport" value="true" />
       </SbtProjectSettings>
     </option>
