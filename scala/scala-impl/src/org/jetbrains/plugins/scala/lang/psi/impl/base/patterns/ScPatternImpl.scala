@@ -1,5 +1,6 @@
 package org.jetbrains.plugins.scala.lang.psi.impl.base.patterns
 
+import org.jetbrains.plugins.scala.lang.psi.annotator.ScPatternAnnotator
 import org.jetbrains.plugins.scala.lang.psi.api.base.patterns.{ScBindingPattern, ScPattern, ScReferencePattern, ScTypedPattern}
 import org.jetbrains.plugins.scala.lang.psi.api.base.types.ScTypeVariableTypeElement
 import org.jetbrains.plugins.scala.lang.psi.api.expr.ScGenerator
@@ -8,7 +9,8 @@ import org.jetbrains.plugins.scala.lang.psi.types.result.{Failure, TypeResult}
 
 import scala.collection.mutable
 
-trait ScPatternImpl extends ScPattern {
+trait ScPatternImpl extends ScPattern with ScPatternAnnotator {
+
   override def `type`(): TypeResult = Failure("Cannot type pattern")
 
   override def bindings: Seq[ScBindingPattern] = {

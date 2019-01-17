@@ -1,19 +1,20 @@
-package org.jetbrains.plugins.scala
-package annotator
+package org.jetbrains.plugins.scala.lang.psi.annotator
 
 import com.intellij.lang.annotation.AnnotationHolder
+import org.jetbrains.plugins.scala.ScalaBundle
 import org.jetbrains.plugins.scala.annotator.AnnotatorUtils.proccessError
-import org.jetbrains.plugins.scala.extensions.{PsiMethodExt, ResolvesTo}
+import org.jetbrains.plugins.scala.extensions.{ResolvesTo, _}
 import org.jetbrains.plugins.scala.lang.psi.ScalaPsiUtil
+import org.jetbrains.plugins.scala.lang.psi.api.Annotatable
 import org.jetbrains.plugins.scala.lang.psi.api.base.ScStableCodeReferenceElement
 import org.jetbrains.plugins.scala.lang.psi.api.base.patterns._
-import org.jetbrains.plugins.scala.lang.psi.api.base.types.{ScCompoundTypeElement, ScTypeElementExt}
+import org.jetbrains.plugins.scala.lang.psi.api.base.types.ScCompoundTypeElement
 import org.jetbrains.plugins.scala.lang.psi.api.statements.params.ScClassParameter
 import org.jetbrains.plugins.scala.lang.psi.api.statements.{ScFunction, ScVariable}
-import org.jetbrains.plugins.scala.lang.psi.types.ComparingUtil._
+import org.jetbrains.plugins.scala.lang.psi.types.ComparingUtil.{isNeverSubClass, isNeverSubType}
 import org.jetbrains.plugins.scala.lang.psi.types.api.designator.DesignatorOwner
-import org.jetbrains.plugins.scala.lang.psi.types.api.{ScTypePresentation, _}
-import org.jetbrains.plugins.scala.lang.psi.types.{ScAbstractType, ScParameterizedType, ScType, ScTypeExt, ScalaType}
+import org.jetbrains.plugins.scala.lang.psi.types.api.{Any, AnyVal, Nothing, Null, ScTypePresentation, TupleType, TypeParameterType, arrayType}
+import org.jetbrains.plugins.scala.lang.psi.types.{ScAbstractType, ScParameterizedType, ScType, ScalaType}
 import org.jetbrains.plugins.scala.lang.resolve.ScalaResolveResult
 import org.jetbrains.plugins.scala.project.ProjectContext
 import org.jetbrains.plugins.scala.util.BetterMonadicForSupport.Implicit0Pattern
@@ -21,20 +22,17 @@ import org.jetbrains.plugins.scala.util.BetterMonadicForSupport.Implicit0Pattern
 import scala.annotation.tailrec
 import scala.collection.mutable.ArrayBuffer
 
-/**
- * Jason Zaugg
- */
 
-trait PatternAnnotator {
+trait ScPatternAnnotator extends Annotatable { self: ScPattern =>
 
-  def annotatePattern(pattern: ScPattern, holder: AnnotationHolder, highlightErrors: Boolean) {
-    if (highlightErrors) {
-      PatternAnnotator.checkPattern(pattern, holder)
+  override def annotate(holder: AnnotationHolder, typeAware: Boolean): Unit = {
+    if (typeAware) {
+      ScPatternAnnotator.checkPattern(this, holder)
     }
   }
 }
 
-object PatternAnnotator {
+object ScPatternAnnotator {
 
   def checkPattern(pattern: ScPattern, holder: AnnotationHolder): Unit = {
     implicit val ctx: ProjectContext = pattern
@@ -48,10 +46,10 @@ object PatternAnnotator {
   }
 
   /**
-   * Logic in this method is mimicked from compiler sources:
-   * [[scala.tools.nsc.typechecker.Infer.Inferencer]] and [[scala.tools.nsc.typechecker.Checkable]]
-   *
-   */
+    * Logic in this method is mimicked from compiler sources:
+    * [[scala.tools.nsc.typechecker.Infer.Inferencer]] and [[scala.tools.nsc.typechecker.Checkable]]
+    *
+    */
   private def checkPatternType(_patType: ScType, exprType: ScType, pattern: ScPattern, holder: AnnotationHolder) = {
     implicit val ctx: ProjectContext = pattern
 
@@ -117,7 +115,7 @@ object PatternAnnotator {
         arg match {
           case ScTypedPattern(_) => () // valid according to better-monadic-for rewriting rules
           case other             => proccessError(ScalaBundle.message("better.monadic.for.invalid.pattern"), other, holder)
-      }
+        }
       case _: ScInterpolationPattern => //do not check interpolated patterns for number of arguments
       case (_: ScConstructorPattern|_: ScInfixPattern) => //check number of arguments
         val (reference, numPatterns) = pattern match {
@@ -183,6 +181,7 @@ object PatternAnnotator {
     buffer
   }
 
+  // TODO Should be in ScPattern, not in the annotator?
   @tailrec
   def matchesPattern(matching: ScType, matched: ScType): Boolean = {
     def abstraction(scType: ScType, visited: Set[TypeParameterType] = Set.empty): ScType = {
@@ -205,6 +204,7 @@ object PatternAnnotator {
     })
   }
 
+  // TODO Should be in ScPattern, not in the annotator?
   //computes type of the pattern itself, shouldn't rely on expected type
   def patternType(pattern: ScPattern): Option[ScType] = {
     import pattern.projectContext

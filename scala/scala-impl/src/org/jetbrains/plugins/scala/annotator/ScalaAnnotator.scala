@@ -73,7 +73,7 @@ abstract class ScalaAnnotator extends Annotator
   with ApplicationAnnotator
   with VariableDefinitionAnnotator
   with TypedStatementAnnotator with PatternDefinitionAnnotator
-  with PatternAnnotator with ConstructorAnnotator
+  with ConstructorAnnotator
   with OverridingAnnotator with ValueClassAnnotator
   with ProjectContextOwner with DumbAware {
 
@@ -281,7 +281,6 @@ abstract class ScalaAnnotator extends Annotator
       }
 
       override def visitPattern(pat: ScPattern) {
-        annotatePattern(pat, holder, typeAware)
         super.visitPattern(pat)
       }
 
