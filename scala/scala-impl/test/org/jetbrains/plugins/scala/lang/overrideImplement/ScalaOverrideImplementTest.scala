@@ -5,6 +5,7 @@ import com.intellij.openapi.project.Project
 import org.jetbrains.plugins.scala.base.ScalaLightPlatformCodeInsightTestCaseAdapter
 import org.jetbrains.plugins.scala.lang.formatting.settings.ScalaCodeStyleSettings
 import org.jetbrains.plugins.scala.overrideImplement.ScalaOIUtil
+import org.jetbrains.plugins.scala.project.settings.ScalaCompilerConfiguration
 import org.jetbrains.plugins.scala.settings.ScalaApplicationSettings
 import org.jetbrains.plugins.scala.util.TypeAnnotationSettings
 
@@ -22,6 +23,10 @@ class ScalaOverrideImplementTest extends ScalaLightPlatformCodeInsightTestCaseAd
     configureFromFileTextAdapter("dummy.scala", fileText.replace("\r", "").stripMargin.trim)
     val oldSettings = ScalaCodeStyleSettings.getInstance(project).clone()
     TypeAnnotationSettings.set(project, settings)
+    val defaultProfile = ScalaCompilerConfiguration.instanceIn(getProjectAdapter).defaultProfile
+    val newSettings = defaultProfile.getSettings
+    newSettings.plugins = newSettings.plugins :+ "kind-projector"
+    defaultProfile.setSettings(newSettings)
 
     implicit val editor: Editor = getEditorAdapter
     ScalaApplicationSettings.getInstance().COPY_SCALADOC = copyScalaDoc
@@ -1198,5 +1203,138 @@ class ScalaOverrideImplementTest extends ScalaLightPlatformCodeInsightTestCaseAd
       """.stripMargin
     val methodName = "methodToOverride"
     runTest(methodName, fileText, expectedResult, isImplement = true)
+  }
+
+  def testImplementKindProjectorLambdaInline(): Unit = {
+    val text =
+      """
+        |trait Monad[F[_]]
+        |trait Foo[F[_]] {
+        |  def monad: Monad[F]
+        |}
+        |
+        |class Bar extends Foo[Either[String, ?]] {
+        |  <caret>
+        |}
+      """.stripMargin
+    val expected =
+      """
+        |trait Monad[F[_]]
+        |trait Foo[F[_]] {
+        |  def monad: Monad[F]
+        |}
+        |
+        |class Bar extends Foo[Either[String, ?]] {
+        |  def monad: Monad[Either[String, ?]] = ???
+        |}
+      """.stripMargin
+    val methodName = "monad"
+    runTest(methodName, text, expected, isImplement = true)
+  }
+
+  def testImplementKindProjectorLambdaFunctionSyntax(): Unit = {
+    val text =
+      """
+        |trait Monad[F[_]]
+        |trait Foo[F[_]] {
+        |  def monad: Monad[F]
+        |}
+        |
+        |class Bar extends Foo[Lambda[A => (A, A)]] {
+        |  <caret>
+        |}
+      """.stripMargin
+    val expected =
+      """
+        |trait Monad[F[_]]
+        |trait Foo[F[_]] {
+        |  def monad: Monad[F]
+        |}
+        |
+        |class Bar extends Foo[Lambda[A => (A, A)]] {
+        |  def monad: Monad[Lambda[A => (A, A)]] = ???
+        |}
+      """.stripMargin
+    val methodName = "monad"
+    runTest(methodName, text, expected, isImplement = true)
+  }
+
+  def testImplementKindProjectorLambdaWithVariance(): Unit = {
+    val text =
+      """
+        |trait Monad[F[_]]
+        |trait Foo[F[_]] {
+        |  def monad: Monad[F]
+        |}
+        |
+        |class Bar extends Foo[Lambda[`+A` => Either[List[A], List[A]]]] {
+        |  <caret>
+        |}
+      """.stripMargin
+    val expected =
+      """
+        |trait Monad[F[_]]
+        |trait Foo[F[_]] {
+        |  def monad: Monad[F]
+        |}
+        |
+        |class Bar extends Foo[Lambda[`+A` => Either[List[A], List[A]]]] {
+        |  def monad: Monad[Lambda[`+A` => Either[List[A], List[A]]]] = ???
+        |}
+      """.stripMargin
+    val methodName = "monad"
+    runTest(methodName, text, expected, isImplement = true)
+  }
+
+  def testImplementKindProjectorAppliedLambda(): Unit = {
+    val text =
+      """
+        |trait Foo[F[_, _]] {
+        |  def foo: F[Double, String]
+        |}
+        |
+        |class Bar extends Foo[λ[(-[A], +[B]) => (A, Int) => B]] {
+        |  <caret>
+        |}
+      """.stripMargin
+    val expected =
+      """
+        |trait Foo[F[_, _]] {
+        |  def foo: F[Double, String]
+        |}
+        |
+        |class Bar extends Foo[λ[(-[A], +[B]) => (A, Int) => B]] {
+        |  def foo: (Double, Int) => String = ???
+        |}
+      """.stripMargin
+    val methodName = "foo"
+    runTest(methodName, text, expected, isImplement = true)
+  }
+
+  def testImplementPlainTypeLambda(): Unit = {
+    val text =
+      """
+        |trait Monad[F[_]]
+        |trait Foo[F[_]] {
+        |  def monad: Monad[F]
+        |}
+        |
+        |class Bar extends Foo[({ type L[A] = List[(String, A)] })#L] {
+        | <caret>
+        |}
+      """.stripMargin
+    val expected =
+      """
+        |trait Monad[F[_]]
+        |trait Foo[F[_]] {
+        |  def monad: Monad[F]
+        |}
+        |
+        |class Bar extends Foo[({ type L[A] = List[(String, A)] })#L] {
+        |  def monad: Monad[Lambda[A => List[(String, A)]]] = ???
+        |}
+      """.stripMargin
+    val methodName = "monad"
+    runTest(methodName, text, expected, isImplement = true)
   }
 }

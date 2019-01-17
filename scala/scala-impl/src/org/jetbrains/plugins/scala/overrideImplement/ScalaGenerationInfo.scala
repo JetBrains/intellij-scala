@@ -12,6 +12,7 @@ import com.intellij.pom.Navigatable
 import com.intellij.psi._
 import com.intellij.psi.codeStyle.CodeStyleManager
 import org.jetbrains.plugins.scala.actions.ScalaFileTemplateUtil
+import org.jetbrains.plugins.scala.codeInspection.typeLambdaSimplify.KindProjectorTypeLambdaUtil
 import org.jetbrains.plugins.scala.extensions._
 import org.jetbrains.plugins.scala.lang.psi.TypeAdjuster
 import org.jetbrains.plugins.scala.lang.psi.api.expr.ScBlockExpr
@@ -198,6 +199,7 @@ object ScalaGenerationInfo {
       withComment = ScalaApplicationSettings.getInstance().COPY_SCALADOC, withAnnotation = false)(method.getManager)
 
     TypeAnnotationUtil.removeTypeAnnotationIfNeeded(m, typeAnnotationsPolicy)
+    KindProjectorTypeLambdaUtil.simplifyTypeLambdasIn(m)
     val added = td.addMember(m, Option(anchor))
     TypeAdjuster.markToAdjust(added)
     added.asInstanceOf[ScFunction]

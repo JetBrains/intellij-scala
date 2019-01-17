@@ -313,7 +313,7 @@ package object extensions {
   }
 
   implicit class BooleanExt(val b: Boolean) extends AnyVal {
-    def option[A](a: => A): Option[A] = if (b) Some(a) else None
+    def option[A](a: => A): Option[A] = if (b) Option(a) else None
 
     def either[A, B](right: => B)(left: => A): Either[A, B] = if (b) Right(right) else Left(left)
 
