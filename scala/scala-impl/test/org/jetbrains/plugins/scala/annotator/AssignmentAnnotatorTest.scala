@@ -176,10 +176,9 @@ class AssignmentAnnotatorTest extends SimpleTestCase {
     val file = (Header + code).parse
     val assignment = file.depthFirst().findByType[ScAssignment].get
     
-    val annotator = new AssignmentAnnotator() {}
     val mock = new AnnotatorHolderMock(file)
     
-    annotator.annotateAssignment(assignment, mock, advancedHighlighting = true)
+    assignment.annotate(mock, typeAware = true)
     mock.annotations
   }
   

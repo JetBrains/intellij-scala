@@ -71,7 +71,7 @@ import scala.meta.intellij.MetaExpansionsManager
 abstract class ScalaAnnotator extends Annotator
   with FunctionAnnotator with ScopeAnnotator
   with ApplicationAnnotator
-  with AssignmentAnnotator with VariableDefinitionAnnotator
+  with VariableDefinitionAnnotator
   with TypedStatementAnnotator with PatternDefinitionAnnotator
   with PatternAnnotator with ConstructorAnnotator
   with OverridingAnnotator with ValueClassAnnotator
@@ -333,7 +333,6 @@ abstract class ScalaAnnotator extends Annotator
       }
 
       override def visitAssignmentStatement(stmt: ScAssignment) {
-        annotateAssignment(stmt, holder, typeAware)
         super.visitAssignmentStatement(stmt)
       }
 
