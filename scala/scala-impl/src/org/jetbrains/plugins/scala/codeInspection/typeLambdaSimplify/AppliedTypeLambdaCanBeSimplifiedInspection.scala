@@ -5,7 +5,7 @@ package typeLambdaSimplify
 import com.intellij.codeInspection._
 import com.intellij.openapi.project.Project
 import com.intellij.psi.PsiElementVisitor
-import org.jetbrains.plugins.scala.lang.psi.api.ScalaPsiElement
+import org.jetbrains.plugins.scala.codeInspection.typeLambdaSimplify.KindProjectorTypeLambdaUtil.TypeLambda
 import org.jetbrains.plugins.scala.lang.psi.api.base.types._
 import org.jetbrains.plugins.scala.lang.psi.api.statements.ScTypeAliasDefinition
 import org.jetbrains.plugins.scala.lang.psi.api.{ScalaElementVisitor, ScalaFile}
@@ -34,82 +34,70 @@ import org.jetbrains.plugins.scala.lang.psi.types.result._
  * }}}
  */
 class AppliedTypeLambdaCanBeSimplifiedInspection extends LocalInspectionTool {
+  import AppliedTypeLambdaCanBeSimplifiedInspection._
+
   override def isEnabledByDefault: Boolean = true
-
-  override def getID: String = "ScalaAppliedTypeLambdaCanBeSimplified"
-
-  override def getDisplayName: String = InspectionBundle.message("applied.type.lambda.can.be.simplified")
+  override def getID: String               = inspectionId
+  override def getDisplayName: String      = inspectionName
 
   override def buildVisitor(holder: ProblemsHolder, isOnTheFly: Boolean): PsiElementVisitor = {
-    if (!holder.getFile.isInstanceOf[ScalaFile]) return PsiElementVisitor.EMPTY_VISITOR
+    def inspectTypeProjection(
+      alias:         ScTypeAliasDefinition,
+      parameterized: ScParameterizedTypeElement
+    ): Unit = {
+      val typeArgs = parameterized.typeArgList.typeArgs
 
-    def addInfo(paramType: ScParameterizedTypeElement, replacementText: => String) = {
-      val fixes = Array[LocalQuickFix](new SimplifyAppliedTypeLambdaQuickFix(paramType, replacementText))
-      val problem = holder.getManager.createProblemDescriptor(paramType, getDisplayName, isOnTheFly,
-        fixes, ProblemHighlightType.GENERIC_ERROR_OR_WARNING)
-      holder.registerProblem(problem)
-    }
+      if (alias.typeParameters.size == typeArgs.size) {
+        val fix = new SimplifyAppliedTypeLambdaQuickFix(parameterized, simplifyTypeProjection(alias, typeArgs))
+        val problem = holder.getManager.createProblemDescriptor(
+          parameterized,
+          getDisplayName,
+          isOnTheFly,
+          Array[LocalQuickFix](fix),
+          ProblemHighlightType.GENERIC_ERROR_OR_WARNING
+        )
 
-    def inspectTypeProjection(typeProjection: ScTypeProjection, paramType: ScParameterizedTypeElement) = {
-      typeProjection.typeElement match {
-        case parenType: ScParenthesisedTypeElement => parenType.innerElement match {
-          case Some(ct: ScCompoundTypeElement) =>
-            (ct.components, ct.refinement) match {
-              case (Seq(), Some(refinement)) =>
-                (refinement.holders, refinement.types) match {
-                  case (Seq(), Seq(typeAliasDefinition: ScTypeAliasDefinition)) =>
-                    val name1 = typeProjection.nameId
-                    val name2 = typeAliasDefinition.nameId
-                    if (name1.getText == name2.getText) {
-                      val params = typeAliasDefinition.typeParameters
-                      val typeArgs = paramType.typeArgList.typeArgs
-                      if (params.length == typeArgs.length) {
-                        def simplified(): String = {
-                          val aliased = typeAliasDefinition.aliasedType.getOrAny
-                          val subst = ScSubstitutor.bind(params, typeArgs)(_.calcType)
-                          val substituted = subst(aliased)
-                          substituted.presentableText
-                        }
-                        addInfo(paramType, simplified())
-                      }
-                    }
-                  case _ =>
-                }
-              case _ =>
-            }
-          case _ =>
-        }
-        case _ =>
+        holder.registerProblem(problem)
       }
     }
 
-    new ScalaElementVisitor {
-      override def visitElement(elem: ScalaPsiElement): Unit = elem match {
-        case paramType: ScParameterizedTypeElement => paramType.typeElement match {
-          case typeProjection: ScTypeProjection => inspectTypeProjection(typeProjection, paramType)
-          case typeLambda: ScParameterizedTypeElement if paramType.kindProjectorPluginEnabled =>
-            //def a: λ[A => (A, A)][String]
-            // can be transformed into
-            //def a: (String, String)
-            typeLambda.computeDesugarizedType match {
-              case Some(typeProjection: ScTypeProjection) =>
-                    inspectTypeProjection(typeProjection, paramType)
-              case _ =>
-            }
-          case _ =>
+    holder.getFile match {
+      case _: ScalaFile =>
+        new ScalaElementVisitor {
+          override def visitParameterizedTypeElement(elem: ScParameterizedTypeElement): Unit = elem.typeElement match {
+            case TypeLambda(alias) => inspectTypeProjection(alias, elem)
+            case typeLambda: ScParameterizedTypeElement if elem.kindProjectorPluginEnabled =>
+              /* def a: λ[A => (A, A)][String]
+                 can be transformed into
+                 def a: (String, String) */
+              typeLambda.computeDesugarizedType match {
+                case Some(TypeLambda(alias)) => inspectTypeProjection(alias, elem)
+                case _                       => ()
+              }
+            case _ => ()
+          }
         }
-        case _ =>
-      }
+      case _ => PsiElementVisitor.EMPTY_VISITOR
     }
   }
 }
 
-class SimplifyAppliedTypeLambdaQuickFix(paramType: ScParameterizedTypeElement, replacement: => String)
-        extends AbstractFixOnPsiElement(InspectionBundle.message("simplify.type"), paramType) {
+object AppliedTypeLambdaCanBeSimplifiedInspection {
+  private val inspectionId: String = "ScalaAppliedTypeLambdaCanBeSimplified"
+  private val inspectionName: String = InspectionBundle.message("applied.type.lambda.can.be.simplified")
 
-  override protected def doApplyFix(element: ScParameterizedTypeElement)
-                                   (implicit project: Project): Unit = {
-    element.replace(createTypeElementFromText(replacement))
+  def simplifyTypeProjection(alias: ScTypeAliasDefinition, typeArgs: Seq[ScTypeElement]): String = {
+    val aliased     = alias.aliasedType.getOrAny
+    val subst       = ScSubstitutor.bind(alias.typeParameters, typeArgs)(_.calcType)
+    val substituted = subst(aliased)
+    substituted.presentableText
+  }
+
+  class SimplifyAppliedTypeLambdaQuickFix(paramType: ScParameterizedTypeElement, replacement: => String)
+    extends AbstractFixOnPsiElement(InspectionBundle.message("simplify.type"), paramType) {
+
+    override protected def doApplyFix(element: ScParameterizedTypeElement)(implicit project: Project): Unit =
+      element.replace(createTypeElementFromText(replacement))
   }
 }
 
