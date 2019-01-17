@@ -85,7 +85,7 @@ class TypeAnnotationsPanel(settings: CodeStyleSettings) extends TypeAnnotationsP
     )
   }
 
-  override protected def getTabTitle: String = "Type Annotations"
+  override protected def getTabTitle: String = TypeAnnotationsPanel.Title
 
   override protected def getRightMargin: Int = 0
 
@@ -113,10 +113,12 @@ class TypeAnnotationsPanel(settings: CodeStyleSettings) extends TypeAnnotationsP
   }
 }
 
-private object TypeAnnotationsPanel {
+object TypeAnnotationsPanel {
   private def elementsIn(field: TextFieldWithBrowseButton): util.Set[String] =
     new util.HashSet(ParametersListUtil.COLON_LINE_PARSER.fun(field.getText))
 
   private def setElementsIn(field: TextFieldWithBrowseButton, elements: util.Set[String]): Unit =
     field.setText(ParametersListUtil.COLON_LINE_JOINER.fun(new util.ArrayList(elements)))
+
+  val Title = "Type Annotations"
 }

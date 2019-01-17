@@ -19,6 +19,7 @@ import org.jetbrains.plugins.scala.settings.ScalaApplicationSettings.ReturnTypeL
 import org.jetbrains.plugins.scala.settings._
 import org.jetbrains.plugins.scala.settings.annotations._
 import org.jetbrains.plugins.scala.{ScalaBundle, extensions}
+import org.jetbrains.plugins.scala.lang.formatting.settings.TypeAnnotationsPanel
 
 /**
   * Created by kate on 7/14/16.
@@ -88,7 +89,7 @@ object TypeAnnotationUtil {
               val selectedPanel = panel.getSelectedPanel
               assert(selectedPanel != null)
               selectedPanel match {
-                case tab: ScalaTabbedCodeStylePanel => tab.changeTab("Type Annotations")
+                case tab: ScalaTabbedCodeStylePanel => tab.changeTab(TypeAnnotationsPanel.Title)
                 case _ =>
               }
             }

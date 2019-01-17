@@ -50,22 +50,22 @@ object ScalaFmtConfigUtil {
   def configFor(psi: PsiFile): ScalafmtConfig = {
     val settings = CodeStyle.getCustomSettings(psi, classOf[ScalaCodeStyleSettings])
     val project = psi.getProject
-    val config = configFor(project, settings)
+    val config = configFor(project, settings.SCALAFMT_CONFIG_PATH)
     psi match {
       case _: SbtFileImpl => config.copy(runner = ScalafmtRunner.sbt)
       case _ => config
     }
   }
 
-  private def configFor(project: Project, settings: ScalaCodeStyleSettings): ScalafmtConfig =
-    scalaFmtConfigFile(settings, project) match {
+  private def configFor(project: Project, configPath: String): ScalafmtConfig =
+    scalaFmtConfigFile(configPath, project) match {
     case Some(custom) =>
       storeOrUpdate(custom, project)
-    case _ if settings.SCALAFMT_CONFIG_PATH.isEmpty =>
+    case _ if configPath.isEmpty =>
       //auto-detect settings
       ScalafmtConfig.intellij
     case _ =>
-      reportBadConfig(settings.SCALAFMT_CONFIG_PATH, project, ConfError.fileDoesNotExist(settings.SCALAFMT_CONFIG_PATH))
+      reportBadConfig(configPath, project, ConfError.fileDoesNotExist(configPath))
       ScalafmtConfig.intellij
   }
 
@@ -79,11 +79,11 @@ object ScalaFmtConfigUtil {
     defaultConfigurationFile(project)
       .map(getScalafmtProjectConfig(_, project))
 
-  def scalaFmtConfigFile(settings: ScalaCodeStyleSettings, project: Project): Option[VirtualFile] =
-    if (settings.SCALAFMT_CONFIG_PATH.isEmpty) {
+  def scalaFmtConfigFile(configPath: String, project: Project): Option[VirtualFile] =
+    if (configPath.isEmpty) {
       defaultConfigurationFile(project)
     } else {
-      absolutePathFromConfigPath(settings.SCALAFMT_CONFIG_PATH, project)
+      absolutePathFromConfigPath(configPath, project)
         .flatMap(path => StandardFileSystems.local.findFileByPath(path).toOption)
     }
 

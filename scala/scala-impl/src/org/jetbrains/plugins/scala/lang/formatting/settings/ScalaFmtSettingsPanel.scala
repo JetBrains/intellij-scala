@@ -28,8 +28,6 @@ import org.jetbrains.plugins.scala.extensions._
 import org.jetbrains.plugins.scala.lang.formatting.processors.ScalaFmtConfigUtil
 import org.scalafmt.config.Config
 
-import scala.collection.mutable
-
 class ScalaFmtSettingsPanel(val settings: CodeStyleSettings) extends CodeStyleAbstractPanel(settings) {
 
   override val getEditor: Editor = createConfigEditor
@@ -44,30 +42,55 @@ class ScalaFmtSettingsPanel(val settings: CodeStyleSettings) extends CodeStyleAb
 
   override def getPreviewText: String = null
 
-  private val notifiedPaths = mutable.Set[String]()
 
-  override def apply(codeStyleSettings: CodeStyleSettings): Unit = {
-    val scalaCodeStyleSettings = codeStyleSettings.getCustomSettings(classOf[ScalaCodeStyleSettings])
-    val oldPath = scalaCodeStyleSettings.SCALAFMT_CONFIG_PATH
-    scalaCodeStyleSettings.SCALAFMT_CONFIG_PATH = externalFormatterSettingsPath.getText
-    scalaCodeStyleSettings.SHOW_SCALAFMT_INVALID_CODE_WARNINGS = showScalaFmtInvalidCodeWarnings.isSelected
-    if (!notifiedPaths.contains(scalaCodeStyleSettings.SCALAFMT_CONFIG_PATH) && scalaCodeStyleSettings.SCALAFMT_CONFIG_PATH != "") {
-      notifiedPaths.add(scalaCodeStyleSettings.SCALAFMT_CONFIG_PATH)
-    }
+  override def apply(settings: CodeStyleSettings): Unit = {
     val editorText = getEditor.getDocument.getText
-    if (oldPath != scalaCodeStyleSettings.SCALAFMT_CONFIG_PATH) {
-      updateConfigText(scalaCodeStyleSettings)
-      reportErrorsInConfig()
-    } else if (configText.exists(_ != editorText)) {
-      getConfigVfile(scalaCodeStyleSettings).foreach{
-        vFile =>
-          val document = inReadAction(FileDocumentManager.getInstance().getDocument(vFile))
-          inWriteAction(ApplicationManager.getApplication.invokeAndWait(document.setText(editorText)), ModalityState.current())
-          configText = Some(editorText)
-          reportErrorsInConfig()
+    val configTextChangedInEditor = configText.exists(_ != editorText)
+
+    val modified = isModified(settings) || configTextChangedInEditor
+    if(!modified) return
+
+    val scalaSettings = settings.getCustomSettings(classOf[ScalaCodeStyleSettings])
+
+    scalaSettings.SHOW_SCALAFMT_INVALID_CODE_WARNINGS = showScalaFmtInvalidCodeWarnings.isSelected
+
+    val configPath = scalaSettings.SCALAFMT_CONFIG_PATH
+    val configPathNew = externalFormatterSettingsPath.getText
+    val configPathChanged = configPath != configPathNew
+
+    if (configPathChanged) {
+      doWithConfigFile(configPathNew) { vFile =>
+        scalaSettings.SCALAFMT_CONFIG_PATH = configPathNew // only update config path if the file actually exists
+        updateConfigTextFromFile(vFile)
+      }
+    } else if (configTextChangedInEditor) {
+      doWithConfigFile(configPath) { vFile =>
+        saveConfigChangesToFile(editorText, vFile)
       }
     }
-    setConfigVisibility(scalaCodeStyleSettings)
+
+    updateConfigVisibility()
+  }
+
+  private def doWithConfigFile[T](configPath: String)(body: VirtualFile => T): Unit = {
+    getConfigVFile(configPath) match {
+      case Some(vFile)   =>
+        body(vFile)
+        reportErrorsInConfig()
+      case None =>
+        reportConfigFileNotFound(configPath)
+    }
+  }
+
+  private def updateConfigTextFromFile(vFile: VirtualFile): Unit= {
+    configText = inReadAction(FileDocumentManager.getInstance.getDocument(vFile).toOption.map(_.getText))
+    configText.foreach(text => inWriteAction(getEditor.getDocument.setText(text)))
+  }
+
+  private def saveConfigChangesToFile(configTextNew: String, vFile: VirtualFile): Unit = {
+    val document = inReadAction(FileDocumentManager.getInstance.getDocument(vFile))
+    inWriteAction(ApplicationManager.getApplication.invokeAndWait(document.setText(configTextNew)), ModalityState.current())
+    configText = Some(configTextNew)
   }
 
   override def isModified(codeStyleSettings: CodeStyleSettings): Boolean = {
@@ -78,11 +101,15 @@ class ScalaFmtSettingsPanel(val settings: CodeStyleSettings) extends CodeStyleAb
   }
 
   override def resetImpl(codeStyleSettings: CodeStyleSettings): Unit = {
-    val scalaCodeStyleSettings = codeStyleSettings.getCustomSettings(classOf[ScalaCodeStyleSettings])
-    externalFormatterSettingsPath.setText(scalaCodeStyleSettings.SCALAFMT_CONFIG_PATH)
-    showScalaFmtInvalidCodeWarnings.setSelected(scalaCodeStyleSettings.SHOW_SCALAFMT_INVALID_CODE_WARNINGS)
-    updateConfigText(scalaCodeStyleSettings)
-    setConfigVisibility(scalaCodeStyleSettings)
+    val scalaSettings = codeStyleSettings.getCustomSettings(classOf[ScalaCodeStyleSettings])
+    val configPath = scalaSettings.SCALAFMT_CONFIG_PATH
+
+    externalFormatterSettingsPath.setText(configPath)
+    showScalaFmtInvalidCodeWarnings.setSelected(scalaSettings.SHOW_SCALAFMT_INVALID_CODE_WARNINGS)
+    getConfigVFile(configPath).foreach { vFile =>
+      updateConfigTextFromFile(vFile)
+    }
+    updateConfigVisibility()
     externalFormatterSettingsPath.getButton.grabFocus()
   }
 
@@ -139,28 +166,39 @@ class ScalaFmtSettingsPanel(val settings: CodeStyleSettings) extends CodeStyleAb
     resetImpl(settings)
   }
 
-  private def setConfigVisibility(settings: ScalaCodeStyleSettings): Unit = {
+  private def updateConfigVisibility(): Unit = {
     previewPanel.setVisible(configText.isDefined)
     configLabel.setVisible(configText.isDefined)
     noConfigLabel.setVisible(configText.isEmpty)
   }
 
-  private def updateConfigText(scalaCodeStyleSettings: ScalaCodeStyleSettings): Unit = {
-    configText = getConfigVfile(scalaCodeStyleSettings).flatMap(FileDocumentManager.getInstance().getDocument(_).toOption).map(_.getText)
-    configText.foreach(text => inWriteAction(getEditor.getDocument.setText(text)))
-  }
-
-  private def getConfigVfile(scalaSettings: ScalaCodeStyleSettings): Option[VirtualFile] =
-    project.flatMap(ScalaFmtConfigUtil.scalaFmtConfigFile(scalaSettings, _))
+  private def getConfigVFile(configPath: String): Option[VirtualFile] =
+    project.flatMap(ScalaFmtConfigUtil.scalaFmtConfigFile(configPath, _))
 
   private def reportErrorsInConfig(): Unit = {
     configText.foreach{Config.fromHoconString(_) match {
       case Configured.NotOk(error) =>
-          val balloon = JBPopupFactory.getInstance.createHtmlTextBalloonBuilder(s"Failed to parse configuration: <br> ${error.msg}",
-            MessageType.ERROR, null).createBalloon()
-        balloon.show(new RelativePoint(previewPanel, new Point(previewPanel.getWidth - 10, previewPanel.getHeight)), Balloon.Position.above)
+        val component = previewPanel
+        reportError(s"Failed to parse configuration: <br> ${error.msg}",
+          component, component.getWidth - 10, component.getHeight, Balloon.Position.above, MessageType.WARNING)
       case _ =>
     }}
+  }
+
+  private def reportConfigFileNotFound(configPath: String): Unit = {
+    val component = externalFormatterSettingsPath
+    reportError(s"Can not find scalafmt config file with path: `$configPath`",
+      component, component.getWidth / 2, component.getHeight, Balloon.Position.below)
+  }
+
+  private def reportError(text: String, relativeTo: JComponent,
+                          xPosition: Int, yPosition: Int,
+                          direction: Balloon.Position,
+                          messageType: MessageType = MessageType.ERROR): Unit = {
+    val factory = JBPopupFactory.getInstance.createHtmlTextBalloonBuilder(text, messageType, null)
+    val balloon = factory.createBalloon()
+    val balloonPosition = new RelativePoint(relativeTo, new Point(xPosition, yPosition))
+    balloon.show(balloonPosition, direction)
   }
 
   //copied from CodeStyleAbstractPanel
