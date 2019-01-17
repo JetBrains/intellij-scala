@@ -68,6 +68,7 @@ class SbtBuilder extends ModuleLevelBuilder(BuilderCategory.TRANSLATOR) {
     val compilerOptionsChanged = CompilerOptionsStore.updateCompilerOptionsCache(context, chunk, moduleNames)
 
     if (dirtyFilesFromIntellij.isEmpty &&
+      !dirtyFilesHolder.hasRemovedFiles &&
       !ModulesFedToZincStore.checkIfAnyModuleDependencyWasFedToZinc(context, chunk) &&
       !compilerOptionsChanged
     ) {
