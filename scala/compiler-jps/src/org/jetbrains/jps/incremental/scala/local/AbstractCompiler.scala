@@ -53,6 +53,8 @@ abstract class AbstractCompiler extends Compiler {
 
   class ClientProgress(client: Client) extends CompileProgress {
 
+    private var lastTimeChecked = System.currentTimeMillis()
+    private final val cancelThreshold = 1000L
 
     def startUnit(phase: String, unitPath: String) {
       val unitName = new File(unitPath).getName
@@ -61,7 +63,14 @@ abstract class AbstractCompiler extends Compiler {
 
     def advance(current: Int, total: Int): Boolean = {
       client.progress("", Some(current.toFloat / total.toFloat))
-      !client.isCanceled
+      // Since isCanceled is blocking method (waiting on flush on socket connection to finish).
+      // We don't want to block compilation more often then once per second (this is optimalization)
+      // It also means that compilation may be canceled 1 sec later - but this is not a problem.
+      val time = System.currentTimeMillis()
+      if (time - lastTimeChecked > cancelThreshold) {
+        lastTimeChecked = time
+        !client.isCanceled
+      } else true
     }
 
     def generated(source: File, module: File, name: String): Unit = {
