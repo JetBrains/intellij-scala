@@ -38,6 +38,10 @@ class EventGeneratingClient(writeEvent: Event => Unit, canceled: => Boolean) ext
     listener(GeneratedEvent(source, module, name))
   }
 
+  override def allGenerated(generated: Array[(File, Array[(File, String)])]) {
+    listener(AllGeneratedEvent(generated))
+  }
+
   def deleted(module: File) {
     listener(DeletedEvent(module))
   }

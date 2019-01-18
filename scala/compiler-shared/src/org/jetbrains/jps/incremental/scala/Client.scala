@@ -30,6 +30,13 @@ trait Client {
 
   def generated(source: File, module: File, name: String)
 
+  def allGenerated(generated: Array[(File, Array[(File, String)])]): Unit = {
+    for {
+      (sourceFile, binaries) <- generated
+      (binaryFile, className) <- binaries
+    } this.generated(sourceFile, binaryFile, className)
+  }
+
   def processed(source: File)
 
   def deleted(module: File)

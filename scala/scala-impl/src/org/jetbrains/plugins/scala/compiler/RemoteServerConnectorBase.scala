@@ -94,7 +94,8 @@ abstract class RemoteServerConnectorBase(protected val module: Module, filesToCo
     worksheetArgs,
     "", //allSources, used in zinc only
     "0", //timestamp, used in zinc only
-    "false" //isCompile
+    "false", //isCompile
+    "false" //toJar
   )
   
   protected def configurationError(message: String) = throw new IllegalArgumentException(message)

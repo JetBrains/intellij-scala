@@ -16,7 +16,12 @@ import org.jetbrains.jps.model.module.JpsModule
 
 import scala.collection.JavaConverters._
 
-case class ZincData(allSources: Seq[File], compilationStartDate: Long, isCompile: Boolean)
+case class ZincData(
+  allSources: Seq[File],
+  compilationStartDate: Long,
+  isCompile: Boolean,
+  isToJar: Boolean = true // temporary before it is configurable
+)
 
 /**
  * @author Pavel Fatin
@@ -166,15 +171,8 @@ abstract class BaseCompilationData extends CompilationDataFactory {
     }
 
     outputClashesIn(targetToOutput).toLeft {
-      val paths = context.getProjectDescriptor.dataManager.getDataPaths
-
       for ((target, output) <- targetToOutput.toMap)
-        yield (
-          output.getCanonicalFile,
-          new File(
-            paths.getTargetDataRoot(target).getCanonicalFile,
-            s"cache-${target.getPresentableName}.zip")
-        )
+        yield (output, new File(output, s"cache-${target.getPresentableName}.zip"))
     }
   }
 
