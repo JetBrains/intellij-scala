@@ -13,7 +13,6 @@ import com.intellij.openapi.project.Project
 import com.intellij.openapi.roots.ModuleRootManager
 import com.intellij.openapi.vfs.VirtualFile
 import com.intellij.psi.{PsiFile, PsiManager}
-import com.intellij.util.Base64Converter
 import org.jetbrains.jps.incremental.ModuleLevelBuilder.ExitCode
 import org.jetbrains.jps.incremental.messages.BuildMessage
 import org.jetbrains.jps.incremental.messages.BuildMessage.Kind
@@ -70,12 +69,6 @@ class RemoteServerConnector(psiFile: PsiFile, worksheet: File, output: File, wor
            new RemoteServerRunner(project).buildProcess(arguments, client)
         case NonServer =>
           val eventClient = new ClientEventProcessor(client)
-          
-          val encodedArgs = ("NO_TOKEN" +: arguments) map {
-            case "" => Base64Converter.encode("#STUB#" getBytes "UTF-8")
-            case s => Base64Converter.encode(s getBytes "UTF-8")
-          }
-
           val errorHandler = new ErrorHandler {
             override def error(message: String): Unit = Notifications.Bus notify {
               new Notification(
@@ -86,9 +79,9 @@ class RemoteServerConnector(psiFile: PsiFile, worksheet: File, output: File, wor
               )
             }
           }
-
+          val encodedArgs = Seq(Protocol.fromBytes(Protocol.serializeArgs("NO_TOKEN" +: arguments)))
           new NonServerRunner(project, Some(errorHandler)).buildProcess(encodedArgs, (text: String) => {
-            val event = Event.fromBytes(Base64Converter.decode(text.getBytes("UTF-8")))
+            val event = Protocol.deserializeEvent(Protocol.toBytes(text))
             eventClient.process(event)
           })
       }

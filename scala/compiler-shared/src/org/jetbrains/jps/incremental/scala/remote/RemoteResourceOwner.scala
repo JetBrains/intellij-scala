@@ -3,9 +3,7 @@ package org.jetbrains.jps.incremental.scala.remote
 import java.io._
 import java.net.{InetAddress, Socket}
 
-import com.intellij.util.Base64Converter
 import com.martiansoftware.nailgun.NGConstants
-import org.jetbrains.jps.incremental.messages.BuildMessage.Kind
 import org.jetbrains.jps.incremental.scala._
 
 /**
@@ -13,6 +11,7 @@ import org.jetbrains.jps.incremental.scala._
  * @author Dmitry Naydanov
  */
 trait RemoteResourceOwner {
+
   protected val address: InetAddress
   protected val port: Int
   
@@ -20,10 +19,9 @@ trait RemoteResourceOwner {
   protected val serverAlias = "compile-server"
 
   def send(command: String, arguments: Seq[String], client: Client) {
-    val encodedArgs = arguments.map(s => Base64Converter.encode(s.getBytes("UTF-8")))
     using(new Socket(address, port)) { socket =>
       using(new DataOutputStream(new BufferedOutputStream(socket.getOutputStream))) { output =>
-        createChunks(command, encodedArgs).foreach(_.writeTo(output))
+        createChunks(command, arguments).foreach(_.writeTo(output))
         output.flush()
         if (client != null) {
           using(new DataInputStream(new BufferedInputStream(socket.getInputStream))) { input =>
@@ -43,7 +41,7 @@ trait RemoteResourceOwner {
           return
         case Chunk(NGConstants.CHUNKTYPE_STDOUT, data) =>
           try {
-            val event = Event.fromBytes(Base64Converter.decode(data))
+            val event = Protocol.deserializeEvent(data)
             processor.process(event)
           } catch {
             case e: Exception =>
@@ -51,30 +49,29 @@ trait RemoteResourceOwner {
                 val s = new String(data)
                 if (s.length > 50) s.substring(0, 50) + "..." else s
               }
-              client.message(Kind.ERROR, "Unable to read an event from: " + chars)
+              client.error("Unable to read an event from: " + chars)
               client.trace(e)
           }
         // Main server class redirects all (unexpected) stdout data to stderr.
         // In theory, there should be no such data at all, however, in practice,
         // sbt "leaks" some messages into console (e.g. for "explain type errors" option).
-        // Report such output not as errors, but as warings (to continue make process).
+        // Report such output not as errors, but as warnings (to continue make process).
         case Chunk(NGConstants.CHUNKTYPE_STDERR, data) =>
-          client.message(Kind.WARNING, fromBytes(data))
+          client.warning(Protocol.fromBytes(data))
         case Chunk(kind, data) =>
-          client.message(Kind.ERROR, "Unexpected server output: " + data)
+          client.error("Unexpected server output: " + data)
       }
     }
   }
 
   protected def createChunks(command: String, args: Seq[String]): Seq[Chunk] = {
-    args.map(s => Chunk(NGConstants.CHUNKTYPE_ARGUMENT.toChar, toBytes(s))) :+
-      Chunk(NGConstants.CHUNKTYPE_WORKINGDIRECTORY.toChar, toBytes(currentDirectory)) :+
-      Chunk(NGConstants.CHUNKTYPE_COMMAND.toChar, toBytes(command))
+    val serializedArgs = Protocol.serializeArgs(args)
+    val argsChunks = Chunk(NGConstants.CHUNKTYPE_ARGUMENT.toChar, serializedArgs)
+    val cwdChunk = Chunk(NGConstants.CHUNKTYPE_WORKINGDIRECTORY.toChar, Protocol.toBytes(currentDirectory))
+    val commandChunk = Chunk(NGConstants.CHUNKTYPE_COMMAND.toChar, Protocol.toBytes(command))
+    Seq(argsChunks, cwdChunk, commandChunk)
   }
 
-  private def toBytes(s: String) = s.getBytes
-
-  private def fromBytes(bytes: Array[Byte]) = new String(bytes)
 }
 
 case class Chunk(kind: Chunk.Kind, data: Array[Byte]) {

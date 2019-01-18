@@ -5,7 +5,6 @@ import java.io._
 import java.nio.file.{Files, Path, Paths}
 import java.util.{Timer, TimerTask}
 
-import com.intellij.util.Base64Converter
 import com.martiansoftware.nailgun.NGContext
 import org.jetbrains.jps.incremental.messages.BuildMessage.Kind
 import org.jetbrains.jps.incremental.scala.local.LocalServer
@@ -36,10 +35,7 @@ object Main {
     var hasErrors = false
 
     val client = {
-      val eventHandler = (event: Event) => {
-        val encode = Base64Converter.encode(event.toBytes)
-        out.write((if (standalone && !encode.endsWith("=")) encode + "=" else encode).getBytes)
-      }
+      val eventHandler = (event: Event) => out.write(Protocol.serializeEvent(event, standalone))
       new EventGeneratingClient(eventHandler, out.checkError) {
         override def error(text: String, source: Option[File], line: Option[Long], column: Option[Long]): Unit = {
           hasErrors = true
@@ -58,14 +54,7 @@ object Main {
     System.setOut(System.err)
 
     try {
-      val args = {
-        val strings = arguments.map {
-          arg =>
-            val s = new String(Base64Converter.decode(arg.getBytes), "UTF-8")
-            if (s == "#STUB#") "" else s
-        }
-        Arguments.from(strings)
-      }
+      val args = Arguments.from(Protocol.deserializeArgs(arguments))
 
       // Don't check token in non-server mode
       if (port != -1) {

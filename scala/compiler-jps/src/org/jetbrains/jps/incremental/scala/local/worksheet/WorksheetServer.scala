@@ -4,10 +4,10 @@ import java.io._
 import java.net.URL
 import java.nio.ByteBuffer
 
-import com.intellij.util.Base64Converter
 import com.martiansoftware.nailgun.ThreadLocalPrintStream
 import org.jetbrains.jps.incremental.scala.data.CompilerJars
 import org.jetbrains.jps.incremental.scala.local.worksheet.compatibility.WorksheetArgsJava
+import org.jetbrains.jps.incremental.scala.remote.Protocol
 import org.jetbrains.jps.incremental.scala.remote.{Arguments, EventGeneratingClient, WorksheetOutputEvent}
 
 import scala.collection.JavaConverters._
@@ -102,8 +102,8 @@ object WorksheetServer {
       if (buffer.position() == 0) return
       val event = WorksheetOutputEvent(new String(buffer.array(), 0, buffer.position()))
       buffer.clear()
-      val encode = Base64Converter.encode(event.toBytes)
-      delegateOut.write(if (standalone && !encode.endsWith("=")) (encode + "=").getBytes else encode.getBytes)
+      val encode = Protocol.serializeEvent(event, standalone)
+      delegateOut.write(encode)
     }
   }
   
