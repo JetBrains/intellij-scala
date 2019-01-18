@@ -364,8 +364,28 @@ object BspProjectResolver {
         Set.empty,
         data.getParent.getUri.toURI
       )
-      val sdkData = calculateScalaSdkData(data.getScalaBuildTarget)
-      ??? // TODO finish implementing sbt module description
+      val scalaSdkData = calculateScalaSdkData(data.getScalaBuildTarget)
+      val classPath = data.getClasspath.asScala.map(new File(_))
+      data.getScalaBuildTarget
+
+      // TODO finish implementing sbt module description
+      val scalaModule = ScalaModuleDescription(
+        targets = ???,
+        targetDependencies = ???,
+        targetTestDependencies = Seq.empty, // TODO sbt build modules should support tests too (but hardly anyone uses them)
+        basePath = ???,
+        output  = ???,
+        testOutput = None,
+        sourceDirs = ???,
+        testSourceDirs = Seq.empty,
+        classPath = classPath,
+        classPathSources = ???,
+        testClassPath = Seq.empty,
+        testClassPathSources = Seq.empty,
+        scalaSdkData = scalaSdkData
+      )
+
+      SbtModuleDescription(sbtData, scalaModule)
     }
   }
 
