@@ -69,7 +69,8 @@ abstract class BaseCompilationData extends CompilationDataFactory {
         throw new RuntimeException(message)
       })
 
-      val relevantOutputToCacheMap = (outputToCacheMap - output).filter(p => classpath.contains(p._1))
+      val classpathSet = classpath.toSet
+      val relevantOutputToCacheMap = (outputToCacheMap - output).filter(p => classpathSet.contains(p._1))
 
       val commonOptions = {
         val encoding = context.getProjectDescriptor.getEncodingConfiguration.getPreferredModuleChunkEncoding(chunk)
