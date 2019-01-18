@@ -5,7 +5,7 @@ object Versions {
   val scalaBinaryVersion: String = Scala.binary_2_12
   // ATTENTION: when updating sbtVersion also update versions in MockSbt_1_0
   val sbtVersion: String = Sbt.latest
-  val zincVersion = "1.1.1"
+  val zincVersion = "1.3.0-M2"
   val ideaVersion = "183.4284.118"
   val sbtStructureVersion: String = "2018.2.1+4-88400d3f"
   val sbtIdeaShellVersion: String = "2018.3"
@@ -111,11 +111,11 @@ object Dependencies {
   val nailgun: ModuleID = "org.jetbrains" % "nailgun-patched" % "1.0.0"
   val zinc = "org.scala-sbt" %% "zinc" % zincVersion
   val zincInterface = "org.scala-sbt" % "compiler-interface" % zincVersion
-  val sbtInterface = "org.scala-sbt" % "util-interface" % "1.1.2"
+  val sbtInterface = "org.scala-sbt" % "util-interface" % "1.2.1"
 
   val compilerBridgeSources_2_10 = "org.scala-sbt" % "compiler-bridge_2.10" % zincVersion classifier "sources"
   val compilerBridgeSources_2_11 = "org.scala-sbt" % "compiler-bridge_2.11" % zincVersion classifier "sources"
-  val compilerBridgeSources_2_13 = "org.scala-sbt" % "compiler-bridge_2.13.0-M2" % zincVersion classifier "sources"
+  val compilerBridgeSources_2_13 = "org.scala-sbt" % "compiler-bridge_2.13.0-M5" % zincVersion classifier "sources"
 
   /** The filtering function returns true for jars to be removed.
     * It's purpose is to exclude platform jars that may conflict with plugin dependencies. */
