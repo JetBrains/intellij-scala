@@ -39,4 +39,26 @@ class LocalTypeInferenceExpectedTypeTest extends ScalaLightCodeInsightFixtureTes
       |}
     """.stripMargin
   )
+
+  def testSCL14862(): Unit = checkTextHasNoErrors(
+    """
+      |case class SadType {
+      |   val one: Option[SadType] = None
+      |   val two: Option[SadType] = None
+      |}
+      |
+      |trait SomeType {
+      |
+      |  def fold[A](one: => A, two: => A): A = ??? // generally it does something but this is good enough here
+      |}
+      |
+      |object HereIsTheProblem {
+      |
+      |  type CompoundType = SadType => Option[SadType]
+      |
+      |  def problematicMethod(some: SomeType): CompoundType = some.fold(_.one, _.two) // HERE!
+      |
+      |}
+    """.stripMargin
+  )
 }

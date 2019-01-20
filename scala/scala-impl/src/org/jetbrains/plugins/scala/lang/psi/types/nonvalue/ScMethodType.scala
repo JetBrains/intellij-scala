@@ -5,6 +5,7 @@ import com.intellij.psi.PsiParameter
 import org.jetbrains.plugins.scala.extensions.PsiParameterExt
 import org.jetbrains.plugins.scala.lang.psi.ElementScope
 import org.jetbrains.plugins.scala.lang.psi.api.statements.params.{ScParameter, TypeParamIdOwner}
+import org.jetbrains.plugins.scala.lang.psi.types.ConstraintSystem.SubstitutionBounds
 import org.jetbrains.plugins.scala.lang.psi.types._
 import org.jetbrains.plugins.scala.lang.psi.types.api._
 import org.jetbrains.plugins.scala.lang.psi.types.recursiveUpdate.AfterUpdate.ProcessSubtypes
@@ -188,23 +189,44 @@ final case class ScTypePolymorphicType(internalType: ScType, typeParameters: Seq
   /**
     * See [[scala.tools.nsc.typechecker.Infer.Inferencer#protoTypeArgs]]
     */
-  def argsProtoTypeSubst: ScSubstitutor = internalType match {
-    case ScMethodType(_, params, _) =>
-      ScSubstitutor.bind(typeParameters) { tp =>
-        val varianceInParams = params.map(_.paramType).foldLeft(Variance.Bivariant) {
-          case (acc, tpe) => acc & tp.varianceInType(tpe)
-        }
-        val loBound      = if (hasRecursiveTypeParameters(tp.lowerType)) Nothing else tp.lowerType
-        val hiBound      = if (hasRecursiveTypeParameters(tp.upperType)) Any     else tp.upperType
-        val emptyLoBound = loBound.equiv(Nothing)
-        val emptyHiBound = hiBound.equiv(Any)
+  def argsProtoTypeSubst(pt: ScType): ScSubstitutor = internalType match {
+    case ScMethodType(retTpe, params, _) =>
+      val subst             = ScSubstitutor.bind(typeParameters)(UndefinedType(_))
+      val retTpeConformance = subst(retTpe).isConservativelyCompatible(pt)
 
-        if (!emptyLoBound && varianceInParams.isContravariant)
-          tp.lowerType
-        else if (!emptyHiBound && (varianceInParams.isPositive || !emptyLoBound && hiBound.conforms(loBound)))
-          tp.upperType
-        else ScAbstractType(tp, loBound, hiBound)
-      }
+      if (retTpeConformance.isLeft) abstractTypeSubstitutor
+      else
+        retTpeConformance.constraints.substitutionBounds(canThrowSCE = false) match {
+          case Some(SubstitutionBounds(_, lowerMap, upperMap)) =>
+            ScSubstitutor.bind(typeParameters) { tp =>
+              val varianceInParams = params.map(_.paramType).foldLeft(Variance.Bivariant) {
+                case (acc, tpe) => acc & tp.varianceInType(tpe)
+              }
+
+              val bound = (lower: Boolean) => {
+                val combine: (ScType, ScType) => ScType = if (lower) _ lub _      else _ glb _
+                val map                                 = if (lower) lowerMap     else upperMap
+                val original                            = if (lower) tp.lowerType else tp.upperType
+
+                map.get(tp.typeParamId) match {
+                  case Some(b) => combine(b, original)
+                  case None    => original
+                }
+              }
+
+              val loBound      = if (hasRecursiveTypeParameters(tp.lowerType)) Nothing else bound(true)
+              val hiBound      = if (hasRecursiveTypeParameters(tp.upperType)) Any     else bound(false)
+              val emptyLoBound = loBound.equiv(Nothing)
+              val emptyHiBound = hiBound.equiv(Any)
+
+              if (!emptyLoBound && varianceInParams.isContravariant)
+                loBound
+              else if (!emptyHiBound && (varianceInParams.isPositive || !emptyLoBound && hiBound.conforms(loBound)))
+                hiBound
+              else ScAbstractType(tp, loBound, hiBound)
+            }
+          case None => abstractTypeSubstitutor
+        }
     case _ => throw new IllegalArgumentException("argProtoTypeSubst call on non-poly-method type")
   }
 
