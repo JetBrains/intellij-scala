@@ -7,7 +7,7 @@ import org.jetbrains.plugins.scala.lang.psi.api.statements.{ScTypeAlias, ScTypeA
 import org.jetbrains.plugins.scala.lang.psi.types.api.ScTypePresentation.shouldExpand
 import org.jetbrains.plugins.scala.lang.psi.types.api.designator.{DesignatorOwner, ScDesignatorType, ScProjectionType, ScThisType}
 import org.jetbrains.plugins.scala.lang.psi.types.api.{TypeParameterType, _}
-import org.jetbrains.plugins.scala.lang.psi.types.nonvalue.{NonValueType, ScTypePolymorphicType}
+import org.jetbrains.plugins.scala.lang.psi.types.nonvalue.{NonValueType, ScMethodType, ScTypePolymorphicType}
 import org.jetbrains.plugins.scala.lang.psi.types.recursiveUpdate.AfterUpdate.{ProcessSubtypes, ReplaceWith}
 import org.jetbrains.plugins.scala.lang.psi.types.recursiveUpdate.ScSubstitutor
 import org.jetbrains.plugins.scala.lang.psi.types.result._
@@ -46,6 +46,21 @@ package object types {
       conforms(`type`, ConstraintSystem.empty) match {
         case ConstraintSystem(substitutor) => Some(substitutor)
         case _ => None
+      }
+    }
+
+    /** see scala.tools.nsc.typechecker.Infer.Inferencer#isConservativelyCompatible from scalac */
+    def isConservativelyCompatible(pt: ScType): ConstraintsResult = {
+      def tryConformanceNoParams(fullResults: ConstraintsResult): ConstraintsResult = scType match {
+        case ScMethodType(retTpe, ps, _) if ps.isEmpty => retTpe.conforms(pt, ConstraintSystem.empty, checkWeak = true)
+        case _                                         => fullResults
+      }
+
+      if (pt.isUnit) ConstraintSystem.empty // can perform unit coercion
+      else {
+        val conformanceResult = conforms(pt, ConstraintSystem.empty, checkWeak = true)
+        if (conformanceResult.isRight) conformanceResult
+        else                           tryConformanceNoParams(conformanceResult)
       }
     }
 
