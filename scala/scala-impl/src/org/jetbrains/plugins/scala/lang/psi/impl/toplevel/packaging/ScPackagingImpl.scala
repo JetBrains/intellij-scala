@@ -18,10 +18,10 @@ import org.jetbrains.plugins.scala.extensions.PsiElementExt
 import org.jetbrains.plugins.scala.lang.TokenSets.TYPE_DEFINITIONS
 import org.jetbrains.plugins.scala.lang.lexer.ScalaTokenTypes
 import org.jetbrains.plugins.scala.lang.parser.ScalaElementType
-import org.jetbrains.plugins.scala.lang.psi.api.ScPackageLike
 import org.jetbrains.plugins.scala.lang.psi.api.base.ScStableCodeReferenceElement
 import org.jetbrains.plugins.scala.lang.psi.api.toplevel.ScPackaging
 import org.jetbrains.plugins.scala.lang.psi.api.toplevel.typedef.{ScObject, ScTypeDefinition}
+import org.jetbrains.plugins.scala.lang.psi.api.{ScPackageLike, ScalaFile}
 import org.jetbrains.plugins.scala.lang.psi.stubs.ScPackagingStub
 import org.jetbrains.plugins.scala.lang.psi.stubs.elements.ScStubElementType
 import org.jetbrains.plugins.scala.lang.resolve.processor.BaseProcessor
@@ -51,28 +51,23 @@ final class ScPackagingImpl private[psi](stub: ScPackagingStub,
       findChild(classOf[ScStableCodeReferenceElement])
     }
 
-  def isExplicit: Boolean = byStubOrPsi(_.isExplicit)(findChildByType(ScalaTokenTypes.tLBRACE) != null)
+  override def isExplicit: Boolean = byStubOrPsi(_.isExplicit)(findLeftBrace.isDefined)
 
-  def packageName: String = byStubOrPsi(_.packageName)(reference.map(_.qualName).getOrElse(""))
+  override def packageName: String = byStubOrPsi(_.packageName)(reference.fold("")(_.qualName))
 
-  def parentPackageName: String = byStubOrPsi(_.parentPackageName)(parentPackageName(this))
+  override def parentPackageName: String = byStubOrPsi(_.parentPackageName)(ScPackagingImpl.parentPackageName(this))
 
-  private def parentPackageName(e: PsiElement): String = e.getParent match {
-    case p: ScPackaging => ScPackaging.fullPackageName(parentPackageName(p), p.packageName)
-    case _: ScalaFileImpl | null => ""
-    case parent => parentPackageName(parent)
-  }
+  override def fullPackageName: String = ScPackagingImpl.fullPackageName(parentPackageName, packageName)
 
   def declaredElements: Seq[ScPackageImpl] = {
-    val topRefName = packageName.indexOf(".") match {
-      case -1 => packageName
-      case index => packageName.substring(0, index)
+    val name = packageName
+    val topRefName = name.indexOf(".") match {
+      case -1 => name
+      case index => name.substring(0, index)
     }
 
-    val top = ScPackaging.fullPackageName(parentPackageName, topRefName)
-    Option(JavaPsiFacade.getInstance(getProject).findPackage(top)).map {
-      ScPackageImpl(_)
-    }.toSeq
+    val top = ScPackagingImpl.fullPackageName(parentPackageName, topRefName)
+    findPackage(top).toSeq
   }
 
   override def processDeclarations(processor: PsiScopeProcessor,
@@ -85,11 +80,7 @@ final class ScPackagingImpl private[psi](stub: ScPackagingStub,
     if (getStub != null || !reference.contains(lastParent)) {
       ProgressManager.checkCanceled()
 
-      val scPackageImpl = Option(JavaPsiFacade.getInstance(getProject)
-        .findPackage(fullPackageName))
-        .map(ScPackageImpl(_))
-
-      scPackageImpl match {
+      findPackage(fullPackageName) match {
         case Some(p) if !p.processDeclarations(processor, state, lastParent, place) => return false
         case _ =>
       }
@@ -118,30 +109,28 @@ final class ScPackagingImpl private[psi](stub: ScPackagingStub,
     ScalaShortNamesCacheManager.getInstance(getProject)
       .findPackageObjectByName(fullPackageName, scope)
 
-  def getBodyText: String = {
-    if (isExplicit) {
-      val startOffset = findChildByType[PsiElement](ScalaTokenTypes.tLBRACE).getTextRange.getEndOffset - getTextRange.getStartOffset
-      val text = getText
-      val endOffset = if (text.apply(text.length - 1) == '}') {
-        text.length - 1
-      } else text.length
-      text.substring(startOffset, endOffset)
-    } else {
-      val text = getText
-      val endOffset = text.length
-      var ref = findChildByType[PsiElement](ScalaElementType.REFERENCE)
-      if (ref == null) ref = findChildByType[PsiElement](ScalaTokenTypes.kPACKAGE)
-      if (ref == null) return getText
-      val startOffset = ref.getTextRange.getEndOffset + 1 -
-        getTextRange.getStartOffset
-      if (startOffset >= endOffset) "" else text.substring(startOffset, endOffset)
+  def bodyText: String = {
+    val text = getText
+    val endOffset = text.length
+
+    findLeftBrace match {
+      case Some(brace) =>
+        val startOffset = brace.getTextRange.getEndOffset - getTextRange.getStartOffset
+
+        val length = if (text(text.length - 1) == '}') 1 else 0
+        text.substring(startOffset, endOffset - length)
+      case _ =>
+        var ref = findChildByType[PsiElement](ScalaElementType.REFERENCE)
+        if (ref == null) ref = findChildByType[PsiElement](ScalaTokenTypes.kPACKAGE)
+        if (ref == null) return text
+
+        val startOffset = ref.getTextRange.getEndOffset + 1 - getTextRange.getStartOffset
+        if (startOffset >= endOffset) "" else text.substring(startOffset, endOffset)
     }
   }
 
-  override protected def childBeforeFirstImport: Option[PsiElement] = {
-    if (isExplicit) Option(findChildByType[PsiElement](ScalaTokenTypes.tLBRACE))
-    else reference
-  }
+  override protected def childBeforeFirstImport: Option[PsiElement] =
+    findLeftBrace.orElse(reference)
 
   override def parentScalaPackage: Option[ScPackageLike] = {
     Option(PsiTreeUtil.getContextOfType(this, true, classOf[ScPackageLike])).orElse {
@@ -150,4 +139,30 @@ final class ScPackagingImpl private[psi](stub: ScPackagingStub,
   }
 
   override def immediateTypeDefinitions: Seq[ScTypeDefinition] = getStubOrPsiChildren(TYPE_DEFINITIONS, ScTypeDefinitionFactory)
+
+  private def findLeftBrace = Option(findChildByType[PsiElement](ScalaTokenTypes.tLBRACE))
+
+  private def findPackage(name: String) =
+    Option(JavaPsiFacade.getInstance(getProject).findPackage(name))
+      .map(ScPackageImpl(_))
 }
+
+object ScPackagingImpl {
+
+  private def fullPackageName(parentPackageName: String, packageName: String): String = {
+    val infix = parentPackageName match {
+      case "" => ""
+      case _ => "."
+    }
+    s"$parentPackageName$infix$packageName"
+  }
+
+  private def parentPackageName(element: PsiElement): String = element.getParent match {
+    case packaging: ScPackaging =>
+      fullPackageName(parentPackageName(packaging), packaging.packageName)
+    case _: ScalaFile |
+         null => ""
+    case parent => parentPackageName(parent)
+  }
+}
+

@@ -15,21 +15,11 @@ trait ScPackaging extends ScToplevelElement
 
   def packageName: String
 
-  def fullPackageName: String = ScPackaging.fullPackageName(parentPackageName, packageName)
+  def fullPackageName: String
 
   def isExplicit: Boolean
 
-  def getBodyText: String
+  def bodyText: String
 
   def reference: Option[ScStableCodeReferenceElement]
-}
-
-object ScPackaging {
-  def fullPackageName(parentPackageName: String, packageName: String): String = {
-    val infix = parentPackageName match {
-      case "" => ""
-      case _ => "."
-    }
-    s"$parentPackageName$infix$packageName"
-  }
 }

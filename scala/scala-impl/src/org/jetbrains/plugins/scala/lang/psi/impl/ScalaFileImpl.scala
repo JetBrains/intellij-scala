@@ -278,7 +278,7 @@ class ScalaFileImpl(viewProvider: FileViewProvider,
     this.depthFirst().instanceOf[ScPackaging].foreach { p =>
       val startOffset = p.getTextOffset
       val endOffset = startOffset + p.getTextLength
-      document.replaceString(startOffset, endOffset, p.getBodyText.trim)
+      document.replaceString(startOffset, endOffset, p.bodyText.trim)
       PsiDocumentManager.getInstance(getProject).commitDocument(document)
       stripPackagings(document)
     }
