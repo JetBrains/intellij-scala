@@ -1,10 +1,13 @@
-package org.jetbrains.plugins.scala.decompileToJava
+package org.jetbrains.plugins.scala
+package decompileToJava
 
 import com.intellij.openapi.components.ServiceManager
-import org.jetbrains.plugins.scala.lang.psi.api.ScalaFile
+import org.jetbrains.plugins.scala.lang.psi.api.ScFile
+
+import scala.util.Try
 
 trait ScalaDecompilerService {
-  def decompile(sourceFile: ScalaFile): Either[DecompilationError, String]
+  def decompile(sourceFile: ScFile): Try[String]
 }
 
 object ScalaDecompilerService {

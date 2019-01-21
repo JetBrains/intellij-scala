@@ -1,7 +1,8 @@
-package org.jetbrains.plugins.scala.decompileToJava
+package org.jetbrains.plugins.scala
+package decompileToJava
 
 import java.io.File
-import java.util.jar
+import java.util.jar.Manifest
 
 import com.intellij.openapi.fileTypes.StdFileTypes
 import com.intellij.openapi.util.io.FileUtil
@@ -9,45 +10,43 @@ import com.intellij.openapi.vfs.VirtualFile
 import org.jetbrains.java.decompiler.IdeaLogger
 import org.jetbrains.java.decompiler.main.decompiler.BaseDecompiler
 import org.jetbrains.java.decompiler.main.extern.{IBytecodeProvider, IFernflowerPreferences, IResultSaver}
-import org.jetbrains.plugins.scala.extensions._
-import org.jetbrains.plugins.scala.lang.psi.api.ScalaFile
+import org.jetbrains.plugins.scala.lang.psi.api.ScFile
 
-import scala.collection.JavaConverters._
-import scala.collection.mutable
+import scala.collection.{JavaConverters, mutable}
+import scala.util.{Failure, Success, Try}
 
 private class ScalaDecompilerServiceImpl extends ScalaDecompilerService {
+
   import ScalaDecompilerServiceImpl._
 
-  override def decompile(file: ScalaFile): Either[DecompilationError, String] = if (file.isCompiled) {
+  override def decompile(file: ScFile): Try[String] = if (file.isCompiled) {
     try {
       val mappings = inReadAction { mappingsForClassfile(file.getVirtualFile) }
       val saver    = new ScalaResultSaver
 
+      import JavaConverters._
       val options = Map(
         IFernflowerPreferences.REMOVE_BRIDGE -> 0.asInstanceOf[AnyRef]
       ).asJava
 
       val provider: IBytecodeProvider = (externalPath, _) => {
         val path = new File(FileUtil.toSystemIndependentName(externalPath))
-        mappings.get(path).map(_()).orNull
+        mappings.get(path).map(_.apply()).orNull
       }
 
       val decompiler = new BaseDecompiler(provider, saver, options, new IdeaLogger())
       mappings.foreach { case (path, _) => decompiler.addSource(path) }
       decompiler.decompileContext()
-      Right(saver.result)
+      Success(saver.result)
     } catch {
-      case e: IdeaLogger.InternalException =>
-        val error = e.toOption
-        val message = error.map(_.getMessage).getOrElse("Unknown decompilation failure.")
-        Left(DecompilationError(message, error))
+      case e: IdeaLogger.InternalException => Failure(e)
     }
-  } else Left(DecompilationError(s"Unable to decompile ${file.name}"))
+  } else Failure(new RuntimeException(s"Unable to decompile ${file.getName}"))
 
   private[this] def isClassGeneratedFrom(sourceName: String, classfile: VirtualFile): Boolean =
     classfile.getFileType == StdFileTypes.CLASS && {
       val name = classfile.getNameWithoutExtension
-      name == sourceName || name.startsWith(s"$sourceName$$")
+      name == sourceName || name.startsWith(sourceName + "$")
     }
 
   private[this] def mappingsForClassfile(file: VirtualFile): Map[File, FileContents] =
@@ -80,7 +79,8 @@ object ScalaDecompilerServiceImpl {
     override def closeArchive(path: String, name: String): Unit = ()
     override def saveFolder(path: String): Unit = ()
     override def copyFile(source: String, path: String, entry: String): Unit = ()
-    override def createArchive(path: String, name: String, manifest: jar.Manifest): Unit = ()
+
+    override def createArchive(path: String, name: String, manifest: Manifest): Unit = ()
     override def copyEntry(source: String, path: String, name: String, entry: String): Unit = ()
   }
 }

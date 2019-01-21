@@ -229,7 +229,7 @@ lazy val propertiesIntegration =
 
 lazy val javaDecompilerIntegration =
   newProject("java-decompiler", file("scala/integration/java-decompiler"))
-    .dependsOn(scalaImpl % Compile)
+    .dependsOn(scalaApi % Compile)
     .settings(
       ideaInternalPlugins := Seq("java-decompiler")
     )

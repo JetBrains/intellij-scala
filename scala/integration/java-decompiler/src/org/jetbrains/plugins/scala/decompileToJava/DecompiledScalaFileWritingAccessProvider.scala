@@ -1,27 +1,23 @@
-package org.jetbrains.plugins.scala.decompileToJava
+package org.jetbrains.plugins.scala
+package decompileToJava
 
-import java.util
-import java.util.Collections
+import java.{util => ju}
 
 import com.intellij.openapi.vfs.ex.dummy.DummyFileSystem
 import com.intellij.openapi.vfs.{VirtualFile, WritingAccessProvider}
-import org.jetbrains.plugins.scala.extensions._
 
 class DecompiledScalaFileWritingAccessProvider extends WritingAccessProvider {
-  import DecompiledScalaFileWritingAccessProvider._
 
-  override def isPotentiallyWritable(vfile: VirtualFile): Boolean = !isDecompiledFile(vfile)
-
-  override def requestWriting(virtualFiles: VirtualFile*): util.Collection[VirtualFile] =
-    Collections.emptyList()
-}
-
-object DecompiledScalaFileWritingAccessProvider {
-  def isDecompiledFile(vfile: VirtualFile): Boolean =
-    vfile.getFileSystem match {
+  override def isPotentiallyWritable(file: VirtualFile): Boolean =
+    file.getFileSystem match {
       case _: DummyFileSystem =>
-        val parent = vfile.getParent.toOption.map(_.getName)
-        parent.contains(ScalaBytecodeDecompileTask.scalaDecompiledFolder)
-      case _ => false
+        val isDecompiled = Option(file.getParent)
+          .map(_.getName)
+          .contains(ScalaBytecodeDecompileTask.scalaDecompiledFolder)
+        !isDecompiled
+      case _ => true
     }
+
+  override def requestWriting(virtualFiles: VirtualFile*): ju.Collection[VirtualFile] =
+    ju.Collections.emptyList()
 }
