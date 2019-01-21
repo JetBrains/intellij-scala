@@ -1,8 +1,8 @@
 import Common._
 import Dependencies.sbtStructureExtractor
+import org.jetbrains.sbtidea.Keys._
 import org.jetbrains.sbtidea.tasks.packaging.ShadePattern
 import sbtide.Keys.ideSkipProject
-import org.jetbrains.sbtidea.Keys._
 
 // Global build settings
 
@@ -30,16 +30,19 @@ lazy val scalaCommunity: sbt.Project =
       javaDecompilerIntegration)
     .settings(
       ideExcludedDirectories    := Seq(baseDirectory.value / "target"),
-      packageAdditionalProjects := Seq(compilerJps, repackagedZinc, decompiler, compilerShared, nailgunRunners, runners, sbtRuntimeDependencies),
+      packageAdditionalProjects := Seq(scalaApi, compilerJps, repackagedZinc, decompiler, compilerShared, nailgunRunners, runners, sbtRuntimeDependencies),
       packageLibraryMappings    := Dependencies.scalaLibrary -> Some("lib/scala-library.jar") :: Nil,
       definedTests in Test := { // all sub-project tests need to be run within main project's classpath
         definedTests.all(ScopeFilter(inDependencies(scalaCommunity, includeRoot = false), inConfigurations(Test))).value.flatten })
+
+lazy val scalaApi = newProject("scala-api", file("scala/scala-api"))
 
 lazy val scalaImpl: sbt.Project =
   newProject("scala-impl", file("scala/scala-impl"))
     .dependsOn(
       scalaFmtBin,
       compilerShared,
+      scalaApi,
       macroAnnotations,
       decompiler % "test->test;compile->compile",
       runners    % "test->test;compile->compile")
