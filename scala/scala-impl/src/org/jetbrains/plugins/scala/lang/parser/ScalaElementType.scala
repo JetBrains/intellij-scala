@@ -53,7 +53,7 @@ object ScalaElementType {
   val ANNOTATION = new ScAnnotationElementType
   val ANNOTATIONS = new ScAnnotationsElementType
   val REFERENCE_PATTERN = new ScReferencePatternElementType
-  val PACKAGING = new ScPackagingElementType
+  val PACKAGING: ScPackagingElementType.type = ScPackagingElementType
   val EXTENDS_BLOCK = new ScExtendsBlockElementType
   val TEMPLATE_PARENTS = new ScTemplateParentsElementType
   val TEMPLATE_BODY = new ScTemplateBodyElementType

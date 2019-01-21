@@ -4,15 +4,12 @@ package psi
 package stubs
 
 import com.intellij.psi.stubs.StubElement
-import org.jetbrains.plugins.scala.lang.psi.api.toplevel.ScPackaging
 
-/**
-  * @author ilyas
-  */
-trait ScPackagingStub extends StubElement[ScPackaging] {
-  def parentPackageName: String
+trait ScPackagingStub extends StubElement[api.toplevel.ScPackaging] {
 
   def packageName: String
+
+  def parentPackageName: String
 
   def isExplicit: Boolean
 }

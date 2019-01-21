@@ -18,27 +18,25 @@ import org.jetbrains.plugins.scala.extensions.PsiElementExt
 import org.jetbrains.plugins.scala.lang.TokenSets.TYPE_DEFINITIONS
 import org.jetbrains.plugins.scala.lang.lexer.ScalaTokenTypes
 import org.jetbrains.plugins.scala.lang.parser.ScalaElementType
-import org.jetbrains.plugins.scala.lang.parser.ScalaElementType.PACKAGING
 import org.jetbrains.plugins.scala.lang.psi.api.ScPackageLike
 import org.jetbrains.plugins.scala.lang.psi.api.base.ScStableCodeReferenceElement
 import org.jetbrains.plugins.scala.lang.psi.api.toplevel.ScPackaging
 import org.jetbrains.plugins.scala.lang.psi.api.toplevel.typedef.{ScObject, ScTypeDefinition}
 import org.jetbrains.plugins.scala.lang.psi.stubs.ScPackagingStub
+import org.jetbrains.plugins.scala.lang.psi.stubs.elements.ScStubElementType
 import org.jetbrains.plugins.scala.lang.resolve.processor.BaseProcessor
 
 /**
   * @author Alexander Podkhalyuzin, Pavel Fatin
   *         Date: 20.02.2008
   */
-class ScPackagingImpl private(stub: ScPackagingStub, node: ASTNode)
-  extends ScalaStubBasedElementImpl(stub, PACKAGING, node)
+final class ScPackagingImpl private[psi](stub: ScPackagingStub,
+                                         nodeType: ScStubElementType[ScPackagingStub, ScPackaging],
+                                         node: ASTNode)
+  extends ScalaStubBasedElementImpl(stub, nodeType, node)
     with ScPackaging
     with ScImportsHolder // todo: to be removed
     with ScDeclarationSequenceHolder {
-
-  def this(node: ASTNode) = this(null, node)
-
-  def this(stub: ScPackagingStub) = this(stub, null)
 
   override def toString = "ScPackaging"
 

@@ -4,16 +4,11 @@ package psi
 package stubs
 package impl
 
-import com.intellij.psi.PsiElement
-import com.intellij.psi.stubs.{IStubElementType, StubBase, StubElement}
-import org.jetbrains.plugins.scala.lang.psi.api.toplevel.ScPackaging
+import com.intellij.psi.stubs.StubBase
 
-/**
-  * @author ilyas
-  */
-class ScPackagingStubImpl(parent: StubElement[_ <: PsiElement],
-                          elementType: IStubElementType[_ <: StubElement[_ <: PsiElement], _ <: PsiElement],
-                          val parentPackageName: String,
-                          val packageName: String,
-                          val isExplicit: Boolean)
-  extends StubBase[ScPackaging](parent, elementType) with ScPackagingStub
+final class ScPackagingStubImpl(parent: RawStubElement,
+                                elementType: RawStubElementType,
+                                val packageName: String,
+                                val parentPackageName: String,
+                                val isExplicit: Boolean)
+  extends StubBase[api.toplevel.ScPackaging](parent, elementType) with ScPackagingStub
