@@ -213,7 +213,7 @@ object TypeDefinitionMembers {
     def processRefinement(cp: ScCompoundType, map: Map, place: Option[PsiElement])
                          (implicit ctx: ProjectContext) {
       for ((sign, _) <- cp.signatureMap) {
-        if (sign.paramLength.sum == 0 && (ScalaPsiUtil.nameContext(sign.namedElement) match {
+        if (sign.paramLength == 0 && (ScalaPsiUtil.nameContext(sign.namedElement) match {
           case m: PsiMember => nonBridge(place, m)
           case _ => false
         })) {
