@@ -20,7 +20,9 @@ import scala.collection.JavaConverters._
   storages = Array(new Storage("scala_compiler.xml"))
 )
 class ScalaCompilerConfiguration(project: Project) extends PersistentStateComponent[Element] with ModificationTracker {
-  var incrementalityType: IncrementalityType = IncrementalityType.IDEA
+  var incrementalityType: IncrementalityType = ScalaCompilerConfiguration.defaultIncrementalityType
+
+  var compileToJar: Boolean = ScalaCompilerConfiguration.defaultCompileToJar
 
   var defaultProfile: ScalaCompilerSettingsProfile = new ScalaCompilerSettingsProfile("Default")
 
@@ -73,12 +75,17 @@ class ScalaCompilerConfiguration(project: Project) extends PersistentStateCompon
   def getState: Element = {
     val configurationElement = XmlSerializer.serialize(defaultProfile.getSettings.getState, new SkipDefaultValuesSerializationFilters())
 
-    if (incrementalityType != IncrementalityType.IDEA) {
-      val incrementalityTypeElement = new Element("option")
-      incrementalityTypeElement.setAttribute("name", "incrementalityType")
-      incrementalityTypeElement.setAttribute("value", incrementalityType.toString)
-      configurationElement.addContent(incrementalityTypeElement)
+    def appendSimpleOptionElement[A](value: A, default: A, name: String): Unit = {
+      if (value != default) {
+        val element = new Element("option")
+        element.setAttribute("name", name)
+        element.setAttribute("value", value.toString)
+        configurationElement.addContent(element)
+      }
     }
+
+    appendSimpleOptionElement(incrementalityType, ScalaCompilerConfiguration.defaultIncrementalityType, "incrementalityType")
+    appendSimpleOptionElement(compileToJar, ScalaCompilerConfiguration.defaultCompileToJar, "compileToJar")
 
     customProfiles.foreach { profile =>
       val profileElement = XmlSerializer.serialize(profile.getSettings.getState, new SkipDefaultValuesSerializationFilters())
@@ -93,10 +100,15 @@ class ScalaCompilerConfiguration(project: Project) extends PersistentStateCompon
   }
 
   def loadState(configurationElement: Element) {
-    incrementalityType = configurationElement.getChildren("option").asScala
-      .find(_.getAttributeValue("name") == "incrementalityType")
-      .map(it => IncrementalityType.valueOf(it.getAttributeValue("value")))
-      .getOrElse(IncrementalityType.IDEA)
+    def loadSimpleOption[A](name: String, fromString: String => A, default: A): A = {
+      configurationElement.getChildren("option").asScala
+        .find(_.getAttributeValue("name") == name)
+        .map(it => fromString(it.getAttributeValue("value")))
+        .getOrElse(default)
+    }
+
+    incrementalityType = loadSimpleOption("incrementalityType", IncrementalityType.valueOf, ScalaCompilerConfiguration.defaultIncrementalityType)
+    compileToJar = loadSimpleOption("compileToJar", _.toBoolean, ScalaCompilerConfiguration.defaultCompileToJar)
 
     defaultProfile.setSettings(new ScalaCompilerSettings(XmlSerializer.deserialize(configurationElement, classOf[ScalaCompilerSettingsState])))
 
@@ -125,4 +137,7 @@ object ScalaCompilerConfiguration extends SimpleModificationTracker {
 
   //to call as static method from java
   override def incModificationCount(): Unit = super.incModificationCount()
+
+  val defaultIncrementalityType: IncrementalityType = IncrementalityType.IDEA
+  val defaultCompileToJar: Boolean = false
 }

@@ -20,7 +20,7 @@ case class ZincData(
   allSources: Seq[File],
   compilationStartDate: Long,
   isCompile: Boolean,
-  isToJar: Boolean = true // temporary before it is configurable
+  isToJar: Boolean
 )
 
 /**
@@ -94,9 +94,11 @@ abstract class BaseCompilationData extends CompilationDataFactory {
 
       val additionalOptions = extraOptions(target, context, module, outputGroups)
 
+      val isToJar = SettingsManager.getProjectSettings(context.getProjectDescriptor.getProject).isCompileToJar
+
       CompilationData(canonicalSources, classpath, output, commonOptions ++ scalaOptions ++ additionalOptions, commonOptions ++ javaOptions,
         order, cacheFile, relevantOutputToCacheMap, outputGroups,
-        ZincData(allSources, compilationStamp, isCompile))
+        ZincData(allSources, compilationStamp, isCompile, isToJar))
     }
   }
 

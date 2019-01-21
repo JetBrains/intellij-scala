@@ -65,6 +65,7 @@ public class ScalaSerializerService extends JpsModelSerializerExtension {
     @Override
     public void loadExtension(@NotNull JpsProject jpsProject, @NotNull Element componentTag) {
       IncrementalityType incrementalityType = loadIncrementalityType(componentTag);
+      boolean compileToJar = loadCompileToJar(componentTag);
 
       CompilerSettingsImpl defaultSetting = loadSettings(componentTag);
 
@@ -82,7 +83,7 @@ public class ScalaSerializerService extends JpsModelSerializerExtension {
         }
       }
 
-      ProjectSettings configuration = new ProjectSettingsImpl(incrementalityType, defaultSetting, profileToSettings, moduleToProfile);
+      ProjectSettings configuration = new ProjectSettingsImpl(incrementalityType, compileToJar, defaultSetting, profileToSettings, moduleToProfile);
 
       SettingsManager.setProjectSettings(jpsProject, configuration);
     }
@@ -94,6 +95,15 @@ public class ScalaSerializerService extends JpsModelSerializerExtension {
         }
       }
       return IncrementalityType.IDEA;
+    }
+
+    private static boolean loadCompileToJar(Element componentTag) {
+      for (Element option : componentTag.getChildren("option")) {
+        if ("compileToJar".equals(option.getAttributeValue("name"))) {
+          return Boolean.valueOf(option.getAttributeValue("value"));
+        }
+      }
+      return false;
     }
 
     private static CompilerSettingsImpl loadSettings(Element componentTag) {
