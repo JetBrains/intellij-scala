@@ -15,7 +15,7 @@ final class ScalaImportFilteringRule extends ImportFilteringRule {
       val element: PsiElement = p.getElement
       element.containingScalaFile match {
         case Some(_) =>
-          val isImport = element.parentsInFile.containsType[ScImportExpr]
+          val isImport = element.parentsInFile.containsInstanceOf[ScImportExpr]
           !isImport
         case None => true
       }

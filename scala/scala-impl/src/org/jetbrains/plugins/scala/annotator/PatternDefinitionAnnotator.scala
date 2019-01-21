@@ -17,7 +17,7 @@ trait PatternDefinitionAnnotator {
     implicit val ctx: ProjectContext = definition
 
     if (highlightErrors && definition.pList.simplePatterns) {
-      for (expr <- definition.expr; element <- definition.children.findByType[ScSimpleTypeElement])
+      for (expr <- definition.expr; element <- definition.children.instanceOf[ScSimpleTypeElement])
         checkConformance(expr, element, holder)
     }
   }

@@ -81,7 +81,7 @@ class AddOnlyStrategy(editor: Option[Editor] = None) extends Strategy {
   }
 
   override def parameterWithoutType(param: ScParameter): Boolean = {
-    param.parentsInFile.findByType[ScFunctionExpr] match {
+    param.parentsInFile.instanceOf[ScFunctionExpr] match {
       case Some(func) =>
         val index = func.parameters.indexOf(param)
         func.expectedType() match {

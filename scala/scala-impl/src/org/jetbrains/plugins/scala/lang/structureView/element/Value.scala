@@ -41,5 +41,5 @@ class Value(element: ScNamedElement, inherited: Boolean, override val showType: 
 
   override def isAlwaysLeaf: Boolean = false
 
-  private def value = element.parentsInFile.findByType[ScValue]
+  private def value = element.parentsInFile.instanceOf[ScValue]
 }

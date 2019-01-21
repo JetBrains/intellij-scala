@@ -318,7 +318,7 @@ object ScalaPsiUtil {
       param match {
         case scp: ScParameter => scp.`type`().getOrNothing
         case p: PsiParameter =>
-          val treatJavaObjectAsAny = p.parentsInFile.findByType[PsiClass] match {
+          val treatJavaObjectAsAny = p.parentsInFile.instanceOf[PsiClass] match {
             case Some(cls) if cls.qualifiedName == "java.lang.Object" => true // See SCL-3036
             case _ => false
           }
@@ -1050,7 +1050,7 @@ object ScalaPsiUtil {
       return true
     }
 
-    e.parentsInFile.takeWhile(!isScope(_)).containsType[ScPatternDefinition]
+    e.parentsInFile.takeWhile(!isScope(_)).containsInstanceOf[ScPatternDefinition]
   }
 
   private def isCanonicalArg(expr: ScExpression) = expr match {

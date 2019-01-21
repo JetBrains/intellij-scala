@@ -51,7 +51,7 @@ object AddUnitTypeAnnotationIntention {
   private[types] val FamilyName = ScalaBundle.message("intention.add.explicit.unit.type.annotation")
 
   private def findDefinition(element: PsiElement) = for {
-    definition <- element.parentsInFile.findByType[ScFunctionDefinition]
+    definition <- element.parentsInFile.instanceOf[ScFunctionDefinition]
     if !definition.hasAssign
     body <- definition.body
     if !body.isAncestorOf(element)

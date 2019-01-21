@@ -756,17 +756,17 @@ package object extensions {
   }
 
   implicit class IteratorExt[A](val delegate: Iterator[A]) extends AnyVal {
-    def findByType[T: ClassTag]: Option[T] = {
+    def instanceOf[T: ClassTag]: Option[T] = {
       val aClass = implicitly[ClassTag[T]].runtimeClass
       delegate.find(aClass.isInstance).map(_.asInstanceOf[T])
     }
 
-    def filterByType[T: ClassTag]: Iterator[T] = {
+    def instancesOf[T: ClassTag]: Iterator[T] = {
       val aClass = implicitly[ClassTag[T]].runtimeClass
       delegate.filter(aClass.isInstance).map(_.asInstanceOf[T])
     }
 
-    def containsType[T: ClassTag]: Boolean = {
+    def containsInstanceOf[T: ClassTag]: Boolean = {
       val aClass = implicitly[ClassTag[T]].runtimeClass
       delegate.exists(aClass.isInstance)
     }

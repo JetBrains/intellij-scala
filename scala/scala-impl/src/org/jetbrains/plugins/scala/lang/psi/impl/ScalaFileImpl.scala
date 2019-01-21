@@ -226,7 +226,7 @@ class ScalaFileImpl(viewProvider: FileViewProvider,
       val documentManager = PsiDocumentManager.getInstance(getProject)
       val document = documentManager.getDocument(this)
 
-      val prefixText = this.children.findByType[ScPackaging]
+      val prefixText = this.children.instanceOf[ScPackaging]
               .map(it => getText.substring(0, it.getTextRange.getStartOffset))
               .filter(!_.isEmpty)
 
@@ -275,7 +275,7 @@ class ScalaFileImpl(viewProvider: FileViewProvider,
   }
 
   private def stripPackagings(document: Document) {
-    this.depthFirst().findByType[ScPackaging].foreach { p =>
+    this.depthFirst().instanceOf[ScPackaging].foreach { p =>
       val startOffset = p.getTextOffset
       val endOffset = startOffset + p.getTextLength
       document.replaceString(startOffset, endOffset, p.getBodyText.trim)
@@ -382,7 +382,7 @@ class ScalaFileImpl(viewProvider: FileViewProvider,
   }
 
   def packagingRanges: Seq[TextRange] =
-    this.depthFirst().filterByType[ScPackaging].flatMap(_.reference).map(_.getTextRange).toList
+    this.depthFirst().instancesOf[ScPackaging].flatMap(_.reference).map(_.getTextRange).toList
 
   def getFileResolveScope: GlobalSearchScope = {
     getOriginalFile.getVirtualFile match {
@@ -498,7 +498,7 @@ object ScalaFileImpl {
     packagingsIn(root).map(packaging => toVector(packaging.packageName))
 
   private def packagingsIn(root: PsiElement): List[ScPackaging] = {
-    root.children.findByType[ScPackaging] match {
+    root.children.instanceOf[ScPackaging] match {
       case Some(packaging) => packaging :: packagingsIn(packaging)
       case _ => Nil
     }

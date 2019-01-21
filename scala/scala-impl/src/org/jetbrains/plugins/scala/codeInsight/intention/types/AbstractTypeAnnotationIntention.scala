@@ -38,7 +38,7 @@ object AbstractTypeAnnotationIntention {
 
   private[types] def functionParent(element: PsiElement): Option[ScFunctionDefinition] =
     for {
-      function <- element.parentsInFile.findByType[ScFunctionDefinition]
+      function <- element.parentsInFile.instanceOf[ScFunctionDefinition]
       if function.hasAssign
       body <- function.body
       if !body.isAncestorOf(element)
@@ -46,7 +46,7 @@ object AbstractTypeAnnotationIntention {
 
   private[types] def valueParent(element: PsiElement): Option[ScPatternDefinition] =
     for {
-      value <- element.parentsInFile.findByType[ScPatternDefinition]
+      value <- element.parentsInFile.instanceOf[ScPatternDefinition]
       if value.expr.forall(!_.isAncestorOf(element))
       if value.pList.simplePatterns
       if value.bindings.size == 1
@@ -54,7 +54,7 @@ object AbstractTypeAnnotationIntention {
 
   private[types] def variableParent(element: PsiElement): Option[ScVariableDefinition] =
     for {
-      variable <- element.parentsInFile.findByType[ScVariableDefinition]
+      variable <- element.parentsInFile.instanceOf[ScVariableDefinition]
       if variable.expr.forall(!_.isAncestorOf(element))
       if variable.pList.simplePatterns
       if variable.bindings.size == 1
@@ -104,9 +104,9 @@ object AbstractTypeAnnotationIntention {
     }
 
     for {
-      param <- element.parentsInFile.findByType[ScParameter]
+      param <- element.parentsInFile.instanceOf[ScParameter]
     } {
-      param.parentsInFile.findByType[ScFunctionExpr] match {
+      param.parentsInFile.instanceOf[ScFunctionExpr] match {
         case Some(func) =>
           if (param.typeElement.isDefined) {
             return strategy.parameterWithType(param)
@@ -124,7 +124,7 @@ object AbstractTypeAnnotationIntention {
       }
     }
 
-    for (pattern <- element.parentsInFile.findByType[ScBindingPattern]) {
+    for (pattern <- element.parentsInFile.instanceOf[ScBindingPattern]) {
       pattern match {
         case p: ScTypedPattern if p.typePattern.isDefined =>
           return strategy.patternWithType(p)
@@ -133,7 +133,7 @@ object AbstractTypeAnnotationIntention {
         case _ =>
       }
     }
-    for (pattern <- element.parentsInFile.findByType[ScWildcardPattern]) {
+    for (pattern <- element.parentsInFile.instanceOf[ScWildcardPattern]) {
       return strategy.wildcardPatternWithoutType(pattern)
     }
 

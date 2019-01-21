@@ -24,7 +24,7 @@ class PatternAnnotatorTest extends ScalaLightPlatformCodeInsightTestCaseAdapter 
   private def collectAnnotatorMessages(text: String): List[Message] = {
     configureFromFileTextAdapter("dummy.scala", text)
     val mock = new AnnotatorHolderMock(getFileAdapter)
-    val patterns = getFileAdapter.depthFirst().filterByType[ScPattern]
+    val patterns = getFileAdapter.depthFirst().instancesOf[ScPattern]
     patterns.foreach(_.annotate(mock, typeAware = true))
     mock.annotations
   }

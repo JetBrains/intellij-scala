@@ -162,7 +162,7 @@ object ScalaSpacingProcessor extends ScalaTokenTypes {
     }
 
     //ScalaDocs
-    def docCommentOf(node: ASTNode) = node.getPsi.parentsInFile.findByType[ScDocComment].getOrElse {
+    def docCommentOf(node: ASTNode) = node.getPsi.parentsInFile.instanceOf[ScDocComment].getOrElse {
       throw new RuntimeException("Unable to find parent doc comment")
     }
 

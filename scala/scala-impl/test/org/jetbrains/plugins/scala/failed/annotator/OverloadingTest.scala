@@ -34,11 +34,11 @@ class OverloadingTest extends ScalaLightCodeInsightFixtureTestAdapter with Asser
     val file = myFixture.getFile
     val mock = new AnnotatorHolderMock(file)
 
-    val errorElements = file.depthFirst().filterByType[PsiErrorElement].map(_.getText).toList
+    val errorElements = file.depthFirst().instancesOf[PsiErrorElement].map(_.getText).toList
     if (shouldPass) assertEquals(Nil, errorElements)
     else if (errorElements.nonEmpty) return None
 
-    val unresolvedElements = file.depthFirst().filterByType[PsiReference].
+    val unresolvedElements = file.depthFirst().instancesOf[PsiReference].
       filter(_.resolve == null).map(_.getElement.getText).toList
     if (shouldPass) assertEquals(Nil, unresolvedElements)
     else if (unresolvedElements.nonEmpty) return None
@@ -52,7 +52,7 @@ class OverloadingTest extends ScalaLightCodeInsightFixtureTestAdapter with Asser
   }
 
   protected def annotate(element: ScPatternDefinition, holder: AnnotationHolder, typeAware: Boolean): Unit = {
-    for (expr <- element.expr; element <- element.children.findByType[ScTypeElement])
+    for (expr <- element.expr; element <- element.children.instanceOf[ScTypeElement])
       checkConformance(expr, element, holder)
   }
 

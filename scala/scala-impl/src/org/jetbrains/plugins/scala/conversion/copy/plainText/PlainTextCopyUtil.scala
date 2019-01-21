@@ -36,7 +36,7 @@ object PlainTextCopyUtil {
   def isValidJavaFile(text: String, project: Project): Boolean = createJavaFile(text, project).exists(isParsedCorrectly)
 
   def isParsedCorrectly(file: PsiFile): Boolean = {
-    val errorElements = file.depthFirst().filterByType[PsiErrorElement].toList
+    val errorElements = file.depthFirst().instancesOf[PsiErrorElement].toList
 
     if (errorElements.isEmpty) true
     else {

@@ -24,8 +24,8 @@ abstract class AnnotatorTestBase[T <: ScalaPsiElement : ClassTag](annotator: Ann
     val file: ScalaFile = s.parse
     val mock = new AnnotatorHolderMock(file)
 
-    val errorElements = file.depthFirst().filterByType[PsiErrorElement].map(_.getText).toList
-    val notResolved = file.depthFirst().filterByType[PsiReference].filter(_.resolve == null).map(_.getElement.getText).toList
+    val errorElements = file.depthFirst().instancesOf[PsiErrorElement].map(_.getText).toList
+    val notResolved = file.depthFirst().instancesOf[PsiReference].filter(_.resolve == null).map(_.getElement.getText).toList
     if (shouldPass) {
       assertEquals(Nil, errorElements)
       assertEquals(Nil, notResolved)
@@ -34,7 +34,7 @@ abstract class AnnotatorTestBase[T <: ScalaPsiElement : ClassTag](annotator: Ann
       if (notResolved.nonEmpty) return None
     }
 
-    file.depthFirst().filterByType[T].foreach { it =>
+    file.depthFirst().instancesOf[T].foreach { it =>
       annotator.annotate(it, mock, typeAware = true)
     }
     Some(mock.annotations)

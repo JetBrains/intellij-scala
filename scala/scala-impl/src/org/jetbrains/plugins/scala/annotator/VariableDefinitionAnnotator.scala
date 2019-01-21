@@ -13,7 +13,7 @@ import org.jetbrains.plugins.scala.lang.psi.api.statements.ScVariableDefinition
 trait VariableDefinitionAnnotator {
   def annotateVariableDefinition(definition: ScVariableDefinition, holder: AnnotationHolder, highlightErrors: Boolean) {
     if (highlightErrors && definition.pList.simplePatterns) {
-      for (expr <- definition.expr; element <- definition.children.findByType[ScSimpleTypeElement])
+      for (expr <- definition.expr; element <- definition.children.instanceOf[ScSimpleTypeElement])
         checkConformance(expr, element, holder)
     }
   }
