@@ -17,7 +17,7 @@ import org.jetbrains.plugins.scala.statistics.{FeatureKey, Stats}
 class ScalaCompilerConfigurable(project: Project, configuration: ScalaCompilerConfiguration) extends AbstractConfigurable("Scala Compiler") with Composite {
 
   private val form = new ScalaCompilerConfigurationPanel(project)
-  
+
   private val profiles = form.getProfilesPanel
 
   override def createComponent(): JPanel = form.getContentPanel
@@ -40,8 +40,13 @@ class ScalaCompilerConfigurable(project: Project, configuration: ScalaCompilerCo
     if (newIncType != configuration.incrementalityType) {
       Stats.trigger(FeatureKey.incrementalTypeSet(newIncType.name()))
     }
+    val newCompileToJar = form.isCompileToJar
+    if (newCompileToJar != configuration.compileToJar) {
+      CompileToJarComponent.getInstance(project).adjustClasspath(newCompileToJar)
+    }
+
     configuration.incrementalityType = newIncType
-    configuration.compileToJar = form.isCompileToJar
+    configuration.compileToJar = newCompileToJar
     configuration.defaultProfile = profiles.getDefaultProfile
     configuration.customProfiles = profiles.getModuleProfiles.asScala
     DaemonCodeAnalyzer.getInstance(project).restart()
