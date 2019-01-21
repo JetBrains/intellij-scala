@@ -60,32 +60,29 @@ class ScalaBlock(val myParentBlock: ScalaBlock,
 
   override def getChildAttributes(newChildIndex: Int): ChildAttributes = {
     val scalaSettings = mySettings.getCustomSettings(classOf[ScalaCodeStyleSettings])
-    val indentSize = mySettings.getIndentSize(ScalaFileType.INSTANCE)
     val parent = getNode.getPsi
+
+    if (scalaSettings.USE_SCALAFMT_FORMATTER) {
+      getChildAttributesScalafmtInner(newChildIndex, parent)
+    } else {
+      getChildAttributesIntellijInner(newChildIndex, scalaSettings)
+    }
+  }
+
+  private def getChildAttributesIntellijInner(newChildIndex: Int, scalaSettings: ScalaCodeStyleSettings): ChildAttributes = {
+    val parent = getNode.getPsi
+
+    val indentSize = mySettings.getIndentSize(ScalaFileType.INSTANCE)
     val braceShifted = mySettings.BRACE_STYLE == CommonCodeStyleSettings.NEXT_LINE_SHIFTED
-    def isBlockOnlyScope(scope: PsiElement) = !isLeaf &&
+
+    def isBlockOnlyScope(scope: PsiElement): Boolean = !isLeaf &&
       Set(ScalaTokenTypes.tLBRACE, ScalaTokenTypes.tLPARENTHESIS).contains(scope.getNode.getElementType) &&
       (scope.getParent match {
         case _: ScTryBlock | _: ScFor | _: ScPackaging => true
         case _ => false
       })
-    if (scalaSettings.USE_SCALAFMT_FORMATTER) {
-      val scalafmtConfig = ScalaFmtConfigUtil.configFor(parent.getContainingFile)
-      parent match {
-        case _: ScParameterClause if newChildIndex != 0 =>
-          new ChildAttributes(Indent.getSpaceIndent(scalafmtConfig.continuationIndent.defnSite), null)
-        case _: ScArguments if newChildIndex != 0 =>
-          new ChildAttributes(Indent.getSpaceIndent(scalafmtConfig.continuationIndent.callSite), null)
-        case m: ScMatch if m.clauses.nonEmpty =>
-          new ChildAttributes(Indent.getSpaceIndent(4), null)
-        case _: ScBlock | _: ScTemplateBody | _: ScMatch | _: ScCaseClauses | _: ScCaseClause =>
-          new ChildAttributes(Indent.getSpaceIndent(2), null)
-        case _ if parent.getNode.getElementType == ScalaTokenTypes.kIF =>
-          new ChildAttributes(Indent.getSpaceIndent(2), null)
-        case _ =>
-          new ChildAttributes(Indent.getNoneIndent, null)
-      }
-    } else parent match {
+
+    parent match {
       case m: ScMatch =>
         if (m.clauses.isEmpty) {
           new ChildAttributes(if (braceShifted) Indent.getNoneIndent else Indent.getNormalIndent, null)
@@ -155,6 +152,24 @@ class ScalaBlock(val myParentBlock: ScalaBlock,
         new ChildAttributes(Indent.getNormalIndent, this.getAlignment) //by default suppose there will be simple expr
       case _: ScArgumentExprList =>
         new ChildAttributes(Indent.getNormalIndent, this.getAlignment)
+      case _ =>
+        new ChildAttributes(Indent.getNoneIndent, null)
+    }
+  }
+
+  private def getChildAttributesScalafmtInner(newChildIndex: Int, parent: PsiElement): ChildAttributes = {
+    val scalafmtConfig = ScalaFmtConfigUtil.configFor(parent.getContainingFile)
+    parent match {
+      case _: ScParameterClause if newChildIndex != 0 =>
+        new ChildAttributes(Indent.getSpaceIndent(scalafmtConfig.continuationIndent.defnSite), null)
+      case _: ScArguments if newChildIndex != 0 =>
+        new ChildAttributes(Indent.getSpaceIndent(scalafmtConfig.continuationIndent.callSite), null)
+      case m: ScMatch if m.clauses.nonEmpty =>
+        new ChildAttributes(Indent.getSpaceIndent(4), null)
+      case _: ScBlock | _: ScTemplateBody | _: ScMatch | _: ScCaseClauses | _: ScCaseClause =>
+        new ChildAttributes(Indent.getSpaceIndent(2), null)
+      case _ if parent.getNode.getElementType == ScalaTokenTypes.kIF =>
+        new ChildAttributes(Indent.getSpaceIndent(2), null)
       case _ =>
         new ChildAttributes(Indent.getNoneIndent, null)
     }
