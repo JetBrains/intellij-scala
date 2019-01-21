@@ -13,9 +13,7 @@ import org.jetbrains.plugins.scala.lang.psi.api.toplevel.{ScPackaging, ScTopleve
  */
 trait ScalaFile extends ScalaPsiElement
   with ScFile
-  with ScToplevelElement
-  with ScDeclarationSequenceHolder
-  with ScImportsHolder {
+  with ScToplevelElement {
 
   @Deprecated
   def importClass(aClass: PsiClass): Boolean = {

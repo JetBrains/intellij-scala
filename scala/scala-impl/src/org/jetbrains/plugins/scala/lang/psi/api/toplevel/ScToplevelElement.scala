@@ -15,14 +15,20 @@ import org.jetbrains.plugins.scala.lang.psi.api.toplevel.typedef.ScTypeDefinitio
  * @author ilyas
  */
 
-trait ScToplevelElement extends ScalaPsiElement {
+trait ScToplevelElement extends ScImportsHolder {
 
-  def typeDefinitions: Seq[ScTypeDefinition] = immediateTypeDefinitions ++ packagings.flatMap(_.typeDefinitions)
-
-  def typeDefinitionsArray: Array[ScTypeDefinition] = typeDefinitions.toArray[ScTypeDefinition]
-
-  def immediateTypeDefinitions: Seq[ScTypeDefinition] = findChildrenByClassScala(classOf[ScTypeDefinition])
+  def immediateTypeDefinitions: Seq[ScTypeDefinition]
 
   def packagings: Seq[ScPackaging] = this.stubOrPsiChildren(PACKAGING, ScPackagingFactory)
+
+}
+
+object ScToplevelElement {
+
+  implicit class TopElementExt(private val element: ScToplevelElement) extends AnyVal {
+
+    def typeDefinitions: Seq[ScTypeDefinition] =
+      element.immediateTypeDefinitions ++ element.packagings.flatMap(_.typeDefinitions)
+  }
 
 }

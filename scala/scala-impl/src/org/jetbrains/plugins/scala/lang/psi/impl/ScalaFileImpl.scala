@@ -43,7 +43,7 @@ import org.jetbrains.plugins.scala.util.ScalaUtil
 import org.jetbrains.plugins.scala.worksheet.ammonite.AmmoniteUtil
 
 import scala.collection.JavaConverters._
-import scala.collection.mutable.ArrayBuffer
+import scala.collection.mutable
 
 class ScalaFileImpl(viewProvider: FileViewProvider,
                     override val getFileType: LanguageFileType = ScalaFileType.INSTANCE)
@@ -93,7 +93,11 @@ class ScalaFileImpl(viewProvider: FileViewProvider,
   @CachedInUserData(this, ProjectRootManager.getInstance(getProject))
   private def findSourceForCompiledFile: Option[VirtualFile] = {
     val inner: String = getPackageNameInner
-    val pName = inner + typeDefinitions.find(_.isPackageObject).map((if (inner.length > 0) "." else "") + _.name).getOrElse("")
+    val pName = inner + this.typeDefinitions.find(_.isPackageObject)
+      .fold("") { definition =>
+        (if (inner.length > 0) "." else "") + definition.name
+      }
+
     val sourceFile = sourceName
     val relPath = if (pName.length == 0) sourceFile else pName.replace(".", "/") + "/" + sourceFile
 
@@ -122,8 +126,9 @@ class ScalaFileImpl(viewProvider: FileViewProvider,
     entryIterator = entries.iterator
 
     //Look in libraries sources if file not relative to path
-    if (typeDefinitions.isEmpty) return None
-    val qual = typeDefinitions.head.qualifiedName
+    val qual = this.typeDefinitions.headOption.fold {
+      return None
+    }(_.qualifiedName)
     var result: Option[VirtualFile] = None
 
     FilenameIndex.processFilesByName(sourceFile, false, new Processor[PsiFileSystemItem] {
@@ -198,17 +203,16 @@ class ScalaFileImpl(viewProvider: FileViewProvider,
 
     val name = ScalaNamesUtil.escapeKeywordsFqn(inName)
 
-    this match {
+    this.typeDefinitions match {
       // Handle package object
-      case TypeDefinitions(obj: ScObject) if obj.isPackageObject && obj.name != "`package`" =>
+      case Seq(obj: ScObject) if obj.isPackageObject && obj.name != "`package`" =>
         val (packageName, objectName) = name match {
           case ScalaFileImpl.QualifiedPackagePattern(qualifier, simpleName) => (qualifier, simpleName)
           case _ => ("", name)
         }
 
         setPackageName(basePackageName, packageName)
-        typeDefinitions.headOption.foreach(_.setName(objectName))
-
+        this.typeDefinitions.headOption.foreach(_.setName(objectName))
       case _ => setPackageName(basePackageName, name)
     }
   }
@@ -248,11 +252,11 @@ class ScalaFileImpl(viewProvider: FileViewProvider,
   }
 
   private def preservingClasses(block: => Unit) {
-    val data = typeDefinitions
+    val data = this.typeDefinitions
 
     block
 
-    for ((aClass, oldClass) <- typeDefinitions.zip(data)) {
+    for ((aClass, oldClass) <- this.typeDefinitions.zip(data)) {
       CodeEditUtil.setNodeGenerated(oldClass.getNode, true)
       PostprocessReformattingAspect.getInstance(getProject).disablePostprocessFormattingInside {
         new Runnable {
@@ -327,47 +331,34 @@ class ScalaFileImpl(viewProvider: FileViewProvider,
     } else ""
   }
 
-  override def getClasses: Array[PsiClass] = {
-    if (!isScriptFile && !isWorksheetFile) {
-      if (ScalaFileImpl.isDuringMoveRefactoring) {
-        return typeDefinitions.toArray
-      }
-      val arrayBuffer = new ArrayBuffer[PsiClass]()
-      for (definition <- typeDefinitions) {
-        arrayBuffer += definition
-        definition match {
-          case o: ScObject =>
-            o.fakeCompanionClass match {
-              case Some(clazz) => arrayBuffer += clazz
-              case _ =>
-            }
-          case t: ScTrait =>
-            arrayBuffer += t.fakeCompanionClass
-            t.fakeCompanionModule match {
-              case Some(m) => arrayBuffer += m
-              case _ =>
-            }
-          case c: ScClass =>
-            c.fakeCompanionModule match {
-              case Some(m) => arrayBuffer += m
-              case _ =>
-            }
-          case _ =>
+  override def getClasses: Array[PsiClass] =
+    if (isScriptFile || isWorksheetFile) PsiClass.EMPTY_ARRAY
+    else {
+      val definitions = this.typeDefinitions
+
+      if (ScalaFileImpl.isDuringMoveRefactoring) definitions.toArray
+      else {
+        val arrayBuffer = mutable.ArrayBuffer.empty[PsiClass]
+        for (definition <- definitions) {
+          val toAdd = definition :: (definition match {
+            case o: ScObject => o.fakeCompanionClass.toList
+            case t: ScTrait =>
+              t.fakeCompanionClass :: t.fakeCompanionModule.toList
+            case c: ScClass => c.fakeCompanionModule.toList
+            case _ => Nil
+          })
+
+          arrayBuffer ++= toAdd
         }
+        arrayBuffer.toArray
       }
-      arrayBuffer.toArray
-    } else PsiClass.EMPTY_ARRAY
-  }
+    }
 
   @CachedInUserData(this, ScalaPsiManager.instance(getProject).TopLevelModificationTracker)
-  protected def isScalaPredefinedClass: Boolean = {
-    typeDefinitions.length == 1 && Set("scala", "scala.Predef").contains(typeDefinitions.head.qualifiedName)
+  protected def isScalaPredefinedClass: Boolean = this.typeDefinitions match {
+    case Seq(head) => Set("scala", "scala.Predef").contains(head.qualifiedName)
+    case _ => false
   }
-
-
-  def isScalaPredefinedClassInner: Boolean = typeDefinitions.length == 1 &&
-    Set("scala", "scala.Predef").contains(typeDefinitions.head.qualifiedName)
-
 
   override def findReferenceAt(offset: Int): PsiReference = super.findReferenceAt(offset)
 
@@ -375,7 +366,7 @@ class ScalaFileImpl(viewProvider: FileViewProvider,
 
   def getClassNames: util.Set[String] = {
     val res = new util.HashSet[String]
-    typeDefinitions.foreach {
+    this.typeDefinitions.foreach {
       case clazz: ScClass => res.add(clazz.getName)
       case o: ScObject =>
         res.add(o.getName)
@@ -452,7 +443,7 @@ class ScalaFileImpl(viewProvider: FileViewProvider,
   }
 
   override def immediateTypeDefinitions: Seq[ScTypeDefinition] =
-    byStubOrPsi(_.getChildrenByType(TYPE_DEFINITIONS, ScTypeDefinitionFactory)){
+    byStubOrPsi(_.getChildrenByType(TYPE_DEFINITIONS, ScTypeDefinitionFactory)) {
       findChildrenByClassScala(classOf[ScTypeDefinition])
     }
 

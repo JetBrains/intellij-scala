@@ -12,35 +12,29 @@ import org.jetbrains.plugins.scala.lang.psi.api.toplevel.typedef.ScTypeDefinitio
 import org.jetbrains.plugins.scala.lang.psi.impl.ScalaPsiManager
 
 object ScalaEditorFileSwapper {
-  def findSourceFile(project: Project, eachFile: VirtualFile): VirtualFile = {
-    val psiFile: PsiFile = PsiManager.getInstance(project).findFile(eachFile)
-    psiFile match {
+  def findSourceFile(project: Project, eachFile: VirtualFile): VirtualFile =
+    PsiManager.getInstance(project).findFile(eachFile) match {
       case file: ScalaFile if file.isCompiled =>
-      case _ => return null
-    }
-    val fqn: String = getFQN(psiFile)
-    if (fqn == null) return null
-    val classes = ScalaPsiManager.instance(project).getCachedClasses(psiFile.resolveScope, fqn)
-    var clazz: PsiClass = null
-    for (cl <- classes if clazz == null) {
-      if (cl.getContainingFile == psiFile) clazz = cl
-    }
-    if (!clazz.isInstanceOf[ScTypeDefinition]) return null
-    val sourceClass: PsiClass = clazz.asInstanceOf[ScTypeDefinition].getSourceMirrorClass
-    if (sourceClass == null || (sourceClass eq clazz)) return null
-    val result: VirtualFile = sourceClass.getContainingFile.getVirtualFile
-    assert(result != null)
-    result
-  }
+        val fqn: String = getFQN(file)
+        if (fqn == null) return null
 
-  def getFQN(psiFile: PsiFile): String = {
-    if (!psiFile.isInstanceOf[ScalaFile]) return null
-    val classes = psiFile.asInstanceOf[ScalaFile].typeDefinitions
-    if (classes.length == 0) return null
-    val fqn: String = classes(0).qualifiedName
-    if (fqn == null) return null
-    fqn
-  }
+        var clazz: PsiClass = null
+        for {
+          cl <- ScalaPsiManager.instance(project).getCachedClasses(file.resolveScope, fqn)
+          if clazz == null && cl.getContainingFile == file
+        } clazz = cl
+
+        if (!clazz.isInstanceOf[ScTypeDefinition]) return null
+        val sourceClass: PsiClass = clazz.asInstanceOf[ScTypeDefinition].getSourceMirrorClass
+        if (sourceClass == null || (sourceClass eq clazz)) return null
+        val result: VirtualFile = sourceClass.getContainingFile.getVirtualFile
+        assert(result != null)
+        result
+      case _ => null
+    }
+
+  def getFQN(scalaFile: ScalaFile): String =
+    scalaFile.typeDefinitions.headOption.map(_.qualifiedName).orNull
 }
 
 class ScalaEditorFileSwapper extends EditorFileSwapper {

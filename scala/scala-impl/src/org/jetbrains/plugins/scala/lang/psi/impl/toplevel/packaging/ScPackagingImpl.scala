@@ -31,7 +31,10 @@ import org.jetbrains.plugins.scala.lang.resolve.processor.BaseProcessor
   *         Date: 20.02.2008
   */
 class ScPackagingImpl private(stub: ScPackagingStub, node: ASTNode)
-  extends ScalaStubBasedElementImpl(stub, PACKAGING, node) with ScPackaging with ScImportsHolder with ScDeclarationSequenceHolder {
+  extends ScalaStubBasedElementImpl(stub, PACKAGING, node)
+    with ScPackaging
+    with ScImportsHolder // todo: to be removed
+    with ScDeclarationSequenceHolder {
 
   def this(node: ASTNode) = this(null, node)
 

@@ -39,10 +39,12 @@ object ScalaDirectoryService {
         LOG.error(e)
         return null
     }
+
     val file = element.getContainingFile.asInstanceOf[ScalaFile]
-    val classes = file.typeDefinitionsArray
-    if (classes.length < 1) throw new IncorrectOperationException(getIncorrectTemplateMessage(templateName))
-    classes(0)
+    file.typeDefinitions match {
+      case Seq() => throw new IncorrectOperationException(getIncorrectTemplateMessage(templateName))
+      case seq => seq.head
+    }
   }
 
   private def getIncorrectTemplateMessage(templateName: String): String = {

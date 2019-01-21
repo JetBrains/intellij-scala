@@ -25,13 +25,12 @@ import org.jetbrains.plugins.scala.util.{BetterMonadicForSupport, KindProjectorU
 import org.jetbrains.plugins.scala.worksheet.FileDeclarationsContributor
 
 import scala.collection.mutable
-import scala.collection.mutable.ArrayBuffer
 
 /**
  * User: Dmitry Naydanov
  * Date: 12/12/12
  */
-trait FileDeclarationsHolder extends PsiElement with ScDeclarationSequenceHolder with ScImportsHolder {
+trait FileDeclarationsHolder extends ScDeclarationSequenceHolder with ScImportsHolder {
   override def processDeclarations(processor: PsiScopeProcessor,
                                    state: ResolveState,
                                    lastParent: PsiElement,
@@ -216,7 +215,7 @@ trait FileDeclarationsHolder extends PsiElement with ScDeclarationSequenceHolder
     }
 
   private def importedObjects(manager: PsiManager, scope: GlobalSearchScope, objects: Seq[String]): Seq[PsiClass] = {
-    val res = new ArrayBuffer[PsiClass]
+    val res = mutable.ArrayBuffer.empty[PsiClass]
     for (obj <- objects) {
       res ++= ScalaPsiManager.instance(manager.getProject).getCachedClasses(scope, obj)
     }

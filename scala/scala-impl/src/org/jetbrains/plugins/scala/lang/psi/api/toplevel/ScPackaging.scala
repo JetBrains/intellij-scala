@@ -7,7 +7,10 @@ package toplevel
 import org.jetbrains.plugins.scala.lang.psi.api.base.ScStableCodeReferenceElement
 import org.jetbrains.plugins.scala.lang.psi.api.statements.ScDeclaredElementsHolder
 
-trait ScPackaging extends ScToplevelElement with ScImportsHolder with ScDeclaredElementsHolder with ScPackageLike {
+trait ScPackaging extends ScToplevelElement
+  with ScDeclaredElementsHolder
+  with ScPackageLike {
+
   def parentPackageName: String
 
   def packageName: String
@@ -15,8 +18,6 @@ trait ScPackaging extends ScToplevelElement with ScImportsHolder with ScDeclared
   def fullPackageName: String = ScPackaging.fullPackageName(parentPackageName, packageName)
 
   def isExplicit: Boolean
-
-  def packagings: Seq[ScPackaging]
 
   def getBodyText: String
 
