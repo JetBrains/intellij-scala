@@ -1,9 +1,10 @@
 package org.jetbrains.bsp.data
 
 import java.net.URI
+import java.util
 
-import org.jetbrains.sbt.project.data.SbtEntityData
-import org.jetbrains.sbt.resolvers.SbtResolver
+import com.intellij.openapi.externalSystem.model.Key
+import org.jetbrains.bsp.data.BspEntityData.datakey
 
 object sbtData {
 
@@ -12,11 +13,12 @@ object sbtData {
 /**
   * Data describing a "build" module: The IDEA-side representation of the sbt meta-project
   * @param imports implicit sbt file imports.
-  * @param resolvers resolvers for this build project
-  * @param buildFor id of the project that this module describes the build for
+  * @param buildFor target Ids associated with the modules that this module describes the build for
   */
-@SerialVersionUID(2)
-case class SbtBuildModuleData(imports: Seq[String],
-                              buildFor: Seq[BuildTarget]) extends SbtEntityData
+@SerialVersionUID(1)
+case class SbtBuildModuleDataBsp(imports: util.List[String],
+                                 buildFor: util.List[URI]) extends BspEntityData
 
-case class SbtBuildData()
+object SbtBuildModuleDataBsp {
+  val Key: Key[SbtBuildModuleDataBsp] = datakey(classOf[SbtBuildModuleDataBsp])
+}

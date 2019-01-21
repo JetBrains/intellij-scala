@@ -1,12 +1,12 @@
 package org.jetbrains.bsp.project
 
 import java.io.File
+import java.net.URI
 import java.util.Collections
 import java.util.concurrent.CompletableFuture
 
 import ch.epfl.scala.bsp4j._
 import com.google.gson.{Gson, JsonElement}
-import com.intellij.openapi.diagnostic.Logger
 import com.intellij.openapi.externalSystem.model.project._
 import com.intellij.openapi.externalSystem.model.task.{ExternalSystemTaskId, ExternalSystemTaskNotificationEvent, ExternalSystemTaskNotificationListener}
 import com.intellij.openapi.externalSystem.model.{DataNode, ProjectKeys}
@@ -15,14 +15,13 @@ import com.intellij.openapi.module.StdModuleTypes
 import com.intellij.openapi.roots.DependencyScope
 import com.intellij.openapi.util.io.FileUtil
 import org.jetbrains.bsp.BspUtil._
-import org.jetbrains.bsp.data.{BspMetadata, ScalaSdkData}
+import org.jetbrains.bsp.data.{BspMetadata, SbtBuildModuleDataBsp, ScalaSdkData}
 import org.jetbrains.bsp.project.BspProjectResolver._
 import org.jetbrains.bsp.protocol.BspSession.{BspServer, NotificationCallback, ProcessLogger}
 import org.jetbrains.bsp.protocol.{BspCommunication, BspJob, BspNotifications}
 import org.jetbrains.bsp.settings.BspExecutionSettings
 import org.jetbrains.bsp.{BSP, BspError, BspTaskCancelled}
 import org.jetbrains.plugins.scala.project.Version
-import org.jetbrains.sbt.project.data.SbtBuildModuleData
 
 import scala.annotation.tailrec
 import scala.collection.JavaConverters._
@@ -87,7 +86,7 @@ class BspProjectResolver extends ExternalSystemProjectResolver[BspExecutionSetti
               depSources <- data.dependencySources // TODO not required for project, should be warning
               scalacOptions <- data.scalacOptions // TODO not required for non-scala modules
             } yield {
-              val descriptions = calculateModuleDescription(
+              val descriptions = calculateModuleDescriptions(
                 targets,
                 scalacOptions.getItems.asScala,
                 sources.getItems.asScala,
@@ -101,73 +100,66 @@ class BspProjectResolver extends ExternalSystemProjectResolver[BspExecutionSetti
       projectNodeFuture
     }
 
-    def createModuleNode(moduleDescription: ScalaModuleDescription,
-                         projectNode: DataNode[ProjectData]) = {
+    def createModuleNode(moduleDescription: ModuleDescription,
+                              projectNode: DataNode[ProjectData]) = {
 
       import ExternalSystemSourceType._
 
-      val basePath = moduleDescription.basePath.getCanonicalPath
+      val moduleDescriptionData = moduleDescription.data
+
+      val basePath = moduleDescriptionData.basePath.getCanonicalPath
       val contentRootData = new ContentRootData(BSP.ProjectSystemId, basePath)
-      moduleDescription.sourceDirs.foreach { dir =>
+      moduleDescriptionData.sourceDirs.foreach { dir =>
         val sourceType = if (dir.generated) SOURCE_GENERATED else SOURCE
         contentRootData.storePath(sourceType, dir.directory.getCanonicalPath)
       }
-      moduleDescription.testSourceDirs.foreach { dir =>
+      moduleDescriptionData.testSourceDirs.foreach { dir =>
         val sourceType = if (dir.generated) TEST_GENERATED else TEST
         contentRootData.storePath(sourceType, dir.directory.getCanonicalPath)
       }
 
-      val primaryTarget = moduleDescription.targets.head
+      val primaryTarget = moduleDescriptionData.targets.head
       val moduleId = primaryTarget.getId.getUri
       val moduleName = primaryTarget.getDisplayName
       val moduleData = new ModuleData(moduleId, BSP.ProjectSystemId, StdModuleTypes.JAVA.getId, moduleName, moduleFilesDirectoryPath, projectRootPath)
 
-      moduleDescription.output.foreach { outputPath =>
+      moduleDescriptionData.output.foreach { outputPath =>
         moduleData.setCompileOutputPath(SOURCE, outputPath.getCanonicalPath)
       }
-      moduleDescription.testOutput.foreach { outputPath =>
+      moduleDescriptionData.testOutput.foreach { outputPath =>
         moduleData.setCompileOutputPath(TEST, outputPath.getCanonicalPath)
       }
 
       moduleData.setInheritProjectCompileOutputPath(false)
 
-      val scalaSdkLibrary = new LibraryData(BSP.ProjectSystemId, ScalaSdkData.LibraryName)
-      moduleDescription.scalaSdkData.scalacClasspath.forEach { path =>
-        scalaSdkLibrary.addPath(LibraryPathType.BINARY, path.getCanonicalPath)
-      }
-      val scalaSdkLibraryDependencyData = new LibraryDependencyData(moduleData, scalaSdkLibrary, LibraryLevel.MODULE)
-      scalaSdkLibraryDependencyData.setScope(DependencyScope.COMPILE)
-
       val libraryData = new LibraryData(BSP.ProjectSystemId, s"$moduleName dependencies")
-      moduleDescription.classPath.foreach { path =>
+      moduleDescriptionData.classPath.foreach { path =>
         libraryData.addPath(LibraryPathType.BINARY, path.getCanonicalPath)
       }
-      moduleDescription.classPathSources.foreach { path =>
+      moduleDescriptionData.classPathSources.foreach { path =>
         libraryData.addPath(LibraryPathType.SOURCE, path.getCanonicalPath)
       }
       val libraryDependencyData = new LibraryDependencyData(moduleData, libraryData, LibraryLevel.MODULE)
       libraryDependencyData.setScope(DependencyScope.COMPILE)
 
       val libraryTestData = new LibraryData(BSP.ProjectSystemId, s"$moduleName test dependencies")
-      moduleDescription.testClassPath.foreach { path =>
+      moduleDescriptionData.testClassPath.foreach { path =>
         libraryTestData.addPath(LibraryPathType.BINARY, path.getCanonicalPath)
       }
-      moduleDescription.testClassPathSources.foreach { path =>
+      moduleDescriptionData.testClassPathSources.foreach { path =>
         libraryTestData.addPath(LibraryPathType.SOURCE, path.getCanonicalPath)
       }
       val libraryTestDependencyData = new LibraryDependencyData(moduleData, libraryTestData, LibraryLevel.MODULE)
       libraryTestDependencyData.setScope(DependencyScope.TEST)
 
-      val targetIds = moduleDescription.targets.map(_.getId.getUri.toURI)
+      val targetIds = moduleDescriptionData.targets.map(_.getId.getUri.toURI)
       val metadata = BspMetadata(targetIds.asJava)
 
       // data node wiring
-      // TODO refactor and reuse sbt module wiring api
 
       val moduleNode = new DataNode[ModuleData](ProjectKeys.MODULE, moduleData, projectNode)
 
-      val scalaSdkLibraryNode = new DataNode[LibraryDependencyData](ProjectKeys.LIBRARY_DEPENDENCY, scalaSdkLibraryDependencyData, moduleNode)
-      moduleNode.addChild(scalaSdkLibraryNode)
+
       val libraryDependencyNode = new DataNode[LibraryDependencyData](ProjectKeys.LIBRARY_DEPENDENCY, libraryDependencyData, moduleNode)
       moduleNode.addChild(libraryDependencyNode)
       val libraryTestDependencyNode = new DataNode[LibraryDependencyData](ProjectKeys.LIBRARY_DEPENDENCY, libraryTestDependencyData, moduleNode)
@@ -176,16 +168,43 @@ class BspProjectResolver extends ExternalSystemProjectResolver[BspExecutionSetti
       val contentRootDataNode = new DataNode[ContentRootData](ProjectKeys.CONTENT_ROOT, contentRootData, moduleNode)
       moduleNode.addChild(contentRootDataNode)
 
-      val scalaSdkNode = new DataNode[ScalaSdkData](ScalaSdkData.Key, moduleDescription.scalaSdkData, moduleNode)
-      moduleNode.addChild(scalaSdkNode)
-
       val metadataNode = new DataNode[BspMetadata](BspMetadata.Key, metadata, moduleNode)
       moduleNode.addChild(metadataNode)
+
+      addNodeKindData(moduleNode, moduleDescription.moduleKindData)
 
       moduleNode
     }
 
-    def projectNode(moduleDescriptions: Iterable[ScalaModuleDescription]) = {
+    def addNodeKindData(moduleNode: DataNode[ModuleData], moduleKind: ModuleKind): Unit = {
+      moduleKind match {
+        case ScalaModule(scalaSdkData) =>
+
+          val moduleData = moduleNode.getData
+
+          val scalaSdkLibrary = new LibraryData(BSP.ProjectSystemId, ScalaSdkData.LibraryName)
+          scalaSdkData.scalacClasspath.forEach { path =>
+            scalaSdkLibrary.addPath(LibraryPathType.BINARY, path.getCanonicalPath)
+          }
+          val scalaSdkLibraryDependencyData = new LibraryDependencyData(moduleData, scalaSdkLibrary, LibraryLevel.MODULE)
+          scalaSdkLibraryDependencyData.setScope(DependencyScope.COMPILE)
+
+          val scalaSdkLibraryNode = new DataNode[LibraryDependencyData](ProjectKeys.LIBRARY_DEPENDENCY, scalaSdkLibraryDependencyData, moduleNode)
+          moduleNode.addChild(scalaSdkLibraryNode)
+
+          val scalaSdkNode = new DataNode[ScalaSdkData](ScalaSdkData.Key, scalaSdkData, moduleNode)
+          moduleNode.addChild(scalaSdkNode)
+
+
+        case SbtModule(scalaSdkData, sbtData) =>
+          val scalaSdkNode = new DataNode[ScalaSdkData](ScalaSdkData.Key, scalaSdkData, moduleNode)
+          val sbtNode = new DataNode[SbtBuildModuleDataBsp](SbtBuildModuleDataBsp.Key, sbtData, moduleNode)
+          moduleNode.addChild(scalaSdkNode)
+          moduleNode.addChild(sbtNode)
+      }
+    }
+
+    def projectNode(moduleDescriptions: Iterable[ModuleDescription]): DataNode[ProjectData] = {
 
       statusUpdate("targets fetched") // TODO remove in favor of build toolwindow nodes
 
@@ -194,7 +213,7 @@ class BspProjectResolver extends ExternalSystemProjectResolver[BspExecutionSetti
 
       // synthetic root module when no natural module is at root
       val rootModule =
-        if (moduleDescriptions.exists (_.basePath == projectRoot)) None
+        if (moduleDescriptions.exists (_.data.basePath == projectRoot)) None
         else {
           val name = projectRoot.getName + "-root"
           val moduleData = new ModuleData(name, BSP.ProjectSystemId, BspSyntheticModuleType.Id, name, moduleFilesDirectoryPath, projectRootPath)
@@ -207,7 +226,7 @@ class BspProjectResolver extends ExternalSystemProjectResolver[BspExecutionSetti
         }
 
       val modules = moduleDescriptions.map { moduleDescription =>
-        (moduleDescription.targets, createModuleNode(moduleDescription, projectNode))
+        (moduleDescription.data.targets, createModuleNode(moduleDescription, projectNode))
       } ++ rootModule.toSeq.map((Seq.empty, _))
 
       val idToModule = (for {
@@ -285,26 +304,29 @@ class BspProjectResolver extends ExternalSystemProjectResolver[BspExecutionSetti
 
 object BspProjectResolver {
 
-  sealed trait ModuleDescription
+  private case class ModuleDescription(data: ModuleDescriptionData,
+                                       moduleKindData: ModuleKind)
 
-  private case class ScalaModuleDescription(targets: Seq[BuildTarget],
-                                            targetDependencies: Seq[BuildTargetIdentifier],
-                                            targetTestDependencies: Seq[BuildTargetIdentifier],
-                                            basePath: File,
-                                            output: Option[File],
-                                            testOutput: Option[File],
-                                            sourceDirs: Seq[SourceDirectory],
-                                            testSourceDirs: Seq[SourceDirectory],
-                                            classPath: Seq[File],
-                                            classPathSources: Seq[File],
-                                            testClassPath: Seq[File],
-                                            testClassPathSources: Seq[File],
-                                            scalaSdkData: ScalaSdkData
-                                           ) extends ModuleDescription
+  private case class ModuleDescriptionData(targets: Seq[BuildTarget],
+                                           targetDependencies: Seq[BuildTargetIdentifier],
+                                           targetTestDependencies: Seq[BuildTargetIdentifier],
+                                           basePath: File,
+                                           output: Option[File],
+                                           testOutput: Option[File],
+                                           sourceDirs: Seq[SourceDirectory],
+                                           testSourceDirs: Seq[SourceDirectory],
+                                           classPath: Seq[File],
+                                           classPathSources: Seq[File],
+                                           testClassPath: Seq[File],
+                                           testClassPathSources: Seq[File])
 
-  private case class SbtModuleDescription(sbtData: SbtBuildModuleData,
-                                          scalaModule: ScalaModuleDescription
-                                         ) extends ModuleDescription
+  sealed trait ModuleKind
+
+  private case class ScalaModule(scalaSdkData: ScalaSdkData) extends ModuleKind
+
+  private case class SbtModule(scalaSdkData: ScalaSdkData,
+                               sbtData: SbtBuildModuleDataBsp
+                              ) extends ModuleKind
 
   private case class TargetData(sources: Either[BspError, SourcesResult],
                                 dependencySources: Either[BspError, DependencySourcesResult],
@@ -336,12 +358,11 @@ object BspProjectResolver {
     }
   }
 
-  private def extractScalaSdkData(data: JsonElement): Option[ScalaSdkData] = {
+  private def extractScalaSdkData(data: JsonElement): Option[ScalaBuildTarget] =
+    Option(gson.fromJson[ScalaBuildTarget](data, classOf[ScalaBuildTarget]))
 
-    val deserialized = Option(gson.fromJson[ScalaBuildTarget](data, classOf[ScalaBuildTarget]))
-    val result = deserialized.map(calculateScalaSdkData)
-    result
-  }
+  private def extractSbtData(data: JsonElement): Option[SbtBuildTarget] =
+    Option(gson.fromJson[SbtBuildTarget](data, classOf[SbtBuildTarget]))
 
   private def calculateScalaSdkData(target: ScalaBuildTarget): ScalaSdkData = {
     ScalaSdkData(
@@ -355,46 +376,24 @@ object BspProjectResolver {
   }
 
   // TODO create SbtModuleDescription from data
-  private def extractSbtData(data: JsonElement): Option[SbtModuleDescription] = {
-    val deserialized = Option(gson.fromJson[SbtBuildTarget](data, classOf[SbtBuildTarget]))
+  private def calculateSbtData(sbtBuildTarget: SbtBuildTarget): (SbtBuildModuleDataBsp, ScalaSdkData) = {
+    val buildFor = sbtBuildTarget.getChildren.asScala.map { target => new URI(target.getUri) }
 
-    deserialized.map { data =>
-      val sbtData = SbtBuildModuleData(
-        data.getAutoImports.asScala,
-        Set.empty,
-        data.getParent.getUri.toURI
-      )
-      val scalaSdkData = calculateScalaSdkData(data.getScalaBuildTarget)
-      val classPath = data.getClasspath.asScala.map(new File(_))
-      data.getScalaBuildTarget
+    val sbtBuildModuleData = SbtBuildModuleDataBsp(
+      sbtBuildTarget.getAutoImports,
+      buildFor.asJava
+    )
+    val scalaSdkData = calculateScalaSdkData(sbtBuildTarget.getScalaBuildTarget)
 
-      // TODO finish implementing sbt module description
-      val scalaModule = ScalaModuleDescription(
-        targets = ???,
-        targetDependencies = ???,
-        targetTestDependencies = Seq.empty, // TODO sbt build modules should support tests too (but hardly anyone uses them)
-        basePath = ???,
-        output  = ???,
-        testOutput = None,
-        sourceDirs = ???,
-        testSourceDirs = Seq.empty,
-        classPath = classPath,
-        classPathSources = ???,
-        testClassPath = Seq.empty,
-        testClassPathSources = Seq.empty,
-        scalaSdkData = scalaSdkData
-      )
-
-      SbtModuleDescription(sbtData, scalaModule)
-    }
+    (sbtBuildModuleData, scalaSdkData)
   }
 
-  private def calculateModuleDescription(
+  private def calculateModuleDescriptions(
     buildTargets: Seq[BuildTarget],
     optionsItems: Seq[ScalacOptionsItem],
     sourcesItems: Seq[SourcesItem],
     dependencySourcesItems: Seq[DependencySourcesItem]
-  ): Iterable[ScalaModuleDescription] = {
+  ): Iterable[ModuleDescription] = {
 
     val idToTarget = buildTargets.map(t => (t.getId, t)).toMap
     val idToScalaOptions = optionsItems.map(item => (item.getTarget, item)).toMap
@@ -423,6 +422,7 @@ object BspProjectResolver {
         src <- sources.getSources.asScala
       } yield src).distinct
 
+      // FIXME use me
       val depSourcePaths = for {
         depSources <- depSourcesOpt.toSeq
         depSrc <- depSources.getSources.asScala
@@ -459,75 +459,99 @@ object BspProjectResolver {
 
       val tags = target.getTags.asScala
 
-      import BuildTargetTag._
-      val description = for {
-        data <- Option(target.getData)
-        scalaSdkData <- extractScalaSdkData(data.asInstanceOf[JsonElement])
-        if ! tags.contains(NO_IDE)
-      } yield {
-        if (tags.contains(LIBRARY) || tags.contains(APPLICATION))
-          ScalaModuleDescription(
-            targets = Seq(target),
-            targetDependencies = target.getDependencies.asScala,
-            targetTestDependencies = Seq.empty,
-            basePath = moduleBase,
-            output = outputPath,
-            testOutput = None,
-            sourceDirs = sourceRoots,
-            testSourceDirs = Seq.empty,
-            classPath = classPathWithoutDependencyOutputs,
-            classPathSources = dependencySources,
-            testClassPath = Seq.empty,
-            testClassPathSources = Seq.empty,
-            scalaSdkData = scalaSdkData
-          )
-        else if(tags.contains(TEST))
-          ScalaModuleDescription(
-            targets = Seq(target),
-            targetDependencies = Seq.empty,
-            targetTestDependencies = target.getDependencies.asScala,
-            basePath = moduleBase,
-            output = None,
-            testOutput = outputPath,
-            sourceDirs = Seq.empty,
-            testSourceDirs = sourceDirs,
-            classPath = Seq.empty,
-            classPathSources = Seq.empty,
-            testClassPath = classPathWithoutDependencyOutputs,
-            testClassPathSources = dependencySources,
-            scalaSdkData = scalaSdkData
-          )
-        else // create a module, but with empty classpath
-          ScalaModuleDescription(
-            Seq(target),
-            Seq.empty, Seq.empty,
-            moduleBase,
-            None, None,
-            Seq.empty, Seq.empty,
-            Seq.empty, Seq.empty,
-            Seq.empty, Seq.empty,
-            scalaSdkData
-          ) // TODO ignore and warn about unsupported build target kinds? map to special module?
-      }
+      val targetData =
+        if (tags.contains(BuildTargetTag.NO_IDE)) None
+        else Option(target.getData).map(_.asInstanceOf[JsonElement])
 
-      description.toSeq
+      val moduleDescriptionData = createScalaModuleDescription(
+        target, tags, moduleBase, outputPath, sourceRoots,
+        classPathWithoutDependencyOutputs, dependencySources)
+
+      val scalaModule =
+        targetData.flatMap(extractScalaSdkData)
+          .map(calculateScalaSdkData)
+          .map(ScalaModule)
+
+      val sbtModule =
+        targetData.flatMap(extractSbtData)
+          .map { data =>
+            val (sbtModuleData, scalaSdkData) = calculateSbtData(data)
+            SbtModule(scalaSdkData, sbtModuleData)
+          }
+
+      scalaModule.orElse(sbtModule)
+        .map(moduleKind => ModuleDescription(moduleDescriptionData, moduleKind))
+        .toSeq
     }
 
     // merge modules with the same module base
-    moduleDescriptions.groupBy(_.basePath).values.map(mergeModules)
+    moduleDescriptions.groupBy(_.data.basePath).values.map(mergeModules)
+
+    moduleDescriptions
+  }
+
+  private def createScalaModuleDescription(target: BuildTarget,
+                                           tags: Seq[String],
+                                           moduleBase: File,
+                                           outputPath: Option[File],
+                                           sourceRoots: Seq[SourceDirectory],
+                                           classPath: Seq[File],
+                                           dependencySources: Seq[File]
+                                          ) = {
+    import BuildTargetTag._
+
+    if (tags.contains(LIBRARY) || tags.contains(APPLICATION))
+      ModuleDescriptionData(
+        targets = Seq(target),
+        targetDependencies = target.getDependencies.asScala,
+        targetTestDependencies = Seq.empty,
+        basePath = moduleBase,
+        output = outputPath,
+        testOutput = None,
+        sourceDirs = sourceRoots,
+        testSourceDirs = Seq.empty,
+        classPath = classPath,
+        classPathSources = dependencySources,
+        testClassPath = Seq.empty,
+        testClassPathSources = Seq.empty
+      )
+    else if(tags.contains(TEST))
+      ModuleDescriptionData(
+        targets = Seq(target),
+        targetDependencies = Seq.empty,
+        targetTestDependencies = target.getDependencies.asScala,
+        basePath = moduleBase,
+        output = None,
+        testOutput = outputPath,
+        sourceDirs = Seq.empty,
+        testSourceDirs = sourceRoots,
+        classPath = Seq.empty,
+        classPathSources = Seq.empty,
+        testClassPath = classPath,
+        testClassPathSources = dependencySources
+      )
+    else // create a module, but with empty classpath
+      ModuleDescriptionData(
+        Seq(target),
+        Seq.empty, Seq.empty,
+        moduleBase,
+        None, None,
+        Seq.empty, Seq.empty,
+        Seq.empty, Seq.empty,
+        Seq.empty, Seq.empty
+      ) // TODO ignore and warn about unsupported build target kinds? map to special module?
   }
 
 
 
-
-  private def createModuleDependencies(moduleDescriptions: Iterable[ScalaModuleDescription], idToModule: Map[String, DataNode[ModuleData]]) = {
+  private def createModuleDependencies(moduleDescriptions: Iterable[ModuleDescription], idToModule: Map[String, DataNode[ModuleData]]) = {
     for {
       moduleDescription <- moduleDescriptions
-      id = moduleDescription.targets.head.getId.getUri // any id will resolve the module in idToModule
+      id = moduleDescription.data.targets.head.getId.getUri // any id will resolve the module in idToModule
       module <- idToModule.get(id)
     } yield {
-      val compileDeps = moduleDescription.targetDependencies.map((_, DependencyScope.COMPILE))
-      val testDeps = moduleDescription.targetTestDependencies.map((_, DependencyScope.TEST))
+      val compileDeps = moduleDescription.data.targetDependencies.map((_, DependencyScope.COMPILE))
+      val testDeps = moduleDescription.data.targetTestDependencies.map((_, DependencyScope.TEST))
 
       val moduleDeps = for {
         (moduleDepId, scope) <- compileDeps ++ testDeps
@@ -547,29 +571,30 @@ object BspProjectResolver {
 
 
   /** Merge modules assuming they have the same base path. */
-  private def mergeModules(descriptions: Seq[ScalaModuleDescription]): ScalaModuleDescription = {
+  private def mergeModules(descriptions: Seq[ModuleDescription]): ModuleDescription = {
     descriptions.reduce { (combined, next) =>
+      val dataCombined = combined.data
+      val dataNext = next.data
       // TODO ok it's time for monoids
-      val targets = (combined.targets ++ next.targets).sortBy(_.getId.getUri)
-      val targetDependencies = combined.targetDependencies ++ next.targetDependencies
-      val targetTestDependencies = combined.targetTestDependencies ++ next.targetTestDependencies
-      val output = combined.output.orElse(next.output)
-      val testOutput = combined.testOutput.orElse(next.testOutput)
-      val sourceDirs = combined.sourceDirs ++ next.sourceDirs
-      val testSourceDirs  = combined.testSourceDirs ++ next.testSourceDirs
-      val classPath = combined.classPath ++ next.classPath
-      val classPathSources = combined.classPathSources ++ next.classPathSources
-      val testClassPath = combined.testClassPath ++ next.testClassPath
-      val testClassPathSources = combined.testClassPathSources ++ next.testClassPathSources
-      // Get the ScalaSdkData from the first combined module
-      val scalaSdkData = combined.scalaSdkData
+      val targets = (dataCombined.targets ++ dataNext.targets).sortBy(_.getId.getUri)
+      val targetDependencies = dataCombined.targetDependencies ++ dataNext.targetDependencies
+      val targetTestDependencies = dataCombined.targetTestDependencies ++ dataNext.targetTestDependencies
+      val output = dataCombined.output.orElse(dataNext.output)
+      val testOutput = dataCombined.testOutput.orElse(dataNext.testOutput)
+      val sourceDirs = dataCombined.sourceDirs ++ dataNext.sourceDirs
+      val testSourceDirs  = dataCombined.testSourceDirs ++ dataNext.testSourceDirs
+      val classPath = dataCombined.classPath ++ dataNext.classPath
+      val classPathSources = dataCombined.classPathSources ++ dataNext.classPathSources
+      val testClassPath = dataCombined.testClassPath ++ dataNext.testClassPath
+      val testClassPathSources = dataCombined.testClassPathSources ++ dataNext.testClassPathSources
 
-      ScalaModuleDescription(
-        targets, targetDependencies, targetTestDependencies, combined.basePath,
+      val newData = ModuleDescriptionData(
+        targets, targetDependencies, targetTestDependencies, dataCombined.basePath,
         output, testOutput, sourceDirs, testSourceDirs,
         classPath, classPathSources, testClassPath, testClassPathSources,
-        scalaSdkData
       )
+
+      combined.copy(data = newData)
     }
   }
 
