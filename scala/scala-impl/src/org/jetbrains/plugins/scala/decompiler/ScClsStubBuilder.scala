@@ -33,7 +33,6 @@ object ScClsStubBuilder extends ClsStubBuilder {
 
     val result = ScalaPsiElementFactory.createScalaFileFromText(sourceText)
       .asInstanceOf[ScalaFileImpl]
-    result.isCompiled = true
     result.virtualFile = file
 
     result

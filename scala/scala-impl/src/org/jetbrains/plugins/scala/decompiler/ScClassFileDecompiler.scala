@@ -54,7 +54,6 @@ object ScClassFileDecompiler {
 
       override def createFile(project: Project, virtualFile: VirtualFile, fileType: FileType): PsiFile = {
         val file = new ScalaFileImpl(this)
-        file.isCompiled = true
         file.virtualFile = virtualFile
         file
       }

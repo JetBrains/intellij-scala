@@ -3,7 +3,6 @@ package lang
 package psi
 package impl
 
-
 import java.util
 
 import com.intellij.extapi.psi.PsiFileBase
@@ -54,7 +53,6 @@ class ScalaFileImpl(viewProvider: FileViewProvider,
     with ScControlFlowOwner
     with FileResolveScopeProvider {
 
-  private[this] var _compiled = false
   private[this] var _virtualFile: VirtualFile = _
 
   override def toString: String = "ScalaFile:" + getName
@@ -64,9 +62,10 @@ class ScalaFileImpl(viewProvider: FileViewProvider,
 
   protected def findChildByClassScala[T >: Null <: ScalaPsiElement](clazz: Class[T]): T = findChildByClass[T](clazz)
 
-  def sourceName: String =
-    if (isCompiled) byStubOrPsi(_.sourceName)(decompiler.sourceName(getVirtualFile))
-    else ""
+  def sourceName: String = virtualFile match {
+    case null => ""
+    case file => byStubOrPsi(_.sourceName)(decompiler.sourceName(file))
+  }
 
   override final def getName: String = virtualFile match {
     case null => super.getName
@@ -84,21 +83,12 @@ class ScalaFileImpl(viewProvider: FileViewProvider,
     _virtualFile = virtualFile
   }
 
-  final def isCompiled: Boolean = _compiled
-
-  //noinspection AccessorLikeMethodIsUnit
-  private[scala] final def isCompiled_=(compiled: Boolean): Unit = {
-    _compiled = compiled
-  }
-
-  override def getNavigationElement: PsiElement = {
-    if (!isCompiled) this
-    else {
+  override def getNavigationElement: PsiElement =
+    if (this.isCompiled) {
       findSourceForCompiledFile
         .flatMap(vf => getManager.findFile(vf).toOption)
         .getOrElse(this)
-    }
-  }
+    } else this
 
   @CachedInUserData(this, ProjectRootManager.getInstance(getProject))
   private def findSourceForCompiledFile: Option[VirtualFile] = {
@@ -404,18 +394,22 @@ class ScalaFileImpl(viewProvider: FileViewProvider,
     this.depthFirst().filterByType[ScPackaging].flatMap(_.reference).map(_.getTextRange).toList
 
   def getFileResolveScope: GlobalSearchScope = {
-    val vFile = getOriginalFile.getVirtualFile
-
-    if (vFile == null || !vFile.isValid) GlobalSearchScope.allScope(getProject)
-    else if (isCompiled) compiledFileResolveScope
-    else ResolveScopeManager.getInstance(getProject).getDefaultResolveScope(vFile)
+    getOriginalFile.getVirtualFile match {
+      case file if file != null && file.isValid =>
+        if (this.isCompiled) compiledFileResolveScope
+        else ResolveScopeManager.getInstance(getProject).getDefaultResolveScope(file)
+      case _ => GlobalSearchScope.allScope(getProject)
+    }
   }
 
   @CachedInUserData(this, ProjectRootManager.getInstance(getProject))
   private def compiledFileResolveScope: GlobalSearchScope = {
-    val vFile = getOriginalFile.getVirtualFile
-    val orderEntries = ProjectRootManager.getInstance(getProject).getFileIndex.getOrderEntriesForFile(vFile)
-    LibraryScopeCache.getInstance(getProject).getLibraryScope(orderEntries) //this cache is very inefficient when orderEntries.size is large
+    val file = getOriginalFile.getVirtualFile
+    val orderEntries = ProjectRootManager.getInstance(getProject)
+      .getFileIndex
+      .getOrderEntriesForFile(file)
+    LibraryScopeCache.getInstance(getProject)
+      .getLibraryScope(orderEntries) //this cache is very inefficient when orderEntries.size is large
   }
 
   def ignoreReferencedElementAccessibility(): Boolean = true //todo: ?
