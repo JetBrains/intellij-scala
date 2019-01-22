@@ -56,13 +56,15 @@ public class ScalaCodeStyleSettings extends CustomCodeStyleSettings {
   public boolean DO_NOT_INDENT_TUPLES_CLOSE_BRACE = true;
   public boolean ALIGN_TUPLE_ELEMENTS = false;
   public boolean INDENT_FIRST_PARAMETER_CLAUSE = false;
+
   public String SCALAFMT_CONFIG_PATH = "";
-  public int FORMATTER = INTELLIJ_FORMATTER;
-  public boolean SHOW_SCALAFMT_INVALID_CODE_WARNINGS = false;
-  public boolean USE_INTELLIJ_FORMATTER_FOR_SCALAFMT_RANGE_FORMAT = false;
+  public boolean SCALAFMT_SHOW_INVALID_CODE_WARNINGS = false;
+  public boolean SCALAFMT_USE_INTELLIJ_FORMATTER_FOR_RANGE_FORMAT = false;
+  public boolean SCALAFMT_REFORMAT_ON_FILES_SAVE = false;
 
   public static final int INTELLIJ_FORMATTER = 0;
   public static final int SCALAFMT_FORMATTER = 1;
+  public int FORMATTER = INTELLIJ_FORMATTER;
 
   public boolean USE_SCALAFMT_FORMATTER() {
     return FORMATTER == SCALAFMT_FORMATTER;

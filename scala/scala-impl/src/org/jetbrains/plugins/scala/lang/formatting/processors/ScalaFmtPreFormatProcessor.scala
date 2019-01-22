@@ -49,7 +49,7 @@ class ScalaFmtPreFormatProcessor extends PreFormatProcessor {
       case _ if range.isEmpty => TextRange.EMPTY_RANGE
       case Some(file: ScalaFile) =>
         val isSubrangeFormatting = range != file.getTextRange
-        if (isSubrangeFormatting && getScalaSettings(file).USE_INTELLIJ_FORMATTER_FOR_SCALAFMT_RANGE_FORMAT) {
+        if (isSubrangeFormatting && getScalaSettings(file).SCALAFMT_USE_INTELLIJ_FORMATTER_FOR_RANGE_FORMAT) {
           range
         } else {
           formatIfRequired(file, shiftRange(file, range))
@@ -141,6 +141,17 @@ object ScalaFmtPreFormatProcessor {
     }
   }
 
+  def formatWithoutCommit(file: PsiFile): Boolean = {
+    (for {
+      document <- Option(PsiDocumentManager.getInstance(file.getProject).getDocument(file))
+      config = ScalaFmtConfigUtil.configFor(file)
+      formattedText <- Scalafmt.format(file.getText, config).toEither.toOption
+    } yield {
+      inWriteAction(document.setText(formattedText))
+      PsiDocumentManager.getInstance(file.getProject)
+    }).isDefined
+  }
+
   private def formatRange(file: PsiFile, range: TextRange): Option[Int] = {
     val project = file.getProject
     val manager = PsiDocumentManager.getInstance(project)
@@ -150,17 +161,15 @@ object ScalaFmtPreFormatProcessor {
     val config = ScalaFmtConfigUtil.configFor(file)
 
     def formatWholeFile(): Boolean = {
-      Scalafmt.format(fileText, config) match {
-        case Success(formattedCode) =>
-          inWriteAction(document.setText(formattedCode))
-          manager.commitAllDocuments() // do we really need to commit all documents instead of just single?
-          true
-        case _ =>
-          false
+      val formatted = formatWithoutCommit(file)
+      if(formatted) {
+        manager.commitDocument(document)
       }
+      formatted
     }
 
-    if (range == file.getTextRange && formatWholeFile())
+    val rangeIncludesWholeFile = range.contains(file.getTextRange)
+    if (rangeIncludesWholeFile && formatWholeFile())
       return None
 
     def processRange(elements: Seq[PsiElement], wrap: Boolean): Option[Int] = {
@@ -180,12 +189,12 @@ object ScalaFmtPreFormatProcessor {
 
     val elementsWrapped: Seq[PsiElement] = elementsInRangeWrapped(file, range)
     if (elementsWrapped.isEmpty) {
-      if (range != file.getTextRange) {
-        //failed to wrap some elements, try the whole file
-        processRange(Seq(file), wrap = false)
-      } else {
+      if (rangeIncludesWholeFile) {
         //wanted to format whole file, failed with file and with file elements wrapped, report failure
         reportInvalidCodeFailure(project)
+      } else {
+        //failed to wrap some elements, try the whole file
+        processRange(Seq(file), wrap = false)
       }
       None
     } else {
@@ -533,7 +542,7 @@ object ScalaFmtPreFormatProcessor {
   }
 
   private def reportInvalidCodeFailure(project: Project): Unit = {
-    if (ScalaCodeStyleSettings.getInstance(project).SHOW_SCALAFMT_INVALID_CODE_WARNINGS)
+    if (ScalaCodeStyleSettings.getInstance(project).SCALAFMT_SHOW_INVALID_CODE_WARNINGS)
       reportError("Failed to find correct surrounding code to pass for scalafmt, no formatting will be performed", project)
   }
 

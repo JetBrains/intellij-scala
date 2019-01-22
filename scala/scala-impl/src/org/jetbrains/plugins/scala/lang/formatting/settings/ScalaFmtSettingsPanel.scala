@@ -53,8 +53,9 @@ class ScalaFmtSettingsPanel(val settings: CodeStyleSettings) extends CodeStyleAb
 
     val scalaSettings = settings.getCustomSettings(classOf[ScalaCodeStyleSettings])
 
-    scalaSettings.SHOW_SCALAFMT_INVALID_CODE_WARNINGS = showScalaFmtInvalidCodeWarnings.isSelected
-    scalaSettings.USE_INTELLIJ_FORMATTER_FOR_SCALAFMT_RANGE_FORMAT = useIntellijFormatterForRangeFormat.isSelected
+    scalaSettings.SCALAFMT_SHOW_INVALID_CODE_WARNINGS = showScalaFmtInvalidCodeWarnings.isSelected
+    scalaSettings.SCALAFMT_USE_INTELLIJ_FORMATTER_FOR_RANGE_FORMAT = useIntellijFormatterForRangeFormat.isSelected
+    scalaSettings.SCALAFMT_REFORMAT_ON_FILES_SAVE = reformatOnFileSaveCheckBox.isSelected
 
     val configPath = scalaSettings.SCALAFMT_CONFIG_PATH
     val configPathNew = externalFormatterSettingsPath.getText
@@ -98,8 +99,9 @@ class ScalaFmtSettingsPanel(val settings: CodeStyleSettings) extends CodeStyleAb
   override def isModified(codeStyleSettings: CodeStyleSettings): Boolean = {
     val scalaCodeStyleSettings = codeStyleSettings.getCustomSettings(classOf[ScalaCodeStyleSettings])
     scalaCodeStyleSettings.SCALAFMT_CONFIG_PATH != externalFormatterSettingsPath.getText ||
-      scalaCodeStyleSettings.SHOW_SCALAFMT_INVALID_CODE_WARNINGS != showScalaFmtInvalidCodeWarnings.isSelected ||
-      scalaCodeStyleSettings.USE_INTELLIJ_FORMATTER_FOR_SCALAFMT_RANGE_FORMAT != useIntellijFormatterForRangeFormat.isSelected ||
+      scalaCodeStyleSettings.SCALAFMT_SHOW_INVALID_CODE_WARNINGS != showScalaFmtInvalidCodeWarnings.isSelected ||
+      scalaCodeStyleSettings.SCALAFMT_USE_INTELLIJ_FORMATTER_FOR_RANGE_FORMAT != useIntellijFormatterForRangeFormat.isSelected ||
+      scalaCodeStyleSettings.SCALAFMT_REFORMAT_ON_FILES_SAVE != reformatOnFileSaveCheckBox.isSelected ||
       configText.exists(_ != getEditor.getDocument.getText)
   }
 
@@ -108,8 +110,9 @@ class ScalaFmtSettingsPanel(val settings: CodeStyleSettings) extends CodeStyleAb
     val configPath = scalaSettings.SCALAFMT_CONFIG_PATH
 
     externalFormatterSettingsPath.setText(configPath)
-    showScalaFmtInvalidCodeWarnings.setSelected(scalaSettings.SHOW_SCALAFMT_INVALID_CODE_WARNINGS)
-    useIntellijFormatterForRangeFormat.setSelected(scalaSettings.USE_INTELLIJ_FORMATTER_FOR_SCALAFMT_RANGE_FORMAT)
+    showScalaFmtInvalidCodeWarnings.setSelected(scalaSettings.SCALAFMT_SHOW_INVALID_CODE_WARNINGS)
+    useIntellijFormatterForRangeFormat.setSelected(scalaSettings.SCALAFMT_USE_INTELLIJ_FORMATTER_FOR_RANGE_FORMAT)
+    reformatOnFileSaveCheckBox.setSelected(scalaSettings.SCALAFMT_REFORMAT_ON_FILES_SAVE)
     getConfigVFile(configPath).foreach { vFile =>
       updateConfigTextFromFile(vFile)
     }
@@ -131,7 +134,7 @@ class ScalaFmtSettingsPanel(val settings: CodeStyleSettings) extends CodeStyleAb
     def constraint(row: Int, column: Int, rowSpan: Int, colSpan: Int, anchor: Int, fill: Int, HSizePolicy: Int, VSizePolicy: Int) =
       new GridConstraints(row, column, rowSpan, colSpan, anchor, fill, HSizePolicy, VSizePolicy, null, null, null, 0, false)
 
-    val inner = new JPanel(new GridLayoutManager(4, 3, new Insets(10, 10, 10, 10), -1, -1))
+    val inner = new JPanel(new GridLayoutManager(5, 3, new Insets(10, 10, 10, 10), -1, -1))
 
     inner.add(new JLabel("Configuration:"),
       constraint(0, 0, 1, 1, ANCHOR_WEST, FILL_NONE, SIZEPOLICY_FIXED, SIZEPOLICY_FIXED))
@@ -151,6 +154,7 @@ class ScalaFmtSettingsPanel(val settings: CodeStyleSettings) extends CodeStyleAb
     useIntellijWarning.setToolTipText(
       """Using Scalafmt to format code ranges can lead to  code inconsistencies.
         |Scalafmt is designed to only format entire files with scala code""".stripMargin)
+    reformatOnFileSaveCheckBox = new JBCheckBox("Reformat on file save")
 
     inner.add(showScalaFmtInvalidCodeWarnings,
       constraint(1, 0, 1, 3, ANCHOR_WEST, FILL_NONE, SIZEPOLICY_FIXED, SIZEPOLICY_FIXED))
@@ -158,6 +162,8 @@ class ScalaFmtSettingsPanel(val settings: CodeStyleSettings) extends CodeStyleAb
       constraint(2, 0, 1, 1, ANCHOR_WEST, FILL_NONE, SIZEPOLICY_FIXED, SIZEPOLICY_FIXED))
     inner.add(useIntellijWarning,
       constraint(2, 1, 1, 2, ANCHOR_WEST, FILL_NONE, SIZEPOLICY_FIXED, SIZEPOLICY_FIXED))
+    inner.add(reformatOnFileSaveCheckBox,
+      constraint(3, 0, 1, 3, ANCHOR_WEST, FILL_NONE, SIZEPOLICY_FIXED, SIZEPOLICY_FIXED))
 
     val configEditorPanel = new JPanel(new VerticalFlowLayout(VerticalFlowLayout.TOP, 0, 10, true, true))
     configLabel = new JLabel("Configuration content:")
@@ -170,7 +176,7 @@ class ScalaFmtSettingsPanel(val settings: CodeStyleSettings) extends CodeStyleAb
     installPreviewPanel(previewPanel)
     getEditor.getComponent.setPreferredSize(configEditorPanel.getPreferredSize)
     inner.add(configEditorPanel,
-      constraint(3, 0, 1, 3, ANCHOR_NORTH, FILL_BOTH, SIZEPOLICY_CAN_GROW, SIZEPOLICY_CAN_SHRINK | SIZEPOLICY_CAN_GROW))
+      constraint(4, 0, 1, 3, ANCHOR_NORTH, FILL_BOTH, SIZEPOLICY_CAN_GROW, SIZEPOLICY_CAN_SHRINK | SIZEPOLICY_CAN_GROW))
 
     inner
   }
@@ -248,5 +254,6 @@ class ScalaFmtSettingsPanel(val settings: CodeStyleSettings) extends CodeStyleAb
   private var externalFormatterSettingsPath: TextFieldWithBrowseButton = _
   private var showScalaFmtInvalidCodeWarnings: JBCheckBox = _
   private var useIntellijFormatterForRangeFormat: JBCheckBox = _
+  private var reformatOnFileSaveCheckBox: JBCheckBox = _
   private val customSettingsTitle = "Select custom scalafmt configuration file"
 }
