@@ -42,6 +42,7 @@ import org.jetbrains.plugins.scala.settings.ScalaProjectSettings
 import org.jetbrains.plugins.scala.util.ScalaUtil
 import org.jetbrains.plugins.scala.worksheet.ammonite.AmmoniteUtil
 
+import scala.annotation.tailrec
 import scala.collection.JavaConverters._
 import scala.collection.mutable
 
@@ -296,8 +297,8 @@ class ScalaFileImpl(viewProvider: FileViewProvider,
       null
   }
 
-  def getPackagings: Array[ScPackaging] =
-    byStubOrPsi(_.getChildrenByType(PACKAGING, ScPackagingFactory))(findChildrenByClass(classOf[ScPackaging]))
+  override def firstPackaging: Option[ScPackaging] =
+    byStubOrPsi(_.getChildrenByType(PACKAGING, ScPackagingFactory).headOption)(Option(findChildByClass(classOf[ScPackaging])))
 
   def getPackageName: String = Option(packageName).getOrElse("")
 
@@ -317,18 +318,23 @@ class ScalaFileImpl(viewProvider: FileViewProvider,
   }
 
   private def getPackageNameInner: String = {
-    val ps = getPackagings
-
-    def inner(p: ScPackaging, prefix: String): String = {
-      val subs = p.packagings
-      if (subs.nonEmpty && !subs.head.isExplicit) inner(subs.head, prefix + "." + subs.head.packageName)
-      else prefix
+    object PackagingName {
+      def unapply(packaging: ScPackaging): Option[String] =
+        if (packaging.isExplicit) None
+        else Some(packaging.packageName)
     }
 
-    if (ps.length > 0 && !ps(0).isExplicit) {
-      val prefix = ps(0).packageName
-      inner(ps(0), prefix)
-    } else ""
+    @tailrec
+    def inner(p: ScPackaging, result: String): String =
+      p.packagings.headOption match {
+        case Some(packaging@PackagingName(name)) => inner(packaging, result + "." + name)
+        case _ => result
+    }
+
+    firstPackaging match {
+      case Some(packaging@PackagingName(name)) => inner(packaging, name)
+      case _ => ""
+    }
   }
 
   override def getClasses: Array[PsiClass] =

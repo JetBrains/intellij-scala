@@ -21,9 +21,7 @@ trait ScalaFile extends ScalaPsiElement
     true
   }
 
-  def getPackagings: Array[ScPackaging]
-
-  def getPackageName: String
+  def firstPackaging: Option[ScPackaging]
 
   @Nullable
   def packageName: String
