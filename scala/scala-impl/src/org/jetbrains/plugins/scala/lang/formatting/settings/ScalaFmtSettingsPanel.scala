@@ -120,69 +120,59 @@ class ScalaFmtSettingsPanel(val settings: CodeStyleSettings) extends CodeStyleAb
   override def getPanel: JComponent = {
     if (myPanel == null) {
       myPanel = new JPanel(new VerticalFlowLayout(VerticalFlowLayout.TOP, 0, 0, true, true))
-      val inner = new JPanel(new GridLayoutManager(4, 3, new Insets(10, 10, 10, 10), -1, -1))
-      inner.add(new JLabel("Configuration:"),
-        new GridConstraints(0, 0, 1, 1, GridConstraints.ANCHOR_WEST, GridConstraints.FILL_NONE,
-          GridConstraints.SIZEPOLICY_FIXED,
-          GridConstraints.SIZEPOLICY_FIXED, null, null,
-          null, 0, false))
-      val myTextField = new JBTextField
-      myTextField.getEmptyText.setText(s"Default: .${File.separatorChar}${ScalaFmtConfigUtil.defaultConfigurationFileName}")
-      externalFormatterSettingsPath = new TextFieldWithBrowseButton(myTextField)
-      externalFormatterSettingsPath.addBrowseFolderListener(customSettingsTitle, customSettingsTitle, null,
-        FileChooserDescriptorFactory.createSingleFileDescriptor("conf"))
-      inner.add(externalFormatterSettingsPath,
-        new GridConstraints(0, 1, 1, 1, GridConstraints.ANCHOR_NORTHWEST, GridConstraints.FILL_HORIZONTAL,
-          GridConstraints.SIZEPOLICY_CAN_GROW | GridConstraints.SIZEPOLICY_WANT_GROW,
-          GridConstraints.SIZEPOLICY_FIXED, null, null,
-          null, 0, false))
-      inner.add(new Spacer, new GridConstraints(0, 2, 1, 1,
-        GridConstraints.ANCHOR_CENTER, GridConstraints.FILL_HORIZONTAL, GridConstraints.SIZEPOLICY_WANT_GROW,
-        GridConstraints.SIZEPOLICY_CAN_SHRINK, null, null, null, 0, false))
-
-      showScalaFmtInvalidCodeWarnings = new JBCheckBox("Show warnings when trying to format invalid code")
-      inner.add(showScalaFmtInvalidCodeWarnings, new GridConstraints(1, 0, 1, 3,
-        GridConstraints.ANCHOR_WEST, GridConstraints.FILL_NONE,
-        GridConstraints.SIZEPOLICY_FIXED,
-        GridConstraints.SIZEPOLICY_FIXED, null, null,
-        null, 0, false))
-
-      useIntellijFormatterForRangeFormat = new JBCheckBox("Use IntelliJ formatter for code range formatting")
-
-      val warningLabel = new JLabel(AllIcons.General.Warning)
-      warningLabel.setToolTipText(
-        """Using Scalafmt to format code ranges can lead to  code inconsistencies.
-          |Scalafmt is designed to only format entire files with scala code""".stripMargin)
-
-      inner.add(useIntellijFormatterForRangeFormat, new GridConstraints(2, 0, 1, 1,
-        GridConstraints.ANCHOR_WEST, GridConstraints.FILL_NONE,
-        GridConstraints.SIZEPOLICY_FIXED,
-        GridConstraints.SIZEPOLICY_FIXED, null, null,
-        null, 0, false))
-      inner.add(warningLabel, new GridConstraints(2, 1, 1, 2,
-        GridConstraints.ANCHOR_WEST, GridConstraints.FILL_NONE,
-        GridConstraints.SIZEPOLICY_FIXED,
-        GridConstraints.SIZEPOLICY_FIXED, null, null,
-        null, 0, false))
-
-      val configEditorPanel = new JPanel(new VerticalFlowLayout(VerticalFlowLayout.TOP, 0, 10, true, true))
-      configLabel = new JLabel("Configuration content:")
-      noConfigLabel = new JLabel("No Configuration found under specified path")
-      configEditorPanel.add(configLabel)
-      configEditorPanel.add(noConfigLabel)
-      noConfigLabel.setVisible(false)
-      previewPanel = new JPanel()
-      configEditorPanel.add(previewPanel)
-      installPreviewPanel(previewPanel)
-      getEditor.getComponent.setPreferredSize(configEditorPanel.getPreferredSize)
-      inner.add(configEditorPanel, new GridConstraints(3, 0, 1, 3,
-        GridConstraints.ANCHOR_NORTH, GridConstraints.FILL_BOTH,
-        GridConstraints.SIZEPOLICY_CAN_GROW,
-        GridConstraints.SIZEPOLICY_CAN_SHRINK | GridConstraints.SIZEPOLICY_CAN_GROW, null, null,
-        null, 0, false))
-      myPanel.add(inner)
+      myPanel.add(buildInnerPanel)
     }
     myPanel
+  }
+
+  private def buildInnerPanel: JPanel = {
+    import GridConstraints._
+
+    def constraint(row: Int, column: Int, rowSpan: Int, colSpan: Int, anchor: Int, fill: Int, HSizePolicy: Int, VSizePolicy: Int) =
+      new GridConstraints(row, column, rowSpan, colSpan, anchor, fill, HSizePolicy, VSizePolicy, null, null, null, 0, false)
+
+    val inner = new JPanel(new GridLayoutManager(4, 3, new Insets(10, 10, 10, 10), -1, -1))
+
+    inner.add(new JLabel("Configuration:"),
+      constraint(0, 0, 1, 1, ANCHOR_WEST, FILL_NONE, SIZEPOLICY_FIXED, SIZEPOLICY_FIXED))
+    val myTextField = new JBTextField
+    myTextField.getEmptyText.setText(s"Default: .${File.separatorChar}${ScalaFmtConfigUtil.defaultConfigurationFileName}")
+    externalFormatterSettingsPath = new TextFieldWithBrowseButton(myTextField)
+    externalFormatterSettingsPath.addBrowseFolderListener(customSettingsTitle, customSettingsTitle, null,
+      FileChooserDescriptorFactory.createSingleFileDescriptor("conf"))
+    inner.add(externalFormatterSettingsPath,
+      constraint(0, 1, 1, 1, ANCHOR_NORTHWEST, FILL_HORIZONTAL, SIZEPOLICY_CAN_GROW | SIZEPOLICY_WANT_GROW, SIZEPOLICY_FIXED))
+    inner.add(new Spacer,
+      constraint(0, 2, 1, 1, ANCHOR_CENTER, FILL_HORIZONTAL, SIZEPOLICY_WANT_GROW, SIZEPOLICY_CAN_SHRINK))
+
+    showScalaFmtInvalidCodeWarnings = new JBCheckBox("Show warnings when trying to format invalid code")
+    useIntellijFormatterForRangeFormat = new JBCheckBox("Use IntelliJ formatter for code range formatting")
+    val useIntellijWarning = new JLabel(AllIcons.General.Warning)
+    useIntellijWarning.setToolTipText(
+      """Using Scalafmt to format code ranges can lead to  code inconsistencies.
+        |Scalafmt is designed to only format entire files with scala code""".stripMargin)
+
+    inner.add(showScalaFmtInvalidCodeWarnings,
+      constraint(1, 0, 1, 3, ANCHOR_WEST, FILL_NONE, SIZEPOLICY_FIXED, SIZEPOLICY_FIXED))
+    inner.add(useIntellijFormatterForRangeFormat,
+      constraint(2, 0, 1, 1, ANCHOR_WEST, FILL_NONE, SIZEPOLICY_FIXED, SIZEPOLICY_FIXED))
+    inner.add(useIntellijWarning,
+      constraint(2, 1, 1, 2, ANCHOR_WEST, FILL_NONE, SIZEPOLICY_FIXED, SIZEPOLICY_FIXED))
+
+    val configEditorPanel = new JPanel(new VerticalFlowLayout(VerticalFlowLayout.TOP, 0, 10, true, true))
+    configLabel = new JLabel("Configuration content:")
+    noConfigLabel = new JLabel("No Configuration found under specified path")
+    configEditorPanel.add(configLabel)
+    configEditorPanel.add(noConfigLabel)
+    noConfigLabel.setVisible(false)
+    previewPanel = new JPanel()
+    configEditorPanel.add(previewPanel)
+    installPreviewPanel(previewPanel)
+    getEditor.getComponent.setPreferredSize(configEditorPanel.getPreferredSize)
+    inner.add(configEditorPanel,
+      constraint(3, 0, 1, 3, ANCHOR_NORTH, FILL_BOTH, SIZEPOLICY_CAN_GROW, SIZEPOLICY_CAN_SHRINK | SIZEPOLICY_CAN_GROW))
+
+    inner
   }
 
   def onProjectSet(aProject: Project): Unit = {
