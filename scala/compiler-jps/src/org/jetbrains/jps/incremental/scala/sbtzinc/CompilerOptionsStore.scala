@@ -4,7 +4,7 @@ import java.nio.file.StandardOpenOption._
 import java.nio.file._
 
 import org.jetbrains.jps.ModuleChunk
-import org.jetbrains.jps.incremental.CompileContext
+import org.jetbrains.jps.incremental.{CompileContext, ModuleBuildTarget}
 import org.jetbrains.jps.incremental.scala.SettingsManager
 import org.jetbrains.jps.incremental.scala.data.CompilationData
 
@@ -14,14 +14,15 @@ import scala.collection.JavaConverters._
   * Cache and check scala, java, etc., options for changes across build runs
   */
 object CompilerOptionsStore {
-  private val cacheDir = "strato-options-cache"
+  private val cacheDir = "intellij-scala-options-cache"
   private val moduleCacheFileSuffix = "_options-cache.txt"
 
   /**
     * @return true if compiler options change was detected
     */
   def updateCompilerOptionsCache(context: CompileContext, chunk: ModuleChunk, moduleNames: Seq[String]): Boolean = {
-    val scalacOptsCacheFile = getCacheFileFor(context, moduleNames)
+    val target = chunk.getTargets.asScala.minBy(_.getPresentableName)
+    val scalacOptsCacheFile = getCacheFileFor(context, target)
     val previousScalacOpts = readCachedOptions(scalacOptsCacheFile)
     val currentOpts = getCurrentOptions(context, chunk)
     val changeDetected = previousScalacOpts.isEmpty || previousScalacOpts.get != currentOpts
@@ -31,9 +32,9 @@ object CompilerOptionsStore {
     changeDetected
   }
 
-  private def getCacheFileFor(context: CompileContext, moduleNames: Seq[String]): Path = {
+  private def getCacheFileFor(context: CompileContext, target: ModuleBuildTarget): Path = {
     val dataPath = context.getProjectDescriptor.dataManager.getDataPaths.getTargetsDataRoot.toPath
-    val scalacOptsDataFile = dataPath.resolve(cacheDir).resolve(moduleNames.head + moduleCacheFileSuffix)
+    val scalacOptsDataFile = dataPath.resolve(cacheDir).resolve(target.getPresentableName + moduleCacheFileSuffix)
     scalacOptsDataFile
   }
 
