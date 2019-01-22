@@ -284,7 +284,7 @@
         <refactoring.helper implementation="org.jetbrains.plugins.scala.lang.refactoring.changeSignature.ScalaChangeSignatureRefactoringHelper"/>
         <copyPastePreProcessor implementation="org.jetbrains.plugins.scala.conversion.copy.StringLiteralProcessor"/>
         <copyPastePostProcessor implementation="org.jetbrains.plugins.scala.conversion.copy.JavaCopyPastePostProcessor"/>
-        <copyPastePostProcessor implementation="org.jetbrains.plugins.scala.conversion.copy.ScalaCopyPastePostProcessor"/>
+        <copyPastePostProcessor implementation="org.jetbrains.plugins.scala.conversion.copy.ScalaCopyPastePostProcessorWithRichCopySettingsAwareness"/>
         <copyPastePostProcessor implementation="org.jetbrains.plugins.scala.conversion.copy.plainText.TextJavaCopyPastePostProcessor"/>
         <copyPastePreProcessor implementation="org.jetbrains.plugins.scala.conversion.copy.MultiLineStringCopyPasteProcessor" order="first"/>
         <typeDeclarationProvider implementation="org.jetbrains.plugins.scala.annotator.gutter.ScalaGotoTypeDeclarationProvider"/>
