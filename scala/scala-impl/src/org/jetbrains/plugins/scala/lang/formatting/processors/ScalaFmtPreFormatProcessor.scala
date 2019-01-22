@@ -48,13 +48,20 @@ class ScalaFmtPreFormatProcessor extends PreFormatProcessor {
       case None => TextRange.EMPTY_RANGE
       case _ if range.isEmpty => TextRange.EMPTY_RANGE
       case Some(file: ScalaFile) =>
-        formatIfRequired(file, shiftRange(file, range))
-        TextRange.EMPTY_RANGE
+        val isSubrangeFormatting = range != file.getTextRange
+        if (isSubrangeFormatting && getScalaSettings(file).USE_INTELLIJ_FORMATTER_FOR_SCALAFMT_RANGE_FORMAT) {
+          range
+        } else {
+          formatIfRequired(file, shiftRange(file, range))
+          TextRange.EMPTY_RANGE
+        }
       case _ => range
     }
   }
 
   override def changesWhitespacesOnly(): Boolean = false
+
+  private def getScalaSettings(el: PsiElement ): ScalaCodeStyleSettings = ScalaCodeStyleSettings.getInstance(el.getProject)
 }
 
 object ScalaFmtPreFormatProcessor {
