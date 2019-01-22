@@ -22,7 +22,6 @@ import com.intellij.psi.search.{FilenameIndex, GlobalSearchScope}
 import com.intellij.psi.util.PsiUtilCore
 import com.intellij.util.Processor
 import com.intellij.util.indexing.FileBasedIndex
-import org.jetbrains.annotations.Nullable
 import org.jetbrains.plugins.scala.JavaArrayFactoryUtil._
 import org.jetbrains.plugins.scala.extensions._
 import org.jetbrains.plugins.scala.lang.TokenSets._
@@ -300,39 +299,38 @@ class ScalaFileImpl(viewProvider: FileViewProvider,
   override def firstPackaging: Option[ScPackaging] =
     byStubOrPsi(_.getChildrenByType(PACKAGING, ScPackagingFactory).headOption)(Option(findChildByClass(classOf[ScPackaging])))
 
-  def getPackageName: String = Option(packageName).getOrElse("")
+  def getPackageName: String = packageName match {
+    case null => ""
+    case name => name
+  }
 
-  @Nullable
-  def packageName: String = {
+  private def packageName: String = {
     if (isScriptFile || isWorksheetFile) return null
-    var res: String = ""
-    var x: ScToplevelElement = this
-    while (true) {
-      val packs: Seq[ScPackaging] = x.packagings
-      if (packs.length > 1) return null
-      else if (packs.isEmpty) return if (res.length == 0) res else res.substring(1)
-      res += "." + packs.head.packageName
-      x = packs.head
-    }
-    null //impossible line
+
+    @tailrec
+    def inner(element: ScToplevelElement, result: StringBuilder): String =
+      element.packagings match {
+        case Seq() => if (result.isEmpty) "" else result.substring(1)
+        case Seq(head) =>
+          inner(head, result.append(".").append(head.packageName))
+        case _ => null
+      }
+
+    inner(this, StringBuilder.newBuilder)
   }
 
   private def getPackageNameInner: String = {
-    object PackagingName {
-      def unapply(packaging: ScPackaging): Option[String] =
-        if (packaging.isExplicit) None
-        else Some(packaging.packageName)
-    }
-
     @tailrec
-    def inner(p: ScPackaging, result: String): String =
+    def inner(p: ScPackaging, result: StringBuilder): String = {
+      result ++= p.packageName
       p.packagings.headOption match {
-        case Some(packaging@PackagingName(name)) => inner(packaging, result + "." + name)
-        case _ => result
+        case Some(packaging) if !packaging.isExplicit => inner(packaging, result.append("."))
+        case _ => result.toString
+      }
     }
 
     firstPackaging match {
-      case Some(packaging@PackagingName(name)) => inner(packaging, name)
+      case Some(packaging) if !packaging.isExplicit => inner(packaging, StringBuilder.newBuilder)
       case _ => ""
     }
   }

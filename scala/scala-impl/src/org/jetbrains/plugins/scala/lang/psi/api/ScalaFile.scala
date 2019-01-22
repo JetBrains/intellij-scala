@@ -5,7 +5,6 @@ package api
 
 import com.intellij.openapi.util.TextRange
 import com.intellij.psi.PsiClass
-import org.jetbrains.annotations.Nullable
 import org.jetbrains.plugins.scala.lang.psi.api.toplevel.{ScPackaging, ScToplevelElement}
 
 /**
@@ -22,9 +21,6 @@ trait ScalaFile extends ScalaPsiElement
   }
 
   def firstPackaging: Option[ScPackaging]
-
-  @Nullable
-  def packageName: String
 
   def packagingRanges: Seq[TextRange]
 

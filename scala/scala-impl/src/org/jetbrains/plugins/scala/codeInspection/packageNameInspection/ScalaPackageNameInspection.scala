@@ -32,7 +32,7 @@ class ScalaPackageNameInspection extends LocalInspectionTool {
         val pack = JavaDirectoryService.getInstance().getPackage(dir)
         if (pack == null) return null
 
-        val packName = cleanKeywords(file.packageName)
+        val packName = cleanKeywords(file.getPackageName)
         val ranges: Seq[TextRange] = file.packagingRanges match {
           case Seq() => file.typeDefinitions.map(_.nameId.getTextRange)
           case seq => seq

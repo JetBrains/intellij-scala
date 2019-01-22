@@ -53,7 +53,7 @@ object ChainedPackageInspection {
 
     override protected def doApplyFix(file: ScalaFile)
                                      (implicit project: Project): Unit = {
-      file.setPackageName(file.packageName)
+      file.setPackageName(file.getPackageName)
     }
 
     override def getFamilyName = "Use chained package clauses"
