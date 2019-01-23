@@ -16,9 +16,9 @@ import org.jetbrains.idea.maven.model.{MavenArtifact, MavenArtifactInfo, MavenId
 import org.jetbrains.idea.maven.project._
 import org.jetbrains.idea.maven.server.{MavenEmbedderWrapper, NativeMavenProjectHolder}
 import org.jetbrains.plugins.scala.extensions._
-import org.jetbrains.plugins.scala.project.ScalaLanguageLevel.Scala_2_10
 import org.jetbrains.plugins.scala.project._
 import org.jetbrains.plugins.scala.project.maven.ScalaMavenImporter._
+
 import scala.collection.JavaConverters._
 
 /**
@@ -79,7 +79,7 @@ class ScalaMavenImporter extends MavenImporter("org.scala-tools", "maven-scala-p
 
   // Can we reuse library.convertToScalaSdk? (dependency on modifiable model, cannot commit model)
   private def convertToScalaSdk(model: ModifiableModelEx, languageLevel: ScalaLanguageLevel, compilerClasspath: Seq[File]) {
-    model.setKind(ScalaLibraryKind)
+    model.setKind(ScalaLibraryType().getKind)
 
     val properties = new ScalaLibraryProperties()
     properties.languageLevel = languageLevel

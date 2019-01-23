@@ -1,33 +1,37 @@
 package org.jetbrains.plugins.scala
 package project
 
-import com.intellij.openapi.roots.libraries.{LibraryProperties, LibraryType, NewLibraryConfiguration}
-import com.intellij.openapi.roots.libraries.ui.{LibraryEditorComponent, LibraryPropertiesEditor}
-import com.intellij.openapi.vfs.VirtualFile
 import com.intellij.openapi.project.Project
-import org.jetbrains.plugins.scala.project.template.ScalaLibraryDescription
-import org.jetbrains.plugins.scala.icons.Icons
+import com.intellij.openapi.roots.libraries._
+import com.intellij.openapi.vfs.VirtualFile
 import javax.swing.{Icon, JComponent}
 
 /**
- * @author Pavel Fatin
- */
-class ScalaLibraryType extends LibraryType[ScalaLibraryProperties](ScalaLibraryKind) {
-  override def getIcon = Icons.SCALA_SDK
+  * @author Pavel Fatin
+  */
+final class ScalaLibraryType extends LibraryType[ScalaLibraryProperties](ScalaLibraryType.Kind) {
 
-  override def getIcon(properties: ScalaLibraryProperties): Icon = Icons.SCALA_SDK
+  override def getIcon: Icon = icons.Icons.SCALA_SDK
 
-  def getCreateActionName = "Scala SDK"
+  override def getCreateActionName = "Scala SDK"
 
-  def createNewLibrary(parentComponent: JComponent, contextDirectory: VirtualFile, project: Project): NewLibraryConfiguration =
-    ScalaLibraryDescription.createNewLibrary(parentComponent, contextDirectory)
+  override def createNewLibrary(parentComponent: JComponent,
+                                contextDirectory: VirtualFile,
+                                project: Project): NewLibraryConfiguration =
+    template.ScalaLibraryDescription.createNewLibrary(parentComponent, contextDirectory)
 
-  def createPropertiesEditor(editorComponent: LibraryEditorComponent[ScalaLibraryProperties]): LibraryPropertiesEditor =
+  override def createPropertiesEditor(editorComponent: ui.LibraryEditorComponent[ScalaLibraryProperties]): ui.LibraryPropertiesEditor =
     new ScalaLibraryPropertiesEditor(editorComponent)
 }
 
 object ScalaLibraryType {
-  def instance: ScalaLibraryType =
-    Option(LibraryType.findByKind(ScalaLibraryKind).asInstanceOf[ScalaLibraryType])
-            .getOrElse(throw new NoSuchElementException("Scala library type not found"))
+
+  def apply(): ScalaLibraryType =
+    LibraryType.findByKind(Kind).asInstanceOf[ScalaLibraryType]
+
+  private object Kind extends PersistentLibraryKind[ScalaLibraryProperties]("Scala") {
+
+    override def createDefaultProperties() = new ScalaLibraryProperties()
+  }
+
 }

@@ -3,16 +3,15 @@ package project
 package template
 
 import java.io.File
-import java.util
-import java.util.Collections
-import javax.swing.JComponent
+import java.{util => ju}
 
-import com.intellij.openapi.roots.libraries.NewLibraryConfiguration
+import com.intellij.openapi.roots.libraries.{LibraryKind, NewLibraryConfiguration}
 import com.intellij.openapi.roots.ui.configuration.libraries.CustomLibraryDescription
 import com.intellij.openapi.roots.ui.configuration.projectRoot.LibrariesContainer
 import com.intellij.openapi.util.SystemInfo
 import com.intellij.openapi.vfs.VfsUtilCore.virtualToIoFile
 import com.intellij.openapi.vfs.VirtualFile
+import javax.swing.JComponent
 
 import scala.collection.JavaConverters
 
@@ -20,7 +19,8 @@ import scala.collection.JavaConverters
   * @author Pavel Fatin
   */
 object ScalaLibraryDescription extends CustomLibraryDescription {
-  def getSuitableLibraryKinds: util.Set[ScalaLibraryKind.type] = Collections.singleton(ScalaLibraryKind)
+
+  def getSuitableLibraryKinds: ju.Set[LibraryKind] = ju.Collections.singleton(ScalaLibraryType().getKind)
 
   def createNewLibrary(parentComponent: JComponent, contextDirectory: VirtualFile): NewLibraryConfiguration = {
     val lt = (a: ScalaSdkDescriptor, b: ScalaSdkDescriptor) => a.version > b.version

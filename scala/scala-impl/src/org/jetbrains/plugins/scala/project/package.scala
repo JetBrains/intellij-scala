@@ -10,20 +10,18 @@ import com.intellij.openapi.roots.impl.libraries.{LibraryEx, ProjectLibraryTable
 import com.intellij.openapi.roots.libraries.Library
 import com.intellij.openapi.roots.ui.configuration.libraryEditor.ExistingLibraryEditor
 import com.intellij.openapi.util.{Key, UserDataHolder, UserDataHolderEx}
-import com.intellij.openapi.vfs.{VfsUtilCore, VirtualFile}
+import com.intellij.openapi.vfs.VfsUtilCore
 import com.intellij.psi.{PsiElement, PsiFile}
 import com.intellij.util.CommonProcessors.CollectProcessor
 import org.jetbrains.plugins.dotty.DottyLanguage
 import org.jetbrains.plugins.dotty.lang.psi.types.DottyTypeSystem
 import org.jetbrains.plugins.scala.caches.CachesUtil
 import org.jetbrains.plugins.scala.extensions._
-import org.jetbrains.plugins.scala.lang.formatting.processors.ScalaFmtPreFormatProcessor
 import org.jetbrains.plugins.scala.lang.psi.types.ScalaTypeSystem
 import org.jetbrains.plugins.scala.lang.psi.types.api.TypeSystem
 import org.jetbrains.plugins.scala.macroAnnotations.CachedInUserData
 import org.jetbrains.plugins.scala.project.ScalaLanguageLevel.{Scala_2_11, Scala_2_13}
 import org.jetbrains.plugins.scala.project.settings.{ScalaCompilerConfiguration, ScalaCompilerSettings}
-import org.scalafmt.config.ScalafmtConfig
 
 import scala.annotation.tailrec
 import scala.collection.JavaConverters._
@@ -35,7 +33,7 @@ import scala.util.matching.Regex
  */
 package object project {
   implicit class LibraryExt(val library: Library) extends AnyVal {
-    def isScalaSdk: Boolean = libraryEx.getKind.isInstanceOf[ScalaLibraryKind.type]
+    def isScalaSdk: Boolean = libraryEx.getKind == ScalaLibraryType().getKind
 
     def scalaVersion: Option[Version] = LibraryVersion.findFirstIn(library.getName).map(Version(_))
 
@@ -53,7 +51,7 @@ package object project {
       properties.compilerClasspath = compilerClasspath
 
       val editor = new ExistingLibraryEditor(library, null)
-      editor.setType(ScalaLibraryType.instance)
+      editor.setType(ScalaLibraryType())
       editor.setProperties(properties)
       editor.commit()
 

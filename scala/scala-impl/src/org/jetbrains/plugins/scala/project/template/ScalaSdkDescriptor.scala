@@ -36,7 +36,7 @@ case class ScalaSdkDescriptor(platform: Platform,
       case Dotty => "dotty-sdk"
     }
 
-    new NewLibraryConfiguration(name, ScalaLibraryType.instance, properties) {
+    new NewLibraryConfiguration(name, ScalaLibraryType(), properties) {
       override def addRoots(editor: LibraryEditor): Unit = {
         def addRoot(file: File, rootType: OrderRootType): Unit =
           editor.addRoot(file.toLibraryRootURL, rootType)

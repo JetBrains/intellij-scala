@@ -1,7 +1,9 @@
-package org.jetbrains.plugins.scala.project.external
+package org.jetbrains.plugins.scala
+package project
+package external
 
 import java.io.File
-import java.util
+import java.{util => ju}
 
 import com.intellij.facet.ModifiableFacetModel
 import com.intellij.openapi.externalSystem.model.project.{ModuleData, ProjectData}
@@ -14,9 +16,8 @@ import com.intellij.openapi.project.Project
 import com.intellij.openapi.roots.ModifiableRootModel
 import com.intellij.openapi.roots.impl.libraries.LibraryEx
 import com.intellij.openapi.roots.libraries.Library
-import org.jetbrains.plugins.scala.project.{Platform, ScalaLanguageLevel, ScalaLibraryProperties, ScalaLibraryType}
 
-import scala.collection.JavaConverters._
+import scala.collection.JavaConverters
 
 /**
  * @author Pavel Fatin
@@ -30,11 +31,13 @@ abstract class AbstractDataService[E, I](key: Key[E]) extends AbstractProjectDat
 
   def getTargetDataKey: Key[E] = key
 
-  override final def importData(toImport: util.Collection[DataNode[E]],
+  override final def importData(toImport: ju.Collection[DataNode[E]],
                                 projectData: ProjectData,
                                 project: Project,
-                                modelsProvider: IdeModifiableModelsProvider): Unit =
+                                modelsProvider: IdeModifiableModelsProvider): Unit = {
+    import JavaConverters._
     createImporter(toImport.asScala.toSeq, projectData, project, modelsProvider).importData()
+  }
 }
 
 /**
@@ -101,7 +104,7 @@ trait Importer[E] {
     properties.compilerClasspath = compilerClasspath
 
     val model = getModifiableLibraryModelEx(library)
-    model.setKind(ScalaLibraryType.instance.getKind)
+    model.setKind(ScalaLibraryType().getKind)
     model.setProperties(properties)
 
   }
