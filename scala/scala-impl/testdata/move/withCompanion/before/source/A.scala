@@ -1,3 +1,4 @@
+// Comment before
 package source
 
 class A {

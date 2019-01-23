@@ -36,6 +36,14 @@ class ScalaMoveClassTest extends ScalaLightPlatformCodeInsightTestCaseAdapter {
     doTest(Array("com.A"), "org")
   }
 
+  def testSingleObject() {
+    doTest(Array("com.A"), "org")
+  }
+
+  def testcaseClass() {
+    doTest(Array("com.A"), "org")
+  }
+
   def testScl2625() {
     doTest(Array("somepackage.Dummy", "somepackage.MoreBusiness", "somepackage.Business", "somepackage.AnotherEnum"), "dest")
   }
