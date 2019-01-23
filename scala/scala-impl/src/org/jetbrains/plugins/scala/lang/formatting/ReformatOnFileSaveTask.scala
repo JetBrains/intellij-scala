@@ -25,7 +25,9 @@ class ReformatOnFileSaveTask(project: Project) extends ProjectComponent {
           // for now 'reformat on file save' is only implemented for scalafmt formatter
           if (scalaSettings.SCALAFMT_REFORMAT_ON_FILES_SAVE && scalaSettings.USE_SCALAFMT_FORMATTER()) {
             val psiFile = PsiDocumentManager.getInstance(project).getPsiFile(document)
-            formatFile(psiFile)
+            if (ScalaFmtConfigUtil.isIncludedInProject(psiFile)) {
+              formatFile(psiFile)
+            }
           }
         }
       }

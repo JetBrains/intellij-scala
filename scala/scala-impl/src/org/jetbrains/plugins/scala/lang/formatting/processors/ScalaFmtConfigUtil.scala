@@ -59,15 +59,15 @@ object ScalaFmtConfigUtil {
 
   private def configFor(project: Project, configPath: String): ScalafmtConfig =
     scalaFmtConfigFile(configPath, project) match {
-    case Some(custom) =>
-      storeOrUpdate(custom, project)
-    case _ if configPath.isEmpty =>
-      //auto-detect settings
-      ScalafmtConfig.intellij
-    case _ =>
-      reportBadConfig(configPath, project, ConfError.fileDoesNotExist(configPath))
-      ScalafmtConfig.intellij
-  }
+      case Some(custom) =>
+        storeOrUpdate(custom, project)
+      case _ if configPath.isEmpty =>
+        //auto-detect settings
+        ScalafmtConfig.intellij
+      case _ =>
+        reportBadConfig(configPath, project, ConfError.fileDoesNotExist(configPath))
+        ScalafmtConfig.intellij
+    }
 
   def defaultConfigurationFileName: String = ".scalafmt.conf"
 
@@ -87,6 +87,17 @@ object ScalaFmtConfigUtil {
         .flatMap(path => StandardFileSystems.local.findFileByPath(path).toOption)
     }
 
+
+  def isIncludedInProject(file: PsiFile): Boolean = {
+    file.getVirtualFile.toOption match {
+      case Some(vFile) =>
+        val config = ScalaFmtConfigUtil.configFor(file)
+        config.project.matcher.matches(vFile.getPath)
+      case None =>
+        // in-memory files can't be present in scalafmt config exclude rules, so they should always be formatted
+        true
+    }
+  }
 
   private val scalafmtConfigs: ConcurrentMap[VirtualFile, (ScalafmtConfig, Long)] = ContainerUtil.createConcurrentWeakMap()
 

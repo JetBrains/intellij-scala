@@ -148,7 +148,6 @@ object ScalaFmtPreFormatProcessor {
       formattedText <- Scalafmt.format(file.getText, config).toEither.toOption
     } yield {
       inWriteAction(document.setText(formattedText))
-      PsiDocumentManager.getInstance(file.getProject)
     }).isDefined
   }
 
@@ -160,17 +159,11 @@ object ScalaFmtPreFormatProcessor {
     implicit val fileText: String = file.getText
     val config = ScalaFmtConfigUtil.configFor(file)
 
-    def formatWholeFile(): Boolean = {
-      val formatted = formatWithoutCommit(file)
-      if(formatted) {
-        manager.commitDocument(document)
-      }
-      formatted
-    }
-
     val rangeIncludesWholeFile = range.contains(file.getTextRange)
-    if (rangeIncludesWholeFile && formatWholeFile())
+    if (rangeIncludesWholeFile && formatWithoutCommit(file)) {
+      manager.commitDocument(document)
       return None
+    }
 
     def processRange(elements: Seq[PsiElement], wrap: Boolean): Option[Int] = {
       val hasRewriteRules = config.rewrite.rules.nonEmpty
