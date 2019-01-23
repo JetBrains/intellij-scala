@@ -5,12 +5,15 @@ import java.util.concurrent.TimeUnit
 
 import com.intellij.execution.process._
 import com.intellij.openapi.util.Key
+import com.intellij.util.io.BaseOutputReader
 
 /**
  * @author Pavel Fatin
  */
 class ProcessWatcher(process: Process, commandLine: String) {
-  private val processHandler = new OSProcessHandler(process, commandLine)
+  private val processHandler = new OSProcessHandler(process, commandLine) {
+    override def readerOptions(): BaseOutputReader.Options = BaseOutputReader.Options.BLOCKING
+  }
   private var errorLines = Vector[String]()
   private var errorInStdOut = false
   private val lock = new Object()
