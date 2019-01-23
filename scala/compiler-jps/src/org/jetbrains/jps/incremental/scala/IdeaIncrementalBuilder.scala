@@ -13,7 +13,7 @@ import org.jetbrains.jps.incremental.fs.CompilationRound
 import org.jetbrains.jps.incremental.messages.{BuildMessage, CompilerMessage, ProgressMessage}
 import org.jetbrains.jps.incremental.scala.InitialScalaBuilder.hasScalaModules
 import org.jetbrains.jps.incremental.scala.ScalaBuilder._
-import org.jetbrains.jps.incremental.scala.data.CompilerData
+import org.jetbrains.jps.incremental.scala.data.{CompilerConfiguration, CompilerData}
 import org.jetbrains.jps.incremental.scala.local.{IdeClientIdea, PackageObjectsData}
 import org.jetbrains.jps.incremental.scala.model.{CompileOrder, IncrementalityType}
 import org.jetbrains.jps.incremental.{BuilderCategory, _}
@@ -86,7 +86,9 @@ class IdeaIncrementalBuilder(category: BuilderCategory) extends ModuleLevelBuild
 
     val scalaSources = sources.filter(_.getName.endsWith(".scala")).asJava
 
-    compile(context, chunk, sources, Seq.empty, modules, client) match {
+    val compilerConfig = CompilerConfiguration.from(context, chunk)
+
+    compile(context, chunk, compilerConfig, sources, Seq.empty, modules, client) match {
       case Left(error) =>
         client.error(error)
         ExitCode.ABORT

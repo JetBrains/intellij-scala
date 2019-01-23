@@ -10,9 +10,7 @@ import org.jetbrains.jps.ModuleChunk
 import org.jetbrains.jps.builders.java.JavaBuilderUtil
 import org.jetbrains.jps.incremental._
 import org.jetbrains.jps.incremental.messages.ProgressMessage
-import org.jetbrains.jps.incremental.scala.data.{CompilationData, CompilerData, SbtData}
-import org.jetbrains.jps.incremental.scala.data.DataFactoryService
-import org.jetbrains.jps.incremental.scala.data.DefaultDataFactoryService
+import org.jetbrains.jps.incremental.scala.data._
 import org.jetbrains.jps.incremental.scala.local.LocalServer
 import org.jetbrains.jps.incremental.scala.model.{GlobalSettings, ProjectSettings}
 import org.jetbrains.jps.incremental.scala.remote.RemoteServer
@@ -29,6 +27,7 @@ object ScalaBuilder {
 
   def compile(context: CompileContext,
               chunk: ModuleChunk,
+              compilerConfig: CompilerConfiguration,
               sources: Seq[File],
               allSources: Seq[File],
               modules: Set[JpsModule],
@@ -37,12 +36,11 @@ object ScalaBuilder {
     context.processMessage(new ProgressMessage("Reading compilation settings..."))
 
     for {
-      sbtData <-  sbtData
+      sbtData <- sbtData
       dataFactory = dataFactoryOf(context)
       compilerData <- dataFactory.getCompilerDataFactory.from(context, chunk)
-      compilationData <- dataFactory.getCompilationDataFactory.from(sources, allSources, context,  chunk)
-    }
-    yield {
+      compilationData <- dataFactory.getCompilationDataFactory.from(sources, allSources, context, chunk, compilerConfig)
+    } yield {
       scalaLibraryWarning(modules, compilationData, client)
 
       val server = getServer(context)
@@ -95,12 +93,11 @@ object ScalaBuilder {
   }
 
   private def scalaLibraryWarning(modules: Set[JpsModule], compilationData: CompilationData, client: Client) {
-    val hasScalaFacet = modules.exists(SettingsManager.hasScalaSdk)
     val hasScalaLibrary = compilationData.classpath.exists(_.getName.startsWith("scala-library"))
 
     val hasScalaSources = compilationData.sources.exists(_.getName.endsWith(".scala"))
 
-    if (hasScalaFacet && !hasScalaLibrary && hasScalaSources) {
+    if (!hasScalaLibrary && hasScalaSources) {
       val names = modules.map(_.getName).mkString(", ")
       client.warning("No 'scala-library*.jar' in module dependencies [%s]".format(names))
     }

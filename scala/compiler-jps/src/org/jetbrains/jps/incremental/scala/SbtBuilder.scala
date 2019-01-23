@@ -17,6 +17,7 @@ import org.jetbrains.jps.incremental.messages.{BuildMessage, CompilerMessage, Pr
 import org.jetbrains.jps.incremental.scala.InitialScalaBuilder.isScalaProject
 import org.jetbrains.jps.incremental.scala.SbtBuilder._
 import org.jetbrains.jps.incremental.scala.ScalaBuilder._
+import org.jetbrains.jps.incremental.scala.data.CompilerConfiguration
 import org.jetbrains.jps.incremental.scala.local.IdeClientSbt
 import org.jetbrains.jps.incremental.scala.model.IncrementalityType
 import org.jetbrains.jps.incremental.scala.sbtzinc.{CompilerOptionsStore, ModulesFedToZincStore}
@@ -71,7 +72,10 @@ class SbtBuilder extends ModuleLevelBuilder(BuilderCategory.TRANSLATOR) {
 
     val moduleNames = modules.map(_.getName).toSeq
 
-    val compilerOptionsChanged = CompilerOptionsStore.updateCompilerOptionsCache(context, chunk, moduleNames)
+    val compilerConfig = CompilerConfiguration.from(context, chunk)
+
+    val compilerOptionsChanged =
+      CompilerOptionsStore.updateCompilerOptionsCache(context, chunk, moduleNames, compilerConfig)
 
     if (dirtyFilesFromIntellij.isEmpty &&
       !dirtyFilesHolder.hasRemovedFiles &&
@@ -80,7 +84,6 @@ class SbtBuilder extends ModuleLevelBuilder(BuilderCategory.TRANSLATOR) {
     ) {
       return ExitCode.NOTHING_DONE
     }
-
 
     val sourceToBuildTarget = collectCompilableFiles(context, chunk)
     if (sourceToBuildTarget.isEmpty)
@@ -95,7 +98,7 @@ class SbtBuilder extends ModuleLevelBuilder(BuilderCategory.TRANSLATOR) {
     // assume Zinc will be used after we reach this point
     ModulesFedToZincStore.add(context, moduleNames)
 
-    compile(context, chunk, dirtyFilesFromIntellij, allSources, modules, client) match {
+    compile(context, chunk, compilerConfig, dirtyFilesFromIntellij, allSources, modules, client) match {
       case Left(error) =>
         client.error(error)
         ExitCode.ABORT

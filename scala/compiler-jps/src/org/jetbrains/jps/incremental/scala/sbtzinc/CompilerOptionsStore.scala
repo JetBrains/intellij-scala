@@ -6,7 +6,7 @@ import java.nio.file._
 import org.jetbrains.jps.ModuleChunk
 import org.jetbrains.jps.incremental.{CompileContext, ModuleBuildTarget}
 import org.jetbrains.jps.incremental.scala.SettingsManager
-import org.jetbrains.jps.incremental.scala.data.CompilationData
+import org.jetbrains.jps.incremental.scala.data.{CompilationData, CompilerConfiguration}
 
 import scala.collection.JavaConverters._
 
@@ -20,11 +20,16 @@ object CompilerOptionsStore {
   /**
     * @return true if compiler options change was detected
     */
-  def updateCompilerOptionsCache(context: CompileContext, chunk: ModuleChunk, moduleNames: Seq[String]): Boolean = {
+  def updateCompilerOptionsCache(
+    context: CompileContext,
+    chunk: ModuleChunk,
+    moduleNames: Seq[String],
+    compilerConfiguration: CompilerConfiguration
+  ): Boolean = {
     val target = chunk.getTargets.asScala.minBy(_.getPresentableName)
     val scalacOptsCacheFile = getCacheFileFor(context, target)
     val previousScalacOpts = readCachedOptions(scalacOptsCacheFile)
-    val currentOpts = getCurrentOptions(context, chunk)
+    val currentOpts = getCurrentOptions(compilerConfiguration, chunk)
     val changeDetected = previousScalacOpts.isEmpty || previousScalacOpts.get != currentOpts
 
     if (changeDetected) writeToCache(scalacOptsCacheFile, currentOpts)
@@ -38,7 +43,7 @@ object CompilerOptionsStore {
     scalacOptsDataFile
   }
 
-  private def getCurrentOptions(context: CompileContext, chunk: ModuleChunk): String = {
+  private def getCurrentOptions(compilerConfiguration: CompilerConfiguration, chunk: ModuleChunk): String = {
     val target = chunk.representativeTarget
     val module = target.getModule
     val compilerSettings = SettingsManager.getProjectSettings(module.getProject).getCompilerSettings(chunk)
@@ -46,8 +51,8 @@ object CompilerOptionsStore {
     // The below items don't guarantee 100% correctness (we might skip Zinc compilation when in fact it was necessary)
     // It's heuristic aimed at being accurate for the common usecases and not incuring too big of an overhead
     // especially for small compilations
-    val javaOpts = "javaOpts: " + CompilationData.javaOptionsFor(context, chunk).mkString(" ")
-    val scalaOpts = "scalaOpts: " + CompilationData.scalaOptionsFor(compilerSettings, chunk).mkString(" ") +
+    val javaOpts = "javaOpts: " + compilerConfiguration.javacOptions.mkString(" ")
+    val scalaOpts = "scalaOpts: " + compilerConfiguration.scalacOptions.mkString(" ") +
       compilerSettings.getSbtIncrementalOptions.productIterator.mkString(" ") +
       compilerSettings.getCompileOrder
     val stringifiedOpts = Array(scalaOpts, javaOpts).mkString("\n")
