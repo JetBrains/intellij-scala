@@ -1,5 +1,5 @@
 <component name="ProjectRunConfigurationManager">
-  <configuration default="false" name="TypeInferenceTest" type="JUnit" factoryName="JUnit">
+  <configuration default="false" name="Type Inference Tests" type="JUnit" factoryName="JUnit">
     <extension name="coverage" enabled="false" merge="false" sample_coverage="true" runner="idea">
       <pattern>
         <option name="PATTERN" value="org.jetbrains.plugins.scala.lang.typeInference.*" />
@@ -52,8 +52,11 @@
     <ConfigurationWrapper RunnerId="Debug" />
     <ConfigurationWrapper RunnerId="Profile " />
     <ConfigurationWrapper RunnerId="Run" />
-    <method>
-      <option name="Make" enabled="false" />
+    <method v="2">
+      <option name="Make" enabled="true" />
+      <option name="BuildArtifacts" enabled="true">
+        <artifact name="scalaCommunity" />
+      </option>
     </method>
   </configuration>
 </component>
