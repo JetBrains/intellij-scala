@@ -2,9 +2,7 @@ package org.jetbrains.plugins.scala
 package codeInsight
 package daemon
 
-import org.jetbrains.plugins.scala.base.ScalaLightCodeInsightFixtureTestAdapter
-
-class ScalaRainbowVisitorTest extends ScalaLightCodeInsightFixtureTestAdapter {
+class ScalaRainbowVisitorTest extends base.ScalaLightCodeInsightFixtureTestAdapter {
 
   import ScalaRainbowVisitorTest.{END_TAG => E, START_TAG => S, START_TAG_1 => S_1, START_TAG_2 => S_2, START_TAG_3 => S_3, START_TAG_4 => S_4}
 

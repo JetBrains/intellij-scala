@@ -20,6 +20,7 @@ lazy val scalaCommunity: sbt.Project =
   newProject("scalaCommunity", file("."))
     .dependsOn(
       bsp % "test->test;compile->compile",
+      codeInsight % "test->test;compile->compile",
       scalaImpl % "test->test;compile->compile",
       androidIntegration % "test->test;compile->compile",
       copyrightIntegration % "test->test;compile->compile",
@@ -36,6 +37,9 @@ lazy val scalaCommunity: sbt.Project =
         definedTests.all(ScopeFilter(inDependencies(scalaCommunity, includeRoot = false), inConfigurations(Test))).value.flatten })
 
 lazy val scalaApi = newProject("scala-api", file("scala/scala-api"))
+
+lazy val codeInsight = newProject("codeInsight", file("scala/codeInsight"))
+  .dependsOn(scalaImpl % "test->test;compile->compile")
 
 lazy val scalaImpl: sbt.Project =
   newProject("scala-impl", file("scala/scala-impl"))
