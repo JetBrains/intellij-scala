@@ -24,14 +24,12 @@ class ScalaCompilerConfigurable(project: Project, configuration: ScalaCompilerCo
 
   override def isModified: Boolean = {
     form.getIncrementalityType != configuration.incrementalityType ||
-    form.isCompileToJar != configuration.compileToJar ||
       profiles.getDefaultProfile.getSettings.getState != configuration.defaultProfile.getSettings.getState ||
       !profiles.getModuleProfiles.asScala.corresponds(configuration.customProfiles)(_.getSettings.getState == _.getSettings.getState)
   }
 
   override def reset(): Unit = {
     form.setIncrementalityType(configuration.incrementalityType)
-    form.setCompileToJar(configuration.compileToJar)
     profiles.initProfiles(configuration.defaultProfile, configuration.customProfiles.asJava)
   }
 
@@ -40,13 +38,8 @@ class ScalaCompilerConfigurable(project: Project, configuration: ScalaCompilerCo
     if (newIncType != configuration.incrementalityType) {
       Stats.trigger(FeatureKey.incrementalTypeSet(newIncType.name()))
     }
-    val newCompileToJar = form.isCompileToJar
-    if (newCompileToJar != configuration.compileToJar) {
-      CompileToJarComponent.getInstance(project).adjustClasspath(newCompileToJar)
-    }
 
     configuration.incrementalityType = newIncType
-    configuration.compileToJar = newCompileToJar
     configuration.defaultProfile = profiles.getDefaultProfile
     configuration.customProfiles = profiles.getModuleProfiles.asScala
     DaemonCodeAnalyzer.getInstance(project).restart()

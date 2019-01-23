@@ -5,10 +5,10 @@ import java.util.Collections
 import com.intellij.ProjectTopics
 import com.intellij.openapi.components.ProjectComponent
 import com.intellij.openapi.module.Module
-import com.intellij.openapi.project.{ ModuleListener, Project }
+import com.intellij.openapi.project.{ModuleListener, Project}
 import com.intellij.openapi.roots._
-import org.jetbrains.plugins.scala.project.settings.ScalaCompilerConfiguration
 import org.jetbrains.plugins.scala.extensions.inWriteAction
+import org.jetbrains.plugins.scala.project.settings.ZincConfiguration
 
 object CompileToJarComponent {
   private val ProductionOutputJarLibName = "compile-to-jar-output"
@@ -58,7 +58,7 @@ class CompileToJarComponent(project: Project) extends ProjectComponent {
     connection.disconnect()
   }
 
-  private def compileToJar: Boolean = ScalaCompilerConfiguration.instanceIn(project).compileToJar
+  private def compileToJar: Boolean = ZincConfiguration.instanceIn(project).compileToJar
 
   def adjustClasspath(compileToJar: Boolean): Unit = {
     if (compileToJar) {

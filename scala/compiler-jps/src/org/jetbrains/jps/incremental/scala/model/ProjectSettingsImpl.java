@@ -12,12 +12,10 @@ import java.util.Map;
  */
 public class ProjectSettingsImpl extends JpsElementBase<ProjectSettingsImpl> implements ProjectSettings {
   public static final ProjectSettingsImpl DEFAULT =
-      new ProjectSettingsImpl(IncrementalityType.IDEA, false, CompilerSettingsImpl.DEFAULT,
+      new ProjectSettingsImpl(IncrementalityType.IDEA, CompilerSettingsImpl.DEFAULT,
               new HashMap<>(), new HashMap<>());
 
   private IncrementalityType myIncrementalityType;
-
-  private boolean myCompileToJar;
 
   private CompilerSettingsImpl myDefaultSettings;
 
@@ -27,13 +25,11 @@ public class ProjectSettingsImpl extends JpsElementBase<ProjectSettingsImpl> imp
 
   public ProjectSettingsImpl(
           IncrementalityType incrementalityType,
-          boolean compileToJar,
           CompilerSettingsImpl defaultSettings,
           Map<String, CompilerSettingsImpl> profileToSettings,
           Map<String, String> moduleToProfile
   ) {
     myIncrementalityType = incrementalityType;
-    myCompileToJar = compileToJar;
     myDefaultSettings = defaultSettings;
     myProfileToSettings = profileToSettings;
     myModuleToProfile = moduleToProfile;
@@ -51,7 +47,7 @@ public class ProjectSettingsImpl extends JpsElementBase<ProjectSettingsImpl> imp
 
     HashMap<String, String> moduleToProfile = new HashMap<String, String>(myModuleToProfile);
 
-    return new ProjectSettingsImpl(myIncrementalityType, myCompileToJar, defaultSettings, profileToSettings, moduleToProfile);
+    return new ProjectSettingsImpl(myIncrementalityType, defaultSettings, profileToSettings, moduleToProfile);
   }
 
   @Override
@@ -62,11 +58,6 @@ public class ProjectSettingsImpl extends JpsElementBase<ProjectSettingsImpl> imp
   @Override
   public IncrementalityType getIncrementalityType() {
     return myIncrementalityType;
-  }
-
-  @Override
-  public boolean isCompileToJar() {
-    return myCompileToJar;
   }
 
   @Override

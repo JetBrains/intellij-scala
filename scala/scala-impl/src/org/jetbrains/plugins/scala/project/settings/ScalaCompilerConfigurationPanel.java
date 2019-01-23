@@ -16,7 +16,6 @@ public class ScalaCompilerConfigurationPanel {
   private JComboBox myIncrementalityType;
   private JPanel myProfilesPanelHolder;
   private JPanel myContentPanel;
-  private JCheckBox myCompileToJar;
 
   public ScalaCompilerConfigurationPanel(Project project) {
     myIncrementalityType.setRenderer(new IncrementalityTypeRenderer());
@@ -40,14 +39,6 @@ public class ScalaCompilerConfigurationPanel {
 
   public void setIncrementalityType(IncrementalityType incrementalityType) {
     myIncrementalityType.setSelectedItem(incrementalityType);
-  }
-
-  public boolean isCompileToJar() {
-    return myCompileToJar.isSelected();
-  }
-
-  public void setCompileToJar(boolean value) {
-    myCompileToJar.setSelected(value);
   }
 
   {
@@ -79,10 +70,6 @@ public class ScalaCompilerConfigurationPanel {
     myProfilesPanelHolder = new JPanel();
     myProfilesPanelHolder.setLayout(new BorderLayout(0, 0));
     myContentPanel.add(myProfilesPanelHolder, new GridConstraints(1, 0, 1, 3, GridConstraints.ANCHOR_CENTER, GridConstraints.FILL_BOTH, GridConstraints.SIZEPOLICY_CAN_SHRINK | GridConstraints.SIZEPOLICY_CAN_GROW, GridConstraints.SIZEPOLICY_CAN_SHRINK | GridConstraints.SIZEPOLICY_WANT_GROW, null, null, null, 0, false));
-    myCompileToJar = new JCheckBox();
-    myCompileToJar.setText("Compile to Jar");
-    myCompileToJar.setToolTipText("Enables compiling directly to jar. Supported only by zinc.");
-    myContentPanel.add(myCompileToJar, new GridConstraints(0, 2, 1, 1, GridConstraints.ANCHOR_WEST, GridConstraints.FILL_NONE, GridConstraints.SIZEPOLICY_CAN_SHRINK | GridConstraints.SIZEPOLICY_CAN_GROW, GridConstraints.SIZEPOLICY_FIXED, null, null, null, 0, false));
     label1.setLabelFor(myIncrementalityType);
   }
 

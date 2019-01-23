@@ -9,7 +9,5 @@ import org.jetbrains.jps.model.JpsElement;
 public interface ProjectSettings extends JpsElement {
   IncrementalityType getIncrementalityType();
 
-  boolean isCompileToJar();
-
   CompilerSettings getCompilerSettings(ModuleChunk chunk);
 }

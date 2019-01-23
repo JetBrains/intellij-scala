@@ -28,7 +28,7 @@ public class ScalaSerializerService extends JpsModelSerializerExtension {
   @NotNull
   @Override
   public List<? extends JpsProjectExtensionSerializer> getProjectExtensionSerializers() {
-    return Collections.singletonList(new CompilerConfigurationSerializer());
+    return Arrays.asList(new CompilerConfigurationSerializer(), new ZincConfigurationSerializer());
   }
 
   @NotNull
@@ -65,8 +65,6 @@ public class ScalaSerializerService extends JpsModelSerializerExtension {
     @Override
     public void loadExtension(@NotNull JpsProject jpsProject, @NotNull Element componentTag) {
       IncrementalityType incrementalityType = loadIncrementalityType(componentTag);
-      boolean compileToJar = loadCompileToJar(componentTag);
-
       CompilerSettingsImpl defaultSetting = loadSettings(componentTag);
 
       Map<String, String> moduleToProfile = new HashMap<String, String>();
@@ -83,7 +81,7 @@ public class ScalaSerializerService extends JpsModelSerializerExtension {
         }
       }
 
-      ProjectSettings configuration = new ProjectSettingsImpl(incrementalityType, compileToJar, defaultSetting, profileToSettings, moduleToProfile);
+      ProjectSettings configuration = new ProjectSettingsImpl(incrementalityType, defaultSetting, profileToSettings, moduleToProfile);
 
       SettingsManager.setProjectSettings(jpsProject, configuration);
     }
@@ -97,18 +95,55 @@ public class ScalaSerializerService extends JpsModelSerializerExtension {
       return IncrementalityType.IDEA;
     }
 
-    private static boolean loadCompileToJar(Element componentTag) {
-      for (Element option : componentTag.getChildren("option")) {
-        if ("compileToJar".equals(option.getAttributeValue("name"))) {
-          return Boolean.valueOf(option.getAttributeValue("value"));
-        }
-      }
-      return false;
-    }
-
     private static CompilerSettingsImpl loadSettings(Element componentTag) {
       CompilerSettingsImpl.State state = XmlSerializer.deserialize(componentTag, CompilerSettingsImpl.State.class);
       return new CompilerSettingsImpl(state == null ? new CompilerSettingsImpl.State() : state);
+    }
+
+    @Override
+    public void saveExtension(@NotNull JpsProject jpsProject, @NotNull Element componentTag) {
+      // do nothing
+    }
+  }
+
+  private static class ZincConfigurationSerializer extends JpsProjectExtensionSerializer {
+    private ZincConfigurationSerializer() {
+      super("zinc.xml", "ZincConfiguration");
+    }
+
+    @Override
+    public void loadExtension(@NotNull JpsProject jpsProject, @NotNull Element componentTag) {
+      ZincProjectSettings defaults = ZincProjectSettingsImpl.defaults();
+      boolean compileToJar = loadBooleanOption(componentTag, "compileToJar", defaults.isCompileToJar());
+      boolean enableIgnoringScalacOptions = loadBooleanOption(componentTag, "enableIgnoringScalacOptions", defaults.isIgnoringScalacOptions());
+      String[] ignoredScalacOptions = loadArrayOption(componentTag, "ignoredScalacOptions", defaults.getIgnoredScalacOptions());
+      ZincProjectSettings settings = new ZincProjectSettingsImpl(compileToJar, enableIgnoringScalacOptions, ignoredScalacOptions);
+      SettingsManager.setZincProjectSettings(jpsProject, settings);
+    }
+
+    private static boolean loadBooleanOption(Element componentTag, String name, boolean defaultValue) {
+      for (Element option : componentTag.getChildren("option")) {
+        if (name.equals(option.getAttributeValue("name"))) {
+          return Boolean.valueOf(option.getAttributeValue("value"));
+        }
+      }
+      return defaultValue;
+    }
+
+    private String[] loadArrayOption(Element componentTag, String name, String[] defaultValue) {
+        for (Element option : componentTag.getChildren("option")) {
+            if (name.equals(option.getAttributeValue("name"))) {
+                Element list = option.getChild("list");
+                if (list == null) return defaultValue;
+                List<String> values = new ArrayList<>();
+                for (Element element : list.getChildren("option")) {
+                    String value = element.getAttributeValue("value");
+                    values.add(value);
+                }
+                return values.toArray(new String[0]);
+            }
+        }
+        return defaultValue;
     }
 
     @Override

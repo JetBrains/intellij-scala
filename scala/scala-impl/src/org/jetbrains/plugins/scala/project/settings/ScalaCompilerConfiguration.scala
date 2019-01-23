@@ -22,8 +22,6 @@ import scala.collection.JavaConverters._
 class ScalaCompilerConfiguration(project: Project) extends PersistentStateComponent[Element] with ModificationTracker {
   var incrementalityType: IncrementalityType = ScalaCompilerConfiguration.defaultIncrementalityType
 
-  var compileToJar: Boolean = ScalaCompilerConfiguration.defaultCompileToJar
-
   var defaultProfile: ScalaCompilerSettingsProfile = new ScalaCompilerSettingsProfile("Default")
 
   var customProfiles: Seq[ScalaCompilerSettingsProfile] = Seq.empty
@@ -85,7 +83,6 @@ class ScalaCompilerConfiguration(project: Project) extends PersistentStateCompon
     }
 
     appendSimpleOptionElement(incrementalityType, ScalaCompilerConfiguration.defaultIncrementalityType, "incrementalityType")
-    appendSimpleOptionElement(compileToJar, ScalaCompilerConfiguration.defaultCompileToJar, "compileToJar")
 
     customProfiles.foreach { profile =>
       val profileElement = XmlSerializer.serialize(profile.getSettings.getState, new SkipDefaultValuesSerializationFilters())
@@ -108,7 +105,6 @@ class ScalaCompilerConfiguration(project: Project) extends PersistentStateCompon
     }
 
     incrementalityType = loadSimpleOption("incrementalityType", IncrementalityType.valueOf, ScalaCompilerConfiguration.defaultIncrementalityType)
-    compileToJar = loadSimpleOption("compileToJar", _.toBoolean, ScalaCompilerConfiguration.defaultCompileToJar)
 
     defaultProfile.setSettings(new ScalaCompilerSettings(XmlSerializer.deserialize(configurationElement, classOf[ScalaCompilerSettingsState])))
 
@@ -139,5 +135,4 @@ object ScalaCompilerConfiguration extends SimpleModificationTracker {
   override def incModificationCount(): Unit = super.incModificationCount()
 
   val defaultIncrementalityType: IncrementalityType = IncrementalityType.IDEA
-  val defaultCompileToJar: Boolean = false
 }

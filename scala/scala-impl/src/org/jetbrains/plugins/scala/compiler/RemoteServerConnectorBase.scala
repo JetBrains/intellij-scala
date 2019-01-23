@@ -96,7 +96,7 @@ abstract class RemoteServerConnectorBase(protected val module: Module, filesToCo
     "0", //timestamp, used in zinc only
     "false", //isCompile
     "false", //toJar
-    Seq.empty[String] // ignored scalac options
+    Array.empty[String] // ignored scalac options
   )
   
   protected def configurationError(message: String) = throw new IllegalArgumentException(message)

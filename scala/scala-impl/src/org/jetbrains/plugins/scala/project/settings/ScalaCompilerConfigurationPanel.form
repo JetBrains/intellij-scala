@@ -33,15 +33,6 @@
         <border type="none"/>
         <children/>
       </grid>
-      <component id="75c3e" class="javax.swing.JCheckBox" binding="myCompileToJar">
-        <constraints>
-          <grid row="0" column="2" row-span="1" col-span="1" vsize-policy="0" hsize-policy="3" anchor="8" fill="0" indent="0" use-parent-layout="false"/>
-        </constraints>
-        <properties>
-          <text value="Compile to Jar"/>
-          <toolTipText value="Enables compiling directly to jar. Supported only by zinc."/>
-        </properties>
-      </component>
     </children>
   </grid>
 </form>
