@@ -17,12 +17,16 @@ import com.intellij.navigation._
 import com.intellij.openapi.project.DumbService
 import com.intellij.psi._
 import com.intellij.psi.impl._
+import com.intellij.psi.impl.source.PsiFileImpl
 import com.intellij.psi.javadoc.PsiDocComment
+import com.intellij.psi.stubs.StubElement
 import com.intellij.psi.util.PsiTreeUtil
 import javax.swing.Icon
+import org.jetbrains.plugins.scala.JavaArrayFactoryUtil.ScTypeDefinitionFactory
 import org.jetbrains.plugins.scala.caches.CachesUtil
 import org.jetbrains.plugins.scala.conversion.JavaToScala
 import org.jetbrains.plugins.scala.extensions._
+import org.jetbrains.plugins.scala.lang.TokenSets.TYPE_DEFINITIONS
 import org.jetbrains.plugins.scala.lang.lexer._
 import org.jetbrains.plugins.scala.lang.psi.PresentationUtil.accessModifierText
 import org.jetbrains.plugins.scala.lang.psi.api.ScalaFile
@@ -185,13 +189,6 @@ abstract class ScTypeDefinitionImpl[T <: ScTemplateDefinition](stub: ScTemplateD
 
     val thisName: String = name
 
-    def isCompanion(td: ScTypeDefinition): Boolean = td match {
-      case td @ (_: ScClass | _: ScTrait)
-        if isObject && td.name == thisName => true
-      case o: ScObject if !isObject && thisName == o.name => true
-      case _ => false
-    }
-
     val sameElementInContext = this.getSameElementInContext
 
     sameElementInContext match {
@@ -199,30 +196,54 @@ abstract class ScTypeDefinitionImpl[T <: ScTemplateDefinition](stub: ScTemplateD
       case _ =>
     }
 
-    var sibling: PsiElement = sameElementInContext
-
-    while (sibling != null) {
-
-      sibling = sibling.getNextSibling
-
-      sibling match {
-        case td: ScTypeDefinition if isCompanion(td) => return Some(td)
-        case _ =>
-      }
+    def isCompanion(td: ScTypeDefinition): Boolean = td match {
+      case td @ (_: ScClass | _: ScTrait)
+        if isObject && td.name == thisName => true
+      case o: ScObject if !isObject && thisName == o.name => true
+      case _ => false
     }
 
-    sibling = sameElementInContext
-    while (sibling != null) {
-
-      sibling = sibling.getPrevSibling
-
-      sibling match {
-        case td: ScTypeDefinition if isCompanion(td) => return Some(td)
-        case _ =>
-      }
+    def findByStub(contextStub: StubElement[_]): Option[ScTypeDefinition] = {
+      val siblings  = contextStub.getChildrenByType(TYPE_DEFINITIONS, ScTypeDefinitionFactory)
+      siblings.find(isCompanion)
     }
 
-    None
+    def findByAst: Option[ScTypeDefinition] = {
+
+      var sibling: PsiElement = sameElementInContext
+
+      while (sibling != null) {
+
+        sibling = sibling.getNextSibling
+
+        sibling match {
+          case td: ScTypeDefinition if isCompanion(td) => return Some(td)
+          case _ =>
+        }
+      }
+
+      sibling = sameElementInContext
+      while (sibling != null) {
+
+        sibling = sibling.getPrevSibling
+
+        sibling match {
+          case td: ScTypeDefinition if isCompanion(td) => return Some(td)
+          case _ =>
+        }
+      }
+
+      None
+    }
+
+    val contextStub = getContext match {
+      case stub: ScalaStubBasedElementImpl[_, _] => stub.getStub
+      case file: PsiFileImpl => file.getStub
+      case _ => null
+    }
+
+    if (contextStub != null) findByStub(contextStub)
+    else findByAst
   }
 
 
