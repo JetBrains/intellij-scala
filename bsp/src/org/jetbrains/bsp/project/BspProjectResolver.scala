@@ -472,14 +472,20 @@ object BspProjectResolver {
           .map(calculateScalaSdkData)
           .map(ScalaModule)
 
-      val sbtModule =
-        targetData.flatMap(extractSbtData)
-          .map { data =>
-            val (sbtModuleData, scalaSdkData) = calculateSbtData(data)
-            SbtModule(scalaSdkData, sbtModuleData)
-          }
+      // TODO there's ambiguitiy in the data object in BuildTarget.data
+      //   there needs to be a marker for the type so that it can be deserialized to the correct class
 
-      scalaModule.orElse(sbtModule)
+      // TODO there's some disagreement on responsibility of handling sbt build data.
+      //  specifically with bloop, the main workspace is not sbt-aware, and IntelliJ would need to start separate bloop
+      //  servers for the build modules.
+//      val sbtModule =
+//        targetData.flatMap(extractSbtData)
+//          .map { data =>
+//            val (sbtModuleData, scalaSdkData) = calculateSbtData(data)
+//            SbtModule(scalaSdkData, sbtModuleData)
+//          }
+
+      scalaModule
         .map(moduleKind => ModuleDescription(moduleDescriptionData, moduleKind))
         .toSeq
     }
@@ -597,5 +603,4 @@ object BspProjectResolver {
       combined.copy(data = newData)
     }
   }
-
 }
