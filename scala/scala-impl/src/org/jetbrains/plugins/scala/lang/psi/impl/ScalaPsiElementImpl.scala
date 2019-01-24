@@ -2,6 +2,7 @@ package org.jetbrains.plugins.scala.lang.psi.impl
 
 import com.intellij.extapi.psi.{ASTWrapperPsiElement, StubBasedPsiElementBase}
 import com.intellij.lang.ASTNode
+import com.intellij.lang.annotation.AnnotationHolder
 import com.intellij.psi.{PsiElement, PsiElementVisitor, StubBasedPsiElement}
 import com.intellij.psi.impl.CheckUtil
 import com.intellij.psi.impl.source.tree.LazyParseablePsiElement
@@ -20,6 +21,9 @@ abstract class ScalaPsiElementImpl(node: ASTNode) extends ASTWrapperPsiElement(n
       case _ => super.accept(visitor)
     }
   }
+
+  override def annotate(holder: AnnotationHolder, typeAware: Boolean): Unit =
+    super.annotate(holder, typeAware)
 
   override def getContext: PsiElement = {
     context match {
