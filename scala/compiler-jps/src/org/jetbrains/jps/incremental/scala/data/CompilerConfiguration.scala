@@ -26,7 +26,7 @@ object CompilerConfiguration {
     val order = compilerSettings.getCompileOrder
 
     CompilerConfiguration(
-      scalacOptions = commonOptions ++ scalaOptionsFor(compilerSettings, chunk),
+      scalacOptions = commonOptions ++ scalaOptionsFor(compilerSettings, context, chunk),
       javacOptions = commonOptions ++ javaOptionsFor(context, chunk),
       order
     )

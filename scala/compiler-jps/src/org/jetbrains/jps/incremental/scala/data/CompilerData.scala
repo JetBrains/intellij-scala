@@ -9,6 +9,7 @@ import org.jetbrains.jps.incremental.CompileContext
 import org.jetbrains.jps.incremental.scala._
 import org.jetbrains.jps.incremental.scala.model.{IncrementalityType, LibrarySettings}
 import org.jetbrains.jps.model.java.JpsJavaSdkType
+import org.jetbrains.jps.model.library.JpsLibrary
 import org.jetbrains.jps.model.module.JpsModule
 
 import scala.collection.JavaConverters._
@@ -26,8 +27,8 @@ object CompilerData extends CompilerDataFactory {
     val target = chunk.representativeTarget
     val module = target.getModule
 
-    val compilerJars = if (SettingsManager.hasScalaSdk(module)) {
-      compilerJarsIn(module).flatMap { case jars: CompilerJars =>
+    val compilerJars = if (InitialScalaBuilder.hasScala(context, module)) {
+      compilerJarsIn(context, module).flatMap { jars: CompilerJars =>
         val absentJars = jars.files.filter(!_.exists)
         Either.cond(absentJars.isEmpty,
           Some(jars),
@@ -73,65 +74,49 @@ object CompilerData extends CompilerDataFactory {
     }
   }
 
-  def isDottyModule(module: JpsModule): Boolean = {
-    compilerJarsIn(module) match {
+  def isDottyModule(context: CompileContext, module: JpsModule): Boolean = {
+    compilerJarsIn(context, module) match {
       case Right(jars) => jars.dotty.isDefined
       case _ => false
     }
   }
 
-  def needNoBootCp(chunk: ModuleChunk): Boolean = {
-    chunk.getModules.asScala.forall(needNoBootCp)
+  def needNoBootCp(context: CompileContext, chunk: ModuleChunk): Boolean = {
+    chunk.getModules.asScala.forall(needNoBootCp(context, _))
   }
 
-  def compilerVersion(module: JpsModule): Option[String] = compilerJarsIn(module) match {
-    case Right(CompilerJars(_, compiler, _)) => version(compiler)
-    case Left(error) => Log.error(error)
-      None
+  def compilerVersion(context: CompileContext, module: JpsModule): Option[String] = {
+    compilerJarsIn(context, module) match {
+      case Right(CompilerJars(_, compiler, _)) => version(compiler)
+      case Left(error) => Log.error(error)
+        None
+    }
   }
 
-  private def needNoBootCp(module: JpsModule): Boolean = {
+  private def needNoBootCp(context: CompileContext, module: JpsModule): Boolean = {
     def tooOld(version: Option[String]) = version.exists(v => v.startsWith("2.8") || v.startsWith("2.9"))
 
-    compilerJarsIn(module) match {
+    compilerJarsIn(context, module) match {
       case Right(jars @ CompilerJars(_, compiler, _)) => jars.dotty.isEmpty && !tooOld(version(compiler))
       case _ => false
     }
   }
 
-  def compilerJarsIn(module: JpsModule): Either[String, CompilerJars] = {
-    val sdk = SettingsManager.getScalaSdk(module)
-
-    if (sdk == null) return Left(s"Scala SDK not found in module ${module.getName}")
-
-    val files = sdk.getProperties.asInstanceOf[LibrarySettings].getCompilerClasspath
-
-    val library = find(files, "scala-library", ".jar") match {
-      case Left(error) => Left(error + " in Scala compiler classpath in Scala SDK " + sdk.getName)
-      case right => right
+  def compilerJarsIn(context: CompileContext, module: JpsModule): Either[String, CompilerJars] = {
+    def findJar(files: Seq[File], prefix: String, sdk: JpsLibrary): Either[String, File] = {
+      find(files, prefix, suffix = ".jar").left.map(_ + " in Scala compiler classpath in Scala SDK " + sdk.getName)
     }
 
-    library.flatMap { libraryJar =>
-      val compiler = find(files, "scala-compiler", ".jar") match {
-        case Left(error) => Left(error + " in Scala compiler classpath in Scala SDK " + sdk.getName)
-        case right => right
-      }
-
-      compiler.flatMap { compilerJar =>
-        val extraJars = files.filterNot(file => file == libraryJar || file == compilerJar)
-
-        val reflectJarError = {
-          version(compilerJar).flatMap {
-            case version if version.startsWith("2.10") => // TODO implement a better version comparison
-              find(extraJars, "scala-reflect", ".jar").left.toOption
-                      .map(_ + " in Scala compiler classpath in Scala SDK " + sdk.getName)
-            case _ => None
-          }
-        }
-
-        reflectJarError.toLeft(CompilerJars(libraryJar, compilerJar, extraJars))
-      }
-    }
+    for {
+      sdk <- InitialScalaBuilder.scalaSdk(context, module).toRight(s"Scala SDK not found in module ${module.getName}")
+      files = sdk.getProperties.asInstanceOf[LibrarySettings].getCompilerClasspath
+      libraryJar <- findJar(files, "scala-library", sdk)
+      compilerJar <- findJar(files, "scala-compiler", sdk)
+      extraJars = files.filterNot(file => file == libraryJar || file == compilerJar)
+      _ <- version(compilerJar).filter(_.startsWith("2.10")) // TODO implement a better version comparison)
+             .map(_ => findJar(extraJars, "scala-reflect", sdk).map(_ => ()))
+             .getOrElse(Right(()))
+    } yield CompilerJars(libraryJar, compilerJar, extraJars)
   }
 
   def find(files: Seq[File], prefix: String, suffix: String): Either[String, File] = {

@@ -79,7 +79,7 @@ class IdeaIncrementalBuilder(category: BuilderCategory) extends ModuleLevelBuild
 
     val successfullyCompiled = mutable.Set[File]()
 
-    val compilerName = if (modules.exists(CompilerData.isDottyModule)) "dotc" else "scalac"
+    val compilerName = if (modules.exists(CompilerData.isDottyModule(context, _))) "dotc" else "scalac"
 
     val client = new IdeClientIdea(compilerName, context, modules.map(_.getName).toSeq, outputConsumer,
       callback, successfullyCompiled, packageObjectsData)

@@ -13,6 +13,7 @@ import org.jetbrains.jps.incremental.scala.ScalaBuilder.projectSettings
 import org.jetbrains.jps.incremental.scala.model.IncrementalityType
 import org.jetbrains.jps.incremental._
 import org.jetbrains.jps.incremental.scala.InitialScalaBuilder._
+import org.jetbrains.jps.model.library.JpsLibrary
 import org.jetbrains.jps.model.module.JpsModule
 
 import _root_.scala.collection.JavaConverters._
@@ -46,29 +47,30 @@ object InitialScalaBuilder {
   //should be before other scala builders
   private def buildCategory = BuilderCategory.SOURCE_INSTRUMENTER
 
-  private val scalaModulesKey: Key[Set[JpsModule]] =
-    Key.create[Set[JpsModule]]("jps.scala.modules")
+  private val scalaSdkForModulesKey: Key[Map[JpsModule, JpsLibrary]] =
+    Key.create[Map[JpsModule, JpsLibrary]]("jps.scala.modules")
 
   def hasScala(context: CompileContext, module: JpsModule): Boolean =
-    Option(context.getUserData(scalaModulesKey)).exists(_.contains(module))
+    Option(context.getUserData(scalaSdkForModulesKey)).exists(_.contains(module))
 
   def hasScalaModules(context: CompileContext, chunk: ModuleChunk): Boolean =
     chunk.getModules.asScala.exists(hasScala(context, _))
 
   def isScalaProject(context: CompileContext): Boolean =
-    Option(context.getUserData(scalaModulesKey)).exists(_.nonEmpty)
+    Option(context.getUserData(scalaSdkForModulesKey)).exists(_.nonEmpty)
 
+  def scalaSdk(context: CompileContext, module: JpsModule): Option[JpsLibrary] =
+    Option(context.getUserData(scalaSdkForModulesKey)).flatMap(_.get(module))
 
-  private def storeScalaModules(context: CompileContext, scalaModules: Set[JpsModule]): Unit = {
-    context.putUserData(scalaModulesKey, scalaModules)
+  private def storeScalaModules(context: CompileContext, scalaSdkForModules: Map[JpsModule, JpsLibrary]): Unit = {
+    context.putUserData(scalaSdkForModulesKey, scalaSdkForModules)
   }
 
-  private def collectAndStoreScalaModules(context: CompileContext): Set[JpsModule] = {
+  private def collectAndStoreScalaModules(context: CompileContext): Map[JpsModule, JpsLibrary] = {
     val project = context.getProjectDescriptor.getProject
-    var result = Set.empty[JpsModule]
-    project.getModules.forEach { m =>
-      if (SettingsManager.hasScalaSdk(m)) result += m
-    }
+    val result = project.getModules.asScala.flatMap { module =>
+      Option(SettingsManager.getScalaSdk(module)).map(sdk => module -> sdk)
+    }.toMap
     storeScalaModules(context, result)
     result
   }

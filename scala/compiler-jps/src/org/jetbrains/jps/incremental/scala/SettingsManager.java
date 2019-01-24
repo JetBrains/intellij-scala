@@ -47,10 +47,6 @@ public class SettingsManager {
     project.getContainer().setChild(ZINC_PROJECT_SETTINGS_ROLE, settings);
   }
 
-  public static boolean hasScalaSdk(JpsModule module) {
-    return getScalaSdk(module) != null;
-  }
-
   @Nullable
   public static JpsLibrary getScalaSdk(JpsModule module) {
     for (JpsLibrary library : libraryDependenciesIn(module)) {
