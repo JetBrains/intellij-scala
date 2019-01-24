@@ -18,8 +18,8 @@ import com.intellij.util.SystemProperties
 import com.intellij.util.net.NetUtils
 import org.jetbrains.bsp.protocol.BspCommunication._
 import org.jetbrains.bsp.protocol.BspNotifications.BspNotification
-import org.jetbrains.bsp.protocol.BspServerConnector._
-import org.jetbrains.bsp.protocol.session.{BspSession, jobs}
+import org.jetbrains.bsp.protocol.session.BspServerConnector._
+import org.jetbrains.bsp.protocol.session.{BspSession, DummyConnector, GenericConnector, jobs}
 import org.jetbrains.bsp.protocol.session.BspSession._
 import org.jetbrains.bsp.protocol.session.jobs.BspSessionJob
 import org.jetbrains.bsp.settings.{BspExecutionSettings, BspProjectSettings, BspSettings}
@@ -28,6 +28,7 @@ import org.jetbrains.bsp.{BSP, BspError, BspErrorMessage}
 import scala.io.Source
 import scala.util.{Failure, Random, Success, Try}
 
+// TODO connections should be independent from project: https://youtrack.jetbrains.com/issue/SCL-14876
 class BspCommunicationComponent(project: Project) extends ProjectComponent {
 
   val communication = new BspCommunication(base, Some(project), executionSettings)
@@ -134,7 +135,7 @@ class BspCommunication(base: File, project: Option[Project], executionSettings: 
 object BspCommunication {
 
   // TODO since IntelliJ projects can correspond to multiple bsp modules, figure out how to have independent
-  //      BspCommunication instances per base path
+  //      BspCommunication instances per base path: https://youtrack.jetbrains.com/issue/SCL-14876
   def forProject(project: Project): BspCommunication = {
     val pm = project.getComponent(classOf[BspCommunicationComponent])
     if (pm == null) throw new IllegalStateException(s"unable to get component BspCommunication for project $project")
@@ -179,6 +180,7 @@ object BspCommunication {
       else if (bloopConfigDir.exists()) new BloopConnector(bspExecutionSettings.bloopExecutable, base, capabilities)
       else new DummyConnector(base.toURI)
 
+    // TODO user dialog when multiple valid connectors exist: https://youtrack.jetbrains.com/issue/SCL-14880
     val methodsInPreferenceOrder = platformMethod :: tcpMethod :: configuredMethods
     connector.connect(methodsInPreferenceOrder : _*)
   }

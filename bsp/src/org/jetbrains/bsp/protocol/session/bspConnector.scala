@@ -1,11 +1,10 @@
-package org.jetbrains.bsp.protocol
+package org.jetbrains.bsp.protocol.session
 
 import java.io.File
 import java.net.URI
 
 import ch.epfl.scala.bsp4j.{BspConnectionDetails, BuildClientCapabilities, InitializeBuildParams}
-import org.jetbrains.bsp.protocol.BspServerConnector.{BspCapabilities, BspConnectionMethod, ProcessBsp}
-import org.jetbrains.bsp.protocol.session.BspSession
+import org.jetbrains.bsp.protocol.session.BspServerConnector.{BspCapabilities, BspConnectionMethod, ProcessBsp}
 import org.jetbrains.bsp.protocol.session.BspSession.Builder
 import org.jetbrains.bsp.{BspError, BspErrorMessage}
 import org.jetbrains.plugins.scala.components.ScalaPluginVersionVerifier

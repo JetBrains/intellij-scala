@@ -284,7 +284,7 @@ object BspSession {
     new Builder(bspIn, bspErr, bspOut, initializeBuildParams, cleanup)
   }
 
-  class Builder private[BspSession](
+  private[protocol] class Builder private[BspSession](
      bspIn: InputStream,
      bspErr: InputStream,
      bspOut: OutputStream,
@@ -316,9 +316,6 @@ object BspSession {
   }
 
 
-
   private case class ServerConnection(server: BspServer, cancelable: Cancelable)
-
-
 
 }

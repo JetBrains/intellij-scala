@@ -5,8 +5,8 @@ import java.net.{Socket, URI}
 
 import ch.epfl.scala.bsp4j._
 import com.intellij.openapi.diagnostic.Logger
-import org.jetbrains.bsp.protocol.BspServerConnector.{BspCapabilities, BspConnectionMethod, TcpBsp, UnixLocalBsp}
-import org.jetbrains.bsp.protocol.session.BspSession
+import org.jetbrains.bsp.protocol.session.BspServerConnector.{BspCapabilities, BspConnectionMethod, TcpBsp, UnixLocalBsp}
+import org.jetbrains.bsp.protocol.session.{BspServerConnector, BspSession}
 import org.jetbrains.bsp.protocol.session.BspSession.Builder
 import org.jetbrains.bsp.{BspError, BspErrorMessage, BspException}
 import org.jetbrains.plugins.scala.components.ScalaPluginVersionVerifier
