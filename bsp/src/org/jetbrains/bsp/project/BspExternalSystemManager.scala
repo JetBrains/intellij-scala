@@ -1,7 +1,5 @@
 package org.jetbrains.bsp.project
 
-import java.net.URL
-
 import com.intellij.execution.configurations.SimpleJavaParameters
 import com.intellij.openapi
 import com.intellij.openapi.externalSystem.model.ProjectSystemId

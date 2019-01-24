@@ -14,7 +14,6 @@ import com.intellij.task._
 import org.jetbrains.bsp.BSP
 import org.jetbrains.bsp.data.BspMetadata
 import org.jetbrains.bsp.settings.BspExecutionSettings
-import org.jetbrains.ide.PooledThreadExecutor
 
 import scala.collection.JavaConverters._
 
