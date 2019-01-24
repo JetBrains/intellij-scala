@@ -16,7 +16,7 @@ import com.intellij.task.{ProjectTaskNotification, _}
 import org.eclipse.lsp4j.jsonrpc.ResponseErrorException
 import org.jetbrains.bsp.BspUtil._
 import org.jetbrains.bsp.project.BspTask.TextCollector
-import org.jetbrains.bsp.protocol.BspSession.{BspServer, NotificationCallback, ProcessLogger}
+import org.jetbrains.bsp.protocol.session.BspSession.{BspServer, NotificationCallback, ProcessLogger}
 import org.jetbrains.bsp.protocol.{BspCommunication, BspJob, BspNotifications}
 import org.jetbrains.bsp.settings.BspExecutionSettings
 import org.jetbrains.plugins.scala.build.BuildMessages.EventId

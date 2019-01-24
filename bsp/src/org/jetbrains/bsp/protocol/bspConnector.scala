@@ -5,7 +5,8 @@ import java.net.URI
 
 import ch.epfl.scala.bsp4j.{BspConnectionDetails, BuildClientCapabilities, InitializeBuildParams}
 import org.jetbrains.bsp.protocol.BspServerConnector.{BspCapabilities, BspConnectionMethod, ProcessBsp}
-import org.jetbrains.bsp.protocol.BspSession.BspSessionBuilder
+import org.jetbrains.bsp.protocol.session.BspSession
+import org.jetbrains.bsp.protocol.session.BspSession.Builder
 import org.jetbrains.bsp.{BspError, BspErrorMessage}
 import org.jetbrains.plugins.scala.components.ScalaPluginVersionVerifier
 
@@ -28,18 +29,18 @@ abstract class BspServerConnector(val rootUri: URI, val capabilities: BspCapabil
     * @param methods methods supported by the bsp server, in order of preference
     * @return None if no compatible method is found. TODO should be an error response
     */
-  def connect(methods: BspConnectionMethod*): Either[BspError, BspSessionBuilder]
+  def connect(methods: BspConnectionMethod*): Either[BspError, Builder]
 }
 
 class DummyConnector(rootUri: URI) extends BspServerConnector(rootUri, BspCapabilities(Nil)) {
-  override def connect(methods: BspConnectionMethod*): Either[BspError, BspSessionBuilder] =
+  override def connect(methods: BspConnectionMethod*): Either[BspError, Builder] =
     Left(BspErrorMessage(s"No way found to connect to a BSP server for workspace $rootUri"))
 }
 
 /** TODO Connects to a bsp server based on information in a bsp configuration directory. */
 class GenericConnector(base: File, capabilities: BspCapabilities) extends BspServerConnector(base.getCanonicalFile.toURI, capabilities) {
 
-  override def connect(methods: BspConnectionMethod*): Either[BspError, BspSessionBuilder] = {
+  override def connect(methods: BspConnectionMethod*): Either[BspError, Builder] = {
     methods.collectFirst {
       case ProcessBsp(details: BspConnectionDetails) =>
         // TODO check bsp version compatibility
@@ -48,7 +49,7 @@ class GenericConnector(base: File, capabilities: BspCapabilities) extends BspSer
     }.getOrElse(Left(BspErrorMessage("no supported connection method for this server")))
   }
 
-  private def prepareBspSession(details: BspConnectionDetails): BspSessionBuilder = {
+  private def prepareBspSession(details: BspConnectionDetails): Builder = {
     details.getArgv
 
     val process =

@@ -1,0 +1,35 @@
+package org.jetbrains.bsp.protocol.session
+
+import scala.collection.mutable.ListBuffer
+import scala.util.control.NonFatal
+
+
+private trait Cancelable {
+  def cancel(): Unit
+}
+
+private class OpenCancelable extends Cancelable {
+  private val toCancel = ListBuffer.empty[Cancelable]
+  def add(cancelable: Cancelable): Unit = toCancel += cancelable
+  override def cancel(): Unit = Cancelable.cancelAll(toCancel)
+}
+
+private object Cancelable {
+  def apply(fn: () => Unit): Cancelable = () => fn()
+  val empty: Cancelable = Cancelable(() => ())
+  def cancelAll(iterable: Iterable[Cancelable]): Unit = {
+    var errors = ListBuffer.empty[Throwable]
+    iterable.foreach { cancelable =>
+      try cancelable.cancel()
+      catch { case NonFatal(ex) => errors += ex }
+    }
+    errors.toList match {
+      case head :: tail =>
+        tail.foreach { e =>
+          if (e ne head) {head.addSuppressed(e)}
+        }
+        throw head
+      case _ =>
+    }
+  }
+}

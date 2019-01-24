@@ -13,7 +13,7 @@ import org.jetbrains.bsp.BspUtil._
 import org.jetbrains.bsp.project.resolver.BspProjectResolver._
 import org.jetbrains.bsp.project.resolver.BspResolverDescriptors._
 import org.jetbrains.bsp.project.resolver.BspResolverLogic._
-import org.jetbrains.bsp.protocol.BspSession.{BspServer, NotificationCallback, ProcessLogger}
+import org.jetbrains.bsp.protocol.session.BspSession.{BspServer, NotificationCallback, ProcessLogger}
 import org.jetbrains.bsp.protocol.{BspCommunication, BspJob, BspNotifications}
 import org.jetbrains.bsp.settings.BspExecutionSettings
 import org.jetbrains.bsp.{BspError, BspTaskCancelled}

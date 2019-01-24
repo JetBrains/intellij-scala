@@ -6,7 +6,8 @@ import java.net.{Socket, URI}
 import ch.epfl.scala.bsp4j._
 import com.intellij.openapi.diagnostic.Logger
 import org.jetbrains.bsp.protocol.BspServerConnector.{BspCapabilities, BspConnectionMethod, TcpBsp, UnixLocalBsp}
-import org.jetbrains.bsp.protocol.BspSession.BspSessionBuilder
+import org.jetbrains.bsp.protocol.session.BspSession
+import org.jetbrains.bsp.protocol.session.BspSession.Builder
 import org.jetbrains.bsp.{BspError, BspErrorMessage, BspException}
 import org.jetbrains.plugins.scala.components.ScalaPluginVersionVerifier
 import org.scalasbt.ipcsocket.UnixDomainSocket
@@ -21,7 +22,7 @@ class BloopConnector(bloopExecutable: File, base: File, capabilities: BspCapabil
   private val logger: Logger = Logger.getInstance(classOf[BloopConnector])
   private val verbose = false
 
-  override def connect(methods: BspConnectionMethod*): Either[BspError, BspSessionBuilder] = {
+  override def connect(methods: BspConnectionMethod*): Either[BspError, Builder] = {
 
     val socketAndCleanupOpt: Option[Either[BspError, (Socket, ()=>Unit)]] = methods.collectFirst {
       case UnixLocalBsp(socketFile) =>

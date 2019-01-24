@@ -19,7 +19,9 @@ import com.intellij.util.net.NetUtils
 import org.jetbrains.bsp.protocol.BspCommunication._
 import org.jetbrains.bsp.protocol.BspNotifications.BspNotification
 import org.jetbrains.bsp.protocol.BspServerConnector._
-import org.jetbrains.bsp.protocol.BspSession._
+import org.jetbrains.bsp.protocol.session.{BspSession, jobs}
+import org.jetbrains.bsp.protocol.session.BspSession._
+import org.jetbrains.bsp.protocol.session.jobs.BspSessionJob
 import org.jetbrains.bsp.settings.{BspExecutionSettings, BspProjectSettings, BspSettings}
 import org.jetbrains.bsp.{BSP, BspError, BspErrorMessage}
 
@@ -109,7 +111,7 @@ class BspCommunication(base: File, project: Option[Project], executionSettings: 
                 aggregator: NotificationAggregator[A],
                 processLogger: ProcessLogger
                ): BspJob[(T, A)] = {
-    val job = BspSession.createJob(task, default, aggregator, processLogger)
+    val job = jobs.create(task, default, aggregator, processLogger)
 
     acquireSessionAndRun(job) match {
       case Left(error) => new FailedBspJob(error)
@@ -146,7 +148,7 @@ object BspCommunication {
   }
 
 
-  private[protocol] def prepareSession(base: File, bspExecutionSettings: BspExecutionSettings): Either[BspError, BspSessionBuilder] = {
+  private[protocol] def prepareSession(base: File, bspExecutionSettings: BspExecutionSettings): Either[BspError, Builder] = {
 
     val supportedLanguages = List("scala","java") // TODO somehow figure this out more generically?
     val capabilities = BspCapabilities(supportedLanguages)
