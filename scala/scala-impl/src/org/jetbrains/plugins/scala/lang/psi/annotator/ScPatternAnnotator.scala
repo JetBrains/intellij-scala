@@ -25,7 +25,9 @@ import scala.collection.mutable.ArrayBuffer
 
 trait ScPatternAnnotator extends Annotatable { self: ScPattern =>
 
-  override def annotate(holder: AnnotationHolder, typeAware: Boolean): Unit = {
+  abstract override def annotate(holder: AnnotationHolder, typeAware: Boolean): Unit = {
+    super.annotate(holder, typeAware)
+
     if (typeAware) {
       ScPatternAnnotator.checkPattern(this, holder)
     }

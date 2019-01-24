@@ -8,7 +8,9 @@ import org.jetbrains.plugins.scala.lang.psi.api.expr.ScSelfInvocation
 
 trait ScSelfInvocationAnnotator extends Annotatable { self: ScSelfInvocation =>
 
-  override def annotate(holder: AnnotationHolder, typeAware: Boolean): Unit = {
+  abstract override def annotate(holder: AnnotationHolder, typeAware: Boolean): Unit = {
+    super.annotate(holder, typeAware)
+
     bind match {
       case Some(_) =>
       case None =>

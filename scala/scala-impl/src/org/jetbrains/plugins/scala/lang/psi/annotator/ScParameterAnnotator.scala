@@ -9,7 +9,9 @@ import org.jetbrains.plugins.scala.lang.psi.impl.statements.params.ScParameterIm
 
 trait ScParameterAnnotator extends Annotatable { self: ScParameterImpl =>
 
-  override def annotate(holder: AnnotationHolder, typeAware: Boolean): Unit = {
+  abstract override def annotate(holder: AnnotationHolder, typeAware: Boolean): Unit = {
+    super.annotate(holder, typeAware)
+
     owner match {
       case null =>
         holder.createErrorAnnotation(this, "Parameter hasn't owner: " + name)

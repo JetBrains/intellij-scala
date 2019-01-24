@@ -21,7 +21,10 @@ import scala.collection.Seq
 
 trait ScCatchBlockAnnotator extends Annotatable { self: ScCatchBlock =>
 
-  override def annotate(holder: AnnotationHolder, typeAware: Boolean): Unit = expression match {
+  abstract override def annotate(holder: AnnotationHolder, typeAware: Boolean): Unit = {
+    super.annotate(holder, typeAware)
+
+    expression match {
       case Some(expr) =>
         val tp = expr.`type`().getOrAny
         val throwable = ScalaPsiManager.instance(expr.getProject).getCachedClass(expr.resolveScope, "java.lang.Throwable").orNull
@@ -84,4 +87,5 @@ trait ScCatchBlockAnnotator extends Annotatable { self: ScCatchBlock =>
         checkMember("apply", checkReturnTypeIsBoolean = false)
       case _ =>
     }
+  }
 }
