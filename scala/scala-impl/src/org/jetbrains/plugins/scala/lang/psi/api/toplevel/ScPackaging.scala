@@ -4,11 +4,8 @@ package psi
 package api
 package toplevel
 
-import org.jetbrains.plugins.scala.lang.psi.api.base.ScStableCodeReferenceElement
-import org.jetbrains.plugins.scala.lang.psi.api.statements.ScDeclaredElementsHolder
-
-trait ScPackaging extends ScToplevelElement
-  with ScDeclaredElementsHolder
+trait ScPackaging extends ScImportsHolder
+  with statements.ScDeclaredElementsHolder
   with ScPackageLike {
 
   def parentPackageName: String
@@ -21,5 +18,19 @@ trait ScPackaging extends ScToplevelElement
 
   def bodyText: String
 
-  def reference: Option[ScStableCodeReferenceElement]
+  def reference: Option[base.ScStableCodeReferenceElement]
+
+  def immediateTypeDefinitions: Seq[toplevel.typedef.ScTypeDefinition]
+
+  def packagings: Seq[ScPackaging]
+}
+
+object ScPackaging {
+
+  implicit class ScPackagingExt(private val packaging: ScPackaging) extends AnyVal {
+
+    def typeDefinitions: Seq[toplevel.typedef.ScTypeDefinition] =
+      packaging.immediateTypeDefinitions ++ packaging.packagings.flatMap(_.typeDefinitions)
+  }
+
 }

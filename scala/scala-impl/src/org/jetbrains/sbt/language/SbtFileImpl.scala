@@ -10,6 +10,7 @@ import com.intellij.psi.{FileViewProvider, PsiClass, PsiElement, ResolveState}
 import org.jetbrains.plugins.scala.extensions._
 import org.jetbrains.plugins.scala.lang.psi.ScDeclarationSequenceHolder
 import org.jetbrains.plugins.scala.lang.psi.api.ScalaFile
+import org.jetbrains.plugins.scala.lang.psi.api.toplevel.typedef.ScTypeDefinition
 import org.jetbrains.plugins.scala.lang.psi.impl.ScalaPsiElementFactory.createScalaFileFromText
 import org.jetbrains.plugins.scala.lang.psi.impl.{ScalaFileImpl, ScalaPsiManager}
 import org.jetbrains.plugins.scala.macroAnnotations.{Cached, CachedInUserData, ModCount}
@@ -23,9 +24,7 @@ import scala.collection.JavaConverters._
 class SbtFileImpl(provider: FileViewProvider) extends ScalaFileImpl(provider, SbtFileType) with ScDeclarationSequenceHolder {
   override def isScriptFileImpl: Boolean = false
 
-  override def immediateTypeDefinitions: Seq[Nothing] = Seq.empty
-
-  override def packagings: Seq[Nothing] = Seq.empty
+  override def typeDefinitions: Seq[ScTypeDefinition] = Seq.empty
 
   override def processDeclarations(processor: PsiScopeProcessor, state: ResolveState, lastParent: PsiElement, place: PsiElement): Boolean =
     super[ScalaFileImpl].processDeclarations(processor, state, lastParent, place) &&

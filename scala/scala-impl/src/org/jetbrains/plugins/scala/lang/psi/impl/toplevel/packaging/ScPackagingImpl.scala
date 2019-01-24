@@ -12,7 +12,6 @@ import com.intellij.psi._
 import com.intellij.psi.scope.PsiScopeProcessor
 import com.intellij.psi.search.GlobalSearchScope
 import com.intellij.psi.util.PsiTreeUtil
-import org.jetbrains.plugins.scala.JavaArrayFactoryUtil.ScTypeDefinitionFactory
 import org.jetbrains.plugins.scala.caches.ScalaShortNamesCacheManager
 import org.jetbrains.plugins.scala.extensions.PsiElementExt
 import org.jetbrains.plugins.scala.lang.TokenSets.TYPE_DEFINITIONS
@@ -50,6 +49,9 @@ final class ScPackagingImpl private[psi](stub: ScPackagingStub,
     }.orElse {
       findChild(classOf[ScStableCodeReferenceElement])
     }
+
+  override def packagings: Seq[ScPackaging] =
+    getStubOrPsiChildren(ScalaElementType.PACKAGING, JavaArrayFactoryUtil.ScPackagingFactory)
 
   override def isExplicit: Boolean = byStubOrPsi(_.isExplicit)(findLeftBrace.isDefined)
 
@@ -138,7 +140,7 @@ final class ScPackagingImpl private[psi](stub: ScPackagingStub,
     }
   }
 
-  override def immediateTypeDefinitions: Seq[ScTypeDefinition] = getStubOrPsiChildren(TYPE_DEFINITIONS, ScTypeDefinitionFactory)
+  override def immediateTypeDefinitions: Seq[ScTypeDefinition] = getStubOrPsiChildren(TYPE_DEFINITIONS, JavaArrayFactoryUtil.ScTypeDefinitionFactory)
 
   private def findLeftBrace = Option(findChildByType[PsiElement](ScalaTokenTypes.tLBRACE))
 

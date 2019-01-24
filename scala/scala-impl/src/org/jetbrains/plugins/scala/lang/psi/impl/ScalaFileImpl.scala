@@ -22,16 +22,15 @@ import com.intellij.psi.search.{FilenameIndex, GlobalSearchScope}
 import com.intellij.psi.util.PsiUtilCore
 import com.intellij.util.Processor
 import com.intellij.util.indexing.FileBasedIndex
-import org.jetbrains.plugins.scala.JavaArrayFactoryUtil._
 import org.jetbrains.plugins.scala.extensions._
 import org.jetbrains.plugins.scala.lang.TokenSets._
 import org.jetbrains.plugins.scala.lang.lexer.ScalaTokenTypes
 import org.jetbrains.plugins.scala.lang.parser.ScalaElementType._
 import org.jetbrains.plugins.scala.lang.psi.api.expr.ScExpression
 import org.jetbrains.plugins.scala.lang.psi.api.statements.{ScFunction, ScTypeAlias, ScValue, ScVariable}
+import org.jetbrains.plugins.scala.lang.psi.api.toplevel.ScPackaging
 import org.jetbrains.plugins.scala.lang.psi.api.toplevel.imports.ScImportStmt
 import org.jetbrains.plugins.scala.lang.psi.api.toplevel.typedef.{ScClass, ScObject, ScTrait, ScTypeDefinition}
-import org.jetbrains.plugins.scala.lang.psi.api.toplevel.{ScPackaging, ScToplevelElement}
 import org.jetbrains.plugins.scala.lang.psi.api.{FileDeclarationsHolder, ScControlFlowOwner, ScalaFile, ScalaPsiElement}
 import org.jetbrains.plugins.scala.lang.psi.impl.ScalaPsiManager.AnyScalaPsiModificationTracker
 import org.jetbrains.plugins.scala.lang.psi.stubs.ScFileStub
@@ -64,7 +63,7 @@ class ScalaFileImpl(viewProvider: FileViewProvider,
 
   def sourceName: String = virtualFile match {
     case null => ""
-    case file => byStubOrPsi(_.sourceName)(decompiler.sourceName(file))
+    case file => foldStub(decompiler.sourceName(file))(_.sourceName)
   }
 
   override final def getName: String = virtualFile match {
@@ -182,11 +181,11 @@ class ScalaFileImpl(viewProvider: FileViewProvider,
   }
 
   @CachedInUserData(this, ModCount.anyScalaPsiModificationCount)
-  override def isScriptFile: Boolean = byStubOrPsi(_.isScript)(isScriptFileImpl)
+  override def isScriptFile: Boolean = foldStub(isScriptFileImpl)(_.isScript)
 
   override def isWorksheetFile: Boolean = {
     ScalaUtil.findVirtualFile(this).exists {
-      vFile => 
+      vFile =>
         vFile.getExtension == ScalaFileType.WORKSHEET_EXTENSION && !AmmoniteUtil.isAmmoniteFile(vFile, getProject) ||
           ScratchFileService.getInstance().getRootType(vFile).isInstanceOf[ScratchRootType] &&
           ScalaProjectSettings.getInstance(getProject).isTreatScratchFilesAsWorksheet
@@ -296,8 +295,11 @@ class ScalaFileImpl(viewProvider: FileViewProvider,
       null
   }
 
-  override def firstPackaging: Option[ScPackaging] =
-    byStubOrPsi(_.getChildrenByType(PACKAGING, ScPackagingFactory).headOption)(Option(findChildByClass(classOf[ScPackaging])))
+  override def firstPackaging: Option[ScPackaging] = packagings.headOption
+
+  protected def packagings = foldStub(findChildrenByClassScala(classOf[ScPackaging])) {
+    _.getChildrenByType(PACKAGING, JavaArrayFactoryUtil.ScPackagingFactory)
+  }
 
   def getPackageName: String = packageName match {
     case null => ""
@@ -308,15 +310,15 @@ class ScalaFileImpl(viewProvider: FileViewProvider,
     if (isScriptFile || isWorksheetFile) return null
 
     @tailrec
-    def inner(element: ScToplevelElement, result: StringBuilder): String =
-      element.packagings match {
+    def inner(packagings: Seq[ScPackaging], result: StringBuilder): String =
+      packagings match {
         case Seq() => if (result.isEmpty) "" else result.substring(1)
         case Seq(head) =>
-          inner(head, result.append(".").append(head.packageName))
+          inner(head.packagings, result.append(".").append(head.packageName))
         case _ => null
       }
 
-    inner(this, StringBuilder.newBuilder)
+    inner(packagings, StringBuilder.newBuilder)
   }
 
   private def getPackageNameInner: String = {
@@ -446,14 +448,19 @@ class ScalaFileImpl(viewProvider: FileViewProvider,
     }
   }
 
-  override def immediateTypeDefinitions: Seq[ScTypeDefinition] =
-    byStubOrPsi(_.getChildrenByType(TYPE_DEFINITIONS, ScTypeDefinitionFactory)) {
-      findChildrenByClassScala(classOf[ScTypeDefinition])
+  override def typeDefinitions: Seq[ScTypeDefinition] = {
+    val typeDefinitions = foldStub(findChildrenByClassScala(classOf[ScTypeDefinition])) {
+      _.getChildrenByType(TYPE_DEFINITIONS, JavaArrayFactoryUtil.ScTypeDefinitionFactory)
     }
 
-  private def byStubOrPsi[R](byStub: ScFileStub => R)(byPsi: => R): R = getStub match {
-    case s: ScFileStub => byStub(s)
-    case _ => byPsi
+    typeDefinitions ++ indirectTypeDefinitions
+  }
+
+  protected final def indirectTypeDefinitions: Seq[ScTypeDefinition] = packagings.flatMap(_.typeDefinitions)
+
+  private def foldStub[R](byPsi: => R)(byStub: ScFileStub => R): R = getStub match {
+    case null => byPsi
+    case stub => byStub(stub)
   }
 
   override def subtreeChanged(): Unit = {

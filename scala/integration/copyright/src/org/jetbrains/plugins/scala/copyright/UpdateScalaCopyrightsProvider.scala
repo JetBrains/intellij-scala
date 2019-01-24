@@ -29,7 +29,7 @@ final class UpdateScalaCopyrightsProvider extends psi.UpdateCopyrightsProvider {
       override def getPackageStatement: PsiElement = getFile match {
         case file: ScalaFile =>
           if (file.isScriptFile) file.getFirstChild
-          else file.packagings.headOption.orNull
+          else file.firstPackaging.orNull
         case _ => null
       }
 

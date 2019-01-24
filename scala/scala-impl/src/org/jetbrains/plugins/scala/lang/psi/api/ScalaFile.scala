@@ -5,14 +5,13 @@ package api
 
 import com.intellij.openapi.util.TextRange
 import com.intellij.psi.PsiClass
-import org.jetbrains.plugins.scala.lang.psi.api.toplevel.{ScPackaging, ScToplevelElement}
 
 /**
  * @author ilyas
  */
 trait ScalaFile extends ScalaPsiElement
   with ScFile
-  with ScToplevelElement {
+  with ScImportsHolder {
 
   @Deprecated
   def importClass(aClass: PsiClass): Boolean = {
@@ -20,7 +19,9 @@ trait ScalaFile extends ScalaPsiElement
     true
   }
 
-  def firstPackaging: Option[ScPackaging]
+  def firstPackaging: Option[toplevel.ScPackaging]
+
+  def typeDefinitions: Seq[toplevel.typedef.ScTypeDefinition]
 
   def packagingRanges: Seq[TextRange]
 

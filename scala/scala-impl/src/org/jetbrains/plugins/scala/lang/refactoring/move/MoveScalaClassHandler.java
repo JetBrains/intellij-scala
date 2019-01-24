@@ -13,7 +13,6 @@ import org.jetbrains.plugins.scala.ScalaFileType;
 import org.jetbrains.plugins.scala.editor.importOptimizer.ScalaImportOptimizer;
 import org.jetbrains.plugins.scala.lang.psi.api.ScalaFile;
 import org.jetbrains.plugins.scala.lang.psi.api.toplevel.ScNamedElement;
-import org.jetbrains.plugins.scala.lang.psi.api.toplevel.ScToplevelElement;
 import org.jetbrains.plugins.scala.settings.ScalaApplicationSettings;
 import org.jetbrains.plugins.scala.statistics.FeatureKey;
 import org.jetbrains.plugins.scala.statistics.Stats;
@@ -52,7 +51,7 @@ public class MoveScalaClassHandler implements MoveClassHandler {
     if (!(file instanceof ScalaFile)) return null;
 
     ScalaFile scalaFile = (ScalaFile) file;
-    boolean hasMultiple = (new ScToplevelElement.TopElementExt(scalaFile)).typeDefinitions().length() > 1;
+    boolean hasMultiple = scalaFile.typeDefinitions().length() > 1;
     return hasMultiple ?
             ((ScNamedElement) clazz).name() + "." + ScalaFileType.INSTANCE.getDefaultExtension() :
             file.getName();
