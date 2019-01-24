@@ -173,7 +173,7 @@ object BspCommunication {
     val bloopConfigDir = new File(base, ".bloop").getCanonicalFile
 
     val connector =
-      if (connectionDetails.nonEmpty) new GenericConnectorSync(base, capabilities)
+      if (connectionDetails.nonEmpty) new GenericConnector(base, capabilities)
       else if (bloopConfigDir.exists()) new BloopConnector(bspExecutionSettings.bloopExecutable, base, capabilities)
       else new DummyConnector(base.toURI)
 

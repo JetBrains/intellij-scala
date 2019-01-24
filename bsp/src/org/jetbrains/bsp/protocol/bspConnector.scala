@@ -22,7 +22,7 @@ object BspServerConnector {
   case class BspCapabilities(languageIds: List[String])
 }
 
-abstract class BspServerConnectorSync(val rootUri: URI, val capabilities: BspCapabilities) {
+abstract class BspServerConnector(val rootUri: URI, val capabilities: BspCapabilities) {
   /**
     * Connect to a bsp server with one of the given methods.
     * @param methods methods supported by the bsp server, in order of preference
@@ -31,13 +31,13 @@ abstract class BspServerConnectorSync(val rootUri: URI, val capabilities: BspCap
   def connect(methods: BspConnectionMethod*): Either[BspError, BspSessionBuilder]
 }
 
-class DummyConnector(rootUri: URI) extends BspServerConnectorSync(rootUri, BspCapabilities(Nil)) {
+class DummyConnector(rootUri: URI) extends BspServerConnector(rootUri, BspCapabilities(Nil)) {
   override def connect(methods: BspConnectionMethod*): Either[BspError, BspSessionBuilder] =
     Left(BspErrorMessage(s"No way found to connect to a BSP server for workspace $rootUri"))
 }
 
 /** TODO Connects to a bsp server based on information in a bsp configuration directory. */
-class GenericConnectorSync(base: File, capabilities: BspCapabilities) extends BspServerConnectorSync(base.getCanonicalFile.toURI, capabilities) {
+class GenericConnector(base: File, capabilities: BspCapabilities) extends BspServerConnector(base.getCanonicalFile.toURI, capabilities) {
 
   override def connect(methods: BspConnectionMethod*): Either[BspError, BspSessionBuilder] = {
     methods.collectFirst {

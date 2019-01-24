@@ -16,7 +16,7 @@ import scala.sys.process.{Process, ProcessLogger}
 import scala.util.Try
 
 class BloopConnector(bloopExecutable: File, base: File, capabilities: BspCapabilities)
-  extends BspServerConnectorSync(base.getCanonicalFile.toURI, capabilities) {
+  extends BspServerConnector(base.getCanonicalFile.toURI, capabilities) {
 
   private val logger: Logger = Logger.getInstance(classOf[BloopConnector])
   private val verbose = false
