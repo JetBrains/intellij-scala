@@ -9,7 +9,7 @@ import com.intellij.psi.PsiElementVisitor
 import org.jetbrains.plugins.scala.lang.psi.api.ScalaElementVisitor
 import org.jetbrains.plugins.scala.lang.psi.api.expr.ScExpression
 
-class ScExpressionImplBase(node: ASTNode) extends ScalaPsiElementImpl(node) with ScExpression {
+abstract class ScExpressionImplBase(node: ASTNode) extends ScalaPsiElementImpl(node) with ScExpression {
 
   override final def accept(visitor: PsiElementVisitor): Unit = {
     visitor match {
