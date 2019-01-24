@@ -108,7 +108,7 @@ package object psi {
       }
 
     private def hasInlineModifier(member: ScMember) =
-      member.getModifierList.findFirstChildByType(ScalaTokenTypes.kINLINE) != null
+      member.getModifierList.isInline
   }
 
 }

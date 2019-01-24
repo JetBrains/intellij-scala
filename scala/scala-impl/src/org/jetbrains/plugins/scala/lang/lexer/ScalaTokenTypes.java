@@ -111,6 +111,8 @@ public interface ScalaTokenTypes {
   ScalaModifierTokenType kPRIVATE = ScalaModifierTokenType.of(ScalaModifier.Private);
   ScalaModifierTokenType kPROTECTED = ScalaModifierTokenType.of(ScalaModifier.Protected);
   ScalaModifierTokenType kSEALED = ScalaModifierTokenType.of(ScalaModifier.Sealed);
+  ScalaModifierTokenType kINLINE = ScalaModifierTokenType.of(ScalaModifier.Inline);
+
 
   IElementType kCATCH = new ScalaTokenType("catch");
   IElementType kCLASS = new ScalaTokenType("class");
@@ -144,7 +146,6 @@ public interface ScalaTokenTypes {
   IElementType kWITH = new ScalaTokenType("with");
   IElementType kYIELD = new ScalaTokenType("yield");
   IElementType kMACRO = new ScalaTokenType("macro");
-  IElementType kINLINE = new ScalaTokenType("inline");
   ////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
   ///////////////////////// variables and constants //////////////////////////////////////////////////////////////////////
   ////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////

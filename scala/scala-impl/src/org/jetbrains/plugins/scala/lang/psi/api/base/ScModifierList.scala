@@ -44,6 +44,8 @@ object ScModifierList {
 
     def isProtected: Boolean = hasModifier(Protected)
 
+    def isInline: Boolean = hasModifier(Inline)
+
     private def hasModifier(value: ScalaModifier) =
       list.modifiers.contains(value)
   }

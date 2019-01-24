@@ -12,7 +12,8 @@ public enum ScalaModifier {
     Implicit(ScalaModifier.IMPLICIT),
     Sealed(ScalaModifier.SEALED),
     Lazy(ScalaModifier.LAZY),
-    Case(ScalaModifier.CASE);
+    Case(ScalaModifier.CASE),
+    Inline(ScalaModifier.INLINE);
 
     private final String text;
 
@@ -42,4 +43,5 @@ public enum ScalaModifier {
     public static final String LAZY = "lazy";
     public static final String OVERRIDE = "override";
     public static final String SEALED = "sealed";
+    public static final String INLINE = "inline";
 }
