@@ -1,6 +1,7 @@
 package org.jetbrains.plugins.scala.components.libextensions
 
 import java.io.File
+import java.util.concurrent.atomic.AtomicBoolean
 
 import com.intellij.ide.plugins.PluginManager
 import com.intellij.ide.util.PropertiesComponent
@@ -9,8 +10,11 @@ import com.intellij.openapi.application.ApplicationManager
 import com.intellij.openapi.components.ProjectComponent
 import com.intellij.openapi.diagnostic.Logger
 import com.intellij.openapi.extensions.PluginId
+import com.intellij.openapi.module.ModuleManager
 import com.intellij.openapi.progress.{ProcessCanceledException, ProgressIndicator, ProgressManager, Task}
-import com.intellij.openapi.project.Project
+import com.intellij.openapi.project.{DumbService, Project}
+import com.intellij.openapi.roots.impl.libraries.ProjectLibraryTable
+import com.intellij.openapi.roots.libraries.{Library, LibraryTable}
 import com.intellij.openapi.util.ModificationTracker
 import com.intellij.openapi.vfs.JarFileSystem
 import com.intellij.util.lang.UrlClassLoader
@@ -18,12 +22,13 @@ import com.intellij.util.messages.Topic
 import org.jetbrains.plugins.scala.DependencyManagerBase._
 import org.jetbrains.plugins.scala.components.ScalaPluginVersionVerifier
 import org.jetbrains.plugins.scala.components.libextensions.ui._
+import org.jetbrains.plugins.scala.extensions
 import org.jetbrains.plugins.scala.extensions.using
 import org.jetbrains.plugins.scala.settings.ScalaProjectSettings
+import org.jetbrains.sbt.project.module.SbtModule.getResolversFrom
 import org.jetbrains.sbt.resolvers.SbtResolver
 
 import scala.collection.mutable
-import scala.collection.mutable.ArrayBuffer
 import scala.util.control.NonFatal
 import scala.util.{Failure, Success, Try}
 import scala.xml.factory.XMLLoader
@@ -39,7 +44,7 @@ class LibraryExtensionsManager(project: Project) extends ProjectComponent {
   private val popup       = new PopupHelper
   private val publisher   = project.getMessageBus.syncPublisher(EXTENSIONS_TOPIC)
 
-  private val myExtensionInstances  = mutable.HashMap[Class[_], ArrayBuffer[Any]]()
+  private val myExtensionInstances  = mutable.HashMap[Class[_], mutable.ArrayBuffer[Any]]()
   private val myLoadedLibraries     = mutable.ArrayBuffer[ExtensionJarData]()
 
   private object XMLNoDTD extends XMLLoader[Elem] {
@@ -51,12 +56,29 @@ class LibraryExtensionsManager(project: Project) extends ProjectComponent {
     }
   }
 
+  private object LibraryListener extends LibraryTable.Listener {
+    private val accessed = new AtomicBoolean(false)
+    override def afterLibraryAdded(newLibrary: Library): Unit = action()
+    override def afterLibraryRemoved(library: Library): Unit = action()
+    override def afterLibraryRenamed(library: Library): Unit = action()
+
+    private def action(): Unit = {
+      if (accessed.compareAndSet(false, true))
+        DumbService.getInstance(project).smartInvokeLater( extensions.toRunnable {
+          val allProjectResolvers = ModuleManager.getInstance(project).getModules.flatMap(getResolversFrom).toSet
+          LibraryExtensionsManager.getInstance(project).searchExtensions(allProjectResolvers)
+          accessed.set(false)
+        })
+    }
+  }
+
   override def projectOpened(): Unit = {
     ApplicationManager.getApplication.getMessageBus
       .syncPublisher(Notifications.TOPIC)
       .register(PopupHelper.GROUP_ID, NotificationDisplayType.STICKY_BALLOON)
     if (ScalaProjectSettings.getInstance(project).isEnableLibraryExtensions)
       loadCachedExtensions()
+    ProjectLibraryTable.getInstance(project).addListener(LibraryListener, project)
   }
 
   def setEnabled(value: Boolean): Unit = {
@@ -68,17 +90,23 @@ class LibraryExtensionsManager(project: Project) extends ProjectComponent {
   }
 
   def searchExtensions(sbtResolvers: Set[SbtResolver]): Unit = {
-    myExtensionInstances.clear()
-    myLoadedLibraries.clear()
     ProgressManager.getInstance().run(
       new Task.Backgroundable(project, "Searching for library extensions", true) {
         override def run(indicator: ProgressIndicator): Unit = {
           implicit val project: Project = myProject
-          val resolved          = new ExtensionDownloader(indicator, sbtResolvers).getExtensionJars
-          val alreadyLoaded     = Option(properties.getValues(EXT_JARS_KEY)).map(_.toSet).getOrElse(Set.empty)
-          val extensionsChanged = alreadyLoaded != resolved.map(_.getAbsolutePath).toSet
-          if (resolved.nonEmpty && extensionsChanged)
-            popup.showEnablePopup({ () => enabledAcceptCb(resolved) }, () => enabledCancelledCb())
+          val resolved              = new ExtensionDownloader(indicator, sbtResolvers).getExtensionJars
+          val alreadyLoadedSet      = myLoadedLibraries.map(_.file).toSet
+          val newExtensionsSet      = resolved.toSet
+          val libsAdded       = newExtensionsSet &~ alreadyLoadedSet
+          val libsRemoved     = alreadyLoadedSet &~ newExtensionsSet
+          val extensionsChanged = libsAdded.nonEmpty || libsRemoved.nonEmpty
+          if (extensionsChanged) {
+            myExtensionInstances.clear()
+            myLoadedLibraries.clear()
+            saveCachedExtensions()
+            if (libsAdded.nonEmpty)
+              popup.showEnablePopup({ () => enabledAcceptCb(resolved) }, () => enabledCancelledCb())
+          }
         }
     })
   }
@@ -123,7 +151,7 @@ class LibraryExtensionsManager(project: Project) extends ProjectComponent {
   }
 
   private def loadDescriptor(descriptor: LibraryDescriptor, jarFile: File): Unit = {
-    var classBuffer = mutable.HashMap[Class[_], ArrayBuffer[Any]]()
+    var classBuffer = mutable.HashMap[Class[_], mutable.ArrayBuffer[Any]]()
     descriptor.getCurrentPluginDescriptor.foreach { currentVersion =>
       val IdeaVersionDescriptor(_, _, _, defaultPackage, extensions) = currentVersion
       val classLoader = UrlClassLoader.build()
@@ -136,7 +164,7 @@ class LibraryExtensionsManager(project: Project) extends ProjectComponent {
         val myInterface = classLoader.loadClass(interface)
         val myImpl = classLoader.loadClass(defaultPackage + impl)
         val myInstance = myImpl.newInstance()
-        classBuffer.getOrElseUpdate(myInterface, ArrayBuffer.empty) += myInstance
+        classBuffer.withDefault(_ => mutable.ArrayBuffer.empty)(myInterface) += myInstance
       }
     }
     myExtensionInstances ++= classBuffer
@@ -166,8 +194,8 @@ class LibraryExtensionsManager(project: Project) extends ProjectComponent {
       case Some(data) =>
         for {
           key <- data.loadedExtensions.keys
-          instances = data.loadedExtensions.getOrElse(key, ArrayBuffer.empty)
-        } { myExtensionInstances.getOrElse(key, ArrayBuffer.empty) --= instances }
+          instances = data.loadedExtensions.getOrElse(key, mutable.ArrayBuffer.empty)
+        } { myExtensionInstances.getOrElse(key, mutable.ArrayBuffer.empty) --= instances }
         myLoadedLibraries -= data
         saveCachedExtensions()
       case None =>
@@ -202,7 +230,7 @@ object LibraryExtensionsManager {
     override def getModificationCount: Long = modCount
   }
 
-  implicit class LibraryDescriptorExt(val ld: LibraryDescriptor) extends AnyVal {
+  implicit class LibraryDescriptorExt(private val ld: LibraryDescriptor) extends AnyVal {
     import org.jetbrains.plugins.scala.components.ScalaPluginVersionVerifier.Version
     def getCurrentPluginDescriptor: Option[IdeaVersionDescriptor] = ld.pluginVersions.find { descr =>
       ScalaPluginVersionVerifier.getPluginVersion match {
@@ -213,11 +241,11 @@ object LibraryExtensionsManager {
     }
   }
 
-  implicit class ExtensionDescriptorEx(val ed: ExtensionDescriptor) extends AnyVal {
+  implicit class ExtensionDescriptorEx(private val ed: ExtensionDescriptor) extends AnyVal {
     def isAvailable: Boolean = ed.pluginId.isEmpty || PluginManager.isPluginInstalled(PluginId.getId(ed.pluginId))
   }
 
-  implicit class StringEx(val str: String) extends AnyVal {
+  implicit class StringEx(private val str: String) extends AnyVal {
     def toDepDescription: DependencyDescription = {
       val parts = str.replaceAll("\\s+", "").split('%')
       if (parts.length != 3)
