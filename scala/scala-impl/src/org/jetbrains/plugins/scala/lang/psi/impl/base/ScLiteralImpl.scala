@@ -14,12 +14,12 @@ import com.intellij.openapi.util.text.StringUtil
 import com.intellij.openapi.util.{Pair, TextRange}
 import com.intellij.psi._
 import com.intellij.psi.impl.source.tree.LeafElement
-import com.intellij.psi.impl.source.tree.injected.InjectedLanguageUtil
 import com.intellij.psi.impl.source.tree.java.PsiLiteralExpressionImpl
 import com.intellij.psi.util.PsiModificationTracker
 import org.jetbrains.plugins.scala.lang.lexer.ScalaTokenTypes
 import org.jetbrains.plugins.scala.lang.psi.api.ScalaElementVisitor
 import org.jetbrains.plugins.scala.lang.psi.api.base.{ScInterpolatedStringLiteral, ScLiteral}
+import org.jetbrains.plugins.scala.lang.psi.impl.expr.ScExpressionImplBase
 import org.jetbrains.plugins.scala.lang.psi.types._
 import org.jetbrains.plugins.scala.lang.psi.types.result._
 import org.jetbrains.plugins.scala.macroAnnotations.CachedInUserData
@@ -31,7 +31,7 @@ import scala.StringContext.InvalidEscapeException
 * Date: 22.02.2008
 */
 
-class ScLiteralImpl(node: ASTNode) extends ScalaPsiElementImpl(node) with ScLiteral with ContributedReferenceHost {
+class ScLiteralImpl(node: ASTNode) extends ScExpressionImplBase(node) with ScLiteral with ContributedReferenceHost {
   def isValidHost: Boolean = getValue.isInstanceOf[String]
 
   override def toString: String = "Literal"
