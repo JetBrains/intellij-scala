@@ -13,6 +13,7 @@ import org.jetbrains.plugins.scala.annotator.intention.ScalaImportTypeFix
 import org.jetbrains.plugins.scala.extensions._
 import org.jetbrains.plugins.scala.lang.completion.lookups.ScalaLookupItem
 import org.jetbrains.plugins.scala.lang.lexer.ScalaTokenTypes
+import org.jetbrains.plugins.scala.lang.psi.annotator.ScExpressionAnnotator
 import org.jetbrains.plugins.scala.lang.psi.api.base.patterns.ScBindingPattern
 import org.jetbrains.plugins.scala.lang.psi.api.base.types.{ScSelfTypeElement, ScSimpleTypeElement, ScTypeElement}
 import org.jetbrains.plugins.scala.lang.psi.api.base.{ScFieldId, ScPrimaryConstructor, ScReferenceElement}
@@ -42,7 +43,8 @@ import scala.collection.mutable
   * @author AlexanderPodkhalyuzin
   *         Date: 06.03.2008
   */
-class ScReferenceExpressionImpl(node: ASTNode) extends ScReferenceElementImpl(node) with ScReferenceExpression {
+class ScReferenceExpressionImpl(node: ASTNode) extends ScReferenceElementImpl(node)
+  with ScReferenceExpression with ScExpressionAnnotator {
 
   private[this] var maybeAssignment: Option[ScAssignment] = None
 
