@@ -3,5 +3,12 @@
 <idea-plugin>
     <extensions defaultExtensionNs="com.intellij">
         <highlightVisitor implementation="org.jetbrains.plugins.scala.codeInsight.daemon.ScalaRainbowVisitor"/>
+
+        <declarationRangeHandler key="org.jetbrains.plugins.scala.lang.psi.api.statements.ScFunction"
+                                 implementationClass="org.jetbrains.plugins.scala.codeInsight.hint.ScFunctionDeclarationRangeHandler"
+                                 order="first"/>
+        <declarationRangeHandler key="org.jetbrains.plugins.scala.lang.psi.api.toplevel.typedef.ScTemplateDefinition"
+                                 implementationClass="org.jetbrains.plugins.scala.codeInsight.hint.ScTemplateDeclarationRangeHandler"
+                                 order="first"/>
     </extensions>
 </idea-plugin>

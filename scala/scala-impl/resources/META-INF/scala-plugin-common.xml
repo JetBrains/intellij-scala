@@ -247,10 +247,6 @@
         <codeInsight.lineMarkerProvider language="Scala" implementationClass="org.jetbrains.plugins.scala.worksheet.cell.CellMarkupProvider"/>
         <codeInsight.lineMarkerProvider language="Scala" implementationClass="org.jetbrains.plugins.scala.annotator.gutter.RecursiveCallLineMarkerProvider"/>
         <codeInsight.gotoSuper language="Scala" implementationClass="org.jetbrains.plugins.scala.annotator.gutter.ScalaGoToSuperActionHandler"/>
-        <declarationRangeHandler order="first" key="org.jetbrains.plugins.scala.lang.psi.api.statements.ScFunction"
-                                 implementationClass="org.jetbrains.plugins.scala.codeInsight.hint.ScFunctionDeclarationRangeHandler"/>
-        <declarationRangeHandler order="first" key="org.jetbrains.plugins.scala.lang.psi.api.toplevel.typedef.ScTemplateDefinition"
-                                 implementationClass="org.jetbrains.plugins.scala.codeInsight.hint.ScTemplateDeclarationRangeHandler"/>
         <codeInsight.parameterNameHints language="Scala"
                                         implementationClass="org.jetbrains.plugins.scala.codeInsight.hints.ScalaInlayParameterHintsProvider"/>
         <editorAppearanceConfigurable
