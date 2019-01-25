@@ -1,5 +1,6 @@
 package org.jetbrains.plugins.scala
-package codeInsight.generation
+package codeInsight
+package generation
 
 import com.intellij.lang.LanguageCodeInsightActionHandler
 import com.intellij.testFramework.fixtures.CodeInsightTestFixture
@@ -13,7 +14,7 @@ class GenerateEqualsTest extends ScalaGenerateTestBase {
   import CodeInsightTestFixture.CARET_MARKER
 
   override protected val handler: LanguageCodeInsightActionHandler =
-    new ScalaGenerateEqualsHandler
+    new ScalaGenerateEqualsAction.Handler
 
   def testFindAllFields() {
     val text = s"""class A (i: Int, val j: Int) {

@@ -1,5 +1,6 @@
 package org.jetbrains.plugins.scala
-package codeInsight.generation
+package codeInsight
+package generation
 
 import com.intellij.lang.LanguageCodeInsightActionHandler
 import com.intellij.testFramework.fixtures.CodeInsightTestFixture
@@ -13,7 +14,7 @@ class GenerateCompanionObjectTest extends ScalaGenerateTestBase {
   import CodeInsightTestFixture.CARET_MARKER
 
   override protected val handler: LanguageCodeInsightActionHandler =
-    new ScalaGenerateCompanionObjectHandler
+    new ScalaGenerateCompanionObjectAction.Handler
 
   def testInCaseClass() {
     val text = s"""case class A(x: Int, s: String) {

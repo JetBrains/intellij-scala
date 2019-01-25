@@ -1,10 +1,10 @@
 package org.jetbrains.plugins.scala
-package codeInsight.generation
+package codeInsight
 
 import com.intellij.openapi.editor.{Document, Editor}
-import com.intellij.psi._
 import com.intellij.psi.codeStyle.CodeStyleManager
 import com.intellij.psi.util.PsiTreeUtil
+import com.intellij.psi.{PsiClass, PsiDocumentManager, PsiElement, PsiFile}
 import org.jetbrains.plugins.scala.extensions.PsiElementExt
 import org.jetbrains.plugins.scala.lang.psi.ScalaPsiUtil
 import org.jetbrains.plugins.scala.lang.psi.api.statements.params.ScClassParameter
@@ -13,20 +13,11 @@ import org.jetbrains.plugins.scala.lang.psi.api.toplevel.ScNamedElement
 import org.jetbrains.plugins.scala.lang.psi.api.toplevel.templates.ScExtendsBlock
 import org.jetbrains.plugins.scala.lang.psi.api.toplevel.typedef._
 
-import scala.collection.mutable.ListBuffer
+import scala.collection.mutable
 
-/**
- * Nikolay.Tropin
- * 8/19/13
- */
-object GenerationUtil {
-  def classOrTraitAtCaret(editor: Editor, file: PsiFile): Option[ScTypeDefinition] =
-    elementOfTypeAtCaret(editor, file, classOf[ScClass], classOf[ScTrait])
+package object generation {
 
-  def classAtCaret(editor: Editor, file: PsiFile): Option[ScClass] =
-    elementOfTypeAtCaret(editor, file, classOf[ScClass])
-
-  def findAnchor(aClass: PsiClass): Option[PsiElement] = aClass match {
+  private def findAnchor(aClass: PsiClass): Option[PsiElement] = aClass match {
     case cl: ScTemplateDefinition =>
       cl.extendsBlock match {
         case ScExtendsBlock.TemplateBody(body) => body.lastChild
@@ -36,10 +27,10 @@ object GenerationUtil {
   }
 
   def addMembers(aClass: ScTemplateDefinition, members: Seq[ScMember], document: Document, anchor: Option[PsiElement] = None): Unit = {
-    val addedMembers = ListBuffer[PsiElement]()
+    val addedMembers = mutable.ListBuffer[PsiElement]()
     val psiDocManager = PsiDocumentManager.getInstance(aClass.getProject)
     for {
-      anch <- anchor orElse findAnchor(aClass)
+      anch <- anchor.orElse(findAnchor(aClass))
       parent <- Option(anch.getParent)
     } {
       members.foldLeft(anch) {
@@ -75,7 +66,7 @@ object GenerationUtil {
   }
 
   def getAllFields(aClass: PsiClass): Seq[ScNamedElement] = {
-    val memberProcessor: (ScMember) => Seq[ScNamedElement] = {
+    val memberProcessor: ScMember => Seq[ScNamedElement] = {
       case classParam: ScClassParameter if classParam.isVal || classParam.isVar => Seq(classParam)
       case value: ScValue => value.declaredElements
       case variable: ScVariable => variable.declaredElements
@@ -86,7 +77,7 @@ object GenerationUtil {
   }
 
   def getAllParameterlessMethods(aClass: PsiClass): Seq[ScNamedElement] = {
-    val memberProcessor: (ScMember) => Seq[ScNamedElement] = {
+    val memberProcessor: ScMember => Seq[ScNamedElement] = {
       case method: ScFunction if method.parameters.isEmpty => method.declaredElements
       case _ => Seq.empty
     }
@@ -95,8 +86,8 @@ object GenerationUtil {
   }
 
   def elementOfTypeAtCaret[T <: PsiElement](editor: Editor, file: PsiFile, types: Class[_ <: T]*): Option[T] = {
-    val elem = file.findElementAt(editor.getCaretModel.getOffset)
-    Option(PsiTreeUtil.getParentOfType(elem, types: _*))
+    val element = file.findElementAt(editor.getCaretModel.getOffset)
+    Option(PsiTreeUtil.getParentOfType(element, types: _*))
   }
 
   private def allMembers(aClass: PsiClass): Seq[ScMember] = {

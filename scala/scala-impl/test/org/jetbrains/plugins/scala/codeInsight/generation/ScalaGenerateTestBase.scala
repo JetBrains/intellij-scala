@@ -1,23 +1,22 @@
 package org.jetbrains.plugins.scala
-package codeInsight.generation
+package codeInsight
+package generation
 
 import com.intellij.lang.LanguageCodeInsightActionHandler
-import org.jetbrains.plugins.scala.base.ScalaLightCodeInsightFixtureTestAdapter
-import org.jetbrains.plugins.scala.extensions.executeWriteActionCommand
 import org.junit.Assert._
 
 /**
  * Nikolay.Tropin
  * 8/23/13
  */
-abstract class ScalaGenerateTestBase extends ScalaLightCodeInsightFixtureTestAdapter {
+abstract class ScalaGenerateTestBase extends base.ScalaLightCodeInsightFixtureTestAdapter {
 
-  import ScalaLightCodeInsightFixtureTestAdapter._
+  import base.ScalaLightCodeInsightFixtureTestAdapter._
 
   protected val handler: LanguageCodeInsightActionHandler
 
-  protected def performTest(text: String, expectedText: String,
-                  checkAvailability: Boolean = false, checkCaretOffset: Boolean = false): Unit = {
+  protected final def performTest(text: String, expectedText: String,
+                                  checkAvailability: Boolean = false, checkCaretOffset: Boolean = false): Unit = {
     val stripTrailingSpaces = true
     configureByText(text, stripTrailingSpaces)
 
@@ -25,7 +24,7 @@ abstract class ScalaGenerateTestBase extends ScalaLightCodeInsightFixtureTestAda
       assertTrue("Generate action is not available", handlerIsValid)
     }
 
-    executeWriteActionCommand("Generate Action Test") {
+    extensions.executeWriteActionCommand("Generate Action Test") {
       handler.invoke(getProject, getEditor, getFile)
     }(getProject)
 
@@ -36,7 +35,7 @@ abstract class ScalaGenerateTestBase extends ScalaLightCodeInsightFixtureTestAda
     getFixture.checkResult(expected, stripTrailingSpaces)
   }
 
-  protected def checkIsNotAvailable(text: String): Unit = {
+  protected final def checkIsNotAvailable(text: String): Unit = {
     configureByText(text, stripTrailingSpaces = true)
     assertFalse("Generate action is available", handlerIsValid)
   }

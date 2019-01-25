@@ -1,5 +1,7 @@
 package org.jetbrains.plugins.scala
-package codeInsight.generation.ui
+package codeInsight
+package generation
+package ui
 
 import java.util
 import java.util.Collections
@@ -11,7 +13,6 @@ import com.intellij.psi._
 import com.intellij.refactoring.classMembers.AbstractMemberInfoModel
 import com.intellij.refactoring.ui.AbstractMemberSelectionPanel
 import com.intellij.util.containers.HashMap
-import org.jetbrains.plugins.scala.codeInsight.generation.GenerationUtil
 import org.jetbrains.plugins.scala.lang.psi.api.toplevel.ScNamedElement
 
 import scala.collection.JavaConverters._
@@ -40,7 +41,7 @@ private class ScalaGenerateEqualsWizardBuilder(aClass: PsiClass, needEquals: Boo
 
   private val classFields: util.List[ScalaMemberInfo] = extractFields
   classFields.forEach {info =>
-    if (GenerationUtil.isVar(info.getMember)) info.setChecked(false)
+    if (isVar(info.getMember)) info.setChecked(false)
     else info.setChecked(true)
   }
 
@@ -80,7 +81,7 @@ private class ScalaGenerateEqualsWizardBuilder(aClass: PsiClass, needEquals: Boo
   }
 
   protected def extractFields: util.List[ScalaMemberInfo] = {
-    GenerationUtil.getAllFields(aClass).map(new ScalaMemberInfo(_)).asJava
+    getAllFields(aClass).map(new ScalaMemberInfo(_)).asJava
   }
 
   private def createFieldToMemberInfoMap(checkedByDefault: Boolean): HashMap[ScNamedElement, ScalaMemberInfo] = {
