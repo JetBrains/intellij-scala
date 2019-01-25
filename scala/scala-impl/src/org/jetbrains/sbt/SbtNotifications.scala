@@ -4,6 +4,6 @@ import com.intellij.notification.NotificationGroup
 
 object SbtNotifications {
 
-  val nofiticationGroup: NotificationGroup = NotificationGroup.balloonGroup("sbt")
+  val notificationGroup: NotificationGroup = NotificationGroup.balloonGroup("sbt")
 
 }
