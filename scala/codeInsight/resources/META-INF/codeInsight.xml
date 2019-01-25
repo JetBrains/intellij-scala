@@ -14,4 +14,23 @@
                                  implementationClass="org.jetbrains.plugins.scala.codeInsight.hint.ScTemplateDeclarationRangeHandler"
                                  order="first"/>
     </extensions>
+
+    <actions>
+        <group id="ScalaGenerateGroup">
+            <action id="Scala.GenerateEquals"
+                    class="org.jetbrains.plugins.scala.codeInsight.generation.actions.ScalaGenerateEqualsAction"
+                    text="equals() and hashCode()" description="Generate equals() and hashCode() methods"/>
+            <action id="Scala.GenerateToString"
+                    class="org.jetbrains.plugins.scala.codeInsight.generation.actions.ScalaGenerateToStringAction"
+                    text="toString()" description="Generate toString() method"/>
+            <action id="Scala.GenerateCompanionObject"
+                    class="org.jetbrains.plugins.scala.codeInsight.generation.actions.ScalaGenerateCompanionObjectAction"
+                    text="Companion object" description="Generate companion object"/>
+            <action id="Scala.GenerateProperty"
+                    class="org.jetbrains.plugins.scala.codeInsight.generation.actions.ScalaGeneratePropertyAction"
+                    text="Property (getter and setter)" description="Generate property"/>
+
+            <add-to-group group-id="GenerateGroup"/>
+        </group>
+    </actions>
 </idea-plugin>

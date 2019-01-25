@@ -1707,26 +1707,6 @@
         <action id="Scala.CopyWorksheet" class="org.jetbrains.plugins.scala.worksheet.actions.CopyWorksheetAction"
                 text="Copy Scala Worksheet" description="Copy Scala Worksheet">
         </action>
-        <action id="Scala.GenerateEquals"
-                class="org.jetbrains.plugins.scala.codeInsight.generation.ScalaGenerateEqualsAction" text="equals() and hashCode()"
-                description="Generate equals() and hashCode() methods">
-          <add-to-group group-id="GenerateGroup"/>
-        </action>
-        <action id="Scala.GenerateToString"
-                class="org.jetbrains.plugins.scala.codeInsight.generation.ScalaGenerateToStringAction" text="toString()"
-                description="Generate toString() method">
-          <add-to-group group-id="GenerateGroup"/>
-        </action>
-        <action id="Scala.GenerateCompanionObject"
-                class="org.jetbrains.plugins.scala.codeInsight.generation.ScalaGenerateCompanionObjectAction" text="Companion object"
-                description="Generate companion object">
-          <add-to-group group-id="GenerateGroup"/>
-        </action>
-        <action id="Scala.GenerateProperty"
-                class="org.jetbrains.plugins.scala.codeInsight.generation.ScalaGeneratePropertyAction" text="Property (getter and setter)"
-                description="Generate property">
-          <add-to-group group-id="GenerateGroup"/>
-        </action>
         <action id="Scala.ExtractTrait"
                 class="org.jetbrains.plugins.scala.lang.refactoring.extractTrait.ScalaExtractTraitAction" text="_Trait..."
                 description="Extract trait from the selected class">

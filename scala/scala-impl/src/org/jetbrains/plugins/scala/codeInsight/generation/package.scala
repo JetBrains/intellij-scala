@@ -85,7 +85,8 @@ package object generation {
     allMembers(aClass).flatMap(memberProcessor)
   }
 
-  def elementOfTypeAtCaret[T <: PsiElement](editor: Editor, file: PsiFile, types: Class[_ <: T]*): Option[T] = {
+  def elementOfTypeAtCaret[T <: PsiElement](types: Class[_ <: T]*)
+                                           (implicit editor: Editor, file: PsiFile): Option[T] = {
     val element = file.findElementAt(editor.getCaretModel.getOffset)
     Option(PsiTreeUtil.getParentOfType(element, types: _*))
   }

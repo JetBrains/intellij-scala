@@ -1,6 +1,7 @@
 package org.jetbrains.plugins.scala
 package codeInsight
 package generation
+package actions
 
 import com.intellij.openapi.editor.Editor
 import com.intellij.openapi.project.Project
@@ -36,9 +37,8 @@ object ScalaGeneratePropertyAction {
 
   private object Handler {
 
-    private def findValidVariableDefinition(editor: Editor, file: PsiFile): Option[ScVariableDefinition] =
-      elementOfTypeAtCaret(editor, file, classOf[ScVariableDefinition])
-        .find(isVariableDefinitionValid)
+    private def findValidVariableDefinition(implicit editor: Editor, file: PsiFile) =
+      elementOfTypeAtCaret(classOf[ScVariableDefinition]).find(isVariableDefinitionValid)
 
     private[this] def isVariableDefinitionValid(definition: ScVariableDefinition): Boolean =
       definition.isSimple && definition.containingClass != null

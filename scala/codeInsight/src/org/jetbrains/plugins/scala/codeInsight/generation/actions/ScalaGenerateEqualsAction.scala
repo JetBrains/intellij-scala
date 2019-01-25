@@ -1,6 +1,7 @@
 package org.jetbrains.plugins.scala
 package codeInsight
 package generation
+package actions
 
 import com.intellij.codeInsight.CodeInsightBundle
 import com.intellij.codeInsight.hint.HintManager
@@ -148,7 +149,7 @@ object ScalaGenerateEqualsAction {
       if (!FileDocumentManager.getInstance.requestWriting(editor.getDocument, project)) return
 
       try {
-        val aClass: ScClass = classAtCaret(editor, file).getOrElse(return)
+        val aClass: ScClass = findClassAtCaret(editor, file).getOrElse(return)
         val isOk = chooseOriginalMembers(aClass, project, editor)
         if (!isOk) return
 
@@ -178,7 +179,7 @@ object ScalaGenerateEqualsAction {
 
     override def isValidFor(editor: Editor, file: PsiFile): Boolean =
       super.isValidFor(editor, file) &&
-        classAtCaret(editor, file).exists(!_.isCase)
+        findClassAtCaret(editor, file).exists(!_.isCase)
 
     private def hasEquals(clazz: ScClass): Option[ScFunction] = {
       val stdTypes = clazz.projectContext.stdTypes
@@ -232,8 +233,8 @@ object ScalaGenerateEqualsAction {
       }
     }
 
-    private def classAtCaret(editor: Editor, file: PsiFile): Option[ScClass] =
-      elementOfTypeAtCaret(editor, file, classOf[ScClass])
+    private def findClassAtCaret(implicit editor: Editor, file: PsiFile) =
+      elementOfTypeAtCaret(classOf[ScClass])
   }
 
 }

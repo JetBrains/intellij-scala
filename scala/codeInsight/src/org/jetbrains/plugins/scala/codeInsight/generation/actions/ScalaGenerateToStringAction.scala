@@ -1,6 +1,7 @@
 package org.jetbrains.plugins.scala
 package codeInsight
 package generation
+package actions
 
 import com.intellij.openapi.application.ApplicationManager
 import com.intellij.openapi.editor.Editor
@@ -46,8 +47,8 @@ object ScalaGenerateToStringAction {
 
   private object Handler {
 
-    private def findTypeDefinition(editor: Editor, file: PsiFile): Option[ScTypeDefinition] =
-      elementOfTypeAtCaret(editor, file, classOf[ScClass], classOf[ScObject], classOf[ScTrait])
+    private def findTypeDefinition(implicit editor: Editor, file: PsiFile) =
+      elementOfTypeAtCaret(classOf[ScClass], classOf[ScObject], classOf[ScTrait])
 
     private def isTypeDefinitionValid(definition: ScTypeDefinition): Boolean = definition match {
       case _: ScTrait => true

@@ -1,6 +1,7 @@
 package org.jetbrains.plugins.scala
 package codeInsight
 package generation
+package actions
 
 import com.intellij.lang.LanguageCodeInsightActionHandler
 import org.junit.Assert._

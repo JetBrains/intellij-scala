@@ -1,6 +1,7 @@
 package org.jetbrains.plugins.scala
 package codeInsight
 package generation
+package actions
 
 import com.intellij.openapi.editor.{Editor, ScrollType}
 import com.intellij.openapi.project.Project
@@ -24,12 +25,12 @@ object ScalaGenerateCompanionObjectAction {
 
     override def isValidFor(editor: Editor, file: PsiFile): Boolean =
       super.isValidFor(editor, file) &&
-        classOrTraitAtCaret(editor, file).exists(canAddCompanionObject)
+        findClassOrTraitAtCaret(editor, file).exists(canAddCompanionObject)
 
     override def invoke(project: Project,
                         editor: Editor,
                         file: PsiFile): Unit =
-      for (clazz <- classOrTraitAtCaret(editor, file)) {
+      for (clazz <- findClassOrTraitAtCaret(editor, file)) {
         val obj = createCompanionObject(clazz)
         val parent = clazz.getParent
         val addedObj = parent.addAfter(obj, clazz)
@@ -48,8 +49,8 @@ object ScalaGenerateCompanionObjectAction {
 
   private object Handler {
 
-    private def classOrTraitAtCaret(editor: Editor, file: PsiFile): Option[ScTypeDefinition] =
-      elementOfTypeAtCaret(editor, file, classOf[ScClass], classOf[ScTrait])
+    private def findClassOrTraitAtCaret(implicit editor: Editor, file: PsiFile): Option[ScTypeDefinition] =
+      elementOfTypeAtCaret(classOf[ScClass], classOf[ScTrait])
 
     private def canAddCompanionObject(clazz: ScTypeDefinition): Boolean =
       getCompanionModule(clazz).isEmpty
