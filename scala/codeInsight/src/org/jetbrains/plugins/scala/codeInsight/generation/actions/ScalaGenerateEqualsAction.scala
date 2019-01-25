@@ -38,7 +38,8 @@ object ScalaGenerateEqualsAction {
     private lazy val myEqualsFields = collection.mutable.LinkedHashSet[ScNamedElement]()
     private lazy val myHashCodeFields = collection.mutable.LinkedHashSet[ScNamedElement]()
 
-    private def chooseOriginalMembers(aClass: ScClass, project: Project, editor: Editor): Boolean = {
+    private def chooseOriginalMembers(aClass: ScClass)
+                                     (implicit project: Project, editor: Editor): Boolean = {
       val equalsMethod = hasEquals(aClass)
       val hashCodeMethod = hasHashCode(aClass)
       var needEquals = equalsMethod.isEmpty
@@ -70,26 +71,26 @@ object ScalaGenerateEqualsAction {
         else return false
       }
 
-      val allFields: Seq[ScNamedElement] = getAllFields(aClass)
-      if (allFields.isEmpty) {
-        HintManager.getInstance.showErrorHint(editor, "No fields to include in equals/hashCode have been found")
-        return false
+      fields(aClass) match {
+        case Seq() =>
+          HintManager.getInstance.showErrorHint(editor, "No fields to include in equals/hashCode have been found")
+          false
+        case fields if ApplicationManager.getApplication.isUnitTestMode =>
+          myEqualsFields ++= fields
+          myHashCodeFields ++= fields.filterNot(isVar)
+          true
+        case _ =>
+          new ui.ScalaGenerateEqualsWizard(aClass, needEquals, needHashCode) match {
+            case wizard if wizard.showAndGet() =>
+              myEqualsFields ++= wizard.equalsFields
+              myHashCodeFields ++= wizard.hashCodeFields
+              true
+            case _ => false
+          }
       }
-
-      if (ApplicationManager.getApplication.isUnitTestMode) {
-        myEqualsFields ++= allFields
-        myHashCodeFields ++= allFields.filterNot(isVar)
-      } else {
-        val wizard = new ui.ScalaGenerateEqualsWizard(project, aClass, needEquals, needHashCode)
-        wizard.show()
-        if (!wizard.isOK) return false
-        myEqualsFields ++= wizard.getEqualsFields
-        myHashCodeFields ++= wizard.getHashCodeFields
-      }
-      true
     }
 
-    private def cleanup() {
+    private def cleanup(): Unit = {
       myEqualsFields.clear()
       myHashCodeFields.clear()
     }
@@ -150,7 +151,7 @@ object ScalaGenerateEqualsAction {
 
       try {
         val aClass: ScClass = findClassAtCaret(editor, file).getOrElse(return)
-        val isOk = chooseOriginalMembers(aClass, project, editor)
+        val isOk = chooseOriginalMembers(aClass)(project, editor)
         if (!isOk) return
 
         extensions.inWriteAction {

@@ -8,7 +8,7 @@ import com.intellij.openapi.editor.Editor
 import com.intellij.openapi.fileEditor.FileDocumentManager
 import com.intellij.openapi.project.Project
 import com.intellij.psi.PsiFile
-import org.jetbrains.plugins.scala.lang.psi.api.statements.ScFunction
+import org.jetbrains.plugins.scala.extensions._
 import org.jetbrains.plugins.scala.lang.psi.api.toplevel.ScNamedElement
 import org.jetbrains.plugins.scala.lang.psi.api.toplevel.typedef.{ScClass, ScObject, ScTrait, ScTypeDefinition}
 import org.jetbrains.plugins.scala.lang.psi.impl.ScalaPsiElementFactory
@@ -29,12 +29,24 @@ object ScalaGenerateToStringAction {
     override def invoke(project: Project, editor: Editor, file: PsiFile): Unit = {
       if (!FileDocumentManager.getInstance.requestWriting(editor.getDocument, project)) return
 
-      findTypeDefinition(editor, file).foreach { definition =>
-        val toStringMethod = createToString(definition, project)
+      for {
+        definition <- findTypeDefinition(editor, file)
 
-        extensions.inWriteAction {
-          addMembers(definition, toStringMethod.toList, editor.getDocument)
-        }
+        (fields, withFieldNames) <- showWizard(definition)(project)
+
+        fieldsText = fields.map { field =>
+          val fieldName = field.name
+          val prefix = if (withFieldNames) fieldName + "=" else ""
+
+          prefix + "$" + fieldName
+        }.commaSeparated(model = Model.Parentheses)
+
+        typeName = strippedName(definition)
+        methodText = s"""override def toString = s"$typeName$fieldsText""""
+
+        toStringMethod = ScalaPsiElementFactory.createMethodWithContext(methodText, definition, definition.extendsBlock)
+      } inWriteAction {
+        addMembers(definition, toStringMethod :: Nil, editor.getDocument)
       }
     }
 
@@ -42,7 +54,11 @@ object ScalaGenerateToStringAction {
       * Determines whether toString can be generated for the class.
       */
     override def isValidFor(editor: Editor, file: PsiFile): Boolean =
-      super.isValidFor(editor, file) && findTypeDefinition(editor, file).exists(isTypeDefinitionValid)
+      super.isValidFor(editor, file) &&
+        findTypeDefinition(editor, file).exists {
+          case _: ScTrait => true
+          case definition => !definition.isCase
+        }
   }
 
   private object Handler {
@@ -50,53 +66,28 @@ object ScalaGenerateToStringAction {
     private def findTypeDefinition(implicit editor: Editor, file: PsiFile) =
       elementOfTypeAtCaret(classOf[ScClass], classOf[ScObject], classOf[ScTrait])
 
-    private def isTypeDefinitionValid(definition: ScTypeDefinition): Boolean = definition match {
-      case _: ScTrait => true
-      case _: ScClass | _: ScObject => !definition.isCase
-      case _ => false
-    }
-
-    /**
-      * Create toString method signature.
-      */
-    private def createToString(definition: ScTypeDefinition, project: Project): Option[ScFunction] = {
-      val typeName = definition match {
-        case _: ScObject if definition.name.last == '$' => definition.name.dropRight(1)
-        case _ => definition.name
-      }
-
-      showWizard(definition, project).map { result =>
-        val (fields, withFieldNames) = result
-
-        def getDollarName(elem: ScNamedElement) = "$" + elem.name
-
-        val fieldsWithNames = if (withFieldNames)
-          fields.map(field => field.name + "=" + getDollarName(field))
-        else
-          fields.map(getDollarName)
-
-        val fieldsText = fieldsWithNames.mkString(s"$typeName(", ", ", ")")
-        val methodText = s"""override def toString = s"$fieldsText""""
-        ScalaPsiElementFactory.createMethodWithContext(methodText, definition, definition.extendsBlock)
+    private def strippedName(definition: ScTypeDefinition) = {
+      val name = definition.name
+      definition match {
+        case _: ScObject => name.stripSuffix("$")
+        case _ => name
       }
     }
 
     /**
       * Get class fields using wizard dialog.
       */
-    private def showWizard(definition: ScTypeDefinition, project: Project): Option[(Seq[ScNamedElement], Boolean)] = {
-      val allSuitableMembers = getAllSuitableMembers(definition)
-      if (ApplicationManager.getApplication.isUnitTestMode) Some(allSuitableMembers, true)
-      else
-        Some(new ui.ScalaGenerateToStringWizard(project, allSuitableMembers))
-          .filter(_.showAndGet())
-          .map { wizard =>
-            (wizard.getToStringFields, wizard.withFieldNames)
+    private def showWizard(definition: ScTypeDefinition)
+                          (implicit project: Project): Option[(Seq[ScNamedElement], Boolean)] =
+      fields(definition) ++ parameterlessMethods(definition) match {
+        case members if ApplicationManager.getApplication.isUnitTestMode => Some(members, true)
+        case members =>
+          new ui.ScalaGenerateToStringWizard(members) match {
+            case wizard if wizard.showAndGet() => Some(wizard.membersWithSelection)
+            case _ => None
           }
-    }
+      }
 
-    private def getAllSuitableMembers(definition: ScTypeDefinition): Seq[ScNamedElement] =
-      getAllFields(definition) ++ getAllParameterlessMethods(definition)
   }
 
 }
