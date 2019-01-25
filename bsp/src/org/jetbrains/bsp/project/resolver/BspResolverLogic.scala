@@ -45,7 +45,7 @@ private[resolver] object BspResolverLogic {
   }
 
 
-  private[resolver] def calculateScalaSdkData(target: ScalaBuildTarget): ScalaSdkData = {
+  private[resolver] def getScalaSdkData(target: ScalaBuildTarget): ScalaSdkData = {
     ScalaSdkData(
       target.getScalaOrganization,
       Some(Version(target.getScalaVersion)),
@@ -56,15 +56,14 @@ private[resolver] object BspResolverLogic {
     )
   }
 
-  // TODO create SbtModuleDescription from data
-  private[resolver] def calculateSbtData(sbtBuildTarget: SbtBuildTarget): (SbtBuildModuleDataBsp, ScalaSdkData) = {
-    val buildFor = sbtBuildTarget.getChildren.asScala.map { target => new URI(target.getUri) }
+  private[resolver] def getSbtData(target: SbtBuildTarget): (SbtBuildModuleDataBsp, ScalaSdkData) = {
+    val buildFor = target.getChildren.asScala.map { target => new URI(target.getUri) }
 
     val sbtBuildModuleData = SbtBuildModuleDataBsp(
-      sbtBuildTarget.getAutoImports,
+      target.getAutoImports,
       buildFor.asJava
     )
-    val scalaSdkData = calculateScalaSdkData(sbtBuildTarget.getScalaBuildTarget)
+    val scalaSdkData = getScalaSdkData(target.getScalaBuildTarget)
 
     (sbtBuildModuleData, scalaSdkData)
   }
@@ -163,7 +162,7 @@ private[resolver] object BspResolverLogic {
 
     val scalaModule =
       targetData.flatMap(extractScalaSdkData)
-        .map(calculateScalaSdkData)
+        .map(getScalaSdkData)
         .map(ScalaModule)
 
     // TODO there's ambiguity in the data object in BuildTarget.data

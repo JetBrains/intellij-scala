@@ -25,7 +25,7 @@ object jobs {
     /** Log message to job--specific logging function. */
     private[protocol] def log(message: String): Unit
 
-    /** Invoke absp notification aggregator or callback with given notification.
+    /** Invoke a bsp notification aggregator or callback with given notification.
       * The result of aggregated notifications is the result value of the future returned by `run`.
       */
     private[session] def notification(bspNotification: BspNotification): Unit
@@ -38,11 +38,11 @@ object jobs {
     /** Cancel and abort this job with given error. */
     private[session] def cancelWithError(error: BspError)
   }
-
 }
 
 
 private[session] class FailedBspSessionJob[T,A](problem: BspError) extends BspSessionJob[T,A] {
+
   override private[protocol] def log(message: String): Unit = ()
   override private[session] def notification(bspNotification: BspNotification): Unit = ()
   override private[session] def run(bspServer: BspServer): CompletableFuture[(T, A)] = {
@@ -75,7 +75,6 @@ private[session] class Bsp4jJob[T,A](task: BspSessionTask[T],
   override private[protocol] def log(message: String): Unit = {
     processLogger(message)
   }
-
 
   private def doRun(bspServer: BspServer): CompletableFuture[(T,A)] = {
     task(bspServer).thenApply[(T,A)]((t:T) => (t,a))
