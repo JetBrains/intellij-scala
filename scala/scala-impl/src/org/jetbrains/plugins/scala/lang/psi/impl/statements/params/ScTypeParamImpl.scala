@@ -45,9 +45,9 @@ class ScTypeParamImpl private (stub: ScTypeParamStub, node: ASTNode)
 
   @tailrec
   final override protected def extractBound(in: ScType, isLower: Boolean): ScType = {
-    nameId.nextSibling match {
+    typeParametersClause match {
       case Some(pClause: ScTypeParamClause) =>
-        val tParams = pClause.getChildren.toSeq
+        val tParams = pClause.typeParameters
         in match {
           case ParameterizedType(des, params) =>
             if (params.length == tParams.length && params.forall(_.isInstanceOf[TypeParameterType]) &&
