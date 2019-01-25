@@ -164,7 +164,7 @@ class LibraryExtensionsManager(project: Project) extends ProjectComponent {
         val myInterface = classLoader.loadClass(interface)
         val myImpl = classLoader.loadClass(defaultPackage + impl)
         val myInstance = myImpl.newInstance()
-        classBuffer.withDefault(_ => mutable.ArrayBuffer.empty)(myInterface) += myInstance
+        classBuffer.getOrElseUpdate(myInterface, mutable.ArrayBuffer.empty) += myInstance
       }
     }
     myExtensionInstances ++= classBuffer
