@@ -101,7 +101,6 @@
         <debugger.nodeNameAdjuster implementation="org.jetbrains.plugins.scala.debugger.ui.ScalaParameterNameAdjuster"/>
         <xdebugger.breakpointType implementation="org.jetbrains.plugins.scala.debugger.breakpoints.ScalaLineBreakpointType"/>
         <generation.topLevelFactory language="Scala" implementationClass="org.jetbrains.plugins.scala.lang.psi.impl.ScalaFactoryProvider"/>
-        <generation.toStringClassFilter implementation="org.jetbrains.plugins.scala.codeInsight.generation.GenerateToStringScalaClassFilter"/>
         <treeCopyHandler implementation="org.jetbrains.plugins.scala.lang.refactoring.util.ScalaChangeUtilSupport"/>
         <iconProvider implementation="org.jetbrains.plugins.scala.projectView.ScalaIconProvider"/>
         <colorSettingsPage implementation="org.jetbrains.plugins.scala.highlighter.ScalaColorsAndFontsPage"/>

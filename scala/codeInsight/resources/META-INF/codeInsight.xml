@@ -2,6 +2,9 @@
 
 <idea-plugin>
     <extensions defaultExtensionNs="com.intellij">
+        <generation.toStringClassFilter
+                implementation="org.jetbrains.plugins.scala.codeInsight.generation.GenerateToStringScalaClassFilter"/>
+
         <highlightVisitor implementation="org.jetbrains.plugins.scala.codeInsight.daemon.ScalaRainbowVisitor"/>
 
         <declarationRangeHandler key="org.jetbrains.plugins.scala.lang.psi.api.statements.ScFunction"
