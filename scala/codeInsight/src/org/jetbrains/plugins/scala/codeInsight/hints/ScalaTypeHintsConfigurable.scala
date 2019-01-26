@@ -10,7 +10,7 @@ import com.intellij.openapi.project.ProjectManager.{getInstance => ProjectManage
 import com.intellij.openapi.util.{Getter, Setter}
 import org.jetbrains.plugins.scala.codeInsight.ScalaCodeInsightSettings.{getInstance => ScalaCodeInsightSettings}
 
-class ScalaTypeHintsConfigurable
+final class ScalaTypeHintsConfigurable
   extends BeanConfigurable[ScalaCodeInsightSettings](ScalaCodeInsightSettings)
     with CodeFoldingOptionsProvider {
 

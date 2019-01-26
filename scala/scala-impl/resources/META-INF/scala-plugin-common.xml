@@ -246,10 +246,6 @@
         <codeInsight.lineMarkerProvider language="Scala" implementationClass="org.jetbrains.plugins.scala.worksheet.cell.CellMarkupProvider"/>
         <codeInsight.lineMarkerProvider language="Scala" implementationClass="org.jetbrains.plugins.scala.annotator.gutter.RecursiveCallLineMarkerProvider"/>
         <codeInsight.gotoSuper language="Scala" implementationClass="org.jetbrains.plugins.scala.annotator.gutter.ScalaGoToSuperActionHandler"/>
-        <codeInsight.parameterNameHints language="Scala"
-                                        implementationClass="org.jetbrains.plugins.scala.codeInsight.hints.ScalaInlayParameterHintsProvider"/>
-        <editorAppearanceConfigurable
-                instance="org.jetbrains.plugins.scala.codeInsight.hints.ScalaTypeHintsConfigurable"/>
         <gotoDeclarationHandler implementation="org.jetbrains.plugins.scala.annotator.gutter.ScalaGoToDeclarationHandler"/>
         <gotoDeclarationHandler implementation="org.jetbrains.plugins.scala.worksheet.actions.WorksheetGotoResNHandler" order="first"/>
         <gotoDeclarationHandler implementation="org.jetbrains.plugins.scala.worksheet.ammonite.AmmoniteGotoHandler" order="first"/>
@@ -1591,10 +1587,6 @@
       <component>
         <implementation-class>org.jetbrains.plugins.scala.worksheet.ammonite.AmmoniteScriptWrappersHolder</implementation-class>
       </component>
-        <component>
-            <implementation-class>org.jetbrains.plugins.scala.codeInsight.hints.ScalaTypeHintsPassFactory
-            </implementation-class>
-        </component>
       <component>
         <implementation-class>org.jetbrains.plugins.scala.codeInsight.implicits.ImplicitHintsPassFactory</implementation-class>
       </component>
@@ -1712,22 +1704,6 @@
                 description="Extract trait from the selected class">
           <add-to-group group-id="IntroduceActionsGroup"/>
         </action>
-
-        <group id="TypeHintsMenu">
-            <action id="ToogleFunctionReturnType"
-                    class="org.jetbrains.plugins.scala.codeInsight.hints.ScalaTypeHintsConfigurable$ToogleFunctionReturnTypeAction"
-                    text="Function return type hints"/>
-            <action id="TooglePropertyType"
-                    class="org.jetbrains.plugins.scala.codeInsight.hints.ScalaTypeHintsConfigurable$TooglePropertyTypeAction"
-                    text="Property type hints"/>
-            <action id="ToogleLocalVariableType"
-                    class="org.jetbrains.plugins.scala.codeInsight.hints.ScalaTypeHintsConfigurable$ToogleLocalVariableTypeAction"
-                    text="Local variable type hints"/>
-            <action id="ToogleForObviousType"
-                    class="org.jetbrains.plugins.scala.codeInsight.hints.ScalaTypeHintsConfigurable$ToogleObviousTypeAction"
-                    text="Obvious types hints"/>
-        </group>
-
       <group id="ImplicitConversionMenu">
         <action id="MakeExplicit"
                 class="org.jetbrains.plugins.scala.codeInsight.implicits.menu.MakeConversionExplicit"

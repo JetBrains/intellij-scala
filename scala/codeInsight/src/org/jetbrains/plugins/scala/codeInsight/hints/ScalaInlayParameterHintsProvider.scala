@@ -18,7 +18,7 @@ import org.jetbrains.plugins.scala.lang.resolve.ScalaResolveResult
 import scala.annotation.tailrec
 import scala.collection.JavaConverters
 
-class ScalaInlayParameterHintsProvider extends hints.InlayParameterHintsProvider {
+final class ScalaInlayParameterHintsProvider extends hints.InlayParameterHintsProvider {
 
   import CommonNames.GetSet
   import ScalaInlayParameterHintsProvider._

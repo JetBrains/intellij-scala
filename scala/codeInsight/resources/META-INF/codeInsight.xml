@@ -13,7 +13,19 @@
         <declarationRangeHandler key="org.jetbrains.plugins.scala.lang.psi.api.toplevel.typedef.ScTemplateDefinition"
                                  implementationClass="org.jetbrains.plugins.scala.codeInsight.hint.ScTemplateDeclarationRangeHandler"
                                  order="first"/>
+
+        <editorAppearanceConfigurable
+                instance="org.jetbrains.plugins.scala.codeInsight.hints.ScalaTypeHintsConfigurable"/>
+        <codeInsight.parameterNameHints language="Scala"
+                                        implementationClass="org.jetbrains.plugins.scala.codeInsight.hints.ScalaInlayParameterHintsProvider"/>
     </extensions>
+
+    <project-components>
+        <component>
+            <implementation-class>org.jetbrains.plugins.scala.codeInsight.hints.ScalaTypeHintsPassFactory
+            </implementation-class>
+        </component>
+    </project-components>
 
     <actions>
         <group id="ScalaGenerateGroup">
@@ -31,6 +43,21 @@
                     text="Property (getter and setter)" description="Generate property"/>
 
             <add-to-group group-id="GenerateGroup"/>
+        </group>
+
+        <group id="TypeHintsMenu">
+            <action id="ToogleFunctionReturnType"
+                    class="org.jetbrains.plugins.scala.codeInsight.hints.ScalaTypeHintsConfigurable$ToogleFunctionReturnTypeAction"
+                    text="Function return type hints"/>
+            <action id="TooglePropertyType"
+                    class="org.jetbrains.plugins.scala.codeInsight.hints.ScalaTypeHintsConfigurable$TooglePropertyTypeAction"
+                    text="Property type hints"/>
+            <action id="ToogleLocalVariableType"
+                    class="org.jetbrains.plugins.scala.codeInsight.hints.ScalaTypeHintsConfigurable$ToogleLocalVariableTypeAction"
+                    text="Local variable type hints"/>
+            <action id="ToogleForObviousType"
+                    class="org.jetbrains.plugins.scala.codeInsight.hints.ScalaTypeHintsConfigurable$ToogleObviousTypeAction"
+                    text="Obvious types hints"/>
         </group>
     </actions>
 </idea-plugin>

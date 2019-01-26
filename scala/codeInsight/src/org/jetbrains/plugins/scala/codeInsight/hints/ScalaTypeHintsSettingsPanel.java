@@ -11,7 +11,7 @@ import java.awt.*;
 
 import static org.jetbrains.plugins.scala.codeInsight.ScalaCodeInsightSettings.*;
 
-public class ScalaTypeHintsSettingsPanel {
+public final class ScalaTypeHintsSettingsPanel {
 
     private JPanel panel;
     private SpinnerNumberModel presentationLengthModel;

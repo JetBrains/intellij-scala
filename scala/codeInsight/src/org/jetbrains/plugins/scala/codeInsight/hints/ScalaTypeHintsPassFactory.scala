@@ -11,7 +11,7 @@ import com.intellij.openapi.util.Key
 import com.intellij.psi.PsiFile
 import org.jetbrains.plugins.scala.lang.psi.api.ScalaFile
 
-class ScalaTypeHintsPassFactory(project: Project, registrar: TextEditorHighlightingPassRegistrar)
+final class ScalaTypeHintsPassFactory(project: Project, registrar: TextEditorHighlightingPassRegistrar)
   extends ProjectComponent with TextEditorHighlightingPassFactory {
 
   registrar.registerTextEditorHighlightingPass(this, null, null, false, -1)

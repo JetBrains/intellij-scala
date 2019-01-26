@@ -19,9 +19,9 @@ import org.jetbrains.plugins.scala.lang.psi.types.{ScCompoundType, ScType}
 import org.jetbrains.plugins.scala.lang.refactoring.ScTypePresentationExt
 import org.jetbrains.plugins.scala.settings.annotations._
 
-class ScalaTypeHintsPass(rootElement: ScalaFile,
-                         editor: Editor,
-                         stampHolder: ModificationStampHolder)
+final class ScalaTypeHintsPass(rootElement: ScalaFile,
+                               editor: Editor,
+                               stampHolder: ModificationStampHolder)
   extends ElementProcessingHintPass(rootElement, editor, stampHolder) {
 
   import ScalaTypeHintsPass._
