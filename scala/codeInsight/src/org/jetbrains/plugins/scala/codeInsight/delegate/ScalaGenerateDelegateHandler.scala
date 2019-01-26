@@ -1,5 +1,6 @@
 package org.jetbrains.plugins.scala
-package codeInsight.delegate
+package codeInsight
+package delegate
 
 import com.intellij.codeInsight.CodeInsightBundle
 import com.intellij.codeInsight.generation._
@@ -24,7 +25,6 @@ import org.jetbrains.plugins.scala.lang.psi.impl.ScalaPsiElementFactory._
 import org.jetbrains.plugins.scala.lang.psi.types.PhysicalSignature
 import org.jetbrains.plugins.scala.lang.resolve.processor.CompletionProcessor
 import org.jetbrains.plugins.scala.lang.resolve.{ResolveUtils, ScalaResolveResult, StdKinds}
-import org.jetbrains.plugins.scala.overrideImplement._
 import org.jetbrains.plugins.scala.project.ProjectContext
 import org.jetbrains.plugins.scala.util.TypeAnnotationUtil
 
@@ -32,7 +32,9 @@ import org.jetbrains.plugins.scala.util.TypeAnnotationUtil
 * Nikolay.Tropin
 * 2014-03-21
 */
-class ScalaGenerateDelegateHandler extends GenerateDelegateHandler {
+final class ScalaGenerateDelegateHandler extends GenerateDelegateHandler {
+
+  import overrideImplement._
 
   type ClassMember = overrideImplement.ClassMember
 

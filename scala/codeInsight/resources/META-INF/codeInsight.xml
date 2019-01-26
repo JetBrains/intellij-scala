@@ -18,6 +18,8 @@
                 instance="org.jetbrains.plugins.scala.codeInsight.hints.ScalaTypeHintsConfigurable"/>
         <codeInsight.parameterNameHints language="Scala"
                                         implementationClass="org.jetbrains.plugins.scala.codeInsight.hints.ScalaInlayParameterHintsProvider"/>
+        <codeInsight.delegateMethods language="Scala"
+                                     implementationClass="org.jetbrains.plugins.scala.codeInsight.delegate.ScalaGenerateDelegateHandler"/>
     </extensions>
 
     <project-components>
