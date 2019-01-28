@@ -196,9 +196,7 @@ object ExhaustiveMatchCompletionContributor {
       onTargetElement { statement =>
         val clauses = findCaseClauses(statement)
         strategy.adjustTypes(components, clauses.caseClauses)
-        if (!ScalaCodeStyleSettings.getInstance(project).USE_SCALAFMT_FORMATTER) {
-          CodeStyleManager.getInstance(project).reformatText(file, ju.Collections.singleton(statement.getTextRange))
-        }
+        CodeStyleManager.getInstance(project).reformatText(file, ju.Collections.singleton(statement.getTextRange))
       }
 
       val whiteSpace = onTargetElement { statement =>

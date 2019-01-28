@@ -523,6 +523,13 @@ package object extensions {
       next
     }
 
+    def getFirstChildNotWhitespace: PsiElement = {
+      element.getFirstChild match {
+        case ws: PsiWhiteSpace => ws.getNextSiblingNotWhitespace
+        case child => child
+      }
+    }
+
     def getNextSiblingNotWhitespaceComment: PsiElement = {
       var next: PsiElement = element.getNextSibling
       while (next != null && (next.isInstanceOf[PsiWhiteSpace] ||

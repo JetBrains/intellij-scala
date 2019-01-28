@@ -29,6 +29,20 @@ class ScalaFmtSelectionTest extends SelectionTest with ScalaFmtTestBase {
     doTextTest(before, after)
   }
 
+  def testStatementSelectionInsideSingleLineMethodBody(): Unit = {
+    val before =
+      s"""class Test2 {
+         |  def foo(): Unit =
+         |    ${startMarker}println(42  +  22)$endMarker
+         |}""".stripMargin
+    val after =
+      s"""class Test2 {
+         |  def foo(): Unit =
+         |    println(42 + 22)
+         |}""".stripMargin
+    doTextTest(before, after)
+  }
+
   def testPreserveBadFormatting(): Unit = {
     val before =
       s"""
@@ -140,6 +154,34 @@ class ScalaFmtSelectionTest extends SelectionTest with ScalaFmtTestBase {
     doTextTest(before, after)
   }
 
+  def testFormatTypeDefInsideObject_1(): Unit = {
+    val before =
+      s"""object TestClass {
+         |      ${startMarker}type T = String
+         |type X = Int$endMarker
+         |}""".stripMargin
+    val after =
+      s"""object TestClass {
+         |  type T = String
+         |  type X = Int
+         |}""".stripMargin
+    doTextTest(before, after)
+  }
+
+  def testFormatTypeDefInsideObject_2(): Unit = {
+    val before =
+      s"""object TestClass {
+         |      ${startMarker}type    T =     String
+         |type    X =    Int$endMarker
+         |}""".stripMargin
+    val after =
+      s"""object TestClass {
+         |  type T = String
+         |  type X = Int
+         |}""".stripMargin
+    doTextTest(before, after)
+  }
+
   def testFormatValDef(): Unit = {
     val before = s" ${startMarker}val x=42$endMarker"
     val after = "val x = 42"
@@ -153,7 +195,7 @@ class ScalaFmtSelectionTest extends SelectionTest with ScalaFmtTestBase {
   }
 
   def testFormatImports(): Unit = {
-    val before = s" ${startMarker}import foo.bar.{baz,    foo,   bar}$endMarker"
+    val before = s"    ${startMarker}import foo.bar.{baz,    foo,   bar}$endMarker"
     val after = "import foo.bar.{baz, foo, bar}"
     doTextTest(before, after)
   }
@@ -168,6 +210,20 @@ class ScalaFmtSelectionTest extends SelectionTest with ScalaFmtTestBase {
     val after =
       """
         |import foo.bar.{baz, foo}
+        |import foo.baz.{bar, baz}
+        |println(2  +  3)
+      """.stripMargin
+    doTextTest(before, after)
+  }
+
+  def testFormatMultipleImportsStartingOnFirstFileLine(): Unit = {
+    val before =
+      s"""$startMarker      ${startMarker(0)}import foo.bar. {baz, foo  }
+         |  import foo.baz.{bar,baz}$endMarker${endMarker(0)}
+         |println(2  +  3)
+       """.stripMargin
+    val after =
+      """import foo.bar.{baz, foo}
         |import foo.baz.{bar, baz}
         |println(2  +  3)
       """.stripMargin
@@ -189,7 +245,7 @@ class ScalaFmtSelectionTest extends SelectionTest with ScalaFmtTestBase {
          |class Foo {
          |  println(   1  +  2)
          |println( 3 + 4)
-         |println(5 + 6)
+         |  println(5 + 6)
          |  println(7+8)
          |}
        """.stripMargin
@@ -227,7 +283,7 @@ class ScalaFmtSelectionTest extends SelectionTest with ScalaFmtTestBase {
          |  println(   1  +  2)
          |${startMarker}println( 3   +        4)
          |  println(   4   +5)
-         |  println(5+6)$endMarker
+         |println(5+6)$endMarker
          |  println(7+8)
          |}
        """.stripMargin
@@ -235,9 +291,33 @@ class ScalaFmtSelectionTest extends SelectionTest with ScalaFmtTestBase {
       s"""
          |class Foo {
          |  println(   1  +  2)
-         |println(3 + 4)
-         |println(4 + 5)
-         |println(5 + 6)
+         |  println(3 + 4)
+         |  println(4 + 5)
+         |  println(5 + 6)
+         |  println(7+8)
+         |}
+       """.stripMargin
+    doTextTest(before, after)
+  }
+
+  def testFormatMultipleIndented_4(): Unit = {
+    val before =
+      s"""
+         |class Foo {
+         |  println(   1  +  2)
+         |   ${startMarker}println( 3   +        4)
+         |  println(   4   +5)
+         |println(5+6)$endMarker
+         |  println(7+8)
+         |}
+       """.stripMargin
+    val after =
+      s"""
+         |class Foo {
+         |  println(   1  +  2)
+         |  println(3 + 4)
+         |  println(4 + 5)
+         |  println(5 + 6)
          |  println(7+8)
          |}
        """.stripMargin
@@ -501,10 +581,10 @@ class ScalaFmtSelectionTest extends SelectionTest with ScalaFmtTestBase {
          |  val foo: Int
          |  val bar: Int
          |}
-         |  class T1 extends T ${startMarker(1)}{${startMarker(0)}
-         |${startMarker}${endMarker(1)}override val foo: Int = ???$endMarker
+         |  ${startMarker}class T1 extends T {
+         |override val foo: Int = ???
          |override val bar: Int = ???
-         |}${endMarker(0)}
+         |}$endMarker
          |}
        """.stripMargin
     val after =
@@ -576,7 +656,7 @@ class ScalaFmtSelectionTest extends SelectionTest with ScalaFmtTestBase {
        """.stripMargin
     val after =
       s"""
-         |val myString = s"prefix$${myHello}"
+         |val myString = s"prefix$$myHello"
        """.stripMargin
     doTextTest(before, after)
   }
@@ -585,7 +665,7 @@ class ScalaFmtSelectionTest extends SelectionTest with ScalaFmtTestBase {
     getScalaSettings.SCALAFMT_CONFIG_PATH = configPath + "redundantBraces.conf"
     val before =
       s"""
-         |def foo ${startMarker}= {
+         |def foo $startMarker= {
          |  List(1, 2, 3).sum
          |}$endMarker
        """.stripMargin
@@ -608,4 +688,141 @@ class ScalaFmtSelectionTest extends SelectionTest with ScalaFmtTestBase {
        """.stripMargin
     doTextTest(before, after)
   }
+
+  def testScl14856_patternMatchInsideMethodDefinition_1(): Unit = {
+    val before =
+      s"""class TestClass {
+         |  def parentScope: Unit = {
+         |    ${startMarker}Option(1) match {
+         |      case   Some(value) =>
+         |      case   None =>
+         |    }$endMarker
+         |  }
+         |}""".stripMargin
+    val after =
+      s"""class TestClass {
+         |  def parentScope: Unit = {
+         |    Option(1) match {
+         |      case Some(value) =>
+         |      case None        =>
+         |    }
+         |  }
+         |}""".stripMargin
+    doTextTest(before, after)
+  }
+
+  def testScl14856_patternMatchInsideMethodDefinition_2(): Unit = {
+    val before =
+      s"""class TestClass {
+         |  def parentScope: Unit = {
+         |    Option(1) match $startMarker{
+         |      case   Some(value) =>
+         |      case   None =>
+         |    }$endMarker
+         |  }
+         |}""".stripMargin
+    val after =
+      s"""class TestClass {
+         |  def parentScope: Unit = {
+         |    Option(1) match {
+         |      case Some(value) =>
+         |      case None        =>
+         |    }
+         |  }
+         |}""".stripMargin
+    doTextTest(before, after)
+  }
+
+  def testScl14856_patternMatchInsideClassFollowedByErroneousCode(): Unit = {
+    val before =
+      s"""class TestClass {
+         |  def parentScope: Unit = {
+         |${startMarker}Option(1) match {
+         |case   Some(value) =>
+         |case   None =>
+         |}$endMarker
+         |  }
+         |}
+         |
+         |val x = 2 - "string"
+         |trait X {}!#@""".stripMargin
+    val after =
+      s"""class TestClass {
+         |  def parentScope: Unit = {
+         |    Option(1) match {
+         |      case Some(value) =>
+         |      case None        =>
+         |    }
+         |  }
+         |}
+         |
+         |val x = 2 - "string"
+         |trait X {}!#@""".stripMargin
+    doTextTest(before, after)
+  }
+
+  def testFormatObjectOrClassOrTraitName(): Unit = {
+    val before =
+      s"""object ${startMarker}O$endMarker {}
+         |class ${startMarker(0)}C${endMarker(0)} {}
+         |trait ${startMarker(1)}T${endMarker(1)} {}
+       """.stripMargin
+    val after =
+      s"""object O {}
+         |class C {}
+         |trait T {}
+       """.stripMargin
+    doTextTest(before, after)
+  }
+
+  def testFormatValInsideObjectSurroundedWithEmptyLines(): Unit = {
+    val before =
+      s"""object Outer {
+         |
+         |${startMarker}val x = 2 + 2$endMarker
+         |
+         |}""".stripMargin
+    val after =
+      s"""object Outer {
+         |
+         |  val x = 2 + 2
+         |
+         |}""".stripMargin
+    doTextTest(before, after)
+  }
+
+  def testFormatValInRootSurroundedWithEmptyLines(): Unit = {
+    val before =
+      s"""
+         |${startMarker}val x = 2 + 2
+         |val y = 4 + 4$endMarker
+         |
+       """.stripMargin
+    val after =
+      s"""
+         |val x = 2 + 2
+         |val y = 4 + 4
+         |
+       """.stripMargin
+    doTextTest(before, after)
+  }
+
+  def testDifferentTypesOfDeclarationsAtTopLevel(): Unit = {
+    val before =
+      s"""${startMarker}trait  X   {  }
+         |object  O  {  }
+         |class  C  {  }
+         |val x=println(2+2)
+         |def  foo (): Unit =  42$endMarker
+       """.stripMargin
+    val after =
+      s"""trait X {}
+         |object O {}
+         |class C {}
+         |val x = println(2 + 2)
+         |def foo(): Unit = 42
+       """.stripMargin
+    doTextTest(before, after)
+  }
+
 }

@@ -196,15 +196,13 @@ class ScalaFmtSettingsPanel(val settings: CodeStyleSettings) extends CodeStyleAb
     project.flatMap(ScalaFmtConfigUtil.scalaFmtConfigFile(configPath, _))
 
   private def reportErrorsInConfig(): Unit = {
-    configText.foreach {
-      Config.fromHoconString(_) match {
-        case Configured.NotOk(error) =>
-          val component = previewPanel
-          reportError(s"Failed to parse configuration: <br> ${error.msg}",
-            component, component.getWidth - 10, component.getHeight, Balloon.Position.above, MessageType.WARNING)
-        case _ =>
-      }
-    }
+    configText.foreach {Config.fromHoconString(_) match {
+      case Configured.NotOk(error) =>
+        val component = previewPanel
+        reportError(s"Failed to parse configuration: <br> ${error.msg}",
+          component, component.getWidth - 10, component.getHeight, Balloon.Position.above, MessageType.WARNING)
+      case _ =>
+    }}
   }
 
   private def reportConfigFileNotFound(configPath: String): Unit = {

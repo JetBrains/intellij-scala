@@ -1042,8 +1042,8 @@ object ScalaPsiElementFactory {
                                         (implicit context: ProjectContext): ScMember =
     createClassWithBody(text).members.head
 
-  private[this] def createDocComment(prefix: String)
-                                    (implicit context: ProjectContext): ScDocComment =
+  def createDocComment(prefix: String)
+                      (implicit context: ProjectContext): ScDocComment =
     createScalaFileFromText(s"$prefix class a").typeDefinitions.head
       .docComment.orNull
 }
