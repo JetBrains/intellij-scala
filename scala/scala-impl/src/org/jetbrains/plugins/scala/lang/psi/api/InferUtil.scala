@@ -489,12 +489,10 @@ object InferUtil {
 
               boundsMap.get(tp.typeParamId) match {
                 case Some(fromMap) =>
-                  val withParams = tryAddParameters(fromMap, tp.typeParameters)
-
                   val mayCombine = !substedBound.equiv(fromMap) && !hasRecursiveTypeParams(substedBound)
 
-                  if (mayCombine) combine(substedBound, withParams)
-                  else withParams
+                  if (mayCombine) combine(substedBound, fromMap)
+                  else            fromMap
                 case _ => substedBound
               }
             }
@@ -624,12 +622,5 @@ object InferUtil {
       }
     } else ScTypePolymorphicType(retType, typeParams)
     (tpe, conformanceResult)
-  }
-
-  private def tryAddParameters(desType: ScType, typeParameters: Seq[TypeParameter]): ScType = {
-    if (typeParameters.nonEmpty && !desType.isInstanceOf[ScParameterizedType] &&
-      !typeParameters.exists(_.name == "_"))
-      ScParameterizedType(desType, typeParameters.map(TypeParameterType(_)))
-    else desType
   }
 }

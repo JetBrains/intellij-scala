@@ -1,6 +1,10 @@
 package org.jetbrains.plugins.scala.lang.typeInference
-import org.jetbrains.plugins.scala.base.ScalaLightCodeInsightFixtureTestAdapter
 
+import org.jetbrains.plugins.scala.PerfCycleTests
+import org.jetbrains.plugins.scala.base.ScalaLightCodeInsightFixtureTestAdapter
+import org.junit.experimental.categories.Category
+
+@Category(Array(classOf[PerfCycleTests]))
 class LocalTypeInferenceExpectedTypeTest extends ScalaLightCodeInsightFixtureTestAdapter {
   def testSCL14442(): Unit = checkTextHasNoErrors(
     """
@@ -58,6 +62,26 @@ class LocalTypeInferenceExpectedTypeTest extends ScalaLightCodeInsightFixtureTes
       |
       |  def problematicMethod(some: SomeType): CompoundType = some.fold(_.one, _.two) // HERE!
       |
+      |}
+    """.stripMargin
+  )
+
+  def testSCL14891(): Unit = checkTextHasNoErrors(
+    """
+      |final class Stream[+F[_], +O] {
+      |  def flatMap[F2[x] >: F[x], O2](f: O => Stream[F2, O2]): Stream[F2, O2] = ???
+      |  def map[O2](f: O => O2): Stream[F, O2] = ???
+      |}
+      |
+      |class Foo[F[_]] {
+      |
+      |  val doLol: Stream[F, Int] = ???
+      |
+      |  def doKek: Stream[F, Unit] =
+      |    for {
+      |      _ <- doLol
+      |      _ <- doLol
+      |    } yield ()
       |}
     """.stripMargin
   )

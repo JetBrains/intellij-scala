@@ -7,9 +7,6 @@ class LiteralTypesHighlightingTest extends LiteralTypesHighlightingTestBase {
   override protected def shouldPass = false
   override def folderPath = TestUtils.getTestDataPath + "/annotator/literalTypes/failed/"
 
-  //TODO doesn't work without literal types either
-  def testSip23Bounds(): Unit = doTest()
-
   //TODO highlights properly, but lacks dependencies, add later
   def testSip23Macros1(): Unit = doTest()
 
