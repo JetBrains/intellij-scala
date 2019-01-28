@@ -9,15 +9,9 @@ object Versions {
   val ideaVersion = "191.4212.41"
   val sbtStructureVersion: String = "2018.2.1+4-88400d3f"
   val sbtIdeaShellVersion: String = "2018.3"
-  val aetherVersion = "1.0.0.v20140518"
-  val sisuInjectVersion = "2.2.3"
-  val wagonVersion = "2.6"
-  val httpComponentsVersion = "4.3.1"
   val scalaMetaVersion = "1.8.0"
   val paradiseVersion = "3.0.0-M11"
-  val monocleVersion = "1.4.0"
   val scalazVersion = "7.1.0"
-  val ScalamacrosVersion = "2.0.0-94-f03bbf3a"
 
   object Scala {
     val binary_2_9 = "2.9.2"
