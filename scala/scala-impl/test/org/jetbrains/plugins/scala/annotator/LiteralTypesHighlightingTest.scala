@@ -58,7 +58,7 @@ class LiteralTypesHighlightingTest extends LiteralTypesHighlightingTestBase {
       Error("5", "Expression of type 5 doesn't conform to expected type 4") ::
       Error("annot0", "Type mismatch, found: Int, required: 1") ::
       Error("annot0", "Expression of type Int doesn't conform to expected type 1") ::
-      Nil 
+      Nil
   )
 
   def testParameterized(): Unit = doTest()
@@ -68,10 +68,12 @@ class LiteralTypesHighlightingTest extends LiteralTypesHighlightingTestBase {
   def testSip23t8323(): Unit = doTest(
      Error("f", "f(_root_.java.lang.String) is already defined in the scope") ::
       Error("f", "f(_root_.java.lang.String) is already defined in the scope") ::
-      Nil 
+      Nil
   )
 
   def testSip23AnyVsAnyref(): Unit = doTest()
+
+  def testSip23Bounds(): Unit = doTest()
 
   def testSip23NotPossibleClause(): Unit = doTest()
 
@@ -140,7 +142,7 @@ class LiteralTypesHighlightingTest extends LiteralTypesHighlightingTestBase {
       Error("true || false", "Expression of type true doesn't conform to expected type false") ::
       Error("-1", "Type mismatch, found: -1, required: 1") ::
       Error("-1", "Expression of type -1 doesn't conform to expected type 1") ::
-      Nil 
+      Nil
   )
 
   def testSip23Initialization0(): Unit = doTest()
@@ -154,7 +156,7 @@ class LiteralTypesHighlightingTest extends LiteralTypesHighlightingTestBase {
   def testSip23Narrow(): Unit = doTest()
 
   def testAnnotLiteralType(): Unit = doTest(
-     Error("23", "Class type required but (LiteralType: 23) found") :: Nil 
+     Error("23", "Class type required but (LiteralType: 23) found") :: Nil
   )
 
   def testWithSpaces(): Unit = doTest()
