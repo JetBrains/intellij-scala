@@ -23,6 +23,7 @@ import com.intellij.ui.awt.RelativePoint
 import com.intellij.ui.components.{JBCheckBox, JBTextField}
 import com.intellij.uiDesigner.core.{GridConstraints, GridLayoutManager, Spacer}
 import javax.swing._
+import javax.swing.event.{ChangeEvent, ChangeListener}
 import metaconfig.Configured
 import org.jetbrains.plugins.scala.ScalaFileType
 import org.jetbrains.plugins.scala.extensions._
@@ -73,6 +74,7 @@ class ScalaFmtSettingsPanel(val settings: CodeStyleSettings) extends CodeStyleAb
     }
 
     updateConfigVisibility()
+    updateUseIntellijWarningVisibility(scalaSettings)
   }
 
   private def doWithConfigFile[T](configPath: String)(body: VirtualFile => T): Unit = {
@@ -117,6 +119,7 @@ class ScalaFmtSettingsPanel(val settings: CodeStyleSettings) extends CodeStyleAb
       updateConfigTextFromFile(vFile)
     }
     updateConfigVisibility()
+    updateUseIntellijWarningVisibility(scalaSettings)
     externalFormatterSettingsPath.getButton.grabFocus()
   }
 
@@ -150,10 +153,13 @@ class ScalaFmtSettingsPanel(val settings: CodeStyleSettings) extends CodeStyleAb
 
     showScalaFmtInvalidCodeWarnings = new JBCheckBox("Show warnings when trying to format invalid code")
     useIntellijFormatterForRangeFormat = new JBCheckBox("Use IntelliJ formatter for code range formatting")
-    val useIntellijWarning = new JLabel(AllIcons.General.Warning)
+    useIntellijWarning = new JLabel(AllIcons.General.Warning)
     useIntellijWarning.setToolTipText(
-      """Using Scalafmt to format code ranges can lead to  code inconsistencies.
+      """Using Scalafmt to format code ranges can lead to code inconsistencies.
         |Scalafmt is designed to only format entire files with scala code""".stripMargin)
+    useIntellijFormatterForRangeFormat.addChangeListener((_: ChangeEvent) => {
+      useIntellijWarning.setVisible(!useIntellijFormatterForRangeFormat.isSelected)
+    })
     reformatOnFileSaveCheckBox = new JBCheckBox("Reformat on file save")
 
     inner.add(showScalaFmtInvalidCodeWarnings,
@@ -184,6 +190,10 @@ class ScalaFmtSettingsPanel(val settings: CodeStyleSettings) extends CodeStyleAb
   def onProjectSet(aProject: Project): Unit = {
     project = Some(aProject)
     resetImpl(settings)
+  }
+
+  private def updateUseIntellijWarningVisibility(settings: ScalaCodeStyleSettings): Unit = {
+    Option(useIntellijWarning).foreach(_.setVisible(!settings.SCALAFMT_USE_INTELLIJ_FORMATTER_FOR_RANGE_FORMAT))
   }
 
   private def updateConfigVisibility(): Unit = {
@@ -252,6 +262,7 @@ class ScalaFmtSettingsPanel(val settings: CodeStyleSettings) extends CodeStyleAb
   private var externalFormatterSettingsPath: TextFieldWithBrowseButton = _
   private var showScalaFmtInvalidCodeWarnings: JBCheckBox = _
   private var useIntellijFormatterForRangeFormat: JBCheckBox = _
+  private var useIntellijWarning: JLabel = _
   private var reformatOnFileSaveCheckBox: JBCheckBox = _
   private val customSettingsTitle = "Select custom scalafmt configuration file"
 }

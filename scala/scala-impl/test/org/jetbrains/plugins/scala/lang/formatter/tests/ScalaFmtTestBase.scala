@@ -7,7 +7,9 @@ import org.jetbrains.plugins.scala.util.TestUtils
 trait ScalaFmtTestBase extends AbstractScalaFormatterTestBase {
   override def setUp(): Unit = {
     super.setUp()
-    getScalaSettings.FORMATTER = ScalaCodeStyleSettings.SCALAFMT_FORMATTER
+    val scalaSettings = getScalaSettings
+    scalaSettings.FORMATTER = ScalaCodeStyleSettings.SCALAFMT_FORMATTER
+    scalaSettings.SCALAFMT_USE_INTELLIJ_FORMATTER_FOR_RANGE_FORMAT = false
   }
 
   val configPath = TestUtils.getTestDataPath + "/formatter/scalafmt/"
