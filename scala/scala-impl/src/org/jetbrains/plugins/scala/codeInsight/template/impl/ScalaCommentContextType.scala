@@ -1,27 +1,31 @@
-package org.jetbrains.plugins.scala.codeInsight.template.impl
+package org.jetbrains.plugins.scala
+package codeInsight
+package template
+package impl
 
-import com.intellij.codeInsight.template.TemplateContextType
-import com.intellij.psi.{PsiComment, PsiFile, PsiWhiteSpace}
-import org.jetbrains.plugins.scala.extensions.PsiElementExt
+import com.intellij.psi._
 import org.jetbrains.plugins.scala.lang.psi.api.ScalaFile
 
 /**
- * @author Alefas
- * @since 18/12/14.
- */
-class ScalaCommentContextType extends TemplateContextType("SCALA_COMMENT", "Comment", classOf[ScalaLiveTemplateContextType]) {
-  override def isInContext(file: PsiFile, offset: Int): Boolean =
-    ScalaCommentContextType.isInContext(file, offset)
+  * @author Alefas
+  * @since 18/12/14.
+  */
+final class ScalaCommentContextType extends ScalaFileTemplateContextType.ElementContextType("Comment") {
+
+  override protected def isInContext(offset: Int)
+                                    (implicit file: ScalaFile): Boolean =
+    ScalaCommentContextType.isInContext(offset)
 }
 
 object ScalaCommentContextType {
-  def isInContext(file: PsiFile, offset: Int): Boolean = {
-    if (!file.isInstanceOf[ScalaFile]) return false
-    val element = file.findElementAt(offset) match {
+
+  private[impl] def isInContext(offset: Int)
+                               (implicit file: ScalaFile): Boolean = {
+    val elementAtOffset = file.findElementAt(offset) match {
       case _: PsiWhiteSpace if offset > 0 => file.findElementAt(offset - 1)
-      case elem => elem
+      case element => element
     }
 
-    element.parentOfType(classOf[PsiComment], strict = false).isDefined
+    util.PsiTreeUtil.getNonStrictParentOfType(elementAtOffset, classOf[PsiComment]) != null
   }
 }

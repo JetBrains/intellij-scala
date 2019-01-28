@@ -1,28 +1,24 @@
-package org.jetbrains.plugins.scala.codeInsight.template.impl
+package org.jetbrains.plugins.scala
+package codeInsight
+package template
+package impl
 
-import com.intellij.codeInsight.template.TemplateContextType
-import com.intellij.psi.PsiFile
-import com.intellij.psi.util.PsiTreeUtil
-import org.jetbrains.plugins.scala.lang.psi.api.ScalaFile
-import org.jetbrains.plugins.scala.lang.psi.api.base.ScLiteral
+import org.jetbrains.plugins.scala.lang.psi.api._
 
 /**
- * @author Alefas
- * @since 18/12/14.
- */
-class ScalaStringContextType extends TemplateContextType("SCALA_STRING", "String", classOf[ScalaLiveTemplateContextType]) {
-  override def isInContext(file: PsiFile, offset: Int): Boolean =
-    ScalaStringContextType.isInContext(file, offset)
+  * @author Alefas
+  * @since 18/12/14.
+  */
+final class ScalaStringContextType extends ScalaFileTemplateContextType.ElementContextType("String") {
+
+  override protected def isInContext(offset: Int)
+                                    (implicit file: ScalaFile): Boolean =
+    ScalaStringContextType.isInContext(offset)
 }
 
 object ScalaStringContextType {
-  def isInContext(file: PsiFile, offset: Int): Boolean = {
-    if (!file.isInstanceOf[ScalaFile]) return false
-    val element = file.findElementAt(offset)
-    PsiTreeUtil.getParentOfType(element, classOf[ScLiteral]) match {
-      case literal: ScLiteral =>
-        literal.isString
-      case _ => false
-    }
-  }
+
+  private[impl] def isInContext(offset: Int)
+                               (implicit file: ScalaFile): Boolean =
+    ScalaFileTemplateContextType.isInContext(offset, classOf[base.ScLiteral])(_.isString)
 }
