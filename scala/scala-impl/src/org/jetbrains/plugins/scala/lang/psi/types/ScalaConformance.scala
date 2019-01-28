@@ -1369,8 +1369,8 @@ trait ScalaConformance extends api.Conformance {
         case m2: ScMethodType =>
           val params1 = m1.params
           val params2 = m2.params
-          val returnType1 = m1.returnType
-          val returnType2 = m2.returnType
+          val returnType1 = m1.result
+          val returnType2 = m2.result
           if (params1.length != params2.length) {
             result = ConstraintsResult.Left
             return

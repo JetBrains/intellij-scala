@@ -65,7 +65,7 @@ trait ScalaMethodTypeProvider[+T <: ScalaPsiElement] extends MethodTypeProvider[
   private def nested(`type`: ScType, n: Int): Option[ScType] =
     if (n == 0) Some(`type`)
     else `type` match {
-      case methodType: ScMethodType => nested(methodType.returnType, n - 1)
+      case methodType: ScMethodType => nested(methodType.result, n - 1)
       case _ => None
     }
 }

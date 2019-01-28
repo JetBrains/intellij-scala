@@ -92,7 +92,7 @@ object DynamicResolveProcessor {
   }
 
   private def getDynamicReturn: ScType => ScType = {
-    case methodType: ScMethodType => methodType.returnType
+    case methodType: ScMethodType => methodType.result
     case ScTypePolymorphicType(methodType: ScMethodType, parameters) =>
       ScTypePolymorphicType(getDynamicReturn(methodType), parameters)
     case scType => scType

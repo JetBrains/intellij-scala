@@ -90,11 +90,11 @@ object InferUtil {
           case tpt: ScTypePolymorphicType =>
             //don't lose information from type parameters of res, updated type may some of type parameters removed
             val abstractSubst = t.abstractOrLowerTypeSubstitutor
-            val mtWithoutImplicits = mt.copy(returnType = tpt.internalType)
+            val mtWithoutImplicits = mt.copy(result = tpt.internalType)
             resInner = t.copy(internalType = abstractSubst(mtWithoutImplicits),
               typeParameters = tpt.typeParameters)
           case _ => //shouldn't be there
-            resInner = t.copy(internalType = mt.copy(returnType = updatedType))
+            resInner = t.copy(internalType = mt.copy(result = updatedType))
         }
       case ScTypePolymorphicType(mt@ScMethodType(retType, params, isImplicit), typeParams) if isImplicit =>
         implicit val elementScope: ElementScope = mt.elementScope
@@ -138,7 +138,7 @@ object InferUtil {
         implicitParameters = ps
         implicit val elementScope = mt.elementScope
 
-        resInner = mt.copy(returnType = updatedType)
+        resInner = mt.copy(result = updatedType)
       case ScMethodType(retType, params, isImplicit) if isImplicit =>
         val (paramsForInfer, exprs, resolveResults) =
           findImplicits(params, coreElement, element, canThrowSCE, searchImplicitsRecursively)
@@ -347,31 +347,31 @@ object InferUtil {
       implicit val elementScope = mt.elementScope
       expr match {
         case _: MethodInvocation if !fromMethodInvocation =>
-          mt.returnType match {
+          mt.result match {
             case methodType: ScMethodType => mt.copy(
-              returnType = applyImplicitViewToResult(methodType, expectedType, fromSAM, fromMethodInvocation = true)
+              result = applyImplicitViewToResult(methodType, expectedType, fromSAM, fromMethodInvocation = true)
             )
             case _ => mt
           }
         case _ =>
           expectedType match {
-            case Some(expected) if mt.returnType.conforms(expected) => mt
+            case Some(expected) if mt.result.conforms(expected) => mt
             case Some(FunctionType(expectedRet, expectedParams)) if expectedParams.length == mt.params.length =>
               if (expectedRet.equiv(Unit)) { //value discarding
                 ScMethodType(Unit, mt.params, mt.isImplicit)
               } else {
-                mt.returnType match {
+                mt.result match {
                   case methodType: ScMethodType => return mt.copy(
-                    returnType = applyImplicitViewToResult(methodType, Some(expectedRet), fromSAM))
+                    result = applyImplicitViewToResult(methodType, Some(expectedRet), fromSAM))
                   case _ =>
                 }
                 val dummyExpr = createExpressionWithContextFromText("null", expr.getContext, expr)
-                dummyExpr.asInstanceOf[ScLiteral].setTypeForNullWithoutImplicits(Some(mt.returnType))
+                dummyExpr.asInstanceOf[ScLiteral].setTypeForNullWithoutImplicits(Some(mt.result))
                 val updatedResultType = dummyExpr.getTypeAfterImplicitConversion(expectedOption = Some(expectedRet))
 
                 expr.asInstanceOf[ScExpression].setAdditionalExpression(Some(dummyExpr, expectedRet))
 
-                ScMethodType(updatedResultType.tr.getOrElse(mt.returnType), mt.params, mt.isImplicit)
+                ScMethodType(updatedResultType.tr.getOrElse(mt.result), mt.params, mt.isImplicit)
               }
             case Some(tp) if !fromSAM && expr.isSAMEnabled &&
               (mt.params.nonEmpty || expr.scalaLanguageLevelOrDefault == ScalaLanguageLevel.Scala_2_11) =>
