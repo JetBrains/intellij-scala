@@ -1,35 +1,55 @@
-package org.jetbrains.plugins.scala.codeInsight.template.impl
+package org.jetbrains.plugins.scala
+package codeInsight
+package template
+package impl
 
 import com.intellij.codeInsight.template.impl.TemplatePreprocessor
 import com.intellij.openapi.editor.Editor
 import com.intellij.psi.impl.source.tree.LeafPsiElement
-import com.intellij.psi.PsiFile
+import com.intellij.psi.{PsiElement, PsiFile}
 import org.jetbrains.plugins.scala.extensions.PsiElementExt
 
+import scala.annotation.tailrec
 
 /**
- * @author Roman.Shein
- *         Date: 19.10.2015
- */
-class ScalaTemplatePreprocessor extends TemplatePreprocessor {
-  override def preprocessTemplate(editor: Editor, file: PsiFile, caretOffset: Int, textToInsert: String, templateText: String): Unit = {
-    Option(file.findElementAt(caretOffset)).map { caretElem =>
-      var res = caretElem
-      //use loop here so that we hop over error nodes
-      do {
-        res = res.getPrevSiblingNotWhitespace
-      } while (res != null && res.getText.isEmpty)
-      res
-    }.foreach {
-      case elem: LeafPsiElement if elem.getText == "def" && textToInsert.startsWith("def ") =>
-        val document = editor.getDocument
-        //first, make sure that the 'def' is on the same line (i.e. it is a redundant 'def' indeed and not a part of other unfinished code)
-        if (document.getLineNumber(elem.getStartOffset) == document.getLineNumber(caretOffset)) {
-          //get rid of extra 'def' when expanding 'main' template (any other templates with 'def' will get affected too)
-          document.deleteString(elem.getStartOffset, caretOffset)
-          editor.getCaretModel.moveToOffset(elem.getStartOffset)
-        }
-      case _ =>
+  * @author Roman.Shein
+  *         Date: 19.10.2015
+  */
+final class ScalaTemplatePreprocessor extends TemplatePreprocessor {
+
+  import ScalaTemplatePreprocessor._
+
+  override def preprocessTemplate(editor: Editor, file: PsiFile, caretOffset: Int,
+                                  textToInsert: String, templateText: String): Unit =
+    if (textToInsert.startsWith(Def + " ")) {
+      for {
+        element <- Option(file.findElementAt(caretOffset))
+
+        leaf <- findNonEmptySibling(element)
+        if leaf.getText == Def
+      } removeRedundantToken(leaf.getStartOffset, caretOffset)(editor)
     }
+}
+
+object ScalaTemplatePreprocessor {
+
+  private val Def = "def"
+
+  @tailrec
+  private def findNonEmptySibling(element: PsiElement): Option[LeafPsiElement] =
+    element.getPrevSiblingNotWhitespace match {
+      case sibling: PsiElement if sibling.getText.isEmpty => findNonEmptySibling(element)
+      case sibling: LeafPsiElement => Some(sibling)
+      case _ => None
+    }
+
+  private def removeRedundantToken(startOffset: Int, endOffset: Int)
+                                  (implicit editor: Editor): Unit = editor.getDocument match {
+    //first, make sure that the 'def' is on the same line (i.e. it is a redundant 'def' indeed and not a part of other unfinished code)
+    case document if document.getLineNumber(startOffset) == document.getLineNumber(endOffset) =>
+      //get rid of extra 'def' when expanding 'main' template (any other templates with 'def' will get affected too)
+      document.deleteString(startOffset, endOffset)
+      editor.getCaretModel.moveToOffset(startOffset)
+    case _ =>
   }
 }
