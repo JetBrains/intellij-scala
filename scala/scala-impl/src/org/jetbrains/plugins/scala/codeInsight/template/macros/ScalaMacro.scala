@@ -5,7 +5,6 @@ package macros
 
 import com.intellij.codeInsight.CodeInsightBundle
 import com.intellij.codeInsight.template._
-import org.jetbrains.plugins.scala.codeInsight.template.impl.ScalaCodeContextType
 
 /**
   * @author adkozlov
@@ -19,10 +18,8 @@ abstract class ScalaMacro(nameKey: String) extends Macro {
   override final def getPresentableName: String = NamePrefix + message(nameKey)
 
   override final def isAcceptableInContext(context: TemplateContextType): Boolean =
-    context match {
-      case _: ScalaCodeContextType => true
-      case _ => false
-    }
+    Class.forName("org.jetbrains.plugins.scala.codeInsight.template.impl.ScalaCodeContextType")
+      .isInstance(context)
 
   protected def message(nameKey: String): String = CodeInsightBundle.message(nameKey)
 }

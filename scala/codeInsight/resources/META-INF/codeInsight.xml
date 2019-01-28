@@ -16,10 +16,28 @@
 
         <editorAppearanceConfigurable
                 instance="org.jetbrains.plugins.scala.codeInsight.hints.ScalaTypeHintsConfigurable"/>
-        <codeInsight.parameterNameHints language="Scala"
-                                        implementationClass="org.jetbrains.plugins.scala.codeInsight.hints.ScalaInlayParameterHintsProvider"/>
-        <codeInsight.delegateMethods language="Scala"
-                                     implementationClass="org.jetbrains.plugins.scala.codeInsight.delegate.ScalaGenerateDelegateHandler"/>
+
+        <defaultLiveTemplatesProvider
+                implementation="org.jetbrains.plugins.scala.codeInsight.template.impl.ScalaDefaultLiveTemplatesProvider"/>
+        <liveTemplatePreprocessor
+                implementation="org.jetbrains.plugins.scala.codeInsight.template.impl.ScalaTemplatePreprocessor"/>
+        <liveTemplateContext
+                implementation="org.jetbrains.plugins.scala.codeInsight.template.impl.ScalaFileTemplateContextType"/>
+        <liveTemplateContext
+                implementation="org.jetbrains.plugins.scala.codeInsight.template.impl.ScalaXmlContextType"/>
+        <liveTemplateContext
+                implementation="org.jetbrains.plugins.scala.codeInsight.template.impl.ScalaCommentContextType"/>
+        <liveTemplateContext
+                implementation="org.jetbrains.plugins.scala.codeInsight.template.impl.ScalaStringContextType"/>
+        <liveTemplateContext
+                implementation="org.jetbrains.plugins.scala.codeInsight.template.impl.ScalaCodeContextType"/>
+    </extensions>
+
+    <extensions defaultExtensionNs="com.intellij.codeInsight">
+        <parameterNameHints language="Scala"
+                            implementationClass="org.jetbrains.plugins.scala.codeInsight.hints.ScalaInlayParameterHintsProvider"/>
+        <delegateMethods language="Scala"
+                         implementationClass="org.jetbrains.plugins.scala.codeInsight.delegate.ScalaGenerateDelegateHandler"/>
     </extensions>
 
     <project-components>
