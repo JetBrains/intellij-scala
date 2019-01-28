@@ -34,11 +34,13 @@
         <liveTemplateContext
                 implementation="org.jetbrains.plugins.scala.codeInsight.template.impl.ScalaCodeContextType"/>
         <liveTemplateMacro
-                implementation="org.jetbrains.plugins.scala.codeInsight.template.macros.ScalaVariableOfTypeMacro"/>
-        <liveTemplateMacro
                 implementation="org.jetbrains.plugins.scala.codeInsight.template.macros.ScalaAnnotatedMacro"/>
         <liveTemplateMacro
-                implementation="org.jetbrains.plugins.scala.codeInsight.template.macros.ScalaArrayVariableMacro"/>
+                implementation="org.jetbrains.plugins.scala.codeInsight.template.macros.ScalaVariableOfTypeMacro$RegularVariable"/>
+        <liveTemplateMacro
+                implementation="org.jetbrains.plugins.scala.codeInsight.template.macros.ScalaVariableOfTypeMacro$ArrayVariable"/>
+        <liveTemplateMacro
+                implementation="org.jetbrains.plugins.scala.codeInsight.template.macros.ScalaVariableOfTypeMacro$IterableVariable"/>
         <liveTemplateMacro
                 implementation="org.jetbrains.plugins.scala.codeInsight.template.macros.ScalaClassNameMacro"/>
         <liveTemplateMacro
@@ -49,8 +51,6 @@
                 implementation="org.jetbrains.plugins.scala.codeInsight.template.macros.ScalaExpressionTypeMacro"/>
         <liveTemplateMacro
                 implementation="org.jetbrains.plugins.scala.codeInsight.template.macros.ScalaIterableComponentTypeMacro"/>
-        <liveTemplateMacro
-                implementation="org.jetbrains.plugins.scala.codeInsight.template.macros.ScalaIterableVariableMacro"/>
         <liveTemplateMacro
                 implementation="org.jetbrains.plugins.scala.codeInsight.template.macros.ScalaMethodNameMacro"/>
         <liveTemplateMacro
@@ -63,11 +63,11 @@
         <liveTemplateMacro
                 implementation="org.jetbrains.plugins.scala.codeInsight.template.macros.ScalaTypeOfVariableMacro"/>
         <liveTemplateMacro
-                implementation="org.jetbrains.plugins.scala.codeInsight.template.macros.ScalaPrimaryConstructorParamTypesMacro"/>
+                implementation="org.jetbrains.plugins.scala.codeInsight.template.macros.ScalaPrimaryConstructorMacro$Params"/>
         <liveTemplateMacro
-                implementation="org.jetbrains.plugins.scala.codeInsight.template.macros.ScalaPrimaryConstructorParamNamesMacro"/>
+                implementation="org.jetbrains.plugins.scala.codeInsight.template.macros.ScalaPrimaryConstructorMacro$ParamNames"/>
         <liveTemplateMacro
-                implementation="org.jetbrains.plugins.scala.codeInsight.template.macros.ScalaPrimaryConstructorParamsMacro"/>
+                implementation="org.jetbrains.plugins.scala.codeInsight.template.macros.ScalaPrimaryConstructorMacro$ParamTypes"/>
     </extensions>
 
     <extensions defaultExtensionNs="com.intellij.codeInsight">

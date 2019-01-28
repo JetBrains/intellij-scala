@@ -55,7 +55,7 @@ object SuggestScalaVariableNameMacro {
     val editor = context.getEditor
     PsiDocumentManager.getInstance(editor.getProject).commitDocument(editor.getDocument)
 
-    temp(params.map(ScalaVariableOfTypeMacroBase.calculate)) match {
+    temp(params.map(ScalaVariableOfTypeMacro.calculate)) match {
       case Some(scType) => NameSuggester.suggestNamesByType(scType)
       case None => Seq("x")
     }
@@ -69,7 +69,7 @@ object SuggestScalaVariableNameMacro {
           case "option" => "scala.Option"
           case "foreach" => "foreach"
         }
-        (new ScalaVariableOfTypeMacro)
+        (new ScalaVariableOfTypeMacro.RegularVariable)
           .calculateLookups(Array(str), showOne = true)
           .map(_.getObject)
           .collectFirst {

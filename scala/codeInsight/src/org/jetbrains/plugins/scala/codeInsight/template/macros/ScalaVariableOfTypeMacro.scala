@@ -17,54 +17,12 @@ import org.jetbrains.plugins.scala.lang.psi.types.{ScType, ScTypeExt}
 import org.jetbrains.plugins.scala.lang.resolve.{ScalaResolveResult, StdKinds}
 
 /**
-  * User: Alexander Podkhalyuzin
-  * Date: 30.01.2009
-  */
-
-/**
-  * This class provides macros for live templates. Return elements
-  * of given class type (or class types).
-  */
-class ScalaVariableOfTypeMacro extends ScalaVariableOfTypeMacroBase("macro.variable.of.type") {
-
-  override def arrayIsValid(array: Array[_]): Boolean = array.nonEmpty
-}
-
-/**
   * @author Roman.Shein
   * @since 24.09.2015.
   */
-class ScalaArrayVariableMacro extends ScalaVariableOfTypeMacroBase("macro.array.variable") {
+sealed abstract class ScalaVariableOfTypeMacro(nameKey: String) extends ScalaMacro {
 
-  private val expressions = Array("scala.Array")
-
-  override protected def typeText(expressions: Array[String], `type`: ScType): Option[String] =
-    super.typeText(this.expressions, `type`)
-
-  override protected def typeText(expressions: Array[Expression], `type`: ScType)
-                                 (implicit context: ExpressionContext): Boolean =
-    super.typeText(this.expressions.map(new TextExpression(_)), `type`)
-}
-
-/**
-  * @author Roman.Shein
-  * @since 24.09.2015.
-  */
-class ScalaIterableVariableMacro extends ScalaVariableOfTypeMacroBase("macro.iterable.variable") {
-
-  private val expressions = Array(ScalaVariableOfTypeMacroBase.IterableId)
-
-  override protected def typeText(expressions: Array[String], `type`: ScType): Option[String] =
-    super.typeText(this.expressions, `type`)
-
-  override protected def typeText(expressions: Array[Expression], `type`: ScType)
-                                 (implicit context: ExpressionContext): Boolean =
-    super.typeText(this.expressions.map(new TextExpression(_)), `type`)
-}
-
-abstract class ScalaVariableOfTypeMacroBase(nameKey: String) extends ScalaMacro {
-
-  import ScalaVariableOfTypeMacroBase._
+  import ScalaVariableOfTypeMacro._
 
   override def calculateLookupItems(expressions: Array[Expression], context: ExpressionContext): Array[LookupElement] = expressions match {
     case _ if arrayIsValid(expressions) =>
@@ -101,7 +59,7 @@ abstract class ScalaVariableOfTypeMacroBase(nameKey: String) extends ScalaMacro 
 
   override def calculateQuickResult(p1: Array[Expression], p2: ExpressionContext): Result = null
 
-  override def getPresentableName: String = CodeInsightBundle.message(nameKey)
+  override final def getPresentableName: String = CodeInsightBundle.message(nameKey)
 
   override def getDefaultValue: String = "x"
 
@@ -127,9 +85,42 @@ abstract class ScalaVariableOfTypeMacroBase(nameKey: String) extends ScalaMacro 
   }
 }
 
-object ScalaVariableOfTypeMacroBase {
+object ScalaVariableOfTypeMacro {
 
   val IterableId = "foreach"
+
+  /**
+    * This class provides macros for live templates. Return elements
+    * of given class type (or class types).
+    */
+  final class RegularVariable extends ScalaVariableOfTypeMacro("macro.variable.of.type") {
+
+    override def arrayIsValid(array: Array[_]): Boolean = array.nonEmpty
+  }
+
+  final class ArrayVariable extends ScalaVariableOfTypeMacro("macro.array.variable") {
+
+    private val expressions = Array("scala.Array")
+
+    override protected def typeText(expressions: Array[String], `type`: ScType): Option[String] =
+      super.typeText(this.expressions, `type`)
+
+    override protected def typeText(expressions: Array[Expression], `type`: ScType)
+                                   (implicit context: ExpressionContext): Boolean =
+      super.typeText(this.expressions.map(new TextExpression(_)), `type`)
+  }
+
+  final class IterableVariable extends ScalaVariableOfTypeMacro("macro.iterable.variable") {
+
+    private val expressions = Array(IterableId)
+
+    override protected def typeText(expressions: Array[String], `type`: ScType): Option[String] =
+      super.typeText(this.expressions, `type`)
+
+    override protected def typeText(expressions: Array[Expression], `type`: ScType)
+                                   (implicit context: ExpressionContext): Boolean =
+      super.typeText(this.expressions.map(new TextExpression(_)), `type`)
+  }
 
   private[macros] def isIterable(`type`: ScType) = `type`.extractClass.exists {
     case definition: ScTypeDefinition => definition.functionsByName(IterableId).nonEmpty

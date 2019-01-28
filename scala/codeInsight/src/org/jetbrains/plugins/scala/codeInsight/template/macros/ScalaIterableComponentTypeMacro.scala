@@ -18,7 +18,7 @@ final class ScalaIterableComponentTypeMacro extends ScalaMacro {
         .flatMap(resultToScExpr(_)(context))
         .flatMap { exprType =>
           arrayComponent(exprType).orElse {
-            Some(exprType).filter(ScalaVariableOfTypeMacroBase.isIterable)
+            Some(exprType).filter(ScalaVariableOfTypeMacro.isIterable)
           }
         }.map(ScalaTypeResult).orNull
     case _ => null
