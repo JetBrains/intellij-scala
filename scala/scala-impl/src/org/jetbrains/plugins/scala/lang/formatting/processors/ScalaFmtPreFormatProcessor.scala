@@ -5,6 +5,7 @@ import java.awt.Point
 import com.intellij.application.options.CodeStyle
 import com.intellij.lang.ASTNode
 import com.intellij.openapi.diagnostic.Logger
+import com.intellij.openapi.progress.ProgressIndicatorProvider
 import com.intellij.openapi.project.Project
 import com.intellij.openapi.ui.MessageType
 import com.intellij.openapi.ui.popup.{Balloon, JBPopupFactory}
@@ -23,13 +24,13 @@ import org.jetbrains.plugins.scala.extensions.{PsiElementExt, _}
 import org.jetbrains.plugins.scala.lang.formatting.processors.ScalaFmtPreFormatProcessor.{formatIfRequired, shiftRange}
 import org.jetbrains.plugins.scala.lang.formatting.settings.ScalaCodeStyleSettings
 import org.jetbrains.plugins.scala.lang.lexer.ScalaTokenTypes
+import org.jetbrains.plugins.scala.lang.psi.api.ScalaFile
 import org.jetbrains.plugins.scala.lang.psi.api.expr.{ScBlock, ScBlockStatement, ScExpression}
 import org.jetbrains.plugins.scala.lang.psi.api.statements.ScPatternDefinition
+import org.jetbrains.plugins.scala.lang.psi.api.toplevel.ScPackaging
 import org.jetbrains.plugins.scala.lang.psi.api.toplevel.imports.ScImportStmt
 import org.jetbrains.plugins.scala.lang.psi.api.toplevel.templates.ScTemplateBody
 import org.jetbrains.plugins.scala.lang.psi.api.toplevel.typedef.{ScMember, ScTypeDefinition}
-import org.jetbrains.plugins.scala.lang.psi.api.toplevel.ScPackaging
-import org.jetbrains.plugins.scala.lang.psi.api.{ScalaFile, ScalaRecursiveElementVisitor}
 import org.jetbrains.plugins.scala.lang.psi.impl.ScalaPsiElementFactory
 import org.jetbrains.plugins.scala.lang.psi.impl.expr.ScBlockImpl
 import org.jetbrains.plugins.scala.lang.psi.{ScalaPsiUtil, TypeAdjuster}
@@ -544,7 +545,12 @@ object ScalaFmtPreFormatProcessor {
     applyChanges(changes, range)
   }
 
-  private class AdjustIndentsVisitor(val additionalIndent: Int, val project: Project) extends ScalaRecursiveElementVisitor {
+  private class AdjustIndentsVisitor(val additionalIndent: Int, val project: Project) extends PsiRecursiveElementVisitor {
+    override def visitElement(element: PsiElement): Unit = {
+      ProgressIndicatorProvider.checkCanceled()
+      element.children.foreach(_.accept(this))
+    }
+
     override def visitWhiteSpace(space: PsiWhiteSpace): Unit = {
       val replacer = space.withAdditionalIndent(additionalIndent)(project)
       if (replacer != space) inWriteAction(space.replace(replacer))
@@ -746,16 +752,13 @@ object ScalaFmtPreFormatProcessor {
     for {
       (original, formatted) <- elementsToTraverse.headOption
       prevWsOriginal <- prevSiblingAsWhitespace(original)
-      if prevWsOriginal.getText.contains("\n")
       prevWsFormatted <- prevSiblingAsWhitespace(formatted)
-      indentOriginal = prevWsOriginal.getIndentSize
-      indentFormatted = prevWsFormatted.getIndentSize
-      if indentOriginal != indentFormatted
     } {
-      val prevWsFormatted2 = prevWsOriginal
+      val indentFormatted = prevWsFormatted.getIndentSize
+      val prevWsOriginalFixed = prevWsOriginal
         .withIndent(indentFormatted + additionalIndent)
         .getOrElse(EmptyPsiWhitespace)
-      changes += Replace(prevWsOriginal, prevWsFormatted2)
+      changes += Replace(prevWsOriginal, prevWsOriginalFixed)
     }
   }
 

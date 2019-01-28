@@ -791,6 +791,18 @@ class ScalaFmtSelectionTest extends SelectionTest with ScalaFmtTestBase {
     doTextTest(before, after)
   }
 
+  def testFormatValInRoot(): Unit = {
+    val before =
+      s"""  ${startMarker}val x=2   +   2
+         |val y  =  4+4$endMarker
+       """.stripMargin
+    val after =
+      s"""val x = 2 + 2
+         |val y = 4 + 4
+       """.stripMargin
+    doTextTest(before, after)
+  }
+
   def testFormatValInRootSurroundedWithEmptyLines(): Unit = {
     val before =
       s"""
@@ -807,22 +819,29 @@ class ScalaFmtSelectionTest extends SelectionTest with ScalaFmtTestBase {
     doTextTest(before, after)
   }
 
-  def testDifferentTypesOfDeclarationsAtTopLevel(): Unit = {
+  def testDifferentTypesOfDefinitionssAtTopLevel(): Unit = {
     val before =
-      s"""${startMarker}trait  X   {  }
+      s"""${startMarker}trait  X   {
+         |  def xFoo = 42
+         | }
          |object  O  {  }
          |class  C  {  }
          |val x=println(2+2)
-         |def  foo (): Unit =  42$endMarker
+         |def  foo (): Unit =  {
+         |       42
+         |       }$endMarker
        """.stripMargin
     val after =
-      s"""trait X {}
+      s"""trait X {
+         |  def xFoo = 42
+         |}
          |object O {}
          |class C {}
          |val x = println(2 + 2)
-         |def foo(): Unit = 42
+         |def foo(): Unit = {
+         |  42
+         |}
        """.stripMargin
     doTextTest(before, after)
   }
-
 }
