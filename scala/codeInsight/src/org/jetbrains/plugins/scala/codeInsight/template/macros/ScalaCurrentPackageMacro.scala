@@ -3,6 +3,7 @@ package codeInsight
 package template
 package macros
 
+import com.intellij.codeInsight.CodeInsightBundle
 import com.intellij.codeInsight.template._
 import com.intellij.psi.PsiDocumentManager
 import org.jetbrains.plugins.scala.lang.psi.api.ScalaFile
@@ -11,7 +12,7 @@ import org.jetbrains.plugins.scala.lang.psi.api.ScalaFile
  * @author Roman.Shein
  * @since 22.09.2015.
  */
-class ScalaCurrentPackageMacro extends ScalaMacro("macro.current.package") {
+final class ScalaCurrentPackageMacro extends ScalaMacro {
 
   override def calculateResult(params: Array[Expression], context: ExpressionContext): Result = {
     PsiDocumentManager.getInstance(context.getProject).getPsiFile(context.getEditor.getDocument) match {
@@ -21,4 +22,6 @@ class ScalaCurrentPackageMacro extends ScalaMacro("macro.current.package") {
   }
 
   override def calculateQuickResult(params: Array[Expression], context: ExpressionContext): Result = calculateResult(params, context)
+
+  override def getPresentableName: String = CodeInsightBundle.message("macro.current.package")
 }

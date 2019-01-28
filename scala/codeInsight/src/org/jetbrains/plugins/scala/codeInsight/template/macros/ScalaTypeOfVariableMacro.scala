@@ -9,7 +9,7 @@ import com.intellij.codeInsight.template._
  * @author Roman.Shein
  * @since 29.09.2015.
  */
-class ScalaTypeOfVariableMacro extends ScalaMacro("macro.type.of.variable") {
+final class ScalaTypeOfVariableMacro extends ScalaMacro {
 
   override def calculateResult(params: Array[Expression], context: ExpressionContext): Result =
     params.headOption
@@ -23,5 +23,5 @@ class ScalaTypeOfVariableMacro extends ScalaMacro("macro.type.of.variable") {
 
   override def getDefaultValue: String = ScalaMacro.DefaultValue.toUpperCase
 
-  override protected def message(nameKey: String): String = ScalaMacro.message(nameKey)
+  override def getPresentableName: String = ScalaCodeInsightBundle.message("macro.type.of.variable")
 }

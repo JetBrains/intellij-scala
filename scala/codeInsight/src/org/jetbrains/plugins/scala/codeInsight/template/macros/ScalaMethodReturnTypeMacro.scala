@@ -14,7 +14,7 @@ import org.jetbrains.plugins.scala.project.ProjectContext
  * @author Roman.Shein
  * @since 24.09.2015.
  */
-class ScalaMethodReturnTypeMacro extends ScalaMacro("macro.method.returnType") {
+final class ScalaMethodReturnTypeMacro extends ScalaMacro {
 
   override def calculateResult(params: Array[Expression], context: ExpressionContext): Result = {
     implicit val project: ProjectContext = context.getProject
@@ -28,5 +28,5 @@ class ScalaMethodReturnTypeMacro extends ScalaMacro("macro.method.returnType") {
 
   override def getDefaultValue: String = ScalaMacro.DefaultValue
 
-  override protected def message(nameKey: String): String = ScalaMacro.message(nameKey)
+  override def getPresentableName: String = ScalaCodeInsightBundle.message("macro.method.returnType")
 }

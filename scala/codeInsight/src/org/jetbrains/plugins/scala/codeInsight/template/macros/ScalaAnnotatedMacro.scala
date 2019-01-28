@@ -17,12 +17,12 @@ import scala.collection.JavaConverters._
  * @author Roman.Shein
  * @since 21.09.2015.
  */
-class ScalaAnnotatedMacro extends ScalaMacro("macro.annotated") {
+final class ScalaAnnotatedMacro extends ScalaMacro {
 
   protected def getAnnotatedMembers(params: Array[Expression], context: ExpressionContext): Query[PsiMember] = {
     (params, context) match {
-      case (null, _) => EmptyQuery.getEmptyQuery[PsiMember]
-      case (_, null) => EmptyQuery.getEmptyQuery[PsiMember]
+      case (null, _) |
+           (_, null) => EmptyQuery.getEmptyQuery[PsiMember]
       case _ if params.length > 0 => //TODO should params.length always equal 1?
         val project = context.getProject
         val scope = GlobalSearchScope.allScope(project)
@@ -31,6 +31,8 @@ class ScalaAnnotatedMacro extends ScalaMacro("macro.annotated") {
                 getOrElse(EmptyQuery.getEmptyQuery[PsiMember])
     }
   }
+
+  override def getPresentableName: String = ScalaCodeInsightBundle.message("macro.annotated")
 
   override def calculateResult(params: Array[Expression], context: ExpressionContext): Result = {
     Option(getAnnotatedMembers(params, context).findFirst()).map(member => new TextResult(member match {
@@ -59,6 +61,4 @@ class ScalaAnnotatedMacro extends ScalaMacro("macro.annotated") {
       .map(LookupElementBuilder.create)
       .toArray
   }
-
-  override protected def message(nameKey: String): String = ScalaMacro.message(nameKey)
 }

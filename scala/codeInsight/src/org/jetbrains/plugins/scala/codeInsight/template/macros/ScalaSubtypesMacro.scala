@@ -16,7 +16,7 @@ import scala.collection.JavaConverters
   * @author Roman.Shein
   * @since 29.09.2015.
   */
-class ScalaSubtypesMacro extends ScalaMacro("macro.subtypes") {
+final class ScalaSubtypesMacro extends ScalaMacro {
 
   override def calculateResult(expressions: Array[Expression], context: ExpressionContext): Result =
     expressions match {
@@ -45,5 +45,5 @@ class ScalaSubtypesMacro extends ScalaMacro("macro.subtypes") {
 
   override def getDefaultValue: String = ScalaMacro.DefaultValue
 
-  override protected def message(nameKey: String): String = ScalaMacro.message(nameKey)
+  override def getPresentableName: String = ScalaCodeInsightBundle.message("macro.subtypes")
 }

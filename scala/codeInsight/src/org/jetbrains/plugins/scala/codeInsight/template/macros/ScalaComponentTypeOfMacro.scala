@@ -3,6 +3,7 @@ package codeInsight
 package template
 package macros
 
+import com.intellij.codeInsight.CodeInsightBundle
 import com.intellij.codeInsight.lookup.LookupElement
 import com.intellij.codeInsight.template._
 import org.jetbrains.plugins.scala.lang.completion.lookups.ScalaLookupItem
@@ -13,7 +14,7 @@ import org.jetbrains.plugins.scala.lang.psi.types.api.ExtractClass
   * @author Roman.Shein
   * @since 23.09.2015.
   */
-class ScalaComponentTypeOfMacro extends ScalaMacro("macro.component.type.of.array") {
+final class ScalaComponentTypeOfMacro extends ScalaMacro {
 
   override def calculateResult(params: Array[Expression], context: ExpressionContext): Result = params match {
     case Array(head) =>
@@ -43,4 +44,6 @@ class ScalaComponentTypeOfMacro extends ScalaMacro("macro.component.type.of.arra
       }
     case _ => null
   }
+
+  override def getPresentableName: String = CodeInsightBundle.message("macro.component.type.of.array")
 }

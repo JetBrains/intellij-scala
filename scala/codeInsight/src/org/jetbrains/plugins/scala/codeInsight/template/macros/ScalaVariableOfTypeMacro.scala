@@ -62,7 +62,7 @@ class ScalaIterableVariableMacro extends ScalaVariableOfTypeMacroBase("macro.ite
     super.typeText(this.expressions.map(new TextExpression(_)), `type`)
 }
 
-abstract class ScalaVariableOfTypeMacroBase(nameKey: String) extends ScalaMacro(nameKey) {
+abstract class ScalaVariableOfTypeMacroBase(nameKey: String) extends ScalaMacro {
 
   import ScalaVariableOfTypeMacroBase._
 
@@ -101,7 +101,7 @@ abstract class ScalaVariableOfTypeMacroBase(nameKey: String) extends ScalaMacro(
 
   override def calculateQuickResult(p1: Array[Expression], p2: ExpressionContext): Result = null
 
-  def getDescription: String = CodeInsightBundle.message("macro.variable.of.type")
+  override def getPresentableName: String = CodeInsightBundle.message(nameKey)
 
   override def getDefaultValue: String = "x"
 

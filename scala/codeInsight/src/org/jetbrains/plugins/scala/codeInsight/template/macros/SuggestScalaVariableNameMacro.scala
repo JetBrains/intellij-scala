@@ -3,6 +3,7 @@ package codeInsight
 package template
 package macros
 
+import com.intellij.codeInsight.CodeInsightBundle
 import com.intellij.codeInsight.lookup.{LookupElement, LookupElementBuilder}
 import com.intellij.codeInsight.template._
 import com.intellij.psi.PsiDocumentManager
@@ -21,7 +22,7 @@ import scala.util._
 /**
   * Macro for suggesting name.
   */
-class SuggestScalaVariableNameMacro extends ScalaMacro("macro.suggest.variable.name") {
+final class SuggestScalaVariableNameMacro extends ScalaMacro {
 
   import SuggestScalaVariableNameMacro._
 
@@ -40,7 +41,7 @@ class SuggestScalaVariableNameMacro extends ScalaMacro("macro.suggest.variable.n
       .headOption
       .orNull
 
-  def getDescription: String = "Macro for suggesting name"
+  override def getPresentableName: String = CodeInsightBundle.message("macro.suggest.variable.name")
 
   override def getDefaultValue: String = "value"
 

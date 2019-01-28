@@ -8,7 +8,7 @@ import com.intellij.psi.PsiClass
 import org.jetbrains.plugins.scala.extensions._
 import org.jetbrains.plugins.scala.lang.psi.api.toplevel.typedef.{ScClass, ScObject}
 
-abstract class ScalaPrimaryConstructorMacroBase(nameKey: String) extends ScalaMacro(nameKey) {
+abstract class ScalaPrimaryConstructorMacroBase(nameKey: String) extends ScalaMacro {
 
   override def calculateResult(expressions: Array[Expression], context: ExpressionContext): Result =
     expressions.headOption.flatMap { expression =>
@@ -16,8 +16,6 @@ abstract class ScalaPrimaryConstructorMacroBase(nameKey: String) extends ScalaMa
     }.map(toText)
       .map(new TextResult(_))
       .orNull
-
-  override protected final def message(nameKey: String): String = ScalaMacro.message(nameKey)
 
   protected def toText(result: Result): String
 
@@ -34,6 +32,8 @@ abstract class ScalaPrimaryConstructorMacroBase(nameKey: String) extends ScalaMa
           }).trim
         }
   }
+
+  override def getPresentableName: String = ScalaCodeInsightBundle.message(nameKey)
 }
 
 class ScalaPrimaryConstructorParamNamesMacro extends ScalaPrimaryConstructorMacroBase("macro.primaryConstructor.param.names") {

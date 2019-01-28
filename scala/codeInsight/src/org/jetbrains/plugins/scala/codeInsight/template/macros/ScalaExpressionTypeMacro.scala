@@ -3,13 +3,14 @@ package codeInsight
 package template
 package macros
 
+import com.intellij.codeInsight.CodeInsightBundle
 import com.intellij.codeInsight.template._
 
 /**
  * @author Roman.Shein
  * @since 22.09.2015.
  */
-class ScalaExpressionTypeMacro extends ScalaMacro("macro.expression.type") {
+final class ScalaExpressionTypeMacro extends ScalaMacro {
 
   override def calculateResult(params: Array[Expression], context: ExpressionContext): Result = params match {
     case Array(head) =>
@@ -18,4 +19,6 @@ class ScalaExpressionTypeMacro extends ScalaMacro("macro.expression.type") {
         .orNull
     case _ => null
   }
+
+  override def getPresentableName: String = CodeInsightBundle.message("macro.expression.type")
 }
