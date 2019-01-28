@@ -198,9 +198,9 @@ object ScalaGenerationInfo {
     val m = createOverrideImplementMethod(signature, needsOverride, body,
       withComment = ScalaApplicationSettings.getInstance().COPY_SCALADOC, withAnnotation = false)(method.getManager)
 
-    TypeAnnotationUtil.removeTypeAnnotationIfNeeded(m, typeAnnotationsPolicy)
-    KindProjectorTypeLambdaUtil.simplifyTypeLambdasIn(m)
     val added = td.addMember(m, Option(anchor))
+    TypeAnnotationUtil.removeTypeAnnotationIfNeeded(added, typeAnnotationsPolicy)
+    KindProjectorTypeLambdaUtil.simplifyTypeLambdasIn(added)
     TypeAdjuster.markToAdjust(added)
     added.asInstanceOf[ScFunction]
   }
