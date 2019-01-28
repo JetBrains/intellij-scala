@@ -13,12 +13,14 @@ final class SealedJavaInheritance extends Annotator {
 }
 
 object SealedJavaInheritance {
+  private[this] def isValidRole(role: PsiReferenceList.Role): Boolean =
+    role == PsiReferenceList.Role.EXTENDS_LIST ||
+      role == PsiReferenceList.Role.IMPLEMENTS_LIST
 
-  private def annotate(element: PsiElement)
-                      (implicit holder: AnnotationHolder): Unit = element match {
-    case list: PsiReferenceList => annotateReferences(list.getReferenceElements: _*)
-    case clazz: PsiAnonymousClass => annotateReferences(clazz.getBaseClassReference)
-    case _ =>
+  private def annotate(element: PsiElement)(implicit holder: AnnotationHolder): Unit = element match {
+    case list: PsiReferenceList if isValidRole(list.getRole) => annotateReferences(list.getReferenceElements: _*)
+    case clazz: PsiAnonymousClass                            => annotateReferences(clazz.getBaseClassReference)
+    case _                                                   => ()
   }
 
   import SealedClassInheritance.ErrorAnnotationMessage
