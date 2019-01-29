@@ -24,7 +24,7 @@ public interface Icons {
 
   Icon COMPILE_SERVER = IconLoader.getIcon("/org/jetbrains/plugins/scala/images/compileServer.svg");
 
-  Icon FILE_TYPE_LOGO = IconLoader.getIcon("/org/jetbrains/plugins/scala/images/scala16.svg");
+  Icon FILE_TYPE_LOGO = IconLoader.getIcon("/org/jetbrains/plugins/scala/images/file_scala.svg");
   //todo worksheet logo
   Icon WORKSHEET_LOGO = IconLoader.getIcon("/org/jetbrains/plugins/scala/images/file_scala.svg");
   Icon SCALA_SMALL_LOGO = IconLoader.getIcon("/org/jetbrains/plugins/scala/images/scala-small-logo.svg");
@@ -36,7 +36,7 @@ public interface Icons {
   //SDK configuration
   Icon SCALA_SDK = IconLoader.getIcon("/org/jetbrains/plugins/scala/images/scala_sdk.svg");
   Icon NO_SCALA_SDK = IconLoader.getIcon("/org/jetbrains/plugins/scala/images/no_scala_sdk.svg");
-  
+
   //Toplevel nodes
   Icon FILE = IconLoader.getIcon("/org/jetbrains/plugins/scala/images/file_scala.svg");
   Icon CLASS = IconLoader.getIcon("/org/jetbrains/plugins/scala/images/class_scala.svg");
