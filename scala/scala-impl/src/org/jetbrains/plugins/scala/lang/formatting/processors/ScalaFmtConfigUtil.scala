@@ -19,6 +19,8 @@ import org.scalafmt.config.{Config, ScalafmtConfig, ScalafmtRunner}
 
 object ScalaFmtConfigUtil {
 
+  val SupportedExtensions: Set[String] = Set("scala", "sc", "sbt")
+
   private def loadConfig(configFile: VirtualFile, project: Project): Configured[ScalafmtConfig] = {
     inReadAction {
       PsiManager.getInstance(project).findFile(configFile) match {

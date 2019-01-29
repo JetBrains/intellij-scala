@@ -17,21 +17,30 @@ class ReformatOnFileSaveTask(project: Project) extends ProjectComponent {
 
   override def initComponent(): Unit = {
     val bus = ApplicationManager.getApplication.getMessageBus
-    bus.connect().subscribe(
-      AppTopics.FILE_DOCUMENT_SYNC,
-      new FileDocumentManagerListener {
-        override def beforeDocumentSaving(document: Document): Unit = {
-          val scalaSettings = CodeStyle.getSettings(project).getCustomSettings(classOf[ScalaCodeStyleSettings])
-          // for now 'reformat on file save' is only implemented for scalafmt formatter
-          if (scalaSettings.SCALAFMT_REFORMAT_ON_FILES_SAVE && scalaSettings.USE_SCALAFMT_FORMATTER()) {
-            val psiFile = PsiDocumentManager.getInstance(project).getPsiFile(document)
-            if (ScalaFmtConfigUtil.isIncludedInProject(psiFile)) {
-              formatFile(psiFile)
-            }
-          }
-        }
+    bus.connect().subscribe(AppTopics.FILE_DOCUMENT_SYNC, new FileDocumentManagerListener {
+      override def beforeDocumentSaving(document: Document): Unit = reformatIfNeeded(document)
+    })
+  }
+
+  private def reformatIfNeeded(document: Document): Unit = {
+    if (project.isDisposed) return
+    if (!getExtension(document).exists(ScalaFmtConfigUtil.SupportedExtensions.contains)) return
+
+    val scalaSettings = CodeStyle.getSettings(project).getCustomSettings(classOf[ScalaCodeStyleSettings])
+    // for now 'reformat on file save' is only implemented for scalafmt formatter
+    if (scalaSettings.SCALAFMT_REFORMAT_ON_FILES_SAVE && scalaSettings.USE_SCALAFMT_FORMATTER()) {
+      val psiFile = PsiDocumentManager.getInstance(project).getPsiFile(document)
+      if (ScalaFmtConfigUtil.isIncludedInProject(psiFile)) {
+        formatFile(psiFile)
       }
-    )
+    }
+  }
+
+  private def getExtension(document: Document): NullSafe[String] = {
+    PsiDocumentManager.getInstance(project).nullSafe
+      .map(_.getPsiFile(document))
+      .map(_.getVirtualFile)
+      .map(_.getExtension)
   }
 
   private def formatFile(psiFile: PsiFile): Unit = {
