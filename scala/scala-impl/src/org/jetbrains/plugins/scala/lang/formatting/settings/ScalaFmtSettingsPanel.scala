@@ -1,6 +1,7 @@
 package org.jetbrains.plugins.scala.lang.formatting.settings
 
 import java.awt._
+import java.awt.event.{FocusEvent, FocusListener}
 import java.io.File
 import java.util.Collections.emptyList
 
@@ -15,16 +16,17 @@ import com.intellij.openapi.fileChooser.FileChooserDescriptorFactory
 import com.intellij.openapi.fileEditor.FileDocumentManager
 import com.intellij.openapi.fileTypes.FileType
 import com.intellij.openapi.project.Project
+import com.intellij.openapi.ui._
 import com.intellij.openapi.ui.popup.{Balloon, JBPopupFactory}
-import com.intellij.openapi.ui.{MessageType, TextFieldWithBrowseButton, VerticalFlowLayout}
 import com.intellij.openapi.vfs.VirtualFile
 import com.intellij.psi.codeStyle.CodeStyleSettings
 import com.intellij.ui.awt.RelativePoint
 import com.intellij.ui.components.{JBCheckBox, JBTextField}
 import com.intellij.uiDesigner.core.{GridConstraints, GridLayoutManager, Spacer}
 import javax.swing._
-import javax.swing.event.{ChangeEvent, ChangeListener}
+import javax.swing.event.ChangeEvent
 import metaconfig.Configured
+import org.apache.commons.lang.StringUtils
 import org.jetbrains.plugins.scala.ScalaFileType
 import org.jetbrains.plugins.scala.extensions._
 import org.jetbrains.plugins.scala.lang.formatting.processors.ScalaFmtConfigUtil
@@ -59,8 +61,8 @@ class ScalaFmtSettingsPanel(val settings: CodeStyleSettings) extends CodeStyleAb
     scalaSettings.SCALAFMT_REFORMAT_ON_FILES_SAVE = reformatOnFileSaveCheckBox.isSelected
 
     val configPath = scalaSettings.SCALAFMT_CONFIG_PATH
-    val configPathNew = externalFormatterSettingsPath.getText
-    val configPathChanged = configPath != configPathNew
+    val configPathNew = externalFormatterSettingsPath.getText.trim
+    val configPathChanged = configPath.trim != configPathNew
 
     if (configPathChanged) {
       doWithConfigFile(configPathNew) { vFile =>
@@ -100,7 +102,7 @@ class ScalaFmtSettingsPanel(val settings: CodeStyleSettings) extends CodeStyleAb
 
   override def isModified(codeStyleSettings: CodeStyleSettings): Boolean = {
     val scalaCodeStyleSettings = codeStyleSettings.getCustomSettings(classOf[ScalaCodeStyleSettings])
-    scalaCodeStyleSettings.SCALAFMT_CONFIG_PATH != externalFormatterSettingsPath.getText ||
+    scalaCodeStyleSettings.SCALAFMT_CONFIG_PATH.trim != externalFormatterSettingsPath.getText.trim ||
       scalaCodeStyleSettings.SCALAFMT_SHOW_INVALID_CODE_WARNINGS != showScalaFmtInvalidCodeWarnings.isSelected ||
       scalaCodeStyleSettings.SCALAFMT_USE_INTELLIJ_FORMATTER_FOR_RANGE_FORMAT != useIntellijFormatterForRangeFormat.isSelected ||
       scalaCodeStyleSettings.SCALAFMT_REFORMAT_ON_FILES_SAVE != reformatOnFileSaveCheckBox.isSelected ||
@@ -109,7 +111,7 @@ class ScalaFmtSettingsPanel(val settings: CodeStyleSettings) extends CodeStyleAb
 
   override def resetImpl(codeStyleSettings: CodeStyleSettings): Unit = {
     val scalaSettings = codeStyleSettings.getCustomSettings(classOf[ScalaCodeStyleSettings])
-    val configPath = scalaSettings.SCALAFMT_CONFIG_PATH
+    val configPath = scalaSettings.SCALAFMT_CONFIG_PATH.trim
 
     externalFormatterSettingsPath.setText(configPath)
     showScalaFmtInvalidCodeWarnings.setSelected(scalaSettings.SCALAFMT_SHOW_INVALID_CODE_WARNINGS)
@@ -137,15 +139,15 @@ class ScalaFmtSettingsPanel(val settings: CodeStyleSettings) extends CodeStyleAb
     def constraint(row: Int, column: Int, rowSpan: Int, colSpan: Int, anchor: Int, fill: Int, HSizePolicy: Int, VSizePolicy: Int) =
       new GridConstraints(row, column, rowSpan, colSpan, anchor, fill, HSizePolicy, VSizePolicy, null, null, null, 0, false)
 
-    val inner = new JPanel(new GridLayoutManager(5, 3, new Insets(10, 10, 10, 10), -1, -1))
+    val inner = new JPanel(new GridLayoutManager(5, 3, new Insets(10, 15, 10, 15), -1, -1))
+
+    val myTextField = new JBTextField
+    myTextField.getEmptyText.setText(s"Default: $DefaultConfigFilePath")
+    externalFormatterSettingsPath = new TextFieldWithBrowseButton(myTextField)
+    resetConfigBrowserFolderListener()
 
     inner.add(new JLabel("Configuration:"),
       constraint(0, 0, 1, 1, ANCHOR_WEST, FILL_NONE, SIZEPOLICY_FIXED, SIZEPOLICY_FIXED))
-    val myTextField = new JBTextField
-    myTextField.getEmptyText.setText(s"Default: .${File.separatorChar}${ScalaFmtConfigUtil.defaultConfigurationFileName}")
-    externalFormatterSettingsPath = new TextFieldWithBrowseButton(myTextField)
-    externalFormatterSettingsPath.addBrowseFolderListener(customSettingsTitle, customSettingsTitle, null,
-      FileChooserDescriptorFactory.createSingleFileDescriptor("conf"))
     inner.add(externalFormatterSettingsPath,
       constraint(0, 1, 1, 1, ANCHOR_NORTHWEST, FILL_HORIZONTAL, SIZEPOLICY_CAN_GROW | SIZEPOLICY_WANT_GROW, SIZEPOLICY_FIXED))
     inner.add(new Spacer,
@@ -160,14 +162,18 @@ class ScalaFmtSettingsPanel(val settings: CodeStyleSettings) extends CodeStyleAb
     useIntellijFormatterForRangeFormat.addChangeListener((_: ChangeEvent) => {
       useIntellijWarning.setVisible(!useIntellijFormatterForRangeFormat.isSelected)
     })
+    val useIntellijFormatterWrapper = {
+      val w = new JPanel(new GridLayoutManager(1, 2, new Insets(0, 0, 0, 0), -1, -1))
+      w.add(useIntellijFormatterForRangeFormat, constraint(0, 0, 1, 1, ANCHOR_WEST, FILL_NONE, SIZEPOLICY_FIXED, SIZEPOLICY_FIXED))
+      w.add(useIntellijWarning, constraint(0, 1, 1, 1, ANCHOR_WEST, FILL_NONE, SIZEPOLICY_FIXED, SIZEPOLICY_FIXED))
+      w
+    }
     reformatOnFileSaveCheckBox = new JBCheckBox("Reformat on file save")
 
     inner.add(showScalaFmtInvalidCodeWarnings,
       constraint(1, 0, 1, 3, ANCHOR_WEST, FILL_NONE, SIZEPOLICY_FIXED, SIZEPOLICY_FIXED))
-    inner.add(useIntellijFormatterForRangeFormat,
-      constraint(2, 0, 1, 1, ANCHOR_WEST, FILL_NONE, SIZEPOLICY_FIXED, SIZEPOLICY_FIXED))
-    inner.add(useIntellijWarning,
-      constraint(2, 1, 1, 2, ANCHOR_WEST, FILL_NONE, SIZEPOLICY_FIXED, SIZEPOLICY_FIXED))
+    inner.add(useIntellijFormatterWrapper,
+      constraint(2, 0, 1, 3, ANCHOR_WEST, FILL_NONE, SIZEPOLICY_FIXED, SIZEPOLICY_FIXED))
     inner.add(reformatOnFileSaveCheckBox,
       constraint(3, 0, 1, 3, ANCHOR_WEST, FILL_NONE, SIZEPOLICY_FIXED, SIZEPOLICY_FIXED))
 
@@ -187,9 +193,38 @@ class ScalaFmtSettingsPanel(val settings: CodeStyleSettings) extends CodeStyleAb
     inner
   }
 
+  private def resetConfigBrowserFolderListener(): Unit = {
+    val button = externalFormatterSettingsPath.getButton
+    button.getActionListeners.foreach(button.removeActionListener)
+
+    // if config path text field is empty we want to select default config file in project tree of file browser
+    val textAccessor = new TextComponentAccessor[JTextField]() {
+      override def setText(textField: JTextField, text: String): Unit = textField.setText(text)
+      override def getText(textField: JTextField): String =
+        Option(textField.getText).filter(StringUtils.isNotBlank).getOrElse(DefaultConfigFilePath)
+    }
+
+    // if we typed only whitespaces and lost focus from text field we should display empty text placeholder
+    val focusListener = new FocusListener {
+      override def focusGained(e: FocusEvent): Unit = {}
+      override def focusLost(e: FocusEvent): Unit = {
+        if (StringUtils.isBlank(externalFormatterSettingsPath.getText))
+          externalFormatterSettingsPath.setText(null)
+      }
+    }
+
+    externalFormatterSettingsPath.getTextField.addFocusListener(focusListener)
+    externalFormatterSettingsPath.addBrowseFolderListener(
+      customSettingsTitle, customSettingsTitle, project.orNull,
+      FileChooserDescriptorFactory.createSingleFileDescriptor("conf"),
+      textAccessor
+    )
+  }
+
   def onProjectSet(aProject: Project): Unit = {
     project = Some(aProject)
     resetImpl(settings)
+    resetConfigBrowserFolderListener()
   }
 
   private def updateUseIntellijWarningVisibility(settings: ScalaCodeStyleSettings): Unit = {
@@ -265,4 +300,5 @@ class ScalaFmtSettingsPanel(val settings: CodeStyleSettings) extends CodeStyleAb
   private var useIntellijWarning: JLabel = _
   private var reformatOnFileSaveCheckBox: JBCheckBox = _
   private val customSettingsTitle = "Select custom scalafmt configuration file"
+  private val DefaultConfigFilePath = s".${File.separatorChar}${ScalaFmtConfigUtil.defaultConfigurationFileName}"
 }
