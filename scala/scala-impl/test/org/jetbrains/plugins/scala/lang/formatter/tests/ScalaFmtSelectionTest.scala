@@ -1,5 +1,6 @@
 package org.jetbrains.plugins.scala.lang.formatter.tests
 
+//noinspection RedundantBlock
 class ScalaFmtSelectionTest extends SelectionTest with ScalaFmtTestBase {
 
   def testExprSelection(): Unit = {
@@ -190,7 +191,7 @@ class ScalaFmtSelectionTest extends SelectionTest with ScalaFmtTestBase {
 
   def testFormatFunDef(): Unit = {
     val before = s" ${startMarker}def foo= 42$endMarker"
-    val after  = "def foo = 42"
+    val after = "def foo = 42"
     doTextTest(before, after)
   }
 
@@ -489,7 +490,7 @@ class ScalaFmtSelectionTest extends SelectionTest with ScalaFmtTestBase {
   }
 
   def testScl14129_avoidInfix(): Unit = {
-    getScalaSettings.SCALAFMT_CONFIG_PATH = configPath + "avoidInfix.conf"
+    setScalafmtConfig("avoidInfix.conf")
     val before =
       s"""
          |class C {
@@ -506,7 +507,7 @@ class ScalaFmtSelectionTest extends SelectionTest with ScalaFmtTestBase {
   }
 
   def testScl14129_avoidInfix_1(): Unit = {
-    getScalaSettings.SCALAFMT_CONFIG_PATH = configPath + "avoidInfix.conf"
+    setScalafmtConfig("avoidInfix.conf")
     val before =
       s"""
          |class C {
@@ -523,7 +524,7 @@ class ScalaFmtSelectionTest extends SelectionTest with ScalaFmtTestBase {
   }
 
   def testScl14129_avoidInfix_2(): Unit = {
-    getScalaSettings.SCALAFMT_CONFIG_PATH = configPath + "avoidInfix.conf"
+    setScalafmtConfig("avoidInfix.conf")
     val before =
       s"""
          |class C {
@@ -540,7 +541,7 @@ class ScalaFmtSelectionTest extends SelectionTest with ScalaFmtTestBase {
   }
 
   def testScl14129_avoidInfix_3(): Unit = {
-    getScalaSettings.SCALAFMT_CONFIG_PATH = configPath + "avoidInfix.conf"
+    setScalafmtConfig("avoidInfix.conf")
     val before =
       s"""
          |class C {
@@ -557,7 +558,7 @@ class ScalaFmtSelectionTest extends SelectionTest with ScalaFmtTestBase {
   }
 
   def testScl14129_spacesAroundRewrite(): Unit = {
-    getScalaSettings.SCALAFMT_CONFIG_PATH = configPath + "avoidInfix.conf"
+    setScalafmtConfig("avoidInfix.conf")
     val before =
       s"""
          |class C {
@@ -604,7 +605,7 @@ class ScalaFmtSelectionTest extends SelectionTest with ScalaFmtTestBase {
   }
 
   def testSCL14129_expandImport(): Unit = {
-    getScalaSettings.SCALAFMT_CONFIG_PATH = configPath + "expandImport.conf"
+    setScalafmtConfig("expandImport.conf")
     val before =
       s"""
          |${startMarker}import a.{
@@ -636,7 +637,7 @@ class ScalaFmtSelectionTest extends SelectionTest with ScalaFmtTestBase {
   }
 
   def testSCL14129_redundantBraces(): Unit = {
-    getScalaSettings.SCALAFMT_CONFIG_PATH = configPath + "redundantBraces.conf"
+    setScalafmtConfig("redundantBraces.conf")
     val before =
       s"""
          |val myString = ${startMarker}s"prefix$${myHello}"$endMarker
@@ -649,20 +650,20 @@ class ScalaFmtSelectionTest extends SelectionTest with ScalaFmtTestBase {
   }
 
   def testScl14129_redundantBraces_1(): Unit = {
-    getScalaSettings.SCALAFMT_CONFIG_PATH = configPath + "redundantBraces.conf"
+    setScalafmtConfig("redundantBraces.conf")
     val before =
       s"""
          |val myString = s"pre${startMarker}fix$${myHello}$endMarker"
        """.stripMargin
     val after =
       s"""
-         |val myString = s"prefix$$myHello"
+         |val myString = s"prefix$${myHello}"
        """.stripMargin
     doTextTest(before, after)
   }
 
   def testScl14129_redundantBraces_2(): Unit = {
-    getScalaSettings.SCALAFMT_CONFIG_PATH = configPath + "redundantBraces.conf"
+    setScalafmtConfig("redundantBraces.conf")
     val before =
       s"""
          |def foo $startMarker= {
@@ -677,7 +678,7 @@ class ScalaFmtSelectionTest extends SelectionTest with ScalaFmtTestBase {
   }
 
   def testScl14129_sortImports(): Unit = {
-    getScalaSettings.SCALAFMT_CONFIG_PATH = configPath + "sortImports.conf"
+    setScalafmtConfig("sortImports.conf")
     val before =
       s"""
          |import foo.{Zilch,$startMarker bar, Random, ${endMarker}sand}
@@ -819,7 +820,7 @@ class ScalaFmtSelectionTest extends SelectionTest with ScalaFmtTestBase {
     doTextTest(before, after)
   }
 
-  def testDifferentTypesOfDefinitionssAtTopLevel(): Unit = {
+  def testDifferentTypesOfDefinitionsAtTopLevel(): Unit = {
     val before =
       s"""${startMarker}trait  X   {
          |  def xFoo = 42
@@ -844,4 +845,131 @@ class ScalaFmtSelectionTest extends SelectionTest with ScalaFmtTestBase {
        """.stripMargin
     doTextTest(before, after)
   }
+
+  def testFormatValMultilineDefinition_IfRewriteRulesExist_1(): Unit = {
+    setScalafmtConfig("redundantBraces.conf")
+
+    val before =
+      s"""object Outer {
+         |${startMarker}val x =
+         |2 + 2$endMarker
+         |}""".stripMargin
+    val after =
+      s"""object Outer {
+         |  val x =
+         |    2 + 2
+         |}""".stripMargin
+    doTextTest(before, after)
+  }
+
+  def testFormatValMultilineDefinition_IfRewriteRulesExist_2(): Unit = {
+    setScalafmtConfig("redundantBraces.conf")
+
+    val before =
+      s"""object Outer {
+         |${startMarker}     val x =
+         |2+2$endMarker
+         |}""".stripMargin
+    val after =
+      s"""object Outer {
+         |  val x =
+         |    2 + 2
+         |}""".stripMargin
+    doTextTest(before, after)
+  }
+
+  def testFormatValMultilineDefinition_IfRewriteRulesExist_3(): Unit = {
+    setScalafmtConfig("redundantBraces.conf")
+
+    val before =
+      s"""object Outer {
+         |${startMarker}     val x =
+         |    2 + 2$endMarker
+         |}""".stripMargin
+    val after =
+      s"""object Outer {
+         |  val x =
+         |    2 + 2
+         |}""".stripMargin
+    doTextTest(before, after)
+  }
+
+  def testTypeDefinitionFormat_IfRewriteRulesExist_1(): Unit = {
+    setScalafmtConfig("redundantBraces.conf")
+
+    val before =
+      s"""
+         |${startMarker}object Outer {
+         |    val x=2+2
+         |}${endMarker}
+         |""".stripMargin
+    val after =
+      s"""
+         |object Outer {
+         |  val x = 2 + 2
+         |}
+         |""".stripMargin
+    doTextTest(before, after)
+  }
+
+  def testTypeDefinitionFormat_IfRewriteRulesExist_2(): Unit = {
+    setScalafmtConfig("redundantBraces.conf")
+
+    val before =
+      s"""
+         |${startMarker}  object Outer {
+         |val x=2+2
+         |  }${endMarker}
+         |""".stripMargin
+    val after =
+      s"""
+         |object Outer {
+         |  val x = 2 + 2
+         |}
+         |""".stripMargin
+    doTextTest(before, after)
+  }
+
+  def testDeeplyNestedMethodDefinition_IfRewriteRulesExist(): Unit = {
+    setScalafmtConfig("redundantBraces.conf")
+
+    val before =
+      s"""object Outer {
+         |  object Inner {
+         |${startMarker}def   bar  (args:Array[String]):Unit={
+         |val x = 42
+         |}${endMarker}
+         |  }
+         |}""".stripMargin
+    val after =
+      s"""object Outer {
+         |  object Inner {
+         |    def bar(args: Array[String]): Unit = {
+         |      val x = 42
+         |    }
+         |  }
+         |}""".stripMargin
+    doTextTest(before, after)
+  }
+
+  def testDeeplyNestedValMultilineDefinition_IfRewriteRulesExist(): Unit = {
+    setScalafmtConfig("redundantBraces.conf")
+
+    val before =
+      s"""object Outer {
+         |  object Inner {
+         |${startMarker}val x =
+         |2+2${endMarker}
+         |  }
+         |}""".stripMargin
+    val after =
+      s"""object Outer {
+         |  object Inner {
+         |    val x =
+         |      2 + 2
+         |  }
+         |}""".stripMargin
+    doTextTest(before, after)
+  }
+
 }

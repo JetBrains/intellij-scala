@@ -13,4 +13,7 @@ trait ScalaFmtTestBase extends AbstractScalaFormatterTestBase {
   }
 
   val configPath = TestUtils.getTestDataPath + "/formatter/scalafmt/"
+
+  def setScalafmtConfig(configFile: String): Unit =
+    getScalaSettings.SCALAFMT_CONFIG_PATH = configPath + configFile
 }
