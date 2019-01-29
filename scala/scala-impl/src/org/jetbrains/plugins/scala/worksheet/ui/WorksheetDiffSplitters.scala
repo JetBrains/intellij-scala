@@ -1,25 +1,17 @@
 package org.jetbrains.plugins.scala
 package worksheet.ui
 
-/*
 import java.awt._
 import java.awt.event.{MouseAdapter, MouseEvent}
-import java.lang.ref.WeakReference
-import java.util
-import javax.swing.JComponent
 
+import com.intellij.diff.util.DiffDividerDrawUtil.DividerPolygon
 import com.intellij.openapi.diff.impl._
-import com.intellij.openapi.diff.impl.highlighting.FragmentSide
-import com.intellij.openapi.diff.impl.incrementalMerge._
-import com.intellij.openapi.diff.impl.splitter._
 import com.intellij.openapi.editor._
 import com.intellij.openapi.editor.event.{VisibleAreaEvent, VisibleAreaListener}
-import com.intellij.openapi.project.Project
 import com.intellij.openapi.ui.Splitter
-import com.intellij.openapi.util.text.StringUtil
 import com.intellij.psi.PsiDocumentManager
+import javax.swing.JComponent
 import org.jetbrains.plugins.scala.lang.psi.api.ScalaFile
-import scala.collection.JavaConverters._
 
 /**
  * User: Dmitry.Naydanov
@@ -32,49 +24,6 @@ object WorksheetDiffSplitters {
   def createSimpleSplitter(originalEditor: Editor, viewerEditor: Editor,
                            intervals: Iterable[(Int, Int)], changes: Iterable[(Int, Int)], prop: Float): SimpleWorksheetSplitter = {
     new SimpleWorksheetSplitter(originalEditor, viewerEditor, intervals, changes, prop)
-  }
-
-  class WorksheetEditingSides(originalEditor: Editor, viewerEditor: Editor, foldInfo: Option[WorksheetFoldGroup] = None) extends EditingSides {
-    private val left = new WeakReference(originalEditor)
-    private val right = new WeakReference(viewerEditor)
-
-    private lazy val lineBlocks = createLineBlocks(originalEditor.getDocument, viewerEditor.getDocument.getLineCount, originalEditor.getProject)
-
-    override def getEditor(side: FragmentSide): Editor = side match {
-      case FragmentSide.SIDE1 => left.get()
-      case FragmentSide.SIDE2 => right.get()
-    }
-
-    override def getLineBlocks: LineBlocks = lineBlocks
-  }
-
-
-  private def createLineBlocks(original: Document, viewerSize: Int, project: Project) = {
-    val originalSize = original.getLineCount
-    val minSize = Math.min(originalSize, viewerSize)
-    
-    val originalFake = StringBuilder.newBuilder
-    val viewerFake = StringBuilder.newBuilder
-    val random = new java.util.Random
-    
-    for (i <- 0 until minSize) {
-      val line = random.nextInt().toString
-      
-      originalFake.append(line).append("\n")
-      viewerFake.append(if (i % 2 == 0) line else random.nextInt.toString).append("\n")
-    }
-    
-    if (originalSize > viewerSize) 
-      viewerFake.append(StringUtil.repeat("_\n", originalSize - viewerSize))
-    else if (originalSize < viewerSize) 
-      originalFake.append(StringUtil.repeat("_\n", viewerSize - originalSize))
-
-    val factory = EditorFactory.getInstance
-
-    val originalDoc = factory.createDocument(originalFake.toString())
-    val viewerDoc = factory.createDocument(viewerFake.toString())
-
-    ChangeList.build(originalDoc, viewerDoc, project).getLineBlocks
   }
 
   private def getVisibleInterval(editor: Editor) = {
@@ -125,9 +74,7 @@ object WorksheetDiffSplitters {
 
     override def redrawDiffs(): Unit = getDivider.repaint()
 
-    override def createDivider(): DividerImpl {
-      def paint(g: Graphics): Unit
-    } = new DividerImpl {
+    override def createDivider(): DividerImpl = new DividerImpl {
       override def paint(g: Graphics) {
         super.paint(g)
         val width = getWidth
@@ -149,17 +96,17 @@ object WorksheetDiffSplitters {
               (offset - to + from) && lastVisible2 >= (offset + spaces) =>
             flag = !flag
             new DividerPolygon(
-              (from + 1)*lineHeight1,
+              (from + 1 - firstVisible1 + 1)*lineHeight1,
               (offset - to + from - firstVisible2 + 1)*lineHeight2,
-              (to + 1)*lineHeight1,
-              (offset + spaces - firstVisible2 + 1)*lineHeight2, if (flag) COLOR1 else COLOR2, false
+              (to + 1 - firstVisible1 + 1)*lineHeight1,
+              (offset + spaces - firstVisible2 + 1)*lineHeight2, if (flag) COLOR1 else COLOR2,
+              null, true
             )
         }
 
-        DividerPolygon.paintPolygons(new util.ArrayList[DividerPolygon](plainPolygons.asJavaCollection), gg, width)
+        for (polygon <- plainPolygons) polygon.paint(gg, width, true)
         gg.dispose()
       }
     }
   }
 }
-*/
