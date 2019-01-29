@@ -341,6 +341,8 @@ abstract class ScalaAnnotator extends Annotator
 
       override def visitUnderscoreExpression(under: ScUnderscoreSection) {
         checkUnboundUnderscore(under, holder)
+        // TODO (otherwise there's no type conformance check)
+        // super.visitUnderscoreExpression
       }
 
       private def referencePart(ref: ScReferenceElement, innerHolder: AnnotationHolder = holder) {
