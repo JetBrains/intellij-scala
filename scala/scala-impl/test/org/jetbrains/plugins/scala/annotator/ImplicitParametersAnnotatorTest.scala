@@ -101,7 +101,9 @@ class ImplicitParametersAnnotatorTest extends ImplicitParametersAnnotatorTestBas
         |  foo(3)
         |}
       """.stripMargin).get
-    assertMessages(Error("foo(2)", notFound("Boolean")) :: Nil)(actualMessages)
+    assertMessages(actualMessages)(
+      Error("foo(2)", notFound("Boolean"))
+    )
   }
 
   def testImplicitsInConstructorsMissing(): Unit = {
@@ -123,13 +125,13 @@ class ImplicitParametersAnnotatorTest extends ImplicitParametersAnnotatorTestBas
         |""".stripMargin
     ).get
 
-    assertMessages(List(
+    assertMessages(actualMessages)(
       Error("MyClass()",           notFound("Int")),
       Error("MyClassWithArgs(42)", notFound("Int")),
       Error("MyClass()",           notFound("Int")),
       Error("MyClass",             notFound("Int")),
       Error("MyClassWithArgs(43)", notFound("Int"))
-    ))(actualMessages)
+    )
   }
 
   def testImplicitsInConstructors(): Unit = {
@@ -165,7 +167,9 @@ class ImplicitParametersAnnotatorTest extends ImplicitParametersAnnotatorTestBas
          |  new MyClass()(2)
          |}
          |""".stripMargin).get
-    assertMessages(Error("new MyClass()(2)", notFound("B")) :: Nil)(actualMessages)
+    assertMessages(actualMessages)(
+      Error("new MyClass()(2)", notFound("B"))
+    )
   }
 
   def testImplicitBefore(): Unit = {
@@ -203,7 +207,9 @@ class ImplicitParametersAnnotatorTest extends ImplicitParametersAnnotatorTestBas
     assertNothing(implicitConcrete)
     assertNothing(bothAbstract)
 
-    assertMessages(implicitAbstract.get)(Error("bar", notFound("Int")) :: Nil)
+    assertMessages(implicitAbstract.get)(
+      Error("bar", notFound("Int"))
+    )
   }
 
 
@@ -243,8 +249,8 @@ class ImplicitParametersAnnotatorTest extends ImplicitParametersAnnotatorTestBas
 
     val error = Error("bar", notFound("Int")) :: Nil
 
-    assertMessages(bothAbstract.get)(error)
-    assertMessages(implicitAbstract.get)(error)
+    assertMessages(error)(bothAbstract.get: _*)
+    assertMessages(error)(implicitAbstract.get: _*)
   }
 
   def testRecursiveFunctionSeveralImplicits(): Unit = {
@@ -577,6 +583,8 @@ class ImplicitParametersAnnotatorFailingTest extends ImplicitParametersAnnotator
         |  foo
         |}
       """.stripMargin
-    assertMessages(Error("foo", notFound("ParamDefAux[Tuple2[Int, S_]]")) :: Nil)(messages(text).get)
+    assertMessages(messages(text).get)(
+      Error("foo", notFound("ParamDefAux[Tuple2[Int, S_]]"))
+    )
   }
 }

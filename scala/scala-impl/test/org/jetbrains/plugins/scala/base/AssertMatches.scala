@@ -30,11 +30,11 @@ trait AssertMatches extends FailableTest {
     assertMatches(Some(actual))(pattern)
   }
 
-  def assertMessages(expected: List[Message])(actual: List[Message]): Unit = {
+  def assertMessages(actual: List[Message])(expected: Message*): Unit = {
     assertEqualsFailable(expected.mkString("\n"), actual.mkString("\n"))
   }
 
   def assertMessagesSorted(actual: List[Message])(expected: Message*): Unit = {
-    assertMessages(actual.sorted)(expected.sorted.toList)
+    assertMessages(actual.sorted)(expected.sorted: _*)
   }
 }

@@ -28,7 +28,7 @@ abstract class LiteralTypesHighlightingTestBase extends ScalaHighlightingTestBas
       FileUtil.loadFile(ioFile, CharsetToolkit.UTF8)
     }
     val errors = if (settingOn) errorsFromScalaCode(text) else super.errorsFromScalaCode(text)
-    assertMessages(expectedErrors)(errors)
+    assertMessages(errors)(expectedErrors: _*)
   }
 
   protected def checkNotSupported(): Unit = {
