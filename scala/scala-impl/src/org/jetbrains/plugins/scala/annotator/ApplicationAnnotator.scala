@@ -5,7 +5,6 @@ import com.intellij.lang.annotation.{Annotation, AnnotationHolder}
 import com.intellij.psi.{PsiElement, PsiMethod, PsiNamedElement, PsiParameter}
 import org.jetbrains.plugins.scala.annotator.AnnotatorUtils.registerTypeMismatchError
 import org.jetbrains.plugins.scala.annotator.createFromUsage._
-import org.jetbrains.plugins.scala.annotator.quickfix.ReportHighlightingErrorQuickFix
 import org.jetbrains.plugins.scala.annotator.usageTracker.UsageTracker
 import org.jetbrains.plugins.scala.codeInspection.varCouldBeValInspection.ValToVarQuickFix
 import org.jetbrains.plugins.scala.extensions._
@@ -234,7 +233,7 @@ trait ApplicationAnnotator {
 
   private def nameOf(f: PsiNamedElement) = f.name + signatureOf(f)
 
-  private def signatureOf(f: PsiNamedElement): String = f match {
+  def signatureOf(f: PsiNamedElement): String = f match {
     case f: ScFunction =>
       if (f.parameters.isEmpty) "" else formatParamClauses(f.paramClauses)
     case m: PsiMethod =>

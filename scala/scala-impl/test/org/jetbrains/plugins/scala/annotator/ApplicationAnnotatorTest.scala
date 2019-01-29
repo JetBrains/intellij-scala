@@ -37,6 +37,10 @@ class ApplicationAnnotatorTest extends ApplicationAnnotatorTestBase {
       case Error("null", "Too many arguments for method f") ::
               Error("Unit", "Too many arguments for method f") :: Nil =>
     }
+
+    assertMatches(messages("def f(p: Any) {}; f(null, Unit)")) {
+      case Error("Unit", "Too many arguments for method f(Any)") :: Nil =>
+    }
   }
 
   def testMissedParameters() {

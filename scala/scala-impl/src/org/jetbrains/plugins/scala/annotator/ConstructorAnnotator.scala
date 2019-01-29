@@ -1,7 +1,6 @@
 package org.jetbrains.plugins.scala
 package annotator
 
-import com.intellij.codeInspection.ProblemHighlightType
 import com.intellij.lang.annotation.AnnotationHolder
 import org.jetbrains.plugins.scala.annotator.AnnotatorUtils.registerTypeMismatchError
 import org.jetbrains.plugins.scala.lang.psi.api.ScalaFile
@@ -9,9 +8,10 @@ import org.jetbrains.plugins.scala.lang.psi.api.base.types.ScLiteralTypeElement
 import org.jetbrains.plugins.scala.lang.psi.api.base.{ScConstructor, ScPrimaryConstructor}
 import org.jetbrains.plugins.scala.lang.psi.api.expr.ScConstrBlock
 import org.jetbrains.plugins.scala.lang.psi.api.statements.ScFunction
+import org.jetbrains.plugins.scala.lang.psi.api.toplevel.typedef.ScConstructorOwner
 import org.jetbrains.plugins.scala.lang.psi.types._
 
-trait ConstructorAnnotator {
+trait ConstructorAnnotator extends ApplicationAnnotator {
   // TODO duplication with application annotator.
   def annotateConstructor(constructor: ScConstructor, holder: AnnotationHolder) {
     constructor.typeElement match {
@@ -24,22 +24,34 @@ trait ConstructorAnnotator {
       case None => return
       case _ =>
     }
-    val resolved = constructor.reference.toList.flatMap(_.resolveAllConstructors)
 
-    resolved match {
-      case List() =>
-        holder.createErrorAnnotation(constructor.typeElement, "Cannot resolve constructor")
-      case List(r) =>
+    val resolved = for {
+      reference <- constructor.reference.toList
+      resolveResult <- reference.resolveAllConstructors
+      element = resolveResult.element
+
+      // resolveAllConstructors might return inaccessible constructors
+      // and as last resort even the class itself (in order to return at least something)
+      // But note: a trait will be returned when a trait is instantiated as anonymous class
+      // (of course traits cannot have constructors)
+      elementShouldHaveBeenConcreteConstructor = element.isInstanceOf[ScConstructorOwner]
+      if resolveResult.isAccessible && !elementShouldHaveBeenConcreteConstructor
+    } yield resolveResult
+
+    val argsElement = constructor.args.getOrElse(constructor.typeElement)
+    if (resolved.isEmpty) {
+      holder.createErrorAnnotation(argsElement, s"No constructor accessible from here")
+    } else {
+      for (r <- resolved) {
 
         val missed = for (MissedValueParameter(p) <- r.problems) yield p.name + ": " + p.paramType.presentableText
-        val argsElement = constructor.args.getOrElse(constructor.typeElement)
         if (missed.nonEmpty)
           holder.createErrorAnnotation(argsElement,
             "Unspecified value parameters: " + missed.mkString(", "))
 
         r.problems.foreach {
           case ExcessArgument(argument) =>
-            holder.createErrorAnnotation(argument, "Too many arguments for constructor")
+            holder.createErrorAnnotation(argument, s"Too many arguments for constructor${signatureOf(r.element)}")
           case TypeMismatch(expression, expectedType) =>
             expression.`type`().foreach {
               registerTypeMismatchError(_, expectedType, holder, expression)
@@ -64,8 +76,7 @@ trait ConstructorAnnotator {
           }
           case _ => holder.createErrorAnnotation(argsElement, "Not applicable." /* TODO + signatureOf(f)*/)
         }
-      case _ =>
-        holder.createErrorAnnotation(constructor.typeElement, "Cannot resolve constructor")
+      }
     }
   }
 
