@@ -143,12 +143,10 @@ class WorksheetFileHook(private val project: Project) extends ProjectComponent  
       if (!isPluggable(file)) return
 
       WorksheetFileHook.this.initWorksheetComponents(file, run = true)
-      /*
       loadEvaluationResult(source, file)
-      */
       WorksheetFileHook.getDocumentFrom(source, file) foreach (WorksheetAutoRunner.getInstance(source.getProject).addListener(_))
     }
-    /*
+    
     private def loadEvaluationResult(source: FileEditorManager, file: VirtualFile) {
       source getSelectedEditor file match {
         case txt: TextEditor => txt.getEditor match {
@@ -169,7 +167,8 @@ class WorksheetFileHook(private val project: Project) extends ProjectComponent  
                     if (splitter != null) {
                       try {
                         splitter setProportion ratio
-                        WorksheetFoldGroup.load(viewer, ext, project, splitter, scalaFile)
+                        val group = WorksheetFoldGroup.load(viewer, ext, project, splitter, scalaFile)
+                        WorksheetEditorPrinterFactory.synch(ext, viewer, Option(splitter), Option(group))
                       } catch {
                         case _: Exception => //ignored; if we are trying to load code stored in "plain" mode while in REPL mode
                       }
@@ -184,7 +183,6 @@ class WorksheetFileHook(private val project: Project) extends ProjectComponent  
         case _ =>
       }
     }
-    */
     
   }
 }

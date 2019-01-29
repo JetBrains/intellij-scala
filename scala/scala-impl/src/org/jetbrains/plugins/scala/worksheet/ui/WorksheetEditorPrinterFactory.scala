@@ -1,15 +1,17 @@
 package org.jetbrains.plugins.scala.worksheet.ui
 
-import java.awt.event.AdjustmentEvent
 import java.awt.{BorderLayout, Dimension}
+import java.util
 
+import com.intellij.diff.tools.util.BaseSyncScrollable
+import com.intellij.diff.tools.util.SyncScrollSupport.TwosideSyncScrollSupport
 import javax.swing.{JComponent, JLayeredPane}
 import com.intellij.ide.DataManager
 import com.intellij.lang.Language
 import com.intellij.openapi.actionSystem.{CommonDataKeys, DataProvider}
 import com.intellij.openapi.application.ApplicationManager
-//import com.intellij.openapi.diff.impl.EditingSides
-//import com.intellij.openapi.diff.impl.util.SyncScrollSupport
+import com.intellij.openapi.editor.event.{VisibleAreaEvent, VisibleAreaListener}
+import org.jetbrains.plugins.scala.worksheet.ui.WorksheetDiffSplitters.SimpleWorksheetSplitter
 import com.intellij.openapi.editor.event.{CaretEvent, CaretListener}
 import com.intellij.openapi.editor.ex.EditorEx
 import com.intellij.openapi.editor.highlighter.EditorHighlighterFactory
@@ -26,7 +28,6 @@ import com.intellij.ui.JBSplitter
 import org.jetbrains.plugins.scala.lang.psi.api.ScalaFile
 import org.jetbrains.plugins.scala.worksheet.processor.FileAttributeUtilCache
 import org.jetbrains.plugins.scala.worksheet.runconfiguration.WorksheetCache
-//import org.jetbrains.plugins.scala.worksheet.ui.WorksheetDiffSplitters.SimpleWorksheetSplitter
 import org.jetbrains.plugins.scala.{ScalaFileType, ScalaLanguage}
 
 import scala.util.Random
@@ -40,17 +41,13 @@ object WorksheetEditorPrinterFactory {
   val BULK_COUNT = 15
   val IDLE_TIME_MLS = 1000
   val DEFAULT_WORKSHEET_VIEWERS_RATIO = 0.5f
-/*
-
   val DIFF_SPLITTER_KEY: Key[SimpleWorksheetSplitter] = Key.create[WorksheetDiffSplitters.SimpleWorksheetSplitter]("SimpleWorksheetViewerSplitter")
-  val DIFF_SYNC_SUPPORT: Key[SyncScrollSupport] = Key.create[SyncScrollSupport]("WorksheetSyncScrollSupport")
-*/
 
   private val LAST_WORKSHEET_RUN_RESULT = new FileAttribute("LastWorksheetRunResult", 2, false)
   private val LAST_WORKSHEET_RUN_RATIO = new FileAttribute("ScalaWorksheetLastRatio", 1, false)
 
   def synch(originalEditor: Editor, worksheetViewer: Editor,
-//            diffSplitter: Option[WorksheetDiffSplitters.SimpleWorksheetSplitter] = None,
+            diffSplitter: Option[WorksheetDiffSplitters.SimpleWorksheetSplitter] = None,
             foldGroup: Option[WorksheetFoldGroup] = None) {
     class MyCaretAdapterBase extends CaretListener {
       override def equals(obj: Any): Boolean = obj match {
@@ -100,17 +97,27 @@ object WorksheetEditorPrinterFactory {
             new VisualPosition(Math.min(originalImpl.getCaretModel.getVisualPosition.line, viewerImpl.getDocument.getLineCount), 0)
           )
 
-        /*
-          val syncSupport = new SyncScrollSupport
-          syncSupport.install(Array[EditingSides](new WorksheetDiffSplitters.WorksheetEditingSides(originalEditor, worksheetViewer, foldGroup)))
+          val syncSupport = new TwosideSyncScrollSupport(
+            util.Arrays.asList(originalEditor, worksheetViewer),
+            new BaseSyncScrollable {
+              override def processHelper(scrollHelper: BaseSyncScrollable.ScrollHelper): Unit = { }
 
-          originalEditor.putUserData(DIFF_SYNC_SUPPORT, syncSupport)
+              override def isSyncScrollEnabled: Boolean = true
+            }
+          )
 
-          diffSplitter foreach {
+          diffSplitter.foreach {
             splitter =>
-              viewerImpl.getScrollPane.getVerticalScrollBar.addAdjustmentListener((_: AdjustmentEvent) => splitter.redrawDiffs())
+              val listener = new VisibleAreaListener {
+                override def visibleAreaChanged(e: VisibleAreaEvent): Unit = {
+                  splitter.redrawDiffs()
+                  syncSupport.visibleAreaChanged(e)
+                }
+              }
+              
+              originalEditor.getScrollingModel.addVisibleAreaListener(listener)
+              worksheetViewer.getScrollingModel.addVisibleAreaListener(listener)
           }
-          */
         })
       case _ =>
     }
@@ -236,12 +243,10 @@ object WorksheetEditorPrinterFactory {
     if (!ApplicationManager.getApplication.isUnitTestMode) {
       val child = editorComponent.getParent
       val parent = child.getParent
-/*
 
       val diffPane = WorksheetDiffSplitters.createSimpleSplitter(editor, worksheetViewer, List.empty, List.empty, prop)
 
       worksheetViewer.putUserData(DIFF_SPLITTER_KEY, diffPane)
-*/
 
       @inline def preserveFocus(body: => Unit) {
         val hadFocus = editorContentComponent.hasFocus
@@ -250,7 +255,6 @@ object WorksheetEditorPrinterFactory {
 
         if (hadFocus) editorContentComponent.requestFocusInWindow()
       }
-/*
       @inline def patchEditor(): Unit = preserveFocus {
         (parent, child) match {
           case (parentPane: JLayeredPane, _) =>
@@ -271,7 +275,6 @@ object WorksheetEditorPrinterFactory {
           }
         case _ => patchEditor()
       } else patchEditor()
-      */
     }
 
     WorksheetCache.getInstance(editor.getProject).addViewer(worksheetViewer, editor)
