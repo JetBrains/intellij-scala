@@ -2,13 +2,14 @@ package org.jetbrains.plugins.scala
 package annotator
 
 import com.intellij.lang.annotation.AnnotationHolder
+import org.jetbrains.plugins.hocon.CommonUtil.TextRange
 import org.jetbrains.plugins.scala.annotator.AnnotatorUtils.registerTypeMismatchError
 import org.jetbrains.plugins.scala.lang.psi.api.ScalaFile
 import org.jetbrains.plugins.scala.lang.psi.api.base.types.ScLiteralTypeElement
 import org.jetbrains.plugins.scala.lang.psi.api.base.{ScConstructor, ScPrimaryConstructor}
 import org.jetbrains.plugins.scala.lang.psi.api.expr.ScConstrBlock
 import org.jetbrains.plugins.scala.lang.psi.api.statements.ScFunction
-import org.jetbrains.plugins.scala.lang.psi.api.toplevel.typedef.ScConstructorOwner
+import org.jetbrains.plugins.scala.lang.psi.api.toplevel.typedef.{ScConstructorOwner, ScTrait}
 import org.jetbrains.plugins.scala.lang.psi.types._
 
 trait ConstructorAnnotator extends ApplicationAnnotator {
@@ -45,9 +46,20 @@ trait ConstructorAnnotator extends ApplicationAnnotator {
       for (r <- resolved) {
 
         val missed = for (MissedValueParameter(p) <- r.problems) yield p.name + ": " + p.paramType.presentableText
-        if (missed.nonEmpty)
+        if (missed.nonEmpty) {
           holder.createErrorAnnotation(argsElement,
             "Unspecified value parameters: " + missed.mkString(", "))
+        }
+
+        (r.element, constructor.arguments) match {
+          case (tr: ScTrait, head +: tail) if head.exprs.nonEmpty || tail.nonEmpty =>
+            // new Trait() {} is allowed!
+            // but not   new Trait()() {}
+            // or        new Trait(i: Int) {}
+            holder.createErrorAnnotation(TextRange.unionFrom(head, tail: _*),
+              s"${tr.name} is a trait and thus has no constructor")
+          case _ =>
+        }
 
         r.problems.foreach {
           case ExcessArgument(argument) =>

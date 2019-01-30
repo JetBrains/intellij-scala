@@ -279,10 +279,12 @@ class ConstructorAnnotatorTest extends SimpleTestCase {
     val code =
       """
         |trait T
-        |new T {}
+        |new T(2, 2) {}
       """.stripMargin
 
-    assertNothing(messages(code))
+    assertMessages(messages(code))(
+      Error("(2, 2)", "T is a trait and thus has no constructor")
+    )
   }
 
   // TODO: Type Aliases

@@ -116,6 +116,9 @@ object CommonUtil {
 
     def apply(start: Int, end: Int): TextRange =
       com.intellij.openapi.util.TextRange.create(start, end)
+
+    def unionFrom(first: PsiElement, elements: PsiElement*): TextRange =
+      elements.map(_.getTextRange).fold(first.getTextRange)(_ union _)
   }
 
   def isValidUrl(str: String): Boolean =
