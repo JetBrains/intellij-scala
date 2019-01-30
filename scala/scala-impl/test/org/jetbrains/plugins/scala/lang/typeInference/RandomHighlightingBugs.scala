@@ -1,7 +1,10 @@
 package org.jetbrains.plugins.scala.lang.typeInference
 
+import org.jetbrains.plugins.scala.PerfCycleTests
 import org.jetbrains.plugins.scala.base.ScalaLightCodeInsightFixtureTestAdapter
+import org.junit.experimental.categories.Category
 
+@Category(Array(classOf[PerfCycleTests]))
 class RandomHighlightingBugs extends ScalaLightCodeInsightFixtureTestAdapter {
   def testSCL9738(): Unit = {
     checkTextHasNoErrors(
@@ -196,4 +199,39 @@ class RandomHighlightingBugs extends ScalaLightCodeInsightFixtureTestAdapter {
         |}
       """.stripMargin
     )
+
+  def testSCL14897(): Unit = checkTextHasNoErrors(
+    """
+      |trait Bar
+      |trait Foo { this: Bar =>
+      |  abstract class TildeArrow[A, B]
+      |  implicit object InjectIntoRequestTransformer extends Foo.this.TildeArrow[Int, Int]
+      |}
+      |
+      |class Test extends Foo with Bar {
+      |  val foo: Test.this.TildeArrow[Int, Int] = InjectIntoRequestTransformer // expected type error
+      |}
+    """.stripMargin
+  )
+
+  def testSCL14894(): Unit = checkTextHasNoErrors(
+    """
+      |import Container._
+      |
+      |object Container {
+      |
+      |  class Node[A] {
+      |
+      |    class WithFilter(p: A => Boolean) {
+      |      def foreach[U](f: A => U): Unit = {}
+      |    }
+      |  }
+      |}
+      |
+      |class Container[A] private (root: Node[A]) {
+      |
+      |  def withFilter(p: A => Boolean): Node[A]#WithFilter = new root.WithFilter(p)
+      |}
+    """.stripMargin
+  )
 }
