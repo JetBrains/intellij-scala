@@ -138,11 +138,14 @@ private[resolver] object BspResolverLogic {
       .distinct
 
     // all subdirectories of a source dir are automatically source dirs
-    val sourceRoots = sourceDirs.filter {dir =>
+    val sourceRoots = sourceDirs.filter { dir =>
       ! sourceDirs.exists(a => FileUtil.isAncestor(a.directory, dir.directory, true))
     }
 
-    val moduleBase = target.getId.getUri.toURI.toFile
+    val moduleBase = Option(target.getBaseDirectory)
+      .map(_.toURI.toFile)
+      .orElse(commonBase(sourceRoots.map(_.directory)))
+
     val outputPath = scalacOptions.map(_.getClassDirectory.toURI.toFile)
 
     // classpath needs to be filtered for module dependency output paths since they are handled by IDEA module dep mechanism
@@ -155,10 +158,6 @@ private[resolver] object BspResolverLogic {
     val targetData =
       if (tags.contains(BuildTargetTag.NO_IDE)) None
       else Option(target.getData).map(_.asInstanceOf[JsonElement])
-
-    val moduleDescriptionData = createScalaModuleDescription(
-      target, tags, moduleBase, outputPath, sourceRoots,
-      classPathWithoutDependencyOutputs, dependencySourcePaths)
 
     val scalaModule =
       targetData.flatMap(extractScalaSdkData)
@@ -178,9 +177,19 @@ private[resolver] object BspResolverLogic {
     //            SbtModule(scalaSdkData, sbtModuleData)
     //          }
 
-    scalaModule
-      .map(moduleKind => ModuleDescription(moduleDescriptionData, moduleKind))
-      .toSeq
+    // TODO warning output whenmodules are skipped because of missing base or scala module data
+    val moduleDescriptionOpt = for {
+      baseDir <- moduleBase
+      moduleKind <- scalaModule
+    } yield {
+      val moduleDescriptionData = createScalaModuleDescription(
+        target, tags, baseDir, outputPath, sourceRoots,
+        classPathWithoutDependencyOutputs, dependencySourcePaths)
+
+      ModuleDescription(moduleDescriptionData, moduleKind)
+    }
+
+    moduleDescriptionOpt.toSeq
   }
 
   private[resolver] def createScalaModuleDescription(target: BuildTarget,
