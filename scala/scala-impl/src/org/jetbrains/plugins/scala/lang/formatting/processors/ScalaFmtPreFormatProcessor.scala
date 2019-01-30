@@ -1,23 +1,21 @@
 package org.jetbrains.plugins.scala.lang.formatting.processors
 
-import java.awt.Point
-
 import com.intellij.application.options.CodeStyle
 import com.intellij.lang.ASTNode
+import com.intellij.notification._
+import com.intellij.openapi.actionSystem.AnActionEvent
 import com.intellij.openapi.diagnostic.Logger
+import com.intellij.openapi.fileEditor.OpenFileDescriptor
 import com.intellij.openapi.progress.ProgressIndicatorProvider
 import com.intellij.openapi.project.Project
-import com.intellij.openapi.ui.MessageType
-import com.intellij.openapi.ui.popup.{Balloon, JBPopupFactory}
 import com.intellij.openapi.util.text.StringUtil
 import com.intellij.openapi.util.{Key, TextRange}
-import com.intellij.openapi.wm.ex.WindowManagerEx
+import com.intellij.openapi.vfs.VirtualFile
 import com.intellij.psi._
 import com.intellij.psi.impl.source.codeStyle.{CodeEditUtil, PreFormatProcessor}
 import com.intellij.psi.impl.source.tree.{LeafPsiElement, PsiWhiteSpaceImpl}
 import com.intellij.psi.javadoc.PsiDocComment
 import com.intellij.psi.util.PsiTreeUtil
-import com.intellij.ui.awt.RelativePoint
 import org.apache.commons.lang.StringUtils
 import org.jetbrains.plugins.scala.ScalaFileType
 import org.jetbrains.plugins.scala.extensions.{PsiElementExt, _}
@@ -43,6 +41,7 @@ import scala.annotation.tailrec
 import scala.collection.mutable
 import scala.collection.mutable.{ArrayBuffer, ListBuffer}
 import scala.util.Try
+import scala.xml.Utility
 
 class ScalaFmtPreFormatProcessor extends PreFormatProcessor {
   private val log = Logger.getInstance(getClass)
@@ -88,6 +87,9 @@ object ScalaFmtPreFormatProcessor {
   private val DummyWrapperClassPrefix = s"class $DummyWrapperClassName {\n"
   private val DummyWrapperClassSuffix = "\n}"
 
+  private val NotificationDisplayId = "Scalafmt (Scala plugin)"
+  private val NotificationTitle = "Scalafmt"
+  private val notificationGroup: NotificationGroup = NotificationGroup.balloonGroup(NotificationDisplayId)
 
   private def shiftRange(file: PsiFile, range: TextRange): TextRange = {
     rangesDeltaCache.get(file).filterNot(_.isEmpty).map { deltas =>
@@ -257,14 +259,14 @@ object ScalaFmtPreFormatProcessor {
   private def areAllUpperElementTypeDefinitions(elements: Seq[PsiElement]): Boolean = {
     elements.headOption match {
       case Some(p: ScPackaging) =>
-        val children = p.children.drop(3).toSeq
+        val children = p.getChildren.drop(1) // drop package reference
         areAllUpperElementTypeDefinitions(children)
       case _ =>
         val elementsToConsider = elements.filter {
           case _: ScImportStmt | _: ScDocComment | _: PsiComment | _: PsiDocComment | _: PsiWhiteSpace => false
           case _ => true
         }
-        elementsToConsider.nonEmpty && elementsToConsider.forall(_.isInstanceOf[ScTypeDefinition])
+        elementsToConsider.forall(_.isInstanceOf[ScTypeDefinition])
     }
   }
 
@@ -292,20 +294,24 @@ object ScalaFmtPreFormatProcessor {
   private def attachFormattedCode(elements: Seq[PsiElement], config: ScalafmtConfig)(implicit project: Project): Seq[(PsiElement, WrappedCode)] = {
     val elementsWithoutWs = elements.filterNot(_.isInstanceOf[PsiWhiteSpace])
     val elementsFormatted = elementsWithoutWs.map(el => (el, formatInSingleFile(Seq(el), config, shouldWrap = true)))
-    if(elementsFormatted.exists(_._2.isEmpty)){
-      reportInvalidCodeFailure(project)
-    }
     elementsFormatted.collect { case (el, Some(code)) => (el, code)}
   }
 
-  def formatWithoutCommit(file: PsiFile): Boolean = {
-    (for {
-      document <- Option(PsiDocumentManager.getInstance(file.getProject).getDocument(file))
-      config = ScalaFmtConfigUtil.configFor(file)
-      formattedText <- Scalafmt.format(file.getText, config).toEither.toOption
+  def formatWithoutCommit(file: PsiFile): Unit = {
+    formatWithoutCommit(file, ScalaFmtConfigUtil.configFor(file)) match {
+      case Left(error: ScalafmtFormatError) =>
+        reportInvalidCodeFailure(file.getProject, file, Some(error))
+      case _ =>
+    }
+  }
+
+  private def formatWithoutCommit(file: PsiFile, config: => ScalafmtConfig): Either[FormattingError, Unit]= {
+    for {
+      document <- Option(PsiDocumentManager.getInstance(file.getProject).getDocument(file)).toRight(DocumentNotFoundError)
+      formattedText <- Scalafmt.format(file.getText, config).toEither.left.map(cause => ScalafmtFormatError(cause))
     } yield {
       inWriteAction(document.setText(formattedText))
-    }).isDefined
+    }
   }
 
   private def formatRange(file: PsiFile, range: TextRange): Option[Int] = {
@@ -317,9 +323,17 @@ object ScalaFmtPreFormatProcessor {
     val config = ScalaFmtConfigUtil.configFor(file)
 
     val rangeIncludesWholeFile = range.contains(file.getTextRange)
-    if (rangeIncludesWholeFile && formatWithoutCommit(file)) {
-      manager.commitDocument(document)
-      return None
+
+    var wholeFileFormatError: Option[ScalafmtFormatError] = None
+    if (rangeIncludesWholeFile) {
+      formatWithoutCommit(file, config) match {
+        case Right(_) =>
+          manager.commitDocument(document)
+          return None
+        case Left(error: ScalafmtFormatError) =>
+          wholeFileFormatError = Some(error)
+        case _ =>
+      }
     }
 
     def processRange(elements: Seq[PsiElement], wrap: Boolean): Option[Int] = {
@@ -334,7 +348,7 @@ object ScalaFmtPreFormatProcessor {
         textRangeDelta
       }
       if(result.isEmpty){
-        reportInvalidCodeFailure(project)
+        reportInvalidCodeFailure(project, file, wholeFileFormatError)
       }
       result
     }
@@ -343,7 +357,7 @@ object ScalaFmtPreFormatProcessor {
     if (elementsWrapped.isEmpty) {
       if (rangeIncludesWholeFile) {
         //wanted to format whole file, failed with file and with file elements wrapped, report failure
-        reportInvalidCodeFailure(project)
+        reportInvalidCodeFailure(project, file, wholeFileFormatError)
       } else {
         //failed to wrap some elements, try the whole file
         processRange(Seq(file), wrap = false)
@@ -792,20 +806,38 @@ object ScalaFmtPreFormatProcessor {
     }
   }
 
-  def reportError(errorText: String, project: Project): Unit = {
-    val popupFactory = JBPopupFactory.getInstance
-    val frame = WindowManagerEx.getInstanceEx.getFrame(project)
-    if (frame == null) return
-    val balloon = popupFactory.createHtmlTextBalloonBuilder(
-      errorText,
-      MessageType.WARNING,
-      null).createBalloon
-    balloon.show(new RelativePoint(frame, new Point(frame.getWidth - 20, 20)), Balloon.Position.above)
+  def displayNotification(message: String, notificationType: NotificationType, actions: Seq[NotificationAction] = Nil): Unit = {
+    val notification = notificationGroup.createNotification(NotificationTitle, null, message, notificationType)
+    actions.foreach(notification.addAction)
+    Notifications.Bus.notify(notification)
   }
 
-  private def reportInvalidCodeFailure(project: Project): Unit = {
-    if (ScalaCodeStyleSettings.getInstance(project).SCALAFMT_SHOW_INVALID_CODE_WARNINGS)
-      reportError("Failed to find correct surrounding code to pass for scalafmt, no formatting will be performed", project)
+  private def reportError(message: String, actions: Seq[NotificationAction]): Unit = {
+    displayNotification(message, NotificationType.ERROR, actions)
+  }
+
+  private def reportInvalidCodeFailure(project: Project, file: PsiFile, error: Option[ScalafmtFormatError] = None): Unit = {
+    if (ScalaCodeStyleSettings.getInstance(project).SCALAFMT_SHOW_INVALID_CODE_WARNINGS) {
+      val (message, action) = error.map(_.cause) match {
+        case Some(cause: scala.meta.ParseException) =>
+          val action = file.getVirtualFile.toOption.map(new OpenFileNotificationActon(project, _, cause.pos.start.offset))
+          (s"Parse error: ${cause.getMessage}", action)
+        case Some(cause) =>
+          (cause.getMessage.take(100), None)
+        case None =>
+          ("Failed to find correct surrounding code to pass for scalafmt, no formatting will be performed", None)
+      }
+      reportError(Utility.escape(message), action.toSeq)
+    }
+  }
+
+  class OpenFileNotificationActon(project: Project, vFile: VirtualFile, offset: Int, title: String = "open source file")
+    extends NotificationAction(title) {
+
+    override def actionPerformed(e: AnActionEvent, notification: Notification): Unit = {
+      new OpenFileDescriptor(project, vFile, offset).navigate(true)
+      notification.expire()
+    }
   }
 
   //TODO get rid of this once com.intellij.util.text.TextRanges does not have an error on unifying (x, x+1) V (x+1, y)
@@ -898,18 +930,22 @@ object ScalaFmtPreFormatProcessor {
       text.length - newLineIndex
     }
   }
-}
 
-/** This is a helper class to keep information about how formatted elements were wrapped
-  */
-private class WrappedCode(val text: String, val wrapped: Boolean, val wrappedInHelperClass: Boolean) {
-  def withText(newText: String): WrappedCode = new WrappedCode(newText, wrapped, wrappedInHelperClass)
-}
+  private sealed trait FormattingError
+  private object DocumentNotFoundError extends FormattingError
+  private case class ScalafmtFormatError(cause: Throwable) extends FormattingError
 
-/** Marker whitespace implementation that indicates absence of whitespace.
-  * It is more convenient to use Replace psi change instead of Remove, but there is no way
-  * to create a whitespace with empty text normally, via ScalaPsiElementFactory, so we use this hack
-  */
-private object EmptyPsiWhitespace extends PsiWhiteSpaceImpl("") {
-  override def isValid: Boolean = true
+  /** This is a helper class to keep information about how formatted elements were wrapped
+    */
+  private class WrappedCode(val text: String, val wrapped: Boolean, val wrappedInHelperClass: Boolean) {
+    def withText(newText: String): WrappedCode = new WrappedCode(newText, wrapped, wrappedInHelperClass)
+  }
+
+  /** Marker whitespace implementation that indicates absence of whitespace.
+    * It is more convenient to use Replace psi change instead of Remove, but there is no way
+    * to create a whitespace with empty text normally, via ScalaPsiElementFactory, so we use this hack
+    */
+  private object EmptyPsiWhitespace extends PsiWhiteSpaceImpl("") {
+    override def isValid: Boolean = true
+  }
 }

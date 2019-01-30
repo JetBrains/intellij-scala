@@ -201,7 +201,10 @@ class ScalaFmtSettingsPanel(val settings: CodeStyleSettings) extends CodeStyleAb
     val textAccessor = new TextComponentAccessor[JTextField]() {
       override def setText(textField: JTextField, text: String): Unit = textField.setText(text)
       override def getText(textField: JTextField): String =
-        Option(textField.getText).filter(StringUtils.isNotBlank).getOrElse(DefaultConfigFilePath)
+        Option(textField.getText).filter(StringUtils.isNotBlank).orElse {
+          val path = DefaultConfigFilePath
+          project.flatMap(ScalaFmtConfigUtil.absolutePathFromConfigPath(path, _))
+        }.orNull
     }
 
     // if we typed only whitespaces and lost focus from text field we should display empty text placeholder

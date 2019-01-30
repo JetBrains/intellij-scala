@@ -158,7 +158,7 @@ class ScalaBlock(val myParentBlock: ScalaBlock,
   }
 
   private def getChildAttributesScalafmtInner(newChildIndex: Int, parent: PsiElement): ChildAttributes = {
-    val scalafmtConfig = ScalaFmtConfigUtil.configFor(parent.getContainingFile)
+    val scalafmtConfig = ScalaFmtConfigUtil.configFor(parent.getContainingFile, failSilent = true)
     parent match {
       case _: ScParameterClause if newChildIndex != 0 =>
         new ChildAttributes(Indent.getSpaceIndent(scalafmtConfig.continuationIndent.defnSite), null)
