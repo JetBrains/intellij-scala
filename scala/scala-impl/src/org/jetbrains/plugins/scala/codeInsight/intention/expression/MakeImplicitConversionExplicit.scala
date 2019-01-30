@@ -1,46 +1,50 @@
 package org.jetbrains.plugins.scala
-package codeInsight.intention.expression
+package codeInsight
+package intention
+package expression
 
 import com.intellij.codeInsight.intention.PsiElementBaseIntentionAction
 import com.intellij.openapi.editor.Editor
 import com.intellij.openapi.project.Project
 import com.intellij.psi.PsiElement
-import com.intellij.psi.util.PsiTreeUtil.getParentOfType
+import com.intellij.psi.util.PsiTreeUtil.getNonStrictParentOfType
+import org.jetbrains.plugins.scala.actions.MakeExplicitAction
 import org.jetbrains.plugins.scala.lang.psi.api.expr.ScExpression
 import org.jetbrains.plugins.scala.lang.psi.api.statements.ScFunction
-import org.jetbrains.plugins.scala.util.IntentionUtils.replaceWithExplicit
 
 /**
   * @author Ksenia.Sautina
   * @since 5/4/12
   */
-
-object MakeImplicitConversionExplicit {
-  def familyName = "Make implicit conversion explicit"
-}
-
 class MakeImplicitConversionExplicit extends PsiElementBaseIntentionAction {
-  def getFamilyName: String = MakeImplicitConversionExplicit.familyName
 
-  override def getText: String = getFamilyName
+  import MakeImplicitConversionExplicit._
+
+  override def getFamilyName: String = FamilyName
+
+  override def getText: String = FamilyName
 
   def isAvailable(project: Project, editor: Editor, element: PsiElement): Boolean =
-    parent(element).flatMap {
-      _.implicitElement(fromUnderscore = true)
-    }.isDefined
+    findImplicitElement(element).isDefined
 
   override def invoke(project: Project, editor: Editor, element: PsiElement): Unit =
-    parent(element).foreach { expression =>
-      expression.implicitElement(fromUnderscore = true).collect {
-        case function: ScFunction => function
-      }.foreach { function =>
-        val conversions = expression.implicitConversions(fromUnderscore = true)
-        replaceWithExplicit(expression, function, project, editor, conversions)
-      }
-    }
+    for {
+      (expression, function) <- findImplicitElement(element)
 
-  private def parent(element: PsiElement) =
-    Option(getParentOfType(element, classOf[ScExpression], false)).filter {
-      _.isValid
-    }
+      importStatically = expression.implicitConversions(fromUnderscore = true).contains(function)
+    } MakeExplicitAction.replaceWithExplicit(expression, function, importStatically)(project, editor)
+}
+
+object MakeImplicitConversionExplicit {
+
+  val FamilyName = "Make implicit conversion explicit"
+
+  private def findImplicitElement(element: PsiElement) = for {
+    parent <- Option(getNonStrictParentOfType(element, classOf[ScExpression]))
+    if parent.isValid
+
+    function <- parent.implicitElement(fromUnderscore = true)
+    if function.isInstanceOf[ScFunction]
+  } yield (parent, function.asInstanceOf[ScFunction])
+
 }

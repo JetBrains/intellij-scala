@@ -1,7 +1,8 @@
-package org.jetbrains.plugins.scala.actions
+package org.jetbrains.plugins.scala
+package actions
 
+import java.awt.Color
 import java.awt.event.{MouseAdapter, MouseEvent}
-import java.awt.{Color, Point}
 
 import com.intellij.codeInsight.CodeInsightBundle
 import com.intellij.openapi.actionSystem._
@@ -9,7 +10,6 @@ import com.intellij.openapi.editor.Editor
 import com.intellij.openapi.editor.colors.EditorFontType
 import com.intellij.openapi.keymap.KeymapUtil
 import com.intellij.openapi.project.Project
-import com.intellij.openapi.ui.popup.{JBPopup, JBPopupFactory}
 import com.intellij.openapi.util.IconLoader
 import com.intellij.psi._
 import com.intellij.psi.util.PsiUtilBase
@@ -24,28 +24,19 @@ import org.jetbrains.plugins.scala.lang.psi.presentation.ScImplicitFunctionListC
 import org.jetbrains.plugins.scala.lang.refactoring.util.ScalaRefactoringUtil
 import org.jetbrains.plugins.scala.lang.refactoring.util.ScalaRefactoringUtil.getExpression
 import org.jetbrains.plugins.scala.statistics.{FeatureKey, Stats}
-import org.jetbrains.plugins.scala.util.IntentionUtils.showMakeExplicitPopup
-import org.jetbrains.plugins.scala.util.{IntentionUtils, JListCompatibility}
+import org.jetbrains.plugins.scala.util.JListCompatibility
 
-import scala.collection.mutable.ArrayBuffer
+import scala.collection.mutable
 
 /**
- * User: Alexander Podkhalyuzin
- * Date: 02.06.2010
- */
+  * User: Alexander Podkhalyuzin
+  * Date: 02.06.2010
+  */
+final class ShowImplicitConversionsAction extends AnAction("Show implicit conversions") {
 
-object ShowImplicitConversionsAction {
-  var popup: JBPopup = null
+  import MakeExplicitAction._
 
-  def getPopup: JBPopup = popup
-
-  def setPopup(p: JBPopup) {
-    popup = p
-  }
-}
-
-class ShowImplicitConversionsAction extends AnAction("Show implicit conversions") {
-  private var hint: LightBulbHint = null
+  private var hint: LightBulbHint = _
   private val hintAlarm: Alarm = new Alarm
 
   override def update(e: AnActionEvent) {
@@ -103,33 +94,13 @@ class ShowImplicitConversionsAction extends AnAction("Show implicit conversions"
           updateHint(item)
         }
       })
-      JListCompatibility.GoToImplicitConversionAction.setList(list)
 
-      val builder = JBPopupFactory.getInstance.createListPopupBuilder(list)
-      val popup = builder.setTitle("Choose implicit conversion method:").setAdText("Press Alt+Enter").
-      setMovable(false).setResizable(false).setRequestFocus(true).
-      setItemChoosenCallback(new Runnable {
-        def run() {
-          val entity = list.getSelectedValue.asInstanceOf[Parameters]
-          entity.newExpression match {
-            case f: ScFunction =>
-              f.syntheticNavigationElement match {
-                case n: NavigatablePsiElement => n.navigate(true)
-                case _ => f.navigate(true)
-              }
-            case n: NavigatablePsiElement => n.navigate(true)
-            case _ => //do nothing
-          }
-        }
-      }).createPopup
-      popup.showInBestPositionFor(editor)
+      createPopup(list).showInBestPositionFor(editor)
 
       if (actualIndex >= 0 && actualIndex < list.getModel.getSize) {
         list.getSelectionModel.setSelectionInterval(actualIndex, actualIndex)
         list.ensureIndexIsVisible(actualIndex)
       }
-
-      ShowImplicitConversionsAction.setPopup(popup)
 
       hint = new LightBulbHint(editor, project, expr, conversions)
 
@@ -148,7 +119,7 @@ class ShowImplicitConversionsAction extends AnAction("Show implicit conversions"
         case p => p
       }
       def getExpressions(guard: Boolean): Array[ScExpression] = {
-        val res = new ArrayBuffer[ScExpression]
+        val res = mutable.ArrayBuffer.empty[ScExpression]
         var parent = element
         while (parent != null) {
           parent match {
@@ -194,9 +165,11 @@ class ShowImplicitConversionsAction extends AnAction("Show implicit conversions"
     }
   }
 
+  import JListCompatibility.GoToImplicitConversionAction
+
   private def updateHint(element: Parameters): Unit = {
     if (element.newExpression == null || !element.newExpression.isValid) return
-    val list = JListCompatibility.GoToImplicitConversionAction.getList
+    val list = GoToImplicitConversionAction.getList
 
     if (hint != null) {
       list.remove(hint)
@@ -242,28 +215,25 @@ class ShowImplicitConversionsAction extends AnAction("Show implicit conversions"
         setBorder(INACTIVE_BORDER)
       }
 
-      override def mousePressed(e: MouseEvent): Unit = {
-        if (!e.isPopupTrigger && e.getButton == MouseEvent.BUTTON1) {
-          selectedValue.newExpression match {
-            case function: ScFunction =>
-              showMakeExplicitPopup(project, expr, function, editor, elements)
+      override def mousePressed(e: MouseEvent): Unit = e.getButton match {
+        case MouseEvent.BUTTON1 if !e.isPopupTrigger =>
+          GoToImplicitConversionAction.getList.getSelectedValue match {
+            case Parameters(function: ScFunction, _, _, _, _) => showMakeExplicitPopup(expr, function, elements)(project, editor)
             case _ =>
           }
-        }
+        case _ =>
       }
     })
 
     def setBulbLayout(): Unit = {
-      if (selectedValue.newExpression != null) {
-        val bounds = IntentionUtils.getCurrentItemBounds
-        setSize(getPreferredSize)
-        setLocation(new Point(bounds.x + bounds.width - getWidth - INDENT, bounds.y))
+      val list = GoToImplicitConversionAction.getList
+      list.getSelectedValue match {
+        case Parameters(newExpression, _, _, _, _) if newExpression != null =>
+          setSize(getPreferredSize)
+          setLocation(сurrentItemPoint(list, getWidth + INDENT))
+        case _ =>
       }
     }
-
-    private def selectedValue =
-      JListCompatibility.GoToImplicitConversionAction.getList
-        .getSelectedValue.asInstanceOf[Parameters]
   }
 
 }
