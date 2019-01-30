@@ -13,7 +13,7 @@ import org.jetbrains.plugins.scala.lang.psi.api.base.patterns.ScBindingPattern
 import org.jetbrains.plugins.scala.lang.psi.api.statements._
 import org.jetbrains.plugins.scala.lang.psi.api.statements.params._
 import org.jetbrains.plugins.scala.lang.psi.api.toplevel.ScTypeParametersOwner
-import org.jetbrains.plugins.scala.lang.psi.api.toplevel.typedef.ScTypeDefinition
+import org.jetbrains.plugins.scala.lang.psi.api.toplevel.typedef.{ScObject, ScTypeDefinition}
 import org.jetbrains.plugins.scala.lang.psi.impl.toplevel.synthetic.ScSyntheticClass
 import org.jetbrains.plugins.scala.lang.psi.types.ScalaConformance.{ScalaArray, SmartInheritanceResult, UndefinedOrWildcard}
 import org.jetbrains.plugins.scala.lang.psi.types.api._
@@ -477,63 +477,22 @@ trait ScalaConformance extends api.Conformance {
               val projected1 = proj1.projected
               val projected2 = proj2.projected
               result = conformsInner(projected1, projected2, visited, constraints)
-            case ParameterizedType(projDes: ScProjectionType, typeArguments) =>
-              //TODO this looks overcomplicated. Improve the code.
-              def cutProj(p: ScType, acc: List[ScProjectionType]): ScType = {
-                if (acc.isEmpty) p else acc.foldLeft(p){
-                  case (proj, oldProj) => ScProjectionType(proj, oldProj.element)
-                }
-              }
-              @tailrec
-              def findProjectionBase(proj: ScProjectionType, acc: List[ScProjectionType] = List()): Unit = {
-                val t = proj.projected.equiv(projDes.projected, constraints)
-                if (t.isRight) {
-                  constraints = t.constraints
-                  val (maybeLeft, maybeRight) = (projDes.actualElement, proj.actualElement) match {
-                    case (desT: Typeable, projT: Typeable) =>
-                      val left = desT.`type`().toOption
-                        .collect {
-                          case ParameterizedType(designator, _) => designator
-                        }.map(ScParameterizedType(_, typeArguments))
-
-
-                      val right = projT.`type`().toOption
-                        .map(cutProj(_, acc))
-
-                      (left, right)
-                    case _ => (None, None)
-                  }
-
-                  maybeLeft.zip(maybeRight).map {
-                    case (left, right) => conformsInner(left, right, visited, constraints)
-                  }.foreach {
-                    case conformance if conformance.isRight => result = conformance
-                    case _ =>
-                  }
-                } else {
-                  proj.projected match {
-                    case p: ScProjectionType => findProjectionBase(p, proj :: acc)
-                    case _ =>
-                  }
-                }
-              }
-              findProjectionBase(proj2)
             case _ =>
               val res = proj2.actualElement match {
                 case syntheticClass: ScSyntheticClass =>
                   result = conformsInner(l, syntheticClass.stdType, HashSet.empty, constraints)
                   return
                 case v: ScBindingPattern => v.`type`()
-                case v: ScParameter => v.`type`()
-                case v: ScFieldId => v.`type`()
-                case _ => return
+                case v: ScParameter      => v.`type`()
+                case v: ScFieldId        => v.`type`()
+                case _                   => return
               }
 
               result = res match {
                 case Right(value) => conformsInner(l, proj2.actualSubst(value), visited, constraints)
-                case _ => ConstraintsResult.Left
-              }
-          }
+                case _            => ConstraintsResult.Left
+                }
+            }
         }
       }
     }
