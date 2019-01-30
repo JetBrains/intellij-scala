@@ -152,9 +152,11 @@ object DependencyGroups {
       .exclude("net.java.dev.jna","jna") // included in IDEA platform
       .exclude("net.java.dev.jna","jna-platform") // included in IDEA platform
     ,
-    ("ch.epfl.scala" % "bsp4j" % "2.0.0-M2")
+    ("ch.epfl.scala" % "bsp4j" % "2.0.0-M3+19-9313cae8")
       .exclude("com.google.code.gson", "gson") // included in IDEA platform
       .exclude("com.google.guava", "guava") // included in IDEA platform
+    ,
+    "ch.epfl.scala" %% "bsp-testkit" % "2.0.0-M3+19-9313cae8" % "test"
   )
 
   val decompiler: Seq[ModuleID] = Seq(
