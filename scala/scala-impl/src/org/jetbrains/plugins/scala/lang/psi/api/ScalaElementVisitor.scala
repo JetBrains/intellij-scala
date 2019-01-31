@@ -114,7 +114,7 @@ class ScalaElementVisitor extends PsiElementVisitor {
   def visitExpression(expr: ScExpression) { visitElement(expr) }
   def visitThisReference(t: ScThisReference) {visitExpression(t)}
   def visitSuperReference(t: ScSuperReference) {visitExpression(t)}
-  def visitReferenceExpression(ref: ScReferenceExpression) {}
+  def visitReferenceExpression(ref: ScReferenceExpression) {} // TODO isn't a reference expression an expression?
   def visitPostfixExpression(p: ScPostfixExpr) { visitExpression(p) }
   def visitPrefixExpression(p: ScPrefixExpr) { visitExpression(p) }
   def visitIfStatement(stmt: ScIf) { visitExpression(stmt) }
