@@ -20,13 +20,14 @@ import com.intellij.openapi.components.PathMacroManager
 import com.intellij.openapi.module.{Module, ModuleManager}
 import com.intellij.openapi.options.{SettingsEditor, SettingsEditorGroup}
 import com.intellij.openapi.project.Project
-import com.intellij.openapi.projectRoots.{JdkUtil, Sdk}
+import com.intellij.openapi.projectRoots.{JdkUtil, ProjectJdkTable}
 import com.intellij.openapi.util.text.StringUtil
 import com.intellij.openapi.util.{Computable, Getter, JDOMExternalizer}
 import com.intellij.openapi.vfs.newvfs.ManagingFS
 import com.intellij.openapi.vfs.newvfs.persistent.PersistentFSImpl
 import com.intellij.psi._
 import com.intellij.psi.search.GlobalSearchScope
+import com.intellij.util.xmlb.XmlSerializer
 import org.jdom.Element
 import org.jetbrains.plugins.scala.extensions._
 import org.jetbrains.plugins.scala.lang.psi.ScalaPsiUtil
@@ -136,6 +137,8 @@ abstract class AbstractTestRunConfiguration(val project: Project,
   var useSbt: Boolean = false
   @BeanProperty
   var useUiWithSbt = false
+  @BeanProperty
+  var jrePath: String = _
 
   private var generatedName: String = ""
 
@@ -147,25 +150,26 @@ abstract class AbstractTestRunConfiguration(val project: Project,
 
   override def suggestedName: String = generatedName
 
-    def apply(configuration: TestRunConfigurationForm) {
-      setSearchTest(configuration.getSearchForTest)
-      setJavaOptions(configuration.getJavaOptions)
-      setTestArgs(configuration.getTestArgs)
-      setModule(configuration.getModule)
-      val workDir = configuration.getWorkingDirectory
-      setWorkingDirectory(
-        if (workDir != null && !workDir.trim.isEmpty) {
-          workDir
-        } else {
-          provideDefaultWorkingDir
-        }
-      )
-      setEnvVariables(configuration.getEnvironmentVariables)
-      setShowProgressMessages(configuration.getShowProgressMessages)
-      setUseSbt(configuration.getUseSbt)
-      setUseUiWithSbt(configuration.getUseUiWithSbt)
-      testConfigurationData = TestConfigurationData.fromForm(configuration, this)
-    }
+  def apply(configuration: TestRunConfigurationForm) {
+    setSearchTest(configuration.getSearchForTest)
+    setJavaOptions(configuration.getJavaOptions)
+    setTestArgs(configuration.getTestArgs)
+    setModule(configuration.getModule)
+    setJrePath(configuration.getJrePath)
+    val workDir = configuration.getWorkingDirectory
+    setWorkingDirectory(
+      if (workDir != null && !workDir.trim.isEmpty) {
+        workDir
+      } else {
+        provideDefaultWorkingDir
+      }
+    )
+    setEnvVariables(configuration.getEnvironmentVariables)
+    setShowProgressMessages(configuration.getShowProgressMessages)
+    setUseSbt(configuration.getUseSbt)
+    setUseUiWithSbt(configuration.getUseUiWithSbt)
+    testConfigurationData = TestConfigurationData.fromForm(configuration, this)
+  }
 
   protected[test] def getClazz(path: String, withDependencies: Boolean): PsiClass = {
     val classes = ScalaPsiManager.instance(project).getCachedClasses(getScope(withDependencies), path)
@@ -334,7 +338,7 @@ abstract class AbstractTestRunConfiguration(val project: Project,
   protected def escapeTestName(test: String): String = if (test.contains(" ")) "\"" + test + "\"" else test
 
   protected def escapeClassAndTest(input: String): String = input
-  
+
   def buildSbtParams(classToTests: Map[String, Set[String]]): Seq[String] = {
     (for ((aClass, tests) <- classToTests) yield {
       if (tests.isEmpty) Seq(s"$sbtClassKey$aClass")
@@ -395,15 +399,19 @@ abstract class AbstractTestRunConfiguration(val project: Project,
           case _                    =>
         }
 
+        val maybeCustomSdk = ProjectJdkTable.getInstance().findJdk(jrePath).toOption
         searchTest match {
           case SearchForTest.IN_WHOLE_PROJECT =>
-            var jdk: Sdk = null
-            for (module <- ModuleManager.getInstance(project).getModules if jdk == null) {
-              jdk = JavaParameters.getValidJdkToRunModule(module, false)
-            }
-            params.configureByProject(project, JavaParameters.JDK_AND_CLASSES_AND_TESTS, jdk)
+            val sdk = maybeCustomSdk.orElse(
+              project
+                .modules
+                .iterator.map(JavaParameters.getValidJdkToRunModule(_, false))
+                .collectFirst { case jdk if jdk ne null => jdk }
+            )
+            params.configureByProject(project, JavaParameters.JDK_AND_CLASSES_AND_TESTS, sdk.orNull)
           case _ =>
-            params.configureByModule(module, JavaParameters.JDK_AND_CLASSES_AND_TESTS, JavaParameters.getValidJdkToRunModule(module, false))
+            val sdk = maybeCustomSdk.getOrElse(JavaParameters.getValidJdkToRunModule(module, false))
+            params.configureByModule(module, JavaParameters.JDK_AND_CLASSES_AND_TESTS, sdk)
         }
 
         params.setMainClass(mainClass)
@@ -546,6 +554,7 @@ abstract class AbstractTestRunConfiguration(val project: Project,
     JDOMExternalizer.write(element, "showProgressMessages", showProgressMessages.toString)
     JDOMExternalizer.write(element, "useSbt", useSbt)
     JDOMExternalizer.write(element, "useUiWithSbt", useUiWithSbt)
+    JDOMExternalizer.write(element, "jrePath", jrePath)
     JDOMExternalizer.writeMap(element, envs, "envs", "envVar")
     TestConfigurationData.writeExternal(element, testConfigurationData)
     PathMacroManager.getInstance(getProject).collapsePathsRecursively(element)
@@ -569,6 +578,7 @@ abstract class AbstractTestRunConfiguration(val project: Project,
     showProgressMessages = JDOMExternalizer.readBoolean(element, "showProgressMessages")
     useSbt = JDOMExternalizer.readBoolean(element, "useSbt")
     useUiWithSbt = JDOMExternalizer.readBoolean(element, "useUiWithSbt")
+    jrePath = JDOMExternalizer.readString(element, "jrePath")
   }
 }
 
