@@ -8,6 +8,7 @@ import com.intellij.openapi.util.Key
 import com.intellij.psi._
 import com.intellij.psi.scope._
 import org.jetbrains.plugins.scala.extensions._
+import org.jetbrains.plugins.scala.lang.psi.ElementScope
 import org.jetbrains.plugins.scala.lang.psi.api._
 import org.jetbrains.plugins.scala.lang.psi.api.base.types.ScTypeProjection
 import org.jetbrains.plugins.scala.lang.psi.api.statements.ScTypeAlias
@@ -139,8 +140,12 @@ abstract class BaseProcessor(val kinds: Set[ResolveTargets.Value])
     }
   }
 
-  def processType(t: ScType, place: PsiElement, state: ResolveState = ResolveState.initial()): Boolean =
-    processTypeImpl(t, place, state)(RecursionState.empty)
+  def processType(
+    t:                        ScType,
+    place:                    PsiElement,
+    state:                    ResolveState = ResolveState.initial(),
+    updateWithProjectionType: Boolean      = true
+  ): Boolean = processTypeImpl(t, place, state, updateWithProjectionType)(RecursionState.empty)
 
   private def processTypeImpl(t: ScType, place: PsiElement,
                               state: ResolveState = ResolveState.initial(),
@@ -209,12 +214,10 @@ abstract class BaseProcessor(val kinds: Set[ResolveTargets.Value])
           case Right(tp) => processTypeImpl(tp, place, state)
           case _ => true
         }
-      case ScDesignatorType(e) =>
-        processElement(e, ScSubstitutor.empty, place, state)
-      case tpt: TypeParameterType =>
-        processTypeImpl(tpt.upperType, place, state, updateWithProjectionSubst = false)
+      case ScDesignatorType(e)    => processElement(e, ScSubstitutor.empty, place, state)
+      case tpt: TypeParameterType => processTypeImpl(tpt.upperType, place, state, updateWithProjectionSubst = false)
       case j: JavaArrayType =>
-        implicit val elementScope = place.elementScope
+        implicit val elementScope: ElementScope = place.elementScope
         processTypeImpl(j.getParameterizedType.getOrElse(return true), place, state)
       case p@ParameterizedType(designator, typeArgs) =>
         designator match {
@@ -229,20 +232,19 @@ abstract class BaseProcessor(val kinds: Set[ResolveTargets.Value])
             case None => true
           }
         }
-      case proj@ScProjectionType(_, _) if proj.actualElement.isInstanceOf[ScTypeAlias] =>
-        val ta = proj.actualElement.asInstanceOf[ScTypeAlias]
-        val subst = proj.actualSubst
-        val upper = ta.upperBound.getOrElse(return true)
-        processTypeImpl(subst(upper), place, state.put(ScSubstitutor.key, ScSubstitutor.empty))(recState.add(ta))
-      case proj@ScProjectionType(_, _) =>
-        val s: ScSubstitutor =
-          if (updateWithProjectionSubst)
-            ScSubstitutor(proj) followed proj.actualSubst
-          else proj.actualSubst
-        val actualElement = proj.actualElement
-        processElement(actualElement, s, place, state)(recState.add(actualElement))
-      case lit: ScLiteralType =>
-        processType(lit.wideType, place, state)
+      case proj: ScProjectionType =>
+        val withActual = new ScProjectionType.withActual(updateWithProjectionSubst)
+        proj match {
+          case withActual(alias: ScTypeAlias, s) =>
+            val upper = alias.upperBound.getOrElse(return true)
+            processTypeImpl(s(upper), place, state.put(ScSubstitutor.key, ScSubstitutor.empty))(recState.add(alias))
+          case withActual(elem, s) =>
+            val subst =
+              if (updateWithProjectionSubst) ScSubstitutor(proj) followed s
+              else                           s
+            processElement(elem, subst, place, state)(recState.add(elem))
+        }
+      case lit: ScLiteralType => processType(lit.wideType, place, state, updateWithProjectionSubst)
       case StdType(name, tSuper) =>
         SyntheticClasses.get(place.getProject).byName(name) match {
           case Some(c) =>
@@ -267,7 +269,7 @@ abstract class BaseProcessor(val kinds: Set[ResolveTargets.Value])
           }
         }
         true
-      case comp@ScCompoundType(_, _, _) =>
+      case comp: ScCompoundType =>
         TypeDefinitionMembers.processDeclarations(comp, this, state, null, place)
       case ex: ScExistentialType =>
         processTypeImpl(ex.quantified, place, state.put(ScSubstitutor.key, ScSubstitutor.empty))

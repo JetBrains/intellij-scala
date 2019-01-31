@@ -95,7 +95,7 @@ final class ScProjectionType private(val projected: ScType,
   }
 
   @CachedWithRecursionGuard(element, None, ModCount.getBlockModificationCount)
-  private def actualImpl(projected: ScType): Option[(PsiNamedElement, ScSubstitutor)] = {
+  private def actualImpl(projected: ScType, updateWithProjectionSubst: Boolean): Option[(PsiNamedElement, ScSubstitutor)] = {
     val resolvePlace = {
       def fromClazz(definition: ScTypeDefinition): PsiElement =
         definition.extendsBlock.templateBody
@@ -146,7 +146,7 @@ final class ScProjectionType private(val projected: ScType,
           true
         }
       }
-      processor.processType(projected, resolvePlace, ResolveState.initial)
+      processor.processType(projected, resolvePlace, ResolveState.initial, updateWithProjectionSubst)
 
       processor.candidates match {
         case Array(candidate) => candidate.element match {
@@ -186,12 +186,11 @@ final class ScProjectionType private(val projected: ScType,
     }
   }
 
-  private def actual: (PsiNamedElement, ScSubstitutor) = {
-    actualImpl(projected).getOrElse(element, ScSubstitutor.empty)
-  }
+  private def actual(updateWithProjectionSubst: Boolean = true): (PsiNamedElement, ScSubstitutor) =
+    actualImpl(projected, updateWithProjectionSubst).getOrElse(element, ScSubstitutor.empty)
 
-  def actualElement: PsiNamedElement = actual._1
-  def actualSubst: ScSubstitutor = actual._2
+  def actualElement: PsiNamedElement = actual()._1
+  def actualSubst: ScSubstitutor = actual()._2
 
   /**
     * Arises when argument-dependent types are approximated in implicit search
@@ -353,7 +352,7 @@ object ScProjectionType {
   def simpleAliasProjection(p: ScProjectionType): ScType = {
     if (guard.checkReentrancy(p)) return p
 
-    p.actual match {
+    p.actual() match {
       case (td: ScTypeAliasDefinition, subst) if td.typeParameters.isEmpty =>
         val upper = guard.doPreventingRecursion(p, td.upperBound.map(subst).toOption)
         upper
@@ -379,6 +378,13 @@ object ScProjectionType {
   }
 
   object withActual {
-    def unapply(proj: ScProjectionType): Option[(PsiNamedElement, ScSubstitutor)] = Some(proj.actual)
+    private[this] val extractor = new withActual(true)
+
+    def unapply(proj: ScProjectionType): Option[(PsiNamedElement, ScSubstitutor)] = extractor.unapply(proj)
+  }
+
+  class withActual(updateWithProjectionSubst: Boolean) {
+    def unapply(proj: ScProjectionType): Option[(PsiNamedElement, ScSubstitutor)] =
+      Option(proj.actual(updateWithProjectionSubst))
   }
 }
