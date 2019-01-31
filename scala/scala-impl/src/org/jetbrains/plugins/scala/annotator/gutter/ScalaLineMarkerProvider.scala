@@ -39,10 +39,7 @@ import scala.collection.Seq
  * User: Alexander Podkhalyuzin
  * Date: 31.10.2008
  */
-class ScalaLineMarkerProvider(daemonSettings: DaemonCodeAnalyzerSettings, colorsManager: EditorColorsManager)
-    extends LineMarkerProvider
-    with ScalaSeparatorProvider {
-
+class ScalaLineMarkerProvider() extends LineMarkerProvider with ScalaSeparatorProvider {
   override def getLineMarkerInfo(element: PsiElement): LineMarkerInfo[_ <: PsiElement] =
     if (element.isValid) {
       val lineMarkerInfo =
@@ -50,7 +47,7 @@ class ScalaLineMarkerProvider(daemonSettings: DaemonCodeAnalyzerSettings, colors
           .orElse(getImplementsSAMTypeMarker(element))
           .orNull
 
-      if (daemonSettings.SHOW_METHOD_SEPARATORS && isSeparatorNeeded(element)) {
+      if (DaemonCodeAnalyzerSettings.getInstance().SHOW_METHOD_SEPARATORS && isSeparatorNeeded(element)) {
         if (lineMarkerInfo == null) {
           addSeparatorInfo(createMarkerInfo(element))
         } else {
@@ -73,7 +70,8 @@ class ScalaLineMarkerProvider(daemonSettings: DaemonCodeAnalyzerSettings, colors
   }
 
   private[this] def addSeparatorInfo(info: LineMarkerInfo[_ <: PsiElement]): LineMarkerInfo[_ <: PsiElement] = {
-    info.separatorColor     = colorsManager.getGlobalScheme.getColor(CodeInsightColors.METHOD_SEPARATORS_COLOR)
+    info.separatorColor =
+      EditorColorsManager.getInstance().getGlobalScheme.getColor(CodeInsightColors.METHOD_SEPARATORS_COLOR)
     info.separatorPlacement = SeparatorPlacement.TOP
     info
   }
