@@ -1,5 +1,7 @@
 package org.jetbrains.plugins.scala
-package codeInsight.intention.booleans
+package codeInsight
+package intention
+package booleans
 
 import com.intellij.codeInsight.intention.PsiElementBaseIntentionAction
 import com.intellij.openapi.editor.Editor
@@ -7,7 +9,6 @@ import com.intellij.openapi.project.Project
 import com.intellij.psi.PsiElement
 import com.intellij.psi.util.PsiTreeUtil
 import org.jetbrains.plugins.scala.lang.psi.api.expr._
-import org.jetbrains.plugins.scala.util.IntentionUtils
 
 /**
   * @author Ksenia.Sautina
@@ -16,7 +17,6 @@ import org.jetbrains.plugins.scala.util.IntentionUtils
 class DeMorganLawIntention extends PsiElementBaseIntentionAction {
 
   import DeMorganLawIntention._
-  import IntentionUtils._
 
   def getFamilyName: String = familyName
 

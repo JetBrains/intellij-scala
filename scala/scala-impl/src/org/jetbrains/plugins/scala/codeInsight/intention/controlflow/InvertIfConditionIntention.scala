@@ -1,4 +1,7 @@
-package org.jetbrains.plugins.scala.codeInsight.intention.controlflow
+package org.jetbrains.plugins.scala
+package codeInsight
+package intention
+package controlflow
 
 import com.intellij.codeInsight.intention.PsiElementBaseIntentionAction
 import com.intellij.openapi.editor.Editor
@@ -8,7 +11,6 @@ import com.intellij.psi.{PsiDocumentManager, PsiElement}
 import org.jetbrains.plugins.scala.extensions._
 import org.jetbrains.plugins.scala.lang.psi.api.expr.{ScBlockExpr, ScExpression, ScIf, ScInfixExpr}
 import org.jetbrains.plugins.scala.lang.psi.impl.ScalaPsiElementFactory.createExpressionFromText
-import org.jetbrains.plugins.scala.util.IntentionUtils
 
 /**
   * @author Ksenia.Sautina
@@ -45,8 +47,6 @@ class InvertIfConditionIntention extends PsiElementBaseIntentionAction {
   override def invoke(project: Project, editor: Editor, element: PsiElement) {
     val ifStmt: ScIf = PsiTreeUtil.getParentOfType(element, classOf[ScIf], false)
     if (ifStmt == null || !ifStmt.isValid) return
-
-    import IntentionUtils.negate
 
     val expr = new StringBuilder
     val newCond = ifStmt.condition.get match {

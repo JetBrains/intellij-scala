@@ -1,5 +1,7 @@
 package org.jetbrains.plugins.scala
-package codeInsight.intention.expression
+package codeInsight
+package intention
+package expression
 
 import com.intellij.codeInsight.intention.PsiElementBaseIntentionAction
 import com.intellij.openapi.editor.Editor
@@ -11,7 +13,7 @@ import org.jetbrains.plugins.scala.extensions._
 import org.jetbrains.plugins.scala.lang.psi.api.expr._
 import org.jetbrains.plugins.scala.lang.psi.impl.ScalaPsiElementFactory.createExpressionFromText
 import org.jetbrains.plugins.scala.project.ProjectContext
-import org.jetbrains.plugins.scala.util.{IntentionAvailabilityChecker, IntentionUtils}
+import org.jetbrains.plugins.scala.util.IntentionAvailabilityChecker
 
 /**
  * @author Ksenia.Sautina
@@ -87,7 +89,7 @@ class ConvertToInfixExpressionIntention extends PsiElementBaseIntentionAction {
 
     argsBuilder.append(methodCallArgs.getText)
 
-    IntentionUtils.analyzeMethodCallArgs(methodCallArgs, argsBuilder)
+    analyzeMethodCallArgs(methodCallArgs, argsBuilder)
 
     var forA = qual.getText
     if (forA.startsWith("(") && forA.endsWith(")")) {

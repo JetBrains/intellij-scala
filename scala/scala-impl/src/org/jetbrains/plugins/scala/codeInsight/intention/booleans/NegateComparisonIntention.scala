@@ -1,5 +1,7 @@
 package org.jetbrains.plugins.scala
-package codeInsight.intention.booleans
+package codeInsight
+package intention
+package booleans
 
 import com.intellij.codeInsight.intention.PsiElementBaseIntentionAction
 import com.intellij.openapi.editor.Editor
@@ -8,7 +10,6 @@ import com.intellij.psi.PsiElement
 import com.intellij.psi.util.PsiTreeUtil
 import org.jetbrains.plugins.scala.extensions._
 import org.jetbrains.plugins.scala.lang.psi.api.expr.ScInfixExpr
-import org.jetbrains.plugins.scala.util.IntentionUtils
 
 /**
   * @author Ksenia.Sautina
@@ -16,7 +17,6 @@ import org.jetbrains.plugins.scala.util.IntentionUtils
   */
 class NegateComparisonIntention extends PsiElementBaseIntentionAction {
 
-  import IntentionUtils._
   import NegateComparisonIntention._
 
   def getFamilyName: String = familyName

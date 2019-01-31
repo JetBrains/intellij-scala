@@ -1,4 +1,7 @@
-package org.jetbrains.plugins.scala.codeInsight.intention.controlflow
+package org.jetbrains.plugins.scala
+package codeInsight
+package intention
+package controlflow
 
 import com.intellij.codeInsight.intention.PsiElementBaseIntentionAction
 import com.intellij.openapi.editor.Editor
@@ -8,7 +11,6 @@ import com.intellij.psi.{PsiDocumentManager, PsiElement}
 import org.jetbrains.plugins.scala.extensions._
 import org.jetbrains.plugins.scala.lang.psi.api.expr.{ScExpression, ScIf, ScInfixExpr, ScParenthesisedExpr}
 import org.jetbrains.plugins.scala.lang.psi.impl.ScalaPsiElementFactory.createExpressionFromText
-import org.jetbrains.plugins.scala.util.IntentionUtils
 
 /**
   * @author Ksenia.Sautina
@@ -16,7 +18,6 @@ import org.jetbrains.plugins.scala.util.IntentionUtils
   */
 class SplitIfIntention extends PsiElementBaseIntentionAction {
 
-  import IntentionUtils._
   import SplitIfIntention._
 
   def getFamilyName: String = familyName

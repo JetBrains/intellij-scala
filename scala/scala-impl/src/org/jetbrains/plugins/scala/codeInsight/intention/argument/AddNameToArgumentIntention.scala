@@ -1,11 +1,12 @@
 package org.jetbrains.plugins.scala
-package codeInsight.intention.argument
+package codeInsight
+package intention
+package argument
 
 import com.intellij.codeInsight.intention.PsiElementBaseIntentionAction
 import com.intellij.openapi.editor.Editor
 import com.intellij.openapi.project.Project
 import com.intellij.psi.PsiElement
-import org.jetbrains.plugins.scala.util.IntentionUtils
 
 /**
  * Jason Zaugg
@@ -21,14 +22,11 @@ class AddNameToArgumentIntention extends PsiElementBaseIntentionAction {
   override def getText = "Use named arguments for current and subsequent arguments"
 
   def isAvailable(project: Project, editor: Editor, element: PsiElement): Boolean = {
-     IntentionUtils.addNameToArgumentsFix(element, onlyBoolean = false).isDefined
+    addNameToArgumentsFix(element, onlyBoolean = false).isDefined
   }
 
   override def invoke(project: Project, editor: Editor, element: PsiElement) {
     if (!element.isValid) return
-    IntentionUtils.addNameToArgumentsFix(element, onlyBoolean = false) match {
-      case Some(x) => x()
-      case None =>
-    }
+    addNameToArgumentsFix(element, onlyBoolean = false).foreach(_.apply())
   }
 }

@@ -1,5 +1,7 @@
 package org.jetbrains.plugins.scala
-package codeInsight.intention.booleans
+package codeInsight
+package intention
+package booleans
 
 import com.intellij.codeInsight.intention.PsiElementBaseIntentionAction
 import com.intellij.openapi.editor.Editor
@@ -11,7 +13,6 @@ import org.jetbrains.plugins.scala.extensions._
 import org.jetbrains.plugins.scala.lang.psi.api.expr._
 import org.jetbrains.plugins.scala.lang.psi.impl.ScalaPsiElementFactory.createExpressionFromText
 import org.jetbrains.plugins.scala.project.ProjectContext
-import org.jetbrains.plugins.scala.util.IntentionUtils
 
 import scala.collection.mutable
 
@@ -74,7 +75,7 @@ class FlipComparisonInMethodCallExprIntention extends PsiElementBaseIntentionAct
 
     argsBuilder.append(methodCallExpr.args.getText)
 
-    IntentionUtils.analyzeMethodCallArgs(methodCallExpr.args, argsBuilder)
+    analyzeMethodCallArgs(methodCallExpr.args, argsBuilder)
 
     val qual = methodCallExpr.getInvokedExpr.asInstanceOf[ScReferenceExpression].qualifier.get
     qualBuilder.append(qual.getText)

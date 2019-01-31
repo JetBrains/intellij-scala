@@ -1,5 +1,7 @@
 package org.jetbrains.plugins.scala
-package codeInsight.intention.booleans
+package codeInsight
+package intention
+package booleans
 
 import com.intellij.codeInsight.intention.PsiElementBaseIntentionAction
 import com.intellij.openapi.editor.Editor
@@ -9,7 +11,6 @@ import com.intellij.psi.{PsiDocumentManager, PsiElement}
 import org.jetbrains.plugins.scala.extensions._
 import org.jetbrains.plugins.scala.lang.psi.api.expr.ScInfixExpr
 import org.jetbrains.plugins.scala.lang.psi.impl.ScalaPsiElementFactory.createExpressionFromText
-import org.jetbrains.plugins.scala.util.IntentionUtils
 
 /**
   * @author Ksenia.Sautina
@@ -29,7 +30,7 @@ class ReplaceEqualsOrEqualityInInfixExprIntention extends PsiElementBaseIntentio
     val refName = operation.refName
 
     Replacement.get(refName) match {
-      case Some(replacement) if IntentionUtils.caretIsInRange(operation)(editor) =>
+      case Some(replacement) if caretIsInRange(operation)(editor) =>
         setText(s"Replace '$refName' with '$replacement'")
         true
       case _ => false

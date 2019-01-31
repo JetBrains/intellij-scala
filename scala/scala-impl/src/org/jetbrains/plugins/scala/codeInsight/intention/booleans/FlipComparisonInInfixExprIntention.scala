@@ -1,5 +1,7 @@
 package org.jetbrains.plugins.scala
-package codeInsight.intention.booleans
+package codeInsight
+package intention
+package booleans
 
 import com.intellij.codeInsight.intention.PsiElementBaseIntentionAction
 import com.intellij.openapi.editor.Editor
@@ -9,7 +11,6 @@ import com.intellij.psi.{PsiDocumentManager, PsiElement}
 import org.jetbrains.plugins.scala.extensions._
 import org.jetbrains.plugins.scala.lang.psi.api.expr._
 import org.jetbrains.plugins.scala.lang.psi.impl.ScalaPsiElementFactory.createExpressionFromText
-import org.jetbrains.plugins.scala.util.IntentionUtils
 
 /**
   * @author Ksenia.Sautina
@@ -18,7 +19,6 @@ import org.jetbrains.plugins.scala.util.IntentionUtils
 class FlipComparisonInInfixExprIntention extends PsiElementBaseIntentionAction {
 
   import FlipComparisonInInfixExprIntention._
-  import IntentionUtils._
 
   def getFamilyName: String = familyName
 
