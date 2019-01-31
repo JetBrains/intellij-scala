@@ -19,8 +19,6 @@ import org.scalafmt.config.{Config, ScalafmtConfig, ScalafmtRunner}
 
 object ScalaFmtConfigUtil {
 
-  val SupportedExtensions: Set[String] = Set("scala", "sc", "sbt")
-
   private val scalafmtConfigsCache: ConcurrentMap[String, (ScalafmtConfig, Long)] = ContainerUtil.newConcurrentMap()
 
   private def loadConfig(configFile: VirtualFile, project: Project): Configured[ScalafmtConfig] = {
@@ -67,6 +65,11 @@ object ScalaFmtConfigUtil {
       case _ => config
     }
   }
+
+  def isFileSupported(file: VirtualFile): Boolean = isScala(file) || isSbt(file)
+
+  private def isScala(file: VirtualFile): Boolean = file.getFileType.getName.equalsIgnoreCase("scala")
+  private def isSbt(file: VirtualFile): Boolean = file.getFileType.getName.equalsIgnoreCase("sbt")
 
   private def configFor(project: Project, configPath: String, failSilent: Boolean): ScalafmtConfig =
     scalaFmtConfigFile(configPath, project) match {
