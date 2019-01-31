@@ -36,6 +36,8 @@ class EditorMock(text: String, offset: Int) extends EditorStub {
     override def addInlineElement[T <: EditorCustomElementRenderer](offset: Int, relatesToPrecedingText: Boolean, renderer: T): Inlay[T] = null
 
     override def addBlockElement[T <: EditorCustomElementRenderer](offset: Int, relatesToPrecedingText: Boolean, showAbove: Boolean, priority: Int, renderer: T): Inlay[T] = null
+
+    override def setConsiderCaretPositionOnDocumentUpdates(enabled: Boolean): Unit = {}
   }
 
   override def offsetToLogicalPosition(offset: Int): LogicalPosition = {
