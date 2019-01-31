@@ -8,6 +8,7 @@ import com.intellij.openapi.editor.Editor
 import com.intellij.psi.impl.source.tree.LeafPsiElement
 import com.intellij.psi.{PsiElement, PsiFile}
 import org.jetbrains.plugins.scala.extensions.PsiElementExt
+import org.jetbrains.plugins.scala.lang.lexer.ScalaTokenTypes
 
 import scala.annotation.tailrec
 
@@ -26,7 +27,7 @@ final class ScalaTemplatePreprocessor extends TemplatePreprocessor {
         element <- Option(file.findElementAt(caretOffset))
 
         leaf <- findNonEmptySibling(element)
-        if leaf.getText == Def
+        if leaf.getElementType == ScalaTokenTypes.kDEF
       } removeRedundantToken(leaf.getStartOffset, caretOffset)(editor)
     }
 }
@@ -38,7 +39,7 @@ object ScalaTemplatePreprocessor {
   @tailrec
   private def findNonEmptySibling(element: PsiElement): Option[LeafPsiElement] =
     element.getPrevSiblingNotWhitespace match {
-      case sibling: PsiElement if sibling.getText.isEmpty => findNonEmptySibling(element)
+      case sibling: PsiElement if sibling.getTextLength == 0 => findNonEmptySibling(sibling)
       case sibling: LeafPsiElement => Some(sibling)
       case _ => None
     }
