@@ -52,7 +52,6 @@ import com.intellij.openapi.util.TextRange;
 import com.intellij.openapi.util.ThrowableComputable;
 import com.intellij.openapi.util.text.StringUtil;
 import com.intellij.psi.*;
-import com.intellij.psi.impl.source.tree.injected.InjectedLanguageUtil;
 import com.intellij.ui.HintListener;
 import com.intellij.ui.LightweightHint;
 import com.intellij.ui.ScreenUtil;
@@ -133,16 +132,6 @@ public class MouseHoverHandler implements ProjectComponent {
       }
 
       Point point = new Point(mouseEvent.getPoint());
-      if (PsiDocumentManager.getInstance(myProject).isCommitted(editor.getDocument())) {
-        // when document is committed, try to check injected stuff - it's fast
-        try {
-          LogicalPosition pos = editor.xyToLogicalPosition(point);
-          editor = InjectedLanguageUtil
-              .getEditorForInjectedLanguageNoCommit(editor, psiFile, editor.logicalPositionToOffset(pos));
-        } catch (Exception ignore) { //see EA-55701
-          return;
-        }
-      }
 
       final LogicalPosition pos = editor.xyToLogicalPosition(point);
       int offset = editor.logicalPositionToOffset(pos);
