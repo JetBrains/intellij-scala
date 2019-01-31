@@ -1,4 +1,7 @@
-package org.jetbrains.plugins.scala.codeInsight.intention.argument
+package org.jetbrains.plugins.scala
+package codeInsight
+package intention
+package argument
 
 import com.intellij.codeInsight.intention.PsiElementBaseIntentionAction
 import com.intellij.openapi.editor.Editor
@@ -13,15 +16,11 @@ import org.jetbrains.plugins.scala.util.IntentionAvailabilityChecker
 /**
  * Pavel Fatin
  */
+final class ArgumentToBlockExpressionIntention extends PsiElementBaseIntentionAction {
 
-class ArgumentToBlockExpressionIntention extends PsiElementBaseIntentionAction {
-  def getFamilyName: String = ArgumentToBlockExpressionIntention.familyName
-
-  override def getText: String = getFamilyName
-
-  def isAvailable(project: Project, editor: Editor, element: PsiElement): Boolean = {
+  override def isAvailable(project: Project, editor: Editor, element: PsiElement): Boolean = {
     IntentionAvailabilityChecker.checkIntention(this, element) && (element match {
-      case Parent(list: ScArgumentExprList) if list.exprs.size == 1 && !list.exprs(0).isInstanceOf[ScUnderscoreSection] => true
+      case Parent(list: ScArgumentExprList) if list.exprs.size == 1 && !list.exprs.head.isInstanceOf[ScUnderscoreSection] => true
       case _ => false
     })
   }
@@ -39,8 +38,13 @@ class ArgumentToBlockExpressionIntention extends PsiElementBaseIntentionAction {
     list.getLastChild.delete()
     CodeStyleManager.getInstance(project).reformat(block)
   }
+
+  override def getFamilyName: String = ArgumentToBlockExpressionIntention.FamilyName
+
+  override def getText: String = getFamilyName
 }
 
 object ArgumentToBlockExpressionIntention {
-  val familyName = "Convert to block expression"
+
+  private[argument] val FamilyName = "Convert to block expression"
 }

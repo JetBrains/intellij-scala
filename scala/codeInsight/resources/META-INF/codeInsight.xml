@@ -68,6 +68,26 @@
                 implementation="org.jetbrains.plugins.scala.codeInsight.template.macros.ScalaPrimaryConstructorMacro$ParamNames"/>
         <liveTemplateMacro
                 implementation="org.jetbrains.plugins.scala.codeInsight.template.macros.ScalaPrimaryConstructorMacro$ParamTypes"/>
+
+        <intentionAction>
+            <category>Scala/Argument Conversion</category>
+            <className>org.jetbrains.plugins.scala.codeInsight.intention.argument.AddNameToArgumentIntention</className>
+        </intentionAction>
+
+        <intentionAction>
+            <category>Scala/Argument Conversion</category>
+            <className>org.jetbrains.plugins.scala.codeInsight.intention.argument.ArgumentToBlockExpressionIntention</className>
+        </intentionAction>
+
+        <intentionAction>
+            <category>Scala/Argument Conversion</category>
+            <className>org.jetbrains.plugins.scala.codeInsight.intention.argument.BlockExpressionToArgumentIntention</className>
+        </intentionAction>
+
+        <intentionAction>
+            <category>Scala/Argument Conversion</category>
+            <className>org.jetbrains.plugins.scala.codeInsight.intention.argument.PermuteArgumentsIntention</className>
+        </intentionAction>
     </extensions>
 
     <extensions defaultExtensionNs="com.intellij.codeInsight">
