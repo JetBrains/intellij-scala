@@ -1,5 +1,7 @@
 package org.jetbrains.plugins.scala
-package codeInsight.intention.booleans
+package codeInsight
+package intention
+package booleans
 
 import com.intellij.codeInsight.intention.PsiElementBaseIntentionAction
 import com.intellij.openapi.editor.Editor
@@ -17,21 +19,11 @@ import scala.annotation.tailrec
   * @author Ksenia.Sautina
   * @since 4/23/12
   */
-
-object ReplaceEqualsOrEqualityInMethodCallExprIntention {
-
-  def familyName = "Replace equals or equality in method call expression"
-
-  private val replaceOper = Map("equals" -> "==", "==" -> "equals")
-}
-
-class ReplaceEqualsOrEqualityInMethodCallExprIntention extends PsiElementBaseIntentionAction {
+final class ReplaceEqualsOrEqualityInMethodCallExprIntention extends PsiElementBaseIntentionAction {
 
   import ReplaceEqualsOrEqualityInMethodCallExprIntention._
 
-  def getFamilyName: String = ReplaceEqualsOrEqualityInMethodCallExprIntention.familyName
-
-  def isAvailable(project: Project, editor: Editor, element: PsiElement): Boolean = {
+  override def isAvailable(project: Project, editor: Editor, element: PsiElement): Boolean = {
     val methodCallExpr: ScMethodCall = PsiTreeUtil.getParentOfType(element, classOf[ScMethodCall], false)
     if (methodCallExpr == null) return false
 
@@ -71,6 +63,15 @@ class ReplaceEqualsOrEqualityInMethodCallExprIntention extends PsiElementBaseInt
     }
   }
 
+  override def getFamilyName: String = FamilyName
+}
+
+object ReplaceEqualsOrEqualityInMethodCallExprIntention {
+
+  private[booleans] val FamilyName = "Replace equals or equality in method call expression"
+
+  private val replaceOper = Map("equals" -> "==", "==" -> "equals")
+
   @tailrec
   private def findCaretOffset(expr: ScExpression): Int = expr match {
     case ScParenthesisedExpr(inner) => findCaretOffset(inner)
@@ -79,24 +80,19 @@ class ReplaceEqualsOrEqualityInMethodCallExprIntention extends PsiElementBaseInt
     case _ => expr.getTextRange.getStartOffset
   }
 
-  def convertExpression(methodCallExpr: ScMethodCall, scReferenceExpression: ScReferenceExpression, desiredOper: String): String = {
-
+  private def convertExpression(methodCallExpr: ScMethodCall, scReferenceExpression: ScReferenceExpression, desiredOper: String): String = {
     val methodCallArgs: ScArgumentExprList = methodCallExpr.args
     val methodCallArgsText: String = methodCallArgs.getText
 
-    if (desiredOper == "==") {
-      val processArgs: String = {
-        //accounts for tuples
-        if (methodCallArgs.getChildren.length == 1)
-          methodCallArgsText.drop(1).dropRight(1)
-        else
-          methodCallArgsText
-      }
+    val suffix = if (desiredOper == "==") {
+      val processArgs =
+      //accounts for tuples
+        if (methodCallArgs.getChildren.length == 1) methodCallArgsText.drop(1).dropRight(1)
+        else methodCallArgsText
 
-      s"${scReferenceExpression.qualifier.get.getText} $desiredOper $processArgs"
-    } else {
-      
-      s"${scReferenceExpression.qualifier.get.getText}.$desiredOper$methodCallArgsText"
-    }
+      s" $desiredOper $processArgs"
+    } else s".$desiredOper$methodCallArgsText"
+
+    scReferenceExpression.qualifier.get.getText + suffix
   }
 }

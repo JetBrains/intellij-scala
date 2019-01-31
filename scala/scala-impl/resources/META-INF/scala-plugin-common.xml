@@ -634,41 +634,6 @@
         </intentionAction>
 
         <intentionAction>
-            <category>Scala/Boolean</category>
-            <className>org.jetbrains.plugins.scala.codeInsight.intention.booleans.FlipComparisonInInfixExprIntention</className>
-        </intentionAction>
-
-        <intentionAction>
-            <category>Scala/Boolean</category>
-            <className>org.jetbrains.plugins.scala.codeInsight.intention.booleans.FlipComparisonInMethodCallExprIntention</className>
-        </intentionAction>
-
-        <intentionAction>
-            <category>Scala/Boolean</category>
-            <className>org.jetbrains.plugins.scala.codeInsight.intention.booleans.ReplaceEqualsOrEqualityInInfixExprIntention</className>
-        </intentionAction>
-
-        <intentionAction>
-            <category>Scala/Boolean</category>
-            <className>org.jetbrains.plugins.scala.codeInsight.intention.booleans.ReplaceEqualsOrEqualityInMethodCallExprIntention</className>
-        </intentionAction>
-
-        <intentionAction>
-            <category>Scala/Boolean</category>
-            <className>org.jetbrains.plugins.scala.codeInsight.intention.booleans.DeMorganLawIntention</className>
-        </intentionAction>
-
-        <intentionAction>
-            <category>Scala/Boolean</category>
-            <className>org.jetbrains.plugins.scala.codeInsight.intention.booleans.NegateComparisonIntention</className>
-        </intentionAction>
-
-        <intentionAction>
-          <category>Scala/Boolean</category>
-          <className>org.jetbrains.plugins.scala.codeInsight.intention.booleans.SimplifyBooleanExprWithLiteralIntention</className>
-        </intentionAction>
-
-        <intentionAction>
             <category>Scala/Control flow</category>
             <className>org.jetbrains.plugins.scala.codeInsight.intention.controlflow.MergeIfToAndIntention</className>
         </intentionAction>
@@ -711,11 +676,6 @@
         <intentionAction>
             <category>Scala/Control flow</category>
             <className>org.jetbrains.plugins.scala.codeInsight.intention.controlflow.ReplaceDoWhileWithWhileIntention</className>
-        </intentionAction>
-
-        <intentionAction>
-            <category>Scala/Boolean</category>
-            <className>org.jetbrains.plugins.scala.codeInsight.intention.booleans.ExpandBooleanIntention</className>
         </intentionAction>
 
         <intentionAction>

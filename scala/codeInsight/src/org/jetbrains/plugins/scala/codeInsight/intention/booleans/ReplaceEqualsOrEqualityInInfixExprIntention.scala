@@ -16,13 +16,11 @@ import org.jetbrains.plugins.scala.lang.psi.impl.ScalaPsiElementFactory.createEx
   * @author Ksenia.Sautina
   * @since 4/23/12
   */
-class ReplaceEqualsOrEqualityInInfixExprIntention extends PsiElementBaseIntentionAction {
+final class ReplaceEqualsOrEqualityInInfixExprIntention extends PsiElementBaseIntentionAction {
 
   import ReplaceEqualsOrEqualityInInfixExprIntention._
 
-  def getFamilyName: String = familyName
-
-  def isAvailable(project: Project, editor: Editor, element: PsiElement): Boolean = {
+  override def isAvailable(project: Project, editor: Editor, element: PsiElement): Boolean = {
     val infixExpr: ScInfixExpr = PsiTreeUtil.getParentOfType(element, classOf[ScInfixExpr], false)
     if (infixExpr == null) return false
 
@@ -55,10 +53,13 @@ class ReplaceEqualsOrEqualityInInfixExprIntention extends PsiElementBaseIntentio
       PsiDocumentManager.getInstance(project).commitDocument(editor.getDocument)
     }
   }
+
+  override def getFamilyName: String = FamilyName
 }
 
 object ReplaceEqualsOrEqualityInInfixExprIntention {
-  def familyName = "Replace equals or equality in infix expression"
+
+  private[booleans] val FamilyName = "Replace equals or equality in infix expression"
 
   private val Replacement = Map(
     "equals" -> "==",

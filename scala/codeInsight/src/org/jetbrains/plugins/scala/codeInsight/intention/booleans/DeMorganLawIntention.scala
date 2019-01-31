@@ -14,13 +14,11 @@ import org.jetbrains.plugins.scala.lang.psi.api.expr._
   * @author Ksenia.Sautina
   * @since 5/12/12
   */
-class DeMorganLawIntention extends PsiElementBaseIntentionAction {
+final class DeMorganLawIntention extends PsiElementBaseIntentionAction {
 
   import DeMorganLawIntention._
 
-  def getFamilyName: String = familyName
-
-  def isAvailable(project: Project, editor: Editor, element: PsiElement): Boolean = {
+  override def isAvailable(project: Project, editor: Editor, element: PsiElement): Boolean = {
     val infixExpr: ScInfixExpr = PsiTreeUtil.getParentOfType(element, classOf[ScInfixExpr], false)
     if (infixExpr == null) return false
 
@@ -43,10 +41,13 @@ class DeMorganLawIntention extends PsiElementBaseIntentionAction {
 
     negateAndValidateExpression(infixExpr, text)(project, editor)
   }
+
+  override def getFamilyName: String = FamilyName
 }
 
 object DeMorganLawIntention {
-  def familyName = "DeMorgan Law"
+
+  private[booleans] val FamilyName = "DeMorgan Law"
 
   private val Replacement = Map("" +
     "&&" -> "||",

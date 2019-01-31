@@ -15,24 +15,18 @@ import scala.annotation.tailrec
  * Nikolay.Tropin
  * 4/29/13
  */
-object SimplifyBooleanExprWithLiteralIntention {
-  def familyName = "Simplify boolean expression with a literal"
-}
+final class SimplifyBooleanExprWithLiteralIntention extends PsiElementBaseIntentionAction {
 
-class SimplifyBooleanExprWithLiteralIntention extends PsiElementBaseIntentionAction{
-  def getFamilyName: String = SimplifyBooleanExprWithLiteralIntention.familyName
+  import SimplifyBooleanExprWithLiteralIntention._
 
-  override def getText = "Simplify boolean expression"
-
-  def isAvailable(project: Project, editor: Editor, element: PsiElement): Boolean = {
-    findSimplifiableParent(element).exists {
-      case expr =>
+  override def isAvailable(project: Project, editor: Editor, element: PsiElement): Boolean = {
+    findSimplifiableParent(element).exists { expr =>
         val offset = editor.getCaretModel.getOffset
         offset >= expr.getTextRange.getStartOffset && offset <= expr.getTextRange.getEndOffset
     }
   }
 
-  def invoke(project: Project, editor: Editor, element: PsiElement) {
+  override def invoke(project: Project, editor: Editor, element: PsiElement) {
      findSimplifiableParent(element) match {
        case Some(expr) =>
          inWriteAction {
@@ -41,6 +35,15 @@ class SimplifyBooleanExprWithLiteralIntention extends PsiElementBaseIntentionAct
        case _ =>
     }
   }
+
+  override def getFamilyName: String = FamilyName
+
+  override def getText = "Simplify boolean expression"
+}
+
+object SimplifyBooleanExprWithLiteralIntention {
+
+  private[booleans] val FamilyName = "Simplify boolean expression with a literal"
 
   @tailrec
   private def findSimplifiableParent(element: PsiElement): Option[ScExpression] = element.getParent match {

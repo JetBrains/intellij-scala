@@ -1,4 +1,7 @@
-package org.jetbrains.plugins.scala.codeInsight.intention.booleans
+package org.jetbrains.plugins.scala
+package codeInsight
+package intention
+package booleans
 
 import com.intellij.codeInsight.intention.PsiElementBaseIntentionAction
 import com.intellij.openapi.editor.Editor
@@ -14,11 +17,11 @@ import org.jetbrains.plugins.scala.project.ProjectContext
   * @author Ksenia.Sautina
   * @since 6/29/12
   */
-class ExpandBooleanIntention extends PsiElementBaseIntentionAction {
+final class ExpandBooleanIntention extends PsiElementBaseIntentionAction {
 
   import ExpandBooleanIntention._
 
-  def isAvailable(project: Project, editor: Editor, element: PsiElement): Boolean =
+  override def isAvailable(project: Project, editor: Editor, element: PsiElement): Boolean =
     findReturnParent(element).filter { statement =>
       val range = statement.getTextRange
       val offset = editor.getCaretModel.getOffset
@@ -51,12 +54,12 @@ class ExpandBooleanIntention extends PsiElementBaseIntentionAction {
 
   override def getText: String = "Expand boolean use to 'if else'"
 
-  def getFamilyName: String = FamilyName
+  override def getFamilyName: String = FamilyName
 }
 
 object ExpandBooleanIntention {
 
-  val FamilyName = "Expand Boolean"
+  private[booleans] val FamilyName = "Expand Boolean"
 
   private def findReturnParent(element: PsiElement): Option[ScReturn] =
     element.parentOfType(classOf[ScReturn], strict = false)

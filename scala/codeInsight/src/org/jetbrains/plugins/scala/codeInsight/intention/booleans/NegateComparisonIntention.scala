@@ -15,13 +15,11 @@ import org.jetbrains.plugins.scala.lang.psi.api.expr.ScInfixExpr
   * @author Ksenia.Sautina
   * @since 5/13/12
   */
-class NegateComparisonIntention extends PsiElementBaseIntentionAction {
+final class NegateComparisonIntention extends PsiElementBaseIntentionAction {
 
   import NegateComparisonIntention._
 
-  def getFamilyName: String = familyName
-
-  def isAvailable(project: Project, editor: Editor, element: PsiElement): Boolean = {
+  override def isAvailable(project: Project, editor: Editor, element: PsiElement): Boolean = {
     val infixExpr: ScInfixExpr = PsiTreeUtil.getParentOfType(element, classOf[ScInfixExpr], false)
     if (infixExpr == null) return false
 
@@ -43,12 +41,14 @@ class NegateComparisonIntention extends PsiElementBaseIntentionAction {
     val text = s"$baseText ${Replacement(operation.refName)} $argumentText"
     negateAndValidateExpression(infixExpr, text)(project, editor)
   }
+
+  override def getFamilyName: String = FamilyName
 }
 
 
 object NegateComparisonIntention {
 
-  def familyName = "Negate comparison"
+  private[booleans] val FamilyName = "Negate comparison"
 
   private val Replacement = Map(
     "==" -> "!=",

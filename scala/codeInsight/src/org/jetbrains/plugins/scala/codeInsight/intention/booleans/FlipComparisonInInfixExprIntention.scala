@@ -16,13 +16,11 @@ import org.jetbrains.plugins.scala.lang.psi.impl.ScalaPsiElementFactory.createEx
   * @author Ksenia.Sautina
   * @since 4/20/12
   */
-class FlipComparisonInInfixExprIntention extends PsiElementBaseIntentionAction {
+final class FlipComparisonInInfixExprIntention extends PsiElementBaseIntentionAction {
 
   import FlipComparisonInInfixExprIntention._
 
-  def getFamilyName: String = familyName
-
-  def isAvailable(project: Project, editor: Editor, element: PsiElement): Boolean = {
+  override def isAvailable(project: Project, editor: Editor, element: PsiElement): Boolean = {
     val infixExpr = PsiTreeUtil.getParentOfType(element, classOf[ScInfixExpr], false)
     if (infixExpr == null) return false
 
@@ -60,10 +58,12 @@ class FlipComparisonInInfixExprIntention extends PsiElementBaseIntentionAction {
     }
   }
 
+  override def getFamilyName: String = FamilyName
 }
 
 object FlipComparisonInInfixExprIntention {
-  def familyName = "Flip comparison in infix expression."
+
+  private[booleans] val FamilyName = "Flip comparison in infix expression."
 
   private val Replacement = Map(
     "equals" -> "equals",

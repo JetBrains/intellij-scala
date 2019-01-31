@@ -20,17 +20,9 @@ import scala.collection.mutable
  * @author Ksenia.Sautina
  * @since 4/20/12
  */
+final class FlipComparisonInMethodCallExprIntention extends PsiElementBaseIntentionAction {
 
-object FlipComparisonInMethodCallExprIntention {
-  def familyName = "Flip comparison in method call expression."
-}
-
-class FlipComparisonInMethodCallExprIntention extends PsiElementBaseIntentionAction {
-  def getFamilyName: String = FlipComparisonInMethodCallExprIntention.familyName
-
-  override def getText: String = getFamilyName
-
-  def isAvailable(project: Project, editor: Editor, element: PsiElement): Boolean = {
+  override def isAvailable(project: Project, editor: Editor, element: PsiElement): Boolean = {
     val methodCallExpr: ScMethodCall = PsiTreeUtil.getParentOfType(element, classOf[ScMethodCall], false)
     if (methodCallExpr == null) return false
     if (!methodCallExpr.getInvokedExpr.isInstanceOf[ScReferenceExpression]) return false
@@ -109,4 +101,12 @@ class FlipComparisonInMethodCallExprIntention extends PsiElementBaseIntentionAct
     }
   }
 
+  override def getFamilyName: String = FlipComparisonInMethodCallExprIntention.FamilyName
+
+  override def getText: String = getFamilyName
+}
+
+object FlipComparisonInMethodCallExprIntention {
+
+  private[booleans] val FamilyName = "Flip comparison in method call expression."
 }
