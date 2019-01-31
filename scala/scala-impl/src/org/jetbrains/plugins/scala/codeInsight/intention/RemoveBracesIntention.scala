@@ -1,14 +1,15 @@
 package org.jetbrains.plugins.scala
-package codeInsight.intention
+package codeInsight
+package intention
 
 import com.intellij.codeInsight.intention.PsiElementBaseIntentionAction
 import com.intellij.openapi.editor.Editor
 import com.intellij.openapi.project.Project
-import com.intellij.psi.PsiElement
+import com.intellij.openapi.util.text.StringUtil
 import com.intellij.psi.impl.source.codeStyle.CodeEditUtil
 import com.intellij.psi.tree.TokenSet
 import com.intellij.psi.util.PsiTreeUtil
-import org.jetbrains.plugins.scala.codeInsight.intention.IntentionUtil.CommentsAroundElement
+import com.intellij.psi.{PsiComment, PsiElement, PsiWhiteSpace}
 import org.jetbrains.plugins.scala.extensions.PsiElementExt
 import org.jetbrains.plugins.scala.lang.lexer.ScalaTokenTypes
 import org.jetbrains.plugins.scala.lang.psi.api.base.patterns.ScCaseClause
@@ -20,8 +21,10 @@ import org.jetbrains.plugins.scala.util.IntentionAvailabilityChecker
 /**
   * Jason Zaugg
   */
+final class RemoveBracesIntention extends PsiElementBaseIntentionAction {
 
-class RemoveBracesIntention extends PsiElementBaseIntentionAction {
+  import RemoveBracesIntention._
+
   def getFamilyName = "Remove braces"
 
   override def getText: String = getFamilyName
@@ -31,10 +34,46 @@ class RemoveBracesIntention extends PsiElementBaseIntentionAction {
 
   override def invoke(project: Project, editor: Editor, element: PsiElement) {
     if (element == null || !element.isValid) return
-    check(project, editor, element) match {
-      case Some(x) => x()
-      case None =>
+    check(project, editor, element).foreach(_.apply())
+  }
+
+}
+
+object RemoveBracesIntention {
+
+  case class CommentsAroundElement(before: Seq[PsiElement], after: Seq[PsiElement])
+
+  def collectComments(element: PsiElement, onElementLine: Boolean = false): CommentsAroundElement = {
+    def hasLineBreaks(whiteSpace: PsiElement): Boolean = {
+      if (!onElementLine) false
+      else StringUtil.containsLineBreak(whiteSpace.getText)
     }
+
+    def getElements(it: Iterator[PsiElement]) = {
+      def acceptableElem(elem: PsiElement) = {
+        (elem.isInstanceOf[PsiComment] || elem.isInstanceOf[PsiWhiteSpace]) && !hasLineBreaks(elem)
+      }
+
+      it.takeWhile { a => acceptableElem(a) }.filter(a => a.isInstanceOf[PsiComment]).toSeq
+    }
+
+    CommentsAroundElement(getElements(element.prevSiblings).reverse, getElements(element.nextSiblings).reverse)
+  }
+
+  def addComments(commentsAroundElement: CommentsAroundElement, parent: PsiElement, anchor: PsiElement): Unit = {
+    if ((parent == null) || (anchor == null)) return
+
+    val before = commentsAroundElement.before
+    val after = commentsAroundElement.after
+
+    before.foreach(c => CodeEditUtil.setNodeGenerated(c.getNode, true))
+    after.foreach(c => CodeEditUtil.setNodeGenerated(c.getNode, true))
+
+    after.foreach(c =>
+      if (anchor.getNextSibling != null) parent.getNode.addChild(c.getNode, anchor.getNextSibling.getNode)
+      else parent.getNode.addChild(c.getNode)
+    )
+    before.foreach(c => parent.getNode.addChild(c.getNode, anchor.getNode))
   }
 
   private def check(project: Project, editor: Editor, element: PsiElement): Option[() => Unit] = {
@@ -106,8 +145,8 @@ class RemoveBracesIntention extends PsiElementBaseIntentionAction {
       case blk: ScBlockExpr =>
         blk.statements match {
           case Seq(x: ScExpression) =>
-            val comments = IntentionUtil.collectComments(x, onElementLine = true)
-            if (!IntentionUtil.hasOtherComments(blk, comments)) Some((blk, x, comments))
+            val comments = collectComments(x, onElementLine = true)
+            if (!hasOtherComments(blk, comments)) Some((blk, x, comments))
             else None
           case _ => None
         }
@@ -118,9 +157,14 @@ class RemoveBracesIntention extends PsiElementBaseIntentionAction {
     oneLinerBlock.map {
       case (blkExpr, onlyExpr, comments) =>
         () => {
-          IntentionUtil.addComments(comments, blkExpr.getParent, blkExpr)
+          addComments(comments, blkExpr.getParent, blkExpr)
           CodeEditUtil.replaceChild(blkExpr.getParent.getNode, blkExpr.getNode, onlyExpr.getNode)
         }
     }
+  }
+
+  private[this] def hasOtherComments(element: PsiElement, commentsAroundElement: CommentsAroundElement): Boolean = {
+    val allComments = PsiTreeUtil.getChildrenOfTypeAsList(element, classOf[PsiComment])
+    allComments.size() > commentsAroundElement.before.size + commentsAroundElement.after.size
   }
 }

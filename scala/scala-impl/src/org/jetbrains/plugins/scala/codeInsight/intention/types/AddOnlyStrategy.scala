@@ -117,7 +117,7 @@ class AddOnlyStrategy(editor: Option[Editor] = None) extends Strategy {
       case Some(e) if validVariants.size > 1 =>
         val expr = new ChooseTypeTextExpression(validVariants)
         // TODO Invoke the simplification
-        IntentionUtil.startTemplate(added, context, expr, e)
+        startTemplate(added, context, expr, e)
       case _ =>
         ScalaPsiUtil.adjustTypes(added)
 

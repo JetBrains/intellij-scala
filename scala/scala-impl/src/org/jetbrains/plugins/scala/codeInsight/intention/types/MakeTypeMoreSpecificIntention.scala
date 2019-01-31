@@ -95,7 +95,7 @@ class MakeTypeMoreSpecificIntention extends AbstractTypeAnnotationIntention {
       } else {
         val texts = types.map(ScTypeText)
         val expr = new ChooseTypeTextExpression(texts, ScTypeText(declaredType))
-        IntentionUtil.startTemplate(te, context.getParent, expr, maybeEditor.get)
+        startTemplate(te, context.getParent, expr, maybeEditor.get)
       }
     }
 

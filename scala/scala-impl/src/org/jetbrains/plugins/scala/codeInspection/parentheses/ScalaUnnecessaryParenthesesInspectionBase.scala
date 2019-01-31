@@ -1,19 +1,18 @@
 package org.jetbrains.plugins.scala
-package codeInspection.parentheses
+package codeInspection
+package parentheses
 
 import com.intellij.codeInspection.{LocalQuickFix, ProblemHighlightType, ProblemsHolder}
 import com.intellij.openapi.project.Project
 import com.intellij.psi.PsiElement
 import org.jetbrains.annotations.TestOnly
-import org.jetbrains.plugins.scala.codeInsight.intention.IntentionUtil
-import org.jetbrains.plugins.scala.codeInspection.{AbstractFixOnPsiElement, AbstractInspection}
 import org.jetbrains.plugins.scala.extensions.ParenthesizedElement.Ops
+import org.jetbrains.plugins.scala.lang.psi.ScalaPsiUtil
+import org.jetbrains.plugins.scala.lang.psi.api.ScalaPsiElement
 import org.jetbrains.plugins.scala.lang.psi.api.base.ScParenthesizedElement
 import org.jetbrains.plugins.scala.lang.psi.api.base.types.ScFunctionalTypeElement
 import org.jetbrains.plugins.scala.lang.psi.api.expr.{ScBlockExpr, _}
 import org.jetbrains.plugins.scala.lang.psi.api.statements.params.ScParameterClause
-import org.jetbrains.plugins.scala.lang.psi.ScalaPsiUtil
-import org.jetbrains.plugins.scala.lang.psi.api.ScalaPsiElement
 import org.jetbrains.plugins.scala.lang.refactoring.util.ScalaRefactoringUtil.getShortText
 import org.jetbrains.plugins.scala.util.IntentionAvailabilityChecker.checkInspection
 
@@ -81,8 +80,10 @@ abstract class ScalaUnnecessaryParenthesesInspectionBase
           case other => other
         }
 
-        val comments = element.innerElement.map(expr => IntentionUtil.collectComments(expr))
-        comments.foreach(IntentionUtil.addComments(_, replaced.getParent, replaced))
+        import codeInsight.intention.RemoveBracesIntention._
+        element.innerElement
+          .map(collectComments(_))
+          .foreach(addComments(_, replaced.getParent, replaced))
 
         ScalaPsiUtil padWithWhitespaces replaced
       }
