@@ -13,8 +13,8 @@ class ScalaFiddleEditorProjectHighlightingTest extends GithubSbtAllProjectHighli
   override def revision = "e9bbda4d4190d262a93405365f38c93c8e7988b5"
 
   override def filesWithProblems: Map[String, Set[TextRange]] = Map(
-    "FiddleEditor.scala" -> Set((14771, 14778)),
-    "SocialAuthController.scala" -> Set(),
-    "Application.scala" -> Set(),
+    "client/src/main/scala/scalafiddle/client/component/FiddleEditor.scala" -> Set((14771, 14778)),
+    "server/src/main/scala/controllers/SocialAuthController.scala" -> Set(),
+    "server/src/main/scala/controllers/Application.scala" -> Set(),
   )
 }

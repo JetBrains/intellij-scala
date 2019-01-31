@@ -17,7 +17,10 @@ import org.jetbrains.plugins.scala.annotator.{AnnotatorHolderMock, ScalaAnnotato
 import org.jetbrains.plugins.scala.finder.SourceFilterScope
 import org.jetbrains.plugins.scala.lang.psi.api.ScalaPsiElement
 import org.jetbrains.plugins.scala.lang.psi.api.ScalaRecursiveElementVisitor
+import org.jetbrains.plugins.scala.projectHighlighting.AllProjectHighlightingTest.relativePathOf
 import org.jetbrains.plugins.scala.util.reporter.ProgressReporter
+
+import scala.util.matching.Regex
 
 /**
   * @author Mikhail Mutcianko
@@ -73,7 +76,7 @@ trait AllProjectHighlightingTest {
     allInfo.asScala.toList.collect {
       case highlightInfo if highlightInfo.`type`.getSeverity(null) == HighlightSeverity.ERROR =>
         val range = TextRange.create(highlightInfo.getStartOffset, highlightInfo.getEndOffset)
-        reporter.reportError(psiFile.getName, range, highlightInfo.getDescription)
+        reporter.reportError(relativePathOf(psiFile), range, highlightInfo.getDescription)
     }
   }
 
@@ -82,9 +85,19 @@ trait AllProjectHighlightingTest {
 }
 
 object AllProjectHighlightingTest {
+  private val RemotePath = new Regex(".*/projects/.*?/(.*)")
+  private val LocalPath = new Regex(".*/localProjects/.*?/(.*)")
+  private val ScalacPath = new Regex("temp:///.*?/(.*)")
+
+  private def relativePathOf(psiFile: PsiFile): String = psiFile.getVirtualFile.getUrl match {
+    case ScalacPath(relative) => relative
+    case LocalPath(relative) => relative
+    case RemotePath(relative) => relative
+    case path => throw new IllegalArgumentException(s"Unknown test path: $path")
+  }
 
   def annotateFile(psiFile: PsiFile, reporter: ProgressReporter, relPath: Option[String] = None): Unit = {
-    val fileName = relPath.getOrElse(psiFile.getName)
+    val fileName = relPath.getOrElse(relativePathOf(psiFile))
     val mock = new AnnotatorHolderMock(psiFile){
       override def createErrorAnnotation(range: TextRange, message: String): Annotation = {
         reporter.reportError(fileName, range, message)

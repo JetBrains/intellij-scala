@@ -18,6 +18,6 @@ class CatalystsProjectHighlightingTest extends GithubSbtAllProjectHighlightingTe
   override def revision: String = "04aa6c7ac6ceb57cfbf7e698e8b683c11b50c842"
 
   override def filesWithProblems: Map[String, Set[TextRange]] = Map(
-    "Prop.scala" -> Set()
+    "speclite/src/main/scala/speclite/Prop.scala" -> Set()
   )
 }

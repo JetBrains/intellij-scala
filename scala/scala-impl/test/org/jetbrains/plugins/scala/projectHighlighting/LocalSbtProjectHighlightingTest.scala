@@ -31,6 +31,6 @@ class ScalaPetStoreTest extends LocalSbtProjectHighlightingTest {
   override def projectName = "scala-pet-store"
 
   override def filesWithProblems: Map[String, Set[TextRange]] = Map(
-    "PetEndpoints.scala" -> Set()
+    "src/main/scala/io/github/pauljamescleary/petstore/endpoint/PetEndpoints.scala" -> Set()
   )
 }

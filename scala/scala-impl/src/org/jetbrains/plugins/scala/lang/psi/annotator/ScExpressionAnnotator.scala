@@ -21,7 +21,7 @@ trait ScExpressionAnnotator extends Annotatable { self: ScExpression =>
   abstract override def annotate(holder: AnnotationHolder, typeAware: Boolean): Unit = {
     super.annotate(holder, typeAware)
 
-    // TODO Annotating ScUnderscoreSection is technically correct, but reveals previously hidden red code in ScalacTestdataHighlightingTest
+    // TODO Annotating ScUnderscoreSection is technically correct, but reveals previously hidden red code in ScalacTestdataHighlightingTest.tuples_1.scala
     // TODO see visitUnderscoreExpression in ScalaAnnotator
     if (isInstanceOf[ScUnderscoreSection]) {
       return
