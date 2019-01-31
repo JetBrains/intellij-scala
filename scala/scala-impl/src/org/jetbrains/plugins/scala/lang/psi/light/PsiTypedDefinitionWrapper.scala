@@ -5,6 +5,7 @@ import com.intellij.psi.util.PsiTreeUtil
 import org.jetbrains.plugins.scala.lang.psi.ScalaPsiUtil
 import org.jetbrains.plugins.scala.lang.psi.api.PropertyMethods._
 import org.jetbrains.plugins.scala.lang.psi.api.base.ScAnnotationsHolder
+import org.jetbrains.plugins.scala.lang.psi.api.statements.params.ScParameter
 import org.jetbrains.plugins.scala.lang.psi.api.toplevel.typedef.{ScMember, ScObject}
 import org.jetbrains.plugins.scala.lang.psi.api.toplevel.{ScModifierListOwner, ScTypedDefinition}
 import org.jetbrains.plugins.scala.lang.psi.types.ScType
@@ -140,6 +141,10 @@ object PsiTypedDefinitionWrapper {
     import typedDefinition.projectContext
 
     if (role == SETTER || role == EQ) Unit
-    else typedDefinition.`type`().getOrElse(AnyRef)
+    else
+      typedDefinition match {
+      case param: ScParameter => param.getRealParameterType.getOrElse(AnyRef)
+      case other              => other.`type`().getOrElse(AnyRef)
+    }
   }
 }
