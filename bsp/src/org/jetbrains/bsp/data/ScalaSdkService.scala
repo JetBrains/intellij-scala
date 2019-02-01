@@ -53,9 +53,6 @@ object ScalaSdkService {
         module.configureScalaCompilerSettingsFrom("bsp", data.scalacOptions.asScala)
         data.scalaVersion.foreach(
           version => configureScalaSdk(module, data.scalaOrganization, version, data.scalacClasspath.asScala))
-        configureOrInheritSdk(module, data.jdk)
-        configureLanguageLevel(module, data.javacOptions.asScala)
-        configureJavacOptions(module, data.javacOptions.asScala)
       }
     }
 
