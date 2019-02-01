@@ -34,7 +34,7 @@ object ParenthesizedElement {
       case SameKindParentAndInner(_: ScSugarCallExpr, _: ScSugarCallExpr)                            => true
       case _: ScExpression                                                                           => false
       case SameKindParentAndInner(_: ScCompositePattern | _: ScNamingPattern | _: ScTuplePattern, _) => false
-      case SameKindParentAndInner(p, c) if !isIndivisible(c) && getPrecedence(p) != getPrecedence(c) => true
+      case SameKindParentAndInner(p, c) if !isIndivisible(c) && !obviouslySamePriority(p, c)         => true
       case _                                                                                         => false
     }
 
@@ -118,19 +118,31 @@ object ParenthesizedElement {
       case (ScFunctionalTypeElement(_, Some(`parenthesized`)), _: ScFunctionalTypeElement) => true
       case _                                                                               => false
     }
+  }
 
-    /** Gets the precedence of the tree member. Lower int value is applied first (higher precedence).
-      * The highest precedence is 0. Nodes with precedence 0 are indivisible.
-      */
-    private def getPrecedence(element: ScParenthesizedElement#Kind): Int = element match {
-      case tp: ScTypeElement => typeElementPrecedence(tp)
-      case pt: ScPattern     => patternPrecedence(pt)
 
-      //todo: refactor ScalaPsiUtil.needParentheses to also use precedence
-    }
+  /** Gets the precedence of the tree member. Lower int value is applied first (higher precedence).
+    * The highest precedence is 0. Nodes with precedence 0 are indivisible.
+    */
+  private def getPrecedence(element: ScParenthesizedElement#Kind): Int = element match {
+    case tp: ScTypeElement => typeElementPrecedence(tp)
+    case pt: ScPattern     => patternPrecedence(pt)
 
-    private def isIndivisible(element: ScParenthesizedElement#Kind): Boolean = getPrecedence(element) == 0
+    //todo: refactor ScalaPsiUtil.needParentheses to also use precedence
+  }
 
+  private def isIndivisible(element: ScParenthesizedElement#Kind): Boolean = getPrecedence(element) == 0
+
+  //infix operation priority is not included to precedence of type elements,
+  //but we use it to determine whether parentheses are clarifying
+  private def obviouslySamePriority(parent: ScParenthesizedElement#Kind, child: ScParenthesizedElement#Kind): Boolean = {
+    getPrecedence(parent) == getPrecedence(child) && infixOperationPriority(parent) == infixOperationPriority(child)
+  }
+
+  // varies from 1 to 10
+  private def infixOperationPriority(element: PsiElement) = element match {
+    case infix: ScInfixElement => ParserUtils.priority(infix.operation.getText)
+    case _ => 0
   }
 
   private def typeElementPrecedence(te: ScTypeElement): Int = te match {
@@ -149,11 +161,11 @@ object ParenthesizedElement {
   }
 
   private def patternPrecedence(pattern: ScPattern): Int = pattern match {
-    case _: ScCompositePattern       => 13
-    case _: ScTypedPattern           => 12
-    case _: ScNamingPattern          => 11
-    case ScInfixPattern(_, ifxOp, _) => 1 + ParserUtils.priority(ifxOp.getText) // varies from 1 to 10
-    case _                           => 0
+    case _: ScCompositePattern => 13
+    case _: ScTypedPattern     => 12
+    case _: ScNamingPattern    => 11
+    case i: ScInfixPattern     => 1 + infixOperationPriority(i)
+    case _                     => 0
   }
 
   @tailrec

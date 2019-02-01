@@ -290,6 +290,28 @@ class UnnecessaryParenthesesInspectionTest extends ScalaQuickFixTestBase {
     checkTextHasNoErrors(correct)
   }
 
+  def test_infixTypeClarifying(): Unit = {
+    val prefix =
+      """
+        |class X
+        |class ==[A, B]
+        |class +[A, B]
+        |""".stripMargin
+    val clarifying = prefix + "type Foo = (X + X) == (X + X)"
+
+    checkTextHasNoErrors(clarifying)
+
+    withSettings(considerClarifying) {
+      val selected = prefix + s"type Foo = $START(X + X)$END == (X + X)"
+      checkTextHasError(selected)
+
+      val text = prefix + s"type Foo = $CARET_MARKER(X + X) == (X + X)"
+      val result = prefix + "type Foo = X + X == (X + X)"
+
+      testQuickFix(text, result, hintBeginning + " (X + X)")
+    }
+  }
+
   
   def test_InfixType_MixedAssoc(): Unit = {
     val correct = "val f: Double <<: (Int Map String)"
