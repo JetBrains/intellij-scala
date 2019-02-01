@@ -439,4 +439,13 @@ class UnnecessaryParenthesesInspectionTest extends ScalaQuickFixTestBase {
     val hint = hintBeginning + " ((1 + 1))"
     testQuickFix(text, result, hint)
   }
+
+  def testRepeatedParameterType(): Unit = {
+    checkTextHasNoErrors("class A; def apply(pairs: (A => (A, A))*): A = new A")
+
+    val text = s"class A; def apply(pairs: $CARET_MARKER(A)*): A = new A"
+    val result = "class A; def apply(pairs: A*): A = new A"
+    val hint = hintBeginning + " (A)"
+    testQuickFix(text, result, hint)
+  }
 }

@@ -3,13 +3,14 @@ package org.jetbrains.plugins.scala.extensions
 import com.intellij.psi.{PsiComment, PsiElement, PsiWhiteSpace}
 import org.jetbrains.plugins.scala.lang.lexer.ScalaTokenTypes
 import org.jetbrains.plugins.scala.lang.parser.util.ParserUtils
+import org.jetbrains.plugins.scala.lang.psi.ScalaPsiUtil
+import org.jetbrains.plugins.scala.lang.psi.api.ScalaPsiElement
 import org.jetbrains.plugins.scala.lang.psi.api.base.patterns._
 import org.jetbrains.plugins.scala.lang.psi.api.base.types._
 import org.jetbrains.plugins.scala.lang.psi.api.base.{ScConstructor, ScInfixElement, ScParenthesizedElement}
 import org.jetbrains.plugins.scala.lang.psi.api.expr.{ScExpression, ScParenthesisedExpr, ScSugarCallExpr}
+import org.jetbrains.plugins.scala.lang.psi.api.statements.params.ScParameterType
 import org.jetbrains.plugins.scala.lang.psi.api.toplevel.templates.ScTemplateParents
-import org.jetbrains.plugins.scala.lang.psi.ScalaPsiUtil
-import org.jetbrains.plugins.scala.lang.psi.api.ScalaPsiElement
 
 import scala.annotation.tailrec
 
@@ -79,6 +80,7 @@ object ParenthesizedElement {
         case _ if isFunctionTupleParameter                    => true
         case SameKindParentAndInner(parent, inner)            => !parenthesesRedundant(parent, inner)
         case ChildOf(_: ScConstructor | _: ScTemplateParents) => true
+        case _ if isIndivisibleRepeatedParamType(parenthesized)          => true
         case _                                                => false
       }
     }
@@ -174,6 +176,13 @@ object ParenthesizedElement {
     case ScParenthesizedElement(inner) => getInnermostNonParen(inner)
     case _                             => node
   }
+
+  private def isIndivisibleRepeatedParamType(parenthesized: ScParenthesizedElement): Boolean = parenthesized match {
+    case ScParenthesizedElement(inner) && ChildOf(pt: ScParameterType) =>
+      pt.isRepeatedParameter && !isIndivisible(inner)
+    case _ => false
+  }
+
 
   private object SameKindParentAndInner {
     def unapply(p: ScParenthesizedElement): Option[(p.Kind, p.Kind)] =
