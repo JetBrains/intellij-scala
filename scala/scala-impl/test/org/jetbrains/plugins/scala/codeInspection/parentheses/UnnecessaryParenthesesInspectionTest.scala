@@ -432,4 +432,11 @@ class UnnecessaryParenthesesInspectionTest extends ScalaQuickFixTestBase {
   def testSCL14395(): Unit =  {
     checkTextHasNoErrors("val f: (Int => Int) => Int = ???")
   }
+
+  def testDoubleParenthesesQuickFix(): Unit = {
+    val text = s"1 + ((${CARET_MARKER}1 + 1))"
+    val result = "1 + (1 + 1)"
+    val hint = hintBeginning + " ((1 + 1))"
+    testQuickFix(text, result, hint)
+  }
 }

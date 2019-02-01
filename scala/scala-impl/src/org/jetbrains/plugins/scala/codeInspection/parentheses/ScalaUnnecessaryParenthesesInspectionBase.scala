@@ -76,7 +76,7 @@ abstract class ScalaUnnecessaryParenthesesInspectionBase
         // remove first the duplicate parentheses
         val replaced = element.doStripParentheses(keepParentheses) match {
           // Remove the last level of parentheses if allowed
-          case paren: ScParenthesizedElement if element.isParenthesisRedundant => paren.doStripParentheses()
+          case paren: ScParenthesizedElement if paren.isParenthesisRedundant => paren.doStripParentheses()
           case other => other
         }
 
