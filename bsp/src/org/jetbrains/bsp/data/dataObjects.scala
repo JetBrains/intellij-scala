@@ -38,9 +38,7 @@ case class ScalaSdkData(
     scalaOrganization: String,
     scalaVersion: Option[Version],
     scalacClasspath: util.List[File],
-    scalacOptions: util.List[String],
-    jdk: Option[SdkReference],
-    javacOptions: util.List[String]
+    scalacOptions: util.List[String]
 ) extends BspEntityData
 
 object ScalaSdkData {

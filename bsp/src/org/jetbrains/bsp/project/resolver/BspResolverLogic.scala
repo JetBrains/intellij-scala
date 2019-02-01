@@ -45,25 +45,24 @@ private[resolver] object BspResolverLogic {
   }
 
 
-  private[resolver] def getScalaSdkData(target: ScalaBuildTarget): ScalaSdkData = {
+  private[resolver] def getScalaSdkData(target: ScalaBuildTarget, scalacOptionsItem: Option[ScalacOptionsItem]): ScalaSdkData = {
+    val scalaOptionsStrings = scalacOptionsItem.map(item => item.getOptions).getOrElse(Collections.emptyList())
     ScalaSdkData(
-      target.getScalaOrganization,
-      Some(Version(target.getScalaVersion)),
+      scalaOrganization = target.getScalaOrganization,
+      scalaVersion = Some(Version(target.getScalaVersion)),
       scalacClasspath = target.getJars.asScala.map(_.toURI.toFile).asJava,
-      Collections.emptyList(),
-      None,
-      Collections.emptyList()
+      scalacOptions = scalaOptionsStrings
     )
   }
 
-  private[resolver] def getSbtData(target: SbtBuildTarget): (SbtBuildModuleDataBsp, ScalaSdkData) = {
+  private[resolver] def getSbtData(target: SbtBuildTarget, scalacOptionsItem: Option[ScalacOptionsItem]): (SbtBuildModuleDataBsp, ScalaSdkData) = {
     val buildFor = target.getChildren.asScala.map { target => new URI(target.getUri) }
 
     val sbtBuildModuleData = SbtBuildModuleDataBsp(
       target.getAutoImports,
       buildFor.asJava
     )
-    val scalaSdkData = getScalaSdkData(target.getScalaBuildTarget)
+    val scalaSdkData = getScalaSdkData(target.getScalaBuildTarget, scalacOptionsItem)
 
     (sbtBuildModuleData, scalaSdkData)
   }
@@ -161,7 +160,7 @@ private[resolver] object BspResolverLogic {
 
     val scalaModule =
       targetData.flatMap(extractScalaSdkData)
-        .map(getScalaSdkData)
+        .map(target => getScalaSdkData(target, scalacOptions))
         .map(ScalaModule)
 
     // TODO there's ambiguity in the data object in BuildTarget.data
@@ -177,7 +176,7 @@ private[resolver] object BspResolverLogic {
     //            SbtModule(scalaSdkData, sbtModuleData)
     //          }
 
-    // TODO warning output whenmodules are skipped because of missing base or scala module data
+    // TODO warning output when modules are skipped because of missing base or scala module data
     val moduleDescriptionOpt = for {
       baseDir <- moduleBase
       moduleKind <- scalaModule
