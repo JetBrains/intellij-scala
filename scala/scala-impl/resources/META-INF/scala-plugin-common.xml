@@ -634,51 +634,6 @@
         </intentionAction>
 
         <intentionAction>
-            <category>Scala/Control flow</category>
-            <className>org.jetbrains.plugins.scala.codeInsight.intention.controlflow.MergeIfToAndIntention</className>
-        </intentionAction>
-
-        <intentionAction>
-            <category>Scala/Control flow</category>
-            <className>org.jetbrains.plugins.scala.codeInsight.intention.controlflow.MergeElseIfIntention</className>
-        </intentionAction>
-
-        <intentionAction>
-            <category>Scala/Control flow</category>
-            <className>org.jetbrains.plugins.scala.codeInsight.intention.controlflow.SplitElseIfIntention</className>
-        </intentionAction>
-
-        <intentionAction>
-            <category>Scala/Control flow</category>
-            <className>org.jetbrains.plugins.scala.codeInsight.intention.controlflow.SplitIfIntention</className>
-        </intentionAction>
-
-        <intentionAction>
-            <category>Scala/Control flow</category>
-            <className>org.jetbrains.plugins.scala.codeInsight.intention.controlflow.InvertIfConditionIntention</className>
-        </intentionAction>
-
-        <intentionAction>
-            <category>Scala/Control flow</category>
-            <className>org.jetbrains.plugins.scala.codeInsight.intention.controlflow.RemoveRedundantElseIntention</className>
-        </intentionAction>
-
-        <intentionAction>
-            <category>Scala/Control flow</category>
-            <className>org.jetbrains.plugins.scala.codeInsight.intention.controlflow.MergeIfToOrIntention</className>
-        </intentionAction>
-
-        <intentionAction>
-            <category>Scala/Control flow</category>
-            <className>org.jetbrains.plugins.scala.codeInsight.intention.controlflow.ReplaceWhileWithDoWhileIntention</className>
-        </intentionAction>
-
-        <intentionAction>
-            <category>Scala/Control flow</category>
-            <className>org.jetbrains.plugins.scala.codeInsight.intention.controlflow.ReplaceDoWhileWithWhileIntention</className>
-        </intentionAction>
-
-        <intentionAction>
             <category>Scala/Expressions</category>
             <className>org.jetbrains.plugins.scala.codeInsight.intention.expression.MakeImplicitConversionExplicit</className>
         </intentionAction>

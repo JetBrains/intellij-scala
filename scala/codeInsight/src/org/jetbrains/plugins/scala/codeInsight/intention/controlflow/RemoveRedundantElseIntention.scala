@@ -1,4 +1,7 @@
-package org.jetbrains.plugins.scala.codeInsight.intention.controlflow
+package org.jetbrains.plugins.scala
+package codeInsight
+package intention
+package controlFlow
 
 import com.intellij.codeInsight.intention.PsiElementBaseIntentionAction
 import com.intellij.openapi.editor.Editor
@@ -14,17 +17,9 @@ import org.jetbrains.plugins.scala.lang.psi.impl.ScalaPsiElementFactory.createNe
  * @author Ksenia.Sautina
  * @since 6/8/12
  */
+final class RemoveRedundantElseIntention extends PsiElementBaseIntentionAction {
 
-object RemoveRedundantElseIntention {
-  def familyName = "Remove redundant Else"
-}
-
-class RemoveRedundantElseIntention extends PsiElementBaseIntentionAction {
-  def getFamilyName: String = RemoveRedundantElseIntention.familyName
-
-  override def getText: String = "Remove redundant 'else'"
-
-  def isAvailable(project: Project, editor: Editor, element: PsiElement): Boolean = {
+  override def isAvailable(project: Project, editor: Editor, element: PsiElement): Boolean = {
     val ifStmt: ScIf = PsiTreeUtil.getParentOfType(element, classOf[ScIf], false)
     if (ifStmt == null) return false
 
@@ -74,4 +69,13 @@ class RemoveRedundantElseIntention extends PsiElementBaseIntentionAction {
       PsiDocumentManager.getInstance(project).commitDocument(editor.getDocument)
     }
   }
+
+  override def getFamilyName: String = RemoveRedundantElseIntention.FamilyName
+
+  override def getText: String = "Remove redundant 'else'"
+}
+
+object RemoveRedundantElseIntention {
+
+  private[controlFlow] val FamilyName = "Remove redundant Else"
 }

@@ -1,4 +1,7 @@
-package org.jetbrains.plugins.scala.codeInsight.intention.controlflow
+package org.jetbrains.plugins.scala
+package codeInsight
+package intention
+package controlFlow
 
 import java.util
 
@@ -17,17 +20,9 @@ import org.jetbrains.plugins.scala.lang.psi.impl.ScalaPsiElementFactory.createEx
  * @author Ksenia.Sautina
  * @since 6/6/12
  */
+final class MergeIfToOrIntention extends PsiElementBaseIntentionAction {
 
-object MergeIfToOrIntention {
-  def familyName = "Merge equivalent Ifs to ORed condition"
-}
-
-class MergeIfToOrIntention extends PsiElementBaseIntentionAction {
-  def getFamilyName: String = MergeIfToOrIntention.familyName
-
-  override def getText: String = "Merge sequential 'if's"
-
-  def isAvailable(project: Project, editor: Editor, element: PsiElement): Boolean = {
+  override def isAvailable(project: Project, editor: Editor, element: PsiElement): Boolean = {
     val ifStmt: ScIf = PsiTreeUtil.getParentOfType(element, classOf[ScIf], false)
     if (ifStmt == null) return false
 
@@ -87,4 +82,13 @@ class MergeIfToOrIntention extends PsiElementBaseIntentionAction {
       PsiDocumentManager.getInstance(project).commitDocument(editor.getDocument)
     }
   }
+
+  override def getFamilyName: String = MergeIfToOrIntention.FamilyName
+
+  override def getText: String = "Merge sequential 'if's"
+}
+
+object MergeIfToOrIntention {
+
+  private[controlFlow] val FamilyName = "Merge equivalent Ifs to ORed condition"
 }

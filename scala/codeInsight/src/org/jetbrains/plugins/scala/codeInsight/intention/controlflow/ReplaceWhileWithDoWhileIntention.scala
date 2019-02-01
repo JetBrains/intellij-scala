@@ -1,5 +1,7 @@
 package org.jetbrains.plugins.scala
-package codeInsight.intention.controlflow
+package codeInsight
+package intention
+package controlFlow
 
 import com.intellij.codeInsight.intention.PsiElementBaseIntentionAction
 import com.intellij.openapi.editor.Editor
@@ -14,17 +16,9 @@ import org.jetbrains.plugins.scala.lang.psi.impl.ScalaPsiElementFactory.createEx
  * Nikolay.Tropin
  * 4/17/13
  */
+final class ReplaceWhileWithDoWhileIntention extends PsiElementBaseIntentionAction {
 
-object ReplaceWhileWithDoWhileIntention {
-  def familyName = "Replace while with do while"
-}
-
-class ReplaceWhileWithDoWhileIntention extends PsiElementBaseIntentionAction {
-  def getFamilyName: String = ReplaceWhileWithDoWhileIntention.familyName
-
-  override def getText: String = ReplaceWhileWithDoWhileIntention.familyName
-
-  def isAvailable(project: Project, editor: Editor, element: PsiElement): Boolean = {
+  override def isAvailable(project: Project, editor: Editor, element: PsiElement): Boolean = {
     for {
       whileStmt <- Option(PsiTreeUtil.getParentOfType(element, classOf[ScWhile], false))
       condition <- whileStmt.condition
@@ -38,7 +32,7 @@ class ReplaceWhileWithDoWhileIntention extends PsiElementBaseIntentionAction {
     false
   }
 
-  override def invoke(project: Project, editor: Editor, element: PsiElement) {
+  override def invoke(project: Project, editor: Editor, element: PsiElement): Unit = {
     val whileStmt: ScWhile = PsiTreeUtil.getParentOfType(element, classOf[ScWhile])
     if (whileStmt == null || !whileStmt.isValid) return
 
@@ -59,4 +53,13 @@ class ReplaceWhileWithDoWhileIntention extends PsiElementBaseIntentionAction {
       }
     }
   }
+
+  override def getFamilyName: String = ReplaceWhileWithDoWhileIntention.FamilyName
+
+  override def getText: String = getFamilyName
+}
+
+object ReplaceWhileWithDoWhileIntention {
+
+  private[controlFlow] val FamilyName = "Replace while with do while"
 }

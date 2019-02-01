@@ -1,7 +1,7 @@
 package org.jetbrains.plugins.scala
 package codeInsight
 package intention
-package controlflow
+package controlFlow
 
 import com.intellij.codeInsight.intention.PsiElementBaseIntentionAction
 import com.intellij.openapi.editor.Editor
@@ -16,22 +16,16 @@ import org.jetbrains.plugins.scala.lang.psi.impl.ScalaPsiElementFactory.createEx
   * @author Ksenia.Sautina
   * @since 6/8/12
   */
-class SplitIfIntention extends PsiElementBaseIntentionAction {
+final class SplitIfIntention extends PsiElementBaseIntentionAction {
 
-  import SplitIfIntention._
-
-  def getFamilyName: String = familyName
-
-  override def getText: String = "Split into 2 'if's"
-
-  def isAvailable(project: Project, editor: Editor, element: PsiElement): Boolean =
+  override def isAvailable(project: Project, editor: Editor, element: PsiElement): Boolean =
     element.parentOfType(classOf[ScIf], strict = false).exists {
       case ScIf(Some(ScInfixExpr(_, operation, _)), _, _) if caretIsInRange(operation)(editor) =>
         operation.refName == "&&"
       case _ => false
     }
 
-  override def invoke(project: Project, editor: Editor, element: PsiElement) {
+  override def invoke(project: Project, editor: Editor, element: PsiElement): Unit = {
     val ifStmt = PsiTreeUtil.getParentOfType(element, classOf[ScIf], false)
     if (ifStmt == null || !ifStmt.isValid) return
 
@@ -66,10 +60,15 @@ class SplitIfIntention extends PsiElementBaseIntentionAction {
       PsiDocumentManager.getInstance(project).commitDocument(editor.getDocument)
     }
   }
+
+  override def getFamilyName: String = SplitIfIntention.FamilyName
+
+  override def getText: String = "Split into 2 'if's"
 }
 
 object SplitIfIntention {
-  def familyName = "Split If"
+
+  private[controlFlow] val FamilyName = "Split If"
 }
 
 

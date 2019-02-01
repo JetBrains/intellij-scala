@@ -1,5 +1,7 @@
 package org.jetbrains.plugins.scala
-package codeInsight.intention.controlflow
+package codeInsight
+package intention
+package controlFlow
 
 import com.intellij.codeInsight.intention.PsiElementBaseIntentionAction
 import com.intellij.openapi.command.CommandProcessor
@@ -25,16 +27,11 @@ import scala.collection.Set
  * Nikolay.Tropin
  * 4/17/13
  */
-object ReplaceDoWhileWithWhileIntention {
-  def familyName = "Replace do while with while"
-}
+final class ReplaceDoWhileWithWhileIntention extends PsiElementBaseIntentionAction {
 
-class ReplaceDoWhileWithWhileIntention extends PsiElementBaseIntentionAction {
-  def getFamilyName: String = ReplaceDoWhileWithWhileIntention.familyName
+  import ReplaceDoWhileWithWhileIntention._
 
-  override def getText: String = ReplaceDoWhileWithWhileIntention.familyName
-
-  def isAvailable(project: Project, editor: Editor, element: PsiElement): Boolean = {
+  override def isAvailable(project: Project, editor: Editor, element: PsiElement): Boolean = {
     for {
       doStmt <- Option(PsiTreeUtil.getParentOfType(element, classOf[ScDo], false))
       condition <- doStmt.condition
@@ -50,7 +47,7 @@ class ReplaceDoWhileWithWhileIntention extends PsiElementBaseIntentionAction {
     false
   }
 
-  override def invoke(project: Project, editor: Editor, element: PsiElement) {
+  override def invoke(project: Project, editor: Editor, element: PsiElement): Unit = {
     implicit val ctx: ProjectContext = project
     //check for name conflicts
     for {
@@ -58,7 +55,7 @@ class ReplaceDoWhileWithWhileIntention extends PsiElementBaseIntentionAction {
       body <- doStmt.body
       doStmtParent <- doStmt.parent
     } {
-      val nameConflict = (declaredNames(body) intersect declaredNames(doStmtParent)).nonEmpty
+      val nameConflict = declaredNames(body).intersect(declaredNames(doStmtParent)).nonEmpty
       if (nameConflict) {
         val message = "This action will cause name conflict."
         showNotification(message)
@@ -71,14 +68,9 @@ class ReplaceDoWhileWithWhileIntention extends PsiElementBaseIntentionAction {
     def showNotification(text: String) {
 
       val popupFactory = JBPopupFactory.getInstance
-      popupFactory.createConfirmation(text, "Continue", "Cancel", new Runnable {
-        //action on confirmation
-        def run() {
-          //to make action Undoable
-          CommandProcessor.getInstance().executeCommand(project, new Runnable() {
-            def run() { doReplacement() }
-          }, null, null)
-        }
+      popupFactory.createConfirmation(text, "Continue", "Cancel", () => {
+        //to make action Undoable
+        CommandProcessor.getInstance().executeCommand(project, () => doReplacement(), null, null)
       }, 0).showInBestPositionFor(editor)
     }
 
@@ -134,7 +126,16 @@ class ReplaceDoWhileWithWhileIntention extends PsiElementBaseIntentionAction {
     }
   }
 
-  def declaredNames(element: PsiElement): Set[String] = {
+  override def getFamilyName: String = FamilyName
+
+  override def getText: String = getFamilyName
+}
+
+object ReplaceDoWhileWithWhileIntention {
+
+  private[controlFlow] val FamilyName = "Replace do while with while"
+
+  private def declaredNames(element: PsiElement): Set[String] = {
     implicit val ctx: ProjectContext = element
 
     val firstChild: PsiElement = element.getFirstChild
@@ -144,5 +145,4 @@ class ReplaceDoWhileWithWhileIntention extends PsiElementBaseIntentionAction {
 
     candidates.map(_.name)
   }
-
 }

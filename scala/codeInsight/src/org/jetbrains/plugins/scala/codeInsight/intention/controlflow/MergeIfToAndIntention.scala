@@ -1,4 +1,7 @@
-package org.jetbrains.plugins.scala.codeInsight.intention.controlflow
+package org.jetbrains.plugins.scala
+package codeInsight
+package intention
+package controlFlow
 
 import com.intellij.codeInsight.intention.PsiElementBaseIntentionAction
 import com.intellij.openapi.editor.Editor
@@ -13,17 +16,9 @@ import org.jetbrains.plugins.scala.lang.psi.impl.ScalaPsiElementFactory.createEx
  * @author Ksenia.Sautina
  * @since 6/6/12
  */
+final class MergeIfToAndIntention extends PsiElementBaseIntentionAction {
 
-object MergeIfToAndIntention {
-  def familyName = "Merge nested Ifs to ANDed condition"
-}
-
-class MergeIfToAndIntention extends PsiElementBaseIntentionAction {
-  def getFamilyName: String = MergeIfToAndIntention.familyName
-
-  override def getText: String = "Merge nested 'if's"
-
-  def isAvailable(project: Project, editor: Editor, element: PsiElement): Boolean = {
+  override def isAvailable(project: Project, editor: Editor, element: PsiElement): Boolean = {
     val ifStmt: ScIf = PsiTreeUtil.getParentOfType(element, classOf[ScIf], false)
     if (ifStmt == null) return false
 
@@ -41,9 +36,9 @@ class MergeIfToAndIntention extends PsiElementBaseIntentionAction {
     thenBranch match {
       case branch: ScBlockExpr =>
         val exprs = branch.exprs
-        if (exprs.size != 1 || !exprs(0).isInstanceOf[ScIf]) return false
+        if (exprs.size != 1 || !exprs.head.isInstanceOf[ScIf]) return false
 
-        val innerIfStmt = exprs(0).asInstanceOf[ScIf]
+        val innerIfStmt = exprs.head.asInstanceOf[ScIf]
         val innerElseBranch = innerIfStmt.elseExpression.orNull
         if (innerElseBranch != null) return false
         true
@@ -64,7 +59,7 @@ class MergeIfToAndIntention extends PsiElementBaseIntentionAction {
     val expr = new StringBuilder
     val outerCondition = ifStmt.condition.get.getText
     val innerIfStmt = ifStmt.thenExpression.get match {
-      case c: ScBlockExpr => c.exprs(0).asInstanceOf[ScIf]
+      case c: ScBlockExpr => c.exprs.head.asInstanceOf[ScIf]
       case c: ScIf => c
     }
     val innerThenBranch = innerIfStmt.thenExpression.get
@@ -78,5 +73,13 @@ class MergeIfToAndIntention extends PsiElementBaseIntentionAction {
       PsiDocumentManager.getInstance(project).commitDocument(editor.getDocument)
     }
   }
+
+  override def getFamilyName: String = MergeIfToAndIntention.FamilyName
+
+  override def getText: String = "Merge nested 'if's"
 }
 
+object MergeIfToAndIntention {
+
+  private[controlFlow] val FamilyName = "Merge nested Ifs to ANDed condition"
+}
