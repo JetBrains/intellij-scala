@@ -4,6 +4,7 @@ package base
 import com.intellij.application.options.CodeStyle
 import com.intellij.codeInsight.folding.CodeFoldingManager
 import com.intellij.openapi.project.Project
+import com.intellij.openapi.util.registry.Registry
 import com.intellij.openapi.vfs.VfsUtil.saveText
 import com.intellij.psi.PsiFile
 import com.intellij.psi.codeStyle.{CodeStyleSettings, CommonCodeStyleSettings}
@@ -41,6 +42,7 @@ abstract class ScalaLightCodeInsightFixtureTestAdapter
     }
 
   protected def afterSetUpProject(): Unit = {
+    Registry.get("ast.loading.filter").setValue(true, getTestRootDisposable)
     if (loadScalaLibrary) {
       getFixture.allowTreeAccessForAllFiles()
       setUpLibraries()

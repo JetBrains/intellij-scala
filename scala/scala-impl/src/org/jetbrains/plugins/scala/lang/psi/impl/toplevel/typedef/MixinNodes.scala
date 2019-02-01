@@ -10,6 +10,7 @@ package typedef
 
 import com.intellij.openapi.progress.ProgressManager
 import com.intellij.psi.{PsiClass, PsiClassType, PsiElement}
+import com.intellij.util.AstLoadingFilter
 import com.intellij.util.containers.{ContainerUtil, SmartHashSet}
 import gnu.trove.TIntObjectHashMap
 import org.jetbrains.plugins.scala.caches.CachesUtil
@@ -50,7 +51,9 @@ abstract class MixinNodes[T: SignatureStrategy] {
   def build(clazz: PsiClass): Map = {
     if (!clazz.isValid) MixinNodes.emptyMap[T]
     else {
-      build(ScalaType.designator(clazz))(clazz)
+      AstLoadingFilter.disallowTreeLoading { () =>
+        build(ScalaType.designator(clazz))(clazz)
+      }
     }
   }
 

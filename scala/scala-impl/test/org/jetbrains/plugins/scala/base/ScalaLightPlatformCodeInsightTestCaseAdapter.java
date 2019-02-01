@@ -6,6 +6,7 @@ import com.intellij.openapi.module.Module;
 import com.intellij.openapi.project.Project;
 import com.intellij.openapi.projectRoots.JavaSdkVersion;
 import com.intellij.openapi.projectRoots.Sdk;
+import com.intellij.openapi.util.registry.Registry;
 import com.intellij.openapi.util.text.StringUtil;
 import com.intellij.openapi.vfs.VirtualFile;
 import com.intellij.psi.PsiFile;
@@ -93,6 +94,7 @@ public abstract class ScalaLightPlatformCodeInsightTestCaseAdapter extends Light
     }
 
     protected void afterSetUpProject() {
+        Registry.get("ast.loading.filter").setValue(true, getTestRootDisposable());
         setUpLibraries();
     }
 

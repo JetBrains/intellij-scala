@@ -10,6 +10,7 @@ import com.intellij.openapi.projectRoots.ProjectJdkTable
 import com.intellij.openapi.projectRoots.impl.JavaAwareProjectJdkTableImpl
 import com.intellij.openapi.roots.ProjectRootManager
 import com.intellij.openapi.util.TextRange
+import com.intellij.openapi.util.registry.Registry
 import com.intellij.openapi.vfs.{LocalFileSystem, VirtualFile}
 import com.intellij.psi.search.{FileTypeIndex, GlobalSearchScopesCore}
 import com.intellij.testFramework.fixtures.{CodeInsightTestFixture, IdeaTestFixtureFactory}
@@ -97,7 +98,7 @@ abstract class ImportingProjectTestCase extends ExternalSystemImportingTestCase 
 
   override def setUp(): Unit = {
     super.setUp()
-
+    Registry.get("ast.loading.filter").setValue(true, getTestRootDisposable)
     importProject()
   }
 
