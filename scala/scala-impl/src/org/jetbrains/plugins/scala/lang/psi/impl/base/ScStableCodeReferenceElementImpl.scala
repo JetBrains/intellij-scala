@@ -290,14 +290,23 @@ class ScStableCodeReferenceElementImpl(node: ASTNode) extends ScReferenceElement
             case p =>
               if (!p.processDeclarations(processor, ResolveState.initial, lastParent, this)) return
               place match {
-                case (_: ScTemplateBody | _: ScExtendsBlock) => // template body and inherited members are at the same level.
+                case _: ScTemplateBody | _: ScExtendsBlock => // template body and inherited members are at the same level.
                 case _ => if (!processor.changedLevel) return
               }
               treeWalkUp(place.getContext, place)
           }
         }
 
-        treeWalkUp(this, null)
+        val startingPlace = getContext match {
+          // when processing Foo.this.Bar or Foo.super[Bar].Baz, positioned in the extends block,
+          // it is important to skip the contexts up to the actual outer type definition, or else
+          // we may end up with weird self-references if the name is not unique (#SCL-14707, #SCL-14922)
+          case ctx @ (_: ScSuperReference | _: ScThisReference) =>
+            ResolveUtils.enclosingTypeDef(ctx).fold(this: PsiElement)(_.getContext)
+          case _                                                => this
+        }
+
+        treeWalkUp(startingPlace, null)
         processor.candidates
       case Some(p: ScInterpolationPattern) =>
         val expr =

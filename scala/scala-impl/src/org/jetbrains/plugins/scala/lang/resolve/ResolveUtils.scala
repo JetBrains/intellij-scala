@@ -8,9 +8,8 @@ import com.intellij.psi.impl.source.resolve.JavaResolveUtil
 import com.intellij.psi.scope.{NameHint, PsiScopeProcessor}
 import com.intellij.psi.util.PsiTreeUtil
 import org.jetbrains.plugins.scala.extensions._
-import org.jetbrains.plugins.scala.lang.psi.api.ScalaPsiElement
 import org.jetbrains.plugins.scala.lang.psi.ScalaPsiUtil._
-import org.jetbrains.plugins.scala.lang.psi.api.ScalaFile
+import org.jetbrains.plugins.scala.lang.psi.api.{ScalaFile, ScalaPsiElement}
 import org.jetbrains.plugins.scala.lang.psi.api.base.patterns.ScBindingPattern
 import org.jetbrains.plugins.scala.lang.psi.api.base.types.{ScSelfTypeElement, ScTypeElement, ScTypeVariableTypeElement}
 import org.jetbrains.plugins.scala.lang.psi.api.base.{ScAccessModifier, ScFieldId, ScReferenceElement}
@@ -18,6 +17,7 @@ import org.jetbrains.plugins.scala.lang.psi.api.expr._
 import org.jetbrains.plugins.scala.lang.psi.api.statements._
 import org.jetbrains.plugins.scala.lang.psi.api.statements.params.{ScClassParameter, ScParameter, ScTypeParam}
 import org.jetbrains.plugins.scala.lang.psi.api.toplevel.ScPackaging
+import org.jetbrains.plugins.scala.lang.psi.api.toplevel.templates.ScTemplateParents
 import org.jetbrains.plugins.scala.lang.psi.api.toplevel.typedef._
 import org.jetbrains.plugins.scala.lang.psi.fake.FakePsiMethod
 import org.jetbrains.plugins.scala.lang.psi.impl.toplevel.synthetic.{ScSyntheticClass, ScSyntheticValue}
@@ -351,10 +351,7 @@ object ResolveUtils {
 
   def processSuperReference(superRef: ScSuperReference, processor : BaseProcessor, place : ScalaPsiElement): BaseProcessor = {
     if (superRef.isHardCoded) {
-      superRef.drvTemplate match {
-        case Some(c) => processor.processType(ScThisType(c), place)
-        case None =>
-      }
+      superRef.drvTemplate.foreach(c => processor.processType(ScThisType(c), place))
     } else {
       superRef.staticSuper match {
         case Some(t) => processor.processType(t, place)
@@ -509,5 +506,26 @@ object ResolveUtils {
         }
       case _ => pack.processDeclarations(processor, state, lastParent, place)
     }
+  }
+
+  /**
+    * Returns smallest enclosing scope defined by some type definition `Foo`
+    * in which Foo.this/Foo.super makes sense, e.g. if invoked on `Foo.this` in
+    * {{{
+    * trait Foo {
+    *   trait Bar
+    *   trait Foo extends Foo.this.Bar
+    * }
+    * }}}
+    * will return outer `Foo` trait.
+    */
+  def enclosingTypeDef(e: PsiElement): Option[ScTypeDefinition] = {
+    def enclosingTdef(e: PsiElement): ScTypeDefinition =
+      PsiTreeUtil.getContextOfType(e, true, classOf[ScTypeDefinition])
+
+    val isInTemplateParents = PsiTreeUtil.getContextOfType(e, true, classOf[ScTemplateParents])
+
+    if (isInTemplateParents != null) enclosingTdef(enclosingTdef(isInTemplateParents)).toOption
+    else                             enclosingTdef(e).toOption
   }
 }
