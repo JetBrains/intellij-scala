@@ -1,6 +1,7 @@
 package org.jetbrains.plugins.scala
 package annotator
 
+import com.intellij.openapi.util.TextRange
 import com.intellij.psi.PsiClass
 import org.jetbrains.plugins.scala.extensions._
 import org.jetbrains.plugins.scala.lang.psi.api.toplevel.typedef.{ScObject, ScTemplateDefinition, ScTrait}
@@ -8,16 +9,16 @@ import org.jetbrains.plugins.scala.lang.psi.types.ScType
 
 package object template {
 
-  private[template] def superRefs(definition: ScTemplateDefinition) =
+  private[template] def superRefs(definition: ScTemplateDefinition): Seq[(TextRange, PsiClass)] =
     collectSuperRefs(definition)(_.extractClass)
 
   private[template] def collectSuperRefs[T](definition: ScTemplateDefinition)
-                                           (extractor: ScType => Option[T]) =
+                                           (extractor: ScType => Option[T]): Seq[(TextRange, T)] =
     for {
-      parents <- definition.physicalExtendsBlock.templateParents.toList
+      parents     <- definition.physicalExtendsBlock.templateParents.toList
       typeElement <- parents.typeElements
-      scType <- typeElement.`type`().toOption
-      extracted <- extractor(scType)
+      scType      <- typeElement.`type`().toOption
+      extracted   <- extractor(scType)
     } yield (typeElement.getTextRange, extracted)
 
   private[template] def isMixable(clazz: PsiClass) = isInterface(clazz)()

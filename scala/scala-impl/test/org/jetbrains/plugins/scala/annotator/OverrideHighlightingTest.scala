@@ -164,4 +164,54 @@ class OverrideHighlightingTest extends ScalaHighlightingTestBase {
       """.stripMargin
     assertNothing(errorsFromScalaCode(code))
   }
+
+  def testSCL14922(): Unit = {
+    val code =
+      """
+        |trait A {
+        |  trait Internal
+        |  val i = new Internal {}
+        |}
+        |trait B extends A {
+        |  trait Internal extends super.Internal
+        |  override val i = new Internal {}
+        |}
+        |trait C extends A {
+        |  trait Internal extends super.Internal
+        |  override val i = new Internal {}
+        |}
+        |trait D extends B with C {
+        |  trait Internal extends super[B].Internal with super[C].Internal
+        |  override val i = new Internal {}
+        |}
+      """.stripMargin
+    assertNothing(errorsFromScalaCode(code))
+  }
+
+  def testSCL14707(): Unit = {
+    val code =
+      """
+        |trait BaseComponent {
+        |  trait BaseComponent {
+        |    val abstractName: String
+        |  }
+        |}
+        |
+        |trait AbstractChildComponent extends BaseComponent {
+        |  trait AbstractChildComponent extends AbstractChildComponent.super[BaseComponent].BaseComponent {
+        |    def abstractMethod() : scala.Unit
+        |  }
+        |}
+        |
+        |trait ConcreteComponent extends AbstractChildComponent {
+        |
+        |  object ConcreteComponent extends AbstractChildComponent {
+        |    override def abstractMethod(): Unit = ()
+        |
+        |    override val abstractName = "hello world"
+        |  }
+        |}
+      """.stripMargin
+    assertNothing(errorsFromScalaCode(code))
+  }
 }
