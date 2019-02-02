@@ -1,79 +1,72 @@
-package org.jetbrains.plugins.scala
-package finder
+package org.jetbrains.plugins.scala.finder
 
 import java.util
 
-import com.intellij.openapi.project.Project
-import com.intellij.psi._
+import com.intellij.openapi.project.{DumbService, Project}
 import com.intellij.psi.search.GlobalSearchScope
+import com.intellij.psi.{PsiClass, PsiElementFinder, PsiPackage}
 import org.jetbrains.plugins.scala.caches.ScalaShortNamesCacheManager
 import org.jetbrains.plugins.scala.lang.psi.api.toplevel.typedef.{ScObject, ScTrait, ScTypeDefinition}
 import org.jetbrains.plugins.scala.lang.psi.impl.ScalaPsiManager
 
-import scala.collection.mutable.ArrayBuffer
+import scala.collection.JavaConverters._
 
 class ScalaClassFinder(project: Project) extends PsiElementFinder {
-  private def manager: ScalaPsiManager = ScalaPsiManager.instance(project)
+  private lazy val psiManager  : ScalaPsiManager             = ScalaPsiManager.instance(project)
+  private lazy val cacheManager: ScalaShortNamesCacheManager = ScalaShortNamesCacheManager.getInstance(project)
 
-  def findClasses(qualifiedName: String, scope: GlobalSearchScope): Array[PsiClass] = {
-    if (manager.isInJavaPsiFacade) return Array.empty
-    val res = new ArrayBuffer[PsiClass]
-
-    def iterateClasses(suffix: String)(fun: PsiClass => Unit) {
-      if (!qualifiedName.endsWith(suffix)) return
-      val nameWithoutDollar = qualifiedName.substring(0, qualifiedName.length() - suffix.length)
-      val classes = ScalaShortNamesCacheManager.getInstance(project).getClassesByFQName(nameWithoutDollar, scope)
-      classes.foreach(fun)
+  override def findClasses(qualifiedName: String, scope: GlobalSearchScope): Array[PsiClass] = {
+    if (psiManager.isInJavaPsiFacade) {
+      return Array.empty
     }
 
-    iterateClasses("") {
+    val classesWoSuffix = (suffix: String) => {
+      if (qualifiedName.endsWith(suffix)) {
+        cacheManager.getClassesByFQName(qualifiedName.stripSuffix(suffix), scope)
+      } else {
+        Nil
+      }
+    }
+
+    val x: Seq[Option[PsiClass]] = cacheManager.getClassesByFQName(qualifiedName, scope).collect {
       case o: ScObject if !o.isPackageObject =>
-        o.fakeCompanionClass match {
-          case Some(c) => res += c
-          case _ =>
-        }
-      case _ =>
+        o.fakeCompanionClass
     }
-
-    iterateClasses("$") {
+    val x$: Seq[Option[PsiClass]] = classesWoSuffix("$").collect {
       case c: ScTypeDefinition =>
-        c.fakeCompanionModule match {
-          case Some(o) => res += o
-          case _ =>
-        }
-      case _ =>
+        c.fakeCompanionModule
     }
-
-    iterateClasses("$class") {
-      case c: ScTrait => res += c.fakeCompanionClass
-      case _ =>
+    val x$class: Seq[Option[PsiClass]] = classesWoSuffix("$class").collect {
+      case c: ScTrait =>
+        Option(c.fakeCompanionClass)
     }
-
-    res.toArray
+    (x ++ x$ ++ x$class).flatten.toArray
   }
 
-  def findClass(qualifiedName: String, scope: GlobalSearchScope): PsiClass = {
-    val classes = findClasses(qualifiedName, scope)
-    if (classes.length > 0) classes(0)
-    else null
+  override def findClass(qualifiedName: String, scope: GlobalSearchScope): PsiClass = {
+    findClasses(qualifiedName, scope).headOption.orNull
   }
 
-  override def findPackage(qName: String): PsiPackage = null
+  override def findPackage(qName: String): PsiPackage = {
+    if (DumbService.isDumb(project)) {
+      return null
+    }
+    psiManager.syntheticPackage(qName)
+  }
 
   override def getClassNames(psiPackage: PsiPackage, scope: GlobalSearchScope): util.Set[String] = {
-    import scala.collection.JavaConverters._
-    manager.getJavaPackageClassNames(psiPackage, scope).asJava
+    psiManager.getJavaPackageClassNames(psiPackage, scope).asJava
   }
 
   override def getClasses(psiPackage: PsiPackage, scope: GlobalSearchScope): Array[PsiClass] = {
-    if (manager.isInJavaPsiFacade) return Array.empty
-    val otherClassNames = getClassNames(psiPackage, scope)
-    val result: ArrayBuffer[PsiClass] = new ArrayBuffer[PsiClass]()
-    otherClassNames.forEach { clazzName =>
-      val qualName = psiPackage.getQualifiedName + "." + clazzName
-      result ++= manager.getCachedClasses(scope, qualName)
-      result ++= findClasses(qualName, scope)
+    if (psiManager.isInJavaPsiFacade) {
+      return Array.empty
     }
-    result.toArray
+    psiManager.getJavaPackageClassNames(psiPackage, scope)
+      .flatMap { clsName =>
+        val qualifiedName = psiPackage.getQualifiedName + "." + clsName
+        psiManager.getCachedClasses(scope, qualifiedName) ++ findClasses(qualifiedName, scope)
+      }
+      .toArray
   }
 }
