@@ -15,12 +15,9 @@ import org.jetbrains.plugins.scala.lang.psi.light.PsiMethodWrapper
 import org.jetbrains.plugins.scala.lang.psi.stubs.index.ScalaIndexKeys
 import org.jetbrains.plugins.scala.lang.refactoring.util.ScalaNamesUtil
 
-import scala.collection.mutable
+import scala.util.Try
 
-/**
-  * User: Alefas
-  * Date: 09.02.12
-  */
+
 final class ScalaShortNamesCacheManager(implicit project: Project) extends ProjectComponent {
 
   private val LOG: Logger = Logger.getInstance("#org.jetbrains.plugins.scala.caches.ScalaShortNamesCacheManager")
@@ -28,51 +25,42 @@ final class ScalaShortNamesCacheManager(implicit project: Project) extends Proje
   import ScalaIndexKeys._
   import ScalaNamesUtil._
 
-  def getClassByFQName(name: String, scope: GlobalSearchScope): PsiClass = {
-    if (DumbService.getInstance(project).isDumb) return null
-
-    val iterator = classesIterator(name, scope)
-    while (iterator.hasNext) {
-      val clazz = iterator.next()
-      if (equivalentFqn(name, clazz.qualifiedName)) {
-        clazz.getContainingFile match {
-          case file: ScalaFile =>
-            if (!file.isScriptFile) return clazz
-          case _ => return clazz
-        }
-      }
+  def getClassByFQName(fqn: String, scope: GlobalSearchScope): PsiClass = {
+    if (DumbService.getInstance(project).isDumb) {
+      return null
     }
-    null
+
+    classesFromIndex(fqn, scope)
+      .find {
+        case cls if cls.qualifiedName != null && equivalentFqn(fqn, cls.qualifiedName) =>
+          // throws PsiInvalidElementAccessException
+          Try(cls.getContainingFile)
+            .map {
+              case file: ScalaFile if file.isScriptFile =>
+                false
+              case _ =>
+                true
+            }
+            .getOrElse(false)
+
+        case _ => false
+      }
+      .orNull
   }
 
   def getClassesByFQName(fqn: String, scope: GlobalSearchScope): Seq[PsiClass] = {
-    if (DumbService.getInstance(project).isDumb) return Seq.empty
-
-    val buffer = mutable.ArrayBuffer.empty[PsiClass]
-    var psiClass: PsiClass = null
-    var count: Int = 0
-    val iterator = classesIterator(fqn, scope)
-    while (iterator.hasNext) {
-      val clazz = iterator.next()
-      if (equivalentFqn(fqn, clazz.qualifiedName)) {
-        buffer += clazz
-        count += 1
-        psiClass = clazz
-        clazz match {
-          case s: ScTypeDefinition =>
-            s.fakeCompanionModule match {
-              case Some(o) =>
-                buffer += o
-                count += 1
-              case _ =>
-            }
-          case _ =>
-        }
-      }
+    if (DumbService.getInstance(project).isDumb) {
+      return Nil
     }
-    if (count == 0) return Seq.empty
-    if (count == 1) return Seq(psiClass)
-    buffer
+    classesFromIndex(fqn, scope)
+      .filter(cls => cls.qualifiedName != null && equivalentFqn(fqn, cls.qualifiedName))
+      .flatMap {
+        case cls: ScTypeDefinition => // Add fakeCompanionModule when ScTypeDefinition
+          Seq(cls) ++ cls.fakeCompanionModule.toSeq
+        case cls =>
+          Seq(cls)
+      }
+      .toIndexedSeq
   }
 
   def methodsByName(name: String)
@@ -84,33 +72,16 @@ final class ScalaShortNamesCacheManager(implicit project: Project) extends Proje
   def getClassesByName(name: String, scope: GlobalSearchScope): Iterable[PsiClass] =
     SHORT_NAME_KEY.elements(name, scope, classOf[PsiClass])
 
-  def findPackageObjectByName(fqn: String, scope: GlobalSearchScope): Option[ScObject] =
-    if (DumbService.getInstance(project).isDumb) None
-    else packageObjectByName(classesIterator(fqn, scope, PACKAGE_OBJECT_KEY), fqn)
-
-  private def packageObjectByName(iterator: Iterator[PsiClass],
-                                  fqn: String): Option[ScObject] = {
-    while (iterator.hasNext) {
-      val psiClass = iterator.next()
-      psiClass.qualifiedName match {
-        case null =>
-        case qualifiedName =>
-          val newQualifiedName = if (psiClass.name == "`package`") {
-            qualifiedName.lastIndexOf('.') match {
-              case -1 => ""
-              case i => qualifiedName.substring(0, i)
-            }
-          } else qualifiedName
-
-          psiClass match {
-            case scalaObject: ScObject if equivalentFqn(fqn, newQualifiedName) =>
-              return Some(scalaObject)
-            case _ =>
-          }
-      }
+  def findPackageObjectByName(fqn: String, scope: GlobalSearchScope): Option[ScObject] = {
+    if (DumbService.getInstance(project).isDumb) {
+      None
+    } else {
+      classesFromIndex(fqn, scope, indexKey = PACKAGE_OBJECT_KEY)
+        .collectFirst {
+          case scalaObject: ScObject if scalaObject.qualifiedName != null &&
+            equivalentFqn(fqn, scalaObject.qualifiedName.stripSuffix(".`package`")) => scalaObject
+        }
     }
-
-    None
   }
 
   def getClasses(psiPackage: PsiPackage, scope: GlobalSearchScope): Array[PsiClass] = {
@@ -188,15 +159,16 @@ final class ScalaShortNamesCacheManager(implicit project: Project) extends Proje
       case _ => true
     }
 
-  private def psiManager = ScalaPsiManager.instance(project)
+  // Don't use val, there is a loop
+  private lazy val psiManager = ScalaPsiManager.instance(project)
 
-  private def psiNamesCache = PsiShortNamesCache.getInstance(project)
+  private lazy val psiNamesCache = PsiShortNamesCache.getInstance(project)
 
-  override def getComponentName: String = "ScalaShortNamesCacheManager"
+  override val getComponentName: String = "ScalaShortNamesCacheManager"
 
-  private def classesIterator(name: String, scope: GlobalSearchScope,
-                              indexKey: StubIndexKey[java.lang.Integer, PsiClass] = FQN_KEY) =
-    indexKey.integerElements(name, scope, classOf[PsiClass]).iterator
+  private def classesFromIndex(name: String, scope: GlobalSearchScope,
+                              indexKey: StubIndexKey[java.lang.Integer, PsiClass] = FQN_KEY): Iterable[PsiClass] =
+    indexKey.integerElements(name, scope, classOf[PsiClass])
 }
 
 object ScalaShortNamesCacheManager {
