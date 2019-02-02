@@ -20,7 +20,7 @@ class ScalaClassFinder(project: Project) extends PsiElementFinder {
       return Array.empty
     }
 
-    val classesWoSuffix = (suffix: String) => {
+    val classesWoSuffix: String => Seq[PsiClass] = (suffix: String) => {
       if (qualifiedName.endsWith(suffix)) {
         cacheManager.getClassesByFQName(qualifiedName.stripSuffix(suffix), scope)
       } else {
