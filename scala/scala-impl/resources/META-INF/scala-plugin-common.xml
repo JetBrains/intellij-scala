@@ -640,32 +640,32 @@
 
         <intentionAction>
             <category>Scala/Format</category>
-            <className>org.jetbrains.plugins.scala.codeInsight.intention.format.AbstractFormatConversionIntention$FormattedToStringConcatenation</className>
+            <className>org.jetbrains.plugins.scala.codeInsight.intention.stringLiteral.FormatConversionIntention$FormattedToStringConcatenation</className>
         </intentionAction>
 
         <intentionAction>
             <category>Scala/Format</category>
-            <className>org.jetbrains.plugins.scala.codeInsight.intention.format.AbstractFormatConversionIntention$FormattedToInterpolated</className>
+            <className>org.jetbrains.plugins.scala.codeInsight.intention.stringLiteral.FormatConversionIntention$FormattedToInterpolated</className>
         </intentionAction>
 
         <intentionAction>
             <category>Scala/Format</category>
-            <className>org.jetbrains.plugins.scala.codeInsight.intention.format.AbstractFormatConversionIntention$InterpolatedToStringConcatenation</className>
+            <className>org.jetbrains.plugins.scala.codeInsight.intention.stringLiteral.FormatConversionIntention$InterpolatedToStringConcatenation</className>
         </intentionAction>
 
         <intentionAction>
             <category>Scala/Format</category>
-            <className>org.jetbrains.plugins.scala.codeInsight.intention.format.AbstractFormatConversionIntention$InterpolatedToFormatted</className>
+            <className>org.jetbrains.plugins.scala.codeInsight.intention.stringLiteral.FormatConversionIntention$InterpolatedToFormatted</className>
         </intentionAction>
 
         <intentionAction>
             <category>Scala/Format</category>
-            <className>org.jetbrains.plugins.scala.codeInsight.intention.format.AbstractFormatConversionIntention$StringConcatenationToFormatted</className>
+            <className>org.jetbrains.plugins.scala.codeInsight.intention.stringLiteral.FormatConversionIntention$StringConcatenationToFormatted</className>
         </intentionAction>
 
         <intentionAction>
             <category>Scala/Format</category>
-            <className>org.jetbrains.plugins.scala.codeInsight.intention.format.AbstractFormatConversionIntention$StringConcatenationToInterpolated</className>
+            <className>org.jetbrains.plugins.scala.codeInsight.intention.stringLiteral.FormatConversionIntention$StringConcatenationToInterpolated</className>
         </intentionAction>
 
         <intentionAction>

@@ -1,7 +1,7 @@
 package org.jetbrains.plugins.scala
 package codeInsight
 package intention
-package format
+package stringLiteral
 
 import com.intellij.codeInsight.intention.PsiElementBaseIntentionAction
 import com.intellij.openapi.editor.Editor
@@ -16,9 +16,9 @@ import org.jetbrains.plugins.scala.util.MultilineStringUtil
 /**
   * Pavel Fatin
   */
-sealed abstract class AbstractFormatConversionIntention(override val getText: String,
-                                                        parser: StringParser,
-                                                        formatter: StringFormatter) extends PsiElementBaseIntentionAction {
+sealed abstract class FormatConversionIntention(override val getText: String,
+                                                parser: StringParser,
+                                                formatter: StringFormatter) extends PsiElementBaseIntentionAction {
 
   override def getFamilyName: String = getText
 
@@ -57,33 +57,33 @@ sealed abstract class AbstractFormatConversionIntention(override val getText: St
 
 }
 
-object AbstractFormatConversionIntention {
+object FormatConversionIntention {
 
-  final class FormattedToInterpolated extends AbstractFormatConversionIntention(
+  final class FormattedToInterpolated extends FormatConversionIntention(
     "Convert to interpolated string",
     FormattedStringParser,
     InterpolatedStringFormatter
   )
 
-  final class FormattedToStringConcatenation extends AbstractFormatConversionIntention(
+  final class FormattedToStringConcatenation extends FormatConversionIntention(
     "Convert to string concatenation",
     FormattedStringParser,
     StringConcatenationFormatter
   )
 
-  final class InterpolatedToFormatted extends AbstractFormatConversionIntention(
+  final class InterpolatedToFormatted extends FormatConversionIntention(
     "Convert to formatted string",
     InterpolatedStringParser,
     FormattedStringFormatter
   )
 
-  final class InterpolatedToStringConcatenation extends AbstractFormatConversionIntention(
+  final class InterpolatedToStringConcatenation extends FormatConversionIntention(
     "Convert to string concatenation",
     InterpolatedStringParser,
     StringConcatenationFormatter
   )
 
-  final class StringConcatenationToFormatted extends AbstractFormatConversionIntention(
+  final class StringConcatenationToFormatted extends FormatConversionIntention(
     "Convert to formatted string",
     StringConcatenationParser,
     FormattedStringFormatter
@@ -91,7 +91,7 @@ object AbstractFormatConversionIntention {
     override protected def eager: Boolean = true
   }
 
-  final class StringConcatenationToInterpolated extends AbstractFormatConversionIntention(
+  final class StringConcatenationToInterpolated extends FormatConversionIntention(
     "Convert to interpolated string",
     StringConcatenationParser,
     InterpolatedStringFormatter
