@@ -640,32 +640,32 @@
 
         <intentionAction>
             <category>Scala/Format</category>
-            <className>org.jetbrains.plugins.scala.codeInsight.intention.format.ConvertFormattedStringToStringConcatenation</className>
+            <className>org.jetbrains.plugins.scala.codeInsight.intention.format.AbstractFormatConversionIntention$FormattedToStringConcatenation</className>
         </intentionAction>
 
         <intentionAction>
             <category>Scala/Format</category>
-            <className>org.jetbrains.plugins.scala.codeInsight.intention.format.ConvertFormattedStringToInterpolatedString</className>
+            <className>org.jetbrains.plugins.scala.codeInsight.intention.format.AbstractFormatConversionIntention$FormattedToInterpolated</className>
         </intentionAction>
 
         <intentionAction>
             <category>Scala/Format</category>
-            <className>org.jetbrains.plugins.scala.codeInsight.intention.format.ConvertInterpolatedStringToStringConcatenation</className>
+            <className>org.jetbrains.plugins.scala.codeInsight.intention.format.AbstractFormatConversionIntention$InterpolatedToStringConcatenation</className>
         </intentionAction>
 
         <intentionAction>
             <category>Scala/Format</category>
-            <className>org.jetbrains.plugins.scala.codeInsight.intention.format.ConvertInterpolatedStringToFormattedString</className>
+            <className>org.jetbrains.plugins.scala.codeInsight.intention.format.AbstractFormatConversionIntention$InterpolatedToFormatted</className>
         </intentionAction>
 
         <intentionAction>
             <category>Scala/Format</category>
-            <className>org.jetbrains.plugins.scala.codeInsight.intention.format.ConvertStringConcatenationToFormattedString</className>
+            <className>org.jetbrains.plugins.scala.codeInsight.intention.format.AbstractFormatConversionIntention$StringConcatenationToFormatted</className>
         </intentionAction>
 
         <intentionAction>
             <category>Scala/Format</category>
-            <className>org.jetbrains.plugins.scala.codeInsight.intention.format.ConvertStringConcatenationToInterpolatedString</className>
+            <className>org.jetbrains.plugins.scala.codeInsight.intention.format.AbstractFormatConversionIntention$StringConcatenationToInterpolated</className>
         </intentionAction>
 
         <intentionAction>

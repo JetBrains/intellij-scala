@@ -1,52 +1,102 @@
 package org.jetbrains.plugins.scala
-package codeInsight.intention.format
+package codeInsight
+package intention
+package format
 
 import com.intellij.codeInsight.intention.PsiElementBaseIntentionAction
 import com.intellij.openapi.editor.Editor
 import com.intellij.openapi.project.Project
 import com.intellij.psi.PsiElement
 import org.jetbrains.plugins.scala.extensions._
-import org.jetbrains.plugins.scala.format.{StringFormatter, StringParser, StringPart}
+import org.jetbrains.plugins.scala.format._
 import org.jetbrains.plugins.scala.lang.psi.api.base.ScLiteral
-import org.jetbrains.plugins.scala.lang.psi.impl.ScalaPsiElementFactory.createExpressionFromText
+import org.jetbrains.plugins.scala.lang.psi.impl.ScalaPsiElementFactory
 import org.jetbrains.plugins.scala.util.MultilineStringUtil
 
 /**
- * Pavel Fatin
- */
+  * Pavel Fatin
+  */
+sealed abstract class AbstractFormatConversionIntention(override val getText: String,
+                                                        parser: StringParser,
+                                                        formatter: StringFormatter) extends PsiElementBaseIntentionAction {
 
-abstract class AbstractFormatConversionIntention(name: String,
-                                                 parser: StringParser,
-                                                 formatter: StringFormatter,
-                                                 eager: Boolean = false) extends PsiElementBaseIntentionAction {
-  setText(name)
+  override def getFamilyName: String = getText
 
-  override def getFamilyName: String = name
+  protected def eager: Boolean = false
 
   private def findTargetIn(element: PsiElement): Option[(PsiElement, Seq[StringPart])] = {
-    val candidates = {
-      val list = element.withParentsInFile.toList
-      if (eager) list.reverse else list
+    val candidates = element.withParentsInFile.toList match {
+      case list if eager => list.reverse
+      case list => list
     }
-    val results = candidates.map(parser.parse)
-    candidates.zip(results).collectFirst {
-      case (candidate, Some(parts)) => (candidate, parts)
+
+    candidates.collectFirst {
+      case candidate@Parts(parts) => (candidate, parts)
     }
   }
 
-  override def isAvailable(project: Project, editor: Editor, element: PsiElement): Boolean = {
+  override def isAvailable(project: Project, editor: Editor, element: PsiElement): Boolean =
     findTargetIn(element).isDefined
-  }
 
-  override def invoke(project: Project, editor: Editor, element: PsiElement) {
+  override def invoke(project: Project, editor: Editor, element: PsiElement): Unit = {
     val Some((target, parts)) = findTargetIn(element)
 
-    val result = createExpressionFromText(formatter.format(parts))(element.getManager)
+    val replacement = ScalaPsiElementFactory.createExpressionFromText(formatter.format(parts))(element.getManager)
 
-    target.replace(result) match {
-      case lit: ScLiteral if lit.isMultiLineString =>
-        MultilineStringUtil.addMarginsAndFormatMLString(lit, editor.getDocument)
+    target.replace(replacement) match {
+      case literal: ScLiteral if literal.isMultiLineString =>
+        MultilineStringUtil.addMarginsAndFormatMLString(literal, editor.getDocument)
       case _ =>
     }
   }
+
+  private object Parts {
+
+    def unapply(element: PsiElement): Option[Seq[StringPart]] = parser.parse(element)
+  }
+
+}
+
+object AbstractFormatConversionIntention {
+
+  final class FormattedToInterpolated extends AbstractFormatConversionIntention(
+    "Convert to interpolated string",
+    FormattedStringParser,
+    InterpolatedStringFormatter
+  )
+
+  final class FormattedToStringConcatenation extends AbstractFormatConversionIntention(
+    "Convert to string concatenation",
+    FormattedStringParser,
+    StringConcatenationFormatter
+  )
+
+  final class InterpolatedToFormatted extends AbstractFormatConversionIntention(
+    "Convert to formatted string",
+    InterpolatedStringParser,
+    FormattedStringFormatter
+  )
+
+  final class InterpolatedToStringConcatenation extends AbstractFormatConversionIntention(
+    "Convert to string concatenation",
+    InterpolatedStringParser,
+    StringConcatenationFormatter
+  )
+
+  final class StringConcatenationToFormatted extends AbstractFormatConversionIntention(
+    "Convert to formatted string",
+    StringConcatenationParser,
+    FormattedStringFormatter
+  ) {
+    override protected def eager: Boolean = true
+  }
+
+  final class StringConcatenationToInterpolated extends AbstractFormatConversionIntention(
+    "Convert to interpolated string",
+    StringConcatenationParser,
+    InterpolatedStringFormatter
+  ) {
+    override protected def eager: Boolean = true
+  }
+
 }
