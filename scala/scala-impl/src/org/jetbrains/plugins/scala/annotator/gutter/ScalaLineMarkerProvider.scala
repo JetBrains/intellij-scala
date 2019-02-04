@@ -62,7 +62,6 @@ class ScalaLineMarkerProvider() extends LineMarkerProvider with ScalaSeparatorPr
       leaf,
       leaf.getTextRange,
       null,
-      Pass.UPDATE_ALL,
       FunctionUtil.nullConstant[PsiElement, String](),
       null,
       GutterIconRenderer.Alignment.RIGHT
@@ -249,7 +248,6 @@ private object GutterUtil {
         aClass.nameId,
         range,
         icon,
-        Pass.LINE_MARKERS,
         markerType.tooltipProvider,
         markerType.navigationHandler,
         GutterIconRenderer.Alignment.RIGHT
