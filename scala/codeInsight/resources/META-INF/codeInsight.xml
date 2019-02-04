@@ -223,6 +223,11 @@
             <category>Scala/String</category>
             <className>org.jetbrains.plugins.scala.codeInsight.intention.stringLiteral.StringToMultilineStringIntention</className>
         </intentionAction>
+
+        <intentionAction>
+            <category>Scala/Recursion</category>
+            <className>org.jetbrains.plugins.scala.codeInsight.intention.recursion.AddTailRecursionAnnotationIntention</className>
+        </intentionAction>
     </extensions>
 
     <extensions defaultExtensionNs="com.intellij.codeInsight">

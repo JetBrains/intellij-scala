@@ -508,11 +508,6 @@
         </intentionAction>
 
         <intentionAction>
-            <category>Scala/Recursion</category>
-            <className>org.jetbrains.plugins.scala.codeInsight.intention.recursion.AddTailRecursionAnnotationIntention</className>
-        </intentionAction>
-
-        <intentionAction>
             <category>Scala/Pattern Matching</category>
             <className>org.jetbrains.plugins.scala.codeInsight.intention.matcher.ConvertToTypedPatternIntention</className>
         </intentionAction>
