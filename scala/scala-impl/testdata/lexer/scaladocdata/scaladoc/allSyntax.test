@@ -1,7 +1,7 @@
 /**
   * =header1==
   * __This is underlined and '''bold text'''.__ And this is plain text
-  * This is ,,subscripted and ''italic text'',, [[^some.code.Link^  badText]]
+  * This is ,,subscripted and ''italic text'',, [[some.code.Link  badText]]
   * [[http://scala-lang.org very looooooooooooooooooooooooooooooooooooooooooooooooooooooong
   * http link]]
   * ===sub-header===
@@ -50,12 +50,11 @@ DOC_ITALIC_TAG 2 {''}
 DOC_SUBSCRIPT_TAG 32 {,,}
 DOC_COMMENT_DATA { }
 DOC_LINK_TAG 64 {[[}
-identifier {^some}
+identifier {some}
 . {.}
 identifier {code}
 . {.}
 identifier {Link}
-DOC_COMMENT_BAD_CHARACTER {^}
 DOC_COMMENT_BAD_CHARACTER { }
 DOC_COMMENT_BAD_CHARACTER { }
 DOC_COMMENT_BAD_CHARACTER {b}
