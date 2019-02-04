@@ -5,7 +5,7 @@ import org.jetbrains.bsp.BspUtil._
 import org.scalacheck.Prop.forAll
 import org.scalacheck.Properties
 
-object BspUtilTest extends Properties("BspUtil functions") {
+object BspUtilProperties extends Properties("BspUtil functions") {
 
   property("StringOps.toURI") = forAll(genUri) { uri =>
     uri.toURI.toString == uri

@@ -7,7 +7,7 @@ object Versions {
   val sbtVersion: String = Sbt.latest
   val zincVersion = "1.1.1"
   val ideaVersion = "191.5701.16"
-  val bspVersion = "2.0.0-M3+20-a73ed92d"
+  val bspVersion = "2.0.0-M3+21-6e1447c0"
   val sbtStructureVersion: String = "2018.2.1+4-88400d3f"
   val sbtIdeaShellVersion: String = "2018.3"
   val sbtIdeaCompilerIndicesVersion = "0.1.1"
@@ -89,10 +89,15 @@ object Dependencies {
   val junitInterface: ModuleID = "com.novocode" % "junit-interface" % "0.11" % "test"
   val ivy2: ModuleID = "org.apache.ivy" % "ivy" % "2.4.0"
 
-  val typesafeConfig: ModuleID = "com.typesafe" % "config" % "1.3.3"
-
   val scalastyle: ModuleID = "org.scalastyle" %% "scalastyle" % "1.0.0"
   val scalariform: ModuleID = "org.scalariform" %% "scalariform" % "0.2.2"
+  val scalafmt: Seq[ModuleID] = Seq(
+    "com.geirsson" %% "scalafmt-core" % "1.5.1",
+    "com.geirsson" %% "metaconfig-core" % "0.4.0",
+    "com.geirsson" %% "metaconfig-typesafe-config" % "0.4.0",
+    "com.typesafe" % "config" % "1.2.1",
+    "com.lihaoyi" %% "sourcecode" % "0.1.3"
+  )
   val macroParadise: ModuleID = "org.scalameta" % "paradise" % paradiseVersion cross CrossVersion.full
   val scalaMetaCore: ModuleID = "org.scalameta" %% "scalameta" % scalaMetaVersion withSources() exclude("com.google.protobuf", "protobuf-java")
   val fastparse: ModuleID = "com.lihaoyi" % s"fastparse_$scalaBinaryVersion" % "0.4.3" // transitive dependency of scalaMeta, needs explicit versioning
@@ -142,7 +147,6 @@ object DependencyGroups {
     scalatestFindersPatched,
     jamm,
     ivy2,
-    typesafeConfig,
     scalastyle,
     scalariform,
     compilerIndicesProtocol
