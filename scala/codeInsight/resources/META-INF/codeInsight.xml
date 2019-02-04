@@ -203,6 +203,26 @@
             <category>Scala/Format</category>
             <className>org.jetbrains.plugins.scala.codeInsight.intention.stringLiteral.FormatConversionIntention$StringConcatenationToInterpolated</className>
         </intentionAction>
+
+        <intentionAction>
+            <category>Scala/String</category>
+            <className>org.jetbrains.plugins.scala.codeInsight.intention.stringLiteral.AddReplaceSlashRToMLStringIntention</className>
+        </intentionAction>
+
+        <intentionAction>
+            <category>Scala/String</category>
+            <className>org.jetbrains.plugins.scala.codeInsight.intention.stringLiteral.AddStripMarginToMLStringIntention</className>
+        </intentionAction>
+
+        <intentionAction>
+            <category>Scala/String</category>
+            <className>org.jetbrains.plugins.scala.codeInsight.intention.stringLiteral.InsertGapIntoStringIntention</className>
+        </intentionAction>
+
+        <intentionAction>
+            <category>Scala/String</category>
+            <className>org.jetbrains.plugins.scala.codeInsight.intention.stringLiteral.StringToMultilineStringIntention</className>
+        </intentionAction>
     </extensions>
 
     <extensions defaultExtensionNs="com.intellij.codeInsight">

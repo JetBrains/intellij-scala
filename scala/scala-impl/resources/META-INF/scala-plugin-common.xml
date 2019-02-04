@@ -463,21 +463,6 @@
         <spellchecker.support language="Scala" implementationClass="org.jetbrains.plugins.scala.spellchecker.ScalaSpellcheckingStrategy"/>
 
         <intentionAction>
-            <category>Scala/String</category>
-            <className>org.jetbrains.plugins.scala.codeInsight.intention.literal.InsertGapIntoStringIntention</className>
-        </intentionAction>
-
-        <intentionAction>
-            <category>Scala/String</category>
-            <className>org.jetbrains.plugins.scala.codeInsight.intention.literal.AddStripMarginToMLStringIntention</className>
-        </intentionAction>
-
-        <intentionAction>
-            <category>Scala/String</category>
-            <className>org.jetbrains.plugins.scala.codeInsight.intention.literal.AddReplaceSlashRToMLStringIntention</className>
-        </intentionAction>
-
-        <intentionAction>
             <category>Scala/Type</category>
             <className>org.jetbrains.plugins.scala.codeInsight.intention.types.ConvertJavaToScalaCollectionIntention</className>
         </intentionAction>
@@ -536,12 +521,6 @@
             <category>Scala/Pattern Matching</category>
             <className>org.jetbrains.plugins.scala.codeInsight.intention.matcher.ExpandPatternIntention</className>
         </intentionAction>
-
-
-        <intentionAction>
-            <category>Scala/String</category>
-            <className>org.jetbrains.plugins.scala.codeInsight.intention.literal.StringToMultilineStringIntention</className>
-        </intentionAction>-->
 
         <intentionAction>
             <category>Scala</category>

@@ -1,7 +1,7 @@
 package org.jetbrains.plugins.scala
 package codeInsight
 package intention
-package literal
+package stringLiteral
 
 import com.intellij.codeInsight.intention.PsiElementBaseIntentionAction
 import com.intellij.openapi.editor.Editor
