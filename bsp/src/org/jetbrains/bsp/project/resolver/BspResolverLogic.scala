@@ -86,7 +86,7 @@ private[resolver] object BspResolverLogic {
     }
 
     def transitiveDependencies(start: BuildTarget): Seq[BuildTarget] = {
-      val direct = start.getDependencies.asScala.map(idToTarget)
+      val direct = start.getDependencies.asScala.flatMap(idToTarget.get) // TODO warning when dependencies are not in buildTargets
       val transitive = direct.flatMap(transitiveDependencies)
       (start +: (direct ++ transitive)).distinct
     }
@@ -98,19 +98,19 @@ private[resolver] object BspResolverLogic {
       val sourcesOpt = idToSources.get(id)
       val dependencyOutputs = transitiveDependencyOutputs(target)
 
-      moduleDescriptionsForTarget(target, scalacOptions, depSourcesOpt, sourcesOpt, dependencyOutputs)
+      moduleDescriptionForTarget(target, scalacOptions, depSourcesOpt, sourcesOpt, dependencyOutputs)
     }
 
     // merge modules with the same module base
     moduleDescriptions.groupBy(_.data.basePath).values.map(mergeModules)
   }
 
-  private[resolver] def moduleDescriptionsForTarget(target: BuildTarget,
-                                                    scalacOptions: Option[ScalacOptionsItem],
-                                                    depSourcesOpt: Option[DependencySourcesItem],
-                                                    sourcesOpt: Option[SourcesItem],
-                                                    dependencyOutputs: Seq[File]
-                                                   )(implicit gson: Gson): Seq[ModuleDescription] = {
+  private[resolver] def moduleDescriptionForTarget(target: BuildTarget,
+                                                   scalacOptions: Option[ScalacOptionsItem],
+                                                   depSourcesOpt: Option[DependencySourcesItem],
+                                                   sourcesOpt: Option[SourcesItem],
+                                                   dependencyOutputs: Seq[File]
+                                                  )(implicit gson: Gson): Option[ModuleDescription] = {
 
     val sourceItems: Seq[SourceItem] = (for {
       sources <- sourcesOpt.toSeq
@@ -177,7 +177,7 @@ private[resolver] object BspResolverLogic {
     //          }
 
     // TODO warning output when modules are skipped because of missing base or scala module data
-    val moduleDescriptionOpt = for {
+    for {
       baseDir <- moduleBase
       moduleKind <- scalaModule
     } yield {
@@ -187,8 +187,6 @@ private[resolver] object BspResolverLogic {
 
       ModuleDescription(moduleDescriptionData, moduleKind)
     }
-
-    moduleDescriptionOpt.toSeq
   }
 
   private[resolver] def createScalaModuleDescription(target: BuildTarget,
