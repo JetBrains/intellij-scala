@@ -58,7 +58,7 @@
     <delete file="${scaladoc.lexer.log}"/>
 
     <java jar="JFlex.jar" output="jflexDoc.log" fork="true" maxmemory="512m" >
-      <arg value="-sliceandcharat"/>
+      <!--<arg value="-sliceandcharat"/>-->
       <arg value="-skel"/>
       <arg value="${scaladoc.skeleton}"/>
       <arg value="${scaladoc.lexer.source}"/>

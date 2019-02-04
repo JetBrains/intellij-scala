@@ -67,10 +67,12 @@ import org.jetbrains.plugins.scala.lang.lexer.ScalaTokenTypes;
 %state TAG_DOC_SPACE
 %state PARAM_TAG_DOC_SPACE
 %state PARAM_THROWS_TAG_DOC_SPACE
+%state PARAM_DEFINE_TAG_DOC_SPACE
 %state PARAM_TAG_SPACE
 %state DOC_TAG_VALUE
 %state PARAM_DOC_TAG_VALUE
 %state PARAM_DOC_THROWS_TAG_VALUE
+%state PARAM_DOC_DEFINE_TAG_VALUE
 %state DOC_TAG_VALUE_IN_PAREN
 %state DOC_TAG_VALUE_IN_LTGT
 %state INLINE_TAG_NAME
@@ -87,8 +89,10 @@ WHITE_DOC_SPACE_CHAR=[\ \t\f\n\r]
 WHITE_DOC_SPACE_NO_NL=[\ \t\f]
 DIGIT=[0-9]
 ALPHA=[:jletter:]
-IDENTIFIER={ALPHA}({ALPHA}|{DIGIT}|[":.-"])*
 
+TAG_IDENTIFIER=[^\ \t\f\n\r]+ // SCL-13537
+INLINE_TAG_IDENTIFIER=[^\ \t\f\n\r}]+
+MACRO_IDENTIFIER=("{" .* "}") | ({ALPHA} | {DIGIT})+ // SCL-9720
 
 /////////////////////////////////// for arbitrary scala identifiers////////////////////////////////////////////////////
 special = \u0021 | \u0023 | [\u0025-\u0026] | [\u002A-\u002B] | \u002D | \u005E | \u003A| [\u003C-\u0040]| \u007E
@@ -161,7 +165,7 @@ scalaIdentifierWithPath = (({plainid} | "`" {stringLiteralExtra} "`")["."]?)+
 <COMMENT_DATA_START> ("="|"\u003d")+ {
   return VALID_DOC_HEADER;
 }
-<COMMENT_DATA, COMMENT_DATA_START> "$"{IDENTIFIER} {
+<COMMENT_DATA, COMMENT_DATA_START> "$"{MACRO_IDENTIFIER} {
   return DOC_MACROS;
 }
 
@@ -212,17 +216,26 @@ scalaIdentifierWithPath = (({plainid} | "`" {stringLiteralExtra} "`")["."]?)+
 <DOC_TAG_VALUE, DOC_TAG_VALUE_IN_PAREN> [,] { return DOC_TAG_VALUE_COMMA; }
 <DOC_TAG_VALUE_IN_PAREN> {WHITE_DOC_SPACE_CHAR}+ { return DOC_WHITESPACE; }
 
-<COMMENT_DATA_START, COMMENT_DATA> "{" / "@"{IDENTIFIER} {
+<COMMENT_DATA_START, COMMENT_DATA> "{" / "@"{TAG_IDENTIFIER} {
   yybegin(INLINE_TAG_NAME);
   return DOC_INLINE_TAG_START;
 }
-<INLINE_TAG_NAME> "@"{IDENTIFIER} { yybegin(INLINE_TAG_DOC_SPACE); return DOC_TAG_NAME; }
+<INLINE_TAG_NAME> "@"{INLINE_TAG_IDENTIFIER} { yybegin(INLINE_TAG_DOC_SPACE); return DOC_TAG_NAME; }
 <INLINE_TAG_DOC_SPACE, INLINE_DOC_TAG_VALUE> "}" { yybegin(COMMENT_DATA); return DOC_INLINE_TAG_END; }
 <INLINE_DOC_TAG_VALUE> [^\}]+ { return DOC_COMMENT_DATA; }
 
 <COMMENT_DATA_START, COMMENT_DATA, DOC_TAG_VALUE> . {
   yybegin(COMMENT_DATA);
   return DOC_COMMENT_DATA;
+}
+
+<COMMENT_DATA_START> "@define" {yybegin(PARAM_DEFINE_TAG_DOC_SPACE); return DOC_TAG_NAME; }
+<PARAM_DEFINE_TAG_DOC_SPACE> {WHITE_DOC_SPACE_NO_NL}+ {yybegin(PARAM_DOC_DEFINE_TAG_VALUE); return DOC_COMMENT_DATA;}
+<PARAM_DOC_DEFINE_TAG_VALUE> {MACRO_IDENTIFIER} { yybegin(DOC_TAG_VALUE_SPACE); return DOC_TAG_VALUE_TOKEN; }
+      
+<PARAM_DEFINE_TAG_DOC_SPACE, PARAM_DOC_DEFINE_TAG_VALUE> [^] {
+  yypushback(1);
+  yybegin(COMMENT_DATA);
 }
 
 <COMMENT_DATA_START> "@throws" {yybegin(PARAM_THROWS_TAG_DOC_SPACE); return DOC_TAG_NAME; }
@@ -248,7 +261,7 @@ scalaIdentifierWithPath = (({plainid} | "`" {stringLiteralExtra} "`")["."]?)+
 <DOC_TAG_VALUE_SPACE> . { yybegin(COMMENT_DATA); return DOC_COMMENT_DATA; }
 
 
-<COMMENT_DATA_START> "@"{IDENTIFIER} {yybegin(TAG_DOC_SPACE); return DOC_TAG_NAME;  }
+<COMMENT_DATA_START> "@"{TAG_IDENTIFIER} {yybegin(TAG_DOC_SPACE); return DOC_TAG_NAME;  }
 <TAG_DOC_SPACE>  {WHITE_DOC_SPACE_CHAR}+ {
    yybegin(COMMENT_DATA);
    return DOC_WHITESPACE;

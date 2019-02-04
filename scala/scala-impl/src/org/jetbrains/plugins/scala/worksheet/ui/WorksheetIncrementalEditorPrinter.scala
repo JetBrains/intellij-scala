@@ -171,10 +171,8 @@ class WorksheetIncrementalEditorPrinter(editor: Editor, viewer: Editor, file: Sc
         }
 
         inputToOutputMapping.append((processedStartEndLine, linesOutput + baseDiff + addedDiff - 1 + viewerDocument.getLineCount))
-/*
 
         saveEvaluationResult(viewerDocument.getText)
-*/
 
         if (linesOutput > linesInput) {
           val lineCount = viewerDocument.getLineCount
