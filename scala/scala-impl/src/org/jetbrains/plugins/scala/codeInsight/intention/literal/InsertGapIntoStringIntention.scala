@@ -1,40 +1,46 @@
 package org.jetbrains.plugins.scala
-package codeInsight.intention.literal
+package codeInsight
+package intention
+package literal
 
 import com.intellij.codeInsight.intention.PsiElementBaseIntentionAction
+import com.intellij.lang.ASTNode
 import com.intellij.openapi.editor.Editor
 import com.intellij.openapi.project.Project
 import com.intellij.psi.PsiElement
-import org.jetbrains.plugins.scala.lang.lexer.ScalaTokenTypes
 
 /**
- * User: Dmitry Naydanov
- * Date: 3/31/12
- */
+  * User: Dmitry Naydanov
+  * Date: 3/31/12
+  */
+final class InsertGapIntoStringIntention extends PsiElementBaseIntentionAction {
 
-class InsertGapIntoStringIntention extends PsiElementBaseIntentionAction {
-  import org.jetbrains.plugins.scala.lang.lexer.ScalaTokenTypes._
+  import InsertGapIntoStringIntention._
 
-  def getFamilyName: String = "Insert gap"
+  override def isAvailable(project: Project, editor: Editor, element: PsiElement): Boolean =
+    replacement(element.getNode).isDefined
 
-  override def getText: String = "Insert gap with concatenation: (\" +  + \")"
-
-
-  def isAvailable(project: Project, editor: Editor, element: PsiElement): Boolean = element != null && 
-    element.getNode != null && Set(tSTRING, tMULTILINE_STRING).contains(element.getNode.getElementType)
-
-  override def invoke(project: Project, editor: Editor, element: PsiElement) {
-    def insertString(str: String, caretMove: Int) {
-      extensions.inWriteAction {
-        editor.getDocument.insertString(editor.getCaretModel.getOffset, str)
-        editor.getCaretModel.moveCaretRelatively(caretMove, 0, false, false, false)
+  override def invoke(project: Project, editor: Editor, element: PsiElement): Unit =
+    replacement(element.getNode).foreach {
+      case (text, caretMove) => inWriteAction {
+        val caretModel = editor.getCaretModel
+        editor.getDocument.insertString(caretModel.getOffset, text)
+        caretModel.moveCaretRelatively(caretMove, 0, false, false, false)
       }
     }
 
-    element.getNode.getElementType match {
-      case ScalaTokenTypes.tSTRING => insertString("\" +  + \"", 4)
-      case ScalaTokenTypes.tMULTILINE_STRING => insertString("\"\"\" +  + \"\"\"", 6)
-      case _ =>
-    }
+  override def getFamilyName: String = "Insert gap"
+
+  override def getText: String = "Insert gap with concatenation: (\" +  + \")"
+}
+
+object InsertGapIntoStringIntention {
+
+  import lang.lexer.ScalaTokenTypes.{tMULTILINE_STRING => MultilineString, tSTRING => RegularString}
+
+  private def replacement(node: ASTNode) = node.getElementType match {
+    case RegularString => Some("\" +  + \"", 4)
+    case MultilineString => Some("\"\"\" +  + \"\"\"", 6)
+    case _ => None
   }
 }

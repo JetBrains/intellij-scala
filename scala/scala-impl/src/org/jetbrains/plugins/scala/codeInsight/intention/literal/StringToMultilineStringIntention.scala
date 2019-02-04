@@ -17,13 +17,13 @@ import org.jetbrains.plugins.scala.lang.psi.impl.ScalaPsiElementFactory.createEx
 import org.jetbrains.plugins.scala.project.ProjectContext
 import org.jetbrains.plugins.scala.util.MultilineStringUtil._
 
-class StringToMultilineStringIntention extends PsiElementBaseIntentionAction {
+final class StringToMultilineStringIntention extends PsiElementBaseIntentionAction {
 
   import StringToMultilineStringIntention._
 
-  def getFamilyName: String = "Regular/Multi-line String conversion"
+  override def getFamilyName: String = "Regular/Multi-line String conversion"
 
-  def isAvailable(project: Project, editor: Editor, element: PsiElement): Boolean = {
+  override def isAvailable(project: Project, editor: Editor, element: PsiElement): Boolean = {
     val maybeText = literalParent(element).collect {
       case lit if lit.isMultiLineString => "Convert to \"string\""
       case lit if lit.isString => "Convert to \"\"\"string\"\"\""
@@ -33,7 +33,7 @@ class StringToMultilineStringIntention extends PsiElementBaseIntentionAction {
     maybeText.isDefined
   }
 
-  override def invoke(project: Project, editor: Editor, element: PsiElement) {
+  override def invoke(project: Project, editor: Editor, element: PsiElement): Unit = {
     if (!element.isValid) return
 
     val lit = literalParent(element)
