@@ -12,13 +12,13 @@ import com.intellij.psi.scope.{ElementClassHint, NameHint, PsiScopeProcessor}
 import com.intellij.psi.util.PsiTreeUtil.isContextAncestor
 import org.jetbrains.plugins.scala.extensions._
 import org.jetbrains.plugins.scala.lang.psi.ScalaPsiUtil._
-import org.jetbrains.plugins.scala.lang.psi.api.{PropertyMethods, ScalaPsiElement}
 import org.jetbrains.plugins.scala.lang.psi.api.PropertyMethods._
 import org.jetbrains.plugins.scala.lang.psi.api.base.ScPrimaryConstructor
 import org.jetbrains.plugins.scala.lang.psi.api.statements._
 import org.jetbrains.plugins.scala.lang.psi.api.statements.params.ScClassParameter
 import org.jetbrains.plugins.scala.lang.psi.api.toplevel.typedef._
 import org.jetbrains.plugins.scala.lang.psi.api.toplevel.{ScNamedElement, ScTypedDefinition}
+import org.jetbrains.plugins.scala.lang.psi.api.{PropertyMethods, ScalaPsiElement}
 import org.jetbrains.plugins.scala.lang.psi.types._
 import org.jetbrains.plugins.scala.lang.psi.types.api.StdType
 import org.jetbrains.plugins.scala.lang.psi.types.recursiveUpdate.ScSubstitutor
@@ -46,19 +46,19 @@ object TypeDefinitionMembers {
     }
 
 
-    def processJava(clazz: PsiClass, subst: ScSubstitutor, map: Map, place: Option[PsiElement]) {
+    def processJava(clazz: PsiClass, subst: ScSubstitutor, map: Map): Unit = {
       for (inner <- clazz.getInnerClasses) {
         addToMap(inner, new Node(inner, subst), map)
       }
     }
 
-    def processScala(template: ScTemplateDefinition, subst: ScSubstitutor, map: Map, place: Option[PsiElement]) {
+    def processScala(template: ScTemplateDefinition, subst: ScSubstitutor, map: TypeNodes.Map): Unit = {
       for (member <- template.members.filterBy[ScNamedElement]) {
         addToMap(member, new Node(member, subst), map)
       }
     }
 
-    def processRefinement(cp: ScCompoundType, map: Map, place: Option[PsiElement]) {
+    def processRefinement(cp: ScCompoundType, map: TypeNodes.Map): Unit = {
       for ((_, aliasSig) <- cp.typesMap) {
         addToMap(aliasSig.typeAlias, new Node(aliasSig.typeAlias, aliasSig.substitutor), map)
       }
@@ -87,7 +87,7 @@ object TypeDefinitionMembers {
       case _             => false
     }
 
-    def processJava(clazz: PsiClass, subst: ScSubstitutor, map: Map, place: Option[PsiElement]) {
+    def processJava(clazz: PsiClass, subst: ScSubstitutor, map: Map): Unit = {
       for (method <- clazz.getMethods) {
         val phys = new PhysicalSignature(method, subst)
         addToMap(phys, new Node(phys, subst), map)
@@ -99,7 +99,7 @@ object TypeDefinitionMembers {
       }
     }
 
-    def processScala(template: ScTemplateDefinition, subst: ScSubstitutor, map: Map, place: Option[PsiElement]) {
+    def processScala(template: ScTemplateDefinition, subst: ScSubstitutor, map: Map): Unit = {
       implicit val ctx: ProjectContext = template
 
       def addSignature(s: Signature) {
@@ -130,7 +130,7 @@ object TypeDefinitionMembers {
       }
     }
 
-    def processRefinement(cp: ScCompoundType, map: Map, place: Option[PsiElement]) {
+    def processRefinement(cp: ScCompoundType, map: Map): Unit = {
       for ((sign, _) <- cp.signatureMap) {
         addToMap(sign, new Node(sign, sign.substitutor), map)
       }

@@ -9,7 +9,7 @@ package toplevel
 package typedef
 
 import com.intellij.openapi.progress.ProgressManager
-import com.intellij.psi.{PsiClass, PsiClassType, PsiElement}
+import com.intellij.psi.{PsiClass, PsiClassType}
 import com.intellij.util.AstLoadingFilter
 import com.intellij.util.containers.{ContainerUtil, SmartHashSet}
 import gnu.trove.TIntObjectHashMap
@@ -39,11 +39,11 @@ abstract class MixinNodes[T: SignatureStrategy] {
 
   def shouldSkip(t: T): Boolean
 
-  def processJava(clazz: PsiClass, subst: ScSubstitutor, map: Map, place: Option[PsiElement])
+  def processJava(clazz: PsiClass, subst: ScSubstitutor, map: Map)
 
-  def processScala(template: ScTemplateDefinition, subst: ScSubstitutor, map: Map, place: Option[PsiElement])
+  def processScala(template: ScTemplateDefinition, subst: ScSubstitutor, map: Map): Unit
 
-  def processRefinement(cp: ScCompoundType, map: Map, place: Option[PsiElement])
+  def processRefinement(cp: ScCompoundType, map: Map): Unit
 
   final def addToMap(t: T, node: Node, m: Map): Unit =
     if (!shouldSkip(t)) m.addToMap(t, node)
@@ -60,12 +60,11 @@ abstract class MixinNodes[T: SignatureStrategy] {
   def build(tp: ScType, compoundThisType: Option[ScType] = None)
            (implicit ctx: ProjectContext): Map = {
     var isPredef = false
-    var place: Option[PsiElement] = None
     val map = new Map
     val superTypesBuff = new ListBuffer[Map]
     val (superTypes, thisTypeSubst): (Seq[ScType], ScSubstitutor) = tp match {
       case cp: ScCompoundType =>
-        processRefinement(cp, map, place)
+        processRefinement(cp, map)
         val thisTypeSubst = compoundThisType match {
           case Some(comp) => ScSubstitutor(comp)
           case _ => ScSubstitutor(tp)
@@ -82,8 +81,7 @@ abstract class MixinNodes[T: SignatureStrategy] {
           clazz match {
             case template: ScTypeDefinition =>
               if (template.qualifiedName == "scala.Predef") isPredef = true
-              place = Option(template.extendsBlock)
-              processScala(template, ScSubstitutor.empty, map, place)
+              processScala(template, ScSubstitutor.empty, map)
               val lin = MixinNodes.linearization(template)
               var zSubst = ScSubstitutor(ScThisType(template))
               var placer = template.getContext
@@ -98,8 +96,7 @@ abstract class MixinNodes[T: SignatureStrategy] {
               }
               (if (lin.nonEmpty) lin.tail else lin, zSubst)
             case template: ScTemplateDefinition =>
-              place = template.lastChildStub
-              processScala(template, ScSubstitutor.empty, map, place)
+              processScala(template, ScSubstitutor.empty, map)
               var zSubst = ScSubstitutor(ScThisType(template))
               var placer = template.getContext
               while (placer != null) {
@@ -115,8 +112,7 @@ abstract class MixinNodes[T: SignatureStrategy] {
             case syn: ScSyntheticClass =>
               (syn.getSuperTypes.map { psiType => psiType.toScType() }: Seq[ScType], ScSubstitutor.empty)
             case clazz: PsiClass =>
-              place = Option(clazz.getLastChild)
-              processJava(clazz, ScSubstitutor.empty, map, place)
+              processJava(clazz, ScSubstitutor.empty, map)
               val lin = MixinNodes.linearization(clazz)
               (if (lin.nonEmpty) lin.tail else lin, ScSubstitutor.empty)
             case _ =>
@@ -138,16 +134,16 @@ abstract class MixinNodes[T: SignatureStrategy] {
             val newSubst = combine(s, superClass).followed(thisTypeSubst).followed(dependentSubst)
             val newMap = new Map
             superClass match {
-              case template: ScTemplateDefinition => processScala(template, newSubst, newMap, place)
+              case template: ScTemplateDefinition => processScala(template, newSubst, newMap)
               case syn: ScSyntheticClass =>
                 //it's required to do like this to have possibility mix Synthetic types
                 syn.elementScope.getCachedClass(syn.getQualifiedName)
                   .collect {
                     case template: ScTemplateDefinition => template
                   }.foreach {
-                  processScala(_, newSubst, newMap, place)
+                  (template: ScTemplateDefinition) => processScala(template, newSubst, newMap)
                 }
-              case _ => processJava(superClass, newSubst, newMap, place)
+              case _ => processJava(superClass, newSubst, newMap)
             }
             superTypesBuff += newMap
           }
@@ -158,7 +154,7 @@ abstract class MixinNodes[T: SignatureStrategy] {
         case _ => superType
       }) match {
         case c: ScCompoundType =>
-          processRefinement(c, map, place)
+          processRefinement(c, map)
         case _ =>
       }
     }
