@@ -360,7 +360,7 @@ object MethodResolveProcessor {
         problems += new MalformedDefinition
         ConformanceExtResult(problems)
       case f: ScFunction if f.isConstructor => scalaConstructorCompatibility(f)
-      case c: ScPrimaryConstructor with PsiNamedElement => scalaConstructorCompatibility(c)
+      case c: ScPrimaryConstructor => scalaConstructorCompatibility(c)
       case method: PsiMethod if method.isConstructor => javaConstructorCompatibility(method)
       case fun: ScFunction if (typeArgElements.isEmpty ||
               typeArgElements.length == fun.typeParameters.length) && fun.paramClauses.clauses.length == 1 &&

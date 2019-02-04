@@ -101,7 +101,7 @@ class ConstructorAnnotatorTest extends SimpleTestCase {
       case Error(_, "Unspecified value parameters: a: Int") :: Nil =>
     }
     assertMatches(messages("new B[Int]()")) {
-      case Error(_, "Unspecified value parameters: a: X") :: Nil =>
+      case Error(_, "Unspecified value parameters: a: Int") :: Nil =>
     }
 
 

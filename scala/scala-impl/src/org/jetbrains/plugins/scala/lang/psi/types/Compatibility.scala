@@ -397,114 +397,49 @@ object Compatibility {
                  isShapesResolve: Boolean,
                  ref: PsiElement = null)
                 (implicit project: ProjectContext): ConformanceExtResult = {
-    val exprs: Seq[Expression] = argClauses.headOption match {case Some(seq) => seq case _ => Seq.empty}
+    def checkParameterListConformance(checkNames: Boolean, parameters: Seq[Parameter], arguments: Seq[Expression]) =
+      checkConformanceExt(checkNames, parameters, arguments, checkWithImplicits, isShapesResolve)
+
+    val firstArgumentListArgs: Seq[Expression] = argClauses.headOption.getOrElse(Seq.empty)
+
     named match {
       case synthetic: ScSyntheticFunction =>
         if (synthetic.paramClauses.isEmpty)
           return ConformanceExtResult(Seq(new DoesNotTakeParameters))
 
-        checkConformanceExt(checkNames = false, parameters = synthetic.paramClauses.head.map { p =>
+        val parameters = synthetic.paramClauses.head.map(p =>
           p.copy(paramType = substitutor(p.paramType))
-        }, exprs = exprs, checkWithImplicits = checkWithImplicits, isShapesResolve = isShapesResolve)
+        )
+
+        checkParameterListConformance(checkNames = false, parameters, firstArgumentListArgs)
       case fun: ScFunction =>
         if(!fun.hasParameterClause && argClauses.nonEmpty)
           return ConformanceExtResult(Seq(new DoesNotTakeParameters))
 
         if (QuasiquoteInferUtil.isMetaQQ(fun) && ref.isInstanceOf[ScReferenceExpression]) {
           val params = QuasiquoteInferUtil.getMetaQQExpectedTypes(ref.asInstanceOf[ScReferenceExpression])
-          return checkConformanceExt(checkNames = false, params, exprs, checkWithImplicits, isShapesResolve)
+          return checkParameterListConformance(checkNames = false, params, firstArgumentListArgs)
         }
 
-        val parameters: Seq[ScParameter] = fun.effectiveParameterClauses.headOption.toList.flatMap(_.effectiveParameters)
+        val parameters =
+          fun.effectiveParameterClauses
+          .headOption
+          .toList
+          .flatMap(_.effectiveParameters)
+          .map(toParameter(_, substitutor))
 
-        val clashedAssignments = clashedAssignmentsIn(exprs)
-
-        if(clashedAssignments.nonEmpty) {
-          val problems = clashedAssignments.map(ParameterSpecifiedMultipleTimes(_))
-          return ConformanceExtResult(problems)
-        }
-
-        //optimization:
-        val hasRepeated = parameters.exists(_.isRepeatedParameter)
-        val maxParams: Int = if(hasRepeated) scala.Int.MaxValue else parameters.length
-
-        val excess = exprs.length - maxParams
-
-        if (excess > 0) {
-          val arguments = exprs.takeRight(excess).map(_.expr)
-          return ConformanceExtResult(arguments.map(ExcessArgument))
-        }
-
-        val obligatory = parameters.filter(p => !p.isDefaultParam && !p.isRepeatedParameter)
-        val shortage = obligatory.size - exprs.length
-        val params = parameters.map(toParameter(_, substitutor))
-        if (shortage > 0) {
-          return ConformanceExtResult(collectSimpleProblems(exprs, params))
-        }
-
-        val res = checkConformanceExt(checkNames = true, parameters = params,
-          exprs = exprs, checkWithImplicits = checkWithImplicits, isShapesResolve = isShapesResolve)
-        res
+        checkParameterListConformance(checkNames = true, parameters, firstArgumentListArgs)
       case constructor: ScPrimaryConstructor =>
-        val parameters: Seq[ScParameter] = constructor.effectiveFirstParameterSection
-
-        val clashedAssignments = clashedAssignmentsIn(exprs)
-
-        if(clashedAssignments.nonEmpty) {
-          val problems = clashedAssignments.map(ParameterSpecifiedMultipleTimes(_))
-          return ConformanceExtResult(problems)
-        }
-
-        //optimization:
-        val hasRepeated = parameters.exists(_.isRepeatedParameter)
-        val maxParams: Int = if(hasRepeated) scala.Int.MaxValue else parameters.length
-
-        val excess = exprs.length - maxParams
-
-        if (excess > 0) {
-          val part = exprs.takeRight(excess).map(_.expr)
-          return ConformanceExtResult(part.map(ExcessArgument))
-        }
-
-        val obligatory = parameters.filter(p => !p.isDefaultParam && !p.isRepeatedParameter)
-        val shortage = obligatory.size - exprs.length
-
-        if (shortage > 0) {
-          val part = obligatory.takeRight(shortage).map { p =>
-            val t = p.`type`().getOrAny
-            Parameter(p.name, p.deprecatedName, t, t, p.isDefaultParam, p.isRepeatedParameter,
-              p.isCallByNameParameter, p.index, Some(p), p.getDefaultExpression.flatMap(_.`type`().toOption))
-          }
-          return ConformanceExtResult(part.map(MissedValueParameter(_)))
-        }
-
-        val res = checkConformanceExt(checkNames = true, parameters = parameters.map {
-          param: ScParameter => toParameter(param, substitutor)
-        }, exprs = exprs, checkWithImplicits = checkWithImplicits, isShapesResolve = isShapesResolve)
-        res
-
+        val parameters = constructor.effectiveFirstParameterSection.map(toParameter(_, substitutor))
+        checkParameterListConformance(checkNames = true, parameters, firstArgumentListArgs)
       case method: PsiMethod =>
-        val parameters: Seq[PsiParameter] = method.parameters
-
-        val excess = exprs.length - parameters.length
-
-        //optimization:
-        val hasRepeated = parameters.exists(_.isVarArgs)
-        if (excess > 0 && !hasRepeated) {
-          val arguments = exprs.takeRight(excess).map(_.expr)
-          return ConformanceExtResult(arguments.map(ExcessArgument))
-        }
-
-        val obligatory = parameters.filterNot(_.isVarArgs)
-        val shortage = obligatory.size - exprs.length
-        if (shortage > 0)
-          return ConformanceExtResult(obligatory.takeRight(shortage).map(p => MissedValueParameter(toParameter(p))))
-
-        checkConformanceExt(checkNames = false, parameters = parameters.map { param =>
+        val parameters = method.parameters.map(param =>
           Parameter(substitutor(param.paramType()), isRepeated = param.isVarArgs, index = -1)
-        }, exprs = exprs, checkWithImplicits = checkWithImplicits, isShapesResolve = isShapesResolve)
+        )
 
-      case _ => ConformanceExtResult(Seq(new ApplicabilityProblem("22")))
+        checkParameterListConformance(checkNames = false, parameters, firstArgumentListArgs)
+      case _ =>
+        ConformanceExtResult(Seq(new ApplicabilityProblem("22")))
     }
   }
 }
