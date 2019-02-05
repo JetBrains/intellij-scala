@@ -18,39 +18,14 @@ import org.jetbrains.plugins.scala.lang.psi.stubs.impl.ScAnnotationStubImpl
   */
 final class ScAnnotationElementType extends ScStubElementType[ScAnnotationStub, ScAnnotation]("annotation") {
   override def serialize(stub: ScAnnotationStub, dataStream: StubOutputStream): Unit = {
-    dataStream.writeOptionName(stub.name)
-    dataStream.writeOptionName(stub.typeText)
+    dataStream.writeName(stub.annotationText)
   }
 
   override def deserialize(dataStream: StubInputStream, parentStub: StubElement[_ <: PsiElement]): ScAnnotationStub =
-    new ScAnnotationStubImpl(parentStub, this,
-      name = dataStream.readOptionName,
-      typeText = dataStream.readOptionName)
+    new ScAnnotationStubImpl(parentStub, this, annotationText = dataStream.readNameString)
 
   override def createStubImpl(annotation: ScAnnotation, parentStub: StubElement[_ <: PsiElement]): ScAnnotationStub = {
-    val maybeTypeElement = Option(annotation).map {
-      _.typeElement
-    }
-
-    val maybeName = maybeTypeElement.flatMap {
-      case parenthesised: ScParenthesisedTypeElement => parenthesised.innerElement
-      case simple: ScSimpleTypeElement => Some(simple)
-      case _ => None
-    }.collect {
-      case simple: ScSimpleTypeElement => simple
-    }.flatMap {
-      _.reference
-    }.map {
-      _.refName
-    }
-
-    val maybeTypeText = maybeTypeElement.map {
-      _.getText
-    }
-
-    new ScAnnotationStubImpl(parentStub, this,
-      name = maybeName,
-      typeText = maybeTypeText)
+    new ScAnnotationStubImpl(parentStub, this, annotationText = annotation.getText.stripPrefix("@"))
   }
 
   override def indexStub(stub: ScAnnotationStub, sink: IndexSink): Unit = {

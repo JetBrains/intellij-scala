@@ -14,7 +14,7 @@ trait ScAnnotation extends ScalaPsiElement with PsiAnnotation {
    * Return full annotation only without @ token.
    * @return annotation expression
    */
-  def annotationExpr: ScAnnotationExpr = findChildByClassScala(classOf[ScAnnotationExpr])
+  def annotationExpr: ScAnnotationExpr
 
   /**
    * Return constructor element af annotation expression. For example

@@ -8,14 +8,13 @@ import com.intellij.lang.ASTNode
 import com.intellij.openapi.util.Comparing
 import com.intellij.psi._
 import com.intellij.psi.impl.light.LightElement
-import com.intellij.psi.meta.PsiMetaData
 import org.jetbrains.plugins.scala.extensions._
 import org.jetbrains.plugins.scala.lang.lexer.ScalaTokenTypes
 import org.jetbrains.plugins.scala.lang.parser.ScalaElementType.ANNOTATION
 import org.jetbrains.plugins.scala.lang.psi.annotator.ScAnnotationAnnotator
 import org.jetbrains.plugins.scala.lang.psi.api.ScalaElementVisitor
-import org.jetbrains.plugins.scala.lang.psi.api.base.{ScAnnotation, ScAnnotationExpr}
 import org.jetbrains.plugins.scala.lang.psi.api.base.types.ScTypeElement
+import org.jetbrains.plugins.scala.lang.psi.api.base.{ScAnnotation, ScAnnotationExpr}
 import org.jetbrains.plugins.scala.lang.psi.api.expr._
 import org.jetbrains.plugins.scala.lang.psi.impl.ScalaPsiElementFactory.createExpressionFromText
 import org.jetbrains.plugins.scala.lang.psi.impl.expr.ScAnnotationImpl.ScAnnotationParameterList
@@ -47,6 +46,9 @@ class ScAnnotationImpl private(stub: ScAnnotationStub, node: ASTNode)
 
   def typeElement: ScTypeElement =
     byPsiOrStub(Option(annotationExpr.constr.typeElement))(_.typeElement).orNull
+
+  override def annotationExpr: ScAnnotationExpr =
+    byPsiOrStub(Option(findChildByClassScala(classOf[ScAnnotationExpr])))(_.annotationExpr).orNull
 
   def findDeclaredAttributeValue(attributeName: String): PsiAnnotationMemberValue = {
     constructor.args match {
