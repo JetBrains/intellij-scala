@@ -2,6 +2,7 @@ package org.jetbrains.plugins.scala
 package lang.refactoring.changeSignature.changeInfo
 
 import com.intellij.psi.PsiModifier
+import org.jetbrains.plugins.scala.lang.psi.PresentationUtil.accessModifierText
 
 /**
  * Nikolay.Tropin
@@ -18,7 +19,7 @@ private[changeInfo] trait VisibilityChangeInfo {
   def isVisibilityChanged: Boolean = oldVisibility != newVisibility
 
   def oldVisibility: String = {
-    function.getModifierList.accessModifier.fold("")(_.getText)
+    function.getModifierList.accessModifier.fold("")(accessModifierText)
   }
 
   private def scalaToJavaVisibility(scalaModifier: String): String = { //todo more correct transformation

@@ -12,6 +12,7 @@ import com.intellij.psi._
 import com.intellij.psi.util.PsiTreeUtil
 import org.jetbrains.plugins.scala.extensions._
 import org.jetbrains.plugins.scala.lang.parser.ScalaElementType
+import org.jetbrains.plugins.scala.lang.psi.PresentationUtil.accessModifierText
 import org.jetbrains.plugins.scala.lang.psi.annotator.ScClassAnnotator
 import org.jetbrains.plugins.scala.lang.psi.api.ScalaElementVisitor
 import org.jetbrains.plugins.scala.lang.psi.api.base.ScPrimaryConstructor
@@ -163,9 +164,8 @@ class ScClassImpl(stub: ScTemplateDefinitionStub[ScClass],
           }
       }.mkString(if (clause.isImplicit) "(implicit " else "(", ", ", ")")
     }.mkString
-    getModifierList.accessModifier.map(am => am.getText + " ").getOrElse("") + "implicit def " + name +
-      typeParametersText + parametersText + " : " + returnType +
-      " = throw new Error(\"\")"
+    val accessModifier = getModifierList.accessModifier.map(am => accessModifierText(am) + " ").getOrElse("")
+    s"${accessModifier}implicit def $name$typeParametersText$parametersText : $returnType = throw new Error()"
   }
 
   @Cached(ModCount.getBlockModificationCount, this)
