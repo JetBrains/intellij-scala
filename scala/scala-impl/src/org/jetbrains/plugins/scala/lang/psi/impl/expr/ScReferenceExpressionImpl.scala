@@ -19,7 +19,7 @@ import org.jetbrains.plugins.scala.lang.psi.api.base.types.{ScSelfTypeElement, S
 import org.jetbrains.plugins.scala.lang.psi.api.base.{ScFieldId, ScPrimaryConstructor, ScReference}
 import org.jetbrains.plugins.scala.lang.psi.api.expr._
 import org.jetbrains.plugins.scala.lang.psi.api.statements._
-import org.jetbrains.plugins.scala.lang.psi.api.statements.params.{ScParameter, ScParameterType}
+import org.jetbrains.plugins.scala.lang.psi.api.statements.params.ScParameter
 import org.jetbrains.plugins.scala.lang.psi.api.toplevel.ScTypedDefinition
 import org.jetbrains.plugins.scala.lang.psi.api.toplevel.typedef._
 import org.jetbrains.plugins.scala.lang.psi.api.{ScPackage, ScalaElementVisitor, ScalaRecursiveElementVisitor}
@@ -234,8 +234,7 @@ class ScReferenceExpressionImpl(node: ASTNode) extends ScReferenceImpl(node)
     val isParamToDepMethod = this.expectedTypeEx().collect {
       case (_, Some(te)) =>
         (for {
-          paramType <- te.getContext.asOptionOf[ScParameterType]
-          param     <- paramType.getContext.asOptionOf[ScParameter]
+          param     <- te.contexts.take(2).findBy[ScParameter] //parameter is first context for stub elements and second context for ast
           if !param.getDefaultExpression.contains(this)
           method     <- param.owner.asOptionOf[ScFunction]
         } yield isReferencedInReturnType(method, param)).getOrElse(false)

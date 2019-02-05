@@ -785,6 +785,11 @@ package object extensions {
       else None
     }
 
+    def findBy[T: ClassTag]: Option[T] = {
+      val clazz = implicitly[ClassTag[T]].runtimeClass
+      delegate.find(clazz.isInstance).asInstanceOf[Option[T]]
+    }
+
     def intersperse[B >: A](sep: B): Iterator[B] = new Iterator[B] {
       private var intersperseNext = false
 
