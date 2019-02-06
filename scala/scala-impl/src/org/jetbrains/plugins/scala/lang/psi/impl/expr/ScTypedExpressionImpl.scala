@@ -1,10 +1,7 @@
-package org.jetbrains.plugins.scala
-package lang
-package psi
-package impl
-package expr
+package org.jetbrains.plugins.scala.lang.psi.impl.expr
 
 import com.intellij.lang.ASTNode
+import org.jetbrains.plugins.scala.lang.psi.annotator.ScTypedExpressionAnnotator
 import org.jetbrains.plugins.scala.lang.psi.api.expr._
 import org.jetbrains.plugins.scala.lang.psi.types.result._
 
@@ -13,7 +10,8 @@ import org.jetbrains.plugins.scala.lang.psi.types.result._
  * Date: 06.03.2008
  */
 
-class ScTypedExpressionImpl(node: ASTNode) extends ScExpressionImplBase(node) with ScTypedExpression {
+class ScTypedExpressionImpl(node: ASTNode) extends ScExpressionImplBase(node)
+  with ScTypedExpression with ScTypedExpressionAnnotator {
 
   protected override def innerType: TypeResult = {
     typeElement match {

@@ -37,11 +37,10 @@ class TypedStatementAnnotatorTest extends SimpleTestCase {
 
   def messages(@Language(value = "Scala", prefix = Header) code: String): List[Message] = {
     val file = (Header + code).parse
-    val definition = file.depthFirst().instanceOf[ScTypedExpression].get
-    
-    val annotator = new TypedStatementAnnotator() {}
+    val expression = file.depthFirst().instanceOf[ScTypedExpression].get
+
     val mock = new AnnotatorHolderMock(file)
-    annotator.annotateTypedExpression(definition, mock, highlightErrors = true)
+    expression.annotate(mock, typeAware = true)
     mock.annotations
   }
   

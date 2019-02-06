@@ -71,7 +71,7 @@ import scala.meta.intellij.MetaExpansionsManager
 abstract class ScalaAnnotator extends Annotator
   with FunctionAnnotator with ScopeAnnotator
   with ApplicationAnnotator
-  with TypedStatementAnnotator with PatternDefinitionAnnotator
+  with PatternDefinitionAnnotator
   with ConstructorAnnotator
   with OverridingAnnotator
   with ProjectContextOwner with DumbAware {
@@ -251,11 +251,6 @@ abstract class ScalaAnnotator extends Annotator
       override def visitVariableDeclaration(varr: ScVariableDeclaration) {
         checkAbstractMemberPrivateModifier(varr, varr.declaredElements.map(_.nameId), holder)
         super.visitVariableDeclaration(varr)
-      }
-
-      override def visitTypedStmt(stmt: ScTypedExpression) {
-        annotateTypedExpression(stmt, holder, typeAware)
-        super.visitTypedStmt(stmt)
       }
 
       override def visitPatternDefinition(pat: ScPatternDefinition) {
