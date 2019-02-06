@@ -1,20 +1,28 @@
-package org.jetbrains.plugins.scala.annotator
+package org.jetbrains.plugins.scala.lang.psi.annotator
 
 import com.intellij.lang.annotation.AnnotationHolder
 import org.jetbrains.plugins.scala.ScalaBundle
+import org.jetbrains.plugins.scala.lang.psi.api.Annotatable
 import org.jetbrains.plugins.scala.lang.psi.api.statements.params.ScTypeParamClause
 import org.jetbrains.plugins.scala.lang.psi.api.statements.{ScPatternDefinition, ScValueDeclaration, ScVariableDefinition}
 import org.jetbrains.plugins.scala.lang.psi.api.toplevel.typedef.{ScClass, ScObject, ScTemplateDefinition}
+import org.jetbrains.plugins.scala.lang.psi.types.ValueClassType
 
 import scala.annotation.tailrec
 
-/**
- * Author: Svyatoslav Ilinskiy
- * Date: 10/12/15.
- */
-trait ValueClassAnnotator {
 
+trait ScClassAnnotator extends Annotatable { self: ScClass =>
 
+  abstract override def annotate(holder: AnnotationHolder, typeAware: Boolean): Unit = {
+    super.annotate(holder, typeAware)
+
+    if (typeAware && ValueClassType.extendsAnyVal(this)) {
+      ScClassAnnotator.annotateValueClass(this, holder)
+    }
+  }
+}
+
+private object ScClassAnnotator {
   /**
     * A value class …
     *

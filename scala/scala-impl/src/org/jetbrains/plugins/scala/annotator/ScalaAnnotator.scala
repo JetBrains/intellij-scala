@@ -73,7 +73,7 @@ abstract class ScalaAnnotator extends Annotator
   with ApplicationAnnotator
   with TypedStatementAnnotator with PatternDefinitionAnnotator
   with ConstructorAnnotator
-  with OverridingAnnotator with ValueClassAnnotator
+  with OverridingAnnotator
   with ProjectContextOwner with DumbAware {
 
   override def annotate(element: PsiElement, holder: AnnotationHolder): Unit = {
@@ -407,11 +407,6 @@ abstract class ScalaAnnotator extends Annotator
         }
         checkClassParameterVariance(parameter, holder)
         super.visitClassParameter(parameter)
-      }
-
-      override def visitClass(cl: ScClass): Unit = {
-        if (typeAware && ValueClassType.extendsAnyVal(cl)) annotateValueClass(cl, holder)
-        super.visitClass(cl)
       }
 
       override def visitTemplateParents(tp: ScTemplateParents): Unit = {
