@@ -299,7 +299,11 @@ trait ScFunction extends ScalaPsiElement with ScMember with ScTypeParametersOwne
     if (DumbService.getInstance(getProject).isDumb || !SyntheticClasses.get(getProject).isClassesRegistered) {
       return null //no resolve during dumb mode or while synthetic classes is not registered
     }
-    getReturnTypeImpl
+    if(isConstructor) {
+      null
+    } else {
+      getReturnTypeImpl
+    }
   }
 
   @CachedInUserData(this, ModCount.getBlockModificationCount)
