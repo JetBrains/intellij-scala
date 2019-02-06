@@ -151,13 +151,6 @@ abstract class ScalaAnnotator extends Annotator
         super.visitLiteral(l)
       }
 
-      override def visitAnnotation(annotation: ScAnnotation) {
-        checkAnnotationType(annotation, holder)
-        checkMetaAnnotation(annotation, holder)
-        PrivateBeanProperty.annotate(annotation, holder)
-        super.visitAnnotation(annotation)
-      }
-
       override def visitForBinding(forBinding: ScForBinding) {
         forBinding.valKeyword match {
           case Some(valKeyword) =>
@@ -425,27 +418,6 @@ abstract class ScalaAnnotator extends Annotator
     //todo: super[ControlFlowInspections].annotate(element, holder)
   }
 
-  private def checkMetaAnnotation(annotation: ScAnnotation, holder: AnnotationHolder): Unit = {
-    import ScalaProjectSettings.ScalaMetaMode
-
-    import scala.meta.intellij.psi._
-    if (annotation.isMetaMacro) {
-      if (!MetaExpansionsManager.isUpToDate(annotation)) {
-        val warning = holder.createWarningAnnotation(annotation, ScalaBundle.message("scala.meta.recompile"))
-        warning.registerFix(new RecompileAnnotationAction(annotation))
-      }
-      val result = annotation.parent.flatMap(_.parent) match {
-        case Some(ah: ScAnnotationsHolder) => ah.metaExpand
-        case _ => Right("")
-      }
-      val settings = ScalaProjectSettings.getInstance(annotation.getProject)
-      result match {
-        case Left(errorMsg) if settings.getScalaMetaMode == ScalaMetaMode.Enabled =>
-          holder.createErrorAnnotation(annotation, ScalaBundle.message("scala.meta.expandfailed", errorMsg))
-        case _ =>
-      }
-    }
-  }
 
   def isAdvancedHighlightingEnabled(element: PsiElement): Boolean =
     ScalaAnnotator.isAdvancedHighlightingEnabled(element)
@@ -786,10 +758,6 @@ abstract class ScalaAnnotator extends Annotator
         ScalaBundle.message("import.expr.should.be.qualified"))
       annotation.setHighlightType(ProblemHighlightType.GENERIC_ERROR)
     }
-  }
-
-  private def checkAnnotationType(annotation: ScAnnotation, holder: AnnotationHolder) {
-    //todo: check annotation is inheritor for class scala.Annotation
   }
 
   def childHasAnnotation(teOption: Option[PsiElement], annotation: String): Boolean = teOption match {
