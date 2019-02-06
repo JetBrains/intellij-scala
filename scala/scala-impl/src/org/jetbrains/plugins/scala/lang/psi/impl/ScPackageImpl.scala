@@ -80,15 +80,14 @@ class ScPackageImpl private (val pack: PsiPackage) extends PsiPackageImpl(pack.g
 
   def findPackageObject(scope: GlobalSearchScope): Option[ScObject] = {
     val manager = ScalaShortNamesCacheManager.getInstance(getProject)
-
-    var tuple = pack.getUserData(CachesUtil.PACKAGE_OBJECT_KEY)
-    val count = ScalaPsiManager.instance(getProject).TopLevelModificationTracker.getModificationCount
-    if (tuple == null || tuple._2.longValue != count) {
-      val clazz = manager.findPackageObjectByName(getQualifiedName, scope).orNull
-      tuple = (clazz, count) // TODO is it safe to cache this ignoring `scope`?
-      pack.putUserData(CachesUtil.PACKAGE_OBJECT_KEY, tuple)
-    }
-    Option(tuple._1)
+    val modificationCount = ScalaPsiManager.instance(getProject).TopLevelModificationTracker.getModificationCount
+    pack.getUserData(CachesUtil.PACKAGE_OBJECT_KEY).toOption
+      .collect { case (clazz, count) if count == modificationCount => clazz }
+      .orElse {
+        val clazz = manager.findPackageObjectByName(getQualifiedName, scope)
+        clazz.foreach(obj => pack.putUserData[(ScObject, java.lang.Long)](CachesUtil.PACKAGE_OBJECT_KEY, (obj, modificationCount)))
+        clazz
+      }
   }
 
   override def getParentPackage: PsiPackageImpl =
