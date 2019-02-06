@@ -137,13 +137,6 @@ abstract class ScalaAnnotator extends Annotator
         super.visitGenericCallExpression(call)
       }
 
-      override def visitTypeElement(te: ScTypeElement) {
-        checkLiteralTypesAllowed(te, holder)
-        checkTypeElementForm(te, holder, typeAware)
-        super.visitTypeElement(te)
-      }
-
-
       override def visitLiteral(l: ScLiteral) {
         l match {
           case _ if l.getFirstChild.getNode.getElementType == ScalaTokenTypes.tINTEGER => // the literal is a tINTEGER
@@ -791,71 +784,6 @@ abstract class ScalaAnnotator extends Annotator
     if (impExpr.qualifier == null) {
       val annotation: Annotation = holder.createErrorAnnotation(impExpr.getTextRange,
         ScalaBundle.message("import.expr.should.be.qualified"))
-      annotation.setHighlightType(ProblemHighlightType.GENERIC_ERROR)
-    }
-  }
-
-  private def checkLiteralTypesAllowed(typeElement: ScTypeElement, holder: AnnotationHolder): Unit = {
-    if (typeElement.isInstanceOf[ScLiteralTypeElement]) {
-      import org.jetbrains.plugins.scala.project._
-      if (!holder.getCurrentAnnotationSession.getFile.literalTypesEnabled)
-        holder.createErrorAnnotation(typeElement, ScalaBundle.message("wrong.type.no.literal.types", typeElement.getText))
-    }
-  }
-
-  private def checkTypeElementForm(typeElement: ScTypeElement, holder: AnnotationHolder, typeAware: Boolean) {
-    //todo: check bounds conformance for parameterized type
-    typeElement match {
-      case simpleTypeElement: ScSimpleTypeElement =>
-        checkAbsentTypeArgs(simpleTypeElement, holder)
-      case _ =>
-    }
-  }
-
-  private def checkAbsentTypeArgs(simpleTypeElement: ScSimpleTypeElement, holder: AnnotationHolder): Unit = {
-    // Dirty hack(see SCL-12582): we shouldn't complain about missing type args since they will be added by a macro after expansion
-    def isFreestyleAnnotated(ah: ScAnnotationsHolder): Boolean = {
-      (ah.findAnnotationNoAliases("freestyle.free") != null) ||
-        ah.findAnnotationNoAliases("freestyle.module") != null
-    }
-    def needTypeArgs: Boolean = {
-      def noHigherKinds(owner: ScTypeParametersOwner) = !owner.typeParameters.exists(_.typeParameters.nonEmpty)
-
-      val canHaveTypeArgs = simpleTypeElement.reference.map(_.resolve()).exists {
-        case ah: ScAnnotationsHolder if isFreestyleAnnotated(ah) => false
-        case c: PsiClass => c.hasTypeParameters
-        case owner: ScTypeParametersOwner => owner.typeParameters.nonEmpty
-        case _ => false
-      }
-
-      if (!canHaveTypeArgs) return false
-
-      simpleTypeElement.getParent match {
-        case ScParameterizedTypeElement(`simpleTypeElement`, _) => false
-        case tp: ScTypeParam if tp.contextBoundTypeElement.contains(simpleTypeElement) => false
-        case (_: ScTypeArgs) childOf (gc: ScGenericCall) =>
-          gc.referencedExpr match {
-            case ResolvesTo(f: ScFunction) => noHigherKinds(f)
-            case _ => false
-          }
-        case (_: ScTypeArgs) childOf (parameterized: ScParameterizedTypeElement) =>
-          parameterized.typeElement match {
-            case ScSimpleTypeElement(Some(ResolvesTo(owner: ScTypeParametersOwner))) => noHigherKinds(owner)
-            case ScSimpleTypeElement(Some(ResolvesTo(ScPrimaryConstructor.ofClass(c)))) => noHigherKinds(c)
-            case _ => false
-          }
-        case infix: ScInfixTypeElement if infix.left == simpleTypeElement || infix.rightOption.contains(simpleTypeElement) =>
-          infix.operation.resolve() match {
-            case owner: ScTypeParametersOwner => noHigherKinds(owner)
-            case _ => false
-          }
-        case _ => true
-      }
-    }
-
-    if (needTypeArgs) {
-      val annotation = holder.createErrorAnnotation(simpleTypeElement.getTextRange,
-        ScalaBundle.message("type.takes.type.parameters", simpleTypeElement.getText))
       annotation.setHighlightType(ProblemHighlightType.GENERIC_ERROR)
     }
   }

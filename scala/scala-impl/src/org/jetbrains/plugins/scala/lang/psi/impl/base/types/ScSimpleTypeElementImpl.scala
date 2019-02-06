@@ -12,6 +12,7 @@ import com.intellij.psi.util.PsiTreeUtil.getContextOfType
 import org.jetbrains.plugins.scala.extensions._
 import org.jetbrains.plugins.scala.lang.macros.MacroDef
 import org.jetbrains.plugins.scala.lang.macros.evaluator.{MacroContext, ScalaMacroEvaluator}
+import org.jetbrains.plugins.scala.lang.psi.annotator.ScSimpleTypeElementAnnotator
 import org.jetbrains.plugins.scala.lang.psi.api.InferUtil.SafeCheckException
 import org.jetbrains.plugins.scala.lang.psi.api.base._
 import org.jetbrains.plugins.scala.lang.psi.api.base.types._
@@ -38,7 +39,9 @@ import org.jetbrains.plugins.scala.macroAnnotations.{CachedWithRecursionGuard, M
  * Date: 22.02.2008
  */
 
-class ScSimpleTypeElementImpl(node: ASTNode) extends ScalaPsiElementImpl(node) with ScSimpleTypeElement {
+class ScSimpleTypeElementImpl(node: ASTNode) extends ScalaPsiElementImpl(node)
+  with ScSimpleTypeElement with ScSimpleTypeElementAnnotator {
+
   protected def innerType: TypeResult = innerNonValueType(inferValueType = true)
 
   override def getTypeNoConstructor: TypeResult = innerNonValueType(inferValueType = true, noConstructor = true)
