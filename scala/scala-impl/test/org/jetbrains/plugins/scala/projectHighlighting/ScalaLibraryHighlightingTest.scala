@@ -40,7 +40,6 @@ abstract class ScalaLibraryHighlightingTest extends ScalaLightCodeInsightFixture
 class ScalaLibraryHighlightingTest_2_12 extends ScalaLibraryHighlightingTest {
 
   override val filesWithProblems = Map(
-    "scala/collection/parallel/Tasks.scala" -> Set((12348, 12387),(12393, 12444),(12815, 12856),(12862, 12913)),
     "scala/Responder.scala" -> Set((1987, 1988),(2133, 2134),(2278, 2279))
   )
 
