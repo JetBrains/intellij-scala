@@ -2,8 +2,7 @@ package org.jetbrains.plugins.scala
 package conversion
 package visitors
 
-import com.intellij.openapi.util.TextRange
-import com.intellij.openapi.util.text.StringUtil
+import com.intellij.openapi.util._
 
 import scala.collection.mutable
 
@@ -11,7 +10,7 @@ import scala.collection.mutable
   * Created by Kate Ustyuzhanina
   * on 11/24/15
   */
-class SimplePrintVisitor {
+class SimplePrintVisitor protected() {
 
   import ast._
   import ClassConstruction.ClassType._
@@ -20,11 +19,20 @@ class SimplePrintVisitor {
 
   private val printer = new PrettyPrinter
 
-  val rangedElementsMap = mutable.HashMap.empty[IntermediateNode, TextRange]
+  private val nodesToRanges = mutable.HashMap
+    .empty[IntermediateNode, TextRange]
+    .withDefaultValue(TextRange.create(0, 0))
 
-  def stringResult: String = StringUtil.convertLineSeparators(printer.toString)
+  final def apply(): String =
+    text.StringUtil.convertLineSeparators(printer.toString)
 
-  def visit(node: IntermediateNode): Unit = node match {
+  final def apply(node: IntermediateNode): TextRange = nodesToRanges(node)
+
+  private def update(node: IntermediateNode, text: String): Unit = {
+    nodesToRanges(node) = TextRange.from(printer.length, text.length)
+  }
+
+  protected def visit(node: IntermediateNode): Unit = node match {
     case m: MainConstruction => m.children.foreach(visit)
     case t@TypeConstruction(inType) => visitType(t, inType)
     case ParametrizedConstruction(inType, parts) => visitParametrizedType(inType, parts)
@@ -781,22 +789,21 @@ class SimplePrintVisitor {
       visit(qualifier.get)
       printer.append(".")
     }
-    val begin = printer.length
-    name match {
-      case "this" => printer.append(name)
-      case "super" => printer.append(name)
-      case _ => printer.append(escapeKeyword(name))
+
+    val escapedName = name match {
+      case "this" |
+           "super" => name
+      case _ => escapeKeyword(name)
     }
-    val range = new TextRange(begin, printer.length)
-    rangedElementsMap.put(statement, range)
+    this (statement) = escapedName
+    printer.append(escapedName)
+
     if (parametrList.isDefined) visit(parametrList.get)
   }
 
-  def visitType(t: TypeConstruction, inType: String): Option[TextRange] = {
-    val begin = printer.length
+  def visitType(t: TypeConstruction, inType: String): Unit = {
+    this (t) = inType
     printer.append(inType)
-    val range = new TextRange(begin, printer.length)
-    rangedElementsMap.put(t, range)
   }
 
   def visitArrayType(iNode: IntermediateNode): Unit = {
@@ -846,6 +853,6 @@ class SimplePrintVisitor {
                                    (printBodyFunction: => Unit): Unit = {
     printer.append(" { ")
     printBodyFunction
-    printer.append(" } ")
+    printer.append("}")
   }
 }

@@ -8,14 +8,12 @@ import com.intellij.codeInsight.editorActions.ReferenceData
 import com.intellij.lang.java.JavaLanguage
 import com.intellij.openapi.project.Project
 import com.intellij.openapi.util.TextRange
+import com.intellij.psi._
 import com.intellij.psi.search.searches.ReferencesSearch
 import com.intellij.psi.search.{GlobalSearchScope, LocalSearchScope}
 import com.intellij.psi.util.{PsiTreeUtil, PsiUtil}
-import com.intellij.psi.{PsiLambdaExpression, _}
-import org.jetbrains.plugins.scala.conversion.ast.ClassConstruction.ClassType
 import org.jetbrains.plugins.scala.conversion.ast._
 import org.jetbrains.plugins.scala.conversion.copy.AssociationHelper
-import org.jetbrains.plugins.scala.conversion.visitors.PrintWithComments
 import org.jetbrains.plugins.scala.extensions.{PsiClassExt, PsiMemberExt, PsiMethodExt}
 import org.jetbrains.plugins.scala.lang.dependency.{DependencyKind, Path}
 import org.jetbrains.plugins.scala.lang.formatting.settings.ScalaCodeStyleSettings
@@ -532,6 +530,8 @@ object JavaToScala {
 
   val fieldParameterMap = new mutable.HashMap[String, String]()
 
+  import ClassConstruction.ClassType._
+
   def createClass(inClass: PsiClass, externalProperties: ExternalProperties)
                  (implicit associations: mutable.ListBuffer[AssociationHelper] = mutable.ListBuffer(),
                   refs: Seq[ReferenceData] = Seq.empty,
@@ -580,7 +580,7 @@ object JavaToScala {
         val typeParams = None
         val companionObject = EmptyConstruction()
         ClassConstruction(name, primaryConstructor, membersOut, modifiers,
-          typeParams, Some(initializers), ClassType.OBJECT, companionObject, None)
+          typeParams, Some(initializers), OBJECT, companionObject, None)
       }
 
       if (objectMembers.nonEmpty && !inClass.isInstanceOf[PsiAnonymousClass]) {
@@ -600,7 +600,7 @@ object JavaToScala {
     def couldFindInstancesForClass: Boolean = {
       def isParentValid(ref: PsiReference): Boolean =
         Option(ref.getElement).flatMap(element => Option(PsiTreeUtil.getParentOfType(element, classOf[PsiNewExpression], classOf[ScConstructor]))).exists {
-          case n: PsiNewExpression if Option(n.getClassReference).exists(_ == ref) => true
+          case n: PsiNewExpression if Option(n.getClassReference).contains(ref) => true
           case e: ScConstructor if e.reference.contains(ref) => true
           case _ => false
         }
@@ -695,7 +695,7 @@ object JavaToScala {
               val typeParams = inClass.getTypeParameters.map(convertPsiToIntermdeiate(_, externalProperties))
               val modifiers = handleModifierList(inClass)
               val (dropMembers, primaryConstructor) = handlePrimaryConstructor(inClass.getConstructors)
-              val classType = if (inClass.isInterface) ClassType.INTERFACE else ClassType.CLASS
+              val classType = if (inClass.isInterface) INTERFACE else CLASS
               val members = updateMembersAndConvert(dropMembers)
 
               for {
@@ -965,25 +965,23 @@ object JavaToScala {
     ml
   }
 
+  import visitors.PrintWithComments
+
   def convertPsisToText(elements: Array[PsiElement],
                         dropElements: mutable.HashSet[PsiElement] = new mutable.HashSet[PsiElement](), textMode: Boolean = false): String = {
     val resultNode = new MainConstruction
     for (part <- elements) {
       resultNode.addChild(convertPsiToIntermdeiate(part, null)(mutable.ListBuffer(), Seq.empty, dropElements, textMode = textMode))
     }
-    val visitor = new PrintWithComments
-    visitor.visit(resultNode)
-    visitor.stringResult
+
+    val PrintWithComments(text) = resultNode
+    text
   }
 
   def convertPsiToText(element: PsiElement): String = {
-    val visitor = new PrintWithComments
-    visitor.visit(convertPsiToIntermdeiate(element, null)(textMode = true))
-
-    val text = visitor.stringResult
+    val PrintWithComments(text) = convertPsiToIntermdeiate(element, null)(textMode = true)
 
     val file = new ScalaCodeFragment(element.getProject, text)
-
     ConverterUtil.cleanCode(file, element.getProject, 0, file.getTextLength)
     file.getText
   }
