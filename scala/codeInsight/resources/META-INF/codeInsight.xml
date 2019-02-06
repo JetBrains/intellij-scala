@@ -175,52 +175,52 @@
         </intentionAction>
 
         <intentionAction>
-            <category>Scala/Format</category>
+            <category>Scala/Strings/Formatted strings</category>
             <className>org.jetbrains.plugins.scala.codeInsight.intention.stringLiteral.FormatConversionIntention$FormattedToStringConcatenation</className>
         </intentionAction>
 
         <intentionAction>
-            <category>Scala/Format</category>
+            <category>Scala/Strings/Formatted strings</category>
             <className>org.jetbrains.plugins.scala.codeInsight.intention.stringLiteral.FormatConversionIntention$FormattedToInterpolated</className>
         </intentionAction>
 
         <intentionAction>
-            <category>Scala/Format</category>
+            <category>Scala/Strings/Interpolated strings</category>
             <className>org.jetbrains.plugins.scala.codeInsight.intention.stringLiteral.FormatConversionIntention$InterpolatedToStringConcatenation</className>
         </intentionAction>
 
         <intentionAction>
-            <category>Scala/Format</category>
+            <category>Scala/Strings/Interpolated strings</category>
             <className>org.jetbrains.plugins.scala.codeInsight.intention.stringLiteral.FormatConversionIntention$InterpolatedToFormatted</className>
         </intentionAction>
 
         <intentionAction>
-            <category>Scala/Format</category>
+            <category>Scala/Strings/String concatenations</category>
             <className>org.jetbrains.plugins.scala.codeInsight.intention.stringLiteral.FormatConversionIntention$StringConcatenationToFormatted</className>
         </intentionAction>
 
         <intentionAction>
-            <category>Scala/Format</category>
+            <category>Scala/Strings/String concatenations</category>
             <className>org.jetbrains.plugins.scala.codeInsight.intention.stringLiteral.FormatConversionIntention$StringConcatenationToInterpolated</className>
         </intentionAction>
 
         <intentionAction>
-            <category>Scala/String</category>
+            <category>Scala/Strings</category>
             <className>org.jetbrains.plugins.scala.codeInsight.intention.stringLiteral.AddReplaceSlashRToMLStringIntention</className>
         </intentionAction>
 
         <intentionAction>
-            <category>Scala/String</category>
+            <category>Scala/Strings</category>
             <className>org.jetbrains.plugins.scala.codeInsight.intention.stringLiteral.AddStripMarginToMLStringIntention</className>
         </intentionAction>
 
         <intentionAction>
-            <category>Scala/String</category>
+            <category>Scala/Strings</category>
             <className>org.jetbrains.plugins.scala.codeInsight.intention.stringLiteral.InsertGapIntoStringIntention</className>
         </intentionAction>
 
         <intentionAction>
-            <category>Scala/String</category>
+            <category>Scala/Strings</category>
             <className>org.jetbrains.plugins.scala.codeInsight.intention.stringLiteral.StringToMultilineStringIntention</className>
         </intentionAction>
 
