@@ -215,8 +215,9 @@ class ScImportStmtImpl private (stub: ScImportStmtStub, node: ASTNode)
                           importedName.foreach { name =>
                             newState = state.put(ResolverEnv.nameKey, name)
                           }
-                          newState = newState.put(ImportUsed.key, Set(importsUsed.toSeq: _*) + ImportSelectorUsed(selector)).
-                            put(ScSubstitutor.key, subst)
+                          newState = newState
+                            .put(ImportUsed.key, Set(importsUsed.toSeq: _*) + ImportSelectorUsed(selector))
+                            .put(ScSubstitutor.key, subst.followed(result.substitutor))
                           calculateRefType(checkResolve(result)).foreach {tp =>
                             newState = newState.put(BaseProcessor.FROM_TYPE_KEY, tp)
                           }
