@@ -146,7 +146,10 @@ class ReferenceExpressionResolver(implicit projectContext: ProjectContext) {
       // this is ugly, but it can improve performance
 
       val applyName = "apply"
-      val isApplySugarCall = reference.refName != applyName && found.exists(_.name == applyName)
+
+      def isApplySugarResult(r: ScalaResolveResult): Boolean = r.name == applyName && r.parentElement.nonEmpty
+
+      val isApplySugarCall = reference.refName != applyName && found.exists(isApplySugarResult)
 
       if (isApplySugarCall) {
         val applyRef = createRef(reference, _ + s".$applyName")
