@@ -17,6 +17,7 @@ import com.intellij.psi.impl.source.tree.LeafElement
 import com.intellij.psi.impl.source.tree.java.PsiLiteralExpressionImpl
 import com.intellij.psi.util.PsiModificationTracker
 import org.jetbrains.plugins.scala.lang.lexer.ScalaTokenTypes
+import org.jetbrains.plugins.scala.lang.psi.annotator.ScLiteralAnnotator
 import org.jetbrains.plugins.scala.lang.psi.api.ScalaElementVisitor
 import org.jetbrains.plugins.scala.lang.psi.api.base.{ScInterpolatedStringLiteral, ScLiteral}
 import org.jetbrains.plugins.scala.lang.psi.impl.expr.ScExpressionImplBase
@@ -31,7 +32,9 @@ import scala.StringContext.InvalidEscapeException
 * Date: 22.02.2008
 */
 
-class ScLiteralImpl(node: ASTNode) extends ScExpressionImplBase(node) with ScLiteral with ContributedReferenceHost {
+class ScLiteralImpl(node: ASTNode) extends ScExpressionImplBase(node)
+  with ScLiteral with ContributedReferenceHost with ScLiteralAnnotator {
+
   def isValidHost: Boolean = getValue.isInstanceOf[String]
 
   override def toString: String = "Literal"
