@@ -118,14 +118,6 @@ abstract class ScalaAnnotator extends Annotator
         }
       }
 
-      override def visitAnnotTypeElement(annot: ScAnnotTypeElement): Unit = {
-        super.visitAnnotTypeElement(annot)
-      }
-
-      override def visitParameterizedTypeElement(parameterized: ScParameterizedTypeElement) {
-        super.visitParameterizedTypeElement(parameterized)
-      }
-
       override def visitExpression(expr: ScExpression) {
         expressionPart(expr)
         super.visitExpression(expr)
@@ -279,10 +271,6 @@ abstract class ScalaAnnotator extends Annotator
         super.visitPatternDefinition(pat)
       }
 
-      override def visitPattern(pat: ScPattern) {
-        super.visitPattern(pat)
-      }
-
       override def visitMethodCallExpression(call: ScMethodCall) {
         registerUsedImports(call, call.getImportsUsed)
         if (typeAware) annotateMethodInvocation(call, holder)
@@ -294,21 +282,9 @@ abstract class ScalaAnnotator extends Annotator
         super.visitInfixExpression(infix)
       }
 
-      override def visitSelfInvocation(self: ScSelfInvocation) {
-        super.visitSelfInvocation(self)
-      }
-
       override def visitConstrBlock(constr: ScConstrBlock) {
         annotateAuxiliaryConstructor(constr, holder)
         super.visitConstrBlock(constr)
-      }
-
-      override def visitParameter(parameter: ScParameter) {
-        super.visitParameter(parameter)
-      }
-
-      override def visitCatchBlock(c: ScCatchBlock) {
-        super.visitCatchBlock(c)
       }
 
       override def visitFunctionDefinition(fun: ScFunctionDefinition) {
@@ -328,10 +304,6 @@ abstract class ScalaAnnotator extends Annotator
         }
         if (!fun.isConstructor) checkFunctionForVariance(fun, holder)
         super.visitFunction(fun)
-      }
-
-      override def visitAssignmentStatement(stmt: ScAssignment) {
-        super.visitAssignmentStatement(stmt)
       }
 
       override def visitTypeProjection(proj: ScTypeProjection) {
@@ -384,14 +356,6 @@ abstract class ScalaAnnotator extends Annotator
       override def visitModifierList(modifierList: ScModifierList) {
         ModifierChecker.checkModifiers(modifierList, holder)
         super.visitModifierList(modifierList)
-      }
-
-      override def visitParameters(parameters: ScParameters) {
-        super.visitParameters(parameters)
-      }
-
-      override def visitTypeDefinition(typedef: ScTypeDefinition) {
-        super.visitTypeDefinition(typedef)
       }
 
       override def visitExistentialTypeElement(exist: ScExistentialTypeElement): Unit = {
