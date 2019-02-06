@@ -124,6 +124,9 @@ abstract class ScalaRenameTestBase extends ScalaLightPlatformCodeInsightTestCase
   private def moduleAdapter = getModuleAdapter
 
   private def doRename(editor: Editor, file: PsiFile, newName: String): String = {
+    PsiDocumentManager.getInstance(getProjectAdapter).commitAllDocuments()
+    FileDocumentManager.getInstance.saveAllDocuments()
+
     val element = TargetElementUtil.findTargetElement(
       InjectedLanguageUtil.getEditorForInjectedLanguageNoCommit(editor, file),
       TargetElementUtil.REFERENCED_ELEMENT_ACCEPTED | TargetElementUtil.ELEMENT_NAME_ACCEPTED)
@@ -137,10 +140,8 @@ abstract class ScalaRenameTestBase extends ScalaLightPlatformCodeInsightTestCase
         new RenameProcessor(projectAdapter, subst, newName, searchInComments, false).run()
       }
     }
-    PsiDocumentManager.getInstance(getProjectAdapter).commitAllDocuments()
     val document = PsiDocumentManager.getInstance(getProjectAdapter).getDocument(file)
     PsiDocumentManager.getInstance(getProjectAdapter).doPostponedOperationsAndUnblockDocument(document)
-    FileDocumentManager.getInstance.saveAllDocuments()
     oldName
   }
 }
