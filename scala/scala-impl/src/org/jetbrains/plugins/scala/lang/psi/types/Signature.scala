@@ -10,9 +10,11 @@ import com.intellij.psi.util.MethodSignatureUtil
 import org.jetbrains.plugins.scala.extensions._
 import org.jetbrains.plugins.scala.lang.psi.api.PropertyMethods
 import org.jetbrains.plugins.scala.lang.psi.api.PropertyMethods.methodName
+import org.jetbrains.plugins.scala.lang.psi.api.base.ScMethodLike
+import org.jetbrains.plugins.scala.lang.psi.api.statements.ScFunction
 import org.jetbrains.plugins.scala.lang.psi.api.statements.params.ScParameters
-import org.jetbrains.plugins.scala.lang.psi.api.statements.{ScFunction, ScTypeAlias}
 import org.jetbrains.plugins.scala.lang.psi.api.toplevel.{ScNamedElement, ScTypedDefinition}
+import org.jetbrains.plugins.scala.lang.psi.light.{ScFunctionWrapper, ScPrimaryConstructorWrapper}
 import org.jetbrains.plugins.scala.lang.psi.types.Signature._
 import org.jetbrains.plugins.scala.lang.psi.types.api.{Any, PsiTypeParamatersExt, TypeParameter}
 import org.jetbrains.plugins.scala.lang.psi.types.recursiveUpdate.ScSubstitutor
@@ -222,6 +224,8 @@ object PhysicalSignature {
   def typesEval(method: PsiMethod): List[Seq[() => ScType]] = method match {
     case fun: ScFunction =>
       fun.effectiveParameterClauses.map(clause => ScalaPsiUtil.mapToLazyTypesSeq(clause.effectiveParameters)).toList
+    case wrapper: ScFunctionWrapper => typesEval(wrapper.delegate)
+    case wrapper: ScPrimaryConstructorWrapper => typesEval(wrapper.delegate)
     case _ => List(ScalaPsiUtil.mapToLazyTypesSeq(method.getParameterList match {
       case p: ScParameters => p.params
       case p => p.getParameters.toSeq
@@ -229,7 +233,13 @@ object PhysicalSignature {
   }
 
   def hasRepeatedParam(method: PsiMethod): Array[Int] = {
-    method.getParameterList match {
+    val originalMethod = method match {
+      case s: ScMethodLike => s
+      case wrapper: ScFunctionWrapper => wrapper.delegate
+      case wrapper: ScPrimaryConstructorWrapper => wrapper.delegate
+      case _ => method
+    }
+    originalMethod.getParameterList match {
       case p: ScParameters =>
         val params = p.params
         val res = mutable.ArrayBuffer.empty[Int]
