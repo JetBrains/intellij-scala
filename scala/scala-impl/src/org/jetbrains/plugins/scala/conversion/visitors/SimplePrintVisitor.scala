@@ -12,12 +12,13 @@ import scala.collection.mutable
   */
 class SimplePrintVisitor protected() {
 
+  import SimplePrintVisitor._
   import ast._
   import ClassConstruction.ClassType._
   import ModifierType._
   import lang.refactoring.util.ScalaNamesUtil.escapeKeyword
 
-  private val printer = new PrettyPrinter
+  private val printer = mutable.StringBuilder.newBuilder
 
   private val nodesToRanges = mutable.HashMap
     .empty[IntermediateNode, TextRange]
@@ -127,24 +128,25 @@ class SimplePrintVisitor protected() {
     }
 
     if (attributes.nonEmpty) {
-      printer.append("(")
+      printer.appendLeftParenthesis()
 
-      for ((name, value) <- attributes) {
-        if (name.isDefined) {
-          visit(name.get)
-          printer.append(" = ")
+      val iterator = attributes.iterator
+      while (iterator.hasNext) {
+        val (maybeName, maybeValue) = iterator.next()
+        if (maybeName.isDefined) {
+          visit(maybeName.get)
+          printer.appendSpace().append("=").appendSpace()
         }
 
-        if (value.isDefined) {
-          visit(value.get)
-          printer.append(", ")
+        if (maybeValue.isDefined) {
+          visit(maybeValue.get)
+          if (iterator.hasNext) printer.append(",").appendSpace()
         }
       }
 
-      printer.delete(2)
-      printer.append(")")
+      printer.appendRightParenthesis()
     }
-    printer.space()
+    printer.appendSpace()
   }
 
   def visitBlock(node: BlockConstruction, statements: Seq[IntermediateNode]): Unit = {
@@ -161,7 +163,7 @@ class SimplePrintVisitor protected() {
     def visitClassHeader(): Unit = {
       if (companion.isInstanceOf[ClassConstruction]) {
         visit(companion)
-        printer.newLine()
+        printer.appendNewLine()
       }
 
       visit(modifiers)
@@ -176,7 +178,7 @@ class SimplePrintVisitor protected() {
       if (typeParams.isDefined) printWithSeparator(typeParams.get, ", ", "[", "]", typeParams.get.nonEmpty)
 
       if (primaryConstructor.isDefined) {
-        printer.space()
+        printer.appendSpace()
         visit(primaryConstructor.get)
       }
 
@@ -208,12 +210,14 @@ class SimplePrintVisitor protected() {
   def visitAnonymousClass(ac: AnonymousClass, mType: IntermediateNode, args: IntermediateNode, body: Seq[IntermediateNode],
                           extendsList: Seq[IntermediateNode]): Unit = {
     visit(mType)
-    printer.append("(")
+    printer.appendLeftParenthesis()
     visit(args)
-    printer.append(")")
+    printer.appendRightParenthesis()
 
     if (extendsList != null && extendsList.nonEmpty) {
-      printer.append(" with ")
+      printer.appendSpace()
+        .append("with")
+        .appendSpace()
       printWithSeparator(extendsList, " with ")
     }
 
@@ -231,13 +235,15 @@ class SimplePrintVisitor protected() {
     def visitEnumBody(): Unit = {
       printer.append("type ")
       visit(name)
-      printer.append(" = Value\n")
+      printer.append(" = Value")
+        .appendNewLine()
 
       val enumConstants = members.collect { case el: EnumConstruction => el }
       if (enumConstants.nonEmpty) {
         printer.append("val ")
         printWithSeparator(enumConstants, ",")
-        printer.append(" = Value\n")
+        printer.append(" = Value")
+          .appendNewLine()
       }
 
       members.filter(!_.isInstanceOf[EnumConstruction]).foreach(visit)
@@ -248,9 +254,9 @@ class SimplePrintVisitor protected() {
 
   def visitArrayAccess(expression: IntermediateNode, idxExpression: IntermediateNode): Unit = {
     visit(expression)
-    printer.append("(")
+    printer.appendLeftParenthesis()
     visit(idxExpression)
-    printer.append(")")
+    printer.appendRightParenthesis()
   }
 
   def visitCastType(c: ClassCast, operand: IntermediateNode, castType: IntermediateNode, isPrimitive: Boolean): Unit = {
@@ -259,9 +265,10 @@ class SimplePrintVisitor protected() {
       printer.append(".to")
       visit(castType)
     } else {
-      printer.append(".asInstanceOf[")
+      printer.append(".asInstanceOf")
+        .appendLeftBracket()
       visit(castType)
-      printer.append("]")
+      printer.appendRightBracket()
     }
   }
 
@@ -271,26 +278,28 @@ class SimplePrintVisitor protected() {
 
   def visitBinary(firstPart: IntermediateNode, secondPart: IntermediateNode, operation: String, inExpresiion: Boolean): Any = {
     val specialOperations = Seq("eq", "ne")
-    if (inExpresiion && specialOperations.contains(operation)) printer.append("(")
+    if (inExpresiion && specialOperations.contains(operation)) printer.appendLeftParenthesis()
     visit(firstPart)
-    printer.append(" ")
-    printer.append(operation)
-    printer.append(" ")
+    printer.appendSpace()
+      .append(operation)
+      .appendSpace()
     visit(secondPart)
-    if (inExpresiion && specialOperations.contains(operation)) printer.append(")")
+    if (inExpresiion && specialOperations.contains(operation)) printer.appendRightParenthesis()
   }
 
   def visitClassObjAccess(expression: IntermediateNode): Unit = {
-    printer.append("classOf[")
+    printer.append("classOf")
+      .appendLeftBracket()
     visit(expression)
-    printer.append("]")
+    printer.appendRightBracket()
   }
 
   def visitInstanceOf(operand: IntermediateNode, mtype: IntermediateNode): Unit = {
     visit(operand)
-    printer.append(".isInstanceOf[")
+    printer.append(".isInstanceOf")
+      .appendLeftBracket()
     visit(mtype)
-    printer.append("]")
+    printer.appendRightBracket()
   }
 
   def visitQualifiedExpression(qualifier: IntermediateNode, identifier: IntermediateNode): Unit = {
@@ -317,9 +326,9 @@ class SimplePrintVisitor protected() {
   }
 
   def visitParenthizedExpression(value: Option[IntermediateNode]): Unit = {
-    printer.append("(")
+    printer.appendLeftParenthesis()
     if (value.isDefined) visit(value.get)
-    printer.append(")")
+    printer.appendRightParenthesis()
   }
 
   def visitNewExpression(mtype: IntermediateNode, arrayInitalizer: Seq[IntermediateNode],
@@ -348,12 +357,18 @@ class SimplePrintVisitor protected() {
     body match {
       case BlockConstruction(_) =>
         def constructHelperFunction(): Unit = {
-          printer.append("{\n")
-          printer.append("def foo")
+          printer.appendLeftBrace()
+            .appendNewLine()
+            .append("def")
+            .appendSpace()
+            .append("foo")
           visit(params)
-          printer.append(" = \n")
+          printer.appendSpace()
+            .append("=")
+            .appendSpace()
+            .appendNewLine()
           printBodyWithBraces(body)(visit(body))
-          printer.append("\n")
+          printer.appendNewLine()
         }
 
         def constructFuncitonCall(): Unit = {
@@ -381,33 +396,33 @@ class SimplePrintVisitor protected() {
     signType match {
       case "++" =>
         if (!canBeSimplified) {
-          printer.append("{")
+          printer.appendLeftBrace()
           visit(operand)
           printer.append(" += 1; ")
           visit(operand)
           if (isPostfix) printer.append(" - 1")
-          printer.append("}")
+          printer.appendRightBrace()
         } else {
           visit(operand)
           printer.append(" += 1")
         }
       case "--" =>
         if (!canBeSimplified) {
-          printer.append("{")
+          printer.appendLeftBrace()
           visit(operand)
           printer.append(" -= 1; ")
           visit(operand)
           if (isPostfix) printer.append(" + 1")
-          printer.append("}")
+          printer.appendRightBrace()
         } else {
           visit(operand)
           printer.append(" -= 1")
         }
       case _ if !isPostfix =>
         printer.append(signType)
-        printer.append("(")
+        printer.appendLeftParenthesis()
         visit(operand)
-        printer.append(")")
+        printer.appendRightParenthesis()
     }
   }
 
@@ -421,7 +436,7 @@ class SimplePrintVisitor protected() {
     } else {
       printer.append("val")
     }
-    printer.space()
+    printer.appendSpace()
     visit(name)
     printer.append(": ")
     visit(ftype)
@@ -438,8 +453,9 @@ class SimplePrintVisitor protected() {
 
   def visitConstructor(modifiers: IntermediateNode, typeParams: Seq[IntermediateNode],
                        params: Seq[IntermediateNode], body: Option[IntermediateNode]): Unit = {
-    printer.append("def ")
-    printer.append("this")
+    printer.append("def")
+      .appendSpace()
+      .append("this")
     if (typeParams.nonEmpty) {
       printWithSeparator(typeParams, ", ", "[", "]")
     }
@@ -477,17 +493,17 @@ class SimplePrintVisitor protected() {
   def visitPrimaryConstructor(params: Seq[IntermediateNode], superCall: IntermediateNode, body: Option[Seq[IntermediateNode]],
                               modifiers: IntermediateNode): Unit = {
     visit(modifiers)
-    printer.space()
-    printer.append("(")
+    printer.appendSpace()
+      .appendLeftParenthesis()
     printWithSeparator(params, ", ")
-    printer.space()
-    printer.append(")")
+    printer.appendSpace()
+      .appendRightParenthesis()
   }
 
   def visitModifiers(modifiersConstruction: ModifiersConstruction, annotations: Seq[IntermediateNode], modifiers: Seq[IntermediateNode]): Unit = {
     for (a <- annotations) {
       visit(a)
-      printer.space()
+      printer.appendSpace()
     }
 
     //to prevent situation where access modifiers print earlier then throw
@@ -497,7 +513,7 @@ class SimplePrintVisitor protected() {
     for (m <- sortModifiers) {
       if (!modifiersConstruction.withoutList.contains(m.asInstanceOf[Modifier].modificator)) {
         visit(m)
-        printer.space()
+        printer.appendSpace()
       }
     }
   }
@@ -517,17 +533,22 @@ class SimplePrintVisitor protected() {
   def visitModifierWithExpr(mtype: ModifierType, value: IntermediateNode): Any = {
     mtype match {
       case THROW =>
-        printer.append("@throws[")
+        printer.append("@throws")
+          .appendLeftBracket()
         visit(value)
-        printer.append("]\n")
+        printer.appendRightBracket()
+          .appendNewLine()
       case SerialVersionUID =>
         printer.append("@SerialVersionUID(")
         visit(value)
-        printer.append(")\n")
+        printer.appendRightParenthesis()
+          .appendNewLine()
       case PRIVATE =>
-        printer.append("private[")
+        printer.append("private")
+          .appendLeftBracket()
         visit(value)
-        printer.append("] ")
+        printer.appendRightBracket()
+          .appendSpace()
       case _ =>
     }
   }
@@ -536,22 +557,22 @@ class SimplePrintVisitor protected() {
                       scCompType: IntermediateNode, isVar: Option[Boolean], isArray: Boolean): Any = {
     def visitDisjunctionType(disjunctionTypeConstructions: DisjunctionTypeConstructions): Unit = {
       visit(name)
-      printer.append("@(")
+      printer.append("@").appendLeftParenthesis()
 
-      disjunctionTypeConstructions.parts.foreach { `type` =>
-        printer.append("_: ")
-        visit(`type`)
-        printer.append(" | ")
+      val iterator = disjunctionTypeConstructions.parts.iterator
+      while (iterator.hasNext) {
+        printer.append("_:").appendSpace()
+        visit(iterator.next())
+        if (iterator.hasNext) printer.appendSpace().append("|").appendSpace()
       }
 
-      printer.delete(3)
-      printer.append(")")
+      printer.appendRightParenthesis()
     }
 
     visit(modifiers)
     if (isVar.isDefined) {
-      if (isVar.get) printer.append("var ")
-      else printer.append("val ")
+      printer.append(if (isVar.get) "var" else "val")
+        .appendSpace()
     }
 
     scCompType match {
@@ -560,7 +581,7 @@ class SimplePrintVisitor protected() {
         visit(name)
 
         if (!scCompType.isInstanceOf[EmptyConstruction]) {
-          printer.append(": ")
+          printer.append(":").appendSpace()
           visit(scCompType)
         }
 
@@ -579,12 +600,12 @@ class SimplePrintVisitor protected() {
                        elseBranch: Option[IntermediateNode]): Unit = {
 
     printer.append("if")
-    printer.space()
+    printer.appendSpace()
 
-    printer.append("(")
+    printer.appendLeftParenthesis()
     if (condition.isDefined) visit(condition.get)
-    printer.append(")")
-    printer.space()
+    printer.appendRightParenthesis()
+    printer.appendSpace()
 
 
     thenBranch.foreach { t =>
@@ -592,21 +613,22 @@ class SimplePrintVisitor protected() {
     }
 
     elseBranch.foreach { e =>
-      printer.newLine()
+      printer.appendNewLine()
       printer.append("else")
-      printer.space()
+      printer.appendSpace()
       printBodyWithBraces(e)(visit(e))
     }
   }
 
   def visitAssert(condition: Option[IntermediateNode], description: Option[IntermediateNode]): Unit = {
-    printer.append("assert (")
+    printer.append("assert").appendSpace().appendLeftParenthesis()
+
     if (condition.isDefined) visit(condition.get)
     if (description.isDefined) {
-      printer.append(", ")
+      printer.append(",").appendSpace()
       visit(description.get)
     }
-    printer.append(")")
+    printer.appendRightParenthesis()
   }
 
   def visitImportStatement(importValue: IntermediateNode, onDemand: Boolean): Any = {
@@ -620,53 +642,55 @@ class SimplePrintVisitor protected() {
   def visitImportStatementList(imports: Seq[IntermediateNode]): Unit = {
     for (iimport <- imports) {
       visit(iimport)
-      printer.newLine()
+      printer.appendNewLine()
     }
   }
 
   def visitWhile(w: WhileStatement, initialization: Option[IntermediateNode], condition: Option[IntermediateNode],
                  body: Option[IntermediateNode], update: Option[IntermediateNode], whileType: Int): Unit = {
     def printDoWhile(): Unit = {
-      printer.append("do {\n")
+      printer.append("do {")
+        .appendNewLine()
 
       body.foreach { b =>
         printBodyWithBraces(b)(visit(b))
       }
 
-      printer.append("\n}")
+      printer.appendNewLine()
+        .appendRightBrace()
       if (update.isDefined) {
-        printer.newLine()
+        printer.appendNewLine()
         visit(update.get)
       }
       printer.append("while")
-      printer.space()
-      printer.append("(")
+      printer.appendSpace()
+      printer.appendLeftParenthesis()
 
       condition.foreach { c =>
         printBodyWithBraces(c)(visit(c))
       }
 
-      printer.append(")")
+      printer.appendRightParenthesis()
     }
 
     def printWhile(): Unit = {
       printer.append("while")
-      printer.space()
-      printer.append("(")
+      printer.appendSpace()
+      printer.appendLeftParenthesis()
 
       condition.foreach { c =>
         printBodyWithBraces(c)(visit(c))
       }
 
-      printer.append(")")
-      printer.space()
+      printer.appendRightParenthesis()
+      printer.appendSpace()
       printBodyWithBraces(w) {
         body.foreach { b =>
           visit(b)
         }
 
         update.foreach { u =>
-          printer.newLine()
+          printer.appendNewLine()
           visit(u)
         }
       }
@@ -674,7 +698,7 @@ class SimplePrintVisitor protected() {
 
     initialization.foreach { i =>
       visit(i)
-      printer.newLine()
+      printer.appendNewLine()
     }
 
     if (whileType == WhileStatement.PRE_TEST_LOOP) printWhile()
@@ -685,7 +709,10 @@ class SimplePrintVisitor protected() {
                     catchStatements: Seq[(IntermediateNode, IntermediateNode)],
                     finallyStatements: Option[Seq[IntermediateNode]], arrow: String): Any = {
     if (resourcesList != null && resourcesList.nonEmpty) {
-      printer.append("try {\n")
+      printer.append("try")
+        .appendSpace()
+        .appendLeftBrace()
+        .appendNewLine()
       printWithSeparator(resourcesList.map(_._2), "\n", "", "\n")
     }
 
@@ -695,15 +722,19 @@ class SimplePrintVisitor protected() {
     }
 
     if (catchStatements.nonEmpty) {
-      printer.append(" catch {\n")
+      printer.appendSpace()
+        .append("catch")
+        .appendSpace()
+        .appendLeftBrace()
+        .appendNewLine()
       catchStatements.foreach { case (parameter, block) =>
         printer.append("case ")
         visit(parameter)
         printer.append(s" $arrow ")
-        printer.newLine()
+        printer.appendNewLine()
         visit(block)
       }
-      printer.append("}")
+      printer.appendRightBrace()
     }
 
     if (finallyStatements.isDefined) {
@@ -711,24 +742,34 @@ class SimplePrintVisitor protected() {
         printer.append(" finally ")
         printWithSeparator(finallyStatements.get, "\n")
       } else {
-        printer.append(" finally {\n")
+        printer.appendSpace()
+          .append("finally")
+          .appendSpace()
+          .appendLeftBrace()
+          .appendNewLine()
         printWithSeparator(finallyStatements.get, "\n", "", "\n")
         resourcesList.foreach {
           case (name: String, _: IntermediateNode) =>
             val cname = escapeKeyword(name)
-            printer.append(s"if ($cname != null) $cname.close()\n")
+            printer.append(s"if ($cname != null) $cname.close()")
+              .appendNewLine()
         }
 
-        printer.append("}")
+        printer.appendRightBrace()
       }
     } else if (resourcesList.nonEmpty) {
-      printer.append(" finally {\n")
+      printer.appendSpace()
+        .append("finally")
+        .appendSpace()
+        .appendLeftBrace()
+        .appendNewLine()
       resourcesList.foreach {
         case (name: String, _: IntermediateNode) =>
           val cname = escapeKeyword(name)
-          printer.append(s"if ($cname != null) $cname.close()\n")
+          printer.append(s"if ($cname != null) $cname.close()")
+            .appendNewLine()
       }
-      printer.append("}")
+      printer.appendRightBrace()
     }
     if (resourcesList.nonEmpty) {
       printer.append("\n}")
@@ -752,7 +793,7 @@ class SimplePrintVisitor protected() {
   def visitNotSupported(iNode: Option[IntermediateNode], msg: String): Unit = {
     printer.append(msg)
     if (iNode.isDefined) {
-      printer.newLine()
+      printer.appendNewLine()
       visit(iNode.get)
     }
   }
@@ -770,7 +811,8 @@ class SimplePrintVisitor protected() {
   def visitForEach(iterParamName: IntermediateNode, iteratedValue: Option[IntermediateNode],
                    body: Option[IntermediateNode], isJavaCollection: Boolean): Unit = {
     if (isJavaCollection) {
-      printer.append("import scala.collection.JavaConversions._\n")
+      printer.append("import scala.collection.JavaConversions._")
+        .appendNewLine()
     }
 
     printer.append("for (")
@@ -807,9 +849,10 @@ class SimplePrintVisitor protected() {
   }
 
   def visitArrayType(iNode: IntermediateNode): Unit = {
-    printer.append("Array[")
+    printer.append("Array")
+      .appendLeftBracket()
     visit(iNode)
-    printer.append("]")
+    printer.appendRightBracket()
   }
 
   def visitParametrizedType(iNode: IntermediateNode, parts: Seq[IntermediateNode]): Unit = {
@@ -844,15 +887,45 @@ class SimplePrintVisitor protected() {
   def visitTypeParameterConstruction(name: IntermediateNode, typez: Seq[IntermediateNode]): Unit = {
     visit(name)
     if (typez.nonEmpty) {
-      printer.append(" <: ")
+      printer.appendSpace()
+        .append("<:")
+        .appendSpace()
       printWithSeparator(typez, " with ")
     }
   }
 
   protected def printBodyWithBraces(node: IntermediateNode)
                                    (printBodyFunction: => Unit): Unit = {
-    printer.append(" { ")
+    printer.appendSpace()
+      .appendLeftBrace()
+      .appendSpace()
     printBodyFunction
-    printer.append("}")
+    printer.appendRightBrace()
   }
+}
+
+object SimplePrintVisitor {
+
+  //noinspection TypeAnnotation
+  private implicit class StringBuilderExt(private val builder: mutable.StringBuilder) extends AnyVal {
+
+    def appendSpace() = this (' ')
+
+    def appendNewLine() = this ('\n')
+
+    def appendLeftParenthesis() = this ('(')
+
+    def appendRightParenthesis() = this (')')
+
+    def appendLeftBrace() = this ('{')
+
+    def appendRightBrace() = this ('}')
+
+    def appendLeftBracket() = this ('[')
+
+    def appendRightBracket() = this (']')
+
+    private def apply(char: Char) = builder.append(char)
+  }
+
 }
