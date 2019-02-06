@@ -64,9 +64,8 @@ class VariableDefinitionAnnotatorTest extends SimpleTestCase {
     val file: ScalaFile = (Header + code).parse
     val definition = file.depthFirst().instanceOf[ScVariableDefinition].get
     
-    val annotator = new VariableDefinitionAnnotator() {}
     val mock = new AnnotatorHolderMock(file)
-    annotator.annotateVariableDefinition(definition, mock, highlightErrors = true)
+    definition.annotate(mock, typeAware = true)
     mock.annotations
   }
   

@@ -71,7 +71,6 @@ import scala.meta.intellij.MetaExpansionsManager
 abstract class ScalaAnnotator extends Annotator
   with FunctionAnnotator with ScopeAnnotator
   with ApplicationAnnotator
-  with VariableDefinitionAnnotator
   with TypedStatementAnnotator with PatternDefinitionAnnotator
   with ConstructorAnnotator
   with OverridingAnnotator with ValueClassAnnotator
@@ -247,11 +246,6 @@ abstract class ScalaAnnotator extends Annotator
       override def visitForExpression(expr: ScFor) {
         registerUsedImports(expr, ScalaPsiUtil.getExprImports(expr))
         super.visitForExpression(expr)
-      }
-
-      override def visitVariableDefinition(varr: ScVariableDefinition) {
-        annotateVariableDefinition(varr, holder, typeAware)
-        super.visitVariableDefinition(varr)
       }
 
       override def visitVariableDeclaration(varr: ScVariableDeclaration) {

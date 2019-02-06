@@ -8,6 +8,7 @@ import com.intellij.lang.ASTNode
 import com.intellij.psi.PsiElementVisitor
 import org.jetbrains.plugins.scala.extensions.ifReadAllowed
 import org.jetbrains.plugins.scala.lang.parser.ScalaElementType
+import org.jetbrains.plugins.scala.lang.psi.annotator.ScVariableDefinitionAnnotator
 import org.jetbrains.plugins.scala.lang.psi.api.ScalaElementVisitor
 import org.jetbrains.plugins.scala.lang.psi.api.base._
 import org.jetbrains.plugins.scala.lang.psi.api.base.patterns._
@@ -25,7 +26,7 @@ import org.jetbrains.plugins.scala.lang.psi.types.result._
 final class ScVariableDefinitionImpl private[psi](stub: ScPropertyStub[ScVariableDefinition],
                                                   nodeType: ScPropertyElementType[ScVariableDefinition],
                                                   node: ASTNode)
-  extends ScalaStubBasedElementImpl(stub, nodeType, node) with ScVariableDefinition {
+  extends ScalaStubBasedElementImpl(stub, nodeType, node) with ScVariableDefinition with ScVariableDefinitionAnnotator {
 
   override def accept(visitor: PsiElementVisitor) {
     visitor match {
