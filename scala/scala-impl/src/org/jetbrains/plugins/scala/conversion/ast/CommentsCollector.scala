@@ -1,4 +1,6 @@
-package org.jetbrains.plugins.scala.conversion.ast
+package org.jetbrains.plugins.scala
+package conversion
+package ast
 
 import com.intellij.openapi.util.text.StringUtil
 import com.intellij.psi.{JavaTokenType, PsiComment, PsiElement, PsiWhiteSpace}
@@ -11,18 +13,6 @@ import scala.collection.mutable.ArrayBuffer
   * Created by Kate Ustyuzhanina
   * on 12/4/15
   */
-object Comments {
-  def apply: Comments = {
-    new Comments(new ArrayBuffer[LiteralExpression](),
-      new ArrayBuffer[LiteralExpression](), new ArrayBuffer[LiteralExpression]())
-  }
-}
-
-case class Comments(beforeComments: ArrayBuffer[LiteralExpression],
-                    afterComments: ArrayBuffer[LiteralExpression],
-                    latestCommtets: ArrayBuffer[LiteralExpression])
-
-
 object CommentsCollector {
 
   def collectCommentsAtStart(element: PsiElement)
@@ -137,12 +127,12 @@ object CommentsCollector {
 
   def allCommentsForElement(element: PsiElement)
                            (implicit usedComments:
-                           mutable.HashSet[PsiElement] = new mutable.HashSet[PsiElement]()): Comments = {
+                           mutable.HashSet[PsiElement] = new mutable.HashSet[PsiElement]()): IntermediateNode.Comments = {
     val before = getAllBeforeComments(element)
     val after = getAllAfterComments(element)
     val latest = collectCommentsAtTheEnd(element)
 
-    Comments(before, after, latest.map(convertComment))
+    IntermediateNode.Comments(before, after, latest.map(convertComment))
   }
 
   def isCommentOrSpace(element: PsiElement): Boolean =

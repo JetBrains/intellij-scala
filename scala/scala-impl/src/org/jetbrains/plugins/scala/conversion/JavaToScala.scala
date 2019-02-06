@@ -698,9 +698,10 @@ object JavaToScala {
               val classType = if (inClass.isInterface) ClassType.INTERFACE else ClassType.CLASS
               val members = updateMembersAndConvert(dropMembers)
 
-              primaryConstructor.zip(getDropComments(dropMembers)).foreach { case (constructor, comments) =>
-                constructor.setAfterComments(comments)
-              }
+              for {
+                constructor <- primaryConstructor
+                comments <- getDropComments(dropMembers)
+              } constructor.comments.afterComments ++= comments
 
               ClassConstruction(name, primaryConstructor, members, modifiers, Some(typeParams),
                 None, classType, companionObject, Some(convertExtendList()))

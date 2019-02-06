@@ -15,19 +15,20 @@ final class PrintWithComments extends SimplePrintVisitor {
   private val printedComments = mutable.HashSet.empty[LiteralExpression]
 
   override def visit(node: IntermediateNode): Unit = {
-    printComments(node.comments.beforeComments)
+    val IntermediateNode.Comments(beforeComments, afterComments, latestComments) = node.comments
+
+    printComments(beforeComments)
     super.visit(node)
-    printComments(node.comments.afterComments ++ node.comments.latestCommtets)
+    printComments(afterComments ++ latestComments)
   }
 
   //override this function to be able to print last comments in block before "}"
   override protected def printBodyWithBraces(node: IntermediateNode)
-                                            (printBodyFunction: => Unit): Unit = {
-    printer.append(" { ")
-    printBodyFunction
-    printComments(node.comments.latestCommtets)
-    printer.append("}")
-  }
+                                            (printBodyFunction: => Unit): Unit =
+    super.printBodyWithBraces(node) {
+      printBodyFunction
+      printComments(node.comments.latestComments)
+    }
 
   private def printComments(comments: mutable.ArrayBuffer[LiteralExpression]): Unit = {
     val unprinted = comments.filterNot(printedComments.contains)

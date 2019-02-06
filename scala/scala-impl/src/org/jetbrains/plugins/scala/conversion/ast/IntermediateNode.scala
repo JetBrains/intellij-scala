@@ -1,32 +1,32 @@
-package org.jetbrains.plugins.scala.conversion.ast
+package org.jetbrains.plugins.scala
+package conversion
+package ast
 
-import org.jetbrains.plugins.scala.lang.refactoring.util.ScalaNamesUtil
-
-import scala.collection.mutable.ArrayBuffer
+import scala.collection.mutable
 
 /**
   * Created by Kate Ustyuzhanina
   * on 10/21/15
   */
-
 abstract class IntermediateNode {
-  def escapeKeyword(name: String): String = ScalaNamesUtil.escapeKeyword(name)
 
-  val comments: Comments = Comments.apply
+  import IntermediateNode._
+
+  val comments = Comments()
 
   def setComments(c: Comments): Unit = {
     comments.beforeComments ++= c.beforeComments
     comments.afterComments ++= c.afterComments
-    comments.latestCommtets ++= c.latestCommtets
+    comments.latestComments ++= c.latestComments
   }
+}
 
-  def setAfterComments(c: Seq[LiteralExpression]): Unit = {
-    comments.afterComments ++= c
-  }
+object IntermediateNode {
 
-  def setBeforeComments(c: Seq[LiteralExpression]): Unit = {
-    comments.beforeComments ++= c
-  }
+  case class Comments(beforeComments: mutable.ArrayBuffer[LiteralExpression] = mutable.ArrayBuffer.empty[LiteralExpression],
+                      afterComments: mutable.ArrayBuffer[LiteralExpression] = mutable.ArrayBuffer.empty[LiteralExpression],
+                      latestComments: mutable.ArrayBuffer[LiteralExpression] = mutable.ArrayBuffer.empty[LiteralExpression])
+
 }
 
 

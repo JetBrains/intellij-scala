@@ -1,5 +1,7 @@
 package org.jetbrains.plugins.scala.conversion.ast
 
+import org.jetbrains.plugins.scala.lang.refactoring.util.ScalaNamesUtil
+
 /**
   * Created by Kate Ustyuzhanina
   * on 10/22/15
@@ -30,13 +32,19 @@ case class InstanceOfConstruction(operand: IntermediateNode,
 
 case class QualifiedExpression(qualifier: IntermediateNode, identifier: IntermediateNode) extends IntermediateNode
 object MethodCallExpression extends IntermediateNode {
-  def build(reciever: IntermediateNode, methodName: String, args: IntermediateNode): MethodCallExpression = {
-    val identifier = methodName match {
-      case "this" => LiteralExpression(methodName)
-      case _ => LiteralExpression(escapeKeyword(methodName))
+  def build(receiver: IntermediateNode, methodName: String, args: IntermediateNode): MethodCallExpression = {
+    val escapedName = methodName match {
+      case "this" => methodName
+      case _ => ScalaNamesUtil.escapeKeyword(methodName)
     }
-    MethodCallExpression(methodName, if (reciever != null)
-      QualifiedExpression(reciever, identifier) else identifier, args, withSideEffects = false)
+
+    val identifier = LiteralExpression(escapedName)
+    val method = receiver match {
+      case null => identifier
+      case qualifier => QualifiedExpression(qualifier, identifier)
+    }
+
+    MethodCallExpression(methodName, method, args, withSideEffects = false)
   }
 }
 

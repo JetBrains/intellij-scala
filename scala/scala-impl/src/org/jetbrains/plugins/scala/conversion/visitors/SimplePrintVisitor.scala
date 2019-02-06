@@ -16,12 +16,11 @@ class SimplePrintVisitor {
   import ast._
   import ClassConstruction.ClassType._
   import ModifierType._
+  import lang.refactoring.util.ScalaNamesUtil.escapeKeyword
 
-  protected val printer = new PrettyPrinter
+  private val printer = new PrettyPrinter
 
   val rangedElementsMap = mutable.HashMap.empty[IntermediateNode, TextRange]
-
-  def escapeKeyword(name: String): String = lang.refactoring.util.ScalaNamesUtil.escapeKeyword(name)
 
   def stringResult: String = StringUtil.convertLineSeparators(printer.toString)
 
