@@ -248,11 +248,6 @@ abstract class ScalaAnnotator extends Annotator
         super.visitForExpression(expr)
       }
 
-      override def visitVariableDeclaration(varr: ScVariableDeclaration) {
-        checkAbstractMemberPrivateModifier(varr, varr.declaredElements.map(_.nameId), holder)
-        super.visitVariableDeclaration(varr)
-      }
-
       override def visitPatternDefinition(pat: ScPatternDefinition) {
         if (!compiled) {
           annotatePatternDefinition(pat, holder, typeAware)
@@ -1001,23 +996,6 @@ abstract class ScalaAnnotator extends Annotator
       ProcessSubtypes
     }
     typeParam.recursiveVarianceUpdate(variance)(functionToSendIn)
-  }
-
-  //fix for SCL-7176
-  private def checkAbstractMemberPrivateModifier(element: PsiElement, toHighlight: Seq[PsiElement], holder: AnnotationHolder) {
-    element match {
-      case fun: ScFunctionDeclaration if fun.isNative =>
-      case modOwner: ScModifierListOwner =>
-        modOwner.getModifierList.accessModifier match {
-          case Some(am) if am.isUnqualifiedPrivateOrThis =>
-            for (e <- toHighlight) {
-              val annotation = holder.createErrorAnnotation(e, ScalaBundle.message("abstract.member.not.have.private.modifier"))
-              annotation.setHighlightType(ProblemHighlightType.GENERIC_ERROR)
-            }
-          case _ =>
-        }
-      case _ =>
-    }
   }
 
   private def checkIntegerLiteral(literal: ScLiteral, holder: AnnotationHolder) {

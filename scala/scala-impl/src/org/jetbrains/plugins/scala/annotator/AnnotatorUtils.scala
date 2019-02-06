@@ -10,10 +10,14 @@ import com.intellij.psi.PsiElement
 import org.jetbrains.plugins.scala.annotator.quickfix.ReportHighlightingErrorQuickFix
 import org.jetbrains.plugins.scala.lang.psi.api.base.types.ScTypeElement
 import org.jetbrains.plugins.scala.lang.psi.api.expr.{ScBlockExpr, ScExpression}
+import org.jetbrains.plugins.scala.lang.psi.api.statements.ScFunctionDeclaration
+import org.jetbrains.plugins.scala.lang.psi.api.toplevel.ScModifierListOwner
 import org.jetbrains.plugins.scala.lang.psi.types.{ScType, ScTypeExt}
 import org.jetbrains.plugins.scala.lang.psi.types.api.ScTypePresentation
 import org.jetbrains.plugins.scala.lang.psi.types.result.TypeResult
 import org.jetbrains.plugins.scala.project.ProjectContext
+
+import scala.collection.Seq
 
 /**
  * @author Aleksander Podkhalyuzin
@@ -55,6 +59,23 @@ object AnnotatorUtils {
           ScalaBundle.message("type.mismatch.found.required", actualText, expText))
         annotation.registerFix(ReportHighlightingErrorQuickFix)
       }
+    }
+  }
+
+  //fix for SCL-7176
+  def checkAbstractMemberPrivateModifier(element: PsiElement, toHighlight: Seq[PsiElement], holder: AnnotationHolder) {
+    element match {
+      case fun: ScFunctionDeclaration if fun.isNative =>
+      case modOwner: ScModifierListOwner =>
+        modOwner.getModifierList.accessModifier match {
+          case Some(am) if am.isUnqualifiedPrivateOrThis =>
+            for (e <- toHighlight) {
+              val annotation = holder.createErrorAnnotation(e, ScalaBundle.message("abstract.member.not.have.private.modifier"))
+              annotation.setHighlightType(ProblemHighlightType.GENERIC_ERROR)
+            }
+          case _ =>
+        }
+      case _ =>
     }
   }
 
