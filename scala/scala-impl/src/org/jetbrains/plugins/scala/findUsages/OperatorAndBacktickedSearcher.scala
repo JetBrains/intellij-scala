@@ -87,7 +87,7 @@ class OperatorAndBacktickedSearcher extends QueryExecutor[PsiReference, Referenc
                                       searchContext: Short,
                                       caseSensitively: Boolean,
                                       text: String,
-                                      processor: Processor[VirtualFile]): Boolean = {
+                                      processor: Processor[_ >: VirtualFile]): Boolean = {
       if (!ScalaNamesValidator.isIdentifier(text)) return true
 
       val entries = ju.Collections.singletonList(new IdIndexEntry(text, caseSensitively))

@@ -22,7 +22,7 @@ class ScalaTargetElementEvaluator extends TargetElementEvaluatorEx {
 
   def includeSelfInGotoImplementation(element: PsiElement): Boolean = true
 
-  def getElementByReference(ref: PsiReference, flags: Int): PsiElement = ref.getElement match {
+  override def getElementByReference(ref: PsiReference, flags: Int): PsiElement = ref.getElement match {
     case isUnapplyFromVal(binding) => binding
     case isCaseClassParameter(cp) => cp
     case isVarSetterFakeMethod(refPattern) => refPattern
