@@ -14,7 +14,7 @@ import org.jetbrains.jps.model.java.JavaSourceRootType
 import org.jetbrains.plugins.scala.editor.importOptimizer.ImportInfo
 import org.jetbrains.plugins.scala.extensions.implementation.iterator.ParentsIterator
 import org.jetbrains.plugins.scala.lang.psi.api.ScalaPsiElement
-import org.jetbrains.plugins.scala.lang.psi.api.base.{ScReferenceElement, ScStableCodeReferenceElement}
+import org.jetbrains.plugins.scala.lang.psi.api.base.{ScReference, ScStableCodeReference}
 import org.jetbrains.plugins.scala.lang.psi.api.toplevel.imports.usages.{ImportExprUsed, ImportUsed}
 import org.jetbrains.plugins.scala.lang.psi.api.toplevel.imports.{ScImportExpr, ScImportSelector, ScImportSelectors, ScImportStmt}
 import org.jetbrains.plugins.scala.lang.psi.api.toplevel.typedef.ScObject
@@ -81,8 +81,8 @@ object AmmoniteUtil {
   /*
   Resolves $file imports
    */
-  def scriptResolveQualifier(refElement: ScStableCodeReferenceElement): Option[PsiFileSystemItem] = {
-    def scriptResolveNoQualifier(refElement: ScStableCodeReferenceElement): Option[PsiDirectory] =
+  def scriptResolveQualifier(refElement: ScStableCodeReference): Option[PsiFileSystemItem] = {
+    def scriptResolveNoQualifier(refElement: ScStableCodeReference): Option[PsiDirectory] =
       refElement.getContainingFile match {
         case scalaFile: ScalaFileImpl if isAmmoniteFile(scalaFile) =>
           if (refElement.getText == ROOT_FILE || refElement.getText == ROOT_EXEC) {
@@ -114,11 +114,11 @@ object AmmoniteUtil {
     }
   }
 
-  def scriptResolveSbtDependency(refElement: ScStableCodeReferenceElement): Option[PsiDirectory] = {
-    def scriptResolveIvy(refElement: ScStableCodeReferenceElement) = refElement.getText == ROOT_IVY
-    def scriptResolvePlugin(refElement: ScStableCodeReferenceElement) = refElement.getText == ROOT_PLUGIN
+  def scriptResolveSbtDependency(refElement: ScStableCodeReference): Option[PsiDirectory] = {
+    def scriptResolveIvy(refElement: ScStableCodeReference) = refElement.getText == ROOT_IVY
+    def scriptResolvePlugin(refElement: ScStableCodeReference) = refElement.getText == ROOT_PLUGIN
 
-    def qual(scRef: ScStableCodeReferenceElement) = {
+    def qual(scRef: ScStableCodeReference) = {
       scRef.getParent match {
         case selector: ScImportSelector =>
           new ParentsIterator(selector).collectFirst {
@@ -141,7 +141,7 @@ object AmmoniteUtil {
     }
   }
 
-  def findJarRoot(refElement: ScReferenceElement): Option[VirtualFile] = {
+  def findJarRoot(refElement: ScReference): Option[VirtualFile] = {
     AmmoniteUtil.extractLibInfo(refElement).flatMap {
       case LibInfo(group, name, version, scalaVersion) =>
         val existsPredicate = (f: File) => f.exists()
@@ -255,7 +255,7 @@ object AmmoniteUtil {
   }
 
   private def findLibrary(
-      refElement: ScStableCodeReferenceElement): Option[Library] = {
+      refElement: ScStableCodeReference): Option[Library] = {
     extractLibInfo(refElement).map(convertLibName) flatMap { name =>
       Option(
         LibraryTablesRegistrar
@@ -280,7 +280,7 @@ object AmmoniteUtil {
 
   case class LibInfo(groupId: String, name: String, version: String, scalaVersion: String)
 
-  def extractLibInfo(ref: ScReferenceElement): Option[LibInfo] = {
+  def extractLibInfo(ref: ScReference): Option[LibInfo] = {
     val name = ref.refName.stripPrefix("`").stripSuffix("`")
     val result = ArrayBuffer[String]()
 

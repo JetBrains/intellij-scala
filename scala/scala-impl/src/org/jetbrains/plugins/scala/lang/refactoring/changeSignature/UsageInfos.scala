@@ -7,7 +7,7 @@ import com.intellij.usageView.UsageInfo
 import org.jetbrains.plugins.scala.extensions._
 import org.jetbrains.plugins.scala.lang.psi.ScalaPsiUtil
 import org.jetbrains.plugins.scala.lang.psi.api.base.patterns.{ScBindingPattern, ScConstructorPattern, ScInfixPattern, ScPattern}
-import org.jetbrains.plugins.scala.lang.psi.api.base.{ScConstructor, ScPrimaryConstructor, ScReferenceElement}
+import org.jetbrains.plugins.scala.lang.psi.api.base.{ScConstructor, ScPrimaryConstructor, ScReference}
 import org.jetbrains.plugins.scala.lang.psi.api.expr._
 import org.jetbrains.plugins.scala.lang.psi.api.statements.ScFunction
 import org.jetbrains.plugins.scala.lang.psi.api.statements.params.{ScClassParameter, ScParameter, ScParameters}
@@ -79,7 +79,7 @@ private[changeSignature] case class OverriderClassParamUsageInfo(namedElement: S
 private[changeSignature] trait MethodUsageInfo {
   def expr: ScExpression
   def argsInfo: OldArgsInfo
-  def ref: ScReferenceElement
+  def ref: ScReference
   def method: PsiNamedElement = ref.resolve() match {
     case e: PsiNamedElement => e
     case _ => throw new IllegalArgumentException("Found reference does not resolve")
@@ -123,7 +123,7 @@ private[changeSignature] case class PostfixExprUsageInfo(postfix: ScPostfixExpr)
   val argsInfo = OldArgsInfo(postfix.argumentExpressions, method)
 }
 
-private[changeSignature] case class ConstructorUsageInfo(ref: ScReferenceElement, constr: ScConstructor)
+private[changeSignature] case class ConstructorUsageInfo(ref: ScReference, constr: ScConstructor)
         extends UsageInfo(constr) with MethodUsageInfo {
 
   private val resolveResult = Option(ref).flatMap(_.bind())
@@ -151,10 +151,10 @@ private[changeSignature] object isAnonFunUsage {
   }
 }
 
-private[changeSignature] case class ParameterUsageInfo(oldIndex: Int, newName: String, ref: ScReferenceElement)
+private[changeSignature] case class ParameterUsageInfo(oldIndex: Int, newName: String, ref: ScReference)
         extends UsageInfo(ref: PsiElement)
 
-private[changeSignature] case class ImportUsageInfo(imp: ScReferenceElement) extends UsageInfo(imp: PsiElement)
+private[changeSignature] case class ImportUsageInfo(imp: ScReference) extends UsageInfo(imp: PsiElement)
 
 private[changeSignature] trait PatternUsageInfo {
   def pattern: ScPattern

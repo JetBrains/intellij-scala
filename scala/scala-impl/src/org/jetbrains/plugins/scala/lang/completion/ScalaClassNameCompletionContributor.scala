@@ -17,7 +17,7 @@ import org.jetbrains.plugins.scala.lang.psi.ScalaPsiUtil
 import org.jetbrains.plugins.scala.lang.psi.ScalaPsiUtil.getContextOfType
 import org.jetbrains.plugins.scala.lang.psi.api.ScalaFile
 import org.jetbrains.plugins.scala.lang.psi.api.base.patterns.ScConstructorPattern
-import org.jetbrains.plugins.scala.lang.psi.api.base.{ScReferenceElement, ScStableCodeReferenceElement}
+import org.jetbrains.plugins.scala.lang.psi.api.base.{ScReference, ScStableCodeReference}
 import org.jetbrains.plugins.scala.lang.psi.api.statements.ScTypeAlias
 import org.jetbrains.plugins.scala.lang.psi.api.toplevel.imports.ScImportStmt
 import org.jetbrains.plugins.scala.lang.psi.api.toplevel.typedef.{ScClass, ScObject, ScTrait}
@@ -35,7 +35,7 @@ class ScalaClassNameCompletionContributor extends ScalaCompletionContributor {
 
   extend(
     CompletionType.BASIC,
-    identifierWithParentPattern(classOf[ScReferenceElement]),
+    identifierWithParentPattern(classOf[ScReference]),
     new CompletionProvider[CompletionParameters] {
 
       override def addCompletions(parameters: CompletionParameters,
@@ -92,7 +92,7 @@ object ScalaClassNameCompletionContributor {
     if (!inString && !ScalaPsiUtil.fileContext(position).isInstanceOf[ScalaFile]) return true
     val lookingForAnnotations: Boolean = psiElement.afterLeaf("@").accepts(position)
     val isInImport = getContextOfType(position, false, classOf[ScImportStmt]) != null
-    val stableRefElement = getContextOfType(position, false, classOf[ScStableCodeReferenceElement])
+    val stableRefElement = getContextOfType(position, false, classOf[ScStableCodeReference])
     val onlyClasses = stableRefElement != null && !stableRefElement.getContext.isInstanceOf[ScConstructorPattern]
 
     val renamesMap = createRenamesMap(position)

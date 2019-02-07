@@ -5,7 +5,7 @@ package imports
 
 
 import com.intellij.psi.{PsiField, PsiMethod, PsiReference}
-import org.jetbrains.plugins.scala.lang.psi.api.base.ScReferenceElement
+import org.jetbrains.plugins.scala.lang.psi.api.base.ScReference
 import org.jetbrains.plugins.scala.lang.psi.api.toplevel.typedef.ScObject
 
 /**
@@ -56,7 +56,7 @@ class ImportsUsagesTest extends ScalaResolveTestCase {
 
   def testaaa() {
     findReferenceAtCaret() match {
-      case r: ScReferenceElement =>
+      case r: ScReference =>
         val results = r.multiResolveScala(false)
 
         assert(results.length == 1)
@@ -73,7 +73,7 @@ class ImportsUsagesTest extends ScalaResolveTestCase {
 
   def testSimpleImport() {
     findReferenceAtCaret() match {
-      case r: ScReferenceElement =>
+      case r: ScReference =>
         val results = r.multiResolveScala(false)
 
         assert(results.length == 1)
@@ -91,7 +91,7 @@ class ImportsUsagesTest extends ScalaResolveTestCase {
 
   def testImportSelector() {
     findReferenceAtCaret() match {
-      case r: ScReferenceElement =>
+      case r: ScReference =>
         val results = r.multiResolveScala(false)
 
         assert(results.length == 1)
@@ -108,7 +108,7 @@ class ImportsUsagesTest extends ScalaResolveTestCase {
 
   def testShadow1() {
     findReferenceAtCaret() match {
-      case r: ScReferenceElement =>
+      case r: ScReference =>
         val results = r.multiResolveScala(false)
 
         assert(results.length == 1)
@@ -125,7 +125,7 @@ class ImportsUsagesTest extends ScalaResolveTestCase {
 
   def testShadow() {
     findReferenceAtCaret() match {
-      case r: ScReferenceElement =>
+      case r: ScReference =>
         val results = r.multiResolveScala(false)
 
         assert(results.length == 1)
@@ -142,7 +142,7 @@ class ImportsUsagesTest extends ScalaResolveTestCase {
 
   def testimplicits() {
     findReferenceAtCaret() match {
-      case r: ScReferenceElement =>
+      case r: ScReference =>
         val results = r.multiResolveScala(false)
 
         assert(results.length == 1)

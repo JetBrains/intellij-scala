@@ -4,7 +4,7 @@ package implicits
 import com.intellij.psi.{PsiClass, PsiElement}
 import org.jetbrains.plugins.scala.extensions.{&&, BooleanExt, PsiClassExt}
 import org.jetbrains.plugins.scala.lang.psi.api.ImplicitArgumentsOwner
-import org.jetbrains.plugins.scala.lang.psi.api.base.ScReferenceElement
+import org.jetbrains.plugins.scala.lang.psi.api.base.ScReference
 import org.jetbrains.plugins.scala.lang.psi.api.expr._
 import org.jetbrains.plugins.scala.lang.psi.impl.ScalaCode._
 import org.jetbrains.plugins.scala.lang.resolve.ScalaResolveResult
@@ -29,7 +29,7 @@ class InscribeImplicitParameters extends AbstractTransformer {
       val references = result.getLastChild.asInstanceOf[ScArgumentExprList].exprs
 
       references.zip(targets).foreach {
-        case (reference, target) => bindTo(reference.asInstanceOf[ScReferenceElement], target)
+        case (reference, target) => bindTo(reference.asInstanceOf[ScReference], target)
       }
   }
 

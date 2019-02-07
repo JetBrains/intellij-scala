@@ -5,7 +5,7 @@ import com.intellij.lang.ASTNode
 import com.intellij.psi._
 import org.jetbrains.plugins.scala.extensions.ifReadAllowed
 import org.jetbrains.plugins.scala.lang.psi.api.ScalaElementVisitor
-import org.jetbrains.plugins.scala.lang.psi.api.base.ScStableCodeReferenceElement
+import org.jetbrains.plugins.scala.lang.psi.api.base.ScStableCodeReference
 import org.jetbrains.plugins.scala.lang.psi.api.base.types.ScTypeElement
 import org.jetbrains.plugins.scala.lang.psi.api.statements._
 import org.jetbrains.plugins.scala.lang.psi.stubs.ScFunctionStub
@@ -33,8 +33,8 @@ final class ScMacroDefinitionImpl private[psi](stub: ScFunctionStub[ScMacroDefin
   }
 
   //todo: stub for macro definition should also contain reference
-  def macroImplReference: Option[ScStableCodeReferenceElement] =
-    byPsiOrStub(findChild(classOf[ScStableCodeReferenceElement]))(_ => None)
+  def macroImplReference: Option[ScStableCodeReference] =
+    byPsiOrStub(findChild(classOf[ScStableCodeReference]))(_ => None)
 
   override def hasAssign: Boolean = true
 

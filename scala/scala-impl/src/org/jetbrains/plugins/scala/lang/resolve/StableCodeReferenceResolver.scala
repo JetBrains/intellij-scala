@@ -2,16 +2,16 @@ package org.jetbrains.plugins.scala
 package lang
 package resolve
 
-import org.jetbrains.plugins.scala.lang.psi.api.base.ScStableCodeReferenceElement
+import org.jetbrains.plugins.scala.lang.psi.api.base.ScStableCodeReference
 import org.jetbrains.plugins.scala.lang.psi.api.base.patterns.{ScConstructorPattern, ScInfixPattern, ScInterpolationPattern}
 import org.jetbrains.plugins.scala.lang.psi.api.toplevel.imports.{ScImportExpr, ScImportSelector}
 import org.jetbrains.plugins.scala.lang.psi.types.Compatibility.Expression
 import org.jetbrains.plugins.scala.lang.resolve.processor._
 
-class StableCodeReferenceElementResolver(reference: ScStableCodeReferenceElement, shapeResolve: Boolean,
-                                         allConstructorResults: Boolean, noConstructorResolve: Boolean) {
+class StableCodeReferenceResolver(reference: ScStableCodeReference, shapeResolve: Boolean,
+                                  allConstructorResults: Boolean, noConstructorResolve: Boolean) {
 
-  def resolve(ref: ScStableCodeReferenceElement, incomplete: Boolean): Array[ScalaResolveResult] = {
+  def resolve(ref: ScStableCodeReference, incomplete: Boolean): Array[ScalaResolveResult] = {
     import ref.projectContext
 
     val kinds = getKindsFor(ref)
@@ -40,5 +40,5 @@ class StableCodeReferenceElementResolver(reference: ScStableCodeReferenceElement
     reference.doResolve(proc)
   }
 
-  protected def getKindsFor(ref: ScStableCodeReferenceElement) = ref.getKinds(incomplete = false)
+  protected def getKindsFor(ref: ScStableCodeReference) = ref.getKinds(incomplete = false)
 }

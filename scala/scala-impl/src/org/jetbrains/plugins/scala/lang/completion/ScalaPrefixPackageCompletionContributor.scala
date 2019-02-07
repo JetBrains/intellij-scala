@@ -11,7 +11,7 @@ import com.intellij.util.ProcessingContext
 import org.jetbrains.plugins.scala.extensions.{PsiNamedElementExt, ResolvesTo, inReadAction}
 import org.jetbrains.plugins.scala.lang.completion.ScalaCompletionUtil._
 import org.jetbrains.plugins.scala.lang.formatting.settings.ScalaCodeStyleSettings
-import org.jetbrains.plugins.scala.lang.psi.api.base.ScReferenceElement
+import org.jetbrains.plugins.scala.lang.psi.api.base.ScReference
 import org.jetbrains.plugins.scala.lang.psi.api.toplevel.imports.ScImportStmt
 import org.jetbrains.plugins.scala.lang.psi.impl.ScalaPsiElementFactory
 import org.jetbrains.plugins.scala.lang.resolve.ScalaResolveResult
@@ -26,7 +26,7 @@ class ScalaPrefixPackageCompletionContributor extends ScalaCompletionContributor
 
   extend(
     CompletionType.BASIC,
-    identifierWithParentPattern(classOf[ScReferenceElement]),
+    identifierWithParentPattern(classOf[ScReference]),
     new CompletionProvider[CompletionParameters]() {
       override def addCompletions(parameters: CompletionParameters,
                                   context: ProcessingContext,

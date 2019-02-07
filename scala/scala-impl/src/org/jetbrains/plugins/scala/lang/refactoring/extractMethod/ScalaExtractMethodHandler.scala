@@ -13,7 +13,7 @@ import com.intellij.psi.util.PsiTreeUtil
 import org.jetbrains.annotations.Nullable
 import org.jetbrains.plugins.scala.extensions._
 import org.jetbrains.plugins.scala.lang.psi.api.base.patterns.ScCaseClause
-import org.jetbrains.plugins.scala.lang.psi.api.base.{ScPrimaryConstructor, ScReferenceElement}
+import org.jetbrains.plugins.scala.lang.psi.api.base.{ScPrimaryConstructor, ScReference}
 import org.jetbrains.plugins.scala.lang.psi.api.expr._
 import org.jetbrains.plugins.scala.lang.psi.api.statements.{ScFunctionDefinition, ScPatternDefinition, ScVariableDefinition}
 import org.jetbrains.plugins.scala.lang.psi.api.toplevel.ScPackaging
@@ -168,7 +168,7 @@ class ScalaExtractMethodHandler extends ScalaRefactoringActionHandler {
   private def findScopeBound(elements: Seq[PsiElement]): Option[PsiElement] = {
     val commonParent = PsiTreeUtil.findCommonParent(elements: _*)
 
-    def scopeBound(ref: ScReferenceElement): Option[PsiElement] = {
+    def scopeBound(ref: ScReference): Option[PsiElement] = {
       val fromThisRef: Option[ScTemplateDefinition] = ref.qualifier match {
         case Some(thisRef: ScThisReference) => thisRef.refTemplate
         case Some(_) => return None
@@ -205,7 +205,7 @@ class ScalaExtractMethodHandler extends ScalaRefactoringActionHandler {
 
     var result: PsiElement = commonParent.getContainingFile
     val visitor = new ScalaRecursiveElementVisitor {
-      override def visitReference(ref: ScReferenceElement) {
+      override def visitReference(ref: ScReference) {
         scopeBound(ref) match {
           case Some(bound: PsiElement) if PsiTreeUtil.isAncestor(result, bound, true) => result = bound
           case _ =>

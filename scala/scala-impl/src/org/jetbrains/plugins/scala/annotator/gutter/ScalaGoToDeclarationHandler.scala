@@ -11,7 +11,7 @@ import org.jetbrains.plugins.scala.extensions._
 import org.jetbrains.plugins.scala.lang.lexer.ScalaTokenTypes
 import org.jetbrains.plugins.scala.lang.psi.ScalaPsiUtil
 import org.jetbrains.plugins.scala.lang.psi.api.ScPackage
-import org.jetbrains.plugins.scala.lang.psi.api.base.ScReferenceElement
+import org.jetbrains.plugins.scala.lang.psi.api.base.ScReference
 import org.jetbrains.plugins.scala.lang.psi.api.expr.{ScAssignment, ScEnumerator, ScSelfInvocation}
 import org.jetbrains.plugins.scala.lang.psi.api.statements.ScFunction
 import org.jetbrains.plugins.scala.lang.psi.api.statements.params.ScParameter
@@ -92,7 +92,7 @@ object ScalaGoToDeclarationHandler {
         results.toSet[ResolveResult]
           .map(_.getElement)
           .filterNot(_ == null)
-      case referenceElement: ScReferenceElement =>
+      case referenceElement: ScReference =>
         referenceElement.multiResolveScala(incomplete = false)
           .toSet[ScalaResolveResult]
           .flatMap {
@@ -151,7 +151,7 @@ object ScalaGoToDeclarationHandler {
       case selectors: ScImportSelectors if !selectors.hasWildcard => selectors.selectors.flatMap(_.reference)
       case _: ScImportSelectors => Seq.empty
       case underscore if underscore.getNode.getElementType == tUNDER => Seq.empty
-      case ident => ident.parentOfType(classOf[ScReferenceElement]).toSeq
+      case ident => ident.parentOfType(classOf[ScReference]).toSeq
     }
 
     val set = references.flatMap(isReferencedFrom)
@@ -162,7 +162,7 @@ object ScalaGoToDeclarationHandler {
       (if (packageObjectRequired) maybePackageObject else None)
   }
 
-  private[this] def isReferencedFrom(reference: ScReferenceElement): Option[IsReferenced] =
+  private[this] def isReferencedFrom(reference: ScReference): Option[IsReferenced] =
     reference.multiResolveScala(false) match {
       case Array() => None
       case results => Some(new IsReferenced(results.map(_.element)))

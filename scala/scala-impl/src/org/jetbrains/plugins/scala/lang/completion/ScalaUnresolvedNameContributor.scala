@@ -14,7 +14,7 @@ import com.intellij.util.ProcessingContext
 import org.jetbrains.plugins.scala.extensions._
 import org.jetbrains.plugins.scala.lang.lexer.ScalaTokenTypes
 import org.jetbrains.plugins.scala.lang.psi.api.ScalaPsiElement
-import org.jetbrains.plugins.scala.lang.psi.api.base.{ScFieldId, ScReferenceElement}
+import org.jetbrains.plugins.scala.lang.psi.api.base.{ScFieldId, ScReference}
 import org.jetbrains.plugins.scala.lang.psi.api.expr._
 import org.jetbrains.plugins.scala.lang.psi.api.statements.{ScFunctionDeclaration, ScTypeAliasDeclaration}
 import org.jetbrains.plugins.scala.lang.psi.api.toplevel.ScModifierListOwner
@@ -25,7 +25,7 @@ import org.jetbrains.plugins.scala.lang.refactoring.namesSuggester.NameSuggester
 import org.jetbrains.plugins.scala.lang.resolve.ResolveTargets._
 
 /** Contributor adds unresolved names in current scope to completion list.
-  * Unresolved reference name adds to completion list, according to [[ScReferenceElement.getKinds()]]
+  * Unresolved reference name adds to completion list, according to [[ScReference.getKinds()]]
   *
   * Usages:
   * def <caret>
@@ -83,7 +83,7 @@ object ScalaUnresolvedNameContributor {
       owner.hasModifierPropertyScala("override")
   }
 
-  private def handleReferencesInScope(reference: ScReferenceElement,
+  private def handleReferencesInScope(reference: ScReference,
                                       position: PsiElement,
                                       resultSet: CompletionResultSet): Unit = {
     def isKindAcceptable = {
@@ -116,7 +116,7 @@ object ScalaUnresolvedNameContributor {
   }
 
   private def processHighlights(position: PsiElement, originalFile: PsiFile)
-                               (onReference: ScReferenceElement => Unit) = {
+                               (onReference: ScReference => Unit) = {
     val scope = position.scopes.toSeq.headOption.collect {
       case element: ScalaPsiElement => element.getSameElementInContext
     }.getOrElse(originalFile)
@@ -132,8 +132,8 @@ object ScalaUnresolvedNameContributor {
       (highlightInfo: HighlightInfo) => {
         val startOffset = highlightInfo.getStartOffset
         val maybeReference = originalFile.findReferenceAt(startOffset) match {
-          case (_: ScReferenceElement) childOf ((_: ScAssignment) childOf (_: ScArgumentExprList)) => None
-          case reference: ScReferenceElement if reference.getTextRange.containsRange(startOffset, highlightInfo.getEndOffset) => Some(reference)
+          case (_: ScReference) childOf ((_: ScAssignment) childOf (_: ScArgumentExprList)) => None
+          case reference: ScReference if reference.getTextRange.containsRange(startOffset, highlightInfo.getEndOffset) => Some(reference)
           case _ => None
         }
 
@@ -144,7 +144,7 @@ object ScalaUnresolvedNameContributor {
   }
 }
 
-sealed abstract class ScalaTextLookupItem(protected val reference: ScReferenceElement)
+sealed abstract class ScalaTextLookupItem(protected val reference: ScReference)
   extends LookupElement with Comparable[ScalaTextLookupItem] {
 
   private val name: String = reference.refName
@@ -191,7 +191,7 @@ sealed abstract class ScalaTextLookupItem(protected val reference: ScReferenceEl
 
 object ScalaTextLookupItem {
 
-  class Regular(override protected val reference: ScReferenceElement) extends ScalaTextLookupItem(reference) {
+  class Regular(override protected val reference: ScReference) extends ScalaTextLookupItem(reference) {
 
     override def getLookupString: String = super.getLookupString + arguments
 
@@ -201,7 +201,7 @@ object ScalaTextLookupItem {
     }
   }
 
-  class Object(override protected val reference: ScReferenceElement) extends ScalaTextLookupItem(reference) {
+  class Object(override protected val reference: ScReference) extends ScalaTextLookupItem(reference) {
 
     override def equals(other: Any): Boolean = other match {
       case obj: Object => super.equals(obj)

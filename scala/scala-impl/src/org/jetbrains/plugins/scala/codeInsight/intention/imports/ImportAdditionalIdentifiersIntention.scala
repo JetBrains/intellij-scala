@@ -6,7 +6,7 @@ import com.intellij.openapi.editor.Editor
 import com.intellij.openapi.project.Project
 import com.intellij.psi.{PsiDocumentManager, PsiElement, PsiWhiteSpace}
 import org.jetbrains.plugins.scala.extensions._
-import org.jetbrains.plugins.scala.lang.psi.api.base.ScStableCodeReferenceElement
+import org.jetbrains.plugins.scala.lang.psi.api.base.ScStableCodeReference
 import org.jetbrains.plugins.scala.lang.psi.api.toplevel.imports.ScImportExpr
 import org.jetbrains.plugins.scala.lang.psi.impl.ScalaPsiElementFactory.createImportExprFromText
 
@@ -40,7 +40,7 @@ class ImportAdditionalIdentifiersIntention extends PsiElementBaseIntentionAction
         val prev = element.getContainingFile.findElementAt(element.getPrevSibling.getTextRange.getEndOffset - 1)
         check(project, editor, prev)
       case null => None
-      case ChildOf(id: ScStableCodeReferenceElement) if id.nameId == element =>
+      case ChildOf(id: ScStableCodeReference) if id.nameId == element =>
         id.getParent match {
           case imp: ScImportExpr if imp.selectorSet.isEmpty && imp.qualifier != null =>
             val doIt = () => {

@@ -9,7 +9,7 @@ import com.intellij.openapi.project.Project
 import com.intellij.psi.PsiElement
 import org.jetbrains.plugins.scala.extensions._
 import org.jetbrains.plugins.scala.lang.psi.ScalaPsiUtil
-import org.jetbrains.plugins.scala.lang.psi.api.base.ScStableCodeReferenceElement
+import org.jetbrains.plugins.scala.lang.psi.api.base.ScStableCodeReference
 import org.jetbrains.plugins.scala.lang.psi.api.base.patterns.ScConstructorPattern
 import org.jetbrains.plugins.scala.lang.psi.api.statements.ScFunctionDefinition
 import org.jetbrains.plugins.scala.lang.psi.api.toplevel.typedef.{ScClass, ScObject}
@@ -26,14 +26,14 @@ class ConvertToTypedPatternIntention extends PsiElementBaseIntentionAction {
 
   def isAvailable(project: Project, editor: Editor, element: PsiElement): Boolean = {
     element match {
-      case Parent((_: ScStableCodeReferenceElement) && Parent(_: ScConstructorPattern)) => true
+      case Parent((_: ScStableCodeReference) && Parent(_: ScConstructorPattern)) => true
         
       case _ => false
     }
   }
 
   override def invoke(project: Project, editor: Editor, element: PsiElement) {
-    val codeRef = element.getParent.asInstanceOf[ScStableCodeReferenceElement]
+    val codeRef = element.getParent.asInstanceOf[ScStableCodeReference]
     val constrPattern = codeRef.getParent.asInstanceOf[ScConstructorPattern]
     val name = codeRef.bind() match {
       case Some( result @ ScalaResolveResult(fun: ScFunctionDefinition, _)) if fun.name == "unapply"=>

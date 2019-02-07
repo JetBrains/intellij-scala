@@ -9,7 +9,7 @@ import com.intellij.psi.search.GlobalSearchScope
 import com.intellij.psi.util.PsiTreeUtil
 import org.jetbrains.plugins.scala.caches.ScalaShortNamesCacheManager
 import org.jetbrains.plugins.scala.extensions._
-import org.jetbrains.plugins.scala.lang.psi.api.base.ScStableCodeReferenceElement
+import org.jetbrains.plugins.scala.lang.psi.api.base.ScStableCodeReference
 import org.jetbrains.plugins.scala.lang.psi.api.toplevel.ScPackaging
 import org.jetbrains.plugins.scala.lang.psi.api.toplevel.typedef.ScTypeDefinition
 import org.jetbrains.plugins.scala.lang.psi.impl._
@@ -64,7 +64,7 @@ trait FileDeclarationsHolder extends ScDeclarationSequenceHolder with ScImportsH
     val manager = ScalaPsiManager.instance(getProject)
 
     place match {
-      case ref: ScStableCodeReferenceElement if ref.refName == "_root_" && ref.qualifier.isEmpty =>
+      case ref: ScStableCodeReference if ref.refName == "_root_" && ref.qualifier.isEmpty =>
         val top = ScPackageImpl(manager.getCachedPackage("").orNull)
         if (top != null && !processor.execute(top, state.put(ResolverEnv.nameKey, "_root_"))) return false
         state.put(ResolverEnv.nameKey, null)

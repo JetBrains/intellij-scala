@@ -13,7 +13,7 @@ import com.intellij.psi.util.PsiTreeUtil
 import org.jetbrains.plugins.scala.extensions._
 import org.jetbrains.plugins.scala.lang.lexer.ScalaTokenTypes
 import org.jetbrains.plugins.scala.lang.psi.ScalaPsiUtil
-import org.jetbrains.plugins.scala.lang.psi.api.base.ScStableCodeReferenceElement
+import org.jetbrains.plugins.scala.lang.psi.api.base.ScStableCodeReference
 import org.jetbrains.plugins.scala.lang.psi.api.base.patterns.{ScConstructorPattern, ScPattern, ScPatternArgumentList}
 import org.jetbrains.plugins.scala.lang.psi.api.statements.ScFunction
 import org.jetbrains.plugins.scala.lang.psi.api.toplevel.typedef.{ScClass, ScObject}
@@ -204,7 +204,7 @@ class ScalaPatternParameterInfoHandler extends ParameterInfoHandlerWithTabAction
         case context: CreateParameterInfoContext =>
           args.getParent match {
             case constr: ScConstructorPattern =>
-              val ref: ScStableCodeReferenceElement = constr.ref
+              val ref: ScStableCodeReference = constr.ref
               val res: ArrayBuffer[Object] = new ArrayBuffer[Object]
               if (ref != null) {
                 val variants = ref.multiResolveScala(false)

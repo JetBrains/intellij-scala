@@ -5,7 +5,7 @@ package imports
 
 
 import org.jetbrains.plugins.scala.extensions.PsiNamedElementExt
-import org.jetbrains.plugins.scala.lang.psi.api.base.ScReferenceElement
+import org.jetbrains.plugins.scala.lang.psi.api.base.ScReference
 import org.junit.Assert
 
 class HideImportsTest extends ScalaResolveTestCase {
@@ -13,7 +13,7 @@ class HideImportsTest extends ScalaResolveTestCase {
 
   def testHidePredefImplicit() {
     findReferenceAtCaret() match {
-      case r: ScReferenceElement =>
+      case r: ScReference =>
         val results = r.multiResolveScala(false)
 
         assert(results.length == 1)

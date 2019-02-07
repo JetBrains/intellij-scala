@@ -62,7 +62,7 @@ trait TreeConverterBuilder {
       override def visitFile(file: PsiFile) = super.visitFile(file)
 
       //Override also visitReferenceExpression! and visitTypeProjection!
-      override def visitReference(ref: ScReferenceElement) = super.visitReference(ref)
+      override def visitReference(ref: ScReference) = super.visitReference(ref)
 
       override def visitParameter(parameter: ScParameter) = super.visitParameter(parameter)
 

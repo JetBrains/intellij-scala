@@ -3,7 +3,7 @@ package org.jetbrains.plugins.scala.worksheet
 import org.jetbrains.plugins.scala.editor.importOptimizer.ImportInfo
 import org.jetbrains.plugins.scala.extensions.implementation.iterator.ContextsIterator
 import org.jetbrains.plugins.scala.lang.psi.api.ScalaFile
-import org.jetbrains.plugins.scala.lang.psi.api.base.ScStableCodeReferenceElement
+import org.jetbrains.plugins.scala.lang.psi.api.base.ScStableCodeReference
 import org.jetbrains.plugins.scala.lang.psi.api.toplevel.imports.ScImportExpr
 import org.jetbrains.plugins.scala.lang.psi.api.toplevel.imports.usages.{ImportExprUsed, ImportUsed}
 import org.jetbrains.plugins.scala.worksheet.ammonite.AmmoniteUtil
@@ -36,7 +36,7 @@ object ScalaScriptImportsUtil {
   
   def isImportUsed(used: ImportUsed): Boolean = AmmoniteUtil.isAmmoniteSpecificImport(used)
   
-  def isScriptRef(ref: ScStableCodeReferenceElement): Boolean = 
+  def isScriptRef(ref: ScStableCodeReference): Boolean =
     new ContextsIterator(ref).find(_.isInstanceOf[ScImportExpr]).exists(
       expr => AmmoniteUtil.isAmmoniteSpecificImport(expr.asInstanceOf[ScImportExpr])
     )

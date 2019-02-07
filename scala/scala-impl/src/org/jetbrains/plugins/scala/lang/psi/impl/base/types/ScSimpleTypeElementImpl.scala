@@ -101,7 +101,7 @@ class ScSimpleTypeElementImpl(node: ASTNode) extends ScalaPsiElementImpl(node)
       } else tp
     }
 
-    def typeForConstructor(ref: ScStableCodeReferenceElement, constr: PsiMethod,
+    def typeForConstructor(ref: ScStableCodeReference, constr: PsiMethod,
                            _subst: ScSubstitutor, parentElement: PsiNamedElement): ScType = {
       val clazz = constr.containingClass
       val (constrTypParameters: Seq[ScTypeParam], constrSubst: ScSubstitutor) = parentElement match {
@@ -320,7 +320,7 @@ class ScSimpleTypeElementImpl(node: ASTNode) extends ScalaPsiElementImpl(node)
             }
         }
       case None => pathElement match {
-        case ref: ScStableCodeReferenceElement => calculateReferenceType(ref)
+        case ref: ScStableCodeReference => calculateReferenceType(ref)
         case thisRef: ScThisReference => fromThisReference(thisRef, ScThisType)()
         case superRef: ScSuperReference => fromSuperReference(superRef, ScThisType)()
       }
@@ -341,7 +341,7 @@ class ScSimpleTypeElementImpl(node: ASTNode) extends ScalaPsiElementImpl(node)
 
 object ScSimpleTypeElementImpl {
 
-  def calculateReferenceType(ref: ScStableCodeReferenceElement, shapesOnly: Boolean = false): TypeResult = {
+  def calculateReferenceType(ref: ScStableCodeReference, shapesOnly: Boolean = false): TypeResult = {
     import ref.projectContext
 
     val (resolvedElement, fromType) = (if (!shapesOnly) {
@@ -443,7 +443,7 @@ object ScSimpleTypeElementImpl {
       path,
       function)
 
-  private def isParameterizedTypeRef(ref: ScStableCodeReferenceElement): Boolean = ref.getContext match {
+  private def isParameterizedTypeRef(ref: ScStableCodeReference): Boolean = ref.getContext match {
     case _: ScParameterizedTypeElement => true
     case s: ScSimpleTypeElement => s.getContext.isInstanceOf[ScParameterizedTypeElement]
     case _ => false

@@ -43,7 +43,7 @@ trait ScConstructor extends ScalaPsiElement with ImplicitArgumentsOwner {
 
   def multiType(i: Int): Array[TypeResult]
 
-  def reference: Option[ScStableCodeReferenceElement]
+  def reference: Option[ScStableCodeReference]
 
   def matchedParameters: Seq[(ScExpression, Parameter)]
 }
@@ -54,7 +54,7 @@ object ScConstructor {
   }
 
   object byReference {
-    def unapply(ref: ScReferenceElement): Option[ScConstructor] = {
+    def unapply(ref: ScReference): Option[ScConstructor] = {
       PsiTreeUtil.getParentOfType(ref, classOf[ScConstructor]) match {
         case null => None
         case c if c.reference.contains(ref) => Some(c)

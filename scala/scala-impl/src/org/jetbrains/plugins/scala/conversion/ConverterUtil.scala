@@ -16,7 +16,7 @@ import org.jetbrains.plugins.scala.conversion.ast.CommentsCollector
 import org.jetbrains.plugins.scala.conversion.copy.{Association, ScalaPasteFromJavaDialog}
 import org.jetbrains.plugins.scala.extensions.{PsiElementExt, PsiFileExt}
 import org.jetbrains.plugins.scala.lang.lexer.ScalaTokenTypes
-import org.jetbrains.plugins.scala.lang.psi.api.base.ScReferenceElement
+import org.jetbrains.plugins.scala.lang.psi.api.base.ScReference
 import org.jetbrains.plugins.scala.lang.psi.api.expr.ScParenthesisedExpr
 import org.jetbrains.plugins.scala.lang.psi.api.statements.ScFunctionDefinition
 import org.jetbrains.plugins.scala.lang.psi.api.toplevel.imports.ScImportSelector
@@ -192,7 +192,7 @@ object ConverterUtil {
         parenthesisedExpr.visitElement(parentized)
       case semicolon: PsiElement if semicolon.getNode.getElementType == ScalaTokenTypes.tSEMICOLON =>
         removeSemicolon.visitElement(semicolon)
-      case ref: ScReferenceElement if ref.qualifier.isEmpty && !ref.getParent.isInstanceOf[ScImportSelector] =>
+      case ref: ScReference if ref.qualifier.isEmpty && !ref.getParent.isInstanceOf[ScImportSelector] =>
         addPrefix.visitElement(ref)
       case el => intention.invoke(project, editor, el)
     })

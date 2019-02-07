@@ -16,7 +16,7 @@ import org.jetbrains.plugins.scala.base.ScalaLightPlatformCodeInsightTestCaseAda
 import org.jetbrains.plugins.scala.extensions.executeWriteActionCommand
 import org.jetbrains.plugins.scala.lang.lexer.ScalaTokenTypes
 import org.jetbrains.plugins.scala.lang.psi.api.ScalaFile
-import org.jetbrains.plugins.scala.lang.psi.api.base.ScReferenceElement
+import org.jetbrains.plugins.scala.lang.psi.api.base.ScReference
 
 /**
  * User: Alexander Podkhalyuzin
@@ -43,8 +43,8 @@ abstract class AutoImportTestBase extends ScalaLightPlatformCodeInsightTestCaseA
     configureFromFileTextAdapter(getTestName(false) + ".scala", fileText)
     val scalaFile = getFileAdapter.asInstanceOf[ScalaFile]
     assert(offset != -1, "Not specified ref marker in test case. Use /*ref*/ in scala file for this.")
-    val ref: ScReferenceElement = PsiTreeUtil.
-            getParentOfType(scalaFile.findElementAt(offset), classOf[ScReferenceElement])
+    val ref: ScReference = PsiTreeUtil.
+            getParentOfType(scalaFile.findElementAt(offset), classOf[ScReference])
     assert(ref != null, "Not specified reference at marker.")
 
     ref.resolve() match {

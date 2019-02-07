@@ -16,7 +16,7 @@ import org.jetbrains.plugins.scala.lang.resolve.ScalaResolveResult
 trait ScSimpleTypeElement extends ScTypeElement {
   override protected val typeName = "SimpleType"
 
-  def reference: Option[ScStableCodeReferenceElement] = findChild(classOf[ScStableCodeReferenceElement])
+  def reference: Option[ScStableCodeReference] = findChild(classOf[ScStableCodeReference])
   def pathElement: ScPathElement = findChildByClassScala(classOf[ScPathElement])
 
   def singleton: Boolean = getNode.findChildByType(ScalaTokenTypes.kTYPE) != null
@@ -37,5 +37,5 @@ trait ScSimpleTypeElement extends ScTypeElement {
 }
 
 object ScSimpleTypeElement {
-  def unapply(te: ScSimpleTypeElement): Option[Option[ScStableCodeReferenceElement]] = Some(te.reference)
+  def unapply(te: ScSimpleTypeElement): Option[Option[ScStableCodeReference]] = Some(te.reference)
 }

@@ -46,7 +46,7 @@ object AnnotatorHighlighter {
     }
   }
 
-  def highlightReferenceElement(refElement: ScReferenceElement, holder: AnnotationHolder) {
+  def highlightReferenceElement(refElement: ScReference, holder: AnnotationHolder) {
     implicit val project: ProjectContext = refElement.projectContext
 
     def annotateCollectionByType(resolvedType: ScType) {
@@ -155,7 +155,7 @@ object AnnotatorHighlighter {
         annotation.setTextAttributes(DefaultHighlighter.TRAIT)
       case x: PsiClass if x.getModifierList != null && x.getModifierList.hasModifierProperty("abstract") =>
         annotation.setTextAttributes(DefaultHighlighter.ABSTRACT_CLASS)
-      case _: PsiClass if refElement.isInstanceOf[ScStableCodeReferenceElement] =>
+      case _: PsiClass if refElement.isInstanceOf[ScStableCodeReference] =>
         annotation.setTextAttributes(DefaultHighlighter.CLASS)
       case _: PsiClass if refElement.isInstanceOf[ScReferenceExpression] =>
         annotation.setTextAttributes(DefaultHighlighter.OBJECT)
@@ -241,7 +241,7 @@ object AnnotatorHighlighter {
 
   def highlightElement(element: PsiElement, holder: AnnotationHolder) {
     element match {
-      case r: ScReferenceElement => highlightReferenceElement(r, holder)
+      case r: ScReference => highlightReferenceElement(r, holder)
       case x: ScAnnotation => visitAnnotation(x, holder)
       case x: ScParameter => visitParameter(x, holder)
       case x: ScCaseClause => visitCaseClause(x, holder)
@@ -353,7 +353,7 @@ object AnnotatorHighlighter {
     visitPattern(forBinding.pattern, holder, DefaultHighlighter.GENERATOR)
   }
 
-  private def referenceIsToCompanionObjectOfClass(r: ScReferenceElement): Boolean = {
+  private def referenceIsToCompanionObjectOfClass(r: ScReference): Boolean = {
     Option(r.getContext) exists {
       case _: ScMethodCall | _: ScReferenceExpression => true // These references to 'Foo' should be 'object' references: case class Foo(a: Int); Foo(1); Foo.apply(1).
       case _ => false

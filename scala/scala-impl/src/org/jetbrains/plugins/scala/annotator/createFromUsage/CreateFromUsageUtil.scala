@@ -10,7 +10,7 @@ import org.jetbrains.plugins.scala.codeInspection.collections.MethodRepr
 import org.jetbrains.plugins.scala.extensions._
 import org.jetbrains.plugins.scala.lang.psi.api.base.patterns._
 import org.jetbrains.plugins.scala.lang.psi.api.base.types.{ScParameterizedTypeElement, ScSimpleTypeElement, ScTupleTypeElement}
-import org.jetbrains.plugins.scala.lang.psi.api.base.{ScConstructor, ScReferenceElement}
+import org.jetbrains.plugins.scala.lang.psi.api.base.{ScConstructor, ScReference}
 import org.jetbrains.plugins.scala.lang.psi.api.expr.{ScExpression, ScReferenceExpression}
 import org.jetbrains.plugins.scala.lang.psi.api.statements.ScFunction
 import org.jetbrains.plugins.scala.lang.psi.api.statements.params.{ScParameter, ScTypeParam}
@@ -55,7 +55,7 @@ object CreateFromUsageUtil {
     (uniqueNames(names), types).zipped.map((name, tpe) => s"$name: ${tpe.canonicalText}").mkString("(", ", ", ")")
   }
 
-  def parametersText(ref: ScReferenceElement): String = {
+  def parametersText(ref: ScReference): String = {
     ref.getParent match {
       case p: ScPattern =>
         paramsText(patternArgs(p))

@@ -6,7 +6,7 @@ import com.intellij.psi._
 import org.jetbrains.plugins.scala.lang.lexer.ScalaTokenTypes
 import org.jetbrains.plugins.scala.lang.psi.ScalaPsiUtil.nameContext
 import org.jetbrains.plugins.scala.lang.psi.api.base.patterns.{ScBindingPattern, ScReferencePattern}
-import org.jetbrains.plugins.scala.lang.psi.api.base.{ScReferenceElement, ScStableCodeReferenceElement}
+import org.jetbrains.plugins.scala.lang.psi.api.base.{ScReference, ScStableCodeReference}
 import org.jetbrains.plugins.scala.lang.psi.api.statements.params.ScParameter
 import org.jetbrains.plugins.scala.lang.psi.api.statements.{ScFunctionDefinition, ScVariable}
 import org.jetbrains.plugins.scala.lang.psi.api.toplevel.typedef.{ScClass, ScObject}
@@ -31,7 +31,7 @@ class ScalaTargetElementEvaluator extends TargetElementEvaluatorEx {
   }
 
   private object isUnapplyFromVal {
-    def unapply(ref: ScStableCodeReferenceElement): Option[(ScBindingPattern)] = {
+    def unapply(ref: ScStableCodeReference): Option[(ScBindingPattern)] = {
       if (ref == null) return null
       ref.bind() match {
         case Some(resolve@ScalaResolveResult(fun: ScFunctionDefinition, _))
@@ -47,7 +47,7 @@ class ScalaTargetElementEvaluator extends TargetElementEvaluatorEx {
 
   private object isVarSetterFakeMethod {
     val setterSuffixes = Seq("_=", "_$eq")
-    def unapply(ref: ScReferenceElement): Option[ScReferencePattern] = {
+    def unapply(ref: ScReference): Option[ScReferencePattern] = {
       ref.resolve() match {
         case fake @ FakePsiMethod(refPattern: ScReferencePattern)
           if setterSuffixes.exists(fake.getName.endsWith) && nameContext(refPattern).isInstanceOf[ScVariable] => Some(refPattern)
@@ -68,7 +68,7 @@ class ScalaTargetElementEvaluator extends TargetElementEvaluatorEx {
   }
 
   private object isCaseClassParameter {
-    def unapply(ref: ScReferenceElement): Option[ScParameter] = {
+    def unapply(ref: ScReference): Option[ScParameter] = {
       ref.resolve() match {
         case p: ScParameter =>
           p.owner match {

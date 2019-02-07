@@ -13,7 +13,7 @@ import org.jetbrains.plugins.scala.extensions.BooleanExt
 import org.jetbrains.plugins.scala.lang.TokenSets.ID_SET
 import org.jetbrains.plugins.scala.lang.lexer.ScalaTokenTypes
 import org.jetbrains.plugins.scala.lang.parser.ScalaElementType.IMPORT_SELECTOR
-import org.jetbrains.plugins.scala.lang.psi.api.base.ScStableCodeReferenceElement
+import org.jetbrains.plugins.scala.lang.psi.api.base.ScStableCodeReference
 import org.jetbrains.plugins.scala.lang.psi.api.toplevel.imports.{ScImportExpr, ScImportSelector}
 import org.jetbrains.plugins.scala.lang.psi.impl.ScalaPsiElementFactory.createImportExprFromText
 import org.jetbrains.plugins.scala.lang.psi.stubs.ScImportSelectorStub
@@ -37,9 +37,9 @@ class ScImportSelectorImpl private(stub: ScImportSelectorStub, node: ASTNode)
         .orElse(reference.map(_.refName))
     }
 
-  def reference: Option[ScStableCodeReferenceElement] = byPsiOrStub {
+  def reference: Option[ScStableCodeReference] = byPsiOrStub {
     getFirstChild match {
-      case element: ScStableCodeReferenceElement => Option(element)
+      case element: ScStableCodeReference => Option(element)
       case _ => None
     }
   }(_.reference)
@@ -74,6 +74,6 @@ class ScImportSelectorImpl private(stub: ScImportSelectorStub, node: ASTNode)
 
   def isAliasedImport: Boolean = byStubOrPsi(_.isAliasedImport) {
     PsiTreeUtil.getParentOfType(this, classOf[ScImportExpr]).selectors.nonEmpty &&
-      !getLastChild.isInstanceOf[ScStableCodeReferenceElement]
+      !getLastChild.isInstanceOf[ScStableCodeReference]
   }
 }

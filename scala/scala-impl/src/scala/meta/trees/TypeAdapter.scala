@@ -35,7 +35,7 @@ trait TypeAdapter {
         case t: ScSimpleTypeElement if dumbMode =>
           t.reference match {
             case Some(ref) =>
-              ref.qualifier.map(qual=>m.Type.Select(getTypeQualifier(qual.asInstanceOf[ScReferenceElement]), toTypeName(ref)))
+              ref.qualifier.map(qual=>m.Type.Select(getTypeQualifier(qual.asInstanceOf[ScReference]), toTypeName(ref)))
                 .getOrElse(toTypeName(ref))
             case None => m.Type.Name(t.getText)
           }
@@ -85,9 +85,9 @@ trait TypeAdapter {
     })
   }
 
-  private def getTypeQualifier(ref: ScReferenceElement): m.Term.Ref = {
+  private def getTypeQualifier(ref: ScReference): m.Term.Ref = {
     ref.qualifier match {
-      case Some(r: ScReferenceElement) => m.Term.Select(getTypeQualifier(r), toTermName(ref))
+      case Some(r: ScReference) => m.Term.Select(getTypeQualifier(r), toTermName(ref))
       case None => toTermName(ref)
       case _ => unreachable
     }
@@ -132,9 +132,9 @@ trait TypeAdapter {
             case Right(res) => toType(res)
             case Failure(cause) => unresolved(cause)
           }
-        case t: ScReferenceElement if dumbMode =>
+        case t: ScReference if dumbMode =>
           m.Type.Name(t.refName)
-        case t: ScReferenceElement =>
+        case t: ScReference =>
           t.bind() match {
             case Some(result) => toType(result.element)
             case None => m.Type.Placeholder(m.Type.Bounds(None, None))

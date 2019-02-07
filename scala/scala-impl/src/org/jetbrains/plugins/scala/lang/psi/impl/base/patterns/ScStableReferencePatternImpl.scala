@@ -8,7 +8,7 @@ package patterns
 import com.intellij.lang.ASTNode
 import com.intellij.psi.PsiElementVisitor
 import org.jetbrains.plugins.scala.lang.psi.api.ScalaElementVisitor
-import org.jetbrains.plugins.scala.lang.psi.api.base.patterns.ScStableReferenceElementPattern
+import org.jetbrains.plugins.scala.lang.psi.api.base.patterns.ScStableReferencePattern
 import org.jetbrains.plugins.scala.lang.psi.types.ScType
 import org.jetbrains.plugins.scala.lang.psi.types.result.TypeResult
 
@@ -16,7 +16,7 @@ import org.jetbrains.plugins.scala.lang.psi.types.result.TypeResult
  * @author ilyas
  */
 
-class ScStableReferenceElementPatternImpl(node : ASTNode) extends ScalaPsiElementImpl(node) with ScPatternImpl with ScStableReferenceElementPattern {
+class ScStableReferencePatternImpl(node : ASTNode) extends ScalaPsiElementImpl(node) with ScPatternImpl with ScStableReferencePattern {
   override def isIrrefutableFor(t: Option[ScType]): Boolean = false
 
   override def accept(visitor: PsiElementVisitor): Unit = {

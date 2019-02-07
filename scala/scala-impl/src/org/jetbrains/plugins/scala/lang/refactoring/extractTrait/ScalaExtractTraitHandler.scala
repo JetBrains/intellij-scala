@@ -12,7 +12,7 @@ import org.jetbrains.annotations.TestOnly
 import org.jetbrains.plugins.scala.extensions._
 import org.jetbrains.plugins.scala.lang.psi.ScalaPsiUtil
 import org.jetbrains.plugins.scala.lang.psi.api.ScalaRecursiveElementVisitor
-import org.jetbrains.plugins.scala.lang.psi.api.base.ScReferenceElement
+import org.jetbrains.plugins.scala.lang.psi.api.base.ScReference
 import org.jetbrains.plugins.scala.lang.psi.api.expr.{ScExpression, ScNewTemplateDefinition, ScSuperReference}
 import org.jetbrains.plugins.scala.lang.psi.api.statements.params.ScTypeParam
 import org.jetbrains.plugins.scala.lang.psi.api.toplevel.templates.ScTemplateBody
@@ -226,7 +226,7 @@ class ScalaExtractTraitHandler extends ScalaRefactoringActionHandler {
       }
     }
 
-    private def collectConflicts(ref: ScReferenceElement, resolve: PsiElement) {
+    private def collectConflicts(ref: ScReference, resolve: PsiElement) {
       resolve match {
         case named: PsiNamedElement =>
           ScalaPsiUtil.nameContext(named) match {
@@ -248,7 +248,7 @@ class ScalaExtractTraitHandler extends ScalaRefactoringActionHandler {
 
     private def collectTypeParameters(resolve: PsiElement) {
       val visitor = new ScalaRecursiveElementVisitor {
-        override def visitReference(ref: ScReferenceElement): Unit = {
+        override def visitReference(ref: ScReference): Unit = {
           ref.resolve() match {
             case tp: ScTypeParam => typeParams += tp
             case _ =>
@@ -266,7 +266,7 @@ class ScalaExtractTraitHandler extends ScalaRefactoringActionHandler {
 
     def collect() {
       val visitor = new ScalaRecursiveElementVisitor {
-        override def visitReference(ref: ScReferenceElement) {
+        override def visitReference(ref: ScReference) {
           val resolve = ref.resolve()
           collectForSelfType(resolve)
           collectConflicts(ref, resolve)

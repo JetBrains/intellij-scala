@@ -4,7 +4,7 @@ import org.intellij.lang.annotations.Language
 import org.jetbrains.plugins.scala.base.SimpleTestCase
 import org.jetbrains.plugins.scala.extensions._
 import org.jetbrains.plugins.scala.lang.psi.api.ScalaFile
-import org.jetbrains.plugins.scala.lang.psi.api.base.ScReferenceElement
+import org.jetbrains.plugins.scala.lang.psi.api.base.ScReference
 
 /**
   * @author Alefas
@@ -50,7 +50,7 @@ class ForwardReferenceAnnotatorTest extends SimpleTestCase {
 
     val mock = new AnnotatorHolderMock(parse)
 
-    parse.depthFirst().instancesOf[ScReferenceElement].foreach { ref =>
+    parse.depthFirst().instancesOf[ScReference].foreach { ref =>
       annotator.annotate(ref, mock)
     }
 

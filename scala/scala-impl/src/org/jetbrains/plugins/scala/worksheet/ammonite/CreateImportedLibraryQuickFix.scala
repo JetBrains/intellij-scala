@@ -9,7 +9,7 @@ import com.intellij.openapi.roots.ui.configuration.projectRoot.ModuleStructureCo
 import com.intellij.openapi.roots.ui.configuration.projectRoot.daemon.ModuleProjectStructureElement
 import com.intellij.psi.{PsiElement, PsiFile}
 import org.jetbrains.plugins.scala.extensions
-import org.jetbrains.plugins.scala.lang.psi.api.base.ScStableCodeReferenceElement
+import org.jetbrains.plugins.scala.lang.psi.api.base.ScStableCodeReference
 import org.jetbrains.plugins.scala.util.ScalaUtil
 
 /**
@@ -20,7 +20,7 @@ class CreateImportedLibraryQuickFix(private val myPsi: PsiElement) extends Local
   override def getText: String = "Create library from jar..."
 
   override def invoke(project: Project, file: PsiFile, startElement: PsiElement, endElement: PsiElement): Unit = {
-    def selectLibName(stableExpr: ScStableCodeReferenceElement, table: LibraryTable): String = {
+    def selectLibName(stableExpr: ScStableCodeReference, table: LibraryTable): String = {
       val refName = AmmoniteUtil.extractLibInfo(stableExpr).map(AmmoniteUtil.convertLibName).getOrElse(stableExpr.refName)
       var name = refName
       var count = 2
@@ -35,7 +35,7 @@ class CreateImportedLibraryQuickFix(private val myPsi: PsiElement) extends Local
     
     
     myPsi match {
-      case stableExpr: ScStableCodeReferenceElement =>
+      case stableExpr: ScStableCodeReference =>
         AmmoniteUtil.findJarRoot(stableExpr).foreach {
           jarRoot =>
             extensions.inWriteAction {

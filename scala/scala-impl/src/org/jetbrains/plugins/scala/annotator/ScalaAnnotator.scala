@@ -273,19 +273,19 @@ abstract class ScalaAnnotator extends Annotator
         // super.visitUnderscoreExpression
       }
 
-      private def referencePart(ref: ScReferenceElement, innerHolder: AnnotationHolder = holder) {
+      private def referencePart(ref: ScReference, innerHolder: AnnotationHolder = holder) {
         if (typeAware) annotateReference(ref, innerHolder)
         qualifierPart(ref, innerHolder)
       }
 
-      private def qualifierPart(ref: ScReferenceElement, innerHolder: AnnotationHolder): Unit = {
+      private def qualifierPart(ref: ScReference, innerHolder: AnnotationHolder): Unit = {
         ref.qualifier match {
           case None => checkNotQualifiedReferenceElement(ref, innerHolder)
           case Some(_) => checkQualifiedReferenceElement(ref, innerHolder)
         }
       }
 
-      override def visitReference(ref: ScReferenceElement) {
+      override def visitReference(ref: ScReference) {
         referencePart(ref)
         super.visitReference(ref)
       }
@@ -419,7 +419,7 @@ abstract class ScalaAnnotator extends Annotator
 
 
 
-  private def checkNotQualifiedReferenceElement(refElement: ScReferenceElement, holder: AnnotationHolder) {
+  private def checkNotQualifiedReferenceElement(refElement: ScReference, holder: AnnotationHolder) {
     refElement match {
       case _: ScInterpolatedStringPartReference =>
         return //do not inspect interpolated literal, it will be highlighted in other place
@@ -469,7 +469,7 @@ abstract class ScalaAnnotator extends Annotator
         case e: ScReferenceExpression if e.getParent.isInstanceOf[ScInfixExpr] &&
                 e.getParent.asInstanceOf[ScInfixExpr].operation == e => //todo: this is hide A op B
         case _: ScReferenceExpression => processError(countError = false, fixes = getFixes)
-        case e: ScStableCodeReferenceElement if e.getParent.isInstanceOf[ScInfixPattern] &&
+        case e: ScStableCodeReference if e.getParent.isInstanceOf[ScInfixPattern] &&
                 e.getParent.asInstanceOf[ScInfixPattern].operation == e => //todo: this is hide A op B in patterns
         case _ => refElement.getParent match {
           case _: ScImportSelector if resolve.length > 0 =>
@@ -592,7 +592,7 @@ abstract class ScalaAnnotator extends Annotator
     }
   }
 
-  private def highlightImplicitMethod(expr: ScExpression, resolveResult: ScalaResolveResult, refElement: ScReferenceElement,
+  private def highlightImplicitMethod(expr: ScExpression, resolveResult: ScalaResolveResult, refElement: ScReference,
                                       fun: PsiNamedElement, holder: AnnotationHolder) {
     val typeTo = resolveResult.implicitType match {
       case Some(tp) => tp
@@ -611,7 +611,7 @@ abstract class ScalaAnnotator extends Annotator
     }
   }
 
-  private def checkQualifiedReferenceElement(refElement: ScReferenceElement, holder: AnnotationHolder) {
+  private def checkQualifiedReferenceElement(refElement: ScReference, holder: AnnotationHolder) {
     val resolve = refElement.multiResolveScala(false)
 
     UsageTracker.registerUsedElementsAndImports(refElement, resolve, checkWrite = true)
@@ -653,7 +653,7 @@ abstract class ScalaAnnotator extends Annotator
     }
   }
 
-  private def checkAccessForReference(resolve: Array[ScalaResolveResult], refElement: ScReferenceElement, holder: AnnotationHolder) {
+  private def checkAccessForReference(resolve: Array[ScalaResolveResult], refElement: ScReference, holder: AnnotationHolder) {
     if (resolve.length != 1 || refElement.isSoft || refElement.isInstanceOf[ScDocResolvableCodeReferenceImpl]) return
     resolve(0) match {
       case r if !r.isAccessible =>
@@ -664,7 +664,7 @@ abstract class ScalaAnnotator extends Annotator
     }
   }
 
-  private def registerAddFixes(refElement: ScReferenceElement, annotation: Annotation, actions: IntentionAction*) {
+  private def registerAddFixes(refElement: ScReference, annotation: Annotation, actions: IntentionAction*) {
     for (action <- actions) {
       annotation.registerFix(action)
     }

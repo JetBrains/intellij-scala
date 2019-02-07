@@ -137,7 +137,7 @@ object ScalaElementType {
     override def createElement(node: ASTNode) = new ScUnitExprImpl(node)
   }
   val REFERENCE = new ScalaElementType("reference") {
-    override def createElement(node: ASTNode) = new ScStableCodeReferenceElementImpl(node)
+    override def createElement(node: ASTNode) = new ScStableCodeReferenceImpl(node)
   }
 
   val CONSTR_EXPR = new ScalaElementType("constructor expression") {
@@ -320,7 +320,7 @@ object ScalaElementType {
     override def createElement(node: ASTNode) = new ScInterpolationPatternImpl(node)
   }
   val STABLE_REFERENCE_PATTERN = new ScalaElementType("stable reference pattern") {
-    override def createElement(node: ASTNode) = new ScStableReferenceElementPatternImpl(node)
+    override def createElement(node: ASTNode) = new ScStableReferencePatternImpl(node)
   }
   val PATTERN_IN_PARENTHESIS = new ScalaElementType("pattern in parenthesis") {
     override def createElement(node: ASTNode) = new ScParenthesisedPatternImpl(node)

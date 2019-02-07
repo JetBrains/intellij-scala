@@ -11,7 +11,7 @@ import com.intellij.psi.{PsiDocumentManager, PsiElement}
 import org.jetbrains.plugins.scala.extensions._
 import org.jetbrains.plugins.scala.lang.formatting.settings.ScalaCodeStyleSettings
 import org.jetbrains.plugins.scala.lang.lexer.ScalaTokenTypes
-import org.jetbrains.plugins.scala.lang.psi.api.base.{ScInterpolatedStringLiteral, ScLiteral, ScReferenceElement, ScStringLiteral}
+import org.jetbrains.plugins.scala.lang.psi.api.base.{ScInterpolatedStringLiteral, ScLiteral, ScReference, ScStringLiteral}
 import org.jetbrains.plugins.scala.lang.psi.api.expr._
 import org.jetbrains.plugins.scala.lang.psi.api.statements.ScFunction
 
@@ -52,7 +52,7 @@ object MultilineStringUtil {
 
     do {
       parent match {
-        case _: ScReferenceElement => //if (ref.nameId.getText == methodName) return false
+        case _: ScReference => //if (ref.nameId.getText == methodName) return false
         case l: ScLiteral => if (!l.isMultiLineString) return false
         case i: ScInfixExpr => if (i.operation.getText == methodName) return false
         case call: ScMethodCall =>

@@ -18,7 +18,7 @@ trait ScPackaging extends ScImportsHolder
 
   def bodyText: String
 
-  def reference: Option[base.ScStableCodeReferenceElement]
+  def reference: Option[base.ScStableCodeReference]
 
   def immediateTypeDefinitions: Seq[toplevel.typedef.ScTypeDefinition]
 

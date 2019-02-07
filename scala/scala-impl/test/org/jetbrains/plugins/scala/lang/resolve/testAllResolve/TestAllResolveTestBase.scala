@@ -7,7 +7,7 @@ import com.intellij.openapi.util.io.FileUtil
 import com.intellij.openapi.util.text.StringUtil
 import com.intellij.openapi.vfs.{CharsetToolkit, LocalFileSystem}
 import org.jetbrains.plugins.scala.base.ScalaLightPlatformCodeInsightTestCaseAdapter
-import org.jetbrains.plugins.scala.lang.psi.api.base.ScReferenceElement
+import org.jetbrains.plugins.scala.lang.psi.api.base.ScReference
 
 /**
  * User: Alexander Podkhalyuzin
@@ -27,7 +27,7 @@ abstract class TestAllResolveTestBase extends ScalaLightPlatformCodeInsightTestC
     configureFromFileTextAdapter(getTestName(false) + ".scala", fileText)
     val scalaFile = getFileAdapter.asInstanceOf[ScalaFile]
     scalaFile.accept(new ScalaRecursiveElementVisitor {
-      override def visitReference(ref: ScReferenceElement) {
+      override def visitReference(ref: ScReference) {
         val resolve = ref.resolve()
         assertNotNull("Failed on reference: " + ref.getText + ". Reference Range: (" +
                 ref.getTextRange.getStartOffset + ", " + ref.getTextRange.getEndOffset + ")",

@@ -10,7 +10,7 @@ import com.intellij.psi.util.PsiTreeUtil
 import com.intellij.testFramework.UsefulTestCase
 import org.jetbrains.plugins.scala.TestFixtureProvider
 import org.jetbrains.plugins.scala.base.FailableTest
-import org.jetbrains.plugins.scala.lang.psi.api.base.ScReferenceElement
+import org.jetbrains.plugins.scala.lang.psi.api.base.ScReference
 import org.jetbrains.plugins.scala.util.TestUtils
 import org.junit.Assert
 
@@ -27,7 +27,7 @@ trait SimpleResolveTestBase {
   protected def folderPath = TestUtils.getTestDataPath + "/resolve/"
 
   protected def doResolveTest(sources: Seq[(String, String)]): Unit = {
-    var src: ScReferenceElement = null
+    var src: ScReference = null
     var tgt: PsiElement = null
     def configureFile(file: (String, String), configureFun: (String, String) => PsiFile) = {
       val (source, fileName) = file
@@ -36,7 +36,7 @@ trait SimpleResolveTestBase {
       val tgtOffset = trimmed.replaceAll(REFSRC, "").indexOf(REFTGT)
       val psiFile = configureFun(fileName, trimmed.replaceAll(REFSRC, "").replaceAll(REFTGT,""))
       if (src == null && srcOffset != -1)
-        src = PsiTreeUtil.getParentOfType(psiFile.findElementAt(srcOffset), classOf[ScReferenceElement])
+        src = PsiTreeUtil.getParentOfType(psiFile.findElementAt(srcOffset), classOf[ScReference])
       if (tgt == null && tgtOffset != -1)
         tgt = PsiTreeUtil.getParentOfType(psiFile.findElementAt(tgtOffset), classOf[PsiElement])
     }

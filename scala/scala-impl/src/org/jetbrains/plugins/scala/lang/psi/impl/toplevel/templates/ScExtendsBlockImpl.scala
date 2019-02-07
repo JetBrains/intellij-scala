@@ -11,7 +11,7 @@ import org.jetbrains.plugins.scala.JavaArrayFactoryUtil.ScTemplateParentsFactory
 import org.jetbrains.plugins.scala.extensions._
 import org.jetbrains.plugins.scala.lang.lexer.ScalaTokenTypes
 import org.jetbrains.plugins.scala.lang.parser.ScalaElementType._
-import org.jetbrains.plugins.scala.lang.psi.api.base.ScStableCodeReferenceElement
+import org.jetbrains.plugins.scala.lang.psi.api.base.ScStableCodeReference
 import org.jetbrains.plugins.scala.lang.psi.api.base.types._
 import org.jetbrains.plugins.scala.lang.psi.api.expr.ScNewTemplateDefinition
 import org.jetbrains.plugins.scala.lang.psi.api.statements.{ScFunction, ScTypeAlias, ScTypeAliasDefinition}
@@ -286,7 +286,7 @@ object ScExtendsBlockImpl {
         element.`type`().toOption
           .flatMap(_.extractClass)
 
-      def refTail(reference: ScStableCodeReferenceElement): Option[PsiClass] =
+      def refTail(reference: ScStableCodeReference): Option[PsiClass] =
         reference.resolveNoConstructor match {
           case Array(head) => head.element match {
             case c: PsiClass => Some(c)

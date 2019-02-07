@@ -17,7 +17,7 @@ import org.jetbrains.plugins.scala.DependencyManagerBase._
 import org.jetbrains.plugins.scala.debugger.CompilationCache
 import org.jetbrains.plugins.scala.extensions.PsiElementExt
 import org.jetbrains.plugins.scala.lang.psi.api.ScalaPsiElement
-import org.jetbrains.plugins.scala.lang.psi.api.base.{ScAnnotationsHolder, ScReferenceElement}
+import org.jetbrains.plugins.scala.lang.psi.api.base.{ScAnnotationsHolder, ScReference}
 import org.jetbrains.plugins.scala.lang.psi.api.toplevel.typedef.ScTypeDefinition
 import org.jetbrains.plugins.scala.project.settings.ScalaCompilerConfiguration
 import org.jetbrains.plugins.scala.util.{CompileServerUtil, TestUtils}
@@ -139,8 +139,8 @@ abstract class MetaAnnotationTestBase extends JavaCodeInsightFixtureTestCase wit
   // because getElementAtCaret from fixture forces resolve and we don't want that
   protected def elementAtCaret = PsiTreeUtil.getParentOfType(myFixture.getFile.findElementAt(myFixture.getCaretOffset-1), classOf[ScalaPsiElement])
   protected def refAtCaret = elementAtCaret match {
-    case ref: ScReferenceElement => ref
-    case other: PsiElement => PsiTreeUtil.getParentOfType(other, classOf[ScReferenceElement])
+    case ref: ScReference => ref
+    case other: PsiElement => PsiTreeUtil.getParentOfType(other, classOf[ScReference])
   }
   protected def annotName: String = s"a_${getTestName(true)}".toLowerCase
   protected def testClassName: String = getTestName(false)

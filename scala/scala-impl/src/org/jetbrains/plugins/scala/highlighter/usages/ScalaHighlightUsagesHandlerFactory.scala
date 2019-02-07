@@ -10,7 +10,7 @@ import org.jetbrains.plugins.scala.highlighter.usages.ScalaHighlightImplicitUsag
 import org.jetbrains.plugins.scala.highlighter.usages.ScalaHighlightUsagesHandlerFactory.implicitHighlightingEnabled
 import org.jetbrains.plugins.scala.lang.lexer.ScalaTokenTypes
 import org.jetbrains.plugins.scala.lang.psi.api.ScalaFile
-import org.jetbrains.plugins.scala.lang.psi.api.base.ScReferenceElement
+import org.jetbrains.plugins.scala.lang.psi.api.base.ScReference
 import org.jetbrains.plugins.scala.lang.psi.api.base.patterns.ScCaseClause
 import org.jetbrains.plugins.scala.lang.psi.api.base.types.ScTypeElement
 import org.jetbrains.plugins.scala.lang.psi.api.expr._
@@ -105,7 +105,7 @@ class ScalaHighlightUsagesHandlerFactory extends HighlightUsagesHandlerFactory {
       case ScalaTokenTypes.tIDENTIFIER =>
         element.getParent match {
           case named: ScNamedElement => return implicitHighlighter(editor, file, named)
-          case ref: ScReferenceElement => return implicitHighlighter(editor, file, ref)
+          case ref: ScReference => return implicitHighlighter(editor, file, ref)
           case _ =>
         }
 

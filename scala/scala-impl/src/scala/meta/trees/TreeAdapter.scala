@@ -175,7 +175,7 @@ trait TreeAdapter {
     def arg(pt: patterns.ScPattern): m.Pat.Arg = pt match {
       case _: ScSeqWildcard       =>  Arg.SeqWildcard()
       case _: ScWildcardPattern   =>  Wildcard()
-      case t: ScStableReferenceElementPattern => toTermName(t.refElement.get)
+      case t: ScStableReferencePattern => toTermName(t.refElement.get)
       case t: ScPattern           => pattern(t)
     }
     pt match {
@@ -189,7 +189,7 @@ trait TreeAdapter {
       case t: ScWildcardPattern   =>  Wildcard()
       case t: ScCompositePattern  =>  compose(Seq(t.subpatterns : _*))
       case t: ScInfixPattern      =>  ExtractInfix(pattern(t.left), toTermName(t.operation), t.rightOption.map(pt=>Seq(pattern(pt))).getOrElse(Nil))
-      case t: ScStableReferenceElementPattern => toTermName(t.refElement.get)
+      case t: ScStableReferencePattern => toTermName(t.refElement.get)
       case t: ScPattern => t ?!
     }
   }
@@ -404,20 +404,20 @@ trait TreeAdapter {
     }
   }
 
-  def getQualifier(q: ScStableCodeReferenceElement): m.Term.Ref = {
+  def getQualifier(q: ScStableCodeReference): m.Term.Ref = {
     q.pathQualifier match {
       case Some(_: ScSuperReference) =>
         m.Term.Select(m.Term.Super(m.Name.Anonymous(), m.Name.Anonymous()), toTermName(q))
       case Some(_: ScThisReference) =>
         m.Term.Select(m.Term.This(m.Name.Anonymous()), toTermName(q))
-      case Some(parent:ScStableCodeReferenceElement) =>
+      case Some(parent:ScStableCodeReference) =>
         m.Term.Select(getQualifier(parent), toTermName(q))
       case None        => toTermName(q)
       case Some(other) => other ?!
     }
   }
 
-  def getQualifiedReference(q: ScStableCodeReferenceElement): m.Term.Ref = {
+  def getQualifiedReference(q: ScStableCodeReference): m.Term.Ref = {
     q.pathQualifier match {
       case None => toTermName(q)
       case Some(_) => m.Term.Select(getQualifier(q), toTermName(q))
@@ -425,13 +425,13 @@ trait TreeAdapter {
   }
 
   // TODO: WHY?!
-  def getCtorRef(q: ScStableCodeReferenceElement): m.Ctor.Ref = {
+  def getCtorRef(q: ScStableCodeReference): m.Ctor.Ref = {
     q.pathQualifier match {
       case Some(_: ScSuperReference) =>
         m.Ctor.Ref.Select(m.Term.Super(m.Name.Anonymous(), m.Name.Anonymous()), toCtorName(q))
       case Some(_: ScThisReference) =>
         m.Ctor.Ref.Select(m.Term.This(m.Name.Anonymous()), toCtorName(q))
-      case Some(parent:ScStableCodeReferenceElement) =>
+      case Some(parent:ScStableCodeReference) =>
         m.Ctor.Ref.Select(getQualifier(parent), toCtorName(q))
       case None        => toCtorName(q)
       case Some(other) => other ?!

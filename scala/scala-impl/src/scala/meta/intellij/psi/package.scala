@@ -14,7 +14,7 @@ import org.jetbrains.plugins.scala.lang.lexer.ScalaTokenTypes
 import org.jetbrains.plugins.scala.lang.psi.api.ScalaFile
 import org.jetbrains.plugins.scala.lang.psi.api.base.{ScAnnotation, ScAnnotationsHolder, ScPrimaryConstructor}
 import org.jetbrains.plugins.scala.lang.psi.api.toplevel.typedef.{ScMember, ScTemplateDefinition, ScTypeDefinition}
-import org.jetbrains.plugins.scala.lang.psi.impl.base.ScStableCodeReferenceElementImpl
+import org.jetbrains.plugins.scala.lang.psi.impl.base.ScStableCodeReferenceImpl
 import org.jetbrains.plugins.scala.lang.psi.stubs.elements.ScStubElementType
 import org.jetbrains.plugins.scala.lang.resolve.ScalaResolveResult
 import org.jetbrains.plugins.scala.lang.resolve.processor.ResolveProcessor
@@ -69,7 +69,7 @@ package object psi {
 
     @CachedInUserData(repr, ModCount.getBlockModificationCount)
     private def cached: Boolean = repr.constructor.reference.exists {
-      case reference: ScStableCodeReferenceElementImpl =>
+      case reference: ScStableCodeReferenceImpl =>
         val processor = new ResolveProcessor(reference.getKinds(incomplete = false), reference, reference.refName)
         reference.doResolve(processor).collect {
           case ScalaResolveResult(definition: ScTypeDefinition, _) => definition

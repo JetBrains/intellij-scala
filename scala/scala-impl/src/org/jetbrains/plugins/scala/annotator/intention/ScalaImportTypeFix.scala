@@ -23,7 +23,7 @@ import org.jetbrains.plugins.scala.ScalaBundle
 import org.jetbrains.plugins.scala.annotator.intention.ScalaImportTypeFix.TypeToImport
 import org.jetbrains.plugins.scala.extensions._
 import org.jetbrains.plugins.scala.lang.formatting.settings.ScalaCodeStyleSettings
-import org.jetbrains.plugins.scala.lang.psi.api.base.ScReferenceElement
+import org.jetbrains.plugins.scala.lang.psi.api.base.ScReference
 import org.jetbrains.plugins.scala.lang.psi.api.base.types.ScTypeProjection
 import org.jetbrains.plugins.scala.lang.psi.api.expr.{ScInfixExpr, ScMethodCall, ScPostfixExpr, ScPrefixExpr}
 import org.jetbrains.plugins.scala.lang.psi.api.statements.ScTypeAlias
@@ -46,7 +46,7 @@ import scala.collection.mutable.ArrayBuffer
   * Date: 15.07.2009
   */
 
-class ScalaImportTypeFix(private var classes: Array[TypeToImport], ref: ScReferenceElement) extends HintAction {
+class ScalaImportTypeFix(private var classes: Array[TypeToImport], ref: ScReference) extends HintAction {
 
   private val project = ref.getProject
 
@@ -121,7 +121,7 @@ class ScalaImportTypeFix(private var classes: Array[TypeToImport], ref: ScRefere
         if (ref.resolve != null) return
 
         if (HintManagerImpl.getInstanceImpl.hasShownHintsThatWillHideByOtherHint(true)) return
-        val action = new ScalaAddImportAction(editor, classes, ref: ScReferenceElement)
+        val action = new ScalaAddImportAction(editor, classes, ref: ScReference)
 
         val refStart = ref.getTextRange.getStartOffset
         val refEnd = ref.getTextRange.getEndOffset
@@ -148,7 +148,7 @@ class ScalaImportTypeFix(private var classes: Array[TypeToImport], ref: ScRefere
 
   override def startInWriteAction(): Boolean = true
 
-  class ScalaAddImportAction(editor: Editor, classes: Array[TypeToImport], ref: ScReferenceElement) extends QuestionAction {
+  class ScalaAddImportAction(editor: Editor, classes: Array[TypeToImport], ref: ScReference) extends QuestionAction {
     def addImportOrReference(clazz: TypeToImport) {
       ApplicationManager.getApplication.invokeLater(new Runnable() {
         override def run() {
@@ -326,7 +326,7 @@ object ScalaImportTypeFix {
     }
   }
 
-  def getTypesToImport(ref: ScReferenceElement, myProject: Project): Array[TypeToImport] = {
+  def getTypesToImport(ref: ScReference, myProject: Project): Array[TypeToImport] = {
     if (!ref.isValid) return Array.empty
     if (ref.isInstanceOf[ScTypeProjection]) return Array.empty
     val kinds = ref.getKinds(incomplete = false)

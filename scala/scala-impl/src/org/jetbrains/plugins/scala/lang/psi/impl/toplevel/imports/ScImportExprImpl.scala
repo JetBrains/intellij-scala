@@ -13,7 +13,7 @@ import org.jetbrains.plugins.scala.lang.lexer.ScalaTokenTypes
 import org.jetbrains.plugins.scala.lang.parser.ScalaElementType._
 import org.jetbrains.plugins.scala.lang.psi.annotator.ScImportExprAnnotator
 import org.jetbrains.plugins.scala.lang.psi.api.ScalaElementVisitor
-import org.jetbrains.plugins.scala.lang.psi.api.base.ScStableCodeReferenceElement
+import org.jetbrains.plugins.scala.lang.psi.api.base.ScStableCodeReference
 import org.jetbrains.plugins.scala.lang.psi.api.toplevel.imports._
 import org.jetbrains.plugins.scala.lang.psi.stubs.ScImportExprStub
 
@@ -44,7 +44,7 @@ class ScImportExprImpl private (stub: ScImportExprStub, node: ASTNode)
     Option(findChildByType(ScalaTokenTypes.tUNDER))
       .orElse(selectorSet.flatMap(_.wildcardElement))
 
-  def qualifier: ScStableCodeReferenceElement = {
+  def qualifier: ScStableCodeReference = {
     if (reference.isEmpty)
       throw new IncorrectOperationException()
     else if (!isSingleWildcard && selectorSet.isEmpty)
@@ -115,6 +115,6 @@ class ScImportExprImpl private (stub: ScImportExprStub, node: ASTNode)
   def selectorSet: Option[ScImportSelectors] =
     this.stubOrPsiChild(IMPORT_SELECTORS)
 
-  def reference: Option[ScStableCodeReferenceElement] =
-    byPsiOrStub(getFirstChild.asOptionOf[ScStableCodeReferenceElement])(_.reference)
+  def reference: Option[ScStableCodeReference] =
+    byPsiOrStub(getFirstChild.asOptionOf[ScStableCodeReference])(_.reference)
 }

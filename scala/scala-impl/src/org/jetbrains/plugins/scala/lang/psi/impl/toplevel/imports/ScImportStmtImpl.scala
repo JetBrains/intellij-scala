@@ -15,7 +15,7 @@ import org.jetbrains.plugins.scala.extensions._
 import org.jetbrains.plugins.scala.lang.completion.ScalaCompletionUtil
 import org.jetbrains.plugins.scala.lang.formatting.settings.ScalaCodeStyleSettings
 import org.jetbrains.plugins.scala.lang.parser.ScalaElementType
-import org.jetbrains.plugins.scala.lang.psi.api.base.ScStableCodeReferenceElement
+import org.jetbrains.plugins.scala.lang.psi.api.base.ScStableCodeReference
 import org.jetbrains.plugins.scala.lang.psi.api.toplevel.imports._
 import org.jetbrains.plugins.scala.lang.psi.api.toplevel.imports.usages._
 import org.jetbrains.plugins.scala.lang.psi.api.toplevel.typedef.{ScObject, ScTemplateDefinition, ScTypeDefinition}
@@ -78,7 +78,7 @@ class ScImportStmtImpl private (stub: ScImportStmtStub, node: ASTNode)
             r.checkWildcardImports()
           case _ => true
         }
-        val exprQual: ScStableCodeReferenceElement = importExpr.selectorSet match {
+        val exprQual: ScStableCodeReference = importExpr.selectorSet match {
           case Some(_) => ref
           case None if importExpr.isSingleWildcard => ref
           case None => ref.qualifier.getOrElse(return true)
@@ -88,12 +88,12 @@ class ScImportStmtImpl private (stub: ScImportStmtStub, node: ASTNode)
           case p:ResolveProcessor=>
             ref match {
               // do not process methodrefs when importing a type from a type
-              case ref: ScStableCodeReferenceElement
+              case ref: ScStableCodeReference
                 if p.kinds.contains(ResolveTargets.CLASS) &&
                   ref.getKinds(incomplete = false).contains(ResolveTargets.CLASS) &&
                   ref.getKinds(incomplete = false).contains(ResolveTargets.METHOD) =>
                 ref.resolveTypesOnly(false)
-              case ref: ScStableCodeReferenceElement if p.kinds.contains(ResolveTargets.METHOD) =>
+              case ref: ScStableCodeReference if p.kinds.contains(ResolveTargets.METHOD) =>
                 ref.resolveMethodsOnly(false)
               case _ => ref.multiResolveScala(false)
             }
@@ -120,7 +120,7 @@ class ScImportStmtImpl private (stub: ScImportStmtStub, node: ASTNode)
         val resolveIterator = resolve.iterator
         while (resolveIterator.hasNext) {
           @tailrec
-          def getFirstReference(ref: ScStableCodeReferenceElement): ScStableCodeReferenceElement = {
+          def getFirstReference(ref: ScStableCodeReference): ScStableCodeReference = {
             ref.qualifier match {
               case Some(qual) => getFirstReference(qual)
               case _ => ref

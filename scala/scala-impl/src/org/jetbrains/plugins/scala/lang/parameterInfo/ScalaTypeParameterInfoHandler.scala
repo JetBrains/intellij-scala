@@ -13,7 +13,7 @@ import com.intellij.psi.tree.IElementType
 import com.intellij.psi.util.PsiTreeUtil
 import org.jetbrains.plugins.scala.extensions._
 import org.jetbrains.plugins.scala.lang.lexer.ScalaTokenTypes
-import org.jetbrains.plugins.scala.lang.psi.api.base.ScReferenceElement
+import org.jetbrains.plugins.scala.lang.psi.api.base.ScReference
 import org.jetbrains.plugins.scala.lang.psi.api.base.types.{ScParameterizedTypeElement, ScSimpleTypeElement, ScTypeArgs, ScTypeElement, ScTypeProjection}
 import org.jetbrains.plugins.scala.lang.psi.api.expr.{ScGenericCall, ScInfixExpr}
 import org.jetbrains.plugins.scala.lang.psi.api.statements.params.ScTypeParam
@@ -183,7 +183,7 @@ class ScalaTypeParameterInfoHandler extends ParameterInfoHandlerWithTabActionSup
     context.setCurrentParameter(i)
   }
 
-  private def fromResolved(ref: ScReferenceElement, useActualElement: Boolean = false): Option[(PsiElement, ScSubstitutor)] = {
+  private def fromResolved(ref: ScReference, useActualElement: Boolean = false): Option[(PsiElement, ScSubstitutor)] = {
     ref.bind() match {
       case Some(r @ ScalaResolveResult(m: PsiMethod, substitutor)) =>
         val element = if (useActualElement) r.getActualElement else m

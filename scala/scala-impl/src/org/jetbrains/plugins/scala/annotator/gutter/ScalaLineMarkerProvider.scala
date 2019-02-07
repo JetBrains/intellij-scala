@@ -23,7 +23,7 @@ import org.jetbrains.plugins.scala.extensions._
 import org.jetbrains.plugins.scala.lang.lexer.ScalaTokenTypes
 import org.jetbrains.plugins.scala.lang.psi.ScalaPsiUtil
 import org.jetbrains.plugins.scala.lang.psi.api.base.patterns.{ScCaseClauses, ScPattern}
-import org.jetbrains.plugins.scala.lang.psi.api.base.{ScFieldId, ScReferenceElement}
+import org.jetbrains.plugins.scala.lang.psi.api.base.{ScFieldId, ScReference}
 import org.jetbrains.plugins.scala.lang.psi.api.expr.ScExpression
 import org.jetbrains.plugins.scala.lang.psi.api.statements._
 import org.jetbrains.plugins.scala.lang.psi.api.statements.params.{ScClassParameter, ScParameter}
@@ -121,7 +121,7 @@ class ScalaLineMarkerProvider() extends LineMarkerProvider with ScalaSeparatorPr
   private[this] def getOverridesImplementsMarkers(element: PsiElement): Option[LineMarkerInfo[_ <: PsiElement]] = {
     val isIdentifier = element.getNode.getElementType == ScalaTokenTypes.tIDENTIFIER
     val notReference = element.parent.exists {
-      case _: ScReferenceElement => false
+      case _: ScReference => false
       case  _                    => true
     }
 

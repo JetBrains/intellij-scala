@@ -2,7 +2,7 @@ package org.jetbrains.plugins.scala.lang.macros.evaluator.impl
 
 import com.intellij.psi.PsiElement
 import org.jetbrains.plugins.scala.lang.macros.evaluator.{MacroContext, MacroImpl, ScalaMacroTypeable}
-import org.jetbrains.plugins.scala.lang.psi.api.base.ScStableCodeReferenceElement
+import org.jetbrains.plugins.scala.lang.psi.api.base.ScStableCodeReference
 import org.jetbrains.plugins.scala.lang.psi.api.statements.ScFunction
 import org.jetbrains.plugins.scala.lang.psi.impl.ScalaPsiElementFactory._
 import org.jetbrains.plugins.scala.lang.psi.types.{ScLiteralType, ScType}
@@ -22,7 +22,7 @@ object ShapelessWitnessSelectDynamic extends ScalaMacroTypeable with ShapelessUt
 
   private def backtickedLiteralIn(e: PsiElement): Option[String] = {
     val ref = e match {
-      case r: ScStableCodeReferenceElement => r
+      case r: ScStableCodeReference => r
       case _ => return None
     }
     ref.refName match {

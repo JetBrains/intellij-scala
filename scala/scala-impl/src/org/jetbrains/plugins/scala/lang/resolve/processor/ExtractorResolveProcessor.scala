@@ -5,7 +5,7 @@ package processor
 
 import com.intellij.psi._
 import org.jetbrains.plugins.scala.lang.psi.ScalaPsiUtil.FakeCompanionClassOrCompanionClass
-import org.jetbrains.plugins.scala.lang.psi.api.base.ScReferenceElement
+import org.jetbrains.plugins.scala.lang.psi.api.base.ScReference
 import org.jetbrains.plugins.scala.lang.psi.api.statements._
 import org.jetbrains.plugins.scala.lang.psi.api.toplevel.ScTypedDefinition
 import org.jetbrains.plugins.scala.lang.psi.api.toplevel.typedef.{ScClass, ScObject}
@@ -17,7 +17,7 @@ import org.jetbrains.plugins.scala.project.ScalaLanguageLevel.Scala_2_11
 
 import scala.collection.{Set, mutable}
 
-class ExtractorResolveProcessor(ref: ScReferenceElement,
+class ExtractorResolveProcessor(ref: ScReference,
                                 refName: String,
                                 kinds: Set[ResolveTargets.Value],
                                 expected: Option[ScType])

@@ -10,7 +10,7 @@ import com.intellij.psi.PsiElement
 import com.intellij.util.ProcessingContext
 import org.jetbrains.plugins.scala.extensions.PsiElementExt
 import org.jetbrains.plugins.scala.lang.completion.lookups.ScalaLookupItem
-import org.jetbrains.plugins.scala.lang.psi.api.base.ScReferenceElement
+import org.jetbrains.plugins.scala.lang.psi.api.base.ScReference
 import org.jetbrains.plugins.scala.lang.psi.api.base.patterns._
 import org.jetbrains.plugins.scala.lang.psi.api.statements.ScFunctionDefinition
 import org.jetbrains.plugins.scala.lang.psi.api.statements.params.ScParameter
@@ -32,7 +32,7 @@ class CaseClassParametersCompletionContributor extends ScalaCompletionContributo
         val position = positionFromParameters(parameters)
 
         val maybeParametersOwner = position.findContextOfType(classOf[ScConstructorPattern]).collect {
-          case ScConstructorPattern(ScReferenceElement(function: ScFunctionDefinition), _) => function
+          case ScConstructorPattern(ScReference(function: ScFunctionDefinition), _) => function
         }.flatMap { function =>
           Option(function.syntheticCaseClass).orElse {
             if (function.isUnapplyMethod) Some(function) else None

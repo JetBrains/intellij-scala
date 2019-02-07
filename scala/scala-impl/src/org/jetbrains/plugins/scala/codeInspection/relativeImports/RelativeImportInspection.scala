@@ -6,7 +6,7 @@ import com.intellij.openapi.project.Project
 import com.intellij.psi.{PsiElement, PsiPackage}
 import org.jetbrains.plugins.scala.codeInspection.{AbstractFixOnPsiElement, AbstractInspection}
 import org.jetbrains.plugins.scala.lang.formatting.settings.ScalaCodeStyleSettings
-import org.jetbrains.plugins.scala.lang.psi.api.base.ScStableCodeReferenceElement
+import org.jetbrains.plugins.scala.lang.psi.api.base.ScStableCodeReference
 import org.jetbrains.plugins.scala.lang.psi.api.toplevel.imports.ScImportExpr
 import org.jetbrains.plugins.scala.lang.psi.api.toplevel.typedef.ScObject
 import org.jetbrains.plugins.scala.lang.psi.impl.ScalaPsiElementFactory.createReferenceFromText
@@ -47,7 +47,7 @@ class RelativeImportInspection extends AbstractInspection("Relative Import") {
 
 object RelativeImportInspection {
   @tailrec
-  def qual(st: ScStableCodeReferenceElement): ScStableCodeReferenceElement = st.qualifier match {
+  def qual(st: ScStableCodeReference): ScStableCodeReference = st.qualifier match {
     case Some(q) => qual(q)
     case _ => st
   }
@@ -63,10 +63,10 @@ private class EnableFullQualifiedImports extends LocalQuickFix {
   }
 }
 
-private class MakeFullQualifiedImportFix(q: ScStableCodeReferenceElement, fqn: String)
+private class MakeFullQualifiedImportFix(q: ScStableCodeReference, fqn: String)
         extends AbstractFixOnPsiElement(ScalaBundle.message("make.import.fully.qualified"), q) {
 
-  override protected def doApplyFix(ref: ScStableCodeReferenceElement)
+  override protected def doApplyFix(ref: ScStableCodeReference)
                                    (implicit project: Project): Unit = {
     val newRef = createReferenceFromText(fqn, ref.getContext, ref)
     val newFqn = RelativeImportInspection.qual(newRef).resolve() match {

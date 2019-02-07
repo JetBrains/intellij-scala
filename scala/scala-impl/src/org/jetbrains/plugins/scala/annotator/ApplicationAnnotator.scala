@@ -11,7 +11,7 @@ import org.jetbrains.plugins.scala.extensions._
 import org.jetbrains.plugins.scala.lang.psi.ScalaPsiUtil
 import org.jetbrains.plugins.scala.lang.psi.api.base.patterns.{ScConstructorPattern, ScInfixPattern, ScPattern}
 import org.jetbrains.plugins.scala.lang.psi.api.base.types.ScSimpleTypeElement
-import org.jetbrains.plugins.scala.lang.psi.api.base.{ScReferenceElement, ScStableCodeReferenceElement}
+import org.jetbrains.plugins.scala.lang.psi.api.base.{ScReference, ScStableCodeReference}
 import org.jetbrains.plugins.scala.lang.psi.api.expr._
 import org.jetbrains.plugins.scala.lang.psi.api.statements.params.{ScParameter, ScParameters}
 import org.jetbrains.plugins.scala.lang.psi.api.statements.{ScFunction, ScValue}
@@ -27,7 +27,7 @@ import org.jetbrains.plugins.scala.project.ProjectContext
  * Pavel.Fatin, 31.05.2010
  */
 trait ApplicationAnnotator {
-  def annotateReference(reference: ScReferenceElement, holder: AnnotationHolder) {
+  def annotateReference(reference: ScReference, holder: AnnotationHolder) {
     for {r <- reference.multiResolveScala(false)} {
 
       UsageTracker.registerUsedImports(reference, r)
@@ -125,7 +125,7 @@ trait ApplicationAnnotator {
   /**
    * Annotates: val a = 1; a += 1;
    */
-  private def annotateAssignmentReference(reference: ScReferenceElement, holder: AnnotationHolder) {
+  private def annotateAssignmentReference(reference: ScReference, holder: AnnotationHolder) {
     val qualifier = reference.getContext match {
       case x: ScMethodCall => x.getEffectiveInvokedExpr match {
         case x: ScReferenceExpression => x.qualifier
@@ -134,7 +134,7 @@ trait ApplicationAnnotator {
       case x: ScInfixExpr => Some(x.left)
       case _ => None
     }
-    val refElementOpt = qualifier.flatMap(_.asOptionOf[ScReferenceElement])
+    val refElementOpt = qualifier.flatMap(_.asOptionOf[ScReference])
     val ref: Option[PsiElement] = refElementOpt.flatMap(_.resolve().toOption)
     val reassignment = ref.exists(ScalaPsiUtil.isReadonly)
     if (reassignment) {
@@ -152,7 +152,7 @@ trait ApplicationAnnotator {
 
     //do we need to check it:
     call.getEffectiveInvokedExpr match {
-      case ref: ScReferenceElement =>
+      case ref: ScReference =>
         ref.bind() match {
           case Some(r) if r.notCheckedResolveResult || r.isDynamic => //it's unhandled case
           case _ =>
@@ -202,7 +202,7 @@ trait ApplicationAnnotator {
     }
   }
 
-  protected def registerCreateFromUsageFixesFor(ref: ScReferenceElement, annotation: Annotation) {
+  protected def registerCreateFromUsageFixesFor(ref: ScReference, annotation: Annotation) {
     ref match {
       case (exp: ScReferenceExpression) childOf (_: ScMethodCall) =>
         annotation.registerFix(new CreateMethodQuickFix(exp))
@@ -219,11 +219,11 @@ trait ApplicationAnnotator {
         annotation.registerFix(new CreateValueQuickFix(exp))
         annotation.registerFix(new CreateVariableQuickFix(exp))
         annotation.registerFix(new CreateObjectQuickFix(exp))
-      case (_: ScStableCodeReferenceElement) childOf (st: ScSimpleTypeElement) if st.singleton =>
-      case (stRef: ScStableCodeReferenceElement) childOf ((p: ScPattern) && (_: ScConstructorPattern | _: ScInfixPattern)) =>
+      case (_: ScStableCodeReference) childOf (st: ScSimpleTypeElement) if st.singleton =>
+      case (stRef: ScStableCodeReference) childOf ((p: ScPattern) && (_: ScConstructorPattern | _: ScInfixPattern)) =>
         annotation.registerFix(new CreateCaseClassQuickFix(stRef))
         annotation.registerFix(new CreateExtractorObjectQuickFix(stRef, p))
-      case stRef: ScStableCodeReferenceElement =>
+      case stRef: ScStableCodeReference =>
         annotation.registerFix(new CreateTraitQuickFix(stRef))
         annotation.registerFix(new CreateClassQuickFix(stRef))
         annotation.registerFix(new CreateCaseClassQuickFix(stRef))

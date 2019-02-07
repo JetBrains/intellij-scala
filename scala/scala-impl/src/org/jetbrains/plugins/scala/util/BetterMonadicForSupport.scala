@@ -5,7 +5,7 @@ import com.intellij.openapi.project.Project
 import com.intellij.psi.PsiElement
 import org.jetbrains.plugins.scala.extensions._
 import org.jetbrains.plugins.scala.lang.parser.parsing.top.TmplDef
-import org.jetbrains.plugins.scala.lang.psi.api.base.ScStableCodeReferenceElement
+import org.jetbrains.plugins.scala.lang.psi.api.base.ScStableCodeReference
 import org.jetbrains.plugins.scala.lang.psi.api.base.patterns._
 import org.jetbrains.plugins.scala.lang.psi.api.statements.ScFunction
 import org.jetbrains.plugins.scala.lang.psi.impl.ScalaPsiElementFactory
@@ -35,7 +35,7 @@ object BetterMonadicForSupport {
     ServiceManager.getService(project, classOf[BetterMonadicForSupport])
 
   object Implicit0Pattern {
-    private[this] def resolvesToImplicit0Unapply(ref: ScStableCodeReferenceElement): Boolean =
+    private[this] def resolvesToImplicit0Unapply(ref: ScStableCodeReference): Boolean =
       (for {
         r    <- ref.bind()
         extr <- r.element.asOptionOf[ScFunction]

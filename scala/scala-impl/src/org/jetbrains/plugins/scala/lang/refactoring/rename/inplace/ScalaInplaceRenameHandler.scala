@@ -11,7 +11,7 @@ import com.intellij.psi.{PsiElement, PsiNamedElement}
 import com.intellij.refactoring.rename.inplace.InplaceRefactoring
 import com.intellij.refactoring.rename.{PsiElementRenameHandler, RenamePsiElementProcessor}
 import org.jetbrains.plugins.scala.extensions.{&&, PsiElementExt, callbackInTransaction}
-import org.jetbrains.plugins.scala.lang.psi.api.base.ScReferenceElement
+import org.jetbrains.plugins.scala.lang.psi.api.base.ScReference
 import org.jetbrains.plugins.scala.lang.psi.api.expr.ScNewTemplateDefinition
 import org.jetbrains.plugins.scala.lang.psi.api.statements.ScFunction
 import org.jetbrains.plugins.scala.lang.psi.api.toplevel.ScNamedElement
@@ -78,16 +78,16 @@ trait ScalaInplaceRenameHandler {
       val positive = ScalaBundle.message("rename.special.method.rename.class", clazzType)
       showSubstitutePopup(title, positive, ScalaRenameUtil.findSubstituteElement(elementToRename))
     }
-    def aliasedElementPopup(ref: ScReferenceElement): Unit = {
+    def aliasedElementPopup(ref: ScReference): Unit = {
       val title = ScalaBundle.message("rename.aliased.title")
       val positive = ScalaBundle.message("rename.aliased.rename.actual")
       showSubstitutePopup(title, positive, ScalaRenameUtil.findSubstituteElement(elementToRename))
     }
 
     val selected = getElementAtCaret(editor)
-      .nonStrictParentOfType(Seq(classOf[ScReferenceElement], classOf[ScNamedElement]))
+      .nonStrictParentOfType(Seq(classOf[ScReference], classOf[ScNamedElement]))
     val nameId = selected.collect {
-      case ref: ScReferenceElement => ref.nameId
+      case ref: ScReference => ref.nameId
       case named: ScNamedElement => named.nameId
     }.orNull
 
@@ -97,7 +97,7 @@ trait ScalaInplaceRenameHandler {
         null
       case _ =>
         if (nameId != null) nameId.getParent match {
-          case ref: ScReferenceElement if ScalaRenameUtil.isAliased(ref) =>
+          case ref: ScReference if ScalaRenameUtil.isAliased(ref) =>
             aliasedElementPopup(ref)
             return null
           case _ =>

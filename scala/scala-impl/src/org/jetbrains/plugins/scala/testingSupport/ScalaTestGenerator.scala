@@ -20,7 +20,7 @@ import org.jetbrains.plugins.scala.lang.formatting.FormatterUtil
 import org.jetbrains.plugins.scala.lang.parser.parsing.statements.Def
 import org.jetbrains.plugins.scala.lang.psi.ElementScope
 import org.jetbrains.plugins.scala.lang.psi.api.ScalaFile
-import org.jetbrains.plugins.scala.lang.psi.api.base.ScStableCodeReferenceElement
+import org.jetbrains.plugins.scala.lang.psi.api.base.ScStableCodeReference
 import org.jetbrains.plugins.scala.lang.psi.api.toplevel.templates.ScTemplateBody
 import org.jetbrains.plugins.scala.lang.psi.api.toplevel.typedef.ScTypeDefinition
 import org.jetbrains.plugins.scala.lang.psi.impl.ScalaPsiElementFactory._
@@ -106,7 +106,7 @@ class ScalaTestGenerator extends TestGenerator {
     psiClass match {
       case Some(cls) =>
         val classParents = addExtendsRef(cls.name)
-        classParents.depthFirst().instancesOf[ScStableCodeReferenceElement].next().bindToElement(cls)
+        classParents.depthFirst().instancesOf[ScStableCodeReference].next().bindToElement(cls)
       case None =>
         addExtendsRef(fqName)
     }

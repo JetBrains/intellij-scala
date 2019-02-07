@@ -5,11 +5,11 @@ package api
 package base
 
 import org.jetbrains.plugins.scala.lang.resolve.processor.BaseProcessor
-import org.jetbrains.plugins.scala.lang.resolve.{ResolvableStableCodeReferenceElement, ScalaResolveResult}
+import org.jetbrains.plugins.scala.lang.resolve.{ResolvableStableCodeReference, ScalaResolveResult}
 
-trait ScStableCodeReferenceElement extends ScReferenceElement with ResolvableStableCodeReferenceElement with ScPathElement {
-  def qualifier: Option[ScStableCodeReferenceElement] =
-    getFirstChild match {case s: ScStableCodeReferenceElement => Some(s) case _ => None}
+trait ScStableCodeReference extends ScReference with ResolvableStableCodeReference with ScPathElement {
+  def qualifier: Option[ScStableCodeReference] =
+    getFirstChild match {case s: ScStableCodeReference => Some(s) case _ => None}
 
   def pathQualifier: Option[ScPathElement] = getFirstChild match {case s: ScPathElement => Some(s) case _ => None}
 
@@ -30,8 +30,8 @@ trait ScStableCodeReferenceElement extends ScReferenceElement with ResolvableSta
   def doResolve(processor: BaseProcessor, accessibilityCheck: Boolean = true): Array[ScalaResolveResult]
 }
 
-object ScStableCodeReferenceElement {
+object ScStableCodeReference {
   object withQualifier {
-    def unapply(ref: ScStableCodeReferenceElement): Option[ScStableCodeReferenceElement] = ref.qualifier
+    def unapply(ref: ScStableCodeReference): Option[ScStableCodeReference] = ref.qualifier
   }
 }

@@ -5,7 +5,7 @@ import org.jetbrains.plugins.scala.editor.importOptimizer.ScalaImportOptimizer._
 import org.jetbrains.plugins.scala.extensions.{PsiClassExt, PsiMemberExt, PsiModifierListOwnerExt, PsiNamedElementExt}
 import org.jetbrains.plugins.scala.lang.psi.ScalaPsiUtil
 import org.jetbrains.plugins.scala.lang.psi.api.ScalaFile
-import org.jetbrains.plugins.scala.lang.psi.api.base.ScStableCodeReferenceElement
+import org.jetbrains.plugins.scala.lang.psi.api.base.ScStableCodeReference
 import org.jetbrains.plugins.scala.lang.psi.api.statements.ScTypeAlias
 import org.jetbrains.plugins.scala.lang.psi.api.toplevel.imports.ScImportExpr
 import org.jetbrains.plugins.scala.lang.psi.api.toplevel.imports.usages.{ImportExprUsed, ImportSelectorUsed, ImportUsed, ImportWildcardSelectorUsed}
@@ -13,7 +13,7 @@ import org.jetbrains.plugins.scala.lang.psi.api.toplevel.templates.ScTemplateBod
 import org.jetbrains.plugins.scala.lang.psi.api.toplevel.typedef.{ScMember, ScObject}
 import org.jetbrains.plugins.scala.lang.psi.api.toplevel.{ScPackaging, ScTypedDefinition}
 import org.jetbrains.plugins.scala.lang.psi.impl.ScalaPsiElementFactory
-import org.jetbrains.plugins.scala.lang.psi.impl.base.ScStableCodeReferenceElementImpl
+import org.jetbrains.plugins.scala.lang.psi.impl.base.ScStableCodeReferenceImpl
 import org.jetbrains.plugins.scala.lang.refactoring.util.ScalaNamesUtil
 import org.jetbrains.plugins.scala.lang.resolve.processor.CompletionProcessor
 import org.jetbrains.plugins.scala.lang.resolve.{ScalaResolveResult, StdKinds}
@@ -123,7 +123,7 @@ object ImportInfo {
     var allNamesForWildcard = Set.empty[String]
     var hasNonUsedImplicits = false
 
-    def addAllNames(ref: ScStableCodeReferenceElement, nameToAdd: String): Unit = {
+    def addAllNames(ref: ScStableCodeReference, nameToAdd: String): Unit = {
       if (ref.multiResolveScala(false).exists(shouldAddName)) allNames += nameToAdd
     }
 
@@ -247,7 +247,7 @@ object ImportInfo {
   }
 
   @tailrec
-  private def deepestQualifier(ref: ScStableCodeReferenceElement): ScStableCodeReferenceElement = {
+  private def deepestQualifier(ref: ScStableCodeReference): ScStableCodeReference = {
     ref.qualifier match {
       case Some(q) => deepestQualifier(q)
       case None => ref
@@ -265,7 +265,7 @@ object ImportInfo {
   private def fixName(s: String) = ScalaNamesUtil.escapeKeyword(s)
 
   @tailrec
-  private def explicitQualifierString(ref: ScStableCodeReferenceElement, withDeepest: Boolean, res: String = ""): String = {
+  private def explicitQualifierString(ref: ScStableCodeReference, withDeepest: Boolean, res: String = ""): String = {
     ref.qualifier match {
       case Some(q) => explicitQualifierString(q, withDeepest, ref.refName + withDot(res))
       case None if withDeepest && ref.refName != _root_prefix => ref.refName + withDot(res)
@@ -273,7 +273,7 @@ object ImportInfo {
     }
   }
 
-  private def qualifiedRef(ref: ScStableCodeReferenceElement): String = {
+  private def qualifiedRef(ref: ScStableCodeReference): String = {
     if (ref.getText == _root_prefix) return _root_prefix
 
     val refName = ref.refName
@@ -313,7 +313,7 @@ object ImportInfo {
     val implicitNames = mutable.HashSet[String]()
     val refText = qualifier + ".someIdentifier"
     val reference = ScalaPsiElementFactory.createReferenceFromText(refText, place.getContext, place)
-      .asInstanceOf[ScStableCodeReferenceElementImpl]
+      .asInstanceOf[ScStableCodeReferenceImpl]
     val processor = new CompletionProcessor(StdKinds.stableImportSelector, reference, isImplicit = true) {
       override val includePrefixImports = false
     }

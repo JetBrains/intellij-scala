@@ -483,7 +483,7 @@ object ScalaSpacingProcessor extends ScalaTokenTypes {
       case _ =>
     }
 
-    if (leftPsi.isInstanceOf[ScStableCodeReferenceElement] && !rightPsi.isInstanceOf[ScPackaging]) {
+    if (leftPsi.isInstanceOf[ScStableCodeReference] && !rightPsi.isInstanceOf[ScPackaging]) {
       leftPsi.getParent match {
         case p: ScPackaging if p.reference.contains(leftPsi) =>
           if (rightElementType != ScalaTokenTypes.tSEMICOLON && rightElementType != ScalaTokenTypes.tLBRACE) {
@@ -501,7 +501,7 @@ object ScalaSpacingProcessor extends ScalaTokenTypes {
     }
 
     if (rightPsi.isInstanceOf[ScPackaging]) {
-      if (leftPsi.isInstanceOf[ScStableCodeReferenceElement] || leftElementType == tLBRACE)
+      if (leftPsi.isInstanceOf[ScStableCodeReference] || leftElementType == tLBRACE)
         return Spacing.createSpacing(0, 0, 1, keepLineBreaks, keepBlankLinesInCode)
       else
         return Spacing.createSpacing(0, 0, settings.BLANK_LINES_BEFORE_PACKAGE + 1, keepLineBreaks,

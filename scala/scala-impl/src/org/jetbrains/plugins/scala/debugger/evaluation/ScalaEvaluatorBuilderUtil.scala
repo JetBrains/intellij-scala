@@ -56,7 +56,7 @@ private[evaluation] trait ScalaEvaluatorBuilderUtil {
 
   def fileName: String = contextClass.toOption.flatMap(_.getContainingFile.toOption).map(_.name).orNull
 
-  def importedQualifierEvaluator(ref: ScReferenceElement, resolveResult: ScalaResolveResult): Evaluator = {
+  def importedQualifierEvaluator(ref: ScReference, resolveResult: ScalaResolveResult): Evaluator = {
     val message = ScalaBundle.message("cannot.evaluate.imported.reference")
     resolveResult.fromType match {
       case Some(ScDesignatorType(element)) =>
@@ -82,7 +82,7 @@ private[evaluation] trait ScalaEvaluatorBuilderUtil {
     }
   }
 
-  def thisOrImportedQualifierEvaluator(ref: ScReferenceElement): Evaluator = {
+  def thisOrImportedQualifierEvaluator(ref: ScReference): Evaluator = {
     ref.bind() match {
       case Some(resolveResult) =>
         if (resolveResult.importsUsed.nonEmpty) importedQualifierEvaluator(ref, resolveResult)
@@ -116,7 +116,7 @@ private[evaluation] trait ScalaEvaluatorBuilderUtil {
     else new ScalaThisEvaluator()
   }
 
-  def thisOrSuperEvaluator(refOpt: Option[ScStableCodeReferenceElement], isSuper: Boolean): Evaluator = {
+  def thisOrSuperEvaluator(refOpt: Option[ScStableCodeReference], isSuper: Boolean): Evaluator = {
 
     def thisEval(i: Int) = if (isSuper) new ScalaSuperEvaluator(i) else new ScalaThisEvaluator(i)
 
@@ -896,7 +896,7 @@ private[evaluation] trait ScalaEvaluatorBuilderUtil {
   }
 
   def evaluateSubpatternFromPattern(exprEval: Evaluator, pattern: ScPattern, subPattern: ScPattern): Evaluator = {
-    def evaluateConstructorOrInfix(exprEval: Evaluator, ref: ScStableCodeReferenceElement, pattern: ScPattern, nextPatternIndex: Int): Evaluator = {
+    def evaluateConstructorOrInfix(exprEval: Evaluator, ref: ScStableCodeReference, pattern: ScPattern, nextPatternIndex: Int): Evaluator = {
       ref.resolve() match {
         case fun: ScFunctionDefinition =>
           val elem = ref.bind().get.getActualElement //object or case class
@@ -946,10 +946,10 @@ private[evaluation] trait ScalaEvaluatorBuilderUtil {
           val newEval = ScalaFieldEvaluator(exprEval, s"_${nextPatternIndex + 1}")
           evaluateSubpatternFromPattern(newEval, nextPattern, subPattern)
         case constr: ScConstructorPattern =>
-          val ref: ScStableCodeReferenceElement = constr.ref
+          val ref: ScStableCodeReference = constr.ref
           evaluateConstructorOrInfix(exprEval, ref, constr, nextPatternIndex)
         case infix: ScInfixPattern =>
-          val ref: ScStableCodeReferenceElement = infix.operation
+          val ref: ScStableCodeReference = infix.operation
           evaluateConstructorOrInfix(exprEval, ref, infix, nextPatternIndex)
         //todo: handle infix with tuple right pattern
         case _: ScCompositePattern => throw EvaluationException(ScalaBundle.message("pattern.alternatives.cannot.bind.vars"))

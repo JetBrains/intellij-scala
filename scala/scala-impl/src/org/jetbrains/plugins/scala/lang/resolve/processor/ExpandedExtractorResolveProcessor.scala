@@ -4,7 +4,7 @@ package resolve
 package processor
 
 import com.intellij.psi._
-import org.jetbrains.plugins.scala.lang.psi.api.base.ScReferenceElement
+import org.jetbrains.plugins.scala.lang.psi.api.base.ScReference
 import org.jetbrains.plugins.scala.lang.psi.api.statements._
 import org.jetbrains.plugins.scala.lang.psi.api.toplevel.ScTypedDefinition
 import org.jetbrains.plugins.scala.lang.psi.types._
@@ -24,7 +24,7 @@ import scala.collection.mutable.ArrayBuffer
  * This class cannot be used for actual resolve, because reference to value should work to this value, not to
  * invoked unapply method.
  */
-class ExpandedExtractorResolveProcessor(ref: ScReferenceElement,
+class ExpandedExtractorResolveProcessor(ref: ScReference,
                                         refName: String,
                                         kinds: Set[ResolveTargets.Value],
                                         expected: Option[ScType])

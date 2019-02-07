@@ -12,7 +12,7 @@ import org.jetbrains.plugins.scala.annotator.intention.ScalaImportTypeFix.TypeTo
 import org.jetbrains.plugins.scala.extensions._
 import org.jetbrains.plugins.scala.lang.completion.lookups.ScalaLookupItem
 import org.jetbrains.plugins.scala.lang.formatting.settings.ScalaCodeStyleSettings
-import org.jetbrains.plugins.scala.lang.psi.api.base.patterns.ScStableReferenceElementPattern
+import org.jetbrains.plugins.scala.lang.psi.api.base.patterns.ScStableReferencePattern
 import org.jetbrains.plugins.scala.lang.psi.api.expr.{ScAssignment, ScReferenceExpression}
 import org.jetbrains.plugins.scala.lang.psi.api.statements.params.{ScClassParameter, ScParameter}
 import org.jetbrains.plugins.scala.lang.psi.api.statements.{ScFunction, ScTypeAliasDefinition}
@@ -32,8 +32,8 @@ import scala.collection.Set
  * Date: 22.02.2008
  */
 
-trait ScReferenceElement extends ScalaPsiElement with PsiPolyVariantReference {
-  override def getReference: ScReferenceElement = this
+trait ScReference extends ScalaPsiElement with PsiPolyVariantReference {
+  override def getReference: ScReference = this
 
   def nameId: PsiElement
 
@@ -56,9 +56,9 @@ trait ScReferenceElement extends ScalaPsiElement with PsiPolyVariantReference {
     text.charAt(0) == '`' && text.length > 1
   }
 
-  private def patternNeedBackticks(name: String) = name != "" && name.charAt(0).isLower && getParent.isInstanceOf[ScStableReferenceElementPattern]
+  private def patternNeedBackticks(name: String) = name != "" && name.charAt(0).isLower && getParent.isInstanceOf[ScStableReferencePattern]
 
-  def getElement: ScReferenceElement = this
+  def getElement: ScReference = this
 
   def getRangeInElement: TextRange = {
     val start = nameId.getTextRange.getStartOffset - getTextRange.getStartOffset
@@ -106,7 +106,7 @@ trait ScReferenceElement extends ScalaPsiElement with PsiPolyVariantReference {
     false
   }
 
-  def createReplacingElementWithClassName(useFullQualifiedName: Boolean, clazz: TypeToImport): ScReferenceElement =
+  def createReplacingElementWithClassName(useFullQualifiedName: Boolean, clazz: TypeToImport): ScReference =
     createReferenceFromText(if (useFullQualifiedName) clazz.qualifiedName else clazz.name)(clazz.element.getManager)
 
   def isReferenceTo(element: PsiElement, resolved: PsiElement, rr: Option[ScalaResolveResult]): Boolean = {
@@ -212,8 +212,8 @@ trait ScReferenceElement extends ScalaPsiElement with PsiPolyVariantReference {
     visitor.visitReference(this)
   }
 
-  protected def safeBindToElement[T <: ScReferenceElement](qualName: String, referenceCreator: (String, Boolean) => T)
-                                                        (simpleImport: => PsiElement): PsiElement = {
+  protected def safeBindToElement[T <: ScReference](qualName: String, referenceCreator: (String, Boolean) => T)
+                                                   (simpleImport: => PsiElement): PsiElement = {
     val parts: Array[String] = qualName.split('.')
     val last = parts.last
     assert(!last.trim.isEmpty, s"Empty last part with safe bind to element with qualName: '$qualName'")
@@ -229,11 +229,11 @@ trait ScReferenceElement extends ScalaPsiElement with PsiPolyVariantReference {
 
       var reject = false
       getContainingFile.accept(new ScalaRecursiveElementVisitor {
-        override def visitReference(ref: ScReferenceElement) {
+        override def visitReference(ref: ScReference) {
           if (reject) return
           if (usedNames.contains(ref.refName)) {
             ref.bind() match {
-              case Some(r) if ref != ScReferenceElement.this && r.importsUsed.isEmpty =>
+              case Some(r) if ref != ScReference.this && r.importsUsed.isEmpty =>
                 reject = true
                 return
               case _ =>
@@ -270,7 +270,7 @@ trait ScReferenceElement extends ScalaPsiElement with PsiPolyVariantReference {
                 var res = true
                 holder.accept(new ScalaRecursiveElementVisitor {
                   //Override also visitReferenceExpression! and visitTypeProjection!
-                  override def visitReference(ref: ScReferenceElement) {
+                  override def visitReference(ref: ScReference) {
                     ref.qualifier match {
                       case Some(_) =>
                       case None =>
@@ -328,7 +328,7 @@ trait ScReferenceElement extends ScalaPsiElement with PsiPolyVariantReference {
           pckg.getName
         } else qualifiedName
       this match {
-        case stRef: ScStableCodeReferenceElement =>
+        case stRef: ScStableCodeReference =>
           stRef.replace(createReferenceFromText(refText))
         case ref: ScReferenceExpression =>
           ref.replace(createExpressionFromText(refText))
@@ -339,10 +339,10 @@ trait ScReferenceElement extends ScalaPsiElement with PsiPolyVariantReference {
 
 }
 
-object ScReferenceElement {
-  def unapply(e: ScReferenceElement): Option[PsiElement] = Option(e.resolve())
+object ScReference {
+  def unapply(e: ScReference): Option[PsiElement] = Option(e.resolve())
 
   object withQualifier {
-    def unapply(ref: ScReferenceElement): Option[ScalaPsiElement] = ref.qualifier
+    def unapply(ref: ScReference): Option[ScalaPsiElement] = ref.qualifier
   }
 }

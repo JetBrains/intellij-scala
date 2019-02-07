@@ -3,7 +3,7 @@ package org.jetbrains.plugins.scala.lang
 import com.intellij.psi._
 import org.jetbrains.plugins.scala.extensions._
 import org.jetbrains.plugins.scala.lang.psi.api.ScalaPsiElement
-import org.jetbrains.plugins.scala.lang.psi.api.base.ScReferenceElement
+import org.jetbrains.plugins.scala.lang.psi.api.base.ScReference
 import org.jetbrains.plugins.scala.lang.psi.api.expr.ScReferenceExpression
 import org.jetbrains.plugins.scala.lang.psi.api.statements.ScTypeAliasDefinition
 import org.jetbrains.plugins.scala.lang.psi.impl.ScalaPsiElementFactory._
@@ -33,17 +33,17 @@ package object transformation {
 
   // TODO create a separate unit test for this method
   // Tries to use simple name, then partially qualified name, then fully qualified name instead of adding imports
-  def bindTo(reference: ScReferenceElement, target: String) {
+  def bindTo(reference: ScReference, target: String) {
     implicit val context = reference.getParent
 
     implicit val isExpression = reference.isInstanceOf[ScReferenceExpression]
 
     @tailrec
-    def bindTo0(r1: ScReferenceElement, paths: Seq[String]) {
+    def bindTo0(r1: ScReference, paths: Seq[String]) {
       paths match {
         case Seq(path, alternatives @ _*)  =>
           implicit val projectContext = r1.projectContext
-          val r2 = r1.replace(createReferenceElement(path)).asInstanceOf[ScReferenceElement]
+          val r2 = r1.replace(createReferenceElement(path)).asInstanceOf[ScReference]
           if (!isResolvedTo(r2, target)) {
             bindTo0(r2, alternatives)
           }
@@ -64,15 +64,15 @@ package object transformation {
 
   private def relative(reference: String): String = reference.replaceFirst("^_root_.", "")
 
-  private def isResolvedTo(reference: ScReferenceElement, target: String)
+  private def isResolvedTo(reference: ScReference, target: String)
                           (implicit context: PsiElement, isExpression: Boolean): Boolean =
     reference.bind().exists(result =>
       qualifiedNameOf(result.element) == relative(target))
 
   private def createReferenceElement(reference: String)
-                                    (implicit ctx: ProjectContext, isExpression: Boolean): ScReferenceElement =
+                                    (implicit ctx: ProjectContext, isExpression: Boolean): ScReference =
     if (isExpression) createReferenceExpressionFromText(reference)
-    else createTypeElementFromText(reference).getFirstChild.asInstanceOf[ScReferenceElement]
+    else createTypeElementFromText(reference).getFirstChild.asInstanceOf[ScReference]
 
   // TODO define PsiMember.qualifiedName
   def qualifiedNameOf(e: PsiNamedElement): String = e match {
@@ -97,7 +97,7 @@ package object transformation {
   }
 
   object RenamedReference {
-    def unapply(r: ScReferenceElement): Option[(String, String)] = {
+    def unapply(r: ScReference): Option[(String, String)] = {
       val id = r.nameId
       r.bind().flatMap(_.innerResolveResult).orElse(r.bind()).map(_.element) collect  {
         case target: PsiNamedElement if id.getText != target.name => (id.getText, target.name)
@@ -106,7 +106,7 @@ package object transformation {
   }
 
   object QualifiedReference {
-    def unapply(r: ScReferenceElement): Some[(Option[ScalaPsiElement], PsiElement)] =
+    def unapply(r: ScReference): Some[(Option[ScalaPsiElement], PsiElement)] =
       Some(r.qualifier, r.nameId)
   }
 }

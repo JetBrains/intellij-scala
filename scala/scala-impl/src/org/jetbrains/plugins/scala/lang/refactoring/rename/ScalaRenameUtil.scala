@@ -13,7 +13,7 @@ import com.intellij.usageView.UsageInfo
 import org.jetbrains.plugins.scala.extensions.PsiElementExt
 import org.jetbrains.plugins.scala.lang.psi.api.ScalaPsiElement
 import org.jetbrains.plugins.scala.lang.psi.api.base.patterns.ScReferencePattern
-import org.jetbrains.plugins.scala.lang.psi.api.base.{ScPrimaryConstructor, ScReferenceElement, ScStableCodeReferenceElement}
+import org.jetbrains.plugins.scala.lang.psi.api.base.{ScPrimaryConstructor, ScReference, ScStableCodeReference}
 import org.jetbrains.plugins.scala.lang.psi.api.expr.ScNewTemplateDefinition
 import org.jetbrains.plugins.scala.lang.psi.api.statements.ScFunction
 import org.jetbrains.plugins.scala.lang.psi.api.toplevel.imports.ScImportStmt
@@ -32,7 +32,7 @@ object ScalaRenameUtil {
   }
 
   def isAliased(ref: PsiReference): Boolean = ref match {
-    case resolvableReferenceElement: ScReferenceElement =>
+    case resolvableReferenceElement: ScReference =>
       resolvableReferenceElement.bind() match {
         case Some(result) =>
           val renamed = result.isRenamed
@@ -43,7 +43,7 @@ object ScalaRenameUtil {
   }
 
   def isIndirectReference(ref: PsiReference, element: PsiElement): Boolean = ref match {
-    case scRef: ScReferenceElement => scRef.isIndirectReferenceTo(ref.resolve(), element)
+    case scRef: ScReference => scRef.isIndirectReferenceTo(ref.resolve(), element)
     case _ => false
   }
 
@@ -55,7 +55,7 @@ object ScalaRenameUtil {
 
   def replaceImportClassReferences(allReferences: util.Collection[PsiReference]): util.Collection[PsiReference] = {
     val result = allReferences.asScala.map {
-      case ref: ScStableCodeReferenceElement =>
+      case ref: ScStableCodeReference =>
         val isInImport = ref.parentOfType(classOf[ScImportStmt]).isDefined
         if (isInImport && ref.resolve() == null) {
           val multiResolve = ref.multiResolveScala(false)
@@ -132,7 +132,7 @@ object ScalaRenameUtil {
         def needDollarSign(u: UsageInfo): Boolean = {
           u.getReference match {
             case null => false
-            case _: ScReferenceElement => false
+            case _: ScReference => false
             case ref if ref.getElement.isInstanceOf[ScalaPsiElement] => false
             case _ => true
           }

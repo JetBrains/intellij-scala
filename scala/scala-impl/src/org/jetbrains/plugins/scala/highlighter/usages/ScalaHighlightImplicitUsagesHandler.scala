@@ -15,7 +15,7 @@ import org.jetbrains.plugins.scala.highlighter.usages.ScalaHighlightImplicitUsag
 import org.jetbrains.plugins.scala.lang.psi.ScalaPsiUtil
 import org.jetbrains.plugins.scala.lang.psi.api.ImplicitArgumentsOwner
 import org.jetbrains.plugins.scala.lang.psi.api.base.types.{ScSimpleTypeElement, ScTypeElement}
-import org.jetbrains.plugins.scala.lang.psi.api.base.{ScConstructor, ScMethodLike, ScReferenceElement}
+import org.jetbrains.plugins.scala.lang.psi.api.base.{ScConstructor, ScMethodLike, ScReference}
 import org.jetbrains.plugins.scala.lang.psi.api.expr._
 import org.jetbrains.plugins.scala.lang.psi.api.statements.ScFunction
 import org.jetbrains.plugins.scala.lang.psi.api.statements.params.{ScParameter, ScTypeParam}
@@ -80,7 +80,7 @@ object ScalaHighlightImplicitUsagesHandler {
   object TargetKind {
     implicit val namedKind: TargetKind[ScNamedElement] = targets(_)
 
-    implicit val refKind: TargetKind[ScReferenceElement] = ref => ref.resolve match {
+    implicit val refKind: TargetKind[ScReference] = ref => ref.resolve match {
       case named: ScNamedElement => targets(named)
       case _ => Seq.empty
     }
@@ -157,7 +157,7 @@ object ScalaHighlightImplicitUsagesHandler {
     }
 
     def containsRefOrImplicitRef(elem: PsiElement): Boolean = elem match {
-      case ref: ScReferenceElement if target.isTarget(ref.resolve()) => true
+      case ref: ScReference if target.isTarget(ref.resolve()) => true
       case e: ScExpression if target.isImplicitConversionOrParameter(e) => true
       case c: ScConstructor if target.isImplicitParameterOf(c) => true
       case _ => false
@@ -197,7 +197,7 @@ object ScalaHighlightImplicitUsagesHandler {
       case MethodRepr(_: ScMethodCall, Some(base), None, _) => range(base)
       case MethodRepr(_, _, Some(ref), _)                   => startingFrom(ref.nameId)
       case simpleTypeElem: ScSimpleTypeElement              => forTypeElem(simpleTypeElem)
-      case ref: ScReferenceElement                          => startingFrom(ref.nameId)
+      case ref: ScReference                          => startingFrom(ref.nameId)
       case _                                                => simpleRange
     }
   }

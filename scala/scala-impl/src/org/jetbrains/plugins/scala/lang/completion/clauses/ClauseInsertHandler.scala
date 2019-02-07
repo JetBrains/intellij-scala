@@ -7,7 +7,7 @@ import com.intellij.codeInsight.completion.{InsertHandler, InsertionContext}
 import com.intellij.codeInsight.lookup.LookupElement
 import com.intellij.psi.util.PsiTreeUtil
 import org.jetbrains.plugins.scala.lang.psi.api.ScalaPsiElement
-import org.jetbrains.plugins.scala.lang.psi.api.base.ScStableCodeReferenceElement
+import org.jetbrains.plugins.scala.lang.psi.api.base.ScStableCodeReference
 import org.jetbrains.plugins.scala.lang.psi.api.base.patterns._
 import org.jetbrains.plugins.scala.lang.psi.api.base.types.{ScParameterizedTypeElement, ScSimpleTypeElement, ScTypeElement}
 import org.jetbrains.plugins.scala.lang.psi.impl.ScalaPsiElementFactory
@@ -90,7 +90,7 @@ private[clauses] object ClauseInsertHandler {
 
   private[this] object SimpleTypeReferenceReference {
 
-    def unapply(typeElement: ScSimpleTypeElement): Option[ScStableCodeReferenceElement] =
+    def unapply(typeElement: ScSimpleTypeElement): Option[ScStableCodeReference] =
       typeElement.reference
   }
 

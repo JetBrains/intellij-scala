@@ -19,7 +19,7 @@ import javax.swing.event.{ListSelectionEvent, ListSelectionListener}
 import org.jetbrains.plugins.scala.ScalaBundle
 import org.jetbrains.plugins.scala.extensions.{PsiElementExt, ValidSmartPointer, callbackInTransaction, executeWriteActionCommand, inWriteAction}
 import org.jetbrains.plugins.scala.lang.psi.ScalaPsiUtil
-import org.jetbrains.plugins.scala.lang.psi.api.base.ScStableCodeReferenceElement
+import org.jetbrains.plugins.scala.lang.psi.api.base.ScStableCodeReference
 import org.jetbrains.plugins.scala.lang.psi.api.base.types._
 import org.jetbrains.plugins.scala.lang.psi.api.statements.{ScTypeAlias, ScTypeAliasDefinition}
 import org.jetbrains.plugins.scala.lang.psi.api.toplevel.templates.{ScExtendsBlock, ScTemplateBody}
@@ -266,7 +266,7 @@ trait IntroduceTypeAlias {
     }
 
     def bindHelper(typeElement: ScTypeElement) = {
-      typeElement.getFirstChild.asInstanceOf[ScStableCodeReferenceElement].bindToElement(typeAlias)
+      typeElement.getFirstChild.asInstanceOf[ScStableCodeReference].bindToElement(typeAlias)
       typeElement
     }
 

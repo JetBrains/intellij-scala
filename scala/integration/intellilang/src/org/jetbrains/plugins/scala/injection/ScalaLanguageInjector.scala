@@ -14,7 +14,7 @@ import org.jetbrains.plugins.scala.extensions._
 import org.jetbrains.plugins.scala.injection.ScalaLanguageInjector.extractMultiLineStringRanges
 import org.jetbrains.plugins.scala.lang.psi.ScalaPsiUtil.readAttribute
 import org.jetbrains.plugins.scala.lang.psi.api.base.patterns.ScReferencePattern
-import org.jetbrains.plugins.scala.lang.psi.api.base.{ScInterpolatedStringLiteral, ScLiteral, ScReferenceElement}
+import org.jetbrains.plugins.scala.lang.psi.api.base.{ScInterpolatedStringLiteral, ScLiteral, ScReference}
 import org.jetbrains.plugins.scala.lang.psi.api.expr._
 import org.jetbrains.plugins.scala.lang.psi.api.statements.params.ScParameter
 import org.jetbrains.plugins.scala.lang.psi.api.statements.{ScFunction, ScPatternDefinition, ScVariableDefinition}
@@ -221,7 +221,7 @@ class ScalaLanguageInjector(myInjectionConfiguration: Configuration) extends Mul
   private def assignmentTarget(assignment: ScAssignment): Option[PsiAnnotationOwner with PsiElement] = {
     val l = assignment.leftExpression
     // map(x) = y check
-    if (l.isInstanceOf[ScMethodCall]) None else l.asOptionOf[ScReferenceElement]
+    if (l.isInstanceOf[ScMethodCall]) None else l.asOptionOf[ScReference]
             .flatMap(_.resolve().toOption)
             .map(contextOf)
             .flatMap(_.asOptionOf[PsiAnnotationOwner with PsiElement])

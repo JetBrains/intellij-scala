@@ -4,7 +4,7 @@ package lang.psi.applicability
 import org.jetbrains.plugins.scala.base.SimpleTestCase
 import org.jetbrains.plugins.scala.extensions._
 import org.jetbrains.plugins.scala.lang.psi.api.ScalaFile
-import org.jetbrains.plugins.scala.lang.psi.api.base.ScReferenceElement
+import org.jetbrains.plugins.scala.lang.psi.api.base.ScReference
 import org.jetbrains.plugins.scala.lang.psi.api.expr.{ScAssignment, ScExpression}
 import org.jetbrains.plugins.scala.lang.psi.api.toplevel.typedef.ScClass
 import org.jetbrains.plugins.scala.lang.psi.types._
@@ -117,7 +117,7 @@ abstract class ApplicabilityTestBase extends SimpleTestCase {
   }
   
   private def problemsIn(file: ScalaFile): List[ApplicabilityProblem] = {
-    for (ref <- file.depthFirst().instancesOf[ScReferenceElement].toList;
+    for (ref <- file.depthFirst().instancesOf[ScReference].toList;
          result <- ref.bind().toList;
          problem <- result.problems.filter(_ != ExpectedTypeMismatch))
     yield problem

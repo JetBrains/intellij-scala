@@ -13,7 +13,7 @@ import com.intellij.psi.util.PsiTreeUtil
 import org.jetbrains.plugins.scala.base.ScalaLightPlatformCodeInsightTestCaseAdapter
 import org.jetbrains.plugins.scala.lang.lexer.ScalaTokenTypes
 import org.jetbrains.plugins.scala.lang.psi.api.ScalaFile
-import org.jetbrains.plugins.scala.lang.psi.api.base.ScReferenceElement
+import org.jetbrains.plugins.scala.lang.psi.api.base.ScReference
 import org.jetbrains.plugins.scala.lang.resolve.ResolveUtils
 import org.junit.Assert._
 
@@ -39,9 +39,9 @@ abstract class CheckPrivateAccessTestBase extends ScalaLightPlatformCodeInsightT
     assertNotEquals("Not specified caret marker in test case. Use " + refMarker + " in scala file for this.", offset, refMarker.length - 1)
 
     val elem = scalaFile.findElementAt(offset).getParent
-    if (!elem.isInstanceOf[ScReferenceElement])
+    if (!elem.isInstanceOf[ScReference])
       fail("Ref marker should point on reference")
-    val ref = elem.asInstanceOf[ScReferenceElement]
+    val ref = elem.asInstanceOf[ScReference]
     val resolve: PsiMember = PsiTreeUtil.getParentOfType(ref.resolve(), classOf[PsiMember], false)
 
     val actual = ResolveUtils.isAccessible(resolve, elem)

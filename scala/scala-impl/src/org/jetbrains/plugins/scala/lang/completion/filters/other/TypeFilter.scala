@@ -7,7 +7,7 @@ import com.intellij.psi.filters.ElementFilter
 import com.intellij.psi.{PsiComment, PsiElement}
 import org.jetbrains.plugins.scala.extensions.PsiElementExt
 import org.jetbrains.plugins.scala.lang.completion.ScalaCompletionUtil._
-import org.jetbrains.plugins.scala.lang.psi.api.base.ScStableCodeReferenceElement
+import org.jetbrains.plugins.scala.lang.psi.api.base.ScStableCodeReference
 import org.jetbrains.plugins.scala.lang.psi.api.toplevel.imports.ScImportStmt
 
 /**
@@ -26,7 +26,7 @@ class TypeFilter extends ElementFilter {
     if (leaf != null) {
       val parent = leaf.getParent
       parent match {
-        case _: ScStableCodeReferenceElement => return true
+        case _: ScStableCodeReference => return true
         case _ => return false
       }
     }

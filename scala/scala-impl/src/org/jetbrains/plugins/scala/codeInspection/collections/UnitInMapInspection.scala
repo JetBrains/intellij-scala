@@ -5,7 +5,7 @@ import com.intellij.openapi.project.Project
 import com.intellij.psi.PsiElement
 import org.jetbrains.plugins.scala.codeInspection.{AbstractFixOnPsiElement, InspectionBundle}
 import org.jetbrains.plugins.scala.lang.psi.api.ScalaFile
-import org.jetbrains.plugins.scala.lang.psi.api.base.ScReferenceElement
+import org.jetbrains.plugins.scala.lang.psi.api.base.ScReference
 import org.jetbrains.plugins.scala.lang.psi.api.expr.{ScBlock, ScExpression, ScFunctionExpr}
 import org.jetbrains.plugins.scala.lang.psi.api.toplevel.ScEarlyDefinitions
 import org.jetbrains.plugins.scala.lang.psi.api.toplevel.templates.ScTemplateBody
@@ -74,13 +74,13 @@ object UnitInMapInspection {
         case scType => scType.isUnit
       }
 
-  private class ChangeReferenceNameQuickFix(reference: ScReferenceElement)
+  private class ChangeReferenceNameQuickFix(reference: ScReference)
     extends AbstractFixOnPsiElement(
       InspectionBundle.message("use.foreach.instead.of.map"),
       reference
     ) {
 
-    override protected def doApplyFix(reference: ScReferenceElement)
+    override protected def doApplyFix(reference: ScReference)
                                      (implicit project: Project): Unit =
       reference.handleElementRename("foreach")
   }

@@ -15,7 +15,7 @@ import com.intellij.psi.impl.source.tree.FileElement
 import com.intellij.psi.scope.PsiScopeProcessor
 import com.intellij.psi.search.GlobalSearchScope
 import com.intellij.testFramework.LightVirtualFile
-import org.jetbrains.plugins.scala.lang.psi.api.base.ScStableCodeReferenceElement
+import org.jetbrains.plugins.scala.lang.psi.api.base.ScStableCodeReference
 import org.jetbrains.plugins.scala.lang.psi.api.expr.ScReferenceExpression
 
 import scala.collection.mutable
@@ -101,7 +101,7 @@ final class ScalaCodeFragment(private var viewProvider: SingleRootFileViewProvid
       .undoableActionPerformed(new ImportClassUndoableAction(path))
 
     val newRef = refsContainer match {
-      case st: ScStableCodeReferenceElement if st.resolve() == null =>
+      case st: ScStableCodeReference if st.resolve() == null =>
         Some(createReferenceFromText(st.getText, st.getParent, st))
       case expr: ScReferenceExpression if expr.resolve() == null =>
         Some(createExpressionFromText(expr.getText, expr).asInstanceOf[ScReferenceExpression])

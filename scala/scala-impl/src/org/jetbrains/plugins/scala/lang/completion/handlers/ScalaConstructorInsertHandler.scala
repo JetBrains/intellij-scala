@@ -6,7 +6,7 @@ import com.intellij.psi.{PsiClass, PsiDocumentManager}
 import org.jetbrains.plugins.scala.extensions._
 import org.jetbrains.plugins.scala.lang.completion.lookups.ScalaLookupItem
 import org.jetbrains.plugins.scala.lang.psi.ScalaPsiUtil
-import org.jetbrains.plugins.scala.lang.psi.api.base.ScStableCodeReferenceElement
+import org.jetbrains.plugins.scala.lang.psi.api.base.ScStableCodeReference
 import org.jetbrains.plugins.scala.lang.psi.api.base.types.{ScParameterizedTypeElement, ScSimpleTypeElement}
 import org.jetbrains.plugins.scala.lang.psi.api.expr.ScNewTemplateDefinition
 import org.jetbrains.plugins.scala.lang.psi.api.toplevel.templates.{ScExtendsBlock, ScTemplateBody}
@@ -96,7 +96,7 @@ class ScalaConstructorInsertHandler extends InsertHandler[LookupElement] {
                   val referenceElement = if (item.prefixCompletion) {
                     val newRefText = clazz.qualifiedName.split('.').takeRight(2).mkString(".")
                     val newRef = createReferenceFromText(newRefText)(clazz.getManager)
-                    value.replace(newRef).asInstanceOf[ScStableCodeReferenceElement]
+                    value.replace(newRef).asInstanceOf[ScStableCodeReference]
                   } else value
 
                   referenceElement.bindToElement(clazz)

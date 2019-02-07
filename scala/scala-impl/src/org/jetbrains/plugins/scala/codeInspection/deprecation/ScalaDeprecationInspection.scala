@@ -6,7 +6,7 @@ import com.intellij.psi._
 import org.jetbrains.plugins.scala.extensions._
 import org.jetbrains.plugins.scala.lang.psi.ScalaPsiUtil
 import org.jetbrains.plugins.scala.lang.psi.api.ScalaElementVisitor
-import org.jetbrains.plugins.scala.lang.psi.api.base.{ScAnnotationsHolder, ScReferenceElement}
+import org.jetbrains.plugins.scala.lang.psi.api.base.{ScAnnotationsHolder, ScReference}
 import org.jetbrains.plugins.scala.lang.psi.api.base.types.ScTypeProjection
 import org.jetbrains.plugins.scala.lang.psi.api.expr.ScReferenceExpression
 import org.jetbrains.plugins.scala.lang.psi.api.statements.params.ScParameter
@@ -64,7 +64,7 @@ class ScalaDeprecationInspection extends LocalInspectionTool {
         //todo: check super method is deprecated
       }
 
-      override def visitReference(ref: ScReferenceElement): Unit =
+      override def visitReference(ref: ScReference): Unit =
         if (ref.isValid) ref.bind().foreach { checkDeprecated(_, ref.nameId, ref.refName) }
 
       override def visitReferenceExpression(ref: ScReferenceExpression): Unit = visitReference(ref)

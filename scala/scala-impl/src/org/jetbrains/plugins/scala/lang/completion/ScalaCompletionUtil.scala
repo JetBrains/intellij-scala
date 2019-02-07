@@ -10,7 +10,7 @@ import com.intellij.psi._
 import org.jetbrains.plugins.scala.lang.lexer._
 import org.jetbrains.plugins.scala.lang.parser._
 import org.jetbrains.plugins.scala.lang.psi.api.ScalaFile
-import org.jetbrains.plugins.scala.lang.psi.api.base.ScReferenceElement
+import org.jetbrains.plugins.scala.lang.psi.api.base.ScReference
 import org.jetbrains.plugins.scala.lang.psi.api.base.patterns.ScCaseClause
 import org.jetbrains.plugins.scala.lang.psi.api.base.types.ScTypeElement
 import org.jetbrains.plugins.scala.lang.psi.api.expr._
@@ -43,7 +43,7 @@ object ScalaCompletionUtil {
 
     if (dummyPosition.getNode.getElementType == tIDENTIFIER) {
       dummyPosition.getParent match {
-        case ref: ScReferenceElement if ref.qualifier.isDefined => return false
+        case ref: ScReference if ref.qualifier.isDefined => return false
         case _ =>
       }
     }

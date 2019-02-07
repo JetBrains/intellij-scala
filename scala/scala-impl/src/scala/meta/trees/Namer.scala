@@ -36,9 +36,9 @@ trait Namer {
         m.Term.Name(sf.name)
       case ne: ScNamedElement =>
         m.Term.Name(ne.name)
-      case cr: ScReferenceElement if dumbMode =>
+      case cr: ScReference if dumbMode =>
         m.Term.Name(cr.refName)
-      case cr: ScReferenceElement  =>
+      case cr: ScReference  =>
         cr.bind()  match {
           case Some(x) => try {
             toTermName(x.element)
@@ -69,9 +69,9 @@ trait Namer {
   def toTypeName(elem: PsiElement): m.Type.Name = elem match {
     case ne: ScNamedElement =>
       m.Type.Name(ne.name)
-    case re: ScReferenceElement if dumbMode =>
+    case re: ScReference if dumbMode =>
       m.Type.Name(re.refName)
-    case re: ScReferenceElement =>
+    case re: ScReference =>
       toTypeName(re.resolve())
     case sc: impl.toplevel.synthetic.ScSyntheticClass =>
       m.Type.Name(sc.className)
@@ -120,7 +120,7 @@ trait Namer {
     if (res != null) res else die(s"failed to convert type $tp")
   }
 
-  def toCtorName(c: ScStableCodeReferenceElement): m.Ctor.Ref.Name = {
+  def toCtorName(c: ScStableCodeReference): m.Ctor.Ref.Name = {
     // FIXME: what about other cases of m.Ctor ?
     val resolved = toTermName(c)
     resolved match {
@@ -138,7 +138,7 @@ trait Namer {
     m.Ctor.Ref.Name("this")
   }
 
-  def ind(cr: ScStableCodeReferenceElement): m.Name.Indeterminate = {
+  def ind(cr: ScStableCodeReference): m.Name.Indeterminate = {
     m.Name.Indeterminate(cr.qualName)
   }
 

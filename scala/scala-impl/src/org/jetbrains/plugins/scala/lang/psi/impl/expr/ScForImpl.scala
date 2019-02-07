@@ -460,7 +460,7 @@ object ScForImpl {
       case _: ScTuplePattern => false
       case _: ScConstructorPattern => false
       case _: ScParenthesisedPattern => false
-      case _: ScStableReferenceElementPattern => false
+      case _: ScStableReferencePattern => false
       case _ => true
     }
   }

@@ -7,7 +7,7 @@ import com.intellij.psi.search.searches.OverridingMethodsSearch
 import com.intellij.psi.{PsiElement, PsiMethod, _}
 import com.intellij.util.ArrayUtil
 import org.jetbrains.plugins.scala.extensions._
-import org.jetbrains.plugins.scala.lang.psi.api.base.ScReferenceElement
+import org.jetbrains.plugins.scala.lang.psi.api.base.ScReference
 import org.jetbrains.plugins.scala.lang.psi.api.statements.{ScFunction, ScFunctionDefinition}
 
 import scala.collection.mutable
@@ -68,7 +68,7 @@ object ScalaCalleeMethodsTreeStructure {
   private[hierarchy] def visitor(element: PsiElement, methods: ArrayBuffer[PsiMethod]): Unit = {
     if (element == null) return
     element match {
-      case ref: ScReferenceElement =>
+      case ref: ScReference =>
         val resolve = ref.resolve()
         resolve match {
           case meth: PsiMethod => methods += meth

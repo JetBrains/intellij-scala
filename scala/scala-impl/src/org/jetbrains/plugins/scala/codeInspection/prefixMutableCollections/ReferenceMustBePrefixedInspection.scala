@@ -8,8 +8,8 @@ import org.jetbrains.plugins.scala.caches.ScalaShortNamesCacheManager
 import org.jetbrains.plugins.scala.codeInspection.{AbstractFixOnPsiElement, AbstractInspection}
 import org.jetbrains.plugins.scala.extensions._
 import org.jetbrains.plugins.scala.lang.formatting.settings.ScalaCodeStyleSettings
-import org.jetbrains.plugins.scala.lang.psi.api.base.ScReferenceElement.withQualifier
-import org.jetbrains.plugins.scala.lang.psi.api.base.{ScReferenceElement, ScStableCodeReferenceElement}
+import org.jetbrains.plugins.scala.lang.psi.api.base.ScReference.withQualifier
+import org.jetbrains.plugins.scala.lang.psi.api.base.{ScReference, ScStableCodeReference}
 import org.jetbrains.plugins.scala.lang.psi.api.expr.ScReferenceExpression
 import org.jetbrains.plugins.scala.lang.psi.api.toplevel.imports.ScImportSelector
 import org.jetbrains.plugins.scala.lang.psi.impl.ScalaPsiElementFactory.{createExpressionWithContextFromText, createReferenceFromText}
@@ -25,7 +25,7 @@ class ReferenceMustBePrefixedInspection extends AbstractInspection(ReferenceMust
   import ReferenceMustBePrefixedInspection._
 
   override def actionFor(implicit holder: ProblemsHolder): PartialFunction[PsiElement, Unit] = {
-    case reference: ScReferenceElement if reference.qualifier.isEmpty && !reference.getParent.isInstanceOf[ScImportSelector] =>
+    case reference: ScReference if reference.qualifier.isEmpty && !reference.getParent.isInstanceOf[ScImportSelector] =>
       reference.bind().collect {
         case result@withActual(clazz: PsiClass) if result.nameShadow.isEmpty && isValid(clazz, reference) => clazz
       }.flatMap(validFqnSegments)
@@ -33,7 +33,7 @@ class ReferenceMustBePrefixedInspection extends AbstractInspection(ReferenceMust
         .foreach(registerProblem(reference, _))
   }
 
-  private def registerProblem(reference: ScReferenceElement, quickFix: AddPrefixQuickFix)
+  private def registerProblem(reference: ScReference, quickFix: AddPrefixQuickFix)
                              (implicit holder: ProblemsHolder): Unit = {
     holder.registerProblem(reference, getDisplayName, quickFix)
   }
@@ -44,7 +44,7 @@ object ReferenceMustBePrefixedInspection {
   private val ID = "ReferenceMustBePrefixed"
   val DESCRIPTION = "Reference must be prefixed"
 
-  private def isValid(clazz: PsiClass, reference: ScReferenceElement): Boolean =
+  private def isValid(clazz: PsiClass, reference: ScReference): Boolean =
     ScalaPsiUtil.hasStablePath(clazz) && !PsiTreeUtil.isAncestor(clazz.containingClass, reference, true)
 
   private def validFqnSegments(clazz: PsiClass)
@@ -58,24 +58,24 @@ object ReferenceMustBePrefixedInspection {
     }
   }
 
-  private class AddPrefixQuickFix(reference: ScReferenceElement, segments: Seq[String])
+  private class AddPrefixQuickFix(reference: ScReference, segments: Seq[String])
     extends AbstractFixOnPsiElement(AddPrefixQuickFix.HINT, reference) {
 
     import AddPrefixQuickFix._
 
-    override protected def doApplyFix(reference: ScReferenceElement)
+    override protected def doApplyFix(reference: ScReference)
                                      (implicit project: Project): Unit = {
       def replaceReference = {
         val replacementText = segments.takeRight(2).mkString(".")
 
         val maybeReplacement = reference match {
-          case _: ScStableCodeReferenceElement => Some(createReferenceFromText(replacementText))
+          case _: ScStableCodeReference => Some(createReferenceFromText(replacementText))
           case ref: ScReferenceExpression => Some(createExpressionWithContextFromText(replacementText, ref.getContext, ref))
           case _ => None
         }
 
         maybeReplacement.map(reference.replace).collect {
-          case withQualifier(element: ScReferenceElement) => element
+          case withQualifier(element: ScReference) => element
         }
       }
 

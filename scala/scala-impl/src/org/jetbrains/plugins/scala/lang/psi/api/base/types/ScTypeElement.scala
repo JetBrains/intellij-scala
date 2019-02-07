@@ -54,7 +54,7 @@ trait ScTypeElement extends ScalaPsiElement with Typeable {
    * As a side-effect, this will register the analogs for each type element in a context or view
    * bound position. See: [[org.jetbrains.plugins.scala.lang.psi.ScalaPsiUtil.syntheticParamClause]]
    *
-   * This in turn is used in the `treeWalkUp` in [[org.jetbrains.plugins.scala.lang.psi.impl.base.ScStableCodeReferenceElementImpl.processQualifier]]
+   * This in turn is used in the `treeWalkUp` in [[org.jetbrains.plugins.scala.lang.psi.impl.base.ScStableCodeReferenceImpl.processQualifier]]
    */
   private def refreshAnalog(): Unit =
     this.parentOfType(classOf[ScTypeParam], strict = false)

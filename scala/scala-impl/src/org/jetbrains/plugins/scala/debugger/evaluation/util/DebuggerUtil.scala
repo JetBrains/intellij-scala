@@ -485,14 +485,14 @@ object DebuggerUtil {
       }
     }
 
-    def isArgName(ref: ScReferenceElement): Boolean = ref match {
+    def isArgName(ref: ScReference): Boolean = ref match {
       case ChildOf(a @ ScAssignment(`ref`, _)) => a.isNamedParameter
       case _ => false
     }
 
     val buf = mutable.Set.empty[ScTypedDefinition]
     block.accept(new ScalaRecursiveElementVisitor {
-      override def visitReference(ref: ScReferenceElement) {
+      override def visitReference(ref: ScReference) {
         if (ref.qualifier.isDefined || isArgName(ref)) {
           super.visitReference(ref)
           return

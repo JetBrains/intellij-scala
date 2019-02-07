@@ -17,11 +17,11 @@ class CaseClauseCompletionContributor extends ScalaCompletionContributor {
 
   import CaseClauseCompletionContributor._
 
-  extend(new ClauseCompletionProvider(classOf[ScStableReferenceElementPattern]) {
+  extend(new ClauseCompletionProvider(classOf[ScStableReferencePattern]) {
 
     import ClauseCompletionProvider._
 
-    override protected def addCompletions(pattern: ScStableReferenceElementPattern,
+    override protected def addCompletions(pattern: ScStableReferencePattern,
                                           position: PsiElement,
                                           result: CompletionResultSet): Unit = {
       val maybeInheritors = pattern.expectedType

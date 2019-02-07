@@ -4,7 +4,7 @@ package psi
 package api
 package statements
 
-import org.jetbrains.plugins.scala.lang.psi.api.base.ScStableCodeReferenceElement
+import org.jetbrains.plugins.scala.lang.psi.api.base.ScStableCodeReference
 import org.jetbrains.plugins.scala.lang.psi.api.base.types.ScTypeElement
 
 /**
@@ -13,11 +13,11 @@ import org.jetbrains.plugins.scala.lang.psi.api.base.types.ScTypeElement
 trait ScMacroDefinition extends ScFunction {
   def typeElement: Option[ScTypeElement] = returnTypeElement
 
-  def macroImplReference: Option[ScStableCodeReferenceElement]
+  def macroImplReference: Option[ScStableCodeReference]
 }
 
 object ScMacroDefinition {
-  def isMacroImplReference(ref: ScStableCodeReferenceElement): Boolean =
+  def isMacroImplReference(ref: ScStableCodeReference): Boolean =
     ref.getContext match {
       case m: ScMacroDefinition => m.macroImplReference.contains(ref)
       case _ => false

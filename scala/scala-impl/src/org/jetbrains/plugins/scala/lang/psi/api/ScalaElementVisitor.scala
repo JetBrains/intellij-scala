@@ -23,7 +23,7 @@ import scala.collection.mutable
  */
 
 class ScalaRecursiveElementVisitor extends ScalaElementVisitor {
-  private val referencesStack = new mutable.Stack[ScReferenceElement]()
+  private val referencesStack = new mutable.Stack[ScReference]()
   
   override def visitElement(element: ScalaPsiElement) {
     if (referencesStack.nonEmpty && referencesStack.top == element) {
@@ -86,7 +86,7 @@ class ScalaElementVisitor extends PsiElementVisitor {
   def visitElement(element: ScalaPsiElement) {super.visitElement(element)}
 
   //Override also visitReferenceExpression! and visitTypeProjection!
-  def visitReference(ref: ScReferenceElement) { visitElement(ref) }
+  def visitReference(ref: ScReference) { visitElement(ref) }
   def visitParameter(parameter: ScParameter) {visitElement(parameter)}
   def visitClassParameter(parameter: ScClassParameter) {visitParameter(parameter)}
   def visitPatternDefinition(pat: ScPatternDefinition) { visitValue(pat) }
@@ -114,7 +114,9 @@ class ScalaElementVisitor extends PsiElementVisitor {
   def visitExpression(expr: ScExpression) { visitElement(expr) }
   def visitThisReference(t: ScThisReference) {visitExpression(t)}
   def visitSuperReference(t: ScSuperReference) {visitExpression(t)}
-  def visitReferenceExpression(ref: ScReferenceExpression) {} // TODO isn't a reference expression an expression?
+  // TODO isn't a reference expression a reference?
+  // TODO isn't a reference expression an expression?
+  def visitReferenceExpression(ref: ScReferenceExpression) {}
   def visitPostfixExpression(p: ScPostfixExpr) { visitExpression(p) }
   def visitPrefixExpression(p: ScPrefixExpr) { visitExpression(p) }
   def visitIfStatement(stmt: ScIf) { visitExpression(stmt) }

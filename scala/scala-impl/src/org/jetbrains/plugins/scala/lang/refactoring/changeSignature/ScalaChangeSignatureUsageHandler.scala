@@ -6,7 +6,7 @@ import com.intellij.refactoring.changeSignature._
 import com.intellij.usageView.UsageInfo
 import org.jetbrains.plugins.scala.codeInsight.intention.types.{AddOnlyStrategy, AddOrRemoveStrategy}
 import org.jetbrains.plugins.scala.extensions.{ChildOf, ElementText, PsiElementExt, PsiTypeExt}
-import org.jetbrains.plugins.scala.lang.psi.api.base.ScReferenceElement
+import org.jetbrains.plugins.scala.lang.psi.api.base.ScReference
 import org.jetbrains.plugins.scala.lang.psi.api.base.types.ScTypeElement
 import org.jetbrains.plugins.scala.lang.psi.api.expr._
 import org.jetbrains.plugins.scala.lang.psi.api.statements._
@@ -48,7 +48,7 @@ private[changeSignature] trait ScalaChangeSignatureUsageHandler {
 
     nameId match {
       case null =>
-      case ChildOf(ref: ScReferenceElement) if ScalaRenameUtil.isAliased(ref) =>
+      case ChildOf(ref: ScReference) if ScalaRenameUtil.isAliased(ref) =>
       case _ =>
         val newName = change.getNewName
         replaceNameId(nameId, newName)
@@ -399,7 +399,7 @@ private[changeSignature] trait ScalaChangeSignatureUsageHandler {
   private def replaceNameId(elem: PsiElement, newName: String): Unit = {
     implicit val ctx: ProjectContext = elem
     elem match {
-      case scRef: ScReferenceElement =>
+      case scRef: ScReference =>
         val newId = createIdentifier(newName).getPsi
         scRef.nameId.replace(newId)
       case jRef: PsiReferenceExpression =>

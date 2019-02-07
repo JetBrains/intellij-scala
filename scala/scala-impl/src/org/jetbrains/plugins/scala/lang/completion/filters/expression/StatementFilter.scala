@@ -8,7 +8,7 @@ import com.intellij.psi.{PsiElement, PsiErrorElement, _}
 import org.jetbrains.annotations.NonNls
 import org.jetbrains.plugins.scala.lang.completion.ScalaCompletionUtil._
 import org.jetbrains.plugins.scala.lang.parser._
-import org.jetbrains.plugins.scala.lang.psi.api.base.patterns.ScStableReferenceElementPattern
+import org.jetbrains.plugins.scala.lang.psi.api.base.patterns.ScStableReferencePattern
 import org.jetbrains.plugins.scala.lang.psi.api.expr._
 import org.jetbrains.plugins.scala.lang.psi.api.toplevel.templates.ScTemplateBody
 
@@ -24,7 +24,7 @@ class StatementFilter extends ElementFilter {
     if (leaf != null) {
       val parent = leaf.getParent
       if (parent.isInstanceOf[ScReferenceExpression] &&
-              !parent.getParent.isInstanceOf[ScStableReferenceElementPattern] &&
+              !parent.getParent.isInstanceOf[ScStableReferencePattern] &&
               (!parent.getParent.isInstanceOf[ScInfixExpr]) && (parent.getPrevSibling == null ||
               parent.getPrevSibling.getPrevSibling == null ||
         (parent.getPrevSibling.getPrevSibling.getNode.getElementType != ScalaElementType.MATCH_STMT ||

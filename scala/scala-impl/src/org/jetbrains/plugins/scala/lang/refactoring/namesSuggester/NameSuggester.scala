@@ -5,7 +5,7 @@ package namesSuggester
 
 import com.intellij.openapi.util.text.StringUtil
 import org.jetbrains.plugins.scala.extensions._
-import org.jetbrains.plugins.scala.lang.psi.api.base.{ScLiteral, ScReferenceElement}
+import org.jetbrains.plugins.scala.lang.psi.api.base.{ScLiteral, ScReference}
 import org.jetbrains.plugins.scala.lang.psi.api.expr._
 import org.jetbrains.plugins.scala.lang.psi.types._
 import org.jetbrains.plugins.scala.lang.psi.types.api._
@@ -130,7 +130,7 @@ object NameSuggester {
   private[this] def namesByExpression: ScExpression => Seq[String] = {
     case _: ScThisReference => Seq("thisInstance")
     case _: ScSuperReference => Seq("superInstance")
-    case reference: ScReferenceElement if reference.refName != null =>
+    case reference: ScReference if reference.refName != null =>
       camelCaseNames(reference.refName)
     case definition: ScNewTemplateDefinition =>
       val parameters = definition.constructor.toSeq

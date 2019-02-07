@@ -16,7 +16,7 @@ import org.jetbrains.plugins.scala.lang.psi.ScalaPsiUtil
 import org.jetbrains.plugins.scala.lang.psi.api.ScalaFile
 import org.jetbrains.plugins.scala.lang.psi.api.base.patterns.{ScBindingPattern, ScCaseClause}
 import org.jetbrains.plugins.scala.lang.psi.api.base.types.ScTypeElement
-import org.jetbrains.plugins.scala.lang.psi.api.base.{ScInterpolated, ScReferenceElement, ScStableCodeReferenceElement}
+import org.jetbrains.plugins.scala.lang.psi.api.base.{ScInterpolated, ScReference, ScStableCodeReference}
 import org.jetbrains.plugins.scala.lang.psi.api.expr._
 import org.jetbrains.plugins.scala.lang.psi.api.statements.params.{ScClassParameter, ScParameter}
 import org.jetbrains.plugins.scala.lang.psi.api.statements.{ScFun, ScValueOrVariable}
@@ -24,7 +24,7 @@ import org.jetbrains.plugins.scala.lang.psi.api.toplevel.imports.ScImportStmt
 import org.jetbrains.plugins.scala.lang.psi.api.toplevel.typedef.{ScObject, ScTemplateDefinition, ScTypeDefinition}
 import org.jetbrains.plugins.scala.lang.psi.fake.FakePsiMethod
 import org.jetbrains.plugins.scala.lang.psi.impl.ScalaPsiElementFactory
-import org.jetbrains.plugins.scala.lang.psi.impl.base.ScStableCodeReferenceElementImpl
+import org.jetbrains.plugins.scala.lang.psi.impl.base.ScStableCodeReferenceImpl
 import org.jetbrains.plugins.scala.lang.psi.impl.base.types.ScTypeProjectionImpl
 import org.jetbrains.plugins.scala.lang.psi.impl.expr.ScReferenceExpressionImpl
 import org.jetbrains.plugins.scala.lang.psi.types.ScType
@@ -92,7 +92,7 @@ class ScalaBasicCompletionContributor extends ScalaCompletionContributor {
           }
 
         position.getContext match {
-          case ref: ScReferenceElement =>
+          case ref: ScReference =>
             object ValidItem {
 
               private val isInTypeElement = PsiTreeUtil.getContextOfType(position, classOf[ScTypeElement]) != null
@@ -148,7 +148,7 @@ class ScalaBasicCompletionContributor extends ScalaCompletionContributor {
             }
 
             val defaultLookupElements = (ref match {
-              case refImpl: ScStableCodeReferenceElementImpl =>
+              case refImpl: ScStableCodeReferenceImpl =>
                 val processor = new PostProcessor(position)
                 refImpl.doResolve(processor)
                 processor.lookupElements
@@ -212,19 +212,19 @@ class ScalaBasicCompletionContributor extends ScalaCompletionContributor {
 
 object ScalaBasicCompletionContributor {
 
-  private class PostProcessor(override val getPlace: ScReferenceElement,
+  private class PostProcessor(override val getPlace: ScReference,
                               override val isImplicit: Boolean,
                               private val position: PsiElement)
     extends CompletionProcessor(getPlace.getKinds(incomplete = false, completion = true), getPlace, isImplicit) {
 
     def this(position: PsiElement, isImplicit: Boolean = false) =
-      this(position.getContext.asInstanceOf[ScReferenceElement], isImplicit, position)
+      this(position.getContext.asInstanceOf[ScReference], isImplicit, position)
 
     private val lookupElements_ = mutable.ArrayBuffer.empty[LookupElement]
 
     private val containingClass = Option(PsiTreeUtil.getContextOfType(position, classOf[PsiClass]))
     private val isInImport = PsiTreeUtil.getContextOfType(getPlace, classOf[ScImportStmt]) != null
-    private val isInStableCodeReference = getPlace.isInstanceOf[ScStableCodeReferenceElement]
+    private val isInStableCodeReference = getPlace.isInstanceOf[ScStableCodeReference]
 
     protected val qualifierType: Option[ScType] = None
 
@@ -304,7 +304,7 @@ object ScalaBasicCompletionContributor {
     case _ => None
   }
 
-  private def qualifierCastType(reference: ScReferenceElement): Option[ScType] = reference match {
+  private def qualifierCastType(reference: ScReference): Option[ScType] = reference match {
     case ScReferenceExpression.withQualifier(qualifier) =>
       reference.getContainingFile.getCopyableUserData(ScalaRuntimeTypeEvaluator.KEY) match {
         case null => None
@@ -334,9 +334,9 @@ object ScalaBasicCompletionContributor {
       context.commitDocument()
 
       val file = PsiDocumentManager.getInstance(context.getProject).getPsiFile(document)
-      PsiTreeUtil.findElementOfClassAtOffset(file, context.getStartOffset, classOf[ScReferenceElement], false) match {
+      PsiTreeUtil.findElementOfClassAtOffset(file, context.getStartOffset, classOf[ScReference], false) match {
         case null =>
-        case ScReferenceElement.withQualifier(qualifier) =>
+        case ScReference.withQualifier(qualifier) =>
           document.insertString(qualifier.getTextRange.getEndOffset, text)
           context.commitDocument()
 
@@ -349,7 +349,7 @@ object ScalaBasicCompletionContributor {
       decorator.getDelegate.handleInsert(context)
     }
 
-  private def prefixedThisAndSupers(reference: ScReferenceElement): List[ScalaLookupItem] = reference match {
+  private def prefixedThisAndSupers(reference: ScReference): List[ScalaLookupItem] = reference match {
     case expression: ScReferenceExpression if ScalaCompletionUtil.completeThis(expression) =>
       val notInsideSeveralClasses = expression.contexts.instancesOf[ScTemplateDefinition].size <= 1
 

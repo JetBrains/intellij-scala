@@ -9,7 +9,7 @@ import org.jetbrains.plugins.scala.extensions._
 import org.jetbrains.plugins.scala.lang.psi.ScalaPsiUtil
 import org.jetbrains.plugins.scala.lang.psi.api.ScalaRecursiveElementVisitor
 import org.jetbrains.plugins.scala.lang.psi.api.base.patterns.ScCaseClauses
-import org.jetbrains.plugins.scala.lang.psi.api.base.{ScLiteral, ScReferenceElement}
+import org.jetbrains.plugins.scala.lang.psi.api.base.{ScLiteral, ScReference}
 import org.jetbrains.plugins.scala.lang.psi.api.expr._
 import org.jetbrains.plugins.scala.lang.psi.api.statements.params.ScParameter
 import org.jetbrains.plugins.scala.lang.psi.api.statements.{ScFunction, ScFunctionDefinition, ScValue, ScVariable}
@@ -307,7 +307,7 @@ package object collections {
   }
 
 
-  private def checkResolveToMap(memberRef: ScReferenceElement): Boolean = memberRef.resolve() match {
+  private def checkResolveToMap(memberRef: ScReference): Boolean = memberRef.resolve() match {
     case m: ScMember => Option(m.containingClass).exists(_.name.toLowerCase.contains("map"))
     case _ => false
   }
@@ -435,7 +435,7 @@ package object collections {
       }
 
       object definedOutside {
-        def unapply(ref: ScReferenceElement): Option[PsiElement] = ref match {
+        def unapply(ref: ScReference): Option[PsiElement] = ref match {
           case ResolvesTo(elem: PsiElement) if !PsiTreeUtil.isAncestor(expr, elem, false) => Some(elem)
           case _ => None
         }

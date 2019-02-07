@@ -11,9 +11,9 @@ import org.jetbrains.plugins.scala.lang.psi.api.expr.ScReferenceExpression
  * @author ilyas
  */
 
-trait ScStableReferenceElementPattern extends ScPattern {
+trait ScStableReferencePattern extends ScPattern {
 
-  def refElement: Option[ScReferenceElement] = findChild(classOf[ScReferenceElement])
+  def refElement: Option[ScReference] = findChild(classOf[ScReference])
 
   def getReferenceExpression: Option[ScReferenceExpression] = findChild(classOf[ScReferenceExpression])
 

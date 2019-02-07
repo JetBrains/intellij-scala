@@ -7,7 +7,7 @@ import com.intellij.psi.search.searches.ReferencesSearch.SearchParameters
 import com.intellij.util.{Processor, QueryExecutor}
 import org.jetbrains.plugins.scala.extensions.{&&, ContainingClass, inReadAction}
 import org.jetbrains.plugins.scala.finder.ScalaFilterScope
-import org.jetbrains.plugins.scala.lang.psi.api.base.ScReferenceElement
+import org.jetbrains.plugins.scala.lang.psi.api.base.ScReference
 import org.jetbrains.plugins.scala.lang.psi.api.statements.ScFunctionDefinition
 import org.jetbrains.plugins.scala.lang.psi.api.toplevel.typedef.ScObject
 import org.jetbrains.plugins.scala.lang.resolve.ScalaResolveResult
@@ -20,7 +20,7 @@ abstract class ApplyUnapplyMethodSearcherBase extends QueryExecutor[PsiReference
 
   protected val names: Set[String]
 
-  protected def checkAndTransform(ref: PsiReference): Option[ScReferenceElement]
+  protected def checkAndTransform(ref: PsiReference): Option[ScReference]
 
   def execute(queryParameters: SearchParameters, consumer: Processor[_ >: PsiReference]): Boolean = {
     val element = queryParameters.getElementToSearch

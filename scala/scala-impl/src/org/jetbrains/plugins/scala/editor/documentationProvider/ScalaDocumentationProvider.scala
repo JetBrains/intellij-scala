@@ -64,7 +64,7 @@ class ScalaDocumentationProvider extends CodeDocumentationProvider {
 
   def getQuickNavigateInfo(element: PsiElement, originalElement: PsiElement): String = {
     val substitutor = originalElement match {
-      case ref: ScReferenceElement =>
+      case ref: ScReference =>
         ref.bind() match {
           case Some(ScalaResolveResult(_, subst)) => subst
           case _ => ScSubstitutor.empty

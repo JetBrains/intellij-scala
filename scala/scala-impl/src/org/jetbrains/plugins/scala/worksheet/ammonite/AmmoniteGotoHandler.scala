@@ -7,7 +7,7 @@ import com.intellij.psi.{PsiElement, PsiFile, PsiNamedElement}
 import org.jetbrains.plugins.scala.extensions.implementation.iterator.ParentsIterator
 import org.jetbrains.plugins.scala.lang.psi.api.ScalaPsiElement
 import org.jetbrains.plugins.scala.lang.psi.api.ScalaFile
-import org.jetbrains.plugins.scala.lang.psi.api.base.ScReferenceElement
+import org.jetbrains.plugins.scala.lang.psi.api.base.ScReference
 import org.jetbrains.plugins.scala.lang.psi.api.toplevel.typedef.ScMember
 import org.jetbrains.plugins.scala.worksheet.GotoOriginalHandlerUtil
 
@@ -25,7 +25,7 @@ class AmmoniteGotoHandler extends GotoDeclarationHandler {
     }
     
     sourceElement.getParent match {
-      case ref: ScReferenceElement =>
+      case ref: ScReference =>
         ref.resolve() match {
           case scalaPsi: ScalaPsiElement => findPreImage(scalaPsi).toArray
           case _ => PsiElement.EMPTY_ARRAY

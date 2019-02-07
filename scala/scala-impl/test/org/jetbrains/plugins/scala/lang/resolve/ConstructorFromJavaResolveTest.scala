@@ -1,6 +1,6 @@
 package org.jetbrains.plugins.scala.lang.resolve
 
-import org.jetbrains.plugins.scala.lang.psi.api.base.ScStableCodeReferenceElement
+import org.jetbrains.plugins.scala.lang.psi.api.base.ScStableCodeReference
 import org.junit.Assert._
 
 
@@ -12,7 +12,7 @@ class ConstructorFromJavaResolveTest extends ScalaResolveTestCase {
 
   def testScl8083(): Unit = {
     findReferenceAtCaret match {
-      case st: ScStableCodeReferenceElement =>
+      case st: ScStableCodeReference =>
         val variants = st.resolveAllConstructors
         assertTrue("Single resolve expected", variants.length == 1)
     }

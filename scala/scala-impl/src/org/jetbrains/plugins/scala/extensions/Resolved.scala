@@ -1,7 +1,7 @@
 package org.jetbrains.plugins.scala.extensions
 
 import com.intellij.psi.{PsiElement, PsiReference}
-import org.jetbrains.plugins.scala.lang.psi.api.base.ScReferenceElement
+import org.jetbrains.plugins.scala.lang.psi.api.base.ScReference
 import org.jetbrains.plugins.scala.lang.psi.types.recursiveUpdate.ScSubstitutor
 import org.jetbrains.plugins.scala.lang.resolve.ScalaResolveResult
 
@@ -28,7 +28,7 @@ object ResolvesTo {
 
 object Resolved {
 
-  def unapply(reference: ScReferenceElement): Option[ScalaResolveResult] = reference match {
+  def unapply(reference: ScReference): Option[ScalaResolveResult] = reference match {
     case null => None
     case _ => reference.bind()
   }

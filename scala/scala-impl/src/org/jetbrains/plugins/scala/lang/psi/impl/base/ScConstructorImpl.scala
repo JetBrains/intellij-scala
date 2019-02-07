@@ -101,7 +101,7 @@ class ScConstructorImpl(node: ASTNode) extends ScalaPsiElementImpl(node) with Sc
     def FAILURE = Failure("Can't resolve type")
     def workWithResolveResult(constr: PsiMethod, r: ScalaResolveResult,
                               subst: ScSubstitutor, s: ScSimpleTypeElement,
-                              ref: ScStableCodeReferenceElement): TypeResult = {
+                              ref: ScStableCodeReference): TypeResult = {
       val clazz = constr.containingClass
       val tp = r.getActualElement match {
         case ta: ScTypeAliasDefinition => subst(ta.aliasedType.getOrElse(return FAILURE))
@@ -190,7 +190,7 @@ class ScConstructorImpl(node: ASTNode) extends ScalaPsiElementImpl(node) with Sc
       .getOrElse(Array.empty)
   }
 
-  def reference: Option[ScStableCodeReferenceElement] = {
+  def reference: Option[ScStableCodeReference] = {
     simpleTypeElement.flatMap(_.reference)
   }
 

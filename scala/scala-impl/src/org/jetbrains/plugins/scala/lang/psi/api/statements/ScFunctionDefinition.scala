@@ -7,7 +7,7 @@ package statements
 import com.intellij.psi._
 import org.jetbrains.plugins.scala.extensions._
 import org.jetbrains.plugins.scala.lang.psi.api.base.patterns.{ScConstructorPattern, ScInfixPattern}
-import org.jetbrains.plugins.scala.lang.psi.api.base.{ScConstructor, ScReferenceElement, ScStableCodeReferenceElement}
+import org.jetbrains.plugins.scala.lang.psi.api.base.{ScConstructor, ScReference, ScStableCodeReference}
 import org.jetbrains.plugins.scala.lang.psi.api.expr.ScExpression.calculateReturns
 import org.jetbrains.plugins.scala.lang.psi.api.expr._
 import org.jetbrains.plugins.scala.lang.psi.api.toplevel.templates.ScTemplateBody
@@ -48,9 +48,9 @@ trait ScFunctionDefinition extends ScFunction with ScControlFlowOwner {
       .contains("_root_.scala.annotation.tailrec")
 
   def recursiveReferences: Seq[RecursiveReference] = {
-    def quickCheck(ref: ScReferenceElement): Boolean = {
+    def quickCheck(ref: ScReference): Boolean = {
       ref match {
-        case _: ScStableCodeReferenceElement  =>
+        case _: ScStableCodeReference  =>
           ref.getParent match {
             case ChildOf(_: ScConstructor) =>
               this.isConstructor && containingClass.name == ref.refName
@@ -72,7 +72,7 @@ trait ScFunctionDefinition extends ScFunction with ScControlFlowOwner {
     val recursiveReferences = body.toSeq
       .flatMap(_.depthFirst())
       .collect {
-        case element: ScReferenceElement if quickCheck(element) => element
+        case element: ScReference if quickCheck(element) => element
       }.filter(_.isReferenceTo(this))
 
     val expressions: Set[PsiElement] = recursiveReferences match {
@@ -149,7 +149,7 @@ object ScFunctionDefinition {
   }
 }
 
-case class RecursiveReference(element: ScReferenceElement, isTailCall: Boolean)
+case class RecursiveReference(element: ScReference, isTailCall: Boolean)
 
 trait RecursionType
 

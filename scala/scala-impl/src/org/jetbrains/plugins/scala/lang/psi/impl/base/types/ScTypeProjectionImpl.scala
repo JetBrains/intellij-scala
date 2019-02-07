@@ -12,7 +12,7 @@ import org.jetbrains.plugins.scala.extensions._
 import org.jetbrains.plugins.scala.lang.lexer.ScalaTokenTypes
 import org.jetbrains.plugins.scala.lang.psi.api.ScalaElementVisitor
 import org.jetbrains.plugins.scala.lang.psi.api.base.types._
-import org.jetbrains.plugins.scala.lang.psi.impl.expr.ScReferenceElementImpl
+import org.jetbrains.plugins.scala.lang.psi.impl.expr.ScReferenceImpl
 import org.jetbrains.plugins.scala.lang.psi.types._
 import org.jetbrains.plugins.scala.lang.psi.types.api.designator.{ScDesignatorType, ScProjectionType}
 import org.jetbrains.plugins.scala.lang.psi.types.result._
@@ -24,7 +24,7 @@ import org.jetbrains.plugins.scala.macroAnnotations.{CachedWithRecursionGuard, M
 * @author Alexander Podkhalyuzin
 * Date: 13.03.2008
 */
-class ScTypeProjectionImpl(node: ASTNode) extends ScReferenceElementImpl(node) with ScTypeProjection {
+class ScTypeProjectionImpl(node: ASTNode) extends ScReferenceImpl(node) with ScTypeProjection {
   protected def innerType: TypeResult = {
     this.bind() match {
       case Some(ScalaResolveResult(elem, _)) =>

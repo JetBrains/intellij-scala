@@ -1,6 +1,6 @@
 package org.jetbrains.plugins.scala
 package lang.resolve2
-import org.jetbrains.plugins.scala.lang.psi.api.base.ScReferenceElement
+import org.jetbrains.plugins.scala.lang.psi.api.base.ScReference
 import org.junit.Assert
 
 /**
@@ -21,7 +21,7 @@ class DynamicTest extends ResolveTestBase {
   def testSelectDynamicInType(): Unit = doTest()
   def testSelectDynamicInTypeMacro(): Unit = doTest()
 
-  override def doEachTest(reference: ScReferenceElement, options: Parameters): Unit = {
+  override def doEachTest(reference: ScReference, options: Parameters): Unit = {
     super.doEachTest(reference, options)
     reference.bind().foreach { result =>
       Assert.assertEquals(result.nameArgForDynamic, Some(reference.refName))

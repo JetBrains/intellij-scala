@@ -10,7 +10,7 @@ import com.intellij.psi.util.PsiTreeUtil
 import org.jetbrains.plugins.scala.annotator.intention.ScalaImportTypeFix
 import org.jetbrains.plugins.scala.extensions._
 import org.jetbrains.plugins.scala.lang.formatting.settings.ScalaCodeStyleSettings
-import org.jetbrains.plugins.scala.lang.psi.api.base.ScReferenceElement
+import org.jetbrains.plugins.scala.lang.psi.api.base.ScReference
 import org.jetbrains.plugins.scala.lang.psi.api.base.patterns.ScBindingPattern
 import org.jetbrains.plugins.scala.lang.psi.api.base.types.{ScParameterizedTypeElement, ScSimpleTypeElement, ScTypeElement, ScTypeProjection}
 import org.jetbrains.plugins.scala.lang.psi.api.statements.{ScTypeAlias, ScTypeAliasDefinition}
@@ -81,7 +81,7 @@ object TypeAdjuster extends ApplicationAdapter {
     } holder.addImportsForPaths(paths.toSeq, null)
   }
 
-  private def newRef(text: String, position: PsiElement): Option[ScReferenceElement] =
+  private def newRef(text: String, position: PsiElement): Option[ScReference] =
     findRef(newTypeElem(text, position))
 
   private def newTypeElem(name: String, position: PsiElement) =
@@ -93,7 +93,7 @@ object TypeAdjuster extends ApplicationAdapter {
     }
 
   private def findRef(element: PsiElement) = element match {
-    case reference: ScReferenceElement => Some(reference)
+    case reference: ScReference => Some(reference)
     case simple: ScSimpleTypeElement => simple.reference
     case _ => None
   }
@@ -187,7 +187,7 @@ object TypeAdjuster extends ApplicationAdapter {
     case SimpleInfo(place, replacement, _, _) if place.getText != replacement =>
       val maybeNewElement = place match {
         case _: ScTypeElement => Some(newTypeElem(replacement, place))
-        case _: ScReferenceElement => newRef(replacement, place)
+        case _: ScReference => newRef(replacement, place)
         case _ => None
       }
 
@@ -242,8 +242,8 @@ object TypeAdjuster extends ApplicationAdapter {
 
       @tailrec
       private def qualifierInfo(element: PsiElement): Option[SimpleInfo] = element match {
-        case ScSimpleTypeElement(Some(reference: ScReferenceElement)) => qualifierInfo(reference)
-        case ScReferenceElement.withQualifier(reference: ScReferenceElement) => Some(SimpleInfo(reference))
+        case ScSimpleTypeElement(Some(reference: ScReference)) => qualifierInfo(reference)
+        case ScReference.withQualifier(reference: ScReference) => Some(SimpleInfo(reference))
         case _ => None
       }
     }
@@ -486,7 +486,7 @@ object TypeAdjuster extends ApplicationAdapter {
 
     def apply(typeElement: ScTypeElement): SimpleInfo = applyImpl(typeElement)
 
-    def apply(reference: ScReferenceElement): SimpleInfo = applyImpl(reference)
+    def apply(reference: ScReference): SimpleInfo = applyImpl(reference)
 
     private def applyImpl(element: PsiElement): SimpleInfo = {
       val resolve = for {

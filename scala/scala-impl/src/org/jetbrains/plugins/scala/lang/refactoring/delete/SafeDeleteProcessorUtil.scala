@@ -18,7 +18,7 @@ import com.intellij.usageView.UsageInfo
 import com.intellij.util._
 import org.jetbrains.annotations.{NonNls, Nullable}
 import org.jetbrains.plugins.scala.extensions._
-import org.jetbrains.plugins.scala.lang.psi.api.base.ScStableCodeReferenceElement
+import org.jetbrains.plugins.scala.lang.psi.api.base.ScStableCodeReference
 import org.jetbrains.plugins.scala.lang.psi.api.toplevel.ScNamedElement
 import org.jetbrains.plugins.scala.lang.psi.api.toplevel.imports.ScImportStmt
 import org.jetbrains.plugins.scala.lang.psi.api.toplevel.typedef.ScObject
@@ -65,7 +65,7 @@ object SafeDeleteProcessorUtil {
           LOG.assertTrue(element.getTextRange != null)
 
           val shouldDelete = element match {
-            case ref: ScStableCodeReferenceElement =>
+            case ref: ScStableCodeReference =>
               val results = ref.multiResolveScala(false)
               def isSyntheticObject(e: PsiElement) = e.asOptionOf[ScObject].exists(_.isSyntheticObject)
               val nonSyntheticTargets = results.map(_.getElement).filterNot(isSyntheticObject)

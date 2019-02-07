@@ -14,7 +14,7 @@ import org.jetbrains.plugins.scala.extensions.{PsiElementExt, _}
 import org.jetbrains.plugins.scala.lang.formatting.settings.ScalaCodeStyleSettings
 import org.jetbrains.plugins.scala.lang.lexer.ScalaTokenTypes
 import org.jetbrains.plugins.scala.lang.parser.ScalaElementType
-import org.jetbrains.plugins.scala.lang.psi.api.base.ScReferenceElement
+import org.jetbrains.plugins.scala.lang.psi.api.base.ScReference
 import org.jetbrains.plugins.scala.lang.psi.api.base.patterns.ScReferencePattern
 import org.jetbrains.plugins.scala.lang.psi.api.expr.ScBlockStatement
 import org.jetbrains.plugins.scala.lang.psi.api.statements.{ScPatternDefinition, ScTypeAliasDefinition}
@@ -105,7 +105,7 @@ trait ScImportsHolder extends ScalaPsiElement {
 
   def addImportForClass(clazz: PsiClass, ref: PsiElement = null) {
     ref match {
-      case ref: ScReferenceElement =>
+      case ref: ScReference =>
         if (!ref.isValid || ref.isReferenceTo(clazz)) return
         ref.bind().foreach {
           case ScalaResolveResult(t: ScTypeAliasDefinition, _) if t.typeParameters.isEmpty =>
@@ -132,7 +132,7 @@ trait ScImportsHolder extends ScalaPsiElement {
                                   maybeClass: Option[PsiClass] = None): Unit = {
     val needImport = reference match {
       case null => true
-      case ref: ScReferenceElement if ref.isValid => !ref.isReferenceTo(named)
+      case ref: ScReference if ref.isValid => !ref.isReferenceTo(named)
       case _ => false
     }
 

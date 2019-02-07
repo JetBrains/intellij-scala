@@ -6,7 +6,7 @@ package toplevel
 package imports
 
 import com.intellij.psi.PsiElement
-import org.jetbrains.plugins.scala.lang.psi.api.base.ScStableCodeReferenceElement
+import org.jetbrains.plugins.scala.lang.psi.api.base.ScStableCodeReference
 
 /**
  * @author Alexander Podkhalyuzin
@@ -14,7 +14,7 @@ import org.jetbrains.plugins.scala.lang.psi.api.base.ScStableCodeReferenceElemen
  */
 
 trait ScImportExpr extends ScalaPsiElement {
-  def reference: Option[ScStableCodeReferenceElement]
+  def reference: Option[ScStableCodeReference]
 
   def selectorSet: Option[ScImportSelectors]
 
@@ -26,7 +26,7 @@ trait ScImportExpr extends ScalaPsiElement {
 
   def wildcardElement: Option[PsiElement]
 
-  def qualifier: ScStableCodeReferenceElement
+  def qualifier: ScStableCodeReference
 
   def deleteExpr()
 

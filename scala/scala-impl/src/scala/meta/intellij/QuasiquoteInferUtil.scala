@@ -2,7 +2,7 @@ package scala.meta.intellij
 
 import com.intellij.openapi.progress.ProgressManager
 import com.intellij.psi.PsiManager
-import org.jetbrains.plugins.scala.lang.psi.api.base.{ScInterpolated, ScInterpolatedStringLiteral, ScReferenceElement}
+import org.jetbrains.plugins.scala.lang.psi.api.base.{ScInterpolated, ScInterpolatedStringLiteral, ScReference}
 import org.jetbrains.plugins.scala.lang.psi.api.expr.ScReferenceExpression
 import org.jetbrains.plugins.scala.lang.psi.api.statements.ScFunction
 import org.jetbrains.plugins.scala.lang.psi.impl.ScalaPsiElementFactory
@@ -26,7 +26,7 @@ object QuasiquoteInferUtil extends scala.meta.quasiquotes.QuasiquoteParsers {
 
   import scala.{meta => m}
 
-  def isMetaQQ(ref: ScReferenceElement): Boolean = {
+  def isMetaQQ(ref: ScReference): Boolean = {
     ref.bind() match {
       case Some(ScalaResolveResult(fun: ScFunction, _)) if fun.name == "unapply" || fun.name == "apply" && isMetaQQ(fun) => true
       case _ => false

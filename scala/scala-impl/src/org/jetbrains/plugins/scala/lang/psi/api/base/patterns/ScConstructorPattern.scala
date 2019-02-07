@@ -11,10 +11,10 @@ package patterns
 */
 trait ScConstructorPattern extends ScPattern {
   def args: ScPatternArgumentList = findChildByClassScala(classOf[ScPatternArgumentList])
-  def ref: ScStableCodeReferenceElement = findChildByClassScala(classOf[ScStableCodeReferenceElement])
+  def ref: ScStableCodeReference = findChildByClassScala(classOf[ScStableCodeReference])
 }
 
 object ScConstructorPattern {
-  def unapply(pattern: ScConstructorPattern): Option[(ScStableCodeReferenceElement, ScPatternArgumentList)] =
+  def unapply(pattern: ScConstructorPattern): Option[(ScStableCodeReference, ScPatternArgumentList)] =
     Some((pattern.ref, pattern.args))
 }

@@ -1,6 +1,6 @@
 package org.jetbrains.plugins.scala.lang.resolve
 
-import org.jetbrains.plugins.scala.lang.psi.api.base.ScReferenceElement
+import org.jetbrains.plugins.scala.lang.psi.api.base.ScReference
 import org.junit.Assert._
 
 /**
@@ -14,7 +14,7 @@ abstract class SimpleResolveTest(dirName: String) extends ScalaResolveTestCase {
 
   def doTest(): Unit = {
     findReferenceAtCaret() match {
-      case ref: ScReferenceElement =>
+      case ref: ScReference =>
         val variants = ref.multiResolveScala(false)
         assertTrue(s"Single resolve expected, was: ${variants.length}", variants.length == 1)
     }

@@ -5,7 +5,7 @@ package api
 package expr
 
 import _root_.org.jetbrains.plugins.scala.lang.psi.types.ScType
-import org.jetbrains.plugins.scala.lang.psi.api.base.{ScPathElement, ScStableCodeReferenceElement}
+import org.jetbrains.plugins.scala.lang.psi.api.base.{ScPathElement, ScStableCodeReference}
 import org.jetbrains.plugins.scala.lang.psi.api.toplevel.typedef.ScTemplateDefinition
 
 /**
@@ -27,7 +27,7 @@ trait ScSuperReference extends ScExpression with ScPathElement {
   //for A.super or simply super
   def drvTemplate: Option[ScTemplateDefinition]
 
-  def reference: Option[ScStableCodeReferenceElement] = findChild(classOf[ScStableCodeReferenceElement])
+  def reference: Option[ScStableCodeReference] = findChild(classOf[ScStableCodeReference])
 
   override def accept(visitor: ScalaElementVisitor): Unit = {
     visitor.visitSuperReference(this)

@@ -29,15 +29,15 @@ trait ScInfixTypeElement extends ScInfixLikeTypeElement
   override protected val typeName = "InfixType"
 
   type Kind = ScTypeElement
-  type Reference = ScStableCodeReferenceElement
+  type Reference = ScStableCodeReference
 
-  def operation: ScStableCodeReferenceElement = findChildByClassScala(classOf[ScStableCodeReferenceElement])
+  def operation: ScStableCodeReference = findChildByClassScala(classOf[ScStableCodeReference])
 
   override def desugarizedText = s"${operation.getText}[${left.getText}, ${rightOption.map(_.getText).getOrElse("Nothing")}]"
 }
 
 object ScInfixTypeElement {
   /** Extracts the left and right type elements of the given infix type. */
-  def unapply(arg: ScInfixTypeElement): Option[(ScTypeElement, ScStableCodeReferenceElement, Option[ScTypeElement])] =
+  def unapply(arg: ScInfixTypeElement): Option[(ScTypeElement, ScStableCodeReference, Option[ScTypeElement])] =
     Some((arg.left, arg.operation, arg.rightOption))
 }

@@ -15,7 +15,7 @@ import org.jetbrains.plugins.scala.lang.psi.api.expr.xml.ScXmlPattern
 import org.jetbrains.plugins.scala.lang.psi.api.statements.params._
 import org.jetbrains.plugins.scala.lang.psi.api.statements.{ScFunction, ScValue, ScVariable}
 import org.jetbrains.plugins.scala.lang.psi.api.toplevel.typedef.{ScClass, ScTemplateDefinition}
-import org.jetbrains.plugins.scala.lang.psi.impl.base.ScStableCodeReferenceElementImpl
+import org.jetbrains.plugins.scala.lang.psi.impl.base.ScStableCodeReferenceImpl
 import org.jetbrains.plugins.scala.lang.psi.impl.base.patterns.ScInterpolationPatternImpl
 import org.jetbrains.plugins.scala.lang.psi.impl.{ScalaPsiElementFactory, ScalaPsiManager}
 import org.jetbrains.plugins.scala.lang.psi.types.api._
@@ -157,14 +157,14 @@ object ScPattern {
       }
     }
 
-    private def expectedTypeForExtractorArg(ref: ScStableCodeReferenceElement,
+    private def expectedTypeForExtractorArg(ref: ScStableCodeReference,
                                             argIndex: Int,
                                             expected: Option[ScType],
                                             totalNumberOfPatterns: Int): Option[ScType] = {
       val bind: Option[ScalaResolveResult] = ref.bind() match {
         case Some(ScalaResolveResult(_: ScBindingPattern | _: ScParameter, _)) =>
           val resolve = ref match {
-            case refImpl: ScStableCodeReferenceElementImpl =>
+            case refImpl: ScStableCodeReferenceImpl =>
               refImpl.doResolve(new ExpandedExtractorResolveProcessor(ref, ref.refName, ref.getKinds(incomplete = false), ref.getContext match {
                 case inf: ScInfixPattern => inf.expectedType
                 case constr: ScConstructorPattern => constr.expectedType

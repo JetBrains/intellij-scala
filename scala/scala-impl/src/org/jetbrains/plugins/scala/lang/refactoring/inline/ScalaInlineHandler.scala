@@ -20,8 +20,8 @@ import com.intellij.util.FilteredQuery
 import org.jetbrains.plugins.scala.extensions._
 import org.jetbrains.plugins.scala.lang.lexer.ScalaTokenTypes
 import org.jetbrains.plugins.scala.lang.psi.ScalaPsiUtil
-import org.jetbrains.plugins.scala.lang.psi.api.base.ScStableCodeReferenceElement
-import org.jetbrains.plugins.scala.lang.psi.api.base.patterns.{ScBindingPattern, ScStableReferenceElementPattern}
+import org.jetbrains.plugins.scala.lang.psi.api.base.ScStableCodeReference
+import org.jetbrains.plugins.scala.lang.psi.api.base.patterns.{ScBindingPattern, ScStableReferencePattern}
 import org.jetbrains.plugins.scala.lang.psi.api.base.types.{ScTypeElement, ScTypeElementExt}
 import org.jetbrains.plugins.scala.lang.psi.api.expr.ScMethodCall
 import org.jetbrains.plugins.scala.lang.psi.api.statements._
@@ -94,7 +94,7 @@ class ScalaInlineHandler extends InlineHandler {
         showErrorHint(ScalaBundle.message("cannot.inline.never.used"), inlineTitleSuffix)
       else if (!psiNamedElement.isInstanceOf[ScTypeAliasDefinition] &&
         refs.map(_.getElement)
-          .flatMap(_.nonStrictParentOfType(Seq(classOf[ScStableCodeReferenceElement], classOf[ScStableReferenceElementPattern])))
+          .flatMap(_.nonStrictParentOfType(Seq(classOf[ScStableCodeReference], classOf[ScStableReferencePattern])))
           .nonEmpty)
         showErrorHint(ScalaBundle.message("cannot.inline.stable.reference"), inlineTitleSuffix)
       else if (!ApplicationManager.getApplication.isUnitTestMode) {

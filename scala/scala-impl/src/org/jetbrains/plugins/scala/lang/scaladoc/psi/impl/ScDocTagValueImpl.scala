@@ -16,13 +16,13 @@ import org.jetbrains.plugins.scala.lang.psi.api.statements.params.{ScParameter, 
 import org.jetbrains.plugins.scala.lang.psi.api.statements.{ScFunction, ScTypeAlias}
 import org.jetbrains.plugins.scala.lang.psi.api.toplevel.ScNamedElement
 import org.jetbrains.plugins.scala.lang.psi.api.toplevel.typedef.{ScClass, ScTrait}
-import org.jetbrains.plugins.scala.lang.psi.impl.expr.ScReferenceElementImpl
+import org.jetbrains.plugins.scala.lang.psi.impl.expr.ScReferenceImpl
 import org.jetbrains.plugins.scala.lang.refactoring.ScalaNamesValidator.isIdentifier
 import org.jetbrains.plugins.scala.lang.refactoring.util.ScalaNamesUtil
 import org.jetbrains.plugins.scala.lang.resolve.processor.BaseProcessor
 import org.jetbrains.plugins.scala.lang.resolve.{ResolveTargets, ScalaResolveResult}
 import org.jetbrains.plugins.scala.lang.scaladoc.parser.parsing.MyScaladocParsing
-import org.jetbrains.plugins.scala.lang.scaladoc.psi.api.{ScDocComment, ScDocReferenceElement, ScDocTag, ScDocTagValue}
+import org.jetbrains.plugins.scala.lang.scaladoc.psi.api.{ScDocComment, ScDocReference, ScDocTag, ScDocTagValue}
 
 import scala.collection.{Set, mutable}
 
@@ -31,7 +31,7 @@ import scala.collection.{Set, mutable}
  * Date: 11/23/11
  */
 
-class ScDocTagValueImpl(node: ASTNode) extends ScReferenceElementImpl(node) with ScDocTagValue with ScDocReferenceElement {
+class ScDocTagValueImpl(node: ASTNode) extends ScReferenceImpl(node) with ScDocTagValue with ScDocReference {
   def nameId: PsiElement = this
 
   override def getName: String = getText

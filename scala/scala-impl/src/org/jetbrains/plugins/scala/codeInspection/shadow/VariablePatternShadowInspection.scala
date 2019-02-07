@@ -6,7 +6,7 @@ import com.intellij.codeInspection.ProblemsHolder
 import com.intellij.openapi.project.Project
 import com.intellij.psi.PsiElement
 import org.jetbrains.plugins.scala.lang.psi.ScalaPsiUtil
-import org.jetbrains.plugins.scala.lang.psi.api.base.ScStableCodeReferenceElement
+import org.jetbrains.plugins.scala.lang.psi.api.base.ScStableCodeReference
 import org.jetbrains.plugins.scala.lang.psi.api.base.patterns.{ScCaseClause, ScReferencePattern}
 import org.jetbrains.plugins.scala.lang.psi.impl.ScalaPsiElementFactory.{createPatternFromText, createReferenceFromText}
 import org.jetbrains.plugins.scala.lang.resolve.StdKinds
@@ -21,11 +21,11 @@ class VariablePatternShadowInspection extends AbstractInspection("Suspicious sha
   private def check(refPat: ScReferencePattern, holder: ProblemsHolder) {
     val isInCaseClause = ScalaPsiUtil.nameContext(refPat).isInstanceOf[ScCaseClause]
     if (isInCaseClause) {
-      val dummyRef: ScStableCodeReferenceElement = createReferenceFromText(refPat.name, refPat.getContext.getContext, refPat)
+      val dummyRef: ScStableCodeReference = createReferenceFromText(refPat.name, refPat.getContext.getContext, refPat)
       
       if (dummyRef == null) return //can happen in invalid code, e.g. if ')' is absent in case pattern
       val proc = new ResolveProcessor(StdKinds.valuesRef, dummyRef, refPat.name)
-      val results = dummyRef.asInstanceOf[ScStableCodeReferenceElement].doResolve(proc)
+      val results = dummyRef.asInstanceOf[ScStableCodeReference].doResolve(proc)
 
       if (results.exists(rr => proc.isAccessible(rr.getElement, refPat))) {
         holder.registerProblem(refPat.nameId, getDisplayName, new ConvertToStableIdentifierPatternFix(refPat), new RenameVariablePatternFix(refPat))

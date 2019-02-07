@@ -6,7 +6,7 @@ import org.jetbrains.plugins.scala.annotator.AnnotatorUtils.proccessError
 import org.jetbrains.plugins.scala.extensions.{ResolvesTo, _}
 import org.jetbrains.plugins.scala.lang.psi.ScalaPsiUtil
 import org.jetbrains.plugins.scala.lang.psi.api.Annotatable
-import org.jetbrains.plugins.scala.lang.psi.api.base.ScStableCodeReferenceElement
+import org.jetbrains.plugins.scala.lang.psi.api.base.ScStableCodeReference
 import org.jetbrains.plugins.scala.lang.psi.api.base.patterns._
 import org.jetbrains.plugins.scala.lang.psi.api.base.types.ScCompoundTypeElement
 import org.jetbrains.plugins.scala.lang.psi.api.statements.params.ScClassParameter
@@ -70,7 +70,7 @@ object ScPatternAnnotator {
     }
 
     object StableIdResolvesToVar {
-      def unapply(stable: ScStableReferenceElementPattern): Boolean = {
+      def unapply(stable: ScStableReferencePattern): Boolean = {
         stable.getReferenceExpression.orNull match {
           case ResolvesTo(ScalaPsiUtil.inNameContext(nameCtx)) => nameCtx match {
             case param: ScClassParameter => param.isVar
@@ -211,7 +211,7 @@ object ScPatternAnnotator {
   def patternType(pattern: ScPattern): Option[ScType] = {
     import pattern.projectContext
 
-    def constrPatternType(patternRef: ScStableCodeReferenceElement): Option[ScType] = {
+    def constrPatternType(patternRef: ScStableCodeReference): Option[ScType] = {
       patternRef.bind() match {
         case Some(srr) =>
           srr.getElement match {

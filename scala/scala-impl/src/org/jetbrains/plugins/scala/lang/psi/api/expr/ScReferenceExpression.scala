@@ -19,7 +19,7 @@ import org.jetbrains.plugins.scala.lang.resolve.processor.{BaseProcessor, Comple
 */
 
 trait ScReferenceExpression extends ScExpression
-  with ScReferenceElement {
+  with ScReference {
 
   final def isQualified: Boolean = qualifier.isDefined
 
@@ -64,7 +64,7 @@ trait ScReferenceExpression extends ScExpression
 
   def shapeType: TypeResult
 
-  override def createReplacingElementWithClassName(useFullQualifiedName: Boolean, clazz: TypeToImport): ScReferenceElement = {
+  override def createReplacingElementWithClassName(useFullQualifiedName: Boolean, clazz: TypeToImport): ScReference = {
     if (useFullQualifiedName) super.createReplacingElementWithClassName(useFullQualifiedName, clazz)
     else createExpressionFromText(clazz.name)(clazz.element.getManager).asInstanceOf[ScReferenceExpression]
   }

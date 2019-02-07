@@ -1,7 +1,7 @@
 package org.jetbrains.plugins.scala.lang.typeInference.testInjectors
 
 import com.intellij.psi.PsiManager
-import org.jetbrains.plugins.scala.lang.psi.api.base.{ScInterpolatedStringLiteral, ScReferenceElement}
+import org.jetbrains.plugins.scala.lang.psi.api.base.{ScInterpolatedStringLiteral, ScReference}
 import org.jetbrains.plugins.scala.lang.psi.api.statements.ScFunction
 import org.jetbrains.plugins.scala.lang.psi.impl.ScalaPsiElementFactory
 import org.jetbrains.plugins.scala.lang.psi.impl.base.InterpolatedStringMacroTypeProvider
@@ -20,7 +20,7 @@ class SCL12987Injector extends InterpolatedStringMacroTypeProvider {
     * @param ref invoked function on interpolated string
     * @return if this interpolated string expression is a macro and its type inference is handled by the plugin
     */
-  override def handlesInterpolatedString(ref: ScReferenceElement): Boolean = ref.bind() match {
+  override def handlesInterpolatedString(ref: ScReference): Boolean = ref.bind() match {
     case Some(ScalaResolveResult(fun: ScFunction, _)) if fun.name == "toType" => true
     case _ => false
   }

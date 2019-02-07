@@ -7,7 +7,7 @@ package impl
 import com.intellij.psi.PsiElement
 import com.intellij.psi.stubs.{IStubElementType, StubBase, StubElement}
 import com.intellij.util.SofterReference
-import org.jetbrains.plugins.scala.lang.psi.api.base.ScStableCodeReferenceElement
+import org.jetbrains.plugins.scala.lang.psi.api.base.ScStableCodeReference
 import org.jetbrains.plugins.scala.lang.psi.api.toplevel.imports.ScImportSelector
 import org.jetbrains.plugins.scala.lang.psi.impl.ScalaPsiElementFactory.createReferenceFromText
 
@@ -22,9 +22,9 @@ class ScImportSelectorStubImpl(parent: StubElement[_ <: PsiElement],
                                val isAliasedImport: Boolean)
   extends StubBase[ScImportSelector](parent, elementType) with ScImportSelectorStub with PsiOwner[ScImportSelector] {
 
-  private var referenceReference: SofterReference[Option[ScStableCodeReferenceElement]] = null
+  private var referenceReference: SofterReference[Option[ScStableCodeReference]] = null
 
-  override def reference: Option[ScStableCodeReferenceElement] = {
+  override def reference: Option[ScStableCodeReference] = {
     getFromOptionalReference(referenceReference) {
       case (context, child) =>
         referenceText.map {

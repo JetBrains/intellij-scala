@@ -12,7 +12,7 @@ import org.jetbrains.plugins.scala.lang.psi.ScalaPsiUtil._
 import org.jetbrains.plugins.scala.lang.psi.api.{ScalaFile, ScalaPsiElement}
 import org.jetbrains.plugins.scala.lang.psi.api.base.patterns.ScBindingPattern
 import org.jetbrains.plugins.scala.lang.psi.api.base.types.{ScSelfTypeElement, ScTypeElement, ScTypeVariableTypeElement}
-import org.jetbrains.plugins.scala.lang.psi.api.base.{ScAccessModifier, ScFieldId, ScReferenceElement}
+import org.jetbrains.plugins.scala.lang.psi.api.base.{ScAccessModifier, ScFieldId, ScReference}
 import org.jetbrains.plugins.scala.lang.psi.api.expr._
 import org.jetbrains.plugins.scala.lang.psi.api.statements._
 import org.jetbrains.plugins.scala.lang.psi.api.statements.params.{ScClassParameter, ScParameter, ScTypeParam}
@@ -166,7 +166,7 @@ object ResolveUtils {
                 within the object in which it is defined.
               */
               place match {
-                case ref: ScReferenceElement =>
+                case ref: ScReference =>
                   ref.qualifier match {
                     case None =>
                       return PsiTreeUtil.isContextAncestor(containingClass, place, false)
@@ -175,7 +175,7 @@ object ResolveUtils {
                         case Some(templ) => templ == containingClass
                         case _ => PsiTreeUtil.isContextAncestor(containingClass, place, false)
                       }
-                    case Some(ref: ScReferenceElement) =>
+                    case Some(ref: ScReference) =>
                       val resolve = ref.resolve()
                       if (containingClass.extendsBlock.selfTypeElement.contains(resolve)) return true
                       else return false
@@ -291,7 +291,7 @@ object ResolveUtils {
             assert(enclosing != null, s"Enclosing is null in file ${scMember.getContainingFile.getName}:\n${scMember.getContainingFile.getText}")
             if (am.isThis) {
               place match {
-                case ref: ScReferenceElement =>
+                case ref: ScReference =>
                   ref.qualifier match {
                     case None =>
                     case Some(_: ScThisReference) =>

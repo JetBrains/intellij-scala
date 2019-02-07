@@ -17,7 +17,7 @@ import org.jetbrains.plugins.scala.extensions.PsiElementExt
 import org.jetbrains.plugins.scala.lang.TokenSets.TYPE_DEFINITIONS
 import org.jetbrains.plugins.scala.lang.lexer.ScalaTokenTypes
 import org.jetbrains.plugins.scala.lang.parser.ScalaElementType
-import org.jetbrains.plugins.scala.lang.psi.api.base.ScStableCodeReferenceElement
+import org.jetbrains.plugins.scala.lang.psi.api.base.ScStableCodeReference
 import org.jetbrains.plugins.scala.lang.psi.api.toplevel.ScPackaging
 import org.jetbrains.plugins.scala.lang.psi.api.toplevel.typedef.{ScObject, ScTypeDefinition}
 import org.jetbrains.plugins.scala.lang.psi.api.{ScPackageLike, ScalaFile}
@@ -39,15 +39,15 @@ final class ScPackagingImpl private[psi](stub: ScPackagingStub,
 
   override def toString = "ScPackaging"
 
-  def reference: Option[ScStableCodeReferenceElement] =
+  def reference: Option[ScStableCodeReference] =
     Option(getFirstChild).flatMap { node =>
       Option(node.getNextSibling)
     }.flatMap { node =>
       Option(node.getNextSibling)
     }.collect {
-      case reference: ScStableCodeReferenceElement => reference
+      case reference: ScStableCodeReference => reference
     }.orElse {
-      findChild(classOf[ScStableCodeReferenceElement])
+      findChild(classOf[ScStableCodeReference])
     }
 
   override def packagings: Seq[ScPackaging] =

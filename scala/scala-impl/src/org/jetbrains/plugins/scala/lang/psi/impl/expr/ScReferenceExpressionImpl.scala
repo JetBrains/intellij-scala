@@ -16,7 +16,7 @@ import org.jetbrains.plugins.scala.lang.lexer.ScalaTokenTypes
 import org.jetbrains.plugins.scala.lang.psi.annotator.ScExpressionAnnotator
 import org.jetbrains.plugins.scala.lang.psi.api.base.patterns.ScBindingPattern
 import org.jetbrains.plugins.scala.lang.psi.api.base.types.{ScSelfTypeElement, ScSimpleTypeElement, ScTypeElement}
-import org.jetbrains.plugins.scala.lang.psi.api.base.{ScFieldId, ScPrimaryConstructor, ScReferenceElement}
+import org.jetbrains.plugins.scala.lang.psi.api.base.{ScFieldId, ScPrimaryConstructor, ScReference}
 import org.jetbrains.plugins.scala.lang.psi.api.expr._
 import org.jetbrains.plugins.scala.lang.psi.api.statements._
 import org.jetbrains.plugins.scala.lang.psi.api.statements.params.{ScParameter, ScParameterType}
@@ -43,7 +43,7 @@ import scala.collection.mutable
   * @author AlexanderPodkhalyuzin
   *         Date: 06.03.2008
   */
-class ScReferenceExpressionImpl(node: ASTNode) extends ScReferenceElementImpl(node)
+class ScReferenceExpressionImpl(node: ASTNode) extends ScReferenceImpl(node)
   with ScReferenceExpression with ScExpressionAnnotator {
 
   private[this] var maybeAssignment: Option[ScAssignment] = None
@@ -320,7 +320,7 @@ class ScReferenceExpressionImpl(node: ASTNode) extends ScReferenceElementImpl(no
           def checkte(te: ScTypeElement): Boolean = {
             var res = false
             te.accept(new ScalaRecursiveElementVisitor {
-              override def visitReference(ref: ScReferenceElement): Unit = {
+              override def visitReference(ref: ScReference): Unit = {
                 if (ref.resolve() == param) res = true
                 super.visitReference(ref)
               }

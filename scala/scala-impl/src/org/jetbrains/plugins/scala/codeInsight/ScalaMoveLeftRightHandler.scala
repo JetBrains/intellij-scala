@@ -5,7 +5,7 @@ import com.intellij.openapi.util.text.StringUtil
 import com.intellij.psi.PsiElement
 import org.jetbrains.plugins.scala.extensions.{PsiElementExt, childOf}
 import org.jetbrains.plugins.scala.lang.parser.util.ParserUtils
-import org.jetbrains.plugins.scala.lang.psi.api.base.ScReferenceElement
+import org.jetbrains.plugins.scala.lang.psi.api.base.ScReference
 import org.jetbrains.plugins.scala.lang.psi.api.base.patterns._
 import org.jetbrains.plugins.scala.lang.psi.api.base.types.{ScInfixLikeTypeElement, ScInfixTypeElement, ScTupleTypeElement, ScTypeArgs}
 import org.jetbrains.plugins.scala.lang.psi.api.expr._
@@ -54,7 +54,7 @@ class ScalaMoveLeftRightHandler extends MoveElementLeftRightHandler {
     }
   }
 
-  private def operatorPriority(ref: Option[ScReferenceElement]): Int = {
+  private def operatorPriority(ref: Option[ScReference]): Int = {
     ref match {
       case Some(refExpr: ScReferenceExpression) => ParserUtils.priority(refExpr.refName)
       case _ => -1
@@ -70,7 +70,7 @@ class ScalaMoveLeftRightHandler extends MoveElementLeftRightHandler {
   }
 
   private object InfixElement {
-    def unapply(elem: PsiElement): Option[(PsiElement, Option[ScReferenceElement], PsiElement)] = elem match {
+    def unapply(elem: PsiElement): Option[(PsiElement, Option[ScReference], PsiElement)] = elem match {
       case ScInfixExpr(l, o, r) => Some((l, Option(o), r))
       case ip: ScInfixPattern => ip.rightOption.map(r => (ip.left, Option(ip.operation), r))
       case it: ScInfixTypeElement => it.rightOption.map(r => (it.left, Option(it.operation), r))
@@ -79,7 +79,7 @@ class ScalaMoveLeftRightHandler extends MoveElementLeftRightHandler {
     }
   }
 
-  private def isNonAssignOperator(ref: ScReferenceElement): Boolean = {
+  private def isNonAssignOperator(ref: ScReference): Boolean = {
     val name = ref.refName
     StringUtil.isNotEmpty(name) && ScalaNamesUtil.isOpCharacter(name.charAt(0)) && !ParserUtils.isAssignmentOperator(name)
   }

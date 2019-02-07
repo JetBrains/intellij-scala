@@ -316,7 +316,7 @@ object ScalaPsiElementFactory {
     createElementFromText(text, classOf[ScImportStmt])
 
   def createReferenceFromText(name: String)
-                             (implicit ctx: ProjectContext): ScStableCodeReferenceElement = {
+                             (implicit ctx: ProjectContext): ScStableCodeReference = {
     try {
       val importStatement = createElementFromText(s"import ${escapeKeywordsFqn(name)}", classOf[ScImportStmt])
       importStatement.importExprs.head.reference.orNull
@@ -796,8 +796,8 @@ object ScalaPsiElementFactory {
   def createTypeDefinitionWithContext(text: String, context: PsiElement, child: PsiElement): ScTypeDefinition =
     createElementWithContext[ScTypeDefinition](text, context, child, TmplDef.parse).orNull
 
-  def createReferenceFromText(text: String, context: PsiElement, child: PsiElement): ScStableCodeReferenceElement =
-    createElementWithContext[ScStableCodeReferenceElement](text, context, child, StableId.parse(_, ScalaElementType.REFERENCE)).orNull
+  def createReferenceFromText(text: String, context: PsiElement, child: PsiElement): ScStableCodeReference =
+    createElementWithContext[ScStableCodeReference](text, context, child, StableId.parse(_, ScalaElementType.REFERENCE)).orNull
 
   def createExpressionWithContextFromText(text: String, context: PsiElement, child: PsiElement): ScExpression = // TODO method should be eliminated eventually
     createOptionExpressionWithContextFromText(text, context, child).orNull

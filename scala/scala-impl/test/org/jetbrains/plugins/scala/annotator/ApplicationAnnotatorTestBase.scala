@@ -5,7 +5,7 @@ package annotator
 import org.intellij.lang.annotations.Language
 import org.jetbrains.plugins.scala.base.SimpleTestCase
 import org.jetbrains.plugins.scala.extensions._
-import org.jetbrains.plugins.scala.lang.psi.api.base.ScReferenceElement
+import org.jetbrains.plugins.scala.lang.psi.api.base.ScReference
 import org.jetbrains.plugins.scala.lang.psi.api.expr.ScMethodCall
 import org.jetbrains.plugins.scala.lang.psi.api.toplevel.typedef.ScClass
 import org.jetbrains.plugins.scala.lang.psi.types.Compatibility
@@ -31,7 +31,7 @@ trait ApplicationAnnotatorTestBase extends SimpleTestCase{
     val seq = file.depthFirst().instanceOf[ScClass]
     Compatibility.seqClass = seq
     try {
-      file.depthFirst().instancesOf[ScReferenceElement].foreach {
+      file.depthFirst().instancesOf[ScReference].foreach {
         annotator.annotateReference(_, mock)
       }
 

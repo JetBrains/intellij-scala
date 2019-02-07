@@ -5,7 +5,7 @@ import com.intellij.openapi.util.TextRange
 import com.intellij.psi.PsiElement
 import org.jetbrains.plugins.scala.extensions._
 import org.jetbrains.plugins.scala.lang.lexer.ScalaTokenTypes
-import org.jetbrains.plugins.scala.lang.psi.api.base.{ScInterpolatedStringLiteral, ScLiteral, ScReferenceElement}
+import org.jetbrains.plugins.scala.lang.psi.api.base.{ScInterpolatedStringLiteral, ScLiteral, ScReference}
 import org.jetbrains.plugins.scala.lang.psi.api.expr.{ScExpression, ScReferenceExpression}
 import org.jetbrains.plugins.scala.lang.psi.api.toplevel.ScTypedDefinition
 import org.jetbrains.plugins.scala.lang.psi.impl.toplevel.synthetic.ScSyntheticFunction
@@ -74,7 +74,7 @@ class DuplicateMatch(pattern: DuplicatePattern, val candidates: Seq[PsiElement])
       (ResolvesTo(td1: ScTypedDefinition), ResolvesTo(td2: ScTypedDefinition)))
         if pattern.definitions.contains(td1) =>
         definitionCorrespondence.get(td1).contains(td2) && typesEquiv(ref1, ref2)
-      case Both((_: ScReferenceElement, _: ScReferenceElement), (ResolvesTo(res1), ResolvesTo(res2)))
+      case Both((_: ScReference, _: ScReference), (ResolvesTo(res1), ResolvesTo(res2)))
         if res1 != res2 =>
         (res1, res2) match {
           case (sf1: ScSyntheticFunction, sf2: ScSyntheticFunction) => sf1.isStringPlusMethod && sf2.isStringPlusMethod

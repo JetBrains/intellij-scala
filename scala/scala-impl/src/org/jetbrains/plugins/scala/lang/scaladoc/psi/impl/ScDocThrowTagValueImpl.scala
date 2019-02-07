@@ -5,7 +5,7 @@ package psi
 package impl
 
 import com.intellij.lang.ASTNode
-import org.jetbrains.plugins.scala.lang.psi.impl.base.ScStableCodeReferenceElementImpl
+import org.jetbrains.plugins.scala.lang.psi.impl.base.ScStableCodeReferenceImpl
 import org.jetbrains.plugins.scala.lang.resolve.StdKinds
 import org.jetbrains.plugins.scala.lang.scaladoc.psi.api.ScDocTagValue
 
@@ -14,7 +14,7 @@ import org.jetbrains.plugins.scala.lang.scaladoc.psi.api.ScDocTagValue
  * Date: 12/9/11
  */
 
-class ScDocThrowTagValueImpl(node: ASTNode) extends ScStableCodeReferenceElementImpl(node) with ScDocTagValue {
+class ScDocThrowTagValueImpl(node: ASTNode) extends ScStableCodeReferenceImpl(node) with ScDocTagValue {
   def getValue: String = getText
   
   override def getName: String = getText

@@ -8,7 +8,7 @@ import com.intellij.psi.filters.ElementFilter
 import org.jetbrains.annotations.NonNls
 import org.jetbrains.plugins.scala.lang.completion.ScalaCompletionUtil._
 import org.jetbrains.plugins.scala.lang.parser._
-import org.jetbrains.plugins.scala.lang.psi.api.base.patterns.ScStableReferenceElementPattern
+import org.jetbrains.plugins.scala.lang.psi.api.base.patterns.ScStableReferencePattern
 import org.jetbrains.plugins.scala.lang.psi.api.expr._
 
 /** 
@@ -22,7 +22,7 @@ class ExpressionFilter extends ElementFilter {
     if (leaf != null) {
       val parent = leaf.getParent
       if (parent.isInstanceOf[ScReferenceExpression] && !parent.getParent.isInstanceOf[ScPostfixExpr] &&
-              !parent.getParent.isInstanceOf[ScStableReferenceElementPattern] &&
+              !parent.getParent.isInstanceOf[ScStableReferencePattern] &&
               (parent.getPrevSibling == null ||
               parent.getPrevSibling.getPrevSibling == null ||
                 (parent.getPrevSibling.getPrevSibling.getNode.getElementType != ScalaElementType.MATCH_STMT || !parent.getPrevSibling.getPrevSibling.getLastChild.isInstanceOf[PsiErrorElement]))) {

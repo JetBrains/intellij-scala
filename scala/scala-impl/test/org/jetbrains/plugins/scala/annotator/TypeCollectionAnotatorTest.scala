@@ -5,7 +5,7 @@ import org.jetbrains.plugins.scala.base.{ScalaLightPlatformCodeInsightTestCaseAd
 import org.jetbrains.plugins.scala.extensions.PsiElementExt
 import org.jetbrains.plugins.scala.highlighter.AnnotatorHighlighter
 import org.jetbrains.plugins.scala.lang.psi.api.ScalaFile
-import org.jetbrains.plugins.scala.lang.psi.api.base.ScReferenceElement
+import org.jetbrains.plugins.scala.lang.psi.api.base.ScReference
 import org.jetbrains.plugins.scala.settings.ScalaProjectSettings
 
 /**
@@ -31,7 +31,7 @@ class TypeCollectionAnotatorTest extends ScalaLightPlatformCodeInsightTestCaseAd
     val holder = new AnnotatorHolderMock(getFileAdapter)
 
     getFileAdapter.asInstanceOf[ScalaFile].breadthFirst().foreach {
-      case refElement: ScReferenceElement => AnnotatorHighlighter.highlightReferenceElement(refElement, holder)
+      case refElement: ScReference => AnnotatorHighlighter.highlightReferenceElement(refElement, holder)
       case _ =>
     }
     holder

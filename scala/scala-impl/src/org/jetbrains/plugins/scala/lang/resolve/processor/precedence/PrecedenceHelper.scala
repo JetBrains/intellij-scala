@@ -9,7 +9,7 @@ import com.intellij.psi.util.PsiTreeUtil.getContextOfType
 import com.intellij.psi.{PsiElement, PsiPackage}
 import com.intellij.util.containers.SmartHashSet
 import gnu.trove.TObjectHashingStrategy
-import org.jetbrains.plugins.scala.lang.psi.api.base.ScStableCodeReferenceElement
+import org.jetbrains.plugins.scala.lang.psi.api.base.ScStableCodeReference
 import org.jetbrains.plugins.scala.lang.psi.api.toplevel.ScPackaging
 import org.jetbrains.plugins.scala.lang.psi.api.toplevel.imports.ScImportExpr
 import org.jetbrains.plugins.scala.lang.psi.api.toplevel.imports.usages._
@@ -160,7 +160,7 @@ object PrecedenceHelper {
         case o: ScObject => o.qualifiedName
       }
 
-  private def findImportReference(result: ScalaResolveResult): Option[ScStableCodeReferenceElement] =
+  private def findImportReference(result: ScalaResolveResult): Option[ScStableCodeReference] =
     result.importsUsed.toSeq match {
       case Seq(head) =>
         val importExpression = head match {

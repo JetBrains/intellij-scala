@@ -15,7 +15,7 @@ import org.jetbrains.plugins.scala.lang.completion.handlers.ScalaConstructorInse
 import org.jetbrains.plugins.scala.lang.completion.lookups.ScalaLookupItem
 import org.jetbrains.plugins.scala.lang.formatting.settings.ScalaCodeStyleSettings
 import org.jetbrains.plugins.scala.lang.psi.api.base.types.{ScSimpleTypeElement, ScTypeElement}
-import org.jetbrains.plugins.scala.lang.psi.api.base.{ScConstructor, ScReferenceElement, ScStableCodeReferenceElement}
+import org.jetbrains.plugins.scala.lang.psi.api.base.{ScConstructor, ScReference, ScStableCodeReference}
 import org.jetbrains.plugins.scala.lang.psi.api.expr.ScNewTemplateDefinition
 import org.jetbrains.plugins.scala.lang.psi.api.toplevel.templates.{ScExtendsBlock, ScTemplateParents}
 import org.jetbrains.plugins.scala.lang.psi.api.toplevel.typedef.{ScObject, ScTrait}
@@ -64,7 +64,7 @@ final class ScalaAfterNewCompletionContributor extends ScalaCompletionContributo
 object ScalaAfterNewCompletionContributor {
 
   private val afterNewPattern = identifierWithParentsPattern(
-    classOf[ScStableCodeReferenceElement],
+    classOf[ScStableCodeReference],
     classOf[ScSimpleTypeElement],
     classOf[ScConstructor],
     classOf[ScTemplateParents],
@@ -106,7 +106,7 @@ object ScalaAfterNewCompletionContributor {
   type RenamesMap = Map[String, (PsiNamedElement, String)]
 
   def createRenamesMap(element: PsiElement): RenamesMap =
-    PsiTreeUtil.getContextOfType(element, false, classOf[ScReferenceElement]) match {
+    PsiTreeUtil.getContextOfType(element, false, classOf[ScReference]) match {
       case null => Map.empty
       case ref =>
         ref.getVariants.flatMap {

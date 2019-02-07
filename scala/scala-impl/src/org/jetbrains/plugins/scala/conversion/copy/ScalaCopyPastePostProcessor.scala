@@ -17,13 +17,13 @@ import org.jetbrains.plugins.scala.extensions.{PsiElementExt, _}
 import org.jetbrains.plugins.scala.lang.dependency.Dependency
 import org.jetbrains.plugins.scala.lang.psi.ScImportsHolder
 import org.jetbrains.plugins.scala.lang.psi.api.ScalaFile
-import org.jetbrains.plugins.scala.lang.psi.api.base.ScReferenceElement
+import org.jetbrains.plugins.scala.lang.psi.api.base.ScReference
 import org.jetbrains.plugins.scala.lang.psi.api.base.types.ScTypeProjection
 import org.jetbrains.plugins.scala.lang.psi.api.expr.{ScReferenceExpression, ScSugarCallExpr}
 import org.jetbrains.plugins.scala.lang.psi.api.toplevel.ScPackaging
 import org.jetbrains.plugins.scala.lang.psi.api.toplevel.imports.ScImportStmt
 import org.jetbrains.plugins.scala.lang.psi.api.toplevel.templates.ScTemplateParents
-import org.jetbrains.plugins.scala.lang.psi.impl.base.ScStableCodeReferenceElementImpl
+import org.jetbrains.plugins.scala.lang.psi.impl.base.ScStableCodeReferenceImpl
 import org.jetbrains.plugins.scala.settings._
 
 import scala.collection.JavaConverters._
@@ -170,7 +170,7 @@ class ScalaCopyPastePostProcessor extends SingularCopyPastePostProcessor[Associa
         }
     }
 
-    def key(ref: ScReferenceElement) = (ref.refName, scopeEstimate(ref), ref.getKinds(incomplete = false))
+    def key(ref: ScReference) = (ref.refName, scopeEstimate(ref), ref.getKinds(incomplete = false))
 
     val allRefs = unqualifiedReferencesInRange(file, range)
     val grouped = allRefs.groupBy(key)
@@ -188,16 +188,16 @@ class ScalaCopyPastePostProcessor extends SingularCopyPastePostProcessor[Associa
     }
   }
 
-  private def unqualifiedReferencesInRange(file: PsiFile, range: TextRange): Seq[ScReferenceElement] = {
+  private def unqualifiedReferencesInRange(file: PsiFile, range: TextRange): Seq[ScReference] = {
     file.depthFirst().filter { elem =>
       range.contains(elem.getTextRange)
     }.collect {
       case ref: ScReferenceExpression if isPrimary(ref) => ref
-      case ref: ScStableCodeReferenceElementImpl if isPrimary(ref) => ref
+      case ref: ScStableCodeReferenceImpl if isPrimary(ref) => ref
     }.toVector
   }
 
-  private def isPrimary(ref: ScReferenceElement): Boolean = {
+  private def isPrimary(ref: ScReference): Boolean = {
     if (ref.qualifier.nonEmpty) return false
 
     ref match {

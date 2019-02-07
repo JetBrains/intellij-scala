@@ -10,7 +10,7 @@ import com.intellij.lang.ASTNode
 import com.intellij.psi._
 import org.jetbrains.plugins.scala.lang.psi.api.ScalaElementVisitor
 import org.jetbrains.plugins.scala.lang.psi.api.base.patterns._
-import org.jetbrains.plugins.scala.lang.psi.api.base.{ScPrimaryConstructor, ScStableCodeReferenceElement}
+import org.jetbrains.plugins.scala.lang.psi.api.base.{ScPrimaryConstructor, ScStableCodeReference}
 import org.jetbrains.plugins.scala.lang.psi.api.statements.ScFunction
 import org.jetbrains.plugins.scala.lang.psi.api.statements.params.ScParameter
 import org.jetbrains.plugins.scala.lang.psi.api.toplevel.typedef.{ScClass, ScObject}
@@ -92,7 +92,7 @@ class ScConstructorPatternImpl(node: ASTNode) extends ScalaPsiElementImpl (node)
 }
 
 object ScConstructorPatternImpl {
-  def isIrrefutable(typeOpt: Option[ScType], ref: ScStableCodeReferenceElement, subpatterns: Seq[ScPattern]): Boolean = {
+  def isIrrefutable(typeOpt: Option[ScType], ref: ScStableCodeReference, subpatterns: Seq[ScPattern]): Boolean = {
     val typedParamsOpt = for {
       matchedType <- typeOpt
       unapplyMethod <- resolveUnapplyMethodFromReference(ref)
@@ -113,7 +113,7 @@ object ScConstructorPatternImpl {
     }
   }
 
-  private def resolveUnapplyMethodFromReference(ref: ScStableCodeReferenceElement): Option[ScFunction] = for {
+  private def resolveUnapplyMethodFromReference(ref: ScStableCodeReference): Option[ScFunction] = for {
     resolveResult <- ref.bind()
     maybeUnapplyMethod = Option(resolveResult.getElement)
     unapplyMethod <- maybeUnapplyMethod.collect { case method: ScFunction if method.isUnapplyMethod => method }

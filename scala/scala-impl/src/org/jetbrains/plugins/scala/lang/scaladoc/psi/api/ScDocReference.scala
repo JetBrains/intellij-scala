@@ -5,12 +5,12 @@ package psi
 package api
 
 
-import org.jetbrains.plugins.scala.lang.psi.api.base.ScReferenceElement
+import org.jetbrains.plugins.scala.lang.psi.api.base.ScReference
 
 /**
  * User: Alexander Podkhalyuzin
  * Date: 22.07.2008
  */
 
-trait ScDocReferenceElement extends ScReferenceElement {
+trait ScDocReference extends ScReference {
 }

@@ -16,7 +16,7 @@ import org.jetbrains.plugins.scala.lang.completion.handlers.ScalaInsertHandler
 import org.jetbrains.plugins.scala.lang.lexer.ScalaTokenTypes
 import org.jetbrains.plugins.scala.lang.psi.PresentationUtil._
 import org.jetbrains.plugins.scala.lang.psi.ScalaPsiUtil
-import org.jetbrains.plugins.scala.lang.psi.api.base.{ScReferenceElement, ScStableCodeReferenceElement}
+import org.jetbrains.plugins.scala.lang.psi.api.base.{ScReference, ScStableCodeReference}
 import org.jetbrains.plugins.scala.lang.psi.api.expr.{ScBlock, ScReferenceExpression}
 import org.jetbrains.plugins.scala.lang.psi.api.statements.params.ScParameter
 import org.jetbrains.plugins.scala.lang.psi.api.statements.{ScFun, ScFunction, ScTypeAlias, ScTypeAliasDefinition}
@@ -253,16 +253,16 @@ class ScalaLookupItem(val element: PsiNamedElement, _name: String, containingCla
                 }
             }
           }
-          var ref = PsiTreeUtil.findElementOfClassAtOffset(context.getFile, context.getStartOffset + shift, classOf[ScReferenceElement], false)
+          var ref = PsiTreeUtil.findElementOfClassAtOffset(context.getFile, context.getStartOffset + shift, classOf[ScReference], false)
           val useFullyQualifiedName = PsiTreeUtil.getParentOfType(ref, classOf[ScImportStmt]) != null &&
             PsiTreeUtil.getParentOfType(ref, classOf[ScImportSelectors]) == null //do not complete in sel
           if (ref == null) return
-          while (ref.getParent != null && ref.getParent.isInstanceOf[ScReferenceElement] &&
-            (ref.getParent.asInstanceOf[ScReferenceElement].qualifier match {
+          while (ref.getParent != null && ref.getParent.isInstanceOf[ScReference] &&
+            (ref.getParent.asInstanceOf[ScReference].qualifier match {
               case Some(r) => r != ref
               case _ => true
             }))
-            ref = ref.getParent.asInstanceOf[ScReferenceElement]
+            ref = ref.getParent.asInstanceOf[ScReference]
 
           val newRef = ref match {
             case ref: ScReferenceExpression if prefixCompletion =>
@@ -273,7 +273,7 @@ class ScalaLookupItem(val element: PsiNamedElement, _name: String, containingCla
               } else {
                 ref.createReplacingElementWithClassName(useFullyQualifiedName, cl)
               }
-            case ref: ScStableCodeReferenceElement if prefixCompletion =>
+            case ref: ScStableCodeReference if prefixCompletion =>
               val parts = cl.qualifiedName.split('.')
               if (parts.length > 1) {
                 val newRefText = parts.takeRight(2).mkString(".")
@@ -294,8 +294,8 @@ class ScalaLookupItem(val element: PsiNamedElement, _name: String, containingCla
             case p: PsiPackage if shouldImport =>
               simpleInsert(context)
               context.commitDocument()
-              val ref: ScReferenceElement =
-                PsiTreeUtil.findElementOfClassAtOffset(context.getFile, context.getStartOffset + shift, classOf[ScReferenceElement], false)
+              val ref: ScReference =
+                PsiTreeUtil.findElementOfClassAtOffset(context.getFile, context.getStartOffset + shift, classOf[ScReference], false)
               if (ref == null) return
               getImportHolder(ref, ref.getProject).addImportForPath(p.getQualifiedName)
             case _ =>

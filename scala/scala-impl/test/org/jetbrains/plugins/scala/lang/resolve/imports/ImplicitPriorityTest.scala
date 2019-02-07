@@ -3,7 +3,7 @@ package lang
 package resolve
 package imports
 
-import org.jetbrains.plugins.scala.lang.psi.api.base.ScReferenceElement
+import org.jetbrains.plugins.scala.lang.psi.api.base.ScReference
 
 /**
  * @author jzaugg
@@ -13,7 +13,7 @@ class ImplicitPriorityTest extends ScalaResolveTestCase {
 
   def testlowPriorityImplicits() {
     findReferenceAtCaret() match {
-      case r: ScReferenceElement =>
+      case r: ScReference =>
         val results = r.multiResolveScala(false)
         assert(results.length == 1, results.mkString(","))
       case x => throw new Exception("Wrong reference!" + x)
@@ -22,7 +22,7 @@ class ImplicitPriorityTest extends ScalaResolveTestCase {
 
   def testlowPriorityImplicits2() {
     findReferenceAtCaret() match {
-      case r: ScReferenceElement =>
+      case r: ScReference =>
         val results = r.multiResolveScala(false)
         assert(results.length == 1, results.mkString(","))
       case x => throw new Exception("Wrong reference!" + x)
@@ -31,7 +31,7 @@ class ImplicitPriorityTest extends ScalaResolveTestCase {
 
   def testmostSpecificImplicit() {
     findReferenceAtCaret() match {
-      case r: ScReferenceElement =>
+      case r: ScReference =>
         val results = r.multiResolveScala(false)
         assert(results.length == 1, results.mkString(","))
       case x => throw new Exception("Wrong reference!" + x)

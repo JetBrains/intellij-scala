@@ -6,7 +6,7 @@ import com.intellij.psi.util.PsiTreeUtil
 import com.intellij.psi.util.PsiTreeUtil._
 import com.intellij.psi.{PsiElement, PsiMethod, PsiNamedElement, PsiPackage}
 import org.jetbrains.plugins.scala.extensions._
-import org.jetbrains.plugins.scala.lang.psi.api.base.ScReferenceElement
+import org.jetbrains.plugins.scala.lang.psi.api.base.ScReference
 import org.jetbrains.plugins.scala.lang.psi.api.base.types.ScSimpleTypeElement
 import org.jetbrains.plugins.scala.lang.psi.api.statements.{ScFun, ScFunction, ScTypeAlias, ScValueDeclaration}
 import org.jetbrains.plugins.scala.lang.psi.api.toplevel.typedef.{ScObject, ScTypeDefinition}
@@ -50,7 +50,7 @@ object ReachingDefintionsCollector {
   //defines if the given PsiNamedElement is visible at `place`
   private def isVisible(element: PsiNamedElement, place: PsiElement): Boolean = {
     def checkResolve(ref: PsiElement) = ref match {
-      case r: ScReferenceElement =>
+      case r: ScReference =>
         r.multiResolveScala(false).map(_.getElement).exists(PsiEquivalenceUtil.areElementsEquivalent(_, element))
       case _ => false
     }

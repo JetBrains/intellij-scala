@@ -13,7 +13,7 @@ import com.intellij.refactoring.changeSignature.{ChangeSignatureHandler, ChangeS
 import com.intellij.refactoring.util.CommonRefactoringUtil
 import com.intellij.refactoring.{HelpID, RefactoringBundle}
 import org.jetbrains.plugins.scala.extensions.{PsiElementExt, ResolvesTo}
-import org.jetbrains.plugins.scala.lang.psi.api.base.{ScMethodLike, ScReferenceElement}
+import org.jetbrains.plugins.scala.lang.psi.api.base.{ScMethodLike, ScReference}
 import org.jetbrains.plugins.scala.lang.psi.api.statements.{ScFunction, ScFunctionDeclaration, ScFunctionDefinition}
 import org.jetbrains.plugins.scala.lang.psi.api.toplevel.typedef.ScClass
 import org.jetbrains.plugins.scala.lang.psi.light.isWrapper
@@ -116,7 +116,7 @@ class ScalaChangeSignatureHandler extends ChangeSignatureHandler with ScalaRefac
   override def findTargetMember(element: PsiElement): PsiElement = {
     if (element.isInstanceOf[PsiMethod]) return element
 
-    def resolvedMethod = PsiTreeUtil.getParentOfType(element, classOf[ScReferenceElement]) match {
+    def resolvedMethod = PsiTreeUtil.getParentOfType(element, classOf[ScReference]) match {
       case null => null
       case ResolvesTo(m: PsiMethod) => m
       case _ => null

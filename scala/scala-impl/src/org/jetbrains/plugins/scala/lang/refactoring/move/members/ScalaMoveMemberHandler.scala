@@ -8,7 +8,7 @@ import com.intellij.refactoring.move.moveMembers.{MoveJavaMemberHandler, MoveMem
 import com.intellij.util.containers.MultiMap
 import org.jetbrains.plugins.scala.ScalaBundle
 import org.jetbrains.plugins.scala.extensions.{PsiElementExt, PsiMemberExt, PsiNamedElementExt}
-import org.jetbrains.plugins.scala.lang.psi.api.base.{ScReferenceElement, ScStableCodeReferenceElement}
+import org.jetbrains.plugins.scala.lang.psi.api.base.{ScReference, ScStableCodeReference}
 import org.jetbrains.plugins.scala.lang.psi.api.expr.ScReferenceExpression
 import org.jetbrains.plugins.scala.lang.psi.api.toplevel.imports.{ScImportExpr, ScImportSelector}
 import org.jetbrains.plugins.scala.lang.psi.impl.ScalaPsiElementFactory.{createExpressionFromText, createReferenceFromText}
@@ -30,7 +30,7 @@ class ScalaMoveMemberHandler extends MoveJavaMemberHandler {
 
   override def getUsage(member: PsiMember, psiReference: PsiReference, membersToMove: util.Set[PsiMember], targetClass: PsiClass): MoveMembersUsageInfo = {
     psiReference.getElement match {
-      case ref: ScReferenceElement =>
+      case ref: ScReference =>
         ref.qualifier match {
           case Some(qualifier) if targetClass.isAncestorOf(ref) =>
             new MoveMembersUsageInfo(member, ref, null, qualifier, psiReference) //remove qualifier for refs in target class
@@ -51,18 +51,18 @@ class ScalaMoveMemberHandler extends MoveJavaMemberHandler {
     if (element == null || !element.isValid) return true
 
     usage.reference match {
-      case ref @ ScReferenceElement.withQualifier(qualifier: ScReferenceElement) =>
+      case ref @ ScReference.withQualifier(qualifier: ScReference) =>
         if (usage.qualifierClass != null)
           changeQualifier(qualifier, usage.qualifierClass)
         else
           removeQualifier(ref, qualifier)
-      case ref: ScReferenceElement if usage.qualifierClass != null =>
+      case ref: ScReference if usage.qualifierClass != null =>
         addQualifier(ref, usage.qualifierClass)
       case _ => false
     }
   }
 
-  private def removeQualifier(ref: ScReferenceElement, qualifier: ScReferenceElement): Boolean = {
+  private def removeQualifier(ref: ScReference, qualifier: ScReference): Boolean = {
     ref.getParent match {
       case importExpr: ScImportExpr => importExpr.deleteExpr()
       case importSelector: ScImportSelector => importSelector.deleteSelector()
@@ -74,26 +74,26 @@ class ScalaMoveMemberHandler extends MoveJavaMemberHandler {
     true
   }
 
-  private def changeQualifier(qualifier: ScReferenceElement, targetClass: PsiClass): Boolean = {
+  private def changeQualifier(qualifier: ScReference, targetClass: PsiClass): Boolean = {
     qualifier.handleElementRename(targetClass.name)
     qualifier.bindToElement(targetClass)
     true
   }
 
-  private def addQualifier(reference: ScReferenceElement, targetClass: PsiClass): Boolean = {
+  private def addQualifier(reference: ScReference, targetClass: PsiClass): Boolean = {
     import reference.projectContext
 
     val textWithQualifier = s"${targetClass.name}.${reference.refName}"
     val qualified = reference match {
       case _: ScReferenceExpression =>
         createExpressionFromText(textWithQualifier)
-      case _: ScStableCodeReferenceElement =>
+      case _: ScStableCodeReference =>
         createReferenceFromText(textWithQualifier)
       case _ => return false
     }
 
     reference.replace(qualified) match {
-      case ScReferenceElement.withQualifier(q: ScReferenceElement) =>
+      case ScReference.withQualifier(q: ScReference) =>
         q.bindToElement(targetClass)
       case _ =>
     }

@@ -4,7 +4,7 @@ package lang.psi.controlFlow.impl
 import _root_.org.jetbrains.plugins.scala.lang.psi.api.{ScalaPsiElement, ScalaRecursiveElementVisitor}
 import com.intellij.psi.PsiNamedElement
 import com.intellij.psi.util.PsiTreeUtil
-import org.jetbrains.plugins.scala.lang.psi.api.base.ScReferenceElement
+import org.jetbrains.plugins.scala.lang.psi.api.base.ScReference
 import org.jetbrains.plugins.scala.lang.psi.api.base.patterns.{ScBindingPattern, ScCaseClause, ScPattern}
 import org.jetbrains.plugins.scala.lang.psi.api.expr._
 import org.jetbrains.plugins.scala.lang.psi.api.statements.params.ScParameter
@@ -131,7 +131,7 @@ class ScalaControlFlowBuilder(startInScope: ScalaPsiElement,
     myHead = instr
   }
 
-  def usedVariable(ref: ScReferenceElement): Option[PsiNamedElement] = ref.resolve() match {
+  def usedVariable(ref: ScReference): Option[PsiNamedElement] = ref.resolve() match {
     case named: PsiNamedElement => Some(named)
     case _ => None
   }

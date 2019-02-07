@@ -12,7 +12,7 @@ import com.intellij.refactoring.ui.RefactoringDialog
 import com.intellij.ui.EditorComboBox
 import javax.swing._
 import org.jetbrains.plugins.scala.extensions.ObjectExt
-import org.jetbrains.plugins.scala.lang.psi.api.base.ScReferenceElement
+import org.jetbrains.plugins.scala.lang.psi.api.base.ScReference
 import org.jetbrains.plugins.scala.lang.psi.api.toplevel.typedef.{ScMember, ScObject}
 import org.jetbrains.plugins.scala.lang.psi.impl.source.ScalaCodeFragment
 import org.jetbrains.plugins.scala.{ScalaBundle, ScalaFileType}
@@ -34,7 +34,7 @@ class ScalaMoveMembersDialog(project: Project, canBeParent: Boolean, sourceObjec
 
   override def doAction(): Unit = {
     val reference =
-      PsiTreeUtil.getChildOfType(targetObjectFragment, classOf[ScReferenceElement])
+      PsiTreeUtil.getChildOfType(targetObjectFragment, classOf[ScReference])
         .toOption.toRight(ScalaBundle.message("move.members.object.name.or.qualified.name.expected"))
 
     val maybeObj = reference.flatMap(_.resolve()

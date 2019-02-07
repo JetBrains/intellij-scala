@@ -11,7 +11,7 @@ import org.jetbrains.plugins.scala.extensions.inReadAction
 import org.jetbrains.plugins.scala.finder.ScalaFilterScope
 import org.jetbrains.plugins.scala.lang.psi.ScalaPsiUtil
 import org.jetbrains.plugins.scala.lang.psi.api.base.patterns.{ScBindingPattern, ScConstructorPattern}
-import org.jetbrains.plugins.scala.lang.psi.api.base.{ScReferenceElement, ScStableCodeReferenceElement}
+import org.jetbrains.plugins.scala.lang.psi.api.base.{ScReference, ScStableCodeReference}
 import org.jetbrains.plugins.scala.lang.psi.api.expr.{ScMethodCall, ScNewTemplateDefinition, ScReferenceExpression}
 import org.jetbrains.plugins.scala.lang.psi.api.statements.ScFunctionDefinition
 import org.jetbrains.plugins.scala.lang.resolve.ScalaResolveResult
@@ -71,9 +71,9 @@ class ApplyUnapplyForBindingSearcher extends QueryExecutor[PsiReference, Referen
   }
 
   private class Unapply(binding: ScBindingPattern) {
-    def unapply(ref: PsiReference): Option[ScReferenceElement] = {
+    def unapply(ref: PsiReference): Option[ScReference] = {
       (ref, ref.getElement.getContext) match {
-        case (sref: ScStableCodeReferenceElement, _: ScConstructorPattern) =>
+        case (sref: ScStableCodeReference, _: ScConstructorPattern) =>
           sref.bind() match {
             case Some(resolve@ScalaResolveResult(fun: ScFunctionDefinition, _))
               if Set("unapply", "unapplySeq").contains(fun.name) =>
@@ -95,7 +95,7 @@ class ApplyUnapplyForBindingSearcher extends QueryExecutor[PsiReference, Referen
   }
 
   private class Apply(binding: ScBindingPattern) {
-    def unapply(ref: PsiReference): Option[ScReferenceElement] = {
+    def unapply(ref: PsiReference): Option[ScReference] = {
       (ref, ref.getElement.getContext) match {
         case (sref: ScReferenceExpression, x: ScMethodCall) if x.getInvokedExpr == ref.getElement =>
           sref.bind() match {

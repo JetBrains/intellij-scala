@@ -12,7 +12,7 @@ import com.intellij.psi.codeStyle.arrangement.std.StdArrangementTokens.Modifier.
 import org.jetbrains.plugins.scala.extensions.PsiElementExt
 import org.jetbrains.plugins.scala.lang.lexer.ScalaTokenTypes
 import org.jetbrains.plugins.scala.lang.psi.api.ScalaPsiElement
-import org.jetbrains.plugins.scala.lang.psi.api.base.{ScConstructor, ScModifierList, ScReferenceElement, ScStableCodeReferenceElement}
+import org.jetbrains.plugins.scala.lang.psi.api.base.{ScConstructor, ScModifierList, ScReference, ScStableCodeReference}
 import org.jetbrains.plugins.scala.lang.psi.api.expr.{ScExpression, ScReferenceExpression}
 import org.jetbrains.plugins.scala.lang.psi.api.statements._
 import org.jetbrains.plugins.scala.lang.psi.api.toplevel.templates.ScTemplateBody
@@ -79,7 +79,7 @@ class ScalaArrangementVisitor(parseInfo: ScalaArrangementParseInfo, document: Do
     parseInfo.onMethodEntryCreated(fun, entry)
     processEntry(entry, fun, null)
     fun.getLastChild match {
-      case ref: ScStableCodeReferenceElement =>
+      case ref: ScStableCodeReference =>
         val methodBodyProcessor = new MethodBodyProcessor(parseInfo, fun)
         ref.accept(methodBodyProcessor)
       case _ =>
@@ -278,7 +278,7 @@ class ScalaArrangementVisitor(parseInfo: ScalaArrangementParseInfo, document: Do
 
   private class MethodBodyProcessor(val info: ScalaArrangementParseInfo, val baseMethod: ScFunction) extends ScalaRecursiveElementVisitor {
 
-    override def visitReference(ref: ScReferenceElement) {
+    override def visitReference(ref: ScReference) {
       ref.resolve() match {
         case fun: ScFunction if fun.getContainingClass == baseMethod.getContainingClass =>
           assert(baseMethod != null)

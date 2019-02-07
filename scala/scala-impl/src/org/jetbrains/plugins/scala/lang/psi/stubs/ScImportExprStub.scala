@@ -4,7 +4,7 @@ package psi
 package stubs
 
 import com.intellij.psi.stubs.StubElement
-import org.jetbrains.plugins.scala.lang.psi.api.base.ScStableCodeReferenceElement
+import org.jetbrains.plugins.scala.lang.psi.api.base.ScStableCodeReference
 import org.jetbrains.plugins.scala.lang.psi.api.toplevel.imports.ScImportExpr
 
 /**
@@ -14,7 +14,7 @@ import org.jetbrains.plugins.scala.lang.psi.api.toplevel.imports.ScImportExpr
 trait ScImportExprStub extends StubElement[ScImportExpr] {
   def referenceText: Option[String]
 
-  def reference: Option[ScStableCodeReferenceElement]
+  def reference: Option[ScStableCodeReference]
 
   def isSingleWildcard: Boolean
 }

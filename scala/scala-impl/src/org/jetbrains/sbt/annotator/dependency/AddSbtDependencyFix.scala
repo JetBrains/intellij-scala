@@ -16,7 +16,7 @@ import com.intellij.psi.{PsiElement, PsiFile, PsiManager, SmartPsiElementPointer
 import org.jetbrains.plugins.scala.extensions
 import org.jetbrains.plugins.scala.extensions.ValidSmartPointer
 import org.jetbrains.plugins.scala.lang.psi.api.ScalaFile
-import org.jetbrains.plugins.scala.lang.psi.api.base.ScReferenceElement
+import org.jetbrains.plugins.scala.lang.psi.api.base.ScReference
 import org.jetbrains.plugins.scala.lang.psi.api.expr.ScInfixExpr
 import org.jetbrains.plugins.scala.lang.psi.api.statements.ScPatternDefinition
 import org.jetbrains.plugins.scala.lang.psi.api.toplevel.imports.ScImportExpr
@@ -32,7 +32,7 @@ import org.jetbrains.sbt.settings.SbtSettings
 /**
   * Created by afonichkin on 7/7/17.
   */
-private class AddSbtDependencyFix(refElement: SmartPsiElementPointer[ScReferenceElement]) extends IntentionAction with LowPriorityAction {
+private class AddSbtDependencyFix(refElement: SmartPsiElementPointer[ScReference]) extends IntentionAction with LowPriorityAction {
   override def isAvailable(project: Project, editor: Editor, file: PsiFile): Boolean = file match {
     case _: ScalaCodeFragment => false
     case scalaFile: ScalaFile =>

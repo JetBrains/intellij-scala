@@ -8,12 +8,12 @@ import com.intellij.psi.scope.NameHint
 import org.jetbrains.plugins.scala.extensions._
 import org.jetbrains.plugins.scala.lang.psi.ScalaPsiUtil
 import org.jetbrains.plugins.scala.lang.psi.api.base.patterns.{ScConstructorPattern, ScReferencePattern}
-import org.jetbrains.plugins.scala.lang.psi.api.base.{ScConstructor, ScPrimaryConstructor, ScReferenceElement}
+import org.jetbrains.plugins.scala.lang.psi.api.base.{ScConstructor, ScPrimaryConstructor, ScReference}
 import org.jetbrains.plugins.scala.lang.psi.api.expr._
 import org.jetbrains.plugins.scala.lang.psi.api.statements.ScFunctionDefinition
 import org.jetbrains.plugins.scala.lang.psi.api.toplevel.ScNamedElement
 import org.jetbrains.plugins.scala.lang.psi.api.toplevel.typedef.{ScClass, ScMember, ScObject}
-import org.jetbrains.plugins.scala.lang.psi.impl.base.ScStableCodeReferenceElementImpl
+import org.jetbrains.plugins.scala.lang.psi.impl.base.ScStableCodeReferenceImpl
 import org.jetbrains.plugins.scala.lang.psi.impl.expr.ScReferenceExpressionImpl
 import org.jetbrains.plugins.scala.lang.psi.impl.toplevel.synthetic.ScSyntheticClass
 import org.jetbrains.plugins.scala.lang.psi.types.{ScType, ScTypeExt}
@@ -35,7 +35,7 @@ case class Dependency(kind: DependencyKind, target: PsiElement, path: Path) {
 
 object Dependency {
 
-  class DependencyProcessor(ref: ScReferenceElement) extends CompletionProcessor(ref.getKinds(incomplete = false), ref) {
+  class DependencyProcessor(ref: ScReference) extends CompletionProcessor(ref.getKinds(incomplete = false), ref) {
     override def changedLevel: Boolean = {
       val superRes = super.changedLevel
 
@@ -57,17 +57,17 @@ object Dependency {
 
   def dependenciesIn(scope: PsiElement): Seq[Dependency] = {
     scope.depthFirst()
-      .instancesOf[ScReferenceElement]
+      .instancesOf[ScReference]
       .toList
       .flatMap(reference => dependencyFor(reference).toList)
   }
 
-  def dependencyFor(reference: ScReferenceElement): Option[Dependency] = {
+  def dependencyFor(reference: ScReference): Option[Dependency] = {
     fastResolve(reference)
       .flatMap(result => dependencyFor(reference, result.element, result.fromType))
   }
 
-  private def fastResolve(ref: ScReferenceElement): Option[ScalaResolveResult] = {
+  private def fastResolve(ref: ScReference): Option[ScalaResolveResult] = {
     //we don't want to resolve call reference here for something looking like a named parameter
     ref.contexts.take(3).toSeq match {
       case Seq(ScAssignment(`ref`, _), _: ScArgumentExprList, _: MethodInvocation | _: ScSelfInvocation | _: ScConstructor) => return None
@@ -81,14 +81,14 @@ object Dependency {
 
     val results = ref match {
       case rExpr: ScReferenceExpressionImpl => rExpr.doResolve(processor)
-      case stRef: ScStableCodeReferenceElementImpl => stRef.doResolve(processor)
+      case stRef: ScStableCodeReferenceImpl => stRef.doResolve(processor)
       case _ => ScalaResolveResult.EMPTY_ARRAY
     }
 
     results.headOption
   }
 
-  private def dependencyFor(reference: ScReferenceElement, target: PsiElement, fromType: Option[ScType]): Option[Dependency] = {
+  private def dependencyFor(reference: ScReference, target: PsiElement, fromType: Option[ScType]): Option[Dependency] = {
 
     def pathFor(entity: PsiNamedElement, member: Option[String] = None): Option[Path] = {
       if (!ScalaPsiUtil.hasStablePath(entity)) return None

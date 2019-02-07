@@ -12,7 +12,7 @@ import org.jetbrains.annotations.Nullable
 import org.jetbrains.plugins.scala.extensions._
 import org.jetbrains.plugins.scala.lang.formatting.settings.ScalaCodeStyleSettings
 import org.jetbrains.plugins.scala.lang.psi.api.{ScalaPsiElement, ScalaRecursiveElementVisitor}
-import org.jetbrains.plugins.scala.lang.psi.api.base.ScReferenceElement
+import org.jetbrains.plugins.scala.lang.psi.api.base.ScReference
 import org.jetbrains.plugins.scala.lang.psi.api.expr._
 import org.jetbrains.plugins.scala.lang.psi.api.statements.ScFunction
 import org.jetbrains.plugins.scala.lang.psi.api.toplevel.{ScNamedElement, ScTypedDefinition}
@@ -140,7 +140,7 @@ object ScalaExtractMethodUtils {
     }
 
     val visitor = new ScalaRecursiveElementVisitor() {
-      override def visitReference(ref: ScReferenceElement) {
+      override def visitReference(ref: ScReference) {
         ref.bind() match {
           case Some(ScalaResolveResult(named: PsiNamedElement, _: ScSubstitutor)) =>
             if (named.getContainingFile == method.getContainingFile && named.getTextOffset < offset &&
@@ -162,7 +162,7 @@ object ScalaExtractMethodUtils {
                       sect.getParent.getNode.replaceChild(sect.getNode, newRef.getNode)
                     case _ if param.isEmptyParamFunction =>
                       ref.getParent match {
-                        case ref: ScReferenceElement if ref.refName == "apply" => tail()
+                        case ref: ScReference if ref.refName == "apply" => tail()
                         case _: ScMethodCall => tail()
                         case _ =>
                           ref.asInstanceOf[ScExpression].expectedType() match {

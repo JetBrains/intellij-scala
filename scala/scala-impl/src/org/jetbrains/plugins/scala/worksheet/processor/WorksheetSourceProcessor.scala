@@ -11,7 +11,7 @@ import org.jetbrains.plugins.scala.lang.lexer.ScalaTokenTypes
 import org.jetbrains.plugins.scala.lang.psi.PresentationUtil.accessModifierText
 import org.jetbrains.plugins.scala.lang.psi.PresentationUtil
 import org.jetbrains.plugins.scala.lang.psi.api.{ScalaFile, ScalaPsiElement}
-import org.jetbrains.plugins.scala.lang.psi.api.base.ScStableCodeReferenceElement
+import org.jetbrains.plugins.scala.lang.psi.api.base.ScStableCodeReference
 import org.jetbrains.plugins.scala.lang.psi.api.base.patterns.ScTypedPattern
 import org.jetbrains.plugins.scala.lang.psi.api.base.types.{ScTupleTypeElement, ScTypeElement}
 import org.jetbrains.plugins.scala.lang.psi.api.expr.{ScAssignment, ScExpression}
@@ -335,7 +335,7 @@ object WorksheetSourceProcessor {
       if (imp.importExprs.lengthCompare(1) < 0) return false
 
       var currentQual = imp.importExprs.head.qualifier
-      var lastFound: Option[(ScStableCodeReferenceElement, PsiElement)] = None
+      var lastFound: Option[(ScStableCodeReference, PsiElement)] = None
 
       while (currentQual != null) {
         currentQual.resolve() match {

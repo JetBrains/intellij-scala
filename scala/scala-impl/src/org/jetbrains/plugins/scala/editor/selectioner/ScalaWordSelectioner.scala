@@ -7,7 +7,7 @@ import com.intellij.openapi.util.TextRange
 import com.intellij.psi.PsiElement
 import org.jetbrains.plugins.scala.extensions.PsiFileExt
 import org.jetbrains.plugins.scala.lang.lexer.ScalaTokenTypes
-import org.jetbrains.plugins.scala.lang.psi.api.base.ScReferenceElement
+import org.jetbrains.plugins.scala.lang.psi.api.base.ScReference
 import org.jetbrains.plugins.scala.lang.psi.api.expr.ScMethodCall
 import org.jetbrains.plugins.scala.lang.psi.api.statements.params.{ScArguments, ScParameterClause}
 import org.jetbrains.plugins.scala.lang.psi.api.toplevel.templates.ScExtendsBlock
@@ -48,7 +48,7 @@ class ScalaWordSelectioner extends ExtendWordSelectionHandlerBase {
         }
         if (start <= end) result.add(new TextRange(start, end))
       //case for references
-      case x: ScReferenceElement =>
+      case x: ScReference =>
         //choosing end offset, another to method call
         val offset = if (!x.getParent.isInstanceOf[ScMethodCall]) x.getTextRange.getEndOffset
         else x.getParent.getTextRange.getEndOffset
@@ -82,7 +82,7 @@ class ScalaWordSelectioner extends ExtendWordSelectionHandlerBase {
         }
       case x: ScMethodCall =>
         x.getEffectiveInvokedExpr match {
-          case ref: ScReferenceElement => return select(ref, editorText, cursorOffset, editor)
+          case ref: ScReference => return select(ref, editorText, cursorOffset, editor)
           case _ =>
         }
       case _ =>
@@ -93,7 +93,7 @@ class ScalaWordSelectioner extends ExtendWordSelectionHandlerBase {
     e match {
       case _: ScParameterClause | _: ScArguments => true
       case _: ScExtendsBlock => true
-      case _: ScReferenceElement => true
+      case _: ScReference => true
       case _: ScMethodCall => true
       case _ => false
     }

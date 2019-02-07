@@ -11,7 +11,7 @@ import com.intellij.util.ProcessingContext;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.plugins.scala.lang.psi.api.ScalaPsiElement;
 import org.jetbrains.plugins.scala.lang.psi.api.base.ScLiteral;
-import org.jetbrains.plugins.scala.lang.psi.api.base.ScReferenceElement;
+import org.jetbrains.plugins.scala.lang.psi.api.base.ScReference;
 import org.jetbrains.plugins.scala.lang.psi.api.expr.*;
 import org.jetbrains.plugins.scala.lang.psi.api.statements.params.ScArguments;
 
@@ -65,8 +65,8 @@ public class ScalaElementPattern<T extends ScalaPsiElement, Self extends ScalaEl
           final PsiElement element = psiExpressionList.getParent();
           if (element instanceof ScMethodCall) {
             final ScalaPsiElement expression = ((ScMethodCall) element).getEffectiveInvokedExpr();
-            if (expression instanceof ScReferenceElement) {
-              final ScReferenceElement ref = (ScReferenceElement) expression;
+            if (expression instanceof ScReference) {
+              final ScReference ref = (ScReference) expression;
               for (ResolveResult result : ref.multiResolveScala(false))
                 if (methodPattern.accepts(result.getElement(), context))
                   return true;

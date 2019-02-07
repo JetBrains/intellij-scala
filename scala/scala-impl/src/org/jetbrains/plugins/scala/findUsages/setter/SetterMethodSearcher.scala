@@ -9,7 +9,7 @@ import com.intellij.psi.search.{PsiSearchHelper, SearchScope, TextOccurenceProce
 import com.intellij.util.{Processor, QueryExecutor}
 import org.jetbrains.plugins.scala.extensions.{&&, Parent, inReadAction}
 import org.jetbrains.plugins.scala.lang.psi.ScalaPsiUtil._
-import org.jetbrains.plugins.scala.lang.psi.api.base.ScReferenceElement
+import org.jetbrains.plugins.scala.lang.psi.api.base.ScReference
 import org.jetbrains.plugins.scala.lang.psi.api.base.patterns.ScReferencePattern
 import org.jetbrains.plugins.scala.lang.psi.api.expr.ScAssignment
 import org.jetbrains.plugins.scala.lang.psi.api.statements.{ScFunction, ScVariable}
@@ -56,7 +56,7 @@ class SetterMethodSearcher extends QueryExecutor[PsiReference, ReferencesSearch.
             case Parent(Parent(assign: ScAssignment)) => assign.resolveAssignment match {
               case Some(res) if res.element.getNavigationElement == element =>
                 Option(assign.leftExpression).foreach {
-                  case ref: ScReferenceElement => if (!consumer.process(ref)) return false
+                  case ref: ScReference => if (!consumer.process(ref)) return false
                 }
               case _ =>
             }

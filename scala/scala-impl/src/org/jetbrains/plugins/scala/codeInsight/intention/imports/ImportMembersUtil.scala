@@ -7,7 +7,7 @@ import com.intellij.psi._
 import com.intellij.psi.util.PsiTreeUtil
 import org.jetbrains.plugins.scala.extensions._
 import org.jetbrains.plugins.scala.lang.psi.ScalaPsiUtil
-import org.jetbrains.plugins.scala.lang.psi.api.base.{ScReferenceElement, ScStableCodeReferenceElement}
+import org.jetbrains.plugins.scala.lang.psi.api.base.{ScReference, ScStableCodeReference}
 import org.jetbrains.plugins.scala.lang.psi.api.expr.{ScInfixExpr, ScMethodCall, ScPostfixExpr, ScReferenceExpression}
 import org.jetbrains.plugins.scala.lang.psi.api.statements.ScFunction
 import org.jetbrains.plugins.scala.lang.psi.api.toplevel.imports.ScImportExpr
@@ -24,17 +24,17 @@ import scala.collection.JavaConverters._
 object ImportMembersUtil {
   def isInImport(element: PsiElement): Boolean = PsiTreeUtil.getParentOfType(element, classOf[ScImportExpr]) != null
 
-  def hasQualifier(ref: ScReferenceElement): Boolean = {
+  def hasQualifier(ref: ScReference): Boolean = {
     ref match {
       case _ childOf (ScInfixExpr(_: ScReferenceExpression, `ref`, _)) => true
       case _ childOf (ScPostfixExpr(_: ScReferenceExpression, `ref`)) => true
       case ScReferenceExpression.withQualifier(_: ScReferenceExpression) => true
-      case stCodeRef: ScStableCodeReferenceElement => stCodeRef.qualifier.isDefined
+      case stCodeRef: ScStableCodeReference => stCodeRef.qualifier.isDefined
       case _ => false
     }
   }
 
-  def resolvesToStablePath(ref: ScReferenceElement): Boolean = {
+  def resolvesToStablePath(ref: ScReference): Boolean = {
     if (ref == null) return false
 
     ref.resolve() match {
@@ -46,7 +46,7 @@ object ImportMembersUtil {
   }
 
   @tailrec
-  def replaceWithName(oldRef: ScReferenceElement, name: String): ScReferenceElement = {
+  def replaceWithName(oldRef: ScReference, name: String): ScReference = {
     import oldRef.projectContext
 
     oldRef match {
@@ -60,15 +60,15 @@ object ImportMembersUtil {
                 .asInstanceOf[ScReferenceExpression]
         replaceWithName(withDot, name)
       case _: ScReferenceExpression =>
-        oldRef.replace(createExpressionFromText(name)).asInstanceOf[ScReferenceElement]
-      case _: ScStableCodeReferenceElement =>
-        oldRef.replace(createReferenceFromText(name)).asInstanceOf[ScReferenceElement]
+        oldRef.replace(createExpressionFromText(name)).asInstanceOf[ScReference]
+      case _: ScStableCodeReference =>
+        oldRef.replace(createReferenceFromText(name)).asInstanceOf[ScReference]
       case _ => null
     }
   }
 
   @tailrec
-  def replaceAndBind(oldRef: ScReferenceElement, name: String, toBind: PsiNamedElement) {
+  def replaceAndBind(oldRef: ScReference, name: String, toBind: PsiNamedElement) {
     toBind match {
       case fun: ScFunction if fun.isSynthetic =>
         fun.syntheticNavigationElement match {
@@ -95,9 +95,9 @@ object ImportMembersUtil {
             val refExpr = createExpressionFromText(name)
             val replaced = expr.replaceExpression(refExpr, removeParenthesis = true)
             replaced.asInstanceOf[ScReferenceExpression].bindToElement(toBind, clazz)
-          case _: ScStableCodeReferenceElement =>
+          case _: ScStableCodeReference =>
             val replaced = oldRef.replace(createReferenceFromText(name))
-            replaced.asInstanceOf[ScStableCodeReferenceElement].bindToElement(toBind)
+            replaced.asInstanceOf[ScStableCodeReference].bindToElement(toBind)
           case _ =>
         }
     }
@@ -122,19 +122,19 @@ object ImportMembersUtil {
   }
 
   object isQualifierFor {
-    def unapply(qual: ScReferenceElement): Option[ScReferenceElement] = {
+    def unapply(qual: ScReference): Option[ScReference] = {
       qual.getParent match {
         case ref @ ScReferenceExpression.withQualifier(`qual`) => Some(ref)
         case ScInfixExpr(`qual`, op, _) => Some(op)
-        case ScPostfixExpr(`qual`, op: ScReferenceElement) => Some(op)
-        case stRef: ScStableCodeReferenceElement if stRef.qualifier.contains(qual) => Some(stRef)
+        case ScPostfixExpr(`qual`, op: ScReference) => Some(op)
+        case stRef: ScStableCodeReference if stRef.qualifier.contains(qual) => Some(stRef)
         case _ => None
       }
     }
   }
 
   object isQualifierInImport {
-    def unapply(qual: ScStableCodeReferenceElement): Option[ScImportExpr] = {
+    def unapply(qual: ScStableCodeReference): Option[ScImportExpr] = {
       PsiTreeUtil.getParentOfType(qual, classOf[ScImportExpr]).toOption
     }
   }

@@ -7,7 +7,7 @@ import com.intellij.psi.filters.ElementFilter
 import com.intellij.psi.{PsiElement, _}
 import org.jetbrains.annotations.NonNls
 import org.jetbrains.plugins.scala.lang.completion.ScalaCompletionUtil._
-import org.jetbrains.plugins.scala.lang.psi.api.base.patterns.{ScCaseClause, ScStableReferenceElementPattern}
+import org.jetbrains.plugins.scala.lang.psi.api.base.patterns.{ScCaseClause, ScStableReferencePattern}
 import org.jetbrains.plugins.scala.lang.psi.api.expr._
 
 /**
@@ -27,7 +27,7 @@ class TemplateFilter extends ElementFilter {
       parent match {
         case _: ScReferenceExpression =>
           parent.getParent match {
-            case y: ScStableReferenceElementPattern => {
+            case y: ScStableReferencePattern => {
               y.getParent match {
                 case x: ScCaseClause => {
                   x.getParent.getParent match {

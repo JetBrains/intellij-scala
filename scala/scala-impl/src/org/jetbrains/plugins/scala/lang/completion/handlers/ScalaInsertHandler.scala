@@ -13,7 +13,7 @@ import org.jetbrains.plugins.scala.extensions._
 import org.jetbrains.plugins.scala.lang.completion.lookups.ScalaLookupItem
 import org.jetbrains.plugins.scala.lang.lexer.ScalaTokenTypes
 import org.jetbrains.plugins.scala.lang.psi.ScalaPsiUtil
-import org.jetbrains.plugins.scala.lang.psi.api.base.{ScInterpolated, ScStableCodeReferenceElement}
+import org.jetbrains.plugins.scala.lang.psi.api.base.{ScInterpolated, ScStableCodeReference}
 import org.jetbrains.plugins.scala.lang.psi.api.expr._
 import org.jetbrains.plugins.scala.lang.psi.api.statements.{ScFun, ScFunction, ScTypeAlias}
 import org.jetbrains.plugins.scala.lang.psi.api.toplevel.templates.{ScExtendsBlock, ScTemplateParents}
@@ -119,7 +119,7 @@ class ScalaInsertHandler extends InsertHandler[LookupElement] {
       var elem = element
       var parent = elem.getParent
       while (parent match {
-        case _: ScStableCodeReferenceElement =>
+        case _: ScStableCodeReference =>
           parent.getParent match {
             case _: ScThisReference | _: ScSuperReference => true
             case _ => false

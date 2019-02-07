@@ -19,7 +19,7 @@ import org.jetbrains.plugins.scala.editor.typedHandler.ScalaTypedHandler
 import org.jetbrains.plugins.scala.extensions._
 import org.jetbrains.plugins.scala.lang.formatting.settings.ScalaCodeStyleSettings._
 import org.jetbrains.plugins.scala.lang.lexer.ScalaTokenTypes
-import org.jetbrains.plugins.scala.lang.psi.api.base.{ScConstructor, ScReferenceElement, ScStableCodeReferenceElement}
+import org.jetbrains.plugins.scala.lang.psi.api.base.{ScConstructor, ScReference, ScStableCodeReference}
 import org.jetbrains.plugins.scala.lang.psi.api.expr.{ScExpression, ScFor, ScMethodCall}
 import org.jetbrains.plugins.scala.lang.psi.api.toplevel.imports.ScImportStmt
 import org.jetbrains.plugins.scala.lang.psi.api.toplevel.imports.usages.ImportUsed
@@ -312,7 +312,7 @@ object ScalaImportOptimizer {
 
   private object ImportUser {
     def unapply(e: PsiElement): Option[PsiElement] = e match {
-      case elem @ (_: ScReferenceElement | _: ImplicitArgumentsOwner) => Some(elem)
+      case elem @ (_: ScReference | _: ImplicitArgumentsOwner) => Some(elem)
       case _                                                          => None
     }
   }
@@ -813,14 +813,14 @@ object ScalaImportOptimizer {
     }
 
     element match {
-      case impQual: ScStableCodeReferenceElement
+      case impQual: ScStableCodeReference
         if impQual.qualifier.isEmpty && PsiTreeUtil.getParentOfType(impQual, classOf[ScImportStmt]) != null =>
         //don't add as ImportUsed to be able to optimize it away if it is used only in unused imports
         val hasImportUsed = impQual.multiResolveScala(false).exists(_.importsUsed.nonEmpty)
         if (hasImportUsed) {
           names.add(UsedName(impQual.refName, impQual.getTextRange.getStartOffset))
         }
-      case ref: ScReferenceElement if PsiTreeUtil.getParentOfType(ref, classOf[ScImportStmt]) == null =>
+      case ref: ScReference if PsiTreeUtil.getParentOfType(ref, classOf[ScImportStmt]) == null =>
         ref.multiResolveScala(false).foreach(addWithImplicits(_, ref))
       case c: ScConstructor =>
         c.findImplicitArguments match {

@@ -11,7 +11,7 @@ import com.intellij.psi.{PsiElement, PsiNamedElement}
 import org.jetbrains.plugins.scala.annotator.intention.ScalaImportTypeFix
 import org.jetbrains.plugins.scala.codeInsight.intention.imports.ImportMembersUtil._
 import org.jetbrains.plugins.scala.extensions.PsiReferenceEx.resolve
-import org.jetbrains.plugins.scala.lang.psi.api.base.ScReferenceElement
+import org.jetbrains.plugins.scala.lang.psi.api.base.ScReference
 import org.jetbrains.plugins.scala.lang.psi.api.toplevel.imports.ScImportExpr
 import org.jetbrains.plugins.scala.lang.refactoring.util.ScalaNamesUtil
 
@@ -22,7 +22,7 @@ import org.jetbrains.plugins.scala.lang.refactoring.util.ScalaNamesUtil
 */
 class ImportAllMembersIntention extends PsiElementBaseIntentionAction {
   override def isAvailable(project: Project, editor: Editor, element: PsiElement): Boolean = {
-    val qualAtCaret = PsiTreeUtil.getParentOfType(element, classOf[ScReferenceElement])
+    val qualAtCaret = PsiTreeUtil.getParentOfType(element, classOf[ScReference])
     if (qualAtCaret == null) return false
     setText(s"Import all members of ${qualAtCaret.refName}")
     checkQualifier(qualAtCaret)
@@ -31,9 +31,9 @@ class ImportAllMembersIntention extends PsiElementBaseIntentionAction {
 
   override def invoke(project: Project, editor: Editor, element: PsiElement): Unit = {
 
-    case class RefWithUsage(ref: ScReferenceElement, named: PsiNamedElement)
+    case class RefWithUsage(ref: ScReference, named: PsiNamedElement)
 
-    val qualAtCaret = PsiTreeUtil.getParentOfType(element, classOf[ScReferenceElement])
+    val qualAtCaret = PsiTreeUtil.getParentOfType(element, classOf[ScReference])
     if (qualAtCaret == null || !checkQualifier(qualAtCaret)) return
     qualAtCaret.resolve() match {
       case named: PsiNamedElement =>
@@ -56,7 +56,7 @@ class ImportAllMembersIntention extends PsiElementBaseIntentionAction {
 
   override def getFamilyName: String = ImportAllMembersIntention.familyName
 
-  private def checkQualifier(qual: ScReferenceElement): Boolean = qual match {
+  private def checkQualifier(qual: ScReference): Boolean = qual match {
     case isQualifierInImport(impExpr: ScImportExpr) =>
       val text = impExpr.getText
       qual.getText != text && !text.endsWith("_")

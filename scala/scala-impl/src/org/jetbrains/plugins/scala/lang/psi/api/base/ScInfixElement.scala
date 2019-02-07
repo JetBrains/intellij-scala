@@ -11,7 +11,7 @@ trait ScInfixElement extends ScalaPsiElement {
   //expression, type element or pattern
   type Kind <: ScalaPsiElement
 
-  type Reference <: ScReferenceElement
+  type Reference <: ScReference
 
   def left: Kind
 

@@ -3,7 +3,7 @@ package org.jetbrains.plugins.scala.failed.resolve
 import com.intellij.psi.impl.source.tree.LeafPsiElement
 import org.jetbrains.plugins.scala.PerfCycleTests
 import org.jetbrains.plugins.scala.base.SimpleTestCase
-import org.jetbrains.plugins.scala.lang.psi.api.base.ScStableCodeReferenceElement
+import org.jetbrains.plugins.scala.lang.psi.api.base.ScStableCodeReference
 import org.jetbrains.plugins.scala.lang.psi.api.statements.ScFunctionDefinition
 import org.junit.experimental.categories.Category
 
@@ -37,7 +37,7 @@ class OverrideUnapplyTest extends SimpleTestCase {
     val psi = trimmed.replaceAll(CARET, "").parse
     val expr = psi.findElementAt(pos) match {
       case e: LeafPsiElement =>
-        Some(e.getParent.asInstanceOf[ScStableCodeReferenceElement].resolve())
+        Some(e.getParent.asInstanceOf[ScStableCodeReference].resolve())
       case other =>
         None
     }

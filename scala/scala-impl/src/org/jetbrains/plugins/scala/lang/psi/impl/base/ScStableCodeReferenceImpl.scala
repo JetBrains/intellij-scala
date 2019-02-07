@@ -29,14 +29,14 @@ import org.jetbrains.plugins.scala.lang.psi.api.toplevel.typedef._
 import org.jetbrains.plugins.scala.lang.psi.api.toplevel.{ScPackaging, ScTypedDefinition}
 import org.jetbrains.plugins.scala.lang.psi.api.{ScPackage, ScalaElementVisitor, ScalaFile}
 import org.jetbrains.plugins.scala.lang.psi.impl.ScalaPsiElementFactory._
-import org.jetbrains.plugins.scala.lang.psi.impl.expr.ScReferenceElementImpl
+import org.jetbrains.plugins.scala.lang.psi.impl.expr.ScReferenceImpl
 import org.jetbrains.plugins.scala.lang.psi.types.ScType
 import org.jetbrains.plugins.scala.lang.psi.types.api.designator.{ScDesignatorType, ScProjectionType}
 import org.jetbrains.plugins.scala.lang.psi.types.recursiveUpdate.ScSubstitutor
 import org.jetbrains.plugins.scala.lang.psi.types.result.Typeable
 import org.jetbrains.plugins.scala.lang.resolve.processor.DynamicResolveProcessor._
 import org.jetbrains.plugins.scala.lang.resolve.processor.{BaseProcessor, CompletionProcessor, ExtractorResolveProcessor}
-import org.jetbrains.plugins.scala.lang.resolve.{StableCodeReferenceElementResolver, _}
+import org.jetbrains.plugins.scala.lang.resolve.{StableCodeReferenceResolver, _}
 import org.jetbrains.plugins.scala.lang.scaladoc.psi.api.{ScDocResolvableCodeReference, ScDocSyntaxElement}
 import org.jetbrains.plugins.scala.macroAnnotations.{CachedWithRecursionGuard, ModCount}
 import org.jetbrains.plugins.scala.worksheet.ammonite.AmmoniteUtil
@@ -46,7 +46,7 @@ import org.jetbrains.plugins.scala.worksheet.ammonite.AmmoniteUtil
  *         Date: 22.02.2008
  */
 
-class ScStableCodeReferenceElementImpl(node: ASTNode) extends ScReferenceElementImpl(node) with ScStableCodeReferenceElement {
+class ScStableCodeReferenceImpl(node: ASTNode) extends ScReferenceImpl(node) with ScStableCodeReference {
   override def accept(visitor: PsiElementVisitor) {
     visitor match {
       case visitor: ScalaElementVisitor => super.accept(visitor)
@@ -69,7 +69,7 @@ class ScStableCodeReferenceElementImpl(node: ASTNode) extends ScReferenceElement
     import org.jetbrains.plugins.scala.lang.resolve.StdKinds._
 
     val result = getContext match {
-      case contextRef: ScStableCodeReferenceElement =>
+      case contextRef: ScStableCodeReference =>
         //Since scala 2.11 it's possible macro implementations not only as static methods,
         //but also inside certain classes, so qualifier of a macro impl reference may resolve to a class
         //see http://docs.scala-lang.org/overviews/macros/bundles.html
@@ -104,15 +104,15 @@ class ScStableCodeReferenceElementImpl(node: ASTNode) extends ScReferenceElement
 
   //  @throws(IncorrectOperationException)
   def bindToElement(element: PsiElement): PsiElement = {
-    def isCorrectReference(text: String): Option[ScStableCodeReferenceElement] = {
-      val ref = createReferenceFromText(text, getContext, ScStableCodeReferenceElementImpl.this)
+    def isCorrectReference(text: String): Option[ScStableCodeReference] = {
+      val ref = createReferenceFromText(text, getContext, ScStableCodeReferenceImpl.this)
 
       if (ref.isReferenceTo(element)) Some(ref)
       else None
     }
 
-    def replaceThisBy(ref: ScStableCodeReferenceElement): PsiElement =
-      ScStableCodeReferenceElementImpl.this.replace(ref)
+    def replaceThisBy(ref: ScStableCodeReference): PsiElement =
+      ScStableCodeReferenceImpl.this.replace(ref)
 
     //this method may remove unnecessary imports
     def bindImportReference(c: ScalaImportTypeFix.TypeToImport): Boolean = {
@@ -146,7 +146,7 @@ class ScStableCodeReferenceElementImpl(node: ASTNode) extends ScReferenceElement
 
     if (isReferenceTo(element)) this
     else {
-      val aliasedRef: Option[ScReferenceElement] = ScalaPsiUtil.importAliasFor(element, this)
+      val aliasedRef: Option[ScReference] = ScalaPsiUtil.importAliasFor(element, this)
       if (aliasedRef.isDefined) {
         this.replace(aliasedRef.get)
       }
@@ -158,7 +158,7 @@ class ScStableCodeReferenceElementImpl(node: ASTNode) extends ScReferenceElement
           }
           if (nameId.getText != c.name) {
             val ref = createReferenceFromText(c.name)
-            return this.replace(ref).asInstanceOf[ScStableCodeReferenceElement].bindToElement(element)
+            return this.replace(ref).asInstanceOf[ScStableCodeReference].bindToElement(element)
           }
           val qname = c.qualifiedName
           val isPredefined = ScalaCodeStyleSettings.getInstance(getProject).hasImportWithPrefix(qname)
@@ -190,8 +190,8 @@ class ScStableCodeReferenceElementImpl(node: ASTNode) extends ScReferenceElement
                 }
                 if (qualifier.isDefined) {
                   //let's make our reference unqualified
-                  val ref: ScStableCodeReferenceElement = createReferenceFromText(c.name)
-                  this.replace(ref).asInstanceOf[ScReferenceElement]
+                  val ref: ScStableCodeReference = createReferenceFromText(c.name)
+                  this.replace(ref).asInstanceOf[ScReference]
                 }
                 this
               }
@@ -222,7 +222,7 @@ class ScStableCodeReferenceElementImpl(node: ASTNode) extends ScReferenceElement
                 val containingClass = member.containingClass
                 val refToClass = bindToElement(containingClass)
                 val refToMember = createReferenceFromText(refToClass.getText + "." + binding.name)
-                this.replace(refToMember).asInstanceOf[ScReferenceElement]
+                this.replace(refToMember).asInstanceOf[ScReference]
             }
           case fun: ScFunction if Seq("unapply", "unapplySeq").contains(fun.name) && ScalaPsiUtil.hasStablePath(fun) =>
             bindToElement(fun.containingClass)
@@ -266,8 +266,8 @@ class ScStableCodeReferenceElementImpl(node: ASTNode) extends ScReferenceElement
 
   @CachedWithRecursionGuard(this, ScalaResolveResult.EMPTY_ARRAY, ModCount.getBlockModificationCount)
   override def multiResolveScala(incomplete: Boolean): Array[ScalaResolveResult] = {
-    val resolver = new StableCodeReferenceElementResolver(ScStableCodeReferenceElementImpl.this, false, false, false)
-    resolver.resolve(ScStableCodeReferenceElementImpl.this, incomplete)
+    val resolver = new StableCodeReferenceResolver(ScStableCodeReferenceImpl.this, false, false, false)
+    resolver.resolve(ScStableCodeReferenceImpl.this, incomplete)
   }
 
   protected def processQualifier(processor: BaseProcessor): Array[ScalaResolveResult] = {
@@ -320,7 +320,7 @@ class ScStableCodeReferenceElementImpl(node: ASTNode) extends ScReferenceElement
       case Some(q: ScDocResolvableCodeReference) =>
         q.multiResolveScala(incomplete = true)
           .flatMap(processQualifierResolveResult(q, _, processor))
-      case Some(q: ScStableCodeReferenceElement) =>
+      case Some(q: ScStableCodeReference) =>
         q.bind() match {
           case Some(res) =>
             processQualifierResolveResult(q, res, processor)
@@ -338,7 +338,7 @@ class ScStableCodeReferenceElementImpl(node: ASTNode) extends ScReferenceElement
     }
   }
 
-  protected def processQualifierResolveResult(qualifier: ScStableCodeReferenceElement,
+  protected def processQualifierResolveResult(qualifier: ScStableCodeReference,
                                               res: ScalaResolveResult,
                                               processor: BaseProcessor): Array[ScalaResolveResult] = {
     var withDynamicResult: Option[Array[ScalaResolveResult]] = None
@@ -494,7 +494,7 @@ class ScStableCodeReferenceElementImpl(node: ASTNode) extends ScReferenceElement
         //todo: improve checking for this and super
         val refText: String = getText
         if (!refText.contains("this") && !refText.contains("super") && (
-          refText.contains(".") || getContext.isInstanceOf[ScStableCodeReferenceElement]
+          refText.contains(".") || getContext.isInstanceOf[ScStableCodeReference]
           )) {
           //so this is full qualified reference => findClass, or findPackage
           val facade = JavaPsiFacade.getInstance(getProject)

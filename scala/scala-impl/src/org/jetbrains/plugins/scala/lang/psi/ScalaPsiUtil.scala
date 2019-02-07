@@ -956,7 +956,7 @@ object ScalaPsiUtil {
   def readAttribute(annotation: PsiAnnotation, name: String): Option[String] = {
     annotation.findAttributeValue(name) match {
       case literal: PsiLiteral => stringValueOf(literal)
-      case element: ScReferenceElement => element.getReference.toOption
+      case element: ScReference => element.getReference.toOption
         .flatMap(_.resolve().asOptionOf[ScBindingPattern])
         .flatMap(_.getParent.asOptionOf[ScPatternList])
         .filter(_.simplePatterns)
@@ -1199,8 +1199,8 @@ object ScalaPsiUtil {
     case _ => false
   }
 
-  def availableImportAliases(position: PsiElement): Set[(ScReferenceElement, String)] = {
-    def getSelectors(holder: ScImportsHolder): Set[(ScReferenceElement, String)] = Option(holder).toSeq.flatMap {
+  def availableImportAliases(position: PsiElement): Set[(ScReference, String)] = {
+    def getSelectors(holder: ScImportsHolder): Set[(ScReference, String)] = Option(holder).toSeq.flatMap {
       _.getImportStatements
     }.flatMap {
       _.importExprs
@@ -1218,7 +1218,7 @@ object ScalaPsiUtil {
       return Set.empty
 
     var parent = position.getParent
-    val aliases = collection.mutable.Set[(ScReferenceElement, String)]()
+    val aliases = collection.mutable.Set[(ScReference, String)]()
     while (parent != null) {
       parent match {
         case holder: ScImportsHolder => aliases ++= getSelectors(holder)
@@ -1227,7 +1227,7 @@ object ScalaPsiUtil {
       parent = parent.getParent
     }
 
-    def correctResolve(alias: (ScReferenceElement, String)): Boolean = {
+    def correctResolve(alias: (ScReference, String)): Boolean = {
       val (aliasRef, text) = alias
       val ref = createReferenceFromText(text, position.getContext, position)
       aliasRef.multiResolveScala(false)
@@ -1237,14 +1237,14 @@ object ScalaPsiUtil {
     aliases.filter(_._1.getTextRange.getEndOffset < position.getTextOffset).filter(correctResolve).toSet
   }
 
-  def importAliasFor(element: PsiElement, refPosition: PsiElement): Option[ScReferenceElement] = {
+  def importAliasFor(element: PsiElement, refPosition: PsiElement): Option[ScReference] = {
     val importAliases = availableImportAliases(refPosition)
     val suitableAliases = importAliases.collect {
       case (aliasRef, aliasName)
         if aliasRef.multiResolveScala(false).exists(rr => ScEquivalenceUtil.smartEquivalence(rr.getElement, element)) => aliasName
     }
     if (suitableAliases.nonEmpty) {
-      val newRef: ScStableCodeReferenceElement = createReferenceFromText(suitableAliases.head)(refPosition.getManager)
+      val newRef: ScStableCodeReference = createReferenceFromText(suitableAliases.head)(refPosition.getManager)
       Some(newRef)
     } else None
   }

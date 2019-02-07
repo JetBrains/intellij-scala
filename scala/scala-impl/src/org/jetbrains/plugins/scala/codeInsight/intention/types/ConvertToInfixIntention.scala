@@ -10,7 +10,7 @@ import com.intellij.openapi.project.Project
 import com.intellij.psi.PsiElement
 import com.intellij.psi.util.PsiTreeUtil
 import org.jetbrains.plugins.scala.extensions._
-import org.jetbrains.plugins.scala.lang.psi.api.base.ScStableCodeReferenceElement
+import org.jetbrains.plugins.scala.lang.psi.api.base.ScStableCodeReference
 import org.jetbrains.plugins.scala.lang.psi.api.base.types.{ScParameterizedTypeElement, ScParenthesisedTypeElement, ScTypeArgs}
 import org.jetbrains.plugins.scala.lang.psi.impl.ScalaPsiElementFactory.createTypeElementFromText
 
@@ -22,7 +22,7 @@ class ConvertToInfixIntention extends PsiElementBaseIntentionAction {
 
   def isAvailable(project: Project, editor: Editor, element: PsiElement): Boolean = {
     element match {
-      case Parent((ref: ScStableCodeReferenceElement) && Parent(Parent(param: ScParameterizedTypeElement)))
+      case Parent((ref: ScStableCodeReference) && Parent(Parent(param: ScParameterizedTypeElement)))
        if param.typeArgList.typeArgs.size == 2 && !ref.refName.forall(_.isLetterOrDigit)  => true
       case _ => false
     }

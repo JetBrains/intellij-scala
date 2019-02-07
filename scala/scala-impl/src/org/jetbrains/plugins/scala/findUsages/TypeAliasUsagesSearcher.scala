@@ -11,7 +11,7 @@ import com.intellij.util.Processor
 import org.jetbrains.annotations.{NotNull, Nullable}
 import org.jetbrains.plugins.scala.extensions.{PsiElementExt, inReadAction}
 import org.jetbrains.plugins.scala.lang.psi.ScalaPsiUtil
-import org.jetbrains.plugins.scala.lang.psi.api.base.{ScConstructor, ScReferenceElement}
+import org.jetbrains.plugins.scala.lang.psi.api.base.{ScConstructor, ScReference}
 import org.jetbrains.plugins.scala.lang.psi.api.statements.ScTypeAliasDefinition
 
 
@@ -59,7 +59,7 @@ class TypeAliasUsagesSearcher extends QueryExecutorBase[PsiReference, References
       element.parentOfType(classOf[ScConstructor], strict = false) match {
         case Some(cons) if PsiTreeUtil.isAncestor(cons.typeElement, element, false) =>
           element match {
-            case resRef: ScReferenceElement => resRef.bind().flatMap(_.parentElement) match {
+            case resRef: ScReference => resRef.bind().flatMap(_.parentElement) match {
               case Some(`myTarget`) => consumer.process(resRef)
               case _ => true
             }

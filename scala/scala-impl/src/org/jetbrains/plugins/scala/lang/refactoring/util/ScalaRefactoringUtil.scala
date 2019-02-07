@@ -173,7 +173,7 @@ object ScalaRefactoringUtil {
     def getTypeAlias(typeElement: ScTypeElement): ScTypeAlias = {
       val firstChild = typeElement.getFirstChild
       firstChild match {
-        case reference: ScStableCodeReferenceElement =>
+        case reference: ScStableCodeReference =>
           reference.resolve() match {
             case ta: ScTypeAlias if !ScalaPsiUtil.hasStablePath(ta) =>
               ta

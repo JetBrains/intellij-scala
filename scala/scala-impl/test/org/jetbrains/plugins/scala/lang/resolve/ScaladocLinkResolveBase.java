@@ -6,7 +6,7 @@ import com.intellij.openapi.vfs.CharsetToolkit;
 import com.intellij.psi.PsiClass;
 import com.intellij.psi.PsiElement;
 import com.intellij.psi.PsiReference;
-import org.jetbrains.plugins.scala.lang.psi.api.base.ScReferenceElement;
+import org.jetbrains.plugins.scala.lang.psi.api.base.ScReference;
 import org.jetbrains.plugins.scala.lang.psi.api.toplevel.ScNamedElement;
 import org.jetbrains.plugins.scala.lang.psi.api.toplevel.typedef.ScTemplateDefinition;
 
@@ -47,16 +47,16 @@ abstract public class ScaladocLinkResolveBase extends ScalaResolveTestCase {
 
     for (int i : carets) {
       PsiReference ref = getFileAdapter().findReferenceAt(i);
-      assertSize(expectedLength, ((ScReferenceElement) ref).multiResolveScala(false));
+      assertSize(expectedLength, ((ScReference) ref).multiResolveScala(false));
 
       if (expectedLength == 0) {
         continue;
       }
 
-      PsiElement resolved = ((ScReferenceElement) ref).multiResolveScala(false)[0].getElement();
+      PsiElement resolved = ((ScReference) ref).multiResolveScala(false)[0].getElement();
       assertTrue(expectedClass.isAssignableFrom(resolved.getClass()));
 
-      final String refText = ((ScReferenceElement) ref).getText();
+      final String refText = ((ScReference) ref).getText();
       if (expectedClass == PsiClass.class) {
         final PsiClass resolved1 = (PsiClass) resolved;
         String qualifiedName = resolved1.getQualifiedName();

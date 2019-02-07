@@ -11,7 +11,7 @@ import org.jetbrains.plugins.scala.extensions._
 import org.jetbrains.plugins.scala.lang.psi.ScalaPsiUtil.MethodValue
 import org.jetbrains.plugins.scala.lang.psi.api.base.patterns._
 import org.jetbrains.plugins.scala.lang.psi.api.base.types.{ScSelfTypeElement, ScTypeArgs, ScTypeElement}
-import org.jetbrains.plugins.scala.lang.psi.api.base.{ScAccessModifier, ScAnnotation, ScAnnotationExpr, ScReferenceElement}
+import org.jetbrains.plugins.scala.lang.psi.api.base.{ScAccessModifier, ScAnnotation, ScAnnotationExpr, ScReference}
 import org.jetbrains.plugins.scala.lang.psi.api.expr._
 import org.jetbrains.plugins.scala.lang.psi.api.statements._
 import org.jetbrains.plugins.scala.lang.psi.api.statements.params.{ScClassParameter, ScParameter, ScTypeParam}
@@ -35,7 +35,7 @@ final class ScalaUsageTypeProvider extends UsageTypeProviderEx {
   def getUsageType(element: PsiElement, targets: Array[UsageTarget]): UsageType =
     element.containingScalaFile.flatMap { _ =>
       (element, targets) match {
-        case (referenceElement: ScReferenceElement, Array(only: PsiElementUsageTarget))
+        case (referenceElement: ScReference, Array(only: PsiElementUsageTarget))
           if isConstructorPatternReference(referenceElement) && !referenceElement.isReferenceTo(only.getElement) =>
           Some(ParameterInPattern)
         case _ =>
@@ -98,7 +98,7 @@ object ScalaUsageTypeProvider {
   private def usageType(element: PsiElement): Option[UsageType] =
     Option(nullableUsageType(element))
 
-  private def isConstructorPatternReference(element: ScReferenceElement): Boolean = element.resolve() match {
+  private def isConstructorPatternReference(element: ScReference): Boolean = element.resolve() match {
     case pattern: ScBindingPattern => getParentOfType(pattern, classOf[ScConstructorPattern], classOf[ScInfixPattern]) != null
     case _ => false
   }

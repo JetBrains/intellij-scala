@@ -172,7 +172,7 @@ object MatchToPartialFunctionInspection {
            _: ScConstructorPattern |
            _: ScParenthesisedPattern |
            _: ScTuplePattern |
-           _: ScStableReferenceElementPattern => false
+           _: ScStableReferencePattern => false
       case _ => true
     }
   }

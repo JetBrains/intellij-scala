@@ -16,7 +16,7 @@ import org.jetbrains.plugins.scala.annotator.createFromUsage.CreateFromUsageUtil
 import org.jetbrains.plugins.scala.console.ScalaLanguageConsoleView
 import org.jetbrains.plugins.scala.extensions._
 import org.jetbrains.plugins.scala.lang.psi.ScalaPsiUtil
-import org.jetbrains.plugins.scala.lang.psi.api.base.ScReferenceElement
+import org.jetbrains.plugins.scala.lang.psi.api.base.ScReference
 import org.jetbrains.plugins.scala.lang.psi.api.base.types.ScParameterizedTypeElement
 import org.jetbrains.plugins.scala.lang.psi.api.toplevel.templates.ScTemplateBody
 import org.jetbrains.plugins.scala.lang.psi.api.toplevel.typedef.{ScClass, ScTemplateDefinition, ScTypeDefinition}
@@ -27,7 +27,7 @@ import org.jetbrains.plugins.scala.lang.refactoring.util.ScalaDirectoryService
  * Nikolay.Tropin
  * 2014-07-28
  */
-abstract class CreateTypeDefinitionQuickFix(ref: ScReferenceElement, description: String, kind: ClassKind)
+abstract class CreateTypeDefinitionQuickFix(ref: ScReference, description: String, kind: ClassKind)
         extends CreateFromUsageQuickFixBase(ref, description) {
   private final val LOG: Logger = Logger.getInstance("#org.jetbrains.plugins.scala.annotator.createFromUsage.CreateTemplateDefinitionQuickFix")
   private val name = ref.refName
@@ -205,10 +205,10 @@ abstract class CreateTypeDefinitionQuickFix(ref: ScReferenceElement, description
   }
 }
 
-class CreateObjectQuickFix(ref: ScReferenceElement)
+class CreateObjectQuickFix(ref: ScReference)
         extends CreateTypeDefinitionQuickFix(ref, "object", Object)
 
-class CreateTraitQuickFix(ref: ScReferenceElement)
+class CreateTraitQuickFix(ref: ScReference)
         extends CreateTypeDefinitionQuickFix(ref, "trait", Trait) {
   
   override def isAvailable(project: Project, editor: Editor, file: PsiFile): Boolean = {
@@ -216,10 +216,10 @@ class CreateTraitQuickFix(ref: ScReferenceElement)
   }
 }
 
-class CreateClassQuickFix(ref: ScReferenceElement)
+class CreateClassQuickFix(ref: ScReference)
         extends CreateTypeDefinitionQuickFix(ref, "class", Class)
 
-class CreateCaseClassQuickFix(ref: ScReferenceElement)
+class CreateCaseClassQuickFix(ref: ScReference)
         extends CreateTypeDefinitionQuickFix(ref, "case class", Class) {
 
   override protected def afterCreationWork(clazz: ScTypeDefinition): Unit = {
