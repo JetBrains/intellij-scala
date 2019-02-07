@@ -175,7 +175,7 @@ trait TreeAdapter {
     def arg(pt: patterns.ScPattern): m.Pat.Arg = pt match {
       case _: ScSeqWildcard       =>  Arg.SeqWildcard()
       case _: ScWildcardPattern   =>  Wildcard()
-      case t: ScStableReferencePattern => toTermName(t.refElement.get)
+      case t: ScStableReferencePattern => toTermName(t.reference.get)
       case t: ScPattern           => pattern(t)
     }
     pt match {
@@ -189,7 +189,7 @@ trait TreeAdapter {
       case t: ScWildcardPattern   =>  Wildcard()
       case t: ScCompositePattern  =>  compose(Seq(t.subpatterns : _*))
       case t: ScInfixPattern      =>  ExtractInfix(pattern(t.left), toTermName(t.operation), t.rightOption.map(pt=>Seq(pattern(pt))).getOrElse(Nil))
-      case t: ScStableReferencePattern => toTermName(t.refElement.get)
+      case t: ScStableReferencePattern => toTermName(t.reference.get)
       case t: ScPattern => t ?!
     }
   }

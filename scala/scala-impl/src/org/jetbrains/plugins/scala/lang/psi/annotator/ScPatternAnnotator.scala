@@ -71,7 +71,7 @@ object ScPatternAnnotator {
 
     object StableIdResolvesToVar {
       def unapply(stable: ScStableReferencePattern): Boolean = {
-        stable.getReferenceExpression.orNull match {
+        stable.referenceExpression.orNull match {
           case ResolvesTo(ScalaPsiUtil.inNameContext(nameCtx)) => nameCtx match {
             case param: ScClassParameter => param.isVar
             case _: ScVariable => true
