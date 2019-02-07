@@ -295,12 +295,6 @@ abstract class ScalaAnnotator extends Annotator
         super.visitImportExpr(expr)
       }
 
-      override def visitReturnStatement(ret: ScReturn) {
-        checkExplicitTypeForReturnStatement(ret, holder)
-        super.visitReturnStatement(ret)
-      }
-
-
       override def visitConstructor(constr: ScConstructor) {
         if (typeAware) {
           ImplicitParametersAnnotator.annotate(constr, holder, typeAware)
@@ -717,24 +711,6 @@ abstract class ScalaAnnotator extends Annotator
           //  val error = ScalaBundle.message("unbound.placeholder.parameter")
           //  val annotation: Annotation = holder.createErrorAnnotation(under, error)
       }
-    }
-  }
-
-  private def checkExplicitTypeForReturnStatement(statement: ScReturn, holder: AnnotationHolder): Unit = {
-    val function = statement.method.getOrElse {
-      val error = ScalaBundle.message("return.outside.method.definition")
-      val annotation: Annotation = holder.createErrorAnnotation(statement.keyword, error)
-      annotation.setHighlightType(ProblemHighlightType.LIKE_UNKNOWN_SYMBOL)
-      return
-    }
-
-    function.returnType match {
-      case Right(tp) if function.hasAssign && !tp.equiv(Unit) =>
-        val importUsed = statement.expr.toSet[ScExpression]
-          .flatMap(_.getTypeAfterImplicitConversion().importsUsed)
-
-        registerUsedImports(statement, importUsed)
-      case _ =>
     }
   }
 
