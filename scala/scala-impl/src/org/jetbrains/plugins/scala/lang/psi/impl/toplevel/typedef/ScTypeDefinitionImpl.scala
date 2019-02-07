@@ -12,7 +12,6 @@ package typedef
 import java.{util => ju}
 
 import com.intellij.lang.ASTNode
-import com.intellij.lang.java.JavaLanguage
 import com.intellij.navigation._
 import com.intellij.openapi.project.DumbService
 import com.intellij.psi._
@@ -24,7 +23,6 @@ import com.intellij.psi.util.PsiTreeUtil
 import javax.swing.Icon
 import org.jetbrains.plugins.scala.JavaArrayFactoryUtil.ScTypeDefinitionFactory
 import org.jetbrains.plugins.scala.caches.CachesUtil
-import org.jetbrains.plugins.scala.conversion.JavaToScala
 import org.jetbrains.plugins.scala.extensions._
 import org.jetbrains.plugins.scala.lang.TokenSets.TYPE_DEFINITIONS
 import org.jetbrains.plugins.scala.lang.lexer._
@@ -64,34 +62,17 @@ abstract class ScTypeDefinitionImpl[T <: ScTemplateDefinition](stub: ScTemplateD
     case _ => super.typeParameters
   }
 
-  override def add(element: PsiElement): PsiElement = {
-    element match {
-      case member: PsiMember if member.getLanguage.isKindOf(JavaLanguage.INSTANCE) =>
-        val newMemberText = JavaToScala.convertPsiToText(member).trim()
-        val mem: Option[ScMember] = member match {
-          case _: PsiMethod =>
-            Some(ScalaPsiElementFactory.createMethodFromText(newMemberText))
-          case _ => None
-        }
-        mem match {
-          case Some(m) => addMember(m, None)
-          case _ => super.add(element)
-        }
-      case mem: ScMember => addMember(mem, None)
+  override def add(element: PsiElement): PsiElement = element match {
+    case member: ScMember => addMember(member, None)
       case _ => super.add(element)
-    }
   }
 
-  override def getSuperTypes: Array[PsiClassType] = {
-    superTypes.flatMap {
-      case tp =>
-        val psiType = tp.toPsiType
-        psiType match {
-          case c: PsiClassType => Seq(c)
-          case _ => Seq.empty
-        }
+  override def getSuperTypes: Array[PsiClassType] =
+    superTypes.map {
+      _.toPsiType
+    }.collect {
+      case c: PsiClassType => c
     }.toArray
-  }
 
   override def isAnnotationType: Boolean =
     elementScope.getCachedClass("scala.annotation.Annotation")
