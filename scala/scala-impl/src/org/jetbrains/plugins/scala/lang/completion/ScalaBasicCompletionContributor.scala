@@ -336,7 +336,7 @@ object ScalaBasicCompletionContributor {
       val file = PsiDocumentManager.getInstance(context.getProject).getPsiFile(document)
       PsiTreeUtil.findElementOfClassAtOffset(file, context.getStartOffset, classOf[ScReference], false) match {
         case null =>
-        case ScReference.withQualifier(qualifier) =>
+        case ScReference.qualifier(qualifier) =>
           document.insertString(qualifier.getTextRange.getEndOffset, text)
           context.commitDocument()
 

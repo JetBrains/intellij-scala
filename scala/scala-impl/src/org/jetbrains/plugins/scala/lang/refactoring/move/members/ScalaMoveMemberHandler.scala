@@ -51,7 +51,7 @@ class ScalaMoveMemberHandler extends MoveJavaMemberHandler {
     if (element == null || !element.isValid) return true
 
     usage.reference match {
-      case ref @ ScReference.withQualifier(qualifier: ScReference) =>
+      case ref @ ScReference.qualifier(qualifier: ScReference) =>
         if (usage.qualifierClass != null)
           changeQualifier(qualifier, usage.qualifierClass)
         else
@@ -93,7 +93,7 @@ class ScalaMoveMemberHandler extends MoveJavaMemberHandler {
     }
 
     reference.replace(qualified) match {
-      case ScReference.withQualifier(q: ScReference) =>
+      case ScReference.qualifier(q: ScReference) =>
         q.bindToElement(targetClass)
       case _ =>
     }

@@ -342,7 +342,7 @@ trait ScReference extends ScalaPsiElement with PsiPolyVariantReference {
 object ScReference {
   def unapply(e: ScReference): Option[PsiElement] = Option(e.resolve())
 
-  object withQualifier {
+  object qualifier {
     def unapply(ref: ScReference): Option[ScalaPsiElement] = ref.qualifier
   }
 }

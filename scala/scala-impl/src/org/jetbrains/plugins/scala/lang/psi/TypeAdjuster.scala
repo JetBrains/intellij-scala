@@ -243,7 +243,7 @@ object TypeAdjuster extends ApplicationAdapter {
       @tailrec
       private def qualifierInfo(element: PsiElement): Option[SimpleInfo] = element match {
         case ScSimpleTypeElement(Some(reference: ScReference)) => qualifierInfo(reference)
-        case ScReference.withQualifier(reference: ScReference) => Some(SimpleInfo(reference))
+        case ScReference.qualifier(reference: ScReference) => Some(SimpleInfo(reference))
         case _ => None
       }
     }

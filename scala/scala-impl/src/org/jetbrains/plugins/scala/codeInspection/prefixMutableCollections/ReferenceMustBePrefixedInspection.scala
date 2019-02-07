@@ -8,7 +8,7 @@ import org.jetbrains.plugins.scala.caches.ScalaShortNamesCacheManager
 import org.jetbrains.plugins.scala.codeInspection.{AbstractFixOnPsiElement, AbstractInspection}
 import org.jetbrains.plugins.scala.extensions._
 import org.jetbrains.plugins.scala.lang.formatting.settings.ScalaCodeStyleSettings
-import org.jetbrains.plugins.scala.lang.psi.api.base.ScReference.withQualifier
+import org.jetbrains.plugins.scala.lang.psi.api.base.ScReference.qualifier
 import org.jetbrains.plugins.scala.lang.psi.api.base.{ScReference, ScStableCodeReference}
 import org.jetbrains.plugins.scala.lang.psi.api.expr.ScReferenceExpression
 import org.jetbrains.plugins.scala.lang.psi.api.toplevel.imports.ScImportSelector
@@ -75,7 +75,7 @@ object ReferenceMustBePrefixedInspection {
         }
 
         maybeReplacement.map(reference.replace).collect {
-          case withQualifier(element: ScReference) => element
+          case qualifier(element: ScReference) => element
         }
       }
 
