@@ -13,6 +13,7 @@ import javax.swing.Icon
 import org.jetbrains.plugins.scala.extensions.ifReadAllowed
 import org.jetbrains.plugins.scala.lang.lexer.ScalaTokenTypes
 import org.jetbrains.plugins.scala.lang.parser.ScalaElementType
+import org.jetbrains.plugins.scala.lang.psi.annotator.ScTypeBoundsOwnerAnnotator
 import org.jetbrains.plugins.scala.lang.psi.api.ScalaElementVisitor
 import org.jetbrains.plugins.scala.lang.psi.api.base.types.ScTypeElement
 import org.jetbrains.plugins.scala.lang.psi.api.statements._
@@ -25,7 +26,7 @@ import org.jetbrains.plugins.scala.lang.psi.stubs.ScTypeAliasStub
 * Time: 9:55:13
 */
 class ScTypeAliasDefinitionImpl private (stub: ScTypeAliasStub, node: ASTNode)
-  extends ScalaStubBasedElementImpl(stub, ScalaElementType.TYPE_DEFINITION, node) with ScTypeAliasDefinition {
+  extends ScalaStubBasedElementImpl(stub, ScalaElementType.TYPE_DEFINITION, node) with ScTypeAliasDefinition with ScTypeBoundsOwnerAnnotator {
 
   def this(node: ASTNode) = this(null, node)
 

@@ -384,28 +384,12 @@ abstract class ScalaAnnotator extends Annotator
       case _ =>
     }
 
-    element match {
-      case sTypeParam: ScTypeBoundsOwner
-        if !Option(PsiTreeUtil.getParentOfType(sTypeParam, classOf[ScTypeParamClause])).flatMap(_.parent).exists(_.isInstanceOf[ScFunction]) =>
-        checkTypeParamBounds(sTypeParam, holder)
-      case _ =>
-    }
     //todo: super[ControlFlowInspections].annotate(element, holder)
   }
 
 
   def isAdvancedHighlightingEnabled(element: PsiElement): Boolean =
     ScalaAnnotator.isAdvancedHighlightingEnabled(element)
-
-  private def checkTypeParamBounds(sTypeParam: ScTypeBoundsOwner, holder: AnnotationHolder) {
-    for {
-      lower <- sTypeParam.lowerBound.toOption
-      upper <- sTypeParam.upperBound.toOption
-      if !lower.conforms(upper)
-      annotation = holder.createErrorAnnotation(sTypeParam,
-        ScalaBundle.message("lower.bound.conform.to.upper", upper, lower))
-    } annotation.setHighlightType(ProblemHighlightType.GENERIC_ERROR)
-  }
 
   def checkBoundsVariance(toCheck: PsiElement, holder: AnnotationHolder, toHighlight: PsiElement, checkParentOf: PsiElement,
                           upperV: Variance = Covariant, checkTypeDeclaredSameBracket: Boolean = true, insideParameterized: Boolean = false) {
