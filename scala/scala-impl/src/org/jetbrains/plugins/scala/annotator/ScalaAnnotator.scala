@@ -71,7 +71,6 @@ import scala.meta.intellij.MetaExpansionsManager
 abstract class ScalaAnnotator extends Annotator
   with FunctionAnnotator with ScopeAnnotator
   with ApplicationAnnotator
-  with PatternDefinitionAnnotator
   with ConstructorAnnotator
   with OverridingAnnotator
   with ProjectContextOwner with DumbAware {
@@ -218,13 +217,6 @@ abstract class ScalaAnnotator extends Annotator
       override def visitForExpression(expr: ScFor) {
         registerUsedImports(expr, ScalaPsiUtil.getExprImports(expr))
         super.visitForExpression(expr)
-      }
-
-      override def visitPatternDefinition(pat: ScPatternDefinition) {
-        if (!compiled) {
-          annotatePatternDefinition(pat, holder, typeAware)
-        }
-        super.visitPatternDefinition(pat)
       }
 
       override def visitMethodCallExpression(call: ScMethodCall) {

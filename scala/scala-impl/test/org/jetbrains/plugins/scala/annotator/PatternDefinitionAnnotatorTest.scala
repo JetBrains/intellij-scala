@@ -66,8 +66,8 @@ class PatternDefinitionAnnotatorTest extends SimpleTestCase {
 
     val annotator = ScalaAnnotator.forProject(ctx)//new PatternDefinitionAnnotator() {}
     val mock = new AnnotatorHolderMock(file)
-    
-    annotator.annotatePatternDefinition(definition, mock, highlightErrors = true)
+
+    definition.annotate(mock, typeAware = true)
     file.depthFirst().instanceOf[ScUnderscoreSection].foreach(annotator.annotate(_, mock))
     mock.annotations
   }
