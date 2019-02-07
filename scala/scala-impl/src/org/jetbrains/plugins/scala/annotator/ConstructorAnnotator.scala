@@ -91,26 +91,4 @@ trait ConstructorAnnotator extends ApplicationAnnotator {
       }
     }
   }
-
-  def annotateAuxiliaryConstructor(constr: ScConstrBlock, holder: AnnotationHolder) {
-    val selfInvocation = constr.selfInvocation
-    selfInvocation match {
-      case Some(self) =>
-        self.bind match {
-          case Some(_: ScPrimaryConstructor) => //it's ok
-          case Some(fun: ScFunction) =>
-            //check order
-            if (fun.getTextRange.getStartOffset > constr.getTextRange.getStartOffset) {
-              holder.createErrorAnnotation(self, ScalaBundle.message("called.constructor.definition.must.precede"))
-            }
-          case _ =>
-        }
-      case None =>
-        constr.getContainingFile match {
-          case file: ScalaFile if !file.isCompiled =>
-            holder.createErrorAnnotation(constr, ScalaBundle.message("constructor.invocation.expected"))
-          case _ => //nothing to do in decompiled stuff
-        }
-    }
-  }
 }

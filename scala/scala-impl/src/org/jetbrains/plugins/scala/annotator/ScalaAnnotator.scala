@@ -230,11 +230,6 @@ abstract class ScalaAnnotator extends Annotator
         super.visitInfixExpression(infix)
       }
 
-      override def visitConstrBlock(constr: ScConstrBlock) {
-        annotateAuxiliaryConstructor(constr, holder)
-        super.visitConstrBlock(constr)
-      }
-
       override def visitFunctionDefinition(fun: ScFunctionDefinition) {
         if (!compiled && !fun.isConstructor)
           annotateFunction(fun, holder, typeAware)
