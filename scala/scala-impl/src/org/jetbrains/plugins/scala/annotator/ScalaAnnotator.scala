@@ -290,11 +290,6 @@ abstract class ScalaAnnotator extends Annotator
         super.visitReference(ref)
       }
 
-      override def visitImportExpr(expr: ScImportExpr) {
-        checkImportExpr(expr, holder)
-        super.visitImportExpr(expr)
-      }
-
       override def visitConstructor(constr: ScConstructor) {
         if (typeAware) {
           ImplicitParametersAnnotator.annotate(constr, holder, typeAware)
@@ -711,14 +706,6 @@ abstract class ScalaAnnotator extends Annotator
           //  val error = ScalaBundle.message("unbound.placeholder.parameter")
           //  val annotation: Annotation = holder.createErrorAnnotation(under, error)
       }
-    }
-  }
-
-  private def checkImportExpr(impExpr: ScImportExpr, holder: AnnotationHolder) {
-    if (impExpr.qualifier == null) {
-      val annotation: Annotation = holder.createErrorAnnotation(impExpr.getTextRange,
-        ScalaBundle.message("import.expr.should.be.qualified"))
-      annotation.setHighlightType(ProblemHighlightType.GENERIC_ERROR)
     }
   }
 

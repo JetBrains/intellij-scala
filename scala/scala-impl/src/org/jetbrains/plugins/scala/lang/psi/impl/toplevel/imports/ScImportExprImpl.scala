@@ -11,6 +11,7 @@ import com.intellij.util.IncorrectOperationException
 import org.jetbrains.plugins.scala.extensions.{ObjectExt, StubBasedExt}
 import org.jetbrains.plugins.scala.lang.lexer.ScalaTokenTypes
 import org.jetbrains.plugins.scala.lang.parser.ScalaElementType._
+import org.jetbrains.plugins.scala.lang.psi.annotator.ScImportExprAnnotator
 import org.jetbrains.plugins.scala.lang.psi.api.ScalaElementVisitor
 import org.jetbrains.plugins.scala.lang.psi.api.base.ScStableCodeReferenceElement
 import org.jetbrains.plugins.scala.lang.psi.api.toplevel.imports._
@@ -22,7 +23,7 @@ import org.jetbrains.plugins.scala.lang.psi.stubs.ScImportExprStub
  */
 
 class ScImportExprImpl private (stub: ScImportExprStub, node: ASTNode)
-  extends ScalaStubBasedElementImpl(stub, IMPORT_EXPR, node) with ScImportExpr {
+  extends ScalaStubBasedElementImpl(stub, IMPORT_EXPR, node) with ScImportExpr with ScImportExprAnnotator {
 
   def this(node: ASTNode) = this(null, node)
 
