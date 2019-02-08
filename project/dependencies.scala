@@ -7,7 +7,7 @@ object Versions {
   val sbtVersion: String = Sbt.latest
   val zincVersion = "1.1.1"
   val ideaVersion = "191.5701.16"
-  val bspVersion = "2.0.0-M3+21-6e1447c0"
+  val bspVersion = "2.0.0-M3+28-d311d820"
   val sbtStructureVersion: String = "2018.2.1+4-88400d3f"
   val sbtIdeaShellVersion: String = "2018.3"
   val sbtIdeaCompilerIndicesVersion = "0.1.1"

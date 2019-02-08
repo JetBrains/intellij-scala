@@ -1,6 +1,6 @@
 package org.jetbrains.bsp.project.resolver
 
-import ch.epfl.scala.bsp.gen.UtilGenerators._
+import ch.epfl.scala.bsp.testkit.gen.UtilGenerators._
 import org.jetbrains.bsp.BspUtil._
 import org.scalacheck.Prop.forAll
 import org.scalacheck.Properties
