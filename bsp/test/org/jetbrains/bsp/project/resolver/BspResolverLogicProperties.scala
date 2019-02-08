@@ -3,16 +3,16 @@ package org.jetbrains.bsp.project.resolver
 import java.io.File
 import java.nio.file.Path
 
-import ch.epfl.scala.bsp.gen.Bsp4jArbitrary._
-import ch.epfl.scala.bsp.gen.Bsp4jGenerators._
-import ch.epfl.scala.bsp.gen.UtilGenerators._
+import ch.epfl.scala.bsp.testkit.gen.Bsp4jGenerators._
+import ch.epfl.scala.bsp.testkit.gen.UtilGenerators._
+import ch.epfl.scala.bsp.testkit.gen.bsp4jArbitrary._
 import ch.epfl.scala.bsp4j._
 import com.google.gson.{Gson, GsonBuilder}
 import com.intellij.openapi.util.io.FileUtil
-import org.jetbrains.bsp.project.resolver.BspResolverDescriptors.ScalaModule
+import org.jetbrains.bsp.project.resolver.BspResolverDescriptors.{ScalaModule, SourceDirectory}
 import org.jetbrains.bsp.project.resolver.BspResolverLogic._
+import org.scalacheck.Arbitrary.arbitrary
 import org.scalacheck.Prop.{BooleanOperators, forAll}
-import org.scalacheck.Shrink.shrink
 import org.scalacheck._
 
 import scala.collection.JavaConverters._
@@ -22,19 +22,24 @@ object BspResolverLogicProperties extends Properties("BspResolverLogic functions
   implicit val gson: Gson = new GsonBuilder().setPrettyPrinting().create()
   implicit val arbFile: Arbitrary[File] = Arbitrary(genPath.map(_.toFile))
 
-  implicit def shrinkJavaList[T](implicit s: Shrink[List[T]]): Shrink[java.util.List[T]] = Shrink { list =>
+  implicit lazy val arbSourceDirectory: Arbitrary[SourceDirectory] = Arbitrary {
     for {
-      shrunk <- shrink(list.asScala)
-    } yield shrunk.asJava
+      file <- arbFile.arbitrary
+      generated <- arbitrary[Boolean]
+    } yield SourceDirectory(file, generated)
   }
 
   def genScalaBuildTarget(withoutTags: List[String]): Gen[BuildTarget] = for {
     target <- genBuildTargetWithScala
+    baseDir <- genFileUriString
   } yield {
     val newTags = target.getTags.asScala.filterNot(withoutTags.contains)
     target.setTags(newTags.asJava)
+    if (target.getBaseDirectory == null)
+      target.setBaseDirectory(baseDir.toString)
     target
   }
+
 
   property("commonBase") = forAll(Gen.listOf(genPath)) { paths: List[Path] =>
     val files = paths.map(_.toFile)
@@ -56,11 +61,10 @@ object BspResolverLogicProperties extends Properties("BspResolverLogic functions
   }
 
   property("calculateModuleDescriptions succeeds for build targets with Scala") =
-    forAll(genScalaBuildTarget(List(BuildTargetTag.NO_IDE)).list) { buildTargets: java.util.List[BuildTarget] =>
+    forAll(Gen.listOf(genScalaBuildTarget(List(BuildTargetTag.NO_IDE)))) { buildTargets: List[BuildTarget] =>
       forAll { (optionsItems: List[ScalacOptionsItem], sourcesItems: List[SourcesItem], dependencySourcesItems: List[DependencySourcesItem]) =>
-        val targets = buildTargets.asScala
-        val descriptions = calculateModuleDescriptions(targets, optionsItems, sourcesItems, dependencySourcesItems)
-        (targets.nonEmpty && targets.exists(_.getBaseDirectory != null)) ==> descriptions.nonEmpty
+        val descriptions = calculateModuleDescriptions(buildTargets, optionsItems, sourcesItems, dependencySourcesItems)
+        (buildTargets.nonEmpty && buildTargets.exists(_.getBaseDirectory != null)) ==> descriptions.nonEmpty
       }
     }
 
@@ -74,5 +78,31 @@ object BspResolverLogicProperties extends Properties("BspResolverLogic functions
         emptyForNOIDE || (definedForBaseDir && hasScalaModule)
       }
     }
+
+  property("createScalaModuleDescription succeeds") =
+    forAll(Gen.listOf(genBuildTargetTag)) { tags: List[String] =>
+      forAll { (target: BuildTarget, moduleBase: File, outputPath: Option[File], sourceRoots: List[SourceDirectory], classpath: List[File], dependencySources: List[File]) =>
+        val description = createScalaModuleDescription(target, tags, moduleBase, outputPath, sourceRoots, classpath, dependencySources)
+
+        val p1 = (description.basePath == moduleBase) :| "base path should be set"
+        val p2 = (tags.contains(BuildTargetTag.LIBRARY) || tags.contains(BuildTargetTag.APPLICATION)) ==>
+          (description.output == outputPath &&
+          description.targetDependencies == target.getDependencies.asScala &&
+          description.classPathSources == dependencySources &&
+          description.sourceDirs == sourceRoots &&
+          description.classPath == classpath) :|
+            s"data not correctly set for library or application tags. Result data was: $description"
+        val p3 = tags.contains(BuildTargetTag.TEST) ==>
+          (description.testOutput == outputPath &&
+          description.targetTestDependencies == target.getDependencies.asScala &&
+          description.testClassPathSources == dependencySources &&
+          description.testSourceDirs == sourceRoots &&
+          description.testClassPath == classpath) :|
+            s"data not correctly set for test tag. Result data was: $description"
+
+        p1 && p2 && p3
+      }
+    }
+
 
 }

@@ -122,16 +122,15 @@ private[resolver] object BspResolverLogic {
       depSrc <- depSources.getSources.asScala
     } yield depSrc.toURI.toFile
 
-    // TODO bsp spec depends on uri ending in `/` to determine directory
-    // https://github.com/scalacenter/bsp/issues/76
     val sourceDirs = sourceItems
       .map { item =>
         val file = item.getUri.toURI.toFile
-        if (item.getUri.endsWith("/"))
+        // bsp spec used to depend on uri ending in `/` to determine directory, use both kind and uri string to determine directory
+        if (item.getKind == SourceItemKind.DIRECTORY || item.getUri.endsWith("/"))
           SourceDirectory(file, item.getGenerated)
         else
-        // just use the file's immediate parent as best guess of source dir
-        // IntelliJ project model doesn't have a concept of individual source files
+          // use the file's immediate parent as best guess of source dir
+          // IntelliJ project model doesn't have a concept of individual source files
           SourceDirectory(file.getParentFile, item.getGenerated)
       }
       .distinct
@@ -199,46 +198,37 @@ private[resolver] object BspResolverLogic {
                                                     ): ModuleDescriptionData = {
     import BuildTargetTag._
 
-    if (tags.contains(LIBRARY) || tags.contains(APPLICATION))
-      ModuleDescriptionData(
-        targets = Seq(target),
+    val dataBasic = ModuleDescriptionData(
+      Seq(target),
+      Seq.empty, Seq.empty,
+      moduleBase,
+      None, None,
+      Seq.empty, Seq.empty,
+      Seq.empty, Seq.empty,
+      Seq.empty, Seq.empty
+    )
+
+    val data1 = if (tags.contains(LIBRARY) || tags.contains(APPLICATION))
+      dataBasic.copy(
         targetDependencies = target.getDependencies.asScala,
-        targetTestDependencies = Seq.empty,
-        basePath = moduleBase,
         output = outputPath,
-        testOutput = None,
         sourceDirs = sourceRoots,
-        testSourceDirs = Seq.empty,
         classPath = classPath,
         classPathSources = dependencySources,
-        testClassPath = Seq.empty,
-        testClassPathSources = Seq.empty
-      )
-    else if(tags.contains(TEST))
-      ModuleDescriptionData(
-        targets = Seq(target),
-        targetDependencies = Seq.empty,
+      ) else dataBasic
+
+    val data2 = if(tags.contains(TEST))
+      data1.copy(
         targetTestDependencies = target.getDependencies.asScala,
-        basePath = moduleBase,
-        output = None,
         testOutput = outputPath,
-        sourceDirs = Seq.empty,
         testSourceDirs = sourceRoots,
-        classPath = Seq.empty,
-        classPathSources = Seq.empty,
         testClassPath = classPath,
         testClassPathSources = dependencySources
-      )
-    else // create a module, but with empty classpath
-      ModuleDescriptionData(
-        Seq(target),
-        Seq.empty, Seq.empty,
-        moduleBase,
-        None, None,
-        Seq.empty, Seq.empty,
-        Seq.empty, Seq.empty,
-        Seq.empty, Seq.empty
-      ) // TODO ignore and warn about unsupported build target kinds? map to special module?
+      ) else data1
+
+    // TODO ignore and warn about unsupported build target kinds? map to special module?
+
+    data2
   }
 
 
