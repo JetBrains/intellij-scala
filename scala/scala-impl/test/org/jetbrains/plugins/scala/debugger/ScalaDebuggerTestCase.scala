@@ -73,6 +73,7 @@ abstract class ScalaDebuggerTestCase extends ScalaDebuggerTestBase {
 
     try {
       callback
+      resume()
     } finally {
       Assert.assertTrue("Stop at breakpoint expected", breakpointTracker.wasAtBreakpoint || !shouldStopAtBreakpoint)
 
