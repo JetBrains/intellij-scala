@@ -9,7 +9,6 @@ import com.intellij.openapi.project.Project;
 import com.intellij.openapi.util.Ref;
 import com.intellij.openapi.util.registry.Registry;
 import com.intellij.openapi.vcs.changes.*;
-import com.intellij.psi.PsiMethod;
 import com.intellij.ui.ColoredTreeCellRenderer;
 import com.intellij.ui.SimpleTextAttributes;
 import com.intellij.util.Alarm;
@@ -17,7 +16,8 @@ import com.intellij.util.io.PowerStatus;
 import com.intellij.util.ui.EdtInvocationManager;
 import com.intellij.util.ui.UIUtil;
 import org.jetbrains.annotations.NotNull;
-import org.jetbrains.plugins.scala.testDiscovery.actions.ShowAffectedTestsAction;
+import org.jetbrains.plugins.scala.lang.psi.api.toplevel.typedef.ScMember;
+import org.jetbrains.plugins.scala.testDiscovery.actions.ScalaShowAffectedTestsAction;
 
 import java.util.*;
 import java.util.concurrent.atomic.AtomicReference;
@@ -25,14 +25,16 @@ import java.util.stream.Collectors;
 
 import static com.intellij.ui.SimpleTextAttributes.STYLE_UNDERLINE;
 
-public class AffectedTestsInChangeListPainter implements ChangeListDecorator, ProjectComponent {
+public class ScalaAffectedTestsInChangeListPainter implements ChangeListDecorator, ProjectComponent {
   private final Project myProject;
   private final ChangeListManager myChangeListManager;
   private final ChangeListAdapter myChangeListListener;
   private final Alarm myAlarm;
   private final AtomicReference<Set<String>> myChangeListsToShow = new AtomicReference<>(Collections.emptySet());
 
-  public AffectedTestsInChangeListPainter(@NotNull Project project, ChangeListManager changeListManager) {
+  private static final String SHOW_AFFECTED_TESTS_IN_CHANGELISTS = "show.affected.tests.in.changelists";
+
+  public ScalaAffectedTestsInChangeListPainter(@NotNull Project project, ChangeListManager changeListManager) {
     myProject = project;
     myChangeListManager = changeListManager;
     myChangeListListener = new ChangeListAdapter() {
@@ -93,22 +95,22 @@ public class AffectedTestsInChangeListPainter implements ChangeListDecorator, Pr
                                  boolean selected,
                                  boolean expanded,
                                  boolean hasFocus) {
-    if (!Registry.is("show.affected.tests.in.changelists")) return;
-    if (!ShowAffectedTestsAction.isEnabled(myProject)) return;
+    if (!Registry.is(SHOW_AFFECTED_TESTS_IN_CHANGELISTS)) return;
+    if (!ScalaShowAffectedTestsAction.isEnabled(myProject)) return;
     if (changeList.getChanges().isEmpty()) return;
     if (!myChangeListsToShow.get().contains(changeList.getId())) return;
 
     renderer.append(", ", SimpleTextAttributes.GRAYED_ATTRIBUTES);
-    renderer.append("show affected tests", new SimpleTextAttributes(STYLE_UNDERLINE, UIUtil.getInactiveTextColor()), (Runnable)() -> {
+    renderer.append("show affected tests (scala)", new SimpleTextAttributes(STYLE_UNDERLINE, UIUtil.getInactiveTextColor()), (Runnable) () -> {
       DataContext dataContext = DataManager.getInstance().getDataContext(renderer.getTree());
       Change[] changes = changeList.getChanges().toArray(new Change[0]);
-      ShowAffectedTestsAction.showDiscoveredTestsByChanges(myProject, changes, changeList.getName(), dataContext);
+      ScalaShowAffectedTestsAction.showDiscoveredTestsByChanges(myProject, changes, changeList.getName(), dataContext);
     });
   }
 
   private void scheduleUpdate() {
-    if (!Registry.is("show.affected.tests.in.changelists")) return;
-    if (!ShowAffectedTestsAction.isEnabled(myProject)) return;
+    if (!Registry.is(SHOW_AFFECTED_TESTS_IN_CHANGELISTS)) return;
+    if (!ScalaShowAffectedTestsAction.isEnabled(myProject)) return;
     myAlarm.cancelAllRequests();
     if (!myAlarm.isDisposed()) {
       myAlarm.addRequest(() -> update(), updateDelay());
@@ -116,24 +118,24 @@ public class AffectedTestsInChangeListPainter implements ChangeListDecorator, Pr
   }
 
   private void update() {
-    myChangeListsToShow.set(
-      myChangeListManager.getChangeLists().stream()
-        .filter(list -> !list.getChanges().isEmpty())
-        .map(list -> {
-          Collection<Change> changes = list.getChanges();
+    List<LocalChangeList> changeLists = myChangeListManager.getChangeLists();
+    Set<String> result = changeLists.stream()
+      .filter(list -> !list.getChanges().isEmpty())
+      .map((LocalChangeList list) -> {
+        Collection<Change> changes = list.getChanges();
 
-          PsiMethod[] methods = ShowAffectedTestsAction.findMethods(myProject, changes.toArray(new Change[0]));
-          List<String> paths = ShowAffectedTestsAction.getRelativeAffectedPaths(myProject, changes);
-          if (methods.length == 0 && paths.isEmpty()) return null;
+        ScMember[] methods = ScalaShowAffectedTestsAction.findMembers(myProject, changes.toArray(new Change[0]));
+        List<String> paths = ScalaShowAffectedTestsAction.getRelativeAffectedPaths(myProject, changes);
+        if (methods.length == 0 && paths.isEmpty()) return null;
 
-          Ref<String> ref = Ref.create();
-          ShowAffectedTestsAction.processMethods(myProject, methods, paths, (clazz, method, parameter) -> {
-            ref.set(list.getId());
-            return false;
-          });
-          return ref.get();
-        }).filter(Objects::nonNull).collect(Collectors.toSet())
-    );
+        Ref<String> ref = Ref.create();
+        ScalaShowAffectedTestsAction.processMembers(myProject, methods, paths, (clazz, method, parameter) -> {
+          ref.set(list.getId());
+          return false;
+        });
+        return ref.get();
+      }).filter(Objects::nonNull).collect(Collectors.toSet());
+    myChangeListsToShow.set(result);
 
     EdtInvocationManager.getInstance().invokeLater(this::scheduleRefresh);
   }

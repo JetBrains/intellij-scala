@@ -102,7 +102,6 @@ class DiscoveredTestsTreeModel extends BaseTreeModel<Object> {
     if (c instanceof PsiAnonymousClass) {
       PsiClass containingClass = PsiTreeUtil.getParentOfType(c, PsiClass.class);
       if (containingClass != null) {
-        // TODO: NAUMENKO: what about nested anonymous and named classes?
         return ClassUtil.getJVMClassName(containingClass) + JavaAnonymousClassesHelper.getName((PsiAnonymousClass)c);
       }
     }
