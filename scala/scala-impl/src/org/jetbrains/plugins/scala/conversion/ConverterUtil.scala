@@ -21,6 +21,7 @@ import org.jetbrains.plugins.scala.lang.psi.api.expr.ScParenthesisedExpr
 import org.jetbrains.plugins.scala.lang.psi.api.statements.ScFunctionDefinition
 import org.jetbrains.plugins.scala.lang.psi.api.toplevel.imports.ScImportSelector
 import org.jetbrains.plugins.scala.util.TypeAnnotationUtil
+
 import scala.annotation.tailrec
 import scala.collection.mutable
 import scala.collection.mutable.ArrayBuffer
@@ -225,7 +226,11 @@ object ConverterUtil {
     textWithoutLastSemicolon(text1) != textWithoutLastSemicolon(text2)
   }
 
-  class ConvertedCode(val data: String, val associations: Array[Association], val showDialog: Boolean = false) extends TextBlockTransferableData {
+  case class ConvertedCode(text: String,
+                           associations: Array[Association],
+                           showDialog: Boolean = false)
+    extends TextBlockTransferableData {
+
     def setOffsets(offsets: Array[Int], _index: Int): Int = {
       var index = _index
       for (association <- associations) {

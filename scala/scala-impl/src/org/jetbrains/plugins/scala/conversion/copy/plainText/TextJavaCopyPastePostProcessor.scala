@@ -1,9 +1,11 @@
-package org.jetbrains.plugins.scala.conversion.copy.plainText
+package org.jetbrains.plugins.scala
+package conversion
+package copy
+package plainText
 
 import java.awt.datatransfer.{DataFlavor, Transferable}
 import java.lang.Boolean
 
-import com.intellij.codeInsight.editorActions.TextBlockTransferableData
 import com.intellij.openapi.application.ApplicationManager
 import com.intellij.openapi.editor.{Editor, RangeMarker}
 import com.intellij.openapi.project.Project
@@ -11,44 +13,44 @@ import com.intellij.openapi.util.Ref
 import com.intellij.psi._
 import com.intellij.psi.codeStyle.CodeStyleManager
 import com.intellij.psi.search.GlobalSearchScope
-import org.jetbrains.plugins.scala.conversion.copy.{Association, SingularCopyPastePostProcessor}
-import org.jetbrains.plugins.scala.conversion.{ConverterUtil, JavaToScala}
 import org.jetbrains.plugins.scala.extensions.PsiElementExt
 import org.jetbrains.plugins.scala.lang.psi.api.ScalaFile
 import org.jetbrains.plugins.scala.settings.ScalaProjectSettings
 import org.jetbrains.plugins.scala.statistics.{FeatureKey, Stats}
-import org.jetbrains.plugins.scala.{ScalaBundle, extensions}
 
 /**
   * Created by Kate Ustyuzhanina on 12/19/16.
   */
-class TextJavaCopyPastePostProcessor extends SingularCopyPastePostProcessor[TextBlockTransferableData] {
+class TextJavaCopyPastePostProcessor extends SingularCopyPastePostProcessor[ConverterUtil.ConvertedCode] {
   private val lineSeparator = '\n'
 
-  override protected def collectTransferableData0(file: PsiFile, editor: Editor, startOffsets: Array[Int],
-                                                  endOffsets: Array[Int]): TextBlockTransferableData = {
-    null
-  }
+  import ConverterUtil._
 
-  override protected def extractTransferableData0(content: Transferable): TextBlockTransferableData = {
+  override protected def collectTransferableData0(file: PsiFile, editor: Editor,
+                                                  startOffsets: Array[Int], endOffsets: Array[Int]): ConvertedCode = null
+
+  override protected def extractTransferableData0(content: Transferable): ConvertedCode = {
     def copyInsideIde: Boolean =
       if (ApplicationManager.getApplication.isUnitTestMode && !TextJavaCopyPastePostProcessor.insideIde) false
       else
         content
           .getTransferDataFlavors
           .exists { flavor =>
-            classOf[TextBlockTransferableData]
-              .isAssignableFrom(flavor.getRepresentationClass)
+            classOf[ConvertedCode].isAssignableFrom(flavor.getRepresentationClass)
           }
 
-    if (content.isDataFlavorSupported(DataFlavor.stringFlavor) && !copyInsideIde) {
-      val text = content.getTransferData(DataFlavor.stringFlavor).asInstanceOf[String]
-      new ConverterUtil.ConvertedCode(text, Array.empty[Association], false)
-    } else null
+    DataFlavor.stringFlavor match {
+      case flavor if content.isDataFlavorSupported(flavor) && !copyInsideIde =>
+        val text = content.getTransferData(DataFlavor.stringFlavor).asInstanceOf[String]
+        new ConvertedCode(text, Array.empty[Association], false)
+      case _ => null
+    }
   }
 
-  override protected def processTransferableData0(project: Project, editor: Editor, bounds: RangeMarker,
-                                                  caretOffset: Int, ref: Ref[Boolean], value: TextBlockTransferableData): Unit = {
+  override protected def processTransferableData0(project: Project, editor: Editor,
+                                                  bounds: RangeMarker,
+                                                  caretOffset: Int, ref: Ref[Boolean],
+                                                  value: ConvertedCode): Unit = {
 
     if (!ScalaProjectSettings.getInstance(project).isEnableJavaToScalaConversion) return
     val file = PsiDocumentManager.getInstance(project).getPsiFile(editor.getDocument)
@@ -56,24 +58,16 @@ class TextJavaCopyPastePostProcessor extends SingularCopyPastePostProcessor[Text
     val scope = file.resolveScope
     if (!file.isInstanceOf[ScalaFile]) return
 
-    val (text, _, _) = value match {
-      case code: ConverterUtil.ConvertedCode => (code.data, code.associations, code.showDialog)
-      case _ => ("", Array.empty[Association], true)
-    }
+    val ConvertedCode(text, _, _) = value
+    if (text == null || text == "" || project == null) return
 
-    if (text == null || text == "" || project == null) {
-      return
-    }
-
-    if (PlainTextCopyUtil.isValidScalaFile(text, project)) {
-      return
-    }
+    if (PlainTextCopyUtil.isValidScalaFile(text, project)) return
 
     // TODO: Collect available imports in current scope. Use them while converting
     computejavaContext(text, project).foreach { javaCodeWithContext =>
       val needShowDialog = !ScalaProjectSettings.getInstance(project).isDontShowConversionDialog
 
-      if (!needShowDialog || ConverterUtil.shownDialog(ScalaBundle.message("scala.copy.from.text"), project).isOK) {
+      if (!needShowDialog || shownDialog(ScalaBundle.message("scala.copy.from.text"), project).isOK) {
         Stats.trigger(FeatureKey.convertFromJavaText)
 
         extensions.inWriteAction {
@@ -82,10 +76,10 @@ class TextJavaCopyPastePostProcessor extends SingularCopyPastePostProcessor[Text
           createFileWithAdditionalImports(javaCodeWithContext, scope).foreach { javaFile =>
             //remove java pasted java code from file for treating file as a valid scala file
             //it needs for SCL-11425
-            ConverterUtil.performePaste(editor, bounds, " " * (bounds.getEndOffset - bounds.getStartOffset), project)
+            performePaste(editor, bounds, " " * (bounds.getEndOffset - bounds.getStartOffset), project)
 
             val convertedText = convert(javaFile, javaCodeWithContext.context, project)
-            ConverterUtil.performePaste(editor, bounds, convertedText, project)
+            performePaste(editor, bounds, convertedText, project)
 
             CodeStyleManager.getInstance(project)
               .reformatText(
@@ -93,7 +87,7 @@ class TextJavaCopyPastePostProcessor extends SingularCopyPastePostProcessor[Text
                 bounds.getStartOffset, bounds.getStartOffset + convertedText.length
               )
 
-            ConverterUtil.cleanCode(file, project, bounds.getStartOffset, bounds.getEndOffset)
+            cleanCode(file, project, bounds.getStartOffset, bounds.getEndOffset)
           }
         }
       }
@@ -115,7 +109,7 @@ class TextJavaCopyPastePostProcessor extends SingularCopyPastePostProcessor[Text
     }
 
     val elementsToConvert =
-      ConverterUtil.collectTopElements(
+      collectTopElements(
         begin,
         end,
         javaFile

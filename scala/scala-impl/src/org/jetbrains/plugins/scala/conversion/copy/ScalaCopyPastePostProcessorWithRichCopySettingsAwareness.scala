@@ -1,16 +1,19 @@
-package org.jetbrains.plugins.scala.conversion.copy
+package org.jetbrains.plugins.scala
+package conversion
+package copy
+
 import com.intellij.openapi.editor.Editor
 import com.intellij.openapi.editor.richcopy.settings.RichCopySettings
 import com.intellij.psi.PsiFile
 
-class ScalaCopyPastePostProcessorWithRichCopySettingsAwareness extends ScalaCopyPastePostProcessor {
-  override protected def collectTransferableData0(file: PsiFile, editor: Editor,
-                                                  startOffsets: Array[Int], endOffsets: Array[Int]): Associations = {
+final class ScalaCopyPastePostProcessorWithRichCopySettingsAwareness extends ScalaCopyPastePostProcessor {
 
-    //copy as plain text
-    if (!RichCopySettings.getInstance().isEnabled)
-      return null
-
-    super.collectTransferableData0(file, editor, startOffsets, endOffsets)
-  }
+  override protected def collectTransferableData0(file: PsiFile,
+                                                  editor: Editor,
+                                                  startOffsets: Array[Int],
+                                                  endOffsets: Array[Int]): Associations =
+    RichCopySettings.getInstance() match {
+      case copySettings if copySettings.isEnabled => super.collectTransferableData0(file, editor, startOffsets, endOffsets) // copy as plain text
+      case _ => null
+    }
 }

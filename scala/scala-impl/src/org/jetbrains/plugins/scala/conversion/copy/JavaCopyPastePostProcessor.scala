@@ -24,7 +24,7 @@ import scala.collection.mutable
   * User: Alexander Podkhalyuzin
   * Date: 30.11.2009
   */
-class JavaCopyPastePostProcessor extends SingularCopyPastePostProcessor[TextBlockTransferableData] {
+class JavaCopyPastePostProcessor extends SingularCopyPastePostProcessor[ConverterUtil.ConvertedCode] {
 
   import ConverterUtil._
 
@@ -33,7 +33,8 @@ class JavaCopyPastePostProcessor extends SingularCopyPastePostProcessor[TextBloc
   private lazy val referenceProcessor = CopyPastePostProcessor.EP_NAME.findExtensionOrFail(classOf[JavaCopyPasteReferenceProcessor])
   private lazy val scalaProcessor = CopyPastePostProcessor.EP_NAME.findExtensionOrFail(classOf[ScalaCopyPastePostProcessor])
 
-  protected def collectTransferableData0(file: PsiFile, editor: Editor, startOffsets: Array[Int], endOffsets: Array[Int]): TextBlockTransferableData = {
+  protected def collectTransferableData0(file: PsiFile, editor: Editor,
+                                         startOffsets: Array[Int], endOffsets: Array[Int]): ConvertedCode = {
     if (DumbService.getInstance(file.getProject).isDumb) return null
     if (!ScalaProjectSettings.getInstance(file.getProject).isEnableJavaToScalaConversion ||
       !file.isInstanceOf[PsiJavaFile]) return null
@@ -95,23 +96,27 @@ class JavaCopyPastePostProcessor extends SingularCopyPastePostProcessor[TextBloc
     }
   }
 
-  protected def extractTransferableData0(content: Transferable): TextBlockTransferableData =
-    if (content.isDataFlavorSupported(ConvertedCode.Flavor)) content.getTransferData(ConvertedCode.Flavor).asInstanceOf[TextBlockTransferableData]
-    else null
+  protected def extractTransferableData0(content: Transferable): ConvertedCode = ConvertedCode.Flavor match {
+    case flavor if content.isDataFlavorSupported(flavor) => content.getTransferData(flavor).asInstanceOf[ConvertedCode]
+    case _ => null
+  }
 
-  protected def processTransferableData0(project: Project, editor: Editor, bounds: RangeMarker, i: Int, ref: Ref[Boolean], value: TextBlockTransferableData) {
-    if (!ScalaProjectSettings.getInstance(project).isEnableJavaToScalaConversion) return
+  protected def processTransferableData0(project: Project, editor: Editor,
+                                         bounds: RangeMarker,
+                                         i: Int, ref: Ref[Boolean],
+                                         value: ConvertedCode): Unit = {
+    val settings = ScalaProjectSettings.getInstance(project)
+    if (!settings.isEnableJavaToScalaConversion) return
     if (value == null) return
+
     val file = PsiDocumentManager.getInstance(project).getPsiFile(editor.getDocument)
     if (!file.isInstanceOf[ScalaFile]) return
 
-    val (text, associations, showDialog) = value match {
-      case code: ConvertedCode => (code.data, code.associations, code.showDialog)
-      case _ => ("", Array.empty[Association], true)
-    }
+    val ConvertedCode(text, associations, showDialog) = value
     if (text == "") return
     //copy as usually
-    val needShowDialog = (!ScalaProjectSettings.getInstance(project).isDontShowConversionDialog) && showDialog
+    val needShowDialog = (!settings.isDontShowConversionDialog) && showDialog
+
     if (!needShowDialog || shownDialog(ScalaBundle.message("scala.copy.from.java"), project).isOK) {
       val shiftedAssociations = inWriteAction {
         performePaste(editor, bounds, text, project)
