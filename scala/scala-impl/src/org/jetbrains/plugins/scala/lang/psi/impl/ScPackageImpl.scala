@@ -16,6 +16,7 @@ import org.jetbrains.plugins.scala.lang.psi.api.{ScPackage, ScPackageLike}
 import org.jetbrains.plugins.scala.lang.psi.impl.toplevel.synthetic.SyntheticClasses
 import org.jetbrains.plugins.scala.lang.resolve.ResolveUtils
 import org.jetbrains.plugins.scala.lang.resolve.processor.{BaseProcessor, ResolveProcessor}
+import org.jetbrains.plugins.scala.macroAnnotations.CachedInUserData
 
 /**
  * User: Alexander Podkhalyuzin
@@ -78,18 +79,9 @@ class ScPackageImpl private (val pack: PsiPackage) extends PsiPackageImpl(pack.g
     } else true
   }
 
-  def findPackageObject(scope: GlobalSearchScope): Option[ScObject] = {
-    val manager = ScalaShortNamesCacheManager.getInstance(getProject)
-
-    var tuple = pack.getUserData(CachesUtil.PACKAGE_OBJECT_KEY)
-    val count = ScalaPsiManager.instance(getProject).TopLevelModificationTracker.getModificationCount
-    if (tuple == null || tuple._2.longValue != count) {
-      val clazz = manager.findPackageObjectByName(getQualifiedName, scope).orNull
-      tuple = (clazz, count) // TODO is it safe to cache this ignoring `scope`?
-      pack.putUserData(CachesUtil.PACKAGE_OBJECT_KEY, tuple)
-    }
-    Option(tuple._1)
-  }
+  @CachedInUserData(this, ScalaPsiManager.instance(getProject).TopLevelModificationTracker)
+  def findPackageObject(scope: GlobalSearchScope): Option[ScObject] =
+    ScalaShortNamesCacheManager.getInstance(getProject).findPackageObjectByName(getQualifiedName, scope)
 
   override def getParentPackage: PsiPackageImpl =
     ScalaPsiUtil.parentPackage(getQualifiedName, getProject)
