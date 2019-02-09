@@ -1,7 +1,6 @@
 package org.jetbrains.plugins.scala.projectHighlighting
 
 import com.intellij.openapi.project.Project
-import com.intellij.openapi.util.TextRange
 import org.jetbrains.plugins.scala.HighlightingTests
 import org.jetbrains.plugins.scala.performance.ImportingProjectTestCase
 import org.jetbrains.plugins.scala.util.TestUtils
@@ -29,8 +28,4 @@ class AkkaSamplesTest extends LocalSbtProjectHighlightingTest {
 @Category(Array(classOf[HighlightingTests]))
 class ScalaPetStoreTest extends LocalSbtProjectHighlightingTest {
   override def projectName = "scala-pet-store"
-
-  override def filesWithProblems: Map[String, Set[TextRange]] = Map(
-    "src/main/scala/io/github/pauljamescleary/petstore/endpoint/PetEndpoints.scala" -> Set()
-  )
 }

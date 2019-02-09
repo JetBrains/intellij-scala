@@ -4,6 +4,7 @@ import org.jetbrains.plugins.scala.DependencyManagerBase._
 import org.jetbrains.plugins.scala.base.ScalaLightCodeInsightFixtureTestAdapter
 import org.jetbrains.plugins.scala.base.libraryLoaders.{IvyManagedLoader, LibraryLoader}
 import org.jetbrains.plugins.scala.debugger.{ScalaVersion, Scala_2_12}
+import org.jetbrains.plugins.scala.project._
 
 class PartialUnificationCatsResolveTest extends ScalaLightCodeInsightFixtureTestAdapter with SimpleResolveTestBase {
   import SimpleResolveTestBase._
@@ -12,6 +13,11 @@ class PartialUnificationCatsResolveTest extends ScalaLightCodeInsightFixtureTest
 
   override def librariesLoaders: Seq[LibraryLoader] =
     super.librariesLoaders :+ IvyManagedLoader("org.typelevel" %% "cats-core" % "1.4.0")
+
+  override def setUp(): Unit = {
+    super.setUp()
+    module.scalaCompilerSettings.additionalCompilerOptions = Seq("-Ypartial-unification")
+  }
 
   def testFunctionMap(): Unit = doResolveTest(
     s"""

@@ -9,6 +9,7 @@ import org.jetbrains.plugins.scala.debugger.{ScalaVersion, Scala_2_12}
 import org.jetbrains.plugins.scala.util.TestUtils
 import org.jetbrains.plugins.scala.util.reporter.ProgressReporter
 import org.junit.experimental.categories.Category
+import org.jetbrains.plugins.scala.project._
 
 /**
   * Nikolay.Tropin

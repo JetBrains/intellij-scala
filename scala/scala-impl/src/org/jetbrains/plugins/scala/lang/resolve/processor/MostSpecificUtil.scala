@@ -101,7 +101,7 @@ case class MostSpecificUtil(elem: PsiElement, length: Int) {
         def calcParams(tp: ScType, existential: Boolean): Either[Seq[Parameter], ScType] = {
 
           def toExistentialArg(tp: TypeParameter) =
-            ScExistentialArgument(tp.name, List.empty /* todo? */ , tp.lowerType, tp.upperType)
+            ScExistentialArgument(tp.name, tp.typeParameters, tp.lowerType, tp.upperType)
 
           tp match {
             case ScMethodType(_, params, _) => Left(params)
@@ -312,7 +312,7 @@ case class MostSpecificUtil(elem: PsiElement, length: Int) {
   //todo: implement existential dual
   def getType(e: PsiNamedElement, implicitCase: Boolean): ScType = {
     val res = e match {
-      case m: PsiMethod => 
+      case m: PsiMethod =>
         val scope = elem.elementScope
         m.methodTypeProvider(scope).polymorphicType()
       case fun: ScFun => fun.polymorphicType()

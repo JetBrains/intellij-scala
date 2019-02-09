@@ -77,18 +77,6 @@ class ScalaHighlightingTest extends ScalaHighlightingTestBase {
     assertNothing(errorsFromScalaCode(scalaText))
   }
 
-  def testSCL13532(): Unit = {
-    val scalaText =
-      """
-        |object Test {
-        |    def foo[F[_], A](a: F[F[A]]): Any = ???
-        |    def either1: Either[String, Either[String, Int]] = ???
-        |    foo(either1)
-        |}
-      """.stripMargin
-    assertNothing(errorsFromScalaCode(scalaText))
-  }
-
   def testSCL12708(): Unit = {
     val code =
       """

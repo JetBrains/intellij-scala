@@ -34,7 +34,6 @@ final class ScExistentialType private (val quantified: ScType,
   override def equivInner(r: ScType, constraints: ConstraintSystem, falseUndef: Boolean): ConstraintsResult = {
     if (r.equiv(Nothing)) return quantified.equiv(Nothing, constraints)
     val simplified = simplify()
-    val conformance: ScalaConformance = typeSystem
     if (this != simplified) return simplified.equiv(r, constraints, falseUndef)
     (quantified, r) match {
       case (ParameterizedType(ScAbstractType(typeParameter, lowerBound, upperBound), args), _) if !falseUndef =>
@@ -56,12 +55,12 @@ final class ScExistentialType private (val quantified: ScType,
       case (ParameterizedType(UndefinedType(typeParameter, _), args), _) if !falseUndef =>
         r match {
           case ParameterizedType(des, _) =>
-            val y = conformance.addParam(typeParameter, des, constraints)
+            val y = ScalaConformance.addParam(typeParameter, des, constraints)
             if (y.isLeft) return ConstraintsResult.Left
 
             return ScExistentialType(ScParameterizedType(des, args)).equiv(r, y.constraints, falseUndef)
           case ScExistentialType(ParameterizedType(des, _), _) =>
-            val y = conformance.addParam(typeParameter, des, constraints)
+            val y = ScalaConformance.addParam(typeParameter, des, constraints)
             if (y.isLeft) return ConstraintsResult.Left
 
             return ScExistentialType(ScParameterizedType(des, args)).equiv(r, y.constraints, falseUndef)
@@ -70,7 +69,7 @@ final class ScExistentialType private (val quantified: ScType,
       case (ParameterizedType(pType, args), ParameterizedType(rType, _)) =>
         val res = pType.equivInner(rType, constraints, falseUndef)
         if (res.isLeft) return res
-        conformance.extractParams(rType) match {
+        ScalaConformance.extractParams(rType) match {
           case Some(iter) =>
             val (names, existArgsBounds) =
               args.zip(iter.toList).collect {

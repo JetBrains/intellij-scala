@@ -15,6 +15,7 @@ import com.intellij.util.containers.ContainerUtil
 import org.jetbrains.plugins.scala.extensions._
 import org.jetbrains.plugins.scala.lang.psi.api.statements.{ScTypeAlias, ScTypeAliasDefinition}
 import org.jetbrains.plugins.scala.lang.psi.api.toplevel.ScTypeParametersOwner
+import org.jetbrains.plugins.scala.lang.psi.types.ScalaConformance.Bound
 import org.jetbrains.plugins.scala.lang.psi.types.api.designator.{ScDesignatorType, ScProjectionType}
 import org.jetbrains.plugins.scala.lang.psi.types.api.{Invariant, ParameterizedType, TypeParameterType, TypeVisitor, UndefinedType, ValueType, Variance}
 import org.jetbrains.plugins.scala.lang.psi.types.nonvalue.ScTypePolymorphicType
@@ -121,10 +122,10 @@ final class ScParameterizedType private(val designator: ScType, val typeArgument
             }).equiv(r, constraints, falseUndef)
           case _ => ConstraintsResult.Left
         }
-      case (ParameterizedType(UndefinedType(_, _), _), ParameterizedType(_, _)) =>
-        Conformance.processHigherKindedTypeParams(this, r.asInstanceOf[ParameterizedType], constraints, falseUndef)
-      case (ParameterizedType(_, _), ParameterizedType(UndefinedType(_, _), _)) =>
-        Conformance.processHigherKindedTypeParams(r.asInstanceOf[ParameterizedType], this, constraints, falseUndef)
+      case (ParameterizedType(UndefinedType(_, _), _), rhs @ ParameterizedType(_, _)) =>
+        Conformance.unifyHK(this, rhs, constraints, Bound.Equivalence, Set.empty, checkWeak = false)
+      case (ParameterizedType(_, _), rhs @ ParameterizedType(UndefinedType(_, _), _)) =>
+        Conformance.unifyHK(rhs, this, constraints, Bound.Equivalence, Set.empty, checkWeak = false)
       case (ParameterizedType(_, _), ParameterizedType(designator1, typeArgs1)) =>
         var lastConstraints = constraints
         var t = designator.equiv(designator1, constraints, falseUndef)

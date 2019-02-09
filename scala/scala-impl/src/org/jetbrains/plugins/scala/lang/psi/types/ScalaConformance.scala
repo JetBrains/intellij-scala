@@ -7,31 +7,27 @@ import com.intellij.openapi.progress.ProgressManager
 import com.intellij.openapi.util.Computable
 import com.intellij.psi._
 import org.jetbrains.plugins.scala.extensions._
-import org.jetbrains.plugins.scala.lang.psi.ScalaPsiUtil._
 import org.jetbrains.plugins.scala.lang.psi.api.base.ScFieldId
 import org.jetbrains.plugins.scala.lang.psi.api.base.patterns.ScBindingPattern
 import org.jetbrains.plugins.scala.lang.psi.api.statements._
 import org.jetbrains.plugins.scala.lang.psi.api.statements.params._
 import org.jetbrains.plugins.scala.lang.psi.api.toplevel.ScTypeParametersOwner
-import org.jetbrains.plugins.scala.lang.psi.api.toplevel.typedef.{ScObject, ScTypeDefinition}
+import org.jetbrains.plugins.scala.lang.psi.api.toplevel.typedef.ScTypeDefinition
 import org.jetbrains.plugins.scala.lang.psi.impl.toplevel.synthetic.ScSyntheticClass
-import org.jetbrains.plugins.scala.lang.psi.types.ScalaConformance.{ScalaArray, SmartInheritanceResult, UndefinedOrWildcard}
+import org.jetbrains.plugins.scala.lang.psi.types.ScalaConformance._
 import org.jetbrains.plugins.scala.lang.psi.types.api._
 import org.jetbrains.plugins.scala.lang.psi.types.api.designator.{ScDesignatorType, ScProjectionType, ScThisType}
 import org.jetbrains.plugins.scala.lang.psi.types.nonvalue.{NonValueType, ScMethodType, ScTypePolymorphicType}
 import org.jetbrains.plugins.scala.lang.psi.types.recursiveUpdate.AfterUpdate.{ProcessSubtypes, ReplaceWith, Stop}
 import org.jetbrains.plugins.scala.lang.psi.types.recursiveUpdate.ScSubstitutor
-import org.jetbrains.plugins.scala.lang.psi.types.result._
 import org.jetbrains.plugins.scala.lang.resolve.processor.{CompoundTypeCheckSignatureProcessor, CompoundTypeCheckTypeAliasProcessor}
 import org.jetbrains.plugins.scala.project.ProjectContext
 import org.jetbrains.plugins.scala.util.ScEquivalenceUtil._
 
-import scala.annotation.tailrec
 import scala.collection.Seq
 import scala.collection.immutable.HashSet
-import scala.collection.mutable.ArrayBuffer
 
-trait ScalaConformance extends api.Conformance {
+trait ScalaConformance extends api.Conformance with TypeVariableUnification {
   typeSystem: api.TypeSystem =>
 
   override protected def conformsComputable(key: Key,
@@ -55,9 +51,8 @@ trait ScalaConformance extends api.Conformance {
                 } else if (lClass.qualifiedName == "java.lang.Object") {
                   return conformsInner(AnyRef, right, visited, checkWeak = checkWeak)
                 }
-                val inh = smartIsInheritor(rClass, subst, lClass)
-                if (inh.isFailure) return ConstraintsResult.Left
-                val tp = inh.result
+                val inh = SmartSuperTypeUtil.smartIsInheritor(rClass, subst, lClass)
+                if (inh.isEmpty) return ConstraintsResult.Left
                 //Special case for higher kind types passed to generics.
                 if (lClass.hasTypeParameters) {
                   left.removeAliasDefinitions() match {
@@ -65,7 +60,7 @@ trait ScalaConformance extends api.Conformance {
                     case _ => return ConstraintSystem.empty
                   }
                 }
-                return conformsInner(left, tp, visited + rClass)
+                return conformsInner(left, inh.orNull, visited + rClass)
               case _ =>
             }
           case _ =>
@@ -97,9 +92,15 @@ trait ScalaConformance extends api.Conformance {
     else ConstraintsResult.Left
   }
 
-  private def checkParameterizedType(parametersIterator: Iterator[PsiTypeParameter], args1: scala.Seq[ScType],
-                                     args2: scala.Seq[ScType], _constraints: ConstraintSystem,
-                                     visited: Set[PsiClass], checkWeak: Boolean): ConstraintsResult = {
+  protected def checkParameterizedType(
+    parametersIterator: Iterator[PsiTypeParameter],
+    args1:              scala.Seq[ScType],
+    args2:              scala.Seq[ScType],
+    _constraints:       ConstraintSystem,
+    visited:            Set[PsiClass],
+    checkWeak:          Boolean,
+    checkEquivalence:   Boolean = false
+  ): ConstraintsResult = {
     var constraints = _constraints
 
     def addAbstract(upper: ScType, lower: ScType, tp: ScType): Boolean = {
@@ -121,19 +122,19 @@ trait ScalaConformance extends api.Conformance {
 
     while (parametersIterator.hasNext && args1Iterator.hasNext && args2Iterator.hasNext) {
       val tp = parametersIterator.next()
-      val argsPair = (args1Iterator.next(), args2Iterator.next())
+      val (lhs, rhs) = (args1Iterator.next(), args2Iterator.next())
       tp match {
-        case scp: ScTypeParam if scp.isContravariant =>
-          val y = conformsInner(argsPair._2, argsPair._1, HashSet.empty, constraints)
+        case scp: ScTypeParam if scp.isContravariant && !checkEquivalence =>
+          val y = conformsInner(rhs, lhs, HashSet.empty, constraints)
           if (y.isLeft) return ConstraintsResult.Left
           else constraints = y.constraints
-        case scp: ScTypeParam if scp.isCovariant =>
-          val y = conformsInner(argsPair._1, argsPair._2, HashSet.empty, constraints)
+        case scp: ScTypeParam if scp.isCovariant && !checkEquivalence =>
+          val y = conformsInner(lhs, rhs, HashSet.empty, constraints)
           if (y.isLeft) return ConstraintsResult.Left
           else constraints = y.constraints
         //this case filter out such cases like undefined type
         case _ =>
-          argsPair match {
+          (lhs, rhs) match {
             case (UndefinedType(typeParameter, _), rt) =>
               val y = addParam(typeParameter, rt, constraints)
               if (y.isLeft) return ConstraintsResult.Left
@@ -149,7 +150,7 @@ trait ScalaConformance extends api.Conformance {
               if (!addAbstract(upper, lower, left))
                 return ConstraintsResult.Left
             case _ =>
-              val t = argsPair._1.equiv(argsPair._2, constraints, falseUndef = false)
+              val t = lhs.equiv(rhs, constraints, falseUndef = false)
               if (t.isLeft) return ConstraintsResult.Left
               constraints = t.constraints
           }
@@ -240,12 +241,8 @@ trait ScalaConformance extends api.Conformance {
 
     trait UndefinedSubstVisitor extends ScalaTypeVisitor {
       override def visitUndefinedType(u: UndefinedType): Unit = l match {
-        case ParameterizedType(abs: ScAbstractType, tArgs)
-          if abs.upper.equiv(Any) && tArgs.forall {
-            case ScAbstractType(_, lower, upper) => lower.equiv(Nothing) && upper.equiv(Any)
-            case _                               => false
-          } => result = constraints
-        case _ => result = constraints.withUpper(u.typeParameter.typeParamId, l)
+        case HKAbstract() => result = constraints
+        case _            => result = constraints.withUpper(u.typeParameter.typeParamId, l)
       }
     }
 
@@ -695,7 +692,7 @@ trait ScalaConformance extends api.Conformance {
       if (result != null) return
 
       rightVisitor = new ExistentialSimplification with ExistentialArgumentVisitor
-        with ParameterizedExistentialArgumentVisitor with OtherNonvalueTypesVisitor with NothingNullVisitor
+        with ParameterizedExistentialArgumentVisitor with NothingNullVisitor
         with TypeParameterTypeVisitor with ThisVisitor with ParameterizedAliasVisitor {}
       r.visitType(rightVisitor)
       if (result != null) return
@@ -734,6 +731,10 @@ trait ScalaConformance extends api.Conformance {
           r.visitType(rightVisitor)
           if (result != null) return
       }
+
+      if (result ne null) return
+      rightVisitor = new OtherNonvalueTypesVisitor {}
+      r.visitType(rightVisitor)
 
       if (result != null) return
       rightVisitor = new DesignatorVisitor {}
@@ -830,9 +831,6 @@ trait ScalaConformance extends api.Conformance {
       r.visitType(rightVisitor)
       if (result != null) return
 
-      checkEquiv()
-      if (result != null) return
-
       rightVisitor = new ExistentialSimplification with ExistentialArgumentVisitor {}
       r.visitType(rightVisitor)
       if (result != null) return
@@ -921,60 +919,17 @@ trait ScalaConformance extends api.Conformance {
                 }
               } else result = retryTypeParamsConformance(lhs, rhs, l, r, constraints)
             case (UndefinedOrWildcard(_, _), UndefinedOrWildcard(typeParameter, addBound)) =>
-              (if (args1.length != args2.length) findDiffLengthArgs(l, args2.length) else Some((args1, des1))) match {
-                case Some((aArgs, aType)) =>
-                  if (addBound) constraints = constraints.withUpper(typeParameter.typeParamId, aType)
-                  result = checkParameterizedType(typeParameter.typeParameters.map(_.psiTypeParameter).iterator, aArgs,
-                    args2, constraints, visited, checkWeak)
-                case _ =>
-                  result = ConstraintsResult.Left
-              }
-            case (UndefinedOrWildcard(typeParameter, addBound), _) =>
-              (if (args1.length != args2.length) findDiffLengthArgs(r, args1.length) else Some((args2, des2))) match {
-                case Some((aArgs, aType)) =>
-                  if (addBound) constraints = constraints.withLower(typeParameter.typeParamId, aType)
-                  result = checkParameterizedType(typeParameter.typeParameters.map(_.psiTypeParameter).iterator, args1,
-                    aArgs, constraints, visited, checkWeak)
-                case _ =>
-                  result = ConstraintsResult.Left
-              }
-              if (args1.length < args2.length && (result == null || !result.isRight)) {
-                //partial unification SCL-11320
-                val captureLength = args2.length - args1.length
+              if (unifiableKinds(p, p2)) {
+                if (addBound) constraints = constraints.withUpper(typeParameter.typeParamId, des1)
 
-                val (captured, abstracted) = args2.splitAt(captureLength)
-                val t = checkParameterizedType(typeParameter.typeParameters.map(_.psiTypeParameter).iterator, args1, abstracted,
-                  constraints, visited, checkWeak)
-                //TODO actually remember to what designator we are mapping and what captured parameters are
-                //TODO right now, anything compiles, fix once it's fixed in the compiler
-                result = if (t.isRight && addBound) {
-                  val abstractedTypeParams = abstracted.zipWithIndex.map {
-                    case (_, i) => TypeParameter.light("p" + i + "$$", Seq(), Nothing, Any)
-                  }
-
-                  val typeConstructor =
-                    ScTypePolymorphicType(
-                      ScParameterizedType(
-                        des2,
-                        captured ++ abstractedTypeParams.map(TypeParameterType(_))
-                      ),
-                      abstractedTypeParams
-                    )
-
-                  t.constraints.withLower(typeParameter.typeParamId, typeConstructor)
-                } else {
-                  t
-                }
-              }
-            case (_, UndefinedOrWildcard(typeParameter, addBound)) =>
-              (if (args1.length != args2.length) findDiffLengthArgs(l, args2.length) else Some((args1, des1))) match {
-                case Some((aArgs, aType)) =>
-                  if (addBound) constraints = constraints.withUpper(typeParameter.typeParamId, aType)
-                  result = checkParameterizedType(typeParameter.typeParameters.map(_.psiTypeParameter).iterator, aArgs,
-                    args2, constraints, visited, checkWeak)
-                case _ =>
-                  result = ConstraintsResult.Left
-              }
+                result = checkParameterizedType(
+                  typeParameter.typeParameters.map(_.psiTypeParameter).iterator,
+                  args1, args2, constraints,
+                  visited, checkWeak
+                )
+              } else result = ConstraintsResult.Left
+            case (UndefinedOrWildcard(_, _), _) => result = unifyHK(p, p2, constraints, Bound.Lower, visited, checkWeak)
+            case (_, UndefinedOrWildcard(_, _)) => result = unifyHK(p2, p, constraints, Bound.Upper, visited, checkWeak)
             case _ if des1 equiv des2 =>
               result =
                 if (args1.length != args2.length) ConstraintsResult.Left
@@ -1387,6 +1342,10 @@ trait ScalaConformance extends api.Conformance {
       r.visitType(rightVisitor)
       if (result != null) return
 
+      rightVisitor = new ProjectionVisitor {}
+      r.visitType(rightVisitor)
+      if (result != null) return
+
       r match {
         case t2: ScTypePolymorphicType =>
           val typeParameters1 = t1.typeParameters
@@ -1426,62 +1385,35 @@ trait ScalaConformance extends api.Conformance {
       }
     }
   }
+}
 
-  private def smartIsInheritor(leftClass: PsiClass, substitutor: ScSubstitutor, rightClass: PsiClass) : SmartInheritanceResult = {
-    if (areClassesEquivalent(leftClass, rightClass)) return SmartInheritanceResult.failure
-    if (!isInheritorDeep(leftClass, rightClass)) return SmartInheritanceResult.failure
-    smartIsInheritor(leftClass, substitutor, areClassesEquivalent(_, rightClass), new collection.immutable.HashSet[PsiClass])
-  }
-
-  private def parentWithArgNumber(leftClass: PsiClass, substitutor: ScSubstitutor, argsNumber: Int): SmartInheritanceResult = {
-    smartIsInheritor(leftClass, substitutor, c => c.getTypeParameters.length == argsNumber, new collection.immutable.HashSet[PsiClass]())
-  }
-
-  private def smartIsInheritor(leftClass: PsiClass, substitutor: ScSubstitutor, condition: PsiClass => Boolean,
-                               visited: collection.immutable.HashSet[PsiClass]): SmartInheritanceResult = {
-    ProgressManager.checkCanceled()
-    val bases: Seq[Any] = leftClass match {
-      case td: ScTypeDefinition => td.superTypes
-      case _ => leftClass.getSuperTypes
-    }
-    val iterator = bases.iterator
-    val later: ArrayBuffer[(PsiClass, ScSubstitutor)] = new ArrayBuffer[(PsiClass, ScSubstitutor)]()
-    var res: ScType = null
-    while (iterator.hasNext) {
-      val tp: ScType = iterator.next() match {
-        case tp: ScType => substitutor(tp)
-        case pct: PsiClassType =>
-          substitutor(pct.toScType()) match {
-            case ex: ScExistentialType => ex.quantified //it's required for the raw types
-            case r => r
-          }
-      }
-      tp.extractClassType match {
-        case Some((clazz: PsiClass, _)) if visited.contains(clazz) =>
-        case Some((clazz: PsiClass, _)) if condition(clazz) =>
-          if (res == null) res = tp
-          else if (tp.conforms(res)) res = tp
-        case Some((clazz: PsiClass, subst)) =>
-          later += ((clazz, subst))
-        case _ =>
-      }
-    }
-    val laterIterator = later.iterator
-    while (laterIterator.hasNext) {
-      val (clazz, subst) = laterIterator.next()
-      val recursive = smartIsInheritor(clazz, subst, condition, visited + clazz)
-      if (!recursive.isFailure) {
-        val lastResult = recursive.result
-
-        if (res == null || lastResult.conforms(res)) {
-          res = lastResult
+private object ScalaConformance {
+  private[psi] object HKAbstract {
+    def unapply(tpe: ParameterizedType): Boolean = tpe match {
+      case ParameterizedType(abs: ScAbstractType, tArgs) =>
+        import abs.projectContext
+        abs.upper.equiv(Any) && tArgs.forall {
+          case ScAbstractType(_, lower, upper) => lower.equiv(Nothing) && upper.equiv(Any)
+          case _                               => false
         }
-      }
+      case _ => false
     }
-    SmartInheritanceResult(res)
   }
 
-  def extractParams(des: ScType): Option[Iterator[PsiTypeParameter]] = {
+  private[psi] def addParam(
+    typeParameter: TypeParameter,
+    bound:         ScType,
+    constraints:   ConstraintSystem
+  ): ConstraintSystem =
+    bound match {
+      case HKAbstract() => constraints
+      case _ =>
+        constraints
+          .withUpper(typeParameter.typeParamId, bound, variance = Invariant)
+          .withLower(typeParameter.typeParamId, bound, variance = Invariant)
+    }
+
+  private[psi] def extractParams(des: ScType): Option[Iterator[PsiTypeParameter]] =
     des match {
       case undef: UndefinedType =>
         Option(undef.typeParameter.psiTypeParameter).map(_.getTypeParameters.iterator)
@@ -1492,115 +1424,14 @@ trait ScalaConformance extends api.Conformance {
           case other => other.getTypeParameters.iterator
         }
     }
-  }
 
-  def addParam(typeParameter: TypeParameter, bound: ScType, constraints: ConstraintSystem): ConstraintsResult = {
-    constraints
-      .withUpper(typeParameter.typeParamId, bound, variance = Invariant)
-      .withLower(typeParameter.typeParamId, bound, variance = Invariant)
-  }
 
-  def processHigherKindedTypeParams(undefType: ParameterizedType, defType: ParameterizedType, constraints: ConstraintSystem,
-                                    falseUndef: Boolean): ConstraintsResult = {
-    val defTypeExpanded = defType.isAliasType.map(_.lower).map {
-      case Right(p: ScParameterizedType) => p
-      case _ => defType
-    }.getOrElse(defType)
-    extractParams(defTypeExpanded.designator) match {
-      case Some(params) =>
-        val undef = undefType.designator.asInstanceOf[UndefinedType]
-        var defArgsReplace = defTypeExpanded.typeArguments
-        val bound = if (params.nonEmpty) {
-          if (defTypeExpanded.typeArguments.length != undefType.typeArguments.length)
-          {
-            if (defType.typeArguments.length != undefType.typeArguments.length) {
-              findDiffLengthArgs(defType, undefType.typeArguments.length) match {
-                case Some((newArgs, newDes)) =>
-                  defArgsReplace = newArgs
-                  newDes
-                case _ if undefType.typeArguments.length < defType.typeArguments.length =>
-                  val captureLength = defType.typeArguments.length - undefType.typeArguments.length
-                  val (captured, abstracted) = defType.typeArguments.splitAt(captureLength)
-                  var subst = constraints
-                  for ((arg1, arg2) <- abstracted.zip(undefType.typeArguments)) {
-                    val t = arg2.equivInner(arg1, subst, falseUndef)
-                    if (t.isLeft) {
-                      return ConstraintsResult.Left
-                    } else {
-                      subst = t.constraints
-                    }
-                  }
-                  val abstractedTypeParams = abstracted.zipWithIndex.map {
-                    case (_, i) => TypeParameter.light("p" + i + "$$", Seq(), Nothing, Any)
-                  }
-                  //TODO actually remember to what designator we are mapping and what captured parameters are
-                  //TODO right now, anything compiles, fix once it's fixed in the compiler
-                  return addParam(undef.typeParameter, ScTypePolymorphicType(ScParameterizedType(defType.designator,
-                    captured ++ abstractedTypeParams.map(TypeParameterType(_))), abstractedTypeParams), subst)
-                case _ => return ConstraintsResult.Left
-              }
-            } else {
-              defArgsReplace =defType.typeArguments
-              defType.designator
-            }
-          } else defTypeExpanded.designator
-        } else {
-          defTypeExpanded.designator
-        }
-        val y = undef.equiv(bound, constraints, falseUndef)
-        if (y.isLeft) {
-          ConstraintsResult.Left
-        } else {
-          val undefArgIterator = undefType.typeArguments.iterator
-          val defIterator = defArgsReplace.iterator
-          var sub = y.constraints
-          while (params.hasNext && undefArgIterator.hasNext && defIterator.hasNext) {
-            val arg1 = undefArgIterator.next()
-            val arg2 = defIterator.next()
-            val t = arg1.equiv(arg2, sub, falseUndef = false)
-            if (t.isLeft) return ConstraintsResult.Left
-            sub = t.constraints
-          }
-          sub
-        }
-      case _ => ConstraintsResult.Left
-    }
-  }
-
-  def findDiffLengthArgs(eType: ScType, argLength: Int): Option[(Seq[ScType], ScType)] =
-    eType.extractClassType match {
-      case Some((clazz, classSubst)) =>
-        val t = parentWithArgNumber(clazz, classSubst, argLength)
-        if (t.isFailure) None
-        else t.result match {
-          case ParameterizedType(newDes, newArgs) =>
-            Some(newArgs, newDes)
-          case _ =>
-            None
-        }
-      case _ =>
-        None
-    }
-}
-
-private object ScalaConformance {
-  private object UndefinedOrWildcard {
+  private[types] object UndefinedOrWildcard {
     def unapply(tpe: NonValueType): Option[(TypeParameter, Boolean)] = tpe match {
       case UndefinedType(tparam, _) => Option((tparam, true))
       case WildcardType(tparam)     => Option((tparam, false))
       case _                        => None
     }
-  }
-
-  //avoid unnecessary Tuple2(Boolean, ScType), it generates a lot of garbage
-  private class SmartInheritanceResult(val result: ScType) extends AnyVal {
-    def isFailure: Boolean = result == null
-  }
-
-  private object SmartInheritanceResult {
-    val failure: SmartInheritanceResult = new SmartInheritanceResult(null)
-
-    def apply(res: ScType): SmartInheritanceResult = new SmartInheritanceResult(res)
   }
 
   private object ScalaArray {
@@ -1610,4 +1441,10 @@ private object ScalaConformance {
     }
   }
 
+  private[psi] sealed trait Bound
+  private[psi] object Bound {
+    case object Lower       extends Bound
+    case object Upper       extends Bound
+    case object Equivalence extends Bound
+  }
 }
