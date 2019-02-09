@@ -136,7 +136,7 @@ object InferUtil {
         // See SCL-3516
         val (updatedType, ps) = updateTypeWithImplicitParameters(retType, element, coreElement, canThrowSCE, fullInfo = fullInfo)
         implicitParameters = ps
-        implicit val elementScope = mt.elementScope
+        implicit val elementScope: ElementScope = mt.elementScope
 
         resInner = mt.copy(result = updatedType)
       case ScMethodType(retType, params, isImplicit) if isImplicit =>
@@ -158,7 +158,7 @@ object InferUtil {
                     abstractSubstitutor: ScSubstitutor = ScSubstitutor.empty
                    ): (Seq[Parameter], Seq[Compatibility.Expression], Seq[ScalaResolveResult]) = {
 
-    implicit val project = place.getProject
+    implicit val project: ProjectContext = place.getProject
 
     val exprs = new ArrayBuffer[Expression]
     val paramsForInfer = new ArrayBuffer[Parameter]()
@@ -297,7 +297,7 @@ object InferUtil {
       val ScTypePolymorphicType(internal, typeParams) = tpt
 
       val sameDepth = internal match {
-        case m: ScMethodType => ofSameDepth(m, expected)
+        case m: ScMethodType => truncateMethodType(m, expr)
         case _               => internal
       }
 
@@ -344,7 +344,7 @@ object InferUtil {
     // interim fix for SCL-3905.
     def applyImplicitViewToResult(mt: ScMethodType, expectedType: Option[ScType], fromSAM: Boolean = false,
                                   fromMethodInvocation: Boolean = false): ScMethodType = {
-      implicit val elementScope = mt.elementScope
+      implicit val elementScope: ElementScope = mt.elementScope
       expr match {
         case _: MethodInvocation if !fromMethodInvocation =>
           mt.result match {
@@ -386,23 +386,22 @@ object InferUtil {
 
     nonValueType match {
       case tpt@ScTypePolymorphicType(mt: ScMethodType, _) =>
-        tpt.copy(internalType = applyImplicitViewToResult(mt, expectedType))
+        val canConform = if (!filterTypeParams) {
+          val subst         = tpt.abstractTypeSubstitutor
+          val withAbstracts = subst(mt).asInstanceOf[ScMethodType]
+          withAbstracts.result
+        } else mt.result
+
+        if (expectedType.forall(canConform.conforms)) tpt
+        else tpt.copy(internalType = applyImplicitViewToResult(mt, expectedType))
       case mt: ScMethodType =>
         applyImplicitViewToResult(mt, expectedType)
       case t => t
     }
   }
 
-  //truncate method type to have a chance to conform to expected,
-  //implicit clauses are chopped off first
-  private def ofSameDepth(m: ScMethodType, expected: ScType): ScType = {
-    @tailrec
-    def depth(tp: ScType, acc: Int = 0): Int = tp match {
-      case FunctionType(retType, _) => depth(retType, acc + 1)
-      case ScMethodType(retType, _, _) => depth(retType, acc + 1)
-      case _ => acc
-    }
-
+  //truncate method type to have a chance to conform to expected
+  private[this] def truncateMethodType(tpe: ScType, expr: PsiElement): ScType = {
     def withoutImplicitClause(internal: ScType): ScType = {
       internal match {
         case ScMethodType(retType, _, true) => retType
@@ -413,20 +412,23 @@ object InferUtil {
     }
 
     @tailrec
-    def methodTypeOfDepth(tp: ScType, d: Int, removeImplicits: Boolean): ScType = {
-      val mtDepth = depth(tp)
-
-      if (mtDepth <= d) tp
-      else if (removeImplicits)
-        methodTypeOfDepth(withoutImplicitClause(tp), d, removeImplicits = false)
-      else tp match {
-        case ScMethodType(retTp, _, _) =>
-          methodTypeOfDepth(retTp, d, removeImplicits = false)
-        case _ => tp
+    def countParameterLists(invocation: MethodInvocation, acc: Int = 1): Int =
+      invocation.getEffectiveInvokedExpr match {
+        case inv: MethodInvocation => countParameterLists(inv, acc + 1)
+        case _                     => acc
       }
+
+    @tailrec
+    def removeNComponents(tp: ScType, n: Int): ScType = tp match {
+      case ScMethodType(resTpe, _, _) if n > 0 => removeNComponents(resTpe, n - 1)
+      case _                                   => tp
     }
 
-    methodTypeOfDepth(m, depth(expected), removeImplicits = true)
+    val withoutImplicits = withoutImplicitClause(tpe)
+    expr match {
+      case inv: MethodInvocation => removeNComponents(withoutImplicits, countParameterLists(inv))
+      case _                     => withoutImplicits
+    }
   }
 
   def extractImplicitParameterType(result: ScalaResolveResult): Option[ScType] =

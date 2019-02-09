@@ -85,4 +85,23 @@ class LocalTypeInferenceExpectedTypeTest extends ScalaLightCodeInsightFixtureTes
       |}
     """.stripMargin
   )
+
+  def testSCL14927(): Unit = checkTextHasNoErrors(
+    """
+      |trait UncaughtExceptionReporter
+      |
+      |abstract class Callback[-E, -A] extends (Either[E, A] => Unit)
+      |object Callback {
+      |  def empty[E, A](implicit r: UncaughtExceptionReporter): Callback[E, A] = ???
+      |}
+      |
+      |trait Scheduler extends UncaughtExceptionReporter
+      |trait Task[+A] {
+      |  def f(cb: Either[Throwable, A] => Unit): Unit = ???
+      |
+      |  def runAsyncAndForgetOpt(implicit s: Scheduler): Unit =
+      |    f(Callback.empty)
+      |}
+    """.stripMargin
+  )
 }
