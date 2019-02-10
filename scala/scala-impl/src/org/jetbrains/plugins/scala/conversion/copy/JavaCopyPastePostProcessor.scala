@@ -53,6 +53,7 @@ class JavaCopyPastePostProcessor extends SingularCopyPastePostProcessor[Converte
           } else Seq.empty
       }
 
+      import JavaToScala._
       val associationsHelper = mutable.ListBuffer.empty[AssociationHelper]
       val resultNode = new MainConstruction
       val (topElements, dropElements) = getTopElements(file, startOffsets, endOffsets)
@@ -66,7 +67,7 @@ class JavaCopyPastePostProcessor extends SingularCopyPastePostProcessor[Converte
               resultNode.addChild(LiteralExpression(comment.getText))
             dropElements.add(comment)
           case ElementPart(element) =>
-            val result = JavaToScala.convertPsiToIntermdeiate(element, null)(associationsHelper, data, dropElements, textMode = false)
+            val result = convertPsiToIntermediate(element, null)(associationsHelper, data, dropElements, textMode = false)
             resultNode.addChild(result)
         }
       }
@@ -74,9 +75,9 @@ class JavaCopyPastePostProcessor extends SingularCopyPastePostProcessor[Converte
       val visitor = visitors.PrintWithComments(resultNode)
 
       val updatedAssociations = associationsHelper.collect {
-        case AssociationHelper(kind, itype: TypedElement, path) => Association(kind, path, visitor(itype.getType))
+        case AssociationHelper(itype: TypedElement, path) => Association(path, visitor(itype.getType))
       } ++ associationsHelper.collect {
-        case AssociationHelper(kind, itype, path) => Association(kind, path, visitor(itype))
+        case AssociationHelper(itype, path) => Association(path, visitor(itype))
       }
 
       val text = visitor()

@@ -240,7 +240,7 @@ class DependencyTest extends SimpleTestCase {
 
     val buffer = mutable.ArrayBuffer.empty[Association]
     new ScalaCopyPastePostProcessor().collectAssociations(file, file.getTextRange, buffer)
-    val descriptors = buffer.map(_.path.asString)
+    val descriptors = buffer.map(_.path.asString())
 
     Assert.assertEquals(expectations.toSet, descriptors.toSet)
   }

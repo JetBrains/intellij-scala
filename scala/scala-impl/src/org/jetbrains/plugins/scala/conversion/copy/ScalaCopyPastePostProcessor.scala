@@ -137,7 +137,7 @@ class ScalaCopyPastePostProcessor extends SingularCopyPastePostProcessor[Associa
       element <- elementFor(association, file, offset)
       if !association.isSatisfiedIn(element)
 
-      path = association.path.asString
+      path = association.path.asString()
       if hasNonDefaultPackage(path)
     } yield Binding(element, path)
 
@@ -177,13 +177,13 @@ class ScalaCopyPastePostProcessor extends SingularCopyPastePostProcessor[Associa
     for {
       refs <- grouped.values
       repr = refs.head
-      dep@Dependency(kind, _, path) <- Dependency.dependencyFor(repr)
+      dep@Dependency(_, path) <- Dependency.dependencyFor(repr)
       if dep.isExternal(file, range)
     } {
       refs.map {
         _.getTextRange.shiftRight(-range.getStartOffset)
       }.foreach { shiftedRange =>
-        buffer += Association(kind, path, shiftedRange)
+        buffer += Association(path, shiftedRange)
       }
     }
   }

@@ -43,14 +43,13 @@ abstract class AssociationsData(val associations: Array[AssociationsData.Associa
 
 object AssociationsData {
 
-  case class Association(kind: dependency.DependencyKind,
-                         path: dependency.Path,
+  case class Association(path: dependency.Path,
                          var range: TextRange) {
 
     def isSatisfiedIn(element: PsiElement): Boolean = element match {
       case reference: ScReference =>
         Dependency.dependencyFor(reference).exists {
-          case Dependency(`kind`, _, `path`) => true
+          case Dependency(_, `path`) => true
           case _ => false
         }
       case _ => false

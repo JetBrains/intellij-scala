@@ -1,4 +1,6 @@
-package org.jetbrains.plugins.scala.conversion.ast
+package org.jetbrains.plugins.scala
+package conversion
+package ast
 
 import com.intellij.openapi.project.Project
 import com.intellij.psi.PsiType
@@ -7,7 +9,7 @@ import org.jetbrains.plugins.scala.lang.psi.types.api.{JavaArrayType, Parameteri
 import org.jetbrains.plugins.scala.lang.psi.types.{ScType, ScTypeExt}
 import org.jetbrains.plugins.scala.project.ProjectContext
 
-import scala.collection.mutable.ArrayBuffer
+import scala.collection.mutable
 
 /**
   * Created by Kate Ustyuzhanina
@@ -32,22 +34,22 @@ object TypeConstruction {
   def createIntermediateTypePresentation(inType: PsiType, inProject: Project)(implicit textMode: Boolean = false): IntermediateNode = {
     implicit val ctx: ProjectContext = inProject
 
-    val buffer = new ArrayBuffer[(IntermediateNode, Option[String])]()
+    val buffer = mutable.ArrayBuffer.empty[(IntermediateNode, Option[String])]
     val result = getParts(inType.toScType(paramTopLevel = true), buffer)
 
     result match {
       case parametrized: ParametrizedConstruction =>
-        parametrized.assocoationMap = buffer
-        parametrized
+        parametrized.associationMap = buffer
       case array: ArrayConstruction =>
-        array.assocoationMap = buffer
-        array
-      case _ => result
+        array.associationMap = buffer
+      case _ =>
     }
+
+    result
   }
 
   // get simple parts of type if type is array or parametrized
-  def getParts(scType: ScType, buffer: ArrayBuffer[(IntermediateNode, Option[String])])
+  def getParts(scType: ScType, buffer: mutable.ArrayBuffer[(IntermediateNode, Option[String])])
               (implicit ctx: ProjectContext,
                textMode: Boolean = false): IntermediateNode = {
     scType match {
@@ -66,20 +68,15 @@ object TypeConstruction {
 }
 
 case class ParametrizedConstruction(iNode: IntermediateNode, parts: Seq[IntermediateNode]) extends IntermediateNode with TypedElement {
-  var assocoationMap = Seq[(IntermediateNode, Option[String])]()
-
-  def getAssociations: Seq[(IntermediateNode, String)] = assocoationMap.collect { case (n, Some(value)) => (n, value) }
+  var associationMap = Seq.empty[(IntermediateNode, Option[String])]
 
   override def getType: TypeConstruction = iNode.asInstanceOf[TypedElement].getType
 }
 
 case class ArrayConstruction(iNode: IntermediateNode) extends IntermediateNode with TypedElement {
-  var assocoationMap = Seq[(IntermediateNode, Option[String])]()
+  var associationMap = Seq.empty[(IntermediateNode, Option[String])]
 
-  def getAssociations: Seq[(IntermediateNode, String)] = assocoationMap.collect { case (n, Some(value)) => (n, value) }
-
-  override def getType: TypeConstruction =
-    iNode.asInstanceOf[TypedElement].getType
+  override def getType: TypeConstruction = iNode.asInstanceOf[TypedElement].getType
 }
 
 case class DisjunctionTypeConstructions(parts: Seq[IntermediateNode]) extends IntermediateNode with TypedElement {

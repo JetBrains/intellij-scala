@@ -25,7 +25,7 @@ import org.jetbrains.plugins.scala.project.ProjectContext
   * Pavel Fatin
   */
 
-case class Dependency(kind: DependencyKind, target: PsiElement, path: Path) {
+case class Dependency(target: PsiElement, path: Path) {
   def isExternal(file: PsiFile, range: TextRange): Boolean = {
     if (ApplicationManager.getApplication.isUnitTestMode) return true
 
@@ -103,14 +103,13 @@ object Dependency {
     }
 
     def shouldSkip(path: Path): Boolean = {
-      val string = path.asString
+      val string = path.asString()
       val index = string.lastIndexOf('.')
       index == -1 || Set("scala", "java.lang", "scala.Predef").contains(string.substring(0, index))
     }
 
-    def create(entity: PsiNamedElement, member: Option[String] = None): Option[Dependency] = {
-      pathFor(entity, member).map(p => Dependency(DependencyKind.Reference, target, p))
-    }
+    def create(entity: PsiNamedElement, member: Option[String] = None): Option[Dependency] =
+      pathFor(entity, member).map(Dependency(target, _))
 
     reference match {
       case Parent(_: ScConstructorPattern) =>
