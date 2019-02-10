@@ -1,8 +1,6 @@
-package org.jetbrains.plugins.scala.conversion
+package org.jetbrains.plugins.scala
+package conversion
 
-import java.awt.datatransfer.DataFlavor
-
-import com.intellij.codeInsight.editorActions.TextBlockTransferableData
 import com.intellij.codeInspection.{InspectionManager, LocalQuickFixOnPsiElement, ProblemDescriptor, ProblemsHolder}
 import com.intellij.openapi.editor.{Editor, RangeMarker}
 import com.intellij.openapi.project.Project
@@ -13,18 +11,18 @@ import org.jetbrains.plugins.scala.codeInspection.parentheses.ScalaUnnecessaryPa
 import org.jetbrains.plugins.scala.codeInspection.prefixMutableCollections.ReferenceMustBePrefixedInspection
 import org.jetbrains.plugins.scala.codeInspection.syntacticSimplification.{RemoveRedundantReturnInspection, ScalaUnnecessarySemicolonInspection}
 import org.jetbrains.plugins.scala.conversion.ast.CommentsCollector
-import org.jetbrains.plugins.scala.conversion.copy.{Association, ScalaPasteFromJavaDialog}
+import org.jetbrains.plugins.scala.conversion.copy.ScalaPasteFromJavaDialog
 import org.jetbrains.plugins.scala.extensions.{PsiElementExt, PsiFileExt}
 import org.jetbrains.plugins.scala.lang.lexer.ScalaTokenTypes
 import org.jetbrains.plugins.scala.lang.psi.api.base.ScReference
 import org.jetbrains.plugins.scala.lang.psi.api.expr.ScParenthesisedExpr
 import org.jetbrains.plugins.scala.lang.psi.api.statements.ScFunctionDefinition
 import org.jetbrains.plugins.scala.lang.psi.api.toplevel.imports.ScImportSelector
+import org.jetbrains.plugins.scala.lang.refactoring.AssociationsData
 import org.jetbrains.plugins.scala.util.TypeAnnotationUtil
 
 import scala.annotation.tailrec
 import scala.collection.mutable
-import scala.collection.mutable.ArrayBuffer
 
 /**
   * Created by Kate Ustyuzhanina
@@ -40,7 +38,7 @@ object ConverterUtil {
     }
 
     val dropElements = new mutable.HashSet[PsiElement]()
-    val buffer = new ArrayBuffer[Part]
+    val buffer = mutable.ArrayBuffer.empty[Part]
     for ((startOffset, endOffset) <- startOffsets.zip(endOffsets)) {
       @tailrec
       def findElem(offset: Int): PsiElement = {
@@ -226,35 +224,14 @@ object ConverterUtil {
     textWithoutLastSemicolon(text1) != textWithoutLastSemicolon(text2)
   }
 
-  case class ConvertedCode(text: String,
-                           associations: Array[Association],
+  import AssociationsData._
+
+  case class ConvertedCode(override val associations: Array[Association] = Array.empty,
+                           text: String,
                            showDialog: Boolean = false)
-    extends TextBlockTransferableData {
+    extends AssociationsData(associations, ConvertedCode)
 
-    def setOffsets(offsets: Array[Int], _index: Int): Int = {
-      var index = _index
-      for (association <- associations) {
-        association.range = new TextRange(offsets(index), offsets(index + 1))
-        index += 2
-      }
-      index
-    }
-
-    def getOffsets(offsets: Array[Int], _index: Int): Int = {
-      var index = _index
-      for (association <- associations) {
-        offsets(index) = association.range.getStartOffset
-        index += 1
-        offsets(index) = association.range.getEndOffset
-        index += 1
-      }
-      index
-    }
-
-    def getOffsetCount: Int = associations.length * 2
-
-    def getFlavor: DataFlavor = ConvertedCode.Flavor
-  }
+  object ConvertedCode extends Companion(classOf[ConvertedCode], "JavaToScalaConvertedCode")
 
   def replaceByConvertedCode(editor: Editor, bounds: RangeMarker, text: String): Unit = {
     val document = editor.getDocument
@@ -270,10 +247,6 @@ object ConverterUtil {
     if (isInsideStringLiteral && text.startsWith("\"") && text.endsWith("\""))
       document.replaceString(start - 1, end + 1, text)
     else document.replaceString(start, end, text)
-  }
-
-  object ConvertedCode {
-    lazy val Flavor: DataFlavor = new DataFlavor(classOf[ConvertedCode], "JavaToScalaConvertedCode")
   }
 
   def shownDialog(msg: String, project: Project): ScalaPasteFromJavaDialog = {

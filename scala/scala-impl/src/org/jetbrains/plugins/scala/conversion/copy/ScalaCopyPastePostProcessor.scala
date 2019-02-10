@@ -1,4 +1,6 @@
-package org.jetbrains.plugins.scala.conversion.copy
+package org.jetbrains.plugins.scala
+package conversion
+package copy
 
 import java.awt.datatransfer.Transferable
 
@@ -24,11 +26,10 @@ import org.jetbrains.plugins.scala.lang.psi.api.toplevel.ScPackaging
 import org.jetbrains.plugins.scala.lang.psi.api.toplevel.imports.ScImportStmt
 import org.jetbrains.plugins.scala.lang.psi.api.toplevel.templates.ScTemplateParents
 import org.jetbrains.plugins.scala.lang.psi.impl.base.ScStableCodeReferenceImpl
+import org.jetbrains.plugins.scala.lang.refactoring.AssociationsData.Association
 import org.jetbrains.plugins.scala.settings._
 
-import scala.collection.JavaConverters._
-import scala.collection.mutable
-import scala.collection.mutable.ArrayBuffer
+import scala.collection.{JavaConverters, mutable}
 
 /**
  * Pavel Fatin
@@ -49,7 +50,7 @@ class ScalaCopyPastePostProcessor extends SingularCopyPastePostProcessor[Associa
 
     val timeBound = System.currentTimeMillis + Timeout
 
-    val buffer: mutable.Buffer[Association] = ArrayBuffer.empty
+    val buffer = mutable.ArrayBuffer.empty[Association]
     var result: Associations = null
     try {
       ProgressManager.getInstance().runProcess(new Runnable {
@@ -75,24 +76,15 @@ class ScalaCopyPastePostProcessor extends SingularCopyPastePostProcessor[Associa
         val attachments = selections.zipWithIndex.map(p => new Attachment(s"Selection-${p._2 + 1}.scala", p._1))
         Log.error(e.getMessage, e, attachments: _*)
     } finally {
-      result = new Associations(buffer.toVector)
+      result = Associations(buffer.toArray)
     }
     result
   }
 
-  protected def extractTransferableData0(content: Transferable): Associations = {
-    def extractAssociations = content.getTransferData(Associations.Flavor).asInstanceOf[Associations]
-
-    content.isDataFlavorSupported(Associations.Flavor)
-           .option(logError(extractAssociations))
-           .orNull
-  }
-
-  private def logError[T >: Null](action: => T): T = {
-    try action
-    catch {
-      case e: Exception => Log.error(e); null
-    }
+  protected def extractTransferableData0(content: Transferable): Associations = Associations.flavor match {
+    case flavor if content.isDataFlavorSupported(flavor) =>
+      content.getTransferData(flavor).asInstanceOf[Associations]
+    case _ => null
   }
 
   protected def processTransferableData0(project: Project, editor: Editor, bounds: RangeMarker,
@@ -109,7 +101,7 @@ class ScalaCopyPastePostProcessor extends SingularCopyPastePostProcessor[Associa
 
     val offset = bounds.getStartOffset
 
-    doRestoreAssociations(value, file, offset, project) { bindingsToRestore =>
+    doRestoreAssociations(value.associations, file, offset, project) { bindingsToRestore =>
       if (ScalaApplicationSettings.getInstance().ADD_IMPORTS_ON_PASTE == CodeInsightSettings.ASK) {
         val dialog = new RestoreReferencesDialog(project, bindingsToRestore.map(_.path.toOption.getOrElse("")).sorted.toArray)
         dialog.show()
@@ -124,24 +116,30 @@ class ScalaCopyPastePostProcessor extends SingularCopyPastePostProcessor[Associa
     }
   }
 
-  def restoreAssociations(value: Associations, file: PsiFile, offset: Int, project: Project) {
-    doRestoreAssociations(value, file, offset, project)(identity)
+  def restoreAssociations(value: Associations, file: PsiFile, offset: Int, project: Project): Unit = {
+    doRestoreAssociations(value.associations, file, offset, project)(identity)
   }
 
-  private def doRestoreAssociations(value: Associations, file: PsiFile, offset: Int, project: Project)
-                         (filter: Seq[Binding] => Seq[Binding]) {
-    val bindings =
-      (for {
-        association <- value.associations
-        element <- elementFor(association, file, offset)
-        if !association.isSatisfiedIn(element)
-      } yield {
-        Binding(element, association.path.asString)
-      }).filter {
-        case Binding(_, path) =>
-          val index = path.lastIndexOf('.')
-          index != -1 && !Set("scala", "java.lang", "scala.Predef").contains(path.substring(0, index))
+  private def doRestoreAssociations(associations: Seq[Association], file: PsiFile, offset: Int, project: Project)
+                                   (filter: Seq[Binding] => Seq[Binding]): Unit = {
+    def hasNonDefaultPackage(path: String) = path.lastIndexOf('.') match {
+      case -1 => false
+      case index => path.substring(0, index) match {
+        case "scala" |
+             "java.lang" |
+             "scala.Predef" => false
+        case _ => true
       }
+    }
+
+    val bindings = for {
+      association <- associations
+      element <- elementFor(association, file, offset)
+      if !association.isSatisfiedIn(element)
+
+      path = association.path.asString
+      if hasNonDefaultPackage(path)
+    } yield Binding(element, path)
 
     if (bindings.isEmpty) return
 
@@ -149,6 +147,7 @@ class ScalaCopyPastePostProcessor extends SingularCopyPastePostProcessor[Associa
 
     if (bindingsToRestore.isEmpty) return
 
+    import JavaConverters._
     val commonParent = PsiTreeUtil.findCommonParent(bindingsToRestore.map(_.element).asJava)
     val importsHolder = ScalaImportTypeFix.getImportHolder(commonParent, project)
 
@@ -178,12 +177,13 @@ class ScalaCopyPastePostProcessor extends SingularCopyPastePostProcessor[Associa
     for {
       refs <- grouped.values
       repr = refs.head
-      dep <- Dependency.dependencyFor(repr)
+      dep@Dependency(kind, _, path) <- Dependency.dependencyFor(repr)
       if dep.isExternal(file, range)
     } {
-      refs.foreach { ref =>
-        val shiftedRange = ref.getTextRange.shiftRight(-range.getStartOffset)
-        buffer += Association(dep.kind, shiftedRange, dep.path)
+      refs.map {
+        _.getTextRange.shiftRight(-range.getStartOffset)
+      }.foreach { shiftedRange =>
+        buffer += Association(kind, path, shiftedRange)
       }
     }
   }

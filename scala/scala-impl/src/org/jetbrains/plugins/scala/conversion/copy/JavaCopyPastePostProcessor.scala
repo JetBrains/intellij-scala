@@ -16,6 +16,7 @@ import com.intellij.psi.codeStyle.CodeStyleManager
 import org.jetbrains.plugins.scala.conversion.ast.{LiteralExpression, MainConstruction, TypedElement}
 import org.jetbrains.plugins.scala.extensions._
 import org.jetbrains.plugins.scala.lang.psi.api.ScalaFile
+import org.jetbrains.plugins.scala.lang.refactoring.AssociationsData.Association
 import org.jetbrains.plugins.scala.settings._
 
 import scala.collection.mutable
@@ -73,17 +74,16 @@ class JavaCopyPastePostProcessor extends SingularCopyPastePostProcessor[Converte
       val visitor = visitors.PrintWithComments(resultNode)
 
       val updatedAssociations = associationsHelper.collect {
-        case AssociationHelper(kind, itype: TypedElement, path) => Association(kind, visitor(itype.getType), path)
+        case AssociationHelper(kind, itype: TypedElement, path) => Association(kind, path, visitor(itype.getType))
       } ++ associationsHelper.collect {
-        case AssociationHelper(kind, itype, path) =>
-          Association(kind, visitor(itype), path)
+        case AssociationHelper(kind, itype, path) => Association(kind, path, visitor(itype))
       }
 
       val text = visitor()
       val oldText = getTextBetweenOffsets(file, startOffsets, endOffsets)
       new ConvertedCode(
-        text,
         updatedAssociations.toArray,
+        text,
         compareTextNEq(oldText, text)
       )
     } catch {
@@ -96,7 +96,7 @@ class JavaCopyPastePostProcessor extends SingularCopyPastePostProcessor[Converte
     }
   }
 
-  protected def extractTransferableData0(content: Transferable): ConvertedCode = ConvertedCode.Flavor match {
+  protected def extractTransferableData0(content: Transferable): ConvertedCode = ConvertedCode.flavor match {
     case flavor if content.isDataFlavorSupported(flavor) => content.getTransferData(flavor).asInstanceOf[ConvertedCode]
     case _ => null
   }
@@ -112,7 +112,7 @@ class JavaCopyPastePostProcessor extends SingularCopyPastePostProcessor[Converte
     val file = PsiDocumentManager.getInstance(project).getPsiFile(editor.getDocument)
     if (!file.isInstanceOf[ScalaFile]) return
 
-    val ConvertedCode(text, associations, showDialog) = value
+    val ConvertedCode(associations, text, showDialog) = value
     if (text == "") return
     //copy as usually
     val needShowDialog = (!settings.isDontShowConversionDialog) && showDialog
@@ -137,7 +137,7 @@ class JavaCopyPastePostProcessor extends SingularCopyPastePostProcessor[Converte
         }
       }
 
-      scalaProcessor.processTransferableData(project, editor, bounds, i, ref, ju.Collections.singletonList(new Associations(shiftedAssociations)))
+      scalaProcessor.processTransferableData(project, editor, bounds, i, ref, ju.Collections.singletonList(Associations(shiftedAssociations.toArray)))
 
       inWriteAction {
         cleanCode(file, project, bounds.getStartOffset, bounds.getEndOffset, editor)

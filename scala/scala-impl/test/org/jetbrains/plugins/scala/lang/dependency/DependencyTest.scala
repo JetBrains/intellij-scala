@@ -1,12 +1,14 @@
 package org.jetbrains.plugins.scala
-package lang.dependency
+package lang
+package dependency
 
 import org.intellij.lang.annotations.Language
 import org.jetbrains.plugins.scala.base.SimpleTestCase
-import org.jetbrains.plugins.scala.conversion.copy.{Association, ScalaCopyPastePostProcessor}
+import org.jetbrains.plugins.scala.conversion.copy.ScalaCopyPastePostProcessor
+import org.jetbrains.plugins.scala.lang.refactoring.AssociationsData.Association
 import org.junit.Assert
 
-import scala.collection.mutable.ArrayBuffer
+import scala.collection.mutable
 
 /**
  * Pavel Fatin
@@ -236,9 +238,9 @@ class DependencyTest extends SimpleTestCase {
   private def assertDependenciesAre(@Language("Scala") code: String, expectations: String*) {
     val file = parseText(code)
 
-    val buffer = ArrayBuffer.empty[Association]
+    val buffer = mutable.ArrayBuffer.empty[Association]
     new ScalaCopyPastePostProcessor().collectAssociations(file, file.getTextRange, buffer)
-    val descriptors = buffer.map(it => it.path.asString)
+    val descriptors = buffer.map(_.path.asString)
 
     Assert.assertEquals(expectations.toSet, descriptors.toSet)
   }

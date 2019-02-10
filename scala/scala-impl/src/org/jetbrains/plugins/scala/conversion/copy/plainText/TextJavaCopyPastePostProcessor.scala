@@ -41,8 +41,7 @@ class TextJavaCopyPastePostProcessor extends SingularCopyPastePostProcessor[Conv
 
     DataFlavor.stringFlavor match {
       case flavor if content.isDataFlavorSupported(flavor) && !copyInsideIde =>
-        val text = content.getTransferData(DataFlavor.stringFlavor).asInstanceOf[String]
-        new ConvertedCode(text, Array.empty[Association], false)
+        ConvertedCode(text = content.getTransferData(DataFlavor.stringFlavor).asInstanceOf[String])
       case _ => null
     }
   }
@@ -58,7 +57,7 @@ class TextJavaCopyPastePostProcessor extends SingularCopyPastePostProcessor[Conv
     val scope = file.resolveScope
     if (!file.isInstanceOf[ScalaFile]) return
 
-    val ConvertedCode(text, _, _) = value
+    val ConvertedCode(_, text, _) = value
     if (text == null || text == "" || project == null) return
 
     if (PlainTextCopyUtil.isValidScalaFile(text, project)) return
