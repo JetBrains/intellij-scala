@@ -504,7 +504,7 @@ object InferUtil {
               val lower = combineBounds(tp, isLower = true)
               val upper = combineBounds(tp, isLower = false)
 
-              if (canThrowSCE && !undefiningSubstitutor(lower).weakConforms(undefiningSubstitutor.apply(upper)))
+              if (canThrowSCE && !undefiningSubstitutor(lower).weakConforms(undefiningSubstitutor(upper)))
                 throw new SafeCheckException
 
               TypeParameter(tp.psiTypeParameter, /* doesn't important here */

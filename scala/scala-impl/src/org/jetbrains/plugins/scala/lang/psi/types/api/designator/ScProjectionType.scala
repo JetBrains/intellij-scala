@@ -192,15 +192,6 @@ final class ScProjectionType private(val projected: ScType,
   def actualElement: PsiNamedElement = actual()._1
   def actualSubst: ScSubstitutor = actual()._2
 
-  /**
-    * Arises when argument-dependent types are approximated in implicit search
-    * See [[org.jetbrains.plugins.scala.lang.psi.implicits.ImplicitCollector.approximateDependent]]
-    */
-  private def normalize: ScType = projected match {
-    case undef: UndefinedType => undef
-    case _                    => this
-  }
-
   override def equivInner(r: ScType, constraints: ConstraintSystem, falseUndef: Boolean): ConstraintsResult = {
     def isSingletonOk(typed: ScTypedDefinition): Boolean = {
       typed.nameContext match {
@@ -210,7 +201,6 @@ final class ScProjectionType private(val projected: ScType,
       }
     }
 
-    if (normalize ne this) return normalize.equiv(r, constraints, falseUndef)
     actualElement match {
       case a: ScTypedDefinition if isSingletonOk(a) =>
         val subst = actualSubst
@@ -249,7 +239,6 @@ final class ScProjectionType private(val projected: ScType,
             }, constraints, falseUndef)
           case _ => ConstraintsResult.Left
         }
-      case proj: ScProjectionType if proj.normalize ne proj => equivInner(proj.normalize, constraints, falseUndef)
       case proj2@ScProjectionType(p1, _) =>
         proj2.actualElement match {
           case a: ScTypedDefinition if isSingletonOk(a) =>

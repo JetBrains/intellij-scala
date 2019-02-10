@@ -525,8 +525,60 @@ class ImplicitParametersAnnotatorHeavyTest extends ScalaLightCodeInsightFixtureT
     checkTextHasNoErrors(text)
   }
 
+  def testSCL14940(): Unit = checkTextHasNoErrors(
+    """object EnumTest {
+      |
+      |  object Enum1 extends Enumeration {
+      |    type Enum1 = Value
+      |    val Val1, Val2, Val3 = Value
+      |  }
+      |
+      |  trait Serializer[A] {
+      |    def serialize(value: A): Any
+      |  }
+      |
+      |  object Serializer {
+      |    def serialize[A](value: A)(implicit serializer: Serializer[A]) = serializer.serialize(value)
+      |  }
+      |
+      |  implicit class SerializerExtension[A](v: A) {
+      |    def serialize(implicit serializer: Serializer[A]) = Serializer.serialize(v)
+      |  }
+      |
+      |
+      |  implicit def enumSerializer[A <: Enumeration] = new Serializer[A#Value] {
+      |    def serialize(value: A#Value) = value.toString
+      |  }
+      |
+      |
+      |  val enum: Enum1.Enum1 = null
+      |  enum.serialize
+      |}
+      |
+    """.stripMargin
+  )
 
-
+  def testSCL14936(): Unit = checkTextHasNoErrors(
+    """
+      |object IntellijExample {
+      |
+      |  trait Bar[F[_]]
+      |
+      |  implicit val optionInstance: Bar[Option] = new Bar[Option] {}
+      |
+      |  implicit class Example[F[_]](val i: Int) extends AnyVal {
+      |    def foo(implicit b: Bar[F]): F[Int] = ???
+      |  }
+      |
+      |}
+      |
+      |object Usage {
+      |  import IntellijExample._
+      |
+      |  123.foo.map(_ + 1)
+      |}
+    """.stripMargin
+  )
 }
 
 class ImplicitParameterFailingTest extends ScalaLightCodeInsightFixtureTestAdapter {

@@ -653,13 +653,15 @@ class ImplicitCollector(place: PsiElement,
     import org.jetbrains.plugins.scala.lang.psi.api.statements.params._
     import scala.collection.mutable
 
-    val updates = mutable.Map.empty[UndefinedType, ScDesignatorType]
+    val updates = mutable.Map.empty[UndefinedType, ScProjectionType]
 
-    val updatedType = tpe.updateLeaves {
-      case original @ ScDesignatorType(p: ScParameter) if params.contains(p) =>
-        val typeParam = TypeParameter.light(p.name ++ "$$dep", Seq.empty, Nothing, Any)
+    var uid = 0
+    val updatedType = tpe.updateRecursively {
+      case original @ ScProjectionType(ScDesignatorType(p: ScParameter), _) if params.contains(p) =>
+        val typeParam = TypeParameter.light(p.name ++ "$$dep" + uid, Seq.empty, Nothing, Any)
         val undef     = UndefinedType(typeParam)
         updates += (undef -> original)
+        uid += 1
         undef
     }
 

@@ -422,7 +422,7 @@ trait ScalaConformance extends api.Conformance with TypeVariableUnification {
       override def visitCompoundType(c: ScCompoundType) {
         val comps = c.components
         var results = Set[ConstraintSystem]()
-        def traverse(check: (ScType, ConstraintSystem) => ConstraintsResult) = {
+        def traverse(check: (ScType, ConstraintSystem) => ConstraintsResult): Unit = {
           val iterator = comps.iterator
           while (iterator.hasNext) {
             val comp = iterator.next()
