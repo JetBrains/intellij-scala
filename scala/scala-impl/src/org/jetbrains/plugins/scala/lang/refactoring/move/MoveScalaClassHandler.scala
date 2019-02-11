@@ -6,7 +6,7 @@ package move
 import java.{util => ju}
 
 import com.intellij.psi.util.PsiTreeUtil
-import com.intellij.psi.{PsiClass, PsiDirectory, PsiDocumentManager, PsiFile}
+import com.intellij.psi.{PsiClass, PsiDirectory, PsiDocumentManager, PsiElement, PsiFile}
 import com.intellij.refactoring.move.moveClassesOrPackages.MoveClassHandler
 import com.intellij.usageView.UsageInfo
 import org.jetbrains.plugins.scala.editor.importOptimizer.ScalaImportOptimizer
@@ -40,68 +40,51 @@ final class MoveScalaClassHandler extends MoveClassHandler {
     case _ =>
   }
 
-  override def doMoveClass(clazz: PsiClass, directory: PsiDirectory): PsiClass = {
-    var fileWasDeleted: Boolean = false
-    val maybeCompanion = companionModule(clazz, moveCompanion)
+  override def doMoveClass(clazz: PsiClass, directory: PsiDirectory): PsiClass = (clazz, clazz.getContainingFile) match {
+    case (definition: ScTypeDefinition, file: ScalaFile) =>
+      val maybeCompanion = if (moveCompanion) definition.baseCompanionModule
+      else None
 
-    def deleteClass(aClass: PsiClass): Unit = aClass.getContainingFile match {
-      case file: ScalaFile =>
-        file.typeDefinitions match {
-          case Seq(`aClass`) if !(file.isScriptFile || file.isWorksheetFile) =>
-            file.delete()
-            fileWasDeleted = true
-          case _ => aClass.delete()
-        }
-    }
+      val createNewClass = directory.findFile(file.getName) match {
+        case fileWithOldFileName: PsiFile if directory != file.getContainingDirectory && classCanBeAdded(file, clazz) =>
+          // moving second of two classes which were in the same file to a different directory (IDEADEV-3089)
+          fileWithOldFileName.add _
+        case _ =>
+          //moving class to the existing file with the same name
+          directory.findFile(fileName(definition)) match {
+            case fileWithClassName: PsiFile if classCanBeAdded(fileWithClassName, clazz) =>
+              fileWithClassName.add _
+            case _ =>
+              //create new file with template
+              import actions.ScalaFileTemplateUtil._
+              val template: String = definition match {
+                case _: ScClass => SCALA_CLASS
+                case _: ScTrait => SCALA_TRAIT
+                case _: ScObject => SCALA_OBJECT
+              }
 
-    var newClass: PsiClass = null
+              val created = util.ScalaDirectoryService.createClassFromTemplate(directory, definition.name, template, askToDefineVariables = false)
+              if (definition.getDocComment == null) {
+                created.getDocComment match {
+                  case null =>
+                  case createdComment =>
+                    definition.addAfter(createdComment, null)
+                    shiftAssociations(definition, createdComment.getTextLength)
+                }
+              }
 
-    (clazz, clazz.getContainingFile) match {
-      case (td: ScTypeDefinition, file: ScalaFile) =>
-        val fileWithOldFileName = directory.findFile(file.getName)
-        val fileWithClassName = directory.findFile(fileName(td))
-
-        // moving second of two classes which were in the same file to a different directory (IDEADEV-3089)
-        if (directory != file.getContainingDirectory && fileWithOldFileName != null && classCanBeAdded(file, clazz)) {
-          newClass = fileWithOldFileName.add(td).asInstanceOf[PsiClass]
-          deleteClass(td)
-        }
-        //moving class to the existing file with the same name
-        else if (fileWithClassName != null && classCanBeAdded(fileWithClassName, clazz)) {
-          newClass = fileWithClassName.add(td).asInstanceOf[PsiClass]
-          deleteClass(td)
-        }
-        //create new file with template
-        else {
-          import actions.ScalaFileTemplateUtil._
-          val template: String = td match {
-            case _: ScClass => SCALA_CLASS
-            case _: ScTrait => SCALA_TRAIT
-            case _: ScObject => SCALA_OBJECT
+              created.replace _
           }
+      }
 
-          val created = util.ScalaDirectoryService.createClassFromTemplate(directory, td.name, template, askToDefineVariables = false)
-          if (td.getDocComment == null) {
-            created.getDocComment match {
-              case null =>
-              case createdComment =>
-                td.addAfter(createdComment, null)
-                shiftAssociations(td, createdComment.getTextLength)
-            }
-          }
-          newClass = created.replace(td).asInstanceOf[PsiClass]
-          deleteClass(td)
-        }
-      case _ =>
-    }
+      val (newClass, fileWasDeleted) = deleteClass(definition)(createNewClass)
+      if (fileWasDeleted) newClass.navigate(true)
 
-    if (fileWasDeleted) newClass.navigate(true)
-    maybeCompanion.foreach { companion =>
-      newClass.getContainingFile.add(companion)
-      deleteClass(companion)
-    }
-
-    newClass
+      maybeCompanion.foreach { companion =>
+        deleteClass(companion)(newClass.getContainingFile.add)
+      }
+      newClass
+    case _ => null
   }
 
   override def getName(clazz: PsiClass): String = clazz.getContainingFile match {
@@ -118,6 +101,20 @@ object MoveScalaClassHandler {
 
   private def fileName(templateDefinition: ScTemplateDefinition) =
     templateDefinition.name + "." + ScalaFileType.INSTANCE.getDefaultExtension
+
+  private def deleteClass(clazz: ScTypeDefinition)
+                         (createNewClass: PsiClass => PsiElement): (PsiClass, Boolean) = {
+    val newClass = createNewClass(clazz).asInstanceOf[PsiClass]
+
+    val file = clazz.getContainingFile.asInstanceOf[ScalaFile]
+    val elementToDelete = file.typeDefinitions match {
+      case Seq(`clazz`) if !(file.isScriptFile || file.isWorksheetFile) => file
+      case _ => clazz
+    }
+    elementToDelete.delete()
+
+    (newClass, elementToDelete == file)
+  }
 
   private def classCanBeAdded(file: PsiFile, clazz: PsiClass): Boolean = {
     import JavaConverters._
