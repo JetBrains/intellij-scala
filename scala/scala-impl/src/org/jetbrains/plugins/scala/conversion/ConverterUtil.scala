@@ -226,12 +226,36 @@ object ConverterUtil {
 
   import AssociationsData._
 
-  case class ConvertedCode(override val associations: Array[Association] = Array.empty,
-                           text: String,
-                           showDialog: Boolean = false)
-    extends AssociationsData(associations, ConvertedCode)
+  class ConvertedCode(override val associations: Array[Association],
+                      val text: String,
+                      val showDialog: Boolean)
+    extends AssociationsData(associations, ConvertedCode) {
 
-  object ConvertedCode extends Companion(classOf[ConvertedCode], "JavaToScalaConvertedCode")
+    override def equals(other: Any): Boolean = other match {
+      case ConvertedCode(associations, `text`, `showDialog`) => this.associations.sameElements(associations)
+      case _ => false
+    }
+
+    override def hashCode(): Int =
+      Seq(associations, text, showDialog)
+        .map(_.hashCode)
+        .foldLeft(0) {
+          (a, b) => 31 * a + b
+        }
+
+    override def toString = s"ConvertedCode($associations, $text, $showDialog)"
+  }
+
+  object ConvertedCode extends Companion(classOf[ConvertedCode], "JavaToScalaConvertedCode") {
+
+    def apply(associations: Array[Association] = Array.empty,
+              text: String,
+              showDialog: Boolean = false): ConvertedCode =
+      new ConvertedCode(associations, text, showDialog)
+
+    def unapply(code: ConvertedCode): Some[(Array[Association], String, Boolean)] =
+      Some(code.associations, code.text, code.showDialog)
+  }
 
   def replaceByConvertedCode(editor: Editor, bounds: RangeMarker, text: String): Unit = {
     val document = editor.getDocument
