@@ -9,9 +9,9 @@ import ch.epfl.scala.bsp.testkit.gen.bsp4jArbitrary._
 import ch.epfl.scala.bsp4j._
 import com.google.gson.{Gson, GsonBuilder}
 import com.intellij.openapi.util.io.FileUtil
-import org.jetbrains.bsp.project.resolver.BspResolverDescriptors.{ScalaModule, SourceDirectory}
+import org.jetbrains.bsp.project.resolver.BspResolverDescriptors.{ModuleDescription, ScalaModule, SourceDirectory}
 import org.jetbrains.bsp.project.resolver.BspResolverLogic._
-import org.scalacheck.Arbitrary.arbitrary
+import org.jetbrains.bsp.project.resolver.Generators._
 import org.scalacheck.Prop.{BooleanOperators, forAll}
 import org.scalacheck._
 
@@ -20,26 +20,6 @@ import scala.collection.JavaConverters._
 object BspResolverLogicProperties extends Properties("BspResolverLogic functions") {
 
   implicit val gson: Gson = new GsonBuilder().setPrettyPrinting().create()
-  implicit val arbFile: Arbitrary[File] = Arbitrary(genPath.map(_.toFile))
-
-  implicit lazy val arbSourceDirectory: Arbitrary[SourceDirectory] = Arbitrary {
-    for {
-      file <- arbFile.arbitrary
-      generated <- arbitrary[Boolean]
-    } yield SourceDirectory(file, generated)
-  }
-
-  def genScalaBuildTarget(withoutTags: List[String]): Gen[BuildTarget] = for {
-    target <- genBuildTargetWithScala
-    baseDir <- genFileUriString
-  } yield {
-    val newTags = target.getTags.asScala.filterNot(withoutTags.contains)
-    target.setTags(newTags.asJava)
-    if (target.getBaseDirectory == null)
-      target.setBaseDirectory(baseDir.toString)
-    target
-  }
-
 
   property("commonBase") = forAll(Gen.listOf(genPath)) { paths: List[Path] =>
     val files = paths.map(_.toFile)
@@ -79,7 +59,7 @@ object BspResolverLogicProperties extends Properties("BspResolverLogic functions
       }
     }
 
-  property("createScalaModuleDescription succeeds") =
+  property("createScalaModuleDescription") =
     forAll(Gen.listOf(genBuildTargetTag)) { tags: List[String] =>
       forAll { (target: BuildTarget, moduleBase: File, outputPath: Option[File], sourceRoots: List[SourceDirectory], classpath: List[File], dependencySources: List[File]) =>
         val description = createScalaModuleDescription(target, tags, moduleBase, outputPath, sourceRoots, classpath, dependencySources)
@@ -103,6 +83,10 @@ object BspResolverLogicProperties extends Properties("BspResolverLogic functions
         p1 && p2 && p3
       }
     }
+
+  property("mergeModules") = forAll { descriptions: List[ModuleDescription] =>
+    false
+  }
 
 
 }
