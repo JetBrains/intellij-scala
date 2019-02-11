@@ -67,6 +67,6 @@ trait ScPatternImpl extends ScPattern with ScPatternAnnotator {
     Some(getContext)
       .collect { case gen: ScGenerator => gen }
       .flatMap { _.forStatement }
-      .flatMap { _.desugarePattern(this) }
+      .flatMap { _.desugarPattern(this) }
   }
 }

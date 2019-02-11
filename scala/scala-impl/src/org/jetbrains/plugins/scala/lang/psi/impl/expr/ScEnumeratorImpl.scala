@@ -14,7 +14,7 @@ trait ScEnumeratorImpl extends ScEnumerator {
   override def forStatement: Option[ScForImpl] = this.parentOfType(classOf[ScForImpl])
 
   override def desugared: Option[ScEnumerator.DesugaredEnumerator] = forStatement flatMap {
-    _.desugareEnumerator(this)
+    _.desugarEnumerator(this)
   }
 
   override def getReference: PsiReference = this
