@@ -8,7 +8,7 @@ import com.intellij.openapi.util.Setter
 
 class InlayTypeHintsTest extends InlayHintsTestBase {
 
-  import InlayHintsTestBase.{HintEnd => E, HintStart => S}
+  import Hint.{End => E, Start => S}
   import ScalaCodeInsightSettings.{getInstance => settings}
 
   def testFunctionReturnTypeHint(): Unit = doTest(
@@ -75,12 +75,7 @@ class InlayTypeHintsTest extends InlayHintsTestBase {
 
     try {
       setOptions(true)
-
-      configureFromFileText(text)
-      getFixture.testInlays(
-        inlayText(_).get,
-        inlayText(_).isDefined
-      )
+      doInlayTest(text)
     } finally {
       setOptions(false)
     }
