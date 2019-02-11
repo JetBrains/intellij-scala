@@ -35,7 +35,7 @@ class ScalaTargetElementEvaluator extends TargetElementEvaluatorEx2 with TargetE
   }
 
   private object isUnapplyFromVal {
-    def unapply(ref: ScStableCodeReference): Option[(ScBindingPattern)] = {
+    def unapply(ref: ScStableCodeReference): Option[ScBindingPattern] = {
       if (ref == null) return null
       ref.bind() match {
         case Some(resolve@ScalaResolveResult(fun: ScFunctionDefinition, _))
@@ -50,7 +50,7 @@ class ScalaTargetElementEvaluator extends TargetElementEvaluatorEx2 with TargetE
   }
 
   private object isVarSetterFakeMethod {
-    val setterSuffixes = Seq("_=", "_$eq")
+    private val setterSuffixes: Seq[String] = Seq("_=", "_$eq")
     def unapply(ref: ScReference): Option[ScReferencePattern] = {
       ref.resolve() match {
         case fake @ FakePsiMethod(refPattern: ScReferencePattern)
