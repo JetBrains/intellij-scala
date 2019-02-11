@@ -132,7 +132,7 @@ class ScalaMoveDirectoryWithClassesHelper extends MoveDirectoryWithClassesHelper
   override def beforeMove(file: PsiFile): Unit = file match {
     case scalaFile: ScalaFile =>
       scalaFile.typeDefinitions.foreach {
-        collectAssociations(_, withCompanion = false)
+        collectAssociations(_, scalaFile, withCompanion = false)
       }
     case _ =>
   }
