@@ -2,13 +2,9 @@ package org.jetbrains.plugins.scala
 package annotator
 
 import com.intellij.lang.annotation.AnnotationHolder
-import org.jetbrains.plugins.hocon.CommonUtil.TextRange
 import org.jetbrains.plugins.scala.annotator.AnnotatorUtils.registerTypeMismatchError
-import org.jetbrains.plugins.scala.lang.psi.api.ScalaFile
+import org.jetbrains.plugins.scala.lang.psi.api.base.ScConstructor
 import org.jetbrains.plugins.scala.lang.psi.api.base.types.ScLiteralTypeElement
-import org.jetbrains.plugins.scala.lang.psi.api.base.{ScConstructor, ScPrimaryConstructor}
-import org.jetbrains.plugins.scala.lang.psi.api.expr.ScConstrBlock
-import org.jetbrains.plugins.scala.lang.psi.api.statements.ScFunction
 import org.jetbrains.plugins.scala.lang.psi.api.toplevel.typedef.{ScConstructorOwner, ScTrait}
 import org.jetbrains.plugins.scala.lang.psi.types._
 
@@ -56,7 +52,7 @@ trait ConstructorAnnotator extends ApplicationAnnotator {
             // new Trait() {} is allowed!
             // but not   new Trait()() {}
             // or        new Trait(i: Int) {}
-            holder.createErrorAnnotation(TextRange.unionFrom(head, tail: _*),
+            holder.createErrorAnnotation(tail.foldLeft(head.getTextRange)(_ union _.getTextRange),
               s"${tr.name} is a trait and thus has no constructor")
           case _ =>
         }
