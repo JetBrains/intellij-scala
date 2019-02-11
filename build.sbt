@@ -71,7 +71,7 @@ lazy val scalaImpl: sbt.Project =
       javacOptions in Global ++= Seq("-source", "1.8", "-target", "1.8", "-Xlint:unchecked"),
       scalacOptions in Global ++= Seq("-target:jvm-1.8", "-deprecation"),
       //scalacOptions in Global += "-Xmacro-settings:analyze-caches",
-      libraryDependencies ++= DependencyGroups.scalaCommunity,
+      libraryDependencies ++= DependencyGroups.scalaCommunity ++ scalaFmtDynamicDepsTmp,
       addCompilerPlugin(Dependencies.macroParadise),
       ideaInternalPlugins := Seq(
         "IntelliLang",
@@ -126,6 +126,10 @@ lazy val scalaFmtBin: sbt.Project =
       shadePatterns       +=  ShadePattern("scala.meta.**", "scalafmt.scala.meta.@1"),
       packageAssembleLibraries := true
     )
+
+lazy val scalaFmtDynamicDepsTmp: Seq[ModuleID] = Seq(
+  "com.geirsson" %% "coursier-small" % "1.3.1"
+)
 
 lazy val compilerJps =
   newProject("compiler-jps", file("scala/compiler-jps"))
