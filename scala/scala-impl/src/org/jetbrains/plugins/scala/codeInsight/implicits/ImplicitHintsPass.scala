@@ -18,10 +18,10 @@ import org.jetbrains.plugins.scala.annotator.ScalaAnnotator
 import org.jetbrains.plugins.scala.codeInsight.implicits.ImplicitHintsPass._
 import org.jetbrains.plugins.scala.editor.documentationProvider.ScalaDocumentationProvider
 import org.jetbrains.plugins.scala.extensions._
-import org.jetbrains.plugins.scala.lang.psi.api.{ImplicitArgumentsOwner, ScalaPsiElement}
 import org.jetbrains.plugins.scala.lang.psi.api.base.ScConstructor
 import org.jetbrains.plugins.scala.lang.psi.api.expr._
 import org.jetbrains.plugins.scala.lang.psi.api.statements.ScFunction
+import org.jetbrains.plugins.scala.lang.psi.api.{ImplicitArgumentsOwner, ScalaPsiElement}
 import org.jetbrains.plugins.scala.lang.psi.implicits.ImplicitCollector
 import org.jetbrains.plugins.scala.lang.psi.implicits.ImplicitCollector._
 import org.jetbrains.plugins.scala.lang.resolve.ScalaResolveResult
@@ -85,8 +85,7 @@ private class ImplicitHintsPass(editor: Editor, rootElement: ScalaPsiElement)
     }
 
     rootElement.depthFirst().foreach {
-      case enum@ScEnumerator.withDesugared(desugaredEnum) =>
-        val token = enum.enumeratorToken
+      case enum@ScEnumerator.withDesugaredAndEnumeratorToken(desugaredEnum, token) =>
         val analogCall = desugaredEnum.analogMethodCall
         def mapBackTo(e: PsiElement)(hint: Hint): Hint = hint.copy(element = e)
         enum match {

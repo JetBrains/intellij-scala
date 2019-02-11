@@ -26,5 +26,6 @@ class ScGuardImpl(node: ASTNode) extends ScalaPsiElementImpl(node) with ScGuard 
 
   def expr: Option[ScExpression] = findChild(classOf[ScExpression])
 
-  override def enumeratorToken: PsiElement = findFirstChildByType(ScalaTokenTypes.kIF)
+  override def enumeratorToken: Option[PsiElement] =
+    Option(findFirstChildByType(ScalaTokenTypes.kIF))
 }

@@ -4,7 +4,6 @@ package annotator
 import com.intellij.codeInsight.intention.IntentionAction
 import com.intellij.codeInspection._
 import com.intellij.lang.annotation._
-import com.intellij.openapi.editor.markup.TextAttributes
 import com.intellij.openapi.project.DumbAware
 import com.intellij.openapi.roots.{ProjectFileIndex, ProjectRootManager}
 import com.intellij.openapi.util.{Condition, Key, TextRange}
@@ -24,45 +23,37 @@ import org.jetbrains.plugins.scala.codeInspection.caseClassParamInspection.{Remo
 import org.jetbrains.plugins.scala.components.HighlightingAdvisor
 import org.jetbrains.plugins.scala.extensions._
 import org.jetbrains.plugins.scala.highlighter.DefaultHighlighter
-import org.jetbrains.plugins.scala.lang.lexer.ScalaTokenTypes
-import org.jetbrains.plugins.scala.lang.macros.expansion.RecompileAnnotationAction
+import org.jetbrains.plugins.scala.lang.psi.ScalaPsiUtil
 import org.jetbrains.plugins.scala.lang.psi.api.base._
 import org.jetbrains.plugins.scala.lang.psi.api.base.patterns.{ScConstructorPattern, ScInfixPattern, ScPattern}
 import org.jetbrains.plugins.scala.lang.psi.api.base.types._
 import org.jetbrains.plugins.scala.lang.psi.api.expr.ScExpression.ExpressionTypeResult
 import org.jetbrains.plugins.scala.lang.psi.api.expr._
 import org.jetbrains.plugins.scala.lang.psi.api.statements._
-import org.jetbrains.plugins.scala.lang.psi.api.statements.params.{ScClassParameter, ScParameter, ScParameters, ScTypeParam, ScTypeParamClause}
+import org.jetbrains.plugins.scala.lang.psi.api.statements.params.{ScClassParameter, ScTypeParam}
 import org.jetbrains.plugins.scala.lang.psi.api.toplevel._
 import org.jetbrains.plugins.scala.lang.psi.api.toplevel.imports.usages.ImportUsed
 import org.jetbrains.plugins.scala.lang.psi.api.toplevel.imports.{ScImportExpr, ScImportSelector}
 import org.jetbrains.plugins.scala.lang.psi.api.toplevel.templates.{ScTemplateBody, ScTemplateParents}
 import org.jetbrains.plugins.scala.lang.psi.api.toplevel.typedef._
 import org.jetbrains.plugins.scala.lang.psi.api.{ScalaElementVisitor, ScalaFile, ScalaPsiElement}
-import org.jetbrains.plugins.scala.lang.psi.impl.ScalaPsiElementFactory.createTypeFromText
+import org.jetbrains.plugins.scala.lang.psi.impl.ScalaPsiElementFactory
 import org.jetbrains.plugins.scala.lang.psi.impl.expr.ScInterpolatedStringPartReference
-import org.jetbrains.plugins.scala.lang.psi.impl.{ScalaPsiElementFactory, ScalaPsiManager}
 import org.jetbrains.plugins.scala.lang.psi.types.api._
-import org.jetbrains.plugins.scala.lang.psi.types.api.designator.ScDesignatorType
 import org.jetbrains.plugins.scala.lang.psi.types.recursiveUpdate.AfterUpdate.ProcessSubtypes
 import org.jetbrains.plugins.scala.lang.psi.types.result._
-import org.jetbrains.plugins.scala.lang.psi.types.{Compatibility, ScType, ScalaType, ValueClassType}
-import org.jetbrains.plugins.scala.lang.psi.ScalaPsiUtil
+import org.jetbrains.plugins.scala.lang.psi.types.{ScType, ScalaType}
 import org.jetbrains.plugins.scala.lang.resolve._
-import org.jetbrains.plugins.scala.lang.resolve.processor.MethodResolveProcessor
 import org.jetbrains.plugins.scala.lang.scaladoc.parser.parsing.MyScaladocParsing
 import org.jetbrains.plugins.scala.lang.scaladoc.psi.api.{ScDocResolvableCodeReference, ScDocTag}
 import org.jetbrains.plugins.scala.lang.scaladoc.psi.impl.ScDocResolvableCodeReferenceImpl
 import org.jetbrains.plugins.scala.macroAnnotations.CachedInUserData
-import org.jetbrains.plugins.scala.project.{ProjectContext, ProjectContextOwner, ProjectPsiElementExt, ScalaLanguageLevel}
+import org.jetbrains.plugins.scala.project.{ProjectContext, ProjectContextOwner, ProjectPsiElementExt}
 import org.jetbrains.plugins.scala.settings.ScalaProjectSettings
 import org.jetbrains.plugins.scala.statistics.{FeatureKey, Stats}
-import org.jetbrains.plugins.scala.util.MultilineStringUtil
 
-import scala.annotation.tailrec
 import scala.collection.mutable.ArrayBuffer
 import scala.collection.{Seq, mutable}
-import scala.meta.intellij.MetaExpansionsManager
 
 /**
  * User: Alexander Podkhalyuzin
@@ -151,22 +142,22 @@ abstract class ScalaAnnotator extends Annotator
 
         for {
           forExpression <- generator.forStatement
-          desugaredGenerator <- generator.desugared
+          ScEnumerator.withDesugaredAndEnumeratorToken(desugaredGenerator, generatorToken) <- Some(generator)
         } {
           val sessionForDesugaredCode = new AnnotationSession(desugaredGenerator.analogMethodCall.getContainingFile)
           def delegateHolderFor(element: PsiElement) = new DelegateAnnotationHolder(element, holder, sessionForDesugaredCode) with ErrorIndication
 
           val followingEnumerators = generator.nextSiblings
             .takeWhile(!_.isInstanceOf[ScGenerator])
-            .collect { case enum: ScEnumerator => enum}
 
           val foundUnresolvedSymbol = followingEnumerators
-            .flatMap { enum => enum.desugared.map(enum -> _)}
             .exists {
-              case (enum, desugaredEnum) =>
-                val holder = delegateHolderFor(enum.enumeratorToken)
+              case enum@ScEnumerator.withDesugaredAndEnumeratorToken(desugaredEnum, enumToken) =>
+                val holder = delegateHolderFor(enumToken)
                 desugaredEnum.callExpr.foreach(qualifierPart(_, holder))
                 holder.hadError
+              case _ =>
+                false
             }
 
           // It doesn't make sense to look for errors down the function chain
@@ -196,7 +187,7 @@ abstract class ScalaAnnotator extends Annotator
             }
 
             if (!foundMonadicError) {
-              desugaredGenerator.callExpr.foreach(qualifierPart(_, delegateHolderFor(generator.enumeratorToken)))
+              desugaredGenerator.callExpr.foreach(qualifierPart(_, delegateHolderFor(generatorToken)))
             }
           }
         }

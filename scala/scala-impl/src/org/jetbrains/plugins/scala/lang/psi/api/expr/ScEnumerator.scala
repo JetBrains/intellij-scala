@@ -9,7 +9,7 @@ trait ScEnumerator extends ScalaPsiElement with PsiPolyVariantReference {
   def desugared: Option[ScEnumerator.DesugaredEnumerator]
 
   // the token that marks the enumerator (<-, =, if)
-  def enumeratorToken: PsiElement
+  def enumeratorToken: Option[PsiElement]
 }
 
 object ScEnumerator {
@@ -47,5 +47,12 @@ object ScEnumerator {
 
   object withDesugared {
     def unapply(enum: ScEnumerator): Option[DesugaredEnumerator] = enum.desugared
+  }
+
+  object withDesugaredAndEnumeratorToken {
+    def unapply(enum: ScEnumerator): Option[(DesugaredEnumerator, PsiElement)] = for {
+      desugared <- enum.desugared
+      token <- enum.enumeratorToken
+    } yield (desugared, token)
   }
 }

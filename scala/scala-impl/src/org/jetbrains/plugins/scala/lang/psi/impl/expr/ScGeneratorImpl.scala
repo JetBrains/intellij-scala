@@ -22,7 +22,8 @@ class ScGeneratorImpl(node: ASTNode) extends ScExpressionImplBase(node) with ScG
   override def valKeyword: Option[PsiElement] =
     Option(getNode.findChildByType(ScalaTokenTypes.kVAL)).map(_.getPsi)
 
-  override def enumeratorToken: PsiElement = findFirstChildByType(ScalaTokenTypes.tCHOOSE)
+  override def enumeratorToken: Option[PsiElement] =
+    Option(findFirstChildByType(ScalaTokenTypes.tCHOOSE))
 
   override def toString: String = "Generator"
 }

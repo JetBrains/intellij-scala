@@ -23,7 +23,8 @@ class ScForBindingImpl(node: ASTNode) extends ScalaPsiElementImpl(node) with ScF
   override def valKeyword: Option[PsiElement] =
     Option(getNode.findChildByType(ScalaTokenTypes.kVAL)).map(_.getPsi)
 
-  override def enumeratorToken: PsiElement = findFirstChildByType(ScalaTokenTypes.tASSIGN)
+  override def enumeratorToken: Option[PsiElement] =
+    Option(findFirstChildByType(ScalaTokenTypes.tASSIGN))
 
   override def accept(visitor: PsiElementVisitor): Unit = {
     visitor match {

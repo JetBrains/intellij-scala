@@ -17,11 +17,15 @@ trait ScEnumeratorImpl extends ScEnumerator {
     _.desugarEnumerator(this)
   }
 
-  override def getReference: PsiReference = this
+  override def getReference: PsiReference = if(enumeratorToken.isDefined) this else null
 
   override def getElement: PsiElement = this
 
-  override def getRangeInElement: TextRange = enumeratorToken.getTextRangeInParent
+  override def getRangeInElement: TextRange = {
+    // if this function gets called, we already know that enumeratorToken exists,
+    // because `getReference` has checked it already
+    enumeratorToken.get.getTextRangeInParent
+  }
 
   private def mapDesugaredRef[R](f: PsiPolyVariantReference => R): Option[R] =
     desugared.flatMap { _.callExpr }.map { ref => f(ref) }
