@@ -3,7 +3,6 @@ package conversion
 package copy
 
 import java.lang.Boolean
-import java.{util => ju}
 
 import com.intellij.codeInsight.editorActions._
 import com.intellij.openapi.diagnostic.{Attachment, Logger}
@@ -33,30 +32,32 @@ class JavaCopyPastePostProcessor extends SingularCopyPastePostProcessor[Converte
   private lazy val referenceProcessor = CopyPastePostProcessor.EP_NAME.findExtensionOrFail(classOf[JavaCopyPasteReferenceProcessor])
   private lazy val scalaProcessor = CopyPastePostProcessor.EP_NAME.findExtensionOrFail(classOf[ScalaCopyPastePostProcessor])
 
-  protected def collectTransferableData0(file: PsiFile, editor: Editor,
-                                         startOffsets: Array[Int], endOffsets: Array[Int]): ConvertedCode = {
-    if (DumbService.getInstance(file.getProject).isDumb) return null
+  override def collectTransferableData(startOffsets: Array[Int], endOffsets: Array[Int])
+                                      (implicit file: PsiFile, editor: Editor): Option[ConvertedCode] = {
+    if (DumbService.getInstance(file.getProject).isDumb) return None
     if (!ScalaProjectSettings.getInstance(file.getProject).isEnableJavaToScalaConversion ||
-      !file.isInstanceOf[PsiJavaFile]) return null
+      !file.isInstanceOf[PsiJavaFile]) return None
 
     try {
-      def getRefs: Seq[ReferenceData] = {
-        val refs = {
-          val data = referenceProcessor.collectTransferableData(file, editor, startOffsets, endOffsets)
-          if (data.isEmpty) null else data.get(0)
+      val data: Seq[ReferenceData] =
+        referenceProcessor.collectTransferableData(file, editor, startOffsets, endOffsets) match {
+          case dataList if dataList.isEmpty => Seq.empty
+          case dataList =>
+            val shift = startOffsets.headOption.getOrElse(0)
+            dataList.get(0).getData.map { it =>
+              new ReferenceData(
+                it.startOffset + shift,
+                it.endOffset + shift,
+                it.qClassName,
+                it.staticMemberName
+              )
+            }
         }
-        val shift = startOffsets.headOption.getOrElse(0)
-        if (refs != null)
-          refs.getData.map { it =>
-            new ReferenceData(it.startOffset + shift, it.endOffset + shift, it.qClassName, it.staticMemberName)
-          } else Seq.empty
-      }
 
       import JavaToScala._
       val associationsHelper = mutable.ListBuffer.empty[AssociationHelper]
       val resultNode = new MainConstruction
       val (topElements, dropElements) = getTopElements(file, startOffsets, endOffsets)
-      val data = getRefs
       for (part <- topElements) {
         part match {
           case TextPart(s) =>
@@ -81,26 +82,27 @@ class JavaCopyPastePostProcessor extends SingularCopyPastePostProcessor[Converte
 
       val text = visitor()
       val oldText = getTextBetweenOffsets(file, startOffsets, endOffsets)
-      ConvertedCode(
+      val result = ConvertedCode(
         updatedAssociations.toArray,
         text,
         compareTextNEq(oldText, text)
       )
+      Some(result)
     } catch {
       case e: Exception =>
         val charSequence = file.charSequence
         val selections = (startOffsets, endOffsets).zipped.map((a, b) => charSequence.substring(a, b))
         val attachments = selections.zipWithIndex.map(p => new Attachment("Selection-%d.java".format(p._2 + 1), p._1))
         Log.error(e.getMessage, e, attachments: _*)
-        null
+        None
     }
   }
 
-  override protected def processTransferableData(bounds: RangeMarker, caretOffset: Int,
-                                                 ref: Ref[Boolean], value: ConvertedCode)
-                                                (implicit project: Project,
-                                                 editor: Editor,
-                                                 file: ScalaFile): Unit = {
+  override def processTransferableData(bounds: RangeMarker, caretOffset: Int,
+                                       ref: Ref[Boolean], value: ConvertedCode)
+                                      (implicit project: Project,
+                                       editor: Editor,
+                                       file: ScalaFile): Unit = {
     val settings = ScalaProjectSettings.getInstance(project)
     if (!settings.isEnableJavaToScalaConversion) return
 
@@ -131,7 +133,7 @@ class JavaCopyPastePostProcessor extends SingularCopyPastePostProcessor[Converte
         }
       }
 
-      scalaProcessor.processTransferableData(project, editor, bounds, caretOffset, ref, ju.Collections.singletonList(Associations(shiftedAssociations.toArray)))
+      scalaProcessor.processTransferableData(bounds, caretOffset, ref, Associations(shiftedAssociations.toArray))
 
       inWriteAction {
         cleanCode(file, project, bounds.getStartOffset, bounds.getEndOffset, editor)

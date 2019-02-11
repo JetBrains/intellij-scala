@@ -30,21 +30,19 @@ import org.jetbrains.plugins.scala.settings._
 import scala.collection.{JavaConverters, mutable}
 
 /**
- * Pavel Fatin
- */
-
+  * Pavel Fatin
+  */
 class ScalaCopyPastePostProcessor extends SingularCopyPastePostProcessor[Associations](Associations.flavor) {
   private val Log = Logger.getInstance(getClass)
   private val Timeout = 3000L
 
-  protected def collectTransferableData0(file: PsiFile, editor: Editor,
-                                         startOffsets: Array[Int], endOffsets: Array[Int]): Associations = {
+  override def collectTransferableData(startOffsets: Array[Int], endOffsets: Array[Int])
+                                      (implicit file: PsiFile, editor: Editor): Option[Associations] = {
+    if (DumbService.getInstance(file.getProject).isDumb) return None
 
-    if (DumbService.getInstance(file.getProject).isDumb) return null
+    if (!file.isInstanceOf[ScalaFile]) return None
 
-    if(!file.isInstanceOf[ScalaFile]) return null
-
-    if (startOffsets.length == 1 && startOffsets(0) == 0) return null
+    if (startOffsets.length == 1 && startOffsets(0) == 0) return None
 
     val timeBound = System.currentTimeMillis + Timeout
 
@@ -76,14 +74,14 @@ class ScalaCopyPastePostProcessor extends SingularCopyPastePostProcessor[Associa
     } finally {
       result = Associations(buffer.toArray)
     }
-    result
+    Option(result)
   }
 
-  override protected def processTransferableData(bounds: RangeMarker, caretOffset: Int,
-                                                 ref: Ref[java.lang.Boolean], value: Associations)
-                                                (implicit project: Project,
-                                                 editor: Editor,
-                                                 file: ScalaFile): Unit = {
+  override def processTransferableData(bounds: RangeMarker, caretOffset: Int,
+                                       ref: Ref[java.lang.Boolean], value: Associations)
+                                      (implicit project: Project,
+                                       editor: Editor,
+                                       file: ScalaFile): Unit = {
     if (DumbService.getInstance(project).isDumb) return
 
     val settings = ScalaApplicationSettings.getInstance()
@@ -203,11 +201,12 @@ class ScalaCopyPastePostProcessor extends SingularCopyPastePostProcessor[Associa
   private def elementFor(dependency: Association, file: PsiFile, offset: Int): Option[PsiElement] = {
     val range = dependency.range.shiftRight(offset)
 
-    for(ref <- Option(file.findElementAt(range.getStartOffset));
-        parent <- ref.parent if parent.getTextRange == range) yield parent
+    for (ref <- Option(file.findElementAt(range.getStartOffset));
+         parent <- ref.parent if parent.getTextRange == range) yield parent
   }
 
   private case class Binding(element: PsiElement, path: String) {
     def importsHolder: ScImportsHolder = ScalaImportTypeFix.getImportHolder(element, element.getProject)
   }
+
 }

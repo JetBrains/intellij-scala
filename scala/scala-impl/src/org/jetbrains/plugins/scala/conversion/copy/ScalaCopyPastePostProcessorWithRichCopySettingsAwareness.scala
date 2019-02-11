@@ -8,12 +8,10 @@ import com.intellij.psi.PsiFile
 
 final class ScalaCopyPastePostProcessorWithRichCopySettingsAwareness extends ScalaCopyPastePostProcessor {
 
-  override protected def collectTransferableData0(file: PsiFile,
-                                                  editor: Editor,
-                                                  startOffsets: Array[Int],
-                                                  endOffsets: Array[Int]): Associations =
+  override def collectTransferableData(startOffsets: Array[Int], endOffsets: Array[Int])
+                                      (implicit file: PsiFile, editor: Editor): Option[Associations] =
     RichCopySettings.getInstance() match {
-      case copySettings if copySettings.isEnabled => super.collectTransferableData0(file, editor, startOffsets, endOffsets) // copy as plain text
+      case copySettings if copySettings.isEnabled => super.collectTransferableData(startOffsets, endOffsets) // copy as plain text
       case _ => null
     }
 }

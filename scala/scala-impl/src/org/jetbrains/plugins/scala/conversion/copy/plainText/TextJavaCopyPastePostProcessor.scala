@@ -25,10 +25,7 @@ class TextJavaCopyPastePostProcessor extends SingularCopyPastePostProcessor[Conv
 
   import ConverterUtil._
 
-  override protected def collectTransferableData0(file: PsiFile, editor: Editor,
-                                                  startOffsets: Array[Int], endOffsets: Array[Int]): ConvertedCode = null
-
-  override protected def extractTransferableData0(content: Transferable): Option[AnyRef] = {
+  override protected def extractTransferableDataImpl(content: Transferable): Option[AnyRef] = {
     def existsAssignable(flavors: Seq[DataFlavor]): Boolean = flavors
       .map(_.getRepresentationClass)
       .exists(classOf[ConvertedCode].isAssignableFrom)
@@ -36,15 +33,15 @@ class TextJavaCopyPastePostProcessor extends SingularCopyPastePostProcessor[Conv
     if (ApplicationManager.getApplication.isUnitTestMode &&
       !TextJavaCopyPastePostProcessor.insideIde ||
       !existsAssignable(content.getTransferDataFlavors)) {
-      super.extractTransferableData0(content).map { text =>
+      super.extractTransferableDataImpl(content).map { text =>
         ConvertedCode(text = text.asInstanceOf[String])
       }
     } else None
   }
 
-  override protected def processTransferableData(bounds: RangeMarker, caretOffset: Int,
-                                                 ref: Ref[java.lang.Boolean], value: ConvertedCode)
-                                                (implicit project: Project,
+  override def processTransferableData(bounds: RangeMarker, caretOffset: Int,
+                                       ref: Ref[java.lang.Boolean], value: ConvertedCode)
+                                      (implicit project: Project,
                                                  editor: Editor,
                                                  file: ScalaFile): Unit = {
     val settings = ScalaProjectSettings.getInstance(project)
