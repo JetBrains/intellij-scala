@@ -2,7 +2,6 @@ package org.jetbrains.plugins.scala
 package codeInspection
 package packageNameInspection
 
-
 import com.intellij.CommonBundle
 import com.intellij.ide.util.PackageUtil
 import com.intellij.openapi.module.Module
@@ -15,14 +14,13 @@ import com.intellij.refactoring.move.moveClassesOrPackages.{MoveClassesOrPackage
 import com.intellij.refactoring.util.RefactoringMessageUtil
 import org.jetbrains.plugins.scala.extensions._
 import org.jetbrains.plugins.scala.lang.psi.api.ScalaFile
-import org.jetbrains.plugins.scala.lang.refactoring.move.ScalaMoveUtil
+import org.jetbrains.plugins.scala.lang.refactoring.move.saveMoveDestination
 
 /**
  * User: Alexander Podkhalyuzin
  * Date: 08.07.2009
  */
-
-class ScalaMoveToPackageQuickFix(myFile: ScalaFile, packQualName: String)
+final class ScalaMoveToPackageQuickFix(myFile: ScalaFile, packQualName: String)
       extends AbstractFixOnPsiElement(ScalaMoveToPackageQuickFix.hint(myFile.name, packQualName), myFile) {
 
   override protected def doApplyFix(file: ScalaFile)
@@ -40,7 +38,7 @@ class ScalaMoveToPackageQuickFix(myFile: ScalaFile, packQualName: String)
       Messages.showMessageDialog(project, error, CommonBundle.getErrorTitle, Messages.getErrorIcon)
       return
     }
-    ScalaMoveUtil.saveMoveDestination(file, directory)
+    saveMoveDestination(file, directory)
     val processor = new MoveClassesOrPackagesProcessor(
       project,
       Array[PsiElement](file.typeDefinitions.head),

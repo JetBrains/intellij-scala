@@ -1,6 +1,9 @@
-package org.jetbrains.plugins.scala.lang.refactoring.move
+package org.jetbrains.plugins.scala
+package lang
+package refactoring
+package move
 
-import java.util
+import java.{util => ju}
 
 import com.intellij.openapi.project.Project
 import com.intellij.psi._
@@ -24,14 +27,14 @@ import scala.collection.JavaConverters._
  */
 class ScalaMoveDirectoryWithClassesHelper extends MoveDirectoryWithClassesHelper {
 
-  override def findUsages(filesToMove: util.Collection[PsiFile],
+  override def findUsages(filesToMove: ju.Collection[PsiFile],
                           directoriesToMove: Array[PsiDirectory],
-                          usages: util.Collection[UsageInfo],
+                          usages: ju.Collection[UsageInfo],
                           searchInComments: Boolean,
                           searchInNonJavaFiles: Boolean,
                           project: Project): Unit = {
 
-    val packageNames: util.Set[String] = new util.HashSet[String]
+    val packageNames = new ju.HashSet[String]
     filesToMove.forEach {
       case sf: ScalaFile =>
         val (packObj, classes) = sf.typeDefinitions.partition {
@@ -78,8 +81,8 @@ class ScalaMoveDirectoryWithClassesHelper extends MoveDirectoryWithClassesHelper
 
   override def move(file: PsiFile,
                     moveDestination: PsiDirectory,
-                    oldToNewElementsMapping: util.Map[PsiElement, PsiElement],
-                    movedFiles: util.List[PsiFile],
+                    oldToNewElementsMapping: ju.Map[PsiElement, PsiElement],
+                    movedFiles: ju.List[PsiFile],
                     listener: RefactoringElementListener): Boolean = {
 
     def moveClass(clazz: PsiClass): Unit = {
@@ -124,23 +127,14 @@ class ScalaMoveDirectoryWithClassesHelper extends MoveDirectoryWithClassesHelper
     }
   }
 
-  override def afterMove(newElement: PsiElement): Unit = {
-    forClassesInFile(newElement.getContainingFile) { clazz =>
-      ScalaMoveUtil.collectAssociations(clazz, withCompanion = false)
-    }
-  }
+  override def afterMove(newElement: PsiElement): Unit = beforeMove(newElement.getContainingFile)
 
-  override def beforeMove(psiFile: PsiFile): Unit = {
-    forClassesInFile(psiFile) { clazz =>
-      ScalaMoveUtil.collectAssociations(clazz, withCompanion = false)
-    }
-  }
-
-  private def forClassesInFile(elem: PsiElement)(action: PsiClass => Unit): Unit = {
-    elem.getContainingFile match {
-      case sf: ScalaFile => sf.typeDefinitions.foreach(action)
-      case _ =>
-    }
+  override def beforeMove(file: PsiFile): Unit = file match {
+    case scalaFile: ScalaFile =>
+      scalaFile.typeDefinitions.foreach {
+        collectAssociations(_, withCompanion = false)
+      }
+    case _ =>
   }
 
   private def isUnderRefactoring(packageDirectory: PsiDirectory, directoriesToMove: Array[PsiDirectory]): Boolean = {

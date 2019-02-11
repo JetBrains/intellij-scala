@@ -13,7 +13,6 @@ import org.jetbrains.plugins.scala.ScalaFileType;
 import org.jetbrains.plugins.scala.editor.importOptimizer.ScalaImportOptimizer;
 import org.jetbrains.plugins.scala.lang.psi.api.ScalaFile;
 import org.jetbrains.plugins.scala.lang.psi.api.toplevel.ScNamedElement;
-import org.jetbrains.plugins.scala.settings.ScalaApplicationSettings;
 import org.jetbrains.plugins.scala.statistics.FeatureKey;
 import org.jetbrains.plugins.scala.statistics.Stats;
 
@@ -25,7 +24,7 @@ public class MoveScalaClassHandler implements MoveClassHandler {
   public void finishMoveClass(@NotNull PsiClass aClass) {
     PsiFile file = aClass.getContainingFile();
     if (file instanceof ScalaFile) {
-      ScalaMoveUtil.restoreAssociations(aClass, ScalaApplicationSettings.getInstance().MOVE_COMPANION);
+      package$.MODULE$.restoreAssociations(aClass);
       PsiDocumentManager documentManager = PsiDocumentManager.getInstance(file.getProject());
       Document document = documentManager.getDocument(file);
       if (document == null) return;
@@ -38,12 +37,12 @@ public class MoveScalaClassHandler implements MoveClassHandler {
   public void prepareMove(@NotNull PsiClass aClass) {
     if (aClass.getContainingFile() instanceof ScalaFile) {
       Stats.trigger(FeatureKey.moveClass());
-      ScalaMoveUtil.collectAssociations(aClass, ScalaApplicationSettings.getInstance().MOVE_COMPANION);
+      package$.MODULE$.collectAssociations(aClass);
     }
   }
 
   public PsiClass doMoveClass(@NotNull final PsiClass aClass, @NotNull PsiDirectory moveDestination) throws IncorrectOperationException {
-    return ScalaMoveUtil.doMoveClass(aClass, moveDestination, ScalaApplicationSettings.getInstance().MOVE_COMPANION);
+    return package$.MODULE$.doMoveClass(aClass, moveDestination);
   }
 
   public String getName(PsiClass clazz) {
