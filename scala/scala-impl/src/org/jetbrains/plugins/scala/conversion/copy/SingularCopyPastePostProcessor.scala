@@ -9,7 +9,8 @@ import com.intellij.codeInsight.editorActions.{CopyPastePostProcessor, TextBlock
 import com.intellij.openapi.editor.{Editor, RangeMarker}
 import com.intellij.openapi.project.Project
 import com.intellij.openapi.util.Ref
-import com.intellij.psi.PsiFile
+import com.intellij.psi.{PsiDocumentManager, PsiFile}
+import org.jetbrains.plugins.scala.lang.psi.api.ScalaFile
 
 /**
   * @author Pavel Fatin
@@ -48,11 +49,17 @@ abstract class SingularCopyPastePostProcessor[T <: TextBlockTransferableData](da
   override final def processTransferableData(project: Project, editor: Editor,
                                              bounds: RangeMarker, caretOffset: Int,
                                              ref: Ref[JBoolean], values: ju.List[T]): Unit =
-    values.forEach {
-      processTransferableData0(project, editor, bounds, caretOffset, ref, _)
+    PsiDocumentManager.getInstance(project).getPsiFile(editor.getDocument) match {
+      case scalaFile: ScalaFile =>
+        values.forEach {
+          processTransferableData(bounds, caretOffset, ref, _)(project, editor, scalaFile)
+        }
+      case _ =>
     }
 
-  protected def processTransferableData0(project: Project, editor: Editor,
-                                         bounds: RangeMarker, caretOffset: Int,
-                                         ref: Ref[JBoolean], value: T)
+  protected def processTransferableData(bounds: RangeMarker, caretOffset: Int,
+                                        ref: Ref[JBoolean], value: T)
+                                       (implicit project: Project,
+                                        editor: Editor,
+                                        file: ScalaFile): Unit
 }

@@ -4,7 +4,6 @@ package copy
 package plainText
 
 import java.awt.datatransfer.{DataFlavor, Transferable}
-import java.lang.Boolean
 
 import com.intellij.openapi.application.ApplicationManager
 import com.intellij.openapi.editor.{Editor, RangeMarker}
@@ -43,25 +42,22 @@ class TextJavaCopyPastePostProcessor extends SingularCopyPastePostProcessor[Conv
     } else None
   }
 
-  override protected def processTransferableData0(project: Project, editor: Editor,
-                                                  bounds: RangeMarker,
-                                                  caretOffset: Int, ref: Ref[Boolean],
-                                                  value: ConvertedCode): Unit = {
-
-    if (!ScalaProjectSettings.getInstance(project).isEnableJavaToScalaConversion) return
-    val file = PsiDocumentManager.getInstance(project).getPsiFile(editor.getDocument)
-
-    val scope = file.resolveScope
-    if (!file.isInstanceOf[ScalaFile]) return
+  override protected def processTransferableData(bounds: RangeMarker, caretOffset: Int,
+                                                 ref: Ref[java.lang.Boolean], value: ConvertedCode)
+                                                (implicit project: Project,
+                                                 editor: Editor,
+                                                 file: ScalaFile): Unit = {
+    val settings = ScalaProjectSettings.getInstance(project)
+    if (!settings.isEnableJavaToScalaConversion) return
 
     val ConvertedCode(_, text, _) = value
-    if (text == null || text == "" || project == null) return
+    if (text == null || text == "") return
 
     if (PlainTextCopyUtil.isValidScalaFile(text, project)) return
 
     // TODO: Collect available imports in current scope. Use them while converting
     computejavaContext(text, project).foreach { javaCodeWithContext =>
-      val needShowDialog = !ScalaProjectSettings.getInstance(project).isDontShowConversionDialog
+      val needShowDialog = !settings.isDontShowConversionDialog
 
       if (!needShowDialog || shownDialog(ScalaBundle.message("scala.copy.from.text"), project).isOK) {
         Stats.trigger(FeatureKey.convertFromJavaText)
@@ -69,7 +65,7 @@ class TextJavaCopyPastePostProcessor extends SingularCopyPastePostProcessor[Conv
         extensions.inWriteAction {
           val project = javaCodeWithContext.project
 
-          createFileWithAdditionalImports(javaCodeWithContext, scope).foreach { javaFile =>
+          createFileWithAdditionalImports(javaCodeWithContext, file.resolveScope).foreach { javaFile =>
             //remove java pasted java code from file for treating file as a valid scala file
             //it needs for SCL-11425
             performePaste(editor, bounds, " " * (bounds.getEndOffset - bounds.getStartOffset), project)

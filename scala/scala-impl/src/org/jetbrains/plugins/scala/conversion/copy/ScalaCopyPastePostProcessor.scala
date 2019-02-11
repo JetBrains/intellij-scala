@@ -79,22 +79,22 @@ class ScalaCopyPastePostProcessor extends SingularCopyPastePostProcessor[Associa
     result
   }
 
-  protected def processTransferableData0(project: Project, editor: Editor, bounds: RangeMarker,
-                                         caretColumn: Int, indented: Ref[java.lang.Boolean], value: Associations) {
+  override protected def processTransferableData(bounds: RangeMarker, caretOffset: Int,
+                                                 ref: Ref[java.lang.Boolean], value: Associations)
+                                                (implicit project: Project,
+                                                 editor: Editor,
+                                                 file: ScalaFile): Unit = {
     if (DumbService.getInstance(project).isDumb) return
 
-    if (ScalaApplicationSettings.getInstance().ADD_IMPORTS_ON_PASTE == CodeInsightSettings.NO) return
-
-    val file = PsiDocumentManager.getInstance(project).getPsiFile(editor.getDocument)
-
-    if (!file.isInstanceOf[ScalaFile]) return
+    val settings = ScalaApplicationSettings.getInstance()
+    if (settings.ADD_IMPORTS_ON_PASTE == CodeInsightSettings.NO) return
 
     PsiDocumentManager.getInstance(project).commitAllDocuments()
 
     val offset = bounds.getStartOffset
 
     doRestoreAssociations(value.associations, file, offset, project) { bindingsToRestore =>
-      if (ScalaApplicationSettings.getInstance().ADD_IMPORTS_ON_PASTE == CodeInsightSettings.ASK) {
+      if (settings.ADD_IMPORTS_ON_PASTE == CodeInsightSettings.ASK) {
         val dialog = new RestoreReferencesDialog(project, bindingsToRestore.map(_.path.toOption.getOrElse("")).sorted.toArray)
         dialog.show()
         val selectedPahts = dialog.getSelectedElements

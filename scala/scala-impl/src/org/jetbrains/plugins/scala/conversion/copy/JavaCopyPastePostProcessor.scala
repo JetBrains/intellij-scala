@@ -96,20 +96,19 @@ class JavaCopyPastePostProcessor extends SingularCopyPastePostProcessor[Converte
     }
   }
 
-  protected def processTransferableData0(project: Project, editor: Editor,
-                                         bounds: RangeMarker,
-                                         i: Int, ref: Ref[Boolean],
-                                         value: ConvertedCode): Unit = {
+  override protected def processTransferableData(bounds: RangeMarker, caretOffset: Int,
+                                                 ref: Ref[Boolean], value: ConvertedCode)
+                                                (implicit project: Project,
+                                                 editor: Editor,
+                                                 file: ScalaFile): Unit = {
     val settings = ScalaProjectSettings.getInstance(project)
     if (!settings.isEnableJavaToScalaConversion) return
+
     if (value == null) return
-
-    val file = PsiDocumentManager.getInstance(project).getPsiFile(editor.getDocument)
-    if (!file.isInstanceOf[ScalaFile]) return
-
     val ConvertedCode(associations, text, showDialog) = value
     if (text == "") return
     //copy as usually
+
     val needShowDialog = (!settings.isDontShowConversionDialog) && showDialog
 
     if (!needShowDialog || shownDialog(ScalaBundle.message("scala.copy.from.java"), project).isOK) {
@@ -132,7 +131,7 @@ class JavaCopyPastePostProcessor extends SingularCopyPastePostProcessor[Converte
         }
       }
 
-      scalaProcessor.processTransferableData(project, editor, bounds, i, ref, ju.Collections.singletonList(Associations(shiftedAssociations.toArray)))
+      scalaProcessor.processTransferableData(project, editor, bounds, caretOffset, ref, ju.Collections.singletonList(Associations(shiftedAssociations.toArray)))
 
       inWriteAction {
         cleanCode(file, project, bounds.getStartOffset, bounds.getEndOffset, editor)
