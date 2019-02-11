@@ -21,7 +21,7 @@ import org.jetbrains.plugins.scala.statistics.{FeatureKey, Stats}
 /**
   * Created by Kate Ustyuzhanina on 12/19/16.
   */
-class TextJavaCopyPastePostProcessor extends SingularCopyPastePostProcessor[ConverterUtil.ConvertedCode] {
+class TextJavaCopyPastePostProcessor extends SingularCopyPastePostProcessor[ConverterUtil.ConvertedCode](DataFlavor.stringFlavor) {
   private val lineSeparator = '\n'
 
   import ConverterUtil._
@@ -29,21 +29,18 @@ class TextJavaCopyPastePostProcessor extends SingularCopyPastePostProcessor[Conv
   override protected def collectTransferableData0(file: PsiFile, editor: Editor,
                                                   startOffsets: Array[Int], endOffsets: Array[Int]): ConvertedCode = null
 
-  override protected def extractTransferableData0(content: Transferable): ConvertedCode = {
-    def copyInsideIde: Boolean =
-      if (ApplicationManager.getApplication.isUnitTestMode && !TextJavaCopyPastePostProcessor.insideIde) false
-      else
-        content
-          .getTransferDataFlavors
-          .exists { flavor =>
-            classOf[ConvertedCode].isAssignableFrom(flavor.getRepresentationClass)
-          }
+  override protected def extractTransferableData0(content: Transferable): Option[AnyRef] = {
+    def existsAssignable(flavors: Seq[DataFlavor]): Boolean = flavors
+      .map(_.getRepresentationClass)
+      .exists(classOf[ConvertedCode].isAssignableFrom)
 
-    DataFlavor.stringFlavor match {
-      case flavor if content.isDataFlavorSupported(flavor) && !copyInsideIde =>
-        ConvertedCode(text = content.getTransferData(DataFlavor.stringFlavor).asInstanceOf[String])
-      case _ => null
-    }
+    if (ApplicationManager.getApplication.isUnitTestMode &&
+      !TextJavaCopyPastePostProcessor.insideIde ||
+      !existsAssignable(content.getTransferDataFlavors)) {
+      super.extractTransferableData0(content).map { text =>
+        ConvertedCode(text = text.asInstanceOf[String])
+      }
+    } else None
   }
 
   override protected def processTransferableData0(project: Project, editor: Editor,

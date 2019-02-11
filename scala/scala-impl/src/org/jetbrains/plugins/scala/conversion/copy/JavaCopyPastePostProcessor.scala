@@ -2,7 +2,6 @@ package org.jetbrains.plugins.scala
 package conversion
 package copy
 
-import java.awt.datatransfer.Transferable
 import java.lang.Boolean
 import java.{util => ju}
 
@@ -25,7 +24,7 @@ import scala.collection.mutable
   * User: Alexander Podkhalyuzin
   * Date: 30.11.2009
   */
-class JavaCopyPastePostProcessor extends SingularCopyPastePostProcessor[ConverterUtil.ConvertedCode] {
+class JavaCopyPastePostProcessor extends SingularCopyPastePostProcessor[ConverterUtil.ConvertedCode](ConverterUtil.ConvertedCode.flavor) {
 
   import ConverterUtil._
 
@@ -82,7 +81,7 @@ class JavaCopyPastePostProcessor extends SingularCopyPastePostProcessor[Converte
 
       val text = visitor()
       val oldText = getTextBetweenOffsets(file, startOffsets, endOffsets)
-      new ConvertedCode(
+      ConvertedCode(
         updatedAssociations.toArray,
         text,
         compareTextNEq(oldText, text)
@@ -95,11 +94,6 @@ class JavaCopyPastePostProcessor extends SingularCopyPastePostProcessor[Converte
         Log.error(e.getMessage, e, attachments: _*)
         null
     }
-  }
-
-  protected def extractTransferableData0(content: Transferable): ConvertedCode = ConvertedCode.flavor match {
-    case flavor if content.isDataFlavorSupported(flavor) => content.getTransferData(flavor).asInstanceOf[ConvertedCode]
-    case _ => null
   }
 
   protected def processTransferableData0(project: Project, editor: Editor,

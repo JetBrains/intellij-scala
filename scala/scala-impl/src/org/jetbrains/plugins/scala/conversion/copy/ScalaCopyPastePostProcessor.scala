@@ -2,8 +2,6 @@ package org.jetbrains.plugins.scala
 package conversion
 package copy
 
-import java.awt.datatransfer.Transferable
-
 import com.intellij.codeInsight.CodeInsightSettings
 import com.intellij.openapi.diagnostic.{Attachment, Logger}
 import com.intellij.openapi.editor.{Editor, RangeMarker}
@@ -35,7 +33,7 @@ import scala.collection.{JavaConverters, mutable}
  * Pavel Fatin
  */
 
-class ScalaCopyPastePostProcessor extends SingularCopyPastePostProcessor[Associations] {
+class ScalaCopyPastePostProcessor extends SingularCopyPastePostProcessor[Associations](Associations.flavor) {
   private val Log = Logger.getInstance(getClass)
   private val Timeout = 3000L
 
@@ -79,12 +77,6 @@ class ScalaCopyPastePostProcessor extends SingularCopyPastePostProcessor[Associa
       result = Associations(buffer.toArray)
     }
     result
-  }
-
-  protected def extractTransferableData0(content: Transferable): Associations = Associations.flavor match {
-    case flavor if content.isDataFlavorSupported(flavor) =>
-      content.getTransferData(flavor).asInstanceOf[Associations]
-    case _ => null
   }
 
   protected def processTransferableData0(project: Project, editor: Editor, bounds: RangeMarker,
