@@ -17,6 +17,7 @@ import com.intellij.uiDesigner.core.Spacer;
 import javax.swing.*;
 import java.awt.*;
 import java.awt.event.ItemEvent;
+import java.util.Optional;
 import java.util.ResourceBundle;
 
 /**
@@ -86,10 +87,11 @@ public class SbtSettingsPane {
 
     public String getCustomVMPath() {
         String pathOrName = myJrePathEditor.getJrePathOrName();
-        Sdk sdk = ProjectJdkTable.getInstance().findJdk(pathOrName);
-
-        if (sdk != null) return sdk.getHomePath();
-        else return pathOrName;
+        String vmPath = Optional.ofNullable(pathOrName)
+                .flatMap(p -> Optional.ofNullable(ProjectJdkTable.getInstance().findJdk(pathOrName)))
+                .map(Sdk::getHomePath)
+                .orElse(pathOrName);
+        return vmPath;
     }
 
     public void setLauncherPath(String path) {
