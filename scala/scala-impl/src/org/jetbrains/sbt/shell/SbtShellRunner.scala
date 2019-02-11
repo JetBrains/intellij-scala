@@ -76,6 +76,7 @@ class SbtShellRunner(project: Project, consoleTitle: String, debugConnection: Op
         myProcessHandler.getProcess match {
           case _: UnixPtyProcess => // don't need to do stuff
           case proc: PtyProcess => proc.setWinSize(new WinSize(2000, 100))
+          case _ =>
         }
       }
 
