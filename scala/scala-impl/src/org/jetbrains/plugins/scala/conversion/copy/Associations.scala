@@ -2,12 +2,12 @@ package org.jetbrains.plugins.scala
 package conversion
 package copy
 
-import org.jetbrains.plugins.scala.lang.refactoring.AssociationsData
+import org.jetbrains.plugins.scala.lang.refactoring._
 
 /**
   * Pavel Fatin
   */
-case class Associations(override val associations: Array[AssociationsData.Association])
+case class Associations(override val associations: Array[Association])
   extends AssociationsData(associations, Associations)
     with Cloneable {
 

@@ -6,11 +6,8 @@ import java.awt.datatransfer.DataFlavor
 
 import com.intellij.codeInsight.editorActions.TextBlockTransferableData
 import com.intellij.openapi.util.TextRange
-import com.intellij.psi.PsiElement
-import org.jetbrains.plugins.scala.lang.dependency.Dependency
-import org.jetbrains.plugins.scala.lang.psi.api.base.ScReference
 
-abstract class AssociationsData(val associations: Array[AssociationsData.Association],
+abstract class AssociationsData(val associations: Array[Association],
                                 private val companion: AssociationsData.Companion[_]) extends TextBlockTransferableData {
 
   import AssociationsData._
@@ -42,19 +39,6 @@ abstract class AssociationsData(val associations: Array[AssociationsData.Associa
 }
 
 object AssociationsData {
-
-  case class Association(path: dependency.Path,
-                         var range: TextRange) {
-
-    def isSatisfiedIn(element: PsiElement): Boolean = element match {
-      case reference: ScReference =>
-        Dependency.dependencyFor(reference).exists {
-          case Dependency(_, `path`) => true
-          case _ => false
-        }
-      case _ => false
-    }
-  }
 
   abstract class Companion[D <: AssociationsData](representationClass: Class[D],
                                                   humanPresentableName: String) {

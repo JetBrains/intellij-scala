@@ -5,7 +5,7 @@ package dependency
 import org.intellij.lang.annotations.Language
 import org.jetbrains.plugins.scala.base.SimpleTestCase
 import org.jetbrains.plugins.scala.conversion.copy.ScalaCopyPastePostProcessor
-import org.jetbrains.plugins.scala.lang.refactoring.AssociationsData.Association
+import org.jetbrains.plugins.scala.lang.refactoring.Association
 import org.junit.Assert
 
 import scala.collection.mutable

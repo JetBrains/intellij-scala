@@ -18,7 +18,7 @@ import org.jetbrains.plugins.scala.lang.psi.api.base.ScReference
 import org.jetbrains.plugins.scala.lang.psi.api.expr.ScParenthesisedExpr
 import org.jetbrains.plugins.scala.lang.psi.api.statements.ScFunctionDefinition
 import org.jetbrains.plugins.scala.lang.psi.api.toplevel.imports.ScImportSelector
-import org.jetbrains.plugins.scala.lang.refactoring.AssociationsData
+import org.jetbrains.plugins.scala.lang.refactoring._
 import org.jetbrains.plugins.scala.util.TypeAnnotationUtil
 
 import scala.annotation.tailrec
@@ -224,15 +224,13 @@ object ConverterUtil {
     textWithoutLastSemicolon(text1) != textWithoutLastSemicolon(text2)
   }
 
-  import AssociationsData._
-
   class ConvertedCode(override val associations: Array[Association],
                       val text: String,
                       val showDialog: Boolean)
     extends AssociationsData(associations, ConvertedCode) {
 
     override def equals(other: Any): Boolean = other match {
-      case ConvertedCode(associations, `text`, `showDialog`) => this.associations.sameElements(associations)
+      case ConvertedCode(thatAssociations, `text`, `showDialog`) => associations.sameElements(thatAssociations)
       case _ => false
     }
 
@@ -246,7 +244,7 @@ object ConverterUtil {
     override def toString = s"ConvertedCode($associations, $text, $showDialog)"
   }
 
-  object ConvertedCode extends Companion(classOf[ConvertedCode], "JavaToScalaConvertedCode") {
+  object ConvertedCode extends AssociationsData.Companion(classOf[ConvertedCode], "JavaToScalaConvertedCode") {
 
     def apply(associations: Array[Association] = Array.empty,
               text: String,

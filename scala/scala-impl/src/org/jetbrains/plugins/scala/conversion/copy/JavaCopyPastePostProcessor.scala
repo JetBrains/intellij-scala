@@ -14,7 +14,7 @@ import com.intellij.psi.codeStyle.CodeStyleManager
 import org.jetbrains.plugins.scala.conversion.ast.{LiteralExpression, MainConstruction, TypedElement}
 import org.jetbrains.plugins.scala.extensions._
 import org.jetbrains.plugins.scala.lang.psi.api.ScalaFile
-import org.jetbrains.plugins.scala.lang.refactoring.AssociationsData.Association
+import org.jetbrains.plugins.scala.lang.refactoring.Association
 import org.jetbrains.plugins.scala.settings._
 
 import scala.collection.mutable
