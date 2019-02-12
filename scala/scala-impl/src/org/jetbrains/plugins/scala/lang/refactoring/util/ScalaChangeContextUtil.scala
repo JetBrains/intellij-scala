@@ -6,7 +6,7 @@ package util
 import com.intellij.openapi.project.DumbService
 import com.intellij.openapi.util.Key
 import com.intellij.psi._
-import org.jetbrains.plugins.scala.conversion.copy.{Associations, ScalaCopyPastePostProcessor}
+import org.jetbrains.plugins.scala.conversion.copy.ScalaCopyPastePostProcessor
 import org.jetbrains.plugins.scala.lang.psi.api.ScalaFile
 
 /**

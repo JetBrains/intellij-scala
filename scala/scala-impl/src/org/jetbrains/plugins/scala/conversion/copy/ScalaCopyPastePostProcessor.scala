@@ -24,7 +24,7 @@ import org.jetbrains.plugins.scala.lang.psi.api.toplevel.ScPackaging
 import org.jetbrains.plugins.scala.lang.psi.api.toplevel.imports.ScImportStmt
 import org.jetbrains.plugins.scala.lang.psi.api.toplevel.templates.ScTemplateParents
 import org.jetbrains.plugins.scala.lang.psi.impl.base.ScStableCodeReferenceImpl
-import org.jetbrains.plugins.scala.lang.refactoring.Association
+import org.jetbrains.plugins.scala.lang.refactoring._
 import org.jetbrains.plugins.scala.settings._
 
 import scala.collection.{JavaConverters, mutable}

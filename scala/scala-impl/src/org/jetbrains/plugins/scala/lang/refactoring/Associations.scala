@@ -1,8 +1,6 @@
 package org.jetbrains.plugins.scala
-package conversion
-package copy
-
-import org.jetbrains.plugins.scala.lang.refactoring._
+package lang
+package refactoring
 
 /**
   * Pavel Fatin
