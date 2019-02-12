@@ -4,7 +4,6 @@ package refactoring
 
 import com.intellij.openapi.util.Key
 import com.intellij.psi.{PsiClass, PsiDirectory, PsiElement}
-import org.jetbrains.plugins.scala.conversion.copy.{Associations, ScalaCopyPastePostProcessor}
 import org.jetbrains.plugins.scala.lang.psi.api.toplevel.typedef.ScTypeDefinition
 import org.jetbrains.plugins.scala.lang.psi.api.{ScPackage, ScalaFile}
 
@@ -21,7 +20,7 @@ package object move {
     }
   }
 
-  import util.ScalaChangeContextUtil._
+  import util.ScalaChangeContextUtil.{restoreAssociations => restoreAssociationsImpl, _}
 
   def collectAssociations(clazz: PsiClass,
                           file: ScalaFile,
@@ -32,19 +31,8 @@ package object move {
       }
     }
 
-  def restoreAssociations(aClass: PsiClass): Unit =
-    applyWithCompanionModule(aClass, moveCompanion) { clazz =>
-      AssociationsData(clazz) match {
-        case null =>
-        case Associations(associations) =>
-          try {
-            ScalaCopyPastePostProcessor.doRestoreAssociations(associations, clazz.getTextRange.getStartOffset)(identity)(clazz.getProject, clazz.getContainingFile)
-          } finally {
-            AssociationsData(clazz) = null
-          }
-
-      }
-    }
+  def restoreAssociations(clazz: PsiClass): Unit =
+    applyWithCompanionModule(clazz, moveCompanion)(restoreAssociationsImpl)
 
   def saveMoveDestination(element: PsiElement, moveDestination: PsiDirectory): Unit = {
     val classes = element match {
@@ -61,8 +49,8 @@ package object move {
     }
   }
 
-  private def applyWithCompanionModule(clazz: PsiClass, withCompanion: Boolean)
-                                      (function: PsiClass => Unit): Unit =
+  def applyWithCompanionModule(clazz: PsiClass, withCompanion: Boolean)
+                              (function: PsiClass => Unit): Unit =
     (Option(clazz) ++ companionModule(clazz, withCompanion)).foreach(function)
 
   def companionModule(clazz: PsiClass, withCompanion: Boolean): Option[ScTypeDefinition] =

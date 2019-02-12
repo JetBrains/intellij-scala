@@ -73,7 +73,14 @@ final class ScalaPullUpProcessor(project: Project,
       }
       templateBody.addBefore(createNewLine(), anchor)
 
-      movedDefinitions.foreach(restoreForElement)
+      for {
+        definition <- movedDefinitions
+
+        movedElement = movedMember(definition) match {
+          case null => definition
+          case moved => moved
+        }
+      } restoreAssociations(movedElement)
     }
 
     for (tb <- sourceClass.extendsBlock.templateBody if tb.members.isEmpty) {

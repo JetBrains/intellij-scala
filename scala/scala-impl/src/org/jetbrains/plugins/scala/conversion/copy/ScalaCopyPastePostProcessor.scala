@@ -113,12 +113,8 @@ class ScalaCopyPastePostProcessor extends SingularCopyPastePostProcessor[Associa
 
 object ScalaCopyPastePostProcessor {
 
-  def restoreAssociations(associations: Array[Association], file: PsiFile): Unit = {
-    doRestoreAssociations(associations, file.getTextRange.getStartOffset)()(file.getProject, file)
-  }
-
   def doRestoreAssociations(associations: Seq[Association], offset: Int)
-                           (filter: Seq[Binding] => Seq[Binding] = identity)
+                           (filter: Seq[Binding] => Seq[Binding])
                            (implicit project: Project,
                             file: PsiFile): Unit = {
     def hasNonDefaultPackage(path: String) = path.lastIndexOf('.') match {

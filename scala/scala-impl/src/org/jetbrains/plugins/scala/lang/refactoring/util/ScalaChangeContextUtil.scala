@@ -1,5 +1,7 @@
 package org.jetbrains.plugins.scala
-package lang.refactoring.util
+package lang
+package refactoring
+package util
 
 import com.intellij.openapi.util.Key
 import com.intellij.psi._
@@ -33,13 +35,13 @@ object ScalaChangeContextUtil {
     }
   }
 
-  val processor = new ScalaCopyPastePostProcessor
+  private val processor = new ScalaCopyPastePostProcessor
 
   def encodeContextInfo(element: PsiElement): Unit = {
     AssociationsData(element) = collectDataForElement(element)
   }
 
-  def getMovedMember(target: PsiElement): PsiElement = {
+  def movedMember(target: PsiElement): PsiElement = {
     val moved = MovedElementData(target)
     MovedElementData(target) = null
     moved
@@ -58,23 +60,17 @@ object ScalaChangeContextUtil {
     processor.collectTransferableData(
       Array(range.getStartOffset),
       Array(range.getEndOffset)
-    )(element.getContainingFile, null)
-      .orNull
+    )(element.getContainingFile, null).orNull
   }
 
-  def restoreForElement(element: PsiElement) {
-    val movedElement = getMovedMember(element) match {
-      case null => element
-      case moved => moved
-    }
-    val associations = AssociationsData(movedElement)
-
-    AssociationsData(movedElement) = null
-
-    associations match {
+  def restoreAssociations(movedElement: PsiElement): Unit =
+    AssociationsData(movedElement) match {
       case null =>
-      case Associations(associationsArray) =>
-        ScalaCopyPastePostProcessor.doRestoreAssociations(associationsArray, movedElement.getTextRange.getStartOffset)()(element.getProject, movedElement.getContainingFile)
+      case Associations(associations) =>
+        try {
+          ScalaCopyPastePostProcessor.doRestoreAssociations(associations, movedElement.getTextRange.getStartOffset)(identity)(movedElement.getProject, movedElement.getContainingFile)
+        } finally {
+          AssociationsData(movedElement) = null
+        }
     }
-  }
 }

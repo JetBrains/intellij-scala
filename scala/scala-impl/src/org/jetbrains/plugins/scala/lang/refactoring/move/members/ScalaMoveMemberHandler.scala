@@ -133,9 +133,8 @@ final class ScalaMoveMemberHandler extends MoveJavaMemberHandler {
   }
 
   override def decodeContextInfo(targetClass: PsiElement): Unit = {
-    val movedMember = getMovedMember(targetClass)
-
-    restoreForElement(movedMember)
+    val movedElement = movedMember(targetClass)
+    restoreAssociations(movedElement)
   }
 
 }

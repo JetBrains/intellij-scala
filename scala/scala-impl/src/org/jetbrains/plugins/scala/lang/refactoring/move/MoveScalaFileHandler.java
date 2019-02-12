@@ -24,8 +24,6 @@ import com.intellij.codeInsight.ChangeContextUtil;
 import com.intellij.openapi.diagnostic.Logger;
 import com.intellij.openapi.roots.ProjectFileIndex;
 import com.intellij.openapi.roots.ProjectRootManager;
-import com.intellij.openapi.util.Key;
-import com.intellij.openapi.util.TextRange;
 import com.intellij.openapi.util.text.StringUtil;
 import com.intellij.openapi.vfs.VirtualFile;
 import com.intellij.psi.*;
@@ -35,7 +33,6 @@ import com.intellij.refactoring.util.MoveRenameUsageInfo;
 import com.intellij.usageView.UsageInfo;
 import com.intellij.util.IncorrectOperationException;
 import org.jetbrains.plugins.scala.conversion.copy.Associations;
-import org.jetbrains.plugins.scala.conversion.copy.ScalaCopyPastePostProcessor;
 import org.jetbrains.plugins.scala.editor.importOptimizer.ScalaImportOptimizer;
 import org.jetbrains.plugins.scala.lang.psi.api.ScalaFile;
 import org.jetbrains.plugins.scala.statistics.FeatureKey;
@@ -46,11 +43,11 @@ import java.util.Collections;
 import java.util.List;
 import java.util.Map;
 
-public class MoveScalaFileHandler extends MoveFileHandler {
-  private static final ScalaCopyPastePostProcessor PROCESSOR = new ScalaCopyPastePostProcessor();
-  private static final Logger LOG = Logger.getInstance("#org.jetbrains.plugins.scala.lang.refactoring.move.MoveScalaFileHandler");
+import static org.jetbrains.plugins.scala.lang.refactoring.util.ScalaChangeContextUtil.*;
 
-  public static final Key<Associations> ASSOCIATIONS_KEY = Key.create("ASSOCIATIONS");
+public class MoveScalaFileHandler extends MoveFileHandler {
+
+  private static final Logger LOG = Logger.getInstance("#org.jetbrains.plugins.scala.lang.refactoring.move.MoveScalaFileHandler");
 
   @Override
   public boolean canProcessElement(PsiFile element) {
@@ -67,10 +64,9 @@ public class MoveScalaFileHandler extends MoveFileHandler {
     if (file instanceof ScalaFile) {
       Stats.trigger(FeatureKey.moveFile());
       ChangeContextUtil.encodeContextInfo(file, true);
-      TextRange range = file.getTextRange();
-      List<Associations> associations = PROCESSOR.collectTransferableData(file, null,
-          new int[]{range.getStartOffset()}, new int[]{range.getEndOffset()});
-      file.putCopyableUserData(ASSOCIATIONS_KEY, associations.isEmpty() ? null : associations.get(0));
+
+        Associations data = collectDataForElement(file);
+        AssociationsData$.MODULE$.update(file, data);
     }
   }
 
@@ -111,14 +107,7 @@ public class MoveScalaFileHandler extends MoveFileHandler {
   public void updateMovedFile(PsiFile file) throws IncorrectOperationException {
     if (file instanceof ScalaFile) {
       ChangeContextUtil.decodeContextInfo(file, null, null);
-      Associations associations = file.getCopyableUserData(ASSOCIATIONS_KEY);
-      if (associations != null) {
-        try {
-          ScalaCopyPastePostProcessor.restoreAssociations(associations.associations(), file);
-        } finally {
-          file.putCopyableUserData(ASSOCIATIONS_KEY, null);
-        }
-      }
+        restoreAssociations(file);
       new ScalaImportOptimizer().processFile(file).run();
     }
   }
