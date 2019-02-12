@@ -22,7 +22,7 @@ package object template {
       extracted   <- extractor(scType)
     } yield (typeElement.getTextRange, extracted)
 
-  private[template] def isMixable(clazz: PsiClass) = isInterface(clazz)()
+  def isMixable(clazz: PsiClass): Boolean = isInterface(clazz)()
 
   def isAbstract(clazz: PsiClass): Boolean = isInterface(clazz)(clazz.hasAbstractModifier)
 

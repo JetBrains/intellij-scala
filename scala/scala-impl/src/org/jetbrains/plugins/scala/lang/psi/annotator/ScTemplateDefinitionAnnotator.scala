@@ -3,7 +3,7 @@ package org.jetbrains.plugins.scala.lang.psi.annotator
 import com.intellij.lang.annotation.AnnotationHolder
 import org.jetbrains.plugins.scala.ScalaBundle
 import org.jetbrains.plugins.scala.annotator.quickfix.ImplementMethodsQuickFix
-import org.jetbrains.plugins.scala.annotator.template.{collectSuperRefs, isAbstract, kindOf, superRefs}
+import org.jetbrains.plugins.scala.annotator.template._
 import org.jetbrains.plugins.scala.extensions._
 import org.jetbrains.plugins.scala.lang.psi.annotator.ScTemplateDefinitionAnnotator.objectCreationImpossibleMessage
 import org.jetbrains.plugins.scala.lang.psi.api.Annotatable
@@ -18,6 +18,7 @@ trait ScTemplateDefinitionAnnotator extends Annotatable { self: ScTemplateDefini
     super.annotate(holder, typeAware)
 
     annotateFinalClassInheritance(holder)
+    annotateMultipleInheritance(holder)
 
     if (typeAware) {
       annotateIllegalInheritance(holder)
@@ -99,6 +100,18 @@ trait ScTemplateDefinitionAnnotator extends Annotatable { self: ScTemplateDefini
           }
         case _ =>
       }
+    }
+  }
+
+  private def annotateMultipleInheritance(holder: AnnotationHolder): Unit = {
+    superRefs(this).groupBy(_._2).flatMap {
+      case (clazz, entries) if isMixable(clazz) && entries.size > 1 => entries.map {
+        case (range, _) => (range, ScalaBundle.message("illegal.inheritance.multiple", kindOf(clazz), clazz.name))
+      }
+      case _ => Seq.empty
+    }.foreach {
+      case (range, message) =>
+        holder.createErrorAnnotation(range, message)
     }
   }
 }

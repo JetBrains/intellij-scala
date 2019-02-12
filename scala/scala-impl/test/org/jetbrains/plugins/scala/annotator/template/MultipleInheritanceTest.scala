@@ -5,7 +5,7 @@ package template
 /**
   * Pavel Fatin
   */
-class MultipleInheritanceTest extends AnnotatorTestBase(MultipleInheritance) {
+class MultipleInheritanceTest extends AnnotatorTestBase {
 
   def testMultipleTraitInheritance(): Unit = {
     assertNothing(messages("trait T; new T {}"))
