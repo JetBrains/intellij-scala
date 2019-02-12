@@ -479,6 +479,8 @@ package object extensions {
 
     def children: Iterator[PsiElement] = new ChildrenIterator(element)
 
+    def elements: Iterator[PsiElement] = depthFirst()
+
     def depthFirst(predicate: PsiElement => Boolean = _ => true): Iterator[PsiElement] =
       new DepthFirstIterator(element, predicate)
 

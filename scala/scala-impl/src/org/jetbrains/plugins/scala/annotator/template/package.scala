@@ -7,9 +7,10 @@ import org.jetbrains.plugins.scala.extensions._
 import org.jetbrains.plugins.scala.lang.psi.api.toplevel.typedef.{ScObject, ScTemplateDefinition, ScTrait}
 import org.jetbrains.plugins.scala.lang.psi.types.ScType
 
+// TODO move to annotator or to ScTemplateDefinition
 package object template {
 
-  private[template] def superRefs(definition: ScTemplateDefinition): Seq[(TextRange, PsiClass)] =
+  def superRefs(definition: ScTemplateDefinition): Seq[(TextRange, PsiClass)] =
     collectSuperRefs(definition)(_.extractClass)
 
   private[template] def collectSuperRefs[T](definition: ScTemplateDefinition)
@@ -23,9 +24,9 @@ package object template {
 
   private[template] def isMixable(clazz: PsiClass) = isInterface(clazz)()
 
-  private[template] def isAbstract(clazz: PsiClass): Boolean = isInterface(clazz)(clazz.hasAbstractModifier)
+  def isAbstract(clazz: PsiClass): Boolean = isInterface(clazz)(clazz.hasAbstractModifier)
 
-  private[template] def kindOf(clazz: PsiClass, toLowerCase: Boolean = false) = {
+  def kindOf(clazz: PsiClass, toLowerCase: Boolean = false): String = {
     val result = clazz match {
       case _: ScTrait => "Trait"
       case _: ScObject => "Object"

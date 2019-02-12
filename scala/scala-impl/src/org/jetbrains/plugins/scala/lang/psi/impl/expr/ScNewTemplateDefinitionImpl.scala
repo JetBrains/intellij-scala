@@ -12,7 +12,7 @@ import com.intellij.util.IncorrectOperationException
 import javax.swing.Icon
 import org.jetbrains.plugins.scala.extensions._
 import org.jetbrains.plugins.scala.icons.Icons
-import org.jetbrains.plugins.scala.lang.psi.annotator.ScExpressionAnnotator
+import org.jetbrains.plugins.scala.lang.psi.annotator.{ScExpressionAnnotator, ScNewTemplateDefinitionAnnotator}
 import org.jetbrains.plugins.scala.lang.psi.api.ScalaElementVisitor
 import org.jetbrains.plugins.scala.lang.psi.api.base.{ScConstructor, ScPrimaryConstructor}
 import org.jetbrains.plugins.scala.lang.psi.api.expr._
@@ -40,7 +40,7 @@ final class ScNewTemplateDefinitionImpl private[psi](stub: ScTemplateDefinitionS
                                                      nodeType: ScTemplateDefinitionElementType[ScNewTemplateDefinition],
                                                      node: ASTNode)
   extends ScalaStubBasedElementImpl(stub, nodeType, node)
-    with ScNewTemplateDefinition with PsiClassFake with ScExpressionAnnotator {
+    with ScNewTemplateDefinition with PsiClassFake with ScExpressionAnnotator with ScNewTemplateDefinitionAnnotator {
 
   override def toString: String = "NewTemplateDefinition"
 
