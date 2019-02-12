@@ -141,7 +141,6 @@ private class CommandTask(project: Project, modules: Array[Module], command: Str
     import org.jetbrains.plugins.scala.lang.macros.expansion.ReflectExpansionsCollector
 
     val outputRoots = CompilerPathsEx.getOutputPaths(modules)
-    createMissingOutputRoots(outputRoots)
 
     val report = new IndicatorReporter(indicator)
     val shell = SbtShellCommunication.forProject(project)
@@ -258,10 +257,6 @@ private class CommandTask(project: Project, modules: Array[Module], command: Str
     LocalFileSystem.getInstance().refreshIoFiles(toRefreshFiles, true, true, null)
 
     indicator.setText("")
-  }
-
-  private def createMissingOutputRoots(outputRoots: Array[String]): Unit = {
-    WriteAction.computeAndWait(() => outputRoots.foreach(createDirectoryIfMissing))
   }
 }
 
