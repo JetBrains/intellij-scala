@@ -21,7 +21,7 @@ import org.jetbrains.plugins.scala.lang.psi.api.toplevel.ScEarlyDefinitions
 import org.jetbrains.plugins.scala.lang.psi.api.toplevel.templates.ScTemplateBody
 import org.jetbrains.plugins.scala.lang.psi.impl.ScalaPsiElementFactory.createExpressionWithContextFromText
 import org.jetbrains.plugins.scala.lang.psi.impl.toplevel.PsiClassFake
-import org.jetbrains.plugins.scala.lang.psi.impl.toplevel.typedef.TypeDefinitionMembers
+import org.jetbrains.plugins.scala.lang.psi.impl.toplevel.typedef.{ScTemplateDefinitionImpl, TypeDefinitionMembers}
 import org.jetbrains.plugins.scala.lang.psi.stubs.ScTemplateDefinitionStub
 import org.jetbrains.plugins.scala.lang.psi.stubs.elements.ScTemplateDefinitionElementType
 import org.jetbrains.plugins.scala.lang.psi.types._
@@ -40,7 +40,7 @@ final class ScNewTemplateDefinitionImpl private[psi](stub: ScTemplateDefinitionS
                                                      nodeType: ScTemplateDefinitionElementType[ScNewTemplateDefinition],
                                                      node: ASTNode)
   extends ScalaStubBasedElementImpl(stub, nodeType, node)
-    with ScNewTemplateDefinition with PsiClassFake with ScExpressionAnnotator with ScNewTemplateDefinitionAnnotator {
+    with ScNewTemplateDefinition with ScTemplateDefinitionImpl with PsiClassFake with ScExpressionAnnotator with ScNewTemplateDefinitionAnnotator {
 
   override def toString: String = "NewTemplateDefinition"
 

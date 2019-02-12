@@ -52,8 +52,7 @@ abstract class ScTypeDefinitionImpl[T <: ScTemplateDefinition](stub: ScTemplateD
                                                                nodeType: ScTemplateDefinitionElementType[T],
                                                                node: ASTNode)
   extends ScalaStubBasedElementImpl(stub, nodeType, node)
-    with ScTypeDefinition
-    with PsiClassFake {
+    with ScTypeDefinition with PsiClassFake with ScTemplateDefinitionImpl {
 
   override def hasTypeParameters: Boolean = typeParameters.nonEmpty
 

@@ -5,7 +5,7 @@ package template
 /**
  * Pavel Fatin
  */
-class FinalClassInheritanceTest extends AnnotatorTestBase(FinalClassInheritance) {
+class FinalClassInheritanceTest extends AnnotatorTestBase() {
 
   def testOrdinaryClass(): Unit = {
     assertNothing(messages("class C; new C"))
