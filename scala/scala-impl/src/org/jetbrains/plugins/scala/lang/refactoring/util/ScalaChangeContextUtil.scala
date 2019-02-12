@@ -74,7 +74,7 @@ object ScalaChangeContextUtil {
     associations match {
       case null =>
       case Associations(associationsArray) =>
-        processor.doRestoreAssociations(associationsArray, movedElement.getContainingFile, movedElement.getTextRange.getStartOffset, element.getProject)()
+        ScalaCopyPastePostProcessor.doRestoreAssociations(associationsArray, movedElement.getTextRange.getStartOffset)()(element.getProject, movedElement.getContainingFile)
     }
   }
 }

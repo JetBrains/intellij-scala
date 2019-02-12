@@ -4,7 +4,7 @@ package refactoring
 
 import com.intellij.openapi.util.Key
 import com.intellij.psi.{PsiClass, PsiDirectory, PsiElement}
-import org.jetbrains.plugins.scala.conversion.copy.Associations
+import org.jetbrains.plugins.scala.conversion.copy.{Associations, ScalaCopyPastePostProcessor}
 import org.jetbrains.plugins.scala.lang.psi.api.toplevel.typedef.ScTypeDefinition
 import org.jetbrains.plugins.scala.lang.psi.api.{ScPackage, ScalaFile}
 
@@ -38,7 +38,7 @@ package object move {
         case null =>
         case Associations(associations) =>
           try {
-            processor.doRestoreAssociations(associations, clazz.getContainingFile, clazz.getTextRange.getStartOffset, clazz.getProject)(identity)
+            ScalaCopyPastePostProcessor.doRestoreAssociations(associations, clazz.getTextRange.getStartOffset)(identity)(clazz.getProject, clazz.getContainingFile)
           } finally {
             AssociationsData(clazz) = null
           }

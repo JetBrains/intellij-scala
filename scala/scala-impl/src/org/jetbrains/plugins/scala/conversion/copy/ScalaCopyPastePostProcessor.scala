@@ -33,48 +33,52 @@ import scala.collection.{JavaConverters, mutable}
   * Pavel Fatin
   */
 class ScalaCopyPastePostProcessor extends SingularCopyPastePostProcessor[Associations](Associations.flavor) {
+
+  import ScalaCopyPastePostProcessor._
+
   private val Log = Logger.getInstance(getClass)
-  private val Timeout = 3000L
 
   override def collectTransferableData(startOffsets: Array[Int], endOffsets: Array[Int])
-                                      (implicit file: PsiFile, editor: Editor): Option[Associations] = {
-    if (DumbService.getInstance(file.getProject).isDumb) return None
+                                      (implicit file: PsiFile,
+                                       editor: Editor): Option[Associations] = file match {
+    case scalaFile: ScalaFile if !DumbService.getInstance(scalaFile.getProject).isDumb =>
+      if (startOffsets.length == 1 && startOffsets.head == 0) return None
 
-    if (!file.isInstanceOf[ScalaFile]) return None
+      val ranges = startOffsets.zip(endOffsets).map {
+        case (startOffset, endOffset) => TextRange.create(startOffset, endOffset)
+      }
 
-    if (startOffsets.length == 1 && startOffsets(0) == 0) return None
+      implicit val psiFile: ScalaFile = scalaFile
 
-    val timeBound = System.currentTimeMillis + Timeout
-
-    val buffer = mutable.ArrayBuffer.empty[Association]
-    var result: Associations = null
-    try {
-      ProgressManager.getInstance().runProcess(new Runnable {
-        override def run(): Unit = {
-          for {
-            (start, end) <- startOffsets.zip(endOffsets)
-            range = TextRange.create(start, end)
-          } {
-            collectAssociations(file, range, buffer)
+      val buffer = mutable.ArrayBuffer.empty[Association]
+      var result: Associations = null
+      try {
+        ProgressManager.getInstance().runProcess(
+          (() => {
+            for {
+              range <- ranges
+              association <- collectAssociations(range)
+            } buffer += association
+          }): Runnable,
+          new ProgressIndicator
+        )
+      } catch {
+        case _: ProcessCanceledException =>
+          Log.warn(
+            s"""Time-out while collecting dependencies in ${scalaFile.getName}:
+               |${subText(ranges.head)}""".stripMargin
+          )
+        case e: Exception =>
+          val attachments = ranges.zipWithIndex.map {
+            case (range, index) => new Attachment(s"Selection-${index + 1}.scala", subText(range))
           }
-        }
-      }, new AbstractProgressIndicatorBase {
-        override def isCanceled: Boolean = {
-          System.currentTimeMillis > timeBound || super.isCanceled
-        }
-      })
-    } catch {
-      case _: ProcessCanceledException =>
-        Log.warn("Time-out while collecting dependencies in %s:\n%s".format(
-          file.getName, file.getText.substring(startOffsets(0), endOffsets(0))))
-      case e: Exception =>
-        val selections = (startOffsets, endOffsets).zipped.map((a, b) => file.getText.substring(a, b))
-        val attachments = selections.zipWithIndex.map(p => new Attachment(s"Selection-${p._2 + 1}.scala", p._1))
-        Log.error(e.getMessage, e, attachments: _*)
-    } finally {
-      result = Associations(buffer.toArray)
-    }
-    Option(result)
+          Log.error(e.getMessage, e, attachments: _*)
+      } finally {
+        result = Associations(buffer.toArray)
+      }
+
+      Option(result)
+    case _ => None
   }
 
   override def processTransferableData(bounds: RangeMarker, caretOffset: Int,
@@ -82,36 +86,41 @@ class ScalaCopyPastePostProcessor extends SingularCopyPastePostProcessor[Associa
                                       (implicit project: Project,
                                        editor: Editor,
                                        file: ScalaFile): Unit = {
-    if (DumbService.getInstance(project).isDumb) return
+    import CodeInsightSettings._
+    ScalaApplicationSettings.getInstance.ADD_IMPORTS_ON_PASTE match {
+      case _ if DumbService.getInstance(project).isDumb =>
+      case NO =>
+      case setting =>
+        PsiDocumentManager.getInstance(project).commitAllDocuments()
 
-    val settings = ScalaApplicationSettings.getInstance()
-    if (settings.ADD_IMPORTS_ON_PASTE == CodeInsightSettings.NO) return
+        val offset = bounds.getStartOffset
 
-    PsiDocumentManager.getInstance(project).commitAllDocuments()
+        doRestoreAssociations(value.associations, offset) {
+          case bindingsToRestore if setting == ASK =>
+            val dialog = new RestoreReferencesDialog(project, bindingsToRestore.map(_.path.toOption.getOrElse("")).sorted.toArray)
+            dialog.show()
 
-    val offset = bounds.getStartOffset
-
-    doRestoreAssociations(value.associations, file, offset, project) { bindingsToRestore =>
-      if (settings.ADD_IMPORTS_ON_PASTE == CodeInsightSettings.ASK) {
-        val dialog = new RestoreReferencesDialog(project, bindingsToRestore.map(_.path.toOption.getOrElse("")).sorted.toArray)
-        dialog.show()
-        val selectedPahts = dialog.getSelectedElements
-        if (dialog.getExitCode == DialogWrapper.OK_EXIT_CODE)
-          bindingsToRestore.filter(it => selectedPahts.contains(it.path))
-        else
-          Seq.empty
-      } else {
-        bindingsToRestore
-      }
+            val selectedPaths = dialog.getSelectedElements
+            dialog.getExitCode match {
+              case DialogWrapper.OK_EXIT_CODE => bindingsToRestore.filter(it => selectedPaths.contains(it.path))
+              case _ => Seq.empty
+            }
+          case bindings => bindings
+        }
     }
   }
+}
 
-  def restoreAssociations(value: Associations, file: PsiFile, offset: Int, project: Project): Unit = {
-    doRestoreAssociations(value.associations, file, offset, project)()
+object ScalaCopyPastePostProcessor {
+
+  def restoreAssociations(associations: Array[Association], file: PsiFile): Unit = {
+    doRestoreAssociations(associations, file.getTextRange.getStartOffset)()(file.getProject, file)
   }
 
-  def doRestoreAssociations(associations: Seq[Association], file: PsiFile, offset: Int, project: Project)
-                           (filter: Seq[Binding] => Seq[Binding] = identity): Unit = {
+  def doRestoreAssociations(associations: Seq[Association], offset: Int)
+                           (filter: Seq[Binding] => Seq[Binding] = identity)
+                           (implicit project: Project,
+                            file: PsiFile): Unit = {
     def hasNonDefaultPackage(path: String) = path.lastIndexOf('.') match {
       case -1 => false
       case index => path.substring(0, index) match {
@@ -148,7 +157,8 @@ class ScalaCopyPastePostProcessor extends SingularCopyPastePostProcessor[Associa
     }
   }
 
-  def collectAssociations(file: PsiFile, range: TextRange, buffer: mutable.Buffer[Association]): Unit = {
+  def collectAssociations(range: TextRange)
+                         (implicit file: ScalaFile): Iterable[Association] = {
     def scopeEstimate(e: PsiElement): Option[PsiElement] = {
       e.parentsInFile
         .flatMap(_.prevSiblings)
@@ -159,33 +169,30 @@ class ScalaCopyPastePostProcessor extends SingularCopyPastePostProcessor[Associa
         }
     }
 
-    def key(ref: ScReference) = (ref.refName, scopeEstimate(ref), ref.getKinds(incomplete = false))
-
-    val allRefs = unqualifiedReferencesInRange(file, range)
-    val grouped = allRefs.groupBy(key)
+    val groupedReferences = unqualifiedReferencesInRange(range).groupBy { ref =>
+      (ref.refName, scopeEstimate(ref), ref.getKinds(incomplete = false))
+    }.values
 
     for {
-      refs <- grouped.values
-      repr = refs.head
-      dep@Dependency(_, path) <- Dependency.dependencyFor(repr)
+      references <- groupedReferences
+      dep@Dependency(_, path) <- Dependency.dependencyFor(references.head).toSeq
       if dep.isExternal(file, range)
-    } {
-      refs.map {
-        _.getTextRange.shiftRight(-range.getStartOffset)
-      }.foreach { shiftedRange =>
-        buffer += Association(path, shiftedRange)
-      }
-    }
+
+      reference <- references
+    } yield Association(
+      path,
+      reference.getTextRange.shiftRight(-range.getStartOffset)
+    )
   }
 
-  private def unqualifiedReferencesInRange(file: PsiFile, range: TextRange): Seq[ScReference] = {
-    file.depthFirst().filter { elem =>
-      range.contains(elem.getTextRange)
+  private def unqualifiedReferencesInRange(range: TextRange)
+                                          (implicit file: ScalaFile): Seq[ScReference] =
+    file.depthFirst().filter { element =>
+      range.contains(element.getTextRange)
     }.collect {
       case ref: ScReferenceExpression if isPrimary(ref) => ref
       case ref: ScStableCodeReferenceImpl if isPrimary(ref) => ref
-    }.toVector
-  }
+    }.toSeq
 
   private def isPrimary(ref: ScReference): Boolean = {
     if (ref.qualifier.nonEmpty) return false
@@ -207,6 +214,25 @@ class ScalaCopyPastePostProcessor extends SingularCopyPastePostProcessor[Associa
 
   case class Binding(element: PsiElement, path: String) {
     def importsHolder: ScImportsHolder = ScalaImportTypeFix.getImportHolder(element, element.getProject)
+  }
+
+  private def subText(range: TextRange)
+                     (implicit file: ScalaFile) =
+    file.getText.substring(range.getStartOffset, range.getEndOffset)
+
+  private class ProgressIndicator extends AbstractProgressIndicatorBase {
+
+    import System.currentTimeMillis
+
+    private val timeBound = currentTimeMillis + ProgressIndicator.Timeout
+
+    override def isCanceled: Boolean = currentTimeMillis > timeBound ||
+      super.isCanceled
+  }
+
+  private object ProgressIndicator {
+
+    private val Timeout = 3000L
   }
 
 }

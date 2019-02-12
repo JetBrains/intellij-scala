@@ -3,18 +3,13 @@ package lang
 package dependency
 
 import org.intellij.lang.annotations.Language
-import org.jetbrains.plugins.scala.base.SimpleTestCase
-import org.jetbrains.plugins.scala.conversion.copy.ScalaCopyPastePostProcessor
-import org.jetbrains.plugins.scala.lang.refactoring.Association
 import org.junit.Assert
-
-import scala.collection.mutable
 
 /**
  * Pavel Fatin
  */
 
-class DependencyTest extends SimpleTestCase {
+class DependencyTest extends base.SimpleTestCase {
   def testClass() {
     assertDependenciesAre("""
     object O {
@@ -40,7 +35,7 @@ class DependencyTest extends SimpleTestCase {
     }
     """, "O.Foo")
   }
-  
+
   def testQualifier() {
     assertDependenciesAre("""
     object O {
@@ -235,13 +230,14 @@ class DependencyTest extends SimpleTestCase {
   // import, T
   // injected
 
-  private def assertDependenciesAre(@Language("Scala") code: String, expectations: String*) {
+  private def assertDependenciesAre(@Language("Scala") code: String, expected: String*) {
     val file = parseText(code)
 
-    val buffer = mutable.ArrayBuffer.empty[Association]
-    new ScalaCopyPastePostProcessor().collectAssociations(file, file.getTextRange, buffer)
-    val descriptors = buffer.map(_.path.asString())
+    val descriptors = conversion.copy.ScalaCopyPastePostProcessor
+      .collectAssociations(file.getTextRange)(file)
+      .map(_.path.asString())
+      .toSet
 
-    Assert.assertEquals(expectations.toSet, descriptors.toSet)
+    Assert.assertEquals(expected.toSet, descriptors)
   }
 }

@@ -114,8 +114,7 @@ public class MoveScalaFileHandler extends MoveFileHandler {
       Associations associations = file.getCopyableUserData(ASSOCIATIONS_KEY);
       if (associations != null) {
         try {
-          PROCESSOR.restoreAssociations(associations, file,
-              file.getTextRange().getStartOffset(), file.getProject());
+          ScalaCopyPastePostProcessor.restoreAssociations(associations.associations(), file);
         } finally {
           file.putCopyableUserData(ASSOCIATIONS_KEY, null);
         }
