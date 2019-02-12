@@ -2,15 +2,13 @@ package org.jetbrains.plugins.scala
 package compiler
 
 import com.intellij.notification.{Notification, NotificationType, Notifications}
-import com.intellij.openapi.application.{ApplicationManager, WriteAction}
-import com.intellij.openapi.compiler.ex.CompilerPathsEx
-import com.intellij.openapi.compiler.{CompileContext, CompileTask, CompilerManager}
+import com.intellij.openapi.application.ApplicationManager
+import com.intellij.openapi.compiler.{CompileTask, CompilerManager}
 import com.intellij.openapi.components.ProjectComponent
 import com.intellij.openapi.module.{Module, ModuleManager}
 import com.intellij.openapi.project.Project
 import com.intellij.openapi.roots.{CompilerModuleExtension, ModuleRootManager}
 import com.intellij.openapi.ui.Messages
-import com.intellij.openapi.vfs.VfsUtil.createDirectoryIfMissing
 import org.jetbrains.jps.model.java.JavaSourceRootType
 import org.jetbrains.plugins.scala.extensions._
 import org.jetbrains.plugins.scala.project._
@@ -28,10 +26,6 @@ class ServerMediator(project: Project) extends ProjectComponent {
     addBeforeTask(_ => checkSettings())
     addBeforeTask(_ => checkCompileServerDotty())
     addBeforeTask(_ => startCompileServer())
-    addBeforeTask(createMissingOutputRoots)
-
-//    val myBusConnection = project.getMessageBus.connect(project)
-//    myBusConnection.subscribe(ProjectDataImportListener.TOPIC, missingOutputRootsCreator)
   }
 
   private def checkSettings(): Boolean =
@@ -134,16 +128,6 @@ class ServerMediator(project: Project) extends ProjectComponent {
     }
 
     mayProceedWithCompilation
-  }
-
-  private def createMissingOutputRoots(context: CompileContext): Boolean = {
-    if (isScalaProject) {
-      val modules = context.getCompileScope.getAffectedModules
-      val outputRoots = CompilerPathsEx.getOutputPaths(modules)
-
-      WriteAction.computeAndWait(() => outputRoots.foreach(createDirectoryIfMissing))
-    }
-    true
   }
 
   override def getComponentName: String = getClass.getSimpleName
