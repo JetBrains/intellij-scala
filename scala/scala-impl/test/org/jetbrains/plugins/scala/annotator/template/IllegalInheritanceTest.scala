@@ -5,7 +5,7 @@ package template
 /**
   * Pavel Fatin
   */
-class IllegalInheritanceTest extends AnnotatorTestBase(IllegalInheritance) {
+class IllegalInheritanceTest extends AnnotatorTestBase() {
 
   def testFine(): Unit = {
     assertNothing(messages("class C"))

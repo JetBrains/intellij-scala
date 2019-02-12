@@ -13,8 +13,8 @@ package object template {
   def superRefs(definition: ScTemplateDefinition): Seq[(TextRange, PsiClass)] =
     collectSuperRefs(definition)(_.extractClass)
 
-  private[template] def collectSuperRefs[T](definition: ScTemplateDefinition)
-                                           (extractor: ScType => Option[T]): Seq[(TextRange, T)] =
+  def collectSuperRefs[T](definition: ScTemplateDefinition)
+                         (extractor: ScType => Option[T]): Seq[(TextRange, T)] =
     for {
       parents     <- definition.physicalExtendsBlock.templateParents.toList
       typeElement <- parents.typeElements
