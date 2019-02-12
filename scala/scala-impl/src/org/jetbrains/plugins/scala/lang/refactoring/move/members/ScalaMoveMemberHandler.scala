@@ -1,26 +1,34 @@
-package org.jetbrains.plugins.scala.lang.refactoring.move.members
+package org.jetbrains.plugins.scala
+package lang
+package refactoring
+package move
+package members
 
-import java.util
+import java.{util => ju}
 
 import com.intellij.psi._
 import com.intellij.refactoring.move.moveMembers.MoveMembersProcessor.MoveMembersUsageInfo
 import com.intellij.refactoring.move.moveMembers.{MoveJavaMemberHandler, MoveMembersOptions}
 import com.intellij.util.containers.MultiMap
-import org.jetbrains.plugins.scala.ScalaBundle
-import org.jetbrains.plugins.scala.extensions.{PsiElementExt, PsiMemberExt, PsiNamedElementExt}
+import org.jetbrains.plugins.scala.extensions._
 import org.jetbrains.plugins.scala.lang.psi.api.base.{ScReference, ScStableCodeReference}
 import org.jetbrains.plugins.scala.lang.psi.api.expr.ScReferenceExpression
 import org.jetbrains.plugins.scala.lang.psi.api.toplevel.imports.{ScImportExpr, ScImportSelector}
 import org.jetbrains.plugins.scala.lang.psi.impl.ScalaPsiElementFactory.{createExpressionFromText, createReferenceFromText}
 import org.jetbrains.plugins.scala.lang.refactoring.util.ScalaChangeContextUtil
 
-class ScalaMoveMemberHandler extends MoveJavaMemberHandler {
+final class ScalaMoveMemberHandler extends MoveJavaMemberHandler {
 
-  override def checkConflictsOnMember(member: PsiMember, newVisibility: String, modifiedListCopy: PsiModifierList, targetClass: PsiClass, membersToMove: util.Set[PsiMember], conflicts: MultiMap[PsiElement, String]): Unit = {
+  override def checkConflictsOnMember(member: PsiMember,
+                                      newVisibility: String,
+                                      modifiedListCopy: PsiModifierList,
+                                      targetClass: PsiClass,
+                                      membersToMove: ju.Set[PsiMember],
+                                      conflicts: MultiMap[PsiElement, String]): Unit = {
     val targetName = targetClass.name
     for {
       nameInTarget <- targetClass.getAllMethods.map(_.name)
-      movedName    <- member.names
+      movedName <- member.names
       if nameInTarget == movedName
     } {
       val message = ScalaBundle.message("target.0.already.contains.definition.of.1", targetName, movedName)
@@ -28,7 +36,10 @@ class ScalaMoveMemberHandler extends MoveJavaMemberHandler {
     }
   }
 
-  override def getUsage(member: PsiMember, psiReference: PsiReference, membersToMove: util.Set[PsiMember], targetClass: PsiClass): MoveMembersUsageInfo = {
+  override def getUsage(member: PsiMember,
+                        psiReference: PsiReference,
+                        membersToMove: ju.Set[PsiMember],
+                        targetClass: PsiClass): MoveMembersUsageInfo =
     psiReference.getElement match {
       case ref: ScReference =>
         ref.qualifier match {
@@ -41,17 +52,15 @@ class ScalaMoveMemberHandler extends MoveJavaMemberHandler {
           case None =>
             new MoveMembersUsageInfo(member, ref, null, ref, psiReference)
         }
-
       case _ => null
     }
-  }
 
   override def changeExternalUsage(options: MoveMembersOptions, usage: MoveMembersUsageInfo): Boolean = {
     val element = usage.getElement
     if (element == null || !element.isValid) return true
 
     usage.reference match {
-      case ref @ ScReference.qualifier(qualifier: ScReference) =>
+      case ref@ScReference.qualifier(qualifier: ScReference) =>
         if (usage.qualifierClass != null)
           changeQualifier(qualifier, usage.qualifierClass)
         else
@@ -100,18 +109,23 @@ class ScalaMoveMemberHandler extends MoveJavaMemberHandler {
     true
   }
 
-  override def getAnchor(psiMember: PsiMember, targetClass: PsiClass, set: util.Set[PsiMember]): PsiElement = {
-    null
-  }
+  import ScalaChangeContextUtil._
 
-  override def doMove(moveMembersOptions: MoveMembersOptions, scMember: PsiMember, anchor: PsiElement, targetClass: PsiClass): PsiMember = {
-    val associations = ScalaChangeContextUtil.collectDataForElement(scMember)
+  override def getAnchor(psiMember: PsiMember,
+                         targetClass: PsiClass,
+                         set: ju.Set[PsiMember]): PsiElement = null
+
+  override def doMove(moveMembersOptions: MoveMembersOptions,
+                      scMember: PsiMember,
+                      anchor: PsiElement,
+                      targetClass: PsiClass): PsiMember = {
+    val associations = collectDataForElement(scMember)
     val memberCopy = scMember.copy()
 
     val movedMember = targetClass.add(memberCopy)
 
-    ScalaChangeContextUtil.storeContextInfo(associations, movedMember)
-    ScalaChangeContextUtil.storeMovedMember(movedMember, targetClass)
+    AssociationsData(movedMember) = associations
+    MovedElementData(targetClass) = movedMember
 
     scMember.delete()
 
@@ -119,10 +133,9 @@ class ScalaMoveMemberHandler extends MoveJavaMemberHandler {
   }
 
   override def decodeContextInfo(targetClass: PsiElement): Unit = {
-    val movedMember =
-      ScalaChangeContextUtil.getMovedMember(targetClass)
+    val movedMember = getMovedMember(targetClass)
 
-    ScalaChangeContextUtil.restoreForElement(movedMember)
+    restoreForElement(movedMember)
   }
 
 }

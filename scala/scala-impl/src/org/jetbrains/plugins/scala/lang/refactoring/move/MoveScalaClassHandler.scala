@@ -69,7 +69,7 @@ final class MoveScalaClassHandler extends MoveClassHandler {
                   case null =>
                   case createdComment =>
                     definition.addAfter(createdComment, null)
-                    shiftAssociations(definition, createdComment.getTextLength)
+                    util.ScalaChangeContextUtil.shiftAssociations(definition, createdComment.getTextLength)
                 }
               }
 

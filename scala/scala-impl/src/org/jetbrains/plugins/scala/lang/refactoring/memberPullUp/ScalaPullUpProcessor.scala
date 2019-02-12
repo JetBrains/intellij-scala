@@ -1,12 +1,14 @@
 package org.jetbrains.plugins.scala
-package lang.refactoring.memberPullUp
+package lang
+package refactoring
+package memberPullUp
 
 import com.intellij.openapi.project.Project
 import com.intellij.psi.codeStyle.CodeStyleManager
 import com.intellij.psi.{PsiDocumentManager, PsiElement}
 import com.intellij.refactoring.{BaseRefactoringProcessor, RefactoringBundle}
 import com.intellij.usageView.{UsageInfo, UsageViewDescriptor}
-import org.jetbrains.plugins.scala.extensions.PsiModifierListOwnerExt
+import org.jetbrains.plugins.scala.extensions._
 import org.jetbrains.plugins.scala.lang.lexer.ScalaTokenTypes
 import org.jetbrains.plugins.scala.lang.psi.TypeAdjuster
 import org.jetbrains.plugins.scala.lang.psi.api.ScalaRecursiveElementVisitor
@@ -15,35 +17,35 @@ import org.jetbrains.plugins.scala.lang.psi.api.base.types.ScSimpleTypeElement
 import org.jetbrains.plugins.scala.lang.psi.api.statements._
 import org.jetbrains.plugins.scala.lang.psi.api.toplevel.typedef.{ScMember, ScTemplateDefinition}
 import org.jetbrains.plugins.scala.lang.psi.impl.ScalaPsiElementFactory._
-import org.jetbrains.plugins.scala.lang.refactoring._
 import org.jetbrains.plugins.scala.lang.refactoring.extractTrait.ScalaExtractMemberInfo
 import org.jetbrains.plugins.scala.lang.refactoring.util.ScalaChangeContextUtil
 
-import scala.collection.mutable.ArrayBuffer
+import scala.collection.mutable
 
 /**
- * Nikolay.Tropin
- * 2014-05-27
- */
-class ScalaPullUpProcessor(project: Project,
-                           sourceClass: ScTemplateDefinition,
-                           targetClass: ScTemplateDefinition,
-                           memberInfos: Seq[ScalaExtractMemberInfo]) extends BaseRefactoringProcessor(project) {
+  * Nikolay.Tropin
+  * 2014-05-27
+  */
+final class ScalaPullUpProcessor(project: Project,
+                                 sourceClass: ScTemplateDefinition,
+                                 targetClass: ScTemplateDefinition,
+                                 memberInfos: Seq[ScalaExtractMemberInfo]) extends BaseRefactoringProcessor(project) {
   override def createUsageViewDescriptor(usages: Array[UsageInfo]): UsageViewDescriptor =
     new PullUpUsageViewDescriptor
 
   override def getCommandName: String = RefactoringBundle.message("pullUp.command", sourceClass.name)
 
   override def performRefactoring(usages: Array[UsageInfo]): Unit = {
-
   }
 
-  override def findUsages(): Array[UsageInfo] = Array[UsageInfo]()
+  override def findUsages(): Array[UsageInfo] = UsageInfo.EMPTY_ARRAY
 
   /**
-   * Should be invoked in write action
-   * */
-  def moveMembersToBase() {
+    * Should be invoked in write action
+    **/
+  def moveMembersToBase(): Unit = {
+    import ScalaChangeContextUtil._
+
     implicit val projectContext = targetClass.projectContext
     val extendsBlock = targetClass.extendsBlock
     val templateBody = extendsBlock.templateBody match {
@@ -52,14 +54,12 @@ class ScalaPullUpProcessor(project: Project,
     }
     val anchor = templateBody.getLastChild
 
-    val collectImportScope = memberInfos.collect {
-      case ScalaExtractMemberInfo(m, false) => m
-    } //extracted declarations are handled with ScalaPsiUtil.adjustTypes
+    memberInfos.collect {
+      case ScalaExtractMemberInfo(m, false) => m // extracted declarations are handled with ScalaPsiUtil.adjustTypes
+    }.foreach(encodeContextInfo)
 
-    ScalaChangeContextUtil.encodeContextInfo(collectImportScope)
-
-    extensions.withDisabledPostprocessFormatting(project) {
-      val movedDefinitions = ArrayBuffer[ScMember]()
+    withDisabledPostprocessFormatting(project) {
+      val movedDefinitions = mutable.ArrayBuffer.empty[ScMember]
       for {
         info <- memberInfos
         memberCopy <- memberCopiesToExtract(info)
@@ -73,7 +73,7 @@ class ScalaPullUpProcessor(project: Project,
       }
       templateBody.addBefore(createNewLine(), anchor)
 
-      ScalaChangeContextUtil.decodeContextInfo(movedDefinitions)
+      movedDefinitions.foreach(restoreForElement)
     }
 
     for (tb <- sourceClass.extendsBlock.templateBody if tb.members.isEmpty) {
@@ -105,7 +105,7 @@ class ScalaPullUpProcessor(project: Project,
         val copy = m.copy().asInstanceOf[ScMember]
         copy.setModifierProperty("override", value = false)
         val shift = "override ".length
-        ScalaChangeContextUtil.shiftAssociations(copy, - shift)
+        ScalaChangeContextUtil.shiftAssociations(copy, -shift)
         Seq(copy)
       case _ => Seq(info.getMember.copy().asInstanceOf[ScMember])
     }
@@ -125,6 +125,7 @@ class ScalaPullUpProcessor(project: Project,
       }
       s"${b.name}$typeText"
     }
+
     m match {
       case decl: ScDeclaration => Seq(decl.getText)
       case funDef: ScFunctionDefinition =>
@@ -160,7 +161,7 @@ class ScalaPullUpProcessor(project: Project,
       case _ => throw new IllegalArgumentException(s"Cannot create declaration text from member ${m.getText}")
     }
   }
-  
+
   private class PullUpUsageViewDescriptor extends UsageViewDescriptor {
     def getProcessedElementsHeader: String = "Pull up members from"
 
@@ -171,4 +172,5 @@ class ScalaPullUpProcessor(project: Project,
 
     def getCommentReferencesText(usagesCount: Int, filesCount: Int): String = null
   }
+
 }

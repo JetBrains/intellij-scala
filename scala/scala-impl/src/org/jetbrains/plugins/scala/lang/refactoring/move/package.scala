@@ -4,15 +4,11 @@ package refactoring
 
 import com.intellij.openapi.util.Key
 import com.intellij.psi.{PsiClass, PsiDirectory, PsiElement}
-import org.jetbrains.annotations.NotNull
-import org.jetbrains.plugins.scala.conversion.copy.{Associations, ScalaCopyPastePostProcessor}
+import org.jetbrains.plugins.scala.conversion.copy.Associations
 import org.jetbrains.plugins.scala.lang.psi.api.toplevel.typedef.ScTypeDefinition
 import org.jetbrains.plugins.scala.lang.psi.api.{ScPackage, ScalaFile}
 
 package object move {
-
-  private val PROCESSOR = new ScalaCopyPastePostProcessor
-  private val ASSOCIATIONS_KEY: Key[Associations] = Key.create("ASSOCIATIONS")
 
   object MoveDestination {
 
@@ -25,38 +21,32 @@ package object move {
     }
   }
 
+  import util.ScalaChangeContextUtil._
+
   def collectAssociations(clazz: PsiClass,
                           file: ScalaFile,
                           withCompanion: Boolean): Unit =
     if (file.getContainingDirectory != MoveDestination(clazz)) {
       applyWithCompanionModule(clazz, withCompanion) { clazz =>
-        val range = clazz.getTextRange
-        val associations = PROCESSOR.collectTransferableData(
-          Array(range.getStartOffset),
-          Array(range.getEndOffset)
-        )(file, null)
-        clazz.putCopyableUserData(ASSOCIATIONS_KEY, associations.orNull)
+        AssociationsData(clazz) = collectDataForElement(clazz)
       }
     }
 
-  def restoreAssociations(@NotNull aClass: PsiClass): Unit =
+  def restoreAssociations(aClass: PsiClass): Unit =
     applyWithCompanionModule(aClass, moveCompanion) { clazz =>
-      Option(clazz.getCopyableUserData(ASSOCIATIONS_KEY)).foreach {
-        try {
-          PROCESSOR.restoreAssociations(_, clazz.getContainingFile, clazz.getTextRange.getStartOffset, clazz.getProject)
-        } finally {
-          clazz.putCopyableUserData(ASSOCIATIONS_KEY, null)
-        }
+      AssociationsData(clazz) match {
+        case null =>
+        case Associations(associations) =>
+          try {
+            processor.doRestoreAssociations(associations, clazz.getContainingFile, clazz.getTextRange.getStartOffset, clazz.getProject)(identity)
+          } finally {
+            AssociationsData(clazz) = null
+          }
+
       }
     }
 
-  def shiftAssociations(aClass: PsiClass, offsetChange: Int): Unit =
-    aClass.getCopyableUserData(ASSOCIATIONS_KEY) match {
-      case null =>
-      case as: Associations => as.associations.foreach(a => a.range = a.range.shiftRight(offsetChange))
-    }
-
-  def saveMoveDestination(@NotNull element: PsiElement, moveDestination: PsiDirectory): Unit = {
+  def saveMoveDestination(element: PsiElement, moveDestination: PsiDirectory): Unit = {
     val classes = element match {
       case c: PsiClass => Seq(c)
       case f: ScalaFile => f.typeDefinitions

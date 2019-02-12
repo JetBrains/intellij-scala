@@ -107,11 +107,11 @@ class ScalaCopyPastePostProcessor extends SingularCopyPastePostProcessor[Associa
   }
 
   def restoreAssociations(value: Associations, file: PsiFile, offset: Int, project: Project): Unit = {
-    doRestoreAssociations(value.associations, file, offset, project)(identity)
+    doRestoreAssociations(value.associations, file, offset, project)()
   }
 
-  private def doRestoreAssociations(associations: Seq[Association], file: PsiFile, offset: Int, project: Project)
-                                   (filter: Seq[Binding] => Seq[Binding]): Unit = {
+  def doRestoreAssociations(associations: Seq[Association], file: PsiFile, offset: Int, project: Project)
+                           (filter: Seq[Binding] => Seq[Binding] = identity): Unit = {
     def hasNonDefaultPackage(path: String) = path.lastIndexOf('.') match {
       case -1 => false
       case index => path.substring(0, index) match {
@@ -205,7 +205,7 @@ class ScalaCopyPastePostProcessor extends SingularCopyPastePostProcessor[Associa
          parent <- ref.parent if parent.getTextRange == range) yield parent
   }
 
-  private case class Binding(element: PsiElement, path: String) {
+  case class Binding(element: PsiElement, path: String) {
     def importsHolder: ScImportsHolder = ScalaImportTypeFix.getImportHolder(element, element.getProject)
   }
 

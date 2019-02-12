@@ -1,69 +1,80 @@
 package org.jetbrains.plugins.scala
 package lang.refactoring.util
 
-import com.intellij.openapi.util.{Key, TextRange}
+import com.intellij.openapi.util.Key
 import com.intellij.psi._
 import org.jetbrains.plugins.scala.conversion.copy.{Associations, ScalaCopyPastePostProcessor}
 
 /**
- * Nikolay.Tropin
- * 2014-05-27
- */
+  * Nikolay.Tropin
+  * 2014-05-27
+  */
 object ScalaChangeContextUtil {
 
-  private val ASSOCIATIONS_KEY: Key[Associations] = Key.create("ASSOCIATIONS")
-  private val MOVED_ELEMENT_KEY: Key[PsiElement] = Key.create("moved.element")
+  object AssociationsData {
+
+    private val key = Key.create[Associations]("ASSOCIATIONS")
+
+    def apply(element: PsiElement): Associations = element.getCopyableUserData(key)
+
+    def update(element: PsiElement, associations: Associations): Unit = {
+      element.putCopyableUserData(key, associations)
+    }
+  }
+
+  object MovedElementData {
+
+    private val key = Key.create[PsiElement]("moved.element")
+
+    def apply(element: PsiElement): PsiElement = element.getUserData(key)
+
+    def update(element: PsiElement, movedElement: PsiElement): Unit = {
+      element.putUserData(key, movedElement)
+    }
+  }
 
   val processor = new ScalaCopyPastePostProcessor
 
-  def encodeContextInfo(scope: Seq[PsiElement]) {
-    scope.foreach { elem =>
-      val associations = collectDataForElement(elem)
-      elem.putCopyableUserData(ASSOCIATIONS_KEY, associations)
-    }
-  }
-
-  def storeContextInfo(associations: Associations, element: PsiElement): Unit = {
-    element.putCopyableUserData(ASSOCIATIONS_KEY, associations)
-  }
-
-  def storeMovedMember(moved: PsiElement, target: PsiElement): Unit = {
-    target.putUserData(MOVED_ELEMENT_KEY, moved)
+  def encodeContextInfo(element: PsiElement): Unit = {
+    AssociationsData(element) = collectDataForElement(element)
   }
 
   def getMovedMember(target: PsiElement): PsiElement = {
-    val moved = target.getUserData(MOVED_ELEMENT_KEY)
-    target.putUserData(MOVED_ELEMENT_KEY, null)
+    val moved = MovedElementData(target)
+    MovedElementData(target) = null
     moved
   }
 
-  def decodeContextInfo(scope: Seq[PsiElement]): Unit = {
-    scope.foreach(restoreForElement)
+  def shiftAssociations(element: PsiElement, offsetChange: Int): Unit = AssociationsData(element) match {
+    case null =>
+    case Associations(associations) =>
+      associations.foreach { association =>
+        association.range = association.range.shiftRight(offsetChange)
+      }
   }
 
-  def shiftAssociations(elem: PsiElement, offsetChange: Int) {
-    elem.getCopyableUserData(ASSOCIATIONS_KEY) match {
-      case null =>
-      case as: Associations =>  as.associations.foreach(a => a.range = a.range.shiftRight(offsetChange))
+  def collectDataForElement(element: PsiElement): Associations = {
+    val range = element.getTextRange
+    processor.collectTransferableData(
+      Array(range.getStartOffset),
+      Array(range.getEndOffset)
+    )(element.getContainingFile, null)
+      .orNull
+  }
+
+  def restoreForElement(element: PsiElement) {
+    val movedElement = getMovedMember(element) match {
+      case null => element
+      case moved => moved
     }
-  }
+    val associations = AssociationsData(movedElement)
 
-  def collectDataForElement(elem: PsiElement): Associations = {
-    val range: TextRange = elem.getTextRange
-    val associations = processor.collectTransferableData(elem.getContainingFile, null,
-      Array[Int](range.getStartOffset), Array[Int](range.getEndOffset))
+    AssociationsData(movedElement) = null
 
-    if (associations.isEmpty) null else associations.get(0)
-  }
-
-  def restoreForElement(elem: PsiElement) {
-    val movedElement = Option(getMovedMember(elem)).getOrElse(elem)
-    val associations: Associations = movedElement.getCopyableUserData(ASSOCIATIONS_KEY)
-
-    movedElement.putCopyableUserData(ASSOCIATIONS_KEY, null)
-
-    if (associations != null) {
-      processor.restoreAssociations(associations, movedElement.getContainingFile, movedElement.getTextRange.getStartOffset, elem.getProject)
+    associations match {
+      case null =>
+      case Associations(associationsArray) =>
+        processor.doRestoreAssociations(associationsArray, movedElement.getContainingFile, movedElement.getTextRange.getStartOffset, element.getProject)()
     }
   }
 }
