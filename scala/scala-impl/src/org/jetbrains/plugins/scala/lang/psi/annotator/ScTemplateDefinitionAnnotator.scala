@@ -2,12 +2,15 @@ package org.jetbrains.plugins.scala.lang.psi.annotator
 
 import com.intellij.lang.annotation.AnnotationHolder
 import org.jetbrains.plugins.scala.ScalaBundle
-import org.jetbrains.plugins.scala.annotator.template.{collectSuperRefs, kindOf, superRefs}
+import org.jetbrains.plugins.scala.annotator.quickfix.ImplementMethodsQuickFix
+import org.jetbrains.plugins.scala.annotator.template.{collectSuperRefs, isAbstract, kindOf, superRefs}
 import org.jetbrains.plugins.scala.extensions._
+import org.jetbrains.plugins.scala.lang.psi.annotator.ScTemplateDefinitionAnnotator.objectCreationImpossibleMessage
 import org.jetbrains.plugins.scala.lang.psi.api.Annotatable
 import org.jetbrains.plugins.scala.lang.psi.api.expr.ScNewTemplateDefinition
-import org.jetbrains.plugins.scala.lang.psi.api.toplevel.typedef.ScTemplateDefinition
+import org.jetbrains.plugins.scala.lang.psi.api.toplevel.typedef.{ScObject, ScTemplateDefinition}
 import org.jetbrains.plugins.scala.lang.psi.types.ValueClassType
+import org.jetbrains.plugins.scala.overrideImplement.{ScalaOIUtil, ScalaTypedMember}
 
 trait ScTemplateDefinitionAnnotator extends Annotatable { self: ScTemplateDefinition =>
 
@@ -18,6 +21,7 @@ trait ScTemplateDefinitionAnnotator extends Annotatable { self: ScTemplateDefini
 
     if (typeAware) {
       annotateIllegalInheritance(holder)
+      annotateObjectCreationImpossible(holder)
     }
   }
 
@@ -56,4 +60,53 @@ trait ScTemplateDefinitionAnnotator extends Annotatable { self: ScTemplateDefini
         }
       }
   }
+
+  private def annotateObjectCreationImpossible(holder: AnnotationHolder) {
+    val isNew = isInstanceOf[ScNewTemplateDefinition]
+    val isObject = isInstanceOf[ScObject]
+
+    if (!isNew && !isObject) return
+
+    val refs = superRefs(this)
+
+    val hasAbstract = refs.exists {
+      case (_, clazz) => isAbstract(clazz)
+    }
+
+    if (hasAbstract) {
+      refs match {
+        case (defaultRange, _) :: _ =>
+          val undefined = for {
+            member <- ScalaOIUtil.getMembersToImplement(this)
+            if member.isInstanceOf[ScalaTypedMember] // See SCL-2887
+          } yield {
+            try {
+              (member.getText, member.getParentNodeDelegate.getText)
+            } catch {
+              case iae: IllegalArgumentException =>
+                throw new RuntimeException("member: " + member.getText, iae)
+            }
+          }
+
+          if (undefined.nonEmpty) {
+            val range = this match {
+              case _: ScNewTemplateDefinition => defaultRange
+              case scalaObject: ScObject => scalaObject.nameId.getTextRange
+            }
+
+            val annotation = holder.createErrorAnnotation(range, objectCreationImpossibleMessage(undefined.toSeq: _*))
+            annotation.registerFix(new ImplementMethodsQuickFix(this))
+          }
+        case _ =>
+      }
+    }
+  }
+}
+
+// TODO make package-private, or (even better), write messages in the test as they are
+object ScTemplateDefinitionAnnotator {
+  def objectCreationImpossibleMessage(members: (String, String)*): String =
+    s"Object creation impossible, since " + members.map {
+      case (first, second) => s" member $first in $second is not defined"
+    }.mkString("; ")
 }

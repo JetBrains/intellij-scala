@@ -1,12 +1,13 @@
 package org.jetbrains.plugins.scala.annotator.template
 
 import org.jetbrains.plugins.scala.annotator.{AnnotatorTestBase, Error}
+import org.jetbrains.plugins.scala.lang.psi.annotator.ScTemplateDefinitionAnnotator._
 
 /**
  * Pavel Fatin
  */
 
-class ObjectCreationImpossibleTest extends AnnotatorTestBase(ObjectCreationImpossible) {
+class ObjectCreationImpossibleTest extends AnnotatorTestBase {
   def testFineNew() {
     assertNothing(messages("class C; new C"))
     assertNothing(messages("class C; new C {}"))
@@ -26,7 +27,9 @@ class ObjectCreationImpossibleTest extends AnnotatorTestBase(ObjectCreationImpos
   }
 
   def testSkipAbstractInstantiations() {
-    assertNothing(messages("trait T; new T"))
+    assertMatches(messages("trait T; new T")) {
+      case Error("T", "Trait 'T' is abstract; cannot be instantiated") :: Nil =>
+    }
   }
 
   def testSkipConcrete() {
@@ -43,7 +46,7 @@ class ObjectCreationImpossibleTest extends AnnotatorTestBase(ObjectCreationImpos
   }
 
   def testUndefinedMember() {
-    val Message = ObjectCreationImpossible.message(("f: Unit", "Holder.T"))
+    val Message = objectCreationImpossibleMessage(("f: Unit", "Holder.T"))
 
     assertMatches(messages("trait T { def f }; new T {}")) {
       case Error("T", Message) :: Nil =>
@@ -51,7 +54,7 @@ class ObjectCreationImpossibleTest extends AnnotatorTestBase(ObjectCreationImpos
   }
 
   def testUndefinedMemberObject() {
-    val Message = ObjectCreationImpossible.message(("f: Unit", "Holder.T"))
+    val Message = objectCreationImpossibleMessage(("f: Unit", "Holder.T"))
 
     assertMatches(messages("trait T { def f }; object O extends T {}")) {
       case Error("O", Message) :: Nil =>
@@ -59,7 +62,7 @@ class ObjectCreationImpossibleTest extends AnnotatorTestBase(ObjectCreationImpos
   }
 
   def testUndefinedAndWith(){
-    val Message = ObjectCreationImpossible.message(("f: Unit", "Holder.T"))
+    val Message = objectCreationImpossibleMessage(("f: Unit", "Holder.T"))
 
     assertMatches(messages("trait T { def f }; new Object with T {}")) {
       case Error("Object", Message) :: Nil =>
@@ -67,9 +70,9 @@ class ObjectCreationImpossibleTest extends AnnotatorTestBase(ObjectCreationImpos
   }
 
   def testNeedsToBeAbstractPlaceDiffer() {
-    val Message = ObjectCreationImpossible.message(
+    val Message = objectCreationImpossibleMessage(
       ("b: Unit", "Holder.B"), ("a: Unit", "Holder.A"))
-    val ReversedMessage = ObjectCreationImpossible.message(
+    val ReversedMessage = objectCreationImpossibleMessage(
       ("a: Unit", "Holder.A"), ("b: Unit", "Holder.B"))
 
     assertMatches(messages("trait A { def a }; trait B { def b }; new A with B {}")) {
