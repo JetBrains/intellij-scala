@@ -5,7 +5,7 @@ package template
 /**
  * Pavel Fatin
  */
-class AbstractInstantiationTest extends AnnotatorTestBase() {
+class AbstractInstantiationTest extends AnnotatorTestBase {
 
   def testOrdinaryClass(): Unit = {
     assertNothing(messages("class C; new C"))
