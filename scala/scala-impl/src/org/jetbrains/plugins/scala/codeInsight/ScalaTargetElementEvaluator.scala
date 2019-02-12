@@ -1,12 +1,13 @@
 package org.jetbrains.plugins.scala
 package codeInsight
 
-import com.intellij.codeInsight.TargetElementEvaluatorEx
+import com.intellij.codeInsight.{TargetElementEvaluatorEx, TargetElementEvaluatorEx2}
 import com.intellij.psi._
 import org.jetbrains.plugins.scala.lang.lexer.ScalaTokenTypes
 import org.jetbrains.plugins.scala.lang.psi.ScalaPsiUtil.nameContext
 import org.jetbrains.plugins.scala.lang.psi.api.base.patterns.{ScBindingPattern, ScReferencePattern}
 import org.jetbrains.plugins.scala.lang.psi.api.base.{ScReference, ScStableCodeReference}
+import org.jetbrains.plugins.scala.lang.psi.api.expr.ScNewTemplateDefinition
 import org.jetbrains.plugins.scala.lang.psi.api.statements.params.ScParameter
 import org.jetbrains.plugins.scala.lang.psi.api.statements.{ScFunctionDefinition, ScVariable}
 import org.jetbrains.plugins.scala.lang.psi.api.toplevel.typedef.{ScClass, ScObject}
@@ -18,9 +19,7 @@ import org.jetbrains.plugins.scala.lang.resolve.ScalaResolveResult
  * Nikolay.Tropin
  * 9/2/13
  */
-class ScalaTargetElementEvaluator extends TargetElementEvaluatorEx {
-
-  def includeSelfInGotoImplementation(element: PsiElement): Boolean = true
+class ScalaTargetElementEvaluator extends TargetElementEvaluatorEx2 with TargetElementEvaluatorEx {
 
   override def getElementByReference(ref: PsiReference, flags: Int): PsiElement = ref.getElement match {
     case isUnapplyFromVal(binding) => binding
@@ -28,6 +27,11 @@ class ScalaTargetElementEvaluator extends TargetElementEvaluatorEx {
     case isVarSetterFakeMethod(refPattern) => refPattern
     case isVarSetterWrapper(refPattern) => refPattern
     case _ => null
+  }
+
+  override def isAcceptableNamedParent(parent: PsiElement): Boolean = parent match {
+    case _: ScNewTemplateDefinition => false
+    case _ => true
   }
 
   private object isUnapplyFromVal {
