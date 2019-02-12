@@ -107,9 +107,14 @@ public abstract class FileSetTestCase extends TestSuite {
 
     @Override
     protected void setUp() throws Exception {
-      super.setUp();
-      FileSetTestCase.this.setUp(getProject());
-      TestUtils.disableTimerThread();
+      try {
+        super.setUp();
+        FileSetTestCase.this.setUp(getProject());
+        TestUtils.disableTimerThread();
+      } catch (Exception x) {
+        tearDown();
+        throw x;
+      }
     }
 
     protected void tearDown() throws Exception {
