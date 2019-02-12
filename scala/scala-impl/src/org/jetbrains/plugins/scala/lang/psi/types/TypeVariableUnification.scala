@@ -13,29 +13,7 @@ import org.jetbrains.plugins.scala.project._
   * and related kind-checking infrastructure.
   */
 trait TypeVariableUnification { self: ScalaConformance with ProjectContextOwner =>
-  @scala.annotation.tailrec
-  protected final def extractTypeParameters(tpe: ScType): Seq[TypeParameter] = tpe match {
-    case ParameterizedType(des, _)         => extractTypeParameters(des)
-    case Aliased(AliasType(alias, _, _))   => alias.typeParameters.map(TypeParameter(_))
-    case ScAbstractType(tp, _, _)          => tp.typeParameters
-    case ScTypePolymorphicType(_, tparams) => tparams
-    case UndefinedOrWildcard(tparam, _)    => tparam.typeParameters
-    case tpt: TypeParameterType            => tpt.typeParameters
-    case other =>
-      other.extractClass.fold(Seq.empty[TypeParameter])(_.getTypeParameters.map(TypeParameter(_)))
-  }
-
-  protected def unifiableKinds(lhs: ScType, rhs: ScType): Boolean =  {
-    val lhsParams = extractTypeParameters(lhs)
-    val rhsParams = extractTypeParameters(rhs)
-    unifiableKinds(lhsParams, rhsParams)
-  }
-
-  protected def unifiableKinds(lhsParams: Seq[TypeParameter], rhsParams: Seq[TypeParameter]): Boolean = {
-    lhsParams.size == rhsParams.size && lhsParams.zip(rhsParams).forall {
-      case (l, r) => unifiableKinds(l.typeParameters, r.typeParameters)
-    }
-  }
+  import TypeVariableUnification._
 
   /**
     * Performs subtyping check of the form:
@@ -169,4 +147,30 @@ trait TypeVariableUnification { self: ScalaConformance with ProjectContextOwner 
         }
         case unified => unified
       }
+}
+
+object TypeVariableUnification {
+ @scala.annotation.tailrec
+  private final def extractTypeParameters(tpe: ScType): Seq[TypeParameter] = tpe match {
+    case ParameterizedType(des, _)         => extractTypeParameters(des)
+    case Aliased(AliasType(alias, _, _))   => alias.typeParameters.map(TypeParameter(_))
+    case ScAbstractType(tp, _, _)          => tp.typeParameters
+    case ScTypePolymorphicType(_, tparams) => tparams
+    case UndefinedOrWildcard(tparam, _)    => tparam.typeParameters
+    case tpt: TypeParameterType            => tpt.typeParameters
+    case other =>
+      other.extractClass.fold(Seq.empty[TypeParameter])(_.getTypeParameters.map(TypeParameter(_)))
+  }
+
+  private[psi] def unifiableKinds(lhs: ScType, rhs: ScType): Boolean =  {
+    val lhsParams = extractTypeParameters(lhs)
+    val rhsParams = extractTypeParameters(rhs)
+    unifiableKinds(lhsParams, rhsParams)
+  }
+
+  private[psi] def unifiableKinds(lhsParams: Seq[TypeParameter], rhsParams: Seq[TypeParameter]): Boolean = {
+    lhsParams.size == rhsParams.size && lhsParams.zip(rhsParams).forall {
+      case (l, r) => unifiableKinds(l.typeParameters, r.typeParameters)
+    }
+  }
 }

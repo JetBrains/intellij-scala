@@ -2,17 +2,16 @@ package org.jetbrains.plugins.scala
 package lang.psi.api
 
 import com.intellij.openapi.diagnostic.Logger
-import com.intellij.psi.{PsiElement, PsiNamedElement, PsiTypeParameterListOwner}
+import com.intellij.psi.PsiElement
 import org.jetbrains.plugins.scala.extensions._
 import org.jetbrains.plugins.scala.lang.macros.evaluator.{MacroContext, ScalaMacroEvaluator}
-import org.jetbrains.plugins.scala.lang.psi.{ElementScope, ScalaPsiUtil}
 import org.jetbrains.plugins.scala.lang.psi.api.base.patterns.ScBindingPattern
 import org.jetbrains.plugins.scala.lang.psi.api.base.{ScFieldId, ScLiteral}
 import org.jetbrains.plugins.scala.lang.psi.api.expr.{MethodInvocation, ScExpression}
 import org.jetbrains.plugins.scala.lang.psi.api.statements.ScFunction
 import org.jetbrains.plugins.scala.lang.psi.api.statements.params.{ScParameter, ScTypeParam, TypeParamIdOwner}
 import org.jetbrains.plugins.scala.lang.psi.api.toplevel.typedef.ScObject
-import org.jetbrains.plugins.scala.lang.psi.api.toplevel.{ScNamedElement, ScTypeParametersOwner, ScTypedDefinition}
+import org.jetbrains.plugins.scala.lang.psi.api.toplevel.{ScNamedElement, ScTypedDefinition}
 import org.jetbrains.plugins.scala.lang.psi.impl.ScalaPsiElementFactory.{createExpressionWithContextFromText, createParameterFromText}
 import org.jetbrains.plugins.scala.lang.psi.implicits.ImplicitCollector.ImplicitState
 import org.jetbrains.plugins.scala.lang.psi.implicits.{ImplicitCollector, ImplicitsRecursionGuard}
@@ -24,6 +23,7 @@ import org.jetbrains.plugins.scala.lang.psi.types.api.designator.{ScDesignatorTy
 import org.jetbrains.plugins.scala.lang.psi.types.nonvalue.{Parameter, ScMethodType, ScTypePolymorphicType}
 import org.jetbrains.plugins.scala.lang.psi.types.recursiveUpdate.ScSubstitutor
 import org.jetbrains.plugins.scala.lang.psi.types.result.Typeable
+import org.jetbrains.plugins.scala.lang.psi.{ElementScope, ScalaPsiUtil}
 import org.jetbrains.plugins.scala.lang.resolve.ScalaResolveResult
 import org.jetbrains.plugins.scala.project._
 
@@ -557,67 +557,34 @@ object InferUtil {
 
             val newConstraints = typeParams.foldLeft(constraints)(addConstraints)
 
-            def updateWithSubst(sub: ScSubstitutor) = ScTypePolymorphicType(
+            def updateWithSubst(sub: ScSubstitutor): ScTypePolymorphicType = ScTypePolymorphicType(
               sub(retType),
               typeParams.filter { tp =>
                 val removeMe = newConstraints.isApplicable(tp.typeParamId)
 
                 if (removeMe && canThrowSCE) {
-                  //let's check type parameter kinds
-                  def checkTypeParam(typeParam: ScTypeParam, tp: => ScType): Boolean = {
-                    val typeParams: Seq[ScTypeParam] = typeParam.typeParameters
-                    if (typeParams.isEmpty) return true
-                    if (tp.isAny) return true
-                    tp match {
-                      case ScTypePolymorphicType(_, parameters) => // partial unification case
-                        val sameKind = parameters.length == typeParams.length
-                        sameKind && parameters.zip(typeParams).forall {
-                          case (tp: TypeParameter, typeParam: ScTypeParam) => checkTypeParam(typeParam, TypeParameterType(tp))
-                        }
-                      case ParameterizedType(_, typeArgs) =>
-                        if (typeArgs.length != typeParams.length) return false
-                        typeArgs.zip(typeParams).forall {
-                          case (tp: ScType, typeParam: ScTypeParam) => checkTypeParam(typeParam, tp)
-                        }
-                      case _ =>
-                        def checkNamed(named: PsiNamedElement, typeParams: Seq[ScTypeParam]): Boolean = {
-                          named match {
-                            case t: ScTypeParametersOwner =>
-                              if (typeParams.length != t.typeParameters.length) return false
-                              typeParams.zip(t.typeParameters).forall {
-                                case (p1: ScTypeParam, p2: ScTypeParam) =>
-                                  if (p1.typeParameters.nonEmpty) checkNamed(p2, p1.typeParameters)
-                                  else true
-                              }
-                            case p: PsiTypeParameterListOwner =>
-                              if (typeParams.length != p.getTypeParameters.length) return false
-                              typeParams.forall(_.typeParameters.isEmpty)
-                            case _ => false
-                          }
-                        }
-
-                        tp.extractDesignated(expandAliases = false).exists(checkNamed(_, typeParams))
-                    }
-                  }
-
                   tp.psiTypeParameter match {
                     case typeParam: ScTypeParam =>
-                      val substituted = sub(TypeParameterType(typeParam))
-                      if (!checkTypeParam(typeParam, substituted))
-                        throw new SafeCheckException
-                    case _ =>
+                      val tpt     = TypeParameterType(typeParam)
+                      val substed = sub(tpt)
+
+                      val kindsMatch =
+                        tpt.typeParameters.isEmpty ||
+                          substed.isAny ||
+                          TypeVariableUnification.unifiableKinds(tpt, substed)
+
+                      if (!kindsMatch) throw new SafeCheckException
+                    case _ => ()
                   }
                 }
                 !removeMe
-              }.map {
-                _.update(sub)
-              }
+              }.map(_.update(sub))
             )
 
             newConstraints match {
               case ConstraintSystem(substitutor) => updateWithSubst(substitutor)
-              case _ if !canThrowSCE => updateWithSubst(unSubst)
-              case _ => throw new SafeCheckException
+              case _ if !canThrowSCE             => updateWithSubst(unSubst)
+              case _                             => throw new SafeCheckException
             }
           }
         case None => throw new SafeCheckException

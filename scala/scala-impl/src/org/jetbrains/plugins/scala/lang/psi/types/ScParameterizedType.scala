@@ -122,9 +122,9 @@ final class ScParameterizedType private(val designator: ScType, val typeArgument
             }).equiv(r, constraints, falseUndef)
           case _ => ConstraintsResult.Left
         }
-      case (ParameterizedType(UndefinedType(_, _), _), rhs @ ParameterizedType(_, _)) =>
+      case (ParameterizedType(UndefinedType(_, _), _), rhs @ ParameterizedType(_, _)) if !falseUndef =>
         Conformance.unifyHK(this, rhs, constraints, Bound.Equivalence, Set.empty, checkWeak = false)
-      case (ParameterizedType(_, _), rhs @ ParameterizedType(UndefinedType(_, _), _)) =>
+      case (ParameterizedType(_, _), rhs @ ParameterizedType(UndefinedType(_, _), _)) if !falseUndef =>
         Conformance.unifyHK(rhs, this, constraints, Bound.Equivalence, Set.empty, checkWeak = false)
       case (ParameterizedType(_, _), ParameterizedType(designator1, typeArgs1)) =>
         var lastConstraints = constraints

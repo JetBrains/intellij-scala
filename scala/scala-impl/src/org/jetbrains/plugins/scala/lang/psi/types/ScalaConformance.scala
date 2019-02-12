@@ -831,6 +831,9 @@ trait ScalaConformance extends api.Conformance with TypeVariableUnification {
       r.visitType(rightVisitor)
       if (result != null) return
 
+      checkEquiv()
+      if (result ne null) return
+
       rightVisitor = new ExistentialSimplification with ExistentialArgumentVisitor {}
       r.visitType(rightVisitor)
       if (result != null) return
@@ -919,7 +922,7 @@ trait ScalaConformance extends api.Conformance with TypeVariableUnification {
                 }
               } else result = retryTypeParamsConformance(lhs, rhs, l, r, constraints)
             case (UndefinedOrWildcard(_, _), UndefinedOrWildcard(typeParameter, addBound)) =>
-              if (unifiableKinds(p, p2)) {
+              if (TypeVariableUnification.unifiableKinds(p, p2)) {
                 if (addBound) constraints = constraints.withUpper(typeParameter.typeParamId, des1)
 
                 result = checkParameterizedType(
