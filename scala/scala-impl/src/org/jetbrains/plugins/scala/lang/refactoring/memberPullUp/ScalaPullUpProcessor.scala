@@ -80,7 +80,7 @@ final class ScalaPullUpProcessor(project: Project,
           case null => definition
           case moved => moved
         }
-      } restoreAssociations(movedElement)
+      } Associations.restoreFor(movedElement)
     }
 
     for (tb <- sourceClass.extendsBlock.templateBody if tb.members.isEmpty) {
@@ -112,7 +112,7 @@ final class ScalaPullUpProcessor(project: Project,
         val copy = m.copy().asInstanceOf[ScMember]
         copy.setModifierProperty("override", value = false)
         val shift = "override ".length
-        ScalaChangeContextUtil.shiftAssociations(copy, -shift)
+        Associations.shiftFor(copy, -shift)
         Seq(copy)
       case _ => Seq(info.getMember.copy().asInstanceOf[ScMember])
     }

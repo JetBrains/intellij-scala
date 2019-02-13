@@ -20,19 +20,15 @@ package object move {
     }
   }
 
-  import util.{ScalaChangeContextUtil => Util}
-
   def collectAssociations(clazz: PsiClass,
                           file: ScalaFile,
                           withCompanion: Boolean): Unit =
     if (file.getContainingDirectory != MoveDestination(clazz)) {
-      applyWithCompanionModule(clazz, withCompanion) { clazz =>
-        Util.AssociationsData(clazz) = Util.collectDataForElement(clazz)
-      }
+      applyWithCompanionModule(clazz, withCompanion)(util.ScalaChangeContextUtil.encodeContextInfo)
     }
 
   def restoreAssociations(clazz: PsiClass): Unit =
-    applyWithCompanionModule(clazz, moveCompanion)(Util.restoreAssociations)
+    applyWithCompanionModule(clazz, moveCompanion)(Associations.restoreFor)
 
   def saveMoveDestination(element: PsiElement, moveDestination: PsiDirectory): Unit = {
     val classes = element match {

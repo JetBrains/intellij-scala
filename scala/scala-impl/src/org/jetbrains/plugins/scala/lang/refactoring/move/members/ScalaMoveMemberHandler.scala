@@ -124,7 +124,7 @@ final class ScalaMoveMemberHandler extends MoveJavaMemberHandler {
 
     val movedMember = targetClass.add(memberCopy)
 
-    AssociationsData(movedMember) = associations
+    Associations.Data(movedMember) = associations
     MovedElementData(targetClass) = movedMember
 
     scMember.delete()
@@ -134,7 +134,7 @@ final class ScalaMoveMemberHandler extends MoveJavaMemberHandler {
 
   override def decodeContextInfo(targetClass: PsiElement): Unit = {
     val movedElement = movedMember(targetClass)
-    restoreAssociations(movedElement)
+    Associations.restoreFor(movedElement)
   }
 
 }
