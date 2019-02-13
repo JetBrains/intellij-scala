@@ -5,7 +5,7 @@ package template
 /**
  * Pavel Fatin
  */
-class UndefinedMemberTest extends AnnotatorTestBase(UndefinedMember) {
+class UndefinedMemberTest extends AnnotatorTestBase {
 
   def testValidHolders(): Unit = {
     assertNothing(messages("class C { def f }"))

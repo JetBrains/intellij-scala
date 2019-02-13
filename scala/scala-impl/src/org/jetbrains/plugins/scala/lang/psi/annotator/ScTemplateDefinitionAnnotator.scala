@@ -7,7 +7,9 @@ import org.jetbrains.plugins.scala.annotator.template._
 import org.jetbrains.plugins.scala.extensions._
 import org.jetbrains.plugins.scala.lang.psi.annotator.ScTemplateDefinitionAnnotator.objectCreationImpossibleMessage
 import org.jetbrains.plugins.scala.lang.psi.api.Annotatable
+import org.jetbrains.plugins.scala.lang.psi.api.base.ScAnnotationsHolder
 import org.jetbrains.plugins.scala.lang.psi.api.expr.ScNewTemplateDefinition
+import org.jetbrains.plugins.scala.lang.psi.api.statements.{ScDeclaration, ScTypeAliasDeclaration}
 import org.jetbrains.plugins.scala.lang.psi.api.toplevel.typedef.{ScObject, ScTemplateDefinition}
 import org.jetbrains.plugins.scala.lang.psi.types.ValueClassType
 import org.jetbrains.plugins.scala.overrideImplement.{ScalaOIUtil, ScalaTypedMember}
@@ -20,6 +22,7 @@ trait ScTemplateDefinitionAnnotator extends Annotatable { self: ScTemplateDefini
     annotateFinalClassInheritance(holder)
     annotateMultipleInheritance(holder)
     annotateNeedsToBeTrait(holder)
+    annotateUndefinedMember(holder)
 
     if (typeAware) {
       annotateIllegalInheritance(holder)
@@ -126,6 +129,24 @@ trait ScTemplateDefinitionAnnotator extends Annotatable { self: ScTemplateDefini
           holder.createErrorAnnotation(range, message)
       }
     case _ =>
+  }
+
+  private def annotateUndefinedMember(holder: AnnotationHolder): Unit = {
+    val isNew = isInstanceOf[ScNewTemplateDefinition]
+    val isObject = isInstanceOf[ScObject]
+
+    if (!isNew && !isObject) return
+
+    physicalExtendsBlock.members.foreach {
+      case _: ScTypeAliasDeclaration => // abstract type declarations are allowed
+      case declaration: ScDeclaration =>
+        val isNative = declaration match {
+          case a: ScAnnotationsHolder => a.hasAnnotation("scala.native")
+          case _ => false
+        }
+        if (!isNative) holder.createErrorAnnotation(declaration, ScalaBundle.message("illegal.undefined.member"))
+      case _ =>
+    }
   }
 }
 

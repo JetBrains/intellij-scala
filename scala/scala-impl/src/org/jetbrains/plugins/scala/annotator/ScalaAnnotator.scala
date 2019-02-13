@@ -815,7 +815,6 @@ object ScalaAnnotator {
     NeedsToBeAbstract,
     NeedsToBeMixin,
     SealedClassInheritance,
-    UndefinedMember
   )
 
   def forProject(implicit ctx: ProjectContext): ScalaAnnotator = new ScalaAnnotator {
