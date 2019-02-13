@@ -234,7 +234,7 @@ class DependencyTest extends base.SimpleTestCase {
     val file = parseText(code)
 
     val descriptors = conversion.copy.ScalaCopyPastePostProcessor
-      .collectAssociations(file.getTextRange)(file)
+      .collectAssociationsForRange(file.getTextRange)(file)
       .map(_.path.asString())
       .toSet
 

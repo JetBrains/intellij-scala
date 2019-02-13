@@ -14,7 +14,7 @@ import com.intellij.psi._
 import com.intellij.psi.util.PsiTreeUtil
 import org.jetbrains.plugins.scala.annotator.intention.ScalaImportTypeFix
 import org.jetbrains.plugins.scala.extensions.{PsiElementExt, _}
-import org.jetbrains.plugins.scala.lang.dependency.Dependency
+import org.jetbrains.plugins.scala.lang.dependency.{Dependency, Path}
 import org.jetbrains.plugins.scala.lang.psi.ScImportsHolder
 import org.jetbrains.plugins.scala.lang.psi.api.ScalaFile
 import org.jetbrains.plugins.scala.lang.psi.api.base.ScReference
@@ -36,8 +36,6 @@ class ScalaCopyPastePostProcessor extends SingularCopyPastePostProcessor[Associa
 
   import ScalaCopyPastePostProcessor._
 
-  private val Log = Logger.getInstance(getClass)
-
   override def collectTransferableData(startOffsets: Array[Int], endOffsets: Array[Int])
                                       (implicit file: PsiFile,
                                        editor: Editor): Option[Associations] = file match {
@@ -48,36 +46,7 @@ class ScalaCopyPastePostProcessor extends SingularCopyPastePostProcessor[Associa
         case (startOffset, endOffset) => TextRange.create(startOffset, endOffset)
       }
 
-      implicit val psiFile: ScalaFile = scalaFile
-
-      val buffer = mutable.ArrayBuffer.empty[Association]
-      var result: Associations = null
-      try {
-        ProgressManager.getInstance().runProcess(
-          (() => {
-            for {
-              range <- ranges
-              association <- collectAssociations(range)
-            } buffer += association
-          }): Runnable,
-          new ProgressIndicator
-        )
-      } catch {
-        case _: ProcessCanceledException =>
-          Log.warn(
-            s"""Time-out while collecting dependencies in ${scalaFile.getName}:
-               |${subText(ranges.head)}""".stripMargin
-          )
-        case e: Exception =>
-          val attachments = ranges.zipWithIndex.map {
-            case (range, index) => new Attachment(s"Selection-${index + 1}.scala", subText(range))
-          }
-          Log.error(e.getMessage, e, attachments: _*)
-      } finally {
-        result = Associations(buffer.toArray)
-      }
-
-      Option(result)
+      Option(collectAssociations(ranges: _*)(scalaFile))
     case _ => None
   }
 
@@ -113,6 +82,8 @@ class ScalaCopyPastePostProcessor extends SingularCopyPastePostProcessor[Associa
 
 object ScalaCopyPastePostProcessor {
 
+  private val Log = Logger.getInstance(getClass)
+
   def doRestoreAssociations(associations: Seq[Association], offset: Int)
                            (filter: Seq[Binding] => Seq[Binding])
                            (implicit project: Project,
@@ -129,8 +100,7 @@ object ScalaCopyPastePostProcessor {
 
     val bindings = for {
       association <- associations
-      element <- elementFor(association, file, offset)
-      if !association.isSatisfiedIn(element)
+      element <- elementFor(association, offset)
 
       path = association.path.asString()
       if hasNonDefaultPackage(path)
@@ -153,8 +123,40 @@ object ScalaCopyPastePostProcessor {
     }
   }
 
-  def collectAssociations(range: TextRange)
-                         (implicit file: ScalaFile): Iterable[Association] = {
+  def collectAssociations(ranges: TextRange*)
+                         (implicit file: ScalaFile): Associations = {
+    val buffer = mutable.ArrayBuffer.empty[Association]
+    var result: Associations = null
+    try {
+      ProgressManager.getInstance().runProcess(
+        (() => {
+          for {
+            range <- ranges
+            association <- collectAssociationsForRange(range)
+          } buffer += association
+        }): Runnable,
+        new ProgressIndicator
+      )
+    } catch {
+      case _: ProcessCanceledException =>
+        Log.warn(
+          s"""Time-out while collecting dependencies in ${file.getName}:
+             |${subText(ranges.head)}""".stripMargin
+        )
+      case e: Exception =>
+        val attachments = ranges.zipWithIndex.map {
+          case (range, index) => new Attachment(s"Selection-${index + 1}.scala", subText(range))
+        }
+        Log.error(e.getMessage, e, attachments: _*)
+    } finally {
+      result = Associations(buffer.toArray)
+    }
+
+    result
+  }
+
+  def collectAssociationsForRange(range: TextRange)
+                                 (implicit file: ScalaFile): Iterable[Association] = {
     def scopeEstimate(e: PsiElement): Option[PsiElement] = {
       e.parentsInFile
         .flatMap(_.prevSiblings)
@@ -201,11 +203,28 @@ object ScalaCopyPastePostProcessor {
   }
 
 
-  private def elementFor(dependency: Association, file: PsiFile, offset: Int): Option[PsiElement] = {
-    val range = dependency.range.shiftRight(offset)
+  private def elementFor(association: Association, offset: Int)
+                        (implicit file: PsiFile): Option[PsiElement] = {
+    val Association(path, range) = association
+    val shiftedRange = range.shiftRight(offset)
 
-    for (ref <- Option(file.findElementAt(range.getStartOffset));
-         parent <- ref.parent if parent.getTextRange == range) yield parent
+    for {
+      ref <- Option(file.findElementAt(shiftedRange.getStartOffset))
+
+      parent <- ref.parent
+      if parent.getTextRange == shiftedRange
+
+      if !isSatisfiedIn(parent, path)
+    } yield parent
+  }
+
+  private def isSatisfiedIn(element: PsiElement, path: Path): Boolean = element match {
+    case reference: ScReference =>
+      Dependency.dependencyFor(reference).exists {
+        case Dependency(_, `path`) => true
+        case _ => false
+      }
+    case _ => false
   }
 
   case class Binding(element: PsiElement, path: String) {

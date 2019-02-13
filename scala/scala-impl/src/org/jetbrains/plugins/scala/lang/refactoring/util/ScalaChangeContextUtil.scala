@@ -3,9 +3,11 @@ package lang
 package refactoring
 package util
 
+import com.intellij.openapi.project.DumbService
 import com.intellij.openapi.util.Key
 import com.intellij.psi._
 import org.jetbrains.plugins.scala.conversion.copy.{Associations, ScalaCopyPastePostProcessor}
+import org.jetbrains.plugins.scala.lang.psi.api.ScalaFile
 
 /**
   * Nikolay.Tropin
@@ -35,8 +37,6 @@ object ScalaChangeContextUtil {
     }
   }
 
-  private val processor = new ScalaCopyPastePostProcessor
-
   def encodeContextInfo(element: PsiElement): Unit = {
     AssociationsData(element) = collectDataForElement(element)
   }
@@ -55,12 +55,13 @@ object ScalaChangeContextUtil {
       }
   }
 
-  def collectDataForElement(element: PsiElement): Associations = {
-    val range = element.getTextRange
-    processor.collectTransferableData(
-      Array(range.getStartOffset),
-      Array(range.getEndOffset)
-    )(element.getContainingFile, null).orNull
+  def collectDataForElement(element: PsiElement): Associations = element.getContainingFile match {
+    case scalaFile: ScalaFile if !DumbService.getInstance(scalaFile.getProject).isDumb =>
+      element.getTextRange match {
+        case range if range.getStartOffset == 0 => null
+        case range => ScalaCopyPastePostProcessor.collectAssociations(range)(scalaFile)
+      }
+    case _ => null
   }
 
   def restoreAssociations(movedElement: PsiElement): Unit =
