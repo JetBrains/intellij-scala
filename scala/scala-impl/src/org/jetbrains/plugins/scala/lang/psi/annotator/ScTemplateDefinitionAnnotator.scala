@@ -2,11 +2,12 @@ package org.jetbrains.plugins.scala.lang.psi.annotator
 
 import com.intellij.lang.annotation.AnnotationHolder
 import org.jetbrains.plugins.scala.ScalaBundle
+import org.jetbrains.plugins.scala.annotator.AnnotatorUtils.ErrorAnnotationMessage
 import org.jetbrains.plugins.scala.annotator.quickfix.ImplementMethodsQuickFix
 import org.jetbrains.plugins.scala.annotator.template._
 import org.jetbrains.plugins.scala.extensions._
 import org.jetbrains.plugins.scala.lang.psi.annotator.ScTemplateDefinitionAnnotator.objectCreationImpossibleMessage
-import org.jetbrains.plugins.scala.lang.psi.api.Annotatable
+import org.jetbrains.plugins.scala.lang.psi.api.{Annotatable, ScalaFile}
 import org.jetbrains.plugins.scala.lang.psi.api.base.ScAnnotationsHolder
 import org.jetbrains.plugins.scala.lang.psi.api.expr.ScNewTemplateDefinition
 import org.jetbrains.plugins.scala.lang.psi.api.statements.{ScDeclaration, ScTypeAliasDeclaration}
@@ -23,6 +24,7 @@ trait ScTemplateDefinitionAnnotator extends Annotatable { self: ScTemplateDefini
     annotateMultipleInheritance(holder)
     annotateNeedsToBeTrait(holder)
     annotateUndefinedMember(holder)
+    annotateSealedclassInheritance(holder)
 
     if (typeAware) {
       annotateIllegalInheritance(holder)
@@ -147,6 +149,26 @@ trait ScTemplateDefinitionAnnotator extends Annotatable { self: ScTemplateDefini
         if (!isNative) holder.createErrorAnnotation(declaration, ScalaBundle.message("illegal.undefined.member"))
       case _ =>
     }
+  }
+
+  // TODO test
+  private def annotateSealedclassInheritance(holder: AnnotationHolder): Unit = getContainingFile match {
+    case file: ScalaFile if !file.isCompiled =>
+      val references = this match {
+        case templateDefinition: ScNewTemplateDefinition if templateDefinition.extendsBlock.templateBody.isEmpty => Nil
+        case _ => superRefs(this)
+      }
+      val fileNavigationElement = file.getNavigationElement
+
+      references.collect {
+        case (range, definition@ErrorAnnotationMessage(message))
+          if definition.getContainingFile.getNavigationElement != fileNavigationElement =>
+          (range, message)
+      }.foreach {
+        case (range, message) =>
+          holder.createErrorAnnotation(range, message)
+      }
+    case _ =>
   }
 }
 

@@ -814,7 +814,6 @@ object ScalaAnnotator {
   private val AnnotatorParts: Seq[TemplateDefinitionAnnotatorPart] = Seq(
     NeedsToBeAbstract,
     NeedsToBeMixin,
-    SealedClassInheritance,
   )
 
   def forProject(implicit ctx: ProjectContext): ScalaAnnotator = new ScalaAnnotator {

@@ -4,6 +4,7 @@ package template
 
 import com.intellij.lang.annotation.{AnnotationHolder, Annotator}
 import com.intellij.psi.{PsiAnonymousClass, PsiElement, PsiJavaCodeReferenceElement, PsiReferenceList}
+import org.jetbrains.plugins.scala.annotator.AnnotatorUtils.ErrorAnnotationMessage
 import org.jetbrains.plugins.scala.extensions._
 
 final class SealedJavaInheritance extends Annotator {
@@ -22,8 +23,6 @@ object SealedJavaInheritance {
     case clazz: PsiAnonymousClass                            => annotateReferences(clazz.getBaseClassReference)
     case _                                                   => ()
   }
-
-  import SealedClassInheritance.ErrorAnnotationMessage
 
   private[this] def annotateReferences(references: PsiJavaCodeReferenceElement*)
                                       (implicit holder: AnnotationHolder): Unit =
