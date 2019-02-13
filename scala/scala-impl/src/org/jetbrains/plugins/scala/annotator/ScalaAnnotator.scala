@@ -814,7 +814,6 @@ object ScalaAnnotator {
   private val AnnotatorParts: Seq[TemplateDefinitionAnnotatorPart] = Seq(
     NeedsToBeAbstract,
     NeedsToBeMixin,
-    NeedsToBeTrait,
     SealedClassInheritance,
     UndefinedMember
   )

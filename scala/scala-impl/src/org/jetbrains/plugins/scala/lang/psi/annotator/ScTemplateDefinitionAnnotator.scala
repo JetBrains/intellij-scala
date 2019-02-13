@@ -19,6 +19,7 @@ trait ScTemplateDefinitionAnnotator extends Annotatable { self: ScTemplateDefini
 
     annotateFinalClassInheritance(holder)
     annotateMultipleInheritance(holder)
+    annotateNeedsToBeTrait(holder)
 
     if (typeAware) {
       annotateIllegalInheritance(holder)
@@ -113,6 +114,18 @@ trait ScTemplateDefinitionAnnotator extends Annotatable { self: ScTemplateDefini
       case (range, message) =>
         holder.createErrorAnnotation(range, message)
     }
+  }
+
+  private def annotateNeedsToBeTrait(holder: AnnotationHolder): Unit = superRefs(this) match {
+    case _ :: tail =>
+      tail.collect {
+        case (range, clazz) if !isMixable(clazz) =>
+          (range, ScalaBundle.message("illegal.mixin", kindOf(clazz), clazz.name))
+      }.foreach {
+        case (range, message) =>
+          holder.createErrorAnnotation(range, message)
+      }
+    case _ =>
   }
 }
 

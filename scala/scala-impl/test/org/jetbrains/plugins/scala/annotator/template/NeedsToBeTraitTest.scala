@@ -5,7 +5,7 @@ package template
 /**
   * Pavel Fatin
   */
-class NeedsToBeTraitTest extends AnnotatorTestBase(NeedsToBeTrait) {
+class NeedsToBeTraitTest extends AnnotatorTestBase {
 
   def testNeedsToBeTrait(): Unit = {
     assertNothing(messages("class C; trait T; new C with T"))
