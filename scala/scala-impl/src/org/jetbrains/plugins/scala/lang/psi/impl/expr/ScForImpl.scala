@@ -5,6 +5,7 @@ package impl
 package expr
 
 import com.intellij.lang.ASTNode
+import com.intellij.openapi.util.Key
 import com.intellij.psi._
 import com.intellij.psi.scope._
 import org.jetbrains.plugins.scala.extensions.PsiElementExt
@@ -75,13 +76,24 @@ class ScForImpl(node: ASTNode) extends ScExpressionImplBase(node) with ScFor {
 
   override def toString: String = "ForStatement"
 
-
-
+  private def compilerRewritesWithFilterToFilter: Boolean = this.scalaLanguageLevel.exists(_ < ScalaLanguageLevel.Scala_2_12)
 
   // we only really need to cache the version that is used by type inference
   @Cached(ModCount.getBlockModificationCount, this)
   private def getDesugaredExprWithMappings: Option[(ScExpression, Map[ScPattern, ScPattern], Map[ScEnumerator, ScEnumerator.DesugaredEnumerator])] =
-    generateDesugaredExprWithMappings(forDisplay = false)
+    generateDesugaredExprWithMappings(forDisplay = false).map {
+      case result@(_, _, enumMapping) =>
+        if (compilerRewritesWithFilterToFilter) {
+          // annotate withFilter-calls with userdata to control method resolving
+          // in ReferenceExpressionResolver
+          for {
+            (_: ScGuard, desugaredEnum) <- enumMapping
+            ref <- desugaredEnum.callExpr
+            if ref.refName == "withFilter"
+          } ref.putUserData(ScForImpl.desugaredWithFilterKey, DesugaredWithFilterUserData)
+        }
+        result
+    }
 
   override def processDeclarations(processor: PsiScopeProcessor,
                                    state: ResolveState,
@@ -251,17 +263,17 @@ class ScForImpl(node: ASTNode) extends ScExpressionImplBase(node) with ScFor {
         resultText ++= ")"
 
       // add guards and assignment enumerators
-      val filterFunc = {
-        lazy val rvalueType = rvalue.flatMap(_.`type`().toOption)
+      val filterFunc: String = if (forDisplay && compilerRewritesWithFilterToFilter) {
+        val rvalueType = rvalue.flatMap(_.`type`().toOption)
         def hasWithFilter = rvalueType.exists(hasMethod(_, "withFilter"))
         def hasFilter = rvalueType.exists(hasMethod(_, "filter"))
 
         // try to use withFilter
         // if the type does not have a withFilter method use filter except if filter doesn't exist either
-        // since 2.12 the compiler doesn't rewrite withFilter to filter, so don't fall back at all!
-        val compilerFallsBackToFilter = this.scalaLanguageLevel.exists(_ < ScalaLanguageLevel.Scala_2_12)
-        if (!compilerFallsBackToFilter || hasWithFilter || !hasFilter) "withFilter"
+        if (hasWithFilter || !hasFilter) "withFilter"
         else "filter"
+      } else {
+        "withFilter"
       }
 
       if (!this.betterMonadicForEnabled && needsPatternMatchFilter(pattern)) {
@@ -475,6 +487,10 @@ class ScForImpl(node: ASTNode) extends ScExpressionImplBase(node) with ScFor {
 }
 
 object ScForImpl {
+  sealed abstract class DesugaredWithFilterUserData
+  object DesugaredWithFilterUserData extends DesugaredWithFilterUserData
+  val desugaredWithFilterKey: Key[DesugaredWithFilterUserData] = new Key("DESUGARED_withFilter_METHOD")
+
   private def needsDeconstruction(pattern: ScPattern): Boolean = {
     pattern match {
       case null => false
@@ -505,7 +521,7 @@ object ScForImpl {
     }
   }
   @tailrec
-  def findPatternElement(e: PsiElement, org: ScPattern): Option[ScPattern] = {
+  private def findPatternElement(e: PsiElement, org: ScPattern): Option[ScPattern] = {
     e match {
       case pattern: ScPattern if pattern.getTextLength == org.getTextLength =>
         Some(pattern)

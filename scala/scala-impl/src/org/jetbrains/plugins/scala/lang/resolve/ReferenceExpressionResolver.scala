@@ -20,6 +20,7 @@ import org.jetbrains.plugins.scala.lang.psi.api.toplevel.typedef.{ScClass, ScTem
 import org.jetbrains.plugins.scala.lang.psi.fake.FakePsiMethod
 import org.jetbrains.plugins.scala.lang.psi.impl.ScalaPsiElementFactory
 import org.jetbrains.plugins.scala.lang.psi.impl.ScalaPsiElementFactory.createParameterFromText
+import org.jetbrains.plugins.scala.lang.psi.impl.expr.ScForImpl
 import org.jetbrains.plugins.scala.lang.psi.implicits.{ImplicitResolveResult, ScImplicitlyConvertible}
 import org.jetbrains.plugins.scala.lang.psi.types.Compatibility.Expression
 import org.jetbrains.plugins.scala.lang.psi.types.Compatibility.Expression._
@@ -101,13 +102,28 @@ class ReferenceExpressionResolver(implicit projectContext: ProjectContext) {
   }
 
   def resolve(reference: ScReferenceExpression, shapesOnly: Boolean, incomplete: Boolean): Array[ScalaResolveResult] = {
+    val resolveWithName = this.resolveWithName(_: String, reference, shapesOnly, incomplete)
     val refName = reference.refName
     val context = reference.getContext
 
-    val name = (context match {
-      case ScPrefixExpr(`reference`, _) => "unary_"
-      case _ => ""
-    }) + refName
+    val name = context match {
+      case ScPrefixExpr(`reference`, _) => s"unary_$refName"
+      case _ if reference.getUserData(ScForImpl.desugaredWithFilterKey) == ScForImpl.DesugaredWithFilterUserData =>
+        // This is a call to withFilter in a desugared for comprehension
+        // in scala version 2.11 and below withFilter will be rewritten into filter
+        // we try first to resolve withFilter and if we do not get any results we try filter
+        val withFilterResults = resolveWithName("withFilter")
+        if (withFilterResults.nonEmpty)
+          return withFilterResults
+        "filter"
+      case _ => refName
+    }
+
+    resolveWithName(name)
+  }
+
+  private def resolveWithName(name: String, reference: ScReferenceExpression, shapesOnly: Boolean, incomplete: Boolean): Array[ScalaResolveResult] = {
+    val context = reference.getContext
 
     val info = getContextInfo(reference, reference)
 
@@ -186,10 +202,10 @@ class ReferenceExpressionResolver(implicit projectContext: ProjectContext) {
     val resolveAssignment: Boolean =
       result.isEmpty &&
         (context.isInstanceOf[ScInfixExpr] || context.isInstanceOf[ScMethodCall]) &&
-        refName.endsWith("=") &&
-        !refName.startsWith("=") &&
-        !Seq("!=", "<=", ">=").contains(refName) &&
-        !refName.exists(_.isLetterOrDigit)
+        name.endsWith("=") &&
+        !name.startsWith("=") &&
+        !Seq("!=", "<=", ">=").contains(name) &&
+        !name.exists(_.isLetterOrDigit)
 
     if (resolveAssignment) assignmentResolve()
     else result

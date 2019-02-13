@@ -167,10 +167,11 @@ class MethodResolveProcessor(override val ref: PsiElement,
         isShapeResolve = false
         MethodResolveProcessor.candidates(this, input)
       }
-    } else
+    } else {
       MethodResolveProcessor.candidates(this, input)
     }
   }
+}
 
 object MethodResolveProcessor {
   private def problemsFor(c: ScalaResolveResult,

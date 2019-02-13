@@ -2,6 +2,7 @@ package org.jetbrains.plugins.scala.annotator
 
 import org.jetbrains.plugins.scala.DependencyManagerBase._
 import org.jetbrains.plugins.scala.base.libraryLoaders.{IvyManagedLoader, LibraryLoader}
+import org.jetbrains.plugins.scala.debugger._
 import org.jetbrains.plugins.scala.project.settings.ScalaCompilerConfiguration
 
 abstract class ForComprehensionHighlightingTestBase extends ScalaHighlightingTestBase {
@@ -10,7 +11,9 @@ abstract class ForComprehensionHighlightingTestBase extends ScalaHighlightingTes
       IvyManagedLoader("org.typelevel" %% "cats-core" % "1.5.0", "org.typelevel" %% "cats-effect" % "1.1.0")
 }
 
-class ForComprehensionHighlightingTest extends ForComprehensionHighlightingTestBase {
+class ForComprehensionHighlightingTest_2_11 extends ForComprehensionHighlightingTestBase {
+
+  override implicit val version: ScalaVersion = Scala_2_11
 
   def test_guard_type(): Unit = {
     val code =
@@ -231,6 +234,192 @@ class ForComprehensionHighlightingTest extends ForComprehensionHighlightingTestB
     assertMatches(errorsFromScalaCode(code)){
       case Error("<-", "Cannot resolve symbol map") :: Error("+", "Cannot resolve symbol +") :: Nil =>
     }
+  }
+
+  def test_SCL14903(): Unit = {
+    val code =
+      """
+        |object PlaceItems {
+        |  case class PopulationItem(name: String, density: Double)
+        |
+        |  object Population {
+        |  }
+        |
+        |  case class Population(items: Seq[PopulationItem])
+        |
+        |  def populate(): Unit = {
+        |    val populationsByName = Map.empty[String, Population]
+        |
+        |    // toSeq needed, so that multiple identical keys are supported
+        |    val squaresByPopulation = Seq.empty[String]
+        |
+        |    // we might merge identical populations, but processing them individually should give the same result
+        |
+        |    val items = for {
+        |      populationName <- squaresByPopulation
+        |      population = populationsByName(populationName)
+        |      tpe <- population.items
+        |    } yield ???
+        |
+        |  }
+        |}
+      """.stripMargin
+
+    assertNothing(errorsFromScalaCode(code))
+  }
+
+  def test_filterOnly(): Unit = {
+    val code =
+      """
+        |class S[X] {
+        |  def filter(f: X => Boolean): S[X] = ???
+        |  def foreach(f: X => Unit): Unit = ???
+        |}
+        |
+        |val s = new S[Int]
+        |for {
+        |  x <- s
+        |  if x > 0
+        |} ()
+        |
+        |s.withFilter(x => x > 0)
+      """.stripMargin
+
+    assertMessagesSorted(errorsFromScalaCode(code))(
+      Error("withFilter", "Cannot resolve symbol withFilter"),
+      Error("x", "Missing parameter type: x"),
+      Error(">", "Cannot resolve symbol >")
+    )
+  }
+
+  def test_implicitWithFilter_before_filter(): Unit = {
+    val code =
+      """
+        |class S[X] {
+        |  def filter(f: X => Boolean): Unit = ???
+        |  def foreach(f: X => Unit): Unit = ???
+        |}
+        |implicit class SExt[X](s: S[X]) {
+        |  def withFilter(f: X => Boolean): S[X] = ???
+        |}
+        |
+        |val s = new S[Int]
+        |for {
+        |  x <- s
+        |  if x > 0
+        |} ()
+        |
+        |s.filter(x => x > 0)
+        |s.withFilter(x => x > 0)
+      """.stripMargin
+
+    assertNothing(errorsFromScalaCode(code))
+  }
+
+  def test_wrong_withFilter_before_filter(): Unit = {
+    val code =
+      """
+        |class S[X] {
+        |  def withFilter(f: X => Boolean, a: Boolean): Unit = ???
+        |  def filter(f: X => Boolean): S[X] = ???
+        |  def foreach(f: X => Unit): Unit = ???
+        |}
+        |
+        |val s = new S[Int]
+        |for {
+        |  x <- s
+        |  if x > 0
+        |} ()
+      """.stripMargin
+
+    assertMessagesSorted(errorsFromScalaCode(code))(
+      Error("<-", "Cannot resolve symbol foreach")
+    )
+  }
+
+  def test_no_rewrite_withFilter(): Unit = {
+    val code =
+      """
+        |class S[X] {
+        |  def filter(f: X => Boolean): S[X] = ???
+        |  def foreach(f: X => Unit): Unit = ???
+        |}
+        |
+        |val s = new S[Int]
+        |for {
+        |  x <- s.withFilter(a: Int =>)
+        |} ()
+        |
+        |for {
+        |  x <- s
+        |  if true || s.withFilter(b: Int =>)
+        |} ()
+        |
+        |for {
+        |  x <- s
+        |} s.withFilter(c: Int =>)
+      """.stripMargin
+
+    assertMessagesSorted(errorsFromScalaCode(code))(
+      Error("withFilter", "Cannot resolve symbol withFilter"),
+      Error("<-", "Cannot resolve symbol foreach"),
+      Error("a", "Cannot resolve symbol a"),
+      Error("withFilter", "Cannot resolve symbol withFilter"),
+      Error("b", "Cannot resolve symbol b"),
+      Error("withFilter", "Cannot resolve symbol withFilter"),
+      Error("c", "Cannot resolve symbol c")
+    )
+  }
+}
+
+
+class ForComprehensionHighlightingTest_2_12 extends ForComprehensionHighlightingTestBase {
+
+  override implicit val version: ScalaVersion = Scala_2_12
+
+  def test_filterOnly(): Unit = {
+    val code =
+      """
+        |class S[X] {
+        |  def filter(f: X => Boolean): S[X] = ???
+        |  def foreach(f: X => Unit): Unit = ???
+        |}
+        |
+        |val s = new S[Int]
+        |for {
+        |  x <- s
+        |  if x > 0
+        |} ()
+      """.stripMargin
+
+    assertMessagesSorted(errorsFromScalaCode(code))(
+      Error("if", "Cannot resolve symbol withFilter"),
+      Error(">", "Cannot resolve symbol >")
+    )
+  }
+
+  def test_implicitWithFilter_before_filter(): Unit = {
+    val code =
+      """
+        |class S[X] {
+        |  def filter(f: X => Boolean): Unit = ???
+        |  def foreach(f: X => Unit): Unit = ???
+        |}
+        |implicit class SExt[X](s: S[X]) {
+        |  def withFilter(f: X => Boolean): S[X] = ???
+        |}
+        |
+        |val s = new S[Int]
+        |for {
+        |  x <- s
+        |  if x > 0
+        |} ()
+        |
+        |s.filter(x => x > 0)
+        |s.withFilter(x => x > 0)
+      """.stripMargin
+
+    assertNothing(errorsFromScalaCode(code))
   }
 }
 
