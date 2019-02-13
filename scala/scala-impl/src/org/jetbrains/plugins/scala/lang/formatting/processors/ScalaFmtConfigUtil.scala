@@ -10,7 +10,6 @@ import com.intellij.openapi.vfs.{StandardFileSystems, VirtualFile}
 import com.intellij.psi.{PsiFile, PsiManager}
 import com.intellij.util.containers.ContainerUtil
 import metaconfig.{ConfError, Configured}
-import org.jetbrains.plugins.hocon.psi.HoconPsiFile
 import org.jetbrains.plugins.scala.extensions._
 import org.jetbrains.plugins.scala.lang.formatting.processors.ScalaFmtPreFormatProcessor.OpenFileNotificationActon
 import org.jetbrains.plugins.scala.lang.formatting.settings.ScalaCodeStyleSettings
@@ -24,9 +23,9 @@ object ScalaFmtConfigUtil {
   private def loadConfig(configFile: VirtualFile, project: Project): Configured[ScalafmtConfig] = {
     inReadAction {
       PsiManager.getInstance(project).findFile(configFile) match {
-        case hoconFile: HoconPsiFile =>
-          Config.fromHoconString(hoconFile.getText)
-        case _ =>
+        case f: PsiFile =>
+          Config.fromHoconString(f.getText)
+        case null =>
           Configured.NotOk(ConfError.fileDoesNotExist(configFile.getCanonicalPath))
       }
     }
