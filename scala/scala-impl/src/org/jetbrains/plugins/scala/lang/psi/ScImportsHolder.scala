@@ -175,7 +175,8 @@ trait ScImportsHolder extends ScalaPsiElement {
       case _ => return
     }
 
-    val settings = OptimizeImportSettings(getProject)
+    //don't add wildcard imports here, it should be done only on explicit "Optimize Imports" action
+    val settings = OptimizeImportSettings(getProject).copy(classCountToUseImportOnDemand = Int.MaxValue)
 
     val optimizer: ScalaImportOptimizer = findOptimizerFor(file) match {
       case Some(o: ScalaImportOptimizer) => o
@@ -197,10 +198,9 @@ trait ScImportsHolder extends ScalaPsiElement {
 
     if (needToInsertFirst) {
       val dummyImport = createImportFromText("import dummy.dummy")
-      val usedNames = collectUsedImportedNames(this)
       val inserted = insertFirstImport(dummyImport, getFirstChild).asInstanceOf[ScImportStmt]
       val psiAnchor = PsiAnchor.create(inserted)
-      val rangeInfo = RangeInfo(psiAnchor, psiAnchor, importInfosToAdd, usedImportedNames = usedNames, isLocal = false)
+      val rangeInfo = RangeInfo(psiAnchor, psiAnchor, importInfosToAdd, usedImportedNames = Set.empty, isLocal = false)
       val infosToAdd = optimizedImportInfos(rangeInfo, settings)
 
       optimizer.replaceWithNewImportInfos(rangeInfo, infosToAdd, settings, file)
@@ -213,7 +213,7 @@ trait ScImportsHolder extends ScalaPsiElement {
         else sortedRanges.headOption
 
       selectedRange match {
-        case Some(rangeInfo @ (RangeInfo(rangeStart, _, infosFromRange, _, _))) =>
+        case Some(rangeInfo @ RangeInfo(rangeStart, _, infosFromRange, _, _)) =>
           val resultInfos = insertImportInfos(importInfosToAdd, infosFromRange, rangeStart, settings)
           optimizer.replaceWithNewImportInfos(rangeInfo, resultInfos, settings, file)
         case _ =>

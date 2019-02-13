@@ -13,5 +13,5 @@ class AutoImportAllTest extends AutoImportTestBase {
 
   def testObjectPackage() = doTest()
 
-  def testPlaceHolder() = doTest()
+  def testNoPlaceHolder() = doTest()
 }

@@ -13,7 +13,7 @@ class FixImport extends G {
 /*
 package pin
 
-import bin.{bon => _, _}
+import bin.{A, B, C, D, E}
 import tin._
 import bon.G
 

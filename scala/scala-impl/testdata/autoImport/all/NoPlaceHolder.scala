@@ -9,7 +9,7 @@ val x: /*ref*/SourceInside4
 /*
 import scala.collection.BitSet
 import scala.collection.mutable.DefaultEntry
-import mutable.bt._
+import mutable.bt.{SourceInside, SourceInside1, SourceInside2, SourceInside3, SourceInside4}
 
 import collection.mutable.ArrayBuffer
 import collection.mutable.End
