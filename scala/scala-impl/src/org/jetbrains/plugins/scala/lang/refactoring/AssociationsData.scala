@@ -36,6 +36,15 @@ abstract class AssociationsData(val associations: Array[Association],
 
     startIndex + getOffsetCount
   }
+
+  def canEqual(other: Any): Boolean = other.isInstanceOf[AssociationsData]
+
+  override def equals(other: Any): Boolean = other match {
+    case that: AssociationsData if that.canEqual(this) => associations.sameElements(that.associations)
+    case _ => false
+  }
+
+  override def hashCode: Int = associations.hashCode
 }
 
 object AssociationsData {

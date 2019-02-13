@@ -224,17 +224,20 @@ object ConverterUtil {
     textWithoutLastSemicolon(text1) != textWithoutLastSemicolon(text2)
   }
 
-  class ConvertedCode(override val associations: Array[Association],
-                      val text: String,
-                      val showDialog: Boolean)
+  final class ConvertedCode private(override val associations: Array[Association],
+                                    val text: String,
+                                    val showDialog: Boolean)
     extends AssociationsData(associations, ConvertedCode) {
 
-    override def equals(other: Any): Boolean = other match {
-      case ConvertedCode(thatAssociations, `text`, `showDialog`) => associations.sameElements(thatAssociations)
-      case _ => false
-    }
+    override def canEqual(other: Any): Boolean = other.isInstanceOf[ConvertedCode]
 
-    override def hashCode(): Int =
+    override def equals(other: Any): Boolean =
+      super.equals(other) && (other match {
+        case that: ConvertedCode =>
+          text == that.text && showDialog == that.showDialog
+      })
+
+    override def hashCode: Int =
       Seq(associations, text, showDialog)
         .map(_.hashCode)
         .foldLeft(0) {
@@ -248,7 +251,7 @@ object ConverterUtil {
 
     def apply(associations: Array[Association] = Array.empty,
               text: String,
-              showDialog: Boolean = false): ConvertedCode =
+              showDialog: Boolean = false) =
       new ConvertedCode(associations, text, showDialog)
 
     def unapply(code: ConvertedCode): Some[(Array[Association], String, Boolean)] =

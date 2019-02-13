@@ -6,17 +6,23 @@ import com.intellij.openapi.util.Key
 import com.intellij.psi.PsiElement
 import org.jetbrains.plugins.scala.conversion.copy.ScalaCopyPastePostProcessor
 
-/**
-  * Pavel Fatin
-  */
-case class Associations(override val associations: Array[Association])
+final class Associations private(override val associations: Array[Association])
   extends AssociationsData(associations, Associations)
     with Cloneable {
 
-  override def clone(): Associations = copy()
+  override def clone(): Associations = new Associations(associations)
+
+  override def canEqual(other: Any): Boolean = other.isInstanceOf[Associations]
+
+  override def toString = s"Associations($associations)"
 }
 
 object Associations extends AssociationsData.Companion(classOf[Associations], "ScalaReferenceData") {
+
+  def apply(associations: Array[Association]) = new Associations(associations)
+
+  def unapply(associations: Associations): Some[Array[Association]] =
+    Some(associations.associations)
 
   object Data {
 
