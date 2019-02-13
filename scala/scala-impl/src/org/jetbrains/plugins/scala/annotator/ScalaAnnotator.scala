@@ -812,7 +812,6 @@ object ScalaAnnotator {
   val usedImportsKey: Key[mutable.HashSet[ImportUsed]] = Key.create("used.imports.key")
 
   private val AnnotatorParts: Seq[TemplateDefinitionAnnotatorPart] = Seq(
-    NeedsToBeAbstract,
     NeedsToBeMixin,
   )
 

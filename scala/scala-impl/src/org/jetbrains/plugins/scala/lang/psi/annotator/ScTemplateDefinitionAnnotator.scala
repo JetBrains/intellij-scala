@@ -1,17 +1,20 @@
 package org.jetbrains.plugins.scala.lang.psi.annotator
 
 import com.intellij.lang.annotation.AnnotationHolder
+import com.intellij.psi.PsiModifier
 import org.jetbrains.plugins.scala.ScalaBundle
 import org.jetbrains.plugins.scala.annotator.AnnotatorUtils.ErrorAnnotationMessage
 import org.jetbrains.plugins.scala.annotator.quickfix.ImplementMethodsQuickFix
+import org.jetbrains.plugins.scala.annotator.quickfix.modifiers.AddModifierQuickFix
 import org.jetbrains.plugins.scala.annotator.template._
 import org.jetbrains.plugins.scala.extensions._
 import org.jetbrains.plugins.scala.lang.psi.annotator.ScTemplateDefinitionAnnotator.objectCreationImpossibleMessage
-import org.jetbrains.plugins.scala.lang.psi.api.{Annotatable, ScalaFile}
 import org.jetbrains.plugins.scala.lang.psi.api.base.ScAnnotationsHolder
 import org.jetbrains.plugins.scala.lang.psi.api.expr.ScNewTemplateDefinition
 import org.jetbrains.plugins.scala.lang.psi.api.statements.{ScDeclaration, ScTypeAliasDeclaration}
+import org.jetbrains.plugins.scala.lang.psi.api.toplevel.ScModifierListOwner
 import org.jetbrains.plugins.scala.lang.psi.api.toplevel.typedef.{ScObject, ScTemplateDefinition}
+import org.jetbrains.plugins.scala.lang.psi.api.{Annotatable, ScalaFile}
 import org.jetbrains.plugins.scala.lang.psi.types.ValueClassType
 import org.jetbrains.plugins.scala.overrideImplement.{ScalaOIUtil, ScalaTypedMember}
 
@@ -25,6 +28,7 @@ trait ScTemplateDefinitionAnnotator extends Annotatable { self: ScTemplateDefini
     annotateNeedsToBeTrait(holder)
     annotateUndefinedMember(holder)
     annotateSealedclassInheritance(holder)
+    annotateNeedsToBeAbstract(holder, typeAware)
 
     if (typeAware) {
       annotateIllegalInheritance(holder)
@@ -169,6 +173,36 @@ trait ScTemplateDefinitionAnnotator extends Annotatable { self: ScTemplateDefini
           holder.createErrorAnnotation(range, message)
       }
     case _ =>
+  }
+
+  private def annotateNeedsToBeAbstract(holder: AnnotationHolder, typeAware: Boolean): Unit = this match {
+    case _: ScNewTemplateDefinition | _: ScObject =>
+    case _ if !typeAware || isAbstract(this) =>
+    case _ =>
+      ScalaOIUtil.getMembersToImplement(this, withOwn = true).collectFirst {
+        case member: ScalaTypedMember /* SCL-2887 */ =>
+          ScalaBundle.message(
+            "member.implementation.required",
+            kindOf(this),
+            name,
+            member.getText,
+            member.getParentNodeDelegate.getText)
+      }.foreach { message =>
+        val fixes = {
+          val maybeModifierFix = this match {
+            case owner: ScModifierListOwner => Some(new AddModifierQuickFix(owner, PsiModifier.ABSTRACT))
+            case _ => None
+          }
+
+          val maybeImplementFix = if (ScalaOIUtil.getMembersToImplement(this).nonEmpty) Some(new ImplementMethodsQuickFix(this))
+          else None
+
+          maybeModifierFix ++ maybeImplementFix
+
+        }
+        val annotation = holder.createErrorAnnotation(nameId, message)
+        fixes.foreach(annotation.registerFix)
+      }
   }
 }
 

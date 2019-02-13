@@ -5,7 +5,7 @@ package template
 /**
   * Pavel Fatin
   */
-class NeedsToBeAbstractTest extends AnnotatorTestBase(NeedsToBeAbstract) {
+class NeedsToBeAbstractTest extends AnnotatorTestBase {
 
   def testFine(): Unit = {
     assertNothing(messages("class C"))
@@ -19,11 +19,15 @@ class NeedsToBeAbstractTest extends AnnotatorTestBase(NeedsToBeAbstract) {
   }
 
   def testSkipNew(): Unit = {
-    assertNothing(messages("trait T { def f }; new Object with T"))
+    assertMatches(messages("trait T { def f }; new Object with T")) {
+      case Error("Object", "Object creation impossible, since  member f: Unit in Holder.T is not defined") :: Nil =>
+    }
   }
 
   def testSkipObject(): Unit = {
-    assertNothing(messages("trait T { def f }; object O extends T"))
+    assertMatches(messages("trait T { def f }; object O extends T")) {
+      case Error("O", "Object creation impossible, since  member f: Unit in Holder.T is not defined") :: Nil =>
+    }
   }
 
   def testUndefinedMember(): Unit = {

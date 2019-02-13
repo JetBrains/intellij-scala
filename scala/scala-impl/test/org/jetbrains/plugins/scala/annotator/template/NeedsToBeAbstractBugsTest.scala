@@ -7,7 +7,7 @@ import org.jetbrains.plugins.scala.lang.psi.impl.toplevel.typedef.SyntheticMembe
 import org.jetbrains.plugins.scala.lang.typeInference.testInjectors.{SCL9446Injector, SCL9446InjectorNoOverride}
 
 
-class NeedsToBeAbstractBugsTest extends AnnotatorTestBase(NeedsToBeAbstract) {
+class NeedsToBeAbstractBugsTest extends AnnotatorTestBase {
 
   def testSCL2981(): Unit = {
     assertMatches(messages("trait A { type T; def t(p: T)}; class B extends A { type T = Int; def t(p: T) = ()}")) {
