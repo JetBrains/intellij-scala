@@ -1,7 +1,7 @@
 package org.jetbrains.plugins.scala.lang.psi.annotator
 
 import com.intellij.lang.annotation.AnnotationHolder
-import com.intellij.psi.PsiModifier
+import com.intellij.psi.{PsiMethod, PsiModifier}
 import org.jetbrains.plugins.scala.ScalaBundle
 import org.jetbrains.plugins.scala.annotator.AnnotatorUtils.ErrorAnnotationMessage
 import org.jetbrains.plugins.scala.annotator.quickfix.ImplementMethodsQuickFix
@@ -10,12 +10,14 @@ import org.jetbrains.plugins.scala.annotator.template._
 import org.jetbrains.plugins.scala.extensions._
 import org.jetbrains.plugins.scala.lang.psi.annotator.ScTemplateDefinitionAnnotator.objectCreationImpossibleMessage
 import org.jetbrains.plugins.scala.lang.psi.api.base.ScAnnotationsHolder
+import org.jetbrains.plugins.scala.lang.psi.api.base.patterns.ScBindingPattern
 import org.jetbrains.plugins.scala.lang.psi.api.expr.ScNewTemplateDefinition
-import org.jetbrains.plugins.scala.lang.psi.api.statements.{ScDeclaration, ScTypeAliasDeclaration}
+import org.jetbrains.plugins.scala.lang.psi.api.statements.{ScDeclaration, ScFunctionDefinition, ScTypeAliasDeclaration}
 import org.jetbrains.plugins.scala.lang.psi.api.toplevel.ScModifierListOwner
-import org.jetbrains.plugins.scala.lang.psi.api.toplevel.typedef.{ScObject, ScTemplateDefinition}
+import org.jetbrains.plugins.scala.lang.psi.api.toplevel.typedef.{ScObject, ScTemplateDefinition, ScTrait, ScTypeDefinition}
 import org.jetbrains.plugins.scala.lang.psi.api.{Annotatable, ScalaFile}
-import org.jetbrains.plugins.scala.lang.psi.types.ValueClassType
+import org.jetbrains.plugins.scala.lang.psi.impl.toplevel.typedef.TypeDefinitionMembers
+import org.jetbrains.plugins.scala.lang.psi.types.{PhysicalSignature, ValueClassType}
 import org.jetbrains.plugins.scala.overrideImplement.{ScalaOIUtil, ScalaTypedMember}
 
 trait ScTemplateDefinitionAnnotator extends Annotatable { self: ScTemplateDefinition =>
@@ -29,6 +31,7 @@ trait ScTemplateDefinitionAnnotator extends Annotatable { self: ScTemplateDefini
     annotateUndefinedMember(holder)
     annotateSealedclassInheritance(holder)
     annotateNeedsToBeAbstract(holder, typeAware)
+    annotateNeedsToBeMixin(holder)
 
     if (typeAware) {
       annotateIllegalInheritance(holder)
@@ -203,6 +206,52 @@ trait ScTemplateDefinitionAnnotator extends Annotatable { self: ScTemplateDefini
         val annotation = holder.createErrorAnnotation(nameId, message)
         fixes.foreach(annotation.registerFix)
       }
+  }
+
+  private def annotateNeedsToBeMixin(holder: AnnotationHolder): Unit = {
+    if (isInstanceOf[ScTrait]) return
+
+    val signatures = TypeDefinitionMembers.getSignatures(this)
+      .allFirstSeq()
+      .flatMap {
+        _.map(_._2)
+      }
+
+    def isOverrideAndAbstract(definition: ScFunctionDefinition) =
+      definition.hasModifierPropertyScala(PsiModifier.ABSTRACT) &&
+        definition.hasModifierPropertyScala("override")
+
+    for (signature <- signatures) {
+      signature.info match {
+        case PhysicalSignature(function: ScFunctionDefinition, _) if isOverrideAndAbstract(function) =>
+          val flag = signature.supers.map(_.info.namedElement).forall {
+            case f: ScFunctionDefinition => isOverrideAndAbstract(f)
+            case _: ScBindingPattern => true
+            case m: PsiMethod => m.hasModifierProperty(PsiModifier.ABSTRACT)
+            case _ => true
+          }
+
+          for {
+            place <- this match {
+              case _ if !flag => None
+              case typeDefinition: ScTypeDefinition => Some(typeDefinition.nameId)
+              case templateDefinition: ScNewTemplateDefinition =>
+                templateDefinition.extendsBlock.templateParents
+                  .flatMap(_.typeElements.headOption)
+              case _ => None
+            }
+
+            message = ScalaBundle.message(
+              "mixin.required",
+              kindOf(this),
+              name,
+              function.name,
+              function.containingClass.name
+            )
+          } holder.createErrorAnnotation(place, message)
+        case _ => //todo: vals?
+      }
+    }
   }
 }
 

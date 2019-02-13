@@ -6,7 +6,7 @@ package template
  * @author Alefas
  * @since 17.10.12
  */
-class NeedsToBeMixinTest extends AnnotatorTestBase(NeedsToBeMixin) {
+class NeedsToBeMixinTest extends AnnotatorTestBase {
   def testProblem() {
     val message = ScalaBundle.message("mixin.required", "Class", "C", "base", "T")
 
