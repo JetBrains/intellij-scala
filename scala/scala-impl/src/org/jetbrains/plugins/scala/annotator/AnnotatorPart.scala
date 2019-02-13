@@ -16,8 +16,6 @@ abstract class AnnotatorPart[T <: ScalaPsiElement : ClassTag] {
                typeAware: Boolean): Unit
 }
 
-abstract class TemplateDefinitionAnnotatorPart extends AnnotatorPart[ScTemplateDefinition]
-
 /*{
 
  protected case class Descriptor(range: TextRange,

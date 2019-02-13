@@ -350,10 +350,6 @@ abstract class ScalaAnnotator extends Annotator
       case templateDefinition: ScTemplateDefinition =>
         checkBoundsVariance(templateDefinition, holder, templateDefinition.nameId, templateDefinition.nameId, Covariant)
 
-        ScalaAnnotator.AnnotatorParts.foreach {
-          _.annotate(templateDefinition, holder, typeAware)
-        }
-
         templateDefinition match {
           case cls: ScClass => CaseClassWithoutParamList.annotate(cls, holder, typeAware)
           case trt: ScTrait => TraitHasImplicitBound.annotate(trt, holder, typeAware)
@@ -810,9 +806,6 @@ object ScalaAnnotator {
   val ignoreHighlightingKey: Key[(Long, mutable.HashSet[TextRange])] = Key.create("ignore.highlighting.key")
 
   val usedImportsKey: Key[mutable.HashSet[ImportUsed]] = Key.create("used.imports.key")
-
-  private val AnnotatorParts: Seq[TemplateDefinitionAnnotatorPart] = Seq(
-  )
 
   def forProject(implicit ctx: ProjectContext): ScalaAnnotator = new ScalaAnnotator {
     override implicit def projectContext: ProjectContext = ctx
