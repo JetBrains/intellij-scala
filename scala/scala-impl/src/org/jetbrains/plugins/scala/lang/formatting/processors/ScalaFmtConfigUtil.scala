@@ -33,7 +33,9 @@ object ScalaFmtConfigUtil {
 
   private def storeOrUpdate(vFile: VirtualFile, project: Project, failSilent: Boolean = false): ScalafmtConfig = {
     //TODO use of asynchronous updates is a trade-off performance vs accuracy, can this be performance-heavy?
-    inWriteAction(ApplicationManager.getApplication.invokeAndWait(vFile.refresh(false, false), ModalityState.current()))
+    if (ApplicationManager.getApplication.isDispatchThread) {
+      inWriteAction(ApplicationManager.getApplication.invokeAndWait(vFile.refresh(false, false), ModalityState.current()))
+    }
     val cachedConfig = Option(scalafmtConfigsCache.get(vFile.getPath))
     cachedConfig match {
       case Some((config, stamp)) if stamp == vFile.getModificationStamp => config

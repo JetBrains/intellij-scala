@@ -29,9 +29,9 @@ class ReformatOnCompileTask(project: Project) extends ProjectComponent with Comp
 
   private def reformatScopeFiles(compileScope: CompileScope, scalaSettings: ScalaCodeStyleSettings): Unit = for {
     virtualFile <- compileScope.getFiles(ScalaFileType.INSTANCE, true)
-    psiFile = PsiManager.getInstance(project).findFile(virtualFile)
+    psiFile = inReadAction(PsiManager.getInstance(project).findFile(virtualFile))
     if shouldFormatFile(psiFile, scalaSettings)
-    psiFile <- inReadAction(psiFile.asOptionOf[ScalaFile].filterNot(_.isWorksheetFile))
+    psiFile <- psiFile.asOptionOf[ScalaFile].filterNot(_.isWorksheetFile)
   } {
     Application.invokeAndWait {
       CommandProcessor.runUndoTransparentAction {
