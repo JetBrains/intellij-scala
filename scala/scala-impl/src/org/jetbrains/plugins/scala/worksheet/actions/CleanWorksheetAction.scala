@@ -21,7 +21,7 @@ import worksheet.ui.WorksheetEditorPrinterFactory
 
 /**
  * @author Ksenia.Sautina
- * @author Dmitry Naydanov        
+ * @author Dmitry Naydanov
  * @since 11/12/12
  */
 class CleanWorksheetAction() extends AnAction with TopComponentAction {
@@ -29,10 +29,10 @@ class CleanWorksheetAction() extends AnAction with TopComponentAction {
   def actionPerformed(e: AnActionEvent) {
     val project = e.getProject
     if (project == null) return //EA-72055
-    
+
     val editor: Editor = FileEditorManager.getInstance(project).getSelectedTextEditor
     val file: VirtualFile = CommonDataKeys.VIRTUAL_FILE.getData(e.getDataContext)
-    
+
     if (editor == null || file == null) return
 
     CleanWorksheetAction.cleanAll(editor, file, project)
@@ -46,11 +46,12 @@ class CleanWorksheetAction() extends AnAction with TopComponentAction {
 object CleanWorksheetAction {
   def cleanAll(editor: Editor, file: VirtualFile, project: Project): Unit = {
     val psiFile: PsiFile = PsiDocumentManager.getInstance(project).getPsiFile(editor.getDocument)
-    val viewer =  WorksheetCache.getInstance(project).getViewer(editor)
+    val viewer = WorksheetCache.getInstance(project).getViewer(editor)
 
     if (psiFile == null || viewer == null) return
 
     val splitPane = viewer.getComponent.getParent
+    if (splitPane == null) return
     val parent = splitPane.getParent
     if (parent == null) return
 
@@ -66,7 +67,7 @@ object CleanWorksheetAction {
       }
     }
   }
-  
+
   def resetScrollModel(viewer: Editor) {
     viewer match {
       case viewerEx: EditorImpl =>
@@ -79,10 +80,10 @@ object CleanWorksheetAction {
       case _ =>
     }
   }
-  
+
   def cleanWorksheet(node: ASTNode, leftEditor: Editor, rightEditor: Editor, project: Project) {
     val rightDocument = rightEditor.getDocument
-    
+
     WorksheetEditorPrinterFactory.deleteWorksheetEvaluation(node.getPsi.asInstanceOf[ScalaFile])
 
     if (rightDocument != null && !project.isDisposed) {
