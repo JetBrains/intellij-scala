@@ -2,12 +2,12 @@ package org.jetbrains.plugins.scala.lang.formatting
 
 import com.intellij.application.options.codeStyle.CodeStyleSchemesModel
 import com.intellij.notification._
-import com.intellij.openapi.components.PersistentStateComponent
+import com.intellij.openapi.components.{PersistentStateComponent, _}
 import com.intellij.openapi.project.Project
-import org.jetbrains.plugins.scala.lang.formatting.processors.ScalaFmtConfigUtil
-import org.jetbrains.plugins.scala.lang.formatting.settings.ScalaCodeStyleSettings
-import com.intellij.openapi.components._
 import javax.swing.event.HyperlinkEvent
+import org.jetbrains.plugins.scala.extensions._
+import org.jetbrains.plugins.scala.lang.formatting.scalafmt.ScalafmtDynamicConfigUtil
+import org.jetbrains.plugins.scala.lang.formatting.settings.ScalaCodeStyleSettings
 
 import scala.beans.BeanProperty
 
@@ -18,10 +18,19 @@ class ScalaFmtSuggesterComponent(val project: Project) extends ProjectComponent 
 
   override def projectOpened(): Unit = {
     val settings = ScalaCodeStyleSettings.getInstance(project)
-    if (!settings.USE_SCALAFMT_FORMATTER && ScalaFmtConfigUtil.projectDefaultConfig(project).nonEmpty && state.enableForCurrentProject) {
+    if (!settings.USE_SCALAFMT_FORMATTER &&
+      projectHasScalafmtDefaultConfigFile &&
+      state.enableForCurrentProject
+    ) {
       //suggest the feature automatically
       createNotification.notify(project)
     }
+  }
+
+  private def projectHasScalafmtDefaultConfigFile: Boolean = {
+    project.getBaseDir.toOption
+      .flatMap(_.findChild(ScalafmtDynamicConfigUtil.DefaultConfigurationFileName).toOption)
+      .nonEmpty
   }
 
   private var state: ScalaFmtSuggesterComponent.State = new ScalaFmtSuggesterComponent.State()

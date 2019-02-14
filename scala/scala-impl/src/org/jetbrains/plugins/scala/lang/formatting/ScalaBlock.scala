@@ -10,6 +10,7 @@ import com.intellij.openapi.util.TextRange
 import com.intellij.psi._
 import com.intellij.psi.codeStyle.{CodeStyleSettings, CommonCodeStyleSettings}
 import org.jetbrains.plugins.scala.lang.formatting.processors._
+import org.jetbrains.plugins.scala.lang.formatting.scalafmt.ScalafmtDynamicConfigUtil
 import org.jetbrains.plugins.scala.lang.formatting.settings.ScalaCodeStyleSettings
 import org.jetbrains.plugins.scala.lang.lexer.ScalaTokenTypes
 import org.jetbrains.plugins.scala.lang.parser.ScalaElementType
@@ -158,12 +159,15 @@ class ScalaBlock(val myParentBlock: ScalaBlock,
   }
 
   private def getChildAttributesScalafmtInner(newChildIndex: Int, parent: PsiElement): ChildAttributes = {
-    val scalafmtConfig = ScalaFmtConfigUtil.configFor(parent.getContainingFile, failSilent = true)
+    val (indentDefn, indentCall) = ScalafmtDynamicConfigUtil.resolveConfigOptForFile(parent.getContainingFile) match {
+      case Some(config) => (config.continuationIndentDefnSite, config.continuationIndentCallSite)
+      case None => (2, 4)
+    }
     parent match {
       case _: ScParameterClause if newChildIndex != 0 =>
-        new ChildAttributes(Indent.getSpaceIndent(scalafmtConfig.continuationIndent.defnSite), null)
+        new ChildAttributes(Indent.getSpaceIndent(indentDefn), null)
       case _: ScArguments if newChildIndex != 0 =>
-        new ChildAttributes(Indent.getSpaceIndent(scalafmtConfig.continuationIndent.callSite), null)
+        new ChildAttributes(Indent.getSpaceIndent(indentCall), null)
       case m: ScMatch if m.clauses.nonEmpty =>
         new ChildAttributes(Indent.getSpaceIndent(4), null)
       case _: ScBlock | _: ScTemplateBody | _: ScMatch | _: ScCaseClauses | _: ScCaseClause =>

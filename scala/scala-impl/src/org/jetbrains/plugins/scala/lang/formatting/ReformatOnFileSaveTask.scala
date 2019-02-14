@@ -9,9 +9,10 @@ import com.intellij.openapi.editor.Document
 import com.intellij.openapi.fileEditor.{FileDocumentManager, FileDocumentManagerListener}
 import com.intellij.openapi.project.Project
 import com.intellij.openapi.roots.ProjectRootManager
-import com.intellij.psi.{PsiDocumentManager, PsiFile}
+import com.intellij.openapi.vfs.VirtualFile
+import com.intellij.psi.PsiDocumentManager
 import org.jetbrains.plugins.scala.extensions._
-import org.jetbrains.plugins.scala.lang.formatting.processors.{ScalaFmtConfigUtil, ScalaFmtPreFormatProcessor}
+import org.jetbrains.plugins.scala.lang.formatting.processors.ScalaFmtPreFormatProcessor
 import org.jetbrains.plugins.scala.lang.formatting.settings.ScalaCodeStyleSettings
 
 class ReformatOnFileSaveTask(project: Project) extends ProjectComponent {
@@ -29,20 +30,23 @@ class ReformatOnFileSaveTask(project: Project) extends ProjectComponent {
 
     for {
       vFile <- FileDocumentManager.getInstance.getFile(document).nullSafe
-      if ProjectRootManager.getInstance(project).getFileIndex.isInSource(vFile)
-      if ScalaFmtConfigUtil.isFileSupported(vFile)
-      scalaSettings = CodeStyle.getSettings(project).getCustomSettings(classOf[ScalaCodeStyleSettings])
-      if scalaSettings.SCALAFMT_REFORMAT_ON_FILES_SAVE && scalaSettings.USE_SCALAFMT_FORMATTER()
-      psiFile = PsiDocumentManager.getInstance(project).getPsiFile(document)
-      if ScalaFmtConfigUtil.isIncludedInProject(psiFile)
-    } {
-      formatFile(psiFile)
+      if isScalafmtEnabled && isFileSupported(vFile) && isInProjectSources(vFile)
+      psiFile <- PsiDocumentManager.getInstance(project).getPsiFile(document).nullSafe
+    } CommandProcessor.runUndoTransparentAction {
+      ScalaFmtPreFormatProcessor.formatWithoutCommit(psiFile, respectProjectMatcher = true)
     }
   }
 
-  private def formatFile(psiFile: PsiFile): Unit = {
-    CommandProcessor.runUndoTransparentAction {
-      ScalaFmtPreFormatProcessor.formatWithoutCommit(psiFile)
-    }
+  private def isScalafmtEnabled: Boolean = {
+    val scalaSettings = CodeStyle.getSettings(project).getCustomSettings(classOf[ScalaCodeStyleSettings])
+    scalaSettings.SCALAFMT_REFORMAT_ON_FILES_SAVE && scalaSettings.USE_SCALAFMT_FORMATTER()
   }
+
+  private def isInProjectSources(vFile: VirtualFile): Boolean = {
+    ProjectRootManager.getInstance(project).getFileIndex.isInSource(vFile)
+  }
+
+  private def isFileSupported(file: VirtualFile): Boolean = isScala(file) || isSbt(file)
+  private def isScala(file: VirtualFile): Boolean = file.getFileType.getName.equalsIgnoreCase("scala")
+  private def isSbt(file: VirtualFile): Boolean = file.getFileType.getName.equalsIgnoreCase("sbt")
 }

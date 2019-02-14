@@ -25,12 +25,13 @@ import com.intellij.ui.components.{JBCheckBox, JBTextField}
 import com.intellij.uiDesigner.core.{GridConstraints, GridLayoutManager, Spacer}
 import javax.swing._
 import javax.swing.event.ChangeEvent
-import metaconfig.Configured
 import org.apache.commons.lang.StringUtils
 import org.jetbrains.plugins.scala.ScalaFileType
 import org.jetbrains.plugins.scala.extensions._
-import org.jetbrains.plugins.scala.lang.formatting.processors.ScalaFmtConfigUtil
-import org.scalafmt.config.Config
+import org.jetbrains.plugins.scala.lang.formatting.scalafmt.ScalafmtDynamicConfigUtil
+import org.jetbrains.plugins.scala.lang.formatting.scalafmt.ScalafmtDynamicConfigUtil.ConfigResolveError
+
+import scala.util.control.NonFatal
 
 class ScalaFmtSettingsPanel(val settings: CodeStyleSettings) extends CodeStyleAbstractPanel(settings) {
 
@@ -65,13 +66,16 @@ class ScalaFmtSettingsPanel(val settings: CodeStyleSettings) extends CodeStyleAb
     val configPathChanged = configPath.trim != configPathNew
 
     if (configPathChanged) {
+      // TODO: what if not configuration file is present? we still need to resolve scalafmt version
       doWithConfigFile(configPathNew) { vFile =>
         scalaSettings.SCALAFMT_CONFIG_PATH = configPathNew // only update config path if the file actually exists
         updateConfigTextFromFile(vFile)
+        ensureScalafmtResolved(vFile)
       }
     } else if (configTextChangedInEditor) {
       doWithConfigFile(configPath) { vFile =>
         saveConfigChangesToFile(editorText, vFile)
+        ensureScalafmtResolved(vFile)
       }
     }
 
@@ -79,11 +83,69 @@ class ScalaFmtSettingsPanel(val settings: CodeStyleSettings) extends CodeStyleAb
     updateUseIntellijWarningVisibility(scalaSettings)
   }
 
+  private def ensureScalafmtResolved(configFile: VirtualFile): Unit = {
+    if (project.isEmpty) return
+
+    val version = ScalafmtDynamicConfigUtil.readVersion(configFile) match {
+      case Right(v) =>
+        // TODO: notify user that we are using default version using default version ?
+        v.getOrElse(ScalafmtDynamicConfigUtil.DefaultVersion)
+      case Left(ex) =>
+        reportConfigParseError(ex.getMessage)
+        return
+    }
+
+    // TODO: check in onDownload callback that panel is already disposed/closed ?
+    ScalafmtDynamicConfigUtil.resolveConfigAsync(configFile, version, project.get, onResolveFinished = {
+      case Left(error) => reportConfigResolveError(error)
+      case _ =>
+    })
+  }
+
+  private def reportConfigResolveError(configResolveError: ConfigResolveError): Unit = {
+    import ConfigResolveError._
+    configResolveError match {
+      case ConfigFileNotFound(configPath) => reportConfigFileNotFound(configPath)
+      case ConfigScalafmtResolveError(error) => reportConfigParseError(s"cannot resolve scalafmt version ${error.version}")
+      case ConfigParseError(_, errorMessage) => reportConfigParseError(errorMessage.getMessage)
+      case ConfigMissingVersion(_) => reportConfigParseError("missing version")
+      case UnknownError(message, _) => reportConfigParseError(message)
+      case _ => reportConfigParseError("UNKNOWN ERROR")
+    }
+  }
+
+  private def reportConfigParseError(errorMessage: String): Unit = {
+    val component = previewPanel
+    displayMessage(s"Failed to parse configuration: <br> $errorMessage",
+      component, component.getWidth - 10, component.getHeight, Balloon.Position.above, MessageType.WARNING)
+  }
+
+  private def reportConfigFileNotFound(configPath: String): Unit = {
+    val component = externalFormatterSettingsPath
+    displayMessage(s"Can not find scalafmt config file with path: `$configPath`",
+      component, component.getWidth / 2, component.getHeight, Balloon.Position.below)
+  }
+
+  private def displayInfo(text: String): Unit = {
+    var c: JComponent = previewPanel
+    c = this.getPanel // TODO which to use?
+    displayMessage(text, c, c.getWidth - 10, c.getHeight, Balloon.Position.above, MessageType.INFO)
+  }
+
+  private def displayMessage(text: String, relativeTo: JComponent,
+                             xPosition: Int, yPosition: Int,
+                             direction: Balloon.Position,
+                             messageType: MessageType = MessageType.ERROR): Unit = {
+    val factory = JBPopupFactory.getInstance.createHtmlTextBalloonBuilder(text, messageType, null)
+    val balloon = factory.createBalloon()
+    val balloonPosition = new RelativePoint(relativeTo, new Point(xPosition, yPosition))
+    balloon.show(balloonPosition, direction)
+  }
+
   private def doWithConfigFile[T](configPath: String)(body: VirtualFile => T): Unit = {
-    getConfigVFile(configPath) match {
+    projectConfigFile(configPath) match {
       case Some(vFile) =>
         body(vFile)
-        reportErrorsInConfig()
       case None =>
         reportConfigFileNotFound(configPath)
     }
@@ -96,16 +158,20 @@ class ScalaFmtSettingsPanel(val settings: CodeStyleSettings) extends CodeStyleAb
 
   private def saveConfigChangesToFile(configTextNew: String, vFile: VirtualFile): Unit = {
     val document = inReadAction(FileDocumentManager.getInstance.getDocument(vFile))
-    inWriteAction(ApplicationManager.getApplication.invokeAndWait(document.setText(configTextNew)), ModalityState.current())
+    inWriteAction {
+      ApplicationManager.getApplication.invokeAndWait({
+        document.setText(configTextNew)
+      }, ModalityState.current())
+    }
     configText = Some(configTextNew)
   }
 
-  override def isModified(codeStyleSettings: CodeStyleSettings): Boolean = {
-    val scalaCodeStyleSettings = codeStyleSettings.getCustomSettings(classOf[ScalaCodeStyleSettings])
-    scalaCodeStyleSettings.SCALAFMT_CONFIG_PATH.trim != externalFormatterSettingsPath.getText.trim ||
-      scalaCodeStyleSettings.SCALAFMT_SHOW_INVALID_CODE_WARNINGS != showScalaFmtInvalidCodeWarnings.isSelected ||
-      scalaCodeStyleSettings.SCALAFMT_USE_INTELLIJ_FORMATTER_FOR_RANGE_FORMAT != useIntellijFormatterForRangeFormat.isSelected ||
-      scalaCodeStyleSettings.SCALAFMT_REFORMAT_ON_FILES_SAVE != reformatOnFileSaveCheckBox.isSelected ||
+  override def isModified(settings: CodeStyleSettings): Boolean = {
+    val scalaSettings = settings.getCustomSettings(classOf[ScalaCodeStyleSettings])
+    scalaSettings.SCALAFMT_CONFIG_PATH.trim != externalFormatterSettingsPath.getText.trim ||
+      scalaSettings.SCALAFMT_SHOW_INVALID_CODE_WARNINGS != showScalaFmtInvalidCodeWarnings.isSelected ||
+      scalaSettings.SCALAFMT_USE_INTELLIJ_FORMATTER_FOR_RANGE_FORMAT != useIntellijFormatterForRangeFormat.isSelected ||
+      scalaSettings.SCALAFMT_REFORMAT_ON_FILES_SAVE != reformatOnFileSaveCheckBox.isSelected ||
       configText.exists(_ != getEditor.getDocument.getText)
   }
 
@@ -117,12 +183,17 @@ class ScalaFmtSettingsPanel(val settings: CodeStyleSettings) extends CodeStyleAb
     showScalaFmtInvalidCodeWarnings.setSelected(scalaSettings.SCALAFMT_SHOW_INVALID_CODE_WARNINGS)
     useIntellijFormatterForRangeFormat.setSelected(scalaSettings.SCALAFMT_USE_INTELLIJ_FORMATTER_FOR_RANGE_FORMAT)
     reformatOnFileSaveCheckBox.setSelected(scalaSettings.SCALAFMT_REFORMAT_ON_FILES_SAVE)
-    getConfigVFile(configPath).foreach { vFile =>
+    projectConfigFile(configPath).foreach { vFile =>
       updateConfigTextFromFile(vFile)
     }
     updateConfigVisibility()
     updateUseIntellijWarningVisibility(scalaSettings)
     externalFormatterSettingsPath.getButton.grabFocus()
+
+    // TODO: refactor
+    doWithConfigFile(configPath) { vFile =>
+      ensureScalafmtResolved(vFile)
+    }
   }
 
   override def getPanel: JComponent = {
@@ -203,7 +274,7 @@ class ScalaFmtSettingsPanel(val settings: CodeStyleSettings) extends CodeStyleAb
       override def getText(textField: JTextField): String =
         Option(textField.getText).filter(StringUtils.isNotBlank).orElse {
           val path = DefaultConfigFilePath
-          project.flatMap(ScalaFmtConfigUtil.absolutePathFromConfigPath(path, _))
+          project.flatMap(ScalafmtDynamicConfigUtil.absolutePathFromConfigPath(path, _))
         }.orNull
     }
 
@@ -240,34 +311,8 @@ class ScalaFmtSettingsPanel(val settings: CodeStyleSettings) extends CodeStyleAb
     noConfigLabel.setVisible(configText.isEmpty)
   }
 
-  private def getConfigVFile(configPath: String): Option[VirtualFile] =
-    project.flatMap(ScalaFmtConfigUtil.scalaFmtConfigFile(configPath, _))
-
-  private def reportErrorsInConfig(): Unit = {
-    configText.foreach {Config.fromHoconString(_) match {
-      case Configured.NotOk(error) =>
-        val component = previewPanel
-        reportError(s"Failed to parse configuration: <br> ${error.msg}",
-          component, component.getWidth - 10, component.getHeight, Balloon.Position.above, MessageType.WARNING)
-      case _ =>
-    }}
-  }
-
-  private def reportConfigFileNotFound(configPath: String): Unit = {
-    val component = externalFormatterSettingsPath
-    reportError(s"Can not find scalafmt config file with path: `$configPath`",
-      component, component.getWidth / 2, component.getHeight, Balloon.Position.below)
-  }
-
-  private def reportError(text: String, relativeTo: JComponent,
-                          xPosition: Int, yPosition: Int,
-                          direction: Balloon.Position,
-                          messageType: MessageType = MessageType.ERROR): Unit = {
-    val factory = JBPopupFactory.getInstance.createHtmlTextBalloonBuilder(text, messageType, null)
-    val balloon = factory.createBalloon()
-    val balloonPosition = new RelativePoint(relativeTo, new Point(xPosition, yPosition))
-    balloon.show(balloonPosition, direction)
-  }
+  private def projectConfigFile(configPath: String): Option[VirtualFile] =
+    project.flatMap(ScalafmtDynamicConfigUtil.scalafmtProjectConfigFile(configPath, _))
 
   //copied from CodeStyleAbstractPanel
   //using non-null getPreviewText breaks setting saving (!!!)
@@ -303,5 +348,5 @@ class ScalaFmtSettingsPanel(val settings: CodeStyleSettings) extends CodeStyleAb
   private var useIntellijWarning: JLabel = _
   private var reformatOnFileSaveCheckBox: JBCheckBox = _
   private val customSettingsTitle = "Select custom scalafmt configuration file"
-  private val DefaultConfigFilePath = s".${File.separatorChar}${ScalaFmtConfigUtil.defaultConfigurationFileName}"
+  private val DefaultConfigFilePath = s".${File.separatorChar}${ScalafmtDynamicConfigUtil.DefaultConfigurationFileName}"
 }
