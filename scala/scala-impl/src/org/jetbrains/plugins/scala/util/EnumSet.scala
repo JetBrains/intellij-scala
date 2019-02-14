@@ -1,7 +1,5 @@
 package org.jetbrains.plugins.scala.util
 
-import sun.misc.SharedSecrets
-
 import scala.language.higherKinds
 import scala.reflect.ClassTag
 
@@ -68,9 +66,7 @@ object EnumSet {
 
   private def values[E <: Enum[E]](implicit classTag: ClassTag[E]): Array[E] = {
     val aClass = classTag.runtimeClass.asInstanceOf[Class[E]]
-
-    //magic from java.util.EnumSet
-    SharedSecrets.getJavaLangAccess.getEnumConstantsShared(aClass)
+    aClass.getEnumConstants
   }
 
   implicit class EnumSetOps[E <: Enum[E]](val set: EnumSet[E]) extends AnyVal {
