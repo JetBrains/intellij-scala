@@ -44,7 +44,7 @@ class TextJavaCopyPastePostProcessor extends SingularCopyPastePostProcessor[Conv
                                       (implicit project: Project,
                                                  editor: Editor,
                                                  file: ScalaFile): Unit = {
-    val settings = ScalaProjectSettings.getInstance(project)
+    implicit val settings: ScalaProjectSettings = ScalaProjectSettings.getInstance(project)
     if (!settings.isEnableJavaToScalaConversion) return
 
     val ConvertedCode(_, text, _) = value
@@ -54,9 +54,8 @@ class TextJavaCopyPastePostProcessor extends SingularCopyPastePostProcessor[Conv
 
     // TODO: Collect available imports in current scope. Use them while converting
     computejavaContext(text, project).foreach { javaCodeWithContext =>
-      val needShowDialog = !settings.isDontShowConversionDialog
 
-      if (!needShowDialog || shownDialog(ScalaBundle.message("scala.copy.from.text"), project).isOK) {
+      if (shownDialog(ScalaConversionBundle.message("scala.copy.from.text"))) {
         Stats.trigger(FeatureKey.convertFromJavaText)
 
         extensions.inWriteAction {

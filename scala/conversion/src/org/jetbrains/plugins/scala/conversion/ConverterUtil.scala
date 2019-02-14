@@ -11,7 +11,6 @@ import org.jetbrains.plugins.scala.codeInspection.parentheses.ScalaUnnecessaryPa
 import org.jetbrains.plugins.scala.codeInspection.prefixMutableCollections.ReferenceMustBePrefixedInspection
 import org.jetbrains.plugins.scala.codeInspection.syntacticSimplification.{RemoveRedundantReturnInspection, ScalaUnnecessarySemicolonInspection}
 import org.jetbrains.plugins.scala.conversion.ast.CommentsCollector
-import org.jetbrains.plugins.scala.conversion.copy.ScalaPasteFromJavaDialog
 import org.jetbrains.plugins.scala.extensions.{PsiElementExt, PsiFileExt}
 import org.jetbrains.plugins.scala.lang.lexer.ScalaTokenTypes
 import org.jetbrains.plugins.scala.lang.psi.api.base.ScReference
@@ -272,11 +271,5 @@ object ConverterUtil {
     if (isInsideStringLiteral && text.startsWith("\"") && text.endsWith("\""))
       document.replaceString(start - 1, end + 1, text)
     else document.replaceString(start, end, text)
-  }
-
-  def shownDialog(msg: String, project: Project): ScalaPasteFromJavaDialog = {
-    val dialog = new ScalaPasteFromJavaDialog(project, msg)
-    dialog.show()
-    dialog
   }
 }

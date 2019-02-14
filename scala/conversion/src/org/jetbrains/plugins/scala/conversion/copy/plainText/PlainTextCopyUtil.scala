@@ -1,11 +1,13 @@
-package org.jetbrains.plugins.scala.conversion.copy.plainText
+package org.jetbrains.plugins.scala
+package conversion
+package copy
+package plainText
 
 import com.intellij.codeInsight.daemon.JavaErrorMessages
 import com.intellij.ide.highlighter.JavaFileType
 import com.intellij.openapi.project.Project
 import com.intellij.psi._
-import org.jetbrains.plugins.scala.extensions.{IteratorExt, ObjectExt, PsiElementExt}
-import org.jetbrains.plugins.scala.lang.parser.ErrMsg
+import org.jetbrains.plugins.scala.extensions._
 import org.jetbrains.plugins.scala.lang.psi.api.ScalaFile
 import org.jetbrains.plugins.scala.lang.psi.impl.source.ScalaCodeFragment
 
@@ -17,6 +19,17 @@ import org.jetbrains.plugins.scala.lang.psi.impl.source.ScalaCodeFragment
   * Java file without any semicolon could be treated as scala
   */
 object PlainTextCopyUtil {
+
+  private val javaAllowedErrors = Set(
+    JavaErrorMessages.message("expected.semicolon"),
+    JavaErrorMessages.message("expected.rbrace")
+  )
+
+  private val scalaAllowedErrors = Set(
+    ScalaBundle.message("rbrace.expected"),
+    ScalaBundle.message("semi.expected")
+  )
+
   /**
     * Treat scala file as valid if it doesn't contain ";\n" or one word text or parsed correctly as scala and not parsed correctly as java
     */
@@ -55,12 +68,4 @@ object PlainTextCopyUtil {
 
   def createJavaFile(text: String, project: Project): Option[PsiJavaFile] =
     PsiFileFactory.getInstance(project).createFileFromText("Dummy.java", JavaFileType.INSTANCE, text).asOptionOf[PsiJavaFile]
-
-  private val javaAllowedErrors: Set[String] = Set (
-    JavaErrorMessages.message("expected.semicolon"), JavaErrorMessages.message("expected.rbrace")
-  )
-
-  private val scalaAllowedErrors: Set[String] = Set (
-    ErrMsg("rbrace.expected"), ErrMsg("semi.expected")
-  )
 }

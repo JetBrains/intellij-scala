@@ -1,7 +1,7 @@
 <?xml version="1.0" encoding="iso-8859-1"?>
 
 <idea-plugin>
-    <!--    <resource-bundle xmlns="">messages.ScalaConversionBundle</resource-bundle>-->
+    <resource-bundle xmlns="">messages.ScalaConversionBundle</resource-bundle>
 
     <extensions defaultExtensionNs="com.intellij">
 

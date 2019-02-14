@@ -20,11 +20,13 @@ public class ScalaPasteFromJavaDialog extends DialogWrapper {
     private JCheckBox donTShowThisCheckBox;
     private JLabel lable1;
     private JButton buttonOK;
-    private Project myProject;
+    private ScalaProjectSettings mySettings;
 
-    public ScalaPasteFromJavaDialog(Project project, String message) {
+    public ScalaPasteFromJavaDialog(Project project,
+                                    ScalaProjectSettings settings,
+                                    String message) {
         super(project, true);
-        myProject = project;
+        mySettings = settings;
         setModal(true);
         getRootPane().setDefaultButton(buttonOK);
         setTitle("Convert Code from Java");
@@ -47,7 +49,7 @@ public class ScalaPasteFromJavaDialog extends DialogWrapper {
 
     protected void doOKAction() {
         if (donTShowThisCheckBox.isSelected()) {
-            ScalaProjectSettings.getInstance(myProject).setDontShowConversionDialog(true);
+            mySettings.setDontShowConversionDialog(true);
         }
         super.doOKAction();
     }

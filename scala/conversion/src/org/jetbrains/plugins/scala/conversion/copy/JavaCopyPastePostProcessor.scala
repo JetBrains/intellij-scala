@@ -103,7 +103,7 @@ class JavaCopyPastePostProcessor extends SingularCopyPastePostProcessor[Converte
                                       (implicit project: Project,
                                        editor: Editor,
                                        file: ScalaFile): Unit = {
-    val settings = ScalaProjectSettings.getInstance(project)
+    implicit val settings: ScalaProjectSettings = ScalaProjectSettings.getInstance(project)
     if (!settings.isEnableJavaToScalaConversion) return
 
     if (value == null) return
@@ -111,9 +111,7 @@ class JavaCopyPastePostProcessor extends SingularCopyPastePostProcessor[Converte
     if (text == "") return
     //copy as usually
 
-    val needShowDialog = (!settings.isDontShowConversionDialog) && showDialog
-
-    if (!needShowDialog || shownDialog(ScalaBundle.message("scala.copy.from.java"), project).isOK) {
+    if (!showDialog || shownDialog(ScalaConversionBundle.message("scala.copy.from.java"))) {
       val shiftedAssociations = inWriteAction {
         performePaste(editor, bounds, text, project)
 
