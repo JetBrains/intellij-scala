@@ -12,11 +12,11 @@ class ScalaFormatSelectionTest extends SelectionTest {
 
   def testSelection(): Unit = {
     val before =
-      """
+      s"""
         |class MyClass {
         |  val a: Int = 1
         |  val b: Int = 2
-        |  def foo() = /*start*/a+b/*end*/
+        |  def foo() = ${startMarker}a+b$endMarker
         |  def bar() = a+b
         |}
       """.stripMargin
@@ -36,13 +36,13 @@ class ScalaFormatSelectionTest extends SelectionTest {
 
   def testSelectionInParent(): Unit = {
     val before =
-      """
+      s"""
         |class MyClass {
         |  val a: Int = 1
         |  val b: Int = 2
         |  a+b
         |
-        |/*start*/  def foo() = a+b/*end*/
+        |$startMarker def foo() = a+b$endMarker
         |  def bar() = a+b
         |}
       """.stripMargin
@@ -64,13 +64,13 @@ class ScalaFormatSelectionTest extends SelectionTest {
 
   def testSelectionNearScalaDoc(): Unit = {
     val before =
-      """
+      s"""
         |class MyClass {
-        |/*start*//**
+        |$startMarker/**
         |  * @param x
         |  * @param y
         |  * @return x+y
-        |  *//*end*/
+        |  */$endMarker
         |def foo(x: Int, y: Int): Int = x+y
         |}
       """.stripMargin
@@ -92,13 +92,13 @@ class ScalaFormatSelectionTest extends SelectionTest {
 
   def testSelectionNearScalaDocExtended(): Unit = {
     val before =
-      """
+      s"""
         |class MyClass {
-        |/*start*//**
+        |$startMarker/**
         |  * @param x
         |    @param y
         |    @return x+y
-        |  *//*end*/
+        |  */$endMarker
         |def foo(x: Int, y: Int): Int = x+y
         |}
       """.stripMargin
@@ -120,11 +120,11 @@ class ScalaFormatSelectionTest extends SelectionTest {
 
   def testSCL10000(): Unit = {
     val before =
-      """
+      s"""
         |class Test {
         |//someComment
-        |  def foo() = /*start*/{
-        |}/*end*/
+        |  def foo() = $startMarker{
+        |}$endMarker
         |}
       """.stripMargin
 
@@ -142,13 +142,13 @@ class ScalaFormatSelectionTest extends SelectionTest {
 
   def testSCL10000Vals(): Unit = {
     val before =
-      """
+      s"""
         |class Test {
         |  def foo() = ???
         |//someComment
-        |  val bar = /*start*/{
+        |  val bar = $startMarker{
         |  42
-        |}/*end*/
+        |}$endMarker
         |}
       """.stripMargin.replace("\r","")
 
@@ -171,13 +171,13 @@ class ScalaFormatSelectionTest extends SelectionTest {
 //    getCommonSettings.ALIGN_GROUP_FIELD_DECLARATIONS = true
 //
 //    val before =
-//      """
+//      s"""
 //        |class Test {
 //        |  val longValName = 42
 //        |//someComment
-//        |  val short       = /*start*/{
+//        |  val short       = $startMarker{
 //        |11
-//        |}/*end*/
+//        |}$endMarker
 //        |}
 //      """.stripMargin
 //
