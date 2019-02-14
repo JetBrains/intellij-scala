@@ -80,7 +80,7 @@ class ScParameterImpl protected (stub: ScParameterStub, nodeType: ScParamElement
             case Some(t) => success(t)
             case None => success(Nothing)
           }
-          case Some(e) => success(e.`type`().getOrAny)
+          case Some(e) => e.`type`()
         }
       case paramStub =>
         paramStub.typeText match {
