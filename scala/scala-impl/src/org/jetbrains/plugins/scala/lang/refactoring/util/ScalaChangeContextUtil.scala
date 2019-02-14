@@ -6,7 +6,6 @@ package util
 import com.intellij.openapi.project.DumbService
 import com.intellij.openapi.util.Key
 import com.intellij.psi._
-import org.jetbrains.plugins.scala.conversion.copy.ScalaCopyPastePostProcessor
 import org.jetbrains.plugins.scala.lang.psi.api.ScalaFile
 
 /**
@@ -41,7 +40,7 @@ object ScalaChangeContextUtil {
     case scalaFile: ScalaFile if !DumbService.getInstance(scalaFile.getProject).isDumb =>
       element.getTextRange match {
         case range if range.getStartOffset == 0 => null
-        case range => ScalaCopyPastePostProcessor.collectAssociations(range)(scalaFile)
+        case range => Associations.collectAssociations(range)(scalaFile)
       }
     case _ => null
   }

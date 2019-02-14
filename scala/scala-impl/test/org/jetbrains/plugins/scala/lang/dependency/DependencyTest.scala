@@ -233,7 +233,7 @@ class DependencyTest extends base.SimpleTestCase {
   private def assertDependenciesAre(@Language("Scala") code: String, expected: String*) {
     val file = parseText(code)
 
-    val descriptors = conversion.copy.ScalaCopyPastePostProcessor
+    val descriptors = refactoring.Associations
       .collectAssociationsForRange(file.getTextRange)(file)
       .map(_.path.asString())
       .toSet
