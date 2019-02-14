@@ -11,11 +11,8 @@ import com.intellij.openapi.project.{DumbService, Project}
 import com.intellij.openapi.ui.DialogWrapper
 import com.intellij.openapi.util.{Ref, TextRange}
 import com.intellij.psi._
-import com.intellij.psi.util.PsiTreeUtil
-import org.jetbrains.plugins.scala.annotator.intention.ScalaImportTypeFix
-import org.jetbrains.plugins.scala.extensions.{PsiElementExt, _}
-import org.jetbrains.plugins.scala.lang.dependency.{Dependency, Path}
-import org.jetbrains.plugins.scala.lang.psi.ScImportsHolder
+import org.jetbrains.plugins.scala.extensions._
+import org.jetbrains.plugins.scala.lang.dependency.Dependency
 import org.jetbrains.plugins.scala.lang.psi.api.ScalaFile
 import org.jetbrains.plugins.scala.lang.psi.api.base.ScReference
 import org.jetbrains.plugins.scala.lang.psi.api.base.types.ScTypeProjection
@@ -27,7 +24,7 @@ import org.jetbrains.plugins.scala.lang.psi.impl.base.ScStableCodeReferenceImpl
 import org.jetbrains.plugins.scala.lang.refactoring._
 import org.jetbrains.plugins.scala.settings._
 
-import scala.collection.{JavaConverters, mutable}
+import scala.collection.mutable
 
 /**
   * Pavel Fatin
@@ -62,9 +59,7 @@ class ScalaCopyPastePostProcessor extends SingularCopyPastePostProcessor[Associa
       case setting =>
         PsiDocumentManager.getInstance(project).commitAllDocuments()
 
-        val offset = bounds.getStartOffset
-
-        doRestoreAssociations(value.associations, offset) {
+        value.restore(bounds) {
           case bindingsToRestore if setting == ASK =>
             val dialog = new RestoreReferencesDialog(project, bindingsToRestore.map(_.path.toOption.getOrElse("")).sorted.toArray)
             dialog.show()
@@ -83,45 +78,6 @@ class ScalaCopyPastePostProcessor extends SingularCopyPastePostProcessor[Associa
 object ScalaCopyPastePostProcessor {
 
   private val Log = Logger.getInstance(getClass)
-
-  def doRestoreAssociations(associations: Seq[Association], offset: Int)
-                           (filter: Seq[Binding] => Seq[Binding])
-                           (implicit project: Project,
-                            file: PsiFile): Unit = {
-    def hasNonDefaultPackage(path: String) = path.lastIndexOf('.') match {
-      case -1 => false
-      case index => path.substring(0, index) match {
-        case "scala" |
-             "java.lang" |
-             "scala.Predef" => false
-        case _ => true
-      }
-    }
-
-    val bindings = for {
-      association <- associations
-      element <- elementFor(association, offset)
-
-      path = association.path.asString()
-      if hasNonDefaultPackage(path)
-    } yield Binding(element, path)
-
-    if (bindings.isEmpty) return
-
-    val bindingsToRestore = filter(bindings.distinctBy(_.path))
-
-    if (bindingsToRestore.isEmpty) return
-
-    import JavaConverters._
-    val commonParent = PsiTreeUtil.findCommonParent(bindingsToRestore.map(_.element).asJava)
-    val importsHolder = ScalaImportTypeFix.getImportHolder(commonParent, project)
-
-    val paths = bindingsToRestore.map(_.path)
-
-    inWriteAction {
-      importsHolder.addImportsForPaths(paths, commonParent)
-    }
-  }
 
   def collectAssociations(ranges: TextRange*)
                          (implicit file: ScalaFile): Associations = {
@@ -200,35 +156,6 @@ object ScalaCopyPastePostProcessor {
       case ChildOf(sc: ScSugarCallExpr) => ref == sc.getBaseExpr
       case _ => true
     }
-  }
-
-
-  private def elementFor(association: Association, offset: Int)
-                        (implicit file: PsiFile): Option[PsiElement] = {
-    val Association(path, range) = association
-    val shiftedRange = range.shiftRight(offset)
-
-    for {
-      ref <- Option(file.findElementAt(shiftedRange.getStartOffset))
-
-      parent <- ref.parent
-      if parent.getTextRange == shiftedRange
-
-      if !isSatisfiedIn(parent, path)
-    } yield parent
-  }
-
-  private def isSatisfiedIn(element: PsiElement, path: Path): Boolean = element match {
-    case reference: ScReference =>
-      Dependency.dependencyFor(reference).exists {
-        case Dependency(_, `path`) => true
-        case _ => false
-      }
-    case _ => false
-  }
-
-  case class Binding(element: PsiElement, path: String) {
-    def importsHolder: ScImportsHolder = ScalaImportTypeFix.getImportHolder(element, element.getProject)
   }
 
   private def subText(range: TextRange)
