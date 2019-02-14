@@ -2,10 +2,12 @@ package org.jetbrains.plugins.scala
 package annotator
 package template
 
+import org.jetbrains.plugins.scala.lang.psi.impl.toplevel.typedef.ScTemplateDefinitionImpl
+
 /**
   * Pavel Fatin
   */
-class NeedsToBeAbstractTest extends AnnotatorTestBase {
+class NeedsToBeAbstractTest extends AnnotatorTestBase[ScTemplateDefinitionImpl](_.annotateNeedsToBeAbstract(_, typeAware = true)) {
 
   def testFine(): Unit = {
     assertNothing(messages("class C"))
@@ -19,15 +21,11 @@ class NeedsToBeAbstractTest extends AnnotatorTestBase {
   }
 
   def testSkipNew(): Unit = {
-    assertMatches(messages("trait T { def f }; new Object with T")) {
-      case Error("Object", "Object creation impossible, since  member f: Unit in Holder.T is not defined") :: Nil =>
-    }
+    assertNothing(messages("trait T { def f }; new Object with T"))
   }
 
   def testSkipObject(): Unit = {
-    assertMatches(messages("trait T { def f }; object O extends T")) {
-      case Error("O", "Object creation impossible, since  member f: Unit in Holder.T is not defined") :: Nil =>
-    }
+    assertNothing(messages("trait T { def f }; object O extends T"))
   }
 
   def testUndefinedMember(): Unit = {

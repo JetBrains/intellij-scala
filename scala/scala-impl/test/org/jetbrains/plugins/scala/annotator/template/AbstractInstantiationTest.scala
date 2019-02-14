@@ -2,10 +2,12 @@ package org.jetbrains.plugins.scala
 package annotator
 package template
 
+import org.jetbrains.plugins.scala.lang.psi.impl.expr.ScNewTemplateDefinitionImpl
+
 /**
  * Pavel Fatin
  */
-class AbstractInstantiationTest extends AnnotatorTestBase {
+class AbstractInstantiationTest extends AnnotatorTestBase[ScNewTemplateDefinitionImpl](_.annotateAbstractInstantiation(_)) {
 
   def testOrdinaryClass(): Unit = {
     assertNothing(messages("class C; new C"))

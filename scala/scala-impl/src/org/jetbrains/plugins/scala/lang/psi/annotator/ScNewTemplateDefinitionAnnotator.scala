@@ -15,7 +15,8 @@ trait ScNewTemplateDefinitionAnnotator extends Annotatable { self: ScNewTemplate
     annotateAbstractInstantiation(holder)
   }
 
-  private def annotateAbstractInstantiation(holder: AnnotationHolder): Unit = {
+  // TODO package private
+  def annotateAbstractInstantiation(holder: AnnotationHolder): Unit = {
     val hasBody = extendsBlock.templateBody.isDefined
     val hasEarlyBody = extendsBlock.earlyDefinitions.exists(_.members.nonEmpty)
 

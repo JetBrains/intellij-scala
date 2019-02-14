@@ -39,7 +39,8 @@ trait ScTemplateDefinitionAnnotator extends Annotatable { self: ScTemplateDefini
     }
   }
 
-  private def annotateFinalClassInheritance(holder: AnnotationHolder): Unit = {
+  // TODO package private
+  def annotateFinalClassInheritance(holder: AnnotationHolder): Unit = {
     val newInstance = isInstanceOf[ScNewTemplateDefinition]
     val hasBody = extendsBlock.templateBody.isDefined
 
@@ -75,7 +76,8 @@ trait ScTemplateDefinitionAnnotator extends Annotatable { self: ScTemplateDefini
       }
   }
 
-  private def annotateObjectCreationImpossible(holder: AnnotationHolder) {
+  // TODO package private
+  def annotateObjectCreationImpossible(holder: AnnotationHolder) {
     val isNew = isInstanceOf[ScNewTemplateDefinition]
     val isObject = isInstanceOf[ScObject]
 
@@ -140,7 +142,8 @@ trait ScTemplateDefinitionAnnotator extends Annotatable { self: ScTemplateDefini
     case _ =>
   }
 
-  private def annotateUndefinedMember(holder: AnnotationHolder): Unit = {
+  // TODO package private
+  def annotateUndefinedMember(holder: AnnotationHolder): Unit = {
     val isNew = isInstanceOf[ScNewTemplateDefinition]
     val isObject = isInstanceOf[ScObject]
 
@@ -178,7 +181,8 @@ trait ScTemplateDefinitionAnnotator extends Annotatable { self: ScTemplateDefini
     case _ =>
   }
 
-  private def annotateNeedsToBeAbstract(holder: AnnotationHolder, typeAware: Boolean): Unit = this match {
+  // TODO package private
+  def annotateNeedsToBeAbstract(holder: AnnotationHolder, typeAware: Boolean): Unit = this match {
     case _: ScNewTemplateDefinition | _: ScObject =>
     case _ if !typeAware || isAbstract(this) =>
     case _ =>

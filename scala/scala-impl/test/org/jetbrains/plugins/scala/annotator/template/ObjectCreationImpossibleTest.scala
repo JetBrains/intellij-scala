@@ -2,12 +2,13 @@ package org.jetbrains.plugins.scala.annotator.template
 
 import org.jetbrains.plugins.scala.annotator.{AnnotatorTestBase, Error}
 import org.jetbrains.plugins.scala.lang.psi.annotator.ScTemplateDefinitionAnnotator._
+import org.jetbrains.plugins.scala.lang.psi.impl.toplevel.typedef.ScTemplateDefinitionImpl
 
 /**
  * Pavel Fatin
  */
 
-class ObjectCreationImpossibleTest extends AnnotatorTestBase {
+class ObjectCreationImpossibleTest extends AnnotatorTestBase[ScTemplateDefinitionImpl](_.annotateObjectCreationImpossible(_)) {
   def testFineNew() {
     assertNothing(messages("class C; new C"))
     assertNothing(messages("class C; new C {}"))
@@ -27,9 +28,7 @@ class ObjectCreationImpossibleTest extends AnnotatorTestBase {
   }
 
   def testSkipAbstractInstantiations() {
-    assertMatches(messages("trait T; new T")) {
-      case Error("T", "Trait 'T' is abstract; cannot be instantiated") :: Nil =>
-    }
+    assertNothing(messages("trait T; new T"))
   }
 
   def testSkipConcrete() {
@@ -82,8 +81,6 @@ class ObjectCreationImpossibleTest extends AnnotatorTestBase {
   }
 
   def testSkipTypeDeclarationSCL2887() {
-    assertMatches(messages("trait A { type a }; new A {}")) {
-      case Nil =>
-    }
+    assertNothing(messages("trait A { type a }; new A {}"))
   }
 }

@@ -2,10 +2,12 @@ package org.jetbrains.plugins.scala
 package annotator
 package template
 
+import org.jetbrains.plugins.scala.lang.psi.impl.toplevel.typedef.ScTemplateDefinitionImpl
+
 /**
  * Pavel Fatin
  */
-class FinalClassInheritanceTest extends AnnotatorTestBase {
+class FinalClassInheritanceTest extends AnnotatorTestBase[ScTemplateDefinitionImpl](_.annotateFinalClassInheritance(_)) {
 
   def testOrdinaryClass(): Unit = {
     assertNothing(messages("class C; new C"))

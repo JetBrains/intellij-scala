@@ -2,10 +2,12 @@ package org.jetbrains.plugins.scala
 package annotator
 package template
 
+import org.jetbrains.plugins.scala.lang.psi.impl.toplevel.typedef.ScTemplateDefinitionImpl
+
 /**
  * Pavel Fatin
  */
-class UndefinedMemberTest extends AnnotatorTestBase {
+class UndefinedMemberTest extends AnnotatorTestBase[ScTemplateDefinitionImpl](_.annotateUndefinedMember(_)) {
 
   def testValidHolders(): Unit = {
     assertNothing(messages("class C { def f }"))
