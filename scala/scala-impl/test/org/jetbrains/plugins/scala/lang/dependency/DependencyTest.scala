@@ -233,10 +233,9 @@ class DependencyTest extends base.SimpleTestCase {
   private def assertDependenciesAre(@Language("Scala") code: String, expected: String*) {
     val file = parseText(code)
 
-    val descriptors = refactoring.Associations
-      .collectAssociationsForRange(file.getTextRange)(file)
-      .map(_.path.asString())
-      .toSet
+    val descriptors = Dependency.collect(file.getTextRange)(file).map {
+      case (path, _) => path.asString()
+    }.toSet
 
     Assert.assertEquals(expected.toSet, descriptors)
   }

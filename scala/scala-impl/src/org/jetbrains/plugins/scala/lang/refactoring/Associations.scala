@@ -11,15 +11,8 @@ import com.intellij.psi.util.PsiTreeUtil
 import com.intellij.psi.{PsiElement, PsiFile}
 import org.jetbrains.plugins.scala.annotator.intention.ScalaImportTypeFix
 import org.jetbrains.plugins.scala.extensions._
-import org.jetbrains.plugins.scala.lang.dependency.Dependency
 import org.jetbrains.plugins.scala.lang.psi.api.ScalaFile
 import org.jetbrains.plugins.scala.lang.psi.api.base.ScReference
-import org.jetbrains.plugins.scala.lang.psi.api.base.types.ScTypeProjection
-import org.jetbrains.plugins.scala.lang.psi.api.expr.{ScReferenceExpression, ScSugarCallExpr}
-import org.jetbrains.plugins.scala.lang.psi.api.toplevel.ScPackaging
-import org.jetbrains.plugins.scala.lang.psi.api.toplevel.imports.ScImportStmt
-import org.jetbrains.plugins.scala.lang.psi.api.toplevel.templates.ScTemplateParents
-import org.jetbrains.plugins.scala.lang.psi.impl.base.ScStableCodeReferenceImpl
 
 import scala.collection.{JavaConverters, mutable}
 
@@ -69,6 +62,8 @@ final class Associations private(override val associations: Array[Association])
 
 object Associations extends AssociationsData.Companion(classOf[Associations], "ScalaReferenceData") {
 
+  import dependency._
+
   private val logger = Logger.getInstance(getClass)
 
   def apply(associations: Array[Association]) = new Associations(associations)
@@ -116,8 +111,11 @@ object Associations extends AssociationsData.Companion(classOf[Associations], "S
         (() => {
           for {
             range <- ranges
-            association <- collectAssociationsForRange(range)
-          } buffer += association
+
+            (path, references) <- Dependency.collect(range)
+            reference <- references
+
+          } buffer += Association(path, reference.getTextRange.shiftRight(-range.getStartOffset))
         }): Runnable,
         new ProgressIndicator
       )
@@ -154,53 +152,6 @@ object Associations extends AssociationsData.Companion(classOf[Associations], "S
     private val Timeout = 3000L
   }
 
-  def collectAssociationsForRange(range: TextRange)
-                                 (implicit file: ScalaFile): Iterable[Association] = {
-    def scopeEstimate(e: PsiElement): Option[PsiElement] = {
-      e.parentsInFile
-        .flatMap(_.prevSiblings)
-        .collectFirst {
-          case i: ScImportStmt => i
-          case p: ScPackaging => p
-          case cp: ScTemplateParents => cp
-        }
-    }
-
-    val groupedReferences = unqualifiedReferencesInRange(range).groupBy { ref =>
-      (ref.refName, scopeEstimate(ref), ref.getKinds(incomplete = false))
-    }.values
-
-    for {
-      references <- groupedReferences
-      dep@Dependency(_, path) <- Dependency.dependencyFor(references.head).toSeq
-      if dep.isExternal(file, range)
-
-      reference <- references
-    } yield Association(
-      path,
-      reference.getTextRange.shiftRight(-range.getStartOffset)
-    )
-  }
-
-  private def unqualifiedReferencesInRange(range: TextRange)
-                                          (implicit file: ScalaFile): Seq[ScReference] =
-    file.depthFirst().filter { element =>
-      range.contains(element.getTextRange)
-    }.collect {
-      case ref: ScReferenceExpression if isPrimary(ref) => ref
-      case ref: ScStableCodeReferenceImpl if isPrimary(ref) => ref
-    }.toSeq
-
-  private def isPrimary(ref: ScReference): Boolean = {
-    if (ref.qualifier.nonEmpty) return false
-
-    ref match {
-      case _: ScTypeProjection => false
-      case ChildOf(sc: ScSugarCallExpr) => ref == sc.getBaseExpr
-      case _ => true
-    }
-  }
-
   private def subText(range: TextRange)
                      (implicit file: ScalaFile) =
     file.getText.substring(range.getStartOffset, range.getEndOffset)
@@ -230,11 +181,9 @@ object Associations extends AssociationsData.Companion(classOf[Associations], "S
     } yield parent
   }
 
-  import dependency._
-
   private def isSatisfiedIn(element: PsiElement, path: Path): Boolean = element match {
     case reference: ScReference =>
-      Dependency.dependencyFor(reference).exists {
+      Dependency.dependenciesFor(reference).exists {
         case Dependency(_, `path`) => true
         case _ => false
       }

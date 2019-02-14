@@ -7,12 +7,16 @@ import com.intellij.psi._
 import com.intellij.psi.scope.NameHint
 import org.jetbrains.plugins.scala.extensions._
 import org.jetbrains.plugins.scala.lang.psi.ScalaPsiUtil
+import org.jetbrains.plugins.scala.lang.psi.api.ScalaFile
 import org.jetbrains.plugins.scala.lang.psi.api.base.patterns.{ScConstructorPattern, ScReferencePattern}
+import org.jetbrains.plugins.scala.lang.psi.api.base.types.ScTypeProjection
 import org.jetbrains.plugins.scala.lang.psi.api.base.{ScConstructor, ScPrimaryConstructor, ScReference}
 import org.jetbrains.plugins.scala.lang.psi.api.expr._
 import org.jetbrains.plugins.scala.lang.psi.api.statements.ScFunctionDefinition
-import org.jetbrains.plugins.scala.lang.psi.api.toplevel.ScNamedElement
+import org.jetbrains.plugins.scala.lang.psi.api.toplevel.imports.ScImportStmt
+import org.jetbrains.plugins.scala.lang.psi.api.toplevel.templates.ScTemplateParents
 import org.jetbrains.plugins.scala.lang.psi.api.toplevel.typedef.{ScClass, ScMember, ScObject}
+import org.jetbrains.plugins.scala.lang.psi.api.toplevel.{ScNamedElement, ScPackaging}
 import org.jetbrains.plugins.scala.lang.psi.impl.base.ScStableCodeReferenceImpl
 import org.jetbrains.plugins.scala.lang.psi.impl.expr.ScReferenceExpressionImpl
 import org.jetbrains.plugins.scala.lang.psi.impl.toplevel.synthetic.ScSyntheticClass
@@ -25,13 +29,7 @@ import org.jetbrains.plugins.scala.project.ProjectContext
   * Pavel Fatin
   */
 
-case class Dependency(target: PsiElement, path: Path) {
-  def isExternal(file: PsiFile, range: TextRange): Boolean = {
-    if (ApplicationManager.getApplication.isUnitTestMode) return true
-
-    file != target.getContainingFile || !range.contains(target.getTextRange)
-  }
-}
+case class Dependency(target: PsiElement, path: Path)
 
 object Dependency {
 
@@ -55,16 +53,62 @@ object Dependency {
     }
   }
 
-  def dependenciesIn(scope: PsiElement): Seq[Dependency] = {
-    scope.depthFirst()
-      .instancesOf[ScReference]
-      .toList
-      .flatMap(reference => dependencyFor(reference).toList)
+  def dependenciesIn(scope: PsiElement): Seq[Dependency] = scope.depthFirst()
+    .instancesOf[ScReference]
+    .toList
+    .flatMap(dependenciesFor)
+
+  def dependenciesFor(reference: ScReference): List[Dependency] =
+    fastResolve(reference).flatMap { result =>
+      dependencyFor(reference, result.element, result.fromType)
+    }.toList
+
+  def collect(range: TextRange)
+             (implicit file: ScalaFile): Iterable[(Path, Seq[ScReference])] = {
+    def scopeEstimate(e: PsiElement): Option[PsiElement] =
+      e.parentsInFile.flatMap {
+        _.prevSiblings
+      }.collectFirst {
+        case statement: ScImportStmt => statement
+        case packaging: ScPackaging => packaging
+        case parents: ScTemplateParents => parents
+      }
+
+    val groupedReferences = unqualifiedReferencesInRange(range).groupBy { reference =>
+      (reference.refName, scopeEstimate(reference), reference.getKinds(incomplete = false))
+    }.values
+
+    for {
+      references <- groupedReferences
+      Dependency(target, path) <- dependenciesFor(references.head)
+      if ApplicationManager.getApplication.isUnitTestMode || !isInternal(target, range)
+    } yield (path, references)
   }
 
-  def dependencyFor(reference: ScReference): Option[Dependency] = {
-    fastResolve(reference)
-      .flatMap(result => dependencyFor(reference, result.element, result.fromType))
+  private def isInternal(target: PsiElement, range: TextRange)
+                        (implicit scalaFile: ScalaFile): Boolean =
+    target.getContainingFile match {
+      case `scalaFile` => range.contains(target.getTextRange)
+      case _ => false
+    }
+
+  private def unqualifiedReferencesInRange(range: TextRange)
+                                          (implicit file: ScalaFile): Seq[ScReference] =
+    file.depthFirst().filter { element =>
+      range.contains(element.getTextRange)
+    }.collect {
+      case ref: ScReferenceExpression if isPrimary(ref) => ref
+      case ref: ScStableCodeReferenceImpl if isPrimary(ref) => ref
+    }.toSeq
+
+  private def isPrimary(ref: ScReference): Boolean = {
+    if (ref.qualifier.nonEmpty) return false
+
+    ref match {
+      case _: ScTypeProjection => false
+      case ChildOf(sc: ScSugarCallExpr) => ref == sc.getBaseExpr
+      case _ => true
+    }
   }
 
   private def fastResolve(ref: ScReference): Option[ScalaResolveResult] = {
