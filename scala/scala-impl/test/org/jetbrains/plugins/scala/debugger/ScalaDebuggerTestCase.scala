@@ -54,6 +54,10 @@ abstract class ScalaDebuggerTestCase extends ScalaDebuggerTestBase {
 
   override def setUp(): Unit = {
     super.setUp()
+
+    //todo: properly fix thread leak
+    ThreadTracker.longRunningThreadCreated(getTestRootDisposable, "DebugProcessEvents")
+
     if (needMake) {
       make()
       saveChecksums()
@@ -73,7 +77,6 @@ abstract class ScalaDebuggerTestCase extends ScalaDebuggerTestBase {
 
     try {
       callback
-      resume()
     } finally {
       Assert.assertTrue("Stop at breakpoint expected", breakpointTracker.wasAtBreakpoint || !shouldStopAtBreakpoint)
 
