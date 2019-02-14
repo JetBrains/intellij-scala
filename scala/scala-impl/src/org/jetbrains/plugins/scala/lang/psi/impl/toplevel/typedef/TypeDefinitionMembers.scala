@@ -506,7 +506,7 @@ object TypeDefinitionMembers {
       case td: ScTypeDefinition =>
         getCompanionModule(td) match {
           case Some(obj: ScObject) => getSignatures(obj)
-          case None => MixinNodes.emptyMap
+          case _ => MixinNodes.emptyMap
         }
       case _ => MixinNodes.emptyMap
     }
