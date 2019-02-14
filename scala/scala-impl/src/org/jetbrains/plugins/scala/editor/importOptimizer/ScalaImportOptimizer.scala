@@ -99,6 +99,9 @@ class ScalaImportOptimizer extends ImportOptimizer {
     val counter = new AtomicInteger(0)
 
     def processAllElementsConcurrentlyUnderProgress[T <: PsiElement](elements: util.List[T])(action: T => Unit) = {
+      if (indicator != null) {
+        indicator.setIndeterminate(false)
+      }
       JobLauncher.getInstance().invokeConcurrentlyUnderProgress(elements, indicator, true, false, (element: T) => {
         val count: Int = counter.getAndIncrement
         if (count <= size && indicator != null) indicator.setFraction(count.toDouble / size)
