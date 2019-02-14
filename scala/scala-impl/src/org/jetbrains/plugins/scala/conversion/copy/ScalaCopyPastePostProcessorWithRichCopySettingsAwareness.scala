@@ -12,6 +12,6 @@ final class ScalaCopyPastePostProcessorWithRichCopySettingsAwareness extends Sca
                                       (implicit file: PsiFile, editor: Editor): Option[lang.refactoring.Associations] =
     RichCopySettings.getInstance() match {
       case copySettings if copySettings.isEnabled => super.collectTransferableData(startOffsets, endOffsets) // copy as plain text
-      case _ => null
+      case _ => None
     }
 }
