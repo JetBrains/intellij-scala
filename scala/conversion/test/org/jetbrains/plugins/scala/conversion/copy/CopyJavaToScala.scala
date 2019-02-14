@@ -1,7 +1,8 @@
-package org.jetbrains.plugins.scala.copy
+package org.jetbrains.plugins.scala
+package conversion
+package copy
 
 import com.intellij.codeInsight.CodeInsightSettings
-import org.jetbrains.plugins.scala.settings.{ScalaApplicationSettings, ScalaProjectSettings}
 
 /**
   * [[CopyJavaToScala]] check imports addition to converted code, when they were not copied
@@ -11,7 +12,9 @@ import org.jetbrains.plugins.scala.settings.{ScalaApplicationSettings, ScalaProj
   *
   * Created by Kate Ustuyzhanina on 12/28/16.
   */
-class CopyJavaToScala extends CopyTestBase() {
+class CopyJavaToScala extends CopyTestBase {
+
+  import settings._
 
   override def setUp(): Unit = {
     super.setUp()
@@ -19,7 +22,7 @@ class CopyJavaToScala extends CopyTestBase() {
     ScalaApplicationSettings.getInstance().ADD_IMPORTS_ON_PASTE = CodeInsightSettings.YES
   }
 
-  def testAddSimpleImport() = {
+  def testAddSimpleImport(): Unit = {
     val fromText =
       """
         |import java.io.File;

@@ -47,5 +47,6 @@
     <xi:include href="SBT.xml" xpointer="xpointer(/idea-plugin/*)"/>
     <xi:include href="BSP.xml" xpointer="xpointer(/idea-plugin/*)"/>
     <xi:include href="codeInsight.xml" xpointer="xpointer(/idea-plugin/*)"/>
+    <xi:include href="conversion.xml" xpointer="xpointer(/idea-plugin/*)"/>
 
 </idea-plugin>

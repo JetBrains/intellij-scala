@@ -281,11 +281,6 @@
         <refactoring.changeSignatureUsageProcessor implementation="org.jetbrains.plugins.scala.lang.refactoring.changeSignature.ScalaChangeSignatureUsageProcessor" order = "first" id="scalaProcessor"/>
         <refactoring.changeSignatureUsageProcessor implementation="org.jetbrains.plugins.scala.lang.refactoring.introduceParameter.ScalaIntroduceParameterUsageProcessor" order = "first" id="scalaIntroduceParamterProcessor"/>
         <refactoring.helper implementation="org.jetbrains.plugins.scala.lang.refactoring.changeSignature.ScalaChangeSignatureRefactoringHelper"/>
-        <copyPastePreProcessor implementation="org.jetbrains.plugins.scala.conversion.copy.StringLiteralProcessor"/>
-        <copyPastePostProcessor implementation="org.jetbrains.plugins.scala.conversion.copy.JavaCopyPastePostProcessor"/>
-        <copyPastePostProcessor implementation="org.jetbrains.plugins.scala.conversion.copy.ScalaCopyPastePostProcessorWithRichCopySettingsAwareness"/>
-        <copyPastePostProcessor implementation="org.jetbrains.plugins.scala.conversion.copy.plainText.TextJavaCopyPastePostProcessor"/>
-        <copyPastePreProcessor implementation="org.jetbrains.plugins.scala.conversion.copy.MultiLineStringCopyPasteProcessor" order="first"/>
         <typeDeclarationProvider implementation="org.jetbrains.plugins.scala.annotator.gutter.ScalaGotoTypeDeclarationProvider"/>
         <highlightVisitor implementation="org.jetbrains.plugins.scala.annotator.ScalaAnnotatorHighlightVisitor"/>
         <commentCompleteHandler implementation="org.jetbrains.plugins.scala.lang.scaladoc.ScalaIsCommentComplete"/>
@@ -294,9 +289,6 @@
         <runLineMarkerContributor implementationClass="org.jetbrains.plugins.scala.testingSupport.test.ScalaTestRunLineMarkerProvider" language="Scala"/>
         <runLineMarkerContributor implementationClass="org.jetbrains.plugins.scala.worksheet.ammonite.runconfiguration.AmmoniteRunMarkerContributor" language="Scala"/>
         <runLineMarkerContributor implementationClass="org.jetbrains.plugins.scala.worksheet.cell.RunCellMarkerContributor" language="Scala"/>
-
-
-        <filePasteProvider implementation="org.jetbrains.plugins.scala.conversion.copy.plainText.ScalaFilePasteProvider" order="first"/>
 
         <editorNotificationProvider implementation="org.jetbrains.plugins.scala.project.notification.SetupJdkNotificationProvider"/>
         <editorNotificationProvider implementation="org.jetbrains.plugins.scala.project.notification.SetupScalaSdkNotificationProvider"/>
@@ -1463,12 +1455,6 @@
         <action id="Scala.MakeExplicit" class="org.jetbrains.plugins.scala.actions.MakeExplicitAction"
                 text="&amp;Make Explicit" description="Make Explicit">
             <keyboard-shortcut keymap="$default" first-keystroke="alt ENTER"/>
-        </action>
-        <action id="Scala.RenameJavaToScala" class="org.jetbrains.plugins.scala.conversion.RenameJavaToScalaAction"
-                text="Convert to Scala" description="Convert Java to Scala">
-            <add-to-group group-id="RefactoringMenu" anchor="last"/>
-            <add-to-group group-id="EditorTabPopupMenu" anchor="last"/>
-            <keyboard-shortcut first-keystroke="control shift G" keymap="$default"/>
         </action>
         <action id="Scala.Desugar" class="org.jetbrains.plugins.scala.lang.transformation.DesugarCodeAction"
                 text="Desugar Scala code..." description="Desugar Scala code (selection / whole file)">

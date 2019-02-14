@@ -1,18 +1,19 @@
-package org.jetbrains.plugins.scala.copy
+package org.jetbrains.plugins.scala
+package conversion
+package copy
 
 import com.intellij.openapi.actionSystem.IdeActions.{ACTION_COPY, ACTION_PASTE}
 import com.intellij.testFramework.fixtures.CodeInsightTestFixture
-import org.jetbrains.plugins.scala.base.ScalaLightCodeInsightFixtureTestAdapter
 import org.jetbrains.plugins.scala.lang.formatting.settings.ScalaCodeStyleSettings
 import org.jetbrains.plugins.scala.util.TypeAnnotationSettings
 
 /**
   * Created by Kate Ustyuzhanina on 12/28/16.
   */
-abstract class CopyTestBase extends ScalaLightCodeInsightFixtureTestAdapter {
+abstract class CopyTestBase extends base.ScalaLightCodeInsightFixtureTestAdapter {
 
   import CodeInsightTestFixture.CARET_MARKER
-  import ScalaLightCodeInsightFixtureTestAdapter._
+  import base.ScalaLightCodeInsightFixtureTestAdapter._
 
   var oldSettings: ScalaCodeStyleSettings = _
 

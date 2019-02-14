@@ -21,6 +21,7 @@ lazy val scalaCommunity: sbt.Project =
     .dependsOn(
       bsp % "test->test;compile->compile",
       codeInsight % "test->test;compile->compile",
+      conversion % "test->test;compile->compile",
       scalaImpl % "test->test;compile->compile",
       androidIntegration % "test->test;compile->compile",
       copyrightIntegration % "test->test;compile->compile",
@@ -36,10 +37,24 @@ lazy val scalaCommunity: sbt.Project =
       definedTests in Test := { // all sub-project tests need to be run within main project's classpath
         definedTests.all(ScopeFilter(inDependencies(scalaCommunity, includeRoot = false), inConfigurations(Test))).value.flatten })
 
-lazy val scalaApi = newProject("scala-api", file("scala/scala-api"))
+lazy val scalaApi = newProject(
+  "scala-api",
+  file("scala/scala-api")
+)
 
-lazy val codeInsight = newProject("codeInsight", file("scala/codeInsight"))
-  .dependsOn(scalaImpl % "test->test;compile->compile")
+lazy val codeInsight = newProject(
+  "codeInsight",
+  file("scala/codeInsight")
+).dependsOn(
+  scalaImpl % "test->test;compile->compile"
+)
+
+lazy val conversion = newProject(
+  "conversion",
+  file("scala/conversion")
+).dependsOn(
+  codeInsight % "test->test;compile->compile"
+)
 
 lazy val scalaImpl: sbt.Project =
   newProject("scala-impl", file("scala/scala-impl"))

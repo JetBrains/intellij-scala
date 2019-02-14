@@ -1,21 +1,22 @@
-package org.jetbrains.plugins.scala.copy
-
-import org.jetbrains.plugins.scala.conversion.copy.plainText.TextJavaCopyPastePostProcessor.insideIde
-import org.jetbrains.plugins.scala.settings.ScalaProjectSettings
+package org.jetbrains.plugins.scala
+package conversion
+package copy
+package plainText
 
 /**
   * Created by Kate Ustuyzhanina on 12/28/16.
   */
-class CopyTextToScala extends CopyTestBase() {
-  override protected def doTest(fromText: String, toText: String, expectedText: String): Unit = {
-    insideIde = false
-    super.doTest(fromText, toText, expectedText)
-    insideIde = true
-  }
+class CopyTextToScala extends CopyTestBase {
 
   override protected def setUp(): Unit = {
     super.setUp()
-    ScalaProjectSettings.getInstance(getProject).setDontShowConversionDialog(true)
+    settings.ScalaProjectSettings.getInstance(getProject).setDontShowConversionDialog(true)
+  }
+
+  override protected def doTest(fromText: String, toText: String, expectedText: String): Unit = {
+    TextJavaCopyPastePostProcessor.insideIde = false
+    super.doTest(fromText, toText, expectedText)
+    TextJavaCopyPastePostProcessor.insideIde = true
   }
 
   def testWrapWithExpression(): Unit = {

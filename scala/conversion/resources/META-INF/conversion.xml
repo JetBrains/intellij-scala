@@ -1,0 +1,34 @@
+<?xml version="1.0" encoding="iso-8859-1"?>
+
+<idea-plugin>
+    <!--    <resource-bundle xmlns="">messages.ScalaConversionBundle</resource-bundle>-->
+
+    <extensions defaultExtensionNs="com.intellij">
+
+        <copyPastePreProcessor implementation="org.jetbrains.plugins.scala.conversion.copy.StringLiteralProcessor"/>
+        <copyPastePostProcessor
+                implementation="org.jetbrains.plugins.scala.conversion.copy.JavaCopyPastePostProcessor"/>
+        <copyPastePostProcessor
+                implementation="org.jetbrains.plugins.scala.conversion.copy.ScalaCopyPastePostProcessorWithRichCopySettingsAwareness"/>
+        <copyPastePostProcessor
+                implementation="org.jetbrains.plugins.scala.conversion.copy.plainText.TextJavaCopyPastePostProcessor"/>
+        <copyPastePreProcessor
+                implementation="org.jetbrains.plugins.scala.conversion.copy.MultiLineStringCopyPasteProcessor"
+                order="first"/>
+
+        <filePasteProvider implementation="org.jetbrains.plugins.scala.conversion.copy.plainText.ScalaFilePasteProvider"
+                           order="first"/>
+    </extensions>
+
+    <project-components>
+    </project-components>
+
+    <actions>
+        <action id="Scala.RenameJavaToScala" class="org.jetbrains.plugins.scala.conversion.RenameJavaToScalaAction"
+                text="Convert to Scala" description="Convert Java to Scala">
+            <add-to-group group-id="RefactoringMenu" anchor="last"/>
+            <add-to-group group-id="EditorTabPopupMenu" anchor="last"/>
+            <keyboard-shortcut first-keystroke="control shift G" keymap="$default"/>
+        </action>
+    </actions>
+</idea-plugin>

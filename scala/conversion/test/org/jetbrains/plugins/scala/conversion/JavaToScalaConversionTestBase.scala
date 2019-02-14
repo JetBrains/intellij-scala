@@ -1,7 +1,6 @@
 package org.jetbrains.plugins.scala
 package conversion
 
-
 import java.io.File
 
 import com.intellij.openapi.util.io.FileUtil
@@ -9,8 +8,6 @@ import com.intellij.openapi.util.text.StringUtil
 import com.intellij.openapi.vfs.{CharsetToolkit, LocalFileSystem}
 import com.intellij.psi._
 import com.intellij.psi.codeStyle.CodeStyleManager
-import org.jetbrains.plugins.scala.base.ScalaLightPlatformCodeInsightTestCaseAdapter
-import org.jetbrains.plugins.scala.extensions.inWriteAction
 import org.jetbrains.plugins.scala.lang.formatting.settings.ScalaCodeStyleSettings
 import org.jetbrains.plugins.scala.util.TypeAnnotationSettings
 
@@ -19,18 +16,20 @@ import scala.collection.mutable
 /**
  * @author Alexander Podkhalyuzin
  */
-abstract class JavaToScalaConversionTestBase extends ScalaLightPlatformCodeInsightTestCaseAdapter {
+abstract class JavaToScalaConversionTestBase extends base.ScalaLightPlatformCodeInsightTestCaseAdapter {
+
+  import TypeAnnotationSettings._
+
   private val startMarker = "/*start*/"
   private val endMarker = "/*end*/"
 
   def folderPath: String = baseRootPath() + "conversion/"
 
-  protected def doTest(typeAnnotationSettings: ScalaCodeStyleSettings
-                       = TypeAnnotationSettings.alwaysAddType(ScalaCodeStyleSettings.getInstance(getProjectAdapter))) {
+  protected def doTest(typeAnnotationSettings: ScalaCodeStyleSettings = alwaysAddType(ScalaCodeStyleSettings.getInstance(getProjectAdapter))) {
     import org.junit.Assert._
     val oldSettings: Any = ScalaCodeStyleSettings.getInstance(getProjectAdapter).clone
-    
-    TypeAnnotationSettings.set(getProjectAdapter, typeAnnotationSettings)
+
+    set(getProjectAdapter, typeAnnotationSettings)
 
     val filePath = folderPath + getTestName(false) + ".java"
     val file = LocalFileSystem.getInstance.findFileByPath(filePath.replace(File.separatorChar, '/'))
@@ -63,13 +62,14 @@ abstract class JavaToScalaConversionTestBase extends ScalaLightPlatformCodeInsig
         text.substring(2, text.length - 2).trim
       case _ => assertTrue("Test result must be in last comment statement.", false)
     }
-    TypeAnnotationSettings.set(getProjectAdapter, oldSettings.asInstanceOf[ScalaCodeStyleSettings])
+
+    set(getProjectAdapter, oldSettings.asInstanceOf[ScalaCodeStyleSettings])
     assertEquals(output, res.trim)
   }
 
   private def getUsedComments(startOffset: Int, endOffset: Int,
-                              lastComment: PsiElement, javaFile: PsiFile): mutable.HashSet[PsiElement] = {
-    val usedComments = new mutable.HashSet[PsiElement]()
+                              lastComment: PsiElement, javaFile: PsiFile) = {
+    val usedComments = mutable.HashSet.empty[PsiElement]
     val startComment = javaFile.findElementAt(startOffset)
     val endComment = javaFile.findElementAt(endOffset)
     if (startComment != null) usedComments += startComment
