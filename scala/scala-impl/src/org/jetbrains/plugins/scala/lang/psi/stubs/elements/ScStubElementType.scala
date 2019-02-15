@@ -6,8 +6,13 @@ package elements
 
 import com.intellij.lang.{ASTNode, Language}
 import com.intellij.psi.PsiElement
+import com.intellij.psi.impl.source.tree.FileElement
 import com.intellij.psi.stubs._
-import org.jetbrains.plugins.scala.lang.parser.SelfPsiCreator
+import org.jetbrains.plugins.scala.lang.parser.ScalaElementType.ScExpressionElementType
+import org.jetbrains.plugins.scala.lang.parser.{ScCodeBlockElementType, SelfPsiCreator}
+import org.jetbrains.plugins.scala.lang.psi.stubs.elements.ScStubElementType.isLocal
+
+import scala.annotation.tailrec
 
 /**
   * @author ilyas
@@ -34,9 +39,21 @@ abstract class ScStubElementType[S <: StubElement[T], T <: PsiElement](debugName
   override def serialize(stub: S, dataStream: StubOutputStream): Unit = {}
 
   override final def isLeftBound = true
+
+  override def shouldCreateStub(node: ASTNode): Boolean = !isLocal(node)
 }
 
 object ScStubElementType {
+
+  @tailrec
+  private def isLocal(node: ASTNode): Boolean = node match {
+    case _: FileElement | null => false
+    case _ =>
+      node.getElementType match {
+        case _: ScExpressionElementType | _: ScCodeBlockElementType => true
+        case _ => isLocal(node.getTreeParent)
+      }
+  }
 
   object Processing {
 
