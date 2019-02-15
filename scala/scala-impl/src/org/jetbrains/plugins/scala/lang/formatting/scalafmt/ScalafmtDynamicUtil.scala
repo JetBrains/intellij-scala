@@ -115,8 +115,7 @@ object ScalafmtDynamicUtil {
   private def download(version: ScalafmtVersion,
                        listener: DownloadProgressListener = NoopProgressListener): Either[DownloadFailure, ScalafmtReflect] = {
     using(progressListenerWriter(listener)) { progressWriter =>
-      // TODO: edge case: handle timeout?
-      val ttl = 1.hour
+      val ttl = 10.minutes
       val downloader = new ScalafmtDynamicDownloader(respectVersion = true, progressWriter, ttl = Some(ttl))
       downloader.download(version)
     }

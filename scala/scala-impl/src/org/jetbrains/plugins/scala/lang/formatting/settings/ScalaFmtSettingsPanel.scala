@@ -29,6 +29,7 @@ import org.apache.commons.lang.StringUtils
 import org.jetbrains.plugins.scala.ScalaFileType
 import org.jetbrains.plugins.scala.extensions._
 import org.jetbrains.plugins.scala.lang.formatting.scalafmt.ScalafmtDynamicConfigUtil.ConfigResolveError
+import org.jetbrains.plugins.scala.lang.formatting.scalafmt.ScalafmtDynamicUtil.DefaultVersion
 import org.jetbrains.plugins.scala.lang.formatting.scalafmt.{ScalafmtDynamicConfigUtil, ScalafmtDynamicUtil}
 
 class ScalaFmtSettingsPanel(val settings: CodeStyleSettings) extends CodeStyleAbstractPanel(settings) {
@@ -45,9 +46,12 @@ class ScalaFmtSettingsPanel(val settings: CodeStyleSettings) extends CodeStyleAb
 
   override def getPreviewText: String = null
 
-
   override def apply(settings: CodeStyleSettings): Unit = {
     val editorText = getEditor.getDocument.getText
+
+    val configTextChangedInEditor = configText.exists(_ != editorText)
+    val modified = isModified(settings) || configTextChangedInEditor
+    if (!modified) return
 
     val scalaSettings = settings.getCustomSettings(classOf[ScalaCodeStyleSettings])
 
@@ -56,52 +60,59 @@ class ScalaFmtSettingsPanel(val settings: CodeStyleSettings) extends CodeStyleAb
     scalaSettings.SCALAFMT_REFORMAT_ON_FILES_SAVE = reformatOnFileSaveCheckBox.isSelected
 
     val configPath = scalaSettings.SCALAFMT_CONFIG_PATH.trim
-    val configPathNew = externalFormatterSettingsPath.getText.trim
+    val configPathNew = Some(externalFormatterSettingsPath.getText.trim)
+      .filter(StringUtils.isNotBlank)
+      .getOrElse(DefaultConfigFilePath)
     val configPathChanged = configPath != configPathNew
-    val configTextChangedInEditor = configText.exists(_ != editorText)
 
-    if (configPathChanged) {
-      // TODO: what if not configuration file is present? we still need to resolve scalafmt version
-      doWithConfigFile(configPathNew) { vFile =>
-        scalaSettings.SCALAFMT_CONFIG_PATH = configPathNew // only update config path if the file actually exists
-        updateConfigTextFromFile(vFile)
-      }
-    } else if (configTextChangedInEditor) {
-      doWithConfigFile(configPath) { vFile =>
-        saveConfigChangesToFile(editorText, vFile)
-      }
-    }
-
-    projectConfigFile(configPath) match {
-      case Some(vFile) => ensureScalafmtResolved(vFile)
-      case None => ensureDefaultScalafmtResolved()
+    projectConfigFile(configPathNew) match {
+      case Some(vFile) =>
+        if (configPathChanged) {
+          scalaSettings.SCALAFMT_CONFIG_PATH = configPathNew // only update config path if the file actually exists
+          updateConfigTextFromFile(vFile)
+        } else if (configTextChangedInEditor) {
+          saveConfigChangesToFile(editorText, vFile)
+        }
+        ensureScalafmtResolved(vFile)
+      case None =>
+        if (configPathChanged || configTextChangedInEditor) {
+          reportConfigFileNotFound(configPathNew)
+        }
+        ensureDefaultScalafmtResolved()
     }
 
     updateConfigVisibility()
     updateUseIntellijWarningVisibility(scalaSettings)
   }
 
+  def updateScalafmtVersionLabel(version: String, isDefault: Boolean): Unit = {
+    if (scalafmtVersionLabel == null) return
+    scalafmtVersionLabel.setText(version + (if (isDefault) " (default)" else ""))
+  }
+
   private def ensureScalafmtResolved(configFile: VirtualFile): Unit = {
     if (project.isEmpty) return
 
-    // TODO: should we notify user that we are using default version using default version ?
-    val version = ScalafmtDynamicConfigUtil.readVersion(configFile) match {
-      case Right(v) =>
-        v.getOrElse(ScalafmtDynamicUtil.DefaultVersion)
+    val versionOpt = ScalafmtDynamicConfigUtil.readVersion(configFile) match {
+      case Right(v) => v
       case Left(ex) =>
         reportConfigParseError(ex.getMessage)
         return
     }
-
+    val version = versionOpt.getOrElse(DefaultVersion)
     ScalafmtDynamicConfigUtil.resolveConfigAsync(configFile, version, project.get, onResolveFinished = {
-      case Left(error) => reportConfigResolveError(error)
-      case _ =>
+      case Left(error) =>
+        reportConfigResolveError(error)
+        updateScalafmtVersionLabel("", isDefault = false)
+      case Right(config) =>
+        updateScalafmtVersionLabel(config.version, versionOpt.isEmpty)
     })
   }
 
   private def ensureDefaultScalafmtResolved(): Unit = {
     if (project.isEmpty) return
     ScalafmtDynamicUtil.ensureDefaultVersionIsDownloaded(project.get)
+    updateScalafmtVersionLabel(DefaultVersion, isDefault = true)
   }
 
   private def reportConfigResolveError(configResolveError: ConfigResolveError): Unit = {
@@ -119,18 +130,13 @@ class ScalaFmtSettingsPanel(val settings: CodeStyleSettings) extends CodeStyleAb
   private def reportConfigParseError(errorMessage: String): Unit = {
     val component = previewPanel
     displayMessage(s"Failed to parse configuration: <br> $errorMessage",
-      component, component.getWidth - 10, component.getHeight, Balloon.Position.above, MessageType.WARNING)
+      component, component.getWidth - 10, component.getHeight - 55, Balloon.Position.above, MessageType.WARNING)
   }
 
   private def reportConfigFileNotFound(configPath: String): Unit = {
     val component = externalFormatterSettingsPath
     displayMessage(s"Can not find scalafmt config file with path: `$configPath`",
       component, component.getWidth / 2, component.getHeight, Balloon.Position.below)
-  }
-
-  private def displayInfo(text: String): Unit = {
-    val c: JComponent = this.getPanel
-    displayMessage(text, c, c.getWidth - 10, c.getHeight, Balloon.Position.above, MessageType.INFO)
   }
 
   private def displayMessage(text: String, relativeTo: JComponent,
@@ -141,15 +147,6 @@ class ScalaFmtSettingsPanel(val settings: CodeStyleSettings) extends CodeStyleAb
     val balloon = factory.createBalloon()
     val balloonPosition = new RelativePoint(relativeTo, new Point(xPosition, yPosition))
     balloon.show(balloonPosition, direction)
-  }
-
-  private def doWithConfigFile[T](configPath: String)(body: VirtualFile => T): Unit = {
-    projectConfigFile(configPath) match {
-      case Some(vFile) =>
-        body(vFile)
-      case None =>
-        reportConfigFileNotFound(configPath)
-    }
   }
 
   private def updateConfigTextFromFile(vFile: VirtualFile): Unit = {
@@ -164,6 +161,7 @@ class ScalaFmtSettingsPanel(val settings: CodeStyleSettings) extends CodeStyleAb
         document.setText(configTextNew)
       }, ModalityState.current())
     }
+    vFile.getModificationCount
     configText = Some(configTextNew)
   }
 
@@ -191,9 +189,9 @@ class ScalaFmtSettingsPanel(val settings: CodeStyleSettings) extends CodeStyleAb
     updateUseIntellijWarningVisibility(scalaSettings)
     externalFormatterSettingsPath.getButton.grabFocus()
 
-    // TODO: refactor
-    doWithConfigFile(configPath) { vFile =>
-      ensureScalafmtResolved(vFile)
+    projectConfigFile(configPath) match {
+      case Some(vFile) => ensureScalafmtResolved(vFile)
+      case None => ensureDefaultScalafmtResolved()
     }
   }
 
@@ -211,19 +209,7 @@ class ScalaFmtSettingsPanel(val settings: CodeStyleSettings) extends CodeStyleAb
     def constraint(row: Int, column: Int, rowSpan: Int, colSpan: Int, anchor: Int, fill: Int, HSizePolicy: Int, VSizePolicy: Int) =
       new GridConstraints(row, column, rowSpan, colSpan, anchor, fill, HSizePolicy, VSizePolicy, null, null, null, 0, false)
 
-    val inner = new JPanel(new GridLayoutManager(5, 3, new Insets(10, 15, 10, 15), -1, -1))
-
-    val myTextField = new JBTextField
-    myTextField.getEmptyText.setText(s"Default: $DefaultConfigFilePath")
-    externalFormatterSettingsPath = new TextFieldWithBrowseButton(myTextField)
-    resetConfigBrowserFolderListener()
-
-    inner.add(new JLabel("Configuration:"),
-      constraint(0, 0, 1, 1, ANCHOR_WEST, FILL_NONE, SIZEPOLICY_FIXED, SIZEPOLICY_FIXED))
-    inner.add(externalFormatterSettingsPath,
-      constraint(0, 1, 1, 1, ANCHOR_NORTHWEST, FILL_HORIZONTAL, SIZEPOLICY_CAN_GROW | SIZEPOLICY_WANT_GROW, SIZEPOLICY_FIXED))
-    inner.add(new Spacer,
-      constraint(0, 2, 1, 1, ANCHOR_CENTER, FILL_HORIZONTAL, SIZEPOLICY_WANT_GROW, SIZEPOLICY_CAN_SHRINK))
+    val inner = new JPanel(new GridLayoutManager(6, 3, new Insets(10, 15, 10, 15), -1, -1))
 
     showScalaFmtInvalidCodeWarnings = new JBCheckBox("Show warnings when trying to format invalid code")
     useIntellijFormatterForRangeFormat = new JBCheckBox("Use IntelliJ formatter for code range formatting")
@@ -243,16 +229,34 @@ class ScalaFmtSettingsPanel(val settings: CodeStyleSettings) extends CodeStyleAb
     reformatOnFileSaveCheckBox = new JBCheckBox("Reformat on file save")
 
     inner.add(showScalaFmtInvalidCodeWarnings,
-      constraint(1, 0, 1, 3, ANCHOR_WEST, FILL_NONE, SIZEPOLICY_FIXED, SIZEPOLICY_FIXED))
+      constraint(0, 0, 1, 3, ANCHOR_WEST, FILL_NONE, SIZEPOLICY_FIXED, SIZEPOLICY_FIXED))
     inner.add(useIntellijFormatterWrapper,
-      constraint(2, 0, 1, 3, ANCHOR_WEST, FILL_NONE, SIZEPOLICY_FIXED, SIZEPOLICY_FIXED))
+      constraint(1, 0, 1, 3, ANCHOR_WEST, FILL_NONE, SIZEPOLICY_FIXED, SIZEPOLICY_FIXED))
     inner.add(reformatOnFileSaveCheckBox,
-      constraint(3, 0, 1, 3, ANCHOR_WEST, FILL_NONE, SIZEPOLICY_FIXED, SIZEPOLICY_FIXED))
+      constraint(2, 0, 1, 3, ANCHOR_WEST, FILL_NONE, SIZEPOLICY_FIXED, SIZEPOLICY_FIXED))
+
+    val configPathTextField = new JBTextField
+    configPathTextField.getEmptyText.setText(s"Default: $DefaultConfigFilePath")
+    externalFormatterSettingsPath = new TextFieldWithBrowseButton(configPathTextField)
+    resetConfigBrowserFolderListener()
+
+    inner.add(new JLabel("Configuration:"),
+      constraint(3, 0, 1, 1, ANCHOR_WEST, FILL_NONE, SIZEPOLICY_FIXED, SIZEPOLICY_FIXED))
+    inner.add(externalFormatterSettingsPath,
+      constraint(3, 1, 1, 1, ANCHOR_NORTHWEST, FILL_HORIZONTAL, SIZEPOLICY_CAN_GROW | SIZEPOLICY_WANT_GROW, SIZEPOLICY_FIXED))
+    inner.add(new Spacer,
+      constraint(3, 2, 1, 1, ANCHOR_CENTER, FILL_HORIZONTAL, SIZEPOLICY_WANT_GROW, SIZEPOLICY_CAN_SHRINK))
+
+    scalafmtVersionLabel = new JLabel()
+    inner.add(new JLabel("Scalafmt version: "),
+      constraint(4, 0, 1, 1, ANCHOR_WEST, FILL_NONE, SIZEPOLICY_FIXED, SIZEPOLICY_FIXED))
+    inner.add(scalafmtVersionLabel,
+      constraint(4, 1, 1, 1, ANCHOR_NORTHWEST, FILL_HORIZONTAL, SIZEPOLICY_CAN_GROW | SIZEPOLICY_WANT_GROW, SIZEPOLICY_FIXED))
+    inner.add(new Spacer,
+      constraint(4, 2, 1, 1, ANCHOR_CENTER, FILL_HORIZONTAL, SIZEPOLICY_WANT_GROW, SIZEPOLICY_CAN_SHRINK))
 
     val configEditorPanel = new JPanel(new VerticalFlowLayout(VerticalFlowLayout.TOP, 0, 10, true, true))
-    configLabel = new JLabel("Configuration content:")
-    noConfigLabel = new JLabel("No Configuration found under specified path")
-    configEditorPanel.add(configLabel)
+    noConfigLabel = new JLabel("No configuration found under specified path, using default IntelliJ configuration")
     configEditorPanel.add(noConfigLabel)
     noConfigLabel.setVisible(false)
     previewPanel = new JPanel()
@@ -260,7 +264,7 @@ class ScalaFmtSettingsPanel(val settings: CodeStyleSettings) extends CodeStyleAb
     installPreviewPanel(previewPanel)
     getEditor.getComponent.setPreferredSize(configEditorPanel.getPreferredSize)
     inner.add(configEditorPanel,
-      constraint(4, 0, 1, 3, ANCHOR_NORTH, FILL_BOTH, SIZEPOLICY_CAN_GROW, SIZEPOLICY_CAN_SHRINK | SIZEPOLICY_CAN_GROW))
+      constraint(5, 0, 1, 3, ANCHOR_NORTH, FILL_BOTH, SIZEPOLICY_CAN_GROW, SIZEPOLICY_CAN_SHRINK | SIZEPOLICY_CAN_GROW))
 
     inner
   }
@@ -308,7 +312,6 @@ class ScalaFmtSettingsPanel(val settings: CodeStyleSettings) extends CodeStyleAb
 
   private def updateConfigVisibility(): Unit = {
     previewPanel.setVisible(configText.isDefined)
-    configLabel.setVisible(configText.isDefined)
     noConfigLabel.setVisible(configText.isEmpty)
   }
 
@@ -339,7 +342,7 @@ class ScalaFmtSettingsPanel(val settings: CodeStyleSettings) extends CodeStyleAb
 
   private var project: Option[Project] = None
   private var configText: Option[String] = None
-  private var configLabel: JLabel = _
+  private var scalafmtVersionLabel: JLabel = _
   private var noConfigLabel: JLabel = _
   private var previewPanel: JPanel = _
   private var myPanel: JPanel = _

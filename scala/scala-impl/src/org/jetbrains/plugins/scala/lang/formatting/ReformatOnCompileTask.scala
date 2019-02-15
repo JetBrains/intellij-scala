@@ -35,6 +35,7 @@ class ReformatOnCompileTask(project: Project) extends ProjectComponent with Comp
   } {
     Application.invokeAndWait {
       CommandProcessor.runUndoTransparentAction {
+        // FIXME: if config file has errors then during compilation there will be very many error notifications
         CodeStyleManager.getInstance(project).reformat(psiFile)
       }
     }

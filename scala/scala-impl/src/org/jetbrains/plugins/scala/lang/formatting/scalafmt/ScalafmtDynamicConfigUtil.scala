@@ -1,7 +1,6 @@
 package org.jetbrains.plugins.scala.lang.formatting.scalafmt
 
 import com.intellij.application.options.CodeStyle
-import com.intellij.openapi.application.{ApplicationManager, ModalityState}
 import com.intellij.openapi.diagnostic.Logger
 import com.intellij.openapi.fileEditor.FileDocumentManager
 import com.intellij.openapi.progress.{ProgressIndicator, ProgressManager, Task}
@@ -23,24 +22,21 @@ import scala.collection.mutable
 import scala.util.Try
 
 // TODO: add comments about which operations are blocking and which are not
-// TODO: put inReadAction/inWriteAction where needed!?
-// TODO: consider adding scalac option to check exhaustive matching: scalacOptions += "-Xfatal-warnings"
 // TODO: build proper, user-friendly error messages
 object ScalafmtDynamicConfigUtil {
   private val Log = Logger.getInstance(this.getClass)
 
   val DefaultConfigurationFileName: String = ".scalafmt.conf"
 
-  private val configsCache: mutable.Map[String, (ScalafmtDynamicConfig, Long)] = ScalaCollectionsUtil.newConcurrentMap
+  private val configsCache: mutable.Map[String, CachedConfig] = ScalaCollectionsUtil.newConcurrentMap
 
   def resolveConfigAsync(configFile: VirtualFile,
                          version: ScalafmtVersion,
                          project: ProjectContext,
                          onResolveFinished: ConfigResolveResult => Unit): Unit = {
-    tryRefreshFileModificationTimestamp(configFile)
-
     val backgroundTask = new Task.Backgroundable(project, "Resolving scalafmt config", true) {
       override def run(indicator: ProgressIndicator): Unit = {
+        tryRefreshFileModificationTimestamp(configFile)
         indicator.setFraction(0.0)
         val configOrError = resolveConfig(configFile, Some(version), project, downloadScalafmtIfMissing = true)
         onResolveFinished(configOrError)
@@ -51,11 +47,7 @@ object ScalafmtDynamicConfigUtil {
   }
 
   private def tryRefreshFileModificationTimestamp(vFile: VirtualFile): Unit = {
-    if (ApplicationManager.getApplication.isDispatchThread) {
-      inWriteAction {
-        ApplicationManager.getApplication.invokeAndWait(vFile.refresh(false, false), ModalityState.defaultModalityState())
-      }
-    }
+    invokeAndWait(inWriteAction(vFile.refresh(false, false)))
   }
 
   def configOptForFile(psiFile: PsiFile, failSilent: Boolean = false): Option[ScalafmtDynamicConfig] = {
@@ -87,22 +79,26 @@ object ScalafmtDynamicConfigUtil {
                             downloadScalafmtIfMissing: Boolean,
                             failSilent: Boolean = false): ConfigResolveResult = {
     val configPath = configFile.getPath
-    val currentTimestamp: Long = configFile.getModificationStamp
+
+    val currentVFileTimestamp: Long = configFile.getModificationStamp
+    val currentDocTimestamp: Long = inReadAction(FileDocumentManager.getInstance.getDocument(configFile)).getModificationStamp
 
     val cachedConfig = configsCache.get(configPath)
     cachedConfig match {
-      case Some((config, lastModified)) if lastModified == currentTimestamp =>
+      case Some(CachedConfig(config, vFileLastModified, docLastModified))
+        if vFileLastModified == currentVFileTimestamp &&
+          docLastModified == currentDocTimestamp =>
         Right(config)
       case _ =>
         resolvingConfigWithScalafmt(configFile, defaultVersion, downloadScalafmtIfMissing, failSilent) match {
           case Right(config) =>
             notifyConfigChanges(config, cachedConfig)
-            configsCache(configPath) = (config, currentTimestamp)
+            configsCache(configPath) = CachedConfig(config, currentVFileTimestamp, currentDocTimestamp)
             Right(config)
           case Left(error: ConfigResolveError.ConfigScalafmtResolveError) =>
             Left(error) // do not report, rely on ScalafmtDynamicUtil resolve error reporting
           case Left(error: ConfigResolveError.ConfigError) =>
-            if(!failSilent)
+            if (!failSilent)
               reportConfigResolveError(configFile, error, project)
             Left(error)
         }
@@ -137,7 +133,7 @@ object ScalafmtDynamicConfigUtil {
   }
 
   private def parseConfig(configFile: VirtualFile, fmtReflect: ScalafmtReflect): ConfigResolveResult = {
-    val document = FileDocumentManager.getInstance.getDocument(configFile)
+    val document = inReadAction(FileDocumentManager.getInstance.getDocument(configFile))
     val configText = document.getText()
     Try(fmtReflect.parseConfigFromString(configText)).toEither.left.map {
       case e: ScalafmtConfigException => ConfigResolveError.ConfigParseError(configFile.getPath, e)
@@ -147,10 +143,10 @@ object ScalafmtDynamicConfigUtil {
     }
   }
 
-  private def notifyConfigChanges(config: ScalafmtDynamicConfig, cachedConfig: Option[(ScalafmtDynamicConfig, Long)]): Unit = {
-    val contentChanged = !cachedConfig.map(_._1).contains(config)
+  private def notifyConfigChanges(config: ScalafmtDynamicConfig, cachedConfig: Option[CachedConfig]): Unit = {
+    val contentChanged = !cachedConfig.map(_.config).contains(config)
     if (contentChanged) {
-      val versionChanged = !cachedConfig.map(_._1.version).contains(config.version)
+      val versionChanged = !cachedConfig.map(_.config.version).contains(config.version)
       val versionChangeDetails = if (versionChanged) s"<br>(new version: ${config.version})" else ""
       ScalafmtNotifications.displayInfo(s"scalafmt picked up new style configuration$versionChangeDetails")
     }
@@ -174,7 +170,7 @@ object ScalafmtDynamicConfigUtil {
 
   def readVersion(configFile: VirtualFile): Either[Throwable, Option[String]] = {
     Try {
-      val document = FileDocumentManager.getInstance.getDocument(configFile)
+      val document = inReadAction(FileDocumentManager.getInstance.getDocument(configFile))
       val config = ConfigFactory.parseString(document.getText)
       Option(config.getString("version").trim)
     }.toEither.left.flatMap {
@@ -232,4 +228,8 @@ object ScalafmtDynamicConfigUtil {
       def apply(cause: Throwable): UnknownError = new UnknownError(cause.getMessage, Option(cause))
     }
   }
+
+  private case class CachedConfig(config: ScalafmtDynamicConfig,
+                                  vFileModificationTimestamp: Long,
+                                  docModificationTimestamp: Long)
 }

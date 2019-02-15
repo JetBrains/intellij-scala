@@ -2,7 +2,6 @@ package org.jetbrains.plugins.scala.lang.formatting.scalafmt
 
 import com.intellij.notification.{NotificationAction, NotificationGroup, NotificationType, Notifications}
 
-// TODO: see org.jetbrains.plugins.scala.NotificationUtil?
 private[formatting]
 object ScalafmtNotifications {
 
