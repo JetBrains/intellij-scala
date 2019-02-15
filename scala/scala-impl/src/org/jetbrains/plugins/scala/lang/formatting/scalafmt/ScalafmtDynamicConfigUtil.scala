@@ -76,7 +76,7 @@ object ScalafmtDynamicConfigUtil {
   }
 
   private lazy val intellijDefaultConfig: Option[ScalafmtDynamicConfig] = {
-    ScalafmtDynamicUtil.resolve(DefaultVersion).toOption.map(_.intellijScalaFmtConfig)
+    ScalafmtDynamicUtil.resolve(DefaultVersion, downloadIfMissing = false).toOption.map(_.intellijScalaFmtConfig)
   }
 
   private def resolveConfig(configFile: VirtualFile,

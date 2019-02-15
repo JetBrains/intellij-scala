@@ -25,7 +25,7 @@ object ScalafmtDynamicUtil {
   // TODO: instead of returning download in progress error maybe we can somehow reuse already downloading
   //  process and use it's result? We need some abstraction, like Task or something like that
   // TODO: set project in dummy state?
-  def resolve(version: ScalafmtVersion, downloadIfMissing: Boolean = false): Either[ScalafmtResolveError, ScalafmtReflect] = {
+  def resolve(version: ScalafmtVersion, downloadIfMissing: Boolean, failSilent: Boolean = false): Either[ScalafmtResolveError, ScalafmtReflect] = {
     val resolveResult = formattersCache.get(version) match {
       case Some(ResolveStatus.Downloaded(scalaFmt)) => Right(scalaFmt)
       case Some(ResolveStatus.DownloadInProgress) => Left(ScalafmtResolveError.DownloadInProgress(version))
@@ -39,7 +39,10 @@ object ScalafmtDynamicUtil {
             Left(ScalafmtResolveError.DownloadError(failure))
         }
     }
-    resolveResult.left.foreach(reportResolveError)
+
+    if (!failSilent)
+      resolveResult.left.foreach(reportResolveError)
+
     resolveResult
   }
 
@@ -74,6 +77,8 @@ object ScalafmtDynamicUtil {
 
   def resolveAsync(version: ScalafmtVersion, project: ProjectContext,
                    onDownloadFinished: Either[ScalafmtResolveError, ScalafmtReflect] => Unit = _ => ()): Unit = {
+    if (formattersCache.contains(version)) return
+
     val backgroundTask = new Task.Backgroundable(project, s"Downloading scalafmt version `$version`", true) {
       override def run(indicator: ProgressIndicator): Unit = {
         indicator.setFraction(0.0)
@@ -86,7 +91,7 @@ object ScalafmtDynamicUtil {
   }
 
   def ensureDefaultVersionIsDownloaded(project: ProjectContext): Unit = {
-    if(!formattersCache.contains(DefaultVersion)) {
+    if (!formattersCache.contains(DefaultVersion)) {
       resolveAsync(DefaultVersion, project)
     }
   }
