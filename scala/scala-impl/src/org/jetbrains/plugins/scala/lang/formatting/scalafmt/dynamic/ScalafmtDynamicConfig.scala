@@ -56,7 +56,6 @@ class ScalafmtDynamicConfig private[dynamic](val fmtReflect: ScalafmtReflect,
     }
   }
 
-  // TODO: check whether it is correct
   def withoutRewriteRules: ScalafmtDynamicConfig = {
     if (hasRewriteRules) {
       this // TODO: support removing of rewrite settings
@@ -65,7 +64,7 @@ class ScalafmtDynamicConfig private[dynamic](val fmtReflect: ScalafmtReflect,
     }
   }
 
-  // TODO: check whether it is correct
+  // TODO: check whether it is correct for all versions
   lazy val continuationIndentCallSite: Int = {
     continuationIndentMethod match {
       case Some(method) => // >v0.4
@@ -81,7 +80,7 @@ class ScalafmtDynamicConfig private[dynamic](val fmtReflect: ScalafmtReflect,
     }
   }
 
-  // TODO: check whether it is correct
+  // TODO: check whether it is correct for all versions
   lazy val continuationIndentDefnSite: Int = {
     continuationIndentMethod match {
       case Some(method) =>

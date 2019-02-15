@@ -36,8 +36,9 @@ class ScalafmtDynamicDownloader(respectVersion: Boolean,
         respectVersion
       )
     }.toEither.left.map {
-      // TODO: distinguish between these two errors?
+      // NOTE: maybe distinguish between these two errors?
       case e: ResolutionException => DownloadFailure(version, e)
+      case e: ReflectiveOperationException => DownloadFailure(version, e.toString, e)
       case e => DownloadFailure(version, e)
     }
   }
@@ -67,5 +68,9 @@ class ScalafmtDynamicDownloader(respectVersion: Boolean,
 }
 
 object ScalafmtDynamicDownloader {
-  case class DownloadFailure(version: String, cause: Throwable)
+  case class DownloadFailure(version: String, message: String, cause: Throwable)
+  object DownloadFailure {
+    def apply(version: String, cause: Throwable): DownloadFailure =
+      new DownloadFailure(version, cause.getMessage, cause)
+  }
 }

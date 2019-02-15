@@ -14,7 +14,7 @@ import scala.collection.mutable
 import scala.util.Try
 import scala.util.control.NonFatal
 
-// TODO: NAUMENKO: test this in Scalafmt project
+// TODO: Naumenko: after freezing implementation move this to scalafmt-dynamic project, cover with tests and make pull request
 final case class ScalafmtDynamic(reporter: ScalafmtReporter,
                                  respectVersion: Boolean,
                                  respectExcludeFilters: Boolean,
@@ -158,8 +158,8 @@ final case class ScalafmtDynamic(reporter: ScalafmtReporter,
   }
 
   // TODO: there can be issues if resolveFormatter is called multiple times (e.g. formatter is called twice)
-  //  in such case download process can be started multiple times
-  //  solution could be to keep information about download process in fmtsCache
+  //  in such cases download process can be started multiple times,
+  //  possible solution: keep information about download process in fmtsCache
   private def resolveFormatter(version: ScalafmtVersion): Either[ScalafmtDynamicError.CannotDownload, ScalafmtReflect] = {
     fmtsCache.get(version) match {
       case Some(value) =>

@@ -58,7 +58,7 @@ object ScalafmtDynamicConfigUtil {
     }
   }
 
-  def configOptForFile(psiFile: PsiFile): Option[ScalafmtDynamicConfig] = {
+  def configOptForFile(psiFile: PsiFile, failSilent: Boolean = false): Option[ScalafmtDynamicConfig] = {
     val settings = CodeStyle.getCustomSettings(psiFile, classOf[ScalaCodeStyleSettings])
     val project = psiFile.getProject
     val configPath = settings.SCALAFMT_CONFIG_PATH
@@ -66,7 +66,7 @@ object ScalafmtDynamicConfigUtil {
     // TODO: what if we do not have any configuration file? We should use some default intellij idea one?
     val configFromFile = for {
       configFile <- scalafmtProjectConfigFile(configPath, project)
-      config <- resolveConfig(configFile, Some(DefaultVersion), project, downloadScalafmtIfMissing = false).toOption
+      config <- resolveConfig(configFile, Some(DefaultVersion), project, downloadScalafmtIfMissing = false, failSilent).toOption
     } yield config
 
     val config = configFromFile.orElse(intellijDefaultConfig)
@@ -84,7 +84,8 @@ object ScalafmtDynamicConfigUtil {
   private def resolveConfig(configFile: VirtualFile,
                             defaultVersion: Option[ScalafmtVersion],
                             project: ProjectContext,
-                            downloadScalafmtIfMissing: Boolean): ConfigResolveResult = {
+                            downloadScalafmtIfMissing: Boolean,
+                            failSilent: Boolean = false): ConfigResolveResult = {
     val configPath = configFile.getPath
     val currentTimestamp: Long = configFile.getModificationStamp
 
@@ -93,7 +94,7 @@ object ScalafmtDynamicConfigUtil {
       case Some((config, lastModified)) if lastModified == currentTimestamp =>
         Right(config)
       case _ =>
-        resolvingConfigWithScalafmt(configFile, defaultVersion, downloadScalafmtIfMissing) match {
+        resolvingConfigWithScalafmt(configFile, defaultVersion, downloadScalafmtIfMissing, failSilent) match {
           case Right(config) =>
             notifyConfigChanges(config, cachedConfig)
             configsCache(configPath) = (config, currentTimestamp)
@@ -101,7 +102,8 @@ object ScalafmtDynamicConfigUtil {
           case Left(error: ConfigResolveError.ConfigScalafmtResolveError) =>
             Left(error) // do not report, rely on ScalafmtDynamicUtil resolve error reporting
           case Left(error: ConfigResolveError.ConfigError) =>
-            reportConfigResolveError(configFile, error, project)
+            if(!failSilent)
+              reportConfigResolveError(configFile, error, project)
             Left(error)
         }
     }
@@ -109,7 +111,8 @@ object ScalafmtDynamicConfigUtil {
 
   private def resolvingConfigWithScalafmt(configFile: VirtualFile,
                                           defaultVersion: Option[ScalafmtVersion],
-                                          downloadScalafmtIfMissing: Boolean): ConfigResolveResult = {
+                                          downloadScalafmtIfMissing: Boolean,
+                                          failSilent: Boolean = false): ConfigResolveResult = {
     val configPath = configFile.getPath
     for {
       _ <- Option(configFile).filter(_.exists).toRight {
@@ -126,7 +129,7 @@ object ScalafmtDynamicConfigUtil {
         case Left(e) =>
           Left(ConfigResolveError.ConfigParseError(configPath, e))
       }
-      fmtReflect <- ScalafmtDynamicUtil.resolve(version, downloadScalafmtIfMissing).left.map { error =>
+      fmtReflect <- ScalafmtDynamicUtil.resolve(version, downloadScalafmtIfMissing, failSilent).left.map { error =>
         ConfigResolveError.ConfigScalafmtResolveError(error)
       }
       config <- parseConfig(configFile, fmtReflect)

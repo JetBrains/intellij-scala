@@ -3,8 +3,10 @@ package org.jetbrains.plugins.scala.lang.formatting.scalafmt
 import java.io.{PipedInputStream, PipedOutputStream, PrintWriter}
 import java.util.Scanner
 
+import com.geirsson.coursiersmall.ResolutionException
 import com.intellij.notification.{Notification, NotificationAction}
 import com.intellij.openapi.actionSystem.AnActionEvent
+import com.intellij.openapi.diagnostic.Logger
 import com.intellij.openapi.progress.{ProgressIndicator, ProgressManager, Task}
 import org.jetbrains.plugins.scala.extensions._
 import org.jetbrains.plugins.scala.lang.formatting.scalafmt.ScalafmtDynamicUtil.DownloadProgressListener.NoopProgressListener
@@ -18,6 +20,8 @@ import scala.concurrent.duration.DurationInt
 
 // TODO: somehow preserve resolved scalafmt cache between intellij restarts
 object ScalafmtDynamicUtil {
+  private val Log = Logger.getInstance(this.getClass)
+
   type ScalafmtVersion = String
   val DefaultVersion = "1.5.1"
 
@@ -30,6 +34,7 @@ object ScalafmtDynamicUtil {
   // TODO: set project in dummy state?
   def resolve(version: ScalafmtVersion,
               downloadIfMissing: Boolean,
+              failSilent: Boolean = false,
               progressListener: DownloadProgressListener = NoopProgressListener): Either[ScalafmtResolveError, ScalafmtReflect] = {
     val resolveResult = formattersCache.get(version) match {
       case Some(ResolveStatus.Downloaded(scalaFmt)) => Right(scalaFmt)
@@ -45,7 +50,8 @@ object ScalafmtDynamicUtil {
         }
     }
 
-    resolveResult.left.foreach(reportResolveError)
+    if(!failSilent)
+      resolveResult.left.foreach(reportResolveError)
 
     resolveResult
   }
@@ -58,9 +64,11 @@ object ScalafmtDynamicUtil {
       case ScalafmtResolveError.DownloadInProgress(_) =>
         val errorMessage = s"$baseMessage: download is in progress"
         displayError(errorMessage)
-      case ScalafmtResolveError.DownloadError(failure) =>
-        val causeMessage = failure.cause.getMessage
-        val errorMessage = s"$baseMessage: an error occurred during downloading:\n$causeMessage"
+      case ScalafmtResolveError.DownloadError(DownloadFailure(_, message, cause)) =>
+        if(!cause.isInstanceOf[ResolutionException]) {
+          Log.error(message, cause)
+        }
+        val errorMessage = s"$baseMessage: an error occurred during downloading:\n$message"
         displayError(errorMessage)
       case ScalafmtResolveError.NotFound(_) =>
         val message = s"Scalafmt version `${error.version}` is not downloaded yet<br>Would you like to to download it?"
@@ -89,7 +97,7 @@ object ScalafmtDynamicUtil {
         val progressListener: DownloadProgressListener = message => {
           indicator.setText(message)
         }
-        val result = resolve(version, downloadIfMissing = true, progressListener)
+        val result = resolve(version, downloadIfMissing = true, failSilent = false, progressListener)
         onDownloadFinished(result)
 
         indicator.setFraction(1.0)
