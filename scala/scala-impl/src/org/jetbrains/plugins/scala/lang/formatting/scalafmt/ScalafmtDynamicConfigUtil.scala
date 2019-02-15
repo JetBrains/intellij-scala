@@ -2,6 +2,7 @@ package org.jetbrains.plugins.scala.lang.formatting.scalafmt
 
 import com.intellij.application.options.CodeStyle
 import com.intellij.openapi.application.{ApplicationManager, ModalityState}
+import com.intellij.openapi.diagnostic.Logger
 import com.intellij.openapi.fileEditor.FileDocumentManager
 import com.intellij.openapi.progress.{ProgressIndicator, ProgressManager, Task}
 import com.intellij.openapi.project.Project
@@ -25,8 +26,9 @@ import scala.util.Try
 // TODO: put inReadAction/inWriteAction where needed!?
 // TODO: consider adding scalac option to check exhaustive matching: scalacOptions += "-Xfatal-warnings"
 // TODO: build proper, user-friendly error messages
-// TODO: add errors intellij logging
 object ScalafmtDynamicConfigUtil {
+  private val Log = Logger.getInstance(this.getClass)
+
   val DefaultConfigurationFileName: String = ".scalafmt.conf"
 
   private val configsCache: mutable.Map[String, (ScalafmtDynamicConfig, Long)] = ScalaCollectionsUtil.newConcurrentMap
@@ -136,7 +138,9 @@ object ScalafmtDynamicConfigUtil {
     val configText = document.getText()
     Try(fmtReflect.parseConfigFromString(configText)).toEither.left.map {
       case e: ScalafmtConfigException => ConfigResolveError.ConfigParseError(configFile.getPath, e)
-      case e => ConfigResolveError.UnknownError(e)
+      case e =>
+        Log.error(e)
+        ConfigResolveError.UnknownError(e)
     }
   }
 
@@ -172,7 +176,9 @@ object ScalafmtDynamicConfigUtil {
       Option(config.getString("version").trim)
     }.toEither.left.flatMap {
       case _: ConfigException.Missing => Right(None)
-      case e => Left(e)
+      case e =>
+        Log.error(e)
+        Left(e)
     }
   }
 

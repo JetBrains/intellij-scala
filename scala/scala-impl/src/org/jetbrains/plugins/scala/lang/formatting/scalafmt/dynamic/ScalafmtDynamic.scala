@@ -157,8 +157,7 @@ final case class ScalafmtDynamic(reporter: ScalafmtReporter,
   private def parseConfig(configPath: Path, fmtReflect: ScalafmtReflect): Either[ScalafmtDynamicError, ScalafmtDynamicConfig] = {
     Try(fmtReflect.parseConfig(configPath)).toEither.left.map {
       case ex: ScalafmtConfigException => ScalafmtDynamicError.ConfigParseError(configPath, ex)
-      case NonFatal(ex) => ScalafmtDynamicError.UnknownError(ex)
-      case ex => throw ex
+      case ex => ScalafmtDynamicError.UnknownError(ex)
     }
   }
 

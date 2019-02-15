@@ -28,10 +28,8 @@ import javax.swing.event.ChangeEvent
 import org.apache.commons.lang.StringUtils
 import org.jetbrains.plugins.scala.ScalaFileType
 import org.jetbrains.plugins.scala.extensions._
-import org.jetbrains.plugins.scala.lang.formatting.scalafmt.{ScalafmtDynamicConfigUtil, ScalafmtDynamicUtil}
 import org.jetbrains.plugins.scala.lang.formatting.scalafmt.ScalafmtDynamicConfigUtil.ConfigResolveError
-
-import scala.util.control.NonFatal
+import org.jetbrains.plugins.scala.lang.formatting.scalafmt.{ScalafmtDynamicConfigUtil, ScalafmtDynamicUtil}
 
 class ScalaFmtSettingsPanel(val settings: CodeStyleSettings) extends CodeStyleAbstractPanel(settings) {
 
@@ -86,7 +84,7 @@ class ScalaFmtSettingsPanel(val settings: CodeStyleSettings) extends CodeStyleAb
   private def ensureScalafmtResolved(configFile: VirtualFile): Unit = {
     if (project.isEmpty) return
 
-    // TODO: notify user that we are using default version using default version ?
+    // TODO: should we notify user that we are using default version using default version ?
     val version = ScalafmtDynamicConfigUtil.readVersion(configFile) match {
       case Right(v) =>
         v.getOrElse(ScalafmtDynamicUtil.DefaultVersion)
@@ -95,7 +93,6 @@ class ScalaFmtSettingsPanel(val settings: CodeStyleSettings) extends CodeStyleAb
         return
     }
 
-    // TODO: check in onDownload callback that panel is already disposed/closed ?
     ScalafmtDynamicConfigUtil.resolveConfigAsync(configFile, version, project.get, onResolveFinished = {
       case Left(error) => reportConfigResolveError(error)
       case _ =>

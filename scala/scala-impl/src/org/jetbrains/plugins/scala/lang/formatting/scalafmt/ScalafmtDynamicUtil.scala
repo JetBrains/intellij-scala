@@ -2,6 +2,7 @@ package org.jetbrains.plugins.scala.lang.formatting.scalafmt
 
 import com.intellij.notification.{Notification, NotificationAction}
 import com.intellij.openapi.actionSystem.AnActionEvent
+import com.intellij.openapi.diagnostic.Logger
 import com.intellij.openapi.progress.{ProgressIndicator, ProgressManager, Task}
 import org.jetbrains.plugins.scala.lang.formatting.scalafmt.dynamic.ScalafmtDynamicDownloader.DownloadFailure
 import org.jetbrains.plugins.scala.lang.formatting.scalafmt.dynamic.utils.NoopScalafmtReporter
@@ -13,7 +14,6 @@ import scala.collection.mutable
 import scala.concurrent.duration.DurationInt
 
 // TODO: somehow preserve resolved scalafmt cache between intellij restarts
-// TODO: add errors intellij logging
 object ScalafmtDynamicUtil {
   type ScalafmtVersion = String
   val DefaultVersion = "1.5.1"
@@ -49,14 +49,14 @@ object ScalafmtDynamicUtil {
   private def reportResolveError(error: ScalafmtResolveError): Unit = {
     import ScalafmtNotifications._
 
-    val commonMessage = s"Can not resolve scalafmt version `${error.version}`"
+    val baseMessage = s"Can not resolve scalafmt version `${error.version}`"
     error match {
       case ScalafmtResolveError.DownloadInProgress(_) =>
-        val errorMessage = s"$commonMessage: download is in progress"
+        val errorMessage = s"$baseMessage: download is in progress"
         displayError(errorMessage)
       case ScalafmtResolveError.DownloadError(failure) =>
-        val causeMessage = failure.cause.map(_.getMessage).getOrElse("<unknown reason>")
-        val errorMessage = s"$commonMessage: an error occurred during downloading:\n$causeMessage"
+        val causeMessage = failure.cause.getMessage
+        val errorMessage = s"$baseMessage: an error occurred during downloading:\n$causeMessage"
         displayError(errorMessage)
       case ScalafmtResolveError.NotFound(_) =>
         val message = s"Scalafmt version `${error.version}` is not downloaded yet. Would you like to to download it?"

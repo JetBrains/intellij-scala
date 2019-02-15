@@ -10,7 +10,6 @@ import org.jetbrains.plugins.scala.lang.formatting.scalafmt.interfaces.ScalafmtR
 
 import scala.concurrent.duration.Duration
 import scala.util.Try
-import scala.util.control.NonFatal
 
 class ScalafmtDynamicDownloader(respectVersion: Boolean,
                                 reporter: ScalafmtReporter,
@@ -39,8 +38,8 @@ class ScalafmtDynamicDownloader(respectVersion: Boolean,
       )
     }.toEither.left.map {
       // TODO: distinguish between these two errors?
-      case e: ResolutionException => DownloadFailure(version, Some(e))
-      case NonFatal(e) => DownloadFailure(version, Some(e))
+      case e: ResolutionException => DownloadFailure(version, e)
+      case e => DownloadFailure(version, e)
     }
   }
 
@@ -69,5 +68,5 @@ class ScalafmtDynamicDownloader(respectVersion: Boolean,
 }
 
 object ScalafmtDynamicDownloader {
-  case class DownloadFailure(version: String, cause: Option[Throwable])
+  case class DownloadFailure(version: String, cause: Throwable)
 }
