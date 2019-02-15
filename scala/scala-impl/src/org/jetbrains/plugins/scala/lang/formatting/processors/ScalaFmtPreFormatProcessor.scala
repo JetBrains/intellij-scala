@@ -295,7 +295,7 @@ object ScalaFmtPreFormatProcessor {
   }
 
   def formatWithoutCommit(file: PsiFile, respectProjectMatcher: Boolean): Unit = {
-    val config = ScalafmtDynamicConfigUtil.resolveConfigOptForFile(file).orNull
+    val config = ScalafmtDynamicConfigUtil.configOptForFile(file).orNull
     if (config == null || respectProjectMatcher && !ScalafmtDynamicConfigUtil.isIncludedInProject(file, config))
       return
 
@@ -324,7 +324,7 @@ object ScalaFmtPreFormatProcessor {
     if (document == null) return None
     implicit val fileText: String = file.getText
 
-    val config: ScalafmtDynamicConfig = ScalafmtDynamicConfigUtil.resolveConfigOptForFile(file).orNull
+    val config: ScalafmtDynamicConfig = ScalafmtDynamicConfigUtil.configOptForFile(file).orNull
     if (config == null) return None
 
     val rangeIncludesWholeFile = range.contains(file.getTextRange)

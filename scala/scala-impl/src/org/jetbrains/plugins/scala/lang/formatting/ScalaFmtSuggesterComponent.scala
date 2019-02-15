@@ -6,7 +6,7 @@ import com.intellij.openapi.components.{PersistentStateComponent, _}
 import com.intellij.openapi.project.Project
 import javax.swing.event.HyperlinkEvent
 import org.jetbrains.plugins.scala.extensions._
-import org.jetbrains.plugins.scala.lang.formatting.scalafmt.ScalafmtDynamicConfigUtil
+import org.jetbrains.plugins.scala.lang.formatting.scalafmt.{ScalafmtDynamicConfigUtil, ScalafmtDynamicUtil}
 import org.jetbrains.plugins.scala.lang.formatting.settings.ScalaCodeStyleSettings
 
 import scala.beans.BeanProperty
@@ -24,6 +24,11 @@ class ScalaFmtSuggesterComponent(val project: Project) extends ProjectComponent 
     ) {
       //suggest the feature automatically
       createNotification.notify(project)
+    }
+
+    // TODO: when ScalafmtDynamicUtil becomes ApplicationComponent, move this initialization to it
+    if(settings.USE_SCALAFMT_FORMATTER) {
+      ScalafmtDynamicUtil.ensureDefaultVersionIsDownloaded(project)
     }
   }
 
@@ -54,6 +59,8 @@ class ScalaFmtSuggesterComponent(val project: Project) extends ProjectComponent 
     newSettings.FORMATTER = ScalaCodeStyleSettings.SCALAFMT_FORMATTER
     newSettings.SCALAFMT_CONFIG_PATH = ""
     codeStyleSchemesModel.apply()
+
+    ScalafmtDynamicUtil.ensureDefaultVersionIsDownloaded(project)
   }
 
   private def createNotification: Notification = {

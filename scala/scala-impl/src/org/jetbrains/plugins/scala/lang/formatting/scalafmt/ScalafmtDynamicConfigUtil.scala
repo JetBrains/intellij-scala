@@ -10,8 +10,7 @@ import com.intellij.psi.PsiFile
 import com.typesafe.config.{ConfigException, ConfigFactory}
 import org.jetbrains.plugins.scala.extensions.{inWriteAction, _}
 import org.jetbrains.plugins.scala.lang.formatting.processors.ScalaFmtPreFormatProcessor.OpenFileNotificationActon
-import org.jetbrains.plugins.scala.lang.formatting.scalafmt.ScalafmtDynamicUtil.ScalafmtResolveError
-import org.jetbrains.plugins.scala.lang.formatting.scalafmt.dynamic.ScalafmtDynamic.ScalafmtVersion
+import org.jetbrains.plugins.scala.lang.formatting.scalafmt.ScalafmtDynamicUtil.{DefaultVersion, ScalafmtResolveError, ScalafmtVersion}
 import org.jetbrains.plugins.scala.lang.formatting.scalafmt.dynamic.exceptions.ScalafmtConfigException
 import org.jetbrains.plugins.scala.lang.formatting.scalafmt.dynamic.{ScalafmtDynamicConfig, ScalafmtReflect}
 import org.jetbrains.plugins.scala.lang.formatting.settings.ScalaCodeStyleSettings
@@ -26,13 +25,15 @@ import scala.util.Try
 // TODO: put inReadAction/inWriteAction where needed!?
 // TODO: consider adding scalac option to check exhaustive matching: scalacOptions += "-Xfatal-warnings"
 // TODO: build proper, user-friendly error messages
+// TODO: add errors intellij logging
 object ScalafmtDynamicConfigUtil {
-  val DefaultVersion = "1.5.1"
   val DefaultConfigurationFileName: String = ".scalafmt.conf"
 
   private val configsCache: mutable.Map[String, (ScalafmtDynamicConfig, Long)] = ScalaCollectionsUtil.newConcurrentMap
 
-  def resolveConfigAsync(configFile: VirtualFile, version: String, project: ProjectContext,
+  def resolveConfigAsync(configFile: VirtualFile,
+                         version: ScalafmtVersion,
+                         project: ProjectContext,
                          onResolveFinished: ConfigResolveResult => Unit): Unit = {
     tryRefreshFileModificationTimestamp(configFile)
 
@@ -50,23 +51,32 @@ object ScalafmtDynamicConfigUtil {
   private def tryRefreshFileModificationTimestamp(vFile: VirtualFile): Unit = {
     if (ApplicationManager.getApplication.isDispatchThread) {
       inWriteAction {
-        ApplicationManager.getApplication.invokeAndWait(vFile.refresh(false, false), ModalityState.current())
+        ApplicationManager.getApplication.invokeAndWait(vFile.refresh(false, false), ModalityState.defaultModalityState())
       }
     }
   }
 
-  def resolveConfigOptForFile(psiFile: PsiFile): Option[ScalafmtDynamicConfig] = {
+  def configOptForFile(psiFile: PsiFile): Option[ScalafmtDynamicConfig] = {
     val settings = CodeStyle.getCustomSettings(psiFile, classOf[ScalaCodeStyleSettings])
     val project = psiFile.getProject
     val configPath = settings.SCALAFMT_CONFIG_PATH
 
-    for {
+    // TODO: what if we do not have any configuration file? We should use some default intellij idea one?
+    val configFromFile = for {
       configFile <- scalafmtProjectConfigFile(configPath, project)
       config <- resolveConfig(configFile, Some(DefaultVersion), project, downloadScalafmtIfMissing = false).toOption
-    } yield psiFile match {
-      case _: SbtFileImpl => config.withSbtDialect
-      case _ => config
+    } yield config
+
+    val config = configFromFile.orElse(intellijDefaultConfig)
+    if (psiFile.isInstanceOf[SbtFileImpl]) {
+      config.map(_.withSbtDialect)
+    } else {
+      config
     }
+  }
+
+  private lazy val intellijDefaultConfig: Option[ScalafmtDynamicConfig] = {
+    ScalafmtDynamicUtil.resolve(DefaultVersion).toOption.map(_.intellijScalaFmtConfig)
   }
 
   private def resolveConfig(configFile: VirtualFile,
@@ -174,7 +184,7 @@ object ScalafmtDynamicConfigUtil {
   }
 
   def isIncludedInProject(file: PsiFile): Boolean = {
-    val configOpt = resolveConfigOptForFile(file)
+    val configOpt = configOptForFile(file)
     configOpt.exists(isIncludedInProject(file, _))
   }
 

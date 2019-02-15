@@ -13,17 +13,19 @@ import scala.collection.mutable
 import scala.concurrent.duration.DurationInt
 
 // TODO: somehow preserve resolved scalafmt cache between intellij restarts
+// TODO: add errors intellij logging
 object ScalafmtDynamicUtil {
-  type Version = String
+  type ScalafmtVersion = String
+  val DefaultVersion = "1.5.1"
 
-  private val formattersCache: mutable.Map[Version, ResolveStatus] = ScalaCollectionsUtil.newConcurrentMap
+  private val formattersCache: mutable.Map[ScalafmtVersion, ResolveStatus] = ScalaCollectionsUtil.newConcurrentMap
 
-  def isAvailable(version: Version): Boolean = ???
+  def isAvailable(version: ScalafmtVersion): Boolean = ???
 
   // TODO: instead of returning download in progress error maybe we can somehow reuse already downloading
   //  process and use it's result? We need some abstraction, like Task or something like that
   // TODO: set project in dummy state?
-  def resolve(version: Version, downloadIfMissing: Boolean = false): Either[ScalafmtResolveError, ScalafmtReflect] = {
+  def resolve(version: ScalafmtVersion, downloadIfMissing: Boolean = false): Either[ScalafmtResolveError, ScalafmtReflect] = {
     val resolveResult = formattersCache.get(version) match {
       case Some(ResolveStatus.Downloaded(scalaFmt)) => Right(scalaFmt)
       case Some(ResolveStatus.DownloadInProgress) => Left(ScalafmtResolveError.DownloadInProgress(version))
@@ -54,13 +56,12 @@ object ScalafmtDynamicUtil {
         val errorMessage = s"$commonMessage: an error occurred during downloading:\n$causeMessage"
         displayError(errorMessage)
       case ScalafmtResolveError.NotFound(_) =>
-        val message =
-          s"Scalafmt version `${error.version}` is not downloaded yet. " +
-            s"Would you like to to download it?"
+        val message = s"Scalafmt version `${error.version}` is not downloaded yet. Would you like to to download it?"
         displayWarning(message, Seq(new DownloadScalafmtNotificationActon(error.version)))
     }
   }
 
+  // TODO: add tooltip hint on mouse hover?
   private class DownloadScalafmtNotificationActon(version: String) extends NotificationAction("download") {
     override def actionPerformed(e: AnActionEvent, notification: Notification): Unit = {
       resolveAsync(version, e.getProject, onDownloadFinished = {
@@ -71,9 +72,9 @@ object ScalafmtDynamicUtil {
     }
   }
 
-  private def resolveAsync(version: Version, project: ProjectContext,
-                           onDownloadFinished: Either[ScalafmtResolveError, ScalafmtReflect] => Unit): Unit = {
-    val backgroundTask = new Task.Backgroundable(project, s"Downloading scalafmt (version `$version`)", true) {
+  def resolveAsync(version: ScalafmtVersion, project: ProjectContext,
+                   onDownloadFinished: Either[ScalafmtResolveError, ScalafmtReflect] => Unit = _ => ()): Unit = {
+    val backgroundTask = new Task.Backgroundable(project, s"Downloading scalafmt version `$version`", true) {
       override def run(indicator: ProgressIndicator): Unit = {
         indicator.setFraction(0.0)
         val result = resolve(version, downloadIfMissing = true)
@@ -84,7 +85,13 @@ object ScalafmtDynamicUtil {
     ProgressManager.getInstance.run(backgroundTask)
   }
 
-  private def download(version: Version): Either[DownloadFailure, ScalafmtReflect] = {
+  def ensureDefaultVersionIsDownloaded(project: ProjectContext): Unit = {
+    if(!formattersCache.contains(DefaultVersion)) {
+      resolveAsync(DefaultVersion, project)
+    }
+  }
+
+  private def download(version: ScalafmtVersion): Either[DownloadFailure, ScalafmtReflect] = {
     // TODO: 1) use some proper reporter ScalafmtReporter?
     //       2) handle timeout ?
     val ttl = 1.hour
@@ -103,14 +110,14 @@ object ScalafmtDynamicUtil {
   }
 
   sealed trait ScalafmtResolveError {
-    def version: Version
+    def version: ScalafmtVersion
   }
 
   object ScalafmtResolveError {
-    case class NotFound(version: Version) extends ScalafmtResolveError
-    case class DownloadInProgress(version: Version) extends ScalafmtResolveError
+    case class NotFound(version: ScalafmtVersion) extends ScalafmtResolveError
+    case class DownloadInProgress(version: ScalafmtVersion) extends ScalafmtResolveError
     case class DownloadError(failure: DownloadFailure) extends ScalafmtResolveError {
-      override def version: Version = failure.version
+      override def version: ScalafmtVersion = failure.version
     }
   }
 }

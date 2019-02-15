@@ -10,6 +10,7 @@ import org.jetbrains.plugins.scala.lang.formatting.scalafmt.interfaces.ScalafmtR
 
 import scala.util.Try
 
+//noinspection TypeAnnotation
 case class ScalafmtReflect(classLoader: URLClassLoader,
                            version: String,
                            respectVersion: Boolean,
@@ -17,25 +18,34 @@ case class ScalafmtReflect(classLoader: URLClassLoader,
 
   import classLoader.loadClass
 
-  private val formattedCls = loadClass("org.scalafmt.Formatted")
-  private val scalaSetCls = loadClass("scala.collection.immutable.Set")
-  private val optionCls = loadClass("scala.Option")
-  private val configCls = loadClass("org.scalafmt.config.Config")
-  private val scalafmtCls = loadClass("org.scalafmt.Scalafmt")
+  protected val formattedCls = loadClass("org.scalafmt.Formatted")
+  protected val scalaSetCls = loadClass("scala.collection.immutable.Set")
+  protected val optionCls = loadClass("scala.Option")
+  protected val configCls = loadClass("org.scalafmt.config.Config")
+  protected val scalafmtCls = loadClass("org.scalafmt.Scalafmt")
 
-  private val parseExceptionCls = loadClass("scala.meta.parsers.ParseException")
-  private val tokenizeExceptionCls = loadClass("scala.meta.tokenizers.TokenizeException")
+  protected val parseExceptionCls = loadClass("scala.meta.parsers.ParseException")
+  protected val tokenizeExceptionCls = loadClass("scala.meta.tokenizers.TokenizeException")
 
-  private val defaultScalaFmtConfig = scalafmtCls.invokeStatic("format$default$2")
-  private val emptyRange = scalafmtCls.invokeStatic("format$default$3")
+  protected val defaultScalaFmtConfig = scalafmtCls.invokeStatic("format$default$2")
+  protected val emptyRange = scalafmtCls.invokeStatic("format$default$3")
 
-  private val formattedGet = formattedCls.getMethod("get")
+  protected val formattedGet = formattedCls.getMethod("get")
 
-  private val formatMethod =
+  protected val formatMethod =
     scalafmtCls.getMethod("format", classOf[String], defaultScalaFmtConfig.getClass, scalaSetCls)
-  private val formatMethodWithFilename = Try(
+  protected val formatMethodWithFilename = Try(
     scalafmtCls.getMethod("format", classOf[String], defaultScalaFmtConfig.getClass, scalaSetCls, classOf[String])
   ).toOption
+
+  lazy val intellijScalaFmtConfig: ScalafmtDynamicConfig = {
+    // TODO: see implementation details for other versions of scalafmt, find where intellij config is kept
+    assert(version == "1.5.1", "intellij scalafmt config is only supported fot version 1.5.1 for now")
+
+    val scalaFmtConfigCls = classLoader.loadClass("org.scalafmt.config.ScalafmtConfig")
+    val configTarget = scalaFmtConfigCls.invokeStatic("intellij")
+    new ScalafmtDynamicConfig(this, configTarget, classLoader)
+  }
 
   def parseConfig(configPath: Path): ScalafmtDynamicConfig = {
     val configText = new String(Files.readAllBytes(configPath), StandardCharsets.UTF_8)

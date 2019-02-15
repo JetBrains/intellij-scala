@@ -28,7 +28,7 @@ import javax.swing.event.ChangeEvent
 import org.apache.commons.lang.StringUtils
 import org.jetbrains.plugins.scala.ScalaFileType
 import org.jetbrains.plugins.scala.extensions._
-import org.jetbrains.plugins.scala.lang.formatting.scalafmt.ScalafmtDynamicConfigUtil
+import org.jetbrains.plugins.scala.lang.formatting.scalafmt.{ScalafmtDynamicConfigUtil, ScalafmtDynamicUtil}
 import org.jetbrains.plugins.scala.lang.formatting.scalafmt.ScalafmtDynamicConfigUtil.ConfigResolveError
 
 import scala.util.control.NonFatal
@@ -50,10 +50,6 @@ class ScalaFmtSettingsPanel(val settings: CodeStyleSettings) extends CodeStyleAb
 
   override def apply(settings: CodeStyleSettings): Unit = {
     val editorText = getEditor.getDocument.getText
-    val configTextChangedInEditor = configText.exists(_ != editorText)
-
-    val modified = isModified(settings) || configTextChangedInEditor
-    if (!modified) return
 
     val scalaSettings = settings.getCustomSettings(classOf[ScalaCodeStyleSettings])
 
@@ -61,22 +57,26 @@ class ScalaFmtSettingsPanel(val settings: CodeStyleSettings) extends CodeStyleAb
     scalaSettings.SCALAFMT_USE_INTELLIJ_FORMATTER_FOR_RANGE_FORMAT = useIntellijFormatterForRangeFormat.isSelected
     scalaSettings.SCALAFMT_REFORMAT_ON_FILES_SAVE = reformatOnFileSaveCheckBox.isSelected
 
-    val configPath = scalaSettings.SCALAFMT_CONFIG_PATH
+    val configPath = scalaSettings.SCALAFMT_CONFIG_PATH.trim
     val configPathNew = externalFormatterSettingsPath.getText.trim
-    val configPathChanged = configPath.trim != configPathNew
+    val configPathChanged = configPath != configPathNew
+    val configTextChangedInEditor = configText.exists(_ != editorText)
 
     if (configPathChanged) {
       // TODO: what if not configuration file is present? we still need to resolve scalafmt version
       doWithConfigFile(configPathNew) { vFile =>
         scalaSettings.SCALAFMT_CONFIG_PATH = configPathNew // only update config path if the file actually exists
         updateConfigTextFromFile(vFile)
-        ensureScalafmtResolved(vFile)
       }
     } else if (configTextChangedInEditor) {
       doWithConfigFile(configPath) { vFile =>
         saveConfigChangesToFile(editorText, vFile)
-        ensureScalafmtResolved(vFile)
       }
+    }
+
+    projectConfigFile(configPath) match {
+      case Some(vFile) => ensureScalafmtResolved(vFile)
+      case None => ensureDefaultScalafmtResolved()
     }
 
     updateConfigVisibility()
@@ -86,10 +86,10 @@ class ScalaFmtSettingsPanel(val settings: CodeStyleSettings) extends CodeStyleAb
   private def ensureScalafmtResolved(configFile: VirtualFile): Unit = {
     if (project.isEmpty) return
 
+    // TODO: notify user that we are using default version using default version ?
     val version = ScalafmtDynamicConfigUtil.readVersion(configFile) match {
       case Right(v) =>
-        // TODO: notify user that we are using default version using default version ?
-        v.getOrElse(ScalafmtDynamicConfigUtil.DefaultVersion)
+        v.getOrElse(ScalafmtDynamicUtil.DefaultVersion)
       case Left(ex) =>
         reportConfigParseError(ex.getMessage)
         return
@@ -100,6 +100,11 @@ class ScalaFmtSettingsPanel(val settings: CodeStyleSettings) extends CodeStyleAb
       case Left(error) => reportConfigResolveError(error)
       case _ =>
     })
+  }
+
+  private def ensureDefaultScalafmtResolved(): Unit = {
+    if (project.isEmpty) return
+    ScalafmtDynamicUtil.ensureDefaultVersionIsDownloaded(project.get)
   }
 
   private def reportConfigResolveError(configResolveError: ConfigResolveError): Unit = {
@@ -127,8 +132,7 @@ class ScalaFmtSettingsPanel(val settings: CodeStyleSettings) extends CodeStyleAb
   }
 
   private def displayInfo(text: String): Unit = {
-    var c: JComponent = previewPanel
-    c = this.getPanel // TODO which to use?
+    val c: JComponent = this.getPanel
     displayMessage(text, c, c.getWidth - 10, c.getHeight, Balloon.Position.above, MessageType.INFO)
   }
 
