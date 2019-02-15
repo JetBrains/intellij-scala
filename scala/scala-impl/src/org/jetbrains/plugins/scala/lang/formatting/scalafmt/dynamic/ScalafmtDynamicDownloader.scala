@@ -1,18 +1,18 @@
 package org.jetbrains.plugins.scala.lang.formatting.scalafmt.dynamic
 
+import java.io.PrintWriter
 import java.net.URLClassLoader
 import java.nio.file.Path
 
 import com.geirsson.coursiersmall._
 import org.jetbrains.plugins.scala.lang.formatting.scalafmt.dynamic.ScalafmtDynamicDownloader.DownloadFailure
 import org.jetbrains.plugins.scala.lang.formatting.scalafmt.dynamic.utils.BuildInfo
-import org.jetbrains.plugins.scala.lang.formatting.scalafmt.interfaces.ScalafmtReporter
 
 import scala.concurrent.duration.Duration
 import scala.util.Try
 
 class ScalafmtDynamicDownloader(respectVersion: Boolean,
-                                reporter: ScalafmtReporter,
+                                downloadProgressWriter: PrintWriter,
                                 ttl: Option[Duration] = None) {
 
   def download(version: String): Either[DownloadFailure, ScalafmtReflect] = {
@@ -20,7 +20,7 @@ class ScalafmtDynamicDownloader(respectVersion: Boolean,
       val settings = new Settings()
         .withDependencies(dependencies(version))
         .withTtl(ttl.orElse(Some(Duration.Inf)))
-        .withWriter(reporter.downloadWriter())
+        .withWriter(downloadProgressWriter)
         .withRepositories(List(
           Repository.MavenCentral,
           Repository.Ivy2Local,
@@ -33,8 +33,7 @@ class ScalafmtDynamicDownloader(respectVersion: Boolean,
       ScalafmtReflect(
         classloader,
         version,
-        respectVersion,
-        reporter
+        respectVersion
       )
     }.toEither.left.map {
       // TODO: distinguish between these two errors?

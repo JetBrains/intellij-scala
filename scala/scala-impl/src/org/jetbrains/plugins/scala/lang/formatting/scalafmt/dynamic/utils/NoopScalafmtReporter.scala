@@ -14,11 +14,11 @@ class NoopScalafmtReporter extends ScalafmtReporter {
   override def downloadWriter(): PrintWriter = NoopPrintWriter
 }
 
-private object NoopScalafmtReporter {
-  val NoopPrintWriter = new PrintWriter(NoopWriter)
-  object NoopWriter extends Writer {
+object NoopScalafmtReporter {
+  val NoopWriter: Writer = new Writer {
     override def write(cbuf: Array[Char], off: Int, len: Int): Unit = {}
     override def flush(): Unit = {}
     override def close(): Unit = {}
   }
+  val NoopPrintWriter = new PrintWriter(NoopWriter)
 }

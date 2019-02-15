@@ -1084,11 +1084,20 @@ package object extensions {
 
   }
 
-  def using[A <: Closeable, B](resource: A)(block: A => B): B = {
+  def using[A <: Closeable, R](resource: A)(block: A => R): R = {
     try {
       block(resource)
     } finally {
       if (resource != null) resource.close()
+    }
+  }
+
+  def using[A <: Closeable, B <: Closeable, R](resource1: A, resource2: B)(block: (A, B) => R): R = {
+    try {
+      block(resource1, resource2)
+    } finally {
+      if (resource1 != null) resource1.close()
+      if (resource2 != null) resource2.close()
     }
   }
 

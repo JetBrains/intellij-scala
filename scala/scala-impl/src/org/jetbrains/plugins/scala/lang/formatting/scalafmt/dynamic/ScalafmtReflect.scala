@@ -13,8 +13,7 @@ import scala.util.Try
 //noinspection TypeAnnotation
 case class ScalafmtReflect(classLoader: URLClassLoader,
                            version: String,
-                           respectVersion: Boolean,
-                           reporter: ScalafmtReporter) {
+                           respectVersion: Boolean) {
 
   import classLoader.loadClass
 

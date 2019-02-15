@@ -33,11 +33,7 @@ final case class ScalafmtDynamic(reporter: ScalafmtReporter,
     TrieMap.empty,
   )
 
-  private lazy val downloader =
-    new ScalafmtDynamicDownloader(
-      respectVersion,
-      reporter
-    )
+  private lazy val downloader = new ScalafmtDynamicDownloader(respectVersion, reporter.downloadWriter())
 
   override def clear(): Unit = {
     fmtsCache.values.foreach(_.classLoader.close())
@@ -174,7 +170,7 @@ final case class ScalafmtDynamic(reporter: ScalafmtReporter,
             fmtsCache(version) = value
             Right(value)
           case Left(f) =>
-            Left(ScalafmtDynamicError.CannotDownload(f.version, f.cause))
+            Left(ScalafmtDynamicError.CannotDownload(f.version, Some(f.cause)))
         }
     }
   }
