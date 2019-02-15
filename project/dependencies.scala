@@ -90,11 +90,8 @@ object Dependencies {
   val scalastyle: ModuleID = "org.scalastyle" %% "scalastyle" % "1.0.0"
   val scalariform: ModuleID = "org.scalariform" %% "scalariform" % "0.2.2"
   val scalafmt: Seq[ModuleID] = Seq(
-    "com.geirsson" %% "scalafmt-core" % "1.5.1",
-    "com.geirsson" %% "metaconfig-core" % "0.4.0",
-    "com.geirsson" %% "metaconfig-typesafe-config" % "0.4.0",
-    "com.typesafe" % "config" % "1.2.1",
-    "com.lihaoyi" %% "sourcecode" % "0.1.3"
+    "com.geirsson" %% "coursier-small" % "1.3.1",
+    "com.typesafe" % "config" % "1.3.3"
   )
   val macroParadise: ModuleID = "org.scalameta" % "paradise" % paradiseVersion cross CrossVersion.full
   val scalaMetaCore: ModuleID = "org.scalameta" %% "scalameta" % scalaMetaVersion withSources() exclude("com.google.protobuf", "protobuf-java")
@@ -144,7 +141,7 @@ object DependencyGroups {
     ivy2,
     scalastyle,
     scalariform
-  )
+  ) ++ scalafmt
 
   val bsp: Seq[ModuleID] = Seq(
     ("org.scala-sbt.ipcsocket" % "ipcsocket" % "1.0.0")
