@@ -1401,7 +1401,7 @@
         <implementation-class>org.jetbrains.plugins.scala.lang.formatting.ReformatOnFileSaveTask</implementation-class>
       </component>
       <component>
-        <implementation-class>org.jetbrains.plugins.scala.lang.formatting.ScalaFmtSuggesterComponent</implementation-class>
+        <implementation-class>org.jetbrains.plugins.scala.lang.formatting.scalafmt.ScalaFmtSuggesterComponent</implementation-class>
       </component>
         <component>
         <implementation-class>org.jetbrains.plugins.scala.testDiscovery.ScalaAffectedTestsInChangeListPainter</implementation-class>

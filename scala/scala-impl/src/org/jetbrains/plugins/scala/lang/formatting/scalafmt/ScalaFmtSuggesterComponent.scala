@@ -1,4 +1,4 @@
-package org.jetbrains.plugins.scala.lang.formatting
+package org.jetbrains.plugins.scala.lang.formatting.scalafmt
 
 import com.intellij.application.options.codeStyle.CodeStyleSchemesModel
 import com.intellij.notification._
@@ -6,7 +6,6 @@ import com.intellij.openapi.components.{PersistentStateComponent, _}
 import com.intellij.openapi.project.Project
 import javax.swing.event.HyperlinkEvent
 import org.jetbrains.plugins.scala.extensions._
-import org.jetbrains.plugins.scala.lang.formatting.scalafmt.{ScalafmtDynamicConfigUtil, ScalafmtDynamicUtil}
 import org.jetbrains.plugins.scala.lang.formatting.settings.ScalaCodeStyleSettings
 
 import scala.beans.BeanProperty
