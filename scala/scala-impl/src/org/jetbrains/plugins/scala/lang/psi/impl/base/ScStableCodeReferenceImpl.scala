@@ -12,7 +12,7 @@ import com.intellij.psi.util.PsiTreeUtil
 import com.intellij.util.IncorrectOperationException
 import org.jetbrains.plugins.scala.annotator.intention.ScalaImportTypeFix
 import org.jetbrains.plugins.scala.annotator.intention.ScalaImportTypeFix.{ClassTypeToImport, TypeAliasToImport, TypeToImport}
-import org.jetbrains.plugins.scala.extensions.{&&, IterableExt, ObjectExt, PsiClassExt, PsiNamedElementExt, PsiTypeExt, ifReadAllowed}
+import org.jetbrains.plugins.scala.extensions.{&&, IterableExt, ObjectExt, PsiClassExt, PsiElementExt, PsiNamedElementExt, PsiTypeExt, ifReadAllowed}
 import org.jetbrains.plugins.scala.lang.formatting.settings.ScalaCodeStyleSettings
 import org.jetbrains.plugins.scala.lang.lexer.ScalaTokenTypes
 import org.jetbrains.plugins.scala.lang.macros.MacroDef
@@ -231,14 +231,16 @@ class ScStableCodeReferenceImpl(node: ASTNode) extends ScReferenceImpl(node) wit
     }
   }
 
+  private def contextsElementKinds: String = {
+    val contextsFromFile = this.withContexts.takeWhile(!_.isInstanceOf[PsiFile]).toList.reverse
+    val elementTypes = contextsFromFile.map(_.getNode.getElementType.toString)
+    elementTypes.zipWithIndex.map {
+      case (name, idx) => "  " * idx + name
+    }.mkString("\n")
+  }
+
   private def reportWrongKind(c: TypeToImport, suitableKinds: Set[ResolveTargets.Value]): Nothing = {
-    val contextText = if (getContext != null)
-      if (getContext.getContext != null)
-        if (getContext.getContext.getContext != null)
-          getContext.getContext.getContext.getText
-        else getContext.getContext.getText
-      else getContext.getText
-    else getText
+    val contextText = contextsElementKinds
     throw new IncorrectOperationException(
       s"""${c.element} does not match expected kind,
          |kinds: ${suitableKinds.mkString(", ")}
