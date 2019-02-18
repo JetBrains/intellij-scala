@@ -34,7 +34,7 @@ object ScalafmtDynamicConfigUtil {
                          onResolveFinished: ConfigResolveResult => Unit): Unit = {
     val backgroundTask = new Task.Backgroundable(project, "Resolving scalafmt config", true) {
       override def run(indicator: ProgressIndicator): Unit = {
-        tryRefreshFileModificationTimestamp(configFile)
+        refreshFileModificationTimestamp(configFile)
         indicator.setFraction(0.0)
         val configOrError = resolveConfig(configFile, Some(version), project, downloadScalafmtIfMissing = true)
         onResolveFinished(configOrError)
@@ -44,7 +44,7 @@ object ScalafmtDynamicConfigUtil {
     ProgressManager.getInstance().run(backgroundTask)
   }
 
-  private def tryRefreshFileModificationTimestamp(vFile: VirtualFile): Unit = {
+  private def refreshFileModificationTimestamp(vFile: VirtualFile): Unit = {
     invokeAndWait(inWriteAction(vFile.refresh(false, false)))
   }
 
@@ -66,7 +66,7 @@ object ScalafmtDynamicConfigUtil {
     }
   }
 
-  private lazy val intellijDefaultConfig: Option[ScalafmtDynamicConfig] = {
+  private def intellijDefaultConfig: Option[ScalafmtDynamicConfig] = {
     ScalafmtDynamicUtil.resolve(DefaultVersion, downloadIfMissing = false).toOption.map(_.intellijScalaFmtConfig)
   }
 
@@ -168,7 +168,8 @@ object ScalafmtDynamicConfigUtil {
       val config = ConfigFactory.parseString(document.getText)
       Option(config.getString("version").trim)
     }.toEither.left.flatMap {
-      case _: ConfigException.Missing => Right(None)
+      case _: ConfigException.Missing =>
+        Right(None)
       case e =>
         Log.error(e)
         Left(e)
@@ -211,12 +212,12 @@ object ScalafmtDynamicConfigUtil {
   sealed trait ConfigResolveError
 
   object ConfigResolveError {
-    trait ConfigError extends ConfigResolveError
+    sealed trait ConfigError extends ConfigResolveError
     case class ConfigFileNotFound(configPath: String) extends ConfigError
     case class ConfigMissingVersion(configPath: String) extends ConfigError
     case class ConfigParseError(configPath: String, cause: Throwable) extends ConfigError
-    case class UnknownError(message: String, cause: Option[Throwable]) extends ConfigError
     case class ConfigScalafmtResolveError(error: ScalafmtResolveError) extends ConfigResolveError
+    case class UnknownError(message: String, cause: Option[Throwable]) extends ConfigError
 
     object UnknownError {
       def apply(cause: Throwable): UnknownError = new UnknownError(cause.getMessage, Option(cause))

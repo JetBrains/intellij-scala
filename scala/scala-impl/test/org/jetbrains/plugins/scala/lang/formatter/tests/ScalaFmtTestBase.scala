@@ -13,17 +13,24 @@ trait ScalaFmtTestBase extends AbstractScalaFormatterTestBase {
     scalaSettings.SCALAFMT_USE_INTELLIJ_FORMATTER_FOR_RANGE_FORMAT = false
     scalaSettings.SCALAFMT_SHOW_INVALID_CODE_WARNINGS = false
 
-    val log: Any => Unit = println
-    val downloadingMessage = s"Downloading default scalafmt version ${ScalafmtDynamicUtil.DefaultVersion}"
-    log(s"[ START ] $downloadingMessage")
-    ScalafmtDynamicUtil.ensureDefaultVersionIsDownloaded(progressMessage => {
-      log(progressMessage)
-    })
-    log(s"[  END  ] $downloadingMessage")
+    ScalaFmtTestBase.initDefaultScalafmtVersion
   }
 
   val configPath = TestUtils.getTestDataPath + "/formatter/scalafmt/"
 
   def setScalafmtConfig(configFile: String): Unit =
     getScalaSettings.SCALAFMT_CONFIG_PATH = configPath + configFile
+}
+
+object ScalaFmtTestBase {
+  // using val to emulate java static initializer
+  val initDefaultScalafmtVersion: Unit = synchronized {
+    val log: Any => Unit = println
+    val downloadingMessage = s"Downloading default scalafmt version ${ScalafmtDynamicUtil.DefaultVersion}"
+    log(s"[START] $downloadingMessage")
+    ScalafmtDynamicUtil.ensureDefaultVersionIsDownloaded(progressMessage => {
+      log(progressMessage)
+    })
+    log(s"[END] $downloadingMessage")
+  }
 }

@@ -25,8 +25,9 @@ import scala.util.Try
 object ScalafmtDynamicUtil {
   private val Log = Logger.getInstance(this.getClass)
 
-  type ScalafmtVersion = String
   val DefaultVersion = "1.5.1"
+  type ResolveResult = Either[ScalafmtResolveError, ScalafmtReflect]
+  type ScalafmtVersion = String
 
   private val formattersCache: mutable.Map[ScalafmtVersion, ResolveStatus] = ScalaCollectionsUtil.newConcurrentMap
 
@@ -39,12 +40,12 @@ object ScalafmtDynamicUtil {
               failSilent: Boolean = false,
               progressListener: DownloadProgressListener = NoopProgressListener): ResolveResult = {
     val resolveResult = formattersCache.get(version) match {
-      case Some(ResolveStatus.Downloaded(scalaFmt)) => Right(scalaFmt)
+      case Some(ResolveStatus.Resolved(scalaFmt)) => Right(scalaFmt)
       case Some(ResolveStatus.DownloadInProgress) => Left(ScalafmtResolveError.DownloadInProgress(version))
       case _ if !downloadIfMissing => Left(ScalafmtResolveError.NotFound(version))
       case _ =>
         downloadAndResolve(version, progressListener).map { scalaFmt =>
-          formattersCache(version) = ResolveStatus.Downloaded(scalaFmt)
+          formattersCache(version) = ResolveStatus.Resolved(scalaFmt)
           scalaFmt
         }
     }
@@ -172,10 +173,8 @@ object ScalafmtDynamicUtil {
   private sealed trait ResolveStatus
   private object ResolveStatus {
     object DownloadInProgress extends ResolveStatus
-    case class Downloaded(instance: ScalafmtReflect) extends ResolveStatus
+    case class Resolved(instance: ScalafmtReflect) extends ResolveStatus
   }
-
-  type ResolveResult = Either[ScalafmtResolveError, ScalafmtReflect]
 
   sealed trait ScalafmtResolveError {
     def version: ScalafmtVersion

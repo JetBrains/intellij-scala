@@ -162,7 +162,7 @@ class ScalaBlock(val myParentBlock: ScalaBlock,
     val configOpt = ScalafmtDynamicConfigUtil.configForFile(parent.getContainingFile, failSilent = true)
     val (indentDefn, indentCall) = configOpt match {
       case Some(config) => (config.continuationIndentDefnSite, config.continuationIndentCallSite)
-      case None => (2, 4)
+      case None => (2, 2)
     }
     parent match {
       case _: ScParameterClause if newChildIndex != 0 =>

@@ -16,23 +16,24 @@ case class ScalafmtReflect(classLoader: URLClassLoader,
 
   import classLoader.loadClass
 
-  protected val formattedCls = loadClass("org.scalafmt.Formatted")
-  protected val scalaSetCls = loadClass("scala.collection.immutable.Set")
-  protected val optionCls = loadClass("scala.Option")
-  protected val configCls = loadClass("org.scalafmt.config.Config")
-  protected val scalafmtCls = loadClass("org.scalafmt.Scalafmt")
+  // FIXME: the class does not exist for version old versions, e.g. v0.2.8
+  private val formattedCls = loadClass("org.scalafmt.Formatted")
+  private val scalaSetCls = loadClass("scala.collection.immutable.Set")
+  private val optionCls = loadClass("scala.Option")
+  private val configCls = loadClass("org.scalafmt.config.Config")
+  private val scalafmtCls = loadClass("org.scalafmt.Scalafmt")
 
-  protected val parseExceptionCls = loadClass("scala.meta.parsers.ParseException")
-  protected val tokenizeExceptionCls = loadClass("scala.meta.tokenizers.TokenizeException")
+  private val parseExceptionCls = loadClass("scala.meta.parsers.ParseException")
+  private val tokenizeExceptionCls = loadClass("scala.meta.tokenizers.TokenizeException")
 
-  protected val defaultScalaFmtConfig = scalafmtCls.invokeStatic("format$default$2")
-  protected val emptyRange = scalafmtCls.invokeStatic("format$default$3")
+  private val defaultScalaFmtConfig = scalafmtCls.invokeStatic("format$default$2")
+  private val emptyRange = scalafmtCls.invokeStatic("format$default$3")
 
-  protected val formattedGet = formattedCls.getMethod("get")
+  private val formattedGet = formattedCls.getMethod("get")
 
-  protected val formatMethod =
+  private val formatMethod =
     scalafmtCls.getMethod("format", classOf[String], defaultScalaFmtConfig.getClass, scalaSetCls)
-  protected val formatMethodWithFilename = Try(
+  private val formatMethodWithFilename = Try(
     scalafmtCls.getMethod("format", classOf[String], defaultScalaFmtConfig.getClass, scalaSetCls, classOf[String])
   ).toOption
 

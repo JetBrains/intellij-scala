@@ -1,8 +1,5 @@
 package org.jetbrains.plugins.scala.lang.formatter.tests
 
-import org.jetbrains.plugins.scala.lang.formatter.AbstractScalaFormatterTestBase
-import org.jetbrains.plugins.scala.lang.formatting.settings.ScalaCodeStyleSettings
-
 class ScalaFmtTest extends ScalaFmtTestBase {
 
   def testAddSpace(): Unit = {

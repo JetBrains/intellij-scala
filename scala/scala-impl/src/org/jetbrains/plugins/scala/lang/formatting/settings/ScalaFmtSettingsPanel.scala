@@ -48,8 +48,8 @@ class ScalaFmtSettingsPanel(val settings: CodeStyleSettings) extends CodeStyleAb
 
   override def apply(settings: CodeStyleSettings): Unit = {
     val editorText = getEditor.getDocument.getText
-
     val configTextChangedInEditor = configText.exists(_ != editorText)
+
     val modified = isModified(settings) || configTextChangedInEditor
     if (!modified) return
 
@@ -85,7 +85,7 @@ class ScalaFmtSettingsPanel(val settings: CodeStyleSettings) extends CodeStyleAb
     updateUseIntellijWarningVisibility(scalaSettings)
   }
 
-  def updateScalafmtVersionLabel(version: String, isDefault: Boolean): Unit = {
+  private def updateScalafmtVersionLabel(version: String, isDefault: Boolean): Unit = {
     if (scalafmtVersionLabel == null) return
     scalafmtVersionLabel.setText(version + (if (isDefault) " (default)" else ""))
   }
@@ -101,11 +101,11 @@ class ScalaFmtSettingsPanel(val settings: CodeStyleSettings) extends CodeStyleAb
     }
     val version = versionOpt.getOrElse(DefaultVersion)
     ScalafmtDynamicConfigUtil.resolveConfigAsync(configFile, version, project.get, onResolveFinished = {
+      case Right(config) =>
+        updateScalafmtVersionLabel(config.version,  isDefault = versionOpt.isEmpty)
       case Left(error) =>
         reportConfigResolveError(error)
         updateScalafmtVersionLabel("", isDefault = false)
-      case Right(config) =>
-        updateScalafmtVersionLabel(config.version, versionOpt.isEmpty)
     })
   }
 
@@ -123,7 +123,6 @@ class ScalaFmtSettingsPanel(val settings: CodeStyleSettings) extends CodeStyleAb
       case ConfigParseError(_, errorMessage) => reportConfigParseError(errorMessage.getMessage)
       case ConfigMissingVersion(_) => reportConfigParseError("missing version")
       case UnknownError(message, _) => reportConfigParseError(message)
-      case _ => reportConfigParseError("UNKNOWN ERROR")
     }
   }
 
@@ -161,7 +160,6 @@ class ScalaFmtSettingsPanel(val settings: CodeStyleSettings) extends CodeStyleAb
         document.setText(configTextNew)
       }, ModalityState.current())
     }
-    vFile.getModificationCount
     configText = Some(configTextNew)
   }
 
