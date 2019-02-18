@@ -63,6 +63,8 @@ package object project {
   }
 
   implicit class ModuleExt(val module: Module) extends AnyVal {
+    def isSourceModule: Boolean = SbtModuleType.unapply(module).isEmpty
+
     def hasScala: Boolean =
       scalaSdk.isDefined
 
@@ -154,7 +156,7 @@ package object project {
     def modules: Seq[Module] =
       manager.getModules.toSeq
 
-    def sourceModules: Seq[Module] = manager.getModules.filter(SbtModuleType.unapply(_).isEmpty)
+    def sourceModules: Seq[Module] = manager.getModules.filter(_.isSourceModule)
 
     def modifiableModel: ModifiableModuleModel =
       manager.getModifiableModel
