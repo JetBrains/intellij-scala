@@ -83,22 +83,14 @@ private class ScalaCompilerRefAdapter extends JavaCompilerRefAdapterCompat {
 object ScalaCompilerRefAdapter {
   private[findUsages] def bytecodeElement(element: PsiElement): PsiElement =
     inReadAction(element match {
-      case SyntheticImplicitMethod(member) => member
-      case HasSyntheticGetter(getter)      => getter
-      case _                               => element
+      case HasSyntheticGetter(getter) => getter
+      case _                          => element
     })
 
   private[this] class BytecodeMethod(e: ScTypedDefinition, name: String) extends FakePsiMethod(e, None, name) {
     override def params: Array[Parameter]   = Array.empty
     override def retType: ScType            = e.`type`().getOrAny
     override def getContainingFile: PsiFile = ScalaPsiUtil.fileContext(e)
-  }
-
-  object SyntheticImplicitMethod {
-    def unapply(e: PsiElement): Option[FakePsiMethod] = e match {
-      case f: ScFunction if f.isSynthetic => new BytecodeMethod(f, f.name).toOption
-      case _                              => None
-    }
   }
 
   object HasSyntheticGetter {
