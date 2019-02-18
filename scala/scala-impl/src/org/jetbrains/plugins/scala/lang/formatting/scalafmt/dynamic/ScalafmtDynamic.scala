@@ -5,12 +5,14 @@ import java.nio.file.{Files, Path}
 
 import com.typesafe.config.{ConfigException, ConfigFactory}
 import org.jetbrains.plugins.scala.lang.formatting.scalafmt.dynamic.ScalafmtDynamic.{FormatResult, _}
+import org.jetbrains.plugins.scala.lang.formatting.scalafmt.dynamic.ScalafmtDynamicDownloader.DownloadSuccess
 import org.jetbrains.plugins.scala.lang.formatting.scalafmt.dynamic.exceptions.{ReflectionException, ScalafmtConfigException, ScalafmtException}
 import org.jetbrains.plugins.scala.lang.formatting.scalafmt.dynamic.utils.{BuildInfo, ConsoleScalafmtReporter}
 import org.jetbrains.plugins.scala.lang.formatting.scalafmt.interfaces.{Scalafmt, ScalafmtReporter}
 
 import scala.collection.concurrent.TrieMap
 import scala.collection.mutable
+import scala.reflect.internal.util.ScalaClassLoader.URLClassLoader
 import scala.util.Try
 import scala.util.control.NonFatal
 
@@ -33,7 +35,7 @@ final case class ScalafmtDynamic(reporter: ScalafmtReporter,
     TrieMap.empty,
   )
 
-  private lazy val downloader = new ScalafmtDynamicDownloader(respectVersion, reporter.downloadWriter())
+  private lazy val downloader = new ScalafmtDynamicDownloader(reporter.downloadWriter())
 
   override def clear(): Unit = {
     fmtsCache.values.foreach(_.classLoader.close())
@@ -160,18 +162,35 @@ final case class ScalafmtDynamic(reporter: ScalafmtReporter,
   // TODO: there can be issues if resolveFormatter is called multiple times (e.g. formatter is called twice)
   //  in such cases download process can be started multiple times,
   //  possible solution: keep information about download process in fmtsCache
-  private def resolveFormatter(version: ScalafmtVersion): Either[ScalafmtDynamicError.CannotDownload, ScalafmtReflect] = {
+  private def resolveFormatter(version: ScalafmtVersion): Either[ScalafmtDynamicError, ScalafmtReflect] = {
     fmtsCache.get(version) match {
       case Some(value) =>
         Right(value)
       case None =>
-        downloader.download(version) match {
-          case Right(value) =>
-            fmtsCache(version) = value
-            Right(value)
-          case Left(f) =>
-            Left(ScalafmtDynamicError.CannotDownload(f.version, Some(f.cause)))
-        }
+        downloader.download(version)
+          .left.map(f => ScalafmtDynamicError.CannotDownload(f.version, Some(f.cause)))
+          .flatMap(resolveClassPath)
+          .map { scalafmt: ScalafmtReflect =>
+            fmtsCache(version) = scalafmt
+            scalafmt
+          }
+    }
+  }
+
+  private def resolveClassPath(downloadSuccess: DownloadSuccess): Either[ScalafmtDynamicError, ScalafmtReflect] = {
+    val DownloadSuccess(version, urls) = downloadSuccess
+    Try {
+      val classloader = new URLClassLoader(urls, null)
+      ScalafmtReflect(
+        classloader,
+        version,
+        respectVersion = true
+      )
+    }.toEither.left.map {
+      case e: ReflectiveOperationException =>
+        ScalafmtDynamicError.InvalidClassPath(version, urls, e)
+      case e =>
+        ScalafmtDynamicError.UnknownError(version, Some(e))
     }
   }
 

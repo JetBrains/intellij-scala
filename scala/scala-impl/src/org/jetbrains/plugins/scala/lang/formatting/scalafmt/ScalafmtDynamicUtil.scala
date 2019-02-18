@@ -1,22 +1,25 @@
 package org.jetbrains.plugins.scala.lang.formatting.scalafmt
 
 import java.io.{PipedInputStream, PipedOutputStream, PrintWriter}
+import java.net.URL
 import java.util.Scanner
 
-import com.geirsson.coursiersmall.ResolutionException
 import com.intellij.notification.{Notification, NotificationAction}
 import com.intellij.openapi.actionSystem.AnActionEvent
 import com.intellij.openapi.diagnostic.Logger
 import com.intellij.openapi.progress.{ProgressIndicator, ProgressManager, Task}
 import org.jetbrains.plugins.scala.extensions._
 import org.jetbrains.plugins.scala.lang.formatting.scalafmt.ScalafmtDynamicUtil.DownloadProgressListener.NoopProgressListener
-import org.jetbrains.plugins.scala.lang.formatting.scalafmt.dynamic.ScalafmtDynamicDownloader.DownloadFailure
+import org.jetbrains.plugins.scala.lang.formatting.scalafmt.ScalafmtDynamicUtil.ScalafmtResolveError.DownloadError
+import org.jetbrains.plugins.scala.lang.formatting.scalafmt.dynamic.ScalafmtDynamicDownloader._
 import org.jetbrains.plugins.scala.lang.formatting.scalafmt.dynamic.{ScalafmtDynamicDownloader, ScalafmtReflect}
 import org.jetbrains.plugins.scala.project.ProjectContext
 import org.jetbrains.plugins.scala.util.ScalaCollectionsUtil
 
 import scala.collection.mutable
 import scala.concurrent.duration.DurationInt
+import scala.reflect.internal.util.ScalaClassLoader.URLClassLoader
+import scala.util.Try
 
 // TODO: somehow preserve resolved scalafmt cache between intellij restarts
 object ScalafmtDynamicUtil {
@@ -29,31 +32,55 @@ object ScalafmtDynamicUtil {
 
   def isAvailable(version: ScalafmtVersion): Boolean = ???
 
-  // TODO: instead of returning download in progress error maybe we can somehow reuse already downloading
-  //  process and use it's result? We need some abstraction, like Task or something like that
-  // TODO: set project in dummy state?
+  // NOTE: instead of returning download-in-progress error we could reuse downloading process and use it's result
+  // TODO: maybe we should we set project in dummy state while downloading formatter ?
   def resolve(version: ScalafmtVersion,
               downloadIfMissing: Boolean,
               failSilent: Boolean = false,
-              progressListener: DownloadProgressListener = NoopProgressListener): Either[ScalafmtResolveError, ScalafmtReflect] = {
+              progressListener: DownloadProgressListener = NoopProgressListener): ResolveResult = {
     val resolveResult = formattersCache.get(version) match {
       case Some(ResolveStatus.Downloaded(scalaFmt)) => Right(scalaFmt)
       case Some(ResolveStatus.DownloadInProgress) => Left(ScalafmtResolveError.DownloadInProgress(version))
       case _ if !downloadIfMissing => Left(ScalafmtResolveError.NotFound(version))
       case _ =>
-        download(version, progressListener) match {
-          case Right(scalaFmt) =>
-            formattersCache(version) = ResolveStatus.Downloaded(scalaFmt)
-            Right(scalaFmt)
-          case Left(failure: DownloadFailure) =>
-            Left(ScalafmtResolveError.DownloadError(failure))
+        downloadAndResolve(version, progressListener).map { scalaFmt =>
+          formattersCache(version) = ResolveStatus.Downloaded(scalaFmt)
+          scalaFmt
         }
     }
 
-    if(!failSilent)
+    if (!failSilent)
       resolveResult.left.foreach(reportResolveError)
 
     resolveResult
+  }
+
+  private def downloadAndResolve(version: ScalafmtVersion,
+                                 listener: DownloadProgressListener = NoopProgressListener): ResolveResult = {
+    using(progressListenerWriter(listener)) { progressWriter =>
+      val ttl = 10.minutes
+      val downloader = new ScalafmtDynamicDownloader(progressWriter, ttl = Some(ttl))
+      downloader.download(version)
+        .left.map(DownloadError)
+        .flatMap(resolveClassPath)
+    }
+  }
+
+  private def resolveClassPath(downloadSuccess: DownloadSuccess): ResolveResult = {
+    val DownloadSuccess(version, urls) = downloadSuccess
+    Try {
+      val classloader = new URLClassLoader(urls, null)
+      ScalafmtReflect(
+        classloader,
+        version,
+        respectVersion = true
+      )
+    }.toEither.left.map {
+      case e: ReflectiveOperationException =>
+        ScalafmtResolveError.CorruptedClassPath(version, urls, e)
+      case e =>
+        ScalafmtResolveError.UnknownError(version, e)
+    }
   }
 
   private def reportResolveError(error: ScalafmtResolveError): Unit = {
@@ -61,18 +88,23 @@ object ScalafmtDynamicUtil {
 
     val baseMessage = s"Can not resolve scalafmt version `${error.version}`"
     error match {
+      case ScalafmtResolveError.NotFound(version) =>
+        val message = s"Scalafmt version `$version` is not downloaded yet<br>Would you like to to download it?"
+        displayWarning(message, Seq(new DownloadScalafmtNotificationActon(version)))
       case ScalafmtResolveError.DownloadInProgress(_) =>
         val errorMessage = s"$baseMessage: download is in progress"
         displayError(errorMessage)
-      case ScalafmtResolveError.DownloadError(DownloadFailure(_, message, cause)) =>
-        if(!cause.isInstanceOf[ResolutionException]) {
-          Log.error(message, cause)
-        }
-        val errorMessage = s"$baseMessage: an error occurred during downloading:\n$message"
+      case DownloadError(failure) =>
+        if (failure.isInstanceOf[DownloadUnknownError])
+          Log.error(failure.cause)
+        val errorMessage = s"$baseMessage: an error occurred during downloading:\n${failure.cause.getMessage}"
         displayError(errorMessage)
-      case ScalafmtResolveError.NotFound(_) =>
-        val message = s"Scalafmt version `${error.version}` is not downloaded yet<br>Would you like to to download it?"
-        displayWarning(message, Seq(new DownloadScalafmtNotificationActon(error.version)))
+      case ScalafmtResolveError.CorruptedClassPath(_, _, cause) =>
+        Log.error(cause)
+        displayError(s"$baseMessage: classpath is corrupted")
+      case ScalafmtResolveError.UnknownError(_, cause) =>
+        Log.error(cause)
+        displayError(s"$baseMessage unknown error:<br>${cause.getMessage}")
     }
   }
 
@@ -118,15 +150,6 @@ object ScalafmtDynamicUtil {
     }
   }
 
-  private def download(version: ScalafmtVersion,
-                       listener: DownloadProgressListener = NoopProgressListener): Either[DownloadFailure, ScalafmtReflect] = {
-    using(progressListenerWriter(listener)) { progressWriter =>
-      val ttl = 10.minutes
-      val downloader = new ScalafmtDynamicDownloader(respectVersion = true, progressWriter, ttl = Some(ttl))
-      downloader.download(version)
-    }
-  }
-
   // For now `ScalafmtDynamicDownloader` and underlying `coursiersmall` library only support PrintWriter for progress
   // updates so we need to wrap listener into writer. Also we can't extract progress percentage for now
   private def progressListenerWriter(listener: DownloadProgressListener): PrintWriter = {
@@ -152,6 +175,8 @@ object ScalafmtDynamicUtil {
     case class Downloaded(instance: ScalafmtReflect) extends ResolveStatus
   }
 
+  type ResolveResult = Either[ScalafmtResolveError, ScalafmtReflect]
+
   sealed trait ScalafmtResolveError {
     def version: ScalafmtVersion
   }
@@ -162,6 +187,8 @@ object ScalafmtDynamicUtil {
     case class DownloadError(failure: DownloadFailure) extends ScalafmtResolveError {
       override def version: ScalafmtVersion = failure.version
     }
+    case class CorruptedClassPath(version: ScalafmtVersion, urls: Seq[URL], cause: Throwable) extends ScalafmtResolveError
+    case class UnknownError(version: ScalafmtVersion, cause: Throwable) extends ScalafmtResolveError
   }
 
   abstract class DownloadProgressListener {

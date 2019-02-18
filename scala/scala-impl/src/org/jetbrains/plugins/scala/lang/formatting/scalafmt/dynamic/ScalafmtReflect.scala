@@ -102,7 +102,7 @@ case class ScalafmtReflect(classLoader: URLClassLoader,
         pos.invokeAs[Int]("endColumn")
       )
     } catch {
-      case _: NoSuchMethodException =>
+      case _: ReflectiveOperationException | _: ClassCastException =>
         val start = pos.invoke("start")
         val end = pos.invoke("end")
         RangePosition(

@@ -19,7 +19,7 @@ import com.intellij.psi.util.PsiTreeUtil
 import org.apache.commons.lang.StringUtils
 import org.jetbrains.plugins.scala.ScalaFileType
 import org.jetbrains.plugins.scala.extensions.{PsiElementExt, _}
-import org.jetbrains.plugins.scala.lang.formatting.processors.ScalaFmtPreFormatProcessor.{formatIfRequired, shiftRange}
+import org.jetbrains.plugins.scala.lang.formatting.processors.ScalaFmtPreFormatProcessor._
 import org.jetbrains.plugins.scala.lang.formatting.scalafmt.dynamic.exceptions.{PositionExceptionImpl, ReflectionException}
 import org.jetbrains.plugins.scala.lang.formatting.scalafmt.dynamic.{ScalafmtDynamicConfig, ScalafmtReflect}
 import org.jetbrains.plugins.scala.lang.formatting.scalafmt.{ScalafmtDynamicConfigUtil, ScalafmtNotifications}
@@ -43,11 +43,8 @@ import scala.collection.mutable
 import scala.collection.mutable.{ArrayBuffer, ListBuffer}
 import scala.util.Try
 import scala.util.control.NonFatal
-import scala.xml.Utility
 
 class ScalaFmtPreFormatProcessor extends PreFormatProcessor {
-  private val log = Logger.getInstance(getClass)
-
   override def process(element: ASTNode, range: TextRange): TextRange = {
     val psiFile = Option(element.getPsi).flatMap(_.getContainingFile.toOption)
 
@@ -64,7 +61,7 @@ class ScalaFmtPreFormatProcessor extends PreFormatProcessor {
         } else {
           try formatIfRequired(file, shiftRange(file, range)) catch {
             case NonFatal(ex) =>
-              log.error("An error occurred during scalafmt formatting", ex)
+              reportUnknownError(ex)
               throw ex
           }
           TextRange.EMPTY_RANGE
@@ -79,6 +76,8 @@ class ScalaFmtPreFormatProcessor extends PreFormatProcessor {
 }
 
 object ScalaFmtPreFormatProcessor {
+  private val Log = Logger.getInstance(getClass)
+
   private val StartMarker = "/**StartMarker*/"
   private val EndMarker = "/**EndMarker*/"
 
@@ -168,31 +167,31 @@ object ScalaFmtPreFormatProcessor {
     * all unrelated sibling elements.
     *
     * @example suppose elements are `val x = 2` and `val y = 42` in following code:
-    *          {{{
-    *            class A { ... }
-    *            class B {
-    *              def foo: Int = ???
-    *              def bar: Unit = {
-    *                object X {
-    *                  val x = 2
-    *                  val y = 42
-    *                }
-    *              }
-    *              private val mur = ???
-    *            }
-    *            class C { ... }
-    *          }}}
-    *          the resulting wrapped code text will be:
-    *          {{{
-    *            class B {
-    *              def bar: Unit = {
-    *                object X {
-    *                  val x = 2
-    *                  val y = 42
-    *                }
-    *              }
-    *            }
-    *          }}}
+    * {{{
+    *  class A { ... }
+    *  class B {
+    *    def foo: Int = ???
+    *    def bar: Unit = {
+    *      object X {
+    *        val x = 2
+    *        val y = 42
+    *      }
+    *    }
+    *    private val mur = ???
+    *  }
+    *  class C { ... }
+    * }}}
+    * the resulting wrapped code text will be:
+    * {{{
+    *  class B {
+    *    def bar: Unit = {
+    *      object X {
+    *        val x = 2
+    *        val y = 42
+    *      }
+    *    }
+    *  }
+    * }}}
     */
   private def wrap(elements: Seq[PsiElement])(implicit project: Project): WrappedCode = {
     require(elements.nonEmpty, "expected elements to be non empty")
@@ -296,7 +295,7 @@ object ScalaFmtPreFormatProcessor {
   }
 
   def formatWithoutCommit(file: PsiFile, respectProjectMatcher: Boolean): Unit = {
-    val config = ScalafmtDynamicConfigUtil.configOptForFile(file).orNull
+    val config = ScalafmtDynamicConfigUtil.configForFile(file).orNull
     if (config == null || respectProjectMatcher && !ScalafmtDynamicConfigUtil.isIncludedInProject(file, config))
       return
 
@@ -324,7 +323,7 @@ object ScalaFmtPreFormatProcessor {
     if (document == null) return None
     implicit val fileText: String = file.getText
 
-    val config: ScalafmtDynamicConfig = ScalafmtDynamicConfigUtil.configOptForFile(file).orNull
+    val config: ScalafmtDynamicConfig = ScalafmtDynamicConfigUtil.configForFile(file).orNull
     if (config == null) return None
 
     val rangeIncludesWholeFile = range.contains(file.getTextRange)
@@ -816,11 +815,15 @@ object ScalaFmtPreFormatProcessor {
         case Some(cause: PositionExceptionImpl) =>
           displayParseError(cause.shortMessage, cause.pos.start)
         case Some(cause) =>
-          displayError(cause.getMessage.take(100))
+          reportUnknownError(cause)
         case _ =>
           displayError("Failed to find correct surrounding code to pass for scalafmt, no formatting will be performed")
       }
     }
+  }
+
+  private def reportUnknownError(ex: Throwable): Unit = {
+    Log.error("An error occurred during scalafmt formatting", ex)
   }
 
   class OpenFileNotificationActon(project: Project, vFile: VirtualFile, offset: Int, title: String = "open source file")

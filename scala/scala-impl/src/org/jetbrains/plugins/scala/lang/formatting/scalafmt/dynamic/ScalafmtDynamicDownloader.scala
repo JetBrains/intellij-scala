@@ -1,21 +1,20 @@
 package org.jetbrains.plugins.scala.lang.formatting.scalafmt.dynamic
 
 import java.io.PrintWriter
-import java.net.URLClassLoader
+import java.net.URL
 import java.nio.file.Path
 
 import com.geirsson.coursiersmall._
-import org.jetbrains.plugins.scala.lang.formatting.scalafmt.dynamic.ScalafmtDynamicDownloader.DownloadFailure
+import org.jetbrains.plugins.scala.lang.formatting.scalafmt.dynamic.ScalafmtDynamicDownloader._
 import org.jetbrains.plugins.scala.lang.formatting.scalafmt.dynamic.utils.BuildInfo
 
 import scala.concurrent.duration.Duration
 import scala.util.Try
 
-class ScalafmtDynamicDownloader(respectVersion: Boolean,
-                                downloadProgressWriter: PrintWriter,
+class ScalafmtDynamicDownloader(downloadProgressWriter: PrintWriter,
                                 ttl: Option[Duration] = None) {
 
-  def download(version: String): Either[DownloadFailure, ScalafmtReflect] = {
+  def download(version: String): Either[DownloadFailure, DownloadSuccess] = {
     Try {
       val settings = new Settings()
         .withDependencies(dependencies(version))
@@ -29,18 +28,10 @@ class ScalafmtDynamicDownloader(respectVersion: Boolean,
         ))
       val jars: Seq[Path] = CoursierSmall.fetch(settings)
       val urls = jars.map(_.toUri.toURL).toArray
-      val classloader = new URLClassLoader(urls, null)
-      // TODO: separate errors related with downloading from errors related to classes & methods resolving
-      ScalafmtReflect(
-        classloader,
-        version,
-        respectVersion
-      )
+      DownloadSuccess(version, urls)
     }.toEither.left.map {
-      // NOTE: maybe distinguish between these two errors?
-      case e: ResolutionException => DownloadFailure(version, e)
-      case e: ReflectiveOperationException => DownloadFailure(version, e.toString, e)
-      case e => DownloadFailure(version, e)
+      case e: ResolutionException => DownloadResolutionError(version, e)
+      case e => DownloadUnknownError(version, e)
     }
   }
 
@@ -69,9 +60,13 @@ class ScalafmtDynamicDownloader(respectVersion: Boolean,
 }
 
 object ScalafmtDynamicDownloader {
-  case class DownloadFailure(version: String, message: String, cause: Throwable)
-  object DownloadFailure {
-    def apply(version: String, cause: Throwable): DownloadFailure =
-      new DownloadFailure(version, cause.getMessage, cause)
+  sealed trait DownloadResult {
+    def version: String
   }
+  case class DownloadSuccess(version: String, jarUrls: Seq[URL]) extends DownloadResult
+  sealed trait DownloadFailure extends DownloadResult {
+    def cause: Throwable
+  }
+  case class DownloadResolutionError(version: String, cause: ResolutionException) extends DownloadFailure
+  case class DownloadUnknownError(version: String, cause: Throwable) extends DownloadFailure
 }

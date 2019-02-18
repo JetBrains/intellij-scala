@@ -21,8 +21,6 @@ import org.jetbrains.sbt.language.SbtFileImpl
 import scala.collection.mutable
 import scala.util.Try
 
-// TODO: add comments about which operations are blocking and which are not
-// TODO: build proper, user-friendly error messages
 object ScalafmtDynamicConfigUtil {
   private val Log = Logger.getInstance(this.getClass)
 
@@ -50,12 +48,11 @@ object ScalafmtDynamicConfigUtil {
     invokeAndWait(inWriteAction(vFile.refresh(false, false)))
   }
 
-  def configOptForFile(psiFile: PsiFile, failSilent: Boolean = false): Option[ScalafmtDynamicConfig] = {
+  def configForFile(psiFile: PsiFile, failSilent: Boolean = false): Option[ScalafmtDynamicConfig] = {
     val settings = CodeStyle.getCustomSettings(psiFile, classOf[ScalaCodeStyleSettings])
     val project = psiFile.getProject
     val configPath = settings.SCALAFMT_CONFIG_PATH
 
-    // TODO: what if we do not have any configuration file? We should use some default intellij idea one?
     val configFromFile = for {
       configFile <- scalafmtProjectConfigFile(configPath, project)
       config <- resolveConfig(configFile, Some(DefaultVersion), project, downloadScalafmtIfMissing = false, failSilent).toOption
@@ -118,9 +115,6 @@ object ScalafmtDynamicConfigUtil {
         case Right(Some(value)) =>
           Right(value)
         case Right(None) =>
-          // TODO: 1) add setting "use default scalafmt version if version is missing" ?
-          //       2) in which cases notify that default version will be used ?
-          //       3) when to use default ScalafmtConfig.intellij config? And should we ?
           defaultVersion.toRight(ConfigResolveError.ConfigMissingVersion(configPath))
         case Left(e) =>
           Left(ConfigResolveError.ConfigParseError(configPath, e))
@@ -189,7 +183,7 @@ object ScalafmtDynamicConfigUtil {
   }
 
   def isIncludedInProject(file: PsiFile): Boolean = {
-    val configOpt = configOptForFile(file)
+    val configOpt = configForFile(file)
     configOpt.exists(isIncludedInProject(file, _))
   }
 
