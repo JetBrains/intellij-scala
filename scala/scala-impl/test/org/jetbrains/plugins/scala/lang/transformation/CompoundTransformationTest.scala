@@ -2,15 +2,17 @@ package org.jetbrains.plugins.scala
 package lang
 package transformation
 
-import com.intellij.psi.PsiElement
+import com.intellij.psi.{PsiElement, PsiFile}
+import org.jetbrains.plugins.scala.lang.transformation.Transformer.ReformatAction
 
 /**
   * @author Pavel Fatin
   */
 class CompoundTransformationTest extends TransformationTest {
 
-  override protected def transform(element: PsiElement): Unit =
-    Transformer.transform(element)
+  override protected def transform(element: PsiElement, file: PsiFile, reformat: ReformatAction): Unit = {
+    Transformer.applyTransformersAndReformat(element, file, reformat = reformat)
+  }
 
   // TODO
   def testCompound(): Unit = {} // check(

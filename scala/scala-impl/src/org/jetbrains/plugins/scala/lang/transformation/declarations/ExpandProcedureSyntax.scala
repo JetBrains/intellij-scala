@@ -10,8 +10,8 @@ import org.jetbrains.plugins.scala.project.ProjectContext
   * @author Pavel Fatin
   */
 class ExpandProcedureSyntax extends AbstractTransformer {
-  def transformation(implicit project: ProjectContext): PartialFunction[PsiElement, Unit] = {
-    case (e: ScFunctionDefinition) if !e.hasAssign =>
+  protected def transformation(implicit project: ProjectContext): PartialFunction[PsiElement, Unit] = {
+    case e: ScFunctionDefinition if !e.hasAssign =>
       val prototype = code"def f(): Unit = ()".asInstanceOf[ScFunctionDefinition]
       val colon = prototype.getParameterList.getNextSibling
       val equals = prototype.assignment.get

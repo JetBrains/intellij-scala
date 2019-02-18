@@ -14,7 +14,7 @@ import org.jetbrains.plugins.scala.project.ProjectContext
   * @author Pavel Fatin
   */
 class InscribeImplicitParameters extends AbstractTransformer {
-  def transformation(implicit project: ProjectContext): PartialFunction[PsiElement, Unit] = {
+  protected def transformation(implicit project: ProjectContext): PartialFunction[PsiElement, Unit] = {
     case (_: ScReferenceExpression | _: ScMethodCall | _: ScInfixExpr | _: ScPostfixExpr) &&
       (e @ ImplicitArgumentsOwner(Seq(ps @ _*))) if ps.exists(isApplicable) =>
 

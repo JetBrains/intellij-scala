@@ -10,8 +10,8 @@ import org.jetbrains.plugins.scala.project.ProjectContext
   * @author Pavel Fatin
   */
 class ExpandTupleInstantiation extends AbstractTransformer {
-  def transformation(implicit project: ProjectContext): PartialFunction[PsiElement, Unit] = {
-    case (e @ ScTuple(exprs)) =>
+  protected def transformation(implicit project: ProjectContext): PartialFunction[PsiElement, Unit] = {
+    case e @ ScTuple(exprs) =>
       e.replace(code"Tuple${exprs.length}(${@@(exprs)})")
   }
 }

@@ -11,7 +11,7 @@ import org.jetbrains.plugins.scala.project.ProjectContext
   * @author Pavel Fatin
   */
 class ExpandStringInterpolation extends AbstractTransformer {
-  def transformation(implicit project: ProjectContext): PartialFunction[PsiElement, Unit] = {
+  protected def transformation(implicit project: ProjectContext): PartialFunction[PsiElement, Unit] = {
     case e: ScInterpolatedStringLiteral if e.reference.isDefined =>
       InterpolatedStringParser.parse(e).foreach { parts =>
         // TODO it's probably simpler to parse the string directly, the format parser is for a different use case

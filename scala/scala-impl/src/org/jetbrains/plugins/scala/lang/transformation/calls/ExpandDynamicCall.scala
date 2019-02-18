@@ -12,7 +12,7 @@ import org.jetbrains.plugins.scala.project.ProjectContext
   * @author Pavel Fatin
   */
 class ExpandDynamicCall extends AbstractTransformer {
-  def transformation(implicit project: ProjectContext): PartialFunction[PsiElement, Unit] = {
+  protected def transformation(implicit project: ProjectContext): PartialFunction[PsiElement, Unit] = {
     case ScMethodCall(r @ RenamedReference(id, "applyDynamic"), _) =>
       r.replace(code"${r.qualifier.get}.applyDynamic(${quote(id)})")
 

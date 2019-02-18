@@ -10,7 +10,7 @@ import org.jetbrains.plugins.scala.project.ProjectContext
   * @author Pavel Fatin
   */
 class ExpandTupleType extends AbstractTransformer {
-  def transformation(implicit project: ProjectContext): PartialFunction[PsiElement, Unit] = {
+  protected def transformation(implicit project: ProjectContext): PartialFunction[PsiElement, Unit] = {
     case e @ ScTupleTypeElement(elements @ _*)
       if !e.getParent.isInstanceOf[ScFunctionalTypeElement] =>
 

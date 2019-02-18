@@ -10,7 +10,7 @@ import org.jetbrains.plugins.scala.project.ProjectContext
   * @author Pavel Fatin
   */
 class ExpandApplyCall extends AbstractTransformer {
-  def transformation(implicit project: ProjectContext): PartialFunction[PsiElement, Unit] = {
+  protected def transformation(implicit project: ProjectContext): PartialFunction[PsiElement, Unit] = {
     case ScMethodCall(e @ RenamedReference(_, "apply"), _) =>
       e.replace(code"$e.apply")
   }

@@ -11,7 +11,7 @@ import org.jetbrains.plugins.scala.project.ProjectContext
   * @author Pavel Fatin
   */
 class AppendSemicolon extends AbstractTransformer {
-  def transformation(implicit project: ProjectContext): PartialFunction[PsiElement, Unit] = {
+  protected def transformation(implicit project: ProjectContext): PartialFunction[PsiElement, Unit] = {
     case (statement: ScBlockStatement) && NextSibling(Whitespace(s)) if s.contains("\n") =>
       statement.getParent.addAfter(createSemicolon, statement)
   }

@@ -14,7 +14,7 @@ import org.jetbrains.plugins.scala.project.ProjectContext
   */
 class ExpandImplicitConversion extends AbstractTransformer {
   // TODO we need to aquire complete resolve result, not the bare element to account for substitutor
-  def transformation(implicit project: ProjectContext): PartialFunction[PsiElement, Unit] = {
+  protected def transformation(implicit project: ProjectContext): PartialFunction[PsiElement, Unit] = {
     case e @ ImplicitConversion(f: ScFunction) =>
       val FirstChild(reference: ScReferenceExpression) = e.replace(code"${f.name}($e)")
       bindTo(reference, qualifiedNameOf(f))

@@ -14,7 +14,7 @@ import org.jetbrains.plugins.scala.project.ProjectContext
   * @author Pavel Fatin
   */
 class MakeEtaExpansionExplicit extends AbstractTransformer {
-  def transformation(implicit project: ProjectContext): PartialFunction[PsiElement, Unit] = {
+  protected def transformation(implicit project: ProjectContext): PartialFunction[PsiElement, Unit] = {
     case (e: ScReferenceExpression) && ReferenceTarget(_: ScFunction) &&
       NonValueType(_: ScMethodType) && ExpectedType(_: ScParameterizedType)
       if !e.getParent.isInstanceOf[ScUnderscoreSection] =>

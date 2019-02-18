@@ -11,7 +11,7 @@ import org.jetbrains.plugins.scala.project.ProjectContext
   * @author Pavel Fatin
   */
 class CanonizeInfixCall extends AbstractTransformer {
-  def transformation(implicit project: ProjectContext): PartialFunction[PsiElement, Unit] = {
+  protected def transformation(implicit project: ProjectContext): PartialFunction[PsiElement, Unit] = {
     case e @ ScInfixExpr(l, FirstChild(o), r) =>
       val (a, b) = if (e.isRightAssoc) (r, l) else (l, r)
 

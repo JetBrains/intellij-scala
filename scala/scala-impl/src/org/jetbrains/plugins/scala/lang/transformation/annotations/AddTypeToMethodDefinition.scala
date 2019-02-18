@@ -11,7 +11,7 @@ import org.jetbrains.plugins.scala.project.ProjectContext
   * @author Pavel Fatin
   */
 class AddTypeToMethodDefinition extends AbstractTransformer {
-  def transformation(implicit project: ProjectContext): PartialFunction[PsiElement, Unit] = {
+  protected def transformation(implicit project: ProjectContext): PartialFunction[PsiElement, Unit] = {
     case (e: ScFunctionDefinition) if e.hasAssign && e.returnTypeElement.isEmpty =>
       appendTypeAnnotation(e.returnType.get, e.paramClauses)
   }

@@ -4,7 +4,7 @@ import com.intellij.codeInspection.{LocalQuickFixOnPsiElement, ProblemsHolder}
 import com.intellij.openapi.project.Project
 import com.intellij.psi.{PsiElement, PsiFile}
 import org.jetbrains.plugins.scala.codeInspection.AbstractInspection
-import org.jetbrains.plugins.scala.lang.transformation.AbstractTransformer
+import org.jetbrains.plugins.scala.lang.transformation.{AbstractTransformer, Transformer}
 
 /**
   * @author Pavel Fatin
@@ -12,12 +12,12 @@ import org.jetbrains.plugins.scala.lang.transformation.AbstractTransformer
 class TransformerBasedInspection(name: String, solution: String, transformer: AbstractTransformer) extends AbstractInspection(name) {
 
   override def actionFor(implicit holder: ProblemsHolder): PartialFunction[PsiElement, Any] = new PartialFunction[PsiElement, Any] {
-    def isDefinedAt(e: PsiElement): Boolean = transformer.transformation(e.getProject).isDefinedAt(e)
+    def isDefinedAt(e: PsiElement): Boolean = transformer.isApplicableTo(e)
 
     def apply(e: PsiElement): Unit = {
       holder.registerProblem(e, name, new LocalQuickFixOnPsiElement(e) {
         def invoke(project: Project, psiFile: PsiFile, psiElement: PsiElement, psiElement1: PsiElement) {
-          transformer.transformation(e.getProject).apply(e)
+          Transformer.applyTransformerAndReformat(e, psiFile, transformer)
         }
 
         def getText: String = solution

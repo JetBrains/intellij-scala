@@ -14,7 +14,7 @@ import org.jetbrains.plugins.scala.project.ProjectContext
 // TODO Is this the level of "syntactic sugar"?
 class ExpandVarargArgument extends AbstractTransformer {
   // TODO improve array detection
-  def transformation(implicit project: ProjectContext): PartialFunction[PsiElement, Unit] = {
+  protected def transformation(implicit project: ProjectContext): PartialFunction[PsiElement, Unit] = {
     case e @ ScMethodCall(r @ ReferenceTarget(f: ScFunctionDefinition), as)
       if f.parameters.exists(_.isRepeatedParameter) &&
         !r.getText.contains("Array") &&

@@ -10,6 +10,7 @@ import com.intellij.openapi.Disposable
 import com.intellij.openapi.application.ex.ApplicationUtil
 import com.intellij.openapi.application.{ApplicationManager, TransactionGuard}
 import com.intellij.openapi.command.{CommandProcessor, UndoConfirmationPolicy, WriteCommandAction}
+import com.intellij.openapi.editor.RangeMarker
 import com.intellij.openapi.progress.{ProcessCanceledException, ProgressManager}
 import com.intellij.openapi.project.Project
 import com.intellij.openapi.util.{Computable, Ref, TextRange, ThrowableComputable}
@@ -395,6 +396,10 @@ package object extensions {
     val Parentheses = new Val("(", ")")
     val Braces = new Val("{", "}")
     val SquareBrackets = new Val("[", "]")
+  }
+
+  implicit class RangeMarkerExt(val marker: RangeMarker) extends AnyVal {
+    def getTextRange: TextRange = TextRange.create(marker.getStartOffset, marker.getEndOffset)
   }
 
   implicit class PsiElementExt[E <: PsiElement](val element: E) extends AnyVal {
