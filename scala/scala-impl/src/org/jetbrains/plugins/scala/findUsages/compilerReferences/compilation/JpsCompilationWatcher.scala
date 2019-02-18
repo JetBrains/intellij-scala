@@ -11,11 +11,7 @@ import com.intellij.openapi.project.Project
 import com.intellij.openapi.util.Key
 import org.jetbrains.plugin.scala.compilerReferences.{ScalaCompilerReferenceIndexBuilder => Builder}
 import org.jetbrains.plugins.scala.findUsages.compilerReferences.ScalaCompilerReferenceService.CompilerIndicesState
-import org.jetbrains.plugins.scala.indices.protocol.IdeaIndicesJsonProtocol._
 import org.jetbrains.plugins.scala.indices.protocol.jps.JpsCompilationInfo
-import spray.json._
-
-import scala.util.Try
 
 private[compilerReferences] class JpsCompilationWatcher(
   override val project:            Project,
@@ -34,7 +30,7 @@ private[compilerReferences] class JpsCompilationWatcher(
 
     messageType match {
       case Builder.compilationDataType =>
-        val buildData = Try(messageText.parseJson.convertTo[JpsCompilationInfo])
+        val buildData = Builder.decompressCompilationInfo(messageText)
 
         buildData.fold(
           error => {
@@ -44,7 +40,7 @@ private[compilerReferences] class JpsCompilationWatcher(
           publisher.processCompilationInfo(_, offline = false)
         )
       case Builder.compilationStartedType =>
-        val isCleanBuild = Try(messageText.parseJson.convertTo[Boolean]).getOrElse(false)
+        val isCleanBuild = java.lang.Boolean.valueOf(messageText)
         publisher.startIndexing(isCleanBuild)
       case Builder.compilationFinishedType => publisher.finishIndexing()
       case _                               => ()

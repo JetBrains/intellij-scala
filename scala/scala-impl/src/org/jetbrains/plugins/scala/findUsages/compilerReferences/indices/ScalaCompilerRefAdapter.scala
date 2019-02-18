@@ -21,6 +21,8 @@ import org.jetbrains.plugins.scala.lang.psi.types.ScType
 import org.jetbrains.plugins.scala.lang.psi.types.nonvalue.Parameter
 
 private class ScalaCompilerRefAdapter extends JavaCompilerRefAdapterCompat {
+  import ScalaCompilerRefAdapter._
+
   override def getFileTypes: util.Set[FileType] =
     new util.HashSet[FileType](
       util.Arrays.asList(ScalaFileType.INSTANCE)
@@ -67,7 +69,7 @@ private class ScalaCompilerRefAdapter extends JavaCompilerRefAdapterCompat {
   }
 
   override def asCompilerRef(element: PsiElement, enumerator: NameEnumerator): CompilerRef =
-    toCompilerRef(element, enumerator).orNull
+    toCompilerRef(bytecodeElement(element), enumerator).orNull
 
   override protected def directInheritorCandidatesInFile(
     internalNames: Array[SearchId],
