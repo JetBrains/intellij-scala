@@ -10,6 +10,7 @@ trait ScalaFmtTestBase extends AbstractScalaFormatterTestBase {
     val scalaSettings = getScalaSettings
     scalaSettings.FORMATTER = ScalaCodeStyleSettings.SCALAFMT_FORMATTER
     scalaSettings.SCALAFMT_USE_INTELLIJ_FORMATTER_FOR_RANGE_FORMAT = false
+    scalaSettings.SCALAFMT_SHOW_INVALID_CODE_WARNINGS = false
   }
 
   val configPath = TestUtils.getTestDataPath + "/formatter/scalafmt/"
