@@ -170,17 +170,9 @@ final class ScNewTemplateDefinitionImpl private[lang](node: ASTNode)
   override def isInheritor(baseClass: PsiClass, deep: Boolean): Boolean =
     super[ScNewTemplateDefinition].isInheritor(baseClass, deep)
 
-  override def accept(visitor: ScalaElementVisitor) {
+  override protected def acceptScala(visitor: ScalaElementVisitor) {
     visitor.visitNewTemplateDefinition(this)
   }
-
-  override def accept(visitor: PsiElementVisitor) {
-    visitor match {
-      case visitor: ScalaElementVisitor => visitor.visitNewTemplateDefinition(this)
-      case _ => super.accept(visitor)
-    }
-  }
-
 
   override def findMethodBySignature(patternMethod: PsiMethod, checkBases: Boolean): PsiMethod = {
     super[ScNewTemplateDefinition].findMethodBySignature(patternMethod, checkBases)

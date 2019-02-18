@@ -36,5 +36,5 @@ trait ScImportExpr extends ScalaPsiElement {
     case _ => reference.toSeq.map(_.refName)
   }
 
-  override def accept(visitor: ScalaElementVisitor): Unit = visitor.visitImportExpr(this)
+  override protected def acceptScala(visitor: ScalaElementVisitor): Unit = visitor.visitImportExpr(this)
 }

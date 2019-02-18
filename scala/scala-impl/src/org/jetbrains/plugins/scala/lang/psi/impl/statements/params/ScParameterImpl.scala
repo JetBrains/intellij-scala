@@ -121,14 +121,7 @@ class ScParameterImpl protected (stub: ScParameterStub, nodeType: ScParamElement
     }
   }
 
-  override def accept(visitor: ScalaElementVisitor) {
+  override protected def acceptScala(visitor: ScalaElementVisitor) {
     visitor.visitParameter(this)
-  }
-
-  override def accept(visitor: PsiElementVisitor) {
-    visitor match {
-      case s: ScalaElementVisitor => s.visitParameter(this)
-      case _ => super.accept(visitor)
-    }
   }
 }

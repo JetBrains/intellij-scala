@@ -1,8 +1,5 @@
 package org.jetbrains.plugins.scala.projectHighlighting
 
-import scala.collection.JavaConverters._
-import scala.util.control.NonFatal
-
 import com.intellij.ide.highlighter.JavaFileType
 import com.intellij.lang.annotation.{Annotation, HighlightSeverity}
 import com.intellij.openapi.project.Project
@@ -15,11 +12,12 @@ import com.intellij.testFramework.fixtures.CodeInsightTestFixture
 import org.jetbrains.plugins.scala.ScalaFileType
 import org.jetbrains.plugins.scala.annotator.{AnnotatorHolderMock, ScalaAnnotator}
 import org.jetbrains.plugins.scala.finder.SourceFilterScope
-import org.jetbrains.plugins.scala.lang.psi.api.ScalaPsiElement
-import org.jetbrains.plugins.scala.lang.psi.api.ScalaRecursiveElementVisitor
+import org.jetbrains.plugins.scala.lang.psi.api.{ScalaPsiElement, ScalaRecursiveElementVisitor}
 import org.jetbrains.plugins.scala.projectHighlighting.AllProjectHighlightingTest.relativePathOf
 import org.jetbrains.plugins.scala.util.reporter.ProgressReporter
 
+import scala.collection.JavaConverters._
+import scala.util.control.NonFatal
 import scala.util.matching.Regex
 
 /**
@@ -112,13 +110,13 @@ object AllProjectHighlightingTest {
     val annotator = ScalaAnnotator.forProject(psiFile)
 
     val visitor = new ScalaRecursiveElementVisitor {
-      override def visitElement(element: ScalaPsiElement) {
+      override def visitScalaElement(element: ScalaPsiElement) {
         try {
           annotator.annotate(element, mock)
         } catch {
           case NonFatal(t) => reporter.reportError(fileName, element.getTextRange, s"Exception while highlighting: $t")
         }
-        super.visitElement(element)
+        super.visitScalaElement(element)
       }
     }
 

@@ -5,7 +5,6 @@ package impl
 package statements
 
 import com.intellij.lang.ASTNode
-import com.intellij.psi.PsiElementVisitor
 import org.jetbrains.plugins.scala.extensions.ifReadAllowed
 import org.jetbrains.plugins.scala.lang.psi.api.ScalaElementVisitor
 import org.jetbrains.plugins.scala.lang.psi.api.statements._
@@ -23,13 +22,8 @@ final class ScFunctionDeclarationImpl private[psi](stub: ScFunctionStub[ScFuncti
   extends ScFunctionImpl(stub, nodeType, node)
     with ScFunctionDeclaration {
 
-  override def accept(visitor: ScalaElementVisitor): Unit =
+  override protected def acceptScala(visitor: ScalaElementVisitor): Unit =
     visitor.visitFunctionDeclaration(this)
-
-  override def accept(visitor: PsiElementVisitor): Unit = visitor match {
-    case scalaVisitor: ScalaElementVisitor => accept(scalaVisitor)
-    case _ => super.accept(visitor)
-  }
 
   override def toString: String = "ScFunctionDeclaration: " + ifReadAllowed(name)("")
 

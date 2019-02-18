@@ -11,21 +11,21 @@ import com.intellij.refactoring.util.VariableData
 import org.jetbrains.annotations.Nullable
 import org.jetbrains.plugins.scala.extensions._
 import org.jetbrains.plugins.scala.lang.formatting.settings.ScalaCodeStyleSettings
-import org.jetbrains.plugins.scala.lang.psi.api.{ScalaPsiElement, ScalaRecursiveElementVisitor}
 import org.jetbrains.plugins.scala.lang.psi.api.base.ScReference
 import org.jetbrains.plugins.scala.lang.psi.api.expr._
 import org.jetbrains.plugins.scala.lang.psi.api.statements.ScFunction
 import org.jetbrains.plugins.scala.lang.psi.api.toplevel.{ScNamedElement, ScTypedDefinition}
+import org.jetbrains.plugins.scala.lang.psi.api.{ScalaPsiElement, ScalaRecursiveElementVisitor}
 import org.jetbrains.plugins.scala.lang.psi.dataFlow.impl.reachingDefs.VariableInfo
 import org.jetbrains.plugins.scala.lang.psi.impl.ScalaPsiElementFactory._
-import org.jetbrains.plugins.scala.lang.psi.types.{ScType, TypePresentationContext}
 import org.jetbrains.plugins.scala.lang.psi.types.api.FunctionType
 import org.jetbrains.plugins.scala.lang.psi.types.recursiveUpdate.ScSubstitutor
 import org.jetbrains.plugins.scala.lang.psi.types.result._
+import org.jetbrains.plugins.scala.lang.psi.types.{ScType, TypePresentationContext}
 import org.jetbrains.plugins.scala.lang.psi.{ScalaPsiUtil, TypeAdjuster}
+import org.jetbrains.plugins.scala.lang.refactoring._
 import org.jetbrains.plugins.scala.lang.refactoring.extractMethod.duplicates.DuplicateMatch
 import org.jetbrains.plugins.scala.lang.refactoring.util.ScalaNamesUtil
-import org.jetbrains.plugins.scala.lang.refactoring._
 import org.jetbrains.plugins.scala.lang.resolve.processor.CompletionProcessor
 import org.jetbrains.plugins.scala.lang.resolve.{ScalaResolveResult, StdKinds}
 import org.jetbrains.plugins.scala.settings.ScalaApplicationSettings
@@ -136,7 +136,7 @@ object ScalaExtractMethodUtils {
           ret.replace(retElem)
         }
       }
-      returnVisitor.visitElement(method: ScalaPsiElement)
+      returnVisitor.visitScalaElement(method: ScalaPsiElement)
     }
 
     val visitor = new ScalaRecursiveElementVisitor() {
@@ -184,11 +184,11 @@ object ScalaExtractMethodUtils {
         super.visitReference(ref)
       }
     }
-    visitor.visitElement(method)
+    visitor.visitScalaElement(method)
 
     val bindTo = new ArrayBuffer[(PsiNamedElement, String)]
     val newVisitor = new ScalaRecursiveElementVisitor() {
-      override def visitElement(element: ScalaPsiElement) {
+      override def visitScalaElement(element: ScalaPsiElement) {
         element match {
           case named: PsiNamedElement if named != method && named.getTextOffset < offset =>
             settings.parameters.find(p => p.oldName == named.name)
@@ -196,10 +196,10 @@ object ScalaExtractMethodUtils {
               .foreach(p => bindTo += ((named, p.newName)))
           case _ =>
         }
-        super.visitElement(element)
+        super.visitScalaElement(element)
       }
     }
-    newVisitor.visitElement(method)
+    newVisitor.visitScalaElement(method)
     for ((named, newName) <- bindTo) {
       val id = named.asInstanceOf[ScNamedElement].nameId
       id.getParent.getNode.replaceChild(id.getNode, createIdentifier(newName)(id.getManager))

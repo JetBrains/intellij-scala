@@ -1,8 +1,7 @@
 package org.jetbrains.plugins.scala.lang.refactoring.extractMethod.duplicates
 
 import com.intellij.psi.PsiElement
-import org.jetbrains.plugins.scala.lang.psi.api.ScalaPsiElement
-import org.jetbrains.plugins.scala.lang.psi.api.ScalaRecursiveElementVisitor
+import org.jetbrains.plugins.scala.lang.psi.api.{ScalaPsiElement, ScalaRecursiveElementVisitor}
 import org.jetbrains.plugins.scala.lang.psi.api.expr.ScReferenceExpression
 import org.jetbrains.plugins.scala.lang.psi.api.statements.{ScFunctionDefinition, ScPatternDefinition, ScVariableDefinition}
 import org.jetbrains.plugins.scala.lang.psi.api.toplevel.ScTypedDefinition
@@ -74,13 +73,13 @@ class DuplicatePattern(val elements: Seq[PsiElement], parameters: Seq[ExtractMet
     val result = ListBuffer[DuplicateMatch]()
     val seen = mutable.Set[PsiElement]()
     val visitor = new ScalaRecursiveElementVisitor {
-      override def visitElement(element: ScalaPsiElement): Unit = {
+      override def visitScalaElement(element: ScalaPsiElement): Unit = {
         if (isSignificant(element)) {
           isDuplicateStart(element) match {
             case Some(mtch) if !seen(mtch.candidates(0)) =>
               result += mtch
               seen += mtch.candidates(0)
-            case _ => super.visitElement(element)
+            case _ => super.visitScalaElement(element)
           }
         }
       }

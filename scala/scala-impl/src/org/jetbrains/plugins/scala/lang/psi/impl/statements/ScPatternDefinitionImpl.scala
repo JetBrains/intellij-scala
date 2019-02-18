@@ -5,11 +5,9 @@ package impl
 package statements
 
 import com.intellij.lang.ASTNode
-import com.intellij.psi.PsiElementVisitor
 import org.jetbrains.plugins.scala.extensions.{PsiModifierListOwnerExt, ifReadAllowed}
 import org.jetbrains.plugins.scala.lang.parser.ScalaElementType
 import org.jetbrains.plugins.scala.lang.psi.annotator.ScPatternDefinitionAnnotator
-import org.jetbrains.plugins.scala.lang.psi.api.ScalaElementVisitor
 import org.jetbrains.plugins.scala.lang.psi.api.base._
 import org.jetbrains.plugins.scala.lang.psi.api.base.patterns.ScBindingPattern
 import org.jetbrains.plugins.scala.lang.psi.api.base.types.ScTypeElement
@@ -27,13 +25,6 @@ final class ScPatternDefinitionImpl private[psi](stub: ScPropertyStub[ScPatternD
                                                  nodeType: ScPropertyElementType[ScPatternDefinition],
                                                  node: ASTNode)
   extends ScalaStubBasedElementImpl(stub, nodeType, node) with ScPatternDefinition with ScPatternDefinitionAnnotator {
-
-  override def accept(visitor: PsiElementVisitor): Unit = {
-    visitor match {
-      case visitor: ScalaElementVisitor => super.accept(visitor)
-      case _ => super.accept(visitor)
-    }
-  }
 
   override def toString: String = ifReadAllowed {
     val names = declaredNames

@@ -11,5 +11,5 @@ package expr
 trait ScGuard extends ScEnumerator {
   def expr: Option[ScExpression]
 
-  override def accept(visitor: ScalaElementVisitor): Unit = visitor.visitGuard(this)
+  override protected def acceptScala(visitor: ScalaElementVisitor): Unit = visitor.visitGuard(this)
 }

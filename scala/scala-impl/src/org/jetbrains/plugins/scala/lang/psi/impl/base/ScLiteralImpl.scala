@@ -188,15 +188,8 @@ class ScLiteralImpl(node: ASTNode) extends ScExpressionImplBase(node)
     else range
   }
 
-  override def accept(visitor: ScalaElementVisitor) {
+  override protected def acceptScala(visitor: ScalaElementVisitor) {
     visitor.visitLiteral(this)
-  }
-
-  override def accept(visitor: PsiElementVisitor) {
-    visitor match {
-      case visitor: ScalaElementVisitor => visitor.visitLiteral(this)
-      case _ => super.accept(visitor)
-    }
   }
 
   @volatile

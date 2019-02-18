@@ -24,7 +24,6 @@ import org.jetbrains.plugins.scala.lang.parser.ScalaElementType._
 import org.jetbrains.plugins.scala.lang.psi.api.base.ScMethodLike
 import org.jetbrains.plugins.scala.lang.psi.api.base.types._
 import org.jetbrains.plugins.scala.lang.psi.api.expr.{ScBlock, ScBlockStatement}
-import org.jetbrains.plugins.scala.lang.psi.api.statements.ScFunction.CommonNames
 import org.jetbrains.plugins.scala.lang.psi.api.statements.ScFunction.CommonNames.{Apply, Unapply, UnapplySeq}
 import org.jetbrains.plugins.scala.lang.psi.api.statements.params._
 import org.jetbrains.plugins.scala.lang.psi.api.toplevel._
@@ -204,7 +203,7 @@ trait ScFunction extends ScalaPsiElement with ScMember with ScTypeParametersOwne
     }
   }
 
-  override def accept(visitor: ScalaElementVisitor) {
+  override protected def acceptScala(visitor: ScalaElementVisitor) {
     visitor.visitFunction(this)
   }
 

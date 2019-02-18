@@ -26,7 +26,7 @@ trait ScSelfInvocation extends ScalaPsiElement with PsiReference {
 
   def thisElement: PsiElement = getFirstChild
 
-  override def accept(visitor: ScalaElementVisitor): Unit = {
+  override protected def acceptScala(visitor: ScalaElementVisitor): Unit = {
     visitor.visitSelfInvocation(this)
   }
 }

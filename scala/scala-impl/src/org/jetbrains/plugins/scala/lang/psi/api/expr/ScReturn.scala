@@ -20,7 +20,7 @@ trait ScReturn extends ScExpression {
   def method: Option[ScFunctionDefinition] =
     this.parentOfType(classOf[ScFunctionDefinition])
 
-  override def accept(visitor: ScalaElementVisitor): Unit = {
+  override protected def acceptScala(visitor: ScalaElementVisitor): Unit = {
     visitor.visitReturnStatement(this)
   }
 }

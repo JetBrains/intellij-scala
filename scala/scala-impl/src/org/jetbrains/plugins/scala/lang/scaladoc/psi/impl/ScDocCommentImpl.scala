@@ -7,14 +7,13 @@ package impl
 
 import java.util
 
+import com.intellij.psi._
 import com.intellij.psi.impl.source.tree.LazyParseablePsiElement
 import com.intellij.psi.javadoc.PsiDocTag
 import com.intellij.psi.scope.PsiScopeProcessor
 import com.intellij.psi.tree.IElementType
-import com.intellij.psi._
 import org.jetbrains.plugins.scala.extensions._
-import org.jetbrains.plugins.scala.lang.psi.api.ScalaPsiElement
-import org.jetbrains.plugins.scala.lang.psi.api.ScalaElementVisitor
+import org.jetbrains.plugins.scala.lang.psi.api.{ScalaElementVisitor, ScalaPsiElement}
 import org.jetbrains.plugins.scala.lang.psi.api.toplevel.typedef.ScClass
 import org.jetbrains.plugins.scala.lang.scaladoc.lexer.ScalaDocTokenType
 import org.jetbrains.plugins.scala.lang.scaladoc.parser.ScalaDocElementTypes
@@ -102,14 +101,7 @@ class ScDocCommentImpl(text: CharSequence) extends LazyParseablePsiElement(Scala
     null
   }
 
-  override def accept(visitor: ScalaElementVisitor) {
+  override protected def acceptScala(visitor: ScalaElementVisitor) {
     visitor.visitDocComment(this)
-  }
-
-  override def accept(visitor: PsiElementVisitor) {
-    visitor match {
-      case s: ScalaElementVisitor => accept(s)
-      case _ => super.accept(visitor)
-    }
   }
 }

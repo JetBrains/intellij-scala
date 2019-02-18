@@ -38,7 +38,7 @@ trait ScMethodCall extends ScExpression with MethodInvocation {
     */
   def isNamedParametersEnabledEverywhere: Boolean = false
 
-  override def accept(visitor: ScalaElementVisitor): Unit = {
+  override protected def acceptScala(visitor: ScalaElementVisitor): Unit = {
     visitor.visitMethodCallExpression(this)
   }
 }

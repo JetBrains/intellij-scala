@@ -5,7 +5,6 @@ package api
 package expr
 
 import com.intellij.psi.PsiElement
-import org.jetbrains.plugins.scala.lang.lexer.ScalaTokenTypes
 
 /** 
 * @author Alexander Podkhalyuzin
@@ -17,7 +16,7 @@ trait ScForBinding extends ScEnumerator with ScPatterned {
 
   def valKeyword: Option[PsiElement]
 
-  override def accept(visitor: ScalaElementVisitor): Unit = visitor.visitForBinding(this)
+  override protected def acceptScala(visitor: ScalaElementVisitor): Unit = visitor.visitForBinding(this)
 }
 
 object ScForBinding {

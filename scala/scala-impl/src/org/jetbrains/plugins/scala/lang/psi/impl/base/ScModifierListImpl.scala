@@ -121,13 +121,8 @@ class ScModifierListImpl private (stub: ScModifiersStub, node: ASTNode)
     }
   }
 
-  override def accept(visitor: ScalaElementVisitor): Unit =
+  override protected def acceptScala(visitor: ScalaElementVisitor): Unit =
     visitor.visitModifierList(this)
-
-  override def accept(visitor: PsiElementVisitor): Unit = visitor match {
-    case scalaVisitor: ScalaElementVisitor => accept(scalaVisitor)
-    case _ => super.accept(visitor)
-  }
 
   def hasExplicitModifier(name: String): Boolean = {
     val mod = ScalaModifier.byText(name)

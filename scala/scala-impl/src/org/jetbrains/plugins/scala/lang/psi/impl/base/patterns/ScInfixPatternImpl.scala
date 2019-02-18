@@ -6,8 +6,6 @@ package base
 package patterns
 
 import com.intellij.lang.ASTNode
-import com.intellij.psi._
-import org.jetbrains.plugins.scala.lang.psi.api.ScalaElementVisitor
 import org.jetbrains.plugins.scala.lang.psi.api.base.patterns._
 import org.jetbrains.plugins.scala.lang.psi.types.ScType
 import org.jetbrains.plugins.scala.lang.psi.types.result._
@@ -20,13 +18,6 @@ import org.jetbrains.plugins.scala.lang.psi.types.result._
 class ScInfixPatternImpl(node: ASTNode) extends ScalaPsiElementImpl (node) with ScPatternImpl with ScInfixPattern {
   override def isIrrefutableFor(t: Option[ScType]): Boolean =
     ScConstructorPatternImpl.isIrrefutable(t, operation, left :: rightOption.toList)
-
-  override def accept(visitor: PsiElementVisitor) {
-    visitor match {
-      case visitor: ScalaElementVisitor => super.accept(visitor)
-      case _ => super.accept(visitor)
-    }
-  }
 
   override def toString: String = "InfixPattern"
 

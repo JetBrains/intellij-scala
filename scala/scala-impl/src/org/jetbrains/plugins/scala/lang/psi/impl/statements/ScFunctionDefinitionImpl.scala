@@ -53,11 +53,6 @@ class ScFunctionDefinitionImpl(stub: ScFunctionStub[ScFunctionDefinition],
     case None => null
   }
 
-  override def accept(visitor: ScalaElementVisitor): Unit =
+  override protected def acceptScala(visitor: ScalaElementVisitor): Unit =
     visitor.visitFunctionDefinition(this)
-
-  override def accept(visitor: PsiElementVisitor): Unit = visitor match {
-    case scalaVisitor: ScalaElementVisitor => accept(scalaVisitor)
-    case _ => super.accept(visitor)
-  }
 }

@@ -52,13 +52,8 @@ class ScReferenceExpressionImpl(node: ASTNode) extends ScReferenceImpl(node)
 
   def nameId: PsiElement = findChildByType[PsiElement](ScalaTokenTypes.tIDENTIFIER)
 
-  override def accept(visitor: ScalaElementVisitor): Unit = {
+  override protected def acceptScala(visitor: ScalaElementVisitor): Unit = {
     visitor.visitReferenceExpression(this)
-  }
-
-  override def accept(visitor: PsiElementVisitor): Unit = visitor match {
-    case visitor: ScalaElementVisitor => accept(visitor)
-    case _ => super.accept(visitor)
   }
 
   override final def assignment: ScAssignment = maybeAssignment.orNull

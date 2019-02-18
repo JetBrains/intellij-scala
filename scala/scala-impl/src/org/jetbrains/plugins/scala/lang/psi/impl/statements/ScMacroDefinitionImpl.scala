@@ -38,11 +38,6 @@ final class ScMacroDefinitionImpl private[psi](stub: ScFunctionStub[ScMacroDefin
 
   override def hasAssign: Boolean = true
 
-  override def accept(visitor: ScalaElementVisitor): Unit =
+  override protected def acceptScala(visitor: ScalaElementVisitor): Unit =
     visitor.visitMacroDefinition(this)
-
-  override def accept(visitor: PsiElementVisitor): Unit = visitor match {
-    case scalaVisitor: ScalaElementVisitor => accept(scalaVisitor)
-      case _ => super.accept(visitor)
-  }
 }

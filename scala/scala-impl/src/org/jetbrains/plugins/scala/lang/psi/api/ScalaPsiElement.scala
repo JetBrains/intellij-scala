@@ -1,7 +1,7 @@
 package org.jetbrains.plugins.scala.lang.psi.api
 
-import com.intellij.psi.PsiElement
 import com.intellij.psi.tree.{IElementType, TokenSet}
+import com.intellij.psi.{PsiElement, PsiElementVisitor}
 import org.jetbrains.plugins.scala.lang.psi.ElementScope
 import org.jetbrains.plugins.scala.project.{ProjectContext, ProjectContextOwner}
 
@@ -93,16 +93,17 @@ trait ScalaPsiElement extends PsiElement with ProjectContextOwner with Annotatab
     if (child == null) None else Some(child.asInstanceOf[T])
   }
 
-  /**
-    * Override in inheritors
-    */
-  def accept(visitor: ScalaElementVisitor): Unit = {
-    visitor.visitElement(this)
+  abstract override def accept(visitor: PsiElementVisitor) {
+    visitor match {
+      case visitor: ScalaElementVisitor => acceptScala(visitor)
+      case _ => super.accept(visitor)
+    }
   }
 
-  /**
-    * Override in inheritors
-    */
+  protected def acceptScala(visitor: ScalaElementVisitor): Unit = {
+    visitor.visitScalaElement(this)
+  }
+
   def acceptChildren(visitor: ScalaElementVisitor): Unit =
     getChildren.foreach {
       case element: ScalaPsiElement => element.accept(visitor)

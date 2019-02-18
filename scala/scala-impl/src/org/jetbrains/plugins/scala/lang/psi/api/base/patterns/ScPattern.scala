@@ -49,7 +49,7 @@ trait ScPattern extends ScalaPsiElement with Typeable {
 
   def analogInDesugaredForExpr: Option[ScPattern]
 
-  override def accept(visitor: ScalaElementVisitor) {
+  override protected def acceptScala(visitor: ScalaElementVisitor) {
     visitor.visitPattern(this)
   }
 }

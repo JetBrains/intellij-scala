@@ -27,7 +27,7 @@ trait ScVariableDefinition extends ScVariable {
 
   override def isAbstract: Boolean = false
 
-  override def accept(visitor: ScalaElementVisitor) {
+  override protected def acceptScala(visitor: ScalaElementVisitor) {
     visitor.visitVariableDefinition(this)
   }
 }

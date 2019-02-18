@@ -18,8 +18,7 @@ import com.intellij.psi.{PsiElement, PsiManager}
 import com.intellij.testFramework.IdeaTestUtil
 import org.jetbrains.plugins.scala.annotator.{AnnotatorHolderMock, ScalaAnnotator}
 import org.jetbrains.plugins.scala.finder.SourceFilterScope
-import org.jetbrains.plugins.scala.lang.psi.api.ScalaPsiElement
-import org.jetbrains.plugins.scala.lang.psi.api.ScalaRecursiveElementVisitor
+import org.jetbrains.plugins.scala.lang.psi.api.{ScalaPsiElement, ScalaRecursiveElementVisitor}
 import org.jetbrains.plugins.scala.project.ProjectContext
 import org.jetbrains.plugins.scala.util.TestUtils
 import org.jetbrains.plugins.scala.{ScalaFileType, SlowTests, extensions}
@@ -121,7 +120,7 @@ class AllProjectHighlightingTest extends ExternalSystemImportingTestCase {
       }
 
       val visitor = new ScalaRecursiveElementVisitor {
-        override def visitElement(element: ScalaPsiElement) {
+        override def visitScalaElement(element: ScalaPsiElement) {
           try {
             annotator.annotate(element, mock)
           } catch {
@@ -130,7 +129,7 @@ class AllProjectHighlightingTest extends ExternalSystemImportingTestCase {
               e.printStackTrace()
               assert(false)
           }
-          super.visitElement(element)
+          super.visitScalaElement(element)
         }
       }
       psi.accept(visitor)

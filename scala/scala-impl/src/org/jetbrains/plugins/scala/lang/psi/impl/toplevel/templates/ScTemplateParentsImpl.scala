@@ -7,6 +7,7 @@ package templates
 
 import com.intellij.lang.ASTNode
 import org.jetbrains.plugins.scala.lang.parser.ScalaElementType
+import org.jetbrains.plugins.scala.lang.psi.api.ScalaElementVisitor
 import org.jetbrains.plugins.scala.lang.psi.api.base.types.ScTypeElement
 import org.jetbrains.plugins.scala.lang.psi.api.toplevel.templates._
 import org.jetbrains.plugins.scala.lang.psi.api.toplevel.typedef.ScTypeDefinition
@@ -23,6 +24,8 @@ import scala.collection.mutable
   */
 final class ScTemplateParentsImpl private(stub: ScTemplateParentsStub, node: ASTNode)
   extends ScalaStubBasedElementImpl(stub, ScalaElementType.TEMPLATE_PARENTS, node) with ScTemplateParents {
+
+  override protected def acceptScala(visitor: ScalaElementVisitor): Unit = visitor.visitTemplateParents(this)
 
   def this(node: ASTNode) = this(null, node)
 

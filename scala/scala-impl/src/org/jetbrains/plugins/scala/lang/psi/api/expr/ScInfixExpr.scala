@@ -46,7 +46,7 @@ trait ScInfixExpr extends ScExpression with ScSugarCallExpr with ScInfixElement 
   def isAssignmentOperator: Boolean =
     ParserUtils.isAssignmentOperator(operation.getText)
 
-  override def accept(visitor: ScalaElementVisitor): Unit = {
+  override protected def acceptScala(visitor: ScalaElementVisitor): Unit = {
     visitor.visitInfixExpression(this)
   }
 

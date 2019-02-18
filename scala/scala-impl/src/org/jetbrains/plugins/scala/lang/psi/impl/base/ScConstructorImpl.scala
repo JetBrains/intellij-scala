@@ -204,15 +204,8 @@ class ScConstructorImpl(node: ASTNode) extends ScalaPsiElementImpl(node) with Sc
     case _ => None
   }
 
-  override def accept(visitor: ScalaElementVisitor) {
+  override protected def acceptScala(visitor: ScalaElementVisitor) {
     visitor.visitConstructor(this)
-  }
-
-  override def accept(visitor: PsiElementVisitor) {
-    visitor match {
-      case s: ScalaElementVisitor => s.visitConstructor(this)
-      case _ => super.accept(visitor)
-    }
   }
 
   override def matchedParameters: Seq[(ScExpression, Parameter)] = matchedParametersByClauses.flatten

@@ -6,8 +6,7 @@ import com.intellij.psi.impl.file.impl.FileManager
 import com.intellij.testFramework.PlatformTestUtil
 import com.intellij.util.ThrowableRunnable
 import org.jetbrains.plugins.scala.annotator.{AnnotatorHolderMock, ScalaAnnotator}
-import org.jetbrains.plugins.scala.lang.psi.api.ScalaPsiElement
-import org.jetbrains.plugins.scala.lang.psi.api.ScalaRecursiveElementVisitor
+import org.jetbrains.plugins.scala.lang.psi.api.{ScalaPsiElement, ScalaRecursiveElementVisitor}
 import org.jetbrains.plugins.scala.performance.DownloadingAndImportingTestCase
 
 /**
@@ -25,10 +24,10 @@ abstract class PerformanceSbtProjectHighlightingTestBase extends DownloadingAndI
         val psiFile = fileManager.findFile(file)
         val mock = new AnnotatorHolderMock(psiFile)
         val visitor = new ScalaRecursiveElementVisitor {
-          override def visitElement(element: ScalaPsiElement) {
+          override def visitScalaElement(element: ScalaPsiElement) {
             try {
               annotator.annotate(element, mock)
-              super.visitElement(element)
+              super.visitScalaElement(element)
             } catch {
               case ignored: Throwable => //this should be checked in AllProjectHighlightingTest
             }

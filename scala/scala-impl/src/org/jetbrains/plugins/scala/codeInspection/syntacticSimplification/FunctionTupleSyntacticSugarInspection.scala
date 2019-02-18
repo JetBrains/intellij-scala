@@ -6,12 +6,12 @@ import com.intellij.codeInspection._
 import com.intellij.openapi.project.Project
 import com.intellij.psi.{PsiClass, PsiElement, PsiElementVisitor}
 import org.jetbrains.plugins.scala.extensions._
+import org.jetbrains.plugins.scala.lang.psi.ScalaPsiUtil
 import org.jetbrains.plugins.scala.lang.psi.api.base.ScConstructor
 import org.jetbrains.plugins.scala.lang.psi.api.base.types.{ScFunctionalTypeElement, ScInfixTypeElement, ScParameterizedTypeElement, ScSimpleTypeElement}
 import org.jetbrains.plugins.scala.lang.psi.api.toplevel.templates.ScTemplateParents
 import org.jetbrains.plugins.scala.lang.psi.api.{ScalaElementVisitor, ScalaFile, ScalaPsiElement}
 import org.jetbrains.plugins.scala.lang.psi.types.api.{FunctionType, TupleType}
-import org.jetbrains.plugins.scala.lang.psi.ScalaPsiUtil
 
 class FunctionTupleSyntacticSugarInspection extends LocalInspectionTool {
   override def isEnabledByDefault: Boolean = true
@@ -31,7 +31,7 @@ class FunctionTupleSyntacticSugarInspection extends LocalInspectionTool {
     import org.jetbrains.plugins.scala.codeInspection.syntacticSimplification.FunctionTupleSyntacticSugarInspection._
 
     new ScalaElementVisitor {
-      override def visitElement(elem: ScalaPsiElement) {
+      override def visitScalaElement(elem: ScalaPsiElement) {
         elem match {
           case te: ScParameterizedTypeElement =>
             te.typeElement match {
@@ -56,7 +56,7 @@ class FunctionTupleSyntacticSugarInspection extends LocalInspectionTool {
             }
           case _ =>
         }
-        super.visitElement(elem)
+        super.visitScalaElement(elem)
       }
     }
   }

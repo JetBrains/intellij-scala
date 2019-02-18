@@ -6,8 +6,7 @@ package statements
 package params
 
 import com.intellij.lang.ASTNode
-import com.intellij.lang.jvm.JvmElementVisitor
-import com.intellij.psi.{PsiClass, PsiElement, PsiElementVisitor}
+import com.intellij.psi.{PsiClass, PsiElement}
 import javax.swing.Icon
 import org.jetbrains.plugins.scala.extensions.ifReadAllowed
 import org.jetbrains.plugins.scala.icons.Icons
@@ -71,15 +70,8 @@ class ScClassParameterImpl private (stub: ScParameterStub, node: ASTNode)
     this
   }
 
-  override def accept(visitor: ScalaElementVisitor) {
+  override protected def acceptScala(visitor: ScalaElementVisitor) {
     visitor.visitClassParameter(this)
-  }
-
-  override def accept(visitor: PsiElementVisitor) {
-    visitor match {
-      case s: ScalaElementVisitor => s.visitClassParameter(this)
-      case _ => super.accept(visitor)
-    }
   }
 
   override protected def getBaseIcon(flags: Int): Icon =

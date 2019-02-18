@@ -8,9 +8,9 @@ import com.intellij.ide.util.EditSourceUtil
 import com.intellij.lang.ASTNode
 import com.intellij.navigation.ItemPresentation
 import com.intellij.openapi.editor.colors.TextAttributesKey
+import com.intellij.psi.PsiElement
 import com.intellij.psi.tree.IElementType
 import com.intellij.psi.util.PsiTreeUtil.getNextSiblingOfType
-import com.intellij.psi.{PsiElement, PsiElementVisitor}
 import javax.swing.Icon
 import org.jetbrains.plugins.scala.extensions.ifReadAllowed
 import org.jetbrains.plugins.scala.lang.lexer.ScalaTokenTypes
@@ -87,14 +87,7 @@ class ScTypeAliasDeclarationImpl private (stub: ScTypeAliasStub, node: ASTNode)
 
   override def getOriginalElement: PsiElement = super[ScTypeAliasDeclaration].getOriginalElement
 
-  override def accept(visitor: ScalaElementVisitor) {
+  override protected def acceptScala(visitor: ScalaElementVisitor) {
     visitor.visitTypeAliasDeclaration(this)
-  }
-
-  override def accept(visitor: PsiElementVisitor) {
-    visitor match {
-      case s: ScalaElementVisitor => s.visitTypeAliasDeclaration(this)
-      case _ => super.accept(visitor)
-    }
   }
 }

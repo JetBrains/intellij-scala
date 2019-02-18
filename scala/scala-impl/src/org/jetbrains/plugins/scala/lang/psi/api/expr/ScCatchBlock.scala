@@ -19,7 +19,7 @@ trait ScCatchBlock extends ScalaPsiElement {
 
   def getRightParenthesis: Option[PsiElement]
 
-  override def accept(visitor: ScalaElementVisitor): Unit = {
+  override protected def acceptScala(visitor: ScalaElementVisitor): Unit = {
     visitor.visitCatchBlock(this)
   }
 }

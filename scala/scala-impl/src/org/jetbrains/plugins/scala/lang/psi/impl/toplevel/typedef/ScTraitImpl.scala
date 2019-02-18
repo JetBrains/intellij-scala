@@ -6,9 +6,7 @@ package toplevel
 package typedef
 
 import com.intellij.lang.ASTNode
-import com.intellij.psi.PsiElementVisitor
 import org.jetbrains.plugins.scala.extensions._
-import org.jetbrains.plugins.scala.lang.psi.api.ScalaElementVisitor
 import org.jetbrains.plugins.scala.lang.psi.api.toplevel.ScTypeParametersOwner
 import org.jetbrains.plugins.scala.lang.psi.api.toplevel.typedef._
 import org.jetbrains.plugins.scala.lang.psi.light.PsiClassWrapper
@@ -28,14 +26,6 @@ final class ScTraitImpl private[psi](stub: ScTemplateDefinitionStub[ScTrait],
     with ScTrait with ScTypeParametersOwner with ScTemplateDefinition {
 
   override def additionalClassJavaName: Option[String] = Option(getName).map(withSuffix)
-
-  override def accept(visitor: PsiElementVisitor) {
-    visitor match {
-      case visitor: ScalaElementVisitor => super.accept(visitor)
-      case _ => super.accept(visitor)
-    }
-  }
-
 
   override def toString: String = "ScTrait: " + ifReadAllowed(name)("")
 

@@ -18,7 +18,7 @@ trait ScThisReference extends ScExpression with ScPathElement {
 
   def refTemplate: Option[ScTemplateDefinition]
 
-  override def accept(visitor: ScalaElementVisitor): Unit = {
+  override protected def acceptScala(visitor: ScalaElementVisitor): Unit = {
     visitor.visitThisReference(this)
   }
 }

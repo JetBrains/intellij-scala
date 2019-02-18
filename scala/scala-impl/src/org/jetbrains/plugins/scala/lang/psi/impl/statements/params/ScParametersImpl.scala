@@ -55,15 +55,8 @@ class ScParametersImpl private (stub: ScParamClausesStub, node: ASTNode)
     true
   }
 
-  override def accept(visitor: ScalaElementVisitor) {
+  override protected def acceptScala(visitor: ScalaElementVisitor) {
     visitor.visitParameters(this)
-  }
-
-  override def accept(visitor: PsiElementVisitor) {
-    visitor match {
-      case s: ScalaElementVisitor => s.visitParameters(this)
-      case _ => super.accept(visitor)
-    }
   }
 
   override def add(element: PsiElement): PsiElement = {

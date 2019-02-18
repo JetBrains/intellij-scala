@@ -33,7 +33,7 @@ trait ScGenericCall extends ScExpression {
 
   def multiResolve: Option[Array[ScalaResolveResult]]
 
-  override def accept(visitor: ScalaElementVisitor): Unit = {
+  override protected def acceptScala(visitor: ScalaElementVisitor): Unit = {
     visitor.visitGenericCallExpression(this)
   }
 }

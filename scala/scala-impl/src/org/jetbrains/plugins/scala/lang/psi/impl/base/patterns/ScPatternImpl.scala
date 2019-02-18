@@ -54,7 +54,7 @@ trait ScPatternImpl extends ScPattern with ScPatternAnnotator {
     b
   }
 
-  override def accept(visitor: ScalaElementVisitor) {
+  override protected def acceptScala(visitor: ScalaElementVisitor) {
     visitor.visitPattern(this)
   }
 

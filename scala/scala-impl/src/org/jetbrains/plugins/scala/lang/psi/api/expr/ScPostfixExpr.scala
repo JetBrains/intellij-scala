@@ -20,7 +20,7 @@ trait ScPostfixExpr extends ScExpression with ScSugarCallExpr {
 
   def getBaseExpr: ScExpression = operand
 
-  override def accept(visitor: ScalaElementVisitor): Unit = {
+  override protected def acceptScala(visitor: ScalaElementVisitor): Unit = {
     visitor.visitPostfixExpression(this)
   }
 }

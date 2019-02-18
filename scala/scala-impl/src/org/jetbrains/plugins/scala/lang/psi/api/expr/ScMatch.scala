@@ -24,7 +24,7 @@ trait ScMatch extends ScExpression {
     case clauses => clauses.caseClauses
   }
 
-  override def accept(visitor: ScalaElementVisitor): Unit = {
+  override protected def acceptScala(visitor: ScalaElementVisitor): Unit = {
     visitor.visitMatchStatement(this)
   }
 }

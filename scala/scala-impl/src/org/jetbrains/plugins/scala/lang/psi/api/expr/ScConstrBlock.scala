@@ -11,7 +11,7 @@ trait ScConstrBlock extends ScBlockExpr {
 
   def selfInvocation: Option[ScSelfInvocation] = findChild(classOf[ScSelfInvocation])
 
-  override def accept(visitor: ScalaElementVisitor) {
+  override protected def acceptScala(visitor: ScalaElementVisitor) {
     visitor.visitConstrBlock(this)
   }
 }

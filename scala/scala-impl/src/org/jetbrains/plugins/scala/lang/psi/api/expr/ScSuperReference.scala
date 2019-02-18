@@ -29,7 +29,7 @@ trait ScSuperReference extends ScExpression with ScPathElement {
 
   def reference: Option[ScStableCodeReference] = findChild(classOf[ScStableCodeReference])
 
-  override def accept(visitor: ScalaElementVisitor): Unit = {
+  override protected def acceptScala(visitor: ScalaElementVisitor): Unit = {
     visitor.visitSuperReference(this)
   }
 }

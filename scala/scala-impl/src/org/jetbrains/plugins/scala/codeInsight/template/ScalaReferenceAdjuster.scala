@@ -4,9 +4,9 @@ package codeInsight.template
 import com.intellij.application.options.CodeStyle
 import com.intellij.lang.ASTNode
 import com.intellij.openapi.project.Project
-import com.intellij.psi.codeStyle.{CodeStyleSettingsManager, JavaCodeStyleSettings, ReferenceAdjuster}
-import org.jetbrains.plugins.scala.lang.psi.api.{ScalaPsiElement, ScalaRecursiveElementVisitor}
+import com.intellij.psi.codeStyle.{JavaCodeStyleSettings, ReferenceAdjuster}
 import org.jetbrains.plugins.scala.lang.psi.TypeAdjuster
+import org.jetbrains.plugins.scala.lang.psi.api.{ScalaPsiElement, ScalaRecursiveElementVisitor}
 
 import scala.collection.mutable.ArrayBuffer
 
@@ -40,10 +40,10 @@ class ScalaReferenceAdjuster extends ReferenceAdjuster {
     //do not process other languages
     val buffer = new ArrayBuffer[ScalaPsiElement]()
     val visitor = new ScalaRecursiveElementVisitor {
-        override def visitElement(element: ScalaPsiElement): Unit = {
+        override def visitScalaElement(element: ScalaPsiElement): Unit = {
           if (element.getTextRange.getStartOffset >= startOffset && element.getTextRange.getEndOffset <= endOffset) {
             buffer += element
-          } else super.visitElement(element)
+          } else super.visitScalaElement(element)
         }
       }
     psi.accept(visitor)

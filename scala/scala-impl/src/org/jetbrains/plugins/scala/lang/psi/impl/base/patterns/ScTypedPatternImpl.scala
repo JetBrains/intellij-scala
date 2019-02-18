@@ -10,7 +10,6 @@ import com.intellij.psi._
 import com.intellij.psi.scope.PsiScopeProcessor
 import org.jetbrains.plugins.scala.extensions.{PsiTypeExt, ifReadAllowed}
 import org.jetbrains.plugins.scala.lang.lexer._
-import org.jetbrains.plugins.scala.lang.psi.api.ScalaElementVisitor
 import org.jetbrains.plugins.scala.lang.psi.api.base.patterns._
 import org.jetbrains.plugins.scala.lang.psi.api.statements.params.ScTypeParam
 import org.jetbrains.plugins.scala.lang.psi.api.toplevel.typedef.ScTypeDefinition
@@ -24,12 +23,6 @@ import org.jetbrains.plugins.scala.lang.psi.types.{ScExistentialType, api, _}
 */
 
 class ScTypedPatternImpl(node: ASTNode) extends ScalaPsiElementImpl(node) with ScPatternImpl with ScTypedPattern {
-  override def accept(visitor: PsiElementVisitor) {
-    visitor match {
-      case visitor: ScalaElementVisitor => super.accept(visitor)
-      case _ => super.accept(visitor)
-    }
-  }
 
   def nameId: PsiElement = findChildByType[PsiElement](TokenSets.ID_SET)
 

@@ -6,7 +6,6 @@ package base
 package types
 
 import com.intellij.lang.ASTNode
-import com.intellij.psi.PsiElementVisitor
 import org.jetbrains.plugins.scala.lang.psi.api.ScalaElementVisitor
 import org.jetbrains.plugins.scala.lang.psi.api.base.types._
 import org.jetbrains.plugins.scala.lang.psi.types.api.Unit
@@ -22,14 +21,7 @@ class ScParenthesisedTypeElementImpl(node: ASTNode) extends ScalaPsiElementImpl(
     case None => Right(Unit)
   }
 
-  override def accept(visitor: ScalaElementVisitor) {
+  override protected def acceptScala(visitor: ScalaElementVisitor) {
     visitor.visitParenthesisedTypeElement(this)
-  }
-
-  override def accept(visitor: PsiElementVisitor) {
-    visitor match {
-      case s: ScalaElementVisitor => s.visitParenthesisedTypeElement(this)
-      case _ => super.accept(visitor)
-    }
   }
 }

@@ -11,7 +11,7 @@ package expr
 trait ScTuple extends ScInfixArgumentExpression {
   def exprs: Seq[ScExpression] = findChildrenByClassScala(classOf[ScExpression]).toSeq
 
-  override def accept(visitor: ScalaElementVisitor): Unit = {
+  override protected def acceptScala(visitor: ScalaElementVisitor): Unit = {
     visitor.visitTupleExpr(this)
   }
 

@@ -14,7 +14,7 @@ trait ScTry extends ScExpression {
 
   def finallyBlock: Option[ScFinallyBlock] = findChild(classOf[ScFinallyBlock])
 
-  override def accept(visitor: ScalaElementVisitor): Unit = {
+  override protected def acceptScala(visitor: ScalaElementVisitor): Unit = {
     visitor.visitTryExpression(this)
   }
 }

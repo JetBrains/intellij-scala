@@ -6,8 +6,6 @@ package expr
 package xml
 
 import com.intellij.lang.ASTNode
-import com.intellij.psi._
-import org.jetbrains.plugins.scala.lang.psi.api.ScalaElementVisitor
 import org.jetbrains.plugins.scala.lang.psi.api.base.patterns.{ScPattern, ScPatterns}
 import org.jetbrains.plugins.scala.lang.psi.api.expr.xml._
 import org.jetbrains.plugins.scala.lang.psi.impl.base.patterns.ScPatternImpl
@@ -24,13 +22,6 @@ import scala.collection.mutable.ArrayBuffer
 
 class ScXmlPatternImpl(node: ASTNode) extends ScalaPsiElementImpl (node) with ScPatternImpl with ScXmlPattern {
   override def isIrrefutableFor(t: Option[ScType]): Boolean = false
-
-  override def accept(visitor: PsiElementVisitor) {
-    visitor match {
-      case visitor: ScalaElementVisitor => super.accept(visitor)
-      case _ => super.accept(visitor)
-    }
-  }
 
   override def subpatterns: Seq[ScPattern] = {
     val pattBuff: ArrayBuffer[ScPattern] = new ArrayBuffer[ScPattern]

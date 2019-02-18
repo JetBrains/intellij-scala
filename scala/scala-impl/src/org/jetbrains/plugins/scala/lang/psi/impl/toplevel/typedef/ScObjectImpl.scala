@@ -15,7 +15,6 @@ import com.intellij.psi.util.PsiUtil
 import org.jetbrains.plugins.scala.extensions._
 import org.jetbrains.plugins.scala.lang.lexer.ScalaTokenTypes
 import org.jetbrains.plugins.scala.lang.psi.ScalaPsiUtil.getCompanionModule
-import org.jetbrains.plugins.scala.lang.psi.api.ScalaElementVisitor
 import org.jetbrains.plugins.scala.lang.psi.api.base.ScAnnotationsHolder
 import org.jetbrains.plugins.scala.lang.psi.api.toplevel.ScTypedDefinition
 import org.jetbrains.plugins.scala.lang.psi.api.toplevel.typedef._
@@ -55,13 +54,6 @@ class ScObjectImpl(stub: ScTemplateDefinitionStub[ScObject],
   override def getContainingFile: PsiFile = {
     if (isSyntheticObject) getContext.getContainingFile
     else super.getContainingFile
-  }
-
-  override def accept(visitor: PsiElementVisitor) {
-    visitor match {
-      case visitor: ScalaElementVisitor => super.accept(visitor)
-      case _ => super.accept(visitor)
-    }
   }
 
   override def toString: String = (if (isPackageObject) "ScPackageObject: " else "ScObject: ") + ifReadAllowed(name)("")

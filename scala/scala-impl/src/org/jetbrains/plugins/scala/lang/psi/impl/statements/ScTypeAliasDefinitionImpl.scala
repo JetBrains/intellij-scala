@@ -66,14 +66,7 @@ class ScTypeAliasDefinitionImpl private (stub: ScTypeAliasStub, node: ASTNode)
 
   override def getOriginalElement: PsiElement = super[ScTypeAliasDefinition].getOriginalElement
 
-  override def accept(visitor: ScalaElementVisitor) {
+  override protected def acceptScala(visitor: ScalaElementVisitor) {
     visitor.visitTypeAliasDefinition(this)
-  }
-
-  override def accept(visitor: PsiElementVisitor) {
-    visitor match {
-      case s: ScalaElementVisitor => s.visitTypeAliasDefinition(this)
-      case _ => super.accept(visitor)
-    }
   }
 }

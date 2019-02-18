@@ -71,7 +71,7 @@ trait OverridingAnnotatorTestBase extends SimpleTestCase{
       }
     }
 
-    file.accept(visitor)
+    visitor.visitFile(file)
 
     mock.annotations
   }

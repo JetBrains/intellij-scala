@@ -5,7 +5,6 @@ package api
 package toplevel
 package templates
 
-import com.intellij.psi.PsiElementVisitor
 import org.jetbrains.plugins.scala.lang.psi.api.base.ScConstructor
 import org.jetbrains.plugins.scala.lang.psi.api.base.types.ScTypeElement
 import org.jetbrains.plugins.scala.lang.psi.types.ScType
@@ -27,9 +26,4 @@ trait ScTemplateParents extends ScalaPsiElement {
 
   final def typeElementsWithoutConstructor: Seq[ScTypeElement] =
     findChildrenByClassScala(classOf[ScTypeElement])
-
-  override def accept(visitor: PsiElementVisitor): Unit = visitor match {
-    case visitor: ScalaElementVisitor => visitor.visitTemplateParents(this)
-    case _ => visitor.visitElement(this)
-  }
 }

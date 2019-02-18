@@ -6,7 +6,6 @@ package base
 package types
 
 import com.intellij.lang.ASTNode
-import com.intellij.psi.PsiElementVisitor
 import org.jetbrains.plugins.scala.lang.psi.api.ScalaElementVisitor
 import org.jetbrains.plugins.scala.lang.psi.api.base.types._
 
@@ -15,14 +14,7 @@ import org.jetbrains.plugins.scala.lang.psi.api.base.types._
  */
 
 class ScFunctionalTypeElementImpl(node: ASTNode) extends ScalaPsiElementImpl(node) with ScFunctionalTypeElement {
-  override def accept(visitor: ScalaElementVisitor) {
+  override protected def acceptScala(visitor: ScalaElementVisitor) {
     visitor.visitFunctionalTypeElement(this)
-  }
-
-  override def accept(visitor: PsiElementVisitor) {
-    visitor match {
-      case s: ScalaElementVisitor => s.visitFunctionalTypeElement(this)
-      case _ => super.accept(visitor)
-    }
   }
 }

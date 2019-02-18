@@ -17,7 +17,7 @@ trait ScFunctionExpr extends ScExpression with ScControlFlowOwner {
 
   def result: Option[ScExpression]
 
-  override def accept(visitor: ScalaElementVisitor): Unit = {
+  override protected def acceptScala(visitor: ScalaElementVisitor): Unit = {
     visitor.visitFunctionExpression(this)
   }
 }

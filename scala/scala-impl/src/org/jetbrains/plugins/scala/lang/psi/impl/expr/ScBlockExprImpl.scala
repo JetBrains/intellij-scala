@@ -6,12 +6,12 @@ package expr
 
 import java.util
 
+import com.intellij.psi.PsiElement
 import com.intellij.psi.impl.source.tree.LazyParseablePsiElement
 import com.intellij.psi.tree.ILazyParseableElementType
-import com.intellij.psi.{PsiElement, PsiElementVisitor}
 import org.jetbrains.plugins.scala.lang.psi.annotator.ScExpressionAnnotator
-import org.jetbrains.plugins.scala.lang.psi.api.{ScalaElementVisitor, ScalaPsiElement}
 import org.jetbrains.plugins.scala.lang.psi.api.expr._
+import org.jetbrains.plugins.scala.lang.psi.api.{ScalaElementVisitor, ScalaPsiElement}
 
 /**
 * @author Alexander Podkhalyuzin
@@ -52,10 +52,5 @@ class ScBlockExprImpl(elementType: ILazyParseableElementType, buffer: CharSequen
     null
   }
 
-  override def accept(visitor: ScalaElementVisitor): Unit = visitor.visitBlockExpression(this)
-
-  override def accept(visitor: PsiElementVisitor): Unit = visitor match {
-    case scalaVisitor: ScalaElementVisitor => accept(scalaVisitor)
-    case _ => super.accept(visitor)
-  }
+  override protected def acceptScala(visitor: ScalaElementVisitor): Unit = visitor.visitBlockExpression(this)
 }

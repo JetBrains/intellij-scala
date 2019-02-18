@@ -88,7 +88,7 @@ trait ScUnderscoreSection extends ScExpression {
     }
   }
 
-  override def accept(visitor: ScalaElementVisitor): Unit = {
+  override protected def acceptScala(visitor: ScalaElementVisitor): Unit = {
     visitor.visitUnderscoreExpression(this)
   }
 }

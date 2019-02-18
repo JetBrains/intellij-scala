@@ -7,8 +7,6 @@ package patterns
 
 import _root_.org.jetbrains.plugins.scala.lang.psi.types._
 import com.intellij.lang.ASTNode
-import com.intellij.psi._
-import org.jetbrains.plugins.scala.lang.psi.api.ScalaElementVisitor
 import org.jetbrains.plugins.scala.lang.psi.api.base.patterns._
 import org.jetbrains.plugins.scala.lang.psi.api.base.{ScPrimaryConstructor, ScStableCodeReference}
 import org.jetbrains.plugins.scala.lang.psi.api.statements.ScFunction
@@ -25,12 +23,6 @@ import org.jetbrains.plugins.scala.lang.psi.types.result._
 */
 
 class ScConstructorPatternImpl(node: ASTNode) extends ScalaPsiElementImpl (node) with ScPatternImpl with ScConstructorPattern {
-  override def accept(visitor: PsiElementVisitor): Unit = {
-    visitor match {
-      case visitor: ScalaElementVisitor => super.accept(visitor)
-      case _ => super.accept(visitor)
-    }
-  }
 
   override def toString: String = "ConstructorPattern"
 

@@ -160,15 +160,8 @@ class ScAnnotationImpl private(stub: ScAnnotationStub, node: ASTNode)
     findDeclaredAttributeValue(attributeName).asInstanceOf[T]
   }
 
-  override def accept(visitor: ScalaElementVisitor) {
+  override protected def acceptScala(visitor: ScalaElementVisitor) {
     visitor.visitAnnotation(this)
-  }
-
-  override def accept(visitor: PsiElementVisitor) {
-    visitor match {
-      case s: ScalaElementVisitor => s.visitAnnotation(this)
-      case _ => super.accept(visitor)
-    }
   }
 
   override def canNavigate: Boolean =

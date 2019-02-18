@@ -10,7 +10,6 @@ import javax.swing.Icon
 import org.jetbrains.plugins.scala.extensions.PsiModifierListOwnerExt
 import org.jetbrains.plugins.scala.icons.Icons
 import org.jetbrains.plugins.scala.lang.lexer.ScalaTokenTypes
-import org.jetbrains.plugins.scala.lang.psi.api.base.ScPrimaryConstructor
 import org.jetbrains.plugins.scala.lang.psi.api.statements.{ScDecoratedIconOwner, ScFunction}
 
 /**
@@ -37,6 +36,4 @@ trait ScClass extends ScTypeDefinition with ScConstructorOwner with ScDecoratedI
   def getClassToken: PsiElement = findFirstChildByType(ScalaTokenTypes.kCLASS)
 
   def getObjectClassOrTraitToken: PsiElement = getClassToken
-
-  override def accept(visitor: ScalaElementVisitor): Unit = visitor.visitClass(this)
 }

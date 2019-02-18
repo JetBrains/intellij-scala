@@ -6,19 +6,15 @@ package toplevel
 package typedef
 
 import com.intellij.navigation.NavigationItem
-import com.intellij.openapi.progress.ProcessCanceledException
 import com.intellij.openapi.util.Iconable
 import com.intellij.psi._
 import com.intellij.psi.impl.PsiClassImplUtil
-import org.jetbrains.plugins.scala.caches.CachesUtil
 import org.jetbrains.plugins.scala.extensions.{PsiElementExt, TraversableExt}
 import org.jetbrains.plugins.scala.lang.psi.adapters.PsiClassAdapter
 import org.jetbrains.plugins.scala.lang.psi.api.statements._
 import org.jetbrains.plugins.scala.lang.psi.api.statements.params.ScTypeParam
-import org.jetbrains.plugins.scala.lang.psi.impl.ScalaPsiElementFactory.{createObjectWithContext, createTypeElementFromText}
 import org.jetbrains.plugins.scala.lang.psi.impl.toplevel.typedef.SyntheticMembersInjector
 import org.jetbrains.plugins.scala.lang.psi.types.PhysicalSignature
-import org.jetbrains.plugins.scala.macroAnnotations.Cached
 
 import scala.collection.Seq
 
@@ -51,7 +47,7 @@ trait ScTypeDefinition extends ScTemplateDefinition with ScMember
 
   def isPackageObject = false
 
-  override def accept(visitor: ScalaElementVisitor) {
+  override protected def acceptScala(visitor: ScalaElementVisitor) {
     visitor.visitTypeDefinition(this)
   }
 

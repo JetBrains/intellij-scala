@@ -6,7 +6,6 @@ package expr
 package xml
 
 import com.intellij.lang.ASTNode
-import com.intellij.psi._
 import org.jetbrains.plugins.scala.lang.psi.api.ScalaElementVisitor
 import org.jetbrains.plugins.scala.lang.psi.api.expr.xml._
 
@@ -18,10 +17,5 @@ import org.jetbrains.plugins.scala.lang.psi.api.expr.xml._
 class ScXmlStartTagImpl(node: ASTNode) extends ScalaPsiElementImpl (node) with ScXmlStartTag{
   override def toString: String = "XmlStartTag"
 
-  override def accept(visitor: PsiElementVisitor) {
-    visitor match {
-      case scVisitor: ScalaElementVisitor => scVisitor.visitXmlStartTag(this)
-      case _ => super.accept(visitor)
-    }
-  }
+  override protected def acceptScala(visitor: ScalaElementVisitor): Unit = visitor.visitXmlStartTag(this)
 }

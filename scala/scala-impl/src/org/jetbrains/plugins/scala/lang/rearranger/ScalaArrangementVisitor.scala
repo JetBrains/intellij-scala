@@ -11,14 +11,13 @@ import com.intellij.psi.codeStyle.arrangement.std.StdArrangementTokens.EntryType
 import com.intellij.psi.codeStyle.arrangement.std.StdArrangementTokens.Modifier._
 import org.jetbrains.plugins.scala.extensions.PsiElementExt
 import org.jetbrains.plugins.scala.lang.lexer.ScalaTokenTypes
-import org.jetbrains.plugins.scala.lang.psi.api.ScalaPsiElement
 import org.jetbrains.plugins.scala.lang.psi.api.base.{ScConstructor, ScModifierList, ScReference, ScStableCodeReference}
 import org.jetbrains.plugins.scala.lang.psi.api.expr.{ScExpression, ScReferenceExpression}
 import org.jetbrains.plugins.scala.lang.psi.api.statements._
 import org.jetbrains.plugins.scala.lang.psi.api.toplevel.templates.ScTemplateBody
 import org.jetbrains.plugins.scala.lang.psi.api.toplevel.typedef.{ScClass, ScObject, ScTrait, ScTypeDefinition}
 import org.jetbrains.plugins.scala.lang.psi.api.toplevel.{ScModifierListOwner, ScPackaging}
-import org.jetbrains.plugins.scala.lang.psi.api.{ScalaElementVisitor, ScalaFile, ScalaRecursiveElementVisitor}
+import org.jetbrains.plugins.scala.lang.psi.api.{ScalaElementVisitor, ScalaPsiElement, ScalaRecursiveElementVisitor}
 import org.jetbrains.plugins.scala.lang.psi.types.result._
 import org.jetbrains.plugins.scala.lang.psi.types.{ScType, api}
 
@@ -86,10 +85,7 @@ class ScalaArrangementVisitor(parseInfo: ScalaArrangementParseInfo, document: Do
     }
   }
 
-  override def visitFile(file: PsiFile): Unit = file match {
-    case scFile: ScalaFile => scFile.acceptChildren(this)
-    case _ =>
-  }
+  override def visitFile(file: PsiFile): Unit = file.acceptChildren(this)
 
   override def visitPatternDefinition(pat: ScPatternDefinition) {
     //TODO: insert inter-field dependency here
@@ -97,9 +93,9 @@ class ScalaArrangementVisitor(parseInfo: ScalaArrangementParseInfo, document: Do
       pat.pList.patterns.toList.head.bindings.head.getName, canArrange = true), pat, pat.expr.orNull)
   }
 
-  override def visitElement(v: ScalaPsiElement): Unit = v match {
+  override def visitScalaElement(v: ScalaPsiElement): Unit = v match {
     case packaging: ScPackaging => packaging.acceptChildren(this)
-    case _ => super.visitElement(v)
+    case _ => super.visitScalaElement(v)
   }
 
   override def visitClass(scClass: ScClass): Unit =
