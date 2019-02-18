@@ -27,7 +27,8 @@ object Common {
       libraryDependencies ++= Seq(Dependencies.junitInterface),
       updateOptions := updateOptions.value.withCachedResolution(true),
       ideaMainJars := ideaMainJars.value.filterNot(file => Dependencies.excludeJarsFromPlatformDependencies(file.data)),
-      pathExcludeFilter := excludePathsFromPackage
+      pathExcludeFilter := excludePathsFromPackage,
+      testOptions in Test += Tests.Argument(TestFrameworks.ScalaCheck, "-maxSize", "20")
     )
 
   def excludePathsFromPackage(path: java.nio.file.Path): Boolean = {

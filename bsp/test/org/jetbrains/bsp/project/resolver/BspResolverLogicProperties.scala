@@ -17,7 +17,7 @@ import org.scalacheck._
 
 import scala.collection.JavaConverters._
 
-object BspResolverLogicProperties extends Properties("BspResolverLogic functions") {
+object BspResolverLogicProperties extends Properties("BspResolverLogic") {
 
   implicit val gson: Gson = new GsonBuilder().setPrettyPrinting().create()
 
@@ -32,7 +32,7 @@ object BspResolverLogicProperties extends Properties("BspResolverLogic functions
     findsBase && baseIsAncestor
   }
 
-  property("getScalaSdkData succeeds") = forAll { (scalaBuildTarget: ScalaBuildTarget, scalacOptionsItem: ScalacOptionsItem) =>
+  property("getScalaSdkData") = forAll { (scalaBuildTarget: ScalaBuildTarget, scalacOptionsItem: ScalacOptionsItem) =>
 
     val data = getScalaSdkData(scalaBuildTarget, Some(scalacOptionsItem))
     val jarsToClasspath = ! scalaBuildTarget.getJars.isEmpty ==> ! data.scalacClasspath.isEmpty
@@ -86,7 +86,7 @@ object BspResolverLogicProperties extends Properties("BspResolverLogic functions
       }
     }
 
-  property("mergeModules succeeds") = forAll { (description1: ModuleDescription, description2: ModuleDescription) =>
+  property("mergeModules") = forAll { (description1: ModuleDescription, description2: ModuleDescription) =>
     val data1 = description1.data
     val data2 = description2.data
     val merged = mergeModules(List(description1, description2))
@@ -97,16 +97,16 @@ object BspResolverLogicProperties extends Properties("BspResolverLogic functions
       data.targets == (data1.targets ++ data2.targets).sortBy(_.getId.getUri)
   }
 
-  property("projectNode succeeds") = forAll {
+  property("projectNode") = forAll {
     (root: Path, moduleFilesDir: Path, moduleDescriptions: List[ModuleDescription]) =>
 
     val projectRootPath = root.toString
     val node = projectNode(projectRootPath, moduleFilesDir.toString, moduleDescriptions)
 
-    node.getChildren.size >= moduleDescriptions.size
+      // TODO more thorough properties
+      node.getChildren.size >= moduleDescriptions.size
       node.getChildren.asScala.exists { node =>
         node.getData(ProjectKeys.MODULE).getLinkedExternalProjectPath == projectRootPath
       }
   }
-
 }

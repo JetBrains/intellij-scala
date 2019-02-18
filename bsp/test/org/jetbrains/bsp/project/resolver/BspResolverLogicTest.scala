@@ -1,6 +1,6 @@
 package org.jetbrains.bsp.project.resolver
 
-import ch.epfl.scala.bsp4j.{BuildTarget, BuildTargetCapabilities, BuildTargetIdentifier, BuildTargetTag}
+import ch.epfl.scala.bsp4j.{BuildTarget, BuildTargetCapabilities, BuildTargetIdentifier}
 import org.junit.Test
 
 import scala.collection.JavaConverters._
