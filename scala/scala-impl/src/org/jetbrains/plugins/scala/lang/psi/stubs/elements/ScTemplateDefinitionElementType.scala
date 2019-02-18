@@ -182,3 +182,10 @@ object ObjectDefinition extends ScTemplateDefinitionElementType[ScObject]("objec
 
   override def createPsi(stub: ScTemplateDefinitionStub[ScObject]) = new ScObjectImpl(stub, this, null)
 }
+
+object NewTemplateDefinition extends ScTemplateDefinitionElementType[ScNewTemplateDefinition]("new template definition") {
+
+  override def createElement(node: ASTNode) = new ScNewTemplateDefinitionImpl(null, null, node)
+
+  override def createPsi(stub: ScTemplateDefinitionStub[ScNewTemplateDefinition]) = new ScNewTemplateDefinitionImpl(stub, this, null)
+}

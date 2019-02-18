@@ -9,7 +9,7 @@ import com.intellij.psi.tree._
 import org.jetbrains.plugins.dotty.lang.psi.impl.base.types._
 import org.jetbrains.plugins.scala.lang.psi.api.ScalaPsiElement
 import org.jetbrains.plugins.scala.lang.psi.api.base.types.ScTypeElement
-import org.jetbrains.plugins.scala.lang.psi.api.expr.ScExpression
+import org.jetbrains.plugins.scala.lang.psi.api.expr.{ScExpression, ScNewTemplateDefinition}
 import org.jetbrains.plugins.scala.lang.psi.api.statements._
 import org.jetbrains.plugins.scala.lang.psi.api.toplevel.typedef._
 import org.jetbrains.plugins.scala.lang.psi.impl.base._
@@ -75,6 +75,7 @@ object ScalaElementType {
   val CLASS_DEFINITION: ScTemplateDefinitionElementType[ScClass] = ClassDefinition
   val TRAIT_DEFINITION: ScTemplateDefinitionElementType[ScTrait] = TraitDefinition
   val OBJECT_DEFINITION: ScTemplateDefinitionElementType[ScObject] = ObjectDefinition
+  val NEW_TEMPLATE: ScTemplateDefinitionElementType[ScNewTemplateDefinition] = NewTemplateDefinition
 
 
   /** ***********************************************************************************/
@@ -214,9 +215,6 @@ object ScalaElementType {
   }
   val UNIT_EXPR: ScExpressionElementType = new ScExpressionElementType("unit expression") {
     override def createElement(node: ASTNode) = new ScUnitExprImpl(node)
-  }
-  val NEW_TEMPLATE: ScExpressionElementType = new ScExpressionElementType("new template") {
-    override def createElement(node: ASTNode) = new ScNewTemplateDefinitionImpl(node)
   }
   val CONSTR_EXPR: ScExpressionElementType = new ScExpressionElementType("constructor expression") {
     override def createElement(node: ASTNode) = new ScConstrExprImpl(node)

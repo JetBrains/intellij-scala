@@ -9,7 +9,7 @@ import com.intellij.psi.PsiElement
 import com.intellij.psi.impl.source.tree.FileElement
 import com.intellij.psi.stubs._
 import org.jetbrains.plugins.scala.lang.parser.ScalaElementType.ScExpressionElementType
-import org.jetbrains.plugins.scala.lang.parser.{ScCodeBlockElementType, SelfPsiCreator}
+import org.jetbrains.plugins.scala.lang.parser.{ScCodeBlockElementType, ScalaElementType, SelfPsiCreator}
 import org.jetbrains.plugins.scala.lang.psi.stubs.elements.ScStubElementType.isLocal
 
 import scala.annotation.tailrec
@@ -50,6 +50,7 @@ object ScStubElementType {
     case _: FileElement | null => false
     case _ =>
       node.getElementType match {
+        case ScalaElementType.NEW_TEMPLATE => false
         case _: ScExpressionElementType | _: ScCodeBlockElementType => true
         case _ => isLocal(node.getTreeParent)
       }
