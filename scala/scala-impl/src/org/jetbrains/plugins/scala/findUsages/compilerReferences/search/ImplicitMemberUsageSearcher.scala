@@ -2,6 +2,7 @@ package org.jetbrains.plugins.scala.findUsages.compilerReferences
 package search
 
 import java.awt.{List => _}
+import java.util.concurrent.locks.ReentrantLock
 
 import com.intellij.find.FindManager
 import com.intellij.find.impl.FindManagerImpl
@@ -17,6 +18,7 @@ import com.intellij.psi._
 import com.intellij.psi.util.PsiTreeUtil
 import com.intellij.task.ProjectTaskManager
 import com.intellij.util.Processor
+import com.intellij.util.containers.ContainerUtil
 import com.intellij.util.messages.MessageBusConnection
 import javax.swing._
 import org.jetbrains.plugins.scala.ScalaBundle
@@ -26,6 +28,7 @@ import org.jetbrains.plugins.scala.findUsages.compilerReferences.indices.ScalaCo
 import org.jetbrains.plugins.scala.findUsages.compilerReferences.search.ImplicitUsagesSearchDialogs._
 import org.jetbrains.plugins.scala.findUsages.compilerReferences.settings.CompilerIndicesSettings
 import org.jetbrains.plugins.scala.findUsages.factory.{ScalaFindUsagesHandler, ScalaFindUsagesHandlerFactory}
+import org.jetbrains.plugins.scala.project._
 import org.jetbrains.plugins.scala.util.ImplicitUtil._
 import org.jetbrains.sbt.shell.SbtShellCommunication
 
@@ -111,23 +114,22 @@ object ImplicitMemberUsageSearcher {
     override def runAction(): Boolean = false
   }
 
-  private[this] def showProgressIndicator(project: Project): Unit = {
-    val service = ScalaCompilerReferenceService(project)
-    val task    = service.awaitIndexingUnderProgressTask
-    ProgressManager.getInstance().run(task)
-  }
-
-  private[findUsages] final case class RebuildProject(project: Project) extends BeforeImplicitSearchAction {
+  /**
+    * This is a little more optimal than doing a full project rebuild,
+    * basically it just builds the project but uses underlying (sbt or jps specific)
+    * machinery to extract not just incremental, but full source <-> class mappings.
+    */
+  private[findUsages] final case class RebuildIndices(project: Project, target: PsiElement) extends BeforeImplicitSearchAction {
     override def runAction(): Boolean = {
+      val modules = project.modules
+
       ScalaCompilerReferenceService(project).inTransaction {
         case (CompilerMode.JPS, _) =>
-//          showProgressIndicator(project)
-          ProjectTaskManager.getInstance(project).rebuildAllModules()
+          val manager = ProjectTaskManager.getInstance(project)
+          runSearchAfterIndexingFinishedAsync(modules, project, target)
+          manager.build(modules.toArray, null)
         case (CompilerMode.SBT, _) =>
-          // there is no need to do a full rebuild with sbt project as
-          // we can simply fetch info about ALL classes instead of just
-          // the ones built incrementally via incrementalityType setting
-//          showProgressIndicator(project)
+          runSearchAfterIndexingFinishedAsync(modules, project, target)
           val shell = SbtShellCommunication.forProject(project)
           shell.command("rebuildIdeaIndices")
       }
@@ -141,19 +143,51 @@ object ImplicitMemberUsageSearcher {
     project: Project,
     modules: Set[Module]
   ) extends BeforeImplicitSearchAction {
-    override def runAction(): Boolean = if (modules.nonEmpty) {
-      if (pendingConnection ne null) pendingConnection.disconnect()
+    override def runAction(): Boolean =
+      if (modules.nonEmpty) {
+        val manager = ProjectTaskManager.getInstance(project)
+        runSearchAfterIndexingFinishedAsync(modules, project, target)
+        manager.build(modules.toArray, null)
+        false
+      } else true
+  }
 
-      val manager       = ProjectTaskManager.getInstance(project)
-      pendingConnection = project.getMessageBus.connect(project)
+  private[this] val lock                      = new ReentrantLock()
+  private[this] val indexingFinishedCondition = lock.newCondition()
 
-      pendingConnection.subscribe(CompilerReferenceServiceStatusListener.topic, new CompilerReferenceServiceStatusListener {
-        override def onIndexingStarted(): Unit = showProgressIndicator(project)
+  private[this] def showProgressIndicator(project: Project): Unit = {
+    val awaitIndexing = task(project, ScalaBundle.message("scala.compiler.indices.progress.title")) { _ =>
+      lock.locked(indexingFinishedCondition.awaitUninterruptibly())
+    }
+    ProgressManager.getInstance().run(awaitIndexing)
+  }
 
-        override def onIndexingFinished(success: Boolean): Unit = {
-          if (success) {
+  private[this] def runSearchAfterIndexingFinishedAsync(
+    targetModules: Iterable[Module],
+    project:       Project,
+    target:        PsiElement
+  ): Unit = {
+    if (pendingConnection ne null) pendingConnection.disconnect()
+
+    pendingConnection = project.getMessageBus.connect(project)
+
+    pendingConnection.subscribe(CompilerReferenceServiceStatusListener.topic, new CompilerReferenceServiceStatusListener {
+      private[this] val targetModuleNames = ContainerUtil.newConcurrentSet[String]
+      targetModuleNames.addAll(targetModules.collect {
+        case module if module.isSourceModule => module.getName
+      }.asJavaCollection)
+
+      override def onIndexingStarted(): Unit = showProgressIndicator(project)
+
+      override def onCompilationInfoIndexed(modules: Set[String]): Unit =
+        targetModuleNames.removeAll(modules.asJava)
+
+      override def onIndexingFinished(success: Boolean): Unit = {
+        if (success) {
+          if (targetModuleNames.isEmpty) {
             val findManager = FindManager.getInstance(project).asInstanceOf[FindManagerImpl]
             val handler     = new ScalaFindUsagesHandler(target, ScalaFindUsagesHandlerFactory.getInstance(project))
+            lock.locked(indexingFinishedCondition.signal())
 
             val runnable: Runnable = () =>
               findManager.getFindUsagesManager.findUsages(
@@ -164,15 +198,12 @@ object ImplicitMemberUsageSearcher {
                 false
               )
 
+            pendingConnection.disconnect()
             TransactionGuard.getInstance().submitTransactionAndWait(runnable)
           }
-          pendingConnection.disconnect()
-        }
-      })
-
-      manager.build(modules.toArray, null)
-      false
-    } else true
+        } else pendingConnection.disconnect()
+      }
+    })
   }
 
   private[findUsages] def assertSearchScopeIsSufficient(target: PsiNamedElement): Option[BeforeImplicitSearchAction] = {
@@ -193,10 +224,7 @@ object ImplicitMemberUsageSearcher {
         var action: Option[BeforeImplicitSearchAction] = None
 
         val dialogAction =
-          () =>
-            action = Option(
-              showRebuildSuggestionDialog(project, dirtyModules, upToDateModules, validIndexExists, target)
-            )
+          () => action = showRebuildSuggestionDialog(project, dirtyModules, upToDateModules, validIndexExists, target)
 
         inEventDispatchThread(dialogAction())
         action
@@ -229,22 +257,18 @@ object ImplicitMemberUsageSearcher {
     upToDateModules:  Set[Module],
     validIndexExists: Boolean,
     element:          PsiNamedElement
-  ): BeforeImplicitSearchAction = {
+  ): Option[BeforeImplicitSearchAction] = {
     import DialogWrapper.{CANCEL_EXIT_CODE, OK_EXIT_CODE}
 
-    val dialog = new ImplicitFindUsagesDialog(
-      false,
-      dirtyModules,
-      upToDateModules,
-      validIndexExists,
-      element
-    )
+    val dialog = new ImplicitFindUsagesDialog(false, element)
     dialog.show()
 
     dialog.getExitCode match {
-      case OK_EXIT_CODE if !validIndexExists => RebuildProject(project)
-      case OK_EXIT_CODE                      => BuildModules(element, project, dialog.moduleSelection)
-      case CANCEL_EXIT_CODE                  => CancelSearch
+      case OK_EXIT_CODE if dialog.shouldCompile =>
+        if (validIndexExists) Option(BuildModules(element, project, dirtyModules))
+        else                  Option(RebuildIndices(project, element))
+      case OK_EXIT_CODE     => None
+      case CANCEL_EXIT_CODE => Option(CancelSearch)
     }
   }
 }
