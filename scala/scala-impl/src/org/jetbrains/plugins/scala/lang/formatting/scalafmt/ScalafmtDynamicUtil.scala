@@ -106,9 +106,15 @@ object ScalafmtDynamicUtil {
     ProgressManager.getInstance.run(backgroundTask)
   }
 
-  def ensureDefaultVersionIsDownloaded(project: ProjectContext): Unit = {
+  def ensureDefaultVersionIsDownloadedAsync(project: ProjectContext): Unit = {
     if (!formattersCache.contains(DefaultVersion)) {
       resolveAsync(DefaultVersion, project)
+    }
+  }
+
+  def ensureDefaultVersionIsDownloaded(progressListener: DownloadProgressListener): Unit = {
+    if (!formattersCache.contains(DefaultVersion)) {
+      resolve(DefaultVersion, downloadIfMissing = true, progressListener = progressListener)
     }
   }
 

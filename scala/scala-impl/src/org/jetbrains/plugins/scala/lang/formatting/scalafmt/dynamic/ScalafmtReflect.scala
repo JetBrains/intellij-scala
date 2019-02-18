@@ -6,7 +6,6 @@ import java.nio.file.{Files, Path}
 
 import org.jetbrains.plugins.scala.lang.formatting.scalafmt.dynamic.exceptions._
 import org.jetbrains.plugins.scala.lang.formatting.scalafmt.dynamic.utils.ReflectUtils._
-import org.jetbrains.plugins.scala.lang.formatting.scalafmt.interfaces.ScalafmtReporter
 
 import scala.util.Try
 
@@ -69,11 +68,7 @@ case class ScalafmtReflect(classLoader: URLClassLoader,
     }
   }
 
-  def format(code: String, config: ScalafmtDynamicConfig): String = {
-    format(None, code, config)
-  }
-
-  def format(fileOpt: Option[Path], code: String, config: ScalafmtDynamicConfig): String = {
+  def format(code: String, config: ScalafmtDynamicConfig, fileOpt: Option[Path] = None): String = {
     checkVersionMismatch(config)
     val formatted = (formatMethodWithFilename, fileOpt) match {
       case (Some(method), Some(file)) =>
@@ -99,8 +94,10 @@ case class ScalafmtReflect(classLoader: URLClassLoader,
   private def positionRange(pos: Object): RangePosition = {
     try {
       RangePosition(
+        pos.invokeAs[Int]("start"),
         pos.invokeAs[Int]("startLine"),
         pos.invokeAs[Int]("startColumn"),
+        pos.invokeAs[Int]("end"),
         pos.invokeAs[Int]("endLine"),
         pos.invokeAs[Int]("endColumn")
       )
@@ -109,8 +106,10 @@ case class ScalafmtReflect(classLoader: URLClassLoader,
         val start = pos.invoke("start")
         val end = pos.invoke("end")
         RangePosition(
+          start.invokeAs[Int]("offset"),
           start.invokeAs[Int]("line"),
           start.invokeAs[Int]("column"),
+          end.invokeAs[Int]("offset"),
           end.invokeAs[Int]("line"),
           end.invokeAs[Int]("column")
         )

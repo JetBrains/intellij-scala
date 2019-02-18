@@ -27,7 +27,7 @@ class ScalaFmtSuggesterComponent(val project: Project) extends ProjectComponent 
 
     // TODO: when ScalafmtDynamicUtil becomes ApplicationComponent, move this initialization to it
     if(settings.USE_SCALAFMT_FORMATTER) {
-      ScalafmtDynamicUtil.ensureDefaultVersionIsDownloaded(project)
+      ScalafmtDynamicUtil.ensureDefaultVersionIsDownloadedAsync(project)
     }
   }
 
@@ -59,7 +59,7 @@ class ScalaFmtSuggesterComponent(val project: Project) extends ProjectComponent 
     newSettings.SCALAFMT_CONFIG_PATH = ""
     codeStyleSchemesModel.apply()
 
-    ScalafmtDynamicUtil.ensureDefaultVersionIsDownloaded(project)
+    ScalafmtDynamicUtil.ensureDefaultVersionIsDownloadedAsync(project)
   }
 
   private def createNotification: Notification = {

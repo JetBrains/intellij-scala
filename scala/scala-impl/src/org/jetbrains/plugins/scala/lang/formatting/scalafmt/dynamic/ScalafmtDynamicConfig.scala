@@ -1,5 +1,7 @@
 package org.jetbrains.plugins.scala.lang.formatting.scalafmt.dynamic
 
+import java.lang.reflect.Constructor
+
 import org.jetbrains.plugins.scala.lang.formatting.scalafmt.dynamic.exceptions.ReflectionException
 import org.jetbrains.plugins.scala.lang.formatting.scalafmt.dynamic.utils.ReflectUtils._
 
@@ -11,6 +13,11 @@ class ScalafmtDynamicConfig private[dynamic](val fmtReflect: ScalafmtReflect,
                                              protected[dynamic] val classLoader: ClassLoader) {
 
   protected val targetCls = target.getClass
+  protected lazy val constructor: Constructor[_] = targetCls.getConstructors()(0)
+  protected lazy val constructorParams = constructor.getParameters.map(_.getName)
+  protected lazy val rewriteParamIdx = constructorParams.indexOf("rewrite").ensuring(_ >= 0)
+  protected lazy val emptyRewrites = target.invoke("apply$default$" + (rewriteParamIdx + 1))
+
   protected val dialectCls = classLoader.loadClass("scala.meta.Dialect")
   protected val dialectsCls = classLoader.loadClass("scala.meta.dialects.package")
 
@@ -49,7 +56,7 @@ class ScalafmtDynamicConfig private[dynamic](val fmtReflect: ScalafmtReflect,
     rewriteRulesMethod match {
       case Some(method) =>
         // > v0.4.1
-        val rewriteSettings = method.invoke(target) // TODO: check whether it is correct
+        val rewriteSettings = method.invoke(target) // TODO: check whether it is correct for all versions
         !rewriteSettings.invoke("rules").invokeAs[Boolean]("isEmpty")
       case None =>
         false
@@ -58,7 +65,11 @@ class ScalafmtDynamicConfig private[dynamic](val fmtReflect: ScalafmtReflect,
 
   def withoutRewriteRules: ScalafmtDynamicConfig = {
     if (hasRewriteRules) {
-      this // TODO: support removing of rewrite settings
+      // FIXME: this is only tested for version 1.5.1, check behaviour for other versions
+      val fieldsValues = constructorParams.map(param => target.invoke(param))
+      fieldsValues(rewriteParamIdx) = emptyRewrites
+      val targetNew = constructor.newInstance(fieldsValues: _*).asInstanceOf[Object]
+      new ScalafmtDynamicConfig(fmtReflect, targetNew, classLoader)
     } else {
       this
     }

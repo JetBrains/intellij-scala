@@ -30,6 +30,7 @@ class ScalafmtDynamicDownloader(respectVersion: Boolean,
       val jars: Seq[Path] = CoursierSmall.fetch(settings)
       val urls = jars.map(_.toUri.toURL).toArray
       val classloader = new URLClassLoader(urls, null)
+      // TODO: separate errors related with downloading from errors related to classes & methods resolving
       ScalafmtReflect(
         classloader,
         version,

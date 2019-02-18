@@ -20,6 +20,7 @@ import org.apache.commons.lang.StringUtils
 import org.jetbrains.plugins.scala.ScalaFileType
 import org.jetbrains.plugins.scala.extensions.{PsiElementExt, _}
 import org.jetbrains.plugins.scala.lang.formatting.processors.ScalaFmtPreFormatProcessor.{formatIfRequired, shiftRange}
+import org.jetbrains.plugins.scala.lang.formatting.scalafmt.dynamic.exceptions.{PositionExceptionImpl, ReflectionException}
 import org.jetbrains.plugins.scala.lang.formatting.scalafmt.dynamic.{ScalafmtDynamicConfig, ScalafmtReflect}
 import org.jetbrains.plugins.scala.lang.formatting.scalafmt.{ScalafmtDynamicConfigUtil, ScalafmtNotifications}
 import org.jetbrains.plugins.scala.lang.formatting.settings.ScalaCodeStyleSettings
@@ -158,7 +159,7 @@ object ScalaFmtPreFormatProcessor {
       }
 
     val scalaFmt: ScalafmtReflect = config.fmtReflect
-    scalaFmt.format(wrappedCode.text, config).toOption.map { formattedText =>
+    scalaFmt.tryFormat(wrappedCode.text, config).toOption.map { formattedText =>
       wrappedCode.withText(formattedText)
     }
   }
@@ -167,31 +168,31 @@ object ScalaFmtPreFormatProcessor {
     * all unrelated sibling elements.
     *
     * @example suppose elements are `val x = 2` and `val y = 42` in following code:
-    * {{{
-    *  class A { ... }
-    *  class B {
-    *    def foo: Int = ???
-    *    def bar: Unit = {
-    *      object X {
-    *        val x = 2
-    *        val y = 42
-    *      }
-    *    }
-    *    private val mur = ???
-    *  }
-    *  class C { ... }
-    * }}}
-    * the resulting wrapped code text will be:
-    * {{{
-    *  class B {
-    *    def bar: Unit = {
-    *      object X {
-    *        val x = 2
-    *        val y = 42
-    *      }
-    *    }
-    *  }
-    * }}}
+    *          {{{
+    *            class A { ... }
+    *            class B {
+    *              def foo: Int = ???
+    *              def bar: Unit = {
+    *                object X {
+    *                  val x = 2
+    *                  val y = 42
+    *                }
+    *              }
+    *              private val mur = ???
+    *            }
+    *            class C { ... }
+    *          }}}
+    *          the resulting wrapped code text will be:
+    *          {{{
+    *            class B {
+    *              def bar: Unit = {
+    *                object X {
+    *                  val x = 2
+    *                  val y = 42
+    *                }
+    *              }
+    *            }
+    *          }}}
     */
   private def wrap(elements: Seq[PsiElement])(implicit project: Project): WrappedCode = {
     require(elements.nonEmpty, "expected elements to be non empty")
@@ -310,12 +311,11 @@ object ScalaFmtPreFormatProcessor {
     val scalaFmt: ScalafmtReflect = config.fmtReflect
     for {
       document <- Option(PsiDocumentManager.getInstance(file.getProject).getDocument(file)).toRight(DocumentNotFoundError)
-      formattedText <- Try(scalaFmt.format(file.getText, config)).toEither.left.map(ScalafmtFormatError)
+      formattedText <- scalaFmt.tryFormat(file.getText, config)
     } yield {
       inWriteAction(document.setText(formattedText))
     }
   }
-
 
   private def formatRange(file: PsiFile, range: TextRange): Option[Int] = {
     implicit val project: Project = file.getProject
@@ -801,22 +801,25 @@ object ScalaFmtPreFormatProcessor {
     }
   }
 
-  private def reportError(message: String, actions: Seq[NotificationAction]): Unit = {
-    ScalafmtNotifications.displayNotification(message, NotificationType.ERROR, actions)
-  }
-
   private def reportInvalidCodeFailure(project: Project, file: PsiFile, error: Option[ScalafmtFormatError] = None): Unit = {
+    import ScalafmtNotifications.displayError
+
+    def displayParseError(message: String, offset: Int): Unit = {
+      val action = file.getVirtualFile.toOption.map(new OpenFileNotificationActon(project, _, offset))
+      displayError(s"Parse error: $message", action.toSeq)
+    }
+
     if (ScalaCodeStyleSettings.getInstance(project).SCALAFMT_SHOW_INVALID_CODE_WARNINGS) {
-      val (message, action) = error.map(_.cause) match {
+      error.map(_.cause) match {
         case Some(cause: scala.meta.ParseException) =>
-          val action = file.getVirtualFile.toOption.map(new OpenFileNotificationActon(project, _, cause.pos.start.offset))
-          (s"Parse error: ${cause.getMessage}", action)
+          displayParseError(cause.getMessage, cause.pos.start.offset)
+        case Some(cause: PositionExceptionImpl) =>
+          displayParseError(cause.shortMessage, cause.pos.start)
         case Some(cause) =>
-          (cause.getMessage.take(100), None)
-        case None =>
-          ("Failed to find correct surrounding code to pass for scalafmt, no formatting will be performed", None)
+          displayError(cause.getMessage.take(100))
+        case _ =>
+          displayError("Failed to find correct surrounding code to pass for scalafmt, no formatting will be performed")
       }
-      reportError(Utility.escape(message), action.toSeq)
     }
   }
 
@@ -936,5 +939,14 @@ object ScalaFmtPreFormatProcessor {
     */
   private object EmptyPsiWhitespace extends PsiWhiteSpaceImpl("") {
     override def isValid: Boolean = true
+  }
+
+  private implicit class ScalafmtReflectExt(val scalafmt: ScalafmtReflect) extends AnyVal {
+    def tryFormat(code: String, config: ScalafmtDynamicConfig): Either[ScalafmtFormatError, String] = {
+      Try(scalafmt.format(code, config)).toEither.left.map {
+        case ReflectionException(e) => ScalafmtFormatError(e)
+        case e => ScalafmtFormatError(e)
+      }
+    }
   }
 }

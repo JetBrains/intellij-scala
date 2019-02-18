@@ -111,7 +111,7 @@ class ScalaFmtSettingsPanel(val settings: CodeStyleSettings) extends CodeStyleAb
 
   private def ensureDefaultScalafmtResolved(): Unit = {
     if (project.isEmpty) return
-    ScalafmtDynamicUtil.ensureDefaultVersionIsDownloaded(project.get)
+    ScalafmtDynamicUtil.ensureDefaultVersionIsDownloadedAsync(project.get)
     updateScalafmtVersionLabel(DefaultVersion, isDefault = true)
   }
 
