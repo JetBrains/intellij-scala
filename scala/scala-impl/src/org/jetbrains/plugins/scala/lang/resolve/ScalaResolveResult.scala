@@ -306,6 +306,9 @@ object ScalaResolveResult {
                          isInInterpolatedString: Boolean = false): Seq[ScalaLookupItem] = {
       val ScalaResolveResult(element, substitutor) = resolveResult
 
+      if (!element.isValid)
+        return Seq.empty
+
       val isRenamed = resolveResult.isRenamed.filter(element.name != _)
 
       val isCurrentClassMember: Boolean = {
