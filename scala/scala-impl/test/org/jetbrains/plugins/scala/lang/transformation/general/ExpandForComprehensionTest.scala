@@ -125,6 +125,104 @@ class ExpandForComprehensionTest extends ExpandForComprehensionTestBase {
     before = "for { a <- Some(1); b <- Some(1) } println(a)",
     after = "Some(1).foreach(a => Some(1).foreach(b => println(a)))"
   )()
+
+  // this looks stupid but only the linebreaks are important!
+  // indention gets fixed by reformat
+  val space = " "
+  def test_with_linebreaks(): Unit = {
+    check(
+      before =
+        """
+          |for (x <- Seq(1, 2, 3); xx = x if x == xx; xxx = xx; y <- Seq("a", "b"); yy = y if y == yy; yyy = yy) yield {
+          |  println(x + xx + xxx)
+          |  println(y + yy + yyy)
+          |}
+        """.stripMargin,
+      after =
+        s"""
+          |${startMarker}Seq(1, 2, 3)
+          |.map { x => val xx = x; (x, xx) }
+          |.withFilter { case (x, xx) => x == xx }
+          |.flatMap { case (x, xx) =>$space
+          |val xxx = xx
+          |
+          |Seq("a", "b")
+          |.map { y => val yy = y; (y, yy) }
+          |.withFilter { case (y, yy) => y == yy }
+          |.map { case (y, yy) =>$space
+          |val yyy = yy
+          |
+          |{
+          |  println(x + xx + xxx)
+          |  println(y + yy + yyy)
+          |}
+          | }
+          | }$endMarker
+        """.stripMargin
+    )()
+  }
+
+  def test_with_linebreaks_in_enumerator(): Unit = {
+    check(
+      before =
+        """
+          |for {
+          |  x <- {
+          |    println("1")
+          |    Seq(1)
+          |  }
+          |  y = {
+          |    println("2")
+          |    2
+          |  }
+          |  if {
+          |    println("3")
+          |    true
+          |  }
+          |  z = {
+          |    println("4")
+          |    4
+          |  }
+          |  zz <- {
+          |    println("5")
+          |    Seq(5)
+          |  }
+          |} println("6")
+        """.stripMargin,
+      after =
+        s"""
+          |$startMarker{
+          |    println("1")
+          |    Seq(1)
+          |  }
+          |.map { x =>$space
+          |val y = {
+          |    println("2")
+          |    2
+          |  }
+          |
+          |(x, y)
+          | }
+          |.withFilter { case (x, y) => {
+          |    println("3")
+          |    true
+          |  } }
+          |.foreach { case (x, y) =>$space
+          |val z = {
+          |    println("4")
+          |    4
+          |  }
+          |
+          |{
+          |    println("5")
+          |    Seq(5)
+          |  }
+          |.foreach(zz => println("6"))
+          | }$endMarker
+        """
+        .stripMargin
+    )()
+  }
 }
 
 class ExpandForComprehensionTest_WithBetterMonadicFor extends ExpandForComprehensionTestBase {

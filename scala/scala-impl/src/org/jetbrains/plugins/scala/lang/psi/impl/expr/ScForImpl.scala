@@ -126,6 +126,8 @@ class ScForImpl(node: ASTNode) extends ScExpressionImplBase(node) with ScFor {
   }
 
   private def generateDesugaredExprTextWithMappings(forDisplay: Boolean): Option[(String, TraversableOnce[(ScPattern, Int)], TraversableOnce[(ScEnumerator, Int)])] = {
+    val forceSingleLine = !forDisplay || !this.getText.contains("\n")
+
     var _nextNameIdx = 0
     def newNameIdx(): String = {
       _nextNameIdx += 1
@@ -193,6 +195,9 @@ class ScForImpl(node: ASTNode) extends ScExpressionImplBase(node) with ScFor {
       val needsCase = !forDisplay || forceCases || args.size > 1  || argPatterns.exists(needsDeconstruction)
       val needsParenthesis = args.size > 1 || !needsCase && argPatterns.exists(needsParenthesisAsLambdaArgument)
 
+      if (!forceSingleLine) {
+        resultText ++= "\n"
+      }
       resultText ++= "."
       markMappingHere(enum, enumMappings)
       resultText ++= funcName
@@ -289,7 +294,10 @@ class ScForImpl(node: ASTNode) extends ScExpressionImplBase(node) with ScFor {
           } getOrElse "???"
       }
 
-      def printForBindings(forBindings: Seq[ForBinding]): Unit = {
+      def printForBindings(forBindings: Seq[ForBinding], newLines: Boolean): Unit = {
+        if (newLines) {
+          resultText ++= "\n"
+        }
         forBindings foreach {
           binding =>
             val pattern = binding.pattern
@@ -312,7 +320,7 @@ class ScForImpl(node: ASTNode) extends ScExpressionImplBase(node) with ScFor {
             }
             resultText ++= " = "
             resultText ++= binding.exprText
-            resultText ++= "; "
+            resultText ++= (if (newLines) "\n" else "; ")
         }
       }
 
@@ -321,7 +329,12 @@ class ScForImpl(node: ASTNode) extends ScExpressionImplBase(node) with ScFor {
         forBindings match {
           case first +: _ =>
             appendFunc("map", Some(first.forBinding), args, forceBlock = true) {
-              printForBindings(forBindings)
+              val multilineForBindings = !forceSingleLine && (forBindings.length > 1 || forBindings.exists(_.forBinding.getText.contains("\n")))
+              printForBindings(forBindings, newLines = multilineForBindings)
+
+              if (multilineForBindings) {
+                resultText ++= "\n"
+              }
 
               // remove wildcards
               val argsWithoutWildcards = args.filterNot(_._2 == "_")
@@ -335,6 +348,10 @@ class ScForImpl(node: ASTNode) extends ScExpressionImplBase(node) with ScFor {
               resultText ++= (argsWithoutWildcards.map(_._2) ++ usedBindings.map(_.name)).mkString(", ")
               if (needsArgParenthesis)
                 resultText ++= ")"
+
+              if (multilineForBindings) {
+                resultText ++= "\n"
+              }
 
               argsWithoutWildcards ++ usedBindings.map(b => b.pattern -> b.patternText)
             }
@@ -367,14 +384,28 @@ class ScForImpl(node: ASTNode) extends ScExpressionImplBase(node) with ScFor {
       else
         "foreach"
 
-      appendFunc(funcText, Some(gen), generatorArgs, forceBlock = forBindingsInGenBody.nonEmpty) {
-        printForBindings(forBindingsInGenBody)
+      val needsMultiline = !forceSingleLine && forBindingsInGenBody.nonEmpty
+      appendFunc(funcText, Some(gen), generatorArgs, forceBlock = needsMultiline || forBindingsInGenBody.nonEmpty) {
+        printForBindings(forBindingsInGenBody, newLines = needsMultiline)
 
         nextEnums.headOption match {
           case Some(nextGen: ScGenerator) =>
+            if (!forceSingleLine) {
+              resultText ++= "\n"
+            }
             appendGen(nextGen, nextEnums.tail)
+
+            if (!forceSingleLine) {
+              resultText ++= "\n"
+            }
           case _ =>
             assert(nextEnums.isEmpty)
+
+            if (needsMultiline) {
+              // add an empty line between the value definitions of the for-bindings and the body
+              // to avoid merging
+              resultText ++= "\n"
+            }
 
             // sometimes the body of a for loop is enclosed in {}
             // we can remove these brackets
@@ -383,7 +414,15 @@ class ScForImpl(node: ASTNode) extends ScExpressionImplBase(node) with ScFor {
               case _ => e
             }
 
-            resultText ++= body.map(normalizeUnderscores).map(withoutBodyBrackets).map(bodyToText).getOrElse("{}")
+            resultText ++= body
+              .map(normalizeUnderscores)
+              .map(withoutBodyBrackets)
+              .map(bodyToText)
+              .getOrElse("{}")
+
+            if (needsMultiline) {
+              resultText ++= "\n"
+            }
         }
       }
     }
@@ -395,6 +434,7 @@ class ScForImpl(node: ASTNode) extends ScExpressionImplBase(node) with ScFor {
     val enums = firstGen.withNextSiblings.collect { case e: ScEnumerator => e }.toList
 
     appendGen(firstGen, enums.tail)
+
     val desugaredExprText = resultText.toString
     Some(if (underscores.nonEmpty) {
       val lambdaPrefix = underscores.values.map(underscoreName) match {

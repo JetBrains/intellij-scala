@@ -16,4 +16,9 @@ class ExpandForComprehension extends AbstractTransformer {
 
   private def desugared(e: ScFor)(implicit project: ProjectContext): Option[PsiElement] =
     e.desugared(forDisplay = true)
+
+  override def needsReformat(e: PsiElement): Boolean = e match {
+    case e: ScFor if e.getText.contains("\n") => true
+    case _ => false
+  }
 }
