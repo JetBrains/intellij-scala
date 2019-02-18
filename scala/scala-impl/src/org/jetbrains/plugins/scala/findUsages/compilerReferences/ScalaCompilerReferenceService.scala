@@ -14,7 +14,6 @@ import com.intellij.openapi.project.Project
 import com.intellij.openapi.roots.ProjectRootManager
 import com.intellij.openapi.util.{Disposer, ModificationTracker}
 import com.intellij.psi.search.GlobalSearchScope
-import com.intellij.psi.util.PsiUtilCore
 import com.intellij.psi.{PsiClass, PsiDocumentManager, PsiElement}
 import com.intellij.util.containers.ContainerUtil
 import org.jetbrains.jps.backwardRefs.CompilerRef
@@ -27,6 +26,7 @@ import org.jetbrains.plugins.scala.findUsages.compilerReferences.indices.Indexin
 import org.jetbrains.plugins.scala.findUsages.compilerReferences.indices._
 import org.jetbrains.plugins.scala.findUsages.compilerReferences.settings.CompilerIndicesSettings
 import org.jetbrains.plugins.scala.indices.protocol.CompilationInfo
+import org.jetbrains.plugins.scala.lang.psi.ScalaPsiUtil
 
 import scala.collection.JavaConverters._
 
@@ -37,7 +37,7 @@ private[findUsages] class ScalaCompilerReferenceService(
 ) extends ProjectComponent with ModificationTracker {
   import ScalaCompilerReferenceService._
 
-  private[this] val compilationCount        = new LongAdder
+  private[this] val compilationCount          = new LongAdder
   private[this] val projectFileIndex          = ProjectRootManager.getInstance(project).getFileIndex
   private[this] val lock                      = new ReentrantReadWriteLock()
   private[this] val openCloseLock             = lock.writeLock()
@@ -125,9 +125,10 @@ private[findUsages] class ScalaCompilerReferenceService(
   }
 
   private[this] def closeReader(incrementBuildCount: Boolean): Unit = transactionManager.inTransaction { _ =>
-    messageBus.syncPublisher(CompilerReferenceServiceStatusListener.topic).onIndexingStarted()
     if (incrementBuildCount) {
-      activeIndexingPhases.incrementAndGet()
+      if (activeIndexingPhases.getAndIncrement() == 0) {
+        messageBus.syncPublisher(CompilerReferenceServiceStatusListener.topic).onIndexingStarted()
+      }
       dirtyScopeHolder.indexingStarted()
     }
 
@@ -194,7 +195,7 @@ private[findUsages] class ScalaCompilerReferenceService(
   private[this] def toCompilerRef(e: PsiElement): Option[CompilerRef] = readDataLock.locked {
     for {
       r       <- reader
-      file    <- PsiUtilCore.getVirtualFile(e).toOption
+      file    <- ScalaPsiUtil.fileContext(e).toOption
       adapter <- LanguageCompilerRefAdapter.findAdapter(file).toOption
       ref     <- adapter.asCompilerRef(e, r.getNameEnumerator).toOption
     } yield ref
