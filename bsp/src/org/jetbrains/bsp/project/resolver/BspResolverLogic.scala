@@ -213,8 +213,8 @@ private[resolver] object BspResolverLogic {
         targetDependencies = target.getDependencies.asScala,
         output = outputPath,
         sourceDirs = sourceRoots,
-        classPath = classPath,
-        classPathSources = dependencySources,
+        classpath = classPath,
+        classpathSources = dependencySources,
       ) else dataBasic
 
     val data2 = if(tags.contains(TEST))
@@ -222,8 +222,8 @@ private[resolver] object BspResolverLogic {
         targetTestDependencies = target.getDependencies.asScala,
         testOutput = outputPath,
         testSourceDirs = sourceRoots,
-        testClassPath = classPath,
-        testClassPathSources = dependencySources
+        testClasspath = classPath,
+        testClasspathSources = dependencySources
       ) else data1
 
     // TODO ignore and warn about unsupported build target kinds? map to special module?
@@ -237,17 +237,17 @@ private[resolver] object BspResolverLogic {
     descriptions.reduce { (combined, next) =>
       val dataCombined = combined.data
       val dataNext = next.data
-      val targets = (dataCombined.targets ++ dataNext.targets).sortBy(_.getId.getUri)
-      val targetDependencies = dataCombined.targetDependencies ++ dataNext.targetDependencies
-      val targetTestDependencies = dataCombined.targetTestDependencies ++ dataNext.targetTestDependencies
+      val targets = (dataCombined.targets ++ dataNext.targets).sortBy(_.getId.getUri).distinct
+      val targetDependencies = mergeBTIs(dataCombined.targetDependencies, dataNext.targetDependencies)
+      val targetTestDependencies = mergeBTIs(dataCombined.targetTestDependencies, dataNext.targetTestDependencies)
       val output = dataCombined.output.orElse(dataNext.output)
       val testOutput = dataCombined.testOutput.orElse(dataNext.testOutput)
-      val sourceDirs = dataCombined.sourceDirs ++ dataNext.sourceDirs
-      val testSourceDirs  = dataCombined.testSourceDirs ++ dataNext.testSourceDirs
-      val classPath = dataCombined.classPath ++ dataNext.classPath
-      val classPathSources = dataCombined.classPathSources ++ dataNext.classPathSources
-      val testClassPath = dataCombined.testClassPath ++ dataNext.testClassPath
-      val testClassPathSources = dataCombined.testClassPathSources ++ dataNext.testClassPathSources
+      val sourceDirs = mergeSourceDirs(dataCombined.sourceDirs, dataNext.sourceDirs)
+      val testSourceDirs  = mergeSourceDirs(dataCombined.testSourceDirs, dataNext.testSourceDirs)
+      val classPath = mergeFiles(dataCombined.classpath, dataNext.classpath)
+      val classPathSources = mergeFiles(dataCombined.classpathSources, dataNext.classpathSources)
+      val testClassPath = mergeFiles(dataCombined.testClasspath, dataNext.testClasspath)
+      val testClassPathSources = mergeFiles(dataCombined.testClasspathSources, dataNext.testClasspathSources)
 
       val newData = ModuleDescriptionData(
         targets, targetDependencies, targetTestDependencies, dataCombined.basePath,
@@ -258,6 +258,15 @@ private[resolver] object BspResolverLogic {
       combined.copy(data = newData)
     }
   }
+
+  private def mergeBTIs(a: Seq[BuildTargetIdentifier], b: Seq[BuildTargetIdentifier]) =
+    (a++b).sortBy(_.getUri).distinct
+
+  private def mergeSourceDirs(a: Seq[SourceDirectory], b: Seq[SourceDirectory]) =
+    (a++b).sortBy(_.directory.getAbsolutePath).distinct
+
+  private def mergeFiles(a: Seq[File], b: Seq[File]) =
+    (a++b).sortBy(_.getAbsolutePath).distinct
 
 
   private[resolver] def projectNode(projectRootPath: String,
@@ -320,9 +329,9 @@ private[resolver] object BspResolverLogic {
       contentRootData.storePath(sourceType, dir.directory.getCanonicalPath)
     }
 
-    val primaryTarget = moduleDescriptionData.targets.head
-    val moduleId = primaryTarget.getId.getUri
-    val moduleName = primaryTarget.getDisplayName
+    val primaryTarget = moduleDescriptionData.targets.headOption
+    val moduleId = primaryTarget.map(_.getId.getUri).getOrElse(moduleDescriptionData.basePath.toURI.toString)
+    val moduleName = primaryTarget.flatMap(t => Option(t.getDisplayName)).getOrElse(moduleId)
     val moduleData = new ModuleData(moduleId, BSP.ProjectSystemId, StdModuleTypes.JAVA.getId, moduleName, moduleFilesDirectoryPath, projectRootPath)
 
     moduleDescriptionData.output.foreach { outputPath =>
@@ -335,20 +344,20 @@ private[resolver] object BspResolverLogic {
     moduleData.setInheritProjectCompileOutputPath(false)
 
     val libraryData = new LibraryData(BSP.ProjectSystemId, s"$moduleName dependencies")
-    moduleDescriptionData.classPath.foreach { path =>
+    moduleDescriptionData.classpath.foreach { path =>
       libraryData.addPath(LibraryPathType.BINARY, path.getCanonicalPath)
     }
-    moduleDescriptionData.classPathSources.foreach { path =>
+    moduleDescriptionData.classpathSources.foreach { path =>
       libraryData.addPath(LibraryPathType.SOURCE, path.getCanonicalPath)
     }
     val libraryDependencyData = new LibraryDependencyData(moduleData, libraryData, LibraryLevel.MODULE)
     libraryDependencyData.setScope(DependencyScope.COMPILE)
 
     val libraryTestData = new LibraryData(BSP.ProjectSystemId, s"$moduleName test dependencies")
-    moduleDescriptionData.testClassPath.foreach { path =>
+    moduleDescriptionData.testClasspath.foreach { path =>
       libraryTestData.addPath(LibraryPathType.BINARY, path.getCanonicalPath)
     }
-    moduleDescriptionData.testClassPathSources.foreach { path =>
+    moduleDescriptionData.testClasspathSources.foreach { path =>
       libraryTestData.addPath(LibraryPathType.SOURCE, path.getCanonicalPath)
     }
     val libraryTestDependencyData = new LibraryDependencyData(moduleData, libraryTestData, LibraryLevel.MODULE)
@@ -382,7 +391,8 @@ private[resolver] object BspResolverLogic {
   Iterable[(DataNode[ModuleData], Seq[DataNode[ModuleData]])] = {
     for {
       moduleDescription <- moduleDescriptions
-      id = moduleDescription.data.targets.head.getId.getUri // any id will resolve the module in idToModule
+      aTarget <- moduleDescription.data.targets.headOption // any id will resolve the module in idToModule
+      id = aTarget.getId.getUri
       module <- idToModule.get(id)
     } yield {
       val compileDeps = moduleDescription.data.targetDependencies.map((_, DependencyScope.COMPILE))

@@ -20,10 +20,10 @@ private[resolver] object BspResolverDescriptors {
                                                      testOutput: Option[File],
                                                      sourceDirs: Seq[SourceDirectory],
                                                      testSourceDirs: Seq[SourceDirectory],
-                                                     classPath: Seq[File],
-                                                     classPathSources: Seq[File],
-                                                     testClassPath: Seq[File],
-                                                     testClassPathSources: Seq[File])
+                                                     classpath: Seq[File],
+                                                     classpathSources: Seq[File],
+                                                     testClasspath: Seq[File],
+                                                     testClasspathSources: Seq[File])
 
   private[resolver] sealed abstract class ModuleKind
 
