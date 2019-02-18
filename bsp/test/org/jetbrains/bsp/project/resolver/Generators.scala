@@ -32,7 +32,13 @@ object Generators {
     segmentCount <- Gen.choose(0, 10)
     segments <- Gen.listOfN(segmentCount, Gen.identifier)
   } yield {
-    val sub = Paths.get(segments.mkString("/"))
+    // truncate string in case it's too long for macOS file system paths
+    val combined = segments.mkString("/")
+    val toTruncate = 250 - root.toString.length
+    val truncated =
+      if (toTruncate < combined.length) combined.substring(0, toTruncate)
+      else combined
+    val sub = Paths.get(truncated)
     root.resolve(sub)
   }
 
