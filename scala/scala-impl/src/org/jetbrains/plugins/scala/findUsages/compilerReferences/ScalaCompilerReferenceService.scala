@@ -91,6 +91,7 @@ private[findUsages] class ScalaCompilerReferenceService(
               s"Reindexed ${info.generatedClasses.size} classfiles."
           )
           dirtyScopeHolder.compilationInfoIndexed(info)
+          messageBus.syncPublisher(CompilerReferenceServiceStatusListener.topic).onCompilationInfoIndexed(modules)
         }
 
         if (!failedToParse.isEmpty) {
@@ -232,10 +233,9 @@ private[findUsages] class ScalaCompilerReferenceService(
    * Returns usages only from up-to-date compiled scope.
    */
   def usagesOf(target: PsiElement, filterScope: Boolean = false): Set[Timestamped[UsagesInFile]] =
-    readDataLock.locked {
-      val actualTarget = ScalaCompilerRefAdapter.bytecodeElement(target)
-      withReader(actualTarget, filterScope)(_.usagesOf)
-    }
+    readDataLock.locked(
+      withReader(target, filterScope)(_.usagesOf)
+    )
 
   def isIndexingInProgress: Boolean = activeIndexingPhases.get() != 0
 

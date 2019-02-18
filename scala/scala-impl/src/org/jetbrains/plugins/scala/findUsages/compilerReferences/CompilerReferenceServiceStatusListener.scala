@@ -5,8 +5,9 @@ import java.util.EventListener
 import com.intellij.util.messages.Topic
 
 trait CompilerReferenceServiceStatusListener extends EventListener {
-  def onIndexingStarted(): Unit                  = ()
-  def onIndexingFinished(success: Boolean): Unit = ()
+  def onIndexingStarted(): Unit                            = ()
+  def onCompilationInfoIndexed(modules: Set[String]): Unit = ()
+  def onIndexingFinished(success:       Boolean): Unit     = ()
 }
 
 object CompilerReferenceServiceStatusListener {
