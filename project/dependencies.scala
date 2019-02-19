@@ -87,12 +87,10 @@ object Dependencies {
   val junitInterface: ModuleID = "com.novocode" % "junit-interface" % "0.11" % "test"
   val ivy2: ModuleID = "org.apache.ivy" % "ivy" % "2.4.0"
 
+  val typesafeConfig: ModuleID = "com.typesafe" % "config" % "1.3.3"
+
   val scalastyle: ModuleID = "org.scalastyle" %% "scalastyle" % "1.0.0"
   val scalariform: ModuleID = "org.scalariform" %% "scalariform" % "0.2.2"
-  val scalafmt: Seq[ModuleID] = Seq(
-    "com.geirsson" %% "coursier-small" % "1.3.1",
-    "com.typesafe" % "config" % "1.3.3"
-  )
   val macroParadise: ModuleID = "org.scalameta" % "paradise" % paradiseVersion cross CrossVersion.full
   val scalaMetaCore: ModuleID = "org.scalameta" %% "scalameta" % scalaMetaVersion withSources() exclude("com.google.protobuf", "protobuf-java")
   val fastparse: ModuleID = "com.lihaoyi" % s"fastparse_$scalaBinaryVersion" % "0.4.3" // transitive dependency of scalaMeta, needs explicit versioning
@@ -139,9 +137,10 @@ object DependencyGroups {
     scalatestFindersPatched,
     jamm,
     ivy2,
+    typesafeConfig,
     scalastyle,
     scalariform
-  ) ++ scalafmt
+  )
 
   val bsp: Seq[ModuleID] = Seq(
     ("org.scala-sbt.ipcsocket" % "ipcsocket" % "1.0.0")

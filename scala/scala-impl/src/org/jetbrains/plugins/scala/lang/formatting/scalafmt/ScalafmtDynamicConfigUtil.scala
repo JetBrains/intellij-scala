@@ -53,12 +53,13 @@ object ScalafmtDynamicConfigUtil {
     val project = psiFile.getProject
     val configPath = settings.SCALAFMT_CONFIG_PATH
 
-    val configFromFile = for {
-      configFile <- scalafmtProjectConfigFile(configPath, project)
-      config <- resolveConfig(configFile, Some(DefaultVersion), project, downloadScalafmtIfMissing = false, failSilent).toOption
-    } yield config
+    val config = scalafmtProjectConfigFile(configPath, project) match {
+      case Some(file) =>
+        resolveConfig(file, Some(DefaultVersion), project, downloadScalafmtIfMissing = false, failSilent).toOption
+      case None =>
+        intellijDefaultConfig
+    }
 
-    val config = configFromFile.orElse(intellijDefaultConfig)
     if (psiFile.isInstanceOf[SbtFileImpl]) {
       config.map(_.withSbtDialect)
     } else {

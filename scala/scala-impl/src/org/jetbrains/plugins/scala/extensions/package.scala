@@ -1092,15 +1092,6 @@ package object extensions {
     }
   }
 
-  def using[A <: Closeable, B <: Closeable, R](resource1: A, resource2: B)(block: (A, B) => R): R = {
-    try {
-      block(resource1, resource2)
-    } finally {
-      if (resource1 != null) resource1.close()
-      if (resource2 != null) resource2.close()
-    }
-  }
-
   def using[B](source: Source)(block: Source => B): B = {
     try {
       block(source)

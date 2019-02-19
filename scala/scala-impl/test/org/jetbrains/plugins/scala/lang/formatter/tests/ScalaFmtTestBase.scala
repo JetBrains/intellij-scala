@@ -24,7 +24,7 @@ trait ScalaFmtTestBase extends AbstractScalaFormatterTestBase {
 
 object ScalaFmtTestBase {
   // using val to emulate java static initializer
-  val initDefaultScalafmtVersion: Unit = synchronized {
+  val initDefaultScalafmtVersion: Unit = {
     val log: Any => Unit = println
     val downloadingMessage = s"Downloading default scalafmt version ${ScalafmtDynamicUtil.DefaultVersion}"
     log(s"[START] $downloadingMessage")

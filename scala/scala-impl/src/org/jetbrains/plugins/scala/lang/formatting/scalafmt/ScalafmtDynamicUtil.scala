@@ -1,23 +1,19 @@
 package org.jetbrains.plugins.scala.lang.formatting.scalafmt
 
-import java.io.{PipedInputStream, PipedOutputStream, PrintWriter}
 import java.net.URL
-import java.util.Scanner
 
 import com.intellij.notification.{Notification, NotificationAction}
 import com.intellij.openapi.actionSystem.AnActionEvent
 import com.intellij.openapi.diagnostic.Logger
 import com.intellij.openapi.progress.{ProgressIndicator, ProgressManager, Task}
-import org.jetbrains.plugins.scala.extensions._
-import org.jetbrains.plugins.scala.lang.formatting.scalafmt.ScalafmtDynamicUtil.DownloadProgressListener.NoopProgressListener
 import org.jetbrains.plugins.scala.lang.formatting.scalafmt.ScalafmtDynamicUtil.ScalafmtResolveError.DownloadError
+import org.jetbrains.plugins.scala.lang.formatting.scalafmt.dynamic.ScalafmtDynamicDownloader.DownloadProgressListener._
 import org.jetbrains.plugins.scala.lang.formatting.scalafmt.dynamic.ScalafmtDynamicDownloader._
 import org.jetbrains.plugins.scala.lang.formatting.scalafmt.dynamic.{ScalafmtDynamicDownloader, ScalafmtReflect}
 import org.jetbrains.plugins.scala.project.ProjectContext
 import org.jetbrains.plugins.scala.util.ScalaCollectionsUtil
 
 import scala.collection.mutable
-import scala.concurrent.duration.DurationInt
 import scala.reflect.internal.util.ScalaClassLoader.URLClassLoader
 import scala.util.Try
 
@@ -58,13 +54,10 @@ object ScalafmtDynamicUtil {
 
   private def downloadAndResolve(version: ScalafmtVersion,
                                  listener: DownloadProgressListener = NoopProgressListener): ResolveResult = {
-    using(progressListenerWriter(listener)) { progressWriter =>
-      val ttl = 10.minutes
-      val downloader = new ScalafmtDynamicDownloader(progressWriter, ttl = Some(ttl))
-      downloader.download(version)
-        .left.map(DownloadError)
-        .flatMap(resolveClassPath)
-    }
+    val downloader = new ScalafmtDynamicDownloader(listener)
+    downloader.download(version)
+      .left.map(DownloadError)
+      .flatMap(resolveClassPath)
   }
 
   private def resolveClassPath(downloadSuccess: DownloadSuccess): ResolveResult = {
@@ -87,22 +80,20 @@ object ScalafmtDynamicUtil {
   private def reportResolveError(error: ScalafmtResolveError): Unit = {
     import ScalafmtNotifications._
 
-    val baseMessage = s"Can not resolve scalafmt version `${error.version}`"
+    val baseMessage = s"Can not resolve scalafmt version `${error.version}`<br>"
     error match {
       case ScalafmtResolveError.NotFound(version) =>
         val message = s"Scalafmt version `$version` is not downloaded yet<br>Would you like to to download it?"
         displayWarning(message, Seq(new DownloadScalafmtNotificationActon(version)))
       case ScalafmtResolveError.DownloadInProgress(_) =>
-        val errorMessage = s"$baseMessage: download is in progress"
+        val errorMessage = s"$baseMessage download is in progress"
         displayError(errorMessage)
       case DownloadError(failure) =>
-        if (failure.isInstanceOf[DownloadUnknownError])
-          Log.error(failure.cause)
-        val errorMessage = s"$baseMessage: an error occurred during downloading:\n${failure.cause.getMessage}"
+        val errorMessage = s"$baseMessage an error occurred during downloading:<br>${failure.cause.getMessage}"
         displayError(errorMessage)
       case ScalafmtResolveError.CorruptedClassPath(_, _, cause) =>
         Log.error(cause)
-        displayError(s"$baseMessage: classpath is corrupted")
+        displayError(s"$baseMessage classpath is corrupted")
       case ScalafmtResolveError.UnknownError(_, cause) =>
         Log.error(cause)
         displayError(s"$baseMessage unknown error:<br>${cause.getMessage}")
@@ -151,25 +142,6 @@ object ScalafmtDynamicUtil {
     }
   }
 
-  // For now `ScalafmtDynamicDownloader` and underlying `coursiersmall` library only support PrintWriter for progress
-  // updates so we need to wrap listener into writer. Also we can't extract progress percentage for now
-  private def progressListenerWriter(listener: DownloadProgressListener): PrintWriter = {
-    val in = new PipedInputStream
-    val out = new PipedOutputStream(in)
-
-    executeOnPooledThread {
-      using(in, out) { (_, _) =>
-        val scanner = new Scanner(in)
-        while (scanner.hasNextLine) {
-          val message = scanner.nextLine()
-          listener.progressUpdate(message)
-        }
-      }
-    }
-
-    new PrintWriter(out)
-  }
-
   private sealed trait ResolveStatus
   private object ResolveStatus {
     object DownloadInProgress extends ResolveStatus
@@ -188,13 +160,5 @@ object ScalafmtDynamicUtil {
     }
     case class CorruptedClassPath(version: ScalafmtVersion, urls: Seq[URL], cause: Throwable) extends ScalafmtResolveError
     case class UnknownError(version: ScalafmtVersion, cause: Throwable) extends ScalafmtResolveError
-  }
-
-  abstract class DownloadProgressListener {
-    def progressUpdate(message: String): Unit
-  }
-
-  object DownloadProgressListener {
-    val NoopProgressListener: DownloadProgressListener = _ => {}
   }
 }
