@@ -50,7 +50,7 @@ object ScStubElementType {
     case _: FileElement | null => false
     case _ =>
       node.getElementType match {
-        case ScalaElementType.NEW_TEMPLATE => false
+        case _: ScTemplateDefinitionElementType[_] => false
         case _: ScExpressionElementType | _: ScCodeBlockElementType => true
         case _ => isLocal(node.getTreeParent)
       }

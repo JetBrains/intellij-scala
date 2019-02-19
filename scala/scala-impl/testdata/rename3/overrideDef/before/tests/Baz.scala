@@ -17,6 +17,12 @@ class Baz4 extends Baz {
 }
 
 object Test {
+  def foo(): Unit = {
+    class Baz5 extends Baz {
+      override def baz/*caret*/(): Int = 5
+    }
+  }
+
   Baz2.baz/*caret*/
   Baz3.baz/*caret*/
   Baz3.baz/*caret*/_=(3)

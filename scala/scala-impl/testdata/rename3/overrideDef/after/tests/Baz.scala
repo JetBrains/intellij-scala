@@ -17,6 +17,12 @@ class Baz4 extends Baz {
 }
 
 object Test {
+  def foo(): Unit = {
+    class Baz5 extends Baz {
+      override def NameAfterRename(): Int = 5
+    }
+  }
+
   Baz2.NameAfterRename
   Baz3.NameAfterRename
   Baz3.NameAfterRename_=(3)
