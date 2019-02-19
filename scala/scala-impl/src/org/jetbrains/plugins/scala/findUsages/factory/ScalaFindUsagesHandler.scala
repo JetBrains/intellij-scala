@@ -11,7 +11,7 @@ import com.intellij.psi.search.searches.ClassInheritorsSearch
 import com.intellij.usageView.UsageInfo
 import com.intellij.util.Processor
 import org.jetbrains.plugins.scala.extensions._
-import org.jetbrains.plugins.scala.findUsages.compilerReferences.search.ImplicitReferencesSearch
+import org.jetbrains.plugins.scala.findUsages.compilerReferences.search.CompilerIndicesReferencesSearch
 import org.jetbrains.plugins.scala.lang.psi.ScalaPsiUtil._
 import org.jetbrains.plugins.scala.lang.psi.api.PropertyMethods._
 import org.jetbrains.plugins.scala.lang.psi.api.statements._
@@ -161,7 +161,7 @@ class ScalaFindUsagesHandler(element: PsiElement, factory: ScalaFindUsagesHandle
       element match {
         case ImplicitSearchTarget(target) =>
           val success =
-            ImplicitReferencesSearch.search(target).forEach((e: PsiReference) => processor.process(new UsageInfo(e)))
+            CompilerIndicesReferencesSearch.search(target).forEach((e: PsiReference) => processor.process(new UsageInfo(e)))
           if (!success) return false
         case _ => ()
       }

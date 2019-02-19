@@ -2,12 +2,12 @@ package org.jetbrains.plugins.scala.findUsages.compilerReferences.settings;
 
 import com.intellij.openapi.project.Project;
 import com.intellij.openapi.ui.Messages;
+import com.intellij.ui.components.JBCheckBox;
 import com.intellij.ui.components.JBLabel;
 import com.intellij.uiDesigner.core.GridConstraints;
 import com.intellij.uiDesigner.core.GridLayoutManager;
 import com.intellij.uiDesigner.core.Spacer;
 import com.intellij.util.ui.UIUtil;
-import org.jetbrains.plugins.scala.findUsages.compilerReferences.settings.CompilerIndicesSettings;
 import org.jetbrains.plugins.scala.findUsages.compilerReferences.ScalaCompilerReferenceService$;
 
 import javax.swing.*;
@@ -18,6 +18,10 @@ public class CompilerIndicesSettingsForm {
   private JCheckBox enableIndexingCB;
   private JButton invalidateButton;
   JPanel mainPanel;
+  private JBCheckBox implicitDefinitionsCB;
+  private JBCheckBox applyMethodCB;
+  private JBCheckBox samTypesCB;
+  private JBCheckBox forCompMethodCB;
   private final Project myProject;
 
   private static final String promptText =
@@ -27,7 +31,10 @@ public class CompilerIndicesSettingsForm {
   public CompilerIndicesSettingsForm(Project project) {
     this.myProject = project;
     invalidateButton.addActionListener(e -> {
-      final int confirmation = Messages.showOkCancelDialog(project, promptText, "Invalidate Compiler Indices", Messages.getQuestionIcon());
+      final int confirmation = Messages.showOkCancelDialog(
+              project, promptText, "Invalidate Compiler Indices",
+              "Invalidate", Messages.CANCEL_BUTTON, Messages.getQuestionIcon()
+      );
       if (confirmation == Messages.OK) invalidateIndices();
     });
   }
@@ -37,15 +44,23 @@ public class CompilerIndicesSettingsForm {
   }
 
   boolean isModified(CompilerIndicesSettings settings) {
-    return settings.indexingEnabled() != enableIndexingCB.isSelected();
+    return settings.isIndexingEnabled() != enableIndexingCB.isSelected();
   }
 
   void applyTo(CompilerIndicesSettings settings) {
-    settings.indexingEnabled_$eq(enableIndexingCB.isSelected());
+    settings.setIndexingEnabled(enableIndexingCB.isSelected());
+    settings.setEnabledForImplicitDefs(implicitDefinitionsCB.isSelected());
+    settings.setEnabledForApplyUnapply(applyMethodCB.isSelected());
+    settings.setEnabledForSAMTypes(samTypesCB.isSelected());
+    settings.setEnabledForForCompMethods(forCompMethodCB.isSelected());
   }
 
   void from(CompilerIndicesSettings settings) {
-    enableIndexingCB.setSelected(settings.indexingEnabled());
+    enableIndexingCB.setSelected(settings.isIndexingEnabled());
+    implicitDefinitionsCB.setSelected(settings.isEnabledForImplicitDefs());
+    applyMethodCB.setSelected(settings.isEnabledForApplyUnapply());
+    samTypesCB.setSelected(settings.isEnabledForSAMTypes());
+    forCompMethodCB.setSelected(settings.isEnabledForForCompMethods());
   }
 
   {
@@ -64,7 +79,7 @@ public class CompilerIndicesSettingsForm {
    */
   private void $$$setupUI$$$() {
     mainPanel = new JPanel();
-    mainPanel.setLayout(new GridLayoutManager(4, 1, new Insets(0, 0, 0, 0), -1, -1));
+    mainPanel.setLayout(new GridLayoutManager(5, 1, new Insets(0, 0, 0, 0), -1, -1));
     final JPanel panel1 = new JPanel();
     panel1.setLayout(new GridLayoutManager(1, 1, new Insets(2, 0, 0, 0), -1, -1));
     mainPanel.add(panel1, new GridConstraints(0, 0, 1, 1, GridConstraints.ANCHOR_CENTER, GridConstraints.FILL_BOTH, GridConstraints.SIZEPOLICY_CAN_SHRINK | GridConstraints.SIZEPOLICY_CAN_GROW, GridConstraints.SIZEPOLICY_CAN_SHRINK | GridConstraints.SIZEPOLICY_CAN_GROW, null, null, null, 0, false));
@@ -79,7 +94,7 @@ public class CompilerIndicesSettingsForm {
     mainPanel.add(jBLabel1, new GridConstraints(1, 0, 1, 1, GridConstraints.ANCHOR_WEST, GridConstraints.FILL_NONE, GridConstraints.SIZEPOLICY_FIXED, GridConstraints.SIZEPOLICY_FIXED, null, null, null, 3, false));
     final JPanel panel2 = new JPanel();
     panel2.setLayout(new GridLayoutManager(1, 3, new Insets(4, 0, 0, 0), -1, -1));
-    mainPanel.add(panel2, new GridConstraints(2, 0, 1, 1, GridConstraints.ANCHOR_CENTER, GridConstraints.FILL_BOTH, GridConstraints.SIZEPOLICY_CAN_SHRINK | GridConstraints.SIZEPOLICY_CAN_GROW, GridConstraints.SIZEPOLICY_CAN_SHRINK | GridConstraints.SIZEPOLICY_CAN_GROW, null, null, null, 0, false));
+    mainPanel.add(panel2, new GridConstraints(4, 0, 1, 1, GridConstraints.ANCHOR_CENTER, GridConstraints.FILL_BOTH, GridConstraints.SIZEPOLICY_CAN_SHRINK | GridConstraints.SIZEPOLICY_CAN_GROW, GridConstraints.SIZEPOLICY_CAN_SHRINK | GridConstraints.SIZEPOLICY_CAN_GROW, null, null, null, 0, false));
     final JLabel label1 = new JLabel();
     this.$$$loadLabelText$$$(label1, ResourceBundle.getBundle("org/jetbrains/plugins/scala/ScalaBundle").getString("scala.compiler.indices.settings.invalidate.label"));
     panel2.add(label1, new GridConstraints(0, 0, 1, 1, GridConstraints.ANCHOR_WEST, GridConstraints.FILL_NONE, GridConstraints.SIZEPOLICY_FIXED, GridConstraints.SIZEPOLICY_FIXED, null, null, null, 0, false));
@@ -88,6 +103,26 @@ public class CompilerIndicesSettingsForm {
     panel2.add(invalidateButton, new GridConstraints(0, 1, 1, 1, GridConstraints.ANCHOR_CENTER, GridConstraints.FILL_HORIZONTAL, GridConstraints.SIZEPOLICY_CAN_SHRINK | GridConstraints.SIZEPOLICY_CAN_GROW, GridConstraints.SIZEPOLICY_FIXED, null, null, null, 0, false));
     final Spacer spacer1 = new Spacer();
     panel2.add(spacer1, new GridConstraints(0, 2, 1, 1, GridConstraints.ANCHOR_CENTER, GridConstraints.FILL_HORIZONTAL, GridConstraints.SIZEPOLICY_WANT_GROW, 1, null, null, null, 0, false));
+    final JPanel panel3 = new JPanel();
+    panel3.setLayout(new GridLayoutManager(4, 1, new Insets(0, 0, 0, 0), -1, -1));
+    mainPanel.add(panel3, new GridConstraints(2, 0, 1, 1, GridConstraints.ANCHOR_CENTER, GridConstraints.FILL_BOTH, GridConstraints.SIZEPOLICY_CAN_SHRINK | GridConstraints.SIZEPOLICY_CAN_GROW, GridConstraints.SIZEPOLICY_CAN_SHRINK | GridConstraints.SIZEPOLICY_CAN_GROW, null, null, null, 0, false));
+    panel3.setBorder(BorderFactory.createTitledBorder("Use Compiler Indices For"));
+    implicitDefinitionsCB = new JBCheckBox();
+    implicitDefinitionsCB.setSelected(true);
+    implicitDefinitionsCB.setText("Implicit definitions");
+    panel3.add(implicitDefinitionsCB, new GridConstraints(0, 0, 1, 1, GridConstraints.ANCHOR_WEST, GridConstraints.FILL_NONE, GridConstraints.SIZEPOLICY_CAN_SHRINK | GridConstraints.SIZEPOLICY_CAN_GROW, GridConstraints.SIZEPOLICY_CAN_SHRINK | GridConstraints.SIZEPOLICY_CAN_GROW, null, null, null, 0, false));
+    applyMethodCB = new JBCheckBox();
+    applyMethodCB.setSelected(true);
+    applyMethodCB.setText("Instance apply/unapply methods");
+    panel3.add(applyMethodCB, new GridConstraints(1, 0, 1, 1, GridConstraints.ANCHOR_WEST, GridConstraints.FILL_NONE, GridConstraints.SIZEPOLICY_CAN_SHRINK | GridConstraints.SIZEPOLICY_CAN_GROW, GridConstraints.SIZEPOLICY_CAN_SHRINK | GridConstraints.SIZEPOLICY_CAN_GROW, null, null, null, 0, false));
+    samTypesCB = new JBCheckBox();
+    samTypesCB.setSelected(true);
+    samTypesCB.setText("SAM types");
+    panel3.add(samTypesCB, new GridConstraints(2, 0, 1, 1, GridConstraints.ANCHOR_WEST, GridConstraints.FILL_NONE, GridConstraints.SIZEPOLICY_CAN_SHRINK | GridConstraints.SIZEPOLICY_CAN_GROW, GridConstraints.SIZEPOLICY_CAN_SHRINK | GridConstraints.SIZEPOLICY_CAN_GROW, null, null, null, 0, false));
+    forCompMethodCB = new JBCheckBox();
+    forCompMethodCB.setSelected(true);
+    forCompMethodCB.setText("For-comprehension methods (map/flatMap/withFilter)");
+    panel3.add(forCompMethodCB, new GridConstraints(3, 0, 1, 1, GridConstraints.ANCHOR_WEST, GridConstraints.FILL_NONE, GridConstraints.SIZEPOLICY_CAN_SHRINK | GridConstraints.SIZEPOLICY_CAN_GROW, GridConstraints.SIZEPOLICY_CAN_SHRINK | GridConstraints.SIZEPOLICY_CAN_GROW, null, null, null, 0, false));
     final Spacer spacer2 = new Spacer();
     mainPanel.add(spacer2, new GridConstraints(3, 0, 1, 1, GridConstraints.ANCHOR_CENTER, GridConstraints.FILL_VERTICAL, 1, GridConstraints.SIZEPOLICY_WANT_GROW, null, null, null, 0, false));
   }

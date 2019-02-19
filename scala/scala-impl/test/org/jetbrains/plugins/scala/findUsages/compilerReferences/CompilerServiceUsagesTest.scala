@@ -237,4 +237,16 @@ class CompilerServiceUsagesTest extends ScalaCompilerReferenceServiceFixture {
     val usages   = service.usagesOf(implicitSearchTargetAtCaret)
     assertTrue(s"Should not find any usages in synthetic methods: $usages.", usages.isEmpty)
   }
+
+  def testInstanceApplyUnapply(): Unit = {
+
+  }
+
+  def testForCompMethods(): Unit = {
+
+  }
+
+  def testSAM(): Unit = {
+
+  }
 }

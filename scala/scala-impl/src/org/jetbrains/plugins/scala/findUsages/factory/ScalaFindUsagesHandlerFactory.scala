@@ -6,7 +6,7 @@ import com.intellij.openapi.ui.Messages
 import com.intellij.psi.{PsiElement, PsiNamedElement}
 import com.intellij.util.containers.ContainerUtil
 import org.jetbrains.plugins.scala.ScalaBundle
-import org.jetbrains.plugins.scala.findUsages.compilerReferences.search.ImplicitMemberUsageSearcher._
+import org.jetbrains.plugins.scala.findUsages.compilerReferences.search.CompilerIndicesReferencesSearcher._
 import org.jetbrains.plugins.scala.lang.psi.api.base.ScPrimaryConstructor
 import org.jetbrains.plugins.scala.lang.psi.api.statements.ScFunction
 import org.jetbrains.plugins.scala.lang.psi.api.statements.params.ScTypeParam
@@ -18,6 +18,8 @@ import org.jetbrains.plugins.scala.lang.psi.types.api.FunctionType
 import org.jetbrains.plugins.scala.lang.refactoring.rename.RenameSuperMembersUtil
 import org.jetbrains.plugins.scala.util.ImplicitUtil._
 import org.jetbrains.plugins.scala.extensions._
+import org.jetbrains.plugins.scala.findUsages.compilerReferences.SearchTargetExtractors.ShouldBeSearchedInBytecode
+import org.jetbrains.plugins.scala.findUsages.compilerReferences.settings.CompilerIndicesSettings
 
 /**
  * User: Alexander Podkhalyuzin
@@ -50,10 +52,12 @@ class ScalaFindUsagesHandlerFactory(project: Project) extends FindUsagesHandlerF
 
     val replaced =
       if (!forHighlightUsages) {
-        val maybeSuper = suggestChooseSuper(unwrapped)
+        val maybeSuper            = suggestChooseSuper(unwrapped)
+        val settings              = CompilerIndicesSettings(project)
+        val shouldSearchInBytecode = new ShouldBeSearchedInBytecode(settings)
         maybeSuper.flatMap {
-          case ImplicitSearchTarget(target) =>
-            val shouldProceed = doBeforeImplicitSearchAction(target)
+          case shouldSearchInBytecode(target) =>
+            val shouldProceed = doBeforeIndicesSearchAction(target)
             shouldProceed.option((target, true))
           case other => (other, false).toOption
         }
@@ -67,7 +71,7 @@ class ScalaFindUsagesHandlerFactory(project: Project) extends FindUsagesHandlerF
     }
   }
 
-  private[this] def doBeforeImplicitSearchAction(target: PsiNamedElement): Boolean =
+  private[this] def doBeforeIndicesSearchAction(target: PsiNamedElement): Boolean =
     assertSearchScopeIsSufficient(target).forall(_.runAction())
 
   private[this] def suggestChooseSuper(e: PsiElement): Option[PsiNamedElement] = {

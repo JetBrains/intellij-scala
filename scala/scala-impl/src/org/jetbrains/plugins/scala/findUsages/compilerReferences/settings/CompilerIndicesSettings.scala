@@ -2,33 +2,34 @@ package org.jetbrains.plugins.scala.findUsages.compilerReferences.settings
 
 import com.intellij.openapi.components.{PersistentStateComponent, ServiceManager, State, Storage}
 import com.intellij.openapi.project.Project
+import com.intellij.util.xmlb.XmlSerializerUtil
 import org.jetbrains.plugins.scala.findUsages.compilerReferences.ScalaCompilerReferenceService
 
-import scala.beans.BeanProperty
+import scala.beans.BooleanBeanProperty
 
 @State(
   name     = "CompilerIndicesSettings",
   storages = Array(new Storage("compiler_indices.xml"))
 )
-class CompilerIndicesSettings(project: Project) extends PersistentStateComponent[CompilerIndicesSettings.State] {
-  private[this] var state = new CompilerIndicesSettings.State()
+class CompilerIndicesSettings(project: Project) extends PersistentStateComponent[CompilerIndicesSettings] {
+  private[this] var indexingEnabled: Boolean                 = true
+  @BooleanBeanProperty var enabledForImplicitDefs: Boolean   = true
+  @BooleanBeanProperty var enabledForApplyUnapply: Boolean   = true
+  @BooleanBeanProperty var enabledForSAMTypes: Boolean       = true
+  @BooleanBeanProperty var enabledForForCompMethods: Boolean = true
 
-  def indexingEnabled: Boolean = state.indexingEnabled
+  def isIndexingEnabled: Boolean = indexingEnabled
 
-  def indexingEnabled_=(enabled: Boolean): Unit = {
-    if (state.indexingEnabled != enabled) ScalaCompilerReferenceService(project).invalidateIndex()
-    state.indexingEnabled = enabled
+  def setIndexingEnabled(v: Boolean): Unit = {
+    if (indexingEnabled != v) ScalaCompilerReferenceService(project).invalidateIndex()
+    indexingEnabled = v
   }
 
-  override def getState: CompilerIndicesSettings.State               = state
-  override def loadState(state: CompilerIndicesSettings.State): Unit = this.state = state
+  override def getState: CompilerIndicesSettings               = this
+  override def loadState(state: CompilerIndicesSettings): Unit = XmlSerializerUtil.copyBean(state, this)
 }
 
 object CompilerIndicesSettings {
-  class State {
-    @BeanProperty var indexingEnabled: Boolean = true
-  }
-
   def apply(project: Project): CompilerIndicesSettings =
     ServiceManager.getService(project, classOf[CompilerIndicesSettings])
 }
