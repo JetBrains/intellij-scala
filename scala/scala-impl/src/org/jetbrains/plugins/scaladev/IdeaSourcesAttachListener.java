@@ -44,8 +44,6 @@ public class IdeaSourcesAttachListener extends ExternalSystemTaskNotificationLis
         if (project == null) return;
 
         Application application = ApplicationManager.getApplication();
-        if (!application.isInternal()) return;
-
         Runnable activity = doAttach(application, project, 0);
         application.invokeLater(activity);
 
