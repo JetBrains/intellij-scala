@@ -8,12 +8,12 @@ import com.intellij.psi._
 import com.intellij.psi.codeStyle.CodeStyleManager
 import com.intellij.psi.impl.source.codeStyle.CodeEditUtil
 import com.intellij.psi.scope._
-import com.intellij.psi.stubs.StubElement
+import org.jetbrains.plugins.scala.JavaArrayFactoryUtil.ScImportStmtFactory
 import org.jetbrains.plugins.scala.editor.importOptimizer._
 import org.jetbrains.plugins.scala.extensions.{PsiElementExt, _}
 import org.jetbrains.plugins.scala.lang.formatting.settings.ScalaCodeStyleSettings
 import org.jetbrains.plugins.scala.lang.lexer.ScalaTokenTypes
-import org.jetbrains.plugins.scala.lang.parser.ScalaElementType
+import org.jetbrains.plugins.scala.lang.parser.ScalaElementType.IMPORT_STMT
 import org.jetbrains.plugins.scala.lang.psi.api.base.ScReference
 import org.jetbrains.plugins.scala.lang.psi.api.base.patterns.ScReferencePattern
 import org.jetbrains.plugins.scala.lang.psi.api.expr.ScBlockStatement
@@ -24,7 +24,7 @@ import org.jetbrains.plugins.scala.lang.psi.api.toplevel.imports.{ScImportExpr, 
 import org.jetbrains.plugins.scala.lang.psi.api.toplevel.typedef.ScObject
 import org.jetbrains.plugins.scala.lang.psi.api.{ScalaFile, ScalaPsiElement}
 import org.jetbrains.plugins.scala.lang.psi.impl.ScalaPsiElementFactory._
-import org.jetbrains.plugins.scala.lang.psi.impl.{ScalaPsiElementFactory, ScalaStubBasedElementImpl}
+import org.jetbrains.plugins.scala.lang.psi.impl.{ScalaFileImpl, ScalaPsiElementFactory, ScalaStubBasedElementImpl}
 import org.jetbrains.plugins.scala.lang.psi.types.api.designator.ScDesignatorType
 import org.jetbrains.plugins.scala.lang.refactoring.util.ScalaNamesUtil
 import org.jetbrains.plugins.scala.lang.resolve.ScalaResolveResult
@@ -35,15 +35,15 @@ import scala.collection.mutable.ArrayBuffer
 trait ScImportsHolder extends ScalaPsiElement {
 
   def getImportStatements: Seq[ScImportStmt] = {
-    this match {
-      case s: ScalaStubBasedElementImpl[_, _] =>
-        val stub: StubElement[_] = s.getStub
-        if (stub != null) {
-          return stub.getChildrenByType(ScalaElementType.IMPORT_STMT, JavaArrayFactoryUtil.ScImportStmtFactory).toSeq
-        }
-      case _ =>
+    val stub =  this match {
+      case s: ScalaStubBasedElementImpl[_, _] => s.getGreenStub
+      case f: ScalaFileImpl => f.getStub
+      case _ => null
     }
-    findChildrenByClassScala(classOf[ScImportStmt]).toSeq
+    if (stub != null)
+      stub.getChildrenByType(IMPORT_STMT, ScImportStmtFactory)
+    else
+      findChildrenByClassScala(classOf[ScImportStmt]).toSeq
   }
 
   override def processDeclarations(processor: PsiScopeProcessor,
