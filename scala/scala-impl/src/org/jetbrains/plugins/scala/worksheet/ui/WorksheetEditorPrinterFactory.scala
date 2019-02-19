@@ -219,6 +219,10 @@ object WorksheetEditorPrinterFactory {
     val editorComponent = editor.getComponent
     val editorContentComponent = editor.getContentComponent
 
+    val viewerSettings = rightSideEditor.getSettings
+    viewerSettings.setLineMarkerAreaShown(false)
+    viewerSettings.setLineNumbersShown(false)
+
     val worksheetViewer = rightSideEditor.asInstanceOf[EditorImpl]
 
     val prop = if (editorComponent.getComponentCount > 0) editorComponent.getComponent(0) match {
