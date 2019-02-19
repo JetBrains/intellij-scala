@@ -16,6 +16,7 @@ import org.jetbrains.plugins.scala.lang.psi.types.api.FunctionType
 import org.jetbrains.plugins.scala.lang.psi.types.nonvalue.{ScMethodType, ScTypePolymorphicType}
 import org.jetbrains.plugins.scala.lang.psi.types.result._
 import org.jetbrains.plugins.scala.lang.resolve.ScalaResolveResult
+import org.jetbrains.plugins.scala.util.SAMUtil
 
 /**
  * @author Alexander Podkhalyuzin, ilyas
@@ -91,7 +92,7 @@ class ScUnderscoreSectionImpl(node: ASTNode) extends ScExpressionImplBase(node) 
               tp.removeAbstracts match {
                 case FunctionType(_, params) if params.length >= unders.length => processFunctionType(params)
                 case any if this.isSAMEnabled =>
-                  ScalaPsiUtil.toSAMType(any, this) match {
+                  SAMUtil.toSAMType(any, this) match {
                     case Some(FunctionType(_, params)) if params.length >= unders.length =>
                       processFunctionType(params)
                     case _ =>

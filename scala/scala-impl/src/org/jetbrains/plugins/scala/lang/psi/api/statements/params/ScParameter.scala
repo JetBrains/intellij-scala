@@ -19,6 +19,7 @@ import org.jetbrains.plugins.scala.lang.psi.types.api.FunctionType
 import org.jetbrains.plugins.scala.lang.psi.types.result._
 import org.jetbrains.plugins.scala.lang.psi.types.{ScType, ScTypeExt}
 import org.jetbrains.plugins.scala.macroAnnotations.{Cached, ModCount}
+import org.jetbrains.plugins.scala.util.SAMUtil
 
 import scala.annotation.tailrec
 
@@ -116,7 +117,7 @@ trait ScParameter extends ScTypedDefinition with ScModifierListOwner
                 } else result = Some(params(i))
               case any if f.isSAMEnabled =>
                 //infer type if it's a Single Abstract Method
-                ScalaPsiUtil.toSAMType(any, f) match {
+                SAMUtil.toSAMType(any, f) match {
                   case Some(FunctionType(_, params)) =>
                     val i = clause.parameters.indexOf(this)
                     if (i < params.length) result = Some(params(i))

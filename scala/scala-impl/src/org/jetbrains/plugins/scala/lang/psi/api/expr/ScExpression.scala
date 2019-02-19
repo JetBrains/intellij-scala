@@ -27,6 +27,7 @@ import org.jetbrains.plugins.scala.lang.resolve.ScalaResolveResult
 import org.jetbrains.plugins.scala.macroAnnotations.{Cached, CachedWithRecursionGuard, ModCount}
 import org.jetbrains.plugins.scala.project.ProjectPsiElementExt
 import org.jetbrains.plugins.scala.project.ScalaLanguageLevel.Scala_2_11
+import org.jetbrains.plugins.scala.util.SAMUtil
 
 import scala.annotation.tailrec
 import scala.collection.mutable
@@ -499,7 +500,7 @@ object ScExpression {
 
         tp match {
           case FunctionType(_, params) if expr.isSAMEnabled =>
-            ScalaPsiUtil.toSAMType(expected, expr) match {
+            SAMUtil.toSAMType(expected, expr) match {
               case Some(methodType) if tp.conforms(methodType) => expectedResult
               case Some(methodType@FunctionType(retTp, _)) if etaExpansionHappened && retTp.equiv(Unit) =>
                 val newTp = FunctionType(Unit, params)
@@ -576,7 +577,7 @@ object ScExpression {
         case FunctionType(_, _) => false
         case expect if expr.isSAMEnabled =>
           val languageLevel = expr.scalaLanguageLevelOrDefault
-          languageLevel != Scala_2_11 || ScalaPsiUtil.toSAMType(expect, expr).isEmpty
+          languageLevel != Scala_2_11 || SAMUtil.toSAMType(expect, expr).isEmpty
         case _ => true
       }
 

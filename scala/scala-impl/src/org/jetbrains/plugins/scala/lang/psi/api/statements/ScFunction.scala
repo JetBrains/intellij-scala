@@ -542,6 +542,8 @@ object ScFunction {
 
     def isUnapplyMethod: Boolean = Unapplies(function.name)
 
+    def isForComprehensionMethod: Boolean = ForComprehensions(function.name)
+
     /** Is this function sometimes invoked without it's name appearing at the call site? */
     def isSpecial: Boolean = Special(function.name)
 

@@ -21,7 +21,7 @@ import org.jetbrains.plugins.scala.lang.psi.api.toplevel.ScNamedElement
 import org.jetbrains.plugins.scala.lang.psi.api.toplevel.typedef.{ScMember, ScTrait}
 import org.jetbrains.plugins.scala.lang.psi.impl.search.ScalaOverridingMemberSearcher
 import org.jetbrains.plugins.scala.lang.psi.types.Signature
-import org.jetbrains.plugins.scala.util.SAMUtil
+import org.jetbrains.plugins.scala.util.SAMUtil._
 
 /**
  * User: Alexander Podkhalyuzin
@@ -204,7 +204,7 @@ object ScalaMarkerType {
 
   def samTypeImplementation(aClass: PsiClass): ScalaMarkerType = ScalaMarkerType(
     _ => ScalaBundle.message("implements.method.from.super", aClass.qualifiedName),
-    (event, _) => SAMUtil.singleAbstractMethodOf(aClass).foreach(navigateToSuperMethod(event, _, includeSelf = true))
+    (event, _) => aClass.singleAbstractMethod.foreach(navigateToSuperMethod(event, _, includeSelf = true))
   )
 
   class ScCellRenderer extends PsiElementListCellRenderer[PsiElement] {

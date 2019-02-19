@@ -9,8 +9,8 @@ import com.intellij.openapi.diagnostic.Logger
 import com.intellij.openapi.module.Module
 import com.intellij.openapi.project.Project
 import com.intellij.openapi.roots.{ProjectFileIndex, ProjectRootManager}
+import com.intellij.openapi.util.TextRange
 import com.intellij.openapi.util.text.StringUtil
-import com.intellij.openapi.util.{Pair, TextRange}
 import com.intellij.psi._
 import com.intellij.psi.impl.light.LightModifierList
 import com.intellij.psi.scope.PsiScopeProcessor
@@ -38,7 +38,7 @@ import org.jetbrains.plugins.scala.lang.psi.api.toplevel.{ScPackaging, _}
 import org.jetbrains.plugins.scala.lang.psi.api.{ScPackageLike, ScalaFile, ScalaPsiElement, ScalaRecursiveElementVisitor}
 import org.jetbrains.plugins.scala.lang.psi.impl.ScalaPsiElementFactory._
 import org.jetbrains.plugins.scala.lang.psi.impl.expr.ApplyOrUpdateInvocation
-import org.jetbrains.plugins.scala.lang.psi.impl.toplevel.typedef.{SignatureStrategy, TypeDefinitionMembers}
+import org.jetbrains.plugins.scala.lang.psi.impl.toplevel.typedef.TypeDefinitionMembers
 import org.jetbrains.plugins.scala.lang.psi.impl.{ScPackageImpl, ScalaPsiManager}
 import org.jetbrains.plugins.scala.lang.psi.types.Compatibility.Expression
 import org.jetbrains.plugins.scala.lang.psi.types._
@@ -49,11 +49,11 @@ import org.jetbrains.plugins.scala.lang.psi.types.result._
 import org.jetbrains.plugins.scala.lang.resolve.ScalaResolveResult
 import org.jetbrains.plugins.scala.lang.resolve.processor._
 import org.jetbrains.plugins.scala.lang.structureView.ScalaElementPresentation
-import org.jetbrains.plugins.scala.project.{ProjectContext, ProjectPsiElementExt, ScalaLanguageLevel}
-import org.jetbrains.plugins.scala.util.ScEquivalenceUtil
+import org.jetbrains.plugins.scala.project.{ProjectContext, ProjectPsiElementExt}
+import org.jetbrains.plugins.scala.util.{SAMUtil, ScEquivalenceUtil}
 
 import scala.annotation.tailrec
-import scala.collection.{JavaConverters, Seq, Set, mutable}
+import scala.collection.{Seq, Set, mutable}
 
 /**
   * User: Alexander Podkhalyuzin
@@ -1083,7 +1083,7 @@ object ScalaPsiUtil {
       if (!expr.expectedType(fromUnderscore = false).exists {
         case FunctionType(_, _) => true
         case expected if expr.isSAMEnabled =>
-          toSAMType(expected, expr).isDefined
+          SAMUtil.toSAMType(expected, expr).isDefined
         case _ => false
       }) {
         return None
@@ -1357,173 +1357,6 @@ object ScalaPsiUtil {
           modifierList.addBefore(newElem, mod)
           modifierList.addBefore(createWhitespace, mod)
         }
-    }
-  }
-
-  /**
-    * Determines if expected can be created with a Single Abstract Method and if so return the required ScType for it
-    *
-    * @see SCL-6140
-    * @see https://github.com/scala/scala/pull/3018/
-    */
-  def toSAMType(expected: ScType, element: PsiElement): Option[ScType] = {
-    implicit val scalaScope: ElementScope = ElementScope(element)
-    val languageLevel = element.scalaLanguageLevelOrDefault
-
-    def constructorValidForSAM(constructor: PsiMethod): Boolean = {
-      val isPublicAndParameterless = constructor.getModifierList.hasModifierProperty(PsiModifier.PUBLIC) &&
-        constructor.getParameterList.getParametersCount == 0
-      constructor match {
-        case scalaConstr: ScPrimaryConstructor if isPublicAndParameterless => scalaConstr.effectiveParameterClauses.size < 2
-        case _ => isPublicAndParameterless
-      }
-    }
-
-    def isSAMable(td: ScTemplateDefinition): Boolean = {
-      def selfTypeValid: Boolean = {
-        td.selfType match {
-          case Some(selfParam: ScParameterizedType) => td.`type`() match {
-            case Right(classParamTp: ScParameterizedType) => selfParam.designator.conforms(classParamTp.designator)
-            case _ => false
-          }
-          case Some(selfTp) => td.`type`() match {
-            case Right(classType) => selfTp.conforms(classType)
-            case _ => false
-          }
-          case _ => true
-        }
-      }
-      def selfTypeCorrectIfScala212 = languageLevel == ScalaLanguageLevel.Scala_2_11 || selfTypeValid
-
-      def validConstructor: Boolean = {
-        td match {
-          case cla: ScClass => cla.constructor.fold(false)(constructorValidForSAM)
-          case _: ScTrait => true
-          case _ => false
-        }
-      }
-
-      if (td.isEffectivelyFinal || td.hasModifierPropertyScala("sealed")) false
-      else validConstructor && selfTypeCorrectIfScala212
-    }
-
-    expected.extractClassType.flatMap {
-      case (templDef: ScTemplateDefinition, typeSubst) =>
-        if (!isSAMable(templDef)) None
-        else {
-          val abstractMembers = templDef.allSignatures.filter(SignatureStrategy.signature.isAbstract)
-          val singleAbstractMethod = abstractMembers match {
-            case Seq(PhysicalSignature(fun: ScFunction, subst)) => Some((fun, subst))
-            case _ => None
-          }
-
-          for {
-            (fun, methodSubst) <- singleAbstractMethod
-            if fun.paramClauses.clauses.length == 1 && !fun.hasTypeParameters
-            tp <- fun.`type`().toOption
-          } yield {
-            val substituted = methodSubst.followed(typeSubst)(tp)
-            extrapolateWildcardBounds(substituted, expected, languageLevel).getOrElse {
-              substituted
-            }
-          }
-        }
-      case (cl, substitutor) =>
-        def isAbstract(m: PsiMethod): Boolean = m.hasAbstractModifier && m.findSuperMethods().forall(_.hasAbstractModifier)
-
-        import JavaConverters._
-        val visibleMethods = cl.getVisibleSignatures.asScala.map(_.getMethod).toList
-        val abstractMethods = visibleMethods.filter(isAbstract)
-
-        // must have exactly one abstract member and SAM must be monomorphic
-        val singleAbstract =
-          if (abstractMethods.length == 1) abstractMethods.headOption.filter(!_.hasTypeParameters)
-          else None
-
-        val validConstructorExists = cl.getConstructors match {
-          case Array() => true
-          case constructors => constructors.exists(constructorValidForSAM)
-        }
-
-        if (!validConstructorExists) None
-        else singleAbstract.map { method =>
-          val methodWithSubst =
-            cl.findMethodsAndTheirSubstitutorsByName(method.getName, /*checkBases*/ true)
-              .asScala
-              .find(pair => isAbstract(pair.first))
-
-          val methodSubst = methodWithSubst match {
-            case Some(p: Pair[_, _]) => p.second
-            case _ => PsiSubstitutor.EMPTY
-          }
-          val returnType = methodSubst.substitute(method.getReturnType)
-          val parametersTypes = method.parameters.map { p =>
-            methodSubst.substitute(p.getTypeElement.getType)
-          }
-
-          val functionType = FunctionType(returnType.toScType(), parametersTypes.map(_.toScType()))
-          val substituted = substitutor(functionType)
-
-          extrapolateWildcardBounds(substituted, expected, languageLevel).getOrElse {
-            substituted
-          }
-        }
-    }
-  }
-
-  /**
-    * In some cases existential bounds can be simplified without losing precision
-    *
-    * trait Comparinator[T] { def compare(a: T, b: T): Int }
-    *
-    * trait Test {
-    * def foo(a: Comparinator[_ >: String]): Int
-    * }
-    *
-    * can be simplified to:
-    *
-    * trait Test {
-    * def foo(a: Comparinator[String]): Int
-    * }
-    *
-    * @see https://github.com/scala/scala/pull/4101
-    * @see SCL-8956
-    */
-  private def extrapolateWildcardBounds(tp: ScType, expected: ScType, scalaVersion: ScalaLanguageLevel)
-                                       (implicit elementScope: ElementScope): Option[ScType] = {
-    expected match {
-      case ScExistentialType(ParameterizedType(_, _), wildcards) =>
-        tp match {
-          case FunctionType(retTp, params) =>
-            def convertParameter(tpArg: ScType, variance: Variance): ScType = {
-              tpArg match {
-                case ParameterizedType(des, tpArgs) => ScParameterizedType(des, tpArgs.map(convertParameter(_, variance)))
-                case ScExistentialType(parameterized: ScParameterizedType, _) if scalaVersion == ScalaLanguageLevel.Scala_2_11 =>
-                  ScExistentialType(convertParameter(parameterized, variance)).simplify()
-                case arg: ScExistentialArgument if wildcards.contains(arg) =>
-                  (arg.lower, arg.upper) match {
-                    // todo: Produces Bad code is green
-                    // Problem is in Java wildcards. How to convert them if it's _ >: Lower, when generic has Upper.
-                    // Earlier we converted with Any upper type, but then it was changed because of type incompatibility.
-                    // Right now the simplest way is Bad Code is Green as otherwise we need to fix this inconsistency somehow.
-                    // I has no idea how yet...
-                    case (lo, _) if variance == Contravariant => lo
-                    case (lo, hi) if lo.isNothing && variance == Covariant => hi
-                    case _ => tpArg
-                  }
-                case arg: ScExistentialArgument =>
-                  arg.copyWithBounds(convertParameter(arg.lower, variance), convertParameter(arg.upper, variance))
-                case _ => tpArg
-              }
-            }
-
-            //parameter clauses are contravariant positions, return types are covariant positions
-            val newParams = params.map(convertParameter(_, Contravariant))
-            val newRetTp = convertParameter(retTp, Covariant)
-            Some(FunctionType(newRetTp, newParams))
-          case _ => None
-        }
-      case _ => None
     }
   }
 

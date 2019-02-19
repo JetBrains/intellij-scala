@@ -32,6 +32,7 @@ import org.jetbrains.plugins.scala.lang.resolve.processor.DynamicResolveProcesso
 import org.jetbrains.plugins.scala.lang.resolve.processor.{BaseProcessor, MethodResolveProcessor}
 import org.jetbrains.plugins.scala.lang.resolve.{ScalaResolveResult, StdKinds}
 import org.jetbrains.plugins.scala.macroAnnotations.{CachedWithRecursionGuard, ModCount}
+import org.jetbrains.plugins.scala.util.SAMUtil
 
 import scala.annotation.tailrec
 import scala.collection.mutable.ArrayBuffer
@@ -93,7 +94,7 @@ class ExpectedTypesImpl extends ExpectedTypes {
         case PartialFunctionType(retType, _) => Array((retType, None))
         case ScAbstractType(_, _, upper) => fromFunction(upper, tp._2)
         case samType if expr.isSAMEnabled =>
-          ScalaPsiUtil.toSAMType(samType, expr) match {
+          SAMUtil.toSAMType(samType, expr) match {
             case Some(methodType) => fromFunction(methodType, tp._2)
             case _ => Array.empty
           }
