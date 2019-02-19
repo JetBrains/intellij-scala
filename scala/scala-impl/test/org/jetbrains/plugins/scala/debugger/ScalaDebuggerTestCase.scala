@@ -20,7 +20,7 @@ import com.intellij.execution.process.{ProcessAdapter, ProcessEvent, ProcessHand
 import com.intellij.execution.runners.{ExecutionEnvironmentBuilder, ProgramRunner}
 import com.intellij.execution.ui.RunContentDescriptor
 import com.intellij.openapi.module.Module
-import com.intellij.openapi.util.{Key, Ref}
+import com.intellij.openapi.util.{Disposer, Key, Ref}
 import com.intellij.psi.PsiDocumentManager
 import com.intellij.psi.search.GlobalSearchScope
 import com.intellij.testFramework.{EdtTestUtil, ThreadTracker}
@@ -52,16 +52,23 @@ abstract class ScalaDebuggerTestCase extends ScalaDebuggerTestBase {
 
   private var breakpointTracker: BreakpointTracker = _
 
+  private val threadLeakDisposable = new TestDisposable
+
   override def setUp(): Unit = {
     super.setUp()
 
     //todo: properly fix thread leak
-    ThreadTracker.longRunningThreadCreated(getTestRootDisposable, "DebugProcessEvents")
+    ThreadTracker.longRunningThreadCreated(threadLeakDisposable, "DebugProcessEvents")
 
     if (needMake) {
       make()
       saveChecksums()
     }
+  }
+
+  override protected def tearDown(): Unit = {
+    super.tearDown()
+    Disposer.dispose(threadLeakDisposable)
   }
 
   protected def runDebugger(mainClass: String = mainClassName,
