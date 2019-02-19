@@ -16,6 +16,7 @@ import org.jetbrains.plugins.scala.lang.psi.api.toplevel.templates.ScTemplateBod
 import org.jetbrains.plugins.scala.lang.psi.impl.ScalaPsiElementFactory.createExpressionFromText
 import org.jetbrains.plugins.scala.lang.psi.types.ScType
 import org.jetbrains.plugins.scala.lang.psi.types.result._
+import org.jetbrains.plugins.scala.util.SAMUtil
 
 /**
  * Author: Svyatoslav Ilinskiy
@@ -26,8 +27,8 @@ class ConvertExpressionToSAMInspection extends AbstractInspection(inspectionName
   override def actionFor(implicit holder: ProblemsHolder): PartialFunction[PsiElement, Any] = {
     case definition: ScNewTemplateDefinition
       if definition.isSAMEnabled && containsSingleFunction(definition) =>
-      definition.expectedTypes().toSeq.flatMap {
-        ScalaPsiUtil.toSAMType(_, definition)
+      definition.expectedTypes().flatMap {
+        SAMUtil.toSAMType(_, definition)
       } match {
         case Seq(expectedMethodType) => inspectAccordingToExpectedType(expectedMethodType, definition, holder)
         case _ =>

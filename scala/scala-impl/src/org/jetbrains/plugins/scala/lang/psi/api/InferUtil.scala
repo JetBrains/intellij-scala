@@ -26,6 +26,7 @@ import org.jetbrains.plugins.scala.lang.psi.types.result.Typeable
 import org.jetbrains.plugins.scala.lang.psi.{ElementScope, ScalaPsiUtil}
 import org.jetbrains.plugins.scala.lang.resolve.ScalaResolveResult
 import org.jetbrains.plugins.scala.project._
+import org.jetbrains.plugins.scala.util.SAMUtil
 
 import scala.annotation.tailrec
 import scala.collection.Seq
@@ -377,7 +378,7 @@ object InferUtil {
               (mt.params.nonEmpty || expr.scalaLanguageLevelOrDefault == ScalaLanguageLevel.Scala_2_11) =>
               //we do this to update additional expression, so that implicits work correctly
               //@see SingleAbstractMethodTest.testEtaExpansionImplicit
-              val requiredSAMType = ScalaPsiUtil.toSAMType(tp, expr)
+              val requiredSAMType = SAMUtil.toSAMType(tp, expr)
               applyImplicitViewToResult(mt, requiredSAMType, fromSAM = true)
             case _ => mt
           }
