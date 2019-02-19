@@ -4,17 +4,15 @@ package psi
 package api
 package toplevel
 
-import javax.swing.Icon
-
 import com.intellij.extapi.psi.StubBasedPsiElementBase
 import com.intellij.navigation.ItemPresentation
 import com.intellij.openapi.editor.colors.TextAttributesKey
 import com.intellij.psi._
-import com.intellij.psi.search.{LocalSearchScope, SearchScope}
-import com.intellij.psi.stubs.NamedStub
+import com.intellij.psi.stubs.{NamedStub, StubElement}
 import com.intellij.psi.util.PsiTreeUtil
-import org.jetbrains.plugins.scala.extensions.PsiElementExt
+import javax.swing.Icon
 import org.jetbrains.plugins.scala.icons.Icons
+import org.jetbrains.plugins.scala.lang.psi.ScalaPsiUtil.isNameContext
 import org.jetbrains.plugins.scala.lang.psi.api.base.patterns.ScCaseClause
 import org.jetbrains.plugins.scala.lang.psi.api.expr._
 import org.jetbrains.plugins.scala.lang.psi.api.statements.params.ScClassParameter
@@ -24,6 +22,8 @@ import org.jetbrains.plugins.scala.lang.psi.impl.ScalaPsiElementFactory.createId
 import org.jetbrains.plugins.scala.lang.psi.impl.toplevel.synthetic.JavaIdentifier
 import org.jetbrains.plugins.scala.lang.refactoring.util.ScalaNamesUtil
 import org.jetbrains.plugins.scala.macroAnnotations.{Cached, ModCount}
+
+import scala.annotation.tailrec
 
 trait ScNamedElement extends ScalaPsiElement with PsiNameIdentifierOwner with NavigatablePsiElement {
 
@@ -41,10 +41,32 @@ trait ScNamedElement extends ScalaPsiElement with PsiNameIdentifierOwner with Na
   def nameInner: String = nameId.getText
 
   @Cached(ModCount.anyScalaPsiModificationCount, this)
-  def nameContext: PsiElement =
-    this.withParentsInFile
-      .find(ScalaPsiUtil.isNameContext)
-      .orNull
+  def nameContext: PsiElement = {
+    @tailrec
+    def byStub(stub: StubElement[_]): PsiElement = {
+      if (stub == null) null
+      else {
+        val psi = stub.getPsi.asInstanceOf[PsiElement]
+
+        if (isNameContext(psi)) psi
+        else byStub(stub.getParentStub)
+      }
+    }
+
+    @tailrec
+    def byAST(element: PsiElement): PsiElement =
+      if (element == null || isNameContext(element)) element
+      else byAST(element.getParent)
+
+    this match {
+      case st: StubBasedPsiElementBase[_] =>
+        val stub = st.getStub.asInstanceOf[StubElement[_]]
+
+        if (stub != null) byStub(stub)
+        else byAST(this)
+      case _ => byAST(this)
+    }
+  }
 
   override def getTextOffset: Int = nameId.getTextRange.getStartOffset
 
