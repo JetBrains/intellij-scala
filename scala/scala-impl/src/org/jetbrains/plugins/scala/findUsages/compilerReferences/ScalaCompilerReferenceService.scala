@@ -175,7 +175,7 @@ private[findUsages] class ScalaCompilerReferenceService(
   override def getModificationCount: Long = compilationCount.longValue()
 
   override def projectOpened(): Unit =
-    if (CompilerIndicesSettings(project).indexingEnabled || ApplicationManager.getApplication.isUnitTestMode) {
+    if (CompilerIndicesSettings(project).isIndexingEnabled || ApplicationManager.getApplication.isUnitTestMode) {
       new JpsCompilationWatcher(project, transactionManager).start()
       new SbtCompilationWatcher(project, transactionManager, ScalaCompilerReferenceReaderFactory.expectedIndexVersion).start()
 

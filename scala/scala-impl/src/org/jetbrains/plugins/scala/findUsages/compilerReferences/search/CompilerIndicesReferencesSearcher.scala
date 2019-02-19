@@ -31,15 +31,15 @@ import org.jetbrains.plugins.scala.findUsages.factory.{ScalaFindUsagesHandler, S
 import org.jetbrains.plugins.scala.project._
 import org.jetbrains.plugins.scala.util.ImplicitUtil._
 import org.jetbrains.sbt.shell.SbtShellCommunication
+import org.jetbrains.plugins.scala.findUsages.compilerReferences.search.UsageToPsiElements._
 
 import scala.collection.JavaConverters._
 
-private class ImplicitMemberUsageSearcher
-    extends QueryExecutorBase[PsiReference, ImplicitReferencesSearch.SearchParameters](true)
-    with UsageToPsiElements {
+private class CompilerIndicesReferencesSearcher
+  extends QueryExecutorBase[PsiReference, CompilerIndicesReferencesSearch.SearchParameters](true) {
 
   override def processQuery(
-    parameters: ImplicitReferencesSearch.SearchParameters,
+    parameters: CompilerIndicesReferencesSearch.SearchParameters,
     consumer:   Processor[_ >: PsiReference]
   ): Unit = {
     val target  = parameters.element
@@ -93,8 +93,8 @@ private class ImplicitMemberUsageSearcher
     if (filesToNotify.nonEmpty) {
       Notifications.Bus.notify(
         new Notification(
-          ScalaBundle.message("find.usages.implicit.dialog.title"),
-          "Implicit Usages Invalidated",
+          ScalaBundle.message("find.usages.compiler.indices.dialog.title"),
+          "Usages Invalidated",
           s"Some usages in the following files may have been invalidated, due to external changes: ${filesToNotify.mkString(",")}.",
           NotificationType.WARNING
         )
@@ -103,14 +103,14 @@ private class ImplicitMemberUsageSearcher
   }
 }
 
-object ImplicitMemberUsageSearcher {
+object CompilerIndicesReferencesSearcher {
   private[this] var pendingConnection: MessageBusConnection = _
 
-  private[findUsages] sealed trait BeforeImplicitSearchAction {
+  private[findUsages] sealed trait BeforeIndicesSearchAction {
     def runAction(): Boolean
   }
 
-  private[findUsages] case object CancelSearch extends BeforeImplicitSearchAction {
+  private[findUsages] case object CancelSearch extends BeforeIndicesSearchAction {
     override def runAction(): Boolean = false
   }
 
@@ -119,7 +119,9 @@ object ImplicitMemberUsageSearcher {
     * basically it just builds the project but uses underlying (sbt or jps specific)
     * machinery to extract not just incremental, but full source <-> class mappings.
     */
-  private[findUsages] final case class RebuildIndices(project: Project, target: PsiElement) extends BeforeImplicitSearchAction {
+  private[findUsages] final case class RebuildIndices(project: Project, target: PsiElement)
+      extends BeforeIndicesSearchAction {
+
     override def runAction(): Boolean = {
       val modules = project.modules
 
@@ -142,7 +144,7 @@ object ImplicitMemberUsageSearcher {
     target:  PsiElement,
     project: Project,
     modules: Set[Module]
-  ) extends BeforeImplicitSearchAction {
+  ) extends BeforeIndicesSearchAction {
     override def runAction(): Boolean =
       if (modules.nonEmpty) {
         val manager = ProjectTaskManager.getInstance(project)
@@ -173,6 +175,7 @@ object ImplicitMemberUsageSearcher {
 
     pendingConnection.subscribe(CompilerReferenceServiceStatusListener.topic, new CompilerReferenceServiceStatusListener {
       private[this] val targetModuleNames = ContainerUtil.newConcurrentSet[String]
+
       targetModuleNames.addAll(targetModules.collect {
         case module if module.isSourceModule => module.getName
       }.asJavaCollection)
@@ -206,11 +209,11 @@ object ImplicitMemberUsageSearcher {
     })
   }
 
-  private[findUsages] def assertSearchScopeIsSufficient(target: PsiNamedElement): Option[BeforeImplicitSearchAction] = {
+  private[findUsages] def assertSearchScopeIsSufficient(target: PsiNamedElement): Option[BeforeIndicesSearchAction] = {
     val project = target.getProject
     val service = ScalaCompilerReferenceService(project)
 
-    if (!CompilerIndicesSettings(project).indexingEnabled) {
+    if (!CompilerIndicesSettings(project).isIndexingEnabled) {
       inEventDispatchThread(new EnableCompilerIndicesDialog(project, canBeParent = false).show())
       Option(CancelSearch)
     } else if (service.isIndexingInProgress) {
@@ -221,7 +224,7 @@ object ImplicitMemberUsageSearcher {
       val validIndexExists                = upToDateCompilerIndexExists(project, ScalaCompilerIndices.version)
 
       if (dirtyModules.nonEmpty || !validIndexExists) {
-        var action: Option[BeforeImplicitSearchAction] = None
+        var action: Option[BeforeIndicesSearchAction] = None
 
         val dialogAction =
           () => action = showRebuildSuggestionDialog(project, dirtyModules, upToDateModules, validIndexExists, target)
@@ -257,7 +260,7 @@ object ImplicitMemberUsageSearcher {
     upToDateModules:  Set[Module],
     validIndexExists: Boolean,
     element:          PsiNamedElement
-  ): Option[BeforeImplicitSearchAction] = {
+  ): Option[BeforeIndicesSearchAction] = {
     import DialogWrapper.{CANCEL_EXIT_CODE, OK_EXIT_CODE}
 
     val dialog = new ImplicitFindUsagesDialog(false, element)

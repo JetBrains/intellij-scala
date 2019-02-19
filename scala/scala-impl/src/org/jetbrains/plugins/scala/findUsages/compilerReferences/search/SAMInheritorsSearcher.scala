@@ -11,11 +11,11 @@ import org.jetbrains.plugins.scala.lang.psi.ScalaPsiUtil
 import org.jetbrains.plugins.scala.lang.psi.ScalaPsiUtil.MethodValue
 import org.jetbrains.plugins.scala.lang.psi.api.expr.{ScBlock, ScExpression, ScFunctionExpr}
 import org.jetbrains.plugins.scala.lang.psi.types.ScType
+import org.jetbrains.plugins.scala.findUsages.compilerReferences.search.UsageToPsiElements._
+import org.jetbrains.plugins.scala.util.SAMUtil
 
 /* WIP */
-class SAMInheritorsSearcher
-    extends QueryExecutorBase[PsiElement, DefinitionsScopedSearch.SearchParameters](true)
-    with UsageToPsiElements {
+class SAMInheritorsSearcher extends QueryExecutorBase[PsiElement, DefinitionsScopedSearch.SearchParameters](true) {
   import SAMInheritorsSearcher._
 
   override def processQuery(
@@ -34,9 +34,7 @@ class SAMInheritorsSearcher
     usages
       .flatMap(extractCandidatesFromUsage(project, _))
       .flatMap(_.elements)
-      .collect {
-        case e @ SAMMatcher(`target`) => e
-      }(collection.breakOut)
+      .collect { case e @ SAMMatcher(`target`) => e }(collection.breakOut)
 }
 
 object SAMInheritorsSearcher {
@@ -52,7 +50,7 @@ object SAMInheritorsSearcher {
 
   class SAMInheritorMatcher(checkValidity: Boolean = true) {
     def isValidSAM(e: ScExpression, samTpe: ScType): Boolean =
-      if (checkValidity) ScalaPsiUtil.toSAMType(samTpe, e).isDefined
+      if (checkValidity) SAMUtil.toSAMType(samTpe, e).isDefined
       else               true
 
     def unapply(e: ScExpression): Option[PsiClass] = e match {

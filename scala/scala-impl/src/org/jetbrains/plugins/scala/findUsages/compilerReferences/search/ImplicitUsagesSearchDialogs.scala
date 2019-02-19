@@ -42,7 +42,7 @@ private object ImplicitUsagesSearchDialogs {
         .getPanel
 
     override def createActions(): Array[Action] = {
-      def enableCompilerIndices(): Unit = CompilerIndicesSettings(project).indexingEnabled = true
+      def enableCompilerIndices(): Unit = CompilerIndicesSettings(project).setIndexingEnabled(true)
 
       val enable = new DialogWrapperAction("Enable") {
         override def doAction(e: ActionEvent): Unit = {
@@ -80,7 +80,7 @@ private object ImplicitUsagesSearchDialogs {
           |</html>
           |""".stripMargin
 
-    setTitle(ScalaBundle.message("find.usages.implicit.dialog.title"))
+    setTitle(ScalaBundle.message("find.usages.compiler.indices.dialog.title"))
     setResizable(false)
     init()
 

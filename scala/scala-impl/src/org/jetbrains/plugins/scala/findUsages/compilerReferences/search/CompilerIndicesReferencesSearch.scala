@@ -10,25 +10,24 @@ import com.intellij.util.{EmptyQuery, Query, QueryExecutor, QueryFactory}
 import org.jetbrains.plugins.scala.extensions._
 import org.jetbrains.plugins.scala.util.ImplicitUtil.ImplicitSearchTarget
 
-class ImplicitReferencesSearch private ()
-    extends QueryFactory[PsiReference, ImplicitReferencesSearch.SearchParameters] {
+class CompilerIndicesReferencesSearch private ()
+    extends QueryFactory[PsiReference, CompilerIndicesReferencesSearch.SearchParameters] {
 
-  override def getExecutors: util.List[QueryExecutor[PsiReference, ImplicitReferencesSearch.SearchParameters]] =
-    Collections.singletonList(new ImplicitMemberUsageSearcher)
+  override def getExecutors: util.List[QueryExecutor[PsiReference, CompilerIndicesReferencesSearch.SearchParameters]] =
+    Collections.singletonList(new CompilerIndicesReferencesSearcher)
 }
 
-object ImplicitReferencesSearch {
-  private[this] val instance = new ImplicitReferencesSearch
+object CompilerIndicesReferencesSearch {
+  private[this] val instance = new CompilerIndicesReferencesSearch
 
   def search(
     element:         PsiElement,
     scope:           SearchScope,
     includeExplicit: Boolean = true,
-    showDialog:      Boolean = false
   ): Query[PsiReference] = inReadAction {
     element match {
       case ImplicitSearchTarget(target) =>
-        instance.createUniqueResultsQuery(SearchParameters(target, scope, includeExplicit, showDialog))
+        instance.createUniqueResultsQuery(SearchParameters(target, scope, includeExplicit))
       case _ => EmptyQuery.getEmptyQuery[PsiReference]
     }
   }
@@ -40,6 +39,5 @@ object ImplicitReferencesSearch {
     element:         PsiNamedElement,
     searchScope:     SearchScope,
     includeExplicit: Boolean,
-    showDialog:      Boolean
   )
 }

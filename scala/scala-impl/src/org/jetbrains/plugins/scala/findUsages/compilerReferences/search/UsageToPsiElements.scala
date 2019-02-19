@@ -6,14 +6,17 @@ import com.intellij.psi.{PsiDocumentManager, PsiElement, PsiFile, PsiManager}
 import org.jetbrains.plugins.scala.findUsages.compilerReferences.UsagesInFile
 import org.jetbrains.plugins.scala.extensions._
 
-trait UsageToPsiElements {
-  protected final case class ElementsInContext(
+object UsageToPsiElements {
+  private[search] final case class ElementsInContext(
     elements: Seq[PsiElement],
     file:     PsiFile,
     doc:      Document
   )
 
-  def extractCandidatesFromUsage(project: Project, usage: UsagesInFile): Option[ElementsInContext] =
+  private[search] def extractCandidatesFromUsage(
+    project: Project,
+    usage:   UsagesInFile
+  ): Option[ElementsInContext] =
     for {
       psiFile    <- PsiManager.getInstance(project).findFile(usage.file).toOption
       document   <- PsiDocumentManager.getInstance(project).getDocument(psiFile).toOption

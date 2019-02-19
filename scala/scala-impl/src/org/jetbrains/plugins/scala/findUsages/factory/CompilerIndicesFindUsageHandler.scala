@@ -8,7 +8,7 @@ import com.intellij.psi.PsiElement
 import com.intellij.psi.search.GlobalSearchScope
 import com.intellij.usageView.UsageInfo
 import com.intellij.util.Processor
-import org.jetbrains.plugins.scala.findUsages.compilerReferences.search.ImplicitReferencesSearch
+import org.jetbrains.plugins.scala.findUsages.compilerReferences.search.CompilerIndicesReferencesSearch
 
 class CompilerIndicesFindUsageHandler(
   e:       PsiElement,
@@ -20,7 +20,7 @@ class CompilerIndicesFindUsageHandler(
     processor: Processor[UsageInfo],
     options:   FindUsagesOptions
   ): Boolean =
-    ImplicitReferencesSearch
+    CompilerIndicesReferencesSearch
       .search(element)
       .forEach(ref => processor.process(new UsageInfo(ref)))
 
