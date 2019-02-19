@@ -18,7 +18,7 @@ import org.jetbrains.plugins.scala.lang.psi.api.base.patterns._
 import org.jetbrains.plugins.scala.lang.psi.api.statements.ScDeclaredElementsHolder
 import org.jetbrains.plugins.scala.lang.psi.api.toplevel.typedef.ScMember
 import org.jetbrains.plugins.scala.lang.psi.impl.ScalaPsiElementFactory.createWildcardPattern
-import org.jetbrains.plugins.scala.lang.psi.stubs.ScReferencePatternStub
+import org.jetbrains.plugins.scala.lang.psi.stubs.ScBindingPatternStub
 import org.jetbrains.plugins.scala.lang.psi.types.ScType
 import org.jetbrains.plugins.scala.lang.psi.types.result._
 
@@ -26,12 +26,12 @@ import org.jetbrains.plugins.scala.lang.psi.types.result._
   * @author Alexander Podkhalyuzin
   *         Date: 28.02.2008
   */
-class ScReferencePatternImpl private(stub: ScReferencePatternStub, node: ASTNode)
+class ScReferencePatternImpl private(stub: ScBindingPatternStub[ScReferencePattern], node: ASTNode)
   extends ScalaStubBasedElementImpl(stub, ScalaElementType.REFERENCE_PATTERN, node) with ScPatternImpl with ScReferencePattern with ContributedReferenceHost {
 
   def this(node: ASTNode) = this(null, node)
 
-  def this(stub: ScReferencePatternStub) = this(stub, null)
+  def this(stub: ScBindingPatternStub[ScReferencePattern]) = this(stub, null)
 
   override def isIrrefutableFor(t: Option[ScType]): Boolean = true
 

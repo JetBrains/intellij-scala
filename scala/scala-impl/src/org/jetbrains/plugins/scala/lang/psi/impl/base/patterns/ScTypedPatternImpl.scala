@@ -10,9 +10,11 @@ import com.intellij.psi._
 import com.intellij.psi.scope.PsiScopeProcessor
 import org.jetbrains.plugins.scala.extensions.{PsiTypeExt, ifReadAllowed}
 import org.jetbrains.plugins.scala.lang.lexer._
+import org.jetbrains.plugins.scala.lang.parser.ScalaElementType
 import org.jetbrains.plugins.scala.lang.psi.api.base.patterns._
 import org.jetbrains.plugins.scala.lang.psi.api.statements.params.ScTypeParam
 import org.jetbrains.plugins.scala.lang.psi.api.toplevel.typedef.ScTypeDefinition
+import org.jetbrains.plugins.scala.lang.psi.stubs.ScBindingPatternStub
 import org.jetbrains.plugins.scala.lang.psi.types.api.{Any, Nothing, ParameterizedType}
 import org.jetbrains.plugins.scala.lang.psi.types.result._
 import org.jetbrains.plugins.scala.lang.psi.types.{ScExistentialType, api, _}
@@ -22,7 +24,12 @@ import org.jetbrains.plugins.scala.lang.psi.types.{ScExistentialType, api, _}
 * Date: 28.02.2008
 */
 
-class ScTypedPatternImpl(node: ASTNode) extends ScalaPsiElementImpl(node) with ScPatternImpl with ScTypedPattern {
+class ScTypedPatternImpl private(stub: ScBindingPatternStub[ScTypedPattern], node: ASTNode)
+  extends ScalaStubBasedElementImpl(stub, ScalaElementType.TYPED_PATTERN, node) with ScPatternImpl with ScTypedPattern {
+
+  def this(node: ASTNode) = this(null, node)
+
+  def this(stub: ScBindingPatternStub[ScTypedPattern]) = this(stub, null)
 
   def nameId: PsiElement = findChildByType[PsiElement](TokenSets.ID_SET)
 

@@ -12,6 +12,9 @@ import org.jetbrains.plugins.scala.lang.psi.api.base.patterns._
 */
 
 trait ScPatternList extends ScalaPsiElement {
+
+  def bindings: Seq[ScBindingPattern]
+
   def patterns: Seq[ScPattern]
 
   /**

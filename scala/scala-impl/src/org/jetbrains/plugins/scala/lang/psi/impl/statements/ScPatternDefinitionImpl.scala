@@ -32,11 +32,7 @@ final class ScPatternDefinitionImpl private[psi](stub: ScPropertyStub[ScPatternD
     else "ScPatternDefinition: " + declaredNames.mkString(", ")
   }("")
 
-  def bindings: Seq[ScBindingPattern] = pList match {
-    case null => Seq.empty
-    case ScPatternList(Seq(pattern)) => pattern.bindings
-    case ScPatternList(patterns) => patterns.flatMap(_.bindings)
-  }
+  def bindings: Seq[ScBindingPattern] = Option(pList).map(_.bindings).getOrElse(Seq.empty)
 
   def declaredElements: Seq[ScBindingPattern] = bindings
 

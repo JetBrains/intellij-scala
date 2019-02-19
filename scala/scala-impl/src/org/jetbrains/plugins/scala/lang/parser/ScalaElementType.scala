@@ -8,6 +8,7 @@ import com.intellij.psi.stubs.PsiFileStub
 import com.intellij.psi.tree._
 import org.jetbrains.plugins.dotty.lang.psi.impl.base.types._
 import org.jetbrains.plugins.scala.lang.psi.api.ScalaPsiElement
+import org.jetbrains.plugins.scala.lang.psi.api.base.patterns.{ScNamingPattern, ScReferencePattern, ScTypedPattern}
 import org.jetbrains.plugins.scala.lang.psi.api.base.types.ScTypeElement
 import org.jetbrains.plugins.scala.lang.psi.api.expr.{ScExpression, ScNewTemplateDefinition}
 import org.jetbrains.plugins.scala.lang.psi.api.statements._
@@ -55,7 +56,6 @@ object ScalaElementType {
   val ACCESS_MODIFIER = new ScAccessModifierElementType
   val ANNOTATION = new ScAnnotationElementType
   val ANNOTATIONS = new ScAnnotationsElementType
-  val REFERENCE_PATTERN = new ScReferencePatternElementType
   val PACKAGING: ScPackagingElementType.type = ScPackagingElementType
   val EXTENDS_BLOCK = new ScExtendsBlockElementType
   val TEMPLATE_PARENTS = new ScTemplateParentsElementType
@@ -77,6 +77,9 @@ object ScalaElementType {
   val OBJECT_DEFINITION: ScTemplateDefinitionElementType[ScObject] = ObjectDefinition
   val NEW_TEMPLATE: ScTemplateDefinitionElementType[ScNewTemplateDefinition] = NewTemplateDefinition
 
+  val REFERENCE_PATTERN: ScBindingPatternElementType[ScReferencePattern] = ScReferencePatternElementType
+  val TYPED_PATTERN: ScBindingPatternElementType[ScTypedPattern] = ScTypedPatternElementType
+  val NAMING_PATTERN: ScBindingPatternElementType[ScNamingPattern] = ScNamingPatternElementType
 
   /** ***********************************************************************************/
   /** ****************************** DEFINITION PARTS ***********************************/
@@ -315,12 +318,6 @@ object ScalaElementType {
   }
   val INFIX_PATTERN: ScalaElementType = new ScalaElementType("Infix pattern") {
     override def createElement(node: ASTNode) = new ScInfixPatternImpl(node)
-  }
-  val NAMING_PATTERN: ScalaElementType = new ScalaElementType("Binding Pattern") {
-    override def createElement(node: ASTNode) = new ScNamingPatternImpl(node)
-  }
-  val TYPED_PATTERN: ScalaElementType = new ScalaElementType("Typed Pattern") {
-    override def createElement(node: ASTNode) = new ScTypedPatternImpl(node)
   }
   val PATTERN: ScalaElementType = new ScalaElementType("Composite Pattern") {
     override def createElement(node: ASTNode) = new ScCompositePatternImpl(node)

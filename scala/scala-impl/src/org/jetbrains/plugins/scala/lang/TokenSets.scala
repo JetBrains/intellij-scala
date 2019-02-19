@@ -19,6 +19,12 @@ object TokenSets {
     OBJECT_DEFINITION
   )
 
+  val BINDING_PATTERNS: TokenSet = TokenSet.create(
+    REFERENCE_PATTERN,
+    NAMING_PATTERN,
+    TYPED_PATTERN
+  )
+
   val WHITESPACE_OR_COMMENT_SET: TokenSet = TokenSet.create(tWHITE_SPACE_IN_LINE, tLINE_COMMENT, tBLOCK_COMMENT, tDOC_COMMENT, SCALA_DOC_COMMENT)
 
   val ID_SET: TokenSet = TokenSet.create(tIDENTIFIER, tUNDER)

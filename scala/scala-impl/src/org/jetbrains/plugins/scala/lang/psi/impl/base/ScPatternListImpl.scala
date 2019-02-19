@@ -5,7 +5,8 @@ package impl
 package base
 
 import com.intellij.lang.ASTNode
-import org.jetbrains.plugins.scala.JavaArrayFactoryUtil.ScReferencePatternFactory
+import org.jetbrains.plugins.scala.JavaArrayFactoryUtil.{ScBindingPatternFactory, ScReferencePatternFactory}
+import org.jetbrains.plugins.scala.lang.TokenSets.BINDING_PATTERNS
 import org.jetbrains.plugins.scala.lang.parser.ScalaElementType
 import org.jetbrains.plugins.scala.lang.parser.ScalaElementType.REFERENCE_PATTERN
 import org.jetbrains.plugins.scala.lang.psi.api.base._
@@ -29,6 +30,11 @@ class ScPatternListImpl private(stub: ScPatternListStub, node: ASTNode)
     if (simplePatternsByStub) getStubOrPsiChildren(REFERENCE_PATTERN, ScReferencePatternFactory)
     else findChildrenByClass(classOf[ScPattern])
   }
+
+  def bindings: Seq[ScBindingPattern] =
+    byStubOrPsi(_.getChildrenByType(BINDING_PATTERNS, ScBindingPatternFactory).toSeq) {
+      patterns.flatMap(_.bindings)
+    }
 
   def simplePatterns: Boolean = simplePatternsByStub || patterns.forall(_.isInstanceOf[ScReferencePattern])
 

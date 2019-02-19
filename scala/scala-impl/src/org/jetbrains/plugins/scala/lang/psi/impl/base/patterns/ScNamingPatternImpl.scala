@@ -10,7 +10,9 @@ import com.intellij.psi._
 import com.intellij.psi.scope.PsiScopeProcessor
 import org.jetbrains.plugins.scala.extensions.ifReadAllowed
 import org.jetbrains.plugins.scala.lang.lexer.ScalaTokenTypes
+import org.jetbrains.plugins.scala.lang.parser.ScalaElementType
 import org.jetbrains.plugins.scala.lang.psi.api.base.patterns._
+import org.jetbrains.plugins.scala.lang.psi.stubs.ScBindingPatternStub
 import org.jetbrains.plugins.scala.lang.psi.types.result._
 import org.jetbrains.plugins.scala.lang.psi.types.{ScType, ScTypeExt}
 
@@ -18,7 +20,13 @@ import org.jetbrains.plugins.scala.lang.psi.types.{ScType, ScTypeExt}
  * @author Alexander Podkhalyuzin
  */
 
-class ScNamingPatternImpl(node: ASTNode) extends ScalaPsiElementImpl(node) with ScPatternImpl with ScNamingPattern {
+class ScNamingPatternImpl private(stub: ScBindingPatternStub[ScNamingPattern], node: ASTNode)
+  extends ScalaStubBasedElementImpl(stub, ScalaElementType.NAMING_PATTERN, node) with ScPatternImpl with ScNamingPattern {
+
+  def this(node: ASTNode) = this(null, node)
+
+  def this(stub: ScBindingPatternStub[ScNamingPattern]) = this(stub, null)
+
   override def isIrrefutableFor(t: Option[ScType]): Boolean = named.isIrrefutableFor(t)
 
   override def toString: String = "NamingPattern: " + ifReadAllowed(name)("")
