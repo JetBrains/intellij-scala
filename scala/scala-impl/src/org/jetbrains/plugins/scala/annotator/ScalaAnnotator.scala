@@ -39,7 +39,9 @@ import org.jetbrains.plugins.scala.lang.psi.api.toplevel.typedef._
 import org.jetbrains.plugins.scala.lang.psi.api.{ScalaElementVisitor, ScalaFile, ScalaPsiElement}
 import org.jetbrains.plugins.scala.lang.psi.impl.ScalaPsiElementFactory
 import org.jetbrains.plugins.scala.lang.psi.impl.expr.ScInterpolatedStringPartReference
+import org.jetbrains.plugins.scala.lang.psi.light.scala.DummyLightTypeParam
 import org.jetbrains.plugins.scala.lang.psi.types.api._
+import org.jetbrains.plugins.scala.lang.psi.types.recursiveUpdate.AfterUpdate
 import org.jetbrains.plugins.scala.lang.psi.types.recursiveUpdate.AfterUpdate.ProcessSubtypes
 import org.jetbrains.plugins.scala.lang.psi.types.result._
 import org.jetbrains.plugins.scala.lang.psi.types.{ScType, ScalaType}
@@ -770,10 +772,11 @@ abstract class ScalaAnnotator extends Annotator
       }
     }
 
-    def functionToSendIn(tp: ScType, v: Variance) = {
+    def functionToSendIn(tp: ScType, v: Variance): AfterUpdate.ProcessSubtypes.type = {
       tp match {
         case paramType: TypeParameterType =>
           paramType.psiTypeParameter match {
+            case _: DummyLightTypeParam => () // do not check variance for dummy type params in poly-types
             case scTypeParam: ScTypeParam =>
               val compareTo = scTypeParam.owner
               val parentIt = checkParentOf.parents
