@@ -16,7 +16,7 @@ import com.intellij.util.containers.MultiMap
 import org.jetbrains.plugins.scala.extensions._
 import org.jetbrains.plugins.scala.lang.psi.ScalaPsiUtil
 import org.jetbrains.plugins.scala.lang.psi.api.base.patterns.{ScConstructorPattern, ScInfixPattern}
-import org.jetbrains.plugins.scala.lang.psi.api.base.{ScConstructor, ScPrimaryConstructor, ScReference}
+import org.jetbrains.plugins.scala.lang.psi.api.base.{AuxiliaryConstructor, ScConstructor, ScPrimaryConstructor, ScReference}
 import org.jetbrains.plugins.scala.lang.psi.api.expr._
 import org.jetbrains.plugins.scala.lang.psi.api.statements._
 import org.jetbrains.plugins.scala.lang.psi.api.toplevel.imports.{ScImportExpr, ScImportSelector}
@@ -209,7 +209,7 @@ class ScalaChangeSignatureUsageProcessor extends ChangeSignatureUsageProcessor w
 
   private def processNamedElementUsage(change: ChangeInfo, usage: ScalaNamedElementUsageInfo): Unit = {
     usage.namedElement match {
-      case fun: ScFunction if fun.isConstructor =>
+      case AuxiliaryConstructor(_) =>
         handleVisibility(change, usage)
         handleChangedParameters(change, usage)
       case fun: ScFunction if fun.isSynthetic =>

@@ -3,7 +3,7 @@ package org.jetbrains.plugins.scala.lang.resolve
 import com.intellij.psi._
 import org.jetbrains.plugins.scala.extensions.{PsiMethodExt, PsiParameterExt, PsiTypeExt}
 import org.jetbrains.plugins.scala.lang.psi.api.ScalaPsiElement
-import org.jetbrains.plugins.scala.lang.psi.api.base.{ScMethodLike, ScPrimaryConstructor}
+import org.jetbrains.plugins.scala.lang.psi.api.base.{AuxiliaryConstructor, ScMethodLike, ScPrimaryConstructor}
 import org.jetbrains.plugins.scala.lang.psi.api.statements.params.{ScParameterClause, ScParameters}
 import org.jetbrains.plugins.scala.lang.psi.api.statements.{ScFun, ScFunction}
 import org.jetbrains.plugins.scala.lang.psi.api.toplevel.typedef.ScTypeDefinition
@@ -104,8 +104,8 @@ object MethodTypeProvider {
     extends ScalaMethodTypeProvider[ScFunction] {
 
     def typeParameters: Seq[PsiTypeParameter] = {
-      element.containingClass match {
-        case td: ScTypeDefinition if element.isConstructor => td.typeParameters
+      element match {
+        case AuxiliaryConstructor.in(td: ScTypeDefinition) => td.typeParameters
         case _ => element.typeParameters
       }
     }

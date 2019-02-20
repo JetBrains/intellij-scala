@@ -11,16 +11,16 @@ import com.intellij.refactoring.listeners.RefactoringElementListener
 import com.intellij.refactoring.rename.RenameUtil
 import com.intellij.usageView.UsageInfo
 import org.jetbrains.plugins.scala.extensions.PsiElementExt
+import org.jetbrains.plugins.scala.lang.psi.ScalaPsiUtil
 import org.jetbrains.plugins.scala.lang.psi.api.ScalaPsiElement
 import org.jetbrains.plugins.scala.lang.psi.api.base.patterns.ScReferencePattern
-import org.jetbrains.plugins.scala.lang.psi.api.base.{ScPrimaryConstructor, ScReference, ScStableCodeReference}
+import org.jetbrains.plugins.scala.lang.psi.api.base.{ScReference, ScStableCodeReference, ScalaConstructor}
 import org.jetbrains.plugins.scala.lang.psi.api.expr.ScNewTemplateDefinition
 import org.jetbrains.plugins.scala.lang.psi.api.statements.ScFunction
 import org.jetbrains.plugins.scala.lang.psi.api.toplevel.imports.ScImportStmt
 import org.jetbrains.plugins.scala.lang.psi.api.toplevel.typedef.{ScObject, ScTypeDefinition}
 import org.jetbrains.plugins.scala.lang.psi.fake.FakePsiMethod
 import org.jetbrains.plugins.scala.lang.psi.light.PsiTypedDefinitionWrapper
-import org.jetbrains.plugins.scala.lang.psi.ScalaPsiUtil
 import org.jetbrains.plugins.scala.lang.refactoring.util.ScalaNamesUtil
 
 import scala.collection.JavaConverters._
@@ -49,7 +49,7 @@ object ScalaRenameUtil {
 
   def findReferences(element: PsiElement): util.ArrayList[PsiReference] = {
     val allRefs = ReferencesSearch.search(element, element.getUseScope).findAll()
-    val filtered = allRefs.asScala.filterNot(isAliased _).filterNot(isIndirectReference(_, element))
+    val filtered = allRefs.asScala.filterNot(isAliased).filterNot(isIndirectReference(_, element))
     new util.ArrayList[PsiReference](filtered.asJavaCollection)
   }
 
@@ -88,8 +88,7 @@ object ScalaRenameUtil {
 
   def findSubstituteElement(elementToRename: PsiElement): PsiNamedElement = {
     elementToRename match {
-      case primConstr: ScPrimaryConstructor => primConstr.containingClass
-      case fun: ScFunction if fun.isConstructor => fun.containingClass
+      case ScalaConstructor(constr) => constr.containingClass
       case fun: ScFunction if Seq("apply", "unapply", "unapplySeq") contains fun.name =>
         fun.containingClass match {
           case newTempl: ScNewTemplateDefinition => ScalaPsiUtil.findInstanceBinding(newTempl).orNull

@@ -633,12 +633,13 @@ class ScalaFunctionParameterInfoHandler extends ParameterInfoHandlerWithTabActio
                   case None => res += ""
                   case _ =>
                 }
-                for (constr <- clazz.functions if !constr.isInstanceOf[ScPrimaryConstructor] &&
-                  constr.isConstructor && ((constr.clauses match {
-                  case Some(x) => x.clauses.length
-                  case None => 1
-                }) > i))
+                for (
+                  constr <- clazz.functions
+                  if constr.isConstructor &&
+                     constr.clauses.map(_.clauses.length).getOrElse(1) > i
+                ) {
                   res += ((new PhysicalSignature(constr, subst), i))
+                }
               case clazz: PsiClass if clazz.isAnnotationType =>
                 val resulting: (AnnotationParameters, Int) =
                   (AnnotationParameters(clazz.getMethods.toSeq.filter(_.isInstanceOf[PsiAnnotationMethod]).map(meth => (meth.name,
@@ -674,9 +675,8 @@ class ScalaFunctionParameterInfoHandler extends ParameterInfoHandlerWithTabActio
 
           for {
             constr <- clazz.functions
-            if !constr.isInstanceOf[ScPrimaryConstructor] &&
-              constr.isConstructor &&
-              constr.clauses.map(_.clauses.length).getOrElse(1) > i
+            if constr.isConstructor &&
+               constr.clauses.map(_.clauses.length).getOrElse(1) > i
           } {
             if (!PsiTreeUtil.isAncestor(constr, self, true) &&
               constr.getTextRange.getStartOffset < self.getTextRange.getStartOffset) {

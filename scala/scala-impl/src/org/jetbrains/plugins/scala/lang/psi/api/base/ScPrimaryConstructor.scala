@@ -23,10 +23,10 @@ import scala.collection.mutable
 */
 
 trait ScPrimaryConstructor extends ScMember with ScMethodLike {
-  def hasMalformedSignature: Boolean = parameterList.clauses.exists {
+  override def hasMalformedSignature: Boolean = parameterList.clauses.exists {
     _.parameters.dropRight(1).exists(_.isRepeatedParameter)
   }
-  
+
   /**
    *  @return has access modifier
    */

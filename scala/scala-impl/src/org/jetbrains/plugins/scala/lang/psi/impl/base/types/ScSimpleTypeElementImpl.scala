@@ -14,8 +14,8 @@ import org.jetbrains.plugins.scala.lang.macros.MacroDef
 import org.jetbrains.plugins.scala.lang.macros.evaluator.{MacroContext, ScalaMacroEvaluator}
 import org.jetbrains.plugins.scala.lang.psi.annotator.ScSimpleTypeElementAnnotator
 import org.jetbrains.plugins.scala.lang.psi.api.InferUtil.SafeCheckException
-import org.jetbrains.plugins.scala.lang.psi.api.base._
 import org.jetbrains.plugins.scala.lang.psi.api.base.types._
+import org.jetbrains.plugins.scala.lang.psi.api.base.{Constructor, _}
 import org.jetbrains.plugins.scala.lang.psi.api.expr.{ScSuperReference, ScThisReference, ScUnderScoreSectionUtil}
 import org.jetbrains.plugins.scala.lang.psi.api.statements._
 import org.jetbrains.plugins.scala.lang.psi.api.statements.params.ScTypeParam
@@ -64,24 +64,16 @@ class ScSimpleTypeElementImpl(node: ASTNode) extends ScalaPsiElementImpl(node)
 
     def getConstructorParams(constr: PsiMethod, subst: ScSubstitutor): (Seq[Seq[Parameter]], Boolean) = {
       constr match {
-        case fun: ScFunction =>
-          val clauses = fun.effectiveParameterClauses
+        case ScalaConstructor(c) =>
+          val clauses = c.effectiveParameterClauses
           (clauses.map(_.effectiveParameters.map { p =>
             val paramType: ScType = subst(p.`type`().getOrAny)
             new Parameter(p.name, p.deprecatedName, paramType, paramType, p.isDefaultParam,p.isRepeatedParameter,
               p.isCallByNameParameter, p.index, Some(p), p.getDefaultExpression.flatMap(_.`type`().toOption))
           }),
             clauses.lastOption.exists(_.isImplicit))
-        case f: ScPrimaryConstructor =>
-          val clauses = f.effectiveParameterClauses
-          (clauses.map(_.effectiveParameters.map { p =>
-            val paramType: ScType = subst(p.`type`().getOrAny)
-            new Parameter(p.name, p.deprecatedName, paramType, paramType, p.isDefaultParam, p.isRepeatedParameter,
-              p.isCallByNameParameter, p.index, Some(p), p.getDefaultExpression.flatMap(_.`type`().toOption))
-          }),
-            clauses.lastOption.exists(_.isImplicit))
-        case m: PsiMethod =>
-          (Seq(m.parameters.map { p =>
+        case JavaConstructor(c) =>
+          (Seq(c.parameters.map { p =>
             Parameter(p.paramType(), isRepeated = p.isVarArgs, index = p.index)
           }), false)
       }
@@ -108,11 +100,13 @@ class ScSimpleTypeElementImpl(node: ASTNode) extends ScalaPsiElementImpl(node)
         case _: ScTypeAliasDefinition => (Seq.empty, ScSubstitutor.empty)
         case owner: ScTypeParametersOwner if owner.typeParameters.nonEmpty =>
           constr match {
-            case method: ScMethodLike =>
-              val params = method.getConstructorTypeParameters.map(_.typeParameters).getOrElse(Seq.empty)
+            case ScalaConstructor(c) =>
+              val params = c.getConstructorTypeParameters.map(_.typeParameters).getOrElse(Seq.empty)
               val subst = ScSubstitutor.bind(owner.typeParameters, params)(TypeParameterType(_))
               (params, subst)
-            case _ => (Seq.empty, ScSubstitutor.empty)
+            case _ =>
+              // JavaConstructor
+              (Seq.empty, ScSubstitutor.empty)
           }
         case _ => (Seq.empty, ScSubstitutor.empty)
       }
@@ -355,8 +349,8 @@ object ScSimpleTypeElementImpl {
         case _ => None
       }
     }) match {
-      case Some(r@ScalaResolveResult(n: PsiMethod, _)) if n.isConstructor =>
-        (n.containingClass, r.fromType)
+      case Some(r@ScalaResolveResult(Constructor(constr), _)) =>
+        (constr.containingClass, r.fromType)
       case Some(ScalaResolveResult(MacroDef(f), _)) =>
         val macroEvaluator = ScalaMacroEvaluator.getInstance(f.getProject)
         val typeFromMacro = macroEvaluator.checkMacro(f, MacroContext(ref, None))

@@ -8,6 +8,7 @@ import com.intellij.openapi.project.Project
 import com.intellij.psi._
 import com.intellij.psi.util.PsiTreeUtil
 import org.jetbrains.plugins.scala.extensions._
+import org.jetbrains.plugins.scala.lang.psi.api.base.Constructor
 import org.jetbrains.plugins.scala.lang.psi.api.statements._
 import org.jetbrains.plugins.scala.lang.psi.api.statements.params.ScClassParameter
 import org.jetbrains.plugins.scala.lang.psi.api.toplevel.ScTypedDefinition
@@ -172,7 +173,7 @@ object ScalaOIUtil {
 
   private def needOverride(sign: PhysicalSignature, clazz: ScTemplateDefinition): Boolean = {
     sign.method match {
-      case _ if isProductAbstractMethod(sign.method, clazz) => true
+      case method if isProductAbstractMethod(method, clazz) => true
       case f: ScFunctionDeclaration if !f.isNative => false
       case x if x.name == "$tag" || x.name == "$init$"=> false
       case x: ScFunction if x.isCopyMethod && x.isSynthetic => false
@@ -180,7 +181,7 @@ object ScalaOIUtil {
       case x: PsiModifierListOwner if (x.hasModifierPropertyScala("abstract") &&
               !x.isInstanceOf[ScFunctionDefinition])
               || x.hasModifierPropertyScala("final") => false
-      case x if x.isConstructor => false
+      case Constructor(_) => false
       case method if !ResolveUtils.isAccessible(method, clazz.extendsBlock) => false
       case method =>
         var flag = false

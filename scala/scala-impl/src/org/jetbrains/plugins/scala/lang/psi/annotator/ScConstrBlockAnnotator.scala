@@ -2,9 +2,8 @@ package org.jetbrains.plugins.scala.lang.psi.annotator
 
 import com.intellij.lang.annotation.AnnotationHolder
 import org.jetbrains.plugins.scala.ScalaBundle
-import org.jetbrains.plugins.scala.lang.psi.api.base.ScPrimaryConstructor
+import org.jetbrains.plugins.scala.lang.psi.api.base.AuxiliaryConstructor
 import org.jetbrains.plugins.scala.lang.psi.api.expr.ScConstrBlock
-import org.jetbrains.plugins.scala.lang.psi.api.statements.ScFunction
 import org.jetbrains.plugins.scala.lang.psi.api.{Annotatable, ScalaFile}
 
 trait ScConstrBlockAnnotator extends Annotatable { self: ScConstrBlock =>
@@ -15,10 +14,9 @@ trait ScConstrBlockAnnotator extends Annotatable { self: ScConstrBlock =>
     selfInvocation match {
       case Some(invocation) =>
         invocation.bind match {
-          case Some(_: ScPrimaryConstructor) => //it's ok
-          case Some(fun: ScFunction) =>
+          case AuxiliaryConstructor(constr) =>
             //check order
-            if (fun.getTextRange.getStartOffset > getTextRange.getStartOffset) {
+            if (constr.getTextRange.getStartOffset > getTextRange.getStartOffset) {
               holder.createErrorAnnotation(self, ScalaBundle.message("called.constructor.definition.must.precede"))
             }
           case _ =>

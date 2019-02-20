@@ -27,15 +27,10 @@ trait ScMethodLike extends ScMember with PsiMethod with PsiTypeParametersOwnerAd
   @CachedInUserData(this, ModCount.getBlockModificationCount)
   def getConstructorTypeParameters: Option[ScTypeParamClause] = {
     ScMethodLike.this match {
-      case constructor: PsiMethod if constructor.isConstructor =>
-        val clazz = constructor.containingClass
-        clazz match {
-          case c: ScTypeDefinition =>
-            c.typeParametersClause.map { clause =>
-              val paramClauseText = clause.getTextByStub
-              createTypeParameterClauseFromTextWithContext(paramClauseText, constructor, constructor.parameterList)
-            }
-          case _ => None
+      case constructor@ScalaConstructor.in(c: ScTypeDefinition) =>
+        c.typeParametersClause.map { clause =>
+          val paramClauseText = clause.getTextByStub
+          createTypeParameterClauseFromTextWithContext(paramClauseText, constructor, constructor.parameterList)
         }
       case _ => None
     }
@@ -55,9 +50,11 @@ trait ScMethodLike extends ScMember with PsiMethod with PsiTypeParametersOwnerAd
 
   def parameterList: ScParameters
 
+  def hasMalformedSignature: Boolean
+
   def addParameter(param: ScParameter): ScMethodLike = {
-    if (parameterList.clauses.length > 0)
-      parameterList.clauses.apply(0).addParameter(param)
+    if (parameterList.clauses.nonEmpty)
+      parameterList.clauses.head.addParameter(param)
     else {
       val clause = createClauseFromText()
       val newClause = clause.addParameter(param)

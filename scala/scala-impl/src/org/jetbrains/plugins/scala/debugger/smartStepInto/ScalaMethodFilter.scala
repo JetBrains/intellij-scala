@@ -7,7 +7,7 @@ import com.intellij.util.Range
 import com.sun.jdi.Location
 import org.jetbrains.plugins.scala.debugger.ScalaPositionManager
 import org.jetbrains.plugins.scala.debugger.evaluation.util.DebuggerUtil
-import org.jetbrains.plugins.scala.lang.psi.api.base.ScMethodLike
+import org.jetbrains.plugins.scala.lang.psi.api.base.{ScMethodLike, ScalaConstructor}
 import org.jetbrains.plugins.scala.lang.psi.api.statements.ScFunction
 import org.jetbrains.plugins.scala.lang.psi.api.toplevel.typedef.{ScObject, ScTemplateDefinition}
 import org.jetbrains.plugins.scala.lang.psi.types.ValueClassType
@@ -27,7 +27,7 @@ class ScalaMethodFilter(function: ScMethodLike, callingExpressionLines: Range[In
     else DebuggerUtil.getClassJVMName(clazz, clazz.isInstanceOf[ScObject] || ValueClassType.isValueClass(clazz))
   }
   private val funName = function match {
-    case c: ScMethodLike if c.isConstructor => "<init>"
+    case ScalaConstructor(_) => "<init>"
     case fun: ScFunction => ScalaNamesUtil.toJavaName(fun.name)
     case _ => unknownName
   }

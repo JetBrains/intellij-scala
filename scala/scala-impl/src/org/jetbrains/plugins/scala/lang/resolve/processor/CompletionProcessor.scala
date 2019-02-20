@@ -9,7 +9,8 @@ import org.jetbrains.plugins.scala.caches.CachesUtil
 import org.jetbrains.plugins.scala.extensions._
 import org.jetbrains.plugins.scala.lang.completion.ScalaCompletionUtil
 import org.jetbrains.plugins.scala.lang.psi.ScalaPsiUtil.getCompanionModule
-import org.jetbrains.plugins.scala.lang.psi.api.statements.{ScFunction, ScTypeAlias}
+import org.jetbrains.plugins.scala.lang.psi.api.base.AuxiliaryConstructor
+import org.jetbrains.plugins.scala.lang.psi.api.statements.ScTypeAlias
 import org.jetbrains.plugins.scala.lang.psi.api.toplevel.imports.usages.ImportUsed
 import org.jetbrains.plugins.scala.lang.psi.api.toplevel.typedef.ScTypeDefinition
 import org.jetbrains.plugins.scala.lang.psi.types.recursiveUpdate.ScSubstitutor
@@ -104,7 +105,7 @@ class CompletionProcessor(override val kinds: Set[ResolveTargets.Value],
   private def findCandidates(namedElement: PsiNamedElement)
                             (implicit state: ResolveState): Seq[(PsiNamedElement, Boolean)] = {
     val results = namedElement match {
-      case function: ScFunction if function.isConstructor =>
+      case AuxiliaryConstructor(_) =>
         Seq.empty // do not add constructor
       case definition: ScTypeDefinition =>
         (Seq(definition) ++ getCompanionModule(definition)).map((_, false))

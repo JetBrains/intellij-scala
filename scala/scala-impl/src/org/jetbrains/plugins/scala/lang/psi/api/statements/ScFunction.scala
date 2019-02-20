@@ -122,7 +122,7 @@ trait ScFunction extends ScalaPsiElement with ScMember with ScTypeParametersOwne
   /**
    * Signature has repeated param, which is not the last one
    */
-  def hasMalformedSignature: Boolean = {
+  override def hasMalformedSignature: Boolean = {
     val clausesIterator = paramClauses.clauses.iterator
     while (clausesIterator.hasNext) {
       val clause = clausesIterator.next()

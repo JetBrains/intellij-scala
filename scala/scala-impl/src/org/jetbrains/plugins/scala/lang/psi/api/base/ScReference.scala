@@ -119,8 +119,8 @@ trait ScReference extends ScalaPsiElement with PsiPolyVariantReference {
       case isWrapper(named) => return isReferenceTo(named, resolved, rr)
       case td: ScTypeDefinition =>
         resolved match {
-          case method: PsiMethod if method.isConstructor =>
-            if (ScEquivalenceUtil.smartEquivalence(td, method.containingClass)) return true
+          case Constructor(constr) =>
+            if (ScEquivalenceUtil.smartEquivalence(td, constr.containingClass)) return true
           case method: ScFunction if Set("apply", "unapply", "unapplySeq").contains(method.name) =>
             if (isSyntheticForCaseClass(method, td)) return true
 
@@ -141,8 +141,8 @@ trait ScReference extends ScalaPsiElement with PsiPolyVariantReference {
         }
       case c: PsiClass =>
         resolved match {
-          case method: PsiMethod if method.isConstructor =>
-            if (c == method.containingClass) return true
+          case Constructor(constr) =>
+            if (c == constr.containingClass) return true
           case _ =>
         }
       case _: ScTypeAliasDefinition if resolved.isInstanceOf[ScPrimaryConstructor] =>

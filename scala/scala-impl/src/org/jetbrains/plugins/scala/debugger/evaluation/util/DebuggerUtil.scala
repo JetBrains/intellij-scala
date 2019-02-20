@@ -16,7 +16,7 @@ import org.jetbrains.plugins.scala.debugger.filters.ScalaDebuggerSettings
 import org.jetbrains.plugins.scala.extensions._
 import org.jetbrains.plugins.scala.lang.lexer.ScalaTokenTypes
 import org.jetbrains.plugins.scala.lang.psi.api.base.patterns.{ScBindingPattern, ScCaseClause}
-import org.jetbrains.plugins.scala.lang.psi.api.base._
+import org.jetbrains.plugins.scala.lang.psi.api.base.{ScalaConstructor, _}
 import org.jetbrains.plugins.scala.lang.psi.api.expr._
 import org.jetbrains.plugins.scala.lang.psi.api.statements._
 import org.jetbrains.plugins.scala.lang.psi.api.statements.params.{ScClassParameter, ScParameter}
@@ -173,12 +173,8 @@ object DebuggerUtil {
     val subst = ScSubstitutor.bind(typeParams, upperBounds)
     val localParameters = function match {
       case fun: ScFunctionDefinition if fun.isLocal => localParamsForFunDef(fun)
-      case fun if fun.isConstructor =>
-        fun.containingClass match {
-          case c: ScClass => localParamsForConstructor(c)
-          case _ => Seq.empty
-        }
-
+      case ScalaConstructor.in(c: ScClass) =>
+        localParamsForConstructor(c)
       case _ => Seq.empty
     }
     val valueClassParameter = function.containingClass match {
@@ -503,7 +499,7 @@ object DebuggerUtil {
           case fun: ScFunctionDefinition if fun.isLocal && !visited.contains(fun) =>
             visited += fun
             buf ++= localParamsForFunDef(fun, visited).filter(atRightPlace)
-          case fun: ScMethodLike if fun.isConstructor && !visited.contains(fun) =>
+          case ScalaConstructor(fun) if !visited.contains(fun) =>
             fun.containingClass match {
               case c: ScClass if isLocalClass(c) =>
                 visited += c

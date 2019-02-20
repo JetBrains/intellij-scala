@@ -9,7 +9,7 @@ import com.intellij.reference.SoftReference
 
 package object decompiler {
 
-  val DECOMPILER_VERSION = 312
+  val DECOMPILER_VERSION = 313
   private[this] val DecompilerFileAttribute = new FileAttribute("_is_scala_compiled_new_key_", DECOMPILER_VERSION, true)
 
   private[decompiler] class DecompilationResult(val isScala: Boolean, val sourceName: String)

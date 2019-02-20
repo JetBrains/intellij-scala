@@ -23,7 +23,7 @@ import org.jetbrains.plugins.scala.extensions._
 import org.jetbrains.plugins.scala.lang.lexer.ScalaTokenTypes
 import org.jetbrains.plugins.scala.lang.psi.ScalaPsiUtil
 import org.jetbrains.plugins.scala.lang.psi.api.base.patterns.{ScCaseClauses, ScPattern}
-import org.jetbrains.plugins.scala.lang.psi.api.base.{ScFieldId, ScReference}
+import org.jetbrains.plugins.scala.lang.psi.api.base.{Constructor, ScFieldId, ScReference}
 import org.jetbrains.plugins.scala.lang.psi.api.expr.ScExpression
 import org.jetbrains.plugins.scala.lang.psi.api.statements._
 import org.jetbrains.plugins.scala.lang.psi.api.statements.params.{ScClassParameter, ScParameter}
@@ -257,7 +257,7 @@ private object GutterUtil {
 
   def collectOverriddenMemberMarker(member: ScMember, anchor: PsiElement): Option[LineMarkerInfo[_ <: PsiElement]] =
     member match {
-      case method: PsiMethod if method.isConstructor => None
+      case Constructor(_) => None
       case _ =>
         val namedElems: Seq[ScNamedElement] = member match {
           case d: ScDeclaredElementsHolder => d.declaredElements.filterBy[ScNamedElement]

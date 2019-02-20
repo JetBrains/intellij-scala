@@ -11,8 +11,8 @@ import org.jetbrains.plugins.scala.lang.psi.api.InferUtil.SafeCheckException
 import org.jetbrains.plugins.scala.lang.psi.api.base._
 import org.jetbrains.plugins.scala.lang.psi.api.base.types.{ScParameterizedTypeElement, ScSimpleTypeElement, ScTypeElement}
 import org.jetbrains.plugins.scala.lang.psi.api.expr.{ScAssignment, ScExpression, ScNewTemplateDefinition, ScReferenceExpression}
+import org.jetbrains.plugins.scala.lang.psi.api.statements.ScTypeAliasDefinition
 import org.jetbrains.plugins.scala.lang.psi.api.statements.params.ScParameter
-import org.jetbrains.plugins.scala.lang.psi.api.statements.{ScFunction, ScTypeAliasDefinition}
 import org.jetbrains.plugins.scala.lang.psi.api.toplevel.ScTypeParametersOwner
 import org.jetbrains.plugins.scala.lang.psi.api.toplevel.templates.{ScExtendsBlock, ScTemplateParents}
 import org.jetbrains.plugins.scala.lang.psi.api.toplevel.typedef.ScTemplateDefinition
@@ -212,11 +212,10 @@ class ScConstructorImpl(node: ASTNode) extends ScalaPsiElementImpl(node) with Sc
 
   @Cached(ModCount.getBlockModificationCount, this)
   def matchedParametersByClauses: Seq[Seq[(ScExpression, Parameter)]] = {
-    val paramClauses = this.reference.flatMap(r => Option(r.resolve())) match {
-      case Some(pc: ScPrimaryConstructor)             => pc.effectiveParameterClauses.map(_.effectiveParameters)
-      case Some(fun: ScFunction) if fun.isConstructor => fun.effectiveParameterClauses.map(_.effectiveParameters)
-      case Some(m: PsiMethod) if m.isConstructor      => Seq(m.parameters)
-      case _                                          => Seq.empty
+    val paramClauses = this.reference.map(_.resolve()).orNull match {
+      case ScalaConstructor(constr) => constr.effectiveParameterClauses.map(_.effectiveParameters)
+      case JavaConstructor(constr)  => Seq(constr.parameters)
+      case _                        => Seq.empty
     }
     (for {
       (paramClause, argList) <- paramClauses.zip(arguments)

@@ -6,11 +6,11 @@ import com.intellij.psi._
 import org.jetbrains.plugins.scala.extensions._
 import org.jetbrains.plugins.scala.lang.psi.ScalaPsiUtil
 import org.jetbrains.plugins.scala.lang.psi.api.ScalaElementVisitor
-import org.jetbrains.plugins.scala.lang.psi.api.base.{ScAnnotationsHolder, ScReference}
 import org.jetbrains.plugins.scala.lang.psi.api.base.types.ScTypeProjection
+import org.jetbrains.plugins.scala.lang.psi.api.base.{Constructor, ScAnnotationsHolder, ScReference}
 import org.jetbrains.plugins.scala.lang.psi.api.expr.ScReferenceExpression
-import org.jetbrains.plugins.scala.lang.psi.api.statements.params.ScParameter
 import org.jetbrains.plugins.scala.lang.psi.api.statements.ScFunction
+import org.jetbrains.plugins.scala.lang.psi.api.statements.params.ScParameter
 import org.jetbrains.plugins.scala.lang.refactoring.util.ScalaNamesUtil
 import org.jetbrains.plugins.scala.lang.resolve.ScalaResolveResult
 
@@ -42,8 +42,8 @@ class ScalaDeprecationInspection extends LocalInspectionTool {
           val context = ScalaPsiUtil.nameContext(named)
 
           val isDeprecated = context.asOptionOf[PsiDocCommentOwner].exists {
-            case m: PsiMethod if m.isConstructor => m.isDeprecated || m.containingClass.toOption.exists(_.isDeprecated)
-            case other                           => other.isDeprecated
+            case Constructor(constr) => constr.isDeprecated || constr.containingClass.toOption.exists(_.isDeprecated)
+            case other               => other.isDeprecated
           }
 
           if (isDeprecated) {

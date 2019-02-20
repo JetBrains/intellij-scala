@@ -18,7 +18,7 @@ import com.intellij.usageView.UsageInfo
 import com.intellij.util._
 import org.jetbrains.annotations.{NonNls, Nullable}
 import org.jetbrains.plugins.scala.extensions._
-import org.jetbrains.plugins.scala.lang.psi.api.base.ScStableCodeReference
+import org.jetbrains.plugins.scala.lang.psi.api.base.{Constructor, ScStableCodeReference}
 import org.jetbrains.plugins.scala.lang.psi.api.toplevel.ScNamedElement
 import org.jetbrains.plugins.scala.lang.psi.api.toplevel.imports.ScImportStmt
 import org.jetbrains.plugins.scala.lang.psi.api.toplevel.typedef.ScObject
@@ -273,8 +273,8 @@ object SafeDeleteProcessorUtil {
           if (parent.isInstanceOf[PsiCodeBlock]) {
             parent = parent.getParent
             parent match {
-              case method: PsiMethod if method.isConstructor =>
-                return method
+              case Constructor(constr) =>
+                return constr
               case _ =>
             }
           }

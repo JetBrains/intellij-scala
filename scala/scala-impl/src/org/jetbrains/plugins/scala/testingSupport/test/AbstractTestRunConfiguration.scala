@@ -27,7 +27,6 @@ import com.intellij.openapi.vfs.newvfs.ManagingFS
 import com.intellij.openapi.vfs.newvfs.persistent.PersistentFSImpl
 import com.intellij.psi._
 import com.intellij.psi.search.GlobalSearchScope
-import com.intellij.util.xmlb.XmlSerializer
 import org.jdom.Element
 import org.jetbrains.plugins.scala.extensions._
 import org.jetbrains.plugins.scala.lang.psi.ScalaPsiUtil
@@ -626,7 +625,7 @@ object AbstractTestRunConfiguration extends SuiteValidityChecker {
 
   protected[test] def lackSuitableConstructorWithParams(clazz: PsiClass, maxParamsCount: Int = 0): Boolean = {
     val constructors = clazz match {
-      case c: ScClass => c.secondaryConstructors.filter(_.isConstructor).toList ::: c.constructor.toList
+      case c: ScClass => c.secondaryConstructors.toList ::: c.constructor.toList
       case _ => clazz.getConstructors.toList
     }
     for (con <- constructors) {

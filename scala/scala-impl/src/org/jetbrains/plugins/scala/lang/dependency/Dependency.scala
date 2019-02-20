@@ -10,12 +10,12 @@ import org.jetbrains.plugins.scala.lang.psi.ScalaPsiUtil
 import org.jetbrains.plugins.scala.lang.psi.api.ScalaFile
 import org.jetbrains.plugins.scala.lang.psi.api.base.patterns.{ScConstructorPattern, ScReferencePattern}
 import org.jetbrains.plugins.scala.lang.psi.api.base.types.ScTypeProjection
-import org.jetbrains.plugins.scala.lang.psi.api.base.{ScConstructor, ScPrimaryConstructor, ScReference}
+import org.jetbrains.plugins.scala.lang.psi.api.base.{Constructor, ScConstructor, ScReference}
 import org.jetbrains.plugins.scala.lang.psi.api.expr._
 import org.jetbrains.plugins.scala.lang.psi.api.statements.ScFunctionDefinition
 import org.jetbrains.plugins.scala.lang.psi.api.toplevel.imports.ScImportStmt
 import org.jetbrains.plugins.scala.lang.psi.api.toplevel.templates.ScTemplateParents
-import org.jetbrains.plugins.scala.lang.psi.api.toplevel.typedef.{ScClass, ScMember, ScObject}
+import org.jetbrains.plugins.scala.lang.psi.api.toplevel.typedef.{ScMember, ScObject}
 import org.jetbrains.plugins.scala.lang.psi.api.toplevel.{ScNamedElement, ScPackaging}
 import org.jetbrains.plugins.scala.lang.psi.impl.base.ScStableCodeReferenceImpl
 import org.jetbrains.plugins.scala.lang.psi.impl.expr.ScReferenceExpressionImpl
@@ -169,7 +169,7 @@ object Dependency {
             None
           case e: PsiClass => create(e)
           case e: PsiPackage => create(e)
-          case (_: ScPrimaryConstructor) && Parent(e: ScClass) => create(e)
+          case Constructor.ofClass(c) => create(c)
           case (function: ScFunctionDefinition) && ContainingClass(obj: ScObject)
             if function.isSynthetic || function.name == "apply" || function.name == "unapply" => create(obj)
           case (member: ScMember) && ContainingClass(obj: ScObject) =>
@@ -180,12 +180,6 @@ object Dependency {
             create(obj, Some(memberName))
           case (pattern: ScReferencePattern) && Parent(Parent(ContainingClass(obj: ScObject))) =>
             create(obj, Some(pattern.name))
-          case (function: ScFunctionDefinition) && ContainingClass(obj: ScClass)
-            if function.isConstructor =>
-            create(obj)
-          case (method: PsiMethod) && ContainingClass(e: PsiClass)
-            if method.isConstructor =>
-            create(e)
           case (method: PsiMember) && ContainingClass(e: PsiClass)
             if method.getModifierList.hasModifierProperty("static") =>
             create(e, Some(method.getName))

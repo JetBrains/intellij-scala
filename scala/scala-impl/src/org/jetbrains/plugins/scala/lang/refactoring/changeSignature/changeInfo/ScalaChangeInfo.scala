@@ -6,7 +6,7 @@ import com.intellij.psi._
 import com.intellij.refactoring.util.CanonicalTypes
 import com.intellij.refactoring.util.CanonicalTypes.Type
 import org.jetbrains.plugins.scala.lang.psi.ElementScope
-import org.jetbrains.plugins.scala.lang.psi.api.base.{ScMethodLike, ScPrimaryConstructor}
+import org.jetbrains.plugins.scala.lang.psi.api.base.{ScMethodLike, ScalaConstructor}
 import org.jetbrains.plugins.scala.lang.psi.api.statements.ScFunction
 import org.jetbrains.plugins.scala.lang.psi.types.{ScType, ScTypeExt}
 import org.jetbrains.plugins.scala.lang.refactoring.changeSignature.ScalaParameterInfo
@@ -47,11 +47,9 @@ case class ScalaChangeInfo(newVisibility: String,
     }.orNull
 
   override val getOldName: String = function match {
-    case fun: ScFunction =>
-      if (fun.isConstructor) fun.containingClass.name
-      else fun.name
-    case pc: ScPrimaryConstructor => pc.containingClass.name
-    case _ => newName
+    case ScalaConstructor.in(c) => c.name
+    case fun: ScFunction        => fun.name
+    case _                      => newName
   }
 
   override def getNewNameIdentifier: PsiIdentifier = JavaPsiFacade.getElementFactory(function.getProject).createIdentifier(newName)

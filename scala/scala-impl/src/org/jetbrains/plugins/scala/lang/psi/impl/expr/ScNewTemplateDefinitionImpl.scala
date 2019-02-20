@@ -14,9 +14,9 @@ import org.jetbrains.plugins.scala.extensions._
 import org.jetbrains.plugins.scala.icons.Icons
 import org.jetbrains.plugins.scala.lang.psi.annotator.{ScExpressionAnnotator, ScNewTemplateDefinitionAnnotator}
 import org.jetbrains.plugins.scala.lang.psi.api.ScalaElementVisitor
-import org.jetbrains.plugins.scala.lang.psi.api.base.{ScConstructor, ScPrimaryConstructor}
+import org.jetbrains.plugins.scala.lang.psi.api.base.{JavaConstructor, ScConstructor, ScalaConstructor}
 import org.jetbrains.plugins.scala.lang.psi.api.expr._
-import org.jetbrains.plugins.scala.lang.psi.api.statements.{ScDeclaredElementsHolder, ScFunction, ScTypeAlias}
+import org.jetbrains.plugins.scala.lang.psi.api.statements.{ScDeclaredElementsHolder, ScTypeAlias}
 import org.jetbrains.plugins.scala.lang.psi.api.toplevel.ScEarlyDefinitions
 import org.jetbrains.plugins.scala.lang.psi.api.toplevel.templates.ScTemplateBody
 import org.jetbrains.plugins.scala.lang.psi.impl.ScalaPsiElementFactory.createExpressionWithContextFromText
@@ -108,9 +108,8 @@ final class ScNewTemplateDefinitionImpl private[psi](stub: ScTemplateDefinitionS
   private def cachedDesugaredApply: Option[ScExpression] = {
     val resolvedConstructor = constructor.flatMap(_.reference).flatMap(_.resolve().toOption)
     val constrParamLength = resolvedConstructor.map {
-      case prim: ScPrimaryConstructor       => prim.effectiveParameterClauses.length
-      case f: ScFunction if f.isConstructor => f.effectiveParameterClauses.length
-      case m: PsiMethod if m.isConstructor  => 1
+      case ScalaConstructor(constr)         => constr.effectiveParameterClauses.length
+      case JavaConstructor(_)               => 1
       case _                                => -1
     }
     val excessArgs =

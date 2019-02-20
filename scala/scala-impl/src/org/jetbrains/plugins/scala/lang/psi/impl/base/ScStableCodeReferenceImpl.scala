@@ -12,7 +12,7 @@ import com.intellij.psi.util.PsiTreeUtil
 import com.intellij.util.IncorrectOperationException
 import org.jetbrains.plugins.scala.annotator.intention.ScalaImportTypeFix
 import org.jetbrains.plugins.scala.annotator.intention.ScalaImportTypeFix.{ClassTypeToImport, TypeAliasToImport, TypeToImport}
-import org.jetbrains.plugins.scala.extensions.{&&, IterableExt, ObjectExt, PsiClassExt, PsiElementExt, PsiNamedElementExt, PsiTypeExt, ifReadAllowed}
+import org.jetbrains.plugins.scala.extensions._
 import org.jetbrains.plugins.scala.lang.formatting.settings.ScalaCodeStyleSettings
 import org.jetbrains.plugins.scala.lang.lexer.ScalaTokenTypes
 import org.jetbrains.plugins.scala.lang.macros.MacroDef
@@ -220,10 +220,10 @@ class ScStableCodeReferenceImpl(node: ASTNode) extends ScReferenceImpl(node) wit
             }
           case fun: ScFunction if Seq("unapply", "unapplySeq").contains(fun.name) && ScalaPsiUtil.hasStablePath(fun) =>
             bindToElement(fun.containingClass)
-          case fun: ScFunction if fun.isConstructor =>
-            bindToElement(fun.containingClass)
-          case m: PsiMethod if m.isConstructor =>
-            bindToElement(m.getContainingClass)
+          case AuxiliaryConstructor(constr)  =>
+            bindToElement(constr.containingClass)
+          case JavaConstructor(constr) =>
+            bindToElement(constr.containingClass)
           case pckg: PsiPackage => bindToPackage(pckg)
           case _ => throw new IncorrectOperationException(s"Cannot bind to $element")
         }

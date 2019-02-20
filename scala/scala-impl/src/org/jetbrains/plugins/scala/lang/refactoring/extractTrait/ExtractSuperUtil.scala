@@ -16,7 +16,7 @@ import com.intellij.psi.util.PsiTreeUtil
 import com.intellij.refactoring.util.RefactoringMessageUtil
 import org.jetbrains.plugins.scala.extensions.PsiElementExt
 import org.jetbrains.plugins.scala.lang.psi.ScalaPsiUtil
-import org.jetbrains.plugins.scala.lang.psi.api.base.ScPrimaryConstructor
+import org.jetbrains.plugins.scala.lang.psi.api.base.ScalaConstructor
 import org.jetbrains.plugins.scala.lang.psi.api.base.types.ScSimpleTypeElement
 import org.jetbrains.plugins.scala.lang.psi.api.expr.ScNewTemplateDefinition
 import org.jetbrains.plugins.scala.lang.psi.api.statements._
@@ -139,9 +139,8 @@ object ExtractSuperUtil {
   def possibleMembersToExtract(clazz: ScTemplateDefinition): util.List[ScalaExtractMemberInfo] = {
     clazz.members.filter {
       case m if m.isPrivate => false
-      case fun: ScFunction if fun.isConstructor => false
+      case ScalaConstructor(_) => false
       case _: ScTypeDefinition => false
-      case _: ScPrimaryConstructor => false
       case _ => true
     }.map(new ScalaExtractMemberInfo(_)).asJava
   }

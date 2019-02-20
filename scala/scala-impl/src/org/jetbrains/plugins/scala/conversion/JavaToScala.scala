@@ -16,7 +16,7 @@ import org.jetbrains.plugins.scala.extensions.{PsiClassExt, PsiMemberExt, PsiMet
 import org.jetbrains.plugins.scala.lang.dependency.Path
 import org.jetbrains.plugins.scala.lang.formatting.settings.ScalaCodeStyleSettings
 import org.jetbrains.plugins.scala.lang.psi.ScalaPsiUtil
-import org.jetbrains.plugins.scala.lang.psi.api.base.ScConstructor
+import org.jetbrains.plugins.scala.lang.psi.api.base.{Constructor, ScConstructor}
 import org.jetbrains.plugins.scala.lang.psi.impl.source.ScalaCodeFragment
 import org.jetbrains.plugins.scala.settings.ScalaProjectSettings
 
@@ -52,7 +52,7 @@ object JavaToScala {
     def usageInConstructorParams(usage: PsiReferenceExpression): Boolean = {
       def correspondedConstructorParams: Seq[PsiParameter] = {
         Option(PsiTreeUtil.getParentOfType(usage, classOf[PsiMethod]))
-          .collect { case m: PsiMethod if m.isConstructor => m.parameters }
+          .collect { case Constructor(m) => m.parameters }
           .getOrElse(Seq.empty[PsiParameter])
       }
 
@@ -622,7 +622,7 @@ object JavaToScala {
       def sortMembers(): Seq[PsiMember] = {
         def isConstructor(member: PsiMember): Boolean =
           member match {
-            case m: PsiMethod if m.isConstructor => true
+            case Constructor(_) => true
             case _ => false
           }
 
@@ -728,7 +728,7 @@ object JavaToScala {
       }
 
       refExpr.foreach { expr =>
-        Option(expr.resolve()).collect { case m: PsiMethod if m.isConstructor =>
+        Option(expr.resolve()).collect { case Constructor(m) =>
           val finalTarget: PsiMethod = toTargetConstructorMap.getOrElse(m, m)
           toTargetConstructorMap.put(constructor, finalTarget)
         }

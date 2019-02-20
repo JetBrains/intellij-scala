@@ -7,9 +7,9 @@ import org.jetbrains.plugins.scala.annotator.quickfix.modifiers.{AddModifierQuic
 import org.jetbrains.plugins.scala.extensions._
 import org.jetbrains.plugins.scala.lang.psi.ScalaPsiUtil
 import org.jetbrains.plugins.scala.lang.psi.api.PropertyMethods
-import org.jetbrains.plugins.scala.lang.psi.api.base.ScFieldId
 import org.jetbrains.plugins.scala.lang.psi.api.base.patterns.ScBindingPattern
 import org.jetbrains.plugins.scala.lang.psi.api.base.types.ScRefinement
+import org.jetbrains.plugins.scala.lang.psi.api.base.{Constructor, ScFieldId}
 import org.jetbrains.plugins.scala.lang.psi.api.statements._
 import org.jetbrains.plugins.scala.lang.psi.api.statements.params.ScClassParameter
 import org.jetbrains.plugins.scala.lang.psi.api.toplevel.typedef.ScTypeDefinition
@@ -32,7 +32,7 @@ trait OverridingAnnotator {
       case f: ScFunctionDeclaration if f.isNative => true
       case _: ScFunctionDeclaration => false
       case _: ScFun => true
-      case method: PsiMethod if method.getContainingClass != null && method.getContainingClass.isInterface => false
+      case Constructor.ofClass(c) if c.isInterface => false
       case method: PsiMethod if !method.hasAbstractModifier && !method.isConstructor => true
       case method: PsiMethod if method.hasModifierProperty(PsiModifier.NATIVE) => true
       case _: ScPatternDefinition => true

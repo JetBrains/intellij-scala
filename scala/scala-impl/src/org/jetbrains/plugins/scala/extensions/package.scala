@@ -26,14 +26,14 @@ import com.intellij.util.{ArrayFactory, Processor}
 import org.jetbrains.plugins.scala.extensions.implementation.iterator._
 import org.jetbrains.plugins.scala.lang.lexer.ScalaTokenTypes
 import org.jetbrains.plugins.scala.lang.psi.ScalaPsiUtil.isInheritorDeep
-import org.jetbrains.plugins.scala.lang.psi.api.{ScalaFile, ScalaPsiElement}
 import org.jetbrains.plugins.scala.lang.psi.api.base.patterns.ScBindingPattern
-import org.jetbrains.plugins.scala.lang.psi.api.base.{ScFieldId, ScPrimaryConstructor}
+import org.jetbrains.plugins.scala.lang.psi.api.base.{Constructor, ScFieldId}
 import org.jetbrains.plugins.scala.lang.psi.api.expr.ScNewTemplateDefinition
 import org.jetbrains.plugins.scala.lang.psi.api.statements.params.{ScClassParameter, ScParameter}
 import org.jetbrains.plugins.scala.lang.psi.api.statements.{ScDeclaredElementsHolder, ScFunction}
 import org.jetbrains.plugins.scala.lang.psi.api.toplevel.typedef._
 import org.jetbrains.plugins.scala.lang.psi.api.toplevel.{ScModifierListOwner, ScNamedElement, ScTypedDefinition}
+import org.jetbrains.plugins.scala.lang.psi.api.{ScalaFile, ScalaPsiElement}
 import org.jetbrains.plugins.scala.lang.psi.fake.FakePsiParameter
 import org.jetbrains.plugins.scala.lang.psi.impl.toplevel.synthetic.ScSyntheticClass
 import org.jetbrains.plugins.scala.lang.psi.impl.toplevel.typedef.MixinNodes
@@ -413,16 +413,14 @@ package object extensions {
 
       val scope = scalaScope.getOrElse(elementScope)
       (element match {
-        case _: ScPrimaryConstructor          => None
-        case e: ScFunction if e.isConstructor => None
-        case e: ScFunction                    => e.`type`().toOption
-        case e: ScBindingPattern              => e.`type`().toOption
-        case e: ScFieldId                     => e.`type`().toOption
-        case e: ScParameter                   => e.getRealParameterType.toOption
-        case e: PsiMethod if e.isConstructor  => None
-        case e: PsiMethod                     => e.functionType(scope).toOption
-        case e: PsiVariable                   => lift(e.getType)
-        case _                                => None
+        case Constructor(_)      => None
+        case e: ScFunction       => e.`type`().toOption
+        case e: ScBindingPattern => e.`type`().toOption
+        case e: ScFieldId        => e.`type`().toOption
+        case e: ScParameter      => e.getRealParameterType.toOption
+        case e: PsiMethod        => e.functionType(scope).toOption
+        case e: PsiVariable      => lift(e.getType)
+        case _                   => None
       }).map(substitutor)
     }
 

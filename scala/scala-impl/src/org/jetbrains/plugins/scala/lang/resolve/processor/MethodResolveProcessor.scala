@@ -9,9 +9,9 @@ import org.jetbrains.plugins.scala.caches.CachesUtil._
 import org.jetbrains.plugins.scala.extensions._
 import org.jetbrains.plugins.scala.lang.psi.ScalaPsiUtil
 import org.jetbrains.plugins.scala.lang.psi.api.ScalaPsiElement
+import org.jetbrains.plugins.scala.lang.psi.api.base._
 import org.jetbrains.plugins.scala.lang.psi.api.base.patterns.ScReferencePattern
 import org.jetbrains.plugins.scala.lang.psi.api.base.types.ScTypeElement
-import org.jetbrains.plugins.scala.lang.psi.api.base.{ScMethodLike, ScPrimaryConstructor}
 import org.jetbrains.plugins.scala.lang.psi.api.expr._
 import org.jetbrains.plugins.scala.lang.psi.api.statements._
 import org.jetbrains.plugins.scala.lang.psi.api.statements.params.TypeParamIdOwner
@@ -196,8 +196,8 @@ object MethodResolveProcessor {
     val s = realResolveResult.substitutor
 
     val elementsForUndefining = element match {
-      case f: ScMethodLike if f.isConstructor && !selfConstructorResolve => Seq(realResolveResult.getActualElement)
-      case m: PsiMethod if m.isConstructor =>
+      case ScalaConstructor(_) if !selfConstructorResolve => Seq(realResolveResult.getActualElement)
+      case Constructor(_) =>
         Seq(realResolveResult.getActualElement, element).distinct
       case _ => Seq(element) //do not
     }
@@ -353,15 +353,11 @@ object MethodResolveProcessor {
       case _: ScTypeAlias =>
         ConformanceExtResult(problems)
       //Implicit Application
-      case f: ScFunction if f.hasMalformedSignature =>
+      case f: ScMethodLike if f.hasMalformedSignature =>
         problems += new MalformedDefinition
         ConformanceExtResult(problems)
-      case c: ScPrimaryConstructor if c.hasMalformedSignature =>
-        problems += new MalformedDefinition
-        ConformanceExtResult(problems)
-      case f: ScFunction if f.isConstructor => scalaConstructorCompatibility(f)
-      case c: ScPrimaryConstructor => scalaConstructorCompatibility(c)
-      case method: PsiMethod if method.isConstructor => javaConstructorCompatibility(method)
+      case ScalaConstructor(constructor) => scalaConstructorCompatibility(constructor)
+      case JavaConstructor(constructor) => javaConstructorCompatibility(constructor)
       case fun: ScFunction if (typeArgElements.isEmpty ||
               typeArgElements.length == fun.typeParameters.length) && fun.paramClauses.clauses.length == 1 &&
               fun.paramClauses.clauses.head.isImplicit &&
@@ -371,12 +367,6 @@ object MethodResolveProcessor {
       case fun: ScTypeParametersOwner if (typeArgElements.isEmpty ||
               typeArgElements.length == fun.typeParameters.length) && argumentClauses.isEmpty &&
               fun.isInstanceOf[PsiNamedElement] =>
-        fun match {
-          case function: ScFunction if function.isConstructor =>
-            problems += new ApplicabilityProblem("1")
-            return ConformanceExtResult(problems)
-          case _ =>
-        }
         checkFunction(fun.asInstanceOf[PsiNamedElement])
       case fun: PsiTypeParameterListOwner if (typeArgElements.isEmpty ||
               typeArgElements.length == fun.getTypeParameters.length) && argumentClauses.isEmpty &&
