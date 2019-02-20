@@ -17,7 +17,7 @@ import scala.collection.JavaConverters._
 
 
 case class ScalaSDKLoader(includeScalaReflect: Boolean = false) extends LibraryLoader {
-  protected lazy val dependencyManager: DependencyManagerBase = new DependencyManagerBase {
+  lazy val dependencyManager: DependencyManagerBase = new DependencyManagerBase {
     override protected val artifactBlackList: Set[String] = Set.empty
   }
 
