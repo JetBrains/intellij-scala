@@ -10,7 +10,8 @@ import com.intellij.psi.codeStyle.CodeStyleManager
 import com.intellij.psi.{PsiFile, PsiManager}
 import org.jetbrains.plugins.scala.ScalaFileType
 import org.jetbrains.plugins.scala.extensions._
-import org.jetbrains.plugins.scala.lang.formatting.scalafmt.ScalafmtDynamicConfigUtil
+import org.jetbrains.plugins.scala.lang.formatting.processors.ScalaFmtPreFormatProcessor
+import org.jetbrains.plugins.scala.lang.formatting.scalafmt.ScalafmtDynamicConfigManager
 import org.jetbrains.plugins.scala.lang.formatting.settings.ScalaCodeStyleSettings
 import org.jetbrains.plugins.scala.lang.psi.api.ScalaFile
 
@@ -18,7 +19,9 @@ class ReformatOnCompileTask(project: Project) extends ProjectComponent with Comp
   override def execute(context: CompileContext): Boolean = {
     val scalaSettings: ScalaCodeStyleSettings = CodeStyle.getSettings(project).getCustomSettings(classOf[ScalaCodeStyleSettings])
     if (scalaSettings.REFORMAT_ON_COMPILE) {
-      reformatScopeFiles(context.getCompileScope, scalaSettings)
+      ScalaFmtPreFormatProcessor.inFailSilentMode {
+        reformatScopeFiles(context.getCompileScope, scalaSettings)
+      }
     }
     true
   }
@@ -35,7 +38,6 @@ class ReformatOnCompileTask(project: Project) extends ProjectComponent with Comp
   } {
     Application.invokeAndWait {
       CommandProcessor.runUndoTransparentAction {
-        // FIXME: if config file has errors then during compilation there will be very many error notifications
         CodeStyleManager.getInstance(project).reformat(psiFile)
       }
     }
@@ -43,7 +45,7 @@ class ReformatOnCompileTask(project: Project) extends ProjectComponent with Comp
 
   private def shouldFormatFile(file: PsiFile, scalaSettings: ScalaCodeStyleSettings): Boolean = {
     if (scalaSettings.USE_SCALAFMT_FORMATTER()) {
-      ScalafmtDynamicConfigUtil.isIncludedInProject(file)
+      ScalafmtDynamicConfigManager.isIncludedInProject(file)
     } else {
       true
     }

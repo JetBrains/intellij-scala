@@ -1,6 +1,7 @@
 package org.jetbrains.plugins.scala.lang.formatting.scalafmt
 
 import com.intellij.application.options.CodeStyle
+import com.intellij.openapi.components.ProjectComponent
 import com.intellij.openapi.diagnostic.Logger
 import com.intellij.openapi.fileEditor.FileDocumentManager
 import com.intellij.openapi.progress.{ProgressIndicator, ProgressManager, Task}
@@ -9,34 +10,29 @@ import com.intellij.openapi.vfs.{StandardFileSystems, VirtualFile}
 import com.intellij.psi.PsiFile
 import com.typesafe.config.{ConfigException, ConfigFactory}
 import org.jetbrains.plugins.scala.extensions.{inWriteAction, _}
-import org.jetbrains.plugins.scala.lang.formatting.processors.ScalaFmtPreFormatProcessor.OpenFileNotificationActon
+import org.jetbrains.plugins.scala.lang.formatting.OpenFileNotificationActon
+import org.jetbrains.plugins.scala.lang.formatting.scalafmt.ScalafmtDynamicConfigManager._
 import org.jetbrains.plugins.scala.lang.formatting.scalafmt.ScalafmtDynamicUtil.{DefaultVersion, ScalafmtResolveError, ScalafmtVersion}
 import org.jetbrains.plugins.scala.lang.formatting.scalafmt.dynamic.exceptions.ScalafmtConfigException
 import org.jetbrains.plugins.scala.lang.formatting.scalafmt.dynamic.{ScalafmtDynamicConfig, ScalafmtReflect}
 import org.jetbrains.plugins.scala.lang.formatting.settings.ScalaCodeStyleSettings
-import org.jetbrains.plugins.scala.project.ProjectContext
 import org.jetbrains.plugins.scala.util.ScalaCollectionsUtil
 import org.jetbrains.sbt.language.SbtFileImpl
 
 import scala.collection.mutable
 import scala.util.Try
 
-object ScalafmtDynamicConfigUtil {
-  private val Log = Logger.getInstance(this.getClass)
-
-  val DefaultConfigurationFileName: String = ".scalafmt.conf"
-
+class ScalafmtDynamicConfigManager(implicit project: Project) extends ProjectComponent {
   private val configsCache: mutable.Map[String, CachedConfig] = ScalaCollectionsUtil.newConcurrentMap
 
   def resolveConfigAsync(configFile: VirtualFile,
                          version: ScalafmtVersion,
-                         project: ProjectContext,
                          onResolveFinished: ConfigResolveResult => Unit): Unit = {
     val backgroundTask = new Task.Backgroundable(project, "Resolving scalafmt config", true) {
       override def run(indicator: ProgressIndicator): Unit = {
         refreshFileModificationTimestamp(configFile)
         indicator.setFraction(0.0)
-        val configOrError = resolveConfig(configFile, Some(version), project, downloadScalafmtIfMissing = true)
+        val configOrError = resolveConfig(configFile, Some(version), downloadScalafmtIfMissing = true)
         onResolveFinished(configOrError)
         indicator.setFraction(1.0)
       }
@@ -53,9 +49,9 @@ object ScalafmtDynamicConfigUtil {
     val project = psiFile.getProject
     val configPath = settings.SCALAFMT_CONFIG_PATH
 
-    val config = scalafmtProjectConfigFile(configPath, project) match {
+    val config = scalafmtProjectConfigFile(configPath) match {
       case Some(file) =>
-        resolveConfig(file, Some(DefaultVersion), project, downloadScalafmtIfMissing = false, failSilent).toOption
+        resolveConfig(file, Some(DefaultVersion), downloadScalafmtIfMissing = false, failSilent).toOption
       case None =>
         intellijDefaultConfig
     }
@@ -73,7 +69,6 @@ object ScalafmtDynamicConfigUtil {
 
   private def resolveConfig(configFile: VirtualFile,
                             defaultVersion: Option[ScalafmtVersion],
-                            project: ProjectContext,
                             downloadScalafmtIfMissing: Boolean,
                             failSilent: Boolean = false): ConfigResolveResult = {
     val configPath = configFile.getPath
@@ -97,7 +92,7 @@ object ScalafmtDynamicConfigUtil {
             Left(error) // do not report, rely on ScalafmtDynamicUtil resolve error reporting
           case Left(error: ConfigResolveError.ConfigError) =>
             if (!failSilent)
-              reportConfigResolveError(configFile, error, project)
+              reportConfigResolveError(configFile, error)
             Left(error)
         }
     }
@@ -143,38 +138,22 @@ object ScalafmtDynamicConfigUtil {
     if (contentChanged) {
       val versionChanged = !cachedConfig.map(_.config.version).contains(config.version)
       val versionChangeDetails = if (versionChanged) s"<br>(new version: ${config.version})" else ""
-      ScalafmtNotifications.displayInfo(s"scalafmt picked up new style configuration$versionChangeDetails")
+      ScalafmtNotifications.displayInfo(s"Scalafmt picked up new style configuration$versionChangeDetails")
     }
   }
 
-  private def reportConfigResolveError(configFile: VirtualFile,
-                                       configError: ConfigResolveError.ConfigError,
-                                       project: ProjectContext): Unit = {
+  private def reportConfigResolveError(configFile: VirtualFile, configError: ConfigResolveError.ConfigError): Unit = {
     import ConfigResolveError._
     val details = configError match {
       case ConfigFileNotFound(_) => s"file not found"
       case ConfigMissingVersion(_) => "missing version setting"
       case ConfigParseError(_, cause) => s"parse error: ${cause.getMessage}"
-      case UnknownError(unknownMessage, _) => s"unknown error occurred: $unknownMessage"
+      case UnknownError(unknownMessage, _) => s"unknown error: $unknownMessage"
     }
-    val errorMessage = s"Failed to load scalafmt config ${configFile.getPath}:<br>$details"
+    val errorMessage = s"Failed to load scalafmt config:<br>$details"
     // NOTE: ConfError does not provide any information about parsing error position, so setting offset to zero
     val openFileAction = new OpenFileNotificationActon(project, configFile, offset = 0, title = "open config file")
     ScalafmtNotifications.displayWarning(errorMessage, Seq(openFileAction))
-  }
-
-  def readVersion(configFile: VirtualFile): Either[Throwable, Option[String]] = {
-    Try {
-      val document = inReadAction(FileDocumentManager.getInstance.getDocument(configFile))
-      val config = ConfigFactory.parseString(document.getText)
-      Option(config.getString("version").trim)
-    }.toEither.left.flatMap {
-      case _: ConfigException.Missing =>
-        Right(None)
-      case e =>
-        Log.error(e)
-        Left(e)
-    }
   }
 
   def isIncludedInProject(file: PsiFile, config: ScalafmtDynamicConfig): Boolean = {
@@ -189,22 +168,50 @@ object ScalafmtDynamicConfigUtil {
     configOpt.exists(isIncludedInProject(file, _))
   }
 
-  def scalafmtProjectConfigFile(configPath: String, project: Project): Option[VirtualFile] =
+  def scalafmtProjectConfigFile(configPath: String): Option[VirtualFile] =
     if (configPath.isEmpty) {
-      defaultConfigurationFile(project)
+      defaultConfigurationFile
     } else {
-      absolutePathFromConfigPath(configPath, project)
+      absolutePathFromConfigPath(configPath)
         .flatMap(path => StandardFileSystems.local.findFileByPath(path).toOption)
     }
 
-  private def defaultConfigurationFile(project: Project): Option[VirtualFile] =
+  private def defaultConfigurationFile: Option[VirtualFile] =
     project.getBaseDir.toOption
       .flatMap(_.findChild(DefaultConfigurationFileName).toOption)
 
-  def absolutePathFromConfigPath(path: String, project: Project): Option[String] = {
+  def absolutePathFromConfigPath(path: String): Option[String] = {
     project.getBaseDir.toOption.map { baseDir =>
       if (path.startsWith(".")) baseDir.getCanonicalPath + "/" + path
       else path
+    }
+  }
+}
+
+object ScalafmtDynamicConfigManager {
+  private val Log = Logger.getInstance(classOf[ScalafmtDynamicConfigManager])
+
+  val DefaultConfigurationFileName: String = ".scalafmt.conf"
+
+  def getInstance(project: Project): ScalafmtDynamicConfigManager = project.getComponent(classOf[ScalafmtDynamicConfigManager])
+
+  def configForFile(file: PsiFile, failSilent: Boolean = false): Option[ScalafmtDynamicConfig] =
+    getInstance(file.getProject).configForFile(file, failSilent)
+
+  def isIncludedInProject(file: PsiFile, config: ScalafmtDynamicConfig): Boolean =
+    getInstance(file.getProject).isIncludedInProject(file, config)
+
+  def isIncludedInProject(file: PsiFile): Boolean =
+    getInstance(file.getProject).isIncludedInProject(file)
+
+  def readVersion(configFile: VirtualFile): Either[Throwable, Option[String]] = {
+    Try {
+      val document = inReadAction(FileDocumentManager.getInstance.getDocument(configFile))
+      val config = ConfigFactory.parseString(document.getText)
+      Option(config.getString("version").trim)
+    }.toEither.left.flatMap {
+      case _: ConfigException.Missing => Right(None)
+      case e => Left(e)
     }
   }
 

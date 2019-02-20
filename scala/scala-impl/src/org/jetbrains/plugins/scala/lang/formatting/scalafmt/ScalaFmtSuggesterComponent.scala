@@ -33,7 +33,7 @@ class ScalaFmtSuggesterComponent(val project: Project) extends ProjectComponent 
 
   private def projectHasScalafmtDefaultConfigFile: Boolean = {
     project.getBaseDir.toOption
-      .flatMap(_.findChild(ScalafmtDynamicConfigUtil.DefaultConfigurationFileName).toOption)
+      .flatMap(_.findChild(ScalafmtDynamicConfigManager.DefaultConfigurationFileName).toOption)
       .nonEmpty
   }
 

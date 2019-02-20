@@ -16,13 +16,14 @@ import com.intellij.psi.impl.source.codeStyle.{CodeEditUtil, PreFormatProcessor}
 import com.intellij.psi.impl.source.tree.{LeafPsiElement, PsiWhiteSpaceImpl}
 import com.intellij.psi.javadoc.PsiDocComment
 import com.intellij.psi.util.PsiTreeUtil
+import javax.swing.event.HyperlinkEvent
 import org.apache.commons.lang.StringUtils
 import org.jetbrains.plugins.scala.ScalaFileType
 import org.jetbrains.plugins.scala.extensions.{PsiElementExt, _}
 import org.jetbrains.plugins.scala.lang.formatting.processors.ScalaFmtPreFormatProcessor._
 import org.jetbrains.plugins.scala.lang.formatting.scalafmt.dynamic.exceptions.{PositionExceptionImpl, ReflectionException}
 import org.jetbrains.plugins.scala.lang.formatting.scalafmt.dynamic.{ScalafmtDynamicConfig, ScalafmtReflect}
-import org.jetbrains.plugins.scala.lang.formatting.scalafmt.{ScalafmtDynamicConfigUtil, ScalafmtNotifications}
+import org.jetbrains.plugins.scala.lang.formatting.scalafmt.{ScalafmtDynamicConfigManager, ScalafmtNotifications}
 import org.jetbrains.plugins.scala.lang.formatting.settings.ScalaCodeStyleSettings
 import org.jetbrains.plugins.scala.lang.lexer.ScalaTokenTypes
 import org.jetbrains.plugins.scala.lang.psi.api.ScalaFile
@@ -295,13 +296,14 @@ object ScalaFmtPreFormatProcessor {
   }
 
   def formatWithoutCommit(file: PsiFile, respectProjectMatcher: Boolean): Unit = {
-    val config = ScalafmtDynamicConfigUtil.configForFile(file).orNull
-    if (config == null || respectProjectMatcher && !ScalafmtDynamicConfigUtil.isIncludedInProject(file, config))
+    val configManager = ScalafmtDynamicConfigManager.getInstance(file.getProject)
+    val config = configManager.configForFile(file).orNull
+    if (config == null || respectProjectMatcher && !configManager.isIncludedInProject(file, config))
       return
 
     formatWithoutCommit(file, config) match {
       case Left(error: ScalafmtFormatError) =>
-        reportInvalidCodeFailure(file.getProject, file, Some(error))
+        reportInvalidCodeFailure(file, Some(error))(file.getProject)
       case _ =>
     }
   }
@@ -323,7 +325,7 @@ object ScalaFmtPreFormatProcessor {
     if (document == null) return None
     implicit val fileText: String = file.getText
 
-    val config: ScalafmtDynamicConfig = ScalafmtDynamicConfigUtil.configForFile(file).orNull
+    val config: ScalafmtDynamicConfig = ScalafmtDynamicConfigManager.configForFile(file).orNull
     if (config == null) return None
 
     val rangeIncludesWholeFile = range.contains(file.getTextRange)
@@ -352,7 +354,7 @@ object ScalaFmtPreFormatProcessor {
         textRangeDelta
       }
       if (result.isEmpty) {
-        reportInvalidCodeFailure(project, file, wholeFileFormatError)
+        reportInvalidCodeFailure(file, wholeFileFormatError)
       }
       result
     }
@@ -361,7 +363,7 @@ object ScalaFmtPreFormatProcessor {
     if (elementsWrapped.isEmpty) {
       if (rangeIncludesWholeFile) {
         //wanted to format whole file, failed with file and with file elements wrapped, report failure
-        reportInvalidCodeFailure(project, file, wholeFileFormatError)
+        reportInvalidCodeFailure(file, wholeFileFormatError)
       } else {
         //failed to wrap some elements, try the whole file
         processRange(Seq(file), wrap = false)
@@ -800,15 +802,29 @@ object ScalaFmtPreFormatProcessor {
     }
   }
 
-  private def reportInvalidCodeFailure(project: Project, file: PsiFile, error: Option[ScalafmtFormatError] = None): Unit = {
+  private var failSilent: Boolean = false
+  def inFailSilentMode[T](body: => T): T = {
+    try {
+      failSilent = true
+      body
+    } finally {
+      failSilent = false
+    }
+  }
+
+  private def reportInvalidCodeFailure(file: PsiFile, error: Option[ScalafmtFormatError] = None)
+                                      (implicit project: Project): Unit = {
     import ScalafmtNotifications.displayError
 
+    val fileName = file.getName
+
     def displayParseError(message: String, offset: Int): Unit = {
-      val action = file.getVirtualFile.toOption.map(new OpenFileNotificationActon(project, _, offset))
-      displayError(s"Parse error: $message", action.toSeq)
+      val errorMessage = s"""Scalafmt parse error (${fileLink(fileName, offset)}):<br>$message"""
+      val listener = fileLinkListener(project, file, offset)
+      displayError(errorMessage, listener = Some(listener))
     }
 
-    if (ScalaCodeStyleSettings.getInstance(project).SCALAFMT_SHOW_INVALID_CODE_WARNINGS) {
+    if (ScalaCodeStyleSettings.getInstance(project).SCALAFMT_SHOW_INVALID_CODE_WARNINGS && !failSilent) {
       error.map(_.cause) match {
         case Some(cause: scala.meta.ParseException) =>
           displayParseError(cause.getMessage, cause.pos.start.offset)
@@ -817,22 +833,35 @@ object ScalaFmtPreFormatProcessor {
         case Some(cause) =>
           reportUnknownError(cause)
         case _ =>
-          displayError("Failed to find correct surrounding code to pass for scalafmt, no formatting will be performed")
+          val errorMessage = s"Scalafmt error (${fileLink(fileName)}):<br>failed to find correct surrounding code " +
+            s"to pass for scalafmt, no formatting will be performed"
+          val listener = fileLinkListener(project, file, 0)
+          displayError(errorMessage, listener = Some(listener))
       }
     }
   }
 
+  private val FileHrefAnchor = "OPEN_FILE"
+
+  private def fileLink(fileName: String, offset: Int): String =
+    s"""<a href="$FileHrefAnchor">$fileName:$offset</a>"""
+
+  private def fileLink(fileName: String): String =
+    s"""<a href="$FileHrefAnchor">$fileName</a>"""
+
+  private def fileLinkListener(project: Project, file: PsiFile, offset: Int): NotificationListener =
+    (notification: Notification, event: HyperlinkEvent) => {
+      notification.expire()
+      event.getDescription match {
+        case `FileHrefAnchor` =>
+          Option(file.getVirtualFile)
+            .foreach(new OpenFileDescriptor(project, _, offset).navigate(true))
+        case _ =>
+      }
+    }
+
   private def reportUnknownError(ex: Throwable): Unit = {
     Log.error("An error occurred during scalafmt formatting", ex)
-  }
-
-  class OpenFileNotificationActon(project: Project, vFile: VirtualFile, offset: Int, title: String = "open source file")
-    extends NotificationAction(title) {
-
-    override def actionPerformed(e: AnActionEvent, notification: Notification): Unit = {
-      new OpenFileDescriptor(project, vFile, offset).navigate(true)
-      notification.expire()
-    }
   }
 
   //TODO get rid of this once com.intellij.util.text.TextRanges does not have an error on unifying (x, x+1) V (x+1, y)

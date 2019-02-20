@@ -56,7 +56,7 @@ class ScalafmtDynamicConfig private[dynamic](val fmtReflect: ScalafmtReflect,
     rewriteRulesMethod match {
       case Some(method) =>
         // > v0.4.1
-        val rewriteSettings = method.invoke(target) // TODO: check whether it is correct for all versions
+        val rewriteSettings = method.invoke(target)
         !rewriteSettings.invoke("rules").invokeAs[Boolean]("isEmpty")
       case None =>
         false
@@ -65,7 +65,6 @@ class ScalafmtDynamicConfig private[dynamic](val fmtReflect: ScalafmtReflect,
 
   def withoutRewriteRules: ScalafmtDynamicConfig = {
     if (hasRewriteRules) {
-      // FIXME: this is only tested for version 1.5.1, check behaviour for other versions
       val fieldsValues = constructorParams.map(param => target.invoke(param))
       fieldsValues(rewriteParamIdx) = emptyRewrites
       val targetNew = constructor.newInstance(fieldsValues: _*).asInstanceOf[Object]
@@ -75,7 +74,6 @@ class ScalafmtDynamicConfig private[dynamic](val fmtReflect: ScalafmtReflect,
     }
   }
 
-  // TODO: check whether it is correct for all versions
   val continuationIndentCallSite: Int = {
     continuationIndentMethod match {
       case Some(method) => // >v0.4
@@ -91,7 +89,6 @@ class ScalafmtDynamicConfig private[dynamic](val fmtReflect: ScalafmtReflect,
     }
   }
 
-  // TODO: check whether it is correct for all versions
   val continuationIndentDefnSite: Int = {
     continuationIndentMethod match {
       case Some(method) =>

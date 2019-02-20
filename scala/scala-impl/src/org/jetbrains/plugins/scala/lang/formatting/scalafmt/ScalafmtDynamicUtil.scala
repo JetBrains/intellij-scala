@@ -30,7 +30,7 @@ object ScalafmtDynamicUtil {
   def isAvailable(version: ScalafmtVersion): Boolean = ???
 
   // NOTE: instead of returning download-in-progress error we could reuse downloading process and use it's result
-  // TODO: maybe we should we set project in dummy state while downloading formatter ?
+  // TODO: maybe we should set project in dummy state while downloading formatter ?
   def resolve(version: ScalafmtVersion,
               downloadIfMissing: Boolean,
               failSilent: Boolean = false,
@@ -80,23 +80,25 @@ object ScalafmtDynamicUtil {
   private def reportResolveError(error: ScalafmtResolveError): Unit = {
     import ScalafmtNotifications._
 
-    val baseMessage = s"Can not resolve scalafmt version `${error.version}`<br>"
+    val baseMessage = s"Can not resolve scalafmt version `${error.version}`:<br>"
     error match {
       case ScalafmtResolveError.NotFound(version) =>
-        val message = s"Scalafmt version `$version` is not downloaded yet<br>Would you like to to download it?"
+        // TODO: if reformat action was performed but scalafmt version is not resolve
+        //  then we should postpone reformat action after scalafmt is downloaded
+        val message = s"Scalafmt version `$version` is not downloaded yet.<br>Would you like to to download it?"
         displayWarning(message, Seq(new DownloadScalafmtNotificationActon(version)))
       case ScalafmtResolveError.DownloadInProgress(_) =>
-        val errorMessage = s"$baseMessage download is in progress"
+        val errorMessage = s"$baseMessage Download is in progress"
         displayError(errorMessage)
       case DownloadError(failure) =>
-        val errorMessage = s"$baseMessage an error occurred during downloading:<br>${failure.cause.getMessage}"
+        val errorMessage = s"$baseMessage An error occurred during downloading:<br>${failure.cause.getMessage}"
         displayError(errorMessage)
       case ScalafmtResolveError.CorruptedClassPath(_, _, cause) =>
         Log.error(cause)
-        displayError(s"$baseMessage classpath is corrupted")
+        displayError(s"$baseMessage Scalafmt classpath is corrupted")
       case ScalafmtResolveError.UnknownError(_, cause) =>
         Log.error(cause)
-        displayError(s"$baseMessage unknown error:<br>${cause.getMessage}")
+        displayError(s"$baseMessage Unknown error:<br>${cause.getMessage}")
     }
   }
 

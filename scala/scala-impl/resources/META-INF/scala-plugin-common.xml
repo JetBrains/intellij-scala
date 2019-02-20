@@ -1403,6 +1403,9 @@
       <component>
         <implementation-class>org.jetbrains.plugins.scala.lang.formatting.scalafmt.ScalaFmtSuggesterComponent</implementation-class>
       </component>
+      <component>
+        <implementation-class>org.jetbrains.plugins.scala.lang.formatting.scalafmt.ScalafmtDynamicConfigManager</implementation-class>
+      </component>
         <component>
         <implementation-class>org.jetbrains.plugins.scala.testDiscovery.ScalaAffectedTestsInChangeListPainter</implementation-class>
       </component>

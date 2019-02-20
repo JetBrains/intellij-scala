@@ -70,10 +70,21 @@ object ScalafmtDynamicDownloader {
     override protected val artifactBlackList: Set[String] = Set()
     override protected val logLevel: Int = org.apache.ivy.util.Message.MSG_INFO
     override def createLogger: MessageLogger = new AbstractMessageLogger {
-      override def doEndProgress(msg: String): Unit = progressListener.progressUpdate(msg)
-      override def log(msg: String, level: Int): Unit = progressListener.progressUpdate(msg)
+      override def doEndProgress(msg: String): Unit = progressListener.progressUpdate(format(msg))
+      override def log(msg: String, level: Int): Unit = progressListener.progressUpdate(format(msg))
       override def rawlog(msg: String, level: Int): Unit = ()
       override def doProgress(): Unit = ()
+    }
+
+    @inline
+    private def format(str: String): String = {
+      firstLine(str)
+    }
+
+    private def firstLine(str: String): String = {
+      val strTrimmed = str
+      val newLineIdx = strTrimmed.indexOf("\n")
+      strTrimmed.substring(0, if (newLineIdx != -1) newLineIdx else strTrimmed.length)
     }
   }
 }
