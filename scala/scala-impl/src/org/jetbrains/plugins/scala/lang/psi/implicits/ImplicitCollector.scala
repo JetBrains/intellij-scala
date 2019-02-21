@@ -9,6 +9,7 @@ import org.jetbrains.plugins.scala.caches.RecursionManager
 import org.jetbrains.plugins.scala.extensions._
 import org.jetbrains.plugins.scala.lang.macros.evaluator.{MacroContext, ScalaMacroEvaluator}
 import org.jetbrains.plugins.scala.lang.psi.ScalaPsiUtil
+import org.jetbrains.plugins.scala.lang.psi.ScalaPsiUtil.strictlyOrderedByContext
 import org.jetbrains.plugins.scala.lang.psi.api.InferUtil
 import org.jetbrains.plugins.scala.lang.psi.api.InferUtil.SafeCheckException
 import org.jetbrains.plugins.scala.lang.psi.api.base.ScFieldId
@@ -239,7 +240,7 @@ class ImplicitCollector(place: PsiElement,
 
     private def isAccessible(member: ScMember): Boolean = {
       isPredefPriority || (member match {
-        case fun: ScFunction => checkFucntionIsEligible(fun) && ResolveUtils.isAccessible(member, getPlace)
+        case fun: ScFunction => checkFunctionIsEligible(fun) && ResolveUtils.isAccessible(member, getPlace)
         case _ => ResolveUtils.isAccessible(member, getPlace)
       })
     }
@@ -251,7 +252,7 @@ class ImplicitCollector(place: PsiElement,
         val resolveFile = contextFile(e)
         val placeFile = contextFile(getPlace)
 
-        resolveFile == placeFile && ScalaPsiUtil.isInvalidContextOrder(getPlace, e, placeFile)
+        resolveFile == placeFile && strictlyOrderedByContext(before = getPlace, after = e, placeFile)
       }
 
       c.getElement match {

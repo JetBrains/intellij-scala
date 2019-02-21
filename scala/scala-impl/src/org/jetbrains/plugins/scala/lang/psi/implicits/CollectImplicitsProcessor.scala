@@ -34,7 +34,7 @@ final class CollectImplicitsProcessor(override val getPlace: ScExpression,
       //there is special case for Predef.conforms method
       case f: ScFunction if f.hasModifierProperty("implicit") &&
         !CollectImplicitsProcessor.isConformsMethod(f) =>
-        if (!checkFucntionIsEligible(f) ||
+        if (!checkFunctionIsEligible(f) ||
           !ResolveUtils.isAccessible(f, getPlace)) return true
         val clauses = f.paramClauses.clauses
         //filtered cases

@@ -1036,6 +1036,8 @@ package object extensions {
       }
     }
 
+    def stubOrPsiChildren: Array[PsiElement] = stubOrPsiChildren(TokenSet.ANY, PsiElement.ARRAY_FACTORY)
+
     def stubOrPsiChild[Psi <: PsiElement, Stub <: StubElement[Psi]](elementType: IStubElementType[Stub, Psi]): Option[Psi] = {
       def findWithNode() = {
         val node = Option(element.getNode.findChildByType(elementType))
@@ -1066,11 +1068,20 @@ package object extensions {
     }
 
     def lastChildStub: Option[PsiElement] = {
-      val children = stubOrPsiChildren(TokenSet.ANY, PsiElement.ARRAY_FACTORY)
+      val children = stubOrPsiChildren
       val size = children.length
       if (size == 0) None
       else Some(children(size - 1))
     }
+
+    def withNextStubOrAstContextSiblings: Iterator[PsiElement] = element.sameElementInContext match {
+      case st: StubBasedPsiElementBase[_] if st.getStub != null =>
+        val contextSiblings = st.getContext.stubOrPsiChildren.iterator
+        contextSiblings.dropWhile(_ != st)
+      case elem =>
+        elem.withNextSiblings
+    }
+
   }
 
   def using[A <: Closeable, B](resource: A)(block: A => B): B = {

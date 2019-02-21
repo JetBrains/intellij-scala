@@ -423,25 +423,24 @@ object ScalaPsiUtil {
     buffer
   }
 
-  def isInvalidContextOrder(before: PsiElement, after: PsiElement, topLevel: Option[PsiElement]): Boolean = {
-    if (before == after) return true
+  def strictlyOrderedByContext(before: PsiElement, after: PsiElement, topLevel: Option[PsiElement]): Boolean = {
+    if (before == after) return false
 
     val contexts = getContexts(before, topLevel.orNull) zip getContexts(after, topLevel.orNull)
     val firstDifference = contexts.find { case (a, b) => a != b }
 
     firstDifference.exists {
       case (beforeAncestor, afterAncestor) =>
-        val beforeInContext = beforeAncestor.sameElementInContext
-        val afterInContext = afterAncestor.sameElementInContext
-
-        beforeInContext.withNextSiblings.contains(afterInContext)
+        !afterAncestor
+          .withNextStubOrAstContextSiblings
+          .contains(beforeAncestor.sameElementInContext)
     }
   }
 
   @tailrec
   def getContexts(elem: PsiElement, stopAt: PsiElement, acc: List[PsiElement] = Nil): List[PsiElement] = {
     elem.getContext match {
-      case null | `stopAt` => acc
+      case null | `stopAt` => elem :: acc
       case context => getContexts(context, stopAt, context :: acc)
     }
   }

@@ -8,10 +8,11 @@ import java.{util => ju}
 import com.intellij.openapi.progress.ProgressManager
 import com.intellij.psi.search.GlobalSearchScope
 import com.intellij.psi.util.PsiTreeUtil
+import com.intellij.psi.util.PsiTreeUtil.isContextAncestor
 import com.intellij.psi.{PsiClass, PsiElement, ResolveState}
 import gnu.trove.{THashMap, THashSet}
 import org.jetbrains.plugins.scala.extensions._
-import org.jetbrains.plugins.scala.lang.psi.ScalaPsiUtil.getCompanionModule
+import org.jetbrains.plugins.scala.lang.psi.ScalaPsiUtil._
 import org.jetbrains.plugins.scala.lang.psi.api.base.ScFieldId
 import org.jetbrains.plugins.scala.lang.psi.api.base.patterns.ScBindingPattern
 import org.jetbrains.plugins.scala.lang.psi.api.statements.params.ScParameter
@@ -105,30 +106,21 @@ abstract class ImplicitProcessor(override val getPlace: PsiElement,
 
   override def isImplicitProcessor: Boolean = true
 
-  protected final def checkFucntionIsEligible(function: ScFunction): Boolean = {
-    if (!function.hasExplicitType) {
-      if (PsiTreeUtil.isContextAncestor(function.getContainingFile, getPlace, false)) {
-        val commonContext = PsiTreeUtil.findCommonContext(function, getPlace)
-        if (getPlace == commonContext) return true //weird case, it covers situation, when function comes from object, not treeWalkUp
-        if (function == commonContext) return false
-        else {
-          var functionContext: PsiElement = function
-          while (functionContext.getContext != commonContext) functionContext = functionContext.getContext
-          var placeContext: PsiElement = getPlace
-          while (placeContext.getContext != commonContext) placeContext = placeContext.getContext
-          (functionContext, placeContext) match {
-            case (functionContext: ScalaPsiElement, placeContext: ScalaPsiElement) =>
-              val funElem = functionContext.getDeepSameElementInContext
-              val conElem = placeContext.getDeepSameElementInContext
-              val functionIsNotBefore = conElem.withNextSiblings.contains(funElem)
+  protected final def checkFunctionIsEligible(function: ScFunction): Boolean = {
 
-              if (functionIsNotBefore) return false
-            case _ =>
-          }
-        }
-      }
-    }
-    true
+    if (function.hasExplicitType || !isContextAncestor(function.getContainingFile, getPlace, false))
+      return true
+
+    val commonContext = PsiTreeUtil.findCommonContext(function, getPlace)
+
+    //weird case, it covers situation, when function comes from object, not treeWalkUp
+    if (getPlace == commonContext)
+      return true
+
+    if (function == commonContext)
+      return false
+
+    strictlyOrderedByContext(before = function, after = getPlace, topLevel = Some(commonContext))
   }
 
   final def candidatesByPlace: Set[ScalaResolveResult] = {
