@@ -2,10 +2,10 @@ package org.jetbrains.plugins.scala.lang.formatting.scalafmt
 
 import com.intellij.notification._
 import com.intellij.openapi.project.Project
-import com.intellij.openapi.ui.popup.{JBPopupAdapter, LightweightWindowEvent}
 import org.jetbrains.plugins.scala.util.ScalaCollectionsUtil
 
 import scala.collection.mutable
+import scala.ref.WeakReference
 
 private[formatting]
 object ScalafmtNotifications {
@@ -15,13 +15,14 @@ object ScalafmtNotifications {
     new NotificationGroup("Scalafmt errors (Scala plugin)", NotificationDisplayType.STICKY_BALLOON, true)
 
   // do not display notification with same content several times
-  private val messagesShown: mutable.Set[String] = ScalaCollectionsUtil.newConcurrentSet[String]
+  private val messagesShown: mutable.Map[String, WeakReference[Notification]] = ScalaCollectionsUtil.newConcurrentMap
 
   private def displayNotification(message: String,
                                   notificationType: NotificationType,
                                   actions: Seq[NotificationAction] = Nil,
                                   listener: Option[NotificationListener] = None)
                                  (implicit project: Project): Unit = {
+    updateShownMessagesCache(message)
     if (messagesShown.contains(message)) return
 
     val notification: Notification =
@@ -34,11 +35,22 @@ object ScalafmtNotifications {
     actions.foreach(notification.addAction)
     notification.notify(project)
 
-    messagesShown += message
+    messagesShown(message) = WeakReference(notification)
     notification.whenExpired(() => messagesShown.remove(message))
-    Option(notification.getBalloon).foreach(_.addListener(new JBPopupAdapter() {
-      override def onClosed(event: LightweightWindowEvent): Unit = messagesShown.remove(message)
-    }))
+  }
+
+  // notification.getBalloon can be null right after notification creation
+  // so we can detect notification balloon close event only this way
+  private def updateShownMessagesCache(message: String): Unit = {
+    messagesShown.get(message) match {
+      case Some(WeakReference(notification)) =>
+        val balloon = notification.getBalloon
+        if (balloon == null || balloon.isDisposed) {
+          messagesShown.remove(message)
+        }
+      case _ =>
+        messagesShown.remove(message)
+    }
   }
 
   def displayInfo(message: String,

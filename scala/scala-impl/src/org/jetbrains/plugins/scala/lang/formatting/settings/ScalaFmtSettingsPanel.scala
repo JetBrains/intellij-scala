@@ -29,8 +29,8 @@ import org.apache.commons.lang.StringUtils
 import org.jetbrains.plugins.scala.ScalaFileType
 import org.jetbrains.plugins.scala.extensions._
 import org.jetbrains.plugins.scala.lang.formatting.scalafmt.ScalafmtDynamicConfigManager.ConfigResolveError
-import org.jetbrains.plugins.scala.lang.formatting.scalafmt.ScalafmtDynamicUtil.DefaultVersion
-import org.jetbrains.plugins.scala.lang.formatting.scalafmt.{ScalafmtDynamicConfigManager, ScalafmtDynamicUtil}
+import org.jetbrains.plugins.scala.lang.formatting.scalafmt.ScalafmtDynamicService.DefaultVersion
+import org.jetbrains.plugins.scala.lang.formatting.scalafmt.{ScalafmtDynamicConfigManager, ScalafmtDynamicService}
 
 class ScalaFmtSettingsPanel(val settings: CodeStyleSettings) extends CodeStyleAbstractPanel(settings) {
 
@@ -100,9 +100,9 @@ class ScalaFmtSettingsPanel(val settings: CodeStyleSettings) extends CodeStyleAb
         return
     }
     val version = versionOpt.getOrElse(DefaultVersion)
-    ScalafmtDynamicConfigManager.getInstance(project.get).resolveConfigAsync(configFile, version, onResolveFinished = {
+    ScalafmtDynamicConfigManager.instanceIn(project.get).resolveConfigAsync(configFile, version, onResolveFinished = {
       case Right(config) =>
-        updateScalafmtVersionLabel(config.version,  isDefault = versionOpt.isEmpty)
+        updateScalafmtVersionLabel(config.version, isDefault = versionOpt.isEmpty)
       case Left(error) =>
         reportConfigResolveError(error)
         updateScalafmtVersionLabel("", isDefault = false)
@@ -111,7 +111,7 @@ class ScalaFmtSettingsPanel(val settings: CodeStyleSettings) extends CodeStyleAb
 
   private def ensureDefaultScalafmtResolved(): Unit = {
     if (project.isEmpty) return
-    ScalafmtDynamicUtil.ensureDefaultVersionIsDownloadedAsync(project.get)
+    ScalafmtDynamicService.instance.ensureDefaultVersionIsResolvedAsync(project.get)
     updateScalafmtVersionLabel(DefaultVersion, isDefault = true)
   }
 
@@ -277,7 +277,7 @@ class ScalaFmtSettingsPanel(val settings: CodeStyleSettings) extends CodeStyleAb
       override def getText(textField: JTextField): String =
         Option(textField.getText).filter(StringUtils.isNotBlank).orElse {
           val path = DefaultConfigFilePath
-          project.flatMap(ScalafmtDynamicConfigManager.getInstance(_).absolutePathFromConfigPath(path))
+          project.flatMap(ScalafmtDynamicConfigManager.instanceIn(_).absolutePathFromConfigPath(path))
         }.orNull
     }
 
@@ -314,7 +314,7 @@ class ScalaFmtSettingsPanel(val settings: CodeStyleSettings) extends CodeStyleAb
   }
 
   private def projectConfigFile(configPath: String): Option[VirtualFile] =
-    project.flatMap(ScalafmtDynamicConfigManager.getInstance(_).scalafmtProjectConfigFile(configPath))
+    project.flatMap(ScalafmtDynamicConfigManager.instanceIn(_).scalafmtProjectConfigFile(configPath))
 
   //copied from CodeStyleAbstractPanel
   //using non-null getPreviewText breaks setting saving (!!!)

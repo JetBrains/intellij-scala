@@ -6,7 +6,7 @@ import java.nio.file.Path
 
 import org.apache.ivy.util.{AbstractMessageLogger, MessageLogger}
 import org.jetbrains.plugins.scala.DependencyManagerBase
-import org.jetbrains.plugins.scala.DependencyManagerBase.DependencyDescription
+import org.jetbrains.plugins.scala.DependencyManagerBase._
 import org.jetbrains.plugins.scala.lang.formatting.scalafmt.dynamic.ScalafmtDynamicDownloader._
 import org.jetbrains.plugins.scala.lang.formatting.scalafmt.dynamic.utils.BuildInfo
 
@@ -28,8 +28,8 @@ class ScalafmtDynamicDownloader(progressListener: DownloadProgressListener) {
 
   private def dependencies(version: String): Seq[DependencyDescription] = {
     List(
-      DependencyDescription(organization(version), s"scalafmt-cli_${scalaBinaryVersion(version)}", version),
-      DependencyDescription("org.scala-lang", "scala-reflect", scalaVersion(version))
+      organization(version) % s"scalafmt-cli_${scalaBinaryVersion(version)}" % version,
+      "org.scala-lang" % "scala-reflect" % scalaVersion(version)
     ).map(_.copy(isTransitive = true))
   }
 

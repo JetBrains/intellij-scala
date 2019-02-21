@@ -296,7 +296,7 @@ object ScalaFmtPreFormatProcessor {
   }
 
   def formatWithoutCommit(file: PsiFile, respectProjectMatcher: Boolean): Unit = {
-    val configManager = ScalafmtDynamicConfigManager.getInstance(file.getProject)
+    val configManager = ScalafmtDynamicConfigManager.instanceIn(file.getProject)
     val config = configManager.configForFile(file).orNull
     if (config == null || respectProjectMatcher && !configManager.isIncludedInProject(file, config))
       return
