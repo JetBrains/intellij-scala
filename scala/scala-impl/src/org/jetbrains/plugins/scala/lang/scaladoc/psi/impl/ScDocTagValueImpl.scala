@@ -7,6 +7,7 @@ package impl
 import com.intellij.lang.ASTNode
 import com.intellij.openapi.fileEditor.FileDocumentManager
 import com.intellij.openapi.util.TextRange
+import com.intellij.psi.util.PsiTreeUtil
 import com.intellij.psi.{PsiDocumentManager, PsiElement}
 import org.jetbrains.plugins.scala.extensions._
 import org.jetbrains.plugins.scala.lang.completion.lookups.ScalaLookupItem
@@ -21,7 +22,7 @@ import org.jetbrains.plugins.scala.lang.refactoring.ScalaNamesValidator.isIdenti
 import org.jetbrains.plugins.scala.lang.refactoring.util.ScalaNamesUtil
 import org.jetbrains.plugins.scala.lang.resolve.processor.BaseProcessor
 import org.jetbrains.plugins.scala.lang.resolve.{ResolveTargets, ScalaResolveResult}
-import org.jetbrains.plugins.scala.lang.scaladoc.parser.parsing.MyScaladocParsing
+import org.jetbrains.plugins.scala.lang.scaladoc.parser.parsing.MyScaladocParsing.{PARAM_TAG, TYPE_PARAM_TAG}
 import org.jetbrains.plugins.scala.lang.scaladoc.psi.api.{ScDocComment, ScDocReference, ScDocTag, ScDocTagValue}
 
 import scala.collection.{Set, mutable}
@@ -86,25 +87,26 @@ class ScDocTagValueImpl(node: ASTNode) extends ScReferenceImpl(node) with ScDocT
       new ScalaLookupItem(element, element.name, None)
     }
 
-  override def isSoft: Boolean = getParent.asInstanceOf[ScDocTag].name == MyScaladocParsing.THROWS_TAG
+  override def isSoft: Boolean = !isParamTag
+
+  private def parentTagName: String =
+    getParent.asOptionOf[ScDocTag].flatMap(_.getName.toOption).getOrElse("")
+
+  private def isParamTag: Boolean = parentTagName match {
+    case PARAM_TAG | TYPE_PARAM_TAG => true
+    case _ => false
+  }
 
   private def getParametersVariants: Array[ScNamedElement] = {
-    import MyScaladocParsing.{PARAM_TAG, TYPE_PARAM_TAG}
-    val parentTagType: String = getParent match {
-      case a: ScDocTag => a.name
-      case _ => null
-    }
-    var parent = getParent
-    while (parent != null && !parent.isInstanceOf[ScDocComment]) {
-      parent = parent.getParent
-    }
+    val parentTagType = parentTagName
+    val scalaDocParent = PsiTreeUtil.getParentOfType(this, classOf[ScDocComment])
 
-    if (parent == null || (parentTagType != PARAM_TAG && parentTagType != TYPE_PARAM_TAG))
+    if (scalaDocParent == null || !isParamTag)
       return Array.empty[ScNamedElement]
 
     def filterParamsByName(tagName: String, params: Seq[ScNamedElement]): Array[ScNamedElement] = {
       val paramsSet =
-        (for (tag <- parent.asInstanceOf[ScDocComment].findTagsByName(tagName) if tag.getValueElement != null &&
+        (for (tag <- scalaDocParent.asInstanceOf[ScDocComment].findTagsByName(tagName) if tag.getValueElement != null &&
                 tag != getParent)
         yield tag.getValueElement.getText).toSet
 
@@ -113,7 +115,7 @@ class ScDocTagValueImpl(node: ASTNode) extends ScReferenceImpl(node) with ScDocT
       result.result()
     }
 
-    parent.getParent match {
+    scalaDocParent.getParent match {
       case func: ScFunction =>
         if (parentTagType == PARAM_TAG) {
           filterParamsByName(PARAM_TAG, func.parameters)
