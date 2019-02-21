@@ -1,30 +1,39 @@
 package org.jetbrains.plugins.scala.lang.psi.scope
 
+import com.intellij.psi.PsiElement
 import com.intellij.psi.search.{LocalSearchScope, SearchScope}
 import com.intellij.testFramework.EditorTestUtil.CARET_TAG
 import org.jetbrains.plugins.scala.base.ScalaLightCodeInsightFixtureTestAdapter.normalize
 import org.jetbrains.plugins.scala.base.SimpleTestCase
 import org.jetbrains.plugins.scala.extensions.PsiElementExt
+import org.jetbrains.plugins.scala.lang.psi.api.statements.ScFunction
 import org.jetbrains.plugins.scala.lang.psi.api.toplevel.ScNamedElement
 
 class GetUseScopeTest extends SimpleTestCase {
   
-  private def doTest(fileText: String, scopeAssertion: SearchScope => Unit): Unit = {
+  private def doTest(fileText: String)(scopeAssertion: (ScNamedElement, SearchScope) => Unit): Unit = {
     val (file, offset) = parseText(normalize(fileText), CARET_TAG)
-    val named = file.findElementAt(offset).parentOfType(Seq(classOf[ScNamedElement])).get
-    scopeAssertion(named.getUseScope)
+    val named = file.findElementAt(offset).parentOfType(classOf[ScNamedElement]).get
+    scopeAssertion(named, named.getUseScope)
   }
 
   private def assertIsLocal(fileText: String): Unit =
-    doTest(fileText, scope =>
+    doTest(fileText)((_, scope) =>
       assert(scope.isInstanceOf[LocalSearchScope], s"Local scope expected, was: $scope")
     )
 
   private def assertIsNotLocal(fileText: String): Unit =
-    doTest(fileText, scope =>
+    doTest(fileText)((_, scope) =>
       assert(!scope.isInstanceOf[LocalSearchScope], s"Scope should not be local, was: $scope")
     )
 
+  private def assertLocalScopeContains(fileText: String)(psiFunction: ScNamedElement => PsiElement): Unit = {
+    doTest(fileText)((named, scope) => {
+      assert(scope.isInstanceOf[LocalSearchScope], s"Local scope expected, was: $scope")
+      val element = psiFunction(named)
+      assert(scope.asInstanceOf[LocalSearchScope].containsRange(element.getContainingFile, element.getTextRange))
+    })
+  }
 
   def testLocalVariable(): Unit = assertIsLocal(
     s"""
@@ -97,4 +106,21 @@ class GetUseScopeTest extends SimpleTestCase {
   def testClassParameter(): Unit = assertIsNotLocal(
     s"class ABC(val ${CARET_TAG}a: Int)"
   )
+
+  def testInnerPrivateClassMember(): Unit = {
+    val code =
+      s"""
+        |object Test {
+        |  private class A {
+        |    def ${CARET_TAG}foo() = 1
+        |  }
+        |}
+      """.stripMargin
+
+    assertLocalScopeContains(code) { named =>
+      val containingClass = named.asInstanceOf[ScFunction].containingClass
+      val topLevelObject = containingClass.getContainingClass
+      topLevelObject
+    }
+  }
 }

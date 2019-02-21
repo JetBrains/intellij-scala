@@ -139,16 +139,16 @@ object ScalaUseScope {
       }
     }
 
-    def fromUnqualifiedOrThisPrivate(owner: ScModifierListOwner) = for {
+    def fromUnqualifiedOrThisPrivate(owner: ScMember) = for {
       list <- Option(owner.getModifierList)
       modifier <- list.accessModifier
 
       if modifier.isUnqualifiedPrivateOrThis
 
       scope <- forTopLevelPrivate(owner).orElse {
-        member.containingClass match {
+        owner.containingClass match {
           case definition: ScTypeDefinition => Some(localSearchScope(definition, withCompanion = !modifier.isThis))
-          case _ => member.containingFile.map(safeLocalScope(_))
+          case _ => owner.containingFile.map(safeLocalScope(_))
         }
       }
     } yield scope
