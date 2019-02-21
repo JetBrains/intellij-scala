@@ -11,10 +11,10 @@ import com.intellij.psi.search.GlobalSearchScope
 import org.jetbrains.annotations.TestOnly
 import org.jetbrains.plugins.scala.extensions._
 import org.jetbrains.plugins.scala.lang.psi.api.InferUtil.extractImplicitParameterType
-import org.jetbrains.plugins.scala.lang.psi.api.base.ScPrimaryConstructor
+import org.jetbrains.plugins.scala.lang.psi.api.base.{ScConstructor, ScPrimaryConstructor}
 import org.jetbrains.plugins.scala.lang.psi.api.expr._
 import org.jetbrains.plugins.scala.lang.psi.api.statements.ScFunction
-import org.jetbrains.plugins.scala.lang.psi.api.statements.params.ScParameter
+import org.jetbrains.plugins.scala.lang.psi.api.statements.params.{ScParameter, ScParameterClause}
 import org.jetbrains.plugins.scala.lang.psi.api.toplevel.imports.usages.ImportUsed
 import org.jetbrains.plugins.scala.lang.psi.impl.toplevel.synthetic.ScSyntheticFunction
 import org.jetbrains.plugins.scala.lang.psi.implicits.ImplicitCollector
@@ -440,6 +440,70 @@ object Compatibility {
         checkParameterListConformance(checkNames = false, parameters, firstArgumentListArgs)
       case _ =>
         ConformanceExtResult(Seq(new ApplicabilityProblem("22")))
+    }
+  }
+
+  def checkConstructorConformance(constrInvocation: ScConstructor,
+                                  substitutor: ScSubstitutor,
+                                  argClauses: Seq[ScArgumentExprList],
+                                  paramClauses: Seq[ScParameterClause])
+                                 (implicit project: ProjectContext): ConformanceExtResult = {
+
+    // a first empty argument clause might lack
+    val nonEmptyArgClause =
+      if (argClauses.isEmpty) Seq(Seq.empty)
+      else argClauses.map(_.exprs)
+
+    val (result, _) = nonEmptyArgClause.zip(paramClauses).foldLeft(ConformanceExtResult(Seq.empty) -> substitutor) {
+      case ((prevRes, prevSubstitutor), (args, paramClause)) =>
+
+        val params = paramClause.effectiveParameters.map(toParameter(_, prevSubstitutor))
+
+        val argExprs = args.map(new Expression(_))
+        val eligibleForAutoTupling = args.length != 1 && params.length == 1 && !params.head.isDefault
+
+        val curRes = checkConformanceExt(checkNames = true, params, argExprs, checkWithImplicits = true, isShapesResolve = false) match {
+          case res if eligibleForAutoTupling && res.problems.nonEmpty =>
+            // try autotupling. If the conformance check succeeds without problems we use that result
+            ScalaPsiUtil
+              .tupled(args, constrInvocation.typeElement)
+              .map(checkConformanceExt(checkNames = true, params, _, checkWithImplicits = true, isShapesResolve = true))
+              .filter(_.problems.isEmpty)
+              .getOrElse(res)
+          case res => res
+        }
+
+        val res = prevRes.copy(
+          problems = prevRes.problems ++ curRes.problems,
+          defaultParameterUsed = prevRes.defaultParameterUsed || curRes.defaultParameterUsed,
+          matched = prevRes.matched ++ curRes.matched
+        )
+
+        val newSubstitutor = curRes.constraints match {
+          case ConstraintSystem(csSubstitutor) => prevSubstitutor.followed(csSubstitutor)
+          case _ => prevSubstitutor
+        }
+
+        res -> newSubstitutor
+    }
+
+    // in a constructor call all parameter clauses have to be supplied
+    // Providing more clauses than required is ok, as those might be calls to apply
+    // see: class A(i: Int) { def apply(j: Int) = ??? }
+    // new A(2)(3) is ok
+    var minParamClauses = paramClauses.length
+
+    val hasImplicitClause = paramClauses.lastOption.exists(_.isImplicit)
+    if (hasImplicitClause)
+      minParamClauses -= 1
+
+    if (nonEmptyArgClause.length < minParamClauses) {
+      val missingClauses = paramClauses.drop(nonEmptyArgClause.length)
+      result.copy(
+        problems = result.problems ++ missingClauses.map(MissedParametersClause.apply)
+      )
+    } else {
+      result
     }
   }
 }

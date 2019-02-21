@@ -26,22 +26,25 @@ class ConstructorAnnotatorTest extends SimpleTestCase {
   class DD(a: Int) {
     def this(b: Boolean, c: Int) = this(0)
   }
-  class Z[+A]; object Z extends Z[Nothing];
+  class DDD(a: Int)(b: Int)
+  class DDD2(a: Int) {
+    def this(b: Boolean)(c: Boolean) = this(0)
+  }
+  class FFF[X](a: X)(b: X)
+  class GGG[X, Y](a: X)(b: Y)
+  class Z[+A];
   class Y[+A]
   class E[X](a: Z[X]) {
     def this(o: Y[X]) = this(Z)
   }
+  class EE
   class F(implicit a: Int)
   class Klass[K](a: K)
   type Alias[A] = Klass[A]
-  new Alias("")
-  val iAmAScriptFile = ()
-  """ 
+  """
   
   def testEmpty() {
-    assertMatches(messages("")) {
-      case Nil =>
-    }
+    assertNothing(messages(""))
   }
   
   def testFine() {
@@ -60,6 +63,9 @@ class ConstructorAnnotatorTest extends SimpleTestCase {
       "new D(false)",
       "new DD(0)",
       "new DD(false, 1)",
+      "new DDD(1)(2)",
+      "new FFF(1)(2)",
+      "new GGG(1)(true)",
       "new E[Int](new Y[Int])",
       "new E[Int](new Z[Int])",
       "new E(new Y[Int])",
@@ -91,6 +97,20 @@ class ConstructorAnnotatorTest extends SimpleTestCase {
       Error("1", "Too many arguments for constructor(Int)"),
       Error("1", "Too many arguments for constructor(Boolean)")
     )
+
+    assertMessagesSorted(messages("new DDD(1)(2, 3)"))(
+      Error("3", "Too many arguments for constructor(Int)(Int)")
+    )
+  }
+
+  def testAutoTupling(): Unit = {
+    assertNothing(messages("new B"))
+    assertNothing(messages("new B()"))
+    assertNothing(messages("new FFF()()"))
+    assertNothing(messages("new GGG()()"))
+    assertMessages(messages("new FFF()(true)"))(
+      Error("true", "Type mismatch, expected: Unit, actual: Boolean")
+    )
   }
 
   def testMissedParameters() {
@@ -103,7 +123,6 @@ class ConstructorAnnotatorTest extends SimpleTestCase {
     assertMatches(messages("new B[Int]()")) {
       case Error(_, "Unspecified value parameters: a: Int") :: Nil =>
     }
-
 
     assertMessagesSorted(messages("new D"))(
       Error("D", "Unspecified value parameters: b: Boolean"),
@@ -128,6 +147,25 @@ class ConstructorAnnotatorTest extends SimpleTestCase {
     assertMessagesSorted(messages("new DD() {}"))(
       Error("()", "Unspecified value parameters: b: Boolean, c: Int"),
       Error("()", "Unspecified value parameters: a: Int")
+    )
+
+    assertMessagesSorted(messages("new DDD(3)()"))(
+      Error("()", "Unspecified value parameters: b: Int")
+    )
+
+    assertMessagesSorted(messages("new DDD()()"))(
+      Error("()", "Unspecified value parameters: a: Int"),
+      Error("()", "Unspecified value parameters: b: Int")
+    )
+  }
+
+  def testMissingArgumentClause(): Unit = {
+    assertMessagesSorted(messages("new DDD(3)"))(
+      Error(")", "Missing argument list for constructor(Int)(Int)")
+    )
+
+    assertMessagesSorted(messages("new DDD2(true)"))(
+      Error(")", "Missing argument list for constructor(Boolean)(Boolean)")
     )
   }
 
@@ -257,6 +295,15 @@ class ConstructorAnnotatorTest extends SimpleTestCase {
       Error("3.3", "Type mismatch, expected: Boolean, actual: Double"),
       Error("3.3", "Type mismatch, expected: Int, actual: Double")
     )
+
+    assertMessagesSorted(messages("new DDD(true)(false)"))(
+      Error("true", "Type mismatch, expected: Int, actual: Boolean"),
+      Error("false", "Type mismatch, expected: Int, actual: Boolean")
+    )
+
+    assertMessagesSorted(messages("new FFF(3)(true)"))(
+      Error("true", "Type mismatch, expected: Int, actual: Boolean"),
+    )
   }
   
   def testMalformedSignature() {
@@ -275,6 +322,16 @@ class ConstructorAnnotatorTest extends SimpleTestCase {
     assertNothing(messages(code))
   }
 
+  def testTraitInstantiationWithSingleEmptyParameterList(): Unit = {
+    val code =
+      """
+        |trait T
+        |new T() {}
+      """.stripMargin
+
+    assertNothing(messages(code))
+  }
+
   def testTraitInstantiationWithNonExistingConstructor(): Unit = {
     val code =
       """
@@ -286,6 +343,18 @@ class ConstructorAnnotatorTest extends SimpleTestCase {
       Error("(2, 2)", "T is a trait and thus has no constructor")
     )
   }
+
+  def testMissingParamaterLists(): Unit = {
+    val code =
+      """
+        |new DDD(2)
+      """.stripMargin
+
+    assertMessages(messages(code))(
+      Error(")", "Missing argument list for constructor(Int)(Int)")
+    )
+  }
+
 
   // TODO: Type Aliases
   //class A(a: Int)

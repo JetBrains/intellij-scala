@@ -9,9 +9,9 @@ import org.jetbrains.plugins.scala.annotator.usageTracker.UsageTracker
 import org.jetbrains.plugins.scala.codeInspection.varCouldBeValInspection.ValToVarQuickFix
 import org.jetbrains.plugins.scala.extensions._
 import org.jetbrains.plugins.scala.lang.psi.ScalaPsiUtil
+import org.jetbrains.plugins.scala.lang.psi.api.base._
 import org.jetbrains.plugins.scala.lang.psi.api.base.patterns.{ScConstructorPattern, ScInfixPattern, ScPattern}
 import org.jetbrains.plugins.scala.lang.psi.api.base.types.ScSimpleTypeElement
-import org.jetbrains.plugins.scala.lang.psi.api.base.{ScReference, ScStableCodeReference}
 import org.jetbrains.plugins.scala.lang.psi.api.expr._
 import org.jetbrains.plugins.scala.lang.psi.api.statements.params.{ScParameter, ScParameters}
 import org.jetbrains.plugins.scala.lang.psi.api.statements.{ScFunction, ScValue}
@@ -37,7 +37,10 @@ trait ApplicationAnnotator {
       }
       if (!r.isApplicable()) {
         r.element match {
-          case f@(_: ScFunction | _: PsiMethod | _: ScSyntheticFunction) =>
+          case Constructor(_) =>
+            // don't handle constructors here
+
+          case f@(_: ScFunction | _: PsiMethod | _: ScSyntheticFunction)=>
             reference.getContext match {
               case genCall: ScGenericCall =>
                 val missing = for (MissedTypeParameter(p) <- r.problems) yield p.name
@@ -108,13 +111,14 @@ trait ApplicationAnnotator {
                   case _ =>
                     holder.createErrorAnnotation(call.argsElement, "Not applicable to " + signatureOf(f))
                 }
-              case _ =>
+              case _ if !reference.isInstanceOf[ScInterpolatedPrefixReference] =>
                 r.problems.foreach {
-                  case MissedParametersClause(_) if !reference.isInstanceOf[ScInterpolatedPrefixReference] =>
+                  case MissedParametersClause(_) =>
                     registerCreateFromUsageFixesFor(reference,
                       holder.createErrorAnnotation(reference, "Missing arguments for method " + nameOf(f)))
                   case _ =>
                 }
+              case _ =>
             }
           case _ =>
         }
@@ -234,8 +238,8 @@ trait ApplicationAnnotator {
   private def nameOf(f: PsiNamedElement) = f.name + signatureOf(f)
 
   def signatureOf(f: PsiNamedElement): String = f match {
-    case f: ScFunction =>
-      if (f.parameters.isEmpty) "" else formatParamClauses(f.paramClauses)
+    case f: ScMethodLike =>
+      if (f.parameters.isEmpty) "" else formatParamClauses(f.parameterList)
     case m: PsiMethod =>
       val params = m.parameters
       if (params.isEmpty) "" else formatJavaParams(params)
