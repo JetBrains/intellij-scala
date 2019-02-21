@@ -166,6 +166,36 @@ class ScalaFmtTest extends ScalaFmtTestBase {
     doTextTest(before, after)
   }
 
+  def testIncompleteFileWithRewriteRules_1(): Unit = {
+    setScalafmtConfig("redundantBraces.conf")
+    val before =
+      s"""trait X {
+         |     def foo = 42
+         |}
+         |def zoo(): Int = 42""".stripMargin
+    val after =
+      s"""trait X {
+         |  def foo = 42
+         |}
+         |def zoo(): Int = 42""".stripMargin
+    doTextTest(before, after)
+  }
+
+  def testIncompleteFileWithRewriteRules_2(): Unit = {
+    setScalafmtConfig("redundantBraces.conf")
+    val before =
+      s"""trait X {
+         |def foo = 42
+         |}
+         |def zoo(): Int = 42""".stripMargin
+    val after =
+      s"""trait X {
+         |  def foo = 42
+         |}
+         |def zoo(): Int = 42""".stripMargin
+    doTextTest(before, after)
+  }
+
   def testBug(): Unit = {
     val before =
       """

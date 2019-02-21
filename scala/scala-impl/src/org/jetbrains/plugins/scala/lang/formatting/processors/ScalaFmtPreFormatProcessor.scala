@@ -3,14 +3,12 @@ package org.jetbrains.plugins.scala.lang.formatting.processors
 import com.intellij.application.options.CodeStyle
 import com.intellij.lang.ASTNode
 import com.intellij.notification._
-import com.intellij.openapi.actionSystem.AnActionEvent
 import com.intellij.openapi.diagnostic.Logger
 import com.intellij.openapi.fileEditor.OpenFileDescriptor
 import com.intellij.openapi.progress.ProgressIndicatorProvider
 import com.intellij.openapi.project.Project
 import com.intellij.openapi.util.text.StringUtil
 import com.intellij.openapi.util.{Key, TextRange}
-import com.intellij.openapi.vfs.VirtualFile
 import com.intellij.psi._
 import com.intellij.psi.impl.source.codeStyle.{CodeEditUtil, PreFormatProcessor}
 import com.intellij.psi.impl.source.tree.{LeafPsiElement, PsiWhiteSpaceImpl}
@@ -664,11 +662,14 @@ object ScalaFmtPreFormatProcessor {
     override def getStartOffset: Int = remove.getTextRange.getStartOffset
   }
 
-  private def processElementToElementReplace(original: PsiElement, formatted: PsiElement,
-                                             rewriteElementsToTraverse: Seq[(PsiElement, Seq[PsiElement])],
-                                             range: TextRange, additionalIndent: Int,
+  private def processElementToElementReplace(original: PsiElement,
+                                             formatted: PsiElement,
+                                             rewriteElement: Option[Seq[PsiElement]],
+                                             range: TextRange,
+                                             additionalIndent: Int,
                                              elementsToTraverse: ListBuffer[(PsiElement, PsiElement)],
-                                             res: ListBuffer[PsiChange])(implicit project: Project, originalText: String): Unit = {
+                                             res: ListBuffer[PsiChange]
+                                            )(implicit project: Project, fileText: String): Unit = {
     (original, formatted) match {
       case (ws1: PsiWhiteSpace, ws2: PsiWhiteSpace) =>
         res += Replace(ws1, ws2.withAdditionalIndent(additionalIndent))
@@ -678,7 +679,6 @@ object ScalaFmtPreFormatProcessor {
 
     val formattedElementText = formatted.getText
     val originalElementText = getText(original)
-    val rewriteElement = rewriteElementsToTraverse.find(original == _._1)
 
     val originalIndent = getElementIndent(original)
     val formattedIndent = getElementIndent(formatted)
@@ -693,8 +693,9 @@ object ScalaFmtPreFormatProcessor {
 
     if (range.contains(original.getTextRange)) {
       rewriteElement match {
-        case Some((_, replacement)) =>
-          res ++= replace(original, replacement, additionalIndent)
+        case Some(replacement) =>
+          // rewriteElements are already unwrapped and do not require additional indent
+          res ++= replace(original, replacement, additionalIndent = 0)
         case _ =>
           formatted.accept(new AdjustIndentsVisitor(additionalIndent, project))
           res += Replace(original, formatted)
@@ -758,8 +759,9 @@ object ScalaFmtPreFormatProcessor {
     val elementsBuffer = ListBuffer(elementsToTraverse: _*)
     while (elementsBuffer.nonEmpty) {
       val (original, formatted) = elementsBuffer.remove(0)
+      val rewriteElement = rewriteElementsToTraverse.find(original == _._1).map(_._2)
       processElementToElementReplace(
-        original, formatted, rewriteElementsToTraverse, range, additionalIndent, elementsBuffer, changes
+        original, formatted, rewriteElement, range, additionalIndent, elementsBuffer, changes
       )
     }
 

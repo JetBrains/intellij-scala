@@ -38,6 +38,10 @@ class ScalafmtDynamicConfigManager(implicit project: Project) extends ProjectCom
     }
   }
 
+  override def projectClosed(): Unit = {
+    clearCaches()
+  }
+
   def resolveConfigAsync(configFile: VirtualFile,
                          version: ScalafmtVersion,
                          onResolveFinished: ConfigResolveResult => Unit): Unit = {
