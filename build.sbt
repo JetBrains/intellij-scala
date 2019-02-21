@@ -25,7 +25,7 @@ lazy val scalaCommunity: sbt.Project =
       androidIntegration % "test->test;compile->compile",
       copyrightIntegration % "test->test;compile->compile",
       gradleIntegration % "test->test;compile->compile",
-      intellilangIntegration % "test->test;compile->compile",
+      intelliLangIntegration % "test->test;compile->compile",
       mavenIntegration % "test->test;compile->compile",
       propertiesIntegration % "test->test;compile->compile",
       javaDecompilerIntegration)
@@ -210,12 +210,14 @@ lazy val gradleIntegration =
         "properties") // required by Gradle
     )
 
-lazy val intellilangIntegration =
-  newProject("intellilang", file("scala/integration/intellilang"))
-    .dependsOn(scalaImpl % "test->test;compile->compile")
-    .settings(
-      ideaInternalPlugins := Seq("IntelliLang")
-    )
+lazy val intelliLangIntegration = newProject(
+  "intelliLang",
+  file("scala/integration/intellilang")
+).dependsOn(
+  scalaImpl % "test->test;compile->compile"
+).settings(
+  ideaInternalPlugins := Seq("IntelliLang")
+)
 
 lazy val mavenIntegration =
   newProject("maven", file("scala/integration/maven"))

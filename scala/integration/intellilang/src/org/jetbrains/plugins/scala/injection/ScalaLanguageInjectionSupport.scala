@@ -1,18 +1,23 @@
-package org.jetbrains.plugins.scala.injection
+package org.jetbrains.plugins.scala
+package injection
 
+import com.intellij.patterns.PsiJavaPatterns
 import com.intellij.psi.PsiLanguageInjectionHost
 import org.intellij.plugins.intelliLang.inject.AbstractLanguageInjectionSupport
 
 /**
  * Pavel Fatin
  */
+final class ScalaLanguageInjectionSupport extends AbstractLanguageInjectionSupport {
 
-class ScalaLanguageInjectionSupport extends AbstractLanguageInjectionSupport {
-  private final val SUPPORT_ID: String = "scala"
+  override def getId = "scala"
 
-  override def getId: String = SUPPORT_ID
+  override def getPatternClasses = Array(classOf[ScalaLanguageInjectionSupport.Patterns])
 
-  override def getPatternClasses: Array[Class[_]] = Array(classOf[ScalaPatterns])
+  override def useDefaultInjector(host: PsiLanguageInjectionHost) = false
+}
 
-  override def useDefaultInjector(host: PsiLanguageInjectionHost): Boolean = false
+object ScalaLanguageInjectionSupport {
+
+  final class Patterns extends PsiJavaPatterns
 }
