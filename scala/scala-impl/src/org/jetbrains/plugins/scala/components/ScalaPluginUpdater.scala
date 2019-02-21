@@ -3,9 +3,8 @@ package org.jetbrains.plugins.scala.components
 import java.io.{File, IOException}
 import java.lang.reflect.Field
 import java.net.URLEncoder
-import java.util.concurrent.{Future, TimeUnit}
+import java.util.concurrent.TimeUnit
 
-import javax.swing.event.HyperlinkEvent
 import com.intellij.ide.plugins._
 import com.intellij.ide.util.PropertiesComponent
 import com.intellij.notification._
@@ -14,21 +13,21 @@ import com.intellij.openapi.application.impl.ApplicationInfoImpl
 import com.intellij.openapi.application.{ApplicationInfo, ApplicationManager, PermanentInstallationID}
 import com.intellij.openapi.diagnostic.Logger
 import com.intellij.openapi.editor.EditorFactory
-import com.intellij.openapi.editor.event.{DocumentAdapter, DocumentEvent, DocumentListener}
+import com.intellij.openapi.editor.event.{DocumentEvent, DocumentListener}
 import com.intellij.openapi.extensions.PluginId
 import com.intellij.openapi.fileEditor.FileDocumentManager
 import com.intellij.openapi.project.ProjectManager
-import com.intellij.openapi.updateSettings.UpdateStrategyCustomization
 import com.intellij.openapi.updateSettings.impl._
 import com.intellij.openapi.util.{BuildNumber, JDOMUtil, SystemInfo}
 import com.intellij.openapi.vfs.CharsetToolkit
 import com.intellij.util.io.HttpRequests
 import com.intellij.util.io.HttpRequests.Request
+import javax.swing.event.HyperlinkEvent
 import org.jdom.JDOMException
-import org.jetbrains.plugins.scala.ScalaFileType
 import org.jetbrains.plugins.scala.settings.ScalaApplicationSettings
 import org.jetbrains.plugins.scala.settings.ScalaApplicationSettings.pluginBranch
 import org.jetbrains.plugins.scala.settings.ScalaApplicationSettings.pluginBranch._
+import org.jetbrains.plugins.scala.{ScalaFileType, extensions}
 
 import scala.collection.JavaConverters._
 import scala.xml.transform.{RewriteRule, RuleTransformer}
@@ -37,23 +36,19 @@ class InvalidRepoException(what: String) extends Exception(what)
 
 object ScalaPluginUpdater {
   private val LOG = Logger.getInstance(getClass)
-
-  def pluginDescriptor: IdeaPluginDescriptorImpl = ScalaPluginVersionVerifier.getPluginDescriptor
-
   private val scalaPluginId = "1347"
-
-  val baseUrl: String = "https://plugins.jetbrains.com/plugins/%s/" + scalaPluginId
-
+  private val baseUrl: String = "https://plugins.jetbrains.com/plugins/%s/" + scalaPluginId
   private var doneUpdating = false
+  private def pluginDescriptor: IdeaPluginDescriptorImpl = ScalaPluginVersionVerifier.getPluginDescriptor
 
   // *_OLD versions are for legacy repository format.
   // Need to keep track of them to upgrade to new repository format automatically
   // Remove eventually, when no significant amount of users will have older ones.
-  val CASSIOPEIA_OLD    = "cassiopeia_old"
-  val FOURTEEN_ONE_OLD  = "14.1_old"
-  val FOURTEEN_ONE      = "14.1"
+  private val CASSIOPEIA_OLD    = "cassiopeia_old"
+  private val FOURTEEN_ONE_OLD  = "14.1_old"
+  private val FOURTEEN_ONE      = "14.1"
 
-  val knownVersions = Map(
+  private val knownVersions = Map(
     CASSIOPEIA_OLD   -> Map(
       Release -> "DUMMY",
       EAP     -> "http://www.jetbrains.com/idea/plugins/scala-eap-cassiopeia.xml",
@@ -71,16 +66,16 @@ object ScalaPluginUpdater {
     )
   )
 
-  val currentVersion: String = FOURTEEN_ONE
+  private val currentVersion: String = FOURTEEN_ONE
 
-  def currentRepo: Map[pluginBranch, String] = knownVersions(currentVersion)
+  private def currentRepo: Map[pluginBranch, String] = knownVersions(currentVersion)
 
   private val updGroupId = "Scala Plugin Update"
   private val title = updGroupId
   private val GROUP = new NotificationGroup(updGroupId, NotificationDisplayType.STICKY_BALLOON, true)
 
   // save plugin version before patching to restore it when switching back
-  var savedPluginVersion = ""
+  private var savedPluginVersion = ""
 
   private val updateListener = new DocumentListener {
     override def documentChanged(e: DocumentEvent): Unit = {
@@ -121,7 +116,7 @@ object ScalaPluginUpdater {
     doUpdatePluginHosts(branch)
     if(UpdateSettings.getInstance().isCheckNeeded) {
       UpdateChecker.updateAndShowResult()
-        .doWhenDone(toRunnable(postCheckIdeaCompatibility(branch)))
+        .doWhenDone(extensions.toRunnable(postCheckIdeaCompatibility(branch)))
     }
   }
 
@@ -191,7 +186,7 @@ object ScalaPluginUpdater {
       case Nightly => Some(currentRepo(Nightly))
     }
 
-    url.foreach(u => invokeLater {
+    url.foreach(u => extensions.invokeLater {
       try {
         val factory = javax.xml.parsers.SAXParserFactory.newInstance()
         // disable DTD validation
@@ -302,9 +297,9 @@ object ScalaPluginUpdater {
 
   // this hack uses fake plugin.xml deserialization to downgrade plugin version
   // at least it's not using reflection
-  def patchPluginVersion(newVersion: String): Boolean = {
+  private def patchPluginVersion(newVersion: String): Boolean = {
     import scala.xml._
-    val versionPatcher = new RewriteRule {
+    val versionPatcher: RewriteRule = new RewriteRule {
       override def transform(n: Node): NodeSeq = n match {
         case <version>{_}</version> => <version>{newVersion}</version>
         case <include/> => NodeSeq.Empty // relative path includes break temp file parsing
@@ -330,7 +325,7 @@ object ScalaPluginUpdater {
   }
 
   @deprecated("Unsafe method, use patchPluginVersion instead", "")
-  def patchPluginVersionReflection(): Unit = {
+  private def patchPluginVersionReflection(): Unit = {
     // crime of reflection goes below - workaround until force updating is available
     try {
       val hack: Field = classOf[IdeaPluginDescriptorImpl].getDeclaredField("myVersion")
@@ -370,7 +365,4 @@ object ScalaPluginUpdater {
     }
   }
 
-  def invokeLater(f: => Unit): Future[_] = ApplicationManager.getApplication.executeOnPooledThread(toRunnable(f))
-
-  def toRunnable(f: => Unit): Runnable = () => f
 }

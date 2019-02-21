@@ -6,6 +6,7 @@ import com.intellij.openapi.fileTypes.FileType;
 import com.intellij.openapi.options.ConfigurationException;
 import com.intellij.openapi.project.Project;
 import com.intellij.openapi.ui.DialogWrapper;
+import com.intellij.openapi.ui.Messages;
 import com.intellij.openapi.updateSettings.impl.UpdateChecker;
 import com.intellij.openapi.updateSettings.impl.UpdateSettings;
 import com.intellij.openapi.util.text.StringUtil;
@@ -95,7 +96,12 @@ public class ScalaProjectSettingsPanel {
     updateNowButton.addActionListener(new ActionListener() {
       @Override
       public void actionPerformed(ActionEvent e) {
-        UpdateChecker.updateAndShowResult(myProject, UpdateSettings.getInstance());
+        try {
+          ScalaPluginUpdater.doUpdatePluginHosts((ScalaApplicationSettings.pluginBranch) updateChannel.getModel().getSelectedItem());
+          UpdateChecker.updateAndShowResult(myProject, UpdateSettings.getInstance());
+        } catch (InvalidRepoException ex) {
+          Messages.showErrorDialog(ex.getMessage(), "Invalid Update Channel");
+        }
       }
     });
 
