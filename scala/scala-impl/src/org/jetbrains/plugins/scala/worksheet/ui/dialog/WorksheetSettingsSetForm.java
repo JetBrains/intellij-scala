@@ -108,7 +108,9 @@ public class WorksheetSettingsSetForm {
         moduleComboBox.fillModules(myProject);
         moduleComboBox.setToolTipText("Using class path of the module...");
 
-        WorksheetCommonSettings settings = myFile != null ? WorksheetCommonSettings.getInstance(myFile) : WorksheetCommonSettings.getInstance(myProject);
+        WorksheetCommonSettings settings = myFile != null ?
+                WorksheetCommonSettings.apply(myFile) :
+                WorksheetCommonSettings.apply(myProject);
 
         Module defaultModule = settings.getModuleFor();
         if (defaultModule != null) {

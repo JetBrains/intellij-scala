@@ -266,13 +266,11 @@ class WorksheetIncrementalEditorPrinter(editor: Editor, viewer: Editor, file: Sc
       case _ => return None
     }
 
-    val (finalText, vertOffset) = {
-      splitLineNumberFromRepl(textWoSeverity) match {
-        case Some(a) => a
-        case _ => // we still have a fall back variant here as some errors aren't raised from the text of our input
-          (textWoSeverity, Integer.parseInt(lineNumStr) - getConsoleHeaderLines(WorksheetCommonSettings.getInstance(getScalaFile).getModuleFor))
+    val (finalText, vertOffset) =
+      splitLineNumberFromRepl(textWoSeverity).getOrElse {
+        // we still have a fall back variant here as some errors aren't raised from the text of our input
+        (textWoSeverity, Integer.parseInt(lineNumStr) - getConsoleHeaderLines(WorksheetCommonSettings(getScalaFile).getModuleFor))
       }
-    }
 
     Option(MessageInfo(finalText, vertOffset, horOffset, severity))
   }

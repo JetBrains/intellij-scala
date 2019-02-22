@@ -37,7 +37,6 @@ import org.jetbrains.plugins.scala.lang.psi.stubs.ScFileStub
 import org.jetbrains.plugins.scala.lang.refactoring.util.ScalaNamesUtil
 import org.jetbrains.plugins.scala.macroAnnotations.{CachedInUserData, ModCount}
 import org.jetbrains.plugins.scala.settings.ScalaProjectSettings
-import org.jetbrains.plugins.scala.util.ScalaUtil
 import org.jetbrains.plugins.scala.worksheet.ammonite.AmmoniteUtil
 
 import scala.annotation.tailrec
@@ -188,10 +187,10 @@ class ScalaFileImpl(viewProvider: FileViewProvider,
   override def isScriptFile: Boolean = foldStub(isScriptFileImpl)(_.isScript)
 
   override def isWorksheetFile: Boolean = {
-    ScalaUtil.findVirtualFile(this).exists {
-      vFile =>
-        vFile.getExtension == ScalaFileType.WORKSHEET_EXTENSION && !AmmoniteUtil.isAmmoniteFile(vFile, getProject) ||
-          ScratchFileService.getInstance().getRootType(vFile).isInstanceOf[ScratchRootType] &&
+    this.findVirtualFile.exists { virtualFile =>
+      virtualFile.getExtension == ScalaFileType.WORKSHEET_EXTENSION &&
+        !AmmoniteUtil.isAmmoniteFile(virtualFile, getProject) ||
+        ScratchFileService.getInstance().getRootType(virtualFile).isInstanceOf[ScratchRootType] &&
           ScalaProjectSettings.getInstance(getProject).isTreatScratchFilesAsWorksheet
     }
   }

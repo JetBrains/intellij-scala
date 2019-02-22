@@ -8,18 +8,16 @@ import com.intellij.openapi.roots.libraries.{Library, LibraryTablesRegistrar}
 import com.intellij.openapi.roots.{OrderRootType, ProjectRootManager}
 import com.intellij.openapi.vfs.{JarFileSystem, VirtualFile}
 import com.intellij.psi._
-import com.intellij.psi.scope.PsiScopeProcessor
 import com.intellij.util.containers.ContainerUtilRt
 import org.jetbrains.jps.model.java.JavaSourceRootType
 import org.jetbrains.plugins.scala.editor.importOptimizer.ImportInfo
 import org.jetbrains.plugins.scala.extensions.implementation.iterator.ParentsIterator
-import org.jetbrains.plugins.scala.lang.psi.api.ScalaPsiElement
 import org.jetbrains.plugins.scala.lang.psi.api.base.{ScReference, ScStableCodeReference}
 import org.jetbrains.plugins.scala.lang.psi.api.toplevel.imports.usages.{ImportExprUsed, ImportUsed}
 import org.jetbrains.plugins.scala.lang.psi.api.toplevel.imports.{ScImportExpr, ScImportSelector, ScImportSelectors, ScImportStmt}
 import org.jetbrains.plugins.scala.lang.psi.api.toplevel.typedef.ScObject
-import org.jetbrains.plugins.scala.lang.psi.api.{FileDeclarationsHolder, ScalaFile}
-import org.jetbrains.plugins.scala.lang.psi.impl.{ScalaFileImpl, ScalaPsiElementFactory}
+import org.jetbrains.plugins.scala.lang.psi.api.{ScFile, ScalaFile, ScalaPsiElement}
+import org.jetbrains.plugins.scala.lang.psi.impl.ScalaFileImpl
 import org.jetbrains.plugins.scala.settings.ScalaProjectSettings
 import org.jetbrains.plugins.scala.util.ScalaUtil
 import org.jetbrains.sbt.project.SbtProjectSystem
@@ -48,12 +46,8 @@ object AmmoniteUtil {
     "ammonite.runtime.tools.time", "ammonite.repl.tools.desugar", "ammonite.repl.tools.source") //todo more default imports ?
   private val DEFAULT_BUILTINS = Seq(("repl", "ammonite.repl.ReplAPI"), ("interp", "ammonite.runtime.Interpreter with ammonite.interp.Interpreter"))
 
-  def isAmmoniteFile(file: ScalaFile): Boolean = {
-    ScalaUtil.findVirtualFile(file) match {
-      case Some(vFile) => isAmmoniteFile(vFile, file.getProject)
-      case _ => false
-    }
-  }
+  def isAmmoniteFile(file: ScFile): Boolean =
+    ScFile.VirtualFile.unapply(file).exists(isAmmoniteFile(_, file.getProject))
 
   def isAmmoniteFile(virtualFile: VirtualFile, project: Project): Boolean = {
     virtualFile.getExtension == AMMONITE_EXTENSION && (ScalaProjectSettings.getInstance(project).getScFileMode match {

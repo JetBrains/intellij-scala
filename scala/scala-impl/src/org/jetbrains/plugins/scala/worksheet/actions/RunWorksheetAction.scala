@@ -91,15 +91,13 @@ object RunWorksheetAction {
 
         def runnable(): Unit = {
           new WorksheetCompiler(editor, file, (className: String, addToCp: String) => {
-            ApplicationManager.getApplication invokeLater new Runnable {
-              override def run() {
-                executeWorksheet(file.getName, project, file.getContainingFile, className, addToCp)
-              }
-            }
+            ApplicationManager.getApplication.invokeLater(() => {
+              executeWorksheet(file.getName, project, file.getContainingFile, className, addToCp)
+            })
           }, auto).compileAndRunFile()
         }
 
-        val fileSettings = WorksheetCommonSettings.getInstance(file)
+        val fileSettings = WorksheetCommonSettings(file)
         
         if (fileSettings.isMakeBeforeRun) {
           CompilerManager.getInstance(project).make(fileSettings.getModuleFor,
@@ -116,7 +114,7 @@ object RunWorksheetAction {
   //FYI: repl mode works only if we use compiler server and run worksheet with "InProcess" setting
   def executeWorksheet(name: String, project: Project, file: PsiFile, mainClassName: String, addToCp: String) {
     val virtualFile = file.getVirtualFile
-    val params = createParameters(WorksheetCommonSettings.getInstance(file).getModuleFor, mainClassName, 
+    val params = createParameters(WorksheetCommonSettings(file).getModuleFor, mainClassName,
       Option(project.getBaseDir) map (_.getPath) getOrElse "", addToCp, "",
       virtualFile.getCanonicalPath) //todo extract default java options??
 

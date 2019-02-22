@@ -1,10 +1,8 @@
 package org.jetbrains.plugins.scala.worksheet.ui.dialog
 
-import com.intellij.icons.AllIcons
 import com.intellij.ide.actions.ShowSettingsUtilImpl
 import com.intellij.ide.ui.search.SearchUtil
-import com.intellij.openapi.actionSystem.impl.ActionButton
-import com.intellij.openapi.actionSystem.{ActionPlaces, ActionToolbar, AnAction, AnActionEvent}
+import com.intellij.openapi.actionSystem.AnActionEvent
 import com.intellij.openapi.project.Project
 import com.intellij.openapi.ui.DialogWrapper
 import org.jetbrains.plugins.scala.worksheet.settings.WorksheetCommonSettings
@@ -35,7 +33,7 @@ class ShowCompilerProfileSettingsButton(form: WorksheetSettingsSetForm) extends 
   }
   
   private def profilesReload() {
-    val (selected, profiles) = WorksheetFileSettingsDialog.createCompilerProfileOptions(WorksheetCommonSettings.getInstance(form.getFile))
+    val (selected, profiles) = WorksheetFileSettingsDialog.createCompilerProfileOptions(WorksheetCommonSettings(form.getFile))
     form.onProfilesReload(selected, profiles)
   }
 }

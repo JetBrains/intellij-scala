@@ -12,7 +12,8 @@ import org.jetbrains.plugins.scala.worksheet.settings.WorksheetCommonSettings
   * Date: 05.02.18.
   */
 class WorksheetFileSettingsDialog(worksheetFile: PsiFile) extends DialogWrapper(worksheetFile.getProject, true, true) {
-  private val (fileSettings, projectSettings) = (WorksheetCommonSettings getInstance worksheetFile, WorksheetCommonSettings getInstance worksheetFile.getProject)
+  private val fileSettings = WorksheetCommonSettings(worksheetFile)
+  private val projectSettings = WorksheetCommonSettings(worksheetFile.getProject)
   private val myPanel = new WorksheetAllSettingsForm(worksheetFile, getFileSettingsData, getDefaultSettingsData)
   
   setTitle("Worksheet Settings")

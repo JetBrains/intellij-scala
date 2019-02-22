@@ -32,7 +32,7 @@ class WorksheetCompiler(editor: Editor, worksheetFile: ScalaFile, callback: (Str
   private val makeType = WorksheetProjectSettings.getMakeType(project)
   private val runType = WorksheetFileSettings.getRunType(worksheetFile)
   private val worksheetVirtual = worksheetFile.getVirtualFile
-  private val module = WorksheetCommonSettings.getInstance(worksheetFile).getModuleFor
+  private val module = WorksheetCommonSettings(worksheetFile).getModuleFor
 
   private def onError(msg: String) {
     NotificationUtil.builder(project, msg).setGroup(

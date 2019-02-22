@@ -78,7 +78,7 @@ class WorksheetAutoRunner(project: Project, woof: WolfTheProblemSolver) extends 
           ed => WorksheetCache.getInstance(project).setLastProcessedIncremental(ed, None) )
       }
 
-      if (!WorksheetCommonSettings.getInstance(psiFile).isInteractive) return
+      if (!WorksheetCommonSettings(psiFile).isInteractive) return
 
       val virtualFile = psiFile.getVirtualFile
 

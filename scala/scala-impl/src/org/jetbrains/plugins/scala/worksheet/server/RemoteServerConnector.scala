@@ -12,7 +12,7 @@ import com.intellij.openapi.progress.{ProgressIndicator, ProgressManager}
 import com.intellij.openapi.project.Project
 import com.intellij.openapi.roots.ModuleRootManager
 import com.intellij.openapi.vfs.VirtualFile
-import com.intellij.psi.{PsiFile, PsiManager}
+import com.intellij.psi.PsiManager
 import com.intellij.util.Base64Converter
 import org.jetbrains.jps.incremental.ModuleLevelBuilder.ExitCode
 import org.jetbrains.jps.incremental.messages.BuildMessage
@@ -20,7 +20,7 @@ import org.jetbrains.jps.incremental.messages.BuildMessage.Kind
 import org.jetbrains.jps.incremental.scala.DummyClient
 import org.jetbrains.jps.incremental.scala.remote._
 import org.jetbrains.plugins.scala.compiler.{ErrorHandler, NonServerRunner, RemoteServerConnectorBase, RemoteServerRunner}
-import org.jetbrains.plugins.scala.lang.psi.api.ScalaFile
+import org.jetbrains.plugins.scala.lang.psi.api.{ScFile, ScalaFile}
 import org.jetbrains.plugins.scala.project.settings.ScalaCompilerSettings
 import org.jetbrains.plugins.scala.worksheet.actions.WorksheetFileHook
 import org.jetbrains.plugins.scala.worksheet.processor.WorksheetSourceProcessor
@@ -33,13 +33,13 @@ import org.jetbrains.plugins.scala.worksheet.ui.{WorksheetEditorPrinter, Workshe
   * User: Dmitry Naydanov
  * Date: 1/28/14
  */
-class RemoteServerConnector(psiFile: PsiFile, worksheet: File, output: File, worksheetClassName: String,
+class RemoteServerConnector(psiFile: ScFile, worksheet: File, output: File, worksheetClassName: String,
                             replArgs: Option[ReplModeArgs], needsCheck: Boolean) extends RemoteServerConnectorBase(
-  WorksheetCommonSettings.getInstance(psiFile).getModuleFor, Seq(worksheet), output, needsCheck) {
+  WorksheetCommonSettings(psiFile).getModuleFor, Seq(worksheet), output, needsCheck) {
   
   val runType: WorksheetMakeType = WorksheetProjectSettings.getMakeType(module.getProject)
 
-  override protected def compilerSettings: ScalaCompilerSettings = WorksheetCommonSettings.getInstance(psiFile).getCompilerProfile.getSettings
+  override protected def compilerSettings: ScalaCompilerSettings = WorksheetCommonSettings(psiFile).getCompilerProfile.getSettings
 
   /**
     * Args (for running in compile server process only)

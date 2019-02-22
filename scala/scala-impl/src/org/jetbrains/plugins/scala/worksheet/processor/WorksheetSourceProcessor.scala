@@ -9,8 +9,6 @@ import com.intellij.psi._
 import com.intellij.util.Base64
 import org.jetbrains.plugins.scala.lang.lexer.ScalaTokenTypes
 import org.jetbrains.plugins.scala.lang.psi.PresentationUtil.accessModifierText
-import org.jetbrains.plugins.scala.lang.psi.PresentationUtil
-import org.jetbrains.plugins.scala.lang.psi.api.{ScalaFile, ScalaPsiElement}
 import org.jetbrains.plugins.scala.lang.psi.api.base.ScStableCodeReference
 import org.jetbrains.plugins.scala.lang.psi.api.base.patterns.ScTypedPattern
 import org.jetbrains.plugins.scala.lang.psi.api.base.types.{ScTupleTypeElement, ScTypeElement}
@@ -19,6 +17,7 @@ import org.jetbrains.plugins.scala.lang.psi.api.statements._
 import org.jetbrains.plugins.scala.lang.psi.api.toplevel.ScPackaging
 import org.jetbrains.plugins.scala.lang.psi.api.toplevel.imports.ScImportStmt
 import org.jetbrains.plugins.scala.lang.psi.api.toplevel.typedef._
+import org.jetbrains.plugins.scala.lang.psi.api.{ScalaFile, ScalaPsiElement}
 import org.jetbrains.plugins.scala.project._
 import org.jetbrains.plugins.scala.settings.ScalaProjectSettings
 import org.jetbrains.plugins.scala.worksheet.runconfiguration.WorksheetCache
@@ -101,7 +100,7 @@ object WorksheetSourceProcessor {
     val name = s"A$$A$iterNumber"
     val instanceName = s"inst$$A$$A"
     val project = srcFile.getProject
-    val moduleOpt = Option(WorksheetCommonSettings.getInstance(srcFile).getModuleFor)
+    val moduleOpt = Option(WorksheetCommonSettings(srcFile).getModuleFor)
     
     val packOpt: Option[String] = Option(srcFile.getContainingDirectory) flatMap (
       dir => Option(JavaDirectoryService.getInstance().getPackage(dir))

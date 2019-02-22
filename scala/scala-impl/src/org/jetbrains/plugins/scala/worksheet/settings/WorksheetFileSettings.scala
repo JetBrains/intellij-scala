@@ -1,4 +1,6 @@
-package org.jetbrains.plugins.scala.worksheet.settings
+package org.jetbrains.plugins.scala
+package worksheet
+package settings
 
 import com.intellij.ide.scratch.{ScratchFileService, ScratchRootType}
 import com.intellij.openapi.module.Module
@@ -7,7 +9,7 @@ import com.intellij.openapi.roots.ProjectFileIndex
 import com.intellij.openapi.vfs.newvfs.FileAttribute
 import com.intellij.openapi.vfs.{VirtualFile, VirtualFileWithId}
 import com.intellij.psi.PsiFile
-import org.jetbrains.plugins.scala.lang.psi.api.{FileDeclarationsHolder, ScalaFile}
+import org.jetbrains.plugins.scala.lang.psi.api.{FileDeclarationsHolder, ScFile, ScalaFile}
 import org.jetbrains.plugins.scala.project._
 import org.jetbrains.plugins.scala.project.settings.{ScalaCompilerConfiguration, ScalaCompilerSettingsProfile}
 import org.jetbrains.plugins.scala.settings.ScalaProjectSettings
@@ -20,12 +22,12 @@ import org.jetbrains.plugins.scala.worksheet.server.InProcessServer
   * Date: 14.03.18.
   */
 class WorksheetFileSettings(file: PsiFile) extends WorksheetCommonSettings {
-  import WorksheetFileSettings._
   import WorksheetFileSettings.SerializableWorksheetAttributes._
+  import WorksheetFileSettings._
   
   override def project: Project = file.getProject
 
-  private def getDefaultSettings: WorksheetCommonSettings = WorksheetCommonSettings.getInstance(project)
+  private def getDefaultSettings = WorksheetCommonSettings(project)
 
   private def getSetting[T](attr: FileAttribute, orDefault: => T)(implicit ev: SerializableInFileAttribute[T]): T = 
     ev.readAttribute(attr, file).getOrElse(orDefault)
@@ -54,21 +56,20 @@ class WorksheetFileSettings(file: PsiFile) extends WorksheetCommonSettings {
   override def setCompilerProfileName(value: String): Unit = setSetting(COMPILER_PROFILE, value)
 
   override def getCompilerProfile: ScalaCompilerSettingsProfile = {
-    val compilerConfiguration = ScalaCompilerConfiguration.instanceIn(project)
-
-    if (!isScratchWorksheet(file)) {
-      for {
-        vFile <- ScalaUtil.findVirtualFile(file)
-        module <- ScalaUtil.getModuleForFile(vFile, file.getProject)
-        profile <- compilerConfiguration.customProfiles.find(_.getModuleNames.contains(module.getName))
-      } return profile
-
-      return compilerConfiguration.defaultProfile
+    val configuration = ScalaCompilerConfiguration.instanceIn(project)
+    val maybeCustomProfile = configuration.customProfiles match {
+      case profiles if isScratchWorksheet(file) =>
+        val name = getCompilerProfileName
+        profiles.find(_.getName == name)
+      case profiles =>
+        for {
+          ScFile.VirtualFile(virtualFile) <- Some(file)
+          module <- ScalaUtil.getModuleForFile(virtualFile, file.getProject)
+          profile <- profiles.find(_.getModuleNames.contains(module.getName))
+        } yield profile
     }
 
-    val name = getCompilerProfileName
-
-    compilerConfiguration.customProfiles.find(_.getName == name).getOrElse(compilerConfiguration.defaultProfile)
+    maybeCustomProfile.getOrElse(configuration.defaultProfile)
   }
 
   override def getModuleFor: Module = Option(super.getModuleFor).getOrElse(getModuleFor(file.getVirtualFile))

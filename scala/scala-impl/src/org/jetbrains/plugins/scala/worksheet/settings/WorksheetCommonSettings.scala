@@ -1,9 +1,10 @@
-package org.jetbrains.plugins.scala.worksheet.settings
+package org.jetbrains.plugins.scala
+package worksheet
+package settings
 
 import com.intellij.openapi.module.{Module, ModuleManager}
 import com.intellij.openapi.project.Project
 import com.intellij.psi.PsiFile
-import org.jetbrains.plugins.scala
 import org.jetbrains.plugins.scala.project.settings.ScalaCompilerSettingsProfile
 import org.jetbrains.plugins.scala.worksheet.processor.WorksheetPerFileConfig
 
@@ -34,18 +35,19 @@ abstract class WorksheetCommonSettings extends WorksheetPerFileConfig {
 
   def setCompilerProfileName(value: String): Unit
 
-  def getModuleFor: Module = {
-    val moduleName = getModuleName
-    
-    if (moduleName != null) scala.extensions.inReadAction {
-      ModuleManager getInstance project findModuleByName getModuleName
-    } else null
+  def getModuleFor: Module = getModuleName match {
+    case null => null
+    case moduleName => inReadAction {
+      ModuleManager.getInstance(project).findModuleByName(moduleName)
+    }
   }
 
   def getCompilerProfile: ScalaCompilerSettingsProfile
 }
 
 object WorksheetCommonSettings {
-  def getInstance(project: Project): WorksheetCommonSettings = new WorksheetProjectSettings(project)
-  def getInstance(file: PsiFile): WorksheetCommonSettings = new WorksheetFileSettings(file)
+
+  def apply(implicit project: Project): WorksheetCommonSettings = new WorksheetProjectSettings(project)
+
+  def apply(file: PsiFile): WorksheetCommonSettings = new WorksheetFileSettings(file)
 }

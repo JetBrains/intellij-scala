@@ -14,10 +14,10 @@ import com.intellij.openapi.util.Key
 import com.intellij.openapi.vfs.JarFileSystem
 import com.intellij.psi.PsiFile
 import org.jetbrains.plugins.scala.extensions.{inWriteAction, invokeLater}
+import org.jetbrains.plugins.scala.lang.psi.api.ScFile
 import org.jetbrains.plugins.scala.project.template.{Artifact, Downloader}
 import org.jetbrains.plugins.scala.project.{Version, Versions}
 import org.jetbrains.plugins.scala.util.{NotificationUtil, ScalaUtil}
-import org.jetbrains.plugins.scala.worksheet.ammonite.ImportAmmoniteDependenciesFix.{ExactVersion, MajorVersion}
 
 import scala.collection.mutable
 import scala.util.{Success, Try}
@@ -26,20 +26,30 @@ import scala.util.{Success, Try}
   * User: Dmitry.Naydanov
   * Date: 17.01.18.
   */
-class ImportAmmoniteDependenciesFix(project: Project) {
-  def invoke(file: PsiFile): Unit = {
+object ImportAmmoniteDependenciesFix {
+
+  private val LOG = Logger.getInstance("#org.jetbrains.plugins.scala.worksheet.ammonite.ImportAmmoniteDependenciesFix")
+
+  private val DEFAULT_SCALA_VERSION = "2.12.4"
+  private val DEFAULT_AMMONITE_VERSION = "1.0.3"
+
+  private val AMMONITE_PREFIX = "ammonite_"
+  private val THREE_DIGIT_PATTERN = "(\\d+\\.\\d+\\.\\d+)"
+
+  def apply(file: ScFile)
+           (implicit project: Project): Unit = {
     val manager = ProgressManager.getInstance
 
     val task = new Task.Backgroundable(project, "Adding dependencies", false) {
       override def run(indicator: ProgressIndicator): Unit = {
         indicator.setText("Ammonite: loading list of versions...")
-        
-        val ((scalaVersion, ammoniteVersion), needScalaLib) = ScalaUtil.getScalaVersion(file) match {
-          case Some(v) =>
-            (ImportAmmoniteDependenciesFix.detectAmmoniteVersion(ExactVersion(v.charAt(3), Version(v))), false)
-          case _ =>
-            (ImportAmmoniteDependenciesFix.detectAmmoniteVersion(MajorVersion('2')), true)
+
+        val (forScala, needScalaLib) = ScalaUtil.getScalaVersion(file) match {
+          case Some(v) => (ExactVersion(v.charAt(3), Version(v)), false)
+          case _ => (MajorVersion('2'), true)
         }
+
+        val (scalaVersion, ammoniteVersion) = detectAmmoniteVersion(forScala)
 
         indicator.setText("Ammonite: extracting info from SBT...")
 
@@ -67,8 +77,7 @@ class ImportAmmoniteDependenciesFix(project: Project) {
                     }
                   }
                 }
-              case mre"[error]$content" =>
-                ImportAmmoniteDependenciesFix.LOG.warn(s"Ammonite, error while importing dependencies: $content")
+              case mre"[error]$content" => LOG.warn(s"Ammonite, error while importing dependencies: $content")
               case _ =>
             }
           }
@@ -84,12 +93,11 @@ class ImportAmmoniteDependenciesFix(project: Project) {
       }
     }
 
-    manager.runProcessWithProgressAsynchronously(
-      task, ImportAmmoniteDependenciesFix.createBgIndicator(project, "Ammonite")
-    )
+    manager.runProcessWithProgressAsynchronously(task, createBgIndicator)
   }
 
-  private def createAndAdd(files: Seq[File], module: Module, needFiltering: Boolean = true) {
+  private def createAndAdd(files: Seq[File], module: Module, needFiltering: Boolean = true)
+                          (implicit project: Project): Unit = {
     def selectName(file: File) = file.getName
     
     def filterScala(file: File) = file.getName.startsWith("scala-") && 
@@ -113,16 +121,6 @@ class ImportAmmoniteDependenciesFix(project: Project) {
     tableModel.commit()
     moduleModel.commit()
   }
-}
-
-object ImportAmmoniteDependenciesFix {
-  private val LOG = Logger.getInstance("#org.jetbrains.plugins.scala.worksheet.ammonite.ImportAmmoniteDependenciesFix")
-  
-  private val DEFAULT_SCALA_VERSION = "2.12.4"
-  private val DEFAULT_AMMONITE_VERSION = "1.0.3"
-  
-  private val AMMONITE_PREFIX = "ammonite_"
-  private val THREE_DIGIT_PATTERN = "(\\d+\\.\\d+\\.\\d+)"
   
   trait MyScalaVersion
   case class MajorVersion(m: Char) extends MyScalaVersion // m is last num in major version, e.g. 1 for 2.11
@@ -131,14 +129,20 @@ object ImportAmmoniteDependenciesFix {
   private def hasAmmonite(file: PsiFile): Boolean =
     ProjectLibraryTable.getInstance(file.getProject).getLibraries.exists(_.getName.startsWith("ammonite-"))
 
-  private def createBgIndicator(project: Project, name: String): ProgressIndicator = 
-    Option(ProgressIndicatorProvider.getGlobalProgressIndicator).getOrElse(
-      new BackgroundableProcessIndicator(
-        project, name, PerformInBackgroundOption.ALWAYS_BACKGROUND, null, null, false
+  private def createBgIndicator(implicit project: Project) =
+    ProgressIndicatorProvider.getGlobalProgressIndicator match {
+      case null => new BackgroundableProcessIndicator(
+        project,
+        "Ammonite",
+        PerformInBackgroundOption.ALWAYS_BACKGROUND,
+        null,
+        null,
+        false
       )
-    )
+      case indicator => indicator
+    }
 
-  def detectAmmoniteVersion(forScala: MyScalaVersion): (String, String) = {
+  private def detectAmmoniteVersion(forScala: MyScalaVersion): (String, String) = {
     val scalaVersion = loadScalaVersions(forScala) match {
       case Success(Some(v)) => v.presentation
       case _ => DEFAULT_SCALA_VERSION
@@ -183,9 +187,9 @@ object ImportAmmoniteDependenciesFix {
     }
   }
 
-  def suggestAddingAmmonite(file: PsiFile) {
+  def suggestAddingAmmonite(file: ScFile) {
     if (hasAmmonite(file)) return
-    val project = file.getProject
+    implicit val project: Project = file.getProject
 
     NotificationUtil.showMessage(
       project = project,
@@ -199,10 +203,8 @@ object ImportAmmoniteDependenciesFix {
           | </html>
         """.stripMargin,
       handler = {
-        case "run" =>
-          new ImportAmmoniteDependenciesFix(project).invoke(file)
-        case "disable" => 
-          AmmoniteScriptWrappersHolder.getInstance(project).setIgnoreImports()
+        case "run" => apply(file)
+        case "disable" => AmmoniteScriptWrappersHolder.getInstance(project).setIgnoreImports()
         case _ =>
       }
     )
