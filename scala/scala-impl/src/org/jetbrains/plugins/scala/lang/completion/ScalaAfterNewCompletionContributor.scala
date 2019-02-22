@@ -15,7 +15,7 @@ import org.jetbrains.plugins.scala.lang.completion.handlers.ScalaConstructorInse
 import org.jetbrains.plugins.scala.lang.completion.lookups.ScalaLookupItem
 import org.jetbrains.plugins.scala.lang.formatting.settings.ScalaCodeStyleSettings
 import org.jetbrains.plugins.scala.lang.psi.api.base.types.{ScSimpleTypeElement, ScTypeElement}
-import org.jetbrains.plugins.scala.lang.psi.api.base.{ScConstructor, ScReference, ScStableCodeReference}
+import org.jetbrains.plugins.scala.lang.psi.api.base.{ScConstructorInvocation, ScReference, ScStableCodeReference}
 import org.jetbrains.plugins.scala.lang.psi.api.expr.ScNewTemplateDefinition
 import org.jetbrains.plugins.scala.lang.psi.api.toplevel.templates.{ScExtendsBlock, ScTemplateParents}
 import org.jetbrains.plugins.scala.lang.psi.api.toplevel.typedef.{ScObject, ScTrait}
@@ -66,7 +66,7 @@ object ScalaAfterNewCompletionContributor {
   private val afterNewPattern = identifierWithParentsPattern(
     classOf[ScStableCodeReference],
     classOf[ScSimpleTypeElement],
-    classOf[ScConstructor],
+    classOf[ScConstructorInvocation],
     classOf[ScTemplateParents],
     classOf[ScExtendsBlock],
     classOf[ScNewTemplateDefinition]

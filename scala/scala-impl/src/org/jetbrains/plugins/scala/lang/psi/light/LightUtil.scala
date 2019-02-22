@@ -29,7 +29,7 @@ object LightUtil {
       case (accumulator, annotation) =>
         implicit val elementScope = holder.elementScope
 
-        val classes = annotation.constructor.args.map(_.exprs).getOrElse(Seq.empty).flatMap {
+        val classes = annotation.constructorInvocation.args.map(_.exprs).getOrElse(Seq.empty).flatMap {
           _.`type`() match {
             case Right(ParameterizedType(des, Seq(arg))) => des.extractClass match {
               case Some(clazz) if clazz.qualifiedName == "java.lang.Class" =>
@@ -47,7 +47,7 @@ object LightUtil {
           }
         }
         if (classes.isEmpty) {
-          annotation.constructor.typeArgList match {
+          annotation.constructorInvocation.typeArgList match {
             case Some(args) =>
               val classes = args.typeArgs
                 .flatMap(_.`type`().toOption)

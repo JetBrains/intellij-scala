@@ -112,7 +112,7 @@ trait TypeAdapter {
           toType(s(t.`type`().get)) // FIXME: what about typing context?
         case t: ScPackaging =>
           m.Type.Singleton(toTermName(t.reference.get))//.setTypechecked
-        case t: ScConstructor => ???
+        case t: ScConstructorInvocation => ???
 //          m.Type.Method(toParams(Seq(t.arguments:_*)), toType(t.newTemplate.get.getType(TypingContext.empty))).setTypechecked
         case t: ScPrimaryConstructor => ???
 //          m.Type.Method(Seq(t.parameterList.clauses.map(convertParamClause):_*), toType(t.containingClass)).setTypechecked

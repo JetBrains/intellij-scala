@@ -10,7 +10,7 @@ import org.jetbrains.plugins.scala.extensions.{PsiElementExt, PsiMethodExt, PsiN
 import org.jetbrains.plugins.scala.lang.dependency.Dependency.DependencyProcessor
 import org.jetbrains.plugins.scala.lang.psi.ScalaPsiUtil
 import org.jetbrains.plugins.scala.lang.psi.api.base.types.{ScSelfTypeElement, ScTypeElement}
-import org.jetbrains.plugins.scala.lang.psi.api.base.{ScConstructor, ScPrimaryConstructor}
+import org.jetbrains.plugins.scala.lang.psi.api.base.{ScConstructorInvocation, ScPrimaryConstructor}
 import org.jetbrains.plugins.scala.lang.psi.api.expr._
 import org.jetbrains.plugins.scala.lang.psi.api.statements.ScFunction
 import org.jetbrains.plugins.scala.lang.psi.api.statements.params.{ScParameter, ScParameters}
@@ -450,12 +450,12 @@ class ReferenceExpressionResolver(implicit projectContext: ProjectContext) {
             }
           }
           processConstructor(s, tp, typeArgs, arguments, secondaryConstructors)
-        case constr: ScConstructor =>
-          val tp: ScType = constr.typeElement.`type`().getOrElse(return)
-          val typeArgs: Seq[ScTypeElement] = constr.typeArgList.map(_.typeArgs).getOrElse(Seq())
-          val arguments = constr.arguments
+        case constrInvocation: ScConstructorInvocation =>
+          val tp: ScType = constrInvocation.typeElement.`type`().getOrElse(return)
+          val typeArgs: Seq[ScTypeElement] = constrInvocation.typeArgList.map(_.typeArgs).getOrElse(Seq())
+          val arguments = constrInvocation.arguments
           val secondaryConstructors = (clazz: ScClass) => clazz.secondaryConstructors
-          processConstructor(constr, tp, typeArgs, arguments, secondaryConstructors)
+          processConstructor(constrInvocation, tp, typeArgs, arguments, secondaryConstructors)
         case _ =>
       }
     }

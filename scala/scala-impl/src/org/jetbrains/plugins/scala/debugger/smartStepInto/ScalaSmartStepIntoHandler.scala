@@ -2,10 +2,6 @@ package org.jetbrains.plugins.scala.debugger.smartStepInto
 
 import java.util.{Collections, List => JList}
 
-import scala.annotation.tailrec
-import scala.collection.JavaConverters._
-import scala.collection.mutable.ArrayBuffer
-
 import com.intellij.debugger.SourcePosition
 import com.intellij.debugger.actions.{JvmSmartStepIntoHandler, MethodSmartStepTarget, SmartStepTarget}
 import com.intellij.openapi.fileEditor.FileDocumentManager
@@ -20,12 +16,16 @@ import org.jetbrains.plugins.scala.extensions._
 import org.jetbrains.plugins.scala.lang.psi.ScalaPsiUtil
 import org.jetbrains.plugins.scala.lang.psi.api.base.patterns._
 import org.jetbrains.plugins.scala.lang.psi.api.base.types.{ScParameterizedTypeElement, ScSimpleTypeElement, ScTypeElement}
-import org.jetbrains.plugins.scala.lang.psi.api.base.{ScConstructor, ScMethodLike}
+import org.jetbrains.plugins.scala.lang.psi.api.base.{ScConstructorInvocation, ScMethodLike}
 import org.jetbrains.plugins.scala.lang.psi.api.expr._
 import org.jetbrains.plugins.scala.lang.psi.api.statements.ScFunctionDefinition
 import org.jetbrains.plugins.scala.lang.psi.api.toplevel.typedef.ScClass
 import org.jetbrains.plugins.scala.lang.psi.api.{ScalaFile, ScalaRecursiveElementVisitor}
 import org.jetbrains.plugins.scala.statistics.{FeatureKey, Stats}
+
+import scala.annotation.tailrec
+import scala.collection.JavaConverters._
+import scala.collection.mutable.ArrayBuffer
 
 /**
  * User: Alexander Podkhalyuzin
@@ -117,9 +117,9 @@ class ScalaSmartStepIntoHandler extends JvmSmartStepIntoHandler {
       val extBl = templ.extendsBlock
       var label = ""
 
-      def findConstructor(typeElem: ScTypeElement): Option[ScConstructor] = typeElem match {
-        case p: ScParameterizedTypeElement => p.findConstructor
-        case s: ScSimpleTypeElement => s.findConstructor
+      def findConstructorInvocation(typeElem: ScTypeElement): Option[ScConstructorInvocation] = typeElem match {
+        case p: ScParameterizedTypeElement => p.findConstructorInvocation
+        case s: ScSimpleTypeElement => s.findConstructorInvocation
         case _ => None
       }
 
@@ -127,17 +127,17 @@ class ScalaSmartStepIntoHandler extends JvmSmartStepIntoHandler {
         for {
           tp <- extBl.templateParents
           typeElem <- tp.typeElements.headOption
-          constr <- findConstructor(typeElem)
-          ref <- constr.reference
-        } yield {
-          label = constr.simpleTypeElement.fold("")(ste => s"new ${ste.getText}.")
+          constrInvocation <- findConstructorInvocation(typeElem)
+          ref <- constrInvocation.reference
+        } {
+          label = constrInvocation.simpleTypeElement.fold("")(ste => s"new ${ste.getText}.")
 
           val generateAnonClass = DebuggerUtil.generatesAnonClass(templ)
           val method = ref.resolve() match {
             case m: PsiMethod if !generateAnonClass => m
             case _ => new FakeAnonymousClassConstructor(templ, ref.refName)
           }
-          result += new MethodSmartStepTarget(method, "new ", constr, /*needBreakpointRequest = */ generateAnonClass, noStopAtLines)
+          result += new MethodSmartStepTarget(method, "new ", constrInvocation, /*needBreakpointRequest = */ generateAnonClass, noStopAtLines)
         }
       }
 

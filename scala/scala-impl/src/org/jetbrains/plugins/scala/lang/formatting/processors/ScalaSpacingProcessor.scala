@@ -902,7 +902,7 @@ object ScalaSpacingProcessor extends ScalaTokenTypes {
     }
     if (rightPsi.isInstanceOf[ScArguments] &&
             (leftNode.getTreeParent.getPsi.isInstanceOf[ScMethodCall] ||
-                    leftNode.getTreeParent.getPsi.isInstanceOf[ScConstructor] ||
+                    leftNode.getTreeParent.getPsi.isInstanceOf[ScConstructorInvocation] ||
                     leftNode.getTreeParent.getPsi.isInstanceOf[ScGenericCall]) ||
             rightPsi.isInstanceOf[ScArguments] && rightNode.getTreeParent.getPsi.isInstanceOf[ScSelfInvocation] &&
                     getText(leftNode, fileText) == "this") {

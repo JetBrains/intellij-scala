@@ -64,7 +64,7 @@ import scala.collection.{Seq, mutable}
 abstract class ScalaAnnotator extends Annotator
   with FunctionAnnotator with ScopeAnnotator
   with ApplicationAnnotator
-  with ConstructorAnnotator
+  with ConstructorInvocationAnnotator
   with OverridingAnnotator
   with ProjectContextOwner with DumbAware {
 
@@ -270,12 +270,12 @@ abstract class ScalaAnnotator extends Annotator
         super.visitReference(ref)
       }
 
-      override def visitConstructor(constr: ScConstructor) {
+      override def visitConstructorInvocation(constrInvocation: ScConstructorInvocation) {
         if (typeAware) {
-          ImplicitParametersAnnotator.annotate(constr, holder, typeAware)
-          annotateConstructor(constr, holder)
+          ImplicitParametersAnnotator.annotate(constrInvocation, holder, typeAware)
+          annotateConstructorInvocation(constrInvocation, holder)
         }
-        super.visitConstructor(constr)
+        super.visitConstructorInvocation(constrInvocation)
       }
 
       override def visitModifierList(modifierList: ScModifierList) {
@@ -672,7 +672,7 @@ abstract class ScalaAnnotator extends Annotator
   def childHasAnnotation(teOption: Option[PsiElement], annotation: String): Boolean = teOption match {
     case Some(te) => te.breadthFirst().exists {
       case annot: ScAnnotationExpr =>
-        annot.constr.reference match {
+        annot.constructorInvocation.reference match {
           case Some(ref) => Option(ref.resolve()) match {
             case Some(res: PsiNamedElement) => res.getName == annotation
             case _ => false

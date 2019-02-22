@@ -10,7 +10,7 @@ import com.intellij.psi._
 import com.intellij.psi.search.{FilenameIndex, GlobalSearchScope}
 import com.intellij.util.ProcessingContext
 import org.jetbrains.plugins.scala.lang.psi.api.ScalaRecursiveElementVisitor
-import org.jetbrains.plugins.scala.lang.psi.api.base.{ScConstructor, ScLiteral}
+import org.jetbrains.plugins.scala.lang.psi.api.base.{ScConstructorInvocation, ScLiteral}
 import org.jetbrains.plugins.scala.lang.psi.api.expr.{ScInfixExpr, ScMethodCall, ScNewTemplateDefinition, ScReferenceExpression}
 import org.jetbrains.plugins.scala.lang.psi.api.statements.ScPatternDefinition
 import org.jetbrains.plugins.scala.lang.psi.api.toplevel.templates.ScTemplateParents
@@ -72,7 +72,7 @@ class SbtSubprojectReferenceProvider extends PsiReferenceProvider {
   private def extractPathFromFileParam(element: PsiElement): Option[String] = element match {
     case newFileDef : ScNewTemplateDefinition =>
       newFileDef.extendsBlock.getChildren.toSeq.headOption.collect {
-        case classParent: ScTemplateParents => classParent.constructor.flatMap(extractPathFromFileCtor)
+        case classParent: ScTemplateParents => classParent.constructorInvocation.flatMap(extractPathFromFileCtor)
       }.flatten
     case expr@ScInfixExpr(_, op, _) if op.getText == "/" =>
       extractPathFromConcatenation(expr)
@@ -83,8 +83,8 @@ class SbtSubprojectReferenceProvider extends PsiReferenceProvider {
     case _ => None
   }
 
-  private def extractPathFromFileCtor(ctor: ScConstructor): Option[String] = {
-    ctor.args.map(_.exprs).flatMap {
+  private def extractPathFromFileCtor(constrInvocation: ScConstructorInvocation): Option[String] = {
+    constrInvocation.args.map(_.exprs).flatMap {
       case Seq(ScLiteralImpl.string(path)) =>
         Some(path)
       case Seq(ScLiteralImpl.string(parent), ScLiteralImpl.string(child)) =>

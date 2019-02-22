@@ -6,7 +6,7 @@ import org.jetbrains.plugins.scala.annotator._
 import org.jetbrains.plugins.scala.base.SimpleTestCase
 import org.jetbrains.plugins.scala.extensions._
 import org.jetbrains.plugins.scala.lang.psi.api.ScalaFile
-import org.jetbrains.plugins.scala.lang.psi.api.base.ScConstructor
+import org.jetbrains.plugins.scala.lang.psi.api.base.ScConstructorInvocation
 import org.jetbrains.plugins.scala.lang.psi.api.toplevel.typedef.ScClass
 import org.jetbrains.plugins.scala.lang.psi.types.Compatibility
 import org.junit.experimental.categories.Category
@@ -49,7 +49,7 @@ class ConstructorParametersTest extends SimpleTestCase {
 
 
   def messages(@Language(value = "Scala") code: String): List[Message] = {
-    val annotator = new ConstructorAnnotator {}
+    val annotator = new ConstructorInvocationAnnotator {}
     val file: ScalaFile = code.parse
     val mock = new AnnotatorHolderMock(file)
 
@@ -57,8 +57,8 @@ class ConstructorParametersTest extends SimpleTestCase {
     Compatibility.seqClass = seq
 
     try {
-      file.depthFirst().instancesOf[ScConstructor].foreach {
-        annotator.annotateConstructor(_, mock)
+      file.depthFirst().instancesOf[ScConstructorInvocation].foreach {
+        annotator.annotateConstructorInvocation(_, mock)
       }
 
       mock.annotations

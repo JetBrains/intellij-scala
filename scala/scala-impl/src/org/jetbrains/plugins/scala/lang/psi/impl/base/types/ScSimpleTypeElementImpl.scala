@@ -88,7 +88,7 @@ class ScSimpleTypeElementImpl(node: ASTNode) extends ScalaPsiElementImpl(node)
           case _ => ScMethodType(tp, params.last, isImplicit = true)
         }
         val res = InferUtil.updateTypeWithImplicitParameters(newTp, this, None, withExpected, fullInfo = false)
-        findConstructor.foreach(_.setImplicitArguments(res._2))
+        findConstructorInvocation.foreach(_.setImplicitArguments(res._2))
         res._1
       } else tp
     }
@@ -143,13 +143,13 @@ class ScSimpleTypeElementImpl(node: ASTNode) extends ScalaPsiElementImpl(node)
         case _ =>
       }
 
-      findConstructor match {
-        case Some(c) =>
+      findConstructorInvocation match {
+        case Some(constrInvocation) =>
           def updateWithClause(nonValueType: ScTypePolymorphicType, clauseIdx: Int, canThrowSCE: Boolean) = {
             InferUtil.localTypeInference(
               nonValueType.internalType,
               params(clauseIdx),
-              c.arguments(clauseIdx).exprs.map(new Expression(_)),
+              constrInvocation.arguments(clauseIdx).exprs.map(new Expression(_)),
               nonValueType.typeParameters,
               canThrowSCE = canThrowSCE,
               filterTypeParams = false)
@@ -158,7 +158,7 @@ class ScSimpleTypeElementImpl(node: ASTNode) extends ScalaPsiElementImpl(node)
           def withoutLastClause(): ScTypePolymorphicType = {
             var i = 0
             var result = ScTypePolymorphicType(res, typeParameters)
-            while (i < params.length - 1 && i < c.arguments.length - 1) {
+            while (i < params.length - 1 && i < constrInvocation.arguments.length - 1) {
               result = updateWithClause(result, i, canThrowSCE = false)
               i += 1
             }
@@ -166,7 +166,7 @@ class ScSimpleTypeElementImpl(node: ASTNode) extends ScalaPsiElementImpl(node)
           }
 
           def lastClauseAndImplicits(previous: ScTypePolymorphicType, withExpected: Boolean): ScTypePolymorphicType = {
-            val fromExpected = c.expectedType match {
+            val fromExpected = constrInvocation.expectedType match {
               case Some(expected) if withExpected =>
                 def updateRes(expected: ScType): ScTypePolymorphicType = {
                   InferUtil.localTypeInference(previous.internalType,
@@ -174,7 +174,7 @@ class ScSimpleTypeElementImpl(node: ASTNode) extends ScalaPsiElementImpl(node)
                     Seq(new Expression(ScSubstitutor.bind(previous.typeParameters)(UndefinedType(_)).apply(res.inferValueType))),
                     previous.typeParameters, shouldUndefineParameters = false, filterTypeParams = false) //here should work in different way:
                 }
-                val fromUnderscore = c.newTemplate match {
+                val fromUnderscore = constrInvocation.newTemplate match {
                   case Some(n) => ScUnderScoreSectionUtil.underscores(n).nonEmpty
                   case None => false
                 }
@@ -190,14 +190,14 @@ class ScSimpleTypeElementImpl(node: ASTNode) extends ScalaPsiElementImpl(node)
             }
 
             //last clause after expected types
-            val lastClauseIdx = c.arguments.length - 1
+            val lastClauseIdx = constrInvocation.arguments.length - 1
             val withLastClause =
               if (lastClauseIdx >= 0 && lastClauseIdx < params.length) {
                 updateWithClause(fromExpected, lastClauseIdx, canThrowSCE = withExpected)
               }
               else fromExpected
 
-            if (lastImplicit && c.arguments.length < params.length) {
+            if (lastImplicit && constrInvocation.arguments.length < params.length) {
               //Let's add implicit parameters
               updateImplicits(withLastClause, withExpected, params, lastImplicit) match {
                 case t: ScTypePolymorphicType => t

@@ -7,7 +7,7 @@ package impl
 import com.intellij.psi.PsiElement
 import com.intellij.psi.stubs.{IStubElementType, StubBase, StubElement}
 import com.intellij.util.SofterReference
-import org.jetbrains.plugins.scala.lang.psi.api.base.ScConstructor
+import org.jetbrains.plugins.scala.lang.psi.api.base.ScConstructorInvocation
 import org.jetbrains.plugins.scala.lang.psi.api.base.types.ScTypeElement
 import org.jetbrains.plugins.scala.lang.psi.api.toplevel.templates.ScTemplateParents
 import org.jetbrains.plugins.scala.lang.psi.impl.ScalaPsiElementFactory.{createConstructorFromText, createTypeElementFromText}
@@ -46,7 +46,7 @@ final class ScTemplateParentsStubImpl(parent: StubElement[_ <: PsiElement],
 }
 
 private object ScTemplateParentsStubImpl {
-  type Data = (Option[ScConstructor], Seq[ScTypeElement])
+  type Data = (Option[ScConstructorInvocation], Seq[ScTypeElement])
 
   implicit def flatten: Data => Seq[PsiElement] = {
     case (opt, seq) => opt.toSeq ++ seq

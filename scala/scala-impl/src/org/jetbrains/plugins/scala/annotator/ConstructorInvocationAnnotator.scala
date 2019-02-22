@@ -5,7 +5,7 @@ import com.intellij.lang.annotation.AnnotationHolder
 import com.intellij.openapi.util.TextRange
 import org.jetbrains.plugins.scala.annotator.AnnotatorUtils.registerTypeMismatchError
 import org.jetbrains.plugins.scala.lang.psi.api.base.types.ScLiteralTypeElement
-import org.jetbrains.plugins.scala.lang.psi.api.base.{ScConstructor, ScMethodLike, ScalaConstructor}
+import org.jetbrains.plugins.scala.lang.psi.api.base.{ScConstructorInvocation, ScMethodLike, ScalaConstructor}
 import org.jetbrains.plugins.scala.lang.psi.api.expr.ScArgumentExprList
 import org.jetbrains.plugins.scala.lang.psi.api.toplevel.typedef.{ScConstructorOwner, ScTrait}
 import org.jetbrains.plugins.scala.lang.psi.types._
@@ -15,22 +15,22 @@ import org.jetbrains.plugins.scala.lang.psi.types.recursiveUpdate.ScSubstitutor
 import org.jetbrains.plugins.scala.lang.resolve.ScalaResolveResult
 import org.jetbrains.plugins.scala.project.ProjectContext
 
-trait ConstructorAnnotator extends ApplicationAnnotator {
+trait ConstructorInvocationAnnotator extends ApplicationAnnotator {
   // TODO duplication with application annotator.
-  def annotateConstructor(constructor: ScConstructor, holder: AnnotationHolder) {
-    constructor.typeElement match {
+  def annotateConstructorInvocation(constrInvocation: ScConstructorInvocation, holder: AnnotationHolder) {
+    constrInvocation.typeElement match {
       case lit: ScLiteralTypeElement =>
-        holder.createErrorAnnotation(constructor.typeElement, s"Class type required but ($lit) found")
+        holder.createErrorAnnotation(constrInvocation.typeElement, s"Class type required but ($lit) found")
       case _ =>
     }
     //in case if constructor is function
-    constructor.reference match {
+    constrInvocation.reference match {
       case None => return
       case _ =>
     }
 
     val resolved = for {
-      reference <- constructor.reference.toList
+      reference <- constrInvocation.reference.toList
       resolveResult <- reference.resolveAllConstructors
       element = resolveResult.element
 
@@ -43,46 +43,46 @@ trait ConstructorAnnotator extends ApplicationAnnotator {
     } yield resolveResult
 
     if (resolved.exists(isConstructorMalformed)) {
-      holder.createErrorAnnotation(constructor.typeElement, "Constructor has malformed definition")
+      holder.createErrorAnnotation(constrInvocation.typeElement, "Constructor has malformed definition")
     }
 
     resolved match {
-      case Seq() => holder.createErrorAnnotation(argsElementsTextRange(constructor), s"No constructor accessible from here")
+      case Seq() => holder.createErrorAnnotation(argsElementsTextRange(constrInvocation), s"No constructor accessible from here")
       case Seq(r@ScConstructorResolveResult(constr)) if constr.effectiveParameterClauses.length > 1 && !isConstructorMalformed(r) =>
         // if there is only one well-formed, resolved, scala constructor with multiple parameter clauses,
         // check all of these clauses
         implicit val ctx: ProjectContext = constr
 
         val params = constr.getClassTypeParameters.map(_.typeParameters).getOrElse(Seq.empty)
-        val typeArgs = constructor.typeArgList.map(_.typeArgs).getOrElse(Seq.empty)
+        val typeArgs = constrInvocation.typeArgList.map(_.typeArgs).getOrElse(Seq.empty)
         val substitutor = ScSubstitutor.bind(params, typeArgs)(_.calcType)
           .followed(ScSubstitutor.bind(params)(UndefinedType(_)))
           .followed(r.substitutor)
 
         val res = Compatibility.checkConstructorConformance(
-          constructor,
+          constrInvocation,
           substitutor,
-          constructor.arguments,
+          constrInvocation.arguments,
           constr.effectiveParameterClauses
         )
 
-        annotateProblems(res.problems, r, constructor, holder)
+        annotateProblems(res.problems, r, constrInvocation, holder)
       case _ =>
         for (r <- resolved)
-          annotateProblems(r.problems, r, constructor, holder)
+          annotateProblems(r.problems, r, constrInvocation, holder)
     }
   }
 
-  private def annotateProblems(problems: Seq[ApplicabilityProblem], r: ScalaResolveResult, constructor: ScConstructor, holder: AnnotationHolder): Unit = {
+  private def annotateProblems(problems: Seq[ApplicabilityProblem], r: ScalaResolveResult, constrInvocation: ScConstructorInvocation, holder: AnnotationHolder): Unit = {
     val element = r.element
-    def argsElements = argsElementsTextRange(constructor)
+    def argsElements = argsElementsTextRange(constrInvocation)
     def signature = signatureOf(element)
 
     // mark problematic clauses where parameters are missing
     element match {
-      case ScalaConstructor(constrDef) =>
+      case ScalaConstructor(constr) =>
         val missedParams = problems.collect { case MissedValueParameter(p) => p}
-        missedParams.groupBy(parameterToArgClause(_, constrDef, constructor.arguments)).foreach {
+        missedParams.groupBy(parameterToArgClause(_, constr, constrInvocation.arguments)).foreach {
           case (param, missing) =>
             val problematicClause = param.map(_.getTextRange).getOrElse(argsElements)
 
@@ -93,7 +93,7 @@ trait ConstructorAnnotator extends ApplicationAnnotator {
     }
 
     // check if the found element can even be used as a constructor
-    (element, constructor.arguments) match {
+    (element, constrInvocation.arguments) match {
       case (tr: ScTrait, head +: tail) if head.exprs.nonEmpty || tail.nonEmpty =>
         // new Trait() {} is allowed!
         // but not   new Trait()() {}
@@ -112,10 +112,10 @@ trait ConstructorAnnotator extends ApplicationAnnotator {
         }
       case MissedParametersClause(_) =>
         // try to mark the right-most bracket
-        val markRange = constructor.arguments.lastOption
+        val markRange = constrInvocation.arguments.lastOption
           .map(_.getTextRange.getEndOffset)
           .map(off => TextRange.create(off - 1, off))
-          .getOrElse(constructor.getTextRange)
+          .getOrElse(constrInvocation.getTextRange)
         holder.createErrorAnnotation(markRange, s"Missing argument list for constructor$signature")
       case MissedValueParameter(_) => // simultaneously handled above
       case UnresolvedParameter(_) => // don't show function inapplicability, unresolved
@@ -128,7 +128,7 @@ trait ConstructorAnnotator extends ApplicationAnnotator {
         holder.createErrorAnnotation(assignment.leftExpression, "Parameter specified multiple times")
       case WrongTypeParameterInferred => //todo: ?
       case ExpectedTypeMismatch => //will be reported later
-      case DefaultTypeParameterMismatch(expected, actual) => constructor.typeArgList match {
+      case DefaultTypeParameterMismatch(expected, actual) => constrInvocation.typeArgList match {
         case Some(tpArgList) =>
           val message: String = ScalaBundle.message("type.mismatch.default.args.expected.actual", expected, actual)
           holder.createErrorAnnotation(tpArgList, message)
@@ -138,10 +138,10 @@ trait ConstructorAnnotator extends ApplicationAnnotator {
     }
   }
 
-  private def parameterToArgClause(p: Parameter, constructorDef: ScMethodLike, argClauses: Seq[ScArgumentExprList]): Option[ScArgumentExprList] = {
-    p.psiParam.flatMap {param =>
+  private def parameterToArgClause(p: Parameter, constr: ScMethodLike, argClauses: Seq[ScArgumentExprList]): Option[ScArgumentExprList] = {
+    p.psiParam.flatMap { param =>
       // look into every parameter list and find param
-      val idx = constructorDef.parameterList.clauses.indexWhere( clause =>
+      val idx = constr.parameterList.clauses.indexWhere( clause =>
         clause.parameters.contains(param)
       )
       argClauses.lift(idx)
@@ -151,13 +151,13 @@ trait ConstructorAnnotator extends ApplicationAnnotator {
   private def isConstructorMalformed(r: ScalaResolveResult): Boolean =
     r.problems.exists { case MalformedDefinition() => true; case _ => false }
 
-  private def argsElementsTextRange(constructor: ScConstructor): TextRange = constructor.arguments match {
+  private def argsElementsTextRange(constrInvocation: ScConstructorInvocation): TextRange = constrInvocation.arguments match {
     case head +: tail => tail.foldLeft(head.getTextRange)(_ union _.getTextRange)
-    case _ => constructor.getTextRange
+    case _ => constrInvocation.getTextRange
   }
 
   private object ScConstructorResolveResult {
-    def unapply(arg: ScalaResolveResult): Option[ScMethodLike] =
-      Some(arg.element).collect { case constr: ScMethodLike => constr }
+    def unapply(res: ScalaResolveResult): Option[ScMethodLike] =
+      Some(res.element).collect { case constr: ScMethodLike => constr }
   }
 }

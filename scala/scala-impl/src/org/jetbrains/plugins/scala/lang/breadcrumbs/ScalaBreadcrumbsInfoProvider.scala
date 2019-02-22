@@ -102,7 +102,7 @@ object ScalaBreadcrumbsInfoProvider {
     def describeFunction(fun: ScFunctionExpr): String = "λ" + getSignature(fun)
 
     def describeNewTemplate(newDef: ScNewTemplateDefinition): String = {
-      val constructor = newDef.constructor match {
+      val constructor = newDef.constructorInvocation match {
         case None =>
           "Object"
         case Some(c) if c.arguments.nonEmpty =>

@@ -7,8 +7,8 @@ package impl
 import com.intellij.psi.PsiElement
 import com.intellij.psi.stubs.{IStubElementType, StubBase, StubElement}
 import com.intellij.util.SofterReference
-import org.jetbrains.plugins.scala.lang.psi.api.base.{ScAnnotation, ScAnnotationExpr}
 import org.jetbrains.plugins.scala.lang.psi.api.base.types.{ScParenthesisedTypeElement, ScSimpleTypeElement, ScTypeElement}
+import org.jetbrains.plugins.scala.lang.psi.api.base.{ScAnnotation, ScAnnotationExpr}
 import org.jetbrains.plugins.scala.lang.psi.impl.ScalaPsiElementFactory
 
 /**
@@ -34,7 +34,7 @@ class ScAnnotationStubImpl(parent: StubElement[_ <: PsiElement],
 
   }
 
-  def typeElement: Option[ScTypeElement] = annotationExpr.map(_.constr.typeElement)
+  def typeElement: Option[ScTypeElement] = annotationExpr.map(_.constructorInvocation.typeElement)
 
   def name: Option[String] = {
     typeElement.map {

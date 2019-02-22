@@ -8,7 +8,7 @@ import com.intellij.lang.ASTNode
 import com.intellij.psi._
 import org.jetbrains.plugins.scala.extensions.PsiElementExt
 import org.jetbrains.plugins.scala.lang.lexer.ScalaTokenTypes
-import org.jetbrains.plugins.scala.lang.psi.api.base.ScConstructor
+import org.jetbrains.plugins.scala.lang.psi.api.base.ScConstructorInvocation
 import org.jetbrains.plugins.scala.lang.psi.api.expr._
 import org.jetbrains.plugins.scala.lang.psi.impl.ScalaPsiElementFactory.{createComma, createNewLineNode}
 import org.jetbrains.plugins.scala.lang.psi.types.nonvalue.Parameter
@@ -66,8 +66,8 @@ class ScArgumentExprListImpl(node: ASTNode) extends ScalaPsiElementImpl(node) wi
   def matchedParameters: Seq[(ScExpression, Parameter)] = {
     getContext match {
       case call: ScMethodCall => call.matchedParameters
-      case constr: ScConstructor =>
-        constr.matchedParameters.filter {
+      case constrInvocation: ScConstructorInvocation =>
+        constrInvocation.matchedParameters.filter {
           case (e, _) => this.isAncestorOf(e)
         }
       case _ => Seq.empty

@@ -6,8 +6,6 @@ package base
 package types
 
 import org.jetbrains.plugins.scala.lang.lexer.ScalaTokenTypes
-import org.jetbrains.plugins.scala.lang.psi.api.base.ScAnnotationExpr
-import org.jetbrains.plugins.scala.lang.resolve.ScalaResolveResult
 
 /**
  * Author: Alexander Podkhalyuzin
@@ -23,15 +21,15 @@ trait ScSimpleTypeElement extends ScTypeElement {
 
   def annotation: Boolean = ScalaPsiUtil.getContext(this, 2).exists(_.isInstanceOf[ScAnnotationExpr])
 
-  def findConstructor: Option[ScConstructor] = {
-    def findConstructor(element: ScalaPsiElement) = element.getContext match {
-      case constructor: ScConstructor => Some(constructor)
-      case _ => None
+  def findConstructorInvocation: Option[ScConstructorInvocation] = {
+    val constrInvocationTypeElement = getContext match {
+      case typeElement: ScParameterizedTypeElement => typeElement
+      case _ => this
     }
 
-    getContext match {
-      case typeElement: ScParameterizedTypeElement => findConstructor(typeElement)
-      case _ => findConstructor(this)
+    constrInvocationTypeElement.getContext match {
+      case constrInvocation: ScConstructorInvocation => Some(constrInvocation)
+      case _ => None
     }
   }
 }

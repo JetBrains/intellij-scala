@@ -76,7 +76,7 @@ abstract class ScTemplateDefinitionElementType[TypeDef <: ScTemplateDefinition](
       }.flatMap {
       _.getAnnotations
     }.collect {
-      case a: ScAnnotation => a.constructor.typeElement.getText
+      case a: ScAnnotation => a.constructorInvocation.typeElement.getText
     }.exists {
       case "deprecated" | "scala.deprecated" => true
       case _ => false

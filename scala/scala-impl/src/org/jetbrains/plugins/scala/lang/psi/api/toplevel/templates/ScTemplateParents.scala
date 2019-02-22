@@ -5,7 +5,7 @@ package api
 package toplevel
 package templates
 
-import org.jetbrains.plugins.scala.lang.psi.api.base.ScConstructor
+import org.jetbrains.plugins.scala.lang.psi.api.base.ScConstructorInvocation
 import org.jetbrains.plugins.scala.lang.psi.api.base.types.ScTypeElement
 import org.jetbrains.plugins.scala.lang.psi.types.ScType
 
@@ -22,7 +22,7 @@ trait ScTemplateParents extends ScalaPsiElement {
 
   def allTypeElements: Seq[ScTypeElement]
 
-  final def constructor: Option[ScConstructor] = findChild(classOf[ScConstructor])
+  final def constructorInvocation: Option[ScConstructorInvocation] = findChild(classOf[ScConstructorInvocation])
 
   final def typeElementsWithoutConstructor: Seq[ScTypeElement] =
     findChildrenByClassScala(classOf[ScTypeElement])

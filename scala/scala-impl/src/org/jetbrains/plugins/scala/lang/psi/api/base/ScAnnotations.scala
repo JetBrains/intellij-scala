@@ -2,10 +2,10 @@ package org.jetbrains.plugins.scala.lang.psi.api.base
 
 import com.intellij.psi._
 import com.intellij.psi.search.GlobalSearchScope
+import org.jetbrains.plugins.scala.extensions._
 import org.jetbrains.plugins.scala.lang.psi.api.ScalaPsiElement
 import org.jetbrains.plugins.scala.lang.psi.api.base.types.ScSimpleTypeElement
 import org.jetbrains.plugins.scala.lang.psi.types.api.ParameterizedType
-import org.jetbrains.plugins.scala.extensions._
 
 /**
  * @author Alexander Podkhalyuzin
@@ -28,7 +28,7 @@ trait ScAnnotations extends ScalaPsiElement with PsiReferenceList {
   }
 
   private def extractExceptionType(a: ScAnnotation): PsiClassType = {
-    val constr = a.annotationExpr.constr
+    val constr = a.annotationExpr.constructorInvocation
     constr.typeElement match {
       case te: ScSimpleTypeElement =>
         te.reference match {

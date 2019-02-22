@@ -11,7 +11,7 @@ import com.intellij.psi.search.GlobalSearchScope
 import org.jetbrains.annotations.TestOnly
 import org.jetbrains.plugins.scala.extensions._
 import org.jetbrains.plugins.scala.lang.psi.api.InferUtil.extractImplicitParameterType
-import org.jetbrains.plugins.scala.lang.psi.api.base.{ScConstructor, ScPrimaryConstructor}
+import org.jetbrains.plugins.scala.lang.psi.api.base.{ScConstructorInvocation, ScPrimaryConstructor}
 import org.jetbrains.plugins.scala.lang.psi.api.expr._
 import org.jetbrains.plugins.scala.lang.psi.api.statements.ScFunction
 import org.jetbrains.plugins.scala.lang.psi.api.statements.params.{ScParameter, ScParameterClause}
@@ -443,7 +443,7 @@ object Compatibility {
     }
   }
 
-  def checkConstructorConformance(constrInvocation: ScConstructor,
+  def checkConstructorConformance(constrInvocation: ScConstructorInvocation,
                                   substitutor: ScSubstitutor,
                                   argClauses: Seq[ScArgumentExprList],
                                   paramClauses: Seq[ScParameterClause])

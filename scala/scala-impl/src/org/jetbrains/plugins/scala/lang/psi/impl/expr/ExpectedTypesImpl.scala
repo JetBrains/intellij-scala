@@ -5,7 +5,7 @@ import com.intellij.psi.util.PsiTreeUtil
 import org.jetbrains.plugins.scala.extensions.{ObjectExt, PsiElementExt, PsiTypeExt, SeqExt}
 import org.jetbrains.plugins.scala.lang.psi.ScalaPsiUtil.inNameContext
 import org.jetbrains.plugins.scala.lang.psi.api.InferUtil
-import org.jetbrains.plugins.scala.lang.psi.api.base.ScConstructor
+import org.jetbrains.plugins.scala.lang.psi.api.base.ScConstructorInvocation
 import org.jetbrains.plugins.scala.lang.psi.api.base.patterns.ScCaseClause
 import org.jetbrains.plugins.scala.lang.psi.api.base.types.{ScSequenceArg, ScTupleTypeElement, ScTypeElement}
 import org.jetbrains.plugins.scala.lang.psi.api.expr.ExpectedTypes._
@@ -274,12 +274,12 @@ class ExpectedTypesImpl extends ExpectedTypes {
       case args: ScArgumentExprList =>
         args.getContext match {
           case mc: ScMethodCall => expectedTypesForArg(mc, expr)
-          case ctx @ (_: ScConstructor | _: ScSelfInvocation) =>
+          case ctx @ (_: ScConstructorInvocation | _: ScSelfInvocation) =>
             val argExprs = args.exprs
             val argIdx = argIndex(argExprs)
 
             val tps = ctx match {
-              case c: ScConstructor =>
+              case c: ScConstructorInvocation =>
                 val clauseIdx = c.arguments.indexOf(args)
 
                 if (!withResolvedFunction) c.shapeMultiType(clauseIdx)

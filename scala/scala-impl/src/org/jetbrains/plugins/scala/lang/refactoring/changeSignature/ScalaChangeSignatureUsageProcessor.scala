@@ -16,7 +16,7 @@ import com.intellij.util.containers.MultiMap
 import org.jetbrains.plugins.scala.extensions._
 import org.jetbrains.plugins.scala.lang.psi.ScalaPsiUtil
 import org.jetbrains.plugins.scala.lang.psi.api.base.patterns.{ScConstructorPattern, ScInfixPattern}
-import org.jetbrains.plugins.scala.lang.psi.api.base.{AuxiliaryConstructor, ScConstructor, ScPrimaryConstructor, ScReference}
+import org.jetbrains.plugins.scala.lang.psi.api.base.{AuxiliaryConstructor, ScConstructorInvocation, ScPrimaryConstructor, ScReference}
 import org.jetbrains.plugins.scala.lang.psi.api.expr._
 import org.jetbrains.plugins.scala.lang.psi.api.statements._
 import org.jetbrains.plugins.scala.lang.psi.api.toplevel.imports.{ScImportExpr, ScImportSelector}
@@ -233,7 +233,7 @@ class ScalaChangeSignatureUsageProcessor extends ChangeSignatureUsageProcessor w
           case (refExpr: ScReferenceExpression) childOf (mc: ScMethodCall) => results += MethodCallUsageInfo(refExpr, fullCall(mc))
           case ChildOf(infix @ ScInfixExpr(_, `refElem`, _)) => results += InfixExprUsageInfo(infix)
           case ChildOf(postfix @ ScPostfixExpr(_, `refElem`)) => results += PostfixExprUsageInfo(postfix)
-          case ref @ ScConstructor.byReference(constr) => results += ConstructorUsageInfo(ref, constr)
+          case ref @ ScConstructorInvocation.byReference(constr) => results += ConstructorUsageInfo(ref, constr)
           case refExpr: ScReferenceExpression => results += RefExpressionUsage(refExpr)
           case ChildOf(cp: ScConstructorPattern) if cp.ref == refElem => results += ConstructorPatternUsageInfo(cp)
           case ChildOf(ip: ScInfixPattern) if ip.operation == refElem => results += InfixPatternUsageInfo(ip)

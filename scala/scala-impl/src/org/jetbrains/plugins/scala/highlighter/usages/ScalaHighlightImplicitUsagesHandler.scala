@@ -15,7 +15,7 @@ import org.jetbrains.plugins.scala.highlighter.usages.ScalaHighlightImplicitUsag
 import org.jetbrains.plugins.scala.lang.psi.ScalaPsiUtil
 import org.jetbrains.plugins.scala.lang.psi.api.ImplicitArgumentsOwner
 import org.jetbrains.plugins.scala.lang.psi.api.base.types.{ScSimpleTypeElement, ScTypeElement}
-import org.jetbrains.plugins.scala.lang.psi.api.base.{ScConstructor, ScMethodLike, ScReference}
+import org.jetbrains.plugins.scala.lang.psi.api.base.{ScConstructorInvocation, ScMethodLike, ScReference}
 import org.jetbrains.plugins.scala.lang.psi.api.expr._
 import org.jetbrains.plugins.scala.lang.psi.api.statements.ScFunction
 import org.jetbrains.plugins.scala.lang.psi.api.statements.params.{ScParameter, ScTypeParam}
@@ -159,7 +159,7 @@ object ScalaHighlightImplicitUsagesHandler {
     def containsRefOrImplicitRef(elem: PsiElement): Boolean = elem match {
       case ref: ScReference if target.isTarget(ref.resolve()) => true
       case e: ScExpression if target.isImplicitConversionOrParameter(e) => true
-      case c: ScConstructor if target.isImplicitParameterOf(c) => true
+      case c: ScConstructorInvocation if target.isImplicitParameterOf(c) => true
       case _ => false
     }
 
@@ -179,10 +179,10 @@ object ScalaHighlightImplicitUsagesHandler {
     def forTypeElem(typeElem: ScSimpleTypeElement) = {
       def newTd =
         Option(PsiTreeUtil.getParentOfType(typeElem, classOf[ScNewTemplateDefinition]))
-          .filter(_.constructor.flatMap(_.simpleTypeElement).contains(typeElem))
+          .filter(_.constructorInvocation.flatMap(_.simpleTypeElement).contains(typeElem))
 
       def constructor =
-        Option(PsiTreeUtil.getParentOfType(typeElem, classOf[ScConstructor]))
+        Option(PsiTreeUtil.getParentOfType(typeElem, classOf[ScConstructorInvocation]))
           .filter(_.simpleTypeElement.contains(typeElem))
 
       newTd

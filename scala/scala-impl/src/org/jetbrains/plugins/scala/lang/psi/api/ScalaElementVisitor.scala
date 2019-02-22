@@ -65,7 +65,7 @@ abstract class ScalaElementVisitor extends PsiElementVisitor {
 
   def visitModifierList(modifierList: ScModifierList) {visitScalaElement(modifierList)}
 
-  def visitConstructor(constr: ScConstructor) {visitScalaElement(constr)}
+  def visitConstructorInvocation(constrInvocation: ScConstructorInvocation) {visitScalaElement(constrInvocation)}
 
   def visitFunctionDefinition(fun: ScFunctionDefinition) {visitFunction(fun)}
 

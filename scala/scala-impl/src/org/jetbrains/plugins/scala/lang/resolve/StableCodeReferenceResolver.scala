@@ -16,7 +16,7 @@ class StableCodeReferenceResolver(reference: ScStableCodeReference, shapeResolve
 
     val kinds = getKindsFor(ref)
     val proc = if (ref.isConstructorReference && !noConstructorResolve) {
-      val constr = ref.getConstructor.get
+      val constr = ref.getConstructorInvocation.get
       val typeArgs = constr.typeArgList.map(_.typeArgs).getOrElse(Seq())
       val effectiveArgs = constr.arguments.toList.map(_.exprs.map(new Expression(_))) match {
         case List() => List(List())

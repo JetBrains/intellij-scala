@@ -5,11 +5,11 @@ import org.intellij.lang.annotations.Language
 import org.jetbrains.plugins.scala.base.SimpleTestCase
 import org.jetbrains.plugins.scala.extensions._
 import org.jetbrains.plugins.scala.lang.psi.api.ScalaFile
-import org.jetbrains.plugins.scala.lang.psi.api.base.ScConstructor
+import org.jetbrains.plugins.scala.lang.psi.api.base.ScConstructorInvocation
 import org.jetbrains.plugins.scala.lang.psi.api.toplevel.typedef.ScClass
 import org.jetbrains.plugins.scala.lang.psi.types.Compatibility
 
-class ConstructorAnnotatorTest extends SimpleTestCase {
+class ConstructorInvocationAnnotatorTest extends SimpleTestCase {
   final val Header = """
   class Seq[+A] 
   object Seq { def apply[A](a: A) = new Seq[A] }
@@ -367,7 +367,7 @@ class ConstructorAnnotatorTest extends SimpleTestCase {
   //new AA[Int](0)
 
   def messages(@Language(value = "Scala", prefix = Header) code: String): List[Message] = {
-    val annotator = new ConstructorAnnotator {}
+    val annotator = new ConstructorInvocationAnnotator {}
     val file: ScalaFile = (Header + code).parse
 
     val mock = new AnnotatorHolderMock(file)
@@ -376,8 +376,8 @@ class ConstructorAnnotatorTest extends SimpleTestCase {
     Compatibility.seqClass = seq
 
     try {
-      file.depthFirst().instancesOf[ScConstructor].foreach {
-        annotator.annotateConstructor(_, mock)
+      file.depthFirst().instancesOf[ScConstructorInvocation].foreach {
+        annotator.annotateConstructorInvocation(_, mock)
       }
 
       mock.annotations

@@ -6,9 +6,8 @@ import com.intellij.openapi.editor.colors.TextAttributesKey
 import com.intellij.psi._
 import org.jetbrains.plugins.scala.extensions._
 import org.jetbrains.plugins.scala.lang.lexer.ScalaTokenTypes
-import org.jetbrains.plugins.scala.lang.psi.impl.ScalaStubBasedElementImpl
-import org.jetbrains.plugins.scala.lang.psi.api.base.patterns._
 import org.jetbrains.plugins.scala.lang.psi.api.base._
+import org.jetbrains.plugins.scala.lang.psi.api.base.patterns._
 import org.jetbrains.plugins.scala.lang.psi.api.expr._
 import org.jetbrains.plugins.scala.lang.psi.api.statements._
 import org.jetbrains.plugins.scala.lang.psi.api.statements.params.{ScParameter, ScTypeParam}
@@ -16,6 +15,7 @@ import org.jetbrains.plugins.scala.lang.psi.api.toplevel.imports.ScImportExpr
 import org.jetbrains.plugins.scala.lang.psi.api.toplevel.templates.ScTemplateBody
 import org.jetbrains.plugins.scala.lang.psi.api.toplevel.typedef.{ScClass, ScMember, ScObject, ScTrait}
 import org.jetbrains.plugins.scala.lang.psi.api.toplevel.{ScEarlyDefinitions, ScModifierListOwner}
+import org.jetbrains.plugins.scala.lang.psi.impl.ScalaStubBasedElementImpl
 import org.jetbrains.plugins.scala.lang.psi.types.api.FunctionType
 import org.jetbrains.plugins.scala.lang.psi.types.{ScType, ScTypeExt, ScalaType}
 import org.jetbrains.plugins.scala.lang.refactoring.util.ScalaNamesUtil
@@ -118,7 +118,7 @@ object AnnotatorHighlighter {
         }, fun.getProject)
     }
 
-    if (refElement.parentOfType(classOf[ScConstructor], strict = false)
+    if (refElement.parentOfType(classOf[ScConstructorInvocation], strict = false)
       .exists(_.getParent.isInstanceOf[ScAnnotationExpr])) return
 
     val resolvedElement = refElement.resolve()
@@ -313,7 +313,7 @@ object AnnotatorHighlighter {
   private def visitAnnotation(annotation: ScAnnotation, holder: AnnotationHolder): Unit = {
     val annotation1 = holder.createInfoAnnotation(annotation.getFirstChild, null)
     annotation1.setTextAttributes(DefaultHighlighter.ANNOTATION)
-    val element = annotation.annotationExpr.constr.typeElement
+    val element = annotation.annotationExpr.constructorInvocation.typeElement
     val annotation2 = holder.createInfoAnnotation(element, null)
     annotation2.setTextAttributes(DefaultHighlighter.ANNOTATION)
   }

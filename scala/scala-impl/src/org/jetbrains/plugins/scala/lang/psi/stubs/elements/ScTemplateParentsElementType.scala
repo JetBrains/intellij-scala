@@ -40,6 +40,6 @@ final class ScTemplateParentsElementType extends ScStubElementType[ScTemplatePar
     parentStub,
     this,
     parentTypesTexts = templateParents.typeElementsWithoutConstructor.asStrings(),
-    constructorText = templateParents.constructor.map(_.getText)
+    constructorText = templateParents.constructorInvocation.map(_.getText)
   )
 }

@@ -7,7 +7,7 @@ package statements
 import com.intellij.psi._
 import org.jetbrains.plugins.scala.extensions._
 import org.jetbrains.plugins.scala.lang.psi.api.base.patterns.{ScConstructorPattern, ScInfixPattern}
-import org.jetbrains.plugins.scala.lang.psi.api.base.{ScConstructor, ScReference, ScStableCodeReference}
+import org.jetbrains.plugins.scala.lang.psi.api.base.{ScConstructorInvocation, ScReference, ScStableCodeReference}
 import org.jetbrains.plugins.scala.lang.psi.api.expr.ScExpression.calculateReturns
 import org.jetbrains.plugins.scala.lang.psi.api.expr._
 import org.jetbrains.plugins.scala.lang.psi.api.toplevel.templates.ScTemplateBody
@@ -52,7 +52,7 @@ trait ScFunctionDefinition extends ScFunction with ScControlFlowOwner {
       ref match {
         case _: ScStableCodeReference  =>
           ref.getParent match {
-            case ChildOf(_: ScConstructor) =>
+            case ChildOf(_: ScConstructorInvocation) =>
               this.isConstructor && containingClass.name == ref.refName
             case cp: ScConstructorPattern if cp.ref == ref =>
               this.name == "unapply" || this.name == "unapplySeq"

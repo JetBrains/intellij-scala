@@ -21,7 +21,7 @@ trait ScStableCodeReference extends ScReference with ResolvableStableCodeReferen
   }
 
   def isConstructorReference: Boolean
-  def getConstructor: Option[ScConstructor]
+  def getConstructorInvocation: Option[ScConstructorInvocation]
 
   def getResolveResultVariants: Array[ScalaResolveResult]
 

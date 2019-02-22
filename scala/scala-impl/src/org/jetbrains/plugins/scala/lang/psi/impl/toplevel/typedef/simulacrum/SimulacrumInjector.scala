@@ -87,7 +87,7 @@ object SimulacrumInjector {
       val opAnn = sourceMethod.findAnnotation(opAnnotation).toOption
 
       opAnn.fold(Seq(sourceMethod.name)) {
-        case scAnn: ScAnnotation => extractNamesFromAnnArgs(scAnn.constructor.args)
+        case scAnn: ScAnnotation => extractNamesFromAnnArgs(scAnn.constructorInvocation.args)
       }
     }
   }

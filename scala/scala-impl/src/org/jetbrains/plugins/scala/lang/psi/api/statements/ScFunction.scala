@@ -419,7 +419,7 @@ trait ScFunction extends ScalaPsiElement with ScMember with ScTypeParametersOwne
     override def getReferencedTypes: Array[PsiClassType] = {
       annotations("scala.throws").headOption match {
         case Some(annotation) =>
-          annotation.constructor.args.map(_.exprs).getOrElse(Seq.empty).flatMap {
+          annotation.constructorInvocation.args.map(_.exprs).getOrElse(Seq.empty).flatMap {
             _.`type`() match {
               case Right(ParameterizedType(des, Seq(arg))) => des.extractClass match {
                 case Some(clazz) if clazz.qualifiedName == "java.lang.Class" =>

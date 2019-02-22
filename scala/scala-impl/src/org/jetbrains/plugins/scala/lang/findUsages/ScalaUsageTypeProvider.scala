@@ -117,7 +117,7 @@ object ScalaUsageTypeProvider {
       case typeElement: ScTypeElement => typeUsageType(typeElement)
       case _: ScInterpolatedStringPartReference => PrefixInterpolatedString
       case expression: ScReferenceExpression => referenceExpressionUsageType(expression)
-      case expression: ScAnnotationExpr if existsAppropriate(expression.constr.reference) => ANNOTATION
+      case expression: ScAnnotationExpr if existsAppropriate(expression.constructorInvocation.reference) => ANNOTATION
       case reference: ScThisReference if existsAppropriate(reference.reference) => ThisReference
       case reference: ScSuperReference if existsAppropriate(reference.reference) => DELEGATE_TO_SUPER
       case _: ScAccessModifier => AccessModifier

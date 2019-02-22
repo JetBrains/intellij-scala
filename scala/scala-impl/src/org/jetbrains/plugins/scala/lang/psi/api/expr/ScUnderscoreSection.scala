@@ -6,7 +6,7 @@ package expr
 
 import com.intellij.psi.PsiElement
 import com.intellij.psi.util.PsiTreeUtil
-import org.jetbrains.plugins.scala.lang.psi.api.base.ScConstructor
+import org.jetbrains.plugins.scala.lang.psi.api.base.ScConstructorInvocation
 import org.jetbrains.plugins.scala.lang.psi.api.expr.ScUnderScoreSectionUtil.isUnderscore
 
 import scala.annotation.tailrec
@@ -33,8 +33,8 @@ trait ScUnderscoreSection extends ScExpression {
           if (!calcArguments) return Some(expr.asInstanceOf[ScExpression])
           args.getContext match {
             case call: ScMethodCall => go(call, calcArguments = false)
-            case constr: ScConstructor =>
-              PsiTreeUtil.getContextOfType(constr, true, classOf[ScNewTemplateDefinition]) match {
+            case constrInvocation: ScConstructorInvocation =>
+              PsiTreeUtil.getContextOfType(constrInvocation, true, classOf[ScNewTemplateDefinition]) match {
                 case null => None
                 case n: ScNewTemplateDefinition => go(n, calcArguments = false)
               }

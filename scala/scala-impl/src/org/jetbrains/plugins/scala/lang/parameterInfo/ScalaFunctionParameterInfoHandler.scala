@@ -18,7 +18,7 @@ import org.jetbrains.plugins.scala.extensions._
 import org.jetbrains.plugins.scala.lang.lexer.ScalaTokenTypes
 import org.jetbrains.plugins.scala.lang.parameterInfo.ScalaFunctionParameterInfoHandler.AnnotationParameters
 import org.jetbrains.plugins.scala.lang.psi.api.base.types.{ScParameterizedTypeElement, ScTypeElementExt}
-import org.jetbrains.plugins.scala.lang.psi.api.base.{ScConstructor, ScPrimaryConstructor}
+import org.jetbrains.plugins.scala.lang.psi.api.base.{ScConstructorInvocation, ScPrimaryConstructor}
 import org.jetbrains.plugins.scala.lang.psi.api.expr._
 import org.jetbrains.plugins.scala.lang.psi.api.statements.params.{ScParameter, ScParameterClause}
 import org.jetbrains.plugins.scala.lang.psi.api.statements.{ScFunction, ScFunctionDefinition}
@@ -71,7 +71,7 @@ class ScalaFunctionParameterInfoHandler extends ParameterInfoHandlerWithTabActio
   def getArgumentListAllowedParentClasses: java.util.Set[Class[_]] = {
     val set = new HashSet[Class[_]]()
     set.add(classOf[ScMethodCall])
-    set.add(classOf[ScConstructor])
+    set.add(classOf[ScConstructorInvocation])
     set.add(classOf[ScSelfInvocation])
     set.add(classOf[ScInfixExpr])
     set.add(classOf[ScReferenceExpression])
@@ -613,10 +613,10 @@ class ScalaFunctionParameterInfoHandler extends ParameterInfoHandlerWithTabActio
         }
         collectResult()
         res
-      case constr: ScConstructor =>
+      case constrInvocation: ScConstructorInvocation =>
         val res: ArrayBuffer[Object] = new ArrayBuffer[Object]
-        val typeElement = constr.typeElement
-        val i = constr.arguments.indexOf(args.element)
+        val typeElement = constrInvocation.typeElement
+        val i = constrInvocation.arguments.indexOf(args.element)
         typeElement.calcType.extractClassType match {
           case Some((clazz: PsiClass, subst: ScSubstitutor)) =>
             clazz match {

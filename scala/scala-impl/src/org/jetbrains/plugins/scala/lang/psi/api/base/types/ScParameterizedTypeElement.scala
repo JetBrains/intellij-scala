@@ -19,8 +19,8 @@ trait ScParameterizedTypeElement extends ScDesugarizableTypeElement {
 
   def typeElement: ScTypeElement = findChildByClassScala(classOf[ScTypeElement])
 
-  def findConstructor: Option[ScConstructor] = getContext match {
-    case constructor: ScConstructor => Some(constructor)
+  def findConstructorInvocation: Option[ScConstructorInvocation] = getContext match {
+    case constrInvocation: ScConstructorInvocation => Some(constrInvocation)
     case _ => None
   }
 }

@@ -15,7 +15,7 @@ import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
 import org.jetbrains.plugins.scala.lang.psi.api.base.ScAnnotation;
 import org.jetbrains.plugins.scala.lang.psi.api.base.ScAnnotationExpr;
-import org.jetbrains.plugins.scala.lang.psi.api.base.ScConstructor;
+import org.jetbrains.plugins.scala.lang.psi.api.base.ScConstructorInvocation;
 import org.jetbrains.plugins.scala.lang.psi.api.base.ScLiteral;
 import org.jetbrains.plugins.scala.lang.psi.api.base.patterns.ScBindingPattern;
 import org.jetbrains.plugins.scala.lang.psi.api.expr.*;
@@ -145,9 +145,9 @@ public class ScalaTestAstTransformer {
             if (annotationOption.isDefined() && annotationOption.get() != null) {
                 ScAnnotation styleAnnotation = annotationOption.get();
                 try {
-                    ScConstructor constructor = (ScConstructor) styleAnnotation.getClass().getMethod("constructor").invoke(styleAnnotation);
-                    if (constructor != null) {
-                        ScArgumentExprList args = constructor.args().isDefined() ? constructor.args().get() : null;
+                    ScConstructorInvocation constrInvocation = (ScConstructorInvocation) styleAnnotation.getClass().getMethod("constructorInvocation").invoke(styleAnnotation);
+                    if (constrInvocation != null) {
+                        ScArgumentExprList args = constrInvocation.args().isDefined() ? constrInvocation.args().get() : null;
                         ScAnnotationExpr annotationExpr = styleAnnotation.annotationExpr();
                         List<ScNameValuePair> valuePairs = JavaConverters.seqAsJavaList(annotationExpr.getAttributes());
                         if (args == null && !valuePairs.isEmpty()) {

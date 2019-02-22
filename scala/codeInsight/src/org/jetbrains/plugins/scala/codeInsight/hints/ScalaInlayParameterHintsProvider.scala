@@ -9,7 +9,7 @@ import com.intellij.lang.java.JavaLanguage
 import com.intellij.psi.{PsiElement, PsiMethod}
 import org.jetbrains.plugins.scala.extensions._
 import org.jetbrains.plugins.scala.lang.lexer.ScalaTokenTypes
-import org.jetbrains.plugins.scala.lang.psi.api.base.{ScConstructor, ScLiteral}
+import org.jetbrains.plugins.scala.lang.psi.api.base.{ScConstructorInvocation, ScLiteral}
 import org.jetbrains.plugins.scala.lang.psi.api.expr._
 import org.jetbrains.plugins.scala.lang.psi.api.statements.ScFunction.CommonNames
 import org.jetbrains.plugins.scala.lang.psi.types.nonvalue.Parameter
@@ -27,7 +27,7 @@ final class ScalaInlayParameterHintsProvider extends hints.InlayParameterHintsPr
     val matchedParameters = (element match {
       case ResolveMethodCall(method) if GetSet(method.name) && !applyUpdateParameterNames.isEnabled => Seq.empty
       case call: ScMethodCall => call.matchedParameters.reverse
-      case call: ScConstructor => call.matchedParameters
+      case constrInvocation: ScConstructorInvocation => constrInvocation.matchedParameters
       case _ => Seq.empty
     }).filter {
       case (argument, _) => element.isAncestorOf(argument)
@@ -126,8 +126,8 @@ object ScalaInlayParameterHintsProvider {
 
   private object ResolveConstructorCall {
 
-    def unapply(call: ScConstructor): Option[PsiMethod] =
-      call.reference.collect {
+    def unapply(constrInvocation: ScConstructorInvocation): Option[PsiMethod] =
+      constrInvocation.reference.collect {
         case ResolvesTo(method: PsiMethod) => method
       }
   }

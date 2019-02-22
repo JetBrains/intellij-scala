@@ -13,16 +13,15 @@ import com.intellij.psi.search.searches.SuperMethodsSearch
 import org.apache.commons.lang.StringEscapeUtils.escapeHtml
 import org.jetbrains.plugins.scala.extensions._
 import org.jetbrains.plugins.scala.lang.completion.lookups.ScalaLookupItem
-import org.jetbrains.plugins.scala.lang.lexer.ScalaModifier
 import org.jetbrains.plugins.scala.lang.psi.ScalaPsiUtil.inNameContext
-import org.jetbrains.plugins.scala.lang.psi.api.{ScalaFile, ScalaPsiElement}
-import org.jetbrains.plugins.scala.lang.psi.api.base.{ScAnnotation, _}
 import org.jetbrains.plugins.scala.lang.psi.api.base.patterns.ScBindingPattern
+import org.jetbrains.plugins.scala.lang.psi.api.base.{ScAnnotation, _}
 import org.jetbrains.plugins.scala.lang.psi.api.statements._
 import org.jetbrains.plugins.scala.lang.psi.api.statements.params.{ScClassParameter, ScParameter, ScParameterClause, ScTypeParam}
 import org.jetbrains.plugins.scala.lang.psi.api.toplevel._
 import org.jetbrains.plugins.scala.lang.psi.api.toplevel.templates.{ScExtendsBlock, ScTemplateBody, ScTemplateParents}
 import org.jetbrains.plugins.scala.lang.psi.api.toplevel.typedef._
+import org.jetbrains.plugins.scala.lang.psi.api.{ScalaFile, ScalaPsiElement}
 import org.jetbrains.plugins.scala.lang.psi.impl.ScalaPsiElementFactory.createScalaFileFromText
 import org.jetbrains.plugins.scala.lang.psi.light.ScFunctionWrapper
 import org.jetbrains.plugins.scala.lang.psi.types._
@@ -632,7 +631,7 @@ object ScalaDocumentationProvider {
 
         for (annotation <- function.annotations if annotation.annotationExpr.getText.startsWith("throws")) {
           buffer.append(leadingAsterisks).append(MyScaladocParsing.THROWS_TAG).append(" ")
-          annotation.constructor.args.foreach(a =>
+          annotation.constructorInvocation.args.foreach(a =>
             a.exprs.headOption.map {
               exprHead =>
                 exprHead.`type`() match {
@@ -783,8 +782,8 @@ object ScalaDocumentationProvider {
 
     def parseAnnotation(elem: ScAnnotation): String = {
       val res = new StringBuilder("@")
-      val constr: ScConstructor = elem.constructor
-      res.append(typeToString(constr.typeElement.`type`().getOrAny))
+      val constrInvocation: ScConstructorInvocation = elem.constructorInvocation
+      res.append(typeToString(constrInvocation.typeElement.`type`().getOrAny))
 
       val attrs = elem.annotationExpr.getAnnotationParameters
       if (attrs.nonEmpty) res append attrs.map(_.getText).mkString("(", ", ", ")")

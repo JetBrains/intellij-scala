@@ -18,7 +18,7 @@ import scala.collection.Seq
 * Date: 22.02.2008
 */
 
-trait ScConstructor extends ScalaPsiElement with ImplicitArgumentsOwner {
+trait ScConstructorInvocation extends ScalaPsiElement with ImplicitArgumentsOwner {
   def typeElement: ScTypeElement
 
   def simpleTypeElement: Option[ScSimpleTypeElement]
@@ -48,14 +48,14 @@ trait ScConstructor extends ScalaPsiElement with ImplicitArgumentsOwner {
   def matchedParameters: Seq[(ScExpression, Parameter)]
 }
 
-object ScConstructor {
-  def unapply(c: ScConstructor): Option[(ScTypeElement, Seq[ScArgumentExprList])] = {
+object ScConstructorInvocation {
+  def unapply(c: ScConstructorInvocation): Option[(ScTypeElement, Seq[ScArgumentExprList])] = {
     Option(c).map(it => (it.typeElement, it.arguments))
   }
 
   object byReference {
-    def unapply(ref: ScReference): Option[ScConstructor] = {
-      PsiTreeUtil.getParentOfType(ref, classOf[ScConstructor]) match {
+    def unapply(ref: ScReference): Option[ScConstructorInvocation] = {
+      PsiTreeUtil.getParentOfType(ref, classOf[ScConstructorInvocation]) match {
         case null => None
         case c if c.reference.contains(ref) => Some(c)
         case _ => None

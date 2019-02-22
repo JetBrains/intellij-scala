@@ -45,13 +45,13 @@ class ScAnnotationImpl private(stub: ScAnnotationStub, node: ASTNode)
   }.orNull
 
   def typeElement: ScTypeElement =
-    byPsiOrStub(Option(annotationExpr.constr.typeElement))(_.typeElement).orNull
+    byPsiOrStub(Option(annotationExpr.constructorInvocation.typeElement))(_.typeElement).orNull
 
   override def annotationExpr: ScAnnotationExpr =
     byPsiOrStub(Option(findChildByClassScala(classOf[ScAnnotationExpr])))(_.annotationExpr).orNull
 
   def findDeclaredAttributeValue(attributeName: String): PsiAnnotationMemberValue = {
-    constructor.args match {
+    constructorInvocation.args match {
       case Some(args) => args.exprs.map {
         case expr@(ass: ScAssignment) => ass.leftExpression match {
           case ref: ScReferenceExpression if ref.refName == attributeName => ass.rightExpression match {
@@ -132,7 +132,7 @@ class ScAnnotationImpl private(stub: ScAnnotationStub, node: ASTNode)
         existing.replace(value)
       }
       else {
-        val args: Seq[ScArgumentExprList] = annotationExpr.constr.arguments
+        val args: Seq[ScArgumentExprList] = annotationExpr.constructorInvocation.arguments
         if (args.isEmpty) {
           return null.asInstanceOf[T] //todo: ?
         }

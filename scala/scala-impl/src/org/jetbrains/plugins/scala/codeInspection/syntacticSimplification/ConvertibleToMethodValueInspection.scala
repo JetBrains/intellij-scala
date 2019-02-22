@@ -9,7 +9,7 @@ import org.jetbrains.plugins.scala.codeInspection.syntacticSimplification.Conver
 import org.jetbrains.plugins.scala.codeInspection.{AbstractFixOnPsiElement, AbstractInspection, InspectionBundle}
 import org.jetbrains.plugins.scala.extensions.{&&, PsiElementExt, PsiModifierListOwnerExt, ResolvesTo, childOf}
 import org.jetbrains.plugins.scala.lang.psi.ScalaPsiUtil
-import org.jetbrains.plugins.scala.lang.psi.api.base.{ScConstructor, ScMethodLike}
+import org.jetbrains.plugins.scala.lang.psi.api.base.{ScConstructorInvocation, ScMethodLike}
 import org.jetbrains.plugins.scala.lang.psi.api.expr._
 import org.jetbrains.plugins.scala.lang.psi.api.statements.ScVariable
 import org.jetbrains.plugins.scala.lang.psi.api.statements.params.ScClassParameter
@@ -94,7 +94,7 @@ class ConvertibleToMethodValueInspection extends AbstractInspection(inspectionNa
 
     qual.depthFirst(e => !e.isInstanceOf[ScImportStmt]).forall {
       case _: ScNewTemplateDefinition => false
-      case (_: ScReferenceExpression | ScConstructor.byReference(_)) && ResolvesTo(named: PsiNamedElement) => isStable(named)
+      case (_: ScReferenceExpression | ScConstructorInvocation.byReference(_)) && ResolvesTo(named: PsiNamedElement) => isStable(named)
       case _ => true
     }
   }

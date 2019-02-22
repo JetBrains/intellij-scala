@@ -64,7 +64,7 @@ object JavaConversionUtil {
     }
     convertibleAnnotations.map { a =>
       val fqn = a.getQualifiedName
-      val args = convertArgs(a.constructor.args.toSeq.flatMap(_.exprs))
+      val args = convertArgs(a.constructorInvocation.args.toSeq.flatMap(_.exprs))
       s"@$fqn$args"
     }
   }
@@ -100,7 +100,7 @@ object JavaConversionUtil {
           } else problem
         } else problem
       case n: ScNewTemplateDefinition =>
-        n.extendsBlock.templateParents.flatMap(_.constructor) match {
+        n.extendsBlock.templateParents.flatMap(_.constructorInvocation) match {
           case Some(constr) =>
             constr.reference match {
               case Some(ref) =>

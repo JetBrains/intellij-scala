@@ -14,8 +14,8 @@ import com.intellij.openapi.roots.{ModuleRootManager, OrderEnumerator}
 import com.intellij.openapi.vfs.VirtualFile
 import org.jetbrains.plugins.scala.extensions
 import org.jetbrains.plugins.scala.extensions.PsiElementExt
-import org.jetbrains.plugins.scala.lang.psi.api.base.{ScAnnotation, ScAnnotationsHolder}
 import org.jetbrains.plugins.scala.lang.psi.api.base.types.ScParameterizedTypeElement
+import org.jetbrains.plugins.scala.lang.psi.api.base.{ScAnnotation, ScAnnotationsHolder}
 import org.jetbrains.plugins.scala.lang.psi.api.toplevel.typedef.{ScClass, ScTypeDefinition}
 import org.jetbrains.plugins.scala.macroAnnotations.{CachedInUserData, ModCount}
 import org.jetbrains.plugins.scala.project.ScalaLanguageLevel.Scala_2_12
@@ -94,7 +94,7 @@ class MetaExpansionsManager(project: Project) extends ProjectComponent  {
     }
 
     val annotClass: Option[ScClass] = for {
-      ref <- annot.constructor.reference
+      ref <- annot.constructorInvocation.reference
       resolved <- ref.bind()
       parent <- resolved.parentElement.map(_.asInstanceOf[ScClass])
     } yield parent
@@ -133,7 +133,7 @@ object MetaExpansionsManager {
   def isUpToDate(annot: ScAnnotation, clazz: Class[_]): Boolean = {
     try {
       val classFile = new File(clazz.getProtectionDomain.getCodeSource.getLocation.getPath, s"${clazz.getName.replaceAll("\\.", "/")}.class")
-      val sourceFile = new File(annot.constructor.reference.get.resolve().getContainingFile.getVirtualFile.getPath)
+      val sourceFile = new File(annot.constructorInvocation.reference.get.resolve().getContainingFile.getVirtualFile.getPath)
       val isInJar = classFile.getPath.contains(".jar")
       isInJar || (classFile.exists() && classFile.lastModified() >= sourceFile.lastModified())
     } catch {

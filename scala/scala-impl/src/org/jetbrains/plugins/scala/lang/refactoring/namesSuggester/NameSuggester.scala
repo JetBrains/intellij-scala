@@ -133,7 +133,7 @@ object NameSuggester {
     case reference: ScReference if reference.refName != null =>
       camelCaseNames(reference.refName)
     case definition: ScNewTemplateDefinition =>
-      val parameters = definition.constructor.toSeq
+      val parameters = definition.constructorInvocation.toSeq
         .flatMap(_.matchedParameters)
 
       enhancedNames(definition, parameters)

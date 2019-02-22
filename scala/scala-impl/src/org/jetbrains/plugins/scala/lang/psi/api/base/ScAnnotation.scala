@@ -22,7 +22,7 @@ trait ScAnnotation extends ScalaPsiElement with PsiAnnotation {
    * Nullable</code> psiElement.
    * @return constructor element
    */
-  def constructor: ScConstructor = annotationExpr.constr
+  def constructorInvocation: ScConstructorInvocation = annotationExpr.constructorInvocation
 
   def typeElement: ScTypeElement
 }

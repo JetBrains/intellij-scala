@@ -49,7 +49,7 @@ class ScParameterImpl protected (stub: ScParameterStub, nodeType: ScParamElement
 
     for {
       ann        <- deprecatedNameAnnotation
-      args       <- ann.constructor.args
+      args       <- ann.constructorInvocation.args
       nameSymbol <- args.exprs.headOption
       node       = nameSymbol.getNode.getFirstChildNode
       if node != null && node.getElementType == ScalaTokenTypes.tSYMBOL

@@ -48,7 +48,7 @@ trait TreeAdapter {
   }
 
   def toAnnotCtor(annot: ScAnnotation): m.Term.New = {
-    m.Term.New(m.Template(Nil, Seq(toCtor(annot.constructor)), m.Term.Param(Nil, m.Name.Anonymous(), None, None), None))
+    m.Term.New(m.Template(Nil, Seq(toCtor(annot.constructorInvocation)), m.Term.Param(Nil, m.Name.Anonymous(), None, None), None))
   }
 
   def toMacroDefn(t: ScMacroDefinition): m.Defn.Macro =
@@ -199,8 +199,8 @@ trait TreeAdapter {
     val members = t.templateBody map (it => Seq(it.members.map(ideaToMeta(_).asInstanceOf[m.Stat]): _*))
     val early   = t.earlyDefinitions map (it => Seq(it.members.map(ideaToMeta(_).asInstanceOf[m.Stat]):_*)) getOrElse Seq.empty
     val ctor = t.templateParents
-      .flatMap(_.children.find(_.isInstanceOf[ScConstructor]))
-      .map(c=>toCtor(c.asInstanceOf[ScConstructor]))
+      .flatMap(_.children.find(_.isInstanceOf[ScConstructorInvocation]))
+      .map(c=>toCtor(c.asInstanceOf[ScConstructorInvocation]))
         .toSeq
     val mixins = t.templateParents.map(x=>x.typeElementsWithoutConstructor.map(toType).map(toCtor)).getOrElse(Seq.empty)
     val self    = t.selfType match {
@@ -226,11 +226,11 @@ trait TreeAdapter {
     val early= t.extendsBlock.earlyDefinitions map (it => Seq(it.members.map(ideaToMeta(_).asInstanceOf[m.Stat]):_*)) getOrElse Seq.empty
     val ctor = t.extendsBlock.templateParents match {
       case Some(parents) =>
-        parents.constructor match {
-          case Some(ctr) => toCtor(ctr)
-          case None      => unreachable(s"no constructor found in class ${t.qualifiedName}")
+        parents.constructorInvocation match {
+          case Some(constrInvocation) => toCtor(constrInvocation)
+          case None => unreachable(s"no constructor found in class ${t.qualifiedName}")
         }
-      case None        => unreachable(s"Class ${t.qualifiedName} has no parents")
+      case None => unreachable(s"Class ${t.qualifiedName} has no parents")
     }
     val self    = t.selfType match {
       case Some(tpe: ptype.ScType) =>
@@ -241,12 +241,12 @@ trait TreeAdapter {
     m.Template(early, Seq(ctor), self, None)
   }
 
-  def toCtor(c: ScConstructor): m.Ctor.Call = {
-    val ctorCall@m.Term.Apply(ctorRef, _) = toCtor(toType(c.typeElement))
-    if (c.arguments.isEmpty) { ctorCall }
+  def toCtor(constrInvocation: ScConstructorInvocation): m.Ctor.Call = {
+    val ctorCall@m.Term.Apply(ctorRef, _) = toCtor(toType(constrInvocation.typeElement))
+    if (constrInvocation.arguments.isEmpty) { ctorCall }
     else {
-      val head = m.Term.Apply(ctorRef, Seq(c.arguments.head.exprs.map(callArgs): _*))
-      c.arguments.tail.foldLeft(head)((term, exprList) => m.Term.Apply(term, Seq(exprList.exprs.map(callArgs): _*)))
+      val head = m.Term.Apply(ctorRef, Seq(constrInvocation.arguments.head.exprs.map(callArgs): _*))
+      constrInvocation.arguments.tail.foldLeft(head)((term, exprList) => m.Term.Apply(term, Seq(exprList.exprs.map(callArgs): _*)))
     }
   }
 
@@ -266,7 +266,7 @@ trait TreeAdapter {
   }
 
   def toAnnot(annot: ScAnnotation): m.Mod.Annot = {
-    m.Mod.Annot(toCtor(annot.constructor))
+    m.Mod.Annot(toCtor(annot.constructorInvocation))
   }
 
   def expression(e: ScExpression): m.Term = {

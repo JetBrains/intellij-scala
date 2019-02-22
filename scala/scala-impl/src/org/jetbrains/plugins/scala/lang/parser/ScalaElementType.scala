@@ -85,7 +85,7 @@ object ScalaElementType {
   /** ****************************** DEFINITION PARTS ***********************************/
   /** ***********************************************************************************/
   val CONSTRUCTOR: ScalaElementType = new ScalaElementType("constructor") {
-    override def createElement(node: ASTNode) = new ScConstructorImpl(node)
+    override def createElement(node: ASTNode) = new ScConstructorInvocationImpl(node)
   }
   val PARAM_TYPE: ScalaElementType = new ScalaElementType("parameter type") {
     override def createElement(node: ASTNode) = new ScParameterTypeImpl(node)

@@ -10,7 +10,7 @@ import org.jetbrains.plugins.scala.codeInspection.collections.MethodRepr
 import org.jetbrains.plugins.scala.extensions._
 import org.jetbrains.plugins.scala.lang.psi.api.base.patterns._
 import org.jetbrains.plugins.scala.lang.psi.api.base.types.{ScParameterizedTypeElement, ScSimpleTypeElement, ScTupleTypeElement}
-import org.jetbrains.plugins.scala.lang.psi.api.base.{ScConstructor, ScReference}
+import org.jetbrains.plugins.scala.lang.psi.api.base.{ScConstructorInvocation, ScReference}
 import org.jetbrains.plugins.scala.lang.psi.api.expr.{ScExpression, ScReferenceExpression}
 import org.jetbrains.plugins.scala.lang.psi.api.statements.ScFunction
 import org.jetbrains.plugins.scala.lang.psi.api.statements.params.{ScParameter, ScTypeParam}
@@ -61,9 +61,9 @@ object CreateFromUsageUtil {
         paramsText(patternArgs(p))
       case MethodRepr(_, _, _, args) => paramsText(args) //for case class
       case _ =>
-        val fromConstrArguments = PsiTreeUtil.getParentOfType(ref, classOf[ScConstructor]) match {
-          case ScConstructor(simple: ScSimpleTypeElement, args) if ref.getParent == simple => args
-          case ScConstructor(pt: ScParameterizedTypeElement, args) if ref.getParent == pt.typeElement => args
+        val fromConstrArguments = PsiTreeUtil.getParentOfType(ref, classOf[ScConstructorInvocation]) match {
+          case ScConstructorInvocation(simple: ScSimpleTypeElement, args) if ref.getParent == simple => args
+          case ScConstructorInvocation(pt: ScParameterizedTypeElement, args) if ref.getParent == pt.typeElement => args
           case _ => Seq.empty
         }
         fromConstrArguments.map(argList => paramsText(argList.exprs)).mkString

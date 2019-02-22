@@ -16,7 +16,7 @@ import org.jetbrains.plugins.scala.extensions.{PsiClassExt, PsiMemberExt, PsiMet
 import org.jetbrains.plugins.scala.lang.dependency.Path
 import org.jetbrains.plugins.scala.lang.formatting.settings.ScalaCodeStyleSettings
 import org.jetbrains.plugins.scala.lang.psi.ScalaPsiUtil
-import org.jetbrains.plugins.scala.lang.psi.api.base.{Constructor, ScConstructor}
+import org.jetbrains.plugins.scala.lang.psi.api.base.{Constructor, ScConstructorInvocation}
 import org.jetbrains.plugins.scala.lang.psi.impl.source.ScalaCodeFragment
 import org.jetbrains.plugins.scala.settings.ScalaProjectSettings
 
@@ -588,9 +588,9 @@ object JavaToScala {
 
     def couldFindInstancesForClass: Boolean = {
       def isParentValid(ref: PsiReference): Boolean =
-        Option(ref.getElement).flatMap(element => Option(PsiTreeUtil.getParentOfType(element, classOf[PsiNewExpression], classOf[ScConstructor]))).exists {
+        Option(ref.getElement).flatMap(element => Option(PsiTreeUtil.getParentOfType(element, classOf[PsiNewExpression], classOf[ScConstructorInvocation]))).exists {
           case n: PsiNewExpression if Option(n.getClassReference).contains(ref) => true
-          case e: ScConstructor if e.reference.contains(ref) => true
+          case e: ScConstructorInvocation if e.reference.contains(ref) => true
           case _ => false
         }
 

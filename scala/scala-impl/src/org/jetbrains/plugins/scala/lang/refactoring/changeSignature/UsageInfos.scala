@@ -7,7 +7,7 @@ import com.intellij.usageView.UsageInfo
 import org.jetbrains.plugins.scala.extensions._
 import org.jetbrains.plugins.scala.lang.psi.ScalaPsiUtil
 import org.jetbrains.plugins.scala.lang.psi.api.base.patterns.{ScBindingPattern, ScConstructorPattern, ScInfixPattern, ScPattern}
-import org.jetbrains.plugins.scala.lang.psi.api.base.{ScConstructor, ScPrimaryConstructor, ScReference}
+import org.jetbrains.plugins.scala.lang.psi.api.base.{ScConstructorInvocation, ScPrimaryConstructor, ScReference}
 import org.jetbrains.plugins.scala.lang.psi.api.expr._
 import org.jetbrains.plugins.scala.lang.psi.api.statements.ScFunction
 import org.jetbrains.plugins.scala.lang.psi.api.statements.params.{ScClassParameter, ScParameter, ScParameters}
@@ -123,16 +123,16 @@ private[changeSignature] case class PostfixExprUsageInfo(postfix: ScPostfixExpr)
   val argsInfo = OldArgsInfo(postfix.argumentExpressions, method)
 }
 
-private[changeSignature] case class ConstructorUsageInfo(ref: ScReference, constr: ScConstructor)
-        extends UsageInfo(constr) with MethodUsageInfo {
+private[changeSignature] case class ConstructorUsageInfo(ref: ScReference, constrInvocation: ScConstructorInvocation)
+        extends UsageInfo(constrInvocation) with MethodUsageInfo {
 
   private val resolveResult = Option(ref).flatMap(_.bind())
   val substitutor = resolveResult.map(_.substitutor)
   val expr = {
-    val newText = s"new ${constr.getText}"
-    createExpressionFromText(newText)(constr.getManager)
+    val newText = s"new ${constrInvocation.getText}"
+    createExpressionFromText(newText)(constrInvocation.getManager)
   }
-  val argsInfo = OldArgsInfo(constr.arguments.flatMap(_.exprs), method)
+  val argsInfo = OldArgsInfo(constrInvocation.arguments.flatMap(_.exprs), method)
 }
 
 private[changeSignature] case class AnonFunUsageInfo(expr: ScExpression, ref: ScReferenceExpression)

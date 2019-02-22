@@ -18,7 +18,7 @@ import org.jetbrains.plugins.scala.annotator.ScalaAnnotator
 import org.jetbrains.plugins.scala.codeInsight.implicits.ImplicitHintsPass._
 import org.jetbrains.plugins.scala.editor.documentationProvider.ScalaDocumentationProvider
 import org.jetbrains.plugins.scala.extensions._
-import org.jetbrains.plugins.scala.lang.psi.api.base.ScConstructor
+import org.jetbrains.plugins.scala.lang.psi.api.base.ScConstructorInvocation
 import org.jetbrains.plugins.scala.lang.psi.api.expr._
 import org.jetbrains.plugins.scala.lang.psi.api.statements.ScFunction
 import org.jetbrains.plugins.scala.lang.psi.api.{ImplicitArgumentsOwner, ScalaPsiElement}
@@ -98,7 +98,7 @@ private class ImplicitHintsPass(editor: Editor, rootElement: ScalaPsiElement)
         hints ++:= implicitConversionHints(e)
         hints ++:= explicitArgumentHint(e)
         hints ++:= implicitArgumentsOrErrorHints(e)
-      case c: ScConstructor =>
+      case c: ScConstructorInvocation =>
         hints ++:= explicitArgumentHint(c)
         hints ++:= implicitArgumentsOrErrorHints(c)
       case _ =>

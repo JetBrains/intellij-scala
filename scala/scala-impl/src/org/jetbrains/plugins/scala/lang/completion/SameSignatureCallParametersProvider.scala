@@ -12,7 +12,7 @@ import org.jetbrains.plugins.scala.extensions._
 import org.jetbrains.plugins.scala.icons.Icons
 import org.jetbrains.plugins.scala.lang.lexer.ScalaTokenTypes
 import org.jetbrains.plugins.scala.lang.psi.api.base.types.ScParameterizedTypeElement
-import org.jetbrains.plugins.scala.lang.psi.api.base.{ScConstructor, ScMethodLike}
+import org.jetbrains.plugins.scala.lang.psi.api.base.{ScConstructorInvocation, ScMethodLike}
 import org.jetbrains.plugins.scala.lang.psi.api.expr.{ScArgumentExprList, ScMethodCall, ScReferenceExpression, ScSuperReference}
 import org.jetbrains.plugins.scala.lang.psi.api.statements.ScFunction
 import org.jetbrains.plugins.scala.lang.psi.api.toplevel.typedef.{ScClass, ScTemplateDefinition}
@@ -29,7 +29,7 @@ import scala.collection.mutable.ArrayBuffer
  */
 class SameSignatureCallParametersProvider extends ScalaCompletionContributor {
   val constructorFilter: PsiElementPattern.Capture[PsiElement] = PlatformPatterns.psiElement().withParent(classOf[ScReferenceExpression]).
-          withSuperParent(2, classOf[ScArgumentExprList]).withSuperParent(3, classOf[ScConstructor])
+          withSuperParent(2, classOf[ScArgumentExprList]).withSuperParent(3, classOf[ScConstructorInvocation])
 
   val superCallFilter: PsiElementPattern.Capture[PsiElement] = PlatformPatterns.psiElement().withParent(classOf[ScReferenceExpression]).
           withSuperParent(2, classOf[ScArgumentExprList]).withSuperParent(3, classOf[ScMethodCall])
@@ -94,9 +94,9 @@ class SameSignatureCallParametersProvider extends ScalaCompletionContributor {
     PsiTreeUtil.getContextOfType(position, classOf[ScTemplateDefinition]) match {
       case c: ScClass =>
         val args = PsiTreeUtil.getContextOfType(position, classOf[ScArgumentExprList])
-        val constructor = args.getContext.asInstanceOf[ScConstructor]
-        val index = constructor.arguments.indexOf(args)
-        val typeElement = constructor.typeElement
+        val constructorInvocation = args.getContext.asInstanceOf[ScConstructorInvocation]
+        val index = constructorInvocation.arguments.indexOf(args)
+        val typeElement = constructorInvocation.typeElement
         typeElement.`type`() match {
           case Right(tp) =>
             val signatures = tp.extractClassType match {

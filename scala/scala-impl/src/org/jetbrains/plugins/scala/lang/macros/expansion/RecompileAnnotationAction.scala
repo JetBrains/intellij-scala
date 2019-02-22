@@ -15,7 +15,7 @@ class RecompileAnnotationAction(elt: ScAnnotation) extends ScalaMetaIntentionAct
   override def getText: String = ScalaBundle.message("scala.meta.recompile")
 
   override def invoke(project: Project, editor: Editor, file: PsiFile): Unit = {
-    CompilerManager.getInstance(elt.getProject).make(elt.constructor.reference.get.resolve().module.get,
+    CompilerManager.getInstance(elt.getProject).make(elt.constructorInvocation.reference.get.resolve().module.get,
       new CompileStatusNotification {
         override def finished(aborted: Boolean, errors: Int, warnings: Int, compileContext: CompileContext): Unit = {
           DaemonCodeAnalyzer.getInstance(elt.getProject).restart(elt.getContainingFile)

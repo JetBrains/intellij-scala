@@ -10,7 +10,7 @@ import org.jetbrains.plugins.scala.lang.psi.ScalaPsiUtil
 import org.jetbrains.plugins.scala.lang.psi.api.ScalaFile
 import org.jetbrains.plugins.scala.lang.psi.api.base.patterns.{ScConstructorPattern, ScReferencePattern}
 import org.jetbrains.plugins.scala.lang.psi.api.base.types.ScTypeProjection
-import org.jetbrains.plugins.scala.lang.psi.api.base.{Constructor, ScConstructor, ScReference}
+import org.jetbrains.plugins.scala.lang.psi.api.base.{Constructor, ScConstructorInvocation, ScReference}
 import org.jetbrains.plugins.scala.lang.psi.api.expr._
 import org.jetbrains.plugins.scala.lang.psi.api.statements.ScFunctionDefinition
 import org.jetbrains.plugins.scala.lang.psi.api.toplevel.imports.ScImportStmt
@@ -114,7 +114,7 @@ object Dependency {
   private def fastResolve(ref: ScReference): Option[ScalaResolveResult] = {
     //we don't want to resolve call reference here for something looking like a named parameter
     ref.contexts.take(3).toSeq match {
-      case Seq(ScAssignment(`ref`, _), _: ScArgumentExprList, _: MethodInvocation | _: ScSelfInvocation | _: ScConstructor) => return None
+      case Seq(ScAssignment(`ref`, _), _: ScArgumentExprList, _: MethodInvocation | _: ScSelfInvocation | _: ScConstructorInvocation) => return None
       case Seq(ScAssignment(`ref`, _), _: ScTuple, _: ScInfixExpr) => return None
       case Seq(ScAssignment(`ref`, _), p: ScParenthesisedExpr, inf: ScInfixExpr) if inf.argsElement == p => return None
       case _ =>

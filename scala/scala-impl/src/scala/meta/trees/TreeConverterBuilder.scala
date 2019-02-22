@@ -39,7 +39,7 @@ trait TreeConverterBuilder {
 
       override def visitModifierList(modifierList: ScModifierList) = super.visitModifierList(modifierList)
 
-      override def visitConstructor(constr: ScConstructor) = super.visitConstructor(constr)
+      override def visitConstructorInvocation(constrInvocation: ScConstructorInvocation) = super.visitConstructorInvocation(constrInvocation)
 
       override def visitFunctionDefinition(fun: ScFunctionDefinition) = {
         fun.body.get.accept(this)

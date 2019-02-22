@@ -12,7 +12,7 @@ import org.jetbrains.plugins.scala.lang.psi.impl.expr.ScNameValuePairImpl
 */
 
 trait ScAnnotationExpr extends ScalaPsiElement {
-  def constr: ScConstructor = findChildByClassScala(classOf[ScConstructor])
+  def constructorInvocation: ScConstructorInvocation = findChildByClassScala(classOf[ScConstructorInvocation])
 
   def getAttributes: Seq[ScNameValuePair] = findArgExprs.map(_.findChildrenByType(ScalaElementType.ASSIGN_STMT)).getOrElse(Seq.empty).map {
     case stmt: ScAssignment => new ScNameValueAssignment(stmt)
@@ -21,10 +21,10 @@ trait ScAnnotationExpr extends ScalaPsiElement {
   def getAnnotationParameters: Seq[ScExpression] = findArgExprs.map(_.exprs).getOrElse(Seq.empty)
 
   private def findArgExprs: Option[ScArgumentExprList] = {
-    val constr = findChildByClassScala(classOf[ScConstructor])
-    if (constr == null) return None
+    val constrInvocation = findChildByClassScala(classOf[ScConstructorInvocation])
+    if (constrInvocation == null) return None
 
-    val args = constr.findFirstChildByType(ScalaElementType.ARG_EXPRS)
+    val args = constrInvocation.findFirstChildByType(ScalaElementType.ARG_EXPRS)
     args match {
       case scArgExpr: ScArgumentExprList => Some(scArgExpr)
       case _ => None

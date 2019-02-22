@@ -33,7 +33,6 @@ import org.jetbrains.plugins.scala.lang.parser.parsing.top.TmplDef
 import org.jetbrains.plugins.scala.lang.parser.parsing.top.params.{ClassParamClause, ClassParamClauses, ImplicitClassParamClause}
 import org.jetbrains.plugins.scala.lang.parser.parsing.types._
 import org.jetbrains.plugins.scala.lang.psi.ScalaPsiUtil.functionArrow
-import org.jetbrains.plugins.scala.lang.psi.api.{ScalaFile, ScalaPsiElement}
 import org.jetbrains.plugins.scala.lang.psi.api.base._
 import org.jetbrains.plugins.scala.lang.psi.api.base.patterns._
 import org.jetbrains.plugins.scala.lang.psi.api.base.types._
@@ -45,6 +44,7 @@ import org.jetbrains.plugins.scala.lang.psi.api.toplevel.imports._
 import org.jetbrains.plugins.scala.lang.psi.api.toplevel.templates.{ScTemplateBody, ScTemplateParents}
 import org.jetbrains.plugins.scala.lang.psi.api.toplevel.typedef._
 import org.jetbrains.plugins.scala.lang.psi.api.toplevel.{ScModifierListOwner, ScTypedDefinition}
+import org.jetbrains.plugins.scala.lang.psi.api.{ScalaFile, ScalaPsiElement}
 import org.jetbrains.plugins.scala.lang.psi.impl.expr.ScBlockImpl
 import org.jetbrains.plugins.scala.lang.psi.types._
 import org.jetbrains.plugins.scala.lang.psi.types.api.designator.ScDesignatorType
@@ -247,8 +247,8 @@ object ScalaPsiElementFactory {
   def createClassParamClausesWithContext(text: String, context: PsiElement): ScParameters =
     createElementWithContext[ScParameters](text, context, contextLastChild(context), ClassParamClauses.parse).orNull
 
-  def createConstructorFromText(text: String, context: PsiElement, child: PsiElement): ScConstructor =
-    createElementWithContext[ScConstructor](text, context, child, Constructor.parse).orNull
+  def createConstructorFromText(text: String, context: PsiElement, child: PsiElement): ScConstructorInvocation =
+    createElementWithContext[ScConstructorInvocation](text, context, child, Constructor.parse).orNull
 
   def createParamClausesWithContext(text: String, context: PsiElement, child: PsiElement): ScParameters =
     createElementWithContext[ScParameters](text, context, child, ParamClauses.parse).orNull

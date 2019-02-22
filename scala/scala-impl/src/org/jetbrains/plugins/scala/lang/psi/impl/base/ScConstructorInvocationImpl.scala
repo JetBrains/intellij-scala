@@ -37,7 +37,7 @@ import scala.collection.mutable.ArrayBuffer
 * Date: 22.02.2008
 */
 
-class ScConstructorImpl(node: ASTNode) extends ScalaPsiElementImpl(node) with ScConstructor {
+class ScConstructorInvocationImpl(node: ASTNode) extends ScalaPsiElementImpl(node) with ScConstructorInvocation {
 
   def typeElement: ScTypeElement = findNotNullChildByClass(classOf[ScTypeElement])
 
@@ -46,7 +46,7 @@ class ScConstructorImpl(node: ASTNode) extends ScalaPsiElementImpl(node) with Sc
       simpleTypeElement.foreach(_.getNonValueType(withUnnecessaryImplicitsUpdate = true))
     }
 
-  override def toString: String = "Constructor"
+  override def toString: String = "ConstructorInvocation"
 
   def expectedType: Option[ScType] = getContext match {
     case parents: ScTemplateParents =>
@@ -205,7 +205,7 @@ class ScConstructorImpl(node: ASTNode) extends ScalaPsiElementImpl(node) with Sc
   }
 
   override protected def acceptScala(visitor: ScalaElementVisitor) {
-    visitor.visitConstructor(this)
+    visitor.visitConstructorInvocation(this)
   }
 
   override def matchedParameters: Seq[(ScExpression, Parameter)] = matchedParametersByClauses.flatten

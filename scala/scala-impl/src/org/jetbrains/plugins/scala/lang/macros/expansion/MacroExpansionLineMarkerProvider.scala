@@ -54,7 +54,7 @@ abstract class MacroExpansionLineMarkerProvider extends RelatedItemLineMarkerPro
   protected def createNotCompiledLineMarker(element: PsiElement, annot: ScAnnotation): Marker = {
     import org.jetbrains.plugins.scala.project._
     val eltPointer = element.createSmartPointer
-    val module = annot.constructor.reference.get.resolve().module
+    val module = annot.constructorInvocation.reference.get.resolve().module
     if (module.isEmpty)
       Logger.getInstance(getClass).error(s"No bound module for annotation ${annot.getText}")
 

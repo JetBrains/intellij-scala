@@ -65,7 +65,7 @@ abstract class ScFunctionElementType[Fun <: ScFunction](debugName: String,
     }
 
     val annotations = function.annotations
-      .map(_.annotationExpr.constr.typeElement)
+      .map(_.annotationExpr.constructorInvocation.typeElement)
       .asStrings { text =>
         text.substring(text.lastIndexOf('.') + 1)
       }

@@ -5,7 +5,7 @@ import com.intellij.psi.PsiElement
 import org.jetbrains.plugins.scala.ScalaBundle
 import org.jetbrains.plugins.scala.codeInspection.AbstractInspection
 import org.jetbrains.plugins.scala.extensions.PsiElementExt
-import org.jetbrains.plugins.scala.lang.psi.api.base.{ScConstructor, ScPrimaryConstructor}
+import org.jetbrains.plugins.scala.lang.psi.api.base.{ScConstructorInvocation, ScPrimaryConstructor}
 import org.jetbrains.plugins.scala.lang.psi.api.expr.{ScExpression, ScMethodCall, ScNewTemplateDefinition, ScReferenceExpression}
 import org.jetbrains.plugins.scala.lang.psi.api.statements.{ScFunctionDefinition, ScTypeAlias}
 import org.jetbrains.plugins.scala.lang.psi.api.toplevel.templates.ScTemplateParents
@@ -28,7 +28,7 @@ class RedundantNewCaseClassInspection extends AbstractInspection("Redundant New 
   }
 
   private def hasRedundantNew(newTemplate: ScNewTemplateDefinition): Boolean = {
-    val constructor = getConstructorFromTemplate(newTemplate)
+    val constructor = getConstructorInvocationFromTemplate(newTemplate)
     def resolvedConstructor = resolveConstructor(constructor)
 
     isCreatingSameType(newTemplate) &&
@@ -38,9 +38,9 @@ class RedundantNewCaseClassInspection extends AbstractInspection("Redundant New 
       !isTypeAlias(resolvedConstructor)
   }
 
-  private def hasApplyDefinedOnCaseClass(constructor: ScConstructor): Boolean = {
-    val constructorText = constructor.getText
-    val expression = ScalaPsiElementFactory.createExpressionWithContextFromText(constructorText, constructor.getContext, constructor)
+  private def hasApplyDefinedOnCaseClass(constrInvocation: ScConstructorInvocation): Boolean = {
+    val constructorText = constrInvocation.getText
+    val expression = ScalaPsiElementFactory.createExpressionWithContextFromText(constructorText, constrInvocation.getContext, constrInvocation)
     val reference = getDeepestInvokedReference(expression).filter(_.isValid)
 
     reference.flatMap(_.bind())
@@ -76,21 +76,21 @@ class RedundantNewCaseClassInspection extends AbstractInspection("Redundant New 
     }
   }
 
-  private def getConstructorFromTemplate(newTemplate: ScNewTemplateDefinition): Option[ScConstructor] = {
+  private def getConstructorInvocationFromTemplate(newTemplate: ScNewTemplateDefinition): Option[ScConstructorInvocation] = {
     newTemplate.extendsBlock.firstChild.flatMap {
-      case parents: ScTemplateParents => parents.constructor
+      case parents: ScTemplateParents => parents.constructorInvocation
       case _ => None
     }
   }
 
-  private def constructorCallHasArgumentList(maybeConstructor: Option[ScConstructor]): Boolean = {
-    maybeConstructor.flatMap(_.args).isDefined
+  private def constructorCallHasArgumentList(maybeConstructorInvocation: Option[ScConstructorInvocation]): Boolean = {
+    maybeConstructorInvocation.flatMap(_.args).isDefined
   }
 
-  private def resolveConstructor(maybeConstructor: Option[ScConstructor]): Option[ScalaResolveResult] = {
+  private def resolveConstructor(maybeConstructorInvocation: Option[ScConstructorInvocation]): Option[ScalaResolveResult] = {
     for {
-      constructor <- maybeConstructor
-      ref <- constructor.reference
+      constrInvoc <- maybeConstructorInvocation
+      ref <- constrInvoc.reference
       resolved <- ref.bind()
     } yield {
       resolved

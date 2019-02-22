@@ -4,7 +4,7 @@ package psi
 package api
 package expr
 
-import org.jetbrains.plugins.scala.lang.psi.api.base.ScConstructor
+import org.jetbrains.plugins.scala.lang.psi.api.base.ScConstructorInvocation
 import org.jetbrains.plugins.scala.lang.psi.api.toplevel.typedef.ScTemplateDefinition
 
 /**
@@ -12,7 +12,7 @@ import org.jetbrains.plugins.scala.lang.psi.api.toplevel.typedef.ScTemplateDefin
 * Date: 06.03.2008
 */
 trait ScNewTemplateDefinition extends ScExpression with ScTemplateDefinition {
-  def constructor: Option[ScConstructor]
+  def constructorInvocation: Option[ScConstructorInvocation]
 
   //It's very rare case, when we need to desugar apply first.
   def desugaredApply: Option[ScExpression]

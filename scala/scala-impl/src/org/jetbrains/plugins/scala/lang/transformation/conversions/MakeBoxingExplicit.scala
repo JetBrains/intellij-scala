@@ -54,7 +54,7 @@ class MakeBoxingExplicit extends AbstractTransformer {
 
   private def isSpecializedFor(holder: ScAnnotationsHolder, t: ScType): Boolean = {
     holder.annotations.exists { it =>
-      val name = it.annotationExpr.constr.typeElement.getText
+      val name = it.annotationExpr.constructorInvocation.typeElement.getText
       val arguments = it.annotationExpr.getAnnotationParameters
       name == "specialized" && (arguments.isEmpty || arguments.exists(_.getText == t.presentableText))
     }

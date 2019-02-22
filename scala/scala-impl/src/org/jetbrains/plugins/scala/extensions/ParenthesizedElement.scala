@@ -7,7 +7,7 @@ import org.jetbrains.plugins.scala.lang.psi.ScalaPsiUtil
 import org.jetbrains.plugins.scala.lang.psi.api.ScalaPsiElement
 import org.jetbrains.plugins.scala.lang.psi.api.base.patterns._
 import org.jetbrains.plugins.scala.lang.psi.api.base.types._
-import org.jetbrains.plugins.scala.lang.psi.api.base.{ScConstructor, ScInfixElement, ScParenthesizedElement}
+import org.jetbrains.plugins.scala.lang.psi.api.base.{ScConstructorInvocation, ScInfixElement, ScParenthesizedElement}
 import org.jetbrains.plugins.scala.lang.psi.api.expr.{ScExpression, ScParenthesisedExpr, ScSugarCallExpr}
 import org.jetbrains.plugins.scala.lang.psi.api.statements.params.ScParameterType
 import org.jetbrains.plugins.scala.lang.psi.api.toplevel.templates.ScTemplateParents
@@ -79,7 +79,7 @@ object ParenthesizedElement {
           if containsSomethingElse(inner)                     => true
         case _ if isFunctionTupleParameter                    => true
         case SameKindParentAndInner(parent, inner)            => !parenthesesRedundant(parent, inner)
-        case ChildOf(_: ScConstructor | _: ScTemplateParents) => true
+        case ChildOf(_: ScConstructorInvocation | _: ScTemplateParents) => true
         case _ if isIndivisibleRepeatedParamType(parenthesized)          => true
         case _                                                => false
       }

@@ -11,7 +11,7 @@ import com.intellij.psi.codeStyle.arrangement.std.StdArrangementTokens.EntryType
 import com.intellij.psi.codeStyle.arrangement.std.StdArrangementTokens.Modifier._
 import org.jetbrains.plugins.scala.extensions.PsiElementExt
 import org.jetbrains.plugins.scala.lang.lexer.ScalaTokenTypes
-import org.jetbrains.plugins.scala.lang.psi.api.base.{ScConstructor, ScModifierList, ScReference, ScStableCodeReference}
+import org.jetbrains.plugins.scala.lang.psi.api.base.{ScConstructorInvocation, ScModifierList, ScReference, ScStableCodeReference}
 import org.jetbrains.plugins.scala.lang.psi.api.expr.{ScExpression, ScReferenceExpression}
 import org.jetbrains.plugins.scala.lang.psi.api.statements._
 import org.jetbrains.plugins.scala.lang.psi.api.toplevel.templates.ScTemplateBody
@@ -50,9 +50,9 @@ class ScalaArrangementVisitor(parseInfo: ScalaArrangementParseInfo, document: Do
       expandTextRangeToComment(alias), getTokenType(alias), alias.getName, canArrange = true), alias, null)
   }
 
-  override def visitConstructor(constr: ScConstructor) {
-    getEntryForRange(constr.getParent,
-      expandTextRangeToComment(constr), getTokenType(constr), null, canArrange = true)
+  override def visitConstructorInvocation(constrInvocation: ScConstructorInvocation) {
+    getEntryForRange(constrInvocation.getParent,
+      expandTextRangeToComment(constrInvocation), getTokenType(constrInvocation), null, canArrange = true)
   }
 
   override def visitFunction(fun: ScFunction) {
@@ -379,7 +379,7 @@ object ScalaArrangementVisitor {
     psiElement match {
       case _: ScTypeAlias => TYPE
       case _: ScMacroDefinition => MACRO
-      case _: ScConstructor => CONSTRUCTOR
+      case _: ScConstructorInvocation => CONSTRUCTOR
       case _: ScFunction | _: ScFunctionDefinition => FUNCTION
       case _: ScPatternDefinition | _: ScValueDeclaration => VAL
       case _: ScClass => CLASS

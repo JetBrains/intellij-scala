@@ -14,7 +14,7 @@ import org.jetbrains.plugins.scala.extensions._
 import org.jetbrains.plugins.scala.icons.Icons
 import org.jetbrains.plugins.scala.lang.psi.annotator.{ScExpressionAnnotator, ScNewTemplateDefinitionAnnotator}
 import org.jetbrains.plugins.scala.lang.psi.api.ScalaElementVisitor
-import org.jetbrains.plugins.scala.lang.psi.api.base.{JavaConstructor, ScConstructor, ScalaConstructor}
+import org.jetbrains.plugins.scala.lang.psi.api.base.{JavaConstructor, ScConstructorInvocation, ScalaConstructor}
 import org.jetbrains.plugins.scala.lang.psi.api.expr._
 import org.jetbrains.plugins.scala.lang.psi.api.statements.{ScDeclaredElementsHolder, ScTypeAlias}
 import org.jetbrains.plugins.scala.lang.psi.api.toplevel.ScEarlyDefinitions
@@ -46,11 +46,11 @@ final class ScNewTemplateDefinitionImpl private[psi](stub: ScTemplateDefinitionS
 
   override def getIcon(flags: Int): Icon = Icons.CLASS
 
-  override def constructor: Option[ScConstructor] =
+  override def constructorInvocation: Option[ScConstructorInvocation] =
     Option(extendsBlock)
       .flatMap(_.templateParents)
       .filter(_.typeElements.length == 1)
-      .flatMap(_.constructor)
+      .flatMap(_.constructorInvocation)
 
   override protected def updateImplicitArguments(): Unit = {
     // for regular case implicits are owned by ScConstructor
@@ -99,14 +99,14 @@ final class ScNewTemplateDefinitionImpl private[psi](stub: ScTemplateDefinitionS
   }
 
   override def desugaredApply: Option[ScExpression] = {
-    if (constructor.forall(_.arguments.size <= 1)) None
+    if (constructorInvocation.forall(_.arguments.size <= 1)) None
     else cachedDesugaredApply
   }
 
   //It's very rare case, when we need to desugar `.apply` first.
   @CachedInUserData(this, ModCount.getBlockModificationCount)
   private def cachedDesugaredApply: Option[ScExpression] = {
-    val resolvedConstructor = constructor.flatMap(_.reference).flatMap(_.resolve().toOption)
+    val resolvedConstructor = constructorInvocation.flatMap(_.reference).flatMap(_.resolve().toOption)
     val constrParamLength = resolvedConstructor.map {
       case ScalaConstructor(constr)         => constr.effectiveParameterClauses.length
       case JavaConstructor(_)               => 1
@@ -114,7 +114,7 @@ final class ScNewTemplateDefinitionImpl private[psi](stub: ScTemplateDefinitionS
     }
     val excessArgs =
       for {
-        arguments   <- constructor.map(_.arguments)
+        arguments   <- constructorInvocation.map(_.arguments)
         paramLength <- constrParamLength
         if paramLength >= 0
       } yield {

@@ -252,7 +252,7 @@ private[changeSignature] trait ScalaChangeSignatureUsageHandler {
   }
 
   def handleConstructorUsageArguments(change: ChangeInfo, usage: ConstructorUsageInfo): Unit = {
-    val constr = usage.constr
+    val constr = usage.constrInvocation
     val typeElem = constr.typeElement
     val text = typeElem.getText + argsText(change, usage)
     val newConstr = createConstructorFromText(text, constr.getContext, constr)

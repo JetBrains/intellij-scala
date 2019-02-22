@@ -51,11 +51,11 @@ class ScStableCodeReferenceImpl(node: ASTNode) extends ScReferenceImpl(node) wit
   def getResolveResultVariants: Array[ScalaResolveResult] =
     doResolve(new CompletionProcessor(getKinds(incomplete = true), this))
 
-  def getConstructor: Option[ScConstructor] =
+  override def getConstructorInvocation: Option[ScConstructorInvocation] =
     getContext.asOptionOf[ScSimpleTypeElement]
-      .flatMap(_.findConstructor)
+      .flatMap(_.findConstructorInvocation)
 
-  def isConstructorReference: Boolean = getConstructor.nonEmpty
+  def isConstructorReference: Boolean = getConstructorInvocation.nonEmpty
 
   override def toString: String = "CodeReferenceElement: " + ifReadAllowed(getText)("")
 

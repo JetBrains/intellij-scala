@@ -965,21 +965,21 @@ private[evaluation] trait ScalaEvaluatorBuilderUtil {
         if (parents.typeElements.length != 1) {
           throw new NeedCompilationException(ScalaBundle.message("anon.classes.not.supported"))
         }
-        parents.constructor match {
-          case Some(constr) =>
+        parents.constructorInvocation match {
+          case Some(constrInvocation) =>
             val project = templ.getProject
-            constr.typeElement.calcType.extractClass match {
+            constrInvocation.typeElement.calcType.extractClass match {
               case Some(clazz) if clazz.qualifiedName == "scala.Array" =>
-                val typeArgs = constr.typeArgList.fold("")(_.getText)
-                val args = constr.args.fold("(0)")(_.getText)
+                val typeArgs = constrInvocation.typeArgList.fold("")(_.getText)
+                val args = constrInvocation.args.fold("(0)")(_.getText)
                 val exprText = s"_root_.scala.Array.ofDim$typeArgs$args"
                 val expr = createExpressionWithContextFromText(exprText, templ.getContext, templ)
                 evaluatorFor(expr)
               case Some(clazz) =>
                 val jvmName = DebuggerUtil.getClassJVMName(clazz)
                 val typeEvaluator = new ScalaTypeEvaluator(jvmName)
-                val argumentEvaluators = constructorArgumentsEvaluators(templ, constr, clazz)
-                constr.reference.map(_.resolve()) match {
+                val argumentEvaluators = constructorArgumentsEvaluators(templ, constrInvocation, clazz)
+                constrInvocation.reference.map(_.resolve()) match {
                   case Some(named: PsiNamedElement) =>
                     val signature = DebuggerUtil.constructorSignature(named)
                     ScalaMethodEvaluator(typeEvaluator, "<init>", signature, argumentEvaluators)
@@ -996,13 +996,13 @@ private[evaluation] trait ScalaEvaluatorBuilderUtil {
   }
 
   def constructorArgumentsEvaluators(newTd: ScNewTemplateDefinition,
-                                     constr: ScConstructor,
+                                     constrInvocation: ScConstructorInvocation,
                                      clazz: PsiClass): Seq[Evaluator] = {
-    val constrDef = constr.reference match {
+    val constrDef = constrInvocation.reference match {
       case Some(ResolvesTo(elem)) => elem
       case _ => throw EvaluationException(ScalaBundle.message("could.not.resolve.constructor"))
     }
-    val explicitArgs = constr.arguments.flatMap(_.exprs)
+    val explicitArgs = constrInvocation.arguments.flatMap(_.exprs)
     val explEvaluators =
       for {
         arg <- explicitArgs
@@ -1022,7 +1022,7 @@ private[evaluation] trait ScalaEvaluatorBuilderUtil {
           for {
             p <- implicitParams
           } yield {
-            val eval = implicitArgEvaluator(scMethod, p, constr)
+            val eval = implicitArgEvaluator(scMethod, p, constrInvocation)
             if (isOfPrimitiveType(p)) eval
             else boxEvaluator(eval)
           }
@@ -1467,9 +1467,9 @@ object ScalaEvaluatorBuilderUtil {
   def isAnonfunInsideSuperCall(elem: PsiElement): Boolean = {
     def isInsideSuperCall(td: ScTypeDefinition) = {
       val extBlock = Option(td).map(_.extendsBlock).orNull
-      PsiTreeUtil.getParentOfType(elem, classOf[ScEarlyDefinitions], classOf[ScConstructor]) match {
+      PsiTreeUtil.getParentOfType(elem, classOf[ScEarlyDefinitions], classOf[ScConstructorInvocation]) match {
         case ed: ScEarlyDefinitions if ed.getParent == extBlock => true
-        case c: ScConstructor if c.getParent.getParent == extBlock => true
+        case c: ScConstructorInvocation if c.getParent.getParent == extBlock => true
         case _ => false
       }
     }

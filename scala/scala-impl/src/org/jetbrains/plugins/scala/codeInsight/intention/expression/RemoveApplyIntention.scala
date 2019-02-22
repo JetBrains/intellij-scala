@@ -11,7 +11,7 @@ import com.intellij.psi.util.PsiTreeUtil
 import com.intellij.psi.{PsiDocumentManager, PsiElement, PsiMethod, PsiNamedElement}
 import org.jetbrains.plugins.scala.codeInspection.InspectionBundle
 import org.jetbrains.plugins.scala.extensions._
-import org.jetbrains.plugins.scala.lang.psi.api.base.ScPrimaryConstructor
+import org.jetbrains.plugins.scala.lang.psi.api.base.ScalaConstructor
 import org.jetbrains.plugins.scala.lang.psi.api.expr._
 import org.jetbrains.plugins.scala.lang.psi.api.statements.ScFunction
 import org.jetbrains.plugins.scala.lang.psi.api.statements.params.ScClassParameter
@@ -153,31 +153,21 @@ class RemoveApplyIntention extends PsiElementBaseIntentionAction {
         }
 
       case templ: ScNewTemplateDefinition =>
-        templ.extendsBlock.templateParents
-          .flatMap(_.constructor) match {
-              case Some(constr) =>
-                constr.reference match {
-                  case Some(ref) =>
-                    val resolve = ref.resolve()
-                    val argsCount = constr.arguments.length
-                    resolve match {
-                      case con: ScPrimaryConstructor =>
-                        val clauses = con.effectiveParameterClauses
-                        if (clauses.length > 1 && clauses.last.isImplicit && clauses.length == argsCount + 1) {
-                          showErrorHint(InspectionBundle.message("remove.apply.constructor.implicit.parameter", constr.getText))
-                          return
-                        }
-                      case fun: ScFunction =>
-                        val clauses = fun.effectiveParameterClauses
-                        if (clauses.length > 1 && clauses.last.isImplicit && clauses.length == argsCount + 1) {
-                          showErrorHint(InspectionBundle.message("remove.apply.constructor.implicit.parameter", constr.getText))
-                          return
-                        }
-                      case _ =>
-                    }
-                  case _ => //all is ok
-            }
-          case _ => //all is ok
+        for {
+          parent <- templ.extendsBlock.templateParents
+          constrInvocation <- parent.constructorInvocation
+          ref <- constrInvocation.reference
+        } {
+          ref.resolve() match {
+            case ScalaConstructor(constr) =>
+              val argsCount = constrInvocation.arguments.length
+              val clauses = constr.effectiveParameterClauses
+              if (clauses.length > 1 && clauses.last.isImplicit && clauses.length == argsCount + 1) {
+                showErrorHint(InspectionBundle.message("remove.apply.constructor.implicit.parameter", constrInvocation.getText))
+                return
+              }
+            case _ =>
+          }
         }
       case _ =>
     }
