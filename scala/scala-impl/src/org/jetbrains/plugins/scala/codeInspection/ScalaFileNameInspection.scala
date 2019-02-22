@@ -1,6 +1,5 @@
 package org.jetbrains.plugins.scala
 package codeInspection
-package fileNameInspection
 
 import com.intellij.codeInspection._
 import com.intellij.lang.injection.InjectedLanguageManager

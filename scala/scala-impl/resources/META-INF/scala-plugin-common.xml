@@ -627,7 +627,7 @@
         <localInspection implementationClass="org.jetbrains.plugins.scala.codeInspection.infiniteCycle.LoopVariableNotUpdatedInspection"
                          displayName="Loop variable not updated inside loop" groupPath="Scala" groupName="General" shortName="LoopVariableNotUpdated" id="LoopVariableNotUpdatedInspection" level="WARNING"
                          enabledByDefault="true" language="Scala"/>
-        <localInspection implementationClass="org.jetbrains.plugins.scala.codeInspection.fileNameInspection.ScalaFileNameInspection"
+        <localInspection implementationClass="org.jetbrains.plugins.scala.codeInspection.ScalaFileNameInspection"
                          bundle="org.jetbrains.plugins.scala.codeInspection.InspectionBundle"
                          key="fileName.does.not.match"
                          groupPath="Scala" groupName="General"
