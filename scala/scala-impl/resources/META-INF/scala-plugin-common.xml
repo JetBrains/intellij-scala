@@ -628,8 +628,12 @@
                          displayName="Loop variable not updated inside loop" groupPath="Scala" groupName="General" shortName="LoopVariableNotUpdated" id="LoopVariableNotUpdatedInspection" level="WARNING"
                          enabledByDefault="true" language="Scala"/>
         <localInspection implementationClass="org.jetbrains.plugins.scala.codeInspection.fileNameInspection.ScalaFileNameInspection"
-                         displayName="File Name Inspection" groupPath="Scala" groupName="General" shortName="ScalaFileName" id="ScalaFileName" level="WARNING"
-                         enabledByDefault="true" language="Scala"/>
+                         bundle="org.jetbrains.plugins.scala.codeInspection.InspectionBundle"
+                         key="fileName.does.not.match"
+                         groupPath="Scala" groupName="General"
+                         shortName="ScalaFileName"
+                         language="Scala" level="WARNING"
+                         enabledByDefault="true"/>
         <localInspection implementationClass="org.jetbrains.plugins.scala.codeInspection.packageNameInspection.ScalaPackageNameInspection"
                          displayName="Package Name Inspection" groupPath="Scala" groupName="General" id="ScalaPackageName"
                          shortName="ScalaPackageName" level="WARNING" enabledByDefault="true" language="Scala"/>
