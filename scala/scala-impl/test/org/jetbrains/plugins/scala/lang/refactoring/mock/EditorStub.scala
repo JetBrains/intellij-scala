@@ -127,6 +127,13 @@ class EditorStub extends Editor {
     override def addBlockElement[T <: EditorCustomElementRenderer](offset: Int, relatesToPrecedingText: Boolean, showAbove: Boolean, priority: Int, renderer: T): Inlay[T] = null
 
     override def setConsiderCaretPositionOnDocumentUpdates(enabled: Boolean): Unit = {}
+
+    def addAfterLineEndElement[T <: EditorCustomElementRenderer](offset: Int, relatesToPrecedingText: Boolean, renderer: T): Inlay[T] = null
+
+    def getAfterLineEndElementsInRange(startOffset: Int, endOffset: Int): util.List[Inlay[_ <: EditorCustomElementRenderer]] = null
+
+    def getAfterLineEndElementsForLogicalLine(logicalLine: Int): util.List[Inlay[_ <: EditorCustomElementRenderer]] = null
+
   }
 
   override def xyToVisualPosition(p: Point2D): VisualPosition = null
