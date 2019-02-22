@@ -60,9 +60,7 @@ class ScalaFmtSettingsPanel(val settings: CodeStyleSettings) extends CodeStyleAb
     scalaSettings.SCALAFMT_REFORMAT_ON_FILES_SAVE = reformatOnFileSaveCheckBox.isSelected
 
     val configPath = scalaSettings.SCALAFMT_CONFIG_PATH.trim
-    val configPathNew = Some(externalFormatterSettingsPath.getText.trim)
-      .filter(StringUtils.isNotBlank)
-      .getOrElse(DefaultConfigFilePath)
+    val configPathNew = externalFormatterSettingsPath.getText.trim
     val configPathChanged = configPath != configPathNew
 
     projectConfigFile(configPathNew) match {
@@ -274,11 +272,13 @@ class ScalaFmtSettingsPanel(val settings: CodeStyleSettings) extends CodeStyleAb
     // if config path text field is empty we want to select default config file in project tree of file browser
     val textAccessor = new TextComponentAccessor[JTextField]() {
       override def setText(textField: JTextField, text: String): Unit = textField.setText(text)
-      override def getText(textField: JTextField): String =
-        Option(textField.getText).filter(StringUtils.isNotBlank).orElse {
-          val path = DefaultConfigFilePath
-          project.flatMap(ScalafmtDynamicConfigManager.instanceIn(_).absolutePathFromConfigPath(path))
-        }.orNull
+      override def getText(textField: JTextField): String = {
+        val path = textField.getText.toOption.filter(StringUtils.isNotBlank).getOrElse(DefaultConfigFilePath)
+        project
+          .map(ScalafmtDynamicConfigManager.instanceIn)
+          .flatMap(_.absolutePathFromConfigPath(path))
+          .getOrElse(DefaultConfigFilePath)
+      }
     }
 
     // if we typed only whitespaces and lost focus from text field we should display empty text placeholder
