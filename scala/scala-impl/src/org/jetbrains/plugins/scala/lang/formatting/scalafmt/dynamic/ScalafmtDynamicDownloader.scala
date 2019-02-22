@@ -1,28 +1,29 @@
 package org.jetbrains.plugins.scala.lang.formatting.scalafmt.dynamic
 
-import java.io.PrintWriter
 import java.net.URL
 import java.nio.file.Path
 
+import com.intellij.openapi.progress.ProcessCanceledException
 import org.apache.ivy.util.{AbstractMessageLogger, MessageLogger}
 import org.jetbrains.plugins.scala.DependencyManagerBase
 import org.jetbrains.plugins.scala.DependencyManagerBase._
 import org.jetbrains.plugins.scala.lang.formatting.scalafmt.dynamic.ScalafmtDynamicDownloader._
 import org.jetbrains.plugins.scala.lang.formatting.scalafmt.dynamic.utils.BuildInfo
 
-import scala.util.Try
+import scala.util.control.NonFatal
 
 class ScalafmtDynamicDownloader(progressListener: DownloadProgressListener) {
 
   def download(version: String): Either[DownloadFailure, DownloadSuccess] = {
-    Try {
+    try {
       val resolver = new ScalafmtDependencyResolver(progressListener)
       val resolvedDependencies = resolver.resolve(dependencies(version): _*)
       val jars: Seq[Path] = resolvedDependencies.map(_.file.toPath)
       val urls = jars.map(_.toUri.toURL).toArray
-      DownloadSuccess(version, urls)
-    }.toEither.left.map { e =>
-      DownloadFailure(version, e)
+      Right(DownloadSuccess(version, urls))
+    }catch {
+      case e: ProcessCanceledException => throw e
+      case NonFatal(e) => Left(DownloadFailure(version, e))
     }
   }
 
@@ -59,6 +60,7 @@ object ScalafmtDynamicDownloader {
 
   abstract class DownloadProgressListener {
     def progressUpdate(message: String): Unit
+    def doProgress(): Unit = ()
   }
 
   object DownloadProgressListener {
@@ -66,14 +68,13 @@ object ScalafmtDynamicDownloader {
   }
 
   private class ScalafmtDependencyResolver(progressListener: DownloadProgressListener) extends DependencyManagerBase {
-    // not to exclude scala-reflect & scala-library
-    override protected val artifactBlackList: Set[String] = Set()
+    override protected val artifactBlackList: Set[String] = Set() // not to exclude scala-reflect & scala-library
     override protected val logLevel: Int = org.apache.ivy.util.Message.MSG_INFO
     override def createLogger: MessageLogger = new AbstractMessageLogger {
       override def doEndProgress(msg: String): Unit = progressListener.progressUpdate(format(msg))
       override def log(msg: String, level: Int): Unit = progressListener.progressUpdate(format(msg))
       override def rawlog(msg: String, level: Int): Unit = ()
-      override def doProgress(): Unit = ()
+      override def doProgress(): Unit = progressListener.doProgress()
     }
 
     @inline

@@ -6,15 +6,14 @@ import com.intellij.notification.{Notification, NotificationAction}
 import com.intellij.openapi.actionSystem.AnActionEvent
 import com.intellij.openapi.components.{PersistentStateComponent, ServiceManager, State, Storage}
 import com.intellij.openapi.diagnostic.Logger
-import com.intellij.openapi.progress.{ProgressIndicator, Task}
-import com.intellij.openapi.project.ProjectManager
+import com.intellij.openapi.progress.{ProcessCanceledException, ProgressIndicator, Task}
+import com.intellij.openapi.project.{Project, ProjectManager}
 import com.intellij.util.xmlb.XmlSerializerUtil
 import org.jetbrains.plugins.scala.lang.formatting.scalafmt.ScalafmtDynamicService.ScalafmtResolveError._
 import org.jetbrains.plugins.scala.lang.formatting.scalafmt.ScalafmtDynamicService._
 import org.jetbrains.plugins.scala.lang.formatting.scalafmt.dynamic.ScalafmtDynamicDownloader.DownloadProgressListener._
 import org.jetbrains.plugins.scala.lang.formatting.scalafmt.dynamic.ScalafmtDynamicDownloader._
 import org.jetbrains.plugins.scala.lang.formatting.scalafmt.dynamic.{ScalafmtDynamicDownloader, ScalafmtReflect}
-import org.jetbrains.plugins.scala.project.ProjectContext
 import org.jetbrains.plugins.scala.util.ScalaCollectionsUtil
 
 import scala.beans.BeanProperty
@@ -78,7 +77,7 @@ class ScalafmtDynamicService extends PersistentStateComponent[ScalafmtDynamicSer
                                  listener: DownloadProgressListener = NoopProgressListener): ResolveResult = {
     val downloader = new ScalafmtDynamicDownloader(listener)
     downloader.download(version)
-      .left.map(DownloadError)
+      .left.map(DownloadError.apply)
       .flatMap { case DownloadSuccess(v, jarUrls) =>
         resolveClassPath(v, jarUrls)
       }
@@ -116,8 +115,8 @@ class ScalafmtDynamicService extends PersistentStateComponent[ScalafmtDynamicSer
       case ScalafmtResolveError.DownloadInProgress(_) =>
         val errorMessage = s"$baseMessage Download is in progress"
         displayError(errorMessage)
-      case DownloadError(failure) =>
-        val errorMessage = s"$baseMessage An error occurred during downloading:<br>${failure.cause.getMessage}"
+      case DownloadError(_, cause) =>
+        val errorMessage = s"$baseMessage An error occurred during downloading:<br>${cause.getMessage}"
         displayError(errorMessage)
       case ScalafmtResolveError.CorruptedClassPath(version, _, cause) =>
         Log.warn(cause)
@@ -146,31 +145,30 @@ class ScalafmtDynamicService extends PersistentStateComponent[ScalafmtDynamicSer
     }
   }
 
-  def resolveAsync(version: ScalafmtVersion, project: ProjectContext,
+  def resolveAsync(version: ScalafmtVersion, project: Project,
                    onDownloadFinished: Either[ScalafmtResolveError, ScalafmtReflect] => Unit = _ => ()): Unit = {
     if (formattersCache.contains(version)) return
 
-    val backgroundTask = new Task.Backgroundable(project, s"Downloading scalafmt version `$version`", true) {
+    val backgroundTask = new Task.Backgroundable(project, s"Downloading scalafmt version $version", true) {
       override def run(indicator: ProgressIndicator): Unit = {
-        indicator.setFraction(0.0)
-
-        val progressListener: DownloadProgressListener = message => {
-          indicator.setText(message)
+        indicator.setIndeterminate(true)
+        val progressListener = new ProgressIndicatorDownloadListener(indicator, "Downloading scalafmt: ")
+        val result = try {
+          resolve(version, downloadIfMissing = true, failSilent = false, progressListener)
+        } catch {
+          case pce: ProcessCanceledException =>
+            Left(DownloadError(version, pce))
         }
-        val result = resolve(version, downloadIfMissing = true, failSilent = false, progressListener)
         onDownloadFinished(result)
-
-        indicator.setFraction(1.0)
       }
     }
 
-    // TODO: downloading is not actually stopped
     backgroundTask
-      .setCancelText("Stop loading")
+      .setCancelText("Stop downloading")
       .queue()
   }
 
-  def ensureDefaultVersionIsResolvedAsync(project: ProjectContext): Unit = {
+  def ensureDefaultVersionIsResolvedAsync(project: Project): Unit = {
     if (!state.resolvedVersions.containsKey(DefaultVersion)) {
       resolveAsync(DefaultVersion, project)
     }
@@ -205,16 +203,31 @@ object ScalafmtDynamicService {
   object ScalafmtResolveError {
     case class NotFound(version: ScalafmtVersion) extends ScalafmtResolveError
     case class DownloadInProgress(version: ScalafmtVersion) extends ScalafmtResolveError
-    case class DownloadError(failure: DownloadFailure) extends ScalafmtResolveError {
-      override def version: ScalafmtVersion = failure.version
-    }
+    case class DownloadError(version: String, cause: Throwable) extends ScalafmtResolveError
     case class CorruptedClassPath(version: ScalafmtVersion, urls: Seq[URL], cause: Throwable) extends ScalafmtResolveError
     case class UnknownError(version: ScalafmtVersion, cause: Throwable) extends ScalafmtResolveError
+
+    object DownloadError {
+      def apply(f: DownloadFailure): DownloadError = new DownloadError(f.version, f.cause)
+    }
   }
 
   class ServiceState {
     // scalafmt version -> list of classpath jar URLs
     @BeanProperty
     var resolvedVersions: java.util.Map[ScalafmtVersion, Array[String]] = new java.util.TreeMap()
+  }
+
+
+  private class ProgressIndicatorDownloadListener(indicator: ProgressIndicator,
+                                                  prefix: String = "") extends DownloadProgressListener {
+    @throws[ProcessCanceledException]
+    override def progressUpdate(message: String): Unit = {
+      indicator.setText(s"$prefix$message")
+      indicator.checkCanceled()
+    }
+    @throws[ProcessCanceledException]
+    override def doProgress(): Unit =
+      indicator.checkCanceled()
   }
 }

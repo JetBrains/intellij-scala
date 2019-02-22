@@ -5,7 +5,7 @@ import java.nio.file.{Files, Path}
 
 import com.typesafe.config.{ConfigException, ConfigFactory}
 import org.jetbrains.plugins.scala.lang.formatting.scalafmt.dynamic.ScalafmtDynamic.{FormatResult, _}
-import org.jetbrains.plugins.scala.lang.formatting.scalafmt.dynamic.ScalafmtDynamicDownloader.DownloadSuccess
+import org.jetbrains.plugins.scala.lang.formatting.scalafmt.dynamic.ScalafmtDynamicDownloader.{DownloadProgressListener, DownloadSuccess}
 import org.jetbrains.plugins.scala.lang.formatting.scalafmt.dynamic.exceptions.{ReflectionException, ScalafmtConfigException, ScalafmtException}
 import org.jetbrains.plugins.scala.lang.formatting.scalafmt.dynamic.utils.{BuildInfo, ConsoleScalafmtReporter}
 import org.jetbrains.plugins.scala.lang.formatting.scalafmt.interfaces.{Scalafmt, ScalafmtReporter}
@@ -157,7 +157,7 @@ final case class ScalafmtDynamic(reporter: ScalafmtReporter,
     }
   }
 
-  // TODO: there can be issues if resolveFormatter is called multiple times (e.g. formatter is called twice)
+  // NOTE: there can be issues if resolveFormatter is called multiple times (e.g. formatter is called twice)
   //  in such cases download process can be started multiple times,
   //  possible solution: keep information about download process in fmtsCache
   private def resolveFormatter(version: ScalafmtVersion): Either[ScalafmtDynamicError, ScalafmtReflect] = {
@@ -166,7 +166,8 @@ final case class ScalafmtDynamic(reporter: ScalafmtReporter,
         Right(value)
       case None =>
         val downloadWriter = reporter.downloadWriter()
-        val downloader = new ScalafmtDynamicDownloader(downloadWriter.println)
+        val progressListener: DownloadProgressListener = downloadWriter.println _
+        val downloader = new ScalafmtDynamicDownloader(progressListener)
         downloader.download(version)
           .left.map(f => ScalafmtDynamicError.CannotDownload(f.version, Some(f.cause)))
           .flatMap(resolveClassPath)
