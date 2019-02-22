@@ -4,12 +4,14 @@ package psi
 package stubs
 package impl
 
+import com.intellij.openapi.project.ProjectManager
 import com.intellij.psi.PsiElement
 import com.intellij.psi.stubs.{IStubElementType, StubBase, StubElement}
 import com.intellij.util.SofterReference
+import org.jetbrains.plugins.scala.extensions.ObjectExt
 import org.jetbrains.plugins.scala.lang.psi.api.base.types.{ScParenthesisedTypeElement, ScSimpleTypeElement, ScTypeElement}
 import org.jetbrains.plugins.scala.lang.psi.api.base.{ScAnnotation, ScAnnotationExpr}
-import org.jetbrains.plugins.scala.lang.psi.impl.ScalaPsiElementFactory
+import org.jetbrains.plugins.scala.lang.psi.impl.ScalaPsiElementFactory.createAnnotationExpression
 
 /**
   * User: Alexander Podkhalyuzin
@@ -25,11 +27,9 @@ class ScAnnotationStubImpl(parent: StubElement[_ <: PsiElement],
   def annotationExpr: Option[ScAnnotationExpr] = {
     getFromOptionalReference(annotationExprRef) {
       case (context, child) =>
-        val annotation = ScalaPsiElementFactory.createAnAnnotation(annotationText)(getProject)
-        val expr = annotation.annotationExpr
-        expr.setContext(this.getPsi, null)
-        Some(expr)
-
+        val annotationExpr = createAnnotationExpression(annotationText)(getProject)
+        annotationExpr.setContext(this.getPsi, null)
+        Some(annotationExpr)
     } (annotationExprRef = _)
 
   }
@@ -37,16 +37,15 @@ class ScAnnotationStubImpl(parent: StubElement[_ <: PsiElement],
   def typeElement: Option[ScTypeElement] = annotationExpr.map(_.constructorInvocation.typeElement)
 
   def name: Option[String] = {
-    typeElement.map {
-      case parenthesised: ScParenthesisedTypeElement => parenthesised.innerElement
+    //this method is used during indexing when stubs don't have valid psi available
+    val dummyExpr = createAnnotationExpression(annotationText)(ProjectManager.getInstance().getDefaultProject)
+    val typeElem = dummyExpr.constructorInvocation.typeElement
+
+    val simpleTypeElement = typeElem match {
+      case parenthesised: ScParenthesisedTypeElement => parenthesised.innerElement.asOptionOf[ScSimpleTypeElement]
       case simple: ScSimpleTypeElement => Some(simple)
       case _ => None
-    }.collect {
-      case simple: ScSimpleTypeElement => simple
-    }.flatMap {
-      _.reference
-    }.map {
-      _.refName
     }
+    simpleTypeElement.flatMap(_.reference.map(_.refName))
   }
 }

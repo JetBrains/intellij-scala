@@ -25,7 +25,7 @@ import org.jetbrains.plugins.scala.lang.lexer.{ScalaLexer, ScalaModifier, ScalaT
 import org.jetbrains.plugins.scala.lang.parser.ScalaElementType
 import org.jetbrains.plugins.scala.lang.parser.parsing.base.{Constructor, Import}
 import org.jetbrains.plugins.scala.lang.parser.parsing.builder.{ScalaPsiBuilder, ScalaPsiBuilderImpl}
-import org.jetbrains.plugins.scala.lang.parser.parsing.expressions.{Block, Expr}
+import org.jetbrains.plugins.scala.lang.parser.parsing.expressions.{AnnotationExpr, Block, Expr}
 import org.jetbrains.plugins.scala.lang.parser.parsing.params.{ImplicitParamClause, ParamClauses, TypeParamClause}
 import org.jetbrains.plugins.scala.lang.parser.parsing.patterns.CaseClause
 import org.jetbrains.plugins.scala.lang.parser.parsing.statements.{ConstrExpr, Dcl, Def}
@@ -33,7 +33,7 @@ import org.jetbrains.plugins.scala.lang.parser.parsing.top.TmplDef
 import org.jetbrains.plugins.scala.lang.parser.parsing.top.params.{ClassParamClause, ClassParamClauses, ImplicitClassParamClause}
 import org.jetbrains.plugins.scala.lang.parser.parsing.types._
 import org.jetbrains.plugins.scala.lang.psi.ScalaPsiUtil.functionArrow
-import org.jetbrains.plugins.scala.lang.psi.api.base._
+import org.jetbrains.plugins.scala.lang.psi.api.base.{ScAnnotationExpr, _}
 import org.jetbrains.plugins.scala.lang.psi.api.base.patterns._
 import org.jetbrains.plugins.scala.lang.psi.api.base.types._
 import org.jetbrains.plugins.scala.lang.psi.api.expr._
@@ -273,6 +273,10 @@ object ScalaPsiElementFactory {
           |def foo""".stripMargin
     createElementFromText(text).getFirstChild.getFirstChild.asInstanceOf[ScAnnotation]
   }
+
+  def createAnnotationExpression(text: String)
+                                (implicit ctx: ProjectContext): ScAnnotationExpr =
+    createElement(text)(AnnotationExpr.parse).asInstanceOf[ScAnnotationExpr]
 
   def createBlockExpressionWithoutBracesFromText(text: String)
                                                 (implicit ctx: ProjectContext): ScBlockImpl = {
