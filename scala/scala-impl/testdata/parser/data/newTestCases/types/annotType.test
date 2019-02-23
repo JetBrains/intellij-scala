@@ -47,7 +47,7 @@ ScalaFile
               Annotation
                 PsiElement(@)('@')
                 AnnotationExpression
-                  Constructor
+                  ConstructorInvocation
                     SimpleType: annot
                       CodeReferenceElement: annot
                         PsiElement(identifier)('annot')

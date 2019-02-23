@@ -34,7 +34,7 @@ ScalaFile
             PsiWhiteSpace(' ')
             ExtendsBlock
               TemplateParents
-                Constructor
+                ConstructorInvocation
                   SimpleType: ResolveTargets
                     CodeReferenceElement: ResolveTargets
                       PsiElement(identifier)('ResolveTargets')

@@ -99,7 +99,7 @@ ScalaFile
             PsiWhiteSpace(' ')
             ExtendsBlock
               TemplateParents
-                Constructor
+                ConstructorInvocation
                   ParametrizedType: Parser[U]
                     SimpleType: Parser
                       CodeReferenceElement: Parser

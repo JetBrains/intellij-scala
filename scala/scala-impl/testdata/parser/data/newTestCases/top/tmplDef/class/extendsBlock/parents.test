@@ -21,7 +21,7 @@ ScalaFile
       PsiElement(extends)('extends')
       PsiWhiteSpace(' ')
       TemplateParents
-        Constructor
+        ConstructorInvocation
           TypeWithAnnotation: A@t(2+2,3)
             SimpleType: A
               CodeReferenceElement: A
@@ -30,7 +30,7 @@ ScalaFile
               Annotation
                 PsiElement(@)('@')
                 AnnotationExpression
-                  Constructor
+                  ConstructorInvocation
                     SimpleType: t
                       CodeReferenceElement: t
                         PsiElement(identifier)('t')

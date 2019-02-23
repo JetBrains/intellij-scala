@@ -7,7 +7,7 @@ ScalaFile
       PsiWhiteSpace(' ')
       ExtendsBlock
         TemplateParents
-          Constructor
+          ConstructorInvocation
             SimpleType: M
               CodeReferenceElement: M
                 PsiElement(identifier)('M')

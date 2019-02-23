@@ -31,7 +31,7 @@ ScalaFile
         PsiElement(extends)('extends')
         PsiWhiteSpace(' ')
         TemplateParents
-          Constructor
+          ConstructorInvocation
             SimpleType: Application
               CodeReferenceElement: Application
                 PsiElement(identifier)('Application')

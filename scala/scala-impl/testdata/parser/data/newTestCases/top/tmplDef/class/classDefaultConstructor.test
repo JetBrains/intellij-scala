@@ -36,7 +36,7 @@ ScalaFile
               Annotation
                 PsiElement(@)('@')
                 AnnotationExpression
-                  Constructor
+                  ConstructorInvocation
                     SimpleType: good
                       CodeReferenceElement: good
                         PsiElement(identifier)('good')

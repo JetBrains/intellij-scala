@@ -7,7 +7,7 @@ ScalaFile
     PsiWhiteSpace(' ')
     ExtendsBlock
       TemplateParents
-        Constructor
+        ConstructorInvocation
           SimpleType: ASDGASDF
             CodeReferenceElement: ASDGASDF
               PsiElement(identifier)('ASDGASDF')

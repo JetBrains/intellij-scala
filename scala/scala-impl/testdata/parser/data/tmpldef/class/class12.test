@@ -90,7 +90,7 @@ ScalaFile
       PsiElement(extends)('extends')
       PsiWhiteSpace(' ')
       TemplateParents
-        Constructor
+        ConstructorInvocation
           ParametrizedType: Term[T]
             SimpleType: Term
               CodeReferenceElement: Term

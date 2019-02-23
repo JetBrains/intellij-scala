@@ -14,7 +14,7 @@ ScalaFile
         Annotation
           PsiElement(@)('@')
           AnnotationExpression
-            Constructor
+            ConstructorInvocation
               SimpleType: scala.serializable
                 CodeReferenceElement: scala.serializable
                   CodeReferenceElement: scala
@@ -35,7 +35,7 @@ ScalaFile
             Annotation
               PsiElement(@)('@')
               AnnotationExpression
-                Constructor
+                ConstructorInvocation
                   SimpleType: scala.specialized
                     CodeReferenceElement: scala.specialized
                       CodeReferenceElement: scala
@@ -52,7 +52,7 @@ ScalaFile
             Annotation
               PsiElement(@)('@')
               AnnotationExpression
-                Constructor
+                ConstructorInvocation
                   SimpleType: scala.specialized
                     CodeReferenceElement: scala.specialized
                       CodeReferenceElement: scala

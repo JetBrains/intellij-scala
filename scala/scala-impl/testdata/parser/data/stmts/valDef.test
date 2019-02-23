@@ -80,7 +80,7 @@ ScalaFile
             PsiWhiteSpace(' ')
             ExtendsBlock
               TemplateParents
-                Constructor
+                ConstructorInvocation
                   SimpleType: Some
                     CodeReferenceElement: Some
                       PsiElement(identifier)('Some')

@@ -21,7 +21,7 @@ ScalaFile
       PsiElement(extends)('extends')
       PsiWhiteSpace(' ')
       TemplateParents
-        Constructor
+        ConstructorInvocation
           SimpleType: super.MapProjection
             CodeReferenceElement: super.MapProjection
               SuperReference

@@ -71,7 +71,7 @@ ScalaFile
       PsiElement(extends)('extends')
       PsiWhiteSpace(' ')
       TemplateParents
-        Constructor
+        ConstructorInvocation
           ParametrizedType: ReferenceWrapper[T]
             SimpleType: ReferenceWrapper
               CodeReferenceElement: ReferenceWrapper
@@ -130,7 +130,7 @@ ScalaFile
             PsiWhiteSpace(' ')
             ExtendsBlock
               TemplateParents
-                Constructor
+                ConstructorInvocation
                   ParametrizedType: java.lang.ref.PhantomReference[T]
                     SimpleType: java.lang.ref.PhantomReference
                       CodeReferenceElement: java.lang.ref.PhantomReference

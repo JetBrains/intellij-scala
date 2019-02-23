@@ -40,7 +40,7 @@ ScalaFile
             PsiWhiteSpace(' ')
             ExtendsBlock
               TemplateParents
-                Constructor
+                ConstructorInvocation
                   TypeInParenthesis: (Manifest[Byte] @serializable)
                     PsiElement(()('(')
                     TypeWithAnnotation: Manifest[Byte] @serializable
@@ -59,7 +59,7 @@ ScalaFile
                         Annotation
                           PsiElement(@)('@')
                           AnnotationExpression
-                            Constructor
+                            ConstructorInvocation
                               SimpleType: serializable
                                 CodeReferenceElement: serializable
                                   PsiElement(identifier)('serializable')

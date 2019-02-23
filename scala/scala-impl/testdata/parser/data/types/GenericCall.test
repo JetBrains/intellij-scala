@@ -8,7 +8,7 @@ ScalaFile
         PsiWhiteSpace(' ')
         ExtendsBlock
           TemplateParents
-            Constructor
+            ConstructorInvocation
               ParametrizedType: X[Int]
                 SimpleType: X
                   CodeReferenceElement: X

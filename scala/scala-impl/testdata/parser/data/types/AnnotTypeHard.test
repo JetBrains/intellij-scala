@@ -99,7 +99,7 @@ ScalaFile
               Annotation
                 PsiElement(@)('@')
                 AnnotationExpression
-                  Constructor
+                  ConstructorInvocation
                     SimpleType: field
                       CodeReferenceElement: field
                         PsiElement(identifier)('field')
@@ -124,7 +124,7 @@ ScalaFile
               Annotation
                 PsiElement(@)('@')
                 AnnotationExpression
-                  Constructor
+                  ConstructorInvocation
                     SimpleType: field
                       CodeReferenceElement: field
                         PsiElement(identifier)('field')
@@ -132,7 +132,7 @@ ScalaFile
               Annotation
                 PsiElement(@)('@')
                 AnnotationExpression
-                  Constructor
+                  ConstructorInvocation
                     SimpleType: field
                       CodeReferenceElement: field
                         PsiElement(identifier)('field')
@@ -142,7 +142,7 @@ ScalaFile
             Annotation
               PsiElement(@)('@')
               AnnotationExpression
-                Constructor
+                ConstructorInvocation
                   SimpleType: field
                     CodeReferenceElement: field
                       PsiElement(identifier)('field')

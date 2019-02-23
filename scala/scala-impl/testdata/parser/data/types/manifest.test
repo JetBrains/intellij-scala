@@ -45,7 +45,7 @@ ScalaFile
             PsiWhiteSpace(' ')
             ExtendsBlock
               TemplateParents
-                Constructor
+                ConstructorInvocation
                   TypeInParenthesis: (Manifest[Byte] @serializable)
                     PsiElement(()('(')
                     TypeWithAnnotation: Manifest[Byte] @serializable
@@ -64,7 +64,7 @@ ScalaFile
                         Annotation
                           PsiElement(@)('@')
                           AnnotationExpression
-                            Constructor
+                            ConstructorInvocation
                               SimpleType: serializable
                                 CodeReferenceElement: serializable
                                   PsiElement(identifier)('serializable')
@@ -160,7 +160,7 @@ ScalaFile
                     PsiWhiteSpace(' ')
                     ExtendsBlock
                       TemplateParents
-                        Constructor
+                        ConstructorInvocation
                           SimpleType: BoxedByteArray
                             CodeReferenceElement: BoxedByteArray
                               PsiElement(identifier)('BoxedByteArray')
@@ -171,7 +171,7 @@ ScalaFile
                               PsiWhiteSpace(' ')
                               ExtendsBlock
                                 TemplateParents
-                                  Constructor
+                                  ConstructorInvocation
                                     ParametrizedType: Array[Byte]
                                       SimpleType: Array
                                         CodeReferenceElement: Array
@@ -209,7 +209,7 @@ ScalaFile
             PsiWhiteSpace(' ')
             ExtendsBlock
               TemplateParents
-                Constructor
+                ConstructorInvocation
                   TypeInParenthesis: (Manifest[Short] @serializable)
                     PsiElement(()('(')
                     TypeWithAnnotation: Manifest[Short] @serializable
@@ -228,7 +228,7 @@ ScalaFile
                         Annotation
                           PsiElement(@)('@')
                           AnnotationExpression
-                            Constructor
+                            ConstructorInvocation
                               SimpleType: serializable
                                 CodeReferenceElement: serializable
                                   PsiElement(identifier)('serializable')
@@ -324,7 +324,7 @@ ScalaFile
                     PsiWhiteSpace(' ')
                     ExtendsBlock
                       TemplateParents
-                        Constructor
+                        ConstructorInvocation
                           SimpleType: BoxedShortArray
                             CodeReferenceElement: BoxedShortArray
                               PsiElement(identifier)('BoxedShortArray')
@@ -335,7 +335,7 @@ ScalaFile
                               PsiWhiteSpace(' ')
                               ExtendsBlock
                                 TemplateParents
-                                  Constructor
+                                  ConstructorInvocation
                                     ParametrizedType: Array[Short]
                                       SimpleType: Array
                                         CodeReferenceElement: Array

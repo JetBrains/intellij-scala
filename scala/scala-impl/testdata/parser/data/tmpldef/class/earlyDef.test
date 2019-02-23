@@ -104,7 +104,7 @@ ScalaFile
       PsiElement(with)('with')
       PsiWhiteSpace(' ')
       TemplateParents
-        Constructor
+        ConstructorInvocation
           SimpleType: Greeting
             CodeReferenceElement: Greeting
               PsiElement(identifier)('Greeting')
