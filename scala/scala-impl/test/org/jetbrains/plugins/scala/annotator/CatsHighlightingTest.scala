@@ -73,4 +73,28 @@ class CatsHighlightingTest extends ScalaHighlightingTestBase {
       """.stripMargin))
   }
 
+  def testSCL15011(): Unit = assertNothing(errorsFromScalaCode(
+    """
+      |import cats.Monad
+      |import cats.syntax.flatMap._
+      |
+      |class Test[F[_]: Monad] {
+      |
+      |  def first(fList: F[List[F[Unit]]]): F[Unit] = {
+      |    fList.flatMap { list =>
+      |      list.reduce(_ >> _)
+      |    }
+      |  }
+      |
+      |  type Alias = F[Unit]
+      |
+      |  def second(fList: F[List[Alias]]): F[Unit] = {
+      |    fList.flatMap { list =>
+      |      list.reduce(_ >> _)
+      |    }
+      |  }
+      |}
+    """.stripMargin
+  ))
+
 }
