@@ -24,7 +24,7 @@ trait ScClass extends ScTypeDefinition with ScConstructorOwner with ScDecoratedI
     else Icons.CLASS
 
   def typeParamString: String = typeParameters
-    .map(ScalaPsiUtil.typeParamString) match {
+    .map(ScalaPsiUtil.typeParamString(_)) match {
     case Seq() => ""
     case seq => seq.mkString("[", ", ", "]")
   }

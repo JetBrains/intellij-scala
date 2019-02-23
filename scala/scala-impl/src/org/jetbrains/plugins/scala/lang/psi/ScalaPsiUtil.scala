@@ -76,23 +76,34 @@ object ScalaPsiUtil {
     else c.name
   }
 
-  def typeParamString(param: ScTypeParam): String = {
+  def typeParamString(
+    param:                ScTypeParam,
+    withLowerUpperBounds: Boolean = true,
+    withViewBounds:       Boolean = true,
+    withContextBounds:    Boolean = true,
+  ): String = {
     var paramText = param.name
+
     if (param.typeParameters.nonEmpty) {
-      paramText += param.typeParameters.map(typeParamString).mkString("[", ", ", "]")
+      paramText +=
+        param.typeParameters
+          .map(typeParamString(_, withLowerUpperBounds, withViewBounds, withContextBounds))
+          .mkString("[", ", ", "]")
     }
-    param.lowerTypeElement foreach { tp =>
-      paramText = paramText + " >: " + tp.getText
+
+    if (withLowerUpperBounds) {
+      param.lowerTypeElement.foreach(tp => paramText = paramText + " >: " + tp.getText)
+      param.upperTypeElement.foreach(tp => paramText = paramText + " <: " + tp.getText)
     }
-    param.upperTypeElement foreach { tp =>
-      paramText = paramText + " <: " + tp.getText
+
+    if (withViewBounds) {
+      param.viewTypeElement.foreach(tp => paramText = paramText + " <% " + tp.getText)
     }
-    param.viewTypeElement foreach { tp =>
-      paramText = paramText + " <% " + tp.getText
+
+    if (withContextBounds) {
+      param.contextBoundTypeElement.foreach(tp => paramText = paramText + " : " + tp.getText)
     }
-    param.contextBoundTypeElement foreach { tp =>
-      paramText = paramText + " : " + tp.getText
-    }
+
     paramText
   }
 
